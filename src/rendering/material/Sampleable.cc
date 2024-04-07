@@ -8,10 +8,6 @@
 using namespace a3d;
 
 
-Sampleable::Sampleable() {
+Sampleable::Sampleable() { }
 
-}
-
-Sampleable::~Sampleable() {
-
-}
+Sampleable::~Sampleable() { }

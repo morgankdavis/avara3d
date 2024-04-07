@@ -6,6 +6,7 @@
 
 
 #include <filesystem>
+#include <utility>
 #include <variant>
 
 #include "fastgltf/parser.hpp"
@@ -50,7 +51,7 @@ GlTFImporter::GlTFImporter(const filesystem::path& path,
 						   SceneImportOptions options):
 		_parsed{false},
 		_asset{},
-		_scene{nullptr},
+		_scene{},
 		_path{path},
 		_options{options},
 		_cameras{},
@@ -67,14 +68,14 @@ GlTFImporter::GlTFImporter(const filesystem::path& path,
 	}
 }
 
-shared_ptr<a3d::Scene> GlTFImporter::scene() {
+unique_ptr<a3d::Scene> GlTFImporter::scene() {
 
 	if (!_scene) {
 		if (parse()) {
 
 			auto startTime = Scene::Time();
 
-			auto a3dScene = make_shared<a3d::Scene>();
+			auto a3dScene = make_unique<a3d::Scene>();
 
 			auto& scenes = _asset.scenes;
 			if (!scenes.empty()) {
@@ -85,18 +86,20 @@ shared_ptr<a3d::Scene> GlTFImporter::scene() {
 
 				auto& scene = scenes[_asset.defaultScene ? *_asset.defaultScene : 0];
 
+				a3dScene->name(string(scene.name));
+
 				auto nodeIndicies = scene.nodeIndices;
 				if (!nodeIndicies.empty()) {
 
 					for (auto n: nodeIndicies) {
-						visitGlTFNode(_asset, _asset.nodes[n], a3dScene->rootNode());
+						visitGlTFNode(_asset, _asset.nodes[n], a3dScene->rootNode().get());
 					}
 
 					// TODO: throw out nodes that don't have anything attached to them, or any children?
 
 					A3D_LOG_I("Done loading scene.  Time: {}", Scene::Time() - startTime);
 
-					_scene = a3dScene;
+					_scene = std::move(a3dScene);
 				}
 				else {
 					A3D_LOG_E("No nodes in scene: {}", scene.name);
@@ -108,7 +111,7 @@ shared_ptr<a3d::Scene> GlTFImporter::scene() {
 		}
 	}
 
-	return _scene;
+	return std::move(_scene);
 }
 
 shared_ptr<a3d::Mesh> GlTFImporter::firstMesh() {
@@ -207,7 +210,7 @@ bool GlTFImporter::parse() {
 
 void GlTFImporter::visitGlTFNode(fastgltf::Asset& asset,
 								 fastgltf::Node& node,
-								 shared_ptr<a3d::Node> parent) {
+								 a3d::Node* parent) {
 
 	// TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
 
@@ -227,11 +230,11 @@ void GlTFImporter::visitGlTFNode(fastgltf::Asset& asset,
 		a3dNode->camera(cameraFromGlTFNode(asset, node));
 	}
 
-	parent->addChild(a3dNode);
-
 	for (auto c: node.children) {
-		visitGlTFNode(asset, asset.nodes[c], a3dNode);
+		visitGlTFNode(asset, asset.nodes[c], a3dNode.get());
 	}
+
+	parent->addChild(a3dNode);
 }
 
 shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlTFNode(fastgltf::Asset& asset,
@@ -249,13 +252,13 @@ shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlTFMeshIndex(fastgltf::Asset& asset
 
 		auto& mesh = asset.meshes[meshIndex];
 
-		auto elements = vector<shared_ptr<MeshElement>>();
+		auto elements = vector<unique_ptr<MeshElement>>();
 		auto materials = vector<shared_ptr<Material>>();
 
 		for (auto& primitive: mesh.primitives) {
 
 			auto element = meshElementFromGlTFPrimitive(asset, primitive);
-			if (element) elements.push_back(element);
+			if (element) elements.push_back(std::move(element));
 
 			// TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
 			auto material = ((_options & SceneImportOptions::ImportMaterials) != SceneImportOptions::None)
@@ -265,8 +268,7 @@ shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlTFMeshIndex(fastgltf::Asset& asset
 			if (material) materials.push_back(material);
 		}
 
-		auto a3dMesh = make_shared<a3d::Mesh>(elements, materials);
-		a3dMesh->name(string(mesh.name));
+		auto a3dMesh = make_shared<a3d::Mesh>(string(mesh.name), elements, materials);
 		_meshes[meshIndex] = a3dMesh;
 		return a3dMesh;
 	}
@@ -277,7 +279,7 @@ shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlTFMeshIndex(fastgltf::Asset& asset
 	return nullptr;
 }
 
-shared_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(fastgltf::Asset& asset,
+unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(fastgltf::Asset& asset,
 																		fastgltf::Primitive& primitive) {
 
 	// TODO: make this suck less
@@ -463,7 +465,7 @@ shared_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(fastgltf
 				}
 			}
 
-			return make_shared<MeshElement>(verts, faces);
+			return make_unique<MeshElement>(verts, faces);
 		}
 		else {
 			A3D_LOG_E("Missing vertex indicies.");
@@ -570,8 +572,7 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlTFPrimitive(fastgltf::Asse
 					// log error to draw attention -- at time of initial glTF integration
 					// we don't have an example file with KHR_materials_anisotropy
 					auto strength = anisotropy->anisotropyStrength;
-					A3D_LOG_E("anisotropyStrength: {}", strength);
-//					a3dMaterial->maxAnisotropy(strength);
+					A3D_LOG_I("anisotropyStrength: {}", strength);
 
 					for (auto [property, type] : a3dMaterial->properties()) {
 						if (holds_alternative<shared_ptr<Texture>>(*property)) {
@@ -599,7 +600,6 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlTFPrimitive(fastgltf::Asse
 		A3D_LOG_W("Missing material.");
 	}
 
-//	return make_shared<Material>();
 	return a3d::Material::DefaultMaterial();
 }
 
@@ -671,8 +671,8 @@ shared_ptr<a3d::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset
 				A3D_LOG_D("Creating texture image...");
 
 				auto uint8Vec = get<sources::Vector>(dataSource).bytes;
-				auto a3dBuffer = make_shared<a3d::Buffer>(uint8Vec.data(), uint8Vec.size());
-				a3dImage = make_shared<a3d::Image>(a3dBuffer, false);
+				auto a3dBuffer = make_unique<a3d::Buffer>(reinterpret_cast<std::byte*>(uint8Vec.data()), uint8Vec.size());
+				a3dImage = make_shared<a3d::Image>(std::move(a3dBuffer), false);
 			}
 			else if (holds_alternative<sources::BufferView>(dataSource)) { // .glb
 
@@ -694,8 +694,8 @@ shared_ptr<a3d::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset
 					if (auto bufferData = buffer.data; holds_alternative<sources::Vector>(bufferData)) {
 
 						auto uint8Vec = get<sources::Vector>(bufferData).bytes;
-						auto a3dBuffer = make_shared<a3d::Buffer>(&uint8Vec[byteOffset], byteLength);
-						a3dImage = make_shared<a3d::Image>(a3dBuffer, false);
+						auto a3dBuffer = make_unique<a3d::Buffer>(reinterpret_cast<std::byte*>(&uint8Vec[byteOffset]), byteLength);
+						a3dImage = make_shared<a3d::Image>(std::move(a3dBuffer), false);
 					}
 					else {
 						A3D_LOG_W("Unexpected texture data.");

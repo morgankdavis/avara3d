@@ -23,7 +23,7 @@ namespace a3d {
 
 	public:
 
-		MotionState(PhysicsBody* body);
+		explicit MotionState(PhysicsBody& body);
 
 /*********************************************************************************************
 	btMotionState
@@ -42,7 +42,7 @@ namespace a3d {
 	Private
  *********************************************************************************************/
 
-		btTransform 		_graphicsWorldTransform;
+//		btTransform 		_visualWorldTransform;
 		PhysicsBody* 		_body;
 	};
 }

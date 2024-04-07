@@ -61,9 +61,9 @@ Window::Window(RenderingApi renderAPI,
 			   bool fullScreen,
 			   bool enableHighDPI,
 			   AntialiasingMode antialiasingMode):
-		RenderContext(renderAPI),
-		_glfwWindow(nullptr),
-		_cursorCaptured(false) {
+		RenderContext{renderAPI},
+		_glfwWindow{},
+		_cursorCaptured{false} {
 
 	if (InitGLFW()) {
 #ifdef OPENGL_DESKTOP
@@ -79,7 +79,10 @@ Window::Window(RenderingApi renderAPI,
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 #endif
 
-		// glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
+        // TODO: test high-dpi on other platforms (see glfwGetMonitorContentScale() below)
+#ifdef MACOS
+		glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
+#endif
 
 		auto viewportWidth = width;
 		auto viewportHeight = height;
@@ -214,7 +217,7 @@ string Window::title() const {
 	return glfwGetWindowTitle(_glfwWindow.get());
 }
 
-void Window::title(string title) {
+void Window::title(const string& title) {
 
 	glfwSetWindowTitle(_glfwWindow.get(), title.c_str());
 }

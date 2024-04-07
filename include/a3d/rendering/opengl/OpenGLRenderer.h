@@ -39,33 +39,17 @@ namespace a3d {
 
 	public:
 
-		/* <A3D_MeshElement : <gl_vboHandle, gl_vaoHandle, gl_iboHandle>> */
+		/* <a3d::MeshElement* : <gl_vbo, gl_vao, gl_ibo>> */
 		using MeshElementGLMapping =
-				std::map<std::shared_ptr<MeshElement>, std::tuple<
-						unsigned,
-						unsigned,
-						unsigned>>;
+				std::map<MeshElement*, std::tuple<unsigned, unsigned, unsigned>>;
 
-		/* <A3D_Texture : <gl_textureHandle> */
+		/* <a3d::Texture* : <gl_textureHandle> */
 		using TextureGLMapping =
-				std::map<std::shared_ptr<Texture>, unsigned>;
+				std::map<Texture*, unsigned>;
 
-		/* <set<A3D_Line> : <gl_vboHandle, gl_vaoHandle>> */
-		using LineSetGLMapping =
-				std::map<std::shared_ptr<LineSet>, std::pair<
-						unsigned,
-						unsigned>>;
-
-		/* <set<A3D_Point> : <gl_vboHandle, gl_vaoHandle>> */
-		using PointSetGLMapping =
-				std::map<std::shared_ptr<PointSet>, std::pair<
-						unsigned,
-						unsigned>>;
-
-		/* <A3D_Mesh : set<A3D_Line>> */
-		using MeshAABBLineSetMapping =
-				std::map<std::shared_ptr<Mesh>,
-						std::shared_ptr<LineSet>>;
+		/* <vector<a3d::Line>>* : <gl_vbo, gl_vao>> */
+		using LinesGLMapping =
+				std::map<const std::vector<Line>*, std::pair<unsigned, unsigned>>;
 
 /*********************************************************************************************
 	Lifecycle
@@ -74,7 +58,9 @@ namespace a3d {
 		OpenGLRenderer();
 		OpenGLRenderer(const OpenGLRenderer& other) = delete; // copy constructor
 		OpenGLRenderer& operator=(const OpenGLRenderer& other) = delete; // copy assignment
-		~OpenGLRenderer();
+		OpenGLRenderer(OpenGLRenderer&& other) = delete; // move constructor
+		OpenGLRenderer& operator=(OpenGLRenderer&& other) = delete; // move assignment
+		~OpenGLRenderer() override;
 
 /*********************************************************************************************
 	Renderer
@@ -96,29 +82,25 @@ namespace a3d {
 		void 						render(const Scene& scene,
 										   const DebugOptions& debugOptions,
 										   Stats& stats) override;
-		void 						render(std::shared_ptr<Mesh> mesh,
+		void 						render(Mesh& mesh,
 										   const glm::mat4& modelMat,
 										   const glm::mat4& viewMat,
 										   const glm::mat4& projectionMat,
 										   const DebugOptions& debugOptions,
 										   Stats& stats) override;
-		void 						render(std::shared_ptr<MeshElement> element,
+		void 						render(MeshElement& element,
 										   Material& material,
 										   const glm::mat4& modelMat,
 										   const glm::mat4& viewMat,
 										   const glm::mat4& projectionMat,
 										   const DebugOptions& debugOptions,
 										   Stats& stats) override;
-		void 						render(std::shared_ptr<LineSet> lines,
-										   const glm::mat4& modelMat,
-										   const glm::mat4& viewMat,
-										   const glm::mat4& projectionMat) override;
-		void 						render(std::shared_ptr<PointSet> points,
+		void 						render(const std::vector<Line>& lines,
 										   const glm::mat4& modelMat,
 										   const glm::mat4& viewMat,
 										   const glm::mat4& projectionMat) override;
 
-		std::shared_ptr<Image> 		snapshot(const RenderContext& context) const override;
+		std::unique_ptr<Image> 		snapshot(const RenderContext& context) const override;
 
 /*********************************************************************************************
 	Private
@@ -126,21 +108,14 @@ namespace a3d {
 
 	private:
 
-		MeshElementGLMapping 					_meshElementGLMapping;
-		TextureGLMapping						_textureGLMapping;
-		LineSetGLMapping						_lineSetGLMapping;
-		PointSetGLMapping						_pointSetGLMapping;
-
-		MeshAABBLineSetMapping					_meshAABBLineSetMapping;
-
-		std::unordered_set<std::shared_ptr<MeshElement>>	_activeMeshElements;
-		std::unordered_set<std::shared_ptr<Texture>>		_activeTextures;
-		std::unordered_set<std::shared_ptr<LineSet>>		_activeLineSets;
-		std::unordered_set<std::shared_ptr<PointSet>>		_activePointSets;
-
-		unsigned								_glEnvironmentUBO;
-		
-		std::shared_ptr<Font>					_overlayFont;
+		MeshElementGLMapping 							_meshElementGLMapping;
+		TextureGLMapping								_textureGLMapping;
+		LinesGLMapping									_linesGLMapping;
+		std::unordered_set<MeshElement*>				_activeMeshElements;
+		std::unordered_set<Texture*>					_activeTextures;
+		std::unordered_set<const std::vector<Line>*>	_activeLines;
+		unsigned										_glEnvironmentUBO;
+		std::unique_ptr<Font>							_overlayFont;
 	};
 }
 

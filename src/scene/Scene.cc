@@ -11,6 +11,7 @@
 #include <chrono>
 #include <filesystem>
 #include <thread>
+#include <utility>
 
 #include "a3d/Buffer.h"
 #include "a3d/Color.h"
@@ -37,7 +38,7 @@ using namespace std;
 using namespace std::filesystem;
 
 
-constexpr float FRAMETIME_AVERAGING_INTERVAL = .25;
+constexpr double FRAMETIME_AVERAGING_INTERVAL = .5;
 
 
 /*********************************************************************************************
@@ -55,7 +56,7 @@ static void							UpdateFrameTimeStats(Stats& stats, double time);
 	Public Static
  *********************************************************************************************/
 
-shared_ptr<Scene> Scene::FromFile(const filesystem::path& path,
+unique_ptr<Scene> Scene::FromFile(const filesystem::path& path,
 								  SceneImportOptions options) {
 	return GlTFImporter(path, options).scene();
 }
@@ -71,135 +72,185 @@ double Scene::Time() {
  *********************************************************************************************/
 
 Scene::Scene():
-		_rootNode(make_shared<Node>("root node")),
-		_visualWorld(nullptr),
-		_physicalWorld(nullptr),
-		_inputManager(nullptr),
-		_debugOptions(DebugOptions::None),
-		_stats({}),
-		_running(false),
-		_paused(false),
-		_update(nullptr) {
+		_name{},
+		_rootNode{make_shared<Node>("root node")},
+		_visualWorld{},
+		_physicalWorld{},
+		_inputManager{},
+		_debugOptions{DebugOptions::None},
+		_stats{},
+		_running{false},
+		_paused{false},
+		_update{} {
 
-	_rootNode->attachedToScene(this);
+	_rootNode->attachedToScene(*this);
 }
 
-Scene::Scene(shared_ptr<VisualWorld> visualWorld,
-			 shared_ptr<PhysicalWorld> physicsWorld,
-			 shared_ptr<InputManager> inputManager):
+Scene::Scene(const string& name):
+	Scene() {
+
+	_name = name;
+}
+
+Scene::Scene(unique_ptr<VisualWorld> visualWorld,
+			 unique_ptr<PhysicalWorld> physicsWorld,
+			 unique_ptr<InputManager> inputManager):
 		Scene() {
 
-	_visualWorld = visualWorld;
-	_physicalWorld = physicsWorld;
-	_inputManager = inputManager;
+	_visualWorld = std::move(visualWorld);
+	_physicalWorld = std::move(physicsWorld);
+	_inputManager = std::move(inputManager);
 
-	if (_visualWorld) _visualWorld->attachedToScene(this);
-	if (_physicalWorld) _physicalWorld->attachedToScene(this);
-	if (_inputManager) _inputManager->attachedToScene(this);
+	if (_visualWorld) _visualWorld->attachedToScene(*this);
+	if (_physicalWorld) _physicalWorld->attachedToScene(*this);
+	if (_inputManager) _inputManager->attachedToScene(*this);
+}
+
+Scene::Scene(const string& name,
+			 unique_ptr<VisualWorld> visualWorld,
+			 unique_ptr<PhysicalWorld> physicsWorld,
+			 unique_ptr<InputManager> inputManager):
+		Scene(std::move(visualWorld), std::move(physicsWorld), std::move(inputManager)) {
+
+	_name = name;
 }
 
 Scene::~Scene() {
-	A3D_LOG_D("Destroying Scene {:p}", static_cast<void*>(this));
 
-	if (_rootNode) _rootNode->detachedFromScene(this);
-	if (_visualWorld) _visualWorld->detachedFromScene(this);
-	if (_physicalWorld) _physicalWorld->detachedFromScene(this);
-	if (_inputManager) _inputManager->detachedFromScene(this);
+	if (_name != nullopt) {
+		A3D_LOG_D("Destroying Scene '{}' ({:p})", *_name, static_cast<void*>(this));
+	}
+	else {
+		A3D_LOG_D("Destroying Scene {:p}", static_cast<void*>(this));
+	}
+
+	if (_rootNode) _rootNode->detachedFromScene(*this);
+	if (_visualWorld) _visualWorld->detachedFromScene(*this);
+	if (_physicalWorld) _physicalWorld->detachedFromScene(*this);
+	if (_inputManager) _inputManager->detachedFromScene(*this);
 }
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
-shared_ptr<Node> Scene::rootNode() const {
+const optional<std::string>& Scene::name() const {
+	return _name;
+}
+
+void Scene::name(const string& name) {
+	_name = name;
+}
+
+const shared_ptr<Node>& Scene::rootNode() const {
 	return _rootNode;
 }
 
-void Scene::rootNode(shared_ptr<Node> node) {
+void Scene::rootNode(const shared_ptr<Node>& node) {
 
 //	if () // check they are not the same
 	if (_rootNode) {
-		_rootNode->detachedFromScene(this);
+		_rootNode->detachedFromScene(*this);
 	}
 
+	//_rootNode = std::move(node);
 	_rootNode = node;
 
 	if (_rootNode) {
-		_rootNode->attachedToScene(this);
+		_rootNode->attachedToScene(*this);
 	}
 }
 
-shared_ptr<VisualWorld> Scene::visualWorld() const {
-	return _visualWorld;
+
+//Node* Scene::rootNode() const {
+//	return _rootNode.get();
+//}
+//
+//void Scene::rootNode(unique_ptr<Node>& node) {
+//
+////	if () // check they are not the same
+//	if (_rootNode) {
+//		_rootNode->detachedFromScene(this);
+//	}
+//
+//	_rootNode = std::move(node);
+//
+//	if (_rootNode) {
+//		_rootNode->attachedToScene(this);
+//	}
+//}
+
+VisualWorld* Scene::visualWorld() const {
+	return _visualWorld.get();
 }
 
-void Scene::visualWorld(shared_ptr<VisualWorld> world) {
+void Scene::visualWorld(unique_ptr<VisualWorld> world) {
 
 //	if (world != _visualWorld) {
 
 		if (_visualWorld) {
 
-			_visualWorld->detachedFromScene(this);
+			_visualWorld->detachedFromScene(*this);
 
 			if (_rootNode) {
-				_rootNode->visualWorldDetachedFromScene(_visualWorld.get(), this);
+				_rootNode->visualWorldDetachedFromScene(*_visualWorld, *this);
 			}
 		}
 
-		_visualWorld = world;
+		_visualWorld = std::move(world);
 
 		if (_visualWorld) {
 
-			_visualWorld->attachedToScene(this);
+			_visualWorld->attachedToScene(*this);
 
 			if (_rootNode) {
-				_rootNode->visualWorldAttachedToScene(_visualWorld.get(), this);
+				_rootNode->visualWorldAttachedToScene(*_visualWorld, *this);
 			}
 		}
 //	}
 }
 
-shared_ptr<PhysicalWorld> Scene::physicalWorld() const {
-	return _physicalWorld;
+PhysicalWorld* Scene::physicalWorld() const {
+	return _physicalWorld.get();
 }
 
-void Scene::physicalWorld(shared_ptr<PhysicalWorld> world) {
+void Scene::physicalWorld(unique_ptr<PhysicalWorld> world) {
 
 	if (_physicalWorld) {
 
-		_physicalWorld->detachedFromScene(this);
+		_physicalWorld->detachedFromScene(*this);
 
 		if (_rootNode) {
-			_rootNode->physicalWorldDetachedFromScene(_physicalWorld.get(), this);
+			_rootNode->physicalWorldDetachedFromScene(*_physicalWorld, *this);
 		}
 	}
 
-	_physicalWorld = world;
+	_physicalWorld = std::move(world);
 
-	if (world) {
+	if (_physicalWorld) {
 
-		world->attachedToScene(this);
+		_physicalWorld->attachedToScene(*this);
 
 		if (_rootNode) {
-			_rootNode->physicalWorldAttachedToScene(world.get(), this);
+			_rootNode->physicalWorldAttachedToScene(*_physicalWorld, *this);
 		}
 	}
 }
 
-shared_ptr<InputManager> Scene::inputManager() const {
-	return _inputManager;
+InputManager* Scene::inputManager() const {
+	return _inputManager.get();
 }
 
-void Scene::inputManager(shared_ptr<InputManager> inputManager) {
+void Scene::inputManager(unique_ptr<InputManager> inputManager) {
 
 	if (_inputManager) {
-		_inputManager->detachedFromScene(this);
+		_inputManager->detachedFromScene(*this);
 	}
 
-	_inputManager = inputManager;
+	_inputManager = std::move(inputManager);
 
-	if (inputManager) {
-		inputManager->attachedToScene(this);
+	if (_inputManager) {
+		_inputManager->attachedToScene(*this);
 	}
 }
 
@@ -349,7 +400,7 @@ void UpdateUserTimeStats(Stats& stats, double startTime, double endTime) {
 	auto updateTime = endTime - startTime;
 	stats.currentUsertime = updateTime * 1000.0f;
 
-	static const double FRAMETIME_AVERAGING_INTERVAL = .25; // TEMPORARY
+	constexpr double FRAMETIME_AVERAGING_INTERVAL = .5; // TEMPORARY
 
 	// average
 	static double avg = 0.0;

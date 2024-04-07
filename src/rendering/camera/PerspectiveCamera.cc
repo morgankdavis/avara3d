@@ -7,6 +7,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 
 #include "a3d/Utilities.h"
+#include "a3d/diagnostic/logging/Logger.h"
 
 
 using namespace a3d;
@@ -15,28 +16,40 @@ using namespace glm;
 
 
 PerspectiveCamera::PerspectiveCamera():
-		Camera(),
-		_zNear(0.1),
-		_zFar(1000.0),
-		_yFov(radians(45.0)),
-		_aspectRatio(0) {}
+		Camera{},
+		_zNear{0.1},
+		_zFar{1000.0},
+		_yFov{radians(45.0)},
+		_aspectRatio{0} {}
 
 PerspectiveCamera::PerspectiveCamera(float zNear, float zFar, float yFov):
-		Camera(),
-		_zNear(zNear),
-		_zFar(zFar),
-		_yFov(yFov) {
+		Camera{},
+		_zNear{zNear},
+		_zFar{zFar},
+		_yFov{yFov},
+		_aspectRatio{0} {
 
 	constructProjectionMatrix();
 }
 
-PerspectiveCamera::PerspectiveCamera(string name, float zNear, float zFar, float yFov):
-		Camera(name),
-		_zNear(zNear),
-		_zFar(zFar),
-		_yFov(yFov) {
+PerspectiveCamera::PerspectiveCamera(const string& name, float zNear, float zFar, float yFov):
+		Camera{name},
+		_zNear{zNear},
+		_zFar{zFar},
+		_yFov{yFov},
+		_aspectRatio{0} {
 
 	constructProjectionMatrix();
+}
+
+PerspectiveCamera::~PerspectiveCamera() {
+
+	if (_name != nullopt) {
+		A3D_LOG_D("Destroying PerspectiveCamera '{}' ({:p})", *_name, static_cast<void*>(this));
+	}
+	else {
+		A3D_LOG_D("Destroying PerspectiveCamera {:p}", static_cast<void*>(this));
+	}
 }
 
 float PerspectiveCamera::zNear() const {

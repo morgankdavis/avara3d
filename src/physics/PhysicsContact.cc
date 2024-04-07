@@ -26,19 +26,19 @@ PhysicsContact::PhysicsContact() {
 	Public
  *********************************************************************************************/
 
-shared_ptr<Node> PhysicsContact::nodeA() const {
+weak_ptr<Node> PhysicsContact::nodeA() const {
 	return _nodeA;
 }
 
-shared_ptr<Node> PhysicsContact::nodeB() const {
+weak_ptr<Node> PhysicsContact::nodeB() const {
 	return _nodeB;
 }
 
-vec3 PhysicsContact::contactPoint() const {
+const vec3& PhysicsContact::contactPoint() const {
 	return _contactPoint;
 }
 
-vec3 PhysicsContact::contactNormal() const {
+const vec3& PhysicsContact::contactNormal() const {
 	return _contactNormal;
 }
 

@@ -15,8 +15,8 @@ using namespace a3d;
  *********************************************************************************************/
 
 CylinderPhysicsShape::CylinderPhysicsShape(float radius, float height):
-		_radius(radius),
-		_height(height) {}
+		_radius{radius},
+		_height{height} {}
 
 CylinderPhysicsShape::~CylinderPhysicsShape() {}
 

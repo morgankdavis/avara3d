@@ -32,15 +32,13 @@ namespace a3d {
 	
 	class WindowInputManager : public InputManager {
 
-		static std::shared_ptr<WindowInputManager>	InputManagerFromGLFWWindow(GLFWwindow* glfwWindow);
-
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 
 	public:
 
-		WindowInputManager(std::shared_ptr<Window> window);
+		WindowInputManager(Window* window);
 		WindowInputManager(const InputManager& other) = delete; // copy constructor
 		WindowInputManager& operator=(const InputManager& other) = delete; // copy assignment
 		~WindowInputManager();
@@ -84,7 +82,7 @@ namespace a3d {
 		void 							unregisterGLFWCallbacks(GLFWwindow* glfwWindow);
 
 		bool							_usingManyMouse;
-		std::weak_ptr<Window>			_window;
+		Window*							_window;
 	};
 }
 

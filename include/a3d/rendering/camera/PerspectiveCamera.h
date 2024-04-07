@@ -21,7 +21,8 @@ namespace a3d {
 
 		PerspectiveCamera();
 		PerspectiveCamera(float zNear, float zFar, float yFov);
-		PerspectiveCamera(std::string name, float zNear, float zFar, float yFov);
+		PerspectiveCamera(const std::string& name, float zNear, float zFar, float yFov);
+		~PerspectiveCamera() override;
 
 /*********************************************************************************************
 	Public
@@ -33,7 +34,7 @@ namespace a3d {
 		float 					zFar() const;
 		void				 	zFar(float zFar);
 
-		float 					yFov() const; // radians
+		float 					yFov() const;
 		void	 				yFov(float fov);
 
 		float 					aspectRatio() const;

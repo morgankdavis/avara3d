@@ -24,9 +24,10 @@ using namespace std;
 
 shared_ptr<Mesh> Sphere::Mesh(float radius,
 							  int segments,
-							  shared_ptr<Material> material) {
+							  const shared_ptr<Material> material) {
 
-	return make_shared<a3d::Mesh>(make_shared<Sphere>(radius,
+	return make_shared<a3d::Mesh>("Sphere",
+								  make_unique<Sphere>(radius,
 													  segments),
 								  material);
 }
@@ -37,7 +38,7 @@ shared_ptr<Mesh> Sphere::Mesh(float radius,
 
 Sphere::Sphere(float radius,
 			   int segments):
-		MeshElement(),
+		MeshElement{},
 		_radius{radius},
 		_segments{segments} {
 

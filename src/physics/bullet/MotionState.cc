@@ -19,9 +19,9 @@ using namespace a3d;
 	Lifecycle
  *********************************************************************************************/
 
-MotionState::MotionState(PhysicsBody* body):
-		btMotionState(),
-		_body(body) { }
+MotionState::MotionState(PhysicsBody& body):
+		btMotionState{},
+		_body{&body} { }
 
 /*********************************************************************************************
 	btMotionState
@@ -30,16 +30,22 @@ MotionState::MotionState(PhysicsBody* body):
 // apply node transform to kinematic physics body
 void MotionState::getWorldTransform(btTransform &transform) const {
 
-	if (auto node = _body->node()) {
+	if (auto node = _body->node().lock()) {
 		transform = BTTransformFromGLMMat4(node->worldTransform());
+	}
+	else {
+		A3D_LOG_W("node is null.");
 	}
 }
 
 // apply dynamic physics body transform to node
 void MotionState::setWorldTransform(const btTransform& transform) {
 
-	if (auto node = _body->node()) {
+	if (auto node = _body->node().lock()) {
 		node->applyPhysicsTransform(GLMMat4FromBTTransform(transform));
+	}
+	else {
+		A3D_LOG_W("node is null.");
 	}
 }
 

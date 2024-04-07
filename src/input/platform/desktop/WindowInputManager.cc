@@ -35,27 +35,27 @@ constexpr bool	FLIP_MOUSE_HORIZONTAL =		false;
 	Static Prototypes
  *********************************************************************************************/
 
-static std::shared_ptr<WindowInputManager> InputManagerFromGLFWWindow(GLFWwindow* glfwWindow);
+static WindowInputManager* InputManagerFromGLFWWindow(GLFWwindow* glfwWindow);
 
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 
-WindowInputManager::WindowInputManager(shared_ptr<Window> window):
-	InputManager(),
-	_usingManyMouse(false),
-	_window(window) {
+WindowInputManager::WindowInputManager(Window* window):
+	InputManager{},
+	_usingManyMouse{false},
+	_window{window} {
 
-	registerGLFWCallbacks(window->glfwWindow());
+		registerGLFWCallbacks(window->glfwWindow());
 	initMouseInput();
 }
 
 WindowInputManager::~WindowInputManager() {
 	A3D_LOG_D("Destroying WindowInputManager {:p}", static_cast<void*>(this));
 
-//	quitManyMouse();
-	if (auto window = _window.lock()) {
-		unregisterGLFWCallbacks(window->glfwWindow());
+	quitManyMouse();
+	if (_window) {
+		unregisterGLFWCallbacks(_window->glfwWindow());
 	}
 }
 
@@ -102,9 +102,9 @@ void WindowInputManager::update() {
 		}
 	}
 
-    // needed for non-mouse events (keyboard, not joystrick, OTHER NON-INPUT??)
-    // https://www.glfw.org/docs/latest/group__window.html#ga37bd57223967b4211d60ca1a0bf3c832
-    _window.lock()->pollInput();
+	// needed for non-mouse events (keyboard, not joystrick, OTHER NON-INPUT??)
+	// https://www.glfw.org/docs/latest/group__window.html#ga37bd57223967b4211d60ca1a0bf3c832
+	_window->pollInput();
 }
 
 /*********************************************************************************************
@@ -146,7 +146,7 @@ void WindowInputManager::GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
 	static double lastXPos = xPos;
 	static double lastYPos = yPos;
 
-	if (auto window = inputManager->_window.lock()) {
+	if (auto window = inputManager->_window; window) {
 		if (window->cursorCaptured()) {
 
 			double xDelta = lastXPos - xPos;
@@ -204,8 +204,8 @@ void WindowInputManager::initMouseInput() {
 
 	if (glfwRawMouseMotionSupported()) {
 		A3D_LOG_I("Using GLFW raw mouse input.");
-		glfwSetInputMode(_window.lock()->glfwWindow(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-		glfwSetCursorPosCallback(_window.lock()->glfwWindow(),
+		glfwSetInputMode(_window->glfwWindow(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+		glfwSetCursorPosCallback(_window->glfwWindow(),
 								 WindowInputManager::GLFWCursorPositionCallback);
 		_usingManyMouse = false;
 	}
@@ -262,10 +262,10 @@ void WindowInputManager::unregisterGLFWCallbacks(GLFWwindow* glfwWindow) {
 	Static
  *********************************************************************************************/
 
-shared_ptr<WindowInputManager> WindowInputManager::InputManagerFromGLFWWindow(GLFWwindow* glfwWindow) {
+WindowInputManager* InputManagerFromGLFWWindow(GLFWwindow* glfwWindow) {
 
 	auto window = (Window*)glfwGetWindowUserPointer(glfwWindow);
-	return static_pointer_cast<WindowInputManager>(window->visualWorld()->scene()->inputManager());
+	return dynamic_cast<WindowInputManager*>(window->visualWorld()->scene()->inputManager());
 }
 
 

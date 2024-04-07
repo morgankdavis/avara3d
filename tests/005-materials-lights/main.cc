@@ -9,6 +9,7 @@
 #include <iostream>
 #include <memory>
 #include <vector>
+#include <utility>
 
 #include "glm/glm.hpp"
 
@@ -28,12 +29,14 @@ void WillRenderCallback(VisualWorld& world, float time);
 void DidRenderCallback(VisualWorld& world, float time);
 
 
+void InitLog();
 void SetAllFilterModes(FilterMode mode, Scene& scene);
 void SetAllMaxAnisotropy(float anisotropy, Scene& scene);
 void ProcessEdit(Node& node, set<Key>& keysDown, set<Key>& keysPressed);
 
 
-constexpr bool					USE_HIGH_DPI =			false;
+constexpr LogLevel				LOG_LEVEL =				LogLevel::Debug;
+constexpr bool					ENABLE_HIGH_DPI =		true;
 constexpr unsigned				WINDOW_WIDTH =			1024;
 constexpr unsigned				WINDOW_HEIGHT =			768;
 constexpr bool					FULLSCREEN =			false;
@@ -44,67 +47,60 @@ constexpr bool 					ORTHO_CAMERA =			false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
 
 
-std::shared_ptr<a3d::Logger>	logger;
+std::unique_ptr<a3d::Logger>	logger;
 a3d::Node*						g_pointLightNode;
 
 
 int main(int argc, const char* argv[]) {
 
-	logger = make_shared<Logger>("test-005", Logger::MainLogger()->sinks());
-	logger->level(LogLevel::Debug);
-	Logger::MainLogger()->level(LogLevel::Debug);
-	LOG_I(logger, "");
+	InitLog();
 
-	auto window = make_shared<Window>(RenderingApi::OpenGL,
+	auto window = make_unique<Window>(RenderingApi::OpenGL,
 									  *utils::ExecutableName(),
 									  WINDOW_WIDTH,
 									  WINDOW_HEIGHT,
 									  FULLSCREEN,
-									  USE_HIGH_DPI,
+									  ENABLE_HIGH_DPI,
 									  ANTIALIAS_MODE);
 	window->vSyncEnabled(ENABLE_VSYNC);
 	window->cursorCaptured(CAPTURE_CURSOR);
 
-	auto visualWorld = make_shared<VisualWorld>(window);
+	auto visualWorld = make_unique<VisualWorld>(window.get());
 	visualWorld->fogStartDistance(500.0);
 	visualWorld->fogEndDistance(5000.0);
 	visualWorld->fogDensityExponent(1.0);
 	visualWorld->fogColor(Color::LightGray());
 	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
 	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
-	visualWorld->background(make_shared<Texture>(CubeImageNamed("nebula1_blue", "png")));
+	visualWorld->background(make_shared<Texture>(shared_ptr(std::move(CubeImageNamed("nebula1_blue", "png")))));
 
-	auto inputManager = make_shared<WindowInputManager>(window);
+	auto inputManager = make_unique<WindowInputManager>(window.get());
 
 	auto scene = SceneNamed("cat_island/cat_island", SceneImportOptions::ImportMeshes
 													 | SceneImportOptions::ImportMaterials
 													 | SceneImportOptions::ImportCameras);
 
-	scene->visualWorld(visualWorld);
-	scene->inputManager(inputManager);
+	scene->visualWorld(std::move(visualWorld));
+	scene->inputManager(std::move(inputManager));
 	scene->debugOptions(DebugOptions::ShowStatsOverlay);
 	scene->update(bind(&UpdateCallback, _1, _2));
 
-	auto ambientLight = make_shared<Light>(LightType::Ambient, make_shared<Color>(0.2f, 0.2, 0.2, 1.0));
+	auto ambientLight = make_unique<Light>(LightType::Ambient, make_unique<Color>(0.2f, 0.2, 0.2, 1.0));
 	ambientLight->name("ambient");
-	auto ambientLightNode = Node::LightNode(ambientLight);
-	ambientLightNode = ambientLightNode;
-	scene->rootNode()->addChild(ambientLightNode);
+	auto ambientLightNode = Node::LightNode(std::move(ambientLight));
+	scene->rootNode()->addChild(std::move(ambientLightNode));
 
-	auto pointLight = make_shared<Light>(LightType::Point, Color::White());
+	auto pointLight = make_unique<Light>(LightType::Point, Color::White());
 	pointLight->name("point");
 	pointLight->attenuationFactor(0.00005);
-	auto pointLightNode = Node::LightNode(pointLight);
-	g_pointLightNode = pointLightNode.get();
-	scene->rootNode()->addChild(pointLightNode);
-	auto materialProperty = pointLight->color();
+	auto pointLightNode = Node::LightNode(std::move(pointLight));
+	g_pointLightNode = pointLightNode.get(); // <- how is this not crashing?
 	auto material = make_shared<Material>();
 	material->name("LIGHT material");
-	material->emission(materialProperty);
+	material->emission(std::move(Color::White()));
 	auto geometry = Sphere::Mesh(1.5, 4, material);
-	//geometry->addMaterial(material);
-//	geometry->replaceMaterial(0, material); // TODO: EHHHHHHHH??????????/
-	pointLightNode->mesh(geometry);
+	pointLightNode->mesh(std::move(geometry));
+	scene->rootNode()->addChild(std::move(pointLightNode));
 
 	if (ORTHO_CAMERA) {
 		auto orthoCameraNode = Node::CameraNode(
@@ -162,7 +158,7 @@ void UpdateCallback(Scene& scene, float time) {
 	float deltaSeconds = time - previousSeconds;
 	previousSeconds = time;
 
-	auto window = static_pointer_cast<Window>(scene.visualWorld()->renderContext());
+	auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 
 	// get input
 
@@ -249,15 +245,14 @@ void UpdateCallback(Scene& scene, float time) {
 
 		// move camera
 
-		auto pov = scene.visualWorld()->pointOfView();
-		if (pov) {
+		if (auto pov = scene.visualWorld()->pointOfView().lock()) {
 
 			vec2 mouseScrollWheelDelta = scene.inputManager()->mouseScrollWheelDelta();
 			if (mouseScrollWheelDelta.y) {
 
 				static const float FOV_SPEED = 2.5; // degrees/roll
 
-				shared_ptr<PerspectiveCamera> camera = static_pointer_cast<PerspectiveCamera>(pov->camera());
+				auto camera = dynamic_pointer_cast<PerspectiveCamera>(pov->camera());
 				auto fov = camera->yFov();
 				fov += mouseScrollWheelDelta.y * -radians(FOV_SPEED);
 				camera->yFov(fov);
@@ -357,11 +352,27 @@ void DidRenderCallback(VisualWorld& world, float time) {
 	Static
  ***************************************************************************************/
 
+void InitLog() {
+
+	string executableName = *utils::ExecutableName();
+	auto nativeSink = make_unique<StdOutLoggerSink>();
+	auto fileSink = make_unique<FileLoggerSink>(*(utils::ExecutableDirectory())
+												/ (executableName + string(".log")));
+	auto sinks = unordered_set<unique_ptr<LoggerSink>>();
+	sinks.insert(std::move(nativeSink));
+	sinks.insert(std::move(fileSink));
+
+	logger = make_unique<Logger>(executableName, std::move(sinks));
+	logger->level(LOG_LEVEL);
+
+	Logger::MainLogger().level(LOG_LEVEL);
+}
+
 void SetAllFilterModes(FilterMode mode, Scene& scene) {
 
-	cout << "SetAllFilterModes: " << (unsigned)mode << endl;
+	LOG_I(logger, "SetAllFilterModes: {}", (unsigned)mode);
 
-	for (auto node : scene.rootNode()->children(true)) {
+	for (auto& node : scene.rootNode()->children(true)) {
 
 		auto geometry = node->mesh();
 		if (geometry) {
@@ -384,9 +395,9 @@ void SetAllFilterModes(FilterMode mode, Scene& scene) {
 
 void SetAllMaxAnisotropy(float anisotropy, Scene& scene) {
 
-	cout << "SetAllMaxAnisotropy: " << anisotropy << endl;
+	LOG_I(logger, "SetAllMaxAnisotropy: {}", anisotropy);
 
-	for (auto node : scene.rootNode()->children(true)) {
+	for (auto& node : scene.rootNode()->children(true)) {
 
 		auto geometry = node->mesh();
 		if (geometry) {

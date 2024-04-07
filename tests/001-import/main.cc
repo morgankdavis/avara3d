@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <memory>
+#include <utility>
 
 #include "glm/gtc/matrix_transform.hpp"
 
@@ -27,7 +28,7 @@ void WillRenderCallback(VisualWorld& world, float time);
 void DidRenderCallback(VisualWorld& world, float time);
 
 
-constexpr bool					USE_HIGH_DPI =			false;
+constexpr bool					ENABLE_HIGH_DPI =		true;
 constexpr unsigned				WINDOW_WIDTH =			1024;
 constexpr unsigned				WINDOW_HEIGHT =			768;
 constexpr bool					FULLSCREEN =			false;
@@ -44,25 +45,25 @@ int main(int argc, const char* argv[]) {
 
 	cout << "test001::main()\n" << endl;
 
-	auto window = make_shared<Window>(RenderingApi::OpenGL,
+	auto window = make_unique<Window>(RenderingApi::OpenGL,
 									  *utils::ExecutableName(),
 									  WINDOW_WIDTH,
 									  WINDOW_HEIGHT,
 									  FULLSCREEN,
-									  USE_HIGH_DPI,
+									  ENABLE_HIGH_DPI,
 									  ANTIALIAS_MODE);
 	window->vSyncEnabled(ENABLE_VSYNC);
 	window->cursorCaptured(CAPTURE_CURSOR);
 
-	auto visualWorld = make_shared<VisualWorld>(window);
+	auto visualWorld = make_unique<VisualWorld>(window.get());
 	auto backgroundColor = make_shared<Color>(109.0f / 255.0f, 136.0f / 255.0f, 164.0f / 255.0f, 1.0f);
 	auto background = MaterialProperty(backgroundColor);
 	visualWorld->background(background); // TODO: is this copying?
 	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
 	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
 
-	auto scene = make_shared<Scene>();
-	scene->visualWorld(visualWorld);
+	auto scene = make_unique<Scene>();
+	scene->visualWorld(std::move(visualWorld));
 	scene->update(bind(&UpdateCallback, _1, _2));
 
 //	auto options = SceneImportOptions::ImportAll;
@@ -122,8 +123,8 @@ void UpdateCallback(Scene& scene, float time) {
 	float rotationDeg = deltaSeconds * 30.0; // 30deg/sec
 
 	g_importMeshRoot->transform(rotate(g_importMeshRoot->transform(),
-									 radians(rotationDeg),
-									 {0.0f, 1.0f, 0.0f}));
+									   radians(rotationDeg),
+									   {0.0f, 1.0f, 0.0f}));
 
 	static float timeAccum = 0;
 	static unsigned frames = 0;

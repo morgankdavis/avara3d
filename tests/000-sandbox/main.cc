@@ -6,8 +6,8 @@
 //  Copyright © 2023 Morgan K Davis. All rights reserved.
 //
 
-#include <algorithm>
 #include <memory>
+#include <utility>
 #include <vector>
 
 #include "glm/glm.hpp"
@@ -30,7 +30,11 @@ void DidRenderCallback(VisualWorld& world, float time);
 void DidSimulatePhysicsCallback(PhysicalWorld& world, float time);
 
 
-constexpr bool					USE_HIGH_DPI =			false;
+void InitLog();
+
+
+constexpr LogLevel				LOG_LEVEL =				LogLevel::Debug;
+constexpr bool					ENABLE_HIGH_DPI =		true;
 constexpr unsigned				WINDOW_WIDTH =			1280;
 constexpr unsigned				WINDOW_HEIGHT =			768;
 constexpr bool					FULLSCREEN =			false;
@@ -42,7 +46,7 @@ constexpr float					PHYSICS_TIMESTEP =		1.0/120.0;
 constexpr bool					DARK =					true;
 
 
-std::shared_ptr<a3d::Logger>	logger;
+std::unique_ptr<a3d::Logger>	logger;
 
 
 // https://stackoverflow.com/questions/66068134/segmentation-fault-when-using-a-shared-ptr-for-private-key
@@ -58,10 +62,7 @@ shared_ptr<Mesh>*			g_mesh;
 
 int main(int argc, const char* argv[]) {
 
-	auto dt = utils::DateTimeString();
-	A3D_LOG_I("dt: {}", dt);
-
-	logger = make_shared<Logger>("sandbox", Logger::MainLogger()->sinks());
+	InitLog();
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
@@ -74,17 +75,17 @@ int main(int argc, const char* argv[]) {
 		  buildInfo.origin() == BuildInfo::ORIGIN::CI ? "CI" : "ADHOC");
 	auto time = buildInfo.time();
 
-	auto window = make_shared<Window>(RenderingApi::OpenGL,
+	auto window = make_unique<Window>(RenderingApi::OpenGL,
 									  *utils::ExecutableName(),
 									  WINDOW_WIDTH,
 									  WINDOW_HEIGHT,
 									  FULLSCREEN,
-									  USE_HIGH_DPI,
+									  ENABLE_HIGH_DPI,
 									  MSAA_MODE);
 	window->vSyncEnabled(ENABLE_VSYNC);
 	window->cursorCaptured(CAPTURE_CURSOR);
 
-	auto visualWorld = make_shared<VisualWorld>(window);
+	auto visualWorld = make_unique<VisualWorld>(window.get());
 //	visualWorld->fogStartDistance(50.0);
 //	visualWorld->fogEndDistance(400.0);
 //	visualWorld->fogDensityExponent(1.0);
@@ -100,23 +101,22 @@ int main(int argc, const char* argv[]) {
 	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
 	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
 
-	auto physicalWorld = make_shared<PhysicalWorld>();
+	auto physicalWorld = make_unique<PhysicalWorld>();
 	physicalWorld->timestep(PHYSICS_TIMESTEP);
 	physicalWorld->didSimulate(bind(&DidSimulatePhysicsCallback, _1, _2));
 
-	auto inputManager = make_shared<WindowInputManager>(window);
+	auto inputManager = make_unique<WindowInputManager>(window.get());
 
-	auto scene = make_shared<Scene>(visualWorld, physicalWorld, inputManager);
+	auto scene = make_unique<Scene>(std::move(visualWorld), std::move(physicalWorld), std::move(inputManager));
 	scene->debugOptions(DebugOptions::ShowStatsOverlay);
 	scene->update(bind(&UpdateCallback, _1, _2));
 
 //	auto ambientColor = DARK
 //						? Color::LightGray()
 //						: make_shared<Color>(.85f);
-	auto ambientColor = Color::DarkGray();
-	auto ambientLight = make_shared<Light>(LightType::Ambient, ambientColor);
+	auto ambientLight = make_shared<Light>(LightType::Ambient, Color::DarkGray());
 	auto ambientLightNode = Node::LightNode(ambientLight);
-	scene->rootNode()->addChild(ambientLightNode);
+	scene->rootNode()->addChild(std::move(ambientLightNode));
 
 //	auto pointColor = DARK
 //					  ? Color::LightGray()
@@ -139,7 +139,7 @@ int main(int argc, const char* argv[]) {
 	//planeNode->mesh(Mesh::Box(PLANE_LENGTH, PLANE_WIDTH, 0));
 	planeNode->mesh(Box::Mesh(PLANE_LENGTH, PLANE_WIDTH, 0));
 	auto gridImage = DARK ? ImageNamed("grid10")->inverted() : ImageNamed("grid10");
-	auto planeTexture = make_shared<Texture>(gridImage);
+	auto planeTexture = make_shared<Texture>(std::move(gridImage));
 	planeTexture->sampler()->wrapS(WrapMode::Repeat);
 	planeTexture->sampler()->wrapT(WrapMode::Repeat);
 	planeTexture->sampler()->maxAnisotropy(16);
@@ -182,18 +182,19 @@ int main(int argc, const char* argv[]) {
 			pointLight->attenuationFactor(0);
 			auto pointLightNode = Node::LightNode(pointLight);
 			pointLightNode->position({5, 5, 0});
-			scene->rootNode()->addChild(pointLightNode);
 
 			auto material = make_shared<Material>(monostate{},
 												  monostate{},
 												  monostate{},
-												  pointLight->color());
+												  Color::LightGray());
 			//auto sphere = Mesh::Sphere(0.1f, 12);
-			auto sphere = Sphere::Mesh(0.1f, 12, material);
+			auto sphere = shared_ptr(std::move(Sphere::Mesh(0.1f, 12, material)));
 
 			//sphere->addMaterial(material);
 //			sphere->replaceMaterial(0, material);
 			pointLightNode->mesh(sphere);
+
+			scene->rootNode()->addChild(std::move(pointLightNode));
 		}
 //
 //		auto testMesh = MeshNamed("rubber_duck/rubber_duck");
@@ -275,10 +276,11 @@ int main(int argc, const char* argv[]) {
 
 
 	auto mesh = meshes[0];
-	auto meshNode = Node::MeshNode(mesh);
+	auto meshNode = shared_ptr(Node::MeshNode(mesh));
 	meshNode->position({0, 5, 0});
-	scene->rootNode()->addChild(meshNode);
+
 	g_meshNode = &meshNode;
+	scene->rootNode()->addChild(meshNode);
 //	g_meshNode = meshNode.get();
 
 
@@ -361,9 +363,9 @@ void UpdateCallback(Scene& scene, float time) {
 
 	auto inputManager = scene.inputManager();
 
-	shared_ptr<Window> window = nullptr;
+	Window* window = nullptr;
 	if (scene.visualWorld()) {
-		window = static_pointer_cast<Window>(scene.visualWorld()->renderContext());
+		window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 	}
 
 
@@ -394,7 +396,8 @@ void UpdateCallback(Scene& scene, float time) {
 
 	if (keysPressed.count(Key::One)) {
 
-		auto cameraNodes = vector<shared_ptr<Node>>();
+		//auto cameraNodes = vector<Node*>();
+		auto cameraNodes = vector<std::shared_ptr<Node>>();
 		for (auto& node : scene.rootNode()->children(true)) {
 			auto camera = node->camera();
 			if (camera) {
@@ -406,7 +409,8 @@ void UpdateCallback(Scene& scene, float time) {
 	}
 	if (keysPressed.count(Key::Two)) {
 
-		auto cameraNodes = vector<shared_ptr<Node>>();
+//		auto cameraNodes = vector<Node*>();
+		auto cameraNodes = vector<std::shared_ptr<Node>>();
 		for (auto& node : scene.rootNode()->children(true)) {
 			auto camera = node->camera();
 			if (camera) {
@@ -418,7 +422,8 @@ void UpdateCallback(Scene& scene, float time) {
 	}
 	if (keysPressed.count(Key::Three)) {
 
-		auto cameraNodes = vector<shared_ptr<Node>>();
+//		auto cameraNodes = vector<Node*>();
+		auto cameraNodes = vector<std::shared_ptr<Node>>();
 		for (auto& node : scene.rootNode()->children(true)) {
 			auto camera = node->camera();
 			if (camera) {
@@ -564,8 +569,7 @@ void UpdateCallback(Scene& scene, float time) {
 
 		vec2 mousePositionDelta = inputManager->mousePositionDelta();
 
-		auto pov = scene.visualWorld()->pointOfView();
-		if (pov) {
+		if (auto pov = scene.visualWorld()->pointOfView().lock()) {
 
 			// look
 
@@ -640,4 +644,24 @@ void DidRenderCallback(VisualWorld& world, float time) {
 
 void DidSimulatePhysicsCallback(PhysicalWorld& world, float time) {
 	LOG_T(logger, "world: {:p}, time: {}", (void*)&world, time);
+}
+
+/***************************************************************************************
+	Static
+ ***************************************************************************************/
+
+void InitLog() {
+
+	string executableName = *utils::ExecutableName();
+	auto nativeSink = make_unique<StdOutLoggerSink>();
+	auto fileSink = make_unique<FileLoggerSink>(*(utils::ExecutableDirectory())
+												/ (executableName + string(".log")));
+	auto sinks = unordered_set<unique_ptr<LoggerSink>>();
+	sinks.insert(std::move(nativeSink));
+	sinks.insert(std::move(fileSink));
+
+	logger = make_unique<Logger>(executableName, std::move(sinks));
+	logger->level(LOG_LEVEL);
+
+	Logger::MainLogger().level(LOG_LEVEL);
 }

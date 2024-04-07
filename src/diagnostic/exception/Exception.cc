@@ -22,7 +22,7 @@ using namespace std;
  *********************************************************************************************/
 
 Exception::Exception(const string& what):
-	runtime_error(what) {
+	runtime_error{what} {
 
 #ifdef POSIX
 		A3D_LOG_E("Exception: {}\nStack trace:\n{}", what, StackTrace(1));

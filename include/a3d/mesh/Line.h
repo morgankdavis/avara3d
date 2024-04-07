@@ -14,15 +14,11 @@
 
 #include "glm/glm.hpp"
 
-#include "a3d/mesh/Mesh.h"
+#include "a3d/Color.h"
 
 
 namespace a3d {
-	
-	
-	class Color;
 
-	
 	class Line {
 
 /*********************************************************************************************
@@ -31,24 +27,31 @@ namespace a3d {
 
 	public:
 
-		Line(glm::vec3 fromLocation, glm::vec3 toLocation);
-		Line(glm::vec3 fromLocation, glm::vec3 toLocation,
-			 std::shared_ptr<Color> color);
-		Line(glm::vec3 fromLocation, glm::vec3 toLocation,
-			 std::shared_ptr<Color> fromColor, std::shared_ptr<Color> toColor);
-		
+		Line(const glm::vec3& fromLocation,
+			 const glm::vec3& toLocation);
+		Line(const glm::vec3& fromLocation,
+			 const glm::vec3& toLocation,
+			 const Color& color);
+		Line(const glm::vec3& fromLocation,
+			 const glm::vec3& toLocation,
+			 const Color& fromColor,
+			 const Color& toColor);
+
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
-		
-		glm::vec3 							fromLocation() const;
-		void 								fromLocation(glm::vec3 location);
-		glm::vec3 							toLocation() const;
-		void 								toLocation(glm::vec3 location);
-		std::shared_ptr<Color> 				fromColor() const;
-		void 								fromColor(std::shared_ptr<Color> color);
-		std::shared_ptr<Color> 				toColor() const;
-		void 								toColor(std::shared_ptr<Color> color);
+
+		const glm::vec3& 		fromLocation() const;
+		void 					fromLocation(const glm::vec3& location);
+
+		const glm::vec3& 		toLocation() const;
+		void 					toLocation(const glm::vec3& location);
+
+		const Color& 			fromColor() const;
+		void 					fromColor(const Color& color);
+
+		const Color& 			toColor() const;
+		void 					toColor(const Color& color);
 		
 /*********************************************************************************************
 	Private
@@ -56,10 +59,10 @@ namespace a3d {
 
 	private:
 
-		glm::vec3 							_fromLocation;
-		glm::vec3 							_toLocation;
-		std::shared_ptr<Color> 				_fromColor;
-		std::shared_ptr<Color> 				_toColor;
+		glm::vec3 				_fromLocation;
+		glm::vec3 				_toLocation;
+		Color 					_fromColor;
+		Color 					_toColor;
 	};
 }
 

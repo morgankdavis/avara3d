@@ -17,12 +17,9 @@ using namespace std;
 	Lifecycle
  *********************************************************************************************/
 
-StdOutLoggerSink::StdOutLoggerSink() {
-
-}
+StdOutLoggerSink::StdOutLoggerSink() { }
 
 StdOutLoggerSink::~StdOutLoggerSink() {
-
 	flush();
 }
 
@@ -46,7 +43,8 @@ void StdOutLoggerSink::write(const char* message, LogLevel level) {
 		>= static_cast<underlying_type<LogLevel>::type>(LogLevel::Error)) {
 		fprintf(stderr, "%s\n", message);
 
-	} else {
+	}
+	else {
 		fprintf(stdout, "%s\n", message);
 	}
 

@@ -13,7 +13,7 @@ namespace a3d {
 	public:
 
 		Sampleable();
-		virtual ~Sampleable();
+		virtual ~Sampleable() = 0;
 	};
 }
 

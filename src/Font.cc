@@ -8,6 +8,8 @@
 
 #include "a3d/Font.h"
 
+#include <utility>
+
 #include "a3d/Buffer.h"
 #include "a3d/diagnostic/logging/Logger.h"
 
@@ -20,10 +22,10 @@ using namespace std;
 	Lifecycle
  *********************************************************************************************/
 
-Font::Font(filesystem::path& path):
-	_name(nullopt),
-	_type(FontType::Unknown),
-	_buffer(nullptr) {
+Font::Font(const filesystem::path& path):
+	_name{},
+	_type{FontType::Unknown},
+	_buffer{} {
 	
 		_name = path.stem().string();
 
@@ -35,13 +37,13 @@ Font::Font(filesystem::path& path):
 			_type = FontType::TTF;
 		}
 		
-		_buffer = make_shared<Buffer>(path);
+		_buffer = make_unique<Buffer>(path);
 }
 
-Font::Font(shared_ptr<Buffer> buffer):
-	_name(nullopt),
-	_type(FontType::Unknown),
-	_buffer(buffer) {
+Font::Font(unique_ptr<Buffer> buffer):
+	_name{},
+	_type{FontType::Unknown},
+	_buffer{std::move(buffer)} {
 	
 }
 
@@ -53,7 +55,7 @@ Font::~Font() {
 	Public
  *********************************************************************************************/
 
-optional<string> Font::name() const {
+const optional<string>& Font::name() const {
 	return _name;
 }
 
@@ -61,6 +63,6 @@ FontType Font::type() const {
 	return _type;
 }
 
-shared_ptr<Buffer> Font::buffer() const {
-	return _buffer;
+const Buffer* Font::buffer() const {
+	return _buffer.get();
 }

@@ -20,58 +20,55 @@ using namespace std;
 	Lifecycle
  *********************************************************************************************/
 
-Line::Line(vec3 fromLocation, vec3 toLocation):
-	Line(fromLocation, toLocation, Color::White()) {
-	
-}
+Line::Line(const vec3& fromLocation,
+		   const vec3& toLocation):
+		Line{fromLocation, toLocation, Color{1.0f}} { }
 
-Line::Line(vec3 fromLocation, vec3 toLocation,
-		   shared_ptr<Color> color):
-	Line(fromLocation, toLocation, color, color) {
-	
-}
+Line::Line(const vec3& fromLocation, const vec3& toLocation,
+		   const Color& color):
+		Line{fromLocation, toLocation, color, color} { }
 
-Line::Line(vec3 fromLocation, vec3 toLocation,
-	shared_ptr<Color> fromColor, shared_ptr<Color> toColor):
-	_fromLocation(fromLocation),
-	_toLocation(toLocation),
-	_fromColor(fromColor),
-	_toColor(toColor) {
-	
-}
+Line::Line(const vec3& fromLocation,
+		   const vec3& toLocation,
+		   const Color& fromColor,
+		   const Color& toColor):
+		_fromLocation{fromLocation},
+		_toLocation{toLocation},
+		_fromColor{fromColor},
+		_toColor{toColor} { }
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
-vec3 Line::fromLocation() const {
+const vec3& Line::fromLocation() const {
 	return _fromLocation;
 }
 
-void Line::fromLocation(vec3 point) {
+void Line::fromLocation(const vec3& point) {
 	_fromLocation = point;
 }
 
-vec3 Line::toLocation() const {
+const vec3& Line::toLocation() const {
 	return _toLocation;
 }
 
-void Line::toLocation(vec3 point) {
+void Line::toLocation(const vec3& point) {
 	_toLocation = point;
 }
 
-shared_ptr<Color> Line::fromColor() const {
+const Color& Line::fromColor() const {
 	return _fromColor;
 }
 
-void Line::fromColor(shared_ptr<Color> color) {
+void Line::fromColor(const Color& color) {
 	_fromColor = color;
 }
 
-shared_ptr<Color> Line::toColor() const {
+const Color& Line::toColor() const {
 	return _toColor;
 }
 
-void Line::toColor(shared_ptr<Color> color) {
+void Line::toColor(const Color& color) {
 	_toColor = color;
 }

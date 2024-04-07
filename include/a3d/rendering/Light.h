@@ -34,40 +34,31 @@ namespace a3d {
 
 		static std::shared_ptr<Light> 		DefaultAmbient();
 		static std::shared_ptr<Light> 		DefaultPoint();
-		
+
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
-		
-		Light(LightType type);
-		Light(LightType type, std::shared_ptr<Color> color);
+
+		explicit Light(LightType type);
+		Light(LightType type, const std::shared_ptr<Color>& color);
+		virtual ~Light();
 		
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 		
-		std::optional<std::string> 			name() const;
+		const std::optional<std::string>&	name() const;
 		void 								name(const std::string& name);
 		
 		LightType 							type() const;
 		void 								type(LightType type);
 		
-		std::shared_ptr<Color> 				color() const;
-		void 								color(std::shared_ptr<Color> color);
+		const std::shared_ptr<Color>&		color() const;
+		void 								color(const std::shared_ptr<Color>& color);
 
 		float 								attenuationFactor() const;
 		void 								attenuationFactor(float factor);
-		
-/*********************************************************************************************
-	Internal
- *********************************************************************************************/
 
-	// protected
-
-//		std::weak_ptr<Node> 				node() const;
-//
-//		void 								attachedToNode(std::shared_ptr<Node> node);
-		
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
@@ -79,7 +70,7 @@ namespace a3d {
 		LightType							_type;
 		std::shared_ptr<Color>				_color;
 
-		float								_attenuationFactor; // att = 1/(1-k(d^2))
+		float								_attenuationFactor; // = 1/(1-k(d^2))
 		
 //		std::weak_ptr<Node>					_node;
 

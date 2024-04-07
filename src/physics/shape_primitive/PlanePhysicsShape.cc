@@ -15,8 +15,8 @@ using namespace a3d;
  *********************************************************************************************/
 
 PlanePhysicsShape::PlanePhysicsShape(float width, float height):
-		_width(width),
-		_height(height) {}
+		_width{width},
+		_height{height} {}
 
 PlanePhysicsShape::~PlanePhysicsShape() {}
 

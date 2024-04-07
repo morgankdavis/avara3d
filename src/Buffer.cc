@@ -24,73 +24,44 @@ using namespace std;
  *********************************************************************************************/
 
 Buffer::Buffer(const std::filesystem::path& path):
-		_data(nullptr),
-		_size(0) {
+		_data{},
+		_size{0} {
 
 	// TODO: check path or exception
-	ifstream inStream(path.string(), ios::binary | ios::ate); // ate == initial position at eof
+	ifstream inStream(path.string(), ios::binary | ios::ate);
 	ifstream::pos_type pos = inStream.tellg();
-	_data = (unsigned char*)malloc(pos);
+	_data = make_unique<byte*>(new byte[pos]);
 	inStream.seekg(0, ios::beg);
-	inStream.read((char*)_data, pos);
+	inStream.read((char*)&((*_data)[0]), pos);
 	_size = pos;
 }
 
-Buffer::Buffer(const unsigned char* buf, std::size_t size):
-		_data(nullptr),
-		_size(0) {
-
-	_data = (unsigned char*)malloc(size);
-	memcpy(_data, buf, size);
-	_size = size;
-}
-
-Buffer::Buffer(const vector<unsigned char>& buf):
+Buffer::Buffer(const vector<byte>& buf):
 		Buffer(&buf[0], buf.size()) {
 }
 
-Buffer::Buffer(const Buffer& other) { // copy constructor
-	// allotate our new memory and copy 'other' data into ours
+Buffer::Buffer(const byte* buf, std::size_t size):
+		_data(nullptr),
+		_size(0) {
 
-	size_t bufSize = other._size;
-	// TODO: free old pointer?
-	_data = (unsigned char*)malloc(bufSize);
-	memcpy(_data, other._data, bufSize);
-	_size = bufSize;
-}
-
-Buffer& Buffer::operator=(const Buffer& other) { // copy assignment
-	// make a copy of 'other's data, delete ours, and move their data into ours
-
-	size_t bufSize = other._size;
-	auto tempPointer = (unsigned char*)malloc(bufSize);
-	memcpy(tempPointer, other._data, bufSize);
-	if (_data) {
-		free(_data);
-	}
-	_data = tempPointer;
-	_size = bufSize;
-
-	return *this;
+	_data = make_unique<byte*>(new byte[size]);
+	memcpy(&((*_data)[0]), buf, size);
+	_size = size;
 }
 
 Buffer::~Buffer() {
 	A3D_LOG_D("Destroying Buffer {:p}", static_cast<void*>(this));
-
-	if (_data) {
-		free(_data);
-	}
 }
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
-unsigned char* Buffer::data() const {
-	return _data;
+byte* Buffer::data() const {
+	return &((*_data)[0]);
 }
 
-unsigned Buffer::size() const {
+size_t Buffer::size() const {
 	return _size;
 }
 
@@ -98,10 +69,10 @@ unsigned Buffer::size() const {
 	Operator Overloads
  *********************************************************************************************/
 
-unsigned char* Buffer::operator*() const {
-	return _data;
+byte* Buffer::operator*() const {
+	return &((*_data)[0]);
 }
 
-unsigned char Buffer::operator[](std::size_t idx) const {
-	return _data[idx];
+byte Buffer::operator[](size_t idx) const {
+	return (*_data)[idx];
 }

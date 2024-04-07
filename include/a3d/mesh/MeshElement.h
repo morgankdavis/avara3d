@@ -21,13 +21,14 @@
 namespace a3d {
 
 
+	class Line;
 	class Material;
 	class Node;
 	class Program;
 	class Renderer;
 
 
-	class MeshElement : public std::enable_shared_from_this<MeshElement> {
+	class MeshElement {
 		
 /*********************************************************************************************
 	Lifecycle
@@ -37,8 +38,6 @@ namespace a3d {
 
 		MeshElement(const std::vector<Vertex>& verticies,
 					const std::vector<Face>& faces);
-		// https://stackoverflow.com/questions/8469900/cant-downcast-because-class-is-not-polymorphic
-		// virtual for dynamic_cast against MeshElement "primitives" in BulletShapeProxy::BTShapeFromMeshElement()
 		virtual ~MeshElement();
 
 /*********************************************************************************************
@@ -59,8 +58,10 @@ namespace a3d {
 		const std::vector<Vertex>& 		vertices() const;
 		const std::vector<Face>&		faces() const;
 
-		AABB							aabb(const std::shared_ptr<Node> convertToNode = nullptr) const;
-		glm::vec3 						extent(const std::shared_ptr<Node> convertToNode = nullptr) const;
+		AABB							aabb(const Node* convertTo = nullptr) const;
+		glm::vec3 						extent(const Node* convertTo = nullptr) const;
+
+		const std::vector<Line>&				aabbLines();
 
 		MeshElementDirtyMask 			dirtyMask() const;
 		void 							dirtyMask(MeshElementDirtyMask mask);
@@ -75,7 +76,7 @@ namespace a3d {
 
 		std::vector<Vertex>				_vertices;
 		std::vector<Face>				_faces;
-
+		std::vector<Line>				_aabbLines;
 		MeshElementDirtyMask			_dirtyMask;
 	};
 }

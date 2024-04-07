@@ -8,6 +8,7 @@
 
 #include "a3d/physics/PhysicsShape.h"
 
+#include <utility>
 
 #include "magic_enum.hpp"
 
@@ -29,61 +30,68 @@ using namespace std;
 	Lifecycle
  *********************************************************************************************/
 
-PhysicsShape::PhysicsShape(PhysicsShapeType type, Mesh* mesh):
-		_sourceObject(mesh),
-		_bodies({}),
-		_type(type),
-		_proxy(nullptr)
+PhysicsShape::PhysicsShape(PhysicsShapeType type, const shared_ptr<Mesh>& mesh):
+		_source{mesh},
+		_bodies{},
+		_type{type},
+		_proxy{}
 		/*_model(make_unique<BulletShapeProxy>(this))*/ {
 
-	if (auto name = mesh->name()) {
-		A3D_LOG_D("Creating PhysicsShape type {} for source mesh: {}...",
-				 magic_enum::enum_name(type), *name);
-	}
-	else {
-		A3D_LOG_D("Creating PhysicsShape type {} for source mesh: {:p}...",
-				 magic_enum::enum_name(type), static_cast<void*>(mesh));
-	}
+//	if (auto sMesh = mesh.lock()) {
+
+		if (auto name = mesh->name()) {
+			A3D_LOG_D("Creating PhysicsShape type {} for source mesh: {}...",
+					  magic_enum::enum_name(type), *name);
+		}
+		else {
+			A3D_LOG_D("Creating PhysicsShape type {} for source mesh: {:p}...",
+					  magic_enum::enum_name(type), static_cast<void *>(mesh.get()));
+		}
+//	}
+//	else {
+//		throw std::bad_weak_ptr();
+//	}
 }
 
 // construct a compound shape based on meshes under this node
-PhysicsShape::PhysicsShape(PhysicsShapeType type, Node* node):
-		_sourceObject(node),
-		_bodies({}),
-		_type(type),
-		_proxy(nullptr)
+PhysicsShape::PhysicsShape(PhysicsShapeType type, const shared_ptr<Node>& node):
+		_source{node},
+		_bodies{},
+		_type{type},
+		_proxy{}
 		/*_model(make_unique<BulletShapeProxy>(this))*/ {
 
-	if (auto name = node->name()) {
-		A3D_LOG_D("Creating PhysicsShape type {} for source node: {}...",
-				 magic_enum::enum_name(type), *name);
-	}
-	else {
-		A3D_LOG_D("Creating PhysicsShape type {} for source node: {:p}...",
-				 magic_enum::enum_name(type),static_cast<void*>(node));
-	}
+//	if (auto sNode = node.lock()) {
+
+		if (auto name = node->name()) {
+			A3D_LOG_D("Creating PhysicsShape type {} for source node: {}...",
+					  magic_enum::enum_name(type), *name);
+		}
+		else {
+			A3D_LOG_D("Creating PhysicsShape type {} for source node: {:p}...",
+					  magic_enum::enum_name(type), static_cast<void *>(node.get()));
+		}
+//	}
+//	else {
+//		throw std::bad_weak_ptr();
+//	}
 }
 
 PhysicsShape::PhysicsShape():
-		_sourceObject(monostate{}),
-		_bodies({}),
-		_proxy(nullptr)
-		/*_model(make_unique<BulletShapeProxy>(this))*/ { }
+		_source{},
+		_bodies{},
+		_proxy{} { }
 
 PhysicsShape::~PhysicsShape() {
 	A3D_LOG_D("Destroying PhysicsShape {:p}", static_cast<void*>(this));
-
-//	for (auto& body : _bodies) {
-//
-//	}
 }
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
-PhysicsShape::SourceObject PhysicsShape::sourceObject() const {
-	return _sourceObject;
+PhysicsShape::Source PhysicsShape::source() const {
+	return _source;
 }
 
 PhysicsShapeType PhysicsShape::type() const {
@@ -97,52 +105,48 @@ void PhysicsShape::type(PhysicsShapeType type) {
 	_proxy = nullptr;
 
 	checkCreateProxy();
-
-//	for (auto body : _bodies) {
-//		body->shapeUpdated();
-//	}
 }
 
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-void PhysicsShape::attachedToBody(PhysicsBody* body) {
-	A3D_LOG_T("body: {:p}", static_cast<void*>(body));
+void PhysicsShape::attachedToBody(PhysicsBody& body) {
+	A3D_LOG_T("body: {:p}", static_cast<void*>(&body));
 
-	if (!_bodies.count(body)) {
-		_bodies.insert(body);
+	if (!_bodies.count(&body)) {
+		_bodies.insert(&body);
 
 		checkCreateProxy();
 	}
 }
 
-void PhysicsShape::detachedFromBody(PhysicsBody* body) {
-	A3D_LOG_T("body: {:p}", static_cast<void*>(body));
+void PhysicsShape::detachedFromBody(PhysicsBody& body) {
+	A3D_LOG_T("body: {:p}", static_cast<void*>(&body));
 
-	_bodies.erase(body);
+	_bodies.erase(&body);
 }
 
-void PhysicsShape::physicalWorldReachable(PhysicalWorld* world) {
-	A3D_LOG_T("world: {:p}", static_cast<void*>(world));
+void PhysicsShape::physicalWorldReachable(PhysicalWorld& world) {
+	A3D_LOG_T("world: {:p}", static_cast<void*>(&world));
 
 	checkCreateProxy();
 }
 
-void PhysicsShape::physicalWorldUnreachable(PhysicalWorld* world) {
-	A3D_LOG_T("world: {:p}", static_cast<void*>(world));
+void PhysicsShape::physicalWorldUnreachable(PhysicalWorld& world) {
+	A3D_LOG_T("world: {:p}", static_cast<void*>(&world));
 }
 
-void PhysicsShape::sourceObject(SourceObject sourceObject) {
+void PhysicsShape::source(const Source& sourceObject) {
 
-	_sourceObject = sourceObject;
+	_source = sourceObject;
 }
 
 void PhysicsShape::checkCreateProxy() {
 	A3D_LOG_T("");
 
 	if (!_proxy) {
-		_proxy = make_unique<BulletShapeProxy>(this);
+		_proxy = make_unique<BulletShapeProxy>(*this);
 
 		for (auto body : _bodies) {
 			body->shapeUpdated();
@@ -150,7 +154,7 @@ void PhysicsShape::checkCreateProxy() {
 	}
 }
 
-unordered_set<PhysicsBody*> PhysicsShape::bodies() const {
+const unordered_set<PhysicsBody*>& PhysicsShape::bodies() const {
 	return _bodies;
 }
 

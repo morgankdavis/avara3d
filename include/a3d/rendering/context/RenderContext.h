@@ -36,7 +36,7 @@ namespace a3d {
 	class VisualWorld;
 
 	
-	class RenderContext : public std::enable_shared_from_this<RenderContext> {
+	class RenderContext {
 
 /*********************************************************************************************
 	Lifecycle
@@ -44,7 +44,7 @@ namespace a3d {
 
 	public:
 
-		RenderContext(RenderingApi renderingApi);
+		explicit RenderContext(RenderingApi renderingApi);
 		RenderContext(const RenderContext& other) = delete; // copy constructor
 		RenderContext& operator=(const RenderContext& other) = delete; // copy assignment
 		virtual ~RenderContext();
@@ -53,30 +53,30 @@ namespace a3d {
 	Public
  *********************************************************************************************/
 
-		unsigned 							width() const;
-		unsigned 							height() const;
+		int 								width() const;
+		int 								height() const;
 
-		unsigned 							framebufferWidth() const;
-		unsigned 							framebufferHeight() const;
-		glm::vec2 							framebufferScale() const;
+		int 								framebufferWidth() const;
+		int 								framebufferHeight() const;
+		const glm::vec2&					framebufferScale() const;
 		
 		virtual bool 						vSyncEnabled() const;
 		virtual void 						vSyncEnabled(bool enabled);
 
 		AntialiasingMode 					antialiasingMode() const;
 
-		std::shared_ptr<Image> 				snapshot() const;
+		std::unique_ptr<Image> 				snapshot() const;
 
 		virtual bool 						recordingGIF() const;
 		virtual void 						startGIFRecording(const std::filesystem::path& path,
-															  unsigned maxHeight,
-															  unsigned maxFramerate);
+															  int maxHeight,
+															  int maxFramerate);
 		virtual unsigned 					recordedGIFFrames() const;
 		virtual void 						stopGIFRecording();
 
 		VisualWorld*						visualWorld() const;
 
-		std::shared_ptr<Renderer> 			renderer() const;
+		Renderer* 							renderer() const;
 
 /*********************************************************************************************
 	Internal
@@ -84,12 +84,12 @@ namespace a3d {
 
 		virtual void 						swapBuffers() = 0;
 
-		void 								width(unsigned width);
-		void 								height(unsigned height);
+		void 								width(int width);
+		void 								height(int height);
 
-		void 								framebufferWidth(unsigned width);
-		void 								framebufferHeight(unsigned height);
-		void 								framebufferScale(glm::vec2 scale);
+		void 								framebufferWidth(int width);
+		void 								framebufferHeight(int height);
+		void 								framebufferScale(const glm::vec2& scale);
 
 		virtual void 						saveGIFFrame(float deltaRunT);
 
@@ -102,24 +102,21 @@ namespace a3d {
 
 	protected:
 
-		unsigned							_width;
-		unsigned							_height;
-		unsigned							_framebufferWidth;
-		unsigned							_framebufferHeight;
+		int									_width;
+		int									_height;
+		int									_framebufferWidth;
+		int									_framebufferHeight;
 		glm::vec2							_framebufferScale;
 		bool								_vSyncEnabled;
 		AntialiasingMode					_antialiasingMode;
-		
-		std::shared_ptr<GifWriter>			_gifWriter;
+		std::unique_ptr<GifWriter>			_gifWriter;
 		bool								_recordingGIF;
-		unsigned							_gifRecordingWidth;
-		unsigned							_gifRecordingHeight;
-		unsigned							_gifRecordingMaxFramerate;
-		unsigned							_gifRecordedFrames;
-
+		int									_gifRecordingWidth;
+		int									_gifRecordingHeight;
+		int									_gifRecordingMaxFramerate;
+		int									_gifRecordedFrames;
 		VisualWorld*						_visualWorld;
-
-		std::shared_ptr<Renderer>			_renderer;
+		std::unique_ptr<Renderer>			_renderer;
 	};
 }
 

@@ -12,6 +12,7 @@
 
 #include <functional>
 #include <memory>
+#include <optional>
 
 #include "glm/glm.hpp"
 
@@ -55,8 +56,8 @@ namespace a3d {
 	Public
  *********************************************************************************************/
 
-		glm::vec3 							gravity() const;
-		void 								gravity(glm::vec3 gravity);
+		const glm::vec3&					gravity() const;
+		void 								gravity(const glm::vec3& gravity);
 
 		float								speed() const;
 		void 								speed(float speed);
@@ -64,14 +65,14 @@ namespace a3d {
 		float 								timestep() const;
 		void 								timestep(float timestep);
 
-		std::shared_ptr<PhysicsContact> 	contactTest(std::shared_ptr<PhysicsBody> bodyA,
-													   std::shared_ptr<PhysicsBody> bodyB); // may add options
-		std::shared_ptr<PhysicsContact> 	contactTest(std::shared_ptr<PhysicsBody> body); // may add options
-
-		std::shared_ptr<HitTestResult> 		rayTest(glm::vec3 fromVec, glm::vec3 toVec); // may add options
-		std::shared_ptr<PhysicsContact> 	convexSweepTest(std::shared_ptr<PhysicsContact> contact,
-														   const glm::mat4& fromMat,
-														   const glm::mat4& toMat); // may add options
+		std::optional<PhysicsContact>		contactTest(const PhysicsBody& bodyA,
+														 const PhysicsBody& bodyB);
+		std::optional<PhysicsContact> 		contactTest(const PhysicsBody& body);
+		std::optional<HitTestResult> 		rayTest(const glm::vec3& fromVec,
+													const glm::vec3& toVec);
+		std::optional<PhysicsContact> 		convexSweepTest(const PhysicsContact& contact,
+															 const glm::mat4& fromMat,
+															 const glm::mat4& toMat);
 
 		void 								updateCollisionPairs();
 
@@ -93,8 +94,8 @@ namespace a3d {
 	Internal
  *********************************************************************************************/
 
-		void								attachedToScene(Scene* scene);
-		void								detachedFromScene(Scene* scene);
+		void								attachedToScene(Scene& scene);
+		void								detachedFromScene(Scene& scene);
 
 		void 								add(PhysicsBody& body);
 		void 								remove(PhysicsBody& body);
@@ -104,7 +105,7 @@ namespace a3d {
 												 double deltaRunT,
 												 Stats& stats);
 
-		PhysicalWorldProxy*			proxy() const;
+		PhysicalWorldProxy*					proxy() const;
 
 /*********************************************************************************************
 	Private
@@ -115,7 +116,7 @@ namespace a3d {
 		glm::vec3 									_gravity;
 		float 										_speed;
 		float 										_timestep;
-		std::unique_ptr<PhysicalWorldProxy>	_proxy;
+		std::unique_ptr<PhysicalWorldProxy>			_proxy;
 		Scene*										_scene;
 		DidSimulateCallback							_didSimulate;
 		BeginContactCallback						_beginContact;

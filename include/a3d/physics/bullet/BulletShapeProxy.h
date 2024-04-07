@@ -28,18 +28,14 @@ namespace a3d {
 
 	public:
 
-		BulletShapeProxy(PhysicsShape* shape);
+		explicit BulletShapeProxy(PhysicsShape& shape);
 		~BulletShapeProxy() override;
 
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-		std::vector<std::shared_ptr<btCollisionShape>>& btShapes();
-//		void btShapes(std::vector<std::shared_ptr<btCollisionShape>> shapes);
-
-//		std::vector<std::shared_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays();
-//		void btIndexVertexArrays(std::vector<std::shared_ptr<btTriangleIndexVertexArray>> indexVertexArrays);
+		const std::vector<std::unique_ptr<btCollisionShape>>& btShapes();
 
 /*********************************************************************************************
 	 Private
@@ -47,8 +43,8 @@ namespace a3d {
 
 	private:
 
-		std::vector<std::shared_ptr<btCollisionShape>>				_btShapes;
-		std::vector<std::shared_ptr<btTriangleIndexVertexArray>>	_btIndexVertexArrays;
+		std::vector<std::unique_ptr<btCollisionShape>>				_btShapes;
+		std::vector<std::unique_ptr<btTriangleIndexVertexArray>>	_btIndexVertexArrays;
 	};
 }
 
