@@ -32,7 +32,7 @@ void InitLog();
 
 
 constexpr LogLevel				LOG_LEVEL =				LogLevel::Debug;
-constexpr bool					USE_HIGH_DPI =			false;
+constexpr bool					ENABLE_HIGH_DPI =		true;
 constexpr unsigned				WINDOW_WIDTH =			800;
 constexpr unsigned				WINDOW_HEIGHT =			600;
 constexpr bool					FULLSCREEN =			false;
@@ -54,7 +54,7 @@ int main(int argc, const char* argv[]) {
 									  WINDOW_WIDTH,
 									  WINDOW_HEIGHT,
 									  FULLSCREEN,
-									  USE_HIGH_DPI,
+									  ENABLE_HIGH_DPI,
 									  ANTIALIAS_MODE);
 	window->vSyncEnabled(ENABLE_VSYNC);
 	window->cursorCaptured(CAPTURE_CURSOR);

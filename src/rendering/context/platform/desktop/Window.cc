@@ -79,7 +79,10 @@ Window::Window(RenderingApi renderAPI,
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 #endif
 
-		// glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
+        // TODO: test high-dpi on other platforms (see glfwGetMonitorContentScale() below)
+#ifdef MACOS
+		glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
+#endif
 
 		auto viewportWidth = width;
 		auto viewportHeight = height;
