@@ -35,6 +35,7 @@ void DidSimulatePhysicsCallback(PhysicalWorld& world, float time);
 
 
 void InitLog();
+void LogBuildInfo();
 void SpawnDuckFruit(Scene& scene, Node& duckNode);
 void AddSlurm(Scene& scene, const vec3& location, const vec3& axis, float angle);
 void ShootBall(Scene& scene, const vec3& location, const vec3& direction);
@@ -78,6 +79,7 @@ a3d::Node*						g_duckNode;
 int main(int argc, const char* argv[]) {
 
 	InitLog();
+	LogBuildInfo();
 
 	auto window = make_unique<Window>(RenderingApi::OpenGL,
 									  *utils::ExecutableName(),
@@ -710,6 +712,19 @@ void InitLog() {
 	logger->level(LOG_LEVEL);
 
 	Logger::MainLogger().level(LOG_LEVEL);
+}
+
+void LogBuildInfo() {
+
+	auto buildInfo = BuildInfo::Info();
+	auto version = buildInfo.version();
+	LOG_I(logger, "A3D version: {}.{}.{}",
+		  version.major, version.minor, version.patch);
+	LOG_I(logger, "Build: {}", buildInfo.number());
+	LOG_I(logger, "Type: {}",
+		  buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
+	LOG_I(logger, "Origin: {}",
+		  buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
 }
 
 void SpawnDuckFruit(Scene& scene, Node& duckNode) {

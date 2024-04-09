@@ -29,6 +29,7 @@ void DidRenderCallback(VisualWorld& world, float time);
 
 
 void InitLog();
+void LogBuildInfo();
 
 
 constexpr LogLevel				LOG_LEVEL =				LogLevel::Debug;
@@ -48,6 +49,7 @@ std::unique_ptr<a3d::Logger>		logger;
 int main(int argc, const char* argv[]) {
 
 	InitLog();
+	LogBuildInfo();
 
 	auto window = make_unique<Window>(RenderingApi::OpenGL,
 									  *utils::ExecutableName(),
@@ -381,4 +383,17 @@ void InitLog() {
 	logger->level(LOG_LEVEL);
 
 	Logger::MainLogger().level(LOG_LEVEL);
+}
+
+void LogBuildInfo() {
+
+	auto buildInfo = BuildInfo::Info();
+	auto version = buildInfo.version();
+	LOG_I(logger, "A3D version: {}.{}.{}",
+		  version.major, version.minor, version.patch);
+	LOG_I(logger, "Build: {}", buildInfo.number());
+	LOG_I(logger, "Type: {}",
+		  buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
+	LOG_I(logger, "Origin: {}",
+		  buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
 }

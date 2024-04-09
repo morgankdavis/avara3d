@@ -27,8 +27,8 @@ BuildInfo::BuildInfo() {
 
 	_number = A3D_BUILD_NUMBER;
 	_version = {A3D_VERSION_MAJOR, A3D_VERSION_MINOR, A3D_VERSION_PATCH};
-	_type = *magic_enum::enum_cast<BuildInfo::TYPE>(A3D_BUILD_TYPE);
-	_origin = *magic_enum::enum_cast<BuildInfo::ORIGIN>(A3D_BUILD_ORIGIN);
+	_type = *magic_enum::enum_cast<BuildInfo::Type>(A3D_BUILD_TYPE);
+	_origin = *magic_enum::enum_cast<BuildInfo::Origin>(A3D_BUILD_ORIGIN);
 
 	// ISO 8601
 	// https://stackoverflow.com/questions/26895428/how-do-i-parse-an-iso-8601-date-with-optional-milliseconds-to-a-struct-tm-in-c
@@ -55,11 +55,11 @@ const BuildInfo::Version& BuildInfo::version() const {
 	return _version;
 }
 
-BuildInfo::TYPE BuildInfo::type() const {
+BuildInfo::Type BuildInfo::type() const {
 	return _type;
 }
 
-BuildInfo::ORIGIN BuildInfo::origin() const {
+BuildInfo::Origin BuildInfo::origin() const {
 	return _origin;
 }
 

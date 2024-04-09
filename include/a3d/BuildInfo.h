@@ -25,14 +25,14 @@ namespace a3d {
 			int patch;
 		};
 
-		enum class TYPE {
-			DEBUG,
-			RELEASE
+		enum class Type {
+			Debug,
+			Release
 		};
 
-		enum class ORIGIN {
+		enum class Origin {
 			CI,
-			ADHOC
+			AdHoc
 		};
 
 		/*********************************************************************************************
@@ -52,8 +52,8 @@ namespace a3d {
 
 		int 			number() const;
 		const Version&	version() const;
-		TYPE 			type() const;
-		ORIGIN 			origin() const;
+		Type 			type() const;
+		Origin 			origin() const;
 		const std::tm&	time() const;
 
 		/*********************************************************************************************
@@ -65,8 +65,8 @@ namespace a3d {
 		BuildInfo();
 		int 				_number;
 		Version 			_version;
-		TYPE	 			_type;
-		ORIGIN 				_origin;
+		Type	 			_type;
+		Origin 				_origin;
 		std::tm				_time;
 	};
 }

@@ -10,9 +10,23 @@ uniform mat4 projection;
 
 out vec3 color;
 
+
+// dashed
+flat out vec3 startPos;
+out vec3 vertPos;
+
+
 void main() {
 	color = vertex_color;
 	//vec3 vertex_position_eye = vec3(view * vec4(vertex_position, 1.0));
 	vec3 vertex_position_eye = vec3(view * model * vec4(vertex_position, 1.0));
 	gl_Position = projection * vec4(vertex_position_eye, 1.0);
+
+
+
+	// dashed
+	vec4 pos    = view * model * projection * vec4(vertex_position, 1.0);
+	//gl_Position = pos;
+	vertPos     = pos.xyz / pos.w;
+	startPos    = vertPos;
 }
