@@ -11,9 +11,13 @@ uniform mat4 projection;
 out vec3 color;
 
 
+
+// dashed lines: https://stackoverflow.com/questions/52928678/dashed-line-in-opengl3
+
+
 // dashed
-flat out vec3 startPos;
-out vec3 vertPos;
+//flat out vec3 startPos;
+//out vec3 vertPos;
 
 
 void main() {
@@ -25,8 +29,8 @@ void main() {
 
 
 	// dashed
-	vec4 pos    = view * model * projection * vec4(vertex_position, 1.0);
-	//gl_Position = pos;
-	vertPos     = pos.xyz / pos.w;
-	startPos    = vertPos;
+//	vec4 pos    = view * model * projection * vec4(vertex_position, 1.0);
+//	//xgl_Position = pos;
+//	vertPos     = pos.xyz / pos.w;
+//	startPos    = vertPos;
 }
