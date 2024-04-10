@@ -17,7 +17,6 @@
 
 
 using namespace a3d;
-using namespace a3d::utils;
 using namespace glm;
 using namespace std;
 using namespace std::placeholders;
@@ -325,7 +324,7 @@ void UpdateCallback(Scene& scene, float time) {
 
 			// move
 
-			static float MOVE_SPEED = Max(scene.rootNode()->extent());
+			static float MOVE_SPEED = utils::Max(scene.rootNode()->extent());
 
 			if (keysDown.count(Key::W)) {
 				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;

@@ -648,7 +648,7 @@ void a3d::utils::SaveSnapshot(RenderContext& context) {
 }
 
 void a3d::utils::StartGIFRecording(RenderContext& context,
-								   unsigned maxHeight, unsigned maxFramerate) {
+								   int maxHeight, int maxFramerate) {
 #ifdef ANDROID
 	throw Exception("StartGIFRecording() not supported on Android.");
 #else

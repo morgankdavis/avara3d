@@ -22,7 +22,6 @@
 
 
 using namespace a3d;
-using namespace a3d::utils;
 using namespace glm;
 using namespace std;
 using namespace std::placeholders;
@@ -101,7 +100,7 @@ int main(int argc, const char* argv[]) {
 //									: make_shared<Texture>(CubeImageNamed("stormy", "png"));
 	MaterialProperty background = monostate{};
 	if (DARK) background = Color::Black();
-	else background = make_shared<Texture>(CubeImageNamed("stormy", "png"));
+	else background = make_shared<Texture>(utils::CubeImageNamed("stormy", "png"));
 	visualWorld->background(background);
 	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
 	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
@@ -127,11 +126,11 @@ int main(int argc, const char* argv[]) {
 
 	auto pointColor = DARK
 					  ? Color::LightGray()
-					  : make_shared<Color>((uint32_t)0x3F2A00FF); // dark orangish
+					  : make_shared<Color>((uint32_t) 0x3F2A00FF); // dark orangish
 	auto pointLight = make_shared<Light>(LightType::Point, pointColor);
 	pointLight->attenuationFactor(0.0);
 	auto pointLightNode = Node::LightNode(pointLight);
-	pointLightNode->position(vec3(35, 20, (DARK ? 1.0 : -1.0 ) * 35) * vec3(2.5, 2.5, 2.5));
+	pointLightNode->position(vec3(35, 20, (DARK ? 1.0 : -1.0) * 35) * vec3(2.5, 2.5, 2.5));
 	scene->rootNode()->addChild(pointLightNode);
 
 
@@ -170,7 +169,7 @@ int main(int argc, const char* argv[]) {
 	const float PLANE_WIDTH = 50.0;
 	auto planeNode = Node::NamedNode("Ground plane node");
 	planeNode->mesh(Box::Mesh(PLANE_LENGTH, PLANE_WIDTH, 0));
-	auto gridImage = DARK ? ImageNamed("grid10")->inverted() : ImageNamed("grid10");
+	auto gridImage = DARK ? utils::ImageNamed("grid10")->inverted() : utils::ImageNamed("grid10");
 	auto planeTexture = make_shared<Texture>(std::move(gridImage));
 	planeTexture->sampler()->wrapS(WrapMode::Repeat);
 	planeTexture->sampler()->wrapT(WrapMode::Repeat);
@@ -190,10 +189,10 @@ int main(int argc, const char* argv[]) {
 											  Color::Gray());
 	}
 
-	planeMaterial->uvScale(PLANE_LENGTH/10.0);
+	planeMaterial->uvScale(PLANE_LENGTH / 10.0);
 	planeMaterial->doubleSided(false);
 	planeNode->mesh()->addMaterial(planeMaterial);
-	planeNode->rotation({1, 0, 0}, radians(3*90.0));
+	planeNode->rotation({1, 0, 0}, radians(3 * 90.0));
 	planeNode->position({planeNode->position().x, 0, planeNode->position().z});
 
 	auto planePhysicsBody = PhysicsBody::StaticBody();
@@ -208,7 +207,7 @@ int main(int argc, const char* argv[]) {
 
 	// add the palm tree
 
-	auto palmNode = Node::MeshNode(MeshNamed("palm/palm"));
+	auto palmNode = Node::MeshNode(utils::MeshNamed("palm/palm"));
 	g_palmNode = palmNode.get();
 	auto palmPhysicsBody = PhysicsBody::StaticBody();
 	palmPhysicsBody->mass(0);
@@ -221,9 +220,9 @@ int main(int argc, const char* argv[]) {
 
 	// add the duck
 
-	auto duckNode = Node::MeshNode(MeshNamed("rubber_duck/rubber_duck"));
+	auto duckNode = Node::MeshNode(utils::MeshNamed("rubber_duck/rubber_duck"));
 	g_duckNode = duckNode.get();
-	A3D_LOG_I("DUCK NODE: {}", StringFromTree(*duckNode));
+	A3D_LOG_I("DUCK NODE: {}", utils::StringFromTree(*duckNode));
 	duckNode->position({/*4.5*/0, 25, 0});
 
 
@@ -281,7 +280,7 @@ int main(int argc, const char* argv[]) {
 
 
 
-	LOG_I(logger, "*** SCENE EXTENT: {} ***", StringFromGLMVec3(scene->rootNode()->extent()));
+	LOG_I(logger, "*** SCENE EXTENT: {} ***", utils::StringFromGLMVec3(scene->rootNode()->extent()));
 
 //	A3D_LOG_I("Graph:\n{}", StringFromTree(*scene->rootNode()));
 //	auto children = scene->rootNode()->children(true);
@@ -368,7 +367,7 @@ void UpdateCallback(Scene& scene, float time) {
 	}
 
 	if (keysPressed.count(Key::Backslash)) {
-		SaveSnapshot(*window);
+		utils::SaveSnapshot(*window);
 	}
 
 
@@ -414,7 +413,7 @@ void UpdateCallback(Scene& scene, float time) {
 	if (!scene.paused()) {
 
 		if (keysPressed.count(Key::T)) {
-			LOG_I(logger, "TREE:\n{}", StringFromTree(*(scene.rootNode())));
+			LOG_I(logger, "TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
 		}
 
 		// spawn duck fruit
@@ -581,10 +580,10 @@ void UpdateCallback(Scene& scene, float time) {
 
 		if (keysPressed.count(Key::R)) {
 			if (!window->recordingGIF()) {
-				StartGIFRecording(*window, 320, 8);
+				utils::StartGIFRecording(*window, 320, 8);
 			}
 			else {
-				StopGIFRecording(*window);
+				utils::StopGIFRecording(*window);
 			}
 		}
 
@@ -594,7 +593,7 @@ void UpdateCallback(Scene& scene, float time) {
 				if (mesh) {
 					auto physicsBody = n->physicsBody();
 					if (physicsBody && physicsBody->type() != PhysicsBodyType::Static) {
-						bool coin = Uniform(0, 1) == 1;
+						bool coin = utils::Uniform(0, 1) == 1;
 						if (coin) {
 							n->removeFromParent();
 						}
@@ -636,7 +635,7 @@ void UpdateCallback(Scene& scene, float time) {
 
 				// move
 
-				static float MOVE_SPEED = Max(scene.rootNode()->extent());
+				static float MOVE_SPEED = utils::Max(scene.rootNode()->extent());
 
 				float moveMultiplier = 1.0;
 				if (keysDown.count(Key::LeftControl)) {
@@ -740,10 +739,12 @@ void SpawnDuckFruit(Scene& scene, Node& duckNode) {
 //		return nullptr;
 
 
-		int fruitNum = Uniform(0, 5);
+		int fruitNum = utils::Uniform(0, 5);
 		static shared_ptr<Node> node = nullptr;
 		//shared_ptr<PhysicsShape> physicsShape = nullptr;
 		float mass = 1;
+
+		using utils::MeshNamed;
 
 		switch (fruitNum) {
 			case 0: {
@@ -829,6 +830,8 @@ void SpawnDuckFruit(Scene& scene, Node& duckNode) {
 
 		// add random factor
 
+		using utils::Uniform;
+
 		static const float PI = 3.1415; // windows doesn't like M_PI from cmath (?)
 		float heading = Uniform(0.0f, 2*PI);
 		float pitch = Uniform(0.0f, 2*PI);
@@ -874,7 +877,7 @@ void AddSlurm(Scene& scene, const vec3& location, const vec3& axis, float angle)
 //	//node->addChild(canNode);
 //	auto node = canNode;
 
-	static auto mesh = MeshNamed("slurm/slurm");
+	static auto mesh = utils::MeshNamed("slurm/slurm");
 
 	auto node = Node::MeshNode(mesh);
 
@@ -958,7 +961,7 @@ void ShootBall(Scene& scene, const vec3& location, const vec3& direction) {
 //			node->mesh()->addMaterial(m);
 //		}
 
-		static auto mesh = MeshNamed("slurm/slurm");
+		static auto mesh = utils::MeshNamed("slurm/slurm");
 
 		auto node = Node::MeshNode(mesh);
 
@@ -983,6 +986,7 @@ void ShootBall(Scene& scene, const vec3& location, const vec3& direction) {
 #endif
 
 
+		using utils::Uniform;
 
 		// add random factor
 
@@ -1136,7 +1140,7 @@ void AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color) {
 
 void AddCardboardBox(Scene& scene, const vec3& location, const vec3& axis, float angle) {
 
-	static auto mesh = MeshNamed("cardboard_box/cardboard_box");
+	static auto mesh = utils::MeshNamed("cardboard_box/cardboard_box");
 
 	auto node = Node::MeshNode(mesh);
 
@@ -1158,7 +1162,7 @@ void AddCardboardBox(Scene& scene, const vec3& location, const vec3& axis, float
 void SpawnHACDTeapot(Scene& scene) {
 
 	//auto teapotNode = SceneNamed("teapot", "dae")->rootNode()->child("teapot", false);
-	auto teapotNode = Node::MeshNode(MeshNamed("teapot/teapot"));
+	auto teapotNode = Node::MeshNode(utils::MeshNamed("teapot/teapot"));
 
 	ConvexDecomposer::Options options;
 	options.maxConvexHulls = options.maxConvexHulls / 2;
@@ -1257,7 +1261,7 @@ void AddSlurms(Scene& scene) {
 	float z = -9;
 
 	for (int i=0; i<19; ++i) {
-		AddSlurm(scene, {x, y, z}, {0, 1, 0}, radians((float)Uniform(0, 359)));
+		AddSlurm(scene, {x, y, z}, {0, 1, 0}, radians((float)utils::Uniform(0, 359)));
 		z += 1;
 	}
 }

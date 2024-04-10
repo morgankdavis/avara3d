@@ -17,7 +17,6 @@
 
 
 using namespace a3d;
-using namespace a3d::utils;
 using namespace glm;
 using namespace std;
 using namespace std::placeholders;
@@ -80,7 +79,7 @@ int main(int argc, const char* argv[]) {
 //	auto options = SceneImportOptions::ImportLights
 //				   | SceneImportOptions::ImportCameras;
 
-	auto testScene = SceneNamed("import_test/import_test", options);
+	auto testScene = utils::SceneNamed("import_test/import_test", options);
 
 	auto testSceneNodes = testScene->rootNode()->children();
 	auto importLightsCamerasRoot = make_shared<Node>("importLightsCamerasRoot");

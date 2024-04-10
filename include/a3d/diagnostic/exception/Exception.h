@@ -24,7 +24,7 @@ namespace a3d {
 	Lifecycle
  *********************************************************************************************/
 
-		Exception(const std::string& what);
+		explicit Exception(const std::string& what);
 	};
 }
 

@@ -66,6 +66,8 @@ namespace a3d {
 		std::string StackTrace(unsigned dropFunctions = 0);
 #endif
 
+#pragma mark Your Mom
+
 /*********************************************************************************************
 	Numeric Utilities
  *********************************************************************************************/
@@ -173,7 +175,7 @@ namespace a3d {
 
 		void SaveSnapshot(RenderContext& context);
 		void StartGIFRecording(RenderContext& context,
-							   unsigned maxHeight, unsigned maxFramerate);
+							   int maxHeight, int maxFramerate);
 		void StopGIFRecording(RenderContext& context);
 	}
 }

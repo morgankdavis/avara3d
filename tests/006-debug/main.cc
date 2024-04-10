@@ -8,7 +8,6 @@
 
 #include <memory>
 #include <utility>
-#include <vector>
 
 #include <glm/glm.hpp>
 
@@ -17,7 +16,6 @@
 
 
 using namespace a3d;
-using namespace a3d::utils;
 using namespace glm;
 using namespace std;
 using namespace std::placeholders;
@@ -66,7 +64,7 @@ int main(int argc, const char* argv[]) {
 	visualWorld->fogEndDistance(5000.0);
 	visualWorld->fogDensityExponent(1.0);
 	visualWorld->fogColor(Color::LightGray());
-	visualWorld->background(make_shared<Texture>(CubeImageNamed("sky1", "png")));
+	visualWorld->background(make_shared<Texture>(utils::CubeImageNamed("sky1", "png")));
 	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
 	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
 
@@ -102,12 +100,12 @@ int main(int argc, const char* argv[]) {
 //	mesh->replaceMaterial(0, material); // TODO: EHHHHHHHH??????????/
 	pointLightNode->mesh(mesh);
 
-	auto teapotNode = Node::MeshNode(MeshNamed("teapot/teapot"));
+	auto teapotNode = Node::MeshNode(utils::MeshNamed("teapot/teapot"));
 	teapotNode->rotation({1, 0, 0}, radians(30.0));
 	teapotNode->scale(teapotNode->scale() * 50.0f);
 	scene->rootNode()->addChild(teapotNode);
 
-	auto dragonNode = Node::MeshNode(MeshNamed("dragon/dragon"));
+	auto dragonNode = Node::MeshNode(utils::MeshNamed("dragon/dragon"));
 	dragonNode->scale({2.5, 2.5, 2.5});
 	dragonNode->position({50, 0, 0});
 
@@ -182,15 +180,15 @@ void UpdateCallback(Scene& scene, float time) {
 	}
 
 	if (keysPressed.count(Key::Backslash)) {
-		SaveSnapshot(*window);
+		utils::SaveSnapshot(*window);
 	}
 
 	if (keysPressed.count(Key::R)) {
 		if (!window->recordingGIF()) {
-			StartGIFRecording(*window, 320, 8);
+			utils::StartGIFRecording(*window, 320, 8);
 		}
 		else {
-			StopGIFRecording(*window);
+			utils::StopGIFRecording(*window);
 		}
 	}
 
@@ -220,7 +218,7 @@ void UpdateCallback(Scene& scene, float time) {
 
 			// move
 
-			static float MOVE_SPEED = Max(scene.rootNode()->extent());
+			static float MOVE_SPEED = utils::Max(scene.rootNode()->extent());
 
 			auto keysDown = scene.inputManager()->keysDown();
 
