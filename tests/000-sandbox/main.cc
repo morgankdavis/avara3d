@@ -62,6 +62,8 @@ shared_ptr<Mesh>*			g_mesh;
 
 int main(int argc, const char* argv[]) {
 
+	using utils::MeshNamed;
+
 	InitLog();
 	LogBuildInfo();
 
@@ -214,7 +216,6 @@ int main(int argc, const char* argv[]) {
 //		auto testMesh = MeshNamed("cartoon_palm_tree/cartoon_palm_tree");
 //		auto testMesh = MeshNamed("crocus/crocus");
 
-	using utils::MeshNamed;
 
 	auto meshes = vector<shared_ptr<Mesh>>{
 			MeshNamed("apple_lod/apple_lod"),

@@ -728,6 +728,9 @@ void LogBuildInfo() {
 
 void SpawnDuckFruit(Scene& scene, Node& duckNode) {
 
+	using utils::MeshNamed;
+	using utils::Uniform;
+
 	constexpr float SPAWN_RATE = 7.5; // pieces/sec
 
 	float time = Scene::Time();
@@ -743,8 +746,6 @@ void SpawnDuckFruit(Scene& scene, Node& duckNode) {
 		static shared_ptr<Node> node = nullptr;
 		//shared_ptr<PhysicsShape> physicsShape = nullptr;
 		float mass = 1;
-
-		using utils::MeshNamed;
 
 		switch (fruitNum) {
 			case 0: {
@@ -830,8 +831,6 @@ void SpawnDuckFruit(Scene& scene, Node& duckNode) {
 
 		// add random factor
 
-		using utils::Uniform;
-
 		static const float PI = 3.1415; // windows doesn't like M_PI from cmath (?)
 		float heading = Uniform(0.0f, 2*PI);
 		float pitch = Uniform(0.0f, 2*PI);
@@ -895,6 +894,8 @@ void AddSlurm(Scene& scene, const vec3& location, const vec3& axis, float angle)
 }
 
 void ShootBall(Scene& scene, const vec3& location, const vec3& direction) {
+
+	using utils::Uniform;
 
 	constexpr float SHOOT_RATE = 20; // balls/sec
 
@@ -984,9 +985,6 @@ void ShootBall(Scene& scene, const vec3& location, const vec3& direction) {
 
 
 #endif
-
-
-		using utils::Uniform;
 
 		// add random factor
 
