@@ -18,7 +18,6 @@
 
 
 using namespace a3d;
-using namespace a3d::utils;
 using namespace glm;
 using namespace std;
 using namespace std::placeholders;
@@ -87,7 +86,7 @@ int main(int argc, const char* argv[]) {
 //					  : make_shared<MaterialProperty>(CubeImageNamed("kloppenheim", "png"));
 	MaterialProperty background = monostate{};
 	if (DARK) background = Color::Black();
-	else background = make_shared<Texture>(CubeImageNamed("kloppenheim", "png"));
+	else background = make_shared<Texture>(utils::CubeImageNamed("kloppenheim", "png"));
 	visualWorld->background(background);
 	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
 	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
@@ -129,7 +128,7 @@ int main(int argc, const char* argv[]) {
 	auto planeNode = make_shared<Node>("Ground plane node");
 	//planeNode->mesh(Mesh::Box(PLANE_LENGTH, PLANE_WIDTH, 0));
 	planeNode->mesh(Box::Mesh(PLANE_LENGTH, PLANE_WIDTH, 0));
-	auto gridImage = DARK ? ImageNamed("grid10")->inverted() : ImageNamed("grid10");
+	auto gridImage = DARK ? utils::ImageNamed("grid10")->inverted() : utils::ImageNamed("grid10");
 	auto planeTexture = make_shared<Texture>(std::move(gridImage));
 	planeTexture->sampler()->wrapS(WrapMode::Repeat);
 	planeTexture->sampler()->wrapT(WrapMode::Repeat);
@@ -215,6 +214,7 @@ int main(int argc, const char* argv[]) {
 //		auto testMesh = MeshNamed("cartoon_palm_tree/cartoon_palm_tree");
 //		auto testMesh = MeshNamed("crocus/crocus");
 
+	using utils::MeshNamed;
 
 	auto meshes = vector<shared_ptr<Mesh>>{
 			MeshNamed("apple_lod/apple_lod"),
@@ -382,7 +382,7 @@ void UpdateCallback(Scene& scene, float time) {
 	}
 
 	if (keysPressed.count(Key::T)) {
-		LOG_I(logger, "TREE:\n{}", StringFromTree(*(scene.rootNode())));
+		LOG_I(logger, "TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
 	}
 
 	if (keysPressed.count(Key::One)) {
@@ -538,7 +538,7 @@ void UpdateCallback(Scene& scene, float time) {
 	}
 
 	if (keysPressed.count(Key::Backslash)) {
-		SaveSnapshot(*window);
+		utils::SaveSnapshot(*window);
 	}
 
 	if (keysPressed.count(Key::Slash)) {
@@ -547,10 +547,10 @@ void UpdateCallback(Scene& scene, float time) {
 
 	if (keysPressed.count(Key::R)) {
 		if (!window->recordingGIF()) {
-			StartGIFRecording(*window, 320, 8);
+			utils::StartGIFRecording(*window, 320, 8);
 		}
 		else {
-			StopGIFRecording(*window);
+			utils::StopGIFRecording(*window);
 		}
 	}
 
@@ -580,7 +580,7 @@ void UpdateCallback(Scene& scene, float time) {
 			// move
 
 			static float MOVE_SPEED = 0;
-			if (!MOVE_SPEED) MOVE_SPEED = Max(scene.rootNode()->extent());
+			if (!MOVE_SPEED) MOVE_SPEED = utils::Max(scene.rootNode()->extent());
 
 			float moveMultiplier = 1.0;
 			if (keysDown.count(Key::LeftControl)) {

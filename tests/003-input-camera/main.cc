@@ -19,7 +19,6 @@
 
 
 using namespace a3d;
-using namespace a3d::utils;
 using namespace glm;
 using namespace std;
 using namespace std::placeholders;
@@ -62,7 +61,7 @@ int main(int argc, const char* argv[]) {
 
 	auto inputManager = make_unique<WindowInputManager>(window.get());
 
-	auto scene = SceneNamed("import_test/import_test");
+	auto scene = utils::SceneNamed("import_test/import_test");
 	scene->visualWorld(std::move(visualWorld));
 	scene->inputManager(std::move(inputManager));
 	scene->update(bind(&UpdateCallback, _1, _2));
@@ -145,7 +144,7 @@ void UpdateCallback(Scene& scene, float time) {
 
 		// move
 
-		static float MOVE_SPEED = Max(scene.rootNode()->extent());
+		static float MOVE_SPEED = utils::Max(scene.rootNode()->extent());
 
 		if(keysDown.count(Key::W)) {
 			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;

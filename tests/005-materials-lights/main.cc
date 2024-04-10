@@ -18,7 +18,6 @@
 
 
 using namespace a3d;
-using namespace a3d::utils;
 using namespace glm;
 using namespace std;
 using namespace std::placeholders;
@@ -74,11 +73,11 @@ int main(int argc, const char* argv[]) {
 	visualWorld->fogColor(Color::LightGray());
 	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
 	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
-	visualWorld->background(make_shared<Texture>(shared_ptr(std::move(CubeImageNamed("nebula1_blue", "png")))));
+	visualWorld->background(make_shared<Texture>(shared_ptr(std::move(utils::CubeImageNamed("nebula1_blue", "png")))));
 
 	auto inputManager = make_unique<WindowInputManager>(window.get());
 
-	auto scene = SceneNamed("cat_island/cat_island", SceneImportOptions::ImportMeshes
+	auto scene = utils::SceneNamed("cat_island/cat_island", SceneImportOptions::ImportMeshes
 													 | SceneImportOptions::ImportMaterials
 													 | SceneImportOptions::ImportCameras);
 
@@ -172,7 +171,7 @@ void UpdateCallback(Scene& scene, float time) {
 	}
 
 	if (keysPressed.count(Key::T)) {
-		LOG_I(logger, "TREE:\n{}", StringFromTree(*(scene.rootNode())));
+		LOG_I(logger, "TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
 	}
 
 	if 		(keysPressed.count(Key::One))	SetAllFilterModes(FilterMode::Nearest, scene);
@@ -221,15 +220,15 @@ void UpdateCallback(Scene& scene, float time) {
 	}
 
 	if (keysPressed.count(Key::Backslash)) {
-		SaveSnapshot(*window);
+		utils::SaveSnapshot(*window);
 	}
 
 	if (keysPressed.count(Key::R)) {
 		if (!window->recordingGIF()) {
-			StartGIFRecording(*window, 320, 8);
+			utils::StartGIFRecording(*window, 320, 8);
 		}
 		else {
-			StopGIFRecording(*window);
+			utils::StopGIFRecording(*window);
 		}
 	}
 
@@ -280,7 +279,7 @@ void UpdateCallback(Scene& scene, float time) {
 			auto keysDown = scene.inputManager()->keysDown();
 
 			static float MOVE_SPEED = 0;
-			if (!MOVE_SPEED) MOVE_SPEED = Max(scene.rootNode()->extent());
+			if (!MOVE_SPEED) MOVE_SPEED = utils::Max(scene.rootNode()->extent());
 
 			float moveMultiplier = 1.0;
 			if (keysDown.count(Key::LeftControl)) {

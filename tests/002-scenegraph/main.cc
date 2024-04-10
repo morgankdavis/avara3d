@@ -19,7 +19,6 @@
 
 
 using namespace a3d;
-using namespace a3d::utils;
 using namespace glm;
 using namespace std;
 using namespace std::placeholders;

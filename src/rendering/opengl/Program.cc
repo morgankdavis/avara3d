@@ -15,6 +15,7 @@
 #include "GL/glew.h"
 #endif
 
+#include "fmt/format.h"
 #include "glm/gtc/type_ptr.hpp"
 #include "magic_enum.hpp"
 
@@ -486,12 +487,14 @@ void Program::prepare() {
 			}
 			else {
 				//A3D_LOG_C("Failed linking '{}' program:\n{}", _name, *_logString);
-				A3D_LOG_C("Failed linking '{}' program.", _name);
+				//A3D_LOG_C("Failed linking program '{}'.", _name);
+				throw Exception(fmt::format("Failed linking program '{}'.", _name));
 			}
 		}
 		else {
 			//A3D_LOG_C("Failed compiling '{}' shaders:\n{}", _name, *_logString);
-			A3D_LOG_C("Failed compiling '{}' shaders.", _name);
+			//A3D_LOG_C("Failed compiling '{}' shaders.", _name);
+			throw Exception(fmt::format("Failed compiling '{}' shaders.", _name));
 		}
 	}
 }

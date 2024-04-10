@@ -176,6 +176,11 @@ Window::~Window() {
 void Window::open() {
 	A3D_LOG_T("");
 
+//	auto thing = vector<int>();
+//	vector<int> thing2;
+//	A3D_LOG_I("thing[1]: {}", thing.at(1));
+
+
 	if (_visualWorld && _visualWorld->scene()) {
 		glfwMakeContextCurrent(_glfwWindow.get());
 		
