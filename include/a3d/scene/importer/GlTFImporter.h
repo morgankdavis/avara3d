@@ -1,6 +1,6 @@
 //
 //  GlTFImporter.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 1/30/24.
 //  Copyright © 2024 Morgan K Davis. All rights reserved.

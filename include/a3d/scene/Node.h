@@ -1,6 +1,6 @@
 //
 //  Node.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 10/20/16.
 //  Copyright © 2024 Morgan K Davis. All rights reserved.

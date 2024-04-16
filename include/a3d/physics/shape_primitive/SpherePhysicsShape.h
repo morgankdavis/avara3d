@@ -1,6 +1,6 @@
 //
 //  SpherePhysicsShape.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 11/19/23.
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
