@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 12/23/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 //  Based largely on code from "OpenGL 4 Shading Language Cookbook" by David Wolff
 //

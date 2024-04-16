@@ -1,5 +1,9 @@
 //
-// Created by mkd on 10/22/23.
+//  OrthographicCamera.cc
+//	avara3d
+//
+//  Created by Morgan Davis on 10/22/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/rendering/camera/OrthographicCamera.h"

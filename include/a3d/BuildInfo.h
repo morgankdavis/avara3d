@@ -1,5 +1,9 @@
 //
-// Created by mkd on 1/19/24.
+//  BuildInfo.h
+//	avara3d
+//
+//  Created by Morgan Davis on 1/19/24.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_BUILDINFO_H

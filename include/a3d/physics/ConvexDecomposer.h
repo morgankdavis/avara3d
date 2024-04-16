@@ -1,8 +1,10 @@
 //
-// Created by mkd on 11/5/23.
+//  ConvexDecomposer.h
+//	avara3d
 //
-
-// TODO: make async
+//  Created by Morgan Davis on 11/5/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//
 
 #ifndef ConvexDecomposer_h
 #define ConvexDecomposer_h

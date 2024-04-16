@@ -1,5 +1,9 @@
 //
-// Created by mkd on 2/7/24.
+//  Texture.cc
+//	avara3d
+//
+//  Created by Morgan Davis on 2/7/24.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/rendering/material/Texture.h"

@@ -1,9 +1,12 @@
 //
-// Created by mkd on 1/30/24.
+//  GlTFImporter.cc
+//	avara3d
+//
+//  Created by Morgan Davis on 1/30/24.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/scene/importer/GlTFImporter.h"
-
 
 #include <filesystem>
 #include <utility>

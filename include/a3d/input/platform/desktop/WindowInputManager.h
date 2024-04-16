@@ -3,7 +3,7 @@
 //	avara3d
 //
 //  Created by Morgan Davis on 5/6/18.
-//  Copyright © 2018 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #ifndef WindowInputManager_h

@@ -1,5 +1,9 @@
 //
-// Created by mkd on 3/6/24.
+//  Spring.h
+//	avara3d
+//
+//  Created by Morgan Davis on 3/6/24.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_SPRING_H

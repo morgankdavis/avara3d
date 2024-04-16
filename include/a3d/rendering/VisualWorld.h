@@ -1,5 +1,9 @@
 //
-// Created by mkd on 11/25/23.
+//  VisualWorld.h
+//	avara3d
+//
+//  Created by Morgan Davis on 11/25/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_VISUALWORLD_H

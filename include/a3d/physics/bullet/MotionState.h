@@ -1,5 +1,9 @@
 //
-// Created by mkd on 12/15/23.
+//  MotionState.h
+//	avara3d
+//
+//  Created by Morgan Davis on 12/15/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_BULLET_MOTIONSTATE_H

@@ -1,5 +1,9 @@
 //
-// Created by mkd on 11/19/23.
+//  ConePhysicsShape.cc
+//	avara3d
+//
+//  Created by Morgan Davis on 11/19/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/physics/shape_primitive/ConePhysicsShape.h"

@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 9/20/17.
-//  Copyright © 2017 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #ifndef A3D_h

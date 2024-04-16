@@ -3,10 +3,7 @@
 //	avara3d
 //
 //  Created by Morgan Davis on 10/21/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
-//
-//  Pads to 8 bit RGBA
-//  Would like to handle 1, 3 and 4 component pixel formats, but that seemes harder than expected...
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #ifndef Image_h
