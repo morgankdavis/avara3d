@@ -21,7 +21,7 @@ class btRigidBody;
 namespace a3d {
 
 
-	class MotionState;
+	class BulletMotionState;
 
 
 	class BulletBodyProxy : public PhysicsBodyProxy {
@@ -119,7 +119,7 @@ namespace a3d {
  *********************************************************************************************/
 
 		btRigidBody*			btBody();
-		MotionState*			motionState();
+		BulletMotionState*			motionState();
 
 /*********************************************************************************************
 	 Private
@@ -130,7 +130,7 @@ namespace a3d {
 		void					calculateMomentOfIntertia();
 
 		std::unique_ptr<btRigidBody>	_btBody;
-		std::unique_ptr<MotionState>	_motionState;
+		std::unique_ptr<BulletMotionState>	_motionState;
 	};
 }
 

@@ -29,7 +29,7 @@
 #include "a3d/physics/PhysicsShape.h"
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/physics/bullet/BulletWorldProxy.h"
-#include "a3d/physics/bullet/Utilities.h"
+#include "a3d/physics/bullet/BulletUtilities.h"
 #include "a3d/physics/proxy/PhysicsBodyProxy.h"
 #include "a3d/physics/shape_primitive/BoxPhysicsShape.h"
 #include "a3d/physics/shape_primitive/CapsulePhysicsShape.h"

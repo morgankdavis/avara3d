@@ -1,12 +1,12 @@
 //
-//  Utilities.cc
+//  BulletUtilities.cc
 //	avara3d
 //
 //  Created by Morgan Davis on 12/15/23.
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/physics/bullet/Utilities.h"
+#include "a3d/physics/bullet/BulletUtilities.h"
 
 #include "glm/gtc/type_ptr.hpp"
 #include "glm/gtx/matrix_decompose.hpp"

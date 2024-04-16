@@ -1,5 +1,5 @@
 //
-//  MotionState.h
+//  BulletMotionState.h
 //	avara3d
 //
 //  Created by Morgan Davis on 12/15/23.
@@ -19,7 +19,7 @@ namespace a3d {
 	class PhysicsBody;
 
 
-	class MotionState : public btMotionState {
+	class BulletMotionState : public btMotionState {
 
 /*********************************************************************************************
 	Lifecycle
@@ -27,7 +27,7 @@ namespace a3d {
 
 	public:
 
-		explicit MotionState(PhysicsBody& body);
+		explicit BulletMotionState(PhysicsBody& body);
 
 /*********************************************************************************************
 	btMotionState

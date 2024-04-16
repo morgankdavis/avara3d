@@ -24,7 +24,7 @@
 #include "a3d/Color.h"
 #include "a3d/Image.h"
 #include "a3d/Types.h"
-#include "a3d/diagnostic/exception/UnsupportedFormat.h"
+#include "a3d/diagnostic/exception/UnsupportedFormatException.h"
 #include "a3d/diagnostic/logging/Logger.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
@@ -67,7 +67,7 @@ GlTFImporter::GlTFImporter(const filesystem::path& path,
 
 	auto extension = path.extension();
 	if (!(extension == ".gltf" || extension == ".glb")) {
-		throw UnsupportedFormat(fmt::format("Unsupported format: {}", extension.string()));
+		throw UnsupportedFormatException(fmt::format("Unsupported format: {}", extension.string()));
 	}
 }
 
