@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Activity_h
-#define Activity_h
+#ifndef AVARA3D_ACTIVITY_H
+#define AVARA3D_ACTIVITY_H
 
 #ifdef ANDROID
 
@@ -104,4 +104,4 @@ namespace a3d {
 
 #endif // ANDROID
 
-#endif /* Activity_h */
+#endif /* AVARA3D_ACTIVITY_H */

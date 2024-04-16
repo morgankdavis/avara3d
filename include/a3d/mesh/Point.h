@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Point_h
-#define Point_h
+#ifndef AVARA3D_POINT_H
+#define AVARA3D_POINT_H
 
 
 #include <memory>
@@ -53,4 +53,4 @@ namespace a3d {
 }
 
 
-#endif /* Point_h */
+#endif /* AVARA3D_POINT_H */

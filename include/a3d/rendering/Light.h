@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Light_h
-#define Light_h
+#ifndef AVARA3D_LIGHT_H
+#define AVARA3D_LIGHT_H
 
 
 #include <memory>
@@ -85,4 +85,4 @@ namespace a3d {
 }
 
 
-#endif /* Light_h */
+#endif /* AVARA3D_LIGHT_H */

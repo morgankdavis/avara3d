@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef RenderContext_h
-#define RenderContext_h
+#ifndef AVARA3D_RENDERCONTEXT_H
+#define AVARA3D_RENDERCONTEXT_H
 
 
 #include <filesystem>
@@ -121,4 +121,4 @@ namespace a3d {
 }
 
 
-#endif /* RenderContext_h */
+#endif /* AVARA3D_RENDERCONTEXT_H */

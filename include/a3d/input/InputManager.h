@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef InputManager_h
-#define InputManager_h
+#ifndef AVARA3D_INPUTMANAGER_H
+#define AVARA3D_INPUTMANAGER_H
 
 
 #include <memory>
@@ -98,5 +98,5 @@ namespace a3d {
 	};
 }
 
-#endif /* InputManager_h */
+#endif /* AVARA3D_INPUTMANAGER_H */
 

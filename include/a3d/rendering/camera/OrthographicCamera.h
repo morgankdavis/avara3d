@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef OrthographicCamera_h
-#define OrthographicCamera_h
+#ifndef AVARA3D_ORTHOGRAPHICCAMERA_H
+#define AVARA3D_ORTHOGRAPHICCAMERA_H
 
 
 #include "a3d/Types.h"
@@ -52,4 +52,4 @@ namespace a3d {
 	};
 }
 
-#endif /* OrthographicCamera_h */
+#endif /* AVARA3D_ORTHOGRAPHICCAMERA_H */

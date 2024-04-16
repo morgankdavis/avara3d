@@ -12,7 +12,6 @@
 
 #include <memory>
 
-
 #include "a3d/mesh/MeshElement.h"
 
 

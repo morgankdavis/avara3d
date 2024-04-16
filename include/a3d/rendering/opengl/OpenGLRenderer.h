@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef OpenGLRenderer_h
-#define OpenGLRenderer_h
+#ifndef AVARA3D_OPENGLRENDERER_H
+#define AVARA3D_OPENGLRENDERER_H
 
 
 #include <map>
@@ -120,4 +120,4 @@ namespace a3d {
 }
 
 
-#endif /* OpenGLRenderer_h */
+#endif /* AVARA3D_OPENGLRENDERER_H */

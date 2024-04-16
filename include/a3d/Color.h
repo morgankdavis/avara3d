@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Color_h
-#define Color_h
+#ifndef AVARA3D_COLOR_H
+#define AVARA3D_COLOR_H
 
 
 #include <memory>
@@ -74,4 +74,4 @@ namespace a3d {
 }
 
 
-#endif /* Color_h */
+#endif /* AVARA3D_COLOR_H */

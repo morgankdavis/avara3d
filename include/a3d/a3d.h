@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef A3D_h
-#define A3D_h
+#ifndef AVARA3D_A3D_H
+#define AVARA3D_A3D_H
 
 
 #include "a3d/Buffer.h"
@@ -74,4 +74,4 @@
 #include "a3d/scene/Scene.h"
 
 
-#endif /* A3D_h */
+#endif /* AVARA3D_A3D_H */

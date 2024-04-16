@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Tube_h
-#define Tube_h
+#ifndef AVARA3D_TUBE_H
+#define AVARA3D_TUBE_H
 
 
 #include <memory>
@@ -78,4 +78,4 @@ namespace a3d {
 }
 
 
-#endif /* Tube_h */
+#endif /* AVARA3D_TUBE_H */

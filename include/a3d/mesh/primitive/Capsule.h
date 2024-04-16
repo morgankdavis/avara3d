@@ -6,11 +6,11 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Capsule_h
-#define Capsule_h
+#ifndef AVARA3D_CAPSULE_H
+#define AVARA3D_CAPSULE_H
+
 
 #include <memory>
-
 
 #include "a3d/mesh/MeshElement.h"
 
@@ -74,4 +74,4 @@ namespace a3d {
 }
 
 
-#endif /* Capsule_h */
+#endif /* AVARA3D_CAPSULE_H */

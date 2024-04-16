@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Exception_h
-#define Exception_h
+#ifndef AVARA3D_EXCEPTION_H
+#define AVARA3D_EXCEPTION_H
 
 
 #include <stdexcept>
@@ -29,4 +29,4 @@ namespace a3d {
 }
 
 
-#endif /* Exception_h */
+#endif /* AVARA3D_EXCEPTION_H */

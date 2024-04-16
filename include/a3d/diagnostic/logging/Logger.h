@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Logger_h
-#define Logger_h
+#ifndef AVARA3D_LOGGER_H
+#define AVARA3D_LOGGER_H
 
 
 #include <cstdio>
@@ -183,4 +183,4 @@ namespace a3d {
 }
 
 
-#endif /* Logger_h */
+#endif /* AVARA3D_LOGGER_H */

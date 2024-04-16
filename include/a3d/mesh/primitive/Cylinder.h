@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Cylinder_h
-#define Cylinder_h
+#ifndef AVARA3D_CYLINDER_H
+#define AVARA3D_CYLINDER_H
 
 
 #include <memory>
@@ -74,4 +74,4 @@ namespace a3d {
 }
 
 
-#endif /* Cylinder_h */
+#endif /* AVARA3D_CYLINDER_H */

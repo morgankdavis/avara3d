@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Image_h
-#define Image_h
+#ifndef AVARA3D_IMAGE_H
+#define AVARA3D_IMAGE_H
 
 
 #include <filesystem>
@@ -86,4 +86,4 @@ namespace a3d {
 }
 
 
-#endif /* Image_h */
+#endif /* AVARA3D_IMAGE_H */

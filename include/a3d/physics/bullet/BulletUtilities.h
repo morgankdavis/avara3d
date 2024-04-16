@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_BULLET_UTILITIES_H
-#define AVARA3D_BULLET_UTILITIES_H
+#ifndef AVARA3D_BULLETUTILITIES_H
+#define AVARA3D_BULLETUTILITIES_H
 
 
 #include "glm/glm.hpp"
@@ -33,4 +33,4 @@ namespace a3d {
 }
 
 
-#endif //AVARA3D_BULLET_UTILITIES_H
+#endif //AVARA3D_BULLETUTILITIES_H

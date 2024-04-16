@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Line_h
-#define Line_h
+#ifndef AVARA3D_LINE_H
+#define AVARA3D_LINE_H
 
 
 #include <memory>
@@ -67,4 +67,4 @@ namespace a3d {
 }
 
 
-#endif /* Line_h */
+#endif /* AVARA3D_LINE_H */

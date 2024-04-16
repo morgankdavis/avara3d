@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Renderer_h
-#define Renderer_h
+#ifndef AVARA3D_RENDERER_H
+#define AVARA3D_RENDERER_H
 
 
 #include <memory>
@@ -91,4 +91,4 @@ namespace a3d {
 }
 
 
-#endif /* Renderer_h */
+#endif /* AVARA3D_RENDERER_H */

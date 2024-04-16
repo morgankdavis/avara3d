@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Utilities_h
-#define Utilities_h
+#ifndef AVARA3D_UTILITIES_H
+#define AVARA3D_UTILITIES_H
 
 
 #include <filesystem>
@@ -65,8 +65,6 @@ namespace a3d {
 #ifdef POSIX
 		std::string StackTrace(unsigned dropFunctions = 0);
 #endif
-
-#pragma mark Your Mom
 
 /*********************************************************************************************
 	Numeric Utilities
@@ -180,4 +178,4 @@ namespace a3d {
 	}
 }
 
-#endif /* Utilities_h */
+#endif /* AVARA3D_UTILITIES_H */

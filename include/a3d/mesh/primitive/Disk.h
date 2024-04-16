@@ -9,8 +9,8 @@
 #ifndef AVARA3D_DISK_H
 #define AVARA3D_DISK_H
 
-#include <memory>
 
+#include <memory>
 
 #include "a3d/mesh/MeshElement.h"
 

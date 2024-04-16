@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Scene_h
-#define Scene_h
+#ifndef AVARA3D_SCENE_H
+#define AVARA3D_SCENE_H
 
 
 #include <filesystem>
@@ -123,4 +123,4 @@ namespace a3d {
 }
 
 
-#endif /* Scene_h */
+#endif /* AVARA3D_SCENE_H */

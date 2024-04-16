@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Buffer_h
-#define Buffer_h
+#ifndef AVARA3D_BUFFER_H
+#define AVARA3D_BUFFER_H
 
 
 #include <filesystem>
@@ -56,4 +56,4 @@ namespace a3d {
 }
 
 
-#endif /* Buffer_h */
+#endif /* AVARA3D_BUFFER_H */

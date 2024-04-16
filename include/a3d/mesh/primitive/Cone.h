@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Cone_h
-#define Cone_h
+#ifndef AVARA3D_CONE_H
+#define AVARA3D_CONE_H
 
 
 #include <memory>
@@ -74,4 +74,4 @@ namespace a3d {
 }
 
 
-#endif /* Cone_h */
+#endif /* AVARA3D_CONE_H */

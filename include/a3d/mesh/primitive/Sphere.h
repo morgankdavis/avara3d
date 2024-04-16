@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Sphere_h
-#define Sphere_h
+#ifndef AVARA3D_SPHERE_H
+#define AVARA3D_SPHERE_H
 
 
 #include <memory>
@@ -60,4 +60,4 @@ namespace a3d {
 }
 
 
-#endif /* Sphere_h */
+#endif /* AVARA3D_SPHERE_H */

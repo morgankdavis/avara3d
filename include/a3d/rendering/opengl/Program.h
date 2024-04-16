@@ -8,8 +8,8 @@
 //  Based largely on code from "OpenGL 4 Shading Language Cookbook" by David Wolff
 //
 
-#ifndef Program_h
-#define Program_h
+#ifndef AVARA3D_PROGRAM_H
+#define AVARA3D_PROGRAM_H
 
 
 #include <map>
@@ -114,4 +114,4 @@ namespace a3d {
 }
 
 
-#endif /* Program_h */
+#endif /* AVARA3D_PROGRAM_H */

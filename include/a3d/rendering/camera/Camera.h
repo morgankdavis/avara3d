@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Camera_h
-#define Camera_h
+#ifndef AVARA3D_CAMERA_H
+#define AVARA3D_CAMERA_H
 
 
 #include <memory>
@@ -54,4 +54,4 @@ namespace a3d {
 }
 
 
-#endif /* Camera_h */
+#endif /* AVARA3D_CAMERA_H */

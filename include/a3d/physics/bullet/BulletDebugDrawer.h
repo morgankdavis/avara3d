@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef BulletDebugDrawer_h
-#define BulletDebugDrawer_h
+#ifndef AVARA3D_BULLETDEBUGDRAWER_H
+#define AVARA3D_BULLETDEBUGDRAWER_H
 
 #ifdef DESKTOP
 
@@ -180,4 +180,4 @@ namespace a3d {
 
 #endif // DESKTOP
 
-#endif /* BulletDebugDrawer_h */
+#endif /* AVARA3D_BULLETDEBUGDRAWER_H */

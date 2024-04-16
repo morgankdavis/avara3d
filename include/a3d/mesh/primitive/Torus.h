@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Torus_h
-#define Torus_h
+#ifndef AVARA3D_TORUS_H
+#define AVARA3D_TORUS_H
 
 
 #include <memory>
@@ -69,4 +69,4 @@ namespace a3d {
 }
 
 
-#endif /* Torus_h */
+#endif /* AVARA3D_TORUS_H */

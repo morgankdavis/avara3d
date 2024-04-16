@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef ActivityInputManager_h
-#define ActivityInputManager_h
+#ifndef AVARA3D_ACTIVITYINPUTMANAGER_H
+#define AVARA3D_ACTIVITYINPUTMANAGER_H
 
 #ifdef ANDROID
 
@@ -66,5 +66,5 @@ namespace a3d {
 
 #endif // ANDROID
 
-#endif /* ActivityInputManager_h */
+#endif /* AVARA3D_ACTIVITYINPUTMANAGER_H */
 

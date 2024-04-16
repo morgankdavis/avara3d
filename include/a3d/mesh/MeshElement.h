@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef MeshElement_h
-#define MeshElement_h
+#ifndef AVARA3D_MESHELEMENT_H
+#define AVARA3D_MESHELEMENT_H
 
 
 #include <memory>
@@ -82,4 +82,4 @@ namespace a3d {
 }
 
 
-#endif /* MeshElement_h */
+#endif /* AVARA3D_MESHELEMENT_H */

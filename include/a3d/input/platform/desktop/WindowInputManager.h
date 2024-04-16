@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef WindowInputManager_h
-#define WindowInputManager_h
+#ifndef AVARA3D_WINDOWINPUTMANAGER_H
+#define AVARA3D_WINDOWINPUTMANAGER_H
 
 #ifdef DESKTOP
 
@@ -89,4 +89,4 @@ namespace a3d {
 #endif // DESKTOP
 
 
-#endif /* WindowInputManager_h */
+#endif /* AVARA3D_WINDOWINPUTMANAGER_H */

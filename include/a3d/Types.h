@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Types_h
-#define Types_h
+#ifndef AVARA3D_TYPES_H
+#define AVARA3D_TYPES_H
 
 
 #include <memory>
@@ -462,4 +462,4 @@ namespace a3d {
 }
 
 
-#endif /* Types_h */
+#endif /* AVARA3D_TYPES_H */

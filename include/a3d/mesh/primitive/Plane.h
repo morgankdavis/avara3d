@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Plane_h
-#define Plane_h
+#ifndef AVARA3D_PLANE_H
+#define AVARA3D_PLANE_H
 
 
 #include <memory>
@@ -68,4 +68,4 @@ namespace a3d {
 }
 
 
-#endif /* Plane_h */
+#endif /* AVARA3D_PLANE_H */

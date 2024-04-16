@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Geometry_h
-#define Geometry_h
+#ifndef AVARA3D_MESH_H
+#define AVARA3D_MESH_H
 
 
 #include <filesystem>
@@ -125,4 +125,4 @@ namespace a3d {
 }
 
 
-#endif /* Geometry_h */
+#endif /* AVARA3D_MESH_H */

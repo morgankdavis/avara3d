@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef PhysicsContact_h
-#define PhysicsContact_h
+#ifndef AVARA3D_PHYSICSCONTACT_H
+#define AVARA3D_PHYSICSCONTACT_H
 
 
 #include <memory>
@@ -62,4 +62,4 @@ namespace a3d {
 }
 
 
-#endif /* PhysicsContact_h */
+#endif /* AVARA3D_PHYSICSCONTACT_H */

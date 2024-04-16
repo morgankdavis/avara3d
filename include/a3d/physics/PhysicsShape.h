@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef PhysicsShape_h
-#define PhysicsShape_h
+#ifndef AVARA3D_PHYSICSSHAPE_H
+#define AVARA3D_PHYSICSSHAPE_H
 
 
 #include <memory>
@@ -114,4 +114,4 @@ namespace a3d {
 }
 
 
-#endif /* PhysicsShape_h */
+#endif /* AVARA3D_PHYSICSSHAPE_H */

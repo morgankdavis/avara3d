@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef BulletBodyResources_h
-#define BulletBodyResources_h
+#ifndef AVARA3D_BULLETBODYPROXY_H
+#define AVARA3D_BULLETBODYPROXY_H
 
 
 #include <memory>
@@ -135,4 +135,4 @@ namespace a3d {
 }
 
 
-#endif //BulletBodyResources_h
+#endif //AVARA3D_BULLETBODYPROXY_H

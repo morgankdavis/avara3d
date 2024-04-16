@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Font_h
-#define Font_h
+#ifndef AVARA3D_FONT_H
+#define AVARA3D_FONT_H
 
 
 #include <filesystem>
@@ -57,4 +57,4 @@ namespace a3d {
 }
 
 
-#endif /* Font_h */
+#endif /* AVARA3D_FONT_H */

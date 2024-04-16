@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef ConvexDecomposer_h
-#define ConvexDecomposer_h
+#ifndef AVARA3D_CONVEXDECOMPOSER_H
+#define AVARA3D_CONVEXDECOMPOSER_H
 
 
 #include <functional>
@@ -146,4 +146,4 @@ namespace a3d {
 }
 
 
-#endif //ConvexDecomposer_h
+#endif //AVARA3D_CONVEXDECOMPOSER_H
