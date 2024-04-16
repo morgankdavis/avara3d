@@ -38,7 +38,7 @@ using namespace std;
 	Pulic Static
  *********************************************************************************************/
 
-shared_ptr<Node> Node::NamedNode(std::string name) {
+shared_ptr<Node> Node::NamedNode(const string& name) {
 	return make_shared<Node>(name);
 }
 
