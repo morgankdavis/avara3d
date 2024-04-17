@@ -23,7 +23,7 @@ using namespace std;
 
 
 shared_ptr<Mesh> Sphere::Mesh(float radius,
-							  int segments,
+							  unsigned segments,
 							  const shared_ptr<Material> material) {
 
 	return make_shared<a3d::Mesh>("Sphere",
@@ -37,7 +37,7 @@ shared_ptr<Mesh> Sphere::Mesh(float radius,
 *********************************************************************************************/
 
 Sphere::Sphere(float radius,
-			   int segments):
+			   unsigned segments):
 		MeshElement{},
 		_radius{radius},
 		_segments{segments} {
@@ -45,7 +45,7 @@ Sphere::Sphere(float radius,
 	/// @param radius The radius of the containing sphere.
 	/// @param segments The number of segments per icosahedron edge. Must be >= 1.
 
-	auto icoSphere = IcoSphereMesh{radius, segments};
+	auto icoSphere = IcoSphereMesh{radius, (int)segments};
 
 	for (const MeshVertex& v : icoSphere.vertices()) {
 		_vertices.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
@@ -68,6 +68,6 @@ float Sphere::radius() const {
 	return _radius;
 }
 
-int Sphere::segments() const {
+unsigned Sphere::segments() const {
 	return _segments;
 }

@@ -26,18 +26,18 @@ namespace a3d {
 
 	private:
 
-		static constexpr int DEFAULT_SLICES = 32;
-		static constexpr int DEFAULT_SEGMENTS = 8;
-		static constexpr int DEFAULT_RINGS = 1;
+		static constexpr unsigned DEFAULT_SLICES = 32;
+		static constexpr unsigned DEFAULT_SEGMENTS = 8;
+		static constexpr unsigned DEFAULT_RINGS = 1;
 
 	public:
 
 		static std::shared_ptr<Mesh> Mesh(float innerRadius,
 										  float outerRadius,
 										  float height,
-										  int slices = DEFAULT_SLICES,
-										  int segments = DEFAULT_SEGMENTS,
-										  int rings = DEFAULT_RINGS,
+										  unsigned slices = DEFAULT_SLICES,
+										  unsigned segments = DEFAULT_SEGMENTS,
+										  unsigned rings = DEFAULT_RINGS,
 										  std::shared_ptr<Material> material = nullptr);
 
 /*********************************************************************************************
@@ -47,20 +47,20 @@ namespace a3d {
 		Tube(float innerRadius,
 			 float outerRadius,
 			 float height,
-			 int slices = DEFAULT_SLICES,
-			 int segments = DEFAULT_SEGMENTS,
-			 int rings = DEFAULT_RINGS);
+			 unsigned slices = DEFAULT_SLICES,
+			 unsigned segments = DEFAULT_SEGMENTS,
+			 unsigned rings = DEFAULT_RINGS);
 
 /*********************************************************************************************
  	Public
  *********************************************************************************************/
 
-		float 	innerRadius() const;
-		float 	outerRadius() const;
-		float 	height() const;
-		int 	slices() const;
-		int 	segments() const;
-		int 	rings() const;
+		float 		innerRadius() const;
+		float 		outerRadius() const;
+		float 		height() const;
+		unsigned 	slices() const;
+		unsigned 	segments() const;
+		unsigned 	rings() const;
 
 /*********************************************************************************************
 	Private
@@ -68,12 +68,12 @@ namespace a3d {
 
 	private:
 
-		float	_innerRadius;
-		float	_outerRadius;
-		float	_height;
-		int 	_slices;
-		int		_segments;
-		int		_rings;
+		float		_innerRadius;
+		float		_outerRadius;
+		float		_height;
+		unsigned 	_slices;
+		unsigned	_segments;
+		unsigned	_rings;
 	};
 }
 

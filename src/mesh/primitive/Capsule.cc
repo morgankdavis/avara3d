@@ -24,9 +24,9 @@ using namespace std;
 
 shared_ptr<Mesh> Capsule::Mesh(float radius,
 							   float height,
-							   int slices,
-							   int segments,
-							   int rings,
+							   unsigned slices,
+							   unsigned segments,
+							   unsigned rings,
 							   const shared_ptr<Material> material) {
 
 	return make_shared<a3d::Mesh>("Capsule",
@@ -44,9 +44,9 @@ shared_ptr<Mesh> Capsule::Mesh(float radius,
 
 Capsule::Capsule(float radius,
 				 float height,
-				 int slices,
-				 int segments,
-				 int rings):
+				 unsigned slices,
+				 unsigned segments,
+				 unsigned rings):
 		MeshElement{},
 		_radius{radius},
 		_height{height},
@@ -61,7 +61,7 @@ Capsule::Capsule(float radius,
 	/// @param start Counterclockwise angle relative to the x-axis.
 	/// @param sweep Counterclockwise angle.
 
-	auto capsule = CapsuleMesh{radius, height/2.0, slices, segments, rings};
+	auto capsule = CapsuleMesh{radius, height/2.0, (int)slices, (int)segments, (int)rings};
 
 	for (const MeshVertex& v : capsule.vertices()) {
 		_vertices.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
@@ -92,14 +92,14 @@ float Capsule::height() const {
 	return _height;
 }
 
-int Capsule::slices() const {
+unsigned Capsule::slices() const {
 	return _slices;
 }
 
-int Capsule::segments() const {
+unsigned Capsule::segments() const {
 	return _segments;
 }
 
-int Capsule::rings() const {
+unsigned Capsule::rings() const {
 	return _rings;
 }

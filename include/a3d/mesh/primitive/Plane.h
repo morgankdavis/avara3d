@@ -26,14 +26,14 @@ namespace a3d {
 
 	private:
 
-		static constexpr int DEFAULT_SEGMENTS = 8;
+		static constexpr unsigned DEFAULT_SEGMENTS = 8;
 
 	public:
 
 		static std::shared_ptr<Mesh> Mesh(float width,
 										  float height,
-										  int widthSegements = DEFAULT_SEGMENTS,
-										  int heightSegments = DEFAULT_SEGMENTS,
+										  unsigned widthSegements = DEFAULT_SEGMENTS,
+										  unsigned heightSegments = DEFAULT_SEGMENTS,
 										  std::shared_ptr<Material> material = nullptr);
 
 /*********************************************************************************************
@@ -42,8 +42,8 @@ namespace a3d {
 
 		Plane(float width,
 			  float height,
-			  int widthSegements = DEFAULT_SEGMENTS,
-			  int heightSegments = DEFAULT_SEGMENTS);
+			  unsigned widthSegements = DEFAULT_SEGMENTS,
+			  unsigned heightSegments = DEFAULT_SEGMENTS);
 		
 /*********************************************************************************************
  	Public
@@ -51,8 +51,8 @@ namespace a3d {
 		
 		float 		width() const;
 		float 		height() const;
-		int			widthSegements() const;
-		int			heightSegments() const;
+		unsigned	widthSegements() const;
+		unsigned	heightSegments() const;
 		
 /*********************************************************************************************
  	Private
@@ -62,8 +62,8 @@ namespace a3d {
 
 		float		_width;
 		float		_height;
-		int			_widthSegements;
-		int			_heightSegments;
+		unsigned	_widthSegements;
+		unsigned	_heightSegments;
 	};
 }
 

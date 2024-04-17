@@ -24,9 +24,9 @@ using namespace std;
 
 shared_ptr<Mesh> Cone::Mesh(float radius,
 							float height,
-							int slices,
-							int segments,
-							int rings,
+							unsigned slices,
+							unsigned segments,
+							unsigned rings,
 							const shared_ptr<Material> material) {
 
 	return make_shared<a3d::Mesh>("Cone",
@@ -44,9 +44,9 @@ shared_ptr<Mesh> Cone::Mesh(float radius,
 
 Cone::Cone(float radius,
 		   float height,
-		   int slices,
-		   int segments,
-		   int rings):
+		   unsigned slices,
+		   unsigned segments,
+		   unsigned rings):
 		MeshElement{},
 		_radius{radius},
 		_height{height},
@@ -61,7 +61,7 @@ Cone::Cone(float radius,
 	/// @param start Counterclockwise angle around the z-axis relative to the x-axis.
 	/// @param sweep Counterclockwise angle around the z-axis.
 
-	auto cone = CappedConeMesh{radius, height/2.0, slices, segments, rings};
+	auto cone = CappedConeMesh{radius, height/2.0, (int)slices, (int)segments, (int)rings};
 
 	for (const MeshVertex& v : cone.vertices()) {
 		_vertices.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
@@ -92,14 +92,14 @@ float Cone::height() const {
 	return _height;
 }
 
-int Cone::slices() const {
+unsigned Cone::slices() const {
 	return _slices;
 }
 
-int Cone::segments() const {
+unsigned Cone::segments() const {
 	return _segments;
 }
 
-int Cone::rings() const {
+unsigned Cone::rings() const {
 	return _rings;
 }

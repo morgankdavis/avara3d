@@ -26,34 +26,34 @@ namespace a3d {
 
 	private:
 
-		static constexpr int DEFAULT_SLICES = 8;
-		static constexpr int DEFAULT_SEGMENTS = 96;
+		static constexpr unsigned DEFAULT_SLICES = 8;
+		static constexpr unsigned DEFAULT_SEGMENTS = 96;
 
 	public:
 
-		static std::shared_ptr<Mesh> Mesh(int p,
-										  int q,
-										  int slices = DEFAULT_SLICES,
-										  int segments = DEFAULT_SEGMENTS,
+		static std::shared_ptr<Mesh> Mesh(unsigned p,
+										  unsigned q,
+										  unsigned slices = DEFAULT_SLICES,
+										  unsigned segments = DEFAULT_SEGMENTS,
 										  std::shared_ptr<Material> material = nullptr);
 
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 
-		TorusKnot(int p,
-				  int q,
-				  int slices = DEFAULT_SLICES,
-				  int segments = DEFAULT_SEGMENTS);
+		TorusKnot(unsigned p,
+				  unsigned q,
+				  unsigned slices = DEFAULT_SLICES,
+				  unsigned segments = DEFAULT_SEGMENTS);
 
 /*********************************************************************************************
  	Public
  *********************************************************************************************/
 
-		int 	p() const;
-		int 	q() const;
-		int 	slices() const;
-		int 	segments() const;
+		unsigned 	p() const;
+		unsigned 	q() const;
+		unsigned 	slices() const;
+		unsigned 	segments() const;
 
 /*********************************************************************************************
 	Private
@@ -61,10 +61,10 @@ namespace a3d {
 
 	private:
 
-		int		_p;
-		int		_q;
-		int 	_slices;
-		int		_segments;
+		unsigned	_p;
+		unsigned	_q;
+		unsigned 	_slices;
+		unsigned	_segments;
 	};
 }
 

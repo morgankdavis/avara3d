@@ -38,10 +38,10 @@ namespace a3d {
 
 	public:
 
-		WindowInputManager(Window* window);
+		explicit WindowInputManager(Window* window);
 		WindowInputManager(const InputManager& other) = delete; // copy constructor
 		WindowInputManager& operator=(const InputManager& other) = delete; // copy assignment
-		~WindowInputManager();
+		~WindowInputManager() override;
 
 /*********************************************************************************************
 	InputManager

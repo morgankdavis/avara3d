@@ -42,9 +42,9 @@ namespace a3d {
 			  bool flipHorizontal = false);
 		// raw
 		Image(std::unique_ptr<Buffer> rawBuffer,
-			  int width,
-			  int height,
-			  int bytesPerPixel,
+			  unsigned width,
+			  unsigned height,
+			  unsigned bytesPerPixel,
 			  bool flipVertical = true,
 			  bool flipHorizontal = false);
 		~Image();
@@ -52,10 +52,10 @@ namespace a3d {
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
-		
-		int 						width() const;
-		int 						height() const;
-		int 						bytesPerPixel() const;
+
+		unsigned 					width() const;
+		unsigned 					height() const;
+		unsigned 					bytesPerPixel() const;
 		std::unique_ptr<Image> 		inverted() const;
 		bool 						writePNG(std::filesystem::path path) const;
 		
@@ -78,9 +78,9 @@ namespace a3d {
 		void 						flipVertical(); // "flip"
 		void 						flipHorizontal(); // "mirror"
 
-		int							_width;
-		int							_height;
-		int							_bytesPerPixel;
+		unsigned					_width;
+		unsigned					_height;
+		unsigned					_bytesPerPixel;
 		std::unique_ptr<Buffer>		_buffer;
 	};
 }

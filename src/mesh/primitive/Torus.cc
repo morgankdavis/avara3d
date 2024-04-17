@@ -24,8 +24,8 @@ using namespace std;
 
 shared_ptr<Mesh> Torus::Mesh(float minorRadius,
 							 float majorRadius,
-							 int slices,
-							 int segments,
+							 unsigned slices,
+							 unsigned segments,
 							 const shared_ptr<Material> material) {
 
 	return make_shared<a3d::Mesh>("Torus",
@@ -42,8 +42,8 @@ shared_ptr<Mesh> Torus::Mesh(float minorRadius,
 
 Torus::Torus(float minorRadius,
 			 float majorRadius,
-			 int slices,
-			 int segments):
+			 unsigned slices,
+			 unsigned segments):
 		MeshElement{},
 		_minorRadius{minorRadius},
 		_majorRadius{majorRadius},
@@ -59,7 +59,7 @@ Torus::Torus(float minorRadius,
 	/// @param majorStart Counterclockwise angle around the z-axis relative to the x-axis.
 	/// @param majorSweep Counterclockwise angle around the z-axis.
 
-	auto torus = TorusMesh{majorRadius-minorRadius, majorRadius, slices, segments};
+	auto torus = TorusMesh{majorRadius-minorRadius, majorRadius, (int)slices, (int)segments};
 
 	for (const MeshVertex& v : torus.vertices()) {
 		_vertices.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
@@ -86,10 +86,10 @@ float Torus::majorRadius() const {
 	return _majorRadius;
 }
 
-int Torus::slices() const {
+unsigned Torus::slices() const {
 	return _slices;
 }
 
-int Torus::segments() const {
+unsigned Torus::segments() const {
 	return _segments;
 }

@@ -26,8 +26,8 @@ namespace a3d {
 
 	private:
 
-		static constexpr int DEFAULT_SLICES = 8;
-		static constexpr int DEFAULT_SEGMENTS = 8;
+		static constexpr unsigned DEFAULT_SLICES = 8;
+		static constexpr unsigned DEFAULT_SEGMENTS = 8;
 
 	public:
 
@@ -35,10 +35,10 @@ namespace a3d {
 										  float length,
 										  float width,
 										  float height,
-										  int slices = DEFAULT_SLICES,
-										  int lengthSegments = DEFAULT_SEGMENTS,
-										  int widthSegments = DEFAULT_SEGMENTS,
-										  int heightSegments = DEFAULT_SEGMENTS,
+										  unsigned slices = DEFAULT_SLICES,
+										  unsigned lengthSegments = DEFAULT_SEGMENTS,
+										  unsigned widthSegments = DEFAULT_SEGMENTS,
+										  unsigned heightSegments = DEFAULT_SEGMENTS,
 										  std::shared_ptr<Material> material = nullptr);
 
 /*********************************************************************************************
@@ -49,10 +49,10 @@ namespace a3d {
 				   float length,
 				   float width,
 				   float height,
-				   int slices = DEFAULT_SLICES,
-				   int lengthSegments = DEFAULT_SEGMENTS,
-				   int widthSegments = DEFAULT_SEGMENTS,
-				   int heightSegments = DEFAULT_SEGMENTS);
+				   unsigned slices = DEFAULT_SLICES,
+				   unsigned lengthSegments = DEFAULT_SEGMENTS,
+				   unsigned widthSegments = DEFAULT_SEGMENTS,
+				   unsigned heightSegments = DEFAULT_SEGMENTS);
 
 /*********************************************************************************************
 	Public
@@ -62,10 +62,10 @@ namespace a3d {
 		float 		length() const;
 		float 		width() const;
 		float 		height() const;
-		int 		slices() const;
-		int 		lengthSegments() const;
-		int 		widthSegments() const;
-		int 		heightSegments() const;
+		unsigned 	slices() const;
+		unsigned 	lengthSegments() const;
+		unsigned 	widthSegments() const;
+		unsigned 	heightSegments() const;
 
 /*********************************************************************************************
 	Private
@@ -77,10 +77,10 @@ namespace a3d {
 		float		_length;
 		float		_width;
 		float		_height;
-		int 		_slices;
-		int 		_lengthSegments;
-		int 		_widthSegments;
-		int 		_heightSegments;
+		unsigned 	_slices;
+		unsigned 	_lengthSegments;
+		unsigned 	_widthSegments;
+		unsigned 	_heightSegments;
 	};
 }
 

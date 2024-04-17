@@ -55,8 +55,8 @@ namespace a3d {
 
 		Window(RenderingApi renderAPI,
 			   std::string title,
-			   int width,
-			   int height,
+			   unsigned width,
+			   unsigned height,
 			   bool fullScreen,
 			   bool useHighDPI = true,
 			   AntialiasingMode antialiasingMode = AntialiasingMode::None);

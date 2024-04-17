@@ -33,9 +33,9 @@ namespace a3d {
 		static std::shared_ptr<Mesh> Mesh(float length,
 										  float width,
 										  float height,
-										  int lengthSegments = DEFAULT_SEGMENTS,
-										  int widthSegments = DEFAULT_SEGMENTS,
-										  int heightSegments = DEFAULT_SEGMENTS,
+										  unsigned lengthSegments = DEFAULT_SEGMENTS,
+										  unsigned widthSegments = DEFAULT_SEGMENTS,
+										  unsigned heightSegments = DEFAULT_SEGMENTS,
 										  std::shared_ptr<Material> material = nullptr);
 
 /*********************************************************************************************
@@ -46,9 +46,9 @@ namespace a3d {
 		Box(float length,
 			float width,
 			float height,
-			int lengthSegments = DEFAULT_SEGMENTS,
-			int widthSegments = DEFAULT_SEGMENTS,
-			int heightSegments = DEFAULT_SEGMENTS);
+			unsigned lengthSegments = DEFAULT_SEGMENTS,
+			unsigned widthSegments = DEFAULT_SEGMENTS,
+			unsigned heightSegments = DEFAULT_SEGMENTS);
 		
 /*********************************************************************************************
 	Public
@@ -57,9 +57,9 @@ namespace a3d {
 		float 		length() const;
 		float 		width() const;
 		float 		height() const;
-		int 		lengthSegments() const;
-		int 		widthSegments() const;
-		int 		heightSegments() const;
+		unsigned	lengthSegments() const;
+		unsigned	widthSegments() const;
+		unsigned	heightSegments() const;
 
 /*********************************************************************************************
 	 Private
@@ -70,9 +70,9 @@ namespace a3d {
 		float		_length;
 		float		_width;
 		float		_height;
-		int 		_lengthSegments;
-		int 		_widthSegments;
-		int 		_heightSegments;
+		unsigned 	_lengthSegments;
+		unsigned 	_widthSegments;
+		unsigned 	_heightSegments;
 	};
 }
 

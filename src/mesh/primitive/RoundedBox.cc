@@ -26,10 +26,10 @@ shared_ptr<Mesh> RoundedBox::Mesh(float radius,
 								  float length,
 								  float width,
 								  float height,
-								  int slices,
-								  int lengthSegments,
-								  int widthSegments,
-								  int heightSegments,
+								  unsigned slices,
+								  unsigned lengthSegments,
+								  unsigned widthSegments,
+								  unsigned heightSegments,
 								  const shared_ptr<Material> material) {
 
 	return make_shared<a3d::Mesh>("RoundedBox",
@@ -52,10 +52,10 @@ RoundedBox::RoundedBox(float radius,
 					   float length,
 					   float width,
 					   float height,
-					   int slices,
-					   int lengthSegments,
-					   int widthSegments,
-					   int heightSegments):
+					   unsigned slices,
+					   unsigned lengthSegments,
+					   unsigned widthSegments,
+					   unsigned heightSegments):
 		MeshElement{},
 		_radius{radius},
 		_length{length},
@@ -73,7 +73,7 @@ RoundedBox::RoundedBox(float radius,
 	/// direction for the flat faces.
 
 	auto roundedBox = RoundedBoxMesh{radius, { width/2.0, length/2.0, height/2.0 },
-									 slices, { widthSegments, lengthSegments, heightSegments }};
+									 (int)slices, { widthSegments, lengthSegments, heightSegments }};
 
 	for (const MeshVertex& v : roundedBox.vertices()) {
 		_vertices.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
@@ -112,18 +112,18 @@ float RoundedBox::height() const {
 	return _height;
 }
 
-int RoundedBox::slices() const {
+unsigned RoundedBox::slices() const {
 	return _slices;
 }
 
-int RoundedBox::lengthSegments() const {
+unsigned RoundedBox::lengthSegments() const {
 	return _lengthSegments;
 }
 
-int RoundedBox::widthSegments() const {
+unsigned RoundedBox::widthSegments() const {
 	return _widthSegments;
 }
 
-int RoundedBox::heightSegments() const {
+unsigned RoundedBox::heightSegments() const {
 	return _heightSegments;
 }

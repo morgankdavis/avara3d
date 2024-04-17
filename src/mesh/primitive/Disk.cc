@@ -24,8 +24,8 @@ using namespace std;
 
 shared_ptr<Mesh> Disk::Mesh(float radius,
 							float height,
-							int slices,
-							int rings,
+							unsigned slices,
+							unsigned rings,
 							const shared_ptr<Material> material) {
 
 	return make_shared<a3d::Mesh>("Disk",
@@ -42,8 +42,8 @@ shared_ptr<Mesh> Disk::Mesh(float radius,
 
 Disk::Disk(float radius,
 		   float innerRadius,
-		   int slices,
-		   int rings):
+		   unsigned slices,
+		   unsigned rings):
 		MeshElement{},
 		_radius{radius},
 		_innerRadius{innerRadius},
@@ -57,7 +57,7 @@ Disk::Disk(float radius,
 	/// @param start Counterclockwise angle relative to the x-axis
 	/// @param sweep Counterclockwise angle.
 
-	auto disk = DiskMesh{radius, innerRadius, slices, rings};
+	auto disk = DiskMesh{radius, innerRadius, (int)slices, (int)rings};
 
 	for (const MeshVertex& v : disk.vertices()) {
 		_vertices.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
@@ -88,10 +88,10 @@ float Disk::innerRadius() const {
 	return _innerRadius;
 }
 
-int Disk::slices() const {
+unsigned Disk::slices() const {
 	return _slices;
 }
 
-int Disk::rings() const {
+unsigned Disk::rings() const {
 	return _rings;
 }

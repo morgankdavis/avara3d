@@ -24,9 +24,9 @@ using namespace std;
 shared_ptr<Mesh> Box::Mesh(float length,
 						   float width,
 						   float height,
-						   int lengthSegments,
-						   int widthSegments,
-						   int heightSegments,
+						   unsigned lengthSegments,
+						   unsigned widthSegments,
+						   unsigned heightSegments,
 						   const shared_ptr<Material> material) {
 
 
@@ -47,9 +47,9 @@ shared_ptr<Mesh> Box::Mesh(float length,
 Box::Box(float length,
 		 float width,
 		 float height,
-		 int lengthSegments,
-		 int widthSegments,
-		 int heightSegments):
+		 unsigned lengthSegments,
+		 unsigned widthSegments,
+		 unsigned heightSegments):
 		MeshElement{},
 		_length{length},
 		_width{width},
@@ -94,14 +94,14 @@ float Box::height() const {
 	return _height;
 }
 
-int Box::lengthSegments() const {
+unsigned Box::lengthSegments() const {
 	return _lengthSegments;
 }
 
-int Box::widthSegments() const {
+unsigned Box::widthSegments() const {
 	return _widthSegments;
 }
 
-int Box::heightSegments() const {
+unsigned Box::heightSegments() const {
 	return _heightSegments;
 }

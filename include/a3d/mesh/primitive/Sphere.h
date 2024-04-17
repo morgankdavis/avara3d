@@ -26,12 +26,12 @@ namespace a3d {
 
 	private:
 
-		static constexpr int DEFAULT_SEGMENTS = 4;
+		static constexpr unsigned DEFAULT_SEGMENTS = 4;
 
 	public:
 
 		static std::shared_ptr<Mesh> Mesh(float radius,
-										  int segments = DEFAULT_SEGMENTS,
+										  unsigned segments = DEFAULT_SEGMENTS,
 										  std::shared_ptr<Material> material = nullptr);
 
 /*********************************************************************************************
@@ -39,14 +39,14 @@ namespace a3d {
  *********************************************************************************************/
 
 		Sphere(float radius,
-			   int segments = DEFAULT_SEGMENTS);
+			   unsigned segments = DEFAULT_SEGMENTS);
 		
 /*********************************************************************************************
  	Public
  *********************************************************************************************/
 
-		float 	radius() const;
-		int 	segments() const;
+		float 		radius() const;
+		unsigned 	segments() const;
 
 /*********************************************************************************************
 	Private
@@ -54,8 +54,8 @@ namespace a3d {
 
 	private:
 
-		float	_radius;
-		int		_segments;
+		float		_radius;
+		unsigned	_segments;
 	};
 }
 

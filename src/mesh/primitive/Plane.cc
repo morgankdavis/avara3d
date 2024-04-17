@@ -24,8 +24,8 @@ using namespace std;
 
 shared_ptr<Mesh> Plane::Mesh(float width,
 							 float height,
-							 int widthSegements,
-							 int heightSegments,
+							 unsigned widthSegements,
+							 unsigned heightSegments,
 							 const shared_ptr<Material> material) {
 
 	return make_shared<a3d::Mesh>("Plane",
@@ -42,8 +42,8 @@ shared_ptr<Mesh> Plane::Mesh(float width,
 
 Plane::Plane(float width,
 			 float height,
-			 int widthSegements,
-			 int heightSegments):
+			 unsigned widthSegements,
+			 unsigned heightSegments):
 		MeshElement{},
 		_width{width},
 		_height{height},
@@ -81,10 +81,10 @@ float Plane::height() const {
 	return _height;
 }
 
-int Plane::widthSegements() const {
+unsigned Plane::widthSegements() const {
 	return _widthSegements;
 }
 
-int Plane::heightSegments() const {
+unsigned Plane::heightSegments() const {
 	return _heightSegments;
 }

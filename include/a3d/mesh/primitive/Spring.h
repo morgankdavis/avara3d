@@ -26,16 +26,16 @@ namespace a3d {
 
 	private:
 
-		static constexpr int DEFAULT_SLICES = 8;
-		static constexpr int DEFAULT_SEGMENTS = 32;
+		static constexpr unsigned DEFAULT_SLICES = 8;
+		static constexpr unsigned DEFAULT_SEGMENTS = 32;
 
 	public:
 
 		static std::shared_ptr<Mesh> Mesh(float minorRadius,
 										  float majorRadius,
 										  float length,
-										  int slices = DEFAULT_SLICES,
-										  int segments = DEFAULT_SEGMENTS,
+										  unsigned slices = DEFAULT_SLICES,
+										  unsigned segments = DEFAULT_SEGMENTS,
 										  std::shared_ptr<Material> material = nullptr);
 
 /*********************************************************************************************
@@ -45,18 +45,18 @@ namespace a3d {
 		Spring(float minorRadius,
 			   float majorRadius,
 			   float length,
-			   int slices = DEFAULT_SLICES,
-			   int segments = DEFAULT_SEGMENTS);
+			   unsigned slices = DEFAULT_SLICES,
+			   unsigned segments = DEFAULT_SEGMENTS);
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
-		float 	minorRadius() const;
-		float 	majorRadius() const;
-		float 	length() const;
-		int 	slices() const;
-		int 	segments() const;
+		float 		minorRadius() const;
+		float 		majorRadius() const;
+		float 		length() const;
+		unsigned 	slices() const;
+		unsigned 	segments() const;
 
 /*********************************************************************************************
 	Lifecycle
@@ -64,11 +64,11 @@ namespace a3d {
 
 	private:
 
-		float 	_minorRadius;
-		float 	_majorRadius;
-		float 	_length;
-		int 	_slices;
-		int 	_segments;
+		float 		_minorRadius;
+		float 		_majorRadius;
+		float 		_length;
+		unsigned 	_slices;
+		unsigned 	_segments;
 	};
 }
 

@@ -22,10 +22,10 @@ using namespace glm;
 using namespace std;
 
 
-shared_ptr<Mesh> TorusKnot::Mesh(int p,
-								 int q,
-								 int slices,
-								 int segments,
+shared_ptr<Mesh> TorusKnot::Mesh(unsigned p,
+								 unsigned q,
+								 unsigned slices,
+								 unsigned segments,
 								 const shared_ptr<Material> material) {
 
 	return make_shared<a3d::Mesh>("TorusKnot", make_unique<TorusKnot>(p,
@@ -39,10 +39,10 @@ shared_ptr<Mesh> TorusKnot::Mesh(int p,
 	Lifecycle
 *********************************************************************************************/
 
-TorusKnot::TorusKnot(int p,
-					 int q,
-					 int slices,
-					 int segments):
+TorusKnot::TorusKnot(unsigned p,
+					 unsigned q,
+					 unsigned slices,
+					 unsigned segments):
 		MeshElement{},
 		_p{p},
 		_q{q},
@@ -54,7 +54,7 @@ TorusKnot::TorusKnot(int p,
 	/// @param slices Number subdivisions around the circle.
 	/// @param segments Number of subdivisions around the path.
 
-	auto torusKnot = TorusKnotMesh{p, q, slices, segments};
+	auto torusKnot = TorusKnotMesh{(int)p, (int)q, (int)slices, (int)segments};
 
 	for (const MeshVertex& v : torusKnot.vertices()) {
 		_vertices.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
@@ -73,18 +73,18 @@ TorusKnot::TorusKnot(int p,
  	Public
  *********************************************************************************************/
 
-int TorusKnot::p() const {
+unsigned TorusKnot::p() const {
 	return _p;
 }
 
-int TorusKnot::q() const {
+unsigned TorusKnot::q() const {
 	return _q;
 }
 
-int TorusKnot::slices() const {
+unsigned TorusKnot::slices() const {
 	return _slices;
 }
 
-int TorusKnot::segments() const {
+unsigned TorusKnot::segments() const {
 	return _segments;
 }
