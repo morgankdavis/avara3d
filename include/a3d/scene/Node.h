@@ -118,7 +118,7 @@ namespace a3d {
 		void 									addChildren(const std::vector<std::shared_ptr<Node>>& nodes);
 		void 									removeFromParent();
 
-		std::vector<std::shared_ptr<Node>>		children(bool resursive = false);
+		std::vector<std::shared_ptr<Node>>		children(bool resursive = false) const;
 		std::shared_ptr<Node> 					childNamed(const std::string& name, bool resursive = false);
 
 		PhysicsBody* 							physicsBody() const;
@@ -186,9 +186,9 @@ namespace a3d {
 
 		void									getAABBRec(AABB& aabb);
 
-		std::vector<std::shared_ptr<Node>>		children(const Node* root);
+		std::vector<std::shared_ptr<Node>>		children(const Node& root) const;
 		void 									childrenRec(const std::shared_ptr<Node>& node,
-															std::vector<std::shared_ptr<Node>>& children);
+															std::vector<std::shared_ptr<Node>>& children) const;
 
 		NodeDirtyMask 							dirtyMask() const;
 		void 									dirtyMask(NodeDirtyMask mask);

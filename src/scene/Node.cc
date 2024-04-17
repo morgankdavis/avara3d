@@ -580,12 +580,12 @@ void Node::removeFromParent() {
 	}
 }
 
-vector<shared_ptr<Node>> Node::children(bool resursive) {
+vector<shared_ptr<Node>> Node::children(bool resursive) const {
 	// if !resursive, returns immediate children in no particular order
 	// if resursive, returns all descendants in topological order
 
 	if (resursive) {
-		return children(this);
+		return children(*this);
 	}
 	else {
 		return _children;
@@ -966,11 +966,11 @@ void Node::getAABBRec(AABB& aabb) {
 	}
 }
 
-vector<shared_ptr<Node>> Node::children(const Node* root) {
+vector<shared_ptr<Node>> Node::children(const Node& root) const {
 
 	auto children = vector<shared_ptr<Node>>();
 
-	for (auto& child : root->_children) {
+	for (auto& child : root._children) {
 		childrenRec(child, children);
 	}
 
@@ -978,7 +978,7 @@ vector<shared_ptr<Node>> Node::children(const Node* root) {
 }
 
 void Node::childrenRec(const shared_ptr<Node>& node,
-					   vector<shared_ptr<Node>>& children) {
+					   vector<shared_ptr<Node>>& children) const {
 
 	children.push_back(node);
 

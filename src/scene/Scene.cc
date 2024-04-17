@@ -30,6 +30,7 @@
 #include "a3d/rendering/context/RenderContext.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/importer/GlTFImporter.h"
+#include "a3d/Utilities.h"
 
 
 using namespace a3d;
@@ -62,9 +63,11 @@ unique_ptr<Scene> Scene::FromFile(const filesystem::path& path,
 }
 
 double Scene::Time() {
-	static auto startTime = chrono::high_resolution_clock::now();
-	auto nowTime = chrono::high_resolution_clock::now();
-	return (chrono::duration<double>(nowTime - startTime)).count();
+//	static auto startTime = chrono::high_resolution_clock::now();
+//	auto nowTime = chrono::high_resolution_clock::now();
+//	return (chrono::duration<double>(nowTime - startTime)).count();
+
+	return utils::Time();
 }
 
 /*********************************************************************************************
