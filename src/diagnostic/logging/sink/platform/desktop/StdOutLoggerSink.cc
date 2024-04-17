@@ -6,7 +6,7 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/diagnostic/logging/sink/platform/desktop/StdOutLoggerSink.h"
+#include "a3d/diagnostic/logging/sink/StdOutLoggerSink.h"
 
 #ifdef WINDOWS
 #include <windows.h>

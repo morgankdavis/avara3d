@@ -22,14 +22,9 @@
 #include "a3d/diagnostic/exception/UnsupportedFormatException.h"
 #include "a3d/diagnostic/logging/Logger.h"
 #include "a3d/diagnostic/logging/sink/FileLoggerSink.h"
-#if defined(ANDROID)
-#include "diagnostic/logging/sink/platform/android/FileLoggerSink.h"
-#elif defined(DESKTOP)
-#include "a3d/diagnostic/logging/sink/platform/desktop/StdOutLoggerSink.h"
-#endif
-
+#include "a3d/diagnostic/logging/sink/StdOutLoggerSink.h"
 #include "a3d/input/InputManager.h"
-#include "a3d/input/platform/desktop/WindowInputManager.h" // remove?
+#include "a3d/input/WindowInputManager.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/mesh/Line.h"
@@ -64,7 +59,7 @@
 #include "a3d/rendering/camera/OrthographicCamera.h"
 #include "a3d/rendering/camera/PerspectiveCamera.h"
 #include "a3d/rendering/context/RenderContext.h"
-#include "a3d/rendering/context/platform/desktop/Window.h"
+#include "a3d/rendering/context/Window.h"
 #include "a3d/rendering/material/Material.h"
 #include "a3d/rendering/material/Sampleable.h"
 #include "a3d/rendering/material/Sampler.h"

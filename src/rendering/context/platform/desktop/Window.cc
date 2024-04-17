@@ -6,10 +6,7 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifdef DESKTOP
-
-
-#include "a3d/rendering/context/platform/desktop/Window.h"
+#include "a3d/rendering/context/Window.h"
 
 #include <iostream>
 #include <sstream>
@@ -19,7 +16,7 @@
 
 #include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/logging/Logger.h"
-#include "a3d/input/platform/desktop/WindowInputManager.h"
+#include "a3d/input/WindowInputManager.h"
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/rendering/Renderer.h"
 #include "a3d/rendering/VisualWorld.h"
@@ -458,5 +455,3 @@ void GLFWErrorCallback(int error, const char* description) {
 	A3D_LOG_E("error: {}, description: {}", error, description);
 }
 
-
-#endif // DESKTOP

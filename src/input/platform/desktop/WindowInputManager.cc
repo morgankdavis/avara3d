@@ -6,10 +6,7 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifdef DESKTOP
-
-
-#include "a3d/input/platform/desktop/WindowInputManager.h"
+#include "a3d/input/WindowInputManager.h"
 
 #include "GLFW/glfw3.h"
 #include "manymouse.h"
@@ -17,7 +14,7 @@
 #include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/logging/Logger.h"
 #include "a3d/rendering/VisualWorld.h"
-#include "a3d/rendering/context/platform/desktop/Window.h"
+#include "a3d/rendering/context/Window.h"
 #include "a3d/scene/Scene.h"
 
 
@@ -267,6 +264,3 @@ WindowInputManager* InputManagerFromGLFWWindow(GLFWwindow* glfwWindow) {
 	auto window = (Window*)glfwGetWindowUserPointer(glfwWindow);
 	return dynamic_cast<WindowInputManager*>(window->visualWorld()->scene()->inputManager());
 }
-
-
-#endif // DESKTOP

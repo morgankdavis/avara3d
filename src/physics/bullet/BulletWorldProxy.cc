@@ -130,11 +130,9 @@ btDiscreteDynamicsWorld* BulletWorldProxy::btWorld() const {
 	return _btWorld.get();
 }
 
-#ifdef DESKTOP
 BulletDebugDrawer* BulletWorldProxy::btDebugDrawer() const {
 	return _btDebugDrawer.get();
 }
-#endif
 
 /*********************************************************************************************
 	Static

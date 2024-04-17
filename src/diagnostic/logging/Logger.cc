@@ -27,9 +27,7 @@
 #include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/logging/sink/LoggerSink.h"
 #include "a3d/diagnostic/logging/sink/FileLoggerSink.h"
-#ifdef DESKTOP
-#include "a3d/diagnostic/logging/sink/platform/desktop/StdOutLoggerSink.h"
-#endif
+#include "a3d/diagnostic/logging/sink/StdOutLoggerSink.h"
 
 
 using namespace a3d;

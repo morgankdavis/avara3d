@@ -18,7 +18,7 @@
 #include "a3d/CubeImage.h"
 #include "a3d/Image.h"
 #include "a3d/diagnostic/logging/Logger.h"
-#include "a3d/input/platform/desktop/WindowInputManager.h"
+#include "a3d/input/WindowInputManager.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/physics/PhysicsBody.h"
