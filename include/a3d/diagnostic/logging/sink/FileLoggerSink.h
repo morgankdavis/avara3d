@@ -24,16 +24,20 @@ namespace a3d {
 
 	class FileLoggerSink : public LoggerSink {
 
-	public:
-
 /*********************************************************************************************
-	Public
+	Public Lifecycle
  *********************************************************************************************/
+
+	public:
 
 		explicit FileLoggerSink(const std::filesystem::path& relPath,
 								int maxFiles = DEFAULT_MAX_FILES,
 								int maxFilesize = DEFAULT_MAX_FILESIZE);
 		~FileLoggerSink() override;
+
+/*********************************************************************************************
+	Public Members
+ *********************************************************************************************/
 
 		const std::filesystem::path&		filepath() const;
 
@@ -43,24 +47,31 @@ namespace a3d {
 		void 								flush() override;
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 		void 								write(const char* message);
 
-	private:
-
 /*********************************************************************************************
-	Private
+	Private Constants
  *********************************************************************************************/
 
+	private:
 
 		static constexpr unsigned 			DEFAULT_MAX_FILES = 5;
 		static constexpr unsigned 			DEFAULT_MAX_FILESIZE = 1024 * 1024 * 1; // 1MB
 
+/*********************************************************************************************
+	Private Members
+ *********************************************************************************************/
+
 		void 								openStream();
 		void 								checkRotate();
 		void 								rotate();
+
+/*********************************************************************************************
+	Private IVars
+ *********************************************************************************************/
 
 		std::filesystem::path				_filepath;
 		int									_maxFiles;

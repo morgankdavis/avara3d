@@ -36,22 +36,29 @@ namespace a3d {
 	
 	class Scene {
 
+/*********************************************************************************************
+	Public Types
+ *********************************************************************************************/
 
 	public:
 
-/*********************************************************************************************
-	Public
- *********************************************************************************************/
-
 		using UpdateCallback =				std::function<void(Scene& scene, float time)>;
+
+/*********************************************************************************************
+	Public Static Members
+ *********************************************************************************************/
 
 		static std::unique_ptr<Scene> 		FromFile(const std::filesystem::path& path,
 													  SceneImportOptions options =
 															  SceneImportOptions::ImportAll);
 		static double 						Time();
 
+/*********************************************************************************************
+	Public Lifecycle
+ *********************************************************************************************/
+
 		Scene();
-		Scene(const std::string& name);
+		explicit Scene(const std::string& name);
 		Scene(std::unique_ptr<VisualWorld> visualWorld,
 			  std::unique_ptr<PhysicalWorld> physicsWorld,
 			  std::unique_ptr<InputManager> inputManager);
@@ -60,6 +67,10 @@ namespace a3d {
 			  std::unique_ptr<PhysicalWorld> physicsWorld,
 			  std::unique_ptr<InputManager> inputManager);
 		~Scene();
+
+/*********************************************************************************************
+	Public Members
+ *********************************************************************************************/
 
 		const std::optional<std::string>&	name() const;
 		void 								name(const std::string& name);
@@ -92,11 +103,11 @@ namespace a3d {
 		UpdateCallback 						update() const;
 		void 								update(UpdateCallback function);
 
-	private:
-
 /*********************************************************************************************
-	Private
+	Private IVars
  *********************************************************************************************/
+
+	private:
 
 		std::optional<std::string>			_name;
 		std::shared_ptr<Node>				_rootNode;

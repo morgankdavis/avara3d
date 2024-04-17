@@ -24,12 +24,17 @@ namespace a3d {
 	class Point {
 
 /*********************************************************************************************
-	Public
+	Internal Lifecycle
  *********************************************************************************************/
+
 	public:
 
 		explicit Point(const glm::vec3& location);
 		Point(const glm::vec3& location, const std::shared_ptr<Color>& color);
+
+/*********************************************************************************************
+	Internal Members
+ *********************************************************************************************/
 
 		const glm::vec3& 				location() const;
 		void 							location(const glm::vec3& point);
@@ -37,8 +42,9 @@ namespace a3d {
 		void 							color(const std::shared_ptr<Color>& color);
 		
 /*********************************************************************************************
-	Private
+	Private IVars
  *********************************************************************************************/
+
 	private:
 
 		glm::vec3 						_location;

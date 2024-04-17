@@ -25,20 +25,28 @@ namespace a3d {
 
 	class Program {
 
-	public:
-
 /*********************************************************************************************
-	Internal
+	Internal Static Members
  *********************************************************************************************/
 
-		explicit Program(const std::string& name);
-		~Program();
+	public:
 
 		static Program& 	Default();
 		static Program& 	Skybox();
 		static Program& 	Wireframe();
 		static Program& 	Lines();
 		static Program& 	Points();
+
+/*********************************************************************************************
+	Internal Lifecycle
+ *********************************************************************************************/
+
+		explicit Program(const std::string& name);
+		~Program();
+
+/*********************************************************************************************
+	Internal Members
+ *********************************************************************************************/
 
 		bool 								compile();
 		bool 								link();
@@ -81,11 +89,11 @@ namespace a3d {
 		const std::optional<std::string>&	fragmentShaderSource() const;
 		void 								fragmentShaderSource(std::string source);
 
-	private:
-
 /*********************************************************************************************
-	Private
+	Private Members
  *********************************************************************************************/
+
+	private:
 
 		std::optional<std::string>			shaderSource(const std::string& name,
 														   const std::string& type);
@@ -95,6 +103,10 @@ namespace a3d {
 		unsigned 							getUniformLocation(const char* name);
 		void 								glID(unsigned glID);
 		void 								isLinked(bool isLinked);
+
+/*********************************************************************************************
+	Private IVars
+ *********************************************************************************************/
 
 		std::string  						_name;
 		unsigned  							_glID;

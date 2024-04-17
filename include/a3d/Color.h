@@ -19,11 +19,11 @@ namespace a3d {
 	
 	class Color {
 
-	public:
-
 /*********************************************************************************************
-	Public
+	Public Static Members
  *********************************************************************************************/
+
+	public:
 
 		static std::shared_ptr<Color> 		Black();
 		static std::shared_ptr<Color> 		DarkGray();
@@ -47,6 +47,10 @@ namespace a3d {
 
 		static std::shared_ptr<Color> 		Random();
 
+/*********************************************************************************************
+	Public Lifecycle
+ *********************************************************************************************/
+
 		Color();
 		Color(float r, float g, float b);
 		Color(float r, float g, float b, float a);
@@ -56,12 +60,16 @@ namespace a3d {
 		explicit Color(uint32_t color);
 		explicit Color(const std::string& hexString);
 
+		// TODO: operator*, operator[], rgb(), rgba()
+
+/*********************************************************************************************
+	Public IVars
+ *********************************************************************************************/
+
 		float r;
 		float g;
 		float b;
 		float a;
-
-		// TODO: operator*, operator[], rgb(), rgba()
 	};
 }
 

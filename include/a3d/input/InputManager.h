@@ -27,16 +27,20 @@ namespace a3d {
 	
 	class InputManager {
 
-	public:
-
 /*********************************************************************************************
-	Public
+	Public Lifecycle
  *********************************************************************************************/
+
+	public:
 
 		InputManager();
 		InputManager(const InputManager& other) = delete; // copy constructor
 		InputManager& operator=(const InputManager& other) = delete; // copy assignment
 		virtual ~InputManager();
+
+/*********************************************************************************************
+	Public Members
+ *********************************************************************************************/
 
 		bool 						keyDown(Key key);
 		bool 						mouseButtonDown(MouseButton button);
@@ -58,7 +62,7 @@ namespace a3d {
 		Scene*						scene() const;
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 		void						attachedToScene(Scene& scene);
@@ -66,11 +70,11 @@ namespace a3d {
 
 		virtual void				update() = 0;
 
-	protected:
-
 /*********************************************************************************************
-	Protected
+	Protected IVars
  *********************************************************************************************/
+
+	protected:
 
 		std::set<Key> 				_keysDown;
 		std::set<MouseButton> 		_mouseButtonsDown;
@@ -81,14 +85,18 @@ namespace a3d {
 		glm::vec2  					_mousePositionDelta;
 		glm::vec2  					_mouseScrollWheelDelta;
 
-	private:
-
 /*********************************************************************************************
-	Private
+	Private Members
  *********************************************************************************************/
+
+	private:
 
 		void			 			clearMousePositionDelta(); // called after mousePositionDelta()
 		void 						clearMouseScrollWheelDelta(); // called after mouseScrollWheelDelta()
+
+/*********************************************************************************************
+	Private IVars
+ *********************************************************************************************/
 
 		Scene*						_scene;
 	};

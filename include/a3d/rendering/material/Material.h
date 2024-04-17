@@ -26,17 +26,21 @@ namespace a3d {
 
 
 	class Material {
-
-	public:
 		
 /*********************************************************************************************
-	Public
+	Public Static Members
  *********************************************************************************************/
+
+	public:
 
 		static std::shared_ptr<Material> DefaultMaterial();
 		static std::shared_ptr<Material> MissingTextureMaterial(); // TODO: make internal?
 		static std::shared_ptr<Material> EmissionMaterial(MaterialProperty property);
 		static MaterialProperty MissingTextureProperty(); // TODO: make internal?
+
+/*********************************************************************************************
+	Public Lifecycle
+ *********************************************************************************************/
 
 		Material();
 		Material(const MaterialProperty& ambient,
@@ -47,6 +51,10 @@ namespace a3d {
 				 const MaterialProperty& specular,
 				 const MaterialProperty& emission);
 		~Material();
+
+/*********************************************************************************************
+	Public Members
+ *********************************************************************************************/
 
 		const std::optional<std::string>&	name() const;
 		void 								name(const std::string& name);
@@ -84,17 +92,17 @@ namespace a3d {
 		void 								blendFunction(BlendFunction function);
 		
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 		MaterialDirtyMask 					dirtyMask() const;
 		void 								dirtyMask(MaterialDirtyMask mask);
 
-	private:
-
 /*********************************************************************************************
-	Private
+	Private IVars
  *********************************************************************************************/
+
+	private:
 
 		std::optional<std::string>			_name;
 		MaterialProperty					_ambient;

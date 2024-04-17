@@ -24,17 +24,21 @@ namespace a3d {
 
 	class Texture {
 
-	public:
-
 /*********************************************************************************************
-	Public
+	Public Lifecycle
  *********************************************************************************************/
+
+	public:
 
 		Texture();
 		explicit Texture(const std::shared_ptr<Sampleable>& contents,
 						 const std::shared_ptr<Sampler>& sampler = std::make_shared<Sampler>(),
 						 unsigned mappingChannel = 0);
 		~Texture();
+
+/*********************************************************************************************
+	Public Members
+ *********************************************************************************************/
 
 		std::shared_ptr<Sampler>		sampler() const;
 		void							sampler(const std::shared_ptr<Sampler>& sampler);
@@ -48,11 +52,11 @@ namespace a3d {
 		TextureDirtyMask 				dirtyMask() const;
 		void 							dirtyMask(TextureDirtyMask mask);
 
-	private:
-
 /*********************************************************************************************
-	Private
+	Private IVars
  *********************************************************************************************/
+
+	private:
 
 		std::shared_ptr<Sampler>		_sampler;
 		std::shared_ptr<Sampleable>		_contents;

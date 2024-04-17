@@ -38,16 +38,11 @@ namespace a3d {
 	
 	class RenderContext {
 
-	public:
-
 /*********************************************************************************************
-	Public
+	Pubic Members
  *********************************************************************************************/
 
-		explicit RenderContext(RenderingApi renderingApi);
-		RenderContext(const RenderContext& other) = delete; // copy constructor
-		RenderContext& operator=(const RenderContext& other) = delete; // copy assignment
-		virtual ~RenderContext();
+	public:
 
 		unsigned 						width() const;
 		unsigned 						height() const;
@@ -75,7 +70,16 @@ namespace a3d {
 		Renderer* 						renderer() const;
 
 /*********************************************************************************************
-	Internal
+	Internal Lifecycle
+ *********************************************************************************************/
+
+		explicit RenderContext(RenderingApi renderingApi);
+		RenderContext(const RenderContext& other) = delete; // copy constructor
+		RenderContext& operator=(const RenderContext& other) = delete; // copy assignment
+		virtual ~RenderContext();
+
+/*********************************************************************************************
+	Internal Members
  *********************************************************************************************/
 
 		virtual void 					swapBuffers() = 0;
@@ -92,11 +96,11 @@ namespace a3d {
 		void							attachedToVisualWorld(VisualWorld* world);
 		void							detachedFromVisualWorld(VisualWorld* world);
 
-	protected:
-
 /*********************************************************************************************
-	Protected
+	Protected IVars
  *********************************************************************************************/
+
+	protected:
 
 		unsigned						_width;
 		unsigned						_height;

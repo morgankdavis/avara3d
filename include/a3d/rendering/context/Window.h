@@ -37,17 +37,11 @@ namespace a3d {
 	
 	class Window : public RenderContext {
 
-	public:
-
 /*********************************************************************************************
-	Public
+	Public Lifecycle
  *********************************************************************************************/
 
-		struct DestroyGLFWWindow {
-			void operator()(GLFWwindow* window){
-				Window::Destroy(window);
-			}
-		};
+	public:
 
 		Window(RenderingApi renderAPI,
 			   const std::string& title,
@@ -60,6 +54,10 @@ namespace a3d {
 		Window& operator=(const Window& other) = delete; // copy assignment
 		~Window() override;
 
+/*********************************************************************************************
+	Public Members
+ *********************************************************************************************/
+
 		void 					open();
 		void					close();
 
@@ -70,7 +68,7 @@ namespace a3d {
 		void 					cursorCaptured(bool captured);
 
 /*********************************************************************************************
-	RenderContext Internal
+	RenderContext Internal Members
  *********************************************************************************************/
 
 		void 					swapBuffers() override;
@@ -78,7 +76,7 @@ namespace a3d {
 		void 					vSyncEnabled(bool enabled) override;
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 		void 					pollInput();
@@ -86,10 +84,20 @@ namespace a3d {
 
 		static void				Destroy(GLFWwindow* window);
 
+/*********************************************************************************************
+	Public Types
+ *********************************************************************************************/
+
 	private:
 
+		struct DestroyGLFWWindow {
+			void operator()(GLFWwindow* window){
+				Window::Destroy(window);
+			}
+		};
+
 /*********************************************************************************************
-	Private
+	Private IVars
  *********************************************************************************************/
 
 		std::unique_ptr<GLFWwindow, DestroyGLFWWindow>	_glfwWindow;

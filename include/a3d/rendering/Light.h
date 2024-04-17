@@ -25,19 +25,27 @@ namespace a3d {
 	
 	
 	class Light {
-
-	public:
 		
 /*********************************************************************************************
-	Public
+	Public Static Members
  *********************************************************************************************/
+
+	public:
 
 		static std::shared_ptr<Light> 		DefaultAmbient();
 		static std::shared_ptr<Light> 		DefaultPoint();
 
+/*********************************************************************************************
+	Public Lifecycle
+ *********************************************************************************************/
+
 		explicit Light(LightType type);
 		Light(LightType type, const std::shared_ptr<Color>& color);
 		virtual ~Light();
+
+/*********************************************************************************************
+	Public Members
+ *********************************************************************************************/
 
 		const std::optional<std::string>&	name() const;
 		void 								name(const std::string& name);
@@ -51,11 +59,11 @@ namespace a3d {
 		float 								attenuationFactor() const;
 		void 								attenuationFactor(float factor);
 
-	private:
-
 /*********************************************************************************************
-	Private
+	Private IVars
  *********************************************************************************************/
+
+	private:
 
 		std::optional<std::string>			_name;
 		
@@ -73,7 +81,6 @@ namespace a3d {
 //		float								_spotInnerAngle;
 //		float								_spotOuterAngle;
 	};
-	
 }
 
 

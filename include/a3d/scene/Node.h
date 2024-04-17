@@ -39,16 +39,20 @@ namespace a3d {
 	
 	class Node : public std::enable_shared_from_this<Node> {
 
-	public:
-
 /*********************************************************************************************
-	Public
+	Public Static Members
  *********************************************************************************************/
+
+	public:
 
 		static std::shared_ptr<Node> 			NamedNode(const std::string& name);
 		static std::shared_ptr<Node> 			MeshNode(const std::shared_ptr<Mesh>& geometry);
 		static std::shared_ptr<Node> 			LightNode(const std::shared_ptr<Light>& light);
 		static std::shared_ptr<Node> 			CameraNode(const std::shared_ptr<Camera>& camera);
+
+/*********************************************************************************************
+	Public Lifecycle
+ *********************************************************************************************/
 
 		Node();
 		explicit Node(const std::string& name);
@@ -60,6 +64,10 @@ namespace a3d {
 //		/*testing*/ Node(Node&& other) noexcept = delete; // move
 //		/*testing*/ Node& operator=(Node&& other) noexcept = delete; // move assignment
 		~Node();
+
+/*********************************************************************************************
+	Public Members
+ *********************************************************************************************/
 
 		const std::optional<std::string>&		name() const;
 		void 									name(const std::string& name);
@@ -126,7 +134,7 @@ namespace a3d {
 //		glm::mat4 								convertTransformToNode(const glm::mat4& transform, const Node& toNode);
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 		void 									attachedToParent(Node& parent);
@@ -170,11 +178,11 @@ namespace a3d {
 
 		void	 								applyPhysicsTransform(glm::mat4 transform);
 
-	private:
-
 /*********************************************************************************************
-	Private
+	Private Members
  *********************************************************************************************/
+
+	private:
 
 		void									getAABBRec(AABB& aabb);
 
@@ -184,6 +192,10 @@ namespace a3d {
 
 		NodeDirtyMask 							dirtyMask() const;
 		void 									dirtyMask(NodeDirtyMask mask);
+
+/*********************************************************************************************
+	Private IVars
+ *********************************************************************************************/
 
 		std::optional<std::string>				_name;
 		std::shared_ptr<Light>					_light;

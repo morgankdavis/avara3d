@@ -23,11 +23,11 @@ namespace a3d {
 
 	class CubeImage : public Sampleable {
 
-	public:
-
 /*********************************************************************************************
-	Public
+	Public Lifecycle
  *********************************************************************************************/
+
+	public:
 
 		CubeImage(std::unique_ptr<Image> posX,
 				  std::unique_ptr<Image> negX,
@@ -35,6 +35,10 @@ namespace a3d {
 				  std::unique_ptr<Image> negY,
 				  std::unique_ptr<Image> posZ,
 				  std::unique_ptr<Image> negZ);
+
+/*********************************************************************************************
+	Public Members
+ *********************************************************************************************/
 
 		Image*		posX() const;
 		void 		posX(std::unique_ptr<Image> image);
@@ -53,12 +57,12 @@ namespace a3d {
 		
 		Image* 		negZ() const;
 		void 		negZ(std::unique_ptr<Image> image);
-
-	private:
 		
 /*********************************************************************************************
-	Private
+	Private IVars
  *********************************************************************************************/
+
+	private:
 
 		std::unique_ptr<Image>		_posX;
 		std::unique_ptr<Image>		_negX;

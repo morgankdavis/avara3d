@@ -31,18 +31,26 @@ namespace a3d {
 
 	class VisualWorld {
 
-	public:
-
 /*********************************************************************************************
-	Public
+	Public Types
  *********************************************************************************************/
+
+	public:
 
 		using WillRenderCallback = 		std::function<void(VisualWorld& world, double time)>;
 		using DidRenderCallback = 		std::function<void(VisualWorld& world, double time)>;
 
+/*********************************************************************************************
+	Public Lifecycle
+ *********************************************************************************************/
+
 		VisualWorld() = delete;
 		explicit VisualWorld(RenderContext* context);
 		virtual ~VisualWorld();
+
+/*********************************************************************************************
+	Public Members
+ *********************************************************************************************/
 
 		MaterialProperty&						background();
 		void 									background(MaterialProperty background);
@@ -77,7 +85,7 @@ namespace a3d {
 		void 									didRender(DidRenderCallback function);
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 		void									attachedToScene(Scene& scene);
@@ -95,11 +103,11 @@ namespace a3d {
 		Mesh*									skyboxMesh() const;
 		std::weak_ptr<Node>						defaultPointOfView();
 
-	private:
-
 /*********************************************************************************************
-	Private
+	Private IVars
  *********************************************************************************************/
+
+	private:
 
 		MaterialProperty						_background;
 		std::unique_ptr<Mesh>					_skyboxMesh;

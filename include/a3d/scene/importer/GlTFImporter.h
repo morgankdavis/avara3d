@@ -44,23 +44,27 @@ namespace a3d {
 	public:
 		
 /*********************************************************************************************
-	Public
+	Internal Lifecycle
  *********************************************************************************************/
 
 		explicit GlTFImporter(const std::filesystem::path& path,
 							  SceneImportOptions options = SceneImportOptions::ImportAll);
+
+/*********************************************************************************************
+	Internal Members
+ *********************************************************************************************/
 
 		std::unique_ptr<Scene> 				scene();
 		std::shared_ptr<Mesh> 				firstMesh();
 
 		const std::filesystem::path&		path() const;
 		SceneImportOptions					options() const;
-
-	private:
 		
 /*********************************************************************************************
-	Private
+	Private Members
  *********************************************************************************************/
+
+	private:
 
 		bool								parse();
 		void 								visitGlTFNode(fastgltf::Asset& asset,
@@ -85,6 +89,10 @@ namespace a3d {
 																fastgltf::Node& node);
 		std::shared_ptr<Camera> 			cameraFromGlTFNode(fastgltf::Asset& asset,
 															  fastgltf::Node& node);
+
+/*********************************************************************************************
+	Private IVars
+ *********************************************************************************************/
 
 		bool														_parsed;
 		fastgltf::Asset												_asset;

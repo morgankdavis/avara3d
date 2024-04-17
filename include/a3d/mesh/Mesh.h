@@ -34,14 +34,19 @@ namespace a3d {
 
 	class Mesh {
 
-	public:
 /*********************************************************************************************
-	Public
+	Public Static Members
  *********************************************************************************************/
+
+	public:
 
 		static std::shared_ptr<Mesh> 			FromFile(const std::filesystem::path& path,
 														 MeshImportOptions options =
 														 MeshImportOptions::ImportMaterials);
+
+/*********************************************************************************************
+	Public Lifecycle
+ *********************************************************************************************/
 
 		Mesh(const std::string& name,
 			 std::unique_ptr<MeshElement> element,
@@ -54,6 +59,10 @@ namespace a3d {
 		Mesh(std::vector<std::unique_ptr<MeshElement>>& elements,
 			 const std::vector<std::shared_ptr<Material>>& materials);
 		virtual ~Mesh();
+
+/*********************************************************************************************
+	Public Members
+ *********************************************************************************************/
 
 		std::optional<std::string> 				name() const;
 		void 									name(const std::string& name);
@@ -71,7 +80,7 @@ namespace a3d {
 																const std::shared_ptr<Material>& replacement);
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 		void 									burnTransform(const glm::mat4& transform,
@@ -93,19 +102,25 @@ namespace a3d {
 		void 									dirtyMask(MeshDirtyMask mask);
 
 /*********************************************************************************************
-	Protected
+	Protected IVars
  *********************************************************************************************/
+
 	protected:
 
 		std::vector<std::unique_ptr<MeshElement>>	_elements;
 		std::vector<std::shared_ptr<Material>>		_materials;
 
 /*********************************************************************************************
-	Private
+	Private Lifecycle
  *********************************************************************************************/
+
 	private:
 
 		Mesh();
+
+/*********************************************************************************************
+	Private IVars
+ *********************************************************************************************/
 
 		std::optional<std::string>				_name;
 		std::vector<Line>						_aabbLines;

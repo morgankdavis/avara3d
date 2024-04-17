@@ -22,14 +22,18 @@ namespace a3d {
 
 	class Sampler {
 
-	public:
-
 /*********************************************************************************************
-	Public
+	Public Lifecycle
  *********************************************************************************************/
+
+	public:
 
 		Sampler();
 		~Sampler();
+
+/*********************************************************************************************
+	Public Members
+ *********************************************************************************************/
 
 		FilterMode 							minificationFilter() const;
 		void 								minificationFilter(FilterMode mode);
@@ -50,17 +54,17 @@ namespace a3d {
 		void 								wrapR(WrapMode mode);
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 		SamplerDirtyMask 					dirtyMask() const;
 		void 								dirtyMask(SamplerDirtyMask mask);
 
-	private:
-
 /*********************************************************************************************
-	Private
+	Private IVars
  *********************************************************************************************/
+
+	private:
 
 		FilterMode							_minificationFilter;
 		FilterMode							_magnificationFilter;

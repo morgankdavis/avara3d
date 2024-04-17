@@ -9,8 +9,6 @@
 #ifndef AVARA3D_WINDOWINPUTMANAGER_H
 #define AVARA3D_WINDOWINPUTMANAGER_H
 
-#ifdef DESKTOP
-
 
 #include <memory>
 #include <set>
@@ -32,11 +30,11 @@ namespace a3d {
 	
 	class WindowInputManager : public InputManager {
 
-	public:
-
 /*********************************************************************************************
-	Public
+	Public Lifecycle
  *********************************************************************************************/
+
+	public:
 
 		explicit WindowInputManager(Window* window);
 		WindowInputManager(const InputManager& other) = delete; // copy constructor
@@ -44,15 +42,25 @@ namespace a3d {
 		~WindowInputManager() override;
 
 /*********************************************************************************************
-	Public InputManager
+	InputManager Internal Members
  *********************************************************************************************/
 
 		void 							update() override;
 
+/*********************************************************************************************
+	Private Members
+ *********************************************************************************************/
+
 	private:
 
+		void 							initMouseInput();
+		void 							initManyMouse();
+		void 							quitManyMouse();
+		void 							registerGLFWCallbacks(GLFWwindow* glfwWindow);
+		void 							unregisterGLFWCallbacks(GLFWwindow* glfwWindow);
+
 /*********************************************************************************************
-	Private
+	Private Static Members
  *********************************************************************************************/
 
 		static void 					GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
@@ -70,18 +78,15 @@ namespace a3d {
 													   int scancode,
 													   int action,
 													   int mods);
-		void 							initMouseInput();
-		void 							initManyMouse();
-		void 							quitManyMouse();
-		void 							registerGLFWCallbacks(GLFWwindow* glfwWindow);
-		void 							unregisterGLFWCallbacks(GLFWwindow* glfwWindow);
+
+/*********************************************************************************************
+	Private IVars
+ *********************************************************************************************/
 
 		bool							_usingManyMouse;
 		Window*							_window;
 	};
 }
-
-#endif // DESKTOP
 
 
 #endif /* AVARA3D_WINDOWINPUTMANAGER_H */

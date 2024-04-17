@@ -26,7 +26,7 @@ namespace a3d {
 	class Image : public Sampleable {
 
 /*********************************************************************************************
-	Public
+	Public Lifecycle
  *********************************************************************************************/
 
 		explicit Image(const std::filesystem::path& path,
@@ -35,7 +35,6 @@ namespace a3d {
 		explicit Image(std::unique_ptr<Buffer> headerBuffer, // with header
 			  bool flipVertical = true,
 			  bool flipHorizontal = false);
-
 		Image(std::unique_ptr<Buffer> rawBuffer, // raw
 			  unsigned width,
 			  unsigned height,
@@ -44,6 +43,10 @@ namespace a3d {
 			  bool flipHorizontal = false);
 		~Image() override;
 
+/*********************************************************************************************
+	Public Members
+ *********************************************************************************************/
+
 		unsigned 					width() const;
 		unsigned 					height() const;
 		unsigned 					bytesPerPixel() const;
@@ -51,22 +54,26 @@ namespace a3d {
 		bool 						writePNG(std::filesystem::path path) const;
 		
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 		
 		const Buffer& 				buffer() const;
 
-	private:
-
 /*********************************************************************************************
-	Private
+	Private Members
  *********************************************************************************************/
+
+	private:
 
 		void 						loadBuffer(Buffer& buffer,
 											   bool flipVertical,
 											   bool flipHorizontal);
 		void 						flipVertical(); // "flip"
 		void 						flipHorizontal(); // "mirror"
+
+/*********************************************************************************************
+	Private IVars
+ *********************************************************************************************/
 
 		unsigned					_width;
 		unsigned					_height;

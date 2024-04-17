@@ -33,16 +33,20 @@ namespace a3d {
 	
 	class Renderer {
 
-	public:
-
 /*********************************************************************************************
-	Internal
+	Internal Lifecycle
  *********************************************************************************************/
+
+	public:
 
 		Renderer();
 		Renderer(const Renderer& other) = delete; // copy constructor
 		Renderer& operator=(const Renderer& other) = delete; // copy assignment
 		virtual ~Renderer() = 0;
+
+/*********************************************************************************************
+	Internal Members
+ *********************************************************************************************/
 
 		virtual RenderingApi 				renderingApi() const = 0;
 
