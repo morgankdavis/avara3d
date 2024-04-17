@@ -95,7 +95,7 @@ int main(int argc, const char* argv[]) {
 	auto material = make_shared<Material>();
 	material->name("LIGHT material");
 	material->emission(materialProperty);
-	auto mesh = shared_ptr(std::move(Sphere::Mesh(3.5, 4, material)));
+	auto mesh = shared_ptr(Sphere::Mesh(3.5, 4, material));
 //	mesh->addMaterial(material);
 //	mesh->replaceMaterial(0, material); // TODO: EHHHHHHHH??????????/
 	pointLightNode->mesh(mesh);

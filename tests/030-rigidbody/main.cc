@@ -1602,7 +1602,7 @@ shared_ptr<Node> ChainmailLink(float minorRadius, float majorRadius) {
 
 	static const float CAPSULE_RADIUS = .1;
 	static const float TORUS_MID_RADIUS = majorRadius - (majorRadius - minorRadius);
-	static const float CAPSULE_HEIGHT = (TWO_PI * TORUS_MID_RADIUS) / 8.0;
+	static const float CAPSULE_HEIGHT = (TWO_PI * TORUS_MID_RADIUS) / 8.0f;
 	static const auto visualMesh = shared_ptr(std::move(Capsule::Mesh(CAPSULE_RADIUS,
 																	  CAPSULE_HEIGHT,
 																	  16, 16, 16)));
@@ -1627,8 +1627,8 @@ shared_ptr<Node> ChainmailLink(float minorRadius, float majorRadius) {
 
 	static const auto shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, ringPhysicsNode);
 
-	auto torusMesh = Torus::Mesh(minorRadius + (minorRadius / 32.0),
-								 majorRadius+(majorRadius/32.0), 128, 128);
+	auto torusMesh = Torus::Mesh(minorRadius + (minorRadius / 32.0f),
+								 majorRadius+(majorRadius/32.0f), 128, 128);
 	auto ringVisualNode = Node::MeshNode(shared_ptr(std::move(torusMesh)));
 
 	auto colorProperty = shared_ptr(std::move(Color::LightGray()));
@@ -1685,7 +1685,7 @@ void SpawnChainMail(Scene& scene) {
 			float wStagger = 0;
 			if (h%2 == 0) {
 				rotation = -PI/12.0;
-				wStagger = TORUS_MAJOR_RADIUS* 1.15;
+				wStagger = TORUS_MAJOR_RADIUS * 1.15f;
 			}
 			link->rotation({1, 0, 0}, rotation);
 			//link->rotation({1, 0, 0}, (float)(h%2 == 0 ? (PI/6.0) : (-PI/6.0)));

@@ -89,7 +89,7 @@ int main(int argc, const char* argv[]) {
 	auto ambientLight = make_unique<Light>(LightType::Ambient, make_unique<Color>(0.2f, 0.2, 0.2, 1.0));
 	ambientLight->name("ambient");
 	auto ambientLightNode = Node::LightNode(std::move(ambientLight));
-	scene->rootNode()->addChild(std::move(ambientLightNode));
+	scene->rootNode()->addChild(ambientLightNode);
 
 	auto pointLight = make_unique<Light>(LightType::Point, Color::White());
 	pointLight->name("point");
@@ -100,8 +100,8 @@ int main(int argc, const char* argv[]) {
 	material->name("LIGHT material");
 	material->emission(std::move(Color::White()));
 	auto geometry = Sphere::Mesh(1.5, 4, material);
-	pointLightNode->mesh(std::move(geometry));
-	scene->rootNode()->addChild(std::move(pointLightNode));
+	pointLightNode->mesh(geometry);
+	scene->rootNode()->addChild(pointLightNode);
 
 	if (ORTHO_CAMERA) {
 		auto orthoCameraNode = Node::CameraNode(

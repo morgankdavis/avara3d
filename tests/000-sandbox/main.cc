@@ -108,7 +108,7 @@ int main(int argc, const char* argv[]) {
 //						: make_shared<Color>(.85f);
 	auto ambientLight = make_shared<Light>(LightType::Ambient, Color::DarkGray());
 	auto ambientLightNode = Node::LightNode(ambientLight);
-	scene->rootNode()->addChild(std::move(ambientLightNode));
+	scene->rootNode()->addChild(ambientLightNode);
 
 //	auto pointColor = DARK
 //					  ? Color::LightGray()
@@ -186,7 +186,7 @@ int main(int argc, const char* argv[]) {
 //			sphere->replaceMaterial(0, material);
 			pointLightNode->mesh(sphere);
 
-			scene->rootNode()->addChild(std::move(pointLightNode));
+			scene->rootNode()->addChild(pointLightNode);
 		}
 //
 //		auto testMesh = MeshNamed("rubber_duck/rubber_duck");
