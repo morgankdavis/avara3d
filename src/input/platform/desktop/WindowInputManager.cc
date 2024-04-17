@@ -71,19 +71,19 @@ void WindowInputManager::update() {
 				case MANYMOUSE_EVENT_RELMOTION:
 
 					if (event.item == 0) {
-						_mousePositionDelta.x = (FLIP_MOUSE_HORIZONTAL ? -event.value : event.value);
+						_mousePositionDelta.x = float(FLIP_MOUSE_HORIZONTAL ? -event.value : event.value);
 					}
 					else {
-						_mousePositionDelta.y = (FLIP_MOUSE_VERTICAL ? -event.value : event.value);
+						_mousePositionDelta.y = float(FLIP_MOUSE_VERTICAL ? -event.value : event.value);
 					}
 					break;
 
 				case MANYMOUSE_EVENT_SCROLL:
 					if (event.item == 0) {
-						_mouseScrollWheelDelta.y += event.value;
+						_mouseScrollWheelDelta.y += float(event.value);
 					}
 					else {
-						_mouseScrollWheelDelta.x += event.value;
+						_mouseScrollWheelDelta.x += float(event.value);
 					}
 					break;
 
@@ -151,8 +151,8 @@ void WindowInputManager::GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
 
 			//A3D_LOG_D("xDelta: {}, yDelta {}", xDelta, yDelta);
 
-			inputManager->_mousePositionDelta.x -= xDelta;
-			inputManager->_mousePositionDelta.y += yDelta;
+			inputManager->_mousePositionDelta.x -= (float)xDelta;
+			inputManager->_mousePositionDelta.y += (float)yDelta;
 		}
 	}
 
@@ -227,7 +227,7 @@ void WindowInputManager::initManyMouse() {
 	}
 	else {
 		A3D_LOG_I("ManyMouse driver: {}", ManyMouse_DriverName());
-		for (int m = 0; m<availableMice; ++m) {
+		for (unsigned m = 0; m<availableMice; ++m) {
 			A3D_LOG_I("Mouse[{}]: {}", m, ManyMouse_DeviceName(m));
 		}
 	}

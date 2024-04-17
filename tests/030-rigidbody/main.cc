@@ -1186,7 +1186,7 @@ void SpawnHACDTeapot(Scene& scene) {
 	auto decomposedTeapotMaterials = vector<shared_ptr<Material>>();
 	decomposedTeapotMaterials.reserve(decomposedElements.size());
 	for (int m=0; m<decomposedElements.size(); ++m) {
-		auto randomColorProperty = shared_ptr(std::move(Color::Random()));
+		auto randomColorProperty = Color::Random();
 		decomposedTeapotMaterials.push_back(make_shared<Material>(monostate{},
 																  monostate{},
 																  monostate{},
@@ -1272,8 +1272,8 @@ void AddRing(Scene& scene) {
 														 mesh);
 	//auto physicsBody = PhysicsBody::DynamicBody();
 	auto physicsBody = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, physicsShape);
-	node->mesh(shared_ptr<Mesh>(std::move(mesh)));
-	static auto materialProperty = shared_ptr(std::move(Color::Yellow()));
+	node->mesh(mesh);
+	static auto materialProperty = Color::Yellow();
 	static auto material = make_shared<Material>(monostate{}, materialProperty, monostate{});
 	node->mesh()->addMaterial(material);
 	node->physicsBody(std::move(physicsBody));
@@ -1598,14 +1598,14 @@ shared_ptr<Node> ChainmailLink(float minorRadius, float majorRadius) {
 
 	static const float TWO_PI = 2 * 3.14159265358;
 
-	static auto ringPhysicsNode = shared_ptr(std::move(Node::NamedNode("Ring physics shape node")));
+	static auto ringPhysicsNode = Node::NamedNode("Ring physics shape node");
 
 	static const float CAPSULE_RADIUS = .1;
 	static const float TORUS_MID_RADIUS = majorRadius - (majorRadius - minorRadius);
 	static const float CAPSULE_HEIGHT = (TWO_PI * TORUS_MID_RADIUS) / 8.0f;
-	static const auto visualMesh = shared_ptr(std::move(Capsule::Mesh(CAPSULE_RADIUS,
-																	  CAPSULE_HEIGHT,
-																	  16, 16, 16)));
+	static const auto visualMesh = Capsule::Mesh(CAPSULE_RADIUS,
+												 CAPSULE_HEIGHT,
+												 16, 16, 16);
 
 	for (int s = 0; s < 8; ++s) {
 
@@ -1629,9 +1629,9 @@ shared_ptr<Node> ChainmailLink(float minorRadius, float majorRadius) {
 
 	auto torusMesh = Torus::Mesh(minorRadius + (minorRadius / 32.0f),
 								 majorRadius+(majorRadius/32.0f), 128, 128);
-	auto ringVisualNode = Node::MeshNode(shared_ptr(std::move(torusMesh)));
+	auto ringVisualNode = Node::MeshNode(torusMesh);
 
-	auto colorProperty = shared_ptr(std::move(Color::LightGray()));
+	auto colorProperty = Color::LightGray();
 	auto colorMaterial = make_shared<Material>(monostate{}, colorProperty, monostate{});
 	torusMesh->addMaterial(colorMaterial);
 

@@ -150,7 +150,7 @@ int main(int argc, const char* argv[]) {
 											  monostate{});
 	}
 
-	planeMaterial->uvScale(PLANE_LENGTH/10.0);
+	planeMaterial->uvScale(PLANE_LENGTH/10.0f);
 	planeMaterial->doubleSided(false);
 	planeNode->mesh()->addMaterial(planeMaterial);
 //	planeNode->mesh()->replaceMaterial(0, planeMaterial);
@@ -180,7 +180,7 @@ int main(int argc, const char* argv[]) {
 												  monostate{},
 												  Color::LightGray());
 			//auto sphere = Mesh::Sphere(0.1f, 12);
-			auto sphere = shared_ptr(std::move(Sphere::Mesh(0.1f, 12, material)));
+			auto sphere = Sphere::Mesh(0.1f, 12, material);
 
 			//sphere->addMaterial(material);
 //			sphere->replaceMaterial(0, material);
