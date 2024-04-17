@@ -26,11 +26,11 @@ namespace a3d {
 
 	class ConvexDecomposer {
 
-	public:
-
 /*********************************************************************************************
-	Internal
+	Internal Types
  *********************************************************************************************/
+
+	public:
 
 		enum class FILL_MODE {
 			FLOOD_FILL,
@@ -51,16 +51,20 @@ namespace a3d {
 			bool		findBestPlane {false};
 		};
 
+/*********************************************************************************************
+	Internal Lifecycle
+ *********************************************************************************************/
+
 		ConvexDecomposer(MeshElement& element,
 						 Options& options);
 
 		std::vector<std::unique_ptr<MeshElement>>	decompose();
 
-	private:
-
 /*********************************************************************************************
-	Private
+	Private IVars
  *********************************************************************************************/
+
+	private:
 
 		Options 										_options;
 		MeshElement*									_sourceElement;

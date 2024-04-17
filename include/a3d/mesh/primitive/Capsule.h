@@ -25,8 +25,9 @@ namespace a3d {
 	class Capsule: public MeshElement {
 
 /*********************************************************************************************
-	Public
+	Public Static Members
  *********************************************************************************************/
+
 	public:
 
 		static std::shared_ptr<Mesh> Mesh(float radius,
@@ -36,11 +37,19 @@ namespace a3d {
 										  unsigned rings = DEFAULT_RINGS,
 										  std::shared_ptr<Material> material = nullptr);
 
+/*********************************************************************************************
+	Public Lifecycle
+ *********************************************************************************************/
+
 		Capsule(float radius,
 				float height,
 				unsigned slices = DEFAULT_SLICES,
 				unsigned segments = DEFAULT_SEGMENTS,
 				unsigned rings = DEFAULT_RINGS);
+
+/*********************************************************************************************
+	Public Members
+ *********************************************************************************************/
 
 		float 		radius() const;
 		float 		height() const;
@@ -49,13 +58,18 @@ namespace a3d {
 		unsigned 	rings() const;
 		
 /*********************************************************************************************
-	Private
+	Private Constants
  *********************************************************************************************/
+
 	private:
 
 		static constexpr unsigned DEFAULT_SLICES = 32;
 		static constexpr unsigned DEFAULT_SEGMENTS = 4;
 		static constexpr unsigned DEFAULT_RINGS = 8;
+
+/*********************************************************************************************
+	Private IVars
+ *********************************************************************************************/
 
 		float		_radius;
 		float		_height;

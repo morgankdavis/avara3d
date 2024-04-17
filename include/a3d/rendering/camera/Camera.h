@@ -50,14 +50,14 @@ namespace a3d {
 
 	protected:
 
-		virtual void 					constructProjectionMatrix() = 0;
+		virtual void 						constructProjectionMatrix() = 0;
 
 /*********************************************************************************************
 	Protected IVars
  *********************************************************************************************/
 
-		std::optional<std::string>		_name;
-		glm::mat4						_projection;
+		std::optional<std::string>			_name;
+		glm::mat4							_projection;
 	};
 }
 

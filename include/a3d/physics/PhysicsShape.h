@@ -31,20 +31,28 @@ namespace a3d {
 
 	class PhysicsShape {
 
-	public:
-
 /*********************************************************************************************
-	Public
+	Public Types
  *********************************************************************************************/
+
+	public:
 
 		using Source = std::variant<
 				std::monostate,
 				std::weak_ptr<Mesh>,
 				std::weak_ptr<Node>>;
 
+/*********************************************************************************************
+	Public Lifecycle
+ *********************************************************************************************/
+
 		PhysicsShape(PhysicsShapeType type, const std::shared_ptr<Mesh>& mesh);
 		PhysicsShape(PhysicsShapeType type, const std::shared_ptr<Node>& node);
 		~PhysicsShape();
+
+/*********************************************************************************************
+	Public Members
+ *********************************************************************************************/
 
 		virtual PhysicsShapeType 			type() const;
 		virtual void 						type(PhysicsShapeType type);
@@ -52,7 +60,7 @@ namespace a3d {
 		Source 								source() const;
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 		void 								attachedToBody(PhysicsBody& body);
@@ -87,22 +95,26 @@ namespace a3d {
 
 		PhysicsShapeProxy*					proxy() const;
 
-	protected:
-
 /*********************************************************************************************
-	Protected
+	Protected Lifecycle
  *********************************************************************************************/
 
+	protected:
+
 		PhysicsShape();
+
+/*********************************************************************************************
+	Protected Members
+ *********************************************************************************************/
 
 		PhysicsShapeType 					_type;
 		std::unique_ptr<PhysicsShapeProxy>	_proxy;
 
-	private:
-
 /*********************************************************************************************
-	Private
+	Private IVars
  *********************************************************************************************/
+
+	private:
 
 		Source 								_source;
 		std::unordered_set<PhysicsBody*>	_bodies;

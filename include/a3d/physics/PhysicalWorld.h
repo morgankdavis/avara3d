@@ -32,21 +32,29 @@ namespace a3d {
 	
 	class PhysicalWorld {
 
-	public:
-
 /*********************************************************************************************
-	Public
+	Public Types
  *********************************************************************************************/
+
+	public:
 
 		using DidSimulateCallback = 	std::function<void(PhysicalWorld& world, double time)>;
 		using BeginContactCallback = 	std::function<void(PhysicalWorld& world, PhysicsContact& contact)>;
 		using ContinueContactCallback =	std::function<void(PhysicalWorld& world, PhysicsContact& contact)>;
 		using EndContactCallback = 		std::function<void(PhysicalWorld& world, PhysicsContact& contact)>;
 
+/*********************************************************************************************
+	Public Lifecycle
+ *********************************************************************************************/
+
 		PhysicalWorld();
 		PhysicalWorld(const PhysicalWorld& other) = delete; // copy constructor
 		PhysicalWorld& operator=(const PhysicalWorld& other) = delete; // copy assignment
 		~PhysicalWorld();
+
+/*********************************************************************************************
+	Public Members
+ *********************************************************************************************/
 
 		const glm::vec3&					gravity() const;
 		void 								gravity(const glm::vec3& gravity);
@@ -83,7 +91,7 @@ namespace a3d {
 		void 								endContact(PhysicalWorld::EndContactCallback function);
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 		void								attachedToScene(Scene& scene);
@@ -99,11 +107,11 @@ namespace a3d {
 
 		PhysicalWorldProxy*					proxy() const;
 
-	private:
-
 /*********************************************************************************************
-	Private
+	Private IVars
  *********************************************************************************************/
+
+	private:
 
 		glm::vec3 									_gravity;
 		float 										_speed;

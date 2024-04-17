@@ -100,8 +100,8 @@ Window::Window(RenderingApi renderAPI,
 		}
 		else {
 			_glfwWindow = unique_ptr<GLFWwindow, DestroyGLFWWindow>(
-					glfwCreateWindow(width,
-									 height,
+					glfwCreateWindow((int)width,
+									 (int)height,
 									 title.c_str(),
 									 nullptr,
 									 nullptr));

@@ -25,8 +25,9 @@ namespace a3d {
 	class RoundedBox: public MeshElement {
 
 /*********************************************************************************************
-	Public
+	Public Static Members
  *********************************************************************************************/
+
 	public:
 
 		static std::shared_ptr<Mesh> Mesh(float radius,
@@ -39,6 +40,10 @@ namespace a3d {
 										  unsigned heightSegments = DEFAULT_SEGMENTS,
 										  std::shared_ptr<Material> material = nullptr);
 
+/*********************************************************************************************
+	Public Lifecycle
+ *********************************************************************************************/
+
 		RoundedBox(float radius,
 				   float length,
 				   float width,
@@ -47,6 +52,10 @@ namespace a3d {
 				   unsigned lengthSegments = DEFAULT_SEGMENTS,
 				   unsigned widthSegments = DEFAULT_SEGMENTS,
 				   unsigned heightSegments = DEFAULT_SEGMENTS);
+
+/*********************************************************************************************
+	Public Members
+ *********************************************************************************************/
 
 		float 		radius() const;
 		float 		length() const;
@@ -58,12 +67,17 @@ namespace a3d {
 		unsigned 	heightSegments() const;
 
 /*********************************************************************************************
-	Private
+	Private Constants
  *********************************************************************************************/
+
 	private:
 
 		static constexpr unsigned DEFAULT_SLICES = 8;
 		static constexpr unsigned DEFAULT_SEGMENTS = 8;
+
+/*********************************************************************************************
+	Private IVars
+ *********************************************************************************************/
 
 		float 		_radius;
 		float		_length;

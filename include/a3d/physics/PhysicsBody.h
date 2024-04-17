@@ -31,19 +31,27 @@ namespace a3d {
 	
 	class PhysicsBody {
 
-	public:
-
 /*********************************************************************************************
-	Public
+	Public Static Members
  *********************************************************************************************/
+
+	public:
 
 		static std::unique_ptr<PhysicsBody> 	StaticBody();
 		static std::unique_ptr<PhysicsBody> 	DynamicBody();
 		static std::unique_ptr<PhysicsBody> 	KinematicBody();
 
+/*********************************************************************************************
+	Public Lifecycle
+ *********************************************************************************************/
+
 		explicit PhysicsBody(PhysicsBodyType type);
 		PhysicsBody(PhysicsBodyType type, const std::shared_ptr<PhysicsShape>& shape);
 		~PhysicsBody();
+
+/*********************************************************************************************
+	Public Members
+ *********************************************************************************************/
 
 		PhysicsBodyType 					type() const;
 		void 								type(PhysicsBodyType type);
@@ -123,7 +131,7 @@ namespace a3d {
 		void								autocalculatesMomentOfInertia(bool autocalculate);
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 		
 //		void 								resting(bool resting);
@@ -170,16 +178,20 @@ namespace a3d {
 
 		PhysicsBodyProxy*					proxy() const;
 
-	private:
-
 /*********************************************************************************************
-	Private
+	Private Members
  *********************************************************************************************/
+
+	private:
 
 		void 								checkAutocreateShape(const std::shared_ptr<Node>& node);
 		void 								checkAutocreateShape(const std::shared_ptr<Mesh>& mesh);
 
 		void 								checkAddToWorld();
+
+/*********************************************************************************************
+	Private IVars
+ *********************************************************************************************/
 
 		PhysicsBodyType 					_type;
 		std::shared_ptr<PhysicsShape>		_shape;

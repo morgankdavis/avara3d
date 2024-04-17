@@ -33,10 +33,8 @@ namespace a3d {
 
 	public:
 
-		static std::shared_ptr<Material> DefaultMaterial();
-		static std::shared_ptr<Material> MissingTextureMaterial(); // TODO: make internal?
-		static std::shared_ptr<Material> EmissionMaterial(MaterialProperty property);
-		static MaterialProperty MissingTextureProperty(); // TODO: make internal?
+		static std::shared_ptr<Material> 	DefaultMaterial();
+		static std::shared_ptr<Material> 	EmissionMaterial(MaterialProperty property);
 
 /*********************************************************************************************
 	Public Lifecycle
@@ -90,6 +88,13 @@ namespace a3d {
 
 		BlendFunction						blendFunction() const;
 		void 								blendFunction(BlendFunction function);
+
+/*********************************************************************************************
+	Internal Static Members
+ *********************************************************************************************/
+
+		static std::shared_ptr<Material> 	MissingTextureMaterial();
+		static MaterialProperty 			MissingTextureProperty();
 		
 /*********************************************************************************************
 	Internal Members

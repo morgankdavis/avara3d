@@ -17,14 +17,18 @@ namespace a3d {
 
 	class CapsulePhysicsShape : public PhysicsShape {
 
-	public:
-
 /*********************************************************************************************
-	Public
+	Public Lifecycle
  *********************************************************************************************/
+
+	public:
 
 		CapsulePhysicsShape(float radius, float height);
 		~CapsulePhysicsShape();
+
+/*********************************************************************************************
+	Public Members
+ *********************************************************************************************/
 
 		float 					radius() const;
 		void					radius(float radius);
@@ -33,14 +37,14 @@ namespace a3d {
 		void					height(float height);
 
 /*********************************************************************************************
-	PhysicsShape Public
+	PhysicsShape Public Members
  *********************************************************************************************/
 
 		PhysicsShapeType		type() const override;
 		void					type(PhysicsShapeType type) override;
 
 /*********************************************************************************************
-	Private
+	Private IVars
  *********************************************************************************************/
 
 	private:

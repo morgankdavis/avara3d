@@ -25,8 +25,9 @@ namespace a3d {
 	class Box: public MeshElement {
 
 /*********************************************************************************************
-	Pubic
+	Pubic Static Members
  *********************************************************************************************/
+
 	public:
 
 		static std::shared_ptr<Mesh> Mesh(float length,
@@ -37,6 +38,10 @@ namespace a3d {
 										  unsigned heightSegments = DEFAULT_SEGMENTS,
 										  std::shared_ptr<Material> material = nullptr);
 
+/*********************************************************************************************
+	Public Lifecycle
+ *********************************************************************************************/
+
 		// z, x, y?
 		Box(float length,
 			float width,
@@ -44,6 +49,10 @@ namespace a3d {
 			unsigned lengthSegments = DEFAULT_SEGMENTS,
 			unsigned widthSegments = DEFAULT_SEGMENTS,
 			unsigned heightSegments = DEFAULT_SEGMENTS);
+
+/*********************************************************************************************
+	Public Members
+ *********************************************************************************************/
 
 		float 		length() const;
 		float 		width() const;
@@ -53,11 +62,16 @@ namespace a3d {
 		unsigned	heightSegments() const;
 
 /*********************************************************************************************
-	 Private
+	 Private Constants
  *********************************************************************************************/
+
 	private:
 
 		static constexpr int DEFAULT_SEGMENTS = 8;
+
+/*********************************************************************************************
+	Private IVars
+ *********************************************************************************************/
 
 		float		_length;
 		float		_width;

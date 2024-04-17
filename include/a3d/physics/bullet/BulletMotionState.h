@@ -21,29 +21,29 @@ namespace a3d {
 
 	class BulletMotionState : public btMotionState {
 
-	public:
-
 /*********************************************************************************************
-	Lifecycle
+	Internal Lifecycle
  *********************************************************************************************/
+
+	public:
 
 		explicit BulletMotionState(PhysicsBody& body);
 
 /*********************************************************************************************
-	btMotionState
+	btMotionState Members
  *********************************************************************************************/
 
 		void getWorldTransform(btTransform& transform) const override;
 		void setWorldTransform(const btTransform& transform) override;
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 		PhysicsBody*		body() const;
 
 /*********************************************************************************************
-	Private
+	Private IVars
  *********************************************************************************************/
 
 //		btTransform 		_visualWorldTransform;

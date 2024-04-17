@@ -40,12 +40,12 @@ namespace a3d {
 
 
 	class GlTFImporter {
-
-	public:
 		
 /*********************************************************************************************
 	Internal Lifecycle
  *********************************************************************************************/
+
+	public:
 
 		explicit GlTFImporter(const std::filesystem::path& path,
 							  SceneImportOptions options = SceneImportOptions::ImportAll);

@@ -27,15 +27,13 @@ class btDefaultCollisionConfiguration;
 namespace a3d {
 
 
-#ifdef DESKTOP
 	class BulletDebugDrawer;
-#endif
 
 
 	class BulletWorldProxy : public PhysicalWorldProxy {
 
 /*********************************************************************************************
-	Lifecycle
+	Internal Lifecycle
  *********************************************************************************************/
 
 	public:
@@ -44,7 +42,7 @@ namespace a3d {
 		~BulletWorldProxy() override;
 
 /*********************************************************************************************
-	PhysicalWorldModelProxy
+	PhysicalWorldModelProxy Internal Members
  *********************************************************************************************/
 
 		void 	add(PhysicsBody& body) override;
@@ -63,7 +61,7 @@ namespace a3d {
 						  const DebugOptions &debugOptions) override;
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 		btDiscreteDynamicsWorld*		btWorld() const;
@@ -72,7 +70,7 @@ namespace a3d {
 #endif
 
 /*********************************************************************************************
-	 Private
+	 Private IVars
  *********************************************************************************************/
 
 	private:

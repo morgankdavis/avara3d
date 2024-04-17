@@ -25,8 +25,9 @@ namespace a3d {
 	class Spring: public MeshElement {
 
 /*********************************************************************************************
-	Public
+	Public Static Members
  *********************************************************************************************/
+
 	public:
 
 		static std::shared_ptr<Mesh> Mesh(float minorRadius,
@@ -36,11 +37,19 @@ namespace a3d {
 										  unsigned segments = DEFAULT_SEGMENTS,
 										  std::shared_ptr<Material> material = nullptr);
 
+/*********************************************************************************************
+	Public Lifecycle
+ *********************************************************************************************/
+
 		Spring(float minorRadius,
 			   float majorRadius,
 			   float length,
 			   unsigned slices = DEFAULT_SLICES,
 			   unsigned segments = DEFAULT_SEGMENTS);
+
+/*********************************************************************************************
+	Public Members
+ *********************************************************************************************/
 
 		float 		minorRadius() const;
 		float 		majorRadius() const;
@@ -49,12 +58,17 @@ namespace a3d {
 		unsigned 	segments() const;
 
 /*********************************************************************************************
-	Private
+	Private Constants
  *********************************************************************************************/
+
 	private:
 
 		static constexpr unsigned DEFAULT_SLICES = 8;
 		static constexpr unsigned DEFAULT_SEGMENTS = 32;
+
+/*********************************************************************************************
+	Private IVars
+ *********************************************************************************************/
 
 		float 		_minorRadius;
 		float 		_majorRadius;

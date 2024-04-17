@@ -25,8 +25,9 @@ namespace a3d {
 	class Tube: public MeshElement {
 
 /*********************************************************************************************
- 	Public
+ 	Public Static Members
  *********************************************************************************************/
+
 	public:
 
 		static std::shared_ptr<Mesh> Mesh(float innerRadius,
@@ -37,12 +38,20 @@ namespace a3d {
 										  unsigned rings = DEFAULT_RINGS,
 										  std::shared_ptr<Material> material = nullptr);
 
+/*********************************************************************************************
+	Public Lifecycle
+ *********************************************************************************************/
+
 		Tube(float innerRadius,
 			 float outerRadius,
 			 float height,
 			 unsigned slices = DEFAULT_SLICES,
 			 unsigned segments = DEFAULT_SEGMENTS,
 			 unsigned rings = DEFAULT_RINGS);
+
+/*********************************************************************************************
+	Public Members
+ *********************************************************************************************/
 
 		float 		innerRadius() const;
 		float 		outerRadius() const;
@@ -52,13 +61,18 @@ namespace a3d {
 		unsigned 	rings() const;
 
 /*********************************************************************************************
-	Private
+	Private Constants
  *********************************************************************************************/
+
 	private:
 
 		static constexpr unsigned DEFAULT_SLICES = 32;
 		static constexpr unsigned DEFAULT_SEGMENTS = 8;
 		static constexpr unsigned DEFAULT_RINGS = 1;
+
+/*********************************************************************************************
+	Private IVars
+ *********************************************************************************************/
 
 		float		_innerRadius;
 		float		_outerRadius;
