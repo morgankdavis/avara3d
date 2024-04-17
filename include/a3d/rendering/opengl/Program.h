@@ -25,29 +25,21 @@ namespace a3d {
 
 	class Program {
 
+	public:
+
 /*********************************************************************************************
-	Public Static
+	Internal
  *********************************************************************************************/
 
-	public:
+		explicit Program(const std::string& name);
+		~Program();
 
 		static Program& 	Default();
 		static Program& 	Skybox();
 		static Program& 	Wireframe();
 		static Program& 	Lines();
 		static Program& 	Points();
-		
-/*********************************************************************************************
-	Lifecycle
- *********************************************************************************************/
-		
-		Program(const std::string& name);
-		~Program();
-		
-/*********************************************************************************************
-	Internal
- *********************************************************************************************/
-		
+
 		bool 								compile();
 		bool 								link();
 		bool 								validate();
@@ -89,11 +81,11 @@ namespace a3d {
 		const std::optional<std::string>&	fragmentShaderSource() const;
 		void 								fragmentShaderSource(std::string source);
 
+	private:
+
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
-
-	private:
 
 		std::optional<std::string>			shaderSource(const std::string& name,
 														   const std::string& type);

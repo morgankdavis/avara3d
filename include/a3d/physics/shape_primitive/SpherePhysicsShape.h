@@ -17,24 +17,20 @@ namespace a3d {
 
 	class SpherePhysicsShape : public PhysicsShape {
 
-/*********************************************************************************************
-	Lifecycle
- *********************************************************************************************/
-
 	public:
-
-		explicit SpherePhysicsShape(float radius);
-		~SpherePhysicsShape();
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
 
+		explicit SpherePhysicsShape(float radius);
+		~SpherePhysicsShape();
+
 		float 					radius() const;
 		void					radius(float radius);
 
 /*********************************************************************************************
-	PhysicsShape
+	PhysicsShape Public
  *********************************************************************************************/
 
 		PhysicsShapeType		type() const override;

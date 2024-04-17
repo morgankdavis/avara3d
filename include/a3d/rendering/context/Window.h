@@ -2,8 +2,8 @@
 //  Window.h
 //  avara3d
 //
-//  Created by Morgan Davis on 10/21/16.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Created by Morgan Davis on 4/16/2024.
+//  Copyright © 2024-2024 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_WINDOW_H
@@ -37,8 +37,10 @@ namespace a3d {
 	
 	class Window : public RenderContext {
 
+	public:
+
 /*********************************************************************************************
-	Types
+	Public
  *********************************************************************************************/
 
 		struct DestroyGLFWWindow {
@@ -47,64 +49,48 @@ namespace a3d {
 			}
 		};
 
-/*********************************************************************************************
-	Lifecycle
- *********************************************************************************************/
-
-	public:
-
 		Window(RenderingApi renderAPI,
-			   std::string title,
+			   const std::string& title,
 			   unsigned width,
 			   unsigned height,
 			   bool fullScreen,
 			   bool useHighDPI = true,
 			   AntialiasingMode antialiasingMode = AntialiasingMode::None);
-
 		Window(const Window& other) = delete; // copy constructor
 		Window& operator=(const Window& other) = delete; // copy assignment
-		
 		~Window() override;
-		
-/*********************************************************************************************
-	Public
- *********************************************************************************************/
 
-		void 							open();
-		void							close();
+		void 					open();
+		void					close();
 
-		std::string						title() const;
-		void							title(const std::string& title);
+		std::string				title() const;
+		void					title(const std::string& title);
 
-		bool 							cursorCaptured() const;
-		void 							cursorCaptured(bool captured);
+		bool 					cursorCaptured() const;
+		void 					cursorCaptured(bool captured);
 
 /*********************************************************************************************
-	RenderContext
+	RenderContext Internal
  *********************************************************************************************/
 
-		void 							swapBuffers() override;
-		bool 							vSyncEnabled() const override; // why is this necessary?
-		void 							vSyncEnabled(bool enabled) override;
+		void 					swapBuffers() override;
+		bool 					vSyncEnabled() const override; // why is this necessary?
+		void 					vSyncEnabled(bool enabled) override;
 
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-		void 							pollInput();
-		GLFWwindow* 					glfwWindow() const;
+		void 					pollInput();
+		GLFWwindow* 			glfwWindow() const;
 
-/*********************************************************************************************
-	Internal Static
- *********************************************************************************************/
+		static void				Destroy(GLFWwindow* window);
 
-		static void						Destroy(GLFWwindow* window);
+	private:
 
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
-
-	private:
 
 		std::unique_ptr<GLFWwindow, DestroyGLFWWindow>	_glfwWindow;
 		bool											_cursorCaptured;

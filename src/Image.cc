@@ -28,7 +28,6 @@ using namespace std;
 	Lifecycle
  *********************************************************************************************/
 
-#ifndef ANDROID
 Image::Image(const filesystem::path& path,
 			 bool flipVertical,
 			 bool flipHorizontal):
@@ -40,7 +39,6 @@ Image::Image(const filesystem::path& path,
 	auto buffer = Buffer(path);
 	loadBuffer(buffer, flipVertical, flipHorizontal);
 }
-#endif
 
 Image::Image(unique_ptr<Buffer> buffer,
 			 bool flipVertical,

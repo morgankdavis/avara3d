@@ -24,12 +24,9 @@ namespace a3d {
 
 	class Cone: public MeshElement {
 
-	private:
-
-		static constexpr unsigned DEFAULT_SLICES = 32;
-		static constexpr unsigned DEFAULT_SEGMENTS = 8;
-		static constexpr unsigned DEFAULT_RINGS = 4;
-
+/*********************************************************************************************
+	Public
+ *********************************************************************************************/
 	public:
 
 		static std::shared_ptr<Mesh> Mesh(float radius,
@@ -39,19 +36,11 @@ namespace a3d {
 										  unsigned rings = DEFAULT_RINGS,
 										  std::shared_ptr<Material> material = nullptr);
 
-/*********************************************************************************************
-	Lifecycle
- *********************************************************************************************/
-
 		Cone(float radius,
 			 float height,
 			 unsigned slices = DEFAULT_SLICES,
 			 unsigned segments = DEFAULT_SEGMENTS,
 			 unsigned rings = DEFAULT_RINGS);
-		
-/*********************************************************************************************
-	Public
- *********************************************************************************************/
 		
 		float 		radius() const;
 		float 		height() const;
@@ -62,8 +51,11 @@ namespace a3d {
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
-
 	private:
+
+		static constexpr unsigned DEFAULT_SLICES = 32;
+		static constexpr unsigned DEFAULT_SEGMENTS = 8;
+		static constexpr unsigned DEFAULT_RINGS = 4;
 
 		float 		_radius;
 		float 		_height;

@@ -24,11 +24,9 @@ namespace a3d {
 
 	class Disk: public MeshElement {
 
-	private:
-
-		static constexpr unsigned DEFAULT_SLICES = 32;
-		static constexpr unsigned DEFAULT_RINGS = 4;
-
+/*********************************************************************************************
+	Public
+ *********************************************************************************************/
 	public:
 
 		static std::shared_ptr<Mesh> Mesh(float radius,
@@ -37,18 +35,10 @@ namespace a3d {
 										  unsigned rings = DEFAULT_RINGS,
 										  std::shared_ptr<Material> material = nullptr);
 
-/*********************************************************************************************
-	Lifecycle
- *********************************************************************************************/
-
 		Disk(float radius,
 			 float innerRadius,
 			 unsigned slices = DEFAULT_SLICES,
 			 unsigned rings = DEFAULT_RINGS);
-
-/*********************************************************************************************
-	Public
- *********************************************************************************************/
 
 		float 		radius() const;
 		float 		innerRadius() const;
@@ -58,8 +48,10 @@ namespace a3d {
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
-
 	private:
+
+		static constexpr unsigned DEFAULT_SLICES = 32;
+		static constexpr unsigned DEFAULT_RINGS = 4;
 
 		float		_radius;
 		float		_innerRadius;

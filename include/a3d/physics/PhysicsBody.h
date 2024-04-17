@@ -30,32 +30,21 @@ namespace a3d {
 	
 	
 	class PhysicsBody {
-		
-/*********************************************************************************************
-	Public Static
- *********************************************************************************************/
 
 	public:
+
+/*********************************************************************************************
+	Public
+ *********************************************************************************************/
 
 		static std::unique_ptr<PhysicsBody> 	StaticBody();
 		static std::unique_ptr<PhysicsBody> 	DynamicBody();
 		static std::unique_ptr<PhysicsBody> 	KinematicBody();
-		
-/*********************************************************************************************
-	Lifecycle
- *********************************************************************************************/
-		
-		//PhysicsBody();
-		// "If you pass nil for the shape parameter, SceneKit automatically creates a physics
-		// shape for the body when you attach it to a node, based on that node’s geometry property."
+
 		explicit PhysicsBody(PhysicsBodyType type);
 		PhysicsBody(PhysicsBodyType type, const std::shared_ptr<PhysicsShape>& shape);
 		~PhysicsBody();
-		
-/*********************************************************************************************
-	Public
- *********************************************************************************************/
-		
+
 		PhysicsBodyType 					type() const;
 		void 								type(PhysicsBodyType type);
 
@@ -181,11 +170,11 @@ namespace a3d {
 
 		PhysicsBodyProxy*					proxy() const;
 
+	private:
+
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
-
-	private:
 
 		void 								checkAutocreateShape(const std::shared_ptr<Node>& node);
 		void 								checkAutocreateShape(const std::shared_ptr<Mesh>& mesh);

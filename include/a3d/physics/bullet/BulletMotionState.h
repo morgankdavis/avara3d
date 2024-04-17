@@ -21,11 +21,11 @@ namespace a3d {
 
 	class BulletMotionState : public btMotionState {
 
+	public:
+
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
-
-	public:
 
 		explicit BulletMotionState(PhysicsBody& body);
 

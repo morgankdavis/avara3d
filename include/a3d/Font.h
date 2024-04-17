@@ -24,31 +24,26 @@ namespace a3d {
 	
 	
 	class Font {
-		
-/*********************************************************************************************
-	Lifecycle
- *********************************************************************************************/
 
 	public:
 
-		explicit Font(const std::filesystem::path& path);
-		explicit Font(std::unique_ptr<Buffer> buffer);
-		
-		~Font();
-		
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
-		
+
+		explicit Font(const std::filesystem::path& path);
+		explicit Font(std::unique_ptr<Buffer> buffer);
+		~Font();
+
 		const std::optional<std::string>&	name() const;
 		FontType 							type() const;
 		const Buffer* 						buffer() const;
-		
+
+	private:
+
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
-
-	private:
 
 		std::optional<std::string>			_name;
 		FontType							_type;

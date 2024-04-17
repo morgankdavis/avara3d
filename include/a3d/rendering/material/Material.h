@@ -26,22 +26,18 @@ namespace a3d {
 
 
 	class Material {
-		
-/*********************************************************************************************
-	Public Static
- *********************************************************************************************/
 
 	public:
+		
+/*********************************************************************************************
+	Public
+ *********************************************************************************************/
 
 		static std::shared_ptr<Material> DefaultMaterial();
 		static std::shared_ptr<Material> MissingTextureMaterial(); // TODO: make internal?
 		static std::shared_ptr<Material> EmissionMaterial(MaterialProperty property);
 		static MaterialProperty MissingTextureProperty(); // TODO: make internal?
 
-/*********************************************************************************************
-	Lifecycle
- *********************************************************************************************/
-		
 		Material();
 		Material(const MaterialProperty& ambient,
 				 const MaterialProperty& diffuse,
@@ -51,10 +47,6 @@ namespace a3d {
 				 const MaterialProperty& specular,
 				 const MaterialProperty& emission);
 		~Material();
-		
-/*********************************************************************************************
-	Public
- *********************************************************************************************/
 
 		const std::optional<std::string>&	name() const;
 		void 								name(const std::string& name);
@@ -98,11 +90,11 @@ namespace a3d {
 		MaterialDirtyMask 					dirtyMask() const;
 		void 								dirtyMask(MaterialDirtyMask mask);
 
+	private:
+
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
-
-	private:
 
 		std::optional<std::string>			_name;
 		MaterialProperty					_ambient;

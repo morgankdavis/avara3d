@@ -26,6 +26,10 @@ namespace a3d {
 
 	public:
 
+/*********************************************************************************************
+	Public
+ *********************************************************************************************/
+
 		Texture();
 		explicit Texture(const std::shared_ptr<Sampleable>& contents,
 						 const std::shared_ptr<Sampler>& sampler = std::make_shared<Sampler>(),
@@ -45,6 +49,10 @@ namespace a3d {
 		void 							dirtyMask(TextureDirtyMask mask);
 
 	private:
+
+/*********************************************************************************************
+	Private
+ *********************************************************************************************/
 
 		std::shared_ptr<Sampler>		_sampler;
 		std::shared_ptr<Sampleable>		_contents;

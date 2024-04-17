@@ -38,85 +38,81 @@ namespace a3d {
 	
 	class RenderContext {
 
-/*********************************************************************************************
-	Lifecycle
- *********************************************************************************************/
-
 	public:
+
+/*********************************************************************************************
+	Public
+ *********************************************************************************************/
 
 		explicit RenderContext(RenderingApi renderingApi);
 		RenderContext(const RenderContext& other) = delete; // copy constructor
 		RenderContext& operator=(const RenderContext& other) = delete; // copy assignment
 		virtual ~RenderContext();
+
+		unsigned 						width() const;
+		unsigned 						height() const;
+
+		unsigned 						framebufferWidth() const;
+		unsigned 						framebufferHeight() const;
+		const glm::vec2&				framebufferScale() const;
 		
-/*********************************************************************************************
-	Public
- *********************************************************************************************/
+		virtual bool 					vSyncEnabled() const;
+		virtual void 					vSyncEnabled(bool enabled);
 
-		unsigned 							width() const;
-		unsigned 							height() const;
+		AntialiasingMode 				antialiasingMode() const;
 
-		unsigned 							framebufferWidth() const;
-		unsigned 							framebufferHeight() const;
-		const glm::vec2&					framebufferScale() const;
-		
-		virtual bool 						vSyncEnabled() const;
-		virtual void 						vSyncEnabled(bool enabled);
+		std::unique_ptr<Image> 			snapshot() const;
 
-		AntialiasingMode 					antialiasingMode() const;
+		virtual bool 					recordingGIF() const;
+		virtual void 					startGIFRecording(const std::filesystem::path& path,
+														  unsigned maxHeight,
+														  unsigned maxFramerate);
+		virtual unsigned 				recordedGIFFrames() const;
+		virtual void 					stopGIFRecording();
 
-		std::unique_ptr<Image> 				snapshot() const;
+		VisualWorld*					visualWorld() const;
 
-		virtual bool 						recordingGIF() const;
-		virtual void 						startGIFRecording(const std::filesystem::path& path,
-															  unsigned maxHeight,
-															  unsigned maxFramerate);
-		virtual unsigned 					recordedGIFFrames() const;
-		virtual void 						stopGIFRecording();
-
-		VisualWorld*						visualWorld() const;
-
-		Renderer* 							renderer() const;
+		Renderer* 						renderer() const;
 
 /*********************************************************************************************
 	Internal
  *********************************************************************************************/
 
-		virtual void 						swapBuffers() = 0;
+		virtual void 					swapBuffers() = 0;
 
-		void 								width(unsigned width);
-		void 								height(unsigned height);
+		void 							width(unsigned width);
+		void 							height(unsigned height);
 
-		void 								framebufferWidth(unsigned width);
-		void 								framebufferHeight(unsigned height);
-		void 								framebufferScale(const glm::vec2& scale);
+		void 							framebufferWidth(unsigned width);
+		void 							framebufferHeight(unsigned height);
+		void 							framebufferScale(const glm::vec2& scale);
 
-		virtual void 						saveGIFFrame(float deltaRunT);
+		virtual void 					saveGIFFrame(float deltaRunT);
 
-		void								attachedToVisualWorld(VisualWorld* world);
-		void								detachedFromVisualWorld(VisualWorld* world);
-		
+		void							attachedToVisualWorld(VisualWorld* world);
+		void							detachedFromVisualWorld(VisualWorld* world);
+
+	protected:
+
 /*********************************************************************************************
 	Protected
  *********************************************************************************************/
 
-	protected:
-
-		unsigned							_width;
-		unsigned							_height;
-		unsigned							_framebufferWidth;
-		unsigned							_framebufferHeight;
-		glm::vec2							_framebufferScale;
-		bool								_vSyncEnabled;
-		AntialiasingMode					_antialiasingMode;
-		std::unique_ptr<GifWriter>			_gifWriter;
-		bool								_recordingGIF;
-		unsigned							_gifRecordingWidth;
-		unsigned							_gifRecordingHeight;
-		unsigned							_gifRecordingMaxFramerate;
-		unsigned							_gifRecordedFrames;
-		VisualWorld*						_visualWorld;
-		std::unique_ptr<Renderer>			_renderer;
+		unsigned						_width;
+		unsigned						_height;
+		unsigned						_framebufferWidth;
+		unsigned						_framebufferHeight;
+		glm::vec2						_framebufferScale;
+		bool							_vSyncEnabled;
+		AntialiasingMode				_antialiasingMode;
+		std::unique_ptr<GifWriter>		_gifWriter;
+		bool							_recordingGIF;
+		unsigned						_gifRecordingWidth;
+		unsigned						_gifRecordingHeight;
+		unsigned						_gifRecordingMaxFramerate;
+		unsigned						_gifRecordedFrames;
+		VisualWorld*					_visualWorld;
+		std::unique_ptr<Renderer>		_renderer;
 	};
 }
 

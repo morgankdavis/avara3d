@@ -17,51 +17,47 @@ namespace a3d {
 
 	class PerspectiveCamera : public Camera {
 
+	public:
+
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
-
-	public:
 
 		PerspectiveCamera();
 		PerspectiveCamera(float zNear, float zFar, float yFov);
 		PerspectiveCamera(const std::string& name, float zNear, float zFar, float yFov);
 		~PerspectiveCamera() override;
 
-/*********************************************************************************************
-	Public
- *********************************************************************************************/
+		float 			zNear() const;
+		void 			zNear(float zNear);
 
-		float 					zNear() const;
-		void 					zNear(float zNear);
+		float 			zFar() const;
+		void			zFar(float zFar);
 
-		float 					zFar() const;
-		void				 	zFar(float zFar);
+		float 			yFov() const;
+		void	 		yFov(float fov);
 
-		float 					yFov() const;
-		void	 				yFov(float fov);
-
-		float 					aspectRatio() const;
-		void 					aspectRatio(float ratio);
-
-/*********************************************************************************************
-	Internal
- *********************************************************************************************/
+		float 			aspectRatio() const;
+		void 			aspectRatio(float ratio);
 
 	protected:
 
-		void 					constructProjectionMatrix() override;
+/*********************************************************************************************
+	Camera Protected
+ *********************************************************************************************/
+
+		void 			constructProjectionMatrix() override;
+
+	private:
 
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
 
-	private:
-
-		float					_zNear;
-		float					_zFar;
-		float					_yFov;
-		float					_aspectRatio;
+		float			_zNear;
+		float			_zFar;
+		float			_yFov;
+		float			_aspectRatio;
 	};
 }
 

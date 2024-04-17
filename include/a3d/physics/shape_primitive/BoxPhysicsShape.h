@@ -17,18 +17,14 @@ namespace a3d {
 
 	class BoxPhysicsShape : public PhysicsShape {
 
-/*********************************************************************************************
-	Lifecycle
- *********************************************************************************************/
-
 	public:
-
-		BoxPhysicsShape(float width, float height, float length);
-		~BoxPhysicsShape();
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
+
+		BoxPhysicsShape(float width, float height, float length);
+		~BoxPhysicsShape();
 
 		float 					width() const;
 		void					width(float width);
@@ -40,17 +36,17 @@ namespace a3d {
 		void					length(float length);
 
 /*********************************************************************************************
-	PhysicsShape
+	PhysicsShape Public
  *********************************************************************************************/
 
 		PhysicsShapeType		type() const override;
 		void					type(PhysicsShapeType type) override;
 
+	private:
+
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
-
-	private:
 
 		float 					_width;
 		float 					_height;

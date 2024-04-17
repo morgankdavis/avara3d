@@ -9,8 +9,6 @@
 #ifndef AVARA3D_BULLETDEBUGDRAWER_H
 #define AVARA3D_BULLETDEBUGDRAWER_H
 
-#ifdef DESKTOP
-
 
 #include <memory>
 #include <tuple>
@@ -30,12 +28,12 @@ namespace a3d {
 	
 	
 	class BulletDebugDrawer : public btIDebugDraw {
-		
-/*********************************************************************************************
-	Lifecycle
- *********************************************************************************************/
 
 	public:
+
+/*********************************************************************************************
+	Public
+ *********************************************************************************************/
 
 		BulletDebugDrawer();
 		~BulletDebugDrawer() override;
@@ -158,26 +156,23 @@ namespace a3d {
 
 		void 	setDebugMode(int debugMode) override;
 		int 	getDebugMode() const override;
-		
+
+	protected:
+
 /*********************************************************************************************
 	Protected
  *********************************************************************************************/
 
-	protected:
-
 		int							_debugMode;
-		
+
+	private:
+
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
 
-	private:
-
 		std::vector<Line>			_lines;
 	};
 }
-
-
-#endif // DESKTOP
 
 #endif /* AVARA3D_BULLETDEBUGDRAWER_H */

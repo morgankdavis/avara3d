@@ -42,6 +42,10 @@ namespace a3d {
 	class GlTFImporter {
 
 	public:
+		
+/*********************************************************************************************
+	Public
+ *********************************************************************************************/
 
 		explicit GlTFImporter(const std::filesystem::path& path,
 							  SceneImportOptions options = SceneImportOptions::ImportAll);
@@ -53,6 +57,10 @@ namespace a3d {
 		SceneImportOptions					options() const;
 
 	private:
+		
+/*********************************************************************************************
+	Private
+ *********************************************************************************************/
 
 		bool								parse();
 		void 								visitGlTFNode(fastgltf::Asset& asset,

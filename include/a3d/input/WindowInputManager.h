@@ -2,8 +2,8 @@
 //  WindowInputManager.h
 //  avara3d
 //
-//  Created by Morgan Davis on 5/6/18.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Created by Morgan Davis on 4/16/2024.
+//  Copyright © 2024-2024 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_WINDOWINPUTMANAGER_H
@@ -32,11 +32,11 @@ namespace a3d {
 	
 	class WindowInputManager : public InputManager {
 
-/*********************************************************************************************
-	Lifecycle
- *********************************************************************************************/
-
 	public:
+
+/*********************************************************************************************
+	Public
+ *********************************************************************************************/
 
 		explicit WindowInputManager(Window* window);
 		WindowInputManager(const InputManager& other) = delete; // copy constructor
@@ -44,13 +44,15 @@ namespace a3d {
 		~WindowInputManager() override;
 
 /*********************************************************************************************
-	InputManager
+	Public InputManager
  *********************************************************************************************/
 
 		void 							update() override;
 
+	private:
+
 /*********************************************************************************************
-	GLFW Callbacks
+	Private
  *********************************************************************************************/
 
 		static void 					GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
@@ -68,13 +70,6 @@ namespace a3d {
 													   int scancode,
 													   int action,
 													   int mods);
-
-/*********************************************************************************************
-	Private
- *********************************************************************************************/
-
-	private:
-
 		void 							initMouseInput();
 		void 							initManyMouse();
 		void 							quitManyMouse();

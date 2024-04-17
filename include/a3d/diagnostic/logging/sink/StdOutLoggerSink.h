@@ -2,8 +2,8 @@
 //  StdOutLoggerSink.h
 //  avara3d
 //
-//  Created by Morgan Davis on 11/9/23.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Created by Morgan Davis on 4/16/2024.
+//  Copyright © 2024-2024 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_STDOUTLOGGERSINK_H
@@ -20,18 +20,14 @@ namespace a3d {
 
 	class StdOutLoggerSink : public LoggerSink {
 
-/*********************************************************************************************
-	Lifecycle
- *********************************************************************************************/
-
 	public:
-
-		StdOutLoggerSink();
-		~StdOutLoggerSink();
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
+
+		StdOutLoggerSink();
+		~StdOutLoggerSink() override;
 
 		void 	flush() override;
 

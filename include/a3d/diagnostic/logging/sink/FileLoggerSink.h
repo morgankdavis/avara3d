@@ -24,28 +24,16 @@ namespace a3d {
 
 	class FileLoggerSink : public LoggerSink {
 
-
-		static constexpr int DEFAULT_MAX_FILES = 5;
-		static constexpr int DEFAULT_MAX_FILESIZE = 1024 * 1024 * 1; // 1MB
-
-
-/*********************************************************************************************
-	Lifecycle
- *********************************************************************************************/
-
 	public:
-	public:
-
-		// desktop log paths are relative to the executable
-		// android log paths are relative to the app's internal storage directory
-		explicit FileLoggerSink(const std::filesystem::path& relPath,
-								int maxFiles = DEFAULT_MAX_FILES,
-								int maxFilesize = DEFAULT_MAX_FILESIZE);
-		~FileLoggerSink();
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
+
+		explicit FileLoggerSink(const std::filesystem::path& relPath,
+								int maxFiles = DEFAULT_MAX_FILES,
+								int maxFilesize = DEFAULT_MAX_FILESIZE);
+		~FileLoggerSink() override;
 
 		const std::filesystem::path&		filepath() const;
 
@@ -60,11 +48,15 @@ namespace a3d {
 
 		void 								write(const char* message);
 
+	private:
+
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
 
-	private:
+
+		static constexpr unsigned 			DEFAULT_MAX_FILES = 5;
+		static constexpr unsigned 			DEFAULT_MAX_FILESIZE = 1024 * 1024 * 1; // 1MB
 
 		void 								openStream();
 		void 								checkRotate();

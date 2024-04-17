@@ -35,18 +35,13 @@ namespace a3d {
 	class Mesh {
 
 	public:
-
 /*********************************************************************************************
-	Public Static
+	Public
  *********************************************************************************************/
 
-		static std::shared_ptr<Mesh> 		FromFile(const std::filesystem::path& path,
-													 MeshImportOptions options =
-													 MeshImportOptions::ImportMaterials);
-
-/*********************************************************************************************
-	Lifecycle
- *********************************************************************************************/
+		static std::shared_ptr<Mesh> 			FromFile(const std::filesystem::path& path,
+														 MeshImportOptions options =
+														 MeshImportOptions::ImportMaterials);
 
 		Mesh(const std::string& name,
 			 std::unique_ptr<MeshElement> element,
@@ -59,10 +54,6 @@ namespace a3d {
 		Mesh(std::vector<std::unique_ptr<MeshElement>>& elements,
 			 const std::vector<std::shared_ptr<Material>>& materials);
 		virtual ~Mesh();
-		
-/*********************************************************************************************
-	Public
- *********************************************************************************************/
 
 		std::optional<std::string> 				name() const;
 		void 									name(const std::string& name);
@@ -104,7 +95,6 @@ namespace a3d {
 /*********************************************************************************************
 	Protected
  *********************************************************************************************/
-
 	protected:
 
 		std::vector<std::unique_ptr<MeshElement>>	_elements;
@@ -113,7 +103,6 @@ namespace a3d {
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
-
 	private:
 
 		Mesh();

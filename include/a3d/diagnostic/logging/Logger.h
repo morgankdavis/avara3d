@@ -86,20 +86,16 @@ namespace a3d {
 
 	class Logger {
 
-		static constexpr LogLevel DEFAULT_LEVEL = LogLevel::Debug;
-		static constexpr LogLevel DEFAULT_FLUSH_LEVEL = LogLevel::Warn;
+	public:
 
 /**************************************************************************************
-	Public Static
+	Public
  **************************************************************************************/
-
-	public:
 
 		static Logger& MainLogger();
 
-/*********************************************************************************************
-	Lifecycle
- *********************************************************************************************/
+		static constexpr LogLevel DEFAULT_LEVEL = LogLevel::Debug;
+		static constexpr LogLevel DEFAULT_FLUSH_LEVEL = LogLevel::Warn;
 
 		Logger(const std::string& name,
 			   std::unique_ptr<LoggerSink> sink,
@@ -110,10 +106,6 @@ namespace a3d {
 			   LogLevel level = DEFAULT_LEVEL,
 			   LogLevel flushLevel = DEFAULT_FLUSH_LEVEL);
 		~Logger();
-
-/*********************************************************************************************
-	Public
- *********************************************************************************************/
 
 		const std::string& 		name() const;
 
@@ -169,11 +161,11 @@ namespace a3d {
 
 		void 					flush();
 
+	private:
+
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
-
-	private:
 
 		std::string										_name;
 		std::unordered_set<std::unique_ptr<LoggerSink>>	_sinks;

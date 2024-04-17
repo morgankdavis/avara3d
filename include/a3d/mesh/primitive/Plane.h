@@ -24,10 +24,9 @@ namespace a3d {
 	
 	class Plane: public MeshElement {
 
-	private:
-
-		static constexpr unsigned DEFAULT_SEGMENTS = 8;
-
+/*********************************************************************************************
+ 	Public
+ *********************************************************************************************/
 	public:
 
 		static std::shared_ptr<Mesh> Mesh(float width,
@@ -36,18 +35,10 @@ namespace a3d {
 										  unsigned heightSegments = DEFAULT_SEGMENTS,
 										  std::shared_ptr<Material> material = nullptr);
 
-/*********************************************************************************************
-	Lifecycle
- *********************************************************************************************/
-
 		Plane(float width,
 			  float height,
 			  unsigned widthSegements = DEFAULT_SEGMENTS,
 			  unsigned heightSegments = DEFAULT_SEGMENTS);
-		
-/*********************************************************************************************
- 	Public
- *********************************************************************************************/
 		
 		float 		width() const;
 		float 		height() const;
@@ -57,8 +48,9 @@ namespace a3d {
 /*********************************************************************************************
  	Private
  *********************************************************************************************/
-
 	private:
+
+		static constexpr unsigned DEFAULT_SEGMENTS = 8;
 
 		float		_width;
 		float		_height;

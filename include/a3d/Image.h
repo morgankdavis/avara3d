@@ -24,34 +24,25 @@ namespace a3d {
 
 
 	class Image : public Sampleable {
-		
+
 /*********************************************************************************************
-	Lifecycle
+	Public
  *********************************************************************************************/
 
-	public:
+		explicit Image(const std::filesystem::path& path,
+			  bool flipVertical = true,
+			  bool flipHorizontal = false);
+		explicit Image(std::unique_ptr<Buffer> headerBuffer, // with header
+			  bool flipVertical = true,
+			  bool flipHorizontal = false);
 
-#ifndef ANDROID
-		Image(const std::filesystem::path& path,
-			  bool flipVertical = true,
-			  bool flipHorizontal = false);
-#endif
-		// with header
-		Image(std::unique_ptr<Buffer> headerBuffer,
-			  bool flipVertical = true,
-			  bool flipHorizontal = false);
-		// raw
-		Image(std::unique_ptr<Buffer> rawBuffer,
+		Image(std::unique_ptr<Buffer> rawBuffer, // raw
 			  unsigned width,
 			  unsigned height,
 			  unsigned bytesPerPixel,
 			  bool flipVertical = true,
 			  bool flipHorizontal = false);
-		~Image();
-		
-/*********************************************************************************************
-	Public
- *********************************************************************************************/
+		~Image() override;
 
 		unsigned 					width() const;
 		unsigned 					height() const;
@@ -64,14 +55,13 @@ namespace a3d {
  *********************************************************************************************/
 		
 		const Buffer& 				buffer() const;
-		
+
+	private:
+
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
 
-	private:
-
-		//void 						loadFile(const std::filesystem::path& path, bool flipHorizontal);
 		void 						loadBuffer(Buffer& buffer,
 											   bool flipVertical,
 											   bool flipHorizontal);

@@ -33,11 +33,11 @@ namespace a3d {
 	
 	class OpenGLRenderer : public Renderer {
 
-/**************************************************************************************
-	Types
- **************************************************************************************/
-
 	public:
+
+/**************************************************************************************
+	Internal
+ **************************************************************************************/
 
 		/* <a3d::MeshElement* : <gl_vbo, gl_vao, gl_ibo>> */
 		using MeshElementGLMapping =
@@ -51,20 +51,12 @@ namespace a3d {
 		using LinesGLMapping =
 				std::map<const std::vector<Line>*, std::pair<unsigned, unsigned>>;
 
-/*********************************************************************************************
-	Lifecycle
- *********************************************************************************************/
-
 		OpenGLRenderer();
 		OpenGLRenderer(const OpenGLRenderer& other) = delete; // copy constructor
 		OpenGLRenderer& operator=(const OpenGLRenderer& other) = delete; // copy assignment
 		OpenGLRenderer(OpenGLRenderer&& other) = delete; // move constructor
 		OpenGLRenderer& operator=(OpenGLRenderer&& other) = delete; // move assignment
 		~OpenGLRenderer() override;
-
-/*********************************************************************************************
-	Renderer
- *********************************************************************************************/
 
 		RenderingApi 				renderingApi() const override;
 
@@ -102,11 +94,11 @@ namespace a3d {
 
 		std::unique_ptr<Image> 		snapshot(const RenderContext& context) const override;
 
+	private:
+
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
-
-	private:
 
 		MeshElementGLMapping 							_meshElementGLMapping;
 		TextureGLMapping								_textureGLMapping;

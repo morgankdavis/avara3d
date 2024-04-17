@@ -6,6 +6,9 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
+#ifdef DESKTOP
+
+
 #include "a3d/input/WindowInputManager.h"
 
 #include "GLFW/glfw3.h"
@@ -71,19 +74,19 @@ void WindowInputManager::update() {
 				case MANYMOUSE_EVENT_RELMOTION:
 
 					if (event.item == 0) {
-						_mousePositionDelta.x = float(FLIP_MOUSE_HORIZONTAL ? -event.value : event.value);
+						_mousePositionDelta.x = (FLIP_MOUSE_HORIZONTAL ? -event.value : event.value);
 					}
 					else {
-						_mousePositionDelta.y = float(FLIP_MOUSE_VERTICAL ? -event.value : event.value);
+						_mousePositionDelta.y = (FLIP_MOUSE_VERTICAL ? -event.value : event.value);
 					}
 					break;
 
 				case MANYMOUSE_EVENT_SCROLL:
 					if (event.item == 0) {
-						_mouseScrollWheelDelta.y += float(event.value);
+						_mouseScrollWheelDelta.y += event.value;
 					}
 					else {
-						_mouseScrollWheelDelta.x += float(event.value);
+						_mouseScrollWheelDelta.x += event.value;
 					}
 					break;
 
@@ -151,8 +154,8 @@ void WindowInputManager::GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
 
 			//A3D_LOG_D("xDelta: {}, yDelta {}", xDelta, yDelta);
 
-			inputManager->_mousePositionDelta.x -= (float)xDelta;
-			inputManager->_mousePositionDelta.y += (float)yDelta;
+			inputManager->_mousePositionDelta.x -= xDelta;
+			inputManager->_mousePositionDelta.y += yDelta;
 		}
 	}
 
@@ -227,7 +230,7 @@ void WindowInputManager::initManyMouse() {
 	}
 	else {
 		A3D_LOG_I("ManyMouse driver: {}", ManyMouse_DriverName());
-		for (unsigned m = 0; m<availableMice; ++m) {
+		for (int m = 0; m<availableMice; ++m) {
 			A3D_LOG_I("Mouse[{}]: {}", m, ManyMouse_DeviceName(m));
 		}
 	}
@@ -264,3 +267,6 @@ WindowInputManager* InputManagerFromGLFWWindow(GLFWwindow* glfwWindow) {
 	auto window = (Window*)glfwGetWindowUserPointer(glfwWindow);
 	return dynamic_cast<WindowInputManager*>(window->visualWorld()->scene()->inputManager());
 }
+
+
+#endif // DESKTOP

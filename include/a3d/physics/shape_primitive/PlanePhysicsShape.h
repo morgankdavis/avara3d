@@ -17,18 +17,14 @@ namespace a3d {
 
 	class PlanePhysicsShape : public PhysicsShape {
 
-/*********************************************************************************************
-	Lifecycle
- *********************************************************************************************/
-
 	public:
-
-		PlanePhysicsShape(float width, float height);
-		~PlanePhysicsShape();
 
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
+
+		PlanePhysicsShape(float width, float height);
+		~PlanePhysicsShape();
 
 		float 					width() const;
 		void					width(float width);
@@ -37,7 +33,7 @@ namespace a3d {
 		void					height(float height);
 
 /*********************************************************************************************
-	PhysicsShape
+	PhysicsShape Public
  *********************************************************************************************/
 
 		PhysicsShapeType		type() const override;

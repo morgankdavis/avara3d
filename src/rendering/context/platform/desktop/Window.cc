@@ -52,7 +52,7 @@ static void 	GLFWErrorCallback(int error,
  *********************************************************************************************/
 
 Window::Window(RenderingApi renderAPI,
-			   string title,
+			   const string& title,
 			   unsigned width,
 			   unsigned height,
 			   bool fullScreen,

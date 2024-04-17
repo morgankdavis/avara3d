@@ -25,28 +25,20 @@ namespace a3d {
 	
 	
 	class Light {
-		
-/*********************************************************************************************
-	Public Static
- *********************************************************************************************/
 
 	public:
-
-		static std::shared_ptr<Light> 		DefaultAmbient();
-		static std::shared_ptr<Light> 		DefaultPoint();
-
-/*********************************************************************************************
-	Lifecycle
- *********************************************************************************************/
-
-		explicit Light(LightType type);
-		Light(LightType type, const std::shared_ptr<Color>& color);
-		virtual ~Light();
 		
 /*********************************************************************************************
 	Public
  *********************************************************************************************/
-		
+
+		static std::shared_ptr<Light> 		DefaultAmbient();
+		static std::shared_ptr<Light> 		DefaultPoint();
+
+		explicit Light(LightType type);
+		Light(LightType type, const std::shared_ptr<Color>& color);
+		virtual ~Light();
+
 		const std::optional<std::string>&	name() const;
 		void 								name(const std::string& name);
 		
@@ -59,11 +51,11 @@ namespace a3d {
 		float 								attenuationFactor() const;
 		void 								attenuationFactor(float factor);
 
+	private:
+
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
-
-	private:
 
 		std::optional<std::string>			_name;
 		

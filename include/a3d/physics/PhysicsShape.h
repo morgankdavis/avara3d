@@ -31,11 +31,11 @@ namespace a3d {
 
 	class PhysicsShape {
 
-/*********************************************************************************************
-	Lifecycle
- *********************************************************************************************/
-
 	public:
+
+/*********************************************************************************************
+	Public
+ *********************************************************************************************/
 
 		using Source = std::variant<
 				std::monostate,
@@ -45,16 +45,6 @@ namespace a3d {
 		PhysicsShape(PhysicsShapeType type, const std::shared_ptr<Mesh>& mesh);
 		PhysicsShape(PhysicsShapeType type, const std::shared_ptr<Node>& node);
 		~PhysicsShape();
-
-	protected:
-
-		PhysicsShape();
-
-/*********************************************************************************************
-	Public
- *********************************************************************************************/
-
-	public:
 
 		virtual PhysicsShapeType 			type() const;
 		virtual void 						type(PhysicsShapeType type);
@@ -99,14 +89,20 @@ namespace a3d {
 
 	protected:
 
+/*********************************************************************************************
+	Protected
+ *********************************************************************************************/
+
+		PhysicsShape();
+
 		PhysicsShapeType 					_type;
 		std::unique_ptr<PhysicsShapeProxy>	_proxy;
+
+	private:
 
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
-
-	private:
 
 		Source 								_source;
 		std::unordered_set<PhysicsBody*>	_bodies;

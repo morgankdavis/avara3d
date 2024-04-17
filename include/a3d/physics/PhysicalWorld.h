@@ -31,30 +31,22 @@ namespace a3d {
 	
 	
 	class PhysicalWorld {
-		
-/*********************************************************************************************
-	Types
- *********************************************************************************************/
 
 	public:
+
+/*********************************************************************************************
+	Public
+ *********************************************************************************************/
 
 		using DidSimulateCallback = 	std::function<void(PhysicalWorld& world, double time)>;
 		using BeginContactCallback = 	std::function<void(PhysicalWorld& world, PhysicsContact& contact)>;
 		using ContinueContactCallback =	std::function<void(PhysicalWorld& world, PhysicsContact& contact)>;
 		using EndContactCallback = 		std::function<void(PhysicalWorld& world, PhysicsContact& contact)>;
-		
-/*********************************************************************************************
-	Lifecycle
- *********************************************************************************************/
-		
+
 		PhysicalWorld();
 		PhysicalWorld(const PhysicalWorld& other) = delete; // copy constructor
 		PhysicalWorld& operator=(const PhysicalWorld& other) = delete; // copy assignment
 		~PhysicalWorld();
-		
-/*********************************************************************************************
-	Public
- *********************************************************************************************/
 
 		const glm::vec3&					gravity() const;
 		void 								gravity(const glm::vec3& gravity);
@@ -107,11 +99,11 @@ namespace a3d {
 
 		PhysicalWorldProxy*					proxy() const;
 
+	private:
+
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
-
-	private:
 
 		glm::vec3 									_gravity;
 		float 										_speed;

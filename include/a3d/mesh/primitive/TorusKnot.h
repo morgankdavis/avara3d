@@ -24,11 +24,9 @@ namespace a3d {
 
 	class TorusKnot: public MeshElement {
 
-	private:
-
-		static constexpr unsigned DEFAULT_SLICES = 8;
-		static constexpr unsigned DEFAULT_SEGMENTS = 96;
-
+/*********************************************************************************************
+ 	Public
+ *********************************************************************************************/
 	public:
 
 		static std::shared_ptr<Mesh> Mesh(unsigned p,
@@ -37,18 +35,10 @@ namespace a3d {
 										  unsigned segments = DEFAULT_SEGMENTS,
 										  std::shared_ptr<Material> material = nullptr);
 
-/*********************************************************************************************
-	Lifecycle
- *********************************************************************************************/
-
 		TorusKnot(unsigned p,
 				  unsigned q,
 				  unsigned slices = DEFAULT_SLICES,
 				  unsigned segments = DEFAULT_SEGMENTS);
-
-/*********************************************************************************************
- 	Public
- *********************************************************************************************/
 
 		unsigned 	p() const;
 		unsigned 	q() const;
@@ -58,8 +48,10 @@ namespace a3d {
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
-
 	private:
+
+		static constexpr unsigned DEFAULT_SLICES = 8;
+		static constexpr unsigned DEFAULT_SEGMENTS = 96;
 
 		unsigned	_p;
 		unsigned	_q;
