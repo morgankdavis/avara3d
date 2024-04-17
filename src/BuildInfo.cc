@@ -51,7 +51,7 @@ BuildInfo::BuildInfo() {
 	Public
  *********************************************************************************************/
 
-int BuildInfo::number() const {
+unsigned BuildInfo::number() const {
 	return _number;
 }
 

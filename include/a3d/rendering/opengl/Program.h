@@ -73,7 +73,8 @@ namespace a3d {
 		void 								bindTexture(const char* name,
 														const int& target,
 														const unsigned& slot,
-														const unsigned& textureID, unsigned index);
+														const unsigned& textureID,
+														unsigned index);
 
 		unsigned 							getAttributeLocation(const char* name) const;
 		

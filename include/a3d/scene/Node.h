@@ -174,7 +174,7 @@ namespace a3d {
 
 		void									_debugPrint();
 		void									_debugPrintRec(Node& node,
-															   int level);
+															   unsigned level);
 
 		void	 								applyPhysicsTransform(glm::mat4 transform);
 

@@ -21,7 +21,7 @@ Texture::Texture():
 
 Texture::Texture(const shared_ptr<Sampleable>& contents,
 				 const shared_ptr<Sampler>& sampler,
-				 int mappingChannel):
+				 unsigned mappingChannel):
 		_sampler{sampler},
 		_contents{contents},
 		_mappingChannel{mappingChannel},
@@ -45,11 +45,11 @@ void Texture::contents(const shared_ptr<Sampleable>& contents) {
 	_contents = contents;
 }
 
-int Texture::mappingChannel() const {
+unsigned Texture::mappingChannel() const {
 	return _mappingChannel;
 }
 
-void Texture::mappingChannel(int channel) {
+void Texture::mappingChannel(unsigned channel) {
 	_mappingChannel = channel;
 }
 

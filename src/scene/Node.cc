@@ -926,7 +926,7 @@ void Node::_debugPrint() {
 }
 
 void Node::_debugPrintRec(Node& node,
-						  int level) {
+						  unsigned level) {
 
 	A3D_LOG_I("[{}] {}", level, *node.name());
 

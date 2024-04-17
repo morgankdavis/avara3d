@@ -343,8 +343,11 @@ void Program::bindUniformBlock(const char* name, GLuint location) {
 	}
 }
 
-void Program::bindTexture(const char* name, const int& target, const unsigned& slot,
-						  const unsigned& textureID, unsigned index) {
+void Program::bindTexture(const char* name,
+						  const int& target,
+						  const unsigned& slot,
+						  const unsigned& textureID,
+						  unsigned index) {
 	
 	glActiveTexture(slot);
 	glBindTexture(target, textureID);

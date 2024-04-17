@@ -14,9 +14,6 @@
 #include <memory>
 #include <vector>
 
-////#define ENABLE_VHACD_IMPLEMENTATION TRUE
-//#include <VHACD.h>
-
 
 class IVHACD;
 
@@ -27,10 +24,6 @@ namespace a3d {
 	class MeshElement;
 
 
-//	class ConvexDecomposer:
-//			VHACD::IVHACD,
-//			VHACD::IVHACD::IUserCallback,
-//			VHACD::IVHACD::IUserLogger {
 	class ConvexDecomposer {
 
 /*********************************************************************************************
@@ -58,19 +51,10 @@ namespace a3d {
 			bool		findBestPlane {false};
 		};
 
-//		using ProgressFunction = std::function<void(ConvexDecomposer& decomposer, float progress)>;
-//		using FinishedFunction = std::function<void(ConvexDecomposer& decomposer)>;
-//		using CanceledFunction = std::function<void(ConvexDecomposer& decomposer)>;
-
 /*********************************************************************************************
 	Lifecycle
  *********************************************************************************************/
 
-//		ConvexDecomposer(std::vector<std::shared_ptr<MeshElement>>& elements,
-//						 Options& options,
-//						 bool async);
-//		ConvexDecomposer(std::vector<std::shared_ptr<MeshElement>>& elements,
-//						 Options& options);
 		ConvexDecomposer(MeshElement& element,
 						 Options& options);
 
@@ -80,68 +64,14 @@ namespace a3d {
 
 		std::vector<std::unique_ptr<MeshElement>>	decompose();
 
-//		void 									run();
-//		bool  									running() const;
-//		bool  									isAsync() const;
-//
-//		std::vector<std::shared_ptr<GeometryElement>>&		sourceElements() const;
-//		std::vector<std::shared_ptr<GeometryElement>>&		decomposedElements() const;
-
-//		MeshElement*								sourceElement() const;
-//		std::vector<std::unique_ptr<MeshElement>>&	decomposedElements();
-//
-//		ProgressFunction 						progressCallback() const;
-//		void 									progressCallback(ProgressFunction function);
-//
-//		FinishedFunction 						finishedCallback() const;
-//		void 									finishedCallback(FinishedFunction function);
-//
-//		CanceledFunction 						canceledCallback() const;
-//		void 									canceledCallback(CanceledFunction function);
-
-/*********************************************************************************************
-	IVHACD::IUserCallback
- *********************************************************************************************/
-
-//		void Update(const double overallProgress,
-//					const double stageProgress,
-//					const char* const stage,
-//					const char* operation) override;
-//		void NotifyVHACDComplete() override;
-
-/*********************************************************************************************
-	IVHACD::IUserLogger
- *********************************************************************************************/
-
-//		void Log(const char* const msg) override;
-
 /*********************************************************************************************
 	Private
  *********************************************************************************************/
 
 	private:
 
-		// TODO: make this unique_ptr
-//		std::unique_ptr<IVHACD>							_vhacd;
-//		IVHACD*											_vhacd;
-
 		Options 										_options;
-
-//		std::vector<std::shared_ptr<GeometryElement>>	_sourceElements;
-//		std::vector<std::shared_ptr<GeometryElement>>	_decomposedElements;
-
-
 		MeshElement*									_sourceElement;
-//		std::vector<std::unique_ptr<MeshElement>>		_decomposedElements;
-
-
-
-//		bool											_running;
-//		bool											_isAsync;
-
-//		ProgressFunction								_progressFunction;
-//		FinishedFunction								_finishedFunction;
-//		CanceledFunction 								_canceledFunction;
 	};
 }
 

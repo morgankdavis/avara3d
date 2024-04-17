@@ -74,19 +74,19 @@ RenderContext::~RenderContext() {
 	Public
  *********************************************************************************************/
 
-int RenderContext::width() const {
+unsigned RenderContext::width() const {
 	return _width;
 }
 
-int RenderContext::height() const {
+unsigned RenderContext::height() const {
 	return _height;
 }
 
-int RenderContext::framebufferWidth() const {
+unsigned RenderContext::framebufferWidth() const {
 	return _framebufferWidth;
 }
 
-int RenderContext::framebufferHeight() const {
+unsigned RenderContext::framebufferHeight() const {
 	return _framebufferHeight;
 }
 
@@ -118,7 +118,7 @@ bool RenderContext::recordingGIF() const {
 }
 
 void RenderContext::startGIFRecording(const filesystem::path& path,
-									  int maxHeight, int maxFramerate) {
+									  unsigned maxHeight, unsigned maxFramerate) {
 	
 	if (!_recordingGIF) {
 		A3D_LOG_I("Starting GIF recording...");
@@ -130,13 +130,13 @@ void RenderContext::startGIFRecording(const filesystem::path& path,
 		_gifRecordingWidth = _framebufferWidth;
 		if (_gifRecordingHeight > maxHeight) {
 			float scale = (float)maxHeight / (float)_framebufferHeight;
-			_gifRecordingHeight = (int)round(_framebufferHeight * scale);
-			_gifRecordingWidth = (int)round(_framebufferWidth * scale);
+			_gifRecordingHeight = (unsigned)round((float)_framebufferHeight * scale);
+			_gifRecordingWidth = (unsigned)round((float)_framebufferWidth * scale);
 		}
 
-		int frameTimeMS = 1000 /* (ms/sec) */ / _gifRecordingMaxFramerate /* (frames/sec) */;
+		unsigned frameTimeMS = 1000 /* (ms/sec) */ / _gifRecordingMaxFramerate /* (frames/sec) */;
 		// -> ms/frame
-		int frameTimeHS = (int)round((float)frameTimeMS / 10.0); // 100th sec/frame
+		unsigned frameTimeHS = (unsigned)round((float)frameTimeMS / 10.0); // 100th sec/frame
 		
 		//_gifWriter = (GifWriter *)malloc(sizeof(GifWriter));
 		_gifWriter = make_unique<GifWriter>();
@@ -179,21 +179,21 @@ Renderer* RenderContext::renderer() const {
 	Internal
  *********************************************************************************************/
 
-void RenderContext::width(int width) {
+void RenderContext::width(unsigned width) {
 	_width = width;
-	framebufferWidth((int)round(_width * _framebufferScale.x));
+	framebufferWidth((unsigned)round((float)_width * _framebufferScale.x));
 }
 
-void RenderContext::height(int height) {
+void RenderContext::height(unsigned height) {
 	_height = height;
-	framebufferHeight((int)round(_height * _framebufferScale.y));
+	framebufferHeight((unsigned)round((float)_height * _framebufferScale.y));
 }
 
-void RenderContext::framebufferWidth(int width) {
+void RenderContext::framebufferWidth(unsigned width) {
 	_framebufferWidth = width;
 }
 
-void RenderContext::framebufferHeight(int height) {
+void RenderContext::framebufferHeight(unsigned height) {
 	_framebufferHeight = height;
 }
 
@@ -206,7 +206,7 @@ void RenderContext::saveGIFFrame(float deltaRunT) {
 	static float secondsAccum = 0; // TODO: this won't work correctly after first call
 	secondsAccum += deltaRunT;
 
-	unsigned frameTimeMS = 1000.0 /* (ms/sec) */ / _gifRecordingMaxFramerate /* (frames/sec) */;
+	float frameTimeMS = 1000.0f /* (ms/sec) */ / (float)_gifRecordingMaxFramerate /* (frames/sec) */;
 	// -> ms/frame
 	//unsigned frameTimeHS = frameTimeMS / 10.0; // 100th sec/frame
 
@@ -218,14 +218,14 @@ void RenderContext::saveGIFFrame(float deltaRunT) {
 
 		auto resizedFrameData = (unsigned char*)malloc(_gifRecordingWidth * _gifRecordingHeight * 4);
 		stbir_resize_uint8_linear(reinterpret_cast<const unsigned char*>(frame->buffer().data()),
-								  frame->width(), frame->height(), 0,
-								  resizedFrameData, _gifRecordingWidth, _gifRecordingHeight, 0,
+								  int(frame->width()), int(frame->height()), 0,
+								  resizedFrameData, (int)_gifRecordingWidth, (int)_gifRecordingHeight, 0,
 								  STBIR_RGBA);
 
 		// gif-h frame time is in 100ths of a second
 		GifWriteFrame(_gifWriter.get(), resizedFrameData,
 					  _gifRecordingWidth, _gifRecordingHeight,
-					  (secondsAccum*1000.0)/10.0);
+					  (uint32_t)round((secondsAccum*1000.0f)/10.0f));
 
 		++_gifRecordedFrames;
 

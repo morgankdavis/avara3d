@@ -12,7 +12,7 @@
 
 namespace a3d {
 
-	constexpr int MAX_DYNAMIC_LIGHTS =	32;
+	constexpr unsigned MAX_DYNAMIC_LIGHTS =	32;
 }
 
 

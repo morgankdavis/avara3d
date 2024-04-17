@@ -54,7 +54,7 @@ namespace a3d {
 			Public
 		 *********************************************************************************************/
 
-		int 			number() const;
+		unsigned 		number() const;
 		const Version&	version() const;
 		Type 			type() const;
 		Origin 			origin() const;
@@ -67,7 +67,7 @@ namespace a3d {
 	private:
 
 		BuildInfo();
-		int 				_number;
+		unsigned			_number;
 		Version 			_version;
 		Type	 			_type;
 		Origin 				_origin;
