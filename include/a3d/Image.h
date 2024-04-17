@@ -29,6 +29,8 @@ namespace a3d {
 	Public Lifecycle
  *********************************************************************************************/
 
+	public:
+
 		explicit Image(const std::filesystem::path& path,
 			  bool flipVertical = true,
 			  bool flipHorizontal = false);
