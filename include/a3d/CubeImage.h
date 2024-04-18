@@ -64,6 +64,7 @@ namespace a3d {
 
 	private:
 
+		// STACK?
 		std::unique_ptr<Image>		_posX;
 		std::unique_ptr<Image>		_negX;
 		std::unique_ptr<Image>		_posY;

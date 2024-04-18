@@ -73,6 +73,7 @@ namespace a3d {
 
 	private:
 
+		// STACK
 		std::unique_ptr<btDiscreteDynamicsWorld>				_btWorld;
 		std::unique_ptr<btDefaultCollisionConfiguration> 		_btCollisionConfiguration;
 		std::unique_ptr<btCollisionDispatcher>					_btCollisionDispatcher;

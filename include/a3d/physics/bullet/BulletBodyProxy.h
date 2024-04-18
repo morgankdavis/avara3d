@@ -133,6 +133,7 @@ namespace a3d {
 	Private IVars
  *********************************************************************************************/
 
+		// STACK
 		std::unique_ptr<btRigidBody>		_btBody;
 		std::unique_ptr<BulletMotionState>	_motionState;
 	};

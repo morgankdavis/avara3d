@@ -104,7 +104,7 @@ namespace a3d {
 	Private IVars
  *********************************************************************************************/
 
-		std::unique_ptr<GLFWwindow, DestroyGLFWWindow>	_glfwWindow;
+		std::unique_ptr<GLFWwindow, DestroyGLFWWindow>	_glfwWindow; // STACK?
 		bool											_cursorCaptured;
 	};
 }

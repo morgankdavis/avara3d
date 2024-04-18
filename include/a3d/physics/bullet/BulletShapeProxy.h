@@ -47,6 +47,7 @@ namespace a3d {
 
 	private:
 
+		// STACK?
 		std::vector<std::unique_ptr<btCollisionShape>>				_btShapes;
 		std::vector<std::unique_ptr<btTriangleIndexVertexArray>>	_btIndexVertexArrays;
 	};

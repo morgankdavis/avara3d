@@ -94,18 +94,18 @@ namespace a3d {
 	Private IVars
  *********************************************************************************************/
 
-		bool														_parsed;
-		fastgltf::Asset												_asset;
-		std::unique_ptr<Scene> 										_scene;
-		std::filesystem::path										_path;
-		SceneImportOptions											_options;
-		std::map<std::size_t, std::shared_ptr<Camera>> 				_cameras;
-		std::map<std::size_t, std::shared_ptr<Mesh>> 				_meshes;
-		std::map<std::size_t, std::shared_ptr<Image>> 				_images;
-		std::map<std::size_t, std::shared_ptr<Light>> 				_lights;
-		std::map<std::size_t, std::shared_ptr<Material>> 			_materials;
-		std::map<std::size_t, std::shared_ptr<Texture>> 			_textures;
-		std::map<std::size_t, std::shared_ptr<Sampler>> 			_samplers;
+		bool												_parsed;
+		fastgltf::Asset										_asset;
+		std::unique_ptr<Scene> 								_scene;
+		std::filesystem::path								_path;
+		SceneImportOptions									_options;
+		std::map<std::size_t, std::shared_ptr<Camera>> 		_cameras;
+		std::map<std::size_t, std::shared_ptr<Mesh>> 		_meshes;
+		std::map<std::size_t, std::shared_ptr<Image>> 		_images;
+		std::map<std::size_t, std::shared_ptr<Light>> 		_lights;
+		std::map<std::size_t, std::shared_ptr<Material>> 	_materials;
+		std::map<std::size_t, std::shared_ptr<Texture>> 	_textures;
+		std::map<std::size_t, std::shared_ptr<Sampler>> 	_samplers;
 	};
 }
 
