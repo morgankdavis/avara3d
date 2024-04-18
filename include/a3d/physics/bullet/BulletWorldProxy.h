@@ -1,5 +1,9 @@
 //
-// Created by mkd on 12/8/23.
+//  BulletWorldProxy.h
+//  avara3d
+//
+//  Created by Morgan Davis on 12/8/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_BULLETWORLDPROXY_H
@@ -23,15 +27,13 @@ class btDefaultCollisionConfiguration;
 namespace a3d {
 
 
-#ifdef DESKTOP
 	class BulletDebugDrawer;
-#endif
 
 
 	class BulletWorldProxy : public PhysicalWorldProxy {
 
 /*********************************************************************************************
-	Lifecycle
+	Internal Lifecycle
  *********************************************************************************************/
 
 	public:
@@ -40,7 +42,7 @@ namespace a3d {
 		~BulletWorldProxy() override;
 
 /*********************************************************************************************
-	PhysicalWorldModelProxy
+	PhysicalWorldModelProxy Internal Members
  *********************************************************************************************/
 
 		void 	add(PhysicsBody& body) override;
@@ -59,7 +61,7 @@ namespace a3d {
 						  const DebugOptions &debugOptions) override;
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 		btDiscreteDynamicsWorld*		btWorld() const;
@@ -68,7 +70,7 @@ namespace a3d {
 #endif
 
 /*********************************************************************************************
-	 Private
+	 Private IVars
  *********************************************************************************************/
 
 	private:

@@ -1,5 +1,9 @@
 //
-// Created by mkd on 11/9/23.
+//  FileLoggerSink.h
+//  avara3d
+//
+//  Created by Morgan Davis on 11/9/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_FILELOGGERSINK_H
@@ -20,27 +24,19 @@ namespace a3d {
 
 	class FileLoggerSink : public LoggerSink {
 
-
-		static constexpr int DEFAULT_MAX_FILES = 5;
-		static constexpr int DEFAULT_MAX_FILESIZE = 1024 * 1024 * 1; // 1MB
-
-
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 	public:
-	public:
 
-		// desktop log paths are relative to the executable
-		// android log paths are relative to the app's internal storage directory
 		explicit FileLoggerSink(const std::filesystem::path& relPath,
 								int maxFiles = DEFAULT_MAX_FILES,
 								int maxFilesize = DEFAULT_MAX_FILESIZE);
-		~FileLoggerSink();
+		~FileLoggerSink() override;
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 		const std::filesystem::path&		filepath() const;
@@ -51,20 +47,31 @@ namespace a3d {
 		void 								flush() override;
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 		void 								write(const char* message);
 
 /*********************************************************************************************
-	Private
+	Private Constants
  *********************************************************************************************/
 
 	private:
 
+		static constexpr unsigned 			DEFAULT_MAX_FILES = 5;
+		static constexpr unsigned 			DEFAULT_MAX_FILESIZE = 1024 * 1024 * 1; // 1MB
+
+/*********************************************************************************************
+	Private Members
+ *********************************************************************************************/
+
 		void 								openStream();
 		void 								checkRotate();
 		void 								rotate();
+
+/*********************************************************************************************
+	Private IVars
+ *********************************************************************************************/
 
 		std::filesystem::path				_filepath;
 		int									_maxFiles;

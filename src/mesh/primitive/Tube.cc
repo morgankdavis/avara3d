@@ -1,9 +1,9 @@
 //
 //  Tube.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 11/8/17.
-//  Copyright © 2017 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/mesh/primitive/Tube.h"
@@ -22,12 +22,16 @@ using namespace glm;
 using namespace std;
 
 
+/*********************************************************************************************
+	Pubic Static Members
+ *********************************************************************************************/
+
 shared_ptr<Mesh> Tube::Mesh(float innerRadius,
 							float outerRadius,
 							float height,
-							int slices,
-							int segments,
-							int rings,
+							unsigned slices,
+							unsigned segments,
+							unsigned rings,
 							const shared_ptr<Material> material) {
 
 	return make_shared<a3d::Mesh>("Tube", make_unique<Tube>(innerRadius,
@@ -40,15 +44,15 @@ shared_ptr<Mesh> Tube::Mesh(float innerRadius,
 }
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
 *********************************************************************************************/
 
 Tube::Tube(float innerRadius,
 		   float outerRadius,
 		   float height,
-		   int slices,
-		   int segments,
-		   int rings):
+		   unsigned slices,
+		   unsigned segments,
+		   unsigned rings):
 		MeshElement{},
 		_innerRadius{innerRadius},
 		_outerRadius{outerRadius},
@@ -66,7 +70,7 @@ Tube::Tube(float innerRadius,
 	/// @param start Counterclockwise angle around the z-axis relative to the x-axis.
 	/// @param sweep Counterclockwise angle around the z-axis.
 
-	auto tube = CappedTubeMesh{outerRadius, innerRadius, height/2.0, slices, segments, rings};
+	auto tube = CappedTubeMesh{outerRadius, innerRadius, height/2.0, (int)slices, (int)segments, (int)rings};
 
 	for (const MeshVertex& v : tube.vertices()) {
 		_vertices.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
@@ -82,7 +86,7 @@ Tube::Tube(float innerRadius,
 }
 
 /*********************************************************************************************
- 	Public
+ 	Public Members
  *********************************************************************************************/
 
 float Tube::innerRadius() const {
@@ -97,14 +101,14 @@ float Tube::height() const {
 	return _height;
 }
 
-int Tube::slices() const {
+unsigned Tube::slices() const {
 	return _slices;
 }
 
-int Tube::segments() const {
+unsigned Tube::segments() const {
 	return _segments;
 }
 
-int Tube::rings() const {
+unsigned Tube::rings() const {
 	return _rings;
 }

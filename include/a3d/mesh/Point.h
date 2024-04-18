@@ -1,18 +1,20 @@
 //
 //  Point.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 5/20/18.
-//  Copyright © 2018 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Point_h
-#define Point_h
+#ifndef AVARA3D_POINT_H
+#define AVARA3D_POINT_H
 
 
 #include <memory>
 
 #include "glm/glm.hpp"
+
+#include "a3d/Color.h"
 
 
 namespace a3d {
@@ -24,33 +26,33 @@ namespace a3d {
 	class Point {
 
 /*********************************************************************************************
-	Lifecycle
+	Internal Lifecycle
  *********************************************************************************************/
 
 	public:
 
-		Point(const glm::vec3& location);
-		Point(const glm::vec3& location, const std::shared_ptr<Color>& color);
-		
+		explicit Point(const glm::vec3& location);
+		Point(const glm::vec3& location, const Color& color);
+
 /*********************************************************************************************
-	Public
+	Internal Members
  *********************************************************************************************/
-		
-		const glm::vec3& 				location() const;
-		void 							location(const glm::vec3& point);
-		const std::shared_ptr<Color>&	color() const;
-		void 							color(const std::shared_ptr<Color>& color);
+
+		const glm::vec3& 		location() const;
+		void 					location(const glm::vec3& point);
+		const Color&			color() const;
+		void 					color(const Color& color);
 		
 /*********************************************************************************************
-	Private
+	Private IVars
  *********************************************************************************************/
 
 	private:
 
-		glm::vec3 						_location;
-		std::shared_ptr<Color> 			_color;
+		glm::vec3 				_location;
+		Color 					_color;
 	};
 }
 
 
-#endif /* Point_h */
+#endif /* AVARA3D_POINT_H */

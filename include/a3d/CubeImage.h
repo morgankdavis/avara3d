@@ -1,13 +1,13 @@
 //
 //  CubeImage.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 4/30/18.
-//  Copyright © 2018 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef CubeImage_h
-#define CubeImage_h
+#ifndef AVARA3D_CUBEIMAGE_H
+#define AVARA3D_CUBEIMAGE_H
 
 
 #include <memory>
@@ -22,9 +22,9 @@ namespace a3d {
 	
 
 	class CubeImage : public Sampleable {
-		
+
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 	public:
@@ -37,7 +37,7 @@ namespace a3d {
 				  std::unique_ptr<Image> negZ);
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 		Image*		posX() const;
@@ -59,7 +59,7 @@ namespace a3d {
 		void 		negZ(std::unique_ptr<Image> image);
 		
 /*********************************************************************************************
-	Private
+	Private IVars
  *********************************************************************************************/
 
 	private:
@@ -74,4 +74,4 @@ namespace a3d {
 }
 
 
-#endif /* CubeImage_h */
+#endif /* AVARA3D_CUBEIMAGE_H */

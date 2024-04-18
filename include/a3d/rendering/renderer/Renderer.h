@@ -1,13 +1,13 @@
 //
 //  Renderer.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 4/22/18.
-//  Copyright © 2018 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Renderer_h
-#define Renderer_h
+#ifndef AVARA3D_RENDERER_H
+#define AVARA3D_RENDERER_H
 
 
 #include <memory>
@@ -34,8 +34,8 @@ namespace a3d {
 	class Renderer {
 
 /*********************************************************************************************
-	Lifecycle
- *************************************{}********************************************************/
+	Internal Lifecycle
+ *********************************************************************************************/
 
 	public:
 
@@ -45,14 +45,10 @@ namespace a3d {
 		virtual ~Renderer() = 0;
 
 /*********************************************************************************************
-	Public
+	Internal Members
  *********************************************************************************************/
 
 		virtual RenderingApi 				renderingApi() const = 0;
-		
-/*********************************************************************************************
-	Internal
- *********************************************************************************************/
 
 		virtual bool 						initialize(const RenderContext& context) = 0;
 		
@@ -91,4 +87,4 @@ namespace a3d {
 }
 
 
-#endif /* Renderer_h */
+#endif /* AVARA3D_RENDERER_H */

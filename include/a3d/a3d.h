@@ -3,11 +3,11 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 9/20/17.
-//  Copyright © 2017 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef A3D_h
-#define A3D_h
+#ifndef AVARA3D_A3D_H
+#define AVARA3D_A3D_H
 
 
 #include "a3d/Buffer.h"
@@ -19,17 +19,12 @@
 #include "a3d/Image.h"
 #include "a3d/Types.h"
 #include "a3d/diagnostic/exception/Exception.h"
-#include "a3d/diagnostic/exception/UnsupportedFormat.h"
+#include "a3d/diagnostic/exception/UnsupportedFormatException.h"
 #include "a3d/diagnostic/logging/Logger.h"
 #include "a3d/diagnostic/logging/sink/FileLoggerSink.h"
-#if defined(ANDROID)
-#include "diagnostic/logging/sink/platform/android/FileLoggerSink.h"
-#elif defined(DESKTOP)
-#include "a3d/diagnostic/logging/sink/platform/desktop/StdOutLoggerSink.h"
-#endif
-
+#include "a3d/diagnostic/logging/sink/StdOutLoggerSink.h"
 #include "a3d/input/InputManager.h"
-#include "a3d/input/platform/desktop/WindowInputManager.h" // remove?
+#include "a3d/input/WindowInputManager.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/mesh/Line.h"
@@ -58,20 +53,18 @@
 #include "a3d/physics/shape_primitive/PlanePhysicsShape.h"
 #include "a3d/physics/shape_primitive/SpherePhysicsShape.h"
 #include "a3d/rendering/Light.h"
-#include "a3d/rendering/Renderer.h"
 #include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/camera/Camera.h"
 #include "a3d/rendering/camera/OrthographicCamera.h"
 #include "a3d/rendering/camera/PerspectiveCamera.h"
 #include "a3d/rendering/context/RenderContext.h"
-#include "a3d/rendering/context/platform/desktop/Window.h"
+#include "a3d/rendering/context/Window.h"
 #include "a3d/rendering/material/Material.h"
 #include "a3d/rendering/material/Sampleable.h"
 #include "a3d/rendering/material/Sampler.h"
 #include "a3d/rendering/material/Texture.h"
-#include "a3d/rendering/opengl/Program.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 
 
-#endif /* A3D_h */
+#endif /* AVARA3D_A3D_H */

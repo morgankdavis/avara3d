@@ -1,9 +1,9 @@
 //
 //  Cone.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 11/8/17.
-//  Copyright © 2017 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/mesh/primitive/Cone.h"
@@ -22,11 +22,15 @@ using namespace glm;
 using namespace std;
 
 
+/*********************************************************************************************
+	Pubic Static Members
+ *********************************************************************************************/
+
 shared_ptr<Mesh> Cone::Mesh(float radius,
 							float height,
-							int slices,
-							int segments,
-							int rings,
+							unsigned slices,
+							unsigned segments,
+							unsigned rings,
 							const shared_ptr<Material> material) {
 
 	return make_shared<a3d::Mesh>("Cone",
@@ -39,14 +43,14 @@ shared_ptr<Mesh> Cone::Mesh(float radius,
 }
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
 *********************************************************************************************/
 
 Cone::Cone(float radius,
 		   float height,
-		   int slices,
-		   int segments,
-		   int rings):
+		   unsigned slices,
+		   unsigned segments,
+		   unsigned rings):
 		MeshElement{},
 		_radius{radius},
 		_height{height},
@@ -61,7 +65,7 @@ Cone::Cone(float radius,
 	/// @param start Counterclockwise angle around the z-axis relative to the x-axis.
 	/// @param sweep Counterclockwise angle around the z-axis.
 
-	auto cone = CappedConeMesh{radius, height/2.0, slices, segments, rings};
+	auto cone = CappedConeMesh{radius, height/2.0, (int)slices, (int)segments, (int)rings};
 
 	for (const MeshVertex& v : cone.vertices()) {
 		_vertices.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
@@ -81,7 +85,7 @@ Cone::Cone(float radius,
 }
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 float Cone::radius() const {
@@ -92,14 +96,14 @@ float Cone::height() const {
 	return _height;
 }
 
-int Cone::slices() const {
+unsigned Cone::slices() const {
 	return _slices;
 }
 
-int Cone::segments() const {
+unsigned Cone::segments() const {
 	return _segments;
 }
 
-int Cone::rings() const {
+unsigned Cone::rings() const {
 	return _rings;
 }

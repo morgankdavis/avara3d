@@ -1,12 +1,12 @@
 //
 //  Renderer.cc
-//	avara3d
+//  avara3d
 //
-//  Created by Morgan Davis on 4/22/18.
-//  Copyright © 2018 Morgan K Davis. All rights reserved.
+//  Created by Morgan Davis on 4/17/2024.
+//  Copyright © 2024-2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/rendering/Renderer.h"
+#include "a3d/rendering/renderer/Renderer.h"
 
 #include "a3d/diagnostic/logging/Logger.h"
 #include "a3d/mesh/MeshElement.h"
@@ -21,7 +21,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Lifescycle
+	Internal Lifescycle
  *********************************************************************************************/
 
 Renderer::Renderer() { }

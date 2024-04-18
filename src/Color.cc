@@ -1,9 +1,9 @@
 //
 //  Color.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 10/21/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/Color.h"
@@ -17,7 +17,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Public Static
+	Public Static Members
  *********************************************************************************************/
 
 std::shared_ptr<Color> Color::Black() {
@@ -101,7 +101,7 @@ shared_ptr<Color> Color::Random() {
 }
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 Color::Color():

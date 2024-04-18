@@ -1,9 +1,9 @@
 //
 //  main.cpp
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 10/15/17.
-//  Copyright © 2017 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include <memory>
@@ -73,7 +73,7 @@ int main(int argc, const char* argv[]) {
 	scene->update(bind(&UpdateCallback, _1, _2));
 
 	{
-		auto mesh = shared_ptr(std::move(Box::Mesh(1.5f, 1.0f, 1.5f)));
+		auto mesh = Box::Mesh(1.5f, 1.0f, 1.5f);
 		auto node = make_shared<Node>();
 		node->name("box");
 		node->mesh(mesh);
@@ -83,7 +83,7 @@ int main(int argc, const char* argv[]) {
 	}
 
 	{
-		auto mesh = shared_ptr(std::move(Capsule::Mesh(0.5f, 1.0f)));
+		auto mesh = Capsule::Mesh(0.5f, 1.0f);
 		auto node = make_shared<Node>();
 		node->name("capsule");
 		node->mesh(mesh);
@@ -92,7 +92,7 @@ int main(int argc, const char* argv[]) {
 	}
 
 	{
-		auto mesh = shared_ptr(std::move(Cone::Mesh(1.0f, 2.0f)));
+		auto mesh = Cone::Mesh(1.0f, 2.0f);
 		auto node = make_shared<Node>();
 		mesh->name("cone");
 		node->mesh(mesh);
@@ -101,7 +101,7 @@ int main(int argc, const char* argv[]) {
 	}
 
 	{
-		auto mesh = shared_ptr(std::move(Cylinder::Mesh(0.5f, 2.0f)));
+		auto mesh = Cylinder::Mesh(0.5f, 2.0f);
 		auto node = make_shared<Node>();
 		mesh->name("cylinder");
 		node->mesh(mesh);
@@ -110,7 +110,7 @@ int main(int argc, const char* argv[]) {
 	}
 
 	{
-		auto mesh = shared_ptr(std::move(Disk::Mesh(1.0f, 5.0f)));
+		auto mesh = Disk::Mesh(1.0f, 5.0f);
 		auto node = make_shared<Node>();
 		node->name("disk");
 		node->mesh(mesh);
@@ -119,7 +119,7 @@ int main(int argc, const char* argv[]) {
 	}
 
 	{
-		auto mesh = shared_ptr(std::move(Plane::Mesh(10.0f, 10.0f)));
+		auto mesh = Plane::Mesh(10.0f, 10.0f);
 		auto node = make_shared<Node>();
 		mesh->name("plane");
 		node->mesh(mesh);
@@ -129,7 +129,7 @@ int main(int argc, const char* argv[]) {
 	}
 
 	{
-		auto mesh = shared_ptr(std::move(RoundedBox::Mesh(0.25f, 1, 1, 1)));
+		auto mesh = RoundedBox::Mesh(0.25f, 1, 1, 1);
 		auto node = make_shared<Node>();
 		mesh->name("rounded box");
 		node->mesh(mesh);
@@ -139,7 +139,7 @@ int main(int argc, const char* argv[]) {
 	}
 
 	{
-		auto mesh = shared_ptr(std::move(Sphere::Mesh(1.0f)));
+		auto mesh = Sphere::Mesh(1.0f);
 		auto node = make_shared<Node>();
 		mesh->name("sphere");
 		node->mesh(mesh);
@@ -148,7 +148,7 @@ int main(int argc, const char* argv[]) {
 	}
 
 	{
-		auto mesh = shared_ptr(std::move(Spring::Mesh(0.2f, 0.5f, 2.5f)));
+		auto mesh = Spring::Mesh(0.2f, 0.5f, 2.5f);
 		auto node = make_shared<Node>();
 		mesh->name("spring");
 		node->mesh(mesh);
@@ -158,7 +158,7 @@ int main(int argc, const char* argv[]) {
 	}
 
 	{
-		auto mesh = shared_ptr(std::move(Torus::Mesh(0.75f, 1.0f)));
+		auto mesh = Torus::Mesh(0.75f, 1.0f);
 		auto node = make_shared<Node>();
 		mesh->name("torus");
 		node->mesh(mesh);
@@ -168,7 +168,7 @@ int main(int argc, const char* argv[]) {
 	}
 
 	{
-		auto mesh = shared_ptr(std::move(TorusKnot::Mesh(2, 3)));
+		auto mesh = TorusKnot::Mesh(2, 3);
 		auto node = make_shared<Node>();
 		mesh->name("torus knot");
 		node->mesh(mesh);
@@ -178,7 +178,7 @@ int main(int argc, const char* argv[]) {
 	}
 
 	{
-		auto mesh = shared_ptr(std::move(Tube::Mesh(0.5f, 0.75f, 2.0f)));
+		auto mesh = Tube::Mesh(0.5f, 0.75f, 2.0f);
 		auto node = make_shared<Node>();
 		mesh->name("tube");
 		node->mesh(mesh);

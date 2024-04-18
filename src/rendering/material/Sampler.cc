@@ -1,5 +1,9 @@
 //
-// Created by mkd on 2/7/24.
+//  Sampler.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 2/7/24.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/rendering/material/Sampler.h"
@@ -8,6 +12,10 @@
 using namespace a3d;
 using namespace std;
 
+
+/*********************************************************************************************
+	Public Lifecycle
+ *********************************************************************************************/
 
 Sampler::Sampler():
 // TODO: are these sensible?
@@ -20,6 +28,10 @@ Sampler::Sampler():
 		_dirtyMask{SamplerDirtyMask::All} {}
 
 Sampler::~Sampler() {}
+
+/*********************************************************************************************
+	Public Members
+ *********************************************************************************************/
 
 FilterMode Sampler::minificationFilter() const {
 	return _minificationFilter;
@@ -90,7 +102,7 @@ void Sampler::wrapR(WrapMode mode) {
 }
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 SamplerDirtyMask Sampler::dirtyMask() const {

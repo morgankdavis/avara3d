@@ -1,9 +1,9 @@
 //
 //  main.cpp
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 11/19/17.
-//  Copyright © 2017 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include <memory>
@@ -95,7 +95,7 @@ int main(int argc, const char* argv[]) {
 	auto material = make_shared<Material>();
 	material->name("LIGHT material");
 	material->emission(materialProperty);
-	auto mesh = shared_ptr(std::move(Sphere::Mesh(3.5, 4, material)));
+	auto mesh = shared_ptr(Sphere::Mesh(3.5, 4, material));
 //	mesh->addMaterial(material);
 //	mesh->replaceMaterial(0, material); // TODO: EHHHHHHHH??????????/
 	pointLightNode->mesh(mesh);

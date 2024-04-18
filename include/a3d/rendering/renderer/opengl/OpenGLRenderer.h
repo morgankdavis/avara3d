@@ -1,13 +1,13 @@
 //
 //  OpenGLRenderer.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 4/24/18.
-//  Copyright © 2018 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef OpenGLRenderer_h
-#define OpenGLRenderer_h
+#ifndef AVARA3D_OPENGLRENDERER_H
+#define AVARA3D_OPENGLRENDERER_H
 
 
 #include <map>
@@ -17,7 +17,7 @@
 #include "glm/glm.hpp"
 
 #include "a3d/Types.h"
-#include "a3d/rendering/Renderer.h"
+#include "a3d/rendering/renderer/Renderer.h"
 
 
 namespace a3d {
@@ -34,7 +34,7 @@ namespace a3d {
 	class OpenGLRenderer : public Renderer {
 
 /**************************************************************************************
-	Types
+	Internal Types
  **************************************************************************************/
 
 	public:
@@ -52,7 +52,7 @@ namespace a3d {
 				std::map<const std::vector<Line>*, std::pair<unsigned, unsigned>>;
 
 /*********************************************************************************************
-	Lifecycle
+	Internal Lifecycle
  *********************************************************************************************/
 
 		OpenGLRenderer();
@@ -63,7 +63,7 @@ namespace a3d {
 		~OpenGLRenderer() override;
 
 /*********************************************************************************************
-	Renderer
+	Renderer Internal Members
  *********************************************************************************************/
 
 		RenderingApi 				renderingApi() const override;
@@ -103,7 +103,7 @@ namespace a3d {
 		std::unique_ptr<Image> 		snapshot(const RenderContext& context) const override;
 
 /*********************************************************************************************
-	Private
+	Private IVars
  *********************************************************************************************/
 
 	private:
@@ -120,4 +120,4 @@ namespace a3d {
 }
 
 
-#endif /* OpenGLRenderer_h */
+#endif /* AVARA3D_OPENGLRENDERER_H */

@@ -1,13 +1,13 @@
 //
 //  Mesh.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 10/21/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Geometry_h
-#define Geometry_h
+#ifndef AVARA3D_MESH_H
+#define AVARA3D_MESH_H
 
 
 #include <filesystem>
@@ -34,18 +34,18 @@ namespace a3d {
 
 	class Mesh {
 
-	public:
-
 /*********************************************************************************************
-	Public Static
+	Public Static Members
  *********************************************************************************************/
 
-		static std::shared_ptr<Mesh> 		FromFile(const std::filesystem::path& path,
-													 MeshImportOptions options =
-													 MeshImportOptions::ImportMaterials);
+	public:
+
+		static std::shared_ptr<Mesh> 			FromFile(const std::filesystem::path& path,
+														 MeshImportOptions options =
+														 MeshImportOptions::ImportMaterials);
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 		Mesh(const std::string& name,
@@ -59,9 +59,9 @@ namespace a3d {
 		Mesh(std::vector<std::unique_ptr<MeshElement>>& elements,
 			 const std::vector<std::shared_ptr<Material>>& materials);
 		virtual ~Mesh();
-		
+
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 		std::optional<std::string> 				name() const;
@@ -80,7 +80,7 @@ namespace a3d {
 																const std::shared_ptr<Material>& replacement);
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 		void 									burnTransform(const glm::mat4& transform,
@@ -102,7 +102,7 @@ namespace a3d {
 		void 									dirtyMask(MeshDirtyMask mask);
 
 /*********************************************************************************************
-	Protected
+	Protected IVars
  *********************************************************************************************/
 
 	protected:
@@ -111,12 +111,16 @@ namespace a3d {
 		std::vector<std::shared_ptr<Material>>		_materials;
 
 /*********************************************************************************************
-	Private
+	Private Lifecycle
  *********************************************************************************************/
 
 	private:
 
 		Mesh();
+
+/*********************************************************************************************
+	Private IVars
+ *********************************************************************************************/
 
 		std::optional<std::string>				_name;
 		std::vector<Line>						_aabbLines;
@@ -125,4 +129,4 @@ namespace a3d {
 }
 
 
-#endif /* Geometry_h */
+#endif /* AVARA3D_MESH_H */

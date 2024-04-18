@@ -1,5 +1,9 @@
 //
-// Created by mkd on 11/19/23.
+//  PlanePhysicsShape.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 11/19/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/physics/shape_primitive/PlanePhysicsShape.h"
@@ -11,7 +15,7 @@ using namespace a3d;
 
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 PlanePhysicsShape::PlanePhysicsShape(float width, float height):
@@ -21,7 +25,7 @@ PlanePhysicsShape::PlanePhysicsShape(float width, float height):
 PlanePhysicsShape::~PlanePhysicsShape() {}
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 float PlanePhysicsShape::width() const {
@@ -41,7 +45,7 @@ void PlanePhysicsShape::height(float height) {
 }
 
 /*********************************************************************************************
-	PhysicsShape
+	PhysicsShape Public Members
  *********************************************************************************************/
 
 PhysicsShapeType PlanePhysicsShape::type() const {

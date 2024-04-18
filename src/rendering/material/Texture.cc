@@ -1,5 +1,9 @@
 //
-// Created by mkd on 2/7/24.
+//  Texture.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 2/7/24.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/rendering/material/Texture.h"
@@ -9,6 +13,10 @@ using namespace a3d;
 using namespace std;
 
 
+/*********************************************************************************************
+	Public Lifecycle
+ *********************************************************************************************/
+
 Texture::Texture():
 		_sampler{nullptr},
 		_contents{nullptr},
@@ -17,13 +25,17 @@ Texture::Texture():
 
 Texture::Texture(const shared_ptr<Sampleable>& contents,
 				 const shared_ptr<Sampler>& sampler,
-				 int mappingChannel):
+				 unsigned mappingChannel):
 		_sampler{sampler},
 		_contents{contents},
 		_mappingChannel{mappingChannel},
 		_dirtyMask{TextureDirtyMask::All} { }
 
 Texture::~Texture() {}
+
+/*********************************************************************************************
+	Public Members
+ *********************************************************************************************/
 
 shared_ptr<Sampler> Texture::sampler() const {
 	return _sampler;
@@ -41,11 +53,11 @@ void Texture::contents(const shared_ptr<Sampleable>& contents) {
 	_contents = contents;
 }
 
-int Texture::mappingChannel() const {
+unsigned Texture::mappingChannel() const {
 	return _mappingChannel;
 }
 
-void Texture::mappingChannel(int channel) {
+void Texture::mappingChannel(unsigned channel) {
 	_mappingChannel = channel;
 }
 

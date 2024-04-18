@@ -1,9 +1,9 @@
 //
 //  RenderContext.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 4/24/18.
-//  Copyright © 2018 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/rendering/context/RenderContext.h"
@@ -16,9 +16,9 @@
 #include "a3d/Image.h"
 #include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/logging/Logger.h"
-#include "a3d/rendering/opengl/OpenGLRenderer.h"
 #include "a3d/rendering/camera/PerspectiveCamera.h"
-#include "a3d/rendering/Renderer.h"
+#include "a3d/rendering/renderer/Renderer.h"
+#include "a3d/rendering/renderer/opengl/OpenGLRenderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 
@@ -29,64 +29,22 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Lifescycle
+	Public Members
  *********************************************************************************************/
 
-RenderContext::RenderContext(RenderingApi renderingApi):
-		_width{0},
-		_height{0},
-		_framebufferWidth{0},
-		_framebufferHeight{0},
-		_framebufferScale{1.0, 1.0},
-		_vSyncEnabled{false},
-		_antialiasingMode{AntialiasingMode::None},
-		_gifWriter{},
-		_recordingGIF{false},
-		_gifRecordingWidth{0},
-		_gifRecordingHeight{0},
-		_gifRecordingMaxFramerate{0},
-		_gifRecordedFrames{0},
-		_visualWorld{},
-		_renderer{} {
-
-	switch (renderingApi) {
-		case RenderingApi::OpenGL: {
-			_renderer = make_unique<OpenGLRenderer>();
-			break; }
-		case RenderingApi::OpenGLES: {
-			throw Exception("Unsupported rendering API: OpenGLES");
-			break; }
-		case RenderingApi::Vulkan: {
-			throw Exception("Unsupported rendering API: Vulkan");
-			break; }
-	}
-}
-
-RenderContext::~RenderContext() {
-	A3D_LOG_D("Destroying RenderContext {:p}", static_cast<void*>(this));
-	
-	if (_recordingGIF) {
-		stopGIFRecording();
-	}
-}
-
-/*********************************************************************************************
-	Public
- *********************************************************************************************/
-
-int RenderContext::width() const {
+unsigned RenderContext::width() const {
 	return _width;
 }
 
-int RenderContext::height() const {
+unsigned RenderContext::height() const {
 	return _height;
 }
 
-int RenderContext::framebufferWidth() const {
+unsigned RenderContext::framebufferWidth() const {
 	return _framebufferWidth;
 }
 
-int RenderContext::framebufferHeight() const {
+unsigned RenderContext::framebufferHeight() const {
 	return _framebufferHeight;
 }
 
@@ -118,7 +76,7 @@ bool RenderContext::recordingGIF() const {
 }
 
 void RenderContext::startGIFRecording(const filesystem::path& path,
-									  int maxHeight, int maxFramerate) {
+									  unsigned maxHeight, unsigned maxFramerate) {
 	
 	if (!_recordingGIF) {
 		A3D_LOG_I("Starting GIF recording...");
@@ -130,13 +88,13 @@ void RenderContext::startGIFRecording(const filesystem::path& path,
 		_gifRecordingWidth = _framebufferWidth;
 		if (_gifRecordingHeight > maxHeight) {
 			float scale = (float)maxHeight / (float)_framebufferHeight;
-			_gifRecordingHeight = (int)round(_framebufferHeight * scale);
-			_gifRecordingWidth = (int)round(_framebufferWidth * scale);
+			_gifRecordingHeight = (unsigned)round((float)_framebufferHeight * scale);
+			_gifRecordingWidth = (unsigned)round((float)_framebufferWidth * scale);
 		}
 
-		int frameTimeMS = 1000 /* (ms/sec) */ / _gifRecordingMaxFramerate /* (frames/sec) */;
+		unsigned frameTimeMS = 1000 /* (ms/sec) */ / _gifRecordingMaxFramerate /* (frames/sec) */;
 		// -> ms/frame
-		int frameTimeHS = (int)round((float)frameTimeMS / 10.0); // 100th sec/frame
+		unsigned frameTimeHS = (unsigned)round((float)frameTimeMS / 10.0); // 100th sec/frame
 		
 		//_gifWriter = (GifWriter *)malloc(sizeof(GifWriter));
 		_gifWriter = make_unique<GifWriter>();
@@ -176,24 +134,66 @@ Renderer* RenderContext::renderer() const {
 }
 
 /*********************************************************************************************
-	Internal
+	Internal Lifescycle
  *********************************************************************************************/
 
-void RenderContext::width(int width) {
+RenderContext::RenderContext(RenderingApi renderingApi):
+		_width{0},
+		_height{0},
+		_framebufferWidth{0},
+		_framebufferHeight{0},
+		_framebufferScale{1.0, 1.0},
+		_vSyncEnabled{false},
+		_antialiasingMode{AntialiasingMode::None},
+		_gifWriter{},
+		_recordingGIF{false},
+		_gifRecordingWidth{0},
+		_gifRecordingHeight{0},
+		_gifRecordingMaxFramerate{0},
+		_gifRecordedFrames{0},
+		_visualWorld{},
+		_renderer{} {
+
+	switch (renderingApi) {
+		case RenderingApi::OpenGL: {
+			_renderer = make_unique<OpenGLRenderer>();
+			break; }
+		case RenderingApi::OpenGLES: {
+			throw Exception("Unsupported rendering API: OpenGLES");
+			break; }
+		case RenderingApi::Vulkan: {
+			throw Exception("Unsupported rendering API: Vulkan");
+			break; }
+	}
+}
+
+RenderContext::~RenderContext() {
+	A3D_LOG_D("Destroying RenderContext {:p}", static_cast<void*>(this));
+
+	if (_recordingGIF) {
+		stopGIFRecording();
+	}
+}
+
+/*********************************************************************************************
+	Internal Members
+ *********************************************************************************************/
+
+void RenderContext::width(unsigned width) {
 	_width = width;
-	framebufferWidth((int)round(_width * _framebufferScale.x));
+	framebufferWidth((unsigned)round((float)_width * _framebufferScale.x));
 }
 
-void RenderContext::height(int height) {
+void RenderContext::height(unsigned height) {
 	_height = height;
-	framebufferHeight((int)round(_height * _framebufferScale.y));
+	framebufferHeight((unsigned)round((float)_height * _framebufferScale.y));
 }
 
-void RenderContext::framebufferWidth(int width) {
+void RenderContext::framebufferWidth(unsigned width) {
 	_framebufferWidth = width;
 }
 
-void RenderContext::framebufferHeight(int height) {
+void RenderContext::framebufferHeight(unsigned height) {
 	_framebufferHeight = height;
 }
 
@@ -206,7 +206,7 @@ void RenderContext::saveGIFFrame(float deltaRunT) {
 	static float secondsAccum = 0; // TODO: this won't work correctly after first call
 	secondsAccum += deltaRunT;
 
-	unsigned frameTimeMS = 1000.0 /* (ms/sec) */ / _gifRecordingMaxFramerate /* (frames/sec) */;
+	float frameTimeMS = 1000.0f /* (ms/sec) */ / (float)_gifRecordingMaxFramerate /* (frames/sec) */;
 	// -> ms/frame
 	//unsigned frameTimeHS = frameTimeMS / 10.0; // 100th sec/frame
 
@@ -218,14 +218,14 @@ void RenderContext::saveGIFFrame(float deltaRunT) {
 
 		auto resizedFrameData = (unsigned char*)malloc(_gifRecordingWidth * _gifRecordingHeight * 4);
 		stbir_resize_uint8_linear(reinterpret_cast<const unsigned char*>(frame->buffer().data()),
-								  frame->width(), frame->height(), 0,
-								  resizedFrameData, _gifRecordingWidth, _gifRecordingHeight, 0,
+								  int(frame->width()), int(frame->height()), 0,
+								  resizedFrameData, (int)_gifRecordingWidth, (int)_gifRecordingHeight, 0,
 								  STBIR_RGBA);
 
 		// gif-h frame time is in 100ths of a second
 		GifWriteFrame(_gifWriter.get(), resizedFrameData,
 					  _gifRecordingWidth, _gifRecordingHeight,
-					  (secondsAccum*1000.0)/10.0);
+					  (uint32_t)round((secondsAccum*1000.0f)/10.0f));
 
 		++_gifRecordedFrames;
 

@@ -1,9 +1,9 @@
 //
 //  PhysicalWorld.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 1/26/18.
-//  Copyright © 2018 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/physics/PhysicalWorld.h"
@@ -23,13 +23,13 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Static Prorotypes
+	Private Static Non-Member Prorotypes
  *********************************************************************************************/
 
 static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 PhysicalWorld::PhysicalWorld():
@@ -50,7 +50,7 @@ PhysicalWorld::~PhysicalWorld() {
 }
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 const vec3& PhysicalWorld::gravity() const {
@@ -149,7 +149,7 @@ void PhysicalWorld::endContact(PhysicalWorld::EndContactCallback function) {
 }
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 void PhysicalWorld::attachedToScene(Scene& scene) {
@@ -198,11 +198,11 @@ void PhysicalWorld::step(const Scene& scene,
 
 	if (_proxy) {
 
-		auto startTime = Scene::Time();
+		auto startTime = scene.time();
 
 		_proxy->step(deltaRunT, _speed, _timestep);
 
-		UpdateTimeStats(stats, startTime, Scene::Time());
+		UpdateTimeStats(stats, startTime, scene.time());
 
 		if (auto didSimulate = PhysicalWorld::didSimulate()) {
 			didSimulate(*this, runT);
@@ -218,7 +218,7 @@ PhysicalWorldProxy* PhysicalWorld::proxy() const {
 }
 
 /*********************************************************************************************
-	Static
+	Private Static Non-Members
  *********************************************************************************************/
 
 void UpdateTimeStats(Stats& stats, double startTime, double endTime) {

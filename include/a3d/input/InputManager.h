@@ -1,13 +1,13 @@
 //
 //  InputManager.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 10/9/17.
-//  Copyright © 2017 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef InputManager_h
-#define InputManager_h
+#ifndef AVARA3D_INPUTMANAGER_H
+#define AVARA3D_INPUTMANAGER_H
 
 
 #include <memory>
@@ -26,9 +26,9 @@ namespace a3d {
 
 	
 	class InputManager {
-		
+
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 	public:
@@ -39,9 +39,9 @@ namespace a3d {
 		virtual ~InputManager();
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
-		
+
 		bool 						keyDown(Key key);
 		bool 						mouseButtonDown(MouseButton button);
 		
@@ -62,7 +62,7 @@ namespace a3d {
 		Scene*						scene() const;
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 		void						attachedToScene(Scene& scene);
@@ -71,7 +71,7 @@ namespace a3d {
 		virtual void				update() = 0;
 
 /*********************************************************************************************
-	Protected
+	Protected IVars
  *********************************************************************************************/
 
 	protected:
@@ -86,7 +86,7 @@ namespace a3d {
 		glm::vec2  					_mouseScrollWheelDelta;
 
 /*********************************************************************************************
-	Private
+	Private Members
  *********************************************************************************************/
 
 	private:
@@ -94,9 +94,13 @@ namespace a3d {
 		void			 			clearMousePositionDelta(); // called after mousePositionDelta()
 		void 						clearMouseScrollWheelDelta(); // called after mouseScrollWheelDelta()
 
+/*********************************************************************************************
+	Private IVars
+ *********************************************************************************************/
+
 		Scene*						_scene;
 	};
 }
 
-#endif /* InputManager_h */
+#endif /* AVARA3D_INPUTMANAGER_H */
 

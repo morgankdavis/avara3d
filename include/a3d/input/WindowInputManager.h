@@ -1,15 +1,13 @@
 //
 //  WindowInputManager.h
-//	avara3d
+//  avara3d
 //
-//  Created by Morgan Davis on 5/6/18.
-//  Copyright © 2018 Morgan K Davis. All rights reserved.
+//  Created by Morgan Davis on 4/16/2024.
+//  Copyright © 2024-2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef WindowInputManager_h
-#define WindowInputManager_h
-
-#ifdef DESKTOP
+#ifndef AVARA3D_WINDOWINPUTMANAGER_H
+#define AVARA3D_WINDOWINPUTMANAGER_H
 
 
 #include <memory>
@@ -33,24 +31,36 @@ namespace a3d {
 	class WindowInputManager : public InputManager {
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 	public:
 
-		WindowInputManager(Window* window);
+		explicit WindowInputManager(Window* window);
 		WindowInputManager(const InputManager& other) = delete; // copy constructor
 		WindowInputManager& operator=(const InputManager& other) = delete; // copy assignment
-		~WindowInputManager();
+		~WindowInputManager() override;
 
 /*********************************************************************************************
-	InputManager
+	InputManager Internal Members
  *********************************************************************************************/
 
 		void 							update() override;
 
 /*********************************************************************************************
-	GLFW Callbacks
+	Private Members
+ *********************************************************************************************/
+
+	private:
+
+		void 							initMouseInput();
+		void 							initManyMouse();
+		void 							quitManyMouse();
+		void 							registerGLFWCallbacks(GLFWwindow* glfwWindow);
+		void 							unregisterGLFWCallbacks(GLFWwindow* glfwWindow);
+
+/*********************************************************************************************
+	Private Static Members
  *********************************************************************************************/
 
 		static void 					GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
@@ -70,23 +80,13 @@ namespace a3d {
 													   int mods);
 
 /*********************************************************************************************
-	Private
+	Private IVars
  *********************************************************************************************/
-
-	private:
-
-		void 							initMouseInput();
-		void 							initManyMouse();
-		void 							quitManyMouse();
-		void 							registerGLFWCallbacks(GLFWwindow* glfwWindow);
-		void 							unregisterGLFWCallbacks(GLFWwindow* glfwWindow);
 
 		bool							_usingManyMouse;
 		Window*							_window;
 	};
 }
 
-#endif // DESKTOP
 
-
-#endif /* WindowInputManager_h */
+#endif /* AVARA3D_WINDOWINPUTMANAGER_H */

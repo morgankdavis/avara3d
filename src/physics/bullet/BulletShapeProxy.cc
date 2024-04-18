@@ -1,5 +1,9 @@
 //
-// Created by mkd on 10/29/23.
+//  BulletShapeProxy.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 10/29/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/physics/bullet/BulletShapeProxy.h"
@@ -25,7 +29,7 @@
 #include "a3d/physics/PhysicsShape.h"
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/physics/bullet/BulletWorldProxy.h"
-#include "a3d/physics/bullet/Utilities.h"
+#include "a3d/physics/bullet/BulletUtilities.h"
 #include "a3d/physics/proxy/PhysicsBodyProxy.h"
 #include "a3d/physics/shape_primitive/BoxPhysicsShape.h"
 #include "a3d/physics/shape_primitive/CapsulePhysicsShape.h"
@@ -43,7 +47,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Static Prototypes
+	Private Static Non-Member Prototypes
  *********************************************************************************************/
 
 static unique_ptr<btCollisionShape>
@@ -103,7 +107,7 @@ static vector<unique_ptr<MeshElement>>
 HACDMeshElementsFromMeshElement(MeshElement& element);
 
 /*********************************************************************************************
-	Lifecycle
+	Internal Lifecycle
  *********************************************************************************************/
 
 BulletShapeProxy::BulletShapeProxy(PhysicsShape& shape):
@@ -184,7 +188,7 @@ BulletShapeProxy::~BulletShapeProxy() {
 }
 
 /*********************************************************************************************
-	Public
+	Internal Members
  *********************************************************************************************/
 
 const vector <unique_ptr<btCollisionShape>>& BulletShapeProxy::btShapes() {
@@ -192,7 +196,7 @@ const vector <unique_ptr<btCollisionShape>>& BulletShapeProxy::btShapes() {
 }
 
 /*********************************************************************************************
-	Static
+	Static Non-Members
  *********************************************************************************************/
 
 static unique_ptr<btCollisionShape>

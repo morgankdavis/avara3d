@@ -1,5 +1,9 @@
 //
-// Created by mkd on 1/30/24.
+//  GlTFImporter.h
+//  avara3d
+//
+//  Created by Morgan Davis on 1/30/24.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_GLTFIMPORTER_H
@@ -36,17 +40,29 @@ namespace a3d {
 
 
 	class GlTFImporter {
+		
+/*********************************************************************************************
+	Internal Lifecycle
+ *********************************************************************************************/
 
 	public:
 
 		explicit GlTFImporter(const std::filesystem::path& path,
 							  SceneImportOptions options = SceneImportOptions::ImportAll);
 
+/*********************************************************************************************
+	Internal Members
+ *********************************************************************************************/
+
 		std::unique_ptr<Scene> 				scene();
 		std::shared_ptr<Mesh> 				firstMesh();
 
 		const std::filesystem::path&		path() const;
 		SceneImportOptions					options() const;
+		
+/*********************************************************************************************
+	Private Members
+ *********************************************************************************************/
 
 	private:
 
@@ -73,6 +89,10 @@ namespace a3d {
 																fastgltf::Node& node);
 		std::shared_ptr<Camera> 			cameraFromGlTFNode(fastgltf::Asset& asset,
 															  fastgltf::Node& node);
+
+/*********************************************************************************************
+	Private IVars
+ *********************************************************************************************/
 
 		bool														_parsed;
 		fastgltf::Asset												_asset;

@@ -1,9 +1,12 @@
 //
-// Created by mkd on 1/30/24.
+//  GlTFImporter.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 1/30/24.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/scene/importer/GlTFImporter.h"
-
 
 #include <filesystem>
 #include <utility>
@@ -21,7 +24,7 @@
 #include "a3d/Color.h"
 #include "a3d/Image.h"
 #include "a3d/Types.h"
-#include "a3d/diagnostic/exception/UnsupportedFormat.h"
+#include "a3d/diagnostic/exception/UnsupportedFormatException.h"
 #include "a3d/diagnostic/logging/Logger.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
@@ -33,6 +36,7 @@
 #include "a3d/rendering/material/Texture.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
+#include "a3d/Utilities.h"
 
 
 using namespace a3d;
@@ -41,11 +45,18 @@ using namespace glm;
 using namespace std;
 
 
+/*********************************************************************************************
+	Private Static Non-Member Prototypes
+ *********************************************************************************************/
+
 static fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options);
 static mat4 TransformFromGlTFNode(fastgltf::Node& node);
 static shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 3>& arr);
 static shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 4>& arr);
 
+/*********************************************************************************************
+	Internal Lifecycle
+ *********************************************************************************************/
 
 GlTFImporter::GlTFImporter(const filesystem::path& path,
 						   SceneImportOptions options):
@@ -64,16 +75,20 @@ GlTFImporter::GlTFImporter(const filesystem::path& path,
 
 	auto extension = path.extension();
 	if (!(extension == ".gltf" || extension == ".glb")) {
-		throw UnsupportedFormat(fmt::format("Unsupported format: {}", extension.string()));
+		throw UnsupportedFormatException(fmt::format("Unsupported format: {}", extension.string()));
 	}
 }
+
+/*********************************************************************************************
+	Internal Members
+ *********************************************************************************************/
 
 unique_ptr<a3d::Scene> GlTFImporter::scene() {
 
 	if (!_scene) {
 		if (parse()) {
 
-			auto startTime = Scene::Time();
+			auto startTime = utils::Time();
 
 			auto a3dScene = make_unique<a3d::Scene>();
 
@@ -97,7 +112,7 @@ unique_ptr<a3d::Scene> GlTFImporter::scene() {
 
 					// TODO: throw out nodes that don't have anything attached to them, or any children?
 
-					A3D_LOG_I("Done loading scene.  Time: {}", Scene::Time() - startTime);
+					A3D_LOG_I("Done loading scene.  Time: {}", utils::Time() - startTime);
 
 					_scene = std::move(a3dScene);
 				}
@@ -123,7 +138,7 @@ shared_ptr<a3d::Mesh> GlTFImporter::firstMesh() {
 
 	if (parse()) {
 
-		auto startTime = Scene::Time();
+		auto startTime = utils::Time();
 
 		auto& meshes = _asset.meshes;
 		if (!meshes.empty()) {
@@ -131,7 +146,7 @@ shared_ptr<a3d::Mesh> GlTFImporter::firstMesh() {
 			mesh = meshFromGlTFMeshIndex(_asset, 0);
 
 			if (mesh) {
-				A3D_LOG_I("Done loading mesh.  Time: {}", Scene::Time() - startTime);
+				A3D_LOG_I("Done loading mesh.  Time: {}", utils::Time() - startTime);
 			}
 		}
 		else {
@@ -150,13 +165,17 @@ SceneImportOptions GlTFImporter::options() const {
 	return _options;
 }
 
+/*********************************************************************************************
+	Private Members
+ *********************************************************************************************/
+
 bool GlTFImporter::parse() {
 
 	if (!_parsed) {
 
 		A3D_LOG_I("Parsing glTF: '{}'...", _path.string());
 
-		auto startTime = Scene::Time();
+		auto startTime = utils::Time();
 
 		auto extensions = Extensions::KHR_lights_punctual
 						  | Extensions::KHR_materials_specular
@@ -190,10 +209,10 @@ bool GlTFImporter::parse() {
 
 			if (auto& info = asset.assetInfo) {
 				A3D_LOG_D("Done parsing glTF.  Version: '{}', Copyright: '{}', Generator: '{}'.  Parse time: {}",
-						  info->gltfVersion, info->copyright, info->generator, Scene::Time() - startTime);
+						  info->gltfVersion, info->copyright, info->generator, utils::Time() - startTime);
 			}
 			else {
-				A3D_LOG_D("Done parsing glTF.  Time: {}", Scene::Time() - startTime);
+				A3D_LOG_D("Done parsing glTF.  Time: {}", utils::Time() - startTime);
 			}
 
 			_asset = std::move(expectedAsset.get());
@@ -795,6 +814,10 @@ shared_ptr<a3d::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
 
 	return nullptr;
 }
+
+/*********************************************************************************************
+	Private Static Non-Members
+ *********************************************************************************************/
 
 fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options) {
 

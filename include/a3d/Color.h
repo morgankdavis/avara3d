@@ -1,13 +1,13 @@
 //
 //  Color.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 10/21/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Color_h
-#define Color_h
+#ifndef AVARA3D_COLOR_H
+#define AVARA3D_COLOR_H
 
 
 #include <memory>
@@ -18,9 +18,9 @@
 namespace a3d {
 	
 	class Color {
-		
+
 /*********************************************************************************************
-	Public Static
+	Public Static Members
  *********************************************************************************************/
 
 	public:
@@ -48,9 +48,9 @@ namespace a3d {
 		static std::shared_ptr<Color> 		Random();
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
-		
+
 		Color();
 		Color(float r, float g, float b);
 		Color(float r, float g, float b, float a);
@@ -60,18 +60,18 @@ namespace a3d {
 		explicit Color(uint32_t color);
 		explicit Color(const std::string& hexString);
 
+		// TODO: operator*, operator[], rgb(), rgba()
+
 /*********************************************************************************************
-	Public
+	Public IVars
  *********************************************************************************************/
-		
+
 		float r;
 		float g;
 		float b;
 		float a;
-
-		// TODO: operator*, operator[], rgb(), rgba()
 	};
 }
 
 
-#endif /* Color_h */
+#endif /* AVARA3D_COLOR_H */

@@ -1,13 +1,13 @@
 //
 //  Node.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 10/20/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Node_h
-#define Node_h
+#ifndef AVARA3D_NODE_H
+#define AVARA3D_NODE_H
 
 
 #include <map>
@@ -40,20 +40,20 @@ namespace a3d {
 	class Node : public std::enable_shared_from_this<Node> {
 
 /*********************************************************************************************
-	Public Static
+	Public Static Members
  *********************************************************************************************/
 
 	public:
 
-		static std::shared_ptr<Node> 			NamedNode(std::string name);
+		static std::shared_ptr<Node> 			NamedNode(const std::string& name);
 		static std::shared_ptr<Node> 			MeshNode(const std::shared_ptr<Mesh>& geometry);
 		static std::shared_ptr<Node> 			LightNode(const std::shared_ptr<Light>& light);
 		static std::shared_ptr<Node> 			CameraNode(const std::shared_ptr<Camera>& camera);
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
-		
+
 		Node();
 		explicit Node(const std::string& name);
 		explicit Node(const std::shared_ptr<Mesh>& mesh);
@@ -66,7 +66,7 @@ namespace a3d {
 		~Node();
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 		const std::optional<std::string>&		name() const;
@@ -118,7 +118,7 @@ namespace a3d {
 		void 									addChildren(const std::vector<std::shared_ptr<Node>>& nodes);
 		void 									removeFromParent();
 
-		std::vector<std::shared_ptr<Node>>		children(bool resursive = false);
+		std::vector<std::shared_ptr<Node>>		children(bool resursive = false) const;
 		std::shared_ptr<Node> 					childNamed(const std::string& name, bool resursive = false);
 
 		PhysicsBody* 							physicsBody() const;
@@ -134,7 +134,7 @@ namespace a3d {
 //		glm::mat4 								convertTransformToNode(const glm::mat4& transform, const Node& toNode);
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 		void 									attachedToParent(Node& parent);
@@ -174,24 +174,28 @@ namespace a3d {
 
 		void									_debugPrint();
 		void									_debugPrintRec(Node& node,
-															   int level);
+															   unsigned level);
 
 		void	 								applyPhysicsTransform(glm::mat4 transform);
 
 /*********************************************************************************************
-	Private
+	Private Members
  *********************************************************************************************/
 
 	private:
 
 		void									getAABBRec(AABB& aabb);
 
-		std::vector<std::shared_ptr<Node>>		children(const Node* root);
+		std::vector<std::shared_ptr<Node>>		children(const Node& root) const;
 		void 									childrenRec(const std::shared_ptr<Node>& node,
-															std::vector<std::shared_ptr<Node>>& children);
+															std::vector<std::shared_ptr<Node>>& children) const;
 
 		NodeDirtyMask 							dirtyMask() const;
 		void 									dirtyMask(NodeDirtyMask mask);
+
+/*********************************************************************************************
+	Private IVars
+ *********************************************************************************************/
 
 		std::optional<std::string>				_name;
 		std::shared_ptr<Light>					_light;
@@ -210,4 +214,4 @@ namespace a3d {
 }
 
 
-#endif /* Node_h */
+#endif /* AVARA3D_NODE_H */

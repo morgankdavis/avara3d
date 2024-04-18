@@ -1,5 +1,9 @@
 //
-// Created by mkd on 11/19/23.
+//  BoxPhysicsShape.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 11/19/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/physics/shape_primitive/BoxPhysicsShape.h"
@@ -11,7 +15,7 @@ using namespace a3d;
 
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 BoxPhysicsShape::BoxPhysicsShape(float width, float height, float length):
@@ -22,7 +26,7 @@ BoxPhysicsShape::BoxPhysicsShape(float width, float height, float length):
 BoxPhysicsShape::~BoxPhysicsShape() {}
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 float BoxPhysicsShape::width() const {
@@ -50,7 +54,7 @@ void BoxPhysicsShape::length(float length) {
 }
 
 /*********************************************************************************************
-	PhysicsShape
+	PhysicsShape Public Members
  *********************************************************************************************/
 
 PhysicsShapeType BoxPhysicsShape::type() const {

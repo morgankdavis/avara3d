@@ -1,9 +1,9 @@
 //
 //  Node.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 10/20/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/scene/Node.h"
@@ -35,10 +35,10 @@ using namespace std;
 //#define ALTERNATE_EULERS
 
 /*********************************************************************************************
-	Pulic Static
+	Pulic Static Members
  *********************************************************************************************/
 
-shared_ptr<Node> Node::NamedNode(std::string name) {
+shared_ptr<Node> Node::NamedNode(const string& name) {
 	return make_shared<Node>(name);
 }
 
@@ -55,7 +55,7 @@ shared_ptr<Node> Node::CameraNode(const shared_ptr<Camera>& camera) {
 }
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 Node::Node():
@@ -111,7 +111,7 @@ Node::~Node() {
 }
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 const optional<std::string>& Node::name() const {
@@ -580,19 +580,18 @@ void Node::removeFromParent() {
 	}
 }
 
-vector<shared_ptr<Node>> Node::children(bool resursive) {
-	// if !resursive, returns immediate children in no particular order
-	// if resursive, returns all descendants in topological order
+vector<shared_ptr<Node>> Node::children(bool resursive) const {
 
 	if (resursive) {
-		return children(this);
+		return children(*this);
 	}
 	else {
 		return _children;
 	}
 }
 
-shared_ptr<Node> Node::childNamed(const string &name, bool resursive) {
+shared_ptr<Node> Node::childNamed(const string& name, bool resursive) {
+
 	for (auto& child : children(resursive)) {
 		if (child->name() != nullopt && *child->name() == name) {
 			return child;
@@ -634,7 +633,7 @@ weak_ptr<Node> Node::parent() const {
 }
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 void Node::attachedToParent(Node& parent) {
@@ -926,7 +925,7 @@ void Node::_debugPrint() {
 }
 
 void Node::_debugPrintRec(Node& node,
-						  int level) {
+						  unsigned level) {
 
 	A3D_LOG_I("[{}] {}", level, *node.name());
 
@@ -946,7 +945,7 @@ void Node::applyPhysicsTransform(mat4 transform) {
 }
 
 /*********************************************************************************************
-	Private
+	Private Members
  *********************************************************************************************/
 
 void Node::getAABBRec(AABB& aabb) {
@@ -966,11 +965,11 @@ void Node::getAABBRec(AABB& aabb) {
 	}
 }
 
-vector<shared_ptr<Node>> Node::children(const Node* root) {
+vector<shared_ptr<Node>> Node::children(const Node& root) const {
 
 	auto children = vector<shared_ptr<Node>>();
 
-	for (auto& child : root->_children) {
+	for (auto& child : root._children) {
 		childrenRec(child, children);
 	}
 
@@ -978,7 +977,7 @@ vector<shared_ptr<Node>> Node::children(const Node* root) {
 }
 
 void Node::childrenRec(const shared_ptr<Node>& node,
-					   vector<shared_ptr<Node>>& children) {
+					   vector<shared_ptr<Node>>& children) const {
 
 	children.push_back(node);
 

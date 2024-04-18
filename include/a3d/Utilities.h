@@ -1,13 +1,13 @@
 //
 //  Utilities.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 12/23/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Utilities_h
-#define Utilities_h
+#ifndef AVARA3D_UTILITIES_H
+#define AVARA3D_UTILITIES_H
 
 
 #include <filesystem>
@@ -43,7 +43,7 @@ namespace a3d {
 	namespace utils {
 		
 /*********************************************************************************************
-	Output Utilities
+	Output
  *********************************************************************************************/
 		
 		std::ostream& operator<<(std::ostream& os, const glm::vec3& v);
@@ -58,7 +58,7 @@ namespace a3d {
 		std::string StringFromGLMMat4(const glm::mat4& m);
 		std::string StringFromColor(const Color& c);
 
-		std::string StringFromTree(Node& root);
+		std::string StringFromTree(const Node& root);
 
 		std::string DateTimeString();
 
@@ -66,10 +66,8 @@ namespace a3d {
 		std::string StackTrace(unsigned dropFunctions = 0);
 #endif
 
-#pragma mark Your Mom
-
 /*********************************************************************************************
-	Numeric Utilities
+	Numeric
  *********************************************************************************************/
 
 		int Uniform(int min, int max);
@@ -84,7 +82,13 @@ namespace a3d {
 		bool Equal(const glm::vec4& a, const glm::vec4& b, float tolerance = 0.0001);
 
 /*********************************************************************************************
-	String Utilities
+	Time
+ *********************************************************************************************/
+
+		double	Time();
+
+/*********************************************************************************************
+	String
  *********************************************************************************************/
 
 		void StringReplace(std::string& str,
@@ -92,7 +96,7 @@ namespace a3d {
 						   const std::string& newStr);
 
 /*********************************************************************************************
-	File Utilities
+	Filesystem
  *********************************************************************************************/
 
 		// *** executable and working directories ***
@@ -170,7 +174,7 @@ namespace a3d {
 #endif
 
 /*********************************************************************************************
-	Misc Utilities
+	Misc
  *********************************************************************************************/
 
 		void SaveSnapshot(RenderContext& context);
@@ -180,4 +184,4 @@ namespace a3d {
 	}
 }
 
-#endif /* Utilities_h */
+#endif /* AVARA3D_UTILITIES_H */

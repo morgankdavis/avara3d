@@ -1,13 +1,13 @@
 //
 //  Line.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 5/20/18.
-//  Copyright © 2018 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Line_h
-#define Line_h
+#ifndef AVARA3D_LINE_H
+#define AVARA3D_LINE_H
 
 
 #include <memory>
@@ -22,7 +22,7 @@ namespace a3d {
 	class Line {
 
 /*********************************************************************************************
-	Lifecycle
+	Internal Lifecycle
  *********************************************************************************************/
 
 	public:
@@ -38,7 +38,7 @@ namespace a3d {
 			 const Color& toColor);
 
 /*********************************************************************************************
-	Public
+	Internal Members
  *********************************************************************************************/
 
 		const glm::vec3& 		fromLocation() const;
@@ -54,7 +54,7 @@ namespace a3d {
 		void 					toColor(const Color& color);
 		
 /*********************************************************************************************
-	Private
+	Private IVars
  *********************************************************************************************/
 
 	private:
@@ -67,4 +67,4 @@ namespace a3d {
 }
 
 
-#endif /* Line_h */
+#endif /* AVARA3D_LINE_H */

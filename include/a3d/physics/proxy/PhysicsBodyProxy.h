@@ -1,5 +1,9 @@
 //
-// Created by mkd on 11/13/23.
+//  PhysicsBodyProxy.h
+//  avara3d
+//
+//  Created by Morgan Davis on 11/13/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_PHYSICSBODYPROXY_H
@@ -21,7 +25,7 @@ namespace a3d {
 	class PhysicsBodyProxy {
 
 /*********************************************************************************************
-	Lifecycle
+	Internal Lifecycle
  *********************************************************************************************/
 
 	public:
@@ -30,7 +34,7 @@ namespace a3d {
 		virtual ~PhysicsBodyProxy();
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 		virtual PhysicsBodyType			type() const = 0;
@@ -114,11 +118,11 @@ namespace a3d {
 		void							attachedToBody(PhysicsBody& body);
 		void							detachedFromBody(PhysicsBody& body);
 
-/*********************************************************************************************
-	Protected
- *********************************************************************************************/
-
 	protected:
+
+/*********************************************************************************************
+	Protected IVars
+ *********************************************************************************************/
 
 		PhysicsBody*					_body;
 		PhysicsShapeProxy*				_shapeProxy;

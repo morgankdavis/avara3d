@@ -1,11 +1,15 @@
 //
-// Created by mkd on 12/15/23.
+//  BulletMotionState.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 12/15/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/physics/bullet/MotionState.h"
+#include "a3d/physics/bullet/BulletMotionState.h"
 
 #include "a3d/physics/PhysicsBody.h"
-#include "a3d/physics/bullet/Utilities.h"
+#include "a3d/physics/bullet/BulletUtilities.h"
 #include "a3d/scene/Node.h"
 
 
@@ -16,19 +20,19 @@ using namespace a3d;
 
 
 /*********************************************************************************************
-	Lifecycle
+	Internal Lifecycle
  *********************************************************************************************/
 
-MotionState::MotionState(PhysicsBody& body):
+BulletMotionState::BulletMotionState(PhysicsBody& body):
 		btMotionState{},
 		_body{&body} { }
 
 /*********************************************************************************************
-	btMotionState
+	btMotionState Members
 *********************************************************************************************/
 
 // apply node transform to kinematic physics body
-void MotionState::getWorldTransform(btTransform &transform) const {
+void BulletMotionState::getWorldTransform(btTransform &transform) const {
 
 	if (auto node = _body->node().lock()) {
 		transform = BTTransformFromGLMMat4(node->worldTransform());
@@ -39,7 +43,7 @@ void MotionState::getWorldTransform(btTransform &transform) const {
 }
 
 // apply dynamic physics body transform to node
-void MotionState::setWorldTransform(const btTransform& transform) {
+void BulletMotionState::setWorldTransform(const btTransform& transform) {
 
 	if (auto node = _body->node().lock()) {
 		node->applyPhysicsTransform(GLMMat4FromBTTransform(transform));
@@ -50,9 +54,9 @@ void MotionState::setWorldTransform(const btTransform& transform) {
 }
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
-PhysicsBody* MotionState::body() const {
+PhysicsBody* BulletMotionState::body() const {
 	return _body;
 }

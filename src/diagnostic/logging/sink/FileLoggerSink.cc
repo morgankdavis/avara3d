@@ -1,6 +1,11 @@
 //
-// Created by mkd on 11/9/23.
+//  FileLoggerSink.cc
+//  avara3d
 //
+//  Created by Morgan Davis on 11/9/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//
+
 
 #include "a3d/diagnostic/logging/sink/FileLoggerSink.h"
 
@@ -17,7 +22,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 FileLoggerSink::FileLoggerSink(const filesystem::path& relPath,
@@ -55,7 +60,7 @@ FileLoggerSink::~FileLoggerSink() {
 }
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 const filesystem::path& FileLoggerSink::filepath() const {
@@ -78,7 +83,7 @@ void FileLoggerSink::flush() {
 }
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 void FileLoggerSink::write(const char* message) {
@@ -89,7 +94,7 @@ void FileLoggerSink::write(const char* message) {
 }
 
 /*********************************************************************************************
-	Private
+	Private Members
  *********************************************************************************************/
 
 void FileLoggerSink::openStream() {

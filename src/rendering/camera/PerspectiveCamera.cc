@@ -1,5 +1,9 @@
 //
-// Created by mkd on 10/22/23.
+//  PerspectiveCamera.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 10/22/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/rendering/camera/PerspectiveCamera.h"
@@ -14,6 +18,10 @@ using namespace a3d;
 using namespace std;
 using namespace glm;
 
+
+/*********************************************************************************************
+	Public Lifecycle
+ *********************************************************************************************/
 
 PerspectiveCamera::PerspectiveCamera():
 		Camera{},
@@ -51,6 +59,10 @@ PerspectiveCamera::~PerspectiveCamera() {
 		A3D_LOG_D("Destroying PerspectiveCamera {:p}", static_cast<void*>(this));
 	}
 }
+
+/*********************************************************************************************
+	Public Members
+ *********************************************************************************************/
 
 float PerspectiveCamera::zNear() const {
 	return _zNear;
@@ -92,6 +104,10 @@ void PerspectiveCamera::aspectRatio(float ratio) {
 		constructProjectionMatrix();
 	}
 }
+
+/*********************************************************************************************
+	Camera Protected Members
+ *********************************************************************************************/
 
 void PerspectiveCamera::constructProjectionMatrix() {
 	_projection = glm::perspective(_yFov,

@@ -1,5 +1,9 @@
 //
-// Created by mkd on 1/19/24.
+//  BuildInfo.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 1/19/24.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/BuildInfo.h"
@@ -14,7 +18,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Lifecycle
+	Public Static Members
  *********************************************************************************************/
 
 BuildInfo& BuildInfo::Info() {
@@ -22,6 +26,34 @@ BuildInfo& BuildInfo::Info() {
 	static BuildInfo instance;
 	return instance;
 }
+
+/*********************************************************************************************
+	Public Members
+ *********************************************************************************************/
+
+unsigned BuildInfo::number() const {
+	return _number;
+}
+
+const BuildInfo::Version& BuildInfo::version() const {
+	return _version;
+}
+
+BuildInfo::Type BuildInfo::type() const {
+	return _type;
+}
+
+BuildInfo::Origin BuildInfo::origin() const {
+	return _origin;
+}
+
+const std::tm& BuildInfo::time() const {
+	return _time;
+}
+
+/*********************************************************************************************
+	Private Lifecycle
+ *********************************************************************************************/
 
 BuildInfo::BuildInfo() {
 
@@ -41,28 +73,4 @@ BuildInfo::BuildInfo() {
 	_time.tm_hour = h;
 	_time.tm_min = m;
 	_time.tm_sec = s;
-}
-
-/*********************************************************************************************
-	Public
- *********************************************************************************************/
-
-int BuildInfo::number() const {
-	return _number;
-}
-
-const BuildInfo::Version& BuildInfo::version() const {
-	return _version;
-}
-
-BuildInfo::Type BuildInfo::type() const {
-	return _type;
-}
-
-BuildInfo::Origin BuildInfo::origin() const {
-	return _origin;
-}
-
-const std::tm& BuildInfo::time() const {
-	return _time;
 }

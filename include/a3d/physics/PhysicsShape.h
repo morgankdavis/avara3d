@@ -1,13 +1,13 @@
 //
 //  PhysicsShape.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 1/25/18.
-//  Copyright © 2018 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef PhysicsShape_h
-#define PhysicsShape_h
+#ifndef AVARA3D_PHYSICSSHAPE_H
+#define AVARA3D_PHYSICSSHAPE_H
 
 
 #include <memory>
@@ -32,7 +32,7 @@ namespace a3d {
 	class PhysicsShape {
 
 /*********************************************************************************************
-	Lifecycle
+	Public Types
  *********************************************************************************************/
 
 	public:
@@ -42,19 +42,17 @@ namespace a3d {
 				std::weak_ptr<Mesh>,
 				std::weak_ptr<Node>>;
 
+/*********************************************************************************************
+	Public Lifecycle
+ *********************************************************************************************/
+
 		PhysicsShape(PhysicsShapeType type, const std::shared_ptr<Mesh>& mesh);
 		PhysicsShape(PhysicsShapeType type, const std::shared_ptr<Node>& node);
 		~PhysicsShape();
 
-	protected:
-
-		PhysicsShape();
-
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
-
-	public:
 
 		virtual PhysicsShapeType 			type() const;
 		virtual void 						type(PhysicsShapeType type);
@@ -62,7 +60,7 @@ namespace a3d {
 		Source 								source() const;
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 		void 								attachedToBody(PhysicsBody& body);
@@ -97,13 +95,23 @@ namespace a3d {
 
 		PhysicsShapeProxy*					proxy() const;
 
+/*********************************************************************************************
+	Protected Lifecycle
+ *********************************************************************************************/
+
 	protected:
+
+		PhysicsShape();
+
+/*********************************************************************************************
+	Protected Members
+ *********************************************************************************************/
 
 		PhysicsShapeType 					_type;
 		std::unique_ptr<PhysicsShapeProxy>	_proxy;
 
 /*********************************************************************************************
-	Private
+	Private IVars
  *********************************************************************************************/
 
 	private:
@@ -114,4 +122,4 @@ namespace a3d {
 }
 
 
-#endif /* PhysicsShape_h */
+#endif /* AVARA3D_PHYSICSSHAPE_H */

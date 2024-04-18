@@ -1,9 +1,9 @@
 //
 //  main.cpp
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 11/19/17.
-//  Copyright © 2017 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include <functional>
@@ -733,8 +733,8 @@ void SpawnDuckFruit(Scene& scene, Node& duckNode) {
 
 	constexpr float SPAWN_RATE = 7.5; // pieces/sec
 
-	float time = Scene::Time();
-	static float lastSSpawnTime = 0;
+	auto time = scene.time();
+	static auto lastSSpawnTime = 0;
 	if ((time - lastSSpawnTime) >= (1.0/SPAWN_RATE)) {
 
 //		AddCardboardBox(scene, {0, 10, 0}, {1, 0, 0}, 0.0f);
@@ -899,8 +899,8 @@ void ShootBall(Scene& scene, const vec3& location, const vec3& direction) {
 
 	constexpr float SHOOT_RATE = 20; // balls/sec
 
-	auto time = Scene::Time();
-	static float lastShootTime = 0;
+	auto time = scene.time();
+	static auto lastShootTime = 0;
 	if ((time - lastShootTime) >= (1.0/SHOOT_RATE)) {
 
 
@@ -1186,7 +1186,7 @@ void SpawnHACDTeapot(Scene& scene) {
 	auto decomposedTeapotMaterials = vector<shared_ptr<Material>>();
 	decomposedTeapotMaterials.reserve(decomposedElements.size());
 	for (int m=0; m<decomposedElements.size(); ++m) {
-		auto randomColorProperty = shared_ptr(std::move(Color::Random()));
+		auto randomColorProperty = Color::Random();
 		decomposedTeapotMaterials.push_back(make_shared<Material>(monostate{},
 																  monostate{},
 																  monostate{},
@@ -1272,8 +1272,8 @@ void AddRing(Scene& scene) {
 														 mesh);
 	//auto physicsBody = PhysicsBody::DynamicBody();
 	auto physicsBody = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, physicsShape);
-	node->mesh(shared_ptr<Mesh>(std::move(mesh)));
-	static auto materialProperty = shared_ptr(std::move(Color::Yellow()));
+	node->mesh(mesh);
+	static auto materialProperty = Color::Yellow();
 	static auto material = make_shared<Material>(monostate{}, materialProperty, monostate{});
 	node->mesh()->addMaterial(material);
 	node->physicsBody(std::move(physicsBody));
@@ -1598,14 +1598,14 @@ shared_ptr<Node> ChainmailLink(float minorRadius, float majorRadius) {
 
 	static const float TWO_PI = 2 * 3.14159265358;
 
-	static auto ringPhysicsNode = shared_ptr(std::move(Node::NamedNode("Ring physics shape node")));
+	static auto ringPhysicsNode = Node::NamedNode("Ring physics shape node");
 
 	static const float CAPSULE_RADIUS = .1;
 	static const float TORUS_MID_RADIUS = majorRadius - (majorRadius - minorRadius);
-	static const float CAPSULE_HEIGHT = (TWO_PI * TORUS_MID_RADIUS) / 8.0;
-	static const auto visualMesh = shared_ptr(std::move(Capsule::Mesh(CAPSULE_RADIUS,
-																	  CAPSULE_HEIGHT,
-																	  16, 16, 16)));
+	static const float CAPSULE_HEIGHT = (TWO_PI * TORUS_MID_RADIUS) / 8.0f;
+	static const auto visualMesh = Capsule::Mesh(CAPSULE_RADIUS,
+												 CAPSULE_HEIGHT,
+												 16, 16, 16);
 
 	for (int s = 0; s < 8; ++s) {
 
@@ -1627,11 +1627,11 @@ shared_ptr<Node> ChainmailLink(float minorRadius, float majorRadius) {
 
 	static const auto shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, ringPhysicsNode);
 
-	auto torusMesh = Torus::Mesh(minorRadius + (minorRadius / 32.0),
-								 majorRadius+(majorRadius/32.0), 128, 128);
-	auto ringVisualNode = Node::MeshNode(shared_ptr(std::move(torusMesh)));
+	auto torusMesh = Torus::Mesh(minorRadius + (minorRadius / 32.0f),
+								 majorRadius+(majorRadius/32.0f), 128, 128);
+	auto ringVisualNode = Node::MeshNode(torusMesh);
 
-	auto colorProperty = shared_ptr(std::move(Color::LightGray()));
+	auto colorProperty = Color::LightGray();
 	auto colorMaterial = make_shared<Material>(monostate{}, colorProperty, monostate{});
 	torusMesh->addMaterial(colorMaterial);
 
@@ -1685,7 +1685,7 @@ void SpawnChainMail(Scene& scene) {
 			float wStagger = 0;
 			if (h%2 == 0) {
 				rotation = -PI/12.0;
-				wStagger = TORUS_MAJOR_RADIUS* 1.15;
+				wStagger = TORUS_MAJOR_RADIUS * 1.15f;
 			}
 			link->rotation({1, 0, 0}, rotation);
 			//link->rotation({1, 0, 0}, (float)(h%2 == 0 ? (PI/6.0) : (-PI/6.0)));

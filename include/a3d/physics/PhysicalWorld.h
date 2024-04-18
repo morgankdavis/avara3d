@@ -1,13 +1,13 @@
 //
 //  PhysicalWorld.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 1/26/18.
-//  Copyright © 2018 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef PhysicalWorld_h
-#define PhysicalWorld_h
+#ifndef AVARA3D_PHYSICALWORLD_H
+#define AVARA3D_PHYSICALWORLD_H
 
 
 #include <functional>
@@ -31,9 +31,9 @@ namespace a3d {
 	
 	
 	class PhysicalWorld {
-		
+
 /*********************************************************************************************
-	Types
+	Public Types
  *********************************************************************************************/
 
 	public:
@@ -42,18 +42,18 @@ namespace a3d {
 		using BeginContactCallback = 	std::function<void(PhysicalWorld& world, PhysicsContact& contact)>;
 		using ContinueContactCallback =	std::function<void(PhysicalWorld& world, PhysicsContact& contact)>;
 		using EndContactCallback = 		std::function<void(PhysicalWorld& world, PhysicsContact& contact)>;
-		
+
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
-		
+
 		PhysicalWorld();
 		PhysicalWorld(const PhysicalWorld& other) = delete; // copy constructor
 		PhysicalWorld& operator=(const PhysicalWorld& other) = delete; // copy assignment
 		~PhysicalWorld();
-		
+
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 		const glm::vec3&					gravity() const;
@@ -91,7 +91,7 @@ namespace a3d {
 		void 								endContact(PhysicalWorld::EndContactCallback function);
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 		void								attachedToScene(Scene& scene);
@@ -108,7 +108,7 @@ namespace a3d {
 		PhysicalWorldProxy*					proxy() const;
 
 /*********************************************************************************************
-	Private
+	Private IVars
  *********************************************************************************************/
 
 	private:
@@ -126,4 +126,4 @@ namespace a3d {
 }
 
 
-#endif /* PhysicalWorld_h */
+#endif /* AVARA3D_PHYSICALWORLD_H */

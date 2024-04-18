@@ -1,9 +1,9 @@
 //
 //  Camera.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 10/21/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/rendering/camera/Camera.h"
@@ -20,7 +20,7 @@ using namespace glm;
 
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 Camera::Camera():
@@ -40,7 +40,7 @@ Camera::~Camera() {
 }
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 const optional<string>& Camera::name() const {
@@ -51,18 +51,10 @@ void Camera::name(const string& name) {
 	_name = name;
 }
 
+/*********************************************************************************************
+	Internal Members
+ *********************************************************************************************/
+
 mat4 Camera::projection() const {
 	return _projection;
 }
-
-/*********************************************************************************************
-	Internal
- *********************************************************************************************/
-
-//weak_ptr<Node> Camera::node() const {
-//	return _node;
-//}
-
-//void Camera::attachedToNode(shared_ptr<Node> node) {
-//	_node = node;
-//}

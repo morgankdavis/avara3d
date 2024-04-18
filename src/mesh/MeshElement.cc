@@ -1,9 +1,9 @@
 //
 //  MeshElement.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 12/23/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/mesh/MeshElement.h"
@@ -15,7 +15,7 @@
 #include "a3d/diagnostic/logging/Logger.h"
 #include "a3d/mesh/Line.h"
 #include "a3d/scene/Node.h"
-#include "a3d/rendering/Renderer.h"
+#include "a3d/rendering/renderer/Renderer.h"
 
 
 using namespace a3d;
@@ -24,7 +24,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 MeshElement::MeshElement(const vector<Vertex>& verticies,
@@ -40,7 +40,7 @@ MeshElement::~MeshElement() {
 }
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 void MeshElement::draw(Renderer& renderer,
@@ -174,7 +174,7 @@ void MeshElement::dirtyMask(MeshElementDirtyMask mask) {
 }
 
 /*********************************************************************************************
-	Protected
+	Protected Lifecycle
  *********************************************************************************************/
 
 MeshElement::MeshElement():

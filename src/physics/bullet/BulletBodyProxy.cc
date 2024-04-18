@@ -1,5 +1,9 @@
 //
-// Created by mkd on 10/29/23.
+//  BulletBodyProxy.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 10/29/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/physics/bullet/BulletBodyProxy.h"
@@ -15,8 +19,8 @@
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/physics/bullet/BulletShapeProxy.h"
 #include "a3d/physics/bullet/BulletWorldProxy.h"
-#include "a3d/physics/bullet/MotionState.h"
-#include "a3d/physics/bullet/Utilities.h"
+#include "a3d/physics/bullet/BulletMotionState.h"
+#include "a3d/physics/bullet/BulletUtilities.h"
 #include "a3d/physics/proxy/PhysicsBodyProxy.h"
 #include "a3d/physics/proxy/PhysicsShapeProxy.h"
 #include "a3d/scene/Node.h"
@@ -29,7 +33,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Lifecycle
+	Internal Lifecycle
  *********************************************************************************************/
 
 BulletBodyProxy::BulletBodyProxy(PhysicsBody& body):
@@ -45,7 +49,7 @@ BulletBodyProxy::BulletBodyProxy(PhysicsBody& body):
 
 //	_btMotionState = make_shared<btDefaultMotionState>(btTransform::getIdentity());
 //	_motionState = make_shared<MotionState>(body, btTransform::getIdentity());
-	_motionState = make_unique<MotionState>(body);
+	_motionState = make_unique<BulletMotionState>(body);
 
 	// it seems as though adding a body to the world with mass=0 forever casts it
 	// as a static body. adding it, setting it to 0, the setting it to something
@@ -93,7 +97,7 @@ BulletBodyProxy::~BulletBodyProxy() {
 }
 
 /*********************************************************************************************
-	PhysicsBodyModelProxy
+	PhysicsBodyModelProxy Internal Members
  *********************************************************************************************/
 
 PhysicsBodyType BulletBodyProxy::type() const {
@@ -456,7 +460,7 @@ void BulletBodyProxy::clearForces() {
 }
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 btRigidBody* BulletBodyProxy::btBody() {
@@ -467,12 +471,12 @@ btRigidBody* BulletBodyProxy::btBody() {
 //	return _btMotionState;
 //}
 
-MotionState* BulletBodyProxy::motionState() {
+BulletMotionState* BulletBodyProxy::motionState() {
 	return _motionState.get();
 }
 
 /*********************************************************************************************
-	Private
+	Private Members
  *********************************************************************************************/
 
 void BulletBodyProxy::calculateMomentOfIntertia() {

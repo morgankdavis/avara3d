@@ -1,5 +1,9 @@
 //
-// Created by mkd on 11/25/23.
+//  VisualWorld.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 11/25/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/rendering/VisualWorld.h"
@@ -17,12 +21,12 @@
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/physics/bullet/BulletWorldProxy.h"
 #include "a3d/rendering/Light.h"
-#include "a3d/rendering/Renderer.h"
 #include "a3d/rendering/material/Material.h"
 #include "a3d/rendering/material/Sampler.h"
 #include "a3d/rendering/material/Texture.h"
 #include "a3d/rendering/camera/PerspectiveCamera.h"
 #include "a3d/rendering/context/RenderContext.h"
+#include "a3d/rendering/renderer/Renderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 
@@ -33,14 +37,14 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Static Prototypes
+	Private Static Non-Member Prototypes
  *********************************************************************************************/
 
 static unique_ptr<Mesh> MakeSkyboxMesh(MaterialProperty& property);
 static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 VisualWorld::VisualWorld(RenderContext* context):
@@ -68,7 +72,7 @@ VisualWorld::~VisualWorld() {
 }
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 MaterialProperty& VisualWorld::background() {
@@ -198,7 +202,7 @@ void VisualWorld::didRender(DidRenderCallback function) {
 }
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 void VisualWorld::attachedToScene(Scene& scene) {
@@ -261,7 +265,7 @@ void VisualWorld::draw(const Scene& scene,
 				willRender(*this, runT);
 			}
 
-			auto startTime = Scene::Time();
+			auto startTime = scene.time();
 
 			renderer->beginFrame(scene, *_renderContext, debugOptions, stats);
 
@@ -297,7 +301,7 @@ void VisualWorld::draw(const Scene& scene,
 				A3D_LOG_W("No point of view!");
 			}
 
-			UpdateTimeStats(stats, startTime, Scene::Time());
+			UpdateTimeStats(stats, startTime, scene.time());
 
 			renderer->endFrame(scene, *_renderContext, debugOptions, stats);
 
@@ -382,7 +386,7 @@ weak_ptr<Node> VisualWorld::defaultPointOfView() {
 }
 
 /*********************************************************************************************
-	Static
+	Private Static Members
  *********************************************************************************************/
 
 static unique_ptr<Mesh> MakeSkyboxMesh(MaterialProperty& property) {

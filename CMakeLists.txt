@@ -103,11 +103,6 @@ elseif (MACOS)
 	target_compile_definitions(avara3d PUBLIC "POSIX")
 elseif (WINDOWS)
 	target_compile_definitions(avara3d PUBLIC "WINDOWS")
-	#target_compile_definitions(avara3d PUBLIC "BT_NO_SIMD_OPERATOR_OVERLOADS") // needed for Bullet?
-elseif (ANDROID)
-	target_compile_definitions(avara3d PUBLIC "ANDROID")
-	target_compile_definitions(avara3d PUBLIC "POSIX")
-	target_compile_definitions(avara3d PUBLIC "OPENGL_ES")
 endif ()
 
 
@@ -204,9 +199,7 @@ endif ()
 
 ### set root install dir before adding tests ###
 
-if (ANDROID)
-	set(PLATFORM_STRING "android")
-elseif (RPI)
+if (RPI)
 	set(PLATFORM_STRING "raspberry-pi")
 elseif (LINUX)
 	set(PLATFORM_STRING "linux")

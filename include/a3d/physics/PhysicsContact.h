@@ -1,13 +1,13 @@
 //
 //  PhysicsContact.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 1/25/18.
-//  Copyright © 2018 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef PhysicsContact_h
-#define PhysicsContact_h
+#ifndef AVARA3D_PHYSICSCONTACT_H
+#define AVARA3D_PHYSICSCONTACT_H
 
 
 #include <memory>
@@ -24,17 +24,17 @@ namespace a3d {
 	
 
 	class PhysicsContact {
-		
+
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 	public:
 
 		PhysicsContact();
-		
+
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 		std::weak_ptr<Node>				nodeA() const;
@@ -44,9 +44,9 @@ namespace a3d {
 		float 							collisionImpulse() const;
 		float 							penetrationDistance() const;
 		float 							sweepTestFraction() const;
-		
+
 /*********************************************************************************************
-	Private
+	Private IVars
  *********************************************************************************************/
 
 	private:
@@ -62,4 +62,4 @@ namespace a3d {
 }
 
 
-#endif /* PhysicsContact_h */
+#endif /* AVARA3D_PHYSICSCONTACT_H */

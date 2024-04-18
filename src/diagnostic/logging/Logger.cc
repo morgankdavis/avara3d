@@ -1,9 +1,9 @@
 //
 //  Logger.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 1/5/18.
-//  Copyright © 2018 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/diagnostic/logging/Logger.h"
@@ -27,9 +27,7 @@
 #include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/logging/sink/LoggerSink.h"
 #include "a3d/diagnostic/logging/sink/FileLoggerSink.h"
-#ifdef DESKTOP
-#include "a3d/diagnostic/logging/sink/platform/desktop/StdOutLoggerSink.h"
-#endif
+#include "a3d/diagnostic/logging/sink/StdOutLoggerSink.h"
 
 
 using namespace a3d;
@@ -43,7 +41,7 @@ constexpr size_t MAX_LOG_LINE_SIZE = MAX_HEADER_STR_SIZE + MAX_LOG_BODY_SIZE;
 
 
 /*********************************************************************************************
-	Public Static
+	Public Static Members
  *********************************************************************************************/
 
 Logger& Logger::MainLogger() {
@@ -80,7 +78,7 @@ Logger& Logger::MainLogger() {
 }
 
 /*********************************************************************************************
-	Static Prototypes
+	Private Static Member Prototypes
  *********************************************************************************************/
 
 string DateString();
@@ -89,7 +87,7 @@ string HeaderString(const string& logName, LogLevel level,
 					const char* filename, int line, const char* function);
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 Logger::Logger(const string& name,
@@ -116,7 +114,7 @@ Logger::Logger(const string& name,
 Logger::~Logger() { }
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 const string& Logger::name() const {
@@ -356,7 +354,7 @@ void Logger::flush() {
 }
 
 /*********************************************************************************************
-	Static
+	Private Static Members
  *********************************************************************************************/
 
 string DateString() {

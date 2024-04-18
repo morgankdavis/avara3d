@@ -1,13 +1,13 @@
 //
 //  Light.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 10/21/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Light_h
-#define Light_h
+#ifndef AVARA3D_LIGHT_H
+#define AVARA3D_LIGHT_H
 
 
 #include <memory>
@@ -27,7 +27,7 @@ namespace a3d {
 	class Light {
 		
 /*********************************************************************************************
-	Public Static
+	Public Static Members
  *********************************************************************************************/
 
 	public:
@@ -36,17 +36,17 @@ namespace a3d {
 		static std::shared_ptr<Light> 		DefaultPoint();
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 		explicit Light(LightType type);
 		Light(LightType type, const std::shared_ptr<Color>& color);
 		virtual ~Light();
-		
+
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
-		
+
 		const std::optional<std::string>&	name() const;
 		void 								name(const std::string& name);
 		
@@ -60,7 +60,7 @@ namespace a3d {
 		void 								attenuationFactor(float factor);
 
 /*********************************************************************************************
-	Private
+	Private IVars
  *********************************************************************************************/
 
 	private:
@@ -81,8 +81,7 @@ namespace a3d {
 //		float								_spotInnerAngle;
 //		float								_spotOuterAngle;
 	};
-	
 }
 
 
-#endif /* Light_h */
+#endif /* AVARA3D_LIGHT_H */

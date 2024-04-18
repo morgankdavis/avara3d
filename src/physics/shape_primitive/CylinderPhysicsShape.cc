@@ -1,5 +1,9 @@
 //
-// Created by mkd on 11/19/23.
+//  CylinderPhysicsShape.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 11/19/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/physics/shape_primitive/CylinderPhysicsShape.h"
@@ -11,7 +15,7 @@ using namespace a3d;
 
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 CylinderPhysicsShape::CylinderPhysicsShape(float radius, float height):
@@ -21,7 +25,7 @@ CylinderPhysicsShape::CylinderPhysicsShape(float radius, float height):
 CylinderPhysicsShape::~CylinderPhysicsShape() {}
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 float CylinderPhysicsShape::radius() const {
@@ -41,7 +45,7 @@ void CylinderPhysicsShape::height(float height) {
 }
 
 /*********************************************************************************************
-	PhysicsShape
+	PhysicsShape Public Members
  *********************************************************************************************/
 
 PhysicsShapeType CylinderPhysicsShape::type() const {

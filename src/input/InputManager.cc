@@ -1,9 +1,9 @@
 //
 //  InputManager.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 10/9/17.
-//  Copyright © 2017 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/input/InputManager.h"
@@ -17,7 +17,7 @@ using namespace glm;
 
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 InputManager::InputManager():
@@ -36,7 +36,7 @@ InputManager::~InputManager() {
 }
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 bool InputManager::keyDown(Key key) {
@@ -104,7 +104,7 @@ Scene* InputManager::scene() const {
 }
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 void InputManager::attachedToScene(Scene& scene) {
@@ -120,7 +120,7 @@ void InputManager::detachedFromScene(Scene& scene) {
 }
 
 /*********************************************************************************************
-	Private
+	Private Members
  *********************************************************************************************/
 
 void InputManager::clearMousePositionDelta() {

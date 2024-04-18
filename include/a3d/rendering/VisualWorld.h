@@ -1,5 +1,9 @@
 //
-// Created by mkd on 11/25/23.
+//  VisualWorld.h
+//  avara3d
+//
+//  Created by Morgan Davis on 11/25/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_VISUALWORLD_H
@@ -28,7 +32,7 @@ namespace a3d {
 	class VisualWorld {
 
 /*********************************************************************************************
-	Types
+	Public Types
  *********************************************************************************************/
 
 	public:
@@ -37,17 +41,15 @@ namespace a3d {
 		using DidRenderCallback = 		std::function<void(VisualWorld& world, double time)>;
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 		VisualWorld() = delete;
 		explicit VisualWorld(RenderContext* context);
-//		VisualWorld(const VisualWorld& other) = delete; // copy constructor
-//		VisualWorld& operator=(const VisualWorld& other) = delete; // copy assignment
 		virtual ~VisualWorld();
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 		MaterialProperty&						background();
@@ -83,7 +85,7 @@ namespace a3d {
 		void 									didRender(DidRenderCallback function);
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 		void									attachedToScene(Scene& scene);
@@ -102,7 +104,7 @@ namespace a3d {
 		std::weak_ptr<Node>						defaultPointOfView();
 
 /*********************************************************************************************
-	Private
+	Private IVars
  *********************************************************************************************/
 
 	private:

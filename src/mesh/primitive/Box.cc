@@ -1,9 +1,9 @@
 //
 //  Box.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 10/31/17.
-//  Copyright © 2017 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/mesh/primitive/Box.h"
@@ -21,12 +21,16 @@ using namespace glm;
 using namespace std;
 
 
+/*********************************************************************************************
+	Pubic Static Members
+ *********************************************************************************************/
+
 shared_ptr<Mesh> Box::Mesh(float length,
 						   float width,
 						   float height,
-						   int lengthSegments,
-						   int widthSegments,
-						   int heightSegments,
+						   unsigned lengthSegments,
+						   unsigned widthSegments,
+						   unsigned heightSegments,
 						   const shared_ptr<Material> material) {
 
 
@@ -41,15 +45,15 @@ shared_ptr<Mesh> Box::Mesh(float length,
 }
 
 /*********************************************************************************************
-	 	Lifecycle
+	Public Lifecycle
 *********************************************************************************************/
 
 Box::Box(float length,
 		 float width,
 		 float height,
-		 int lengthSegments,
-		 int widthSegments,
-		 int heightSegments):
+		 unsigned lengthSegments,
+		 unsigned widthSegments,
+		 unsigned heightSegments):
 		MeshElement{},
 		_length{length},
 		_width{width},
@@ -79,7 +83,7 @@ Box::Box(float length,
 }
 
 /*********************************************************************************************
- 	Public
+ 	Public Members
  *********************************************************************************************/
 
 float Box::length() const {
@@ -94,14 +98,14 @@ float Box::height() const {
 	return _height;
 }
 
-int Box::lengthSegments() const {
+unsigned Box::lengthSegments() const {
 	return _lengthSegments;
 }
 
-int Box::widthSegments() const {
+unsigned Box::widthSegments() const {
 	return _widthSegments;
 }
 
-int Box::heightSegments() const {
+unsigned Box::heightSegments() const {
 	return _heightSegments;
 }

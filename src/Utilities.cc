@@ -1,14 +1,15 @@
 //
 //  Utilities.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 12/23/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/Utilities.h"
 
 //#include <algorithm> // needs to be under windows.h
+#include <chrono>
 #include <ctime>
 #include <fstream>
 #include <memory>
@@ -77,7 +78,7 @@ using namespace std;
 static void StringFromTreeRec(Node& n, stringstream& ss, unsigned depth);
 
 /*********************************************************************************************
- 	Output Utilities
+ 	Output
  *********************************************************************************************/
 
 ostream& a3d::utils::operator<<(ostream& os, const glm::vec3& v) {
@@ -145,7 +146,7 @@ string a3d::utils::StringFromColor(const Color& c) {
 	return stringStream.str();
 }
 
-string a3d::utils::StringFromTree(Node& root) {
+string a3d::utils::StringFromTree(const Node& root) {
 
 	stringstream ss;
 	string name = (root.name() ? "\"" + *(root.name()) + "\"" : "null");
@@ -153,7 +154,7 @@ string a3d::utils::StringFromTree(Node& root) {
 
 	unsigned depth = 0;
 
-	for (auto& c : root.children(false)) {
+	for (const auto& c : root.children(false)) {
 		 StringFromTreeRec(*c, ss, depth+1);
 	}
 
@@ -207,7 +208,7 @@ string a3d::utils::StackTrace(unsigned dropFunctions) {
 #endif
 
 /*********************************************************************************************
- 	Numeric Utilities
+ 	Numeric
  *********************************************************************************************/
 
 int a3d::utils::Uniform(int min, int max) {
@@ -257,7 +258,17 @@ bool a3d::utils::Equal(const glm::vec4& a, const glm::vec4& b, float tolerance) 
 }
 
 /*********************************************************************************************
-	String Utilities
+	Time
+ *********************************************************************************************/
+
+double a3d::utils::Time() {
+
+	auto now = chrono::system_clock::now();
+	return chrono::duration<double>(now.time_since_epoch()).count();
+}
+
+/*********************************************************************************************
+	String
  *********************************************************************************************/
 
 void a3d::utils::StringReplace(string& str,
@@ -271,7 +282,7 @@ void a3d::utils::StringReplace(string& str,
 }
 
 /*********************************************************************************************
- 	File Utilities
+ 	Filesystem
  *********************************************************************************************/
 
 // *** executable and working directories ***
@@ -619,7 +630,7 @@ shared_ptr<Mesh> a3d::utils::MeshNamed(const string& name,
 #endif
 
 /*********************************************************************************************
- 	Misc Utilities
+ 	Misc
  *********************************************************************************************/
 
 void a3d::utils::SaveSnapshot(RenderContext& context) {
@@ -675,7 +686,7 @@ void a3d::utils::StopGIFRecording(RenderContext& context) {
 }
 
 /*********************************************************************************************
- 	Private Static
+ 	Private
  *********************************************************************************************/
 
 void StringFromTreeRec(Node& n, stringstream& ss, unsigned depth) {

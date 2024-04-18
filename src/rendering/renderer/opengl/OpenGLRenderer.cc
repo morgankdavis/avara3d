@@ -1,12 +1,12 @@
 //
 //  OpenGLRenderer.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 4/24/18.
-//  Copyright © 2018 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/rendering/opengl/OpenGLRenderer.h"
+#include "a3d/rendering/renderer/opengl/OpenGLRenderer.h"
 
 #include <algorithm>
 #include <iostream>
@@ -46,11 +46,11 @@
 #include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/camera/Camera.h"
 #include "a3d/rendering/context/RenderContext.h"
-#include "a3d/rendering/context/platform/desktop/Window.h"
+#include "a3d/rendering/context/Window.h"
 #include "a3d/rendering/material/Material.h"
 #include "a3d/rendering/material/Sampler.h"
 #include "a3d/rendering/material/Texture.h"
-#include "a3d/rendering/opengl/Program.h"
+#include "a3d/rendering/renderer/opengl/Program.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 
@@ -65,7 +65,47 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Static Prototypes
+	Private Types
+ *********************************************************************************************/
+
+enum class MATERIAL_MODE : int {
+	NONE = 		0,
+	COLOR = 	1,
+	SAMPLER = 	2
+};
+
+typedef struct {
+	int32_t 	type;
+	float32_t 	PADDING1;
+	float32_t 	PADDING2;
+	float32_t 	PADDING3;
+	vec3 		position_world;
+	float32_t 	PADDING4;
+	vec3 		color;
+	float32_t 	PADDING5;
+	float 		attenuationFactor;
+	float32_t 	PADDING6;
+	float32_t	PADDING7;
+	float32_t 	PADDING8;
+	/* vec3 	direction_world;
+	float 		attenuationStart;
+	float 		attenuationEnd;
+	float 		attenuationExponent;
+	float 		innerAngle;
+	float 		outerAngle; */
+} LightGLSLStruct;
+
+typedef struct {
+	float32_t 		startDistance;
+	float32_t 		endDistance;
+	float32_t 		densityExponent;
+	float32_t 		PADDING1;
+	vec4 			color;
+	/* float32_t 	PADDING2; */
+} FogGLSLStruct;
+
+/*********************************************************************************************
+	Private Static Non-Member Prototypes
  *********************************************************************************************/
 
 static void 		RenderSkybox(Mesh& skyboxMesh,
@@ -155,47 +195,7 @@ static GLenum 		GLWrapModeForWrapMode(WrapMode mode);
 static void 		CheckGLError();
 
 /*********************************************************************************************
-	Types
- *********************************************************************************************/
-
-enum class MATERIAL_MODE : int {
-	NONE = 		0,
-	COLOR = 	1,
-	SAMPLER = 	2
-};
-	
-typedef struct {
-	int32_t 	type;
-	float32_t 	PADDING1;
-	float32_t 	PADDING2;
-	float32_t 	PADDING3;
-	vec3 		position_world;
-	float32_t 	PADDING4;
-	vec3 		color;
-	float32_t 	PADDING5;
-	float 		attenuationFactor;
-	float32_t 	PADDING6;
-	float32_t	PADDING7;
-	float32_t 	PADDING8;
-	/* vec3 	direction_world;
-	float 		attenuationStart;
-	float 		attenuationEnd;
-	float 		attenuationExponent;
-	float 		innerAngle;
-	float 		outerAngle; */
-} LightGLSLStruct;
-
-typedef struct {
-	float32_t 		startDistance;
-	float32_t 		endDistance;
-	float32_t 		densityExponent;
-	float32_t 		PADDING1;
-	vec4 			color;
-	/* float32_t 	PADDING2; */
-} FogGLSLStruct;
-
-/*********************************************************************************************
-	Lifecycle
+	Internal Lifecycle
  *********************************************************************************************/
 
 OpenGLRenderer::OpenGLRenderer():
@@ -230,7 +230,7 @@ OpenGLRenderer::~OpenGLRenderer() {
 }
 	
 /*********************************************************************************************
-	Renderer
+	Renderer Internal Members
  *********************************************************************************************/
 
 RenderingApi OpenGLRenderer::renderingApi() const {

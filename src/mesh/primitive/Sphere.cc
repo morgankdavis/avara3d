@@ -1,9 +1,9 @@
 //
 //  Sphere.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 11/6/17.
-//  Copyright © 2017 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/mesh/primitive/Sphere.h"
@@ -22,8 +22,12 @@ using namespace glm;
 using namespace std;
 
 
+/*********************************************************************************************
+	Pubic Static Members
+ *********************************************************************************************/
+
 shared_ptr<Mesh> Sphere::Mesh(float radius,
-							  int segments,
+							  unsigned segments,
 							  const shared_ptr<Material> material) {
 
 	return make_shared<a3d::Mesh>("Sphere",
@@ -33,11 +37,11 @@ shared_ptr<Mesh> Sphere::Mesh(float radius,
 }
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
 *********************************************************************************************/
 
 Sphere::Sphere(float radius,
-			   int segments):
+			   unsigned segments):
 		MeshElement{},
 		_radius{radius},
 		_segments{segments} {
@@ -45,7 +49,7 @@ Sphere::Sphere(float radius,
 	/// @param radius The radius of the containing sphere.
 	/// @param segments The number of segments per icosahedron edge. Must be >= 1.
 
-	auto icoSphere = IcoSphereMesh{radius, segments};
+	auto icoSphere = IcoSphereMesh{radius, (int)segments};
 
 	for (const MeshVertex& v : icoSphere.vertices()) {
 		_vertices.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
@@ -61,13 +65,13 @@ Sphere::Sphere(float radius,
 }
 
 /*********************************************************************************************
- 	Public
+ 	Public Members
  *********************************************************************************************/
 
 float Sphere::radius() const {
 	return _radius;
 }
 
-int Sphere::segments() const {
+unsigned Sphere::segments() const {
 	return _segments;
 }

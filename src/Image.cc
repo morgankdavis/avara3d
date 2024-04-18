@@ -1,9 +1,9 @@
 //
 //  Image.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 10/21/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/Image.h"
@@ -25,10 +25,9 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
-#ifndef ANDROID
 Image::Image(const filesystem::path& path,
 			 bool flipVertical,
 			 bool flipHorizontal):
@@ -40,7 +39,6 @@ Image::Image(const filesystem::path& path,
 	auto buffer = Buffer(path);
 	loadBuffer(buffer, flipVertical, flipHorizontal);
 }
-#endif
 
 Image::Image(unique_ptr<Buffer> buffer,
 			 bool flipVertical,
@@ -54,9 +52,9 @@ Image::Image(unique_ptr<Buffer> buffer,
 }
 
 Image::Image(unique_ptr<Buffer> rawBuffer,
-			 int width,
-			 int height,
-			 int bytesPerPixel,
+			 unsigned width,
+			 unsigned height,
+			 unsigned bytesPerPixel,
 			 bool flipVertical,
 			 bool flipHorizontal):
 		_buffer{std::move(rawBuffer)},
@@ -81,30 +79,30 @@ Image::~Image() {
 }
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
-int Image::width() const {
+unsigned Image::width() const {
 	return _width;
 }
 
-int Image::height() const {
+unsigned Image::height() const {
 	return _height;
 }
 
-int Image::bytesPerPixel() const {
+unsigned Image::bytesPerPixel() const {
 	return _bytesPerPixel;
 }
 
 unique_ptr<Image> Image::inverted() const {
 
-	int widthInBytes = _width * _bytesPerPixel;
-	int size = widthInBytes * _height;
+	unsigned widthInBytes = _width * _bytesPerPixel;
+	unsigned size = widthInBytes * _height;
 
 	auto buf = (unsigned char*)malloc(size);
 
 	auto existing = _buffer->data();
-	for (int r=0; r<_height; ++r) {
+	for (unsigned r=0; r<_height; ++r) {
 		for (int c=0; c<widthInBytes; ++c) {
 			buf[widthInBytes*r + c] = 255 - (int)existing[widthInBytes*r + c];
 		}
@@ -123,23 +121,19 @@ unique_ptr<Image> Image::inverted() const {
 bool Image::writePNG(filesystem::path path) const {
 	
 	return !stbi_write_png(path.string().c_str(),
-						   _width,
-						   _height,
-						   _bytesPerPixel,
+						   (int)_width,
+						   (int)_height,
+						   (int)_bytesPerPixel,
 						   _buffer->data(),
-						   _width*_bytesPerPixel);
+						   (int)(_width*_bytesPerPixel));
 }
-
-/*********************************************************************************************
-	Internal
- *********************************************************************************************/
 
 const Buffer& Image::buffer() const {
 	return *_buffer;
 }
 
 /*********************************************************************************************
-	Private
+	Private Members
  *********************************************************************************************/
 
 void Image::loadBuffer(Buffer& inBuf,
@@ -151,7 +145,7 @@ void Image::loadBuffer(Buffer& inBuf,
 	int bytesPerPixel;
 	
 	stbi_uc* imgData = stbi_load_from_memory((unsigned char*)*inBuf,//inBuf.data(),
-											 inBuf.size(),
+											 (int)inBuf.size(),
 											 &width,
 											 &height,
 											 &bytesPerPixel,
@@ -187,20 +181,20 @@ void Image::loadBuffer(Buffer& inBuf,
 
 void Image::flipVertical() { // "flip"
 
-	int widthInBytes = _width * _bytesPerPixel;
+	unsigned widthInBytes = _width * _bytesPerPixel;
 	unsigned char* top = nullptr;
 	unsigned char* bottom = nullptr;
 	unsigned char temp = 0;
-	int halfHeight = _height / 2;
+	unsigned halfHeight = _height / 2;
 
 	auto dPtr = reinterpret_cast<unsigned char*>(_buffer->data());
 
-	for (int r=0; r<halfHeight; ++r) {
+	for (unsigned r=0; r<halfHeight; ++r) {
 
 		top = dPtr + r * widthInBytes;
 		bottom = dPtr + (_height - r - 1) * widthInBytes;
 
-		for (int c=0; c<widthInBytes; ++c) {
+		for (unsigned c=0; c<widthInBytes; ++c) {
 
 			temp = *top;
 			*top = *bottom;
@@ -214,20 +208,20 @@ void Image::flipVertical() { // "flip"
 // only works for 4-bytes-per-pixel images
 void Image::flipHorizontal() { // "mirror"
 
-	int widthInBytes = _width * _bytesPerPixel;
+	unsigned widthInBytes = _width * _bytesPerPixel;
 	uint32_t* row = nullptr;
 	uint32_t* left = nullptr;
 	uint32_t* right = nullptr;
 	uint32_t temp = 0;
-	int halfWidth = _width / 2;
+	unsigned halfWidth = _width / 2;
 
 	auto dPtr = reinterpret_cast<uint32_t*>(_buffer->data());
 
-	for (int r=0; r<_height; ++r) {
+	for (unsigned r=0; r<_height; ++r) {
 
 		row = dPtr + (_width * r);
 
-		for (int c=0; c<halfWidth; ++c) {
+		for (unsigned c=0; c<halfWidth; ++c) {
 
 			left = row + c;
 			right = row + _width - c - 1;

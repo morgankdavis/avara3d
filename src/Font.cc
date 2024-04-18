@@ -1,9 +1,9 @@
 //
 //  Font.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 9/5/18.
-//  Copyright © 2018 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/Font.h"
@@ -19,7 +19,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 Font::Font(const filesystem::path& path):
@@ -52,7 +52,7 @@ Font::~Font() {
 }
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 const optional<string>& Font::name() const {

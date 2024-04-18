@@ -1,9 +1,9 @@
 //
 //  PhysicsContact.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 1/25/18.
-//  Copyright © 2018 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/physics/PhysicsContact.h"
@@ -15,15 +15,13 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
-PhysicsContact::PhysicsContact() {
-	
-}
+PhysicsContact::PhysicsContact() { }
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 weak_ptr<Node> PhysicsContact::nodeA() const {

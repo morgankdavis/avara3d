@@ -1,9 +1,13 @@
 //
-// Created by mkd on 10/22/23.
+//  PerspectiveCamera.h
+//  avara3d
+//
+//  Created by Morgan Davis on 10/22/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef PerspectiveCamera_h
-#define PerspectiveCamera_h
+#ifndef AVARA3D_PERSPECTIVECAMERA_H
+#define AVARA3D_PERSPECTIVECAMERA_H
 
 
 #include "a3d/rendering/camera/Camera.h"
@@ -14,7 +18,7 @@ namespace a3d {
 	class PerspectiveCamera : public Camera {
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 	public:
@@ -25,40 +29,40 @@ namespace a3d {
 		~PerspectiveCamera() override;
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
-		float 					zNear() const;
-		void 					zNear(float zNear);
+		float 			zNear() const;
+		void 			zNear(float zNear);
 
-		float 					zFar() const;
-		void				 	zFar(float zFar);
+		float 			zFar() const;
+		void			zFar(float zFar);
 
-		float 					yFov() const;
-		void	 				yFov(float fov);
+		float 			yFov() const;
+		void	 		yFov(float fov);
 
-		float 					aspectRatio() const;
-		void 					aspectRatio(float ratio);
+		float 			aspectRatio() const;
+		void 			aspectRatio(float ratio);
 
 /*********************************************************************************************
-	Internal
+	Camera Protected Members
  *********************************************************************************************/
 
 	protected:
 
-		void 					constructProjectionMatrix() override;
+		void 			constructProjectionMatrix() override;
 
 /*********************************************************************************************
-	Private
+	Private IVars
  *********************************************************************************************/
 
 	private:
 
-		float					_zNear;
-		float					_zFar;
-		float					_yFov;
-		float					_aspectRatio;
+		float			_zNear;
+		float			_zFar;
+		float			_yFov;
+		float			_aspectRatio;
 	};
 }
 
-#endif /* PerspectiveCamera_h */
+#endif /* AVARA3D_PERSPECTIVECAMERA_H */

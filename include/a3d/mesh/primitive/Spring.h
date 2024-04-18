@@ -1,5 +1,9 @@
 //
-// Created by mkd on 3/6/24.
+//  Spring.h
+//  avara3d
+//
+//  Created by Morgan Davis on 3/6/24.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_SPRING_H
@@ -20,51 +24,57 @@ namespace a3d {
 
 	class Spring: public MeshElement {
 
-	private:
-
-		static constexpr int DEFAULT_SLICES = 8;
-		static constexpr int DEFAULT_SEGMENTS = 32;
+/*********************************************************************************************
+	Public Static Members
+ *********************************************************************************************/
 
 	public:
 
 		static std::shared_ptr<Mesh> Mesh(float minorRadius,
 										  float majorRadius,
 										  float length,
-										  int slices = DEFAULT_SLICES,
-										  int segments = DEFAULT_SEGMENTS,
+										  unsigned slices = DEFAULT_SLICES,
+										  unsigned segments = DEFAULT_SEGMENTS,
 										  std::shared_ptr<Material> material = nullptr);
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 		Spring(float minorRadius,
 			   float majorRadius,
 			   float length,
-			   int slices = DEFAULT_SLICES,
-			   int segments = DEFAULT_SEGMENTS);
+			   unsigned slices = DEFAULT_SLICES,
+			   unsigned segments = DEFAULT_SEGMENTS);
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
-		float 	minorRadius() const;
-		float 	majorRadius() const;
-		float 	length() const;
-		int 	slices() const;
-		int 	segments() const;
+		float 		minorRadius() const;
+		float 		majorRadius() const;
+		float 		length() const;
+		unsigned 	slices() const;
+		unsigned 	segments() const;
 
 /*********************************************************************************************
-	Lifecycle
+	Private Constants
  *********************************************************************************************/
 
 	private:
 
-		float 	_minorRadius;
-		float 	_majorRadius;
-		float 	_length;
-		int 	_slices;
-		int 	_segments;
+		static constexpr unsigned DEFAULT_SLICES = 8;
+		static constexpr unsigned DEFAULT_SEGMENTS = 32;
+
+/*********************************************************************************************
+	Private IVars
+ *********************************************************************************************/
+
+		float 		_minorRadius;
+		float 		_majorRadius;
+		float 		_length;
+		unsigned 	_slices;
+		unsigned 	_segments;
 	};
 }
 

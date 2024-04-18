@@ -1,13 +1,13 @@
 //
 //  Camera.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 10/21/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Camera_h
-#define Camera_h
+#ifndef AVARA3D_CAMERA_H
+#define AVARA3D_CAMERA_H
 
 
 #include <memory>
@@ -20,38 +20,46 @@
 namespace a3d {
 
 	class Camera {
-		
-/*********************************************************************************************
-	Lifecycle
- *********************************************************************************************/
 
 	public:
+
+/*********************************************************************************************
+	Public Lifecycle
+ *********************************************************************************************/
 
 		Camera();
 		explicit Camera(const std::string& name);
 		virtual ~Camera() = 0;
-		
+
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
-		
+
 		const std::optional<std::string>&	name() const;
 		void 								name(const std::string& name);
+
+/*********************************************************************************************
+	Internal Members
+ *********************************************************************************************/
 
 		glm::mat4 							projection() const;
 
 /*********************************************************************************************
-	Protected
+	Protected Members
  *********************************************************************************************/
 
 	protected:
 
-		virtual void 					constructProjectionMatrix() = 0;
+		virtual void 						constructProjectionMatrix() = 0;
 
-		std::optional<std::string>		_name;
-		glm::mat4						_projection;
+/*********************************************************************************************
+	Protected IVars
+ *********************************************************************************************/
+
+		std::optional<std::string>			_name;
+		glm::mat4							_projection;
 	};
 }
 
 
-#endif /* Camera_h */
+#endif /* AVARA3D_CAMERA_H */

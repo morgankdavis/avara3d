@@ -1,15 +1,12 @@
 //
 //  Window.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 10/21/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifdef DESKTOP
-
-
-#include "a3d/rendering/context/platform/desktop/Window.h"
+#include "a3d/rendering/context/Window.h"
 
 #include <iostream>
 #include <sstream>
@@ -19,11 +16,11 @@
 
 #include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/logging/Logger.h"
-#include "a3d/input/platform/desktop/WindowInputManager.h"
+#include "a3d/input/WindowInputManager.h"
 #include "a3d/physics/PhysicalWorld.h"
-#include "a3d/rendering/Renderer.h"
 #include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/camera/Camera.h"
+#include "a3d/rendering/renderer/Renderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 
@@ -33,7 +30,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Static Prototypes
+	Private Static Non-Member Prototypes
  *********************************************************************************************/
 
 static bool 	InitGLFW();
@@ -51,13 +48,13 @@ static void 	GLFWErrorCallback(int error,
 								 const char* description);
 
 /*********************************************************************************************
-	Lifescycle
+	Public Lifescycle
  *********************************************************************************************/
 
 Window::Window(RenderingApi renderAPI,
-			   string title,
-			   int width,
-			   int height,
+			   const string& title,
+			   unsigned width,
+			   unsigned height,
 			   bool fullScreen,
 			   bool enableHighDPI,
 			   AntialiasingMode antialiasingMode):
@@ -72,7 +69,7 @@ Window::Window(RenderingApi renderAPI,
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-		glfwWindowHint(GLFW_SAMPLES, static_cast<underlying_type<AntialiasingMode>::type>(antialiasingMode));
+		glfwWindowHint(GLFW_SAMPLES, static_cast<int>(antialiasingMode));
 #else // OpenGL ES
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -103,8 +100,8 @@ Window::Window(RenderingApi renderAPI,
 		}
 		else {
 			_glfwWindow = unique_ptr<GLFWwindow, DestroyGLFWWindow>(
-					glfwCreateWindow(width,
-									 height,
+					glfwCreateWindow((int)width,
+									 (int)height,
 									 title.c_str(),
 									 nullptr,
 									 nullptr));
@@ -170,7 +167,7 @@ Window::~Window() {
 }
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 void Window::open() {
@@ -237,7 +234,7 @@ void Window::cursorCaptured(bool captured) {
 }
 
 /*********************************************************************************************
-	RenderContext
+	RenderContext Internal Members
  *********************************************************************************************/
 
 void Window::swapBuffers() {
@@ -260,7 +257,7 @@ void Window::vSyncEnabled(bool enabled) {
 }
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 void Window::pollInput() {
@@ -272,7 +269,7 @@ GLFWwindow* Window::glfwWindow() const {
 }
 
 /*********************************************************************************************
-	Internal Static
+	Internal Static Members
  *********************************************************************************************/
 
 void Window::Destroy(GLFWwindow* window) {
@@ -280,7 +277,7 @@ void Window::Destroy(GLFWwindow* window) {
 }
 
 /*********************************************************************************************
-	Static
+	Private Static Non-Members
  *********************************************************************************************/
 
 static bool InitGLFW() {
@@ -458,5 +455,3 @@ void GLFWErrorCallback(int error, const char* description) {
 	A3D_LOG_E("error: {}, description: {}", error, description);
 }
 
-
-#endif // DESKTOP

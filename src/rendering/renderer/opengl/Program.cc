@@ -1,12 +1,12 @@
 //
 //  Program.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 12/23/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/rendering/opengl/Program.h"
+#include "a3d/rendering/renderer/opengl/Program.h"
 
 #ifdef OPENGL_ES
 #include <EGL/egl.h>
@@ -31,7 +31,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Public Static
+	Internal Static Members
  *********************************************************************************************/
 
 Program& Program::Default() {
@@ -60,7 +60,7 @@ Program& Program::Points() {
 }
 
 /*********************************************************************************************
-	Lifecycle
+	Internal Lifecycle
  *********************************************************************************************/
 
 Program::Program(const string& name):
@@ -101,7 +101,7 @@ Program::~Program() {
 }
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 bool Program::compile() {
@@ -343,8 +343,11 @@ void Program::bindUniformBlock(const char* name, GLuint location) {
 	}
 }
 
-void Program::bindTexture(const char* name, const int& target, const unsigned& slot,
-						  const unsigned& textureID, unsigned index) {
+void Program::bindTexture(const char* name,
+						  const int& target,
+						  const unsigned& slot,
+						  const unsigned& textureID,
+						  unsigned index) {
 	
 	glActiveTexture(slot);
 	glBindTexture(target, textureID);
@@ -430,7 +433,7 @@ void Program::fragmentShaderSource(string source) {
 }
 
 /*********************************************************************************************
-	Private
+	Private Members
  *********************************************************************************************/
 
 //optional<string> Program::shaderSource(const string &name, const string &type) {

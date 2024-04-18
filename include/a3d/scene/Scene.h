@@ -1,13 +1,13 @@
 //
 //  Scene.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 10/21/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Scene_h
-#define Scene_h
+#ifndef AVARA3D_SCENE_H
+#define AVARA3D_SCENE_H
 
 
 #include <filesystem>
@@ -37,7 +37,7 @@ namespace a3d {
 	class Scene {
 
 /*********************************************************************************************
-	Types
+	Public Types
  *********************************************************************************************/
 
 	public:
@@ -45,20 +45,19 @@ namespace a3d {
 		using UpdateCallback =				std::function<void(Scene& scene, float time)>;
 
 /*********************************************************************************************
-	Public Static
+	Public Static Members
  *********************************************************************************************/
 
 		static std::unique_ptr<Scene> 		FromFile(const std::filesystem::path& path,
 													  SceneImportOptions options =
-															  SceneImportOptions::ImportAll);
-		static double 						Time();
+													  SceneImportOptions::ImportAll);
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
-		
+
 		Scene();
-		Scene(const std::string& name);
+		explicit Scene(const std::string& name);
 		Scene(std::unique_ptr<VisualWorld> visualWorld,
 			  std::unique_ptr<PhysicalWorld> physicsWorld,
 			  std::unique_ptr<InputManager> inputManager);
@@ -69,7 +68,7 @@ namespace a3d {
 		~Scene();
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 		const std::optional<std::string>&	name() const;
@@ -95,6 +94,8 @@ namespace a3d {
 
 		bool								running() const;
 
+		double 								time() const;
+
 		bool								paused() const;
 		void								paused(bool flag);
 
@@ -104,7 +105,7 @@ namespace a3d {
 		void 								update(UpdateCallback function);
 
 /*********************************************************************************************
-	Private
+	Private IVars
  *********************************************************************************************/
 
 	private:
@@ -116,6 +117,8 @@ namespace a3d {
 		std::unique_ptr<InputManager>		_inputManager;
 		DebugOptions						_debugOptions;
 		bool								_running;
+		double 								_startTime;
+		//std::chrono::time_point<std::chrono::system_clock, std::chrono::duration> _startTimePoint;
 		bool								_paused;
 		Stats								_stats;
 		UpdateCallback						_update;
@@ -123,4 +126,4 @@ namespace a3d {
 }
 
 
-#endif /* Scene_h */
+#endif /* AVARA3D_SCENE_H */

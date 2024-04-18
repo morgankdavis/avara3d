@@ -1,9 +1,9 @@
 //
 //  Mesh.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 10/21/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/mesh/Mesh.h"
@@ -16,11 +16,11 @@
 #include "a3d/Color.h"
 #include "a3d/Image.h"
 #include "a3d/diagnostic/logging/Logger.h"
-#include "a3d/diagnostic/exception/UnsupportedFormat.h"
+#include "a3d/diagnostic/exception/UnsupportedFormatException.h"
 #include "a3d/mesh/Line.h"
 #include "a3d/mesh/MeshElement.h"
-#include "a3d/rendering/Renderer.h"
 #include "a3d/rendering/material/Material.h"
+#include "a3d/rendering/renderer/Renderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/importer/GlTFImporter.h"
 
@@ -31,7 +31,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Public Static
+	Public Static Members
  *********************************************************************************************/
 
 shared_ptr<Mesh> Mesh::FromFile(const filesystem::path& path,
@@ -43,15 +43,8 @@ shared_ptr<Mesh> Mesh::FromFile(const filesystem::path& path,
 }
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
-
-Mesh::Mesh():
-		_name{},
-		_elements{},
-		_materials{},
-		_aabbLines{},
-		_dirtyMask{MeshDirtyMask::All} { }
 
 Mesh::Mesh(const std::string& name,
 		   std::unique_ptr<MeshElement> element,
@@ -100,7 +93,7 @@ Mesh::~Mesh() {
 }
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 optional<string> Mesh::name() const {
@@ -158,7 +151,7 @@ void Mesh::replaceMaterial(int index, const shared_ptr<Material>& replacement) {
 }
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 void Mesh::burnTransform(const mat4& transform, bool normals) {
@@ -336,3 +329,14 @@ MeshDirtyMask Mesh::dirtyMask() const {
 void Mesh::dirtyMask(MeshDirtyMask mask) {
 	_dirtyMask = mask;
 }
+
+/*********************************************************************************************
+	Private Lifecycle
+ *********************************************************************************************/
+
+Mesh::Mesh():
+		_name{},
+		_elements{},
+		_materials{},
+		_aabbLines{},
+		_dirtyMask{MeshDirtyMask::All} { }

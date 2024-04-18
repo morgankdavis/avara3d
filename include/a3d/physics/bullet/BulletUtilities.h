@@ -1,9 +1,13 @@
 //
-// Created by mkd on 12/15/23.
+//  BulletUtilities.h
+//  avara3d
+//
+//  Created by Morgan Davis on 12/15/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_BULLET_UTILITIES_H
-#define AVARA3D_BULLET_UTILITIES_H
+#ifndef AVARA3D_BULLETUTILITIES_H
+#define AVARA3D_BULLETUTILITIES_H
 
 
 #include "glm/glm.hpp"
@@ -29,4 +33,4 @@ namespace a3d {
 }
 
 
-#endif //AVARA3D_BULLET_UTILITIES_H
+#endif //AVARA3D_BULLETUTILITIES_H

@@ -3,13 +3,13 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 12/23/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 //  Based largely on code from "OpenGL 4 Shading Language Cookbook" by David Wolff
 //
 
-#ifndef Program_h
-#define Program_h
+#ifndef AVARA3D_PROGRAM_H
+#define AVARA3D_PROGRAM_H
 
 
 #include <map>
@@ -26,7 +26,7 @@ namespace a3d {
 	class Program {
 
 /*********************************************************************************************
-	Public Static
+	Internal Static Members
  *********************************************************************************************/
 
 	public:
@@ -36,18 +36,18 @@ namespace a3d {
 		static Program& 	Wireframe();
 		static Program& 	Lines();
 		static Program& 	Points();
-		
+
 /*********************************************************************************************
-	Lifecycle
+	Internal Lifecycle
  *********************************************************************************************/
-		
-		Program(const std::string& name);
+
+		explicit Program(const std::string& name);
 		~Program();
-		
+
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
-		
+
 		bool 								compile();
 		bool 								link();
 		bool 								validate();
@@ -73,7 +73,8 @@ namespace a3d {
 		void 								bindTexture(const char* name,
 														const int& target,
 														const unsigned& slot,
-														const unsigned& textureID, unsigned index);
+														const unsigned& textureID,
+														unsigned index);
 
 		unsigned 							getAttributeLocation(const char* name) const;
 		
@@ -89,7 +90,7 @@ namespace a3d {
 		void 								fragmentShaderSource(std::string source);
 
 /*********************************************************************************************
-	Private
+	Private Members
  *********************************************************************************************/
 
 	private:
@@ -103,6 +104,10 @@ namespace a3d {
 		void 								glID(unsigned glID);
 		void 								isLinked(bool isLinked);
 
+/*********************************************************************************************
+	Private IVars
+ *********************************************************************************************/
+
 		std::string  						_name;
 		unsigned  							_glID;
 		bool 								_isLinked;
@@ -114,4 +119,4 @@ namespace a3d {
 }
 
 
-#endif /* Program_h */
+#endif /* AVARA3D_PROGRAM_H */

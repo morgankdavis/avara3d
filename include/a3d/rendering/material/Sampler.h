@@ -1,5 +1,9 @@
 //
-// Created by mkd on 2/7/24.
+//  Sampler.h
+//  avara3d
+//
+//  Created by Morgan Davis on 2/7/24.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_SAMPLER_H
@@ -16,10 +20,11 @@ namespace a3d {
 	class Image;
 	class Sampleable;
 
+
 	class Sampler {
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 	public:
@@ -28,7 +33,7 @@ namespace a3d {
 		~Sampler();
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 		FilterMode 							minificationFilter() const;
@@ -50,14 +55,14 @@ namespace a3d {
 		void 								wrapR(WrapMode mode);
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 		SamplerDirtyMask 					dirtyMask() const;
 		void 								dirtyMask(SamplerDirtyMask mask);
 
 /*********************************************************************************************
-	Private
+	Private IVars
  *********************************************************************************************/
 
 	private:

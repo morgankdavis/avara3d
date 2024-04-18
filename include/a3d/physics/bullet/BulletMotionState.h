@@ -1,9 +1,13 @@
 //
-// Created by mkd on 12/15/23.
+//  BulletMotionState.h
+//  avara3d
+//
+//  Created by Morgan Davis on 12/15/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_BULLET_MOTIONSTATE_H
-#define AVARA3D_BULLET_MOTIONSTATE_H
+#ifndef AVARA3D_BULLETMOTIONSTATE_H
+#define AVARA3D_BULLETMOTIONSTATE_H
 
 
 #include "LinearMath/btMotionState.h"
@@ -15,31 +19,31 @@ namespace a3d {
 	class PhysicsBody;
 
 
-	class MotionState : public btMotionState {
+	class BulletMotionState : public btMotionState {
 
 /*********************************************************************************************
-	Lifecycle
+	Internal Lifecycle
  *********************************************************************************************/
 
 	public:
 
-		explicit MotionState(PhysicsBody& body);
+		explicit BulletMotionState(PhysicsBody& body);
 
 /*********************************************************************************************
-	btMotionState
+	btMotionState Members
  *********************************************************************************************/
 
 		void getWorldTransform(btTransform& transform) const override;
 		void setWorldTransform(const btTransform& transform) override;
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 		PhysicsBody*		body() const;
 
 /*********************************************************************************************
-	Private
+	Private IVars
  *********************************************************************************************/
 
 //		btTransform 		_visualWorldTransform;
@@ -47,4 +51,4 @@ namespace a3d {
 	};
 }
 
-#endif //AVARA3D_BULLET_MOTIONSTATE_H
+#endif //AVARA3D_BULLETMOTIONSTATE_H

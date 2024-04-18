@@ -1,9 +1,9 @@
 //
 //  main.cpp
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 12/02/23.
-//  Copyright © 2023 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include <memory>
@@ -108,7 +108,7 @@ int main(int argc, const char* argv[]) {
 //						: make_shared<Color>(.85f);
 	auto ambientLight = make_shared<Light>(LightType::Ambient, Color::DarkGray());
 	auto ambientLightNode = Node::LightNode(ambientLight);
-	scene->rootNode()->addChild(std::move(ambientLightNode));
+	scene->rootNode()->addChild(ambientLightNode);
 
 //	auto pointColor = DARK
 //					  ? Color::LightGray()
@@ -150,7 +150,7 @@ int main(int argc, const char* argv[]) {
 											  monostate{});
 	}
 
-	planeMaterial->uvScale(PLANE_LENGTH/10.0);
+	planeMaterial->uvScale(PLANE_LENGTH/10.0f);
 	planeMaterial->doubleSided(false);
 	planeNode->mesh()->addMaterial(planeMaterial);
 //	planeNode->mesh()->replaceMaterial(0, planeMaterial);
@@ -180,13 +180,13 @@ int main(int argc, const char* argv[]) {
 												  monostate{},
 												  Color::LightGray());
 			//auto sphere = Mesh::Sphere(0.1f, 12);
-			auto sphere = shared_ptr(std::move(Sphere::Mesh(0.1f, 12, material)));
+			auto sphere = Sphere::Mesh(0.1f, 12, material);
 
 			//sphere->addMaterial(material);
 //			sphere->replaceMaterial(0, material);
 			pointLightNode->mesh(sphere);
 
-			scene->rootNode()->addChild(std::move(pointLightNode));
+			scene->rootNode()->addChild(pointLightNode);
 		}
 //
 //		auto testMesh = MeshNamed("rubber_duck/rubber_duck");

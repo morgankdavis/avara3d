@@ -1,9 +1,13 @@
 //
-// Created by mkd on 10/29/23.
+//  BulletShapeProxy.h
+//  avara3d
+//
+//  Created by Morgan Davis on 10/29/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef BulletShapeResources_h
-#define BulletShapeResources_h
+#ifndef AVARA3D_BULLETSHAPEPROXY_H
+#define AVARA3D_BULLETSHAPEPROXY_H
 
 
 #include <memory>
@@ -23,7 +27,7 @@ namespace a3d {
 	class BulletShapeProxy : public PhysicsShapeProxy {
 
 /*********************************************************************************************
-	Lifecycle
+	Internal Lifecycle
  *********************************************************************************************/
 
 	public:
@@ -32,13 +36,13 @@ namespace a3d {
 		~BulletShapeProxy() override;
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 		const std::vector<std::unique_ptr<btCollisionShape>>& btShapes();
 
 /*********************************************************************************************
-	 Private
+	 Private IVars
  *********************************************************************************************/
 
 	private:
@@ -49,4 +53,4 @@ namespace a3d {
 }
 
 
-#endif //BulletShapeResources_h
+#endif //AVARA3D_BULLETSHAPEPROXY_H

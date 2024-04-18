@@ -1,14 +1,13 @@
-
 //
 //  Types.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 10/8/17.
-//  Copyright © 2017 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Types_h
-#define Types_h
+#ifndef AVARA3D_TYPES_H
+#define AVARA3D_TYPES_H
 
 
 #include <memory>
@@ -81,7 +80,6 @@ namespace a3d {
 		A3D_ENABLE_ASSIGNMENT_OP(T, T, |) \
 		A3D_ENABLE_ASSIGNMENT_OP(T, T, &) \
 		A3D_ENABLE_UNARY_OP(T, ~)
-
 
 /**************************************************************************************
 	Public Types
@@ -399,7 +397,7 @@ namespace a3d {
 	A3D_ENABLE_ENUM_MASK_OPS(DebugOptions)
 
 /**************************************************************************************
-	Internal
+	Internal Types
  **************************************************************************************/
 
 	enum class ShaderType {
@@ -463,4 +461,4 @@ namespace a3d {
 }
 
 
-#endif /* Types_h */
+#endif /* AVARA3D_TYPES_H */

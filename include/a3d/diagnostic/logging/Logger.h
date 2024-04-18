@@ -1,13 +1,13 @@
 //
 //  Logger.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 1/5/18.
-//  Copyright © 2018 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Logger_h
-#define Logger_h
+#ifndef AVARA3D_LOGGER_H
+#define AVARA3D_LOGGER_H
 
 
 #include <cstdio>
@@ -86,20 +86,17 @@ namespace a3d {
 
 	class Logger {
 
-		static constexpr LogLevel DEFAULT_LEVEL = LogLevel::Debug;
-		static constexpr LogLevel DEFAULT_FLUSH_LEVEL = LogLevel::Warn;
-
-/**************************************************************************************
-	Public Static
- **************************************************************************************/
+/*********************************************************************************************
+	Public Static Members
+ *********************************************************************************************/
 
 	public:
 
 		static Logger& MainLogger();
 
-/*********************************************************************************************
-	Lifecycle
- *********************************************************************************************/
+/**************************************************************************************
+	Public Lifecycle
+ **************************************************************************************/
 
 		Logger(const std::string& name,
 			   std::unique_ptr<LoggerSink> sink,
@@ -112,7 +109,7 @@ namespace a3d {
 		~Logger();
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 		const std::string& 		name() const;
@@ -170,10 +167,17 @@ namespace a3d {
 		void 					flush();
 
 /*********************************************************************************************
-	Private
+	Private Constants
  *********************************************************************************************/
 
 	private:
+
+		static constexpr LogLevel DEFAULT_LEVEL = LogLevel::Debug;
+		static constexpr LogLevel DEFAULT_FLUSH_LEVEL = LogLevel::Warn;
+
+/*********************************************************************************************
+	Private IVars
+ *********************************************************************************************/
 
 		std::string										_name;
 		std::unordered_set<std::unique_ptr<LoggerSink>>	_sinks;
@@ -183,4 +187,4 @@ namespace a3d {
 }
 
 
-#endif /* Logger_h */
+#endif /* AVARA3D_LOGGER_H */
