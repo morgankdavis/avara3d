@@ -13,7 +13,6 @@
 
 
 using namespace a3d;
-using namespace a3d::utils;
 using namespace std;
 
 
@@ -25,7 +24,7 @@ Exception::Exception(const string& what):
 	runtime_error{what} {
 
 #ifdef POSIX
-		A3D_LOG_E("Exception: {}\nStack trace:\n{}", what, StackTrace(1));
+		A3D_LOG_E("Exception: {}\nStack trace:\n{}", what, utils::StackTrace(1));
 #else
 		A3D_LOG_E("Exception: {}", what);
 #endif

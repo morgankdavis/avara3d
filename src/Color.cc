@@ -12,7 +12,6 @@
 
 
 using namespace a3d;
-using namespace a3d::utils;
 using namespace std;
 
 
@@ -97,7 +96,7 @@ std::shared_ptr<Color> Color::Brown() {
 }
 
 shared_ptr<Color> Color::Random() {
-	return make_unique<Color>(Uniform(0, 255), Uniform(0, 255), Uniform(0, 255));
+	return make_unique<Color>(utils::Uniform(0, 255), utils::Uniform(0, 255), utils::Uniform(0, 255));
 }
 
 /*********************************************************************************************
