@@ -32,10 +32,6 @@ FileLoggerSink::FileLoggerSink(const filesystem::path& relPath,
 		_maxFiles{maxFiles},
 		_maxFilesize{maxFilesize} {
 
-#if defined(ANDROID)
-	_filepath = (*(utils::InternalFilesDirectory())) / relPath;
-#endif
-
 	error_code errorCode;
 	filesystem::create_directories(_filepath.parent_path(), errorCode);
 	// this bugs me.

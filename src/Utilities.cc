@@ -42,12 +42,6 @@
 #undef max // windows.h defines a 'max'... (we want std::max())
 #include <algorithm> // needs to be under windows.h
 
-#ifdef ANDROID
-#include <android/asset_manager.h>
-#include <android/asset_manager_jni.h>
-#include <NDKHelper.h>
-#endif
-
 #include "glm/gtc/quaternion.hpp"
 
 #include "a3d/Buffer.h"
@@ -287,8 +281,6 @@ void a3d::utils::StringReplace(string& str,
 
 // *** executable and working directories ***
 
-#ifndef ANDROID
-
 std::optional<std::filesystem::path> a3d::utils::ExecutablePath() {
 #if defined(MACOS)
 	char path[PATH_MAX];
@@ -349,11 +341,7 @@ std::optional<std::filesystem::path> a3d::utils::CurrentWorkingDirectory() {
 	return std::nullopt;
 }
 
-#endif // !ANDROID
-
 // *** search paths ***
-
-#ifndef ANDROID
 
 vector<std::filesystem::path> a3d::utils::BaseSearchPaths() {
 	// build a list of common directories where "shader", "scene", "images", "fonts", etc
@@ -455,39 +443,7 @@ std::optional<std::filesystem::path> a3d::utils::SearchInPaths(const string& fil
 	return std::nullopt;
 }
 
-#endif // !ANDROID
-
 // *** binary and text files ***
-
-#ifdef ANDROID
-
-std::optional<std::filesystem::path> a3d::utils::InternalFilesDirectory() {
-	auto helper = ndk_helper::JNIHelper::GetInstance();
-	string filesDir = helper->GetFilesDir();
-	if (filesDir.length()) return std::filesystem::path(filesDir);
-	return std::nullopt;
-}
-
-std::optional<string> a3d::utils::TextAsset(const string& relPath) {
-//	vector<unsigned char> buffer = BinaryAsset(relPath);
-//	if (buffer.size()) {
-//		return string(buffer.begin(), buffer.end());
-//	}
-	auto buffer = BinaryAsset(relPath);
-	if (buffer->size()) {
-		return string((char*)(buffer->pointer()));
-	}
-	return std::nullopt;
-}
-
-shared_ptr<Buffer> a3d::utils::BinaryAsset(const string& relPath) {
-	auto helper = ndk_helper::JNIHelper::GetInstance();
-	auto vecBuf = vector<unsigned char>();
-	helper->ReadFile(relPath.c_str(), &vecBuf);
-	return make_shared<Buffer>(vecBuf);
-}
-
-#else
 
 std::optional<string> a3d::utils::TextFile(const std::filesystem::path& path) {
 	string line;
@@ -506,23 +462,16 @@ std::optional<string> a3d::utils::TextFile(const std::filesystem::path& path) {
 	return std::nullopt;
 }
 
-#endif // ANDROID
-
 // *** shaders ***
 
 std::optional<std::string> a3d::utils::ShaderSource(const string& name,
 													 const string& type) {
 	std::optional<string> rawSource = std::nullopt;
-#ifdef ANDROID
-	rawSource = TextAsset("shaders/" + name + "." + type);
-#else
 	auto path = SearchInPaths((name + "." + type), ShaderSearchPaths());
 	if (path) {
 		A3D_LOG_D("Found shader at path: {}", (*path).string());
 		rawSource = TextFile(*path);
 	}
-#endif
-
 	return rawSource;
 }
 
@@ -530,15 +479,11 @@ std::optional<std::string> a3d::utils::ShaderSource(const string& name,
 
 unique_ptr<Font> a3d::utils::FontNamed(const string& name,
 									  const string& type) {
-#ifdef ANDROID
-	return make_shared<Font>(BinaryAsset("fonts/" + name + "." + type));
-#else
 	auto path = SearchInPaths((name + "." + type), FontSearchPaths());
 	if (path) {
 		A3D_LOG_T("Found font at path: {}", (*path).string());
 		return make_unique<Font>(*path);
 	}
-#endif
 	return nullptr;
 }
 
@@ -556,22 +501,15 @@ unique_ptr<Image> a3d::utils::ImageNamed(const string& name,
 										const string& type,
 										bool flipHorizontal,
 										bool flipVertical) {
-	
-#ifdef ANDROID
-	auto data = BinaryAsset("testdata/images/" + (name + "." + type));
-	return make_shared<Image>(data);
-#else
 	auto path = SearchInPaths((name + "." + type), ImageSearchPaths());
 	if (path) {
 		A3D_LOG_D("Found image at path: {}", (*path).string());
 		return make_unique<Image>(*path, flipHorizontal, flipVertical);
 	}
-#endif
 	return nullptr;
 }
 
 unique_ptr<CubeImage> a3d::utils::CubeImageNamed(const string& name) {
-	
 	return CubeImageNamed(name, "png");
 }
 
@@ -590,7 +528,6 @@ unique_ptr<CubeImage> a3d::utils::CubeImageNamed(const string& name,
 
 // *** scenes ***
 
-#ifndef ANDROID
 unique_ptr<Scene> a3d::utils::SceneNamed(const string& name,
 										SceneImportOptions options) {
 
@@ -627,16 +564,12 @@ shared_ptr<Mesh> a3d::utils::MeshNamed(const string& name,
 	return nullptr;
 }
 
-#endif
-
 /*********************************************************************************************
  	Misc
  *********************************************************************************************/
 
 void a3d::utils::SaveSnapshot(RenderContext& context) {
-#ifdef ANDROID
-	throw Exception("SaveSnapshot() not supported on Android.");
-#else
+
 	auto image = context.snapshot();
 
 	string dateTime = DateTimeString();
@@ -655,14 +588,11 @@ void a3d::utils::SaveSnapshot(RenderContext& context) {
 	else {
 		A3D_LOG_W("Couldn't locate executable directory.");
 	}
-#endif
 }
 
 void a3d::utils::StartGIFRecording(RenderContext& context,
 								   int maxHeight, int maxFramerate) {
-#ifdef ANDROID
-	throw Exception("StartGIFRecording() not supported on Android.");
-#else
+
 	constexpr size_t BUF_SIZE = 256;
 	char filename[BUF_SIZE] = "";
 	snprintf(filename, BUF_SIZE, "Recording_%s.gif", DateTimeString().c_str());
@@ -674,15 +604,11 @@ void a3d::utils::StartGIFRecording(RenderContext& context,
 	else {
 		A3D_LOG_W("Couldn't locate executable directory.");
 	}
-#endif
 }
 
 void a3d::utils::StopGIFRecording(RenderContext& context) {
-#ifdef ANDROID
-	throw Exception("StopGIFRecording() not supported on Android.");
-#else
+
 	context.stopGIFRecording();
-#endif
 }
 
 /*********************************************************************************************

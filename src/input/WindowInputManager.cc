@@ -2,12 +2,9 @@
 //  WindowInputManager.cc
 //  avara3d
 //
-//  Created by Morgan Davis on 5/6/18.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Created by Morgan Davis on 4/17/2024.
+//  Copyright © 2024-2024 Morgan K Davis. All rights reserved.
 //
-
-#ifdef DESKTOP
-
 
 #include "a3d/input/WindowInputManager.h"
 
@@ -267,6 +264,3 @@ WindowInputManager* InputManagerFromGLFWWindow(GLFWwindow* glfwWindow) {
 	auto window = (Window*)glfwGetWindowUserPointer(glfwWindow);
 	return dynamic_cast<WindowInputManager*>(window->visualWorld()->scene()->inputManager());
 }
-
-
-#endif // DESKTOP

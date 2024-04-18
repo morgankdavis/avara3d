@@ -16,11 +16,6 @@
 #include <sys/time.h>
 #endif
 
-#ifdef ANDROID
-#include <android/log.h>
-#include <NDKHelper.h>
-#endif
-
 #include "magic_enum.hpp"
 
 #include "a3d/Utilities.h"
@@ -49,13 +44,6 @@ Logger& Logger::MainLogger() {
 	static unique_ptr<Logger> logger = nullptr;
 
 	if (!logger) {
-#ifdef ANDROID
-		string executableName = ndk_helper::JNIHelper::GetInstance()->GetAppName();
-		auto nativeSink = make_shared<AndroidLoggerSink>();
-//		auto fileSink = make_shared<FileLoggerSink>(*(utils::InternalFilesDirectory())
-//													/ (executableName + string(".log")));
-		auto fileSink = make_shared<FileLoggerSink>(executableName + string(".log"));
-#else
 //		string executableName = *utils::ExecutableName();
 //		auto nativeSink = make_unique<StdOutLoggerSink>();
 //		auto fileSink = make_unique<FileLoggerSink>(*(utils::ExecutableDirectory())
@@ -63,7 +51,6 @@ Logger& Logger::MainLogger() {
 		string executableName = *utils::ExecutableName();
 		auto nativeSink = make_unique<StdOutLoggerSink>();
 		auto fileSink = make_unique<FileLoggerSink>(*(utils::ExecutableDirectory()) / "a3d.log");
-#endif
 
 		auto sinks = unordered_set<unique_ptr<LoggerSink>>();
 //		sinks.insert(static_pointer_cast<LoggerSink>(nativeSink));
@@ -325,15 +312,10 @@ void Logger::dispatch(LogLevel level, const char* line) {
 
 	for (auto& sink : _sinks) {
 
-#if defined(DESKTOP)
 		if (auto stdOutSink = dynamic_cast<StdOutLoggerSink*>(sink.get())) {
 			stdOutSink->write(line, level);
 		}
-#elif defined(ANDROID)
-		if (dynamic_pointer_cast<AndroidLoggerSink>(sink)) {
-			dynamic_pointer_cast<AndroidLoggerSink>(sink)->write(message, _name.c_str(), level);
-		}
-#endif
+
 		if (auto fileLoggerSink = dynamic_cast<FileLoggerSink*>(sink.get())) {
 			fileLoggerSink->write(line);
 		}
