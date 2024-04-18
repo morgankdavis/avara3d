@@ -15,6 +15,7 @@
 
 #include "a3d/Buffer.h"
 #include "a3d/Color.h"
+#include "a3d/Configuration.h"
 #include "a3d/CubeImage.h"
 #include "a3d/Image.h"
 #include "a3d/diagnostic/logging/Logger.h"
@@ -37,9 +38,6 @@ using namespace a3d;
 using namespace glm;
 using namespace std;
 using namespace std::filesystem;
-
-
-constexpr double FRAMETIME_AVERAGING_INTERVAL = .5;
 
 
 /*********************************************************************************************
@@ -410,8 +408,6 @@ void UpdateUserTimeStats(Stats& stats, double startTime, double endTime) {
 	// current
 	auto updateTime = endTime - startTime;
 	stats.currentUsertime = updateTime * 1000.0f;
-
-	constexpr double FRAMETIME_AVERAGING_INTERVAL = .5; // TEMPORARY
 
 	// average
 	static double avg = 0.0;

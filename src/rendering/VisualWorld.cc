@@ -14,6 +14,7 @@
 #include "glm/glm.hpp"
 
 #include "a3d/Color.h"
+#include "a3d/Configuration.h"
 #include "a3d/CubeImage.h"
 #include "a3d/diagnostic/logging/Logger.h"
 #include "a3d/mesh/Mesh.h"
@@ -406,10 +407,6 @@ void UpdateTimeStats(Stats& stats, double startTime, double endTime) {
 	// current
 	auto drawTime = endTime - startTime;
 	stats.currentDrawtime = drawTime * 1000.0f;
-
-
-
-	constexpr double FRAMETIME_AVERAGING_INTERVAL = .5; // TEMPORARY
 
 	// average
 	static double avg = 0.0;

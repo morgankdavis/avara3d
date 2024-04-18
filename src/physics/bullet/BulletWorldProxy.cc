@@ -15,6 +15,7 @@
 #include "LinearMath/btIDebugDraw.h"
 #include "magic_enum.hpp"
 
+#include "a3d/Configuration.h"
 #include "a3d/diagnostic/logging/Logger.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/bullet/BulletBodyProxy.h"
@@ -26,8 +27,6 @@ using namespace a3d;
 using namespace glm;
 using namespace std;
 
-
-constexpr unsigned MAX_SUBSTEPS = 0; // move
 
 /*********************************************************************************************
 	Private Static Non-Member Prototypes
@@ -95,10 +94,10 @@ void BulletWorldProxy::gravity(float gravity) {
 void BulletWorldProxy::step(double deltaT, float speed, float timestep) {
 
 	auto result = _btWorld->stepSimulation(deltaT * speed,
-										   MAX_SUBSTEPS,
+										   PHYSICS_MAX_SUBSTEPS,
 										   timestep);
 
-	if (result == MAX_SUBSTEPS) {
+	if (result == PHYSICS_MAX_SUBSTEPS) {
 		A3D_LOG_W("Max physics simulation substeps reached: {}", result);
 	}
 }
