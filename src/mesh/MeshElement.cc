@@ -15,7 +15,7 @@
 #include "a3d/diagnostic/logging/Logger.h"
 #include "a3d/mesh/Line.h"
 #include "a3d/scene/Node.h"
-#include "a3d/rendering/Renderer.h"
+#include "a3d/rendering/renderer/Renderer.h"
 
 
 using namespace a3d;

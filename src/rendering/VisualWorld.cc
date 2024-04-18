@@ -21,12 +21,12 @@
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/physics/bullet/BulletWorldProxy.h"
 #include "a3d/rendering/Light.h"
-#include "a3d/rendering/Renderer.h"
 #include "a3d/rendering/material/Material.h"
 #include "a3d/rendering/material/Sampler.h"
 #include "a3d/rendering/material/Texture.h"
 #include "a3d/rendering/camera/PerspectiveCamera.h"
 #include "a3d/rendering/context/RenderContext.h"
+#include "a3d/rendering/renderer/Renderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 

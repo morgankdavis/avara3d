@@ -16,9 +16,9 @@
 #include "a3d/Image.h"
 #include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/logging/Logger.h"
-#include "a3d/rendering/opengl/OpenGLRenderer.h"
 #include "a3d/rendering/camera/PerspectiveCamera.h"
-#include "a3d/rendering/Renderer.h"
+#include "a3d/rendering/renderer/Renderer.h"
+#include "a3d/rendering/renderer/opengl/OpenGLRenderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 

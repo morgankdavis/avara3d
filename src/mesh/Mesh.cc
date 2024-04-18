@@ -19,8 +19,8 @@
 #include "a3d/diagnostic/exception/UnsupportedFormatException.h"
 #include "a3d/mesh/Line.h"
 #include "a3d/mesh/MeshElement.h"
-#include "a3d/rendering/Renderer.h"
 #include "a3d/rendering/material/Material.h"
+#include "a3d/rendering/renderer/Renderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/importer/GlTFImporter.h"
 

@@ -53,7 +53,6 @@
 #include "a3d/physics/shape_primitive/PlanePhysicsShape.h"
 #include "a3d/physics/shape_primitive/SpherePhysicsShape.h"
 #include "a3d/rendering/Light.h"
-#include "a3d/rendering/Renderer.h"
 #include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/camera/Camera.h"
 #include "a3d/rendering/camera/OrthographicCamera.h"
@@ -64,7 +63,6 @@
 #include "a3d/rendering/material/Sampleable.h"
 #include "a3d/rendering/material/Sampler.h"
 #include "a3d/rendering/material/Texture.h"
-#include "a3d/rendering/opengl/Program.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 

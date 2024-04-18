@@ -18,9 +18,9 @@
 #include "a3d/diagnostic/logging/Logger.h"
 #include "a3d/input/WindowInputManager.h"
 #include "a3d/physics/PhysicalWorld.h"
-#include "a3d/rendering/Renderer.h"
 #include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/camera/Camera.h"
+#include "a3d/rendering/renderer/Renderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 

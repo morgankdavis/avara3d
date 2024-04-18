@@ -6,7 +6,7 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/rendering/opengl/OpenGLRenderer.h"
+#include "a3d/rendering/renderer/opengl/OpenGLRenderer.h"
 
 #include <algorithm>
 #include <iostream>
@@ -50,7 +50,7 @@
 #include "a3d/rendering/material/Material.h"
 #include "a3d/rendering/material/Sampler.h"
 #include "a3d/rendering/material/Texture.h"
-#include "a3d/rendering/opengl/Program.h"
+#include "a3d/rendering/renderer/opengl/Program.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 

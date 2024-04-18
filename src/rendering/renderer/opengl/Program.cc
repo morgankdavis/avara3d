@@ -6,7 +6,7 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/rendering/opengl/Program.h"
+#include "a3d/rendering/renderer/opengl/Program.h"
 
 #ifdef OPENGL_ES
 #include <EGL/egl.h>
