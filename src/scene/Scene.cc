@@ -290,7 +290,8 @@ void Scene::run() {
 					   runT,
 					   deltaRunT);
 
-			memset(&_stats, 0, sizeof(Stats));
+			_stats = {};
+			//memset(&_stats, 0, sizeof(Stats));
 			UpdateFrameTimeStats(_stats, runT);
 
 			if (_inputManager) {
