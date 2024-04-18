@@ -581,8 +581,6 @@ void Node::removeFromParent() {
 }
 
 vector<shared_ptr<Node>> Node::children(bool resursive) const {
-	// if !resursive, returns immediate children in no particular order
-	// if resursive, returns all descendants in topological order
 
 	if (resursive) {
 		return children(*this);
@@ -592,7 +590,8 @@ vector<shared_ptr<Node>> Node::children(bool resursive) const {
 	}
 }
 
-shared_ptr<Node> Node::childNamed(const string &name, bool resursive) {
+shared_ptr<Node> Node::childNamed(const string& name, bool resursive) {
+
 	for (auto& child : children(resursive)) {
 		if (child->name() != nullopt && *child->name() == name) {
 			return child;
