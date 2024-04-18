@@ -8,6 +8,7 @@
 
 #include "a3d/physics/PhysicalWorld.h"
 
+#include "a3d/Configuration.h"
 #include "a3d/diagnostic/logging/Logger.h"
 #include "a3d/physics/HitTestResult.h"
 #include "a3d/physics/PhysicsBody.h"
@@ -226,8 +227,6 @@ void UpdateTimeStats(Stats& stats, double startTime, double endTime) {
 	// current
 	auto stepTime = endTime - startTime;
 	stats.currentPhysicstime = stepTime * 1000.0f;
-
-	constexpr double FRAMETIME_AVERAGING_INTERVAL = .5; // TEMPORARY
 
 	// average
 	static double avg = 0.0;
