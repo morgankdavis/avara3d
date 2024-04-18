@@ -80,6 +80,13 @@ namespace a3d {
 		std::unique_ptr<btDbvtBroadphase>						_btBroadphase;
 		std::unique_ptr<btSequentialImpulseConstraintSolver>	_btConstraintSolver;
 		std::unique_ptr<BulletDebugDrawer>						_btDebugDrawer;
+
+//		btDiscreteDynamicsWorld					_btWorld;
+//		btDefaultCollisionConfiguration 		_btCollisionConfiguration;
+//		btCollisionDispatcher					_btCollisionDispatcher;
+//		btDbvtBroadphase						_btBroadphase;
+//		btSequentialImpulseConstraintSolver		_btConstraintSolver;
+//		BulletDebugDrawer						_btDebugDrawer;
 	};
 }
 

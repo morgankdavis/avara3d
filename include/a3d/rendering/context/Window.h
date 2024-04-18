@@ -9,8 +9,6 @@
 #ifndef AVARA3D_WINDOW_H
 #define AVARA3D_WINDOW_H
 
-#ifdef DESKTOP
-
 
 #include <memory>
 #include <optional>
@@ -109,7 +107,5 @@ namespace a3d {
 	};
 }
 
-
-#endif // DESKTOP
 
 #endif /* AVARA3D_WINDOW_H */
