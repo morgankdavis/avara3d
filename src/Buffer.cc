@@ -15,7 +15,6 @@
 
 
 using namespace a3d;
-using namespace a3d::utils;
 using namespace std;
 
 

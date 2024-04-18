@@ -18,7 +18,6 @@
 
 
 using namespace a3d;
-using namespace a3d::utils;
 using namespace glm;
 
 
@@ -100,7 +99,7 @@ mat4 a3d::TransformByRemovingScale(const mat4& m, bool& scaled) {
 			  skew,
 			  perspective);
 
-	scaled = !Equal(scale, {1, 1, 1});
+	scaled = !utils::Equal(scale, {1, 1, 1});
 	if (scaled) return translate(mat4(1.0), translation) * mat4_cast(orientation) * mat4(1.0);
 	else return m;
 }
