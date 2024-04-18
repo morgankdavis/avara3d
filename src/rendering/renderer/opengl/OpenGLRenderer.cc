@@ -56,7 +56,6 @@
 
 
 using namespace a3d;
-using namespace a3d::utils;
 using namespace glm;
 using namespace std;
 
@@ -265,7 +264,7 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 	string fontType = "otf";
 	float fontSize = 14.0;
 	
-	_overlayFont = FontNamed(fontName, fontType);
+	_overlayFont = utils::FontNamed(fontName, fontType);
 
 	if (_overlayFont->buffer()->size()) {
 		
