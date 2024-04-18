@@ -19,7 +19,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Public Static
+	Public Static Members
  *********************************************************************************************/
 
 shared_ptr<Material> Material::DefaultMaterial() {
@@ -36,26 +36,12 @@ shared_ptr<Material> Material::DefaultMaterial() {
 	return material;
 }
 
-shared_ptr<Material> Material::MissingTextureMaterial() {
-	static shared_ptr<Material> material = nullptr;
-	if (!material) {
-		material = Material::EmissionMaterial(Color::Magenta());
-		material->name("Missing texture material");
-		material->doubleSided(true);
-	}
-	return material;
-}
-
 shared_ptr<Material> Material::EmissionMaterial(MaterialProperty property) {
 	return make_shared<Material>(monostate{}, monostate{}, monostate{}, property);
 }
 
-MaterialProperty Material::MissingTextureProperty() {
-	return {Color::Magenta()};
-}
-
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 Material::Material():
@@ -102,7 +88,7 @@ Material::~Material() {
 }
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 const optional<string>& Material::name() const {
@@ -213,7 +199,25 @@ void Material::blendFunction(BlendFunction function) {
 }
 
 /*********************************************************************************************
-	Internal
+	Internal Static Members
+ *********************************************************************************************/
+
+shared_ptr<Material> Material::MissingTextureMaterial() {
+	static shared_ptr<Material> material = nullptr;
+	if (!material) {
+		material = Material::EmissionMaterial(Color::Magenta());
+		material->name("Missing texture material");
+		material->doubleSided(true);
+	}
+	return material;
+}
+
+MaterialProperty Material::MissingTextureProperty() {
+	return {Color::Magenta()};
+}
+
+/*********************************************************************************************
+	Internal Members
  *********************************************************************************************/
 
 MaterialDirtyMask Material::dirtyMask() const {

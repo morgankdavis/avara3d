@@ -31,7 +31,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Public Static
+	Public Static Members
  *********************************************************************************************/
 
 shared_ptr<Mesh> Mesh::FromFile(const filesystem::path& path,
@@ -43,15 +43,8 @@ shared_ptr<Mesh> Mesh::FromFile(const filesystem::path& path,
 }
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
-
-Mesh::Mesh():
-		_name{},
-		_elements{},
-		_materials{},
-		_aabbLines{},
-		_dirtyMask{MeshDirtyMask::All} { }
 
 Mesh::Mesh(const std::string& name,
 		   std::unique_ptr<MeshElement> element,
@@ -100,7 +93,7 @@ Mesh::~Mesh() {
 }
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 optional<string> Mesh::name() const {
@@ -158,7 +151,7 @@ void Mesh::replaceMaterial(int index, const shared_ptr<Material>& replacement) {
 }
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 void Mesh::burnTransform(const mat4& transform, bool normals) {
@@ -336,3 +329,14 @@ MeshDirtyMask Mesh::dirtyMask() const {
 void Mesh::dirtyMask(MeshDirtyMask mask) {
 	_dirtyMask = mask;
 }
+
+/*********************************************************************************************
+	Private Lifecycle
+ *********************************************************************************************/
+
+Mesh::Mesh():
+		_name{},
+		_elements{},
+		_materials{},
+		_aabbLines{},
+		_dirtyMask{MeshDirtyMask::All} { }

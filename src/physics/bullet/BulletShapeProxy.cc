@@ -47,7 +47,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Static Prototypes
+	Private Static Non-Member Prototypes
  *********************************************************************************************/
 
 static unique_ptr<btCollisionShape>
@@ -107,7 +107,7 @@ static vector<unique_ptr<MeshElement>>
 HACDMeshElementsFromMeshElement(MeshElement& element);
 
 /*********************************************************************************************
-	Lifecycle
+	Internal Lifecycle
  *********************************************************************************************/
 
 BulletShapeProxy::BulletShapeProxy(PhysicsShape& shape):
@@ -188,7 +188,7 @@ BulletShapeProxy::~BulletShapeProxy() {
 }
 
 /*********************************************************************************************
-	Public
+	Internal Members
  *********************************************************************************************/
 
 const vector <unique_ptr<btCollisionShape>>& BulletShapeProxy::btShapes() {
@@ -196,7 +196,7 @@ const vector <unique_ptr<btCollisionShape>>& BulletShapeProxy::btShapes() {
 }
 
 /*********************************************************************************************
-	Static
+	Static Non-Members
  *********************************************************************************************/
 
 static unique_ptr<btCollisionShape>

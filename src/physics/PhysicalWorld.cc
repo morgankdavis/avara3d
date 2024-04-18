@@ -23,13 +23,13 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Static Prorotypes
+	Private Static Non-Member Prorotypes
  *********************************************************************************************/
 
 static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 PhysicalWorld::PhysicalWorld():
@@ -50,7 +50,7 @@ PhysicalWorld::~PhysicalWorld() {
 }
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 const vec3& PhysicalWorld::gravity() const {
@@ -149,7 +149,7 @@ void PhysicalWorld::endContact(PhysicalWorld::EndContactCallback function) {
 }
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 void PhysicalWorld::attachedToScene(Scene& scene) {
@@ -218,7 +218,7 @@ PhysicalWorldProxy* PhysicalWorld::proxy() const {
 }
 
 /*********************************************************************************************
-	Static
+	Private Static Non-Members
  *********************************************************************************************/
 
 void UpdateTimeStats(Stats& stats, double startTime, double endTime) {

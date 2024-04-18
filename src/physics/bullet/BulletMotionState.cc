@@ -20,7 +20,7 @@ using namespace a3d;
 
 
 /*********************************************************************************************
-	Lifecycle
+	Internal Lifecycle
  *********************************************************************************************/
 
 BulletMotionState::BulletMotionState(PhysicsBody& body):
@@ -28,7 +28,7 @@ BulletMotionState::BulletMotionState(PhysicsBody& body):
 		_body{&body} { }
 
 /*********************************************************************************************
-	btMotionState
+	btMotionState Members
 *********************************************************************************************/
 
 // apply node transform to kinematic physics body
@@ -54,7 +54,7 @@ void BulletMotionState::setWorldTransform(const btTransform& transform) {
 }
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 PhysicsBody* BulletMotionState::body() const {

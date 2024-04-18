@@ -15,7 +15,7 @@ using namespace a3d;
 
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 PlanePhysicsShape::PlanePhysicsShape(float width, float height):
@@ -25,7 +25,7 @@ PlanePhysicsShape::PlanePhysicsShape(float width, float height):
 PlanePhysicsShape::~PlanePhysicsShape() {}
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 float PlanePhysicsShape::width() const {
@@ -45,7 +45,7 @@ void PlanePhysicsShape::height(float height) {
 }
 
 /*********************************************************************************************
-	PhysicsShape
+	PhysicsShape Public Members
  *********************************************************************************************/
 
 PhysicsShapeType PlanePhysicsShape::type() const {

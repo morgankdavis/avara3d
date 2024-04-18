@@ -37,14 +37,14 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Static Prototypes
+	Private Static Non-Member Prototypes
  *********************************************************************************************/
 
 static unique_ptr<Mesh> MakeSkyboxMesh(MaterialProperty& property);
 static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 VisualWorld::VisualWorld(RenderContext* context):
@@ -72,7 +72,7 @@ VisualWorld::~VisualWorld() {
 }
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 MaterialProperty& VisualWorld::background() {
@@ -202,7 +202,7 @@ void VisualWorld::didRender(DidRenderCallback function) {
 }
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 void VisualWorld::attachedToScene(Scene& scene) {
@@ -386,7 +386,7 @@ weak_ptr<Node> VisualWorld::defaultPointOfView() {
 }
 
 /*********************************************************************************************
-	Static
+	Private Static Members
  *********************************************************************************************/
 
 static unique_ptr<Mesh> MakeSkyboxMesh(MaterialProperty& property) {

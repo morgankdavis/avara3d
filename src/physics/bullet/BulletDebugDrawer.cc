@@ -22,7 +22,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Static Prototypes
+	Private Static Non-Member Prototypes
  *********************************************************************************************/
 
 static vec3 		GLMVec3FromBTVector3(const btVector3& from);
@@ -31,7 +31,7 @@ static btVector3 	BTVector3FromGLMVec3(const vec3& from);
 static btVector4 	BTVector4FromGLMVec4(const vec4& from);
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 BulletDebugDrawer::BulletDebugDrawer():
@@ -41,7 +41,7 @@ BulletDebugDrawer::BulletDebugDrawer():
 BulletDebugDrawer::~BulletDebugDrawer() { }
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 void BulletDebugDrawer::clear() {
@@ -59,7 +59,7 @@ void BulletDebugDrawer::draw(Renderer& renderer,
 }
 
 /*********************************************************************************************
-	btIDebugDraw
+	btIDebugDraw Members
  *********************************************************************************************/
 
 void BulletDebugDrawer::drawLine(const btVector3& from,

@@ -43,7 +43,7 @@ constexpr double FRAMETIME_AVERAGING_INTERVAL = .5;
 
 
 /*********************************************************************************************
-	Private Static Prototypes
+	Private Static Non-Member Prototypes
  *********************************************************************************************/
 
 static void 						GetRunTime(double time, // time since reference
@@ -54,7 +54,7 @@ static void 						UpdateUserTimeStats(Stats& stats, double startTime, double end
 static void							UpdateFrameTimeStats(Stats& stats, double time);
 
 /*********************************************************************************************
-	Public Static
+	Public Static Members
  *********************************************************************************************/
 
 unique_ptr<Scene> Scene::FromFile(const filesystem::path& path,
@@ -71,7 +71,7 @@ double Scene::Time() {
 }
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 Scene::Scene():
@@ -134,7 +134,7 @@ Scene::~Scene() {
 }
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 const optional<std::string>& Scene::name() const {

@@ -17,18 +17,8 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Public Static
+	Public Static Members
  *********************************************************************************************/
-
-//unique_ptr<Light> Light::DefaultAmbient() {
-//	return make_unique<Light>(LightType::Ambient, Color{0.25f, 0.25, 0.25, 1.0});
-//}
-//
-//unique_ptr<Light> Light::DefaultPoint() {
-//	auto light = make_unique<Light>(LightType::Point, *Color::White());
-//	light->attenuationFactor(0.0);
-//	return light;
-//}
 
 shared_ptr<Light> Light::DefaultAmbient() {
 	return make_shared<Light>(LightType::Ambient, make_shared<Color>(0.25f, 0.25, 0.25, 1.0));
@@ -41,7 +31,7 @@ shared_ptr<Light> Light::DefaultPoint() {
 }
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 Light::Light(LightType type):
@@ -69,7 +59,7 @@ Light::~Light() {
 }
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 const optional<string>& Light::name() const {
@@ -103,15 +93,3 @@ float Light::attenuationFactor() const {
 void Light::attenuationFactor(float factor) {
 	_attenuationFactor = factor;
 }
-
-/*********************************************************************************************
-	Internal
- *********************************************************************************************/
-
-//weak_ptr<Node> Light::node() const {
-//	return _node;
-//}
-//
-//void Light::attachedToNode(shared_ptr<Node> node) {
-//	_node = node;
-//}

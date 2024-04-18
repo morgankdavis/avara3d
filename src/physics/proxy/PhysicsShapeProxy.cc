@@ -13,20 +13,8 @@ using namespace a3d;
 
 
 /*********************************************************************************************
-	Lifecycle
+	Internal Lifecycle
  *********************************************************************************************/
 
 PhysicsShapeProxy::PhysicsShapeProxy(PhysicsShape& shape) { }
 PhysicsShapeProxy::~PhysicsShapeProxy() { }
-
-/*********************************************************************************************
-	Internal
- *********************************************************************************************/
-
-//void PhysicsShapeModelProxy::attachedToShape(PhysicsShape* shape) {
-//
-//}
-//
-//void PhysicsShapeModelProxy::detachedFromShape(PhysicsShape* shape) {
-//
-//}

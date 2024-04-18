@@ -32,13 +32,13 @@ constexpr bool	FLIP_MOUSE_HORIZONTAL =		false;
 
 
 /*********************************************************************************************
-	Static Prototypes
+	Private Static Non-Member Prototypes
  *********************************************************************************************/
 
 static WindowInputManager* InputManagerFromGLFWWindow(GLFWwindow* glfwWindow);
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 WindowInputManager::WindowInputManager(Window* window):
@@ -60,7 +60,7 @@ WindowInputManager::~WindowInputManager() {
 }
 
 /*********************************************************************************************
-	Internal
+	InputManager Internal Members
  *********************************************************************************************/
 
 void WindowInputManager::update() {
@@ -108,96 +108,7 @@ void WindowInputManager::update() {
 }
 
 /*********************************************************************************************
-	GLFW Callbacks
- *********************************************************************************************/
-
-void WindowInputManager::GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
-												 int button,
-												 int action,
-												 int mods) {
-
-	auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
-	
-	auto a3dButton = static_cast<MouseButton>(button);
-	
-	if (action == GLFW_PRESS) {
-		inputManager->_mouseButtonsDown.insert(a3dButton);
-		
-		// if button is in "cleared" it means the client already read it, so don't add it again until
-		// we get button up, and then back down again
-		if (inputManager->_mouseButtonsPressedCleared.count(a3dButton) == 0) {
-			inputManager->_mouseButtonsPressed.insert(a3dButton);
-		}
-	}
-	else if (action == GLFW_RELEASE) {
-		inputManager->_mouseButtonsDown.erase(a3dButton);
-		inputManager->_mouseButtonsPressedCleared.erase(a3dButton);
-	}
-}
-
-void WindowInputManager::GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
-													double xPos,
-													double yPos) {
-
-	auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
-
-	// keep "lastPos" outside cursorCaptured() check to keep it from
-	// jumping when re-capturing the cursor
-	static double lastXPos = xPos;
-	static double lastYPos = yPos;
-
-	if (auto window = inputManager->_window; window) {
-		if (window->cursorCaptured()) {
-
-			double xDelta = lastXPos - xPos;
-			double yDelta = lastYPos - yPos;
-
-			//A3D_LOG_D("xDelta: {}, yDelta {}", xDelta, yDelta);
-
-			inputManager->_mousePositionDelta.x -= xDelta;
-			inputManager->_mousePositionDelta.y += yDelta;
-		}
-	}
-
-	lastXPos = xPos;
-	lastYPos = yPos;
-}
-
-void WindowInputManager::GLFWScrollWheelCallback(GLFWwindow* glfwWindow,
-												 double xOffset,
-												 double yOffset) {
-
-	auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
-
-	inputManager->_mouseScrollWheelDelta.x += (float)xOffset;
-	inputManager->_mouseScrollWheelDelta.y += (float)yOffset;
-}
-
-void WindowInputManager::GLFWKeyCallback(GLFWwindow* glfwWindow,
-										 int key,
-										 int scancode,
-										 int action,
-										 int mods) {
-
-	auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
-	
-	if (action == GLFW_PRESS) {
-		inputManager->_keysDown.insert(static_cast<Key>(key));
-		
-		// if key is in "cleared" it means the client already read it, so don't add it again until
-		// we get key up, and then back down again
-		if (inputManager->_keysPressedCleared.count(static_cast<Key>(key)) == 0) {
-			inputManager->_keysPressed.insert(static_cast<Key>(key));
-		}
-	}
-	else if (action == GLFW_RELEASE) {
-		inputManager->_keysDown.erase(static_cast<Key>(key));
-		inputManager->_keysPressedCleared.erase(static_cast<Key>(key));
-	}
-}
-
-/*********************************************************************************************
-	Private
+	Private members
  *********************************************************************************************/
 
 void WindowInputManager::initMouseInput() {
@@ -259,7 +170,96 @@ void WindowInputManager::unregisterGLFWCallbacks(GLFWwindow* glfwWindow) {
 }
 
 /*********************************************************************************************
-	Static
+	Private Static Members
+ *********************************************************************************************/
+
+void WindowInputManager::GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
+												 int button,
+												 int action,
+												 int mods) {
+
+	auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
+
+	auto a3dButton = static_cast<MouseButton>(button);
+
+	if (action == GLFW_PRESS) {
+		inputManager->_mouseButtonsDown.insert(a3dButton);
+
+		// if button is in "cleared" it means the client already read it, so don't add it again until
+		// we get button up, and then back down again
+		if (inputManager->_mouseButtonsPressedCleared.count(a3dButton) == 0) {
+			inputManager->_mouseButtonsPressed.insert(a3dButton);
+		}
+	}
+	else if (action == GLFW_RELEASE) {
+		inputManager->_mouseButtonsDown.erase(a3dButton);
+		inputManager->_mouseButtonsPressedCleared.erase(a3dButton);
+	}
+}
+
+void WindowInputManager::GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
+													double xPos,
+													double yPos) {
+
+	auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
+
+	// keep "lastPos" outside cursorCaptured() check to keep it from
+	// jumping when re-capturing the cursor
+	static double lastXPos = xPos;
+	static double lastYPos = yPos;
+
+	if (auto window = inputManager->_window; window) {
+		if (window->cursorCaptured()) {
+
+			double xDelta = lastXPos - xPos;
+			double yDelta = lastYPos - yPos;
+
+			//A3D_LOG_D("xDelta: {}, yDelta {}", xDelta, yDelta);
+
+			inputManager->_mousePositionDelta.x -= xDelta;
+			inputManager->_mousePositionDelta.y += yDelta;
+		}
+	}
+
+	lastXPos = xPos;
+	lastYPos = yPos;
+}
+
+void WindowInputManager::GLFWScrollWheelCallback(GLFWwindow* glfwWindow,
+												 double xOffset,
+												 double yOffset) {
+
+	auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
+
+	inputManager->_mouseScrollWheelDelta.x += (float)xOffset;
+	inputManager->_mouseScrollWheelDelta.y += (float)yOffset;
+}
+
+void WindowInputManager::GLFWKeyCallback(GLFWwindow* glfwWindow,
+										 int key,
+										 int scancode,
+										 int action,
+										 int mods) {
+
+	auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
+
+	if (action == GLFW_PRESS) {
+		inputManager->_keysDown.insert(static_cast<Key>(key));
+
+		// if key is in "cleared" it means the client already read it, so don't add it again until
+		// we get key up, and then back down again
+		if (inputManager->_keysPressedCleared.count(static_cast<Key>(key)) == 0) {
+			inputManager->_keysPressed.insert(static_cast<Key>(key));
+		}
+	}
+	else if (action == GLFW_RELEASE) {
+		inputManager->_keysDown.erase(static_cast<Key>(key));
+		inputManager->_keysPressedCleared.erase(static_cast<Key>(key));
+	}
+}
+
+/*********************************************************************************************
+	Private Static Functions
  *********************************************************************************************/
 
 WindowInputManager* InputManagerFromGLFWWindow(GLFWwindow* glfwWindow) {

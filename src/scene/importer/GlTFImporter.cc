@@ -44,11 +44,18 @@ using namespace glm;
 using namespace std;
 
 
+/*********************************************************************************************
+	Private Static Non-Member Prototypes
+ *********************************************************************************************/
+
 static fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options);
 static mat4 TransformFromGlTFNode(fastgltf::Node& node);
 static shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 3>& arr);
 static shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 4>& arr);
 
+/*********************************************************************************************
+	Internal Lifecycle
+ *********************************************************************************************/
 
 GlTFImporter::GlTFImporter(const filesystem::path& path,
 						   SceneImportOptions options):
@@ -70,6 +77,10 @@ GlTFImporter::GlTFImporter(const filesystem::path& path,
 		throw UnsupportedFormatException(fmt::format("Unsupported format: {}", extension.string()));
 	}
 }
+
+/*********************************************************************************************
+	Internal Members
+ *********************************************************************************************/
 
 unique_ptr<a3d::Scene> GlTFImporter::scene() {
 
@@ -152,6 +163,10 @@ const filesystem::path& GlTFImporter::path() const {
 SceneImportOptions GlTFImporter::options() const {
 	return _options;
 }
+
+/*********************************************************************************************
+	Private Members
+ *********************************************************************************************/
 
 bool GlTFImporter::parse() {
 
@@ -798,6 +813,10 @@ shared_ptr<a3d::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
 
 	return nullptr;
 }
+
+/*********************************************************************************************
+	Private Static Non-Members
+ *********************************************************************************************/
 
 fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options) {
 

@@ -13,6 +13,10 @@ using namespace a3d;
 using namespace std;
 
 
+/*********************************************************************************************
+	Public Lifecycle
+ *********************************************************************************************/
+
 Texture::Texture():
 		_sampler{nullptr},
 		_contents{nullptr},
@@ -28,6 +32,10 @@ Texture::Texture(const shared_ptr<Sampleable>& contents,
 		_dirtyMask{TextureDirtyMask::All} { }
 
 Texture::~Texture() {}
+
+/*********************************************************************************************
+	Public Members
+ *********************************************************************************************/
 
 shared_ptr<Sampler> Texture::sampler() const {
 	return _sampler;

@@ -41,7 +41,7 @@ constexpr size_t MAX_LOG_LINE_SIZE = MAX_HEADER_STR_SIZE + MAX_LOG_BODY_SIZE;
 
 
 /*********************************************************************************************
-	Public Static
+	Public Static Members
  *********************************************************************************************/
 
 Logger& Logger::MainLogger() {
@@ -78,7 +78,7 @@ Logger& Logger::MainLogger() {
 }
 
 /*********************************************************************************************
-	Static Prototypes
+	Private Static Member Prototypes
  *********************************************************************************************/
 
 string DateString();
@@ -87,7 +87,7 @@ string HeaderString(const string& logName, LogLevel level,
 					const char* filename, int line, const char* function);
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 Logger::Logger(const string& name,
@@ -114,7 +114,7 @@ Logger::Logger(const string& name,
 Logger::~Logger() { }
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 const string& Logger::name() const {
@@ -354,7 +354,7 @@ void Logger::flush() {
 }
 
 /*********************************************************************************************
-	Static
+	Private Static Members
  *********************************************************************************************/
 
 string DateString() {

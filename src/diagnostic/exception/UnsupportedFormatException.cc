@@ -13,5 +13,10 @@ using namespace a3d;
 using namespace std;
 
 
+
+/*********************************************************************************************
+	Internal Lifecycle
+ *********************************************************************************************/
+
 UnsupportedFormatException::UnsupportedFormatException(const string& what):
 		Exception{what} {}

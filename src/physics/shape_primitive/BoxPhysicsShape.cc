@@ -15,7 +15,7 @@ using namespace a3d;
 
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
  *********************************************************************************************/
 
 BoxPhysicsShape::BoxPhysicsShape(float width, float height, float length):
@@ -26,7 +26,7 @@ BoxPhysicsShape::BoxPhysicsShape(float width, float height, float length):
 BoxPhysicsShape::~BoxPhysicsShape() {}
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 float BoxPhysicsShape::width() const {
@@ -54,7 +54,7 @@ void BoxPhysicsShape::length(float length) {
 }
 
 /*********************************************************************************************
-	PhysicsShape
+	PhysicsShape Public Members
  *********************************************************************************************/
 
 PhysicsShapeType BoxPhysicsShape::type() const {

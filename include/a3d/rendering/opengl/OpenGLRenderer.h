@@ -63,7 +63,7 @@ namespace a3d {
 		~OpenGLRenderer() override;
 
 /*********************************************************************************************
-	Internal Members
+	Renderer Internal Members
  *********************************************************************************************/
 
 		RenderingApi 				renderingApi() const override;

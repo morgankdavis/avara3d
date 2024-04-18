@@ -22,6 +22,10 @@ using namespace glm;
 using namespace std;
 
 
+/*********************************************************************************************
+	Pubic Static Members
+ *********************************************************************************************/
+
 shared_ptr<Mesh> RoundedBox::Mesh(float radius,
 								  float length,
 								  float width,
@@ -45,7 +49,7 @@ shared_ptr<Mesh> RoundedBox::Mesh(float radius,
 }
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
 *********************************************************************************************/
 
 RoundedBox::RoundedBox(float radius,
@@ -93,7 +97,7 @@ RoundedBox::RoundedBox(float radius,
 }
 
 /*********************************************************************************************
- 	Public
+ 	Public Members
  *********************************************************************************************/
 
 float RoundedBox::radius() const {

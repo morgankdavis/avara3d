@@ -29,49 +29,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Lifescycle
- *********************************************************************************************/
-
-RenderContext::RenderContext(RenderingApi renderingApi):
-		_width{0},
-		_height{0},
-		_framebufferWidth{0},
-		_framebufferHeight{0},
-		_framebufferScale{1.0, 1.0},
-		_vSyncEnabled{false},
-		_antialiasingMode{AntialiasingMode::None},
-		_gifWriter{},
-		_recordingGIF{false},
-		_gifRecordingWidth{0},
-		_gifRecordingHeight{0},
-		_gifRecordingMaxFramerate{0},
-		_gifRecordedFrames{0},
-		_visualWorld{},
-		_renderer{} {
-
-	switch (renderingApi) {
-		case RenderingApi::OpenGL: {
-			_renderer = make_unique<OpenGLRenderer>();
-			break; }
-		case RenderingApi::OpenGLES: {
-			throw Exception("Unsupported rendering API: OpenGLES");
-			break; }
-		case RenderingApi::Vulkan: {
-			throw Exception("Unsupported rendering API: Vulkan");
-			break; }
-	}
-}
-
-RenderContext::~RenderContext() {
-	A3D_LOG_D("Destroying RenderContext {:p}", static_cast<void*>(this));
-	
-	if (_recordingGIF) {
-		stopGIFRecording();
-	}
-}
-
-/*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 unsigned RenderContext::width() const {
@@ -176,7 +134,49 @@ Renderer* RenderContext::renderer() const {
 }
 
 /*********************************************************************************************
-	Internal
+	Internal Lifescycle
+ *********************************************************************************************/
+
+RenderContext::RenderContext(RenderingApi renderingApi):
+		_width{0},
+		_height{0},
+		_framebufferWidth{0},
+		_framebufferHeight{0},
+		_framebufferScale{1.0, 1.0},
+		_vSyncEnabled{false},
+		_antialiasingMode{AntialiasingMode::None},
+		_gifWriter{},
+		_recordingGIF{false},
+		_gifRecordingWidth{0},
+		_gifRecordingHeight{0},
+		_gifRecordingMaxFramerate{0},
+		_gifRecordedFrames{0},
+		_visualWorld{},
+		_renderer{} {
+
+	switch (renderingApi) {
+		case RenderingApi::OpenGL: {
+			_renderer = make_unique<OpenGLRenderer>();
+			break; }
+		case RenderingApi::OpenGLES: {
+			throw Exception("Unsupported rendering API: OpenGLES");
+			break; }
+		case RenderingApi::Vulkan: {
+			throw Exception("Unsupported rendering API: Vulkan");
+			break; }
+	}
+}
+
+RenderContext::~RenderContext() {
+	A3D_LOG_D("Destroying RenderContext {:p}", static_cast<void*>(this));
+
+	if (_recordingGIF) {
+		stopGIFRecording();
+	}
+}
+
+/*********************************************************************************************
+	Internal Members
  *********************************************************************************************/
 
 void RenderContext::width(unsigned width) {

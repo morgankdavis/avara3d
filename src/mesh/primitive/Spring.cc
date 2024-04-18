@@ -22,6 +22,10 @@ using namespace glm;
 using namespace std;
 
 
+/*********************************************************************************************
+	Pubic Static Members
+ *********************************************************************************************/
+
 shared_ptr<Mesh> Spring::Mesh(float minorRadius,
 							  float majorRadius,
 							  float length,
@@ -39,7 +43,7 @@ shared_ptr<Mesh> Spring::Mesh(float minorRadius,
 }
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
 *********************************************************************************************/
 
 Spring::Spring(float minorRadius,
@@ -78,7 +82,7 @@ Spring::Spring(float minorRadius,
 }
 
 /*********************************************************************************************
-	Public
+	Public Members
  *********************************************************************************************/
 
 float Spring::minorRadius() const {

@@ -54,11 +54,6 @@ namespace a3d {
 		unsigned 					bytesPerPixel() const;
 		std::unique_ptr<Image> 		inverted() const;
 		bool 						writePNG(std::filesystem::path path) const;
-		
-/*********************************************************************************************
-	Internal Members
- *********************************************************************************************/
-		
 		const Buffer& 				buffer() const;
 
 /*********************************************************************************************

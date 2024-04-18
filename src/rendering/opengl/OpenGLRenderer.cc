@@ -65,7 +65,47 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Static Prototypes
+	Private Types
+ *********************************************************************************************/
+
+enum class MATERIAL_MODE : int {
+	NONE = 		0,
+	COLOR = 	1,
+	SAMPLER = 	2
+};
+
+typedef struct {
+	int32_t 	type;
+	float32_t 	PADDING1;
+	float32_t 	PADDING2;
+	float32_t 	PADDING3;
+	vec3 		position_world;
+	float32_t 	PADDING4;
+	vec3 		color;
+	float32_t 	PADDING5;
+	float 		attenuationFactor;
+	float32_t 	PADDING6;
+	float32_t	PADDING7;
+	float32_t 	PADDING8;
+	/* vec3 	direction_world;
+	float 		attenuationStart;
+	float 		attenuationEnd;
+	float 		attenuationExponent;
+	float 		innerAngle;
+	float 		outerAngle; */
+} LightGLSLStruct;
+
+typedef struct {
+	float32_t 		startDistance;
+	float32_t 		endDistance;
+	float32_t 		densityExponent;
+	float32_t 		PADDING1;
+	vec4 			color;
+	/* float32_t 	PADDING2; */
+} FogGLSLStruct;
+
+/*********************************************************************************************
+	Private Static Non-Member Prototypes
  *********************************************************************************************/
 
 static void 		RenderSkybox(Mesh& skyboxMesh,
@@ -155,47 +195,7 @@ static GLenum 		GLWrapModeForWrapMode(WrapMode mode);
 static void 		CheckGLError();
 
 /*********************************************************************************************
-	Types
- *********************************************************************************************/
-
-enum class MATERIAL_MODE : int {
-	NONE = 		0,
-	COLOR = 	1,
-	SAMPLER = 	2
-};
-	
-typedef struct {
-	int32_t 	type;
-	float32_t 	PADDING1;
-	float32_t 	PADDING2;
-	float32_t 	PADDING3;
-	vec3 		position_world;
-	float32_t 	PADDING4;
-	vec3 		color;
-	float32_t 	PADDING5;
-	float 		attenuationFactor;
-	float32_t 	PADDING6;
-	float32_t	PADDING7;
-	float32_t 	PADDING8;
-	/* vec3 	direction_world;
-	float 		attenuationStart;
-	float 		attenuationEnd;
-	float 		attenuationExponent;
-	float 		innerAngle;
-	float 		outerAngle; */
-} LightGLSLStruct;
-
-typedef struct {
-	float32_t 		startDistance;
-	float32_t 		endDistance;
-	float32_t 		densityExponent;
-	float32_t 		PADDING1;
-	vec4 			color;
-	/* float32_t 	PADDING2; */
-} FogGLSLStruct;
-
-/*********************************************************************************************
-	Lifecycle
+	Internal Lifecycle
  *********************************************************************************************/
 
 OpenGLRenderer::OpenGLRenderer():
@@ -230,7 +230,7 @@ OpenGLRenderer::~OpenGLRenderer() {
 }
 	
 /*********************************************************************************************
-	Renderer
+	Renderer Internal Members
  *********************************************************************************************/
 
 RenderingApi OpenGLRenderer::renderingApi() const {

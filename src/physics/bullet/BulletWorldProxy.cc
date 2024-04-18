@@ -30,13 +30,13 @@ using namespace std;
 constexpr unsigned MAX_SUBSTEPS = 0; // move
 
 /*********************************************************************************************
-	Static Prototypes
+	Private Static Non-Member Prototypes
  *********************************************************************************************/
 
 static btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const DebugOptions& options);
 
 /*********************************************************************************************
-	Lifecycle
+	Internal Lifecycle
  *********************************************************************************************/
 
 BulletWorldProxy::BulletWorldProxy(PhysicalWorld& world):
@@ -65,7 +65,7 @@ BulletWorldProxy::~BulletWorldProxy() {
 }
 
 /*********************************************************************************************
-	PhysicalWorldModelProxy
+	PhysicalWorldModelProxy Internal Members
  *********************************************************************************************/
 
 void BulletWorldProxy::add(PhysicsBody& body) {
@@ -123,7 +123,7 @@ void BulletWorldProxy::drawDebug(Renderer &renderer,
 }
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 btDiscreteDynamicsWorld* BulletWorldProxy::btWorld() const {
@@ -135,7 +135,7 @@ BulletDebugDrawer* BulletWorldProxy::btDebugDrawer() const {
 }
 
 /*********************************************************************************************
-	Static
+	Private Static Non-Members
  *********************************************************************************************/
 
 btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const DebugOptions& options) {

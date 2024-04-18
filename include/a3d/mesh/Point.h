@@ -14,6 +14,8 @@
 
 #include "glm/glm.hpp"
 
+#include "a3d/Color.h"
+
 
 namespace a3d {
 	
@@ -30,16 +32,16 @@ namespace a3d {
 	public:
 
 		explicit Point(const glm::vec3& location);
-		Point(const glm::vec3& location, const std::shared_ptr<Color>& color);
+		Point(const glm::vec3& location, const Color& color);
 
 /*********************************************************************************************
 	Internal Members
  *********************************************************************************************/
 
-		const glm::vec3& 				location() const;
-		void 							location(const glm::vec3& point);
-		const std::shared_ptr<Color>&	color() const;
-		void 							color(const std::shared_ptr<Color>& color);
+		const glm::vec3& 		location() const;
+		void 					location(const glm::vec3& point);
+		const Color&			color() const;
+		void 					color(const Color& color);
 		
 /*********************************************************************************************
 	Private IVars
@@ -47,8 +49,8 @@ namespace a3d {
 
 	private:
 
-		glm::vec3 						_location;
-		std::shared_ptr<Color> 			_color;
+		glm::vec3 				_location;
+		Color 					_color;
 	};
 }
 

@@ -13,6 +13,10 @@ using namespace a3d;
 using namespace std;
 
 
+/*********************************************************************************************
+	Public Lifecycle
+ *********************************************************************************************/
+
 Sampler::Sampler():
 // TODO: are these sensible?
 		_minificationFilter{FilterMode::LinearMipmapLinear},
@@ -24,6 +28,10 @@ Sampler::Sampler():
 		_dirtyMask{SamplerDirtyMask::All} {}
 
 Sampler::~Sampler() {}
+
+/*********************************************************************************************
+	Public Members
+ *********************************************************************************************/
 
 FilterMode Sampler::minificationFilter() const {
 	return _minificationFilter;
@@ -94,7 +102,7 @@ void Sampler::wrapR(WrapMode mode) {
 }
 
 /*********************************************************************************************
-	Internal
+	Internal Members
  *********************************************************************************************/
 
 SamplerDirtyMask Sampler::dirtyMask() const {

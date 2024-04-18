@@ -22,6 +22,10 @@ using namespace glm;
 using namespace std;
 
 
+/*********************************************************************************************
+	Pubic Static Members
+ *********************************************************************************************/
+
 shared_ptr<Mesh> Torus::Mesh(float minorRadius,
 							 float majorRadius,
 							 unsigned slices,
@@ -37,7 +41,7 @@ shared_ptr<Mesh> Torus::Mesh(float minorRadius,
 }
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle
 *********************************************************************************************/
 
 Torus::Torus(float minorRadius,
@@ -75,7 +79,7 @@ Torus::Torus(float minorRadius,
 }
 
 /*********************************************************************************************
- 	Public
+ 	Public Members
  *********************************************************************************************/
 
 float Torus::minorRadius() const {
