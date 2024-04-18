@@ -36,6 +36,7 @@
 #include "a3d/rendering/material/Texture.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
+#include "a3d/Utilities.h"
 
 
 using namespace a3d;
@@ -87,7 +88,7 @@ unique_ptr<a3d::Scene> GlTFImporter::scene() {
 	if (!_scene) {
 		if (parse()) {
 
-			auto startTime = Scene::Time();
+			auto startTime = utils::Time();
 
 			auto a3dScene = make_unique<a3d::Scene>();
 
@@ -111,7 +112,7 @@ unique_ptr<a3d::Scene> GlTFImporter::scene() {
 
 					// TODO: throw out nodes that don't have anything attached to them, or any children?
 
-					A3D_LOG_I("Done loading scene.  Time: {}", Scene::Time() - startTime);
+					A3D_LOG_I("Done loading scene.  Time: {}", utils::Time() - startTime);
 
 					_scene = std::move(a3dScene);
 				}
@@ -137,7 +138,7 @@ shared_ptr<a3d::Mesh> GlTFImporter::firstMesh() {
 
 	if (parse()) {
 
-		auto startTime = Scene::Time();
+		auto startTime = utils::Time();
 
 		auto& meshes = _asset.meshes;
 		if (!meshes.empty()) {
@@ -145,7 +146,7 @@ shared_ptr<a3d::Mesh> GlTFImporter::firstMesh() {
 			mesh = meshFromGlTFMeshIndex(_asset, 0);
 
 			if (mesh) {
-				A3D_LOG_I("Done loading mesh.  Time: {}", Scene::Time() - startTime);
+				A3D_LOG_I("Done loading mesh.  Time: {}", utils::Time() - startTime);
 			}
 		}
 		else {
@@ -174,7 +175,7 @@ bool GlTFImporter::parse() {
 
 		A3D_LOG_I("Parsing glTF: '{}'...", _path.string());
 
-		auto startTime = Scene::Time();
+		auto startTime = utils::Time();
 
 		auto extensions = Extensions::KHR_lights_punctual
 						  | Extensions::KHR_materials_specular
@@ -208,10 +209,10 @@ bool GlTFImporter::parse() {
 
 			if (auto& info = asset.assetInfo) {
 				A3D_LOG_D("Done parsing glTF.  Version: '{}', Copyright: '{}', Generator: '{}'.  Parse time: {}",
-						  info->gltfVersion, info->copyright, info->generator, Scene::Time() - startTime);
+						  info->gltfVersion, info->copyright, info->generator, utils::Time() - startTime);
 			}
 			else {
-				A3D_LOG_D("Done parsing glTF.  Time: {}", Scene::Time() - startTime);
+				A3D_LOG_D("Done parsing glTF.  Time: {}", utils::Time() - startTime);
 			}
 
 			_asset = std::move(expectedAsset.get());

@@ -733,8 +733,8 @@ void SpawnDuckFruit(Scene& scene, Node& duckNode) {
 
 	constexpr float SPAWN_RATE = 7.5; // pieces/sec
 
-	float time = Scene::Time();
-	static float lastSSpawnTime = 0;
+	auto time = scene.time();
+	static auto lastSSpawnTime = 0;
 	if ((time - lastSSpawnTime) >= (1.0/SPAWN_RATE)) {
 
 //		AddCardboardBox(scene, {0, 10, 0}, {1, 0, 0}, 0.0f);
@@ -899,8 +899,8 @@ void ShootBall(Scene& scene, const vec3& location, const vec3& direction) {
 
 	constexpr float SHOOT_RATE = 20; // balls/sec
 
-	auto time = Scene::Time();
-	static float lastShootTime = 0;
+	auto time = scene.time();
+	static auto lastShootTime = 0;
 	if ((time - lastShootTime) >= (1.0/SHOOT_RATE)) {
 
 

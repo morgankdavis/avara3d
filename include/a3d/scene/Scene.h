@@ -50,8 +50,7 @@ namespace a3d {
 
 		static std::unique_ptr<Scene> 		FromFile(const std::filesystem::path& path,
 													  SceneImportOptions options =
-															  SceneImportOptions::ImportAll);
-		static double 						Time();
+													  SceneImportOptions::ImportAll);
 
 /*********************************************************************************************
 	Public Lifecycle
@@ -95,6 +94,8 @@ namespace a3d {
 
 		bool								running() const;
 
+		double 								time() const;
+
 		bool								paused() const;
 		void								paused(bool flag);
 
@@ -116,6 +117,8 @@ namespace a3d {
 		std::unique_ptr<InputManager>		_inputManager;
 		DebugOptions						_debugOptions;
 		bool								_running;
+		double 								_startTime;
+		//std::chrono::time_point<std::chrono::system_clock, std::chrono::duration> _startTimePoint;
 		bool								_paused;
 		Stats								_stats;
 		UpdateCallback						_update;

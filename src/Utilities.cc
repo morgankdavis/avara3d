@@ -9,6 +9,7 @@
 #include "a3d/Utilities.h"
 
 //#include <algorithm> // needs to be under windows.h
+#include <chrono>
 #include <ctime>
 #include <fstream>
 #include <memory>
@@ -261,9 +262,9 @@ bool a3d::utils::Equal(const glm::vec4& a, const glm::vec4& b, float tolerance) 
  *********************************************************************************************/
 
 double a3d::utils::Time() {
-	static auto startTime = chrono::high_resolution_clock::now();
-	auto nowTime = chrono::high_resolution_clock::now();
-	return (chrono::duration<double>(nowTime - startTime)).count();
+
+	auto now = chrono::system_clock::now();
+	return chrono::duration<double>(now.time_since_epoch()).count();
 }
 
 /*********************************************************************************************

@@ -265,7 +265,7 @@ void VisualWorld::draw(const Scene& scene,
 				willRender(*this, runT);
 			}
 
-			auto startTime = Scene::Time();
+			auto startTime = scene.time();
 
 			renderer->beginFrame(scene, *_renderContext, debugOptions, stats);
 
@@ -301,7 +301,7 @@ void VisualWorld::draw(const Scene& scene,
 				A3D_LOG_W("No point of view!");
 			}
 
-			UpdateTimeStats(stats, startTime, Scene::Time());
+			UpdateTimeStats(stats, startTime, scene.time());
 
 			renderer->endFrame(scene, *_renderContext, debugOptions, stats);
 

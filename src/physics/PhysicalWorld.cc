@@ -198,11 +198,11 @@ void PhysicalWorld::step(const Scene& scene,
 
 	if (_proxy) {
 
-		auto startTime = Scene::Time();
+		auto startTime = scene.time();
 
 		_proxy->step(deltaRunT, _speed, _timestep);
 
-		UpdateTimeStats(stats, startTime, Scene::Time());
+		UpdateTimeStats(stats, startTime, scene.time());
 
 		if (auto didSimulate = PhysicalWorld::didSimulate()) {
 			didSimulate(*this, runT);
