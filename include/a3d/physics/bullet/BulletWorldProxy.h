@@ -65,9 +65,7 @@ namespace a3d {
  *********************************************************************************************/
 
 		btDiscreteDynamicsWorld*		btWorld() const;
-#ifdef DESKTOP
 		BulletDebugDrawer*				btDebugDrawer() const;
-#endif
 
 /*********************************************************************************************
 	 Private IVars
@@ -80,9 +78,7 @@ namespace a3d {
 		std::unique_ptr<btCollisionDispatcher>					_btCollisionDispatcher;
 		std::unique_ptr<btDbvtBroadphase>						_btBroadphase;
 		std::unique_ptr<btSequentialImpulseConstraintSolver>	_btConstraintSolver;
-#ifdef DESKTOP
 		std::unique_ptr<BulletDebugDrawer>						_btDebugDrawer;
-#endif
 	};
 }
 

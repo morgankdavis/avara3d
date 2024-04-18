@@ -113,15 +113,15 @@ namespace a3d {
 
 	private:
 
-		glm::vec3 									_gravity;
-		float 										_speed;
-		float 										_timestep;
-		std::unique_ptr<PhysicalWorldProxy>			_proxy;
-		Scene*										_scene;
-		DidSimulateCallback							_didSimulate;
-		BeginContactCallback						_beginContact;
-		ContinueContactCallback						_continueContact;
-		EndContactCallback							_endContact;
+		glm::vec3 								_gravity;
+		float 									_speed;
+		float 									_timestep;
+		std::unique_ptr<PhysicalWorldProxy>		_proxy;
+		Scene*									_scene;
+		DidSimulateCallback						_didSimulate;
+		BeginContactCallback					_beginContact;
+		ContinueContactCallback					_continueContact;
+		EndContactCallback						_endContact;
 	};
 }
 
