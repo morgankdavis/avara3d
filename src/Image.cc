@@ -51,13 +51,13 @@ Image::Image(unique_ptr<Buffer> buffer,
 	loadBuffer(*buffer, flipVertical, flipHorizontal);
 }
 
-Image::Image(unique_ptr<Buffer> rawBuffer,
+Image::Image(unique_ptr<Buffer> buffer,
 			 unsigned width,
 			 unsigned height,
 			 unsigned bytesPerPixel,
 			 bool flipVertical,
 			 bool flipHorizontal):
-		_buffer{std::move(rawBuffer)},
+		_buffer{std::move(buffer)},
 		_width{width},
 		_height{height},
 		_bytesPerPixel{bytesPerPixel} {
@@ -72,10 +72,6 @@ Image::Image(unique_ptr<Buffer> rawBuffer,
 
 Image::~Image() {
 	A3D_LOG_D("Destroying Image {:p}", static_cast<void*>(this));
-	
-//	if (_data) {
-//		stbi_image_free(&_data);
-//	}
 }
 
 /*********************************************************************************************
@@ -118,7 +114,11 @@ unique_ptr<Image> Image::inverted() const {
 	return inverted;
 }
 
-bool Image::writePNG(filesystem::path path) const {
+const Buffer& Image::buffer() const {
+	return *_buffer;
+}
+
+bool Image::writePNG(const filesystem::path& path) const {
 	
 	return !stbi_write_png(path.string().c_str(),
 						   (int)_width,
@@ -126,10 +126,6 @@ bool Image::writePNG(filesystem::path path) const {
 						   (int)_bytesPerPixel,
 						   _buffer->data(),
 						   (int)(_width*_bytesPerPixel));
-}
-
-const Buffer& Image::buffer() const {
-	return *_buffer;
 }
 
 /*********************************************************************************************
@@ -144,7 +140,7 @@ void Image::loadBuffer(Buffer& inBuf,
 	int height;
 	int bytesPerPixel;
 	
-	stbi_uc* imgData = stbi_load_from_memory((unsigned char*)*inBuf,//inBuf.data(),
+	stbi_uc* imgData = stbi_load_from_memory((unsigned char*)*inBuf,
 											 (int)inBuf.size(),
 											 &width,
 											 &height,
@@ -159,7 +155,7 @@ void Image::loadBuffer(Buffer& inBuf,
 		throw Exception("Failed to load image data.");
 	}
 
-	_buffer = make_unique<Buffer>(reinterpret_cast<const std::byte*>(imgData),//static_cast<const unsigned char*>(imgData),
+	_buffer = make_unique<Buffer>(reinterpret_cast<const std::byte*>(imgData),
 								  static_cast<size_t>(width * height * bytesPerPixel));
 
 	stbi_image_free(imgData);

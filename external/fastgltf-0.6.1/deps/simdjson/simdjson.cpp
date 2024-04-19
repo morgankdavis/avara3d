@@ -12550,7 +12550,7 @@ simdjson_inline void tape_writer::write(uint64_t &tape_loc, uint64_t val, intern
 namespace simdjson {
 namespace arm64 {
 namespace {
-namespace logger {
+namespace g_logger {
 
   static constexpr const char * DASHES = "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------";
 
@@ -12759,7 +12759,7 @@ public:
 
 template<bool STREAMING, typename V>
 simdjson_warn_unused simdjson_inline error_code json_iterator::walk_document(V &visitor) noexcept {
-  logger::log_start();
+  g_logger::log_start();
 
   //
   // Start the document
@@ -12910,21 +12910,21 @@ simdjson_inline uint8_t json_iterator::last_structural() const noexcept {
 }
 
 simdjson_inline void json_iterator::log_value(const char *type) const noexcept {
-  logger::log_line(*this, "", type, "");
+  g_logger::log_line(*this, "", type, "");
 }
 
 simdjson_inline void json_iterator::log_start_value(const char *type) const noexcept {
-  logger::log_line(*this, "+", type, "");
-  if (logger::LOG_ENABLED) { logger::log_depth++; }
+  g_logger::log_line(*this, "+", type, "");
+  if (g_logger::LOG_ENABLED) { g_logger::log_depth++; }
 }
 
 simdjson_inline void json_iterator::log_end_value(const char *type) const noexcept {
-  if (logger::LOG_ENABLED) { logger::log_depth--; }
-  logger::log_line(*this, "-", type, "");
+  if (g_logger::LOG_ENABLED) { g_logger::log_depth--; }
+  g_logger::log_line(*this, "-", type, "");
 }
 
 simdjson_inline void json_iterator::log_error(const char *error) const noexcept {
-  logger::log_line(*this, "", "ERROR", error);
+  g_logger::log_line(*this, "", "ERROR", error);
 }
 
 template<typename V>
@@ -16431,7 +16431,7 @@ simdjson_warn_unused simdjson_inline uint8_t *parse_wobbly_string(const uint8_t 
 namespace simdjson {
 namespace fallback {
 namespace {
-namespace logger {
+namespace g_logger {
 
   static constexpr const char * DASHES = "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------";
 
@@ -16638,7 +16638,7 @@ public:
 
 template<bool STREAMING, typename V>
 simdjson_warn_unused simdjson_inline error_code json_iterator::walk_document(V &visitor) noexcept {
-  logger::log_start();
+  g_logger::log_start();
 
   //
   // Start the document
@@ -16789,21 +16789,21 @@ simdjson_inline uint8_t json_iterator::last_structural() const noexcept {
 }
 
 simdjson_inline void json_iterator::log_value(const char *type) const noexcept {
-  logger::log_line(*this, "", type, "");
+  g_logger::log_line(*this, "", type, "");
 }
 
 simdjson_inline void json_iterator::log_start_value(const char *type) const noexcept {
-  logger::log_line(*this, "+", type, "");
-  if (logger::LOG_ENABLED) { logger::log_depth++; }
+  g_logger::log_line(*this, "+", type, "");
+  if (g_logger::LOG_ENABLED) { g_logger::log_depth++; }
 }
 
 simdjson_inline void json_iterator::log_end_value(const char *type) const noexcept {
-  if (logger::LOG_ENABLED) { logger::log_depth--; }
-  logger::log_line(*this, "-", type, "");
+  if (g_logger::LOG_ENABLED) { g_logger::log_depth--; }
+  g_logger::log_line(*this, "-", type, "");
 }
 
 simdjson_inline void json_iterator::log_error(const char *error) const noexcept {
-  logger::log_line(*this, "", "ERROR", error);
+  g_logger::log_line(*this, "", "ERROR", error);
 }
 
 template<typename V>
@@ -22636,7 +22636,7 @@ simdjson_inline void tape_writer::write(uint64_t &tape_loc, uint64_t val, intern
 namespace simdjson {
 namespace haswell {
 namespace {
-namespace logger {
+namespace g_logger {
 
   static constexpr const char * DASHES = "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------";
 
@@ -22845,7 +22845,7 @@ public:
 
 template<bool STREAMING, typename V>
 simdjson_warn_unused simdjson_inline error_code json_iterator::walk_document(V &visitor) noexcept {
-  logger::log_start();
+  g_logger::log_start();
 
   //
   // Start the document
@@ -22996,21 +22996,21 @@ simdjson_inline uint8_t json_iterator::last_structural() const noexcept {
 }
 
 simdjson_inline void json_iterator::log_value(const char *type) const noexcept {
-  logger::log_line(*this, "", type, "");
+  g_logger::log_line(*this, "", type, "");
 }
 
 simdjson_inline void json_iterator::log_start_value(const char *type) const noexcept {
-  logger::log_line(*this, "+", type, "");
-  if (logger::LOG_ENABLED) { logger::log_depth++; }
+  g_logger::log_line(*this, "+", type, "");
+  if (g_logger::LOG_ENABLED) { g_logger::log_depth++; }
 }
 
 simdjson_inline void json_iterator::log_end_value(const char *type) const noexcept {
-  if (logger::LOG_ENABLED) { logger::log_depth--; }
-  logger::log_line(*this, "-", type, "");
+  if (g_logger::LOG_ENABLED) { g_logger::log_depth--; }
+  g_logger::log_line(*this, "-", type, "");
 }
 
 simdjson_inline void json_iterator::log_error(const char *error) const noexcept {
-  logger::log_line(*this, "", "ERROR", error);
+  g_logger::log_line(*this, "", "ERROR", error);
 }
 
 template<typename V>
@@ -28802,7 +28802,7 @@ simdjson_inline void tape_writer::write(uint64_t &tape_loc, uint64_t val, intern
 namespace simdjson {
 namespace icelake {
 namespace {
-namespace logger {
+namespace g_logger {
 
   static constexpr const char * DASHES = "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------";
 
@@ -29011,7 +29011,7 @@ public:
 
 template<bool STREAMING, typename V>
 simdjson_warn_unused simdjson_inline error_code json_iterator::walk_document(V &visitor) noexcept {
-  logger::log_start();
+  g_logger::log_start();
 
   //
   // Start the document
@@ -29162,21 +29162,21 @@ simdjson_inline uint8_t json_iterator::last_structural() const noexcept {
 }
 
 simdjson_inline void json_iterator::log_value(const char *type) const noexcept {
-  logger::log_line(*this, "", type, "");
+  g_logger::log_line(*this, "", type, "");
 }
 
 simdjson_inline void json_iterator::log_start_value(const char *type) const noexcept {
-  logger::log_line(*this, "+", type, "");
-  if (logger::LOG_ENABLED) { logger::log_depth++; }
+  g_logger::log_line(*this, "+", type, "");
+  if (g_logger::LOG_ENABLED) { g_logger::log_depth++; }
 }
 
 simdjson_inline void json_iterator::log_end_value(const char *type) const noexcept {
-  if (logger::LOG_ENABLED) { logger::log_depth--; }
-  logger::log_line(*this, "-", type, "");
+  if (g_logger::LOG_ENABLED) { g_logger::log_depth--; }
+  g_logger::log_line(*this, "-", type, "");
 }
 
 simdjson_inline void json_iterator::log_error(const char *error) const noexcept {
-  logger::log_line(*this, "", "ERROR", error);
+  g_logger::log_line(*this, "", "ERROR", error);
 }
 
 template<typename V>
@@ -35239,7 +35239,7 @@ simdjson_inline void tape_writer::write(uint64_t &tape_loc, uint64_t val, intern
 namespace simdjson {
 namespace ppc64 {
 namespace {
-namespace logger {
+namespace g_logger {
 
   static constexpr const char * DASHES = "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------";
 
@@ -35448,7 +35448,7 @@ public:
 
 template<bool STREAMING, typename V>
 simdjson_warn_unused simdjson_inline error_code json_iterator::walk_document(V &visitor) noexcept {
-  logger::log_start();
+  g_logger::log_start();
 
   //
   // Start the document
@@ -35599,21 +35599,21 @@ simdjson_inline uint8_t json_iterator::last_structural() const noexcept {
 }
 
 simdjson_inline void json_iterator::log_value(const char *type) const noexcept {
-  logger::log_line(*this, "", type, "");
+  g_logger::log_line(*this, "", type, "");
 }
 
 simdjson_inline void json_iterator::log_start_value(const char *type) const noexcept {
-  logger::log_line(*this, "+", type, "");
-  if (logger::LOG_ENABLED) { logger::log_depth++; }
+  g_logger::log_line(*this, "+", type, "");
+  if (g_logger::LOG_ENABLED) { g_logger::log_depth++; }
 }
 
 simdjson_inline void json_iterator::log_end_value(const char *type) const noexcept {
-  if (logger::LOG_ENABLED) { logger::log_depth--; }
-  logger::log_line(*this, "-", type, "");
+  if (g_logger::LOG_ENABLED) { g_logger::log_depth--; }
+  g_logger::log_line(*this, "-", type, "");
 }
 
 simdjson_inline void json_iterator::log_error(const char *error) const noexcept {
-  logger::log_line(*this, "", "ERROR", error);
+  g_logger::log_line(*this, "", "ERROR", error);
 }
 
 template<typename V>
@@ -42250,7 +42250,7 @@ simdjson_inline void tape_writer::write(uint64_t &tape_loc, uint64_t val, intern
 namespace simdjson {
 namespace westmere {
 namespace {
-namespace logger {
+namespace g_logger {
 
   static constexpr const char * DASHES = "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------";
 
@@ -42459,7 +42459,7 @@ public:
 
 template<bool STREAMING, typename V>
 simdjson_warn_unused simdjson_inline error_code json_iterator::walk_document(V &visitor) noexcept {
-  logger::log_start();
+  g_logger::log_start();
 
   //
   // Start the document
@@ -42610,21 +42610,21 @@ simdjson_inline uint8_t json_iterator::last_structural() const noexcept {
 }
 
 simdjson_inline void json_iterator::log_value(const char *type) const noexcept {
-  logger::log_line(*this, "", type, "");
+  g_logger::log_line(*this, "", type, "");
 }
 
 simdjson_inline void json_iterator::log_start_value(const char *type) const noexcept {
-  logger::log_line(*this, "+", type, "");
-  if (logger::LOG_ENABLED) { logger::log_depth++; }
+  g_logger::log_line(*this, "+", type, "");
+  if (g_logger::LOG_ENABLED) { g_logger::log_depth++; }
 }
 
 simdjson_inline void json_iterator::log_end_value(const char *type) const noexcept {
-  if (logger::LOG_ENABLED) { logger::log_depth--; }
-  logger::log_line(*this, "-", type, "");
+  if (g_logger::LOG_ENABLED) { g_logger::log_depth--; }
+  g_logger::log_line(*this, "-", type, "");
 }
 
 simdjson_inline void json_iterator::log_error(const char *error) const noexcept {
-  logger::log_line(*this, "", "ERROR", error);
+  g_logger::log_line(*this, "", "ERROR", error);
 }
 
 template<typename V>

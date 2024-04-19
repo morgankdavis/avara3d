@@ -10,6 +10,7 @@
 #define AVARA3D_CUBEIMAGE_H
 
 
+#include <filesystem>
 #include <memory>
 
 #include "a3d/rendering/material/Sampleable.h"
@@ -64,7 +65,6 @@ namespace a3d {
 
 	private:
 
-		// STACK?
 		std::unique_ptr<Image>		_posX;
 		std::unique_ptr<Image>		_negX;
 		std::unique_ptr<Image>		_posY;

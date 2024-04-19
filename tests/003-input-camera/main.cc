@@ -24,11 +24,6 @@ using namespace std;
 using namespace std::placeholders;
 
 
-void UpdateCallback(Scene& scene, float time);
-void WillRenderCallback(VisualWorld& world, float time);
-void DidRenderCallback(VisualWorld& world, float time);
-
-
 constexpr bool					ENABLE_HIGH_DPI =		true;
 constexpr unsigned				WINDOW_WIDTH =			1024;
 constexpr unsigned				WINDOW_HEIGHT =			768;
@@ -37,6 +32,11 @@ constexpr AntialiasingMode		ANTIALIAS_MODE =		AntialiasingMode::Msaa4X;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
+
+
+void UpdateCallback(Scene& scene, float time);
+void WillRenderCallback(VisualWorld& world, float time);
+void DidRenderCallback(VisualWorld& world, float time);
 
 
 int main(int argc, const char* argv[]) {

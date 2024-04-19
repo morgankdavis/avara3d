@@ -46,7 +46,7 @@ namespace a3d {
 
 	private:
 
-		std::unique_ptr<std::byte*> _data; // STACK?
+		std::unique_ptr<std::byte*> _data;
 		std::size_t 				_size;
 	};
 }

@@ -115,7 +115,7 @@ namespace a3d {
 		std::unordered_set<Texture*>					_activeTextures;
 		std::unordered_set<const std::vector<Line>*>	_activeLines;
 		unsigned										_glEnvironmentUBO;
-		std::unique_ptr<Font>							_overlayFont; // STACK?
+		std::unique_ptr<Font>							_overlayFont;
 	};
 }
 

@@ -32,12 +32,12 @@ namespace a3d {
 	public:
 
 		explicit Image(const std::filesystem::path& path,
-			  bool flipVertical = true,
-			  bool flipHorizontal = false);
-		explicit Image(std::unique_ptr<Buffer> headerBuffer, // with header
-			  bool flipVertical = true,
-			  bool flipHorizontal = false);
-		Image(std::unique_ptr<Buffer> rawBuffer, // raw
+					   bool flipVertical = true,
+					   bool flipHorizontal = false);
+		explicit Image(std::unique_ptr<Buffer> bufer,
+					   bool flipVertical = true,
+					   bool flipHorizontal = false);
+		Image(std::unique_ptr<Buffer> buffer,
 			  unsigned width,
 			  unsigned height,
 			  unsigned bytesPerPixel,
@@ -53,8 +53,8 @@ namespace a3d {
 		unsigned 					height() const;
 		unsigned 					bytesPerPixel() const;
 		std::unique_ptr<Image> 		inverted() const;
-		bool 						writePNG(std::filesystem::path path) const;
 		const Buffer& 				buffer() const;
+		bool 						writePNG(const std::filesystem::path& path) const;
 
 /*********************************************************************************************
 	Private Members

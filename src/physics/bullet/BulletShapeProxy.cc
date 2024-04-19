@@ -84,7 +84,7 @@ static void
 AddBTShapeFromNodeRec(Node& node,
 					  PhysicsShapeType shapeType,
 					  PhysicsBodyType bodyType,
-					  btCompoundShape& compoundShape,
+					  btCompoundShape& parentShape,
 					  vector<unique_ptr<btCollisionShape>>& btShapes,
 					  vector<unique_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
 
