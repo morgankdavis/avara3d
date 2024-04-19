@@ -46,9 +46,9 @@ BulletWorldProxy::BulletWorldProxy(PhysicalWorld& world):
 	_btBroadphase = make_unique<btDbvtBroadphase>();
 	_btConstraintSolver = make_unique<btSequentialImpulseConstraintSolver>();
 	_btWorld = make_unique<btDiscreteDynamicsWorld>(_btCollisionDispatcher.get(),
-												  _btBroadphase.get(),
-												  _btConstraintSolver.get(),
-												  _btCollisionConfiguration.get());
+													_btBroadphase.get(),
+													_btConstraintSolver.get(),
+													_btCollisionConfiguration.get());
 
 	A3D_LOG_I("Bullet Physics version: {}",  btGetVersion());
 
@@ -94,10 +94,10 @@ void BulletWorldProxy::gravity(float gravity) {
 void BulletWorldProxy::step(double deltaT, float speed, float timestep) {
 
 	auto result = _btWorld->stepSimulation(deltaT * speed,
-										   PHYSICS_MAX_SUBSTEPS,
+										   MAX_PHYSICS_SUBSTEPS,
 										   timestep);
 
-	if (result == PHYSICS_MAX_SUBSTEPS) {
+	if (result == MAX_PHYSICS_SUBSTEPS) {
 		A3D_LOG_W("Max physics simulation substeps reached: {}", result);
 	}
 }
@@ -119,18 +119,6 @@ void BulletWorldProxy::drawDebug(Renderer &renderer,
 	_btWorld->debugDrawWorld();
 	_btDebugDrawer->draw(renderer, viewMat, projectionMat);
 #endif
-}
-
-/*********************************************************************************************
-	Internal Members
- *********************************************************************************************/
-
-btDiscreteDynamicsWorld* BulletWorldProxy::btWorld() const {
-	return _btWorld.get();
-}
-
-BulletDebugDrawer* BulletWorldProxy::btDebugDrawer() const {
-	return _btDebugDrawer.get();
 }
 
 /*********************************************************************************************

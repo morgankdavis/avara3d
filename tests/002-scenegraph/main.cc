@@ -33,10 +33,6 @@ enum class TEST {
 	ROTATION*/
 };
 
-void UpdateCallback(Scene& scene, float time);
-void WillRenderCallback(VisualWorld& world, float time);
-void DidRenderCallback(VisualWorld& world, float time);
-
 
 constexpr TEST					USING_TEST =			TEST::TRAVERSAL;
 constexpr bool					ENABLE_HIGH_DPI =		true;
@@ -46,6 +42,11 @@ constexpr bool					FULLSCREEN =			false;
 constexpr AntialiasingMode		ANTIALIAS_MODE =		AntialiasingMode::Msaa4X;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
+
+
+void UpdateCallback(Scene& scene, float time);
+void WillRenderCallback(VisualWorld& world, float time);
+void DidRenderCallback(VisualWorld& world, float time);
 
 
 int main(int argc, const char* argv[]) {

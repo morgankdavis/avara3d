@@ -61,25 +61,19 @@ namespace a3d {
 						  const DebugOptions &debugOptions) override;
 
 /*********************************************************************************************
-	Internal Members
- *********************************************************************************************/
-
-		btDiscreteDynamicsWorld*		btWorld() const;
-		BulletDebugDrawer*				btDebugDrawer() const;
-
-/*********************************************************************************************
 	 Private IVars
  *********************************************************************************************/
 
 	private:
 
-		// STACK
 		std::unique_ptr<btDiscreteDynamicsWorld>				_btWorld;
 		std::unique_ptr<btDefaultCollisionConfiguration> 		_btCollisionConfiguration;
 		std::unique_ptr<btCollisionDispatcher>					_btCollisionDispatcher;
 		std::unique_ptr<btDbvtBroadphase>						_btBroadphase;
 		std::unique_ptr<btSequentialImpulseConstraintSolver>	_btConstraintSolver;
+#ifdef DESKTOP
 		std::unique_ptr<BulletDebugDrawer>						_btDebugDrawer;
+#endif
 	};
 }
 

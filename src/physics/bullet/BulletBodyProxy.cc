@@ -467,14 +467,6 @@ btRigidBody* BulletBodyProxy::btBody() {
 	return _btBody.get();
 }
 
-//shared_ptr<btDefaultMotionState> BulletBodyProxy::btMotionState() {
-//	return _btMotionState;
-//}
-
-BulletMotionState* BulletBodyProxy::motionState() {
-	return _motionState.get();
-}
-
 /*********************************************************************************************
 	Private Members
  *********************************************************************************************/

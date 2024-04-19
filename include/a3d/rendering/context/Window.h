@@ -9,8 +9,6 @@
 #ifndef AVARA3D_WINDOW_H
 #define AVARA3D_WINDOW_H
 
-#ifdef DESKTOP
-
 
 #include <memory>
 #include <optional>
@@ -104,12 +102,10 @@ namespace a3d {
 	Private IVars
  *********************************************************************************************/
 
-		std::unique_ptr<GLFWwindow, DestroyGLFWWindow>	_glfwWindow; // STACK?
+		std::unique_ptr<GLFWwindow, DestroyGLFWWindow>	_glfwWindow;
 		bool											_cursorCaptured;
 	};
 }
 
-
-#endif // DESKTOP
 
 #endif /* AVARA3D_WINDOW_H */

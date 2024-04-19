@@ -22,11 +22,6 @@ using namespace std;
 using namespace std::placeholders;
 
 
-void UpdateCallback(Scene& scene, float time);
-void WillRenderCallback(VisualWorld& world, float time);
-void DidRenderCallback(VisualWorld& world, float time);
-
-
 constexpr bool					ENABLE_HIGH_DPI =		true;
 constexpr unsigned				WINDOW_WIDTH =			1024;
 constexpr unsigned				WINDOW_HEIGHT =			768;
@@ -36,7 +31,11 @@ constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 
 
-a3d::Node* 		g_importLightsCamerasRoot;
+void UpdateCallback(Scene& scene, float time);
+void WillRenderCallback(VisualWorld& world, float time);
+void DidRenderCallback(VisualWorld& world, float time);
+
+
 a3d::Node* 		g_importMeshRoot;
 
 
@@ -83,7 +82,6 @@ int main(int argc, const char* argv[]) {
 
 	auto testSceneNodes = testScene->rootNode()->children();
 	auto importLightsCamerasRoot = make_shared<Node>("importLightsCamerasRoot");
-	g_importLightsCamerasRoot = importLightsCamerasRoot.get();
 	auto importMeshRoot = make_shared<Node>("importMeshRoot");
 	g_importMeshRoot = importMeshRoot.get();
 

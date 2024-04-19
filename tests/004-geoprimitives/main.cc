@@ -22,15 +22,6 @@ using namespace std;
 using namespace std::placeholders;
 
 
-void UpdateCallback(Scene& scene, float time);
-void WillRenderCallback(VisualWorld& world, float time);
-void DidRenderCallback(VisualWorld& world, float time);
-
-
-void InitLog();
-void LogBuildInfo();
-
-
 constexpr LogLevel				LOG_LEVEL =				LogLevel::Debug;
 constexpr bool					ENABLE_HIGH_DPI =		true;
 constexpr unsigned				WINDOW_WIDTH =			1024;
@@ -42,7 +33,16 @@ constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
 
 
-std::unique_ptr<a3d::Logger>		logger;
+void UpdateCallback(Scene& scene, float time);
+void WillRenderCallback(VisualWorld& world, float time);
+void DidRenderCallback(VisualWorld& world, float time);
+
+
+void InitLog();
+void LogBuildInfo();
+
+
+std::unique_ptr<a3d::Logger>		g_logger;
 
 
 int main(int argc, const char* argv[]) {
@@ -230,7 +230,7 @@ int main(int argc, const char* argv[]) {
  ***************************************************************************************/
 
 void UpdateCallback(Scene& scene, float time) {
-	LOG_T(logger, "scene: {:p}, time: {}", (void*)&scene, time);
+	LOG_T(g_logger, "scene: {:p}, time: {}", (void*)&scene, time);
 
 	static float previousSeconds = time;
 	float deltaSeconds = time - previousSeconds;
@@ -357,11 +357,11 @@ void UpdateCallback(Scene& scene, float time) {
  ***************************************************************************************/
 
 void WillRenderCallback(VisualWorld& world, float time) {
-	LOG_T(logger, "world: {:p}, time: {}", (void*)&world, time);
+	LOG_T(g_logger, "world: {:p}, time: {}", (void*)&world, time);
 }
 
 void DidRenderCallback(VisualWorld& world, float time) {
-	LOG_T(logger, "world: {:p}, time: {}", (void*)&world, time);
+	LOG_T(g_logger, "world: {:p}, time: {}", (void*)&world, time);
 }
 
 /***************************************************************************************
@@ -378,8 +378,8 @@ void InitLog() {
 	sinks.insert(std::move(nativeSink));
 	sinks.insert(std::move(fileSink));
 
-	logger = make_unique<Logger>(executableName, std::move(sinks));
-	logger->level(LOG_LEVEL);
+	g_logger = make_unique<Logger>(executableName, std::move(sinks));
+	g_logger->level(LOG_LEVEL);
 
 	Logger::MainLogger().level(LOG_LEVEL);
 }
@@ -388,11 +388,11 @@ void LogBuildInfo() {
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
-	LOG_I(logger, "A3D version: {}.{}.{}",
+	LOG_I(g_logger, "A3D version: {}.{}.{}",
 		  version.major, version.minor, version.patch);
-	LOG_I(logger, "Build: {}", buildInfo.number());
-	LOG_I(logger, "Type: {}",
+	LOG_I(g_logger, "Build: {}", buildInfo.number());
+	LOG_I(g_logger, "Type: {}",
 		  buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
-	LOG_I(logger, "Origin: {}",
+	LOG_I(g_logger, "Origin: {}",
 		  buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
 }
