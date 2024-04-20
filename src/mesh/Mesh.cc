@@ -150,6 +150,14 @@ void Mesh::replaceMaterial(int index, const shared_ptr<Material>& replacement) {
 	insertMaterial(replacement, index);
 }
 
+bool Mesh::hidden() const {
+	return _hidden;
+}
+
+void Mesh::hidden(bool hidden) {
+	_hidden = hidden;
+}
+
 /*********************************************************************************************
 	Internal Members
  *********************************************************************************************/
@@ -336,6 +344,7 @@ void Mesh::dirtyMask(MeshDirtyMask mask) {
 
 Mesh::Mesh():
 		_name{},
+		_hidden{false},
 		_elements{},
 		_materials{},
 		_aabbLines{},

@@ -94,7 +94,6 @@ void VisualWorld::background(MaterialProperty background) {
 
 			// generate the skybox mesh if it hasn't already been
 			if (!_skyboxMesh) {
-				// MKD: u_s_ptr_aliases
 				_skyboxMesh = MakeSkyboxMesh(background);
 			}
 			else {
@@ -131,16 +130,11 @@ void VisualWorld::fogDensityExponent(float exponent) {
 	_fogDensityExponent = exponent;
 }
 
-//Color* VisualWorld::fogColor() const {
-//	return _fogColor.get();
-//}
-
 shared_ptr<Color> VisualWorld::fogColor() const {
 	return _fogColor;
 }
 
 void VisualWorld::fogColor(const shared_ptr<Color>& color) {
-	//_fogColor = std::move(color);
 	_fogColor = color;
 }
 
@@ -224,13 +218,10 @@ void VisualWorld::checkAddDefaultLighting() {
 	if (_automaticallyAddDefaultLighting && _scene) {
 
 		bool hasLights = false;
-
-		for (auto node : _scene->rootNode()->children(true)) {
-			if (!node->hidden()) {
-				if (node->light()) {
-					hasLights = true;
-					break;
-				}
+		for (auto& node : _scene->rootNode()->children(true)) {
+			if (node->light()) {
+				hasLights = true;
+				break;
 			}
 		}
 
@@ -238,7 +229,7 @@ void VisualWorld::checkAddDefaultLighting() {
 			A3D_LOG_I("Adding default lighting.");
 
 			auto ambientNode = Node::LightNode(Light::DefaultAmbient());
-			_scene->rootNode()->addChild(std::move(ambientNode));
+			_scene->rootNode()->addChild(ambientNode);
 
 			auto pointNode = Node::LightNode(Light::DefaultPoint());
 			// set position based on scene extent...
@@ -246,7 +237,7 @@ void VisualWorld::checkAddDefaultLighting() {
 			pointNode->position({sceneExtent.x + sceneExtent.x/4.0,
 								 sceneExtent.y + sceneExtent.y/4.0,
 								 sceneExtent.z + sceneExtent.z/4.0});
-			_scene->rootNode()->addChild(std::move(pointNode));
+			_scene->rootNode()->addChild(pointNode);
 		}
 	}
 }
@@ -339,7 +330,7 @@ weak_ptr<Node> VisualWorld::defaultPointOfView() {
 
 		auto aabb = _scene->rootNode()->aabb();
 
-		auto fovH = camera->yFov();//dynamic_cast<PerspectiveCamera*>(camera)->yFov();
+		auto fovH = camera->yFov();
 		auto w = _renderContext->width();
 		auto h = _renderContext->height();
 		auto aspectRatio = (float)w / (float)h;
@@ -392,7 +383,6 @@ weak_ptr<Node> VisualWorld::defaultPointOfView() {
 
 static unique_ptr<Mesh> MakeSkyboxMesh(MaterialProperty& property) {
 
-//	auto mesh = Box::Mesh(1, 1, 1);
 	auto mesh = make_unique<a3d::Mesh>(make_unique<Box>(1, 1, 1), nullptr);
 
 	auto material = make_shared<Material>(monostate{}, monostate{}, monostate{}, property);

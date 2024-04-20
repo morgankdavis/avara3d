@@ -1029,18 +1029,16 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 	
 	// find all lights in the scene
 	for (auto& node : scene.rootNode()->children(true)) {
-		if (!node->hidden()) {
-			if (auto light = node->light()) {
-				if (light->type() == LightType::Point) {
-					lights.push_back(node.get());
-				}
-				else if (light->type() == LightType::Ambient) {
-					ambientLightNode = node.get();
-				}
+		if (auto light = node->light()) {
+			if (light->type() == LightType::Point) {
+				lights.push_back(node.get());
+			}
+			else if (light->type() == LightType::Ambient) {
+				ambientLightNode = node.get();
 			}
 		}
 	}
-	
+
 	if (lights.size() > MAX_DYNAMIC_LIGHTS) {
 
 		// find all light distances from the camera

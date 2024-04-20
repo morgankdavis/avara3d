@@ -97,9 +97,9 @@ void BulletWorldProxy::step(double deltaT, float speed, float timestep) {
 										   MAX_PHYSICS_SUBSTEPS,
 										   timestep);
 
-	if (result == MAX_PHYSICS_SUBSTEPS) {
-		A3D_LOG_W("Max physics simulation substeps reached: {}", result);
-	}
+//	if (result >= MAX_PHYSICS_SUBSTEPS) {
+//		A3D_LOG_W("Max physics simulation substeps reached: {}", result);
+//	}
 }
 
 void BulletWorldProxy::updateCollisionPairs() {

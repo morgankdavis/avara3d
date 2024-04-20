@@ -297,7 +297,7 @@ BTShapeFromPrimitiveShape(PhysicsShape& shape) {
 	}
 	else if (auto cylinderShape = dynamic_cast<CylinderPhysicsShape*>(&shape)) {
 		return make_unique<btCylinderShape>(btVector3((btScalar)cylinderShape->radius(),
-													  (btScalar)round(cylinderShape->height()/2.0),
+													  (btScalar)cylinderShape->height()/2.0f,
 													  (btScalar)cylinderShape->radius()));
 	}
 	else if (auto planeShape = dynamic_cast<PlanePhysicsShape*>(&shape)) {
@@ -363,7 +363,7 @@ BTShapeFromMeshElement(MeshElement& element,
 				 static_cast<void*>(&element), magic_enum::enum_name(shapeType));
 
 		return make_unique<btCylinderShape>(btVector3((btScalar)cylinder->radius(),
-													  (btScalar)round(cylinder->height()/2.0),
+													  (btScalar)cylinder->height()/2.0f,
 													  (btScalar)cylinder->radius()));
 	}
 	else if (auto plane = dynamic_cast<Plane*>(&element)) {
