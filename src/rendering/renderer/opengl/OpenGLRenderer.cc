@@ -1029,18 +1029,16 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 	
 	// find all lights in the scene
 	for (auto& node : scene.rootNode()->children(true)) {
-		if (!node->hidden()) {
-			if (auto light = node->light()) {
-				if (light->type() == LightType::Point) {
-					lights.push_back(node.get());
-				}
-				else if (light->type() == LightType::Ambient) {
-					ambientLightNode = node.get();
-				}
+		if (auto light = node->light()) {
+			if (light->type() == LightType::Point) {
+				lights.push_back(node.get());
+			}
+			else if (light->type() == LightType::Ambient) {
+				ambientLightNode = node.get();
 			}
 		}
 	}
-	
+
 	if (lights.size() > MAX_DYNAMIC_LIGHTS) {
 
 		// find all light distances from the camera
@@ -1667,6 +1665,7 @@ void DrawStatsOverlay(Stats& stats, const Scene& scene) {
 					"%-14s %d\n" \
 					"%-14s %d\n" \
 					"%-14s %d\n" \
+			 		"%-14s %d\n" \
 					"%-14s %d\n" \
 					"%-14s %d\n" \
 					"\n" \
@@ -1691,6 +1690,7 @@ void DrawStatsOverlay(Stats& stats, const Scene& scene) {
 			 " dynamic", stats.dynamicBodies,
 			 " kinematic", stats.kinematicBodies,
 			 "physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
+			 " primitive", stats.primitiveShapes,
 			 " bounding box", stats.boundingBoxShapes,
 			 " convex hull", stats.convexHullShapes,
 			 " concave polyh", stats.concavePolyhedronShapes,
@@ -1718,6 +1718,7 @@ void DrawStatsOverlay(Stats& stats, const Scene& scene) {
 					"%-14s %d\n" \
 					"%-14s %d\n" \
 					"%-14s %d\n" \
+			 		"%-14s %d\n" \
 					"%-14s %d\n" \
 					"\n" \
 					"%-14s (%.1f, %.1f, %.1f)\n",
@@ -1739,6 +1740,7 @@ void DrawStatsOverlay(Stats& stats, const Scene& scene) {
 			 " dynamic", stats.dynamicBodies,
 			 " kinematic", stats.kinematicBodies,
 			 "physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
+			 " primitive", stats.primitiveShapes,
 			 " bounding box", stats.boundingBoxShapes,
 			 " convex hull", stats.convexHullShapes,
 			 " concave polyh", stats.concavePolyhedronShapes,

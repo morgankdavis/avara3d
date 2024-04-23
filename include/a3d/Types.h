@@ -179,6 +179,7 @@ namespace a3d {
 	};
 
 	enum class PhysicsShapeType : unsigned {
+		Primitive, // eh, do something else
 		BoundingBox,
 		ConvexHull,
 		ConcavePolyhedron
@@ -374,6 +375,7 @@ namespace a3d {
 		unsigned	staticBodies;
 		unsigned	dynamicBodies;
 		unsigned	kinematicBodies;
+		unsigned	primitiveShapes;
 		unsigned	boundingBoxShapes;
 		unsigned	convexHullShapes;
 		unsigned	concavePolyhedronShapes;

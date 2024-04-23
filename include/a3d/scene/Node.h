@@ -81,9 +81,6 @@ namespace a3d {
 		const std::shared_ptr<Mesh>& 			mesh() const;
 		void 									mesh(const std::shared_ptr<Mesh>& mesh);
 
-		bool 									hidden() const;
-		void 									hidden(bool hidden);
-
 		glm::vec3 								position() const;
 		void 									position(const glm::vec3& position);
 
@@ -201,7 +198,6 @@ namespace a3d {
 		std::shared_ptr<Light>					_light;
 		std::shared_ptr<Camera>					_camera;
 		std::shared_ptr<Mesh>					_mesh;
-		bool									_hidden;
 		std::vector<std::shared_ptr<Node>>		_children;
 		glm::vec3								_position;
 		glm::quat								_orientation;

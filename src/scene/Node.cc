@@ -60,7 +60,6 @@ shared_ptr<Node> Node::CameraNode(const shared_ptr<Camera>& camera) {
 
 Node::Node():
 		_name{},
-		_hidden{false},
 		_camera{},
 		_light{},
 		_mesh{},
@@ -153,14 +152,6 @@ void Node::mesh(const shared_ptr<Mesh>& mesh) {
 	if (_physicsBody && _mesh) {
 		_physicsBody->meshAttachedToNode(mesh);
 	}
-}
-
-bool Node::hidden() const {
-	return _hidden;
-}
-
-void Node::hidden(bool hidden) {
-	_hidden = hidden;
 }
 
 vec3 Node::position() const {
@@ -899,7 +890,7 @@ void Node::draw(Renderer& renderer,
 
 	stats.nodes++;
 
-	if (_mesh && !_hidden) {
+	if (_mesh && !_mesh->hidden()) {
 
 		_mesh->draw(renderer,
 					worldTransform(),

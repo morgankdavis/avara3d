@@ -14,6 +14,7 @@
 
 #include "glm/glm.hpp"
 
+#include "a3d/physics/bullet/BulletStats.h"
 #include "a3d/physics/proxy/PhysicalWorldProxy.h"
 
 
@@ -51,7 +52,10 @@ namespace a3d {
 		float	gravity() const override;
 		void	gravity(float gravity) override;
 
-		void	step(double deltaT, float speed, float timestep) override;
+		void	step(double deltaT,
+					 float speed,
+					 float timestep,
+					 Stats& stats) override;
 
 		void 	updateCollisionPairs() override;
 
@@ -74,6 +78,7 @@ namespace a3d {
 #ifdef DESKTOP
 		std::unique_ptr<BulletDebugDrawer>						_btDebugDrawer;
 #endif
+		BulletStats												_stats;
 	};
 }
 

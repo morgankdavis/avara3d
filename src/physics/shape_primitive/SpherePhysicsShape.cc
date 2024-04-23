@@ -40,9 +40,9 @@ void SpherePhysicsShape::radius(float radius) {
  *********************************************************************************************/
 
 PhysicsShapeType SpherePhysicsShape::type() const {
-	throw Exception("PHYSICS_SHAPE_TYPE does not apply to SpherePhysicsShape.");
+	return PhysicsShapeType::Primitive;
 }
 
 void SpherePhysicsShape::type(PhysicsShapeType type) {
-	throw Exception("PHYSICS_SHAPE_TYPE does not apply to SpherePhysicsShape.");
+	throw Exception("Cannot set PhysicsShapeType for SpherePhysicsShape.");
 }

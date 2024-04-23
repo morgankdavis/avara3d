@@ -18,6 +18,7 @@
 #include "a3d/Configuration.h"
 #include "a3d/diagnostic/logging/Logger.h"
 #include "a3d/physics/PhysicsBody.h"
+#include "a3d/physics/PhysicsShape.h"
 #include "a3d/physics/bullet/BulletBodyProxy.h"
 #include "a3d/physics/bullet/BulletDebugDrawer.h"
 #include "a3d/scene/Node.h"
@@ -39,7 +40,8 @@ static btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const Deb
  *********************************************************************************************/
 
 BulletWorldProxy::BulletWorldProxy(PhysicalWorld& world):
-		PhysicalWorldProxy{world} {
+		PhysicalWorldProxy{world},
+		_stats{} {
 
 	_btCollisionConfiguration = make_unique<btDefaultCollisionConfiguration>();
 	_btCollisionDispatcher = make_unique<btCollisionDispatcher>(_btCollisionConfiguration.get());
@@ -74,6 +76,36 @@ void BulletWorldProxy::add(PhysicsBody& body) {
 	//bodyModel->btBody()->setWorldTransform(BTTransformFromGLMMat4(body.node()->worldTransform()));
 	auto b = bodyProxy->btBody();
 	_btWorld->addRigidBody(b);
+
+	switch (body.type()) {
+		case PhysicsBodyType::Static:
+			++_stats.numStaticBodies;
+			break;
+		case PhysicsBodyType::Dynamic:
+			++_stats.numDynamicBodies;
+			break;
+		case PhysicsBodyType::Kinematic:
+			++_stats.numKinematicBodies;
+			break;
+	}
+
+	auto shapePtr = body.shape().get();
+	if (shapePtr) {
+		switch (shapePtr->type()) {
+			case PhysicsShapeType::ConvexHull:
+					_stats.convexHullShapes.insert(shapePtr);
+				break;
+			case PhysicsShapeType::ConcavePolyhedron:
+					_stats.concavePolyhedronShapes.insert(shapePtr);
+				break;
+			case PhysicsShapeType::BoundingBox:
+					_stats.boundingBoxShapes.insert(shapePtr);
+				break;
+			case PhysicsShapeType::Primitive:
+				_stats.primitiveShapes.insert(shapePtr);
+				break;
+		}
+	}
 }
 
 void BulletWorldProxy::remove(PhysicsBody& body) {
@@ -81,6 +113,34 @@ void BulletWorldProxy::remove(PhysicsBody& body) {
 
 	auto bodyProxy = static_cast<BulletBodyProxy*>(body.proxy());
 	_btWorld->removeRigidBody(bodyProxy->btBody());
+
+	switch (body.type()) {
+		case PhysicsBodyType::Static:
+			--_stats.numStaticBodies;
+			break;
+		case PhysicsBodyType::Dynamic:
+			--_stats.numDynamicBodies;
+			break;
+		case PhysicsBodyType::Kinematic:
+			--_stats.numKinematicBodies;
+			break;
+	}
+
+	auto shapePtr = body.shape().get();
+	switch (shapePtr->type()) {
+		case PhysicsShapeType::ConvexHull:
+			_stats.convexHullShapes.erase(shapePtr);
+			break;
+		case PhysicsShapeType::ConcavePolyhedron:
+			_stats.concavePolyhedronShapes.erase(shapePtr);
+			break;
+		case PhysicsShapeType::BoundingBox:
+			_stats.boundingBoxShapes.erase(shapePtr);
+			break;
+		case PhysicsShapeType::Primitive:
+			_stats.primitiveShapes.erase(shapePtr);
+			break;
+	}
 }
 
 float BulletWorldProxy::gravity() const {
@@ -91,15 +151,26 @@ void BulletWorldProxy::gravity(float gravity) {
 	_btWorld->setGravity({0, gravity, 0});
 }
 
-void BulletWorldProxy::step(double deltaT, float speed, float timestep) {
+void BulletWorldProxy::step(double deltaT,
+							float speed,
+							float timestep,
+							Stats& stats) {
 
 	auto result = _btWorld->stepSimulation(deltaT * speed,
 										   MAX_PHYSICS_SUBSTEPS,
 										   timestep);
 
-	if (result == MAX_PHYSICS_SUBSTEPS) {
-		A3D_LOG_W("Max physics simulation substeps reached: {}", result);
-	}
+//	if (result >= MAX_PHYSICS_SUBSTEPS) {
+//		A3D_LOG_W("Max physics simulation substeps reached: {}", result);
+//	}
+
+	stats.staticBodies += _stats.numStaticBodies;
+	stats.dynamicBodies += _stats.numDynamicBodies;
+	stats.kinematicBodies += _stats.numKinematicBodies;
+	stats.convexHullShapes = _stats.convexHullShapes.size();
+	stats.concavePolyhedronShapes = _stats.concavePolyhedronShapes.size();
+	stats.boundingBoxShapes = _stats.boundingBoxShapes.size();
+	stats.primitiveShapes = _stats.primitiveShapes.size();
 }
 
 void BulletWorldProxy::updateCollisionPairs() {

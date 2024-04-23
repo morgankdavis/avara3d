@@ -201,7 +201,7 @@ void PhysicalWorld::step(const Scene& scene,
 
 		auto startTime = scene.time();
 
-		_proxy->step(deltaRunT, _speed, _timestep);
+		_proxy->step(deltaRunT, _speed, _timestep, stats);
 
 		UpdateTimeStats(stats, startTime, scene.time());
 

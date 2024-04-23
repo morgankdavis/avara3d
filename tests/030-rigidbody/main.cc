@@ -225,17 +225,17 @@ int main(int argc, const char* argv[]) {
 
 //	// #0
 //	_duckNode->physicsBody(PhysicsBody::KinematicBody());
-//	_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
-////	_duckNode->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONVEX_HULL);
+//	_duckNode->physicsBody()->shape()->type(PhysicsShapeType::ConcavePolyhedron);
+////	_duckNode->physicsBody()->shape()->type(PhysicsShapeType::ConvexHull);
 //
 //	// #1
 ////	_duckNode->physicsBody(PhysicsBody::KinematicBody());
-////	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, _duckNode.get());
+////	auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, _duckNode.get());
 ////	_duckNode->physicsBody()->shape(duckPhysicsShape);
 //
 //	// #2
 ////	_duckNode->physicsBody(PhysicsBody::KinematicBody());
-////	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL, _duckNode->mesh().get());
+////	auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, _duckNode->mesh().get());
 ////	_duckNode->physicsBody()->shape(duckPhysicsShape);
 //
 	// #3
@@ -243,8 +243,8 @@ int main(int argc, const char* argv[]) {
 	duckNode->physicsBody(make_unique<PhysicsBody>(PhysicsBodyType::Kinematic, duckPhysicsShape));
 
 //	// #4
-////	auto duckPhysicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON, _duckNode->mesh().get());
-////	_duckNode->physicsBody(make_shared<PhysicsBody>(PHYSICS_BODY_TYPE::KINEMATIC, duckPhysicsShape));
+////	auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShapeType::ConcavePolyhedron, _duckNode->mesh().get());
+//	_duckNode->physicsBody(make_shared<PhysicsBody>(PhysicsBodyType::Kinematic, duckPhysicsShape));
 
 	auto duckSpinnerNode = Node::NamedNode("duck spinner");
 	g_duckSpinnerNode = duckSpinnerNode.get();
@@ -394,6 +394,34 @@ void UpdateCallback(Scene& scene, float time) {
 	if (keysPressed.count(Key::Seven)) {
 		g_duckNode->physicsBody()->mass(100);
 	}
+
+
+
+	if (keysPressed.count(Key::Eight)) {
+		// remove all CylinderPhysicsShape nodes
+		for (const auto& node : scene.rootNode()->children(true)) {
+			auto body = node->physicsBody();
+			if (body) {
+				auto cylinderShape = dynamic_pointer_cast<CylinderPhysicsShape>(body->shape());
+				if (cylinderShape) {
+					node->removeFromParent();
+				}
+			}
+		}
+	}
+
+	if (keysPressed.count(Key::Nine)) {
+		// remove all dynamic body nodes
+		for (const auto& node : scene.rootNode()->children(true)) {
+			auto body = node->physicsBody();
+			if (body) {
+				if (body->type() == PhysicsBodyType::Dynamic) {
+					node->removeFromParent();
+				}
+			}
+		}
+	}
+
 
 
 
@@ -728,11 +756,12 @@ void SpawnDuckFruit(Scene& scene, Node& duckNode) {
 	using utils::MeshNamed;
 	using utils::Uniform;
 
-	constexpr float SPAWN_RATE = 7.5; // pieces/sec
+	constexpr float SPAWN_RATE = 5.0; // pieces/sec
 
 	auto time = scene.time();
-	static auto lastSSpawnTime = 0;
-	if ((time - lastSSpawnTime) >= (1.0/SPAWN_RATE)) {
+	static auto lastSSpawnTime = 0.f;
+	auto elapsedTime = time - lastSSpawnTime;
+	if (elapsedTime >= (1.0/SPAWN_RATE)) {
 
 //		AddCardboardBox(scene, {0, 10, 0}, {1, 0, 0}, 0.0f);
 //		lastSSpawnTime = time;
@@ -897,7 +926,7 @@ void ShootBall(Scene& scene, const vec3& location, const vec3& direction) {
 	constexpr float SHOOT_RATE = 20; // balls/sec
 
 	auto time = scene.time();
-	static auto lastShootTime = 0;
+	static auto lastShootTime = 0.0f;
 	if ((time - lastShootTime) >= (1.0/SHOOT_RATE)) {
 
 
@@ -946,39 +975,22 @@ void ShootBall(Scene& scene, const vec3& location, const vec3& direction) {
 
 #else
 
-
-
-
-//		static auto fileScene = SceneNamed("slurm/slurm", "obj");
-//		static auto fileCanNode = fileScene->rootNode()->childNamed("g slurm", false);
-//		static auto fileMaterials = fileCanNode->mesh()->materials();
-//
-//		// just copying the node?
-//		auto node = Node::MeshNode(fileCanNode->mesh());
-//		for (auto& m : fileMaterials) {
-//			node->mesh()->addMaterial(m);
-//		}
-
 		static auto mesh = utils::MeshNamed("slurm/slurm");
+		//mesh->hidden(true);
 
 		auto node = Node::MeshNode(mesh);
 
 		node->position(location);
-//		static auto physicsShape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL,
-//															 mesh);
+
 		static auto extent = node->extent();
 		static auto physicsShape = make_shared<CylinderPhysicsShape>(extent.x/2.0, extent.y);
 		auto physicsBody = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, physicsShape);
-//		auto physicsBody = PhysicsBody::DynamicBody();
 		physicsBody->mass(.354); // 12fl oz water 70F
 //	physicsBody->friction(5);
 ///
 		physicsBody->restitution(1.0);
 		physicsBody->friction(0.35);
 		physicsBody->rollingFriction(0.05);
-		///
-//		node->physicsBody(physicsBody);
-
 
 
 #endif
@@ -1014,7 +1026,7 @@ void ShootBall(Scene& scene, const vec3& location, const vec3& direction) {
 
 
 		constexpr float BALL_VELOCITY = 50.0;
-		constexpr float DIRECTION_VARIATION = 0.015f;
+		constexpr float DIRECTION_VARIATION = 0.015;
 		auto variedDirection = direction + vec3(Uniform(-DIRECTION_VARIATION, DIRECTION_VARIATION),
 												Uniform(-DIRECTION_VARIATION, DIRECTION_VARIATION),
 												Uniform(-DIRECTION_VARIATION, DIRECTION_VARIATION));

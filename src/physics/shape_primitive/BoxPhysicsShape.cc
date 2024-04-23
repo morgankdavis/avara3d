@@ -58,9 +58,9 @@ void BoxPhysicsShape::length(float length) {
  *********************************************************************************************/
 
 PhysicsShapeType BoxPhysicsShape::type() const {
-	throw Exception("PHYSICS_SHAPE_TYPE does not apply to BoxPhysicsShape.");
+	return PhysicsShapeType::Primitive;
 }
 
 void BoxPhysicsShape::type(PhysicsShapeType type) {
-	throw Exception("PHYSICS_SHAPE_TYPE does not apply to BoxPhysicsShape.");
+	throw Exception("Cannot set PhysicsShapeType for BoxPhysicsShape.");
 }
