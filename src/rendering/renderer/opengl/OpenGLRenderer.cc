@@ -1665,6 +1665,7 @@ void DrawStatsOverlay(Stats& stats, const Scene& scene) {
 					"%-14s %d\n" \
 					"%-14s %d\n" \
 					"%-14s %d\n" \
+			 		"%-14s %d\n" \
 					"%-14s %d\n" \
 					"%-14s %d\n" \
 					"\n" \
@@ -1689,6 +1690,7 @@ void DrawStatsOverlay(Stats& stats, const Scene& scene) {
 			 " dynamic", stats.dynamicBodies,
 			 " kinematic", stats.kinematicBodies,
 			 "physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
+			 " primitive", stats.primitiveShapes,
 			 " bounding box", stats.boundingBoxShapes,
 			 " convex hull", stats.convexHullShapes,
 			 " concave polyh", stats.concavePolyhedronShapes,
@@ -1716,6 +1718,7 @@ void DrawStatsOverlay(Stats& stats, const Scene& scene) {
 					"%-14s %d\n" \
 					"%-14s %d\n" \
 					"%-14s %d\n" \
+			 		"%-14s %d\n" \
 					"%-14s %d\n" \
 					"\n" \
 					"%-14s (%.1f, %.1f, %.1f)\n",
@@ -1737,6 +1740,7 @@ void DrawStatsOverlay(Stats& stats, const Scene& scene) {
 			 " dynamic", stats.dynamicBodies,
 			 " kinematic", stats.kinematicBodies,
 			 "physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
+			 " primitive", stats.primitiveShapes,
 			 " bounding box", stats.boundingBoxShapes,
 			 " convex hull", stats.convexHullShapes,
 			 " concave polyh", stats.concavePolyhedronShapes,

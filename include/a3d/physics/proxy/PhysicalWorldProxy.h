@@ -45,7 +45,10 @@ namespace a3d {
 		virtual float	gravity() const = 0;
 		virtual void	gravity(float gravity) = 0;
 
-		virtual void	step(double deltaT, float speed, float timestep) = 0;
+		virtual void	step(double deltaT,
+							 float speed,
+							 float timestep,
+							 Stats& stats) = 0;
 
 		virtual void 	updateCollisionPairs() = 0;
 

@@ -36,7 +36,7 @@ constexpr AntialiasingMode		MSAA_MODE =				AntialiasingMode::Msaa4X;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
-constexpr float					PHYSICS_TIMESTEP =		1.0/240.0;
+constexpr float					PHYSICS_TIMESTEP =		1.0/120.0;
 constexpr bool					DARK =					true;
 
 
@@ -397,6 +397,34 @@ void UpdateCallback(Scene& scene, float time) {
 
 
 
+	if (keysPressed.count(Key::Eight)) {
+		// remove all CylinderPhysicsShape nodes
+		for (const auto& node : scene.rootNode()->children(true)) {
+			auto body = node->physicsBody();
+			if (body) {
+				auto cylinderShape = dynamic_pointer_cast<CylinderPhysicsShape>(body->shape());
+				if (cylinderShape) {
+					node->removeFromParent();
+				}
+			}
+		}
+	}
+/
+	if (keysPressed.count(Key::Nine)) {
+		// remove all dynamic body nodes
+		for (const auto& node : scene.rootNode()->children(true)) {
+			auto body = node->physicsBody();
+			if (body) {
+				if (body->type() == PhysicsBodyType::Dynamic) {
+					node->removeFromParent();
+				}
+			}
+		}
+	}
+
+
+
+
 //	if (keysPressed.count(Key::Nine)) {
 //		testNode->physicsBody()->resting(!testNode->physicsBody()->resting());
 //	}
@@ -728,11 +756,12 @@ void SpawnDuckFruit(Scene& scene, Node& duckNode) {
 	using utils::MeshNamed;
 	using utils::Uniform;
 
-	constexpr float SPAWN_RATE = 7.5; // pieces/sec
+	constexpr float SPAWN_RATE = 5.0; // pieces/sec
 
 	auto time = scene.time();
-	static auto lastSSpawnTime = 0;
-	if ((time - lastSSpawnTime) >= (1.0/SPAWN_RATE)) {
+	static auto lastSSpawnTime = 0.f;
+	auto elapsedTime = time - lastSSpawnTime;
+	if (elapsedTime >= (1.0/SPAWN_RATE)) {
 
 //		AddCardboardBox(scene, {0, 10, 0}, {1, 0, 0}, 0.0f);
 //		lastSSpawnTime = time;

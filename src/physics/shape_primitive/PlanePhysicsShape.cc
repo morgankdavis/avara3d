@@ -49,9 +49,9 @@ void PlanePhysicsShape::height(float height) {
  *********************************************************************************************/
 
 PhysicsShapeType PlanePhysicsShape::type() const {
-	throw Exception("PHYSICS_SHAPE_TYPE does not apply to PlanePhysicsShape.");
+	return PhysicsShapeType::Primitive;
 }
 
 void PlanePhysicsShape::type(PhysicsShapeType type) {
-	throw Exception("PHYSICS_SHAPE_TYPE does not apply to PlanePhysicsShape.");
+	throw Exception("Cannot set PhysicsShapeType for PlanePhysicsShape.");
 }
