@@ -275,9 +275,9 @@ void Scene::run() {
 		auto now = std::chrono::system_clock::now();
 		_startTime = std::chrono::duration<double>(now.time_since_epoch()).count();
 
-		if (_visualWorld) {
-			_visualWorld->checkAddDefaultLighting();
-		}
+//		if (_visualWorld) {
+//			_visualWorld->checkAddDefaultLighting();
+//		}
 
 		double deltaT, runT, deltaRunT;
 

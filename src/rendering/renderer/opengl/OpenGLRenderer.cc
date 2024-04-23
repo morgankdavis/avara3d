@@ -41,7 +41,6 @@
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/mesh/Line.h"
-#include "a3d/mesh/Point.h"
 #include "a3d/rendering/Light.h"
 #include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/camera/Camera.h"
@@ -1018,68 +1017,89 @@ static void SendMaterialPropertyUniforms(const MaterialProperty& property,
 	
 static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, Stats& stats) {
 
-	// TODO: this is super greedy.  instead, accumulate a list of lights as we visit each node?
-	
 	// program "Default" must be active
+
+	// block
+
+	typedef struct {
+		int32_t 			numLights;
+		float32_t 			PADDING1;
+		float32_t 			PADDING2;
+		float32_t 			PADDING3;
+		LightGLSLStruct 	lights[MAX_DYNAMIC_LIGHTS+1]; // +1 ambient
+		FogGLSLStruct		fog;
+	} EnvironmentBlock;
+
+	EnvironmentBlock environmentBlock;
 	
 	// lights
-	
-	auto lights = vector<Node*>();
-	Node* ambientLightNode = nullptr;
-	
-	// find all lights in the scene
-	for (auto& node : scene.rootNode()->children(true)) {
-		if (auto light = node->light()) {
-			if (light->type() == LightType::Point) {
-				lights.push_back(node.get());
-			}
-			else if (light->type() == LightType::Ambient) {
-				ambientLightNode = node.get();
+
+	if (scene.visualWorld()->usesDefaultLighting()) {
+
+		environmentBlock.numLights = 0;
+	}
+	else {
+		// TODO: this is super greedy.  instead, accumulate a list of lights as we visit each node?
+
+		auto lights = vector<Node*>();
+		Node *ambientLightNode = nullptr;
+
+		// find all lights in the scene
+		for (auto &node: scene.rootNode()->children(true)) {
+			if (auto light = node->light()) {
+				if (light->type() == LightType::Point) {
+					lights.push_back(node.get());
+				}
+				else if (light->type() == LightType::Ambient) {
+					ambientLightNode = node.get();
+				}
 			}
 		}
-	}
 
-	if (lights.size() > MAX_DYNAMIC_LIGHTS) {
+		if (lights.size() > MAX_DYNAMIC_LIGHTS) {
 
-		// find all light distances from the camera
+			// find all light distances from the camera
 
-		auto lightsUnsorted = map<Node*, float>();
-		auto cameraPos_world = scene.visualWorld()->pointOfView().lock()->worldPosition();
-		for (auto lightNode : lights) {
-			auto lightPos_world = lightNode->worldPosition();
-			auto lightToCamera = lightPos_world - cameraPos_world;
-			auto lightToCameraDistance = length(lightToCamera);
-			lightsUnsorted[lightNode] = lightToCameraDistance;
+			auto lightsUnsorted = map<Node*, float>();
+			auto cameraPos_world = scene.visualWorld()->pointOfView().lock()->worldPosition();
+			for (auto lightNode: lights) {
+				auto lightPos_world = lightNode->worldPosition();
+				auto lightToCamera = lightPos_world - cameraPos_world;
+				auto lightToCameraDistance = length(lightToCamera);
+				lightsUnsorted[lightNode] = lightToCameraDistance;
+			}
+
+			lights = SortedLights(lightsUnsorted);
+
+			unsigned endIndex = std::min((unsigned)lights.size(), (unsigned)MAX_DYNAMIC_LIGHTS);
+			auto first = lights.begin() + 0;
+			auto last = lights.begin() + endIndex;
+			auto lightsSlice = vector<Node*>(first, last);
+
+			lights = lightsSlice;
 		}
 
-		lights = SortedLights(lightsUnsorted);
+		if (ambientLightNode) lights.push_back(ambientLightNode);
 
-		unsigned endIndex = std::min((unsigned)lights.size(), (unsigned)(MAX_DYNAMIC_LIGHTS));
-		auto first = lights.begin() + 0;
-		auto last = lights.begin() + endIndex;
-		auto lightsSlice = vector<Node*>(first, last);
+		auto numLights = lights.size();
+		LightGLSLStruct lightStruct[numLights];
 
-		lights = lightsSlice;
-	}
+		stats.lights = numLights - 1; // not counting ambient
 
-	if (ambientLightNode) lights.push_back(ambientLightNode);
+		for (unsigned l = 0; l < numLights; ++l) {
+			auto node = lights[l];
+			auto light = node->light();
 
-	auto numLights = lights.size();
-	LightGLSLStruct lightStruct[numLights];
+			lightStruct[l].type = static_cast<int>(light->type());
+			lightStruct[l].position_world = node->worldPosition();
+			lightStruct[l].attenuationFactor = light->attenuationFactor();
 
-	stats.lights = numLights - 1; // not counting ambient
+			auto color = *light->color();
+			lightStruct[l].color = {color.r, color.g, color.b};
+		}
 
-	for (int l=0; l<numLights; ++l) {
-		auto node = lights[l];
-		auto light = node->light();
-
-		// TODO: static_cast
-		lightStruct[l].type = (int)(light->type());
-		lightStruct[l].position_world = node->worldPosition();
-		lightStruct[l].attenuationFactor = light->attenuationFactor();
-
-		auto color = *light->color();
-		lightStruct[l].color = {color.r, color.g, color.b};
+		environmentBlock.numLights = (int)numLights;
+		memcpy(&environmentBlock.lights, &lightStruct, sizeof(lightStruct));
 	}
 
 	// fog
@@ -1097,21 +1117,9 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 													fogColor->a};
 	else fogStruct.color = {0.0, 0.0, 0.0, 0.0};
 
-	// block
-
-	typedef struct {
-		int32_t 			numLights;
-		float32_t 			PADDING1;
-		float32_t 			PADDING2;
-		float32_t 			PADDING3;
-		LightGLSLStruct 	lights[MAX_DYNAMIC_LIGHTS+1]; // +1 ambient
-		FogGLSLStruct		fog;
-	} EnvironmentBlock;
-
-	EnvironmentBlock environmentBlock;
-	environmentBlock.numLights = (int)numLights;
-	memcpy(&environmentBlock.lights, &lightStruct, sizeof(lightStruct));
 	memcpy(&environmentBlock.fog, &fogStruct, sizeof(fogStruct));
+
+	// send 'em
 
 	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(environmentBlock), &environmentBlock, GL_DYNAMIC_DRAW);

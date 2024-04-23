@@ -56,7 +56,7 @@ VisualWorld::VisualWorld(RenderContext* context):
 		_fogDensityExponent{0.0},
 		_fogColor{},
 		_pointOfView{},
-		_automaticallyAddDefaultLighting{true},
+		_usesDefaultLighting{false},
 		_renderContext{context},
 		_scene{},
 		_willRender{},
@@ -164,12 +164,12 @@ void VisualWorld::pointOfView(const weak_ptr<Node>& cameraNode) {
 	_pointOfView = cameraNode;
 }
 
-bool VisualWorld::automaticallyAddDefaultLighting() const {
-	return _automaticallyAddDefaultLighting;
+bool VisualWorld::usesDefaultLighting() const {
+	return _usesDefaultLighting;
 }
 
-void VisualWorld::automaticallyAddDefaultLighting(bool enabled) {
-	_automaticallyAddDefaultLighting = enabled;
+void VisualWorld::usesDefaultLighting(bool enabled) {
+	_usesDefaultLighting = enabled;
 }
 
 RenderContext* VisualWorld::renderContext() const {
@@ -213,34 +213,35 @@ void VisualWorld::detachedFromScene(Scene& scene) {
 }
 
 // TODO: instead, make everything emissive
-void VisualWorld::checkAddDefaultLighting() {
-
-	if (_automaticallyAddDefaultLighting && _scene) {
-
-		bool hasLights = false;
-		for (auto& node : _scene->rootNode()->children(true)) {
-			if (node->light()) {
-				hasLights = true;
-				break;
-			}
-		}
-
-		if (!hasLights) {
-			A3D_LOG_I("Adding default lighting.");
-
-			auto ambientNode = Node::LightNode(Light::DefaultAmbient());
-			_scene->rootNode()->addChild(ambientNode);
-
-			auto pointNode = Node::LightNode(Light::DefaultPoint());
-			// set position based on scene extent...
-			auto sceneExtent = _scene->rootNode()->extent();
-			pointNode->position({sceneExtent.x + sceneExtent.x/4.0,
-								 sceneExtent.y + sceneExtent.y/4.0,
-								 sceneExtent.z + sceneExtent.z/4.0});
-			_scene->rootNode()->addChild(pointNode);
-		}
-	}
-}
+// update: this shit is exponential.
+//void VisualWorld::checkAddDefaultLighting() {
+//
+//	if (_automaticallyAddDefaultLighting && _scene) {
+//
+//		bool hasLights = false;
+//		for (auto& node : _scene->rootNode()->children(true)) {
+//			if (node->light()) {
+//				hasLights = true;
+//				break;
+//			}
+//		}
+//
+//		if (!hasLights) {
+//			A3D_LOG_I("Adding default lighting.");
+//
+//			auto ambientNode = Node::LightNode(Light::DefaultAmbient());
+//			_scene->rootNode()->addChild(ambientNode);
+//
+//			auto pointNode = Node::LightNode(Light::DefaultPoint());
+//			// set position based on scene extent...
+//			auto sceneExtent = _scene->rootNode()->extent();
+//			pointNode->position({sceneExtent.x + sceneExtent.x/4.0,
+//								 sceneExtent.y + sceneExtent.y/4.0,
+//								 sceneExtent.z + sceneExtent.z/4.0});
+//			_scene->rootNode()->addChild(pointNode);
+//		}
+//	}
+//}
 
 void VisualWorld::draw(const Scene& scene,
 					   const PhysicalWorld* physicalWorld,

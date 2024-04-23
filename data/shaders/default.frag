@@ -84,7 +84,7 @@ out 		vec4 		fragColor;
 
 
 bool FloatEqual(float a, float b, float tolarance) {
-	return (abs(a-b) <= tolarance);
+	return abs(a-b) <= tolarance;
 }
 
 
@@ -96,12 +96,17 @@ void main () {
 	vec4 Ke = vec4(0.0, 0.0, 0.0, 1.0);
 	
 	fragColor = vec4(0.0, 0.0, 0.0, 1.0);
-	
-	switch (emissionMode) {
-		case MATERIAL_MODE_COLOR:	Ke = vec4(colors.emission, 1.0);				break;
-		case MATERIAL_MODE_SAMPLER:	Ke = vec4(texture(samplers.emission, 
-													  tex_coord * uvScale));		break;
-	}
+
+//	if (numLights == 0) {
+//
+//	}
+//	else {
+		switch (emissionMode) {
+			case MATERIAL_MODE_COLOR:    Ke = vec4(colors.emission, 1.0);       	break;
+			case MATERIAL_MODE_SAMPLER:  Ke = vec4(texture(samplers.emission,
+													tex_coord * uvScale));        	break;
+		}
+//	}
 	
 	if (emissionMode != MATERIAL_MODE_NONE) {
 		

@@ -34,6 +34,7 @@ constexpr int					WINDOW_HEIGHT =			768;
 constexpr bool					FULLSCREEN =			false;
 constexpr AntialiasingMode		MSAA_MODE =				AntialiasingMode::Msaa4X;
 constexpr bool					ENABLE_VSYNC =			false;
+constexpr bool					USE_DEFAULT_LIGHTING =	true;
 constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
 constexpr float					PHYSICS_TIMESTEP =		1.0/120.0;
@@ -114,22 +115,23 @@ int main(int argc, const char* argv[]) {
 	scene->debugOptions(DebugOptions::ShowStatsOverlay);
 	scene->update(bind(&UpdateCallback, _1, _2));
 
-	auto ambientColor = DARK
-						? Color::LightGray()
-						: make_shared<Color>(233, 218, 185); // sunset
-	auto ambientLight = make_shared<Light>(LightType::Ambient, ambientColor);
-	auto ambientLightNode = Node::LightNode(ambientLight);
-	scene->rootNode()->addChild(ambientLightNode);
+	if (!USE_DEFAULT_LIGHTING) {
+		auto ambientColor = DARK
+							? Color::LightGray()
+							: make_shared<Color>(233, 218, 185); // sunset
+		auto ambientLight = make_shared<Light>(LightType::Ambient, ambientColor);
+		auto ambientLightNode = Node::LightNode(ambientLight);
+		scene->rootNode()->addChild(ambientLightNode);
 
-	auto pointColor = DARK
-					  ? Color::LightGray()
-					  : make_shared<Color>((uint32_t) 0x3F2A00FF); // dark orangish
-	auto pointLight = make_shared<Light>(LightType::Point, pointColor);
-	pointLight->attenuationFactor(0.0);
-	auto pointLightNode = Node::LightNode(pointLight);
-	pointLightNode->position(vec3(35, 20, (DARK ? 1.0 : -1.0) * 35) * vec3(2.5, 2.5, 2.5));
-	scene->rootNode()->addChild(pointLightNode);
-
+		auto pointColor = DARK
+						  ? Color::LightGray()
+						  : make_shared<Color>((uint32_t) 0x3F2A00FF); // dark orangish
+		auto pointLight = make_shared<Light>(LightType::Point, pointColor);
+		pointLight->attenuationFactor(0.0);
+		auto pointLightNode = Node::LightNode(pointLight);
+		pointLightNode->position(vec3(35, 20, (DARK ? 1.0 : -1.0) * 35) * vec3(2.5, 2.5, 2.5));
+		scene->rootNode()->addChild(pointLightNode);
+	}
 
 	// box
 //	const float BOX_DIM = 10.0;
