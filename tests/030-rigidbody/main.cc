@@ -409,7 +409,7 @@ void UpdateCallback(Scene& scene, float time) {
 			}
 		}
 	}
-/
+
 	if (keysPressed.count(Key::Nine)) {
 		// remove all dynamic body nodes
 		for (const auto& node : scene.rootNode()->children(true)) {
