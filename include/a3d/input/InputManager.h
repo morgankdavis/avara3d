@@ -42,33 +42,33 @@ namespace a3d {
 	Public Members
  *********************************************************************************************/
 
-		bool 						keyDown(Key key);
-		bool 						mouseButtonDown(MouseButton button);
+		bool 								keyDown(Key key);
+		bool 								mouseButtonDown(MouseButton button);
 		
-		bool 						keyPressed(Key key);
-		bool 						mouseButtonPressed(MouseButton button);
+		bool 								keyPressed(Key key);
+		bool 								mouseButtonPressed(MouseButton button);
 
-		std::set<Key> 				keysDown(); // keys currently down
-		std::set<MouseButton> 		mouseButtonsDown(); // mouse buttons currently down
+		std::unordered_set<Key> 			keysDown(); // keys currently down
+		std::unordered_set<MouseButton> 	mouseButtonsDown(); // mouse buttons currently down
 		
 		// only reports keys down for one query until they are released
-		std::set<Key> 				keysPressed();
+		std::unordered_set<Key> 			keysPressed();
 		// only reports mouse buttons down for one query until they are released
-		std::set<MouseButton> 		mouseButtonsPressed();
+		std::unordered_set<MouseButton> 	mouseButtonsPressed();
 		
-		glm::vec2 					mousePositionDelta(); // mouse position delta since last query
-		glm::vec2 					mouseScrollWheelDelta(); // mouse wheen scroll delta since last query
+		glm::vec2 							mousePositionDelta(); // mouse position delta since last query
+		glm::vec2 							mouseScrollWheelDelta(); // mouse wheen scroll delta since last query
 
-		Scene*						scene() const;
+		Scene*								scene() const;
 
 /*********************************************************************************************
 	Internal Members
  *********************************************************************************************/
 
-		void						attachedToScene(Scene& scene);
-		void						detachedFromScene(Scene& scene);
+		void								attachedToScene(Scene& scene);
+		void								detachedFromScene(Scene& scene);
 
-		virtual void				update() = 0;
+		virtual void						update() = 0;
 
 /*********************************************************************************************
 	Protected IVars
@@ -76,14 +76,14 @@ namespace a3d {
 
 	protected:
 
-		std::set<Key> 				_keysDown;
-		std::set<MouseButton> 		_mouseButtonsDown;
-		std::set<Key> 				_keysPressed;
-		std::set<Key> 				_keysPressedCleared;
-		std::set<MouseButton> 		_mouseButtonsPressed;
-		std::set<MouseButton> 		_mouseButtonsPressedCleared;
-		glm::vec2  					_mousePositionDelta;
-		glm::vec2  					_mouseScrollWheelDelta;
+		std::unordered_set<Key> 			_keysDown;
+		std::unordered_set<MouseButton> 	_mouseButtonsDown;
+		std::unordered_set<Key> 			_keysPressed;
+		std::unordered_set<Key> 			_keysPressedCleared;
+		std::unordered_set<MouseButton> 	_mouseButtonsPressed;
+		std::unordered_set<MouseButton> 	_mouseButtonsPressedCleared;
+		glm::vec2  							_mousePositionDelta;
+		glm::vec2  							_mouseScrollWheelDelta;
 
 /*********************************************************************************************
 	Private Members

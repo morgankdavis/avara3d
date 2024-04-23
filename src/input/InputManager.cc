@@ -65,23 +65,23 @@ bool InputManager::mouseButtonPressed(MouseButton button) {
 	return pressed;
 }
 
-set<Key> InputManager::keysDown() {
+unordered_set<Key> InputManager::keysDown() {
 	auto keysDownCopy = _keysDown;
 	return keysDownCopy;
 }
 
-set<MouseButton> InputManager::mouseButtonsDown() {
+unordered_set<MouseButton> InputManager::mouseButtonsDown() {
 	auto mouseButtonsDownCopy = _mouseButtonsDown;
 	return mouseButtonsDownCopy;
 }
 
-set<Key> InputManager::keysPressed() {
+unordered_set<Key> InputManager::keysPressed() {
 	auto keysPressedCopy = _keysPressed;
 	_keysPressed.clear();
 	return keysPressedCopy;
 }
 
-set<MouseButton> InputManager::mouseButtonsPressed() {
+unordered_set<MouseButton> InputManager::mouseButtonsPressed() {
 	auto mouseButtonsPressedCopy = _mouseButtonsPressed;
 	_mouseButtonsPressed.clear();
 	return mouseButtonsPressedCopy;
