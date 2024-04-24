@@ -34,9 +34,9 @@ constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
 
 
-void UpdateCallback(Scene& scene, float time);
-void WillRenderCallback(VisualWorld& world, float time);
-void DidRenderCallback(VisualWorld& world, float time);
+void UpdateCallback(Scene& scene, float time, float deltaTime);
+void WillRenderCallback(VisualWorld& world, float time, float deltaTime);
+void DidRenderCallback(VisualWorld& world, float time, float deltaTime);
 
 
 int main(int argc, const char* argv[]) {
@@ -56,15 +56,15 @@ int main(int argc, const char* argv[]) {
 	auto visualWorld = make_unique<VisualWorld>(window.get());
 	auto backgroundColor = make_shared<Color>(109.0f/255.0f, 136.0f/255.0f, 164.0f/255.0f, 1.0f);
 	visualWorld->background(backgroundColor);
-	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
-	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
+	visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
+	visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
 
 	auto inputManager = make_unique<WindowInputManager>(window.get());
 
 	auto scene = utils::SceneNamed("import_test/import_test");
 	scene->visualWorld(std::move(visualWorld));
 	scene->inputManager(std::move(inputManager));
-	scene->update(bind(&UpdateCallback, _1, _2));
+	scene->update(bind(&UpdateCallback, _1, _2, _3));
 
 	window->open();
 	scene->run();
@@ -76,11 +76,7 @@ int main(int argc, const char* argv[]) {
 	Scene Callbacks
  ***************************************************************************************/
 
-void UpdateCallback(Scene& scene, float time) {
-
-	static float previousSeconds = time;
-	float deltaSeconds = time - previousSeconds;
-	previousSeconds = time;
+void UpdateCallback(Scene& scene, float time, float deltaTime) {
 
 	auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 
@@ -110,7 +106,7 @@ void UpdateCallback(Scene& scene, float time) {
 	//	}
 
 	vec2 mouseScrollWheelDelta = scene.inputManager()->mouseScrollWheelDelta();
-	if (mouseScrollWheelDelta.x || mouseScrollWheelDelta.y) {
+	if (mouseScrollWheelDelta.x > 0 || mouseScrollWheelDelta.y > 0) {
 		cout << "Mouse scroll wheel delta: (" << mouseScrollWheelDelta.x << ", "
 			 << mouseScrollWheelDelta.y << ")" << endl;
 	}
@@ -147,25 +143,25 @@ void UpdateCallback(Scene& scene, float time) {
 		static float MOVE_SPEED = utils::Max(scene.rootNode()->extent());
 
 		if(keysDown.count(Key::W)) {
-			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
+			vec3 positionDelta = deltaTime * MOVE_SPEED * camForward;
 			pov->position(pov->position() + positionDelta);
 		}
 		else if(keysDown.count(Key::S)) {
-			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camForward;
+			vec3 positionDelta = deltaTime * MOVE_SPEED * -camForward;
 			pov->position(pov->position() + positionDelta);
 		}
 
 		if(keysDown.count(Key::A)) {
-			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camRight;
+			vec3 positionDelta = deltaTime * MOVE_SPEED * -camRight;
 			pov->position(pov->position() + positionDelta);
 		}
 		else if(keysDown.count(Key::D)) {
-			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camRight;
+			vec3 positionDelta = deltaTime * MOVE_SPEED * camRight;
 			pov->position(pov->position() + positionDelta);
 		}
 
 		if(keysDown.count(Key::Space)) {
-			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camUp;
+			vec3 positionDelta = deltaTime * MOVE_SPEED * camUp;
 			pov->position(pov->position() + positionDelta);
 		}
 	}
@@ -175,9 +171,9 @@ void UpdateCallback(Scene& scene, float time) {
 	VisualWorld Callbacks
  ***************************************************************************************/
 
-void WillRenderCallback(VisualWorld& world, float time) {
+void WillRenderCallback(VisualWorld& world, float time, float deltaTime) {
 }
 
-void DidRenderCallback(VisualWorld& world, float time) {
+void DidRenderCallback(VisualWorld& world, float time, float deltaTime) {
 
 }

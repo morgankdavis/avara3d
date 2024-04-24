@@ -156,7 +156,7 @@ void BulletWorldProxy::step(double deltaT,
 							float timestep,
 							Stats& stats) {
 
-	auto result = _btWorld->stepSimulation(deltaT * speed,
+	auto result = _btWorld->stepSimulation(btScalar(deltaT * speed),
 										   MAX_PHYSICS_SUBSTEPS,
 										   timestep);
 

@@ -44,9 +44,9 @@ constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 
 
-void UpdateCallback(Scene& scene, float time);
-void WillRenderCallback(VisualWorld& world, float time);
-void DidRenderCallback(VisualWorld& world, float time);
+void UpdateCallback(Scene& scene, float time, float deltaTime);
+void WillRenderCallback(VisualWorld& world, float time, float deltaTime);
+void DidRenderCallback(VisualWorld& world, float time, float deltaTime);
 
 
 int main(int argc, const char* argv[]) {
@@ -66,12 +66,12 @@ int main(int argc, const char* argv[]) {
 	auto visualWorld = make_unique<VisualWorld>(window.get());
 	auto backgroundColor = make_shared<Color>(109.0f/255.0f, 136.0f/255.0f, 164.0f/255.0f, 1.0f);
 	visualWorld->background(backgroundColor);
-	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
-	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
+	visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
+	visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
 
 	auto scene = make_unique<Scene>();
 	scene->visualWorld(std::move(visualWorld));
-	scene->update(bind(&UpdateCallback, _1, _2));
+	scene->update(bind(&UpdateCallback, _1, _2, _3));
 
 
 	if (USING_TEST == TEST::TRAVERSAL) {
@@ -518,13 +518,9 @@ int main(int argc, const char* argv[]) {
 	Scene Callbacks
  ***************************************************************************************/
 
-void UpdateCallback(Scene& scene, float time) {
+void UpdateCallback(Scene& scene, float time, float deltaTime) {
 
-	static float previousSeconds = time;
-	float deltaSeconds = time - previousSeconds;
-	previousSeconds = time;
-
-	float rotationDeg = deltaSeconds * 30.0; // 30deg/sec
+	float rotationDeg = deltaTime * 30.0; // 30deg/sec
 
 //	if (USING_TEST == TEST::ROTATION) {
 //		auto node = scene.rootNode()->childNamed("A", true);
@@ -548,10 +544,10 @@ void UpdateCallback(Scene& scene, float time) {
 	VisualWorld Callbacks
  ***************************************************************************************/
 
-void WillRenderCallback(VisualWorld& world, float time) {
+void WillRenderCallback(VisualWorld& world, float time, float deltaTime) {
 
 }
 
-void DidRenderCallback(VisualWorld& world, float time) {
+void DidRenderCallback(VisualWorld& world, float time, float deltaTime) {
 
 }

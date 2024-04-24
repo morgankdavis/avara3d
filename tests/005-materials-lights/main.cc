@@ -35,9 +35,9 @@ constexpr bool 					ORTHO_CAMERA =			false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
 
 
-void UpdateCallback(Scene& scene, float time);
-void WillRenderCallback(VisualWorld& world, float time);
-void DidRenderCallback(VisualWorld& world, float time);
+void UpdateCallback(Scene& scene, float time, float deltaTime);
+void WillRenderCallback(VisualWorld& world, float time, float deltaTime);
+void DidRenderCallback(VisualWorld& world, float time, float deltaTime);
 
 
 void InitLog();
@@ -71,8 +71,8 @@ int main(int argc, const char* argv[]) {
 	visualWorld->fogEndDistance(5000.0);
 	visualWorld->fogDensityExponent(1.0);
 	visualWorld->fogColor(Color::LightGray());
-	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
-	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
+	visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
+	visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
 	visualWorld->background(make_shared<Texture>(std::move(utils::CubeImageNamed("nebula1_blue", "png"))));
 
 	auto inputManager = make_unique<WindowInputManager>(window.get());
@@ -84,7 +84,7 @@ int main(int argc, const char* argv[]) {
 	scene->visualWorld(std::move(visualWorld));
 	scene->inputManager(std::move(inputManager));
 	scene->debugOptions(DebugOptions::ShowStatsOverlay);
-	scene->update(bind(&UpdateCallback, _1, _2));
+	scene->update(bind(&UpdateCallback, _1, _2, _3));
 
 	auto ambientLight = make_shared<Light>(LightType::Ambient, make_unique<Color>(0.2f, 0.2, 0.2, 1.0));
 	ambientLight->name("ambient");
@@ -152,12 +152,8 @@ int main(int argc, const char* argv[]) {
 	Scene Callbacks
  ***************************************************************************************/
 
-void UpdateCallback(Scene& scene, float time) {
-	LOG_T(g_logger, "scene: {:p}, time: {}", (void*)&scene, time);
-
-	static float previousSeconds = time;
-	float deltaSeconds = time - previousSeconds;
-	previousSeconds = time;
+void UpdateCallback(Scene& scene, float time, float deltaTime) {
+	LOG_T(g_logger, "scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
 
 	auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 
@@ -287,20 +283,20 @@ void UpdateCallback(Scene& scene, float time) {
 			}
 
 			if(keysDown.count(Key::W)) {
-				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
+				vec3 positionDelta = deltaTime * MOVE_SPEED * camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 			else if(keysDown.count(Key::S)) {
-				vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camForward;
+				vec3 positionDelta = deltaTime * MOVE_SPEED * -camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 
 			if(keysDown.count(Key::A)) {
-				vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camRight;
+				vec3 positionDelta = deltaTime * MOVE_SPEED * -camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 			else if(keysDown.count(Key::D)) {
-				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camRight;
+				vec3 positionDelta = deltaTime * MOVE_SPEED * camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 
@@ -309,7 +305,7 @@ void UpdateCallback(Scene& scene, float time) {
 				if (keysDown.count(Key::LeftShift)) {
 					direction = -1;
 				}
-				vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camUp;
+				vec3 positionDelta = deltaTime * MOVE_SPEED * moveMultiplier * camUp;
 				pov->position(pov->position() + positionDelta * direction);
 			}
 		}
@@ -328,7 +324,7 @@ void UpdateCallback(Scene& scene, float time) {
 
 		static float rotationSpeed = radians(30.0); // deg/secs
 		static float angle = 0;
-		angle += rotationSpeed * deltaSeconds;
+		angle += rotationSpeed * deltaTime;
 
 		float x = sin(angle) * radiusX;
 		float y = cos(angle) * radiusY;
@@ -341,12 +337,12 @@ void UpdateCallback(Scene& scene, float time) {
 	VisualWorld Callbacks
  ***************************************************************************************/
 
-void WillRenderCallback(VisualWorld& world, float time) {
-	LOG_T(g_logger, "world: {:p}, time: {}", (void*)&world, time);
+void WillRenderCallback(VisualWorld& world, float time, float deltaTime) {
+	LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
-void DidRenderCallback(VisualWorld& world, float time) {
-	LOG_T(g_logger, "world: {:p}, time: {}", (void*)&world, time);
+void DidRenderCallback(VisualWorld& world, float time, float deltaTime) {
+	LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 /***************************************************************************************
