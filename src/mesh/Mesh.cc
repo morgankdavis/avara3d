@@ -200,7 +200,7 @@ void Mesh::draw(Renderer& renderer,
 					  stats);
 	}
 
-	stats.meshes++;
+	++stats.meshes;
 }
 
 AABB Mesh::aabb(const Node* convertTo) const {

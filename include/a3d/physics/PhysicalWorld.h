@@ -38,7 +38,7 @@ namespace a3d {
 
 	public:
 
-		using DidSimulateCallback = 	std::function<void(PhysicalWorld& world, double time)>;
+		using DidSimulateCallback = 	std::function<void(PhysicalWorld& world, float time, float deltaTime)>;
 		using BeginContactCallback = 	std::function<void(PhysicalWorld& world, PhysicsContact& contact)>;
 		using ContinueContactCallback =	std::function<void(PhysicalWorld& world, PhysicsContact& contact)>;
 		using EndContactCallback = 		std::function<void(PhysicalWorld& world, PhysicsContact& contact)>;

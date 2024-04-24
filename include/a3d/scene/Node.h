@@ -163,6 +163,8 @@ namespace a3d {
 		AABB									aabb();
 		glm::vec3								extent();
 
+		void	 								applyPhysicsTransform(const glm::mat4& transform);
+
 		void 									draw(Renderer& renderer,
 													 const glm::mat4& viewMat,
 													 const glm::mat4& projectionMat,
@@ -172,8 +174,6 @@ namespace a3d {
 		void									_debugPrint();
 		void									_debugPrintRec(Node& node,
 															   unsigned level);
-
-		void	 								applyPhysicsTransform(glm::mat4 transform);
 
 /*********************************************************************************************
 	Private Members

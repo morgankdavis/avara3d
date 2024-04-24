@@ -32,9 +32,9 @@ constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
 
 
-void UpdateCallback(Scene& scene, float time);
-void WillRenderCallback(VisualWorld& world, float time);
-void DidRenderCallback(VisualWorld& world, float time);
+void UpdateCallback(Scene& scene, float time, float deltaTime);
+void WillRenderCallback(VisualWorld& world, float time, float deltaTime);
+void DidRenderCallback(VisualWorld& world, float time, float deltaTime);
 
 
 void InitLog();
@@ -65,8 +65,8 @@ int main(int argc, const char* argv[]) {
 	visualWorld->fogDensityExponent(1.0);
 	visualWorld->fogColor(Color::LightGray());
 	visualWorld->background(make_shared<Texture>(utils::CubeImageNamed("sky1", "png")));
-	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
-	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
+	visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
+	visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
 
 	auto inputManager = make_unique<WindowInputManager>(window.get());
 
@@ -77,7 +77,7 @@ int main(int argc, const char* argv[]) {
 	DebugOptions debugOptions = DebugOptions::ShowStatsOverlay
 								| DebugOptions::ShowBoundingBoxes;
 	scene->debugOptions(debugOptions);
-	scene->update(bind(&UpdateCallback, _1, _2));
+	scene->update(bind(&UpdateCallback, _1, _2, _3));
 
 	auto ambientLight = make_shared<Light>(LightType::Ambient, make_shared<Color>(0.25f, 0.25, 0.25, 1.0));
 	auto ambientLightNode = make_shared<Node>("Ambient light");
@@ -124,11 +124,7 @@ int main(int argc, const char* argv[]) {
 	Scene Callbacks
  ***************************************************************************************/
 
-void UpdateCallback(Scene& scene, float time) {
-
-	static float previousSeconds = time;
-	float deltaSeconds = time - previousSeconds;
-	previousSeconds = time;
+void UpdateCallback(Scene& scene, float time, float deltaTime) {
 
 	auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 
@@ -223,23 +219,23 @@ void UpdateCallback(Scene& scene, float time) {
 			auto keysDown = scene.inputManager()->keysDown();
 
 			if (keysDown.count(Key::W)) {
-				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
+				vec3 positionDelta = deltaTime * MOVE_SPEED * camForward;
 				pov->position(pov->position() + positionDelta);
 			} else if (keysDown.count(Key::S)) {
-				vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camForward;
+				vec3 positionDelta = deltaTime * MOVE_SPEED * -camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 
 			if (keysDown.count(Key::A)) {
-				vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camRight;
+				vec3 positionDelta = deltaTime * MOVE_SPEED * -camRight;
 				pov->position(pov->position() + positionDelta);
 			} else if (keysDown.count(Key::D)) {
-				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camRight;
+				vec3 positionDelta = deltaTime * MOVE_SPEED * camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 
 			if (keysDown.count(Key::Space)) {
-				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camUp;
+				vec3 positionDelta = deltaTime * MOVE_SPEED * camUp;
 				pov->position(pov->position() + positionDelta);
 			}
 		}
@@ -250,11 +246,11 @@ void UpdateCallback(Scene& scene, float time) {
 	VisualWorld Callbacks
  ***************************************************************************************/
 
-void WillRenderCallback(VisualWorld& world, float time) {
+void WillRenderCallback(VisualWorld& world, float time, float deltaTime) {
 
 }
 
-void DidRenderCallback(VisualWorld& world, float time) {
+void DidRenderCallback(VisualWorld& world, float time, float deltaTime) {
 
 }
 
@@ -287,12 +283,9 @@ void LogBuildInfo() {
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
-	LOG_I(g_logger, "A3D version: {}.{}.{}",
-		  version.major, version.minor, version.patch);
+	LOG_I(g_logger, "A3D version: {}.{}.{}", version.major, version.minor, version.patch);
 	LOG_I(g_logger, "Build: {}", buildInfo.number());
-	LOG_I(g_logger, "Type: {}",
-		  buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
-	LOG_I(g_logger, "Origin: {}",
-		  buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
+	LOG_I(g_logger, "Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
+	LOG_I(g_logger, "Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
 }
 
