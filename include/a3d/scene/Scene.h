@@ -118,7 +118,6 @@ namespace a3d {
 		DebugOptions						_debugOptions;
 		bool								_running;
 		double 								_startTime;
-		//std::chrono::time_point<std::chrono::system_clock, std::chrono::duration> _startTimePoint;
 		bool								_paused;
 		Stats								_stats;
 		UpdateCallback						_update;
