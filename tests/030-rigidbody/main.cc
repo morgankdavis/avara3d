@@ -308,16 +308,10 @@ int main(int argc, const char* argv[]) {
 void UpdateCallback(Scene& scene, float time, float deltaTime) {
 	LOG_T(g_logger, "scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
 
-//	static double previousSeconds = time;
-//	double deltaSeconds = time - previousSeconds;
-//	previousSeconds = time;
-
 	auto inputManager = scene.inputManager();
 
-	//shared_ptr<RenderContext> renderContext = nullptr;
 	Window* window = nullptr;
 	if (scene.visualWorld()) {
-		//renderContext = scene.visualWorld()->renderContext();
 		window = static_cast<Window*>(scene.visualWorld()->renderContext());
 	}
 
@@ -325,19 +319,9 @@ void UpdateCallback(Scene& scene, float time, float deltaTime) {
 	auto rotationDeg = deltaTime * radians(30.0); // 30deg/sec
 
 	if (g_duckSpinnerNode) {
-		//auto duckRotation = _duckSpinnerNode->rotation();
-		//_duckSpinnerNode->rotation({0, 1, 0, duckRotation.w + rotationDeg});
 		auto duckSpinnerEuler = g_duckSpinnerNode->eulerAngles();
 		g_duckSpinnerNode->eulerAngles({0, duckSpinnerEuler.y - rotationDeg, 0});
 	}
-
-//	for (auto& c : scene.rootNode()->children(true)) {
-//		if (c->mesh()) {
-//			if (dynamic_pointer_cast<Cylinder>(c->mesh())) {
-//				A3D_LOG_I("{}", utils::StringFromGLMVec3(c->worldPosition()));
-//			}
-//		}
-//	}
 
 	// get input
 
@@ -423,18 +407,6 @@ void UpdateCallback(Scene& scene, float time, float deltaTime) {
 	}
 
 
-
-
-//	if (keysPressed.count(Key::Nine)) {
-//		testNode->physicsBody()->resting(!testNode->physicsBody()->resting());
-//	}
-//
-//	if (keysPressed.count(Key::Zero)) {
-//		testNode->physicsBody()->allowsResting(!testNode->physicsBody()->allowsResting());
-//	}
-
-
-
 	if (!scene.paused()) {
 
 		if (keysPressed.count(Key::T)) {
@@ -471,43 +443,10 @@ void UpdateCallback(Scene& scene, float time, float deltaTime) {
 			SpawnRecursiveTestTree(scene);
 		}
 
-//		if (keysPressed.count(KEY::ONE)) {
-//			scene.physicalWorld()->speed(0.1);
-//		}
-//
-//		if (keysPressed.count(KEY::ZERO)) {
-//			scene.physicalWorld()->speed(1.0);
-//		}
-//
-//		if (keysPressed.count(KEY::TWO)) {
-//			scene.physicalWorld()->speed(2.0);
-//		}
-
-//		if (keysPressed.count(Key::J)) {
-//			if (fruit1Node) {
-//				fruit1Node->physicsBody()->affectedByGravity(!(fruit1Node->physicsBody()->affectedByGravity()));
-//			}
-//		}
-
 		if (keysPressed.count(Key::H)) {
 			SpawnHACDTeapot(scene);
 		}
 
-		// move paddle
-
-//		static const float PADDLE_SPEED = 5.0; // m/s
-//		if (keysDown.count(Key::Equal)) {
-//			if (paddleNode) {
-//				auto p = paddleNode->position();
-//				paddleNode->position({p.x + deltaSeconds * PADDLE_SPEED, p.y, p.z});
-//			}
-//		}
-//		if (keysDown.count(Key::Minus)) {
-//			if (paddleNode) {
-//				auto p = paddleNode->position();
-//				paddleNode->position({p.x - deltaSeconds * PADDLE_SPEED, p.y, p.z});
-//			}
-//		}
 
 		if (scene.visualWorld() && cursorCaptured) {
 

@@ -283,12 +283,9 @@ void LogBuildInfo() {
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
-	LOG_I(g_logger, "A3D version: {}.{}.{}",
-		  version.major, version.minor, version.patch);
+	LOG_I(g_logger, "A3D version: {}.{}.{}", version.major, version.minor, version.patch);
 	LOG_I(g_logger, "Build: {}", buildInfo.number());
-	LOG_I(g_logger, "Type: {}",
-		  buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
-	LOG_I(g_logger, "Origin: {}",
-		  buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
+	LOG_I(g_logger, "Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
+	LOG_I(g_logger, "Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
 }
 

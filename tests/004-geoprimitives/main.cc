@@ -258,20 +258,6 @@ void UpdateCallback(Scene& scene, float time, float deltaTime) {
 		window->close();
 	}
 
-//	for (auto mb : _inputManager->mouseButtonsDown()) {
-//		cout << "Mouse button: " << mb << endl;
-//	}
-
-	vec2 mousePositionDelta = scene.inputManager()->mousePositionDelta();
-	//	if (mousePositionDelta.x || mousePositionDelta.y) {
-	//		cout << "Mouse move delta: (" << mousePositionDelta.x << ", " << mousePositionDelta.y << ")" << endl;
-	//	}
-
-//	vec2 mouseScrollWheelDelta = _inputManager->mouseScrollWheelDelta();
-//	if (mouseScrollWheelDelta.x || mouseScrollWheelDelta.y) {
-//		cout << "Mouse scroll wheel delta: (" << mouseScrollWheelDelta.x << ", " << mouseScrollWheelDelta.y << ")" << endl;
-//	}
-
 	if (keysPressed.count(Key::F)) {
 		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
 			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(), DebugOptions::ShowWireframes));
@@ -308,6 +294,7 @@ void UpdateCallback(Scene& scene, float time, float deltaTime) {
 			static const float MOUSE_SPEED_SCALAR = .002;
 			static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
 
+			vec2 mousePositionDelta = scene.inputManager()->mousePositionDelta();
 			float deltaRotX = atan(MOUSE_SPEED * mousePositionDelta.x);
 			float deltaRotY = atan(MOUSE_SPEED * mousePositionDelta.y);
 
@@ -384,11 +371,8 @@ void LogBuildInfo() {
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
-	LOG_I(g_logger, "A3D version: {}.{}.{}",
-		  version.major, version.minor, version.patch);
+	LOG_I(g_logger, "A3D version: {}.{}.{}", version.major, version.minor, version.patch);
 	LOG_I(g_logger, "Build: {}", buildInfo.number());
-	LOG_I(g_logger, "Type: {}",
-		  buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
-	LOG_I(g_logger, "Origin: {}",
-		  buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
+	LOG_I(g_logger, "Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
+	LOG_I(g_logger, "Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
 }

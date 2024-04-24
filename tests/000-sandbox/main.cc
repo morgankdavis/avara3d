@@ -357,8 +357,6 @@ void UpdateCallback(Scene& scene, float time, float deltaTime) {
 	}
 
 
-
-
 	// get input
 
 	auto mouseButtonsDown = inputManager->mouseButtonsDown();
@@ -397,7 +395,6 @@ void UpdateCallback(Scene& scene, float time, float deltaTime) {
 	}
 	if (keysPressed.count(Key::Two)) {
 
-//		auto cameraNodes = vector<Node*>();
 		auto cameraNodes = vector<std::shared_ptr<Node>>();
 		for (auto& node : scene.rootNode()->children(true)) {
 			auto camera = node->camera();
@@ -410,7 +407,6 @@ void UpdateCallback(Scene& scene, float time, float deltaTime) {
 	}
 	if (keysPressed.count(Key::Three)) {
 
-//		auto cameraNodes = vector<Node*>();
 		auto cameraNodes = vector<std::shared_ptr<Node>>();
 		for (auto& node : scene.rootNode()->children(true)) {
 			auto camera = node->camera();
@@ -421,8 +417,6 @@ void UpdateCallback(Scene& scene, float time, float deltaTime) {
 
 		scene.visualWorld()->pointOfView(cameraNodes[2]);
 	}
-
-
 
 
 
@@ -440,22 +434,6 @@ void UpdateCallback(Scene& scene, float time, float deltaTime) {
 		//meshNode = Node::meshNode(mesh);
 		(*g_meshNode)->mesh(*g_mesh);
 	}
-//	static int index = 0;
-//	if (keysPressed.count(Key::LeftBracket)) {
-//		g_mesh = g_meshes[--index];
-//		auto name = g_mesh->name();
-//		if (name) A3D_LOG_D("name: {}", *name);
-//		g_meshNode->mesh(g_mesh);
-//	}
-//	if (keysPressed.count(Key::RightBracket)) {
-//		g_mesh = g_meshes[--index];
-//		auto name = g_mesh->name();
-//		if (name) A3D_LOG_D("name: {}", *name);
-//		//meshNode = Node::meshNode(mesh);
-//		(*g_meshNode)->mesh(*g_mesh);
-//	}
-
-
 
 
 
@@ -658,11 +636,8 @@ void LogBuildInfo() {
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
-	LOG_I(g_logger, "A3D version: {}.{}.{}",
-		  version.major, version.minor, version.patch);
+	LOG_I(g_logger, "A3D version: {}.{}.{}", version.major, version.minor, version.patch);
 	LOG_I(g_logger, "Build: {}", buildInfo.number());
-	LOG_I(g_logger, "Type: {}",
-		  buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
-	LOG_I(g_logger, "Origin: {}",
-		  buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
+	LOG_I(g_logger, "Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
+	LOG_I(g_logger, "Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
 }

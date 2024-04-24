@@ -270,10 +270,10 @@ void Scene::run() {
 
 	if (_rootNode) {
 
-		_running = true;
-
 		auto now = std::chrono::system_clock::now();
 		_startTime = std::chrono::duration<double>(now.time_since_epoch()).count();
+
+		_running = true;
 
 		if (_visualWorld) {
 			_visualWorld->checkAddDefaultLighting();
@@ -288,8 +288,8 @@ void Scene::run() {
 					   runT,
 					   deltaRunT);
 
-			_stats = {};
-			//memset(&_stats, 0, sizeof(Stats));
+			//_stats = {};
+			memset(&_stats, 0, sizeof(Stats));
 			UpdateFrameTimeStats(_stats, runT);
 
 			if (_inputManager) {
@@ -384,9 +384,9 @@ void Scene::update(UpdateCallback function) {
  *********************************************************************************************/
 
 void GetRunTime(double time, // time since reference
-					   bool paused,
-					   double& runT, // time since reference excluding paused time
-					   double& deltaRunT) { // time since last call excluding paused time
+				bool paused,
+				double& runT, // time since reference excluding paused time
+				double& deltaRunT) { // time since last call excluding paused time
 
 	const double t = time;
 	static double prevT = t;
