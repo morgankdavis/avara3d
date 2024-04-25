@@ -56,6 +56,7 @@ VisualWorld::VisualWorld(RenderContext* context):
 		_fogDensityExponent{0.0},
 		_fogColor{},
 		_pointOfView{},
+		_autoEnablesDefaultLighting{true},
 		_usesDefaultLighting{false},
 		_renderContext{context},
 		_scene{},
@@ -162,6 +163,14 @@ weak_ptr<Node> VisualWorld::pointOfView() {
 
 void VisualWorld::pointOfView(const weak_ptr<Node>& cameraNode) {
 	_pointOfView = cameraNode;
+}
+
+bool VisualWorld::autoEnablesDefaultLighting() const {
+	return _autoEnablesDefaultLighting;
+}
+
+void VisualWorld::autoEnablesDefaultLighting(bool enabled) {
+	_autoEnablesDefaultLighting = enabled;
 }
 
 bool VisualWorld::usesDefaultLighting() const {
