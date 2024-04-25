@@ -882,13 +882,23 @@ vec3 Node::extent() {
 			aabb.max.z - aabb.min.z};
 }
 
+void Node::applyPhysicsTransform(const mat4& transform) {
+
+	if (auto parent = _parent.lock()) {
+		this->transform(inverse(parent->worldTransform()) * transform);
+	}
+	else {
+		this->transform(transform);
+	}
+}
+
 void Node::draw(Renderer& renderer,
 				const mat4& viewMat,
 				const mat4& projectionMat,
 				const DebugOptions& debugOptions,
 				Stats& stats) {
 
-	stats.nodes++;
+	++stats.nodes;
 
 	if (_mesh && !_mesh->hidden()) {
 
@@ -922,16 +932,6 @@ void Node::_debugPrintRec(Node& node,
 
 	for (auto& child : node._children) {
 		_debugPrintRec(*child, level + 1);
-	}
-}
-
-void Node::applyPhysicsTransform(mat4 transform) {
-
-	if (auto parent = _parent.lock()) {
-		this->transform(inverse(parent->worldTransform()) * transform);
-	}
-	else {
-		this->transform(transform);
 	}
 }
 

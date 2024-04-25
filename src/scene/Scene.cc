@@ -270,14 +270,10 @@ void Scene::run() {
 
 	if (_rootNode) {
 
-		_running = true;
-
 		auto now = std::chrono::system_clock::now();
 		_startTime = std::chrono::duration<double>(now.time_since_epoch()).count();
 
-//		if (_visualWorld) {
-//			_visualWorld->checkAddDefaultLighting();
-//		}
+		_running = true;
 
 		double deltaT, runT, deltaRunT;
 
@@ -288,8 +284,8 @@ void Scene::run() {
 					   runT,
 					   deltaRunT);
 
-			_stats = {};
-			//memset(&_stats, 0, sizeof(Stats));
+			//_stats = {};
+			memset(&_stats, 0, sizeof(Stats));
 			UpdateFrameTimeStats(_stats, runT);
 
 			if (_inputManager) {
@@ -299,7 +295,7 @@ void Scene::run() {
 			if (_update) {
 
 				auto updateStartTime = time();
-				(_update)(*this, runT);
+				(_update)(*this, (float)runT, (float)deltaRunT);
 				UpdateUserTimeStats(_stats, updateStartTime, time());
 			}
 
@@ -350,8 +346,9 @@ bool Scene::running() const {
 
 double Scene::time() const {
 
+	// https://randomascii.wordpress.com/2012/02/13/dont-store-that-in-a-float/
+
 	if (_startTime != 0) {
-		// faster if _startTime was a chrono:time_point ?
 		auto now = chrono::system_clock::now();
 		auto nowSinceEpoch = chrono::duration<double>(now.time_since_epoch()).count();
 		return nowSinceEpoch - _startTime;
@@ -384,9 +381,9 @@ void Scene::update(UpdateCallback function) {
  *********************************************************************************************/
 
 void GetRunTime(double time, // time since reference
-					   bool paused,
-					   double& runT, // time since reference excluding paused time
-					   double& deltaRunT) { // time since last call excluding paused time
+				bool paused,
+				double& runT, // time since reference excluding paused time
+				double& deltaRunT) { // time since last call excluding paused time
 
 	const double t = time;
 	static double prevT = t;

@@ -206,7 +206,7 @@ void PhysicalWorld::step(const Scene& scene,
 		UpdateTimeStats(stats, startTime, scene.time());
 
 		if (auto didSimulate = PhysicalWorld::didSimulate()) {
-			didSimulate(*this, runT);
+			didSimulate(*this, (float)runT, (float)deltaRunT);
 		}
 	}
 	else {
@@ -248,5 +248,4 @@ void UpdateTimeStats(Stats& stats, double startTime, double endTime) {
 	}
 
 	stats.averagePhysicstime = avg;
-//	stats.averagingInterval = FRAMETIME_AVERAGING_INTERVAL;
 }

@@ -41,10 +41,10 @@ constexpr float					PHYSICS_TIMESTEP =		1.0/120.0;
 constexpr bool					DARK =					true;
 
 
-void UpdateCallback(Scene& scene, float time);
-void WillRenderCallback(VisualWorld& world, float time);
-void DidRenderCallback(VisualWorld& world, float time);
-void DidSimulatePhysicsCallback(PhysicalWorld& world, float time);
+void UpdateCallback(Scene& scene, float time, float deltaTime);
+void WillRenderCallback(VisualWorld& world, float time, float deltaTime);
+void DidRenderCallback(VisualWorld& world, float time, float deltaTime);
+void DidSimulatePhysicsCallback(PhysicalWorld& world, float time, float deltaTime);
 
 
 void InitLog();
@@ -100,12 +100,12 @@ int main(int argc, const char* argv[]) {
 	if (DARK) background = Color::Black();
 	else background = make_shared<Texture>(utils::CubeImageNamed("stormy", "png"));
 	visualWorld->background(background);
-	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
-	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
+	visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
+	visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
 
 	auto physicalWorld = make_unique<PhysicalWorld>();
 	physicalWorld->timestep(PHYSICS_TIMESTEP);
-	physicalWorld->didSimulate(bind(&DidSimulatePhysicsCallback, _1, _2));
+	physicalWorld->didSimulate(bind(&DidSimulatePhysicsCallback, _1, _2, _3));
 
 	auto inputManager = make_unique<WindowInputManager>(window.get());
 
@@ -113,7 +113,7 @@ int main(int argc, const char* argv[]) {
 									std::move(physicalWorld),
 									std::move(inputManager));
 	scene->debugOptions(DebugOptions::ShowStatsOverlay);
-	scene->update(bind(&UpdateCallback, _1, _2));
+	scene->update(bind(&UpdateCallback, _1, _2, _3));
 
 	if (!USE_DEFAULT_LIGHTING) {
 		auto ambientColor = DARK
@@ -307,39 +307,23 @@ int main(int argc, const char* argv[]) {
 	Scene Callbacks
  ***************************************************************************************/
 
-void UpdateCallback(Scene& scene, float time) {
-	LOG_T(g_logger, "scene: {:p}, time: {}", (void*)&scene, time);
-
-	static float previousSeconds = time;
-	float deltaSeconds = time - previousSeconds;
-	previousSeconds = time;
+void UpdateCallback(Scene& scene, float time, float deltaTime) {
+	LOG_T(g_logger, "scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
 
 	auto inputManager = scene.inputManager();
 
-	//shared_ptr<RenderContext> renderContext = nullptr;
 	Window* window = nullptr;
 	if (scene.visualWorld()) {
-		//renderContext = scene.visualWorld()->renderContext();
 		window = static_cast<Window*>(scene.visualWorld()->renderContext());
 	}
 
 	// rotate the duck
-	float rotationDeg = deltaSeconds * radians(30.0); // 30deg/sec
+	auto rotationDeg = deltaTime * radians(30.0); // 30deg/sec
 
 	if (g_duckSpinnerNode) {
-		//auto duckRotation = _duckSpinnerNode->rotation();
-		//_duckSpinnerNode->rotation({0, 1, 0, duckRotation.w + rotationDeg});
 		auto duckSpinnerEuler = g_duckSpinnerNode->eulerAngles();
 		g_duckSpinnerNode->eulerAngles({0, duckSpinnerEuler.y - rotationDeg, 0});
 	}
-
-//	for (auto& c : scene.rootNode()->children(true)) {
-//		if (c->mesh()) {
-//			if (dynamic_pointer_cast<Cylinder>(c->mesh())) {
-//				A3D_LOG_I("{}", utils::StringFromGLMVec3(c->worldPosition()));
-//			}
-//		}
-//	}
 
 	// get input
 
@@ -425,18 +409,6 @@ void UpdateCallback(Scene& scene, float time) {
 	}
 
 
-
-
-//	if (keysPressed.count(Key::Nine)) {
-//		testNode->physicsBody()->resting(!testNode->physicsBody()->resting());
-//	}
-//
-//	if (keysPressed.count(Key::Zero)) {
-//		testNode->physicsBody()->allowsResting(!testNode->physicsBody()->allowsResting());
-//	}
-
-
-
 	if (!scene.paused()) {
 
 		if (keysPressed.count(Key::T)) {
@@ -473,43 +445,10 @@ void UpdateCallback(Scene& scene, float time) {
 			SpawnRecursiveTestTree(scene);
 		}
 
-//		if (keysPressed.count(KEY::ONE)) {
-//			scene.physicalWorld()->speed(0.1);
-//		}
-//
-//		if (keysPressed.count(KEY::ZERO)) {
-//			scene.physicalWorld()->speed(1.0);
-//		}
-//
-//		if (keysPressed.count(KEY::TWO)) {
-//			scene.physicalWorld()->speed(2.0);
-//		}
-
-//		if (keysPressed.count(Key::J)) {
-//			if (fruit1Node) {
-//				fruit1Node->physicsBody()->affectedByGravity(!(fruit1Node->physicsBody()->affectedByGravity()));
-//			}
-//		}
-
 		if (keysPressed.count(Key::H)) {
 			SpawnHACDTeapot(scene);
 		}
 
-		// move paddle
-
-//		static const float PADDLE_SPEED = 5.0; // m/s
-//		if (keysDown.count(Key::Equal)) {
-//			if (paddleNode) {
-//				auto p = paddleNode->position();
-//				paddleNode->position({p.x + deltaSeconds * PADDLE_SPEED, p.y, p.z});
-//			}
-//		}
-//		if (keysDown.count(Key::Minus)) {
-//			if (paddleNode) {
-//				auto p = paddleNode->position();
-//				paddleNode->position({p.x - deltaSeconds * PADDLE_SPEED, p.y, p.z});
-//			}
-//		}
 
 		if (scene.visualWorld() && cursorCaptured) {
 
@@ -630,11 +569,11 @@ void UpdateCallback(Scene& scene, float time) {
 		}
 
 		vec2 mouseScrollWheelDelta = scene.inputManager()->mouseScrollWheelDelta();
-		if (mouseScrollWheelDelta.y) {
+		if (mouseScrollWheelDelta.y > 0) {
 
 			auto newSpeed = std::clamp(scene.physicalWorld()->speed() + mouseScrollWheelDelta.y * 0.1,
 									   0.1, 1.0);
-			scene.physicalWorld()->speed(newSpeed);
+			scene.physicalWorld()->speed((float)newSpeed);
 		}
 
 		if (cursorCaptured) {
@@ -670,20 +609,20 @@ void UpdateCallback(Scene& scene, float time) {
 				}
 
 				if (keysDown.count(Key::W) || mouseButtonsDown.count(MouseButton::Four)) {
-					vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camForward;
+					vec3 positionDelta = deltaTime * MOVE_SPEED * moveMultiplier * camForward;
 					pov->position(pov->position() + positionDelta);
 				}
 				else if (keysDown.count(Key::S)) {
-					vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * -camForward;
+					vec3 positionDelta = deltaTime * MOVE_SPEED * moveMultiplier * -camForward;
 					pov->position(pov->position() + positionDelta);
 				}
 
 				if (keysDown.count(Key::A)) {
-					vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * -camRight;
+					vec3 positionDelta = deltaTime * MOVE_SPEED * moveMultiplier * -camRight;
 					pov->position(pov->position() + positionDelta);
 				}
 				else if (keysDown.count(Key::D)) {
-					vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camRight;
+					vec3 positionDelta = deltaTime * MOVE_SPEED * moveMultiplier * camRight;
 					pov->position(pov->position() + positionDelta);
 				}
 
@@ -692,7 +631,7 @@ void UpdateCallback(Scene& scene, float time) {
 					if (keysDown.count(Key::LeftShift)) {
 						direction = -1;
 					}
-					vec3 positionDelta = deltaSeconds * MOVE_SPEED * moveMultiplier * camUp;
+					vec3 positionDelta = deltaTime * MOVE_SPEED * moveMultiplier * camUp;
 					pov->position(pov->position() + positionDelta * direction);
 				}
 			}
@@ -704,20 +643,20 @@ void UpdateCallback(Scene& scene, float time) {
 	VisualWorld Callbacks
  ***************************************************************************************/
 
-void WillRenderCallback(VisualWorld& world, float time) {
-	LOG_T(g_logger, "world: {:p}, time: {}", (void*)&world, time);
+void WillRenderCallback(VisualWorld& world, float time, float deltaTime) {
+	LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
-void DidRenderCallback(VisualWorld& world, float time) {
-	LOG_T(g_logger, "world: {:p}, time: {}", (void*)&world, time);
+void DidRenderCallback(VisualWorld& world, float time, float deltaTime) {
+	LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 /***************************************************************************************
 	PhysicalWorld Callbacks
  ***************************************************************************************/
 
-void DidSimulatePhysicsCallback(PhysicalWorld& world, float time) {
-	LOG_T(g_logger, "world: {:p}, time: {}", (void*)&world, time);
+void DidSimulatePhysicsCallback(PhysicalWorld& world, float time, float deltaTime) {
+	LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 /***************************************************************************************

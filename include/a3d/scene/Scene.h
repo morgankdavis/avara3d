@@ -42,7 +42,7 @@ namespace a3d {
 
 	public:
 
-		using UpdateCallback =				std::function<void(Scene& scene, float time)>;
+		using UpdateCallback =				std::function<void(Scene& scene, float time, float deltaTime)>;
 
 /*********************************************************************************************
 	Public Static Members

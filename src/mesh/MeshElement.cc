@@ -59,7 +59,7 @@ void MeshElement::draw(Renderer& renderer,
 					debugOptions,
 					stats);
 
-	stats.elements++;
+	++stats.elements;
 	stats.polygons += _faces.size();
 }
 

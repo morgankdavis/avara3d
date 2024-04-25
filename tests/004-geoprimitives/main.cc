@@ -33,9 +33,9 @@ constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
 
 
-void UpdateCallback(Scene& scene, float time);
-void WillRenderCallback(VisualWorld& world, float time);
-void DidRenderCallback(VisualWorld& world, float time);
+void UpdateCallback(Scene& scene, float time, float deltaTime);
+void WillRenderCallback(VisualWorld& world, float time, float deltaTime);
+void DidRenderCallback(VisualWorld& world, float time, float deltaTime);
 
 
 void InitLog();
@@ -63,14 +63,14 @@ int main(int argc, const char* argv[]) {
 	auto visualWorld = make_unique<VisualWorld>(window.get());
 	auto backgroundColor = make_shared<Color>(109.0f/255.0f, 136.0f/255.0f, 164.0f/255.0f, 1.0f);
 	visualWorld->background(backgroundColor);
-	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
-	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
+	visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
+	visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
 
 	auto inputManager = make_unique<WindowInputManager>(window.get());
 
 	auto scene = make_unique<Scene>(std::move(visualWorld), nullptr, std::move(inputManager));
 	scene->debugOptions(DebugOptions::ShowStatsOverlay);
-	scene->update(bind(&UpdateCallback, _1, _2));
+	scene->update(bind(&UpdateCallback, _1, _2, _3));
 
 	{
 		auto mesh = Box::Mesh(1.5f, 1.0f, 1.5f);
@@ -229,12 +229,8 @@ int main(int argc, const char* argv[]) {
 	Scene Callbacks
  ***************************************************************************************/
 
-void UpdateCallback(Scene& scene, float time) {
-	LOG_T(g_logger, "scene: {:p}, time: {}", (void*)&scene, time);
-
-	static float previousSeconds = time;
-	float deltaSeconds = time - previousSeconds;
-	previousSeconds = time;
+void UpdateCallback(Scene& scene, float time, float deltaTime) {
+	LOG_T(g_logger, "scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
 
 	auto inputManager = scene.inputManager();
 
@@ -261,20 +257,6 @@ void UpdateCallback(Scene& scene, float time) {
 	if (keysPressed.count(Key::Escape)) {
 		window->close();
 	}
-
-//	for (auto mb : _inputManager->mouseButtonsDown()) {
-//		cout << "Mouse button: " << mb << endl;
-//	}
-
-	vec2 mousePositionDelta = scene.inputManager()->mousePositionDelta();
-	//	if (mousePositionDelta.x || mousePositionDelta.y) {
-	//		cout << "Mouse move delta: (" << mousePositionDelta.x << ", " << mousePositionDelta.y << ")" << endl;
-	//	}
-
-//	vec2 mouseScrollWheelDelta = _inputManager->mouseScrollWheelDelta();
-//	if (mouseScrollWheelDelta.x || mouseScrollWheelDelta.y) {
-//		cout << "Mouse scroll wheel delta: (" << mouseScrollWheelDelta.x << ", " << mouseScrollWheelDelta.y << ")" << endl;
-//	}
 
 	if (keysPressed.count(Key::F)) {
 		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
@@ -312,6 +294,7 @@ void UpdateCallback(Scene& scene, float time) {
 			static const float MOUSE_SPEED_SCALAR = .002;
 			static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
 
+			vec2 mousePositionDelta = scene.inputManager()->mousePositionDelta();
 			float deltaRotX = atan(MOUSE_SPEED * mousePositionDelta.x);
 			float deltaRotY = atan(MOUSE_SPEED * mousePositionDelta.y);
 
@@ -327,25 +310,25 @@ void UpdateCallback(Scene& scene, float time) {
 			static float MOVE_SPEED = utils::Max(scene.rootNode()->extent());
 
 			if (keysDown.count(Key::W)) {
-				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
+				vec3 positionDelta = deltaTime * MOVE_SPEED * camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 			else if (keysDown.count(Key::S)) {
-				vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camForward;
+				vec3 positionDelta = deltaTime * MOVE_SPEED * -camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 
 			if (keysDown.count(Key::A)) {
-				vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camRight;
+				vec3 positionDelta = deltaTime * MOVE_SPEED * -camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 			else if (keysDown.count(Key::D)) {
-				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camRight;
+				vec3 positionDelta = deltaTime * MOVE_SPEED * camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 
 			if (keysDown.count(Key::Space)) {
-				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camUp;
+				vec3 positionDelta = deltaTime * MOVE_SPEED * camUp;
 				pov->position(pov->position() + positionDelta);
 			}
 		}
@@ -356,12 +339,12 @@ void UpdateCallback(Scene& scene, float time) {
 	VisualWorld Callbacks
  ***************************************************************************************/
 
-void WillRenderCallback(VisualWorld& world, float time) {
-	LOG_T(g_logger, "world: {:p}, time: {}", (void*)&world, time);
+void WillRenderCallback(VisualWorld& world, float time, float deltaTime) {
+	LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
-void DidRenderCallback(VisualWorld& world, float time) {
-	LOG_T(g_logger, "world: {:p}, time: {}", (void*)&world, time);
+void DidRenderCallback(VisualWorld& world, float time, float deltaTime) {
+	LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 /***************************************************************************************
@@ -388,11 +371,8 @@ void LogBuildInfo() {
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
-	LOG_I(g_logger, "A3D version: {}.{}.{}",
-		  version.major, version.minor, version.patch);
+	LOG_I(g_logger, "A3D version: {}.{}.{}", version.major, version.minor, version.patch);
 	LOG_I(g_logger, "Build: {}", buildInfo.number());
-	LOG_I(g_logger, "Type: {}",
-		  buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
-	LOG_I(g_logger, "Origin: {}",
-		  buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
+	LOG_I(g_logger, "Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
+	LOG_I(g_logger, "Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
 }

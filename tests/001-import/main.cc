@@ -31,9 +31,9 @@ constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 
 
-void UpdateCallback(Scene& scene, float time);
-void WillRenderCallback(VisualWorld& world, float time);
-void DidRenderCallback(VisualWorld& world, float time);
+void UpdateCallback(Scene& scene, float time, float deltaTime);
+void WillRenderCallback(VisualWorld& world, float time, float deltaTime);
+void DidRenderCallback(VisualWorld& world, float time, float deltaTime);
 
 
 a3d::Node* 		g_importMeshRoot;
@@ -57,12 +57,12 @@ int main(int argc, const char* argv[]) {
 	auto backgroundColor = make_shared<Color>(109.0f / 255.0f, 136.0f / 255.0f, 164.0f / 255.0f, 1.0f);
 	auto background = MaterialProperty(backgroundColor);
 	visualWorld->background(background); // TODO: is this copying?
-	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
-	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
+	visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
+	visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
 
 	auto scene = make_unique<Scene>();
 	scene->visualWorld(std::move(visualWorld));
-	scene->update(bind(&UpdateCallback, _1, _2));
+	scene->update(bind(&UpdateCallback, _1, _2, _3));
 
 //	auto options = SceneImportOptions::ImportAll;
 //	auto options = SceneImportOptions::ImportMeshes;
@@ -111,13 +111,9 @@ int main(int argc, const char* argv[]) {
 	Scene Callbacks
  ***************************************************************************************/
 
-void UpdateCallback(Scene& scene, float time) {
+void UpdateCallback(Scene& scene, float time, float deltaTime) {
 
-	static float previousSeconds = time;
-	float deltaSeconds = time - previousSeconds;
-	previousSeconds = time;
-
-	float rotationDeg = deltaSeconds * 30.0; // 30deg/sec
+	float rotationDeg = deltaTime * 30.0; // 30deg/sec
 
 	g_importMeshRoot->transform(rotate(g_importMeshRoot->transform(),
 									   radians(rotationDeg),
@@ -125,7 +121,7 @@ void UpdateCallback(Scene& scene, float time) {
 
 	static float timeAccum = 0;
 	static unsigned frames = 0;
-	timeAccum += deltaSeconds;
+	timeAccum += deltaTime;
 	++frames;
 	if (timeAccum >= 1.0) {
 		cout << ((float)frames)/timeAccum << " fps" << endl;
@@ -138,10 +134,10 @@ void UpdateCallback(Scene& scene, float time) {
 	VisualWorld Callbacks
  ***************************************************************************************/
 
-void WillRenderCallback(VisualWorld& world, float time) {
+void WillRenderCallback(VisualWorld& world, float time, float deltaTime) {
 
 }
 
-void DidRenderCallback(VisualWorld& world, float time) {
+void DidRenderCallback(VisualWorld& world, float time, float deltaTime) {
 
 }
