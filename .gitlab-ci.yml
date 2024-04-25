@@ -94,6 +94,7 @@ linux-release:
   only:
    - testing
    - stable
+  when: manual
   #dependencies:
   #  - build-linux
   script:
@@ -126,6 +127,7 @@ macos-release:
   only:
    - testing
    - stable
+  when: manual
   #dependencies:
   #  - build-macos
   script:
@@ -156,6 +158,7 @@ windows-release:
   only:
    - testing
    - stable
+  when: manual
   #dependencies:
   #  - build-windows
   script:
@@ -178,83 +181,83 @@ windows-release:
       - avara3d
     expire_in: 1 week
 
-linux-release-manual:
-  stage: build
-  tags:
-    - ubuntu-23
-  environment: production
-  when: manual
-  script:
-    - echo "Starting Linux release build..."
-    - mkdir gitlab-build
-    - cd gitlab-build
-    - /usr/bin/cmake
-      -DCMAKE_BUILD_TYPE="Release"
-      -G"Ninja"
-      -DCMAKE_C_COMPILER=/usr/bin/clang
-      -DCMAKE_CXX_COMPILER=/usr/bin/clang++
-      -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
-      -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
-      ..
-    - /usr/bin/cmake --build . --target install -j4
-    - mv packaged/avara3d ../
-    - echo "Linux release build complete."
-  artifacts:
-    name: "avara3d-linux-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
-    expose_as: "linux-release"
-    paths:
-      - avara3d
-    expire_in: 2 days
-
-macos-release-manual:
-  stage: build
-  tags:
-    - macos-12.6
-  environment: production
-  when: manual
-  script:
-    - echo "Starting macOS release build..."
-    - mkdir gitlab-build
-    - cd gitlab-build
-    - /opt/local/bin/cmake
-      -DCMAKE_BUILD_TYPE="Release"
-      -G"Ninja"
-      -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
-      -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
-      ..
-    - /opt/local/bin/cmake --build . --target install -j4
-    - mv packaged/avara3d ../
-    - echo "macOS release build complete."
-  artifacts:
-    name: "avara3d-macos-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
-    expose_as: "macos-release"
-    paths:
-      - avara3d
-    expire_in: 2 days
-
-windows-release-manual:
-  stage: build
-  tags:
-    - windows-10
-  environment: production
-  when: manual
-  script:
-    - echo "Starting Windows release build..."
-    - mkdir gitlab-build
-    - cd gitlab-build
-    - cmake
-      -DCMAKE_BUILD_TYPE="Release"
-      -T"ClangCL"
-      -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
-      -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
-      ..
-    - cmake --build . --config Release --target install -j8
-    - mv packaged/avara3d ../
-    - echo "Windows release build complete."
-  artifacts:
-    name: "avara3d-windows-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
-    expose_as: "windows-release"
-    paths:
-      - avara3d
-    expire_in: 2 days
-
+#linux-release-manual:
+#  stage: build
+#  tags:
+#    - ubuntu-23
+#  environment: production
+#  when: manual
+#  script:
+#    - echo "Starting Linux release build..."
+#    - mkdir gitlab-build
+#    - cd gitlab-build
+#    - /usr/bin/cmake
+#      -DCMAKE_BUILD_TYPE="Release"
+#      -G"Ninja"
+#      -DCMAKE_C_COMPILER=/usr/bin/clang
+#      -DCMAKE_CXX_COMPILER=/usr/bin/clang++
+#      -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
+#      -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+#      ..
+#    - /usr/bin/cmake --build . --target install -j4
+#    - mv packaged/avara3d ../
+#    - echo "Linux release build complete."
+#  artifacts:
+#    name: "avara3d-linux-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
+#    expose_as: "linux-release"
+#    paths:
+#      - avara3d
+#    expire_in: 2 days
+#
+#macos-release-manual:
+#  stage: build
+#  tags:
+#    - macos-12.6
+#  environment: production
+#  when: manual
+#  script:
+#    - echo "Starting macOS release build..."
+#    - mkdir gitlab-build
+#    - cd gitlab-build
+#    - /opt/local/bin/cmake
+#      -DCMAKE_BUILD_TYPE="Release"
+#      -G"Ninja"
+#      -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
+#      -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+#      ..
+#    - /opt/local/bin/cmake --build . --target install -j4
+#    - mv packaged/avara3d ../
+#    - echo "macOS release build complete."
+#  artifacts:
+#    name: "avara3d-macos-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
+#    expose_as: "macos-release"
+#    paths:
+#      - avara3d
+#    expire_in: 2 days
+#
+#windows-release-manual:
+#  stage: build
+#  tags:
+#    - windows-10
+#  environment: production
+#  when: manual
+#  script:
+#    - echo "Starting Windows release build..."
+#    - mkdir gitlab-build
+#    - cd gitlab-build
+#    - cmake
+#      -DCMAKE_BUILD_TYPE="Release"
+#      -T"ClangCL"
+#      -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
+#      -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+#      ..
+#    - cmake --build . --config Release --target install -j8
+#    - mv packaged/avara3d ../
+#    - echo "Windows release build complete."
+#  artifacts:
+#    name: "avara3d-windows-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
+#    expose_as: "windows-release"
+#    paths:
+#      - avara3d
+#    expire_in: 2 days
+#
