@@ -197,9 +197,9 @@ void RenderContext::framebufferHeight(unsigned height) {
 	_framebufferHeight = height;
 }
 
-void RenderContext::framebufferScale(const vec2& scale) {
-	_framebufferScale = scale;
-}
+//void RenderContext::framebufferScale(const vec2& scale) {
+//	_framebufferScale = scale;
+//}
 
 void RenderContext::saveGIFFrame(float deltaRunT) {
 

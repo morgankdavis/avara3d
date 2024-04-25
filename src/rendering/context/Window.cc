@@ -67,18 +67,15 @@ Window::Window(RenderingApi renderAPI,
 		// TODO: move these version numbers
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_SAMPLES, static_cast<int>(antialiasingMode));
+		// TODO: test high-dpi on other platforms (see glfwGetMonitorContentScale() below)
+		glfwWindowHint(GLFW_SCALE_TO_MONITOR, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
 #else // OpenGL ES
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-#endif
-
-        // TODO: test high-dpi on other platforms (see glfwGetMonitorContentScale() below)
-#ifdef MACOS
-		glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
 #endif
 
 		auto viewportWidth = width;
@@ -126,15 +123,21 @@ Window::Window(RenderingApi renderAPI,
 				_width = viewportWidth;
 				_height = viewportHeight;
 
-				if (enableHighDPI) {
-					float scaleFactorX = 1.0;
-					float scaleFactorY = 1.0;
-					glfwGetMonitorContentScale(monitor, &scaleFactorX, &scaleFactorY);
-					_framebufferScale = {scaleFactorX, scaleFactorY};
-				}
+				// TODO: this is wrong on Arch/XFCE/X11
+				// ~0.9583 on XPS
+				// what about GLFW_SCALE_TO_MONITOR ?
+				// seems to not be necessary with GLFW_SCALE_TO_MONITOR
+//#ifndef LINUX
+//				if (enableHighDPI) {
+//					float scaleFactorX = 1.0;
+//					float scaleFactorY = 1.0;
+//					glfwGetMonitorContentScale(monitor, &scaleFactorX, &scaleFactorY);
+//					_framebufferScale = {scaleFactorX, scaleFactorY};
+//				}
+//#endif
 
-				_framebufferWidth = _width * _framebufferScale.x;
-				_framebufferHeight = _height * _framebufferScale.y;
+				_framebufferWidth = floor(float(_width) * _framebufferScale.x);
+				_framebufferHeight = floor(float(_height) * _framebufferScale.y);
 			}
 			else {
 				// TODO: exception
