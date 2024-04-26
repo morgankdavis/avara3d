@@ -70,7 +70,7 @@ Window::Window(RenderingApi renderAPI,
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_SAMPLES, static_cast<int>(antialiasingMode));
-		// works in Win10 and macOS 14, but not in Arch/XFCE/X11 (see glfwGetMonitorContentScale() below)
+		// works on Win10 & macOS 14, but not Arch/XFCE/X11 (see glfwGetMonitorContentScale() below)
 		glfwWindowHint(GLFW_SCALE_TO_MONITOR, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
 #else // OpenGL ES
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
@@ -124,7 +124,7 @@ Window::Window(RenderingApi renderAPI,
 				_height = viewportHeight;
 
 				// TODO: this is wrong on Arch/XFCE/X11
-				// scale factor come up as ~0.9583 on XPS 13 9310
+				// scale factor ~0.9583 on XPS 13 9310
 				if (enableHighDPI) {
 					float scaleFactorX = 1.0;
 					float scaleFactorY = 1.0;
