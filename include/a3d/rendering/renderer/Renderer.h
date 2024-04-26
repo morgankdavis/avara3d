@@ -39,7 +39,7 @@ namespace a3d {
 
 	public:
 
-		Renderer();
+		Renderer(RenderContext& context);
 		Renderer(const Renderer& other) = delete; // copy constructor
 		Renderer& operator=(const Renderer& other) = delete; // copy assignment
 		virtual ~Renderer() = 0;
@@ -83,6 +83,12 @@ namespace a3d {
 												   const glm::mat4& projectionMat) = 0;
 
 		virtual std::unique_ptr<Image>		snapshot(const RenderContext& context) const = 0;
+
+/*********************************************************************************************
+	Private IVars
+ *********************************************************************************************/
+
+		RenderContext*						_context;
 	};
 }
 

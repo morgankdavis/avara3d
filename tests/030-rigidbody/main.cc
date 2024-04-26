@@ -37,7 +37,7 @@ constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
 constexpr float					PHYSICS_TIMESTEP =		1.0/120.0;
-constexpr bool					DARK =					true;
+constexpr bool					DARK =					false;
 
 
 void UpdateCallback(Scene& scene, float time, float deltaTime);
@@ -87,7 +87,7 @@ int main(int argc, const char* argv[]) {
 	window->vSyncEnabled(ENABLE_VSYNC);
 	window->cursorCaptured(CAPTURE_CURSOR);
 
-	auto visualWorld = make_unique<VisualWorld>(window.get());
+	auto visualWorld = make_unique<VisualWorld>(*window);
 	visualWorld->fogStartDistance(50.0);
 	visualWorld->fogEndDistance(400.0);
 	visualWorld->fogDensityExponent(1.0);

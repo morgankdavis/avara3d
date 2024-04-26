@@ -55,7 +55,7 @@ namespace a3d {
 	Internal Lifecycle
  *********************************************************************************************/
 
-		OpenGLRenderer();
+		OpenGLRenderer(RenderContext& context);
 		OpenGLRenderer(const OpenGLRenderer& other) = delete; // copy constructor
 		OpenGLRenderer& operator=(const OpenGLRenderer& other) = delete; // copy assignment
 		OpenGLRenderer(OpenGLRenderer&& other) = delete; // move constructor
