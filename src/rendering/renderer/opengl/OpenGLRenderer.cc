@@ -41,7 +41,6 @@
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/mesh/Line.h"
-#include "a3d/mesh/Point.h"
 #include "a3d/rendering/Light.h"
 #include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/camera/Camera.h"
@@ -197,8 +196,8 @@ static void 		CheckGLError();
 	Internal Lifecycle
  *********************************************************************************************/
 
-OpenGLRenderer::OpenGLRenderer():
-		Renderer{},
+OpenGLRenderer::OpenGLRenderer(RenderContext& context):
+		Renderer{context},
 		_meshElementGLMapping{},
 		_textureGLMapping{},
 		_linesGLMapping{},
@@ -239,7 +238,7 @@ RenderingApi OpenGLRenderer::renderingApi() const {
 bool OpenGLRenderer::initialize(const RenderContext& context) {
 	
 	A3D_LOG_T("");
-	
+
 	// create environment UBO
 	
 	uint32 ubo;
@@ -1616,6 +1615,8 @@ static vector<Node*> SortedLights(map<Node*, float> lights) {
 void DrawStatsOverlay(Stats& stats, const Scene& scene) {
 
 	using namespace ImGui;
+
+	// SCALE: https://github.com/ocornut/imgui/discussions/3925
 
 //#ifdef OPENGL_DESKTOP
 

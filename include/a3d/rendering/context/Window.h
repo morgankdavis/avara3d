@@ -41,7 +41,7 @@ namespace a3d {
 
 	public:
 
-		Window(RenderingApi renderAPI,
+		Window(RenderingApi renderingAPI,
 			   const std::string& title,
 			   unsigned width,
 			   unsigned height,

@@ -24,7 +24,8 @@ using namespace std;
 	Internal Lifescycle
  *********************************************************************************************/
 
-Renderer::Renderer() { }
+Renderer::Renderer(RenderContext& context):
+	_context{&context} { }
 
 Renderer::~Renderer() {
 	A3D_LOG_D("Destroying Renderer {:p}", static_cast<void*>(this));

@@ -41,14 +41,14 @@ using namespace std;
 	Private Static Non-Member Prototypes
  *********************************************************************************************/
 
-static unique_ptr<Mesh> MakeSkyboxMesh(MaterialProperty& property);
+static unique_ptr<Mesh> MakeSkyboxMesh(const MaterialProperty& property);
 static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
 
 /*********************************************************************************************
 	Public Lifecycle
  *********************************************************************************************/
 
-VisualWorld::VisualWorld(RenderContext* context):
+VisualWorld::VisualWorld(RenderContext& context):
 		_background{},
 		_skyboxMesh{},
 		_fogStartDistance{0.0},
@@ -57,7 +57,7 @@ VisualWorld::VisualWorld(RenderContext* context):
 		_fogColor{},
 		_pointOfView{},
 		_automaticallyAddDefaultLighting{true},
-		_renderContext{context},
+		_renderContext{&context},
 		_scene{},
 		_willRender{},
 		_didRender{} {
@@ -69,18 +69,17 @@ VisualWorld::~VisualWorld() {
 	A3D_LOG_D("Destroying VisualWorld {:p}", static_cast<void*>(this));
 
 	if (_renderContext) _renderContext->detachedFromVisualWorld(this);
-	//renderContext(nullptr);
 }
 
 /*********************************************************************************************
 	Public Members
  *********************************************************************************************/
 
-MaterialProperty& VisualWorld::background() {
+const MaterialProperty& VisualWorld::background() {
 	return _background;
 }
 
-void VisualWorld::background(MaterialProperty background) {
+void VisualWorld::background(const MaterialProperty& background) {
 
 	if (auto* texture = get_if<shared_ptr<Texture>>(&background)) {
 
@@ -130,7 +129,7 @@ void VisualWorld::fogDensityExponent(float exponent) {
 	_fogDensityExponent = exponent;
 }
 
-shared_ptr<Color> VisualWorld::fogColor() const {
+const shared_ptr<Color>& VisualWorld::fogColor() const {
 	return _fogColor;
 }
 
@@ -381,7 +380,7 @@ weak_ptr<Node> VisualWorld::defaultPointOfView() {
 	Private Static Members
  *********************************************************************************************/
 
-static unique_ptr<Mesh> MakeSkyboxMesh(MaterialProperty& property) {
+static unique_ptr<Mesh> MakeSkyboxMesh(const MaterialProperty& property) {
 
 	auto mesh = make_unique<a3d::Mesh>(make_unique<Box>(1, 1, 1), nullptr);
 

@@ -77,7 +77,7 @@ int main(int argc, const char* argv[]) {
 	window->vSyncEnabled(ENABLE_VSYNC);
 	window->cursorCaptured(CAPTURE_CURSOR);
 
-	auto visualWorld = make_unique<VisualWorld>(window.get());
+	auto visualWorld = make_unique<VisualWorld>(*window);
 //	visualWorld->fogStartDistance(50.0);
 //	visualWorld->fogEndDistance(400.0);
 //	visualWorld->fogDensityExponent(1.0);
