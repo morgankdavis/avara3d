@@ -45,15 +45,15 @@ namespace a3d {
  *********************************************************************************************/
 
 		VisualWorld() = delete;
-		explicit VisualWorld(RenderContext* context);
+		explicit VisualWorld(RenderContext& context);
 		virtual ~VisualWorld();
 
 /*********************************************************************************************
 	Public Members
  *********************************************************************************************/
 
-		MaterialProperty&						background();
-		void 									background(MaterialProperty background);
+		const MaterialProperty&					background();
+		void 									background(const MaterialProperty& background);
 
 		float 									fogStartDistance() const;
 		void 									fogStartDistance(float distance);
@@ -65,7 +65,7 @@ namespace a3d {
 		float 									fogDensityExponent() const;
 		void 									fogDensityExponent(float exponent);
 
-		std::shared_ptr<Color> 					fogColor() const;
+		const std::shared_ptr<Color>&			fogColor() const;
 		void 									fogColor(const std::shared_ptr<Color> & color);
 
 		std::weak_ptr<Node>						pointOfView();

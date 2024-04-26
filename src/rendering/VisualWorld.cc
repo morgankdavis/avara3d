@@ -41,14 +41,14 @@ using namespace std;
 	Private Static Non-Member Prototypes
  *********************************************************************************************/
 
-static unique_ptr<Mesh> MakeSkyboxMesh(MaterialProperty& property);
+static unique_ptr<Mesh> MakeSkyboxMesh(const MaterialProperty& property);
 static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
 
 /*********************************************************************************************
 	Public Lifecycle
  *********************************************************************************************/
 
-VisualWorld::VisualWorld(RenderContext* context):
+VisualWorld::VisualWorld(RenderContext& context):
 		_background{},
 		_skyboxMesh{},
 		_fogStartDistance{0.0},
@@ -58,7 +58,7 @@ VisualWorld::VisualWorld(RenderContext* context):
 		_pointOfView{},
 		_autoEnablesDefaultLighting{true},
 		_usesDefaultLighting{false},
-		_renderContext{context},
+		_renderContext{&context},
 		_scene{},
 		_willRender{},
 		_didRender{} {
@@ -360,7 +360,7 @@ weak_ptr<Node> VisualWorld::defaultPointOfView() {
 	Private Static Members
  *********************************************************************************************/
 
-static unique_ptr<Mesh> MakeSkyboxMesh(MaterialProperty& property) {
+static unique_ptr<Mesh> MakeSkyboxMesh(const MaterialProperty& property) {
 
 	auto mesh = make_unique<a3d::Mesh>(make_unique<Box>(1, 1, 1), nullptr);
 
