@@ -51,14 +51,14 @@ static void 	GLFWErrorCallback(int error,
 	Public Lifescycle
  *********************************************************************************************/
 
-Window::Window(RenderingApi renderAPI,
+Window::Window(RenderingApi renderingAPI,
 			   const string& title,
 			   unsigned width,
 			   unsigned height,
 			   bool fullScreen,
 			   bool enableHighDPI,
 			   AntialiasingMode antialiasingMode):
-		RenderContext{renderAPI},
+		RenderContext{renderingAPI},
 		_glfwWindow{},
 		_cursorCaptured{false} {
 
@@ -67,18 +67,18 @@ Window::Window(RenderingApi renderAPI,
 		// TODO: move these version numbers
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_SAMPLES, static_cast<int>(antialiasingMode));
+		// works in Win10 & macOS 14, but not Arch/XFCE/X11
+		// see glfwGetMonitorContentScale() below
+#ifndef LINUX
+		glfwWindowHint(GLFW_SCALE_TO_MONITOR, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
+#endif
 #else // OpenGL ES
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-#endif
-
-        // TODO: test high-dpi on other platforms (see glfwGetMonitorContentScale() below)
-#ifdef MACOS
-		glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
 #endif
 
 		auto viewportWidth = width;
@@ -126,15 +126,19 @@ Window::Window(RenderingApi renderAPI,
 				_width = viewportWidth;
 				_height = viewportHeight;
 
+				// TODO: this is wrong on Arch/XFCE/X11
+				// scale factor ~0.9583 on XPS 13 9310
+#ifndef LINUX
 				if (enableHighDPI) {
 					float scaleFactorX = 1.0;
 					float scaleFactorY = 1.0;
 					glfwGetMonitorContentScale(monitor, &scaleFactorX, &scaleFactorY);
 					_framebufferScale = {scaleFactorX, scaleFactorY};
 				}
+#endif
 
-				_framebufferWidth = _width * _framebufferScale.x;
-				_framebufferHeight = _height * _framebufferScale.y;
+				_framebufferWidth = floor(float(_width) * _framebufferScale.x);
+				_framebufferHeight = floor(float(_height) * _framebufferScale.y);
 			}
 			else {
 				// TODO: exception
@@ -171,12 +175,7 @@ Window::~Window() {
  *********************************************************************************************/
 
 void Window::open() {
-	A3D_LOG_T("");
-
-//	auto thing = vector<int>();
-//	vector<int> thing2;
-//	A3D_LOG_I("thing[1]: {}", thing.at(1));
-
+	A3D_LOG_I("");
 
 	if (_visualWorld && _visualWorld->scene()) {
 		glfwMakeContextCurrent(_glfwWindow.get());
@@ -230,7 +229,9 @@ bool Window::cursorCaptured() const {
 
 void Window::cursorCaptured(bool captured) {
 	_cursorCaptured = captured;
-	glfwSetInputMode(_glfwWindow.get(), GLFW_CURSOR, (captured ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL));
+	glfwSetInputMode(_glfwWindow.get(),
+					 GLFW_CURSOR,
+					 (captured ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL));
 }
 
 /*********************************************************************************************
@@ -425,9 +426,9 @@ static void LogGLInfo()
 //}
 
 void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
-	A3D_LOG_T("width: {}, height: {}", width, height);
+	A3D_LOG_D("width: {}, height: {}", width, height);
 
-	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
+	auto window = (Window*)glfwGetWindowUserPointer(glfwWindow);
 
 	window->width(width);
 	window->height(height);
@@ -436,15 +437,15 @@ void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
 void GLFWWindowCloseCallback(GLFWwindow* glfwWindow) {
 	A3D_LOG_I("glfwWindow: {:p}", static_cast<void*>(glfwWindow));
 
-	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
+	auto window = (Window*)glfwGetWindowUserPointer(glfwWindow);
 
 	window->close();
 }
 
 void GLFWFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
-	A3D_LOG_T("width: {}, height: {}", width, height);
+	A3D_LOG_D("width: {}, height: {}", width, height);
 
-	Window* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
+	auto* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
 
 	auto framebufferScale = window->framebufferScale();
 	window->framebufferWidth(window->width() * framebufferScale.x);
@@ -454,4 +455,3 @@ void GLFWFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height) 
 void GLFWErrorCallback(int error, const char* description) {
 	A3D_LOG_E("error: {}, description: {}", error, description);
 }
-

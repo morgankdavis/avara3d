@@ -89,7 +89,7 @@ namespace a3d {
 
 		void 							framebufferWidth(unsigned width);
 		void 							framebufferHeight(unsigned height);
-		void 							framebufferScale(const glm::vec2& scale);
+//		void 							framebufferScale(const glm::vec2& scale);
 
 		virtual void 					saveGIFFrame(float deltaRunT);
 

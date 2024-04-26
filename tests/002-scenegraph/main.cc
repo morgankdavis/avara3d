@@ -63,7 +63,7 @@ int main(int argc, const char* argv[]) {
 	window->vSyncEnabled(ENABLE_VSYNC);
 	window->cursorCaptured(CAPTURE_CURSOR);
 
-	auto visualWorld = make_unique<VisualWorld>(window.get());
+	auto visualWorld = make_unique<VisualWorld>(*window);
 	auto backgroundColor = make_shared<Color>(109.0f/255.0f, 136.0f/255.0f, 164.0f/255.0f, 1.0f);
 	visualWorld->background(backgroundColor);
 	visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));

@@ -181,7 +181,7 @@ static void 		DeleteTextureGLResources(Texture* texture,
 static void 		DeleteLinesGLResources(const vector<Line>& lines,
 										  OpenGLRenderer::LinesGLMapping& glMapping);
 static vector<Node*> 	SortedLights(map<Node*, float> lights);
-static void 		DrawStatsOverlay(Stats& stats, const Scene& scene);
+static void 		DrawStatsOverlay(Stats& stats, const RenderContext& context);
 static void 		SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode);
 static void 		SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode);
 static void 		SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max);
@@ -196,8 +196,8 @@ static void 		CheckGLError();
 	Internal Lifecycle
  *********************************************************************************************/
 
-OpenGLRenderer::OpenGLRenderer():
-		Renderer{},
+OpenGLRenderer::OpenGLRenderer(RenderContext& context):
+		Renderer{context},
 		_meshElementGLMapping{},
 		_textureGLMapping{},
 		_linesGLMapping{},
@@ -238,7 +238,7 @@ RenderingApi OpenGLRenderer::renderingApi() const {
 bool OpenGLRenderer::initialize(const RenderContext& context) {
 	
 	A3D_LOG_T("");
-	
+
 	// create environment UBO
 	
 	uint32 ubo;
@@ -304,7 +304,7 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 							  Stats& stats) {
 
 	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay)) {
-		DrawStatsOverlay(stats, scene);
+		DrawStatsOverlay(stats, *_context);
 	}
 
 	CleanupMeshElementResources(_activeMeshElements, _meshElementGLMapping);
@@ -324,7 +324,7 @@ void OpenGLRenderer::render(const Scene& scene,
 	auto framebufferHeight = renderContext->framebufferHeight();
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, framebufferWidth, framebufferHeight);
+	glViewport(0, 0, (GLsizei)framebufferWidth, (GLsizei)framebufferHeight);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -1621,13 +1621,22 @@ static vector<Node*> SortedLights(map<Node*, float> lights) {
 	return sortedVector;
 }
 	
-void DrawStatsOverlay(Stats& stats, const Scene& scene) {
+void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 
 	using namespace ImGui;
 
 //#ifdef OPENGL_DESKTOP
 
-	auto renderContext = scene.visualWorld()->renderContext();
+	auto scaleXY = context.framebufferScale();
+	//auto scaleXY = vec2{2.0, 2.0};
+
+
+
+	auto scale = std::max(scaleXY.x, scaleXY.y);
+//	ImGui::GetStyle().ScaleAllSizes(scale);
+	ImGui::GetIO().FontGlobalScale = scale;
+
+
 
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
@@ -1651,10 +1660,10 @@ void DrawStatsOverlay(Stats& stats, const Scene& scene) {
 //	ImGui::ShowDemoWindow(nullptr);
 //	ImGui::GetIO();
 
-	ImGui::SetWindowPos((ImVec2){10.0, 10.0});
+	ImGui::SetWindowPos({10.0f * scaleXY.x, 10.0f * scaleXY.y});
 
-	if (renderContext->recordingGIF()) {
-		auto numFrames = renderContext->recordedGIFFrames();
+	if (context.recordingGIF()) {
+		auto numFrames = context.recordedGIFFrames();
 		Text("%-14s %.2f ms\n" \
 					"%-14s %.2f ms\n" \
 					"%-14s %.2f ms\n" \
@@ -1685,7 +1694,7 @@ void DrawStatsOverlay(Stats& stats, const Scene& scene) {
 			 " draw", stats.averageDrawtime,
 			 " physics", stats.averagePhysicstime,
 			 " user", stats.averageUsertime,
-			 "framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
+			 "framerate", stats.averageFramerate, (context.vSyncEnabled() ? "[vsync]" : ""),
 
 			 "nodes", stats.nodes,
 			 "meshes", stats.meshes,
@@ -1735,7 +1744,7 @@ void DrawStatsOverlay(Stats& stats, const Scene& scene) {
 			 " draw", stats.averageDrawtime,
 			 " physics", stats.averagePhysicstime,
 			 " user", stats.averageUsertime,
-			 "framerate", stats.averageFramerate, (renderContext->vSyncEnabled() ? "[vsync]" : ""),
+			 "framerate", stats.averageFramerate, (context.vSyncEnabled() ? "[vsync]" : ""),
 
 			 "nodes", stats.nodes,
 			 "meshes", stats.meshes,

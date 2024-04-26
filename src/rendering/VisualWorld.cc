@@ -77,11 +77,11 @@ VisualWorld::~VisualWorld() {
 	Public Members
  *********************************************************************************************/
 
-MaterialProperty& VisualWorld::background() {
+const MaterialProperty& VisualWorld::background() {
 	return _background;
 }
 
-void VisualWorld::background(MaterialProperty background) {
+void VisualWorld::background(const MaterialProperty& background) {
 
 	if (auto* texture = get_if<shared_ptr<Texture>>(&background)) {
 
@@ -131,7 +131,7 @@ void VisualWorld::fogDensityExponent(float exponent) {
 	_fogDensityExponent = exponent;
 }
 
-shared_ptr<Color> VisualWorld::fogColor() const {
+const shared_ptr<Color>& VisualWorld::fogColor() const {
 	return _fogColor;
 }
 
@@ -220,37 +220,6 @@ void VisualWorld::detachedFromScene(Scene& scene) {
 
 	_scene = nullptr;
 }
-
-// TODO: instead, make everything emissive
-// update: this shit is exponential.
-//void VisualWorld::checkAddDefaultLighting() {
-//
-//	if (_automaticallyAddDefaultLighting && _scene) {
-//
-//		bool hasLights = false;
-//		for (auto& node : _scene->rootNode()->children(true)) {
-//			if (node->light()) {
-//				hasLights = true;
-//				break;
-//			}
-//		}
-//
-//		if (!hasLights) {
-//			A3D_LOG_I("Adding default lighting.");
-//
-//			auto ambientNode = Node::LightNode(Light::DefaultAmbient());
-//			_scene->rootNode()->addChild(ambientNode);
-//
-//			auto pointNode = Node::LightNode(Light::DefaultPoint());
-//			// set position based on scene extent...
-//			auto sceneExtent = _scene->rootNode()->extent();
-//			pointNode->position({sceneExtent.x + sceneExtent.x/4.0,
-//								 sceneExtent.y + sceneExtent.y/4.0,
-//								 sceneExtent.z + sceneExtent.z/4.0});
-//			_scene->rootNode()->addChild(pointNode);
-//		}
-//	}
-//}
 
 void VisualWorld::draw(const Scene& scene,
 					   const PhysicalWorld* physicalWorld,

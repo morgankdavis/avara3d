@@ -26,6 +26,8 @@ namespace a3d {
 	public:
 
 		explicit UnsupportedFormatException(const std::string& what);
+
+		// add format str?
 	};
 }
 

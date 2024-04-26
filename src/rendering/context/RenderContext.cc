@@ -156,7 +156,7 @@ RenderContext::RenderContext(RenderingApi renderingApi):
 
 	switch (renderingApi) {
 		case RenderingApi::OpenGL: {
-			_renderer = make_unique<OpenGLRenderer>();
+			_renderer = make_unique<OpenGLRenderer>(*this);
 			break; }
 		case RenderingApi::OpenGLES: {
 			throw Exception("Unsupported rendering API: OpenGLES");
@@ -197,9 +197,9 @@ void RenderContext::framebufferHeight(unsigned height) {
 	_framebufferHeight = height;
 }
 
-void RenderContext::framebufferScale(const vec2& scale) {
-	_framebufferScale = scale;
-}
+//void RenderContext::framebufferScale(const vec2& scale) {
+//	_framebufferScale = scale;
+//}
 
 void RenderContext::saveGIFFrame(float deltaRunT) {
 
