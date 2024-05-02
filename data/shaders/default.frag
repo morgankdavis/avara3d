@@ -98,23 +98,28 @@ void main () {
 	fragColor = vec4(0.0, 0.0, 0.0, 1.0);
 
 
-	switch (emissionType) {
-		case MATERIAL_TYPE_COLOR:
-			Ke = vec4(colors.emission, 1.0);
-			break;
-		case MATERIAL_TYPE_SAMPLER:
-			Ke = vec4(texture(samplers.emission, tex_coord * uvScale));
-			break;
-	}
+
 
 	if (emissionType != MATERIAL_TYPE_NONE) {
 		
-		// *** emission intensity ***
-		
+		/* emission color */
+
+		switch (emissionType) {
+			case MATERIAL_TYPE_COLOR:
+				Ke = vec4(colors.emission, 1.0);
+				break;
+			case MATERIAL_TYPE_SAMPLER:
+				Ke = vec4(texture(samplers.emission, tex_coord * uvScale));
+				break;
+		}
+
 		fragColor = vec4(vec3(Ke), 1.0);
 		// (no other lighting calculations)
 	}
 	else {
+
+		/* ambient, diffuse, specular colors */
+
 		switch (ambientType) {
 			case MATERIAL_TYPE_COLOR:
 				Ka = vec4(colors.ambient, 1.0);
@@ -138,22 +143,27 @@ void main () {
 				Ks = vec4(colors.specular, 1.0);
 				break;
 		// original:
-//			case MATERIAL_MODE_SAMPLER:	Ks = vec4(texture(samplers.specular,
-//														  tex_coord * uvScale));	break;
-			// with KHR_materials_specular we only import 'specularTexture' which only has alpha.
-			//
+//			case MATERIAL_TYPE_SAMPLER:
+//				Ks = vec4(texture(samplers.specular, tex_coord * uvScale));
+//				break;
+		// with KHR_materials_specular we only import 'specularTexture' which only has alpha.
 			case MATERIAL_TYPE_SAMPLER:
-				Ks = vec4(texture(samplers.specular,
-								  tex_coord * uvScale).a);
+				Ks = vec4(texture(samplers.specular, tex_coord * uvScale).a);
 				break;
 		}
 
-		if (locksAmbientWithDiffuse && (diffuseType == MATERIAL_TYPE_COLOR || diffuseType == MATERIAL_TYPE_SAMPLER)) {
+		/* lock ambient with diffuse */
+
+		if (locksAmbientWithDiffuse && (diffuseType != MATERIAL_TYPE_NONE)) {
 			Ka = Kd;
 		}
 
+		/* alpha rejection */
+
 		// look at depth peeling or a-buffers for proper alpha blending
 		if (Kd.a < ALPHA_REJECTION_THRESHOLD) discard;
+
+		/* lighting */
 
 		for (int l=0; l<numLights; ++l) {
 			Light light = lights[l];
@@ -169,14 +179,14 @@ void main () {
 
 			if (light.type == LIGHT_TYPE_AMBIENT) {
 
-				// *** ambient intensity ***
+				/* ambient */
 
 				Ia = La * vec3(Ka);
 				fragColor += vec4(Is + Id + Ia, 0.0);
 			}
 			else if (light.type == LIGHT_TYPE_POINT) {
 
-				// *** diffuse intensity ***
+				/* point  diffuse */
 
 				// raise light position to eye space
 				vec3 light_position_eye = vec3(view * vec4(light_position_world, 1.0));
@@ -190,7 +200,7 @@ void main () {
 				
 				Id = Ld * vec3(Kd) * dot_prod_diffuse * attenuation; // diffuse intensity w/attenuation
 				
-				// *** specular intensity ***
+				/* point specular */
 				
 				Is = vec3(0.0, 0.0, 0.0);
 				if (Ks.x != 0.0 || Ks.y != 0.0 || Ks.z != 0.0) {
@@ -225,7 +235,7 @@ void main () {
 	}
 	
 	
-	// fog
+	/* fog */
 	
 	if (!FloatEqual(fog.endDistance, 0.0, 0.0001)) { // endDistance == 0 disables fog
 		if (FloatEqual(fog.densityExponent, 0.0, 0.0001)) { // constant

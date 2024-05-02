@@ -103,6 +103,19 @@ int main(int argc, const char* argv[]) {
 	pointLightNode->mesh(geometry);
 	scene->rootNode()->addChild(pointLightNode);
 
+
+	// test emissive property
+//	for (auto& node : scene->rootNode()->children(true)) {
+//		if (node->mesh()) {
+//			for (auto& material : node->mesh()->materials()) {
+//				if (!holds_alternative<std::monostate>(material->diffuse())) {
+//					material->emission(material->diffuse());
+//				}
+//			}
+//		}
+//	}
+
+
 	if (ORTHO_CAMERA) {
 		auto orthoCameraNode = Node::CameraNode(
 				make_shared<OrthographicCamera>("Ortho camera", (AABB){{0, 0, 0},
