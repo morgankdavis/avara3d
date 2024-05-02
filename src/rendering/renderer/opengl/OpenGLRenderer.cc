@@ -66,14 +66,14 @@ using namespace std;
 	Private Types
  *********************************************************************************************/
 
-enum class MATERIAL_MODE : int {
-	NONE = 		0,
-	COLOR = 	1,
-	SAMPLER = 	2
+enum class MaterialType : unsigned {
+	None = 		0,
+	Color = 	1,
+	Sampler = 	2
 };
 
 typedef struct {
-	int32_t 	type;
+	uint32_t 	type;
 	float32_t 	PADDING1;
 	float32_t 	PADDING2;
 	float32_t 	PADDING3;
@@ -103,7 +103,7 @@ typedef struct {
 } FogGLSLStruct;
 
 typedef struct {
-	int32_t 			numLights;
+	uint32_t 			numLights;
 	float32_t 			PADDING1;
 	float32_t 			PADDING2;
 	float32_t 			PADDING3;
@@ -907,7 +907,7 @@ static void SendMaterialUniforms(const Material& material,
 	program.setUniform("specularExponent", material.specularExponent());
 	program.setUniform("uvScale", material.uvScale());
 	program.setUniform("locksAmbientWithDiffuse", material.locksAmbientWithDiffuse());
-	program.setUniform("emissionMode", 0); // 0 = MaterialMode_None -- why is this here?
+	program.setUniform("emissionType", (unsigned)0); // 0 = MaterialType_None -- why is this here?
 	//program.setUniform("defaultLighting", 0);
 
 	for (auto& [property, type] : material.properties()) {
@@ -944,37 +944,37 @@ static void SendMaterialPropertyUniforms(const MaterialProperty& property,
 
 			switch (type) {
 				case MaterialPropertyType::Ambient:
-					modeUniformName = "ambientMode";
+					modeUniformName = "ambientType";
 					samplerUniformName = "samplers.ambient";
 					slot = GL_TEXTURE0;
 					index = 0;
 					break;
 				case MaterialPropertyType::Diffuse:
-					modeUniformName = "diffuseMode";
+					modeUniformName = "diffuseType";
 					samplerUniformName = "samplers.diffuse";
 					slot = GL_TEXTURE1;
 					index = 1;
 					break;
 				case MaterialPropertyType::Specular:
-					modeUniformName = "specularMode";
+					modeUniformName = "specularType";
 					samplerUniformName = "samplers.specular";
 					slot = GL_TEXTURE2;
 					index = 2;
 					break;
 				case MaterialPropertyType::Emission:
-					modeUniformName = "emissionMode";
+					modeUniformName = "emissionType";
 					samplerUniformName = "samplers.emission";
 					slot = GL_TEXTURE3;
 					index = 3;
 					break;
 				default:
-					cout << "Invalid MaterialPropertyType: "
-						 << static_cast<underlying_type<MaterialPropertyType>::type>(type) << endl;
+					A3D_LOG_E("Invalid MaterialPropertyType: {}",
+							  magic_enum::enum_name<MaterialPropertyType>(type));
 					return;
 			}
 
 			program.setUniform(modeUniformName.c_str(),
-							   static_cast<underlying_type<MATERIAL_MODE>::type>(MATERIAL_MODE::SAMPLER));
+							   static_cast<underlying_type<MaterialType>::type>(MaterialType::Sampler));
 			program.bindTexture(samplerUniformName.c_str(), GL_TEXTURE_2D, slot, glTextureHandle, index);
 		}
 		else if (dynamic_pointer_cast<CubeImage>(texture->contents())) {
@@ -993,29 +993,29 @@ static void SendMaterialPropertyUniforms(const MaterialProperty& property,
 
 		switch (type) {
 			case MaterialPropertyType::Ambient:
-				modeUniformName = "ambientMode";
+				modeUniformName = "ambientType";
 				colorUniformName = "colors.ambient";
 				break;
 			case MaterialPropertyType::Diffuse:
-				modeUniformName = "diffuseMode";
+				modeUniformName = "diffuseType";
 				colorUniformName = "colors.diffuse";
 				break;
 			case MaterialPropertyType::Specular:
-				modeUniformName = "specularMode";
+				modeUniformName = "specularType";
 				colorUniformName = "colors.specular";
 				break;
 			case MaterialPropertyType::Emission:
-				modeUniformName = "emissionMode";
+				modeUniformName = "emissionType";
 				colorUniformName = "colors.emission";
 				break;
 			default:
-				cout << "Invalid MaterialPropertyType: "
-					 << static_cast<underlying_type<MaterialPropertyType>::type>(type) << endl;
+				A3D_LOG_E("Invalid MaterialPropertyType: {}",
+						  magic_enum::enum_name<MaterialPropertyType>(type));
 				return;
 		}
 
 		program.setUniform(modeUniformName.c_str(),
-						   static_cast<underlying_type<MATERIAL_MODE>::type>(MATERIAL_MODE::COLOR));
+						   static_cast<underlying_type<MaterialType>::type>(MaterialType::Color));
 		program.setUniform(colorUniformName.c_str(), color->r, color->g, color->b);
 	}
 	else {
@@ -1091,7 +1091,7 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 			auto node = lights[l];
 			auto light = node->light();
 
-			lightStruct[l].type = static_cast<int>(light->type());
+			lightStruct[l].type = static_cast<unsigned>(light->type());
 			lightStruct[l].position_world = node->worldPosition();
 			lightStruct[l].attenuationFactor = light->attenuationFactor();
 
@@ -1099,7 +1099,7 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 			lightStruct[l].color = {color.r, color.g, color.b};
 		}
 
-		environmentStruct.numLights = (int)numLights;
+		environmentStruct.numLights = numLights;
 		memcpy(&environmentStruct.lights, &lightStruct, sizeof(lightStruct));
 	}
 

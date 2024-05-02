@@ -5,9 +5,9 @@
 
 #define ALPHA_REJECTION_THRESHOLD 	0.5
 
-#define MATERIAL_MODE_NONE 			0
-#define MATERIAL_MODE_COLOR			1
-#define MATERIAL_MODE_SAMPLER 		2
+#define MATERIAL_TYPE_NONE         	0
+#define MATERIAL_TYPE_COLOR        	1
+#define MATERIAL_TYPE_SAMPLER      	2
 
 #define LIGHT_TYPE_AMBIENT 			0
 #define LIGHT_TYPE_POINT			1
@@ -30,7 +30,7 @@ struct Colors {
 };
 
 struct Light {
-	int 	type;
+	uint 	type;
 	float 	PADDING1;
 	float 	PADDING2;
 	float 	PADDING3;
@@ -63,17 +63,17 @@ in 			vec3 		vertex_position_eye;
 in 			vec3 		vertex_normal_eye;
 in 			vec2 		tex_coord;
 uniform 	mat4 		view;
-uniform 	int 		ambientMode;
-uniform 	int 		diffuseMode;
-uniform 	int 		specularMode;
-uniform 	int 		emissionMode;
+uniform 	uint 		ambientType;
+uniform 	uint 		diffuseType;
+uniform 	uint 		specularType;
+uniform 	uint 		emissionType;
 uniform		float 		specularExponent;
 uniform		float 		uvScale;
 uniform		bool 		locksAmbientWithDiffuse;
 uniform 	Samplers 	samplers;
 uniform 	Colors 		colors;
 layout(std140) uniform EnvironmentBlock {
-	int		numLights;
+	uint	numLights;
 	float 	PADDING1;
 	float 	PADDING2;
 	float 	PADDING3;
@@ -97,22 +97,17 @@ void main () {
 	
 	fragColor = vec4(0.0, 0.0, 0.0, 1.0);
 
-//	if (numLights == 0) {
-//
-//	}
-	//	else {
-	switch (emissionMode) {
-		case MATERIAL_MODE_COLOR:
+
+	switch (emissionType) {
+		case MATERIAL_TYPE_COLOR:
 			Ke = vec4(colors.emission, 1.0);
 			break;
-		case MATERIAL_MODE_SAMPLER:
-			Ke = vec4(texture(samplers.emission,
-							  tex_coord * uvScale));
+		case MATERIAL_TYPE_SAMPLER:
+			Ke = vec4(texture(samplers.emission, tex_coord * uvScale));
 			break;
 	}
-	//	}
 
-	if (emissionMode != MATERIAL_MODE_NONE) {
+	if (emissionType != MATERIAL_TYPE_NONE) {
 		
 		// *** emission intensity ***
 		
@@ -120,28 +115,26 @@ void main () {
 		// (no other lighting calculations)
 	}
 	else {
-		switch (ambientMode) {
-			case MATERIAL_MODE_COLOR:
+		switch (ambientType) {
+			case MATERIAL_TYPE_COLOR:
 				Ka = vec4(colors.ambient, 1.0);
 				break;
-			case MATERIAL_MODE_SAMPLER:
-				Ka = vec4(texture(samplers.ambient,
-								  tex_coord * uvScale));
+			case MATERIAL_TYPE_SAMPLER:
+				Ka = vec4(texture(samplers.ambient, tex_coord * uvScale));
 				break;
 		}
 
-		switch (diffuseMode) {
-			case MATERIAL_MODE_COLOR:
+		switch (diffuseType) {
+			case MATERIAL_TYPE_COLOR:
 				Kd = vec4(colors.diffuse, 1.0);
 				break;
-			case MATERIAL_MODE_SAMPLER:
-				Kd = vec4(texture(samplers.diffuse,
-								  tex_coord * uvScale));
+			case MATERIAL_TYPE_SAMPLER:
+				Kd = vec4(texture(samplers.diffuse, tex_coord * uvScale));
 				break;
 		}
 
-		switch (specularMode) {
-			case MATERIAL_MODE_COLOR:
+		switch (specularType) {
+			case MATERIAL_TYPE_COLOR:
 				Ks = vec4(colors.specular, 1.0);
 				break;
 		// original:
@@ -149,43 +142,42 @@ void main () {
 //														  tex_coord * uvScale));	break;
 			// with KHR_materials_specular we only import 'specularTexture' which only has alpha.
 			//
-			case MATERIAL_MODE_SAMPLER:
-			Ks = vec4(texture(samplers.specular,
-			tex_coord * uvScale).a);
-			break;
+			case MATERIAL_TYPE_SAMPLER:
+				Ks = vec4(texture(samplers.specular,
+								  tex_coord * uvScale).a);
+				break;
 		}
-		
-		if (locksAmbientWithDiffuse &&
-			(diffuseMode == MATERIAL_MODE_COLOR || diffuseMode == MATERIAL_MODE_SAMPLER)) {
+
+		if (locksAmbientWithDiffuse && (diffuseType == MATERIAL_TYPE_COLOR || diffuseType == MATERIAL_TYPE_SAMPLER)) {
 			Ka = Kd;
 		}
-		
+
 		// look at depth peeling or a-buffers for proper alpha blending
 		if (Kd.a < ALPHA_REJECTION_THRESHOLD) discard;
-		
+
 		for (int l=0; l<numLights; ++l) {
 			Light light = lights[l];
-			
+
 			vec3 light_position_world = light.position_world;
 			vec3 La = light.color;
 			vec3 Ld = light.color;
 			vec3 Ls = light.color;
-			
+
 			vec3 Ia = vec3(0.0, 0.0, 0.0);
 			vec3 Id = vec3(0.0, 0.0, 0.0);
 			vec3 Is = vec3(0.0, 0.0, 0.0);
-			
+
 			if (light.type == LIGHT_TYPE_AMBIENT) {
-				
+
 				// *** ambient intensity ***
-				
+
 				Ia = La * vec3(Ka);
 				fragColor += vec4(Is + Id + Ia, 0.0);
 			}
 			else if (light.type == LIGHT_TYPE_POINT) {
-				
+
 				// *** diffuse intensity ***
-				
+
 				// raise light position to eye space
 				vec3 light_position_eye = vec3(view * vec4(light_position_world, 1.0));
 				vec3 direction_to_light_eye = normalize(light_position_eye - vertex_position_eye);
