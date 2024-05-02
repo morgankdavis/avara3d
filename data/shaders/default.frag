@@ -100,14 +100,18 @@ void main () {
 //	if (numLights == 0) {
 //
 //	}
-//	else {
-		switch (emissionMode) {
-			case MATERIAL_MODE_COLOR:    Ke = vec4(colors.emission, 1.0);       	break;
-			case MATERIAL_MODE_SAMPLER:  Ke = vec4(texture(samplers.emission,
-													tex_coord * uvScale));        	break;
-		}
-//	}
-	
+	//	else {
+	switch (emissionMode) {
+		case MATERIAL_MODE_COLOR:
+			Ke = vec4(colors.emission, 1.0);
+			break;
+		case MATERIAL_MODE_SAMPLER:
+			Ke = vec4(texture(samplers.emission,
+							  tex_coord * uvScale));
+			break;
+	}
+	//	}
+
 	if (emissionMode != MATERIAL_MODE_NONE) {
 		
 		// *** emission intensity ***
@@ -117,26 +121,38 @@ void main () {
 	}
 	else {
 		switch (ambientMode) {
-			case MATERIAL_MODE_COLOR: 	Ka = vec4(colors.ambient, 1.0);				break;
-			case MATERIAL_MODE_SAMPLER:	Ka = vec4(texture(samplers.ambient,
-														  tex_coord * uvScale));	break;
+			case MATERIAL_MODE_COLOR:
+				Ka = vec4(colors.ambient, 1.0);
+				break;
+			case MATERIAL_MODE_SAMPLER:
+				Ka = vec4(texture(samplers.ambient,
+								  tex_coord * uvScale));
+				break;
 		}
-		
+
 		switch (diffuseMode) {
-			case MATERIAL_MODE_COLOR:	Kd = vec4(colors.diffuse, 1.0);				break;
-			case MATERIAL_MODE_SAMPLER:	Kd = vec4(texture(samplers.diffuse,
-														  tex_coord * uvScale));	break;
+			case MATERIAL_MODE_COLOR:
+				Kd = vec4(colors.diffuse, 1.0);
+				break;
+			case MATERIAL_MODE_SAMPLER:
+				Kd = vec4(texture(samplers.diffuse,
+								  tex_coord * uvScale));
+				break;
 		}
-		
+
 		switch (specularMode) {
-			case MATERIAL_MODE_COLOR:	Ks = vec4(colors.specular, 1.0);			break;
-			// original:
+			case MATERIAL_MODE_COLOR:
+				Ks = vec4(colors.specular, 1.0);
+				break;
+		// original:
 //			case MATERIAL_MODE_SAMPLER:	Ks = vec4(texture(samplers.specular,
 //														  tex_coord * uvScale));	break;
 			// with KHR_materials_specular we only import 'specularTexture' which only has alpha.
 			//
-			case MATERIAL_MODE_SAMPLER:	Ks = vec4(texture(samplers.specular,
-														tex_coord * uvScale).a);	break;
+			case MATERIAL_MODE_SAMPLER:
+			Ks = vec4(texture(samplers.specular,
+			tex_coord * uvScale).a);
+			break;
 		}
 		
 		if (locksAmbientWithDiffuse &&

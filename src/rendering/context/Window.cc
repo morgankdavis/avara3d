@@ -142,20 +142,20 @@ Window::Window(RenderingApi renderingAPI,
 			}
 			else {
 				// TODO: exception
-				A3D_LOG_C("Failed to initialize GLEW.");
+				A3D_LOG_F("Failed to initialize GLEW.");
 				glfwTerminate();
 				// exception
 			}
 		}
 		else {
 			// TODO: exception
-			A3D_LOG_C("Couldn't create GLFW Window.");
+			A3D_LOG_F("Couldn't create GLFW Window.");
 			glfwTerminate();
 			// exception
 		}
 	}
 	else {
-		A3D_LOG_C("Failed to initializing GLFW.");
+		A3D_LOG_F("Failed to initializing GLFW.");
 		// exception
 	}
 }
@@ -285,7 +285,7 @@ static bool InitGLFW() {
 	
 	static bool initialized = false;
 	if (!initialized) {
-		A3D_LOG_T("");
+		A3D_LOG_C();
 		
 		int glfwMajVers, glfwMinVers, glfwRev;
 		glfwGetVersion(&glfwMajVers, &glfwMinVers, &glfwRev);
@@ -298,7 +298,7 @@ static bool InitGLFW() {
 			A3D_LOG_I("GLFW Initialized.");
 		}
 		else {
-			A3D_LOG_C("Error initializing GLFW.");
+			A3D_LOG_F("Error initializing GLFW.");
 			return false;
 		}
 		
@@ -310,7 +310,7 @@ static bool InitGLFW() {
 }
 
 static bool InitGLEW() {
-	A3D_LOG_T("");
+	A3D_LOG_C();
 
 	// NOTE: OpenGL context must be setup first
 	
@@ -325,7 +325,7 @@ static bool InitGLEW() {
 			initialized = true;
 		}
 		else {
-			A3D_LOG_C("Failed to initialize GLEW: {}", initStatus);
+			A3D_LOG_F("Failed to initialize GLEW: {}", initStatus);
 			return false;
 		}
 	}

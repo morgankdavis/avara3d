@@ -76,7 +76,7 @@ Program::Program(const string& name):
 		if (_glID == 0) {
 			//logString(string("Unable to create shader program."));
 			//string errMsg = "Unable to create shader program.";
-			A3D_LOG_C("Unable to create shader program.");
+			A3D_LOG_F("Unable to create shader program.");
 			//throw Exception(errMsg);
 		}
 		else {
@@ -219,7 +219,7 @@ bool Program::validate() {
 void Program::use() {
 	
 	if (_glID <= 0 || (!_isLinked)) {
-		A3D_LOG_C("Program '{}' not ready.", _name);
+		A3D_LOG_E("Program '{}' not ready.", _name);
 	}
 	else {
 		glUseProgram(_glID);

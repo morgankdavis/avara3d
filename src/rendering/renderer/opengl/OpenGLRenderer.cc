@@ -102,6 +102,15 @@ typedef struct {
 	/* float32_t 	PADDING2; */
 } FogGLSLStruct;
 
+typedef struct {
+	int32_t 			numLights;
+	float32_t 			PADDING1;
+	float32_t 			PADDING2;
+	float32_t 			PADDING3;
+	LightGLSLStruct 	lights[MAX_DYNAMIC_LIGHTS+1]; // +1 ambient
+	FogGLSLStruct		fog;
+} EnvironmentBlock;
+
 /*********************************************************************************************
 	Private Static Non-Member Prototypes
  *********************************************************************************************/
@@ -237,7 +246,7 @@ RenderingApi OpenGLRenderer::renderingApi() const {
 
 bool OpenGLRenderer::initialize(const RenderContext& context) {
 	
-	A3D_LOG_T("");
+	A3D_LOG_C();
 
 	// create environment UBO
 	
@@ -476,7 +485,7 @@ unique_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 	auto framebufferWidth = context.framebufferWidth();
 	auto framebufferHeight = context.framebufferHeight();
 	unsigned char pixelBuf[framebufferWidth * framebufferHeight * 4];
-	glReadPixels(0, 0, framebufferWidth, framebufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixelBuf);
+	glReadPixels(0, 0, (GLsizei)framebufferWidth, (GLsizei)framebufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixelBuf);
 	auto buffer = make_unique<Buffer>((std::byte*)pixelBuf, framebufferWidth * framebufferHeight * 4);
 	return make_unique<Image>(std::move(buffer), framebufferWidth, framebufferHeight, 4);
 }
@@ -899,6 +908,7 @@ static void SendMaterialUniforms(const Material& material,
 	program.setUniform("uvScale", material.uvScale());
 	program.setUniform("locksAmbientWithDiffuse", material.locksAmbientWithDiffuse());
 	program.setUniform("emissionMode", 0); // 0 = MaterialMode_None -- why is this here?
+	//program.setUniform("defaultLighting", 0);
 
 	for (auto& [property, type] : material.properties()) {
 
@@ -1021,28 +1031,19 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 
 	// block
 
-	typedef struct {
-		int32_t 			numLights;
-		float32_t 			PADDING1;
-		float32_t 			PADDING2;
-		float32_t 			PADDING3;
-		LightGLSLStruct 	lights[MAX_DYNAMIC_LIGHTS+1]; // +1 ambient
-		FogGLSLStruct		fog;
-	} EnvironmentBlock;
-
-	EnvironmentBlock environmentBlock;
+	EnvironmentBlock environmentStruct;
 	
 	// lights
 
 	if (scene.visualWorld()->usesDefaultLighting()) {
 
-		environmentBlock.numLights = 0;
+		environmentStruct.numLights = 0;
 	}
 	else {
-		// TODO: this is super greedy.  instead, accumulate a list of lights as we visit each node?
+		// TODO: this is EXPONENTIAL.  instead, accumulate a list of lights as we visit each node?
 
 		auto lights = vector<Node*>();
-		Node *ambientLightNode = nullptr;
+		Node* ambientLightNode = nullptr;
 
 		// find all lights in the scene
 		for (auto &node: scene.rootNode()->children(true)) {
@@ -1098,8 +1099,8 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 			lightStruct[l].color = {color.r, color.g, color.b};
 		}
 
-		environmentBlock.numLights = (int)numLights;
-		memcpy(&environmentBlock.lights, &lightStruct, sizeof(lightStruct));
+		environmentStruct.numLights = (int)numLights;
+		memcpy(&environmentStruct.lights, &lightStruct, sizeof(lightStruct));
 	}
 
 	// fog
@@ -1117,12 +1118,12 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 													fogColor->a};
 	else fogStruct.color = {0.0, 0.0, 0.0, 0.0};
 
-	memcpy(&environmentBlock.fog, &fogStruct, sizeof(fogStruct));
+	memcpy(&environmentStruct.fog, &fogStruct, sizeof(fogStruct));
 
 	// send 'em
 
 	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(environmentBlock), &environmentBlock, GL_DYNAMIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(environmentStruct), &environmentStruct, GL_DYNAMIC_DRAW);
 }
 
 static void SetTextureSamplingOptions(Texture& texture,
