@@ -166,7 +166,7 @@ Window::~Window() {
 	close(); // meh?
 
 	// TODO: must move to support multiple windows
-	glfwSetErrorCallback(NULL);
+	glfwSetErrorCallback(nullptr);
 	glfwTerminate();
 }
 
@@ -302,7 +302,7 @@ static bool InitGLFW() {
 			return false;
 		}
 		
-		srand(time(NULL)); // where else can we put this?
+		srand(time(nullptr)); // where else can we put this?
 		
 		initialized = true;
 	}
@@ -448,8 +448,8 @@ void GLFWFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height) 
 	auto* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
 
 	auto framebufferScale = window->framebufferScale();
-	window->framebufferWidth(window->width() * framebufferScale.x);
-	window->framebufferHeight(window->height() * framebufferScale.y);
+	window->framebufferWidth((unsigned)round(float(window->width()) * framebufferScale.x));
+	window->framebufferHeight((unsigned)round(float(window->height()) * framebufferScale.y));
 }
 
 void GLFWErrorCallback(int error, const char* description) {
