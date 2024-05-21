@@ -116,7 +116,7 @@ namespace a3d {
 		void 									removeFromParent();
 
 		std::vector<std::shared_ptr<Node>>		children(bool resursive = false) const;
-		std::shared_ptr<Node> 					childNamed(const std::string& name, bool resursive = false);
+		std::shared_ptr<Node> 					childNamed(const std::string& name, bool resursive = false) const;
 
 		PhysicsBody* 							physicsBody() const;
 		void 									physicsBody(std::unique_ptr<PhysicsBody> body);

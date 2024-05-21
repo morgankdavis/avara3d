@@ -83,8 +83,8 @@ layout(std140) uniform EnvironmentBlock {
 out 		vec4 		fragColor;
 
 
-bool FloatEqual(float a, float b, float tolarance) {
-	return abs(a-b) <= tolarance;
+bool FloatEqual(float a, float b, float eps) {
+	return abs(a-b) <= eps;
 }
 
 
@@ -255,7 +255,7 @@ void main () {
 	}
 	
 	
-	// gamma correction
+	/* gamma correction */
 	
 	//fragColor.rgb = pow(fragColor.rgb, vec3(1.0/GAMMA));
 }

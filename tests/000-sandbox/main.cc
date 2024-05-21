@@ -217,27 +217,34 @@ int main(int argc, const char* argv[]) {
 //		auto testMesh = MeshNamed("crocus/crocus");
 
 
-	auto meshes = vector<shared_ptr<Mesh>>{
-			MeshNamed("apple_lod/apple_lod"),
-			MeshNamed("banana_lod/banana_lod"),
-			MeshNamed("cardboard_box/cardboard_box"),
-			MeshNamed("cartoon_palm_tree/cartoon_palm_tree"),
-			MeshNamed("cherries_lod/cherries_lod"),
-			MeshNamed("crocus/crocus"),
-			MeshNamed("dragon/dragon"),
-			MeshNamed("island/island"),
-			MeshNamed("orange_lod/orange_lod"),
-			MeshNamed("pallet/pallet"),
-			MeshNamed("palm/palm"),
-			MeshNamed("palms/palms"),
-			MeshNamed("pear_lod/pear_lod"),
-			MeshNamed("pineapple_lod/pineapple_lod"),
-			MeshNamed("rubber_duck/rubber_duck"),
-			MeshNamed("siamese/siamese"),
-			MeshNamed("slurm/slurm"),
-			MeshNamed("teapot/teapot"),
-			MeshNamed("tuna/tuna")
-		};
+	const vector<string> meshNames = {
+			"apple_lod/apple_lod",
+			"banana_lod/banana_lod",
+			"cardboard_box/cardboard_box",
+			"cartoon_palm_tree/cartoon_palm_tree",
+			"cherries_lod/cherries_lod",
+			"crocus/crocus",
+			"dragon/dragon",
+			"island/island",
+			"orange_lod/orange_lod",
+			"pallet/pallet",
+			"palm/palm",
+			"palms/palms",
+			"pear_lod/pear_lod",
+			"pineapple_lod/pineapple_lod",
+			"rubber_duck/rubber_duck",
+			"siamese/siamese",
+			"slurm/slurm",
+			"teapot/teapot",
+			"tuna/tuna"
+	};
+
+	vector<shared_ptr<Mesh>> meshes;
+	meshes.reserve(meshNames.size());
+	for (const auto& meshName: meshNames) {
+		meshes.push_back(MeshNamed(meshName));
+	}
+
 	g_meshes = &meshes;
 //	g_meshes = vector<Mesh*>();
 //	g_meshes.reserve(meshes.size());
