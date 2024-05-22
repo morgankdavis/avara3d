@@ -122,10 +122,10 @@ static void 		RenderSkybox(Mesh& skyboxMesh,
 								unordered_set<Texture*>& activeTextures);
 static void 		GetMeshElementGLVertexDataHandles(MeshElement& element,
 													 OpenGLRenderer::MeshElementGLMapping& glMapping,
-													 GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
+													 GLuint& glVBO, GLuint& glVAO, GLuint& glEBO);
 static void 		GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
 												OpenGLRenderer::MeshElementGLMapping& glMapping,
-												GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
+												GLuint& glVBO, GLuint& glVAO, GLuint& glEBO);
 static void 		GetLinesVertexDataHandles(const vector<Line>& lines,
 											 Program& program,
 											 OpenGLRenderer::LinesGLMapping& glMapping,
@@ -136,10 +136,10 @@ static void 		GetTextureGLTextureHandles(Material& material,
 											  map<MaterialPropertyType, GLuint>& glTextureHandles);
 static void 		BufferMeshElementVertexData(const MeshElement& element,
 											   Program& program,
-											   GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
+											   GLuint& glVBO, GLuint& glVAO, GLuint& glEBO);
 static void 		BufferSkyboxVertexData(Mesh& skyboxMesh,
 										  Program& program,
-										  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
+										  GLuint& glVBO, GLuint& glVAO, GLuint& glEBO);
 static void 		BufferLinesVertexData(const vector<Line>& lines,
 										 Program& program,
 										 GLuint& glVBO, GLuint& glVAO);
@@ -166,11 +166,11 @@ static void 		DrawMeshElement(MeshElement& element,
 								   const mat4& modelMat,
 								   const mat4& viewMat,
 								   const mat4& projectionMat,
-								   GLuint vao, GLuint ibo);
+								   GLuint vao, GLuint ebo);
 static void 		DrawSkyboxElement(MeshElement& element,
 									 Program& program,
 									 Node& pointOfView,
-									 GLuint vao, GLuint ibo);
+									 GLuint vao, GLuint ebo);
 static void 		DrawLines(const vector<Line>& lines,
 							 Program& program,
 							 const mat4& modelMat,
@@ -399,10 +399,10 @@ void OpenGLRenderer::render(MeshElement& element,
 
 	// check and load vertex data if necessary
 
-	GLuint vbo, vao, ibo;
+	GLuint vbo, vao, ebo;
 	GetMeshElementGLVertexDataHandles(element,
 									  _meshElementGLMapping,
-									  vbo, vao, ibo);
+									  vbo, vao, ebo);
 
 	auto wireframe = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes);
 
@@ -433,7 +433,7 @@ void OpenGLRenderer::render(MeshElement& element,
 
 	// update
 
-	DrawMeshElement(element, program, modelMat, viewMat, projectionMat, vao, ibo);
+	DrawMeshElement(element, program, modelMat, viewMat, projectionMat, vao, ebo);
 
 	// save reference for housekeeping
 
@@ -508,10 +508,10 @@ static void RenderSkybox(Mesh& skyboxMesh,
 	
 	// check and load vertex data if necessary
 	
-	GLuint vbo, vao, ibo;
+	GLuint vbo, vao, ebo;
 	GetSkyboxGLVertexDataHandles(skyboxMesh,
 								 elementGLMapping,
-								 vbo, vao, ibo);
+								 vbo, vao, ebo);
 	
 	// and load material contents if necessary
 	
@@ -542,22 +542,22 @@ static void RenderSkybox(Mesh& skyboxMesh,
 	
 	// update
 	
-	DrawSkyboxElement(*element, program, pointOfView, vao, ibo);
+	DrawSkyboxElement(*element, program, pointOfView, vao, ebo);
 }
 	
 static void GetMeshElementGLVertexDataHandles(MeshElement& element,
 											  OpenGLRenderer::MeshElementGLMapping& glMapping,
-											  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
+											  GLuint& glVBO, GLuint& glVAO, GLuint& glEBO) {
 	
-	// looks up and populates glVBO, glVAO, and glIBO, loading the vertex data if needed
+	// looks up and populates glVBO, glVAO, and glEBO, loading the vertex data if needed
 
 	if (A3D_MASK_CONTAINS(element.dirtyMask(), MeshElementDirtyMask::VertexData)) {
 
 		DeleteMeshElementGLResources(&element, glMapping);
 
-		BufferMeshElementVertexData(element, Program::Default(), glVBO, glVAO, glIBO);
+		BufferMeshElementVertexData(element, Program::Default(), glVBO, glVAO, glEBO);
 		
-		glMapping[&element] = make_tuple(glVBO, glVAO, glIBO);
+		glMapping[&element] = make_tuple(glVBO, glVAO, glEBO);
 
 		element.dirtyMask(A3D_MASK_REMOVE(element.dirtyMask(), MeshElementDirtyMask::VertexData));
 	}
@@ -565,15 +565,15 @@ static void GetMeshElementGLVertexDataHandles(MeshElement& element,
 		auto mapping = glMapping[&element];
 		glVBO = get<0>(mapping);
 		glVAO = get<1>(mapping);
-		glIBO = get<2>(mapping);
+		glEBO = get<2>(mapping);
 	}
 }
 	
 static void GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
 										 OpenGLRenderer::MeshElementGLMapping& glMapping,
-										 GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
+										 GLuint& glVBO, GLuint& glVAO, GLuint& glEBO) {
 	
-	// looks up and populates glVBO, glVAO, and glIBO, loading the vertex data if needed
+	// looks up and populates glVBO, glVAO, and glEBO, loading the vertex data if needed
 	//
 	// NOTE: this is essentially exactly the same as GetMeshElementGLVertexDataHandles()
 	// except if the data needs to be loaded, it uses BufferMeshElementVertexData() as the
@@ -585,9 +585,9 @@ static void GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
 
 		DeleteMeshElementGLResources(element.get(), glMapping);
 		
-		BufferSkyboxVertexData(skyboxMesh, Program::Skybox(), glVBO, glVAO, glIBO);
+		BufferSkyboxVertexData(skyboxMesh, Program::Skybox(), glVBO, glVAO, glEBO);
 		
-		glMapping[element.get()] = make_tuple(glVBO, glVAO, glIBO);
+		glMapping[element.get()] = make_tuple(glVBO, glVAO, glEBO);
 
 		element->dirtyMask(A3D_MASK_REMOVE(element->dirtyMask(), MeshElementDirtyMask::VertexData));
 	}
@@ -595,7 +595,7 @@ static void GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
 		auto mapping = glMapping[element.get()];
 		glVBO = get<0>(mapping);
 		glVAO = get<1>(mapping);
-		glIBO = get<2>(mapping);
+		glEBO = get<2>(mapping);
 	}
 }
 
@@ -658,7 +658,7 @@ static void GetTextureGLTextureHandles(Material& material,
 	
 static void BufferMeshElementVertexData(const MeshElement& element,
 										Program& program,
-										GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
+										GLuint& glVBO, GLuint& glVAO, GLuint& glEBO) {
 	
 	A3D_LOG_D("Buffering vertex data for mesh element {:p}...", static_cast<const void*>(&element));
 	
@@ -704,8 +704,8 @@ static void BufferMeshElementVertexData(const MeshElement& element,
 						  (void*)(sizeof(vec3) + sizeof(vec3))); 	// start offset
 	glEnableVertexAttribArray(texCoordIndex);
 	
-	glGenBuffers(1, &glIBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glIBO);
+	glGenBuffers(1, &glEBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glEBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
 				 (GLsizeiptr)(faces.size() * sizeof(Face)),
 				 &(faces[0]),
@@ -716,7 +716,7 @@ static void BufferMeshElementVertexData(const MeshElement& element,
 
 static void BufferSkyboxVertexData(Mesh& skyboxMesh,
 								   Program& program,
-								   GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
+								   GLuint& glVBO, GLuint& glVAO, GLuint& glEBO) {
 	
 	A3D_LOG_D("Buffering skybox vertex data...");
 	
@@ -742,8 +742,8 @@ static void BufferSkyboxVertexData(Mesh& skyboxMesh,
 						  nullptr); // start offset
 	glEnableVertexAttribArray(positionIndex);
 	
-	glGenBuffers(1, &glIBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glIBO);
+	glGenBuffers(1, &glEBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glEBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
 				 (GLsizeiptr)(faces.size() * sizeof(Face)),
 				 &(faces[0]),
@@ -1274,7 +1274,7 @@ static void DrawMeshElement(MeshElement& element,
 							const mat4& modelMat,
 							const mat4& viewMat,
 							const mat4& projectionMat,
-							GLuint vao, GLuint ibo) {
+							GLuint vao, GLuint ebo) {
 	
 	program.use();
 	
@@ -1287,7 +1287,7 @@ static void DrawMeshElement(MeshElement& element,
 	// update
 	
 	glBindVertexArray(vao);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	auto numFaces = element.faces().size();
 	glDrawElements(GL_TRIANGLES, (GLsizei)numFaces*3, GL_UNSIGNED_INT, nullptr);
 }
@@ -1295,7 +1295,7 @@ static void DrawMeshElement(MeshElement& element,
 static void DrawSkyboxElement(MeshElement& element,
 							  Program& program,
 							  Node& pointOfView,
-							  GLuint vao, GLuint ibo) {
+							  GLuint vao, GLuint ebo) {
 	
 	program.use();
 
@@ -1313,7 +1313,7 @@ static void DrawSkyboxElement(MeshElement& element,
 	auto& faces = element.faces();
 	
 	glBindVertexArray(vao);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	auto numFaces = faces.size();
 	glDrawElements(GL_TRIANGLES, (GLsizei)numFaces*3, GL_UNSIGNED_INT, nullptr);
 }
@@ -1541,11 +1541,11 @@ static void DeleteMeshElementGLResources(MeshElement* element,
 		
 		GLuint vbo = get<0>(glHandles);
 		GLuint vao = get<1>(glHandles);
-		GLuint ibo = get<2>(glHandles);
+		GLuint ebo = get<2>(glHandles);
 		
 		glDeleteBuffers(1, &vbo);
 		glDeleteVertexArrays(1, &vao);
-		glDeleteBuffers(1, &ibo);
+		glDeleteBuffers(1, &ebo);
 		
 		glMapping.erase(element);
 

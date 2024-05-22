@@ -39,7 +39,7 @@ namespace a3d {
 
 	public:
 
-		/* <a3d::MeshElement* : <gl_vbo, gl_vao, gl_ibo>> */
+		/* <a3d::MeshElement* : <gl_vbo, gl_vao, gl_ebo>> */
 		using MeshElementGLMapping =
 				std::map<MeshElement*, std::tuple<unsigned, unsigned, unsigned>>;
 
