@@ -59,7 +59,8 @@ add_subdirectory(external/fastgltf-0.6.1)
 
 add_subdirectory(external/generator)
 
-add_subdirectory(external/glew-2.1.0)
+#add_subdirectory(external/glew-2.1.0)
+add_subdirectory(external/glad-3.3)
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -112,7 +113,8 @@ target_include_directories(avara3d PUBLIC include)
 target_include_directories(avara3d PRIVATE "${PROJECT_BINARY_DIR}") # BuildInfo.cmake.h
 target_include_directories(avara3d PRIVATE external/generator/include)
 target_include_directories(avara3d PRIVATE external/gif-h)
-target_include_directories(avara3d PRIVATE external/glew-2.1.0/include)
+#target_include_directories(avara3d PRIVATE external/glew-2.1.0/include)
+target_include_directories(avara3d PRIVATE external/glad-3.3/include)
 target_include_directories(avara3d PRIVATE external/glfw-3.4.0/include)
 target_include_directories(avara3d PRIVATE external/imgui-1.90)
 target_include_directories(avara3d PRIVATE external/imgui-1.90/backends)
@@ -141,7 +143,8 @@ target_link_libraries(avara3d PUBLIC
 if (DESKTOP)
 
 	target_link_libraries(avara3d PUBLIC
-			glew_s
+			#glew_s
+			glad
 			glfw
 			manymouse)
 

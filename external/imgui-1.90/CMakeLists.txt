@@ -58,5 +58,7 @@ add_library(imgui
 target_link_libraries(imgui glfw)
 
 # mkd: added when switching to shared libraries
-target_compile_options(glew_s PUBLIC
-		"-fPIC")
+#target_compile_options(glew_s PUBLIC
+#		"-fPIC")
+#target_compile_options(glad PUBLIC
+#		"-fPIC")

@@ -11,7 +11,8 @@
 #include <iostream>
 #include <sstream>
 
-#include "GL/glew.h"
+//#include "GL/glew.h"
+#include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
 #include "a3d/diagnostic/exception/Exception.h"
@@ -34,7 +35,8 @@ using namespace std;
  *********************************************************************************************/
 
 static bool 	InitGLFW();
-static bool 	InitGLEW();
+//static bool 	InitGLEW();
+static bool 	InitGLAD();
 static void 	LogGLInfo();
 //static float 	ScreenScaleFactor(GLFWmonitor* monitor);
 static void 	GLFWWindowSizeCallback(GLFWwindow* glfwWindow,
@@ -120,7 +122,8 @@ Window::Window(RenderingApi renderingAPI,
 			glfwMakeContextCurrent(_glfwWindow.get());
 			vSyncEnabled(false);
 
-			if (InitGLEW()) {
+//			if (InitGLEW()) {
+			if (InitGLAD()) {
 				RenderContext::renderer()->initialize(*this);
 
 				_width = viewportWidth;
@@ -141,17 +144,13 @@ Window::Window(RenderingApi renderingAPI,
 				_framebufferHeight = floor(float(_height) * _framebufferScale.y);
 			}
 			else {
-				auto errStr = "Failed to initialize GLEW.";
-				A3D_LOG_F(errStr);
 				glfwTerminate();
-				throw Exception(errStr);
+				throw Exception("Failed to initialize GLAD.");
 			}
 		}
 		else {
-			auto errStr = "Couldn't create GLFW Window.";
-			A3D_LOG_F(errStr);
 			glfwTerminate();
-			throw Exception(errStr);
+			throw Exception("Couldn't create GLFW Window.");
 		}
 	}
 	else {
@@ -310,23 +309,45 @@ static bool InitGLFW() {
 	return true;
 }
 
-static bool InitGLEW() {
+//static bool InitGLEW() {
+//	A3D_LOG_C();
+//
+//	// NOTE: OpenGL context must be setup first
+//
+//	static bool initialized = false;
+//	if (!initialized) {
+//		glewExperimental = GL_TRUE;
+//
+//		auto initStatus = glewInit();
+//		if (initStatus == GLEW_OK) {
+//
+//			LogGLInfo();
+//			initialized = true;
+//		}
+//		else {
+//			A3D_LOG_F("Failed to initialize GLEW: {}", initStatus);
+//			return false;
+//		}
+//	}
+//	return true;
+//}
+
+static bool InitGLAD() {
 	A3D_LOG_C();
 
 	// NOTE: OpenGL context must be setup first
-	
+
 	static bool initialized = false;
 	if (!initialized) {
-		glewExperimental = GL_TRUE;
 
-		auto initStatus = glewInit();
-		if (initStatus == GLEW_OK) {
+		auto initStatus = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+		if (initStatus != 0) {
 
 			LogGLInfo();
 			initialized = true;
 		}
 		else {
-			A3D_LOG_F("Failed to initialize GLEW: {}", initStatus);
+			A3D_LOG_F("Failed to initialize GLAD: {}", initStatus);
 			return false;
 		}
 	}

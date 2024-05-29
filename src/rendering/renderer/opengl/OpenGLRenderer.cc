@@ -18,7 +18,8 @@
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
 #else
-#include "GL/glew.h"
+//#include "GL/glew.h"
+#include "glad/glad.h"
 #endif
 
 //#ifdef OPENGL_DESKTOP
@@ -1816,6 +1817,7 @@ static void SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max
 	float anisotropy = max;
 	glBindTexture(texType, glTextureHandle);
 	float largest;
+	// EXT_texture_filter_anisotropic
 	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &largest);
 	if (max > largest) anisotropy = largest;
 	glTexParameterf(texType, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
