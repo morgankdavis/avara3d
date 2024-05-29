@@ -141,22 +141,23 @@ Window::Window(RenderingApi renderingAPI,
 				_framebufferHeight = floor(float(_height) * _framebufferScale.y);
 			}
 			else {
-				// TODO: exception
-				A3D_LOG_F("Failed to initialize GLEW.");
+				auto errStr = "Failed to initialize GLEW.";
+				A3D_LOG_F(errStr);
 				glfwTerminate();
-				// exception
+				throw Exception(errStr);
 			}
 		}
 		else {
-			// TODO: exception
-			A3D_LOG_F("Couldn't create GLFW Window.");
+			auto errStr = "Couldn't create GLFW Window.";
+			A3D_LOG_F(errStr);
 			glfwTerminate();
-			// exception
+			throw Exception(errStr);
 		}
 	}
 	else {
-		A3D_LOG_F("Failed to initializing GLFW.");
-		// exception
+		auto errStr = "Couldn't create GLFW Window.";
+		A3D_LOG_F(errStr);
+		throw Exception(errStr);
 	}
 }
 
