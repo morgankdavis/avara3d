@@ -11,7 +11,6 @@
 #include <iostream>
 #include <sstream>
 
-//#include "GL/glew.h"
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
@@ -35,7 +34,6 @@ using namespace std;
  *********************************************************************************************/
 
 static bool 	InitGLFW();
-//static bool 	InitGLEW();
 static bool 	InitGLAD();
 static void 	LogGLInfo();
 //static float 	ScreenScaleFactor(GLFWmonitor* monitor);
@@ -122,7 +120,6 @@ Window::Window(RenderingApi renderingAPI,
 			glfwMakeContextCurrent(_glfwWindow.get());
 			vSyncEnabled(false);
 
-//			if (InitGLEW()) {
 			if (InitGLAD()) {
 				RenderContext::renderer()->initialize(*this);
 
@@ -308,29 +305,6 @@ static bool InitGLFW() {
 	}
 	return true;
 }
-
-//static bool InitGLEW() {
-//	A3D_LOG_C();
-//
-//	// NOTE: OpenGL context must be setup first
-//
-//	static bool initialized = false;
-//	if (!initialized) {
-//		glewExperimental = GL_TRUE;
-//
-//		auto initStatus = glewInit();
-//		if (initStatus == GLEW_OK) {
-//
-//			LogGLInfo();
-//			initialized = true;
-//		}
-//		else {
-//			A3D_LOG_F("Failed to initialize GLEW: {}", initStatus);
-//			return false;
-//		}
-//	}
-//	return true;
-//}
 
 static bool InitGLAD() {
 	A3D_LOG_C();

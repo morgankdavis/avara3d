@@ -18,7 +18,6 @@
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
 #else
-//#include "GL/glew.h"
 #include "glad/glad.h"
 #endif
 
