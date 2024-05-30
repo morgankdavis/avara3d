@@ -131,6 +131,7 @@ void WindowInputManager::initManyMouse() {
 	auto availableMice = ManyMouse_Init();
 
 	if (availableMice < 0) {
+		ManyMouse_Quit(); // doesn't seem to allow for re-initialization later
 		throw Exception("Failed to initialize ManyMouse.");
 	}
 	else if (availableMice == 0) {
@@ -138,7 +139,7 @@ void WindowInputManager::initManyMouse() {
 	}
 	else {
 		A3D_LOG_I("ManyMouse driver: {}", ManyMouse_DriverName());
-		for (int m = 0; m<availableMice; ++m) {
+		for (unsigned m = 0; m<availableMice; ++m) {
 			A3D_LOG_I("Mouse[{}]: {}", m, ManyMouse_DeviceName(m));
 		}
 	}

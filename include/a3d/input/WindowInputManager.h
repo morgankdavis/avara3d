@@ -51,9 +51,12 @@ namespace a3d {
 	Private Members
  *********************************************************************************************/
 
+		// TEMPORARY
+		void 							initMouseInput();
+
 	private:
 
-		void 							initMouseInput();
+		//void 							initMouseInput();
 		void 							initManyMouse();
 		void 							quitManyMouse();
 		void 							registerGLFWCallbacks(GLFWwindow* glfwWindow);
