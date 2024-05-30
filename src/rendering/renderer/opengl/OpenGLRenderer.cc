@@ -1628,15 +1628,17 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 
 //#ifdef OPENGL_DESKTOP
 
+	// looks like Imgui automatically handles macOS Retina scaling
+#ifdef MACOS
+	auto scaleXY = vec2(1.0, 1.0);
+#else
 	auto scaleXY = context.framebufferScale();
-	//auto scaleXY = vec2{2.0, 2.0};
-
-
+#endif
 
 	auto scale = std::max(scaleXY.x, scaleXY.y);
+
 //	ImGui::GetStyle().ScaleAllSizes(scale);
 	ImGui::GetIO().FontGlobalScale = scale;
-
 
 
 	ImGui_ImplOpenGL3_NewFrame();
