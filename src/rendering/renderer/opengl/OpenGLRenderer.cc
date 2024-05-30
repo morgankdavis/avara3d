@@ -1782,13 +1782,13 @@ static void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, Filt
 		case FilterMode::NearestMipmapLinear:
 		case FilterMode::LinearMipmapNearest:
 		case FilterMode::LinearMipmapLinear:
+			glBindTexture(texType, glTextureHandle);
 			glGenerateMipmap(texType);
 			break;
 		default:
 			break;
 	}
 
-	glBindTexture(texType, glTextureHandle);
 	glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, (GLint)GLFilterModeForFilterMode(mode));
 }
 
