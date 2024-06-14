@@ -104,6 +104,12 @@ namespace a3d {
 
 		std::unique_ptr<GLFWwindow, DestroyGLFWWindow>	_glfwWindow;
 		bool											_cursorCaptured;
+
+
+
+		//glm::vec2						_framebufferScale;
+		std::vector<glm::vec2>			_framebufferScales; // (below) this is an abstract class.  move this impl to Window
+		unsigned						_monitorIndex; // context should be independant of the concept of a monitor?
 	};
 }
 

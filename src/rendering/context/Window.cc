@@ -84,8 +84,9 @@ Window::Window(RenderingApi renderingAPI,
 		auto viewportWidth = width;
 		auto viewportHeight = height;
 
+		GLFWmonitor* monitor = nullptr;
 		if (fullScreen) {
-			auto monitor = glfwGetPrimaryMonitor();
+			monitor = glfwGetPrimaryMonitor();
 			const GLFWvidmode* vmode = glfwGetVideoMode(monitor);
 			_glfwWindow = unique_ptr<GLFWwindow, DestroyGLFWWindow>(
 					glfwCreateWindow(vmode->width,
@@ -112,7 +113,7 @@ Window::Window(RenderingApi renderingAPI,
 
 		// TODO: This is HACK. It looks like i_glfwWindow doesn't have a GLFWmonitor at this point
 		// causing a segfault.  So we'll cheat and use the main monitor (probably the right one anyway)
-		auto monitor = glfwGetPrimaryMonitor();
+		//auto monitor = glfwGetPrimaryMonitor();
 
 		if (_glfwWindow) {
 			glfwSetWindowUserPointer(_glfwWindow.get(), static_cast<void*>(this));
@@ -129,14 +130,22 @@ Window::Window(RenderingApi renderingAPI,
 				// TODO: this is wrong on Arch/XFCE/X11
 
 				// scale factor ~0.9583 on XPS 13 9310
-#ifndef LINUX
-				if (enableHighDPI) {
-					float scaleFactorX = 1.0;
-					float scaleFactorY = 1.0;
-					glfwGetMonitorContentScale(monitor, &scaleFactorX, &scaleFactorY);
-					_framebufferScale = {scaleFactorX, scaleFactorY};
+//#ifndef LINUX
+
+				// multi-monitor guide: https://www.glfw.org/docs/3.0/monitor.html
+				int numMons;
+				GLFWmonitor** monitors = glfwGetMonitors(&numMons);
+				for (int m=0; m<numMons; m++) {
+					GLFWmonitor* mon = monitors[m];
+
+					if (enableHighDPI) {
+						float scaleFactorX = 1.0;
+						float scaleFactorY = 1.0;
+						glfwGetMonitorContentScale(monitor, &scaleFactorX, &scaleFactorY);
+						_framebufferScale = {scaleFactorX, scaleFactorY};
+					}
 				}
-#endif
+//#endif
 
 				_framebufferWidth = floor(float(_width) * _framebufferScale.x);
 				_framebufferHeight = floor(float(_height) * _framebufferScale.y);

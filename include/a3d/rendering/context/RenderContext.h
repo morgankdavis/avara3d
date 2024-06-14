@@ -13,6 +13,7 @@
 #include <filesystem>
 #include <functional>
 #include <memory>
+#include <vector>
 
 #include "glm/glm.hpp"
 
@@ -106,7 +107,9 @@ namespace a3d {
 		unsigned						_height;
 		unsigned						_framebufferWidth;
 		unsigned						_framebufferHeight;
-		glm::vec2						_framebufferScale;
+//		//glm::vec2						_framebufferScale;
+//		std::vector<glm::vec2>			_framebufferScales; // (below) this is an abstract class.  move this impl to Window
+//		unsigned						_monitorIndex; // context should be independant of the concept of a monitor?
 		bool							_vSyncEnabled;
 		AntialiasingMode				_antialiasingMode;
 		std::unique_ptr<GifWriter>		_gifWriter;

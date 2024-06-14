@@ -241,10 +241,11 @@ void VisualWorld::draw(const Scene& scene,
 			renderer->beginFrame(scene, *_renderContext, debugOptions, stats);
 
 			if (auto pov = pointOfView().lock()) {
+
 				stats.cameraPosition = pov->position();
 
-				auto aspectRatio = (float) _renderContext->framebufferWidth()
-								   / (float) _renderContext->framebufferHeight();
+				auto aspectRatio = (float)_renderContext->framebufferWidth()
+								   / (float)_renderContext->framebufferHeight();
 				dynamic_pointer_cast<PerspectiveCamera>(pov->camera())->aspectRatio(aspectRatio);
 
 				renderer->render(scene, debugOptions, stats);
