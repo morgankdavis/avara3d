@@ -282,8 +282,8 @@ glm::uvec2 Window::framebufferSize() const {
 glm::vec2 Window::framebufferScale() const {
 	vec2 scale;
 	glfwGetWindowContentScale(_glfwWindow.get(), &scale.x, &scale.y);
-	//return scale;
-	return {1.0, 1.0};
+	return scale;
+	//return {1.0, 1.0};
 }
 
 /*********************************************************************************************
