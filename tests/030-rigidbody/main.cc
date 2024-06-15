@@ -28,7 +28,7 @@ using namespace std::placeholders;
 
 
 constexpr LogLevel				LOG_LEVEL =				LogLevel::Debug;
-constexpr vec2					WINDOW_SIZE =			{1280, 768};
+constexpr uvec2					WINDOW_SIZE =			{1280, 768};
 constexpr bool					FULLSCREEN =			false;
 constexpr bool					ENABLE_HIGH_DPI =		true;
 constexpr AntialiasingMode		MSAA_MODE =				AntialiasingMode::Msaa4X;
