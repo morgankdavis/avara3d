@@ -336,6 +336,8 @@ void OpenGLRenderer::render(const Scene& scene,
 	auto framebufferWidth = framebufferSize.x;
 	auto framebufferHeight = framebufferSize.y;
 
+	A3D_LOG_I("framebufferSize: ({}, {})", framebufferSize.x, framebufferSize.y);
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, (GLsizei)framebufferWidth, (GLsizei)framebufferHeight);
 
@@ -491,6 +493,9 @@ unique_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 	auto framebufferSize = context.framebufferSize();
 	auto framebufferWidth = (unsigned)round(framebufferSize.x);
 	auto framebufferHeight = (unsigned)round(framebufferSize.y);
+
+	A3D_LOG_I("framebufferSize: ({}, {})", framebufferSize.x, framebufferSize.y);
+
 	unsigned char pixelBuf[framebufferWidth * framebufferHeight * 4];
 	glReadPixels(0, 0, (GLsizei)framebufferWidth, (GLsizei)framebufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixelBuf);
 	auto buffer = make_unique<Buffer>((std::byte*)pixelBuf, framebufferWidth * framebufferHeight * 4);
