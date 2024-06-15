@@ -71,8 +71,9 @@ Window::Window(RenderingApi renderingAPI,
 //		_framebufferSizes{},
 //		_framebufferScales{} {
 
+	A3D_LOG_D("");
 
-if (InitGLFW()) {
+	if (InitGLFW()) {
 #ifdef OPENGL_DESKTOP
 		// TODO: move these version numbers
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -82,9 +83,9 @@ if (InitGLFW()) {
 		glfwWindowHint(GLFW_SAMPLES, static_cast<int>(antialiasingMode));
 		// works in Win10 & macOS 14, but not Arch/XFCE/X11
 		// see glfwGetMonitorContentScale() below
-#ifndef LINUX
+//#ifndef LINUX
 		glfwWindowHint(GLFW_SCALE_TO_MONITOR, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
-#endif
+//#endif
 #else // OpenGL ES
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -94,8 +95,9 @@ if (InitGLFW()) {
 //		auto viewportWidth = width;
 //		auto viewportHeight = height;
 
-		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+
 		if (fullScreen) {
+			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 			const GLFWvidmode* vmode = glfwGetVideoMode(monitor);
 			_glfwWindow = unique_ptr<GLFWwindow, DestroyGLFWWindow>(
 					glfwCreateWindow(vmode->width,
@@ -557,7 +559,8 @@ static void LogGLInfo()
 //}
 
 void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
-	A3D_LOG_D("width: {}, height: {}", width, height);
+	A3D_LOG_D("glfwWindow: {:p}, width: {}, height: {}",
+			  static_cast<void*>(glfwWindow), width, height);
 
 	auto window = (Window*)glfwGetWindowUserPointer(glfwWindow);
 
@@ -575,7 +578,8 @@ void GLFWWindowCloseCallback(GLFWwindow* glfwWindow) {
 }
 
 void GLFWFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
-	A3D_LOG_D("width: {}, height: {}", width, height);
+	A3D_LOG_D("glfwWindow: {:p}, width: {}, height: {}",
+			  static_cast<void*>(glfwWindow), width, height);
 
 //	auto* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
 
@@ -587,7 +591,8 @@ void GLFWFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height) 
 }
 
 void GLFWContentScaleCallback(GLFWwindow* glfwWindow, float xScale, float yScale) {
-	A3D_LOG_D("xScale: {}, yScale: {}", xScale, yScale);
+	A3D_LOG_D("glfwWindow: {:p}, xScale: {}, yScale: {}",
+			  static_cast<void*>(glfwWindow), xScale, yScale);
 
 //	auto* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
 //	window->calculateFramebufferSize();
