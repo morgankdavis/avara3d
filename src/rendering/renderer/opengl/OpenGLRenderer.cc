@@ -329,8 +329,12 @@ void OpenGLRenderer::render(const Scene& scene,
 
 	auto renderContext = scene.visualWorld()->renderContext();
 
-	auto framebufferWidth = renderContext->framebufferWidth();
-	auto framebufferHeight = renderContext->framebufferHeight();
+//	auto framebufferWidth = renderContext->framebufferWidth();
+//	auto framebufferHeight = renderContext->framebufferHeight();
+
+	auto framebufferSize = renderContext->framebufferSize();
+	auto framebufferWidth = framebufferSize.x;
+	auto framebufferHeight = framebufferSize.y;
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, (GLsizei)framebufferWidth, (GLsizei)framebufferHeight);
@@ -482,8 +486,11 @@ void OpenGLRenderer::render(const std::vector<Line>& lines,
 
 unique_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 	
-	auto framebufferWidth = context.framebufferWidth();
-	auto framebufferHeight = context.framebufferHeight();
+//	auto framebufferWidth = context.framebufferWidth();
+//	auto framebufferHeight = context.framebufferHeight();
+	auto framebufferSize = context.framebufferSize();
+	auto framebufferWidth = (unsigned)round(framebufferSize.x);
+	auto framebufferHeight = (unsigned)round(framebufferSize.y);
 	unsigned char pixelBuf[framebufferWidth * framebufferHeight * 4];
 	glReadPixels(0, 0, (GLsizei)framebufferWidth, (GLsizei)framebufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixelBuf);
 	auto buffer = make_unique<Buffer>((std::byte*)pixelBuf, framebufferWidth * framebufferHeight * 4);

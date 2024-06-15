@@ -28,10 +28,9 @@ using namespace std::placeholders;
 
 
 constexpr LogLevel				LOG_LEVEL =				LogLevel::Debug;
-constexpr bool					ENABLE_HIGH_DPI =		true;
-constexpr int					WINDOW_WIDTH =			1280;
-constexpr int					WINDOW_HEIGHT =			768;
+constexpr vec2					WINDOW_SIZE =			{1280, 768};
 constexpr bool					FULLSCREEN =			false;
+constexpr bool					ENABLE_HIGH_DPI =		true;
 constexpr AntialiasingMode		MSAA_MODE =				AntialiasingMode::Msaa4X;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					USE_DEFAULT_LIGHTING =	false;
@@ -67,10 +66,10 @@ shared_ptr<Node> ChainmailLink(float minorRadius, float majorRadius);
 void SpawnChainMail(Scene& scene);
 
 
-std::unique_ptr<a3d::Logger>	g_logger;
-a3d::Node*						g_palmNode;
-a3d::Node*						g_duckSpinnerNode;
-a3d::Node*						g_duckNode;
+unique_ptr<a3d::Logger>	g_logger;
+Node*					g_palmNode;
+Node*					g_duckSpinnerNode;
+Node*					g_duckNode;
 
 
 int main(int argc, const char* argv[]) {
@@ -80,8 +79,7 @@ int main(int argc, const char* argv[]) {
 
 	auto window = make_unique<Window>(RenderingApi::OpenGL,
 									  *utils::ExecutableName(),
-									  WINDOW_WIDTH,
-									  WINDOW_HEIGHT,
+									  WINDOW_SIZE,
 									  FULLSCREEN,
 									  ENABLE_HIGH_DPI,
 									  MSAA_MODE);
@@ -557,7 +555,7 @@ void UpdateCallback(Scene& scene, float time, float deltaTime) {
 
 		if (keysPressed.count(Key::R)) {
 			if (!window->recordingGIF()) {
-				utils::StartGIFRecording(*window, 320, 8);
+				utils::StartGIFRecording(*window, {320, 240}, 8);
 			}
 			else {
 				utils::StopGIFRecording(*window);

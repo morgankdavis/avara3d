@@ -32,25 +32,25 @@ using namespace std;
 	Public Members
  *********************************************************************************************/
 
-unsigned RenderContext::width() const {
-	return _width;
-}
+//unsigned RenderContext::width() const {
+//	return _width;
+//}
+//
+//unsigned RenderContext::height() const {
+//	return _height;
+//}
 
-unsigned RenderContext::height() const {
-	return _height;
-}
+//unsigned RenderContext::framebufferWidth() const {
+//	return _framebufferWidth;
+//}
+//
+//unsigned RenderContext::framebufferHeight() const {
+//	return _framebufferHeight;
+//}
 
-unsigned RenderContext::framebufferWidth() const {
-	return _framebufferWidth;
-}
-
-unsigned RenderContext::framebufferHeight() const {
-	return _framebufferHeight;
-}
-
-const vec2& RenderContext::framebufferScale() const {
-	return _framebufferScale;
-}
+//const vec2& RenderContext::framebufferScale() const {
+//	return _framebufferScale;
+//}
 
 bool RenderContext::vSyncEnabled() const {
 	return _vSyncEnabled;
@@ -76,7 +76,8 @@ bool RenderContext::recordingGIF() const {
 }
 
 void RenderContext::startGIFRecording(const filesystem::path& path,
-									  unsigned maxHeight, unsigned maxFramerate) {
+									  vec2 fitInside,
+									  unsigned maxFramerate) {
 	
 	if (!_recordingGIF) {
 		A3D_LOG_I("Starting GIF recording...");
@@ -84,13 +85,27 @@ void RenderContext::startGIFRecording(const filesystem::path& path,
 		_gifRecordingMaxFramerate = maxFramerate;
 		_gifRecordedFrames = 0;
 		
-		_gifRecordingHeight = _framebufferHeight;
-		_gifRecordingWidth = _framebufferWidth;
-		if (_gifRecordingHeight > maxHeight) {
-			float scale = (float)maxHeight / (float)_framebufferHeight;
-			_gifRecordingHeight = (unsigned)round((float)_framebufferHeight * scale);
-			_gifRecordingWidth = (unsigned)round((float)_framebufferWidth * scale);
-		}
+//		_gifRecordingHeight = _framebufferHeight;
+//		_gifRecordingWidth = _framebufferWidth;
+//		if (_gifRecordingHeight > maxHeight) {
+//			float scale = (float)maxHeight / (float)_framebufferHeight;
+//			_gifRecordingHeight = (unsigned)round((float)_framebufferHeight * scale);
+//			_gifRecordingWidth = (unsigned)round((float)_framebufferWidth * scale);
+//		}
+
+		auto fbSize = framebufferSize();
+
+		_gifRecordingWidth = (unsigned)round(fbSize.x);
+		_gifRecordingHeight = (unsigned)round(fbSize.y);
+
+		// TODO: fix "fit inside"
+//		if (_gifRecordingHeight > fitInside.x) {
+			float scaleX = (float)fitInside.x / (float)fbSize.x;
+			_gifRecordingWidth = (unsigned)round((float)fbSize.x * scaleX);
+
+			float scaleY = (float)fitInside.y / (float)fbSize.y;
+			_gifRecordingHeight = (unsigned)round((float)fbSize.y * scaleY);
+//		}
 
 		unsigned frameTimeMS = 1000 /* (ms/sec) */ / _gifRecordingMaxFramerate /* (frames/sec) */;
 		// -> ms/frame
@@ -138,12 +153,14 @@ Renderer* RenderContext::renderer() const {
  *********************************************************************************************/
 
 RenderContext::RenderContext(RenderingApi renderingApi):
-		_width{0},
-		_height{0},
-		_framebufferWidth{0},
-		_framebufferHeight{0},
+//		_width{0},
+//		_height{0},
+//		_framebufferWidth{0},
+//		_framebufferHeight{0},
+////		_framebufferScale{1.0, 1.0},
+//		_framebufferScales{},
+//		_framebufferSize{},
 //		_framebufferScale{1.0, 1.0},
-		_framebufferScales{},
 		_vSyncEnabled{false},
 		_antialiasingMode{AntialiasingMode::None},
 		_gifWriter{},
@@ -180,25 +197,41 @@ RenderContext::~RenderContext() {
 	Internal Members
  *********************************************************************************************/
 
-void RenderContext::width(unsigned width) {
-	_width = width;
-	framebufferWidth((unsigned)round((float)_width * _framebufferScale.x));
-}
-
-void RenderContext::height(unsigned height) {
-	_height = height;
-	framebufferHeight((unsigned)round((float)_height * _framebufferScale.y));
-}
-
-void RenderContext::framebufferWidth(unsigned width) {
-	_framebufferWidth = width;
-}
-
-void RenderContext::framebufferHeight(unsigned height) {
-	_framebufferHeight = height;
-}
-
+//void RenderContext::width(unsigned width) {
+//	_width = width;
+//	framebufferWidth((unsigned)round((float)_width * _framebufferScale.x));
+//}
+//
+//void RenderContext::height(unsigned height) {
+//	_height = height;
+//	framebufferHeight((unsigned)round((float)_height * _framebufferScale.y));
+//}
+//
+//void RenderContext::framebufferWidth(unsigned width) {
+//	_framebufferWidth = width;
+//}
+//
+//void RenderContext::framebufferHeight(unsigned height) {
+//	_framebufferHeight = height;
+//}
+//
 //void RenderContext::framebufferScale(const vec2& scale) {
+//	_framebufferScale = scale;
+//}
+
+//const glm::vec2& RenderContext::framebufferSize() const {
+//	return _framebufferSize;
+//}
+//
+//void RenderContext::framebufferSize(const glm::vec2& size) {
+//	_framebufferSize = size;
+//}
+
+//const glm::vec2& RenderContext::framebufferScale() const {
+//	return _framebufferScale;
+//}
+//
+//void RenderContext::framebufferScale(const glm::vec2& scale) {
 //	_framebufferScale = scale;
 //}
 

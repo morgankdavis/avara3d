@@ -179,7 +179,8 @@ namespace a3d {
 
 		void SaveSnapshot(RenderContext& context);
 		void StartGIFRecording(RenderContext& context,
-							   int maxHeight, int maxFramerate);
+							   glm::vec2 fitInside,
+							   unsigned maxFramerate);
 		void StopGIFRecording(RenderContext& context);
 	}
 }

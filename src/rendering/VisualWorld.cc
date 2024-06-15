@@ -244,8 +244,10 @@ void VisualWorld::draw(const Scene& scene,
 
 				stats.cameraPosition = pov->position();
 
-				auto aspectRatio = (float)_renderContext->framebufferWidth()
-								   / (float)_renderContext->framebufferHeight();
+				auto frameBufferSize = _renderContext->framebufferSize();
+//				auto aspectRatio = (float)_renderContext->framebufferWidth()
+//								   / (float)_renderContext->framebufferHeight();
+				auto aspectRatio = frameBufferSize.x / frameBufferSize.y;
 				dynamic_pointer_cast<PerspectiveCamera>(pov->camera())->aspectRatio(aspectRatio);
 
 				renderer->render(scene, debugOptions, stats);
@@ -311,9 +313,11 @@ weak_ptr<Node> VisualWorld::defaultPointOfView() {
 		auto aabb = _scene->rootNode()->aabb();
 
 		auto fovH = camera->yFov();
-		auto w = _renderContext->width();
-		auto h = _renderContext->height();
-		auto aspectRatio = (float)w / (float)h;
+//		auto w = _renderContext->width();
+//		auto h = _renderContext->height();
+//		auto aspectRatio = (float)w / (float)h;
+		auto frameBufferSize = _renderContext->framebufferSize();
+		auto aspectRatio = frameBufferSize.x / frameBufferSize.y;
 		auto inverseAspectRatio = 1.0f / aspectRatio;
 		auto fovV = fovH * inverseAspectRatio;
 
