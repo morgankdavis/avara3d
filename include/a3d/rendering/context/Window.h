@@ -18,7 +18,6 @@
 #include "a3d/rendering/context/RenderContext.h"
 
 
-//struct GLFWmonitor;
 struct GLFWwindow;
 
 
@@ -64,6 +63,11 @@ namespace a3d {
 
 		glm::uvec2				size() const;
 		void					size(const glm::uvec2& size);
+
+		glm::uvec2				position() const;
+		void					position(const glm::uvec2& pos);
+
+		void					center();
 
 		bool					highDPIEnabled() const;
 

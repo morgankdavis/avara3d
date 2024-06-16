@@ -75,6 +75,7 @@ Window::Window(RenderingApi renderingAPI,
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_SAMPLES, static_cast<int>(antialiasingMode));
 		glfwWindowHint(GLFW_SCALE_TO_MONITOR, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
+		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
 #ifdef MACOS
 		// the documentation says this has the same affect as GLFW_SCALE_TO_MONITOR, but if you don't also
@@ -151,13 +152,13 @@ void Window::open() {
 
 	if (_visualWorld && _visualWorld->scene()) {
 		glfwMakeContextCurrent(_glfwWindow.get());
-
-		//calculateFramebufferSize();
 		
 		glfwSetWindowSizeCallback(_glfwWindow.get(), GLFWWindowSizeCallback);
 		glfwSetWindowCloseCallback(_glfwWindow.get(), GLFWWindowCloseCallback);
 		glfwSetFramebufferSizeCallback(_glfwWindow.get(), GLFWFramebufferSizeCallback);
 		glfwSetWindowContentScaleCallback(_glfwWindow.get(), GLFWContentScaleCallback);
+
+		glfwShowWindow(_glfwWindow.get());
 
 		cursorCaptured(cursorCaptured()); // needs to be set after windows is made current
 	}
@@ -182,6 +183,7 @@ void Window::close() {
 	glfwSetWindowSizeCallback(_glfwWindow.get(), nullptr);
 	glfwSetWindowCloseCallback(_glfwWindow.get(), nullptr);
 	glfwSetFramebufferSizeCallback(_glfwWindow.get(), nullptr);
+	glfwSetWindowContentScaleCallback(_glfwWindow.get(), nullptr);
 
 	cursorCaptured(false);
 
@@ -204,6 +206,22 @@ uvec2 Window::size() const {
 
 void Window::size(const uvec2& size) {
 	glfwSetWindowSize(_glfwWindow.get(), (int)size.x, (int)size.y);
+}
+
+uvec2 Window::position() const {
+	ivec2 pos;
+	glfwGetWindowPos(_glfwWindow.get(), &pos.x, &pos.y);
+	return {pos.x, pos.y};
+}
+
+void Window::position(const uvec2& pos) {
+	glfwSetWindowPos(_glfwWindow.get(), (int)pos.x, (int)pos.y);
+}
+
+void Window::center() {
+	// TODO: implement
+
+	// https://stackoverflow.com/questions/67239235/how-do-i-create-a-centered-glfw-window
 }
 
 bool Window::highDPIEnabled() const {
