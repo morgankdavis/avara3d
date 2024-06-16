@@ -46,7 +46,7 @@ namespace a3d {
 			   const std::string& title,
 //			   unsigned width,
 //			   unsigned height,
-			   const glm::vec2 size,
+			   const glm::uvec2& size,
 			   bool fullScreen,
 			   bool enableHighDPI = true,
 			   AntialiasingMode antialiasingMode = AntialiasingMode::None);
@@ -66,7 +66,8 @@ namespace a3d {
 
 //		unsigned 				width() const;
 //		unsigned 				height() const;
-		const glm::uvec2&		size() const;
+		glm::uvec2				size() const;
+		void					size(const glm::uvec2& size);
 
 		bool					highDPIEnabled() const;
 
@@ -90,7 +91,7 @@ namespace a3d {
 
 //		void 					width(unsigned width);
 //		void 					height(unsigned height);
-		void					size(const glm::uvec2& size);
+
 
 //		void 					framebufferWidth(unsigned width);
 //		void 					framebufferHeight(unsigned height);
@@ -140,7 +141,7 @@ namespace a3d {
 		bool											_cursorCaptured;
 
 
-		glm::uvec2										_size;
+//		glm::uvec2										_size;
 //		unsigned						_width;
 //		unsigned						_height;
 		//glm::vec2						_framebufferScale;

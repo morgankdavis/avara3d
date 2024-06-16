@@ -59,13 +59,13 @@ Window::Window(RenderingApi renderingAPI,
 			   const string& title,
 //			   unsigned width,
 //			   unsigned height,
-			   const glm::vec2 size,
+			   const glm::uvec2& size,
 			   bool fullScreen,
 			   bool enableHighDPI,
 			   AntialiasingMode antialiasingMode):
 		RenderContext{renderingAPI},
 		_glfwWindow{},
-		_size{size},
+//		_size{size},
 		_highDPIEnabled{enableHighDPI},
 		_cursorCaptured{false} {
 //		_framebufferSizes{},
@@ -88,7 +88,7 @@ Window::Window(RenderingApi renderingAPI,
 
 #ifdef MACOS
 		// the documentation says this has the same affect as GLFW_SCALE_TO_MONITOR, but if you don't also
-		// set GLFW_COCOA_RETINA_FRAMEBUFFER to GLFW_FALSE, retina framebuffer isn't actually disabled!
+		// set GLFW_COCOA_RETINA_FRAMEBUFFER to GLFW_FALSE, retina framebuffer isn't actually disabled.
 		glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
 #endif
 #else // OpenGL ES
@@ -117,8 +117,8 @@ Window::Window(RenderingApi renderingAPI,
 		}
 		else {
 			_glfwWindow = unique_ptr<GLFWwindow, DestroyGLFWWindow>(
-					glfwCreateWindow((int)round(_size.x),
-									 (int)round(_size.y),
+					glfwCreateWindow((int)size.x,
+									 (int)size.y,
 									 title.c_str(),
 									 nullptr,
 									 nullptr));
@@ -216,17 +216,21 @@ void Window::close() {
 }
 
 string Window::title() const {
-
 	return glfwGetWindowTitle(_glfwWindow.get());
 }
 
 void Window::title(const string& title) {
-
 	glfwSetWindowTitle(_glfwWindow.get(), title.c_str());
 }
 
-const uvec2& Window::size() const {
-	return _size;
+uvec2 Window::size() const {
+	ivec2 size;
+	glfwGetWindowSize(_glfwWindow.get(), &size.x, &size.y);
+	return {size.x, size.y};
+}
+
+void Window::size(const uvec2& size) {
+	glfwSetWindowSize(_glfwWindow.get(), (int)size.x, (int)size.y);
 }
 
 bool Window::highDPIEnabled() const {
@@ -295,10 +299,7 @@ glm::vec2 Window::framebufferScale() const {
 	Internal Members
  *********************************************************************************************/
 
-void Window::size(const uvec2& size) {
-	_size = size;
-	// calculateFramebufferSize() ?
-}
+
 //void Window::width(unsigned width) {
 //	_width = width;
 //	framebufferWidth((unsigned)round((float)_width * _framebufferScale.x));

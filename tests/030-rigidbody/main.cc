@@ -351,6 +351,7 @@ void UpdateCallback(Scene& scene, float time, float deltaTime) {
 	}
 
 	if (keysPressed.count(Key::ForwardDelete)) {
+		//window->size({320, 240});
 		scene.paused(!scene.paused());
 	}
 
