@@ -37,7 +37,6 @@ using namespace std;
 static bool 	InitGLFW();
 static bool 	InitGLAD();
 static void 	LogGLInfo();
-//static float 	ScreenScaleFactor(GLFWmonitor* monitor);
 static void 	GLFWWindowSizeCallback(GLFWwindow* glfwWindow,
 									  int width,
 									  int height);
@@ -57,20 +56,14 @@ static void 	GLFWErrorCallback(int error,
 
 Window::Window(RenderingApi renderingAPI,
 			   const string& title,
-//			   unsigned width,
-//			   unsigned height,
 			   const glm::uvec2& size,
 			   bool fullScreen,
 			   bool enableHighDPI,
 			   AntialiasingMode antialiasingMode):
 		RenderContext{renderingAPI},
 		_glfwWindow{},
-//		_size{size},
 		_highDPIEnabled{enableHighDPI},
 		_cursorCaptured{false} {
-//		_framebufferSizes{},
-//		_framebufferScales{} {
-
 	A3D_LOG_D("");
 
 	if (InitGLFW()) {
@@ -81,9 +74,6 @@ Window::Window(RenderingApi renderingAPI,
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE); // needed for macOS
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_SAMPLES, static_cast<int>(antialiasingMode));
-		// works in Win10 & macOS 14, but not Arch/XFCE/X11
-		// see glfwGetMonitorContentScale() below
-//#ifndef LINUX
 		glfwWindowHint(GLFW_SCALE_TO_MONITOR, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
 
 #ifdef MACOS
@@ -97,10 +87,6 @@ Window::Window(RenderingApi renderingAPI,
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 #endif
 
-//		auto viewportWidth = width;
-//		auto viewportHeight = height;
-
-
 		if (fullScreen) {
 			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 			const GLFWvidmode* vmode = glfwGetVideoMode(monitor);
@@ -110,10 +96,6 @@ Window::Window(RenderingApi renderingAPI,
 									 title.c_str(),
 									 monitor,
 									 nullptr));
-//			viewportWidth = vmode->width;
-//			viewportHeight = vmode->height;
-
-//			scaleFactor = ScreenScaleFactor(monitor);
 		}
 		else {
 			_glfwWindow = unique_ptr<GLFWwindow, DestroyGLFWWindow>(
@@ -122,14 +104,7 @@ Window::Window(RenderingApi renderingAPI,
 									 title.c_str(),
 									 nullptr,
 									 nullptr));
-
-
-//			scaleFactor = ScreenScaleFactor(glfwGetPrimaryMonitor());
 		}
-
-		// TODO: This is HACK. It looks like i_glfwWindow doesn't have a GLFWmonitor at this point
-		// causing a segfault.  So we'll cheat and use the main monitor (probably the right one anyway)
-		//auto monitor = glfwGetPrimaryMonitor();
 
 		if (_glfwWindow) {
 			glfwSetWindowUserPointer(_glfwWindow.get(), static_cast<void*>(this));
@@ -139,8 +114,6 @@ Window::Window(RenderingApi renderingAPI,
 
 			if (InitGLAD()) {
 				RenderContext::renderer()->initialize(*this);
-
-//				calculateFramebufferSize();
 			}
 			else {
 				glfwTerminate();
@@ -237,16 +210,6 @@ bool Window::highDPIEnabled() const {
 	return _highDPIEnabled;
 }
 
-//unsigned Window::width() const {
-////	return _width;
-//	return 0;
-//}
-//
-//unsigned Window::height() const {
-////	return _height;
-//	return 0;
-//}
-
 bool Window::cursorCaptured() const {
 	return _cursorCaptured;
 }
@@ -259,12 +222,8 @@ void Window::cursorCaptured(bool captured) {
 }
 
 /*********************************************************************************************
-	RenderContext Internal Members
+	RenderContext Public Members
  *********************************************************************************************/
-
-void Window::swapBuffers() {
-	glfwSwapBuffers(_glfwWindow.get());
-}
 
 bool Window::vSyncEnabled() const {
 	return _vSyncEnabled;
@@ -279,6 +238,14 @@ void Window::vSyncEnabled(bool enabled) {
 	else {
 		glfwSwapInterval(0);
 	}
+}
+
+/*********************************************************************************************
+	RenderContext Internal Members
+ *********************************************************************************************/
+
+void Window::swapBuffers() {
+	glfwSwapBuffers(_glfwWindow.get());
 }
 
 glm::uvec2 Window::framebufferSize() const {
@@ -298,108 +265,6 @@ glm::vec2 Window::framebufferScale() const {
 /*********************************************************************************************
 	Internal Members
  *********************************************************************************************/
-
-
-//void Window::width(unsigned width) {
-//	_width = width;
-//	framebufferWidth((unsigned)round((float)_width * _framebufferScale.x));
-//}
-//
-//void Window::height(unsigned height) {
-//	_height = height;
-//	framebufferHeight((unsigned)round((float)_height * _framebufferScale.y));
-//}
-//
-//void Window::framebufferWidth(unsigned width) {
-//	_framebufferWidth = width;
-//}
-//
-//void Window::framebufferHeight(unsigned height) {
-//	_framebufferHeight = height;
-//}
-
-//void Window::framebufferSizes(const vector<vec2>& sizes) {
-//	_framebufferSizes = sizes;
-//}
-//
-//void Window::framebufferScales(const vector<vec2>& scales) {
-//	_framebufferScales = scales;
-//}
-
-//const glm::vec2& Window::framebufferSize() const {
-//	return _framebufferSize;
-//}
-//
-//void Window::framebufferSize(const glm::vec2& size) {
-//	_framebufferSize = size;
-//}
-//
-//const glm::vec2& Window::framebufferScale() const {
-//	return _framebufferScale;
-//}
-//
-//void Window::framebufferScale(const glm::vec2& scale) {
-//	_framebufferScale = scale;
-//}
-
-void Window::highDPIEnabled(bool enabled) {
-	_highDPIEnabled = enabled;
-}
-
-//void Window::calculateFramebufferSize() {
-//
-//
-////	void glfwGetFramebufferSize 	( 	GLFWwindow *  	window,
-////										int *  	width,
-////										int *  	height)
-//
-////	void glfwGetWindowContentScale 	( 	GLFWwindow *  	window,
-////										   float *  	xscale,
-////										   float *  	yscale)
-//
-//
-//
-//
-//
-//	//A3D_LOG_D("monitor: {:p}", static_cast<void*>(&monitor));
-//
-//	//				_width = viewportWidth;
-////				_height = viewportHeight;
-//
-//	// TODO: this is wrong on Arch/XFCE/X11
-//
-//	// scale factor ~0.9583 on XPS 13 9310
-////#ifndef LINUX
-//
-//
-//	//GLFWmonitor* monitor = glfwGetWindowMonitor(_glfwWindow.get());
-//	// if the window hasn't been opened yet, its monitor will be null.
-//	// (haven't actually exclicitly tested that opening -> now has a monitor...)
-//	// set the default monitor to the primary monitor.
-//	//glfwSetWindowMonitor(_glfwWindow.get(), monitor, 0, 0, 0, 0, 0);
-//
-//
-//
-//	// multi-monitor guide: https://www.glfw.org/docs/3.0/monitor.html
-////	int numMons;
-////	GLFWmonitor** monitors = glfwGetMonitors(&numMons);
-////	for (int m=0; m<numMons; m++) {
-////		GLFWmonitor* mon = monitors[m];
-//
-////		if (_highDPIEnabled) {
-////			float scaleFactorX = 1.0;
-////			float scaleFactorY = 1.0;
-////			glfwGetMonitorContentScale(monitor, &scaleFactorX, &scaleFactorY);
-////			_framebufferScale = {scaleFactorX, scaleFactorY};
-////		}
-////	}
-////#endif
-//
-////	_framebufferSize = { round(_size.x * _framebufferScale.x),
-////						 round(_size.y * _framebufferScale.y) };
-////				_framebufferWidth = round(_size.x * _framebufferScale.x); // was floor()?
-////				_framebufferHeight = round(_size.y * _framebufferScale.y); // was floor()?
-//}
 
 void Window::pollInput() {
 	glfwPollEvents();
@@ -550,28 +415,11 @@ static void LogGLInfo()
 	A3D_LOG_I("{}", contextParamsStream.str());
 }
 
-//static float ScreenScaleFactor(GLFWmonitor* monitor) {
-//#ifdef MACOS
-//	//GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-//	//GLFWmonitor* monitor = glfwGetWindowMonitor(glfwWindow);
-//	CGDirectDisplayID cgDisplayID = glfwGetCocoaMonitor(monitor);
-//	CGDisplayModeRef currentModeRef = CGDisplayCopyDisplayMode(cgDisplayID);
-//
-//	Size width = CGDisplayModeGetWidth(currentModeRef);
-//	Size pixelWidth = CGDisplayModeGetPixelWidth(currentModeRef);
-//	return (float)pixelWidth / (float)width;
-//#endif
-//	return 1.0;
-//}
-
 void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
 	A3D_LOG_D("glfwWindow: {:p}, width: {}, height: {}",
 			  static_cast<void*>(glfwWindow), width, height);
 
 	auto window = (Window*)glfwGetWindowUserPointer(glfwWindow);
-
-//	window->width(width);
-//	window->height(height);
 	window->size({width, height});
 }
 
@@ -586,22 +434,11 @@ void GLFWWindowCloseCallback(GLFWwindow* glfwWindow) {
 void GLFWFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
 	A3D_LOG_D("glfwWindow: {:p}, width: {}, height: {}",
 			  static_cast<void*>(glfwWindow), width, height);
-
-//	auto* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
-
-//	auto framebufferScale = window->framebufferScale();
-//	window->framebufferWidth((unsigned)round(float(window->width()) * framebufferScale.x));
-//	window->framebufferHeight((unsigned)round(float(window->height()) * framebufferScale.y));
-
-//	window->calculateFramebufferSize();
 }
 
 void GLFWContentScaleCallback(GLFWwindow* glfwWindow, float xScale, float yScale) {
 	A3D_LOG_D("glfwWindow: {:p}, xScale: {}, yScale: {}",
 			  static_cast<void*>(glfwWindow), xScale, yScale);
-
-//	auto* window = (Window*)glfwGetWindowUserPointer(glfwWindow);
-//	window->calculateFramebufferSize();
 }
 
 void GLFWErrorCallback(int error, const char* description) {

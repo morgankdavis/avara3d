@@ -44,8 +44,6 @@ namespace a3d {
 
 		Window(RenderingApi renderingAPI,
 			   const std::string& title,
-//			   unsigned width,
-//			   unsigned height,
 			   const glm::uvec2& size,
 			   bool fullScreen,
 			   bool enableHighDPI = true,
@@ -64,8 +62,6 @@ namespace a3d {
 		std::string				title() const;
 		void					title(const std::string& title);
 
-//		unsigned 				width() const;
-//		unsigned 				height() const;
 		glm::uvec2				size() const;
 		void					size(const glm::uvec2& size);
 
@@ -75,12 +71,17 @@ namespace a3d {
 		void 					cursorCaptured(bool captured);
 
 /*********************************************************************************************
+	RenderContext Public Members
+ *********************************************************************************************/
+
+		bool 					vSyncEnabled() const override; // why is this necessary?
+		void 					vSyncEnabled(bool enabled) override;
+
+/*********************************************************************************************
 	RenderContext Internal Members
  *********************************************************************************************/
 
 		void 					swapBuffers() override;
-		bool 					vSyncEnabled() const override; // why is this necessary?
-		void 					vSyncEnabled(bool enabled) override;
 
 		glm::uvec2				framebufferSize() const override;
 		glm::vec2				framebufferScale() const override;
@@ -89,30 +90,7 @@ namespace a3d {
 	Internal Members
  *********************************************************************************************/
 
-//		void 					width(unsigned width);
-//		void 					height(unsigned height);
-
-
-//		void 					framebufferWidth(unsigned width);
-//		void 					framebufferHeight(unsigned height);
-//		void 					framebufferSizes(const std::vector<glm::vec2>& sizes);
-//		void 					framebufferScales(const std::vector<glm::vec2>& scales);
-
-//		const glm::vec2&		framebufferSize() const;
-//		void 					framebufferSize(const glm::vec2& size);
-//
-//		const glm::vec2&		framebufferScale() const;
-//		void 					framebufferScale(const glm::vec2& scale);
-
-
-		void					highDPIEnabled(bool enabled);
-
-//		void 					monitorIndex(const std::vector<glm::vec2>& scales);
-
-//		void					calculateFramebufferSize();
-
 		void 					pollInput();
-
 		GLFWwindow* 			glfwWindow() const;
 
 /*********************************************************************************************
@@ -139,20 +117,7 @@ namespace a3d {
 
 		std::unique_ptr<GLFWwindow, DestroyGLFWWindow>	_glfwWindow;
 		bool											_cursorCaptured;
-
-
-//		glm::uvec2										_size;
-//		unsigned						_width;
-//		unsigned						_height;
-		//glm::vec2						_framebufferScale;
-//		std::vector<glm::vec2>			_framebufferSizes;
-//		std::vector<glm::vec2>			_framebufferScales;
-//		glm::vec2										_framebufferSize;
-//		glm::vec2										_framebufferScale;
-
 		bool											_highDPIEnabled;
-
-//		unsigned						_monitorIndex;
 	};
 }
 
