@@ -280,7 +280,15 @@ static int config_hidmanager(CFMutableDictionaryRef dict)
     {
         MouseStruct *mouse = &mice[i];
         IOHIDDeviceRef dev = mouse->device;
-        if (IOHIDDeviceOpen(dev, HIDOPS) != kIOReturnSuccess)
+        // MKD: added check for kIOReturnNotPermitted
+        IOReturn openRet = IOHIDDeviceOpen(dev, HIDOPS);
+        if (openRet == kIOReturnNotPermitted)
+        {
+            // MKD: macOS 10.15 Catalina make it so the user has to manually allow "Input Monitoring"
+            // permissions for the parent process in System Preferences -> Privacy & Security -> Input Monitoring
+            return openRet;
+        }
+        else if (openRet != kIOReturnSuccess)
         {
             mouse->device = NULL;  /* oh well. */
             mouse->logical = -1;
