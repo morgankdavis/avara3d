@@ -1632,7 +1632,9 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 //#ifdef OPENGL_DESKTOP
 
 	// looks like Imgui automatically handles macOS Retina scaling
-#ifdef MACOS
+#if defined(MACOS)
+	auto scaleXY = vec2(1.0, 1.0);
+#elif defined(LINUX)
 	auto scaleXY = vec2(1.0, 1.0);
 #else
 	auto scaleXY = context.framebufferScale();
