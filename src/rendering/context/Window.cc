@@ -85,7 +85,12 @@ Window::Window(RenderingApi renderingAPI,
 		// see glfwGetMonitorContentScale() below
 //#ifndef LINUX
 		glfwWindowHint(GLFW_SCALE_TO_MONITOR, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
-//#endif
+
+#ifdef MACOS
+		// the documentation says this has the same affect as GLFW_SCALE_TO_MONITOR, but if you don't also
+		// set GLFW_COCOA_RETINA_FRAMEBUFFER to GLFW_FALSE, retina framebuffer isn't actually disabled!
+		glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
+#endif
 #else // OpenGL ES
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
