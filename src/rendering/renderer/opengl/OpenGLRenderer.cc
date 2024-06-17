@@ -1822,10 +1822,15 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 
 	ImGui::SetWindowPos({10.0f * scaleXY.x, 10.0f * scaleXY.y});
 
-	auto recordingStr = ""s;
+	constexpr unsigned RECORD_STR_LEN = 64;
+	char recordingStr[RECORD_STR_LEN];
 	if (context.recordingGIF()) {
 		auto numFrames = context.recordedGIFFrames();
-		recordingStr = fmt::format("\n%-14s %d %s", "RECORDING", numFrames, (numFrames==1 ? "frame" : "frames"));
+		snprintf(recordingStr, RECORD_STR_LEN, "\n%-14s %d %s",
+				 "RECORDING", numFrames, (numFrames==1 ? "frame" : "frames"));
+	}
+	else {
+		recordingStr[0] = '\0';
 	}
 
 	Text("%-14s %.2f ms\n" \
@@ -1876,7 +1881,7 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 		 " concave polyh", stats.concavePolyhedronShapes,
 
 		 "camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
-		 recordingStr.c_str());
+		 recordingStr);
 
 	End();
 	Render();
