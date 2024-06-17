@@ -1618,161 +1618,6 @@ static vector<Node*> SortedLights(map<Node*, float> lights) {
 	
 	return sortedVector;
 }
-	
-//void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
-//
-//	using namespace ImGui;
-//
-////#ifdef OPENGL_DESKTOP
-//
-//	// looks like Imgui automatically handles macOS Retina scaling
-//#if defined(MACOS)
-//	auto scaleXY = vec2(1.0, 1.0);
-//#elif defined(LINUX)
-//	auto scaleXY = vec2(1.0, 1.0);
-//#else
-//	auto scaleXY = context.framebufferScale();
-//#endif
-//
-//	auto scale = std::max(scaleXY.x, scaleXY.y);
-//
-////	ImGui::GetStyle().ScaleAllSizes(scale);
-//	ImGui::GetIO().FontGlobalScale = scale;
-//
-//
-//	ImGui_ImplOpenGL3_NewFrame();
-//	ImGui_ImplGlfw_NewFrame();
-//	NewFrame();
-//
-//	ImGuiWindowFlags windowFlags = 0;
-//	windowFlags |= ImGuiWindowFlags_NoTitleBar;
-//	windowFlags |= ImGuiWindowFlags_NoScrollbar;
-////	windowFlags |= ImGuiWindowFlags_NoMove;
-//	windowFlags |= ImGuiWindowFlags_NoResize;
-//	windowFlags |= ImGuiWindowFlags_NoCollapse;
-//	windowFlags |= ImGuiWindowFlags_NoNav;
-//	windowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
-//
-//	SetNextWindowBgAlpha(.25);
-//	Begin("Stats", nullptr, windowFlags);
-//	ImGuiStyle& style = ImGui::GetStyle();
-//	style.WindowBorderSize = 0;
-////	style.WindowRounding = 6;
-//
-////	ImGui::ShowDemoWindow(nullptr);
-////	ImGui::GetIO();
-//
-//	ImGui::SetWindowPos({10.0f * scaleXY.x, 10.0f * scaleXY.y});
-//
-//	if (context.recordingGIF()) {
-//		auto numFrames = context.recordedGIFFrames();
-//		Text("%-14s %.2f ms\n" \
-//					"%-14s %.2f ms\n" \
-//					"%-14s %.2f ms\n" \
-//					"%-14s %.2f ms\n" \
-//					"%-14s %.0f fps %s\n" \
-//					"\n" \
-//					"%-14s %d\n" \
-//					"%-14s %d\n" \
-//					"%-14s %d\n" \
-//					"%-14s %.1fK\n" \
-//					"%-14s %d\n" \
-//					"\n" \
-//					"%-14s %d\n" \
-//					"%-14s %d\n" \
-//					"%-14s %d\n" \
-//					"%-14s %d\n" \
-//					"%-14s %d\n" \
-//					"%-14s %d\n" \
-//			 		"%-14s %d\n" \
-//					"%-14s %d\n" \
-//					"%-14s %d\n" \
-//					"\n" \
-//					"%-14s (%.1f %.1f %.1f)\n" \
-//					"\n" \
-//					"%-14s %d %s\n",
-//
-//			 "frametime", stats.averageFrametime,
-//			 " draw", stats.averageDrawtime,
-//			 " physics", stats.averagePhysicstime,
-//			 " user", stats.averageUsertime,
-//			 "framerate", stats.averageFramerate, (context.vSyncEnabled() ? "[vsync]" : ""),
-//
-//			 "nodes", stats.nodes,
-//			 "meshes", stats.meshes,
-//			 "elements", stats.elements,
-//			 "polygons", float(stats.polygons)/1000.0f,//(int)round(float(stats.polygons)/1000.0f),
-//			 "lights", stats.lights,
-//
-//			 "physics bodies", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
-//			 " static", stats.staticBodies,
-//			 " dynamic", stats.dynamicBodies,
-//			 " kinematic", stats.kinematicBodies,
-//			 "physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
-//			 " primitive", stats.primitiveShapes,
-//			 " bounding box", stats.boundingBoxShapes,
-//			 " convex hull", stats.convexHullShapes,
-//			 " concave polyh", stats.concavePolyhedronShapes,
-//
-//			 "camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
-//			 "RECORDING", numFrames, (numFrames==1 ? "frame" : "frames"));
-//	}
-//	else {
-//		Text("%-14s %.2f ms\n" \
-//					"%-14s %.2f ms\n" \
-//					"%-14s %.2f ms\n" \
-//					"%-14s %.2f ms\n" \
-//					"%-14s %.0f fps %s\n" \
-//					"\n" \
-//					"%-14s %d\n" \
-//					"%-14s %d\n" \
-//					"%-14s %d\n" \
-//					"%-14s %.1fK\n" \
-//					"%-14s %d\n" \
-//					"\n" \
-//					"%-14s %d\n" \
-//					"%-14s %d\n" \
-//					"%-14s %d\n" \
-//					"%-14s %d\n" \
-//					"%-14s %d\n" \
-//					"%-14s %d\n" \
-//					"%-14s %d\n" \
-//			 		"%-14s %d\n" \
-//					"%-14s %d\n" \
-//					"\n" \
-//					"%-14s (%.1f, %.1f, %.1f)\n",
-//
-//			 "frametime", stats.averageFrametime,
-//			 " draw", stats.averageDrawtime,
-//			 " physics", stats.averagePhysicstime,
-//			 " user", stats.averageUsertime,
-//			 "framerate", stats.averageFramerate, (context.vSyncEnabled() ? "[vsync]" : ""),
-//
-//			 "nodes", stats.nodes,
-//			 "meshes", stats.meshes,
-//			 "elements", stats.elements,
-//			 "polygons", float(stats.polygons)/1000.0f,//(int)round(float(stats.polygons)/1000.0f),
-//			 "lights", stats.lights,
-//
-//			 "physics bodies", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
-//			 " static", stats.staticBodies,
-//			 " dynamic", stats.dynamicBodies,
-//			 " kinematic", stats.kinematicBodies,
-//			 "physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
-//			 " primitive", stats.primitiveShapes,
-//			 " bounding box", stats.boundingBoxShapes,
-//			 " convex hull", stats.convexHullShapes,
-//			 " concave polyh", stats.concavePolyhedronShapes,
-//
-//			 "camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z);
-//	}
-//
-//	End();
-//	Render();
-//	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-//
-////#endif // OPENGL_DESKTOP
-//}
 
 void InitImgui(const RenderContext& context) {
 	A3D_LOG_D("");
@@ -1781,7 +1626,7 @@ void InitImgui(const RenderContext& context) {
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	ImGuiIO& io = ImGui::GetIO();
 	io.IniFilename = nullptr;
 
 	GLFWwindow* glfwWindow = dynamic_cast<const Window*>(&context)->glfwWindow();
@@ -1823,7 +1668,19 @@ void UpdateImguiScale(const RenderContext& context, const Font& font) {
 	// this means Imgui eventually frees the font data, and then the Font/Buffer double-free it
 	fontConfig.FontDataOwnedByAtlas = false;
 
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	ImGuiIO& io = ImGui::GetIO();
+
+	io.DisplayFramebufferScale = ImVec2(scaleXY.x, scaleXY.y);
+
+//#ifdef MACOS
+	// On Apple, The window size is reported in Low DPI, even when running in high DPI mode
+//    ImGuiPlatformIO& platform_io = ImGui::GetPlatformIO();
+//    if (!platform_io.Monitors.empty() && platform_io.Monitors[0].DpiScale > 1.0f && display_h != h)
+//    {
+//        io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
+//        io.DisplaySize = ImVec2((float)display_w, (float)display_h);
+//    }
+
 	ImFont* imFont = io.Fonts->AddFontFromMemoryTTF(font.buffer()->data(),
 													(int)font.buffer()->size(),
 													14.0 * scale,
