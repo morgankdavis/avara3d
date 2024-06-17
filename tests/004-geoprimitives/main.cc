@@ -217,6 +217,7 @@ int main(int argc, const char* argv[]) {
 //	}
 
 
+	window->center();
 	window->open();
 	scene->run();
 

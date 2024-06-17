@@ -506,6 +506,8 @@ int main(int argc, const char* argv[]) {
 ////		window.display();
 //	}
 
+	// do we even need to open the window?
+	window->center();
 	window->open();
 	scene->run();
 

@@ -49,6 +49,8 @@ static void 	GLFWContentScaleCallback(GLFWwindow* glfwWindow,
 										float yScale);
 static void 	GLFWErrorCallback(int error,
 								 const char* description);
+bool 			GetGLFWWindowMonitor(GLFWmonitor** monitor, GLFWwindow* window);
+bool 			GetGLFWMouseMonitor(GLFWmonitor** monitor, GLFWwindow* window);
 
 /*********************************************************************************************
 	Public Lifescycle
@@ -219,9 +221,24 @@ void Window::position(const uvec2& pos) {
 }
 
 void Window::center() {
-	// TODO: implement
+	// as of GLFW 3.3, there is no "get the monitor this window is on" function.
+	// glfwGetWindowMonitor() only applies to full-screen windows.
 
-	// https://stackoverflow.com/questions/67239235/how-do-i-create-a-centered-glfw-window
+	GLFWmonitor* monitor = nullptr;
+	if (GetGLFWWindowMonitor(&monitor, _glfwWindow.get())) {
+
+		ivec2 screenSize;
+		ivec2 screenPos;
+		glfwGetMonitorWorkarea(monitor, &screenPos.x, &screenPos.y, &screenSize.x, &screenSize.y);
+
+		auto winSize = this->size();
+
+		this->position({ screenPos.x + ((screenSize.x/2.0) - (winSize.x/2.0)),
+						 screenPos.y + ((screenSize.y/2.0) - (winSize.y/2.0)) });
+	}
+	else {
+		A3D_LOG_E("Can't get window monitor.");
+	}
 }
 
 bool Window::highDPIEnabled() const {
@@ -277,7 +294,6 @@ glm::vec2 Window::framebufferScale() const {
 	vec2 scale;
 	glfwGetWindowContentScale(_glfwWindow.get(), &scale.x, &scale.y);
 	return scale;
-	//return {1.0, 1.0};
 }
 
 /*********************************************************************************************
@@ -461,4 +477,146 @@ void GLFWContentScaleCallback(GLFWwindow* glfwWindow, float xScale, float yScale
 
 void GLFWErrorCallback(int error, const char* description) {
 	A3D_LOG_E("error: {}, description: {}", error, description);
+}
+
+bool GetGLFWWindowMonitor(GLFWmonitor** monitor, GLFWwindow* window) {
+	// I had the same idea, but somebody else saved me 45 minutes.
+	// https://github.com/glfw/glfw/issues/1699#issuecomment-723692566
+
+	bool success = false;
+
+	int windowRect[4] = {0};
+	glfwGetWindowPos(window, &windowRect[0], &windowRect[1]);
+	glfwGetWindowSize(window, &windowRect[2], &windowRect[3]);
+
+	int monitorsSize = 0;
+	GLFWmonitor** monitors = glfwGetMonitors(&monitorsSize);
+
+	GLFWmonitor* closestMonitor = NULL;
+	int maxOverlapArea = 0;
+
+	for (int i = 0; i < monitorsSize; ++i) {
+
+		int monitorPos[2] = {0};
+		glfwGetMonitorPos(monitors[i], &monitorPos[0], &monitorPos[1]);
+
+		const GLFWvidmode* monitorVideoMode = glfwGetVideoMode(monitors[i]);
+
+		// https://github.com/glfw/glfw/issues/1699#issuecomment-1892387147
+		int monitorRect[4] = {
+				monitorPos[0],
+				monitorPos[1],
+				monitorVideoMode->width,
+				monitorVideoMode->height,
+		};
+
+		if (!(((windowRect[0] + windowRect[2]) < monitorRect[0]) ||
+			  (windowRect[0] > (monitorRect[0] + monitorRect[2])) ||
+			  ((windowRect[1] + windowRect[3]) < monitorRect[1]) ||
+			  (windowRect[1] > (monitorRect[1] + monitorRect[3])))) {
+
+			int intersectionRect[4] = {0};
+
+			// x, width
+			if (windowRect[0] < monitorRect[0]) {
+				intersectionRect[0] = monitorRect[0];
+
+				if ((windowRect[0] + windowRect[2]) < (monitorRect[0] + monitorRect[2])) {
+					intersectionRect[2] = (windowRect[0] + windowRect[2]) - intersectionRect[0];
+				}
+				else {
+					intersectionRect[2] = monitorRect[2];
+				}
+			}
+			else {
+				intersectionRect[0] = windowRect[0];
+
+				if ((monitorRect[0] + monitorRect[2]) < (windowRect[0] + windowRect[2])) {
+					intersectionRect[2] = (monitorRect[0] + monitorRect[2]) - intersectionRect[0];
+				}
+				else {
+					intersectionRect[2] = windowRect[2];
+				}
+			}
+
+			// y, height
+			if (windowRect[1] < monitorRect[1]) {
+				intersectionRect[1] = monitorRect[1];
+
+				if ((windowRect[1] + windowRect[3]) < (monitorRect[1] + monitorRect[3])) {
+					intersectionRect[3] = (windowRect[1] + windowRect[3]) - intersectionRect[1];
+				}
+				else {
+					intersectionRect[3] = monitorRect[3];
+				}
+			}
+			else {
+				intersectionRect[1] = windowRect[1];
+
+				if ((monitorRect[1] + monitorRect[3]) < (windowRect[1] + windowRect[3])) {
+					intersectionRect[3] = (monitorRect[1] + monitorRect[3]) - intersectionRect[1];
+				}
+				else {
+					intersectionRect[3] = windowRect[3];
+				}
+			}
+
+			// https://github.com/glfw/glfw/issues/1699#issuecomment-1892387147
+			//int overlap_area = intersection_rectangle[3] * intersection_rectangle[4];
+			int overlapArea = intersectionRect[2] * intersectionRect[3];
+			if (overlapArea > maxOverlapArea) {
+				closestMonitor = monitors[i];
+				maxOverlapArea = overlapArea;
+			}
+		}
+	}
+
+	if (closestMonitor) {
+		*monitor = closestMonitor;
+		success = true;
+	}
+
+	// true: monitor contains the monitor the window is most on
+	// false: monitor is unmodified
+	return success;
+}
+
+bool GetGLFWMouseMonitor(GLFWmonitor** monitor, GLFWwindow* window) {
+	// https://github.com/glfw/glfw/issues/1699#issuecomment-723692566
+
+	bool success = false;
+
+	double cursorPos[2] = {0};
+	glfwGetCursorPos(window, &cursorPos[0], &cursorPos[1]);
+
+	int windowPos[2] = {0};
+	glfwGetWindowPos(window, &windowPos[0], &windowPos[1]);
+
+	int monitorsSize = 0;
+	GLFWmonitor** monitors = glfwGetMonitors(&monitorsSize);
+
+	// convert cursor position from window coordinates to screen coordinates
+	cursorPos[0] += windowPos[0];
+	cursorPos[1] += windowPos[1];
+
+	for (int i = 0; ((!success) && (i < monitorsSize)); ++i) {
+
+		int monitorPos[2] = {0};
+		glfwGetMonitorPos(monitors[i], &monitorPos[0], &monitorPos[1]);
+
+		const GLFWvidmode* monitorVideoMode = glfwGetVideoMode(monitors[i]);
+
+		if ((cursorPos[0] < monitorPos[0]) ||
+			(cursorPos[0] > (monitorPos[0] + monitorVideoMode->width)) ||
+			(cursorPos[1] < monitorPos[1]) ||
+			(cursorPos[1] > (monitorPos[1] + monitorVideoMode->height))) {
+
+			*monitor = monitors[i];
+			success = true;
+		}
+	}
+
+	// true: monitor contains the monitor the mouse is on
+	// false: monitor is unmodified
+	return success;
 }
