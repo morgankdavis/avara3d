@@ -14,6 +14,7 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
+#include "a3d/Utilities.h"
 #include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/logging/Logger.h"
 #include "a3d/input/WindowInputManager.h"
@@ -65,6 +66,8 @@ Window::Window(RenderingApi renderingAPI,
 		RenderContext{renderingAPI},
 		_glfwWindow{},
 		_highDPIEnabled{enableHighDPI},
+		_open{false},
+		_hidden{false},
 		_cursorCaptured{false} {
 	A3D_LOG_D("");
 
@@ -78,12 +81,21 @@ Window::Window(RenderingApi renderingAPI,
 		glfwWindowHint(GLFW_SAMPLES, static_cast<int>(antialiasingMode));
 		glfwWindowHint(GLFW_SCALE_TO_MONITOR, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-
-#ifdef MACOS
+	#ifdef LINUX
+		// check if X or Wayland...?
+		// TODO: change these
+		glfwWindowHintString(GLFW_WAYLAND_APP_ID, "avara3d");
+		glfwWindowHintString(GLFW_X11_CLASS_NAME, "avara3d");
+		auto execName = utils::ExecutableName();
+		if (execName != nullopt) {
+			glfwWindowHintString(GLFW_X11_INSTANCE_NAME, (*execName).c_str());
+		}
+	#endif
+	#ifdef MACOS
 		// the documentation says this has the same affect as GLFW_SCALE_TO_MONITOR, but if you don't also
 		// set GLFW_COCOA_RETINA_FRAMEBUFFER to GLFW_FALSE, retina framebuffer isn't actually disabled.
 		glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
-#endif
+	#endif
 #else // OpenGL ES
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -163,6 +175,8 @@ void Window::open() {
 		glfwShowWindow(_glfwWindow.get());
 
 		cursorCaptured(cursorCaptured()); // needs to be set after windows is made current
+
+		_open = true;
 	}
 	else {
 		throw Exception("Window has no scene.");
@@ -190,6 +204,14 @@ void Window::close() {
 	cursorCaptured(false);
 
 	glfwSetWindowShouldClose(_glfwWindow.get(), true);
+
+	_open = false;
+}
+
+bool Window::isOpen() const {
+	// GLFW_VISIBLE is still true after the window is closes... ?
+	// return glfwGetWindowAttrib(_glfwWindow.get(), GLFW_VISIBLE) == GLFW_TRUE;
+	return _open;
 }
 
 string Window::title() const {
@@ -241,8 +263,21 @@ void Window::center() {
 	}
 }
 
-bool Window::highDPIEnabled() const {
-	return _highDPIEnabled;
+bool Window::hidden() const {
+	// GLFW_VISIBLE seems yp have a mind of its own..
+	// return glfwGetWindowAttrib(_glfwWindow.get(), GLFW_VISIBLE) == GLFW_TRUE;
+	return _hidden;
+}
+
+void Window::hidden(bool hidden) {
+
+	if (hidden) {
+		glfwHideWindow(_glfwWindow.get());
+	}
+	else {
+		glfwShowWindow(_glfwWindow.get());
+	}
+	_hidden = hidden;
 }
 
 bool Window::cursorCaptured() const {
@@ -254,6 +289,10 @@ void Window::cursorCaptured(bool captured) {
 	glfwSetInputMode(_glfwWindow.get(),
 					 GLFW_CURSOR,
 					 (captured ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL));
+}
+
+bool Window::highDPIEnabled() const {
+	return _highDPIEnabled;
 }
 
 /*********************************************************************************************
@@ -324,7 +363,7 @@ static bool InitGLFW() {
 	
 	static bool initialized = false;
 	if (!initialized) {
-		A3D_LOG_C();
+		A3D_LOG_I("");
 		
 		int glfwMajVers, glfwMinVers, glfwRev;
 		glfwGetVersion(&glfwMajVers, &glfwMinVers, &glfwRev);
@@ -349,7 +388,7 @@ static bool InitGLFW() {
 }
 
 static bool InitGLAD() {
-	A3D_LOG_C();
+	A3D_LOG_I("");
 
 	// NOTE: OpenGL context must be setup first
 
@@ -370,8 +409,8 @@ static bool InitGLAD() {
 	return true;
 }
 
-static void LogGLInfo()
-{
+static void LogGLInfo() {
+
 	const GLubyte* renderer = glGetString(GL_RENDERER);
 	const GLubyte* version = glGetString(GL_VERSION);
 

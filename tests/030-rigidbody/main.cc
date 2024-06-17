@@ -349,6 +349,7 @@ void UpdateCallback(Scene& scene, float time, float deltaTime) {
 
 	if (keysPressed.count(Key::Escape)) {
 		window->close();
+		A3D_LOG_I("open? {}", window->isOpen() ? "ya" : "no");
 	}
 
 	if (keysPressed.count(Key::ForwardDelete)) {
@@ -422,9 +423,9 @@ void UpdateCallback(Scene& scene, float time, float deltaTime) {
 
 	if (!scene.paused()) {
 
-		if (keysPressed.count(Key::T)) {
-			LOG_I(g_logger, "TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
-		}
+//		if (keysPressed.count(Key::T)) {
+//			LOG_I(g_logger, "TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
+//		}
 
 		// spawn duck fruit
 
@@ -456,8 +457,14 @@ void UpdateCallback(Scene& scene, float time, float deltaTime) {
 			SpawnRecursiveTestTree(scene);
 		}
 
-		if (keysPressed.count(Key::H)) {
+		if (keysPressed.count(Key::T)) {
 			SpawnHACDTeapot(scene);
+		}
+
+		if (keysPressed.count(Key::H)) {
+			// NOTE: once the window is hidden, the scene keeps running but you
+			// no longer get key events from the window!
+			window->hidden(!window->hidden());
 		}
 
 
