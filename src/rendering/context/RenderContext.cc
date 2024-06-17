@@ -56,7 +56,7 @@ bool RenderContext::recordingGIF() const {
 }
 
 void RenderContext::startGIFRecording(const filesystem::path& path,
-									  vec2 fitInside,
+									  uvec2 fitInside,
 									  unsigned maxFramerate) {
 	
 	if (!_recordingGIF) {
@@ -65,19 +65,12 @@ void RenderContext::startGIFRecording(const filesystem::path& path,
 		_gifRecordingMaxFramerate = maxFramerate;
 		_gifRecordedFrames = 0;
 
+		// nice! https://math.stackexchange.com/questions/1169409/formula-to-best-fit-a-rectangle-inside-another-by-scaling
 		auto fbSize = framebufferSize();
-
-		_gifRecordingWidth = (unsigned)round(fbSize.x);
-		_gifRecordingHeight = (unsigned)round(fbSize.y);
-
-		// TODO: fix "fit inside"
-//		if (_gifRecordingHeight > fitInside.x) {
-			float scaleX = (float)fitInside.x / (float)fbSize.x;
-			_gifRecordingWidth = (unsigned)round((float)fbSize.x * scaleX);
-
-			float scaleY = (float)fitInside.y / (float)fbSize.y;
-			_gifRecordingHeight = (unsigned)round((float)fbSize.y * scaleY);
-//		}
+		auto scale = std::min(float(fitInside.x)/float(fbSize.x),
+							  float(fitInside.y)/float(fbSize.y));
+		_gifRecordingWidth = (unsigned)round(float(fbSize.x) * scale);
+		_gifRecordingHeight = (unsigned)round(float(fbSize.y) * scale);
 
 		unsigned frameTimeMS = 1000 /* (ms/sec) */ / _gifRecordingMaxFramerate /* (frames/sec) */;
 		// -> ms/frame

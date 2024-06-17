@@ -54,7 +54,7 @@ namespace a3d {
 
 		virtual bool 					recordingGIF() const;
 		virtual void 					startGIFRecording(const std::filesystem::path& path,
-														  glm::vec2 fitInside,
+														  glm::uvec2 fitInside,
 														  unsigned maxFramerate);
 		virtual unsigned 				recordedGIFFrames() const;
 		virtual void 					stopGIFRecording();

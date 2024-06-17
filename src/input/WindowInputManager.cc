@@ -119,10 +119,16 @@ void WindowInputManager::update()
 
 void WindowInputManager::initMouseInput()
 {
-    // starting with macOS 10.15 Catalina, GLFW raw mouse input never works, and for ManyMouse
-    // to work, the user must manually allow "Input Monitoring" in
-    // System Preferences -> Privacy & Security -> Input Monitoring.
-    // ManyMouse was modified to detect kIOReturnNotPermitted and report back.
+    // starting with macOS 10.15 Catalina, GLFW 3.3 raw mouse input never works, and ManyMouse
+    // requires the user manually allow "Input Monitoring" in System Preferences ->
+    // Privacy & Security -> Input Monitoring, or IOHIDDeviceOpen() will fail with
+    // message "TCC deny IOHIDDeviceOpen" / kIOReturnNotPermitted.
+    // currently, if no mice are connected, WindowInputManager's constructor will throw
+    // NoAvailableMiceException.  this isn't ideal as the user may still want to use
+    // only the keyboard.
+    // future: modify ManyMouse to detect kIOReturnNotPermitted and report back,
+    // and add some mechanism to relay that to the applciation layer?
+    // WindowInputStats::Success, WindowInputStats::NoMice, WindowInputStats::MouseNotPermitted ?
 
     if (glfwRawMouseMotionSupported())
     {
@@ -156,9 +162,7 @@ void WindowInputManager::initManyMouse()
     {
         A3D_LOG_W("No available mice.");
         // TODO: do we really want to throw here?
-        // this causes the constructor to fail so if the user only wants keyboard input,
-        // they are hosed.  maybe expose mice cout publically, or allow an error
-        // reporting mechanism for things like IOHIDDeviceOpen kIOReturnNotPermitted on macOS
+        // see note in initMouseInput()
         throw NoAvailableMiceException("Could not find any mice.");
     }
     else
