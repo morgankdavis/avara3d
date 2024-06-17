@@ -193,6 +193,7 @@ static vector<Node*> 	SortedLights(map<Node*, float> lights);
 static void			InitImgui(const RenderContext& context);
 void 				UpdateImguiScale(const RenderContext& context, const Font& font);
 static void 		DrawStatsOverlay(Stats& stats, const RenderContext& context);
+static void 		DrawStatsOverlayShadow(Stats& stats, const RenderContext& context);
 static void 		SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode);
 static void 		SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode);
 static void 		SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max);
@@ -1646,7 +1647,6 @@ void InitImgui(const RenderContext& context) {
 void UpdateImguiScale(const RenderContext& context, const Font& font) {
 	A3D_LOG_D("");
 
-
 // #if defined(MACOS) || defined(LINUX)
 // 	auto scaleXY = vec2(1.0, 1.0);
 // #else
@@ -1655,14 +1655,14 @@ void UpdateImguiScale(const RenderContext& context, const Font& font) {
 
 	auto scale = std::max(scaleXY.x, scaleXY.y);
 
-	ImGui::GetStyle().ScaleAllSizes(scale);
-	ImGui::GetIO().FontGlobalScale = scale;
+	// ImGui::GetStyle().ScaleAllSizes(scale);
+	// ImGui::GetIO().FontGlobalScale = scale;
 
 	ImFontConfig fontConfig;
 
-	fontConfig.OversampleH = (int)std::ceil(scale);
-	fontConfig.OversampleV = (int)std::ceil(scale);
-	fontConfig.SizePixels = 10.0f * scale;
+	fontConfig.OversampleH = (int)std::ceil(scaleXY.x);
+	fontConfig.OversampleV = (int)std::ceil(scaleXY.y);
+	// fontConfig.SizePixels = 10.0f * scale;
 
 	// by default Imgui transferrs font memory ownership to itself
 	// this means Imgui eventually frees the font data, and then the Font/Buffer double-free it
@@ -1678,12 +1678,12 @@ void UpdateImguiScale(const RenderContext& context, const Font& font) {
 //    if (!platform_io.Monitors.empty() && platform_io.Monitors[0].DpiScale > 1.0f && display_h != h)
 //    {
 //        io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
-//        io.DisplaySize = ImVec2((float)display_w, (float)display_h);
+        //io.DisplaySize = ImVec2((float)display_w, (float)display_h);
 //    }
 
 	ImFont* imFont = io.Fonts->AddFontFromMemoryTTF(font.buffer()->data(),
 													(int)font.buffer()->size(),
-													14.0 * scale,
+													14.0,
 													&fontConfig);
 }
 
@@ -1702,28 +1702,6 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 
 	auto scale = std::max(scaleXY.x, scaleXY.y);
 
-//	ImGui::GetStyle().ScaleAllSizes(scale); // was disabled
-//	ImGui::GetIO().FontGlobalScale = scale;
-
-
-
-
-//	ImGui::GetStyle().ScaleAllSizes(scale);
-//	ImGui::GetIO().FontGlobalScale = scale;
-//	ImFontConfig fontConfig;
-//	fontConfig.OversampleH = (int)std::ceil(scale);
-//	fontConfig.OversampleV = (int)std::ceil(scale);
-//	fontConfig.SizePixels = 10.0f * scale;
-//
-
-
-
-
-
-
-
-
-
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	NewFrame();
@@ -1731,22 +1709,20 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 	ImGuiWindowFlags windowFlags = 0;
 	windowFlags |= ImGuiWindowFlags_NoTitleBar;
 	windowFlags |= ImGuiWindowFlags_NoScrollbar;
-//	windowFlags |= ImGuiWindowFlags_NoMove;
+	windowFlags |= ImGuiWindowFlags_NoMove;
 	windowFlags |= ImGuiWindowFlags_NoResize;
 	windowFlags |= ImGuiWindowFlags_NoCollapse;
 	windowFlags |= ImGuiWindowFlags_NoNav;
 	windowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
 
-	SetNextWindowBgAlpha(.25);
+	//SetNextWindowBgAlpha(.25);
+	SetNextWindowBgAlpha(0);
 	Begin("Stats", nullptr, windowFlags);
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.WindowBorderSize = 0;
 //	style.WindowRounding = 6;
 
-//	ImGui::ShowDemoWindow(nullptr);
-//	ImGui::GetIO();
-
-	ImGui::SetWindowPos({10.0f * scaleXY.x, 10.0f * scaleXY.y});
+	ImGui::SetWindowPos({(10.0f * scaleXY.x) + 1, (10.0f * scaleXY.y) + 1});
 
 	constexpr unsigned RECORD_STR_LEN = 64;
 	char recordingStr[RECORD_STR_LEN];
@@ -1759,7 +1735,8 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 		recordingStr[0] = '\0';
 	}
 
-	Text("%-14s %.2f ms\n" \
+	TextColored(ImVec4{0, 0, 0, .5},
+		"%-14s %.2f ms\n" \
 				"%-14s %.2f ms\n" \
 				"%-14s %.2f ms\n" \
 				"%-14s %.2f ms\n" \
@@ -1781,7 +1758,7 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 				"%-14s %d\n" \
 				"%-14s %d\n" \
 				"\n" \
-				"%-14s (%.1f %.1f %.1f)\n" \
+				"%-14s (%.1f, %.1f, %.1f)\n" \
 				"%s",
 
 		 "frametime", stats.averageFrametime,
@@ -1810,8 +1787,115 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 		 recordingStr);
 
 	End();
+
+	DrawStatsOverlayShadow(stats, context);
+
+	//End();
 	Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+//#endif // OPENGL_DESKTOP
+}
+
+void DrawStatsOverlayShadow(Stats& stats, const RenderContext& context) {
+
+	using namespace ImGui;
+
+//#ifdef OPENGL_DESKTOP
+
+	// donno
+#if defined(MACOS) || defined(LINUX)
+	auto scaleXY = vec2(1.0, 1.0);
+#else
+	auto scaleXY = context.framebufferScale();
+#endif
+
+	auto scale = std::max(scaleXY.x, scaleXY.y);
+
+	// ImGui_ImplOpenGL3_NewFrame();
+	// ImGui_ImplGlfw_NewFrame();
+	// NewFrame();
+
+	ImGuiWindowFlags windowFlags = 0;
+	windowFlags |= ImGuiWindowFlags_NoTitleBar;
+	windowFlags |= ImGuiWindowFlags_NoScrollbar;
+	windowFlags |= ImGuiWindowFlags_NoMove;
+	windowFlags |= ImGuiWindowFlags_NoResize;
+	windowFlags |= ImGuiWindowFlags_NoCollapse;
+	windowFlags |= ImGuiWindowFlags_NoNav;
+	windowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
+
+	SetNextWindowBgAlpha(0);
+	Begin("StatsShadow", nullptr, windowFlags);
+	ImGuiStyle& style = ImGui::GetStyle();
+	style.WindowBorderSize = 0;
+//	style.WindowRounding = 6;
+
+	ImGui::SetWindowPos({(10.0f * scaleXY.x) + 0, (10.0f * scaleXY.y) + 0});
+
+	constexpr unsigned RECORD_STR_LEN = 64;
+	char recordingStr[RECORD_STR_LEN];
+	if (context.recordingGIF()) {
+		auto numFrames = context.recordedGIFFrames();
+		snprintf(recordingStr, RECORD_STR_LEN, "\n%-14s %d %s",
+				 "RECORDING", numFrames, (numFrames==1 ? "frame" : "frames"));
+	}
+	else {
+		recordingStr[0] = '\0';
+	}
+
+	TextColored(ImVec4{1, 1, 1, 1},
+		"%-14s %.2f ms\n" \
+				"%-14s %.2f ms\n" \
+				"%-14s %.2f ms\n" \
+				"%-14s %.2f ms\n" \
+				"%-14s %.0f fps %s\n" \
+				"\n" \
+				"%-14s %d\n" \
+				"%-14s %d\n" \
+				"%-14s %d\n" \
+				"%-14s %.1fK\n" \
+				"%-14s %d\n" \
+				"\n" \
+				"%-14s %d\n" \
+				"%-14s %d\n" \
+				"%-14s %d\n" \
+				"%-14s %d\n" \
+				"%-14s %d\n" \
+				"%-14s %d\n" \
+				"%-14s %d\n" \
+				"%-14s %d\n" \
+				"%-14s %d\n" \
+				"\n" \
+				"%-14s (%.1f, %.1f, %.1f)\n" \
+				"%s",
+
+		 "frametime", stats.averageFrametime,
+		 " draw", stats.averageDrawtime,
+		 " physics", stats.averagePhysicstime,
+		 " user", stats.averageUsertime,
+		 "framerate", stats.averageFramerate, (context.vSyncEnabled() ? "[vsync]" : ""),
+
+		 "nodes", stats.nodes,
+		 "meshes", stats.meshes,
+		 "elements", stats.elements,
+		 "polygons", float(stats.polygons)/1000.0f,//(int)round(float(stats.polygons)/1000.0f),
+		 "lights", stats.lights,
+
+		 "physics bodies", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
+		 " static", stats.staticBodies,
+		 " dynamic", stats.dynamicBodies,
+		 " kinematic", stats.kinematicBodies,
+		 "physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
+		 " primitive", stats.primitiveShapes,
+		 " bounding box", stats.boundingBoxShapes,
+		 " convex hull", stats.convexHullShapes,
+		 " concave polyh", stats.concavePolyhedronShapes,
+
+		 "camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
+		 recordingStr);
+
+	End();
 
 //#endif // OPENGL_DESKTOP
 }
