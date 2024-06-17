@@ -1802,11 +1802,11 @@ void UpdateImguiScale(const RenderContext& context, const Font& font) {
 	A3D_LOG_D("");
 
 
-#if defined(MACOS) || defined(LINUX)
-	auto scaleXY = vec2(1.0, 1.0);
-#else
+// #if defined(MACOS) || defined(LINUX)
+// 	auto scaleXY = vec2(1.0, 1.0);
+// #else
 	auto scaleXY = context.framebufferScale();
-#endif
+// #endif
 
 	auto scale = std::max(scaleXY.x, scaleXY.y);
 
@@ -1826,7 +1826,7 @@ void UpdateImguiScale(const RenderContext& context, const Font& font) {
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	ImFont* imFont = io.Fonts->AddFontFromMemoryTTF(font.buffer()->data(),
 													(int)font.buffer()->size(),
-													14.0,
+													14.0 * scale,
 													&fontConfig);
 }
 
