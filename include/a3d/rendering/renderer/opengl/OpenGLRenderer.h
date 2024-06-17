@@ -55,7 +55,8 @@ namespace a3d {
 	Internal Lifecycle
  *********************************************************************************************/
 
-		OpenGLRenderer(RenderContext& context);
+		//explicit OpenGLRenderer(RenderContext& context);
+		OpenGLRenderer();
 		OpenGLRenderer(const OpenGLRenderer& other) = delete; // copy constructor
 		OpenGLRenderer& operator=(const OpenGLRenderer& other) = delete; // copy assignment
 		OpenGLRenderer(OpenGLRenderer&& other) = delete; // move constructor
@@ -66,41 +67,43 @@ namespace a3d {
 	Renderer Internal Members
  *********************************************************************************************/
 
-		RenderingApi 				renderingApi() const override;
+		RenderingApi 			renderingApi() const override;
 
-		bool 						initialize(const RenderContext& context) override;
+		bool 					initialize(const RenderContext& context) override;
 
-		void 						beginFrame(const Scene& scene,
-											   const RenderContext& context,
-											   const DebugOptions& debugOptions,
-											   Stats& stats) override;
-		void 						endFrame(const Scene& scene,
-											 const RenderContext& context,
-											 const DebugOptions& debugOptions,
-											 Stats& stats) override;
-
-		void 						render(const Scene& scene,
+		void 					beginFrame(const Scene& scene,
+										   const RenderContext& context,
 										   const DebugOptions& debugOptions,
 										   Stats& stats) override;
-		void 						render(Mesh& mesh,
-										   const glm::mat4& modelMat,
-										   const glm::mat4& viewMat,
-										   const glm::mat4& projectionMat,
-										   const DebugOptions& debugOptions,
-										   Stats& stats) override;
-		void 						render(MeshElement& element,
-										   Material& material,
-										   const glm::mat4& modelMat,
-										   const glm::mat4& viewMat,
-										   const glm::mat4& projectionMat,
-										   const DebugOptions& debugOptions,
-										   Stats& stats) override;
-		void 						render(const std::vector<Line>& lines,
-										   const glm::mat4& modelMat,
-										   const glm::mat4& viewMat,
-										   const glm::mat4& projectionMat) override;
+		void 					endFrame(const Scene& scene,
+										 const RenderContext& context,
+										 const DebugOptions& debugOptions,
+										 Stats& stats) override;
 
-		std::unique_ptr<Image> 		snapshot(const RenderContext& context) const override;
+		void 					render(const Scene& scene,
+									   const DebugOptions& debugOptions,
+									   Stats& stats) override;
+		void 					render(Mesh& mesh,
+									   const glm::mat4& modelMat,
+									   const glm::mat4& viewMat,
+									   const glm::mat4& projectionMat,
+									   const DebugOptions& debugOptions,
+									   Stats& stats) override;
+		void 					render(MeshElement& element,
+									   Material& material,
+									   const glm::mat4& modelMat,
+									   const glm::mat4& viewMat,
+									   const glm::mat4& projectionMat,
+									   const DebugOptions& debugOptions,
+									   Stats& stats) override;
+		void 					render(const std::vector<Line>& lines,
+									   const glm::mat4& modelMat,
+									   const glm::mat4& viewMat,
+									   const glm::mat4& projectionMat) override;
+
+		std::unique_ptr<Image> 	snapshot(const RenderContext& context) const override;
+
+		void					framebufferScaleChanged(const RenderContext& context) override;
 
 /*********************************************************************************************
 	Private IVars

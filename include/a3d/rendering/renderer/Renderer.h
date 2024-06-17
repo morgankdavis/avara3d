@@ -39,7 +39,8 @@ namespace a3d {
 
 	public:
 
-		Renderer(RenderContext& context);
+		//explicit Renderer(RenderContext& context);
+		Renderer();
 		Renderer(const Renderer& other) = delete; // copy constructor
 		Renderer& operator=(const Renderer& other) = delete; // copy assignment
 		virtual ~Renderer() = 0;
@@ -48,47 +49,49 @@ namespace a3d {
 	Internal Members
  *********************************************************************************************/
 
-		virtual RenderingApi 				renderingApi() const = 0;
+		virtual RenderingApi 			renderingApi() const = 0;
 
-		virtual bool 						initialize(const RenderContext& context) = 0;
-		
-		virtual void 						beginFrame(const Scene& scene,
-													   const RenderContext& context,
-													   const DebugOptions& debugOptions,
-													   Stats& stats) = 0;
-		virtual void 						endFrame(const Scene& scene,
-													 const RenderContext& context,
-													 const DebugOptions& debugOptions,
-													 Stats& stats) = 0;
+		virtual bool 					initialize(const RenderContext& context) = 0;
 
-		virtual void 						render(const Scene& scene,
+		virtual void 					beginFrame(const Scene& scene,
+												   const RenderContext& context,
 												   const DebugOptions& debugOptions,
 												   Stats& stats) = 0;
-		virtual void 						render(Mesh& mesh,
-												   const glm::mat4& modelMat,
-												   const glm::mat4& viewMat,
-												   const glm::mat4& projectionMat,
-												   const DebugOptions& debugOptions,
-												   Stats& stats) = 0;
-		virtual void 						render(MeshElement& element,
-												   Material& material,
-												   const glm::mat4& modelMat,
-												   const glm::mat4& viewMat,
-												   const glm::mat4& projectionMat,
-												   const DebugOptions& debugOptions,
-												   Stats& stats) = 0;
-		virtual void 						render(const std::vector<Line>& lines,
-												   const glm::mat4& modelMat,
-												   const glm::mat4& viewMat,
-												   const glm::mat4& projectionMat) = 0;
+		virtual void 					endFrame(const Scene& scene,
+												 const RenderContext& context,
+												 const DebugOptions& debugOptions,
+												 Stats& stats) = 0;
 
-		virtual std::unique_ptr<Image>		snapshot(const RenderContext& context) const = 0;
+		virtual void 					render(const Scene& scene,
+											   const DebugOptions& debugOptions,
+											   Stats& stats) = 0;
+		virtual void 					render(Mesh& mesh,
+											   const glm::mat4& modelMat,
+											   const glm::mat4& viewMat,
+											   const glm::mat4& projectionMat,
+											   const DebugOptions& debugOptions,
+											   Stats& stats) = 0;
+		virtual void 					render(MeshElement& element,
+											   Material& material,
+											   const glm::mat4& modelMat,
+											   const glm::mat4& viewMat,
+											   const glm::mat4& projectionMat,
+											   const DebugOptions& debugOptions,
+											   Stats& stats) = 0;
+		virtual void 					render(const std::vector<Line>& lines,
+											   const glm::mat4& modelMat,
+											   const glm::mat4& viewMat,
+											   const glm::mat4& projectionMat) = 0;
+
+		virtual std::unique_ptr<Image>	snapshot(const RenderContext& context) const = 0;
+
+		virtual void					framebufferScaleChanged(const RenderContext& context) = 0;
 
 /*********************************************************************************************
 	Private IVars
  *********************************************************************************************/
 
-		RenderContext*						_context;
+//		RenderContext*						_context;
 	};
 }
 

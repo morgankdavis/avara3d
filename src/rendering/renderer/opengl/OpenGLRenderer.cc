@@ -190,6 +190,8 @@ static void 		DeleteTextureGLResources(Texture* texture,
 static void 		DeleteLinesGLResources(const vector<Line>& lines,
 										  OpenGLRenderer::LinesGLMapping& glMapping);
 static vector<Node*> 	SortedLights(map<Node*, float> lights);
+static void			InitImgui(const RenderContext& context);
+void 				UpdateImguiScale(const RenderContext& context, const Font& font);
 static void 		DrawStatsOverlay(Stats& stats, const RenderContext& context);
 static void 		SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode);
 static void 		SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode);
@@ -205,8 +207,18 @@ static void 		CheckGLError();
 	Internal Lifecycle
  *********************************************************************************************/
 
-OpenGLRenderer::OpenGLRenderer(RenderContext& context):
-		Renderer{context},
+//OpenGLRenderer::OpenGLRenderer(RenderContext& context):
+//		Renderer{context},
+//		_meshElementGLMapping{},
+//		_textureGLMapping{},
+//		_linesGLMapping{},
+//		_activeMeshElements{},
+//		_activeTextures{},
+//		_activeLines{},
+//		_glEnvironmentUBO{0},
+//		_overlayFont{} { }
+OpenGLRenderer::OpenGLRenderer():
+		Renderer{},
 		_meshElementGLMapping{},
 		_textureGLMapping{},
 		_linesGLMapping{},
@@ -255,41 +267,17 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 	_glEnvironmentUBO = ubo;
 
 #ifdef OPENGL_DESKTOP
-	
-	// setup Imgui for stats overlay
-	
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
-	io.IniFilename = nullptr;
-
-	GLFWwindow* glfwWindow = dynamic_cast<const Window*>(&context)->glfwWindow();
-	
-	ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
-	ImGui_ImplOpenGL3_Init();
 
 	string fontName = "SourceCodePro-Semibold";
 	string fontType = "otf";
-	float fontSize = 14.0;
-	
 	_overlayFont = utils::FontNamed(fontName, fontType);
 
 	if (_overlayFont->buffer()->size()) {
-		
-		// by default Imgui transferrs font memory ownership to itself
-		// this means Imgui eventually frees the font data, and then the Font/Buffer double-free it
-		
-		ImFontConfig config;
-		config.FontDataOwnedByAtlas = false;
-		
-		ImFont* scp = io.Fonts->AddFontFromMemoryTTF(_overlayFont->buffer()->data(),
-													 (int)_overlayFont->buffer()->size(),
-													 fontSize,
-													 &config);
-
-		if (!scp) {
-			throw Exception("Unable to load font: " + fontName + "." + fontType);
-		}
+		InitImgui(context);
+		UpdateImguiScale(context, *_overlayFont);
+	}
+	else {
+		A3D_LOG_E("Unable to load font: {}.{}", fontName, fontType);
 	}
 
 #endif // OPENGL_DESKTOP
@@ -313,7 +301,7 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 							  Stats& stats) {
 
 	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay)) {
-		DrawStatsOverlay(stats, *_context);
+		DrawStatsOverlay(stats, context);
 	}
 
 	CleanupMeshElementResources(_activeMeshElements, _meshElementGLMapping);
@@ -491,6 +479,12 @@ unique_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 	glReadPixels(0, 0, (GLsizei)framebufferWidth, (GLsizei)framebufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixelBuf);
 	auto buffer = make_unique<Buffer>((std::byte*)pixelBuf, framebufferWidth * framebufferHeight * 4);
 	return make_unique<Image>(std::move(buffer), framebufferWidth, framebufferHeight, 4);
+}
+
+void OpenGLRenderer::framebufferScaleChanged(const RenderContext& context) {
+	A3D_LOG_D("context: {:p}", static_cast<const void*>(&context));
+
+	InitImgui(context);//, *_overlayFont);
 }
 	
 /*********************************************************************************************
@@ -1780,6 +1774,62 @@ static vector<Node*> SortedLights(map<Node*, float> lights) {
 ////#endif // OPENGL_DESKTOP
 //}
 
+void InitImgui(const RenderContext& context) {
+	A3D_LOG_D("");
+
+
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.IniFilename = nullptr;
+
+	GLFWwindow* glfwWindow = dynamic_cast<const Window*>(&context)->glfwWindow();
+
+	ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
+	ImGui_ImplOpenGL3_Init();
+
+
+
+//	ImGui::GetStyle().ScaleAllSizes(scale); // was disabled
+//	ImGui::GetIO().FontGlobalScale = scale;
+
+	//	this->ui.font = ImGui::GetIO().Fonts->AddFontFromFileTTF(
+//			"resources/fonts/RobotoMono-Medium.ttf", 16.0f, &fontConfig);
+}
+
+void UpdateImguiScale(const RenderContext& context, const Font& font) {
+	A3D_LOG_D("");
+
+
+#if defined(MACOS) || defined(LINUX)
+	auto scaleXY = vec2(1.0, 1.0);
+#else
+	auto scaleXY = context.framebufferScale();
+#endif
+
+	auto scale = std::max(scaleXY.x, scaleXY.y);
+
+	ImGui::GetStyle().ScaleAllSizes(scale);
+	ImGui::GetIO().FontGlobalScale = scale;
+
+	ImFontConfig fontConfig;
+
+	fontConfig.OversampleH = (int)std::ceil(scale);
+	fontConfig.OversampleV = (int)std::ceil(scale);
+	fontConfig.SizePixels = 10.0f * scale;
+
+	// by default Imgui transferrs font memory ownership to itself
+	// this means Imgui eventually frees the font data, and then the Font/Buffer double-free it
+	fontConfig.FontDataOwnedByAtlas = false;
+
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	ImFont* imFont = io.Fonts->AddFontFromMemoryTTF(font.buffer()->data(),
+													(int)font.buffer()->size(),
+													14.0,
+													&fontConfig);
+}
+
 void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 
 	using namespace ImGui;
@@ -1795,8 +1845,27 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 
 	auto scale = std::max(scaleXY.x, scaleXY.y);
 
+//	ImGui::GetStyle().ScaleAllSizes(scale); // was disabled
+//	ImGui::GetIO().FontGlobalScale = scale;
+
+
+
+
 //	ImGui::GetStyle().ScaleAllSizes(scale);
-	ImGui::GetIO().FontGlobalScale = scale;
+//	ImGui::GetIO().FontGlobalScale = scale;
+//	ImFontConfig fontConfig;
+//	fontConfig.OversampleH = (int)std::ceil(scale);
+//	fontConfig.OversampleV = (int)std::ceil(scale);
+//	fontConfig.SizePixels = 10.0f * scale;
+//
+
+
+
+
+
+
+
+
 
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();

@@ -505,6 +505,9 @@ void GLFWWindowCloseCallback(GLFWwindow* glfwWindow) {
 void GLFWFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
 	A3D_LOG_D("glfwWindow: {:p}, width: {}, height: {}",
 			  static_cast<void*>(glfwWindow), width, height);
+
+	auto window = (Window*)glfwGetWindowUserPointer(glfwWindow);
+	window->renderer()->framebufferScaleChanged(*window);
 }
 
 void GLFWContentScaleCallback(GLFWwindow* glfwWindow, float xScale, float yScale) {
@@ -517,7 +520,7 @@ void GLFWErrorCallback(int error, const char* description) {
 }
 
 bool GetGLFWWindowMonitor(GLFWmonitor** monitor, GLFWwindow* window) {
-	// I had the same idea, but somebody else saved me 45 minutes.
+	// somebody saved me an hour
 	// https://github.com/glfw/glfw/issues/1699#issuecomment-723692566
 
 	bool success = false;

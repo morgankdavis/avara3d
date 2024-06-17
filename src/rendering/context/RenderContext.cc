@@ -131,7 +131,7 @@ RenderContext::RenderContext(RenderingApi renderingApi):
 
 	switch (renderingApi) {
 		case RenderingApi::OpenGL: {
-			_renderer = make_unique<OpenGLRenderer>(*this);
+			_renderer = make_unique<OpenGLRenderer>();//(*this);
 			break; }
 		case RenderingApi::OpenGLES: {
 			throw Exception("Unsupported rendering API: OpenGLES");
