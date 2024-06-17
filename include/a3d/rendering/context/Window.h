@@ -58,6 +58,8 @@ namespace a3d {
 		void 					open();
 		void					close();
 
+		bool 					isOpen() const;
+
 		std::string				title() const;
 		void					title(const std::string& title);
 
@@ -69,10 +71,13 @@ namespace a3d {
 
 		void					center();
 
-		bool					highDPIEnabled() const;
+		bool 					hidden() const;
+		void					hidden(bool hidden);
 
 		bool 					cursorCaptured() const;
 		void 					cursorCaptured(bool captured);
+
+		bool					highDPIEnabled() const;
 
 /*********************************************************************************************
 	RenderContext Public Members
@@ -121,6 +126,8 @@ namespace a3d {
 
 		std::unique_ptr<GLFWwindow, DestroyGLFWWindow>	_glfwWindow;
 		bool											_cursorCaptured;
+		bool											_open;
+		bool											_hidden;
 		bool											_highDPIEnabled;
 	};
 }

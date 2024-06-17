@@ -14,6 +14,7 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
+#include "a3d/Utilities.h"
 #include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/logging/Logger.h"
 #include "a3d/input/WindowInputManager.h"
@@ -49,6 +50,8 @@ static void 	GLFWContentScaleCallback(GLFWwindow* glfwWindow,
 										float yScale);
 static void 	GLFWErrorCallback(int error,
 								 const char* description);
+bool 			GetGLFWWindowMonitor(GLFWmonitor** monitor, GLFWwindow* window);
+bool 			GetGLFWMouseMonitor(GLFWmonitor** monitor, GLFWwindow* window);
 
 /*********************************************************************************************
 	Public Lifescycle
@@ -63,6 +66,8 @@ Window::Window(RenderingApi renderingAPI,
 		RenderContext{renderingAPI},
 		_glfwWindow{},
 		_highDPIEnabled{enableHighDPI},
+		_open{false},
+		_hidden{false},
 		_cursorCaptured{false} {
 	A3D_LOG_D("");
 
@@ -76,12 +81,21 @@ Window::Window(RenderingApi renderingAPI,
 		glfwWindowHint(GLFW_SAMPLES, static_cast<int>(antialiasingMode));
 		glfwWindowHint(GLFW_SCALE_TO_MONITOR, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-
-#ifdef MACOS
+	#ifdef LINUX
+		// check if X or Wayland...?
+		// TODO: change these
+		glfwWindowHintString(GLFW_WAYLAND_APP_ID, "avara3d");
+		glfwWindowHintString(GLFW_X11_CLASS_NAME, "avara3d");
+		auto execName = utils::ExecutableName();
+		if (execName != nullopt) {
+			glfwWindowHintString(GLFW_X11_INSTANCE_NAME, (*execName).c_str());
+		}
+	#endif
+	#ifdef MACOS
 		// the documentation says this has the same affect as GLFW_SCALE_TO_MONITOR, but if you don't also
 		// set GLFW_COCOA_RETINA_FRAMEBUFFER to GLFW_FALSE, retina framebuffer isn't actually disabled.
 		glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
-#endif
+	#endif
 #else // OpenGL ES
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -161,6 +175,8 @@ void Window::open() {
 		glfwShowWindow(_glfwWindow.get());
 
 		cursorCaptured(cursorCaptured()); // needs to be set after windows is made current
+
+		_open = true;
 	}
 	else {
 		throw Exception("Window has no scene.");
@@ -188,6 +204,14 @@ void Window::close() {
 	cursorCaptured(false);
 
 	glfwSetWindowShouldClose(_glfwWindow.get(), true);
+
+	_open = false;
+}
+
+bool Window::isOpen() const {
+	// GLFW_VISIBLE is still true after the window is closes... ?
+	// return glfwGetWindowAttrib(_glfwWindow.get(), GLFW_VISIBLE) == GLFW_TRUE;
+	return _open;
 }
 
 string Window::title() const {
@@ -219,13 +243,41 @@ void Window::position(const uvec2& pos) {
 }
 
 void Window::center() {
-	// TODO: implement
+	// as of GLFW 3.3, there is no "get the monitor this window is on" function.
+	// glfwGetWindowMonitor() only applies to full-screen windows.
 
-	// https://stackoverflow.com/questions/67239235/how-do-i-create-a-centered-glfw-window
+	GLFWmonitor* monitor = nullptr;
+	if (GetGLFWWindowMonitor(&monitor, _glfwWindow.get())) {
+
+		ivec2 screenSize;
+		ivec2 screenPos;
+		glfwGetMonitorWorkarea(monitor, &screenPos.x, &screenPos.y, &screenSize.x, &screenSize.y);
+
+		auto winSize = this->size();
+
+		this->position({ screenPos.x + ((screenSize.x/2.0) - (winSize.x/2.0)),
+						 screenPos.y + ((screenSize.y/2.0) - (winSize.y/2.0)) });
+	}
+	else {
+		A3D_LOG_E("Can't get window monitor.");
+	}
 }
 
-bool Window::highDPIEnabled() const {
-	return _highDPIEnabled;
+bool Window::hidden() const {
+	// GLFW_VISIBLE seems yp have a mind of its own..
+	// return glfwGetWindowAttrib(_glfwWindow.get(), GLFW_VISIBLE) == GLFW_TRUE;
+	return _hidden;
+}
+
+void Window::hidden(bool hidden) {
+
+	if (hidden) {
+		glfwHideWindow(_glfwWindow.get());
+	}
+	else {
+		glfwShowWindow(_glfwWindow.get());
+	}
+	_hidden = hidden;
 }
 
 bool Window::cursorCaptured() const {
@@ -237,6 +289,10 @@ void Window::cursorCaptured(bool captured) {
 	glfwSetInputMode(_glfwWindow.get(),
 					 GLFW_CURSOR,
 					 (captured ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL));
+}
+
+bool Window::highDPIEnabled() const {
+	return _highDPIEnabled;
 }
 
 /*********************************************************************************************
@@ -277,7 +333,6 @@ glm::vec2 Window::framebufferScale() const {
 	vec2 scale;
 	glfwGetWindowContentScale(_glfwWindow.get(), &scale.x, &scale.y);
 	return scale;
-	//return {1.0, 1.0};
 }
 
 /*********************************************************************************************
@@ -308,7 +363,7 @@ static bool InitGLFW() {
 	
 	static bool initialized = false;
 	if (!initialized) {
-		A3D_LOG_C();
+		A3D_LOG_I("");
 		
 		int glfwMajVers, glfwMinVers, glfwRev;
 		glfwGetVersion(&glfwMajVers, &glfwMinVers, &glfwRev);
@@ -333,7 +388,7 @@ static bool InitGLFW() {
 }
 
 static bool InitGLAD() {
-	A3D_LOG_C();
+	A3D_LOG_I("");
 
 	// NOTE: OpenGL context must be setup first
 
@@ -354,8 +409,8 @@ static bool InitGLAD() {
 	return true;
 }
 
-static void LogGLInfo()
-{
+static void LogGLInfo() {
+
 	const GLubyte* renderer = glGetString(GL_RENDERER);
 	const GLubyte* version = glGetString(GL_VERSION);
 
@@ -461,4 +516,146 @@ void GLFWContentScaleCallback(GLFWwindow* glfwWindow, float xScale, float yScale
 
 void GLFWErrorCallback(int error, const char* description) {
 	A3D_LOG_E("error: {}, description: {}", error, description);
+}
+
+bool GetGLFWWindowMonitor(GLFWmonitor** monitor, GLFWwindow* window) {
+	// I had the same idea, but somebody else saved me 45 minutes.
+	// https://github.com/glfw/glfw/issues/1699#issuecomment-723692566
+
+	bool success = false;
+
+	int windowRect[4] = {0};
+	glfwGetWindowPos(window, &windowRect[0], &windowRect[1]);
+	glfwGetWindowSize(window, &windowRect[2], &windowRect[3]);
+
+	int monitorsSize = 0;
+	GLFWmonitor** monitors = glfwGetMonitors(&monitorsSize);
+
+	GLFWmonitor* closestMonitor = NULL;
+	int maxOverlapArea = 0;
+
+	for (int i = 0; i < monitorsSize; ++i) {
+
+		int monitorPos[2] = {0};
+		glfwGetMonitorPos(monitors[i], &monitorPos[0], &monitorPos[1]);
+
+		const GLFWvidmode* monitorVideoMode = glfwGetVideoMode(monitors[i]);
+
+		// https://github.com/glfw/glfw/issues/1699#issuecomment-1892387147
+		int monitorRect[4] = {
+				monitorPos[0],
+				monitorPos[1],
+				monitorVideoMode->width,
+				monitorVideoMode->height,
+		};
+
+		if (!(((windowRect[0] + windowRect[2]) < monitorRect[0]) ||
+			  (windowRect[0] > (monitorRect[0] + monitorRect[2])) ||
+			  ((windowRect[1] + windowRect[3]) < monitorRect[1]) ||
+			  (windowRect[1] > (monitorRect[1] + monitorRect[3])))) {
+
+			int intersectionRect[4] = {0};
+
+			// x, width
+			if (windowRect[0] < monitorRect[0]) {
+				intersectionRect[0] = monitorRect[0];
+
+				if ((windowRect[0] + windowRect[2]) < (monitorRect[0] + monitorRect[2])) {
+					intersectionRect[2] = (windowRect[0] + windowRect[2]) - intersectionRect[0];
+				}
+				else {
+					intersectionRect[2] = monitorRect[2];
+				}
+			}
+			else {
+				intersectionRect[0] = windowRect[0];
+
+				if ((monitorRect[0] + monitorRect[2]) < (windowRect[0] + windowRect[2])) {
+					intersectionRect[2] = (monitorRect[0] + monitorRect[2]) - intersectionRect[0];
+				}
+				else {
+					intersectionRect[2] = windowRect[2];
+				}
+			}
+
+			// y, height
+			if (windowRect[1] < monitorRect[1]) {
+				intersectionRect[1] = monitorRect[1];
+
+				if ((windowRect[1] + windowRect[3]) < (monitorRect[1] + monitorRect[3])) {
+					intersectionRect[3] = (windowRect[1] + windowRect[3]) - intersectionRect[1];
+				}
+				else {
+					intersectionRect[3] = monitorRect[3];
+				}
+			}
+			else {
+				intersectionRect[1] = windowRect[1];
+
+				if ((monitorRect[1] + monitorRect[3]) < (windowRect[1] + windowRect[3])) {
+					intersectionRect[3] = (monitorRect[1] + monitorRect[3]) - intersectionRect[1];
+				}
+				else {
+					intersectionRect[3] = windowRect[3];
+				}
+			}
+
+			// https://github.com/glfw/glfw/issues/1699#issuecomment-1892387147
+			//int overlap_area = intersection_rectangle[3] * intersection_rectangle[4];
+			int overlapArea = intersectionRect[2] * intersectionRect[3];
+			if (overlapArea > maxOverlapArea) {
+				closestMonitor = monitors[i];
+				maxOverlapArea = overlapArea;
+			}
+		}
+	}
+
+	if (closestMonitor) {
+		*monitor = closestMonitor;
+		success = true;
+	}
+
+	// true: monitor contains the monitor the window is most on
+	// false: monitor is unmodified
+	return success;
+}
+
+bool GetGLFWMouseMonitor(GLFWmonitor** monitor, GLFWwindow* window) {
+	// https://github.com/glfw/glfw/issues/1699#issuecomment-723692566
+
+	bool success = false;
+
+	double cursorPos[2] = {0};
+	glfwGetCursorPos(window, &cursorPos[0], &cursorPos[1]);
+
+	int windowPos[2] = {0};
+	glfwGetWindowPos(window, &windowPos[0], &windowPos[1]);
+
+	int monitorsSize = 0;
+	GLFWmonitor** monitors = glfwGetMonitors(&monitorsSize);
+
+	// convert cursor position from window coordinates to screen coordinates
+	cursorPos[0] += windowPos[0];
+	cursorPos[1] += windowPos[1];
+
+	for (int i = 0; ((!success) && (i < monitorsSize)); ++i) {
+
+		int monitorPos[2] = {0};
+		glfwGetMonitorPos(monitors[i], &monitorPos[0], &monitorPos[1]);
+
+		const GLFWvidmode* monitorVideoMode = glfwGetVideoMode(monitors[i]);
+
+		if ((cursorPos[0] < monitorPos[0]) ||
+			(cursorPos[0] > (monitorPos[0] + monitorVideoMode->width)) ||
+			(cursorPos[1] < monitorPos[1]) ||
+			(cursorPos[1] > (monitorPos[1] + monitorVideoMode->height))) {
+
+			*monitor = monitors[i];
+			success = true;
+		}
+	}
+
+	// true: monitor contains the monitor the mouse is on
+	// false: monitor is unmodified
+	return success;
 }

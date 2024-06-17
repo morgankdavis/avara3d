@@ -112,6 +112,7 @@ int main(int argc, const char* argv[]) {
 	auto boxNode = Node::MeshNode(Box::Mesh(1.0, 1.0, 1.0));
 	scene->rootNode()->addChild(boxNode);
 
+	window->center();
 	window->open();
 	scene->run();
 

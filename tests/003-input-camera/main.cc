@@ -64,6 +64,7 @@ int main(int argc, const char* argv[]) {
 	scene->inputManager(std::move(inputManager));
 	scene->update(bind(&UpdateCallback, _1, _2, _3));
 
+	window->center();
 	window->open();
 	scene->run();
 

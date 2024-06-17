@@ -99,6 +99,7 @@ int main(int argc, const char* argv[]) {
 	scene->rootNode()->addChild(importLightsCamerasRoot);
 	scene->rootNode()->addChild(importMeshRoot);
 
+	window->center();
 	window->open();
 	scene->run();
 
