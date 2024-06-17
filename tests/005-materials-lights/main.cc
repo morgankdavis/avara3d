@@ -52,110 +52,124 @@ a3d::Node*						g_pointLightNode;
 
 int main(int argc, const char* argv[]) {
 
-	InitLog();
-	LogBuildInfo();
+	try {
+		InitLog();
+		LogBuildInfo();
 
-	auto window = make_unique<Window>(RenderingApi::OpenGL,
-									  *utils::ExecutableName(),
-									  WINDOW_SIZE,
-									  FULLSCREEN,
-									  ENABLE_HIGH_DPI,
-									  ANTIALIAS_MODE);
-	window->vSyncEnabled(ENABLE_VSYNC);
-	window->cursorCaptured(CAPTURE_CURSOR);
+		auto window = make_unique<Window>(RenderingApi::OpenGL,
+										  *utils::ExecutableName(),
+										  WINDOW_SIZE,
+										  FULLSCREEN,
+										  ENABLE_HIGH_DPI,
+										  ANTIALIAS_MODE);
+		window->vSyncEnabled(ENABLE_VSYNC);
+		window->cursorCaptured(CAPTURE_CURSOR);
 
-	auto visualWorld = make_unique<VisualWorld>(*window);
-	visualWorld->fogStartDistance(500.0);
-	visualWorld->fogEndDistance(5000.0);
-	visualWorld->fogDensityExponent(1.0);
-	visualWorld->fogColor(Color::LightGray());
-	visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
-	visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
-	visualWorld->background(make_shared<Texture>(std::move(utils::CubeImageNamed("nebula1_blue", "png"))));
+		auto visualWorld = make_unique<VisualWorld>(*window);
+		visualWorld->fogStartDistance(500.0);
+		visualWorld->fogEndDistance(5000.0);
+		visualWorld->fogDensityExponent(1.0);
+		visualWorld->fogColor(Color::LightGray());
+		visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
+		visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
+		visualWorld->background(make_shared<Texture>(std::move(utils::CubeImageNamed("nebula1_blue", "png"))));
 
-	auto inputManager = make_unique<WindowInputManager>(window.get());
+		auto inputManager = make_unique<WindowInputManager>(window.get());
 
-	auto scene = utils::SceneNamed("cat_island/cat_island", SceneImportOptions::ImportMeshes
-													 | SceneImportOptions::ImportMaterials
-													 | SceneImportOptions::ImportCameras);
+		auto scene = utils::SceneNamed("cat_island/cat_island", SceneImportOptions::ImportMeshes
+														 | SceneImportOptions::ImportMaterials
+														 | SceneImportOptions::ImportCameras);
 
-	scene->visualWorld(std::move(visualWorld));
-	scene->inputManager(std::move(inputManager));
-	scene->debugOptions(DebugOptions::ShowStatsOverlay);
-	scene->update(bind(&UpdateCallback, _1, _2, _3));
+		scene->visualWorld(std::move(visualWorld));
+		scene->inputManager(std::move(inputManager));
+		scene->debugOptions(DebugOptions::ShowStatsOverlay);
+		scene->update(bind(&UpdateCallback, _1, _2, _3));
 
-	auto ambientLight = make_shared<Light>(LightType::Ambient, make_unique<Color>(0.2f, 0.2, 0.2, 1.0));
-	ambientLight->name("ambient");
-	auto ambientLightNode = Node::LightNode(ambientLight);
-	scene->rootNode()->addChild(ambientLightNode);
+		auto ambientLight = make_shared<Light>(LightType::Ambient, make_unique<Color>(0.2f, 0.2, 0.2, 1.0));
+		ambientLight->name("ambient");
+		auto ambientLightNode = Node::LightNode(ambientLight);
+		scene->rootNode()->addChild(ambientLightNode);
 
-	auto pointLight = make_shared<Light>(LightType::Point, Color::White());
-	pointLight->name("point");
-	pointLight->attenuationFactor(0.00005);
-	auto pointLightNode = Node::LightNode(pointLight);
-	g_pointLightNode = pointLightNode.get(); // <- how is this not crashing?
-	auto material = make_shared<Material>();
-	material->name("LIGHT material");
-	material->emission(Color::White());
-	auto geometry = Sphere::Mesh(1.5, 4, material);
-	pointLightNode->mesh(geometry);
-	scene->rootNode()->addChild(pointLightNode);
-
-
-	// test emissive property
-//	for (auto& node : scene->rootNode()->children(true)) {
-//		if (node->mesh()) {
-//			for (auto& material : node->mesh()->materials()) {
-//				if (!holds_alternative<std::monostate>(material->diffuse())) {
-//					material->emission(material->diffuse());
-//				}
-//			}
-//		}
-//	}
+		auto pointLight = make_shared<Light>(LightType::Point, Color::White());
+		pointLight->name("point");
+		pointLight->attenuationFactor(0.00005);
+		auto pointLightNode = Node::LightNode(pointLight);
+		g_pointLightNode = pointLightNode.get(); // <- how is this not crashing?
+		auto material = make_shared<Material>();
+		material->name("LIGHT material");
+		material->emission(Color::White());
+		auto geometry = Sphere::Mesh(1.5, 4, material);
+		pointLightNode->mesh(geometry);
+		scene->rootNode()->addChild(pointLightNode);
 
 
-	if (ORTHO_CAMERA) {
-		auto orthoCameraNode = Node::CameraNode(
-				make_shared<OrthographicCamera>("Ortho camera", (AABB){{0, 0, 0},
-																	   {100, 100, 100}}));
-		scene->rootNode()->addChild(orthoCameraNode);
+		// test emissive property
+	//	for (auto& node : scene->rootNode()->children(true)) {
+	//		if (node->mesh()) {
+	//			for (auto& material : node->mesh()->materials()) {
+	//				if (!holds_alternative<std::monostate>(material->diffuse())) {
+	//					material->emission(material->diffuse());
+	//				}
+	//			}
+	//		}
+	//	}
+
+
+		if (ORTHO_CAMERA) {
+			auto orthoCameraNode = Node::CameraNode(
+					make_shared<OrthographicCamera>("Ortho camera", (AABB){{0, 0, 0},
+																		   {100, 100, 100}}));
+			scene->rootNode()->addChild(orthoCameraNode);
+		}
+
+	//	auto siameseNode = scene->rootNode()->childNamed("Siamese");
+	//	siameseNode->mesh()->firstMaterial()->fillMode(FillMode::Lines); // works
+
+		// random lights
+
+	//	{
+	//		const int NUM_RANDOM_LIGHTS = 64;
+	//		for (int l = 0; l < NUM_RANDOM_LIGHTS; ++l) {
+	//			auto light = make_shared<Light>(LIGHT_TYPE::POINT);
+	//			light->attenuationFactor(0.0001);
+	//			static const float yOffset = 30;
+	//			static const int range = 75;
+	//			auto lightNode = Node::LightNode(light);
+	//			int randX = Uniform(-range, range);
+	//			int randY = Uniform(-range, range);
+	//			int randZ = Uniform(-range, range);
+	//			lightNode->position(vec3(randX, randY + yOffset, randZ));
+	//			auto color = Color::Random();
+	//			light->color(color);
+	//
+	//			auto geometry = make_shared<Sphere>(1.5, 16);
+	//
+	//			auto materialProperty = make_shared<MaterialProperty>(color);
+	//			auto material = make_shared<Material>();
+	//			material->emissive(materialProperty);
+	//			geometry->addMaterial(material);
+	//			lightNode->geometry(geometry);
+	//
+	//			scene->rootNode()->addChild(lightNode);
+	//		}
+	//	}
+
+		window->center();
+		window->open();
+		scene->run();
 	}
-
-//	auto siameseNode = scene->rootNode()->childNamed("Siamese");
-//	siameseNode->mesh()->firstMaterial()->fillMode(FillMode::Lines); // works
-
-	// random lights
-
-//	{
-//		const int NUM_RANDOM_LIGHTS = 64;
-//		for (int l = 0; l < NUM_RANDOM_LIGHTS; ++l) {
-//			auto light = make_shared<Light>(LIGHT_TYPE::POINT);
-//			light->attenuationFactor(0.0001);
-//			static const float yOffset = 30;
-//			static const int range = 75;
-//			auto lightNode = Node::LightNode(light);
-//			int randX = Uniform(-range, range);
-//			int randY = Uniform(-range, range);
-//			int randZ = Uniform(-range, range);
-//			lightNode->position(vec3(randX, randY + yOffset, randZ));
-//			auto color = Color::Random();
-//			light->color(color);
-//
-//			auto geometry = make_shared<Sphere>(1.5, 16);
-//
-//			auto materialProperty = make_shared<MaterialProperty>(color);
-//			auto material = make_shared<Material>();
-//			material->emissive(materialProperty);
-//			geometry->addMaterial(material);
-//			lightNode->geometry(geometry);
-//
-//			scene->rootNode()->addChild(lightNode);
-//		}
-//	}
-
-	window->center();
-	window->open();
-	scene->run();
+	catch (NoAvailableMiceException& e)
+	{
+		// on macOS 10.15 Catalina+, this is probably a permissions issue,
+		// and the OS will alert the user.  just quit nicely.
+		LOG_F(g_logger, "No available mice.");
+		return -1;
+	}
+	catch (Exception& e)
+	{
+		LOG_F(g_logger, "Exception: {}", e.what());
+		return -1;
+	}
 
 	return 0;
 }

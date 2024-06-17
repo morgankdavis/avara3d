@@ -59,7 +59,7 @@ namespace a3d {
 		glm::vec2 							mousePositionDelta(); // mouse position delta since last query
 		glm::vec2 							mouseScrollWheelDelta(); // mouse wheen scroll delta since last query
 
-		Scene*								scene() const;
+		Scene*								scene() const; // eh
 
 /*********************************************************************************************
 	Internal Members

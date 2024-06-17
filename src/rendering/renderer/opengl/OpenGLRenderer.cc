@@ -1681,7 +1681,7 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 					"%-14s %d\n" \
 					"%-14s %d\n" \
 					"%-14s %d\n" \
-					"%-14s %d\n" \
+					"%-14s %.1fK\n" \
 					"%-14s %d\n" \
 					"\n" \
 					"%-14s %d\n" \
@@ -1707,7 +1707,7 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 			 "nodes", stats.nodes,
 			 "meshes", stats.meshes,
 			 "elements", stats.elements,
-			 "polygons", stats.polygons,
+			 "polygons", float(stats.polygons)/1000.0f,//(int)round(float(stats.polygons)/1000.0f),
 			 "lights", stats.lights,
 
 			 "physics bodies", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
@@ -1733,7 +1733,7 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 					"%-14s %d\n" \
 					"%-14s %d\n" \
 					"%-14s %d\n" \
-					"%-14s %d\n" \
+					"%-14s %.1fK\n" \
 					"%-14s %d\n" \
 					"\n" \
 					"%-14s %d\n" \
@@ -1757,7 +1757,7 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 			 "nodes", stats.nodes,
 			 "meshes", stats.meshes,
 			 "elements", stats.elements,
-			 "polygons", stats.polygons,
+			 "polygons", float(stats.polygons)/1000.0f,//(int)round(float(stats.polygons)/1000.0f),
 			 "lights", stats.lights,
 
 			 "physics bodies", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,

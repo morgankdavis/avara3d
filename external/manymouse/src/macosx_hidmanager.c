@@ -286,6 +286,7 @@ static int config_hidmanager(CFMutableDictionaryRef dict)
         {
             // MKD: macOS 10.15 Catalina make it so the user has to manually allow "Input Monitoring"
             // permissions for the parent process in System Preferences -> Privacy & Security -> Input Monitoring
+            // *maybe* in the future surface this error to the application?
             return openRet;
         }
         else if (openRet != kIOReturnSuccess)

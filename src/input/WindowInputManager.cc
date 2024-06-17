@@ -12,6 +12,7 @@
 #include "manymouse.h"
 
 #include "a3d/diagnostic/exception/Exception.h"
+#include "a3d/diagnostic/exception/NoAvailableMiceException.h"
 #include "a3d/diagnostic/logging/Logger.h"
 #include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/context/Window.h"
@@ -154,6 +155,11 @@ void WindowInputManager::initManyMouse()
     else if (availableMice == 0)
     {
         A3D_LOG_W("No available mice.");
+        // TODO: do we really want to throw here?
+        // this causes the constructor to fail so if the user only wants keyboard input,
+        // they are hosed.  maybe expose mice cout publically, or allow an error
+        // reporting mechanism for things like IOHIDDeviceOpen kIOReturnNotPermitted on macOS
+        throw NoAvailableMiceException("Could not find any mice.");
     }
     else
     {
