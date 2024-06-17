@@ -337,6 +337,7 @@ glm::vec2 Window::framebufferScale() const {
 	Internal Members
  *********************************************************************************************/
 
+// TODO: move this...
 void Window::pollInput() {
 	glfwPollEvents();
 }
@@ -498,7 +499,6 @@ void GLFWWindowCloseCallback(GLFWwindow* glfwWindow) {
 	A3D_LOG_I("glfwWindow: {:p}", static_cast<void*>(glfwWindow));
 
 	auto window = (Window*)glfwGetWindowUserPointer(glfwWindow);
-
 	window->close();
 }
 

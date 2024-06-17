@@ -1625,16 +1625,169 @@ static vector<Node*> SortedLights(map<Node*, float> lights) {
 	return sortedVector;
 }
 	
+//void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
+//
+//	using namespace ImGui;
+//
+////#ifdef OPENGL_DESKTOP
+//
+//	// looks like Imgui automatically handles macOS Retina scaling
+//#if defined(MACOS)
+//	auto scaleXY = vec2(1.0, 1.0);
+//#elif defined(LINUX)
+//	auto scaleXY = vec2(1.0, 1.0);
+//#else
+//	auto scaleXY = context.framebufferScale();
+//#endif
+//
+//	auto scale = std::max(scaleXY.x, scaleXY.y);
+//
+////	ImGui::GetStyle().ScaleAllSizes(scale);
+//	ImGui::GetIO().FontGlobalScale = scale;
+//
+//
+//	ImGui_ImplOpenGL3_NewFrame();
+//	ImGui_ImplGlfw_NewFrame();
+//	NewFrame();
+//
+//	ImGuiWindowFlags windowFlags = 0;
+//	windowFlags |= ImGuiWindowFlags_NoTitleBar;
+//	windowFlags |= ImGuiWindowFlags_NoScrollbar;
+////	windowFlags |= ImGuiWindowFlags_NoMove;
+//	windowFlags |= ImGuiWindowFlags_NoResize;
+//	windowFlags |= ImGuiWindowFlags_NoCollapse;
+//	windowFlags |= ImGuiWindowFlags_NoNav;
+//	windowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
+//
+//	SetNextWindowBgAlpha(.25);
+//	Begin("Stats", nullptr, windowFlags);
+//	ImGuiStyle& style = ImGui::GetStyle();
+//	style.WindowBorderSize = 0;
+////	style.WindowRounding = 6;
+//
+////	ImGui::ShowDemoWindow(nullptr);
+////	ImGui::GetIO();
+//
+//	ImGui::SetWindowPos({10.0f * scaleXY.x, 10.0f * scaleXY.y});
+//
+//	if (context.recordingGIF()) {
+//		auto numFrames = context.recordedGIFFrames();
+//		Text("%-14s %.2f ms\n" \
+//					"%-14s %.2f ms\n" \
+//					"%-14s %.2f ms\n" \
+//					"%-14s %.2f ms\n" \
+//					"%-14s %.0f fps %s\n" \
+//					"\n" \
+//					"%-14s %d\n" \
+//					"%-14s %d\n" \
+//					"%-14s %d\n" \
+//					"%-14s %.1fK\n" \
+//					"%-14s %d\n" \
+//					"\n" \
+//					"%-14s %d\n" \
+//					"%-14s %d\n" \
+//					"%-14s %d\n" \
+//					"%-14s %d\n" \
+//					"%-14s %d\n" \
+//					"%-14s %d\n" \
+//			 		"%-14s %d\n" \
+//					"%-14s %d\n" \
+//					"%-14s %d\n" \
+//					"\n" \
+//					"%-14s (%.1f %.1f %.1f)\n" \
+//					"\n" \
+//					"%-14s %d %s\n",
+//
+//			 "frametime", stats.averageFrametime,
+//			 " draw", stats.averageDrawtime,
+//			 " physics", stats.averagePhysicstime,
+//			 " user", stats.averageUsertime,
+//			 "framerate", stats.averageFramerate, (context.vSyncEnabled() ? "[vsync]" : ""),
+//
+//			 "nodes", stats.nodes,
+//			 "meshes", stats.meshes,
+//			 "elements", stats.elements,
+//			 "polygons", float(stats.polygons)/1000.0f,//(int)round(float(stats.polygons)/1000.0f),
+//			 "lights", stats.lights,
+//
+//			 "physics bodies", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
+//			 " static", stats.staticBodies,
+//			 " dynamic", stats.dynamicBodies,
+//			 " kinematic", stats.kinematicBodies,
+//			 "physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
+//			 " primitive", stats.primitiveShapes,
+//			 " bounding box", stats.boundingBoxShapes,
+//			 " convex hull", stats.convexHullShapes,
+//			 " concave polyh", stats.concavePolyhedronShapes,
+//
+//			 "camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
+//			 "RECORDING", numFrames, (numFrames==1 ? "frame" : "frames"));
+//	}
+//	else {
+//		Text("%-14s %.2f ms\n" \
+//					"%-14s %.2f ms\n" \
+//					"%-14s %.2f ms\n" \
+//					"%-14s %.2f ms\n" \
+//					"%-14s %.0f fps %s\n" \
+//					"\n" \
+//					"%-14s %d\n" \
+//					"%-14s %d\n" \
+//					"%-14s %d\n" \
+//					"%-14s %.1fK\n" \
+//					"%-14s %d\n" \
+//					"\n" \
+//					"%-14s %d\n" \
+//					"%-14s %d\n" \
+//					"%-14s %d\n" \
+//					"%-14s %d\n" \
+//					"%-14s %d\n" \
+//					"%-14s %d\n" \
+//					"%-14s %d\n" \
+//			 		"%-14s %d\n" \
+//					"%-14s %d\n" \
+//					"\n" \
+//					"%-14s (%.1f, %.1f, %.1f)\n",
+//
+//			 "frametime", stats.averageFrametime,
+//			 " draw", stats.averageDrawtime,
+//			 " physics", stats.averagePhysicstime,
+//			 " user", stats.averageUsertime,
+//			 "framerate", stats.averageFramerate, (context.vSyncEnabled() ? "[vsync]" : ""),
+//
+//			 "nodes", stats.nodes,
+//			 "meshes", stats.meshes,
+//			 "elements", stats.elements,
+//			 "polygons", float(stats.polygons)/1000.0f,//(int)round(float(stats.polygons)/1000.0f),
+//			 "lights", stats.lights,
+//
+//			 "physics bodies", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
+//			 " static", stats.staticBodies,
+//			 " dynamic", stats.dynamicBodies,
+//			 " kinematic", stats.kinematicBodies,
+//			 "physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
+//			 " primitive", stats.primitiveShapes,
+//			 " bounding box", stats.boundingBoxShapes,
+//			 " convex hull", stats.convexHullShapes,
+//			 " concave polyh", stats.concavePolyhedronShapes,
+//
+//			 "camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z);
+//	}
+//
+//	End();
+//	Render();
+//	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+//
+////#endif // OPENGL_DESKTOP
+//}
+
 void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 
 	using namespace ImGui;
 
 //#ifdef OPENGL_DESKTOP
 
-	// looks like Imgui automatically handles macOS Retina scaling
-#if defined(MACOS)
-	auto scaleXY = vec2(1.0, 1.0);
-#elif defined(LINUX)
+	// donno
+#if defined(MACOS) || defined(LINUX)
 	auto scaleXY = vec2(1.0, 1.0);
 #else
 	auto scaleXY = context.framebufferScale();
@@ -1644,7 +1797,6 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 
 //	ImGui::GetStyle().ScaleAllSizes(scale);
 	ImGui::GetIO().FontGlobalScale = scale;
-
 
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
@@ -1670,108 +1822,61 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 
 	ImGui::SetWindowPos({10.0f * scaleXY.x, 10.0f * scaleXY.y});
 
+	auto recordingStr = ""s;
 	if (context.recordingGIF()) {
 		auto numFrames = context.recordedGIFFrames();
-		Text("%-14s %.2f ms\n" \
-					"%-14s %.2f ms\n" \
-					"%-14s %.2f ms\n" \
-					"%-14s %.2f ms\n" \
-					"%-14s %.0f fps %s\n" \
-					"\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %.1fK\n" \
-					"%-14s %d\n" \
-					"\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-			 		"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"\n" \
-					"%-14s (%.1f %.1f %.1f)\n" \
-					"\n" \
-					"%-14s %d %s\n",
-
-			 "frametime", stats.averageFrametime,
-			 " draw", stats.averageDrawtime,
-			 " physics", stats.averagePhysicstime,
-			 " user", stats.averageUsertime,
-			 "framerate", stats.averageFramerate, (context.vSyncEnabled() ? "[vsync]" : ""),
-
-			 "nodes", stats.nodes,
-			 "meshes", stats.meshes,
-			 "elements", stats.elements,
-			 "polygons", float(stats.polygons)/1000.0f,//(int)round(float(stats.polygons)/1000.0f),
-			 "lights", stats.lights,
-
-			 "physics bodies", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
-			 " static", stats.staticBodies,
-			 " dynamic", stats.dynamicBodies,
-			 " kinematic", stats.kinematicBodies,
-			 "physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
-			 " primitive", stats.primitiveShapes,
-			 " bounding box", stats.boundingBoxShapes,
-			 " convex hull", stats.convexHullShapes,
-			 " concave polyh", stats.concavePolyhedronShapes,
-
-			 "camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
-			 "RECORDING", numFrames, (numFrames==1 ? "frame" : "frames"));
+		recordingStr = fmt::format("\n%-14s %d %s", "RECORDING", numFrames, (numFrames==1 ? "frame" : "frames"));
 	}
-	else {
-		Text("%-14s %.2f ms\n" \
-					"%-14s %.2f ms\n" \
-					"%-14s %.2f ms\n" \
-					"%-14s %.2f ms\n" \
-					"%-14s %.0f fps %s\n" \
-					"\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %.1fK\n" \
-					"%-14s %d\n" \
-					"\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-			 		"%-14s %d\n" \
-					"%-14s %d\n" \
-					"\n" \
-					"%-14s (%.1f, %.1f, %.1f)\n",
 
-			 "frametime", stats.averageFrametime,
-			 " draw", stats.averageDrawtime,
-			 " physics", stats.averagePhysicstime,
-			 " user", stats.averageUsertime,
-			 "framerate", stats.averageFramerate, (context.vSyncEnabled() ? "[vsync]" : ""),
+	Text("%-14s %.2f ms\n" \
+				"%-14s %.2f ms\n" \
+				"%-14s %.2f ms\n" \
+				"%-14s %.2f ms\n" \
+				"%-14s %.0f fps %s\n" \
+				"\n" \
+				"%-14s %d\n" \
+				"%-14s %d\n" \
+				"%-14s %d\n" \
+				"%-14s %.1fK\n" \
+				"%-14s %d\n" \
+				"\n" \
+				"%-14s %d\n" \
+				"%-14s %d\n" \
+				"%-14s %d\n" \
+				"%-14s %d\n" \
+				"%-14s %d\n" \
+				"%-14s %d\n" \
+				"%-14s %d\n" \
+				"%-14s %d\n" \
+				"%-14s %d\n" \
+				"\n" \
+				"%-14s (%.1f %.1f %.1f)\n" \
+				"%s",
 
-			 "nodes", stats.nodes,
-			 "meshes", stats.meshes,
-			 "elements", stats.elements,
-			 "polygons", float(stats.polygons)/1000.0f,//(int)round(float(stats.polygons)/1000.0f),
-			 "lights", stats.lights,
+		 "frametime", stats.averageFrametime,
+		 " draw", stats.averageDrawtime,
+		 " physics", stats.averagePhysicstime,
+		 " user", stats.averageUsertime,
+		 "framerate", stats.averageFramerate, (context.vSyncEnabled() ? "[vsync]" : ""),
 
-			 "physics bodies", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
-			 " static", stats.staticBodies,
-			 " dynamic", stats.dynamicBodies,
-			 " kinematic", stats.kinematicBodies,
-			 "physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
-			 " primitive", stats.primitiveShapes,
-			 " bounding box", stats.boundingBoxShapes,
-			 " convex hull", stats.convexHullShapes,
-			 " concave polyh", stats.concavePolyhedronShapes,
+		 "nodes", stats.nodes,
+		 "meshes", stats.meshes,
+		 "elements", stats.elements,
+		 "polygons", float(stats.polygons)/1000.0f,//(int)round(float(stats.polygons)/1000.0f),
+		 "lights", stats.lights,
 
-			 "camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z);
-	}
+		 "physics bodies", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
+		 " static", stats.staticBodies,
+		 " dynamic", stats.dynamicBodies,
+		 " kinematic", stats.kinematicBodies,
+		 "physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
+		 " primitive", stats.primitiveShapes,
+		 " bounding box", stats.boundingBoxShapes,
+		 " convex hull", stats.convexHullShapes,
+		 " concave polyh", stats.concavePolyhedronShapes,
+
+		 "camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
+		 recordingStr.c_str());
 
 	End();
 	Render();
