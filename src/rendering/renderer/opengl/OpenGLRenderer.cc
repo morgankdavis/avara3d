@@ -193,7 +193,6 @@ static vector<Node*> 	SortedLights(map<Node*, float> lights);
 static void			InitImgui(const RenderContext& context);
 void 				UpdateImguiScale(const RenderContext& context, const Font& font);
 static void 		DrawStatsOverlay(Stats& stats, const RenderContext& context);
-static void 		DrawStatsOverlayShadow(Stats& stats, const RenderContext& context);
 static void 		SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode);
 static void 		SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode);
 static void 		SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max);
@@ -1691,8 +1690,6 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 
 	using namespace ImGui;
 
-//#ifdef OPENGL_DESKTOP
-
 	// donno
 #if defined(MACOS) || defined(LINUX)
 	auto scaleXY = vec2(1.0, 1.0);
@@ -1700,7 +1697,70 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 	auto scaleXY = context.framebufferScale();
 #endif
 
-	auto scale = std::max(scaleXY.x, scaleXY.y);
+	//auto scale = std::max(scaleXY.x, scaleXY.y);
+
+	constexpr unsigned RECORD_STR_LEN = 64;
+	static char recordingStr[RECORD_STR_LEN];
+	if (context.recordingGIF()) {
+		auto numFrames = context.recordedGIFFrames();
+		snprintf(recordingStr, RECORD_STR_LEN, "\n%-14s %d %s",
+				 "RECORDING", numFrames, (numFrames==1 ? "frame" : "frames"));
+	}
+	else {
+		recordingStr[0] = '\0';
+	}
+
+	constexpr unsigned STATUS_STR_LEN = 512;
+	static char str[STATUS_STR_LEN];
+	snprintf(str, STATUS_STR_LEN, "%-14s %.2f ms\n" \
+				"%-14s %.2f ms\n" \
+				"%-14s %.2f ms\n" \
+				"%-14s %.2f ms\n" \
+				"%-14s %.0f fps %s\n" \
+				"\n" \
+				"%-14s %d\n" \
+				"%-14s %d\n" \
+				"%-14s %d\n" \
+				"%-14s %.1fK\n" \
+				"%-14s %d\n" \
+				"\n" \
+				"%-14s %d\n" \
+				"%-14s %d\n" \
+				"%-14s %d\n" \
+				"%-14s %d\n" \
+				"%-14s %d\n" \
+				"%-14s %d\n" \
+				"%-14s %d\n" \
+				"%-14s %d\n" \
+				"%-14s %d\n" \
+				"\n" \
+				"%-14s (%.1f, %.1f, %.1f)\n" \
+				"%s",
+
+		 "frametime", stats.averageFrametime,
+		 " draw", stats.averageDrawtime,
+		 " physics", stats.averagePhysicstime,
+		 " user", stats.averageUsertime,
+		 "framerate", stats.averageFramerate, (context.vSyncEnabled() ? "[vsync]" : ""),
+
+		 "nodes", stats.nodes,
+		 "meshes", stats.meshes,
+		 "elements", stats.elements,
+		 "polygons", float(stats.polygons)/1000.0f,//(int)round(float(stats.polygons)/1000.0f),
+		 "lights", stats.lights,
+
+		 "physics bodies", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
+		 " static", stats.staticBodies,
+		 " dynamic", stats.dynamicBodies,
+		 " kinematic", stats.kinematicBodies,
+		 "physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
+		 " primitive", stats.primitiveShapes,
+		 " bounding box", stats.boundingBoxShapes,
+		 " convex hull", stats.convexHullShapes,
+		 " concave polyh", stats.concavePolyhedronShapes,
+
+		 "camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
+		 recordingStr);
 
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
@@ -1715,189 +1775,24 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 	windowFlags |= ImGuiWindowFlags_NoNav;
 	windowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
 
-	//SetNextWindowBgAlpha(.25);
+	// draw the text shadow
 	SetNextWindowBgAlpha(0);
-	Begin("Stats", nullptr, windowFlags);
-	ImGuiStyle& style = ImGui::GetStyle();
+	Begin("StatsTextShadow", nullptr, windowFlags);
+	ImGuiStyle& style = GetStyle();
 	style.WindowBorderSize = 0;
-//	style.WindowRounding = 6;
-
-	ImGui::SetWindowPos({(10.0f * scaleXY.x) + 1, (10.0f * scaleXY.y) + 1});
-
-	constexpr unsigned RECORD_STR_LEN = 64;
-	char recordingStr[RECORD_STR_LEN];
-	if (context.recordingGIF()) {
-		auto numFrames = context.recordedGIFFrames();
-		snprintf(recordingStr, RECORD_STR_LEN, "\n%-14s %d %s",
-				 "RECORDING", numFrames, (numFrames==1 ? "frame" : "frames"));
-	}
-	else {
-		recordingStr[0] = '\0';
-	}
-
-	TextColored(ImVec4{0, 0, 0, .5},
-		"%-14s %.2f ms\n" \
-				"%-14s %.2f ms\n" \
-				"%-14s %.2f ms\n" \
-				"%-14s %.2f ms\n" \
-				"%-14s %.0f fps %s\n" \
-				"\n" \
-				"%-14s %d\n" \
-				"%-14s %d\n" \
-				"%-14s %d\n" \
-				"%-14s %.1fK\n" \
-				"%-14s %d\n" \
-				"\n" \
-				"%-14s %d\n" \
-				"%-14s %d\n" \
-				"%-14s %d\n" \
-				"%-14s %d\n" \
-				"%-14s %d\n" \
-				"%-14s %d\n" \
-				"%-14s %d\n" \
-				"%-14s %d\n" \
-				"%-14s %d\n" \
-				"\n" \
-				"%-14s (%.1f, %.1f, %.1f)\n" \
-				"%s",
-
-		 "frametime", stats.averageFrametime,
-		 " draw", stats.averageDrawtime,
-		 " physics", stats.averagePhysicstime,
-		 " user", stats.averageUsertime,
-		 "framerate", stats.averageFramerate, (context.vSyncEnabled() ? "[vsync]" : ""),
-
-		 "nodes", stats.nodes,
-		 "meshes", stats.meshes,
-		 "elements", stats.elements,
-		 "polygons", float(stats.polygons)/1000.0f,//(int)round(float(stats.polygons)/1000.0f),
-		 "lights", stats.lights,
-
-		 "physics bodies", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
-		 " static", stats.staticBodies,
-		 " dynamic", stats.dynamicBodies,
-		 " kinematic", stats.kinematicBodies,
-		 "physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
-		 " primitive", stats.primitiveShapes,
-		 " bounding box", stats.boundingBoxShapes,
-		 " convex hull", stats.convexHullShapes,
-		 " concave polyh", stats.concavePolyhedronShapes,
-
-		 "camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
-		 recordingStr);
-
+	SetWindowPos({(10.0f * scaleXY.x) + 1, (10.0f * scaleXY.y) + 1});
+	TextColored(ImVec4{0, 0, 0, .5}, "%s", str);
 	End();
 
-	DrawStatsOverlayShadow(stats, context);
+	// draw the text
+	SetNextWindowBgAlpha(0);
+	Begin("StatsText", nullptr, windowFlags);
+	SetWindowPos({(10.0f * scaleXY.x), (10.0f * scaleXY.y)});
+	TextColored(ImVec4{1, 1, 1, 1}, "%s", str);
+	End();
 
-	//End();
 	Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-//#endif // OPENGL_DESKTOP
-}
-
-void DrawStatsOverlayShadow(Stats& stats, const RenderContext& context) {
-
-	using namespace ImGui;
-
-//#ifdef OPENGL_DESKTOP
-
-	// donno
-#if defined(MACOS) || defined(LINUX)
-	auto scaleXY = vec2(1.0, 1.0);
-#else
-	auto scaleXY = context.framebufferScale();
-#endif
-
-	auto scale = std::max(scaleXY.x, scaleXY.y);
-
-	// ImGui_ImplOpenGL3_NewFrame();
-	// ImGui_ImplGlfw_NewFrame();
-	// NewFrame();
-
-	ImGuiWindowFlags windowFlags = 0;
-	windowFlags |= ImGuiWindowFlags_NoTitleBar;
-	windowFlags |= ImGuiWindowFlags_NoScrollbar;
-	windowFlags |= ImGuiWindowFlags_NoMove;
-	windowFlags |= ImGuiWindowFlags_NoResize;
-	windowFlags |= ImGuiWindowFlags_NoCollapse;
-	windowFlags |= ImGuiWindowFlags_NoNav;
-	windowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
-
-	SetNextWindowBgAlpha(0);
-	Begin("StatsShadow", nullptr, windowFlags);
-	ImGuiStyle& style = ImGui::GetStyle();
-	style.WindowBorderSize = 0;
-//	style.WindowRounding = 6;
-
-	ImGui::SetWindowPos({(10.0f * scaleXY.x) + 0, (10.0f * scaleXY.y) + 0});
-
-	constexpr unsigned RECORD_STR_LEN = 64;
-	char recordingStr[RECORD_STR_LEN];
-	if (context.recordingGIF()) {
-		auto numFrames = context.recordedGIFFrames();
-		snprintf(recordingStr, RECORD_STR_LEN, "\n%-14s %d %s",
-				 "RECORDING", numFrames, (numFrames==1 ? "frame" : "frames"));
-	}
-	else {
-		recordingStr[0] = '\0';
-	}
-
-	TextColored(ImVec4{1, 1, 1, 1},
-		"%-14s %.2f ms\n" \
-				"%-14s %.2f ms\n" \
-				"%-14s %.2f ms\n" \
-				"%-14s %.2f ms\n" \
-				"%-14s %.0f fps %s\n" \
-				"\n" \
-				"%-14s %d\n" \
-				"%-14s %d\n" \
-				"%-14s %d\n" \
-				"%-14s %.1fK\n" \
-				"%-14s %d\n" \
-				"\n" \
-				"%-14s %d\n" \
-				"%-14s %d\n" \
-				"%-14s %d\n" \
-				"%-14s %d\n" \
-				"%-14s %d\n" \
-				"%-14s %d\n" \
-				"%-14s %d\n" \
-				"%-14s %d\n" \
-				"%-14s %d\n" \
-				"\n" \
-				"%-14s (%.1f, %.1f, %.1f)\n" \
-				"%s",
-
-		 "frametime", stats.averageFrametime,
-		 " draw", stats.averageDrawtime,
-		 " physics", stats.averagePhysicstime,
-		 " user", stats.averageUsertime,
-		 "framerate", stats.averageFramerate, (context.vSyncEnabled() ? "[vsync]" : ""),
-
-		 "nodes", stats.nodes,
-		 "meshes", stats.meshes,
-		 "elements", stats.elements,
-		 "polygons", float(stats.polygons)/1000.0f,//(int)round(float(stats.polygons)/1000.0f),
-		 "lights", stats.lights,
-
-		 "physics bodies", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
-		 " static", stats.staticBodies,
-		 " dynamic", stats.dynamicBodies,
-		 " kinematic", stats.kinematicBodies,
-		 "physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
-		 " primitive", stats.primitiveShapes,
-		 " bounding box", stats.boundingBoxShapes,
-		 " convex hull", stats.convexHullShapes,
-		 " concave polyh", stats.concavePolyhedronShapes,
-
-		 "camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
-		 recordingStr);
-
-	End();
-
-//#endif // OPENGL_DESKTOP
+	ImGui_ImplOpenGL3_RenderDrawData(GetDrawData());
 }
 
 static void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode) {
