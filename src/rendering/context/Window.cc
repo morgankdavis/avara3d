@@ -141,9 +141,7 @@ Window::Window(RenderingApi renderingAPI,
 		}
 	}
 	else {
-		auto errStr = "Couldn't create GLFW Window.";
-		A3D_LOG_F(errStr);
-		throw Exception(errStr);
+		throw Exception("Couldn't initialize GLFW.");
 	}
 }
 
@@ -152,7 +150,7 @@ Window::~Window() {
 
 	close(); // meh?
 
-	// TODO: must move to support multiple windows
+	// TODO: must modify to support multiple windows
 	glfwSetErrorCallback(nullptr);
 	glfwTerminate();
 }
@@ -209,7 +207,7 @@ void Window::close() {
 }
 
 bool Window::isOpen() const {
-	// GLFW_VISIBLE is still true after the window is closes... ?
+	// GLFW_VISIBLE is still true after the window is closed... ?
 	// return glfwGetWindowAttrib(_glfwWindow.get(), GLFW_VISIBLE) == GLFW_TRUE;
 	return _open;
 }
@@ -369,7 +367,7 @@ static bool InitGLFW() {
 		glfwGetVersion(&glfwMajVers, &glfwMinVers, &glfwRev);
 		A3D_LOG_I("Starting GLFW version {}.{}.{}...", glfwMajVers, glfwMinVers, glfwRev);
 
-		// TODO: must move to support multiple windows
+		// TODO: must modify to support multiple windows
 		glfwSetErrorCallback(GLFWErrorCallback);
 		
 		if (glfwInit()) {
