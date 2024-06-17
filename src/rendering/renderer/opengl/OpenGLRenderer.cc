@@ -1646,6 +1646,8 @@ void InitImgui(const RenderContext& context) {
 void UpdateImguiScale(const RenderContext& context, const Font& font) {
 	A3D_LOG_D("");
 
+	constexpr float FONT_SIZE = 15.0;
+
 // #if defined(MACOS) || defined(LINUX)
 // 	auto scaleXY = vec2(1.0, 1.0);
 // #else
@@ -1680,10 +1682,14 @@ void UpdateImguiScale(const RenderContext& context, const Font& font) {
         //io.DisplaySize = ImVec2((float)display_w, (float)display_h);
 //    }
 
-	ImFont* imFont = io.Fonts->AddFontFromMemoryTTF(font.buffer()->data(),
-													(int)font.buffer()->size(),
-													14.0,
-													&fontConfig);
+//	ImFont* imFont = io.Fonts->AddFontFromMemoryTTF(font.buffer()->data(),
+//													(int)font.buffer()->size(),
+//													FONT_SIZE,
+//													&fontConfig);
+	io.Fonts->AddFontFromMemoryTTF(font.buffer()->data(),
+								   (int)font.buffer()->size(),
+								   FONT_SIZE,
+								   &fontConfig);
 }
 
 void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
@@ -1699,7 +1705,7 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 
 	//auto scale = std::max(scaleXY.x, scaleXY.y);
 
-	constexpr unsigned RECORD_STR_LEN = 64;
+	constexpr unsigned RECORD_STR_LEN = 32;
 	static char recordingStr[RECORD_STR_LEN];
 	if (context.recordingGIF()) {
 		auto numFrames = context.recordedGIFFrames();
