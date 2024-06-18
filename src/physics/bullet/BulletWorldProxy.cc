@@ -21,6 +21,7 @@
 #include "a3d/physics/PhysicsShape.h"
 #include "a3d/physics/bullet/BulletBodyProxy.h"
 #include "a3d/physics/bullet/BulletDebugDrawer.h"
+#include "a3d/physics/bullet/BulletUtilities.h"
 #include "a3d/scene/Node.h"
 
 
@@ -54,7 +55,7 @@ BulletWorldProxy::BulletWorldProxy(PhysicalWorld& world):
 
 	A3D_LOG_I("Bullet Physics version: {}",  btGetVersion());
 
-#ifdef OPENGL_DESKTOP
+#ifdef OPENGL_CORE
 	_btDebugDrawer = make_unique<BulletDebugDrawer>();
 	_btWorld->setDebugDrawer(_btDebugDrawer.get());
 #endif
@@ -73,9 +74,24 @@ void BulletWorldProxy::add(PhysicsBody& body) {
 	A3D_LOG_D("body: {:p}", static_cast<void*>(&body));
 
 	auto bodyProxy = static_cast<BulletBodyProxy*>(body.proxy());
-	//bodyModel->btBody()->setWorldTransform(BTTransformFromGLMMat4(body.node()->worldTransform()));
-	auto b = bodyProxy->btBody();
-	_btWorld->addRigidBody(b);
+	auto btBody = bodyProxy->btBody();
+
+	// since at the time of creation, the PhysicsBody isn't attached to a Node,
+	// we use an emty motion state in BulletBodyProxy::BulletBodyProxy(),
+	// so the btBody's transform is the identity matrix.
+	// now that the body has a Node, set its initial transform here.
+	if (auto node = body.node().lock()) {
+		auto nodeTransform = node->worldTransform();
+		auto btTransform = BTTransformFromGLMMat4(nodeTransform);
+		btBody->setWorldTransform(btTransform);
+		// without proceedToTransform(), objects still spawn at the origin for 1 frame (??)
+		btBody->proceedToTransform(btTransform);
+	}
+	else {
+		A3D_LOG_W("Adding PhysicsBody without a Node??");
+	}
+
+	_btWorld->addRigidBody(btBody);
 
 	switch (body.type()) {
 		case PhysicsBodyType::Static:
@@ -182,7 +198,7 @@ void BulletWorldProxy::drawDebug(Renderer &renderer,
 								 const glm::mat4 &projectionMat,
 								 const DebugOptions &debugOptions) {
 
-#ifdef OPENGL_DESKTOP
+#ifdef OPENGL_CORE
 	auto btDebugModes = BTDebugDrawModesForA3DDebugOptions(debugOptions);
 
 	_btDebugDrawer->setDebugMode(btDebugModes);
