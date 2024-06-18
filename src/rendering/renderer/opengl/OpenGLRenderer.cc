@@ -1714,68 +1714,69 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 
 	//auto scale = std::max(scaleXY.x, scaleXY.y);
 
-	constexpr unsigned RECORD_STR_LEN = 32;
-	static char recordingStr[RECORD_STR_LEN];
+	constexpr unsigned MAX_RECORDING_STR_LEN = 32;
+	static char recordingStr[MAX_RECORDING_STR_LEN];
 	if (context.recordingGIF()) {
 		auto numFrames = context.recordedGIFFrames();
-		snprintf(recordingStr, RECORD_STR_LEN, "\n%-14s %d %s",
+		snprintf(recordingStr, MAX_RECORDING_STR_LEN, "\n%-14s %d %s",
 				 "RECORDING", numFrames, (numFrames==1 ? "frame" : "frames"));
 	}
 	else {
 		recordingStr[0] = '\0';
 	}
 
-	constexpr unsigned STATUS_STR_LEN = 512;
-	static char str[STATUS_STR_LEN];
-	snprintf(str, STATUS_STR_LEN, "%-14s %.2f ms\n" \
-				"%-14s %.2f ms\n" \
-				"%-14s %.2f ms\n" \
-				"%-14s %.2f ms\n" \
-				"%-14s %.0f fps %s\n" \
-				"\n" \
-				"%-14s %d\n" \
-				"%-14s %d\n" \
-				"%-14s %d\n" \
-				"%-14s %.1fK\n" \
-				"%-14s %d\n" \
-				"\n" \
-				"%-14s %d\n" \
-				"%-14s %d\n" \
-				"%-14s %d\n" \
-				"%-14s %d\n" \
-				"%-14s %d\n" \
-				"%-14s %d\n" \
-				"%-14s %d\n" \
-				"%-14s %d\n" \
-				"%-14s %d\n" \
-				"\n" \
-				"%-14s (%.1f, %.1f, %.1f)\n" \
-				"%s",
+	constexpr unsigned MAX_STATUS_STR_LEN = 512;
+	static char str[MAX_STATUS_STR_LEN];
+	snprintf(str, MAX_STATUS_STR_LEN,
+			 "%-14s %.2f ms\n" \
+			 "%-14s %.2f ms\n" \
+			 "%-14s %.2f ms\n" \
+			 "%-14s %.2f ms\n" \
+			 "%-14s %.0f fps %s\n" \
+			 "\n" \
+			 "%-14s %d\n" \
+			 "%-14s %d\n" \
+			 "%-14s %d\n" \
+			 "%-14s %.1fK\n" \
+			 "%-14s %d\n" \
+			 "\n" \
+			 "%-14s %d\n" \
+			 "%-14s %d\n" \
+			 "%-14s %d\n" \
+			 "%-14s %d\n" \
+			 "%-14s %d\n" \
+			 "%-14s %d\n" \
+			 "%-14s %d\n" \
+			 "%-14s %d\n" \
+			 "%-14s %d\n" \
+			 "\n" \
+			 "%-14s (%.1f, %.1f, %.1f)\n" \
+			 "%s",
 
-		 "frametime", stats.averageFrametime,
-		 " draw", stats.averageDrawtime,
-		 " physics", stats.averagePhysicstime,
-		 " user", stats.averageUsertime,
-		 "framerate", stats.averageFramerate, (context.vSyncEnabled() ? "[vsync]" : ""),
+			 "frametime", stats.averageFrametime,
+			 " draw", stats.averageDrawtime,
+			 " physics", stats.averagePhysicstime,
+			 " user", stats.averageUsertime,
+			 "framerate", stats.averageFramerate, (context.vSyncEnabled() ? "[vsync]" : ""),
 
-		 "nodes", stats.nodes,
-		 "meshes", stats.meshes,
-		 "elements", stats.elements,
-		 "polygons", float(stats.polygons)/1000.0f,//(int)round(float(stats.polygons)/1000.0f),
-		 "lights", stats.lights,
+			 "nodes", stats.nodes,
+			 "meshes", stats.meshes,
+			 "elements", stats.elements,
+			 "polygons", float(stats.polygons)/1000.0f,//(int)round(float(stats.polygons)/1000.0f),
+			 "lights", stats.lights,
 
-		 "physics bodies", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
-		 " static", stats.staticBodies,
-		 " dynamic", stats.dynamicBodies,
-		 " kinematic", stats.kinematicBodies,
-		 "physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
-		 " primitive", stats.primitiveShapes,
-		 " bounding box", stats.boundingBoxShapes,
-		 " convex hull", stats.convexHullShapes,
-		 " concave polyh", stats.concavePolyhedronShapes,
+			 "physics bodies", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
+			 " static", stats.staticBodies,
+			 " dynamic", stats.dynamicBodies,
+			 " kinematic", stats.kinematicBodies,
+			 "physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
+			 " primitive", stats.primitiveShapes,
+			 " bounding box", stats.boundingBoxShapes,
+			 " convex hull", stats.convexHullShapes,
+			 " concave polyh", stats.concavePolyhedronShapes,
 
-		 "camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
-		 recordingStr);
+			 "camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
+			 recordingStr);
 
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
