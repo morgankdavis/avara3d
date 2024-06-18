@@ -36,8 +36,8 @@ using namespace std;
 	Internal Lifecycle
  *********************************************************************************************/
 
-BulletBodyProxy::BulletBodyProxy(PhysicsBody& body):
-		PhysicsBodyProxy{body},
+BulletBodyProxy::BulletBodyProxy(PhysicsBody& body, PhysicsBodyType type):
+		PhysicsBodyProxy{body, type},
 		_btBody{},
 		/*_btMotionState(nullptr)*/
 		_motionState{} {
@@ -54,7 +54,7 @@ BulletBodyProxy::BulletBodyProxy(PhysicsBody& body):
 	// it seems as though adding a body to the world with mass=0 forever casts it
 	// as a static body. adding it, setting it to 0, the setting it to something
 	// different seems to work fine, though.
-	btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo((body.type() == PhysicsBodyType::Static
+	btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo((/*body.type()*/type == PhysicsBodyType::Static
 															? 0.0f
 															: 1.0f), // important!
 														   _motionState.get(),
@@ -71,7 +71,7 @@ BulletBodyProxy::BulletBodyProxy(PhysicsBody& body):
 	int flags = 0;
 	int activationState = _btBody->getActivationState();
 
-	switch (body.type()) {
+	switch (/*body.type()*/type) {
 		case PhysicsBodyType::Static:
 			flags = btCollisionObject::CF_STATIC_OBJECT;
 			activationState = activationState & ~DISABLE_DEACTIVATION;
@@ -104,8 +104,10 @@ PhysicsBodyType BulletBodyProxy::type() const {
 
 	auto flags = _btBody->getCollisionFlags();
 
+	// btCollisionObject::CF_DYNAMIC_OBJECT (0) will never bitwise AND with anything
+	//	if (flags & btCollisionObject::CF_DYNAMIC_OBJECT) return PhysicsBodyType::Dynamic;
+	if (flags == btCollisionObject::CF_DYNAMIC_OBJECT) return PhysicsBodyType::Dynamic;
 	if (flags & btCollisionObject::CF_STATIC_OBJECT) return PhysicsBodyType::Static;
-	if (flags & btCollisionObject::CF_DYNAMIC_OBJECT) return PhysicsBodyType::Dynamic;
 	if (flags & btCollisionObject::CF_KINEMATIC_OBJECT) return PhysicsBodyType::Kinematic;
 
 	return PhysicsBodyType::Static;
@@ -153,11 +155,10 @@ void BulletBodyProxy::shapeProxy(PhysicsShapeProxy* proxy) {
 
 			_btBody->setCollisionShape(btShape);
 
-			auto mass = BulletBodyProxy::mass();
 			switch (_body->type()) {
 				case PhysicsBodyType::Static:
 				case PhysicsBodyType::Kinematic:
-					mass = 0;
+					this->mass(0);
 					break;
 				case PhysicsBodyType::Dynamic:
 					break;
@@ -165,7 +166,7 @@ void BulletBodyProxy::shapeProxy(PhysicsShapeProxy* proxy) {
 
 			_shapeProxy = proxy;
 
-			if (_autocalculatesMomentOfInertia) {
+			if (this->type() == PhysicsBodyType::Dynamic && _autocalculatesMomentOfInertia) {
 				calculateMomentOfIntertia();
 			}
 		}
@@ -191,7 +192,7 @@ void BulletBodyProxy::mass(float mass) {
 
 	_btBody->setMassProps(mass, _btBody->getLocalInertia());
 
-	if (_autocalculatesMomentOfInertia) {
+	if (type() == PhysicsBodyType::Dynamic && _autocalculatesMomentOfInertia) {
 		calculateMomentOfIntertia();
 	}
 
@@ -485,7 +486,7 @@ void BulletBodyProxy::calculateMomentOfIntertia() {
 			A3D_LOG_W("Missing btCollisionShape.");
 		}
 	}
-	else {
-		A3D_LOG_W("Missing PhysicsShapeModelProxy.");
-	}
+//	else {
+//		A3D_LOG_W("Missing PhysicsShapeModelProxy.");
+//	}
 }

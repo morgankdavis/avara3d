@@ -193,7 +193,6 @@ namespace a3d {
 	Private IVars
  *********************************************************************************************/
 
-		PhysicsBodyType 					_type;
 		std::shared_ptr<PhysicsShape>		_shape;
 		std::unique_ptr<PhysicsBodyProxy>	_proxy;
 		std::weak_ptr<Node>					_node;
