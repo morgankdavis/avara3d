@@ -77,14 +77,14 @@ void BulletWorldProxy::add(PhysicsBody& body) {
 	auto btBody = bodyProxy->btBody();
 
 	// since at the time of creation, the PhysicsBody isn't attached to a Node,
-	// we use an emty motion state in BulletBodyProxy::BulletBodyProxy(),
+	// we use an empty motion state in BulletBodyProxy::BulletBodyProxy(),
 	// so the btBody's transform is the identity matrix.
 	// now that the body has a Node, set its initial transform here.
 	if (auto node = body.node().lock()) {
 		auto nodeTransform = node->worldTransform();
 		auto btTransform = BTTransformFromGLMMat4(nodeTransform);
 		btBody->setWorldTransform(btTransform);
-		// without proceedToTransform(), objects still spawn at the origin for 1 frame (??)
+		// without proceedToTransform(), objects still spawn at the origin for 1st step (?)
 		btBody->proceedToTransform(btTransform);
 	}
 	else {

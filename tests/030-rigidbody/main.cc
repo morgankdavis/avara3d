@@ -36,7 +36,7 @@ constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					USE_DEFAULT_LIGHTING =	false;
 constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
-constexpr float					PHYSICS_TIMESTEP =		1.0/120.0;
+constexpr float					PHYSICS_TIMESTEP =		1.0/240.0;
 constexpr bool					DARK =					false;
 
 
