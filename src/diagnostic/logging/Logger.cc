@@ -167,11 +167,11 @@ void Logger::error(const char* format, ...) {
 	va_end(args);
 }
 
-void Logger::critical(const char* format, ...) {
+void Logger::fatal(const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LogLevel::Critical, format, args);
+	log(LogLevel::Fatal, format, args);
 	va_end(args);
 }
 
@@ -230,13 +230,13 @@ void Logger::error(bool useHeader,
 	va_end(args);
 }
 
-void Logger::critical(bool useHeader,
-					  const char* filename, int line, const char* function,
-					  const char* format, ...) {
+void Logger::fatal(bool useHeader,
+				  const char* filename, int line, const char* function,
+				  const char* format, ...) {
 
 	va_list args;
 	va_start(args, format);
-	log(LogLevel::Critical, useHeader, filename, line, function, format, args);
+	log(LogLevel::Fatal, useHeader, filename, line, function, format, args);
 	va_end(args);
 }
 

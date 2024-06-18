@@ -805,7 +805,7 @@ extern "C" {
  *  this error.
  *
  *  @analysis Platform or platform version limitation.  The error can be ignored
- *  unless the feature is critical to the application.
+ *  unless the feature is fatal to the application.
  *
  *  @par
  *  A function call that emits this error has no effect other than the error and
@@ -818,7 +818,7 @@ extern "C" {
  *
  *  @analysis An incomplete implementation of GLFW for this platform, hopefully
  *  fixed in a future release.  The error can be ignored unless the feature is
- *  critical to the application.
+ *  fatal to the application.
  *
  *  @par
  *  A function call that emits this error has no effect other than the error and

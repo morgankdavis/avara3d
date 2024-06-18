@@ -70,8 +70,8 @@ namespace a3d {
 		const std::vector<std::unique_ptr<MeshElement>>&	elements();
 		const std::vector<std::shared_ptr<Material>>& 		materials();
 
-		std::shared_ptr<Material> 				firstMaterial() const;
-		std::shared_ptr<Material> 				materialNamed(const std::string& name) const;
+		const std::shared_ptr<Material>* 		firstMaterial() const;
+		const std::shared_ptr<Material>* 		materialNamed(const std::string& name) const;
 		void 									addMaterial(const std::shared_ptr<Material>& material);
 		void 									insertMaterial(const std::shared_ptr<Material>& material,
 															   int index);

@@ -591,7 +591,8 @@ void a3d::utils::SaveSnapshot(RenderContext& context) {
 }
 
 void a3d::utils::StartGIFRecording(RenderContext& context,
-								   int maxHeight, int maxFramerate) {
+								   vec2 fitInside,
+								   unsigned maxFramerate) {
 
 	constexpr size_t BUF_SIZE = 256;
 	char filename[BUF_SIZE] = "";
@@ -599,7 +600,7 @@ void a3d::utils::StartGIFRecording(RenderContext& context,
 	auto execDir = ExecutableDirectory();
 	if (execDir) {
 		auto fullPath = *execDir / filename;
-		context.startGIFRecording(fullPath.string(), maxHeight, maxFramerate);
+		context.startGIFRecording(fullPath.string(), fitInside, maxFramerate);
 	}
 	else {
 		A3D_LOG_W("Couldn't locate executable directory.");

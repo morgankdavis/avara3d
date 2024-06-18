@@ -22,10 +22,9 @@ using namespace std::placeholders;
 
 
 constexpr LogLevel				LOG_LEVEL =				LogLevel::Debug;
-constexpr bool					ENABLE_HIGH_DPI =		true;
-constexpr unsigned				WINDOW_WIDTH =			800;
-constexpr unsigned				WINDOW_HEIGHT =			600;
+constexpr uvec2					WINDOW_SIZE =			{1280, 768};
 constexpr bool					FULLSCREEN =			false;
+constexpr bool					ENABLE_HIGH_DPI =		true;
 constexpr AntialiasingMode		ANTIALIAS_MODE =		AntialiasingMode::None;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
@@ -51,8 +50,7 @@ int main(int argc, const char* argv[]) {
 
 	auto window = make_unique<Window>(RenderingApi::OpenGL,
 									  *utils::ExecutableName(),
-									  WINDOW_WIDTH,
-									  WINDOW_HEIGHT,
+									  WINDOW_SIZE,
 									  FULLSCREEN,
 									  ENABLE_HIGH_DPI,
 									  ANTIALIAS_MODE);
@@ -114,6 +112,7 @@ int main(int argc, const char* argv[]) {
 	auto boxNode = Node::MeshNode(Box::Mesh(1.0, 1.0, 1.0));
 	scene->rootNode()->addChild(boxNode);
 
+	window->center();
 	window->open();
 	scene->run();
 
@@ -181,7 +180,7 @@ void UpdateCallback(Scene& scene, float time, float deltaTime) {
 
 	if (keysPressed.count(Key::R)) {
 		if (!window->recordingGIF()) {
-			utils::StartGIFRecording(*window, 320, 8);
+			utils::StartGIFRecording(*window, {320, 240}, 8);
 		}
 		else {
 			utils::StopGIFRecording(*window);

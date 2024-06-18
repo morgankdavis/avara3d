@@ -18,7 +18,7 @@
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
 #else
-#include "GL/glew.h"
+#include "glad/glad.h"
 #endif
 
 //#ifdef OPENGL_DESKTOP
@@ -66,14 +66,14 @@ using namespace std;
 	Private Types
  *********************************************************************************************/
 
-enum class MATERIAL_MODE : int {
-	NONE = 		0,
-	COLOR = 	1,
-	SAMPLER = 	2
+enum class MaterialType : unsigned {
+	None = 		0,
+	Color = 	1,
+	Sampler = 	2
 };
 
 typedef struct {
-	int32_t 	type;
+	uint32_t 	type;
 	float32_t 	PADDING1;
 	float32_t 	PADDING2;
 	float32_t 	PADDING3;
@@ -102,6 +102,15 @@ typedef struct {
 	/* float32_t 	PADDING2; */
 } FogGLSLStruct;
 
+typedef struct {
+	uint32_t 			numLights;
+	float32_t 			PADDING1;
+	float32_t 			PADDING2;
+	float32_t 			PADDING3;
+	LightGLSLStruct 	lights[MAX_DYNAMIC_LIGHTS+1]; // +1 ambient
+	FogGLSLStruct		fog;
+} EnvironmentBlock;
+
 /*********************************************************************************************
 	Private Static Non-Member Prototypes
  *********************************************************************************************/
@@ -113,10 +122,10 @@ static void 		RenderSkybox(Mesh& skyboxMesh,
 								unordered_set<Texture*>& activeTextures);
 static void 		GetMeshElementGLVertexDataHandles(MeshElement& element,
 													 OpenGLRenderer::MeshElementGLMapping& glMapping,
-													 GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
+													 GLuint& glVBO, GLuint& glVAO, GLuint& glEBO);
 static void 		GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
 												OpenGLRenderer::MeshElementGLMapping& glMapping,
-												GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
+												GLuint& glVBO, GLuint& glVAO, GLuint& glEBO);
 static void 		GetLinesVertexDataHandles(const vector<Line>& lines,
 											 Program& program,
 											 OpenGLRenderer::LinesGLMapping& glMapping,
@@ -127,10 +136,10 @@ static void 		GetTextureGLTextureHandles(Material& material,
 											  map<MaterialPropertyType, GLuint>& glTextureHandles);
 static void 		BufferMeshElementVertexData(const MeshElement& element,
 											   Program& program,
-											   GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
+											   GLuint& glVBO, GLuint& glVAO, GLuint& glEBO);
 static void 		BufferSkyboxVertexData(Mesh& skyboxMesh,
 										  Program& program,
-										  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO);
+										  GLuint& glVBO, GLuint& glVAO, GLuint& glEBO);
 static void 		BufferLinesVertexData(const vector<Line>& lines,
 										 Program& program,
 										 GLuint& glVBO, GLuint& glVAO);
@@ -157,11 +166,11 @@ static void 		DrawMeshElement(MeshElement& element,
 								   const mat4& modelMat,
 								   const mat4& viewMat,
 								   const mat4& projectionMat,
-								   GLuint vao, GLuint ibo);
+								   GLuint vao, GLuint ebo);
 static void 		DrawSkyboxElement(MeshElement& element,
 									 Program& program,
 									 Node& pointOfView,
-									 GLuint vao, GLuint ibo);
+									 GLuint vao, GLuint ebo);
 static void 		DrawLines(const vector<Line>& lines,
 							 Program& program,
 							 const mat4& modelMat,
@@ -181,6 +190,8 @@ static void 		DeleteTextureGLResources(Texture* texture,
 static void 		DeleteLinesGLResources(const vector<Line>& lines,
 										  OpenGLRenderer::LinesGLMapping& glMapping);
 static vector<Node*> 	SortedLights(map<Node*, float> lights);
+static void			InitImgui(const RenderContext& context);
+void 				UpdateImguiScale(const RenderContext& context, const Font& font);
 static void 		DrawStatsOverlay(Stats& stats, const RenderContext& context);
 static void 		SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode);
 static void 		SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode);
@@ -196,8 +207,8 @@ static void 		CheckGLError();
 	Internal Lifecycle
  *********************************************************************************************/
 
-OpenGLRenderer::OpenGLRenderer(RenderContext& context):
-		Renderer{context},
+OpenGLRenderer::OpenGLRenderer():
+		Renderer{},
 		_meshElementGLMapping{},
 		_textureGLMapping{},
 		_linesGLMapping{},
@@ -219,12 +230,10 @@ OpenGLRenderer::~OpenGLRenderer() {
 	CleanupMeshElementResources(_activeMeshElements, _meshElementGLMapping);
 	CleanupTextureResources(_activeTextures, _textureGLMapping);
 	CleanupLinesResources(_activeLines, _linesGLMapping);
-	
-//#ifdef OPENGL_DESKTOP
+
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
-//#endif
 }
 	
 /*********************************************************************************************
@@ -237,7 +246,7 @@ RenderingApi OpenGLRenderer::renderingApi() const {
 
 bool OpenGLRenderer::initialize(const RenderContext& context) {
 	
-	A3D_LOG_T("");
+	A3D_LOG_C();
 
 	// create environment UBO
 	
@@ -245,46 +254,20 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 	glGenBuffers(1, &ubo);
 	_glEnvironmentUBO = ubo;
 
-#ifdef OPENGL_DESKTOP
-	
-	// setup Imgui for stats overlay
-	
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
-	io.IniFilename = nullptr;
-
-	GLFWwindow* glfwWindow = dynamic_cast<const Window*>(&context)->glfwWindow();
-	
-	ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
-	ImGui_ImplOpenGL3_Init();
+	// setup Imgui
 
 	string fontName = "SourceCodePro-Semibold";
 	string fontType = "otf";
-	float fontSize = 14.0;
-	
 	_overlayFont = utils::FontNamed(fontName, fontType);
 
 	if (_overlayFont->buffer()->size()) {
-		
-		// by default Imgui transferrs font memory ownership to itself
-		// this means Imgui eventually frees the font data, and then the Font/Buffer double-free it
-		
-		ImFontConfig config;
-		config.FontDataOwnedByAtlas = false;
-		
-		ImFont* scp = io.Fonts->AddFontFromMemoryTTF(_overlayFont->buffer()->data(),
-													 (int)_overlayFont->buffer()->size(),
-													 fontSize,
-													 &config);
-
-		if (!scp) {
-			throw Exception("Unable to load font: " + fontName + "." + fontType);
-		}
+		InitImgui(context);
+		UpdateImguiScale(context, *_overlayFont);
+	}
+	else {
+		A3D_LOG_E("Unable to load font: {}.{}", fontName, fontType);
 	}
 
-#endif // OPENGL_DESKTOP
-	
 	return true;
 }
 	
@@ -304,7 +287,7 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 							  Stats& stats) {
 
 	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay)) {
-		DrawStatsOverlay(stats, *_context);
+		DrawStatsOverlay(stats, context);
 	}
 
 	CleanupMeshElementResources(_activeMeshElements, _meshElementGLMapping);
@@ -320,8 +303,9 @@ void OpenGLRenderer::render(const Scene& scene,
 
 	auto renderContext = scene.visualWorld()->renderContext();
 
-	auto framebufferWidth = renderContext->framebufferWidth();
-	auto framebufferHeight = renderContext->framebufferHeight();
+	auto framebufferSize = renderContext->framebufferSize();
+	auto framebufferWidth = framebufferSize.x;
+	auto framebufferHeight = framebufferSize.y;
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, (GLsizei)framebufferWidth, (GLsizei)framebufferHeight);
@@ -390,10 +374,10 @@ void OpenGLRenderer::render(MeshElement& element,
 
 	// check and load vertex data if necessary
 
-	GLuint vbo, vao, ibo;
+	GLuint vbo, vao, ebo;
 	GetMeshElementGLVertexDataHandles(element,
 									  _meshElementGLMapping,
-									  vbo, vao, ibo);
+									  vbo, vao, ebo);
 
 	auto wireframe = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes);
 
@@ -424,7 +408,7 @@ void OpenGLRenderer::render(MeshElement& element,
 
 	// update
 
-	DrawMeshElement(element, program, modelMat, viewMat, projectionMat, vao, ibo);
+	DrawMeshElement(element, program, modelMat, viewMat, projectionMat, vao, ebo);
 
 	// save reference for housekeeping
 
@@ -472,25 +456,33 @@ void OpenGLRenderer::render(const std::vector<Line>& lines,
 }
 
 unique_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
-	
-	auto framebufferWidth = context.framebufferWidth();
-	auto framebufferHeight = context.framebufferHeight();
+
+	auto framebufferSize = context.framebufferSize();
+	auto framebufferWidth = (unsigned)round(framebufferSize.x);
+	auto framebufferHeight = (unsigned)round(framebufferSize.y);
+
 	unsigned char pixelBuf[framebufferWidth * framebufferHeight * 4];
-	glReadPixels(0, 0, framebufferWidth, framebufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixelBuf);
+	glReadPixels(0, 0, (GLsizei)framebufferWidth, (GLsizei)framebufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixelBuf);
 	auto buffer = make_unique<Buffer>((std::byte*)pixelBuf, framebufferWidth * framebufferHeight * 4);
 	return make_unique<Image>(std::move(buffer), framebufferWidth, framebufferHeight, 4);
+}
+
+void OpenGLRenderer::framebufferScaleChanged(const RenderContext& context) {
+	A3D_LOG_D("context: {:p}", static_cast<const void*>(&context));
+
+	UpdateImguiScale(context, *_overlayFont);
 }
 	
 /*********************************************************************************************
 	Static
  *********************************************************************************************/
 
-static void RenderSkybox(Mesh& skyboxMesh,
-						 Node& pointOfView,
-						 OpenGLRenderer::MeshElementGLMapping& elementGLMapping,
-						 OpenGLRenderer::TextureGLMapping& textureGLMapping,
-						 unordered_set<Texture*>& activeTextures) {
-	
+void RenderSkybox(Mesh& skyboxMesh,
+				  Node& pointOfView,
+				  OpenGLRenderer::MeshElementGLMapping& elementGLMapping,
+				  OpenGLRenderer::TextureGLMapping& textureGLMapping,
+				  unordered_set<Texture*>& activeTextures) {
+
 	auto program = Program::Skybox();
 	
 	auto& element = skyboxMesh.elements().front();
@@ -499,10 +491,10 @@ static void RenderSkybox(Mesh& skyboxMesh,
 	
 	// check and load vertex data if necessary
 	
-	GLuint vbo, vao, ibo;
+	GLuint vbo, vao, ebo;
 	GetSkyboxGLVertexDataHandles(skyboxMesh,
 								 elementGLMapping,
-								 vbo, vao, ibo);
+								 vbo, vao, ebo);
 	
 	// and load material contents if necessary
 	
@@ -533,22 +525,22 @@ static void RenderSkybox(Mesh& skyboxMesh,
 	
 	// update
 	
-	DrawSkyboxElement(*element, program, pointOfView, vao, ibo);
+	DrawSkyboxElement(*element, program, pointOfView, vao, ebo);
 }
 	
-static void GetMeshElementGLVertexDataHandles(MeshElement& element,
-											  OpenGLRenderer::MeshElementGLMapping& glMapping,
-											  GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
-	
-	// looks up and populates glVBO, glVAO, and glIBO, loading the vertex data if needed
+void GetMeshElementGLVertexDataHandles(MeshElement& element,
+									   OpenGLRenderer::MeshElementGLMapping& glMapping,
+									   GLuint& glVBO, GLuint& glVAO, GLuint& glEBO) {
+
+	// looks up and populates glVBO, glVAO, and glEBO, loading the vertex data if needed
 
 	if (A3D_MASK_CONTAINS(element.dirtyMask(), MeshElementDirtyMask::VertexData)) {
 
 		DeleteMeshElementGLResources(&element, glMapping);
 
-		BufferMeshElementVertexData(element, Program::Default(), glVBO, glVAO, glIBO);
+		BufferMeshElementVertexData(element, Program::Default(), glVBO, glVAO, glEBO);
 		
-		glMapping[&element] = make_tuple(glVBO, glVAO, glIBO);
+		glMapping[&element] = make_tuple(glVBO, glVAO, glEBO);
 
 		element.dirtyMask(A3D_MASK_REMOVE(element.dirtyMask(), MeshElementDirtyMask::VertexData));
 	}
@@ -556,15 +548,15 @@ static void GetMeshElementGLVertexDataHandles(MeshElement& element,
 		auto mapping = glMapping[&element];
 		glVBO = get<0>(mapping);
 		glVAO = get<1>(mapping);
-		glIBO = get<2>(mapping);
+		glEBO = get<2>(mapping);
 	}
 }
-	
-static void GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
-										 OpenGLRenderer::MeshElementGLMapping& glMapping,
-										 GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
-	
-	// looks up and populates glVBO, glVAO, and glIBO, loading the vertex data if needed
+
+void GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
+								  OpenGLRenderer::MeshElementGLMapping& glMapping,
+								  GLuint& glVBO, GLuint& glVAO, GLuint& glEBO) {
+
+	// looks up and populates glVBO, glVAO, and glEBO, loading the vertex data if needed
 	//
 	// NOTE: this is essentially exactly the same as GetMeshElementGLVertexDataHandles()
 	// except if the data needs to be loaded, it uses BufferMeshElementVertexData() as the
@@ -576,9 +568,9 @@ static void GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
 
 		DeleteMeshElementGLResources(element.get(), glMapping);
 		
-		BufferSkyboxVertexData(skyboxMesh, Program::Skybox(), glVBO, glVAO, glIBO);
+		BufferSkyboxVertexData(skyboxMesh, Program::Skybox(), glVBO, glVAO, glEBO);
 		
-		glMapping[element.get()] = make_tuple(glVBO, glVAO, glIBO);
+		glMapping[element.get()] = make_tuple(glVBO, glVAO, glEBO);
 
 		element->dirtyMask(A3D_MASK_REMOVE(element->dirtyMask(), MeshElementDirtyMask::VertexData));
 	}
@@ -586,14 +578,14 @@ static void GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
 		auto mapping = glMapping[element.get()];
 		glVBO = get<0>(mapping);
 		glVAO = get<1>(mapping);
-		glIBO = get<2>(mapping);
+		glEBO = get<2>(mapping);
 	}
 }
 
-static void GetLinesVertexDataHandles(const vector<Line>& lines,
-									  Program& program,
-									  OpenGLRenderer::LinesGLMapping& glMapping,
-									  GLuint& glVBO, GLuint& glVAO) {
+void GetLinesVertexDataHandles(const vector<Line>& lines,
+							   Program& program,
+							   OpenGLRenderer::LinesGLMapping& glMapping,
+							   GLuint& glVBO, GLuint& glVAO) {
 
 	if (!glMapping.count(&lines)) {
 
@@ -608,10 +600,10 @@ static void GetLinesVertexDataHandles(const vector<Line>& lines,
 	}
 }
 
-static void GetTextureGLTextureHandles(Material& material,
-									   OpenGLRenderer::TextureGLMapping& glMapping,
-									   unordered_set<Texture*>& activeTextures,
-									   map<MaterialPropertyType, GLuint>& glTextureHandles) {
+void GetTextureGLTextureHandles(Material& material,
+								OpenGLRenderer::TextureGLMapping& glMapping,
+								unordered_set<Texture*>& activeTextures,
+								map<MaterialPropertyType, GLuint>& glTextureHandles) {
 
 	// looks up and populates glTextureHandle, loading the texture data if needed
 
@@ -646,11 +638,11 @@ static void GetTextureGLTextureHandles(Material& material,
 		}
 	}
 }
-	
-static void BufferMeshElementVertexData(const MeshElement& element,
-										Program& program,
-										GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
-	
+
+void BufferMeshElementVertexData(const MeshElement& element,
+								 Program& program,
+								 GLuint& glVBO, GLuint& glVAO, GLuint& glEBO) {
+
 	A3D_LOG_D("Buffering vertex data for mesh element {:p}...", static_cast<const void*>(&element));
 	
 	program.use();
@@ -695,8 +687,8 @@ static void BufferMeshElementVertexData(const MeshElement& element,
 						  (void*)(sizeof(vec3) + sizeof(vec3))); 	// start offset
 	glEnableVertexAttribArray(texCoordIndex);
 	
-	glGenBuffers(1, &glIBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glIBO);
+	glGenBuffers(1, &glEBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glEBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
 				 (GLsizeiptr)(faces.size() * sizeof(Face)),
 				 &(faces[0]),
@@ -705,12 +697,12 @@ static void BufferMeshElementVertexData(const MeshElement& element,
 	//program.unuse();
 }
 
-static void BufferSkyboxVertexData(Mesh& skyboxMesh,
-								   Program& program,
-								   GLuint& glVBO, GLuint& glVAO, GLuint& glIBO) {
-	
+void BufferSkyboxVertexData(Mesh& skyboxMesh,
+							Program& program,
+							GLuint& glVBO, GLuint& glVAO, GLuint& glEBO) {
+
 	A3D_LOG_D("Buffering skybox vertex data...");
-	
+
 	program.use();
 	
 	auto& element = skyboxMesh.elements().front();
@@ -733,8 +725,8 @@ static void BufferSkyboxVertexData(Mesh& skyboxMesh,
 						  nullptr); // start offset
 	glEnableVertexAttribArray(positionIndex);
 	
-	glGenBuffers(1, &glIBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glIBO);
+	glGenBuffers(1, &glEBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glEBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
 				 (GLsizeiptr)(faces.size() * sizeof(Face)),
 				 &(faces[0]),
@@ -743,9 +735,9 @@ static void BufferSkyboxVertexData(Mesh& skyboxMesh,
 	//program.unuse();
 }
 
-static void BufferLinesVertexData(const vector<Line>& lines,
-								  Program& program,
-								  GLuint& glVBO, GLuint& glVAO) {
+void BufferLinesVertexData(const vector<Line>& lines,
+						   Program& program,
+						   GLuint& glVBO, GLuint& glVAO) {
 	//A3D_LOG_D("Buffering vertex data for {} lines...", lines.size());
 
 	// pack each Line into a vector with format <fromLocation, fromColor, toLocation, toColor>
@@ -791,8 +783,8 @@ static void BufferLinesVertexData(const vector<Line>& lines,
 	glEnableVertexAttribArray(colorIndex);
 }
 
-static void BufferTexture(const Texture &texture,
-						  GLuint& glTextureHandle) {
+void BufferTexture(const Texture &texture,
+				   GLuint& glTextureHandle) {
 
 	auto contents = texture.contents();
 
@@ -887,9 +879,9 @@ static void BufferTexture(const Texture &texture,
 	}
 }
 
-static void SendMaterialUniforms(const Material& material,
-								 Program& program,
-								 map<MaterialPropertyType, GLuint>& glTextureHandles) {
+void SendMaterialUniforms(const Material& material,
+						  Program& program,
+						  map<MaterialPropertyType, GLuint>& glTextureHandles) {
 
 	// sends uniforms for the Material, and MaterialProperties it has
 
@@ -898,7 +890,8 @@ static void SendMaterialUniforms(const Material& material,
 	program.setUniform("specularExponent", material.specularExponent());
 	program.setUniform("uvScale", material.uvScale());
 	program.setUniform("locksAmbientWithDiffuse", material.locksAmbientWithDiffuse());
-	program.setUniform("emissionMode", 0); // 0 = MaterialMode_None -- why is this here?
+	program.setUniform("emissionType", (unsigned)0); // 0 = MaterialType_None -- why is this here?
+	//program.setUniform("defaultLighting", 0);
 
 	for (auto& [property, type] : material.properties()) {
 
@@ -914,10 +907,10 @@ static void SendMaterialUniforms(const Material& material,
 	//program.unuse();
 }
 
-static void SendMaterialPropertyUniforms(const MaterialProperty& property,
-										 MaterialPropertyType type,
-										 GLuint glTextureHandle,
-										 Program& program) {
+void SendMaterialPropertyUniforms(const MaterialProperty& property,
+								  MaterialPropertyType type,
+								  GLuint glTextureHandle,
+								  Program& program) {
 
 	program.use();
 
@@ -934,37 +927,37 @@ static void SendMaterialPropertyUniforms(const MaterialProperty& property,
 
 			switch (type) {
 				case MaterialPropertyType::Ambient:
-					modeUniformName = "ambientMode";
+					modeUniformName = "ambientType";
 					samplerUniformName = "samplers.ambient";
 					slot = GL_TEXTURE0;
 					index = 0;
 					break;
 				case MaterialPropertyType::Diffuse:
-					modeUniformName = "diffuseMode";
+					modeUniformName = "diffuseType";
 					samplerUniformName = "samplers.diffuse";
 					slot = GL_TEXTURE1;
 					index = 1;
 					break;
 				case MaterialPropertyType::Specular:
-					modeUniformName = "specularMode";
+					modeUniformName = "specularType";
 					samplerUniformName = "samplers.specular";
 					slot = GL_TEXTURE2;
 					index = 2;
 					break;
 				case MaterialPropertyType::Emission:
-					modeUniformName = "emissionMode";
+					modeUniformName = "emissionType";
 					samplerUniformName = "samplers.emission";
 					slot = GL_TEXTURE3;
 					index = 3;
 					break;
 				default:
-					cout << "Invalid MaterialPropertyType: "
-						 << static_cast<underlying_type<MaterialPropertyType>::type>(type) << endl;
+					A3D_LOG_E("Invalid MaterialPropertyType: {}",
+							  magic_enum::enum_name<MaterialPropertyType>(type));
 					return;
 			}
 
 			program.setUniform(modeUniformName.c_str(),
-							   static_cast<underlying_type<MATERIAL_MODE>::type>(MATERIAL_MODE::SAMPLER));
+							   static_cast<underlying_type<MaterialType>::type>(MaterialType::Sampler));
 			program.bindTexture(samplerUniformName.c_str(), GL_TEXTURE_2D, slot, glTextureHandle, index);
 		}
 		else if (dynamic_pointer_cast<CubeImage>(texture->contents())) {
@@ -983,29 +976,29 @@ static void SendMaterialPropertyUniforms(const MaterialProperty& property,
 
 		switch (type) {
 			case MaterialPropertyType::Ambient:
-				modeUniformName = "ambientMode";
+				modeUniformName = "ambientType";
 				colorUniformName = "colors.ambient";
 				break;
 			case MaterialPropertyType::Diffuse:
-				modeUniformName = "diffuseMode";
+				modeUniformName = "diffuseType";
 				colorUniformName = "colors.diffuse";
 				break;
 			case MaterialPropertyType::Specular:
-				modeUniformName = "specularMode";
+				modeUniformName = "specularType";
 				colorUniformName = "colors.specular";
 				break;
 			case MaterialPropertyType::Emission:
-				modeUniformName = "emissionMode";
+				modeUniformName = "emissionType";
 				colorUniformName = "colors.emission";
 				break;
 			default:
-				cout << "Invalid MaterialPropertyType: "
-					 << static_cast<underlying_type<MaterialPropertyType>::type>(type) << endl;
+				A3D_LOG_E("Invalid MaterialPropertyType: {}",
+						  magic_enum::enum_name<MaterialPropertyType>(type));
 				return;
 		}
 
 		program.setUniform(modeUniformName.c_str(),
-						   static_cast<underlying_type<MATERIAL_MODE>::type>(MATERIAL_MODE::COLOR));
+						   static_cast<underlying_type<MaterialType>::type>(MaterialType::Color));
 		program.setUniform(colorUniformName.c_str(), color->r, color->g, color->b);
 	}
 	else {
@@ -1015,70 +1008,82 @@ static void SendMaterialPropertyUniforms(const MaterialProperty& property,
 	//program.unuse();
 }
 	
-static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, Stats& stats) {
+void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, Stats& stats) {
 
-	// TODO: this is super greedy.  instead, accumulate a list of lights as we visit each node?
-	
 	// program "Default" must be active
+
+	// block
+
+	EnvironmentBlock environmentStruct;
 	
 	// lights
-	
-	auto lights = vector<Node*>();
-	Node* ambientLightNode = nullptr;
-	
-	// find all lights in the scene
-	for (auto& node : scene.rootNode()->children(true)) {
-		if (auto light = node->light()) {
-			if (light->type() == LightType::Point) {
-				lights.push_back(node.get());
-			}
-			else if (light->type() == LightType::Ambient) {
-				ambientLightNode = node.get();
+
+	if (scene.visualWorld()->usesDefaultLighting()) {
+
+		environmentStruct.numLights = 0;
+	}
+	else {
+		// TODO: this is EXPONENTIAL.  instead, accumulate a list of lights as we visit each node?
+
+		auto lights = vector<Node*>();
+		Node* ambientLightNode = nullptr;
+
+		// find all lights in the scene
+		for (auto &node: scene.rootNode()->children(true)) {
+			if (auto light = node->light()) {
+				if (light->type() == LightType::Point) {
+					lights.push_back(node.get());
+				}
+				else if (light->type() == LightType::Ambient) {
+					ambientLightNode = node.get();
+				}
 			}
 		}
-	}
 
-	if (lights.size() > MAX_DYNAMIC_LIGHTS) {
+		if (lights.size() > MAX_DYNAMIC_LIGHTS) {
 
-		// find all light distances from the camera
+			// find all light distances from the camera
 
-		auto lightsUnsorted = map<Node*, float>();
-		auto cameraPos_world = scene.visualWorld()->pointOfView().lock()->worldPosition();
-		for (auto lightNode : lights) {
-			auto lightPos_world = lightNode->worldPosition();
-			auto lightToCamera = lightPos_world - cameraPos_world;
-			auto lightToCameraDistance = length(lightToCamera);
-			lightsUnsorted[lightNode] = lightToCameraDistance;
+			auto lightsUnsorted = map<Node*, float>();
+			auto cameraPos_world = scene.visualWorld()->pointOfView().lock()->worldPosition();
+			for (auto lightNode: lights) {
+				auto lightPos_world = lightNode->worldPosition();
+				auto lightToCamera = lightPos_world - cameraPos_world;
+				auto lightToCameraDistance = length(lightToCamera);
+				lightsUnsorted[lightNode] = lightToCameraDistance;
+			}
+
+			lights = SortedLights(lightsUnsorted);
+
+			unsigned endIndex = std::min((unsigned)lights.size(), (unsigned)MAX_DYNAMIC_LIGHTS);
+			auto first = lights.begin() + 0;
+			auto last = lights.begin() + endIndex;
+			auto lightsSlice = vector<Node*>(first, last);
+
+			lights = lightsSlice;
 		}
 
-		lights = SortedLights(lightsUnsorted);
+		if (ambientLightNode) lights.push_back(ambientLightNode);
 
-		unsigned endIndex = std::min((unsigned)lights.size(), (unsigned)(MAX_DYNAMIC_LIGHTS));
-		auto first = lights.begin() + 0;
-		auto last = lights.begin() + endIndex;
-		auto lightsSlice = vector<Node*>(first, last);
+		auto numLights = lights.size();
+		LightGLSLStruct lightStruct[numLights];
 
-		lights = lightsSlice;
-	}
+		stats.lights = numLights - 1; // not counting ambient
 
-	if (ambientLightNode) lights.push_back(ambientLightNode);
+		for (unsigned l = 0; l < numLights; ++l) {
+			auto node = lights[l];
+			auto light = node->light();
 
-	auto numLights = lights.size();
-	LightGLSLStruct lightStruct[numLights];
+			lightStruct[l].type = static_cast<unsigned>(light->type());
+			lightStruct[l].position_world = node->worldPosition();
+			lightStruct[l].attenuationFactor = light->attenuationFactor();
 
-	stats.lights = numLights - 1; // not counting ambient
+			auto color = *light->color();
+			lightStruct[l].color = {color.r, color.g, color.b};
+		}
 
-	for (int l=0; l<numLights; ++l) {
-		auto node = lights[l];
-		auto light = node->light();
-
-		// TODO: static_cast
-		lightStruct[l].type = (int)(light->type());
-		lightStruct[l].position_world = node->worldPosition();
-		lightStruct[l].attenuationFactor = light->attenuationFactor();
-
-		auto color = *light->color();
-		lightStruct[l].color = {color.r, color.g, color.b};
+		environmentStruct.numLights = numLights;
+		memcpy(&environmentStruct.lights, &lightStruct, sizeof(lightStruct));
 	}
 
 	// fog
@@ -1096,28 +1101,16 @@ static void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene,
 													fogColor->a};
 	else fogStruct.color = {0.0, 0.0, 0.0, 0.0};
 
-	// block
+	memcpy(&environmentStruct.fog, &fogStruct, sizeof(fogStruct));
 
-	typedef struct {
-		int32_t 			numLights;
-		float32_t 			PADDING1;
-		float32_t 			PADDING2;
-		float32_t 			PADDING3;
-		LightGLSLStruct 	lights[MAX_DYNAMIC_LIGHTS+1]; // +1 ambient
-		FogGLSLStruct		fog;
-	} EnvironmentBlock;
-
-	EnvironmentBlock environmentBlock;
-	environmentBlock.numLights = (int)numLights;
-	memcpy(&environmentBlock.lights, &lightStruct, sizeof(lightStruct));
-	memcpy(&environmentBlock.fog, &fogStruct, sizeof(fogStruct));
+	// send 'em
 
 	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(environmentBlock), &environmentBlock, GL_DYNAMIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(environmentStruct), &environmentStruct, GL_DYNAMIC_DRAW);
 }
 
-static void SetTextureSamplingOptions(Texture& texture,
-									  GLuint glTextureHandle) {
+void SetTextureSamplingOptions(Texture& texture,
+							   GLuint glTextureHandle) {
 
 	auto sampler = texture.sampler();
 	bool isCubemap = dynamic_pointer_cast<CubeImage>(texture.contents()) != nullptr;
@@ -1167,8 +1160,8 @@ static void SetTextureSamplingOptions(Texture& texture,
 	}
 }
 
-static void SetMaterialFilteringOptions(const Material& material,
-										map<MaterialPropertyType, GLuint>& glTextureHandles) {
+void SetMaterialFilteringOptions(const Material& material,
+								 map<MaterialPropertyType, GLuint>& glTextureHandles) {
 
 	for (auto& [property, type] : material.properties()) {
 
@@ -1178,10 +1171,10 @@ static void SetMaterialFilteringOptions(const Material& material,
 		}
 	}
 }
-	
-static void SetMaterialOpenGLState(const Material& material, 
-								   const DebugOptions& debugOptions) {
-	
+
+void SetMaterialOpenGLState(const Material& material,
+							const DebugOptions& debugOptions) {
+
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glDepthMask(GL_TRUE);
@@ -1235,7 +1228,7 @@ static void SetMaterialOpenGLState(const Material& material,
 	}
 }
 	
-static void SetSkyboxOpenGLState() {
+void SetSkyboxOpenGLState() {
 	
 	glDepthMask(GL_FALSE);
 #ifdef OPENGL_DESKTOP
@@ -1245,7 +1238,7 @@ static void SetSkyboxOpenGLState() {
 //	glDisable(GL_BLEND);
 }
 
-static void SetLinesGLState() {
+void SetLinesGLState() {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glDepthMask(GL_TRUE);
@@ -1259,15 +1252,15 @@ static void SetLinesGLState() {
 //	glPolygonOffset(0.0, 0.0);
 }
 
-static void DrawMeshElement(MeshElement& element,
-							Program& program,
-							const mat4& modelMat,
-							const mat4& viewMat,
-							const mat4& projectionMat,
-							GLuint vao, GLuint ibo) {
-	
+void DrawMeshElement(MeshElement& element,
+					 Program& program,
+					 const mat4& modelMat,
+					 const mat4& viewMat,
+					 const mat4& projectionMat,
+					 GLuint vao, GLuint ebo) {
+
 	program.use();
-	
+
 	// uniforms
 	
 	program.setUniform("model", modelMat);
@@ -1277,16 +1270,16 @@ static void DrawMeshElement(MeshElement& element,
 	// update
 	
 	glBindVertexArray(vao);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	auto numFaces = element.faces().size();
 	glDrawElements(GL_TRIANGLES, (GLsizei)numFaces*3, GL_UNSIGNED_INT, nullptr);
 }
 
-static void DrawSkyboxElement(MeshElement& element,
-							  Program& program,
-							  Node& pointOfView,
-							  GLuint vao, GLuint ibo) {
-	
+void DrawSkyboxElement(MeshElement& element,
+					   Program& program,
+					   Node& pointOfView,
+					   GLuint vao, GLuint ebo) {
+
 	program.use();
 
 	auto viewMat = lookAt({0.0f, 0.0f, 0.0f}, // eye - location
@@ -1303,20 +1296,20 @@ static void DrawSkyboxElement(MeshElement& element,
 	auto& faces = element.faces();
 	
 	glBindVertexArray(vao);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	auto numFaces = faces.size();
 	glDrawElements(GL_TRIANGLES, (GLsizei)numFaces*3, GL_UNSIGNED_INT, nullptr);
 }
 
-static void DrawLines(const vector<Line>& lines,
-					  Program& program,
-					  const mat4& modelMat,
-					  const mat4& viewMat,
-					  const mat4& projectionMat,
-					  GLuint glVAO) {
-	
+void DrawLines(const vector<Line>& lines,
+			   Program& program,
+			   const mat4& modelMat,
+			   const mat4& viewMat,
+			   const mat4& projectionMat,
+			   GLuint glVAO) {
+
 	program.use();
-	
+
 	// uniforms
 	
 	program.setUniform("model", modelMat);
@@ -1329,10 +1322,10 @@ static void DrawLines(const vector<Line>& lines,
 	glDrawArrays(GL_LINES, 0, (GLsizei)lines.size() * 4);
 }
 
-static void CleanupMeshElementResources(unordered_set<MeshElement*>& active,
-										OpenGLRenderer::MeshElementGLMapping& glMapping) {
+void CleanupMeshElementResources(unordered_set<MeshElement*>& active,
+								 OpenGLRenderer::MeshElementGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
-	
+
 	// gather sorted vector of elements used this frame
 	auto activeElementsSorted = vector<MeshElement*>();
 	activeElementsSorted.reserve(active.size());
@@ -1364,14 +1357,14 @@ static void CleanupMeshElementResources(unordered_set<MeshElement*>& active,
 			DeleteMeshElementGLResources(element, glMapping);
 		}
 	}
-	
+
 #endif
 }
-	
-static void CleanupTextureResources(unordered_set<Texture*> &active,
-									OpenGLRenderer::TextureGLMapping& glMapping) {
+
+void CleanupTextureResources(unordered_set<Texture*> &active,
+							 OpenGLRenderer::TextureGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
-	
+
 	// gather sorted vector of properties used this frame
 	auto activeTexturesSorted = vector<Texture*>();
 	activeTexturesSorted.reserve(glMapping.size());
@@ -1408,10 +1401,10 @@ static void CleanupTextureResources(unordered_set<Texture*> &active,
 }
 
 // this has to be the slowest way on earth to do this.
-static void CleanupLinesResources(unordered_set<const vector<Line>*>& active,
-								  OpenGLRenderer::LinesGLMapping& glMapping) {
+void CleanupLinesResources(unordered_set<const vector<Line>*>& active,
+						   OpenGLRenderer::LinesGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
-	
+
 //	// gather sorted vector of Lines used this frame
 //	auto activeLineSetsSorted = vector<Line*>();
 //	activeLineSetsSorted.reserve(glMapping.size());
@@ -1519,8 +1512,8 @@ static void CleanupLinesResources(unordered_set<const vector<Line>*>& active,
 #endif
 }
 
-static void DeleteMeshElementGLResources(MeshElement* element,
-										 OpenGLRenderer::MeshElementGLMapping& glMapping) {
+void DeleteMeshElementGLResources(MeshElement* element,
+								  OpenGLRenderer::MeshElementGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	
 	if (glMapping.count(element)) {
@@ -1531,11 +1524,11 @@ static void DeleteMeshElementGLResources(MeshElement* element,
 		
 		GLuint vbo = get<0>(glHandles);
 		GLuint vao = get<1>(glHandles);
-		GLuint ibo = get<2>(glHandles);
+		GLuint ebo = get<2>(glHandles);
 		
 		glDeleteBuffers(1, &vbo);
 		glDeleteVertexArrays(1, &vao);
-		glDeleteBuffers(1, &ibo);
+		glDeleteBuffers(1, &ebo);
 		
 		glMapping.erase(element);
 
@@ -1546,8 +1539,8 @@ static void DeleteMeshElementGLResources(MeshElement* element,
 #endif
 }
 
-static void DeleteTextureGLResources(Texture* texture,
-									 OpenGLRenderer::TextureGLMapping& glMapping) {
+void DeleteTextureGLResources(Texture* texture,
+							  OpenGLRenderer::TextureGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	
 	if (glMapping.count(texture)) {
@@ -1567,8 +1560,8 @@ static void DeleteTextureGLResources(Texture* texture,
 #endif
 }
 
-static void DeleteLinesGLResources(const vector<Line>& lines,
-									 OpenGLRenderer::LinesGLMapping& glMapping) {
+void DeleteLinesGLResources(const vector<Line>& lines,
+							OpenGLRenderer::LinesGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	
 //	if (glMapping.count(&lines)) {
@@ -1589,7 +1582,7 @@ static void DeleteLinesGLResources(const vector<Line>& lines,
 #endif
 }
 
-static vector<Node*> SortedLights(map<Node*, float> lights) {
+vector<Node*> SortedLights(map<Node*, float> lights) {
 	// map: <node, distance from camera>
 	
 	// http://thispointer.com/how-to-sort-a-map-by-value-in-c/
@@ -1611,75 +1604,111 @@ static vector<Node*> SortedLights(map<Node*, float> lights) {
 	
 	return sortedVector;
 }
-	
+
+void InitImgui(const RenderContext& context) {
+
+	using namespace ImGui;
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	io.IniFilename = nullptr;
+
+	GLFWwindow* glfwWindow = dynamic_cast<const Window*>(&context)->glfwWindow();
+
+	ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
+	ImGui_ImplOpenGL3_Init();
+}
+
+void UpdateImguiScale(const RenderContext& context, const Font& font) {
+	// https://github.com/ocornut/imgui/blob/master/docs/FAQ.md#q-how-should-i-handle-dpi-in-my-application
+	// https://github.com/ocornut/imgui/discussions/3925
+	// https://github.com/ocornut/imgui/issues/3757
+	// https://gist.github.com/benpm/21afb58f2c8dfdbf881ca90c76ad602e
+	// https://gist.github.com/benpm/21afb58f2c8dfdbf881ca90c76ad602e#file-high_dpi-cpp-L2
+
+
+	using namespace ImGui;
+
+	constexpr float FONT_SIZE = 15.0;
+
+	ImGui_ImplOpenGL3_DestroyFontsTexture();
+
+	auto scaleXY = context.framebufferScale();
+	auto scale = std::max(scaleXY.x, scaleXY.y);
+
+	ImFontConfig fontConfig;
+
+	fontConfig.OversampleH = (int)std::ceil(scaleXY.x);
+	fontConfig.OversampleV = (int)std::ceil(scaleXY.y);
+
+	// by default Imgui transferrs font memory ownership to itself
+	// this means Imgui eventually frees the font data, and then the Font/Buffer double-free it
+	fontConfig.FontDataOwnedByAtlas = false;
+
+	ImGuiIO& io = ImGui::GetIO();
+
+	io.DisplayFramebufferScale = ImVec2(scaleXY.x, scaleXY.y);
+
+	io.Fonts->AddFontFromMemoryTTF(font.buffer()->data(),
+								   (int)font.buffer()->size(),
+								   FONT_SIZE,
+								   &fontConfig);
+
+	ImGui_ImplOpenGL3_CreateFontsTexture();
+}
+
 void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 
 	using namespace ImGui;
 
-//#ifdef OPENGL_DESKTOP
-
+#ifdef WINDOWS
 	auto scaleXY = context.framebufferScale();
-	//auto scaleXY = vec2{2.0, 2.0};
-
-
-
 	auto scale = std::max(scaleXY.x, scaleXY.y);
-//	ImGui::GetStyle().ScaleAllSizes(scale);
+	// this is probably going to need more attention when we start
+	// using Imgui for more than just rendering text
+	//ImGui::GetStyle().ScaleAllSizes(scale);
 	ImGui::GetIO().FontGlobalScale = scale;
+#endif
 
-
-
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
-	NewFrame();
-
-	ImGuiWindowFlags windowFlags = 0;
-	windowFlags |= ImGuiWindowFlags_NoTitleBar;
-	windowFlags |= ImGuiWindowFlags_NoScrollbar;
-//	windowFlags |= ImGuiWindowFlags_NoMove;
-	windowFlags |= ImGuiWindowFlags_NoResize;
-	windowFlags |= ImGuiWindowFlags_NoCollapse;
-	windowFlags |= ImGuiWindowFlags_NoNav;
-	windowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
-
-	SetNextWindowBgAlpha(.25);
-	Begin("Stats", nullptr, windowFlags);
-	ImGuiStyle& style = ImGui::GetStyle();
-	style.WindowBorderSize = 0;
-//	style.WindowRounding = 6;
-
-//	ImGui::ShowDemoWindow(nullptr);
-//	ImGui::GetIO();
-
-	ImGui::SetWindowPos({10.0f * scaleXY.x, 10.0f * scaleXY.y});
-
+	constexpr unsigned MAX_RECORDING_STR_LEN = 32;
+	static char recordingStr[MAX_RECORDING_STR_LEN];
 	if (context.recordingGIF()) {
 		auto numFrames = context.recordedGIFFrames();
-		Text("%-14s %.2f ms\n" \
-					"%-14s %.2f ms\n" \
-					"%-14s %.2f ms\n" \
-					"%-14s %.2f ms\n" \
-					"%-14s %.0f fps %s\n" \
-					"\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-			 		"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"\n" \
-					"%-14s (%.1f %.1f %.1f)\n" \
-					"\n" \
-					"%-14s %d %s\n",
+		snprintf(recordingStr, MAX_RECORDING_STR_LEN, "\n%-14s %d %s",
+				 "RECORDING", numFrames, (numFrames==1 ? "frame" : "frames"));
+	}
+	else {
+		recordingStr[0] = '\0';
+	}
+
+	constexpr unsigned MAX_STATUS_STR_LEN = 512;
+	static char str[MAX_STATUS_STR_LEN];
+	snprintf(str, MAX_STATUS_STR_LEN,
+			 "%-14s %.2f ms\n" \
+			 "%-14s %.2f ms\n" \
+			 "%-14s %.2f ms\n" \
+			 "%-14s %.2f ms\n" \
+			 "%-14s %.0f fps %s\n" \
+			 "\n" \
+			 "%-14s %d\n" \
+			 "%-14s %d\n" \
+			 "%-14s %d\n" \
+			 "%-14s %.1fK\n" \
+			 "%-14s %d\n" \
+			 "\n" \
+			 "%-14s %d\n" \
+			 "%-14s %d\n" \
+			 "%-14s %d\n" \
+			 "%-14s %d\n" \
+			 "%-14s %d\n" \
+			 "%-14s %d\n" \
+			 "%-14s %d\n" \
+			 "%-14s %d\n" \
+			 "%-14s %d\n" \
+			 "\n" \
+			 "%-14s (%.1f, %.1f, %.1f)\n" \
+			 "%s",
 
 			 "frametime", stats.averageFrametime,
 			 " draw", stats.averageDrawtime,
@@ -1690,7 +1719,7 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 			 "nodes", stats.nodes,
 			 "meshes", stats.meshes,
 			 "elements", stats.elements,
-			 "polygons", stats.polygons,
+			 "polygons", float(stats.polygons)/1000.0f,//(int)round(float(stats.polygons)/1000.0f),
 			 "lights", stats.lights,
 
 			 "physics bodies", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
@@ -1704,66 +1733,42 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 			 " concave polyh", stats.concavePolyhedronShapes,
 
 			 "camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
-			 "RECORDING", numFrames, (numFrames==1 ? "frame" : "frames"));
-	}
-	else {
-		Text("%-14s %.2f ms\n" \
-					"%-14s %.2f ms\n" \
-					"%-14s %.2f ms\n" \
-					"%-14s %.2f ms\n" \
-					"%-14s %.0f fps %s\n" \
-					"\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-					"%-14s %d\n" \
-			 		"%-14s %d\n" \
-					"%-14s %d\n" \
-					"\n" \
-					"%-14s (%.1f, %.1f, %.1f)\n",
+			 recordingStr);
 
-			 "frametime", stats.averageFrametime,
-			 " draw", stats.averageDrawtime,
-			 " physics", stats.averagePhysicstime,
-			 " user", stats.averageUsertime,
-			 "framerate", stats.averageFramerate, (context.vSyncEnabled() ? "[vsync]" : ""),
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	NewFrame();
 
-			 "nodes", stats.nodes,
-			 "meshes", stats.meshes,
-			 "elements", stats.elements,
-			 "polygons", stats.polygons,
-			 "lights", stats.lights,
+	ImGuiWindowFlags windowFlags = 0;
+	windowFlags |= ImGuiWindowFlags_NoTitleBar;
+	windowFlags |= ImGuiWindowFlags_NoScrollbar;
+	windowFlags |= ImGuiWindowFlags_NoMove;
+	windowFlags |= ImGuiWindowFlags_NoResize;
+	windowFlags |= ImGuiWindowFlags_NoCollapse;
+	windowFlags |= ImGuiWindowFlags_NoNav;
+	windowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
 
-			 "physics bodies", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
-			 " static", stats.staticBodies,
-			 " dynamic", stats.dynamicBodies,
-			 " kinematic", stats.kinematicBodies,
-			 "physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
-			 " primitive", stats.primitiveShapes,
-			 " bounding box", stats.boundingBoxShapes,
-			 " convex hull", stats.convexHullShapes,
-			 " concave polyh", stats.concavePolyhedronShapes,
-
-			 "camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z);
-	}
-
+	// draw the text shadow
+	SetNextWindowBgAlpha(0);
+	Begin("StatsTextShadow", nullptr, windowFlags);
+	ImGuiStyle& style = GetStyle();
+	style.WindowBorderSize = 0;
+	SetWindowPos({10.0f + 1, 10.0f + 1});
+	TextColored(ImVec4{0, 0, 0, .5}, "%s", str);
 	End();
-	Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-//#endif // OPENGL_DESKTOP
+	// draw the text
+	SetNextWindowBgAlpha(0);
+	Begin("StatsText", nullptr, windowFlags);
+	SetWindowPos({10.0f, 10.0f});
+	TextColored(ImVec4{1, 1, 1, 1}, "%s", str);
+	End();
+
+	Render();
+	ImGui_ImplOpenGL3_RenderDrawData(GetDrawData());
 }
 
-static void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode) {
+void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode) {
 	
 	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 
@@ -1772,17 +1777,17 @@ static void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, Filt
 		case FilterMode::NearestMipmapLinear:
 		case FilterMode::LinearMipmapNearest:
 		case FilterMode::LinearMipmapLinear:
+			glBindTexture(texType, glTextureHandle);
 			glGenerateMipmap(texType);
 			break;
 		default:
 			break;
 	}
 
-	glBindTexture(texType, glTextureHandle);
 	glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, (GLint)GLFilterModeForFilterMode(mode));
 }
 
-static void SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode) {
+void SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode) {
 
 	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 
@@ -1798,7 +1803,7 @@ static void SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, Fil
 	}
 }
 
-static void SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max) {
+void SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max) {
 #ifdef OPENGL_DESKTOP
 
 	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
@@ -1806,6 +1811,7 @@ static void SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max
 	float anisotropy = max;
 	glBindTexture(texType, glTextureHandle);
 	float largest;
+	// EXT_texture_filter_anisotropic
 	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &largest);
 	if (max > largest) anisotropy = largest;
 	glTexParameterf(texType, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
@@ -1813,7 +1819,7 @@ static void SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max
 #endif
 }
 
-static void SetTextureWrapS(GLuint glTextureHandle, bool cube, WrapMode mode) {
+void SetTextureWrapS(GLuint glTextureHandle, bool cube, WrapMode mode) {
 
 	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 	
@@ -1821,7 +1827,7 @@ static void SetTextureWrapS(GLuint glTextureHandle, bool cube, WrapMode mode) {
 	glTexParameteri(texType, GL_TEXTURE_WRAP_S, (GLint)GLWrapModeForWrapMode(mode));
 }
 
-static void SetTextureWrapT(GLuint glTextureHandle, bool cube, WrapMode mode) {
+void SetTextureWrapT(GLuint glTextureHandle, bool cube, WrapMode mode) {
 
 	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 	
@@ -1829,13 +1835,13 @@ static void SetTextureWrapT(GLuint glTextureHandle, bool cube, WrapMode mode) {
 	glTexParameteri(texType, GL_TEXTURE_WRAP_T, (GLint)GLWrapModeForWrapMode(mode));
 }
 
-static void SetTextureWrapR(GLuint glTextureHandle, WrapMode mode) {
+void SetTextureWrapR(GLuint glTextureHandle, WrapMode mode) {
 	
 	glBindTexture(GL_TEXTURE_CUBE_MAP, glTextureHandle);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, (GLint)GLWrapModeForWrapMode(mode));
 }
 
-static GLenum GLFilterModeForFilterMode(FilterMode mode) {
+GLenum GLFilterModeForFilterMode(FilterMode mode) {
 	switch (mode) {
 		case FilterMode::Nearest: 				return GL_NEAREST;
 		case FilterMode::Linear: 				return GL_LINEAR;
@@ -1845,7 +1851,7 @@ static GLenum GLFilterModeForFilterMode(FilterMode mode) {
 		case FilterMode::LinearMipmapLinear: 	return GL_LINEAR_MIPMAP_LINEAR; }
 }
 
-static GLenum GLWrapModeForWrapMode(WrapMode mode) {
+GLenum GLWrapModeForWrapMode(WrapMode mode) {
 	switch (mode) {
 		case WrapMode::ClampToEdge:				return GL_CLAMP_TO_EDGE;
 //#ifdef OPENGL_DESKTOP
@@ -1855,7 +1861,7 @@ static GLenum GLWrapModeForWrapMode(WrapMode mode) {
         default: /* MIRRORED_REPEAT */   		return GL_MIRRORED_REPEAT; }
 }
 
-static void CheckGLError() {
+void CheckGLError() {
 	auto err = glGetError();
 	if (err != GL_NO_ERROR) {
 		A3D_LOG_E("*** GL error: 0x{:X} ***", err);

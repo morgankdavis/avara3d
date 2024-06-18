@@ -37,8 +37,8 @@ namespace a3d {
 
 	public:
 
-		using WillRenderCallback = 		std::function<void(VisualWorld& world, float time, float deltaTime)>;
-		using DidRenderCallback = 		std::function<void(VisualWorld& world, float time, float deltaTime)>;
+		using WillRenderCallback =	std::function<void(VisualWorld& world,float time, float deltaTime)>;
+		using DidRenderCallback =	std::function<void(VisualWorld& world, float time, float deltaTime)>;
 
 /*********************************************************************************************
 	Public Lifecycle
@@ -59,20 +59,23 @@ namespace a3d {
 		void 									fogStartDistance(float distance);
 		float 									fogEndDistance() const;
 		void 									fogEndDistance(float distance);
-		float 									fogDensityExponent() const;
-		void 									fogDensityExponent(float exponent);
 		// 0 = constant, alpha respected
 		// 1 = linear, alpha ignored
 		// >=2 = exponential, alpha ignored
+		float 									fogDensityExponent() const;
+		void 									fogDensityExponent(float exponent);
 
-		const std::shared_ptr<Color>& 			fogColor() const;
+		const std::shared_ptr<Color>&			fogColor() const;
 		void 									fogColor(const std::shared_ptr<Color> & color);
 
 		std::weak_ptr<Node>						pointOfView();
 		void 									pointOfView(const std::weak_ptr<Node>& cameraNode);
 
-		bool									automaticallyAddDefaultLighting() const;
-		void									automaticallyAddDefaultLighting(bool enabled);
+		bool									autoEnablesDefaultLighting() const;
+		void									autoEnablesDefaultLighting(bool enabled);
+
+		bool									usesDefaultLighting() const;
+		void									usesDefaultLighting(bool enabled);
 
 		RenderContext* 							renderContext() const;
 
@@ -90,8 +93,6 @@ namespace a3d {
 
 		void									attachedToScene(Scene& scene);
 		void									detachedFromScene(Scene& scene);
-
-		void									checkAddDefaultLighting();
 
 		void									draw(const Scene& scene,
 													 const PhysicalWorld* physicalWorld,
@@ -115,7 +116,8 @@ namespace a3d {
 		float									_fogEndDistance;
 		float									_fogDensityExponent;
 		std::shared_ptr<Color>					_fogColor;
-		bool									_automaticallyAddDefaultLighting;
+		bool									_autoEnablesDefaultLighting;
+		bool									_usesDefaultLighting;
 		std::weak_ptr<Node>						_pointOfView;
 		RenderContext*							_renderContext;
 		Scene*									_scene;

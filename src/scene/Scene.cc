@@ -275,10 +275,6 @@ void Scene::run() {
 
 		_running = true;
 
-		if (_visualWorld) {
-			_visualWorld->checkAddDefaultLighting();
-		}
-
 		double deltaT, runT, deltaRunT;
 
 		do {

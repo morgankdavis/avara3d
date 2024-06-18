@@ -24,10 +24,9 @@ using namespace std;
 using namespace std::placeholders;
 
 
-constexpr bool					ENABLE_HIGH_DPI =		true;
-constexpr unsigned				WINDOW_WIDTH =			1024;
-constexpr unsigned				WINDOW_HEIGHT =			768;
+constexpr uvec2					WINDOW_SIZE =			{1280, 768};
 constexpr bool					FULLSCREEN =			false;
+constexpr bool					ENABLE_HIGH_DPI =		true;
 constexpr AntialiasingMode		ANTIALIAS_MODE =		AntialiasingMode::Msaa4X;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
@@ -41,33 +40,47 @@ void DidRenderCallback(VisualWorld& world, float time, float deltaTime);
 
 int main(int argc, const char* argv[]) {
 
-	cout << "test003::main()\n" << endl;
+	try {
+		cout << "test003::main()\n" << endl;
 
-	auto window = make_unique<Window>(RenderingApi::OpenGL,
-									  *utils::ExecutableName(),
-									  WINDOW_WIDTH,
-									  WINDOW_HEIGHT,
-									  FULLSCREEN,
-									  ENABLE_HIGH_DPI,
-									  ANTIALIAS_MODE);
-	window->vSyncEnabled(ENABLE_VSYNC);
-	window->cursorCaptured(CAPTURE_CURSOR);
+		auto window = make_unique<Window>(RenderingApi::OpenGL,
+										  *utils::ExecutableName(),
+										  WINDOW_SIZE,
+										  FULLSCREEN,
+										  ENABLE_HIGH_DPI,
+										  ANTIALIAS_MODE);
+		window->vSyncEnabled(ENABLE_VSYNC);
+		window->cursorCaptured(CAPTURE_CURSOR);
 
-	auto visualWorld = make_unique<VisualWorld>(*window);
-	auto backgroundColor = make_shared<Color>(109.0f/255.0f, 136.0f/255.0f, 164.0f/255.0f, 1.0f);
-	visualWorld->background(backgroundColor);
-	visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
-	visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
+		auto visualWorld = make_unique<VisualWorld>(*window);
+		auto backgroundColor = make_shared<Color>(109.0f/255.0f, 136.0f/255.0f, 164.0f/255.0f, 1.0f);
+		visualWorld->background(backgroundColor);
+		visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
+		visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
 
-	auto inputManager = make_unique<WindowInputManager>(window.get());
+		auto inputManager = make_unique<WindowInputManager>(window.get());
 
-	auto scene = utils::SceneNamed("import_test/import_test");
-	scene->visualWorld(std::move(visualWorld));
-	scene->inputManager(std::move(inputManager));
-	scene->update(bind(&UpdateCallback, _1, _2, _3));
+		auto scene = utils::SceneNamed("import_test/import_test");
+		scene->visualWorld(std::move(visualWorld));
+		scene->inputManager(std::move(inputManager));
+		scene->update(bind(&UpdateCallback, _1, _2, _3));
 
-	window->open();
-	scene->run();
+		window->center();
+		window->open();
+		scene->run();
+	}
+	catch (NoAvailableMiceException& e)
+	{
+		// on macOS 10.15 Catalina+, this is probably a permissions issue,
+		// and the OS will alert the user.  just quit nicely.
+		cerr << "No available mice.\n";
+		return -1;
+	}
+	catch (Exception& e)
+	{
+		cerr << "Exception: " << e.what() << "\n";
+		return -1;
+	}
 
 	return 0;
 }

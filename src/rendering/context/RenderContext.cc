@@ -32,26 +32,6 @@ using namespace std;
 	Public Members
  *********************************************************************************************/
 
-unsigned RenderContext::width() const {
-	return _width;
-}
-
-unsigned RenderContext::height() const {
-	return _height;
-}
-
-unsigned RenderContext::framebufferWidth() const {
-	return _framebufferWidth;
-}
-
-unsigned RenderContext::framebufferHeight() const {
-	return _framebufferHeight;
-}
-
-const vec2& RenderContext::framebufferScale() const {
-	return _framebufferScale;
-}
-
 bool RenderContext::vSyncEnabled() const {
 	return _vSyncEnabled;
 }
@@ -76,21 +56,21 @@ bool RenderContext::recordingGIF() const {
 }
 
 void RenderContext::startGIFRecording(const filesystem::path& path,
-									  unsigned maxHeight, unsigned maxFramerate) {
+									  uvec2 fitInside,
+									  unsigned maxFramerate) {
 	
 	if (!_recordingGIF) {
 		A3D_LOG_I("Starting GIF recording...");
 		
 		_gifRecordingMaxFramerate = maxFramerate;
 		_gifRecordedFrames = 0;
-		
-		_gifRecordingHeight = _framebufferHeight;
-		_gifRecordingWidth = _framebufferWidth;
-		if (_gifRecordingHeight > maxHeight) {
-			float scale = (float)maxHeight / (float)_framebufferHeight;
-			_gifRecordingHeight = (unsigned)round((float)_framebufferHeight * scale);
-			_gifRecordingWidth = (unsigned)round((float)_framebufferWidth * scale);
-		}
+
+		// nice! https://math.stackexchange.com/questions/1169409/formula-to-best-fit-a-rectangle-inside-another-by-scaling
+		auto fbSize = framebufferSize();
+		auto scale = std::min(float(fitInside.x)/float(fbSize.x),
+							  float(fitInside.y)/float(fbSize.y));
+		_gifRecordingWidth = (unsigned)round(float(fbSize.x) * scale);
+		_gifRecordingHeight = (unsigned)round(float(fbSize.y) * scale);
 
 		unsigned frameTimeMS = 1000 /* (ms/sec) */ / _gifRecordingMaxFramerate /* (frames/sec) */;
 		// -> ms/frame
@@ -138,11 +118,6 @@ Renderer* RenderContext::renderer() const {
  *********************************************************************************************/
 
 RenderContext::RenderContext(RenderingApi renderingApi):
-		_width{0},
-		_height{0},
-		_framebufferWidth{0},
-		_framebufferHeight{0},
-		_framebufferScale{1.0, 1.0},
 		_vSyncEnabled{false},
 		_antialiasingMode{AntialiasingMode::None},
 		_gifWriter{},
@@ -156,7 +131,7 @@ RenderContext::RenderContext(RenderingApi renderingApi):
 
 	switch (renderingApi) {
 		case RenderingApi::OpenGL: {
-			_renderer = make_unique<OpenGLRenderer>(*this);
+			_renderer = make_unique<OpenGLRenderer>();//(*this);
 			break; }
 		case RenderingApi::OpenGLES: {
 			throw Exception("Unsupported rendering API: OpenGLES");
@@ -178,28 +153,6 @@ RenderContext::~RenderContext() {
 /*********************************************************************************************
 	Internal Members
  *********************************************************************************************/
-
-void RenderContext::width(unsigned width) {
-	_width = width;
-	framebufferWidth((unsigned)round((float)_width * _framebufferScale.x));
-}
-
-void RenderContext::height(unsigned height) {
-	_height = height;
-	framebufferHeight((unsigned)round((float)_height * _framebufferScale.y));
-}
-
-void RenderContext::framebufferWidth(unsigned width) {
-	_framebufferWidth = width;
-}
-
-void RenderContext::framebufferHeight(unsigned height) {
-	_framebufferHeight = height;
-}
-
-//void RenderContext::framebufferScale(const vec2& scale) {
-//	_framebufferScale = scale;
-//}
 
 void RenderContext::saveGIFFrame(float deltaRunT) {
 

@@ -43,8 +43,7 @@ namespace a3d {
 
 		Window(RenderingApi renderingAPI,
 			   const std::string& title,
-			   unsigned width,
-			   unsigned height,
+			   const glm::uvec2& size,
 			   bool fullScreen,
 			   bool enableHighDPI = true,
 			   AntialiasingMode antialiasingMode = AntialiasingMode::None);
@@ -59,19 +58,42 @@ namespace a3d {
 		void 					open();
 		void					close();
 
+		bool 					isOpen() const;
+
 		std::string				title() const;
 		void					title(const std::string& title);
 
+		glm::uvec2				size() const;
+		void					size(const glm::uvec2& size);
+
+		glm::uvec2				position() const;
+		void					position(const glm::uvec2& pos);
+
+		void					center();
+
+		bool 					hidden() const;
+		void					hidden(bool hidden);
+
 		bool 					cursorCaptured() const;
 		void 					cursorCaptured(bool captured);
+
+		bool					highDPIEnabled() const;
+
+/*********************************************************************************************
+	RenderContext Public Members
+ *********************************************************************************************/
+
+		bool 					vSyncEnabled() const override; // why is this necessary?
+		void 					vSyncEnabled(bool enabled) override;
 
 /*********************************************************************************************
 	RenderContext Internal Members
  *********************************************************************************************/
 
 		void 					swapBuffers() override;
-		bool 					vSyncEnabled() const override; // why is this necessary?
-		void 					vSyncEnabled(bool enabled) override;
+
+		glm::uvec2				framebufferSize() const override;
+		glm::vec2				framebufferScale() const override;
 
 /*********************************************************************************************
 	Internal Members
@@ -104,6 +126,9 @@ namespace a3d {
 
 		std::unique_ptr<GLFWwindow, DestroyGLFWWindow>	_glfwWindow;
 		bool											_cursorCaptured;
+		bool											_open;
+		bool											_hidden;
+		bool											_highDPIEnabled;
 	};
 }
 

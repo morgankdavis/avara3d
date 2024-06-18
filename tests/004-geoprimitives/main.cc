@@ -23,10 +23,9 @@ using namespace std::placeholders;
 
 
 constexpr LogLevel				LOG_LEVEL =				LogLevel::Debug;
-constexpr bool					ENABLE_HIGH_DPI =		true;
-constexpr unsigned				WINDOW_WIDTH =			1024;
-constexpr unsigned				WINDOW_HEIGHT =			768;
+constexpr uvec2					WINDOW_SIZE =			{1280, 768};
 constexpr bool					FULLSCREEN =			false;
+constexpr bool					ENABLE_HIGH_DPI =		true;
 constexpr AntialiasingMode		ANTIALIAS_MODE =		AntialiasingMode::Msaa4X;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
@@ -47,180 +46,194 @@ std::unique_ptr<a3d::Logger>		g_logger;
 
 int main(int argc, const char* argv[]) {
 
-	InitLog();
-	LogBuildInfo();
+	try {
+		InitLog();
+		LogBuildInfo();
 
-	auto window = make_unique<Window>(RenderingApi::OpenGL,
-									  *utils::ExecutableName(),
-									  WINDOW_WIDTH,
-									  WINDOW_HEIGHT,
-									  FULLSCREEN,
-									  ENABLE_HIGH_DPI,
-									  ANTIALIAS_MODE);
-	window->vSyncEnabled(ENABLE_VSYNC);
-	window->cursorCaptured(CAPTURE_CURSOR);
+		auto window = make_unique<Window>(RenderingApi::OpenGL,
+										  *utils::ExecutableName(),
+										  WINDOW_SIZE,
+										  FULLSCREEN,
+										  ENABLE_HIGH_DPI,
+										  ANTIALIAS_MODE);
+		window->vSyncEnabled(ENABLE_VSYNC);
+		window->cursorCaptured(CAPTURE_CURSOR);
 
-	auto visualWorld = make_unique<VisualWorld>(*window);
-	auto backgroundColor = make_shared<Color>(109.0f/255.0f, 136.0f/255.0f, 164.0f/255.0f, 1.0f);
-	visualWorld->background(backgroundColor);
-	visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
-	visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
+		auto visualWorld = make_unique<VisualWorld>(*window);
+		auto backgroundColor = make_shared<Color>(109.0f/255.0f, 136.0f/255.0f, 164.0f/255.0f, 1.0f);
+		visualWorld->background(backgroundColor);
+		visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
+		visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
 
-	auto inputManager = make_unique<WindowInputManager>(window.get());
+		auto inputManager = make_unique<WindowInputManager>(window.get());
 
-	auto scene = make_unique<Scene>(std::move(visualWorld), nullptr, std::move(inputManager));
-	scene->debugOptions(DebugOptions::ShowStatsOverlay);
-	scene->update(bind(&UpdateCallback, _1, _2, _3));
+		auto scene = make_unique<Scene>(std::move(visualWorld), nullptr, std::move(inputManager));
+		scene->debugOptions(DebugOptions::ShowStatsOverlay);
+		scene->update(bind(&UpdateCallback, _1, _2, _3));
 
-	{
-		auto mesh = Box::Mesh(1.5f, 1.0f, 1.5f);
-		auto node = make_shared<Node>();
-		node->name("box");
-		node->mesh(mesh);
-		scene->rootNode()->addChild(node);
-		node->rotation({0.0f, 1.0f, 0.0f}, radians(-45.0f));
-		node->position(vec3(1.67f, -2.5f, 0.0f));
+		{
+			auto mesh = Box::Mesh(1.5f, 1.0f, 1.5f);
+			auto node = make_shared<Node>();
+			node->name("box");
+			node->mesh(mesh);
+			scene->rootNode()->addChild(node);
+			node->rotation({0.0f, 1.0f, 0.0f}, radians(-45.0f));
+			node->position(vec3(1.67f, -2.5f, 0.0f));
+		}
+
+		{
+			auto mesh = Capsule::Mesh(0.5f, 1.0f);
+			auto node = make_shared<Node>();
+			node->name("capsule");
+			node->mesh(mesh);
+			scene->rootNode()->addChild(node);
+			node->position(vec3(-5.0f, -2.5f, 0.0f));
+		}
+
+		{
+			auto mesh = Cone::Mesh(1.0f, 2.0f);
+			auto node = make_shared<Node>();
+			mesh->name("cone");
+			node->mesh(mesh);
+			scene->rootNode()->addChild(node);
+			node->position(vec3(-5.0f, 0.0f, 0.0f));
+		}
+
+		{
+			auto mesh = Cylinder::Mesh(0.5f, 2.0f);
+			auto node = make_shared<Node>();
+			mesh->name("cylinder");
+			node->mesh(mesh);
+			scene->rootNode()->addChild(node);
+			node->position(vec3(5.0f, -2.5f, 0.0f));
+		}
+
+		{
+			auto mesh = Disk::Mesh(1.0f, 5.0f);
+			auto node = make_shared<Node>();
+			node->name("disk");
+			node->mesh(mesh);
+			scene->rootNode()->addChild(node);
+			node->position(vec3(0.0f, 5.0f, 0.0f));
+		}
+
+		{
+			auto mesh = Plane::Mesh(10.0f, 10.0f);
+			auto node = make_shared<Node>();
+			mesh->name("plane");
+			node->mesh(mesh);
+			scene->rootNode()->addChild(node);
+			node->rotation({-1.0f, 0.0f, 0.0f}, radians(90.0f));
+			node->position(vec3(0.0f, -5.0f, 0.0f));
+		}
+
+		{
+			auto mesh = RoundedBox::Mesh(0.25f, 1, 1, 1);
+			auto node = make_shared<Node>();
+			mesh->name("rounded box");
+			node->mesh(mesh);
+			scene->rootNode()->addChild(node);
+			node->rotation({0.0f, 1.0f, 0.0f}, radians(70.0f));
+			node->position(vec3(-5.0f, 2.5f, 0.0f));
+		}
+
+		{
+			auto mesh = Sphere::Mesh(1.0f);
+			auto node = make_shared<Node>();
+			mesh->name("sphere");
+			node->mesh(mesh);
+			scene->rootNode()->addChild(node);
+			node->position(vec3(5.0f, 2.5f, 0.0f));
+		}
+
+		{
+			auto mesh = Spring::Mesh(0.2f, 0.5f, 2.5f);
+			auto node = make_shared<Node>();
+			mesh->name("spring");
+			node->mesh(mesh);
+			scene->rootNode()->addChild(node);
+			node->position(vec3(0.0f, 2.5f, 0.0f));
+			node->rotation({0.0f, 1.0f, 0.0f}, radians(-90.0f));
+		}
+
+		{
+			auto mesh = Torus::Mesh(0.75f, 1.0f);
+			auto node = make_shared<Node>();
+			mesh->name("torus");
+			node->mesh(mesh);
+			scene->rootNode()->addChild(node);
+			node->rotation({0.0f, 1.0f, 0.0f}, radians(45.0f));
+			node->position(vec3(5.0f, 0.0f, 0.0f));
+		}
+
+		{
+			auto mesh = TorusKnot::Mesh(2, 3);
+			auto node = make_shared<Node>();
+			mesh->name("torus knot");
+			node->mesh(mesh);
+			scene->rootNode()->addChild(node);
+			node->rotation({0.0f, 1.0f, 0.0f}, radians(45.0f));
+			node->position(vec3(0.0f, 0.0f, 0.0f));
+		}
+
+		{
+			auto mesh = Tube::Mesh(0.5f, 0.75f, 2.0f);
+			auto node = make_shared<Node>();
+			mesh->name("tube");
+			node->mesh(mesh);
+			scene->rootNode()->addChild(node);
+			node->rotation({1.0f, -1.0f, 0.0f}, radians(-45.0f));
+			node->position(vec3(-1.67f, -2.5f, 0.0f));
+		}
+
+	//	int texIndex = 0;
+	//	vector<shared_ptr<Image>> textures = { utils::ImageNamed("test_textures/blue", "png"),
+	//										   utils::ImageNamed("test_textures/cyan", "png"),
+	//										   utils::ImageNamed("test_textures/green", "png"),
+	//										   utils::ImageNamed("test_textures/magenta", "png"),
+	//										   utils::ImageNamed("test_textures/orange", "png"),
+	//										   utils::ImageNamed("test_textures/purple", "png"),
+	//										   utils::ImageNamed("test_textures/red", "png"),
+	//										   utils::ImageNamed("test_textures/yellow", "png"),
+	//										   utils::ImageNamed("test_textures/blue", "png"),
+	//										   utils::ImageNamed("test_textures/cyan", "png") };
+	//
+	//	for (auto& node : scene->rootNode()->children(true)) {
+	//		if (auto mesh = node->mesh(); mesh) {
+	//
+	//			auto elements = mesh->elements();
+	//			for (int e=0; e<elements.size(); ++e) {
+	//
+	//				auto material = make_shared<Material>();
+	//				MaterialProperty property = make_shared<Texture>(textures[texIndex++]);
+	//				material->diffuse(property);
+	//				material->doubleSided(true);
+	//				//mesh->addMaterial(material);
+	//				mesh->replaceMaterial(0, material);
+	//				if (texIndex >= textures.size()) {
+	//					texIndex = 0;
+	//				}
+	//			}
+	//		}
+	//	}
+
+
+		window->center();
+		window->open();
+		scene->run();
 	}
-
+	catch (NoAvailableMiceException& e)
 	{
-		auto mesh = Capsule::Mesh(0.5f, 1.0f);
-		auto node = make_shared<Node>();
-		node->name("capsule");
-		node->mesh(mesh);
-		scene->rootNode()->addChild(node);
-		node->position(vec3(-5.0f, -2.5f, 0.0f));
+		// on macOS 10.15 Catalina+, this is probably a permissions issue,
+		// and the OS will alert the user.  just quit nicely.
+		LOG_F(g_logger, "No available mice.");
+		return -1;
 	}
-
+	catch (Exception& e)
 	{
-		auto mesh = Cone::Mesh(1.0f, 2.0f);
-		auto node = make_shared<Node>();
-		mesh->name("cone");
-		node->mesh(mesh);
-		scene->rootNode()->addChild(node);
-		node->position(vec3(-5.0f, 0.0f, 0.0f));
+		LOG_F(g_logger, "Exception: {}", e.what());
+		return -1;
 	}
-
-	{
-		auto mesh = Cylinder::Mesh(0.5f, 2.0f);
-		auto node = make_shared<Node>();
-		mesh->name("cylinder");
-		node->mesh(mesh);
-		scene->rootNode()->addChild(node);
-		node->position(vec3(5.0f, -2.5f, 0.0f));
-	}
-
-	{
-		auto mesh = Disk::Mesh(1.0f, 5.0f);
-		auto node = make_shared<Node>();
-		node->name("disk");
-		node->mesh(mesh);
-		scene->rootNode()->addChild(node);
-		node->position(vec3(0.0f, 5.0f, 0.0f));
-	}
-
-	{
-		auto mesh = Plane::Mesh(10.0f, 10.0f);
-		auto node = make_shared<Node>();
-		mesh->name("plane");
-		node->mesh(mesh);
-		scene->rootNode()->addChild(node);
-		node->rotation({-1.0f, 0.0f, 0.0f}, radians(90.0f));
-		node->position(vec3(0.0f, -5.0f, 0.0f));
-	}
-
-	{
-		auto mesh = RoundedBox::Mesh(0.25f, 1, 1, 1);
-		auto node = make_shared<Node>();
-		mesh->name("rounded box");
-		node->mesh(mesh);
-		scene->rootNode()->addChild(node);
-		node->rotation({0.0f, 1.0f, 0.0f}, radians(70.0f));
-		node->position(vec3(-5.0f, 2.5f, 0.0f));
-	}
-
-	{
-		auto mesh = Sphere::Mesh(1.0f);
-		auto node = make_shared<Node>();
-		mesh->name("sphere");
-		node->mesh(mesh);
-		scene->rootNode()->addChild(node);
-		node->position(vec3(5.0f, 2.5f, 0.0f));
-	}
-
-	{
-		auto mesh = Spring::Mesh(0.2f, 0.5f, 2.5f);
-		auto node = make_shared<Node>();
-		mesh->name("spring");
-		node->mesh(mesh);
-		scene->rootNode()->addChild(node);
-		node->position(vec3(0.0f, 2.5f, 0.0f));
-		node->rotation({0.0f, 1.0f, 0.0f}, radians(-90.0f));
-	}
-
-	{
-		auto mesh = Torus::Mesh(0.75f, 1.0f);
-		auto node = make_shared<Node>();
-		mesh->name("torus");
-		node->mesh(mesh);
-		scene->rootNode()->addChild(node);
-		node->rotation({0.0f, 1.0f, 0.0f}, radians(45.0f));
-		node->position(vec3(5.0f, 0.0f, 0.0f));
-	}
-
-	{
-		auto mesh = TorusKnot::Mesh(2, 3);
-		auto node = make_shared<Node>();
-		mesh->name("torus knot");
-		node->mesh(mesh);
-		scene->rootNode()->addChild(node);
-		node->rotation({0.0f, 1.0f, 0.0f}, radians(45.0f));
-		node->position(vec3(0.0f, 0.0f, 0.0f));
-	}
-
-	{
-		auto mesh = Tube::Mesh(0.5f, 0.75f, 2.0f);
-		auto node = make_shared<Node>();
-		mesh->name("tube");
-		node->mesh(mesh);
-		scene->rootNode()->addChild(node);
-		node->rotation({1.0f, -1.0f, 0.0f}, radians(-45.0f));
-		node->position(vec3(-1.67f, -2.5f, 0.0f));
-	}
-
-//	int texIndex = 0;
-//	vector<shared_ptr<Image>> textures = { utils::ImageNamed("test_textures/blue", "png"),
-//										   utils::ImageNamed("test_textures/cyan", "png"),
-//										   utils::ImageNamed("test_textures/green", "png"),
-//										   utils::ImageNamed("test_textures/magenta", "png"),
-//										   utils::ImageNamed("test_textures/orange", "png"),
-//										   utils::ImageNamed("test_textures/purple", "png"),
-//										   utils::ImageNamed("test_textures/red", "png"),
-//										   utils::ImageNamed("test_textures/yellow", "png"),
-//										   utils::ImageNamed("test_textures/blue", "png"),
-//										   utils::ImageNamed("test_textures/cyan", "png") };
-//
-//	for (auto& node : scene->rootNode()->children(true)) {
-//		if (auto mesh = node->mesh(); mesh) {
-//
-//			auto elements = mesh->elements();
-//			for (int e=0; e<elements.size(); ++e) {
-//
-//				auto material = make_shared<Material>();
-//				MaterialProperty property = make_shared<Texture>(textures[texIndex++]);
-//				material->diffuse(property);
-//				material->doubleSided(true);
-//				//mesh->addMaterial(material);
-//				mesh->replaceMaterial(0, material);
-//				if (texIndex >= textures.size()) {
-//					texIndex = 0;
-//				}
-//			}
-//		}
-//	}
-
-
-	window->open();
-	scene->run();
 
 	return 0;
 }

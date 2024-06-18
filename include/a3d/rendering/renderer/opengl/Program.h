@@ -65,6 +65,7 @@ namespace a3d {
 		void 								setUniform(const char* name, const glm::mat4& m);
 		void 								setUniform(const char* name, bool val);
 		void 								setUniform(const char* name, int val);
+		void 								setUniform(const char* name, unsigned val);
 		void 								setUniform(const char* name, float val);
 
 		void 								bindUniformBlock(const char* name,
@@ -100,7 +101,7 @@ namespace a3d {
 		void 								prepare();
 		bool 								compile(const std::string& source,
 													ShaderType type);
-		unsigned 							getUniformLocation(const char* name);
+		int 								getUniformLocation(const char* name);
 		void 								glID(unsigned glID);
 		void 								isLinked(bool isLinked);
 

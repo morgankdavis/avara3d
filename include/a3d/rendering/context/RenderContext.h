@@ -13,6 +13,7 @@
 #include <filesystem>
 #include <functional>
 #include <memory>
+#include <vector>
 
 #include "glm/glm.hpp"
 
@@ -44,13 +45,6 @@ namespace a3d {
 
 	public:
 
-		unsigned 						width() const;
-		unsigned 						height() const;
-
-		unsigned 						framebufferWidth() const;
-		unsigned 						framebufferHeight() const;
-		const glm::vec2&				framebufferScale() const;
-		
 		virtual bool 					vSyncEnabled() const;
 		virtual void 					vSyncEnabled(bool enabled);
 
@@ -60,7 +54,7 @@ namespace a3d {
 
 		virtual bool 					recordingGIF() const;
 		virtual void 					startGIFRecording(const std::filesystem::path& path,
-														  unsigned maxHeight,
+														  glm::uvec2 fitInside,
 														  unsigned maxFramerate);
 		virtual unsigned 				recordedGIFFrames() const;
 		virtual void 					stopGIFRecording();
@@ -84,12 +78,8 @@ namespace a3d {
 
 		virtual void 					swapBuffers() = 0;
 
-		void 							width(unsigned width);
-		void 							height(unsigned height);
-
-		void 							framebufferWidth(unsigned width);
-		void 							framebufferHeight(unsigned height);
-//		void 							framebufferScale(const glm::vec2& scale);
+		virtual glm::uvec2				framebufferSize() const = 0;
+		virtual glm::vec2				framebufferScale() const = 0;
 
 		virtual void 					saveGIFFrame(float deltaRunT);
 
@@ -102,11 +92,6 @@ namespace a3d {
 
 	protected:
 
-		unsigned						_width;
-		unsigned						_height;
-		unsigned						_framebufferWidth;
-		unsigned						_framebufferHeight;
-		glm::vec2						_framebufferScale;
 		bool							_vSyncEnabled;
 		AntialiasingMode				_antialiasingMode;
 		std::unique_ptr<GifWriter>		_gifWriter;

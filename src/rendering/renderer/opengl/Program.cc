@@ -12,7 +12,7 @@
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
 #else
-#include "GL/glew.h"
+#include "glad/glad.h"
 #endif
 
 #include "fmt/format.h"
@@ -76,7 +76,7 @@ Program::Program(const string& name):
 		if (_glID == 0) {
 			//logString(string("Unable to create shader program."));
 			//string errMsg = "Unable to create shader program.";
-			A3D_LOG_C("Unable to create shader program.");
+			A3D_LOG_F("Unable to create shader program.");
 			//throw Exception(errMsg);
 		}
 		else {
@@ -219,7 +219,7 @@ bool Program::validate() {
 void Program::use() {
 	
 	if (_glID <= 0 || (!_isLinked)) {
-		A3D_LOG_C("Program '{}' not ready.", _name);
+		A3D_LOG_E("Program '{}' not ready.", _name);
 	}
 	else {
 		glUseProgram(_glID);
@@ -320,8 +320,19 @@ void Program::setUniform(const char* name, int val) {
 	}
 }
 
+void Program::setUniform(const char* name, unsigned val) {
+
+	int loc = getUniformLocation(name);
+	if (loc >= 0) {
+		glUniform1ui(loc, val);
+	}
+	else {
+		A3D_LOG_E("Uniform '{}' not found.", name);
+	}
+}
+
 void Program::setUniform(const char* name, float val) {
-	
+
 	int loc = getUniformLocation(name);
 	if (loc >= 0) {
 		glUniform1f(loc, val);
@@ -603,7 +614,7 @@ bool Program::compile(const string& source, ShaderType type) {
 	}
 }
 
-unsigned Program::getUniformLocation(const char* name) {
+int Program::getUniformLocation(const char* name) {
 
 	GLuint location = -1;
 	if (_uniformLocationCache.find(name) == _uniformLocationCache.end()) {

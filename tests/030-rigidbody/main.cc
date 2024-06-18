@@ -28,12 +28,12 @@ using namespace std::placeholders;
 
 
 constexpr LogLevel				LOG_LEVEL =				LogLevel::Debug;
-constexpr bool					ENABLE_HIGH_DPI =		true;
-constexpr int					WINDOW_WIDTH =			1280;
-constexpr int					WINDOW_HEIGHT =			768;
+constexpr uvec2					WINDOW_SIZE =			{1280, 768};
 constexpr bool					FULLSCREEN =			false;
+constexpr bool					ENABLE_HIGH_DPI =		true;
 constexpr AntialiasingMode		MSAA_MODE =				AntialiasingMode::Msaa4X;
 constexpr bool					ENABLE_VSYNC =			false;
+constexpr bool					USE_DEFAULT_LIGHTING =	false;
 constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
 constexpr float					PHYSICS_TIMESTEP =		1.0/120.0;
@@ -66,236 +66,252 @@ shared_ptr<Node> ChainmailLink(float minorRadius, float majorRadius);
 void SpawnChainMail(Scene& scene);
 
 
-std::unique_ptr<a3d::Logger>	g_logger;
-a3d::Node*						g_palmNode;
-a3d::Node*						g_duckSpinnerNode;
-a3d::Node*						g_duckNode;
+unique_ptr<a3d::Logger>	g_logger;
+Node*					g_palmNode;
+Node*					g_duckSpinnerNode;
+Node*					g_duckNode;
 
 
 int main(int argc, const char* argv[]) {
 
-	InitLog();
-	LogBuildInfo();
+	try
+	{
+		InitLog();
+		LogBuildInfo();
 
-	auto window = make_unique<Window>(RenderingApi::OpenGL,
-									  *utils::ExecutableName(),
-									  WINDOW_WIDTH,
-									  WINDOW_HEIGHT,
-									  FULLSCREEN,
-									  ENABLE_HIGH_DPI,
-									  MSAA_MODE);
-	window->vSyncEnabled(ENABLE_VSYNC);
-	window->cursorCaptured(CAPTURE_CURSOR);
+		auto window = make_unique<Window>(RenderingApi::OpenGL,
+										  *utils::ExecutableName(),
+										  WINDOW_SIZE,
+										  FULLSCREEN,
+										  ENABLE_HIGH_DPI,
+										  MSAA_MODE);
+		window->vSyncEnabled(ENABLE_VSYNC);
+		window->cursorCaptured(CAPTURE_CURSOR);
 
-	auto visualWorld = make_unique<VisualWorld>(*window);
-	visualWorld->fogStartDistance(50.0);
-	visualWorld->fogEndDistance(400.0);
-	visualWorld->fogDensityExponent(1.0);
-	visualWorld->fogColor(DARK ? Color::DarkGray() : Color::LightGray());
-//	MaterialProperty background = DARK
-//									? Color::Black()
-//									: make_shared<Texture>(CubeImageNamed("stormy", "png"));
-	MaterialProperty background = monostate{};
-	if (DARK) background = Color::Black();
-	else background = make_shared<Texture>(utils::CubeImageNamed("stormy", "png"));
-	visualWorld->background(background);
-	visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
-	visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
+		auto visualWorld = make_unique<VisualWorld>(*window);
+		visualWorld->fogStartDistance(50.0);
+		visualWorld->fogEndDistance(400.0);
+		visualWorld->fogDensityExponent(1.0);
+		visualWorld->fogColor(DARK ? Color::DarkGray() : Color::LightGray());
+	//	MaterialProperty background = DARK
+	//									? Color::Black()
+	//									: make_shared<Texture>(CubeImageNamed("stormy", "png"));
+		MaterialProperty background = monostate{};
+		if (DARK) background = Color::Black();
+		else background = make_shared<Texture>(utils::CubeImageNamed("stormy", "png"));
+		visualWorld->background(background);
+		visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
+		visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
 
-	auto physicalWorld = make_unique<PhysicalWorld>();
-	physicalWorld->timestep(PHYSICS_TIMESTEP);
-	physicalWorld->didSimulate(bind(&DidSimulatePhysicsCallback, _1, _2, _3));
+		auto physicalWorld = make_unique<PhysicalWorld>();
+		physicalWorld->timestep(PHYSICS_TIMESTEP);
+		physicalWorld->didSimulate(bind(&DidSimulatePhysicsCallback, _1, _2, _3));
 
-	auto inputManager = make_unique<WindowInputManager>(window.get());
+		auto inputManager = make_unique<WindowInputManager>(window.get());
 
-	auto scene = make_unique<Scene>(std::move(visualWorld),
-									std::move(physicalWorld),
-									std::move(inputManager));
-	scene->debugOptions(DebugOptions::ShowStatsOverlay);
-	scene->update(bind(&UpdateCallback, _1, _2, _3));
+		auto scene = make_unique<Scene>(std::move(visualWorld),
+										std::move(physicalWorld),
+										std::move(inputManager));
+		scene->debugOptions(DebugOptions::ShowStatsOverlay);
+		scene->update(bind(&UpdateCallback, _1, _2, _3));
 
-	auto ambientColor = DARK
-						? Color::LightGray()
-						: make_shared<Color>(233, 218, 185); // sunset
-	auto ambientLight = make_shared<Light>(LightType::Ambient, ambientColor);
-	auto ambientLightNode = Node::LightNode(ambientLight);
-	scene->rootNode()->addChild(ambientLightNode);
+		if (!USE_DEFAULT_LIGHTING) {
+			auto ambientColor = DARK
+								? Color::LightGray()
+								: make_shared<Color>(233, 218, 185); // sunset
+			auto ambientLight = make_shared<Light>(LightType::Ambient, ambientColor);
+			auto ambientLightNode = Node::LightNode(ambientLight);
+			scene->rootNode()->addChild(ambientLightNode);
 
-	auto pointColor = DARK
-					  ? Color::LightGray()
-					  : make_shared<Color>((uint32_t) 0x3F2A00FF); // dark orangish
-	auto pointLight = make_shared<Light>(LightType::Point, pointColor);
-	pointLight->attenuationFactor(0.0);
-	auto pointLightNode = Node::LightNode(pointLight);
-	pointLightNode->position(vec3(35, 20, (DARK ? 1.0 : -1.0) * 35) * vec3(2.5, 2.5, 2.5));
-	scene->rootNode()->addChild(pointLightNode);
+			auto pointColor = DARK
+							  ? Color::LightGray()
+							  : make_shared<Color>((uint32_t) 0x3F2A00FF); // dark orangish
+			auto pointLight = make_shared<Light>(LightType::Point, pointColor);
+			pointLight->attenuationFactor(0.0);
+			auto pointLightNode = Node::LightNode(pointLight);
+			pointLightNode->position(vec3(35, 20, (DARK ? 1.0 : -1.0) * 35) * vec3(2.5, 2.5, 2.5));
+			scene->rootNode()->addChild(pointLightNode);
+		}
 
-
-	// box
-//	const float BOX_DIM = 10.0;
-//	auto boxNode = make_shared<Node>("Box node");
-//	boxNode->mesh(make_shared<Box>(BOX_DIM, BOX_DIM, BOX_DIM));
-//	auto boxImage = ImageNamed("grid10");
-//	//auto gridImage = ImageNamed("grid10_512");
-//	auto boxMaterialProperty = make_shared<MaterialProperty>(boxImage);
-//	boxMaterialProperty->wrapS(WRAP_MODE::REPEAT);
-//	boxMaterialProperty->wrapT(WRAP_MODE::REPEAT);
-//	boxMaterialProperty->maxAnisotropy(16);
-//	boxMaterialProperty->minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR);
-//	boxMaterialProperty->magnificationFilter(FILTER_MODE::LINEAR);
-//	auto boxMaterial = make_shared<Material>(nullptr, boxMaterialProperty, nullptr);
-//	boxMaterial->uvScale(BOX_DIM/10.0);
-//	boxMaterial->doubleSided(true);
-//	boxNode->mesh()->addMaterial(boxMaterial);
-//	boxNode->position({-20, 0, 20});
-//
-//	auto boxPhysicsBody = PhysicsBody::StaticBody();
-//	boxPhysicsBody->mass(0);
-//	boxPhysicsBody->friction(1);
-//	boxPhysicsBody->restitution(0.25);
-//	boxNode->physicsBody(boxPhysicsBody);
-//
-//	scene->rootNode()->addChild(boxNode);
-
-
+		// box
+	//	const float BOX_DIM = 10.0;
+	//	auto boxNode = make_shared<Node>("Box node");
+	//	boxNode->mesh(make_shared<Box>(BOX_DIM, BOX_DIM, BOX_DIM));
+	//	auto boxImage = ImageNamed("grid10");
+	//	//auto gridImage = ImageNamed("grid10_512");
+	//	auto boxMaterialProperty = make_shared<MaterialProperty>(boxImage);
+	//	boxMaterialProperty->wrapS(WRAP_MODE::REPEAT);
+	//	boxMaterialProperty->wrapT(WRAP_MODE::REPEAT);
+	//	boxMaterialProperty->maxAnisotropy(16);
+	//	boxMaterialProperty->minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR);
+	//	boxMaterialProperty->magnificationFilter(FILTER_MODE::LINEAR);
+	//	auto boxMaterial = make_shared<Material>(nullptr, boxMaterialProperty, nullptr);
+	//	boxMaterial->uvScale(BOX_DIM/10.0);
+	//	boxMaterial->doubleSided(true);
+	//	boxNode->mesh()->addMaterial(boxMaterial);
+	//	boxNode->position({-20, 0, 20});
+	//
+	//	auto boxPhysicsBody = PhysicsBody::StaticBody();
+	//	boxPhysicsBody->mass(0);
+	//	boxPhysicsBody->friction(1);
+	//	boxPhysicsBody->restitution(0.25);
+	//	boxNode->physicsBody(boxPhysicsBody);
+	//
+	//	scene->rootNode()->addChild(boxNode);
 
 
-	// ground plane
 
-	const float PLANE_LENGTH = 50.0;
-	const float PLANE_WIDTH = 50.0;
-	auto planeNode = Node::NamedNode("Ground plane node");
-	planeNode->mesh(Box::Mesh(PLANE_LENGTH, PLANE_WIDTH, 0));
-	auto gridImage = DARK ? utils::ImageNamed("grid10")->inverted() : utils::ImageNamed("grid10");
-	auto planeTexture = make_shared<Texture>(std::move(gridImage));
-	planeTexture->sampler()->wrapS(WrapMode::Repeat);
-	planeTexture->sampler()->wrapT(WrapMode::Repeat);
-	planeTexture->sampler()->maxAnisotropy(16);
-	planeTexture->sampler()->minificationFilter(FilterMode::LinearMipmapLinear);
-	planeTexture->sampler()->magnificationFilter(FilterMode::Linear);
-	shared_ptr<Material> planeMaterial = nullptr;
-	if (DARK) {
-		planeMaterial = make_shared<Material>(monostate{},
-											  monostate{},
-											  monostate{},
-											  planeTexture);
+
+		// ground plane
+
+		const float PLANE_LENGTH = 50.0;
+		const float PLANE_WIDTH = 50.0;
+		auto planeNode = Node::NamedNode("Ground plane node");
+		planeNode->mesh(Box::Mesh(PLANE_LENGTH, PLANE_WIDTH, 0));
+		auto gridImage = DARK ? utils::ImageNamed("grid10")->inverted() : utils::ImageNamed("grid10");
+		auto planeTexture = make_shared<Texture>(std::move(gridImage));
+		planeTexture->sampler()->wrapS(WrapMode::Repeat);
+		planeTexture->sampler()->wrapT(WrapMode::Repeat);
+		planeTexture->sampler()->maxAnisotropy(16);
+		planeTexture->sampler()->minificationFilter(FilterMode::LinearMipmapLinear);
+		planeTexture->sampler()->magnificationFilter(FilterMode::Linear);
+		shared_ptr<Material> planeMaterial = nullptr;
+		if (DARK) {
+			planeMaterial = make_shared<Material>(monostate{},
+												  monostate{},
+												  monostate{},
+												  planeTexture);
+		}
+		else {
+			planeMaterial = make_shared<Material>(monostate{},
+												  planeTexture,
+												  Color::Gray());
+		}
+
+		planeMaterial->uvScale(PLANE_LENGTH / 10.0);
+		planeMaterial->doubleSided(false);
+		planeNode->mesh()->addMaterial(planeMaterial);
+		planeNode->rotation({1, 0, 0}, radians(3 * 90.0));
+		planeNode->position({planeNode->position().x, 0, planeNode->position().z});
+
+		auto planePhysicsBody = PhysicsBody::StaticBody();
+		planePhysicsBody->friction(1);
+		planePhysicsBody->restitution(0.25);
+		planeNode->physicsBody(std::move(planePhysicsBody));
+
+		scene->rootNode()->addChild(planeNode);
+
+
+
+
+		// add the palm tree
+
+		auto palmNode = Node::MeshNode(utils::MeshNamed("palm/palm"));
+		g_palmNode = palmNode.get();
+		auto palmPhysicsBody = PhysicsBody::StaticBody();
+		palmPhysicsBody->mass(0);
+		palmPhysicsBody->friction(1);
+		palmPhysicsBody->restitution(0.25);
+		palmNode->physicsBody(std::move(palmPhysicsBody));
+
+		scene->rootNode()->addChild(palmNode);
+
+
+		// add the duck
+
+		auto duckNode = Node::MeshNode(utils::MeshNamed("rubber_duck/rubber_duck"));
+		g_duckNode = duckNode.get();
+		A3D_LOG_I("DUCK NODE: {}", utils::StringFromTree(*duckNode));
+		duckNode->position({/*4.5*/0, 25, 0});
+
+
+	//	// #0
+	//	_duckNode->physicsBody(PhysicsBody::KinematicBody());
+	//	_duckNode->physicsBody()->shape()->type(PhysicsShapeType::ConcavePolyhedron);
+	////	_duckNode->physicsBody()->shape()->type(PhysicsShapeType::ConvexHull);
+	//
+	//	// #1
+	////	_duckNode->physicsBody(PhysicsBody::KinematicBody());
+	////	auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, _duckNode.get());
+	////	_duckNode->physicsBody()->shape(duckPhysicsShape);
+	//
+	//	// #2
+	////	_duckNode->physicsBody(PhysicsBody::KinematicBody());
+	////	auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, _duckNode->mesh().get());
+	////	_duckNode->physicsBody()->shape(duckPhysicsShape);
+	//
+		// #3
+		auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShapeType::ConcavePolyhedron, duckNode);
+		duckNode->physicsBody(make_unique<PhysicsBody>(PhysicsBodyType::Kinematic, duckPhysicsShape));
+
+	//	// #4
+	////	auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShapeType::ConcavePolyhedron, _duckNode->mesh().get());
+	//	_duckNode->physicsBody(make_shared<PhysicsBody>(PhysicsBodyType::Kinematic, duckPhysicsShape));
+
+		auto duckSpinnerNode = Node::NamedNode("duck spinner");
+		g_duckSpinnerNode = duckSpinnerNode.get();
+		duckSpinnerNode->addChild(duckNode);
+		scene->rootNode()->addChild(duckSpinnerNode);
+
+
+
+	////	// add the paddle
+	////
+	////	_paddleNode = Node::MeshNode(make_shared<Box>(.5, 5, 20));
+	////	auto paddleProperty = make_shared<MaterialProperty>(Color::Red());
+	////	auto paddleMaterial = make_shared<Material>(nullptr, paddleProperty, nullptr);
+	////	_paddleNode->mesh()->addMaterial(paddleMaterial);
+	////	_paddleNode->position({15 - .25, 2.5, 0});
+	////	auto paddlePhysicsBody = PhysicsBody::KinematicBody();
+	//////	paddlePhysicsBody->friction(100);
+	////	paddlePhysicsBody->restitution(0.25);
+	////	_paddleNode->physicsBody(paddlePhysicsBody);
+	////	scene->rootNode()->addChild(_paddleNode);
+	//
+	//
+		// add cardboard boxes
+
+		AddCardboardBoxes(*scene);
+
+
+	//	// add slurms
+	//	AddSlurms(*scene);
+
+
+
+		LOG_I(g_logger, "*** SCENE EXTENT: {} ***", utils::StringFromGLMVec3(scene->rootNode()->extent()));
+
+	//	A3D_LOG_I("Graph:\n{}", StringFromTree(*scene->rootNode()));
+	//	auto children = scene->rootNode()->children(true);
+	//	A3D_LOG_I("CHILDREN REC:");
+	//	for (auto& child : children) {
+	//		if (child == scene->rootNode()){
+	//			A3D_LOG_I("\troot");
+	//		}
+	//		else if (child->name().has_value()) {
+	//			A3D_LOG_I("\t{}", *child->name());
+	//		}
+	//		else {
+	//			A3D_LOG_I("\t{:p}", (void*)child.get());
+	//		}
+	//	}
+
+		window->center();
+		window->open();
+		scene->run();
 	}
-	else {
-		planeMaterial = make_shared<Material>(monostate{},
-											  planeTexture,
-											  Color::Gray());
+	catch (NoAvailableMiceException& e)
+	{
+		// on macOS 10.15 Catalina+, this is probably a permissions issue,
+		// and the OS will alert the user.  just quit nicely.
+		LOG_F(g_logger, "No available mice.");
+		return -1;
 	}
-
-	planeMaterial->uvScale(PLANE_LENGTH / 10.0);
-	planeMaterial->doubleSided(false);
-	planeNode->mesh()->addMaterial(planeMaterial);
-	planeNode->rotation({1, 0, 0}, radians(3 * 90.0));
-	planeNode->position({planeNode->position().x, 0, planeNode->position().z});
-
-	auto planePhysicsBody = PhysicsBody::StaticBody();
-	planePhysicsBody->friction(1);
-	planePhysicsBody->restitution(0.25);
-	planeNode->physicsBody(std::move(planePhysicsBody));
-
-	scene->rootNode()->addChild(planeNode);
-
-
-
-
-	// add the palm tree
-
-	auto palmNode = Node::MeshNode(utils::MeshNamed("palm/palm"));
-	g_palmNode = palmNode.get();
-	auto palmPhysicsBody = PhysicsBody::StaticBody();
-	palmPhysicsBody->mass(0);
-	palmPhysicsBody->friction(1);
-	palmPhysicsBody->restitution(0.25);
-	palmNode->physicsBody(std::move(palmPhysicsBody));
-
-	scene->rootNode()->addChild(palmNode);
-
-
-	// add the duck
-
-	auto duckNode = Node::MeshNode(utils::MeshNamed("rubber_duck/rubber_duck"));
-	g_duckNode = duckNode.get();
-	A3D_LOG_I("DUCK NODE: {}", utils::StringFromTree(*duckNode));
-	duckNode->position({/*4.5*/0, 25, 0});
-
-
-//	// #0
-//	_duckNode->physicsBody(PhysicsBody::KinematicBody());
-//	_duckNode->physicsBody()->shape()->type(PhysicsShapeType::ConcavePolyhedron);
-////	_duckNode->physicsBody()->shape()->type(PhysicsShapeType::ConvexHull);
-//
-//	// #1
-////	_duckNode->physicsBody(PhysicsBody::KinematicBody());
-////	auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, _duckNode.get());
-////	_duckNode->physicsBody()->shape(duckPhysicsShape);
-//
-//	// #2
-////	_duckNode->physicsBody(PhysicsBody::KinematicBody());
-////	auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, _duckNode->mesh().get());
-////	_duckNode->physicsBody()->shape(duckPhysicsShape);
-//
-	// #3
-	auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShapeType::ConcavePolyhedron, duckNode);
-	duckNode->physicsBody(make_unique<PhysicsBody>(PhysicsBodyType::Kinematic, duckPhysicsShape));
-
-//	// #4
-////	auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShapeType::ConcavePolyhedron, _duckNode->mesh().get());
-//	_duckNode->physicsBody(make_shared<PhysicsBody>(PhysicsBodyType::Kinematic, duckPhysicsShape));
-
-	auto duckSpinnerNode = Node::NamedNode("duck spinner");
-	g_duckSpinnerNode = duckSpinnerNode.get();
-	duckSpinnerNode->addChild(duckNode);
-	scene->rootNode()->addChild(duckSpinnerNode);
-
-
-
-////	// add the paddle
-////
-////	_paddleNode = Node::MeshNode(make_shared<Box>(.5, 5, 20));
-////	auto paddleProperty = make_shared<MaterialProperty>(Color::Red());
-////	auto paddleMaterial = make_shared<Material>(nullptr, paddleProperty, nullptr);
-////	_paddleNode->mesh()->addMaterial(paddleMaterial);
-////	_paddleNode->position({15 - .25, 2.5, 0});
-////	auto paddlePhysicsBody = PhysicsBody::KinematicBody();
-//////	paddlePhysicsBody->friction(100);
-////	paddlePhysicsBody->restitution(0.25);
-////	_paddleNode->physicsBody(paddlePhysicsBody);
-////	scene->rootNode()->addChild(_paddleNode);
-//
-//
-	// add cardboard boxes
-
-	AddCardboardBoxes(*scene);
-
-
-//	// add slurms
-//	AddSlurms(*scene);
-
-
-
-	LOG_I(g_logger, "*** SCENE EXTENT: {} ***", utils::StringFromGLMVec3(scene->rootNode()->extent()));
-
-//	A3D_LOG_I("Graph:\n{}", StringFromTree(*scene->rootNode()));
-//	auto children = scene->rootNode()->children(true);
-//	A3D_LOG_I("CHILDREN REC:");
-//	for (auto& child : children) {
-//		if (child == scene->rootNode()){
-//			A3D_LOG_I("\troot");
-//		}
-//		else if (child->name().has_value()) {
-//			A3D_LOG_I("\t{}", *child->name());
-//		}
-//		else {
-//			A3D_LOG_I("\t{:p}", (void*)child.get());
-//		}
-//	}
-
-	window->open();
-	scene->run();
+	catch (Exception& e)
+	{
+		LOG_F(g_logger, "Exception: {}", e.what());
+		return -1;
+	}
 
 	return 0;
 }
@@ -334,12 +350,25 @@ void UpdateCallback(Scene& scene, float time, float deltaTime) {
 		cursorCaptured = window->cursorCaptured();
 	}
 
+	// TEMPORARY for macOS mouse input testing
+	if (keysPressed.count(Key::Z)) {
+		A3D_LOG_I("Trying to re-initialize mouse input.");
+		auto windowInputManager = static_cast<WindowInputManager*>(scene.inputManager());
+		try {
+			windowInputManager->initMouseInput();
+		}
+		catch (Exception) {
+			A3D_LOG_E("Nada");
+		}
+	}
 
 	if (keysPressed.count(Key::Escape)) {
 		window->close();
+		A3D_LOG_I("open? {}", window->isOpen() ? "ya" : "no");
 	}
 
 	if (keysPressed.count(Key::ForwardDelete)) {
+		//window->size({320, 240});
 		scene.paused(!scene.paused());
 	}
 
@@ -409,9 +438,9 @@ void UpdateCallback(Scene& scene, float time, float deltaTime) {
 
 	if (!scene.paused()) {
 
-		if (keysPressed.count(Key::T)) {
-			LOG_I(g_logger, "TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
-		}
+//		if (keysPressed.count(Key::T)) {
+//			LOG_I(g_logger, "TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
+//		}
 
 		// spawn duck fruit
 
@@ -431,9 +460,9 @@ void UpdateCallback(Scene& scene, float time, float deltaTime) {
 			SpawnAutogeneratedPrimitives(scene);
 		}
 
-		if (keysPressed.count(Key::Z)) {
-			SpawnInvisiblePrimitives(scene);
-		}
+		// if (keysPressed.count(Key::Z)) {
+		// 	SpawnInvisiblePrimitives(scene);
+		// }
 
 		if (keysPressed.count(Key::M)) {
 			SpawnChainMail(scene);
@@ -443,8 +472,14 @@ void UpdateCallback(Scene& scene, float time, float deltaTime) {
 			SpawnRecursiveTestTree(scene);
 		}
 
-		if (keysPressed.count(Key::H)) {
+		if (keysPressed.count(Key::T)) {
 			SpawnHACDTeapot(scene);
+		}
+
+		if (keysPressed.count(Key::H)) {
+			// NOTE: once the window is hidden, the scene keeps running but you
+			// no longer get key events from the window!
+			window->hidden(!window->hidden());
 		}
 
 
@@ -544,7 +579,7 @@ void UpdateCallback(Scene& scene, float time, float deltaTime) {
 
 		if (keysPressed.count(Key::R)) {
 			if (!window->recordingGIF()) {
-				utils::StartGIFRecording(*window, 320, 8);
+				utils::StartGIFRecording(*window, {320, 240}, 8);
 			}
 			else {
 				utils::StopGIFRecording(*window);

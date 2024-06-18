@@ -91,7 +91,7 @@ namespace a3d {
 		Info =		2,
 		Warn =		3,
 		Error =		4,
-		Critical = 	5,
+		Fatal = 	5,
 		Off = 		6
 	};
 
