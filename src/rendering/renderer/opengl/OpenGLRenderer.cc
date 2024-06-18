@@ -1706,13 +1706,20 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 	using namespace ImGui;
 
 	// donno
-#if defined(MACOS) || defined(LINUX)
-	auto scaleXY = vec2(1.0, 1.0);
-#else
-	auto scaleXY = context.framebufferScale();
-#endif
+//#if defined(MACOS) || defined(LINUX)
+//	auto scaleXY = vec2(1.0, 1.0);
+//#else
+//	auto scaleXY = context.framebufferScale();
+//#endif
 
-	//auto scale = std::max(scaleXY.x, scaleXY.y);
+#ifdef WINDOWS
+	auto scaleXY = context.framebufferScale();
+	auto scale = std::max(scaleXY.x, scaleXY.y);
+	// this is probably going to need more attention when we start
+	// using Imgui for more than just rendering text
+	//ImGui::GetStyle().ScaleAllSizes(scale);
+	ImGui::GetIO().FontGlobalScale = scale;
+#endif
 
 	constexpr unsigned MAX_RECORDING_STR_LEN = 32;
 	static char recordingStr[MAX_RECORDING_STR_LEN];
@@ -1796,14 +1803,16 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 	Begin("StatsTextShadow", nullptr, windowFlags);
 	ImGuiStyle& style = GetStyle();
 	style.WindowBorderSize = 0;
-	SetWindowPos({(10.0f * scaleXY.x) + 1, (10.0f * scaleXY.y) + 1});
+	//SetWindowPos({(10.0f * scaleXY.x) + 1, (10.0f * scaleXY.y) + 1});
+	SetWindowPos({10.0f + 1, 10.0f + 1});
 	TextColored(ImVec4{0, 0, 0, .5}, "%s", str);
 	End();
 
 	// draw the text
 	SetNextWindowBgAlpha(0);
 	Begin("StatsText", nullptr, windowFlags);
-	SetWindowPos({(10.0f * scaleXY.x), (10.0f * scaleXY.y)});
+	//SetWindowPos({(10.0f * scaleXY.x), (10.0f * scaleXY.y)});
+	SetWindowPos({10.0f, 10.0f});
 	TextColored(ImVec4{1, 1, 1, 1}, "%s", str);
 	End();
 
