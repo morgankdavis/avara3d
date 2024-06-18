@@ -484,7 +484,7 @@ unique_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 void OpenGLRenderer::framebufferScaleChanged(const RenderContext& context) {
 	A3D_LOG_D("context: {:p}", static_cast<const void*>(&context));
 
-	InitImgui(context);//, *_overlayFont);
+	UpdateImguiScale(context, *_overlayFont);
 }
 	
 /*********************************************************************************************
@@ -1622,7 +1622,7 @@ static vector<Node*> SortedLights(map<Node*, float> lights) {
 void InitImgui(const RenderContext& context) {
 	A3D_LOG_D("");
 
-
+	using namespace ImGui;
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -1646,7 +1646,13 @@ void InitImgui(const RenderContext& context) {
 void UpdateImguiScale(const RenderContext& context, const Font& font) {
 	A3D_LOG_D("");
 
+	using namespace ImGui;
+
 	constexpr float FONT_SIZE = 15.0;
+
+
+ImGui_ImplOpenGL3_DestroyFontsTexture();
+
 
 // #if defined(MACOS) || defined(LINUX)
 // 	auto scaleXY = vec2(1.0, 1.0);
@@ -1690,6 +1696,9 @@ void UpdateImguiScale(const RenderContext& context, const Font& font) {
 								   (int)font.buffer()->size(),
 								   FONT_SIZE,
 								   &fontConfig);
+
+	ImGui_ImplOpenGL3_CreateFontsTexture();
+	//ImGui_ImplOpenGL3_CreateDeviceObjects();
 }
 
 void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
