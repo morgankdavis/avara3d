@@ -30,7 +30,7 @@ namespace a3d {
 
 	public:
 
-		explicit PhysicsBodyProxy(PhysicsBody& body);
+		explicit PhysicsBodyProxy(PhysicsBody& body, PhysicsBodyType type);
 		virtual ~PhysicsBodyProxy();
 
 /*********************************************************************************************

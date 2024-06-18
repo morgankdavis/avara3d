@@ -45,13 +45,12 @@ unique_ptr<PhysicsBody> PhysicsBody::KinematicBody() {
  *********************************************************************************************/
 
 PhysicsBody::PhysicsBody(PhysicsBodyType type):
-		_type{type},
 		_shape{},
 		_node{},
 		_world{} {
 
 	// _node has to be initialized to nullptr before calling this
-	_proxy = make_unique<BulletBodyProxy>(*this);
+	_proxy = make_unique<BulletBodyProxy>(*this, type);
 }
 
 PhysicsBody::PhysicsBody(PhysicsBodyType type, const shared_ptr<PhysicsShape>& shape):
@@ -72,15 +71,12 @@ PhysicsBody::~PhysicsBody() {
  *********************************************************************************************/
 
 PhysicsBodyType PhysicsBody::type() const {
-	return _type;
+	return _proxy->type();
 }
 
 void PhysicsBody::type(PhysicsBodyType type) {
-	A3D_LOG_T("type: {}", magic_enum::enum_name(type));
-
-	if (type != _type) {
-		_type = type;
-	}
+	A3D_LOG_D("type: {}", magic_enum::enum_name(type));
+	_proxy->type(type);
 }
 
 const shared_ptr<PhysicsShape>& PhysicsBody::shape() const {
