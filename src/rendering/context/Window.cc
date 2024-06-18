@@ -72,7 +72,7 @@ Window::Window(RenderingApi renderingAPI,
 	A3D_LOG_D("");
 
 	if (InitGLFW()) {
-#ifdef OPENGL_DESKTOP
+#ifdef OPENGL_CORE
 		// TODO: move these version numbers
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
