@@ -24,8 +24,6 @@ using namespace std;
 	Internal Lifescycle
  *********************************************************************************************/
 
-//Renderer::Renderer(RenderContext& context):
-//	_context{&context} { }
 Renderer::Renderer() {}
 
 Renderer::~Renderer() {

@@ -39,7 +39,6 @@ namespace a3d {
 
 	public:
 
-		//explicit Renderer(RenderContext& context);
 		Renderer();
 		Renderer(const Renderer& other) = delete; // copy constructor
 		Renderer& operator=(const Renderer& other) = delete; // copy assignment
@@ -86,12 +85,6 @@ namespace a3d {
 		virtual std::unique_ptr<Image>	snapshot(const RenderContext& context) const = 0;
 
 		virtual void					framebufferScaleChanged(const RenderContext& context) = 0;
-
-/*********************************************************************************************
-	Private IVars
- *********************************************************************************************/
-
-//		RenderContext*						_context;
 	};
 }
 
