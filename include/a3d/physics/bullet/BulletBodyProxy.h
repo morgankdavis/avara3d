@@ -32,7 +32,7 @@ namespace a3d {
 
 	public:
 
-		explicit BulletBodyProxy(PhysicsBody& body);
+		explicit BulletBodyProxy(PhysicsBody& body, PhysicsBodyType type);
 		~BulletBodyProxy() override;
 
 /*********************************************************************************************
