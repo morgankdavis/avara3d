@@ -371,9 +371,8 @@ bool BulletBodyProxy::allowsResting() const {
 
 void BulletBodyProxy::allowsResting(bool allowsResting) {
 
-	// *** test this ***
-	if (allowsResting
-		&& type() == PhysicsBodyType::Kinematic) {
+	// TODO: test this
+	if (allowsResting && type() == PhysicsBodyType::Kinematic) {
 
 		A3D_LOG_E("Cannot enable resting for kinematic bodies.");
 	}

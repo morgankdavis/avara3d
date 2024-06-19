@@ -177,79 +177,103 @@ void Logger::fatal(const char* format, ...) {
 
 void Logger::crumb(const char* filename, int line, const char* function) {
 
-	log_crumb(filename, line, function);
+	if (static_cast<underlying_type<LogLevel>::type>(LogLevel::Trace)
+		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
+		log_crumb(filename, line, function);
+	}
 }
 
 void Logger::trace(bool useHeader,
 				   const char* filename, int line, const char* function,
 				   const char* format, ...) {
 
-	va_list args;
-	va_start(args, format);
-	log(LogLevel::Trace, useHeader, filename, line, function, format, args);
-	va_end(args);
+	if (static_cast<underlying_type<LogLevel>::type>(LogLevel::Trace)
+		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
+		va_list args;
+		va_start(args, format);
+		log(LogLevel::Trace, useHeader, filename, line, function, format, args);
+		va_end(args);
+	}
 }
 
 void Logger::debug(bool useHeader,
 				   const char* filename, int line, const char* function,
 				   const char* format, ...) {
 
-	va_list args;
-	va_start(args, format);
-	log(LogLevel::Debug, useHeader, filename, line, function, format, args);
-	va_end(args);
+	if (static_cast<underlying_type<LogLevel>::type>(LogLevel::Debug)
+		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
+		va_list args;
+		va_start(args, format);
+		log(LogLevel::Debug, useHeader, filename, line, function, format, args);
+		va_end(args);
+	}
 }
 
 void Logger::info(bool useHeader,
 				  const char* filename, int line, const char* function,
 				  const char* format, ...) {
 
-	va_list args;
-	va_start(args, format);
-	log(LogLevel::Info, useHeader, filename, line, function, format, args);
-	va_end(args);
+	if (static_cast<underlying_type<LogLevel>::type>(LogLevel::Info)
+		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
+		va_list args;
+		va_start(args, format);
+		log(LogLevel::Info, useHeader, filename, line, function, format, args);
+		va_end(args);
+	}
 }
 
 void Logger::warn(bool useHeader,
 				  const char* filename, int line, const char* function,
 				  const char* format, ...) {
 
-	va_list args;
-	va_start(args, format);
-	log(LogLevel::Warn, useHeader, filename, line, function, format, args);
-	va_end(args);
+	if (static_cast<underlying_type<LogLevel>::type>(LogLevel::Warn)
+		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
+		va_list args;
+		va_start(args, format);
+		log(LogLevel::Warn, useHeader, filename, line, function, format, args);
+		va_end(args);
+	}
 }
 
 void Logger::error(bool useHeader,
 				   const char* filename, int line, const char* function,
 				   const char* format, ...) {
 
-	va_list args;
-	va_start(args, format);
-	log(LogLevel::Error, useHeader, filename, line, function, format, args);
-	va_end(args);
+	if (static_cast<underlying_type<LogLevel>::type>(LogLevel::Error)
+		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
+		va_list args;
+		va_start(args, format);
+		log(LogLevel::Error, useHeader, filename, line, function, format, args);
+		va_end(args);
+	}
 }
 
 void Logger::fatal(bool useHeader,
 				  const char* filename, int line, const char* function,
 				  const char* format, ...) {
 
-	va_list args;
-	va_start(args, format);
-	log(LogLevel::Fatal, useHeader, filename, line, function, format, args);
-	va_end(args);
+	if (static_cast<underlying_type<LogLevel>::type>(LogLevel::Fatal)
+		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
+		va_list args;
+		va_start(args, format);
+		log(LogLevel::Fatal, useHeader, filename, line, function, format, args);
+		va_end(args);
+	}
 }
 
 // constructs body with variable args list
 void Logger::log(LogLevel level,
 				 const char* format, va_list args) {
 
-	char body[MAX_LOG_BODY_SIZE];
+	if (static_cast<underlying_type<LogLevel>::type>(level)
+		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
+		char body[MAX_LOG_BODY_SIZE];
 
-	// https://en.cppreference.com/w/c/io/vfprintf
-	vsnprintf(body, MAX_LOG_BODY_SIZE, format, args);
+		// https://en.cppreference.com/w/c/io/vfprintf
+		vsnprintf(body, MAX_LOG_BODY_SIZE, format, args);
 
-	dispatch(level, body);
+		dispatch(level, body);
+	}
 }
 
 // constructs body with variable args list
@@ -295,8 +319,8 @@ void Logger::construct(LogLevel level,
 					   const char* filename, int line, const char* function,
 					   const char* body) {
 
-	if (static_cast<underlying_type<LogLevel>::type>(level)
-		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
+//	if (static_cast<underlying_type<LogLevel>::type>(level)
+//		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
 
 		char lineStr[MAX_LOG_LINE_SIZE];
 		snprintf(lineStr, MAX_LOG_LINE_SIZE, "%s %s",
@@ -304,7 +328,7 @@ void Logger::construct(LogLevel level,
 				 body);
 
 		dispatch(level, lineStr);
-	}
+//	}
 }
 
 void Logger::dispatch(LogLevel level, const char* line) {
