@@ -156,7 +156,7 @@ Window::~Window() {
 }
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 void Window::open() {
@@ -294,7 +294,7 @@ bool Window::highDPIEnabled() const {
 }
 
 /*********************************************************************************************
-	RenderContext Public Members
+	RenderContext Public Member Functions
  *********************************************************************************************/
 
 bool Window::vSyncEnabled() const {
@@ -313,7 +313,7 @@ void Window::vSyncEnabled(bool enabled) {
 }
 
 /*********************************************************************************************
-	RenderContext Internal Members
+	RenderContext Internal Member Functions
  *********************************************************************************************/
 
 void Window::swapBuffers() {
@@ -334,7 +334,7 @@ glm::vec2 Window::framebufferScale() const {
 }
 
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  *********************************************************************************************/
 
 // TODO: move this...
@@ -347,7 +347,7 @@ GLFWwindow* Window::glfwWindow() const {
 }
 
 /*********************************************************************************************
-	Internal Static Members
+	Internal Static Member Functions
  *********************************************************************************************/
 
 void Window::Destroy(GLFWwindow* window) {

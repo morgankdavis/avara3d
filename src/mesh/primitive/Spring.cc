@@ -43,7 +43,7 @@ shared_ptr<Mesh> Spring::Mesh(float minorRadius,
 }
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
 *********************************************************************************************/
 
 Spring::Spring(float minorRadius,
@@ -82,7 +82,7 @@ Spring::Spring(float minorRadius,
 }
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 float Spring::minorRadius() const {

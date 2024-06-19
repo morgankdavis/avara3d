@@ -31,7 +31,7 @@ static btVector3 	BTVector3FromGLMVec3(const vec3& from);
 static btVector4 	BTVector4FromGLMVec4(const vec4& from);
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 BulletDebugDrawer::BulletDebugDrawer():
@@ -41,7 +41,7 @@ BulletDebugDrawer::BulletDebugDrawer():
 BulletDebugDrawer::~BulletDebugDrawer() { }
 
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  *********************************************************************************************/
 
 void BulletDebugDrawer::clear() {

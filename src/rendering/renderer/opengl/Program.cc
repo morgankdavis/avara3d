@@ -30,7 +30,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Internal Static Members
+	Internal Static Member Functions
  *********************************************************************************************/
 
 Program& Program::Default() {
@@ -59,7 +59,7 @@ Program& Program::Points() {
 }
 
 /*********************************************************************************************
-	Internal Lifecycle
+	Internal Lifecycle Functions
  *********************************************************************************************/
 
 Program::Program(const string& name):
@@ -100,7 +100,7 @@ Program::~Program() {
 }
 
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  *********************************************************************************************/
 
 bool Program::compile() {
@@ -443,7 +443,7 @@ void Program::fragmentShaderSource(string source) {
 }
 
 /*********************************************************************************************
-	Private Members
+	Private Member Functions
  *********************************************************************************************/
 
 //optional<string> Program::shaderSource(const string &name, const string &type) {

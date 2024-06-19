@@ -34,7 +34,7 @@ namespace a3d {
 	class BulletWorldProxy : public PhysicalWorldProxy {
 
 /*********************************************************************************************
-	Internal Lifecycle
+	Internal Lifecycle Functions
  *********************************************************************************************/
 
 	public:
@@ -43,7 +43,7 @@ namespace a3d {
 		~BulletWorldProxy() override;
 
 /*********************************************************************************************
-	PhysicalWorldModelProxy Internal Members
+	PhysicalWorldModelProxy Internal Member Functions
  *********************************************************************************************/
 
 		void 	add(PhysicsBody& body) override;
@@ -65,7 +65,7 @@ namespace a3d {
 						  const DebugOptions &debugOptions) override;
 
 /*********************************************************************************************
-	 Private IVars
+	 Private Member Variables
  *********************************************************************************************/
 
 	private:

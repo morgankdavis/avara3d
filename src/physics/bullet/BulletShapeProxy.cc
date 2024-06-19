@@ -107,7 +107,7 @@ static vector<unique_ptr<MeshElement>>
 HACDMeshElementsFromMeshElement(MeshElement& element);
 
 /*********************************************************************************************
-	Internal Lifecycle
+	Internal Lifecycle Functions
  *********************************************************************************************/
 
 BulletShapeProxy::BulletShapeProxy(PhysicsShape& shape):
@@ -188,7 +188,7 @@ BulletShapeProxy::~BulletShapeProxy() {
 }
 
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  *********************************************************************************************/
 
 const vector <unique_ptr<btCollisionShape>>& BulletShapeProxy::btShapes() {

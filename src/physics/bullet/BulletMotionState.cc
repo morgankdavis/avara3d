@@ -20,7 +20,7 @@ using namespace a3d;
 
 
 /*********************************************************************************************
-	Internal Lifecycle
+	Internal Lifecycle Functions
  *********************************************************************************************/
 
 BulletMotionState::BulletMotionState(PhysicsBody& body):
@@ -57,7 +57,7 @@ void BulletMotionState::setWorldTransform(const btTransform& transform) {
 }
 
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  *********************************************************************************************/
 
 PhysicsBody* BulletMotionState::body() const {

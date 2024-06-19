@@ -45,7 +45,7 @@ namespace a3d {
 		using UpdateCallback =				std::function<void(Scene& scene, float time, float deltaTime)>;
 
 /*********************************************************************************************
-	Public Static Members
+	Public Static Member Functions
  *********************************************************************************************/
 
 		static std::unique_ptr<Scene> 		FromFile(const std::filesystem::path& path,
@@ -53,7 +53,7 @@ namespace a3d {
 													  SceneImportOptions::ImportAll);
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 		Scene();
@@ -68,7 +68,7 @@ namespace a3d {
 		~Scene();
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 		const std::optional<std::string>&	name() const;
@@ -105,7 +105,7 @@ namespace a3d {
 		void 								update(UpdateCallback function);
 
 /*********************************************************************************************
-	Private IVars
+	Private Member Variables
  *********************************************************************************************/
 
 	private:

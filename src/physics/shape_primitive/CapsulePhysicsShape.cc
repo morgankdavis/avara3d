@@ -16,7 +16,7 @@ using namespace a3d;
 
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 CapsulePhysicsShape::CapsulePhysicsShape(float radius, float height):
@@ -30,7 +30,7 @@ CapsulePhysicsShape::CapsulePhysicsShape(float radius, float height):
 CapsulePhysicsShape::~CapsulePhysicsShape() {}
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 float CapsulePhysicsShape::radius() const {
@@ -56,7 +56,7 @@ void CapsulePhysicsShape::height(float height) {
 }
 
 /*********************************************************************************************
-	PhysicsShape Public Members
+	PhysicsShape Public Member Functions
  *********************************************************************************************/
 
 PhysicsShapeType CapsulePhysicsShape::type() const {

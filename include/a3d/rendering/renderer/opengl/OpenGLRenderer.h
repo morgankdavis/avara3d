@@ -52,7 +52,7 @@ namespace a3d {
 				std::map<const std::vector<Line>*, std::pair<unsigned, unsigned>>;
 
 /*********************************************************************************************
-	Internal Lifecycle
+	Internal Lifecycle Functions
  *********************************************************************************************/
 
 		OpenGLRenderer();
@@ -63,7 +63,7 @@ namespace a3d {
 		~OpenGLRenderer() override;
 
 /*********************************************************************************************
-	Renderer Internal Members
+	Renderer Internal Member Functions
  *********************************************************************************************/
 
 		RenderingApi 			renderingApi() const override;
@@ -105,7 +105,7 @@ namespace a3d {
 		void					framebufferScaleChanged(const RenderContext& context) override;
 
 /*********************************************************************************************
-	Private IVars
+	Private Member Variables
  *********************************************************************************************/
 
 	private:

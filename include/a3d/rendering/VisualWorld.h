@@ -41,7 +41,7 @@ namespace a3d {
 		using DidRenderCallback =	std::function<void(VisualWorld& world, float time, float deltaTime)>;
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 		VisualWorld() = delete;
@@ -49,7 +49,7 @@ namespace a3d {
 		virtual ~VisualWorld();
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 		const MaterialProperty&					background();
@@ -88,7 +88,7 @@ namespace a3d {
 		void 									didRender(DidRenderCallback function);
 
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  *********************************************************************************************/
 
 		void									attachedToScene(Scene& scene);
@@ -105,7 +105,7 @@ namespace a3d {
 		std::weak_ptr<Node>						defaultPointOfView();
 
 /*********************************************************************************************
-	Private IVars
+	Private Member Variables
  *********************************************************************************************/
 
 	private:

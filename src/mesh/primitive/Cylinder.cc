@@ -43,7 +43,7 @@ shared_ptr<Mesh> Cylinder::Mesh(float radius,
 }
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
 *********************************************************************************************/
 
 Cylinder::Cylinder(float radius,
@@ -85,7 +85,7 @@ Cylinder::Cylinder(float radius,
 }
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 float Cylinder::radius() const {

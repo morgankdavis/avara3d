@@ -22,7 +22,7 @@ namespace a3d {
 	class BulletMotionState : public btMotionState {
 
 /*********************************************************************************************
-	Internal Lifecycle
+	Internal Lifecycle Functions
  *********************************************************************************************/
 
 	public:
@@ -37,13 +37,13 @@ namespace a3d {
 		void setWorldTransform(const btTransform& transform) override;
 
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  *********************************************************************************************/
 
 		PhysicsBody*		body() const;
 
 /*********************************************************************************************
-	Private IVars
+	Private Member Variables
  *********************************************************************************************/
 
 //		btTransform 		_visualWorldTransform;

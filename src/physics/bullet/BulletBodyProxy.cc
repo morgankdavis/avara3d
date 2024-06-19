@@ -33,7 +33,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Internal Lifecycle
+	Internal Lifecycle Functions
  *********************************************************************************************/
 
 BulletBodyProxy::BulletBodyProxy(PhysicsBody& body, PhysicsBodyType type):
@@ -97,7 +97,7 @@ BulletBodyProxy::~BulletBodyProxy() {
 }
 
 /*********************************************************************************************
-	PhysicsBodyModelProxy Internal Members
+	PhysicsBodyModelProxy Internal Member Functions
  *********************************************************************************************/
 
 PhysicsBodyType BulletBodyProxy::type() const {
@@ -460,7 +460,7 @@ void BulletBodyProxy::clearForces() {
 }
 
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  *********************************************************************************************/
 
 btRigidBody* BulletBodyProxy::btBody() {
@@ -468,7 +468,7 @@ btRigidBody* BulletBodyProxy::btBody() {
 }
 
 /*********************************************************************************************
-	Private Members
+	Private Member Functions
  *********************************************************************************************/
 
 void BulletBodyProxy::calculateMomentOfIntertia() {

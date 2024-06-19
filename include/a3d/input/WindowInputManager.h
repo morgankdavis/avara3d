@@ -31,7 +31,7 @@ namespace a3d {
 	class WindowInputManager : public InputManager {
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 	public:
@@ -42,19 +42,19 @@ namespace a3d {
 		~WindowInputManager() override;
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 		WindowInputManagerErrorMask		errorMask() const;
 
 /*********************************************************************************************
-	InputManager Internal Members
+	InputManager Internal Member Functions
  *********************************************************************************************/
 
 		void 							update() override;
 
 /*********************************************************************************************
-	Private Members
+	Private Member Functions
  *********************************************************************************************/
 
 		void 							initMouseInput();
@@ -67,7 +67,7 @@ namespace a3d {
 		void 							unregisterGLFWCallbacks(GLFWwindow* glfwWindow);
 
 /*********************************************************************************************
-	Private Static Members
+	Private Static Member Functions
  *********************************************************************************************/
 
 		static void 					GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
@@ -87,7 +87,7 @@ namespace a3d {
 													   int mods);
 
 /*********************************************************************************************
-	Private IVars
+	Private Member Variables
  *********************************************************************************************/
 
 		bool							_usingManyMouse;

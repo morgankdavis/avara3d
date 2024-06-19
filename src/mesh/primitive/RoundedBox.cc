@@ -49,7 +49,7 @@ shared_ptr<Mesh> RoundedBox::Mesh(float radius,
 }
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
 *********************************************************************************************/
 
 RoundedBox::RoundedBox(float radius,
@@ -97,7 +97,7 @@ RoundedBox::RoundedBox(float radius,
 }
 
 /*********************************************************************************************
- 	Public Members
+ 	Public Member Functions
  *********************************************************************************************/
 
 float RoundedBox::radius() const {

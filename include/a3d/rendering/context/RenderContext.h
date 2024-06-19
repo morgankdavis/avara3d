@@ -40,7 +40,7 @@ namespace a3d {
 	class RenderContext {
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 	public:
@@ -64,7 +64,7 @@ namespace a3d {
 		Renderer* 						renderer() const;
 
 /*********************************************************************************************
-	Internal Lifecycle
+	Internal Lifecycle Functions
  *********************************************************************************************/
 
 		explicit RenderContext(RenderingApi renderingApi);
@@ -73,7 +73,7 @@ namespace a3d {
 		virtual ~RenderContext();
 
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  *********************************************************************************************/
 
 		virtual void 					swapBuffers() = 0;
@@ -87,7 +87,7 @@ namespace a3d {
 		void							detachedFromVisualWorld(VisualWorld* world);
 
 /*********************************************************************************************
-	Protected IVars
+	Protected Member Variables
  *********************************************************************************************/
 
 	protected:

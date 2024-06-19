@@ -13,7 +13,7 @@ using namespace a3d;
 
 
 /*********************************************************************************************
-	Internal Lifecycle
+	Internal Lifecycle Functions
  *********************************************************************************************/
 
 PhysicalWorldProxy::PhysicalWorldProxy(PhysicalWorld& world) { }

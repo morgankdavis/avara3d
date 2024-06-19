@@ -15,7 +15,7 @@ using namespace a3d;
 
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 SpherePhysicsShape::SpherePhysicsShape(float radius):
@@ -24,7 +24,7 @@ SpherePhysicsShape::SpherePhysicsShape(float radius):
 SpherePhysicsShape::~SpherePhysicsShape() {}
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 float SpherePhysicsShape::radius() const {
@@ -36,7 +36,7 @@ void SpherePhysicsShape::radius(float radius) {
 }
 
 /*********************************************************************************************
-	PhysicsShape Public Members
+	PhysicsShape Public Member Functions
  *********************************************************************************************/
 
 PhysicsShapeType SpherePhysicsShape::type() const {

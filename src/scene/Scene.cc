@@ -52,7 +52,7 @@ static void 						UpdateUserTimeStats(Stats& stats, double startTime, double end
 static void							UpdateFrameTimeStats(Stats& stats, double time);
 
 /*********************************************************************************************
-	Public Static Members
+	Public Static Member Functions
  *********************************************************************************************/
 
 unique_ptr<Scene> Scene::FromFile(const filesystem::path& path,
@@ -61,7 +61,7 @@ unique_ptr<Scene> Scene::FromFile(const filesystem::path& path,
 }
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 Scene::Scene():
@@ -125,7 +125,7 @@ Scene::~Scene() {
 }
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 const optional<std::string>& Scene::name() const {

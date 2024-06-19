@@ -39,7 +39,7 @@ constexpr bool FLIP_MOUSE_HORIZONTAL = false;
 static WindowInputManager* InputManagerFromGLFWWindow(GLFWwindow* glfwWindow);
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 WindowInputManager::WindowInputManager(Window* window):
@@ -61,7 +61,7 @@ WindowInputManager::~WindowInputManager() {
 }
 
 /*********************************************************************************************
-    Public Members
+    Public Member Functions
  *********************************************************************************************/
 
 WindowInputManagerErrorMask WindowInputManager::errorMask() const {
@@ -69,7 +69,7 @@ WindowInputManagerErrorMask WindowInputManager::errorMask() const {
 }
 
 /*********************************************************************************************
-	InputManager Internal Members
+	InputManager Internal Member Functions
  *********************************************************************************************/
 
 void WindowInputManager::update() {
@@ -121,7 +121,7 @@ void WindowInputManager::update() {
 }
 
 /*********************************************************************************************
-	Private members
+	Private Member Functions
  *********************************************************************************************/
 
 void WindowInputManager::initMouseInput() {
@@ -203,7 +203,7 @@ void WindowInputManager::unregisterGLFWCallbacks(GLFWwindow* glfwWindow) {
 }
 
 /*********************************************************************************************
-	Private Static Members
+	Private Static Member Functions
  *********************************************************************************************/
 
 void WindowInputManager::GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
