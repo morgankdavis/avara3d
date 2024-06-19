@@ -76,6 +76,14 @@ int main(int argc, const char* argv[]) {
 		window->vSyncEnabled(ENABLE_VSYNC);
 		window->cursorCaptured(CAPTURE_CURSOR);
 
+		auto inputManager = make_unique<WindowInputManager>(window.get());
+		if (inputManager->errorMask() == WindowInputManagerErrorMask::PermissionDenied) {
+			LOG_E(g_logger, "WindowInputManager permission denied.");
+			// on macOS 10.15 Catalina+, this is probably a permissions issue,
+			// and the OS will alert the user.
+			// just keep going and let the user decide what they want to do.
+		}
+
 		auto visualWorld = make_unique<VisualWorld>(*window);
 	//	visualWorld->fogStartDistance(50.0);
 	//	visualWorld->fogEndDistance(400.0);
@@ -95,8 +103,6 @@ int main(int argc, const char* argv[]) {
 		auto physicalWorld = make_unique<PhysicalWorld>();
 		physicalWorld->timestep(PHYSICS_TIMESTEP);
 		physicalWorld->didSimulate(bind(&DidSimulatePhysicsCallback, _1, _2, _3));
-
-		auto inputManager = make_unique<WindowInputManager>(window.get());
 
 		auto scene = make_unique<Scene>(std::move(visualWorld), std::move(physicalWorld), std::move(inputManager));
 		scene->debugOptions(DebugOptions::ShowStatsOverlay);
@@ -341,13 +347,6 @@ int main(int argc, const char* argv[]) {
 		window->center();
 		window->open();
 		scene->run();
-	}
-	catch (NoAvailableMiceException& e)
-	{
-		// on macOS 10.15 Catalina+, this is probably a permissions issue,
-		// and the OS will alert the user.  just quit nicely.
-		LOG_F(g_logger, "No available mice.");
-		return -1;
 	}
 	catch (Exception& e)
 	{

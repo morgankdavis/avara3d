@@ -65,6 +65,14 @@ int main(int argc, const char* argv[]) {
 		window->vSyncEnabled(ENABLE_VSYNC);
 		window->cursorCaptured(CAPTURE_CURSOR);
 
+		auto inputManager = make_unique<WindowInputManager>(window.get());
+		if (inputManager->errorMask() == WindowInputManagerErrorMask::PermissionDenied) {
+			LOG_E(g_logger, "WindowInputManager permission denied.");
+			// on macOS 10.15 Catalina+, this is probably a permissions issue,
+			// and the OS will alert the user.
+			// just keep going and let the user decide what they want to do.
+		}
+
 		auto visualWorld = make_unique<VisualWorld>(*window);
 		visualWorld->fogStartDistance(500.0);
 		visualWorld->fogEndDistance(5000.0);
@@ -73,8 +81,6 @@ int main(int argc, const char* argv[]) {
 		visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
 		visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
 		visualWorld->background(make_shared<Texture>(std::move(utils::CubeImageNamed("nebula1_blue", "png"))));
-
-		auto inputManager = make_unique<WindowInputManager>(window.get());
 
 		auto scene = utils::SceneNamed("cat_island/cat_island", SceneImportOptions::ImportMeshes
 														 | SceneImportOptions::ImportMaterials
@@ -157,13 +163,6 @@ int main(int argc, const char* argv[]) {
 		window->center();
 		window->open();
 		scene->run();
-	}
-	catch (NoAvailableMiceException& e)
-	{
-		// on macOS 10.15 Catalina+, this is probably a permissions issue,
-		// and the OS will alert the user.  just quit nicely.
-		LOG_F(g_logger, "No available mice.");
-		return -1;
 	}
 	catch (Exception& e)
 	{

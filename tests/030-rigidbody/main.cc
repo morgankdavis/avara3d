@@ -85,6 +85,9 @@ int main(int argc, const char* argv[]) {
 										  FULLSCREEN,
 										  ENABLE_HIGH_DPI,
 										  MSAA_MODE);
+		window->vSyncEnabled(ENABLE_VSYNC);
+		window->cursorCaptured(CAPTURE_CURSOR);
+
 		auto inputManager = make_unique<WindowInputManager>(window.get());
 		if (inputManager->errorMask() == WindowInputManagerErrorMask::PermissionDenied) {
 			LOG_E(g_logger, "WindowInputManager permission denied.");
@@ -92,9 +95,6 @@ int main(int argc, const char* argv[]) {
 			// and the OS will alert the user.
 			// just keep going and let the user decide what they want to do.
 		}
-
-		window->vSyncEnabled(ENABLE_VSYNC);
-		window->cursorCaptured(CAPTURE_CURSOR);
 
 		auto visualWorld = make_unique<VisualWorld>(*window);
 		visualWorld->fogStartDistance(50.0);
@@ -306,12 +306,6 @@ int main(int argc, const char* argv[]) {
 		window->open();
 		scene->run();
 	}
-	// catch (NoAvailableMiceException& e) {
-	// 	// on macOS 10.15 Catalina+, this is probably a permissions issue,
-	// 	// and the OS will alert the user.  just quit nicely.
-	// 	LOG_F(g_logger, "No available mice.");
-	// 	return -1;
-	// }
 	catch (Exception& e) {
 		LOG_F(g_logger, "Exception: {}", e.what());
 		return -1;
