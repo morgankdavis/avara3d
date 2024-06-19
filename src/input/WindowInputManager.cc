@@ -47,19 +47,16 @@ WindowInputManager::WindowInputManager(Window* window):
     InputManager{},
     _usingManyMouse{false},
     _window{window},
-    _errorMask{WindowInputManagerErrorMask::None}
-{
+    _errorMask{WindowInputManagerErrorMask::None} {
     registerGLFWCallbacks(window->glfwWindow());
     initMouseInput();
 }
 
-WindowInputManager::~WindowInputManager()
-{
+WindowInputManager::~WindowInputManager() {
     A3D_LOG_D("Destroying WindowInputManager {:p}", static_cast<void*>(this));
 
     quitManyMouse();
-    if (_window)
-    {
+    if (_window) {
         unregisterGLFWCallbacks(_window->glfwWindow());
     }
 }
@@ -68,8 +65,7 @@ WindowInputManager::~WindowInputManager()
     Public Members
  *********************************************************************************************/
 
-WindowInputManagerErrorMask WindowInputManager::errorMask() const
-{
+WindowInputManagerErrorMask WindowInputManager::errorMask() const {
     return _errorMask;
 }
 
@@ -77,40 +73,38 @@ WindowInputManagerErrorMask WindowInputManager::errorMask() const
 	InputManager Internal Members
  *********************************************************************************************/
 
-void WindowInputManager::update()
-{
-    if (_usingManyMouse)
-    {
+void WindowInputManager::update() {
+
+    if (_usingManyMouse) {
+
         static ManyMouseEvent event;
 
-        while (ManyMouse_PollEvent(&event))
-        {
-            switch (event.type)
-            {
+        while (ManyMouse_PollEvent(&event)) {
+
+            switch (event.type) {
+
             case MANYMOUSE_EVENT_RELMOTION:
 
-                if (event.item == 0)
-                {
+                if (event.item == 0) {
                     _mousePositionDelta.x = (FLIP_MOUSE_HORIZONTAL ? -event.value : event.value);
                 }
-                else
-                {
+                else {
                     _mousePositionDelta.y = (FLIP_MOUSE_VERTICAL ? -event.value : event.value);
                 }
                 break;
 
             case MANYMOUSE_EVENT_SCROLL:
-                if (event.item == 0)
-                {
+
+                if (event.item == 0) {
                     _mouseScrollWheelDelta.y += event.value;
                 }
-                else
-                {
+                else {
                     _mouseScrollWheelDelta.x += event.value;
                 }
                 break;
 
             case MANYMOUSE_EVENT_DISCONNECT:
+
                 A3D_LOG_W("Mouse {} disconnected.", event.device);
                 break;
 
@@ -131,8 +125,7 @@ void WindowInputManager::update()
 	Private members
  *********************************************************************************************/
 
-void WindowInputManager::initMouseInput()
-{
+void WindowInputManager::initMouseInput() {
     // starting with macOS 10.15 Catalina, GLFW 3.3 raw mouse input never works, and ManyMouse
     // requires the user manually allow "Input Monitoring" in System Preferences ->
     // Privacy & Security -> Input Monitoring, or IOHIDDeviceOpen() will fail with
@@ -144,31 +137,28 @@ void WindowInputManager::initMouseInput()
     // and add some mechanism to relay that to the applciation layer?
     // WindowInputStats::Success, WindowInputStats::NoMice, WindowInputStats::MouseNotPermitted ?
 
-    if (glfwRawMouseMotionSupported())
-    {
+    if (glfwRawMouseMotionSupported()) {
         A3D_LOG_I("Using GLFW raw mouse input.");
         glfwSetInputMode(_window->glfwWindow(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
         glfwSetCursorPosCallback(_window->glfwWindow(),
                                  WindowInputManager::GLFWCursorPositionCallback);
         _usingManyMouse = false;
     }
-    else
-    {
+    else {
         A3D_LOG_W("GLFW raw mouse input unavailable.  Using ManyMouse.");
         initManyMouse();
         _usingManyMouse = true;
     }
 }
 
-void WindowInputManager::initManyMouse()
-{
+void WindowInputManager::initManyMouse() {
     A3D_LOG_C();
 
     // TODO: must modify to support multiple windows
     auto availableMice = ManyMouse_Init();
 
-    if (availableMice < 0)
-    {
+    if (availableMice < 0) {
+
         A3D_LOG_E("Error initializing ManyMouse: {}", availableMice);
         ManyMouse_Quit(); // doesn't seem to allow for re-initialization later
 
@@ -189,16 +179,16 @@ void WindowInputManager::initManyMouse()
 #endif
         // throw Exception("Failed to initialize ManyMouse.");
     }
-    else if (availableMice == 0)
-    {
+    else if (availableMice == 0) {
+
         A3D_LOG_W("No available mice.");
         _errorMask = WindowInputManagerErrorMask::NoMice;
         // TODO: do we really want to throw here?
         // see note in initMouseInput()
         // throw NoAvailableMiceException("Could not find any mice.");
     }
-    else
-    {
+    else {
+
         A3D_LOG_I("ManyMouse driver: {}", ManyMouse_DriverName());
         for (unsigned m = 0; m < availableMice; ++m)
         {
@@ -207,13 +197,11 @@ void WindowInputManager::initManyMouse()
     }
 }
 
-void WindowInputManager::quitManyMouse()
-{
+void WindowInputManager::quitManyMouse() {
     ManyMouse_Quit();
 }
 
-void WindowInputManager::registerGLFWCallbacks(GLFWwindow* glfwWindow)
-{
+void WindowInputManager::registerGLFWCallbacks(GLFWwindow* glfwWindow) {
     glfwSetMouseButtonCallback(glfwWindow, WindowInputManager::GLFWMouseButtonCallback);
     // glfwSetCursorPosCallback -> in initMouseMotionInput()
     glfwSetScrollCallback(glfwWindow, WindowInputManager::GLFWScrollWheelCallback);
@@ -222,8 +210,7 @@ void WindowInputManager::registerGLFWCallbacks(GLFWwindow* glfwWindow)
     // TODO: probably re-factor key callback creation code
 }
 
-void WindowInputManager::unregisterGLFWCallbacks(GLFWwindow* glfwWindow)
-{
+void WindowInputManager::unregisterGLFWCallbacks(GLFWwindow* glfwWindow) {
     glfwSetMouseButtonCallback(glfwWindow, nullptr);
     glfwSetCursorPosCallback(glfwWindow, nullptr);
     glfwSetScrollCallback(glfwWindow, nullptr);
@@ -237,14 +224,12 @@ void WindowInputManager::unregisterGLFWCallbacks(GLFWwindow* glfwWindow)
 void WindowInputManager::GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
                                                  int button,
                                                  int action,
-                                                 int mods)
-{
+                                                 int mods) {
     auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
 
     auto a3dButton = static_cast<MouseButton>(button);
 
-    if (action == GLFW_PRESS)
-    {
+    if (action == GLFW_PRESS) {
         inputManager->_mouseButtonsDown.insert(a3dButton);
 
         // if button is in "cleared" it means the client already read it, so don't add it again until
@@ -254,8 +239,7 @@ void WindowInputManager::GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
             inputManager->_mouseButtonsPressed.insert(a3dButton);
         }
     }
-    else if (action == GLFW_RELEASE)
-    {
+    else if (action == GLFW_RELEASE) {
         inputManager->_mouseButtonsDown.erase(a3dButton);
         inputManager->_mouseButtonsPressedCleared.erase(a3dButton);
     }
@@ -263,8 +247,7 @@ void WindowInputManager::GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
 
 void WindowInputManager::GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
                                                     double xPos,
-                                                    double yPos)
-{
+                                                    double yPos) {
     auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
 
     // keep "lastPos" outside cursorCaptured() check to keep it from
@@ -272,10 +255,8 @@ void WindowInputManager::GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
     static double lastXPos = xPos;
     static double lastYPos = yPos;
 
-    if (auto window = inputManager->_window; window)
-    {
-        if (window->cursorCaptured())
-        {
+    if (auto window = inputManager->_window; window) {
+        if (window->cursorCaptured()) {
             double xDelta = lastXPos - xPos;
             double yDelta = lastYPos - yPos;
 
@@ -292,8 +273,7 @@ void WindowInputManager::GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
 
 void WindowInputManager::GLFWScrollWheelCallback(GLFWwindow* glfwWindow,
                                                  double xOffset,
-                                                 double yOffset)
-{
+                                                 double yOffset) {
     auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
 
     inputManager->_mouseScrollWheelDelta.x += (float)xOffset;
@@ -304,23 +284,19 @@ void WindowInputManager::GLFWKeyCallback(GLFWwindow* glfwWindow,
                                          int key,
                                          int scancode,
                                          int action,
-                                         int mods)
-{
+                                         int mods) {
     auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
 
-    if (action == GLFW_PRESS)
-    {
+    if (action == GLFW_PRESS) {
         inputManager->_keysDown.insert(static_cast<Key>(key));
 
         // if key is in "cleared" it means the client already read it, so don't add it again until
         // we get key up, and then back down again
-        if (inputManager->_keysPressedCleared.count(static_cast<Key>(key)) == 0)
-        {
+        if (inputManager->_keysPressedCleared.count(static_cast<Key>(key)) == 0) {
             inputManager->_keysPressed.insert(static_cast<Key>(key));
         }
     }
-    else if (action == GLFW_RELEASE)
-    {
+    else if (action == GLFW_RELEASE) {
         inputManager->_keysDown.erase(static_cast<Key>(key));
         inputManager->_keysPressedCleared.erase(static_cast<Key>(key));
     }
@@ -330,8 +306,7 @@ void WindowInputManager::GLFWKeyCallback(GLFWwindow* glfwWindow,
 	Private Static Functions
  *********************************************************************************************/
 
-WindowInputManager* InputManagerFromGLFWWindow(GLFWwindow* glfwWindow)
-{
+WindowInputManager* InputManagerFromGLFWWindow(GLFWwindow* glfwWindow) {
     auto window = (Window*)glfwGetWindowUserPointer(glfwWindow);
     return dynamic_cast<WindowInputManager*>(window->visualWorld()->scene()->inputManager());
 }
