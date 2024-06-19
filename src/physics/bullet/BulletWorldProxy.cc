@@ -84,7 +84,7 @@ void BulletWorldProxy::add(PhysicsBody& body) {
 		auto nodeTransform = node->worldTransform();
 		auto btTransform = BTTransformFromGLMMat4(nodeTransform);
 		btBody->setWorldTransform(btTransform);
-		// without proceedToTransform(), objects still spawn at the origin for 1st step (??)
+		// without proceedToTransform(), objects still spawn at the origin for 1st step (?)
 		btBody->proceedToTransform(btTransform);
 	}
 	else {

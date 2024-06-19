@@ -10,6 +10,11 @@
 #include <stdlib.h>
 #include "manymouse.h"
 
+// // MKD: added for kIOReturnNotPermitted
+// #if ( (defined(__MACH__)) && (defined(__APPLE__)) )
+// #include <IOKit/hid/IOHIDLib.h>
+// #endif
+
 static const char *manymouse_copyright =
     "ManyMouse " MANYMOUSE_VERSION " copyright (c) 2005-2012 Ryan C. Gordon.";
 
@@ -60,6 +65,12 @@ int ManyMouse_Init(void)
         if (this_driver != NULL) /* if not built for this platform, skip it. */
         {
             const int mice = this_driver->init();
+            // MKD: added
+            // looks like normally retval is -1 on error,
+            // >= 0 on no error, representing the number of mice
+            // this is an easy way to detect kIOReturnNotPermitted in the caller.
+            if (mice < 0) // kIOReturnNotPermitted == -536870174
+                return mice;
             if (mice > retval)
                 retval = mice; /* may move from "error" to "no mice found". */
 

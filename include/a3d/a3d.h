@@ -19,7 +19,6 @@
 #include "a3d/Image.h"
 #include "a3d/Types.h"
 #include "a3d/diagnostic/exception/Exception.h"
-#include "a3d/diagnostic/exception/NoAvailableMiceException.h"
 #include "a3d/diagnostic/exception/UnsupportedFormatException.h"
 #include "a3d/diagnostic/logging/Logger.h"
 #include "a3d/diagnostic/logging/sink/FileLoggerSink.h"

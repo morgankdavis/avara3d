@@ -52,13 +52,19 @@ int main(int argc, const char* argv[]) {
 		window->vSyncEnabled(ENABLE_VSYNC);
 		window->cursorCaptured(CAPTURE_CURSOR);
 
+		auto inputManager = make_unique<WindowInputManager>(window.get());
+		if (inputManager->errorMask() == WindowInputManagerErrorMask::PermissionDenied) {
+			cerr << "WindowInputManager permission denied.\n" << endl;
+			// on macOS 10.15 Catalina+, this is probably a permissions issue,
+			// and the OS will alert the user.
+			// just keep going and let the user decide what they want to do.
+		}
+
 		auto visualWorld = make_unique<VisualWorld>(*window);
 		auto backgroundColor = make_shared<Color>(109.0f/255.0f, 136.0f/255.0f, 164.0f/255.0f, 1.0f);
 		visualWorld->background(backgroundColor);
 		visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
 		visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
-
-		auto inputManager = make_unique<WindowInputManager>(window.get());
 
 		auto scene = utils::SceneNamed("import_test/import_test");
 		scene->visualWorld(std::move(visualWorld));
@@ -68,13 +74,6 @@ int main(int argc, const char* argv[]) {
 		window->center();
 		window->open();
 		scene->run();
-	}
-	catch (NoAvailableMiceException& e)
-	{
-		// on macOS 10.15 Catalina+, this is probably a permissions issue,
-		// and the OS will alert the user.  just quit nicely.
-		cerr << "No available mice.\n";
-		return -1;
 	}
 	catch (Exception& e)
 	{
