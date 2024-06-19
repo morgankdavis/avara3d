@@ -322,6 +322,14 @@ namespace a3d {
 		Eight = 7
 	};
 
+	enum class WindowInputManagerErrorMask : unsigned {
+		None =					0,
+		NoMice =				1 << 0,
+		PermissionDenied =		1 << 1,
+		UnknownError =			1 << 2
+	};
+	A3D_ENABLE_ENUM_MASK_OPS(WindowInputManagerErrorMask)
+
 	typedef struct {
 		glm::vec3 position;
 		glm::vec3 normal;

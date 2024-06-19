@@ -382,7 +382,12 @@ static int macosx_hidmanager_init(void)
     macosx_hidmanager_quit();  /* just in case... */
 
     /* Prepare global (hidman), (mice), (physical_mice), etc. */
-    if (!create_hidmanager(kHIDPage_GenericDesktop, kHIDUsage_GD_Mouse))
+    int createRet = create_hidmanager(kHIDPage_GenericDesktop, kHIDUsage_GD_Mouse);
+    // MKD: added
+    // when createRet == kIOReturnNotPermitted, !createRet evaluates to false ?
+    if (createRet == kIOReturnNotPermitted)
+        return createRet;
+    if (!createRet)
         return -1;
 
     return (int) logical_mice;

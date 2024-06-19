@@ -8,6 +8,10 @@
 
 #include "a3d/input/WindowInputManager.h"
 
+#ifdef MACOS
+#include <IOKit/hid/IOHIDLib.h> // for kIOReturnNotPermitted
+#endif
+
 #include "GLFW/glfw3.h"
 #include "manymouse.h"
 
@@ -42,7 +46,8 @@ static WindowInputManager* InputManagerFromGLFWWindow(GLFWwindow* glfwWindow);
 WindowInputManager::WindowInputManager(Window* window):
     InputManager{},
     _usingManyMouse{false},
-    _window{window}
+    _window{window},
+    _errorMask{WindowInputManagerErrorMask::None}
 {
     registerGLFWCallbacks(window->glfwWindow());
     initMouseInput();
@@ -57,6 +62,15 @@ WindowInputManager::~WindowInputManager()
     {
         unregisterGLFWCallbacks(_window->glfwWindow());
     }
+}
+
+/*********************************************************************************************
+    Public Members
+ *********************************************************************************************/
+
+WindowInputManagerErrorMask WindowInputManager::errorMask() const
+{
+    return _errorMask;
 }
 
 /*********************************************************************************************
@@ -155,15 +169,33 @@ void WindowInputManager::initManyMouse()
 
     if (availableMice < 0)
     {
+        A3D_LOG_E("Error initializing ManyMouse: {}", availableMice);
         ManyMouse_Quit(); // doesn't seem to allow for re-initialization later
-        throw Exception("Failed to initialize ManyMouse.");
+
+#ifdef MACOS
+        // special case for macOS Sonoma 10.15+
+        if (availableMice == kIOReturnNotPermitted) { // == -536870174
+            A3D_LOG_E("Please allow \"Input Monitoring\" in System Preferences -> " \
+                "Privacy & Security -> Input Monitoring");
+
+            _errorMask = WindowInputManagerErrorMask::PermissionDenied;
+        }
+        else
+        {
+            _errorMask = WindowInputManagerErrorMask::UnknownError;
+        }
+#else
+        _errorMask = WindowInputManagerErrorMask::UnknownError;
+#endif
+        // throw Exception("Failed to initialize ManyMouse.");
     }
     else if (availableMice == 0)
     {
         A3D_LOG_W("No available mice.");
+        _errorMask = WindowInputManagerErrorMask::NoMice;
         // TODO: do we really want to throw here?
         // see note in initMouseInput()
-        throw NoAvailableMiceException("Could not find any mice.");
+        // throw NoAvailableMiceException("Could not find any mice.");
     }
     else
     {

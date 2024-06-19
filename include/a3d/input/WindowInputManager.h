@@ -42,6 +42,12 @@ namespace a3d {
 		~WindowInputManager() override;
 
 /*********************************************************************************************
+	Public Members
+ *********************************************************************************************/
+
+		WindowInputManagerErrorMask		errorMask() const;
+
+/*********************************************************************************************
 	InputManager Internal Members
  *********************************************************************************************/
 
@@ -86,6 +92,7 @@ namespace a3d {
 
 		bool							_usingManyMouse;
 		Window*							_window;
+		WindowInputManagerErrorMask		_errorMask;
 	};
 }
 
