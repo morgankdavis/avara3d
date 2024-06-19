@@ -18,7 +18,7 @@ using namespace a3d;
 	Internal Lifecycle
  *********************************************************************************************/
 
-PhysicsBodyProxy::PhysicsBodyProxy(PhysicsBody& body):
+PhysicsBodyProxy::PhysicsBodyProxy(PhysicsBody& body, PhysicsBodyType type):
 		_body{},
 		_shapeProxy{},
 		_autocalculatesMomentOfInertia{true} {
