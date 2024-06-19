@@ -209,7 +209,7 @@ void BulletWorldProxy::drawDebug(Renderer &renderer,
 }
 
 /*********************************************************************************************
-	Private Static Non-Members
+	Private Static Non-Member Functions
  *********************************************************************************************/
 
 btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const DebugOptions& options) {

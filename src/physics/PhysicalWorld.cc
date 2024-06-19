@@ -219,7 +219,7 @@ PhysicalWorldProxy* PhysicalWorld::proxy() const {
 }
 
 /*********************************************************************************************
-	Private Static Non-Members
+	Private Static Non-Member Functions
  *********************************************************************************************/
 
 void UpdateTimeStats(Stats& stats, double startTime, double endTime) {

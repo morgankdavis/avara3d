@@ -196,7 +196,7 @@ const vector <unique_ptr<btCollisionShape>>& BulletShapeProxy::btShapes() {
 }
 
 /*********************************************************************************************
-	Static Non-Members
+	Static Non-Member Functions
  *********************************************************************************************/
 
 static unique_ptr<btCollisionShape>

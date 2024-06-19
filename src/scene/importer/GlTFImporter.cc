@@ -816,7 +816,7 @@ shared_ptr<a3d::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
 }
 
 /*********************************************************************************************
-	Private Static Non-Members
+	Private Static Non-Member Functions
  *********************************************************************************************/
 
 fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options) {

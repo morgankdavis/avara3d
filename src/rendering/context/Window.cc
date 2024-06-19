@@ -355,7 +355,7 @@ void Window::Destroy(GLFWwindow* window) {
 }
 
 /*********************************************************************************************
-	Private Static Non-Members
+	Private Static Non-Member Functions
  *********************************************************************************************/
 
 static bool InitGLFW() {
