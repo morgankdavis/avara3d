@@ -16,7 +16,6 @@
 #include "manymouse.h"
 
 #include "a3d/diagnostic/exception/Exception.h"
-#include "a3d/diagnostic/exception/NoAvailableMiceException.h"
 #include "a3d/diagnostic/logging/Logger.h"
 #include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/context/Window.h"
@@ -128,14 +127,9 @@ void WindowInputManager::update() {
 void WindowInputManager::initMouseInput() {
     // starting with macOS 10.15 Catalina, GLFW 3.3 raw mouse input never works, and ManyMouse
     // requires the user manually allow "Input Monitoring" in System Preferences ->
-    // Privacy & Security -> Input Monitoring, or IOHIDDeviceOpen() will fail with
-    // message "TCC deny IOHIDDeviceOpen" / kIOReturnNotPermitted.
-    // currently, if no mice are connected, WindowInputManager's constructor will throw
-    // NoAvailableMiceException.  this isn't ideal as the user may still want to use
-    // only the keyboard.
-    // future: modify ManyMouse to detect kIOReturnNotPermitted and report back,
-    // and add some mechanism to relay that to the applciation layer?
-    // WindowInputStats::Success, WindowInputStats::NoMice, WindowInputStats::MouseNotPermitted ?
+    // Privacy & Security -> Input Monitoring, or IOHIDDeviceOpen() in ManyMouse will fail with
+    // message "TCC deny IOHIDDeviceOpen" / kIOReturnNotPermitted.  ManyMouse was modified to
+    // surface kIOReturnNotPermitted and set _errorMask for the clien tot check.
 
     if (glfwRawMouseMotionSupported()) {
         A3D_LOG_I("Using GLFW raw mouse input.");
@@ -158,40 +152,31 @@ void WindowInputManager::initManyMouse() {
     auto availableMice = ManyMouse_Init();
 
     if (availableMice < 0) {
-
         A3D_LOG_E("Error initializing ManyMouse: {}", availableMice);
         ManyMouse_Quit(); // doesn't seem to allow for re-initialization later
 
 #ifdef MACOS
         // special case for macOS Sonoma 10.15+
+        // see note at initMouseInput() above.
         if (availableMice == kIOReturnNotPermitted) { // == -536870174
             A3D_LOG_E("Please allow \"Input Monitoring\" in System Preferences -> " \
                 "Privacy & Security -> Input Monitoring");
-
             _errorMask = WindowInputManagerErrorMask::PermissionDenied;
         }
-        else
-        {
+        else {
             _errorMask = WindowInputManagerErrorMask::UnknownError;
         }
 #else
         _errorMask = WindowInputManagerErrorMask::UnknownError;
 #endif
-        // throw Exception("Failed to initialize ManyMouse.");
     }
     else if (availableMice == 0) {
-
         A3D_LOG_W("No available mice.");
         _errorMask = WindowInputManagerErrorMask::NoMice;
-        // TODO: do we really want to throw here?
-        // see note in initMouseInput()
-        // throw NoAvailableMiceException("Could not find any mice.");
     }
     else {
-
         A3D_LOG_I("ManyMouse driver: {}", ManyMouse_DriverName());
-        for (unsigned m = 0; m < availableMice; ++m)
-        {
+        for (unsigned m = 0; m < availableMice; ++m) {
             A3D_LOG_I("Mouse[{}]: {}", m, ManyMouse_DeviceName(m));
         }
     }
