@@ -36,7 +36,7 @@ namespace a3d {
 	class Window : public RenderContext {
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 	public:
@@ -52,7 +52,7 @@ namespace a3d {
 		~Window() override;
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 		void 					open();
@@ -80,14 +80,14 @@ namespace a3d {
 		bool					highDPIEnabled() const;
 
 /*********************************************************************************************
-	RenderContext Public Members
+	RenderContext Public Member Functions
  *********************************************************************************************/
 
 		bool 					vSyncEnabled() const override; // why is this necessary?
 		void 					vSyncEnabled(bool enabled) override;
 
 /*********************************************************************************************
-	RenderContext Internal Members
+	RenderContext Internal Member Functions
  *********************************************************************************************/
 
 		void 					swapBuffers() override;
@@ -96,14 +96,14 @@ namespace a3d {
 		glm::vec2				framebufferScale() const override;
 
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  *********************************************************************************************/
 
 		void 					pollInput();
 		GLFWwindow* 			glfwWindow() const;
 
 /*********************************************************************************************
-	Internal Static Members
+	Internal Static Member Functions
  *********************************************************************************************/
 
 		static void				Destroy(GLFWwindow* window);
@@ -121,7 +121,7 @@ namespace a3d {
 		};
 
 /*********************************************************************************************
-	Private IVars
+	Private Member Variables
  *********************************************************************************************/
 
 		std::unique_ptr<GLFWwindow, DestroyGLFWWindow>	_glfwWindow;

@@ -204,7 +204,7 @@ static GLenum 		GLWrapModeForWrapMode(WrapMode mode);
 static void 		CheckGLError();
 
 /*********************************************************************************************
-	Internal Lifecycle
+	Internal Lifecycle Functions
  *********************************************************************************************/
 
 OpenGLRenderer::OpenGLRenderer():
@@ -237,7 +237,7 @@ OpenGLRenderer::~OpenGLRenderer() {
 }
 	
 /*********************************************************************************************
-	Renderer Internal Members
+	Renderer Internal Member Functions
  *********************************************************************************************/
 
 RenderingApi OpenGLRenderer::renderingApi() const {

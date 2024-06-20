@@ -25,7 +25,7 @@ namespace a3d {
 	class FileLoggerSink : public LoggerSink {
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 	public:
@@ -36,7 +36,7 @@ namespace a3d {
 		~FileLoggerSink() override;
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 		const std::filesystem::path&		filepath() const;
@@ -47,7 +47,7 @@ namespace a3d {
 		void 								flush() override;
 
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  *********************************************************************************************/
 
 		void 								write(const char* message);
@@ -62,7 +62,7 @@ namespace a3d {
 		static constexpr unsigned 			DEFAULT_MAX_FILESIZE = 1024 * 1024 * 1; // 1MB
 
 /*********************************************************************************************
-	Private Members
+	Private Member Functions
  *********************************************************************************************/
 
 		void 								openStream();
@@ -70,7 +70,7 @@ namespace a3d {
 		void 								rotate();
 
 /*********************************************************************************************
-	Private IVars
+	Private Member Variables
  *********************************************************************************************/
 
 		std::filesystem::path				_filepath;

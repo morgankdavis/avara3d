@@ -55,7 +55,7 @@ static shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 3>& arr);
 static shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 4>& arr);
 
 /*********************************************************************************************
-	Internal Lifecycle
+	Internal Lifecycle Functions
  *********************************************************************************************/
 
 GlTFImporter::GlTFImporter(const filesystem::path& path,
@@ -80,7 +80,7 @@ GlTFImporter::GlTFImporter(const filesystem::path& path,
 }
 
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  *********************************************************************************************/
 
 unique_ptr<a3d::Scene> GlTFImporter::scene() {
@@ -166,7 +166,7 @@ SceneImportOptions GlTFImporter::options() const {
 }
 
 /*********************************************************************************************
-	Private Members
+	Private Member Functions
  *********************************************************************************************/
 
 bool GlTFImporter::parse() {
@@ -816,7 +816,7 @@ shared_ptr<a3d::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
 }
 
 /*********************************************************************************************
-	Private Static Non-Members
+	Private Static Non-Member Functions
  *********************************************************************************************/
 
 fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options) {

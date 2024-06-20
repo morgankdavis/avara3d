@@ -15,7 +15,7 @@ using namespace a3d;
 
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 CylinderPhysicsShape::CylinderPhysicsShape(float radius, float height):
@@ -25,7 +25,7 @@ CylinderPhysicsShape::CylinderPhysicsShape(float radius, float height):
 CylinderPhysicsShape::~CylinderPhysicsShape() {}
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 float CylinderPhysicsShape::radius() const {
@@ -45,7 +45,7 @@ void CylinderPhysicsShape::height(float height) {
 }
 
 /*********************************************************************************************
-	PhysicsShape Public Members
+	PhysicsShape Public Member Functions
  *********************************************************************************************/
 
 PhysicsShapeType CylinderPhysicsShape::type() const {

@@ -20,7 +20,7 @@ using namespace glm;
 
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 OrthographicCamera::OrthographicCamera():
@@ -46,7 +46,7 @@ OrthographicCamera::~OrthographicCamera() {
 }
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 AABB OrthographicCamera::extent() const {
@@ -58,7 +58,7 @@ void OrthographicCamera::extent(const AABB& e) {
 }
 
 /*********************************************************************************************
-	Camera Protected Members
+	Camera Protected Member Functions
  *********************************************************************************************/
 
 void OrthographicCamera::constructProjectionMatrix() {

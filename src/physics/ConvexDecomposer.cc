@@ -24,7 +24,7 @@ using namespace VHACD;
 
 
 /*********************************************************************************************
-	Internal Lifecycle
+	Internal Lifecycle Functions
  *********************************************************************************************/
 
 ConvexDecomposer::ConvexDecomposer(MeshElement& element,
@@ -34,7 +34,7 @@ ConvexDecomposer::ConvexDecomposer(MeshElement& element,
 }
 
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  *********************************************************************************************/
 
 vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {

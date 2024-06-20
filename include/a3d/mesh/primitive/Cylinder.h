@@ -25,7 +25,7 @@ namespace a3d {
 	class Cylinder: public MeshElement {
 
 /*********************************************************************************************
-	Public Static Members
+	Public Static Member Functions
  *********************************************************************************************/
 
 	public:
@@ -38,7 +38,7 @@ namespace a3d {
 										  std::shared_ptr<Material> material = nullptr);
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 		Cylinder(float radius,
@@ -48,7 +48,7 @@ namespace a3d {
 				 unsigned rings = DEFAULT_RINGS);
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 		float 		radius() const;
@@ -68,7 +68,7 @@ namespace a3d {
 		static constexpr unsigned DEFAULT_RINGS = 4;
 
 /*********************************************************************************************
-	Private IVars
+	Private Member Variables
  *********************************************************************************************/
 
 		float 		_radius;

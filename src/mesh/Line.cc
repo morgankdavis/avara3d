@@ -17,7 +17,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Internal Lifecycle
+	Internal Lifecycle Functions
  *********************************************************************************************/
 
 Line::Line(const vec3& fromLocation,
@@ -38,7 +38,7 @@ Line::Line(const vec3& fromLocation,
 		_toColor{toColor} { }
 
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  *********************************************************************************************/
 
 const vec3& Line::fromLocation() const {

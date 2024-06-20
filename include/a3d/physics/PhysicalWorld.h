@@ -44,7 +44,7 @@ namespace a3d {
 		using EndContactCallback = 		std::function<void(PhysicalWorld& world, PhysicsContact& contact)>;
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 		PhysicalWorld();
@@ -53,7 +53,7 @@ namespace a3d {
 		~PhysicalWorld();
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 		const glm::vec3&					gravity() const;
@@ -91,7 +91,7 @@ namespace a3d {
 		void 								endContact(PhysicalWorld::EndContactCallback function);
 
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  *********************************************************************************************/
 
 		void								attachedToScene(Scene& scene);
@@ -108,7 +108,7 @@ namespace a3d {
 		PhysicalWorldProxy*					proxy() const;
 
 /*********************************************************************************************
-	Private IVars
+	Private Member Variables
  *********************************************************************************************/
 
 	private:

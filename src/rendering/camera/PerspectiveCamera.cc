@@ -20,7 +20,7 @@ using namespace glm;
 
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 PerspectiveCamera::PerspectiveCamera():
@@ -61,7 +61,7 @@ PerspectiveCamera::~PerspectiveCamera() {
 }
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 float PerspectiveCamera::zNear() const {
@@ -106,7 +106,7 @@ void PerspectiveCamera::aspectRatio(float ratio) {
 }
 
 /*********************************************************************************************
-	Camera Protected Members
+	Camera Protected Member Functions
  *********************************************************************************************/
 
 void PerspectiveCamera::constructProjectionMatrix() {

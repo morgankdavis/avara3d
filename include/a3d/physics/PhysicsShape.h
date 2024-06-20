@@ -43,7 +43,7 @@ namespace a3d {
 				std::weak_ptr<Node>>;
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 		PhysicsShape(PhysicsShapeType type, const std::shared_ptr<Mesh>& mesh);
@@ -51,7 +51,7 @@ namespace a3d {
 		~PhysicsShape();
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 		virtual PhysicsShapeType 			type() const;
@@ -60,7 +60,7 @@ namespace a3d {
 		Source 								source() const;
 
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  *********************************************************************************************/
 
 		void 								attachedToBody(PhysicsBody& body);
@@ -104,14 +104,14 @@ namespace a3d {
 		PhysicsShape();
 
 /*********************************************************************************************
-	Protected Members
+	Protected Member Functions
  *********************************************************************************************/
 
 		PhysicsShapeType 					_type;
 		std::unique_ptr<PhysicsShapeProxy>	_proxy;
 
 /*********************************************************************************************
-	Private IVars
+	Private Member Variables
  *********************************************************************************************/
 
 	private:

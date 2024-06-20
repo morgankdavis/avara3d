@@ -19,7 +19,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Public Static Members
+	Public Static Member Functions
  *********************************************************************************************/
 
 shared_ptr<Material> Material::DefaultMaterial() {
@@ -41,7 +41,7 @@ shared_ptr<Material> Material::EmissionMaterial(MaterialProperty property) {
 }
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 Material::Material():
@@ -88,7 +88,7 @@ Material::~Material() {
 }
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 const optional<string>& Material::name() const {
@@ -199,7 +199,7 @@ void Material::blendFunction(BlendFunction function) {
 }
 
 /*********************************************************************************************
-	Internal Static Members
+	Internal Static Member Functions
  *********************************************************************************************/
 
 shared_ptr<Material> Material::MissingTextureMaterial() {
@@ -217,7 +217,7 @@ MaterialProperty Material::MissingTextureProperty() {
 }
 
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  *********************************************************************************************/
 
 MaterialDirtyMask Material::dirtyMask() const {

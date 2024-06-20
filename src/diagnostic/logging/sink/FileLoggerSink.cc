@@ -22,7 +22,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 FileLoggerSink::FileLoggerSink(const filesystem::path& relPath,
@@ -56,7 +56,7 @@ FileLoggerSink::~FileLoggerSink() {
 }
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 const filesystem::path& FileLoggerSink::filepath() const {
@@ -79,7 +79,7 @@ void FileLoggerSink::flush() {
 }
 
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  *********************************************************************************************/
 
 void FileLoggerSink::write(const char* message) {
@@ -90,7 +90,7 @@ void FileLoggerSink::write(const char* message) {
 }
 
 /*********************************************************************************************
-	Private Members
+	Private Member Functions
  *********************************************************************************************/
 
 void FileLoggerSink::openStream() {

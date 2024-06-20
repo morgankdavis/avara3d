@@ -15,7 +15,7 @@ using namespace a3d;
 
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 ConePhysicsShape::ConePhysicsShape(float radius, float height):
@@ -25,7 +25,7 @@ ConePhysicsShape::ConePhysicsShape(float radius, float height):
 ConePhysicsShape::~ConePhysicsShape() {}
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 float ConePhysicsShape::radius() const {
@@ -45,7 +45,7 @@ void ConePhysicsShape::height(float height) {
 }
 
 /*********************************************************************************************
-	PhysicsShape Public Members
+	PhysicsShape Public Member Functions
  *********************************************************************************************/
 
 PhysicsShapeType ConePhysicsShape::type() const {

@@ -31,7 +31,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Public Static Members
+	Public Static Member Functions
  *********************************************************************************************/
 
 shared_ptr<Mesh> Mesh::FromFile(const filesystem::path& path,
@@ -43,7 +43,7 @@ shared_ptr<Mesh> Mesh::FromFile(const filesystem::path& path,
 }
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 Mesh::Mesh(const std::string& name,
@@ -93,7 +93,7 @@ Mesh::~Mesh() {
 }
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 optional<string> Mesh::name() const {
@@ -159,7 +159,7 @@ void Mesh::hidden(bool hidden) {
 }
 
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  *********************************************************************************************/
 
 void Mesh::burnTransform(const mat4& transform, bool normals) {
@@ -339,7 +339,7 @@ void Mesh::dirtyMask(MeshDirtyMask mask) {
 }
 
 /*********************************************************************************************
-	Private Lifecycle
+	Private Lifecycle Functions
  *********************************************************************************************/
 
 Mesh::Mesh():

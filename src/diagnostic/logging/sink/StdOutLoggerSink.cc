@@ -18,7 +18,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 StdOutLoggerSink::StdOutLoggerSink() { }
@@ -28,7 +28,7 @@ StdOutLoggerSink::~StdOutLoggerSink() {
 }
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 void StdOutLoggerSink::flush() {
@@ -38,7 +38,7 @@ void StdOutLoggerSink::flush() {
 }
 
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  **************************************************************************************/
 
 void StdOutLoggerSink::write(const char* message, LogLevel level) {

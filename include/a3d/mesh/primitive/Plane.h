@@ -25,7 +25,7 @@ namespace a3d {
 	class Plane: public MeshElement {
 
 /*********************************************************************************************
- 	Public Static Members
+ 	Public Static Member Functions
  *********************************************************************************************/
 
 	public:
@@ -37,7 +37,7 @@ namespace a3d {
 										  std::shared_ptr<Material> material = nullptr);
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 		Plane(float width,
@@ -46,7 +46,7 @@ namespace a3d {
 			  unsigned heightSegments = DEFAULT_SEGMENTS);
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 		float 		width() const;
@@ -63,7 +63,7 @@ namespace a3d {
 		static constexpr unsigned DEFAULT_SEGMENTS = 8;
 
 /*********************************************************************************************
-	Private IVars
+	Private Member Variables
  *********************************************************************************************/
 
 		float		_width;

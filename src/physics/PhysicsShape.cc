@@ -27,7 +27,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 PhysicsShape::PhysicsShape(PhysicsShapeType type, const shared_ptr<Mesh>& mesh):
@@ -75,7 +75,7 @@ PhysicsShape::~PhysicsShape() {
 }
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 PhysicsShape::Source PhysicsShape::source() const {
@@ -96,7 +96,7 @@ void PhysicsShape::type(PhysicsShapeType type) {
 }
 
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  *********************************************************************************************/
 
 void PhysicsShape::attachedToBody(PhysicsBody& body) {

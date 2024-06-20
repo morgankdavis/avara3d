@@ -17,7 +17,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Internal Lifecycle
+	Internal Lifecycle Functions
  *********************************************************************************************/
 
 Point::Point(const vec3& location):
@@ -32,7 +32,7 @@ Point::Point(const vec3& location, const Color& color):
 }
 
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  *********************************************************************************************/
 
 const vec3& Point::location() const {

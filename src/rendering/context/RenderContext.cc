@@ -29,7 +29,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 bool RenderContext::vSyncEnabled() const {
@@ -151,7 +151,7 @@ RenderContext::~RenderContext() {
 }
 
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  *********************************************************************************************/
 
 void RenderContext::saveGIFFrame(float deltaRunT) {

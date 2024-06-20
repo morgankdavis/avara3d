@@ -37,7 +37,7 @@ using namespace std;
 static btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const DebugOptions& options);
 
 /*********************************************************************************************
-	Internal Lifecycle
+	Internal Lifecycle Functions
  *********************************************************************************************/
 
 BulletWorldProxy::BulletWorldProxy(PhysicalWorld& world):
@@ -67,7 +67,7 @@ BulletWorldProxy::~BulletWorldProxy() {
 }
 
 /*********************************************************************************************
-	PhysicalWorldModelProxy Internal Members
+	PhysicalWorldModelProxy Internal Member Functions
  *********************************************************************************************/
 
 void BulletWorldProxy::add(PhysicsBody& body) {
@@ -209,7 +209,7 @@ void BulletWorldProxy::drawDebug(Renderer &renderer,
 }
 
 /*********************************************************************************************
-	Private Static Non-Members
+	Private Static Non-Member Functions
  *********************************************************************************************/
 
 btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const DebugOptions& options) {

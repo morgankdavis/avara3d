@@ -17,7 +17,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Internal Lifecycle
+	Internal Lifecycle Functions
  *********************************************************************************************/
 
 Exception::Exception(const string& what):

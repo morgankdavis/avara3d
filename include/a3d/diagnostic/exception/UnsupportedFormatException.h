@@ -20,7 +20,7 @@ namespace a3d {
 	class UnsupportedFormatException : public Exception {
 
 /*********************************************************************************************
-	Internal Lifecycle
+	Internal Lifecycle Functions
  *********************************************************************************************/
 
 	public:

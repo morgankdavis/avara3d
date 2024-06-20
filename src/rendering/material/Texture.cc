@@ -14,7 +14,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 Texture::Texture():
@@ -34,7 +34,7 @@ Texture::Texture(const shared_ptr<Sampleable>& contents,
 Texture::~Texture() {}
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 shared_ptr<Sampler> Texture::sampler() const {

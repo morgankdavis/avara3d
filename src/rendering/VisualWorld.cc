@@ -45,7 +45,7 @@ static unique_ptr<Mesh> MakeSkyboxMesh(const MaterialProperty& property);
 static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 VisualWorld::VisualWorld(RenderContext& context):
@@ -74,7 +74,7 @@ VisualWorld::~VisualWorld() {
 }
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 const MaterialProperty& VisualWorld::background() {
@@ -206,7 +206,7 @@ void VisualWorld::didRender(DidRenderCallback function) {
 }
 
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  *********************************************************************************************/
 
 void VisualWorld::attachedToScene(Scene& scene) {
@@ -357,7 +357,7 @@ weak_ptr<Node> VisualWorld::defaultPointOfView() {
 }
 
 /*********************************************************************************************
-	Private Static Members
+	Private Static Member Functions
  *********************************************************************************************/
 
 static unique_ptr<Mesh> MakeSkyboxMesh(const MaterialProperty& property) {

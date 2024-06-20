@@ -28,7 +28,7 @@ namespace a3d {
 	class Material {
 		
 /*********************************************************************************************
-	Public Static Members
+	Public Static Member Functions
  *********************************************************************************************/
 
 	public:
@@ -37,7 +37,7 @@ namespace a3d {
 		static std::shared_ptr<Material> 	EmissionMaterial(MaterialProperty property);
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 		Material();
@@ -51,7 +51,7 @@ namespace a3d {
 		~Material();
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 		const std::optional<std::string>&	name() const;
@@ -90,21 +90,21 @@ namespace a3d {
 		void 								blendFunction(BlendFunction function);
 
 /*********************************************************************************************
-	Internal Static Members
+	Internal Static Member Functions
  *********************************************************************************************/
 
 		static std::shared_ptr<Material> 	MissingTextureMaterial();
 		static MaterialProperty 			MissingTextureProperty();
 		
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  *********************************************************************************************/
 
 		MaterialDirtyMask 					dirtyMask() const;
 		void 								dirtyMask(MaterialDirtyMask mask);
 
 /*********************************************************************************************
-	Private IVars
+	Private Member Variables
  *********************************************************************************************/
 
 	private:

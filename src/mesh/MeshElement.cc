@@ -24,7 +24,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 MeshElement::MeshElement(const vector<Vertex>& verticies,
@@ -40,7 +40,7 @@ MeshElement::~MeshElement() {
 }
 
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  *********************************************************************************************/
 
 void MeshElement::draw(Renderer& renderer,

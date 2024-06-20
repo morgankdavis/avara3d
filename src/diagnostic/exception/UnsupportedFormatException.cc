@@ -15,7 +15,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Internal Lifecycle
+	Internal Lifecycle Functions
  *********************************************************************************************/
 
 UnsupportedFormatException::UnsupportedFormatException(const string& what):

@@ -17,7 +17,7 @@ using namespace glm;
 
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 InputManager::InputManager():
@@ -36,7 +36,7 @@ InputManager::~InputManager() {
 }
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 bool InputManager::keyDown(Key key) {
@@ -104,7 +104,7 @@ Scene* InputManager::scene() const {
 }
 
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  *********************************************************************************************/
 
 void InputManager::attachedToScene(Scene& scene) {
@@ -120,7 +120,7 @@ void InputManager::detachedFromScene(Scene& scene) {
 }
 
 /*********************************************************************************************
-	Private Members
+	Private Member Functions
  *********************************************************************************************/
 
 void InputManager::clearMousePositionDelta() {

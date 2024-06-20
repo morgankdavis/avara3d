@@ -25,7 +25,7 @@ namespace a3d {
 	class Sphere: public MeshElement {
 
 /*********************************************************************************************
- 	Public Static Members
+ 	Public Static Member Functions
  *********************************************************************************************/
 
 	public:
@@ -35,14 +35,14 @@ namespace a3d {
 										  std::shared_ptr<Material> material = nullptr);
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 		explicit Sphere(float radius,
 						unsigned segments = DEFAULT_SEGMENTS);
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 		float 		radius() const;
@@ -57,7 +57,7 @@ namespace a3d {
 		static constexpr unsigned DEFAULT_SEGMENTS = 4;
 
 /*********************************************************************************************
-	Private IVars
+	Private Member Variables
  *********************************************************************************************/
 
 		float		_radius;

@@ -41,7 +41,7 @@ shared_ptr<Mesh> Torus::Mesh(float minorRadius,
 }
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
 *********************************************************************************************/
 
 Torus::Torus(float minorRadius,
@@ -79,7 +79,7 @@ Torus::Torus(float minorRadius,
 }
 
 /*********************************************************************************************
- 	Public Members
+ 	Public Member Functions
  *********************************************************************************************/
 
 float Torus::minorRadius() const {

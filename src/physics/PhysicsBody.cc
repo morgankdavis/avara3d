@@ -25,7 +25,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Public Static Members
+	Public Static Member Functions
  *********************************************************************************************/
 
 unique_ptr<PhysicsBody> PhysicsBody::StaticBody() {
@@ -41,7 +41,7 @@ unique_ptr<PhysicsBody> PhysicsBody::KinematicBody() {
 }
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 PhysicsBody::PhysicsBody(PhysicsBodyType type):
@@ -67,7 +67,7 @@ PhysicsBody::~PhysicsBody() {
 }
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 PhysicsBodyType PhysicsBody::type() const {
@@ -291,7 +291,7 @@ void PhysicsBody::autocalculatesMomentOfInertia(bool autocalculate) {
 }
 
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  *********************************************************************************************/
 
 void PhysicsBody::attachedToNode(const shared_ptr<Node>& node) {
@@ -404,7 +404,7 @@ PhysicsBodyProxy* PhysicsBody::proxy() const {
 }
 
 /*********************************************************************************************
-	Private Members
+	Private Member Functions
  *********************************************************************************************/
 
 void PhysicsBody::checkAutocreateShape(const shared_ptr<Node>& node) {

@@ -18,7 +18,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 CubeImage::CubeImage(unique_ptr<Image> posX,
@@ -35,7 +35,7 @@ CubeImage::CubeImage(unique_ptr<Image> posX,
 	_negZ{std::move(negZ)} { }
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 Image* CubeImage::posX() const {

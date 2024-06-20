@@ -27,7 +27,7 @@ namespace a3d {
 	class BulletBodyProxy : public PhysicsBodyProxy {
 
 /*********************************************************************************************
-	Internal Lifecycle
+	Internal Lifecycle Functions
  *********************************************************************************************/
 
 	public:
@@ -36,7 +36,7 @@ namespace a3d {
 		~BulletBodyProxy() override;
 
 /*********************************************************************************************
-	PhysicsBodyModelProxy Internal Members
+	PhysicsBodyModelProxy Internal Member Functions
  *********************************************************************************************/
 
 		PhysicsBodyType			type() const override;
@@ -115,13 +115,13 @@ namespace a3d {
 		void					clearForces() override;
 
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  *********************************************************************************************/
 
 		btRigidBody*			btBody();
 
 /*********************************************************************************************
-	 Private Members
+	 Private Member Functions
  *********************************************************************************************/
 
 	private:
@@ -129,7 +129,7 @@ namespace a3d {
 		void					calculateMomentOfIntertia();
 
 /*********************************************************************************************
-	Private IVars
+	Private Member Variables
  *********************************************************************************************/
 
 		std::unique_ptr<btRigidBody>		_btBody;

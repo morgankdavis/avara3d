@@ -32,7 +32,7 @@ namespace a3d {
 	class PhysicsBody {
 
 /*********************************************************************************************
-	Public Static Members
+	Public Static Member Functions
  *********************************************************************************************/
 
 	public:
@@ -42,7 +42,7 @@ namespace a3d {
 		static std::unique_ptr<PhysicsBody> 	KinematicBody();
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 		explicit PhysicsBody(PhysicsBodyType type);
@@ -50,7 +50,7 @@ namespace a3d {
 		~PhysicsBody();
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 		PhysicsBodyType 					type() const;
@@ -131,7 +131,7 @@ namespace a3d {
 		void								autocalculatesMomentOfInertia(bool autocalculate);
 
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  *********************************************************************************************/
 		
 //		void 								resting(bool resting);
@@ -179,7 +179,7 @@ namespace a3d {
 		PhysicsBodyProxy*					proxy() const;
 
 /*********************************************************************************************
-	Private Members
+	Private Member Functions
  *********************************************************************************************/
 
 	private:
@@ -190,7 +190,7 @@ namespace a3d {
 		void 								checkAddToWorld();
 
 /*********************************************************************************************
-	Private IVars
+	Private Member Variables
  *********************************************************************************************/
 
 		std::shared_ptr<PhysicsShape>		_shape;

@@ -30,7 +30,7 @@ using namespace std;
 static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 PhysicalWorld::PhysicalWorld():
@@ -51,7 +51,7 @@ PhysicalWorld::~PhysicalWorld() {
 }
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 const vec3& PhysicalWorld::gravity() const {
@@ -150,7 +150,7 @@ void PhysicalWorld::endContact(PhysicalWorld::EndContactCallback function) {
 }
 
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  *********************************************************************************************/
 
 void PhysicalWorld::attachedToScene(Scene& scene) {
@@ -219,7 +219,7 @@ PhysicalWorldProxy* PhysicalWorld::proxy() const {
 }
 
 /*********************************************************************************************
-	Private Static Non-Members
+	Private Static Non-Member Functions
  *********************************************************************************************/
 
 void UpdateTimeStats(Stats& stats, double startTime, double endTime) {

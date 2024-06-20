@@ -40,7 +40,7 @@ shared_ptr<Mesh> TorusKnot::Mesh(unsigned p,
 }
 
 /*********************************************************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
 *********************************************************************************************/
 
 TorusKnot::TorusKnot(unsigned p,
@@ -74,7 +74,7 @@ TorusKnot::TorusKnot(unsigned p,
 }
 
 /*********************************************************************************************
- 	Public Members
+ 	Public Member Functions
  *********************************************************************************************/
 
 unsigned TorusKnot::p() const {

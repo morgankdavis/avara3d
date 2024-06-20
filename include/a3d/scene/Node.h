@@ -40,7 +40,7 @@ namespace a3d {
 	class Node : public std::enable_shared_from_this<Node> {
 
 /*********************************************************************************************
-	Public Static Members
+	Public Static Member Functions
  *********************************************************************************************/
 
 	public:
@@ -51,7 +51,7 @@ namespace a3d {
 		static std::shared_ptr<Node> 		CameraNode(const std::shared_ptr<Camera>& camera);
 
 /************************************4*********************************************************
-	Public Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 		Node();
@@ -66,7 +66,7 @@ namespace a3d {
 		~Node();
 
 /*********************************************************************************************
-	Public Members
+	Public Member Functions
  *********************************************************************************************/
 
 		const std::optional<std::string>&	name() const;
@@ -131,7 +131,7 @@ namespace a3d {
 //		glm::mat4 							convertTo(const glm::mat4& t, const Node& to);
 
 /*********************************************************************************************
-	Internal Members
+	Internal Member Functions
  *********************************************************************************************/
 
 		void 								attachedToParent(Node& parent);
@@ -176,7 +176,7 @@ namespace a3d {
 															   unsigned level);
 
 /*********************************************************************************************
-	Private Members
+	Private Member Functions
  *********************************************************************************************/
 
 	private:
@@ -191,7 +191,7 @@ namespace a3d {
 		void 								dirtyMask(NodeDirtyMask mask);
 
 /*********************************************************************************************
-	Private IVars
+	Private Member Variables
  *********************************************************************************************/
 
 		std::optional<std::string>			_name;
