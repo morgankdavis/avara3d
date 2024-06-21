@@ -42,6 +42,10 @@ struct Light {
 	float 	PADDING6;
 	float 	PADDING7;
 	float 	PADDING8;
+//	bool	useDefaultLighting;
+//	float 	PADDING9;
+//	float 	PADDING10;
+//	float 	PADDING11;
 	//	float 	attenuationStart;
 	//	float 	attenuationEnd;
 	//	float 	attenuationExponent;
@@ -72,6 +76,7 @@ uniform		float 		uvScale;
 uniform		bool 		locksAmbientWithDiffuse;
 uniform 	Samplers 	samplers;
 uniform 	Colors 		colors;
+uniform		bool		useDefaultLighting;
 layout(std140) uniform EnvironmentBlock {
 	uint	numLights;
 	float 	PADDING1;
@@ -99,8 +104,54 @@ void main () {
 
 
 
+	if (useDefaultLighting) {
 
-	if (emissionType != MATERIAL_TYPE_NONE) {
+		// find an emissive material in order:
+		// 1. emissive
+		// 2. diffuse
+		// 3. ambient
+
+		if (emissionType != MATERIAL_TYPE_NONE) {
+
+			switch (emissionType) {
+				case MATERIAL_TYPE_COLOR:
+					Ke = vec4(colors.emission, 1.0);
+					break;
+				case MATERIAL_TYPE_SAMPLER:
+					Ke = vec4(texture(samplers.emission, tex_coord * uvScale));
+					break;
+			}
+		}
+		else if (diffuseType != MATERIAL_TYPE_NONE) {
+
+			switch (diffuseType) {
+				case MATERIAL_TYPE_COLOR:
+					Ke = vec4(colors.diffuse, 1.0);
+					break;
+				case MATERIAL_TYPE_SAMPLER:
+					Ke = vec4(texture(samplers.diffuse, tex_coord * uvScale));
+					break;
+			}
+		}
+		else if (ambientType != MATERIAL_TYPE_NONE) {
+
+			switch (ambientType) {
+				case MATERIAL_TYPE_COLOR:
+					Ke = vec4(colors.ambient, 1.0);
+					break;
+				case MATERIAL_TYPE_SAMPLER:
+					Ke = vec4(texture(samplers.ambient, tex_coord * uvScale));
+					break;
+			}
+
+		}
+		else {
+			Ke = vec4(1.0, 1.0, 1.0, 1.0); // just use white.
+		}
+
+		fragColor = vec4(vec3(Ke), 1.0);
+	}
+	else if (emissionType != MATERIAL_TYPE_NONE) {
 		
 		/* emission color */
 

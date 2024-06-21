@@ -71,11 +71,11 @@ namespace a3d {
 		std::weak_ptr<Node>						pointOfView();
 		void 									pointOfView(const std::weak_ptr<Node>& cameraNode);
 
-		bool									autoEnablesDefaultLighting() const;
-		void									autoEnablesDefaultLighting(bool enabled);
-
 		bool									usesDefaultLighting() const;
 		void									usesDefaultLighting(bool enabled);
+
+		bool									autoEnablesDefaultLighting() const;
+		void									autoEnablesDefaultLighting(bool enabled);
 
 		RenderContext* 							renderContext() const;
 
@@ -116,8 +116,8 @@ namespace a3d {
 		float									_fogEndDistance;
 		float									_fogDensityExponent;
 		std::shared_ptr<Color>					_fogColor;
-		bool									_autoEnablesDefaultLighting;
 		bool									_usesDefaultLighting;
+		bool									_autoEnablesDefaultLighting;
 		std::weak_ptr<Node>						_pointOfView;
 		RenderContext*							_renderContext;
 		Scene*									_scene;

@@ -37,7 +37,7 @@ constexpr bool					USE_DEFAULT_LIGHTING =	false;
 constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
 constexpr float					PHYSICS_TIMESTEP =		1.0/240.0;
-constexpr bool					DARK =					false;
+constexpr bool					DARK =					true;
 
 
 void UpdateCallback(Scene& scene, float time, float deltaTime);

@@ -85,6 +85,10 @@ typedef struct {
 	float32_t 	PADDING6;
 	float32_t	PADDING7;
 	float32_t 	PADDING8;
+//	bool 		useDefaultLighting;
+//	float32_t 	PADDING9;
+//	float32_t	PADDING10;
+//	float32_t 	PADDING11;
 	/* vec3 	direction_world;
 	float 		attenuationStart;
 	float 		attenuationEnd;
@@ -109,6 +113,10 @@ typedef struct {
 	float32_t 			PADDING3;
 	LightGLSLStruct 	lights[MAX_DYNAMIC_LIGHTS+1]; // +1 ambient
 	FogGLSLStruct		fog;
+//	bool 				useDefaultLighting;
+//	float32_t 			PADDING4;
+//	float32_t 			PADDING5;
+//	float32_t 			PADDING6;
 } EnvironmentBlock;
 
 /*********************************************************************************************
@@ -1018,11 +1026,11 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, Stats&
 	
 	// lights
 
-	if (scene.visualWorld()->usesDefaultLighting()) {
-
-		environmentStruct.numLights = 0;
-	}
-	else {
+//	if (scene.visualWorld()->usesDefaultLighting()) {
+//
+//		environmentStruct.numLights = 0;
+//	}
+//	else {
 		// TODO: this is EXPONENTIAL.  instead, accumulate a list of lights as we visit each node?
 
 		auto lights = vector<Node*>();
@@ -1070,21 +1078,35 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, Stats&
 
 		stats.lights = numLights - 1; // not counting ambient
 
-		for (unsigned l = 0; l < numLights; ++l) {
-			auto node = lights[l];
-			auto light = node->light();
+		// TODO: move this?
+		// should useDefaultLighing be a root uniform or elsewhere?
+		// see commented code above -- if usesDefaultLighting is true, we don't have
+		// to bother getting the number of lights.
+		if (scene.visualWorld()->usesDefaultLighting()
+			|| ((numLights == 0) && scene.visualWorld()->autoEnablesDefaultLighting())) {
 
-			lightStruct[l].type = static_cast<unsigned>(light->type());
-			lightStruct[l].position_world = node->worldPosition();
-			lightStruct[l].attenuationFactor = light->attenuationFactor();
+			Program::Default().setUniform("useDefaultLighting", true);
+		}
+		else {
 
-			auto color = *light->color();
-			lightStruct[l].color = {color.r, color.g, color.b};
+			Program::Default().setUniform("useDefaultLighting", false);
+
+			for (unsigned l = 0; l < numLights; ++l) {
+				auto node = lights[l];
+				auto light = node->light();
+
+				lightStruct[l].type = static_cast<unsigned>(light->type());
+				lightStruct[l].position_world = node->worldPosition();
+				lightStruct[l].attenuationFactor = light->attenuationFactor();
+
+				auto color = *light->color();
+				lightStruct[l].color = {color.r, color.g, color.b};
+			}
 		}
 
 		environmentStruct.numLights = numLights;
 		memcpy(&environmentStruct.lights, &lightStruct, sizeof(lightStruct));
-	}
+//	}
 
 	// fog
 
