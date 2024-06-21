@@ -1026,11 +1026,11 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, Stats&
 	
 	// lights
 
-//	if (scene.visualWorld()->usesDefaultLighting()) {
-//
-//		environmentStruct.numLights = 0;
-//	}
-//	else {
+	if (scene.visualWorld()->usesDefaultLighting()) {
+
+		Program::Default().setUniform("useDefaultLighting", true);
+	}
+	else {
 		// TODO: this is EXPONENTIAL.  instead, accumulate a list of lights as we visit each node?
 
 		auto lights = vector<Node*>();
@@ -1076,14 +1076,11 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, Stats&
 		auto numLights = lights.size();
 		LightGLSLStruct lightStruct[numLights];
 
-		stats.lights = numLights - 1; // not counting ambient
+		stats.lights = std::max(int(0), int(numLights - 1)); // not counting ambient
 
 		// TODO: move this?
 		// should useDefaultLighing be a root uniform or elsewhere?
-		// see commented code above -- if usesDefaultLighting is true, we don't have
-		// to bother getting the number of lights.
-		if (scene.visualWorld()->usesDefaultLighting()
-			|| ((numLights == 0) && scene.visualWorld()->autoEnablesDefaultLighting())) {
+		if (((numLights == 0) && scene.visualWorld()->autoEnablesDefaultLighting())) {
 
 			Program::Default().setUniform("useDefaultLighting", true);
 		}
@@ -1106,7 +1103,7 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, Stats&
 
 		environmentStruct.numLights = numLights;
 		memcpy(&environmentStruct.lights, &lightStruct, sizeof(lightStruct));
-//	}
+	}
 
 	// fog
 
