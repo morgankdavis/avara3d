@@ -29,7 +29,7 @@ struct Colors {
 	vec3 emission;
 };
 
-struct Light {
+layout(std140) struct Light {
 	uint 	type;
 	float 	PADDING1;
 	float 	PADDING2;
@@ -39,9 +39,10 @@ struct Light {
 	vec3 	color;
 	float 	PADDING5;
 	float 	attenuationFactor;
-	float 	PADDING6;
-	float 	PADDING7;
-	float 	PADDING8;
+//	float 	PADDING6;
+//	float 	PADDING7;
+//	float 	PADDING8;
+
 //	bool	useDefaultLighting;
 //	float 	PADDING9;
 //	float 	PADDING10;
@@ -54,7 +55,7 @@ struct Light {
 	//	float 	outerAngle;
 };
 
-struct Fog {
+layout(std140) struct Fog {
 	float 	startDistance;
 	float 	endDistance;
 	float 	densityExponent;
@@ -82,7 +83,7 @@ layout(std140) uniform EnvironmentBlock {
 	float 	PADDING1;
 	float 	PADDING2;
 	float 	PADDING3;
-	Light 	lights[9];
+	Light 	lights[17]; // MAX_DYNAMIC_LIGHTS + ambient
 	Fog 	fog;
 };
 out 		vec4 		fragColor;
@@ -287,7 +288,7 @@ void main () {
 	
 	
 	/* fog */
-	
+
 	if (!FloatEqual(fog.endDistance, 0.0, 0.0001)) { // endDistance == 0 disables fog
 		if (FloatEqual(fog.densityExponent, 0.0, 0.0001)) { // constant
 			fragColor = mix(fragColor, vec4(fog.color.rgb, 1.0), fog.color.a);

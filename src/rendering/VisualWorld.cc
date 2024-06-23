@@ -257,7 +257,7 @@ void VisualWorld::draw(const Scene& scene,
 									   projectionMat,
 									   debugOptions,
 									   stats);
-				stats.nodes--; // don't count the root node
+				--stats.nodes; // don't count the root node
 
 				if (physicalWorld) {
 

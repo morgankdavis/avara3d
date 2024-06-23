@@ -72,7 +72,7 @@ enum class MaterialType : unsigned {
 	Sampler = 	2
 };
 
-typedef struct {
+typedef struct alignas(16) {
 	uint32_t 	type;
 	float32_t 	PADDING1;
 	float32_t 	PADDING2;
@@ -82,9 +82,10 @@ typedef struct {
 	vec3 		color;
 	float32_t 	PADDING5;
 	float 		attenuationFactor;
-	float32_t 	PADDING6;
-	float32_t	PADDING7;
-	float32_t 	PADDING8;
+//	float32_t 	PADDING6;
+//	float32_t	PADDING7;
+//	float32_t 	PADDING8;
+
 //	bool 		useDefaultLighting;
 //	float32_t 	PADDING9;
 //	float32_t	PADDING10;
@@ -97,7 +98,7 @@ typedef struct {
 	float 		outerAngle; */
 } LightGLSLStruct;
 
-typedef struct {
+typedef struct alignas(16) {
 	float32_t 		startDistance;
 	float32_t 		endDistance;
 	float32_t 		densityExponent;
@@ -106,7 +107,7 @@ typedef struct {
 	/* float32_t 	PADDING2; */
 } FogGLSLStruct;
 
-typedef struct {
+typedef struct alignas(16) {
 	uint32_t 			numLights;
 	float32_t 			PADDING1;
 	float32_t 			PADDING2;
@@ -356,7 +357,7 @@ void OpenGLRenderer::render(const Scene& scene,
 	}
 
 	SendEnvironmentUniforms(_glEnvironmentUBO, scene, stats);
-	
+
 	Program::Default().bindUniformBlock("EnvironmentBlock", _glEnvironmentUBO);
 }
 
