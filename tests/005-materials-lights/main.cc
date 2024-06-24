@@ -78,6 +78,7 @@ int main(int argc, const char* argv[]) {
 		visualWorld->fogEndDistance(5000.0);
 		visualWorld->fogDensityExponent(1.0);
 		visualWorld->fogColor(Color::LightGray());
+		//visualWorld->usesDefaultLighting(true);
 		visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
 		visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
 		visualWorld->background(make_shared<Texture>(std::move(utils::CubeImageNamed("nebula1_blue", "png"))));

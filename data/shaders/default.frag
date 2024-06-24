@@ -1,18 +1,23 @@
 #version 410
 
 
-#define GAMMA 	                    2.2
+#define GAMMA 	                    			2.2
 
-#define ALPHA_REJECTION_THRESHOLD 	0.5
+#define ALPHA_REJECTION_THRESHOLD 				0.5
 
-#define MATERIAL_TYPE_NONE         	0
-#define MATERIAL_TYPE_COLOR        	1
-#define MATERIAL_TYPE_SAMPLER      	2
+#define MATERIAL_PROPERTY_CONTENTS_TYPE_NONE    0
+#define MATERIAL_PROPERTY_CONTENTS_TYPE_COLOR	1
+#define MATERIAL_PROPERTY_CONTENTS_TYPE_SAMPLER	2
 
-#define LIGHT_TYPE_AMBIENT 			0
-#define LIGHT_TYPE_POINT			1
-#define LIGHT_TYPE_DIRECTIONAL 		2
-#define LIGHT_TYPE_SPOT 			3
+#define MATERIAL_PROPERTY_TYPE_AMBIENT			0
+#define MATERIAL_PROPERTY_TYPE_DIFFUSE			1
+#define MATERIAL_PROPERTY_TYPE_SPECULAR			2
+#define MATERIAL_PROPERTY_TYPE_EMISSION			3
+
+#define LIGHT_TYPE_AMBIENT 						0
+#define LIGHT_TYPE_POINT						1
+#define LIGHT_TYPE_DIRECTIONAL 					2
+#define LIGHT_TYPE_SPOT 						3
 
 
 struct Samplers {
@@ -64,14 +69,14 @@ layout(std140) struct Fog {
 };
 
 
-in 			vec3 		vertex_position_eye;
-in 			vec3 		vertex_normal_eye;
-in 			vec2 		tex_coord;
-uniform 	mat4 		view;
-uniform 	uint 		ambientType;
-uniform 	uint 		diffuseType;
-uniform 	uint 		specularType;
-uniform 	uint 		emissionType;
+in 			vec3 		vertPos_eye;
+in 			vec3 		vertNorm_eye;
+in 			vec2 		texCoord;
+uniform 	mat4 		viewMat;
+uniform 	uint 		ambientContentsType;
+uniform 	uint 		diffuseContentsType;
+uniform 	uint 		specularContentsType;
+uniform 	uint 		emissionContentsType;
 uniform		float 		specularExponent;
 uniform		float 		uvScale;
 uniform		bool 		locksAmbientWithDiffuse;
@@ -89,9 +94,8 @@ layout(std140) uniform EnvironmentBlock {
 out 		vec4 		fragColor;
 
 
-bool FloatEqual(float a, float b, float eps) {
-	return abs(a-b) <= eps;
-}
+bool FloatsEqual(float a, float b, float eps);
+vec4 ColorForTexCoord(vec2 texCoord, uint propertyType, uint propertyContentsType, Colors colors, Samplers samplers);
 
 
 void main () {
@@ -103,48 +107,21 @@ void main () {
 	
 	fragColor = vec4(0.0, 0.0, 0.0, 1.0);
 
-
-
 	if (useDefaultLighting) {
 
-		// find an emissive material in order:
+		// find an emissive property in order:
 		// 1. emissive
 		// 2. diffuse
 		// 3. ambient
 
-		if (emissionType != MATERIAL_TYPE_NONE) {
-
-			switch (emissionType) {
-				case MATERIAL_TYPE_COLOR:
-					Ke = vec4(colors.emission, 1.0);
-					break;
-				case MATERIAL_TYPE_SAMPLER:
-					Ke = vec4(texture(samplers.emission, tex_coord * uvScale));
-					break;
-			}
+		if (emissionContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
+			Ke = ColorForTexCoord(texCoord, MATERIAL_PROPERTY_TYPE_EMISSION, emissionContentsType, colors, samplers);
 		}
-		else if (diffuseType != MATERIAL_TYPE_NONE) {
-
-			switch (diffuseType) {
-				case MATERIAL_TYPE_COLOR:
-					Ke = vec4(colors.diffuse, 1.0);
-					break;
-				case MATERIAL_TYPE_SAMPLER:
-					Ke = vec4(texture(samplers.diffuse, tex_coord * uvScale));
-					break;
-			}
+		else if (diffuseContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
+			Ke = ColorForTexCoord(texCoord, MATERIAL_PROPERTY_TYPE_DIFFUSE, diffuseContentsType, colors, samplers);
 		}
-		else if (ambientType != MATERIAL_TYPE_NONE) {
-
-			switch (ambientType) {
-				case MATERIAL_TYPE_COLOR:
-					Ke = vec4(colors.ambient, 1.0);
-					break;
-				case MATERIAL_TYPE_SAMPLER:
-					Ke = vec4(texture(samplers.ambient, tex_coord * uvScale));
-					break;
-			}
-
+		else if (ambientContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
+			Ke = ColorForTexCoord(texCoord, MATERIAL_PROPERTY_TYPE_AMBIENT, ambientContentsType, colors, samplers);
 		}
 		else {
 			Ke = vec4(1.0, 1.0, 1.0, 1.0); // just use white.
@@ -152,19 +129,11 @@ void main () {
 
 		fragColor = vec4(vec3(Ke), 1.0);
 	}
-	else if (emissionType != MATERIAL_TYPE_NONE) {
+	else if (emissionContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
 		
 		/* emission color */
 
-		switch (emissionType) {
-			case MATERIAL_TYPE_COLOR:
-				Ke = vec4(colors.emission, 1.0);
-				break;
-			case MATERIAL_TYPE_SAMPLER:
-				Ke = vec4(texture(samplers.emission, tex_coord * uvScale));
-				break;
-		}
-
+		Ke = ColorForTexCoord(texCoord, MATERIAL_PROPERTY_TYPE_EMISSION, emissionContentsType, colors, samplers);
 		fragColor = vec4(vec3(Ke), 1.0);
 		// (no other lighting calculations)
 	}
@@ -172,41 +141,13 @@ void main () {
 
 		/* ambient, diffuse, specular colors */
 
-		switch (ambientType) {
-			case MATERIAL_TYPE_COLOR:
-				Ka = vec4(colors.ambient, 1.0);
-				break;
-			case MATERIAL_TYPE_SAMPLER:
-				Ka = vec4(texture(samplers.ambient, tex_coord * uvScale));
-				break;
-		}
-
-		switch (diffuseType) {
-			case MATERIAL_TYPE_COLOR:
-				Kd = vec4(colors.diffuse, 1.0);
-				break;
-			case MATERIAL_TYPE_SAMPLER:
-				Kd = vec4(texture(samplers.diffuse, tex_coord * uvScale));
-				break;
-		}
-
-		switch (specularType) {
-			case MATERIAL_TYPE_COLOR:
-				Ks = vec4(colors.specular, 1.0);
-				break;
-		// original:
-//			case MATERIAL_TYPE_SAMPLER:
-//				Ks = vec4(texture(samplers.specular, tex_coord * uvScale));
-//				break;
-		// with KHR_materials_specular we only import 'specularTexture' which only has alpha.
-			case MATERIAL_TYPE_SAMPLER:
-				Ks = vec4(texture(samplers.specular, tex_coord * uvScale).a);
-				break;
-		}
+		Ka = ColorForTexCoord(texCoord, MATERIAL_PROPERTY_TYPE_AMBIENT, ambientContentsType, colors, samplers);
+		Kd = ColorForTexCoord(texCoord, MATERIAL_PROPERTY_TYPE_DIFFUSE, diffuseContentsType, colors, samplers);
+		Ks = ColorForTexCoord(texCoord, MATERIAL_PROPERTY_TYPE_SPECULAR, specularContentsType, colors, samplers);
 
 		/* lock ambient with diffuse */
 
-		if (locksAmbientWithDiffuse && (diffuseType != MATERIAL_TYPE_NONE)) {
+		if (locksAmbientWithDiffuse && (diffuseContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE)) {
 			Ka = Kd;
 		}
 
@@ -220,7 +161,7 @@ void main () {
 		for (int l=0; l<numLights; ++l) {
 			Light light = lights[l];
 
-			vec3 light_position_world = light.position_world;
+			vec3 lightPos_world = light.position_world;
 			vec3 La = light.color;
 			vec3 Ld = light.color;
 			vec3 Ls = light.color;
@@ -241,36 +182,36 @@ void main () {
 				/* point  diffuse */
 
 				// raise light position to eye space
-				vec3 light_position_eye = vec3(view * vec4(light_position_world, 1.0));
-				vec3 direction_to_light_eye = normalize(light_position_eye - vertex_position_eye);
-				float dot_prod_diffuse = max(dot(direction_to_light_eye, vertex_normal_eye), 0.0);
+				vec3 lightPos_eye = vec3(viewMat * vec4(lightPos_world, 1.0));
+				vec3 directionToLight_eye = normalize(lightPos_eye - vertPos_eye);
+				float dotProdDiffuse = max(dot(directionToLight_eye, vertNorm_eye), 0.0);
 				
 				//Id = Ld * vec3(Kd) * dot_prod_diffuse; // diffuse intensity (original)
 				
-				float distanceToLight = distance(light_position_eye, vertex_position_eye);
+				float distanceToLight = distance(lightPos_eye, vertPos_eye);
 				float attenuation = 1.0 / (1.0 + light.attenuationFactor * pow(distanceToLight, 2.0));
 				
-				Id = Ld * vec3(Kd) * dot_prod_diffuse * attenuation; // diffuse intensity w/attenuation
+				Id = Ld * vec3(Kd) * dotProdDiffuse * attenuation; // diffuse intensity w/attenuation
 				
 				/* point specular */
 				
 				Is = vec3(0.0, 0.0, 0.0);
 				if (Ks.x != 0.0 || Ks.y != 0.0 || Ks.z != 0.0) {
 					
-					vec3 surface_to_viewer_eye = normalize(-vertex_position_eye); // viewer is at 0,0,0
+					vec3 surfaceToViewer_eye = normalize(-vertPos_eye); // viewer is at 0,0,0
 					
 					// phong
-					vec3 reflection_eye = reflect(-direction_to_light_eye, vertex_normal_eye);
-					float dot_prod_specular = dot(reflection_eye, surface_to_viewer_eye);
-					dot_prod_specular = max(dot_prod_specular, 0.0);
-					float specular_factor = pow(dot_prod_specular, specularExponent);
+					vec3 reflection_eye = reflect(-directionToLight_eye, vertNorm_eye);
+					float dotProdSpecular = dot(reflection_eye, surfaceToViewer_eye);
+					dotProdSpecular = max(dotProdSpecular, 0.0);
+					float specularFactor = pow(dotProdSpecular, specularExponent);
 					
 					// blinn
 //					vec3 half_way_eye = normalize(surface_to_viewer_eye + direction_to_light_eye);
 //					float dot_prod_specular = max(dot(half_way_eye, vertex_normal_eye), 0.0);
 //					float specular_factor = pow(dot_prod_specular, specularExponent);
 					
-					Is = Ls * vec3(Ks) * specular_factor * attenuation; // specular intensity w/attenuation
+					Is = Ls * vec3(Ks) * specularFactor * attenuation; // specular intensity w/attenuation
 				}
 				
 				fragColor += vec4(Is + Id + Ia, 0.0);
@@ -289,12 +230,12 @@ void main () {
 	
 	/* fog */
 
-	if (!FloatEqual(fog.endDistance, 0.0, 0.0001)) { // endDistance == 0 disables fog
-		if (FloatEqual(fog.densityExponent, 0.0, 0.0001)) { // constant
+	if (!FloatsEqual(fog.endDistance, 0.0, 0.0001)) { // endDistance == 0 disables fog
+		if (FloatsEqual(fog.densityExponent, 0.0, 0.0001)) { // constant
 			fragColor = mix(fragColor, vec4(fog.color.rgb, 1.0), fog.color.a);
 		}
-		else if (FloatEqual(fog.densityExponent, 1.0, 0.0001)) { // linear
-			float vertDist = length(vertex_position_eye);
+		else if (FloatsEqual(fog.densityExponent, 1.0, 0.0001)) { // linear
+			float vertDist = length(vertPos_eye);
 			float fogFactor = (fog.endDistance - vertDist) / (fog.endDistance - fog.startDistance);
 			fogFactor = clamp(fogFactor, 0.0, 1.0);
 			fragColor = mix(vec4(fog.color.rgb, 1.0), fragColor, fogFactor);
@@ -310,4 +251,61 @@ void main () {
 	/* gamma correction */
 	
 	//fragColor.rgb = pow(fragColor.rgb, vec3(1.0/GAMMA));
+}
+
+bool FloatsEqual(float a, float b, float eps) {
+	return abs(a-b) <= eps;
+}
+
+vec4 ColorForTexCoord(vec2 texCoord, uint propertyType, uint propertyContentsType, Colors colors, Samplers samplers) {
+
+	switch (propertyType) {
+
+		case MATERIAL_PROPERTY_TYPE_AMBIENT:
+			switch (propertyContentsType) {
+				case MATERIAL_PROPERTY_CONTENTS_TYPE_COLOR:
+					return vec4(colors.ambient, 1.0);
+				case MATERIAL_PROPERTY_CONTENTS_TYPE_SAMPLER:
+					return vec4(texture(samplers.ambient, texCoord * uvScale));
+				default:
+					return vec4(0.0, 0.0, 0.0, 1.0);
+			}
+			break;
+
+		case MATERIAL_PROPERTY_TYPE_DIFFUSE:
+			switch (propertyContentsType) {
+				case MATERIAL_PROPERTY_CONTENTS_TYPE_COLOR:
+					return vec4(colors.diffuse, 1.0);
+				case MATERIAL_PROPERTY_CONTENTS_TYPE_SAMPLER:
+					return vec4(texture(samplers.diffuse, texCoord * uvScale));
+				default:
+					return vec4(0.0, 0.0, 0.0, 1.0);
+			}
+			break;
+
+		case MATERIAL_PROPERTY_TYPE_SPECULAR:
+			switch (propertyContentsType) {
+				case MATERIAL_PROPERTY_CONTENTS_TYPE_COLOR:
+					return vec4(colors.specular, 1.0);
+				case MATERIAL_PROPERTY_CONTENTS_TYPE_SAMPLER:
+					return vec4(texture(samplers.specular, texCoord * uvScale));
+				default:
+					return vec4(0.0, 0.0, 0.0, 1.0);
+			}
+			break;
+
+		case MATERIAL_PROPERTY_TYPE_EMISSION:
+			switch (propertyContentsType) {
+				case MATERIAL_PROPERTY_CONTENTS_TYPE_COLOR:
+					return vec4(colors.emission, 1.0);
+				case MATERIAL_PROPERTY_CONTENTS_TYPE_SAMPLER:
+					return vec4(texture(samplers.emission, texCoord * uvScale));
+				default:
+					return vec4(0.0, 0.0, 0.0, 1.0);
+			}
+			break;
+
+		default:
+			return vec4(0.0, 0.0, 0.0, 1.0);
+	}
 }

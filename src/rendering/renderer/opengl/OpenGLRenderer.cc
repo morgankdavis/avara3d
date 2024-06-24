@@ -66,7 +66,7 @@ using namespace std;
 	Private Types
  *********************************************************************************************/
 
-enum class MaterialType : unsigned {
+enum class MaterialContentsType : unsigned {
 	None = 		0,
 	Color = 	1,
 	Sampler = 	2
@@ -918,7 +918,7 @@ void SendMaterialUniforms(const Material& material,
 	program.setUniform("specularExponent", material.specularExponent());
 	program.setUniform("uvScale", material.uvScale());
 	program.setUniform("locksAmbientWithDiffuse", material.locksAmbientWithDiffuse());
-	program.setUniform("emissionType", (unsigned)0); // 0 = MaterialType_None -- why is this here?
+	program.setUniform("emissionContentsType", (unsigned)0); // 0 = MaterialType_None -- why is this here?
 	//program.setUniform("defaultLighting", 0);
 
 	for (auto& [property, type] : material.properties()) {
@@ -955,25 +955,25 @@ void SendMaterialPropertyUniforms(const MaterialProperty& property,
 
 			switch (type) {
 				case MaterialPropertyType::Ambient:
-					modeUniformName = "ambientType";
+					modeUniformName = "ambientContentsType";
 					samplerUniformName = "samplers.ambient";
 					slot = GL_TEXTURE0;
 					index = 0;
 					break;
 				case MaterialPropertyType::Diffuse:
-					modeUniformName = "diffuseType";
+					modeUniformName = "diffuseContentsType";
 					samplerUniformName = "samplers.diffuse";
 					slot = GL_TEXTURE1;
 					index = 1;
 					break;
 				case MaterialPropertyType::Specular:
-					modeUniformName = "specularType";
+					modeUniformName = "specularContentsType";
 					samplerUniformName = "samplers.specular";
 					slot = GL_TEXTURE2;
 					index = 2;
 					break;
 				case MaterialPropertyType::Emission:
-					modeUniformName = "emissionType";
+					modeUniformName = "emissionContentsType";
 					samplerUniformName = "samplers.emission";
 					slot = GL_TEXTURE3;
 					index = 3;
@@ -985,7 +985,7 @@ void SendMaterialPropertyUniforms(const MaterialProperty& property,
 			}
 
 			program.setUniform(modeUniformName.c_str(),
-							   static_cast<underlying_type<MaterialType>::type>(MaterialType::Sampler));
+							   static_cast<underlying_type<MaterialContentsType>::type>(MaterialContentsType::Sampler));
 			program.bindTexture(samplerUniformName.c_str(), GL_TEXTURE_2D, slot, glTextureHandle, index);
 		}
 		else if (dynamic_pointer_cast<CubeImage>(texture->contents())) {
@@ -1004,19 +1004,19 @@ void SendMaterialPropertyUniforms(const MaterialProperty& property,
 
 		switch (type) {
 			case MaterialPropertyType::Ambient:
-				modeUniformName = "ambientType";
+				modeUniformName = "ambientContentsType";
 				colorUniformName = "colors.ambient";
 				break;
 			case MaterialPropertyType::Diffuse:
-				modeUniformName = "diffuseType";
+				modeUniformName = "diffuseContentsType";
 				colorUniformName = "colors.diffuse";
 				break;
 			case MaterialPropertyType::Specular:
-				modeUniformName = "specularType";
+				modeUniformName = "specularContentsType";
 				colorUniformName = "colors.specular";
 				break;
 			case MaterialPropertyType::Emission:
-				modeUniformName = "emissionType";
+				modeUniformName = "emissionContentsType";
 				colorUniformName = "colors.emission";
 				break;
 			default:
@@ -1026,7 +1026,7 @@ void SendMaterialPropertyUniforms(const MaterialProperty& property,
 		}
 
 		program.setUniform(modeUniformName.c_str(),
-						   static_cast<underlying_type<MaterialType>::type>(MaterialType::Color));
+						   static_cast<underlying_type<MaterialContentsType>::type>(MaterialContentsType::Color));
 		program.setUniform(colorUniformName.c_str(), color->r, color->g, color->b);
 	}
 	else {
@@ -1306,9 +1306,9 @@ void DrawMeshElement(MeshElement& element,
 
 	// uniforms
 	
-	program.setUniform("model", modelMat);
-	program.setUniform("view", inverse(viewMat));
-	program.setUniform("projection", projectionMat);
+	program.setUniform("modelMat", modelMat);
+	program.setUniform("viewMat", inverse(viewMat));
+	program.setUniform("projMat", projectionMat);
 	
 	// update
 	
