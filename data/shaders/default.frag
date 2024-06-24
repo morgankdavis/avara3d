@@ -71,7 +71,7 @@ layout(std140) struct Fog {
 
 in 			vec3 		vertPos_eye;
 in 			vec3 		vertNorm_eye;
-in 			vec2 		texCoord;
+in 			vec2 		frag_texCoord;
 uniform 	mat4 		viewMat;
 uniform 	uint 		ambientContentsType;
 uniform 	uint 		diffuseContentsType;
@@ -115,13 +115,13 @@ void main () {
 		// 3. ambient
 
 		if (emissionContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
-			Ke = ColorForTexCoord(texCoord, MATERIAL_PROPERTY_TYPE_EMISSION, emissionContentsType, colors, samplers);
+			Ke = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_EMISSION, emissionContentsType, colors, samplers);
 		}
 		else if (diffuseContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
-			Ke = ColorForTexCoord(texCoord, MATERIAL_PROPERTY_TYPE_DIFFUSE, diffuseContentsType, colors, samplers);
+			Ke = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_DIFFUSE, diffuseContentsType, colors, samplers);
 		}
 		else if (ambientContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
-			Ke = ColorForTexCoord(texCoord, MATERIAL_PROPERTY_TYPE_AMBIENT, ambientContentsType, colors, samplers);
+			Ke = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_AMBIENT, ambientContentsType, colors, samplers);
 		}
 		else {
 			Ke = vec4(1.0, 1.0, 1.0, 1.0); // just use white.
@@ -133,7 +133,7 @@ void main () {
 		
 		/* emission color */
 
-		Ke = ColorForTexCoord(texCoord, MATERIAL_PROPERTY_TYPE_EMISSION, emissionContentsType, colors, samplers);
+		Ke = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_EMISSION, emissionContentsType, colors, samplers);
 		fragColor = vec4(vec3(Ke), 1.0);
 		// (no other lighting calculations)
 	}
@@ -141,9 +141,9 @@ void main () {
 
 		/* ambient, diffuse, specular colors */
 
-		Ka = ColorForTexCoord(texCoord, MATERIAL_PROPERTY_TYPE_AMBIENT, ambientContentsType, colors, samplers);
-		Kd = ColorForTexCoord(texCoord, MATERIAL_PROPERTY_TYPE_DIFFUSE, diffuseContentsType, colors, samplers);
-		Ks = ColorForTexCoord(texCoord, MATERIAL_PROPERTY_TYPE_SPECULAR, specularContentsType, colors, samplers);
+		Ka = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_AMBIENT, ambientContentsType, colors, samplers);
+		Kd = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_DIFFUSE, diffuseContentsType, colors, samplers);
+		Ks = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_SPECULAR, specularContentsType, colors, samplers);
 
 		/* lock ambient with diffuse */
 

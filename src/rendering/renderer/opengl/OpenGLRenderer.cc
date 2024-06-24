@@ -688,7 +688,7 @@ void BufferMeshElementVertexData(const MeshElement& element,
 	glGenVertexArrays(1, &glVAO);
 	glBindVertexArray(glVAO);
 	
-	auto positionIndex = program.getAttributeLocation("vertex_position");
+	auto positionIndex = program.getAttributeLocation("vertPos");
 	glVertexAttribPointer(positionIndex, 			// attrib index
 						  3, 						// num components per attrib (3 float in vec3)
 						  GL_FLOAT, 				// component type
@@ -697,7 +697,7 @@ void BufferMeshElementVertexData(const MeshElement& element,
 						  nullptr); 						// start offset
 	glEnableVertexAttribArray(positionIndex);
 	
-	auto normalIndex = program.getAttributeLocation("vertex_normal");
+	auto normalIndex = program.getAttributeLocation("vertNorm");
 	glVertexAttribPointer(normalIndex, 				// attrib index
 						  3, 						// num components per attrib (3 float in vec3)
 						  GL_FLOAT, 				// component type
@@ -706,7 +706,7 @@ void BufferMeshElementVertexData(const MeshElement& element,
 						  (void*)sizeof(vec3)); 	// start offset
 	glEnableVertexAttribArray(normalIndex);
 	
-	auto texCoordIndex = program.getAttributeLocation("texture_coordinate");
+	auto texCoordIndex = program.getAttributeLocation("vert_texCoord");
 	glVertexAttribPointer(texCoordIndex, 							// attrib index
 						  2, 										// num components per attrib (2 float in vec2)
 						  GL_FLOAT, 								// component type
@@ -744,7 +744,7 @@ void BufferSkyboxVertexData(Mesh& skyboxMesh,
 	glGenVertexArrays(1, &glVAO);
 	glBindVertexArray(glVAO);
 
-	GLuint positionIndex = program.getAttributeLocation("vertex_position");
+	GLuint positionIndex = program.getAttributeLocation("vertPos");
 	glVertexAttribPointer(positionIndex, // attrib index
 						  3, // num components per attrib (3 float in vec3)
 						  GL_FLOAT, // component type
@@ -792,7 +792,7 @@ void BufferLinesVertexData(const vector<Line>& lines,
 	glGenVertexArrays(1, &glVAO);
 	glBindVertexArray(glVAO);
 
-	auto positionIndex = program.getAttributeLocation("vertex_position");
+	auto positionIndex = program.getAttributeLocation("vertPos");
 	glVertexAttribPointer(positionIndex, 		// attrib index
 						  3, 					// num components per attrib (3 float in vec3)
 						  GL_FLOAT, 			// component type
@@ -801,7 +801,7 @@ void BufferLinesVertexData(const vector<Line>& lines,
 						  nullptr); 					// start offset
 	glEnableVertexAttribArray(positionIndex);
 
-	auto colorIndex = program.getAttributeLocation("vertex_color");
+	auto colorIndex = program.getAttributeLocation("texCoord");
 	glVertexAttribPointer(colorIndex, 			// attrib index
 						  3, 					// num components per attrib (3 float in vec3)
 						  GL_FLOAT, 			// component type
