@@ -161,7 +161,10 @@ static void 		SendMaterialPropertyUniforms(const MaterialProperty& property,
 												MaterialPropertyType type,
 												GLuint glTextureHandle,
 												Program& program);
-static void 		SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, Stats& stats);
+static void 		SendEnvironmentUniforms(GLuint glEnvironmentUBO,
+											const Scene& scene,
+											const vector<Node*>& lightNodes,
+											Stats& stats);
 static void 		SetTextureSamplingOptions(Texture& texture,
 											 GLuint glTextureHandle);
 static void 		SetMaterialFilteringOptions(const Material& material,
@@ -306,6 +309,23 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 	CheckGLError();
 }
 
+void OpenGLRenderer::preTraversal(const Scene& scene,
+								  const RenderContext& context,
+								  const DebugOptions& debugOptions,
+								  Stats& stats) {
+
+}
+
+void OpenGLRenderer::postTraversal(const Scene& scene,
+								   const RenderContext& context,
+								   const vector<Node*>& lightNodes,
+								   const DebugOptions& debugOptions,
+								   Stats& stats) {
+
+	SendEnvironmentUniforms(_glEnvironmentUBO, scene, lightNodes, stats);
+	Program::Default().bindUniformBlock("EnvironmentBlock", _glEnvironmentUBO);
+}
+
 void OpenGLRenderer::render(const Scene& scene,
 							const DebugOptions& debugOptions,
 							Stats& stats) {
@@ -356,9 +376,8 @@ void OpenGLRenderer::render(const Scene& scene,
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
-	SendEnvironmentUniforms(_glEnvironmentUBO, scene, stats);
-
-	Program::Default().bindUniformBlock("EnvironmentBlock", _glEnvironmentUBO);
+//	SendEnvironmentUniforms(_glEnvironmentUBO, scene, stats);
+//	Program::Default().bindUniformBlock("EnvironmentBlock", _glEnvironmentUBO);
 }
 
 void OpenGLRenderer::render(Mesh& mesh,
@@ -1017,7 +1036,10 @@ void SendMaterialPropertyUniforms(const MaterialProperty& property,
 	//program.unuse();
 }
 	
-void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, Stats& stats) {
+void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
+							 const Scene& scene,
+							 const vector<Node*>& lightNodes,
+							 Stats& stats) {
 
 	// program "Default" must be active
 
@@ -1032,36 +1054,37 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, Stats&
 		Program::Default().setUniform("useDefaultLighting", true);
 	}
 	else {
-		// TODO: this is EXPONENTIAL.  instead, accumulate a list of lights as we visit each node?
 
-		auto lights = vector<Node*>();
+//		auto lights = vector<Node*>();
+		auto lights = lightNodes;
 		Node* ambientLightNode = nullptr;
 
 		// find all lights in the scene
-		for (auto &node: scene.rootNode()->children(true)) {
-			if (auto light = node->light()) {
-				if (light->type() == LightType::Point) {
-					lights.push_back(node.get());
-				}
-				else if (light->type() == LightType::Ambient) {
-					ambientLightNode = node.get();
-				}
-			}
-		}
+//		for (auto &node: scene.rootNode()->children(true)) {
+//			if (auto light = node->light()) {
+//				if (light->type() == LightType::Point) {
+//					lights.push_back(node.get());
+//				}
+//				else if (light->type() == LightType::Ambient) {
+//					ambientLightNode = node.get();
+//				}
+//			}
+//		}
 
-		if (lights.size() > MAX_DYNAMIC_LIGHTS) {
+		if (lightNodes.size() > MAX_DYNAMIC_LIGHTS) {
 
 			// find all light distances from the camera
 
 			auto lightsUnsorted = map<Node*, float>();
 			auto cameraPos_world = scene.visualWorld()->pointOfView().lock()->worldPosition();
-			for (auto lightNode: lights) {
+			for (auto& lightNode : lightNodes) {
 				auto lightPos_world = lightNode->worldPosition();
 				auto lightToCamera = lightPos_world - cameraPos_world;
 				auto lightToCameraDistance = length(lightToCamera);
 				lightsUnsorted[lightNode] = lightToCameraDistance;
 			}
 
+			vector<Node*> sorted;
 			lights = SortedLights(lightsUnsorted);
 
 			unsigned endIndex = std::min((unsigned)lights.size(), (unsigned)MAX_DYNAMIC_LIGHTS);

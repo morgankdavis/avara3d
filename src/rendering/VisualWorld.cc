@@ -250,14 +250,20 @@ void VisualWorld::draw(const Scene& scene,
 
 				renderer->render(scene, debugOptions, stats);
 
+				renderer->preTraversal(scene, *_renderContext, debugOptions, stats);
+
 				auto viewMat = pov->worldTransform();
 				auto projectionMat = pov->camera()->projection();
+				vector<Node*> lightNodes;
 				scene.rootNode()->draw(*renderer,
 									   viewMat,
 									   projectionMat,
 									   debugOptions,
+									   lightNodes,
 									   stats);
-				--stats.nodes; // don't count the root node
+				//--stats.nodes; // don't count the root node
+
+				renderer->postTraversal(scene, *_renderContext, lightNodes, debugOptions, stats);
 
 				if (physicalWorld) {
 

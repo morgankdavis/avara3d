@@ -169,6 +169,7 @@ namespace a3d {
 												 const glm::mat4& viewMat,
 												 const glm::mat4& projectionMat,
 												 const DebugOptions& debugOptions,
+												 std::vector<Node*>& lightNodes,
 												 Stats& stats);
 
 		void								_debugPrint();

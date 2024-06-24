@@ -896,9 +896,14 @@ void Node::draw(Renderer& renderer,
 				const mat4& viewMat,
 				const mat4& projectionMat,
 				const DebugOptions& debugOptions,
+				std::vector<Node*>& lightNodes,
 				Stats& stats) {
 
 	++stats.nodes;
+
+	if (_light) {
+		lightNodes.push_back(this);
+	}
 
 	if (_mesh && !_mesh->hidden()) {
 
@@ -915,6 +920,7 @@ void Node::draw(Renderer& renderer,
 					viewMat,
 					projectionMat,
 					debugOptions,
+					lightNodes,
 					stats);
 	}
 }
