@@ -79,9 +79,6 @@ namespace a3d {
 		void 									replaceMaterial(int index,
 																const std::shared_ptr<Material>& replacement);
 
-		bool 									hidden() const;
-		void 									hidden(bool hidden);
-
 /*********************************************************************************************
 	Internal Member Functions
  *********************************************************************************************/
@@ -126,7 +123,6 @@ namespace a3d {
  *********************************************************************************************/
 
 		std::optional<std::string>				_name;
-		bool									_hidden;
 		std::vector<Line>						_aabbLines;
 		MeshDirtyMask							_dirtyMask;
 	};

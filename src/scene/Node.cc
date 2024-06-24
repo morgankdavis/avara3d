@@ -67,6 +67,7 @@ Node::Node():
 		_orientation{},
 		_scale{1.0f, 1.0f, 1.0f},
 		_physicsBody{},
+		_hidden{false},
 		_scene{},
 		_parent{},
 		_dirtyMask{NodeDirtyMask::None} { }
@@ -608,6 +609,14 @@ void Node::physicsBody(unique_ptr<PhysicsBody> body) {
 	}
 }
 
+bool Node::hidden() const {
+	return _hidden;
+}
+
+void Node::hidden(bool hidden) {
+	_hidden = hidden;
+}
+
 Scene* Node::scene() const {
 
 	if (_scene) {
@@ -901,18 +910,21 @@ void Node::draw(Renderer& renderer,
 
 	++stats.nodes;
 
-	if (_light) {
-		lightNodes.push_back(this);
-	}
+	if (!_hidden) {
 
-	if (_mesh && !_mesh->hidden()) {
+		if (_light) {
+			lightNodes.push_back(this);
+		}
 
-		_mesh->draw(renderer,
-					worldTransform(),
-					viewMat,
-					projectionMat,
-					debugOptions,
-					stats);
+		if (_mesh) {
+
+			_mesh->draw(renderer,
+						worldTransform(),
+						viewMat,
+						projectionMat,
+						debugOptions,
+						stats);
+		}
 	}
 
 	for (auto& child : _children) {
