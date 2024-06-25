@@ -69,8 +69,8 @@ layout(std140) struct Fog {
 };
 
 
-in 			vec3 		vertPos_eye;
-in 			vec3 		vertNorm_eye;
+in 			vec3 		frag_vertPos_eye;
+in 			vec3 		frag_vertNorm_eye;
 in 			vec2 		frag_texCoord;
 uniform 	mat4 		viewMat;
 uniform 	uint 		ambientContentsType;
@@ -183,12 +183,12 @@ void main () {
 
 				// raise light position to eye space
 				vec3 lightPos_eye = vec3(viewMat * vec4(lightPos_world, 1.0));
-				vec3 directionToLight_eye = normalize(lightPos_eye - vertPos_eye);
-				float dotProdDiffuse = max(dot(directionToLight_eye, vertNorm_eye), 0.0);
+				vec3 directionToLight_eye = normalize(lightPos_eye - frag_vertPos_eye);
+				float dotProdDiffuse = max(dot(directionToLight_eye, frag_vertNorm_eye), 0.0);
 				
 				//Id = Ld * vec3(Kd) * dot_prod_diffuse; // diffuse intensity (original)
 				
-				float distanceToLight = distance(lightPos_eye, vertPos_eye);
+				float distanceToLight = distance(lightPos_eye, frag_vertPos_eye);
 				float attenuation = 1.0 / (1.0 + light.attenuationFactor * pow(distanceToLight, 2.0));
 				
 				Id = Ld * vec3(Kd) * dotProdDiffuse * attenuation; // diffuse intensity w/attenuation
@@ -198,10 +198,10 @@ void main () {
 				Is = vec3(0.0, 0.0, 0.0);
 				if (Ks.x != 0.0 || Ks.y != 0.0 || Ks.z != 0.0) {
 					
-					vec3 surfaceToViewer_eye = normalize(-vertPos_eye); // viewer is at 0,0,0
+					vec3 surfaceToViewer_eye = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
 					
 					// phong
-					vec3 reflection_eye = reflect(-directionToLight_eye, vertNorm_eye);
+					vec3 reflection_eye = reflect(-directionToLight_eye, frag_vertNorm_eye);
 					float dotProdSpecular = dot(reflection_eye, surfaceToViewer_eye);
 					dotProdSpecular = max(dotProdSpecular, 0.0);
 					float specularFactor = pow(dotProdSpecular, specularExponent);
@@ -235,7 +235,7 @@ void main () {
 			fragColor = mix(fragColor, vec4(fog.color.rgb, 1.0), fog.color.a);
 		}
 		else if (FloatsEqual(fog.densityExponent, 1.0, 0.0001)) { // linear
-			float vertDist = length(vertPos_eye);
+			float vertDist = length(frag_vertPos_eye);
 			float fogFactor = (fog.endDistance - vertDist) / (fog.endDistance - fog.startDistance);
 			fogFactor = clamp(fogFactor, 0.0, 1.0);
 			fragColor = mix(vec4(fog.color.rgb, 1.0), fragColor, fogFactor);

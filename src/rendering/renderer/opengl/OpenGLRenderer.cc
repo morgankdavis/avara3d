@@ -688,7 +688,7 @@ void BufferMeshElementVertexData(const MeshElement& element,
 	glGenVertexArrays(1, &glVAO);
 	glBindVertexArray(glVAO);
 	
-	auto positionIndex = program.getAttributeLocation("vertPos");
+	auto positionIndex = program.getAttributeLocation("vert_vertPos");
 	glVertexAttribPointer(positionIndex, 			// attrib index
 						  3, 						// num components per attrib (3 float in vec3)
 						  GL_FLOAT, 				// component type
@@ -697,7 +697,7 @@ void BufferMeshElementVertexData(const MeshElement& element,
 						  nullptr); 						// start offset
 	glEnableVertexAttribArray(positionIndex);
 	
-	auto normalIndex = program.getAttributeLocation("vertNorm");
+	auto normalIndex = program.getAttributeLocation("vert_vertNorm");
 	glVertexAttribPointer(normalIndex, 				// attrib index
 						  3, 						// num components per attrib (3 float in vec3)
 						  GL_FLOAT, 				// component type
@@ -744,7 +744,7 @@ void BufferSkyboxVertexData(Mesh& skyboxMesh,
 	glGenVertexArrays(1, &glVAO);
 	glBindVertexArray(glVAO);
 
-	GLuint positionIndex = program.getAttributeLocation("vertPos");
+	GLuint positionIndex = program.getAttributeLocation("vert_vertPos");
 	glVertexAttribPointer(positionIndex, // attrib index
 						  3, // num components per attrib (3 float in vec3)
 						  GL_FLOAT, // component type
@@ -792,7 +792,7 @@ void BufferLinesVertexData(const vector<Line>& lines,
 	glGenVertexArrays(1, &glVAO);
 	glBindVertexArray(glVAO);
 
-	auto positionIndex = program.getAttributeLocation("vertPos");
+	auto positionIndex = program.getAttributeLocation("vert_vertPos");
 	glVertexAttribPointer(positionIndex, 		// attrib index
 						  3, 					// num components per attrib (3 float in vec3)
 						  GL_FLOAT, 			// component type
@@ -801,7 +801,7 @@ void BufferLinesVertexData(const vector<Line>& lines,
 						  nullptr); 					// start offset
 	glEnableVertexAttribArray(positionIndex);
 
-	auto colorIndex = program.getAttributeLocation("texCoord");
+	auto colorIndex = program.getAttributeLocation("vert_vertColor"); // was texCoord?
 	glVertexAttribPointer(colorIndex, 			// attrib index
 						  3, 					// num components per attrib (3 float in vec3)
 						  GL_FLOAT, 			// component type
@@ -1331,8 +1331,8 @@ void DrawSkyboxElement(MeshElement& element,
 	
 	auto projectionMat = pointOfView.camera()->projection();
 	
-	program.setUniform("view", viewMat);
-	program.setUniform("projection", projectionMat);
+	program.setUniform("viewMat", viewMat);
+	program.setUniform("projMat", projectionMat);
 	
 	// update
 
@@ -1355,9 +1355,9 @@ void DrawLines(const vector<Line>& lines,
 
 	// uniforms
 	
-	program.setUniform("model", modelMat);
-	program.setUniform("view", inverse(viewMat));
-	program.setUniform("projection", projectionMat);
+	program.setUniform("modelMat", modelMat);
+	program.setUniform("viewMat", inverse(viewMat));
+	program.setUniform("projMat", projectionMat);
 	
 	// update
 	
