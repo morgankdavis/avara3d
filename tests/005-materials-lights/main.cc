@@ -78,6 +78,7 @@ int main(int argc, const char* argv[]) {
 		visualWorld->fogEndDistance(5000.0);
 		visualWorld->fogDensityExponent(1.0);
 		visualWorld->fogColor(Color::LightGray());
+		//visualWorld->usesDefaultLighting(true);
 		visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
 		visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
 		visualWorld->background(make_shared<Texture>(std::move(utils::CubeImageNamed("nebula1_blue", "png"))));
@@ -133,32 +134,32 @@ int main(int argc, const char* argv[]) {
 
 		// random lights
 
-	//	{
-	//		const int NUM_RANDOM_LIGHTS = 64;
-	//		for (int l = 0; l < NUM_RANDOM_LIGHTS; ++l) {
-	//			auto light = make_shared<Light>(LIGHT_TYPE::POINT);
-	//			light->attenuationFactor(0.0001);
-	//			static const float yOffset = 30;
-	//			static const int range = 75;
-	//			auto lightNode = Node::LightNode(light);
-	//			int randX = Uniform(-range, range);
-	//			int randY = Uniform(-range, range);
-	//			int randZ = Uniform(-range, range);
-	//			lightNode->position(vec3(randX, randY + yOffset, randZ));
-	//			auto color = Color::Random();
-	//			light->color(color);
-	//
-	//			auto geometry = make_shared<Sphere>(1.5, 16);
-	//
-	//			auto materialProperty = make_shared<MaterialProperty>(color);
-	//			auto material = make_shared<Material>();
-	//			material->emissive(materialProperty);
-	//			geometry->addMaterial(material);
-	//			lightNode->geometry(geometry);
-	//
-	//			scene->rootNode()->addChild(lightNode);
-	//		}
-	//	}
+//		{
+//			const int NUM_RANDOM_LIGHTS = 64;
+//			for (int l = 0; l < NUM_RANDOM_LIGHTS; ++l) {
+//				auto light = make_shared<Light>(LightType::Point);
+//				light->attenuationFactor(0.0001);
+//				static const float yOffset = 30;
+//				static const int range = 75;
+//				auto lightNode = Node::LightNode(light);
+//				int randX = utils::Uniform(-range, range);
+//				int randY = utils::Uniform(-range, range);
+//				int randZ = utils::Uniform(-range, range);
+//				lightNode->position(vec3(randX, randY + yOffset, randZ));
+//				auto color = Color::Random();
+//				light->color(color);
+//
+//				auto geometry = make_shared<Sphere>(1.5, 16);
+//
+////				auto materialProperty = make_shared<MaterialProperty>(color);
+////				auto material = make_shared<Material>();
+////				material->emissive(materialProperty);
+////				geometry->addMaterial(material);
+////				lightNode->geometry(geometry);
+//
+//				scene->rootNode()->addChild(lightNode);
+//			}
+//		}
 
 		window->center();
 		window->open();

@@ -52,6 +52,7 @@ int main(int argc, const char* argv[]) {
 	window->cursorCaptured(CAPTURE_CURSOR);
 
 	auto visualWorld = make_unique<VisualWorld>(*window);
+//	visualWorld->autoEnablesDefaultLighting(false);
 	auto backgroundColor = make_shared<Color>(109.0f / 255.0f, 136.0f / 255.0f, 164.0f / 255.0f, 1.0f);
 	auto background = MaterialProperty(backgroundColor);
 	visualWorld->background(background); // TODO: is this copying?

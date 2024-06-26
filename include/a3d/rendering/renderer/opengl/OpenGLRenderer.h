@@ -79,6 +79,16 @@ namespace a3d {
 										 const DebugOptions& debugOptions,
 										 Stats& stats) override;
 
+		void 					preTraversal(const Scene& scene,
+											 const RenderContext& context,
+											 const DebugOptions& debugOptions,
+											 Stats& stats) override;
+		void 					postTraversal(const Scene& scene,
+											  const RenderContext& context,
+											  const std::vector<Node*>& lightNodes,
+											  const DebugOptions& debugOptions,
+											  Stats& stats) override;
+
 		void 					render(const Scene& scene,
 									   const DebugOptions& debugOptions,
 									   Stats& stats) override;

@@ -121,6 +121,9 @@ namespace a3d {
 		PhysicsBody* 						physicsBody() const;
 		void 								physicsBody(std::unique_ptr<PhysicsBody> body);
 
+		bool 								hidden() const;
+		void 								hidden(bool hidden);
+
 		Scene*								scene() const;
 
 		std::weak_ptr<Node>					parent() const;
@@ -169,6 +172,7 @@ namespace a3d {
 												 const glm::mat4& viewMat,
 												 const glm::mat4& projectionMat,
 												 const DebugOptions& debugOptions,
+												 std::vector<Node*>& lightNodes,
 												 Stats& stats);
 
 		void								_debugPrint();
@@ -203,6 +207,7 @@ namespace a3d {
 		glm::quat							_orientation;
 		glm::vec3							_scale;
 		std::unique_ptr<PhysicsBody>		_physicsBody;
+		bool								_hidden;
 		Scene*								_scene;
 		std::weak_ptr<Node>					_parent;
 		NodeDirtyMask						_dirtyMask;

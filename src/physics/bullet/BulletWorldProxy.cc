@@ -172,6 +172,7 @@ void BulletWorldProxy::step(double deltaT,
 							float timestep,
 							Stats& stats) {
 
+	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=9320
 	auto result = _btWorld->stepSimulation(btScalar(deltaT * speed),
 										   MAX_PHYSICS_SUBSTEPS,
 										   timestep);

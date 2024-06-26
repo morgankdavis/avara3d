@@ -23,6 +23,7 @@ namespace a3d {
 
 	class Image;
 	class Line;
+	class Node;
 	class Material;
 	class Mesh;
 	class MeshElement;
@@ -58,6 +59,16 @@ namespace a3d {
 												   Stats& stats) = 0;
 		virtual void 					endFrame(const Scene& scene,
 												 const RenderContext& context,
+												 const DebugOptions& debugOptions,
+												 Stats& stats) = 0;
+
+		virtual void 					preTraversal(const Scene& scene,
+												   const RenderContext& context,
+												   const DebugOptions& debugOptions,
+												   Stats& stats) = 0;
+		virtual void 					postTraversal(const Scene& scene,
+												 const RenderContext& context,
+												 const std::vector<Node*>& lightNodes,
 												 const DebugOptions& debugOptions,
 												 Stats& stats) = 0;
 

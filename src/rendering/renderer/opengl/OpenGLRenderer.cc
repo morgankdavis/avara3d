@@ -66,49 +66,42 @@ using namespace std;
 	Private Types
  *********************************************************************************************/
 
-enum class MaterialType : unsigned {
+enum class MaterialContentsType : unsigned {
 	None = 		0,
 	Color = 	1,
 	Sampler = 	2
 };
 
+
 typedef struct {
-	uint32_t 	type;
-	float32_t 	PADDING1;
-	float32_t 	PADDING2;
-	float32_t 	PADDING3;
-	vec3 		position_world;
-	float32_t 	PADDING4;
-	vec3 		color;
-	float32_t 	PADDING5;
-	float 		attenuationFactor;
-	float32_t 	PADDING6;
-	float32_t	PADDING7;
-	float32_t 	PADDING8;
-	/* vec3 	direction_world;
-	float 		attenuationStart;
-	float 		attenuationEnd;
-	float 		attenuationExponent;
-	float 		innerAngle;
-	float 		outerAngle; */
+	alignas(16) uint32_t 	type;
+	alignas(16) vec3 		position_world;
+	// change this to vec3, it blows up.
+	// maybe Mesa std140 is wrong?
+	//	https://stackoverflow.com/questions/73189196/diffrence-between-std140-and-std430-layout
+	// try on AMDGPU, Windows or macOS?
+	alignas(16) vec4 		color;
+	alignas(16) float 		attenuationFactor;
+//	bool 		useDefaultLighting;
+//	vec3 		direction_world;
+//	float 		attenuationStart;
+//	float 		attenuationEnd;
+//	float 		attenuationExponent;
+//	float 		innerAngle;
+//	float 		outerAngle;
 } LightGLSLStruct;
 
 typedef struct {
-	float32_t 		startDistance;
-	float32_t 		endDistance;
-	float32_t 		densityExponent;
-	float32_t 		PADDING1;
-	vec4 			color;
-	/* float32_t 	PADDING2; */
+	alignas(16) float32_t 		startDistance;
+	alignas(16) float32_t 		endDistance;
+	alignas(16) float32_t 		densityExponent;
+	alignas(16) vec4 			color;
 } FogGLSLStruct;
 
 typedef struct {
-	uint32_t 			numLights;
-	float32_t 			PADDING1;
-	float32_t 			PADDING2;
-	float32_t 			PADDING3;
-	LightGLSLStruct 	lights[MAX_DYNAMIC_LIGHTS+1]; // +1 ambient
-	FogGLSLStruct		fog;
+	alignas(16) uint32_t 			numLights;
+	alignas(16) LightGLSLStruct 	lights[MAX_DYNAMIC_LIGHTS+1]; // +1 ambient
+	alignas(16) FogGLSLStruct		fog;
 } EnvironmentBlock;
 
 /*********************************************************************************************
@@ -152,7 +145,10 @@ static void 		SendMaterialPropertyUniforms(const MaterialProperty& property,
 												MaterialPropertyType type,
 												GLuint glTextureHandle,
 												Program& program);
-static void 		SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, Stats& stats);
+static void 		SendEnvironmentUniforms(GLuint glEnvironmentUBO,
+											const Scene& scene,
+											const vector<Node*>& lightNodes,
+											Stats& stats);
 static void 		SetTextureSamplingOptions(Texture& texture,
 											 GLuint glTextureHandle);
 static void 		SetMaterialFilteringOptions(const Material& material,
@@ -297,6 +293,23 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 	CheckGLError();
 }
 
+void OpenGLRenderer::preTraversal(const Scene& scene,
+								  const RenderContext& context,
+								  const DebugOptions& debugOptions,
+								  Stats& stats) {
+
+}
+
+void OpenGLRenderer::postTraversal(const Scene& scene,
+								   const RenderContext& context,
+								   const vector<Node*>& lightNodes,
+								   const DebugOptions& debugOptions,
+								   Stats& stats) {
+
+	SendEnvironmentUniforms(_glEnvironmentUBO, scene, lightNodes, stats);
+	Program::Default().bindUniformBlock("EnvironmentBlock", _glEnvironmentUBO);
+}
+
 void OpenGLRenderer::render(const Scene& scene,
 							const DebugOptions& debugOptions,
 							Stats& stats) {
@@ -347,9 +360,8 @@ void OpenGLRenderer::render(const Scene& scene,
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
-	SendEnvironmentUniforms(_glEnvironmentUBO, scene, stats);
-	
-	Program::Default().bindUniformBlock("EnvironmentBlock", _glEnvironmentUBO);
+//	SendEnvironmentUniforms(_glEnvironmentUBO, scene, stats);
+//	Program::Default().bindUniformBlock("EnvironmentBlock", _glEnvironmentUBO);
 }
 
 void OpenGLRenderer::render(Mesh& mesh,
@@ -660,7 +672,7 @@ void BufferMeshElementVertexData(const MeshElement& element,
 	glGenVertexArrays(1, &glVAO);
 	glBindVertexArray(glVAO);
 	
-	auto positionIndex = program.getAttributeLocation("vertex_position");
+	auto positionIndex = program.getAttributeLocation("vert_vertPos");
 	glVertexAttribPointer(positionIndex, 			// attrib index
 						  3, 						// num components per attrib (3 float in vec3)
 						  GL_FLOAT, 				// component type
@@ -669,7 +681,7 @@ void BufferMeshElementVertexData(const MeshElement& element,
 						  nullptr); 						// start offset
 	glEnableVertexAttribArray(positionIndex);
 	
-	auto normalIndex = program.getAttributeLocation("vertex_normal");
+	auto normalIndex = program.getAttributeLocation("vert_vertNorm");
 	glVertexAttribPointer(normalIndex, 				// attrib index
 						  3, 						// num components per attrib (3 float in vec3)
 						  GL_FLOAT, 				// component type
@@ -678,7 +690,7 @@ void BufferMeshElementVertexData(const MeshElement& element,
 						  (void*)sizeof(vec3)); 	// start offset
 	glEnableVertexAttribArray(normalIndex);
 	
-	auto texCoordIndex = program.getAttributeLocation("texture_coordinate");
+	auto texCoordIndex = program.getAttributeLocation("vert_texCoord");
 	glVertexAttribPointer(texCoordIndex, 							// attrib index
 						  2, 										// num components per attrib (2 float in vec2)
 						  GL_FLOAT, 								// component type
@@ -716,7 +728,7 @@ void BufferSkyboxVertexData(Mesh& skyboxMesh,
 	glGenVertexArrays(1, &glVAO);
 	glBindVertexArray(glVAO);
 
-	GLuint positionIndex = program.getAttributeLocation("vertex_position");
+	GLuint positionIndex = program.getAttributeLocation("vert_vertPos");
 	glVertexAttribPointer(positionIndex, // attrib index
 						  3, // num components per attrib (3 float in vec3)
 						  GL_FLOAT, // component type
@@ -764,7 +776,7 @@ void BufferLinesVertexData(const vector<Line>& lines,
 	glGenVertexArrays(1, &glVAO);
 	glBindVertexArray(glVAO);
 
-	auto positionIndex = program.getAttributeLocation("vertex_position");
+	auto positionIndex = program.getAttributeLocation("vert_vertPos");
 	glVertexAttribPointer(positionIndex, 		// attrib index
 						  3, 					// num components per attrib (3 float in vec3)
 						  GL_FLOAT, 			// component type
@@ -773,7 +785,7 @@ void BufferLinesVertexData(const vector<Line>& lines,
 						  nullptr); 					// start offset
 	glEnableVertexAttribArray(positionIndex);
 
-	auto colorIndex = program.getAttributeLocation("vertex_color");
+	auto colorIndex = program.getAttributeLocation("vert_vertColor"); // was texCoord?
 	glVertexAttribPointer(colorIndex, 			// attrib index
 						  3, 					// num components per attrib (3 float in vec3)
 						  GL_FLOAT, 			// component type
@@ -890,7 +902,7 @@ void SendMaterialUniforms(const Material& material,
 	program.setUniform("specularExponent", material.specularExponent());
 	program.setUniform("uvScale", material.uvScale());
 	program.setUniform("locksAmbientWithDiffuse", material.locksAmbientWithDiffuse());
-	program.setUniform("emissionType", (unsigned)0); // 0 = MaterialType_None -- why is this here?
+	program.setUniform("emissionContentsType", (unsigned)0); // 0 = MaterialType_None -- why is this here?
 	//program.setUniform("defaultLighting", 0);
 
 	for (auto& [property, type] : material.properties()) {
@@ -927,25 +939,25 @@ void SendMaterialPropertyUniforms(const MaterialProperty& property,
 
 			switch (type) {
 				case MaterialPropertyType::Ambient:
-					modeUniformName = "ambientType";
+					modeUniformName = "ambientContentsType";
 					samplerUniformName = "samplers.ambient";
 					slot = GL_TEXTURE0;
 					index = 0;
 					break;
 				case MaterialPropertyType::Diffuse:
-					modeUniformName = "diffuseType";
+					modeUniformName = "diffuseContentsType";
 					samplerUniformName = "samplers.diffuse";
 					slot = GL_TEXTURE1;
 					index = 1;
 					break;
 				case MaterialPropertyType::Specular:
-					modeUniformName = "specularType";
+					modeUniformName = "specularContentsType";
 					samplerUniformName = "samplers.specular";
 					slot = GL_TEXTURE2;
 					index = 2;
 					break;
 				case MaterialPropertyType::Emission:
-					modeUniformName = "emissionType";
+					modeUniformName = "emissionContentsType";
 					samplerUniformName = "samplers.emission";
 					slot = GL_TEXTURE3;
 					index = 3;
@@ -957,7 +969,7 @@ void SendMaterialPropertyUniforms(const MaterialProperty& property,
 			}
 
 			program.setUniform(modeUniformName.c_str(),
-							   static_cast<underlying_type<MaterialType>::type>(MaterialType::Sampler));
+							   static_cast<underlying_type<MaterialContentsType>::type>(MaterialContentsType::Sampler));
 			program.bindTexture(samplerUniformName.c_str(), GL_TEXTURE_2D, slot, glTextureHandle, index);
 		}
 		else if (dynamic_pointer_cast<CubeImage>(texture->contents())) {
@@ -976,19 +988,19 @@ void SendMaterialPropertyUniforms(const MaterialProperty& property,
 
 		switch (type) {
 			case MaterialPropertyType::Ambient:
-				modeUniformName = "ambientType";
+				modeUniformName = "ambientContentsType";
 				colorUniformName = "colors.ambient";
 				break;
 			case MaterialPropertyType::Diffuse:
-				modeUniformName = "diffuseType";
+				modeUniformName = "diffuseContentsType";
 				colorUniformName = "colors.diffuse";
 				break;
 			case MaterialPropertyType::Specular:
-				modeUniformName = "specularType";
+				modeUniformName = "specularContentsType";
 				colorUniformName = "colors.specular";
 				break;
 			case MaterialPropertyType::Emission:
-				modeUniformName = "emissionType";
+				modeUniformName = "emissionContentsType";
 				colorUniformName = "colors.emission";
 				break;
 			default:
@@ -998,7 +1010,7 @@ void SendMaterialPropertyUniforms(const MaterialProperty& property,
 		}
 
 		program.setUniform(modeUniformName.c_str(),
-						   static_cast<underlying_type<MaterialType>::type>(MaterialType::Color));
+						   static_cast<underlying_type<MaterialContentsType>::type>(MaterialContentsType::Color));
 		program.setUniform(colorUniformName.c_str(), color->r, color->g, color->b);
 	}
 	else {
@@ -1008,7 +1020,10 @@ void SendMaterialPropertyUniforms(const MaterialProperty& property,
 	//program.unuse();
 }
 	
-void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, Stats& stats) {
+void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
+							 const Scene& scene,
+							 const vector<Node*>& lightNodes,
+							 Stats& stats) {
 
 	// program "Default" must be active
 
@@ -1020,39 +1035,40 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, Stats&
 
 	if (scene.visualWorld()->usesDefaultLighting()) {
 
-		environmentStruct.numLights = 0;
+		Program::Default().setUniform("useDefaultLighting", true);
 	}
 	else {
-		// TODO: this is EXPONENTIAL.  instead, accumulate a list of lights as we visit each node?
 
-		auto lights = vector<Node*>();
+//		auto lights = vector<Node*>();
+		auto lights = lightNodes;
 		Node* ambientLightNode = nullptr;
 
 		// find all lights in the scene
-		for (auto &node: scene.rootNode()->children(true)) {
-			if (auto light = node->light()) {
-				if (light->type() == LightType::Point) {
-					lights.push_back(node.get());
-				}
-				else if (light->type() == LightType::Ambient) {
-					ambientLightNode = node.get();
-				}
-			}
-		}
+//		for (auto &node: scene.rootNode()->children(true)) {
+//			if (auto light = node->light()) {
+//				if (light->type() == LightType::Point) {
+//					lights.push_back(node.get());
+//				}
+//				else if (light->type() == LightType::Ambient) {
+//					ambientLightNode = node.get();
+//				}
+//			}
+//		}
 
-		if (lights.size() > MAX_DYNAMIC_LIGHTS) {
+		if (lightNodes.size() > MAX_DYNAMIC_LIGHTS) {
 
 			// find all light distances from the camera
 
 			auto lightsUnsorted = map<Node*, float>();
 			auto cameraPos_world = scene.visualWorld()->pointOfView().lock()->worldPosition();
-			for (auto lightNode: lights) {
+			for (auto& lightNode : lightNodes) {
 				auto lightPos_world = lightNode->worldPosition();
 				auto lightToCamera = lightPos_world - cameraPos_world;
 				auto lightToCameraDistance = length(lightToCamera);
 				lightsUnsorted[lightNode] = lightToCameraDistance;
 			}
 
+			vector<Node*> sorted;
 			lights = SortedLights(lightsUnsorted);
 
 			unsigned endIndex = std::min((unsigned)lights.size(), (unsigned)MAX_DYNAMIC_LIGHTS);
@@ -1068,18 +1084,29 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO, const Scene& scene, Stats&
 		auto numLights = lights.size();
 		LightGLSLStruct lightStruct[numLights];
 
-		stats.lights = numLights - 1; // not counting ambient
+		stats.lights = std::max(int(0), int(numLights - 1)); // not counting ambient
 
-		for (unsigned l = 0; l < numLights; ++l) {
-			auto node = lights[l];
-			auto light = node->light();
+		// TODO: move this?
+		// should useDefaultLighing be a root uniform or elsewhere?
+		if (((numLights == 0) && scene.visualWorld()->autoEnablesDefaultLighting())) {
 
-			lightStruct[l].type = static_cast<unsigned>(light->type());
-			lightStruct[l].position_world = node->worldPosition();
-			lightStruct[l].attenuationFactor = light->attenuationFactor();
+			Program::Default().setUniform("useDefaultLighting", true);
+		}
+		else {
 
-			auto color = *light->color();
-			lightStruct[l].color = {color.r, color.g, color.b};
+			Program::Default().setUniform("useDefaultLighting", false);
+
+			for (unsigned l = 0; l < numLights; ++l) {
+				auto node = lights[l];
+				auto light = node->light();
+
+				lightStruct[l].type = static_cast<unsigned>(light->type());
+				lightStruct[l].position_world = node->worldPosition();
+				lightStruct[l].attenuationFactor = light->attenuationFactor();
+
+				auto color = *light->color();
+				lightStruct[l].color = {color.r, color.g, color.b, color.a};
+			}
 		}
 
 		environmentStruct.numLights = numLights;
@@ -1263,9 +1290,9 @@ void DrawMeshElement(MeshElement& element,
 
 	// uniforms
 	
-	program.setUniform("model", modelMat);
-	program.setUniform("view", inverse(viewMat));
-	program.setUniform("projection", projectionMat);
+	program.setUniform("modelMat", modelMat);
+	program.setUniform("viewMat", inverse(viewMat));
+	program.setUniform("projMat", projectionMat);
 	
 	// update
 	
@@ -1288,8 +1315,8 @@ void DrawSkyboxElement(MeshElement& element,
 	
 	auto projectionMat = pointOfView.camera()->projection();
 	
-	program.setUniform("view", viewMat);
-	program.setUniform("projection", projectionMat);
+	program.setUniform("viewMat", viewMat);
+	program.setUniform("projMat", projectionMat);
 	
 	// update
 
@@ -1312,9 +1339,9 @@ void DrawLines(const vector<Line>& lines,
 
 	// uniforms
 	
-	program.setUniform("model", modelMat);
-	program.setUniform("view", inverse(viewMat));
-	program.setUniform("projection", projectionMat);
+	program.setUniform("modelMat", modelMat);
+	program.setUniform("viewMat", inverse(viewMat));
+	program.setUniform("projMat", projectionMat);
 	
 	// update
 	
