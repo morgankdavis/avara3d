@@ -37,12 +37,12 @@ struct Colors {
 layout(std140) struct Light {
 	uint 	type;
 	vec3 	position_world;
-	vec4 	color; // change this to vec3, it blows up. (?)
-	// ^^ because STD140 will put the float into the last 4 bytes?
-	// or maybe Mesa is just wrong?
+	// change this to vec3, it blows up.
+	// maybe Mesa std140 is wrong?
 	//	https://stackoverflow.com/questions/73189196/diffrence-between-std140-and-std430-layout
+	// try on AMDGPU, Windows or macOS?
+	vec4 	color;
 	float 	attenuationFactor;
-
 //	bool	useDefaultLighting;
 //	float 	attenuationStart;
 //	float 	attenuationEnd;
@@ -58,7 +58,6 @@ layout(std140) struct Fog {
 	float 	densityExponent;
 	vec4 	color;
 };
-
 
 in 			vec3 		frag_vertPos_eye;
 in 			vec3 		frag_vertNorm_eye;

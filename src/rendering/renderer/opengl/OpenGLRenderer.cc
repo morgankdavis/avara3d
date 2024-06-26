@@ -76,9 +76,12 @@ enum class MaterialContentsType : unsigned {
 typedef struct {
 	alignas(16) uint32_t 	type;
 	alignas(16) vec3 		position_world;
-	alignas(16) vec4 		color; // change this to vec3, it blows up. (?)
+	// change this to vec3, it blows up.
+	// maybe Mesa std140 is wrong?
+	//	https://stackoverflow.com/questions/73189196/diffrence-between-std140-and-std430-layout
+	// try on AMDGPU, Windows or macOS?
+	alignas(16) vec4 		color;
 	alignas(16) float 		attenuationFactor;
-
 //	bool 		useDefaultLighting;
 //	vec3 		direction_world;
 //	float 		attenuationStart;
