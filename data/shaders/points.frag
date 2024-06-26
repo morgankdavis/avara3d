@@ -1,7 +1,7 @@
 // UNUSED
 
 
-#version 410
+#version 330
 
 
 in 	vec3 color;

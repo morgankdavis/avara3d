@@ -1,23 +1,23 @@
-#version 410
+#version 330
 
 
-#define GAMMA 	                    			2.2
+const float GAMMA =										2.2f;
 
-#define ALPHA_REJECTION_THRESHOLD 				0.5
+const float ALPHA_REJECTION_THRESHOLD =					0.5f;
 
-#define MATERIAL_PROPERTY_CONTENTS_TYPE_NONE    0
-#define MATERIAL_PROPERTY_CONTENTS_TYPE_COLOR	1
-#define MATERIAL_PROPERTY_CONTENTS_TYPE_SAMPLER	2
+const uint MATERIAL_PROPERTY_CONTENTS_TYPE_NONE =		0u;
+const uint MATERIAL_PROPERTY_CONTENTS_TYPE_COLOR =		1u;
+const uint MATERIAL_PROPERTY_CONTENTS_TYPE_SAMPLER =	2u;
 
-#define MATERIAL_PROPERTY_TYPE_AMBIENT			0
-#define MATERIAL_PROPERTY_TYPE_DIFFUSE			1
-#define MATERIAL_PROPERTY_TYPE_SPECULAR			2
-#define MATERIAL_PROPERTY_TYPE_EMISSION			3
+const uint MATERIAL_PROPERTY_TYPE_AMBIENT =				0u;
+const uint MATERIAL_PROPERTY_TYPE_DIFFUSE =				1u;
+const uint MATERIAL_PROPERTY_TYPE_SPECULAR =			2u;
+const uint MATERIAL_PROPERTY_TYPE_EMISSION =			3u;
 
-#define LIGHT_TYPE_AMBIENT 						0
-#define LIGHT_TYPE_POINT						1
-#define LIGHT_TYPE_DIRECTIONAL 					2
-#define LIGHT_TYPE_SPOT 						3
+const uint LIGHT_TYPE_AMBIENT =							0u;
+const uint LIGHT_TYPE_POINT =							1u;
+const uint LIGHT_TYPE_DIRECTIONAL =						2u;
+const uint LIGHT_TYPE_SPOT =							3u;
 
 
 struct Samplers {
@@ -36,35 +36,26 @@ struct Colors {
 
 layout(std140) struct Light {
 	uint 	type;
-	float 	_pad1;
-	float 	_pad2;
-	float 	_pad3;
 	vec3 	position_world;
-	float 	_pad4;
-	vec3 	color;
-	float 	_pad5;
+	vec4 	color; // change this to vec3, it blows up. (?)
+	// ^^ because STD140 will put the float into the last 4 bytes?
+	// or maybe Mesa is just wrong?
+	//	https://stackoverflow.com/questions/73189196/diffrence-between-std140-and-std430-layout
 	float 	attenuationFactor;
-//	float 	PADDING6;
-//	float 	PADDING7;
-//	float 	PADDING8;
 
 //	bool	useDefaultLighting;
-//	float 	PADDING9;
-//	float 	PADDING10;
-//	float 	PADDING11;
-	//	float 	attenuationStart;
-	//	float 	attenuationEnd;
-	//	float 	attenuationExponent;
-	//	vec3 	direction_world;
-	//	float 	innerAngle;
-	//	float 	outerAngle;
+//	float 	attenuationStart;
+//	float 	attenuationEnd;
+//	float 	attenuationExponent;
+//	vec3 	direction_world;
+//	float 	innerAngle;
+//	float 	outerAngle;
 };
 
 layout(std140) struct Fog {
 	float 	startDistance;
 	float 	endDistance;
 	float 	densityExponent;
-	float 	_pad1;
 	vec4 	color;
 };
 
@@ -85,9 +76,6 @@ uniform 	Colors 		colors;
 uniform		bool		useDefaultLighting;
 layout(std140) uniform EnvironmentBlock {
 	uint	numLights;
-	float 	_pad1;
-	float 	_pad2;
-	float 	_pad3;
 	Light 	lights[17]; // MAX_DYNAMIC_LIGHTS + ambient
 	Fog 	fog;
 };
@@ -163,13 +151,13 @@ void main () {
 
 		/* lighting */
 
-		for (int l=0; l<numLights; ++l) {
+		for (uint l=uint(0); l<numLights; ++l) {
 			Light light = lights[l];
 
 			vec3 lightPos_world = light.position_world;
-			vec3 La = light.color;
-			vec3 Ld = light.color;
-			vec3 Ls = light.color;
+			vec3 La = vec3(light.color.rgb);
+			vec3 Ld = vec3(light.color);
+			vec3 Ls = vec3(light.color);
 
 			vec3 Ia = vec3(0.0, 0.0, 0.0);
 			vec3 Id = vec3(0.0, 0.0, 0.0);

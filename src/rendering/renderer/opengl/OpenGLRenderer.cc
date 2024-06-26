@@ -72,52 +72,33 @@ enum class MaterialContentsType : unsigned {
 	Sampler = 	2
 };
 
-typedef struct alignas(16) {
-	uint32_t 	type;
-	float32_t 	_pad1;
-	float32_t 	_pad2;
-	float32_t 	_pad3;
-	vec3 		position_world;
-	float32_t 	_pad4;
-	vec3 		color;
-	float32_t 	_pad5;
-	float 		attenuationFactor;
-//	float32_t 	PADDING6;
-//	float32_t	PADDING7;
-//	float32_t 	PADDING8;
+
+typedef struct {
+	alignas(16) uint32_t 	type;
+	alignas(16) vec3 		position_world;
+	alignas(16) vec4 		color; // change this to vec3, it blows up. (?)
+	alignas(16) float 		attenuationFactor;
 
 //	bool 		useDefaultLighting;
-//	float32_t 	PADDING9;
-//	float32_t	PADDING10;
-//	float32_t 	PADDING11;
-	/* vec3 	direction_world;
-	float 		attenuationStart;
-	float 		attenuationEnd;
-	float 		attenuationExponent;
-	float 		innerAngle;
-	float 		outerAngle; */
+//	vec3 		direction_world;
+//	float 		attenuationStart;
+//	float 		attenuationEnd;
+//	float 		attenuationExponent;
+//	float 		innerAngle;
+//	float 		outerAngle;
 } LightGLSLStruct;
 
-typedef struct alignas(16) {
-	float32_t 		startDistance;
-	float32_t 		endDistance;
-	float32_t 		densityExponent;
-	float32_t 		_pad1;
-	vec4 			color;
-	/* float32_t 	PADDING2; */
+typedef struct {
+	alignas(16) float32_t 		startDistance;
+	alignas(16) float32_t 		endDistance;
+	alignas(16) float32_t 		densityExponent;
+	alignas(16) vec4 			color;
 } FogGLSLStruct;
 
-typedef struct alignas(16) {
-	uint32_t 			numLights;
-	float32_t 			_pad1;
-	float32_t 			_pad2;
-	float32_t 			_pad3;
-	LightGLSLStruct 	lights[MAX_DYNAMIC_LIGHTS+1]; // +1 ambient
-	FogGLSLStruct		fog;
-//	bool 				useDefaultLighting;
-//	float32_t 			PADDING4;
-//	float32_t 			PADDING5;
-//	float32_t 			PADDING6;
+typedef struct {
+	alignas(16) uint32_t 			numLights;
+	alignas(16) LightGLSLStruct 	lights[MAX_DYNAMIC_LIGHTS+1]; // +1 ambient
+	alignas(16) FogGLSLStruct		fog;
 } EnvironmentBlock;
 
 /*********************************************************************************************
@@ -1121,7 +1102,7 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 				lightStruct[l].attenuationFactor = light->attenuationFactor();
 
 				auto color = *light->color();
-				lightStruct[l].color = {color.r, color.g, color.b};
+				lightStruct[l].color = {color.r, color.g, color.b, color.a};
 			}
 		}
 
