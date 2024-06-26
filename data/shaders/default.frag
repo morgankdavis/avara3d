@@ -36,13 +36,13 @@ struct Colors {
 
 layout(std140) struct Light {
 	uint 	type;
-	float 	PADDING1;
-	float 	PADDING2;
-	float 	PADDING3;
+	float 	_pad1;
+	float 	_pad2;
+	float 	_pad3;
 	vec3 	position_world;
-	float 	PADDING4;
+	float 	_pad4;
 	vec3 	color;
-	float 	PADDING5;
+	float 	_pad5;
 	float 	attenuationFactor;
 //	float 	PADDING6;
 //	float 	PADDING7;
@@ -64,7 +64,7 @@ layout(std140) struct Fog {
 	float 	startDistance;
 	float 	endDistance;
 	float 	densityExponent;
-	float 	PADDING1;
+	float 	_pad1;
 	vec4 	color;
 };
 
@@ -85,9 +85,9 @@ uniform 	Colors 		colors;
 uniform		bool		useDefaultLighting;
 layout(std140) uniform EnvironmentBlock {
 	uint	numLights;
-	float 	PADDING1;
-	float 	PADDING2;
-	float 	PADDING3;
+	float 	_pad1;
+	float 	_pad2;
+	float 	_pad3;
 	Light 	lights[17]; // MAX_DYNAMIC_LIGHTS + ambient
 	Fog 	fog;
 };
@@ -130,7 +130,8 @@ void main () {
 		fragColor = vec4(vec3(Ke), 1.0);
 	}
 	else if (emissionContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
-		
+
+
 		/* emission color */
 
 		Ke = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_EMISSION, emissionContentsType, colors, samplers);
@@ -139,11 +140,13 @@ void main () {
 	}
 	else {
 
+
 		/* ambient, diffuse, specular colors */
 
 		Ka = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_AMBIENT, ambientContentsType, colors, samplers);
 		Kd = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_DIFFUSE, diffuseContentsType, colors, samplers);
 		Ks = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_SPECULAR, specularContentsType, colors, samplers);
+
 
 		/* lock ambient with diffuse */
 
@@ -151,10 +154,12 @@ void main () {
 			Ka = Kd;
 		}
 
+
 		/* alpha rejection */
 
 		// look at depth peeling or a-buffers for proper alpha blending
 		if (Kd.a < ALPHA_REJECTION_THRESHOLD) discard;
+
 
 		/* lighting */
 
@@ -172,12 +177,14 @@ void main () {
 
 			if (light.type == LIGHT_TYPE_AMBIENT) {
 
+
 				/* ambient */
 
 				Ia = La * vec3(Ka);
 				fragColor += vec4(Is + Id + Ia, 0.0);
 			}
 			else if (light.type == LIGHT_TYPE_POINT) {
+
 
 				/* point  diffuse */
 
@@ -192,7 +199,8 @@ void main () {
 				float attenuation = 1.0 / (1.0 + light.attenuationFactor * pow(distanceToLight, 2.0));
 				
 				Id = Ld * vec3(Kd) * dotProdDiffuse * attenuation; // diffuse intensity w/attenuation
-				
+
+
 				/* point specular */
 				
 				Is = vec3(0.0, 0.0, 0.0);

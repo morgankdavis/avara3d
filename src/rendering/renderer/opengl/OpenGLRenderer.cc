@@ -74,13 +74,13 @@ enum class MaterialContentsType : unsigned {
 
 typedef struct alignas(16) {
 	uint32_t 	type;
-	float32_t 	PADDING1;
-	float32_t 	PADDING2;
-	float32_t 	PADDING3;
+	float32_t 	_pad1;
+	float32_t 	_pad2;
+	float32_t 	_pad3;
 	vec3 		position_world;
-	float32_t 	PADDING4;
+	float32_t 	_pad4;
 	vec3 		color;
-	float32_t 	PADDING5;
+	float32_t 	_pad5;
 	float 		attenuationFactor;
 //	float32_t 	PADDING6;
 //	float32_t	PADDING7;
@@ -102,16 +102,16 @@ typedef struct alignas(16) {
 	float32_t 		startDistance;
 	float32_t 		endDistance;
 	float32_t 		densityExponent;
-	float32_t 		PADDING1;
+	float32_t 		_pad1;
 	vec4 			color;
 	/* float32_t 	PADDING2; */
 } FogGLSLStruct;
 
 typedef struct alignas(16) {
 	uint32_t 			numLights;
-	float32_t 			PADDING1;
-	float32_t 			PADDING2;
-	float32_t 			PADDING3;
+	float32_t 			_pad1;
+	float32_t 			_pad2;
+	float32_t 			_pad3;
 	LightGLSLStruct 	lights[MAX_DYNAMIC_LIGHTS+1]; // +1 ambient
 	FogGLSLStruct		fog;
 //	bool 				useDefaultLighting;
