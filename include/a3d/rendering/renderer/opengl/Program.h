@@ -36,6 +36,7 @@ namespace a3d {
 		static Program& 	Wireframe();
 		static Program& 	Lines();
 		static Program& 	Points();
+		static Program& 	GroundPlane();
 
 /*********************************************************************************************
 	Internal Lifecycle Functions

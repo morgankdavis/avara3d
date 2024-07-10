@@ -58,6 +58,11 @@ Program& Program::Points() {
 	return program;
 }
 
+Program& Program::GroundPlane() {
+	static auto program = Program("ground_plane");
+	return program;
+}
+
 /*********************************************************************************************
 	Internal Lifecycle Functions
  *********************************************************************************************/
