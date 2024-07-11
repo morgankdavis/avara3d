@@ -113,17 +113,10 @@ static void 		RenderSkybox(Mesh& skyboxMesh,
 								OpenGLRenderer::MeshElementGLMapping& elementGLMapping,
 								OpenGLRenderer::TextureGLMapping& textureGLMapping,
 								unordered_set<Texture*>& activeTextures);
-static void 		RenderGroundPlane(Mesh& groundPlaneMesh,
-								Node& pointOfView,
-								OpenGLRenderer::MeshElementGLMapping& elementGLMapping,
-								OpenGLRenderer::TextureGLMapping& textureGLMapping);
 static void 		GetMeshElementGLVertexDataHandles(MeshElement& element,
 													 OpenGLRenderer::MeshElementGLMapping& glMapping,
 													 GLuint& glVBO, GLuint& glVAO, GLuint& glEBO);
 static void 		GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
-												OpenGLRenderer::MeshElementGLMapping& glMapping,
-												GLuint& glVBO, GLuint& glVAO, GLuint& glEBO);
-static void 		GetGroundPlaneGLVertexDataHandles(Mesh& groundPlaneMesh,
 												OpenGLRenderer::MeshElementGLMapping& glMapping,
 												GLuint& glVBO, GLuint& glVAO, GLuint& glEBO);
 static void 		GetLinesVertexDataHandles(const vector<Line>& lines,
@@ -140,9 +133,6 @@ static void 		BufferMeshElementVertexData(const MeshElement& element,
 static void 		BufferSkyboxVertexData(Mesh& skyboxMesh,
 										  Program& program,
 										  GLuint& glVBO, GLuint& glVAO, GLuint& glEBO);
-static void 		BufferGroundPlaneVertexData(Mesh& groundPlaneMesh,
-											   Program& program,
-											   GLuint& glVBO, GLuint& glVAO, GLuint& glEBO);
 static void 		BufferLinesVertexData(const vector<Line>& lines,
 										 Program& program,
 										 GLuint& glVBO, GLuint& glVAO);
@@ -166,7 +156,6 @@ static void 		SetMaterialFilteringOptions(const Material& material,
 static void 		SetMaterialOpenGLState(const Material& material,
 										  const DebugOptions& debugOptions);
 static void	 		SetSkyboxOpenGLState();
-static void	 		SetGroundPlaneOpenGLState();
 static void 		SetLinesGLState();
 static void 		DrawMeshElement(MeshElement& element,
 								   Program& program,
@@ -178,10 +167,6 @@ static void 		DrawSkyboxElement(MeshElement& element,
 									 Program& program,
 									 Node& pointOfView,
 									 GLuint vao, GLuint ebo);
-static void 		DrawGroundPlaneElement(MeshElement& element,
-										  Program& program,
-										  Node& pointOfView,
-										  GLuint vao, GLuint ebo);
 static void 		DrawLines(const vector<Line>& lines,
 							 Program& program,
 							 const mat4& modelMat,
@@ -351,26 +336,16 @@ void OpenGLRenderer::render(const Scene& scene,
 
 			if (auto pov = scene.visualWorld()->pointOfView().lock()) {
 
-				// render the skybox
-
 				auto skyboxMesh = scene.visualWorld()->skyboxMesh();
+
 				RenderSkybox(*skyboxMesh,
 							 *pov,
 							 _meshElementGLMapping,
 							 _textureGLMapping,
 							 _activeTextures);
+
 				// save reference for housekeeping
 				_activeMeshElements.emplace(skyboxMesh->elements().front().get());
-
-				// render the ground plane
-
-				auto groundPlaneMesh = scene.visualWorld()->groundPlaneMesh();
-				RenderGroundPlane(*groundPlaneMesh,
-								  *pov,
-								  _meshElementGLMapping,
-								  _textureGLMapping);
-				// save reference for housekeeping
-				_activeMeshElements.emplace(groundPlaneMesh->elements().front().get());
 			}
 			else {
 				A3D_LOG_W("PointOfView has gone missing.");
@@ -564,31 +539,6 @@ void RenderSkybox(Mesh& skyboxMesh,
 	
 	DrawSkyboxElement(*element, program, pointOfView, vao, ebo);
 }
-
-void RenderGroundPlane(Mesh& groundPlaneMesh,
-					   Node& pointOfView,
-					   OpenGLRenderer::MeshElementGLMapping& elementGLMapping,
-					   OpenGLRenderer::TextureGLMapping& textureGLMapping) {
-
-	auto program = Program::GroundPlane();
-
-	auto& element = groundPlaneMesh.elements().front();
-
-	// check and load vertex data if necessary
-
-	GLuint vbo, vao, ebo;
-	GetSkyboxGLVertexDataHandles(groundPlaneMesh,
-								 elementGLMapping,
-								 vbo, vao, ebo);
-
-	// configure OpenGL state
-
-	SetGroundPlaneOpenGLState();
-
-	// update
-
-	DrawGroundPlaneElement(*element, program, pointOfView, vao, ebo);
-}
 	
 void GetMeshElementGLVertexDataHandles(MeshElement& element,
 									   OpenGLRenderer::MeshElementGLMapping& glMapping,
@@ -632,30 +582,6 @@ void GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
 		
 		BufferSkyboxVertexData(skyboxMesh, Program::Skybox(), glVBO, glVAO, glEBO);
 		
-		glMapping[element.get()] = make_tuple(glVBO, glVAO, glEBO);
-
-		element->dirtyMask(A3D_MASK_REMOVE(element->dirtyMask(), MeshElementDirtyMask::VertexData));
-	}
-	else {
-		auto mapping = glMapping[element.get()];
-		glVBO = get<0>(mapping);
-		glVAO = get<1>(mapping);
-		glEBO = get<2>(mapping);
-	}
-}
-
-void GetGroundPlaneGLVertexDataHandles(Mesh& groundPlaneMesh,
-									   OpenGLRenderer::MeshElementGLMapping& glMapping,
-									   GLuint& glVBO, GLuint& glVAO, GLuint& glEBO) {
-
-	auto& element = groundPlaneMesh.elements().front();
-
-	if (A3D_MASK_CONTAINS(element->dirtyMask(), MeshElementDirtyMask::VertexData)) {
-
-		DeleteMeshElementGLResources(element.get(), glMapping);
-
-		BufferGroundPlaneVertexData(groundPlaneMesh, Program::GroundPlane(), glVBO, glVAO, glEBO);
-
 		glMapping[element.get()] = make_tuple(glVBO, glVAO, glEBO);
 
 		element->dirtyMask(A3D_MASK_REMOVE(element->dirtyMask(), MeshElementDirtyMask::VertexData));
@@ -819,42 +745,6 @@ void BufferSkyboxVertexData(Mesh& skyboxMesh,
 				 GL_STATIC_DRAW);
 	
 	//program.unuse();
-}
-
-void BufferGroundPlaneVertexData(Mesh& groundPlaneMesh,
-								 Program& program,
-								 GLuint& glVBO, GLuint& glVAO, GLuint& glEBO) {
-
-	A3D_LOG_D("Buffering ground plane vertex data...");
-
-	program.use();
-
-	auto& element = groundPlaneMesh.elements().front();
-	auto verts = element->vertices();
-	auto faces = element->faces();
-
-	glGenBuffers(1, &glVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
-	glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(verts.size()*sizeof(Vertex)), &(verts[0]), GL_STATIC_DRAW);
-
-	glGenVertexArrays(1, &glVAO);
-	glBindVertexArray(glVAO);
-
-	GLuint positionIndex = program.getAttributeLocation("vert_vertPos");
-	glVertexAttribPointer(positionIndex, // attrib index
-						  3, // num components per attrib (3 float in vec3)
-						  GL_FLOAT, // component type
-						  GL_FALSE, // normalize
-						  sizeof(Vertex), // stride
-						  nullptr); // start offset
-	glEnableVertexAttribArray(positionIndex);
-
-	glGenBuffers(1, &glEBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glEBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-				 (GLsizeiptr)(faces.size() * sizeof(Face)),
-				 &(faces[0]),
-				 GL_STATIC_DRAW);
 }
 
 void BufferLinesVertexData(const vector<Line>& lines,
@@ -1375,16 +1265,6 @@ void SetSkyboxOpenGLState() {
 //	glDisable(GL_BLEND);
 }
 
-void SetGroundPlaneOpenGLState() {
-
-	glDepthMask(GL_TRUE); // ?
-#ifdef OPENGL_CORE
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // ?
-#endif
-	//glDisable(GL_CULL_FACE); // ?
-	glEnable(GL_CULL_FACE);
-}
-
 void SetLinesGLState() {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -1411,7 +1291,7 @@ void DrawMeshElement(MeshElement& element,
 	// uniforms
 	
 	program.setUniform("modelMat", modelMat);
-	program.setUniform("viewMat", inverse(viewMat)); // why?
+	program.setUniform("viewMat", viewMat);
 	program.setUniform("projMat", projectionMat);
 	
 	// update
@@ -1448,35 +1328,6 @@ void DrawSkyboxElement(MeshElement& element,
 	glDrawElements(GL_TRIANGLES, (GLsizei)numFaces*3, GL_UNSIGNED_INT, nullptr);
 }
 
-void DrawGroundPlaneElement(MeshElement& element,
-							Program& program,
-							Node& pointOfView,
-							GLuint vao, GLuint ebo) {
-
-	program.use();
-
-	// *** ground plane checkerboard will not move with camera?? ***
-	auto viewMat = lookAt({0.0f, 0.0f, 0.0f}, // eye - location
-						  pointOfView.worldForward(), // center - look at
-						  pointOfView.worldUp()); // up
-
-	auto projectionMat = pointOfView.camera()->projection();
-
-	auto modelMat = mat4(1.0);
-	program.setUniform("modelMat", modelMat);
-//	program.setUniform("viewMat", viewMat);
-	program.setUniform("projMat", projectionMat);
-
-	// update
-
-	auto& faces = element.faces();
-
-	glBindVertexArray(vao);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	auto numFaces = faces.size();
-	glDrawElements(GL_TRIANGLES, (GLsizei)numFaces*3, GL_UNSIGNED_INT, nullptr);
-}
-
 void DrawLines(const vector<Line>& lines,
 			   Program& program,
 			   const mat4& modelMat,
@@ -1489,7 +1340,7 @@ void DrawLines(const vector<Line>& lines,
 	// uniforms
 	
 	program.setUniform("modelMat", modelMat);
-	program.setUniform("viewMat", inverse(viewMat));
+	program.setUniform("viewMat", viewMat);
 	program.setUniform("projMat", projectionMat);
 	
 	// update

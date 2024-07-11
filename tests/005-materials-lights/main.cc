@@ -84,8 +84,8 @@ int main(int argc, const char* argv[]) {
 		visualWorld->background(make_shared<Texture>(std::move(utils::CubeImageNamed("nebula1_blue", "png"))));
 
 		auto scene = utils::SceneNamed("cat_island/cat_island", SceneImportOptions::ImportMeshes
-														 | SceneImportOptions::ImportMaterials
-														 | SceneImportOptions::ImportCameras);
+																| SceneImportOptions::ImportMaterials
+																| SceneImportOptions::ImportCameras);
 
 		scene->visualWorld(std::move(visualWorld));
 		scene->inputManager(std::move(inputManager));
@@ -123,10 +123,30 @@ int main(int argc, const char* argv[]) {
 
 
 		if (ORTHO_CAMERA) {
-			auto orthoCameraNode = Node::CameraNode(
-					make_shared<OrthographicCamera>("Ortho camera", (AABB){{0, 0, 0},
-																		   {100, 100, 100}}));
+//			AABB frustum = {{-100, -100, .01},
+//							{100, 100, 1000}};
+//			AABB frustum = {{0, 0, .01},
+//							{100, 100, 1000}};
+//			AABB frustum = {{-50, -50, .01},
+//							{50, 50, 1000}};
+			auto frustum = scene->rootNode()->aabb();
+			frustum.min.z = 0.01;
+			frustum.max.z = 10000;
+			auto orthoCameraNode = Node::CameraNode(make_shared<OrthographicCamera>("Ortho camera", frustum));
+
 			scene->rootNode()->addChild(orthoCameraNode);
+
+			// find the imported camera node, get its world transform, and apply it to our ortho camera
+			for (auto& node : scene->rootNode()->children(true)) {
+				if (node->camera()) {
+					orthoCameraNode->transform(node->worldTransform());
+					auto pos = orthoCameraNode->position();
+					pos.y = 0;
+					orthoCameraNode->position(pos);
+					scene->visualWorld()->pointOfView(orthoCameraNode);
+					break;
+				}
+			}
 		}
 
 	//	auto siameseNode = scene->rootNode()->childNamed("Siamese");
@@ -160,6 +180,8 @@ int main(int argc, const char* argv[]) {
 //				scene->rootNode()->addChild(lightNode);
 //			}
 //		}
+
+		//auto extent = scene->rootNode()->extent();
 
 		window->center();
 		window->open();

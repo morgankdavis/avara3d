@@ -161,6 +161,7 @@ weak_ptr<Node> VisualWorld::pointOfView() {
 	}
 	if (!_pointOfView.lock()) {
 		// still no POV. add a default one.
+		A3D_LOG_I("Adding default point of view.");
 		_pointOfView  = defaultPointOfView();
 	}
 
@@ -251,15 +252,19 @@ void VisualWorld::draw(const Scene& scene,
 				stats.cameraPosition = pov->position();
 
 				auto frameBufferSize = _renderContext->framebufferSize();
-				auto aspectRatio = float(frameBufferSize.x) / float(frameBufferSize.y);
-				dynamic_pointer_cast<PerspectiveCamera>(pov->camera())->aspectRatio(aspectRatio);
+
+				if (auto perspectiveCamera = dynamic_pointer_cast<PerspectiveCamera>(pov->camera())) {
+					auto aspectRatio = float(frameBufferSize.x) / float(frameBufferSize.y);
+					perspectiveCamera->aspectRatio(aspectRatio);
+				}
 
 				renderer->render(scene, debugOptions, stats);
 
 				renderer->preTraversal(scene, *_renderContext, debugOptions, stats);
 
-				auto viewMat = pov->worldTransform();
+				auto viewMat = inverse(pov->worldTransform());
 				auto projectionMat = pov->camera()->projection();
+
 				vector<Node*> lightNodes;
 				scene.rootNode()->draw(*renderer,
 									   viewMat,
