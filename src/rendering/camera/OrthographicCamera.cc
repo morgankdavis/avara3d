@@ -25,15 +25,21 @@ using namespace glm;
 
 OrthographicCamera::OrthographicCamera():
 	Camera{},
-	_extent{{-1, -1, -1}, {1, 1, 1}} {}
+	_extent{{-1, -1, -1}, {1, 1, 1}} {
+	constructProjectionMatrix();
+}
 
 OrthographicCamera::OrthographicCamera(AABB extent):
 		Camera{},
-		_extent{extent} {}
+		_extent{extent} {
+	constructProjectionMatrix();
+}
 
 OrthographicCamera::OrthographicCamera(const string& name, AABB extent):
 	Camera{name},
-	_extent{extent} {}
+	_extent{extent} {
+	constructProjectionMatrix();
+}
 
 OrthographicCamera::~OrthographicCamera() {
 
@@ -55,6 +61,7 @@ AABB OrthographicCamera::extent() const {
 
 void OrthographicCamera::extent(const AABB& e) {
 	_extent = e;
+	constructProjectionMatrix();
 }
 
 /*********************************************************************************************
@@ -62,10 +69,14 @@ void OrthographicCamera::extent(const AABB& e) {
  *********************************************************************************************/
 
 void OrthographicCamera::constructProjectionMatrix() {
+
+	// left, right, bottom, top, near, far
+	// DeVries 9.5.1
+
 	_projection = glm::ortho(_extent.min.x,
 							 _extent.max.x,
-							 _extent.max.y,
 							 _extent.min.y,
+							 _extent.max.y,
 							 _extent.min.z,
 							 _extent.max.z);
 }
