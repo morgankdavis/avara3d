@@ -1291,7 +1291,7 @@ void DrawMeshElement(MeshElement& element,
 	// uniforms
 	
 	program.setUniform("modelMat", modelMat);
-	program.setUniform("viewMat", inverse(viewMat));
+	program.setUniform("viewMat", viewMat);
 	program.setUniform("projMat", projectionMat);
 	
 	// update
@@ -1340,7 +1340,7 @@ void DrawLines(const vector<Line>& lines,
 	// uniforms
 	
 	program.setUniform("modelMat", modelMat);
-	program.setUniform("viewMat", inverse(viewMat));
+	program.setUniform("viewMat", viewMat);
 	program.setUniform("projMat", projectionMat);
 	
 	// update

@@ -875,7 +875,6 @@ mat4 TransformFromGlTFNode(fastgltf::Node& node) {
 
 		auto matrix = get<fastgltf::Node::TransformMatrix>(transform);
 		return make_mat4(&matrix[0]);
-
 	}
 	else {
 		A3D_LOG_W("No transform associated with node: {}", node.name);
