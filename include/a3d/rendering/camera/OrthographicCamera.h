@@ -25,8 +25,8 @@ namespace a3d {
  *********************************************************************************************/
 
 		OrthographicCamera();
-		explicit OrthographicCamera(AABB extent);
-		OrthographicCamera(const std::string& name, AABB extent);
+		explicit OrthographicCamera(const AABB& extent);
+		OrthographicCamera(const std::string& name, const AABB& extent);
 		~OrthographicCamera() override;
 
 /*********************************************************************************************
