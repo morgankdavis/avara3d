@@ -32,3 +32,11 @@ float SpotLight::outerAngle() const {
 void SpotLight::outerAngle(float angle) {
 	_outerAngle = angle;
 }
+
+/*********************************************************************************************
+	Private Lifecycle Functions
+ *********************************************************************************************/
+
+SpotLight::SpotLight():
+		_innerAngle{10.0},
+		_outerAngle{15.0} {}

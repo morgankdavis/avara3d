@@ -2,8 +2,8 @@
 //  Light.h
 //  avara3d
 //
-//  Created by Morgan Davis on 10/21/16.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Created by Morgan Davis on 7/31/2024.
+//  Copyright © 2024-2024 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_LIGHT_H
@@ -14,14 +14,11 @@
 #include <optional>
 #include <string>
 
-#include "a3d/Types.h"
-
 
 namespace a3d {
 
 
 	class Color;
-	class Node;
 	
 	
 	class Light {
@@ -32,16 +29,18 @@ namespace a3d {
 
 	public:
 
-		static std::shared_ptr<Light> 		DefaultAmbient();
-		static std::shared_ptr<Light> 		DefaultPoint();
+//		static std::shared_ptr<Light> 		DefaultAmbient();
+//		static std::shared_ptr<Light> 		DefaultPoint();
 
 /*********************************************************************************************
 	Public Lifecycle Functions
  *********************************************************************************************/
 
-		explicit Light(LightType type);
-		Light(LightType type, const std::shared_ptr<Color>& color);
-		virtual ~Light();
+		Light();
+		explicit Light(const std::string& name);
+		explicit Light(const std::shared_ptr<Color>& color);
+		Light(const std::string& name, const std::shared_ptr<Color>& color);
+		virtual ~Light() = 0;
 
 /*********************************************************************************************
 	Public Member Functions
@@ -49,15 +48,17 @@ namespace a3d {
 
 		const std::optional<std::string>&	name() const;
 		void 								name(const std::string& name);
-		
-		LightType 							type() const;
-		void 								type(LightType type);
-		
+
 		const std::shared_ptr<Color>&		color() const;
 		void 								color(const std::shared_ptr<Color>& color);
 
-		float 								attenuationFactor() const;
-		void 								attenuationFactor(float factor);
+/*********************************************************************************************
+	Protected Lifecycle Functions
+ *********************************************************************************************/
+
+//	protected:
+//
+//		Light();
 
 /*********************************************************************************************
 	Private Member Variables
@@ -66,20 +67,7 @@ namespace a3d {
 	private:
 
 		std::optional<std::string>			_name;
-		
-		LightType							_type;
 		std::shared_ptr<Color>				_color;
-
-		float								_attenuationFactor; // = 1/(1-k(d^2))
-		
-//		std::weak_ptr<Node>					_node;
-
-//		float								_attenuationStartDistance;
-//		float								_attenuationEndDistance;
-//		float								_attenuationFalloffExponent;
-//
-//		float								_spotInnerAngle;
-//		float								_spotOuterAngle;
 	};
 }
 

@@ -10,6 +10,10 @@
 #define AVARA3D_SPOTLIGHT_H
 
 
+#include <memory>
+#include <optional>
+#include <string>
+
 #include "a3d/rendering/light/AttenuatedLight.h"
 
 
@@ -21,12 +25,13 @@ namespace a3d {
 	
 	class SpotLight : public AttenuatedLight {
 
-		/*********************************************************************************************
+/*********************************************************************************************
 	Public Lifecycle Functions
  *********************************************************************************************/
 
 	public:
 
+		SpotLight();
 		explicit SpotLight(const std::string& name);
 		explicit SpotLight(const std::shared_ptr<Color>& color);
 		SpotLight(const std::string& name, const std::shared_ptr<Color>& color);
@@ -47,9 +52,9 @@ namespace a3d {
 	Private Lifecycle Functions
  *********************************************************************************************/
 
-	private:
-
-		SpotLight();
+//	private:
+//
+//		SpotLight();
 
 /*********************************************************************************************
 	Private Member Variables

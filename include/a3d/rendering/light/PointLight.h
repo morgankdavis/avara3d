@@ -10,6 +10,10 @@
 #define AVARA3D_POINTLIGHT_H
 
 
+#include <memory>
+#include <optional>
+#include <string>
+
 #include "a3d/rendering/light/AttenuatedLight.h"
 
 
@@ -27,6 +31,7 @@ namespace a3d {
 
 	public:
 
+		PointLight();
 		explicit PointLight(const std::string& name);
 		explicit PointLight(const std::shared_ptr<Color>& color);
 		PointLight(const std::string& name, const std::shared_ptr<Color>& color);
@@ -37,7 +42,7 @@ namespace a3d {
 
 	private:
 
-		PointLight();
+//		PointLight();
 	};
 }
 
