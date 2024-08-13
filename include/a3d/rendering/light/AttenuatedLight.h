@@ -10,6 +10,10 @@
 #define AVARA3D_ATTENTUATEDLIGHT_H
 
 
+#include <memory>
+#include <optional>
+#include <string>
+
 #include "a3d/rendering/light/Light.h"
 
 
@@ -27,9 +31,10 @@ namespace a3d {
 
 	public:
 
-		explicit AttenuatedLight(const std::string& name, float );
-		explicit AttenuatedLight(const std::shared_ptr<Color>& color);
-		AttenuatedLight(const std::string& name, const std::shared_ptr<Color>& color);
+//		explicit AttenuatedLight(const std::string& name, float );
+//		explicit AttenuatedLight(const std::shared_ptr<Color>& color);
+//		AttenuatedLight(const std::string& name, const std::shared_ptr<Color>& color);
+		virtual ~AttenuatedLight() = 0;
 
 /*********************************************************************************************
 	Public Member Functions
@@ -45,10 +50,10 @@ namespace a3d {
 		void			quadraticAttenuation(float factor);
 
 /*********************************************************************************************
-	Private Lifecycle Functions
+	Protected Lifecycle Functions
  *********************************************************************************************/
 
-	private:
+	protected:
 
 		AttenuatedLight();
 

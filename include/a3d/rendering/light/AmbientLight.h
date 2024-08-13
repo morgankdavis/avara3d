@@ -10,6 +10,10 @@
 #define AVARA3D_AMBIENTLIGHT_H
 
 
+#include <memory>
+#include <optional>
+#include <string>
+
 #include "a3d/rendering/light/Light.h"
 
 
@@ -27,6 +31,7 @@ namespace a3d {
 
 	public:
 
+		AmbientLight();
 		explicit AmbientLight(const std::string& name);
 		explicit AmbientLight(const std::shared_ptr<Color>& color);
 		AmbientLight(const std::string& name, const std::shared_ptr<Color>& color);
@@ -35,9 +40,9 @@ namespace a3d {
 	Private Lifecycle Functions
  *********************************************************************************************/
 
-	private:
-
-		AmbientLight();
+//	private:
+//
+//		AmbientLight();
 	};
 }
 

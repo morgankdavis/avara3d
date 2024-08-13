@@ -40,3 +40,12 @@ float AttenuatedLight::quadraticAttenuation() const {
 void AttenuatedLight::quadraticAttenuation(float factor) {
 	_quadraticAttenuation = factor;
 }
+
+/*********************************************************************************************
+	Private Lifecycle Functions
+ *********************************************************************************************/
+
+AttenuatedLight::AttenuatedLight():
+		_constantAttenuation{1.0},
+		_linearAttenuation{1.0},
+		_quadraticAttenuation{1.0} {}
