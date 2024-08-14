@@ -1085,8 +1085,9 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 
 			vec3 position = lightNode->position();
 			// is this right??
+			// https://gamedev.stackexchange.com/questions/93214/how-to-compute-the-forward-up-and-right-vectors-from-a-single-quaternion
 			vec3 direction = normalize(
-					vec3((mat4_cast(lightNode->orientation()) * mat4(1.0)) * vec4(1.0)));
+					(mat3_cast(lightNode->orientation()) * vec3(0.0, 0.0, -1.0)));
 		}
 		else if (auto pointLight = dynamic_cast<PointLight*>(light)) {
 

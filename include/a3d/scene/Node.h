@@ -96,13 +96,14 @@ namespace a3d {
 		glm::vec3 							scale() const;
 		void 								scale(const glm::vec3& scale);
 
+		glm::mat4 							transform() const;
+		void 								transform(const glm::mat4& transform);
+
 		// add these?
+		// see OpenGLRenderer.cc::SendEnvironmentUniforms()
 		glm::vec3 							forward() const;
 		glm::vec3 							up() const;
 		glm::vec3 							right() const;
-
-		glm::mat4 							transform() const;
-		void 								transform(const glm::mat4& transform);
 
 		glm::vec3 							worldPosition() const;
 		glm::vec4 							worldRotation() const; // axis-angle
