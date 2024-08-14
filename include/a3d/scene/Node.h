@@ -96,6 +96,11 @@ namespace a3d {
 		glm::vec3 							scale() const;
 		void 								scale(const glm::vec3& scale);
 
+		// add these?
+		glm::vec3 							forward() const;
+		glm::vec3 							up() const;
+		glm::vec3 							right() const;
+
 		glm::mat4 							transform() const;
 		void 								transform(const glm::mat4& transform);
 

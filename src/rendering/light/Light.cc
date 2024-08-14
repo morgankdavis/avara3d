@@ -17,20 +17,6 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Public Static Member Functions
- *********************************************************************************************/
-
-//shared_ptr<Light> Light::DefaultAmbient() {
-//	return make_shared<Light>(LightType::Ambient, make_shared<Color>(0.25f, 0.25, 0.25, 1.0));
-//}
-//
-//shared_ptr<Light> Light::DefaultPoint() {
-//	auto light = make_shared<Light>(LightType::Point, Color::White());
-//	light->attenuationFactor(0.0);
-//	return light;
-//}
-
-/*********************************************************************************************
 	Public Lifecycle Functions
  *********************************************************************************************/
 

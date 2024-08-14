@@ -45,7 +45,11 @@
 #include "a3d/rendering/camera/Camera.h"
 #include "a3d/rendering/context/RenderContext.h"
 #include "a3d/rendering/context/Window.h"
+#include "a3d/rendering/light/AmbientLight.h"
+#include "a3d/rendering/light/DirectionalLight.h"
 #include "a3d/rendering/light/Light.h"
+#include "a3d/rendering/light/PointLight.h"
+#include "a3d/rendering/light/SpotLight.h"
 #include "a3d/rendering/material/Material.h"
 #include "a3d/rendering/material/Sampler.h"
 #include "a3d/rendering/material/Texture.h"
@@ -1068,6 +1072,37 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 							 const Scene& scene,
 							 const vector<Node*>& lightNodes,
 							 Stats& stats) {
+
+
+	for (auto& lightNode : lightNodes) {
+
+		auto light = lightNode->light().get();
+
+		if (auto ambientLight = dynamic_cast<AmbientLight*>(light)) {
+
+		}
+		else if (auto directionalLight = dynamic_cast<DirectionalLight*>(light)) {
+
+			vec3 position = lightNode->position();
+			// is this right??
+			vec3 direction = normalize(
+					vec3((mat4_cast(lightNode->orientation()) * mat4(1.0)) * vec4(1.0)));
+		}
+		else if (auto pointLight = dynamic_cast<PointLight*>(light)) {
+
+			vec3 position = lightNode->position();
+		}
+		else if (auto spotLight = dynamic_cast<SpotLight*>(light)) {
+
+			float innerAngle = spotLight->innerAngle();
+			float outerAngle = spotLight->outerAngle();
+		}
+	}
+
+
+
+
+
 
 	// program "Default" must be active
 

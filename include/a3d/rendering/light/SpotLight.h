@@ -60,6 +60,8 @@ namespace a3d {
 	Private Member Variables
  *********************************************************************************************/
 
+	private:
+
 		float			_innerAngle;
 		float			_outerAngle;
 	};

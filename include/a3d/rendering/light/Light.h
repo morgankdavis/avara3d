@@ -22,19 +22,12 @@ namespace a3d {
 	
 	
 	class Light {
-		
-/*********************************************************************************************
-	Public Static Member Functions
- *********************************************************************************************/
-
-	public:
-
-//		static std::shared_ptr<Light> 		DefaultAmbient();
-//		static std::shared_ptr<Light> 		DefaultPoint();
 
 /*********************************************************************************************
 	Public Lifecycle Functions
  *********************************************************************************************/
+
+	public:
 
 		Light();
 		explicit Light(const std::string& name);
