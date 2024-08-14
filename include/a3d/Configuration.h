@@ -13,7 +13,11 @@
 namespace a3d {
 
 	constexpr double 	FRAMETIME_AVERAGING_INTERVAL = 	0.5;
-	constexpr unsigned 	MAX_DYNAMIC_LIGHTS =			16;
+//	constexpr unsigned 	MAX_DYNAMIC_LIGHTS =			16;
+	constexpr unsigned 	MAX_AMBIENT_LIGHTS =			4;
+	constexpr unsigned 	MAX_DIRECTIONAL_LIGHTS =		4;
+	constexpr unsigned 	MAX_POINT_LIGHTS =				64;
+	constexpr unsigned 	MAX_SPOT_LIGHTS =				16;
 	constexpr unsigned 	MAX_PHYSICS_SUBSTEPS = 			1;
 }
 

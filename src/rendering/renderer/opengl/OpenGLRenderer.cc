@@ -74,22 +74,54 @@ enum class MaterialContentsType : unsigned {
 
 
 typedef struct {
-	alignas(16) uint32_t	type;
-	alignas(16) vec3 		position_world;
-	// change color to vec3, it blows up.
-	// maybe Mesa std140 is wrong?
-	//	https://stackoverflow.com/questions/73189196/diffrence-between-std140-and-std430-layout
-	// try on AMDGPU, Windows or macOS?
 	alignas(16) vec4		color;
-	alignas(16) float		attenuationFactor;
-//	alignas(16) bool		useDefaultLighting;
-//	alignas(16) vec3		direction_world;
-//	alignas(16) float		attenuationStart;
-//	alignas(16) float		attenuationEnd;
-//	alignas(16) float		attenuationExponent;
-//	alignas(16) float		innerAngle;
-//	alignas(16) float 		outerAngle;
-} LightGLSLStruct;
+} AmbientLightGLSLStruct;
+
+
+typedef struct {
+	alignas(16) vec4		color;
+	alignas(16) vec3		direction_world;
+} DirectionalLightGLSLStruct;
+
+
+typedef struct {
+	alignas(16) vec4		color;
+	alignas(16) vec3		position_world;
+	alignas(16) float		constantAttenuation;
+	alignas(16) float		linearAttenuation;
+	alignas(16) float		quadraticAttenuation;
+} PointLightGLSLStruct;
+
+
+typedef struct {
+	alignas(16) vec4		color;
+	alignas(16) vec3		position_world;
+	alignas(16) vec3		direction_world;
+	alignas(16) float		innerAngle;
+	alignas(16) float		outerAngle;
+	alignas(16) float		constantAttenuation;
+	alignas(16) float		linearAttenuation;
+	alignas(16) float		quadraticAttenuation;
+} SpotLightGLSLStruct;
+
+
+//typedef struct {
+//	alignas(16) uint32_t	type;
+//	alignas(16) vec3 		position_world;
+//	// change color to vec3, it blows up.
+//	// maybe Mesa std140 is wrong?
+//	//	https://stackoverflow.com/questions/73189196/diffrence-between-std140-and-std430-layout
+//	// try on AMDGPU, Windows or macOS?
+//	alignas(16) vec4		color;
+//	alignas(16) float		attenuationFactor;
+////	alignas(16) bool		useDefaultLighting;
+////	alignas(16) vec3		direction_world;
+////	alignas(16) float		attenuationStart;
+////	alignas(16) float		attenuationEnd;
+////	alignas(16) float		attenuationExponent;
+////	alignas(16) float		innerAngle;
+////	alignas(16) float 		outerAngle;
+//} LightGLSLStruct;
 
 typedef struct {
 	alignas(16) float32_t	startDistance;
@@ -98,10 +130,22 @@ typedef struct {
 	alignas(16) vec4		color;
 } FogGLSLStruct;
 
+//typedef struct {
+//	alignas(16) uint32_t 			numLights;
+//	alignas(16) LightGLSLStruct		lights[MAX_DYNAMIC_LIGHTS+1]; // +1 ambient
+//	alignas(16) FogGLSLStruct		fog;
+//} EnvironmentBlock;
+
 typedef struct {
-	alignas(16) uint32_t 			numLights;
-	alignas(16) LightGLSLStruct		lights[MAX_DYNAMIC_LIGHTS+1]; // +1 ambient
-	alignas(16) FogGLSLStruct		fog;
+	alignas(16) uint32_t 					numAmbientLights;
+	alignas(16) AmbientLightGLSLStruct		ambientLights[MAX_AMBIENT_LIGHTS];
+	alignas(16) uint32_t 					numDirectionalLights;
+	alignas(16) DirectionalLightGLSLStruct	directionalLights[MAX_DIRECTIONAL_LIGHTS];
+	alignas(16) uint32_t 					numPointLights;
+	alignas(16) PointLightGLSLStruct		pointLights[MAX_POINT_LIGHTS];
+	alignas(16) uint32_t 					numSpotLights;
+	alignas(16) SpotLightGLSLStruct			spotLights[MAX_SPOT_LIGHTS];
+	alignas(16) FogGLSLStruct				fog;
 } EnvironmentBlock;
 
 /*********************************************************************************************
