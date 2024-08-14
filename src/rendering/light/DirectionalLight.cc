@@ -13,15 +13,3 @@ using namespace a3d;
 using namespace glm;
 using namespace std;
 
-
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
-
-const vec3& DirectionalLight::direction() const {
-	return _direction;
-}
-
-void DirectionalLight::direction(const vec3& direction) {
-	_direction = direction;
-}
