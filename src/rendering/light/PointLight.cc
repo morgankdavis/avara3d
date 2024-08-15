@@ -8,3 +8,43 @@
 
 #include "a3d/rendering/light/PointLight.h"
 
+#include "a3d/Color.h"
+#include "a3d/diagnostic/logging/Logger.h"
+
+
+using namespace a3d;
+using namespace std;
+
+
+/*********************************************************************************************
+	Public Lifecycle Functions
+ *********************************************************************************************/
+
+PointLight::PointLight():
+		AttenuatedLight() {}
+
+PointLight::PointLight(const string& name):
+		PointLight() {
+	_name = name;
+}
+
+PointLight::PointLight(const shared_ptr<Color>& color):
+		PointLight() {
+	_color = color;
+}
+
+PointLight::PointLight(const string& name, const shared_ptr<Color>& color):
+		PointLight() {
+	_name = name;
+	_color = color;
+}
+
+//Light::~Light() {
+//
+//	if (_name != nullopt) {
+//		A3D_LOG_D("Destroying Light '{}' ({:p})", *_name, static_cast<void*>(this));
+//	}
+//	else {
+//		A3D_LOG_D("Destroying Light {:p}", static_cast<void*>(this));
+//	}
+//}

@@ -140,15 +140,16 @@ typedef struct {
 //	alignas(16) FogGLSLStruct		fog;
 //} EnvironmentBlock;
 
+// TODO: fix '100'
 typedef struct {
 	alignas(16) uint32_t 					numAmbientLights;
-	alignas(16) AmbientLightGLSLStruct		ambientLights[MAX_AMBIENT_LIGHTS];
+	alignas(16) AmbientLightGLSLStruct		ambientLights[100];
 	alignas(16) uint32_t 					numDirectionalLights;
-	alignas(16) DirectionalLightGLSLStruct	directionalLights[MAX_DIRECTIONAL_LIGHTS];
+	alignas(16) DirectionalLightGLSLStruct	directionalLights[100];
 	alignas(16) uint32_t 					numPointLights;
-	alignas(16) PointLightGLSLStruct		pointLights[MAX_POINT_LIGHTS];
+	alignas(16) PointLightGLSLStruct		pointLights[100];
 	alignas(16) uint32_t 					numSpotLights;
-	alignas(16) SpotLightGLSLStruct			spotLights[MAX_SPOT_LIGHTS];
+	alignas(16) SpotLightGLSLStruct			spotLights[100];
 	alignas(16) FogGLSLStruct				fog;
 } EnvironmentBlock;
 
@@ -1067,130 +1068,101 @@ void SendMaterialPropertyUniforms(const MaterialProperty& property,
 	
 	//program.unuse();
 }
-	
+
 void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 							 const Scene& scene,
 							 const vector<Node*>& lightNodes,
 							 Stats& stats) {
-
-
-	for (auto& lightNode : lightNodes) {
-
-		auto light = lightNode->light().get();
-
-		if (auto ambientLight = dynamic_cast<AmbientLight*>(light)) {
-
-		}
-		else if (auto directionalLight = dynamic_cast<DirectionalLight*>(light)) {
-
-			vec3 position = lightNode->position();
-			// is this right??
-			// https://gamedev.stackexchange.com/questions/93214/how-to-compute-the-forward-up-and-right-vectors-from-a-single-quaternion
-			vec3 direction = normalize(
-					(mat3_cast(lightNode->orientation()) * vec3(0.0, 0.0, -1.0)));
-		}
-		else if (auto pointLight = dynamic_cast<PointLight*>(light)) {
-
-			vec3 position = lightNode->position();
-		}
-		else if (auto spotLight = dynamic_cast<SpotLight*>(light)) {
-
-			float innerAngle = spotLight->innerAngle();
-			float outerAngle = spotLight->outerAngle();
-		}
-	}
-
-
-
-
-
-
 	// program "Default" must be active
 
 	// block
 
 	EnvironmentBlock environmentStruct;
-	
+
 	// lights
 
 	if (scene.visualWorld()->usesDefaultLighting()) {
 
 		Program::Default().setUniform("useDefaultLighting", true);
-	}
-	else {
+	} else {
 
-//		auto lights = vector<Node*>();
-		auto lights = lightNodes;
-		Node* ambientLightNode = nullptr;
+		auto numLights = lightNodes.size();
 
-		// find all lights in the scene
-//		for (auto &node: scene.rootNode()->children(true)) {
-//			if (auto light = node->light()) {
-//				if (light->type() == LightType::Point) {
-//					lights.push_back(node.get());
-//				}
-//				else if (light->type() == LightType::Ambient) {
-//					ambientLightNode = node.get();
-//				}
-//			}
-//		}
+		stats.lights = numLights;
 
-		if (lightNodes.size() > MAX_DYNAMIC_LIGHTS) {
-
-			// find all light distances from the camera
-
-			auto lightsUnsorted = map<Node*, float>();
-			auto cameraPos_world = scene.visualWorld()->pointOfView().lock()->worldPosition();
-			for (auto& lightNode : lightNodes) {
-				auto lightPos_world = lightNode->worldPosition();
-				auto lightToCamera = lightPos_world - cameraPos_world;
-				auto lightToCameraDistance = length(lightToCamera);
-				lightsUnsorted[lightNode] = lightToCameraDistance;
-			}
-
-			vector<Node*> sorted;
-			lights = SortedLights(lightsUnsorted);
-
-			unsigned endIndex = std::min((unsigned)lights.size(), (unsigned)MAX_DYNAMIC_LIGHTS);
-			auto first = lights.begin() + 0;
-			auto last = lights.begin() + endIndex;
-			auto lightsSlice = vector<Node*>(first, last);
-
-			lights = lightsSlice;
-		}
-
-		if (ambientLightNode) lights.push_back(ambientLightNode);
-
-		auto numLights = lights.size();
-		LightGLSLStruct lightStruct[numLights];
-
-		stats.lights = std::max(int(0), int(numLights - 1)); // not counting ambient
-
-		// TODO: move this?
-		// should useDefaultLighing be a root uniform or elsewhere?
 		if (((numLights == 0) && scene.visualWorld()->autoEnablesDefaultLighting())) {
 
 			Program::Default().setUniform("useDefaultLighting", true);
-		}
-		else {
+		} else {
 
 			Program::Default().setUniform("useDefaultLighting", false);
 
+			vector<AmbientLightGLSLStruct> ambientStructs;
+			vector<DirectionalLightGLSLStruct> directionalStructs;
+			vector<PointLightGLSLStruct> pointStructs;
+			vector<SpotLightGLSLStruct> spotStructs;
+
 			for (unsigned l = 0; l < numLights; ++l) {
-				auto node = lights[l];
-				auto light = node->light();
 
-				lightStruct[l].type = static_cast<unsigned>(light->type());
-				lightStruct[l].position_world = node->worldPosition();
-				lightStruct[l].attenuationFactor = light->attenuationFactor();
+				auto node = lightNodes[l];
+				auto light = node->light().get();
+				auto color = light->color();
 
-				auto color = *light->color();
-				lightStruct[l].color = {color.r, color.g, color.b, color.a};
+				if (auto ambientLight = dynamic_cast<AmbientLight *>(light)) {
+
+					AmbientLightGLSLStruct lightStruct;
+					lightStruct.color = ambientLight->color()->vec4();
+					ambientStructs.push_back(lightStruct);
+				} else if (auto directionalLight = dynamic_cast<DirectionalLight *>(light)) {
+
+					DirectionalLightGLSLStruct lightStruct;
+					lightStruct.color = directionalLight->color()->vec4();
+					lightStruct.direction_world = node->worldForward();
+					directionalStructs.push_back(lightStruct);
+				} else if (auto pointLight = dynamic_cast<PointLight *>(light)) {
+
+					PointLightGLSLStruct lightStruct;
+					lightStruct.color = pointLight->color()->vec4();
+					lightStruct.position_world = node->worldPosition();
+					lightStruct.constantAttenuation = pointLight->constantAttenuation();
+					lightStruct.linearAttenuation = pointLight->linearAttenuation();
+					lightStruct.quadraticAttenuation = pointLight->quadraticAttenuation();
+					pointStructs.push_back(lightStruct);
+				} else if (auto spotLight = dynamic_cast<SpotLight *>(light)) {
+
+					SpotLightGLSLStruct lightStruct;
+					lightStruct.color = spotLight->color()->vec4();
+					lightStruct.position_world = node->worldPosition();
+					lightStruct.direction_world = node->worldForward();
+					lightStruct.innerAngle = spotLight->innerAngle();
+					lightStruct.outerAngle = spotLight->outerAngle();
+					lightStruct.constantAttenuation = spotLight->constantAttenuation();
+					lightStruct.linearAttenuation = spotLight->linearAttenuation();
+					lightStruct.quadraticAttenuation = spotLight->quadraticAttenuation();
+					spotStructs.push_back(lightStruct);
+				}
 			}
-		}
 
-		environmentStruct.numLights = numLights;
-		memcpy(&environmentStruct.lights, &lightStruct, sizeof(lightStruct));
+			environmentStruct.numAmbientLights = ambientStructs.size();
+			memcpy(&environmentStruct.ambientLights,
+				   ambientStructs.data(),
+				   sizeof(AmbientLightGLSLStruct) * ambientStructs.size());
+
+			environmentStruct.numDirectionalLights = directionalStructs.size();
+			memcpy(&environmentStruct.directionalLights,
+				   directionalStructs.data(),
+				   sizeof(DirectionalLightGLSLStruct) * directionalStructs.size());
+
+			environmentStruct.numPointLights = pointStructs.size();
+			memcpy(&environmentStruct.pointLights,
+				   pointStructs.data(),
+				   sizeof(PointLightGLSLStruct) * pointStructs.size());
+
+			environmentStruct.numSpotLights = spotStructs.size();
+			memcpy(&environmentStruct.spotLights,
+				   spotStructs.data(),
+				   sizeof(SpotLightGLSLStruct) * spotStructs.size());
+		}
 	}
 
 	// fog
@@ -1202,11 +1174,12 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 	fogStruct.densityExponent = visualWorld->fogDensityExponent();
 	fogStruct.startDistance = visualWorld->fogStartDistance();
 	auto fogColor = visualWorld->fogColor();
-	if (visualWorld->fogColor()) fogStruct.color = {fogColor->r,
-													fogColor->g,
-													fogColor->b,
-													fogColor->a};
-	else fogStruct.color = {0.0, 0.0, 0.0, 0.0};
+	if (visualWorld->fogColor()) {
+		fogStruct.color = fogColor->vec4();
+	}
+	else {
+		fogStruct.color = {0.0, 0.0, 0.0, 0.0};
+	}
 
 	memcpy(&environmentStruct.fog, &fogStruct, sizeof(fogStruct));
 
@@ -1215,6 +1188,122 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(environmentStruct), &environmentStruct, GL_DYNAMIC_DRAW);
 }
+
+// ORIGINAL
+//void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
+//							 const Scene& scene,
+//							 const vector<Node*>& lightNodes,
+//							 Stats& stats) {
+//	// program "Default" must be active
+//
+//	// block
+//
+//	EnvironmentBlock environmentStruct;
+//
+//	// lights
+//
+//	if (scene.visualWorld()->usesDefaultLighting()) {
+//
+//		Program::Default().setUniform("useDefaultLighting", true);
+//	}
+//	else {
+//
+////		auto lights = vector<Node*>();
+//		auto lights = lightNodes;
+//		Node* ambientLightNode = nullptr;
+//
+//		// find all lights in the scene
+////		for (auto &node: scene.rootNode()->children(true)) {
+////			if (auto light = node->light()) {
+////				if (light->type() == LightType::Point) {
+////					lights.push_back(node.get());
+////				}
+////				else if (light->type() == LightType::Ambient) {
+////					ambientLightNode = node.get();
+////				}
+////			}
+////		}
+//
+//		if (lightNodes.size() > MAX_DYNAMIC_LIGHTS) {
+//
+//			// find all light distances from the camera
+//
+//			auto lightsUnsorted = map<Node*, float>();
+//			auto cameraPos_world = scene.visualWorld()->pointOfView().lock()->worldPosition();
+//			for (auto& lightNode : lightNodes) {
+//				auto lightPos_world = lightNode->worldPosition();
+//				auto lightToCamera = lightPos_world - cameraPos_world;
+//				auto lightToCameraDistance = length(lightToCamera);
+//				lightsUnsorted[lightNode] = lightToCameraDistance;
+//			}
+//
+//			vector<Node*> sorted;
+//			lights = SortedLights(lightsUnsorted);
+//
+//			unsigned endIndex = std::min((unsigned)lights.size(), (unsigned)MAX_DYNAMIC_LIGHTS);
+//			auto first = lights.begin() + 0;
+//			auto last = lights.begin() + endIndex;
+//			auto lightsSlice = vector<Node*>(first, last);
+//
+//			lights = lightsSlice;
+//		}
+//
+//		if (ambientLightNode) lights.push_back(ambientLightNode);
+//
+//		auto numLights = lights.size();
+//		LightGLSLStruct lightStruct[numLights];
+//
+//		stats.lights = std::max(int(0), int(numLights - 1)); // not counting ambient
+//
+//		// TODO: move this?
+//		// should useDefaultLighing be a root uniform or elsewhere?
+//		if (((numLights == 0) && scene.visualWorld()->autoEnablesDefaultLighting())) {
+//
+//			Program::Default().setUniform("useDefaultLighting", true);
+//		}
+//		else {
+//
+//			Program::Default().setUniform("useDefaultLighting", false);
+//
+//			for (unsigned l = 0; l < numLights; ++l) {
+//				auto node = lights[l];
+//				auto light = node->light();
+//
+//				lightStruct[l].type = static_cast<unsigned>(light->type());
+//				lightStruct[l].position_world = node->worldPosition();
+//				lightStruct[l].attenuationFactor = light->attenuationFactor();
+//
+//				auto color = *light->color();
+//				lightStruct[l].color = {color.r, color.g, color.b, color.a};
+//			}
+//		}
+//
+//		environmentStruct.numLights = numLights;
+//		memcpy(&environmentStruct.lights, &lightStruct, sizeof(lightStruct));
+//	}
+//
+//	// fog
+//
+//	auto visualWorld = scene.visualWorld();
+//	FogGLSLStruct fogStruct;
+//	fogStruct.startDistance = visualWorld->fogStartDistance();
+//	fogStruct.endDistance = visualWorld->fogEndDistance();
+//	fogStruct.densityExponent = visualWorld->fogDensityExponent();
+//	fogStruct.startDistance = visualWorld->fogStartDistance();
+//	auto fogColor = visualWorld->fogColor();
+//	if (visualWorld->fogColor()) fogStruct.color = {fogColor->r,
+//													fogColor->g,
+//													fogColor->b,
+//													fogColor->a};
+//	else fogStruct.color = {0.0, 0.0, 0.0, 0.0};
+//
+//	memcpy(&environmentStruct.fog, &fogStruct, sizeof(fogStruct));
+//
+//	// send 'em
+//
+//	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
+//	glBufferData(GL_UNIFORM_BUFFER, sizeof(environmentStruct), &environmentStruct, GL_DYNAMIC_DRAW);
+//}
 
 void SetTextureSamplingOptions(Texture& texture,
 							   GLuint glTextureHandle) {

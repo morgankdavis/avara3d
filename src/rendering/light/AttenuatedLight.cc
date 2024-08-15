@@ -8,10 +8,26 @@
 
 #include "a3d/rendering/light/AttenuatedLight.h"
 
+#include "a3d/diagnostic/logging/Logger.h"
+
 
 using namespace a3d;
 using namespace std;
 
+
+/*********************************************************************************************
+	Public Lifecycle Functions
+ *********************************************************************************************/
+
+AttenuatedLight::~AttenuatedLight() {
+
+	if (_name != nullopt) {
+		A3D_LOG_D("Destroying Light '{}' ({:p})", *_name, static_cast<void*>(this));
+	}
+	else {
+		A3D_LOG_D("Destroying Light {:p}", static_cast<void*>(this));
+	}
+}
 
 /*********************************************************************************************
 	Public Member Functions
@@ -47,5 +63,5 @@ void AttenuatedLight::quadraticAttenuation(float factor) {
 
 AttenuatedLight::AttenuatedLight():
 		_constantAttenuation{1.0},
-		_linearAttenuation{1.0},
-		_quadraticAttenuation{1.0} {}
+		_linearAttenuation{0.0},
+		_quadraticAttenuation{0.0} {}

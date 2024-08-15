@@ -30,7 +30,10 @@
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/rendering/camera/Camera.h"
 #include "a3d/rendering/camera/PerspectiveCamera.h"
+#include "a3d/rendering/light/DirectionalLight.h"
 #include "a3d/rendering/light/Light.h"
+#include "a3d/rendering/light/PointLight.h"
+#include "a3d/rendering/light/SpotLight.h"
 #include "a3d/rendering/material/Material.h"
 #include "a3d/rendering/material/Sampler.h"
 #include "a3d/rendering/material/Texture.h"
@@ -748,22 +751,33 @@ shared_ptr<a3d::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset,
 			auto& light = asset.lights[*lightIndex];
 			auto& type = light.type;
 
-			if (type == fastgltf::LightType::Point) {
+			if (type == fastgltf::LightType::Directional) {
 
-				auto a3dLight = make_shared<Light>(LightType::Point);
-
-				a3dLight->name(string(light.name));
-				a3dLight->attenuationFactor(0); // temporary
+				auto a3dLight = make_shared<DirectionalLight>(string(light.name));
 				a3dLight->color(ColorFromGlTFColorArray(light.color));
-				// TODO: range, intensity
-
+				// TODO: range, intensity?
 				_lights[*lightIndex] = a3dLight;
 				return a3dLight;
 			}
-			else {
+			else if (type == fastgltf::LightType::Point) {
 
-				A3D_LOG_W("Unsupported light type: {}",
-						  magic_enum::enum_name(type));
+				auto a3dLight = make_shared<PointLight>(string(light.name));
+				a3dLight->color(ColorFromGlTFColorArray(light.color));
+				a3dLight->constantAttenuation(1.0); // temporary?
+				// TODO: range, intensity?
+				_lights[*lightIndex] = a3dLight;
+				return a3dLight;
+			}
+			else if (type == fastgltf::LightType::Spot) {
+
+				auto a3dLight = make_shared<SpotLight>(string(light.name));
+				a3dLight->color(ColorFromGlTFColorArray(light.color));
+				a3dLight->constantAttenuation(1.0); // temporary?
+				a3dLight->innerAngle(light.innerConeAngle.value());
+				a3dLight->outerAngle(light.outerConeAngle.value());
+				// TODO: range, intensity?
+				_lights[*lightIndex] = a3dLight;
+				return a3dLight;
 			}
 		}
 		else {

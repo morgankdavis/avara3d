@@ -38,6 +38,7 @@ namespace a3d {
 		explicit DirectionalLight(const std::string& name);
 		explicit DirectionalLight(const std::shared_ptr<Color>& color);
 		DirectionalLight(const std::string& name, const std::shared_ptr<Color>& color);
+//		~DirectionalLight();
 
 /*********************************************************************************************
 	Protected Lifecycle Functions

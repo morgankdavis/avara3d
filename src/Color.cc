@@ -12,6 +12,7 @@
 
 
 using namespace a3d;
+using namespace glm;
 using namespace std;
 
 
@@ -138,4 +139,16 @@ Color::Color(uint32_t color):
 
 Color::Color(const string& hexString) {
 	// TODO
+}
+
+/*********************************************************************************************
+	Public Member Functions
+ *********************************************************************************************/
+
+vec3 Color::vec3() {
+	return {r, g, b};
+}
+
+vec4 Color::vec4() {
+	return {r, g, b, a};
 }

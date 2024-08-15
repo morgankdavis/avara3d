@@ -54,10 +54,10 @@ namespace a3d {
 //		Light();
 
 /*********************************************************************************************
-	Private Member Variables
+	Protected Member Variables
  *********************************************************************************************/
 
-	private:
+	protected:
 
 		std::optional<std::string>			_name;
 		std::shared_ptr<Color>				_color;
