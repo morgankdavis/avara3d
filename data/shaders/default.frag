@@ -34,22 +34,33 @@ struct Colors {
 	vec3 emission;
 };
 
-layout(std140) struct Light {
-	uint 	type;
-	vec3 	position_world;
-	// change this to vec3, it blows up.
-	// maybe Mesa std140 is wrong?
-	//	https://stackoverflow.com/questions/73189196/diffrence-between-std140-and-std430-layout
-	// try on AMDGPU, Windows or macOS?
+layout(std140) struct AmbientLight {
 	vec4 	color;
-	float 	attenuationFactor;
-//	bool	useDefaultLighting;
-//	float 	attenuationStart;
-//	float 	attenuationEnd;
-//	float 	attenuationExponent;
-//	vec3 	direction_world;
-//	float 	innerAngle;
-//	float 	outerAngle;
+	vec3 	position_world;
+};
+
+layout(std140) struct DirectionalLight {
+	vec4 	color;
+	vec3 	direction_world;
+};
+
+layout(std140) struct PointLight {
+	vec4 	color;
+	vec3 	position_world;
+	float	constantAttenuation;
+	float	linearAttenuation;
+	float	quadraticAttenuation;
+};
+
+layout(std140) struct SpotLight {
+	vec4 	color;
+	vec3 	position_world;
+	vec3 	direction_world;
+	float	innerAngle;
+	float	outerAngle;
+	float	constantAttenuation;
+	float	linearAttenuation;
+	float	quadraticAttenuation;
 };
 
 layout(std140) struct Fog {
@@ -62,6 +73,7 @@ layout(std140) struct Fog {
 in 			vec3 		frag_vertPos_eye;
 in 			vec3 		frag_vertNorm_eye;
 in 			vec2 		frag_texCoord;
+
 uniform 	mat4 		viewMat;
 uniform 	uint 		ambientContentsType;
 uniform 	uint 		diffuseContentsType;
@@ -73,16 +85,25 @@ uniform		bool 		locksAmbientWithDiffuse;
 uniform 	Samplers 	samplers;
 uniform 	Colors 		colors;
 uniform		bool		useDefaultLighting;
+
 layout(std140) uniform EnvironmentBlock {
-	uint	numLights;
-	Light 	lights[17]; // MAX_DYNAMIC_LIGHTS + ambient
-	Fog 	fog;
+	uint				numAmbientLights;
+	AmbientLight 		ambientLights[100];
+	uint				numDirectionalLights;
+	DirectionalLight	directionalLights[100];
+	uint				numPointLights;
+	PointLight 			pointLights[100];
+	uint				numSpotLights;
+	SpotLight 			spotLights[100];
+	Fog 				fog;
 };
+
 out 		vec4 		fragColor;
 
 
 bool FloatsEqual(float a, float b, float eps);
-vec4 ColorForTexCoord(vec2 texCoord, uint propertyType, uint propertyContentsType, Colors colors, Samplers samplers);
+vec4 ColorForTexCoord(vec2 texCoord, uint propertyType, uint propertyContentsType,
+						Colors colors, Samplers samplers);
 
 
 void main () {
@@ -102,13 +123,16 @@ void main () {
 		// 3. ambient
 
 		if (emissionContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
-			Ke = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_EMISSION, emissionContentsType, colors, samplers);
+			Ke = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_EMISSION,
+				emissionContentsType, colors, samplers);
 		}
 		else if (diffuseContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
-			Ke = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_DIFFUSE, diffuseContentsType, colors, samplers);
+			Ke = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_DIFFUSE,
+				diffuseContentsType, colors, samplers);
 		}
 		else if (ambientContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
-			Ke = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_AMBIENT, ambientContentsType, colors, samplers);
+			Ke = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_AMBIENT,
+				ambientContentsType, colors, samplers);
 		}
 		else {
 			Ke = vec4(1.0, 1.0, 1.0, 1.0); // just use white.
@@ -121,7 +145,8 @@ void main () {
 
 		/* emission color */
 
-		Ke = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_EMISSION, emissionContentsType, colors, samplers);
+		Ke = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_EMISSION,
+			emissionContentsType, colors, samplers);
 		fragColor = vec4(vec3(Ke), 1.0);
 		// (no other lighting calculations)
 	}
@@ -130,9 +155,12 @@ void main () {
 
 		/* ambient, diffuse, specular colors */
 
-		Ka = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_AMBIENT, ambientContentsType, colors, samplers);
-		Kd = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_DIFFUSE, diffuseContentsType, colors, samplers);
-		Ks = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_SPECULAR, specularContentsType, colors, samplers);
+		Ka = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_AMBIENT,
+			ambientContentsType, colors, samplers);
+		Kd = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_DIFFUSE,
+			diffuseContentsType, colors, samplers);
+		Ks = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_SPECULAR,
+			specularContentsType, colors, samplers);
 
 
 		/* lock ambient with diffuse */
@@ -252,7 +280,8 @@ bool FloatsEqual(float a, float b, float eps) {
 	return abs(a-b) <= eps;
 }
 
-vec4 ColorForTexCoord(vec2 texCoord, uint propertyType, uint propertyContentsType, Colors colors, Samplers samplers) {
+vec4 ColorForTexCoord(vec2 texCoord, uint propertyType, uint propertyContentsType,
+						Colors colors, Samplers samplers) {
 
 	switch (propertyType) {
 
