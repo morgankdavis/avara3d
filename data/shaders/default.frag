@@ -36,7 +36,6 @@ struct Colors {
 
 layout(std140) struct AmbientLight {
 	vec4 	color;
-	vec3 	position_world;
 };
 
 layout(std140) struct DirectionalLight {
