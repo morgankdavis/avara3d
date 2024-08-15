@@ -253,6 +253,7 @@ void VisualWorld::draw(const Scene& scene,
 
 				auto frameBufferSize = _renderContext->framebufferSize();
 
+				// TODO: can this be avoided?
 				if (auto perspectiveCamera = dynamic_pointer_cast<PerspectiveCamera>(pov->camera())) {
 					auto aspectRatio = float(frameBufferSize.x) / float(frameBufferSize.y);
 					perspectiveCamera->aspectRatio(aspectRatio);

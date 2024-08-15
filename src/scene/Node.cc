@@ -431,39 +431,41 @@ vec3 Node::worldEulerAngles() const {
 }
 
 quat Node::worldOrientation() const {
-	vec3 scale;
-	quat orientation;
-	vec3 translation;
-	vec3 skew;
-	vec4 perspective;
-	
-	decompose(worldTransform(),
-			  scale,
-			  orientation,
-			  translation,
-			  skew,
-			  perspective);
-	
-	return orientation;
+//	vec3 scale;
+//	quat orientation;
+//	vec3 translation;
+//	vec3 skew;
+//	vec4 perspective;
+//
+//	decompose(worldTransform(),
+//			  scale,
+//			  orientation,
+//			  translation,
+//			  skew,
+//			  perspective);
+//
+//	return orientation;
+
+	return worldTransform() * mat4_cast(_orientation);
 }
 
 vec3 Node::worldScale() const {
-	auto world = worldTransform();
-	
-	vec3 scale;
-	quat orientation;
-	vec3 translation;
-	vec3 skew;
-	vec4 perspective;
-	
-	decompose(world,
-			  scale,
-			  orientation,
-			  translation,
-			  skew,
-			  perspective);
-	
-	return scale;
+//	vec3 scale;
+//	quat orientation;
+//	vec3 translation;
+//	vec3 skew;
+//	vec4 perspective;
+//
+//	decompose(worldTransform(),
+//			  scale,
+//			  orientation,
+//			  translation,
+//			  skew,
+//			  perspective);
+//
+//	return scale;
+
+	return worldTransform() * vec4(_scale, 0.0); // TODO: 0, not 1? right?
 }
 
 vec3 Node::worldForward() const {
