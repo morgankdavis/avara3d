@@ -405,7 +405,6 @@ void Node::transform(const mat4& transform) {
 }
 
 vec3 Node::worldPosition() const {
-
 	return worldTransform()[3];
 }
 
@@ -420,96 +419,53 @@ vec3 Node::worldEulerAngles() const {
 }
 
 quat Node::worldOrientation() const {
-	vec3 scale;
-	quat orientation;
-	vec3 translation;
-	vec3 skew;
-	vec4 perspective;
-	
-	decompose(worldTransform(),
-			  scale,
-			  orientation,
-			  translation,
-			  skew,
-			  perspective);
-	
-	return orientation;
+//	vec3 scale;
+//	quat orientation;
+//	vec3 translation;
+//	vec3 skew;
+//	vec4 perspective;
+//
+//	decompose(worldTransform(),
+//			  scale,
+//			  orientation,
+//			  translation,
+//			  skew,
+//			  perspective);
+//
+//	return orientation;
+
+	return worldTransform() * mat4_cast(_orientation);
 }
 
 vec3 Node::worldScale() const {
-	auto world = worldTransform();
-	
-	vec3 scale;
-	quat orientation;
-	vec3 translation;
-	vec3 skew;
-	vec4 perspective;
-	
-	decompose(world,
-			  scale,
-			  orientation,
-			  translation,
-			  skew,
-			  perspective);
-	
-	return scale;
+//	vec3 scale;
+//	quat orientation;
+//	vec3 translation;
+//	vec3 skew;
+//	vec4 perspective;
+//
+//	decompose(worldTransform(),
+//			  scale,
+//			  orientation,
+//			  translation,
+//			  skew,
+//			  perspective);
+//
+//	return scale;
+
+	return worldTransform() * vec4(_scale, 0.0); // TODO: 0, not 1? right?
 }
 
 vec3 Node::worldForward() const {
-	vec3 scale;
-	quat orientation;
-	vec3 translation;
-	vec3 skew;
-	vec4 perspective;
-
-	decompose(worldTransform(),
-			  scale,
-			  orientation,
-			  translation,
-			  skew,
-			  perspective);
-
-	mat4 rotationMat = mat4_cast(orientation);
-
-	return normalize(rotationMat * vec4(0, 0, -1, 1));
+	return normalize(mat4_cast(worldOrientation()) * vec4(0, 0, -1, 1));
 }
 
 vec3 Node::worldUp() const {
-	vec3 scale;
-	quat orientation;
-	vec3 translation;
-	vec3 skew;
-	vec4 perspective;
-
-	decompose(worldTransform(),
-			  scale,
-			  orientation,
-			  translation,
-			  skew,
-			  perspective);
-
-	mat4 rotationMat = mat4_cast(orientation);
-
-	return normalize(rotationMat * vec4(0, 1, 0, 1));
+	return normalize(mat4_cast(worldOrientation()) * vec4(0, 1, 0, 1));
 }
 
 vec3 Node::worldRight() const {
-	vec3 scale;
-	quat orientation;
-	vec3 translation;
-	vec3 skew;
-	vec4 perspective;
-
-	decompose(worldTransform(),
-			  scale,
-			  orientation,
-			  translation,
-			  skew,
-			  perspective);
-
-	mat4 rotationMat = mat4_cast(orientation);
-
-	return normalize(rotationMat * vec4(1, 0, 0, 1));
+	return normalize(mat4_cast(worldOrientation()) * vec4(1, 0, 0, 1));
 }
 
 mat4 Node::worldTransform() const {
