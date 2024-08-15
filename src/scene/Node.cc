@@ -376,15 +376,15 @@ mat4 Node::transform() const {
 }
 
 vec3 Node::forward() const {
-	return normalize(mat4_cast(orientation()) * vec4(0.0, 0.0, -1.0, 1.0));
+	return normalize(mat4_cast(_orientation) * vec4(0.0, 0.0, -1.0, 1.0));
 }
 
 vec3 Node::up() const {
-	return normalize(mat4_cast(orientation()) * vec4(0.0, 1.0, 0.0, 1.0));
+	return normalize(mat4_cast(_orientation) * vec4(0.0, 1.0, 0.0, 1.0));
 }
 
 vec3 Node::right() const {
-	return normalize(mat4_cast(orientation()) * vec4(1.0, 0.0, 0.0, 1.0));
+	return normalize(mat4_cast(_orientation) * vec4(1.0, 0.0, 0.0, 1.0));
 }
 
 void Node::transform(const mat4& transform) {
