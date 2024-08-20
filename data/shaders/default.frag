@@ -63,10 +63,10 @@ layout(std140) struct SpotLight {
 };
 
 layout(std140) struct Fog {
+	vec4 	color;
 	float 	startDistance;
 	float 	endDistance;
 	float 	densityExponent;
-	vec4 	color;
 };
 
 in 			vec3 		frag_vertPos_eye;

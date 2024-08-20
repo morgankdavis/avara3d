@@ -105,10 +105,10 @@ typedef struct {
 } SpotLightGLSLStruct;
 
 typedef struct {
+	alignas(16) vec4		color;
 	alignas(16) float32_t	startDistance;
 	alignas(16) float32_t	endDistance;
 	alignas(16) float32_t	densityExponent;
-	alignas(16) vec4		color;
 } FogGLSLStruct;
 
 // TODO: fix '100'
