@@ -400,19 +400,9 @@ void Node::transform(const mat4& transform) {
 			  translation,
 			  skew,
 			  perspective);
-	
-	// checkPhysicsScale(_scale, scale);
 
 	_position = translation;
 	_scale = scale;
-
-	// https://stackoverflow.com/questions/17918033/glm-decompose-mat4-into-translation-and-rotation
-	// "Keep in mind that the resulting quaternion in not correct. It returns its conjugate!
-	//
-	//To fix this add this to your code:
-	//
-	//rotation=glm::conjugate(rotation);"
-
 	_orientation = orientation;
 }
 
@@ -431,10 +421,6 @@ vec3 Node::worldEulerAngles() const {
 }
 
 quat Node::worldOrientation() const {
-
-	// FUCKED CAMERA: HERE?
-
-	// OG
 
 	vec3 scale;
 	quat orientation;
@@ -485,10 +471,6 @@ vec3 Node::worldScale() const {
 
 vec3 Node::worldForward() const {
 
-	// FUCKED CAMERA: HERE?
-
-	// OG
-
 //	vec3 scale;
 //	quat orientation;
 //	vec3 translation;
@@ -506,16 +488,10 @@ vec3 Node::worldForward() const {
 //
 //	return normalize(rotationMat * vec4(0, 0, -1, 1));
 
-	// OK?
-
 	return normalize(mat4_cast(worldOrientation()) * vec4(0, 0, -1, 1));
 }
 
 vec3 Node::worldUp() const {
-
-	// FUCKED CAMERA: HERE?
-
-	// OG
 
 //	vec3 scale;
 //	quat orientation;
@@ -534,16 +510,10 @@ vec3 Node::worldUp() const {
 //
 //	return normalize(rotationMat * vec4(0, 1, 0, 1));
 
-	// OK?
-
 	return normalize(mat4_cast(worldOrientation()) * vec4(0, 1, 0, 1));
 }
 
 vec3 Node::worldRight() const {
-
-	// FUCKED CAMERA: HERE?
-
-	// OG
 
 //	vec3 scale;
 //	quat orientation;
@@ -561,8 +531,6 @@ vec3 Node::worldRight() const {
 //	mat4 rotationMat = mat4_cast(orientation);
 //
 //	return normalize(rotationMat * vec4(1, 0, 0, 1));
-
-	// OK?
 
 	return normalize(mat4_cast(worldOrientation()) * vec4(1, 0, 0, 1));
 }
