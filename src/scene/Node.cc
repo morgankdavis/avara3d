@@ -419,25 +419,38 @@ vec3 Node::worldEulerAngles() const {
 }
 
 quat Node::worldOrientation() const {
-//	vec3 scale;
-//	quat orientation;
-//	vec3 translation;
-//	vec3 skew;
-//	vec4 perspective;
-//
-//	decompose(worldTransform(),
-//			  scale,
-//			  orientation,
-//			  translation,
-//			  skew,
-//			  perspective);
-//
-//	return orientation;
 
-	return worldTransform() * mat4_cast(_orientation);
+	// FUCKED CAMERA: HERE?
+
+	// OG
+
+	vec3 scale;
+	quat orientation;
+	vec3 translation;
+	vec3 skew;
+	vec4 perspective;
+
+	decompose(worldTransform(),
+			  scale,
+			  orientation,
+			  translation,
+			  skew,
+			  perspective);
+
+	return orientation;
+
+	// THESE ARE ALL WRONG (try mouselook)
+	//return worldTransform() * mat4_cast(_orientation);
+	//return normalize(quat(worldTransform() * mat4_cast(_orientation)));
+	//return normalize(quat(worldTransform() * mat4_cast(normalize(_orientation))));
 }
 
 vec3 Node::worldScale() const {
+
+	// FUCKED CAMERA: HERE?
+
+	// OG
+
 //	vec3 scale;
 //	quat orientation;
 //	vec3 translation;
@@ -453,18 +466,92 @@ vec3 Node::worldScale() const {
 //
 //	return scale;
 
+	// OK?
+
 	return worldTransform() * vec4(_scale, 0.0); // TODO: 0, not 1? right?
 }
 
 vec3 Node::worldForward() const {
+
+	// FUCKED CAMERA: HERE?
+
+	// OG
+
+//	vec3 scale;
+//	quat orientation;
+//	vec3 translation;
+//	vec3 skew;
+//	vec4 perspective;
+//
+//	decompose(worldTransform(),
+//			  scale,
+//			  orientation,
+//			  translation,
+//			  skew,
+//			  perspective);
+//
+//	mat4 rotationMat = mat4_cast(orientation);
+//
+//	return normalize(rotationMat * vec4(0, 0, -1, 1));
+
+	// OK?
+
 	return normalize(mat4_cast(worldOrientation()) * vec4(0, 0, -1, 1));
 }
 
 vec3 Node::worldUp() const {
+
+	// FUCKED CAMERA: HERE?
+
+	// OG
+
+//	vec3 scale;
+//	quat orientation;
+//	vec3 translation;
+//	vec3 skew;
+//	vec4 perspective;
+//
+//	decompose(worldTransform(),
+//			  scale,
+//			  orientation,
+//			  translation,
+//			  skew,
+//			  perspective);
+//
+//	mat4 rotationMat = mat4_cast(orientation);
+//
+//	return normalize(rotationMat * vec4(0, 1, 0, 1));
+
+	// OK?
+
 	return normalize(mat4_cast(worldOrientation()) * vec4(0, 1, 0, 1));
 }
 
 vec3 Node::worldRight() const {
+
+	// FUCKED CAMERA: HERE?
+
+	// OG
+
+//	vec3 scale;
+//	quat orientation;
+//	vec3 translation;
+//	vec3 skew;
+//	vec4 perspective;
+//
+//	decompose(worldTransform(),
+//			  scale,
+//			  orientation,
+//			  translation,
+//			  skew,
+//			  perspective);
+//
+//	mat4 rotationMat = mat4_cast(orientation);
+//
+//	return normalize(rotationMat * vec4(1, 0, 0, 1));
+
+	// OK?
+
 	return normalize(mat4_cast(worldOrientation()) * vec4(1, 0, 0, 1));
 }
 
