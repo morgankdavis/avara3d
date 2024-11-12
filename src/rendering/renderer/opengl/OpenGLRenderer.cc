@@ -815,7 +815,7 @@ void BufferLinesVertexData(const vector<Line>& lines,
 	glEnableVertexAttribArray(colorIndex);
 }
 
-void BufferTexture(const Texture &texture,
+void BufferTexture(const Texture& texture,
 				   GLuint& glTextureHandle) {
 
 	auto contents = texture.contents();
@@ -921,7 +921,7 @@ void SendMaterialUniforms(const Material& material,
 
 	program.setUniform("specularExponent", material.specularExponent());
 	program.setUniform("uvScale", material.uvScale());
-	program.setUniform("locksAmbientWithDiffuse", material.locksAmbientWithDiffuse());
+	//program.setUniform("locksAmbientWithDiffuse", material.locksAmbientWithDiffuse());
 	program.setUniform("emissionContentsType", (unsigned)0); // 0 = MaterialType_None -- why is this here?
 	//program.setUniform("defaultLighting", 0);
 

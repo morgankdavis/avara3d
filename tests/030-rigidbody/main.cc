@@ -122,13 +122,13 @@ int main(int argc, const char* argv[]) {
 		scene->update(bind(&UpdateCallback, _1, _2, _3));
 
 		if (!USE_DEFAULT_LIGHTING) {
-			auto ambientColor = DARK
-								? Color::LightGray()
-								: make_shared<Color>(233, 218, 185); // sunset
-			//auto ambientLight = make_shared<Light>(LightType::Ambient, ambientColor);
-			auto ambientLight = make_shared<AmbientLight>(ambientColor);
-			auto ambientLightNode = Node::LightNode(ambientLight);
-			scene->rootNode()->addChild(ambientLightNode);
+//			auto ambientColor = DARK
+//								? Color::LightGray()
+//								: make_shared<Color>(233, 218, 185); // sunset
+//			//auto ambientLight = make_shared<Light>(LightType::Ambient, ambientColor);
+//			auto ambientLight = make_shared<AmbientLight>(ambientColor);
+//			auto ambientLightNode = Node::LightNode(ambientLight);
+//			scene->rootNode()->addChild(ambientLightNode);
 
 			auto pointColor = DARK
 							  ? Color::LightGray()
@@ -136,7 +136,9 @@ int main(int argc, const char* argv[]) {
 			//auto pointLight = make_shared<Light>(LightType::Point, pointColor);
 			auto pointLight = make_shared<PointLight>(pointColor);
 			//pointLight->attenuationFactor(0.0);
-			pointLight->linearAttenuation(1.0);
+			pointLight->constantAttenuation(0.01);
+			//pointLight->linearAttenuation(1.0);
+			//pointLight->quadraticAttenuation(0.1);
 			auto pointLightNode = Node::LightNode(pointLight);
 			pointLightNode->position(vec3(35, 20, (DARK ? 1.0 : -1.0) * 35) * vec3(2.5, 2.5, 2.5));
 			scene->rootNode()->addChild(pointLightNode);

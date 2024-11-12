@@ -62,6 +62,6 @@ void AttenuatedLight::quadraticAttenuation(float factor) {
  *********************************************************************************************/
 
 AttenuatedLight::AttenuatedLight():
-		_constantAttenuation{1.0},
+		_constantAttenuation{0.0},
 		_linearAttenuation{0.0},
 		_quadraticAttenuation{0.0} {}
