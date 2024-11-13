@@ -92,18 +92,16 @@ int main(int argc, const char* argv[]) {
 		scene->debugOptions(DebugOptions::ShowStatsOverlay);
 		scene->update(bind(&UpdateCallback, _1, _2, _3));
 
-		//auto ambientLight = make_shared<Light>(LightType::Ambient, make_unique<Color>(0.2f, 0.2, 0.2, 1.0));
 		auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.2f, 0.2, 0.2, 1.0));
 		ambientLight->name("ambient");
 		auto ambientLightNode = Node::LightNode(ambientLight);
 		scene->rootNode()->addChild(ambientLightNode);
 
-		//auto pointLight = make_shared<Light>(LightType::Point, Color::White());
 		auto pointLight = make_shared<PointLight>(Color::White());
 		pointLight->name("point");
 		//pointLight->attenuationFactor(0.00005);
 		//pointLight->attenuationFactor(0.00005);
-		pointLight->constantAttenuation(1.0 - 0.00005);
+		//pointLight->constantAttenuation(1.0);
 		auto pointLightNode = Node::LightNode(pointLight);
 		g_pointLightNode = pointLightNode.get(); // <- how is this not crashing?
 		auto material = make_shared<Material>();

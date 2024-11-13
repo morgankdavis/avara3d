@@ -111,16 +111,15 @@ typedef struct {
 	alignas(16) float32_t	densityExponent;
 } FogGLSLStruct;
 
-// TODO: fix '100'
 typedef struct {
 	alignas(16) uint32_t 					numAmbientLights;
-	alignas(16) AmbientLightGLSLStruct		ambientLights[100];
+	alignas(16) AmbientLightGLSLStruct		ambientLights[MAX_AMBIENT_LIGHTS];
 	alignas(16) uint32_t 					numDirectionalLights;
-	alignas(16) DirectionalLightGLSLStruct	directionalLights[100];
+	alignas(16) DirectionalLightGLSLStruct	directionalLights[MAX_DIRECTIONAL_LIGHTS];
 	alignas(16) uint32_t 					numPointLights;
-	alignas(16) PointLightGLSLStruct		pointLights[100];
+	alignas(16) PointLightGLSLStruct		pointLights[MAX_POINT_LIGHTS];
 	alignas(16) uint32_t 					numSpotLights;
-	alignas(16) SpotLightGLSLStruct			spotLights[100];
+	alignas(16) SpotLightGLSLStruct			spotLights[MAX_SPOT_LIGHTS];
 	alignas(16) FogGLSLStruct				fog;
 } EnvironmentBlock;
 
@@ -1084,12 +1083,14 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 					AmbientLightGLSLStruct lightStruct;
 					lightStruct.color = ambientLight->color()->vec4();
 					ambientStructs.push_back(lightStruct);
+
 				} else if (auto directionalLight = dynamic_cast<DirectionalLight *>(light)) {
 
 					DirectionalLightGLSLStruct lightStruct;
 					lightStruct.color = directionalLight->color()->vec4();
 					lightStruct.direction_world = node->worldForward();
 					directionalStructs.push_back(lightStruct);
+
 				} else if (auto pointLight = dynamic_cast<PointLight *>(light)) {
 
 					PointLightGLSLStruct lightStruct;
@@ -1099,6 +1100,7 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 					lightStruct.linearAttenuation = pointLight->linearAttenuation();
 					lightStruct.quadraticAttenuation = pointLight->quadraticAttenuation();
 					pointStructs.push_back(lightStruct);
+
 				} else if (auto spotLight = dynamic_cast<SpotLight *>(light)) {
 
 					SpotLightGLSLStruct lightStruct;

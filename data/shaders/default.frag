@@ -1,6 +1,15 @@
 #version 330
 
 
+// donno if this works
+#define FEQ(a, b, eps) (abs(a-b) <= eps)
+
+
+#define MAX_AMBIENT_LIGHTS								8
+#define MAX_DIRECTIONAL_LIGHTS							8
+#define MAX_POINT_LIGHTS								128
+#define MAX_SPOT_LIGHTS									32
+
 const float GAMMA =										2.2f;
 
 const float ALPHA_REJECTION_THRESHOLD =					0.5f;
@@ -18,6 +27,25 @@ const uint LIGHT_TYPE_AMBIENT =							0u;
 const uint LIGHT_TYPE_POINT =							1u;
 const uint LIGHT_TYPE_DIRECTIONAL =						2u;
 const uint LIGHT_TYPE_SPOT =							3u;
+
+
+//#define GAMMA 										2.2
+//
+//#define ALPHA_REJECTION_THRESHOLD 					0.5
+//
+//#define MATERIAL_PROPERTY_CONTENTS_TYPE_NONE 		0
+//#define MATERIAL_PROPERTY_CONTENTS_TYPE_COLOR 		1
+//#define MATERIAL_PROPERTY_CONTENTS_TYPE_SAMPLER 	2
+//
+//#define MATERIAL_PROPERTY_TYPE_AMBIENT 				0
+//#define MATERIAL_PROPERTY_TYPE_DIFFUSE 				1
+//#define MATERIAL_PROPERTY_TYPE_SPECULAR 			2
+//#define MATERIAL_PROPERTY_TYPE_EMISSION 			3
+//
+//#define LIGHT_TYPE_AMBIENT 							0
+//#define LIGHT_TYPE_POINT 							1
+//#define LIGHT_TYPE_DIRECTIONAL 						2
+//#define LIGHT_TYPE_SPOT 							3
 
 
 struct Samplers {
@@ -69,6 +97,10 @@ layout(std140) struct Fog {
 	float 	densityExponent;
 };
 
+// temporary
+in 			vec3 		frag_vertPos_world;
+in 			vec3 		frag_vertNorm_world;
+
 in 			vec3 		frag_vertPos_eye;
 in 			vec3 		frag_vertNorm_eye;
 in 			vec2 		frag_texCoord;
@@ -87,13 +119,13 @@ uniform		bool		useDefaultLighting;
 
 layout(std140) uniform EnvironmentBlock {
 	uint				numAmbientLights;
-	AmbientLight 		ambientLights[100];
+	AmbientLight 		ambientLights[MAX_AMBIENT_LIGHTS];
 	uint				numDirectionalLights;
-	DirectionalLight	directionalLights[100];
+	DirectionalLight	directionalLights[MAX_DIRECTIONAL_LIGHTS];
 	uint				numPointLights;
-	PointLight 			pointLights[100];
+	PointLight 			pointLights[MAX_POINT_LIGHTS];
 	uint				numSpotLights;
-	SpotLight 			spotLights[100];
+	SpotLight 			spotLights[MAX_SPOT_LIGHTS];
 	Fog 				fog;
 };
 
@@ -102,7 +134,8 @@ out 		vec4 		fragColor;
 
 bool FloatsEqual(float a, float b, float eps);
 vec4 ColorForTexCoord(vec2 texCoord, uint propertyType, uint propertyContentsType,
-						Colors colors, Samplers samplers);
+					  Colors colors, Samplers samplers);
+float Attenuate(float Kc, float Kl, float Kq, float d);
 
 
 void main () {
@@ -141,16 +174,15 @@ void main () {
 	}
 	else if (emissionContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
 
-
 		/* emission color */
 
 		Ke = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_EMISSION,
 			emissionContentsType, colors, samplers);
+
 		fragColor = vec4(vec3(Ke), 1.0);
 		// (no other lighting calculations)
 	}
 	else {
-
 
 		/* ambient, diffuse, specular colors */
 
@@ -161,7 +193,6 @@ void main () {
 		Ks = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_SPECULAR,
 			specularContentsType, colors, samplers);
 
-
 		/* lock ambient with diffuse */
 
 //		if (locksAmbientWithDiffuse && (diffuseContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE)) {
@@ -171,19 +202,12 @@ void main () {
 			Ka = Kd;
 		}
 
-
 		/* alpha rejection */
 
 		// look at depth peeling or a-buffers for proper alpha blending
 		if (Kd.a < ALPHA_REJECTION_THRESHOLD) discard;
 
-
 		/* lighting */
-
-
-
-
-
 
 		// ambient lights
 
@@ -201,6 +225,21 @@ void main () {
 
 			Ia = La * vec3(Ka);
 			fragColor += vec4(Is + Id + Ia, 0.0);
+		}
+
+		// directional lights
+
+		for (uint l=0u; l<numDirectionalLights; ++l) {
+
+			DirectionalLight light = directionalLights[l];
+
+			vec3 La = vec3(light.color.rgb);
+			vec3 Ld = vec3(light.color);
+			vec3 Ls = vec3(light.color);
+
+			vec3 Ia = vec3(0.0, 0.0, 0.0);
+			vec3 Id = vec3(0.0, 0.0, 0.0);
+			vec3 Is = vec3(0.0, 0.0, 0.0);
 		}
 
 		// point lights
@@ -228,21 +267,13 @@ void main () {
 			//Id = Ld * vec3(Kd) * dot_prod_diffuse; // diffuse intensity (original)
 
 			float distanceToLight = distance(lightPos_eye, frag_vertPos_eye);
-			//float attenuation = 1.0 / (1.0 + light.attenuationFactor * pow(distanceToLight, 2.0));
 
-			// A = 1 / (Kc + (Kl * d) + (Kq * d^2))
-
-			float attenuation = 1.0;
-//			if (!FloatsEqual(light.constantAttenuation, 0.0, .0000001)
-//				|| !FloatsEqual(light.linearAttenuation, 0.0, .0000001)
-//				|| !FloatsEqual(light.quadraticAttenuation, 0.0, .0000001)) {
-				attenuation = 1.0 / (light.constantAttenuation + (light.linearAttenuation * distanceToLight)
-					+ (light.quadraticAttenuation * pow(distanceToLight, 2.0)));
-//			}
-			//attenuation = clamp(attenuation, 0.0, 1.0);
+			float attenuation = Attenuate(light.constantAttenuation,
+										  light.linearAttenuation,
+										  light.quadraticAttenuation,
+										  distanceToLight);
 
 			Id = Ld * vec3(Kd) * dotProdDiffuse * attenuation; // diffuse intensity w/attenuation
-
 
 			// point specular
 
@@ -268,95 +299,20 @@ void main () {
 			fragColor += vec4(Is + Id + Ia, 0.0);
 		}
 
+		// spot lights
 
+		for (uint l=0u; l<numSpotLights; ++l) {
 
+			SpotLight light = spotLights[l];
 
+			vec3 La = vec3(light.color.rgb);
+			vec3 Ld = vec3(light.color);
+			vec3 Ls = vec3(light.color);
 
-
-
-
-//		for (uint l=0u; l<numLights; ++l) {
-//			Light light = lights[l];
-//
-//			vec3 lightPos_world = light.position_world;
-//			vec3 La = vec3(light.color.rgb);
-//			vec3 Ld = vec3(light.color);
-//			vec3 Ls = vec3(light.color);
-//
-//			vec3 Ia = vec3(0.0, 0.0, 0.0);
-//			vec3 Id = vec3(0.0, 0.0, 0.0);
-//			vec3 Is = vec3(0.0, 0.0, 0.0);
-//
-////			switch (light.type) {
-////				case LIGHT_TYPE_AMBIENT:
-////					break;
-////				case LIGHT_TYPE_POINT:
-////					break;
-////				case LIGHT_TYPE_DIRECTIONAL:
-////					break;
-////				case LIGHT_TYPE_SPOT:
-////					break;
-////				default:
-////					vec3 pants;
-////					break;
-////			}
-//
-//			if (light.type == LIGHT_TYPE_AMBIENT) {
-//
-//
-//				/* ambient */
-//
-//				Ia = La * vec3(Ka);
-//				fragColor += vec4(Is + Id + Ia, 0.0);
-//			}
-//			else if (light.type == LIGHT_TYPE_POINT) {
-//
-//
-//				/* point  diffuse */
-//
-//				// raise light position to eye space
-//				vec3 lightPos_eye = vec3(viewMat * vec4(lightPos_world, 1.0));
-//				vec3 directionToLight_eye = normalize(lightPos_eye - frag_vertPos_eye);
-//				float dotProdDiffuse = max(dot(directionToLight_eye, frag_vertNorm_eye), 0.0);
-//
-//				//Id = Ld * vec3(Kd) * dot_prod_diffuse; // diffuse intensity (original)
-//
-//				float distanceToLight = distance(lightPos_eye, frag_vertPos_eye);
-//				float attenuation = 1.0 / (1.0 + light.attenuationFactor * pow(distanceToLight, 2.0));
-//
-//				Id = Ld * vec3(Kd) * dotProdDiffuse * attenuation; // diffuse intensity w/attenuation
-//
-//
-//				/* point specular */
-//
-//				Is = vec3(0.0, 0.0, 0.0);
-//				if (Ks.x != 0.0 || Ks.y != 0.0 || Ks.z != 0.0) {
-//
-//					vec3 surfaceToViewer_eye = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
-//
-//					// phong
-//					vec3 reflection_eye = reflect(-directionToLight_eye, frag_vertNorm_eye);
-//					float dotProdSpecular = dot(reflection_eye, surfaceToViewer_eye);
-//					dotProdSpecular = max(dotProdSpecular, 0.0);
-//					float specularFactor = pow(dotProdSpecular, specularExponent);
-//
-//					// blinn
-////					vec3 half_way_eye = normalize(surface_to_viewer_eye + direction_to_light_eye);
-////					float dot_prod_specular = max(dot(half_way_eye, vertex_normal_eye), 0.0);
-////					float specular_factor = pow(dot_prod_specular, specularExponent);
-//
-//					Is = Ls * vec3(Ks) * specularFactor * attenuation; // specular intensity w/attenuation
-//				}
-//
-//				fragColor += vec4(Is + Id + Ia, 0.0);
-//			}
-//			else if (light.type == LIGHT_TYPE_DIRECTIONAL) {
-//
-//			}
-//			else if (light.type == LIGHT_TYPE_SPOT) {
-//
-//			}
-//		}
+			vec3 Ia = vec3(0.0, 0.0, 0.0);
+			vec3 Id = vec3(0.0, 0.0, 0.0);
+			vec3 Is = vec3(0.0, 0.0, 0.0);
+		}
 		
 		fragColor = vec4(vec3(fragColor), Kd.a);
 	}
@@ -443,4 +399,22 @@ vec4 ColorForTexCoord(vec2 texCoord, uint propertyType, uint propertyContentsTyp
 		default:
 			return vec4(0.0, 0.0, 0.0, 1.0);
 	}
+}
+
+float Attenuate(float Kc, float Kl, float Kq, float d) {
+
+	// A = 1 / 1.0 + (Kc + (Kl * d) + (Kq * d^2))
+
+	const float EPS = .00000001;
+
+	float attenuation = 1.0;
+
+	if (!FloatsEqual(Kc, 0.0, EPS)
+		|| !FloatsEqual(Kl, 0.0, EPS)
+		|| !FloatsEqual(Kq, 0.0, EPS)) {
+		attenuation = 1.0 / 1.0 + (Kc + (Kl * d) + (Kq * d*d));
+	}
+
+	return attenuation;
+	return clamp(attenuation, 0.0, 1.0);
 }

@@ -67,6 +67,8 @@ namespace a3d {
 		// 		A = 1 / (1 - k(d^2))
 		// de Vries:
 		//		A = 1 / (Kc + (Kl * d) + (Kq * d^2))
+		// a3d:
+		//		A = 1 / 1 + (Kc + (Kl * d) + (Kq * d^2))
 
 		float			_constantAttenuation;
 		float			_linearAttenuation;

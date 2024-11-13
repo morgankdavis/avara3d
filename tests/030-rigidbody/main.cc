@@ -136,7 +136,8 @@ int main(int argc, const char* argv[]) {
 			//auto pointLight = make_shared<Light>(LightType::Point, pointColor);
 			auto pointLight = make_shared<PointLight>(pointColor);
 			//pointLight->attenuationFactor(0.0);
-			pointLight->constantAttenuation(0.01);
+			//pointLight->constantAttenuation(0.01);
+			//pointLight->constantAttenuation(0.01);
 			//pointLight->linearAttenuation(1.0);
 			//pointLight->quadraticAttenuation(0.1);
 			auto pointLightNode = Node::LightNode(pointLight);

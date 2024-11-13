@@ -9,12 +9,21 @@ uniform mat4 modelMat;
 uniform mat4 viewMat;
 uniform mat4 projMat;
 
+// temporary
+out vec3 frag_vertPos_world;
+out vec3 frag_vertNorm_world;
+
 out vec3 frag_vertPos_eye;
 out vec3 frag_vertNorm_eye;
 out vec2 frag_texCoord;
 
 
 void main() {
+
+    // temporary
+    frag_vertPos_eye = vec3(modelMat * vec4(vert_vertPos, 1.0));
+    frag_vertNorm_eye = normalize(vec3(modelMat * vec4(vert_vertNorm, 0.0)));
+
     frag_vertPos_eye = vec3(viewMat * modelMat * vec4(vert_vertPos, 1.0));
     frag_vertNorm_eye = normalize(vec3(viewMat * modelMat * vec4(vert_vertNorm, 0.0)));
     frag_texCoord = vert_texCoord;
