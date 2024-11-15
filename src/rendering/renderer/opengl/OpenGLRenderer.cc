@@ -1078,20 +1078,25 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 				auto light = node->light().get();
 				auto color = light->color();
 
-				if (auto ambientLight = dynamic_cast<AmbientLight *>(light)) {
+				if (auto ambientLight = dynamic_cast<AmbientLight*>(light)) {
 
 					AmbientLightGLSLStruct lightStruct;
 					lightStruct.color = ambientLight->color()->vec4();
 					ambientStructs.push_back(lightStruct);
 
-				} else if (auto directionalLight = dynamic_cast<DirectionalLight *>(light)) {
+				}
+				else if (auto directionalLight = dynamic_cast<DirectionalLight*>(light)) {
 
 					DirectionalLightGLSLStruct lightStruct;
 					lightStruct.color = directionalLight->color()->vec4();
-					lightStruct.direction_world = node->worldForward();
+					//lightStruct.direction_world = node->worldForward();
+					//lightStruct.direction_world = node->forward();
+					lightStruct.direction_world = {-1, 0, 0};
+					A3D_LOG_I("dir forward: {}", utils::StringFromGLMVec3(lightStruct.direction_world));
 					directionalStructs.push_back(lightStruct);
 
-				} else if (auto pointLight = dynamic_cast<PointLight *>(light)) {
+				}
+				else if (auto pointLight = dynamic_cast<PointLight*>(light)) {
 
 					PointLightGLSLStruct lightStruct;
 					lightStruct.color = pointLight->color()->vec4();
@@ -1101,7 +1106,8 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 					lightStruct.quadraticAttenuation = pointLight->quadraticAttenuation();
 					pointStructs.push_back(lightStruct);
 
-				} else if (auto spotLight = dynamic_cast<SpotLight *>(light)) {
+				}
+				else if (auto spotLight = dynamic_cast<SpotLight*>(light)) {
 
 					SpotLightGLSLStruct lightStruct;
 					lightStruct.color = spotLight->color()->vec4();

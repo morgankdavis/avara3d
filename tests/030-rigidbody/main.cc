@@ -121,7 +121,8 @@ int main(int argc, const char* argv[]) {
 		scene->debugOptions(DebugOptions::ShowStatsOverlay);
 		scene->update(bind(&UpdateCallback, _1, _2, _3));
 
-		if (!USE_DEFAULT_LIGHTING) {
+
+
 //			auto ambientColor = DARK
 //								? Color::LightGray()
 //								: make_shared<Color>(233, 218, 185); // sunset
@@ -130,20 +131,46 @@ int main(int argc, const char* argv[]) {
 //			auto ambientLightNode = Node::LightNode(ambientLight);
 //			scene->rootNode()->addChild(ambientLightNode);
 
-			auto pointColor = DARK
-							  ? Color::LightGray()
-							  : make_shared<Color>((uint32_t) 0x3F2A00FF); // dark orangish
-			//auto pointLight = make_shared<Light>(LightType::Point, pointColor);
-			auto pointLight = make_shared<PointLight>(pointColor);
-			//pointLight->attenuationFactor(0.0);
-			//pointLight->constantAttenuation(0.01);
-			//pointLight->constantAttenuation(0.01);
-			//pointLight->linearAttenuation(1.0);
-			//pointLight->quadraticAttenuation(0.1);
-			auto pointLightNode = Node::LightNode(pointLight);
-			pointLightNode->position(vec3(35, 20, (DARK ? 1.0 : -1.0) * 35) * vec3(2.5, 2.5, 2.5));
-			scene->rootNode()->addChild(pointLightNode);
-		}
+//			auto pointColor = DARK
+//							  ? Color::LightGray()
+//							  : make_shared<Color>((uint32_t) 0x3F2A00FF); // dark orangish
+//			//auto pointLight = make_shared<Light>(LightType::Point, pointColor);
+//			auto pointLight = make_shared<PointLight>(pointColor);
+//			//pointLight->attenuationFactor(0.0);
+//			//pointLight->constantAttenuation(0.01);
+//			//pointLight->constantAttenuation(0.01);
+//			//pointLight->linearAttenuation(1.0);
+//			//pointLight->quadraticAttenuation(0.1);
+//			auto pointLightNode = Node::LightNode(pointLight);
+//			pointLightNode->position(vec3(35, 20, (DARK ? 1.0 : -1.0) * 35) * vec3(2.5, 2.5, 2.5));
+//			scene->rootNode()->addChild(pointLightNode);
+
+
+
+
+
+//		auto sunColor = DARK
+//						? Color::LightGray()
+//						: make_shared<Color>((uint32_t) 0x3F2A00FF); // dark orangish
+		auto sunColor = Color::Red();
+		auto sunLight = make_shared<DirectionalLight>(sunColor);
+		auto sunNode = Node::LightNode(sunLight);
+		//sunNode->eulerAngles({0.0, 0.0, 0.0});
+//		sunNode->transform(glm::lookAt(vec3{87.5, 50, 87.5},
+//									   vec3{0.0, 0.0, 0.0},
+//									   vec3{0.0, 1.0, 0.0}));
+		scene->rootNode()->addChild(sunNode);
+
+
+
+
+
+
+
+
+
+			//pointLightNode->mesh(Box::Mesh(0.5, 0.5, 0.5));
+		//}
 
 		// box
 	//	const float BOX_DIM = 10.0;
@@ -235,6 +262,9 @@ int main(int argc, const char* argv[]) {
 		g_duckNode = duckNode.get();
 		A3D_LOG_I("DUCK NODE: {}", utils::StringFromTree(*duckNode));
 		duckNode->position({/*4.5*/0, 25, 0});
+
+
+
 
 
 	//	// #0

@@ -13,6 +13,7 @@
 
 
 using namespace a3d;
+using namespace glm;
 using namespace std;
 
 
@@ -47,4 +48,16 @@ DirectionalLight::DirectionalLight(const string& name, const shared_ptr<Color>& 
 //	else {
 //		A3D_LOG_D("Destroying Light {:p}", static_cast<void*>(this));
 //	}
+//}
+
+/*********************************************************************************************
+	Public Member Functions
+ *********************************************************************************************/
+
+//const vec3& DirectionalLight::direction() const {
+//	return _direction;
+//}
+//
+//void DirectionalLight::direction(const vec3& direction) {
+//	_direction = direction;
 //}
