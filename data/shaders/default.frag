@@ -62,16 +62,19 @@ struct Colors {
 	vec3 emission;
 };
 
-layout(std140) struct AmbientLight {
+//layout(std140) struct AmbientLight {
+struct AmbientLight {
 	vec4 	color;
 };
 
-layout(std140) struct DirectionalLight {
+//layout(std140) struct DirectionalLight {
+struct DirectionalLight {
 	vec4 	color;
 	vec3 	direction_world;
 };
 
-layout(std140) struct PointLight {
+//layout(std140) struct PointLight {
+struct PointLight {
 	vec4 	color;
 	vec3 	position_world;
 	float	constantAttenuation;
@@ -79,7 +82,8 @@ layout(std140) struct PointLight {
 	float	quadraticAttenuation;
 };
 
-layout(std140) struct SpotLight {
+//layout(std140) struct SpotLight {
+struct SpotLight {
 	vec4 	color;
 	vec3 	position_world;
 	vec3 	direction_world;
@@ -90,7 +94,8 @@ layout(std140) struct SpotLight {
 	float	quadraticAttenuation;
 };
 
-layout(std140) struct Fog {
+//layout(std140) struct Fog {
+struct Fog {
 	vec4 	color;
 	float 	startDistance;
 	float 	endDistance;

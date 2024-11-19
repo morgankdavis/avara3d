@@ -10,6 +10,8 @@
 #define AVARA3D_LIGHT_H
 
 
+#include "a3d/Types.h"
+
 #include <memory>
 #include <optional>
 #include <string>
@@ -44,6 +46,12 @@ namespace a3d {
 
 		const std::shared_ptr<Color>&		color() const;
 		void 								color(const std::shared_ptr<Color>& color);
+
+
+		LightType type() const;
+		void type(LightType type);
+		LightType _type;
+
 
 /*********************************************************************************************
 	Protected Lifecycle Functions

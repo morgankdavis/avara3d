@@ -1089,10 +1089,10 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 
 					DirectionalLightGLSLStruct lightStruct;
 					lightStruct.color = directionalLight->color()->vec4();
-					//lightStruct.direction_world = node->worldForward();
+					lightStruct.direction_world = node->worldForward();
 					//lightStruct.direction_world = node->forward();
-					lightStruct.direction_world = {-1, 0, 0};
-					A3D_LOG_I("dir forward: {}", utils::StringFromGLMVec3(lightStruct.direction_world));
+//					lightStruct.direction_world = {-1, 0, 0};
+//					A3D_LOG_I("dir forward: {}", utils::StringFromGLMVec3(lightStruct.direction_world));
 					directionalStructs.push_back(lightStruct);
 
 				}

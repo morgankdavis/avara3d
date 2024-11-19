@@ -23,17 +23,20 @@ using namespace std;
 Light::Light(const string& name):
 		Light() {
 	_name = name;
+	_type = LightType::Point;
 }
 
 Light::Light(const shared_ptr<Color>& color):
 		Light() {
 	_color = color;
+	_type = LightType::Point;
 }
 
 Light::Light(const string& name, const shared_ptr<Color>& color):
 		Light() {
 	_name = name;
 	_color = color;
+	_type = LightType::Point;
 }
 
 Light::~Light() {
@@ -72,4 +75,12 @@ const shared_ptr<Color>& Light::color() const {
 
 void Light::color(const shared_ptr<Color>& color) {
 	_color = color;
+}
+
+LightType Light::type() const {
+	return _type;
+}
+
+void Light::type(LightType type) {
+	_type = type;
 }
