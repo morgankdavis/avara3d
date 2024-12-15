@@ -429,9 +429,8 @@ vector<std::filesystem::path> a3d::utils::FontSearchPaths() {
 
 std::optional<std::filesystem::path> a3d::utils::SearchInPaths(const string& filename,
 															  vector<std::filesystem::path> paths) {
-	A3D_LOG_D("Searching for '{}' in...", filename);
 	for (auto& searchPath : paths) {
-		A3D_LOG_D("\t...'{}'", searchPath.string());
+		A3D_LOG_D("Found '{}' at '{}'", searchPath.string(), filename);
 		if (std::filesystem::is_directory(searchPath)) {
 			auto path = searchPath / filename;
 			if (std::filesystem::is_regular_file(path)) {
@@ -439,7 +438,7 @@ std::optional<std::filesystem::path> a3d::utils::SearchInPaths(const string& fil
 			}
 		}
 	}
-	A3D_LOG_W("Not found.");
+	A3D_LOG_W("'{}' not found.", filename);
 	return std::nullopt;
 }
 

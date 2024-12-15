@@ -67,22 +67,6 @@ int main(int argc, const char* argv[]) {
 		InitLog();
 		LogBuildInfo();
 
-
-
-
-		constexpr int ITERS = 1000000;
-
-
-
-
-		for (int i=0; i<ITERS; ++i) {
-
-		}
-
-
-
-		return 0;
-
 		auto window = make_unique<Window>(RenderingApi::OpenGL,
 										  *utils::ExecutableName(),
 										  WINDOW_SIZE,

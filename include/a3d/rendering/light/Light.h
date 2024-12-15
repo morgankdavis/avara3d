@@ -2,22 +2,23 @@
 //  Light.h
 //  avara3d
 //
-//  Created by Morgan Davis on 7/31/2024.
-//  Copyright © 2024-2024 Morgan K Davis. All rights reserved.
+//  Created by Morgan Davis on 10/21/16.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_LIGHT_H
 #define AVARA3D_LIGHT_H
 
 
-#include "a3d/Types.h"
-
 #include <memory>
 #include <optional>
 #include <string>
 
+#include "a3d/Types.h"
+
 
 namespace a3d {
+
 
 
 	class Color;
