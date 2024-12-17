@@ -30,6 +30,7 @@
 #include "magic_enum.hpp"
 
 #include "a3d/Buffer.h"
+#include "a3d/BuildInfo.h"
 #include "a3d/Color.h"
 #include "a3d/Configuration.h"
 #include "a3d/CubeImage.h"
@@ -1805,6 +1806,7 @@ void UpdateImguiScale(const RenderContext& context, const Font& font) {
 
 	using namespace ImGui;
 
+	constexpr float HEADING_FONT_SIZE = 21.0;
 	constexpr float FONT_SIZE = 15.0;
 
 	ImGui_ImplOpenGL3_DestroyFontsTexture();
@@ -1824,6 +1826,11 @@ void UpdateImguiScale(const RenderContext& context, const Font& font) {
 	ImGuiIO& io = ImGui::GetIO();
 
 	io.DisplayFramebufferScale = ImVec2(scaleXY.x, scaleXY.y);
+
+	io.Fonts->AddFontFromMemoryTTF(font.buffer()->data(),
+								   (int)font.buffer()->size(),
+								   HEADING_FONT_SIZE,
+								   &fontConfig);
 
 	io.Fonts->AddFontFromMemoryTTF(font.buffer()->data(),
 								   (int)font.buffer()->size(),
@@ -1857,39 +1864,57 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 		recordingStr[0] = '\0';
 	}
 
-	constexpr unsigned MAX_STATUS_STR_LEN = 512;
+	auto buildInfo = BuildInfo::Info();
+	auto version = buildInfo.version();
+
+	constexpr unsigned MAX_STATUS_STR_LEN = 1024;
 	static char str[MAX_STATUS_STR_LEN];
 	snprintf(str, MAX_STATUS_STR_LEN,
-			 "%-14s %.2f ms\n" \
-			 "%-14s %.2f ms\n" \
-			 "%-14s %.2f ms\n" \
-			 "%-14s %.2f ms\n" \
-			 "%-14s %.0f fps %s\n" \
+			 "v%d.%d.%d build %d\n" \
+			 "%s\n"
 			 "\n" \
-			 "%-14s %d\n" \
-			 "%-14s %d\n" \
-			 "%-14s %d\n" \
-			 "%-14s %.1fK\n" \
-			 "%-14s %d\n" \
+
+			 "%-20s %.2f ms\n" \
+			 "%-20s %.2f ms\n" \
+			 "%-20s %.2f ms\n" \
+			 "%-20s %.2f ms\n" \
+			 "%-20s %.0f fps %s\n" \
 			 "\n" \
-			 "%-14s %d\n" \
-			 "%-14s %d\n" \
-			 "%-14s %d\n" \
-			 "%-14s %d\n" \
-			 "%-14s %d\n" \
-			 "%-14s %d\n" \
-			 "%-14s %d\n" \
-			 "%-14s %d\n" \
-			 "%-14s %d\n" \
+
+			 "%-20s %dx%d\n" \
+			 "%-20s (%.1f, %.1f)\n" \
 			 "\n" \
-			 "%-14s (%.1f, %.1f, %.1f)\n" \
+
+			 "%-20s %d\n" \
+			 "%-20s %d\n" \
+			 "%-20s %d\n" \
+			 "%-20s %.1fK\n" \
+			 "%-20s %d\n" \
+			 "\n" \
+			 "%-20s %d\n" \
+			 "%-20s %d\n" \
+			 "%-20s %d\n" \
+			 "%-20s %d\n" \
+			 "%-20s %d\n" \
+			 "%-20s %d\n" \
+			 "%-20s %d\n" \
+			 "%-20s %d\n" \
+			 "%-20s %d\n" \
+			 "\n" \
+			 "%-20s (%.1f, %.1f, %.1f)\n" \
 			 "%s",
+
+			 version.major, version.minor, version.patch, buildInfo.number(),
+			 buildInfo.type() == BuildInfo::Type::Debug ? "debug" : "release",
 
 			 "frametime", stats.averageFrametime,
 			 " draw", stats.averageDrawtime,
 			 " physics", stats.averagePhysicstime,
 			 " user", stats.averageUsertime,
 			 "framerate", stats.averageFramerate, (context.vSyncEnabled() ? "[vsync]" : ""),
+
+			 "resolution", context.framebufferSize().x, context.framebufferSize().y,
+			 "framebuffer scale", context.framebufferScale().x, context.framebufferScale().y,
 
 			 "nodes", stats.nodes,
 			 "meshes", stats.meshes,
@@ -1905,9 +1930,9 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 			 " primitive", stats.primitiveShapes,
 			 " bounding box", stats.boundingBoxShapes,
 			 " convex hull", stats.convexHullShapes,
-			 " concave polyh", stats.concavePolyhedronShapes,
+			 " concave polyhedron", stats.concavePolyhedronShapes,
 
-			 "camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
+			 "camera position", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
 			 recordingStr);
 
 	ImGui_ImplOpenGL3_NewFrame();
@@ -1923,19 +1948,36 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 	windowFlags |= ImGuiWindowFlags_NoNav;
 	windowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
 
+	ImGuiIO& io = ImGui::GetIO();
+	auto fonts = io.Fonts->Fonts;
+
 	// draw the text shadow
 	SetNextWindowBgAlpha(0);
 	Begin("StatsTextShadow", nullptr, windowFlags);
 	ImGuiStyle& style = GetStyle();
 	style.WindowBorderSize = 0;
-	SetWindowPos({10.0f + 1, 10.0f + 1});
+	SetWindowPos({10.0f, 2.0f});
+	ImGui::PushFont(fonts[0]);
+	TextColored(ImVec4{0, 0, 0, .5}, "avara3d");
+
+	ImVec2 cursorPos = ImGui::GetCursorPos();
+	ImGui::SetCursorPos(ImVec2(cursorPos.x, cursorPos.y - 4.0));
+
+	ImGui::PushFont(fonts[1]);
 	TextColored(ImVec4{0, 0, 0, .5}, "%s", str);
 	End();
 
 	// draw the text
 	SetNextWindowBgAlpha(0);
 	Begin("StatsText", nullptr, windowFlags);
-	SetWindowPos({10.0f, 10.0f});
+	SetWindowPos({10.0f, 2.0f});
+	ImGui::PushFont(fonts[0]);
+	TextColored(ImVec4{1, 1, 1, 1}, "avara3d");
+
+	cursorPos = ImGui::GetCursorPos();
+	ImGui::SetCursorPos(ImVec2(cursorPos.x, cursorPos.y - 4.0));
+
+	ImGui::PushFont(fonts[1]);
 	TextColored(ImVec4{1, 1, 1, 1}, "%s", str);
 	End();
 
