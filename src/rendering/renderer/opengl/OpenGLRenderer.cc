@@ -209,6 +209,7 @@ static vector<Node*> 	SortedLights(map<Node*, float> lights);
 static void			InitImgui(const RenderContext& context);
 void 				UpdateImguiScale(const RenderContext& context, const Font& font);
 static void 		DrawStatsOverlay(Stats& stats, const RenderContext& context);
+//static string 		StatusOverlayDescriptionForAntialiasingMode(AntialiasingMode mode);
 static void 		SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode);
 static void 		SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode);
 static void 		SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max);
@@ -1867,6 +1868,8 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
 
+//	auto aaMode = context.antialiasingMode();
+
 	constexpr unsigned MAX_STATUS_STR_LEN = 1024;
 	static char str[MAX_STATUS_STR_LEN];
 	snprintf(str, MAX_STATUS_STR_LEN,
@@ -1888,7 +1891,7 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 			 "%-20s %d\n" \
 			 "%-20s %d\n" \
 			 "%-20s %d\n" \
-			 "%-20s %.1fK\n" \
+			 "%-20s %.1fk\n" \
 			 "%-20s %d\n" \
 			 "\n" \
 			 "%-20s %d\n" \
@@ -1914,6 +1917,9 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 			 "framerate", stats.averageFramerate, (context.vSyncEnabled() ? "[vsync]" : ""),
 
 			 "resolution", context.framebufferSize().x, context.framebufferSize().y,
+//			 	(aaMode == AntialiasingMode::None
+//				 ? ""
+//				 : StatusOverlayDescriptionForAntialiasingMode(aaMode).c_str()),
 			 "framebuffer scale", context.framebufferScale().x, context.framebufferScale().y,
 
 			 "nodes", stats.nodes,
@@ -1960,10 +1966,8 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 	ImGui::PushFont(fonts[0]);
 	TextColored(ImVec4{0, 0, 0, .5}, "avara3d");
 	ImGui::PopFont();
-
 	ImVec2 cursorPos = ImGui::GetCursorPos();
 	ImGui::SetCursorPos(ImVec2(cursorPos.x, cursorPos.y - 4.0));
-
 	ImGui::PushFont(fonts[1]);
 	TextColored(ImVec4{0, 0, 0, .5}, "%s", str);
 	ImGui::PopFont();
@@ -1976,10 +1980,8 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 	ImGui::PushFont(fonts[0]);
 	TextColored(ImVec4{1, 1, 1, 1}, "avara3d");
 	ImGui::PopFont();
-
 	cursorPos = ImGui::GetCursorPos();
 	ImGui::SetCursorPos(ImVec2(cursorPos.x, cursorPos.y - 4.0));
-
 	ImGui::PushFont(fonts[1]);
 	TextColored(ImVec4{1, 1, 1, 1}, "%s", str);
 	ImGui::PopFont();
@@ -1988,6 +1990,17 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 	Render();
 	ImGui_ImplOpenGL3_RenderDrawData(GetDrawData());
 }
+
+//string StatusOverlayDescriptionForAntialiasingMode(AntialiasingMode mode) {
+//
+//	switch (mode) {
+//		case AntialiasingMode::None: return "[none]";
+//		case AntialiasingMode::Msaa2X: return "[msaa 2x]";
+//		case AntialiasingMode::Msaa4X: return "[msaa 4x]";
+//		case AntialiasingMode::Msaa8X: return "[msaa 8x]";
+//		case AntialiasingMode::Msaa16X: return "[msaa 16x]";
+//	}
+//}
 
 void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode) {
 	
