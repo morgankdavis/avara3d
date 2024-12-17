@@ -1959,12 +1959,14 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 	SetWindowPos({10.0f, 2.0f});
 	ImGui::PushFont(fonts[0]);
 	TextColored(ImVec4{0, 0, 0, .5}, "avara3d");
+	ImGui::PopFont();
 
 	ImVec2 cursorPos = ImGui::GetCursorPos();
 	ImGui::SetCursorPos(ImVec2(cursorPos.x, cursorPos.y - 4.0));
 
 	ImGui::PushFont(fonts[1]);
 	TextColored(ImVec4{0, 0, 0, .5}, "%s", str);
+	ImGui::PopFont();
 	End();
 
 	// draw the text
@@ -1973,12 +1975,14 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 	SetWindowPos({10.0f, 2.0f});
 	ImGui::PushFont(fonts[0]);
 	TextColored(ImVec4{1, 1, 1, 1}, "avara3d");
+	ImGui::PopFont();
 
 	cursorPos = ImGui::GetCursorPos();
 	ImGui::SetCursorPos(ImVec2(cursorPos.x, cursorPos.y - 4.0));
 
 	ImGui::PushFont(fonts[1]);
 	TextColored(ImVec4{1, 1, 1, 1}, "%s", str);
+	ImGui::PopFont();
 	End();
 
 	Render();
