@@ -11,6 +11,7 @@
 
 
 #include <cstdio>
+#include <string>
 
 #include "a3d/Types.h"
 #include "a3d/diagnostic/logging/sink/LoggerSink.h"
@@ -39,7 +40,7 @@ namespace a3d {
 	Internal Member Functions
  *********************************************************************************************/
 
-		void 	write(const char* message, LogLevel level);
+		void 	write(const std::string& line, LogLevel level);
 	};
 }
 

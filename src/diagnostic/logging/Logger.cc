@@ -8,7 +8,6 @@
 
 #include "a3d/diagnostic/logging/Logger.h"
 
-#include <cstdarg>
 #include <ctime>
 #include <utility>
 
@@ -68,9 +67,9 @@ Logger& Logger::MainLogger() {
  *********************************************************************************************/
 
 string DateString();
-string HeaderString(const string& logName, LogLevel level);
+//string HeaderString(const string& logName, LogLevel level);
 string HeaderString(const string& logName, LogLevel level,
-					const char* filename, int line, const char* function);
+					const Logger::SourceInfo& sourceInfo);
 
 /*********************************************************************************************
 	Public Lifecycle Functions
@@ -127,212 +126,35 @@ void Logger::flushLevel(LogLevel level) {
 	_flushLevel = level;
 }
 
+void Logger::flush() {
 
-
-void Logger::trace() {
-
-}
-
-
-
-void Logger::trace(const char* format, ...) {
-
-	va_list args;
-	va_start(args, format);
-	log(LogLevel::Trace, format, args);
-	va_end(args);
-}
-
-void Logger::debug(const char* format, ...) {
-
-	va_list args;
-	va_start(args, format);
-	log(LogLevel::Debug, format, args);
-	va_end(args);
-}
-
-void Logger::info(const char* format, ...) {
-
-	va_list args;
-	va_start(args, format);
-	log(LogLevel::Info, format, args);
-	va_end(args);
-}
-
-void Logger::warn(const char* format, ...) {
-
-	va_list args;
-	va_start(args, format);
-	log(LogLevel::Warn, format, args);
-	va_end(args);
-}
-
-void Logger::error(const char* format, ...) {
-
-	va_list args;
-	va_start(args, format);
-	log(LogLevel::Error, format, args);
-	va_end(args);
-}
-
-void Logger::fatal(const char* format, ...) {
-
-	va_list args;
-	va_start(args, format);
-	log(LogLevel::Fatal, format, args);
-	va_end(args);
-}
-
-void Logger::crumb(const char* filename, int line, const char* function) {
-
-	if (static_cast<underlying_type<LogLevel>::type>(LogLevel::Trace)
-		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
-		log_crumb(filename, line, function);
+	for (auto& sink : _sinks) {
+		sink->flush();
 	}
 }
 
-void Logger::trace(const char* filename, int line, const char* function,
-				   const char* format, ...) {
-
-	if (static_cast<underlying_type<LogLevel>::type>(LogLevel::Trace)
-		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
-		va_list args;
-		va_start(args, format);
-		log(LogLevel::Trace, filename, line, function, format, args);
-		va_end(args);
-	}
-}
-
-void Logger::debug(const char* filename, int line, const char* function,
-				   const char* format, ...) {
-
-	if (static_cast<underlying_type<LogLevel>::type>(LogLevel::Debug)
-		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
-		va_list args;
-		va_start(args, format);
-		log(LogLevel::Debug, filename, line, function, format, args);
-		va_end(args);
-	}
-}
-
-void Logger::info(const char* filename, int line, const char* function,
-				  const char* format, ...) {
-
-	if (static_cast<underlying_type<LogLevel>::type>(LogLevel::Info)
-		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
-		va_list args;
-		va_start(args, format);
-		log(LogLevel::Info, filename, line, function, format, args);
-		va_end(args);
-	}
-}
-
-void Logger::warn(const char* filename, int line, const char* function,
-				  const char* format, ...) {
-
-	if (static_cast<underlying_type<LogLevel>::type>(LogLevel::Warn)
-		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
-		va_list args;
-		va_start(args, format);
-		log(LogLevel::Warn, filename, line, function, format, args);
-		va_end(args);
-	}
-}
-
-void Logger::error(const char* filename, int line, const char* function,
-				   const char* format, ...) {
-
-	if (static_cast<underlying_type<LogLevel>::type>(LogLevel::Error)
-		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
-		va_list args;
-		va_start(args, format);
-		log(LogLevel::Error, filename, line, function, format, args);
-		va_end(args);
-	}
-}
-
-void Logger::fatal(const char* filename, int line, const char* function,
-				   const char* format, ...) {
-
-	if (static_cast<underlying_type<LogLevel>::type>(LogLevel::Fatal)
-		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
-		va_list args;
-		va_start(args, format);
-		log(LogLevel::Fatal, filename, line, function, format, args);
-		va_end(args);
-	}
-}
-
-// constructs body with variable args list
 void Logger::log(LogLevel level,
-				 const char* format, va_list args) {
-
-	if (static_cast<underlying_type<LogLevel>::type>(level)
-		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
-		char body[MAX_LOG_BODY_SIZE];
-
-		// https://en.cppreference.com/w/c/io/vfprintf
-		vsnprintf(body, MAX_LOG_BODY_SIZE, format, args);
-
-		dispatch(level, body);
-	}
-}
-
-// constructs body with variable args list
-void Logger::log(LogLevel level,
-				 const char* filename, int line, const char* function,
-				 const char* format, va_list args) {
-
-	char body[MAX_LOG_BODY_SIZE];
-
-	// https://en.cppreference.com/w/c/io/vfprintf
-	vsnprintf(body, MAX_LOG_BODY_SIZE, format, args);
-
-//	if (useHeader) {
-		construct(level, filename, line, function, body);
-//	}
-//	else {
-//		dispatch(level, body);
-//	}
-}
-
-void Logger::log_crumb(const char* filename, int line, const char* function) {
-
-	dispatch(LogLevel::Trace,
-			 HeaderString(_name, LogLevel::Trace, filename, line, function).c_str());
-}
-
-void Logger::construct(LogLevel level, const char* body) {
+				 const SourceInfo& sourceInfo,
+				 const std::string& msg) {
 
 	if (static_cast<underlying_type<LogLevel>::type>(level)
 		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
 
-		char lineStr[MAX_LOG_LINE_SIZE];
-		snprintf(lineStr, MAX_LOG_LINE_SIZE, "%s %s",
-				 HeaderString(_name, level).c_str(),
-				 body);
-
-		dispatch(level, lineStr);
+		construct(level, sourceInfo, msg);
 	}
 }
 
 void Logger::construct(LogLevel level,
-					   const char* filename, int line, const char* function,
-					   const char* body) {
+					   const SourceInfo& sourceInfo,
+					   const std::string& msg) {
 
-//	if (static_cast<underlying_type<LogLevel>::type>(level)
-//		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
-
-		char lineStr[MAX_LOG_LINE_SIZE];
-		snprintf(lineStr, MAX_LOG_LINE_SIZE, "%s %s",
-				 HeaderString(_name, level, filename, line, function).c_str(),
-				 body);
-
-		dispatch(level, lineStr);
-//	}
+	auto lineStr = fmt::format("{} {}",
+							   HeaderString(_name, level, sourceInfo),
+							   msg);
+	dispatch(level, lineStr);
 }
 
-void Logger::dispatch(LogLevel level, const char* line) {
+void Logger::dispatch(LogLevel level, std::string& line) {
 
 	for (auto& sink : _sinks) {
 
@@ -349,14 +171,6 @@ void Logger::dispatch(LogLevel level, const char* line) {
 		>= static_cast<underlying_type<LogLevel>::type>(_flushLevel)) {
 		flush();
 	}
-}
-
-
-void Logger::flush() {
-
-	for (auto& sink : _sinks) {
-		sink->flush();
-	}	
 }
 
 /*********************************************************************************************
@@ -385,30 +199,18 @@ string DateString() {
 #endif
 }
 
-string HeaderString(const string& logName, LogLevel level) {
-
-	char headerStr[MAX_HEADER_STR_SIZE];
-	snprintf(headerStr, MAX_HEADER_STR_SIZE, "%s [%s] [%s]",
-			 DateString().c_str(),
-			 logName.c_str(),
-			 string(magic_enum::enum_name(level)).c_str());
-
-	//return string((const char*)headerStr);
-	return {(const char*)headerStr};
-}
-
 string HeaderString(const string& logName, LogLevel level,
-					const char* filename, int line, const char* function) {
+					const Logger::SourceInfo& sourceInfo) {
 
-	char headerStr[MAX_HEADER_STR_SIZE];
-	snprintf(headerStr, MAX_HEADER_STR_SIZE, "%s [%s] [%s] [%s:%d] [%s()]",
-			 DateString().c_str(),
-			 logName.c_str(),
-			 string(magic_enum::enum_name(level)).c_str(),
-			 filename,
-			 line,
-			 function);
+	auto filename = get<0>(sourceInfo);
+	auto line = get<1>(sourceInfo);
+	auto function = get<2>(sourceInfo);
 
-	//return string((const char*)headerStr);
-	return {(const char*)headerStr};
+	return fmt::format("{} [{}] [{}] [{}:{}] [{}()]",
+					   DateString(),
+					   logName,
+					   string(magic_enum::enum_name(level)),
+					   filename,
+					   line,
+					   function);
 }

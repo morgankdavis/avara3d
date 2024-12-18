@@ -82,9 +82,9 @@ void FileLoggerSink::flush() {
 	Internal Member Functions
  *********************************************************************************************/
 
-void FileLoggerSink::write(const char* message) {
+void FileLoggerSink::write(const string& line) {
 
-	*_fileStream << message << endl;
+	*_fileStream << line << endl;
 
 	checkRotate();
 }
