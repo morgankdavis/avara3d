@@ -263,7 +263,7 @@ RenderingApi OpenGLRenderer::renderingApi() const {
 
 bool OpenGLRenderer::initialize(const RenderContext& context) {
 	
-	A3D_LOG_C();
+	A3D_LOG_I("");
 
 	// create environment UBO
 	

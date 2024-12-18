@@ -131,7 +131,7 @@ void PhysicsShape::source(const Source& sourceObject) {
 }
 
 void PhysicsShape::checkCreateProxy() {
-	A3D_LOG_C();
+	A3D_LOG_T("");
 
 	if (!_proxy) {
 		_proxy = make_unique<BulletShapeProxy>(*this);

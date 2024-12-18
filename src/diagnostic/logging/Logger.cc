@@ -127,6 +127,14 @@ void Logger::flushLevel(LogLevel level) {
 	_flushLevel = level;
 }
 
+
+
+void Logger::trace() {
+
+}
+
+
+
 void Logger::trace(const char* format, ...) {
 
 	va_list args;
@@ -183,80 +191,74 @@ void Logger::crumb(const char* filename, int line, const char* function) {
 	}
 }
 
-void Logger::trace(bool useHeader,
-				   const char* filename, int line, const char* function,
+void Logger::trace(const char* filename, int line, const char* function,
 				   const char* format, ...) {
 
 	if (static_cast<underlying_type<LogLevel>::type>(LogLevel::Trace)
 		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
 		va_list args;
 		va_start(args, format);
-		log(LogLevel::Trace, useHeader, filename, line, function, format, args);
+		log(LogLevel::Trace, filename, line, function, format, args);
 		va_end(args);
 	}
 }
 
-void Logger::debug(bool useHeader,
-				   const char* filename, int line, const char* function,
+void Logger::debug(const char* filename, int line, const char* function,
 				   const char* format, ...) {
 
 	if (static_cast<underlying_type<LogLevel>::type>(LogLevel::Debug)
 		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
 		va_list args;
 		va_start(args, format);
-		log(LogLevel::Debug, useHeader, filename, line, function, format, args);
+		log(LogLevel::Debug, filename, line, function, format, args);
 		va_end(args);
 	}
 }
 
-void Logger::info(bool useHeader,
-				  const char* filename, int line, const char* function,
+void Logger::info(const char* filename, int line, const char* function,
 				  const char* format, ...) {
 
 	if (static_cast<underlying_type<LogLevel>::type>(LogLevel::Info)
 		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
 		va_list args;
 		va_start(args, format);
-		log(LogLevel::Info, useHeader, filename, line, function, format, args);
+		log(LogLevel::Info, filename, line, function, format, args);
 		va_end(args);
 	}
 }
 
-void Logger::warn(bool useHeader,
-				  const char* filename, int line, const char* function,
+void Logger::warn(const char* filename, int line, const char* function,
 				  const char* format, ...) {
 
 	if (static_cast<underlying_type<LogLevel>::type>(LogLevel::Warn)
 		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
 		va_list args;
 		va_start(args, format);
-		log(LogLevel::Warn, useHeader, filename, line, function, format, args);
+		log(LogLevel::Warn, filename, line, function, format, args);
 		va_end(args);
 	}
 }
 
-void Logger::error(bool useHeader,
-				   const char* filename, int line, const char* function,
+void Logger::error(const char* filename, int line, const char* function,
 				   const char* format, ...) {
 
 	if (static_cast<underlying_type<LogLevel>::type>(LogLevel::Error)
 		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
 		va_list args;
 		va_start(args, format);
-		log(LogLevel::Error, useHeader, filename, line, function, format, args);
+		log(LogLevel::Error, filename, line, function, format, args);
 		va_end(args);
 	}
 }
 
-void Logger::fatal(bool useHeader,
-				  const char* filename, int line, const char* function,
-				  const char* format, ...) {
+void Logger::fatal(const char* filename, int line, const char* function,
+				   const char* format, ...) {
 
 	if (static_cast<underlying_type<LogLevel>::type>(LogLevel::Fatal)
 		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
 		va_list args;
 		va_start(args, format);
-		log(LogLevel::Fatal, useHeader, filename, line, function, format, args);
+		log(LogLevel::Fatal, filename, line, function, format, args);
 		va_end(args);
 	}
 }
@@ -278,7 +280,6 @@ void Logger::log(LogLevel level,
 
 // constructs body with variable args list
 void Logger::log(LogLevel level,
-				 bool useHeader,
 				 const char* filename, int line, const char* function,
 				 const char* format, va_list args) {
 
@@ -287,12 +288,12 @@ void Logger::log(LogLevel level,
 	// https://en.cppreference.com/w/c/io/vfprintf
 	vsnprintf(body, MAX_LOG_BODY_SIZE, format, args);
 
-	if (useHeader) {
+//	if (useHeader) {
 		construct(level, filename, line, function, body);
-	}
-	else {
-		dispatch(level, body);
-	}
+//	}
+//	else {
+//		dispatch(level, body);
+//	}
 }
 
 void Logger::log_crumb(const char* filename, int line, const char* function) {
