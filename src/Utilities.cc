@@ -265,14 +265,31 @@ double a3d::utils::Time() {
 	String
  *********************************************************************************************/
 
-void a3d::utils::StringReplace(string& str,
-							  const string& oldStr,
-							  const string& newStr) {
+void a3d::utils::Replace(string &str,
+						 const std::string &oldStr,
+						 const std::string &newStr) {
 	string::size_type pos = 0u;
 	while ((pos = str.find(oldStr, pos)) != string::npos) {
 		str.replace(pos, oldStr.length(), newStr);
 		pos += newStr.length();
 	}
+}
+
+vector<string> a3d::utils::Split(const string& s, string delim) {
+	// https://stackoverflow.com/a/46931770
+
+	size_t pos_start = 0, pos_end, delim_len = delim.length();
+	string token;
+	vector<string> res;
+
+	while ((pos_end = s.find(delim, pos_start)) != string::npos) {
+		token = s.substr (pos_start, pos_end - pos_start);
+		pos_start = pos_end + delim_len;
+		res.push_back(token);
+	}
+	res.push_back(s.substr (pos_start));
+
+	return res;
 }
 
 /*********************************************************************************************
@@ -430,10 +447,10 @@ vector<std::filesystem::path> a3d::utils::FontSearchPaths() {
 std::optional<std::filesystem::path> a3d::utils::SearchInPaths(const string& filename,
 															  vector<std::filesystem::path> paths) {
 	for (auto& searchPath : paths) {
-		A3D_LOG_D("Found '{}' at '{}'", searchPath.string(), filename);
 		if (std::filesystem::is_directory(searchPath)) {
 			auto path = searchPath / filename;
 			if (std::filesystem::is_regular_file(path)) {
+				//A3D_LOG_D("Found '{}' at '{}'", searchPath.string(), filename);
 				return path;
 			}
 		}

@@ -495,8 +495,11 @@ unique_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 	auto framebufferHeight = (unsigned)round(framebufferSize.y);
 
 	unsigned char pixelBuf[framebufferWidth * framebufferHeight * 4];
-	glReadPixels(0, 0, (GLsizei)framebufferWidth, (GLsizei)framebufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixelBuf);
-	auto buffer = make_unique<Buffer>((std::byte*)pixelBuf, framebufferWidth * framebufferHeight * 4);
+	glReadPixels(0, 0,
+				 (GLsizei)framebufferWidth, (GLsizei)framebufferHeight,
+				 GL_RGBA, GL_UNSIGNED_BYTE, pixelBuf);
+	auto buffer = make_unique<Buffer>((std::byte*)pixelBuf,
+									  framebufferWidth * framebufferHeight * 4);
 	return make_unique<Image>(std::move(buffer), framebufferWidth, framebufferHeight, 4);
 }
 
@@ -575,7 +578,8 @@ void GetMeshElementGLVertexDataHandles(MeshElement& element,
 		
 		glMapping[&element] = make_tuple(glVBO, glVAO, glEBO);
 
-		element.dirtyMask(A3D_MASK_REMOVE(element.dirtyMask(), MeshElementDirtyMask::VertexData));
+		element.dirtyMask(A3D_MASK_REMOVE(element.dirtyMask(),
+										  MeshElementDirtyMask::VertexData));
 	}
 	else {
 		auto mapping = glMapping[&element];
@@ -605,7 +609,8 @@ void GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
 		
 		glMapping[element.get()] = make_tuple(glVBO, glVAO, glEBO);
 
-		element->dirtyMask(A3D_MASK_REMOVE(element->dirtyMask(), MeshElementDirtyMask::VertexData));
+		element->dirtyMask(A3D_MASK_REMOVE(element->dirtyMask(),
+										   MeshElementDirtyMask::VertexData));
 	}
 	else {
 		auto mapping = glMapping[element.get()];
@@ -676,7 +681,8 @@ void BufferMeshElementVertexData(const MeshElement& element,
 								 Program& program,
 								 GLuint& glVBO, GLuint& glVAO, GLuint& glEBO) {
 
-	A3D_LOG_D("Buffering vertex data for mesh element {:p}...", static_cast<const void*>(&element));
+	A3D_LOG_D("Buffering vertex data for mesh element {:p}...",
+			  static_cast<const void*>(&element));
 	
 	program.use();
 	
@@ -744,7 +750,8 @@ void BufferSkyboxVertexData(Mesh& skyboxMesh,
 	
 	glGenBuffers(1, &glVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
-	glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(verts.size()*sizeof(Vertex)), &(verts[0]), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(verts.size()*sizeof(Vertex)),
+				 &(verts[0]), GL_STATIC_DRAW);
 	
 	glGenVertexArrays(1, &glVAO);
 	glBindVertexArray(glVAO);
@@ -792,7 +799,8 @@ void BufferLinesVertexData(const vector<Line>& lines,
 
 	glGenBuffers(1, &glVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
-	glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(massagedBuffer.size()*sizeof(vec3)), massagedBuffer.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(massagedBuffer.size()*sizeof(vec3)),
+				 massagedBuffer.data(), GL_STATIC_DRAW);
 
 	glGenVertexArrays(1, &glVAO);
 	glBindVertexArray(glVAO);
@@ -1695,7 +1703,8 @@ void DeleteMeshElementGLResources(MeshElement* element,
 	
 	if (glMapping.count(element)) {
 		
-		A3D_LOG_D("Deleting GL resources for MeshElement {:p}...", static_cast<void*>(element));
+		A3D_LOG_D("Deleting GL resources for MeshElement {:p}...",
+				  static_cast<void*>(element));
 		
 		auto glHandles = glMapping[element];
 		
@@ -1722,7 +1731,8 @@ void DeleteTextureGLResources(Texture* texture,
 	
 	if (glMapping.count(texture)) {
 		
-		A3D_LOG_D("Deleting GL resources for MaterialProperty {:p}...", static_cast<void*>(texture));
+		A3D_LOG_D("Deleting GL resources for MaterialProperty {:p}...",
+				  static_cast<void*>(texture));
 
 		auto handle = glMapping[texture];
 		

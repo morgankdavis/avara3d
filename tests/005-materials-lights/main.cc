@@ -48,11 +48,14 @@ void ProcessEdit(Node& node, set<Key>& keysDown, set<Key>& keysPressed);
 
 std::unique_ptr<a3d::Logger>	g_logger;
 a3d::Node*						g_pointLightNode;
+double 							g_startTime;
 
 
 int main(int argc, const char* argv[]) {
 
 	try {
+		g_startTime = utils::Time();
+
 		InitLog();
 		LogBuildInfo();
 
@@ -203,6 +206,13 @@ int main(int argc, const char* argv[]) {
  ***************************************************************************************/
 
 void UpdateCallback(Scene& scene, float time, float deltaTime) {
+	static int invocations = 0;
+	if (invocations == 2) {
+		double time = utils::Time() - g_startTime;
+		A3D_LOG_I("START TIME: {}", time);
+	}
+	++invocations;
+
 	LOG_T(g_logger, "scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
 
 	auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
