@@ -26,6 +26,7 @@
 
 #define NOOP ((void)0)
 
+
 /*********************************************************************************************
 	Public Macro Functions
  *********************************************************************************************/
@@ -135,27 +136,33 @@ namespace a3d {
 		LogLevel 				flushLevel() const;
 		void 					flushLevel(LogLevel level);
 
-		void 					flush();
-
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+		void					trace(const std::string& msg);
+		void					debug(const std::string& msg);
+		void					info(const std::string& msg);
+		void					warn(const std::string& msg);
+		void					error(const std::string& msg);
+		void					fatal(const std::string& msg);
 
 		void 					log(LogLevel level,
 									const SourceInfo& sourceInfo,
 									const std::string& msg);
 
-		void 					construct(LogLevel level,
-										  const SourceInfo& sourceInfo,
-										  const std::string& msg);
+		void 					flush();
 
-		void 					dispatch(LogLevel level, std::string& line);
+/*********************************************************************************************
+	Private  Member Functions
+ *********************************************************************************************/
+
+	private:
+
+		void 					log(LogLevel level,
+									const std::string& msg);
+
+		void 					dispatch(LogLevel level, std::string& output);
 
 /*********************************************************************************************
 	Private Constants
  *********************************************************************************************/
-
-	private:
 
 		static constexpr LogLevel DEFAULT_LEVEL = LogLevel::Debug;
 		static constexpr LogLevel DEFAULT_FLUSH_LEVEL = LogLevel::Warn;

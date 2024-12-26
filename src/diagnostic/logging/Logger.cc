@@ -59,6 +59,7 @@ Logger& Logger::MainLogger() {
 string TimestampString();
 string HeaderString(const string& logName, LogLevel level,
 					const Logger::SourceInfo& sourceInfo);
+string HeaderString(const string& logName, LogLevel level);
 
 /*********************************************************************************************
 	Public Lifecycle Functions
@@ -115,11 +116,28 @@ void Logger::flushLevel(LogLevel level) {
 	_flushLevel = level;
 }
 
-void Logger::flush() {
+void Logger::trace(const string& msg) {
+	log(LogLevel::Trace, msg);
+}
 
-	for (auto& sink : _sinks) {
-		sink->flush();
-	}
+void Logger::debug(const string& msg) {
+	log(LogLevel::Debug, msg);
+}
+
+void Logger::info(const string& msg) {
+	log(LogLevel::Info, msg);
+}
+
+void Logger::warn(const string& msg) {
+	log(LogLevel::Warn, msg);
+}
+
+void Logger::error(const string& msg) {
+	log(LogLevel::Error, msg);
+}
+
+void Logger::fatal(const string& msg) {
+	log(LogLevel::Fatal, msg);
 }
 
 void Logger::log(LogLevel level,
@@ -129,30 +147,47 @@ void Logger::log(LogLevel level,
 	if (static_cast<underlying_type<LogLevel>::type>(level)
 		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
 
-		construct(level, sourceInfo, msg);
+		auto lineStr = fmt::format("{} {}\n",
+								   HeaderString(_name, level, sourceInfo),
+								   msg);
+		dispatch(level, lineStr);
 	}
 }
 
-void Logger::construct(LogLevel level,
-					   const SourceInfo& sourceInfo,
-					   const std::string& msg) {
+void Logger::flush() {
 
-	auto lineStr = fmt::format("{} {}",
-							   HeaderString(_name, level, sourceInfo),
-							   msg);
-	dispatch(level, lineStr);
+	for (auto& sink : _sinks) {
+		sink->flush();
+	}
 }
 
-void Logger::dispatch(LogLevel level, std::string& line) {
+/*********************************************************************************************
+	Private  Member Functions
+ *********************************************************************************************/
+
+void Logger::log(LogLevel level,
+				 const std::string& msg) {
+
+	if (static_cast<underlying_type<LogLevel>::type>(level)
+		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
+
+		auto lineStr = fmt::format("{} {}\n",
+								   HeaderString(_name, level),
+								   msg);
+		dispatch(level, lineStr);
+	}
+}
+
+void Logger::dispatch(LogLevel level, std::string& output) {
 
 	for (auto& sink : _sinks) {
 
 		if (auto stdOutSink = dynamic_cast<StdOutLoggerSink*>(sink.get())) {
-			stdOutSink->write(line, level);
+			stdOutSink->write(output, level);
 		}
 
 		if (auto fileLoggerSink = dynamic_cast<FileLoggerSink*>(sink.get())) {
-			fileLoggerSink->write(line);
+			fileLoggerSink->write(output);
 		}
 	}
 
@@ -199,4 +234,12 @@ string HeaderString(const string& logName, LogLevel level,
 					   get<0>(sourceInfo),
 					   get<1>(sourceInfo),
 					   get<2>(sourceInfo));
+}
+
+string HeaderString(const string& logName, LogLevel level) {
+
+	return fmt::format("{} [{}] [{}]",
+					   TimestampString(),
+					   logName,
+					   magic_enum::enum_name(level));
 }

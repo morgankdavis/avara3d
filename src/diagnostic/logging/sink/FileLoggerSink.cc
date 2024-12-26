@@ -84,7 +84,7 @@ void FileLoggerSink::flush() {
 
 void FileLoggerSink::write(const string& output) {
 
-	*_fileStream << output << endl;
+	*_fileStream << output;
 
 	checkRotate();
 }

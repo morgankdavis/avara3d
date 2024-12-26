@@ -8,6 +8,7 @@
 
 #include "a3d/diagnostic/logging/sink/StdOutLoggerSink.h"
 
+#include <iostream>
 #ifdef WINDOWS
 #include <windows.h>
 #undef ERROR // see note at LOG_LEVEL
@@ -33,8 +34,9 @@ StdOutLoggerSink::~StdOutLoggerSink() {
 
 void StdOutLoggerSink::flush() {
 
-	fflush(stdout);
-	fflush(stderr);
+	// also flushes cout
+	// https://stackoverflow.com/questions/6027034/why-cerr-flushes-the-buffer-of-cout
+	cerr.flush();
 }
 
 /*********************************************************************************************
@@ -45,14 +47,14 @@ void StdOutLoggerSink::write(const string& output, LogLevel level) {
 
 	if (static_cast<underlying_type<LogLevel>::type>(level)
 		>= static_cast<underlying_type<LogLevel>::type>(LogLevel::Error)) {
-		fprintf(stderr, "%s\n", output.c_str());
-
+		cerr << output;
 	}
 	else {
-		fprintf(stdout, "%s\n", output.c_str());
+		cout << output;
 	}
 
 #ifdef WINDOWS
+	// TODO: no.
 	const size_t bufSize = strlen(message) + 2;
 	auto newLined = (char*)malloc(bufSize);
 	//snprintf(newLined, bufSize, "%s\n", message);
