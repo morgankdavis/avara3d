@@ -40,7 +40,7 @@ namespace a3d {
 	Internal Member Functions
  *********************************************************************************************/
 
-		void 	write(const std::string& line, LogLevel level);
+		void 	write(const std::string& output, LogLevel level);
 	};
 }
 

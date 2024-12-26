@@ -41,15 +41,15 @@ void StdOutLoggerSink::flush() {
 	Internal Member Functions
  **************************************************************************************/
 
-void StdOutLoggerSink::write(const string& line, LogLevel level) {
+void StdOutLoggerSink::write(const string& output, LogLevel level) {
 
 	if (static_cast<underlying_type<LogLevel>::type>(level)
 		>= static_cast<underlying_type<LogLevel>::type>(LogLevel::Error)) {
-		fprintf(stderr, "%s\n", line.c_str());
+		fprintf(stderr, "%s\n", output.c_str());
 
 	}
 	else {
-		fprintf(stdout, "%s\n", line.c_str());
+		fprintf(stdout, "%s\n", output.c_str());
 	}
 
 #ifdef WINDOWS

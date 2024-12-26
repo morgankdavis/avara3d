@@ -28,11 +28,6 @@ using namespace a3d;
 using namespace std;
 
 
-constexpr size_t MAX_HEADER_STR_SIZE = 256;
-constexpr size_t MAX_LOG_BODY_SIZE = 1024 * 256; // ~256,000 characters
-constexpr size_t MAX_LOG_LINE_SIZE = MAX_HEADER_STR_SIZE + MAX_LOG_BODY_SIZE;
-
-
 /*********************************************************************************************
 	Public Static Member Functions
  *********************************************************************************************/
@@ -42,17 +37,12 @@ Logger& Logger::MainLogger() {
 	static unique_ptr<Logger> logger = nullptr;
 
 	if (!logger) {
-//		string executableName = *utils::ExecutableName();
-//		auto nativeSink = make_unique<StdOutLoggerSink>();
-//		auto fileSink = make_unique<FileLoggerSink>(*(utils::ExecutableDirectory())
-//													/ (executableName + string(".log")));
+
 		string executableName = *utils::ExecutableName();
 		auto nativeSink = make_unique<StdOutLoggerSink>();
 		auto fileSink = make_unique<FileLoggerSink>(*(utils::ExecutableDirectory()) / "a3d.log");
 
 		auto sinks = unordered_set<unique_ptr<LoggerSink>>();
-//		sinks.insert(static_pointer_cast<LoggerSink>(nativeSink));
-//		sinks.insert(static_pointer_cast<LoggerSink>(fileSink));
 		sinks.insert(std::move(nativeSink));
 		sinks.insert(std::move(fileSink));
 
@@ -63,11 +53,10 @@ Logger& Logger::MainLogger() {
 }
 
 /*********************************************************************************************
-	Private Static Member Prototypes
+	Private Static Prototypes
  *********************************************************************************************/
 
-string DateString();
-//string HeaderString(const string& logName, LogLevel level);
+string TimestampString();
 string HeaderString(const string& logName, LogLevel level,
 					const Logger::SourceInfo& sourceInfo);
 
@@ -174,10 +163,11 @@ void Logger::dispatch(LogLevel level, std::string& line) {
 }
 
 /*********************************************************************************************
-	Private Static Member Functions
+	Private Static Functions
  *********************************************************************************************/
 
-string DateString() {
+// TODO: move to utilities?
+string TimestampString() {
 
 	constexpr size_t BUF_SIZE = 256;
 	char buf[BUF_SIZE];
@@ -202,15 +192,11 @@ string DateString() {
 string HeaderString(const string& logName, LogLevel level,
 					const Logger::SourceInfo& sourceInfo) {
 
-	auto filename = get<0>(sourceInfo);
-	auto line = get<1>(sourceInfo);
-	auto function = get<2>(sourceInfo);
-
 	return fmt::format("{} [{}] [{}] [{}:{}] [{}()]",
-					   DateString(),
+					   TimestampString(),
 					   logName,
-					   string(magic_enum::enum_name(level)),
-					   filename,
-					   line,
-					   function);
+					   magic_enum::enum_name(level),
+					   get<0>(sourceInfo),
+					   get<1>(sourceInfo),
+					   get<2>(sourceInfo));
 }

@@ -50,7 +50,7 @@ namespace a3d {
 	Internal Member Functions
  *********************************************************************************************/
 
-		void 								write(const std::string& line);
+		void 								write(const std::string& output);
 
 /*********************************************************************************************
 	Private Constants
