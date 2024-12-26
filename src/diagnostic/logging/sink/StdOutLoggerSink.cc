@@ -9,6 +9,7 @@
 #include "a3d/diagnostic/logging/sink/StdOutLoggerSink.h"
 
 #include <iostream>
+
 #ifdef WINDOWS
 #include <windows.h>
 #undef ERROR // see note at LOG_LEVEL

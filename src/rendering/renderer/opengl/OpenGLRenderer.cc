@@ -495,6 +495,8 @@ unique_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 	auto framebufferHeight = (unsigned)round(framebufferSize.y);
 
 	unsigned char pixelBuf[framebufferWidth * framebufferHeight * 4];
+	// TODO: SEGV under Plasma Wayland
+	// info/solution? https://projects.blender.org/blender/blender/issues/98462#issuecomment-127388
 	glReadPixels(0, 0,
 				 (GLsizei)framebufferWidth, (GLsizei)framebufferHeight,
 				 GL_RGBA, GL_UNSIGNED_BYTE, pixelBuf);

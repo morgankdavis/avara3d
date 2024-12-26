@@ -42,6 +42,7 @@
 #undef max // windows.h defines a 'max'... (we want std::max())
 #include <algorithm> // needs to be under windows.h
 
+#include "fmt/format.h"
 #include "glm/gtc/quaternion.hpp"
 
 #include "a3d/Buffer.h"

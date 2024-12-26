@@ -12,7 +12,6 @@
 
 #include "fmt/format.h"
 
-
 #include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/logging/Logger.h"
 
