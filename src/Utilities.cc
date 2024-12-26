@@ -94,14 +94,15 @@ ostream& a3d::utils::operator<<(ostream& os, const glm::quat& q) {
 ostream& a3d::utils::operator<<(ostream& os, const mat4& m) {
 	// "GLM uses column major ordering, so the addressing is m[col][row]"
 	// http://stackoverflow.com/questions/26454838/glm-multiplication-order
-	
-	char str[PATH_MAX];
-	snprintf(str, sizeof(str),
-			 "%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f",
-			 m[0][0], m[1][0], m[2][0], m[3][0], // column major, OpenGL/GLM style
-			 m[0][1], m[1][1], m[2][1], m[3][1],
-			 m[0][2], m[1][2], m[2][2], m[3][2],
-			 m[0][3], m[1][3], m[2][3], m[3][3]);
+
+	auto str = fmt::format("{:.2f}\t{:.2f}\t{:.2f}\t{:.2f}\n" \
+							"{:.2f}\t{:.2f}\t{:.2f}\t{:.2f}\n" \
+						   "{:.2f}\t{:.2f}\t{:.2f}\t{:.2f}\n" \
+						   "{:.2f}\t{:.2f}\t{:.2f}\t{:.2f}",
+						   m[0][0], m[1][0], m[2][0], m[3][0], // column major, OpenGL/GLM style
+						   m[0][1], m[1][1], m[2][1], m[3][1],
+						   m[0][2], m[1][2], m[2][2], m[3][2],
+						   m[0][3], m[1][3], m[2][3], m[3][3]);
 
 	return (os << str);
 }
@@ -587,23 +588,16 @@ shared_ptr<Mesh> a3d::utils::MeshNamed(const string& name,
 
 void a3d::utils::SaveSnapshot(RenderContext& context) {
 
-	auto image = context.snapshot();
-
-	string dateTime = DateTimeString();
-
-	constexpr size_t BUF_SIZE = 256;
-	char filename[BUF_SIZE] = "";
-	snprintf(filename, BUF_SIZE, "Snapshot_%s.png", dateTime.c_str());
-
-	A3D_LOG_I("Saving snapshot '{}'...", filename);
-
 	auto execDir = ExecutableDirectory();
 	if (execDir) {
+		auto filename = fmt::format("Snapshot_{}.gif", DateTimeString());
+		A3D_LOG_I("Saving snapshot to '{}'", (*execDir/filesystem::path(filename)).string());
+		auto image = context.snapshot();
 		auto fullPath = *execDir / filename;
 		image->writePNG(fullPath);
 	}
 	else {
-		A3D_LOG_W("Couldn't locate executable directory.");
+		A3D_LOG_E("Failed to save snapshot.  Couldn't locate executable directory.");
 	}
 }
 
@@ -611,11 +605,10 @@ void a3d::utils::StartGIFRecording(RenderContext& context,
 								   vec2 fitInside,
 								   unsigned maxFramerate) {
 
-	constexpr size_t BUF_SIZE = 256;
-	char filename[BUF_SIZE] = "";
-	snprintf(filename, BUF_SIZE, "Recording_%s.gif", DateTimeString().c_str());
 	auto execDir = ExecutableDirectory();
 	if (execDir) {
+		auto filename = fmt::format("Recording_{}.gif", DateTimeString());
+		A3D_LOG_I("Starting GIF recording at '{}'", (*execDir/filesystem::path(filename)).string());
 		auto fullPath = *execDir / filename;
 		context.startGIFRecording(fullPath.string(), fitInside, maxFramerate);
 	}

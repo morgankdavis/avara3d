@@ -1866,92 +1866,92 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 	ImGui::GetIO().FontGlobalScale = scale;
 #endif
 
-	constexpr unsigned MAX_RECORDING_STR_LEN = 32;
-	static char recordingStr[MAX_RECORDING_STR_LEN];
+	constexpr int PADDING = 20;
+
+	string recordingStr;
 	if (context.recordingGIF()) {
 		auto numFrames = context.recordedGIFFrames();
-		snprintf(recordingStr, MAX_RECORDING_STR_LEN, "\n%-14s %d %s",
-				 "RECORDING", numFrames, (numFrames==1 ? "frame" : "frames"));
+		recordingStr = fmt::format("\n{:<{}} {} {}",
+								   "RECORDING",
+								   PADDING,
+								   numFrames,
+								   (numFrames==1 ? "frame" : "frames"));
 	}
 	else {
-		recordingStr[0] = '\0';
+		recordingStr = "";
 	}
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
 
-//	auto aaMode = context.antialiasingMode();
+	auto str = fmt::format(
+			"v{}.{}.{} build {}\n" \
+			 "{}\n"
+			"\n" \
 
-	constexpr unsigned MAX_STATUS_STR_LEN = 1024;
-	static char str[MAX_STATUS_STR_LEN];
-	snprintf(str, MAX_STATUS_STR_LEN,
-			 "v%d.%d.%d build %d\n" \
-			 "%s\n"
+			"{:<{}} {:.2f} ms\n" \
+			 "{:<{}} {:.2f} ms\n" \
+			 "{:<{}} {:.2f} ms\n" \
+			 "{:<{}} {:.2f} ms\n" \
+			 "{:<{}} {:.0f} fps {}\n" \
 			 "\n" \
 
-			 "%-20s %.2f ms\n" \
-			 "%-20s %.2f ms\n" \
-			 "%-20s %.2f ms\n" \
-			 "%-20s %.2f ms\n" \
-			 "%-20s %.0f fps %s\n" \
+			"{:<{}} {}x{}\n" \
+			 "{:<{}} ({:.1f}, {:.1f})\n" \
 			 "\n" \
 
-			 "%-20s %dx%d\n" \
-			 "%-20s (%.1f, %.1f)\n" \
+			"{:<{}} {}\n" \
+			 "{:<{}} {}\n" \
+			 "{:<{}} {}\n" \
+			 "{:<{}} {:.1f}k\n" \
+			 "{:<{}} {}\n" \
 			 "\n" \
-
-			 "%-20s %d\n" \
-			 "%-20s %d\n" \
-			 "%-20s %d\n" \
-			 "%-20s %.1fk\n" \
-			 "%-20s %d\n" \
+			 "{:<{}} {}\n" \
+			 "{:<{}} {}\n" \
+			 "{:<{}} {}\n" \
+			 "{:<{}} {}\n" \
+			 "{:<{}} {}\n" \
+			 "{:<{}} {}\n" \
+			 "{:<{}} {}\n" \
+			 "{:<{}} {}\n" \
+			 "{:<{}} {}\n" \
 			 "\n" \
-			 "%-20s %d\n" \
-			 "%-20s %d\n" \
-			 "%-20s %d\n" \
-			 "%-20s %d\n" \
-			 "%-20s %d\n" \
-			 "%-20s %d\n" \
-			 "%-20s %d\n" \
-			 "%-20s %d\n" \
-			 "%-20s %d\n" \
-			 "\n" \
-			 "%-20s (%.1f, %.1f, %.1f)\n" \
-			 "%s",
+			 "{:<{}} ({:.1f}, {:.1f}, {:.1f})\n" \
+			 "{}",
 
-			 version.major, version.minor, version.patch, buildInfo.number(),
-			 buildInfo.type() == BuildInfo::Type::Debug ? "debug" : "release",
+			version.major, version.minor, version.patch, buildInfo.number(),
+			buildInfo.type() == BuildInfo::Type::Debug ? "debug" : "release",
 
-			 "frametime", stats.averageFrametime,
-			 " draw", stats.averageDrawtime,
-			 " physics", stats.averagePhysicstime,
-			 " user", stats.averageUsertime,
-			 "framerate", stats.averageFramerate, (context.vSyncEnabled() ? "[vsync]" : ""),
+			"frametime", PADDING, stats.averageFrametime,
+			" draw", PADDING, stats.averageDrawtime,
+			" physics", PADDING, stats.averagePhysicstime,
+			" user", PADDING, stats.averageUsertime,
+			"framerate", PADDING, stats.averageFramerate, (context.vSyncEnabled() ? "[vsync]" : ""),
 
-			 "resolution", context.framebufferSize().x, context.framebufferSize().y,
+			"resolution", PADDING, context.framebufferSize().x, context.framebufferSize().y,
 //			 	(aaMode == AntialiasingMode::None
 //				 ? ""
 //				 : StatusOverlayDescriptionForAntialiasingMode(aaMode).c_str()),
-			 "framebuffer scale", context.framebufferScale().x, context.framebufferScale().y,
+			"framebuffer scale", PADDING, context.framebufferScale().x, context.framebufferScale().y,
 
-			 "nodes", stats.nodes,
-			 "meshes", stats.meshes,
-			 "elements", stats.elements,
-			 "polygons", float(stats.polygons)/1000.0f,//(int)round(float(stats.polygons)/1000.0f),
-			 "lights", stats.lights,
+			"nodes", PADDING, stats.nodes,
+			"meshes", PADDING, stats.meshes,
+			"elements", PADDING, stats.elements,
+			"polygons", PADDING, float(stats.polygons)/1000.0f,//(int)round(float(stats.polygons)/1000.0f),
+			"lights", PADDING, stats.lights,
 
-			 "physics bodies", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
-			 " static", stats.staticBodies,
-			 " dynamic", stats.dynamicBodies,
-			 " kinematic", stats.kinematicBodies,
-			 "physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
-			 " primitive", stats.primitiveShapes,
-			 " bounding box", stats.boundingBoxShapes,
-			 " convex hull", stats.convexHullShapes,
-			 " concave polyhedron", stats.concavePolyhedronShapes,
+			"physics bodies", PADDING, stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
+			" static", PADDING, stats.staticBodies,
+			" dynamic", PADDING, stats.dynamicBodies,
+			" kinematic", PADDING, stats.kinematicBodies,
+			"physics shapes", PADDING, stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
+			" primitive", PADDING, stats.primitiveShapes,
+			" bounding box", PADDING, stats.boundingBoxShapes,
+			" convex hull", PADDING, stats.convexHullShapes,
+			" concave polyhedron", PADDING, stats.concavePolyhedronShapes,
 
-			 "camera position", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
-			 recordingStr);
+			"camera position", PADDING, stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
+			recordingStr);
 
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
@@ -1981,7 +1981,7 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 	ImVec2 cursorPos = ImGui::GetCursorPos();
 	ImGui::SetCursorPos(ImVec2(cursorPos.x, cursorPos.y - 4.0));
 	ImGui::PushFont(fonts[1]);
-	TextColored(ImVec4{0, 0, 0, .5}, "%s", str);
+	TextColored(ImVec4{0, 0, 0, .5}, "%s", str.c_str());
 	ImGui::PopFont();
 	End();
 
@@ -1995,7 +1995,7 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 	cursorPos = ImGui::GetCursorPos();
 	ImGui::SetCursorPos(ImVec2(cursorPos.x, cursorPos.y - 4.0));
 	ImGui::PushFont(fonts[1]);
-	TextColored(ImVec4{1, 1, 1, 1}, "%s", str);
+	TextColored(ImVec4{1, 1, 1, 1}, "%s", str.c_str());
 	ImGui::PopFont();
 	End();
 
