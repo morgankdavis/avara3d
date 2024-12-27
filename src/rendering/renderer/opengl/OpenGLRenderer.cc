@@ -67,6 +67,29 @@ using namespace std;
 //#define DISABLE_RESOURCE_MANAGEMENT
 
 
+
+
+
+
+// rename/reformat/whatever me
+
+const string titleFontName = "Take cover";
+const string titleFontType = "ttf";
+const float titleFontSize = 21.0;
+
+const string bodyFontName = "SourceCodePro-Semibold";
+const string bodyFontType = "otf";
+const float bodyFontSize = 15.0;
+
+constexpr float titleToBodyTextPadding = 0; // -4 works well with same font
+
+
+
+
+
+
+
+
 /*********************************************************************************************
 	Private Types
  *********************************************************************************************/
@@ -207,9 +230,9 @@ static void 		DeleteLinesGLResources(const vector<Line>& lines,
 										  OpenGLRenderer::LinesGLMapping& glMapping);
 static vector<Node*> 	SortedLights(map<Node*, float> lights);
 static void			InitImgui(const RenderContext& context);
-void 				UpdateImguiScale(const RenderContext& context, const Font& font);
+void 				UpdateImguiScale(const RenderContext& context, const Font& font, float size);
 static void 		DrawStatsOverlay(Stats& stats, const RenderContext& context);
-//static string 		StatusOverlayDescriptionForAntialiasingMode(AntialiasingMode mode);
+static string 		StatusOverlayDescriptionForAntialiasingMode(AntialiasingMode mode);
 static void 		SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode);
 static void 		SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode);
 static void 		SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max);
@@ -233,7 +256,8 @@ OpenGLRenderer::OpenGLRenderer():
 		_activeTextures{},
 		_activeLines{},
 		_glEnvironmentUBO{0},
-		_overlayFont{} { }
+		_overlayTitleFont{},
+		_overlayBodyFont{} { }
 
 OpenGLRenderer::~OpenGLRenderer() {
 	A3D_LOG_D("Destroying OpenGLRenderer {:p}", static_cast<void*>(this));
@@ -273,16 +297,24 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 
 	// setup Imgui
 
-	string fontName = "SourceCodePro-Semibold";
-	string fontType = "otf";
-	_overlayFont = utils::FontNamed(fontName, fontType);
+	InitImgui(context);
 
-	if (_overlayFont->buffer()->size()) {
-		InitImgui(context);
-		UpdateImguiScale(context, *_overlayFont);
+	_overlayTitleFont = utils::FontNamed(titleFontName, titleFontType);
+
+	if (_overlayTitleFont->buffer()->size()) {
+		UpdateImguiScale(context, *_overlayTitleFont, titleFontSize);
 	}
 	else {
-		A3D_LOG_E("Unable to load font: {}.{}", fontName, fontType);
+		A3D_LOG_E("Unable to load font: {}.{}", titleFontName, titleFontType);
+	}
+
+	_overlayBodyFont = utils::FontNamed(bodyFontName, bodyFontType);
+
+	if (_overlayBodyFont->buffer()->size()) {
+		UpdateImguiScale(context, *_overlayBodyFont, bodyFontSize);
+	}
+	else {
+		A3D_LOG_E("Unable to load font: {}.{}", bodyFontName, bodyFontType);
 	}
 
 	return true;
@@ -508,7 +540,8 @@ unique_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 void OpenGLRenderer::framebufferScaleChanged(const RenderContext& context) {
 	A3D_LOG_D("context: {:p}", static_cast<const void*>(&context));
 
-	UpdateImguiScale(context, *_overlayFont);
+	UpdateImguiScale(context, *_overlayTitleFont, titleFontSize);
+	UpdateImguiScale(context, *_overlayBodyFont, bodyFontSize);
 }
 	
 /*********************************************************************************************
@@ -1809,7 +1842,7 @@ void InitImgui(const RenderContext& context) {
 	ImGui_ImplOpenGL3_Init();
 }
 
-void UpdateImguiScale(const RenderContext& context, const Font& font) {
+void UpdateImguiScale(const RenderContext& context, const Font& font, float size) {
 	// https://github.com/ocornut/imgui/blob/master/docs/FAQ.md#q-how-should-i-handle-dpi-in-my-application
 	// https://github.com/ocornut/imgui/discussions/3925
 	// https://github.com/ocornut/imgui/issues/3757
@@ -1818,9 +1851,6 @@ void UpdateImguiScale(const RenderContext& context, const Font& font) {
 
 
 	using namespace ImGui;
-
-	constexpr float HEADING_FONT_SIZE = 21.0;
-	constexpr float FONT_SIZE = 15.0;
 
 	ImGui_ImplOpenGL3_DestroyFontsTexture();
 
@@ -1842,13 +1872,13 @@ void UpdateImguiScale(const RenderContext& context, const Font& font) {
 
 	io.Fonts->AddFontFromMemoryTTF(font.buffer()->data(),
 								   (int)font.buffer()->size(),
-								   HEADING_FONT_SIZE,
+								   size,
 								   &fontConfig);
 
-	io.Fonts->AddFontFromMemoryTTF(font.buffer()->data(),
-								   (int)font.buffer()->size(),
-								   FONT_SIZE,
-								   &fontConfig);
+//	io.Fonts->AddFontFromMemoryTTF(font.buffer()->data(),
+//								   (int)font.buffer()->size(),
+//								   FONT_SIZE,
+//								   &fontConfig);
 
 	ImGui_ImplOpenGL3_CreateFontsTexture();
 }
@@ -1897,6 +1927,7 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 			 "\n" \
 
 			"{:<{}} {}x{}\n" \
+			"{:<{}} {}\n" \
 			 "{:<{}} ({:.1f}, {:.1f})\n" \
 			 "\n" \
 
@@ -1929,9 +1960,7 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 			"framerate", PADDING, stats.averageFramerate, (context.vSyncEnabled() ? "[vsync]" : ""),
 
 			"resolution", PADDING, context.framebufferSize().x, context.framebufferSize().y,
-//			 	(aaMode == AntialiasingMode::None
-//				 ? ""
-//				 : StatusOverlayDescriptionForAntialiasingMode(aaMode).c_str()),
+			"antialiasing", PADDING, StatusOverlayDescriptionForAntialiasingMode(context.antialiasingMode()),
 			"framebuffer scale", PADDING, context.framebufferScale().x, context.framebufferScale().y,
 
 			"nodes", PADDING, stats.nodes,
@@ -1979,7 +2008,7 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 	TextColored(ImVec4{0, 0, 0, .5}, "avara3d");
 	ImGui::PopFont();
 	ImVec2 cursorPos = ImGui::GetCursorPos();
-	ImGui::SetCursorPos(ImVec2(cursorPos.x, cursorPos.y - 4.0));
+	ImGui::SetCursorPos(ImVec2(cursorPos.x, cursorPos.y + titleToBodyTextPadding));
 	ImGui::PushFont(fonts[1]);
 	TextColored(ImVec4{0, 0, 0, .5}, "%s", str.c_str());
 	ImGui::PopFont();
@@ -1993,7 +2022,7 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 	TextColored(ImVec4{1, 1, 1, 1}, "avara3d");
 	ImGui::PopFont();
 	cursorPos = ImGui::GetCursorPos();
-	ImGui::SetCursorPos(ImVec2(cursorPos.x, cursorPos.y - 4.0));
+	ImGui::SetCursorPos(ImVec2(cursorPos.x, cursorPos.y + titleToBodyTextPadding));
 	ImGui::PushFont(fonts[1]);
 	TextColored(ImVec4{1, 1, 1, 1}, "%s", str.c_str());
 	ImGui::PopFont();
@@ -2003,16 +2032,16 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 	ImGui_ImplOpenGL3_RenderDrawData(GetDrawData());
 }
 
-//string StatusOverlayDescriptionForAntialiasingMode(AntialiasingMode mode) {
-//
-//	switch (mode) {
-//		case AntialiasingMode::None: return "[none]";
-//		case AntialiasingMode::Msaa2X: return "[msaa 2x]";
-//		case AntialiasingMode::Msaa4X: return "[msaa 4x]";
-//		case AntialiasingMode::Msaa8X: return "[msaa 8x]";
-//		case AntialiasingMode::Msaa16X: return "[msaa 16x]";
-//	}
-//}
+string StatusOverlayDescriptionForAntialiasingMode(AntialiasingMode mode) {
+
+	switch (mode) {
+		case AntialiasingMode::None: return "none";
+		case AntialiasingMode::Msaa2X: return "2x msaa";
+		case AntialiasingMode::Msaa4X: return "4x msaa";
+		case AntialiasingMode::Msaa8X: return "8x msaa";
+		case AntialiasingMode::Msaa16X: return "16x msaa";
+	}
+}
 
 void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode) {
 	
