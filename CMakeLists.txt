@@ -85,60 +85,6 @@ add_library(avara3d STATIC
 		${SOURCES})
 
 
-
-
-
-
-
-
-
-# https://learn.microsoft.com/en-us/vcpkg/users/platforms/windows#cc-runtime-compatibility
-# -- no effect
-# all message statements are printed.
-if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-
-	message("[---MSCV---]")
-
-
-
-
-	# this is so stupid.
-	# MSVC with clang 19+ (apparently) removed __FILE_NAME__ but __FILE__ still exists...
-	# https://stackoverflow.com/questions/8487986/file-macro-shows-full-path
-	set(FILENAME_MACRO_BODY "((const char*)std::filesystem::path(__FILE__).filename().string().c_str())")
-	add_compile_definitions(__FILE_NAME__=${FILENAME_MACRO_BODY})
-
-
-
-
-
-
-#	target_compile_options(avara3d PRIVATE /permissive- /Zc:__cplusplus /Zc:inline)
-#
-#	if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 19.26)
-#		message("[---19.26---]")
-#		target_compile_options(avara3d PRIVATE /Zc:preprocessor)
-#	endif()
-#
-#	if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 19.28)
-#		message("[---19.28---]")
-#		target_compile_options(avara3d PRIVATE /Zc:lambda)
-#	endif()
-#
-#	if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 19.35)
-#		message("[---19.35---]")
-#		target_compile_options(avara3d PRIVATE /Zc:templateScope)
-#	endif()
-endif()
-
-
-
-
-
-
-
-
-
 ### setup a3d environment defines ###
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -250,6 +196,19 @@ elseif (MACOS)
 
 	# https://stackoverflow.com/questions/43551483/how-to-set-rpath-in-cmake
 	set(CMAKE_MACOSX_RPATH 1) # silence "MACOSX_RPATH is not specified [...]"
+
+elseif (WINDOWS)
+
+	# this is so stupid.
+	# MSVC with clang 19+ (apparently) removed __FILE_NAME__ but __FILE__ still exists...
+	# https://stackoverflow.com/questions/8487986/file-macro-shows-full-path
+
+	if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+		if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 19)
+			set(FILENAME_MACRO_BODY "((const char*)std::filesystem::path(__FILE__).filename().string().c_str())")
+			add_compile_definitions(__FILE_NAME__=${FILENAME_MACRO_BODY})
+		endif()
+	endif()
 
 endif ()
 
