@@ -85,6 +85,45 @@ add_library(avara3d STATIC
 		${SOURCES})
 
 
+
+
+
+
+
+
+
+# https://learn.microsoft.com/en-us/vcpkg/users/platforms/windows#cc-runtime-compatibility
+# -- no effect
+if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+
+	message("[---MSCV---]")
+
+	target_compile_options(avara3d PRIVATE /permissive- /Zc:__cplusplus /Zc:inline)
+
+	if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 19.26)
+		message("[---19.26---]")
+		target_compile_options(avara3d PRIVATE /Zc:preprocessor)
+	endif()
+
+	if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 19.28)
+		message("[---19.28---]")
+		target_compile_options(avara3d PRIVATE /Zc:lambda)
+	endif()
+
+	if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 19.35)
+		message("[---19.35---]")
+		target_compile_options(avara3d PRIVATE /Zc:templateScope)
+	endif()
+endif()
+
+
+
+
+
+
+
+
+
 ### setup a3d environment defines ###
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
