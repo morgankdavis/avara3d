@@ -34,7 +34,7 @@ struct Colors {
 	vec3 emission;
 };
 
-layout(std140) struct Light {
+struct Light {
 	uint 	type;
 	vec3 	position_world;
 	// change this to vec3, it blows up.
@@ -52,7 +52,7 @@ layout(std140) struct Light {
 //	float 	outerAngle;
 };
 
-layout(std140) struct Fog {
+struct Fog {
 	float 	startDistance;
 	float 	endDistance;
 	float 	densityExponent;

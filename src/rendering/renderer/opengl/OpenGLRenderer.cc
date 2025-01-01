@@ -1084,7 +1084,7 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 		if (ambientLightNode) lights.push_back(ambientLightNode);
 
 		auto numLights = lights.size();
-		// win11
+
 		// LightGLSLStruct lightStruct[numLights];
 		//
 		// stats.lights = std::max(int(0), int(numLights - 1)); // not counting ambient
@@ -1114,6 +1114,37 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 		//
 		// environmentStruct.numLights = numLights;
 		// memcpy(&environmentStruct.lights, &lightStruct, sizeof(lightStruct));
+
+		// win11
+		vector<LightGLSLStruct> lightGLSLStructsVec(numLights);
+
+		stats.lights = std::max(int(0), int(numLights - 1)); // not counting ambient
+
+		// TODO: move this?
+		// should useDefaultLighing be a root uniform or elsewhere?
+		if (((numLights == 0) && scene.visualWorld()->autoEnablesDefaultLighting())) {
+
+			Program::Default().setUniform("useDefaultLighting", true);
+		}
+		else {
+
+			Program::Default().setUniform("useDefaultLighting", false);
+
+			for (unsigned l = 0; l < numLights; ++l) {
+				auto node = lights[l];
+				auto light = node->light();
+
+				lightGLSLStructsVec[l].type = static_cast<unsigned>(light->type());
+				lightGLSLStructsVec[l].position_world = node->worldPosition();
+				lightGLSLStructsVec[l].attenuationFactor = light->attenuationFactor();
+
+				auto color = *light->color();
+				lightGLSLStructsVec[l].color = {color.r, color.g, color.b, color.a};
+			}
+		}
+
+		environmentStruct.numLights = numLights;
+		memcpy(&environmentStruct.lights, lightGLSLStructsVec.data(), lightGLSLStructsVec.size());
 	}
 
 	// fog
