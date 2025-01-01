@@ -526,13 +526,13 @@ unique_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 	auto framebufferWidth = (unsigned)round(framebufferSize.x);
 	auto framebufferHeight = (unsigned)round(framebufferSize.y);
 
-	unsigned char pixelBuf[framebufferWidth * framebufferHeight * 4];
+	vector<unsigned char> pixelBuf(framebufferWidth * framebufferHeight * 4);
 	// TODO: SEGV under Plasma Wayland
 	// info/solution? https://projects.blender.org/blender/blender/issues/98462#issuecomment-127388
 	glReadPixels(0, 0,
 				 (GLsizei)framebufferWidth, (GLsizei)framebufferHeight,
-				 GL_RGBA, GL_UNSIGNED_BYTE, pixelBuf);
-	auto buffer = make_unique<Buffer>((std::byte*)pixelBuf,
+				 GL_RGBA, GL_UNSIGNED_BYTE, pixelBuf.data());
+	auto buffer = make_unique<Buffer>((std::byte*)pixelBuf.data(),
 									  framebufferWidth * framebufferHeight * 4);
 	return make_unique<Image>(std::move(buffer), framebufferWidth, framebufferHeight, 4);
 }
@@ -2035,11 +2035,11 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 string StatusOverlayDescriptionForAntialiasingMode(AntialiasingMode mode) {
 
 	switch (mode) {
-		case AntialiasingMode::None: return "none";
 		case AntialiasingMode::Msaa2X: return "2x msaa";
 		case AntialiasingMode::Msaa4X: return "4x msaa";
 		case AntialiasingMode::Msaa8X: return "8x msaa";
 		case AntialiasingMode::Msaa16X: return "16x msaa";
+		default: return "none";
 	}
 }
 
