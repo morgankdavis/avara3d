@@ -299,6 +299,9 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 
 	InitImgui(context);
 
+//	ImGuiIO& io = ImGui::GetIO();
+//	io.Fonts->ClearFonts();
+
 	_overlayTitleFont = utils::FontNamed(titleFontName, titleFontType);
 
 	if (_overlayTitleFont->buffer()->size()) {
@@ -539,6 +542,11 @@ unique_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 
 void OpenGLRenderer::framebufferScaleChanged(const RenderContext& context) {
 	A3D_LOG_D("context: {:p}", static_cast<const void*>(&context));
+
+	ImGuiIO& io = ImGui::GetIO();
+	io.Fonts->Clear(); // works
+	io.Fonts->ClearFonts(); // crashes by itself
+	io.Fonts->ClearTexData(); // does not work, but does not crash
 
 	UpdateImguiScale(context, *_overlayTitleFont, titleFontSize);
 	UpdateImguiScale(context, *_overlayBodyFont, bodyFontSize);
@@ -1842,6 +1850,10 @@ void InitImgui(const RenderContext& context) {
 	ImGui_ImplOpenGL3_Init();
 }
 
+//void AddImguiFont(const RenderContext& context, const Font& font, float size) {
+//
+//}
+
 void UpdateImguiScale(const RenderContext& context, const Font& font, float size) {
 	// https://github.com/ocornut/imgui/blob/master/docs/FAQ.md#q-how-should-i-handle-dpi-in-my-application
 	// https://github.com/ocornut/imgui/discussions/3925
@@ -1855,7 +1867,6 @@ void UpdateImguiScale(const RenderContext& context, const Font& font, float size
 	ImGui_ImplOpenGL3_DestroyFontsTexture();
 
 	auto scaleXY = context.framebufferScale();
-	auto scale = std::max(scaleXY.x, scaleXY.y);
 
 	ImFontConfig fontConfig;
 
@@ -1874,11 +1885,6 @@ void UpdateImguiScale(const RenderContext& context, const Font& font, float size
 								   (int)font.buffer()->size(),
 								   size,
 								   &fontConfig);
-
-//	io.Fonts->AddFontFromMemoryTTF(font.buffer()->data(),
-//								   (int)font.buffer()->size(),
-//								   FONT_SIZE,
-//								   &fontConfig);
 
 	ImGui_ImplOpenGL3_CreateFontsTexture();
 }
