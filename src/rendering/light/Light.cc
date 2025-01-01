@@ -6,7 +6,7 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/rendering/Light.h"
+#include "a3d/rendering/light/Light.h"
 
 #include "a3d/Color.h"
 #include "a3d/diagnostic/logging/Logger.h"
@@ -17,35 +17,26 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Public Static Member Functions
- *********************************************************************************************/
-
-shared_ptr<Light> Light::DefaultAmbient() {
-	return make_shared<Light>(LightType::Ambient, make_shared<Color>(0.25f, 0.25, 0.25, 1.0));
-}
-
-shared_ptr<Light> Light::DefaultPoint() {
-	auto light = make_shared<Light>(LightType::Point, Color::White());
-	light->attenuationFactor(0.0);
-	return light;
-}
-
-/*********************************************************************************************
 	Public Lifecycle Functions
  *********************************************************************************************/
 
-Light::Light(LightType type):
-	Light{type, make_shared<Color>(1.0f, 1.0f, 1.0f)} {
-	
+Light::Light(const string& name):
+		Light() {
+	_name = name;
+	_type = LightType::Point;
 }
 
-Light::Light(LightType type, const shared_ptr<Color>& color):
-	_name{},
-	_type{type},
-	_color{color},
-	_attenuationFactor{1.0f} {
-//	_node({}) {
-	
+Light::Light(const shared_ptr<Color>& color):
+		Light() {
+	_color = color;
+	_type = LightType::Point;
+}
+
+Light::Light(const string& name, const shared_ptr<Color>& color):
+		Light() {
+	_name = name;
+	_color = color;
+	_type = LightType::Point;
 }
 
 Light::~Light() {
@@ -59,6 +50,14 @@ Light::~Light() {
 }
 
 /*********************************************************************************************
+	Private Lifecycle Functions
+ *********************************************************************************************/
+
+Light::Light():
+	_name{nullopt},
+	_color{Color::White()} {}
+
+/*********************************************************************************************
 	Public Member Functions
  *********************************************************************************************/
 
@@ -70,14 +69,6 @@ void Light::name(const string& name) {
 	_name = name;
 }
 
-LightType Light::type() const {
-	return _type;
-}
-
-void Light::type(LightType type) {
-	_type = type;
-}
-
 const shared_ptr<Color>& Light::color() const {
 	return _color;
 }
@@ -86,10 +77,10 @@ void Light::color(const shared_ptr<Color>& color) {
 	_color = color;
 }
 
-float Light::attenuationFactor() const {
-	return _attenuationFactor;
+LightType Light::type() const {
+	return _type;
 }
 
-void Light::attenuationFactor(float factor) {
-	_attenuationFactor = factor;
+void Light::type(LightType type) {
+	_type = type;
 }

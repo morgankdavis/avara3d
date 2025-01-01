@@ -102,6 +102,7 @@ namespace a3d {
 													 Stats& stats);
 
 		Mesh*									skyboxMesh() const;
+		Mesh*									groundPlaneMesh() const;
 		std::weak_ptr<Node>						defaultPointOfView();
 
 /*********************************************************************************************
@@ -112,6 +113,7 @@ namespace a3d {
 
 		MaterialProperty						_background;
 		std::unique_ptr<Mesh>					_skyboxMesh;
+		std::unique_ptr<Mesh>					_groundPlaneMesh;
 		float									_fogStartDistance;
 		float									_fogEndDistance;
 		float									_fogDensityExponent;

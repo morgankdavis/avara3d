@@ -29,13 +29,13 @@ OrthographicCamera::OrthographicCamera():
 	constructProjectionMatrix();
 }
 
-OrthographicCamera::OrthographicCamera(AABB extent):
+OrthographicCamera::OrthographicCamera(const AABB& extent):
 		Camera{},
 		_extent{extent} {
 	constructProjectionMatrix();
 }
 
-OrthographicCamera::OrthographicCamera(const string& name, AABB extent):
+OrthographicCamera::OrthographicCamera(const string& name, const AABB& extent):
 	Camera{name},
 	_extent{extent} {
 	constructProjectionMatrix();

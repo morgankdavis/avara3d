@@ -16,6 +16,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <tuple>
 #include <unordered_set>
 
 #include "fmt/format.h"
@@ -25,60 +26,62 @@
 
 #define NOOP ((void)0)
 
-// Win11: no __FILE_NAME__ ?
-// ? https://stackoverflow.com/questions/8487986/file-macro-shows-full-path
+
+/*********************************************************************************************
+	Public Macro Functions
+ *********************************************************************************************/
 
 #ifdef A3D_DEBUG
-#define A3D_LOG_C() Logger::MainLogger().crumb(__FILE_NAME__, __LINE__, __FUNCTION__)
-#define A3D_LOG_T(fmtStr, ...) Logger::MainLogger().trace(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define A3D_LOG_D(fmtStr, ...) Logger::MainLogger().debug(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+#define LOG_T(logger, fmtStr, ...)	logger->log(LogLevel::Trace, \
+										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
+										fmt::format(fmtStr, ##__VA_ARGS__))
+#define LOG_D(logger, fmtStr, ...) 	logger->log(LogLevel::Debug, \
+										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
+										fmt::format(fmtStr, ##__VA_ARGS__))
 #else
-#define A3D_LOG_C() NOOP
-#define A3D_LOG_T(fmtStr, ...) NOOP
-#define A3D_LOG_D(fmtStr, ...) NOOP
+#define LOG_T(logger, fmtStr, ...) 	NOOP
+#define LOG_D(logger, fmtStr, ...) 	NOOP
 #endif
-#define A3D_LOG_I(fmtStr, ...) Logger::MainLogger().info(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define A3D_LOG_W(fmtStr, ...) Logger::MainLogger().warn(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define A3D_LOG_E(fmtStr, ...) Logger::MainLogger().error(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define A3D_LOG_F(fmtStr, ...) Logger::MainLogger().fatal(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+#define LOG_I(logger, fmtStr, ...)	logger->log(LogLevel::Info, \
+										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
+										fmt::format(fmtStr, ##__VA_ARGS__))
+#define LOG_W(logger, fmtStr, ...)	logger->log(LogLevel::Warn, \
+										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
+										fmt::format(fmtStr, ##__VA_ARGS__))
+#define LOG_E(logger, fmtStr, ...)	logger->log(LogLevel::Error, \
+										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
+										fmt::format(fmtStr, ##__VA_ARGS__))
+#define LOG_F(logger, fmtStr, ...)	logger->log(LogLevel::Fatal, \
+										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
+										fmt::format(fmtStr, ##__VA_ARGS__))
+
+/*********************************************************************************************
+	Internal Macro Functions
+ *********************************************************************************************/
 
 #ifdef A3D_DEBUG
-#define A3D_LOG_H_T(useHeader, fmtStr, ...) Logger::MainLogger().trace(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define A3D_LOG_H_D(useHeader, fmtStr, ...) Logger::MainLogger().debug(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+#define A3D_LOG_T(fmtStr, ...) 		Logger::MainLogger().log(LogLevel::Trace, \
+										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
+										fmt::format(fmtStr, ##__VA_ARGS__))
+#define A3D_LOG_D(fmtStr, ...) 		Logger::MainLogger().log(LogLevel::Debug, \
+										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
+										fmt::format(fmtStr, ##__VA_ARGS__))
 #else
-#define A3D_LOG_H_T(useHeader, fmtStr, ...) NOOP
-#define A3D_LOG_H_D(useHeader, fmtStr, ...) NOOP
+	#define A3D_LOG_T(fmtStr, ...) 	NOOP
+	#define A3D_LOG_D(fmtStr, ...) 	NOOP
 #endif
-#define A3D_LOG_H_I(useHeader, fmtStr, ...) Logger::MainLogger().info(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define A3D_LOG_H_W(useHeader, fmtStr, ...) Logger::MainLogger().warn(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define A3D_LOG_H_E(useHeader, fmtStr, ...) Logger::MainLogger().error(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define A3D_LOG_H_F(useHeader, fmtStr, ...) Logger::MainLogger().fatal(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-
-#ifdef A3D_DEBUG
-//#define LOG_T(logger) logger->crumb(__FILE_NAME__, __LINE__, __FUNCTION__)
-#define LOG_T(logger, fmtStr, ...) logger->trace(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define LOG_D(logger, fmtStr, ...) logger->debug(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#else
-#define LOG_C(logger) NOOP
-#define LOG_T(logger, fmtStr, ...) NOOP
-#define LOG_D(logger, fmtStr, ...) NOOP
-#endif
-#define LOG_I(logger, fmtStr, ...) logger->info(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define LOG_W(logger, fmtStr, ...) logger->warn(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define LOG_E(logger, fmtStr, ...) logger->error(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define LOG_F(logger, fmtStr, ...) logger->fatal(true, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-
-#ifdef A3D_DEBUG
-#define LOG_H_T(useHeader, g_logger, fmtStr, ...) logger->trace(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define LOG_H_D(useHeader, g_logger, fmtStr, ...) logger->debug(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#else
-#define LOG_H_T(useHeader, logger, fmtStr, ...) NOOP
-#define LOG_H_D(useHeader, logger, fmtStr, ...) NOOP
-#endif
-#define LOG_H_I(useHeader, g_logger, fmtStr, ...) logger->info(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define LOG_H_W(useHeader, g_logger, fmtStr, ...) logger->warn(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define LOG_H_E(useHeader, g_logger, fmtStr, ...) logger->error(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
-#define LOG_H_F(useHeader, g_logger, fmtStr, ...) logger->fatal(useHeader, __FILE_NAME__, __LINE__, __FUNCTION__, fmt::format(fmtStr, ##__VA_ARGS__).c_str())
+#define A3D_LOG_I(fmtStr, ...) 		Logger::MainLogger().log(LogLevel::Info, \
+										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
+										fmt::format(fmtStr, ##__VA_ARGS__))
+#define A3D_LOG_W(fmtStr, ...) 		Logger::MainLogger().log(LogLevel::Warn, \
+										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
+										fmt::format(fmtStr, ##__VA_ARGS__))
+#define A3D_LOG_E(fmtStr, ...) 		Logger::MainLogger().log(LogLevel::Error, \
+										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
+										fmt::format(fmtStr, ##__VA_ARGS__))
+#define A3D_LOG_F(fmtStr, ...) 		Logger::MainLogger().log(LogLevel::Fatal, \
+										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
+										fmt::format(fmtStr, ##__VA_ARGS__))
 
 
 namespace a3d {
@@ -90,16 +93,24 @@ namespace a3d {
 	class Logger {
 
 /*********************************************************************************************
-	Public Static Member Functions
+	Internal Types
  *********************************************************************************************/
 
 	public:
 
+		/* filename, line, function */
+		using SourceInfo = std::tuple<std::string, unsigned, std::string>;
+
+
+/*********************************************************************************************
+	Public Static Member Functions
+ *********************************************************************************************/
+
 		static Logger& MainLogger();
 
-/**************************************************************************************
+/*********************************************************************************************
 	Public Lifecycle Functions
- **************************************************************************************/
+ *********************************************************************************************/
 
 		Logger(const std::string& name,
 			   std::unique_ptr<LoggerSink> sink,
@@ -125,55 +136,33 @@ namespace a3d {
 		LogLevel 				flushLevel() const;
 		void 					flushLevel(LogLevel level);
 
-		void 					trace(const char* format, ...);
-		void 					debug(const char* format, ...);
-		void 					info(const char* format, ...);
-		void 					warn(const char* format, ...);
-		void					error(const char* format, ...);
-		void 					fatal(const char* format, ...);
-
-		void 					crumb(const char* filename, int line, const char* function);
-		void 					trace(bool useHeader,
-									  const char* filename, int line, const char* function,
-									  const char* format, ...);
-		void 					debug(bool useHeader,
-									  const char* filename, int line, const char* function,
-									  const char* format, ...);
-		void 					info(bool useHeader,
-									 const char* filename, int line, const char* function,
-									 const char* format, ...);
-		void 					warn(bool useHeader,
-									 const char* filename, int line, const char* function,
-									 const char* format, ...);
-		void					error(bool useHeader,
-									  const char* filename, int line, const char* function,
-									  const char* format, ...);
-		void 					fatal(bool useHeader,
-									  const char* filename, int line, const char* function,
-									  const char* format, ...);
+		void					trace(const std::string& msg);
+		void					debug(const std::string& msg);
+		void					info(const std::string& msg);
+		void					warn(const std::string& msg);
+		void					error(const std::string& msg);
+		void					fatal(const std::string& msg);
 
 		void 					log(LogLevel level,
-									const char* format, va_list args);
-		void 					log(LogLevel level,
-									bool useHeader,
-									const char* filename, int line, const char* function,
-									const char* format, va_list args);
-		void 					log_crumb(const char* filename, int line, const char* function);
-
-		void					construct(LogLevel level, const char* message);
-		void 					construct(LogLevel level,
-										  const char* filename, int line, const char* function,
-										  const char* body);
-
-		void 					dispatch(LogLevel level, const char* line);
+									const SourceInfo& sourceInfo,
+									const std::string& msg);
 
 		void 					flush();
 
 /*********************************************************************************************
-	Private Constants
+	Private  Member Functions
  *********************************************************************************************/
 
 	private:
+
+		void 					log(LogLevel level,
+									const std::string& msg);
+
+		void 					dispatch(LogLevel level, std::string& output);
+
+/*********************************************************************************************
+	Private Constants
+ *********************************************************************************************/
 
 		static constexpr LogLevel DEFAULT_LEVEL = LogLevel::Debug;
 		static constexpr LogLevel DEFAULT_FLUSH_LEVEL = LogLevel::Warn;

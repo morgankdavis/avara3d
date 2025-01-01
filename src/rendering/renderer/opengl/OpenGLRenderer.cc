@@ -30,6 +30,7 @@
 #include "magic_enum.hpp"
 
 #include "a3d/Buffer.h"
+#include "a3d/BuildInfo.h"
 #include "a3d/Color.h"
 #include "a3d/Configuration.h"
 #include "a3d/CubeImage.h"
@@ -41,11 +42,15 @@
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/mesh/Line.h"
-#include "a3d/rendering/Light.h"
 #include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/camera/Camera.h"
 #include "a3d/rendering/context/RenderContext.h"
 #include "a3d/rendering/context/Window.h"
+#include "a3d/rendering/light/AmbientLight.h"
+#include "a3d/rendering/light/DirectionalLight.h"
+#include "a3d/rendering/light/Light.h"
+#include "a3d/rendering/light/PointLight.h"
+#include "a3d/rendering/light/SpotLight.h"
 #include "a3d/rendering/material/Material.h"
 #include "a3d/rendering/material/Sampler.h"
 #include "a3d/rendering/material/Texture.h"
@@ -62,6 +67,29 @@ using namespace std;
 //#define DISABLE_RESOURCE_MANAGEMENT
 
 
+
+
+
+
+// rename/reformat/whatever me
+
+const string titleFontName = "Take cover";
+const string titleFontType = "ttf";
+const float titleFontSize = 21.0;
+
+const string bodyFontName = "SourceCodePro-Semibold";
+const string bodyFontType = "otf";
+const float bodyFontSize = 15.0;
+
+constexpr float titleToBodyTextPadding = 0; // -4 works well with same font
+
+
+
+
+
+
+
+
 /*********************************************************************************************
 	Private Types
  *********************************************************************************************/
@@ -72,36 +100,51 @@ enum class MaterialContentsType : unsigned {
 	Sampler = 	2
 };
 
+typedef struct {
+	alignas(16) vec4		color;
+} AmbientLightGLSLStruct;
 
 typedef struct {
-	alignas(16) uint32_t 	type;
-	alignas(16) vec3 		position_world;
-	// change this to vec3, it blows up.
-	// maybe Mesa std140 is wrong?
-	//	https://stackoverflow.com/questions/73189196/diffrence-between-std140-and-std430-layout
-	// try on AMDGPU, Windows or macOS?
-	alignas(16) vec4 		color;
-	alignas(16) float 		attenuationFactor;
-//	bool 		useDefaultLighting;
-//	vec3 		direction_world;
-//	float 		attenuationStart;
-//	float 		attenuationEnd;
-//	float 		attenuationExponent;
-//	float 		innerAngle;
-//	float 		outerAngle;
-} LightGLSLStruct;
+	alignas(16) vec4		color;
+	alignas(16) vec3		direction_world;
+} DirectionalLightGLSLStruct;
 
 typedef struct {
-	alignas(16) float32_t 		startDistance;
-	alignas(16) float32_t 		endDistance;
-	alignas(16) float32_t 		densityExponent;
-	alignas(16) vec4 			color;
+	alignas(16) vec4		color;
+	alignas(16) vec3		position_world;
+	alignas(16) float		constantAttenuation;
+	alignas(16) float		linearAttenuation;
+	alignas(16) float		quadraticAttenuation;
+} PointLightGLSLStruct;
+
+typedef struct {
+	alignas(16) vec4		color;
+	alignas(16) vec3		position_world;
+	alignas(16) vec3		direction_world;
+	alignas(16) float		innerAngle;
+	alignas(16) float		outerAngle;
+	alignas(16) float		constantAttenuation;
+	alignas(16) float		linearAttenuation;
+	alignas(16) float		quadraticAttenuation;
+} SpotLightGLSLStruct;
+
+typedef struct {
+	alignas(16) vec4		color;
+	alignas(16) float32_t	startDistance;
+	alignas(16) float32_t	endDistance;
+	alignas(16) float32_t	densityExponent;
 } FogGLSLStruct;
 
 typedef struct {
-	alignas(16) uint32_t 			numLights;
-	alignas(16) LightGLSLStruct 	lights[MAX_DYNAMIC_LIGHTS+1]; // +1 ambient
-	alignas(16) FogGLSLStruct		fog;
+	alignas(16) uint32_t 					numAmbientLights;
+	alignas(16) AmbientLightGLSLStruct		ambientLights[MAX_AMBIENT_LIGHTS];
+	alignas(16) uint32_t 					numDirectionalLights;
+	alignas(16) DirectionalLightGLSLStruct	directionalLights[MAX_DIRECTIONAL_LIGHTS];
+	alignas(16) uint32_t 					numPointLights;
+	alignas(16) PointLightGLSLStruct		pointLights[MAX_POINT_LIGHTS];
+	alignas(16) uint32_t 					numSpotLights;
+	alignas(16) SpotLightGLSLStruct			spotLights[MAX_SPOT_LIGHTS];
+	alignas(16) FogGLSLStruct				fog;
 } EnvironmentBlock;
 
 /*********************************************************************************************
@@ -187,8 +230,9 @@ static void 		DeleteLinesGLResources(const vector<Line>& lines,
 										  OpenGLRenderer::LinesGLMapping& glMapping);
 static vector<Node*> 	SortedLights(map<Node*, float> lights);
 static void			InitImgui(const RenderContext& context);
-void 				UpdateImguiScale(const RenderContext& context, const Font& font);
+void 				UpdateImguiScale(const RenderContext& context, const Font& font, float size);
 static void 		DrawStatsOverlay(Stats& stats, const RenderContext& context);
+static string 		StatusOverlayDescriptionForAntialiasingMode(AntialiasingMode mode);
 static void 		SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode);
 static void 		SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode);
 static void 		SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max);
@@ -212,7 +256,8 @@ OpenGLRenderer::OpenGLRenderer():
 		_activeTextures{},
 		_activeLines{},
 		_glEnvironmentUBO{0},
-		_overlayFont{} { }
+		_overlayTitleFont{},
+		_overlayBodyFont{} { }
 
 OpenGLRenderer::~OpenGLRenderer() {
 	A3D_LOG_D("Destroying OpenGLRenderer {:p}", static_cast<void*>(this));
@@ -242,7 +287,7 @@ RenderingApi OpenGLRenderer::renderingApi() const {
 
 bool OpenGLRenderer::initialize(const RenderContext& context) {
 	
-	A3D_LOG_C();
+	A3D_LOG_I("");
 
 	// create environment UBO
 	
@@ -252,16 +297,24 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 
 	// setup Imgui
 
-	string fontName = "SourceCodePro-Semibold";
-	string fontType = "otf";
-	_overlayFont = utils::FontNamed(fontName, fontType);
+	InitImgui(context);
 
-	if (_overlayFont->buffer()->size()) {
-		InitImgui(context);
-		UpdateImguiScale(context, *_overlayFont);
+	_overlayTitleFont = utils::FontNamed(titleFontName, titleFontType);
+
+	if (_overlayTitleFont->buffer()->size()) {
+		UpdateImguiScale(context, *_overlayTitleFont, titleFontSize);
 	}
 	else {
-		A3D_LOG_E("Unable to load font: {}.{}", fontName, fontType);
+		A3D_LOG_E("Unable to load font: {}.{}", titleFontName, titleFontType);
+	}
+
+	_overlayBodyFont = utils::FontNamed(bodyFontName, bodyFontType);
+
+	if (_overlayBodyFont->buffer()->size()) {
+		UpdateImguiScale(context, *_overlayBodyFont, bodyFontSize);
+	}
+	else {
+		A3D_LOG_E("Unable to load font: {}.{}", bodyFontName, bodyFontType);
 	}
 
 	return true;
@@ -473,16 +526,22 @@ unique_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 	auto framebufferWidth = (unsigned)round(framebufferSize.x);
 	auto framebufferHeight = (unsigned)round(framebufferSize.y);
 
-	vector<unsigned char> pixelBuf(framebufferWidth * framebufferHeight * 4);
-	glReadPixels(0, 0, (GLsizei)framebufferWidth, (GLsizei)framebufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixelBuf.data());
-	auto buffer = make_unique<Buffer>((std::byte*)pixelBuf.data(), framebufferWidth * framebufferHeight * 4);
+	unsigned char pixelBuf[framebufferWidth * framebufferHeight * 4];
+	// TODO: SEGV under Plasma Wayland
+	// info/solution? https://projects.blender.org/blender/blender/issues/98462#issuecomment-127388
+	glReadPixels(0, 0,
+				 (GLsizei)framebufferWidth, (GLsizei)framebufferHeight,
+				 GL_RGBA, GL_UNSIGNED_BYTE, pixelBuf);
+	auto buffer = make_unique<Buffer>((std::byte*)pixelBuf,
+									  framebufferWidth * framebufferHeight * 4);
 	return make_unique<Image>(std::move(buffer), framebufferWidth, framebufferHeight, 4);
 }
 
 void OpenGLRenderer::framebufferScaleChanged(const RenderContext& context) {
 	A3D_LOG_D("context: {:p}", static_cast<const void*>(&context));
 
-	UpdateImguiScale(context, *_overlayFont);
+	UpdateImguiScale(context, *_overlayTitleFont, titleFontSize);
+	UpdateImguiScale(context, *_overlayBodyFont, bodyFontSize);
 }
 	
 /*********************************************************************************************
@@ -554,7 +613,8 @@ void GetMeshElementGLVertexDataHandles(MeshElement& element,
 		
 		glMapping[&element] = make_tuple(glVBO, glVAO, glEBO);
 
-		element.dirtyMask(A3D_MASK_REMOVE(element.dirtyMask(), MeshElementDirtyMask::VertexData));
+		element.dirtyMask(A3D_MASK_REMOVE(element.dirtyMask(),
+										  MeshElementDirtyMask::VertexData));
 	}
 	else {
 		auto mapping = glMapping[&element];
@@ -584,7 +644,8 @@ void GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
 		
 		glMapping[element.get()] = make_tuple(glVBO, glVAO, glEBO);
 
-		element->dirtyMask(A3D_MASK_REMOVE(element->dirtyMask(), MeshElementDirtyMask::VertexData));
+		element->dirtyMask(A3D_MASK_REMOVE(element->dirtyMask(),
+										   MeshElementDirtyMask::VertexData));
 	}
 	else {
 		auto mapping = glMapping[element.get()];
@@ -655,7 +716,8 @@ void BufferMeshElementVertexData(const MeshElement& element,
 								 Program& program,
 								 GLuint& glVBO, GLuint& glVAO, GLuint& glEBO) {
 
-	A3D_LOG_D("Buffering vertex data for mesh element {:p}...", static_cast<const void*>(&element));
+	A3D_LOG_D("Buffering vertex data for mesh element {:p}...",
+			  static_cast<const void*>(&element));
 	
 	program.use();
 	
@@ -723,7 +785,8 @@ void BufferSkyboxVertexData(Mesh& skyboxMesh,
 	
 	glGenBuffers(1, &glVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
-	glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(verts.size()*sizeof(Vertex)), &(verts[0]), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(verts.size()*sizeof(Vertex)),
+				 &(verts[0]), GL_STATIC_DRAW);
 	
 	glGenVertexArrays(1, &glVAO);
 	glBindVertexArray(glVAO);
@@ -771,7 +834,8 @@ void BufferLinesVertexData(const vector<Line>& lines,
 
 	glGenBuffers(1, &glVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
-	glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(massagedBuffer.size()*sizeof(vec3)), massagedBuffer.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(massagedBuffer.size()*sizeof(vec3)),
+				 massagedBuffer.data(), GL_STATIC_DRAW);
 
 	glGenVertexArrays(1, &glVAO);
 	glBindVertexArray(glVAO);
@@ -795,7 +859,7 @@ void BufferLinesVertexData(const vector<Line>& lines,
 	glEnableVertexAttribArray(colorIndex);
 }
 
-void BufferTexture(const Texture &texture,
+void BufferTexture(const Texture& texture,
 				   GLuint& glTextureHandle) {
 
 	auto contents = texture.contents();
@@ -901,7 +965,7 @@ void SendMaterialUniforms(const Material& material,
 
 	program.setUniform("specularExponent", material.specularExponent());
 	program.setUniform("uvScale", material.uvScale());
-	program.setUniform("locksAmbientWithDiffuse", material.locksAmbientWithDiffuse());
+	//program.setUniform("locksAmbientWithDiffuse", material.locksAmbientWithDiffuse());
 	program.setUniform("emissionContentsType", (unsigned)0); // 0 = MaterialType_None -- why is this here?
 	//program.setUniform("defaultLighting", 0);
 
@@ -1019,101 +1083,110 @@ void SendMaterialPropertyUniforms(const MaterialProperty& property,
 	
 	//program.unuse();
 }
-	
+
 void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 							 const Scene& scene,
 							 const vector<Node*>& lightNodes,
 							 Stats& stats) {
-
 	// program "Default" must be active
 
 	// block
 
 	EnvironmentBlock environmentStruct;
-	
+
 	// lights
 
 	if (scene.visualWorld()->usesDefaultLighting()) {
 
 		Program::Default().setUniform("useDefaultLighting", true);
-	}
-	else {
+	} else {
 
-//		auto lights = vector<Node*>();
-		auto lights = lightNodes;
-		Node* ambientLightNode = nullptr;
+		auto numLights = lightNodes.size();
 
-		// find all lights in the scene
-//		for (auto &node: scene.rootNode()->children(true)) {
-//			if (auto light = node->light()) {
-//				if (light->type() == LightType::Point) {
-//					lights.push_back(node.get());
-//				}
-//				else if (light->type() == LightType::Ambient) {
-//					ambientLightNode = node.get();
-//				}
-//			}
-//		}
+		stats.lights = numLights;
 
-		if (lightNodes.size() > MAX_DYNAMIC_LIGHTS) {
-
-			// find all light distances from the camera
-
-			auto lightsUnsorted = map<Node*, float>();
-			auto cameraPos_world = scene.visualWorld()->pointOfView().lock()->worldPosition();
-			for (auto& lightNode : lightNodes) {
-				auto lightPos_world = lightNode->worldPosition();
-				auto lightToCamera = lightPos_world - cameraPos_world;
-				auto lightToCameraDistance = length(lightToCamera);
-				lightsUnsorted[lightNode] = lightToCameraDistance;
-			}
-
-			vector<Node*> sorted;
-			lights = SortedLights(lightsUnsorted);
-
-			unsigned endIndex = std::min((unsigned)lights.size(), (unsigned)MAX_DYNAMIC_LIGHTS);
-			auto first = lights.begin() + 0;
-			auto last = lights.begin() + endIndex;
-			auto lightsSlice = vector<Node*>(first, last);
-
-			lights = lightsSlice;
-		}
-
-		if (ambientLightNode) lights.push_back(ambientLightNode);
-
-		auto numLights = lights.size();
-
-		vector<LightGLSLStruct> lightStructsVec(numLights);
-
-		stats.lights = std::max(int(0), int(numLights - 1)); // not counting ambient
-
-		// TODO: move this?
-		// should useDefaultLighing be a root uniform or elsewhere?
 		if (((numLights == 0) && scene.visualWorld()->autoEnablesDefaultLighting())) {
 
 			Program::Default().setUniform("useDefaultLighting", true);
-		}
-		else {
+		} else {
 
 			Program::Default().setUniform("useDefaultLighting", false);
 
+			vector<AmbientLightGLSLStruct> ambientStructs;
+			vector<DirectionalLightGLSLStruct> directionalStructs;
+			vector<PointLightGLSLStruct> pointStructs;
+			vector<SpotLightGLSLStruct> spotStructs;
+
 			for (unsigned l = 0; l < numLights; ++l) {
-				auto node = lights[l];
-				auto light = node->light();
 
-				lightStructsVec[l].type = static_cast<unsigned>(light->type());
-				lightStructsVec[l].position_world = node->worldPosition();
-				lightStructsVec[l].attenuationFactor = light->attenuationFactor();
+				auto node = lightNodes[l];
+				auto light = node->light().get();
+				auto color = light->color();
 
-				auto color = *light->color();
-				lightStructsVec[l].color = {color.r, color.g, color.b, color.a};
+				if (auto ambientLight = dynamic_cast<AmbientLight*>(light)) {
+
+					AmbientLightGLSLStruct lightStruct;
+					lightStruct.color = ambientLight->color()->vec4();
+					ambientStructs.push_back(lightStruct);
+
+				}
+				else if (auto directionalLight = dynamic_cast<DirectionalLight*>(light)) {
+
+					DirectionalLightGLSLStruct lightStruct;
+					lightStruct.color = directionalLight->color()->vec4();
+					lightStruct.direction_world = node->worldForward();
+					//lightStruct.direction_world = node->forward();
+//					lightStruct.direction_world = {-1, 0, 0};
+//					A3D_LOG_I("dir forward: {}", utils::StringFromGLMVec3(lightStruct.direction_world));
+					directionalStructs.push_back(lightStruct);
+
+				}
+				else if (auto pointLight = dynamic_cast<PointLight*>(light)) {
+
+					PointLightGLSLStruct lightStruct;
+					lightStruct.color = pointLight->color()->vec4();
+					lightStruct.position_world = node->worldPosition();
+					lightStruct.constantAttenuation = pointLight->constantAttenuation();
+					lightStruct.linearAttenuation = pointLight->linearAttenuation();
+					lightStruct.quadraticAttenuation = pointLight->quadraticAttenuation();
+					pointStructs.push_back(lightStruct);
+
+				}
+				else if (auto spotLight = dynamic_cast<SpotLight*>(light)) {
+
+					SpotLightGLSLStruct lightStruct;
+					lightStruct.color = spotLight->color()->vec4();
+					lightStruct.position_world = node->worldPosition();
+					lightStruct.direction_world = node->worldForward();
+					lightStruct.innerAngle = spotLight->innerAngle();
+					lightStruct.outerAngle = spotLight->outerAngle();
+					lightStruct.constantAttenuation = spotLight->constantAttenuation();
+					lightStruct.linearAttenuation = spotLight->linearAttenuation();
+					lightStruct.quadraticAttenuation = spotLight->quadraticAttenuation();
+					spotStructs.push_back(lightStruct);
+				}
 			}
-		}
 
-		environmentStruct.numLights = numLights;
-		memcpy(&environmentStruct.lights,
-			   lightStructsVec.data(),
-			   sizeof(LightGLSLStruct) * lightStructsVec.size());
+			environmentStruct.numAmbientLights = ambientStructs.size();
+			memcpy(&environmentStruct.ambientLights,
+				   ambientStructs.data(),
+				   sizeof(AmbientLightGLSLStruct) * ambientStructs.size());
+
+			environmentStruct.numDirectionalLights = directionalStructs.size();
+			memcpy(&environmentStruct.directionalLights,
+				   directionalStructs.data(),
+				   sizeof(DirectionalLightGLSLStruct) * directionalStructs.size());
+
+			environmentStruct.numPointLights = pointStructs.size();
+			memcpy(&environmentStruct.pointLights,
+				   pointStructs.data(),
+				   sizeof(PointLightGLSLStruct) * pointStructs.size());
+
+			environmentStruct.numSpotLights = spotStructs.size();
+			memcpy(&environmentStruct.spotLights,
+				   spotStructs.data(),
+				   sizeof(SpotLightGLSLStruct) * spotStructs.size());
+		}
 	}
 
 	// fog
@@ -1125,11 +1198,12 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 	fogStruct.densityExponent = visualWorld->fogDensityExponent();
 	fogStruct.startDistance = visualWorld->fogStartDistance();
 	auto fogColor = visualWorld->fogColor();
-	if (visualWorld->fogColor()) fogStruct.color = {fogColor->r,
-													fogColor->g,
-													fogColor->b,
-													fogColor->a};
-	else fogStruct.color = {0.0, 0.0, 0.0, 0.0};
+	if (visualWorld->fogColor()) {
+		fogStruct.color = fogColor->vec4();
+	}
+	else {
+		fogStruct.color = {0.0, 0.0, 0.0, 0.0};
+	}
 
 	memcpy(&environmentStruct.fog, &fogStruct, sizeof(fogStruct));
 
@@ -1138,6 +1212,122 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(environmentStruct), &environmentStruct, GL_DYNAMIC_DRAW);
 }
+
+// ORIGINAL
+//void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
+//							 const Scene& scene,
+//							 const vector<Node*>& lightNodes,
+//							 Stats& stats) {
+//	// program "Default" must be active
+//
+//	// block
+//
+//	EnvironmentBlock environmentStruct;
+//
+//	// lights
+//
+//	if (scene.visualWorld()->usesDefaultLighting()) {
+//
+//		Program::Default().setUniform("useDefaultLighting", true);
+//	}
+//	else {
+//
+////		auto lights = vector<Node*>();
+//		auto lights = lightNodes;
+//		Node* ambientLightNode = nullptr;
+//
+//		// find all lights in the scene
+////		for (auto &node: scene.rootNode()->children(true)) {
+////			if (auto light = node->light()) {
+////				if (light->type() == LightType::Point) {
+////					lights.push_back(node.get());
+////				}
+////				else if (light->type() == LightType::Ambient) {
+////					ambientLightNode = node.get();
+////				}
+////			}
+////		}
+//
+//		if (lightNodes.size() > MAX_DYNAMIC_LIGHTS) {
+//
+//			// find all light distances from the camera
+//
+//			auto lightsUnsorted = map<Node*, float>();
+//			auto cameraPos_world = scene.visualWorld()->pointOfView().lock()->worldPosition();
+//			for (auto& lightNode : lightNodes) {
+//				auto lightPos_world = lightNode->worldPosition();
+//				auto lightToCamera = lightPos_world - cameraPos_world;
+//				auto lightToCameraDistance = length(lightToCamera);
+//				lightsUnsorted[lightNode] = lightToCameraDistance;
+//			}
+//
+//			vector<Node*> sorted;
+//			lights = SortedLights(lightsUnsorted);
+//
+//			unsigned endIndex = std::min((unsigned)lights.size(), (unsigned)MAX_DYNAMIC_LIGHTS);
+//			auto first = lights.begin() + 0;
+//			auto last = lights.begin() + endIndex;
+//			auto lightsSlice = vector<Node*>(first, last);
+//
+//			lights = lightsSlice;
+//		}
+//
+//		if (ambientLightNode) lights.push_back(ambientLightNode);
+//
+//		auto numLights = lights.size();
+//		LightGLSLStruct lightStruct[numLights];
+//
+//		stats.lights = std::max(int(0), int(numLights - 1)); // not counting ambient
+//
+//		// TODO: move this?
+//		// should useDefaultLighing be a root uniform or elsewhere?
+//		if (((numLights == 0) && scene.visualWorld()->autoEnablesDefaultLighting())) {
+//
+//			Program::Default().setUniform("useDefaultLighting", true);
+//		}
+//		else {
+//
+//			Program::Default().setUniform("useDefaultLighting", false);
+//
+//			for (unsigned l = 0; l < numLights; ++l) {
+//				auto node = lights[l];
+//				auto light = node->light();
+//
+//				lightStruct[l].type = static_cast<unsigned>(light->type());
+//				lightStruct[l].position_world = node->worldPosition();
+//				lightStruct[l].attenuationFactor = light->attenuationFactor();
+//
+//				auto color = *light->color();
+//				lightStruct[l].color = {color.r, color.g, color.b, color.a};
+//			}
+//		}
+//
+//		environmentStruct.numLights = numLights;
+//		memcpy(&environmentStruct.lights, &lightStruct, sizeof(lightStruct));
+//	}
+//
+//	// fog
+//
+//	auto visualWorld = scene.visualWorld();
+//	FogGLSLStruct fogStruct;
+//	fogStruct.startDistance = visualWorld->fogStartDistance();
+//	fogStruct.endDistance = visualWorld->fogEndDistance();
+//	fogStruct.densityExponent = visualWorld->fogDensityExponent();
+//	fogStruct.startDistance = visualWorld->fogStartDistance();
+//	auto fogColor = visualWorld->fogColor();
+//	if (visualWorld->fogColor()) fogStruct.color = {fogColor->r,
+//													fogColor->g,
+//													fogColor->b,
+//													fogColor->a};
+//	else fogStruct.color = {0.0, 0.0, 0.0, 0.0};
+//
+//	memcpy(&environmentStruct.fog, &fogStruct, sizeof(fogStruct));
+//
+//	// send 'em
+//
+//	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
+//	glBufferData(GL_UNIFORM_BUFFER, sizeof(environmentStruct), &environmentStruct, GL_DYNAMIC_DRAW);
+//}
 
 void SetTextureSamplingOptions(Texture& texture,
 							   GLuint glTextureHandle) {
@@ -1548,7 +1738,8 @@ void DeleteMeshElementGLResources(MeshElement* element,
 	
 	if (glMapping.count(element)) {
 		
-		A3D_LOG_D("Deleting GL resources for MeshElement {:p}...", static_cast<void*>(element));
+		A3D_LOG_D("Deleting GL resources for MeshElement {:p}...",
+				  static_cast<void*>(element));
 		
 		auto glHandles = glMapping[element];
 		
@@ -1575,7 +1766,8 @@ void DeleteTextureGLResources(Texture* texture,
 	
 	if (glMapping.count(texture)) {
 		
-		A3D_LOG_D("Deleting GL resources for MaterialProperty {:p}...", static_cast<void*>(texture));
+		A3D_LOG_D("Deleting GL resources for MaterialProperty {:p}...",
+				  static_cast<void*>(texture));
 
 		auto handle = glMapping[texture];
 		
@@ -1650,7 +1842,7 @@ void InitImgui(const RenderContext& context) {
 	ImGui_ImplOpenGL3_Init();
 }
 
-void UpdateImguiScale(const RenderContext& context, const Font& font) {
+void UpdateImguiScale(const RenderContext& context, const Font& font, float size) {
 	// https://github.com/ocornut/imgui/blob/master/docs/FAQ.md#q-how-should-i-handle-dpi-in-my-application
 	// https://github.com/ocornut/imgui/discussions/3925
 	// https://github.com/ocornut/imgui/issues/3757
@@ -1659,8 +1851,6 @@ void UpdateImguiScale(const RenderContext& context, const Font& font) {
 
 
 	using namespace ImGui;
-
-	constexpr float FONT_SIZE = 15.0;
 
 	ImGui_ImplOpenGL3_DestroyFontsTexture();
 
@@ -1682,8 +1872,13 @@ void UpdateImguiScale(const RenderContext& context, const Font& font) {
 
 	io.Fonts->AddFontFromMemoryTTF(font.buffer()->data(),
 								   (int)font.buffer()->size(),
-								   FONT_SIZE,
+								   size,
 								   &fontConfig);
+
+//	io.Fonts->AddFontFromMemoryTTF(font.buffer()->data(),
+//								   (int)font.buffer()->size(),
+//								   FONT_SIZE,
+//								   &fontConfig);
 
 	ImGui_ImplOpenGL3_CreateFontsTexture();
 }
@@ -1701,69 +1896,91 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 	ImGui::GetIO().FontGlobalScale = scale;
 #endif
 
-	constexpr unsigned MAX_RECORDING_STR_LEN = 32;
-	static char recordingStr[MAX_RECORDING_STR_LEN];
+	constexpr int PADDING = 20;
+
+	string recordingStr;
 	if (context.recordingGIF()) {
 		auto numFrames = context.recordedGIFFrames();
-		snprintf(recordingStr, MAX_RECORDING_STR_LEN, "\n%-14s %d %s",
-				 "RECORDING", numFrames, (numFrames==1 ? "frame" : "frames"));
+		recordingStr = fmt::format("\n{:<{}} {} {}",
+								   "RECORDING",
+								   PADDING,
+								   numFrames,
+								   (numFrames==1 ? "frame" : "frames"));
 	}
 	else {
-		recordingStr[0] = '\0';
+		recordingStr = "";
 	}
 
-	constexpr unsigned MAX_STATUS_STR_LEN = 512;
-	static char str[MAX_STATUS_STR_LEN];
-	snprintf(str, MAX_STATUS_STR_LEN,
-			 "%-14s %.2f ms\n" \
-			 "%-14s %.2f ms\n" \
-			 "%-14s %.2f ms\n" \
-			 "%-14s %.2f ms\n" \
-			 "%-14s %.0f fps %s\n" \
+	auto buildInfo = BuildInfo::Info();
+	auto version = buildInfo.version();
+
+	auto str = fmt::format(
+			"v{}.{}.{} build {}\n" \
+			 "{}\n"
+			"\n" \
+
+			"{:<{}} {:.2f} ms\n" \
+			 "{:<{}} {:.2f} ms\n" \
+			 "{:<{}} {:.2f} ms\n" \
+			 "{:<{}} {:.2f} ms\n" \
+			 "{:<{}} {:.0f} fps {}\n" \
 			 "\n" \
-			 "%-14s %d\n" \
-			 "%-14s %d\n" \
-			 "%-14s %d\n" \
-			 "%-14s %.1fK\n" \
-			 "%-14s %d\n" \
+
+			"{:<{}} {}x{}\n" \
+			"{:<{}} {}\n" \
+			 "{:<{}} ({:.1f}, {:.1f})\n" \
 			 "\n" \
-			 "%-14s %d\n" \
-			 "%-14s %d\n" \
-			 "%-14s %d\n" \
-			 "%-14s %d\n" \
-			 "%-14s %d\n" \
-			 "%-14s %d\n" \
-			 "%-14s %d\n" \
-			 "%-14s %d\n" \
-			 "%-14s %d\n" \
+
+			"{:<{}} {}\n" \
+			 "{:<{}} {}\n" \
+			 "{:<{}} {}\n" \
+			 "{:<{}} {:.1f}k\n" \
+			 "{:<{}} {}\n" \
 			 "\n" \
-			 "%-14s (%.1f, %.1f, %.1f)\n" \
-			 "%s",
+			 "{:<{}} {}\n" \
+			 "{:<{}} {}\n" \
+			 "{:<{}} {}\n" \
+			 "{:<{}} {}\n" \
+			 "{:<{}} {}\n" \
+			 "{:<{}} {}\n" \
+			 "{:<{}} {}\n" \
+			 "{:<{}} {}\n" \
+			 "{:<{}} {}\n" \
+			 "\n" \
+			 "{:<{}} ({:.1f}, {:.1f}, {:.1f})\n" \
+			 "{}",
 
-			 "frametime", stats.averageFrametime,
-			 " draw", stats.averageDrawtime,
-			 " physics", stats.averagePhysicstime,
-			 " user", stats.averageUsertime,
-			 "framerate", stats.averageFramerate, (context.vSyncEnabled() ? "[vsync]" : ""),
+			version.major, version.minor, version.patch, buildInfo.number(),
+			buildInfo.type() == BuildInfo::Type::Debug ? "debug" : "release",
 
-			 "nodes", stats.nodes,
-			 "meshes", stats.meshes,
-			 "elements", stats.elements,
-			 "polygons", float(stats.polygons)/1000.0f,//(int)round(float(stats.polygons)/1000.0f),
-			 "lights", stats.lights,
+			"frametime", PADDING, stats.averageFrametime,
+			" draw", PADDING, stats.averageDrawtime,
+			" physics", PADDING, stats.averagePhysicstime,
+			" user", PADDING, stats.averageUsertime,
+			"framerate", PADDING, stats.averageFramerate, (context.vSyncEnabled() ? "[vsync]" : ""),
 
-			 "physics bodies", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
-			 " static", stats.staticBodies,
-			 " dynamic", stats.dynamicBodies,
-			 " kinematic", stats.kinematicBodies,
-			 "physics shapes", stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
-			 " primitive", stats.primitiveShapes,
-			 " bounding box", stats.boundingBoxShapes,
-			 " convex hull", stats.convexHullShapes,
-			 " concave polyh", stats.concavePolyhedronShapes,
+			"resolution", PADDING, context.framebufferSize().x, context.framebufferSize().y,
+			"antialiasing", PADDING, StatusOverlayDescriptionForAntialiasingMode(context.antialiasingMode()),
+			"framebuffer scale", PADDING, context.framebufferScale().x, context.framebufferScale().y,
 
-			 "camera pos", stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
-			 recordingStr);
+			"nodes", PADDING, stats.nodes,
+			"meshes", PADDING, stats.meshes,
+			"elements", PADDING, stats.elements,
+			"polygons", PADDING, float(stats.polygons)/1000.0f,//(int)round(float(stats.polygons)/1000.0f),
+			"lights", PADDING, stats.lights,
+
+			"physics bodies", PADDING, stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
+			" static", PADDING, stats.staticBodies,
+			" dynamic", PADDING, stats.dynamicBodies,
+			" kinematic", PADDING, stats.kinematicBodies,
+			"physics shapes", PADDING, stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
+			" primitive", PADDING, stats.primitiveShapes,
+			" bounding box", PADDING, stats.boundingBoxShapes,
+			" convex hull", PADDING, stats.convexHullShapes,
+			" concave polyhedron", PADDING, stats.concavePolyhedronShapes,
+
+			"camera position", PADDING, stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
+			recordingStr);
 
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
@@ -1778,24 +1995,52 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 	windowFlags |= ImGuiWindowFlags_NoNav;
 	windowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
 
+	ImGuiIO& io = ImGui::GetIO();
+	auto fonts = io.Fonts->Fonts;
+
 	// draw the text shadow
 	SetNextWindowBgAlpha(0);
 	Begin("StatsTextShadow", nullptr, windowFlags);
 	ImGuiStyle& style = GetStyle();
 	style.WindowBorderSize = 0;
-	SetWindowPos({10.0f + 1, 10.0f + 1});
-	TextColored(ImVec4{0, 0, 0, .5}, "%s", str);
+	SetWindowPos({10.0f, 2.0f});
+	ImGui::PushFont(fonts[0]);
+	TextColored(ImVec4{0, 0, 0, .5}, "avara3d");
+	ImGui::PopFont();
+	ImVec2 cursorPos = ImGui::GetCursorPos();
+	ImGui::SetCursorPos(ImVec2(cursorPos.x, cursorPos.y + titleToBodyTextPadding));
+	ImGui::PushFont(fonts[1]);
+	TextColored(ImVec4{0, 0, 0, .5}, "%s", str.c_str());
+	ImGui::PopFont();
 	End();
 
 	// draw the text
 	SetNextWindowBgAlpha(0);
 	Begin("StatsText", nullptr, windowFlags);
-	SetWindowPos({10.0f, 10.0f});
-	TextColored(ImVec4{1, 1, 1, 1}, "%s", str);
+	SetWindowPos({10.0f, 2.0f});
+	ImGui::PushFont(fonts[0]);
+	TextColored(ImVec4{1, 1, 1, 1}, "avara3d");
+	ImGui::PopFont();
+	cursorPos = ImGui::GetCursorPos();
+	ImGui::SetCursorPos(ImVec2(cursorPos.x, cursorPos.y + titleToBodyTextPadding));
+	ImGui::PushFont(fonts[1]);
+	TextColored(ImVec4{1, 1, 1, 1}, "%s", str.c_str());
+	ImGui::PopFont();
 	End();
 
 	Render();
 	ImGui_ImplOpenGL3_RenderDrawData(GetDrawData());
+}
+
+string StatusOverlayDescriptionForAntialiasingMode(AntialiasingMode mode) {
+
+	switch (mode) {
+		case AntialiasingMode::None: return "none";
+		case AntialiasingMode::Msaa2X: return "2x msaa";
+		case AntialiasingMode::Msaa4X: return "4x msaa";
+		case AntialiasingMode::Msaa8X: return "8x msaa";
+		case AntialiasingMode::Msaa16X: return "16x msaa";
+	}
 }
 
 void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode) {

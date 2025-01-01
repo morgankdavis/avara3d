@@ -68,8 +68,11 @@ Window::Window(RenderingApi renderingAPI,
 		_highDPIEnabled{enableHighDPI},
 		_open{false},
 		_hidden{false},
-		_cursorCaptured{false} {
+		_cursorCaptured{false}
+		/*_antialiasingMode{antialiasingMode}*/ { // wtf
 	A3D_LOG_D("");
+
+	_antialiasingMode = antialiasingMode; // see above (?)
 
 	if (InitGLFW()) {
 #ifdef OPENGL_CORE

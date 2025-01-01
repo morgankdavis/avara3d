@@ -23,8 +23,8 @@
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsShape.h"
 #include "a3d/scene/Scene.h"
-#include "a3d/rendering/Light.h"
 #include "a3d/rendering/camera/Camera.h"
+#include "a3d/rendering/light/Light.h"
 
 
 using namespace a3d;
@@ -373,6 +373,18 @@ mat4 Node::transform() const {
 	mat4 s = glm::scale(mat4(1.0), _scale);
 	
 	return t * r * s;
+}
+
+vec3 Node::forward() const {
+	return normalize(mat4_cast(_orientation) * vec4(0.0, 0.0, -1.0, 1.0));
+}
+
+vec3 Node::up() const {
+	return normalize(mat4_cast(_orientation) * vec4(0.0, 1.0, 0.0, 1.0));
+}
+
+vec3 Node::right() const {
+	return normalize(mat4_cast(_orientation) * vec4(1.0, 0.0, 0.0, 1.0));
 }
 
 void Node::transform(const mat4& transform) {

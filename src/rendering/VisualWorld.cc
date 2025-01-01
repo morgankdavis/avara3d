@@ -19,9 +19,10 @@
 #include "a3d/diagnostic/logging/Logger.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/primitive/Box.h"
+#include "a3d/mesh/primitive/Plane.h"
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/physics/bullet/BulletWorldProxy.h"
-#include "a3d/rendering/Light.h"
+#include "a3d/rendering/light/Light.h"
 #include "a3d/rendering/material/Material.h"
 #include "a3d/rendering/material/Sampler.h"
 #include "a3d/rendering/material/Texture.h"
@@ -42,6 +43,7 @@ using namespace std;
  *********************************************************************************************/
 
 static unique_ptr<Mesh> MakeSkyboxMesh(const MaterialProperty& property);
+static unique_ptr<Mesh> GroundPlaneMesh();
 static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
 
 /*********************************************************************************************
@@ -51,6 +53,7 @@ static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
 VisualWorld::VisualWorld(RenderContext& context):
 		_background{},
 		_skyboxMesh{},
+		_groundPlaneMesh{},
 		_fogStartDistance{0.0},
 		_fogEndDistance{0.0},
 		_fogDensityExponent{0.0},
@@ -64,6 +67,9 @@ VisualWorld::VisualWorld(RenderContext& context):
 		_didRender{} {
 
 	_renderContext->attachedToVisualWorld(this);
+
+	// *** TEMPORARY ***
+	_groundPlaneMesh = GroundPlaneMesh();
 }
 
 VisualWorld::~VisualWorld() {
@@ -312,6 +318,10 @@ Mesh* VisualWorld::skyboxMesh() const {
 	return _skyboxMesh.get();
 }
 
+Mesh* VisualWorld::groundPlaneMesh() const {
+	return _groundPlaneMesh.get();
+}
+
 weak_ptr<Node> VisualWorld::defaultPointOfView() {
 
 	if (_scene) {
@@ -372,7 +382,7 @@ weak_ptr<Node> VisualWorld::defaultPointOfView() {
 	Private Static Member Functions
  *********************************************************************************************/
 
-static unique_ptr<Mesh> MakeSkyboxMesh(const MaterialProperty& property) {
+unique_ptr<Mesh> MakeSkyboxMesh(const MaterialProperty& property) {
 
 	auto mesh = make_unique<a3d::Mesh>(make_unique<Box>(1, 1, 1), nullptr);
 
@@ -381,6 +391,12 @@ static unique_ptr<Mesh> MakeSkyboxMesh(const MaterialProperty& property) {
 	mesh->addMaterial(material);
 
 	return mesh;
+}
+
+unique_ptr<Mesh> GroundPlaneMesh() {
+
+	//return make_unique<a3d::Mesh>(make_unique<Box>(0.5, 0.5, 0.5), nullptr);
+	return make_unique<a3d::Mesh>(make_unique<Plane>(1.0, 1.0, 1, 1), nullptr);
 }
 
 void UpdateTimeStats(Stats& stats, double startTime, double endTime) {

@@ -8,6 +8,8 @@
 
 #include "a3d/diagnostic/logging/sink/StdOutLoggerSink.h"
 
+#include <iostream>
+
 #ifdef WINDOWS
 #include <windows.h>
 #undef ERROR // see note at LOG_LEVEL
@@ -33,32 +35,26 @@ StdOutLoggerSink::~StdOutLoggerSink() {
 
 void StdOutLoggerSink::flush() {
 
-	fflush(stdout);
-	fflush(stderr);
+	// also flushes cout
+	// https://stackoverflow.com/questions/6027034/why-cerr-flushes-the-buffer-of-cout
+	cerr.flush();
 }
 
 /*********************************************************************************************
 	Internal Member Functions
  **************************************************************************************/
 
-void StdOutLoggerSink::write(const char* message, LogLevel level) {
+void StdOutLoggerSink::write(const string& output, LogLevel level) {
 
 	if (static_cast<underlying_type<LogLevel>::type>(level)
 		>= static_cast<underlying_type<LogLevel>::type>(LogLevel::Error)) {
-		fprintf(stderr, "%s\n", message);
-
+		cerr << output;
 	}
 	else {
-		fprintf(stdout, "%s\n", message);
+		cout << output;
 	}
 
 #ifdef WINDOWS
-	const size_t bufSize = strlen(message) + 2;
-	auto newLined = (char*)malloc(bufSize);
-	//snprintf(newLined, bufSize, "%s\n", message);
-	strcpy(newLined, message);
-	strcat(newLined, "\n");
-	OutputDebugStringA((const char*)newLined); // this broke with C++20.  trying to include windows.h ^^
-	free(newLined);
+	OutputDebugStringA((const char*)output.c_str()); // this broke with C++20.  trying to include windows.h ^^
 #endif
 }

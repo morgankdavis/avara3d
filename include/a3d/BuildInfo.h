@@ -31,7 +31,9 @@ namespace a3d {
 
 		enum class Type {
 			Debug,
-			Release
+			Release,
+			RelWithDebInfo,
+			MinSizeRel
 		};
 
 		enum class Origin {

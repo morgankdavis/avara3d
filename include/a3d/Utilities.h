@@ -91,9 +91,11 @@ namespace a3d {
 	String
  *********************************************************************************************/
 
-		void StringReplace(std::string& str,
-						   const std::string& oldStr,
-						   const std::string& newStr);
+		void 						Replace(std::string& str,
+											const std::string& oldStr,
+											const std::string& newStr);
+		std::vector<std::string>	Split(const std::string& s,
+										  std::string delim);
 
 /*********************************************************************************************
 	Filesystem

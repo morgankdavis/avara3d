@@ -48,11 +48,14 @@ void ProcessEdit(Node& node, set<Key>& keysDown, set<Key>& keysPressed);
 
 std::unique_ptr<a3d::Logger>	g_logger;
 a3d::Node*						g_pointLightNode;
+double 							g_startTime;
 
 
 int main(int argc, const char* argv[]) {
 
 	try {
+		g_startTime = utils::Time();
+
 		InitLog();
 		LogBuildInfo();
 
@@ -92,14 +95,16 @@ int main(int argc, const char* argv[]) {
 		scene->debugOptions(DebugOptions::ShowStatsOverlay);
 		scene->update(bind(&UpdateCallback, _1, _2, _3));
 
-		auto ambientLight = make_shared<Light>(LightType::Ambient, make_unique<Color>(0.2f, 0.2, 0.2, 1.0));
+		auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.2f, 0.2, 0.2, 1.0));
 		ambientLight->name("ambient");
 		auto ambientLightNode = Node::LightNode(ambientLight);
 		scene->rootNode()->addChild(ambientLightNode);
 
-		auto pointLight = make_shared<Light>(LightType::Point, Color::White());
+		auto pointLight = make_shared<PointLight>(Color::White());
 		pointLight->name("point");
-		pointLight->attenuationFactor(0.00005);
+		//pointLight->attenuationFactor(0.00005);
+		//pointLight->attenuationFactor(0.00005);
+		//pointLight->constantAttenuation(1.0);
 		auto pointLightNode = Node::LightNode(pointLight);
 		g_pointLightNode = pointLightNode.get(); // <- how is this not crashing?
 		auto material = make_shared<Material>();
@@ -201,6 +206,13 @@ int main(int argc, const char* argv[]) {
  ***************************************************************************************/
 
 void UpdateCallback(Scene& scene, float time, float deltaTime) {
+	static int invocations = 0;
+	if (invocations == 2) {
+		double time = utils::Time() - g_startTime;
+		A3D_LOG_I("START TIME: {}", time);
+	}
+	++invocations;
+
 	LOG_T(g_logger, "scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
 
 	auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
@@ -228,9 +240,11 @@ void UpdateCallback(Scene& scene, float time, float deltaTime) {
 	if 		(keysPressed.count(Key::LeftBracket))	SetAllMaxAnisotropy(1, scene);
 	else if (keysPressed.count(Key::RightBracket))	SetAllMaxAnisotropy(16, scene);
 
-	if 		(keysPressed.count(Key::F1)) 	g_pointLightNode->light()->attenuationFactor(0.0005);
-	else if (keysPressed.count(Key::F2)) 	g_pointLightNode->light()->attenuationFactor(0.00015);
-	else if (keysPressed.count(Key::F3)) 	g_pointLightNode->light()->attenuationFactor(0.00005);
+//	if (auto attenuatedLight = dynamic_cast<AttenuatedLight*>(g_pointLightNode->light().get())) {
+//		if (keysPressed.count(Key::F1)) attenuatedLight->constantAttenuation(1.0 - 0.0005);
+//		else if (keysPressed.count(Key::F2)) attenuatedLight->constantAttenuation(1.0 - 0.00015);
+//		else if (keysPressed.count(Key::F3)) attenuatedLight->constantAttenuation(1.0 - 0.00005);
+//	}
 
 	if (keysPressed.count(Key::F)) {
 		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {

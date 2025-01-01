@@ -1,57 +1,69 @@
 //
-//  OrthographicCamera.h
+//  DirectionalLight.h
 //  avara3d
 //
-//  Created by Morgan Davis on 10/22/23.
+//  Created by Morgan Davis on 7/31/2024.
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_ORTHOGRAPHICCAMERA_H
-#define AVARA3D_ORTHOGRAPHICCAMERA_H
+#ifndef AVARA3D_DIRECTIONALLIGHT_H
+#define AVARA3D_DIRECTIONALLIGHT_H
 
 
-#include "a3d/Types.h"
-#include "a3d/rendering/camera/Camera.h"
+#include <memory>
+#include <optional>
+#include <string>
+
+#include "glm/glm.hpp"
+
+#include "a3d/rendering/light/Light.h"
 
 
 namespace a3d {
 
-	class OrthographicCamera : public Camera {
 
-	public:
+	class Color;
+	class Node;
+	
+	
+	class DirectionalLight : public Light {
 
 /*********************************************************************************************
 	Public Lifecycle Functions
  *********************************************************************************************/
 
-		OrthographicCamera();
-		explicit OrthographicCamera(const AABB& extent);
-		OrthographicCamera(const std::string& name, const AABB& extent);
-		~OrthographicCamera() override;
+	public:
+
+		DirectionalLight();
+		explicit DirectionalLight(const std::string& name);
+		explicit DirectionalLight(const std::shared_ptr<Color>& color);
+		DirectionalLight(const std::string& name, const std::shared_ptr<Color>& color);
+//		~DirectionalLight();
 
 /*********************************************************************************************
 	Public Member Functions
  *********************************************************************************************/
 
-		AABB 		extent() const;
-		void	 	extent(const AABB& e);
+//		const glm::vec3&	direction() const;
+//		void				direction(const glm::vec3& direction);
 
 /*********************************************************************************************
-	Camera Protected Member Functions
+	Protected Lifecycle Functions
  *********************************************************************************************/
 
-	protected:
-
-		void 		constructProjectionMatrix() override;
+//	protected:
+//
+//		DirectionalLight();
 
 /*********************************************************************************************
 	Private Member Variables
  *********************************************************************************************/
 
-	private:
-
-		AABB 		_extent;
+//	private:
+//
+//		glm::vec3			_direction; // TODO: INIT ME
 	};
 }
 
-#endif /* AVARA3D_ORTHOGRAPHICCAMERA_H */
+
+#endif /* AVARA3D_DIRECTIONALLIGHT_H */

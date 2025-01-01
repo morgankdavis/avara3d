@@ -14,6 +14,8 @@
 #include <string>
 #include <vector>
 
+#include "glm/glm.hpp"
+
 
 namespace a3d {
 	
@@ -61,6 +63,13 @@ namespace a3d {
 		explicit Color(const std::string& hexString);
 
 		// TODO: operator*, operator[], rgb(), rgba()
+
+/*********************************************************************************************
+	Public Member Functions
+ *********************************************************************************************/
+
+		glm::vec3 vec3();
+		glm::vec4 vec4();
 
 /*********************************************************************************************
 	Public Member Variables

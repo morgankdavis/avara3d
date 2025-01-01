@@ -1,48 +1,60 @@
 //
-//  OrthographicCamera.h
+//  SpotLight.h
 //  avara3d
 //
-//  Created by Morgan Davis on 10/22/23.
+//  Created by Morgan Davis on 7/31/2024.
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_ORTHOGRAPHICCAMERA_H
-#define AVARA3D_ORTHOGRAPHICCAMERA_H
+#ifndef AVARA3D_SPOTLIGHT_H
+#define AVARA3D_SPOTLIGHT_H
 
 
-#include "a3d/Types.h"
-#include "a3d/rendering/camera/Camera.h"
+#include <memory>
+#include <optional>
+#include <string>
+
+#include "a3d/rendering/light/AttenuatedLight.h"
 
 
 namespace a3d {
 
-	class OrthographicCamera : public Camera {
 
-	public:
+	class Color;
+	
+	
+	class SpotLight : public AttenuatedLight {
 
 /*********************************************************************************************
 	Public Lifecycle Functions
  *********************************************************************************************/
 
-		OrthographicCamera();
-		explicit OrthographicCamera(const AABB& extent);
-		OrthographicCamera(const std::string& name, const AABB& extent);
-		~OrthographicCamera() override;
+	public:
+
+		SpotLight();
+		explicit SpotLight(const std::string& name);
+		explicit SpotLight(const std::shared_ptr<Color>& color);
+		SpotLight(const std::string& name, const std::shared_ptr<Color>& color);
 
 /*********************************************************************************************
 	Public Member Functions
  *********************************************************************************************/
 
-		AABB 		extent() const;
-		void	 	extent(const AABB& e);
+	public:
+
+		float			innerAngle() const;
+		void			innerAngle(float angle);
+
+		float			outerAngle() const;
+		void			outerAngle(float angle);
 
 /*********************************************************************************************
-	Camera Protected Member Functions
+	Private Lifecycle Functions
  *********************************************************************************************/
 
-	protected:
-
-		void 		constructProjectionMatrix() override;
+//	private:
+//
+//		SpotLight();
 
 /*********************************************************************************************
 	Private Member Variables
@@ -50,8 +62,10 @@ namespace a3d {
 
 	private:
 
-		AABB 		_extent;
+		float			_innerAngle;
+		float			_outerAngle;
 	};
 }
 
-#endif /* AVARA3D_ORTHOGRAPHICCAMERA_H */
+
+#endif /* AVARA3D_SPOTLIGHT_H */

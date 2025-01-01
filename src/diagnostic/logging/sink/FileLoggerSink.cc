@@ -12,7 +12,6 @@
 
 #include "fmt/format.h"
 
-
 #include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/logging/Logger.h"
 
@@ -82,9 +81,9 @@ void FileLoggerSink::flush() {
 	Internal Member Functions
  *********************************************************************************************/
 
-void FileLoggerSink::write(const char* message) {
+void FileLoggerSink::write(const string& output) {
 
-	*_fileStream << message << endl;
+	*_fileStream << output;
 
 	checkRotate();
 }

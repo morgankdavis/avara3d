@@ -146,7 +146,7 @@ void WindowInputManager::initMouseInput() {
 }
 
 void WindowInputManager::initManyMouse() {
-    A3D_LOG_C();
+    A3D_LOG_D("");
 
     // TODO: must modify to support multiple windows
     auto availableMice = ManyMouse_Init();

@@ -111,7 +111,8 @@ int main(int argc, const char* argv[]) {
 	//	auto ambientColor = DARK
 	//						? Color::LightGray()
 	//						: make_shared<Color>(.85f);
-		auto ambientLight = make_shared<Light>(LightType::Ambient, Color::DarkGray());
+		//auto ambientLight = make_shared<Light>(LightType::Ambient, Color::DarkGray());
+		auto ambientLight = make_shared<AmbientLight>(Color::DarkGray());
 		auto ambientLightNode = Node::LightNode(ambientLight);
 		scene->rootNode()->addChild(ambientLightNode);
 
@@ -175,8 +176,10 @@ int main(int argc, const char* argv[]) {
 
 	//	{
 			{
-				auto pointLight = make_shared<Light>(LightType::Point, Color::LightGray());
-				pointLight->attenuationFactor(0);
+//				auto pointLight = make_shared<Light>(LightType::Point, Color::LightGray());
+				auto pointLight = make_shared<PointLight>(Color::LightGray());
+				//pointLight->attenuationFactor(0);
+				pointLight->constantAttenuation(1.0);
 				auto pointLightNode = Node::LightNode(pointLight);
 				pointLightNode->position({5, 5, 0});
 
@@ -220,6 +223,12 @@ int main(int argc, const char* argv[]) {
 	//		auto testMesh = MeshNamed("tuna_rot/tuna_rot");
 	//		auto testMesh = MeshNamed("cartoon_palm_tree/cartoon_palm_tree");
 	//		auto testMesh = MeshNamed("crocus/crocus");
+
+
+		window->center();
+		window->open();
+		scene->run();
+		return 0;
 
 
 		const vector<string> meshNames = {
