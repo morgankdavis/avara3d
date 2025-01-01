@@ -168,12 +168,11 @@ bool Program::link() {
 		glGetProgramiv(_glID, GL_INFO_LOG_LENGTH, &logSize);
 		if (logSize > 0) {
 			// win11
-			// //auto c_log = (GLchar*)new char[length];
-			// GLchar c_log[logSize];
-			// glGetProgramInfoLog(_glID, logSize, nullptr, c_log);
-			// _logString = string(c_log);
-			// A3D_LOG_E("Failed to link program '{}':\n{}",
-			// 		 name(), *_logString);
+			vector<GLchar> c_log(logSize);
+			glGetProgramInfoLog(_glID, logSize, nullptr, c_log.data());
+			_logString = string(c_log.data());
+			A3D_LOG_E("Failed to link program '{}':\n{}",
+					  name(), *_logString);
 		}
 
 		glDeleteProgram(_glID);
@@ -595,12 +594,12 @@ bool Program::compile(const string& source, ShaderType type) {
 		_logString = nullopt;
 		glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &logSize);
 		if (logSize > 0) {
-			// win11
-			// GLchar c_log[logSize];
-			// glGetShaderInfoLog(shaderID, logSize, nullptr, c_log);
-			// _logString = string(c_log);
-			// A3D_LOG_E("Failed to compile {} shader for program '{}':\n{}",
-			// 		  magic_enum::enum_name(type), name(), *_logString);
+		// win11
+			vector<GLchar> c_log(logSize);
+			glGetShaderInfoLog(shaderID, logSize, nullptr, c_log.data());
+			_logString = string(c_log.data());
+			A3D_LOG_E("Failed to compile {} shader for program '{}':\n{}",
+					  magic_enum::enum_name(type), name(), *_logString);
 		}
 
 		glDeleteShader(shaderID);
