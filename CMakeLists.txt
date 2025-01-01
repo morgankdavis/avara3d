@@ -46,8 +46,9 @@ set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
 set(INSTALL_CMAKE_FILES OFF CACHE BOOL "" FORCE)
 add_subdirectory(external/bullet-3.17)
 include_directories(external/bullet-3.17/src)
-target_compile_options(Bullet3Collision PUBLIC
-		"-Wno-deprecated-volatile")
+# breaks Win11 build (?)
+#target_compile_options(Bullet3Collision PUBLIC
+#		"-Wno-deprecated-volatile")
 set(BULLET_LIBRARIES
 		LinearMath
 		Bullet3Common

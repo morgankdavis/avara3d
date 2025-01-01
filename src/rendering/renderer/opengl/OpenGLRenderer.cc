@@ -473,10 +473,12 @@ unique_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 	auto framebufferWidth = (unsigned)round(framebufferSize.x);
 	auto framebufferHeight = (unsigned)round(framebufferSize.y);
 
-	unsigned char pixelBuf[framebufferWidth * framebufferHeight * 4];
-	glReadPixels(0, 0, (GLsizei)framebufferWidth, (GLsizei)framebufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixelBuf);
-	auto buffer = make_unique<Buffer>((std::byte*)pixelBuf, framebufferWidth * framebufferHeight * 4);
-	return make_unique<Image>(std::move(buffer), framebufferWidth, framebufferHeight, 4);
+	// win11
+	// unsigned char pixelBuf[framebufferWidth * framebufferHeight * 4];
+	// glReadPixels(0, 0, (GLsizei)framebufferWidth, (GLsizei)framebufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixelBuf);
+	// auto buffer = make_unique<Buffer>((std::byte*)pixelBuf, framebufferWidth * framebufferHeight * 4);
+	// return make_unique<Image>(std::move(buffer), framebufferWidth, framebufferHeight, 4);
+	return nullptr;
 }
 
 void OpenGLRenderer::framebufferScaleChanged(const RenderContext& context) {
@@ -1082,35 +1084,36 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 		if (ambientLightNode) lights.push_back(ambientLightNode);
 
 		auto numLights = lights.size();
-		LightGLSLStruct lightStruct[numLights];
-
-		stats.lights = std::max(int(0), int(numLights - 1)); // not counting ambient
-
-		// TODO: move this?
-		// should useDefaultLighing be a root uniform or elsewhere?
-		if (((numLights == 0) && scene.visualWorld()->autoEnablesDefaultLighting())) {
-
-			Program::Default().setUniform("useDefaultLighting", true);
-		}
-		else {
-
-			Program::Default().setUniform("useDefaultLighting", false);
-
-			for (unsigned l = 0; l < numLights; ++l) {
-				auto node = lights[l];
-				auto light = node->light();
-
-				lightStruct[l].type = static_cast<unsigned>(light->type());
-				lightStruct[l].position_world = node->worldPosition();
-				lightStruct[l].attenuationFactor = light->attenuationFactor();
-
-				auto color = *light->color();
-				lightStruct[l].color = {color.r, color.g, color.b, color.a};
-			}
-		}
-
-		environmentStruct.numLights = numLights;
-		memcpy(&environmentStruct.lights, &lightStruct, sizeof(lightStruct));
+		// win11
+		// LightGLSLStruct lightStruct[numLights];
+		//
+		// stats.lights = std::max(int(0), int(numLights - 1)); // not counting ambient
+		//
+		// // TODO: move this?
+		// // should useDefaultLighing be a root uniform or elsewhere?
+		// if (((numLights == 0) && scene.visualWorld()->autoEnablesDefaultLighting())) {
+		//
+		// 	Program::Default().setUniform("useDefaultLighting", true);
+		// }
+		// else {
+		//
+		// 	Program::Default().setUniform("useDefaultLighting", false);
+		//
+		// 	for (unsigned l = 0; l < numLights; ++l) {
+		// 		auto node = lights[l];
+		// 		auto light = node->light();
+		//
+		// 		lightStruct[l].type = static_cast<unsigned>(light->type());
+		// 		lightStruct[l].position_world = node->worldPosition();
+		// 		lightStruct[l].attenuationFactor = light->attenuationFactor();
+		//
+		// 		auto color = *light->color();
+		// 		lightStruct[l].color = {color.r, color.g, color.b, color.a};
+		// 	}
+		// }
+		//
+		// environmentStruct.numLights = numLights;
+		// memcpy(&environmentStruct.lights, &lightStruct, sizeof(lightStruct));
 	}
 
 	// fog
