@@ -230,7 +230,8 @@ static void 		DeleteLinesGLResources(const vector<Line>& lines,
 										  OpenGLRenderer::LinesGLMapping& glMapping);
 static vector<Node*> 	SortedLights(map<Node*, float> lights);
 static void			InitImgui(const RenderContext& context);
-void 				UpdateImguiScale(const RenderContext& context, const Font& font, float size);
+void 				UpdateImguiScale(const RenderContext& context, const Font& overLayFont, const Font& bodyFont);
+void 				AddImguiFont(const RenderContext& context, const Font& font, float size);
 static void 		DrawStatsOverlay(Stats& stats, const RenderContext& context);
 static string 		StatusOverlayDescriptionForAntialiasingMode(AntialiasingMode mode);
 static void 		SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode);
@@ -299,26 +300,21 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 
 	InitImgui(context);
 
-//	ImGuiIO& io = ImGui::GetIO();
-//	io.Fonts->ClearFonts();
-
 	_overlayTitleFont = utils::FontNamed(titleFontName, titleFontType);
-
 	if (_overlayTitleFont->buffer()->size()) {
-		UpdateImguiScale(context, *_overlayTitleFont, titleFontSize);
+		_overlayBodyFont = utils::FontNamed(bodyFontName, bodyFontType);
+		if (_overlayBodyFont->buffer()->size()) {
+			UpdateImguiScale(context, *_overlayTitleFont, *_overlayBodyFont);
+		}
+		else {
+			A3D_LOG_E("Unable to load font: {}.{}", bodyFontName, bodyFontType);
+		}
 	}
 	else {
 		A3D_LOG_E("Unable to load font: {}.{}", titleFontName, titleFontType);
 	}
 
-	_overlayBodyFont = utils::FontNamed(bodyFontName, bodyFontType);
 
-	if (_overlayBodyFont->buffer()->size()) {
-		UpdateImguiScale(context, *_overlayBodyFont, bodyFontSize);
-	}
-	else {
-		A3D_LOG_E("Unable to load font: {}.{}", bodyFontName, bodyFontType);
-	}
 
 	return true;
 }
@@ -543,13 +539,7 @@ unique_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 void OpenGLRenderer::framebufferScaleChanged(const RenderContext& context) {
 	A3D_LOG_D("context: {:p}", static_cast<const void*>(&context));
 
-	ImGuiIO& io = ImGui::GetIO();
-	io.Fonts->Clear(); // works
-	io.Fonts->ClearFonts(); // crashes by itself
-	io.Fonts->ClearTexData(); // does not work, but does not crash
-
-	UpdateImguiScale(context, *_overlayTitleFont, titleFontSize);
-	UpdateImguiScale(context, *_overlayBodyFont, bodyFontSize);
+	UpdateImguiScale(context, *_overlayTitleFont, *_overlayBodyFont);
 }
 	
 /*********************************************************************************************
@@ -1850,21 +1840,33 @@ void InitImgui(const RenderContext& context) {
 	ImGui_ImplOpenGL3_Init();
 }
 
-//void AddImguiFont(const RenderContext& context, const Font& font, float size) {
-//
-//}
-
-void UpdateImguiScale(const RenderContext& context, const Font& font, float size) {
+void UpdateImguiScale(const RenderContext& context, const Font& overLayFont, const Font& bodyFont) {
 	// https://github.com/ocornut/imgui/blob/master/docs/FAQ.md#q-how-should-i-handle-dpi-in-my-application
 	// https://github.com/ocornut/imgui/discussions/3925
 	// https://github.com/ocornut/imgui/issues/3757
 	// https://gist.github.com/benpm/21afb58f2c8dfdbf881ca90c76ad602e
 	// https://gist.github.com/benpm/21afb58f2c8dfdbf881ca90c76ad602e#file-high_dpi-cpp-L2
 
-
 	using namespace ImGui;
 
 	ImGui_ImplOpenGL3_DestroyFontsTexture();
+
+	// clear all the font data,
+	// re-add the fonts with the new oversample scales,
+	// and re-create the font atlas data.
+
+	ImGuiIO& io = ImGui::GetIO();
+	io.Fonts->Clear(); // works
+	io.Fonts->ClearFonts(); // crashes by itself
+	io.Fonts->ClearTexData(); // does not work, but does not crash
+
+	AddImguiFont(context, overLayFont, titleFontSize);
+	AddImguiFont(context, bodyFont, bodyFontSize);
+
+	ImGui_ImplOpenGL3_CreateFontsTexture();
+}
+
+void AddImguiFont(const RenderContext& context, const Font& font, float size) {
 
 	auto scaleXY = context.framebufferScale();
 
@@ -1885,8 +1887,6 @@ void UpdateImguiScale(const RenderContext& context, const Font& font, float size
 								   (int)font.buffer()->size(),
 								   size,
 								   &fontConfig);
-
-	ImGui_ImplOpenGL3_CreateFontsTexture();
 }
 
 void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
