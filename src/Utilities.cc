@@ -590,7 +590,7 @@ void a3d::utils::SaveSnapshot(RenderContext& context) {
 
 	auto execDir = ExecutableDirectory();
 	if (execDir) {
-		auto filename = fmt::format("Snapshot_{}.gif", DateTimeString());
+		auto filename = fmt::format("Snapshot_{}.png", DateTimeString());
 		A3D_LOG_I("Saving snapshot to '{}'", (*execDir/filesystem::path(filename)).string());
 		auto image = context.snapshot();
 		auto fullPath = *execDir / filename;
