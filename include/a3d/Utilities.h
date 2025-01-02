@@ -140,6 +140,7 @@ namespace a3d {
 
 		// *** fonts ***
 
+//		std::unique_ptr<a3d::Font> 		FontNamed(const std::string& filename);
 		std::unique_ptr<a3d::Font> 		FontNamed(const std::string& name,
 													const std::string& type);
 

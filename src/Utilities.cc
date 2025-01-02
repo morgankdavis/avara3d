@@ -495,6 +495,11 @@ std::optional<std::string> a3d::utils::ShaderSource(const string& name,
 
 // *** fonts ***
 
+//unique_ptr<a3d::Font> a3d::utils::FontNamed(const string& filename) {
+//	auto path = filesystem::path(filename);
+//	return FontNamed(path.stem(), path.extension());
+//}
+
 unique_ptr<Font> a3d::utils::FontNamed(const string& name,
 									  const string& type) {
 	auto path = SearchInPaths((name + "." + type), FontSearchPaths());

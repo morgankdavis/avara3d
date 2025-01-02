@@ -67,28 +67,18 @@ using namespace std;
 //#define DISABLE_RESOURCE_MANAGEMENT
 
 
+/*********************************************************************************************
+	 Private Constant Definitions
+ *********************************************************************************************/
 
 
-
-
-// rename/reformat/whatever me
-
-const string titleFontName = "Take cover";
-const string titleFontType = "ttf";
-const float titleFontSize = 21.0;
-
-const string bodyFontName = "SourceCodePro-Semibold";
-const string bodyFontType = "otf";
-const float bodyFontSize = 15.0;
-
-constexpr float titleToBodyTextPadding = 0; // -4 works well with same font
-
-
-
-
-
-
-
+const std::string 	OpenGLRenderer::STATS_TITLE_FONT_NAME = 		"Take cover";
+const std::string 	OpenGLRenderer::STATS_TITLE_FONT_TYPE = 		"ttf";
+const float 		OpenGLRenderer::STATS_TITLE_FONT_SIZE =			21.0;
+const std::string 	OpenGLRenderer::STATS_BODY_FONT_NAME = 			"SourceCodePro-Semibold";
+const std::string 	OpenGLRenderer::STATS_BODY_FONT_TYPE = 			"otf";
+const float 		OpenGLRenderer::STATS_BODY_FONT_SIZE =			15.0;
+const float 		OpenGLRenderer::STATS_TITLE_TO_BODY_PADDING =	0.0;
 
 /*********************************************************************************************
 	Private Types
@@ -300,18 +290,18 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 
 	InitImgui(context);
 
-	_overlayTitleFont = utils::FontNamed(titleFontName, titleFontType);
+	_overlayTitleFont = utils::FontNamed(STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
 	if (_overlayTitleFont->buffer()->size()) {
-		_overlayBodyFont = utils::FontNamed(bodyFontName, bodyFontType);
+		_overlayBodyFont = utils::FontNamed(STATS_BODY_FONT_NAME, STATS_BODY_FONT_TYPE);
 		if (_overlayBodyFont->buffer()->size()) {
 			UpdateImguiScale(context, *_overlayTitleFont, *_overlayBodyFont);
 		}
 		else {
-			A3D_LOG_E("Unable to load font: {}.{}", bodyFontName, bodyFontType);
+			A3D_LOG_E("Unable to load font: {}.{}", STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
 		}
 	}
 	else {
-		A3D_LOG_E("Unable to load font: {}.{}", titleFontName, titleFontType);
+		A3D_LOG_E("Unable to load font: {}.{}", STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
 	}
 
 
@@ -1860,8 +1850,8 @@ void UpdateImguiScale(const RenderContext& context, const Font& overLayFont, con
 	io.Fonts->ClearFonts(); // crashes by itself
 	io.Fonts->ClearTexData(); // does not work, but does not crash
 
-	AddImguiFont(context, overLayFont, titleFontSize);
-	AddImguiFont(context, bodyFont, bodyFontSize);
+	AddImguiFont(context, overLayFont, OpenGLRenderer::STATS_TITLE_FONT_SIZE);
+	AddImguiFont(context, bodyFont, OpenGLRenderer::STATS_BODY_FONT_SIZE);
 
 	ImGui_ImplOpenGL3_CreateFontsTexture();
 }
@@ -2014,7 +2004,7 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 	TextColored(ImVec4{0, 0, 0, .5}, "avara3d");
 	ImGui::PopFont();
 	ImVec2 cursorPos = ImGui::GetCursorPos();
-	ImGui::SetCursorPos(ImVec2(cursorPos.x, cursorPos.y + titleToBodyTextPadding));
+	ImGui::SetCursorPos(ImVec2(cursorPos.x, cursorPos.y + OpenGLRenderer::STATS_TITLE_TO_BODY_PADDING));
 	ImGui::PushFont(fonts[1]);
 	TextColored(ImVec4{0, 0, 0, .5}, "%s", str.c_str());
 	ImGui::PopFont();
@@ -2028,7 +2018,7 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 	TextColored(ImVec4{1, 1, 1, 1}, "avara3d");
 	ImGui::PopFont();
 	cursorPos = ImGui::GetCursorPos();
-	ImGui::SetCursorPos(ImVec2(cursorPos.x, cursorPos.y + titleToBodyTextPadding));
+	ImGui::SetCursorPos(ImVec2(cursorPos.x, cursorPos.y + OpenGLRenderer::STATS_TITLE_TO_BODY_PADDING));
 	ImGui::PushFont(fonts[1]);
 	TextColored(ImVec4{1, 1, 1, 1}, "%s", str.c_str());
 	ImGui::PopFont();
