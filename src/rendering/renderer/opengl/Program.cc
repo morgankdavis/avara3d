@@ -73,8 +73,8 @@ Program::Program(const string& name):
 		_isLinked{false},
 		_logString{},
 		_vertexShaderSource{},
-		_fragmentShaderSource{},
-		_uniformLocationCache{} {
+		_fragmentShaderSource{}
+		/*_uniformLocationCache{} */{
 
 		_glID = glCreateProgram();
 
@@ -500,7 +500,7 @@ void Program::prepare() {
 			A3D_LOG_I("Shaders for program '{}' compiled.", _name);
 			
 			if (link()) {
-				_uniformLocationCache = map<string, int>();
+				// _uniformLocationCache = map<string, int>();
 				A3D_LOG_I("Program '{}' linked.", _name);
 			}
 			else {
@@ -622,14 +622,18 @@ bool Program::compile(const string& source, ShaderType type) {
 
 int Program::getUniformLocation(const char* name) {
 
-	GLuint location = -1;
-	if (_uniformLocationCache.find(name) == _uniformLocationCache.end()) {
+	GLint location = -1;
+	// if (_uniformLocationCache.find(name) == _uniformLocationCache.end()) {
 		location = glGetUniformLocation(_glID, name);
-		_uniformLocationCache[name] = location;
+
+	if (location < 0) {
+		A3D_LOG_E("Could not find uniform location: {}", name);
 	}
-	else {
-		location = _uniformLocationCache[name];
-	}
+		// _uniformLocationCache[name] = location;
+	// }
+	// else {
+	// 	location = _uniformLocationCache[name];
+	// }
 	return location;
 }
 

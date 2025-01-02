@@ -116,7 +116,7 @@ namespace a3d {
 		std::optional<std::string>			_logString;
 		std::optional<std::string>			_vertexShaderSource;
 		std::optional<std::string>			_fragmentShaderSource;
-		std::map<std::string, int>			_uniformLocationCache;
+		// std::map<std::string, int>			_uniformLocationCache;
 	};
 }
 

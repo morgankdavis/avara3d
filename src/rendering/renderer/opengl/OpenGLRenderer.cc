@@ -90,120 +90,99 @@ enum class MaterialContentsType : unsigned {
 	Sampler = 	2
 };
 
-typedef struct {
-	alignas(16) vec4		color;
-} AmbientLightGLSLStruct;
-
-typedef struct {
-	alignas(16) vec4		color;
-	alignas(16) vec3		direction_world;
-	alignas(16) float		PAD0;
-} DirectionalLightGLSLStruct;
-
-typedef struct {
-	alignas(16) vec4		color;
-	alignas(16) vec3		position_world;
-	alignas(16) float		PAD0;
-	alignas(16) float		constantAttenuation;
-	alignas(16) float		linearAttenuation;
-	alignas(16) float		quadraticAttenuation;
-	alignas(16) float		PAD1;
-} PointLightGLSLStruct;
-
-typedef struct {
-	alignas(16) vec4		color;
-	alignas(16) vec3		position_world;
-	alignas(16) float		PAD0;
-	alignas(16) vec3		direction_world;
-	alignas(16) float		PAD1;
-	alignas(16) float		innerAngle;
-	alignas(16) float		outerAngle;
-	alignas(16) float		constantAttenuation;
-	alignas(16) float		linearAttenuation;
-	alignas(16) float		quadraticAttenuation;
-	alignas(16) float		PAD2;
-	alignas(16) float		PAD3;
-	alignas(16) float		PAD4;
-} SpotLightGLSLStruct;
-
-typedef struct {
-	alignas(16) vec4		color;
-	alignas(16) float32_t	startDistance;
-	alignas(16) float32_t	endDistance;
-	alignas(16) float32_t	densityExponent;
-	alignas(16) float		PAD0;
-} FogGLSLStruct;
-
 // typedef struct {
-// 	vec4		color;
+// 	alignas(16) vec4		color;
 // } AmbientLightGLSLStruct;
 //
 // typedef struct {
-// 	vec4		color;
-// 	vec3		direction_world;
+// 	alignas(16) vec4		color;
+// 	alignas(16) vec3		direction_world;
 // } DirectionalLightGLSLStruct;
 //
 // typedef struct {
-// 	vec4		color;
-// 	vec3		position_world;
-// 	float		constantAttenuation;
-// 	float		linearAttenuation;
-// 	float		quadraticAttenuation;
+// 	alignas(16) vec4		color;
+// 	alignas(16) vec3		position_world;
+// 	alignas(16) float		constantAttenuation;
+// 	alignas(16) float		linearAttenuation;
+// 	alignas(16) float		quadraticAttenuation;
 // } PointLightGLSLStruct;
 //
 // typedef struct {
-// 	vec4		color;
-// 	vec3		position_world;
-// 	vec3		direction_world;
-// 	float		innerAngle;
-// 	float		outerAngle;
-// 	float		constantAttenuation;
-// 	float		linearAttenuation;
-// 	float		quadraticAttenuation;
+// 	alignas(16) vec4		color;
+// 	alignas(16) vec3		position_world;
+// 	alignas(16) vec3		direction_world;
+// 	alignas(16) float		innerAngle;
+// 	alignas(16) float		outerAngle;
+// 	alignas(16) float		constantAttenuation;
+// 	alignas(16) float		linearAttenuation;
+// 	alignas(16) float		quadraticAttenuation;
 // } SpotLightGLSLStruct;
 //
 // typedef struct {
-// 	vec4		color;
-// 	float32_t	startDistance;
-// 	float32_t	endDistance;
-// 	float32_t	densityExponent;
+// 	alignas(16) vec4		color;
+// 	alignas(16) float32_t	startDistance;
+// 	alignas(16) float32_t	endDistance;
+// 	alignas(16) float32_t	densityExponent;
 // } FogGLSLStruct;
 
 typedef struct {
-	alignas(16) uint32_t 					numAmbientLights;
-	alignas(16) float		PAD0;
-	alignas(16) float		PAD1;
-	alignas(16) float		PAD2;
-	alignas(16) AmbientLightGLSLStruct		ambientLights[MAX_AMBIENT_LIGHTS];
-	alignas(16) uint32_t 					numDirectionalLights;
-	alignas(16) float		PAD3;
-	alignas(16) float		PAD4;
-	alignas(16) float		PAD5;
-	alignas(16) DirectionalLightGLSLStruct	directionalLights[MAX_DIRECTIONAL_LIGHTS];
-	alignas(16) uint32_t 					numPointLights;
-	alignas(16) float		PAD6;
-	alignas(16) float		PAD7;
-	alignas(16) float		PAD8;
-	alignas(16) PointLightGLSLStruct		pointLights[MAX_POINT_LIGHTS];
-	alignas(16) uint32_t 					numSpotLights;
-	alignas(16) float		PAD9;
-	alignas(16) float		PAD10;
-	alignas(16) float		PAD11;
-	alignas(16) SpotLightGLSLStruct			spotLights[MAX_SPOT_LIGHTS];
-	alignas(16) FogGLSLStruct				fog;
-} EnvironmentBlock;
+	vec4		color;
+} AmbientLightGLSLStruct;
+
+typedef struct {
+	vec4		color;
+	vec3		direction_world;
+} DirectionalLightGLSLStruct;
+
+typedef struct {
+	vec4		color;
+	vec3		position_world;
+	float		constantAttenuation;
+	float		linearAttenuation;
+	float		quadraticAttenuation;
+} PointLightGLSLStruct;
+
+typedef struct {
+	vec4		color;
+	vec3		position_world;
+	vec3		direction_world;
+	float		innerAngle;
+	float		outerAngle;
+	float		constantAttenuation;
+	float		linearAttenuation;
+	float		quadraticAttenuation;
+} SpotLightGLSLStruct;
+
+typedef struct {
+	vec4		color;
+	float32_t	startDistance;
+	float32_t	endDistance;
+	float32_t	densityExponent;
+} FogGLSLStruct;
 
 // typedef struct {
-// 	uint32_t 					numAmbientLights;
-// 	AmbientLightGLSLStruct		ambientLights[MAX_AMBIENT_LIGHTS];
-// 	uint32_t 					numDirectionalLights;
-// 	DirectionalLightGLSLStruct	directionalLights[MAX_DIRECTIONAL_LIGHTS];
-// 	uint32_t 					numPointLights;
-// 	PointLightGLSLStruct		pointLights[MAX_POINT_LIGHTS];
-// 	uint32_t 					numSpotLights;
-// 	SpotLightGLSLStruct			spotLights[MAX_SPOT_LIGHTS];
-// 	FogGLSLStruct				fog;
+// 	alignas(16) uint32_t 					numAmbientLights;
+// 	alignas(16) AmbientLightGLSLStruct		ambientLights[MAX_AMBIENT_LIGHTS];
+// 	alignas(16) uint32_t 					numDirectionalLights;
+// 	alignas(16) DirectionalLightGLSLStruct	directionalLights[MAX_DIRECTIONAL_LIGHTS];
+// 	alignas(16) uint32_t 					numPointLights;
+// 	alignas(16) PointLightGLSLStruct		pointLights[MAX_POINT_LIGHTS];
+// 	alignas(16) uint32_t 					numSpotLights;
+// 	alignas(16) SpotLightGLSLStruct			spotLights[MAX_SPOT_LIGHTS];
+// 	alignas(16) FogGLSLStruct				fog;
 // } EnvironmentBlock;
+
+typedef struct {
+	uint32_t 					numAmbientLights;
+	AmbientLightGLSLStruct		ambientLights[MAX_AMBIENT_LIGHTS];
+	uint32_t 					numDirectionalLights;
+	DirectionalLightGLSLStruct	directionalLights[MAX_DIRECTIONAL_LIGHTS];
+	uint32_t 					numPointLights;
+	PointLightGLSLStruct		pointLights[MAX_POINT_LIGHTS];
+	uint32_t 					numSpotLights;
+	SpotLightGLSLStruct			spotLights[MAX_SPOT_LIGHTS];
+	FogGLSLStruct				fog;
+} EnvironmentBlock;
 
 /*********************************************************************************************
 	Private Static Non-Member Prototypes
@@ -1155,7 +1134,8 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 	if (scene.visualWorld()->usesDefaultLighting()) {
 
 		Program::Default().setUniform("useDefaultLighting", true);
-	} else {
+	}
+	else {
 
 		auto numLights = lightNodes.size();
 
@@ -1164,14 +1144,15 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 		if (((numLights == 0) && scene.visualWorld()->autoEnablesDefaultLighting())) {
 
 			Program::Default().setUniform("useDefaultLighting", true);
-		} else {
+		}
+		else {
 
 			Program::Default().setUniform("useDefaultLighting", false);
 
-			vector<AmbientLightGLSLStruct> ambientStructs;
-			vector<DirectionalLightGLSLStruct> directionalStructs;
-			vector<PointLightGLSLStruct> pointStructs;
-			vector<SpotLightGLSLStruct> spotStructs;
+			vector<AmbientLightGLSLStruct> ambientStructs(MAX_AMBIENT_LIGHTS);
+			vector<DirectionalLightGLSLStruct> directionalStructs(MAX_DIRECTIONAL_LIGHTS);
+			vector<PointLightGLSLStruct> pointStructs(MAX_POINT_LIGHTS);
+			vector<SpotLightGLSLStruct> spotStructs(MAX_SPOT_LIGHTS);
 
 			for (unsigned l = 0; l < numLights; ++l) {
 
@@ -1184,7 +1165,6 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 					AmbientLightGLSLStruct lightStruct;
 					lightStruct.color = ambientLight->color()->vec4();
 					ambientStructs.push_back(lightStruct);
-
 				}
 				else if (auto directionalLight = dynamic_cast<DirectionalLight*>(light)) {
 
@@ -1195,7 +1175,6 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 //					lightStruct.direction_world = {-1, 0, 0};
 //					A3D_LOG_I("dir forward: {}", utils::StringFromGLMVec3(lightStruct.direction_world));
 					directionalStructs.push_back(lightStruct);
-
 				}
 				else if (auto pointLight = dynamic_cast<PointLight*>(light)) {
 
@@ -1206,7 +1185,6 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 					lightStruct.linearAttenuation = pointLight->linearAttenuation();
 					lightStruct.quadraticAttenuation = pointLight->quadraticAttenuation();
 					pointStructs.push_back(lightStruct);
-
 				}
 				else if (auto spotLight = dynamic_cast<SpotLight*>(light)) {
 
@@ -1267,6 +1245,57 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 
 	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(environmentStruct), &environmentStruct, GL_DYNAMIC_DRAW);
+
+
+
+	int programID = Program::Default().glID();
+
+	const char* uniforms[9] = {
+		"numAmbientLights",
+		"ambientLights",
+		"numDirectionalLights",
+		"directionalLights",
+		"numPointLights",
+		"pointLights",
+		"numSpotLights",
+		"spotLights",
+		"fog"
+	};
+	GLuint indices[9];
+	GLint offsets[9];
+
+	glGetUniformIndices(programID, 9, uniforms, indices);
+	glGetActiveUniformsiv(programID, 9, indices, GL_UNIFORM_OFFSET, offsets);
+
+	glBufferSubData(GL_UNIFORM_BUFFER, offsets[0], sizeof(uint32_t),
+		(const void*)&environmentStruct.numAmbientLights);
+	glBufferSubData(GL_UNIFORM_BUFFER, offsets[1], sizeof(AmbientLightGLSLStruct) * MAX_AMBIENT_LIGHTS,
+		(const void*)environmentStruct.ambientLights);
+	glBufferSubData(GL_UNIFORM_BUFFER, offsets[2], sizeof(uint32_t),
+		(const void*)&environmentStruct.numDirectionalLights);
+	glBufferSubData(GL_UNIFORM_BUFFER, offsets[3], sizeof(DirectionalLightGLSLStruct) * MAX_DIRECTIONAL_LIGHTS,
+		(const void*)environmentStruct.directionalLights);
+	glBufferSubData(GL_UNIFORM_BUFFER, offsets[4], sizeof(uint32_t),
+		(const void*)&environmentStruct.numPointLights);
+	glBufferSubData(GL_UNIFORM_BUFFER, offsets[5], sizeof(PointLightGLSLStruct) * MAX_POINT_LIGHTS,
+		(const void*)environmentStruct.pointLights);
+	glBufferSubData(GL_UNIFORM_BUFFER, offsets[6], sizeof(uint32_t),
+		(const void*)&environmentStruct.numSpotLights);
+	glBufferSubData(GL_UNIFORM_BUFFER, offsets[7], sizeof(SpotLightGLSLStruct) * MAX_SPOT_LIGHTS,
+		(const void*)environmentStruct.spotLights);
+	glBufferSubData(GL_UNIFORM_BUFFER, offsets[8], sizeof(FogGLSLStruct),
+		(const void*)&environmentStruct.fog);
+
+
+
+	// const char* uniforms[2] = {"projection", "view"};
+	// unsigned int indices[2];
+	// unsigned int offsets[2];
+	// glGetUniformIndices(program, 2, uniforms, indices);
+	// glGetActiveUniformsiv(program, 2, indices, GL_UNIFORM_OFFSET, offsets);
+	// [bind the buffer]
+	// glBufferSubData(GL_UNIFORM_BUFFER, offsets[0], sizeof(glm::mat4), projection);
+	// glBufferSubData(GL_UNIFORM_BUFFER, offsets[1], sizeof(glm::mat4), view);
 }
 
 // ORIGINAL

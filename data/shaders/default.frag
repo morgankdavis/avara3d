@@ -62,53 +62,39 @@ struct Colors {
 	vec3 emission;
 };
 
-//layout(std140) struct AmbientLight {
 struct AmbientLight {
 	vec4 	color;
 };
 
-//layout(std140) struct DirectionalLight {
 struct DirectionalLight {
 	vec4 	color;
 	vec3 	direction_world;
-	float	PAD0;
 };
 
-//layout(std140) struct PointLight {
 struct PointLight {
 	vec4 	color;
 	vec3 	position_world;
-	float	PAD0;
 	float	constantAttenuation;
 	float	linearAttenuation;
 	float	quadraticAttenuation;
-	float 	PAD1;
 };
 
-//layout(std140) struct SpotLight {
 struct SpotLight {
 	vec4 	color;
 	vec3 	position_world;
-	float	PAD0;
 	vec3 	direction_world;
-	float	PAD1;
 	float	innerAngle;
 	float	outerAngle;
 	float	constantAttenuation;
 	float	linearAttenuation;
 	float	quadraticAttenuation;
-	float	PAD2;
-	float	PAD3;
-	float	PAD4;
 };
 
-//layout(std140) struct Fog {
 struct Fog {
 	vec4 	color;
 	float 	startDistance;
 	float 	endDistance;
 	float 	densityExponent;
-	float	PAD0;
 };
 
 // temporary
@@ -131,27 +117,19 @@ uniform 	Samplers 	samplers;
 uniform 	Colors 		colors;
 uniform		bool		useDefaultLighting;
 
+// layout spec: https://learnopengl.com/Advanced-OpenGL/Advanced-GLSL
+// !!! vsGLInfoLib
+// https://www.google.com/search?client=firefox-b-1-d&q=vsGLInfoLib+
+// "This may also be useful to people who find themselves tearing their hair off with offset problems: in order to find the above, I used vsGLInfoLib to print all of my uniforms and their offsets in the console. You can get it from here: https://github.com/lighthou... .
+//You only need VSL/include/vsl/vsGLInfoLib.h and VSL/source/vsGLInfoLib.cpp. Import both files in your solution. In the H file, replace the Glew include with your glad.h file. Visual Studio will likely complain about undefined stuff, in which case, just remove all lines where such constants are used. If it also complains about the vsprintf call in the CPP file, simply replace it with vsprintf_s. You can then include the H file somewhere, call VSGLInfoLib::getUniformsInfo, and done ! All of your uniform offsets are in the console."
 layout(std140) uniform EnvironmentBlock {
-//uniform EnvironmentBlock {
 	uint				numAmbientLights;
-	float				PAD0;
-	float				PAD1;
-	float				PAD2;
 	AmbientLight 		ambientLights[MAX_AMBIENT_LIGHTS];
 	uint				numDirectionalLights;
-float				PAD3;
-float				PAD4;
-float				PAD5;
 	DirectionalLight	directionalLights[MAX_DIRECTIONAL_LIGHTS];
 	uint				numPointLights;
-float				PAD6;
-float				PAD7;
-float				PAD8;
 	PointLight 			pointLights[MAX_POINT_LIGHTS];
 	uint				numSpotLights;
-float				PAD9;
-float				PAD10;
-float				PAD11;
 	SpotLight 			spotLights[MAX_SPOT_LIGHTS];
 	Fog 				fog;
 };
