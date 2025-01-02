@@ -56,6 +56,7 @@ namespace a3d {
 		virtual void 					startGIFRecording(const std::filesystem::path& path,
 														  glm::uvec2 fitInside,
 														  unsigned maxFramerate);
+		virtual double 					recordedGIFTime() const;
 		virtual unsigned 				recordedGIFFrames() const;
 		virtual void 					stopGIFRecording();
 
@@ -81,7 +82,7 @@ namespace a3d {
 		virtual glm::uvec2				framebufferSize() const = 0;
 		virtual glm::vec2				framebufferScale() const = 0;
 
-		virtual void 					saveGIFFrame(float deltaRunT);
+		virtual void 					saveGIFFrame(double deltaRunT);
 
 		void							attachedToVisualWorld(VisualWorld* world);
 		void							detachedFromVisualWorld(VisualWorld* world);
@@ -99,6 +100,8 @@ namespace a3d {
 		unsigned						_gifRecordingWidth;
 		unsigned						_gifRecordingHeight;
 		unsigned						_gifRecordingMaxFramerate;
+		double 							_gifRecordingCurrentFrameTimeAccum;
+		double 							_gifRecordedTime;
 		unsigned						_gifRecordedFrames;
 		VisualWorld*					_visualWorld;
 		std::unique_ptr<Renderer>		_renderer;

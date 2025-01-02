@@ -1896,10 +1896,12 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 
 	string recordingStr;
 	if (context.recordingGIF()) {
+		auto time = context.recordedGIFTime();
 		auto numFrames = context.recordedGIFFrames();
-		recordingStr = fmt::format("\n{:<{}} {} {}",
+		recordingStr = fmt::format("\n{:<{}} {:.1f} s / {} {}",
 								   "RECORDING",
 								   PADDING,
+								   time,
 								   numFrames,
 								   (numFrames==1 ? "frame" : "frames"));
 	}

@@ -63,6 +63,8 @@ void RenderContext::startGIFRecording(const filesystem::path& path,
 		A3D_LOG_I("Starting GIF recording...");
 		
 		_gifRecordingMaxFramerate = maxFramerate;
+		_gifRecordingCurrentFrameTimeAccum = 0;
+		_gifRecordedTime = 0;
 		_gifRecordedFrames = 0;
 
 		// nice! https://math.stackexchange.com/questions/1169409/formula-to-best-fit-a-rectangle-inside-another-by-scaling
@@ -85,6 +87,10 @@ void RenderContext::startGIFRecording(const filesystem::path& path,
 		
 		_recordingGIF = true;
 	}
+}
+
+double RenderContext::recordedGIFTime() const {
+	return _gifRecordedTime;
 }
 
 unsigned RenderContext::recordedGIFFrames() const {
@@ -125,6 +131,8 @@ RenderContext::RenderContext(RenderingApi renderingApi):
 		_gifRecordingWidth{0},
 		_gifRecordingHeight{0},
 		_gifRecordingMaxFramerate{0},
+		_gifRecordingCurrentFrameTimeAccum{0},
+		_gifRecordedTime{0},
 		_gifRecordedFrames{0},
 		_visualWorld{},
 		_renderer{} {
@@ -154,10 +162,10 @@ RenderContext::~RenderContext() {
 	Internal Member Functions
  *********************************************************************************************/
 
-void RenderContext::saveGIFFrame(float deltaRunT) {
+void RenderContext::saveGIFFrame(double deltaRunT) {
 
-	static float secondsAccum = 0; // TODO: this won't work correctly after first call
-	secondsAccum += deltaRunT;
+	_gifRecordedTime += deltaRunT;
+	_gifRecordingCurrentFrameTimeAccum += deltaRunT;
 
 	float frameTimeMS = 1000.0f /* (ms/sec) */ / (float)_gifRecordingMaxFramerate /* (frames/sec) */;
 	// -> ms/frame
@@ -165,7 +173,7 @@ void RenderContext::saveGIFFrame(float deltaRunT) {
 
 	//unsigned frameTime = 1000.0/_gifRecordingMaxFramerate; // ms/frame
 
-	if (secondsAccum >= frameTimeMS/1000.0) {
+	if (_gifRecordingCurrentFrameTimeAccum >= frameTimeMS/1000.0) {
 
 		auto frame = snapshot();
 
@@ -178,12 +186,12 @@ void RenderContext::saveGIFFrame(float deltaRunT) {
 		// gif-h frame time is in 100ths of a second
 		GifWriteFrame(_gifWriter.get(), resizedFrameData,
 					  _gifRecordingWidth, _gifRecordingHeight,
-					  (uint32_t)round((secondsAccum*1000.0f)/10.0f));
+					  (uint32_t)round((_gifRecordingCurrentFrameTimeAccum*1000.0f)/10.0f));
 
 		++_gifRecordedFrames;
 
 		//secondsAccum = secondsAccum - frameTimeMS/1000.0;
-		secondsAccum = 0;
+		_gifRecordingCurrentFrameTimeAccum = 0;
 	}
 }
 

@@ -302,7 +302,7 @@ void VisualWorld::draw(const Scene& scene,
 			}
 
 			if (_renderContext->recordingGIF()) {
-				_renderContext->saveGIFFrame((float)deltaRunT);
+				_renderContext->saveGIFFrame(deltaRunT);
 			}
 		}
 		else {
