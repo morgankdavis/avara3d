@@ -97,25 +97,33 @@ typedef struct {
 typedef struct {
 	alignas(16) vec4		color;
 	alignas(16) vec3		direction_world;
+	alignas(16) float		PAD0;
 } DirectionalLightGLSLStruct;
 
 typedef struct {
 	alignas(16) vec4		color;
 	alignas(16) vec3		position_world;
+	alignas(16) float		PAD0;
 	alignas(16) float		constantAttenuation;
 	alignas(16) float		linearAttenuation;
 	alignas(16) float		quadraticAttenuation;
+	alignas(16) float		PAD1;
 } PointLightGLSLStruct;
 
 typedef struct {
 	alignas(16) vec4		color;
 	alignas(16) vec3		position_world;
+	alignas(16) float		PAD0;
 	alignas(16) vec3		direction_world;
+	alignas(16) float		PAD1;
 	alignas(16) float		innerAngle;
 	alignas(16) float		outerAngle;
 	alignas(16) float		constantAttenuation;
 	alignas(16) float		linearAttenuation;
 	alignas(16) float		quadraticAttenuation;
+	alignas(16) float		PAD2;
+	alignas(16) float		PAD3;
+	alignas(16) float		PAD4;
 } SpotLightGLSLStruct;
 
 typedef struct {
@@ -123,19 +131,79 @@ typedef struct {
 	alignas(16) float32_t	startDistance;
 	alignas(16) float32_t	endDistance;
 	alignas(16) float32_t	densityExponent;
+	alignas(16) float		PAD0;
 } FogGLSLStruct;
+
+// typedef struct {
+// 	vec4		color;
+// } AmbientLightGLSLStruct;
+//
+// typedef struct {
+// 	vec4		color;
+// 	vec3		direction_world;
+// } DirectionalLightGLSLStruct;
+//
+// typedef struct {
+// 	vec4		color;
+// 	vec3		position_world;
+// 	float		constantAttenuation;
+// 	float		linearAttenuation;
+// 	float		quadraticAttenuation;
+// } PointLightGLSLStruct;
+//
+// typedef struct {
+// 	vec4		color;
+// 	vec3		position_world;
+// 	vec3		direction_world;
+// 	float		innerAngle;
+// 	float		outerAngle;
+// 	float		constantAttenuation;
+// 	float		linearAttenuation;
+// 	float		quadraticAttenuation;
+// } SpotLightGLSLStruct;
+//
+// typedef struct {
+// 	vec4		color;
+// 	float32_t	startDistance;
+// 	float32_t	endDistance;
+// 	float32_t	densityExponent;
+// } FogGLSLStruct;
 
 typedef struct {
 	alignas(16) uint32_t 					numAmbientLights;
+	alignas(16) float		PAD0;
+	alignas(16) float		PAD1;
+	alignas(16) float		PAD2;
 	alignas(16) AmbientLightGLSLStruct		ambientLights[MAX_AMBIENT_LIGHTS];
 	alignas(16) uint32_t 					numDirectionalLights;
+	alignas(16) float		PAD3;
+	alignas(16) float		PAD4;
+	alignas(16) float		PAD5;
 	alignas(16) DirectionalLightGLSLStruct	directionalLights[MAX_DIRECTIONAL_LIGHTS];
 	alignas(16) uint32_t 					numPointLights;
+	alignas(16) float		PAD6;
+	alignas(16) float		PAD7;
+	alignas(16) float		PAD8;
 	alignas(16) PointLightGLSLStruct		pointLights[MAX_POINT_LIGHTS];
 	alignas(16) uint32_t 					numSpotLights;
+	alignas(16) float		PAD9;
+	alignas(16) float		PAD10;
+	alignas(16) float		PAD11;
 	alignas(16) SpotLightGLSLStruct			spotLights[MAX_SPOT_LIGHTS];
 	alignas(16) FogGLSLStruct				fog;
 } EnvironmentBlock;
+
+// typedef struct {
+// 	uint32_t 					numAmbientLights;
+// 	AmbientLightGLSLStruct		ambientLights[MAX_AMBIENT_LIGHTS];
+// 	uint32_t 					numDirectionalLights;
+// 	DirectionalLightGLSLStruct	directionalLights[MAX_DIRECTIONAL_LIGHTS];
+// 	uint32_t 					numPointLights;
+// 	PointLightGLSLStruct		pointLights[MAX_POINT_LIGHTS];
+// 	uint32_t 					numSpotLights;
+// 	SpotLightGLSLStruct			spotLights[MAX_SPOT_LIGHTS];
+// 	FogGLSLStruct				fog;
+// } EnvironmentBlock;
 
 /*********************************************************************************************
 	Private Static Non-Member Prototypes

@@ -71,27 +71,35 @@ struct AmbientLight {
 struct DirectionalLight {
 	vec4 	color;
 	vec3 	direction_world;
+	float	PAD0;
 };
 
 //layout(std140) struct PointLight {
 struct PointLight {
 	vec4 	color;
 	vec3 	position_world;
+	float	PAD0;
 	float	constantAttenuation;
 	float	linearAttenuation;
 	float	quadraticAttenuation;
+	float 	PAD1;
 };
 
 //layout(std140) struct SpotLight {
 struct SpotLight {
 	vec4 	color;
 	vec3 	position_world;
+	float	PAD0;
 	vec3 	direction_world;
+	float	PAD1;
 	float	innerAngle;
 	float	outerAngle;
 	float	constantAttenuation;
 	float	linearAttenuation;
 	float	quadraticAttenuation;
+	float	PAD2;
+	float	PAD3;
+	float	PAD4;
 };
 
 //layout(std140) struct Fog {
@@ -100,6 +108,7 @@ struct Fog {
 	float 	startDistance;
 	float 	endDistance;
 	float 	densityExponent;
+	float	PAD0;
 };
 
 // temporary
@@ -123,13 +132,26 @@ uniform 	Colors 		colors;
 uniform		bool		useDefaultLighting;
 
 layout(std140) uniform EnvironmentBlock {
+//uniform EnvironmentBlock {
 	uint				numAmbientLights;
+	float				PAD0;
+	float				PAD1;
+	float				PAD2;
 	AmbientLight 		ambientLights[MAX_AMBIENT_LIGHTS];
 	uint				numDirectionalLights;
+float				PAD3;
+float				PAD4;
+float				PAD5;
 	DirectionalLight	directionalLights[MAX_DIRECTIONAL_LIGHTS];
 	uint				numPointLights;
+float				PAD6;
+float				PAD7;
+float				PAD8;
 	PointLight 			pointLights[MAX_POINT_LIGHTS];
 	uint				numSpotLights;
+float				PAD9;
+float				PAD10;
+float				PAD11;
 	SpotLight 			spotLights[MAX_SPOT_LIGHTS];
 	Fog 				fog;
 };
