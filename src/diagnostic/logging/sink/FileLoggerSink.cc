@@ -149,6 +149,12 @@ void FileLoggerSink::rotate() {
 			//A3D_LOG_I("Removing log file '{}...'", path.string());
 
 			error_code errorCode;
+
+			// Linux (and maybe macOS?) will let us rename/remove a file while it's open, Windows will crash and burn.
+			if (_fileStream && _fileStream->is_open()) {
+				_fileStream->close();
+			}
+
 			filesystem::remove(path, errorCode);
 
 			auto code = errorCode.value();
@@ -161,16 +167,12 @@ void FileLoggerSink::rotate() {
 		else {
 
 			auto existStem = path.stem();
-//			auto oldExtension = path.extension();
+			auto newPath = path.parent_path() / filesystem::path(existStem.string().substr(0, stem.string().length()) + to_string(index-1) + extension.string());
 
-			//filesystem::path newPath;
-//			if (path.string() == _filepath) {
-//				newPath = filesystem::path(oldStem.string() + to_string(index-1) + oldExtension.string());
-//			}
-//			else {
-			//newPath = filesystem::path(stem.string().substr(0, stem.string().length()-1) + to_string(index-1) + extension.string());
-			filesystem::path newPath = path.parent_path() / filesystem::path(existStem.string().substr(0, stem.string().length()) + to_string(index-1) + extension.string());
-//			}
+			// Linux (and maybe macOS?) will let us rename/remove a file while it's open, Windows will crash and burn.
+			if (_fileStream && _fileStream->is_open()) {
+				_fileStream->close();
+			}
 
 			filesystem::rename(path, newPath);
 		}
