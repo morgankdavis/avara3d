@@ -2000,10 +2000,12 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 	ImGuiStyle& style = GetStyle();
 	style.WindowBorderSize = 0;
 	SetWindowPos({10.0f, 2.0f});
+	ImVec2 cursorPos = ImGui::GetCursorPos();
+	ImGui::SetCursorPos(ImVec2(cursorPos.x + 1.0, cursorPos.y + 1.0));
 	ImGui::PushFont(fonts[0]);
 	TextColored(ImVec4{0, 0, 0, .5}, "avara3d");
 	ImGui::PopFont();
-	ImVec2 cursorPos = ImGui::GetCursorPos();
+	cursorPos = ImGui::GetCursorPos();
 	ImGui::SetCursorPos(ImVec2(cursorPos.x, cursorPos.y + OpenGLRenderer::STATS_TITLE_TO_BODY_PADDING));
 	ImGui::PushFont(fonts[1]);
 	TextColored(ImVec4{0, 0, 0, .5}, "%s", str.c_str());
