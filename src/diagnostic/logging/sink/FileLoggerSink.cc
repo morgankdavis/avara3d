@@ -112,7 +112,7 @@ void FileLoggerSink::checkRotate() {
 
 void FileLoggerSink::rotate() {
 
-	// find list of existing filesw
+	// find list of existing files
 	// start at index 0, count down until the next isn't found
 
 	auto stem = _filepath.stem();
@@ -140,7 +140,7 @@ void FileLoggerSink::rotate() {
 
 	auto index = existing.size();
 
-	for (auto e = existing.rbegin(); e != existing.rend(); ++e ) {
+	for (auto e = existing.rbegin(); e != existing.rend(); ++e) {
 		auto path = *e;
 
 		if (index >= _maxFiles) {
@@ -154,7 +154,7 @@ void FileLoggerSink::rotate() {
 			auto code = errorCode.value();
 			if (code != 0) {
 				// TODO: exception subclass
-				throw Exception(fmt::format("Error removing log file: '', code: {}.",
+				throw Exception(fmt::format("Error removing log file: '{}', code: {}.",
 											path.string(), to_string(code)));
 			}
 		}
