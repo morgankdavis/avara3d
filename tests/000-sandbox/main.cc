@@ -67,6 +67,20 @@ int main(int argc, const char* argv[]) {
 		InitLog();
 		LogBuildInfo();
 
+
+
+
+
+		unsigned line = 0;
+		while (true) {
+			LOG_I(g_logger, "DICKS LINE {}", line);
+			++line;
+		}
+
+
+
+
+
 		auto window = make_unique<Window>(RenderingApi::OpenGL,
 										  *utils::ExecutableName(),
 										  WINDOW_SIZE,
