@@ -240,7 +240,7 @@ void VisualWorld::draw(const Scene& scene,
 		if (auto renderer = _renderContext->renderer()) {
 
 			if (auto willRender = VisualWorld::willRender()) {
-				willRender(*this, (float)runT, (float)deltaRunT);
+				willRender(*this, runT, deltaRunT);
 			}
 
 			auto startTime = scene.time();
@@ -298,7 +298,7 @@ void VisualWorld::draw(const Scene& scene,
 			_renderContext->swapBuffers();
 
 			if (auto didRender = VisualWorld::didRender()) {
-				didRender(*this, (float)runT, (float)deltaRunT);
+				didRender(*this, runT, deltaRunT);
 			}
 
 			if (_renderContext->recordingGIF()) {

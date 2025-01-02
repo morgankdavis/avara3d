@@ -206,7 +206,7 @@ void PhysicalWorld::step(const Scene& scene,
 		UpdateTimeStats(stats, startTime, scene.time());
 
 		if (auto didSimulate = PhysicalWorld::didSimulate()) {
-			didSimulate(*this, (float)runT, (float)deltaRunT);
+			didSimulate(*this, runT, deltaRunT);
 		}
 	}
 	else {

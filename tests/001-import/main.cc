@@ -30,9 +30,9 @@ constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 
 
-void UpdateCallback(Scene& scene, float time, float deltaTime);
-void WillRenderCallback(VisualWorld& world, float time, float deltaTime);
-void DidRenderCallback(VisualWorld& world, float time, float deltaTime);
+void UpdateCallback(Scene& scene, double time, double deltaTime);
+void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
+void DidRenderCallback(VisualWorld& world, double time, double deltaTime);
 
 
 a3d::Node* 		g_importMeshRoot;
@@ -111,7 +111,7 @@ int main(int argc, const char* argv[]) {
 	Scene Callbacks
  ***************************************************************************************/
 
-void UpdateCallback(Scene& scene, float time, float deltaTime) {
+void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 	float rotationDeg = deltaTime * 30.0; // 30deg/sec
 
@@ -134,10 +134,10 @@ void UpdateCallback(Scene& scene, float time, float deltaTime) {
 	VisualWorld Callbacks
  ***************************************************************************************/
 
-void WillRenderCallback(VisualWorld& world, float time, float deltaTime) {
+void WillRenderCallback(VisualWorld& world, double time, double deltaTime) {
 
 }
 
-void DidRenderCallback(VisualWorld& world, float time, float deltaTime) {
+void DidRenderCallback(VisualWorld& world, double time, double deltaTime) {
 
 }

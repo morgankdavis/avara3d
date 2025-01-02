@@ -35,10 +35,10 @@ constexpr float					PHYSICS_TIMESTEP =		1.0/120.0;
 constexpr bool					DARK =					false;
 
 
-void UpdateCallback(Scene& scene, float time, float deltaTime);
-void WillRenderCallback(VisualWorld& world, float time, float deltaTime);
-void DidRenderCallback(VisualWorld& world, float time, float deltaTime);
-void DidSimulatePhysicsCallback(PhysicalWorld& world, float time, float deltaTime);
+void UpdateCallback(Scene& scene, double time, double deltaTime);
+void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
+void DidRenderCallback(VisualWorld& world, double time, double deltaTime);
+void DidSimulatePhysicsCallback(PhysicalWorld& world, double time, double deltaTime);
 
 
 void InitLog();
@@ -371,7 +371,7 @@ int main(int argc, const char* argv[]) {
 	Scene Callbacks
  ***************************************************************************************/
 
-void UpdateCallback(Scene& scene, float time, float deltaTime) {
+void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	LOG_T(g_logger, "scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
 
 	auto inputManager = scene.inputManager();
@@ -588,20 +588,20 @@ void UpdateCallback(Scene& scene, float time, float deltaTime) {
 			}
 
 			if (keysDown.count(Key::W) || mouseButtonsDown.count(MouseButton::Four)) {
-				vec3 positionDelta = deltaTime * MOVE_SPEED * moveMultiplier * camForward;
+				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 			else if (keysDown.count(Key::S)) {
-				vec3 positionDelta = deltaTime * MOVE_SPEED * moveMultiplier * -camForward;
+				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * -camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 
 			if (keysDown.count(Key::A)) {
-				vec3 positionDelta = deltaTime * MOVE_SPEED * moveMultiplier * -camRight;
+				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * -camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 			else if (keysDown.count(Key::D)) {
-				vec3 positionDelta = deltaTime * MOVE_SPEED * moveMultiplier * camRight;
+				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 
@@ -610,7 +610,7 @@ void UpdateCallback(Scene& scene, float time, float deltaTime) {
 				if (keysDown.count(Key::LeftShift)) {
 					direction = -1;
 				}
-				vec3 positionDelta = deltaTime * MOVE_SPEED * moveMultiplier * camUp;
+				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * camUp;
 				pov->position(pov->position() + positionDelta * direction);
 			}
 		}
@@ -621,11 +621,11 @@ void UpdateCallback(Scene& scene, float time, float deltaTime) {
 	VisualWorld Callbacks
  ***************************************************************************************/
 
-void WillRenderCallback(VisualWorld& world, float time, float deltaTime) {
+void WillRenderCallback(VisualWorld& world, double time, double deltaTime) {
 	LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
-void DidRenderCallback(VisualWorld& world, float time, float deltaTime) {
+void DidRenderCallback(VisualWorld& world, double time, double deltaTime) {
 	LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
@@ -633,7 +633,7 @@ void DidRenderCallback(VisualWorld& world, float time, float deltaTime) {
 	PhysicalWorld Callbacks
  ***************************************************************************************/
 
-void DidSimulatePhysicsCallback(PhysicalWorld& world, float time, float deltaTime) {
+void DidSimulatePhysicsCallback(PhysicalWorld& world, double time, double deltaTime) {
 	LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 

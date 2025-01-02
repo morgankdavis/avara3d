@@ -33,9 +33,9 @@ constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
 
 
-void UpdateCallback(Scene& scene, float time, float deltaTime);
-void WillRenderCallback(VisualWorld& world, float time, float deltaTime);
-void DidRenderCallback(VisualWorld& world, float time, float deltaTime);
+void UpdateCallback(Scene& scene, double time, double deltaTime);
+void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
+void DidRenderCallback(VisualWorld& world, double time, double deltaTime);
 
 
 int main(int argc, const char* argv[]) {
@@ -88,7 +88,7 @@ int main(int argc, const char* argv[]) {
 	Scene Callbacks
  ***************************************************************************************/
 
-void UpdateCallback(Scene& scene, float time, float deltaTime) {
+void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 	auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 
@@ -151,25 +151,25 @@ void UpdateCallback(Scene& scene, float time, float deltaTime) {
 		static float MOVE_SPEED = utils::Max(scene.rootNode()->extent());
 
 		if(keysDown.count(Key::W)) {
-			vec3 positionDelta = deltaTime * MOVE_SPEED * camForward;
+			vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camForward;
 			pov->position(pov->position() + positionDelta);
 		}
 		else if(keysDown.count(Key::S)) {
-			vec3 positionDelta = deltaTime * MOVE_SPEED * -camForward;
+			vec3 positionDelta = (float)deltaTime * MOVE_SPEED * -camForward;
 			pov->position(pov->position() + positionDelta);
 		}
 
 		if(keysDown.count(Key::A)) {
-			vec3 positionDelta = deltaTime * MOVE_SPEED * -camRight;
+			vec3 positionDelta = (float)deltaTime * MOVE_SPEED * -camRight;
 			pov->position(pov->position() + positionDelta);
 		}
 		else if(keysDown.count(Key::D)) {
-			vec3 positionDelta = deltaTime * MOVE_SPEED * camRight;
+			vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camRight;
 			pov->position(pov->position() + positionDelta);
 		}
 
 		if(keysDown.count(Key::Space)) {
-			vec3 positionDelta = deltaTime * MOVE_SPEED * camUp;
+			vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camUp;
 			pov->position(pov->position() + positionDelta);
 		}
 	}
@@ -179,9 +179,9 @@ void UpdateCallback(Scene& scene, float time, float deltaTime) {
 	VisualWorld Callbacks
  ***************************************************************************************/
 
-void WillRenderCallback(VisualWorld& world, float time, float deltaTime) {
+void WillRenderCallback(VisualWorld& world, double time, double deltaTime) {
 }
 
-void DidRenderCallback(VisualWorld& world, float time, float deltaTime) {
+void DidRenderCallback(VisualWorld& world, double time, double deltaTime) {
 
 }

@@ -37,8 +37,8 @@ namespace a3d {
 
 	public:
 
-		using WillRenderCallback =	std::function<void(VisualWorld& world, float time, float deltaTime)>;
-		using DidRenderCallback =	std::function<void(VisualWorld& world, float time, float deltaTime)>;
+		using WillRenderCallback =	std::function<void(VisualWorld& world, double time, double deltaTime)>;
+		using DidRenderCallback =	std::function<void(VisualWorld& world, double time, double deltaTime)>;
 
 /*********************************************************************************************
 	Public Lifecycle Functions
