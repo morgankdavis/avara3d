@@ -23,7 +23,7 @@ using namespace std;
 using namespace std::placeholders;
 
 
-constexpr LogLevel				LOG_LEVEL =				LogLevel::Debug;
+constexpr LogLevel				A3D_APP_LOG_LEVEL =				LogLevel::Debug;
 constexpr uvec2					WINDOW_SIZE =			{1280, 768};
 constexpr bool					FULLSCREEN =			false;
 constexpr bool					ENABLE_HIGH_DPI =		true;
@@ -70,7 +70,7 @@ int main(int argc, const char* argv[]) {
 
 		auto inputManager = make_unique<WindowInputManager>(window.get());
 		if (inputManager->errorMask() == WindowInputManagerErrorMask::PermissionDenied) {
-			LOG_E(g_logger, "WindowInputManager permission denied.");
+			A3D_APP_LOG_E(g_logger, "WindowInputManager permission denied.");
 			// on macOS 10.15 Catalina+, this is probably a permissions issue,
 			// and the OS will alert the user.
 			// just keep going and let the user decide what they want to do.
@@ -194,7 +194,7 @@ int main(int argc, const char* argv[]) {
 	}
 	catch (Exception& e)
 	{
-		LOG_F(g_logger, "Exception: {}", e.what());
+		A3D_APP_LOG_F(g_logger, "Exception: {}", e.what());
 		return -1;
 	}
 
@@ -209,11 +209,11 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	static int invocations = 0;
 	if (invocations == 2) {
 		double time = utils::Time() - g_startTime;
-		A3D_LOG_I("START TIME: {}", time);
+		A3D_APP_LOG_I(g_logger, "START TIME: {}", time);
 	}
 	++invocations;
 
-	LOG_T(g_logger, "scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
+	A3D_APP_LOG_T(g_logger, "scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
 
 	auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 
@@ -227,7 +227,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	}
 
 	if (keysPressed.count(Key::T)) {
-		LOG_I(g_logger, "TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
+		A3D_APP_LOG_I(g_logger, "TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
 	}
 
 	if 		(keysPressed.count(Key::One))	SetAllFilterModes(FilterMode::Nearest, scene);
@@ -400,11 +400,11 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
  ***************************************************************************************/
 
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime) {
-	LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	A3D_APP_LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 void DidRenderCallback(VisualWorld& world, double time, double deltaTime) {
-	LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	A3D_APP_LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 /***************************************************************************************
@@ -422,24 +422,24 @@ void InitLog() {
 	sinks.insert(std::move(fileSink));
 
 	g_logger = make_unique<Logger>(executableName, std::move(sinks));
-	g_logger->level(LOG_LEVEL);
+	g_logger->level(A3D_APP_LOG_LEVEL);
 
-	Logger::MainLogger().level(LOG_LEVEL);
+	Logger::MainLogger().level(A3D_APP_LOG_LEVEL);
 }
 
 void LogBuildInfo() {
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
-	LOG_I(g_logger, "A3D version: {}.{}.{}", version.major, version.minor, version.patch);
-	LOG_I(g_logger, "Build: {}", buildInfo.number());
-	LOG_I(g_logger, "Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
-	LOG_I(g_logger, "Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
+	A3D_APP_LOG_I(g_logger, "A3D version: {}.{}.{}", version.major, version.minor, version.patch);
+	A3D_APP_LOG_I(g_logger, "Build: {}", buildInfo.number());
+	A3D_APP_LOG_I(g_logger, "Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
+	A3D_APP_LOG_I(g_logger, "Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
 }
 
 void SetAllFilterModes(FilterMode mode, Scene& scene) {
 
-	LOG_I(g_logger, "SetAllFilterModes: {}", (unsigned)mode);
+	A3D_APP_LOG_I(g_logger, "SetAllFilterModes: {}", (unsigned)mode);
 
 	for (auto& node : scene.rootNode()->children(true)) {
 
@@ -464,7 +464,7 @@ void SetAllFilterModes(FilterMode mode, Scene& scene) {
 
 void SetAllMaxAnisotropy(float anisotropy, Scene& scene) {
 
-	LOG_I(g_logger, "SetAllMaxAnisotropy: {}", anisotropy);
+	A3D_APP_LOG_I(g_logger, "SetAllMaxAnisotropy: {}", anisotropy);
 
 	for (auto& node : scene.rootNode()->children(true)) {
 
