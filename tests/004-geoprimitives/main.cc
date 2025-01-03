@@ -42,6 +42,7 @@ void LogBuildInfo();
 
 
 std::unique_ptr<a3d::Logger>		g_logger;
+std::shared_ptr<a3d::Node>			g_pointLightPivotNode;
 
 
 int main(int argc, const char* argv[]) {
@@ -68,14 +69,32 @@ int main(int argc, const char* argv[]) {
 		}
 
 		auto visualWorld = make_unique<VisualWorld>(*window);
-		auto backgroundColor = make_shared<Color>(109.0f/255.0f, 136.0f/255.0f, 164.0f/255.0f, 1.0f);
-		visualWorld->background(backgroundColor);
+		//auto backgroundColor = make_shared<Color>(109.0f/255.0f, 136.0f/255.0f, 164.0f/255.0f, 1.0f);
+		visualWorld->background(Color::Black());
 		visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
 		visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
 
 		auto scene = make_unique<Scene>(std::move(visualWorld), nullptr, std::move(inputManager));
 		scene->debugOptions(DebugOptions::ShowStatsOverlay);
 		scene->update(bind(&UpdateCallback, _1, _2, _3));
+
+		auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.1f));
+		auto ambientLightNode = Node::LightNode(ambientLight);
+		scene->rootNode()->addChild(ambientLightNode);
+
+		auto pointLight = make_shared<PointLight>(Color::LightGray());
+		auto pointLightNode = Node::LightNode(pointLight);
+		pointLightNode->position({0, 0, 5});
+		auto material = make_shared<Material>(monostate{},
+											  monostate{},
+											  monostate{},
+											  Color::White());
+		auto sphere = Sphere::Mesh(0.25f, 12, material);
+		pointLightNode->mesh(sphere);
+		g_pointLightPivotNode = Node::NamedNode("point light pivot");
+		g_pointLightPivotNode->addChild(pointLightNode);
+		scene->rootNode()->addChild(g_pointLightPivotNode);
+
 
 		{
 			auto mesh = Box::Mesh(1.5f, 1.0f, 1.5f);
@@ -102,7 +121,8 @@ int main(int argc, const char* argv[]) {
 			mesh->name("cone");
 			node->mesh(mesh);
 			scene->rootNode()->addChild(node);
-			node->position(vec3(-5.0f, 0.0f, 0.0f));
+			//node->position(vec3(-5.0f, 0.0f, 0.0f));
+			node->position(vec3(-1.67f, -2.5f, 0.0f));
 		}
 
 		{
@@ -115,7 +135,7 @@ int main(int argc, const char* argv[]) {
 		}
 
 		{
-			auto mesh = Disk::Mesh(1.0f, 5.0f);
+			auto mesh = Disk::Mesh(2.5f, 5.0f);
 			auto node = make_shared<Node>();
 			node->name("disk");
 			node->mesh(mesh);
@@ -168,7 +188,7 @@ int main(int argc, const char* argv[]) {
 			mesh->name("torus");
 			node->mesh(mesh);
 			scene->rootNode()->addChild(node);
-			node->rotation({0.0f, 1.0f, 0.0f}, radians(45.0f));
+			//node->rotation({0.0f, 1.0f, 0.0f}, radians(45.0f));
 			node->position(vec3(5.0f, 0.0f, 0.0f));
 		}
 
@@ -188,8 +208,9 @@ int main(int argc, const char* argv[]) {
 			mesh->name("tube");
 			node->mesh(mesh);
 			scene->rootNode()->addChild(node);
-			node->rotation({1.0f, -1.0f, 0.0f}, radians(-45.0f));
-			node->position(vec3(-1.67f, -2.5f, 0.0f));
+//			node->rotation({1.0f, -1.0f, 0.0f}, radians(-45.0f));
+//			node->position(vec3(-1.67f, -2.5f, 0.0f));
+			node->position(vec3(-5.0f, 0.0f, 0.0f));
 		}
 
 	//	int texIndex = 0;
@@ -344,6 +365,15 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 				pov->position(pov->position() + positionDelta);
 			}
 		}
+	}
+
+	if (g_pointLightPivotNode) {
+
+		// rotate the duck
+		auto rotationDeg = deltaTime * radians(-30.0); // 10deg/sec
+
+		auto duckSpinnerEuler = g_pointLightPivotNode->eulerAngles();
+		g_pointLightPivotNode->eulerAngles({0, duckSpinnerEuler.y - rotationDeg, 0});
 	}
 }
 

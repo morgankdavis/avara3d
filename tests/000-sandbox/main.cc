@@ -186,7 +186,7 @@ int main(int argc, const char* argv[]) {
 				auto material = make_shared<Material>(monostate{},
 													  monostate{},
 													  monostate{},
-													  Color::LightGray());
+													  Color::White());
 				//auto sphere = Mesh::Sphere(0.1f, 12);
 				auto sphere = Sphere::Mesh(0.1f, 12, material);
 
