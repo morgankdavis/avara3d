@@ -172,28 +172,33 @@ typedef struct {
 typedef struct {
 	vec4		color;
 	vec3		direction_world;
+	float32_t	PAD0;
 } DirectionalLightGLSLStruct;
 
 typedef struct {
 	vec4		color;
 	vec3		position_world;
-	float		PAD0;
-	float		constantAttenuation;
-	float		linearAttenuation;
-	float		quadraticAttenuation;
+	float32_t	PAD0;
+	float32_t	constantAttenuation;
+	float32_t	linearAttenuation;
+	float32_t	quadraticAttenuation;
+	float32_t	PAD1;
 } PointLightGLSLStruct;
 
 typedef struct {
 	vec4		color;
 	vec3		position_world;
-	float		PAD0;
+	float32_t	PAD0;
 	vec3		direction_world;
-	float		PAD1;
-	float		innerAngle;
-	float		outerAngle;
-	float		constantAttenuation;
-	float		linearAttenuation;
-	float		quadraticAttenuation;
+	float32_t	PAD1;
+	float32_t	innerAngle;
+	float32_t	outerAngle;
+	float32_t	constantAttenuation;
+	float32_t	linearAttenuation;
+	float32_t	quadraticAttenuation;
+	float32_t	PAD2;
+	float32_t	PAD3;
+	float32_t	PAD4;
 } SpotLightGLSLStruct;
 
 typedef struct {
@@ -201,6 +206,7 @@ typedef struct {
 	float32_t	startDistance;
 	float32_t	endDistance;
 	float32_t	densityExponent;
+	float32_t	PAD0;
 } FogGLSLStruct;
 
 
@@ -220,12 +226,16 @@ typedef struct {
 
 typedef struct {
 	uint32_t 					numAmbientLights;
+	vec3 PAD0;
 	AmbientLightGLSLStruct		ambientLights[MAX_AMBIENT_LIGHTS];
 	uint32_t 					numDirectionalLights;
+	vec3 PAD1;
 	DirectionalLightGLSLStruct	directionalLights[MAX_DIRECTIONAL_LIGHTS];
 	uint32_t 					numPointLights;
+	vec3 PAD2;
 	PointLightGLSLStruct		pointLights[MAX_POINT_LIGHTS];
 	uint32_t 					numSpotLights;
+	vec3 PAD3;
 	SpotLightGLSLStruct			spotLights[MAX_SPOT_LIGHTS];
 	FogGLSLStruct				fog;
 } EnvironmentBlock;
@@ -1294,54 +1304,48 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 
 
 
-	int programID = Program::Default().glID();
-
-	const char* uniforms[9] = {
-		"numAmbientLights",
-		"ambientLights",
-		"numDirectionalLights",
-		"directionalLights",
-		"numPointLights",
-		"pointLights",
-		"numSpotLights",
-		"spotLights",
-		"fog"
-	};
-	GLuint indices[9];
-	GLint offsets[9];
-
-	glGetUniformIndices(programID, 9, uniforms, indices);
-	glGetActiveUniformsiv(programID, 9, indices, GL_UNIFORM_OFFSET, offsets);
-
-	glBufferSubData(GL_UNIFORM_BUFFER, offsets[0], sizeof(uint32_t),
-		(const void*)&environmentStruct.numAmbientLights);
-	glBufferSubData(GL_UNIFORM_BUFFER, offsets[1], sizeof(AmbientLightGLSLStruct) * MAX_AMBIENT_LIGHTS,
-		(const void*)environmentStruct.ambientLights);
-	glBufferSubData(GL_UNIFORM_BUFFER, offsets[2], sizeof(uint32_t),
-		(const void*)&environmentStruct.numDirectionalLights);
-	glBufferSubData(GL_UNIFORM_BUFFER, offsets[3], sizeof(DirectionalLightGLSLStruct) * MAX_DIRECTIONAL_LIGHTS,
-		(const void*)environmentStruct.directionalLights);
-	glBufferSubData(GL_UNIFORM_BUFFER, offsets[4], sizeof(uint32_t),
-		(const void*)&environmentStruct.numPointLights);
-	glBufferSubData(GL_UNIFORM_BUFFER, offsets[5], sizeof(PointLightGLSLStruct) * MAX_POINT_LIGHTS,
-		(const void*)environmentStruct.pointLights);
-	glBufferSubData(GL_UNIFORM_BUFFER, offsets[6], sizeof(uint32_t),
-		(const void*)&environmentStruct.numSpotLights);
-	glBufferSubData(GL_UNIFORM_BUFFER, offsets[7], sizeof(SpotLightGLSLStruct) * MAX_SPOT_LIGHTS,
-		(const void*)environmentStruct.spotLights);
-	glBufferSubData(GL_UNIFORM_BUFFER, offsets[8], sizeof(FogGLSLStruct),
-		(const void*)&environmentStruct.fog);
-
-
-
-	// const char* uniforms[2] = {"projection", "view"};
-	// unsigned int indices[2];
-	// unsigned int offsets[2];
-	// glGetUniformIndices(program, 2, uniforms, indices);
-	// glGetActiveUniformsiv(program, 2, indices, GL_UNIFORM_OFFSET, offsets);
-	// [bind the buffer]
-	// glBufferSubData(GL_UNIFORM_BUFFER, offsets[0], sizeof(glm::mat4), projection);
-	// glBufferSubData(GL_UNIFORM_BUFFER, offsets[1], sizeof(glm::mat4), view);
+	// int programID = Program::Default().glID();
+	//
+	// const char* uniforms[9] = {
+	// 	"EnvironmentBlock.numAmbientLights",
+	// 	"EnvironmentBlock.ambientLights",
+	// 	"EnvironmentBlock.numDirectionalLights",
+	// 	"EnvironmentBlock.directionalLights",
+	// 	"EnvironmentBlock.numPointLights",
+	// 	"EnvironmentBlock.pointLights",
+	// 	"EnvironmentBlock.numSpotLights",
+	// 	"EnvironmentBlock.spotLights",
+	// 	"EnvironmentBlock.fog"
+	// };
+	// GLuint indices[9]; for (int i = 0; i < 9; i++) indices[i] = 0;
+	// GLint offsets[9]; for (int i = 0; i < 9; i++) offsets[i] = 0;
+	//
+	// glGetUniformIndices(programID, 9, uniforms, indices);
+	// glGetActiveUniformsiv(programID, 9, indices, GL_UNIFORM_OFFSET, offsets);
+	//
+	// for (int i = 0; i < 9; i++) {
+	// 	A3D_LOG_D("Uniform index for {}: {}",
+	// 		uniforms[i], indices[i] == GL_INVALID_INDEX ? "BAD" : "GOOD");
+	// }
+	//
+	// glBufferSubData(GL_UNIFORM_BUFFER, offsets[0], sizeof(uint32_t),
+	// 	(const void*)&environmentStruct.numAmbientLights);
+	// glBufferSubData(GL_UNIFORM_BUFFER, offsets[1], sizeof(AmbientLightGLSLStruct) * MAX_AMBIENT_LIGHTS,
+	// 	(const void*)environmentStruct.ambientLights);
+	// glBufferSubData(GL_UNIFORM_BUFFER, offsets[2], sizeof(uint32_t),
+	// 	(const void*)&environmentStruct.numDirectionalLights);
+	// glBufferSubData(GL_UNIFORM_BUFFER, offsets[3], sizeof(DirectionalLightGLSLStruct) * MAX_DIRECTIONAL_LIGHTS,
+	// 	(const void*)environmentStruct.directionalLights);
+	// glBufferSubData(GL_UNIFORM_BUFFER, offsets[4], sizeof(uint32_t),
+	// 	(const void*)&environmentStruct.numPointLights);
+	// glBufferSubData(GL_UNIFORM_BUFFER, offsets[5], sizeof(PointLightGLSLStruct) * MAX_POINT_LIGHTS,
+	// 	(const void*)environmentStruct.pointLights);
+	// glBufferSubData(GL_UNIFORM_BUFFER, offsets[6], sizeof(uint32_t),
+	// 	(const void*)&environmentStruct.numSpotLights);
+	// glBufferSubData(GL_UNIFORM_BUFFER, offsets[7], sizeof(SpotLightGLSLStruct) * MAX_SPOT_LIGHTS,
+	// 	(const void*)environmentStruct.spotLights);
+	// glBufferSubData(GL_UNIFORM_BUFFER, offsets[8], sizeof(FogGLSLStruct),
+	// 	(const void*)&environmentStruct.fog);
 }
 
 // ORIGINAL

@@ -69,25 +69,33 @@ struct AmbientLight {
 struct DirectionalLight {
 	vec4 	color;
 	vec3 	direction_world;
+	float	PAD0;
 };
 
 struct PointLight {
 	vec4 	color;
 	vec3 	position_world;
+	float	PAD0;
 	float	constantAttenuation;
 	float	linearAttenuation;
 	float	quadraticAttenuation;
+	float	PAD1;
 };
 
 struct SpotLight {
 	vec4 	color;
 	vec3 	position_world;
+	float	PAD0;
 	vec3 	direction_world;
+	float	PAD1;
 	float	innerAngle;
 	float	outerAngle;
 	float	constantAttenuation;
 	float	linearAttenuation;
 	float	quadraticAttenuation;
+	float	PAD2;
+	float	PAD3;
+	float	PAD4;
 };
 
 struct Fog {
@@ -95,6 +103,7 @@ struct Fog {
 	float 	startDistance;
 	float 	endDistance;
 	float 	densityExponent;
+	float	PAD0;
 };
 
 // temporary
@@ -106,6 +115,10 @@ in 			vec3 		frag_vertNorm_eye;
 in 			vec2 		frag_texCoord;
 
 uniform 	mat4 		viewMat;
+
+uniform		bool		useDefaultLighting;
+
+// PUT INTO "MaterialBlock" {
 uniform 	uint 		ambientContentsType;
 uniform 	uint 		diffuseContentsType;
 uniform 	uint 		specularContentsType;
@@ -115,24 +128,28 @@ uniform		float 		uvScale;
 uniform		bool 		locksAmbientWithDiffuse;
 uniform 	Samplers 	samplers;
 uniform 	Colors 		colors;
-uniform		bool		useDefaultLighting;
+// }
 
 // layout spec: https://learnopengl.com/Advanced-OpenGL/Advanced-GLSL
 // !!! vsGLInfoLib
 // https://www.google.com/search?client=firefox-b-1-d&q=vsGLInfoLib+
 // "This may also be useful to people who find themselves tearing their hair off with offset problems: in order to find the above, I used vsGLInfoLib to print all of my uniforms and their offsets in the console. You can get it from here: https://github.com/lighthou... .
 //You only need VSL/include/vsl/vsGLInfoLib.h and VSL/source/vsGLInfoLib.cpp. Import both files in your solution. In the H file, replace the Glew include with your glad.h file. Visual Studio will likely complain about undefined stuff, in which case, just remove all lines where such constants are used. If it also complains about the vsprintf call in the CPP file, simply replace it with vsprintf_s. You can then include the H file somewhere, call VSGLInfoLib::getUniformsInfo, and done ! All of your uniform offsets are in the console."
-layout(std140) uniform EnvironmentBlock {
+layout(std140) uniform EnvironmentBlock { // std430
 	uint				numAmbientLights;
+	vec3 PAD0;
 	AmbientLight 		ambientLights[MAX_AMBIENT_LIGHTS];
 	uint				numDirectionalLights;
+	vec3 PAD1;
 	DirectionalLight	directionalLights[MAX_DIRECTIONAL_LIGHTS];
 	uint				numPointLights;
+	vec3 PAD2;
 	PointLight 			pointLights[MAX_POINT_LIGHTS];
 	uint				numSpotLights;
+	vec3 PAD3;
 	SpotLight 			spotLights[MAX_SPOT_LIGHTS];
 	Fog 				fog;
-};
+} Environment;
 
 out 		vec4 		fragColor;
 
@@ -216,9 +233,9 @@ void main () {
 
 		// ambient lights
 
-		for (uint l=0u; l<numAmbientLights; ++l) {
+		for (uint l=0u; l<Environment.numAmbientLights; ++l) {
 
-			AmbientLight light = ambientLights[l];
+			AmbientLight light = Environment.ambientLights[l];
 
 			vec3 L = vec3(light.color.rgb);
 
@@ -229,9 +246,9 @@ void main () {
 
 		// directional lights
 
-		for (uint l=0u; l<numDirectionalLights; ++l) {
+		for (uint l=0u; l<Environment.numDirectionalLights; ++l) {
 
-			DirectionalLight light = directionalLights[l];
+			DirectionalLight light = Environment.directionalLights[l];
 
 			vec3 L = vec3(light.color.rgb);
 
@@ -296,9 +313,9 @@ void main () {
 
 		// point lights
 
-		for (uint l=0u; l<numPointLights; ++l) {
+		for (uint l=0u; l<Environment.numPointLights; ++l) {
 
-			PointLight light = pointLights[l];
+			PointLight light = Environment.pointLights[l];
 
 			vec3 L = vec3(light.color.rgb);
 
@@ -349,9 +366,9 @@ void main () {
 
 		// spot lights
 
-		for (uint l=0u; l<numSpotLights; ++l) {
+		for (uint l=0u; l<Environment.numSpotLights; ++l) {
 
-			SpotLight light = spotLights[l];
+			SpotLight light = Environment.spotLights[l];
 
 			vec3 L = vec3(light.color.rgb);
 
@@ -366,17 +383,17 @@ void main () {
 	
 	/* fog */
 
-	if (!FloatsEqual(fog.endDistance, 0.0, 0.0001)) { // endDistance == 0 disables fog
-		if (FloatsEqual(fog.densityExponent, 0.0, 0.0001)) { // constant
-			fragColor = mix(fragColor, vec4(fog.color.rgb, 1.0), fog.color.a);
+	if (!FloatsEqual(Environment.fog.endDistance, 0.0, 0.0001)) { // endDistance == 0 disables fog
+		if (FloatsEqual(Environment.fog.densityExponent, 0.0, 0.0001)) { // constant
+			fragColor = mix(fragColor, vec4(Environment.fog.color.rgb, 1.0), Environment.fog.color.a);
 		}
-		else if (FloatsEqual(fog.densityExponent, 1.0, 0.0001)) { // linear
+		else if (FloatsEqual(Environment.fog.densityExponent, 1.0, 0.0001)) { // linear
 			float vertDist = length(frag_vertPos_eye);
-			float fogFactor = (fog.endDistance - vertDist) / (fog.endDistance - fog.startDistance);
+			float fogFactor = (Environment.fog.endDistance - vertDist) / (Environment.fog.endDistance - Environment.fog.startDistance);
 			fogFactor = clamp(fogFactor, 0.0, 1.0);
-			fragColor = mix(vec4(fog.color.rgb, 1.0), fragColor, fogFactor);
+			fragColor = mix(vec4(Environment.fog.color.rgb, 1.0), fragColor, fogFactor);
 		}
-		else if (fog.densityExponent >= 2.0) { // exponential
+		else if (Environment.fog.densityExponent >= 2.0) { // exponential
 			// NOT IMPLEMENTED
 			// fogFactor = 1.0-clamp( exp(-fogDensity*fogCoord), 0.0, 1.0)
 			// http://www.mbsoftworks.sk/index.php?page=tutorials&series=1&tutorial=15
