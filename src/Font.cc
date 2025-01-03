@@ -30,10 +30,10 @@ Font::Font(const filesystem::path& path):
 		_name = path.stem().string();
 
 		auto extension = path.extension().string();
-		if (extension == "otf") {
+		if (extension == ".otf") {
 			_type = FontType::OTF;
 		}
-		else if (extension == "otf") {
+		else if (extension == ".ttf") {
 			_type = FontType::TTF;
 		}
 		
