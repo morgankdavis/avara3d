@@ -125,6 +125,46 @@ enum class MaterialContentsType : unsigned {
 // 	alignas(16) float32_t	densityExponent;
 // } FogGLSLStruct;
 
+
+
+
+//typedef struct {
+//	vec4		color;
+//} AmbientLightGLSLStruct;
+//
+//typedef struct {
+//	vec4		color;
+//	vec3		direction_world;
+//} DirectionalLightGLSLStruct;
+//
+//typedef struct {
+//	vec4		color;
+//	vec3		position_world;
+//	float		constantAttenuation;
+//	float		linearAttenuation;
+//	float		quadraticAttenuation;
+//} PointLightGLSLStruct;
+//
+//typedef struct {
+//	vec4		color;
+//	vec3		position_world;
+//	vec3		direction_world;
+//	float		innerAngle;
+//	float		outerAngle;
+//	float		constantAttenuation;
+//	float		linearAttenuation;
+//	float		quadraticAttenuation;
+//} SpotLightGLSLStruct;
+//
+//typedef struct {
+//	vec4		color;
+//	float32_t	startDistance;
+//	float32_t	endDistance;
+//	float32_t	densityExponent;
+//} FogGLSLStruct;
+
+
+
 typedef struct {
 	vec4		color;
 } AmbientLightGLSLStruct;
@@ -137,6 +177,7 @@ typedef struct {
 typedef struct {
 	vec4		color;
 	vec3		position_world;
+	float		PAD0;
 	float		constantAttenuation;
 	float		linearAttenuation;
 	float		quadraticAttenuation;
@@ -145,7 +186,9 @@ typedef struct {
 typedef struct {
 	vec4		color;
 	vec3		position_world;
+	float		PAD0;
 	vec3		direction_world;
+	float		PAD1;
 	float		innerAngle;
 	float		outerAngle;
 	float		constantAttenuation;
@@ -159,6 +202,9 @@ typedef struct {
 	float32_t	endDistance;
 	float32_t	densityExponent;
 } FogGLSLStruct;
+
+
+
 
 // typedef struct {
 // 	alignas(16) uint32_t 					numAmbientLights;
