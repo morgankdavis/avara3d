@@ -27,7 +27,7 @@ using namespace std;
 using namespace std::placeholders;
 
 
-constexpr LogLevel				LOG_LEVEL =				LogLevel::Debug;
+constexpr LogLevel				A3D_APP_LOG_LEVEL =				LogLevel::Debug;
 constexpr uvec2					WINDOW_SIZE =			{1280, 768};
 constexpr bool					FULLSCREEN =			false;
 constexpr bool					ENABLE_HIGH_DPI =		true;
@@ -90,7 +90,7 @@ int main(int argc, const char* argv[]) {
 
 		auto inputManager = make_unique<WindowInputManager>(window.get());
 		if (inputManager->errorMask() == WindowInputManagerErrorMask::PermissionDenied) {
-			LOG_E(g_logger, "WindowInputManager permission denied.");
+			A3D_APP_LOG_E(g_logger, "WindowInputManager permission denied.");
 			// on macOS 10.15 Catalina+, this is probably a permissions issue,
 			// and the OS will alert the user.
 			// just keep going and let the user decide what they want to do.
@@ -260,7 +260,7 @@ int main(int argc, const char* argv[]) {
 
 		auto duckNode = Node::MeshNode(utils::MeshNamed("rubber_duck/rubber_duck"));
 		g_duckNode = duckNode.get();
-		A3D_LOG_I("DUCK NODE: {}", utils::StringFromTree(*duckNode));
+		A3D_APP_LOG_I(g_logger, "DUCK NODE: {}", utils::StringFromTree(*duckNode));
 		duckNode->position({/*4.5*/0, 25, 0});
 
 
@@ -321,20 +321,20 @@ int main(int argc, const char* argv[]) {
 
 
 
-		LOG_I(g_logger, "*** SCENE EXTENT: {} ***", utils::StringFromGLMVec3(scene->rootNode()->extent()));
+		A3D_APP_LOG_I(g_logger, "*** SCENE EXTENT: {} ***", utils::StringFromGLMVec3(scene->rootNode()->extent()));
 
-	//	A3D_LOG_I("Graph:\n{}", StringFromTree(*scene->rootNode()));
+	//	A3D_A3D_APP_LOG_I("Graph:\n{}", StringFromTree(*scene->rootNode()));
 	//	auto children = scene->rootNode()->children(true);
-	//	A3D_LOG_I("CHILDREN REC:");
+	//	A3D_A3D_APP_LOG_I("CHILDREN REC:");
 	//	for (auto& child : children) {
 	//		if (child == scene->rootNode()){
-	//			A3D_LOG_I("\troot");
+	//			A3D_A3D_APP_LOG_I("\troot");
 	//		}
 	//		else if (child->name().has_value()) {
-	//			A3D_LOG_I("\t{}", *child->name());
+	//			A3D_A3D_APP_LOG_I("\t{}", *child->name());
 	//		}
 	//		else {
-	//			A3D_LOG_I("\t{:p}", (void*)child.get());
+	//			A3D_A3D_APP_LOG_I("\t{:p}", (void*)child.get());
 	//		}
 	//	}
 
@@ -343,7 +343,7 @@ int main(int argc, const char* argv[]) {
 		scene->run();
 	}
 	catch (Exception& e) {
-		LOG_F(g_logger, "Exception: {}", e.what());
+		A3D_APP_LOG_F(g_logger, "Exception: {}", e.what());
 		return -1;
 	}
 
@@ -356,7 +356,7 @@ int main(int argc, const char* argv[]) {
  ***************************************************************************************/
 
 void UpdateCallback(Scene& scene, double time, double deltaTime) {
-	LOG_T(g_logger, "scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
+	A3D_APP_LOG_T(g_logger, "scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
 
 	auto inputManager = scene.inputManager();
 
@@ -386,19 +386,19 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 	// TEMPORARY for macOS mouse input testing
 	if (keysPressed.count(Key::Z)) {
-		A3D_LOG_I("Trying to re-initialize mouse input.");
+		A3D_APP_LOG_I(g_logger, "Trying to re-initialize mouse input.");
 		auto windowInputManager = static_cast<WindowInputManager*>(scene.inputManager());
 		try {
 			windowInputManager->initMouseInput();
 		}
 		catch (Exception) {
-			A3D_LOG_E("Nada");
+			A3D_APP_LOG_E(g_logger, "Nada");
 		}
 	}
 
 	if (keysPressed.count(Key::Escape)) {
 		window->close();
-		A3D_LOG_I("open? {}", window->isOpen() ? "ya" : "no");
+		A3D_APP_LOG_I(g_logger, "open? {}", window->isOpen() ? "ya" : "no");
 	}
 
 	if (keysPressed.count(Key::ForwardDelete)) {
@@ -473,7 +473,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	if (!scene.paused()) {
 
 //		if (keysPressed.count(Key::T)) {
-//			LOG_I(g_logger, "TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
+//			A3D_APP_LOG_I(g_logger, "TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
 //		}
 
 		// spawn duck fruit
@@ -711,11 +711,11 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
  ***************************************************************************************/
 
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime) {
-	LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	A3D_APP_LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 void DidRenderCallback(VisualWorld& world, double time, double deltaTime) {
-	LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	A3D_APP_LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 /***************************************************************************************
@@ -723,7 +723,7 @@ void DidRenderCallback(VisualWorld& world, double time, double deltaTime) {
  ***************************************************************************************/
 
 void DidSimulatePhysicsCallback(PhysicalWorld& world, double time, double deltaTime) {
-	LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	A3D_APP_LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 /***************************************************************************************
@@ -741,21 +741,21 @@ void InitLog() {
 	sinks.insert(std::move(fileSink));
 
 	g_logger = make_unique<Logger>(executableName, std::move(sinks));
-	g_logger->level(LOG_LEVEL);
+	g_logger->level(A3D_APP_LOG_LEVEL);
 
-	Logger::MainLogger().level(LOG_LEVEL);
+	Logger::MainLogger().level(A3D_APP_LOG_LEVEL);
 }
 
 void LogBuildInfo() {
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
-	LOG_I(g_logger, "A3D version: {}.{}.{}",
+	A3D_APP_LOG_I(g_logger, "A3D version: {}.{}.{}",
 		  version.major, version.minor, version.patch);
-	LOG_I(g_logger, "Build: {}", buildInfo.number());
-	LOG_I(g_logger, "Type: {}",
+	A3D_APP_LOG_I(g_logger, "Build: {}", buildInfo.number());
+	A3D_APP_LOG_I(g_logger, "Type: {}",
 		  buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
-	LOG_I(g_logger, "Origin: {}",
+	A3D_APP_LOG_I(g_logger, "Origin: {}",
 		  buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
 }
 
@@ -823,7 +823,7 @@ void SpawnDuckFruit(Scene& scene, Node& duckNode) {
 		//	node->scale({3.0, 3.0, 3.0});
 		//#warning TEMPORARY workaround for physics scaling
 		//	for (auto& c : node->children(true)) {
-		//		LOG_D(_logger, "c tr: {}", StringFromGLMMat4(c->transform()));
+		//		A3D_APP_LOG_D(_logger, "c tr: {}", StringFromGLMMat4(c->transform()));
 		//		c->mesh()->burnTransform(node->transform(), true);
 		//		node->transform(mat4(1.0));
 		//	}

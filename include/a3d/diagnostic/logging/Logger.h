@@ -32,26 +32,26 @@
  *********************************************************************************************/
 
 #ifdef A3D_DEBUG
-#define LOG_T(logger, fmtStr, ...)	logger->log(LogLevel::Trace, \
+#define A3D_APP_LOG_T(logger, fmtStr, ...)	logger->log(LogLevel::Trace, \
 										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
 										fmt::format(fmtStr, ##__VA_ARGS__))
-#define LOG_D(logger, fmtStr, ...) 	logger->log(LogLevel::Debug, \
+#define A3D_APP_LOG_D(logger, fmtStr, ...) 	logger->log(LogLevel::Debug, \
 										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
 										fmt::format(fmtStr, ##__VA_ARGS__))
 #else
-#define LOG_T(logger, fmtStr, ...) 	NOOP
-#define LOG_D(logger, fmtStr, ...) 	NOOP
+#define A3D_APP_LOG_T(logger, fmtStr, ...) 	NOOP
+#define A3D_APP_LOG_D(logger, fmtStr, ...) 	NOOP
 #endif
-#define LOG_I(logger, fmtStr, ...)	logger->log(LogLevel::Info, \
+#define A3D_APP_LOG_I(logger, fmtStr, ...)	logger->log(LogLevel::Info, \
 										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
 										fmt::format(fmtStr, ##__VA_ARGS__))
-#define LOG_W(logger, fmtStr, ...)	logger->log(LogLevel::Warn, \
+#define A3D_APP_LOG_W(logger, fmtStr, ...)	logger->log(LogLevel::Warn, \
 										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
 										fmt::format(fmtStr, ##__VA_ARGS__))
-#define LOG_E(logger, fmtStr, ...)	logger->log(LogLevel::Error, \
+#define A3D_APP_LOG_E(logger, fmtStr, ...)	logger->log(LogLevel::Error, \
 										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
 										fmt::format(fmtStr, ##__VA_ARGS__))
-#define LOG_F(logger, fmtStr, ...)	logger->log(LogLevel::Fatal, \
+#define A3D_APP_LOG_F(logger, fmtStr, ...)	logger->log(LogLevel::Fatal, \
 										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
 										fmt::format(fmtStr, ##__VA_ARGS__))
 
