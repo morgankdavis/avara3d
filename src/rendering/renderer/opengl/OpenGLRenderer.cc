@@ -824,33 +824,38 @@ void BufferMeshElementVertexData(const MeshElement& element,
 	
 	glGenVertexArrays(1, &glVAO);
 	glBindVertexArray(glVAO);
+
+	// from 'layout (location = x)'
+	const unsigned POSITION_LOCATION = 0;
+	const unsigned NORMAL_LOCATION = 1;
+	const unsigned TEXCOORD_LOCATION = 2;
 	
-	auto positionIndex = program.getAttributeLocation("vert_vertPos");
-	glVertexAttribPointer(positionIndex, 			// attrib index
+	//auto positionIndex = program.getAttributeLocation("vert_vertPos");
+	glVertexAttribPointer(POSITION_LOCATION, 			// attrib index
 						  3, 						// num components per attrib (3 float in vec3)
 						  GL_FLOAT, 				// component type
 						  GL_FALSE, 				// normalize
 						  sizeof(Vertex), 			// stride
 						  nullptr); 						// start offset
-	glEnableVertexAttribArray(positionIndex);
+	glEnableVertexAttribArray(POSITION_LOCATION);
 	
-	auto normalIndex = program.getAttributeLocation("vert_vertNorm");
-	glVertexAttribPointer(normalIndex, 				// attrib index
+	//auto normalIndex = program.getAttributeLocation("vert_vertNorm");
+	glVertexAttribPointer(NORMAL_LOCATION, 				// attrib index
 						  3, 						// num components per attrib (3 float in vec3)
 						  GL_FLOAT, 				// component type
 						  GL_FALSE, 				// normalize
 						  sizeof(Vertex), 			// stride
 						  (void*)sizeof(vec3)); 	// start offset
-	glEnableVertexAttribArray(normalIndex);
+	glEnableVertexAttribArray(NORMAL_LOCATION);
 	
-	auto texCoordIndex = program.getAttributeLocation("vert_texCoord");
-	glVertexAttribPointer(texCoordIndex, 							// attrib index
+	//auto texCoordIndex = program.getAttributeLocation("vert_texCoord");
+	glVertexAttribPointer(TEXCOORD_LOCATION, 							// attrib index
 						  2, 										// num components per attrib (2 float in vec2)
 						  GL_FLOAT, 								// component type
 						  GL_FALSE, 								// normalize
 						  sizeof(Vertex), 							// stride
 						  (void*)(sizeof(vec3) + sizeof(vec3))); 	// start offset
-	glEnableVertexAttribArray(texCoordIndex);
+	glEnableVertexAttribArray(TEXCOORD_LOCATION);
 	
 	glGenBuffers(1, &glEBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glEBO);
@@ -882,14 +887,17 @@ void BufferSkyboxVertexData(Mesh& skyboxMesh,
 	glGenVertexArrays(1, &glVAO);
 	glBindVertexArray(glVAO);
 
-	GLuint positionIndex = program.getAttributeLocation("vert_vertPos");
-	glVertexAttribPointer(positionIndex, // attrib index
+	// from 'layout (location = x)'
+	const unsigned POSITION_LOCATION = 0;
+
+	//GLuint positionIndex = program.getAttributeLocation("vert_vertPos");
+	glVertexAttribPointer(POSITION_LOCATION, // attrib index
 						  3, // num components per attrib (3 float in vec3)
 						  GL_FLOAT, // component type
 						  GL_FALSE, // normalize
 						  sizeof(Vertex), // stride
 						  nullptr); // start offset
-	glEnableVertexAttribArray(positionIndex);
+	glEnableVertexAttribArray(POSITION_LOCATION);
 	
 	glGenBuffers(1, &glEBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glEBO);
@@ -931,23 +939,27 @@ void BufferLinesVertexData(const vector<Line>& lines,
 	glGenVertexArrays(1, &glVAO);
 	glBindVertexArray(glVAO);
 
-	auto positionIndex = program.getAttributeLocation("vert_vertPos");
-	glVertexAttribPointer(positionIndex, 		// attrib index
+	// from 'layout (location = x)'
+	const unsigned POSITION_LOCATION = 0;
+	const unsigned COLOR_LOCATION = 1;
+
+	//auto positionIndex = program.getAttributeLocation("vert_vertPos");
+	glVertexAttribPointer(POSITION_LOCATION, 		// attrib index
 						  3, 					// num components per attrib (3 float in vec3)
 						  GL_FLOAT, 			// component type
 						  GL_FALSE, 			// normalize
 						  sizeof(vec3)*2, 		// stride
 						  nullptr); 					// start offset
-	glEnableVertexAttribArray(positionIndex);
+	glEnableVertexAttribArray(POSITION_LOCATION);
 
-	auto colorIndex = program.getAttributeLocation("vert_vertColor"); // was texCoord?
-	glVertexAttribPointer(colorIndex, 			// attrib index
+	//auto colorIndex = program.getAttributeLocation("vert_vertColor"); // was texCoord?
+	glVertexAttribPointer(COLOR_LOCATION, 			// attrib index
 						  3, 					// num components per attrib (3 float in vec3)
 						  GL_FLOAT, 			// component type
 						  GL_FALSE, 			// normalize
 						  sizeof(vec3)*2, 		// stride
 						  (void*)sizeof(vec3));	// start offset
-	glEnableVertexAttribArray(colorIndex);
+	glEnableVertexAttribArray(COLOR_LOCATION);
 }
 
 void BufferTexture(const Texture& texture,
