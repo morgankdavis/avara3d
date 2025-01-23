@@ -202,11 +202,11 @@ typedef struct {
 } SpotLightGLSLStruct;
 
 typedef struct {
-	vec4		color;
-	float32_t	startDistance;
+	alignas(16) vec4		color;
+	/*alignas(16)*/ float32_t	startDistance;
 	float32_t	endDistance;
 	float32_t	densityExponent;
-	float32_t	PAD0;
+//	float32_t	PAD0;
 } FogGLSLStruct;
 
 
@@ -224,29 +224,60 @@ typedef struct {
 // 	alignas(16) FogGLSLStruct				fog;
 // } EnvironmentBlock;
 
+
+// WORKS
+//typedef struct {
+//	uint32_t 					numAmbientLights;
+//	uint32_t PAD0;
+//	uint32_t PAD1;
+//	uint32_t PAD2;
+//	AmbientLightGLSLStruct		ambientLights[MAX_AMBIENT_LIGHTS];
+//	uint32_t 					numDirectionalLights;
+//	uint32_t PAD3;
+//	uint32_t PAD4;
+//	uint32_t PAD5;
+//	DirectionalLightGLSLStruct	directionalLights[MAX_DIRECTIONAL_LIGHTS];
+//	uint32_t 					numPointLights;
+//	uint32_t PAD6;
+//	uint32_t PAD7;
+//	uint32_t PAD8;
+//	PointLightGLSLStruct		pointLights[MAX_POINT_LIGHTS];
+//	uint32_t 					numSpotLights;
+//	uint32_t PAD9;
+//	uint32_t PAD10;
+//	uint32_t PAD11;
+//	SpotLightGLSLStruct			spotLights[MAX_SPOT_LIGHTS];
+//	FogGLSLStruct				fog;
+//} EnvironmentBlock;
+
+
+
+
 typedef struct {
-	uint32_t 					numAmbientLights;
-	uint32_t PAD0;
-	uint32_t PAD1;
-	uint32_t PAD2;
-	AmbientLightGLSLStruct		ambientLights[MAX_AMBIENT_LIGHTS];
-	uint32_t 					numDirectionalLights;
-	uint32_t PAD3;
-	uint32_t PAD4;
-	uint32_t PAD5;
-	DirectionalLightGLSLStruct	directionalLights[MAX_DIRECTIONAL_LIGHTS];
-	uint32_t 					numPointLights;
-	uint32_t PAD6;
-	uint32_t PAD7;
-	uint32_t PAD8;
-	PointLightGLSLStruct		pointLights[MAX_POINT_LIGHTS];
-	uint32_t 					numSpotLights;
-	uint32_t PAD9;
-	uint32_t PAD10;
-	uint32_t PAD11;
-	SpotLightGLSLStruct			spotLights[MAX_SPOT_LIGHTS];
-	FogGLSLStruct				fog;
+	alignas(16)	uint32_t 					numAmbientLights;
+//	uint32_t PAD0;
+//	uint32_t PAD1;
+//	uint32_t PAD2;
+	alignas(16) AmbientLightGLSLStruct		ambientLights[MAX_AMBIENT_LIGHTS];
+	alignas(16) uint32_t 					numDirectionalLights;
+//	uint32_t PAD3;
+//	uint32_t PAD4;
+//	uint32_t PAD5;
+	alignas(16) DirectionalLightGLSLStruct	directionalLights[MAX_DIRECTIONAL_LIGHTS];
+	alignas(16) uint32_t 					numPointLights;
+//	uint32_t PAD6;
+//	uint32_t PAD7;
+//	uint32_t PAD8;
+	alignas(16) PointLightGLSLStruct		pointLights[MAX_POINT_LIGHTS];
+	alignas(16) uint32_t 					numSpotLights;
+//	uint32_t PAD9;
+//	uint32_t PAD10;
+//	uint32_t PAD11;
+	alignas(16) SpotLightGLSLStruct			spotLights[MAX_SPOT_LIGHTS];
+	alignas(16) FogGLSLStruct				fog;
 } EnvironmentBlock;
+
+
 
 /*********************************************************************************************
 	Private Static Non-Member Prototypes
@@ -1225,10 +1256,15 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 
 			Program::Default().setUniform("useDefaultLighting", false);
 
-			vector<AmbientLightGLSLStruct> ambientStructs(MAX_AMBIENT_LIGHTS);
-			vector<DirectionalLightGLSLStruct> directionalStructs(MAX_DIRECTIONAL_LIGHTS);
-			vector<PointLightGLSLStruct> pointStructs(MAX_POINT_LIGHTS);
-			vector<SpotLightGLSLStruct> spotStructs(MAX_SPOT_LIGHTS);
+			vector<AmbientLightGLSLStruct> ambientStructs;
+			vector<DirectionalLightGLSLStruct> directionalStructs;
+			vector<PointLightGLSLStruct> pointStructs;
+			vector<SpotLightGLSLStruct> spotStructs;
+
+			ambientStructs.reserve(MAX_AMBIENT_LIGHTS);
+			directionalStructs.reserve(MAX_DIRECTIONAL_LIGHTS);
+			pointStructs.reserve(MAX_POINT_LIGHTS);
+			spotStructs.reserve(MAX_SPOT_LIGHTS);
 
 			for (unsigned l = 0; l < numLights; ++l) {
 
@@ -1319,12 +1355,12 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 
 	// send 'em
 
-//	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
-//	glBufferData(GL_UNIFORM_BUFFER, sizeof(environmentStruct), &environmentStruct, GL_DYNAMIC_DRAW);
+	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(EnvironmentBlock), &environmentStruct, GL_DYNAMIC_DRAW);
 
 
 
-	 int programID = Program::Default().glID();
+//	 int programID = Program::Default().glID();
 
 
 
@@ -1376,12 +1412,10 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 
 	//Program::Default().bindUniformBlock("EnvironmentBlock", glEnvironmentUBO);
 
-	environmentStruct.spotLights[3].color = vec4(0.0, 1.0, 0.0, 1.0);
+//	environmentStruct.fog.color = vec4(1.0, 0.0, 0.0, 1.0);
 //	glBufferSubData(GL_UNIFORM_BUFFER, offsets[1], sizeof(vec4),
 //					(const void*)&environmentStruct.ambientLights[0].color);
 
-	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(EnvironmentBlock), &environmentStruct, GL_DYNAMIC_DRAW);
 
 
 

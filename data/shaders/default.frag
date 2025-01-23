@@ -100,10 +100,11 @@ struct SpotLight {
 
 struct Fog {
 	vec4 	color;
+//	float PAD0;
 	float 	startDistance;
 	float 	endDistance;
 	float 	densityExponent;
-	float	PAD0;
+//	float	PAD0;
 };
 
 // temporary
@@ -171,95 +172,92 @@ float Attenuate(float Kc, float Kl, float Kq, float d);
 
 void main () {
 
-	//fragColor = vec4(Environment.pointLights[0].color, 1.0);
-	fragColor = Environment.spotLights[3].color;
-	//fragColor = vec4(1, 0, 0, 1);
-	//fragColor = vec4(Environment.color, 1.0);
+	vec4 Ka = vec4(0.0, 0.0, 0.0, 1.0);
+	vec4 Kd = vec4(0.0, 0.0, 0.0, 1.0);
+	vec4 Ks = vec4(0.0, 0.0, 0.0, 1.0);
+	vec4 Ke = vec4(0.0, 0.0, 0.0, 1.0);
 
-//	vec4 Ka = vec4(0.0, 0.0, 0.0, 1.0);
-//	vec4 Kd = vec4(0.0, 0.0, 0.0, 1.0);
-//	vec4 Ks = vec4(0.0, 0.0, 0.0, 1.0);
-//	vec4 Ke = vec4(0.0, 0.0, 0.0, 1.0);
-//
-//	fragColor = vec4(0.0, 0.0, 0.0, 1.0);
-//
-//	if (useDefaultLighting) {
-//
-//		// find an emissive property in order:
-//		// 1. emissive
-//		// 2. diffuse
-//		// 3. ambient
-//
-//		if (emissionContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
-//			Ke = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_EMISSION,
-//				emissionContentsType, colors, samplers);
-//		}
-//		else if (diffuseContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
-//			Ke = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_DIFFUSE,
-//				diffuseContentsType, colors, samplers);
-//		}
-//		else if (ambientContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
-//			Ke = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_AMBIENT,
-//				ambientContentsType, colors, samplers);
-//		}
-//		else {
-//			Ke = vec4(1.0, 1.0, 1.0, 1.0); // just use white.
-//		}
-//
-//		fragColor = vec4(vec3(Ke), 1.0);
-//	}
-//	else if (emissionContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
-//
-//		/* emission color */
-//
-//		Ke = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_EMISSION,
-//			emissionContentsType, colors, samplers);
-//
-//		fragColor = vec4(vec3(Ke), 1.0);
-//		// (no other lighting calculations)
-//	}
-//	else {
-//
-//		/* ambient, diffuse, specular colors */
-//
-//		Ka = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_AMBIENT,
-//			ambientContentsType, colors, samplers);
-//		Kd = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_DIFFUSE,
-//			diffuseContentsType, colors, samplers);
-//		Ks = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_SPECULAR,
-//			specularContentsType, colors, samplers);
-//
-//		/* lock ambient with diffuse */
-//
-////		if (locksAmbientWithDiffuse && (diffuseContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE)) {
-////			Ka = Kd;
-////		}
-//		if ((diffuseContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE)) {
+	fragColor = vec4(0.0, 0.0, 0.0, 1.0);
+
+	if (useDefaultLighting) {
+
+	// !!! THIS IS FINE !!!
+
+		// find an emissive property in order:
+		// 1. emissive
+		// 2. diffuse
+		// 3. ambient
+
+		if (emissionContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
+			Ke = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_EMISSION,
+				emissionContentsType, colors, samplers);
+		}
+		else if (diffuseContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
+			Ke = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_DIFFUSE,
+				diffuseContentsType, colors, samplers);
+		}
+		else if (ambientContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
+			Ke = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_AMBIENT,
+				ambientContentsType, colors, samplers);
+		}
+		else {
+			Ke = vec4(1.0, 1.0, 1.0, 1.0); // just use white.
+		}
+
+		fragColor = vec4(Ke.rgb, 1.0);
+	}
+	else if (emissionContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
+
+		/* emission color */
+
+		Ke = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_EMISSION,
+			emissionContentsType, colors, samplers);
+
+		fragColor = vec4(Ke.rgb, 1.0);
+		// (no other lighting calculations)
+	}
+	else {
+
+		/* ambient, diffuse, specular colors */
+
+		Ka = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_AMBIENT,
+			ambientContentsType, colors, samplers);
+		Kd = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_DIFFUSE,
+			diffuseContentsType, colors, samplers);
+		Ks = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_SPECULAR,
+			specularContentsType, colors, samplers);
+
+		/* lock ambient with diffuse */
+
+//		if (locksAmbientWithDiffuse && (diffuseContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE)) {
 //			Ka = Kd;
 //		}
-//
-//		/* alpha rejection */
-//
-//		// look at depth peeling or a-buffers for proper alpha blending
-//		if (Kd.a < ALPHA_REJECTION_THRESHOLD) discard;
-//
-//		/* lighting */
-//
-//		// ambient lights
-//
-//		for (uint l=0u; l<Environment.numAmbientLights; ++l) {
-//
-//			AmbientLight light = Environment.ambientLights[l];
-//
-//			vec3 L = vec3(light.color.rgb);
-//
-//			vec3 Ia = L * vec3(Ka);
-//
-//			fragColor += vec4(Ia, 0.0);
-//		}
-//
-//		// directional lights
-//
+		if ((diffuseContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE)) {
+			Ka = Kd;
+		}
+
+		/* alpha rejection */
+
+		// look at depth peeling or a-buffers for proper alpha blending
+		if (Kd.a < ALPHA_REJECTION_THRESHOLD) discard;
+
+		/* lighting */
+
+		// ambient lights
+
+		for (uint l=0u; l<Environment.numAmbientLights; ++l) {
+
+			AmbientLight light = Environment.ambientLights[l];
+
+			vec3 L = vec3(light.color.rgb);
+
+			vec3 Ia = L * vec3(Ka);
+
+			fragColor += vec4(Ia, 1.0);
+		}
+
+		// directional lights
+
 //		for (uint l=0u; l<Environment.numDirectionalLights; ++l) {
 //
 //			DirectionalLight light = Environment.directionalLights[l];
@@ -312,72 +310,61 @@ void main () {
 //			fragColor += vec4(Id + Is, 0.0);
 //
 //			//fragColor = vec4(0, 1, 0, 0);
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 //		}
-//
-//		// point lights
-//
-//		for (uint l=0u; l<Environment.numPointLights; ++l) {
-//
-//			PointLight light = Environment.pointLights[l];
-//
-//			vec3 L = vec3(light.color.rgb);
-//
-//			vec3 Id = vec3(0.0, 0.0, 0.0);
-//			vec3 Is = vec3(0.0, 0.0, 0.0);
-//
-//			vec3 lightPos_world = light.position_world;
-//
-//			// diffuse
-//
-//			// raise light position to eye space
-//			vec3 lightPos_eye = vec3(viewMat * vec4(lightPos_world, 1.0));
-//			vec3 directionToLight_eye = normalize(lightPos_eye - frag_vertPos_eye);
-//			float dotProdDiffuse = max(dot(directionToLight_eye, frag_vertNorm_eye), 0.0);
-//
-//			float distanceToLight = distance(lightPos_eye, frag_vertPos_eye);
-//
-//			float attenuation = Attenuate(light.constantAttenuation,
-//										  light.linearAttenuation,
-//										  light.quadraticAttenuation,
-//										  distanceToLight);
-//
-//			Id = L * vec3(Kd) * dotProdDiffuse * attenuation;
-//
-//			// specular
-//
-//			Is = vec3(0.0, 0.0, 0.0);
-//			if (Ks.x != 0.0 || Ks.y != 0.0 || Ks.z != 0.0) {
-//
-//				vec3 surfaceToViewer_eye = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
-//
-//				// phong
-//				vec3 reflection_eye = reflect(-directionToLight_eye, frag_vertNorm_eye);
-//				float dotProdSpecular = dot(reflection_eye, surfaceToViewer_eye);
-//				dotProdSpecular = max(dotProdSpecular, 0.0);
-//				float specularFactor = pow(dotProdSpecular, specularExponent);
-//
-//				// blinn
-//				// vec3 half_way_eye = normalize(surface_to_viewer_eye + direction_to_light_eye);
-//				// float dot_prod_specular = max(dot(half_way_eye, vertex_normal_eye), 0.0);
-//				// float specular_factor = pow(dot_prod_specular, specularExponent);
-//
-//				Is = L * vec3(Ks) * specularFactor * attenuation;
-//			}
-//
-//			fragColor += vec4(Id + Is, 0.0);
-//		}
-//
+
+		// point lights
+
+		for (uint l=0u; l<Environment.numPointLights; ++l) {
+
+			PointLight light = Environment.pointLights[l];
+
+			vec3 L = vec3(light.color.rgb);
+
+			vec3 Id = vec3(0.0, 0.0, 0.0);
+			vec3 Is = vec3(0.0, 0.0, 0.0);
+
+			vec3 lightPos_world = light.position_world;
+
+			// diffuse
+
+			// raise light position to eye space
+			vec3 lightPos_eye = vec3(viewMat * vec4(lightPos_world, 1.0));
+			vec3 directionToLight_eye = normalize(lightPos_eye - frag_vertPos_eye);
+			float dotProdDiffuse = max(dot(directionToLight_eye, frag_vertNorm_eye), 0.0);
+
+			float distanceToLight = distance(lightPos_eye, frag_vertPos_eye);
+
+			float attenuation = Attenuate(light.constantAttenuation,
+										  light.linearAttenuation,
+										  light.quadraticAttenuation,
+										  distanceToLight);
+
+			Id = L * vec3(Kd) * dotProdDiffuse * attenuation;
+
+			// specular
+
+			Is = vec3(0.0, 0.0, 0.0);
+			if (Ks.x != 0.0 || Ks.y != 0.0 || Ks.z != 0.0) {
+
+				vec3 surfaceToViewer_eye = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
+
+				// phong
+				vec3 reflection_eye = reflect(-directionToLight_eye, frag_vertNorm_eye);
+				float dotProdSpecular = dot(reflection_eye, surfaceToViewer_eye);
+				dotProdSpecular = max(dotProdSpecular, 0.0);
+				float specularFactor = pow(dotProdSpecular, specularExponent);
+
+				// blinn
+				// vec3 half_way_eye = normalize(surface_to_viewer_eye + direction_to_light_eye);
+				// float dot_prod_specular = max(dot(half_way_eye, vertex_normal_eye), 0.0);
+				// float specular_factor = pow(dot_prod_specular, specularExponent);
+
+				Is = L * vec3(Ks) * specularFactor * attenuation;
+			}
+
+			fragColor += vec4(Id + Is, 0.0);
+		}
+
 //		// spot lights
 //
 //		for (uint l=0u; l<Environment.numSpotLights; ++l) {
@@ -391,28 +378,28 @@ void main () {
 //
 //			// TODO
 //		}
-//
-//		fragColor = vec4(vec3(fragColor), Kd.a);
-//	}
-//
-//	/* fog */
-//
-//	if (!FloatsEqual(Environment.fog.endDistance, 0.0, 0.0001)) { // endDistance == 0 disables fog
-//		if (FloatsEqual(Environment.fog.densityExponent, 0.0, 0.0001)) { // constant
-//			fragColor = mix(fragColor, vec4(Environment.fog.color.rgb, 1.0), Environment.fog.color.a);
-//		}
-//		else if (FloatsEqual(Environment.fog.densityExponent, 1.0, 0.0001)) { // linear
-//			float vertDist = length(frag_vertPos_eye);
-//			float fogFactor = (Environment.fog.endDistance - vertDist) / (Environment.fog.endDistance - Environment.fog.startDistance);
-//			fogFactor = clamp(fogFactor, 0.0, 1.0);
-//			fragColor = mix(vec4(Environment.fog.color.rgb, 1.0), fragColor, fogFactor);
-//		}
-//		else if (Environment.fog.densityExponent >= 2.0) { // exponential
-//			// NOT IMPLEMENTED
-//			// fogFactor = 1.0-clamp( exp(-fogDensity*fogCoord), 0.0, 1.0)
-//			// http://www.mbsoftworks.sk/index.php?page=tutorials&series=1&tutorial=15
-//		}
-//	}
+
+		fragColor = vec4(vec3(fragColor), 1.0); // Kd.a ?
+	}
+
+	/* fog */
+
+	if (!FloatsEqual(Environment.fog.endDistance, 0.0, 0.0001)) { // endDistance == 0 disables fog
+		if (FloatsEqual(Environment.fog.densityExponent, 0.0, 0.0001)) { // constant
+			fragColor = mix(fragColor, vec4(Environment.fog.color.rgb, 1.0), Environment.fog.color.a);
+		}
+		else if (FloatsEqual(Environment.fog.densityExponent, 1.0, 0.0001)) { // linear
+			float vertDist = length(frag_vertPos_eye);
+			float fogFactor = (Environment.fog.endDistance - vertDist) / (Environment.fog.endDistance - Environment.fog.startDistance);
+			fogFactor = clamp(fogFactor, 0.0, 1.0);
+			fragColor = mix(vec4(Environment.fog.color.rgb, 1.0), fragColor, fogFactor);
+		}
+		else if (Environment.fog.densityExponent >= 2.0) { // exponential
+			// NOT IMPLEMENTED
+			// fogFactor = 1.0-clamp( exp(-fogDensity*fogCoord), 0.0, 1.0)
+			// http://www.mbsoftworks.sk/index.php?page=tutorials&series=1&tutorial=15
+		}
+	}
 	
 	
 	/* gamma correction */
