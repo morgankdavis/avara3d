@@ -66,7 +66,7 @@ namespace a3d {
 		void 									fogDensityExponent(float exponent);
 
 		const std::shared_ptr<Color>&			fogColor() const;
-		void 									fogColor(const std::shared_ptr<Color> & color);
+		void 									fogColor(const std::shared_ptr<Color>& color);
 
 		std::weak_ptr<Node>						pointOfView();
 		void 									pointOfView(const std::weak_ptr<Node>& cameraNode);

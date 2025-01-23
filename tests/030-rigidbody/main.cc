@@ -27,7 +27,7 @@ using namespace std;
 using namespace std::placeholders;
 
 
-constexpr LogLevel				A3D_APP_LOG_LEVEL =				LogLevel::Debug;
+constexpr LogLevel				A3D_APP_LOG_LEVEL =		LogLevel::Debug;
 constexpr uvec2					WINDOW_SIZE =			{1280, 768};
 constexpr bool					FULLSCREEN =			false;
 constexpr bool					ENABLE_HIGH_DPI =		true;
@@ -37,7 +37,7 @@ constexpr bool					USE_DEFAULT_LIGHTING =	false;
 constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
 constexpr float					PHYSICS_TIMESTEP =		1.0/240.0;
-constexpr bool					DARK =					false;
+constexpr bool					DARK =					true;
 
 
 void UpdateCallback(Scene& scene, double time, double deltaTime);
@@ -123,54 +123,63 @@ int main(int argc, const char* argv[]) {
 
 
 
-			auto ambientColor = DARK
-								? Color::LightGray()
-								: make_shared<Color>(233, 218, 185); // sunset
-			//auto ambientLight = make_shared<Light>(LightType::Ambient, ambientColor);
-			auto ambientLight = make_shared<AmbientLight>(ambientColor);
-			auto ambientLightNode = Node::LightNode(ambientLight);
-			scene->rootNode()->addChild(ambientLightNode);
+//			auto ambientColor = DARK
+//								? Color::LightGray()
+//								: make_shared<Color>(233, 218, 185); // sunset
+//			//auto ambientLight = make_shared<Light>(LightType::Ambient, ambientColor);
+//			auto ambientLight = make_shared<AmbientLight>(ambientColor);
+//			auto ambientLightNode = Node::LightNode(ambientLight);
+//			scene->rootNode()->addChild(ambientLightNode);
 
-			auto pointColor = DARK
-							  ? Color::LightGray()
-							  : make_shared<Color>((uint32_t) 0x3F2A00FF); // dark orangish
-			//auto pointLight = make_shared<Light>(LightType::Point, pointColor);
-			auto pointLight = make_shared<PointLight>(pointColor);
-			//pointLight->attenuationFactor(0.0);
-			//pointLight->constantAttenuation(0.01);
-			//pointLight->constantAttenuation(0.01);
-			//pointLight->linearAttenuation(1.0);
-			//pointLight->quadraticAttenuation(0.1);
-			auto pointLightNode = Node::LightNode(pointLight);
-			pointLightNode->position(vec3(35, 20, (DARK ? 1.0 : -1.0) * 35) * vec3(2.5, 2.5, 2.5));
-			scene->rootNode()->addChild(pointLightNode);
-
-
+//			auto pointColor = DARK
+//							  ? Color::LightGray()
+//							  : make_shared<Color>((uint32_t) 0x3F2A00FF); // dark orangish
+//			//auto pointLight = make_shared<Light>(LightType::Point, pointColor);
+//			auto pointLight = make_shared<PointLight>(pointColor);
+//			//pointLight->attenuationFactor(0.0);
+//			//pointLight->constantAttenuation(0.01);
+//			//pointLight->constantAttenuation(0.01);
+//			//pointLight->linearAttenuation(1.0);
+//			//pointLight->quadraticAttenuation(0.1);
+//			auto pointLightNode = Node::LightNode(pointLight);
+//			pointLightNode->position(vec3(35, 20, (DARK ? 1.0 : -1.0) * 35) * vec3(2.5, 2.5, 2.5));
+//			scene->rootNode()->addChild(pointLightNode);
 
 
 
-//		auto sunColor = DARK
-//						? Color::LightGray()
-//						: make_shared<Color>((uint32_t) 0x3F2A00FF); // dark orangish
-//		auto sunColor = Color::White();
-//		auto sunLight = make_shared<DirectionalLight>(sunColor);
-//		auto sunNode = Node::LightNode(sunLight);
-//		//sunNode->eulerAngles({0.0, 0.0, 0.0});
-//		sunNode->position(vec3(35, 20, (DARK ? 1.0 : -1.0) * 35) * vec3(2.5, 2.5, 2.5));
-//		sunNode->transform(glm::lookAt(vec3{87.5, 50, 87.5},
-//									   vec3{0.0, 0.0, 0.0},
-//									   vec3{0.0, 1.0, 0.0}));
-//		scene->rootNode()->addChild(sunNode);
-//
-//		sunNode->eulerAngles({0, 0, 0});
 
-//		auto sunEuler = sunNode->eulerAngles();
-//		A3D_LOG_I("sun dir: {}, {}, {}",
-//				  glm::degrees(sunEuler.x),
-//				  glm::degrees(sunEuler.y),
-//				  glm::degrees(sunEuler.z));
-		//  15.9453945, -42.83584, -15.361395
 
+
+
+		auto ambientColor = Color::DarkGray();
+		auto ambientLight = make_shared<AmbientLight>(ambientColor);
+		auto ambientLightNode = Node::LightNode(ambientLight);
+		scene->rootNode()->addChild(ambientLightNode);
+
+
+
+
+
+		auto sunColor = Color::White();
+		auto sunLight = make_shared<DirectionalLight>(sunColor);
+		auto sunNode = Node::LightNode(sunLight);
+		scene->rootNode()->addChild(sunNode);
+		sunNode->eulerAngles({glm::radians(0.0f),
+							  glm::radians(45.0),
+							  glm::radians(0.0)});
+
+		auto sunEuler = sunNode->eulerAngles();
+		A3D_LOG_I("sun eulers: ({}, {}, {})",
+				  glm::degrees(sunEuler.x),
+				  glm::degrees(sunEuler.y),
+				  glm::degrees(sunEuler.z));
+
+		auto camera = make_shared<PerspectiveCamera>();
+		auto cameraNode = Node::CameraNode(camera);
+		cameraNode->position({40, 12, 40});
+		scene->visualWorld()->pointOfView(cameraNode);
+
+		cameraNode->eulerAngles(sunNode->eulerAngles());
 
 
 
