@@ -8,7 +8,7 @@ project(avara3d
 include(cmake/EnvironmentDetect.cmake)
 include(cmake/UtilityFunctions.cmake)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 #if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
 #	set(CMAKE_BUILD_TYPE "Debug")

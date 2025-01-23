@@ -25,7 +25,14 @@ namespace generator {
 /// the axis counterclockwise.
 template <typename Shape>
 class LatheMesh {
+
+// MKD: moved from private: below when switching from clang 18.1.8 -> 19.1.6
+private:
+	Shape shape_;
+
 public:
+
+
 
 	class Triangles {
 	public:
@@ -162,7 +169,7 @@ private:
 
 	gml::dvec3 axis_;
 
-	Shape shape_;
+//	Shape shape_;
 
 	int slices_;
 
