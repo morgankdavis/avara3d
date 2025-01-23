@@ -149,18 +149,27 @@ int main(int argc, const char* argv[]) {
 
 
 
-////		auto sunColor = DARK
-////						? Color::LightGray()
-////						: make_shared<Color>((uint32_t) 0x3F2A00FF); // dark orangish
-//		auto sunColor = Color::Red();
+//		auto sunColor = DARK
+//						? Color::LightGray()
+//						: make_shared<Color>((uint32_t) 0x3F2A00FF); // dark orangish
+//		auto sunColor = Color::White();
 //		auto sunLight = make_shared<DirectionalLight>(sunColor);
 //		auto sunNode = Node::LightNode(sunLight);
 //		//sunNode->eulerAngles({0.0, 0.0, 0.0});
-////		sunNode->transform(glm::lookAt(vec3{87.5, 50, 87.5},
-////									   vec3{0.0, 0.0, 0.0},
-////									   vec3{0.0, 1.0, 0.0}));
+//		sunNode->position(vec3(35, 20, (DARK ? 1.0 : -1.0) * 35) * vec3(2.5, 2.5, 2.5));
+//		sunNode->transform(glm::lookAt(vec3{87.5, 50, 87.5},
+//									   vec3{0.0, 0.0, 0.0},
+//									   vec3{0.0, 1.0, 0.0}));
 //		scene->rootNode()->addChild(sunNode);
+//
+//		sunNode->eulerAngles({0, 0, 0});
 
+//		auto sunEuler = sunNode->eulerAngles();
+//		A3D_LOG_I("sun dir: {}, {}, {}",
+//				  glm::degrees(sunEuler.x),
+//				  glm::degrees(sunEuler.y),
+//				  glm::degrees(sunEuler.z));
+		//  15.9453945, -42.83584, -15.361395
 
 
 
