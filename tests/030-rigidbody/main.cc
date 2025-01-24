@@ -133,7 +133,7 @@ int main(int argc, const char* argv[]) {
 
 		auto sunColor = DARK
 		        ? Color::White()
-				: make_shared<Color>(ivec3{233, 218, 185});
+				: make_shared<Color>(u8vec3{233, 218, 185});
 		auto sunLight = make_shared<DirectionalLight>(sunColor);
 		auto sunNode = Node::LightNode(sunLight);
 		scene->rootNode()->addChild(sunNode);

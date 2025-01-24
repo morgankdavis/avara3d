@@ -56,8 +56,8 @@ namespace a3d {
 		Color();
 		explicit Color(const glm::vec3& rgb);
 		explicit Color(const glm::vec4& rgba);
-		explicit Color(const glm::ivec3& irgb);
-		explicit Color(const glm::ivec4& irgba);
+		explicit Color(const glm::u8vec3& irgb);
+		explicit Color(const glm::u8vec4& irgba);
 		explicit Color(float white);
 		explicit Color(uint32_t color);
 		explicit Color(const std::string& hexString);
@@ -73,16 +73,16 @@ namespace a3d {
 		float b() const;
 		float a() const;
 
-//		float ir() const;
-//		float ig() const;
-//		float ib() const;
-//		float ia() const;
+		uint8_t u8r() const;
+		uint8_t u8g() const;
+		uint8_t u8b() const;
+		uint8_t u8a() const;
 
 		glm::vec3 rgb() const;
 		glm::vec4 rgba() const;
 
-//		glm::ivec3 irgb() const;
-//		glm::ivec4 irgba() const;
+		glm::u8vec3 u8rgb() const;
+		glm::u8vec4 u8rgba() const;
 
 /*********************************************************************************************
 	Public Member Variables

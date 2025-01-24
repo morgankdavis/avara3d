@@ -97,7 +97,7 @@ std::shared_ptr<Color> Color::Brown() {
 }
 
 shared_ptr<Color> Color::Random() {
-	return make_unique<Color>(glm::ivec3{utils::Uniform(0, 255), utils::Uniform(0, 255), utils::Uniform(0, 255)});
+	return make_unique<Color>(glm::u8vec3{utils::Uniform(0, 255), utils::Uniform(0, 255), utils::Uniform(0, 255)});
 }
 
 /*********************************************************************************************
@@ -113,13 +113,13 @@ Color::Color(const glm::vec3& rgb):
 Color::Color(const glm::vec4& rgba):
 		_rgba{rgba} {}
 
-Color::Color(const glm::ivec3& irgb):
+Color::Color(const glm::u8vec3& irgb):
 		_rgba{(float)irgb.r/255.0f,
 			  (float)irgb.g/255.0f,
 			  (float)irgb.b/255.0f,
 			  1.0} {}
 
-Color::Color(const glm::ivec4& irgba):
+Color::Color(const glm::u8vec4& irgba):
 		_rgba{(float)irgba.r/255.0f,
 			  (float)irgba.g/255.0f,
 			  (float)irgba.b/255.0f,
@@ -161,10 +161,34 @@ float Color::a() const {
 	return _rgba.a;
 }
 
+uint8_t Color::u8r() const {
+	return static_cast<uint8_t>(round(_rgba.r * 255.f));
+}
+
+uint8_t Color::u8g() const {
+	return static_cast<uint8_t>(round(_rgba.g * 255.f));
+}
+
+uint8_t Color::u8b() const {
+	return static_cast<uint8_t>(round(_rgba.b * 255.f));
+}
+
+uint8_t Color::u8a() const {
+	return static_cast<uint8_t>(round(_rgba.a * 255.f));
+}
+
 vec3 Color::rgb() const {
 	return _rgba;
 }
 
 vec4 Color::rgba() const {
 	return _rgba;
+}
+
+u8vec3 Color::u8rgb() const {
+	return u8vec3{u8r(), u8g(), u8b()};
+}
+
+u8vec4 Color::u8rgba() const {
+	return u8vec4{u8r(), u8g(), u8b(), u8a()};
 }

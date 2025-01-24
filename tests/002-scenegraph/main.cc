@@ -62,7 +62,7 @@ int main(int argc, const char* argv[]) {
 	window->cursorCaptured(CAPTURE_CURSOR);
 
 	auto visualWorld = make_unique<VisualWorld>(*window);
-	auto backgroundColor = make_shared<Color>(ivec3{109, 136, 164});
+	auto backgroundColor = make_shared<Color>(u8vec3{109, 136, 164});
 	visualWorld->background(backgroundColor);
 	visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
 	visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));

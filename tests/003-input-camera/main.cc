@@ -62,7 +62,7 @@ int main(int argc, const char* argv[]) {
 
 		auto visualWorld = make_unique<VisualWorld>(*window);
 		//visualWorld->usesDefaultLighting(true);
-		auto backgroundColor = make_shared<Color>(ivec3{109.0f, 136.0f, 164.0f});
+		auto backgroundColor = make_shared<Color>(u8vec3{109, 136, 164});
 		visualWorld->background(backgroundColor);
 		visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
 		visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
