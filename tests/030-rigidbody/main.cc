@@ -224,7 +224,8 @@ int main(int argc, const char* argv[]) {
 
 		// add the palm tree
 
-		auto palmNode = Node::MeshNode(utils::MeshNamed("palm/palm"));
+		//auto palmNode = Node::MeshNode(utils::MeshNamed("palm/palm"));
+		auto palmNode = Node::MeshNode(utils::MeshNamed("cartoon_palm_tree/cartoon_palm_tree"));
 		g_palmNode = palmNode.get();
 		auto palmPhysicsBody = PhysicsBody::StaticBody();
 		palmPhysicsBody->mass(0);
