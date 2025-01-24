@@ -107,10 +107,6 @@ struct Fog {
 //	float	PAD0;
 };
 
-// temporary
-in 			vec3 		frag_vertPos_world;
-in 			vec3 		frag_vertNorm_world;
-
 in 			vec3 		frag_vertPos_eye;
 in 			vec3 		frag_vertNorm_eye;
 in 			vec2 		frag_texCoord;
