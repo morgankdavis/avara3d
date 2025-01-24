@@ -31,7 +31,7 @@ constexpr LogLevel				A3D_APP_LOG_LEVEL =		LogLevel::Debug;
 constexpr uvec2					WINDOW_SIZE =			{1280, 768};
 constexpr bool					FULLSCREEN =			false;
 constexpr bool					ENABLE_HIGH_DPI =		true;
-constexpr AntialiasingMode		MSAA_MODE =				AntialiasingMode::Msaa4X;
+constexpr AntialiasingMode		MSAA_MODE =				AntialiasingMode::Msaa16X;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					USE_DEFAULT_LIGHTING =	false;
 constexpr bool					CAPTURE_CURSOR =		false;
@@ -130,22 +130,22 @@ int main(int argc, const char* argv[]) {
 			auto ambientLightNode = Node::LightNode(ambientLight);
 			scene->rootNode()->addChild(ambientLightNode);
 
-//		auto sunColor = DARK
-//		        ? Color::White()
-//				: make_shared<Color>(u8vec3{233, 218, 185});
-//		auto sunLight = make_shared<DirectionalLight>(sunColor);
-//		auto sunNode = Node::LightNode(sunLight);
-//		scene->rootNode()->addChild(sunNode);
-//		if (DARK) {
-//			sunNode->eulerAngles({glm::radians(0.0f),
-//								  glm::radians(45.0),
-//								  glm::radians(0.0)});
-//		}
-//		else {
-//			sunNode->eulerAngles({glm::radians(-30.0f),
-//								  glm::radians(90.0 + 45.0),
-//								  glm::radians(0.0)});
-//		}
+		auto sunColor = DARK
+		        ? Color::Gray()
+				: make_shared<Color>(u8vec3{233, 218, 185});
+		auto sunLight = make_shared<DirectionalLight>(sunColor);
+		auto sunNode = Node::LightNode(sunLight);
+		scene->rootNode()->addChild(sunNode);
+		if (DARK) {
+			sunNode->eulerAngles({glm::radians(0.0f),
+								  glm::radians(45.0),
+								  glm::radians(0.0)});
+		}
+		else {
+			sunNode->eulerAngles({glm::radians(-30.0f),
+								  glm::radians(90.0 + 45.0),
+								  glm::radians(0.0)});
+		}
 
 
 			//pointLightNode->mesh(Box::Mesh(0.5, 0.5, 0.5));
@@ -309,7 +309,21 @@ int main(int argc, const char* argv[]) {
 
 
 
-		A3D_APP_LOG_I(g_logger, "*** SCENE EXTENT: {} ***", utils::StringFromGLMVec3(scene->rootNode()->extent()));
+	// box spotlight
+	// -8.8,17.9, -8.3
+	auto boxesLight = make_shared<SpotLight>();
+	boxesLight->innerAngle(glm::cos(glm::radians(2.5)));
+	boxesLight->outerAngle(glm::cos(glm::radians(7.5)));
+	auto boxesLightNode = Node::LightNode(boxesLight);
+	boxesLightNode->position({-8.5, 18, -8.5});
+	//boxesLightNode->eulerAngles({glm::radians(-45.f), glm::radians(45.f), 0});
+	boxesLightNode->eulerAngles({-1.2527435, 0.47099817, 0});
+	scene->rootNode()->addChild(boxesLightNode);
+
+
+
+	A3D_APP_LOG_I(g_logger, "*** SCENE EXTENT: {} ***",
+				  utils::StringFromGLMVec3(scene->rootNode()->extent()));
 
 	//	A3D_A3D_APP_LOG_I("Graph:\n{}", StringFromTree(*scene->rootNode()));
 	//	auto children = scene->rootNode()->children(true);
@@ -328,15 +342,15 @@ int main(int argc, const char* argv[]) {
 
 
 
-		auto camera = make_shared<PerspectiveCamera>();
-		auto cameraNode = Node::CameraNode(camera);
-		cameraNode->position(vec3{0, 30, 60});
-		cameraNode->eulerAngles(vec3{glm::radians(-20.f), 0, 0});
-		auto flashLight = make_shared<SpotLight>();
-		flashLight->innerAngle(glm::cos(glm::radians(2.5f)));
-		flashLight->outerAngle(glm::cos(glm::radians(7.5f)));
-		cameraNode->light(flashLight);
-		scene->visualWorld()->pointOfView(cameraNode);
+//		auto camera = make_shared<PerspectiveCamera>();
+//		auto cameraNode = Node::CameraNode(camera);
+//		cameraNode->position(vec3{0, 30, 60});
+//		cameraNode->eulerAngles(vec3{glm::radians(-20.f), 0, 0});
+//		auto flashLight = make_shared<SpotLight>();
+//		flashLight->innerAngle(glm::cos(glm::radians(2.5f)));
+//		flashLight->outerAngle(glm::cos(glm::radians(7.5f)));
+//		cameraNode->light(flashLight);
+//		scene->visualWorld()->pointOfView(cameraNode);
 
 
 
@@ -420,7 +434,10 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 
 	if (keysPressed.count(Key::One)) {
-		g_duckNode->physicsBody()->shape()->type(PhysicsShapeType::BoundingBox);
+		//g_duckNode->physicsBody()->shape()->type(PhysicsShapeType::BoundingBox);
+		auto euler = scene.visualWorld()->pointOfView().lock()->eulerAngles();
+		A3D_APP_LOG_I(g_logger, "CAM EULER: {}, {}, {}",
+					  euler.x, euler.y, euler.z);
 	}
 
 	if (keysPressed.count(Key::Two)) {
@@ -987,6 +1004,7 @@ void ShootBall(Scene& scene, const vec3& location, const vec3& direction) {
 #else
 
 		static auto mesh = utils::MeshNamed("slurm/slurm");
+		//static auto mesh = utils::MeshNamed("flashlight/flashlight");
 		//mesh->hidden(true);
 
 		auto node = Node::MeshNode(mesh);

@@ -270,24 +270,24 @@ void main () {
 
 			// diffuse
 
-			vec3 lightDirection_eye = vec3(viewMat * vec4(-light.direction_world, 0.0));
-			vec3 directionToLight_eye = normalize(lightDirection_eye);
-			float dotProdDiffuse = max(dot(directionToLight_eye, frag_vertNorm_eye), 0.0);
+			vec3 lightDir_eye = vec3(viewMat * vec4(-light.direction_world, 0.0));
+			vec3 surfaceToLightDir_eye = normalize(lightDir_eye);
+			float dotDiffuse = max(dot(surfaceToLightDir_eye, frag_vertNorm_eye), 0.0);
 
-			Id = L * vec3(Kd) * dotProdDiffuse;
+			Id = L * vec3(Kd) * dotDiffuse;
 
 			// specular
 
 			Is = vec3(0.0, 0.0, 0.0);
 			if (Ks.x != 0.0 || Ks.y != 0.0 || Ks.z != 0.0) {
 
-				vec3 surfaceToViewer_eye = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
+				vec3 surfaceToCameraDir = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
 
 				// phong
-				vec3 reflection_eye = reflect(-directionToLight_eye, frag_vertNorm_eye);
-				float dotProdSpecular = dot(reflection_eye, surfaceToViewer_eye);
-				dotProdSpecular = max(dotProdSpecular, 0.0);
-				float specularFactor = pow(dotProdSpecular, specularExponent);
+				vec3 reflection_eye = reflect(-surfaceToLightDir_eye, frag_vertNorm_eye);
+				float dotSpecular = dot(reflection_eye, surfaceToCameraDir);
+				dotSpecular = max(dotSpecular, 0.0);
+				float specularFactor = pow(dotSpecular, specularExponent);
 
 				// blinn
 				// vec3 half_way_eye = normalize(surface_to_viewer_eye + direction_to_light_eye);
@@ -316,30 +316,30 @@ void main () {
 
 			// raise light position to eye space
 			vec3 lightPos_eye = vec3(viewMat * vec4(light.position_world, 1.0));
-			vec3 directionToLight_eye = normalize(lightPos_eye - frag_vertPos_eye);
-			float dotProdDiffuse = max(dot(directionToLight_eye, frag_vertNorm_eye), 0.0);
+			vec3 surfaceToLightDir_eye = normalize(lightPos_eye - frag_vertPos_eye);
+			float dotDiffuse = max(dot(surfaceToLightDir_eye, frag_vertNorm_eye), 0.0);
 
-			float distanceToLight = distance(lightPos_eye, frag_vertPos_eye);
+			float surfaceToLightDist = distance(lightPos_eye, frag_vertPos_eye);
 
 			float attenuation = Attenuate(light.constantAttenuation,
 										  light.linearAttenuation,
 										  light.quadraticAttenuation,
-										  distanceToLight);
+										  surfaceToLightDist);
 
-			Id = L * vec3(Kd) * dotProdDiffuse * attenuation;
+			Id = L * vec3(Kd) * dotDiffuse * attenuation;
 
 			// specular
 
 			Is = vec3(0.0, 0.0, 0.0);
 			if (Ks.x != 0.0 || Ks.y != 0.0 || Ks.z != 0.0) {
 
-				vec3 surfaceToViewer_eye = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
+				vec3 surfaceToCameraDir = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
 
 				// phong
-				vec3 reflection_eye = reflect(-directionToLight_eye, frag_vertNorm_eye);
-				float dotProdSpecular = dot(reflection_eye, surfaceToViewer_eye);
-				dotProdSpecular = max(dotProdSpecular, 0.0);
-				float specularFactor = pow(dotProdSpecular, specularExponent);
+				vec3 reflection_eye = reflect(-surfaceToLightDir_eye, frag_vertNorm_eye);
+				float dotSpecular = dot(reflection_eye, surfaceToCameraDir);
+				dotSpecular = max(dotSpecular, 0.0);
+				float specularFactor = pow(dotSpecular, specularExponent);
 
 				// blinn
 				// vec3 half_way_eye = normalize(surface_to_viewer_eye + direction_to_light_eye);
@@ -364,18 +364,41 @@ void main () {
 			vec3 Is = vec3(0.0, 0.0, 0.0);
 
 			vec3 lightPos_eye = vec3(viewMat * vec4(light.position_world, 1.0));
-			vec3 fragToLightDir_eye = normalize(lightPos_eye - frag_vertPos_eye);
+			vec3 surfaceToLightDir_eye = normalize(lightPos_eye - frag_vertPos_eye);
 			vec3 lightDir_eye = normalize(vec3(viewMat * vec4(-light.direction_world, 0.0)));
-			vec3 fragToCameraDir_eye = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
+			vec3 surfaceToCameraDir_eye = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
 
-			float theta = dot(fragToLightDir_eye, lightDir_eye);
+			float theta = dot(surfaceToLightDir_eye, lightDir_eye);
 
 			float epsilon = light.innerAngle - light.outerAngle;
 			float intensity = clamp((theta - light.outerAngle) / epsilon, 0.0, 1.0);
 
 //			if (theta > light.innerAngle) {
 			if (intensity > 0.0) {
-				Id = Kd.rgb * intensity;
+				//Id = Kd.rgb * intensity;
+
+				// diffuse
+				float dotDiffuse = max(dot(surfaceToLightDir_eye, frag_vertNorm_eye), 0.0);
+				float surfaceToLightDist = distance(lightPos_eye, frag_vertPos_eye);
+				float attenuation = Attenuate(light.constantAttenuation,
+											  light.linearAttenuation,
+											  light.quadraticAttenuation,
+											  surfaceToLightDist);
+
+				Id = L * vec3(Kd) * intensity * dotDiffuse * attenuation;
+
+				// specular
+
+				if (Ks.x != 0.0 || Ks.y != 0.0 || Ks.z != 0.0) {
+
+					// phong
+					vec3 reflection_eye = reflect(-surfaceToLightDir_eye, frag_vertNorm_eye);
+					float dotSpecular = dot(reflection_eye, surfaceToCameraDir_eye);
+					dotSpecular = max(dotSpecular, 0.0);
+					float specularFactor = pow(dotSpecular, specularExponent);
+
+					Is = L * vec3(Ks) * intensity * specularFactor * attenuation;
+				}
 			}
 
 			fragColor += vec4(Id + Is, 0.0);
