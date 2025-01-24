@@ -105,61 +105,37 @@ shared_ptr<Color> Color::Random() {
  *********************************************************************************************/
 
 Color::Color():
-		r{0.0},
-		g{0.0},
-		b{0.0},
-		a{1.0} { }
+		_rgba{1.0, 1.0, 1.0, 1.0} { }
 
 Color::Color(const glm::vec3& rgb):
-		r{rgb.r},
-		g{rgb.g},
-		b{rgb.b},
-		a{1.0} {}
+		_rgba{vec4(rgb, 1.0)} {}
 
 Color::Color(const glm::vec4& rgba):
-		r{rgba.r},
-		g{rgba.g},
-		b{rgba.b},
-		a{rgba.a} {}
+		_rgba{rgba} {}
 
 Color::Color(const glm::ivec3& irgb):
-		r{(float)irgb.r/255.0f},
-		g{(float)irgb.g/255.0f},
-		b{(float)irgb.b/255.0f},
-		a{1.0} {}
+		_rgba{(float)irgb.r/255.0f,
+			  (float)irgb.g/255.0f,
+			  (float)irgb.b/255.0f,
+			  1.0} {}
 
 Color::Color(const glm::ivec4& irgba):
-		r{(float)irgba.r/255.0f},
-		g{(float)irgba.g/255.0f},
-		b{(float)irgba.b/255.0f},
-		a{(float)irgba.a/255.0f} {}
-
-//Color::Color(float r, float g, float b):
-//		Color{r, g, b, 1.0} { }
-//
-//Color::Color(float r, float g, float b, float a):
-//		r{r},
-//		g{g},
-//		b{b},
-//		a{a} { }
-//
-//Color::Color(int r, int g, int b):
-//		Color{(float)r/255.0f, (float)g/255.0f, (float)b/255.0f, 1.0} { }
-//
-//Color::Color(int r, int g, int b, int a):
-//		Color{(float)r/255.0f, (float)g/255.0f, (float)b/255.0f, (float)a/255.0f} { }
+		_rgba{(float)irgba.r/255.0f,
+			  (float)irgba.g/255.0f,
+			  (float)irgba.b/255.0f,
+			  (float)irgba.a/255.0f} {}
 
 Color::Color(float white):
-		r{white},
-		g{white},
-		b{white},
-		a{1.0} { }
+		_rgba{white,
+			  white,
+			  white,
+			  1.0} { }
 
 Color::Color(uint32_t color):
-		r{(float)((color & 0xFF000000) >> 24)/255.0f},
-		g{(float)((color & 0x00FF0000) >> 16)/255.0f},
-		b{(float)((color & 0x0000FF00) >> 8)/255.0f},
-		a{(float)((color & 0x000000FF) >> 0)/255.0f} { }
+		_rgba{(float)((color & 0xFF000000) >> 24)/255.0f,
+			  (float)((color & 0x00FF0000) >> 16)/255.0f,
+			  (float)((color & 0x0000FF00) >> 8)/255.0f,
+			  (float)((color & 0x000000FF) >> 0)/255.0f} { }
 
 Color::Color(const string& hexString) {
 	// TODO
@@ -169,10 +145,26 @@ Color::Color(const string& hexString) {
 	Public Member Functions
  *********************************************************************************************/
 
-vec3 Color::vec3() {
-	return {r, g, b};
+float Color::r() const {
+	return _rgba.r;
 }
 
-vec4 Color::vec4() {
-	return {r, g, b, a};
+float Color::g() const {
+	return _rgba.g;
+}
+
+float Color::b() const {
+	return _rgba.b;
+}
+
+float Color::a() const {
+	return _rgba.a;
+}
+
+vec3 Color::rgb() const {
+	return _rgba;
+}
+
+vec4 Color::rgba() const {
+	return _rgba;
 }

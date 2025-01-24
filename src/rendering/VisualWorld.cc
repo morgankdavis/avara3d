@@ -267,6 +267,7 @@ void VisualWorld::draw(const Scene& scene,
 				auto projectionMat = pov->camera()->projection();
 
 				vector<Node*> lightNodes;
+				if (pov->light()) lightNodes.push_back(pov.get());
 				scene.rootNode()->draw(*renderer,
 									   viewMat,
 									   projectionMat,

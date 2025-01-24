@@ -540,7 +540,7 @@ void OpenGLRenderer::render(const Scene& scene,
 
 		auto color = get<shared_ptr<Color>>(background);
 
-		glClearColor(color->r, color->g, color->b, 1.0f);
+		glClearColor(color->r(), color->g(), color->b(), 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
@@ -965,9 +965,9 @@ void BufferLinesVertexData(const vector<Line>& lines,
 		auto toLocation = line.toLocation();
 		const auto& toColor = line.toColor();
 		massagedBuffer.push_back(fromLocation);
-		massagedBuffer.push_back({fromColor.r, fromColor.g, fromColor.b});
+		massagedBuffer.push_back(fromColor.rgb());
 		massagedBuffer.push_back(toLocation);
-		massagedBuffer.push_back({toColor.r, toColor.g, toColor.b});
+		massagedBuffer.push_back(toColor.rgb());
 	}
 
 	glGenBuffers(1, &glVBO);
@@ -1217,7 +1217,7 @@ void SendMaterialPropertyUniforms(const MaterialProperty& property,
 
 		program.setUniform(modeUniformName.c_str(),
 						   static_cast<underlying_type<MaterialContentsType>::type>(MaterialContentsType::Color));
-		program.setUniform(colorUniformName.c_str(), color->r, color->g, color->b);
+		program.setUniform(colorUniformName.c_str(), color->r(), color->g(), color->b());
 	}
 	else {
 		A3D_LOG_W("NULL material property contents.");
@@ -1275,23 +1275,20 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 				if (auto ambientLight = dynamic_cast<AmbientLight*>(light)) {
 
 					AmbientLightGLSLStruct lightStruct;
-					lightStruct.color = ambientLight->color()->vec4();
+					lightStruct.color = ambientLight->color()->rgba();
 					ambientStructs.push_back(lightStruct);
 				}
 				else if (auto directionalLight = dynamic_cast<DirectionalLight*>(light)) {
 
 					DirectionalLightGLSLStruct lightStruct;
-					lightStruct.color = directionalLight->color()->vec4();
+					lightStruct.color = directionalLight->color()->rgba();
 					lightStruct.direction_world = node->worldForward();
-					//lightStruct.direction_world = node->forward();
-//					lightStruct.direction_world = {-1, 0, 0};
-//					A3D_LOG_I("dir forward: {}", utils::StringFromGLMVec3(lightStruct.direction_world));
 					directionalStructs.push_back(lightStruct);
 				}
 				else if (auto pointLight = dynamic_cast<PointLight*>(light)) {
 
 					PointLightGLSLStruct lightStruct;
-					lightStruct.color = pointLight->color()->vec4();
+					lightStruct.color = pointLight->color()->rgba();
 					lightStruct.position_world = node->worldPosition();
 					lightStruct.constantAttenuation = pointLight->constantAttenuation();
 					lightStruct.linearAttenuation = pointLight->linearAttenuation();
@@ -1301,7 +1298,7 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 				else if (auto spotLight = dynamic_cast<SpotLight*>(light)) {
 
 					SpotLightGLSLStruct lightStruct;
-					lightStruct.color = spotLight->color()->vec4();
+					lightStruct.color = spotLight->color()->rgba();
 					lightStruct.position_world = node->worldPosition();
 					lightStruct.direction_world = node->worldForward();
 					lightStruct.innerAngle = spotLight->innerAngle();
@@ -1345,7 +1342,7 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 	fogStruct.startDistance = visualWorld->fogStartDistance();
 	auto fogColor = visualWorld->fogColor();
 	if (visualWorld->fogColor()) {
-		fogStruct.color = fogColor->vec4();
+		fogStruct.color = fogColor->rgba();
 	}
 	else {
 		fogStruct.color = {0.0, 0.0, 0.0, 0.0};
@@ -1399,8 +1396,8 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 ////				  names[i], indices[i] == GL_INVALID_INDEX ? "BAD" : "GOOD");
 ////	}
 //
-////	environmentStruct.ambientLights[0].color = vec4(1.0, 0, 0, 1);
-////	glBufferSubData(GL_UNIFORM_BUFFER, offsets[1], sizeof(vec4),
+////	environmentStruct.ambientLights[0].color = rgba(1.0, 0, 0, 1);
+////	glBufferSubData(GL_UNIFORM_BUFFER, offsets[1], sizeof(rgba),
 ////					(const void*)&environmentStruct.ambientLights[0].color);
 //
 //	environmentStruct.color = vec3(1.0, 0, 0);

@@ -149,7 +149,6 @@ int main(int argc, const char* argv[]) {
 		}
 
 
-
 			//pointLightNode->mesh(Box::Mesh(0.5, 0.5, 0.5));
 		//}
 
@@ -327,6 +326,21 @@ int main(int argc, const char* argv[]) {
 	//			A3D_A3D_APP_LOG_I("\t{:p}", (void*)child.get());
 	//		}
 	//	}
+
+
+
+		auto camera = make_shared<PerspectiveCamera>();
+		auto cameraNode = Node::CameraNode(camera);
+		cameraNode->position(vec3{0, 30, 60});
+		cameraNode->eulerAngles(vec3{glm::radians(-20.f), 0, 0});
+		//auto flashLight = make_shared<SpotLight>(Color::Red());
+		auto flashLight = make_shared<SpotLight>();
+		flashLight->innerAngle(glm::cos(glm::radians(10.f)));
+		cameraNode->light(flashLight);
+		scene->visualWorld()->pointOfView(cameraNode);
+
+
+
 
 		window->center();
 		window->open();

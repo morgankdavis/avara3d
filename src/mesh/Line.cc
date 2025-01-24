@@ -28,6 +28,15 @@ Line::Line(const vec3& fromLocation, const vec3& toLocation,
 		   const Color& color):
 		Line{fromLocation, toLocation, color, color} { }
 
+Line::Line(const glm::vec3& fromLocation,
+		   const glm::vec3& toLocation,
+		   const glm::vec3& fromColor,
+		   const glm::vec3& toColor):
+		_fromLocation{fromLocation},
+		_toLocation{toLocation},
+		_fromColor{Color(fromColor)},
+		_toColor{Color(toColor)} { }
+
 Line::Line(const vec3& fromLocation,
 		   const vec3& toLocation,
 		   const Color& fromColor,

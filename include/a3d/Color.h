@@ -54,37 +54,41 @@ namespace a3d {
  *********************************************************************************************/
 
 		Color();
-//		Color(float r, float g, float b);
-//		Color(float r, float g, float b, float a);
-//		Color(int r, int g, int b);
-//		Color(int r, int g, int b, int a);
-		Color(const glm::vec3& rgb);
-		Color(const glm::vec4& rgba);
-		Color(const glm::ivec3& irgb);
-		Color(const glm::ivec4& irgba);
+		explicit Color(const glm::vec3& rgb);
+		explicit Color(const glm::vec4& rgba);
+		explicit Color(const glm::ivec3& irgb);
+		explicit Color(const glm::ivec4& irgba);
 		explicit Color(float white);
 		explicit Color(uint32_t color);
 		explicit Color(const std::string& hexString);
 
-		// TODO: operator*, operator[], rgb(), rgba()
+		// TODO: operator*, operator[]
 
 /*********************************************************************************************
 	Public Member Functions
  *********************************************************************************************/
 
-		// TODO: r, g, b, a, ir, ig, ib, ia, rgb, rgba, irgb, irgba
-		glm::vec3 vec3();
-		glm::vec4 vec4();
+		float r() const;
+		float g() const;
+		float b() const;
+		float a() const;
+
+//		float ir() const;
+//		float ig() const;
+//		float ib() const;
+//		float ia() const;
+
+		glm::vec3 rgb() const;
+		glm::vec4 rgba() const;
+
+//		glm::ivec3 irgb() const;
+//		glm::ivec4 irgba() const;
 
 /*********************************************************************************************
 	Public Member Variables
  *********************************************************************************************/
 
-		// TODO: store as vec4
-		float r;
-		float g;
-		float b;
-		float a;
+		glm::vec4 _rgba;
 	};
 }
 

@@ -34,6 +34,10 @@ namespace a3d {
 			 const Color& color);
 		Line(const glm::vec3& fromLocation,
 			 const glm::vec3& toLocation,
+			 const glm::vec3& fromColor,
+			 const glm::vec3& toColor);
+		Line(const glm::vec3& fromLocation,
+			 const glm::vec3& toLocation,
 			 const Color& fromColor,
 			 const Color& toColor);
 

@@ -365,19 +365,44 @@ void main () {
 			fragColor += vec4(Id + Is, 0.0);
 		}
 
-//		// spot lights
-//
-//		for (uint l=0u; l<Environment.numSpotLights; ++l) {
-//
-//			SpotLight light = Environment.spotLights[l];
-//
-//			vec3 L = vec3(light.color.rgb);
-//
-//			vec3 Id = vec3(0.0, 0.0, 0.0);
-//			vec3 Is = vec3(0.0, 0.0, 0.0);
-//
-//			// TODO
-//		}
+		// spot lights
+
+		for (uint l=0u; l<Environment.numSpotLights; ++l) {
+
+			SpotLight light = Environment.spotLights[l];
+
+			vec3 L = vec3(light.color.rgb);
+
+			vec3 Id = vec3(0.0, 0.0, 0.0);
+			vec3 Is = vec3(0.0, 0.0, 0.0);
+
+//			in 			vec3 		frag_vertPos_eye;
+//			in 			vec3 		frag_vertNorm_eye;
+
+			// DeVries 16.5
+
+			vec3 lightPos_eye = vec3(viewMat * vec4(light.position_world, 0.0));
+
+			vec3 fragmentToLightDirection_eye = normalize(lightPos_eye - frag_vertPos_eye);
+
+			vec3 lightDirection_eye = vec3(viewMat * vec4(-light.direction_world, 0.0));
+
+			vec3 fragmentToCameraDirection_eye = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
+
+			float theta = dot(fragmentToLightDirection_eye, fragmentToCameraDirection_eye); // kinda
+//			float theta = dot(fragmentToLightDirection_eye, lightDirection_eye);
+
+			if (theta > light.innerAngle) {
+//				Id = Kd.rgb;
+				Id = L;
+			}
+
+			fragColor += vec4(Id + Is, 0.0);
+
+			//vec3 directionToLight_eye = normalize(lightDirection_eye);
+
+			//float theta = dot(light.direction_world, normalize(-light.direction_world));
+		}
 
 		fragColor = vec4(vec3(fragColor), Kd.a);
 	}
