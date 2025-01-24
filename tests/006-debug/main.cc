@@ -85,7 +85,7 @@ int main(int argc, const char* argv[]) {
 		scene->update(bind(&UpdateCallback, _1, _2, _3));
 
 		//auto ambientLight = make_shared<Light>(LightType::Ambient, make_shared<Color>(0.25f, 0.25, 0.25, 1.0));
-		auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.25f, 0.25, 0.25, 1.0));
+		auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.25f));
 		auto ambientLightNode = make_shared<Node>("Ambient light");
 		ambientLightNode->light(ambientLight);
 		scene->rootNode()->addChild(ambientLightNode);

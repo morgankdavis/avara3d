@@ -53,7 +53,7 @@ int main(int argc, const char* argv[]) {
 
 	auto visualWorld = make_unique<VisualWorld>(*window);
 //	visualWorld->autoEnablesDefaultLighting(false);
-	auto backgroundColor = make_shared<Color>(109.0f / 255.0f, 136.0f / 255.0f, 164.0f / 255.0f, 1.0f);
+	auto backgroundColor = make_shared<Color>(ivec3{109, 136, 164});
 	auto background = MaterialProperty(backgroundColor);
 	visualWorld->background(background); // TODO: is this copying?
 	visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
