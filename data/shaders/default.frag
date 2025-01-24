@@ -181,8 +181,6 @@ void main () {
 
 	if (useDefaultLighting) {
 
-	// !!! THIS IS FINE !!!
-
 		// find an emissive property in order:
 		// 1. emissive
 		// 2. diffuse
@@ -208,7 +206,9 @@ void main () {
 	}
 	else if (emissionContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
 
-		/* emission color */
+		/******************************************************************************
+			emission color
+		******************************************************************************/
 
 		Ke = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_EMISSION,
 			emissionContentsType, colors, samplers);
@@ -218,7 +218,9 @@ void main () {
 	}
 	else {
 
-		/* ambient, diffuse, specular colors */
+		/******************************************************************************
+			ambient, diffuse, specular colors
+		******************************************************************************/
 
 		Ka = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_AMBIENT,
 			ambientContentsType, colors, samplers);
@@ -227,23 +229,26 @@ void main () {
 		Ks = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_SPECULAR,
 			specularContentsType, colors, samplers);
 
-		/* lock ambient with diffuse */
+		/******************************************************************************
+			lock ambient with diffuse
+		******************************************************************************/
 
-//		if (locksAmbientWithDiffuse && (diffuseContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE)) {
-//			Ka = Kd;
-//		}
 		if ((diffuseContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE)) {
 			Ka = Kd;
 		}
 
-		/* alpha rejection */
+		/******************************************************************************
+			alpha rejection
+		******************************************************************************/
 
 		// look at depth peeling or a-buffers for proper alpha blending
 		if (Kd.a < ALPHA_REJECTION_THRESHOLD) discard;
 
-		/* lighting */
+		/******************************************************************************
+			lighting
+		******************************************************************************/
 
-		// ambient lights
+		// * ambient lights *
 
 		for (uint l=0u; l<Environment.numAmbientLights; ++l) {
 
@@ -256,7 +261,7 @@ void main () {
 			fragColor += vec4(Ia, 1.0);
 		}
 
-		// directional lights
+		// * directional lights *
 
 		for (uint l=0u; l<Environment.numDirectionalLights; ++l) {
 
@@ -293,15 +298,14 @@ void main () {
 				// float dot_prod_specular = max(dot(half_way_eye, vertex_normal_eye), 0.0);
 				// float specular_factor = pow(dot_prod_specular, specularExponent);
 
-//				Is = L * vec3(Ks) * specularFactor * attenuation; // specular intensity w/attenuation
-
+				// Is = L * vec3(Ks) * specularFactor * attenuation; // specular intensity w/attenuation
 				Is = L * vec3(Ks) * specularFactor;
 			}
 
 			fragColor += vec4(Id + Is, 0.0);
 		}
 
-		// point lights
+		// * point lights *
 
 		for (uint l=0u; l<Environment.numPointLights; ++l) {
 
@@ -312,12 +316,10 @@ void main () {
 			vec3 Id = vec3(0.0, 0.0, 0.0);
 			vec3 Is = vec3(0.0, 0.0, 0.0);
 
-			vec3 lightPos_world = light.position_world;
-
 			// diffuse
 
 			// raise light position to eye space
-			vec3 lightPos_eye = vec3(viewMat * vec4(lightPos_world, 1.0));
+			vec3 lightPos_eye = vec3(viewMat * vec4(light.position_world, 1.0));
 			vec3 directionToLight_eye = normalize(lightPos_eye - frag_vertPos_eye);
 			float dotProdDiffuse = max(dot(directionToLight_eye, frag_vertNorm_eye), 0.0);
 
@@ -354,7 +356,7 @@ void main () {
 			fragColor += vec4(Id + Is, 0.0);
 		}
 
-		// spot lights
+		// * spot lights *
 
 		for (uint l=0u; l<Environment.numSpotLights; ++l) {
 
@@ -365,38 +367,28 @@ void main () {
 			vec3 Id = vec3(0.0, 0.0, 0.0);
 			vec3 Is = vec3(0.0, 0.0, 0.0);
 
-//			in 			vec3 		frag_vertPos_eye;
-//			in 			vec3 		frag_vertNorm_eye;
-
 			// DeVries 16.5
 
-			vec3 lightPos_eye = vec3(viewMat * vec4(light.position_world, 0.0));
+			vec3 lightPos_eye = vec3(viewMat * vec4(light.position_world, 1.0));
+			vec3 fragToLightDir_eye = normalize(lightPos_eye - frag_vertPos_eye);
+			vec3 lightDir_eye = normalize(vec3(viewMat * vec4(-light.direction_world, 0.0)));
+			vec3 fragToCameraDir_eye = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
 
-			vec3 fragmentToLightDirection_eye = normalize(lightPos_eye - frag_vertPos_eye);
-
-			vec3 lightDirection_eye = vec3(viewMat * vec4(-light.direction_world, 0.0));
-
-			vec3 fragmentToCameraDirection_eye = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
-
-			float theta = dot(fragmentToLightDirection_eye, fragmentToCameraDirection_eye); // kinda
-//			float theta = dot(fragmentToLightDirection_eye, lightDirection_eye);
+			float theta = dot(fragToLightDir_eye, lightDir_eye);
 
 			if (theta > light.innerAngle) {
-//				Id = Kd.rgb;
-				Id = L;
+				Id = Kd.rgb;
 			}
 
 			fragColor += vec4(Id + Is, 0.0);
-
-			//vec3 directionToLight_eye = normalize(lightDirection_eye);
-
-			//float theta = dot(light.direction_world, normalize(-light.direction_world));
 		}
 
 		fragColor = vec4(vec3(fragColor), Kd.a);
 	}
 
-	/* fog */
+	/******************************************************************************
+		fog
+	******************************************************************************/
 
 	if (!FloatsEqual(Environment.fog.endDistance, 0.0, 0.0001)) { // endDistance == 0 disables fog
 		if (FloatsEqual(Environment.fog.densityExponent, 0.0, 0.0001)) { // constant
@@ -416,7 +408,9 @@ void main () {
 	}
 	
 	
-	/* gamma correction */
+	/******************************************************************************
+		gamma correction
+	******************************************************************************/
 	
 	//fragColor.rgb = pow(fragColor.rgb, vec3(1.0/GAMMA));
 }

@@ -124,29 +124,28 @@ int main(int argc, const char* argv[]) {
 
 
 		auto ambientColor = DARK
-							? Color::LightGray()
-							//: make_shared<Color>(vec3{1.0, .5, 0} * .5f); // sunset
+							? make_shared<Color>(.1f) // should be light gray
 							: Color::DarkGray();
 			auto ambientLight = make_shared<AmbientLight>(ambientColor);
 			auto ambientLightNode = Node::LightNode(ambientLight);
 			scene->rootNode()->addChild(ambientLightNode);
 
-		auto sunColor = DARK
-		        ? Color::White()
-				: make_shared<Color>(u8vec3{233, 218, 185});
-		auto sunLight = make_shared<DirectionalLight>(sunColor);
-		auto sunNode = Node::LightNode(sunLight);
-		scene->rootNode()->addChild(sunNode);
-		if (DARK) {
-			sunNode->eulerAngles({glm::radians(0.0f),
-								  glm::radians(45.0),
-								  glm::radians(0.0)});
-		}
-		else {
-			sunNode->eulerAngles({glm::radians(-30.0f),
-								  glm::radians(90.0 + 45.0),
-								  glm::radians(0.0)});
-		}
+//		auto sunColor = DARK
+//		        ? Color::White()
+//				: make_shared<Color>(u8vec3{233, 218, 185});
+//		auto sunLight = make_shared<DirectionalLight>(sunColor);
+//		auto sunNode = Node::LightNode(sunLight);
+//		scene->rootNode()->addChild(sunNode);
+//		if (DARK) {
+//			sunNode->eulerAngles({glm::radians(0.0f),
+//								  glm::radians(45.0),
+//								  glm::radians(0.0)});
+//		}
+//		else {
+//			sunNode->eulerAngles({glm::radians(-30.0f),
+//								  glm::radians(90.0 + 45.0),
+//								  glm::radians(0.0)});
+//		}
 
 
 			//pointLightNode->mesh(Box::Mesh(0.5, 0.5, 0.5));
@@ -333,9 +332,9 @@ int main(int argc, const char* argv[]) {
 		auto cameraNode = Node::CameraNode(camera);
 		cameraNode->position(vec3{0, 30, 60});
 		cameraNode->eulerAngles(vec3{glm::radians(-20.f), 0, 0});
-		//auto flashLight = make_shared<SpotLight>(Color::Red());
 		auto flashLight = make_shared<SpotLight>();
-		flashLight->innerAngle(glm::cos(glm::radians(10.f)));
+		flashLight->innerAngle(glm::cos(glm::radians(5.0f)));
+		flashLight->outerAngle(glm::cos(glm::radians(7.5f)));
 		cameraNode->light(flashLight);
 		scene->visualWorld()->pointOfView(cameraNode);
 
