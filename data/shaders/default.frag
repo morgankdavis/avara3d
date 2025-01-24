@@ -28,6 +28,10 @@ const uint LIGHT_TYPE_POINT =							1u;
 const uint LIGHT_TYPE_DIRECTIONAL =						2u;
 const uint LIGHT_TYPE_SPOT =							3u;
 
+const uint SPOTLIGHT_FEATHERING_MODE_LINEAR =			0u;
+const uint SPOTLIGHT_FEATHERING_MODE_SHARP =			1u;
+const uint SPOTLIGHT_FEATHERING_MODE_SOFT =				2u;
+
 
 //#define GAMMA 										2.2
 //
@@ -90,12 +94,12 @@ struct SpotLight {
 	float	PAD1;
 	float	innerAngleCos;
 	float	outerAngleCos;
+	uint	featheringMode;
 	float	constantAttenuation;
 	float	linearAttenuation;
 	float	quadraticAttenuation;
 	float	PAD2;
 	float	PAD3;
-	float	PAD4;
 };
 
 struct Fog {
@@ -372,9 +376,25 @@ void main () {
 			float theta = dot(surfaceToLightDir_eye, lightDir_eye);
 
 			float epsilon = light.innerAngleCos - light.outerAngleCos;
-			float intensity = clamp((theta - light.outerAngleCos) / epsilon, 0.0, 1.0);
+			float linearIntensity = clamp((theta - light.outerAngleCos) / epsilon, 0.0, 1.0);
 
-			if (intensity > 0.0) {
+			if (linearIntensity > 0.0) {
+
+				// apply some easing to the light cutoff
+				// https://www.geogebra.org/m/kvy5zksn
+				// https://learn.pandasuite.com/article/776-animations
+
+				float easedIntensity = linearIntensity;
+
+				switch (light.featheringMode) {
+					case SPOTLIGHT_FEATHERING_MODE_SHARP:
+						easedIntensity = clamp(linearIntensity * (2-linearIntensity), 0.0, 1.0);
+						break;
+					case SPOTLIGHT_FEATHERING_MODE_SOFT:
+						easedIntensity = clamp(pow(linearIntensity, 2), 0.0, 1.0);
+						break;
+					default: break;
+				}
 
 				// diffuse
 				float dotDiffuse = max(dot(surfaceToLightDir_eye, frag_vertNorm_eye), 0.0);
@@ -384,7 +404,7 @@ void main () {
 											  light.quadraticAttenuation,
 											  surfaceToLightDist);
 
-				Id = L * vec3(Kd) * intensity * dotDiffuse * attenuation;
+				Id = L * vec3(Kd) * easedIntensity * dotDiffuse * attenuation;
 
 				// specular
 
@@ -396,7 +416,7 @@ void main () {
 					dotSpecular = max(dotSpecular, 0.0);
 					float specularFactor = pow(dotSpecular, specularExponent);
 
-					Is = L * vec3(Ks) * intensity * specularFactor * attenuation;
+					Is = L * vec3(Ks) * easedIntensity * specularFactor * attenuation;
 				}
 			}
 

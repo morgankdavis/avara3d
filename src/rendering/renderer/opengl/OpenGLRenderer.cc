@@ -117,12 +117,12 @@ typedef struct {
 	float32_t	PAD1;
 	float32_t	innerAngleCos;
 	float32_t	outerAngleCos;
+	uint32_t	featheringMode;
 	float32_t	constantAttenuation;
 	float32_t	linearAttenuation;
 	float32_t	quadraticAttenuation;
 	float32_t	PAD2;
 	float32_t	PAD3;
-	float32_t	PAD4;
 } SpotLightGLSLStruct;
 
 typedef struct {
@@ -1181,6 +1181,7 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 					lightStruct.direction_world = node->worldForward();
 					lightStruct.innerAngleCos = spotLight->innerAngleCos();
 					lightStruct.outerAngleCos = spotLight->outerAngleCos();
+					lightStruct.featheringMode = magic_enum::enum_underlying(spotLight->featheringMode());
 					lightStruct.constantAttenuation = spotLight->constantAttenuation();
 					lightStruct.linearAttenuation = spotLight->linearAttenuation();
 					lightStruct.quadraticAttenuation = spotLight->quadraticAttenuation();

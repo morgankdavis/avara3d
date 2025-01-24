@@ -311,11 +311,10 @@ int main(int argc, const char* argv[]) {
 
 
 	// box spotlight
-	// -8.8,17.9, -8.3
 	auto boxesLight = make_shared<SpotLight>();
 	boxesLight->innerAngle(glm::radians(2.5));
-	boxesLight->outerAngle(glm::radians(7.5));
-
+	boxesLight->outerAngle(glm::radians(10.0));
+	boxesLight->featheringMode(SpotlightFeatheringMode::Soft);
 	auto boxesLightNode = Node::LightNode(boxesLight);
 	boxesLightNode->position({-8.5, 18, -8.5});
 	boxesLightNode->eulerAngles({-1.2527435, 0.47099817, 0});
@@ -349,7 +348,8 @@ int main(int argc, const char* argv[]) {
 //		cameraNode->eulerAngles(vec3{glm::radians(-20.f), 0, 0});
 //		auto flashLight = make_shared<SpotLight>();
 //		flashLight->innerAngle(glm::radians(2.5f));
-//		flashLight->outerAngle(glm::radians(7.5f));
+//		flashLight->outerAngle(glm::radians(12.5f));
+//		flashLight->featheringMode(SpotlightFeatheringMode::Sharp);
 //		cameraNode->light(flashLight);
 //		scene->visualWorld()->pointOfView(cameraNode);
 
@@ -1154,9 +1154,15 @@ void AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color) {
 
 	auto node = Node::MeshNode(Box::Mesh(1.0, 1.0, 1.0));
 	//auto materialProperty = shared_ptr<Color>(std::move(color));
-	auto material = make_shared<Material>(monostate{}, color, monostate{});
+	auto material = make_shared<Material>(monostate{}, monostate{}, monostate{}, color);
 	node->mesh()->addMaterial(material);
 	node->position(location);
+
+//	auto light = make_shared<PointLight>();
+//	light->constantAttenuation(0);
+//	light->linearAttenuation(0.00000001);
+//	light->quadraticAttenuation(0);
+//	node->light(light);
 
 	auto physicsBody = PhysicsBody::DynamicBody();
 	physicsBody->mass(1.0);

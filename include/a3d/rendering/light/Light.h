@@ -20,7 +20,6 @@
 namespace a3d {
 
 
-
 	class Color;
 	
 	
