@@ -367,8 +367,6 @@ void main () {
 			vec3 Id = vec3(0.0, 0.0, 0.0);
 			vec3 Is = vec3(0.0, 0.0, 0.0);
 
-			// DeVries 16.5
-
 			vec3 lightPos_eye = vec3(viewMat * vec4(light.position_world, 1.0));
 			vec3 fragToLightDir_eye = normalize(lightPos_eye - frag_vertPos_eye);
 			vec3 lightDir_eye = normalize(vec3(viewMat * vec4(-light.direction_world, 0.0)));
@@ -376,8 +374,12 @@ void main () {
 
 			float theta = dot(fragToLightDir_eye, lightDir_eye);
 
-			if (theta > light.innerAngle) {
-				Id = Kd.rgb;
+			float epsilon = light.innerAngle - light.outerAngle;
+			float intensity = clamp((theta - light.outerAngle) / epsilon, 0.0, 1.0);
+
+//			if (theta > light.innerAngle) {
+			if (intensity > 0.0) {
+				Id = Kd.rgb * intensity;
 			}
 
 			fragColor += vec4(Id + Is, 0.0);

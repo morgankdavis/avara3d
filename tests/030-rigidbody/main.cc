@@ -333,7 +333,7 @@ int main(int argc, const char* argv[]) {
 		cameraNode->position(vec3{0, 30, 60});
 		cameraNode->eulerAngles(vec3{glm::radians(-20.f), 0, 0});
 		auto flashLight = make_shared<SpotLight>();
-		flashLight->innerAngle(glm::cos(glm::radians(5.0f)));
+		flashLight->innerAngle(glm::cos(glm::radians(2.5f)));
 		flashLight->outerAngle(glm::cos(glm::radians(7.5f)));
 		cameraNode->light(flashLight);
 		scene->visualWorld()->pointOfView(cameraNode);
