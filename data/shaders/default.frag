@@ -267,19 +267,10 @@ void main () {
 			vec3 Id = vec3(0.0, 0.0, 0.0);
 			vec3 Is = vec3(0.0, 0.0, 0.0);
 
-
-
-
 			// diffuse
 
-//			// raise light position to eye space
-//			vec3 lightPos_eye = vec3(viewMat * vec4(lightPos_world, 1.0));
-//			vec3 directionToLight_eye = normalize(lightPos_eye - frag_vertPos_eye);
-
 			vec3 lightDirection_eye = vec3(viewMat * vec4(-light.direction_world, 0.0));
-
 			vec3 directionToLight_eye = normalize(lightDirection_eye);
-
 			float dotProdDiffuse = max(dot(directionToLight_eye, frag_vertNorm_eye), 0.0);
 
 			Id = L * vec3(Kd) * dotProdDiffuse;
@@ -308,8 +299,6 @@ void main () {
 			}
 
 			fragColor += vec4(Id + Is, 0.0);
-
-			//fragColor = vec4(0, 1, 0, 0);
 		}
 
 		// point lights
@@ -328,7 +317,7 @@ void main () {
 			// diffuse
 
 			// raise light position to eye space
-			vec3 lightPos_eye = vec3(viewMat * vec4(lightPos_world, 0.0));
+			vec3 lightPos_eye = vec3(viewMat * vec4(lightPos_world, 1.0));
 			vec3 directionToLight_eye = normalize(lightPos_eye - frag_vertPos_eye);
 			float dotProdDiffuse = max(dot(directionToLight_eye, frag_vertNorm_eye), 0.0);
 
