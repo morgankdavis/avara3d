@@ -226,17 +226,7 @@ int main(int argc, const char* argv[]) {
 
 		// add the palm tree
 
-//		auto palmNode = Node::MeshNode(utils::MeshNamed("palm/palm"));
-//		g_palmNode = palmNode.get();
-//		auto palmPhysicsBody = PhysicsBody::StaticBody();
-//		palmPhysicsBody->mass(0);
-//		palmPhysicsBody->friction(1);
-//		palmPhysicsBody->restitution(0.25);
-//		palmNode->physicsBody(std::move(palmPhysicsBody));
-//		scene->rootNode()->addChild(palmNode);
-
-		auto palmNode = Node::MeshNode(utils::MeshNamed("teapot/teapot"));
-		palmNode->scale({10, 10, 10});
+		auto palmNode = Node::MeshNode(utils::MeshNamed("palm/palm"));
 		g_palmNode = palmNode.get();
 		auto palmPhysicsBody = PhysicsBody::StaticBody();
 		palmPhysicsBody->mass(0);
@@ -244,6 +234,16 @@ int main(int argc, const char* argv[]) {
 		palmPhysicsBody->restitution(0.25);
 		palmNode->physicsBody(std::move(palmPhysicsBody));
 		scene->rootNode()->addChild(palmNode);
+
+//		auto palmNode = Node::MeshNode(utils::MeshNamed("teapot/teapot"));
+//		palmNode->scale({10, 10, 10});
+//		g_palmNode = palmNode.get();
+//		auto palmPhysicsBody = PhysicsBody::StaticBody();
+//		palmPhysicsBody->mass(0);
+//		palmPhysicsBody->friction(1);
+//		palmPhysicsBody->restitution(0.25);
+//		palmNode->physicsBody(std::move(palmPhysicsBody));
+//		scene->rootNode()->addChild(palmNode);
 
 
 		// add the duck
