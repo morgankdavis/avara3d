@@ -88,8 +88,8 @@ struct SpotLight {
 	float	PAD0;
 	vec3 	direction_world;
 	float	PAD1;
-	float	innerAngle;
-	float	outerAngle;
+	float	innerAngleCos;
+	float	outerAngleCos;
 	float	constantAttenuation;
 	float	linearAttenuation;
 	float	quadraticAttenuation;
@@ -368,14 +368,13 @@ void main () {
 			vec3 lightDir_eye = normalize(vec3(viewMat * vec4(-light.direction_world, 0.0)));
 			vec3 surfaceToCameraDir_eye = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
 
+			// cosine of angle. see DeVries 16.5
 			float theta = dot(surfaceToLightDir_eye, lightDir_eye);
 
-			float epsilon = light.innerAngle - light.outerAngle;
-			float intensity = clamp((theta - light.outerAngle) / epsilon, 0.0, 1.0);
+			float epsilon = light.innerAngleCos - light.outerAngleCos;
+			float intensity = clamp((theta - light.outerAngleCos) / epsilon, 0.0, 1.0);
 
-//			if (theta > light.innerAngle) {
 			if (intensity > 0.0) {
-				//Id = Kd.rgb * intensity;
 
 				// diffuse
 				float dotDiffuse = max(dot(surfaceToLightDir_eye, frag_vertNorm_eye), 0.0);

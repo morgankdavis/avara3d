@@ -312,11 +312,11 @@ int main(int argc, const char* argv[]) {
 	// box spotlight
 	// -8.8,17.9, -8.3
 	auto boxesLight = make_shared<SpotLight>();
-	boxesLight->innerAngle(glm::cos(glm::radians(2.5)));
-	boxesLight->outerAngle(glm::cos(glm::radians(7.5)));
+	boxesLight->innerAngle(glm::radians(2.5));
+	boxesLight->outerAngle(glm::radians(7.5));
+
 	auto boxesLightNode = Node::LightNode(boxesLight);
 	boxesLightNode->position({-8.5, 18, -8.5});
-	//boxesLightNode->eulerAngles({glm::radians(-45.f), glm::radians(45.f), 0});
 	boxesLightNode->eulerAngles({-1.2527435, 0.47099817, 0});
 	scene->rootNode()->addChild(boxesLightNode);
 
@@ -347,8 +347,8 @@ int main(int argc, const char* argv[]) {
 //		cameraNode->position(vec3{0, 30, 60});
 //		cameraNode->eulerAngles(vec3{glm::radians(-20.f), 0, 0});
 //		auto flashLight = make_shared<SpotLight>();
-//		flashLight->innerAngle(glm::cos(glm::radians(2.5f)));
-//		flashLight->outerAngle(glm::cos(glm::radians(7.5f)));
+//		flashLight->innerAngle(glm::radians(2.5f));
+//		flashLight->outerAngle(glm::radians(7.5f));
 //		cameraNode->light(flashLight);
 //		scene->visualWorld()->pointOfView(cameraNode);
 
@@ -434,10 +434,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 
 	if (keysPressed.count(Key::One)) {
-		//g_duckNode->physicsBody()->shape()->type(PhysicsShapeType::BoundingBox);
-		auto euler = scene.visualWorld()->pointOfView().lock()->eulerAngles();
-		A3D_APP_LOG_I(g_logger, "CAM EULER: {}, {}, {}",
-					  euler.x, euler.y, euler.z);
+		g_duckNode->physicsBody()->shape()->type(PhysicsShapeType::BoundingBox);
 	}
 
 	if (keysPressed.count(Key::Two)) {

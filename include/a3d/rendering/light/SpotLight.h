@@ -49,6 +49,14 @@ namespace a3d {
 		void			outerAngle(float angle);
 
 /*********************************************************************************************
+	Internal Member Functions
+ *********************************************************************************************/
+
+		float			innerAngleCos() const;
+		float			outerAngleCos() const;
+
+
+/*********************************************************************************************
 	Private Lifecycle Functions
  *********************************************************************************************/
 
@@ -62,8 +70,8 @@ namespace a3d {
 
 	private:
 
-		float			_innerAngle;
-		float			_outerAngle;
+		float			_innerAngleCos;
+		float			_outerAngleCos;
 	};
 }
 

@@ -71,7 +71,6 @@ using namespace std;
 	 Private Constant Definitions
  *********************************************************************************************/
 
-
 const std::string 	OpenGLRenderer::STATS_TITLE_FONT_NAME = 		"Take cover";
 const std::string 	OpenGLRenderer::STATS_TITLE_FONT_TYPE = 		"ttf";
 const float 		OpenGLRenderer::STATS_TITLE_FONT_SIZE =			21.0;
@@ -89,81 +88,6 @@ enum class MaterialContentsType : unsigned {
 	Color = 	1,
 	Sampler = 	2
 };
-
-// typedef struct {
-// 	alignas(16) vec4		color;
-// } AmbientLightGLSLStruct;
-//
-// typedef struct {
-// 	alignas(16) vec4		color;
-// 	alignas(16) vec3		direction_world;
-// } DirectionalLightGLSLStruct;
-//
-// typedef struct {
-// 	alignas(16) vec4		color;
-// 	alignas(16) vec3		position_world;
-// 	alignas(16) float		constantAttenuation;
-// 	alignas(16) float		linearAttenuation;
-// 	alignas(16) float		quadraticAttenuation;
-// } PointLightGLSLStruct;
-//
-// typedef struct {
-// 	alignas(16) vec4		color;
-// 	alignas(16) vec3		position_world;
-// 	alignas(16) vec3		direction_world;
-// 	alignas(16) float		innerAngle;
-// 	alignas(16) float		outerAngle;
-// 	alignas(16) float		constantAttenuation;
-// 	alignas(16) float		linearAttenuation;
-// 	alignas(16) float		quadraticAttenuation;
-// } SpotLightGLSLStruct;
-//
-// typedef struct {
-// 	alignas(16) vec4		color;
-// 	alignas(16) float32_t	startDistance;
-// 	alignas(16) float32_t	endDistance;
-// 	alignas(16) float32_t	densityExponent;
-// } FogGLSLStruct;
-
-
-
-
-//typedef struct {
-//	vec4		color;
-//} AmbientLightGLSLStruct;
-//
-//typedef struct {
-//	vec4		color;
-//	vec3		direction_world;
-//} DirectionalLightGLSLStruct;
-//
-//typedef struct {
-//	vec4		color;
-//	vec3		position_world;
-//	float		constantAttenuation;
-//	float		linearAttenuation;
-//	float		quadraticAttenuation;
-//} PointLightGLSLStruct;
-//
-//typedef struct {
-//	vec4		color;
-//	vec3		position_world;
-//	vec3		direction_world;
-//	float		innerAngle;
-//	float		outerAngle;
-//	float		constantAttenuation;
-//	float		linearAttenuation;
-//	float		quadraticAttenuation;
-//} SpotLightGLSLStruct;
-//
-//typedef struct {
-//	vec4		color;
-//	float32_t	startDistance;
-//	float32_t	endDistance;
-//	float32_t	densityExponent;
-//} FogGLSLStruct;
-
-
 
 typedef struct {
 	vec4		color;
@@ -191,8 +115,8 @@ typedef struct {
 	float32_t	PAD0;
 	vec3		direction_world;
 	float32_t	PAD1;
-	float32_t	innerAngle;
-	float32_t	outerAngle;
+	float32_t	innerAngleCos;
+	float32_t	outerAngleCos;
 	float32_t	constantAttenuation;
 	float32_t	linearAttenuation;
 	float32_t	quadraticAttenuation;
@@ -208,50 +132,6 @@ typedef struct {
 	float32_t	densityExponent;
 //	float32_t	PAD0;
 } FogGLSLStruct;
-
-
-
-
-// typedef struct {
-// 	alignas(16) uint32_t 					numAmbientLights;
-// 	alignas(16) AmbientLightGLSLStruct		ambientLights[MAX_AMBIENT_LIGHTS];
-// 	alignas(16) uint32_t 					numDirectionalLights;
-// 	alignas(16) DirectionalLightGLSLStruct	directionalLights[MAX_DIRECTIONAL_LIGHTS];
-// 	alignas(16) uint32_t 					numPointLights;
-// 	alignas(16) PointLightGLSLStruct		pointLights[MAX_POINT_LIGHTS];
-// 	alignas(16) uint32_t 					numSpotLights;
-// 	alignas(16) SpotLightGLSLStruct			spotLights[MAX_SPOT_LIGHTS];
-// 	alignas(16) FogGLSLStruct				fog;
-// } EnvironmentBlock;
-
-
-// WORKS
-//typedef struct {
-//	uint32_t 					numAmbientLights;
-//	uint32_t PAD0;
-//	uint32_t PAD1;
-//	uint32_t PAD2;
-//	AmbientLightGLSLStruct		ambientLights[MAX_AMBIENT_LIGHTS];
-//	uint32_t 					numDirectionalLights;
-//	uint32_t PAD3;
-//	uint32_t PAD4;
-//	uint32_t PAD5;
-//	DirectionalLightGLSLStruct	directionalLights[MAX_DIRECTIONAL_LIGHTS];
-//	uint32_t 					numPointLights;
-//	uint32_t PAD6;
-//	uint32_t PAD7;
-//	uint32_t PAD8;
-//	PointLightGLSLStruct		pointLights[MAX_POINT_LIGHTS];
-//	uint32_t 					numSpotLights;
-//	uint32_t PAD9;
-//	uint32_t PAD10;
-//	uint32_t PAD11;
-//	SpotLightGLSLStruct			spotLights[MAX_SPOT_LIGHTS];
-//	FogGLSLStruct				fog;
-//} EnvironmentBlock;
-
-
-
 
 typedef struct {
 	alignas(16)	uint32_t 					numAmbientLights;
@@ -276,8 +156,6 @@ typedef struct {
 	alignas(16) SpotLightGLSLStruct			spotLights[MAX_SPOT_LIGHTS];
 	alignas(16) FogGLSLStruct				fog;
 } EnvironmentBlock;
-
-
 
 /*********************************************************************************************
 	Private Static Non-Member Prototypes
@@ -1301,8 +1179,8 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 					lightStruct.color = spotLight->color()->rgba();
 					lightStruct.position_world = node->worldPosition();
 					lightStruct.direction_world = node->worldForward();
-					lightStruct.innerAngle = spotLight->innerAngle();
-					lightStruct.outerAngle = spotLight->outerAngle();
+					lightStruct.innerAngleCos = spotLight->innerAngleCos();
+					lightStruct.outerAngleCos = spotLight->outerAngleCos();
 					lightStruct.constantAttenuation = spotLight->constantAttenuation();
 					lightStruct.linearAttenuation = spotLight->linearAttenuation();
 					lightStruct.quadraticAttenuation = spotLight->quadraticAttenuation();
