@@ -276,7 +276,7 @@ void main () {
 //			vec3 lightPos_eye = vec3(viewMat * vec4(lightPos_world, 1.0));
 //			vec3 directionToLight_eye = normalize(lightPos_eye - frag_vertPos_eye);
 
-			vec3 lightDirection_eye = vec3(viewMat * vec4(-light.direction_world, 1.0));
+			vec3 lightDirection_eye = vec3(viewMat * vec4(-light.direction_world, 0.0));
 
 			vec3 directionToLight_eye = normalize(lightDirection_eye);
 
@@ -328,7 +328,7 @@ void main () {
 			// diffuse
 
 			// raise light position to eye space
-			vec3 lightPos_eye = vec3(viewMat * vec4(lightPos_world, 1.0));
+			vec3 lightPos_eye = vec3(viewMat * vec4(lightPos_world, 0.0));
 			vec3 directionToLight_eye = normalize(lightPos_eye - frag_vertPos_eye);
 			float dotProdDiffuse = max(dot(directionToLight_eye, frag_vertNorm_eye), 0.0);
 

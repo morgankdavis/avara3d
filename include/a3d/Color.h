@@ -54,10 +54,14 @@ namespace a3d {
  *********************************************************************************************/
 
 		Color();
-		Color(float r, float g, float b);
-		Color(float r, float g, float b, float a);
-		Color(int r, int g, int b);
-		Color(int r, int g, int b, int a);
+//		Color(float r, float g, float b);
+//		Color(float r, float g, float b, float a);
+//		Color(int r, int g, int b);
+//		Color(int r, int g, int b, int a);
+		Color(const glm::vec3& rgb);
+		Color(const glm::vec4& rgba);
+		Color(const glm::ivec3& irgb);
+		Color(const glm::ivec4& irgba);
 		explicit Color(float white);
 		explicit Color(uint32_t color);
 		explicit Color(const std::string& hexString);
@@ -68,6 +72,7 @@ namespace a3d {
 	Public Member Functions
  *********************************************************************************************/
 
+		// TODO: r, g, b, a, ir, ig, ib, ia, rgb, rgba, irgb, irgba
 		glm::vec3 vec3();
 		glm::vec4 vec4();
 
@@ -75,6 +80,7 @@ namespace a3d {
 	Public Member Variables
  *********************************************************************************************/
 
+		// TODO: store as vec4
 		float r;
 		float g;
 		float b;

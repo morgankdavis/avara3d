@@ -299,7 +299,7 @@ const vector<Line>& Mesh::aabbLines() {
 		vec3 seven =    {xMax, yMin, zMax};
 		vec3 eight =    {xMax, yMin, zMin};
 
-		static auto red = Color{1.0f, 0.f, 0.f, 1.0f};
+		static auto red = Color{vec3{1.0f, 0.f, 0.f}};
 
 		_aabbLines = vector<Line>{
 				{one, two, red},

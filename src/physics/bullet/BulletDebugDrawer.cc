@@ -76,8 +76,10 @@ void BulletDebugDrawer::drawLine(const btVector3& from,
 
 	_lines.push_back(Line(GLMVec3FromBTVector3(from),
 						  GLMVec3FromBTVector3(to),
-						  Color{fromColor.x(), fromColor.y(), fromColor.z(), 1.0},
-						  Color{toColor.x(), toColor.y(), toColor.z(), 1.0}));
+						  GLMVec3FromBTVector3(fromColor),
+						  GLMVec3FromBTVector3(toColor)));
+//						  Color{fromColor.x(), fromColor.y(), fromColor.z(), 1.0},
+//						  Color{toColor.x(), toColor.y(), toColor.z(), 1.0}));
 }
 
 /*

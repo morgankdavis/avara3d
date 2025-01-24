@@ -1353,6 +1353,8 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 
 	memcpy(&environmentStruct.fog, &fogStruct, sizeof(fogStruct));
 
+
+
 	// send 'em
 
 	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);

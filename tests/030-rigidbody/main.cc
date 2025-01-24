@@ -123,67 +123,30 @@ int main(int argc, const char* argv[]) {
 
 
 
-//			auto ambientColor = DARK
-//								? Color::LightGray()
-//								: make_shared<Color>(233, 218, 185); // sunset
-//			//auto ambientLight = make_shared<Light>(LightType::Ambient, ambientColor);
-//			auto ambientLight = make_shared<AmbientLight>(ambientColor);
-//			auto ambientLightNode = Node::LightNode(ambientLight);
-//			scene->rootNode()->addChild(ambientLightNode);
+		auto ambientColor = DARK
+							? Color::LightGray()
+							//: make_shared<Color>(vec3{1.0, .5, 0} * .5f); // sunset
+							: Color::DarkGray();
+			auto ambientLight = make_shared<AmbientLight>(ambientColor);
+			auto ambientLightNode = Node::LightNode(ambientLight);
+			scene->rootNode()->addChild(ambientLightNode);
 
-//			auto pointColor = DARK
-//							  ? Color::LightGray()
-//							  : make_shared<Color>((uint32_t) 0x3F2A00FF); // dark orangish
-//			//auto pointLight = make_shared<Light>(LightType::Point, pointColor);
-//			auto pointLight = make_shared<PointLight>(pointColor);
-//			//pointLight->attenuationFactor(0.0);
-//			//pointLight->constantAttenuation(0.01);
-//			//pointLight->constantAttenuation(0.01);
-//			//pointLight->linearAttenuation(1.0);
-//			//pointLight->quadraticAttenuation(0.1);
-//			auto pointLightNode = Node::LightNode(pointLight);
-//			pointLightNode->position(vec3(35, 20, (DARK ? 1.0 : -1.0) * 35) * vec3(2.5, 2.5, 2.5));
-//			scene->rootNode()->addChild(pointLightNode);
-
-
-
-
-
-
-
-		auto ambientColor = Color::DarkGray();
-		auto ambientLight = make_shared<AmbientLight>(ambientColor);
-		auto ambientLightNode = Node::LightNode(ambientLight);
-		scene->rootNode()->addChild(ambientLightNode);
-
-
-
-
-
-		auto sunColor = Color::White();
+		auto sunColor = DARK
+		        ? Color::White()
+				: make_shared<Color>(ivec3{233, 218, 185});
 		auto sunLight = make_shared<DirectionalLight>(sunColor);
 		auto sunNode = Node::LightNode(sunLight);
 		scene->rootNode()->addChild(sunNode);
-		sunNode->eulerAngles({glm::radians(0.0f),
-							  glm::radians(45.0),
-							  glm::radians(0.0)});
-
-		auto sunEuler = sunNode->eulerAngles();
-		A3D_LOG_I("sun eulers: ({}, {}, {})",
-				  glm::degrees(sunEuler.x),
-				  glm::degrees(sunEuler.y),
-				  glm::degrees(sunEuler.z));
-
-		auto camera = make_shared<PerspectiveCamera>();
-		auto cameraNode = Node::CameraNode(camera);
-		cameraNode->position({40, 12, 40});
-		scene->visualWorld()->pointOfView(cameraNode);
-
-		cameraNode->eulerAngles(sunNode->eulerAngles());
-
-
-
-
+		if (DARK) {
+			sunNode->eulerAngles({glm::radians(0.0f),
+								  glm::radians(45.0),
+								  glm::radians(0.0)});
+		}
+		else {
+			sunNode->eulerAngles({glm::radians(-30.0f),
+								  glm::radians(90.0 + 45.0),
+								  glm::radians(0.0)});
+		}
 
 
 
@@ -263,14 +226,23 @@ int main(int argc, const char* argv[]) {
 
 		// add the palm tree
 
-		auto palmNode = Node::MeshNode(utils::MeshNamed("palm/palm"));
+//		auto palmNode = Node::MeshNode(utils::MeshNamed("palm/palm"));
+//		g_palmNode = palmNode.get();
+//		auto palmPhysicsBody = PhysicsBody::StaticBody();
+//		palmPhysicsBody->mass(0);
+//		palmPhysicsBody->friction(1);
+//		palmPhysicsBody->restitution(0.25);
+//		palmNode->physicsBody(std::move(palmPhysicsBody));
+//		scene->rootNode()->addChild(palmNode);
+
+		auto palmNode = Node::MeshNode(utils::MeshNamed("teapot/teapot"));
+		palmNode->scale({10, 10, 10});
 		g_palmNode = palmNode.get();
 		auto palmPhysicsBody = PhysicsBody::StaticBody();
 		palmPhysicsBody->mass(0);
 		palmPhysicsBody->friction(1);
 		palmPhysicsBody->restitution(0.25);
 		palmNode->physicsBody(std::move(palmPhysicsBody));
-
 		scene->rootNode()->addChild(palmNode);
 
 
