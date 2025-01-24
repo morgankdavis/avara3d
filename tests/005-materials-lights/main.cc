@@ -95,7 +95,7 @@ int main(int argc, const char* argv[]) {
 		scene->debugOptions(DebugOptions::ShowStatsOverlay);
 		scene->update(bind(&UpdateCallback, _1, _2, _3));
 
-		auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.2f, 0.2, 0.2, 1.0));
+		auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.2f));
 		ambientLight->name("ambient");
 		auto ambientLightNode = Node::LightNode(ambientLight);
 		scene->rootNode()->addChild(ambientLightNode);
