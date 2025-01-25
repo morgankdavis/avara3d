@@ -36,7 +36,7 @@ constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					USE_DEFAULT_LIGHTING =	false;
 constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
-constexpr float					PHYSICS_TIMESTEP =		1.0/240.0;
+constexpr float					PHYSICS_TIMESTEP =		1.0/128.0;
 constexpr bool					DARK =					true;
 
 
@@ -185,7 +185,7 @@ int main(int argc, const char* argv[]) {
 		const float PLANE_LENGTH = 50.0;
 		const float PLANE_WIDTH = 50.0;
 		auto planeNode = Node::NamedNode("Ground plane node");
-		planeNode->mesh(Box::Mesh(PLANE_LENGTH, PLANE_WIDTH, 0));
+		planeNode->mesh(Box::Mesh(PLANE_LENGTH, PLANE_WIDTH, 1));
 		auto gridImage = DARK ? utils::ImageNamed("grid10")->inverted() : utils::ImageNamed("grid10");
 		auto planeTexture = make_shared<Texture>(std::move(gridImage));
 		planeTexture->sampler()->wrapS(WrapMode::Repeat);
@@ -199,6 +199,9 @@ int main(int argc, const char* argv[]) {
 												  monostate{},
 												  monostate{},
 												  planeTexture);
+//			planeMaterial = make_shared<Material>(planeTexture,
+//												  planeTexture,
+//												  Color::LightGray());
 		}
 		else {
 			planeMaterial = make_shared<Material>(monostate{},
@@ -209,7 +212,7 @@ int main(int argc, const char* argv[]) {
 		planeMaterial->uvScale(PLANE_LENGTH / 10.0);
 		planeMaterial->doubleSided(false);
 		planeNode->mesh()->addMaterial(planeMaterial);
-		planeNode->rotation({1, 0, 0}, radians(3 * 90.0));
+		planeNode->rotation({1, 0, 0}, radians(1 * 90.0));
 		planeNode->position({planeNode->position().x, 0, planeNode->position().z});
 
 		auto planePhysicsBody = PhysicsBody::StaticBody();
