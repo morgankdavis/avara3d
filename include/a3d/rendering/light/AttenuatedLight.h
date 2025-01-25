@@ -64,6 +64,12 @@ namespace a3d {
 	private:
 
 		// A = 1 / (Kc + (Kl * d) + (Kq * d^2))
+		//
+		// default:
+		//	Kc = 1.0
+		//	Lk = 0.0
+		//	Kq = 0.1
+
 		float			_constantAttenuation;
 		float			_linearAttenuation;
 		float			_quadraticAttenuation;

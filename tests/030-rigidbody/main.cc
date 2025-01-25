@@ -531,6 +531,16 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 		}
 	}
 
+	if (keysPressed.count(Key::Apostrophe)) {
+		if (auto pov = scene.visualWorld()->pointOfView().lock()) {
+			auto pos = pov->worldPosition();
+			auto orient = pov->worldOrientation();
+			A3D_APP_LOG_I(g_logger, "\ncamera position: ({:.4f}, {:.4f}, {:.4f})\n"
+									"camera orientation: ({:.6f}, {:.6f}, {:.6f}, {:.6f})",
+						  pos.x, pos.y, pos.x, orient.x, orient.y, orient.z, orient.w);
+		}
+	}
+
 
 	if (!scene.paused()) {
 
@@ -556,7 +566,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 				else {
 					auto flashLight = Light::SpotLight();
 					flashLight->innerAngle(glm::radians(5.0f));
-					flashLight->outerAngle(glm::radians(10.0f));
+					flashLight->outerAngle(glm::radians(7.5f));
 					flashLight->featheringMode(SpotlightFeatheringMode::Sharp);
 					flashLight->quadraticAttenuation(.001);
 					cameraNode->light(flashLight);
