@@ -249,7 +249,8 @@ void VisualWorld::draw(const Scene& scene,
 
 			if (auto pov = pointOfView().lock()) {
 
-				stats.cameraPosition = pov->position();
+				stats.cameraPosition = pov->worldPosition();
+				stats.cameraOrientation = pov->worldOrientation();
 
 				auto frameBufferSize = _renderContext->framebufferSize();
 

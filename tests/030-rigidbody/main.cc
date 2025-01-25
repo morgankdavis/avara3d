@@ -123,12 +123,18 @@ int main(int argc, const char* argv[]) {
 
 
 
+		// ambient light
+
 		auto ambientColor = DARK
 							? make_shared<Color>(.1f) // should be light gray
 							: Color::DarkGray();
 			auto ambientLight = make_shared<AmbientLight>(ambientColor);
 			auto ambientLightNode = Node::LightNode(ambientLight);
 			scene->rootNode()->addChild(ambientLightNode);
+
+
+
+		// directional light
 
 		auto sunColor = DARK
 		        ? Color::Gray()
@@ -182,32 +188,56 @@ int main(int argc, const char* argv[]) {
 
 		// ground plane
 
+//		const float PLANE_LENGTH = 50.0;
+//		const float PLANE_WIDTH = 50.0;
+//		auto planeNode = Node::NamedNode("Ground plane node");
+//		planeNode->mesh(Box::Mesh(PLANE_LENGTH, PLANE_WIDTH, 1));
+//		auto gridImage = DARK ? utils::ImageNamed("grid10")->inverted() : utils::ImageNamed("grid10");
+//		auto planeTexture = make_shared<Texture>(std::move(gridImage));
+//		planeTexture->sampler()->wrapS(WrapMode::Repeat);
+//		planeTexture->sampler()->wrapT(WrapMode::Repeat);
+//		planeTexture->sampler()->maxAnisotropy(16);
+//		planeTexture->sampler()->minificationFilter(FilterMode::LinearMipmapLinear);
+//		planeTexture->sampler()->magnificationFilter(FilterMode::Linear);
+//		shared_ptr<Material> planeMaterial = nullptr;
+//		if (DARK) {
+//			planeMaterial = make_shared<Material>(monostate{},
+//												  monostate{},
+//												  monostate{},
+//												  planeTexture);
+//		}
+//		else {
+//			planeMaterial = make_shared<Material>(monostate{},
+//												  planeTexture,
+//												  Color::Gray());
+//		}
+
+
+
 		const float PLANE_LENGTH = 50.0;
 		const float PLANE_WIDTH = 50.0;
 		auto planeNode = Node::NamedNode("Ground plane node");
-		planeNode->mesh(Box::Mesh(PLANE_LENGTH, PLANE_WIDTH, 1));
-		auto gridImage = DARK ? utils::ImageNamed("grid10")->inverted() : utils::ImageNamed("grid10");
-		auto planeTexture = make_shared<Texture>(std::move(gridImage));
-		planeTexture->sampler()->wrapS(WrapMode::Repeat);
-		planeTexture->sampler()->wrapT(WrapMode::Repeat);
-		planeTexture->sampler()->maxAnisotropy(16);
-		planeTexture->sampler()->minificationFilter(FilterMode::LinearMipmapLinear);
-		planeTexture->sampler()->magnificationFilter(FilterMode::Linear);
-		shared_ptr<Material> planeMaterial = nullptr;
-		if (DARK) {
-			planeMaterial = make_shared<Material>(monostate{},
-												  monostate{},
-												  monostate{},
-												  planeTexture);
-//			planeMaterial = make_shared<Material>(planeTexture,
+		planeNode->mesh(Box::Mesh(PLANE_LENGTH, PLANE_WIDTH, 0));
+		//auto gridImage = DARK ? utils::ImageNamed("grid10")->inverted() : utils::ImageNamed("grid10");
+//		auto planeTexture = make_shared<Texture>(Color::White());
+//		planeTexture->sampler()->wrapS(WrapMode::Repeat);
+//		planeTexture->sampler()->wrapT(WrapMode::Repeat);
+//		planeTexture->sampler()->maxAnisotropy(16);
+//		planeTexture->sampler()->minificationFilter(FilterMode::LinearMipmapLinear);
+//		planeTexture->sampler()->magnificationFilter(FilterMode::Linear);
+
+		shared_ptr<Material> planeMaterial = make_shared<Material>(monostate{},
+																   Color::DarkGray(),
+																   Color::LightGray());
+		planeMaterial->locksAmbientWithDiffuse(false);
+//		}
+//		else {
+//			planeMaterial = make_shared<Material>(monostate{},
 //												  planeTexture,
-//												  Color::LightGray());
-		}
-		else {
-			planeMaterial = make_shared<Material>(monostate{},
-												  planeTexture,
-												  Color::Gray());
-		}
+//												  Color::Gray());
+//		}
+
+
 
 		planeMaterial->uvScale(PLANE_LENGTH / 10.0);
 		planeMaterial->doubleSided(false);
@@ -314,14 +344,25 @@ int main(int argc, const char* argv[]) {
 
 
 	// box spotlight
-	auto boxesLight = Light::SpotLight();
-	boxesLight->innerAngle(glm::radians(2.5));
-	boxesLight->outerAngle(glm::radians(10.0));
-	boxesLight->featheringMode(SpotlightFeatheringMode::Soft);
-	auto boxesLightNode = Node::LightNode(boxesLight);
-	boxesLightNode->position({-8.5, 18, -8.5});
-	boxesLightNode->eulerAngles({-1.2527435, 0.47099817, 0});
-	scene->rootNode()->addChild(boxesLightNode);
+//	auto boxesLight = Light::SpotLight();
+//	boxesLight->innerAngle(glm::radians(2.5));
+//	boxesLight->outerAngle(glm::radians(10.0));
+//	boxesLight->featheringMode(SpotlightFeatheringMode::Soft);
+//	auto boxesLightNode = Node::LightNode(boxesLight);
+//	boxesLightNode->position({-8.5, 18, -8.5});
+//	boxesLightNode->eulerAngles({-1.2527435, 0.47099817, 0});
+//	scene->rootNode()->addChild(boxesLightNode);
+
+
+		auto boxesLight = Light::SpotLight(Color::LightGray());
+		boxesLight->innerAngle(glm::radians(20.0));
+		boxesLight->outerAngle(glm::radians(25.0));
+		boxesLight->quadraticAttenuation(0.0005);
+		boxesLight->featheringMode(SpotlightFeatheringMode::Soft);
+		auto boxesLightNode = Node::LightNode(boxesLight);
+		boxesLightNode->position({-6.4, 1.2, -2.5});
+		boxesLightNode->orientation({0.0999, 0.1969, -0.0202, 0.9751});
+		scene->rootNode()->addChild(boxesLightNode);
 
 
 
@@ -345,16 +386,16 @@ int main(int argc, const char* argv[]) {
 
 
 
-		auto camera = make_shared<PerspectiveCamera>();
-		auto cameraNode = Node::CameraNode(camera);
-		cameraNode->position(vec3{0, 30, 60});
-		cameraNode->eulerAngles(vec3{glm::radians(-20.f), 0, 0});
-		auto flashLight = Light::SpotLight();
-		flashLight->innerAngle(glm::radians(2.5f));
-		flashLight->outerAngle(glm::radians(12.5f));
-		flashLight->featheringMode(SpotlightFeatheringMode::Sharp);
-		cameraNode->light(flashLight);
-		scene->visualWorld()->pointOfView(cameraNode);
+//		auto camera = make_shared<PerspectiveCamera>();
+//		auto cameraNode = Node::CameraNode(camera);
+//		cameraNode->position(vec3{0, 30, 60});
+//		cameraNode->eulerAngles(vec3{glm::radians(-20.f), 0, 0});
+//		auto flashLight = Light::SpotLight();
+//		flashLight->innerAngle(glm::radians(2.5f));
+//		flashLight->outerAngle(glm::radians(12.5f));
+//		flashLight->featheringMode(SpotlightFeatheringMode::Sharp);
+//		cameraNode->light(flashLight);
+//		scene->visualWorld()->pointOfView(cameraNode);
 
 
 
@@ -508,7 +549,19 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 		}
 
 		if (keysPressed.count(Key::L)) {
-			AddRing(scene);
+			if (auto cameraNode = scene.visualWorld()->pointOfView().lock()) {
+				if (cameraNode->light()) {
+					cameraNode->light(nullptr);
+				}
+				else {
+					auto flashLight = Light::SpotLight();
+					flashLight->innerAngle(glm::radians(5.0f));
+					flashLight->outerAngle(glm::radians(10.0f));
+					flashLight->featheringMode(SpotlightFeatheringMode::Sharp);
+					flashLight->quadraticAttenuation(.001);
+					cameraNode->light(flashLight);
+				}
+			}
 		}
 
 		if (keysPressed.count(Key::Q)) {
@@ -642,18 +695,20 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 		}
 
 		if (keysPressed.count(Key::U)) {
-			for (auto &n: scene.rootNode()->children(true)) {
-				auto mesh = n->mesh();
-				if (mesh) {
-					auto physicsBody = n->physicsBody();
-					if (physicsBody && physicsBody->type() != PhysicsBodyType::Static) {
-						bool coin = utils::Uniform(0, 1) == 1;
-						if (coin) {
-							n->removeFromParent();
-						}
-					}
-				}
-			}
+//			for (auto &n: scene.rootNode()->children(true)) {
+//				auto mesh = n->mesh();
+//				if (mesh) {
+//					auto physicsBody = n->physicsBody();
+//					if (physicsBody && physicsBody->type() != PhysicsBodyType::Static) {
+//						bool coin = utils::Uniform(0, 1) == 1;
+//						if (coin) {
+//							n->removeFromParent();
+//						}
+//					}
+//				}
+//			}
+
+			AddRing(scene);
 		}
 
 		vec2 mouseScrollWheelDelta = scene.inputManager()->mouseScrollWheelDelta();
@@ -932,6 +987,7 @@ void AddSlurm(Scene& scene, const vec3& location, const vec3& axis, float angle)
 //	auto node = canNode;
 
 	static auto mesh = utils::MeshNamed("slurm/slurm");
+	mesh->firstMaterial()->emission(mesh->firstMaterial()->diffuse());
 
 	auto node = Node::MeshNode(mesh);
 
@@ -1007,6 +1063,8 @@ void ShootBall(Scene& scene, const vec3& location, const vec3& direction) {
 		static auto mesh = utils::MeshNamed("slurm/slurm");
 		//static auto mesh = utils::MeshNamed("flashlight/flashlight");
 		//mesh->hidden(true);
+		mesh->materials()[0]->emission(mesh->materials()[0]->diffuse());
+		mesh->materials()[1]->emission(mesh->materials()[1]->diffuse());
 
 		auto node = Node::MeshNode(mesh);
 
@@ -1024,6 +1082,12 @@ void ShootBall(Scene& scene, const vec3& location, const vec3& direction) {
 
 
 #endif
+
+		auto light = Light::PointLight();
+		light->quadraticAttenuation(0.04);
+		node->light(light);
+
+
 
 		// add random factor
 
@@ -1161,11 +1225,9 @@ void AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color) {
 	node->mesh()->addMaterial(material);
 	node->position(location);
 
-//	auto light = make_shared<PointLight>();
-//	light->constantAttenuation(0);
-//	light->linearAttenuation(0.00000001);
-//	light->quadraticAttenuation(0);
-//	node->light(light);
+	auto light = Light::PointLight(color);
+	light->quadraticAttenuation(0.04);
+	node->light(light);
 
 	auto physicsBody = PhysicsBody::DynamicBody();
 	physicsBody->mass(1.0);

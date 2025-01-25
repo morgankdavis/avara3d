@@ -28,16 +28,32 @@ shared_ptr<AmbientLight> Light::AmbientLight() {
 	return make_unique<a3d::AmbientLight>();
 }
 
+shared_ptr<AmbientLight> Light::AmbientLight(const shared_ptr<Color>& color) {
+	return make_unique<a3d::AmbientLight>(color);
+}
+
 shared_ptr<DirectionalLight> Light::DirectionalLight() {
 	return make_unique<a3d::DirectionalLight>();
+}
+
+shared_ptr<DirectionalLight> Light::DirectionalLight(const shared_ptr<Color>& color) {
+	return make_unique<a3d::DirectionalLight>(color);
 }
 
 shared_ptr<PointLight> Light::PointLight() {
 	return make_unique<a3d::PointLight>();
 }
 
+shared_ptr<PointLight> Light::PointLight(const shared_ptr<Color>& color) {
+	return make_unique<a3d::PointLight>(color);
+}
+
 shared_ptr<SpotLight> Light::SpotLight() {
 	return make_unique<a3d::SpotLight>();
+}
+
+shared_ptr<SpotLight> Light::SpotLight(const shared_ptr<Color>& color) {
+	return make_unique<a3d::SpotLight>(color);
 }
 
 /*********************************************************************************************

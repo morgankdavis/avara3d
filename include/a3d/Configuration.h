@@ -17,10 +17,10 @@ namespace a3d {
 
 	// for now, just add all lights.
 	// when we start doing spacial partitioning we will be smarter about lights.
-	constexpr unsigned 	MAX_AMBIENT_LIGHTS =			4;
-	constexpr unsigned 	MAX_DIRECTIONAL_LIGHTS =		4;
-	constexpr unsigned 	MAX_POINT_LIGHTS =				32;
-	constexpr unsigned 	MAX_SPOT_LIGHTS =				8;
+	constexpr unsigned 	MAX_AMBIENT_LIGHTS =			16;
+	constexpr unsigned 	MAX_DIRECTIONAL_LIGHTS =		16;
+	constexpr unsigned 	MAX_POINT_LIGHTS =				128;
+	constexpr unsigned 	MAX_SPOT_LIGHTS =				64;
 }
 
 

@@ -35,10 +35,17 @@ namespace a3d {
 
 	public:
 
-		static std::shared_ptr<AmbientLight> 		AmbientLight();
-		static std::shared_ptr<DirectionalLight> 	DirectionalLight();
-		static std::shared_ptr<PointLight> 			PointLight();
-		static std::shared_ptr<SpotLight> 			SpotLight();
+		static std::shared_ptr<a3d::AmbientLight> 		AmbientLight();
+		static std::shared_ptr<a3d::AmbientLight> 		AmbientLight(const std::shared_ptr<Color>& color);
+
+		static std::shared_ptr<a3d::DirectionalLight>	DirectionalLight();
+		static std::shared_ptr<a3d::DirectionalLight>	DirectionalLight(const std::shared_ptr<Color>& color);
+
+		static std::shared_ptr<a3d::PointLight> 		PointLight();
+		static std::shared_ptr<a3d::PointLight> 		PointLight(const std::shared_ptr<Color>& color);
+
+		static std::shared_ptr<a3d::SpotLight> 			SpotLight();
+		static std::shared_ptr<a3d::SpotLight> 			SpotLight(const std::shared_ptr<Color>& color);
 
 /*********************************************************************************************
 	Public Lifecycle Functions

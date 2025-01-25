@@ -63,13 +63,7 @@ namespace a3d {
 
 	private:
 
-		// Gerdelan:
-		// 		A = 1 / (1 - Kq(d^2))
-		// de Vries:
-		//		A = 1 / (Kc + (Kl * d) + (Kq * d^2))
-		// a3d:
-		//		A = 1 / (1 + (Kc + (Kl * d) + (Kq * d^2)))
-
+		// A = 1 / (Kc + (Kl * d) + (Kq * d^2))
 		float			_constantAttenuation;
 		float			_linearAttenuation;
 		float			_quadraticAttenuation;

@@ -2099,7 +2099,7 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 			 "{:<{}} {:.0f} fps {}\n" \
 			 "\n" \
 
-			"{:<{}} {}x{}\n" \
+			"{:<{}} ({}, {})\n" \
 			"{:<{}} {}\n" \
 			 "{:<{}} ({:.1f}, {:.1f})\n" \
 			 "\n" \
@@ -2121,6 +2121,7 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 			 "{:<{}} {}\n" \
 			 "\n" \
 			 "{:<{}} ({:.1f}, {:.1f}, {:.1f})\n" \
+			 "{:<{}} ({:.4f}, {:.4f}, {:.4f}, {:.4f})\n" \
 			 "{}",
 
 			version.major, version.minor, version.patch, buildInfo.number(),
@@ -2153,6 +2154,7 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 			" concave polyhedron", PADDING, stats.concavePolyhedronShapes,
 
 			"camera position", PADDING, stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
+			"camera orientation", PADDING, stats.cameraOrientation.x, stats.cameraOrientation.y, stats.cameraOrientation.z, stats.cameraOrientation.w,
 			recordingStr);
 
 	ImGui_ImplOpenGL3_NewFrame();

@@ -5,10 +5,10 @@
 #define FEQ(a, b, eps) (abs(a-b) <= eps)
 
 
-#define MAX_AMBIENT_LIGHTS								4
-#define MAX_DIRECTIONAL_LIGHTS							4
-#define MAX_POINT_LIGHTS								32
-#define MAX_SPOT_LIGHTS									8
+#define MAX_AMBIENT_LIGHTS								16
+#define MAX_DIRECTIONAL_LIGHTS							16
+#define MAX_POINT_LIGHTS								128
+#define MAX_SPOT_LIGHTS									64
 
 const float GAMMA =										2.2f;
 
@@ -516,16 +516,15 @@ float Attenuate(float Kc, float Kl, float Kq, float d) {
 
 	// A = 1 / 1.0 + (Kc + (Kl * d) + (Kq * d^2))
 
-	const float EPS = .00000001;
+	const float EPS = .0000001;
 
 	float attenuation = 1.0;
 
 	if (!FloatsEqual(Kc, 0.0, EPS)
 		|| !FloatsEqual(Kl, 0.0, EPS)
 		|| !FloatsEqual(Kq, 0.0, EPS)) {
-		attenuation = 1.0 / 1.0 + (Kc + (Kl * d) + (Kq * d*d));
+		attenuation = 1.0 / (Kc + (Kl * d) + (Kq * d*d));
 	}
 
-	return attenuation;
-	//return clamp(attenuation, 0.0, 1.0);
+	return clamp(attenuation, 0.0, 1.0);
 }

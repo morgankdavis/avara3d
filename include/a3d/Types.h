@@ -18,6 +18,7 @@
 #include <variant>
 #include <vector>
 
+#include <glm/detail/type_quat.hpp>
 #include <glm/glm.hpp>
 
 
@@ -378,6 +379,7 @@ namespace a3d {
 		unsigned 	polygons;
 		unsigned 	lights;
 		glm::vec3 	cameraPosition;
+		glm::quat 	cameraOrientation;
 
 		unsigned	staticBodies;
 		unsigned	dynamicBodies;

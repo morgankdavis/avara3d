@@ -112,19 +112,19 @@ const vector<shared_ptr<Material>>& Mesh::materials() {
 	return _materials;
 }
 
-const shared_ptr<Material>* Mesh::firstMaterial() const {
+const shared_ptr<Material>& Mesh::firstMaterial() const {
 	if (!_materials.empty()) {
-		return &_materials[0];
+		return _materials[0];
 	}
 	return nullptr;
 }
 
-const shared_ptr<Material>* Mesh::materialNamed(const string& name) const {
+const shared_ptr<Material>& Mesh::materialNamed(const string& name) const {
 	for (auto& material : _materials) {
 		auto matName = material->name();
 		if (matName) {
 			if (!((*matName) == name)) {
-				return &material;
+				return material;
 			}
 		}
 	}
