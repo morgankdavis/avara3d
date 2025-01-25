@@ -20,16 +20,29 @@
 namespace a3d {
 
 
+	class AmbientLight;
 	class Color;
+	class DirectionalLight;
+	class PointLight;
+	class SpotLight;
 	
 	
 	class Light {
 
 /*********************************************************************************************
-	Public Lifecycle Functions
+	Public Static Member Functions
  *********************************************************************************************/
 
 	public:
+
+		static std::shared_ptr<AmbientLight> 		AmbientLight();
+		static std::shared_ptr<DirectionalLight> 	DirectionalLight();
+		static std::shared_ptr<PointLight> 			PointLight();
+		static std::shared_ptr<SpotLight> 			SpotLight();
+
+/*********************************************************************************************
+	Public Lifecycle Functions
+ *********************************************************************************************/
 
 		Light();
 		explicit Light(const std::string& name);
@@ -46,12 +59,6 @@ namespace a3d {
 
 		const std::shared_ptr<Color>&		color() const;
 		void 								color(const std::shared_ptr<Color>& color);
-
-
-		LightType type() const;
-		void type(LightType type);
-		LightType _type;
-
 
 /*********************************************************************************************
 	Protected Lifecycle Functions

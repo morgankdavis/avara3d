@@ -409,13 +409,6 @@ namespace a3d {
 	Internal Types
  **************************************************************************************/
 
-	enum class LightType {
-		Ambient,
-		Directional,
-		Point,
-		Spot
-	};
-
 	enum class ShaderType {
 		Vertex,
 		Fragment

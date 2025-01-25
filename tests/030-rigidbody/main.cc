@@ -311,7 +311,7 @@ int main(int argc, const char* argv[]) {
 
 
 	// box spotlight
-	auto boxesLight = make_shared<SpotLight>();
+	auto boxesLight = Light::SpotLight();
 	boxesLight->innerAngle(glm::radians(2.5));
 	boxesLight->outerAngle(glm::radians(10.0));
 	boxesLight->featheringMode(SpotlightFeatheringMode::Soft);
@@ -342,16 +342,16 @@ int main(int argc, const char* argv[]) {
 
 
 
-//		auto camera = make_shared<PerspectiveCamera>();
-//		auto cameraNode = Node::CameraNode(camera);
-//		cameraNode->position(vec3{0, 30, 60});
-//		cameraNode->eulerAngles(vec3{glm::radians(-20.f), 0, 0});
-//		auto flashLight = make_shared<SpotLight>();
-//		flashLight->innerAngle(glm::radians(2.5f));
-//		flashLight->outerAngle(glm::radians(12.5f));
-//		flashLight->featheringMode(SpotlightFeatheringMode::Sharp);
-//		cameraNode->light(flashLight);
-//		scene->visualWorld()->pointOfView(cameraNode);
+		auto camera = make_shared<PerspectiveCamera>();
+		auto cameraNode = Node::CameraNode(camera);
+		cameraNode->position(vec3{0, 30, 60});
+		cameraNode->eulerAngles(vec3{glm::radians(-20.f), 0, 0});
+		auto flashLight = Light::SpotLight();
+		flashLight->innerAngle(glm::radians(2.5f));
+		flashLight->outerAngle(glm::radians(12.5f));
+		flashLight->featheringMode(SpotlightFeatheringMode::Sharp);
+		cameraNode->light(flashLight);
+		scene->visualWorld()->pointOfView(cameraNode);
 
 
 

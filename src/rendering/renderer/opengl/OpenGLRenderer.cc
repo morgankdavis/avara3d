@@ -96,63 +96,51 @@ typedef struct {
 typedef struct {
 	vec4		color;
 	vec3		direction_world;
-	float32_t	PAD0;
+	float32_t	PAD0_;
 } DirectionalLightGLSLStruct;
 
 typedef struct {
 	vec4		color;
 	vec3		position_world;
-	float32_t	PAD0;
+	float32_t	PAD0_;
 	float32_t	constantAttenuation;
 	float32_t	linearAttenuation;
 	float32_t	quadraticAttenuation;
-	float32_t	PAD1;
+	float32_t	PAD1_;
 } PointLightGLSLStruct;
 
 typedef struct {
 	vec4		color;
 	vec3		position_world;
-	float32_t	PAD0;
+	float32_t	PAD0_;
 	vec3		direction_world;
-	float32_t	PAD1;
+	float32_t	PAD1_;
 	float32_t	innerAngleCos;
 	float32_t	outerAngleCos;
 	uint32_t	featheringMode;
 	float32_t	constantAttenuation;
 	float32_t	linearAttenuation;
 	float32_t	quadraticAttenuation;
-	float32_t	PAD2;
-	float32_t	PAD3;
+	float32_t	PAD2_;
+	float32_t	PAD3_;
 } SpotLightGLSLStruct;
 
 typedef struct {
-	alignas(16) vec4		color;
-	/*alignas(16)*/ float32_t	startDistance;
+	vec4		color;
+	float32_t	startDistance;
 	float32_t	endDistance;
 	float32_t	densityExponent;
-//	float32_t	PAD0;
+	float32_t	PAD0_;
 } FogGLSLStruct;
 
 typedef struct {
 	alignas(16)	uint32_t 					numAmbientLights;
-//	uint32_t PAD0;
-//	uint32_t PAD1;
-//	uint32_t PAD2;
 	alignas(16) AmbientLightGLSLStruct		ambientLights[MAX_AMBIENT_LIGHTS];
 	alignas(16) uint32_t 					numDirectionalLights;
-//	uint32_t PAD3;
-//	uint32_t PAD4;
-//	uint32_t PAD5;
 	alignas(16) DirectionalLightGLSLStruct	directionalLights[MAX_DIRECTIONAL_LIGHTS];
 	alignas(16) uint32_t 					numPointLights;
-//	uint32_t PAD6;
-//	uint32_t PAD7;
-//	uint32_t PAD8;
 	alignas(16) PointLightGLSLStruct		pointLights[MAX_POINT_LIGHTS];
 	alignas(16) uint32_t 					numSpotLights;
-//	uint32_t PAD9;
-//	uint32_t PAD10;
-//	uint32_t PAD11;
 	alignas(16) SpotLightGLSLStruct			spotLights[MAX_SPOT_LIGHTS];
 	alignas(16) FogGLSLStruct				fog;
 } EnvironmentBlock;

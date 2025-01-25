@@ -39,19 +39,19 @@ using namespace std;
  *********************************************************************************************/
 
 shared_ptr<Node> Node::NamedNode(const string& name) {
-	return make_shared<Node>(name);
+	return make_unique<Node>(name);
 }
 
 shared_ptr<Node> Node::MeshNode(const shared_ptr<Mesh>& mesh) {
-	return make_shared<Node>(mesh);
+	return make_unique<Node>(mesh);
 }
 
 shared_ptr<Node> Node::LightNode(const shared_ptr<Light>& light) {
-	return make_shared<Node>(light);
+	return make_unique<Node>(light);
 }
 
 shared_ptr<Node> Node::CameraNode(const shared_ptr<Camera>& camera) {
-	return make_shared<Node>(camera);
+	return make_unique<Node>(camera);
 }
 
 /*********************************************************************************************

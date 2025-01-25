@@ -10,6 +10,10 @@
 
 #include "a3d/Color.h"
 #include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/rendering/light/AmbientLight.h"
+#include "a3d/rendering/light/DirectionalLight.h"
+#include "a3d/rendering/light/PointLight.h"
+#include "a3d/rendering/light/SpotLight.h"
 
 
 using namespace a3d;
@@ -17,27 +21,28 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Public Lifecycle Functions
+	Public Static Member Functions
  *********************************************************************************************/
 
-Light::Light(const string& name):
-		Light() {
-	_name = name;
-	_type = LightType::Point;
+shared_ptr<AmbientLight> Light::AmbientLight() {
+	return make_unique<a3d::AmbientLight>();
 }
 
-Light::Light(const shared_ptr<Color>& color):
-		Light() {
-	_color = color;
-	_type = LightType::Point;
+shared_ptr<DirectionalLight> Light::DirectionalLight() {
+	return make_unique<a3d::DirectionalLight>();
 }
 
-Light::Light(const string& name, const shared_ptr<Color>& color):
-		Light() {
-	_name = name;
-	_color = color;
-	_type = LightType::Point;
+shared_ptr<PointLight> Light::PointLight() {
+	return make_unique<a3d::PointLight>();
 }
+
+shared_ptr<SpotLight> Light::SpotLight() {
+	return make_unique<a3d::SpotLight>();
+}
+
+/*********************************************************************************************
+	Public Lifecycle Functions
+ *********************************************************************************************/
 
 Light::~Light() {
 
@@ -75,12 +80,4 @@ const shared_ptr<Color>& Light::color() const {
 
 void Light::color(const shared_ptr<Color>& color) {
 	_color = color;
-}
-
-LightType Light::type() const {
-	return _type;
-}
-
-void Light::type(LightType type) {
-	_type = type;
 }

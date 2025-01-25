@@ -73,42 +73,41 @@ struct AmbientLight {
 struct DirectionalLight {
 	vec4 	color;
 	vec3 	direction_world;
-	float	PAD0;
+	float	_PAD0_;
 };
 
 struct PointLight {
 	vec4 	color;
 	vec3 	position_world;
-	float	PAD0;
+	float	_PAD0_;
 	float	constantAttenuation;
 	float	linearAttenuation;
 	float	quadraticAttenuation;
-	float	PAD1;
+	float	_PAD1_;
 };
 
 struct SpotLight {
 	vec4 	color;
 	vec3 	position_world;
-	float	PAD0;
+	float	_PAD0_;
 	vec3 	direction_world;
-	float	PAD1;
+	float	_PAD1_;
 	float	innerAngleCos;
 	float	outerAngleCos;
 	uint	featheringMode;
 	float	constantAttenuation;
 	float	linearAttenuation;
 	float	quadraticAttenuation;
-	float	PAD2;
-	float	PAD3;
+	float	_PAD2_;
+	float	_PAD3_;
 };
 
 struct Fog {
 	vec4 	color;
-//	float PAD0;
 	float 	startDistance;
 	float 	endDistance;
 	float 	densityExponent;
-//	float	PAD0;
+	float	_PAD0_;
 };
 
 in 			vec3 		frag_vertPos_eye;
