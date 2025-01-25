@@ -290,6 +290,11 @@ void Window::cursorCaptured(bool captured) {
 	glfwSetInputMode(_glfwWindow.get(),
 					 GLFW_CURSOR,
 					 (captured ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL));
+//	if (captured) {
+//		glfwSetInputMode(_glfwWindow.get(),
+//						 GLFW_CURSOR,
+//						 GLFW_CURSOR_HIDDEN);
+//	}
 }
 
 bool Window::highDPIEnabled() const {

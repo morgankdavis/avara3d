@@ -157,12 +157,11 @@ namespace a3d {
 		Disabled
 	};
 
-//	enum class LightType {
-//		Ambient,
-//		Point,
-//		Directional,
-//		Spot
-//	};
+	enum class SpotlightFeatheringMode : unsigned {
+		Linear =	0,
+		Sharp = 	1, // y = x(2-x)
+		Soft = 		2 // y = x^2
+	};
 
 	enum class AntialiasingMode : unsigned {
 		None =		0,
@@ -409,13 +408,6 @@ namespace a3d {
 /**************************************************************************************
 	Internal Types
  **************************************************************************************/
-
-	enum class LightType {
-		Ambient,
-		Directional,
-		Point,
-		Spot
-	};
 
 	enum class ShaderType {
 		Vertex,

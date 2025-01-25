@@ -28,6 +28,10 @@ const uint LIGHT_TYPE_POINT =							1u;
 const uint LIGHT_TYPE_DIRECTIONAL =						2u;
 const uint LIGHT_TYPE_SPOT =							3u;
 
+const uint SPOTLIGHT_FEATHERING_MODE_LINEAR =			0u;
+const uint SPOTLIGHT_FEATHERING_MODE_SHARP =			1u;
+const uint SPOTLIGHT_FEATHERING_MODE_SOFT =				2u;
+
 
 //#define GAMMA 										2.2
 //
@@ -69,47 +73,42 @@ struct AmbientLight {
 struct DirectionalLight {
 	vec4 	color;
 	vec3 	direction_world;
-	float	PAD0;
+	float	_PAD0_;
 };
 
 struct PointLight {
 	vec4 	color;
 	vec3 	position_world;
-	float	PAD0;
+	float	_PAD0_;
 	float	constantAttenuation;
 	float	linearAttenuation;
 	float	quadraticAttenuation;
-	float	PAD1;
+	float	_PAD1_;
 };
 
 struct SpotLight {
 	vec4 	color;
 	vec3 	position_world;
-	float	PAD0;
+	float	_PAD0_;
 	vec3 	direction_world;
-	float	PAD1;
-	float	innerAngle;
-	float	outerAngle;
+	float	_PAD1_;
+	float	innerAngleCos;
+	float	outerAngleCos;
+	uint	featheringMode;
 	float	constantAttenuation;
 	float	linearAttenuation;
 	float	quadraticAttenuation;
-	float	PAD2;
-	float	PAD3;
-	float	PAD4;
+	float	_PAD2_;
+	float	_PAD3_;
 };
 
 struct Fog {
 	vec4 	color;
-//	float PAD0;
 	float 	startDistance;
 	float 	endDistance;
 	float 	densityExponent;
-//	float	PAD0;
+	float	_PAD0_;
 };
-
-// temporary
-in 			vec3 		frag_vertPos_world;
-in 			vec3 		frag_vertNorm_world;
 
 in 			vec3 		frag_vertPos_eye;
 in 			vec3 		frag_vertNorm_eye;
@@ -181,8 +180,6 @@ void main () {
 
 	if (useDefaultLighting) {
 
-	// !!! THIS IS FINE !!!
-
 		// find an emissive property in order:
 		// 1. emissive
 		// 2. diffuse
@@ -208,7 +205,9 @@ void main () {
 	}
 	else if (emissionContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
 
-		/* emission color */
+		/******************************************************************************
+			emission color
+		******************************************************************************/
 
 		Ke = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_EMISSION,
 			emissionContentsType, colors, samplers);
@@ -218,7 +217,9 @@ void main () {
 	}
 	else {
 
-		/* ambient, diffuse, specular colors */
+		/******************************************************************************
+			ambient, diffuse, specular colors
+		******************************************************************************/
 
 		Ka = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_AMBIENT,
 			ambientContentsType, colors, samplers);
@@ -227,23 +228,26 @@ void main () {
 		Ks = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_SPECULAR,
 			specularContentsType, colors, samplers);
 
-		/* lock ambient with diffuse */
+		/******************************************************************************
+			lock ambient with diffuse
+		******************************************************************************/
 
-//		if (locksAmbientWithDiffuse && (diffuseContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE)) {
-//			Ka = Kd;
-//		}
 		if ((diffuseContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE)) {
 			Ka = Kd;
 		}
 
-		/* alpha rejection */
+		/******************************************************************************
+			alpha rejection
+		******************************************************************************/
 
 		// look at depth peeling or a-buffers for proper alpha blending
 		if (Kd.a < ALPHA_REJECTION_THRESHOLD) discard;
 
-		/* lighting */
+		/******************************************************************************
+			lighting
+		******************************************************************************/
 
-		// ambient lights
+		// * ambient lights *
 
 		for (uint l=0u; l<Environment.numAmbientLights; ++l) {
 
@@ -256,7 +260,7 @@ void main () {
 			fragColor += vec4(Ia, 1.0);
 		}
 
-		// directional lights
+		// * directional lights *
 
 		for (uint l=0u; l<Environment.numDirectionalLights; ++l) {
 
@@ -267,52 +271,40 @@ void main () {
 			vec3 Id = vec3(0.0, 0.0, 0.0);
 			vec3 Is = vec3(0.0, 0.0, 0.0);
 
-
-
-
 			// diffuse
 
-//			// raise light position to eye space
-//			vec3 lightPos_eye = vec3(viewMat * vec4(lightPos_world, 1.0));
-//			vec3 directionToLight_eye = normalize(lightPos_eye - frag_vertPos_eye);
+			vec3 lightDir_eye = vec3(viewMat * vec4(-light.direction_world, 0.0));
+			vec3 surfaceToLightDir_eye = normalize(lightDir_eye);
+			float dotDiffuse = max(dot(surfaceToLightDir_eye, frag_vertNorm_eye), 0.0);
 
-			vec3 lightDirection_eye = vec3(viewMat * vec4(-light.direction_world, 0.0));
-
-			vec3 directionToLight_eye = normalize(lightDirection_eye);
-
-			float dotProdDiffuse = max(dot(directionToLight_eye, frag_vertNorm_eye), 0.0);
-
-			Id = L * vec3(Kd) * dotProdDiffuse;
+			Id = L * vec3(Kd) * dotDiffuse;
 
 			// specular
 
 			Is = vec3(0.0, 0.0, 0.0);
 			if (Ks.x != 0.0 || Ks.y != 0.0 || Ks.z != 0.0) {
 
-				vec3 surfaceToViewer_eye = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
+				vec3 surfaceToCameraDir = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
 
 				// phong
-				vec3 reflection_eye = reflect(-directionToLight_eye, frag_vertNorm_eye);
-				float dotProdSpecular = dot(reflection_eye, surfaceToViewer_eye);
-				dotProdSpecular = max(dotProdSpecular, 0.0);
-				float specularFactor = pow(dotProdSpecular, specularExponent);
+				vec3 reflection_eye = reflect(-surfaceToLightDir_eye, frag_vertNorm_eye);
+				float dotSpecular = dot(reflection_eye, surfaceToCameraDir);
+				dotSpecular = max(dotSpecular, 0.0);
+				float specularFactor = pow(dotSpecular, specularExponent);
 
 				// blinn
 				// vec3 half_way_eye = normalize(surface_to_viewer_eye + direction_to_light_eye);
 				// float dot_prod_specular = max(dot(half_way_eye, vertex_normal_eye), 0.0);
 				// float specular_factor = pow(dot_prod_specular, specularExponent);
 
-//				Is = L * vec3(Ks) * specularFactor * attenuation; // specular intensity w/attenuation
-
+				// Is = L * vec3(Ks) * specularFactor * attenuation; // specular intensity w/attenuation
 				Is = L * vec3(Ks) * specularFactor;
 			}
 
 			fragColor += vec4(Id + Is, 0.0);
-
-			//fragColor = vec4(0, 1, 0, 0);
 		}
 
-		// point lights
+		// * point lights *
 
 		for (uint l=0u; l<Environment.numPointLights; ++l) {
 
@@ -323,36 +315,34 @@ void main () {
 			vec3 Id = vec3(0.0, 0.0, 0.0);
 			vec3 Is = vec3(0.0, 0.0, 0.0);
 
-			vec3 lightPos_world = light.position_world;
-
 			// diffuse
 
 			// raise light position to eye space
-			vec3 lightPos_eye = vec3(viewMat * vec4(lightPos_world, 0.0));
-			vec3 directionToLight_eye = normalize(lightPos_eye - frag_vertPos_eye);
-			float dotProdDiffuse = max(dot(directionToLight_eye, frag_vertNorm_eye), 0.0);
+			vec3 lightPos_eye = vec3(viewMat * vec4(light.position_world, 1.0));
+			vec3 surfaceToLightDir_eye = normalize(lightPos_eye - frag_vertPos_eye);
+			float dotDiffuse = max(dot(surfaceToLightDir_eye, frag_vertNorm_eye), 0.0);
 
-			float distanceToLight = distance(lightPos_eye, frag_vertPos_eye);
+			float surfaceToLightDist = distance(lightPos_eye, frag_vertPos_eye);
 
 			float attenuation = Attenuate(light.constantAttenuation,
 										  light.linearAttenuation,
 										  light.quadraticAttenuation,
-										  distanceToLight);
+										  surfaceToLightDist);
 
-			Id = L * vec3(Kd) * dotProdDiffuse * attenuation;
+			Id = L * vec3(Kd) * dotDiffuse * attenuation;
 
 			// specular
 
 			Is = vec3(0.0, 0.0, 0.0);
 			if (Ks.x != 0.0 || Ks.y != 0.0 || Ks.z != 0.0) {
 
-				vec3 surfaceToViewer_eye = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
+				vec3 surfaceToCameraDir = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
 
 				// phong
-				vec3 reflection_eye = reflect(-directionToLight_eye, frag_vertNorm_eye);
-				float dotProdSpecular = dot(reflection_eye, surfaceToViewer_eye);
-				dotProdSpecular = max(dotProdSpecular, 0.0);
-				float specularFactor = pow(dotProdSpecular, specularExponent);
+				vec3 reflection_eye = reflect(-surfaceToLightDir_eye, frag_vertNorm_eye);
+				float dotSpecular = dot(reflection_eye, surfaceToCameraDir);
+				dotSpecular = max(dotSpecular, 0.0);
+				float specularFactor = pow(dotSpecular, specularExponent);
 
 				// blinn
 				// vec3 half_way_eye = normalize(surface_to_viewer_eye + direction_to_light_eye);
@@ -365,24 +355,79 @@ void main () {
 			fragColor += vec4(Id + Is, 0.0);
 		}
 
-//		// spot lights
-//
-//		for (uint l=0u; l<Environment.numSpotLights; ++l) {
-//
-//			SpotLight light = Environment.spotLights[l];
-//
-//			vec3 L = vec3(light.color.rgb);
-//
-//			vec3 Id = vec3(0.0, 0.0, 0.0);
-//			vec3 Is = vec3(0.0, 0.0, 0.0);
-//
-//			// TODO
-//		}
+		// * spot lights *
+
+		for (uint l=0u; l<Environment.numSpotLights; ++l) {
+
+			SpotLight light = Environment.spotLights[l];
+
+			vec3 L = vec3(light.color.rgb);
+
+			vec3 Id = vec3(0.0, 0.0, 0.0);
+			vec3 Is = vec3(0.0, 0.0, 0.0);
+
+			vec3 lightPos_eye = vec3(viewMat * vec4(light.position_world, 1.0));
+			vec3 surfaceToLightDir_eye = normalize(lightPos_eye - frag_vertPos_eye);
+			vec3 lightDir_eye = normalize(vec3(viewMat * vec4(-light.direction_world, 0.0)));
+			vec3 surfaceToCameraDir_eye = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
+
+			// cosine of angle. see DeVries 16.5
+			float theta = dot(surfaceToLightDir_eye, lightDir_eye);
+
+			float epsilon = light.innerAngleCos - light.outerAngleCos;
+			float linearIntensity = clamp((theta - light.outerAngleCos) / epsilon, 0.0, 1.0);
+
+			if (linearIntensity > 0.0) {
+
+				// apply some easing to the light cutoff
+				// https://www.geogebra.org/m/kvy5zksn
+				// https://learn.pandasuite.com/article/776-animations
+
+				float easedIntensity = linearIntensity;
+
+				switch (light.featheringMode) {
+					case SPOTLIGHT_FEATHERING_MODE_SHARP:
+						easedIntensity = clamp(linearIntensity * (2-linearIntensity), 0.0, 1.0);
+						break;
+					case SPOTLIGHT_FEATHERING_MODE_SOFT:
+						easedIntensity = clamp(pow(linearIntensity, 2), 0.0, 1.0);
+						break;
+					default: break;
+				}
+
+				// diffuse
+				float dotDiffuse = max(dot(surfaceToLightDir_eye, frag_vertNorm_eye), 0.0);
+				float surfaceToLightDist = distance(lightPos_eye, frag_vertPos_eye);
+				float attenuation = Attenuate(light.constantAttenuation,
+											  light.linearAttenuation,
+											  light.quadraticAttenuation,
+											  surfaceToLightDist);
+
+				Id = L * vec3(Kd) * easedIntensity * dotDiffuse * attenuation;
+
+				// specular
+
+				if (Ks.x != 0.0 || Ks.y != 0.0 || Ks.z != 0.0) {
+
+					// phong
+					vec3 reflection_eye = reflect(-surfaceToLightDir_eye, frag_vertNorm_eye);
+					float dotSpecular = dot(reflection_eye, surfaceToCameraDir_eye);
+					dotSpecular = max(dotSpecular, 0.0);
+					float specularFactor = pow(dotSpecular, specularExponent);
+
+					Is = L * vec3(Ks) * easedIntensity * specularFactor * attenuation;
+				}
+			}
+
+			fragColor += vec4(Id + Is, 0.0);
+		}
 
 		fragColor = vec4(vec3(fragColor), Kd.a);
 	}
 
-	/* fog */
+	/******************************************************************************
+		fog
+	******************************************************************************/
 
 	if (!FloatsEqual(Environment.fog.endDistance, 0.0, 0.0001)) { // endDistance == 0 disables fog
 		if (FloatsEqual(Environment.fog.densityExponent, 0.0, 0.0001)) { // constant
@@ -402,7 +447,9 @@ void main () {
 	}
 	
 	
-	/* gamma correction */
+	/******************************************************************************
+		gamma correction
+	******************************************************************************/
 	
 	//fragColor.rgb = pow(fragColor.rgb, vec3(1.0/GAMMA));
 }

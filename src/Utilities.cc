@@ -108,7 +108,7 @@ ostream& a3d::utils::operator<<(ostream& os, const mat4& m) {
 }
 
 ostream& a3d::utils::operator<<(ostream& os, const Color& c) {
-	os << "(" << c.r << ", " << c.g << ", " << c.b << ", " << c.a << ")";
+	os << "(" << c.r() << ", " << c.g() << ", " << c.b() << ", " << c.a() << ")";
 	return os;
 }
 

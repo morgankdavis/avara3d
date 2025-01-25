@@ -31,7 +31,7 @@ constexpr LogLevel				A3D_APP_LOG_LEVEL =		LogLevel::Debug;
 constexpr uvec2					WINDOW_SIZE =			{1280, 768};
 constexpr bool					FULLSCREEN =			false;
 constexpr bool					ENABLE_HIGH_DPI =		true;
-constexpr AntialiasingMode		MSAA_MODE =				AntialiasingMode::Msaa4X;
+constexpr AntialiasingMode		MSAA_MODE =				AntialiasingMode::Msaa16X;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					USE_DEFAULT_LIGHTING =	false;
 constexpr bool					CAPTURE_CURSOR =		false;
@@ -124,16 +124,15 @@ int main(int argc, const char* argv[]) {
 
 
 		auto ambientColor = DARK
-							? Color::LightGray()
-							//: make_shared<Color>(vec3{1.0, .5, 0} * .5f); // sunset
+							? make_shared<Color>(.1f) // should be light gray
 							: Color::DarkGray();
 			auto ambientLight = make_shared<AmbientLight>(ambientColor);
 			auto ambientLightNode = Node::LightNode(ambientLight);
 			scene->rootNode()->addChild(ambientLightNode);
 
 		auto sunColor = DARK
-		        ? Color::White()
-				: make_shared<Color>(ivec3{233, 218, 185});
+		        ? Color::Gray()
+				: make_shared<Color>(u8vec3{233, 218, 185});
 		auto sunLight = make_shared<DirectionalLight>(sunColor);
 		auto sunNode = Node::LightNode(sunLight);
 		scene->rootNode()->addChild(sunNode);
@@ -147,7 +146,6 @@ int main(int argc, const char* argv[]) {
 								  glm::radians(90.0 + 45.0),
 								  glm::radians(0.0)});
 		}
-
 
 
 			//pointLightNode->mesh(Box::Mesh(0.5, 0.5, 0.5));
@@ -226,7 +224,8 @@ int main(int argc, const char* argv[]) {
 
 		// add the palm tree
 
-		auto palmNode = Node::MeshNode(utils::MeshNamed("palm/palm"));
+		//auto palmNode = Node::MeshNode(utils::MeshNamed("palm/palm"));
+		auto palmNode = Node::MeshNode(utils::MeshNamed("cartoon_palm_tree/cartoon_palm_tree"));
 		g_palmNode = palmNode.get();
 		auto palmPhysicsBody = PhysicsBody::StaticBody();
 		palmPhysicsBody->mass(0);
@@ -311,7 +310,20 @@ int main(int argc, const char* argv[]) {
 
 
 
-		A3D_APP_LOG_I(g_logger, "*** SCENE EXTENT: {} ***", utils::StringFromGLMVec3(scene->rootNode()->extent()));
+	// box spotlight
+	auto boxesLight = Light::SpotLight();
+	boxesLight->innerAngle(glm::radians(2.5));
+	boxesLight->outerAngle(glm::radians(10.0));
+	boxesLight->featheringMode(SpotlightFeatheringMode::Soft);
+	auto boxesLightNode = Node::LightNode(boxesLight);
+	boxesLightNode->position({-8.5, 18, -8.5});
+	boxesLightNode->eulerAngles({-1.2527435, 0.47099817, 0});
+	scene->rootNode()->addChild(boxesLightNode);
+
+
+
+	A3D_APP_LOG_I(g_logger, "*** SCENE EXTENT: {} ***",
+				  utils::StringFromGLMVec3(scene->rootNode()->extent()));
 
 	//	A3D_A3D_APP_LOG_I("Graph:\n{}", StringFromTree(*scene->rootNode()));
 	//	auto children = scene->rootNode()->children(true);
@@ -327,6 +339,22 @@ int main(int argc, const char* argv[]) {
 	//			A3D_A3D_APP_LOG_I("\t{:p}", (void*)child.get());
 	//		}
 	//	}
+
+
+
+		auto camera = make_shared<PerspectiveCamera>();
+		auto cameraNode = Node::CameraNode(camera);
+		cameraNode->position(vec3{0, 30, 60});
+		cameraNode->eulerAngles(vec3{glm::radians(-20.f), 0, 0});
+		auto flashLight = Light::SpotLight();
+		flashLight->innerAngle(glm::radians(2.5f));
+		flashLight->outerAngle(glm::radians(12.5f));
+		flashLight->featheringMode(SpotlightFeatheringMode::Sharp);
+		cameraNode->light(flashLight);
+		scene->visualWorld()->pointOfView(cameraNode);
+
+
+
 
 		window->center();
 		window->open();
@@ -974,6 +1002,7 @@ void ShootBall(Scene& scene, const vec3& location, const vec3& direction) {
 #else
 
 		static auto mesh = utils::MeshNamed("slurm/slurm");
+		//static auto mesh = utils::MeshNamed("flashlight/flashlight");
 		//mesh->hidden(true);
 
 		auto node = Node::MeshNode(mesh);
@@ -1125,9 +1154,15 @@ void AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color) {
 
 	auto node = Node::MeshNode(Box::Mesh(1.0, 1.0, 1.0));
 	//auto materialProperty = shared_ptr<Color>(std::move(color));
-	auto material = make_shared<Material>(monostate{}, color, monostate{});
+	auto material = make_shared<Material>(monostate{}, monostate{}, monostate{}, color);
 	node->mesh()->addMaterial(material);
 	node->position(location);
+
+//	auto light = make_shared<PointLight>();
+//	light->constantAttenuation(0);
+//	light->linearAttenuation(0.00000001);
+//	light->quadraticAttenuation(0);
+//	node->light(light);
 
 	auto physicsBody = PhysicsBody::DynamicBody();
 	physicsBody->mass(1.0);

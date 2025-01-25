@@ -42,11 +42,21 @@ namespace a3d {
 
 	public:
 
-		float			innerAngle() const;
-		void			innerAngle(float angle);
+		float					innerAngle() const;
+		void					innerAngle(float angle);
 
-		float			outerAngle() const;
-		void			outerAngle(float angle);
+		float					outerAngle() const;
+		void					outerAngle(float angle);
+
+		SpotlightFeatheringMode	featheringMode() const;
+		void					featheringMode(SpotlightFeatheringMode mode);
+
+/*********************************************************************************************
+	Internal Member Functions
+ *********************************************************************************************/
+
+		float					innerAngleCos() const;
+		float					outerAngleCos() const;
 
 /*********************************************************************************************
 	Private Lifecycle Functions
@@ -62,8 +72,9 @@ namespace a3d {
 
 	private:
 
-		float			_innerAngle;
-		float			_outerAngle;
+		float					_innerAngleCos;
+		float					_outerAngleCos;
+		SpotlightFeatheringMode	_featherMode;
 	};
 }
 
