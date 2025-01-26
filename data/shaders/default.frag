@@ -147,9 +147,9 @@ out 		vec4 		fragColor;
 
 vec4 CalcDefaultLighting();
 vec3 CalcAmbientLighting(vec4 Ka);
-vec3 CalcDirectionalLighting(vec3 surfaceToLightDir_eye);
-vec3 CalcPointLighting(vec3 surfaceToLightDir_eye);
-vec3 CalcSpotLighting(vec3 lightDir_eye, vec3 surfaceToLightDir_eye);
+vec3 CalcDirectionalLighting(vec4 Kd, vec4 Ks);
+vec3 CalcPointLighting(vec4 Kd, vec4 Ks);
+vec3 CalcSpotLighting(vec4 Kd, vec4 Ks);
 vec3 CalcFog();
 vec3 CalcGamma();
 
@@ -249,12 +249,13 @@ void main () {
 
 		fragColor = vec4(CalcAmbientLighting(Ka), 1.0);
 
+//		vec3 lightDir_eye = vec3(viewMat * vec4(-light.direction_world, 0.0));
 //		vec3 surfaceToLightDir_eye = normalize(lightDir_eye);
-//
+
 //		CalcDirectionalLighting(surfaceToLightDir_eye);
 //		CalcPointLighting(surfaceToLightDir_eye);
 //
-//		vec3 lightDir_eye = vec3(viewMat * vec4(-light.direction_world, 0.0));
+//
 //
 //		CalcSpotLighting(lightDir_eye, surfaceToLightDir_eye);
 
@@ -274,47 +275,49 @@ void main () {
 
 		// * directional lights *
 
-		for (uint l=0u; l<Environment.numDirectionalLights; ++l) {
+//		for (uint l=0u; l<Environment.numDirectionalLights; ++l) {
+//
+//			DirectionalLight light = Environment.directionalLights[l];
+//
+//			vec3 L = vec3(light.color.rgb);
+//
+//			vec3 Id = vec3(0.0, 0.0, 0.0);
+//			vec3 Is = vec3(0.0, 0.0, 0.0);
+//
+//			// diffuse
+//
+//			vec3 lightDir_eye = vec3(viewMat * vec4(-light.direction_world, 0.0));
+//			vec3 surfaceToLightDir_eye = normalize(lightDir_eye);
+//			float dotDiffuse = max(dot(surfaceToLightDir_eye, frag_vertNorm_eye), 0.0);
+//
+//			Id = L * vec3(Kd) * dotDiffuse;
+//
+//			// specular
+//
+//			Is = vec3(0.0, 0.0, 0.0);
+//			if (Ks.x != 0.0 || Ks.y != 0.0 || Ks.z != 0.0) {
+//
+//				vec3 surfaceToCameraDir = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
+//
+//				// phong
+//				vec3 reflection_eye = reflect(-surfaceToLightDir_eye, frag_vertNorm_eye);
+//				float dotSpecular = dot(reflection_eye, surfaceToCameraDir);
+//				dotSpecular = max(dotSpecular, 0.0);
+//				float specularFactor = pow(dotSpecular, specularExponent);
+//
+//				// blinn
+//				// vec3 half_way_eye = normalize(surface_to_viewer_eye + direction_to_light_eye);
+//				// float dot_prod_specular = max(dot(half_way_eye, vertex_normal_eye), 0.0);
+//				// float specular_factor = pow(dot_prod_specular, specularExponent);
+//
+//				// Is = L * vec3(Ks) * specularFactor * attenuation; // specular intensity w/attenuation
+//				Is = L * vec3(Ks) * specularFactor;
+//			}
+//
+//			fragColor += vec4(Id + Is, 0.0);
+//		}
 
-			DirectionalLight light = Environment.directionalLights[l];
-
-			vec3 L = vec3(light.color.rgb);
-
-			vec3 Id = vec3(0.0, 0.0, 0.0);
-			vec3 Is = vec3(0.0, 0.0, 0.0);
-
-			// diffuse
-
-			vec3 lightDir_eye = vec3(viewMat * vec4(-light.direction_world, 0.0));
-			vec3 surfaceToLightDir_eye = normalize(lightDir_eye);
-			float dotDiffuse = max(dot(surfaceToLightDir_eye, frag_vertNorm_eye), 0.0);
-
-			Id = L * vec3(Kd) * dotDiffuse;
-
-			// specular
-
-			Is = vec3(0.0, 0.0, 0.0);
-			if (Ks.x != 0.0 || Ks.y != 0.0 || Ks.z != 0.0) {
-
-				vec3 surfaceToCameraDir = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
-
-				// phong
-				vec3 reflection_eye = reflect(-surfaceToLightDir_eye, frag_vertNorm_eye);
-				float dotSpecular = dot(reflection_eye, surfaceToCameraDir);
-				dotSpecular = max(dotSpecular, 0.0);
-				float specularFactor = pow(dotSpecular, specularExponent);
-
-				// blinn
-				// vec3 half_way_eye = normalize(surface_to_viewer_eye + direction_to_light_eye);
-				// float dot_prod_specular = max(dot(half_way_eye, vertex_normal_eye), 0.0);
-				// float specular_factor = pow(dot_prod_specular, specularExponent);
-
-				// Is = L * vec3(Ks) * specularFactor * attenuation; // specular intensity w/attenuation
-				Is = L * vec3(Ks) * specularFactor;
-			}
-
-			fragColor += vec4(Id + Is, 0.0);
-		}
+		fragColor += vec4(CalcDirectionalLighting(Kd, Ks), 0.0);
 
 		// * point lights *
 
@@ -516,17 +519,61 @@ vec3 CalcAmbientLighting(vec4 Ka) {
 	return color;
 }
 
-vec3 CalcDirectionalLighting(vec3 surfaceToLightDir_eye) {
+vec3 CalcDirectionalLighting(vec4 Kd, vec4 Ks) {
+
+	vec3 color = vec3(0.0);
+
+	for (uint l=0u; l<Environment.numDirectionalLights; ++l) {
+
+		DirectionalLight light = Environment.directionalLights[l];
+
+		vec3 L = vec3(light.color.rgb);
+
+		vec3 Id = vec3(0.0, 0.0, 0.0);
+		vec3 Is = vec3(0.0, 0.0, 0.0);
+
+		// diffuse
+
+		vec3 lightDir_eye = vec3(viewMat * vec4(-light.direction_world, 0.0));
+		vec3 surfaceToLightDir_eye = normalize(lightDir_eye);
+		float dotDiffuse = max(dot(surfaceToLightDir_eye, frag_vertNorm_eye), 0.0);
+
+		Id = L * vec3(Kd) * dotDiffuse;
+
+		// specular
+
+		Is = vec3(0.0, 0.0, 0.0);
+		if (Ks.x != 0.0 || Ks.y != 0.0 || Ks.z != 0.0) {
+
+			vec3 surfaceToCameraDir = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
+
+			// phong
+			vec3 reflection_eye = reflect(-surfaceToLightDir_eye, frag_vertNorm_eye);
+			float dotSpecular = dot(reflection_eye, surfaceToCameraDir);
+			dotSpecular = max(dotSpecular, 0.0);
+			float specularFactor = pow(dotSpecular, specularExponent);
+
+			// blinn
+			// vec3 half_way_eye = normalize(surface_to_viewer_eye + direction_to_light_eye);
+			// float dot_prod_specular = max(dot(half_way_eye, vertex_normal_eye), 0.0);
+			// float specular_factor = pow(dot_prod_specular, specularExponent);
+
+			// Is = L * vec3(Ks) * specularFactor * attenuation; // specular intensity w/attenuation
+			Is = L * vec3(Ks) * specularFactor;
+		}
+
+		color += Id + Is;
+	}
+
+	return color;
+}
+
+vec3 CalcPointLighting(vec4 Kd, vec4 Ks) {
 
 	return vec3(0.0);
 }
 
-vec3 CalcPointLighting(vec3 surfaceToLightDir_eye) {
-
-	return vec3(0.0);
-}
-
-vec3 CalcSpotLighting(vec3 lightDir_eye, vec3 surfaceToLightDir_eye) {
+vec3 CalcSpotLighting(vec4 Kd, vec4 Ks, vec3 lightDir_eye) {
 
 	return vec3(0.0);
 }
