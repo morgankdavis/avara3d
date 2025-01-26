@@ -10,6 +10,7 @@
 #define MAX_POINT_LIGHTS								128
 #define MAX_SPOT_LIGHTS									64
 
+
 const float GAMMA =										2.2f;
 
 const float ALPHA_REJECTION_THRESHOLD =					0.5f;
@@ -31,25 +32,6 @@ const uint LIGHT_TYPE_SPOT =							3u;
 const uint SPOTLIGHT_FEATHERING_MODE_LINEAR =			0u;
 const uint SPOTLIGHT_FEATHERING_MODE_SHARP =			1u;
 const uint SPOTLIGHT_FEATHERING_MODE_SOFT =				2u;
-
-
-//#define GAMMA 										2.2
-//
-//#define ALPHA_REJECTION_THRESHOLD 					0.5
-//
-//#define MATERIAL_PROPERTY_CONTENTS_TYPE_NONE 		0
-//#define MATERIAL_PROPERTY_CONTENTS_TYPE_COLOR 		1
-//#define MATERIAL_PROPERTY_CONTENTS_TYPE_SAMPLER 	2
-//
-//#define MATERIAL_PROPERTY_TYPE_AMBIENT 				0
-//#define MATERIAL_PROPERTY_TYPE_DIFFUSE 				1
-//#define MATERIAL_PROPERTY_TYPE_SPECULAR 			2
-//#define MATERIAL_PROPERTY_TYPE_EMISSION 			3
-//
-//#define LIGHT_TYPE_AMBIENT 							0
-//#define LIGHT_TYPE_POINT 							1
-//#define LIGHT_TYPE_DIRECTIONAL 						2
-//#define LIGHT_TYPE_SPOT 							3
 
 
 struct Samplers {
@@ -163,6 +145,15 @@ layout(std140) uniform EnvironmentBlock {
 out 		vec4 		fragColor;
 
 
+vec4 CalcDefaultLighting(uint emissionContentsType, vec2 texCoord, Colors colors, Samplers samplers);
+vec3 CalcAmbientLighting(AmbientLight[MAX_AMBIENT_LIGHTS] lights, uint numLights, vec3 vertPos_eye, vec3 vertNorm_eye);
+vec3 CalcDirectionalLighting(DirectionalLight[MAX_DIRECTIONAL_LIGHTS] lights, uint numLights, vec3 vertPos_eye, vec3 vertNorm_eye, vec3 surfaceToLightDir_eye);
+vec3 CalcPointLighting(PointLight[MAX_POINT_LIGHTS] lights, uint numLights, vec3 vertPos_eye, vec3 vertNorm_eye, vec3 surfaceToLightDir_eye);
+vec3 CalcSpotLighting(SpotLight[MAX_SPOT_LIGHTS] lights, uint numLights, vec3 vertPos_eye, vec3 vertNorm_eye, vec3 surfaceToLightDir_eye);
+vec3 CalcFog(Fog fog, vec3 vertPos_eye);
+vec3 CalcGamma(float gamma);
+
+
 bool FloatsEqual(float a, float b, float eps);
 vec4 ColorForTexCoord(vec2 texCoord, uint propertyType, uint propertyContentsType,
 					  Colors colors, Samplers samplers);
@@ -180,28 +171,32 @@ void main () {
 
 	if (useDefaultLighting) {
 
+
+
 		// find an emissive property in order:
 		// 1. emissive
 		// 2. diffuse
 		// 3. ambient
 
-		if (emissionContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
-			Ke = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_EMISSION,
-				emissionContentsType, colors, samplers);
-		}
-		else if (diffuseContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
-			Ke = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_DIFFUSE,
-				diffuseContentsType, colors, samplers);
-		}
-		else if (ambientContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
-			Ke = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_AMBIENT,
-				ambientContentsType, colors, samplers);
-		}
-		else {
-			Ke = vec4(1.0, 1.0, 1.0, 1.0); // just use white.
-		}
+//		if (emissionContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
+//			Ke = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_EMISSION,
+//				emissionContentsType, colors, samplers);
+//		}
+//		else if (diffuseContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
+//			Ke = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_DIFFUSE,
+//				diffuseContentsType, colors, samplers);
+//		}
+//		else if (ambientContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
+//			Ke = ColorForTexCoord(frag_texCoord, MATERIAL_PROPERTY_TYPE_AMBIENT,
+//				ambientContentsType, colors, samplers);
+//		}
+//		else {
+//			Ke = vec4(1.0, 1.0, 1.0, 1.0); // just use white.
+//		}
+//
+//		fragColor = vec4(Ke.rgb, 1.0);
 
-		fragColor = vec4(Ke.rgb, 1.0);
+		fragColor = CalcDefaultLighting(emissionContentsType, frag_texCoord, colors, samplers);
 	}
 	else if (emissionContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
 
@@ -453,6 +448,48 @@ void main () {
 	
 	//fragColor.rgb = pow(fragColor.rgb, vec3(1.0/GAMMA));
 }
+
+
+
+
+
+
+
+
+
+
+
+vec4 CalcDefaultLighting(uint emissionContentsType, vec2 texCoord, Colors colors, Samplers samplers) {
+
+	// find an emissive property in order:
+	// 1. emissive
+	// 2. diffuse
+	// 3. ambient
+
+	if (emissionContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
+		return ColorForTexCoord(texCoord, MATERIAL_PROPERTY_TYPE_EMISSION,
+							  emissionContentsType, colors, samplers);
+	}
+	else if (diffuseContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
+		return ColorForTexCoord(texCoord, MATERIAL_PROPERTY_TYPE_DIFFUSE,
+							  diffuseContentsType, colors, samplers);
+	}
+	else if (ambientContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
+		return ColorForTexCoord(texCoord, MATERIAL_PROPERTY_TYPE_AMBIENT,
+							  ambientContentsType, colors, samplers);
+	}
+	return vec4(1.0, 1.0, 1.0, 1.0);
+}
+
+
+
+
+
+
+
+
+
+
 
 bool FloatsEqual(float a, float b, float eps) {
 	return abs(a-b) <= eps;
