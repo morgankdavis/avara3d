@@ -54,41 +54,41 @@ namespace a3d {
 	Internal Member Functions
  *********************************************************************************************/
 
-		std::unique_ptr<Scene> 				scene();
-		std::shared_ptr<Mesh> 				firstMesh();
+		std::unique_ptr<Scene>			scene();
+		std::shared_ptr<Mesh>			firstMesh();
 
-		const std::filesystem::path&		path() const;
-		SceneImportOptions					options() const;
-		
+		const std::filesystem::path&	path() const;
+		SceneImportOptions				options() const;
+
 /*********************************************************************************************
 	Private Member Functions
  *********************************************************************************************/
 
 	private:
 
-		bool								parse();
-		void 								visitGlTFNode(fastgltf::Asset& asset,
-														  fastgltf::Node& node,
-														  Node* parent);
-		std::shared_ptr<Mesh> 				meshFromGlTFNode(fastgltf::Asset& asset,
-															  fastgltf::Node& node);
-		std::shared_ptr<Mesh> 				meshFromGlTFMeshIndex(fastgltf::Asset& asset,
-																   std::size_t meshIndex);
-		std::unique_ptr<MeshElement> 		meshElementFromGlTFPrimitive(fastgltf::Asset& asset,
-																		 fastgltf::Primitive& primitive);
-		std::shared_ptr<Material> 			materialFromGlTFPrimitive(fastgltf::Asset& asset,
-																	   fastgltf::Primitive& primitive);
-		std::shared_ptr<Texture> 			textureFromGlTFTextureIndex(fastgltf::Asset& asset,
-																		std::size_t textureIndex);
+		bool							parse();
+		void 							visitGlTFNode(fastgltf::Asset& asset,
+													  fastgltf::Node& node,
+													  Node* parent);
+		std::shared_ptr<Mesh> 			meshFromGlTFNode(fastgltf::Asset& asset,
+														  fastgltf::Node& node);
+		std::shared_ptr<Mesh> 			meshFromGlTFMeshIndex(fastgltf::Asset& asset,
+															   std::size_t meshIndex);
+		std::unique_ptr<MeshElement> 	meshElementFromGlTFPrimitive(fastgltf::Asset& asset,
+																	 fastgltf::Primitive& primitive);
+		std::shared_ptr<Material> 		materialFromGlTFPrimitive(fastgltf::Asset& asset,
+																   fastgltf::Primitive& primitive);
+		std::shared_ptr<Texture> 		textureFromGlTFTextureIndex(fastgltf::Asset& asset,
+																	std::size_t textureIndex);
 
-		std::shared_ptr<Sampler> 			samplerFromGlTFTexture(fastgltf::Asset& asset,
-																   fastgltf::Texture& texture);
-		std::shared_ptr<Image> 				imageFromGlTFTexture(fastgltf::Asset& asset,
-																   fastgltf::Texture& texture);
-		std::shared_ptr<Light>				lightFromGlTFNode(fastgltf::Asset& asset,
-																fastgltf::Node& node);
-		std::shared_ptr<Camera> 			cameraFromGlTFNode(fastgltf::Asset& asset,
-															  fastgltf::Node& node);
+		std::shared_ptr<Sampler> 		samplerFromGlTFTexture(fastgltf::Asset& asset,
+															   fastgltf::Texture& texture);
+		std::shared_ptr<Image> 			imageFromGlTFTexture(fastgltf::Asset& asset,
+															   fastgltf::Texture& texture);
+		std::shared_ptr<Light>			lightFromGlTFNode(fastgltf::Asset& asset,
+															fastgltf::Node& node);
+		std::shared_ptr<Camera> 		cameraFromGlTFNode(fastgltf::Asset& asset,
+														  fastgltf::Node& node);
 
 /*********************************************************************************************
 	Private Member Variables

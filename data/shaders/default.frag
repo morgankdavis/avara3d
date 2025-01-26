@@ -98,9 +98,8 @@ in 			vec2 		frag_texCoord;
 
 uniform 	mat4 		viewMat;
 
+// PUT INTO "MaterialBlock" ? {
 uniform		bool		useDefaultLighting;
-
-// PUT INTO "MaterialBlock" {
 uniform 	uint 		ambientContentsType;
 uniform 	uint 		diffuseContentsType;
 uniform 	uint 		specularContentsType;
@@ -128,74 +127,71 @@ out 		vec4 		fragColor;
 
 
 vec4 GetBaseColor(uint propertyType, uint propertyContentsType);
-vec4 CalcDefaultLighting();
+vec4 ApplyDefaultLighting();
 vec3 CalcAmbientLighting(vec4 Ka);
 vec3 CalcDirectionalLighting(vec4 Kd, vec4 Ks);
 vec3 CalcPointLighting(vec4 Kd, vec4 Ks);
 vec3 CalcSpotLighting(vec4 Kd, vec4 Ks);
 float Attenuate(float Kc, float Kl, float Kq, float d);
-vec4 CalcFog(vec4 fragColor);
-vec4 CalcGamma(vec4 fragColor);
+vec4 AppleFog(vec4 fragColor);
+vec4 ApplyGammaCorrection(vec4 fragColor);
 bool FloatsEqual(float a, float b, float eps);
 
 
 void main () {
-
-	vec4 Ka = vec4(0.0);
-	vec4 Kd = vec4(0.0);
-	vec4 Ks = vec4(0.0);
-	vec4 Ke = vec4(0.0);
 
 	fragColor = vec4(0.0);
 
 	// using default lighting?
 	if (useDefaultLighting) {
 
-		fragColor = CalcDefaultLighting();
+		fragColor = ApplyDefaultLighting();
 	}
-
-	// can skip lighting calcs?
-	else if (emissionContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
-
-		fragColor = GetBaseColor(MATERIAL_PROPERTY_TYPE_EMISSION, emissionContentsType);
-	}
-
-	// do lighting calcs
 	else {
 
-		// base ambient, diffuse, specular colors
+		// can skip lighting calcs?
+		if (emissionContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
 
-		Ka = GetBaseColor(MATERIAL_PROPERTY_TYPE_AMBIENT, ambientContentsType);
-		Kd = GetBaseColor(MATERIAL_PROPERTY_TYPE_DIFFUSE, diffuseContentsType);
-		Ks = GetBaseColor(MATERIAL_PROPERTY_TYPE_SPECULAR, specularContentsType);
-
-		// lock ambient with diffuse?
-
-		if ((diffuseContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE)) {
-			Ka = Kd;
+			fragColor = GetBaseColor(MATERIAL_PROPERTY_TYPE_EMISSION, emissionContentsType);
 		}
 
-		// alpha rejection -- look into depth peeling or a-buffers for proper alpha blending
+		// do lighting calcs...
+		else {
 
-		if (Kd.a < ALPHA_REJECTION_THRESHOLD) discard;
+			// get base colors
 
-		// lighting
+			vec4 Ka = GetBaseColor(MATERIAL_PROPERTY_TYPE_AMBIENT, ambientContentsType);
+			vec4 Kd = GetBaseColor(MATERIAL_PROPERTY_TYPE_DIFFUSE, diffuseContentsType);
+			vec4 Ks = GetBaseColor(MATERIAL_PROPERTY_TYPE_SPECULAR, specularContentsType);
 
-		fragColor.rgb = CalcAmbientLighting(Ka);
-		fragColor.rgb += CalcDirectionalLighting(Kd, Ks);
-		fragColor.rgb += CalcPointLighting(Kd, Ks);
-		fragColor.rgb += CalcSpotLighting(Kd, Ks);
+			// lock ambient with diffuse?
 
-		fragColor = vec4(fragColor.rgb, Kd.a); // pointless?
+			if ((diffuseContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE)) {
+				Ka = Kd;
+			}
+
+			// alpha rejection
+
+			if (Kd.a < ALPHA_REJECTION_THRESHOLD) discard;
+
+			// dynamic lighting
+
+			fragColor.rgb = CalcAmbientLighting(Ka);
+			fragColor.rgb += CalcDirectionalLighting(Kd, Ks);
+			fragColor.rgb += CalcPointLighting(Kd, Ks);
+			fragColor.rgb += CalcSpotLighting(Kd, Ks);
+
+			fragColor = vec4(fragColor.rgb, Kd.a); // pointless?
+		}
 
 		// fog
 
-		fragColor = CalcFog(fragColor);
+		fragColor = AppleFog(fragColor);
 	}
 
 	// gamma
 
-	fragColor = CalcGamma(fragColor);
+	fragColor = ApplyGammaCorrection(fragColor);
 }
 
 vec4 GetBaseColor(uint propertyType, uint propertyContentsType) {
@@ -251,7 +247,7 @@ vec4 GetBaseColor(uint propertyType, uint propertyContentsType) {
 	}
 }
 
-vec4 CalcDefaultLighting() {
+vec4 ApplyDefaultLighting() {
 
 	// find an emissive property in order of: emissive, diffuse, ambient
 
@@ -312,11 +308,11 @@ vec3 CalcDirectionalLighting(vec4 Kd, vec4 Ks) {
 		Is = vec3(0.0, 0.0, 0.0);
 		if (Ks.x != 0.0 || Ks.y != 0.0 || Ks.z != 0.0) {
 
-			vec3 surfaceToCameraDir = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
+			vec3 surfaceToCamDir = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
 
 			// phong
 			vec3 reflection_eye = reflect(-surfaceToLightDir_eye, frag_vertNorm_eye);
-			float dotSpecular = dot(reflection_eye, surfaceToCameraDir);
+			float dotSpecular = dot(reflection_eye, surfaceToCamDir);
 			dotSpecular = max(dotSpecular, 0.0);
 			float specularFactor = pow(dotSpecular, specularExponent);
 
@@ -324,8 +320,7 @@ vec3 CalcDirectionalLighting(vec4 Kd, vec4 Ks) {
 			// vec3 half_way_eye = normalize(surface_to_viewer_eye + direction_to_light_eye);
 			// float dot_prod_specular = max(dot(half_way_eye, vertex_normal_eye), 0.0);
 			// float specular_factor = pow(dot_prod_specular, specularExponent);
-
-			// Is = L * vec3(Ks) * specularFactor * attenuation; // specular intensity w/attenuation
+			
 			Is = L * vec3(Ks) * specularFactor;
 		}
 
@@ -369,11 +364,11 @@ vec3 CalcPointLighting(vec4 Kd, vec4 Ks) {
 		Is = vec3(0.0, 0.0, 0.0);
 		if (Ks.x != 0.0 || Ks.y != 0.0 || Ks.z != 0.0) {
 
-			vec3 surfaceToCameraDir = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
+			vec3 surfaceToCamDir = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
 
 			// phong
 			vec3 reflection_eye = reflect(-surfaceToLightDir_eye, frag_vertNorm_eye);
-			float dotSpecular = dot(reflection_eye, surfaceToCameraDir);
+			float dotSpecular = dot(reflection_eye, surfaceToCamDir);
 			dotSpecular = max(dotSpecular, 0.0);
 			float specularFactor = pow(dotSpecular, specularExponent);
 
@@ -407,7 +402,7 @@ vec3 CalcSpotLighting(vec4 Kd, vec4 Ks) {
 		vec3 lightPos_eye = vec3(viewMat * vec4(light.position_world, 1.0));
 		vec3 surfaceToLightDir_eye = normalize(lightPos_eye - frag_vertPos_eye);
 		vec3 lightDir_eye = normalize(vec3(viewMat * vec4(-light.direction_world, 0.0)));
-		vec3 surfaceToCameraDir_eye = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
+		vec3 surfaceToCamDir_eye = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
 
 		// cosine of angle. see DeVries 16.5
 		float theta = dot(surfaceToLightDir_eye, lightDir_eye);
@@ -449,7 +444,7 @@ vec3 CalcSpotLighting(vec4 Kd, vec4 Ks) {
 
 				// phong
 				vec3 reflection_eye = reflect(-surfaceToLightDir_eye, frag_vertNorm_eye);
-				float dotSpecular = dot(reflection_eye, surfaceToCameraDir_eye);
+				float dotSpecular = dot(reflection_eye, surfaceToCamDir_eye);
 				dotSpecular = max(dotSpecular, 0.0);
 				float specularFactor = pow(dotSpecular, specularExponent);
 
@@ -480,7 +475,7 @@ float Attenuate(float Kc, float Kl, float Kq, float d) {
 	return clamp(attenuation, 0.0, 1.0);
 }
 
-vec4 CalcFog(vec4 fragColor) {
+vec4 AppleFog(vec4 fragColor) {
 
 	vec4 color = vec4(0.0);
 
@@ -505,7 +500,7 @@ vec4 CalcFog(vec4 fragColor) {
 	return color;
 }
 
-vec4 CalcGamma(vec4 fragColor) {
+vec4 ApplyGammaCorrection(vec4 fragColor) {
 
 	// ! not implemented !
 
