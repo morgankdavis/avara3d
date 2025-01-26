@@ -85,15 +85,14 @@ int main(int argc, const char* argv[]) {
 		scene->update(bind(&UpdateCallback, _1, _2, _3));
 
 		//auto ambientLight = make_shared<Light>(LightType::Ambient, make_shared<Color>(0.25f, 0.25, 0.25, 1.0));
-		auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.25f));
+		auto ambientLight = make_shared<AmbientLight>(Color::Gray());
 		auto ambientLightNode = make_shared<Node>("Ambient light");
 		ambientLightNode->light(ambientLight);
 		scene->rootNode()->addChild(ambientLightNode);
 
 		//auto pointLight = make_shared<Light>(LightType::Point, Color::White());
 		auto pointLight = make_shared<PointLight>(Color::White());
-		//pointLight->attenuationFactor(0.0000015);
-		pointLight->constantAttenuation(1.0 - 0.0000015);
+		pointLight->quadraticAttenuation(0.0001);
 		auto pointLightNode = make_shared<Node>();
 		pointLightNode->light(pointLight);
 		scene->rootNode()->addChild(pointLightNode);

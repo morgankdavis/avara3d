@@ -102,9 +102,7 @@ int main(int argc, const char* argv[]) {
 
 		auto pointLight = make_shared<PointLight>(Color::White());
 		pointLight->name("point");
-		//pointLight->attenuationFactor(0.00005);
-		//pointLight->attenuationFactor(0.00005);
-		//pointLight->constantAttenuation(1.0);
+		pointLight->quadraticAttenuation(0.0001);
 		auto pointLightNode = Node::LightNode(pointLight);
 		g_pointLightNode = pointLightNode.get(); // <- how is this not crashing?
 		auto material = make_shared<Material>();
