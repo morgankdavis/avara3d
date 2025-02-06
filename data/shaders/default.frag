@@ -186,7 +186,7 @@ void main () {
 
 		// fog
 
-		fragColor = AppleFog(fragColor);
+		fragColor += AppleFog(fragColor);
 	}
 
 	// gamma
@@ -485,7 +485,8 @@ vec4 AppleFog(vec4 fragColor) {
 		}
 		else if (FloatsEqual(Environment.fog.densityExponent, 1.0, 0.0001)) { // linear
 			float vertDist = length(frag_vertPos_eye);
-			float fogFactor = (Environment.fog.endDistance - vertDist) / (Environment.fog.endDistance - Environment.fog.startDistance);
+			float fogFactor = (Environment.fog.endDistance - vertDist)
+				/ (Environment.fog.endDistance - Environment.fog.startDistance);
 			fogFactor = clamp(fogFactor, 0.0, 1.0);
 			color = mix(vec4(Environment.fog.color.rgb, 1.0), fragColor, fogFactor);
 		}
