@@ -592,6 +592,7 @@ void Node::removeFromParent() {
 	}
 	else {
 		A3D_LOG_W("Parent is gone!");
+		// TODO: throw?
 	}
 }
 

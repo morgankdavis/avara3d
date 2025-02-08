@@ -138,6 +138,7 @@ BulletShapeProxy::BulletShapeProxy(PhysicsShape& shape):
 		}
 		else {
 			A3D_LOG_W("sourceMesh is null.");
+			// TODO: throw?
 		}
 	}
 
@@ -153,6 +154,7 @@ BulletShapeProxy::BulletShapeProxy(PhysicsShape& shape):
 		}
 		else {
 			A3D_LOG_W("sourceNode is null.");
+			// TODO: throw?
 		}
 	}
 

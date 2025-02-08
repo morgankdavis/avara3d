@@ -249,48 +249,57 @@ void VisualWorld::draw(const Scene& scene,
 
 			if (auto pov = pointOfView().lock()) {
 
-				stats.cameraPosition = pov->worldPosition();
-				stats.cameraOrientation = pov->worldOrientation();
+				auto povScene = pov->scene();
+				if (povScene != nullptr && povScene == &scene) {
 
-				auto frameBufferSize = _renderContext->framebufferSize();
+					stats.cameraPosition = pov->worldPosition();
+					stats.cameraOrientation = pov->worldOrientation();
 
-				// TODO: can this be avoided?
-				if (auto perspectiveCamera = dynamic_pointer_cast<PerspectiveCamera>(pov->camera())) {
-					auto aspectRatio = float(frameBufferSize.x) / float(frameBufferSize.y);
-					perspectiveCamera->aspectRatio(aspectRatio);
-				}
+					auto frameBufferSize = _renderContext->framebufferSize();
 
-				renderer->render(scene, debugOptions, stats);
-
-				renderer->preTraversal(scene, *_renderContext, debugOptions, stats);
-
-				auto viewMat = inverse(pov->worldTransform());
-				auto projectionMat = pov->camera()->projection();
-
-				vector<Node*> lightNodes;
-				if (pov->light()) lightNodes.push_back(pov.get());
-				scene.rootNode()->draw(*renderer,
-									   viewMat,
-									   projectionMat,
-									   debugOptions,
-									   lightNodes,
-									   stats);
-				//--stats.nodes; // don't count the root node
-
-				renderer->postTraversal(scene, *_renderContext, lightNodes, debugOptions, stats);
-
-				if (physicalWorld) {
-
-					if (auto bulletWorldProxy = dynamic_cast<BulletWorldProxy *>(physicalWorld->proxy())) {
-						bulletWorldProxy->drawDebug(*renderer,
-													viewMat,
-													projectionMat,
-													debugOptions);
+					// TODO: can this be avoided?
+					if (auto perspectiveCamera = dynamic_pointer_cast<PerspectiveCamera>(pov->camera())) {
+						auto aspectRatio = float(frameBufferSize.x) / float(frameBufferSize.y);
+						perspectiveCamera->aspectRatio(aspectRatio);
 					}
+
+					renderer->render(scene, debugOptions, stats);
+
+					renderer->preTraversal(scene, *_renderContext, debugOptions, stats);
+
+					auto viewMat = inverse(pov->worldTransform());
+					auto projectionMat = pov->camera()->projection();
+
+					vector<Node *> lightNodes;
+					if (pov->light()) lightNodes.push_back(pov.get());
+					scene.rootNode()->draw(*renderer,
+										   viewMat,
+										   projectionMat,
+										   debugOptions,
+										   lightNodes,
+										   stats);
+					//--stats.nodes; // don't count the root node
+
+					renderer->postTraversal(scene, *_renderContext, lightNodes, debugOptions, stats);
+
+					if (physicalWorld) {
+
+						if (auto bulletWorldProxy = dynamic_cast<BulletWorldProxy *>(physicalWorld->proxy())) {
+							bulletWorldProxy->drawDebug(*renderer,
+														viewMat,
+														projectionMat,
+														debugOptions);
+						}
+					}
+				}
+				else {
+					A3D_LOG_W("Point of view not in our scene!");
+					// TODO: throw?
 				}
 			}
 			else {
 				A3D_LOG_W("No point of view!");
+				// TODO: throw?
 			}
 
 			UpdateTimeStats(stats, startTime, scene.time());

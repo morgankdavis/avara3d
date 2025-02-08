@@ -89,6 +89,7 @@ void BulletWorldProxy::add(PhysicsBody& body) {
 	}
 	else {
 		A3D_LOG_W("Adding PhysicsBody without a Node??");
+		// TODO: throw?
 	}
 
 	_btWorld->addRigidBody(btBody);

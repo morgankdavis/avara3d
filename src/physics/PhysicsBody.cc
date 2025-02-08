@@ -356,6 +356,7 @@ void PhysicsBody::addedToWorld(PhysicalWorld& world) {
 	}
 	else {
 		A3D_LOG_E("_node is gone.");
+		// TODO: throw?
 	}
 }
 
@@ -395,6 +396,7 @@ PhysicalWorld* PhysicsBody::physicalWorld() const {
 	}
 	else {
 		A3D_LOG_E("_node is gone.");
+		// TODO: throw?
 	}
 	return nullptr;
 }

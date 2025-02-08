@@ -399,6 +399,7 @@ void OpenGLRenderer::render(const Scene& scene,
 			}
 			else {
 				A3D_LOG_W("PointOfView has gone missing.");
+				// TODO: throw?
 			}
 		}
 	}
