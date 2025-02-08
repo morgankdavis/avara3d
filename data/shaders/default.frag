@@ -462,15 +462,15 @@ float Attenuate(float Kc, float Kl, float Kq, float d) {
 
 	// A = 1 / 1.0 + (Kc + (Kl * d) + (Kq * d^2))
 
-	const float EPS = .0000001;
+//	const float EPS = .0000001;
 
 	float attenuation = 1.0;
 
-	if (!FloatsEqual(Kc, 0.0, EPS)
-	|| !FloatsEqual(Kl, 0.0, EPS)
-	|| !FloatsEqual(Kq, 0.0, EPS)) {
+//	if (!FloatsEqual(Kc, 0.0, EPS)
+//	|| !FloatsEqual(Kl, 0.0, EPS)
+//	|| !FloatsEqual(Kq, 0.0, EPS)) {
 		attenuation = 1.0 / (Kc + (Kl * d) + (Kq * d*d));
-	}
+//	}
 
 	return clamp(attenuation, 0.0, 1.0);
 }

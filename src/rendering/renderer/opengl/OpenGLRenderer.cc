@@ -1138,6 +1138,20 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 				auto light = node->light().get();
 				auto color = light->color();
 
+				// light_cutoff:
+				// if an attenuated light, first make sure it's not past its cutoff distance.
+				// this is either a hard-coded distance or calcualted based on a minimum attenuation.
+				//
+				// for min attenuation:
+				// https://gamedev.stackexchange.com/a/56934
+				// cuts light off at distance 'd'
+				// when attenuation drops below 'a'.
+				// d = sqrt(1.0 / (Kq * a))
+				//
+				// UPDATE: distance from what? the camera?  that doesn't make sense.
+				// the fragment?  sure, but probably slow.
+				// the vertex?  sure, but maybe messy?
+
 				if (auto ambientLight = dynamic_cast<AmbientLight*>(light)) {
 
 					AmbientLightGLSLStruct lightStruct;

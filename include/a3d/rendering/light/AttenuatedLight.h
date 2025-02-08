@@ -49,6 +49,9 @@ namespace a3d {
 		float			quadraticAttenuation() const;
 		void			quadraticAttenuation(float factor);
 
+		LightCutoff		cutoff() const;
+		void			cutoff(LightCutoff cutoff);
+
 /*********************************************************************************************
 	Protected Lifecycle Functions
  *********************************************************************************************/
@@ -69,10 +72,12 @@ namespace a3d {
 		//	Kc = 1.0
 		//	Lk = 0.0
 		//	Kq = 0.1
-
 		float			_constantAttenuation;
 		float			_linearAttenuation;
 		float			_quadraticAttenuation;
+
+		// see notes in Types.cc
+		LightCutoff		_cutoff;
 	};
 }
 

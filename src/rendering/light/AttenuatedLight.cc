@@ -57,6 +57,14 @@ void AttenuatedLight::quadraticAttenuation(float factor) {
 	_quadraticAttenuation = factor;
 }
 
+LightCutoff AttenuatedLight::cutoff() const {
+	return _cutoff;
+}
+
+void AttenuatedLight::cutoff(LightCutoff cutoff) {
+	_cutoff = cutoff;
+}
+
 /*********************************************************************************************
 	Private Lifecycle Functions
  *********************************************************************************************/
@@ -64,4 +72,5 @@ void AttenuatedLight::quadraticAttenuation(float factor) {
 AttenuatedLight::AttenuatedLight():
 		_constantAttenuation{1.0},
 		_linearAttenuation{0.0},
-		_quadraticAttenuation{0.1} {}
+		_quadraticAttenuation{0.1},
+		_cutoff{std::monostate{}} {}
