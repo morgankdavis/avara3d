@@ -55,6 +55,7 @@ namespace a3d {
 		const MaterialProperty&					background();
 		void 									background(const MaterialProperty& background);
 
+		// TODO: make Fog its own class
 		float 									fogStartDistance() const;
 		void 									fogStartDistance(float distance);
 		float 									fogEndDistance() const;
