@@ -1,13 +1,13 @@
 //
 //  PhysicalWorld.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 1/26/18.
-//  Copyright © 2018 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef PhysicalWorld_h
-#define PhysicalWorld_h
+#ifndef AVARA3D_PHYSICALWORLD_H
+#define AVARA3D_PHYSICALWORLD_H
 
 
 #include <functional>
@@ -31,29 +31,29 @@ namespace a3d {
 	
 	
 	class PhysicalWorld {
-		
+
 /*********************************************************************************************
-	Types
+	Public Types
  *********************************************************************************************/
 
 	public:
 
-		using DidSimulateCallback = 	std::function<void(PhysicalWorld& world, double time)>;
+		using DidSimulateCallback = 	std::function<void(PhysicalWorld& world, double time, double deltaTime)>;
 		using BeginContactCallback = 	std::function<void(PhysicalWorld& world, PhysicsContact& contact)>;
 		using ContinueContactCallback =	std::function<void(PhysicalWorld& world, PhysicsContact& contact)>;
 		using EndContactCallback = 		std::function<void(PhysicalWorld& world, PhysicsContact& contact)>;
-		
+
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
-		
+
 		PhysicalWorld();
 		PhysicalWorld(const PhysicalWorld& other) = delete; // copy constructor
 		PhysicalWorld& operator=(const PhysicalWorld& other) = delete; // copy assignment
 		~PhysicalWorld();
-		
+
 /*********************************************************************************************
-	Public
+	Public Member Functions
  *********************************************************************************************/
 
 		const glm::vec3&					gravity() const;
@@ -91,7 +91,7 @@ namespace a3d {
 		void 								endContact(PhysicalWorld::EndContactCallback function);
 
 /*********************************************************************************************
-	Internal
+	Internal Member Functions
  *********************************************************************************************/
 
 		void								attachedToScene(Scene& scene);
@@ -108,22 +108,22 @@ namespace a3d {
 		PhysicalWorldProxy*					proxy() const;
 
 /*********************************************************************************************
-	Private
+	Private Member Variables
  *********************************************************************************************/
 
 	private:
 
-		glm::vec3 									_gravity;
-		float 										_speed;
-		float 										_timestep;
-		std::unique_ptr<PhysicalWorldProxy>			_proxy;
-		Scene*										_scene;
-		DidSimulateCallback							_didSimulate;
-		BeginContactCallback						_beginContact;
-		ContinueContactCallback						_continueContact;
-		EndContactCallback							_endContact;
+		glm::vec3 								_gravity;
+		float 									_speed;
+		float 									_timestep;
+		std::unique_ptr<PhysicalWorldProxy>		_proxy;
+		Scene*									_scene;
+		DidSimulateCallback						_didSimulate;
+		BeginContactCallback					_beginContact;
+		ContinueContactCallback					_continueContact;
+		EndContactCallback						_endContact;
 	};
 }
 
 
-#endif /* PhysicalWorld_h */
+#endif /* AVARA3D_PHYSICALWORLD_H */

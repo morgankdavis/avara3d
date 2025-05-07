@@ -1,5 +1,9 @@
 //
-// Created by mkd on 11/19/23.
+//  ConePhysicsShape.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 11/19/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/physics/shape_primitive/ConePhysicsShape.h"
@@ -11,7 +15,7 @@ using namespace a3d;
 
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 ConePhysicsShape::ConePhysicsShape(float radius, float height):
@@ -21,7 +25,7 @@ ConePhysicsShape::ConePhysicsShape(float radius, float height):
 ConePhysicsShape::~ConePhysicsShape() {}
 
 /*********************************************************************************************
-	Public
+	Public Member Functions
  *********************************************************************************************/
 
 float ConePhysicsShape::radius() const {
@@ -41,13 +45,13 @@ void ConePhysicsShape::height(float height) {
 }
 
 /*********************************************************************************************
-	PhysicsShape
+	PhysicsShape Public Member Functions
  *********************************************************************************************/
 
 PhysicsShapeType ConePhysicsShape::type() const {
-	throw Exception("PHYSICS_SHAPE_TYPE does not apply to ConePhysicsShape.");
+	return PhysicsShapeType::Primitive;
 }
 
 void ConePhysicsShape::type(PhysicsShapeType type) {
-	throw Exception("PHYSICS_SHAPE_TYPE does not apply to ConePhysicsShape.");
+	throw Exception("Cannot set PhysicsShapeType for ConePhysicsShape.");
 }

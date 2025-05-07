@@ -1,13 +1,13 @@
 //
 //  Plane.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 10/31/17.
-//  Copyright © 2017 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Plane_h
-#define Plane_h
+#ifndef AVARA3D_PLANE_H
+#define AVARA3D_PLANE_H
 
 
 #include <memory>
@@ -24,48 +24,54 @@ namespace a3d {
 	
 	class Plane: public MeshElement {
 
-	private:
-
-		static constexpr int DEFAULT_SEGMENTS = 8;
+/*********************************************************************************************
+ 	Public Static Member Functions
+ *********************************************************************************************/
 
 	public:
 
 		static std::shared_ptr<Mesh> Mesh(float width,
 										  float height,
-										  int widthSegements = DEFAULT_SEGMENTS,
-										  int heightSegments = DEFAULT_SEGMENTS,
+										  unsigned widthSegements = DEFAULT_SEGMENTS,
+										  unsigned heightSegments = DEFAULT_SEGMENTS,
 										  std::shared_ptr<Material> material = nullptr);
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 		Plane(float width,
 			  float height,
-			  int widthSegements = DEFAULT_SEGMENTS,
-			  int heightSegments = DEFAULT_SEGMENTS);
-		
+			  unsigned widthSegements = DEFAULT_SEGMENTS,
+			  unsigned heightSegments = DEFAULT_SEGMENTS);
+
 /*********************************************************************************************
- 	Public
+	Public Member Functions
  *********************************************************************************************/
-		
+
 		float 		width() const;
 		float 		height() const;
-		int			widthSegements() const;
-		int			heightSegments() const;
+		unsigned	widthSegements() const;
+		unsigned	heightSegments() const;
 		
 /*********************************************************************************************
- 	Private
+ 	Private Constants
  *********************************************************************************************/
 
 	private:
 
+		static constexpr unsigned DEFAULT_SEGMENTS = 8;
+
+/*********************************************************************************************
+	Private Member Variables
+ *********************************************************************************************/
+
 		float		_width;
 		float		_height;
-		int			_widthSegements;
-		int			_heightSegments;
+		unsigned	_widthSegements;
+		unsigned	_heightSegments;
 	};
 }
 
 
-#endif /* Plane_h */
+#endif /* AVARA3D_PLANE_H */

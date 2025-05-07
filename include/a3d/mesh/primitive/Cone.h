@@ -1,13 +1,13 @@
 //
 //  Cone.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 11/8/17.
-//  Copyright © 2017 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Cone_h
-#define Cone_h
+#ifndef AVARA3D_CONE_H
+#define AVARA3D_CONE_H
 
 
 #include <memory>
@@ -24,54 +24,60 @@ namespace a3d {
 
 	class Cone: public MeshElement {
 
-	private:
-
-		static constexpr int DEFAULT_SLICES = 32;
-		static constexpr int DEFAULT_SEGMENTS = 8;
-		static constexpr int DEFAULT_RINGS = 4;
+/*********************************************************************************************
+	Public Static Member Functions
+ *********************************************************************************************/
 
 	public:
 
 		static std::shared_ptr<Mesh> Mesh(float radius,
 										  float height,
-										  int slices = DEFAULT_SLICES,
-										  int segments = DEFAULT_SEGMENTS,
-										  int rings = DEFAULT_RINGS,
+										  unsigned slices = DEFAULT_SLICES,
+										  unsigned segments = DEFAULT_SEGMENTS,
+										  unsigned rings = DEFAULT_RINGS,
 										  std::shared_ptr<Material> material = nullptr);
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 		Cone(float radius,
 			 float height,
-			 int slices = DEFAULT_SLICES,
-			 int segments = DEFAULT_SEGMENTS,
-			 int rings = DEFAULT_RINGS);
-		
-/*********************************************************************************************
-	Public
- *********************************************************************************************/
-		
-		float 	radius() const;
-		float 	height() const;
-		int		slices() const;
-		int		segments() const;
-		int		rings() const;
+			 unsigned slices = DEFAULT_SLICES,
+			 unsigned segments = DEFAULT_SEGMENTS,
+			 unsigned rings = DEFAULT_RINGS);
 
 /*********************************************************************************************
-	Private
+	Public Member Functions
+ *********************************************************************************************/
+
+		float 		radius() const;
+		float 		height() const;
+		unsigned	slices() const;
+		unsigned	segments() const;
+		unsigned	rings() const;
+
+/*********************************************************************************************
+	Private Constants
  *********************************************************************************************/
 
 	private:
 
-		float 	_radius;
-		float 	_height;
-		int		_slices;
-		int		_segments;
-		int		_rings;
+		static constexpr unsigned DEFAULT_SLICES = 32;
+		static constexpr unsigned DEFAULT_SEGMENTS = 8;
+		static constexpr unsigned DEFAULT_RINGS = 4;
+
+/*********************************************************************************************
+	Private Member Variables
+ *********************************************************************************************/
+
+		float 		_radius;
+		float 		_height;
+		unsigned	_slices;
+		unsigned	_segments;
+		unsigned	_rings;
 	};
 }
 
 
-#endif /* Cone_h */
+#endif /* AVARA3D_CONE_H */

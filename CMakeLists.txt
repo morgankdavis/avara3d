@@ -8,23 +8,22 @@ project(avara3d
 include(cmake/EnvironmentDetect.cmake)
 include(cmake/UtilityFunctions.cmake)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
-if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
-	set(CMAKE_BUILD_TYPE "Debug")
-endif ()
+#if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
+#	set(CMAKE_BUILD_TYPE "Debug")
+#endif ()
 message("[BUILD TYPE: " ${CMAKE_BUILD_TYPE} "]")
 
 
 ### create BuildInfo.cmake.h ###
 
-string(TOUPPER ${CMAKE_BUILD_TYPE} UPPER_RELEASE_TYPE)
-set(A3D_BUILD_TYPE ${UPPER_RELEASE_TYPE})
+set(A3D_BUILD_TYPE ${CMAKE_BUILD_TYPE})
 
 if ((GITLAB_CI_PIPELINE_IID STREQUAL "") OR (NOT DEFINED GITLAB_CI_PIPELINE_IID))
 	set(A3D_BUILD_NUMBER 0)
 	set(A3D_BUILD_TIME "0000-00-00T00:00:00Z")
-	set(A3D_BUILD_ORIGIN "ADHOC")
+	set(A3D_BUILD_ORIGIN "AdHoc")
 else ()
 	set(A3D_BUILD_NUMBER ${GITLAB_CI_PIPELINE_IID})
 	set(A3D_BUILD_TIME ${GITLAB_CI_PIPELINE_CREATED_AT})
@@ -47,8 +46,9 @@ set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
 set(INSTALL_CMAKE_FILES OFF CACHE BOOL "" FORCE)
 add_subdirectory(external/bullet-3.17)
 include_directories(external/bullet-3.17/src)
-target_compile_options(Bullet3Collision PUBLIC
-		"-Wno-deprecated-volatile")
+# breaks Win11 build (?)
+#target_compile_options(Bullet3Collision PUBLIC
+#		"-Wno-deprecated-volatile")
 set(BULLET_LIBRARIES
 		LinearMath
 		Bullet3Common
@@ -60,7 +60,7 @@ add_subdirectory(external/fastgltf-0.6.1)
 
 add_subdirectory(external/generator)
 
-add_subdirectory(external/glew-2.1.0)
+add_subdirectory(external/glad-3.3)
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -90,7 +90,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif ()
 if (DESKTOP)
 	target_compile_definitions(avara3d PUBLIC "DESKTOP")
-	target_compile_definitions(avara3d PUBLIC "OPENGL_DESKTOP")
+	target_compile_definitions(avara3d PUBLIC "OPENGL_CORE")
 endif ()
 if (LINUX)
 	target_compile_definitions(avara3d PUBLIC "LINUX")
@@ -104,11 +104,6 @@ elseif (MACOS)
 	target_compile_definitions(avara3d PUBLIC "POSIX")
 elseif (WINDOWS)
 	target_compile_definitions(avara3d PUBLIC "WINDOWS")
-	#target_compile_definitions(avara3d PUBLIC "BT_NO_SIMD_OPERATOR_OVERLOADS") // needed for Bullet?
-elseif (ANDROID)
-	target_compile_definitions(avara3d PUBLIC "ANDROID")
-	target_compile_definitions(avara3d PUBLIC "POSIX")
-	target_compile_definitions(avara3d PUBLIC "OPENGL_ES")
 endif ()
 
 
@@ -118,7 +113,7 @@ target_include_directories(avara3d PUBLIC include)
 target_include_directories(avara3d PRIVATE "${PROJECT_BINARY_DIR}") # BuildInfo.cmake.h
 target_include_directories(avara3d PRIVATE external/generator/include)
 target_include_directories(avara3d PRIVATE external/gif-h)
-target_include_directories(avara3d PRIVATE external/glew-2.1.0/include)
+target_include_directories(avara3d PRIVATE external/glad-3.3/include)
 target_include_directories(avara3d PRIVATE external/glfw-3.4.0/include)
 target_include_directories(avara3d PRIVATE external/imgui-1.90)
 target_include_directories(avara3d PRIVATE external/imgui-1.90/backends)
@@ -147,7 +142,7 @@ target_link_libraries(avara3d PUBLIC
 if (DESKTOP)
 
 	target_link_libraries(avara3d PUBLIC
-			glew_s
+			glad
 			glfw
 			manymouse)
 
@@ -200,14 +195,26 @@ elseif (MACOS)
 	# https://stackoverflow.com/questions/43551483/how-to-set-rpath-in-cmake
 	set(CMAKE_MACOSX_RPATH 1) # silence "MACOSX_RPATH is not specified [...]"
 
+elseif (WINDOWS)
+
+	# this is so stupid.
+	# MSVC with clang 19+ (apparently) removed __FILE_NAME__ but __FILE__ still exists...
+	# https://stackoverflow.com/questions/8487986/file-macro-shows-full-path
+
+	if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+		if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 19)
+			#set(FILENAME_MACRO_BODY "((const char*)std::filesystem::path(__FILE__).filename().string().c_str())")
+			set(FILENAME_MACRO_BODY "(std::filesystem::path(__FILE__).filename().string())")
+			add_compile_definitions(__FILE_NAME__=${FILENAME_MACRO_BODY})
+		endif()
+	endif()
+
 endif ()
 
 
 ### set root install dir before adding tests ###
 
-if (ANDROID)
-	set(PLATFORM_STRING "android")
-elseif (RPI)
+if (RPI)
 	set(PLATFORM_STRING "raspberry-pi")
 elseif (LINUX)
 	set(PLATFORM_STRING "linux")

@@ -1,13 +1,13 @@
 //
 //  Exception.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 12/24/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Exception_h
-#define Exception_h
+#ifndef AVARA3D_EXCEPTION_H
+#define AVARA3D_EXCEPTION_H
 
 
 #include <stdexcept>
@@ -18,15 +18,15 @@ namespace a3d {
 	
 	class Exception : public std::runtime_error {
 
-	public:
-
 /*********************************************************************************************
-	Lifecycle
+	Internal Lifecycle Functions
  *********************************************************************************************/
 
-		Exception(const std::string& what);
+	public:
+
+		explicit Exception(const std::string& what);
 	};
 }
 
 
-#endif /* Exception_h */
+#endif /* AVARA3D_EXCEPTION_H */

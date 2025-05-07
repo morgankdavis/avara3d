@@ -1,5 +1,9 @@
 //
-// Created by mkd on 11/25/23.
+//  VisualWorld.h
+//  avara3d
+//
+//  Created by Morgan Davis on 11/25/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_VISUALWORLD_H
@@ -28,49 +32,51 @@ namespace a3d {
 	class VisualWorld {
 
 /*********************************************************************************************
-	Types
+	Public Types
  *********************************************************************************************/
 
 	public:
 
-		using WillRenderCallback = 		std::function<void(VisualWorld& world, double time)>;
-		using DidRenderCallback = 		std::function<void(VisualWorld& world, double time)>;
+		using WillRenderCallback =	std::function<void(VisualWorld& world, double time, double deltaTime)>;
+		using DidRenderCallback =	std::function<void(VisualWorld& world, double time, double deltaTime)>;
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 		VisualWorld() = delete;
-		explicit VisualWorld(RenderContext* context);
-//		VisualWorld(const VisualWorld& other) = delete; // copy constructor
-//		VisualWorld& operator=(const VisualWorld& other) = delete; // copy assignment
+		explicit VisualWorld(RenderContext& context);
 		virtual ~VisualWorld();
 
 /*********************************************************************************************
-	Public
+	Public Member Functions
  *********************************************************************************************/
 
-		MaterialProperty&						background();
-		void 									background(MaterialProperty background);
+		const MaterialProperty&					background();
+		void 									background(const MaterialProperty& background);
 
+		// TODO: make Fog its own class
 		float 									fogStartDistance() const;
 		void 									fogStartDistance(float distance);
 		float 									fogEndDistance() const;
 		void 									fogEndDistance(float distance);
-		float 									fogDensityExponent() const;
-		void 									fogDensityExponent(float exponent);
 		// 0 = constant, alpha respected
 		// 1 = linear, alpha ignored
 		// >=2 = exponential, alpha ignored
+		float 									fogDensityExponent() const;
+		void 									fogDensityExponent(float exponent);
 
-		std::shared_ptr<Color> 					fogColor() const;
-		void 									fogColor(const std::shared_ptr<Color> & color);
+		const std::shared_ptr<Color>&			fogColor() const;
+		void 									fogColor(const std::shared_ptr<Color>& color);
 
 		std::weak_ptr<Node>						pointOfView();
 		void 									pointOfView(const std::weak_ptr<Node>& cameraNode);
 
-		bool									automaticallyAddDefaultLighting() const;
-		void									automaticallyAddDefaultLighting(bool enabled);
+		bool									usesDefaultLighting() const;
+		void									usesDefaultLighting(bool enabled);
+
+		bool									autoEnablesDefaultLighting() const;
+		void									autoEnablesDefaultLighting(bool enabled);
 
 		RenderContext* 							renderContext() const;
 
@@ -83,13 +89,11 @@ namespace a3d {
 		void 									didRender(DidRenderCallback function);
 
 /*********************************************************************************************
-	Internal
+	Internal Member Functions
  *********************************************************************************************/
 
 		void									attachedToScene(Scene& scene);
 		void									detachedFromScene(Scene& scene);
-
-		void									checkAddDefaultLighting();
 
 		void									draw(const Scene& scene,
 													 const PhysicalWorld* physicalWorld,
@@ -99,21 +103,24 @@ namespace a3d {
 													 Stats& stats);
 
 		Mesh*									skyboxMesh() const;
+		Mesh*									groundPlaneMesh() const;
 		std::weak_ptr<Node>						defaultPointOfView();
 
 /*********************************************************************************************
-	Private
+	Private Member Variables
  *********************************************************************************************/
 
 	private:
 
 		MaterialProperty						_background;
 		std::unique_ptr<Mesh>					_skyboxMesh;
+		std::unique_ptr<Mesh>					_groundPlaneMesh;
 		float									_fogStartDistance;
 		float									_fogEndDistance;
 		float									_fogDensityExponent;
 		std::shared_ptr<Color>					_fogColor;
-		bool									_automaticallyAddDefaultLighting;
+		bool									_usesDefaultLighting;
+		bool									_autoEnablesDefaultLighting;
 		std::weak_ptr<Node>						_pointOfView;
 		RenderContext*							_renderContext;
 		Scene*									_scene;

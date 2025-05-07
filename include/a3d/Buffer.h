@@ -1,13 +1,13 @@
 //
 //  Buffer.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 9/5/18.
-//  Copyright © 2018 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Buffer_h
-#define Buffer_h
+#ifndef AVARA3D_BUFFER_H
+#define AVARA3D_BUFFER_H
 
 
 #include <filesystem>
@@ -18,34 +18,30 @@
 namespace a3d {
 	
 	class Buffer {
-		
-	public:
-		
+
 /*********************************************************************************************
-	 Lifecycle
+	 Public Lifecycle Functions
  *********************************************************************************************/
-		
+
+	public:
+
 		explicit Buffer(const std::filesystem::path& path);
 		explicit Buffer(const std::vector<std::byte>& buf);
 		Buffer(const std::byte* buf, std::size_t size);
 		~Buffer();
 
 /*********************************************************************************************
-	Public
+	Public Member Functions
  *********************************************************************************************/
 
-		std::byte* 					data() const; // should be 'const byte' ?
+		std::byte* 					data() const;
 		std::size_t 				size() const;
 
-/*********************************************************************************************
-	Operator Overloads
- *********************************************************************************************/
-
-		std::byte*					operator*() const; // should be 'const byte' ?
+		std::byte*					operator*() const;
 		std::byte					operator[](std::size_t idx) const;
 
 /*********************************************************************************************
-	Private
+	Private Member Variables
  *********************************************************************************************/
 
 	private:
@@ -56,4 +52,4 @@ namespace a3d {
 }
 
 
-#endif /* Buffer_h */
+#endif /* AVARA3D_BUFFER_H */

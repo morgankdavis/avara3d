@@ -1,5 +1,9 @@
 //
-// Created by mkd on 11/19/23.
+//  BoxPhysicsShape.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 11/19/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/physics/shape_primitive/BoxPhysicsShape.h"
@@ -11,7 +15,7 @@ using namespace a3d;
 
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 BoxPhysicsShape::BoxPhysicsShape(float width, float height, float length):
@@ -22,7 +26,7 @@ BoxPhysicsShape::BoxPhysicsShape(float width, float height, float length):
 BoxPhysicsShape::~BoxPhysicsShape() {}
 
 /*********************************************************************************************
-	Public
+	Public Member Functions
  *********************************************************************************************/
 
 float BoxPhysicsShape::width() const {
@@ -50,13 +54,13 @@ void BoxPhysicsShape::length(float length) {
 }
 
 /*********************************************************************************************
-	PhysicsShape
+	PhysicsShape Public Member Functions
  *********************************************************************************************/
 
 PhysicsShapeType BoxPhysicsShape::type() const {
-	throw Exception("PHYSICS_SHAPE_TYPE does not apply to BoxPhysicsShape.");
+	return PhysicsShapeType::Primitive;
 }
 
 void BoxPhysicsShape::type(PhysicsShapeType type) {
-	throw Exception("PHYSICS_SHAPE_TYPE does not apply to BoxPhysicsShape.");
+	throw Exception("Cannot set PhysicsShapeType for BoxPhysicsShape.");
 }

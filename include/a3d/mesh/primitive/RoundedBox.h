@@ -1,5 +1,9 @@
 //
-// Created by mkd on 3/6/24.
+//  RoundedBox.h
+//  avara3d
+//
+//  Created by Morgan Davis on 3/6/24.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_ROUNDEDBOX_H
@@ -7,7 +11,6 @@
 
 
 #include <memory>
-
 
 #include "a3d/mesh/MeshElement.h"
 
@@ -21,10 +24,9 @@ namespace a3d {
 
 	class RoundedBox: public MeshElement {
 
-	private:
-
-		static constexpr int DEFAULT_SLICES = 8;
-		static constexpr int DEFAULT_SEGMENTS = 8;
+/*********************************************************************************************
+	Public Static Member Functions
+ *********************************************************************************************/
 
 	public:
 
@@ -32,52 +34,59 @@ namespace a3d {
 										  float length,
 										  float width,
 										  float height,
-										  int slices = DEFAULT_SLICES,
-										  int lengthSegments = DEFAULT_SEGMENTS,
-										  int widthSegments = DEFAULT_SEGMENTS,
-										  int heightSegments = DEFAULT_SEGMENTS,
+										  unsigned slices = DEFAULT_SLICES,
+										  unsigned lengthSegments = DEFAULT_SEGMENTS,
+										  unsigned widthSegments = DEFAULT_SEGMENTS,
+										  unsigned heightSegments = DEFAULT_SEGMENTS,
 										  std::shared_ptr<Material> material = nullptr);
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 		RoundedBox(float radius,
 				   float length,
 				   float width,
 				   float height,
-				   int slices = DEFAULT_SLICES,
-				   int lengthSegments = DEFAULT_SEGMENTS,
-				   int widthSegments = DEFAULT_SEGMENTS,
-				   int heightSegments = DEFAULT_SEGMENTS);
+				   unsigned slices = DEFAULT_SLICES,
+				   unsigned lengthSegments = DEFAULT_SEGMENTS,
+				   unsigned widthSegments = DEFAULT_SEGMENTS,
+				   unsigned heightSegments = DEFAULT_SEGMENTS);
 
 /*********************************************************************************************
-	Public
+	Public Member Functions
  *********************************************************************************************/
 
 		float 		radius() const;
 		float 		length() const;
 		float 		width() const;
 		float 		height() const;
-		int 		slices() const;
-		int 		lengthSegments() const;
-		int 		widthSegments() const;
-		int 		heightSegments() const;
+		unsigned 	slices() const;
+		unsigned 	lengthSegments() const;
+		unsigned 	widthSegments() const;
+		unsigned 	heightSegments() const;
 
 /*********************************************************************************************
-	Private
+	Private Constants
  *********************************************************************************************/
 
 	private:
+
+		static constexpr unsigned DEFAULT_SLICES = 8;
+		static constexpr unsigned DEFAULT_SEGMENTS = 8;
+
+/*********************************************************************************************
+	Private Member Variables
+ *********************************************************************************************/
 
 		float 		_radius;
 		float		_length;
 		float		_width;
 		float		_height;
-		int 		_slices;
-		int 		_lengthSegments;
-		int 		_widthSegments;
-		int 		_heightSegments;
+		unsigned 	_slices;
+		unsigned 	_lengthSegments;
+		unsigned 	_widthSegments;
+		unsigned 	_heightSegments;
 	};
 }
 

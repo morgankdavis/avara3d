@@ -1,13 +1,13 @@
 //
 //  Torus.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 11/8/17.
-//  Copyright © 2017 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Torus_h
-#define Torus_h
+#ifndef AVARA3D_TORUS_H
+#define AVARA3D_TORUS_H
 
 
 #include <memory>
@@ -24,49 +24,55 @@ namespace a3d {
 
 	class Torus: public MeshElement {
 
-	private:
-
-		static constexpr int DEFAULT_SLICES = 16;
-		static constexpr int DEFAULT_SEGMENTS = 32;
+/*********************************************************************************************
+ 	Public Static Member Functions
+ *********************************************************************************************/
 
 	public:
 
 		static std::shared_ptr<Mesh> Mesh(float minorRadius,
 										  float majorRadius,
-										  int slices = DEFAULT_SLICES,
-										  int segments = DEFAULT_SEGMENTS,
+										  unsigned slices = DEFAULT_SLICES,
+										  unsigned segments = DEFAULT_SEGMENTS,
 										  std::shared_ptr<Material> material = nullptr);
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 		Torus(float minorRadius,
 			  float majorRadius,
-			  int slices = DEFAULT_SLICES,
-			  int segments = DEFAULT_SEGMENTS);
+			  unsigned slices = DEFAULT_SLICES,
+			  unsigned segments = DEFAULT_SEGMENTS);
 
 /*********************************************************************************************
- 	Public
+	Public Member Functions
  *********************************************************************************************/
 
-		float 	minorRadius() const;
-		float 	majorRadius() const;
-		int 	slices() const;
-		int 	segments() const;
+		float 		minorRadius() const;
+		float 		majorRadius() const;
+		unsigned 	slices() const;
+		unsigned 	segments() const;
 
 /*********************************************************************************************
-	Private
+	Private Constants
  *********************************************************************************************/
 
 	private:
 
-		float	_minorRadius;
-		float	_majorRadius;
-		int 	_slices;
-		int		_segments;
+		static constexpr unsigned DEFAULT_SLICES = 16;
+		static constexpr unsigned DEFAULT_SEGMENTS = 32;
+
+/*********************************************************************************************
+	Private Member Variables
+ *********************************************************************************************/
+
+		float		_minorRadius;
+		float		_majorRadius;
+		unsigned 	_slices;
+		unsigned	_segments;
 	};
 }
 
 
-#endif /* Torus_h */
+#endif /* AVARA3D_TORUS_H */

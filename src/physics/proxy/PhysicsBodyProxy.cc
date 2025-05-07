@@ -1,5 +1,9 @@
 //
-// Created by mkd on 11/13/23.
+//  PhysicsBodyProxy.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 11/13/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/physics/proxy/PhysicsBodyProxy.h"
@@ -11,10 +15,10 @@ using namespace a3d;
 
 
 /*********************************************************************************************
-	Lifecycle
+	Internal Lifecycle Functions
  *********************************************************************************************/
 
-PhysicsBodyProxy::PhysicsBodyProxy(PhysicsBody& body):
+PhysicsBodyProxy::PhysicsBodyProxy(PhysicsBody& body, PhysicsBodyType type):
 		_body{},
 		_shapeProxy{},
 		_autocalculatesMomentOfInertia{true} {
@@ -25,7 +29,7 @@ PhysicsBodyProxy::PhysicsBodyProxy(PhysicsBody& body):
 PhysicsBodyProxy::~PhysicsBodyProxy() { }
 
 /*********************************************************************************************
-	Internal
+	Internal Member Functions
  *********************************************************************************************/
 
 bool PhysicsBodyProxy::autocalculatesMomentOfInertia() const {

@@ -1,13 +1,13 @@
 //
 //  PhysicsBody.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 1/26/18.
-//  Copyright © 2018 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef PhysicsBody_h
-#define PhysicsBody_h
+#ifndef AVARA3D_PHYSICSBODY_H
+#define AVARA3D_PHYSICSBODY_H
 
 
 #include <memory>
@@ -30,9 +30,9 @@ namespace a3d {
 	
 	
 	class PhysicsBody {
-		
+
 /*********************************************************************************************
-	Public Static
+	Public Static Member Functions
  *********************************************************************************************/
 
 	public:
@@ -40,22 +40,19 @@ namespace a3d {
 		static std::unique_ptr<PhysicsBody> 	StaticBody();
 		static std::unique_ptr<PhysicsBody> 	DynamicBody();
 		static std::unique_ptr<PhysicsBody> 	KinematicBody();
-		
+
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
-		
-		//PhysicsBody();
-		// "If you pass nil for the shape parameter, SceneKit automatically creates a physics
-		// shape for the body when you attach it to a node, based on that node’s geometry property."
+
 		explicit PhysicsBody(PhysicsBodyType type);
 		PhysicsBody(PhysicsBodyType type, const std::shared_ptr<PhysicsShape>& shape);
 		~PhysicsBody();
-		
+
 /*********************************************************************************************
-	Public
+	Public Member Functions
  *********************************************************************************************/
-		
+
 		PhysicsBodyType 					type() const;
 		void 								type(PhysicsBodyType type);
 
@@ -134,7 +131,7 @@ namespace a3d {
 		void								autocalculatesMomentOfInertia(bool autocalculate);
 
 /*********************************************************************************************
-	Internal
+	Internal Member Functions
  *********************************************************************************************/
 		
 //		void 								resting(bool resting);
@@ -182,7 +179,7 @@ namespace a3d {
 		PhysicsBodyProxy*					proxy() const;
 
 /*********************************************************************************************
-	Private
+	Private Member Functions
  *********************************************************************************************/
 
 	private:
@@ -192,7 +189,10 @@ namespace a3d {
 
 		void 								checkAddToWorld();
 
-		PhysicsBodyType 					_type;
+/*********************************************************************************************
+	Private Member Variables
+ *********************************************************************************************/
+
 		std::shared_ptr<PhysicsShape>		_shape;
 		std::unique_ptr<PhysicsBodyProxy>	_proxy;
 		std::weak_ptr<Node>					_node;
@@ -202,4 +202,4 @@ namespace a3d {
 }
 
 
-#endif /* PhysicsBody_h */
+#endif /* AVARA3D_PHYSICSBODY_H */

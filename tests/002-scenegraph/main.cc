@@ -1,9 +1,9 @@
 //
 //  main.cpp
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 10/15/17.
-//  Copyright © 2017 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 // TODO: destroy the scene after each test and run them sequentially
@@ -19,7 +19,6 @@
 
 
 using namespace a3d;
-using namespace a3d::utils;
 using namespace glm;
 using namespace std;
 using namespace std::placeholders;
@@ -34,19 +33,19 @@ enum class TEST {
 	ROTATION*/
 };
 
-void UpdateCallback(Scene& scene, float time);
-void WillRenderCallback(VisualWorld& world, float time);
-void DidRenderCallback(VisualWorld& world, float time);
-
 
 constexpr TEST					USING_TEST =			TEST::TRAVERSAL;
-constexpr bool					ENABLE_HIGH_DPI =		true;
-constexpr unsigned				WINDOW_WIDTH =			1024;
-constexpr unsigned				WINDOW_HEIGHT =			768;
+constexpr uvec2					WINDOW_SIZE =			{1280, 768};
 constexpr bool					FULLSCREEN =			false;
+constexpr bool					ENABLE_HIGH_DPI =		true;
 constexpr AntialiasingMode		ANTIALIAS_MODE =		AntialiasingMode::Msaa4X;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
+
+
+void UpdateCallback(Scene& scene, float time, float deltaTime);
+void WillRenderCallback(VisualWorld& world, float time, float deltaTime);
+void DidRenderCallback(VisualWorld& world, float time, float deltaTime);
 
 
 int main(int argc, const char* argv[]) {
@@ -55,23 +54,22 @@ int main(int argc, const char* argv[]) {
 
 	auto window = make_unique<Window>(RenderingApi::OpenGL,
 									  *utils::ExecutableName(),
-									  WINDOW_WIDTH,
-									  WINDOW_HEIGHT,
+									  WINDOW_SIZE,
 									  FULLSCREEN,
 									  ENABLE_HIGH_DPI,
 									  ANTIALIAS_MODE);
 	window->vSyncEnabled(ENABLE_VSYNC);
 	window->cursorCaptured(CAPTURE_CURSOR);
 
-	auto visualWorld = make_unique<VisualWorld>(window.get());
-	auto backgroundColor = make_shared<Color>(109.0f/255.0f, 136.0f/255.0f, 164.0f/255.0f, 1.0f);
+	auto visualWorld = make_unique<VisualWorld>(*window);
+	auto backgroundColor = make_shared<Color>(u8vec3{109, 136, 164});
 	visualWorld->background(backgroundColor);
-	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
-	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
+	visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
+	visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
 
 	auto scene = make_unique<Scene>();
 	scene->visualWorld(std::move(visualWorld));
-	scene->update(bind(&UpdateCallback, _1, _2));
+	scene->update(bind(&UpdateCallback, _1, _2, _3));
 
 
 	if (USING_TEST == TEST::TRAVERSAL) {
@@ -508,6 +506,8 @@ int main(int argc, const char* argv[]) {
 ////		window.display();
 //	}
 
+	// do we even need to open the window?
+	window->center();
 	window->open();
 	scene->run();
 
@@ -518,13 +518,9 @@ int main(int argc, const char* argv[]) {
 	Scene Callbacks
  ***************************************************************************************/
 
-void UpdateCallback(Scene& scene, float time) {
+void UpdateCallback(Scene& scene, float time, float deltaTime) {
 
-	static float previousSeconds = time;
-	float deltaSeconds = time - previousSeconds;
-	previousSeconds = time;
-
-	float rotationDeg = deltaSeconds * 30.0; // 30deg/sec
+	float rotationDeg = deltaTime * 30.0; // 30deg/sec
 
 //	if (USING_TEST == TEST::ROTATION) {
 //		auto node = scene.rootNode()->childNamed("A", true);
@@ -548,10 +544,10 @@ void UpdateCallback(Scene& scene, float time) {
 	VisualWorld Callbacks
  ***************************************************************************************/
 
-void WillRenderCallback(VisualWorld& world, float time) {
+void WillRenderCallback(VisualWorld& world, float time, float deltaTime) {
 
 }
 
-void DidRenderCallback(VisualWorld& world, float time) {
+void DidRenderCallback(VisualWorld& world, float time, float deltaTime) {
 
 }

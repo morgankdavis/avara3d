@@ -1,9 +1,9 @@
 //
 //  main.cpp
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 10/15/17.
-//  Copyright © 2017 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include <iostream>
@@ -19,56 +19,67 @@
 
 
 using namespace a3d;
-using namespace a3d::utils;
 using namespace glm;
 using namespace std;
 using namespace std::placeholders;
 
 
-void UpdateCallback(Scene& scene, float time);
-void WillRenderCallback(VisualWorld& world, float time);
-void DidRenderCallback(VisualWorld& world, float time);
-
-
-constexpr bool					ENABLE_HIGH_DPI =		true;
-constexpr unsigned				WINDOW_WIDTH =			1024;
-constexpr unsigned				WINDOW_HEIGHT =			768;
+constexpr uvec2					WINDOW_SIZE =			{1280, 768};
 constexpr bool					FULLSCREEN =			false;
+constexpr bool					ENABLE_HIGH_DPI =		true;
 constexpr AntialiasingMode		ANTIALIAS_MODE =		AntialiasingMode::Msaa4X;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
 
 
+void UpdateCallback(Scene& scene, double time, double deltaTime);
+void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
+void DidRenderCallback(VisualWorld& world, double time, double deltaTime);
+
+
 int main(int argc, const char* argv[]) {
 
-	cout << "test003::main()\n" << endl;
+	try {
+		cout << "test003::main()\n" << endl;
 
-	auto window = make_unique<Window>(RenderingApi::OpenGL,
-									  *utils::ExecutableName(),
-									  WINDOW_WIDTH,
-									  WINDOW_HEIGHT,
-									  FULLSCREEN,
-									  ENABLE_HIGH_DPI,
-									  ANTIALIAS_MODE);
-	window->vSyncEnabled(ENABLE_VSYNC);
-	window->cursorCaptured(CAPTURE_CURSOR);
+		auto window = make_unique<Window>(RenderingApi::OpenGL,
+										  *utils::ExecutableName(),
+										  WINDOW_SIZE,
+										  FULLSCREEN,
+										  ENABLE_HIGH_DPI,
+										  ANTIALIAS_MODE);
+		window->vSyncEnabled(ENABLE_VSYNC);
+		window->cursorCaptured(CAPTURE_CURSOR);
 
-	auto visualWorld = make_unique<VisualWorld>(window.get());
-	auto backgroundColor = make_shared<Color>(109.0f/255.0f, 136.0f/255.0f, 164.0f/255.0f, 1.0f);
-	visualWorld->background(backgroundColor);
-	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
-	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
+		auto inputManager = make_unique<WindowInputManager>(window.get());
+		if (inputManager->errorMask() == WindowInputManagerErrorMask::PermissionDenied) {
+			cerr << "WindowInputManager permission denied.\n" << endl;
+			// on macOS 10.15 Catalina+, this is probably a permissions issue,
+			// and the OS will alert the user.
+			// just keep going and let the user decide what they want to do.
+		}
 
-	auto inputManager = make_unique<WindowInputManager>(window.get());
+		auto visualWorld = make_unique<VisualWorld>(*window);
+		//visualWorld->usesDefaultLighting(true);
+		auto backgroundColor = make_shared<Color>(u8vec3{109, 136, 164});
+		visualWorld->background(backgroundColor);
+		visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
+		visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
 
-	auto scene = SceneNamed("import_test/import_test");
-	scene->visualWorld(std::move(visualWorld));
-	scene->inputManager(std::move(inputManager));
-	scene->update(bind(&UpdateCallback, _1, _2));
+		auto scene = utils::SceneNamed("import_test/import_test");
+		scene->visualWorld(std::move(visualWorld));
+		scene->inputManager(std::move(inputManager));
+		scene->update(bind(&UpdateCallback, _1, _2, _3));
 
-	window->open();
-	scene->run();
+		window->center();
+		window->open();
+		scene->run();
+	}
+	catch (Exception& e) {
+		cerr << "Exception: " << e.what() << "\n";
+		return -1;
+	}
 
 	return 0;
 }
@@ -77,11 +88,7 @@ int main(int argc, const char* argv[]) {
 	Scene Callbacks
  ***************************************************************************************/
 
-void UpdateCallback(Scene& scene, float time) {
-
-	static float previousSeconds = time;
-	float deltaSeconds = time - previousSeconds;
-	previousSeconds = time;
+void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 	auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 
@@ -105,13 +112,8 @@ void UpdateCallback(Scene& scene, float time) {
 		cout << "Mouse button: " << static_cast<underlying_type<MouseButton>::type>(mb) << endl;
 	}
 
-	vec2 mousePositionDelta = scene.inputManager()->mousePositionDelta();
-	//	if (mousePositionDelta.x || mousePositionDelta.y) {
-	//		cout << "Mouse move delta: (" << mousePositionDelta.x << ", " << mousePositionDelta.y << ")" << endl;
-	//	}
-
 	vec2 mouseScrollWheelDelta = scene.inputManager()->mouseScrollWheelDelta();
-	if (mouseScrollWheelDelta.x || mouseScrollWheelDelta.y) {
+	if (mouseScrollWheelDelta.x > 0 || mouseScrollWheelDelta.y > 0) {
 		cout << "Mouse scroll wheel delta: (" << mouseScrollWheelDelta.x << ", "
 			 << mouseScrollWheelDelta.y << ")" << endl;
 	}
@@ -133,6 +135,7 @@ void UpdateCallback(Scene& scene, float time) {
 		static const float MOUSE_SPEED_SCALAR = .002;
 		static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
 
+		vec2 mousePositionDelta = scene.inputManager()->mousePositionDelta();
 		float deltaRotX = atan(MOUSE_SPEED * mousePositionDelta.x);
 		float deltaRotY = atan(MOUSE_SPEED * mousePositionDelta.y);
 
@@ -145,28 +148,28 @@ void UpdateCallback(Scene& scene, float time) {
 
 		// move
 
-		static float MOVE_SPEED = Max(scene.rootNode()->extent());
+		static float MOVE_SPEED = utils::Max(scene.rootNode()->extent());
 
 		if(keysDown.count(Key::W)) {
-			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
+			vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camForward;
 			pov->position(pov->position() + positionDelta);
 		}
 		else if(keysDown.count(Key::S)) {
-			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camForward;
+			vec3 positionDelta = (float)deltaTime * MOVE_SPEED * -camForward;
 			pov->position(pov->position() + positionDelta);
 		}
 
 		if(keysDown.count(Key::A)) {
-			vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camRight;
+			vec3 positionDelta = (float)deltaTime * MOVE_SPEED * -camRight;
 			pov->position(pov->position() + positionDelta);
 		}
 		else if(keysDown.count(Key::D)) {
-			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camRight;
+			vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camRight;
 			pov->position(pov->position() + positionDelta);
 		}
 
 		if(keysDown.count(Key::Space)) {
-			vec3 positionDelta = deltaSeconds * MOVE_SPEED * camUp;
+			vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camUp;
 			pov->position(pov->position() + positionDelta);
 		}
 	}
@@ -176,9 +179,9 @@ void UpdateCallback(Scene& scene, float time) {
 	VisualWorld Callbacks
  ***************************************************************************************/
 
-void WillRenderCallback(VisualWorld& world, float time) {
+void WillRenderCallback(VisualWorld& world, double time, double deltaTime) {
 }
 
-void DidRenderCallback(VisualWorld& world, float time) {
+void DidRenderCallback(VisualWorld& world, double time, double deltaTime) {
 
 }

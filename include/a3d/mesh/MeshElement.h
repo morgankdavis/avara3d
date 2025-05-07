@@ -1,13 +1,13 @@
 //
 //  MeshElement.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 12/23/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef MeshElement_h
-#define MeshElement_h
+#ifndef AVARA3D_MESHELEMENT_H
+#define AVARA3D_MESHELEMENT_H
 
 
 #include <memory>
@@ -31,7 +31,7 @@ namespace a3d {
 	class MeshElement {
 		
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 	public:
@@ -41,7 +41,7 @@ namespace a3d {
 		virtual ~MeshElement();
 
 /*********************************************************************************************
-	Internal
+	Internal Member Functions
  *********************************************************************************************/
 
 		void 							draw(Renderer& renderer,
@@ -67,12 +67,16 @@ namespace a3d {
 		void 							dirtyMask(MeshElementDirtyMask mask);
 
 /*********************************************************************************************
-	Protected
+	Protected Lifecycle
  *********************************************************************************************/
 
 	protected:
 
 		MeshElement();
+
+/*********************************************************************************************
+	Protected Member Variables
+ *********************************************************************************************/
 
 		std::vector<Vertex>				_vertices;
 		std::vector<Face>				_faces;
@@ -82,4 +86,4 @@ namespace a3d {
 }
 
 
-#endif /* MeshElement_h */
+#endif /* AVARA3D_MESHELEMENT_H */

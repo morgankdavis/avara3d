@@ -1,5 +1,9 @@
 //
-// Created by mkd on 11/19/23.
+//  PlanePhysicsShape.h
+//  avara3d
+//
+//  Created by Morgan Davis on 11/19/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_PLANEPHYSICSSHAPE_H
@@ -14,7 +18,7 @@ namespace a3d {
 	class PlanePhysicsShape : public PhysicsShape {
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 	public:
@@ -23,7 +27,7 @@ namespace a3d {
 		~PlanePhysicsShape();
 
 /*********************************************************************************************
-	Public
+	Public Member Functions
  *********************************************************************************************/
 
 		float 					width() const;
@@ -33,14 +37,14 @@ namespace a3d {
 		void					height(float height);
 
 /*********************************************************************************************
-	PhysicsShape
+	PhysicsShape Public Member Functions
  *********************************************************************************************/
 
 		PhysicsShapeType		type() const override;
 		void					type(PhysicsShapeType type) override;
 
 /*********************************************************************************************
-	Private
+	Private Member Variables
  *********************************************************************************************/
 
 	private:

@@ -1,5 +1,9 @@
 //
-// Created by mkd on 10/22/23.
+//  OrthographicCamera.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 10/22/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/rendering/camera/OrthographicCamera.h"
@@ -14,17 +18,28 @@ using namespace a3d;
 using namespace std;
 using namespace glm;
 
+
+/*********************************************************************************************
+	Public Lifecycle Functions
+ *********************************************************************************************/
+
 OrthographicCamera::OrthographicCamera():
 	Camera{},
-	_extent{{-1, -1, -1}, {1, 1, 1}} {}
+	_extent{{-1, -1, -1}, {1, 1, 1}} {
+	constructProjectionMatrix();
+}
 
-OrthographicCamera::OrthographicCamera(AABB extent):
+OrthographicCamera::OrthographicCamera(const AABB& extent):
 		Camera{},
-		_extent{extent} {}
+		_extent{extent} {
+	constructProjectionMatrix();
+}
 
-OrthographicCamera::OrthographicCamera(const string& name, AABB extent):
+OrthographicCamera::OrthographicCamera(const string& name, const AABB& extent):
 	Camera{name},
-	_extent{extent} {}
+	_extent{extent} {
+	constructProjectionMatrix();
+}
 
 OrthographicCamera::~OrthographicCamera() {
 
@@ -36,19 +51,32 @@ OrthographicCamera::~OrthographicCamera() {
 	}
 }
 
+/*********************************************************************************************
+	Public Member Functions
+ *********************************************************************************************/
+
 AABB OrthographicCamera::extent() const {
 	return _extent;
 }
 
 void OrthographicCamera::extent(const AABB& e) {
 	_extent = e;
+	constructProjectionMatrix();
 }
 
+/*********************************************************************************************
+	Camera Protected Member Functions
+ *********************************************************************************************/
+
 void OrthographicCamera::constructProjectionMatrix() {
+
+	// left, right, bottom, top, near, far
+	// DeVries 9.5.1
+
 	_projection = glm::ortho(_extent.min.x,
 							 _extent.max.x,
-							 _extent.max.y,
 							 _extent.min.y,
+							 _extent.max.y,
 							 _extent.min.z,
 							 _extent.max.z);
 }

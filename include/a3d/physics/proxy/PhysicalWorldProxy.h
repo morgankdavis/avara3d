@@ -1,5 +1,9 @@
 //
-// Created by mkd on 12/8/23.
+//  PhysicalWorldProxy.h
+//  avara3d
+//
+//  Created by Morgan Davis on 12/8/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_PHYSICALWORLDPROXY_H
@@ -23,7 +27,7 @@ namespace a3d {
 	class PhysicalWorldProxy {
 
 /*********************************************************************************************
-	Lifecycle
+	Internal Lifecycle Functions
  *********************************************************************************************/
 
 	public:
@@ -32,7 +36,7 @@ namespace a3d {
 		virtual ~PhysicalWorldProxy();
 
 /*********************************************************************************************
-	Internal
+	Internal Member Functions
  *********************************************************************************************/
 
 		virtual void 	add(PhysicsBody& body) = 0;
@@ -41,7 +45,10 @@ namespace a3d {
 		virtual float	gravity() const = 0;
 		virtual void	gravity(float gravity) = 0;
 
-		virtual void	step(double deltaT, float speed, float timestep) = 0;
+		virtual void	step(double deltaT,
+							 float speed,
+							 float timestep,
+							 Stats& stats) = 0;
 
 		virtual void 	updateCollisionPairs() = 0;
 

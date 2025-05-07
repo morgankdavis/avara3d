@@ -1,9 +1,13 @@
 //
-// Created by mkd on 10/29/23.
+//  BulletBodyProxy.h
+//  avara3d
+//
+//  Created by Morgan Davis on 10/29/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef BulletBodyResources_h
-#define BulletBodyResources_h
+#ifndef AVARA3D_BULLETBODYPROXY_H
+#define AVARA3D_BULLETBODYPROXY_H
 
 
 #include <memory>
@@ -17,22 +21,22 @@ class btRigidBody;
 namespace a3d {
 
 
-	class MotionState;
+	class BulletMotionState;
 
 
 	class BulletBodyProxy : public PhysicsBodyProxy {
 
 /*********************************************************************************************
-	Lifecycle
+	Internal Lifecycle Functions
  *********************************************************************************************/
 
 	public:
 
-		explicit BulletBodyProxy(PhysicsBody& body);
+		explicit BulletBodyProxy(PhysicsBody& body, PhysicsBodyType type);
 		~BulletBodyProxy() override;
 
 /*********************************************************************************************
-	PhysicsBodyModelProxy
+	PhysicsBodyModelProxy Internal Member Functions
  *********************************************************************************************/
 
 		PhysicsBodyType			type() const override;
@@ -111,24 +115,27 @@ namespace a3d {
 		void					clearForces() override;
 
 /*********************************************************************************************
-	Internal
+	Internal Member Functions
  *********************************************************************************************/
 
 		btRigidBody*			btBody();
-		MotionState*			motionState();
 
 /*********************************************************************************************
-	 Private
+	 Private Member Functions
  *********************************************************************************************/
 
 	private:
 
 		void					calculateMomentOfIntertia();
 
-		std::unique_ptr<btRigidBody>	_btBody;
-		std::unique_ptr<MotionState>	_motionState;
+/*********************************************************************************************
+	Private Member Variables
+ *********************************************************************************************/
+
+		std::unique_ptr<btRigidBody>		_btBody;
+		std::unique_ptr<BulletMotionState>	_motionState;
 	};
 }
 
 
-#endif //BulletBodyResources_h
+#endif //AVARA3D_BULLETBODYPROXY_H

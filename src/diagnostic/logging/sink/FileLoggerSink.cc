@@ -1,12 +1,16 @@
 //
-// Created by mkd on 11/9/23.
+//  FileLoggerSink.cc
+//  avara3d
 //
+//  Created by Morgan Davis on 11/9/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//
+
 
 #include "a3d/diagnostic/logging/sink/FileLoggerSink.h"
 
 
 #include "fmt/format.h"
-
 
 #include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/logging/Logger.h"
@@ -17,7 +21,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 FileLoggerSink::FileLoggerSink(const filesystem::path& relPath,
@@ -26,10 +30,6 @@ FileLoggerSink::FileLoggerSink(const filesystem::path& relPath,
 		_filepath{relPath},
 		_maxFiles{maxFiles},
 		_maxFilesize{maxFilesize} {
-
-#if defined(ANDROID)
-	_filepath = (*(utils::InternalFilesDirectory())) / relPath;
-#endif
 
 	error_code errorCode;
 	filesystem::create_directories(_filepath.parent_path(), errorCode);
@@ -55,7 +55,7 @@ FileLoggerSink::~FileLoggerSink() {
 }
 
 /*********************************************************************************************
-	Public
+	Public Member Functions
  *********************************************************************************************/
 
 const filesystem::path& FileLoggerSink::filepath() const {
@@ -78,18 +78,18 @@ void FileLoggerSink::flush() {
 }
 
 /*********************************************************************************************
-	Internal
+	Internal Member Functions
  *********************************************************************************************/
 
-void FileLoggerSink::write(const char* message) {
+void FileLoggerSink::write(const string& output) {
 
-	*_fileStream << message << endl;
+	*_fileStream << output;
 
 	checkRotate();
 }
 
 /*********************************************************************************************
-	Private
+	Private Member Functions
  *********************************************************************************************/
 
 void FileLoggerSink::openStream() {
@@ -112,7 +112,7 @@ void FileLoggerSink::checkRotate() {
 
 void FileLoggerSink::rotate() {
 
-	// find list of existing filesw
+	// find list of existing files
 	// start at index 0, count down until the next isn't found
 
 	auto stem = _filepath.stem();
@@ -140,7 +140,7 @@ void FileLoggerSink::rotate() {
 
 	auto index = existing.size();
 
-	for (auto e = existing.rbegin(); e != existing.rend(); ++e ) {
+	for (auto e = existing.rbegin(); e != existing.rend(); ++e) {
 		auto path = *e;
 
 		if (index >= _maxFiles) {
@@ -149,28 +149,30 @@ void FileLoggerSink::rotate() {
 			//A3D_LOG_I("Removing log file '{}...'", path.string());
 
 			error_code errorCode;
+
+			// Linux (and maybe macOS?) will let us rename/remove a file while it's open, Windows will crash and burn.
+			if (_fileStream && _fileStream->is_open()) {
+				_fileStream->close();
+			}
+
 			filesystem::remove(path, errorCode);
 
 			auto code = errorCode.value();
 			if (code != 0) {
 				// TODO: exception subclass
-				throw Exception(fmt::format("Error removing log file: '', code: {}.",
+				throw Exception(fmt::format("Error removing log file: '{}', code: {}.",
 											path.string(), to_string(code)));
 			}
 		}
 		else {
 
 			auto existStem = path.stem();
-//			auto oldExtension = path.extension();
+			auto newPath = path.parent_path() / filesystem::path(existStem.string().substr(0, stem.string().length()) + to_string(index-1) + extension.string());
 
-			//filesystem::path newPath;
-//			if (path.string() == _filepath) {
-//				newPath = filesystem::path(oldStem.string() + to_string(index-1) + oldExtension.string());
-//			}
-//			else {
-			//newPath = filesystem::path(stem.string().substr(0, stem.string().length()-1) + to_string(index-1) + extension.string());
-			filesystem::path newPath = path.parent_path() / filesystem::path(existStem.string().substr(0, stem.string().length()) + to_string(index-1) + extension.string());
-//			}
+			// Linux (and maybe macOS?) will let us rename/remove a file while it's open, Windows will crash and burn.
+			if (_fileStream && _fileStream->is_open()) {
+				_fileStream->close();
+			}
 
 			filesystem::rename(path, newPath);
 		}

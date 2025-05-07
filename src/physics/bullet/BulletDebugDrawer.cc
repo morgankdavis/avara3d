@@ -1,19 +1,19 @@
 //
 //  BulletDebugDrawer.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 2/6/18.
-//  Copyright © 2018 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifdef OPENGL_DESKTOP
+#ifdef OPENGL_CORE
 
 #include "a3d/physics/bullet/BulletDebugDrawer.h"
 
 #include "a3d/Color.h"
 #include "a3d/mesh/Line.h"
 #include "a3d/diagnostic/logging/Logger.h"
-#include "a3d/rendering/Renderer.h"
+#include "a3d/rendering/renderer/Renderer.h"
 
 
 using namespace a3d;
@@ -22,7 +22,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Static Prototypes
+	Private Static Non-Member Prototypes
  *********************************************************************************************/
 
 static vec3 		GLMVec3FromBTVector3(const btVector3& from);
@@ -31,7 +31,7 @@ static btVector3 	BTVector3FromGLMVec3(const vec3& from);
 static btVector4 	BTVector4FromGLMVec4(const vec4& from);
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 BulletDebugDrawer::BulletDebugDrawer():
@@ -41,7 +41,7 @@ BulletDebugDrawer::BulletDebugDrawer():
 BulletDebugDrawer::~BulletDebugDrawer() { }
 
 /*********************************************************************************************
-	Internal
+	Internal Member Functions
  *********************************************************************************************/
 
 void BulletDebugDrawer::clear() {
@@ -59,7 +59,7 @@ void BulletDebugDrawer::draw(Renderer& renderer,
 }
 
 /*********************************************************************************************
-	btIDebugDraw
+	btIDebugDraw Members
  *********************************************************************************************/
 
 void BulletDebugDrawer::drawLine(const btVector3& from,
@@ -76,8 +76,10 @@ void BulletDebugDrawer::drawLine(const btVector3& from,
 
 	_lines.push_back(Line(GLMVec3FromBTVector3(from),
 						  GLMVec3FromBTVector3(to),
-						  Color{fromColor.x(), fromColor.y(), fromColor.z(), 1.0},
-						  Color{toColor.x(), toColor.y(), toColor.z(), 1.0}));
+						  GLMVec3FromBTVector3(fromColor),
+						  GLMVec3FromBTVector3(toColor)));
+//						  Color{fromColor.x(), fromColor.y(), fromColor.z(), 1.0},
+//						  Color{toColor.x(), toColor.y(), toColor.z(), 1.0}));
 }
 
 /*
@@ -239,4 +241,4 @@ btVector4 BTVector4FromGLMVec4(const vec4& from) {
 	return btVector4(from.x, from.y, from.z, from.w);
 }
 
-#endif // OPENGL_DESKTOP
+#endif // OPENGL_CORE

@@ -1,9 +1,9 @@
 //
 //  Capsule.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 11/8/17.
-//  Copyright © 2017 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/mesh/primitive/Capsule.h"
@@ -22,11 +22,15 @@ using namespace glm;
 using namespace std;
 
 
+/*********************************************************************************************
+	Pubic Static Members
+ *********************************************************************************************/
+
 shared_ptr<Mesh> Capsule::Mesh(float radius,
 							   float height,
-							   int slices,
-							   int segments,
-							   int rings,
+							   unsigned slices,
+							   unsigned segments,
+							   unsigned rings,
 							   const shared_ptr<Material> material) {
 
 	return make_shared<a3d::Mesh>("Capsule",
@@ -39,14 +43,14 @@ shared_ptr<Mesh> Capsule::Mesh(float radius,
 }
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
 *********************************************************************************************/
 
 Capsule::Capsule(float radius,
 				 float height,
-				 int slices,
-				 int segments,
-				 int rings):
+				 unsigned slices,
+				 unsigned segments,
+				 unsigned rings):
 		MeshElement{},
 		_radius{radius},
 		_height{height},
@@ -61,7 +65,7 @@ Capsule::Capsule(float radius,
 	/// @param start Counterclockwise angle relative to the x-axis.
 	/// @param sweep Counterclockwise angle.
 
-	auto capsule = CapsuleMesh{radius, height/2.0, slices, segments, rings};
+	auto capsule = CapsuleMesh{radius, height/2.0, (int)slices, (int)segments, (int)rings};
 
 	for (const MeshVertex& v : capsule.vertices()) {
 		_vertices.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
@@ -81,7 +85,7 @@ Capsule::Capsule(float radius,
 }
 
 /*********************************************************************************************
- 	Public
+ 	Public Member Functions
  *********************************************************************************************/
 
 float Capsule::radius() const {
@@ -92,14 +96,14 @@ float Capsule::height() const {
 	return _height;
 }
 
-int Capsule::slices() const {
+unsigned Capsule::slices() const {
 	return _slices;
 }
 
-int Capsule::segments() const {
+unsigned Capsule::segments() const {
 	return _segments;
 }
 
-int Capsule::rings() const {
+unsigned Capsule::rings() const {
 	return _rings;
 }

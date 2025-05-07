@@ -24,6 +24,12 @@ namespace generator {
 /// u-texture coordinate is taken from the shape and v from the path.
 template <typename Shape, typename Path>
 class ExtrudeMesh {
+
+// MKD: moved from private: below when switching from clang 18.1.8 -> 19.1.6
+private:
+	Shape shape_;
+	Path path_;
+
 public:
 
 	class Triangles {
@@ -157,9 +163,9 @@ public:
 
 private:
 
-	Shape shape_;
-
-	Path path_;
+	// MKD: moved to top of class when switching from clang 18.1.8 -> 19.1.6
+	//Shape shape_;
+	//Path path_;
 
 	int shapeVertexCount_;
 

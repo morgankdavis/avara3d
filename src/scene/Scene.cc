@@ -1,9 +1,9 @@
 //
 //  Scene.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 10/21/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/scene/Scene.h"
@@ -15,21 +15,23 @@
 
 #include "a3d/Buffer.h"
 #include "a3d/Color.h"
+#include "a3d/Configuration.h"
 #include "a3d/CubeImage.h"
 #include "a3d/Image.h"
 #include "a3d/diagnostic/logging/Logger.h"
-#include "a3d/input/platform/desktop/WindowInputManager.h"
+#include "a3d/input/WindowInputManager.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicalWorld.h"
-#include "a3d/rendering/Light.h"
-#include "a3d/rendering/Renderer.h"
 #include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/camera/Camera.h"
 #include "a3d/rendering/context/RenderContext.h"
+#include "a3d/rendering/light/Light.h"
+#include "a3d/rendering/renderer/Renderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/importer/GlTFImporter.h"
+#include "a3d/Utilities.h"
 
 
 using namespace a3d;
@@ -38,11 +40,8 @@ using namespace std;
 using namespace std::filesystem;
 
 
-constexpr double FRAMETIME_AVERAGING_INTERVAL = .5;
-
-
 /*********************************************************************************************
-	Private Static Prototypes
+	Private Static Non-Member Prototypes
  *********************************************************************************************/
 
 static void 						GetRunTime(double time, // time since reference
@@ -53,7 +52,7 @@ static void 						UpdateUserTimeStats(Stats& stats, double startTime, double end
 static void							UpdateFrameTimeStats(Stats& stats, double time);
 
 /*********************************************************************************************
-	Public Static
+	Public Static Member Functions
  *********************************************************************************************/
 
 unique_ptr<Scene> Scene::FromFile(const filesystem::path& path,
@@ -61,14 +60,8 @@ unique_ptr<Scene> Scene::FromFile(const filesystem::path& path,
 	return GlTFImporter(path, options).scene();
 }
 
-double Scene::Time() {
-	static auto startTime = chrono::high_resolution_clock::now();
-	auto nowTime = chrono::high_resolution_clock::now();
-	return (chrono::duration<double>(nowTime - startTime)).count();
-}
-
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 Scene::Scene():
@@ -80,6 +73,7 @@ Scene::Scene():
 		_debugOptions{DebugOptions::None},
 		_stats{},
 		_running{false},
+		_startTime{0},
 		_paused{false},
 		_update{} {
 
@@ -131,7 +125,7 @@ Scene::~Scene() {
 }
 
 /*********************************************************************************************
-	Public
+	Public Member Functions
  *********************************************************************************************/
 
 const optional<std::string>& Scene::name() const {
@@ -276,21 +270,21 @@ void Scene::run() {
 
 	if (_rootNode) {
 
-		_running = true;
+		auto now = std::chrono::system_clock::now();
+		_startTime = std::chrono::duration<double>(now.time_since_epoch()).count();
 
-		if (_visualWorld) {
-			_visualWorld->checkAddDefaultLighting();
-		}
+		_running = true;
 
 		double deltaT, runT, deltaRunT;
 
 		do {
 
-			GetRunTime(Scene::Time(),
+			GetRunTime(time(),
 					   _paused,
 					   runT,
 					   deltaRunT);
 
+			//_stats = {};
 			memset(&_stats, 0, sizeof(Stats));
 			UpdateFrameTimeStats(_stats, runT);
 
@@ -300,9 +294,9 @@ void Scene::run() {
 
 			if (_update) {
 
-				auto updateStartTime = Scene::Time();
-				(_update)(*this, runT);
-				UpdateUserTimeStats(_stats, updateStartTime, Scene::Time());
+				auto updateStartTime = time();
+				(_update)(*this, runT, deltaRunT);
+				UpdateUserTimeStats(_stats, updateStartTime, time());
 			}
 
 			if (!_paused) {
@@ -350,6 +344,18 @@ bool Scene::running() const {
 	return _running;
 }
 
+double Scene::time() const {
+
+	// https://randomascii.wordpress.com/2012/02/13/dont-store-that-in-a-float/
+
+	if (_startTime != 0) {
+		auto now = chrono::system_clock::now();
+		auto nowSinceEpoch = chrono::duration<double>(now.time_since_epoch()).count();
+		return nowSinceEpoch - _startTime;
+	}
+	return 0;
+}
+
 bool Scene::paused() const {
 	return _paused;
 }
@@ -375,9 +381,9 @@ void Scene::update(UpdateCallback function) {
  *********************************************************************************************/
 
 void GetRunTime(double time, // time since reference
-					   bool paused,
-					   double& runT, // time since reference excluding paused time
-					   double& deltaRunT) { // time since last call excluding paused time
+				bool paused,
+				double& runT, // time since reference excluding paused time
+				double& deltaRunT) { // time since last call excluding paused time
 
 	const double t = time;
 	static double prevT = t;
@@ -399,8 +405,6 @@ void UpdateUserTimeStats(Stats& stats, double startTime, double endTime) {
 	// current
 	auto updateTime = endTime - startTime;
 	stats.currentUsertime = updateTime * 1000.0f;
-
-	constexpr double FRAMETIME_AVERAGING_INTERVAL = .5; // TEMPORARY
 
 	// average
 	static double avg = 0.0;

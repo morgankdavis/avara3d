@@ -1,5 +1,9 @@
 //
-// Created by mkd on 10/29/23.
+//  BulletBodyProxy.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 10/29/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/physics/bullet/BulletBodyProxy.h"
@@ -15,8 +19,8 @@
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/physics/bullet/BulletShapeProxy.h"
 #include "a3d/physics/bullet/BulletWorldProxy.h"
-#include "a3d/physics/bullet/MotionState.h"
-#include "a3d/physics/bullet/Utilities.h"
+#include "a3d/physics/bullet/BulletMotionState.h"
+#include "a3d/physics/bullet/BulletUtilities.h"
 #include "a3d/physics/proxy/PhysicsBodyProxy.h"
 #include "a3d/physics/proxy/PhysicsShapeProxy.h"
 #include "a3d/scene/Node.h"
@@ -29,11 +33,11 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Lifecycle
+	Internal Lifecycle Functions
  *********************************************************************************************/
 
-BulletBodyProxy::BulletBodyProxy(PhysicsBody& body):
-		PhysicsBodyProxy{body},
+BulletBodyProxy::BulletBodyProxy(PhysicsBody& body, PhysicsBodyType type):
+		PhysicsBodyProxy{body, type},
 		_btBody{},
 		/*_btMotionState(nullptr)*/
 		_motionState{} {
@@ -45,12 +49,12 @@ BulletBodyProxy::BulletBodyProxy(PhysicsBody& body):
 
 //	_btMotionState = make_shared<btDefaultMotionState>(btTransform::getIdentity());
 //	_motionState = make_shared<MotionState>(body, btTransform::getIdentity());
-	_motionState = make_unique<MotionState>(body);
+	_motionState = make_unique<BulletMotionState>(body);
 
 	// it seems as though adding a body to the world with mass=0 forever casts it
 	// as a static body. adding it, setting it to 0, the setting it to something
 	// different seems to work fine, though.
-	btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo((body.type() == PhysicsBodyType::Static
+	btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo((/*body.type()*/type == PhysicsBodyType::Static
 															? 0.0f
 															: 1.0f), // important!
 														   _motionState.get(),
@@ -67,7 +71,7 @@ BulletBodyProxy::BulletBodyProxy(PhysicsBody& body):
 	int flags = 0;
 	int activationState = _btBody->getActivationState();
 
-	switch (body.type()) {
+	switch (/*body.type()*/type) {
 		case PhysicsBodyType::Static:
 			flags = btCollisionObject::CF_STATIC_OBJECT;
 			activationState = activationState & ~DISABLE_DEACTIVATION;
@@ -93,15 +97,17 @@ BulletBodyProxy::~BulletBodyProxy() {
 }
 
 /*********************************************************************************************
-	PhysicsBodyModelProxy
+	PhysicsBodyModelProxy Internal Member Functions
  *********************************************************************************************/
 
 PhysicsBodyType BulletBodyProxy::type() const {
 
 	auto flags = _btBody->getCollisionFlags();
 
+	// btCollisionObject::CF_DYNAMIC_OBJECT (0) will never bitwise AND with anything
+	//	if (flags & btCollisionObject::CF_DYNAMIC_OBJECT) return PhysicsBodyType::Dynamic;
+	if (flags == btCollisionObject::CF_DYNAMIC_OBJECT) return PhysicsBodyType::Dynamic;
 	if (flags & btCollisionObject::CF_STATIC_OBJECT) return PhysicsBodyType::Static;
-	if (flags & btCollisionObject::CF_DYNAMIC_OBJECT) return PhysicsBodyType::Dynamic;
 	if (flags & btCollisionObject::CF_KINEMATIC_OBJECT) return PhysicsBodyType::Kinematic;
 
 	return PhysicsBodyType::Static;
@@ -149,11 +155,10 @@ void BulletBodyProxy::shapeProxy(PhysicsShapeProxy* proxy) {
 
 			_btBody->setCollisionShape(btShape);
 
-			auto mass = BulletBodyProxy::mass();
 			switch (_body->type()) {
 				case PhysicsBodyType::Static:
 				case PhysicsBodyType::Kinematic:
-					mass = 0;
+					this->mass(0);
 					break;
 				case PhysicsBodyType::Dynamic:
 					break;
@@ -161,7 +166,7 @@ void BulletBodyProxy::shapeProxy(PhysicsShapeProxy* proxy) {
 
 			_shapeProxy = proxy;
 
-			if (_autocalculatesMomentOfInertia) {
+			if (this->type() == PhysicsBodyType::Dynamic && _autocalculatesMomentOfInertia) {
 				calculateMomentOfIntertia();
 			}
 		}
@@ -187,7 +192,7 @@ void BulletBodyProxy::mass(float mass) {
 
 	_btBody->setMassProps(mass, _btBody->getLocalInertia());
 
-	if (_autocalculatesMomentOfInertia) {
+	if (type() == PhysicsBodyType::Dynamic && _autocalculatesMomentOfInertia) {
 		calculateMomentOfIntertia();
 	}
 
@@ -366,9 +371,8 @@ bool BulletBodyProxy::allowsResting() const {
 
 void BulletBodyProxy::allowsResting(bool allowsResting) {
 
-	// *** test this ***
-	if (allowsResting
-		&& type() == PhysicsBodyType::Kinematic) {
+	// TODO: test this
+	if (allowsResting && type() == PhysicsBodyType::Kinematic) {
 
 		A3D_LOG_E("Cannot enable resting for kinematic bodies.");
 	}
@@ -456,23 +460,15 @@ void BulletBodyProxy::clearForces() {
 }
 
 /*********************************************************************************************
-	Internal
+	Internal Member Functions
  *********************************************************************************************/
 
 btRigidBody* BulletBodyProxy::btBody() {
 	return _btBody.get();
 }
 
-//shared_ptr<btDefaultMotionState> BulletBodyProxy::btMotionState() {
-//	return _btMotionState;
-//}
-
-MotionState* BulletBodyProxy::motionState() {
-	return _motionState.get();
-}
-
 /*********************************************************************************************
-	Private
+	Private Member Functions
  *********************************************************************************************/
 
 void BulletBodyProxy::calculateMomentOfIntertia() {
@@ -489,7 +485,7 @@ void BulletBodyProxy::calculateMomentOfIntertia() {
 			A3D_LOG_W("Missing btCollisionShape.");
 		}
 	}
-	else {
-		A3D_LOG_W("Missing PhysicsShapeModelProxy.");
-	}
+//	else {
+//		A3D_LOG_W("Missing PhysicsShapeModelProxy.");
+//	}
 }

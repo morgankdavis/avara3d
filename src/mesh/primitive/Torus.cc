@@ -1,9 +1,9 @@
 //
 //  Torus.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 11/8/17.
-//  Copyright © 2017 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/mesh/primitive/Torus.h"
@@ -22,10 +22,14 @@ using namespace glm;
 using namespace std;
 
 
+/*********************************************************************************************
+	Pubic Static Members
+ *********************************************************************************************/
+
 shared_ptr<Mesh> Torus::Mesh(float minorRadius,
 							 float majorRadius,
-							 int slices,
-							 int segments,
+							 unsigned slices,
+							 unsigned segments,
 							 const shared_ptr<Material> material) {
 
 	return make_shared<a3d::Mesh>("Torus",
@@ -37,13 +41,13 @@ shared_ptr<Mesh> Torus::Mesh(float minorRadius,
 }
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
 *********************************************************************************************/
 
 Torus::Torus(float minorRadius,
 			 float majorRadius,
-			 int slices,
-			 int segments):
+			 unsigned slices,
+			 unsigned segments):
 		MeshElement{},
 		_minorRadius{minorRadius},
 		_majorRadius{majorRadius},
@@ -59,7 +63,7 @@ Torus::Torus(float minorRadius,
 	/// @param majorStart Counterclockwise angle around the z-axis relative to the x-axis.
 	/// @param majorSweep Counterclockwise angle around the z-axis.
 
-	auto torus = TorusMesh{majorRadius-minorRadius, majorRadius, slices, segments};
+	auto torus = TorusMesh{majorRadius-minorRadius, majorRadius, (int)slices, (int)segments};
 
 	for (const MeshVertex& v : torus.vertices()) {
 		_vertices.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
@@ -75,7 +79,7 @@ Torus::Torus(float minorRadius,
 }
 
 /*********************************************************************************************
- 	Public
+ 	Public Member Functions
  *********************************************************************************************/
 
 float Torus::minorRadius() const {
@@ -86,10 +90,10 @@ float Torus::majorRadius() const {
 	return _majorRadius;
 }
 
-int Torus::slices() const {
+unsigned Torus::slices() const {
 	return _slices;
 }
 
-int Torus::segments() const {
+unsigned Torus::segments() const {
 	return _segments;
 }

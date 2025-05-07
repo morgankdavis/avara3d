@@ -1,5 +1,9 @@
 //
-// Created by mkd on 12/8/23.
+//  BulletWorldProxy.h
+//  avara3d
+//
+//  Created by Morgan Davis on 12/8/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_BULLETWORLDPROXY_H
@@ -10,6 +14,7 @@
 
 #include "glm/glm.hpp"
 
+#include "a3d/physics/bullet/BulletStats.h"
 #include "a3d/physics/proxy/PhysicalWorldProxy.h"
 
 
@@ -23,15 +28,13 @@ class btDefaultCollisionConfiguration;
 namespace a3d {
 
 
-#ifdef DESKTOP
 	class BulletDebugDrawer;
-#endif
 
 
 	class BulletWorldProxy : public PhysicalWorldProxy {
 
 /*********************************************************************************************
-	Lifecycle
+	Internal Lifecycle Functions
  *********************************************************************************************/
 
 	public:
@@ -40,7 +43,7 @@ namespace a3d {
 		~BulletWorldProxy() override;
 
 /*********************************************************************************************
-	PhysicalWorldModelProxy
+	PhysicalWorldModelProxy Internal Member Functions
  *********************************************************************************************/
 
 		void 	add(PhysicsBody& body) override;
@@ -49,7 +52,10 @@ namespace a3d {
 		float	gravity() const override;
 		void	gravity(float gravity) override;
 
-		void	step(double deltaT, float speed, float timestep) override;
+		void	step(double deltaT,
+					 float speed,
+					 float timestep,
+					 Stats& stats) override;
 
 		void 	updateCollisionPairs() override;
 
@@ -59,16 +65,7 @@ namespace a3d {
 						  const DebugOptions &debugOptions) override;
 
 /*********************************************************************************************
-	Internal
- *********************************************************************************************/
-
-		btDiscreteDynamicsWorld*		btWorld() const;
-#ifdef DESKTOP
-		BulletDebugDrawer*				btDebugDrawer() const;
-#endif
-
-/*********************************************************************************************
-	 Private
+	 Private Member Variables
  *********************************************************************************************/
 
 	private:
@@ -81,6 +78,7 @@ namespace a3d {
 #ifdef DESKTOP
 		std::unique_ptr<BulletDebugDrawer>						_btDebugDrawer;
 #endif
+		BulletStats												_stats;
 	};
 }
 

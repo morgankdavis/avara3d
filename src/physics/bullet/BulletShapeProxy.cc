@@ -1,5 +1,9 @@
 //
-// Created by mkd on 10/29/23.
+//  BulletShapeProxy.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 10/29/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/physics/bullet/BulletShapeProxy.h"
@@ -25,7 +29,7 @@
 #include "a3d/physics/PhysicsShape.h"
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/physics/bullet/BulletWorldProxy.h"
-#include "a3d/physics/bullet/Utilities.h"
+#include "a3d/physics/bullet/BulletUtilities.h"
 #include "a3d/physics/proxy/PhysicsBodyProxy.h"
 #include "a3d/physics/shape_primitive/BoxPhysicsShape.h"
 #include "a3d/physics/shape_primitive/CapsulePhysicsShape.h"
@@ -43,7 +47,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Static Prototypes
+	Private Static Non-Member Prototypes
  *********************************************************************************************/
 
 static unique_ptr<btCollisionShape>
@@ -80,7 +84,7 @@ static void
 AddBTShapeFromNodeRec(Node& node,
 					  PhysicsShapeType shapeType,
 					  PhysicsBodyType bodyType,
-					  btCompoundShape& compoundShape,
+					  btCompoundShape& parentShape,
 					  vector<unique_ptr<btCollisionShape>>& btShapes,
 					  vector<unique_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
 
@@ -103,7 +107,7 @@ static vector<unique_ptr<MeshElement>>
 HACDMeshElementsFromMeshElement(MeshElement& element);
 
 /*********************************************************************************************
-	Lifecycle
+	Internal Lifecycle Functions
  *********************************************************************************************/
 
 BulletShapeProxy::BulletShapeProxy(PhysicsShape& shape):
@@ -134,6 +138,7 @@ BulletShapeProxy::BulletShapeProxy(PhysicsShape& shape):
 		}
 		else {
 			A3D_LOG_W("sourceMesh is null.");
+			// TODO: throw?
 		}
 	}
 
@@ -149,6 +154,7 @@ BulletShapeProxy::BulletShapeProxy(PhysicsShape& shape):
 		}
 		else {
 			A3D_LOG_W("sourceNode is null.");
+			// TODO: throw?
 		}
 	}
 
@@ -184,7 +190,7 @@ BulletShapeProxy::~BulletShapeProxy() {
 }
 
 /*********************************************************************************************
-	Public
+	Internal Member Functions
  *********************************************************************************************/
 
 const vector <unique_ptr<btCollisionShape>>& BulletShapeProxy::btShapes() {
@@ -192,7 +198,7 @@ const vector <unique_ptr<btCollisionShape>>& BulletShapeProxy::btShapes() {
 }
 
 /*********************************************************************************************
-	Static
+	Static Non-Member Functions
  *********************************************************************************************/
 
 static unique_ptr<btCollisionShape>
@@ -293,7 +299,7 @@ BTShapeFromPrimitiveShape(PhysicsShape& shape) {
 	}
 	else if (auto cylinderShape = dynamic_cast<CylinderPhysicsShape*>(&shape)) {
 		return make_unique<btCylinderShape>(btVector3((btScalar)cylinderShape->radius(),
-													  (btScalar)round(cylinderShape->height()/2.0),
+													  (btScalar)cylinderShape->height()/2.0f,
 													  (btScalar)cylinderShape->radius()));
 	}
 	else if (auto planeShape = dynamic_cast<PlanePhysicsShape*>(&shape)) {
@@ -359,7 +365,7 @@ BTShapeFromMeshElement(MeshElement& element,
 				 static_cast<void*>(&element), magic_enum::enum_name(shapeType));
 
 		return make_unique<btCylinderShape>(btVector3((btScalar)cylinder->radius(),
-													  (btScalar)round(cylinder->height()/2.0),
+													  (btScalar)cylinder->height()/2.0f,
 													  (btScalar)cylinder->radius()));
 	}
 	else if (auto plane = dynamic_cast<Plane*>(&element)) {

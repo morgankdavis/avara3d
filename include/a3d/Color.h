@@ -1,26 +1,28 @@
 //
 //  Color.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 10/21/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Color_h
-#define Color_h
+#ifndef AVARA3D_COLOR_H
+#define AVARA3D_COLOR_H
 
 
 #include <memory>
 #include <string>
 #include <vector>
 
+#include "glm/glm.hpp"
+
 
 namespace a3d {
 	
 	class Color {
-		
+
 /*********************************************************************************************
-	Public Static
+	Public Static Member Functions
  *********************************************************************************************/
 
 	public:
@@ -48,30 +50,47 @@ namespace a3d {
 		static std::shared_ptr<Color> 		Random();
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
-		
+
 		Color();
-		Color(float r, float g, float b);
-		Color(float r, float g, float b, float a);
-		Color(int r, int g, int b);
-		Color(int r, int g, int b, int a);
+		explicit Color(const glm::vec3& rgb);
+		explicit Color(const glm::vec4& rgba);
+		explicit Color(const glm::u8vec3& irgb);
+		explicit Color(const glm::u8vec4& irgba);
 		explicit Color(float white);
 		explicit Color(uint32_t color);
 		explicit Color(const std::string& hexString);
 
-/*********************************************************************************************
-	Public
- *********************************************************************************************/
-		
-		float r;
-		float g;
-		float b;
-		float a;
+		// TODO: operator*, operator[]
 
-		// TODO: operator*, operator[], rgb(), rgba()
+/*********************************************************************************************
+	Public Member Functions
+ *********************************************************************************************/
+
+		float r() const;
+		float g() const;
+		float b() const;
+		float a() const;
+
+		uint8_t u8r() const;
+		uint8_t u8g() const;
+		uint8_t u8b() const;
+		uint8_t u8a() const;
+
+		glm::vec3 rgb() const;
+		glm::vec4 rgba() const;
+
+		glm::u8vec3 u8rgb() const;
+		glm::u8vec4 u8rgba() const;
+
+/*********************************************************************************************
+	Public Member Variables
+ *********************************************************************************************/
+
+		glm::vec4 _rgba;
 	};
 }
 
 
-#endif /* Color_h */
+#endif /* AVARA3D_COLOR_H */

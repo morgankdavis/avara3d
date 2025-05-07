@@ -1,13 +1,13 @@
 //
 //  Sphere.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 11/6/17.
-//  Copyright © 2017 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Sphere_h
-#define Sphere_h
+#ifndef AVARA3D_SPHERE_H
+#define AVARA3D_SPHERE_H
 
 
 #include <memory>
@@ -24,40 +24,46 @@ namespace a3d {
 
 	class Sphere: public MeshElement {
 
-	private:
-
-		static constexpr int DEFAULT_SEGMENTS = 4;
+/*********************************************************************************************
+ 	Public Static Member Functions
+ *********************************************************************************************/
 
 	public:
 
 		static std::shared_ptr<Mesh> Mesh(float radius,
-										  int segments = DEFAULT_SEGMENTS,
+										  unsigned segments = DEFAULT_SEGMENTS,
 										  std::shared_ptr<Material> material = nullptr);
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
-		Sphere(float radius,
-			   int segments = DEFAULT_SEGMENTS);
-		
+		explicit Sphere(float radius,
+						unsigned segments = DEFAULT_SEGMENTS);
+
 /*********************************************************************************************
- 	Public
+	Public Member Functions
  *********************************************************************************************/
 
-		float 	radius() const;
-		int 	segments() const;
+		float 		radius() const;
+		unsigned 	segments() const;
 
 /*********************************************************************************************
-	Private
+	Private Constants
  *********************************************************************************************/
 
 	private:
 
-		float	_radius;
-		int		_segments;
+		static constexpr unsigned DEFAULT_SEGMENTS = 4;
+
+/*********************************************************************************************
+	Private Member Variables
+ *********************************************************************************************/
+
+		float		_radius;
+		unsigned	_segments;
 	};
 }
 
 
-#endif /* Sphere_h */
+#endif /* AVARA3D_SPHERE_H */

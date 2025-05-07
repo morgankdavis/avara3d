@@ -1,13 +1,14 @@
 //
 //  PhysicalWorld.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 1/26/18.
-//  Copyright © 2018 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/physics/PhysicalWorld.h"
 
+#include "a3d/Configuration.h"
 #include "a3d/diagnostic/logging/Logger.h"
 #include "a3d/physics/HitTestResult.h"
 #include "a3d/physics/PhysicsBody.h"
@@ -23,13 +24,13 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Static Prorotypes
+	Private Static Non-Member Prorotypes
  *********************************************************************************************/
 
 static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 PhysicalWorld::PhysicalWorld():
@@ -50,7 +51,7 @@ PhysicalWorld::~PhysicalWorld() {
 }
 
 /*********************************************************************************************
-	Public
+	Public Member Functions
  *********************************************************************************************/
 
 const vec3& PhysicalWorld::gravity() const {
@@ -149,7 +150,7 @@ void PhysicalWorld::endContact(PhysicalWorld::EndContactCallback function) {
 }
 
 /*********************************************************************************************
-	Internal
+	Internal Member Functions
  *********************************************************************************************/
 
 void PhysicalWorld::attachedToScene(Scene& scene) {
@@ -198,14 +199,14 @@ void PhysicalWorld::step(const Scene& scene,
 
 	if (_proxy) {
 
-		auto startTime = Scene::Time();
+		auto startTime = scene.time();
 
-		_proxy->step(deltaRunT, _speed, _timestep);
+		_proxy->step(deltaRunT, _speed, _timestep, stats);
 
-		UpdateTimeStats(stats, startTime, Scene::Time());
+		UpdateTimeStats(stats, startTime, scene.time());
 
 		if (auto didSimulate = PhysicalWorld::didSimulate()) {
-			didSimulate(*this, runT);
+			didSimulate(*this, runT, deltaRunT);
 		}
 	}
 	else {
@@ -218,7 +219,7 @@ PhysicalWorldProxy* PhysicalWorld::proxy() const {
 }
 
 /*********************************************************************************************
-	Static
+	Private Static Non-Member Functions
  *********************************************************************************************/
 
 void UpdateTimeStats(Stats& stats, double startTime, double endTime) {
@@ -226,8 +227,6 @@ void UpdateTimeStats(Stats& stats, double startTime, double endTime) {
 	// current
 	auto stepTime = endTime - startTime;
 	stats.currentPhysicstime = stepTime * 1000.0f;
-
-	constexpr double FRAMETIME_AVERAGING_INTERVAL = .5; // TEMPORARY
 
 	// average
 	static double avg = 0.0;
@@ -249,5 +248,4 @@ void UpdateTimeStats(Stats& stats, double startTime, double endTime) {
 	}
 
 	stats.averagePhysicstime = avg;
-//	stats.averagingInterval = FRAMETIME_AVERAGING_INTERVAL;
 }

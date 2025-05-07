@@ -1,9 +1,9 @@
 //
 //  Material.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 10/21/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/rendering/material/Material.h"
@@ -19,7 +19,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Public Static
+	Public Static Member Functions
  *********************************************************************************************/
 
 shared_ptr<Material> Material::DefaultMaterial() {
@@ -36,26 +36,12 @@ shared_ptr<Material> Material::DefaultMaterial() {
 	return material;
 }
 
-shared_ptr<Material> Material::MissingTextureMaterial() {
-	static shared_ptr<Material> material = nullptr;
-	if (!material) {
-		material = Material::EmissionMaterial(Color::Magenta());
-		material->name("Missing texture material");
-		material->doubleSided(true);
-	}
-	return material;
-}
-
 shared_ptr<Material> Material::EmissionMaterial(MaterialProperty property) {
 	return make_shared<Material>(monostate{}, monostate{}, monostate{}, property);
 }
 
-MaterialProperty Material::MissingTextureProperty() {
-	return {Color::Magenta()};
-}
-
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 Material::Material():
@@ -102,7 +88,7 @@ Material::~Material() {
 }
 
 /*********************************************************************************************
-	Public
+	Public Member Functions
  *********************************************************************************************/
 
 const optional<string>& Material::name() const {
@@ -213,7 +199,25 @@ void Material::blendFunction(BlendFunction function) {
 }
 
 /*********************************************************************************************
-	Internal
+	Internal Static Member Functions
+ *********************************************************************************************/
+
+shared_ptr<Material> Material::MissingTextureMaterial() {
+	static shared_ptr<Material> material = nullptr;
+	if (!material) {
+		material = Material::EmissionMaterial(Color::Magenta());
+		material->name("Missing texture material");
+		material->doubleSided(true);
+	}
+	return material;
+}
+
+MaterialProperty Material::MissingTextureProperty() {
+	return {Color::Magenta()};
+}
+
+/*********************************************************************************************
+	Internal Member Functions
  *********************************************************************************************/
 
 MaterialDirtyMask Material::dirtyMask() const {

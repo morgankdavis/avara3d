@@ -1,14 +1,13 @@
 //
 //  main.cpp
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 11/19/17.
-//  Copyright © 2017 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include <memory>
 #include <utility>
-#include <vector>
 
 #include <glm/glm.hpp>
 
@@ -17,105 +16,119 @@
 
 
 using namespace a3d;
-using namespace a3d::utils;
 using namespace glm;
 using namespace std;
 using namespace std::placeholders;
 
 
-void UpdateCallback(Scene& scene, float time);
-void WillRenderCallback(VisualWorld& world, float time);
-void DidRenderCallback(VisualWorld& world, float time);
-
-
-void InitLog();
-
-
-constexpr LogLevel				LOG_LEVEL =				LogLevel::Debug;
-constexpr bool					ENABLE_HIGH_DPI =		true;
-constexpr unsigned				WINDOW_WIDTH =			800;
-constexpr unsigned				WINDOW_HEIGHT =			600;
+constexpr LogLevel				A3D_APP_LOG_LEVEL =				LogLevel::Debug;
+constexpr uvec2					WINDOW_SIZE =			{1280, 768};
 constexpr bool					FULLSCREEN =			false;
+constexpr bool					ENABLE_HIGH_DPI =		true;
 constexpr AntialiasingMode		ANTIALIAS_MODE =		AntialiasingMode::None;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
 
 
-std::unique_ptr<a3d::Logger>	logger;
+void UpdateCallback(Scene& scene, double time, double deltaTime);
+void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
+void DidRenderCallback(VisualWorld& world, double time, double deltaTime);
+
+
+void InitLog();
+void LogBuildInfo();
+
+
+std::unique_ptr<a3d::Logger>	g_logger;
 
 
 int main(int argc, const char* argv[]) {
 
-	InitLog();
+	try {
+		InitLog();
+		LogBuildInfo();
 
-	auto window = make_unique<Window>(RenderingApi::OpenGL,
-									  *utils::ExecutableName(),
-									  WINDOW_WIDTH,
-									  WINDOW_HEIGHT,
-									  FULLSCREEN,
-									  ENABLE_HIGH_DPI,
-									  ANTIALIAS_MODE);
-	window->vSyncEnabled(ENABLE_VSYNC);
-	window->cursorCaptured(CAPTURE_CURSOR);
+		auto window = make_unique<Window>(RenderingApi::OpenGL,
+										  *utils::ExecutableName(),
+										  WINDOW_SIZE,
+										  FULLSCREEN,
+										  ENABLE_HIGH_DPI,
+										  ANTIALIAS_MODE);
+		window->vSyncEnabled(ENABLE_VSYNC);
+		window->cursorCaptured(CAPTURE_CURSOR);
 
-	auto visualWorld = make_unique<VisualWorld>(window.get());
-	visualWorld->fogStartDistance(500.0);
-	visualWorld->fogEndDistance(5000.0);
-	visualWorld->fogDensityExponent(1.0);
-	visualWorld->fogColor(Color::LightGray());
-	visualWorld->background(make_shared<Texture>(CubeImageNamed("sky1", "png")));
-	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
-	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
+		auto inputManager = make_unique<WindowInputManager>(window.get());
+		if (inputManager->errorMask() == WindowInputManagerErrorMask::PermissionDenied) {
+			A3D_APP_LOG_E(g_logger, "WindowInputManager permission denied.");
+			// on macOS 10.15 Catalina+, this is probably a permissions issue,
+			// and the OS will alert the user.
+			// just keep going and let the user decide what they want to do.
+		}
 
-	auto inputManager = make_unique<WindowInputManager>(window.get());
+		auto visualWorld = make_unique<VisualWorld>(*window);
+		visualWorld->fogStartDistance(500.0);
+		visualWorld->fogEndDistance(5000.0);
+		visualWorld->fogDensityExponent(1.0);
+		visualWorld->fogColor(Color::LightGray());
+		visualWorld->background(make_shared<Texture>(utils::CubeImageNamed("sky1", "png")));
+		visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
+		visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
 
-	auto scene = make_unique<Scene>(std::move(visualWorld), nullptr, std::move(inputManager));
+		auto scene = make_unique<Scene>(std::move(visualWorld), nullptr, std::move(inputManager));
 //	DebugOptions debugOptions = DebugOptions::None;
 //	debugOptions = A3D_MASK_ADD(debugOptions, DebugOptions::ShowStatsOverlay);
 //	debugOptions = A3D_MASK_ADD(debugOptions, DebugOptions::ShowBoundingBoxes);
-	DebugOptions debugOptions = DebugOptions::ShowStatsOverlay
-								| DebugOptions::ShowBoundingBoxes;
-	scene->debugOptions(debugOptions);
-	scene->update(bind(&UpdateCallback, _1, _2));
+		DebugOptions debugOptions = DebugOptions::ShowStatsOverlay
+									| DebugOptions::ShowBoundingBoxes;
+		scene->debugOptions(debugOptions);
+		scene->update(bind(&UpdateCallback, _1, _2, _3));
 
-	auto ambientLight = make_shared<Light>(LightType::Ambient, make_shared<Color>(0.25f, 0.25, 0.25, 1.0));
-	auto ambientLightNode = make_shared<Node>("Ambient light");
-	ambientLightNode->light(ambientLight);
-	scene->rootNode()->addChild(ambientLightNode);
+		//auto ambientLight = make_shared<Light>(LightType::Ambient, make_shared<Color>(0.25f, 0.25, 0.25, 1.0));
+		auto ambientLight = make_shared<AmbientLight>(Color::Gray());
+		auto ambientLightNode = make_shared<Node>("Ambient light");
+		ambientLightNode->light(ambientLight);
+		scene->rootNode()->addChild(ambientLightNode);
 
-	auto pointLight = make_shared<Light>(LightType::Point, Color::White());
-	pointLight->attenuationFactor(0.0000015);
-	auto pointLightNode = make_shared<Node>();
-	pointLightNode->light(pointLight);
-	scene->rootNode()->addChild(pointLightNode);
-	pointLightNode->position({100.0, 20.0, 20.0});
+		//auto pointLight = make_shared<Light>(LightType::Point, Color::White());
+		auto pointLight = make_shared<PointLight>(Color::White());
+		pointLight->quadraticAttenuation(0.0001);
+		auto pointLightNode = make_shared<Node>();
+		pointLightNode->light(pointLight);
+		scene->rootNode()->addChild(pointLightNode);
+		pointLightNode->position({100.0, 20.0, 20.0});
 
-	auto materialProperty = pointLight->color();
-	auto material = make_shared<Material>();
-	material->name("LIGHT material");
-	material->emission(materialProperty);
-	auto mesh = shared_ptr(std::move(Sphere::Mesh(3.5, 4, material)));
+		auto materialProperty = pointLight->color();
+		auto material = make_shared<Material>();
+		material->name("LIGHT material");
+		material->emission(materialProperty);
+		auto mesh = shared_ptr(Sphere::Mesh(3.5, 4, material));
 //	mesh->addMaterial(material);
 //	mesh->replaceMaterial(0, material); // TODO: EHHHHHHHH??????????/
-	pointLightNode->mesh(mesh);
+		pointLightNode->mesh(mesh);
 
-	auto teapotNode = Node::MeshNode(MeshNamed("teapot/teapot"));
-	teapotNode->rotation({1, 0, 0}, radians(30.0));
-	teapotNode->scale(teapotNode->scale() * 50.0f);
-	scene->rootNode()->addChild(teapotNode);
+		auto teapotNode = Node::MeshNode(utils::MeshNamed("teapot/teapot"));
+		teapotNode->rotation({1, 0, 0}, radians(30.0));
+		teapotNode->scale(teapotNode->scale() * 50.0f);
+		scene->rootNode()->addChild(teapotNode);
 
-	auto dragonNode = Node::MeshNode(MeshNamed("dragon/dragon"));
-	dragonNode->scale({2.5, 2.5, 2.5});
-	dragonNode->position({50, 0, 0});
+		auto dragonNode = Node::MeshNode(utils::MeshNamed("dragon/dragon"));
+		dragonNode->scale({2.5, 2.5, 2.5});
+		dragonNode->position({50, 0, 0});
 
-	scene->rootNode()->addChild(dragonNode);
+		scene->rootNode()->addChild(dragonNode);
 
-	auto boxNode = Node::MeshNode(Box::Mesh(1.0, 1.0, 1.0));
-	scene->rootNode()->addChild(boxNode);
+		auto boxNode = Node::MeshNode(Box::Mesh(1.0, 1.0, 1.0));
+		scene->rootNode()->addChild(boxNode);
 
-	window->open();
-	scene->run();
+		window->center();
+		window->open();
+		scene->run();
+	}
+	catch (Exception& e) {
+		A3D_APP_LOG_F(g_logger, "Exception: {}", e.what());
+		return -1;
+	}
 
 	return 0;
 }
@@ -124,11 +137,7 @@ int main(int argc, const char* argv[]) {
 	Scene Callbacks
  ***************************************************************************************/
 
-void UpdateCallback(Scene& scene, float time) {
-
-	static float previousSeconds = time;
-	float deltaSeconds = time - previousSeconds;
-	previousSeconds = time;
+void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 	auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 
@@ -180,15 +189,15 @@ void UpdateCallback(Scene& scene, float time) {
 	}
 
 	if (keysPressed.count(Key::Backslash)) {
-		SaveSnapshot(*window);
+		utils::SaveSnapshot(*window);
 	}
 
 	if (keysPressed.count(Key::R)) {
 		if (!window->recordingGIF()) {
-			StartGIFRecording(*window, 320, 8);
+			utils::StartGIFRecording(*window, {320, 240}, 8);
 		}
 		else {
-			StopGIFRecording(*window);
+			utils::StopGIFRecording(*window);
 		}
 	}
 
@@ -218,28 +227,28 @@ void UpdateCallback(Scene& scene, float time) {
 
 			// move
 
-			static float MOVE_SPEED = Max(scene.rootNode()->extent());
+			static float MOVE_SPEED = utils::Max(scene.rootNode()->extent());
 
 			auto keysDown = scene.inputManager()->keysDown();
 
 			if (keysDown.count(Key::W)) {
-				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camForward;
+				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camForward;
 				pov->position(pov->position() + positionDelta);
 			} else if (keysDown.count(Key::S)) {
-				vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camForward;
+				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * -camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 
 			if (keysDown.count(Key::A)) {
-				vec3 positionDelta = deltaSeconds * MOVE_SPEED * -camRight;
+				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * -camRight;
 				pov->position(pov->position() + positionDelta);
 			} else if (keysDown.count(Key::D)) {
-				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camRight;
+				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 
 			if (keysDown.count(Key::Space)) {
-				vec3 positionDelta = deltaSeconds * MOVE_SPEED * camUp;
+				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camUp;
 				pov->position(pov->position() + positionDelta);
 			}
 		}
@@ -250,11 +259,11 @@ void UpdateCallback(Scene& scene, float time) {
 	VisualWorld Callbacks
  ***************************************************************************************/
 
-void WillRenderCallback(VisualWorld& world, float time) {
+void WillRenderCallback(VisualWorld& world, double time, double deltaTime) {
 
 }
 
-void DidRenderCallback(VisualWorld& world, float time) {
+void DidRenderCallback(VisualWorld& world, double time, double deltaTime) {
 
 }
 
@@ -272,13 +281,24 @@ void InitLog() {
 	sinks.insert(std::move(nativeSink));
 	sinks.insert(std::move(fileSink));
 
-	logger = make_unique<Logger>(executableName, std::move(sinks));
-	logger->level(LOG_LEVEL);
+	g_logger = make_unique<Logger>(executableName, std::move(sinks));
+	g_logger->level(A3D_APP_LOG_LEVEL);
 
-	Logger::MainLogger().level(LOG_LEVEL);
+	Logger::MainLogger().level(A3D_APP_LOG_LEVEL);
 
 //	for (unsigned l=0; l < 50000; ++l) {
-//		A3D_LOG_I("line {}", l);
-//		LOG_I(logger, "line {}", l);
+//		A3D_A3D_APP_LOG_I("line {}", l);
+//		A3D_APP_LOG_I(logger, "line {}", l);
 //	}
 }
+
+void LogBuildInfo() {
+
+	auto buildInfo = BuildInfo::Info();
+	auto version = buildInfo.version();
+	A3D_APP_LOG_I(g_logger, "A3D version: {}.{}.{}", version.major, version.minor, version.patch);
+	A3D_APP_LOG_I(g_logger, "Build: {}", buildInfo.number());
+	A3D_APP_LOG_I(g_logger, "Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
+	A3D_APP_LOG_I(g_logger, "Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
+}
+

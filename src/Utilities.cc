@@ -1,14 +1,15 @@
 //
 //  Utilities.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 12/23/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/Utilities.h"
 
 //#include <algorithm> // needs to be under windows.h
+#include <chrono>
 #include <ctime>
 #include <fstream>
 #include <memory>
@@ -41,12 +42,7 @@
 #undef max // windows.h defines a 'max'... (we want std::max())
 #include <algorithm> // needs to be under windows.h
 
-#ifdef ANDROID
-#include <android/asset_manager.h>
-#include <android/asset_manager_jni.h>
-#include <NDKHelper.h>
-#endif
-
+#include "fmt/format.h"
 #include "glm/gtc/quaternion.hpp"
 
 #include "a3d/Buffer.h"
@@ -57,9 +53,9 @@
 #include "a3d/diagnostic/logging/Logger.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
-#include "a3d/rendering/Light.h"
 #include "a3d/rendering/camera/Camera.h"
 #include "a3d/rendering/context/RenderContext.h"
+#include "a3d/rendering/light/Light.h"
 #include "a3d/rendering/material/Material.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
@@ -77,7 +73,7 @@ using namespace std;
 static void StringFromTreeRec(Node& n, stringstream& ss, unsigned depth);
 
 /*********************************************************************************************
- 	Output Utilities
+ 	Output
  *********************************************************************************************/
 
 ostream& a3d::utils::operator<<(ostream& os, const glm::vec3& v) {
@@ -98,20 +94,21 @@ ostream& a3d::utils::operator<<(ostream& os, const glm::quat& q) {
 ostream& a3d::utils::operator<<(ostream& os, const mat4& m) {
 	// "GLM uses column major ordering, so the addressing is m[col][row]"
 	// http://stackoverflow.com/questions/26454838/glm-multiplication-order
-	
-	char str[PATH_MAX];
-	snprintf(str, sizeof(str),
-			 "%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f\n%.2f\t%.2f\t%.2f\t%.2f",
-			 m[0][0], m[1][0], m[2][0], m[3][0], // column major, OpenGL/GLM style
-			 m[0][1], m[1][1], m[2][1], m[3][1],
-			 m[0][2], m[1][2], m[2][2], m[3][2],
-			 m[0][3], m[1][3], m[2][3], m[3][3]);
+
+	auto str = fmt::format("{:.2f}\t{:.2f}\t{:.2f}\t{:.2f}\n" \
+							"{:.2f}\t{:.2f}\t{:.2f}\t{:.2f}\n" \
+						   "{:.2f}\t{:.2f}\t{:.2f}\t{:.2f}\n" \
+						   "{:.2f}\t{:.2f}\t{:.2f}\t{:.2f}",
+						   m[0][0], m[1][0], m[2][0], m[3][0], // column major, OpenGL/GLM style
+						   m[0][1], m[1][1], m[2][1], m[3][1],
+						   m[0][2], m[1][2], m[2][2], m[3][2],
+						   m[0][3], m[1][3], m[2][3], m[3][3]);
 
 	return (os << str);
 }
 
 ostream& a3d::utils::operator<<(ostream& os, const Color& c) {
-	os << "(" << c.r << ", " << c.g << ", " << c.b << ", " << c.a << ")";
+	os << "(" << c.r() << ", " << c.g() << ", " << c.b() << ", " << c.a() << ")";
 	return os;
 }
 
@@ -145,7 +142,7 @@ string a3d::utils::StringFromColor(const Color& c) {
 	return stringStream.str();
 }
 
-string a3d::utils::StringFromTree(Node& root) {
+string a3d::utils::StringFromTree(const Node& root) {
 
 	stringstream ss;
 	string name = (root.name() ? "\"" + *(root.name()) + "\"" : "null");
@@ -153,7 +150,7 @@ string a3d::utils::StringFromTree(Node& root) {
 
 	unsigned depth = 0;
 
-	for (auto& c : root.children(false)) {
+	for (const auto& c : root.children(false)) {
 		 StringFromTreeRec(*c, ss, depth+1);
 	}
 
@@ -207,7 +204,7 @@ string a3d::utils::StackTrace(unsigned dropFunctions) {
 #endif
 
 /*********************************************************************************************
- 	Numeric Utilities
+ 	Numeric
  *********************************************************************************************/
 
 int a3d::utils::Uniform(int min, int max) {
@@ -257,12 +254,22 @@ bool a3d::utils::Equal(const glm::vec4& a, const glm::vec4& b, float tolerance) 
 }
 
 /*********************************************************************************************
-	String Utilities
+	Time
  *********************************************************************************************/
 
-void a3d::utils::StringReplace(string& str,
-							  const string& oldStr,
-							  const string& newStr) {
+double a3d::utils::Time() {
+
+	auto now = chrono::system_clock::now();
+	return chrono::duration<double>(now.time_since_epoch()).count();
+}
+
+/*********************************************************************************************
+	String
+ *********************************************************************************************/
+
+void a3d::utils::Replace(string &str,
+						 const std::string &oldStr,
+						 const std::string &newStr) {
 	string::size_type pos = 0u;
 	while ((pos = str.find(oldStr, pos)) != string::npos) {
 		str.replace(pos, oldStr.length(), newStr);
@@ -270,13 +277,28 @@ void a3d::utils::StringReplace(string& str,
 	}
 }
 
+vector<string> a3d::utils::Split(const string& s, string delim) {
+	// https://stackoverflow.com/a/46931770
+
+	size_t pos_start = 0, pos_end, delim_len = delim.length();
+	string token;
+	vector<string> res;
+
+	while ((pos_end = s.find(delim, pos_start)) != string::npos) {
+		token = s.substr (pos_start, pos_end - pos_start);
+		pos_start = pos_end + delim_len;
+		res.push_back(token);
+	}
+	res.push_back(s.substr (pos_start));
+
+	return res;
+}
+
 /*********************************************************************************************
- 	File Utilities
+ 	Filesystem
  *********************************************************************************************/
 
 // *** executable and working directories ***
-
-#ifndef ANDROID
 
 std::optional<std::filesystem::path> a3d::utils::ExecutablePath() {
 #if defined(MACOS)
@@ -338,11 +360,7 @@ std::optional<std::filesystem::path> a3d::utils::CurrentWorkingDirectory() {
 	return std::nullopt;
 }
 
-#endif // !ANDROID
-
 // *** search paths ***
-
-#ifndef ANDROID
 
 vector<std::filesystem::path> a3d::utils::BaseSearchPaths() {
 	// build a list of common directories where "shader", "scene", "images", "fonts", etc
@@ -430,53 +448,20 @@ vector<std::filesystem::path> a3d::utils::FontSearchPaths() {
 
 std::optional<std::filesystem::path> a3d::utils::SearchInPaths(const string& filename,
 															  vector<std::filesystem::path> paths) {
-	A3D_LOG_D("Searching for '{}' in...", filename);
 	for (auto& searchPath : paths) {
-		A3D_LOG_D("\t...'{}'", searchPath.string());
 		if (std::filesystem::is_directory(searchPath)) {
 			auto path = searchPath / filename;
 			if (std::filesystem::is_regular_file(path)) {
+				//A3D_LOG_D("Found '{}' at '{}'", searchPath.string(), filename);
 				return path;
 			}
 		}
 	}
-	A3D_LOG_W("Not found.");
+	A3D_LOG_W("'{}' not found.", filename);
 	return std::nullopt;
 }
-
-#endif // !ANDROID
 
 // *** binary and text files ***
-
-#ifdef ANDROID
-
-std::optional<std::filesystem::path> a3d::utils::InternalFilesDirectory() {
-	auto helper = ndk_helper::JNIHelper::GetInstance();
-	string filesDir = helper->GetFilesDir();
-	if (filesDir.length()) return std::filesystem::path(filesDir);
-	return std::nullopt;
-}
-
-std::optional<string> a3d::utils::TextAsset(const string& relPath) {
-//	vector<unsigned char> buffer = BinaryAsset(relPath);
-//	if (buffer.size()) {
-//		return string(buffer.begin(), buffer.end());
-//	}
-	auto buffer = BinaryAsset(relPath);
-	if (buffer->size()) {
-		return string((char*)(buffer->pointer()));
-	}
-	return std::nullopt;
-}
-
-shared_ptr<Buffer> a3d::utils::BinaryAsset(const string& relPath) {
-	auto helper = ndk_helper::JNIHelper::GetInstance();
-	auto vecBuf = vector<unsigned char>();
-	helper->ReadFile(relPath.c_str(), &vecBuf);
-	return make_shared<Buffer>(vecBuf);
-}
-
-#else
 
 std::optional<string> a3d::utils::TextFile(const std::filesystem::path& path) {
 	string line;
@@ -495,39 +480,33 @@ std::optional<string> a3d::utils::TextFile(const std::filesystem::path& path) {
 	return std::nullopt;
 }
 
-#endif // ANDROID
-
 // *** shaders ***
 
 std::optional<std::string> a3d::utils::ShaderSource(const string& name,
 													 const string& type) {
 	std::optional<string> rawSource = std::nullopt;
-#ifdef ANDROID
-	rawSource = TextAsset("shaders/" + name + "." + type);
-#else
 	auto path = SearchInPaths((name + "." + type), ShaderSearchPaths());
 	if (path) {
 		A3D_LOG_D("Found shader at path: {}", (*path).string());
 		rawSource = TextFile(*path);
 	}
-#endif
-
 	return rawSource;
 }
 
 // *** fonts ***
 
+//unique_ptr<a3d::Font> a3d::utils::FontNamed(const string& filename) {
+//	auto path = filesystem::path(filename);
+//	return FontNamed(path.stem(), path.extension());
+//}
+
 unique_ptr<Font> a3d::utils::FontNamed(const string& name,
 									  const string& type) {
-#ifdef ANDROID
-	return make_shared<Font>(BinaryAsset("fonts/" + name + "." + type));
-#else
 	auto path = SearchInPaths((name + "." + type), FontSearchPaths());
 	if (path) {
 		A3D_LOG_T("Found font at path: {}", (*path).string());
 		return make_unique<Font>(*path);
 	}
-#endif
 	return nullptr;
 }
 
@@ -545,22 +524,15 @@ unique_ptr<Image> a3d::utils::ImageNamed(const string& name,
 										const string& type,
 										bool flipHorizontal,
 										bool flipVertical) {
-	
-#ifdef ANDROID
-	auto data = BinaryAsset("testdata/images/" + (name + "." + type));
-	return make_shared<Image>(data);
-#else
 	auto path = SearchInPaths((name + "." + type), ImageSearchPaths());
 	if (path) {
 		A3D_LOG_D("Found image at path: {}", (*path).string());
 		return make_unique<Image>(*path, flipHorizontal, flipVertical);
 	}
-#endif
 	return nullptr;
 }
 
 unique_ptr<CubeImage> a3d::utils::CubeImageNamed(const string& name) {
-	
 	return CubeImageNamed(name, "png");
 }
 
@@ -579,7 +551,6 @@ unique_ptr<CubeImage> a3d::utils::CubeImageNamed(const string& name,
 
 // *** scenes ***
 
-#ifndef ANDROID
 unique_ptr<Scene> a3d::utils::SceneNamed(const string& name,
 										SceneImportOptions options) {
 
@@ -616,66 +587,48 @@ shared_ptr<Mesh> a3d::utils::MeshNamed(const string& name,
 	return nullptr;
 }
 
-#endif
-
 /*********************************************************************************************
- 	Misc Utilities
+ 	Misc
  *********************************************************************************************/
 
 void a3d::utils::SaveSnapshot(RenderContext& context) {
-#ifdef ANDROID
-	throw Exception("SaveSnapshot() not supported on Android.");
-#else
-	auto image = context.snapshot();
-
-	string dateTime = DateTimeString();
-
-	constexpr size_t BUF_SIZE = 256;
-	char filename[BUF_SIZE] = "";
-	snprintf(filename, BUF_SIZE, "Snapshot_%s.png", dateTime.c_str());
-
-	A3D_LOG_I("Saving snapshot '{}'...", filename);
 
 	auto execDir = ExecutableDirectory();
 	if (execDir) {
+		auto filename = fmt::format("Snapshot_{}.png", DateTimeString());
+		A3D_LOG_I("Saving snapshot to '{}'", (*execDir/filesystem::path(filename)).string());
+		auto image = context.snapshot();
 		auto fullPath = *execDir / filename;
 		image->writePNG(fullPath);
 	}
 	else {
-		A3D_LOG_W("Couldn't locate executable directory.");
+		A3D_LOG_E("Failed to save snapshot.  Couldn't locate executable directory.");
 	}
-#endif
 }
 
 void a3d::utils::StartGIFRecording(RenderContext& context,
-								   unsigned maxHeight, unsigned maxFramerate) {
-#ifdef ANDROID
-	throw Exception("StartGIFRecording() not supported on Android.");
-#else
-	constexpr size_t BUF_SIZE = 256;
-	char filename[BUF_SIZE] = "";
-	snprintf(filename, BUF_SIZE, "Recording_%s.gif", DateTimeString().c_str());
+								   vec2 fitInside,
+								   unsigned maxFramerate) {
+
 	auto execDir = ExecutableDirectory();
 	if (execDir) {
+		auto filename = fmt::format("Recording_{}.gif", DateTimeString());
+		A3D_LOG_I("Starting GIF recording at '{}'", (*execDir/filesystem::path(filename)).string());
 		auto fullPath = *execDir / filename;
-		context.startGIFRecording(fullPath.string(), maxHeight, maxFramerate);
+		context.startGIFRecording(fullPath.string(), fitInside, maxFramerate);
 	}
 	else {
 		A3D_LOG_W("Couldn't locate executable directory.");
 	}
-#endif
 }
 
 void a3d::utils::StopGIFRecording(RenderContext& context) {
-#ifdef ANDROID
-	throw Exception("StopGIFRecording() not supported on Android.");
-#else
+
 	context.stopGIFRecording();
-#endif
 }
 
 /*********************************************************************************************
- 	Private Static
+ 	Private
  *********************************************************************************************/
 
 void StringFromTreeRec(Node& n, stringstream& ss, unsigned depth) {

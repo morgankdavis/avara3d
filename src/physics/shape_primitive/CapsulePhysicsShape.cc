@@ -1,5 +1,9 @@
 //
-// Created by mkd on 11/19/23.
+//  CapsulePhysicsShape.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 11/19/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/physics/shape_primitive/CapsulePhysicsShape.h"
@@ -12,7 +16,7 @@ using namespace a3d;
 
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 CapsulePhysicsShape::CapsulePhysicsShape(float radius, float height):
@@ -26,7 +30,7 @@ CapsulePhysicsShape::CapsulePhysicsShape(float radius, float height):
 CapsulePhysicsShape::~CapsulePhysicsShape() {}
 
 /*********************************************************************************************
-	Public
+	Public Member Functions
  *********************************************************************************************/
 
 float CapsulePhysicsShape::radius() const {
@@ -52,13 +56,13 @@ void CapsulePhysicsShape::height(float height) {
 }
 
 /*********************************************************************************************
-	PhysicsShape
+	PhysicsShape Public Member Functions
  *********************************************************************************************/
 
 PhysicsShapeType CapsulePhysicsShape::type() const {
-	throw Exception("PHYSICS_SHAPE_TYPE does not apply to CapsulePhysicsShape.");
+	return PhysicsShapeType::Primitive;
 }
 
 void CapsulePhysicsShape::type(PhysicsShapeType type) {
-	throw Exception("PHYSICS_SHAPE_TYPE does not apply to CapsulePhysicsShape.");
+	throw Exception("Cannot set PhysicsShapeType for CapsulePhysicsShape.");
 }

@@ -1,13 +1,13 @@
 //
 //  Font.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 9/5/18.
-//  Copyright © 2018 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Font_h
-#define Font_h
+#ifndef AVARA3D_FONT_H
+#define AVARA3D_FONT_H
 
 
 #include <filesystem>
@@ -24,28 +24,27 @@ namespace a3d {
 	
 	
 	class Font {
-		
+
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 	public:
 
 		explicit Font(const std::filesystem::path& path);
 		explicit Font(std::unique_ptr<Buffer> buffer);
-		
 		~Font();
-		
+
 /*********************************************************************************************
-	Public
+	Public Member Functions
  *********************************************************************************************/
-		
+
 		const std::optional<std::string>&	name() const;
 		FontType 							type() const;
 		const Buffer* 						buffer() const;
-		
+
 /*********************************************************************************************
-	Private
+	Private Member Variables
  *********************************************************************************************/
 
 	private:
@@ -57,4 +56,4 @@ namespace a3d {
 }
 
 
-#endif /* Font_h */
+#endif /* AVARA3D_FONT_H */

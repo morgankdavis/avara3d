@@ -1,5 +1,9 @@
 //
-// Created by mkd on 11/25/23.
+//  VisualWorld.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 11/25/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/rendering/VisualWorld.h"
@@ -10,19 +14,21 @@
 #include "glm/glm.hpp"
 
 #include "a3d/Color.h"
+#include "a3d/Configuration.h"
 #include "a3d/CubeImage.h"
 #include "a3d/diagnostic/logging/Logger.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/primitive/Box.h"
+#include "a3d/mesh/primitive/Plane.h"
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/physics/bullet/BulletWorldProxy.h"
-#include "a3d/rendering/Light.h"
-#include "a3d/rendering/Renderer.h"
+#include "a3d/rendering/light/Light.h"
 #include "a3d/rendering/material/Material.h"
 #include "a3d/rendering/material/Sampler.h"
 #include "a3d/rendering/material/Texture.h"
 #include "a3d/rendering/camera/PerspectiveCamera.h"
 #include "a3d/rendering/context/RenderContext.h"
+#include "a3d/rendering/renderer/Renderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 
@@ -33,31 +39,37 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Static Prototypes
+	Private Static Non-Member Prototypes
  *********************************************************************************************/
 
-static unique_ptr<Mesh> MakeSkyboxMesh(MaterialProperty& property);
+static unique_ptr<Mesh> MakeSkyboxMesh(const MaterialProperty& property);
+static unique_ptr<Mesh> GroundPlaneMesh();
 static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
-VisualWorld::VisualWorld(RenderContext* context):
+VisualWorld::VisualWorld(RenderContext& context):
 		_background{},
 		_skyboxMesh{},
+		_groundPlaneMesh{},
 		_fogStartDistance{0.0},
 		_fogEndDistance{0.0},
 		_fogDensityExponent{0.0},
 		_fogColor{},
 		_pointOfView{},
-		_automaticallyAddDefaultLighting{true},
-		_renderContext{context},
+		_usesDefaultLighting{false},
+		_autoEnablesDefaultLighting{true},
+		_renderContext{&context},
 		_scene{},
 		_willRender{},
 		_didRender{} {
 
 	_renderContext->attachedToVisualWorld(this);
+
+	// *** TEMPORARY ***
+	_groundPlaneMesh = GroundPlaneMesh();
 }
 
 VisualWorld::~VisualWorld() {
@@ -68,14 +80,14 @@ VisualWorld::~VisualWorld() {
 }
 
 /*********************************************************************************************
-	Public
+	Public Member Functions
  *********************************************************************************************/
 
-MaterialProperty& VisualWorld::background() {
+const MaterialProperty& VisualWorld::background() {
 	return _background;
 }
 
-void VisualWorld::background(MaterialProperty background) {
+void VisualWorld::background(const MaterialProperty& background) {
 
 	if (auto* texture = get_if<shared_ptr<Texture>>(&background)) {
 
@@ -89,7 +101,6 @@ void VisualWorld::background(MaterialProperty background) {
 
 			// generate the skybox mesh if it hasn't already been
 			if (!_skyboxMesh) {
-				// MKD: u_s_ptr_aliases
 				_skyboxMesh = MakeSkyboxMesh(background);
 			}
 			else {
@@ -126,16 +137,11 @@ void VisualWorld::fogDensityExponent(float exponent) {
 	_fogDensityExponent = exponent;
 }
 
-//Color* VisualWorld::fogColor() const {
-//	return _fogColor.get();
-//}
-
-shared_ptr<Color> VisualWorld::fogColor() const {
+const shared_ptr<Color>& VisualWorld::fogColor() const {
 	return _fogColor;
 }
 
 void VisualWorld::fogColor(const shared_ptr<Color>& color) {
-	//_fogColor = std::move(color);
 	_fogColor = color;
 }
 
@@ -155,6 +161,7 @@ weak_ptr<Node> VisualWorld::pointOfView() {
 	}
 	if (!_pointOfView.lock()) {
 		// still no POV. add a default one.
+		A3D_LOG_I("Adding default point of view.");
 		_pointOfView  = defaultPointOfView();
 	}
 
@@ -165,12 +172,20 @@ void VisualWorld::pointOfView(const weak_ptr<Node>& cameraNode) {
 	_pointOfView = cameraNode;
 }
 
-bool VisualWorld::automaticallyAddDefaultLighting() const {
-	return _automaticallyAddDefaultLighting;
+bool VisualWorld::usesDefaultLighting() const {
+	return _usesDefaultLighting;
 }
 
-void VisualWorld::automaticallyAddDefaultLighting(bool enabled) {
-	_automaticallyAddDefaultLighting = enabled;
+void VisualWorld::usesDefaultLighting(bool enabled) {
+	_usesDefaultLighting = enabled;
+}
+
+bool VisualWorld::autoEnablesDefaultLighting() const {
+	return _autoEnablesDefaultLighting;
+}
+
+void VisualWorld::autoEnablesDefaultLighting(bool enabled) {
+	_autoEnablesDefaultLighting = enabled;
 }
 
 RenderContext* VisualWorld::renderContext() const {
@@ -198,7 +213,7 @@ void VisualWorld::didRender(DidRenderCallback function) {
 }
 
 /*********************************************************************************************
-	Internal
+	Internal Member Functions
  *********************************************************************************************/
 
 void VisualWorld::attachedToScene(Scene& scene) {
@@ -213,39 +228,6 @@ void VisualWorld::detachedFromScene(Scene& scene) {
 	_scene = nullptr;
 }
 
-// TODO: instead, make everything emissive
-void VisualWorld::checkAddDefaultLighting() {
-
-	if (_automaticallyAddDefaultLighting && _scene) {
-
-		bool hasLights = false;
-
-		for (auto node : _scene->rootNode()->children(true)) {
-			if (!node->hidden()) {
-				if (node->light()) {
-					hasLights = true;
-					break;
-				}
-			}
-		}
-
-		if (!hasLights) {
-			A3D_LOG_I("Adding default lighting.");
-
-			auto ambientNode = Node::LightNode(Light::DefaultAmbient());
-			_scene->rootNode()->addChild(std::move(ambientNode));
-
-			auto pointNode = Node::LightNode(Light::DefaultPoint());
-			// set position based on scene extent...
-			auto sceneExtent = _scene->rootNode()->extent();
-			pointNode->position({sceneExtent.x + sceneExtent.x/4.0,
-								 sceneExtent.y + sceneExtent.y/4.0,
-								 sceneExtent.z + sceneExtent.z/4.0});
-			_scene->rootNode()->addChild(std::move(pointNode));
-		}
-	}
-}
-
 void VisualWorld::draw(const Scene& scene,
 					   const PhysicalWorld* physicalWorld,
 					   double runT,
@@ -258,53 +240,76 @@ void VisualWorld::draw(const Scene& scene,
 		if (auto renderer = _renderContext->renderer()) {
 
 			if (auto willRender = VisualWorld::willRender()) {
-				willRender(*this, runT);
+				willRender(*this, runT, deltaRunT);
 			}
 
-			auto startTime = Scene::Time();
+			auto startTime = scene.time();
 
 			renderer->beginFrame(scene, *_renderContext, debugOptions, stats);
 
 			if (auto pov = pointOfView().lock()) {
-				stats.cameraPosition = pov->position();
 
-				auto aspectRatio = (float) _renderContext->framebufferWidth()
-								   / (float) _renderContext->framebufferHeight();
-				dynamic_pointer_cast<PerspectiveCamera>(pov->camera())->aspectRatio(aspectRatio);
+				auto povScene = pov->scene();
+				if (povScene != nullptr && povScene == &scene) {
 
-				renderer->render(scene, debugOptions, stats);
+					stats.cameraPosition = pov->worldPosition();
+					stats.cameraOrientation = pov->worldOrientation();
 
-				auto viewMat = pov->worldTransform();
-				auto projectionMat = pov->camera()->projection();
-				scene.rootNode()->draw(*renderer,
-									   viewMat,
-									   projectionMat,
-									   debugOptions,
-									   stats);
-				stats.nodes--; // don't count the root node
+					auto frameBufferSize = _renderContext->framebufferSize();
 
-				if (physicalWorld) {
-
-					if (auto bulletWorldProxy = dynamic_cast<BulletWorldProxy *>(physicalWorld->proxy())) {
-						bulletWorldProxy->drawDebug(*renderer,
-													viewMat,
-													projectionMat,
-													debugOptions);
+					// TODO: can this be avoided?
+					if (auto perspectiveCamera = dynamic_pointer_cast<PerspectiveCamera>(pov->camera())) {
+						auto aspectRatio = float(frameBufferSize.x) / float(frameBufferSize.y);
+						perspectiveCamera->aspectRatio(aspectRatio);
 					}
+
+					renderer->render(scene, debugOptions, stats);
+
+					renderer->preTraversal(scene, *_renderContext, debugOptions, stats);
+
+					auto viewMat = inverse(pov->worldTransform());
+					auto projectionMat = pov->camera()->projection();
+
+					vector<Node *> lightNodes;
+					if (pov->light()) lightNodes.push_back(pov.get());
+					scene.rootNode()->draw(*renderer,
+										   viewMat,
+										   projectionMat,
+										   debugOptions,
+										   lightNodes,
+										   stats);
+					//--stats.nodes; // don't count the root node
+
+					renderer->postTraversal(scene, *_renderContext, lightNodes, debugOptions, stats);
+
+					if (physicalWorld) {
+
+						if (auto bulletWorldProxy = dynamic_cast<BulletWorldProxy *>(physicalWorld->proxy())) {
+							bulletWorldProxy->drawDebug(*renderer,
+														viewMat,
+														projectionMat,
+														debugOptions);
+						}
+					}
+				}
+				else {
+					A3D_LOG_W("Point of view not in our scene!");
+					// TODO: throw?
 				}
 			}
 			else {
 				A3D_LOG_W("No point of view!");
+				// TODO: throw?
 			}
 
-			UpdateTimeStats(stats, startTime, Scene::Time());
+			UpdateTimeStats(stats, startTime, scene.time());
 
 			renderer->endFrame(scene, *_renderContext, debugOptions, stats);
 
 			_renderContext->swapBuffers();
 
 			if (auto didRender = VisualWorld::didRender()) {
-				didRender(*this, runT);
+				didRender(*this, runT, deltaRunT);
 			}
 
 			if (_renderContext->recordingGIF()) {
@@ -324,6 +329,10 @@ Mesh* VisualWorld::skyboxMesh() const {
 	return _skyboxMesh.get();
 }
 
+Mesh* VisualWorld::groundPlaneMesh() const {
+	return _groundPlaneMesh.get();
+}
+
 weak_ptr<Node> VisualWorld::defaultPointOfView() {
 
 	if (_scene) {
@@ -334,10 +343,9 @@ weak_ptr<Node> VisualWorld::defaultPointOfView() {
 
 		auto aabb = _scene->rootNode()->aabb();
 
-		auto fovH = camera->yFov();//dynamic_cast<PerspectiveCamera*>(camera)->yFov();
-		auto w = _renderContext->width();
-		auto h = _renderContext->height();
-		auto aspectRatio = (float)w / (float)h;
+		auto fovH = camera->yFov();
+		auto frameBufferSize = _renderContext->framebufferSize();
+		auto aspectRatio = float(frameBufferSize.x) / float(frameBufferSize.y);
 		auto inverseAspectRatio = 1.0f / aspectRatio;
 		auto fovV = fovH * inverseAspectRatio;
 
@@ -382,12 +390,11 @@ weak_ptr<Node> VisualWorld::defaultPointOfView() {
 }
 
 /*********************************************************************************************
-	Static
+	Private Static Member Functions
  *********************************************************************************************/
 
-static unique_ptr<Mesh> MakeSkyboxMesh(MaterialProperty& property) {
+unique_ptr<Mesh> MakeSkyboxMesh(const MaterialProperty& property) {
 
-//	auto mesh = Box::Mesh(1, 1, 1);
 	auto mesh = make_unique<a3d::Mesh>(make_unique<Box>(1, 1, 1), nullptr);
 
 	auto material = make_shared<Material>(monostate{}, monostate{}, monostate{}, property);
@@ -397,15 +404,17 @@ static unique_ptr<Mesh> MakeSkyboxMesh(MaterialProperty& property) {
 	return mesh;
 }
 
+unique_ptr<Mesh> GroundPlaneMesh() {
+
+	//return make_unique<a3d::Mesh>(make_unique<Box>(0.5, 0.5, 0.5), nullptr);
+	return make_unique<a3d::Mesh>(make_unique<Plane>(1.0, 1.0, 1, 1), nullptr);
+}
+
 void UpdateTimeStats(Stats& stats, double startTime, double endTime) {
 
 	// current
 	auto drawTime = endTime - startTime;
 	stats.currentDrawtime = drawTime * 1000.0f;
-
-
-
-	constexpr double FRAMETIME_AVERAGING_INTERVAL = .5; // TEMPORARY
 
 	// average
 	static double avg = 0.0;
@@ -427,5 +436,4 @@ void UpdateTimeStats(Stats& stats, double startTime, double endTime) {
 	}
 
 	stats.averageDrawtime = avg;
-//	stats.averagingInterval = FRAMETIME_AVERAGING_INTERVAL;
 }

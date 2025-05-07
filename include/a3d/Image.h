@@ -1,16 +1,13 @@
 //
 //  Image.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 10/21/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
-//
-//  Pads to 8 bit RGBA
-//  Would like to handle 1, 3 and 4 component pixel formats, but that seemes harder than expected...
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Image_h
-#define Image_h
+#ifndef AVARA3D_IMAGE_H
+#define AVARA3D_IMAGE_H
 
 
 #include <filesystem>
@@ -27,66 +24,60 @@ namespace a3d {
 
 
 	class Image : public Sampleable {
-		
+
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 	public:
 
-#ifndef ANDROID
-		Image(const std::filesystem::path& path,
+		explicit Image(const std::filesystem::path& path,
+					   bool flipVertical = true,
+					   bool flipHorizontal = false);
+		explicit Image(std::unique_ptr<Buffer> bufer,
+					   bool flipVertical = true,
+					   bool flipHorizontal = false);
+		Image(std::unique_ptr<Buffer> buffer,
+			  unsigned width,
+			  unsigned height,
+			  unsigned bytesPerPixel,
 			  bool flipVertical = true,
 			  bool flipHorizontal = false);
-#endif
-		// with header
-		Image(std::unique_ptr<Buffer> headerBuffer,
-			  bool flipVertical = true,
-			  bool flipHorizontal = false);
-		// raw
-		Image(std::unique_ptr<Buffer> rawBuffer,
-			  int width,
-			  int height,
-			  int bytesPerPixel,
-			  bool flipVertical = true,
-			  bool flipHorizontal = false);
-		~Image();
-		
+		~Image() override;
+
 /*********************************************************************************************
-	Public
+	Public Member Functions
  *********************************************************************************************/
-		
-		int 						width() const;
-		int 						height() const;
-		int 						bytesPerPixel() const;
+
+		unsigned 					width() const;
+		unsigned 					height() const;
+		unsigned 					bytesPerPixel() const;
 		std::unique_ptr<Image> 		inverted() const;
-		bool 						writePNG(std::filesystem::path path) const;
-		
-/*********************************************************************************************
-	Internal
- *********************************************************************************************/
-		
 		const Buffer& 				buffer() const;
-		
+		bool 						writePNG(const std::filesystem::path& path) const;
+
 /*********************************************************************************************
-	Private
+	Private Member Functions
  *********************************************************************************************/
 
 	private:
 
-		//void 						loadFile(const std::filesystem::path& path, bool flipHorizontal);
 		void 						loadBuffer(Buffer& buffer,
 											   bool flipVertical,
 											   bool flipHorizontal);
 		void 						flipVertical(); // "flip"
 		void 						flipHorizontal(); // "mirror"
 
-		int							_width;
-		int							_height;
-		int							_bytesPerPixel;
+/*********************************************************************************************
+	Private Member Variables
+ *********************************************************************************************/
+
+		unsigned					_width;
+		unsigned					_height;
+		unsigned					_bytesPerPixel;
 		std::unique_ptr<Buffer>		_buffer;
 	};
 }
 
 
-#endif /* Image_h */
+#endif /* AVARA3D_IMAGE_H */

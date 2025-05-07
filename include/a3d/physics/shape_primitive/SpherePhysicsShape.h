@@ -1,5 +1,9 @@
 //
-// Created by mkd on 11/19/23.
+//  SpherePhysicsShape.h
+//  avara3d
+//
+//  Created by Morgan Davis on 11/19/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_SPHEREPHYSICSSHAPE_H
@@ -14,7 +18,7 @@ namespace a3d {
 	class SpherePhysicsShape : public PhysicsShape {
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 	public:
@@ -23,21 +27,21 @@ namespace a3d {
 		~SpherePhysicsShape();
 
 /*********************************************************************************************
-	Public
+	Public Member Functions
  *********************************************************************************************/
 
 		float 					radius() const;
 		void					radius(float radius);
 
 /*********************************************************************************************
-	PhysicsShape
+	PhysicsShape Public Member Functions
  *********************************************************************************************/
 
 		PhysicsShapeType		type() const override;
 		void					type(PhysicsShapeType type) override;
 
 /*********************************************************************************************
-	Private
+	Private Member Variables
  *********************************************************************************************/
 
 	private:

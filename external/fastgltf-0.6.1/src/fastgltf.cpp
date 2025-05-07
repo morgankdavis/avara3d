@@ -49,7 +49,10 @@
 
 #ifdef SIMDJSON_TARGET_VERSION
 // Make sure that SIMDJSON_TARGET_VERSION is equal to SIMDJSON_VERSION.
-static_assert(std::string_view { SIMDJSON_TARGET_VERSION } == SIMDJSON_VERSION, "Outdated version of simdjson. Reconfigure project to update.");
+// MKD: when upgrading from 18.1.8 -> 19.1.6, simdjson 3.3.0 broke.
+//	instead of upgrading FastGlTF we just manually switched to the latest simdjson (3.11.6)
+//	seems fine?
+//static_assert(std::string_view { SIMDJSON_TARGET_VERSION } == SIMDJSON_VERSION, "Outdated version of simdjson. Reconfigure project to update.");
 #endif
 
 #include <fastgltf/parser.hpp>

@@ -1,9 +1,9 @@
 //
 //  Line.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 5/20/18.
-//  Copyright © 2018 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/mesh/Line.h"
@@ -17,7 +17,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Lifecycle
+	Internal Lifecycle Functions
  *********************************************************************************************/
 
 Line::Line(const vec3& fromLocation,
@@ -27,6 +27,15 @@ Line::Line(const vec3& fromLocation,
 Line::Line(const vec3& fromLocation, const vec3& toLocation,
 		   const Color& color):
 		Line{fromLocation, toLocation, color, color} { }
+
+Line::Line(const glm::vec3& fromLocation,
+		   const glm::vec3& toLocation,
+		   const glm::vec3& fromColor,
+		   const glm::vec3& toColor):
+		_fromLocation{fromLocation},
+		_toLocation{toLocation},
+		_fromColor{Color(fromColor)},
+		_toColor{Color(toColor)} { }
 
 Line::Line(const vec3& fromLocation,
 		   const vec3& toLocation,
@@ -38,7 +47,7 @@ Line::Line(const vec3& fromLocation,
 		_toColor{toColor} { }
 
 /*********************************************************************************************
-	Public
+	Internal Member Functions
  *********************************************************************************************/
 
 const vec3& Line::fromLocation() const {

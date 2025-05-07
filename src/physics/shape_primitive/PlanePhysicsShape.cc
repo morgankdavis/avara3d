@@ -1,5 +1,9 @@
 //
-// Created by mkd on 11/19/23.
+//  PlanePhysicsShape.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 11/19/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/physics/shape_primitive/PlanePhysicsShape.h"
@@ -11,7 +15,7 @@ using namespace a3d;
 
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 PlanePhysicsShape::PlanePhysicsShape(float width, float height):
@@ -21,7 +25,7 @@ PlanePhysicsShape::PlanePhysicsShape(float width, float height):
 PlanePhysicsShape::~PlanePhysicsShape() {}
 
 /*********************************************************************************************
-	Public
+	Public Member Functions
  *********************************************************************************************/
 
 float PlanePhysicsShape::width() const {
@@ -41,13 +45,13 @@ void PlanePhysicsShape::height(float height) {
 }
 
 /*********************************************************************************************
-	PhysicsShape
+	PhysicsShape Public Member Functions
  *********************************************************************************************/
 
 PhysicsShapeType PlanePhysicsShape::type() const {
-	throw Exception("PHYSICS_SHAPE_TYPE does not apply to PlanePhysicsShape.");
+	return PhysicsShapeType::Primitive;
 }
 
 void PlanePhysicsShape::type(PhysicsShapeType type) {
-	throw Exception("PHYSICS_SHAPE_TYPE does not apply to PlanePhysicsShape.");
+	throw Exception("Cannot set PhysicsShapeType for PlanePhysicsShape.");
 }

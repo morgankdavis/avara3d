@@ -1,13 +1,13 @@
 //
 //  Utilities.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 12/23/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Utilities_h
-#define Utilities_h
+#ifndef AVARA3D_UTILITIES_H
+#define AVARA3D_UTILITIES_H
 
 
 #include <filesystem>
@@ -43,7 +43,7 @@ namespace a3d {
 	namespace utils {
 		
 /*********************************************************************************************
-	Output Utilities
+	Output
  *********************************************************************************************/
 		
 		std::ostream& operator<<(std::ostream& os, const glm::vec3& v);
@@ -58,7 +58,7 @@ namespace a3d {
 		std::string StringFromGLMMat4(const glm::mat4& m);
 		std::string StringFromColor(const Color& c);
 
-		std::string StringFromTree(Node& root);
+		std::string StringFromTree(const Node& root);
 
 		std::string DateTimeString();
 
@@ -67,7 +67,7 @@ namespace a3d {
 #endif
 
 /*********************************************************************************************
-	Numeric Utilities
+	Numeric
  *********************************************************************************************/
 
 		int Uniform(int min, int max);
@@ -82,15 +82,23 @@ namespace a3d {
 		bool Equal(const glm::vec4& a, const glm::vec4& b, float tolerance = 0.0001);
 
 /*********************************************************************************************
-	String Utilities
+	Time
  *********************************************************************************************/
 
-		void StringReplace(std::string& str,
-						   const std::string& oldStr,
-						   const std::string& newStr);
+		double	Time();
 
 /*********************************************************************************************
-	File Utilities
+	String
+ *********************************************************************************************/
+
+		void 						Replace(std::string& str,
+											const std::string& oldStr,
+											const std::string& newStr);
+		std::vector<std::string>	Split(const std::string& s,
+										  std::string delim);
+
+/*********************************************************************************************
+	Filesystem
  *********************************************************************************************/
 
 		// *** executable and working directories ***
@@ -132,6 +140,7 @@ namespace a3d {
 
 		// *** fonts ***
 
+//		std::unique_ptr<a3d::Font> 		FontNamed(const std::string& filename);
 		std::unique_ptr<a3d::Font> 		FontNamed(const std::string& name,
 													const std::string& type);
 
@@ -168,14 +177,15 @@ namespace a3d {
 #endif
 
 /*********************************************************************************************
-	Misc Utilities
+	Misc
  *********************************************************************************************/
 
 		void SaveSnapshot(RenderContext& context);
 		void StartGIFRecording(RenderContext& context,
-							   unsigned maxHeight, unsigned maxFramerate);
+							   glm::vec2 fitInside,
+							   unsigned maxFramerate);
 		void StopGIFRecording(RenderContext& context);
 	}
 }
 
-#endif /* Utilities_h */
+#endif /* AVARA3D_UTILITIES_H */

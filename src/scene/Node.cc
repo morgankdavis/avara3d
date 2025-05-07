@@ -1,9 +1,9 @@
 //
 //  Node.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 10/20/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/scene/Node.h"
@@ -23,8 +23,8 @@
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsShape.h"
 #include "a3d/scene/Scene.h"
-#include "a3d/rendering/Light.h"
 #include "a3d/rendering/camera/Camera.h"
+#include "a3d/rendering/light/Light.h"
 
 
 using namespace a3d;
@@ -35,32 +35,31 @@ using namespace std;
 //#define ALTERNATE_EULERS
 
 /*********************************************************************************************
-	Pulic Static
+	Pulic Static Members
  *********************************************************************************************/
 
-shared_ptr<Node> Node::NamedNode(std::string name) {
-	return make_shared<Node>(name);
+shared_ptr<Node> Node::NamedNode(const string& name) {
+	return make_unique<Node>(name);
 }
 
 shared_ptr<Node> Node::MeshNode(const shared_ptr<Mesh>& mesh) {
-	return make_shared<Node>(mesh);
+	return make_unique<Node>(mesh);
 }
 
 shared_ptr<Node> Node::LightNode(const shared_ptr<Light>& light) {
-	return make_shared<Node>(light);
+	return make_unique<Node>(light);
 }
 
 shared_ptr<Node> Node::CameraNode(const shared_ptr<Camera>& camera) {
-	return make_shared<Node>(camera);
+	return make_unique<Node>(camera);
 }
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 Node::Node():
 		_name{},
-		_hidden{false},
 		_camera{},
 		_light{},
 		_mesh{},
@@ -68,6 +67,7 @@ Node::Node():
 		_orientation{},
 		_scale{1.0f, 1.0f, 1.0f},
 		_physicsBody{},
+		_hidden{false},
 		_scene{},
 		_parent{},
 		_dirtyMask{NodeDirtyMask::None} { }
@@ -111,7 +111,7 @@ Node::~Node() {
 }
 
 /*********************************************************************************************
-	Public
+	Public Member Functions
  *********************************************************************************************/
 
 const optional<std::string>& Node::name() const {
@@ -153,14 +153,6 @@ void Node::mesh(const shared_ptr<Mesh>& mesh) {
 	if (_physicsBody && _mesh) {
 		_physicsBody->meshAttachedToNode(mesh);
 	}
-}
-
-bool Node::hidden() const {
-	return _hidden;
-}
-
-void Node::hidden(bool hidden) {
-	_hidden = hidden;
 }
 
 vec3 Node::position() const {
@@ -383,6 +375,18 @@ mat4 Node::transform() const {
 	return t * r * s;
 }
 
+vec3 Node::forward() const {
+	return normalize(mat4_cast(_orientation) * vec4(0.0, 0.0, -1.0, 1.0));
+}
+
+vec3 Node::up() const {
+	return normalize(mat4_cast(_orientation) * vec4(0.0, 1.0, 0.0, 1.0));
+}
+
+vec3 Node::right() const {
+	return normalize(mat4_cast(_orientation) * vec4(1.0, 0.0, 0.0, 1.0));
+}
+
 void Node::transform(const mat4& transform) {
 	vec3 scale;
 	quat orientation;
@@ -396,24 +400,13 @@ void Node::transform(const mat4& transform) {
 			  translation,
 			  skew,
 			  perspective);
-	
-	// checkPhysicsScale(_scale, scale);
 
 	_position = translation;
 	_scale = scale;
-
-	// https://stackoverflow.com/questions/17918033/glm-decompose-mat4-into-translation-and-rotation
-	// "Keep in mind that the resulting quaternion in not correct. It returns its conjugate!
-	//
-	//To fix this add this to your code:
-	//
-	//rotation=glm::conjugate(rotation);"
-
 	_orientation = orientation;
 }
 
 vec3 Node::worldPosition() const {
-
 	return worldTransform()[3];
 }
 
@@ -428,96 +421,118 @@ vec3 Node::worldEulerAngles() const {
 }
 
 quat Node::worldOrientation() const {
+
 	vec3 scale;
 	quat orientation;
 	vec3 translation;
 	vec3 skew;
 	vec4 perspective;
-	
+
 	decompose(worldTransform(),
 			  scale,
 			  orientation,
 			  translation,
 			  skew,
 			  perspective);
-	
+
 	return orientation;
+
+	// THESE ARE ALL WRONG (try mouselook)
+	//return worldTransform() * mat4_cast(_orientation);
+	//return normalize(quat(worldTransform() * mat4_cast(_orientation)));
+	//return normalize(quat(worldTransform() * mat4_cast(normalize(_orientation))));
 }
 
 vec3 Node::worldScale() const {
-	auto world = worldTransform();
-	
-	vec3 scale;
-	quat orientation;
-	vec3 translation;
-	vec3 skew;
-	vec4 perspective;
-	
-	decompose(world,
-			  scale,
-			  orientation,
-			  translation,
-			  skew,
-			  perspective);
-	
-	return scale;
+
+	// FUCKED CAMERA: HERE?
+
+	// OG
+
+//	vec3 scale;
+//	quat orientation;
+//	vec3 translation;
+//	vec3 skew;
+//	vec4 perspective;
+//
+//	decompose(worldTransform(),
+//			  scale,
+//			  orientation,
+//			  translation,
+//			  skew,
+//			  perspective);
+//
+//	return scale;
+
+	// OK?
+
+	return worldTransform() * vec4(_scale, 0.0); // TODO: 0, not 1? right?
 }
 
 vec3 Node::worldForward() const {
-	vec3 scale;
-	quat orientation;
-	vec3 translation;
-	vec3 skew;
-	vec4 perspective;
 
-	decompose(worldTransform(),
-			  scale,
-			  orientation,
-			  translation,
-			  skew,
-			  perspective);
+//	vec3 scale;
+//	quat orientation;
+//	vec3 translation;
+//	vec3 skew;
+//	vec4 perspective;
+//
+//	decompose(worldTransform(),
+//			  scale,
+//			  orientation,
+//			  translation,
+//			  skew,
+//			  perspective);
+//
+//	mat4 rotationMat = mat4_cast(orientation);
+//
+//	return normalize(rotationMat * vec4(0, 0, -1, 1));
 
-	mat4 rotationMat = mat4_cast(orientation);
-
-	return normalize(rotationMat * vec4(0, 0, -1, 1));
+	return normalize(mat4_cast(worldOrientation()) * vec4(0, 0, -1, 1));
 }
 
 vec3 Node::worldUp() const {
-	vec3 scale;
-	quat orientation;
-	vec3 translation;
-	vec3 skew;
-	vec4 perspective;
 
-	decompose(worldTransform(),
-			  scale,
-			  orientation,
-			  translation,
-			  skew,
-			  perspective);
+//	vec3 scale;
+//	quat orientation;
+//	vec3 translation;
+//	vec3 skew;
+//	vec4 perspective;
+//
+//	decompose(worldTransform(),
+//			  scale,
+//			  orientation,
+//			  translation,
+//			  skew,
+//			  perspective);
+//
+//	mat4 rotationMat = mat4_cast(orientation);
+//
+//	return normalize(rotationMat * vec4(0, 1, 0, 1));
 
-	mat4 rotationMat = mat4_cast(orientation);
-
-	return normalize(rotationMat * vec4(0, 1, 0, 1));
+	return normalize(mat4_cast(worldOrientation()) * vec4(0, 1, 0, 1));
 }
 
 vec3 Node::worldRight() const {
-	vec3 scale;
-	quat orientation;
-	vec3 translation;
-	vec3 skew;
-	vec4 perspective;
 
-	decompose(worldTransform(),
-			  scale,
-			  orientation,
-			  translation,
-			  skew,
-			  perspective);
+//	vec3 scale;
+//	quat orientation;
+//	vec3 translation;
+//	vec3 skew;
+//	vec4 perspective;
+//
+//	decompose(worldTransform(),
+//			  scale,
+//			  orientation,
+//			  translation,
+//			  skew,
+//			  perspective);
+//
+//	mat4 rotationMat = mat4_cast(orientation);
+//
+//	return normalize(rotationMat * vec4(1, 0, 0, 1));
 
-	mat4 rotationMat = mat4_cast(orientation);
-
-	return normalize(rotationMat * vec4(1, 0, 0, 1));
+	return normalize(mat4_cast(worldOrientation()) * vec4(1, 0, 0, 1));
 }
 
 mat4 Node::worldTransform() const {
@@ -577,22 +592,22 @@ void Node::removeFromParent() {
 	}
 	else {
 		A3D_LOG_W("Parent is gone!");
+		// TODO: throw?
 	}
 }
 
-vector<shared_ptr<Node>> Node::children(bool resursive) {
-	// if !resursive, returns immediate children in no particular order
-	// if resursive, returns all descendants in topological order
+vector<shared_ptr<Node>> Node::children(bool resursive) const {
 
 	if (resursive) {
-		return children(this);
+		return children(*this);
 	}
 	else {
 		return _children;
 	}
 }
 
-shared_ptr<Node> Node::childNamed(const string &name, bool resursive) {
+shared_ptr<Node> Node::childNamed(const string& name, bool resursive) const {
+
 	for (auto& child : children(resursive)) {
 		if (child->name() != nullopt && *child->name() == name) {
 			return child;
@@ -618,6 +633,14 @@ void Node::physicsBody(unique_ptr<PhysicsBody> body) {
 	}
 }
 
+bool Node::hidden() const {
+	return _hidden;
+}
+
+void Node::hidden(bool hidden) {
+	_hidden = hidden;
+}
+
 Scene* Node::scene() const {
 
 	if (_scene) {
@@ -634,7 +657,7 @@ weak_ptr<Node> Node::parent() const {
 }
 
 /*********************************************************************************************
-	Internal
+	Internal Member Functions
  *********************************************************************************************/
 
 void Node::attachedToParent(Node& parent) {
@@ -892,22 +915,40 @@ vec3 Node::extent() {
 			aabb.max.z - aabb.min.z};
 }
 
+void Node::applyPhysicsTransform(const mat4& transform) {
+
+	if (auto parent = _parent.lock()) {
+		this->transform(inverse(parent->worldTransform()) * transform);
+	}
+	else {
+		this->transform(transform);
+	}
+}
+
 void Node::draw(Renderer& renderer,
 				const mat4& viewMat,
 				const mat4& projectionMat,
 				const DebugOptions& debugOptions,
+				std::vector<Node*>& lightNodes,
 				Stats& stats) {
 
-	stats.nodes++;
+	++stats.nodes;
 
-	if (_mesh && !_hidden) {
+	if (!_hidden) {
 
-		_mesh->draw(renderer,
-					worldTransform(),
-					viewMat,
-					projectionMat,
-					debugOptions,
-					stats);
+		if (_light) {
+			lightNodes.push_back(this);
+		}
+
+		if (_mesh) {
+
+			_mesh->draw(renderer,
+						worldTransform(),
+						viewMat,
+						projectionMat,
+						debugOptions,
+						stats);
+		}
 	}
 
 	for (auto& child : _children) {
@@ -915,6 +956,7 @@ void Node::draw(Renderer& renderer,
 					viewMat,
 					projectionMat,
 					debugOptions,
+					lightNodes,
 					stats);
 	}
 }
@@ -926,7 +968,7 @@ void Node::_debugPrint() {
 }
 
 void Node::_debugPrintRec(Node& node,
-						  int level) {
+						  unsigned level) {
 
 	A3D_LOG_I("[{}] {}", level, *node.name());
 
@@ -935,18 +977,8 @@ void Node::_debugPrintRec(Node& node,
 	}
 }
 
-void Node::applyPhysicsTransform(mat4 transform) {
-
-	if (auto parent = _parent.lock()) {
-		this->transform(inverse(parent->worldTransform()) * transform);
-	}
-	else {
-		this->transform(transform);
-	}
-}
-
 /*********************************************************************************************
-	Private
+	Private Member Functions
  *********************************************************************************************/
 
 void Node::getAABBRec(AABB& aabb) {
@@ -966,11 +998,11 @@ void Node::getAABBRec(AABB& aabb) {
 	}
 }
 
-vector<shared_ptr<Node>> Node::children(const Node* root) {
+vector<shared_ptr<Node>> Node::children(const Node& root) const {
 
 	auto children = vector<shared_ptr<Node>>();
 
-	for (auto& child : root->_children) {
+	for (auto& child : root._children) {
 		childrenRec(child, children);
 	}
 
@@ -978,7 +1010,7 @@ vector<shared_ptr<Node>> Node::children(const Node* root) {
 }
 
 void Node::childrenRec(const shared_ptr<Node>& node,
-					   vector<shared_ptr<Node>>& children) {
+					   vector<shared_ptr<Node>>& children) const {
 
 	children.push_back(node);
 

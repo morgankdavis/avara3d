@@ -1,14 +1,13 @@
-
 //
 //  Types.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 10/8/17.
-//  Copyright © 2017 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Types_h
-#define Types_h
+#ifndef AVARA3D_TYPES_H
+#define AVARA3D_TYPES_H
 
 
 #include <memory>
@@ -19,6 +18,7 @@
 #include <variant>
 #include <vector>
 
+#include <glm/detail/type_quat.hpp>
 #include <glm/glm.hpp>
 
 
@@ -82,7 +82,6 @@ namespace a3d {
 		A3D_ENABLE_ASSIGNMENT_OP(T, T, &) \
 		A3D_ENABLE_UNARY_OP(T, ~)
 
-
 /**************************************************************************************
 	Public Types
  **************************************************************************************/
@@ -93,7 +92,7 @@ namespace a3d {
 		Info =		2,
 		Warn =		3,
 		Error =		4,
-		Critical = 	5,
+		Fatal = 	5,
 		Off = 		6
 	};
 
@@ -159,12 +158,28 @@ namespace a3d {
 		Disabled
 	};
 
-	enum class LightType {
-		Ambient,
-		Point,
-		Directional,
-		Spot
+	enum class SpotlightFeatheringMode : unsigned {
+		Linear =	0,
+		Sharp = 	1, // y = x(2-x)
+		Soft = 		2 // y = x^2
 	};
+
+	struct AttenuationLightCutoff {
+		// cuts off light when attenuation drops below 'attenuation'.
+		// computed per-fragment.
+		float attenuation;
+	};
+
+	struct DistanceLightCutoff {
+		// cuts lights off past 'distance'.
+		// computed per-fragment.
+		float distance;
+	};
+
+	using LightCutoff = std::variant<
+			std::monostate,
+			AttenuationLightCutoff,
+			DistanceLightCutoff>;
 
 	enum class AntialiasingMode : unsigned {
 		None =		0,
@@ -181,6 +196,7 @@ namespace a3d {
 	};
 
 	enum class PhysicsShapeType : unsigned {
+		Primitive, // eh, do something else
 		BoundingBox,
 		ConvexHull,
 		ConcavePolyhedron
@@ -323,6 +339,14 @@ namespace a3d {
 		Eight = 7
 	};
 
+	enum class WindowInputManagerErrorMask : unsigned {
+		None =					0,
+		NoMice =				1 << 0,
+		PermissionDenied =		1 << 1,
+		UnknownError =			1 << 2
+	};
+	A3D_ENABLE_ENUM_MASK_OPS(WindowInputManagerErrorMask)
+
 	typedef struct {
 		glm::vec3 position;
 		glm::vec3 normal;
@@ -372,10 +396,12 @@ namespace a3d {
 		unsigned 	polygons;
 		unsigned 	lights;
 		glm::vec3 	cameraPosition;
+		glm::quat 	cameraOrientation;
 
 		unsigned	staticBodies;
 		unsigned	dynamicBodies;
 		unsigned	kinematicBodies;
+		unsigned	primitiveShapes;
 		unsigned	boundingBoxShapes;
 		unsigned	convexHullShapes;
 		unsigned	concavePolyhedronShapes;
@@ -399,7 +425,7 @@ namespace a3d {
 	A3D_ENABLE_ENUM_MASK_OPS(DebugOptions)
 
 /**************************************************************************************
-	Internal
+	Internal Types
  **************************************************************************************/
 
 	enum class ShaderType {
@@ -463,4 +489,4 @@ namespace a3d {
 }
 
 
-#endif /* Types_h */
+#endif /* AVARA3D_TYPES_H */

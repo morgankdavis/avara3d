@@ -1,13 +1,13 @@
 //
 //  Tube.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 11/8/17.
-//  Copyright © 2017 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Tube_h
-#define Tube_h
+#ifndef AVARA3D_TUBE_H
+#define AVARA3D_TUBE_H
 
 
 #include <memory>
@@ -24,58 +24,64 @@ namespace a3d {
 
 	class Tube: public MeshElement {
 
-	private:
-
-		static constexpr int DEFAULT_SLICES = 32;
-		static constexpr int DEFAULT_SEGMENTS = 8;
-		static constexpr int DEFAULT_RINGS = 1;
+/*********************************************************************************************
+ 	Public Static Member Functions
+ *********************************************************************************************/
 
 	public:
 
 		static std::shared_ptr<Mesh> Mesh(float innerRadius,
 										  float outerRadius,
 										  float height,
-										  int slices = DEFAULT_SLICES,
-										  int segments = DEFAULT_SEGMENTS,
-										  int rings = DEFAULT_RINGS,
+										  unsigned slices = DEFAULT_SLICES,
+										  unsigned segments = DEFAULT_SEGMENTS,
+										  unsigned rings = DEFAULT_RINGS,
 										  std::shared_ptr<Material> material = nullptr);
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 		Tube(float innerRadius,
 			 float outerRadius,
 			 float height,
-			 int slices = DEFAULT_SLICES,
-			 int segments = DEFAULT_SEGMENTS,
-			 int rings = DEFAULT_RINGS);
+			 unsigned slices = DEFAULT_SLICES,
+			 unsigned segments = DEFAULT_SEGMENTS,
+			 unsigned rings = DEFAULT_RINGS);
 
 /*********************************************************************************************
- 	Public
+	Public Member Functions
  *********************************************************************************************/
 
-		float 	innerRadius() const;
-		float 	outerRadius() const;
-		float 	height() const;
-		int 	slices() const;
-		int 	segments() const;
-		int 	rings() const;
+		float 		innerRadius() const;
+		float 		outerRadius() const;
+		float 		height() const;
+		unsigned 	slices() const;
+		unsigned 	segments() const;
+		unsigned 	rings() const;
 
 /*********************************************************************************************
-	Private
+	Private Constants
  *********************************************************************************************/
 
 	private:
 
-		float	_innerRadius;
-		float	_outerRadius;
-		float	_height;
-		int 	_slices;
-		int		_segments;
-		int		_rings;
+		static constexpr unsigned DEFAULT_SLICES = 32;
+		static constexpr unsigned DEFAULT_SEGMENTS = 8;
+		static constexpr unsigned DEFAULT_RINGS = 1;
+
+/*********************************************************************************************
+	Private Member Variables
+ *********************************************************************************************/
+
+		float		_innerRadius;
+		float		_outerRadius;
+		float		_height;
+		unsigned 	_slices;
+		unsigned	_segments;
+		unsigned	_rings;
 	};
 }
 
 
-#endif /* Tube_h */
+#endif /* AVARA3D_TUBE_H */

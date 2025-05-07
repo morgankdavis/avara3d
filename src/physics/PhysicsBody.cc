@@ -1,9 +1,9 @@
 //
 //  PhysicsBody.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 1/26/18.
-//  Copyright © 2018 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/physics/PhysicsBody.h"
@@ -25,7 +25,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Public Static
+	Public Static Member Functions
  *********************************************************************************************/
 
 unique_ptr<PhysicsBody> PhysicsBody::StaticBody() {
@@ -41,17 +41,16 @@ unique_ptr<PhysicsBody> PhysicsBody::KinematicBody() {
 }
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 PhysicsBody::PhysicsBody(PhysicsBodyType type):
-		_type{type},
 		_shape{},
 		_node{},
 		_world{} {
 
 	// _node has to be initialized to nullptr before calling this
-	_proxy = make_unique<BulletBodyProxy>(*this);
+	_proxy = make_unique<BulletBodyProxy>(*this, type);
 }
 
 PhysicsBody::PhysicsBody(PhysicsBodyType type, const shared_ptr<PhysicsShape>& shape):
@@ -68,19 +67,16 @@ PhysicsBody::~PhysicsBody() {
 }
 
 /*********************************************************************************************
-	Public
+	Public Member Functions
  *********************************************************************************************/
 
 PhysicsBodyType PhysicsBody::type() const {
-	return _type;
+	return _proxy->type();
 }
 
 void PhysicsBody::type(PhysicsBodyType type) {
-	A3D_LOG_T("type: {}", magic_enum::enum_name(type));
-
-	if (type != _type) {
-		_type = type;
-	}
+	A3D_LOG_D("type: {}", magic_enum::enum_name(type));
+	_proxy->type(type);
 }
 
 const shared_ptr<PhysicsShape>& PhysicsBody::shape() const {
@@ -295,7 +291,7 @@ void PhysicsBody::autocalculatesMomentOfInertia(bool autocalculate) {
 }
 
 /*********************************************************************************************
-	Internal
+	Internal Member Functions
  *********************************************************************************************/
 
 void PhysicsBody::attachedToNode(const shared_ptr<Node>& node) {
@@ -360,6 +356,7 @@ void PhysicsBody::addedToWorld(PhysicalWorld& world) {
 	}
 	else {
 		A3D_LOG_E("_node is gone.");
+		// TODO: throw?
 	}
 }
 
@@ -399,6 +396,7 @@ PhysicalWorld* PhysicsBody::physicalWorld() const {
 	}
 	else {
 		A3D_LOG_E("_node is gone.");
+		// TODO: throw?
 	}
 	return nullptr;
 }
@@ -408,7 +406,7 @@ PhysicsBodyProxy* PhysicsBody::proxy() const {
 }
 
 /*********************************************************************************************
-	Private
+	Private Member Functions
  *********************************************************************************************/
 
 void PhysicsBody::checkAutocreateShape(const shared_ptr<Node>& node) {

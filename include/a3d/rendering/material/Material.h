@@ -1,13 +1,13 @@
 //
 //  Material.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 10/21/16.
-//  Copyright © 2016 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef Material_h
-#define Material_h
+#ifndef AVARA3D_MATERIAL_H
+#define AVARA3D_MATERIAL_H
 
 
 #include <memory>
@@ -24,24 +24,21 @@ namespace a3d {
 	class Color;
 	class Texture;
 
-
 	class Material {
 		
 /*********************************************************************************************
-	Public Static
+	Public Static Member Functions
  *********************************************************************************************/
 
 	public:
 
-		static std::shared_ptr<Material> DefaultMaterial();
-		static std::shared_ptr<Material> MissingTextureMaterial(); // TODO: make internal?
-		static std::shared_ptr<Material> EmissionMaterial(MaterialProperty property);
-		static MaterialProperty MissingTextureProperty(); // TODO: make internal?
+		static std::shared_ptr<Material> 	DefaultMaterial();
+		static std::shared_ptr<Material> 	EmissionMaterial(MaterialProperty property);
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
-		
+
 		Material();
 		Material(const MaterialProperty& ambient,
 				 const MaterialProperty& diffuse,
@@ -51,9 +48,9 @@ namespace a3d {
 				 const MaterialProperty& specular,
 				 const MaterialProperty& emission);
 		~Material();
-		
+
 /*********************************************************************************************
-	Public
+	Public Member Functions
  *********************************************************************************************/
 
 		const std::optional<std::string>&	name() const;
@@ -90,16 +87,23 @@ namespace a3d {
 
 		BlendFunction						blendFunction() const;
 		void 								blendFunction(BlendFunction function);
+
+/*********************************************************************************************
+	Internal Static Member Functions
+ *********************************************************************************************/
+
+		static std::shared_ptr<Material> 	MissingTextureMaterial();
+		static MaterialProperty 			MissingTextureProperty();
 		
 /*********************************************************************************************
-	Internal
+	Internal Member Functions
  *********************************************************************************************/
 
 		MaterialDirtyMask 					dirtyMask() const;
 		void 								dirtyMask(MaterialDirtyMask mask);
 
 /*********************************************************************************************
-	Private
+	Private Member Variables
  *********************************************************************************************/
 
 	private:
@@ -120,4 +124,4 @@ namespace a3d {
 }
 
 
-#endif /* Material_h */
+#endif /* AVARA3D_MATERIAL_H */

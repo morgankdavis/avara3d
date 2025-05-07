@@ -1,5 +1,9 @@
 //
-// Created by mkd on 1/19/24.
+//  BuildInfo.h
+//  avara3d
+//
+//  Created by Morgan Davis on 1/19/24.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_BUILDINFO_H
@@ -13,11 +17,11 @@ namespace a3d {
 
 	class BuildInfo {
 
-	public:
+/*********************************************************************************************
+	Public Types
+ *********************************************************************************************/
 
-		/*********************************************************************************************
-			Types
-		 *********************************************************************************************/
+	public:
 
 		struct Version { // semver.org
 			int major;
@@ -25,48 +29,50 @@ namespace a3d {
 			int patch;
 		};
 
-		enum class TYPE {
-			DEBUG,
-			RELEASE
+		enum class Type {
+			Debug,
+			Release,
+			RelWithDebInfo,
+			MinSizeRel
 		};
 
-		enum class ORIGIN {
+		enum class Origin {
 			CI,
-			ADHOC
+			AdHoc
 		};
 
-		/*********************************************************************************************
-			Lifecycle
-		 *********************************************************************************************/
+/*********************************************************************************************
+	Public Static Member Functions
+ *********************************************************************************************/
 
 		static BuildInfo& Info();
 
-//		BuildInfo(const BuildInfo&) = delete; // copy constructor
-//		BuildInfo &operator=(const BuildInfo&) = delete; // copy assignment
-//		BuildInfo(BuildInfo&&) = delete; // move constructor
-//		BuildInfo(const BuildInfo&&) = delete; // move assignment
+/*********************************************************************************************
+	Public Member Functions
+ *********************************************************************************************/
 
-		/*********************************************************************************************
-			Public
-		 *********************************************************************************************/
-
-		int 			number() const;
+		unsigned 		number() const;
 		const Version&	version() const;
-		TYPE 			type() const;
-		ORIGIN 			origin() const;
+		Type 			type() const;
+		Origin 			origin() const;
 		const std::tm&	time() const;
 
-		/*********************************************************************************************
-			Private
-		 *********************************************************************************************/
+/*********************************************************************************************
+	Private Lifecycle Functions
+ *********************************************************************************************/
 
 	private:
 
 		BuildInfo();
-		int 				_number;
+
+/*********************************************************************************************
+	Private Member Variables
+ *********************************************************************************************/
+
+		unsigned			_number;
 		Version 			_version;
-		TYPE	 			_type;
-		ORIGIN 				_origin;
+		Type	 			_type;
+		Origin 				_origin;
 		std::tm				_time;
 	};
 }

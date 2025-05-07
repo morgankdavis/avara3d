@@ -1,9 +1,9 @@
 //
 //  main.cpp
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 10/15/17.
-//  Copyright © 2017 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include <iostream>
@@ -17,27 +17,24 @@
 
 
 using namespace a3d;
-using namespace a3d::utils;
 using namespace glm;
 using namespace std;
 using namespace std::placeholders;
 
 
-void UpdateCallback(Scene& scene, float time);
-void WillRenderCallback(VisualWorld& world, float time);
-void DidRenderCallback(VisualWorld& world, float time);
-
-
-constexpr bool					ENABLE_HIGH_DPI =		true;
-constexpr unsigned				WINDOW_WIDTH =			1024;
-constexpr unsigned				WINDOW_HEIGHT =			768;
+constexpr uvec2					WINDOW_SIZE =			{1280, 768};
 constexpr bool					FULLSCREEN =			false;
+constexpr bool					ENABLE_HIGH_DPI =		true;
 constexpr AntialiasingMode		ANTIALIAS_MODE =		AntialiasingMode::Msaa4X;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 
 
-a3d::Node* 		g_importLightsCamerasRoot;
+void UpdateCallback(Scene& scene, double time, double deltaTime);
+void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
+void DidRenderCallback(VisualWorld& world, double time, double deltaTime);
+
+
 a3d::Node* 		g_importMeshRoot;
 
 
@@ -47,24 +44,24 @@ int main(int argc, const char* argv[]) {
 
 	auto window = make_unique<Window>(RenderingApi::OpenGL,
 									  *utils::ExecutableName(),
-									  WINDOW_WIDTH,
-									  WINDOW_HEIGHT,
+									  WINDOW_SIZE,
 									  FULLSCREEN,
 									  ENABLE_HIGH_DPI,
 									  ANTIALIAS_MODE);
 	window->vSyncEnabled(ENABLE_VSYNC);
 	window->cursorCaptured(CAPTURE_CURSOR);
 
-	auto visualWorld = make_unique<VisualWorld>(window.get());
-	auto backgroundColor = make_shared<Color>(109.0f / 255.0f, 136.0f / 255.0f, 164.0f / 255.0f, 1.0f);
+	auto visualWorld = make_unique<VisualWorld>(*window);
+//	visualWorld->autoEnablesDefaultLighting(false);
+	auto backgroundColor = make_shared<Color>(u8vec3{109, 136, 164});
 	auto background = MaterialProperty(backgroundColor);
 	visualWorld->background(background); // TODO: is this copying?
-	visualWorld->willRender(bind(&WillRenderCallback, _1, _2));
-	visualWorld->didRender(bind(&DidRenderCallback, _1, _2));
+	visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
+	visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
 
 	auto scene = make_unique<Scene>();
 	scene->visualWorld(std::move(visualWorld));
-	scene->update(bind(&UpdateCallback, _1, _2));
+	scene->update(bind(&UpdateCallback, _1, _2, _3));
 
 //	auto options = SceneImportOptions::ImportAll;
 //	auto options = SceneImportOptions::ImportMeshes;
@@ -80,11 +77,10 @@ int main(int argc, const char* argv[]) {
 //	auto options = SceneImportOptions::ImportLights
 //				   | SceneImportOptions::ImportCameras;
 
-	auto testScene = SceneNamed("import_test/import_test", options);
+	auto testScene = utils::SceneNamed("import_test/import_test", options);
 
 	auto testSceneNodes = testScene->rootNode()->children();
 	auto importLightsCamerasRoot = make_shared<Node>("importLightsCamerasRoot");
-	g_importLightsCamerasRoot = importLightsCamerasRoot.get();
 	auto importMeshRoot = make_shared<Node>("importMeshRoot");
 	g_importMeshRoot = importMeshRoot.get();
 
@@ -104,6 +100,7 @@ int main(int argc, const char* argv[]) {
 	scene->rootNode()->addChild(importLightsCamerasRoot);
 	scene->rootNode()->addChild(importMeshRoot);
 
+	window->center();
 	window->open();
 	scene->run();
 
@@ -114,13 +111,9 @@ int main(int argc, const char* argv[]) {
 	Scene Callbacks
  ***************************************************************************************/
 
-void UpdateCallback(Scene& scene, float time) {
+void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
-	static float previousSeconds = time;
-	float deltaSeconds = time - previousSeconds;
-	previousSeconds = time;
-
-	float rotationDeg = deltaSeconds * 30.0; // 30deg/sec
+	float rotationDeg = deltaTime * 30.0; // 30deg/sec
 
 	g_importMeshRoot->transform(rotate(g_importMeshRoot->transform(),
 									   radians(rotationDeg),
@@ -128,7 +121,7 @@ void UpdateCallback(Scene& scene, float time) {
 
 	static float timeAccum = 0;
 	static unsigned frames = 0;
-	timeAccum += deltaSeconds;
+	timeAccum += deltaTime;
 	++frames;
 	if (timeAccum >= 1.0) {
 		cout << ((float)frames)/timeAccum << " fps" << endl;
@@ -141,10 +134,10 @@ void UpdateCallback(Scene& scene, float time) {
 	VisualWorld Callbacks
  ***************************************************************************************/
 
-void WillRenderCallback(VisualWorld& world, float time) {
+void WillRenderCallback(VisualWorld& world, double time, double deltaTime) {
 
 }
 
-void DidRenderCallback(VisualWorld& world, float time) {
+void DidRenderCallback(VisualWorld& world, double time, double deltaTime) {
 
 }

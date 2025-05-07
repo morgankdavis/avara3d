@@ -1,5 +1,9 @@
 //
-// Created by mkd on 3/6/24.
+//  Spring.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 3/6/24.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/mesh/primitive/Spring.h"
@@ -18,11 +22,15 @@ using namespace glm;
 using namespace std;
 
 
+/*********************************************************************************************
+	Pubic Static Members
+ *********************************************************************************************/
+
 shared_ptr<Mesh> Spring::Mesh(float minorRadius,
 							  float majorRadius,
 							  float length,
-							  int slices,
-							  int segments,
+							  unsigned slices,
+							  unsigned segments,
 							  const shared_ptr<Material> material) {
 
 	return make_shared<a3d::Mesh>("Spring",
@@ -35,14 +43,14 @@ shared_ptr<Mesh> Spring::Mesh(float minorRadius,
 }
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
 *********************************************************************************************/
 
 Spring::Spring(float minorRadius,
 			   float majorRadius,
 			   float length,
-			   int slices,
-			   int segments):
+			   unsigned slices,
+			   unsigned segments):
 		MeshElement{},
 		_minorRadius{minorRadius},
 		_majorRadius{majorRadius},
@@ -58,7 +66,7 @@ Spring::Spring(float minorRadius,
 	/// @param majorStart Counterclockwise angle around the z-axis relative to the x-axis.
 	/// @param majorSweep Counterclockwise angle arounf the z-axis.
 
-	auto spring = SpringMesh{minorRadius, majorRadius, length/2.0, slices, segments};
+	auto spring = SpringMesh{minorRadius, majorRadius, length/2.0, (int)slices, (int)segments};
 
 	for (const MeshVertex& v : spring.vertices()) {
 		_vertices.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
@@ -74,7 +82,7 @@ Spring::Spring(float minorRadius,
 }
 
 /*********************************************************************************************
-	Public
+	Public Member Functions
  *********************************************************************************************/
 
 float Spring::minorRadius() const {
@@ -89,10 +97,10 @@ float Spring::length() const {
 	return _length;
 }
 
-int Spring::slices() const {
+unsigned Spring::slices() const {
 	return _slices;
 }
 
-int Spring::segments() const {
+unsigned Spring::segments() const {
 	return _segments;
 }

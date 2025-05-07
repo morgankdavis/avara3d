@@ -1,9 +1,9 @@
 //
 //  Plane.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 10/31/17.
-//  Copyright © 2017 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/mesh/primitive/Plane.h"
@@ -22,10 +22,14 @@ using namespace glm;
 using namespace std;
 
 
+/*********************************************************************************************
+	Pubic Static Members
+ *********************************************************************************************/
+
 shared_ptr<Mesh> Plane::Mesh(float width,
 							 float height,
-							 int widthSegements,
-							 int heightSegments,
+							 unsigned widthSegements,
+							 unsigned heightSegments,
 							 const shared_ptr<Material> material) {
 
 	return make_shared<a3d::Mesh>("Plane",
@@ -37,13 +41,13 @@ shared_ptr<Mesh> Plane::Mesh(float width,
 }
 
 /*********************************************************************************************
-	 	Lifecycle
+	Public Lifecycle Functions
 *********************************************************************************************/
 
 Plane::Plane(float width,
 			 float height,
-			 int widthSegements,
-			 int heightSegments):
+			 unsigned widthSegements,
+			 unsigned heightSegments):
 		MeshElement{},
 		_width{width},
 		_height{height},
@@ -70,7 +74,7 @@ Plane::Plane(float width,
 }
 
 /*********************************************************************************************
- 	Public
+ 	Public Member Functions
  *********************************************************************************************/
 
 float Plane::width() const {
@@ -81,10 +85,10 @@ float Plane::height() const {
 	return _height;
 }
 
-int Plane::widthSegements() const {
+unsigned Plane::widthSegements() const {
 	return _widthSegements;
 }
 
-int Plane::heightSegments() const {
+unsigned Plane::heightSegments() const {
 	return _heightSegments;
 }

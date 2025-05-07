@@ -1,15 +1,13 @@
 //
 //  BulletDebugDrawer.h
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 2/6/18.
-//  Copyright © 2018 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef BulletDebugDrawer_h
-#define BulletDebugDrawer_h
-
-#ifdef DESKTOP
+#ifndef AVARA3D_BULLETDEBUGDRAWER_H
+#define AVARA3D_BULLETDEBUGDRAWER_H
 
 
 #include <memory>
@@ -30,9 +28,9 @@ namespace a3d {
 	
 	
 	class BulletDebugDrawer : public btIDebugDraw {
-		
+
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 	public:
@@ -41,7 +39,7 @@ namespace a3d {
 		~BulletDebugDrawer() override;
 		
 /*********************************************************************************************
-	Internal
+	Internal Member Functions
  *********************************************************************************************/
 
 		void 	clear();
@@ -50,7 +48,7 @@ namespace a3d {
 							 const glm::mat4& projectionMat);
 
 /*********************************************************************************************
-	btIDebugDraw
+	btIDebugDraw Members
  *********************************************************************************************/
 
 		void 	drawLine(const btVector3& from,
@@ -158,26 +156,16 @@ namespace a3d {
 
 		void 	setDebugMode(int debugMode) override;
 		int 	getDebugMode() const override;
-		
-/*********************************************************************************************
-	Protected
- *********************************************************************************************/
 
-	protected:
-
-		int							_debugMode;
-		
 /*********************************************************************************************
-	Private
+	Private Member Variables
  *********************************************************************************************/
 
 	private:
 
+		int							_debugMode;
 		std::vector<Line>			_lines;
 	};
 }
 
-
-#endif // DESKTOP
-
-#endif /* BulletDebugDrawer_h */
+#endif /* AVARA3D_BULLETDEBUGDRAWER_H */

@@ -1,9 +1,9 @@
 //
 //  Buffer.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 9/5/18.
-//  Copyright © 2018 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/Buffer.h"
@@ -15,12 +15,11 @@
 
 
 using namespace a3d;
-using namespace a3d::utils;
 using namespace std;
 
 
 /*********************************************************************************************
-	 Lifecycle
+	 Public Lifecycle Functions
  *********************************************************************************************/
 
 Buffer::Buffer(const std::filesystem::path& path):
@@ -54,7 +53,7 @@ Buffer::~Buffer() {
 }
 
 /*********************************************************************************************
-	Public
+	Public Member Functions
  *********************************************************************************************/
 
 byte* Buffer::data() const {
@@ -64,10 +63,6 @@ byte* Buffer::data() const {
 size_t Buffer::size() const {
 	return _size;
 }
-
-/*********************************************************************************************
-	Operator Overloads
- *********************************************************************************************/
 
 byte* Buffer::operator*() const {
 	return &((*_data)[0]);

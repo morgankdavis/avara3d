@@ -1,9 +1,9 @@
 //
 //  PhysicsShape.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 1/25/18.
-//  Copyright © 2018 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/physics/PhysicsShape.h"
@@ -27,7 +27,7 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 PhysicsShape::PhysicsShape(PhysicsShapeType type, const shared_ptr<Mesh>& mesh):
@@ -37,20 +37,14 @@ PhysicsShape::PhysicsShape(PhysicsShapeType type, const shared_ptr<Mesh>& mesh):
 		_proxy{}
 		/*_model(make_unique<BulletShapeProxy>(this))*/ {
 
-//	if (auto sMesh = mesh.lock()) {
-
-		if (auto name = mesh->name()) {
-			A3D_LOG_D("Creating PhysicsShape type {} for source mesh: {}...",
-					  magic_enum::enum_name(type), *name);
-		}
-		else {
-			A3D_LOG_D("Creating PhysicsShape type {} for source mesh: {:p}...",
-					  magic_enum::enum_name(type), static_cast<void *>(mesh.get()));
-		}
-//	}
-//	else {
-//		throw std::bad_weak_ptr();
-//	}
+	if (auto name = mesh->name()) {
+		A3D_LOG_D("Creating PhysicsShape type {} for source mesh: {}...",
+				  magic_enum::enum_name(type), *name);
+	}
+	else {
+		A3D_LOG_D("Creating PhysicsShape type {} for source mesh: {:p}...",
+				  magic_enum::enum_name(type), static_cast<void *>(mesh.get()));
+	}
 }
 
 // construct a compound shape based on meshes under this node
@@ -61,20 +55,14 @@ PhysicsShape::PhysicsShape(PhysicsShapeType type, const shared_ptr<Node>& node):
 		_proxy{}
 		/*_model(make_unique<BulletShapeProxy>(this))*/ {
 
-//	if (auto sNode = node.lock()) {
-
-		if (auto name = node->name()) {
-			A3D_LOG_D("Creating PhysicsShape type {} for source node: {}...",
-					  magic_enum::enum_name(type), *name);
-		}
-		else {
-			A3D_LOG_D("Creating PhysicsShape type {} for source node: {:p}...",
-					  magic_enum::enum_name(type), static_cast<void *>(node.get()));
-		}
-//	}
-//	else {
-//		throw std::bad_weak_ptr();
-//	}
+	if (auto name = node->name()) {
+		A3D_LOG_D("Creating PhysicsShape type {} for source node: {}...",
+				  magic_enum::enum_name(type), *name);
+	}
+	else {
+		A3D_LOG_D("Creating PhysicsShape type {} for source node: {:p}...",
+				  magic_enum::enum_name(type), static_cast<void *>(node.get()));
+	}
 }
 
 PhysicsShape::PhysicsShape():
@@ -87,7 +75,7 @@ PhysicsShape::~PhysicsShape() {
 }
 
 /*********************************************************************************************
-	Public
+	Public Member Functions
  *********************************************************************************************/
 
 PhysicsShape::Source PhysicsShape::source() const {
@@ -108,7 +96,7 @@ void PhysicsShape::type(PhysicsShapeType type) {
 }
 
 /*********************************************************************************************
-	Internal
+	Internal Member Functions
  *********************************************************************************************/
 
 void PhysicsShape::attachedToBody(PhysicsBody& body) {

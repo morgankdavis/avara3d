@@ -1,9 +1,12 @@
 //
-// Created by mkd on 1/30/24.
+//  GlTFImporter.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 1/30/24.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/scene/importer/GlTFImporter.h"
-
 
 #include <filesystem>
 #include <utility>
@@ -21,18 +24,22 @@
 #include "a3d/Color.h"
 #include "a3d/Image.h"
 #include "a3d/Types.h"
-#include "a3d/diagnostic/exception/UnsupportedFormat.h"
+#include "a3d/diagnostic/exception/UnsupportedFormatException.h"
 #include "a3d/diagnostic/logging/Logger.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
-#include "a3d/rendering/Light.h"
 #include "a3d/rendering/camera/Camera.h"
 #include "a3d/rendering/camera/PerspectiveCamera.h"
+#include "a3d/rendering/light/DirectionalLight.h"
+#include "a3d/rendering/light/Light.h"
+#include "a3d/rendering/light/PointLight.h"
+#include "a3d/rendering/light/SpotLight.h"
 #include "a3d/rendering/material/Material.h"
 #include "a3d/rendering/material/Sampler.h"
 #include "a3d/rendering/material/Texture.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
+#include "a3d/Utilities.h"
 
 
 using namespace a3d;
@@ -41,11 +48,18 @@ using namespace glm;
 using namespace std;
 
 
+/*********************************************************************************************
+	Private Static Non-Member Prototypes
+ *********************************************************************************************/
+
 static fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options);
 static mat4 TransformFromGlTFNode(fastgltf::Node& node);
 static shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 3>& arr);
 static shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 4>& arr);
 
+/*********************************************************************************************
+	Internal Lifecycle Functions
+ *********************************************************************************************/
 
 GlTFImporter::GlTFImporter(const filesystem::path& path,
 						   SceneImportOptions options):
@@ -64,16 +78,20 @@ GlTFImporter::GlTFImporter(const filesystem::path& path,
 
 	auto extension = path.extension();
 	if (!(extension == ".gltf" || extension == ".glb")) {
-		throw UnsupportedFormat(fmt::format("Unsupported format: {}", extension.string()));
+		throw UnsupportedFormatException(fmt::format("Unsupported format: {}", extension.string()));
 	}
 }
+
+/*********************************************************************************************
+	Internal Member Functions
+ *********************************************************************************************/
 
 unique_ptr<a3d::Scene> GlTFImporter::scene() {
 
 	if (!_scene) {
 		if (parse()) {
 
-			auto startTime = Scene::Time();
+			auto startTime = utils::Time();
 
 			auto a3dScene = make_unique<a3d::Scene>();
 
@@ -97,7 +115,7 @@ unique_ptr<a3d::Scene> GlTFImporter::scene() {
 
 					// TODO: throw out nodes that don't have anything attached to them, or any children?
 
-					A3D_LOG_I("Done loading scene.  Time: {}", Scene::Time() - startTime);
+					A3D_LOG_I("Done loading scene.  Time: {}", utils::Time() - startTime);
 
 					_scene = std::move(a3dScene);
 				}
@@ -123,7 +141,7 @@ shared_ptr<a3d::Mesh> GlTFImporter::firstMesh() {
 
 	if (parse()) {
 
-		auto startTime = Scene::Time();
+		auto startTime = utils::Time();
 
 		auto& meshes = _asset.meshes;
 		if (!meshes.empty()) {
@@ -131,7 +149,7 @@ shared_ptr<a3d::Mesh> GlTFImporter::firstMesh() {
 			mesh = meshFromGlTFMeshIndex(_asset, 0);
 
 			if (mesh) {
-				A3D_LOG_I("Done loading mesh.  Time: {}", Scene::Time() - startTime);
+				A3D_LOG_I("Done loading mesh.  Time: {}", utils::Time() - startTime);
 			}
 		}
 		else {
@@ -150,13 +168,17 @@ SceneImportOptions GlTFImporter::options() const {
 	return _options;
 }
 
+/*********************************************************************************************
+	Private Member Functions
+ *********************************************************************************************/
+
 bool GlTFImporter::parse() {
 
 	if (!_parsed) {
 
 		A3D_LOG_I("Parsing glTF: '{}'...", _path.string());
 
-		auto startTime = Scene::Time();
+		auto startTime = utils::Time();
 
 		auto extensions = Extensions::KHR_lights_punctual
 						  | Extensions::KHR_materials_specular
@@ -190,10 +212,10 @@ bool GlTFImporter::parse() {
 
 			if (auto& info = asset.assetInfo) {
 				A3D_LOG_D("Done parsing glTF.  Version: '{}', Copyright: '{}', Generator: '{}'.  Parse time: {}",
-						  info->gltfVersion, info->copyright, info->generator, Scene::Time() - startTime);
+						  info->gltfVersion, info->copyright, info->generator, utils::Time() - startTime);
 			}
 			else {
-				A3D_LOG_D("Done parsing glTF.  Time: {}", Scene::Time() - startTime);
+				A3D_LOG_D("Done parsing glTF.  Time: {}", utils::Time() - startTime);
 			}
 
 			_asset = std::move(expectedAsset.get());
@@ -729,22 +751,33 @@ shared_ptr<a3d::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset,
 			auto& light = asset.lights[*lightIndex];
 			auto& type = light.type;
 
-			if (type == fastgltf::LightType::Point) {
+			if (type == fastgltf::LightType::Directional) {
 
-				auto a3dLight = make_shared<Light>(LightType::Point);
-
-				a3dLight->name(string(light.name));
-				a3dLight->attenuationFactor(0); // temporary
+				auto a3dLight = make_shared<DirectionalLight>(string(light.name));
 				a3dLight->color(ColorFromGlTFColorArray(light.color));
-				// TODO: range, intensity
-
+				// TODO: range, intensity?
 				_lights[*lightIndex] = a3dLight;
 				return a3dLight;
 			}
-			else {
+			else if (type == fastgltf::LightType::Point) {
 
-				A3D_LOG_W("Unsupported light type: {}",
-						  magic_enum::enum_name(type));
+				auto a3dLight = make_shared<PointLight>(string(light.name));
+				a3dLight->color(ColorFromGlTFColorArray(light.color));
+				a3dLight->constantAttenuation(1.0); // temporary?
+				// TODO: range, intensity?
+				_lights[*lightIndex] = a3dLight;
+				return a3dLight;
+			}
+			else if (type == fastgltf::LightType::Spot) {
+
+				auto a3dLight = make_shared<SpotLight>(string(light.name));
+				a3dLight->color(ColorFromGlTFColorArray(light.color));
+				a3dLight->constantAttenuation(1.0); // temporary?
+				a3dLight->innerAngle(light.innerConeAngle.value());
+				a3dLight->outerAngle(light.outerConeAngle.value());
+				// TODO: range, intensity?
+				_lights[*lightIndex] = a3dLight;
+				return a3dLight;
 			}
 		}
 		else {
@@ -795,6 +828,10 @@ shared_ptr<a3d::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
 
 	return nullptr;
 }
+
+/*********************************************************************************************
+	Private Static Non-Member Functions
+ *********************************************************************************************/
 
 fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options) {
 
@@ -852,7 +889,6 @@ mat4 TransformFromGlTFNode(fastgltf::Node& node) {
 
 		auto matrix = get<fastgltf::Node::TransformMatrix>(transform);
 		return make_mat4(&matrix[0]);
-
 	}
 	else {
 		A3D_LOG_W("No transform associated with node: {}", node.name);
@@ -863,7 +899,7 @@ mat4 TransformFromGlTFNode(fastgltf::Node& node) {
 
 shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 3>& arr) {
 
-	return make_shared<Color>(arr[0], arr[1], arr[2]);
+	return make_shared<Color>(vec3{arr[0], arr[1], arr[2]});
 }
 
 shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 4>& arr) {

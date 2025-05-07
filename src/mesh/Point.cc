@@ -1,9 +1,9 @@
 //
 //  Point.cc
-//	avara3d
+//  avara3d
 //
 //  Created by Morgan Davis on 5/20/18.
-//  Copyright © 2018 Morgan K Davis. All rights reserved.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/mesh/Point.h"
@@ -17,22 +17,22 @@ using namespace std;
 
 
 /*********************************************************************************************
-	Lifecycle
+	Internal Lifecycle Functions
  *********************************************************************************************/
 
 Point::Point(const vec3& location):
-	Point{location, Color::White()} {
+	Point{location, Color{1.0f}} {
 	
 }
 
-Point::Point(const vec3& location, const shared_ptr<Color>& color):
+Point::Point(const vec3& location, const Color& color):
 	_location{location},
 	_color{color} {
 	
 }
 
 /*********************************************************************************************
-	Public
+	Internal Member Functions
  *********************************************************************************************/
 
 const vec3& Point::location() const {
@@ -43,10 +43,10 @@ void Point::location(const vec3& point) {
 	_location = point;
 }
 
-const shared_ptr<Color>& Point::color() const {
+const Color& Point::color() const {
 	return _color;
 }
 
-void Point::color(const shared_ptr<Color>& color) {
+void Point::color(const Color& color) {
 	_color = color;
 }

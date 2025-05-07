@@ -21,7 +21,7 @@ subject to the following restrictions:
 // Material class to be used by btMultimaterialTriangleMeshShape to store triangle properties
 class btMaterial
 {
-	// public members so that materials can change due to world events
+	// Public Member Functions so that materials can change due to world events
 public:
 	btScalar m_friction;
 	btScalar m_restitution;

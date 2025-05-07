@@ -1,5 +1,9 @@
 //
-// Created by mkd on 11/19/23.
+//  CylinderPhysicsShape.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 11/19/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/physics/shape_primitive/CylinderPhysicsShape.h"
@@ -11,7 +15,7 @@ using namespace a3d;
 
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 CylinderPhysicsShape::CylinderPhysicsShape(float radius, float height):
@@ -21,7 +25,7 @@ CylinderPhysicsShape::CylinderPhysicsShape(float radius, float height):
 CylinderPhysicsShape::~CylinderPhysicsShape() {}
 
 /*********************************************************************************************
-	Public
+	Public Member Functions
  *********************************************************************************************/
 
 float CylinderPhysicsShape::radius() const {
@@ -41,13 +45,13 @@ void CylinderPhysicsShape::height(float height) {
 }
 
 /*********************************************************************************************
-	PhysicsShape
+	PhysicsShape Public Member Functions
  *********************************************************************************************/
 
 PhysicsShapeType CylinderPhysicsShape::type() const {
-	throw Exception("PHYSICS_SHAPE_TYPE does not apply to CylinderPhysicsShape.");
+	return PhysicsShapeType::Primitive;
 }
 
 void CylinderPhysicsShape::type(PhysicsShapeType type) {
-	throw Exception("PHYSICS_SHAPE_TYPE does not apply to CylinderPhysicsShape.");
+	throw Exception("Cannot set PhysicsShapeType for CylinderPhysicsShape.");
 }

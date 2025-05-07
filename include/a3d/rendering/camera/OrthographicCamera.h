@@ -1,9 +1,13 @@
 //
-// Created by mkd on 10/22/23.
+//  OrthographicCamera.h
+//  avara3d
+//
+//  Created by Morgan Davis on 10/22/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef OrthographicCamera_h
-#define OrthographicCamera_h
+#ifndef AVARA3D_ORTHOGRAPHICCAMERA_H
+#define AVARA3D_ORTHOGRAPHICCAMERA_H
 
 
 #include "a3d/Types.h"
@@ -14,38 +18,40 @@ namespace a3d {
 
 	class OrthographicCamera : public Camera {
 
-/*********************************************************************************************
-	Lifecycle
- *********************************************************************************************/
-
 	public:
 
+/*********************************************************************************************
+	Public Lifecycle Functions
+ *********************************************************************************************/
+
 		OrthographicCamera();
-		explicit OrthographicCamera(AABB extent);
-		OrthographicCamera(const std::string& name, AABB extent);
+		explicit OrthographicCamera(const AABB& extent);
+		OrthographicCamera(const std::string& name, const AABB& extent);
 		~OrthographicCamera() override;
 
 /*********************************************************************************************
-	Public
+	Public Member Functions
  *********************************************************************************************/
 
-		AABB 				extent() const;
-		void	 			extent(const AABB& e);
+		AABB 		extent() const;
+		void	 	extent(const AABB& e);
 
 /*********************************************************************************************
-	Internal
+	Camera Protected Member Functions
  *********************************************************************************************/
 
-		void 				constructProjectionMatrix() override;
+	protected:
+
+		void 		constructProjectionMatrix() override;
 
 /*********************************************************************************************
-	Private
+	Private Member Variables
  *********************************************************************************************/
 
 	private:
 
-		AABB 			_extent;
+		AABB 		_extent;
 	};
 }
 
-#endif /* OrthographicCamera_h */
+#endif /* AVARA3D_ORTHOGRAPHICCAMERA_H */

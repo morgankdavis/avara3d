@@ -1,5 +1,9 @@
 //
-// Created by mkd on 11/19/23.
+//  SpherePhysicsShape.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 11/19/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/physics/shape_primitive/SpherePhysicsShape.h"
@@ -11,7 +15,7 @@ using namespace a3d;
 
 
 /*********************************************************************************************
-	Lifecycle
+	Public Lifecycle Functions
  *********************************************************************************************/
 
 SpherePhysicsShape::SpherePhysicsShape(float radius):
@@ -20,7 +24,7 @@ SpherePhysicsShape::SpherePhysicsShape(float radius):
 SpherePhysicsShape::~SpherePhysicsShape() {}
 
 /*********************************************************************************************
-	Public
+	Public Member Functions
  *********************************************************************************************/
 
 float SpherePhysicsShape::radius() const {
@@ -32,13 +36,13 @@ void SpherePhysicsShape::radius(float radius) {
 }
 
 /*********************************************************************************************
-	PhysicsShape
+	PhysicsShape Public Member Functions
  *********************************************************************************************/
 
 PhysicsShapeType SpherePhysicsShape::type() const {
-	throw Exception("PHYSICS_SHAPE_TYPE does not apply to SpherePhysicsShape.");
+	return PhysicsShapeType::Primitive;
 }
 
 void SpherePhysicsShape::type(PhysicsShapeType type) {
-	throw Exception("PHYSICS_SHAPE_TYPE does not apply to SpherePhysicsShape.");
+	throw Exception("Cannot set PhysicsShapeType for SpherePhysicsShape.");
 }
