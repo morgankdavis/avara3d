@@ -8,6 +8,7 @@
 
 #include "a3d/rendering/light/AttenuatedLight.h"
 
+#include "a3d/diagnostic/exception/NotImplementedException.h"
 #include "a3d/diagnostic/logging/Logger.h"
 
 
@@ -58,11 +59,13 @@ void AttenuatedLight::quadraticAttenuation(float factor) {
 }
 
 LightCutoff AttenuatedLight::cutoff() const {
-	return _cutoff;
+	throw NotImplementedException("AttenuatedLight cutoff is not yet implemented.");
+	//return _cutoff;
 }
 
 void AttenuatedLight::cutoff(LightCutoff cutoff) {
-	_cutoff = cutoff;
+	throw NotImplementedException("AttenuatedLight cutoff is not yet implemented.");
+//	_cutoff = cutoff;
 }
 
 /*********************************************************************************************
@@ -72,5 +75,5 @@ void AttenuatedLight::cutoff(LightCutoff cutoff) {
 AttenuatedLight::AttenuatedLight():
 		_constantAttenuation{1.0},
 		_linearAttenuation{0.0},
-		_quadraticAttenuation{0.1},
-		_cutoff{std::monostate{}} {}
+		_quadraticAttenuation{0.1}
+		/*_cutoff{std::monostate{}}*/ {}
