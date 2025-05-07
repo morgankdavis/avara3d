@@ -357,7 +357,7 @@ int main(int argc, const char* argv[]) {
 		auto boxesLight = Light::SpotLight(Color::LightGray());
 		boxesLight->innerAngle(glm::radians(20.0));
 		boxesLight->outerAngle(glm::radians(25.0));
-		boxesLight->quadraticAttenuation(0.0005);
+		boxesLight->quadraticAttenuation(0.035);
 		boxesLight->featheringMode(SpotlightFeatheringMode::Soft);
 		auto boxesLightNode = Node::LightNode(boxesLight);
 		boxesLightNode->position({-6.4, 1.2, -2.5});
