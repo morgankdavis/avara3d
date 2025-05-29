@@ -29,7 +29,7 @@ using namespace std::placeholders;
 
 constexpr LogLevel				A3D_APP_LOG_LEVEL =		LogLevel::Debug;
 constexpr uvec2					WINDOW_SIZE =			{1280, 768};
-constexpr bool					FULLSCREEN =			true;
+constexpr bool					FULLSCREEN =			false;
 constexpr bool					ENABLE_HIGH_DPI =		true;
 constexpr AntialiasingMode		MSAA_MODE =				AntialiasingMode::Msaa16X;
 constexpr bool					ENABLE_VSYNC =			false;

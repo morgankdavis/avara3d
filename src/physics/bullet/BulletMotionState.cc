@@ -31,7 +31,7 @@ BulletMotionState::BulletMotionState(PhysicsBody& body):
 	btMotionState Members
 *********************************************************************************************/
 
-// apply node transform to kinematic physics body
+// apply node transform to kinematic physics body (only called for kinematic bodies)
 void BulletMotionState::getWorldTransform(btTransform &transform) const {
 
 	if (auto node = _body->node().lock()) {
@@ -45,7 +45,7 @@ void BulletMotionState::getWorldTransform(btTransform &transform) const {
 //	}
 }
 
-// apply dynamic physics body transform to node
+// apply dynamic physics body transform to node (only called for dynamic bodies)
 void BulletMotionState::setWorldTransform(const btTransform& transform) {
 
 	if (auto node = _body->node().lock()) {
