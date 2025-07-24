@@ -18,7 +18,7 @@ namespace a3d {
 
 	class Color;
 	class Image;
-	class Sampleable;
+//	class Sampleable;
 
 
 	class Sampler {

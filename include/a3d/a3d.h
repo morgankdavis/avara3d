@@ -65,7 +65,6 @@
 #include "a3d/rendering/light/PointLight.h"
 #include "a3d/rendering/light/SpotLight.h"
 #include "a3d/rendering/material/Material.h"
-#include "a3d/rendering/material/Sampleable.h"
 #include "a3d/rendering/material/Sampler.h"
 #include "a3d/rendering/material/Texture.h"
 #include "a3d/scene/Node.h"

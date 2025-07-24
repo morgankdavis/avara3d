@@ -14,7 +14,7 @@
 #include <memory>
 #include <string>
 
-#include "a3d/rendering/material/Sampleable.h"
+//#include "a3d/rendering/material/Sampleable.h"
 
 
 namespace a3d {
@@ -23,7 +23,7 @@ namespace a3d {
 	class Buffer;
 
 
-	class Image : public Sampleable {
+	class Image {// : public Sampleable {
 
 /*********************************************************************************************
 	Public Lifecycle Functions
@@ -43,7 +43,7 @@ namespace a3d {
 			  unsigned bytesPerPixel,
 			  bool flipVertical = true,
 			  bool flipHorizontal = false);
-		~Image() override;
+		~Image();// override;
 
 /*********************************************************************************************
 	Public Member Functions

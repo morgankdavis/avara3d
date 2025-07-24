@@ -89,10 +89,14 @@ const MaterialProperty& VisualWorld::background() {
 
 void VisualWorld::background(const MaterialProperty& background) {
 
-	if (auto* texture = get_if<shared_ptr<Texture>>(&background)) {
+	if (auto texture = get_if<shared_ptr<Texture>>(&background)) {
 
-		if (dynamic_pointer_cast<CubeImage>((*texture)->contents())) {
-			auto material = make_shared<Material>(monostate{}, monostate{}, monostate{}, background);
+		if (auto cubeImage = get_if<shared_ptr<CubeImage>>(&((*texture)->contents()))) {
+
+			auto material = make_shared<Material>(monostate{},
+												  monostate{},
+												  monostate{},
+												  background);
 
 			auto sampler = (*texture)->sampler();
 			sampler->wrapS(WrapMode::ClampToEdge);
@@ -108,6 +112,24 @@ void VisualWorld::background(const MaterialProperty& background) {
 				_skyboxMesh->replaceMaterial(0, material);
 			}
 		}
+
+//		if (dynamic_pointer_cast<CubeImage>((*texture)->contents())) {
+//			auto material = make_shared<Material>(monostate{}, monostate{}, monostate{}, background);
+//
+//			auto sampler = (*texture)->sampler();
+//			sampler->wrapS(WrapMode::ClampToEdge);
+//			sampler->wrapT(WrapMode::ClampToEdge);
+//			sampler->wrapR(WrapMode::ClampToEdge);
+//
+//			// generate the skybox mesh if it hasn't already been
+//			if (!_skyboxMesh) {
+//				_skyboxMesh = MakeSkyboxMesh(background);
+//			}
+//			else {
+//				// we already have the mesh, just update its material
+//				_skyboxMesh->replaceMaterial(0, material);
+//			}
+//		}
 	}
 
 	_background = background;

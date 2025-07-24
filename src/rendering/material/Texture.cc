@@ -19,11 +19,11 @@ using namespace std;
 
 Texture::Texture():
 		_sampler{nullptr},
-		_contents{nullptr},
+		_contents{monostate{}},
 		_mappingChannel{0},
 		_dirtyMask{TextureDirtyMask::All} {}
 
-Texture::Texture(const shared_ptr<Sampleable>& contents,
+Texture::Texture(const Sampleable& contents,
 				 const shared_ptr<Sampler>& sampler,
 				 unsigned mappingChannel):
 		_sampler{sampler},
@@ -45,11 +45,11 @@ void Texture::sampler(const shared_ptr<Sampler>& sampler) {
 	_sampler = sampler;
 }
 
-shared_ptr<Sampleable> Texture::contents() const {
+const Sampleable& Texture::contents() const {
 	return _contents;
 }
 
-void Texture::contents(const shared_ptr<Sampleable>& contents) {
+void Texture::contents(const Sampleable& contents) {
 	_contents = contents;
 }
 

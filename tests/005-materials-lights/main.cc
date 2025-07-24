@@ -448,12 +448,18 @@ void SetAllFilterModes(FilterMode mode, Scene& scene) {
 
 				for (auto& [property, type] : material->properties()) {
 
-					if (holds_alternative<shared_ptr<Texture>>(*property)) {
-						auto texture = get<shared_ptr<Texture>>(*property);
-						auto sampler = texture->sampler();
+					if (auto texture = get_if<shared_ptr<Texture>>(property)) {
+						auto sampler = (*texture)->sampler();
 						sampler->minificationFilter(mode);
 						sampler->magnificationFilter(mode);
 					}
+
+//					if (holds_alternative<shared_ptr<Texture>>(*property)) {
+//						auto texture = get<shared_ptr<Texture>>(*property);
+//						auto sampler = texture->sampler();
+//						sampler->minificationFilter(mode);
+//						sampler->magnificationFilter(mode);
+//					}
 				}
 			}
 		}
@@ -473,11 +479,16 @@ void SetAllMaxAnisotropy(float anisotropy, Scene& scene) {
 
 				for (auto& [property, type] : material->properties()) {
 
-					if (holds_alternative<shared_ptr<Texture>>(*property)) {
-						auto texture = get<shared_ptr<Texture>>(*property);
-						auto sampler = texture->sampler();
+					if (auto texture = get_if<shared_ptr<Texture>>(property)) {
+						auto sampler = (*texture)->sampler();
 						sampler->maxAnisotropy(anisotropy);
 					}
+
+//					if (holds_alternative<shared_ptr<Texture>>(*property)) {
+//						auto texture = get<shared_ptr<Texture>>(*property);
+//						auto sampler = texture->sampler();
+//						sampler->maxAnisotropy(anisotropy);
+//					}
 				}
 			}
 		}

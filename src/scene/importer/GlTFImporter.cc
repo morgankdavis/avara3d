@@ -248,9 +248,9 @@ void GlTFImporter::visitGlTFNode(fastgltf::Asset& asset,
 		a3dNode->light(lightFromGlTFNode(asset, node));
 	}
 
-	if ((_options & SceneImportOptions::ImportCameras) != SceneImportOptions::None) {
+	//if ((_options & SceneImportOptions::ImportCameras) != SceneImportOptions::None) {
 		a3dNode->camera(cameraFromGlTFNode(asset, node));
-	}
+	//}
 
 	for (auto c: node.children) {
 		visitGlTFNode(asset, asset.nodes[c], a3dNode.get());
@@ -273,6 +273,8 @@ shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlTFMeshIndex(fastgltf::Asset& asset
 	if (_meshes.find(meshIndex) == _meshes.end()) {
 
 		auto& mesh = asset.meshes[meshIndex];
+
+		A3D_LOG_D("Importing mesh '{}'...", mesh.name);
 
 		auto elements = vector<unique_ptr<MeshElement>>();
 		auto materials = vector<shared_ptr<Material>>();
@@ -510,6 +512,8 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlTFPrimitive(fastgltf::Asse
 
 			auto& material = asset.materials[*materialIndex];
 
+			A3D_LOG_D("Importing material '{}'...", material.name);
+
 			shared_ptr<a3d::Material> a3dMaterial = nullptr;
 
 			// ambient, diffuse
@@ -632,6 +636,8 @@ shared_ptr<a3d::Texture> GlTFImporter::textureFromGlTFTextureIndex(fastgltf::Ass
 
 		auto& texture = asset.textures[textureIndex];
 
+		A3D_LOG_D("Importing texture '{}'...", texture.name);
+
 		if (auto a3dImage = imageFromGlTFTexture(asset, texture) ; a3dImage) {
 
 			auto a3dSampler = samplerFromGlTFTexture(asset, texture);
@@ -656,6 +662,8 @@ shared_ptr<a3d::Sampler> GlTFImporter::samplerFromGlTFTexture(fastgltf::Asset& a
 		if (_samplers.find(*samplerIndex) == _samplers.end()) {
 
 			auto& sampler = asset.samplers[*samplerIndex];
+
+			A3D_LOG_D("Importing sampler '{}'...", sampler.name);
 
 			auto a3dSampler = make_shared<a3d::Sampler>();
 
@@ -686,49 +694,70 @@ shared_ptr<a3d::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset
 		if (_images.find(*imageIndex) == _images.end()) {
 
 			auto& image = asset.images[*imageIndex];
+			auto &dataSource = image.data;
 
-			shared_ptr<Image> a3dImage = nullptr;
+			A3D_LOG_D("Importing image '{}'...", image.name);
 
-			if (auto &dataSource = image.data; holds_alternative<sources::Vector>(dataSource)) { // .gltf
-				A3D_LOG_D("Creating texture image...");
+			auto a3dImage = std::visit([&asset](auto&& dataSource) -> shared_ptr<Image> {
 
-				auto uint8Vec = get<sources::Vector>(dataSource).bytes;
-				auto a3dBuffer = make_unique<a3d::Buffer>(reinterpret_cast<std::byte*>(uint8Vec.data()), uint8Vec.size());
-				a3dImage = make_shared<a3d::Image>(std::move(a3dBuffer), false);
-			}
-			else if (holds_alternative<sources::BufferView>(dataSource)) { // .glb
+				using T = std::decay_t<decltype(dataSource)>;
 
-				auto bufferViewIndex = get<sources::BufferView>(dataSource).bufferViewIndex;
-				auto& bufferView = asset.bufferViews[bufferViewIndex];
+				if constexpr (std::is_same_v<T, sources::Vector>) { // .gltf
 
-				if (auto byteStride = bufferView.byteStride) { // TODO: is this unpacked for us?
-
-					A3D_LOG_W("Texture buffer has stride: {}.  Skipping.", *(bufferView.byteStride));
-					a3dImage = nullptr;
-				}
-				else {
 					A3D_LOG_D("Creating texture image...");
 
-					auto buffer = asset.buffers[bufferView.bufferIndex];
-					auto byteOffset = bufferView.byteOffset;
-					auto byteLength = bufferView.byteLength;
+					auto uint8Vec = dataSource.bytes;
+					auto a3dBuffer = make_unique<a3d::Buffer>(reinterpret_cast<std::byte*>(uint8Vec.data()), uint8Vec.size());
+					return make_shared<a3d::Image>(std::move(a3dBuffer), false);
+				}
+				else if constexpr (std::is_same_v<T, sources::BufferView>) { // .glb
 
-					if (auto bufferData = buffer.data; holds_alternative<sources::Vector>(bufferData)) {
+					auto bufferViewIndex = dataSource.bufferViewIndex;
+					auto& bufferView = asset.bufferViews[bufferViewIndex];
 
-						auto uint8Vec = get<sources::Vector>(bufferData).bytes;
-						auto a3dBuffer = make_unique<a3d::Buffer>(reinterpret_cast<std::byte*>(&uint8Vec[byteOffset]), byteLength);
-						a3dImage = make_shared<a3d::Image>(std::move(a3dBuffer), false);
+					if (auto byteStride = bufferView.byteStride) { // TODO: is this unpacked for us?
+
+						A3D_LOG_W("Texture buffer has stride: {}.  Skipping.", *(bufferView.byteStride));
+						return nullptr;
 					}
 					else {
-						A3D_LOG_W("Unexpected texture data.");
-						a3dImage = nullptr;
+						A3D_LOG_D("Creating texture image...");
+
+						auto buffer = asset.buffers[bufferView.bufferIndex];
+						auto byteOffset = bufferView.byteOffset;
+						auto byteLength = bufferView.byteLength;
+
+						if (auto uint8Vec = std::get_if<sources::Vector>(&buffer.data))
+						{
+							auto a3dBuffer = make_unique<a3d::Buffer>(reinterpret_cast<std::byte*>(&uint8Vec[byteOffset]), byteLength);
+							return make_shared<a3d::Image>(std::move(a3dBuffer), false);
+						}
+						else {
+							A3D_LOG_W("Unexpected texture data.");
+							return nullptr;
+						}
+
+//						if (auto bufferData = buffer.data; holds_alternative<sources::Vector>(bufferData)) {
+//
+//							auto uint8Vec = get<sources::Vector>(bufferData).bytes;
+//							auto a3dBuffer = make_unique<a3d::Buffer>(reinterpret_cast<std::byte*>(&uint8Vec[byteOffset]), byteLength);
+//							return make_shared<a3d::Image>(std::move(a3dBuffer), false);
+//						}
+//						else {
+//							A3D_LOG_W("Unexpected texture data.");
+//							return nullptr;
+//						}
 					}
 				}
-			}
-			else {
-				A3D_LOG_W("Unexpected texture data.");
-				a3dImage = nullptr;
-			}
+				else if constexpr (std::is_same_v<T, std::monostate>) {
+
+					A3D_LOG_W("Unexpected texture data.");
+					return nullptr;
+				}
+
+				return nullptr;
+
+			}, dataSource);
 
 			if (a3dImage) _images[*imageIndex] = a3dImage;
 			return a3dImage;
@@ -750,6 +779,8 @@ shared_ptr<a3d::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset,
 
 			auto& light = asset.lights[*lightIndex];
 			auto& type = light.type;
+
+			A3D_LOG_D("Importing light '{}'...", light.name);
 
 			if (type == fastgltf::LightType::Directional) {
 
@@ -796,28 +827,27 @@ shared_ptr<a3d::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
 		if (_cameras.find(*cameraIndex) == _cameras.end()) {
 
 			auto& camera = asset.cameras[*cameraIndex];
+			auto name = string(camera.name);
 
-			auto cameraVar = camera.camera;
-			if (holds_alternative<fastgltf::Camera::Perspective>(cameraVar)) {
+			A3D_LOG_D("Importing camera '{}'...", name);
 
-				auto perspective = get<fastgltf::Camera::Perspective>(cameraVar);
-
-				auto a3dCamera = make_shared<PerspectiveCamera>(string(camera.name),
-																perspective.znear,
-																(perspective.zfar
-																 ? *perspective.zfar
+			if (auto persCamera = std::get_if<fastgltf::Camera::Perspective>(&camera.camera))
+			{
+				auto a3dCamera = make_shared<PerspectiveCamera>(name,
+																persCamera->znear,
+																(persCamera->zfar
+																 ? *persCamera->zfar
 																 : 1000000), // cheating
-																perspective.yfov);
+																persCamera->yfov);
 
-				if (auto ratio = perspective.aspectRatio) {
+				if (auto ratio = persCamera->aspectRatio) {
 					a3dCamera->aspectRatio(*ratio);
 				}
 
 				_cameras[*cameraIndex] = a3dCamera;
 				return a3dCamera;
 			}
-			else if (holds_alternative<fastgltf::Camera::Orthographic>(cameraVar)) {
-
+			else {
 				A3D_LOG_W("Orthographic cameras are not supported.");
 			}
 		}
@@ -865,36 +895,76 @@ fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options) {
 mat4 TransformFromGlTFNode(fastgltf::Node& node) {
 
 	auto transform = node.transform;
-	if (holds_alternative<fastgltf::Node::TRS>(transform)) {
 
-		auto trs = get<fastgltf::Node::TRS>(transform);
-		const auto& id4 = mat4(1.0);
 
-		auto t = glm::translate(id4, { trs.translation[0],
-									   trs.translation[1],
-									   trs.translation[2] });
+	return std::visit([&node](auto&& transform) -> mat4 {
 
-		auto r = glm::mat4_cast(quat{ trs.rotation[3],
-									  trs.rotation[0],
-									  trs.rotation[1],
-									  trs.rotation[2] });
+		using T = std::decay_t<decltype(transform)>;
 
-		auto s = glm::scale(id4, { trs.scale[0],
-								   trs.scale[1],
-								   trs.scale[2] });
+		if constexpr (std::is_same_v<T, fastgltf::Node::TRS>) {
 
-		return t * r * s;
-	}
-	else if (holds_alternative<fastgltf::Node::TransformMatrix>(transform)) {
+			//auto trs = get<fastgltf::Node::TRS>(transform);
+			const auto& id4 = mat4(1.0);
 
-		auto matrix = get<fastgltf::Node::TransformMatrix>(transform);
-		return make_mat4(&matrix[0]);
-	}
-	else {
-		A3D_LOG_W("No transform associated with node: {}", node.name);
-	}
+			auto t = glm::translate(id4, { transform.translation[0],
+										   transform.translation[1],
+										   transform.translation[2] });
 
-	return mat4(1.0);
+			auto r = glm::mat4_cast(quat{ transform.rotation[3],
+										  transform.rotation[0],
+										  transform.rotation[1],
+										  transform.rotation[2] });
+
+			auto s = glm::scale(id4, { transform.scale[0],
+									   transform.scale[1],
+									   transform.scale[2] });
+
+			return t * r * s;
+		}
+		else if constexpr (std::is_same_v<T, fastgltf::Node::TransformMatrix>) {
+
+			//auto matrix = get<fastgltf::Node::TransformMatrix>(transform);
+			return make_mat4(&transform[0]);
+		}
+		else {
+			A3D_LOG_W("No transform associated with node: {}", node.name);
+		}
+
+		return mat4(1.0);
+
+	}, transform);
+
+
+//	if (holds_alternative<fastgltf::Node::TRS>(transform)) {
+//
+//		auto trs = get<fastgltf::Node::TRS>(transform);
+//		const auto& id4 = mat4(1.0);
+//
+//		auto t = glm::translate(id4, { trs.translation[0],
+//									   trs.translation[1],
+//									   trs.translation[2] });
+//
+//		auto r = glm::mat4_cast(quat{ trs.rotation[3],
+//									  trs.rotation[0],
+//									  trs.rotation[1],
+//									  trs.rotation[2] });
+//
+//		auto s = glm::scale(id4, { trs.scale[0],
+//								   trs.scale[1],
+//								   trs.scale[2] });
+//
+//		return t * r * s;
+//	}
+//	else if (holds_alternative<fastgltf::Node::TransformMatrix>(transform)) {
+//
+//		auto matrix = get<fastgltf::Node::TransformMatrix>(transform);
+//		return make_mat4(&matrix[0]);
+//	}
+//	else {
+//		A3D_LOG_W("No transform associated with node: {}", node.name);
+//	}
+//
+//	return mat4(1.0);
 }
 
 shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 3>& arr) {

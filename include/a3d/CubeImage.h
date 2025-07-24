@@ -13,7 +13,7 @@
 #include <filesystem>
 #include <memory>
 
-#include "a3d/rendering/material/Sampleable.h"
+//#include "a3d/rendering/material/Sampleable.h"
 
 
 namespace a3d {
@@ -22,7 +22,7 @@ namespace a3d {
 	class Image;
 	
 
-	class CubeImage : public Sampleable {
+	class CubeImage {//: public Sampleable {
 
 /*********************************************************************************************
 	Public Lifecycle Functions

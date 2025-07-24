@@ -26,6 +26,8 @@ namespace a3d {
 
 
 	class Color;
+	class CubeImage;
+	class Image;
 	class Texture;
 
 
@@ -129,6 +131,11 @@ namespace a3d {
 			std::monostate,
 			std::shared_ptr<Texture>,
 			std::shared_ptr<Color>>;
+
+	using Sampleable = std::variant<
+			std::monostate,
+			std::shared_ptr<Image>,
+			std::shared_ptr<CubeImage>>;
 
 	enum class MaterialPropertyType {
 		Ambient,

@@ -378,38 +378,70 @@ void OpenGLRenderer::render(const Scene& scene,
 
 	auto background = scene.visualWorld()->background();
 
-	if (holds_alternative<shared_ptr<Texture>>(background)) {
+	std::visit([this, &scene](auto&& background) -> void {
 
-		auto texture = get<shared_ptr<Texture>>(background);
+		using T = std::decay_t<decltype(background)>;
 
-		if (dynamic_pointer_cast<CubeImage>(texture->contents())) {
+		if constexpr (std::is_same_v<T, shared_ptr<Texture>>) {
 
-			if (auto pov = scene.visualWorld()->pointOfView().lock()) {
+			if (auto cubeImage = get_if<shared_ptr<CubeImage>>(&(background->contents()))) {
 
-				auto skyboxMesh = scene.visualWorld()->skyboxMesh();
+				if (auto pov = scene.visualWorld()->pointOfView().lock()) {
 
-				RenderSkybox(*skyboxMesh,
-							 *pov,
-							 _meshElementGLMapping,
-							 _textureGLMapping,
-							 _activeTextures);
+					auto skyboxMesh = scene.visualWorld()->skyboxMesh();
 
-				// save reference for housekeeping
-				_activeMeshElements.emplace(skyboxMesh->elements().front().get());
+					RenderSkybox(*skyboxMesh,
+								 *pov,
+								 _meshElementGLMapping,
+								 _textureGLMapping,
+								 _activeTextures);
+
+					// save reference for housekeeping
+					_activeMeshElements.emplace(skyboxMesh->elements().front().get());
+				}
+				else {
+					A3D_LOG_W("PointOfView has gone missing.");
+					// TODO: throw?
+				}
 			}
 			else {
-				A3D_LOG_W("PointOfView has gone missing.");
-				// TODO: throw?
+				A3D_LOG_E("Image background not supported.");
 			}
+
+//			if (dynamic_pointer_cast<CubeImage>(background->contents())) {
+//
+//				if (auto pov = scene.visualWorld()->pointOfView().lock()) {
+//
+//					auto skyboxMesh = scene.visualWorld()->skyboxMesh();
+//
+//					RenderSkybox(*skyboxMesh,
+//								 *pov,
+//								 _meshElementGLMapping,
+//								 _textureGLMapping,
+//								 _activeTextures);
+//
+//					// save reference for housekeeping
+//					_activeMeshElements.emplace(skyboxMesh->elements().front().get());
+//				}
+//				else {
+//					A3D_LOG_W("PointOfView has gone missing.");
+//					// TODO: throw?
+//				}
+//			}
+//			else {
+//				A3D_LOG_E("Image background not supported.");
+//			}
 		}
-	}
-	else if (holds_alternative<shared_ptr<Color>>(background)) {
+		else if constexpr (std::is_same_v<T, shared_ptr<Color>>) {
 
-		auto color = get<shared_ptr<Color>>(background);
+			glClearColor(background->r(), background->g(), background->b(), 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		}
+		else if constexpr (std::is_same_v<T, std::monostate>) {
+			// nada
+		}
 
-		glClearColor(color->r(), color->g(), color->b(), 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	}
+	}, background);
 
 //	SendEnvironmentUniforms(_glEnvironmentUBO, scene, stats);
 //	Program::Default().bindUniformBlock("EnvironmentBlock", _glEnvironmentUBO);
@@ -582,10 +614,14 @@ void RenderSkybox(Mesh& skyboxMesh,
 	
 	// update material property filtering options
 
-	if (holds_alternative<shared_ptr<Texture>>(emissiveProperty)) {
-		auto texture = get<shared_ptr<Texture>>(emissiveProperty);
-		SetTextureSamplingOptions(*texture, emissiveGLTextureHandle);
+	if (auto texture = get_if<shared_ptr<Texture>>(&emissiveProperty)) {
+		SetTextureSamplingOptions(**texture, emissiveGLTextureHandle);
 	}
+
+//	if (holds_alternative<shared_ptr<Texture>>(emissiveProperty)) {
+//		auto texture = get<shared_ptr<Texture>>(emissiveProperty);
+//		SetTextureSamplingOptions(*texture, emissiveGLTextureHandle);
+//	}
 	
 	// configure OpenGL state
 	
@@ -679,33 +715,59 @@ void GetTextureGLTextureHandles(Material& material,
 
 	for (auto& [property, type] : material.properties()) {
 
-		if (holds_alternative<shared_ptr<Texture>>(*property)) {
+		if (auto texture = get_if<shared_ptr<Texture>>(property)) {
 
-			auto texture = get<shared_ptr<Texture>>(*property).get();
+			if (A3D_MASK_CONTAINS((*texture)->dirtyMask(), TextureDirtyMask::Contents)) {
 
-			if (A3D_MASK_CONTAINS(texture->dirtyMask(), TextureDirtyMask::Contents)) {
+				A3D_LOG_D("Texture {:p} contents dirty.", static_cast<void*>(&texture));
 
-				A3D_LOG_D("Texture {:p} contents dirty.", static_cast<void*>(texture));
-
-				DeleteTextureGLResources(texture, glMapping);
+				DeleteTextureGLResources(texture->get(), glMapping);
 
 				GLuint textureID = 0;
-				BufferTexture(*texture, textureID);
+				BufferTexture(**texture, textureID);
 				if (textureID > 0) {
 					glTextureHandles[type] = textureID;
-					glMapping[texture] = textureID;
+					glMapping[texture->get()] = textureID;
 				}
 
-				texture->dirtyMask(A3D_MASK_REMOVE(texture->dirtyMask(), TextureDirtyMask::Contents));
+				(*texture)->dirtyMask(A3D_MASK_REMOVE((*texture)->dirtyMask(),TextureDirtyMask::Contents));
 			}
 			else {
-				auto textureHandle = glMapping[texture];
+				auto textureHandle = glMapping[texture->get()];
 				glTextureHandles[type] = textureHandle;
 			}
 
 			// save reference for housekeeping
-			activeTextures.emplace(texture);
+			activeTextures.emplace(texture->get());
 		}
+
+//		if (holds_alternative<shared_ptr<Texture>>(*property)) {
+//
+//			auto texture = get<shared_ptr<Texture>>(*property).get();
+//
+//			if (A3D_MASK_CONTAINS(texture->dirtyMask(), TextureDirtyMask::Contents)) {
+//
+//				A3D_LOG_D("Texture {:p} contents dirty.", static_cast<void*>(texture));
+//
+//				DeleteTextureGLResources(texture, glMapping);
+//
+//				GLuint textureID = 0;
+//				BufferTexture(*texture, textureID);
+//				if (textureID > 0) {
+//					glTextureHandles[type] = textureID;
+//					glMapping[texture] = textureID;
+//				}
+//
+//				texture->dirtyMask(A3D_MASK_REMOVE(texture->dirtyMask(), TextureDirtyMask::Contents));
+//			}
+//			else {
+//				auto textureHandle = glMapping[texture];
+//				glTextureHandles[type] = textureHandle;
+//			}
+//
+//			// save reference for housekeeping
+//			activeTextures.emplace(texture);
+//		}
 	}
 }
 
@@ -873,96 +935,201 @@ void BufferTexture(const Texture& texture,
 
 	auto contents = texture.contents();
 
-	if (dynamic_pointer_cast<CubeImage>(contents)) {
+	std::visit([&texture, &glTextureHandle](auto&& contents) -> void {
 
-		A3D_LOG_D("Buffering cube texture {:p}...", static_cast<const void*>(&contents));
-		
-		auto cubeImage = dynamic_pointer_cast<CubeImage>(contents);
-		
-		Image* images[] = {
-			cubeImage->posX(),
-			cubeImage->negX(),
-			cubeImage->posY(),
-			cubeImage->negY(),
-			cubeImage->posZ(),
-			cubeImage->negZ() };
-		
-		GLenum sides[] = {
-			GL_TEXTURE_CUBE_MAP_POSITIVE_X,
-			GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
-			GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
-			GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
-			GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
-			GL_TEXTURE_CUBE_MAP_NEGATIVE_Z };
-		
-		glGenTextures(1, &glTextureHandle);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, glTextureHandle);
-		
-		for (int s=0; s<6; ++s) {
-			GLenum side = sides[s];
-			auto image = images[s];
-			
-			unsigned bytesPerPixel = image->bytesPerPixel();
-			GLint glInternalFormat = GL_RGBA;
-			if (bytesPerPixel == 3) glInternalFormat = GL_RGB;
-			else if (bytesPerPixel == 1) glInternalFormat = GL_RED;
-			
-			glTexImage2D(side,
-						 0,
-						 glInternalFormat,//GL_RGB, //GL_SRGB_ALPHA,
-						 image->width(),
-						 image->height(),
-						 0,
-						 GL_RGBA,//(image->bytesPerPixel() == 3 ? GL_RGB : GL_RGBA),
-						 GL_UNSIGNED_BYTE,
-						 image->buffer().data());
+		using T = std::decay_t<decltype(contents)>;
+
+		if constexpr (std::is_same_v<T, shared_ptr<CubeImage>>) {
+
+			A3D_LOG_D("Buffering cube texture {:p}...", static_cast<const void*>(&contents));
+
+			auto cubeImage = dynamic_pointer_cast<CubeImage>(contents);
+
+			Image* images[] = {
+					cubeImage->posX(),
+					cubeImage->negX(),
+					cubeImage->posY(),
+					cubeImage->negY(),
+					cubeImage->posZ(),
+					cubeImage->negZ() };
+
+			GLenum sides[] = {
+					GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+					GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+					GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+					GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+					GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+					GL_TEXTURE_CUBE_MAP_NEGATIVE_Z };
+
+			glGenTextures(1, &glTextureHandle);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, glTextureHandle);
+
+			for (int s=0; s<6; ++s) {
+				GLenum side = sides[s];
+				auto image = images[s];
+
+				unsigned bytesPerPixel = image->bytesPerPixel();
+				GLint glInternalFormat = GL_RGBA;
+				if (bytesPerPixel == 3) glInternalFormat = GL_RGB;
+				else if (bytesPerPixel == 1) glInternalFormat = GL_RED;
+
+				glTexImage2D(side,
+							 0,
+							 glInternalFormat,//GL_RGB, //GL_SRGB_ALPHA,
+							 image->width(),
+							 image->height(),
+							 0,
+							 GL_RGBA,//(image->bytesPerPixel() == 3 ? GL_RGB : GL_RGBA),
+							 GL_UNSIGNED_BYTE,
+							 image->buffer().data());
+			}
+
+			auto sampler = texture.sampler();
+			SetTextureMinificationFilter(glTextureHandle, true, sampler->minificationFilter());
+			SetTextureMagnificationFilter(glTextureHandle, true, sampler->magnificationFilter());
+			SetTextureMaxAnisotropy(glTextureHandle, true, sampler->maxAnisotropy());
+			SetTextureWrapS(glTextureHandle, true, sampler->wrapS());
+			SetTextureWrapT(glTextureHandle, true, sampler->wrapT());
+			SetTextureWrapR(glTextureHandle, sampler->wrapR());
 		}
+		else if constexpr (std::is_same_v<T, shared_ptr<Image>>) {
 
-		auto sampler = texture.sampler();
-		SetTextureMinificationFilter(glTextureHandle, true, sampler->minificationFilter());
-		SetTextureMagnificationFilter(glTextureHandle, true, sampler->magnificationFilter());
-		SetTextureMaxAnisotropy(glTextureHandle, true, sampler->maxAnisotropy());
-		SetTextureWrapS(glTextureHandle, true, sampler->wrapS());
-		SetTextureWrapT(glTextureHandle, true, sampler->wrapT());
-		SetTextureWrapR(glTextureHandle, sampler->wrapR());
-	}
-	else if (dynamic_pointer_cast<Image>(contents)) {
+			A3D_LOG_D("Buffering 2D texture {:p}...", static_cast<const void*>(&contents));
 
-		A3D_LOG_D("Buffering 2D texture {:p}...", static_cast<const void*>(&contents));
-		
-		auto image = dynamic_pointer_cast<Image>(contents);
-		
-		glGenTextures(1, &glTextureHandle);
-		A3D_LOG_D("Binding new texture handle: {}", glTextureHandle);
-		glBindTexture(GL_TEXTURE_2D, glTextureHandle);
+			auto image = dynamic_pointer_cast<Image>(contents);
+
+			glGenTextures(1, &glTextureHandle);
+			A3D_LOG_D("Binding new texture handle: {}", glTextureHandle);
+			glBindTexture(GL_TEXTURE_2D, glTextureHandle);
 
 //		unsigned bytesPerPixel = image->bytesPerPixel();
 //		GLint glInternalFormat;
 //		if (bytesPerPixel == 3) glInternalFormat = GL_RGB;
 //		else if (bytesPerPixel == 1) glInternalFormat = GL_RED;
 
-		A3D_LOG_D("Buffering image {:p}: width: {}, height: {}, bytesPerPixel: {}, data size: {}",
-				 static_cast<void*>(image.get()), image->width(), image->height(), image->bytesPerPixel(),
-				 image->width() * image->height() * image->bytesPerPixel());
+			A3D_LOG_D("Buffering image {:p}: width: {}, height: {}, bytesPerPixel: {}, data size: {}",
+					  static_cast<void*>(image.get()), image->width(), image->height(), image->bytesPerPixel(),
+					  image->width() * image->height() * image->bytesPerPixel());
 
-		glTexImage2D(GL_TEXTURE_2D,
-					 0,
-					 GL_RGBA,//glInternalFormat,//GL_RGBA,//GL_SRGB_ALPHA,
-					 image->width(),
-					 image->height(),
-					 0,
-					 GL_RGBA,//(image->bytesPerPixel() == 3 ? GL_RGB : GL_RGBA),
-					 GL_UNSIGNED_BYTE,
-					 image->buffer().data());
+			glTexImage2D(GL_TEXTURE_2D,
+						 0,
+						 GL_RGBA,//glInternalFormat,//GL_RGBA,//GL_SRGB_ALPHA,
+						 image->width(),
+						 image->height(),
+						 0,
+						 GL_RGBA,//(image->bytesPerPixel() == 3 ? GL_RGB : GL_RGBA),
+						 GL_UNSIGNED_BYTE,
+						 image->buffer().data());
 
-		auto sampler = texture.sampler();
-		SetTextureMinificationFilter(glTextureHandle, false, sampler->minificationFilter());
-		SetTextureMagnificationFilter(glTextureHandle, false, sampler->magnificationFilter());
-		SetTextureMaxAnisotropy(glTextureHandle, false, sampler->maxAnisotropy());
-		SetTextureWrapS(glTextureHandle, false, sampler->wrapS());
-		SetTextureWrapT(glTextureHandle, false, sampler->wrapT());
-	}
+			auto sampler = texture.sampler();
+			SetTextureMinificationFilter(glTextureHandle, false, sampler->minificationFilter());
+			SetTextureMagnificationFilter(glTextureHandle, false, sampler->magnificationFilter());
+			SetTextureMaxAnisotropy(glTextureHandle, false, sampler->maxAnisotropy());
+			SetTextureWrapS(glTextureHandle, false, sampler->wrapS());
+			SetTextureWrapT(glTextureHandle, false, sampler->wrapT());
+		}
+		else if constexpr (std::is_same_v<T, std::monostate>) {
+			A3D_LOG_E("Empty texture variant.");
+		}
+
+	}, contents);
 }
+
+//void BufferTexture(const Texture& texture,
+//				   GLuint& glTextureHandle) {
+//
+//	auto contents = texture.contents();
+//
+//	if (dynamic_pointer_cast<CubeImage>(contents)) {
+//
+//		A3D_LOG_D("Buffering cube texture {:p}...", static_cast<const void*>(&contents));
+//
+//		auto cubeImage = dynamic_pointer_cast<CubeImage>(contents);
+//
+//		Image* images[] = {
+//			cubeImage->posX(),
+//			cubeImage->negX(),
+//			cubeImage->posY(),
+//			cubeImage->negY(),
+//			cubeImage->posZ(),
+//			cubeImage->negZ() };
+//
+//		GLenum sides[] = {
+//			GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+//			GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+//			GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+//			GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+//			GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+//			GL_TEXTURE_CUBE_MAP_NEGATIVE_Z };
+//
+//		glGenTextures(1, &glTextureHandle);
+//		glBindTexture(GL_TEXTURE_CUBE_MAP, glTextureHandle);
+//
+//		for (int s=0; s<6; ++s) {
+//			GLenum side = sides[s];
+//			auto image = images[s];
+//
+//			unsigned bytesPerPixel = image->bytesPerPixel();
+//			GLint glInternalFormat = GL_RGBA;
+//			if (bytesPerPixel == 3) glInternalFormat = GL_RGB;
+//			else if (bytesPerPixel == 1) glInternalFormat = GL_RED;
+//
+//			glTexImage2D(side,
+//						 0,
+//						 glInternalFormat,//GL_RGB, //GL_SRGB_ALPHA,
+//						 image->width(),
+//						 image->height(),
+//						 0,
+//						 GL_RGBA,//(image->bytesPerPixel() == 3 ? GL_RGB : GL_RGBA),
+//						 GL_UNSIGNED_BYTE,
+//						 image->buffer().data());
+//		}
+//
+//		auto sampler = texture.sampler();
+//		SetTextureMinificationFilter(glTextureHandle, true, sampler->minificationFilter());
+//		SetTextureMagnificationFilter(glTextureHandle, true, sampler->magnificationFilter());
+//		SetTextureMaxAnisotropy(glTextureHandle, true, sampler->maxAnisotropy());
+//		SetTextureWrapS(glTextureHandle, true, sampler->wrapS());
+//		SetTextureWrapT(glTextureHandle, true, sampler->wrapT());
+//		SetTextureWrapR(glTextureHandle, sampler->wrapR());
+//	}
+//	else if (dynamic_pointer_cast<Image>(contents)) {
+//
+//		A3D_LOG_D("Buffering 2D texture {:p}...", static_cast<const void*>(&contents));
+//
+//		auto image = dynamic_pointer_cast<Image>(contents);
+//
+//		glGenTextures(1, &glTextureHandle);
+//		A3D_LOG_D("Binding new texture handle: {}", glTextureHandle);
+//		glBindTexture(GL_TEXTURE_2D, glTextureHandle);
+//
+////		unsigned bytesPerPixel = image->bytesPerPixel();
+////		GLint glInternalFormat;
+////		if (bytesPerPixel == 3) glInternalFormat = GL_RGB;
+////		else if (bytesPerPixel == 1) glInternalFormat = GL_RED;
+//
+//		A3D_LOG_D("Buffering image {:p}: width: {}, height: {}, bytesPerPixel: {}, data size: {}",
+//				 static_cast<void*>(image.get()), image->width(), image->height(), image->bytesPerPixel(),
+//				 image->width() * image->height() * image->bytesPerPixel());
+//
+//		glTexImage2D(GL_TEXTURE_2D,
+//					 0,
+//					 GL_RGBA,//glInternalFormat,//GL_RGBA,//GL_SRGB_ALPHA,
+//					 image->width(),
+//					 image->height(),
+//					 0,
+//					 GL_RGBA,//(image->bytesPerPixel() == 3 ? GL_RGB : GL_RGBA),
+//					 GL_UNSIGNED_BYTE,
+//					 image->buffer().data());
+//
+//		auto sampler = texture.sampler();
+//		SetTextureMinificationFilter(glTextureHandle, false, sampler->minificationFilter());
+//		SetTextureMagnificationFilter(glTextureHandle, false, sampler->magnificationFilter());
+//		SetTextureMaxAnisotropy(glTextureHandle, false, sampler->maxAnisotropy());
+//		SetTextureWrapS(glTextureHandle, false, sampler->wrapS());
+//		SetTextureWrapT(glTextureHandle, false, sampler->wrapT());
+//	}
+//}
 
 void SendMaterialUniforms(const Material& material,
 						  Program& program,
@@ -999,41 +1166,140 @@ void SendMaterialPropertyUniforms(const MaterialProperty& property,
 
 	program.use();
 
-	if (holds_alternative<shared_ptr<Texture>>(property)) {
+	std::visit([&type, &program, &glTextureHandle](auto&& property) -> void {
 
-		auto texture = get<shared_ptr<Texture>>(property);
+		using T = std::decay_t<decltype(property)>;
 
-		if (dynamic_pointer_cast<Image>(texture->contents())) {
+		if constexpr (std::is_same_v<T, shared_ptr<Texture>>) {
+
+
+
+			std::visit([&type, &glTextureHandle, &program](auto&& contents) -> void {
+
+				using T = std::decay_t<decltype(contents)>;
+
+				if constexpr (std::is_same_v<T, shared_ptr<Image>>) {
+
+					string modeUniformName;
+					string samplerUniformName;
+					GLenum slot;
+					GLint index;
+
+					switch (type) {
+						case MaterialPropertyType::Ambient:
+							modeUniformName = "ambientContentsType";
+							samplerUniformName = "samplers.ambient";
+							slot = GL_TEXTURE0;
+							index = 0;
+							break;
+						case MaterialPropertyType::Diffuse:
+							modeUniformName = "diffuseContentsType";
+							samplerUniformName = "samplers.diffuse";
+							slot = GL_TEXTURE1;
+							index = 1;
+							break;
+						case MaterialPropertyType::Specular:
+							modeUniformName = "specularContentsType";
+							samplerUniformName = "samplers.specular";
+							slot = GL_TEXTURE2;
+							index = 2;
+							break;
+						case MaterialPropertyType::Emission:
+							modeUniformName = "emissionContentsType";
+							samplerUniformName = "samplers.emission";
+							slot = GL_TEXTURE3;
+							index = 3;
+							break;
+						default:
+							A3D_LOG_E("Invalid MaterialPropertyType: {}",
+									  magic_enum::enum_name<MaterialPropertyType>(type));
+							return;
+					}
+
+					program.setUniform(modeUniformName.c_str(),
+									   static_cast<underlying_type<MaterialContentsType>::type>(MaterialContentsType::Sampler));
+					program.bindTexture(samplerUniformName.c_str(), GL_TEXTURE_2D, slot, glTextureHandle, index);
+				}
+				else if constexpr (std::is_same_v<T, shared_ptr<CubeImage>>) {
+
+					program.bindTexture("cubeSampler", GL_TEXTURE_CUBE_MAP, GL_TEXTURE0, glTextureHandle, 0);
+				}
+				else if constexpr (std::is_same_v<T, std::monostate>) {
+					A3D_LOG_E("Empty texture variant.");
+				}
+
+			}, property->contents());
+
+
+
+//			if (dynamic_pointer_cast<Image>(property->contents())) {
+//
+//				string modeUniformName;
+//				string samplerUniformName;
+//				GLenum slot;
+//				GLint index;
+//
+//				switch (type) {
+//					case MaterialPropertyType::Ambient:
+//						modeUniformName = "ambientContentsType";
+//						samplerUniformName = "samplers.ambient";
+//						slot = GL_TEXTURE0;
+//						index = 0;
+//						break;
+//					case MaterialPropertyType::Diffuse:
+//						modeUniformName = "diffuseContentsType";
+//						samplerUniformName = "samplers.diffuse";
+//						slot = GL_TEXTURE1;
+//						index = 1;
+//						break;
+//					case MaterialPropertyType::Specular:
+//						modeUniformName = "specularContentsType";
+//						samplerUniformName = "samplers.specular";
+//						slot = GL_TEXTURE2;
+//						index = 2;
+//						break;
+//					case MaterialPropertyType::Emission:
+//						modeUniformName = "emissionContentsType";
+//						samplerUniformName = "samplers.emission";
+//						slot = GL_TEXTURE3;
+//						index = 3;
+//						break;
+//					default:
+//						A3D_LOG_E("Invalid MaterialPropertyType: {}",
+//								  magic_enum::enum_name<MaterialPropertyType>(type));
+//						return;
+//				}
+//
+//				program.setUniform(modeUniformName.c_str(),
+//								   static_cast<underlying_type<MaterialContentsType>::type>(MaterialContentsType::Sampler));
+//				program.bindTexture(samplerUniformName.c_str(), GL_TEXTURE_2D, slot, glTextureHandle, index);
+//			}
+//			else if (dynamic_pointer_cast<CubeImage>(property->contents())) {
+//
+//				program.bindTexture("cubeSampler", GL_TEXTURE_CUBE_MAP, GL_TEXTURE0, glTextureHandle, 0);
+//			}
+		}
+		else if constexpr (std::is_same_v<T, shared_ptr<Color>>) {
 
 			string modeUniformName;
-			string samplerUniformName;
-			GLenum slot;
-			GLint index;
+			string colorUniformName;
 
 			switch (type) {
 				case MaterialPropertyType::Ambient:
 					modeUniformName = "ambientContentsType";
-					samplerUniformName = "samplers.ambient";
-					slot = GL_TEXTURE0;
-					index = 0;
+					colorUniformName = "colors.ambient";
 					break;
 				case MaterialPropertyType::Diffuse:
 					modeUniformName = "diffuseContentsType";
-					samplerUniformName = "samplers.diffuse";
-					slot = GL_TEXTURE1;
-					index = 1;
+					colorUniformName = "colors.diffuse";
 					break;
 				case MaterialPropertyType::Specular:
 					modeUniformName = "specularContentsType";
-					samplerUniformName = "samplers.specular";
-					slot = GL_TEXTURE2;
-					index = 2;
+					colorUniformName = "colors.specular";
 					break;
 				case MaterialPropertyType::Emission:
 					modeUniformName = "emissionContentsType";
-					samplerUniformName = "samplers.emission";
-					slot = GL_TEXTURE3;
-					index = 3;
+					colorUniformName = "colors.emission";
 					break;
 				default:
 					A3D_LOG_E("Invalid MaterialPropertyType: {}",
@@ -1042,53 +1308,16 @@ void SendMaterialPropertyUniforms(const MaterialProperty& property,
 			}
 
 			program.setUniform(modeUniformName.c_str(),
-							   static_cast<underlying_type<MaterialContentsType>::type>(MaterialContentsType::Sampler));
-			program.bindTexture(samplerUniformName.c_str(), GL_TEXTURE_2D, slot, glTextureHandle, index);
+							   static_cast<underlying_type<MaterialContentsType>::type>(MaterialContentsType::Color));
+			program.setUniform(colorUniformName.c_str(),
+							   property->r(), property->g(), property->b());
 		}
-		else if (dynamic_pointer_cast<CubeImage>(texture->contents())) {
+		else if constexpr (std::is_same_v<T, std::monostate>) {
 
-				program.bindTexture("cubeSampler", GL_TEXTURE_CUBE_MAP, GL_TEXTURE0, glTextureHandle, 0);
-		}
-
-//		glActiveTexture(slot);
-	}
-	else if (holds_alternative<shared_ptr<Color>>(property)) {
-
-		auto color = get<shared_ptr<Color>>(property);
-
-		string modeUniformName;
-		string colorUniformName;
-
-		switch (type) {
-			case MaterialPropertyType::Ambient:
-				modeUniformName = "ambientContentsType";
-				colorUniformName = "colors.ambient";
-				break;
-			case MaterialPropertyType::Diffuse:
-				modeUniformName = "diffuseContentsType";
-				colorUniformName = "colors.diffuse";
-				break;
-			case MaterialPropertyType::Specular:
-				modeUniformName = "specularContentsType";
-				colorUniformName = "colors.specular";
-				break;
-			case MaterialPropertyType::Emission:
-				modeUniformName = "emissionContentsType";
-				colorUniformName = "colors.emission";
-				break;
-			default:
-				A3D_LOG_E("Invalid MaterialPropertyType: {}",
-						  magic_enum::enum_name<MaterialPropertyType>(type));
-				return;
+			A3D_LOG_W("NULL material property contents.");
 		}
 
-		program.setUniform(modeUniformName.c_str(),
-						   static_cast<underlying_type<MaterialContentsType>::type>(MaterialContentsType::Color));
-		program.setUniform(colorUniformName.c_str(), color->r(), color->g(), color->b());
-	}
-	else {
-		A3D_LOG_W("NULL material property contents.");
-	}
+	}, property);
 	
 	//program.unuse();
 }
@@ -1511,7 +1740,7 @@ void SetTextureSamplingOptions(Texture& texture,
 							   GLuint glTextureHandle) {
 
 	auto sampler = texture.sampler();
-	bool isCubemap = dynamic_pointer_cast<CubeImage>(texture.contents()) != nullptr;
+	bool isCubemap = holds_alternative<shared_ptr<CubeImage>>(texture.contents());
 
 	if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
 						  SamplerDirtyMask::MinificationFilter)) {
@@ -1563,10 +1792,14 @@ void SetMaterialFilteringOptions(const Material& material,
 
 	for (auto& [property, type] : material.properties()) {
 
-		if (holds_alternative<shared_ptr<Texture>>(*property)) {
-			auto texture = get<shared_ptr<Texture>>(*property);
-			SetTextureSamplingOptions(*texture, glTextureHandles[type]);
+		if (auto texture = get_if<shared_ptr<Texture>>(property)) {
+			SetTextureSamplingOptions(**texture, glTextureHandles[type]);
 		}
+
+//		if (holds_alternative<shared_ptr<Texture>>(*property)) {
+//			auto texture = get<shared_ptr<Texture>>(*property);
+//			SetTextureSamplingOptions(*texture, glTextureHandles[type]);
+//		}
 	}
 }
 

@@ -119,50 +119,51 @@ BulletShapeProxy::BulletShapeProxy(PhysicsShape& shape):
 
 	auto bodyType = (*shape.bodies().begin())->type();
 
-	unique_ptr<btCollisionShape> newShape = nullptr;
-
 	auto btShapes = vector<unique_ptr<btCollisionShape>>();
 	auto btIndexVertexArrays = vector<unique_ptr<btTriangleIndexVertexArray>>();
 
 	auto sourceObject = shape.source();
 
-	// souce MESH
-	if (holds_alternative<weak_ptr<Mesh>>(sourceObject)) {
-		auto sourceMesh = get<weak_ptr<Mesh>>(sourceObject);
-		if (auto sSourceMesh = sourceMesh.lock()) {
-			newShape = BTShapeFromSourceMesh(*sSourceMesh,
-											 shape.type(),
-											 bodyType,
-											 btShapes,
-											 btIndexVertexArrays);
-		}
-		else {
-			A3D_LOG_W("sourceMesh is null.");
-			// TODO: throw?
-		}
-	}
+	auto newShape = std::visit([&shape, &bodyType, &btShapes, &btIndexVertexArrays]
+			(auto&& source) -> unique_ptr<btCollisionShape> {
 
-	// source NODE
-	else if (holds_alternative<weak_ptr<Node>>(sourceObject)) {
-		auto sourceNode = get<weak_ptr<Node>>(sourceObject);
-		if (auto sSourceNode = sourceNode.lock()) {
-			newShape = BTShapeFromSourceNode(*sSourceNode,
-											 shape.type(),
-											 bodyType,
-											 btShapes,
-											 btIndexVertexArrays);
-		}
-		else {
-			A3D_LOG_W("sourceNode is null.");
-			// TODO: throw?
-		}
-	}
+		using T = std::decay_t<decltype(source)>;
 
-	// primitive subclass
-	else if (holds_alternative<monostate>(sourceObject)) {
+		if constexpr (std::is_same_v<T, weak_ptr<Mesh>>) {
 
-		newShape = BTShapeFromPrimitiveShape(shape);
-	}
+			if (auto sourceMesh = source.lock()) {
+				return BTShapeFromSourceMesh(*sourceMesh,
+												 shape.type(),
+												 bodyType,
+												 btShapes,
+												 btIndexVertexArrays);
+			}
+			else {
+				A3D_LOG_W("sourceMesh is null.");
+				// TODO: throw?
+				return nullptr;
+			}
+		}
+		else if constexpr (std::is_same_v<T, weak_ptr<Node>>) {
+
+			if (auto sourceNode = source.lock()) {
+				return BTShapeFromSourceNode(*sourceNode,
+												 shape.type(),
+												 bodyType,
+												 btShapes,
+												 btIndexVertexArrays);
+			}
+			else {
+				A3D_LOG_W("sourceNode is null.");
+				// TODO: throw?
+				return nullptr;
+			}
+		}
+
+		else if constexpr (std::is_same_v<T, std::monostate>) {
+			return BTShapeFromPrimitiveShape(shape);
+		}
+	}, sourceObject);
 
 	if (newShape) {
 
