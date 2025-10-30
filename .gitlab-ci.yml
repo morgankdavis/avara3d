@@ -202,10 +202,10 @@ linux-release-manual:
     - tar -cfz avara3d-linux-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}.tgz avara3d
     - echo "Linux release build complete."
   artifacts:
-    name: "avara3d-linux-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
+    #name: "avara3d-linux-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: "linux-release"
     paths:
-      - avara3d
+      - avara3d-linux-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}.tgz
     expire_in: 2 days
 
 macos-release-manual:
