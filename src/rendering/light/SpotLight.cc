@@ -21,7 +21,7 @@ using namespace std;
  *********************************************************************************************/
 
 SpotLight::SpotLight():
-		AttenuatedLight() {
+		AttenuatedLight(Light::Kind::Spot) {
 	// see DeVries 16.5
 	_innerAngleCos = static_cast<float>(glm::cos(10.0));
 	_outerAngleCos = static_cast<float>(glm::cos(15.0));

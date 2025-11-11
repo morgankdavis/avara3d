@@ -25,9 +25,22 @@ namespace a3d {
 	class DirectionalLight;
 	class PointLight;
 	class SpotLight;
-	
-	
+
+
 	class Light {
+
+/*********************************************************************************************
+	Public Types
+ *********************************************************************************************/
+
+	public:
+
+		enum class Kind {
+			Ambient,
+			Directional,
+			Point,
+			Spot
+		};
 
 /*********************************************************************************************
 	Public Static Member Functions
@@ -47,15 +60,32 @@ namespace a3d {
 		static std::shared_ptr<a3d::SpotLight> 			SpotLight();
 		static std::shared_ptr<a3d::SpotLight> 			SpotLight(const std::shared_ptr<Color>& color);
 
+		static bool classof(const Light* l) {
+			if (!l) return false;
+			auto k = l->kind();
+			switch (k) {
+				case Kind::Ambient:
+				case Kind::Directional:
+				case Kind::Point:
+				case Kind::Spot:
+					return true;
+			}
+			return false;
+		}
+
+		static bool classof(const Light& l) {
+			return classof(&l);
+		}
+
 /*********************************************************************************************
 	Public Lifecycle Functions
  *********************************************************************************************/
 
-		Light();
-		explicit Light(const std::string& name);
-		explicit Light(const std::shared_ptr<Color>& color);
-		Light(const std::string& name, const std::shared_ptr<Color>& color);
-		virtual ~Light() = 0;
+//		Light();
+//		explicit Light(const std::string& name) = 0;
+//		explicit Light(const std::shared_ptr<Color>& color);
+//		Light(const std::string& name, const std::shared_ptr<Color>& color);
+		virtual ~Light();
 
 /*********************************************************************************************
 	Public Member Functions
@@ -67,13 +97,15 @@ namespace a3d {
 		const std::shared_ptr<Color>&		color() const;
 		void 								color(const std::shared_ptr<Color>& color);
 
+		Kind 								kind() const;
+
 /*********************************************************************************************
 	Protected Lifecycle Functions
  *********************************************************************************************/
 
-//	protected:
-//
-//		Light();
+	protected:
+
+		explicit Light(Kind kind);
 
 /*********************************************************************************************
 	Protected Member Variables
@@ -81,8 +113,9 @@ namespace a3d {
 
 	protected:
 
-		std::optional<std::string>			_name;
-		std::shared_ptr<Color>				_color;
+		Kind							_kind;
+		std::optional<std::string>		_name;
+		std::shared_ptr<Color>			_color;
 	};
 }
 

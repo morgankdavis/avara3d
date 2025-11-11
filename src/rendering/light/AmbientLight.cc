@@ -20,7 +20,7 @@ using namespace std;
  *********************************************************************************************/
 
 AmbientLight::AmbientLight():
-	Light() {}
+	Light(Light::Kind::Ambient) {}
 
 AmbientLight::AmbientLight(const string& name):
 		AmbientLight() {

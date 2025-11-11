@@ -39,19 +39,19 @@ using namespace std;
  *********************************************************************************************/
 
 shared_ptr<Node> Node::NamedNode(const string& name) {
-	return make_unique<Node>(name);
+	return make_shared<Node>(name);
 }
 
 shared_ptr<Node> Node::MeshNode(const shared_ptr<Mesh>& mesh) {
-	return make_unique<Node>(mesh);
+	return make_shared<Node>(mesh);
 }
 
 shared_ptr<Node> Node::LightNode(const shared_ptr<Light>& light) {
-	return make_unique<Node>(light);
+	return make_shared<Node>(light);
 }
 
 shared_ptr<Node> Node::CameraNode(const shared_ptr<Camera>& camera) {
-	return make_unique<Node>(camera);
+	return make_shared<Node>(camera);
 }
 
 /*********************************************************************************************
@@ -596,9 +596,9 @@ void Node::removeFromParent() {
 	}
 }
 
-vector<shared_ptr<Node>> Node::children(bool resursive) const {
+vector<shared_ptr<Node>> Node::children(bool recursive) const {
 
-	if (resursive) {
+	if (recursive) {
 		return children(*this);
 	}
 	else {
@@ -606,9 +606,9 @@ vector<shared_ptr<Node>> Node::children(bool resursive) const {
 	}
 }
 
-shared_ptr<Node> Node::childNamed(const string& name, bool resursive) const {
+shared_ptr<Node> Node::childNamed(const string& name, bool recursive) const {
 
-	for (auto& child : children(resursive)) {
+	for (auto& child : children(recursive)) {
 		if (child->name() != nullopt && *child->name() == name) {
 			return child;
 		}

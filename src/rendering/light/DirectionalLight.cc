@@ -22,7 +22,7 @@ using namespace std;
  *********************************************************************************************/
 
 DirectionalLight::DirectionalLight():
-		Light() {}
+		Light(Light::Kind::Directional) {}
 
 DirectionalLight::DirectionalLight(const string& name):
 		DirectionalLight() {

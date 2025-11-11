@@ -72,7 +72,8 @@ void AttenuatedLight::cutoff(LightCutoff cutoff) {
 	Private Lifecycle Functions
  *********************************************************************************************/
 
-AttenuatedLight::AttenuatedLight():
+AttenuatedLight::AttenuatedLight(Light::Kind kind):
+		Light{kind},
 		_constantAttenuation{1.0},
 		_linearAttenuation{0.0},
 		_quadraticAttenuation{0.1}

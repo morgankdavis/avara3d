@@ -25,35 +25,35 @@ using namespace std;
  *********************************************************************************************/
 
 shared_ptr<AmbientLight> Light::AmbientLight() {
-	return make_unique<a3d::AmbientLight>();
+	return make_shared<a3d::AmbientLight>();
 }
 
 shared_ptr<AmbientLight> Light::AmbientLight(const shared_ptr<Color>& color) {
-	return make_unique<a3d::AmbientLight>(color);
+	return make_shared<a3d::AmbientLight>(color);
 }
 
 shared_ptr<DirectionalLight> Light::DirectionalLight() {
-	return make_unique<a3d::DirectionalLight>();
+	return make_shared<a3d::DirectionalLight>();
 }
 
 shared_ptr<DirectionalLight> Light::DirectionalLight(const shared_ptr<Color>& color) {
-	return make_unique<a3d::DirectionalLight>(color);
+	return make_shared<a3d::DirectionalLight>(color);
 }
 
 shared_ptr<PointLight> Light::PointLight() {
-	return make_unique<a3d::PointLight>();
+	return make_shared<a3d::PointLight>();
 }
 
 shared_ptr<PointLight> Light::PointLight(const shared_ptr<Color>& color) {
-	return make_unique<a3d::PointLight>(color);
+	return make_shared<a3d::PointLight>(color);
 }
 
 shared_ptr<SpotLight> Light::SpotLight() {
-	return make_unique<a3d::SpotLight>();
+	return make_shared<a3d::SpotLight>();
 }
 
 shared_ptr<SpotLight> Light::SpotLight(const shared_ptr<Color>& color) {
-	return make_unique<a3d::SpotLight>(color);
+	return make_shared<a3d::SpotLight>(color);
 }
 
 /*********************************************************************************************
@@ -69,14 +69,6 @@ Light::~Light() {
 		A3D_LOG_D("Destroying Light {:p}", static_cast<void*>(this));
 	}
 }
-
-/*********************************************************************************************
-	Private Lifecycle Functions
- *********************************************************************************************/
-
-Light::Light():
-	_name{nullopt},
-	_color{Color::White()} {}
 
 /*********************************************************************************************
 	Public Member Functions
@@ -97,3 +89,16 @@ const shared_ptr<Color>& Light::color() const {
 void Light::color(const shared_ptr<Color>& color) {
 	_color = color;
 }
+
+Light::Kind Light::kind() const {
+	return _kind;
+}
+
+/*********************************************************************************************
+	Protected Lifecycle Functions
+ *********************************************************************************************/
+
+Light::Light(Light::Kind kind):
+		_kind{kind},
+		_name{nullopt},
+		_color{Color::White()} {}

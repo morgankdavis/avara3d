@@ -26,6 +26,18 @@ namespace a3d {
 	class PointLight : public AttenuatedLight {
 
 /*********************************************************************************************
+	Public Static Member Functions
+ *********************************************************************************************/
+
+		static bool classof(const Light* l) {
+			return l && l->kind() == Kind::Point;
+		}
+
+		static bool classof(const Light& l) {
+			return classof(&l);
+		}
+
+/*********************************************************************************************
 	Public Lifecycle Functions
  *********************************************************************************************/
 

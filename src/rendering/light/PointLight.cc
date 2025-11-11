@@ -21,7 +21,7 @@ using namespace std;
  *********************************************************************************************/
 
 PointLight::PointLight():
-		AttenuatedLight() {}
+		AttenuatedLight(Light::Kind::Point) {}
 
 PointLight::PointLight(const string& name):
 		PointLight() {

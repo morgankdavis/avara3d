@@ -80,7 +80,6 @@ namespace a3d {
 																   fastgltf::Primitive& primitive);
 		std::shared_ptr<Texture> 		textureFromGlTFTextureIndex(fastgltf::Asset& asset,
 																	std::size_t textureIndex);
-
 		std::shared_ptr<Sampler> 		samplerFromGlTFTexture(fastgltf::Asset& asset,
 															   fastgltf::Texture& texture);
 		std::shared_ptr<Image> 			imageFromGlTFTexture(fastgltf::Asset& asset,

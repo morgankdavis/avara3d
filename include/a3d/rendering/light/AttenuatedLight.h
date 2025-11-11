@@ -26,6 +26,25 @@ namespace a3d {
 	class AttenuatedLight : public Light {
 
 /*********************************************************************************************
+	Public Static Member Functions
+ *********************************************************************************************/
+
+		static bool classof(const Light* l) {
+			if (!l) return false;
+			auto k = l->kind();
+			switch (k) {
+				case Kind::Point:
+				case Kind::Spot:
+					return true;
+			}
+			return false;
+		}
+
+		static bool classof(const Light& l) {
+			return classof(&l);
+		}
+
+/*********************************************************************************************
 	Public Lifecycle Functions
  *********************************************************************************************/
 
@@ -34,7 +53,7 @@ namespace a3d {
 //		explicit AttenuatedLight(const std::string& name, float );
 //		explicit AttenuatedLight(const std::shared_ptr<Color>& color);
 //		AttenuatedLight(const std::string& name, const std::shared_ptr<Color>& color);
-		virtual ~AttenuatedLight() = 0;
+		virtual ~AttenuatedLight();
 
 /*********************************************************************************************
 	Public Member Functions
@@ -67,7 +86,7 @@ namespace a3d {
 
 	protected:
 
-		AttenuatedLight();
+		explicit AttenuatedLight(Light::Kind kind);
 
 /*********************************************************************************************
 	Private Member Variables

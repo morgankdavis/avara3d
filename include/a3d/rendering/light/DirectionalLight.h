@@ -29,6 +29,18 @@ namespace a3d {
 	class DirectionalLight : public Light {
 
 /*********************************************************************************************
+	Public Static Member Functions
+ *********************************************************************************************/
+
+		static bool classof(const Light* l) {
+			return l && l->kind() == Kind::Directional;
+		}
+
+		static bool classof(const Light& l) {
+			return classof(&l);
+		}
+
+/*********************************************************************************************
 	Public Lifecycle Functions
  *********************************************************************************************/
 
