@@ -10,9 +10,9 @@ include(cmake/UtilityFunctions.cmake)
 
 set(CMAKE_CXX_STANDARD 20)
 
-#if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
-#	set(CMAKE_BUILD_TYPE "Debug")
-#endif ()
+if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
+	set(CMAKE_BUILD_TYPE "Debug")
+endif ()
 message("[BUILD TYPE: " ${CMAKE_BUILD_TYPE} "]")
 
 
@@ -126,6 +126,17 @@ target_include_directories(avara3d PRIVATE external/v-hacd-4.1.0)
 ### add special defines ###
 
 target_compile_definitions(avara3d PUBLIC FMT_HEADER_ONLY)
+
+
+### setup clang-tidy ###
+# TODO: use clang-style?
+
+#find_program(CLANG_TIDY_EXE NAMES clang-tidy)
+#if (CLANG_TIDY_EXE)
+#	message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
+#	set_target_properties(avara3d PROPERTIES
+#			CXX_CLANG_TIDY "${CLANG_TIDY_EXE};--format-style=file")
+#endif ()
 
 
 ### link a3d to common libraries ###
