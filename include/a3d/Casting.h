@@ -1,5 +1,9 @@
 //
-// Created by mkd on 11/24/25.
+//  Casting.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 11/24/2025.
+//  Copyright © 2025 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_CASTING_H
