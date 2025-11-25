@@ -2250,7 +2250,7 @@ void InitImgui(const RenderContext& context) {
 	ImGuiIO& io = ImGui::GetIO();
 	io.IniFilename = nullptr;
 
-	GLFWwindow* glfwWindow = dynamic_cast<const Window*>(&context)->glfwWindow();
+	GLFWwindow* glfwWindow = static_cast<const Window*>(&context)->glfwWindow();
 
 	ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
 	ImGui_ImplOpenGL3_Init();

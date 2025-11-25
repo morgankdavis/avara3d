@@ -22,10 +22,17 @@ namespace a3d {
 	class StdOutLoggerSink : public LoggerSink {
 
 /*********************************************************************************************
-	Public Lifecycle Functions
+	Public Static Member Functions
  *********************************************************************************************/
 
 	public:
+
+		static bool classof(const LoggerSink* o);
+		static bool classof(const LoggerSink& o);
+
+/*********************************************************************************************
+	Public Lifecycle Functions
+ *********************************************************************************************/
 
 		StdOutLoggerSink();
 		~StdOutLoggerSink() override;

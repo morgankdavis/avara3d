@@ -28,8 +28,8 @@ bool Light::classof(const Light*) {
 	return true;
 }
 
-bool Light::classof(const Light& l) {
-	return classof(&l);
+bool Light::classof(const Light& o) {
+	return classof(&o);
 }
 
 shared_ptr<AmbientLight> Light::AmbientLight() {

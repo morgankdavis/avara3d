@@ -31,14 +31,12 @@ namespace a3d {
 
 	public:
 
-		static bool classof(const Light* l);
-		static bool classof(const Light& l);
+		static bool classof(const Light* o);
+		static bool classof(const Light& o);
 
 /*********************************************************************************************
 	Public Lifecycle Functions
  *********************************************************************************************/
-
-	public:
 
 //		explicit AttenuatedLight(const std::string& name, float );
 //		explicit AttenuatedLight(const std::shared_ptr<Color>& color);

@@ -34,14 +34,12 @@ namespace a3d {
 
 	public:
 
-		static bool classof(const Light* l);
-		static bool classof(const Light& l);
+		static bool classof(const Light* o);
+		static bool classof(const Light& o);
 
 /*********************************************************************************************
 	Public Lifecycle Functions
  *********************************************************************************************/
-
-	public:
 
 		DirectionalLight();
 		explicit DirectionalLight(const std::string& name);

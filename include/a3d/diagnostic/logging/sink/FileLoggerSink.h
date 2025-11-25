@@ -25,11 +25,19 @@ namespace a3d {
 	class FileLoggerSink : public LoggerSink {
 
 /*********************************************************************************************
-	Public Lifecycle Functions
+	Public Static Member Functions
  *********************************************************************************************/
 
 	public:
 
+		static bool classof(const LoggerSink* o);
+		static bool classof(const LoggerSink& o);
+
+/*********************************************************************************************
+	Public Lifecycle Functions
+ *********************************************************************************************/
+
+//		FileLoggerSink();
 		explicit FileLoggerSink(const std::filesystem::path& relPath,
 								int maxFiles = DEFAULT_MAX_FILES,
 								int maxFilesize = DEFAULT_MAX_FILESIZE);

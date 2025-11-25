@@ -20,10 +20,23 @@ using namespace std;
 
 
 /*********************************************************************************************
+	Public Static Member Functions
+ *********************************************************************************************/
+
+bool StdOutLoggerSink::classof(const LoggerSink* o) {
+	return o && o->kind() == Kind::StdOut;
+}
+
+bool StdOutLoggerSink::classof(const LoggerSink& o) {
+	return classof(&o);
+}
+
+/*********************************************************************************************
 	Public Lifecycle Functions
  *********************************************************************************************/
 
-StdOutLoggerSink::StdOutLoggerSink() { }
+StdOutLoggerSink::StdOutLoggerSink():
+		LoggerSink(Kind::StdOut) {}
 
 StdOutLoggerSink::~StdOutLoggerSink() {
 	flush();

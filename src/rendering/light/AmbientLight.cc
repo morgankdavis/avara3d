@@ -20,12 +20,12 @@ using namespace std;
 	Public Static Member Functions
  *********************************************************************************************/
 
-bool AmbientLight::classof(const Light* l) {
-	return l && l->kind() == Kind::Ambient;
+bool AmbientLight::classof(const Light* o) {
+	return o && o->kind() == Kind::Ambient;
 }
 
-bool AmbientLight::classof(const Light& l) {
-	return classof(&l);
+bool AmbientLight::classof(const Light& o) {
+	return classof(&o);
 }
 
 /*********************************************************************************************

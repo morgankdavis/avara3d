@@ -48,9 +48,6 @@ namespace a3d {
 
 	public:
 
-		static bool classof(const Light* l);
-		static bool classof(const Light& l);
-
 		static std::shared_ptr<a3d::AmbientLight> 		AmbientLight();
 		static std::shared_ptr<a3d::AmbientLight> 		AmbientLight(const std::shared_ptr<Color>& color);
 
@@ -62,6 +59,9 @@ namespace a3d {
 
 		static std::shared_ptr<a3d::SpotLight> 			SpotLight();
 		static std::shared_ptr<a3d::SpotLight> 			SpotLight(const std::shared_ptr<Color>& color);
+
+		static bool classof(const Light* o);
+		static bool classof(const Light& o);
 
 /*********************************************************************************************
 	Public Lifecycle Functions

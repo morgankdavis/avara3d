@@ -14,6 +14,18 @@ using namespace a3d;
 
 
 /*********************************************************************************************
+	Public Static Member Functions
+ *********************************************************************************************/
+
+bool LoggerSink::classof(const LoggerSink*) {
+	return true;
+}
+
+bool LoggerSink::classof(const LoggerSink& o) {
+	return classof(&o);
+}
+
+/*********************************************************************************************
 	Public Lifecycle Functions
  *********************************************************************************************/
 
@@ -23,4 +35,15 @@ LoggerSink::~LoggerSink() { }
 	Public Member Functions
  *********************************************************************************************/
 
-void LoggerSink::flush() { }
+//void LoggerSink::flush() { }
+
+LoggerSink::Kind LoggerSink::kind() const {
+	return _kind;
+}
+
+/*********************************************************************************************
+	Protected Lifecycle Functions
+ *********************************************************************************************/
+
+LoggerSink::LoggerSink(LoggerSink::Kind k):
+		_kind{k} {}

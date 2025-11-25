@@ -293,5 +293,5 @@ void WindowInputManager::GLFWKeyCallback(GLFWwindow* glfwWindow,
 
 WindowInputManager* InputManagerFromGLFWWindow(GLFWwindow* glfwWindow) {
     auto window = (Window*)glfwGetWindowUserPointer(glfwWindow);
-    return dynamic_cast<WindowInputManager*>(window->visualWorld()->scene()->inputManager());
+    return static_cast<WindowInputManager*>(window->visualWorld()->scene()->inputManager());
 }

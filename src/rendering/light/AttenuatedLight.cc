@@ -20,9 +20,9 @@ using namespace std;
 	Public Static Member Functions
  *********************************************************************************************/
 
-bool AttenuatedLight::classof(const Light* l) {
-	if (!l) return false;
-	auto k = l->kind();
+bool AttenuatedLight::classof(const Light* o) {
+	if (!o) return false;
+	auto k = o->kind();
 	switch (k) {
 		case Kind::Point:
 		case Kind::Spot:
@@ -33,8 +33,8 @@ bool AttenuatedLight::classof(const Light* l) {
 	return false;
 }
 
-bool AttenuatedLight::classof(const Light& l) {
-	return classof(&l);
+bool AttenuatedLight::classof(const Light& o) {
+	return classof(&o);
 }
 
 /*********************************************************************************************

@@ -17,6 +17,7 @@
 
 #include "magic_enum.hpp"
 
+#include "a3d/Casting.h"
 #include "a3d/Utilities.h"
 #include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/logging/sink/LoggerSink.h"
@@ -182,11 +183,11 @@ void Logger::dispatch(LogLevel level, std::string& output) {
 
 	for (auto& sink : _sinks) {
 
-		if (auto stdOutSink = dynamic_cast<StdOutLoggerSink*>(sink.get())) {
+		if (auto stdOutSink = dyn_cast<StdOutLoggerSink>(sink.get())) {
 			stdOutSink->write(output, level);
 		}
 
-		if (auto fileLoggerSink = dynamic_cast<FileLoggerSink*>(sink.get())) {
+		if (auto fileLoggerSink = dyn_cast<FileLoggerSink>(sink.get())) {
 			fileLoggerSink->write(output);
 		}
 	}

@@ -21,15 +21,34 @@ using namespace std;
 
 
 /*********************************************************************************************
+	Public Static Member Functions
+ *********************************************************************************************/
+
+bool FileLoggerSink::classof(const LoggerSink* o) {
+	return o && o->kind() == Kind::File;
+}
+
+bool FileLoggerSink::classof(const LoggerSink& o) {
+	return classof(&o);
+}
+
+/*********************************************************************************************
 	Public Lifecycle Functions
  *********************************************************************************************/
+
+//FileLoggerSink::FileLoggerSink():
+//		LoggerSink(Kind::File) {}
 
 FileLoggerSink::FileLoggerSink(const filesystem::path& relPath,
 							   int maxFiles,
 							   int maxFilesize):
+		LoggerSink(Kind::File),
 		_filepath{relPath},
 		_maxFiles{maxFiles},
 		_maxFilesize{maxFilesize} {
+//	_filepath = relPath;
+//	_maxFiles = maxFiles;
+//	_maxFilesize = maxFilesize;
 
 	error_code errorCode;
 	filesystem::create_directories(_filepath.parent_path(), errorCode);
