@@ -17,6 +17,27 @@ using namespace std;
 
 
 /*********************************************************************************************
+	Public Static Member Functions
+ *********************************************************************************************/
+
+bool AttenuatedLight::classof(const Light* l) {
+	if (!l) return false;
+	auto k = l->kind();
+	switch (k) {
+		case Kind::Point:
+		case Kind::Spot:
+			return true;
+		default:
+			break;
+	}
+	return false;
+}
+
+bool AttenuatedLight::classof(const Light& l) {
+	return classof(&l);
+}
+
+/*********************************************************************************************
 	Public Lifecycle Functions
  *********************************************************************************************/
 
@@ -69,11 +90,11 @@ void AttenuatedLight::cutoff(LightCutoff cutoff) {
 }
 
 /*********************************************************************************************
-	Private Lifecycle Functions
+	Protected Lifecycle Functions
  *********************************************************************************************/
 
-AttenuatedLight::AttenuatedLight(Light::Kind kind):
-		Light{kind},
+AttenuatedLight::AttenuatedLight(Light::Kind k):
+		Light{k},
 		_constantAttenuation{1.0},
 		_linearAttenuation{0.0},
 		_quadraticAttenuation{0.1}

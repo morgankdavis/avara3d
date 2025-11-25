@@ -13,16 +13,27 @@
 
 
 using namespace a3d;
-using namespace glm;
 using namespace std;
 
+
+/*********************************************************************************************
+	Public Static Member Functions
+ *********************************************************************************************/
+
+bool DirectionalLight::classof(const Light* l) {
+	return l && l->kind() == Kind::Directional;
+}
+
+bool DirectionalLight::classof(const Light& l) {
+	return classof(&l);
+}
 
 /*********************************************************************************************
 	Public Lifecycle Functions
  *********************************************************************************************/
 
 DirectionalLight::DirectionalLight():
-		Light(Light::Kind::Directional) {}
+		Light(Kind::Directional) {}
 
 DirectionalLight::DirectionalLight(const string& name):
 		DirectionalLight() {

@@ -29,13 +29,10 @@ namespace a3d {
 	Public Static Member Functions
  *********************************************************************************************/
 
-		static bool classof(const Light* l) {
-			return l && l->kind() == Kind::Point;
-		}
+	public:
 
-		static bool classof(const Light& l) {
-			return classof(&l);
-		}
+		static bool classof(const Light* l);
+		static bool classof(const Light& l);
 
 /*********************************************************************************************
 	Public Lifecycle Functions
@@ -47,14 +44,6 @@ namespace a3d {
 		explicit PointLight(const std::string& name);
 		explicit PointLight(const std::shared_ptr<Color>& color);
 		PointLight(const std::string& name, const std::shared_ptr<Color>& color);
-
-/*********************************************************************************************
-	Private Lifecycle Functions
- *********************************************************************************************/
-
-	private:
-
-//		PointLight();
 	};
 }
 

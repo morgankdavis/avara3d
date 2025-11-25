@@ -29,13 +29,10 @@ namespace a3d {
 	Public Static Member Functions
  *********************************************************************************************/
 
-		static bool classof(const Light* l) {
-			return l && l->kind() == Kind::Spot;
-		}
+	public:
 
-		static bool classof(const Light& l) {
-			return classof(&l);
-		}
+		static bool classof(const Light* l);
+		static bool classof(const Light& l);
 
 /*********************************************************************************************
 	Public Lifecycle Functions
@@ -69,14 +66,6 @@ namespace a3d {
 
 		float					innerAngleCos() const;
 		float					outerAngleCos() const;
-
-/*********************************************************************************************
-	Private Lifecycle Functions
- *********************************************************************************************/
-
-//	private:
-//
-//		SpotLight();
 
 /*********************************************************************************************
 	Private Member Variables

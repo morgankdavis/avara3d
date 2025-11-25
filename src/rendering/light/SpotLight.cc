@@ -17,11 +17,23 @@ using namespace std;
 
 
 /*********************************************************************************************
+	Public Static Member Functions
+ *********************************************************************************************/
+
+bool SpotLight::classof(const Light* l) {
+	return l && l->kind() == Kind::Spot;
+}
+
+bool SpotLight::classof(const Light& l) {
+	return classof(&l);
+}
+
+/*********************************************************************************************
 	Public Lifecycle Functions
  *********************************************************************************************/
 
 SpotLight::SpotLight():
-		AttenuatedLight(Light::Kind::Spot) {
+		AttenuatedLight(Kind::Spot) {
 	// see DeVries 16.5
 	_innerAngleCos = static_cast<float>(glm::cos(10.0));
 	_outerAngleCos = static_cast<float>(glm::cos(15.0));

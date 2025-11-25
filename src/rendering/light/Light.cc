@@ -24,6 +24,14 @@ using namespace std;
 	Public Static Member Functions
  *********************************************************************************************/
 
+bool Light::classof(const Light*) {
+	return true;
+}
+
+bool Light::classof(const Light& l) {
+	return classof(&l);
+}
+
 shared_ptr<AmbientLight> Light::AmbientLight() {
 	return make_shared<a3d::AmbientLight>();
 }
@@ -98,7 +106,7 @@ Light::Kind Light::kind() const {
 	Protected Lifecycle Functions
  *********************************************************************************************/
 
-Light::Light(Light::Kind kind):
-		_kind{kind},
+Light::Light(Light::Kind k):
+		_kind{k},
 		_name{nullopt},
 		_color{Color::White()} {}

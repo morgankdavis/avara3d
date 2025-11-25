@@ -12,11 +12,13 @@
 
 #include "a3d/Buffer.h"
 #include "a3d/BuildInfo.h"
+#include "a3d/Casting.h"
 #include "a3d/Color.h"
 #include "a3d/Configuration.h"
 #include "a3d/CubeImage.h"
 #include "a3d/Font.h"
 #include "a3d/Image.h"
+#include "a3d/RTTI.h"
 #include "a3d/Types.h"
 #include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/exception/UnsupportedFormatException.h"

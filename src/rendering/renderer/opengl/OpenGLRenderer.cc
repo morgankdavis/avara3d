@@ -31,11 +31,13 @@
 
 #include "a3d/Buffer.h"
 #include "a3d/BuildInfo.h"
+#include "a3d/Casting.h"
 #include "a3d/Color.h"
 #include "a3d/Configuration.h"
 #include "a3d/CubeImage.h"
 #include "a3d/Font.h"
 #include "a3d/Image.h"
+#include "a3d/RTTI.h"
 #include "a3d/Utilities.h"
 #include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/logging/Logger.h"
@@ -1365,7 +1367,7 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 			for (unsigned l = 0; l < numLights; ++l) {
 
 				auto node = lightNodes[l];
-				auto light = node->light().get();
+				auto light = node->light();
 				auto color = light->color();
 
 				// light_cutoff:
@@ -1382,20 +1384,21 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 				// the fragment?  sure, but probably slow.
 				// the vertex?  sure, but maybe messy?
 
-				if (auto ambientLight = dynamic_cast<AmbientLight*>(light)) {
+				//if (auto ambientLight = dynamic_cast<AmbientLight*>(light)) {
+				if (auto ambientLight = dyn_cast<AmbientLight>(light)) {
 
 					AmbientLightGLSLStruct lightStruct;
 					lightStruct.color = ambientLight->color()->rgba();
 					ambientStructs.push_back(lightStruct);
 				}
-				else if (auto directionalLight = dynamic_cast<DirectionalLight*>(light)) {
+				else if (auto directionalLight = dyn_cast<DirectionalLight>(light)) {
 
 					DirectionalLightGLSLStruct lightStruct;
 					lightStruct.color = directionalLight->color()->rgba();
 					lightStruct.direction_world = node->worldForward();
 					directionalStructs.push_back(lightStruct);
 				}
-				else if (auto pointLight = dynamic_cast<PointLight*>(light)) {
+				else if (auto pointLight = dyn_cast<PointLight>(light)) {
 
 					PointLightGLSLStruct lightStruct;
 					lightStruct.color = pointLight->color()->rgba();
@@ -1405,7 +1408,7 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 					lightStruct.quadraticAttenuation = pointLight->quadraticAttenuation();
 					pointStructs.push_back(lightStruct);
 				}
-				else if (auto spotLight = dynamic_cast<SpotLight*>(light)) {
+				else if (auto spotLight = dyn_cast<SpotLight>(light)) {
 
 					SpotLightGLSLStruct lightStruct;
 					lightStruct.color = spotLight->color()->rgba();

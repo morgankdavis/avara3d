@@ -17,11 +17,23 @@ using namespace std;
 
 
 /*********************************************************************************************
+	Public Static Member Functions
+ *********************************************************************************************/
+
+bool PointLight::classof(const Light* l) {
+	return l && l->kind() == Kind::Point;
+}
+
+bool PointLight::classof(const Light& l) {
+	return classof(&l);
+}
+
+/*********************************************************************************************
 	Public Lifecycle Functions
  *********************************************************************************************/
 
 PointLight::PointLight():
-		AttenuatedLight(Light::Kind::Point) {}
+		AttenuatedLight(Kind::Point) {}
 
 PointLight::PointLight(const string& name):
 		PointLight() {

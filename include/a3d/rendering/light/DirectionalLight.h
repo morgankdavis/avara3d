@@ -26,19 +26,16 @@ namespace a3d {
 	class Node;
 	
 	
-	class DirectionalLight : public Light {
+	class DirectionalLight : public Light  {
 
 /*********************************************************************************************
 	Public Static Member Functions
  *********************************************************************************************/
 
-		static bool classof(const Light* l) {
-			return l && l->kind() == Kind::Directional;
-		}
+	public:
 
-		static bool classof(const Light& l) {
-			return classof(&l);
-		}
+		static bool classof(const Light* l);
+		static bool classof(const Light& l);
 
 /*********************************************************************************************
 	Public Lifecycle Functions
@@ -51,29 +48,6 @@ namespace a3d {
 		explicit DirectionalLight(const std::shared_ptr<Color>& color);
 		DirectionalLight(const std::string& name, const std::shared_ptr<Color>& color);
 //		~DirectionalLight();
-
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
-
-//		const glm::vec3&	direction() const;
-//		void				direction(const glm::vec3& direction);
-
-/*********************************************************************************************
-	Protected Lifecycle Functions
- *********************************************************************************************/
-
-//	protected:
-//
-//		DirectionalLight();
-
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
-
-//	private:
-//
-//		glm::vec3			_direction; // TODO: INIT ME
 	};
 }
 

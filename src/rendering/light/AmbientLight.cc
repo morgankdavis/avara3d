@@ -7,6 +7,7 @@
 //
 
 #include "a3d/rendering/light/AmbientLight.h"
+
 #include "a3d/Color.h"
 #include "a3d/diagnostic/logging/Logger.h"
 
@@ -16,11 +17,23 @@ using namespace std;
 
 
 /*********************************************************************************************
+	Public Static Member Functions
+ *********************************************************************************************/
+
+bool AmbientLight::classof(const Light* l) {
+	return l && l->kind() == Kind::Ambient;
+}
+
+bool AmbientLight::classof(const Light& l) {
+	return classof(&l);
+}
+
+/*********************************************************************************************
 	Public Lifecycle Functions
  *********************************************************************************************/
 
 AmbientLight::AmbientLight():
-	Light(Light::Kind::Ambient) {}
+	Light(Kind::Ambient) {}
 
 AmbientLight::AmbientLight(const string& name):
 		AmbientLight() {

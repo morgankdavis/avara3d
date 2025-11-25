@@ -29,20 +29,10 @@ namespace a3d {
 	Public Static Member Functions
  *********************************************************************************************/
 
-		static bool classof(const Light* l) {
-			if (!l) return false;
-			auto k = l->kind();
-			switch (k) {
-				case Kind::Point:
-				case Kind::Spot:
-					return true;
-			}
-			return false;
-		}
+	public:
 
-		static bool classof(const Light& l) {
-			return classof(&l);
-		}
+		static bool classof(const Light* l);
+		static bool classof(const Light& l);
 
 /*********************************************************************************************
 	Public Lifecycle Functions
@@ -86,7 +76,7 @@ namespace a3d {
 
 	protected:
 
-		explicit AttenuatedLight(Light::Kind kind);
+		explicit AttenuatedLight(Kind k);
 
 /*********************************************************************************************
 	Private Member Variables
@@ -99,24 +89,6 @@ namespace a3d {
 		float			_quadraticAttenuation;
 
 //		LightCutoff		_cutoff;
-	};
-
-
-
-
-
-
-
-	template<class Derived, Light::Kind K>
-	struct AttenuatedLightLeaf : AttenuatedLight {
-		static_assert(K == Light::Kind::Point || K == Light::Kind::Spot,
-					  "AttenuatedLeaf must be Point or Spot");
-	protected:
-		AttenuatedLightLeaf() : AttenuatedLight(K) {}
-	public:
-		static constexpr Light::Kind StaticKind = K;
-		static bool classof(const Light* l) { return l && l->kind() == K; }
-		static bool classof(const Light& l) { return classof(&l); }
 	};
 }
 
