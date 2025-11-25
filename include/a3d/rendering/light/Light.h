@@ -42,6 +42,12 @@ namespace a3d {
 			Spot
 		};
 
+		class detail {
+		public:
+			template<class Derived, Kind K>
+			class Leaf;   // <-- THIS declaration is mandatory
+		};
+
 /*********************************************************************************************
 	Public Static Member Functions
  *********************************************************************************************/
@@ -60,22 +66,25 @@ namespace a3d {
 		static std::shared_ptr<a3d::SpotLight> 			SpotLight();
 		static std::shared_ptr<a3d::SpotLight> 			SpotLight(const std::shared_ptr<Color>& color);
 
-		static bool classof(const Light* l) {
-			if (!l) return false;
-			auto k = l->kind();
-			switch (k) {
-				case Kind::Ambient:
-				case Kind::Directional:
-				case Kind::Point:
-				case Kind::Spot:
-					return true;
-			}
-			return false;
-		}
+//		static bool classof(const Light* l) {
+//			if (!l) return false;
+//			auto k = l->kind();
+//			switch (k) {
+//				case Kind::Ambient:
+//				case Kind::Directional:
+//				case Kind::Point:
+//				case Kind::Spot:
+//					return true;
+//			}
+//			return false;
+//		}
+//
+//		static bool classof(const Light& l) {
+//			return classof(&l);
+//		}
 
-		static bool classof(const Light& l) {
-			return classof(&l);
-		}
+		static bool classof(const Light*) { return true; }
+		static bool classof(const Light& l) { return classof(&l); }
 
 /*********************************************************************************************
 	Public Lifecycle Functions
@@ -117,6 +126,29 @@ namespace a3d {
 		std::optional<std::string>		_name;
 		std::shared_ptr<Color>			_color;
 	};
+
+
+//	class Light::detail {
+//		// Empty — it just names the scope
+//	};
+
+
+//	namespace detail {
+
+		template<class Derived, Light::Kind K>
+		class Light::detail::Leaf : public Light {
+
+		protected:
+
+			Leaf() : Light(K) {}
+
+		public:
+
+			static constexpr Light::Kind StaticKind = K;
+			static bool classof(const Light *l) { return l && l->kind() == K; }
+			static bool classof(const Light &l) { return classof(&l); }
+		};
+//	}
 }
 
 

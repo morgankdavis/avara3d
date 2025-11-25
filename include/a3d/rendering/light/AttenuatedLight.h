@@ -21,8 +21,8 @@ namespace a3d {
 
 
 	class Color;
-	
-	
+
+
 	class AttenuatedLight : public Light {
 
 /*********************************************************************************************
@@ -99,6 +99,24 @@ namespace a3d {
 		float			_quadraticAttenuation;
 
 //		LightCutoff		_cutoff;
+	};
+
+
+
+
+
+
+
+	template<class Derived, Light::Kind K>
+	struct AttenuatedLightLeaf : AttenuatedLight {
+		static_assert(K == Light::Kind::Point || K == Light::Kind::Spot,
+					  "AttenuatedLeaf must be Point or Spot");
+	protected:
+		AttenuatedLightLeaf() : AttenuatedLight(K) {}
+	public:
+		static constexpr Light::Kind StaticKind = K;
+		static bool classof(const Light* l) { return l && l->kind() == K; }
+		static bool classof(const Light& l) { return classof(&l); }
 	};
 }
 
