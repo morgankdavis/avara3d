@@ -12,17 +12,17 @@
 namespace a3d {
 
 	template<class To, class From>
-	bool isa(const From &x) {
+	inline bool isa(const From &x) {
 		return To::classof(x);
 	}
 
 	template<class To, class From>
-	To *dyn_cast(From *x) {
+	inline To *dyn_cast(From *x) {
 		return x && isa<To>(*x) ? static_cast<To *>(x) : nullptr;
 	}
 
 	template<class To, class From>
-	To &cast(From &x) {
+	inline To &cast(From &x) {
 		assert(isa<To>(x));
 		return static_cast<To &>(x);
 	}

@@ -34,6 +34,24 @@ namespace a3d {
 		}
 		return std::weak_ptr<To>{};
 	}
+
+	template<class To, class From>
+	inline std::shared_ptr<To> dyn_cast_or_null(const std::shared_ptr<From>& p) {
+		return (!p || isa<To>(*p))
+			   ? std::static_pointer_cast<To>(p)
+			   : std::shared_ptr<To>{};
+	}
+
+	template<class To, class From>
+	inline std::weak_ptr<To> dyn_cast_or_null(const std::weak_ptr<From>& wp) {
+		if (!wp.expired()) {
+			auto sp = wp.lock();
+			if (!sp || isa<To>(*sp))
+				return std::static_pointer_cast<To>(sp);
+		}
+		return {};
+	}
+
 }
 
 
