@@ -51,7 +51,6 @@ namespace a3d {
 		}
 		return {};
 	}
-
 }
 
 
