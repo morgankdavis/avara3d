@@ -6,8 +6,8 @@
 //  Copyright © 2024-2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_WINDOWINPUTMANAGER_H
-#define AVARA3D_WINDOWINPUTMANAGER_H
+#ifndef AVARA3D_GLFWINPUTMANAGER_H
+#define AVARA3D_GLFWINPUTMANAGER_H
 
 
 #include <memory>
@@ -25,10 +25,10 @@ struct GLFWwindow;
 namespace a3d {
 
 
-	class Window;
+	class GlfwWindow;
 
 	
-	class WindowInputManager : public InputManager {
+	class GlfwInputManager : public InputManager {
 
 /*********************************************************************************************
 	Public Lifecycle Functions
@@ -36,10 +36,10 @@ namespace a3d {
 
 	public:
 
-		explicit WindowInputManager(Window* window);
-		WindowInputManager(const InputManager& other) = delete; // copy constructor
-		WindowInputManager& operator=(const InputManager& other) = delete; // copy assignment
-		~WindowInputManager() override;
+		explicit GlfwInputManager(GlfwWindow* window);
+		GlfwInputManager(const InputManager& other) = delete; // copy constructor
+		GlfwInputManager& operator=(const InputManager& other) = delete; // copy assignment
+		~GlfwInputManager() override;
 
 /*********************************************************************************************
 	Public Member Functions
@@ -91,10 +91,10 @@ namespace a3d {
  *********************************************************************************************/
 
 		bool							_usingManyMouse;
-		Window*							_window;
+		GlfwWindow*							_window;
 		WindowInputManagerErrorMask		_errorMask;
 	};
 }
 
 
-#endif /* AVARA3D_WINDOWINPUTMANAGER_H */
+#endif /* AVARA3D_GLFWINPUTMANAGER_H */

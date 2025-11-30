@@ -52,12 +52,12 @@ int main(int argc, const char* argv[]) {
 
 	cout << "test002::main()\n" << endl;
 
-	auto window = make_unique<Window>(RenderingApi::OpenGL,
-									  *utils::ExecutableName(),
-									  WINDOW_SIZE,
-									  FULLSCREEN,
-									  ENABLE_HIGH_DPI,
-									  ANTIALIAS_MODE);
+	auto window = make_unique<GlfwWindow>(RenderingApi::OpenGL,
+										  *utils::ExecutableName(),
+										  WINDOW_SIZE,
+										  FULLSCREEN,
+										  ENABLE_HIGH_DPI,
+										  ANTIALIAS_MODE);
 	window->vSyncEnabled(ENABLE_VSYNC);
 	window->cursorCaptured(CAPTURE_CURSOR);
 

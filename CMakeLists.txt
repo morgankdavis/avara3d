@@ -239,6 +239,11 @@ string(TOLOWER ${CMAKE_BUILD_TYPE} LOWER_RELEASE_TYPE)
 set(INSTALL_ROOT_DIR "${PROJECT_BINARY_DIR}/packaged/avara3d/${PLATFORM_STRING}/${LOWER_RELEASE_TYPE}")
 
 
+### add editor ###
+
+add_subdirectory(tools/a3de)
+
+
 ### add tests ###
 
 add_subdirectory(tests)

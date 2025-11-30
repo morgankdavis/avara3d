@@ -6,8 +6,8 @@
 //  Copyright © 2024-2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_WINDOW_H
-#define AVARA3D_WINDOW_H
+#ifndef AVARA3D_GLFWWINDOW_H
+#define AVARA3D_GLFWWINDOW_H
 
 
 #include <memory>
@@ -33,7 +33,7 @@ namespace a3d {
 	class Scene;
 
 	
-	class Window : public RenderContext {
+	class GlfwWindow : public RenderContext {
 
 /*********************************************************************************************
 	Public Lifecycle Functions
@@ -41,15 +41,15 @@ namespace a3d {
 
 	public:
 
-		Window(RenderingApi renderingAPI,
-			   const std::string& title,
-			   const glm::uvec2& size,
-			   bool fullScreen,
-			   bool enableHighDPI = true,
-			   AntialiasingMode antialiasingMode = AntialiasingMode::None);
-		Window(const Window& other) = delete; // copy constructor
-		Window& operator=(const Window& other) = delete; // copy assignment
-		~Window() override;
+		GlfwWindow(RenderingApi renderingAPI,
+				   const std::string& title,
+				   const glm::uvec2& size,
+				   bool fullScreen,
+				   bool enableHighDPI = true,
+				   AntialiasingMode antialiasingMode = AntialiasingMode::None);
+		GlfwWindow(const GlfwWindow& other) = delete; // copy constructor
+		GlfwWindow& operator=(const GlfwWindow& other) = delete; // copy assignment
+		~GlfwWindow() override;
 
 /*********************************************************************************************
 	Public Member Functions
@@ -116,7 +116,7 @@ namespace a3d {
 
 		struct DestroyGLFWWindow {
 			void operator()(GLFWwindow* window){
-				Window::Destroy(window);
+				GlfwWindow::Destroy(window);
 			}
 		};
 
@@ -133,4 +133,4 @@ namespace a3d {
 }
 
 
-#endif /* AVARA3D_WINDOW_H */
+#endif /* AVARA3D_GLFWWINDOW_H */

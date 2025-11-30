@@ -79,16 +79,16 @@ int main(int argc, const char* argv[]) {
 		InitLog();
 		LogBuildInfo();
 
-		auto window = make_unique<Window>(RenderingApi::OpenGL,
-										  *utils::ExecutableName(),
-										  WINDOW_SIZE,
-										  FULLSCREEN,
-										  ENABLE_HIGH_DPI,
-										  MSAA_MODE);
+		auto window = make_unique<GlfwWindow>(RenderingApi::OpenGL,
+											  *utils::ExecutableName(),
+											  WINDOW_SIZE,
+											  FULLSCREEN,
+											  ENABLE_HIGH_DPI,
+											  MSAA_MODE);
 		window->vSyncEnabled(ENABLE_VSYNC);
 		window->cursorCaptured(CAPTURE_CURSOR);
 
-		auto inputManager = make_unique<WindowInputManager>(window.get());
+		auto inputManager = make_unique<GlfwInputManager>(window.get());
 		if (inputManager->errorMask() == WindowInputManagerErrorMask::PermissionDenied) {
 			A3D_APP_LOG_E(g_logger, "WindowInputManager permission denied.");
 			// on macOS 10.15 Catalina+, this is probably a permissions issue,
@@ -422,9 +422,9 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 	auto inputManager = scene.inputManager();
 
-	Window* window = nullptr;
+	GlfwWindow* window = nullptr;
 	if (scene.visualWorld()) {
-		window = static_cast<Window*>(scene.visualWorld()->renderContext());
+		window = static_cast<GlfwWindow*>(scene.visualWorld()->renderContext());
 	}
 
 	// rotate the duck
@@ -449,7 +449,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	// TEMPORARY for macOS mouse input testing
 	if (keysPressed.count(Key::Z)) {
 		A3D_APP_LOG_I(g_logger, "Trying to re-initialize mouse input.");
-		auto windowInputManager = static_cast<WindowInputManager*>(scene.inputManager());
+		auto windowInputManager = static_cast<GlfwInputManager*>(scene.inputManager());
 		try {
 			windowInputManager->initMouseInput();
 		}

@@ -6,7 +6,7 @@
 //  Copyright © 2024-2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/input/WindowInputManager.h"
+#include "a3d/input/GlfwInputManager.h"
 
 #ifdef MACOS
 #include <IOKit/hid/IOHIDLib.h> // for kIOReturnNotPermitted
@@ -18,7 +18,7 @@
 #include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/logging/Logger.h"
 #include "a3d/rendering/VisualWorld.h"
-#include "a3d/rendering/context/Window.h"
+#include "a3d/rendering/context/GlfwWindow.h"
 #include "a3d/scene/Scene.h"
 
 
@@ -36,13 +36,13 @@ constexpr bool FLIP_MOUSE_HORIZONTAL = false;
 	Private Static Non-Member Prototypes
  *********************************************************************************************/
 
-static WindowInputManager* InputManagerFromGLFWWindow(GLFWwindow* glfwWindow);
+static GlfwInputManager* InputManagerFromGLFWWindow(GLFWwindow* glfwWindow);
 
 /*********************************************************************************************
 	Public Lifecycle Functions
  *********************************************************************************************/
 
-WindowInputManager::WindowInputManager(Window* window):
+GlfwInputManager::GlfwInputManager(GlfwWindow* window):
     InputManager{},
     _usingManyMouse{false},
     _window{window},
@@ -51,7 +51,7 @@ WindowInputManager::WindowInputManager(Window* window):
     initMouseInput();
 }
 
-WindowInputManager::~WindowInputManager() {
+GlfwInputManager::~GlfwInputManager() {
     A3D_LOG_D("Destroying WindowInputManager {:p}", static_cast<void*>(this));
 
     quitManyMouse();
@@ -64,7 +64,7 @@ WindowInputManager::~WindowInputManager() {
     Public Member Functions
  *********************************************************************************************/
 
-WindowInputManagerErrorMask WindowInputManager::errorMask() const {
+WindowInputManagerErrorMask GlfwInputManager::errorMask() const {
     return _errorMask;
 }
 
@@ -72,7 +72,7 @@ WindowInputManagerErrorMask WindowInputManager::errorMask() const {
 	InputManager Internal Member Functions
  *********************************************************************************************/
 
-void WindowInputManager::update() {
+void GlfwInputManager::update() {
 
     if (_usingManyMouse) {
 
@@ -124,7 +124,7 @@ void WindowInputManager::update() {
 	Private Member Functions
  *********************************************************************************************/
 
-void WindowInputManager::initMouseInput() {
+void GlfwInputManager::initMouseInput() {
     // starting with macOS 10.15 Catalina, GLFW 3.3 raw mouse input never works, and ManyMouse
     // requires the user manually allow "Input Monitoring" in System Preferences ->
     // Privacy & Security -> Input Monitoring, or IOHIDDeviceOpen() in ManyMouse will fail with
@@ -135,7 +135,7 @@ void WindowInputManager::initMouseInput() {
         A3D_LOG_I("Using GLFW raw mouse input.");
         glfwSetInputMode(_window->glfwWindow(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
         glfwSetCursorPosCallback(_window->glfwWindow(),
-                                 WindowInputManager::GLFWCursorPositionCallback);
+                                 GlfwInputManager::GLFWCursorPositionCallback);
         _usingManyMouse = false;
     }
     else {
@@ -145,7 +145,7 @@ void WindowInputManager::initMouseInput() {
     }
 }
 
-void WindowInputManager::initManyMouse() {
+void GlfwInputManager::initManyMouse() {
     A3D_LOG_D("");
 
     // TODO: must modify to support multiple windows
@@ -182,20 +182,20 @@ void WindowInputManager::initManyMouse() {
     }
 }
 
-void WindowInputManager::quitManyMouse() {
+void GlfwInputManager::quitManyMouse() {
     ManyMouse_Quit();
 }
 
-void WindowInputManager::registerGLFWCallbacks(GLFWwindow* glfwWindow) {
-    glfwSetMouseButtonCallback(glfwWindow, WindowInputManager::GLFWMouseButtonCallback);
+void GlfwInputManager::registerGLFWCallbacks(GLFWwindow* glfwWindow) {
+    glfwSetMouseButtonCallback(glfwWindow, GlfwInputManager::GLFWMouseButtonCallback);
     // glfwSetCursorPosCallback -> in initMouseMotionInput()
-    glfwSetScrollCallback(glfwWindow, WindowInputManager::GLFWScrollWheelCallback);
-    glfwSetKeyCallback(glfwWindow, WindowInputManager::GLFWKeyCallback);
+    glfwSetScrollCallback(glfwWindow, GlfwInputManager::GLFWScrollWheelCallback);
+    glfwSetKeyCallback(glfwWindow, GlfwInputManager::GLFWKeyCallback);
 
     // TODO: probably re-factor key callback creation code
 }
 
-void WindowInputManager::unregisterGLFWCallbacks(GLFWwindow* glfwWindow) {
+void GlfwInputManager::unregisterGLFWCallbacks(GLFWwindow* glfwWindow) {
     glfwSetMouseButtonCallback(glfwWindow, nullptr);
     glfwSetCursorPosCallback(glfwWindow, nullptr);
     glfwSetScrollCallback(glfwWindow, nullptr);
@@ -206,10 +206,10 @@ void WindowInputManager::unregisterGLFWCallbacks(GLFWwindow* glfwWindow) {
 	Private Static Member Functions
  *********************************************************************************************/
 
-void WindowInputManager::GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
-                                                 int button,
-                                                 int action,
-                                                 int mods) {
+void GlfwInputManager::GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
+                                               int button,
+                                               int action,
+                                               int mods) {
     auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
 
     auto a3dButton = static_cast<MouseButton>(button);
@@ -230,9 +230,9 @@ void WindowInputManager::GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
     }
 }
 
-void WindowInputManager::GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
-                                                    double xPos,
-                                                    double yPos) {
+void GlfwInputManager::GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
+                                                  double xPos,
+                                                  double yPos) {
     auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
 
     // keep "lastPos" outside cursorCaptured() check to keep it from
@@ -256,20 +256,20 @@ void WindowInputManager::GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
     lastYPos = yPos;
 }
 
-void WindowInputManager::GLFWScrollWheelCallback(GLFWwindow* glfwWindow,
-                                                 double xOffset,
-                                                 double yOffset) {
+void GlfwInputManager::GLFWScrollWheelCallback(GLFWwindow* glfwWindow,
+                                               double xOffset,
+                                               double yOffset) {
     auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
 
     inputManager->_mouseScrollWheelDelta.x += (float)xOffset;
     inputManager->_mouseScrollWheelDelta.y += (float)yOffset;
 }
 
-void WindowInputManager::GLFWKeyCallback(GLFWwindow* glfwWindow,
-                                         int key,
-                                         int scancode,
-                                         int action,
-                                         int mods) {
+void GlfwInputManager::GLFWKeyCallback(GLFWwindow* glfwWindow,
+                                       int key,
+                                       int scancode,
+                                       int action,
+                                       int mods) {
     auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
 
     if (action == GLFW_PRESS) {
@@ -291,7 +291,7 @@ void WindowInputManager::GLFWKeyCallback(GLFWwindow* glfwWindow,
 	Private Static Functions
  *********************************************************************************************/
 
-WindowInputManager* InputManagerFromGLFWWindow(GLFWwindow* glfwWindow) {
-    auto window = (Window*)glfwGetWindowUserPointer(glfwWindow);
-    return dynamic_cast<WindowInputManager*>(window->visualWorld()->scene()->inputManager());
+GlfwInputManager* InputManagerFromGLFWWindow(GLFWwindow* glfwWindow) {
+    auto window = (GlfwWindow*)glfwGetWindowUserPointer(glfwWindow);
+    return dynamic_cast<GlfwInputManager*>(window->visualWorld()->scene()->inputManager());
 }

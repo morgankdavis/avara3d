@@ -45,7 +45,7 @@
 #include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/camera/Camera.h"
 #include "a3d/rendering/context/RenderContext.h"
-#include "a3d/rendering/context/Window.h"
+#include "a3d/rendering/context/GlfwWindow.h"
 #include "a3d/rendering/light/AmbientLight.h"
 #include "a3d/rendering/light/DirectionalLight.h"
 #include "a3d/rendering/light/Light.h"
@@ -2247,7 +2247,7 @@ void InitImgui(const RenderContext& context) {
 	ImGuiIO& io = ImGui::GetIO();
 	io.IniFilename = nullptr;
 
-	GLFWwindow* glfwWindow = dynamic_cast<const Window*>(&context)->glfwWindow();
+	GLFWwindow* glfwWindow = dynamic_cast<const GlfwWindow*>(&context)->glfwWindow();
 
 	ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
 	ImGui_ImplOpenGL3_Init();
