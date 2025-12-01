@@ -15,10 +15,10 @@
 #include "a3d/Buffer.h"
 #include "a3d/Image.h"
 #include "a3d/diagnostic/exception/Exception.h"
-#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/diagnostic/log/Log.h"
 #include "a3d/rendering/camera/PerspectiveCamera.h"
 #include "a3d/rendering/renderer/Renderer.h"
-#include "a3d/rendering/renderer/opengl/OpenGLRenderer.h"
+#include "a3d/rendering/renderer/opengl/OpenGlRenderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 
@@ -134,19 +134,22 @@ RenderContext::RenderContext(RenderingApi renderingApi):
 		_gifRecordingCurrentFrameTimeAccum{0},
 		_gifRecordedTime{0},
 		_gifRecordedFrames{0},
-		_visualWorld{},
-		_renderer{} {
+		_visualWorld{}
+		/*_renderer{}*/ {
 
 	switch (renderingApi) {
 		case RenderingApi::OpenGL: {
-			_renderer = make_unique<OpenGLRenderer>();//(*this);
-			break; }
+			_renderer = make_unique<OpenGlRenderer>();
+			break;
+		}
 		case RenderingApi::OpenGLES: {
 			throw Exception("Unsupported rendering API: OpenGLES");
-			break; }
+			break;
+		}
 		case RenderingApi::Vulkan: {
 			throw Exception("Unsupported rendering API: Vulkan");
-			break; }
+			break;
+		}
 	}
 }
 

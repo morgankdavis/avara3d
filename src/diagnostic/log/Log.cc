@@ -1,12 +1,12 @@
 //
-//  Logger.cc
+//  Log.cc
 //  avara3d
 //
 //  Created by Morgan Davis on 1/5/18.
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/diagnostic/log/Log.h"
 
 #include <ctime>
 #include <utility>
@@ -19,9 +19,9 @@
 
 #include "a3d/Utilities.h"
 #include "a3d/diagnostic/exception/Exception.h"
-#include "a3d/diagnostic/logging/sink/LoggerSink.h"
-#include "a3d/diagnostic/logging/sink/FileLoggerSink.h"
-#include "a3d/diagnostic/logging/sink/StdOutLoggerSink.h"
+#include "a3d/diagnostic/log/sink/LogSink.h"
+#include "a3d/diagnostic/log/sink/FileLogSink.h"
+#include "a3d/diagnostic/log/sink/StdOutLogSink.h"
 
 
 using namespace a3d;
@@ -32,21 +32,21 @@ using namespace std;
 	Public Static Member Functions
  *********************************************************************************************/
 
-Logger& Logger::MainLogger() {
+Log& Log::MainLog() {
 	
-	static unique_ptr<Logger> logger = nullptr;
+	static unique_ptr<Log> logger = nullptr;
 
 	if (!logger) {
 
 		string executableName = *utils::ExecutableName();
-		auto nativeSink = make_unique<StdOutLoggerSink>();
-		auto fileSink = make_unique<FileLoggerSink>(*(utils::ExecutableDirectory()) / "a3d.log");
+		auto nativeSink = make_unique<StdOutLogSink>();
+		auto fileSink = make_unique<FileLogSink>(*(utils::ExecutableDirectory()) / "a3d.log");
 
-		auto sinks = unordered_set<unique_ptr<LoggerSink>>();
+		auto sinks = unordered_set<unique_ptr<LogSink>>();
 		sinks.insert(std::move(nativeSink));
 		sinks.insert(std::move(fileSink));
 
-		logger = make_unique<Logger>("a3d", std::move(sinks));
+		logger = make_unique<Log>("a3d", std::move(sinks));
 	}
 
 	return *logger;
@@ -58,17 +58,17 @@ Logger& Logger::MainLogger() {
 
 string TimestampString();
 string HeaderString(const string& logName, LogLevel level,
-					const Logger::SourceInfo& sourceInfo);
+					const Log::SourceInfo& sourceInfo);
 string HeaderString(const string& logName, LogLevel level);
 
 /*********************************************************************************************
 	Public Lifecycle Functions
  *********************************************************************************************/
 
-Logger::Logger(const string& name,
-			   unique_ptr<LoggerSink> sink,
-			   LogLevel level,
-			   LogLevel flushLevel):
+Log::Log(const string& name,
+		 unique_ptr<LogSink> sink,
+		 LogLevel level,
+		 LogLevel flushLevel):
 		_name{name},
 		_sinks{},
 		_level{level},
@@ -77,72 +77,72 @@ Logger::Logger(const string& name,
 	_sinks.insert(std::move(sink));
 }
 
-Logger::Logger(const string& name,
-			   unordered_set<unique_ptr<LoggerSink>> sinks,
-			   LogLevel level,
-			   LogLevel flushLevel):
+Log::Log(const string& name,
+		 unordered_set<unique_ptr<LogSink>> sinks,
+		 LogLevel level,
+		 LogLevel flushLevel):
 		_name(name),
 		_sinks(std::move(sinks)),
 		_level(level),
 		_flushLevel(flushLevel) { }
 
-Logger::~Logger() { }
+Log::Log() { }
 
 /*********************************************************************************************
 	Public Member Functions
  *********************************************************************************************/
 
-const string& Logger::name() const {
+const string& Log::name() const {
 	return _name;
 }
 
-const unordered_set<unique_ptr<LoggerSink>>& Logger::sinks() const {
+const unordered_set<unique_ptr<LogSink>>& Log::sinks() const {
 	return _sinks;
 }
 
-LogLevel Logger::level() const {
+LogLevel Log::level() const {
 	return _level;
 }
 
-void Logger::level(LogLevel level) {
+void Log::level(LogLevel level) {
 	_level = level;
 }
 
-LogLevel Logger::flushLevel() const {
+LogLevel Log::flushLevel() const {
 	return _flushLevel;
 }
 
-void Logger::flushLevel(LogLevel level) {
+void Log::flushLevel(LogLevel level) {
 	_flushLevel = level;
 }
 
-void Logger::trace(const string& msg) {
+void Log::trace(const string& msg) {
 	log(LogLevel::Trace, msg);
 }
 
-void Logger::debug(const string& msg) {
+void Log::debug(const string& msg) {
 	log(LogLevel::Debug, msg);
 }
 
-void Logger::info(const string& msg) {
+void Log::info(const string& msg) {
 	log(LogLevel::Info, msg);
 }
 
-void Logger::warn(const string& msg) {
+void Log::warn(const string& msg) {
 	log(LogLevel::Warn, msg);
 }
 
-void Logger::error(const string& msg) {
+void Log::error(const string& msg) {
 	log(LogLevel::Error, msg);
 }
 
-void Logger::fatal(const string& msg) {
+void Log::fatal(const string& msg) {
 	log(LogLevel::Fatal, msg);
 }
 
-void Logger::log(LogLevel level,
-				 const SourceInfo& sourceInfo,
-				 const std::string& msg) {
+void Log::log(LogLevel level,
+			  const SourceInfo& sourceInfo,
+			  const std::string& msg) {
 
 	if (static_cast<underlying_type<LogLevel>::type>(level)
 		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
@@ -154,7 +154,7 @@ void Logger::log(LogLevel level,
 	}
 }
 
-void Logger::flush() {
+void Log::flush() {
 
 	for (auto& sink : _sinks) {
 		sink->flush();
@@ -165,8 +165,8 @@ void Logger::flush() {
 	Private  Member Functions
  *********************************************************************************************/
 
-void Logger::log(LogLevel level,
-				 const std::string& msg) {
+void Log::log(LogLevel level,
+			  const std::string& msg) {
 
 	if (static_cast<underlying_type<LogLevel>::type>(level)
 		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
@@ -178,16 +178,16 @@ void Logger::log(LogLevel level,
 	}
 }
 
-void Logger::dispatch(LogLevel level, std::string& output) {
+void Log::dispatch(LogLevel level, std::string& output) {
 
 	for (auto& sink : _sinks) {
 
-		if (auto stdOutSink = dynamic_cast<StdOutLoggerSink*>(sink.get())) {
+		if (auto stdOutSink = dynamic_cast<StdOutLogSink*>(sink.get())) {
 			stdOutSink->write(output, level);
 		}
 
-		if (auto fileLoggerSink = dynamic_cast<FileLoggerSink*>(sink.get())) {
-			fileLoggerSink->write(output);
+		if (auto fileLogSink = dynamic_cast<FileLogSink*>(sink.get())) {
+			fileLogSink->write(output);
 		}
 	}
 
@@ -225,7 +225,7 @@ string TimestampString() {
 }
 
 string HeaderString(const string& logName, LogLevel level,
-					const Logger::SourceInfo& sourceInfo) {
+					const Log::SourceInfo& sourceInfo) {
 
 	return fmt::format("{} [{}] [{}] [{}:{}] [{}()]",
 					   TimestampString(),

@@ -1,25 +1,25 @@
 //
-//  StdOutLoggerSink.h
+//  StdOutLogSink.h
 //  avara3d
 //
 //  Created by Morgan Davis on 4/16/2024.
 //  Copyright © 2024-2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_STDOUTLOGGERSINK_H
-#define AVARA3D_STDOUTLOGGERSINK_H
+#ifndef AVARA3D_STDOUTLOGSINK_H
+#define AVARA3D_STDOUTLOGSINK_H
 
 
 #include <cstdio>
 #include <string>
 
 #include "a3d/Types.h"
-#include "a3d/diagnostic/logging/sink/LoggerSink.h"
+#include "a3d/diagnostic/log/sink/LogSink.h"
 
 
 namespace a3d {
 
-	class StdOutLoggerSink : public LoggerSink {
+	class StdOutLogSink : public LogSink {
 
 /*********************************************************************************************
 	Public Lifecycle Functions
@@ -27,8 +27,8 @@ namespace a3d {
 
 	public:
 
-		StdOutLoggerSink();
-		~StdOutLoggerSink() override;
+		StdOutLogSink();
+		~StdOutLogSink() override;
 
 /*********************************************************************************************
 	Public Member Functions
@@ -45,4 +45,4 @@ namespace a3d {
 }
 
 
-#endif //AVARA3D_STDOUTLOGGERSINK_H
+#endif //AVARA3D_STDOUTLOGSINK_H

@@ -1,5 +1,5 @@
 //
-//  FileLoggerSink.cc
+//  FileLogSink.cc
 //  avara3d
 //
 //  Created by Morgan Davis on 11/9/23.
@@ -7,13 +7,13 @@
 //
 
 
-#include "a3d/diagnostic/logging/sink/FileLoggerSink.h"
+#include "a3d/diagnostic/log/sink/FileLogSink.h"
 
 
 #include "fmt/format.h"
 
 #include "a3d/diagnostic/exception/Exception.h"
-#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/diagnostic/log/Log.h"
 
 
 using namespace a3d;
@@ -24,9 +24,9 @@ using namespace std;
 	Public Lifecycle Functions
  *********************************************************************************************/
 
-FileLoggerSink::FileLoggerSink(const filesystem::path& relPath,
-							   int maxFiles,
-							   int maxFilesize):
+FileLogSink::FileLogSink(const filesystem::path& relPath,
+						 int maxFiles,
+						 int maxFilesize):
 		_filepath{relPath},
 		_maxFiles{maxFiles},
 		_maxFilesize{maxFilesize} {
@@ -45,7 +45,7 @@ FileLoggerSink::FileLoggerSink(const filesystem::path& relPath,
 	openStream();
 }
 
-FileLoggerSink::~FileLoggerSink() {
+FileLogSink::~FileLogSink() {
 
 	flush();
 
@@ -58,19 +58,19 @@ FileLoggerSink::~FileLoggerSink() {
 	Public Member Functions
  *********************************************************************************************/
 
-const filesystem::path& FileLoggerSink::filepath() const {
+const filesystem::path& FileLogSink::filepath() const {
 	return _filepath;
 }
 
-int FileLoggerSink::maxFiles() const {
+int FileLogSink::maxFiles() const {
 	return _maxFiles;
 }
 
-int FileLoggerSink::maxFilesize() const {
+int FileLogSink::maxFilesize() const {
 	return _maxFilesize;
 }
 
-void FileLoggerSink::flush() {
+void FileLogSink::flush() {
 
 	if (_fileStream && _fileStream->is_open()) {
 		_fileStream->flush();
@@ -81,7 +81,7 @@ void FileLoggerSink::flush() {
 	Internal Member Functions
  *********************************************************************************************/
 
-void FileLoggerSink::write(const string& output) {
+void FileLogSink::write(const string& output) {
 
 	*_fileStream << output;
 
@@ -92,7 +92,7 @@ void FileLoggerSink::write(const string& output) {
 	Private Member Functions
  *********************************************************************************************/
 
-void FileLoggerSink::openStream() {
+void FileLogSink::openStream() {
 
 	if (_fileStream && _fileStream->is_open()) {
 		_fileStream->close();
@@ -101,7 +101,7 @@ void FileLoggerSink::openStream() {
 	_fileStream = make_shared<ofstream>(_filepath.string(), fstream::out | fstream::app);
 }
 
-void FileLoggerSink::checkRotate() {
+void FileLogSink::checkRotate() {
 
 	if (filesystem::exists(_filepath)) {
 		if (filesystem::file_size(_filepath) >= _maxFilesize) {
@@ -110,7 +110,7 @@ void FileLoggerSink::checkRotate() {
 	}
 }
 
-void FileLoggerSink::rotate() {
+void FileLogSink::rotate() {
 
 	// find list of existing files
 	// start at index 0, count down until the next isn't found

@@ -66,7 +66,7 @@ shared_ptr<Node> ChainmailLink(float minorRadius, float majorRadius);
 void SpawnChainMail(Scene& scene);
 
 
-unique_ptr<a3d::Logger>	g_logger;
+unique_ptr<a3d::Log>	g_log;
 Node*					g_palmNode;
 Node*					g_duckSpinnerNode;
 Node*					g_duckNode;
@@ -90,7 +90,7 @@ int main(int argc, const char* argv[]) {
 
 		auto inputManager = make_unique<GlfwInputManager>(window.get());
 		if (inputManager->errorMask() == WindowInputManagerErrorMask::PermissionDenied) {
-			A3D_APP_LOG_E(g_logger, "WindowInputManager permission denied.");
+			A3D_APP_LOG_E(g_log, "WindowInputManager permission denied.");
 			// on macOS 10.15 Catalina+, this is probably a permissions issue,
 			// and the OS will alert the user.
 			// just keep going and let the user decide what they want to do.
@@ -282,7 +282,7 @@ int main(int argc, const char* argv[]) {
 
 		auto duckNode = Node::MeshNode(utils::MeshNamed("rubber_duck/rubber_duck"));
 		g_duckNode = duckNode.get();
-		A3D_APP_LOG_I(g_logger, "DUCK NODE: {}", utils::StringFromTree(*duckNode));
+		A3D_APP_LOG_I(g_log, "DUCK NODE: {}", utils::StringFromTree(*duckNode));
 		duckNode->position({/*4.5*/0, 25, 0});
 
 
@@ -366,7 +366,7 @@ int main(int argc, const char* argv[]) {
 
 
 
-	A3D_APP_LOG_I(g_logger, "*** SCENE EXTENT: {} ***",
+	A3D_APP_LOG_I(g_log, "*** SCENE EXTENT: {} ***",
 				  utils::StringFromGLMVec3(scene->rootNode()->extent()));
 
 	//	A3D_A3D_APP_LOG_I("Graph:\n{}", StringFromTree(*scene->rootNode()));
@@ -405,7 +405,7 @@ int main(int argc, const char* argv[]) {
 		scene->run();
 	}
 	catch (Exception& e) {
-		A3D_APP_LOG_F(g_logger, "Exception: {}", e.what());
+		A3D_APP_LOG_F(g_log, "Exception: {}", e.what());
 		return -1;
 	}
 
@@ -418,7 +418,7 @@ int main(int argc, const char* argv[]) {
  ***************************************************************************************/
 
 void UpdateCallback(Scene& scene, double time, double deltaTime) {
-	A3D_APP_LOG_T(g_logger, "scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
+	A3D_APP_LOG_T(g_log, "scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
 
 	auto inputManager = scene.inputManager();
 
@@ -448,19 +448,19 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 	// TEMPORARY for macOS mouse input testing
 	if (keysPressed.count(Key::Z)) {
-		A3D_APP_LOG_I(g_logger, "Trying to re-initialize mouse input.");
+		A3D_APP_LOG_I(g_log, "Trying to re-initialize mouse input.");
 		auto windowInputManager = static_cast<GlfwInputManager*>(scene.inputManager());
 		try {
 			windowInputManager->initMouseInput();
 		}
 		catch (Exception) {
-			A3D_APP_LOG_E(g_logger, "Nada");
+			A3D_APP_LOG_E(g_log, "Nada");
 		}
 	}
 
 	if (keysPressed.count(Key::Escape)) {
 		window->close();
-		A3D_APP_LOG_I(g_logger, "open? {}", window->isOpen() ? "ya" : "no");
+		A3D_APP_LOG_I(g_log, "open? {}", window->isOpen() ? "ya" : "no");
 	}
 
 	if (keysPressed.count(Key::ForwardDelete)) {
@@ -535,7 +535,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 		if (auto pov = scene.visualWorld()->pointOfView().lock()) {
 			auto pos = pov->worldPosition();
 			auto orient = pov->worldOrientation();
-			A3D_APP_LOG_I(g_logger, "\ncamera position: ({:.4f}, {:.4f}, {:.4f})\n"
+			A3D_APP_LOG_I(g_log, "\ncamera position: ({:.4f}, {:.4f}, {:.4f})\n"
 									"camera orientation: ({:.6f}, {:.6f}, {:.6f}, {:.6f})",
 						  pos.x, pos.y, pos.x, orient.x, orient.y, orient.z, orient.w);
 		}
@@ -545,7 +545,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	if (!scene.paused()) {
 
 //		if (keysPressed.count(Key::T)) {
-//			A3D_APP_LOG_I(g_logger, "TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
+//			A3D_APP_LOG_I(g_log, "TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
 //		}
 
 		// spawn duck fruit
@@ -797,11 +797,11 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
  ***************************************************************************************/
 
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	A3D_APP_LOG_T(g_log, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 void DidRenderCallback(VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	A3D_APP_LOG_T(g_log, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 /***************************************************************************************
@@ -809,7 +809,7 @@ void DidRenderCallback(VisualWorld& world, double time, double deltaTime) {
  ***************************************************************************************/
 
 void DidSimulatePhysicsCallback(PhysicalWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	A3D_APP_LOG_T(g_log, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 /***************************************************************************************
@@ -819,29 +819,29 @@ void DidSimulatePhysicsCallback(PhysicalWorld& world, double time, double deltaT
 void InitLog() {
 
 	string executableName = *utils::ExecutableName();
-	auto nativeSink = make_unique<StdOutLoggerSink>();
-	auto fileSink = make_unique<FileLoggerSink>(*(utils::ExecutableDirectory())
-												/ (executableName + string(".log")));
-	auto sinks = unordered_set<unique_ptr<LoggerSink>>();
+	auto nativeSink = make_unique<StdOutLogSink>();
+	auto fileSink = make_unique<FileLogSink>(*(utils::ExecutableDirectory())
+											 / (executableName + string(".log")));
+	auto sinks = unordered_set<unique_ptr<LogSink>>();
 	sinks.insert(std::move(nativeSink));
 	sinks.insert(std::move(fileSink));
 
-	g_logger = make_unique<Logger>(executableName, std::move(sinks));
-	g_logger->level(A3D_APP_LOG_LEVEL);
+	g_log = make_unique<Log>(executableName, std::move(sinks));
+	g_log->level(A3D_APP_LOG_LEVEL);
 
-	Logger::MainLogger().level(A3D_APP_LOG_LEVEL);
+	Log::MainLog().level(A3D_APP_LOG_LEVEL);
 }
 
 void LogBuildInfo() {
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
-	A3D_APP_LOG_I(g_logger, "A3D version: {}.{}.{}",
+	A3D_APP_LOG_I(g_log, "A3D version: {}.{}.{}",
 		  version.major, version.minor, version.patch);
-	A3D_APP_LOG_I(g_logger, "Build: {}", buildInfo.number());
-	A3D_APP_LOG_I(g_logger, "Type: {}",
+	A3D_APP_LOG_I(g_log, "Build: {}", buildInfo.number());
+	A3D_APP_LOG_I(g_log, "Type: {}",
 		  buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
-	A3D_APP_LOG_I(g_logger, "Origin: {}",
+	A3D_APP_LOG_I(g_log, "Origin: {}",
 		  buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
 }
 

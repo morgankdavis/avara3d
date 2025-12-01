@@ -16,7 +16,7 @@
 #include "manymouse.h"
 
 #include "a3d/diagnostic/exception/Exception.h"
-#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/diagnostic/log/Log.h"
 #include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/context/GlfwWindow.h"
 #include "a3d/scene/Scene.h"

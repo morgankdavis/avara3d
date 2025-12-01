@@ -6,7 +6,7 @@
 
 #include <QMainWindow>
 
-#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/diagnostic/log/Log.h"
 //#include "a3d/scene/Node.h"
 //#include "a3d/mesh/Mesh.h"
 
@@ -65,10 +65,13 @@ private:
 	void didRenderCallback(a3d::VisualWorld& world, double time, double deltaTime);
 	void didSimulatePhysicsCallback(a3d::PhysicalWorld& world, double time, double deltaTime);
 
-	std::unique_ptr<a3d::Logger>	_logger;
+	std::unique_ptr<a3d::Log>	_log;
 	std::shared_ptr<a3d::Node>*		_meshNode;
 	std::vector<std::shared_ptr<a3d::Mesh>>*	_meshes;
 	std::shared_ptr<a3d::Mesh>*			_mesh;
+
+
+	std::unique_ptr<a3d::Scene> _scene;
 
 };
 #endif // MAINWINDOW_H

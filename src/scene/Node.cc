@@ -18,7 +18,7 @@
 #include "glm/gtx/quaternion.hpp"
 
 #include "a3d/diagnostic/exception/Exception.h"
-#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/diagnostic/log/Log.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsShape.h"

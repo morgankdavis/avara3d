@@ -18,7 +18,7 @@
 #include "a3d/Configuration.h"
 #include "a3d/CubeImage.h"
 #include "a3d/Image.h"
-#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/diagnostic/log/Log.h"
 #include "a3d/input/GlfwInputManager.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
@@ -375,6 +375,74 @@ Scene::UpdateCallback Scene::update() const {
 void Scene::update(UpdateCallback function) {
 	_update = function;
 }
+
+
+
+
+void Scene::update_() {
+//	if (_rootNode) {
+
+		static auto now = std::chrono::system_clock::now();
+		_startTime = std::chrono::duration<double>(now.time_since_epoch()).count();
+
+		_running = true;
+
+	static double deltaT, runT, deltaRunT;
+
+//		do {
+
+			GetRunTime(time(),
+					   _paused,
+					   runT,
+					   deltaRunT);
+
+			//_stats = {};
+			memset(&_stats, 0, sizeof(Stats));
+			UpdateFrameTimeStats(_stats, runT);
+
+			if (_inputManager) {
+				_inputManager->update();
+			}
+
+			if (_update) {
+
+				auto updateStartTime = time();
+				(_update)(*this, runT, deltaRunT);
+				UpdateUserTimeStats(_stats, updateStartTime, time());
+			}
+
+			if (!_paused) {
+
+				if (_physicalWorld) {
+
+					_physicalWorld->step(*this,
+										 runT,
+										 deltaRunT,
+										 _stats);
+				}
+
+				if (_visualWorld) {
+
+					_visualWorld->draw(*this,
+									   (_physicalWorld ? _physicalWorld.get() : nullptr),
+									   runT,
+									   deltaRunT,
+									   _debugOptions,
+									   _stats);
+				}
+			}
+			else {
+				this_thread::sleep_for(chrono::microseconds(16667));
+			}
+
+//		} while (_running);
+//	}
+//	else {
+//		A3D_LOG_E("No root node attached to Scene {:p}", static_cast<void*>(this));
+//	}
+}
+
+
 
 /*********************************************************************************************
 	Private Static

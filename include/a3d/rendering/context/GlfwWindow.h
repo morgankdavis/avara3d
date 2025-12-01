@@ -35,11 +35,32 @@ namespace a3d {
 	
 	class GlfwWindow : public RenderContext {
 
+
+
+
+	// a3de
+	public:
+		using GLGetProcAddress = void* (*)(const char* name);
+
+		static bool Init(GLGetProcAddress getProcAddress);
+
+
+
+
+
+
 /*********************************************************************************************
 	Public Lifecycle Functions
  *********************************************************************************************/
 
 	public:
+
+
+		// a3de
+		static bool 	InitGLAD();
+
+
+
 
 		GlfwWindow(RenderingApi renderingAPI,
 				   const std::string& title,

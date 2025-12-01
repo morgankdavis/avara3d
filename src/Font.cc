@@ -11,7 +11,7 @@
 #include <utility>
 
 #include "a3d/Buffer.h"
-#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/diagnostic/log/Log.h"
 
 
 using namespace a3d;

@@ -9,7 +9,7 @@
 #include "a3d/physics/PhysicalWorld.h"
 
 #include "a3d/Configuration.h"
-#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/diagnostic/log/Log.h"
 #include "a3d/physics/HitTestResult.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsContact.h"

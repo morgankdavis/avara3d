@@ -16,7 +16,7 @@
 
 #include "a3d/Utilities.h"
 #include "a3d/diagnostic/exception/Exception.h"
-#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/diagnostic/log/Log.h"
 #include "a3d/input/GlfwInputManager.h"
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/rendering/VisualWorld.h"
@@ -31,12 +31,46 @@ using namespace glm;
 using namespace std;
 
 
+
+
+
+
+
+bool GlfwWindow::Init(GLGetProcAddress getProcAddress)
+{
+	static bool initialized = false;
+	if (initialized) return true;
+
+	if (!getProcAddress) {
+		// log error, return false
+		A3D_LOG_E("getProcAddress");
+		return false;
+	}
+
+	int status = gladLoadGLLoader((GLADloadproc)getProcAddress);
+	if (status == 0) {
+		// log "Failed to initialize GLAD"
+		A3D_LOG_E("gladLoadGLLoader");
+		return false;
+	}
+
+	initialized = true;
+	// LogGLInfo();
+	return true;
+}
+
+
+
+
+
+
+
 /*********************************************************************************************
 	Private Static Non-Member Prototypes
  *********************************************************************************************/
 
 static bool 	InitGLFW();
-static bool 	InitGLAD();
+//static bool 	InitGLAD();
 static void 	LogGLInfo();
 static void 	GLFWWindowSizeCallback(GLFWwindow* glfwWindow,
 									  int width,
@@ -394,7 +428,7 @@ static bool InitGLFW() {
 	return true;
 }
 
-static bool InitGLAD() {
+bool GlfwWindow::InitGLAD() {
 	A3D_LOG_I("");
 
 	// NOTE: OpenGL context must be setup first

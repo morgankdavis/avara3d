@@ -16,7 +16,7 @@
 #include "a3d/Color.h"
 #include "a3d/Configuration.h"
 #include "a3d/CubeImage.h"
-#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/diagnostic/log/Log.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/primitive/Box.h"
 #include "a3d/mesh/primitive/Plane.h"
@@ -250,6 +250,15 @@ void VisualWorld::detachedFromScene(Scene& scene) {
 	_scene = nullptr;
 }
 
+#include "glad/glad.h"
+#define A3D_GL_CHECK()                           \
+    do {                                              \
+        GLenum err;                                   \
+        while ((err = glGetError()) != GL_NO_ERROR) { \
+            A3D_LOG_E("GL error 0x{:X}", err); \
+        }                                             \
+    } while (0);
+
 void VisualWorld::draw(const Scene& scene,
 					   const PhysicalWorld* physicalWorld,
 					   double runT,
@@ -261,13 +270,17 @@ void VisualWorld::draw(const Scene& scene,
 
 		if (auto renderer = _renderContext->renderer()) {
 
+			A3D_GL_CHECK()
 			if (auto willRender = VisualWorld::willRender()) {
 				willRender(*this, runT, deltaRunT);
 			}
+			A3D_GL_CHECK()
 
 			auto startTime = scene.time();
 
+			A3D_GL_CHECK()
 			renderer->beginFrame(scene, *_renderContext, debugOptions, stats);
+			A3D_GL_CHECK()
 
 			if (auto pov = pointOfView().lock()) {
 
@@ -285,25 +298,33 @@ void VisualWorld::draw(const Scene& scene,
 						perspectiveCamera->aspectRatio(aspectRatio);
 					}
 
+					A3D_GL_CHECK()
 					renderer->render(scene, debugOptions, stats);
+					A3D_GL_CHECK()
 
+					A3D_GL_CHECK()
 					renderer->preTraversal(scene, *_renderContext, debugOptions, stats);
+					A3D_GL_CHECK()
 
 					auto viewMat = inverse(pov->worldTransform());
 					auto projectionMat = pov->camera()->projection();
 
 					vector<Node *> lightNodes;
 					if (pov->light()) lightNodes.push_back(pov.get());
+					A3D_GL_CHECK()
 					scene.rootNode()->draw(*renderer,
 										   viewMat,
 										   projectionMat,
 										   debugOptions,
 										   lightNodes,
 										   stats);
+					A3D_GL_CHECK()
 					//--stats.nodes; // don't count the root node
 
+					A3D_GL_CHECK()
 					renderer->postTraversal(scene, *_renderContext, lightNodes, debugOptions, stats);
 
+					A3D_GL_CHECK()
 					if (physicalWorld) {
 
 						if (auto bulletWorldProxy = dynamic_cast<BulletWorldProxy *>(physicalWorld->proxy())) {
@@ -313,6 +334,7 @@ void VisualWorld::draw(const Scene& scene,
 														debugOptions);
 						}
 					}
+					A3D_GL_CHECK()
 				}
 				else {
 					A3D_LOG_W("Point of view not in our scene!");
@@ -326,13 +348,17 @@ void VisualWorld::draw(const Scene& scene,
 
 			UpdateTimeStats(stats, startTime, scene.time());
 
+			A3D_GL_CHECK()
 			renderer->endFrame(scene, *_renderContext, debugOptions, stats);
+			A3D_GL_CHECK()
 
 			_renderContext->swapBuffers();
+			A3D_GL_CHECK()
 
 			if (auto didRender = VisualWorld::didRender()) {
 				didRender(*this, runT, deltaRunT);
 			}
+			A3D_GL_CHECK()
 
 			if (_renderContext->recordingGIF()) {
 				_renderContext->saveGIFFrame(deltaRunT);

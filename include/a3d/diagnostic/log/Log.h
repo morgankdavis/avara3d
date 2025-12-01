@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_LOGGER_H
-#define AVARA3D_LOGGER_H
+#ifndef AVARA3D_LOG_H
+#define AVARA3D_LOG_H
 
 
 #include <cstdio>
@@ -32,54 +32,54 @@
  *********************************************************************************************/
 
 #ifdef A3D_DEBUG
-#define A3D_APP_LOG_T(logger, fmtStr, ...)	logger->log(LogLevel::Trace, \
-										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
-										fmt::format(fmtStr, ##__VA_ARGS__))
-#define A3D_APP_LOG_D(logger, fmtStr, ...) 	logger->log(LogLevel::Debug, \
-										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
-										fmt::format(fmtStr, ##__VA_ARGS__))
+#define A3D_APP_LOG_T(log_, fmtStr, ...)	log_->log(LogLevel::Trace, \
+											{__FILE_NAME__, __LINE__, __FUNCTION__}, \
+											fmt::format(fmtStr, ##__VA_ARGS__))
+#define A3D_APP_LOG_D(log_, fmtStr, ...) 	log_->log(LogLevel::Debug, \
+											{__FILE_NAME__, __LINE__, __FUNCTION__}, \
+											fmt::format(fmtStr, ##__VA_ARGS__))
 #else
-#define A3D_APP_LOG_T(logger, fmtStr, ...) 	NOOP
-#define A3D_APP_LOG_D(logger, fmtStr, ...) 	NOOP
+#define A3D_APP_LOG_T(log, fmtStr, ...) 	NOOP
+#define A3D_APP_LOG_D(log, fmtStr, ...) 	NOOP
 #endif
-#define A3D_APP_LOG_I(logger, fmtStr, ...)	logger->log(LogLevel::Info, \
-										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
-										fmt::format(fmtStr, ##__VA_ARGS__))
-#define A3D_APP_LOG_W(logger, fmtStr, ...)	logger->log(LogLevel::Warn, \
-										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
-										fmt::format(fmtStr, ##__VA_ARGS__))
-#define A3D_APP_LOG_E(logger, fmtStr, ...)	logger->log(LogLevel::Error, \
-										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
-										fmt::format(fmtStr, ##__VA_ARGS__))
-#define A3D_APP_LOG_F(logger, fmtStr, ...)	logger->log(LogLevel::Fatal, \
-										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
-										fmt::format(fmtStr, ##__VA_ARGS__))
+#define A3D_APP_LOG_I(log_, fmtStr, ...)	log_->log(LogLevel::Info, \
+											{__FILE_NAME__, __LINE__, __FUNCTION__}, \
+											fmt::format(fmtStr, ##__VA_ARGS__))
+#define A3D_APP_LOG_W(log_, fmtStr, ...)	log_->log(LogLevel::Warn, \
+											{__FILE_NAME__, __LINE__, __FUNCTION__}, \
+											fmt::format(fmtStr, ##__VA_ARGS__))
+#define A3D_APP_LOG_E(log_, fmtStr, ...)	log_->log(LogLevel::Error, \
+											{__FILE_NAME__, __LINE__, __FUNCTION__}, \
+											fmt::format(fmtStr, ##__VA_ARGS__))
+#define A3D_APP_LOG_F(log_, fmtStr, ...)	log_->log(LogLevel::Fatal, \
+											{__FILE_NAME__, __LINE__, __FUNCTION__}, \
+											fmt::format(fmtStr, ##__VA_ARGS__))
 
 /*********************************************************************************************
 	Internal Macro Functions
  *********************************************************************************************/
 
 #ifdef A3D_DEBUG
-#define A3D_LOG_T(fmtStr, ...) 		Logger::MainLogger().log(LogLevel::Trace, \
+#define A3D_LOG_T(fmtStr, ...) 		Log::MainLog().log(LogLevel::Trace, \
 										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
 										fmt::format(fmtStr, ##__VA_ARGS__))
-#define A3D_LOG_D(fmtStr, ...) 		Logger::MainLogger().log(LogLevel::Debug, \
+#define A3D_LOG_D(fmtStr, ...) 		Log::MainLog().log(LogLevel::Debug, \
 										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
 										fmt::format(fmtStr, ##__VA_ARGS__))
 #else
 	#define A3D_LOG_T(fmtStr, ...) 	NOOP
 	#define A3D_LOG_D(fmtStr, ...) 	NOOP
 #endif
-#define A3D_LOG_I(fmtStr, ...) 		Logger::MainLogger().log(LogLevel::Info, \
+#define A3D_LOG_I(fmtStr, ...) 		Log::MainLog().log(LogLevel::Info, \
 										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
 										fmt::format(fmtStr, ##__VA_ARGS__))
-#define A3D_LOG_W(fmtStr, ...) 		Logger::MainLogger().log(LogLevel::Warn, \
+#define A3D_LOG_W(fmtStr, ...) 		Log::MainLog().log(LogLevel::Warn, \
 										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
 										fmt::format(fmtStr, ##__VA_ARGS__))
-#define A3D_LOG_E(fmtStr, ...) 		Logger::MainLogger().log(LogLevel::Error, \
+#define A3D_LOG_E(fmtStr, ...) 		Log::MainLog().log(LogLevel::Error, \
 										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
 										fmt::format(fmtStr, ##__VA_ARGS__))
-#define A3D_LOG_F(fmtStr, ...) 		Logger::MainLogger().log(LogLevel::Fatal, \
+#define A3D_LOG_F(fmtStr, ...) 		Log::MainLog().log(LogLevel::Fatal, \
 										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
 										fmt::format(fmtStr, ##__VA_ARGS__))
 
@@ -87,10 +87,10 @@
 namespace a3d {
 
 
-	class LoggerSink;
+	class LogSink;
 
 
-	class Logger {
+	class Log {
 
 /*********************************************************************************************
 	Internal Types
@@ -106,21 +106,21 @@ namespace a3d {
 	Public Static Member Functions
  *********************************************************************************************/
 
-		static Logger& MainLogger();
+		static Log& MainLog();
 
 /*********************************************************************************************
 	Public Lifecycle Functions
  *********************************************************************************************/
 
-		Logger(const std::string& name,
-			   std::unique_ptr<LoggerSink> sink,
-			   LogLevel level = DEFAULT_LEVEL,
-			   LogLevel flushLevel = DEFAULT_FLUSH_LEVEL);
-		Logger(const std::string& name,
-			   std::unordered_set<std::unique_ptr<LoggerSink>> sinks,
-			   LogLevel level = DEFAULT_LEVEL,
-			   LogLevel flushLevel = DEFAULT_FLUSH_LEVEL);
-		~Logger();
+		Log(const std::string& name,
+			std::unique_ptr<LogSink> sink,
+			LogLevel level = DEFAULT_LEVEL,
+			LogLevel flushLevel = DEFAULT_FLUSH_LEVEL);
+		Log(const std::string& name,
+			std::unordered_set<std::unique_ptr<LogSink>> sinks,
+			LogLevel level = DEFAULT_LEVEL,
+			LogLevel flushLevel = DEFAULT_FLUSH_LEVEL);
+		Log();
 
 /*********************************************************************************************
 	Public Member Functions
@@ -128,7 +128,7 @@ namespace a3d {
 
 		const std::string& 		name() const;
 
-		const std::unordered_set<std::unique_ptr<LoggerSink>>&	sinks() const;
+		const std::unordered_set<std::unique_ptr<LogSink>>&	sinks() const;
 
 		LogLevel 				level() const;
 		void					level(LogLevel level);
@@ -172,11 +172,11 @@ namespace a3d {
  *********************************************************************************************/
 
 		std::string										_name;
-		std::unordered_set<std::unique_ptr<LoggerSink>>	_sinks;
+		std::unordered_set<std::unique_ptr<LogSink>>	_sinks;
 		LogLevel										_level;
 		LogLevel										_flushLevel;
 	};
 }
 
 
-#endif /* AVARA3D_LOGGER_H */
+#endif /* AVARA3D_LOG_H */

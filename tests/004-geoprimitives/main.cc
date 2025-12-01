@@ -41,7 +41,7 @@ void InitLog();
 void LogBuildInfo();
 
 
-std::unique_ptr<a3d::Logger>		g_logger;
+std::unique_ptr<a3d::Log>		g_logger;
 std::shared_ptr<a3d::Node>			g_pointLightPivotNode;
 
 
@@ -396,17 +396,17 @@ void DidRenderCallback(VisualWorld& world, double time, double deltaTime) {
 void InitLog() {
 
 	string executableName = *utils::ExecutableName();
-	auto nativeSink = make_unique<StdOutLoggerSink>();
-	auto fileSink = make_unique<FileLoggerSink>(*(utils::ExecutableDirectory())
-												/ (executableName + string(".log")));
-	auto sinks = unordered_set<unique_ptr<LoggerSink>>();
+	auto nativeSink = make_unique<StdOutLogSink>();
+	auto fileSink = make_unique<FileLogSink>(*(utils::ExecutableDirectory())
+											 / (executableName + string(".log")));
+	auto sinks = unordered_set<unique_ptr<LogSink>>();
 	sinks.insert(std::move(nativeSink));
 	sinks.insert(std::move(fileSink));
 
-	g_logger = make_unique<Logger>(executableName, std::move(sinks));
+	g_logger = make_unique<Log>(executableName, std::move(sinks));
 	g_logger->level(A3D_APP_LOG_LEVEL);
 
-	Logger::MainLogger().level(A3D_APP_LOG_LEVEL);
+	Log::MainLogger().level(A3D_APP_LOG_LEVEL);
 }
 
 void LogBuildInfo() {

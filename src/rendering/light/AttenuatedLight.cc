@@ -9,7 +9,7 @@
 #include "a3d/rendering/light/AttenuatedLight.h"
 
 #include "a3d/diagnostic/exception/NotImplementedException.h"
-#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/diagnostic/log/Log.h"
 
 
 using namespace a3d;

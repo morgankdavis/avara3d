@@ -1,18 +1,18 @@
 //
-//  LoggerSink.h
+//  LogSink.h
 //  avara3d
 //
 //  Created by Morgan Davis on 11/9/23.
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_LOGGERSINK_H
-#define AVARA3D_LOGGERSINK_H
+#ifndef AVARA3D_LOGSINK_H
+#define AVARA3D_LOGSINK_H
 
 
 namespace a3d {
 
-	class LoggerSink {
+	class LogSink {
 
 /*********************************************************************************************
 	Public Lifecycle Functions
@@ -20,7 +20,7 @@ namespace a3d {
 
 	public:
 
-		virtual ~LoggerSink() = 0;
+		virtual ~LogSink() = 0;
 		
 /*********************************************************************************************
 	Public Member Functions
@@ -31,4 +31,4 @@ namespace a3d {
 }
 
 
-#endif //AVARA3D_LOGGERSINK_H
+#endif //AVARA3D_LOGSINK_H

@@ -1,5 +1,5 @@
 //
-//  LoggerSink.cc
+//  LogSink.cc
 //  avara3d
 //
 //  Created by Morgan Davis on 11/9/23.
@@ -7,7 +7,7 @@
 //
 
 
-#include "a3d/diagnostic/logging/sink/LoggerSink.h"
+#include "a3d/diagnostic/log/sink/LogSink.h"
 
 
 using namespace a3d;
@@ -17,10 +17,10 @@ using namespace a3d;
 	Public Lifecycle Functions
  *********************************************************************************************/
 
-LoggerSink::~LoggerSink() { }
+LogSink::~LogSink() { }
 
 /*********************************************************************************************
 	Public Member Functions
  *********************************************************************************************/
 
-void LoggerSink::flush() { }
+void LogSink::flush() { }

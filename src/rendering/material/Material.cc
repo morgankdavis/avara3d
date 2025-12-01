@@ -10,7 +10,7 @@
 
 #include "a3d/Color.h"
 #include "a3d/diagnostic/exception/Exception.h"
-#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/diagnostic/log/Log.h"
 
 
 using namespace a3d;

@@ -46,7 +46,7 @@ void SetAllMaxAnisotropy(float anisotropy, Scene& scene);
 void ProcessEdit(Node& node, set<Key>& keysDown, set<Key>& keysPressed);
 
 
-std::unique_ptr<a3d::Logger>	g_logger;
+std::unique_ptr<a3d::Log>		g_log;
 a3d::Node*						g_pointLightNode;
 double 							g_startTime;
 
@@ -70,7 +70,7 @@ int main(int argc, const char* argv[]) {
 
 		auto inputManager = make_unique<GlfwInputManager>(window.get());
 		if (inputManager->errorMask() == WindowInputManagerErrorMask::PermissionDenied) {
-			A3D_APP_LOG_E(g_logger, "WindowInputManager permission denied.");
+			A3D_APP_LOG_E(g_log, "WindowInputManager permission denied.");
 			// on macOS 10.15 Catalina+, this is probably a permissions issue,
 			// and the OS will alert the user.
 			// just keep going and let the user decide what they want to do.
@@ -188,11 +188,16 @@ int main(int argc, const char* argv[]) {
 
 		window->center();
 		window->open();
-		scene->run();
+
+		do {
+			scene->update_();
+		} while (window->isOpen());
+
+		//scene->run();
 	}
 	catch (Exception& e)
 	{
-		A3D_APP_LOG_F(g_logger, "Exception: {}", e.what());
+		A3D_APP_LOG_F(g_log, "Exception: {}", e.what());
 		return -1;
 	}
 
@@ -207,11 +212,11 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	static int invocations = 0;
 	if (invocations == 2) {
 		double time = utils::Time() - g_startTime;
-		A3D_APP_LOG_I(g_logger, "START TIME: {}", time);
+		A3D_APP_LOG_I(g_log, "START TIME: {}", time);
 	}
 	++invocations;
 
-	A3D_APP_LOG_T(g_logger, "scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
+	A3D_APP_LOG_T(g_log, "scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
 
 	auto window = dynamic_cast<GlfwWindow*>(scene.visualWorld()->renderContext());
 
@@ -225,7 +230,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	}
 
 	if (keysPressed.count(Key::T)) {
-		A3D_APP_LOG_I(g_logger, "TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
+		A3D_APP_LOG_I(g_log, "TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
 	}
 
 	if 		(keysPressed.count(Key::One))	SetAllFilterModes(FilterMode::Nearest, scene);
@@ -398,11 +403,11 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
  ***************************************************************************************/
 
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	A3D_APP_LOG_T(g_log, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 void DidRenderCallback(VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	A3D_APP_LOG_T(g_log, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 /***************************************************************************************
@@ -412,32 +417,32 @@ void DidRenderCallback(VisualWorld& world, double time, double deltaTime) {
 void InitLog() {
 
 	string executableName = *utils::ExecutableName();
-	auto nativeSink = make_unique<StdOutLoggerSink>();
-	auto fileSink = make_unique<FileLoggerSink>(*(utils::ExecutableDirectory())
-												/ (executableName + string(".log")));
-	auto sinks = unordered_set<unique_ptr<LoggerSink>>();
+	auto nativeSink = make_unique<StdOutLogSink>();
+	auto fileSink = make_unique<FileLogSink>(*(utils::ExecutableDirectory())
+											 / (executableName + string(".log")));
+	auto sinks = unordered_set<unique_ptr<LogSink>>();
 	sinks.insert(std::move(nativeSink));
 	sinks.insert(std::move(fileSink));
 
-	g_logger = make_unique<Logger>(executableName, std::move(sinks));
-	g_logger->level(A3D_APP_LOG_LEVEL);
+	g_log = make_unique<Log>(executableName, std::move(sinks));
+	g_log->level(A3D_APP_LOG_LEVEL);
 
-	Logger::MainLogger().level(A3D_APP_LOG_LEVEL);
+	Log::MainLog().level(A3D_APP_LOG_LEVEL);
 }
 
 void LogBuildInfo() {
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
-	A3D_APP_LOG_I(g_logger, "A3D version: {}.{}.{}", version.major, version.minor, version.patch);
-	A3D_APP_LOG_I(g_logger, "Build: {}", buildInfo.number());
-	A3D_APP_LOG_I(g_logger, "Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
-	A3D_APP_LOG_I(g_logger, "Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
+	A3D_APP_LOG_I(g_log, "A3D version: {}.{}.{}", version.major, version.minor, version.patch);
+	A3D_APP_LOG_I(g_log, "Build: {}", buildInfo.number());
+	A3D_APP_LOG_I(g_log, "Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
+	A3D_APP_LOG_I(g_log, "Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
 }
 
 void SetAllFilterModes(FilterMode mode, Scene& scene) {
 
-	A3D_APP_LOG_I(g_logger, "SetAllFilterModes: {}", (unsigned)mode);
+	A3D_APP_LOG_I(g_log, "SetAllFilterModes: {}", (unsigned)mode);
 
 	for (auto& node : scene.rootNode()->children(true)) {
 
@@ -468,7 +473,7 @@ void SetAllFilterModes(FilterMode mode, Scene& scene) {
 
 void SetAllMaxAnisotropy(float anisotropy, Scene& scene) {
 
-	A3D_APP_LOG_I(g_logger, "SetAllMaxAnisotropy: {}", anisotropy);
+	A3D_APP_LOG_I(g_log, "SetAllMaxAnisotropy: {}", anisotropy);
 
 	for (auto& node : scene.rootNode()->children(true)) {
 

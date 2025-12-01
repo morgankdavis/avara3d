@@ -16,7 +16,7 @@
 #include "magic_enum.hpp"
 
 #include "a3d/Configuration.h"
-#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/diagnostic/log/Log.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsShape.h"
 #include "a3d/physics/bullet/BulletBodyProxy.h"

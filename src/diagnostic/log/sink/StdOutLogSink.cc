@@ -1,12 +1,12 @@
 //
-//  StdOutLoggerSink.cc
+//  StdOutLogSink.cc
 //  avara3d
 //
 //  Created by Morgan Davis on 111/9/23.
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/diagnostic/logging/sink/StdOutLoggerSink.h"
+#include "a3d/diagnostic/log/sink/StdOutLogSink.h"
 
 #include <iostream>
 
@@ -23,9 +23,9 @@ using namespace std;
 	Public Lifecycle Functions
  *********************************************************************************************/
 
-StdOutLoggerSink::StdOutLoggerSink() { }
+StdOutLogSink::StdOutLogSink() { }
 
-StdOutLoggerSink::~StdOutLoggerSink() {
+StdOutLogSink::~StdOutLogSink() {
 	flush();
 }
 
@@ -33,7 +33,7 @@ StdOutLoggerSink::~StdOutLoggerSink() {
 	Public Member Functions
  *********************************************************************************************/
 
-void StdOutLoggerSink::flush() {
+void StdOutLogSink::flush() {
 
 	// also flushes cout
 	// https://stackoverflow.com/questions/6027034/why-cerr-flushes-the-buffer-of-cout
@@ -44,7 +44,7 @@ void StdOutLoggerSink::flush() {
 	Internal Member Functions
  **************************************************************************************/
 
-void StdOutLoggerSink::write(const string& output, LogLevel level) {
+void StdOutLogSink::write(const string& output, LogLevel level) {
 
 	if (static_cast<underlying_type<LogLevel>::type>(level)
 		>= static_cast<underlying_type<LogLevel>::type>(LogLevel::Error)) {

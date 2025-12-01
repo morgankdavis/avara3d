@@ -15,7 +15,7 @@
 
 #include "a3d/Color.h"
 #include "a3d/Image.h"
-#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/diagnostic/log/Log.h"
 #include "a3d/diagnostic/exception/UnsupportedFormatException.h"
 #include "a3d/mesh/Line.h"
 #include "a3d/mesh/MeshElement.h"

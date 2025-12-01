@@ -11,7 +11,7 @@
 #include <iostream>
 
 #include "a3d/Utilities.h"
-#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/diagnostic/log/Log.h"
 
 
 using namespace a3d;

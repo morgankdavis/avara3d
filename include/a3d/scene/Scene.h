@@ -107,6 +107,12 @@ namespace a3d {
 		UpdateCallback 						update() const;
 		void 								update(UpdateCallback function);
 
+
+
+		void update_();
+
+
+
 /*********************************************************************************************
 	Private Member Variables
  *********************************************************************************************/

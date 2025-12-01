@@ -17,6 +17,11 @@ namespace a3de {
 
 	public:
 
+		a3d::Scene* scene;
+
+
+
+		//A3DViewport(a3d::RenderingApi renderingApi, a3d::Scene* scene, QWidget* parent = nullptr);
 		A3DViewport(a3d::RenderingApi renderingApi, QWidget* parent = nullptr);
 
 		~A3DViewport() override;
@@ -34,6 +39,9 @@ namespace a3de {
 		void paintGL() override;
 
 	private:
+
+		//a3d::Scene* _scene;
+		int _width, _height;
 
 		//std::unique_ptr<a3d::Engine> m_engine;
 	};

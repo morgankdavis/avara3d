@@ -1,13 +1,13 @@
 //
-//  FileLoggerSink.h
+//  FileLogSink.h
 //  avara3d
 //
 //  Created by Morgan Davis on 11/9/23.
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_FILELOGGERSINK_H
-#define AVARA3D_FILELOGGERSINK_H
+#ifndef AVARA3D_FILELOGSINK_H
+#define AVARA3D_FILELOGSINK_H
 
 
 #include <filesystem>
@@ -17,12 +17,12 @@
 #include <string>
 #include <vector>
 
-#include "a3d/diagnostic/logging/sink/LoggerSink.h"
+#include "a3d/diagnostic/log/sink/LogSink.h"
 
 
 namespace a3d {
 
-	class FileLoggerSink : public LoggerSink {
+	class FileLogSink : public LogSink {
 
 /*********************************************************************************************
 	Public Lifecycle Functions
@@ -30,10 +30,10 @@ namespace a3d {
 
 	public:
 
-		explicit FileLoggerSink(const std::filesystem::path& relPath,
-								int maxFiles = DEFAULT_MAX_FILES,
-								int maxFilesize = DEFAULT_MAX_FILESIZE);
-		~FileLoggerSink() override;
+		explicit FileLogSink(const std::filesystem::path& relPath,
+							 int maxFiles = DEFAULT_MAX_FILES,
+							 int maxFilesize = DEFAULT_MAX_FILESIZE);
+		~FileLogSink() override;
 
 /*********************************************************************************************
 	Public Member Functions
@@ -80,4 +80,4 @@ namespace a3d {
 	};
 }
 
-#endif //AVARA3D_FILELOGGERSINK_H
+#endif //AVARA3D_FILELOGSINK_H
