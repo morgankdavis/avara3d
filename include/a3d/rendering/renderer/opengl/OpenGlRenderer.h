@@ -53,6 +53,13 @@ namespace a3d {
 				std::map<const std::vector<Line>*, std::pair<unsigned, unsigned>>;
 
 /*********************************************************************************************
+	Private Static Members
+ *********************************************************************************************/
+
+		using GLGetProcAddress = void* (*)(const char* name);
+		static bool InitGL(GLGetProcAddress getProcAddress);
+
+/*********************************************************************************************
 	Internal Lifecycle Functions
  *********************************************************************************************/
 

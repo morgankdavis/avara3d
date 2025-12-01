@@ -59,12 +59,12 @@
 #include "a3d/scene/Scene.h"
 
 
-#define A3D_GL_CHECK()                           \
-    do {                                              \
-        GLenum err;                                   \
+#define A3D_GL_CHECK() \
+    do { \
+        GLenum err; \
         while ((err = glGetError()) != GL_NO_ERROR) { \
             A3D_LOG_E("GL error 0x{:X}", err); \
-        }                                             \
+        } \
     } while (0);
 
 
@@ -249,7 +249,44 @@ static void 		SetTextureWrapT(GLuint glTextureHandle, bool cube, WrapMode mode);
 static void 		SetTextureWrapR(GLuint glTextureHandle, WrapMode mode);
 static GLenum 		GLFilterModeForFilterMode(FilterMode mode);
 static GLenum 		GLWrapModeForWrapMode(WrapMode mode);
-static void 		CheckGLError();
+static void 		LogGLInfo();
+//static void 		CheckGLError();
+
+/*********************************************************************************************
+	Private Static Members
+ *********************************************************************************************/
+
+bool OpenGlRenderer::InitGL(GLGetProcAddress getProcAddress) {
+
+	static bool initialized = false;
+	if (initialized) return true;
+
+	if (!getProcAddress) {
+		// log error, return false
+		A3D_LOG_E("getProcAddress is null.");
+		return false;
+	}
+
+	int status = gladLoadGLLoader((GLADloadproc)getProcAddress);
+	if (status == 0) {
+		// log "Failed to initialize GLAD"
+		A3D_LOG_E("gladLoadGLLoader");
+		return false;
+	}
+
+	initialized = true;
+
+//	const GLubyte *vendor = glGetString(GL_VENDOR);
+//	const GLubyte *renderer = glGetString(GL_RENDERER);
+//	const GLubyte *version = glGetString(GL_VERSION);
+//	A3D_LOG_I("GL_VENDOR  : {}", vendor ? reinterpret_cast<const char *>(vendor) : "null");
+//	A3D_LOG_I("GL_RENDERER: {}", renderer ? reinterpret_cast<const char *>(renderer) : "null");
+//	A3D_LOG_I("GL_VERSION : {}", version ? reinterpret_cast<const char *>(version) : "null");
+
+	LogGLInfo();
+
+	return true;
+}
 
 /*********************************************************************************************
 	Internal Lifecycle Functions
@@ -300,13 +337,9 @@ bool OpenGlRenderer::initialize(const RenderContext& context) {
 
 	// create environment UBO
 
-	A3D_GL_CHECK();
-	
 	uint32 ubo;
 	glGenBuffers(1, &ubo);
 	_glEnvironmentUBO = ubo;
-
-	A3D_GL_CHECK();
 
 	// setup Imgui
 
@@ -355,7 +388,8 @@ void OpenGlRenderer::endFrame(const Scene& scene,
 	CleanupTextureResources(_activeTextures, _textureGLMapping);
 	CleanupLinesResources(_activeLines, _linesGLMapping);
 
-	CheckGLError();
+//	CheckGLError();
+	A3D_GL_CHECK();
 }
 
 void OpenGlRenderer::preTraversal(const Scene& scene,
@@ -371,18 +405,18 @@ void OpenGlRenderer::postTraversal(const Scene& scene,
 								   const DebugOptions& debugOptions,
 								   Stats& stats) {
 
-	A3D_GL_CHECK();
 	SendEnvironmentUniforms(_glEnvironmentUBO, scene, lightNodes, stats);
 	Program::Default().bindUniformBlock("EnvironmentBlock", _glEnvironmentUBO);
-	A3D_GL_CHECK();
 }
 
 void OpenGlRenderer::render(const Scene& scene,
 							const DebugOptions& debugOptions,
 							Stats& stats) {
 
-	GLint prevFbo = 0;
-	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFbo);
+	GLint prevDrawFbo = 0;
+	GLint prevReadFbo = 0;
+	glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &prevDrawFbo);
+	glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &prevReadFbo);
 
 	auto renderContext = scene.visualWorld()->renderContext();
 
@@ -390,11 +424,8 @@ void OpenGlRenderer::render(const Scene& scene,
 	auto framebufferWidth = framebufferSize.x;
 	auto framebufferHeight = framebufferSize.y;
 
-	A3D_GL_CHECK();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	//A3D_GL_CHECK();
 	glViewport(0, 0, (GLsizei)framebufferWidth, (GLsizei)framebufferHeight);
-	//A3D_GL_CHECK();
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -470,7 +501,8 @@ void OpenGlRenderer::render(const Scene& scene,
 //	Program::Default().bindUniformBlock("EnvironmentBlock", _glEnvironmentUBO);
 
 	// this is necessary for Qt to paint the widget properly
-	glBindFramebuffer(GL_FRAMEBUFFER, prevFbo);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, prevDrawFbo);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, prevReadFbo);
 }
 
 void OpenGlRenderer::render(Mesh& mesh,
@@ -481,7 +513,6 @@ void OpenGlRenderer::render(Mesh& mesh,
 							Stats& stats) {
 
 	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
-		A3D_GL_CHECK();
 		render(mesh.aabbLines(), modelMat, viewMat, projectionMat);
 	}
 }
@@ -494,8 +525,6 @@ void OpenGlRenderer::render(MeshElement& element,
 							const DebugOptions& debugOptions,
 							Stats& stats) {
 
-	A3D_GL_CHECK();
-
 	// check and load vertex data if necessary
 
 	GLuint vbo, vao, ebo;
@@ -503,18 +532,12 @@ void OpenGlRenderer::render(MeshElement& element,
 									  _meshElementGLMapping,
 									  vbo, vao, ebo);
 
-	A3D_GL_CHECK();
-
 	auto wireframe = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes);
-
-	A3D_GL_CHECK();
 
 	auto program = wireframe
 			? Program::Wireframe()
 			: Program::Default();
 
-	A3D_GL_CHECK();
-	
 	// and load material contents if necessary
 
 	auto glTextureHandles = map<MaterialPropertyType, GLuint>();
@@ -523,32 +546,22 @@ void OpenGlRenderer::render(MeshElement& element,
 							   _activeTextures,
 							   glTextureHandles);
 
-	A3D_GL_CHECK();
-
 	if (!wireframe) {
 
-		A3D_GL_CHECK();
 		// send material and material property uniforms
 		SendMaterialUniforms(material, program, glTextureHandles);
 
-		A3D_GL_CHECK();
 		// update material property filtering options
 		SetMaterialFilteringOptions(material, glTextureHandles);
-
-		A3D_GL_CHECK();
 	}
 	
 	// configure OpenGL state
 
-	A3D_GL_CHECK();
 	SetMaterialOpenGLState(material, debugOptions);
-	A3D_GL_CHECK();
 
 	// update
 
-	A3D_GL_CHECK();
 	DrawMeshElement(element, program, modelMat, viewMat, projectionMat, vao, ebo);
-	A3D_GL_CHECK();
 
 	// save reference for housekeeping
 
@@ -619,7 +632,7 @@ void OpenGlRenderer::framebufferScaleChanged(const RenderContext& context) {
 }
 	
 /*********************************************************************************************
-	Static
+	Static Non-Member Functions
  *********************************************************************************************/
 
 void RenderSkybox(Mesh& skyboxMesh,
@@ -2613,17 +2626,97 @@ GLenum GLWrapModeForWrapMode(WrapMode mode) {
         default: /* MIRRORED_REPEAT */   		return GL_MIRRORED_REPEAT; }
 }
 
-void CheckGLError() {
-	//A3D_GL_CHECK();
-//	auto err = glGetError();
-//	if (err != GL_NO_ERROR) {
-//		A3D_LOG_E("*** GL error: 0x{:X} ***", err);
+void LogGLInfo() {
+
+	const GLubyte *vendor = glGetString(GL_VENDOR);
+	const GLubyte* renderer = glGetString(GL_RENDERER);
+	const GLubyte* version = glGetString(GL_VERSION);
+
+	A3D_LOG_I("GL_VENDOR: {}", reinterpret_cast<const char*>(renderer));
+	A3D_LOG_I("GL_RENDERER: {}", reinterpret_cast<const char*>(renderer));
+	A3D_LOG_I("GL_VERSION: {}", reinterpret_cast<const char*>(version));
+
+//	// extensions
+//
+//	GLint numExtensions;
+//	glGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
+//	ostringstream extensionsStream;
+//	extensionsStream << "Extensions:" << endl;
+//	for (GLint e=0; e < numExtensions; ++e) {
+//		extensionsStream << "\t" << glGetStringi(GL_EXTENSIONS, e);
+//		if (e < numExtensions-1) extensionsStream << endl;
 //	}
+//	A3D_LOG_I("{}", extensionsStream.str());
+//
+//	// context info
+//
+//	GLenum contextParams[] = {
+//			GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS,
+//			GL_MAX_CUBE_MAP_TEXTURE_SIZE,
+//			GL_MAX_DRAW_BUFFERS,
+//			GL_MAX_FRAGMENT_UNIFORM_COMPONENTS,
+//			GL_MAX_TEXTURE_IMAGE_UNITS,
+//			GL_MAX_TEXTURE_SIZE,
+//			GL_MAX_VARYING_FLOATS,
+//			GL_MAX_VERTEX_ATTRIBS,
+//			GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS,
+//			GL_MAX_VERTEX_UNIFORM_COMPONENTS,
+//			GL_MAX_VIEWPORT_DIMS,
+//			GL_STEREO,
+//	};
+//	const char* contextParamNames[] = {
+//			"GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS",
+//			"GL_MAX_CUBE_MAP_TEXTURE_SIZE",
+//			"GL_MAX_DRAW_BUFFERS",
+//			"GL_MAX_FRAGMENT_UNIFORM_COMPONENTS",
+//			"GL_MAX_TEXTURE_IMAGE_UNITS",
+//			"GL_MAX_TEXTURE_SIZE",
+//			"GL_MAX_VARYING_FLOATS",
+//			"GL_MAX_VERTEX_ATTRIBS",
+//			"GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS",
+//			"GL_MAX_VERTEX_UNIFORM_COMPONENTS",
+//			"GL_MAX_VIEWPORT_DIMS",
+//			"GL_STEREO",
+//	};
+//
+//	// (integers)
+//
+//	ostringstream contextParamsStream;
+//	contextParamsStream << "Context parameters:" << endl;
+//	const int numIntParams = 10;
+//	for (int p=0; p<numIntParams; ++p) {
+//		GLint intValue = 0;
+//		glGetIntegerv(contextParams[p], &intValue);
+//		contextParamsStream << "\t" << contextParamNames[p] << ": " << intValue << endl;
+//	}
+//
+//	// (int vec2)
+//
+//	GLint maxViewportDims[2];
+//	glGetIntegerv(contextParams[10], maxViewportDims);
+//	contextParamsStream << "\t" << contextParamNames[10] << ": " << maxViewportDims[0]
+//		<< ", " << maxViewportDims[0] << endl;
+//
+//	// (boolean)
+//
+//	GLboolean stereo = 0;
+//	glGetBooleanv(contextParams[11], &stereo);
+//	contextParamsStream << "\t" << contextParamNames[11] << ": " << (stereo ? "true" : "false");
+//
+//	A3D_LOG_I("{}", contextParamsStream.str());
 }
 
-void DrainGLErrors(const char* where) {
-	GLenum err;
-	while ((err = glGetError()) != GL_NO_ERROR) {
-		A3D_LOG_E("*** GL error 0x{:X} at %s ***", err, where);
-	}
-}
+//void CheckGLError() {
+//	//A3D_GL_CHECK();
+////	auto err = glGetError();
+////	if (err != GL_NO_ERROR) {
+////		A3D_LOG_E("*** GL error: 0x{:X} ***", err);
+////	}
+//}
+//
+//void DrainGLErrors(const char* where) {
+//	GLenum err;
+//	while ((err = glGetError()) != GL_NO_ERROR) {
+//		A3D_LOG_E("*** GL error 0x{:X} at %s ***", err, where);
+//	}
+//}

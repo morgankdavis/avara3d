@@ -22,6 +22,7 @@
 #include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/camera/Camera.h"
 #include "a3d/rendering/renderer/Renderer.h"
+#include "a3d/rendering/renderer/opengl/OpenGlRenderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 
@@ -31,47 +32,13 @@ using namespace glm;
 using namespace std;
 
 
-
-
-
-
-
-bool GlfwWindow::Init(GLGetProcAddress getProcAddress)
-{
-	static bool initialized = false;
-	if (initialized) return true;
-
-	if (!getProcAddress) {
-		// log error, return false
-		A3D_LOG_E("getProcAddress");
-		return false;
-	}
-
-	int status = gladLoadGLLoader((GLADloadproc)getProcAddress);
-	if (status == 0) {
-		// log "Failed to initialize GLAD"
-		A3D_LOG_E("gladLoadGLLoader");
-		return false;
-	}
-
-	initialized = true;
-	// LogGLInfo();
-	return true;
-}
-
-
-
-
-
-
-
 /*********************************************************************************************
 	Private Static Non-Member Prototypes
  *********************************************************************************************/
 
 static bool 	InitGLFW();
 //static bool 	InitGLAD();
-static void 	LogGLInfo();
+//static void 	LogGLInfo();
 static void 	GLFWWindowSizeCallback(GLFWwindow* glfwWindow,
 									  int width,
 									  int height);
@@ -164,7 +131,7 @@ GlfwWindow::GlfwWindow(RenderingApi renderingAPI,
 			glfwMakeContextCurrent(_glfwWindow.get());
 			vSyncEnabled(false);
 
-			if (InitGLAD()) {
+			if (OpenGlRenderer::InitGL((GLADloadproc)glfwGetProcAddress)) {
 				RenderContext::renderer()->initialize(*this);
 			}
 			else {
@@ -428,106 +395,27 @@ static bool InitGLFW() {
 	return true;
 }
 
-bool GlfwWindow::InitGLAD() {
-	A3D_LOG_I("");
-
-	// NOTE: OpenGL context must be setup first
-
-	static bool initialized = false;
-	if (!initialized) {
-
-		auto initStatus = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-		if (initStatus != 0) {
-
-			LogGLInfo();
-			initialized = true;
-		}
-		else {
-			A3D_LOG_F("Failed to initialize GLAD: {}", initStatus);
-			return false;
-		}
-	}
-	return true;
-}
-
-static void LogGLInfo() {
-
-	const GLubyte* renderer = glGetString(GL_RENDERER);
-	const GLubyte* version = glGetString(GL_VERSION);
-
-	// is this cool?
-	A3D_LOG_I("Renderer: {}", reinterpret_cast<const char*>(renderer));
-	A3D_LOG_I("Version: {}", reinterpret_cast<const char*>(version));
-
-	// extensions
-
-	GLint numExtensions;
-	glGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
-	ostringstream extensionsStream;
-	extensionsStream << "Extensions:" << endl;
-	for (GLint e=0; e < numExtensions; ++e) {
-		extensionsStream << "\t" << glGetStringi(GL_EXTENSIONS, e);
-		if (e < numExtensions-1) extensionsStream << endl;
-	}
-	A3D_LOG_I("{}", extensionsStream.str());
-
-	// context info
-
-	GLenum contextParams[] = {
-			GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS,
-			GL_MAX_CUBE_MAP_TEXTURE_SIZE,
-			GL_MAX_DRAW_BUFFERS,
-			GL_MAX_FRAGMENT_UNIFORM_COMPONENTS,
-			GL_MAX_TEXTURE_IMAGE_UNITS,
-			GL_MAX_TEXTURE_SIZE,
-			GL_MAX_VARYING_FLOATS,
-			GL_MAX_VERTEX_ATTRIBS,
-			GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS,
-			GL_MAX_VERTEX_UNIFORM_COMPONENTS,
-			GL_MAX_VIEWPORT_DIMS,
-			GL_STEREO,
-	};
-	const char* contextParamNames[] = {
-			"GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS",
-			"GL_MAX_CUBE_MAP_TEXTURE_SIZE",
-			"GL_MAX_DRAW_BUFFERS",
-			"GL_MAX_FRAGMENT_UNIFORM_COMPONENTS",
-			"GL_MAX_TEXTURE_IMAGE_UNITS",
-			"GL_MAX_TEXTURE_SIZE",
-			"GL_MAX_VARYING_FLOATS",
-			"GL_MAX_VERTEX_ATTRIBS",
-			"GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS",
-			"GL_MAX_VERTEX_UNIFORM_COMPONENTS",
-			"GL_MAX_VIEWPORT_DIMS",
-			"GL_STEREO",
-	};
-
-	// (integers)
-
-	ostringstream contextParamsStream;
-	contextParamsStream << "Context parameters:" << endl;
-	const int numIntParams = 10;
-	for (int p=0; p<numIntParams; ++p) {
-		GLint intValue = 0;
-		glGetIntegerv(contextParams[p], &intValue);
-		contextParamsStream << "\t" << contextParamNames[p] << ": " << intValue << endl;
-	}
-
-	// (int vec2)
-
-	GLint maxViewportDims[2];
-	glGetIntegerv(contextParams[10], maxViewportDims);
-	contextParamsStream << "\t" << contextParamNames[10] << ": " << maxViewportDims[0]
-		<< ", " << maxViewportDims[0] << endl;
-
-	// (boolean)
-
-	GLboolean stereo = 0;
-	glGetBooleanv(contextParams[11], &stereo);
-	contextParamsStream << "\t" << contextParamNames[11] << ": " << (stereo ? "true" : "false");
-
-	A3D_LOG_I("{}", contextParamsStream.str());
-}
+//bool GlfwWindow::InitGLAD() {
+//	A3D_LOG_I("");
+//
+//	// NOTE: OpenGL context must be setup first
+//
+//	static bool initialized = false;
+//	if (!initialized) {
+//
+//		auto initStatus = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+//		if (initStatus != 0) {
+//
+//			LogGLInfo();
+//			initialized = true;
+//		}
+//		else {
+//			A3D_LOG_F("Failed to initialize GLAD: {}", initStatus);
+//			return false;
+//		}
+//	}
+//	return true;
+//}
 
 void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
 	A3D_LOG_D("glfwWindow: {:p}, width: {}, height: {}",
