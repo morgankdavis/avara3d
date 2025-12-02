@@ -220,8 +220,9 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 	// get input
 
-	auto keysPressed = scene.inputManager()->keysPressed();
-	auto keysDown = scene.inputManager()->keysDown();
+	auto im = static_cast<DesktopInputManager*>(scene.inputManager());
+	auto keysPressed = im->keysPressed();
+	auto keysDown = im->keysDown();
 
 	if (keysPressed.count(Key::Escape)) {
 		window->close();
@@ -297,13 +298,13 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 	if (window->cursorCaptured()) {
 
-		vec2 mousePositionDelta = scene.inputManager()->mousePositionDelta();
+		vec2 mousePositionDelta = im->mousePositionDelta();
 
 		// move camera
 
 		if (auto pov = scene.visualWorld()->pointOfView().lock()) {
 
-			vec2 mouseScrollWheelDelta = scene.inputManager()->mouseScrollWheelDelta();
+			vec2 mouseScrollWheelDelta = im->mouseScrollWheelDelta();
 			if (mouseScrollWheelDelta.y) {
 
 				static const float FOV_SPEED = 2.5; // degrees/roll
@@ -331,7 +332,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 			// move
 
-			auto keysDown = scene.inputManager()->keysDown();
+//			auto keysDown = im->keysDown();
 
 			static float MOVE_SPEED = 0;
 			if (!MOVE_SPEED) MOVE_SPEED = utils::Max(scene.rootNode()->extent());

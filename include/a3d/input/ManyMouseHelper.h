@@ -1,0 +1,11 @@
+
+#ifndef AVARA3D_MANYMOUSEHELPER_H
+#define AVARA3D_MANYMOUSEHELPER_H
+
+
+class ManyMouseHelper {
+
+};
+
+
+#endif //AVARA3D_MANYMOUSEHELPER_H

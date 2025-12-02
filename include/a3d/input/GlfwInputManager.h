@@ -16,7 +16,7 @@
 #include "glm/vec2.hpp"
 
 #include "a3d/Types.h"
-#include "a3d/input/InputManager.h"
+#include "a3d/input/DesktopInputManager.h"
 
 
 struct GLFWwindow;
@@ -28,7 +28,7 @@ namespace a3d {
 	class GlfwWindow;
 
 	
-	class GlfwInputManager : public InputManager {
+	class GlfwInputManager : public DesktopInputManager {
 
 /*********************************************************************************************
 	Public Lifecycle Functions

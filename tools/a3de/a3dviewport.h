@@ -57,21 +57,29 @@ namespace a3de {
 
 		unsigned 		defaultFramebuffer() const override;
 
+	protected:
+
+/*********************************************************************************************
+	QWidget Protected Member Functions
+ *********************************************************************************************/
+
+		bool event(QEvent* e) override;
+		void keyPressEvent(QKeyEvent* e) override;
+		void keyReleaseEvent(QKeyEvent* e) override;
+
 /*********************************************************************************************
 	QOpenGLWidget Protected Member Functions
  *********************************************************************************************/
-
-	protected:
 
 		void 			initializeGL() override;
 		void 			resizeGL(int w, int h) override;
 		void 			paintGL() override;
 
+	private:
+
 /*********************************************************************************************
 	Private Member Variables
  *********************************************************************************************/
-
-	private:
 
 		a3d::Scene* 	_scene;
 	};

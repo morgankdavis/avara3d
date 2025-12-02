@@ -97,12 +97,14 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 	// get input
 
-	auto keysDown = scene.inputManager()->keysDown();
+	auto im = static_cast<DesktopInputManager*>(scene.inputManager());
+
+	auto keysDown = im->keysDown();
 	for (auto k : keysDown) {
 		cout << "Key: " << static_cast<underlying_type<Key>::type>(k) << endl;
 	}
 
-	auto keysPressed = scene.inputManager()->keysPressed();
+	auto keysPressed = im->keysPressed();
 	if (keysPressed.count(Key::Slash)) {
 		window->cursorCaptured(!(window->cursorCaptured()));
 	}
@@ -111,11 +113,11 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 		exit(0);
 	}
 
-	for (auto mb : scene.inputManager()->mouseButtonsDown()) {
+	for (auto mb : im->mouseButtonsDown()) {
 		cout << "Mouse button: " << static_cast<underlying_type<MouseButton>::type>(mb) << endl;
 	}
 
-	vec2 mouseScrollWheelDelta = scene.inputManager()->mouseScrollWheelDelta();
+	vec2 mouseScrollWheelDelta = im->mouseScrollWheelDelta();
 	if (mouseScrollWheelDelta.x > 0 || mouseScrollWheelDelta.y > 0) {
 		cout << "Mouse scroll wheel delta: (" << mouseScrollWheelDelta.x << ", "
 			 << mouseScrollWheelDelta.y << ")" << endl;
@@ -138,7 +140,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 		static const float MOUSE_SPEED_SCALAR = .002;
 		static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
 
-		vec2 mousePositionDelta = scene.inputManager()->mousePositionDelta();
+		vec2 mousePositionDelta = im->mousePositionDelta();
 		float deltaRotX = atan(MOUSE_SPEED * mousePositionDelta.x);
 		float deltaRotY = atan(MOUSE_SPEED * mousePositionDelta.y);
 

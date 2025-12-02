@@ -291,6 +291,7 @@ bool OpenGlRenderer::InitGL(GLGetProcAddress getProcAddress) {
 
 OpenGlRenderer::OpenGlRenderer():
 		Renderer{},
+		_isInitialized{false},
 		_meshElementGLMapping{},
 		_textureGLMapping{},
 		_linesGLMapping{},
@@ -356,7 +357,13 @@ bool OpenGlRenderer::initialize(const RenderContext& context) {
 		A3D_LOG_E("Unable to load font: {}.{}", STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
 	}
 
+	_isInitialized = true;
+
 	return true;
+}
+
+bool OpenGlRenderer::isInitialized() const {
+	return _isInitialized;
 }
 	
 void OpenGlRenderer::beginFrame(const Scene& scene,
@@ -630,7 +637,7 @@ void OpenGlRenderer::framebufferScaleChanged(const RenderContext& context) {
 }
 	
 /*********************************************************************************************
-	Static Non-Member Functions
+	Private Static Non-Member Functions
  *********************************************************************************************/
 
 void RenderSkybox(Mesh& skyboxMesh,
@@ -2463,48 +2470,86 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 	NewFrame();
 
 	ImGuiWindowFlags windowFlags = 0;
-	windowFlags |= ImGuiWindowFlags_NoTitleBar;
-	windowFlags |= ImGuiWindowFlags_NoScrollbar;
-	windowFlags |= ImGuiWindowFlags_NoMove;
-	windowFlags |= ImGuiWindowFlags_NoResize;
-	windowFlags |= ImGuiWindowFlags_NoCollapse;
-	windowFlags |= ImGuiWindowFlags_NoNav;
-	windowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
+//	windowFlags |= ImGuiWindowFlags_NoTitleBar;
+//	windowFlags |= ImGuiWindowFlags_NoScrollbar;
+//	windowFlags |= ImGuiWindowFlags_NoMove;
+//	windowFlags |= ImGuiWindowFlags_NoResize;
+//	windowFlags |= ImGuiWindowFlags_NoCollapse;
+//	windowFlags |= ImGuiWindowFlags_NoNav;
+//	windowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
 
 	ImGuiIO& io = ImGui::GetIO();
 	auto fonts = io.Fonts->Fonts;
 
 	// draw the text shadow
-	SetNextWindowBgAlpha(0);
-	Begin("StatsTextShadow", nullptr, windowFlags);
-	ImGuiStyle& style = GetStyle();
-	style.WindowBorderSize = 0;
-	SetWindowPos({10.0f, 2.0f});
-	ImVec2 cursorPos = ImGui::GetCursorPos();
-	ImGui::SetCursorPos(ImVec2(cursorPos.x + 1.0, cursorPos.y + 1.0));
-	ImGui::PushFont(fonts[0]);
-	TextColored(ImVec4{0, 0, 0, .5}, "avara3d");
-	ImGui::PopFont();
-	cursorPos = ImGui::GetCursorPos();
-	ImGui::SetCursorPos(ImVec2(cursorPos.x, cursorPos.y + OpenGlRenderer::STATS_TITLE_TO_BODY_PADDING));
-	ImGui::PushFont(fonts[1]);
-	TextColored(ImVec4{0, 0, 0, .5}, "%s", str.c_str());
-	ImGui::PopFont();
-	End();
+//	SetNextWindowBgAlpha(0);
+//	Begin("StatsTextShadow", nullptr, windowFlags);
+//	ImGuiStyle& style = GetStyle();
+//	style.WindowBorderSize = 0;
+//	SetWindowPos({10.0f, 2.0f});
+//	ImVec2 cursorPos = ImGui::GetCursorPos();
+//	ImGui::SetCursorPos(ImVec2(cursorPos.x + 1.0, cursorPos.y + 1.0));
+//	ImGui::PushFont(fonts[0]);
+//	TextColored(ImVec4{0, 0, 0, .5}, "avara3d");
+//	ImGui::PopFont();
+//	cursorPos = ImGui::GetCursorPos();
+//	ImGui::SetCursorPos(ImVec2(cursorPos.x, cursorPos.y + OpenGlRenderer::STATS_TITLE_TO_BODY_PADDING));
+//	ImGui::PushFont(fonts[1]);
+//	TextColored(ImVec4{0, 0, 0, .5}, "%s", str.c_str());
+//	ImGui::PopFont();
+//	End();
+//
+//	// draw the text
+//	SetNextWindowBgAlpha(0);
+//	Begin("StatsText", nullptr, windowFlags);
+//	SetWindowPos({10.0f, 2.0f});
+//	ImGui::PushFont(fonts[0]);
+//	TextColored(ImVec4{1, 1, 1, 1}, "avara3d");
+//	ImGui::PopFont();
+//	cursorPos = ImGui::GetCursorPos();
+//	ImGui::SetCursorPos(ImVec2(cursorPos.x, cursorPos.y + OpenGlRenderer::STATS_TITLE_TO_BODY_PADDING));
+//	ImGui::PushFont(fonts[1]);
+//	TextColored(ImVec4{1, 1, 1, 1}, "%s", str.c_str());
+//	ImGui::PopFont();
+//	End();
 
-	// draw the text
-	SetNextWindowBgAlpha(0);
-	Begin("StatsText", nullptr, windowFlags);
+
+
+// input test
+
+	ImGui::Begin("Input test", nullptr, windowFlags);
+
 	SetWindowPos({10.0f, 2.0f});
-	ImGui::PushFont(fonts[0]);
-	TextColored(ImVec4{1, 1, 1, 1}, "avara3d");
-	ImGui::PopFont();
-	cursorPos = ImGui::GetCursorPos();
-	ImGui::SetCursorPos(ImVec2(cursorPos.x, cursorPos.y + OpenGlRenderer::STATS_TITLE_TO_BODY_PADDING));
+
 	ImGui::PushFont(fonts[1]);
-	TextColored(ImVec4{1, 1, 1, 1}, "%s", str.c_str());
+
+	// --- Button + hover ---
+	if (ImGui::Button("Click me")) {
+		A3D_LOG_I("ImGui button was CLICKED");
+	}
+
+	if (ImGui::IsItemHovered()) {
+		ImGui::SameLine();
+		ImGui::Text("(hovering)");
+	}
+
+// --- Toggle button state ---
+	static bool toggled = false;
+	if (ImGui::Checkbox("Toggle", &toggled)) {
+		A3D_LOG_I("Toggle is now: %s", toggled ? "ON" : "OFF");
+	}
+
+// --- Text input ---
+	static char textBuf[128] = "type here";
+	if (ImGui::InputText("Text field", textBuf, sizeof(textBuf))) {
+		A3D_LOG_I("Text changed: '%s'", textBuf);
+	}
+
 	ImGui::PopFont();
-	End();
+	ImGui::End();
+
+
+
 
 	Render();
 	ImGui_ImplOpenGL3_RenderDrawData(GetDrawData());

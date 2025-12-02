@@ -43,10 +43,11 @@ static GlfwInputManager* InputManagerFromGLFWWindow(GLFWwindow* glfwWindow);
  *********************************************************************************************/
 
 GlfwInputManager::GlfwInputManager(GlfwWindow* window):
-    InputManager{},
+    DesktopInputManager{},
     _usingManyMouse{false},
     _window{window},
     _errorMask{WindowInputManagerErrorMask::None} {
+
     registerGLFWCallbacks(window->glfwWindow());
     initMouseInput();
 }
@@ -65,6 +66,7 @@ GlfwInputManager::~GlfwInputManager() {
  *********************************************************************************************/
 
 WindowInputManagerErrorMask GlfwInputManager::errorMask() const {
+
     return _errorMask;
 }
 
@@ -183,10 +185,12 @@ void GlfwInputManager::initManyMouse() {
 }
 
 void GlfwInputManager::quitManyMouse() {
+
     ManyMouse_Quit();
 }
 
 void GlfwInputManager::registerGLFWCallbacks(GLFWwindow* glfwWindow) {
+
     glfwSetMouseButtonCallback(glfwWindow, GlfwInputManager::GLFWMouseButtonCallback);
     // glfwSetCursorPosCallback -> in initMouseMotionInput()
     glfwSetScrollCallback(glfwWindow, GlfwInputManager::GLFWScrollWheelCallback);
@@ -196,6 +200,7 @@ void GlfwInputManager::registerGLFWCallbacks(GLFWwindow* glfwWindow) {
 }
 
 void GlfwInputManager::unregisterGLFWCallbacks(GLFWwindow* glfwWindow) {
+
     glfwSetMouseButtonCallback(glfwWindow, nullptr);
     glfwSetCursorPosCallback(glfwWindow, nullptr);
     glfwSetScrollCallback(glfwWindow, nullptr);
@@ -210,6 +215,7 @@ void GlfwInputManager::GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
                                                int button,
                                                int action,
                                                int mods) {
+
     auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
 
     auto a3dButton = static_cast<MouseButton>(button);
@@ -233,6 +239,7 @@ void GlfwInputManager::GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
 void GlfwInputManager::GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
                                                   double xPos,
                                                   double yPos) {
+
     auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
 
     // keep "lastPos" outside cursorCaptured() check to keep it from
@@ -259,6 +266,7 @@ void GlfwInputManager::GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
 void GlfwInputManager::GLFWScrollWheelCallback(GLFWwindow* glfwWindow,
                                                double xOffset,
                                                double yOffset) {
+
     auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
 
     inputManager->_mouseScrollWheelDelta.x += (float)xOffset;
@@ -270,6 +278,7 @@ void GlfwInputManager::GLFWKeyCallback(GLFWwindow* glfwWindow,
                                        int scancode,
                                        int action,
                                        int mods) {
+
     auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
 
     if (action == GLFW_PRESS) {
@@ -292,6 +301,7 @@ void GlfwInputManager::GLFWKeyCallback(GLFWwindow* glfwWindow,
  *********************************************************************************************/
 
 GlfwInputManager* InputManagerFromGLFWWindow(GLFWwindow* glfwWindow) {
+
     auto window = (GlfwWindow*)glfwGetWindowUserPointer(glfwWindow);
     return dynamic_cast<GlfwInputManager*>(window->visualWorld()->scene()->inputManager());
 }

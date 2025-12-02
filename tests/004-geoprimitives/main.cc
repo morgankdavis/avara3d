@@ -267,18 +267,17 @@ int main(int argc, const char* argv[]) {
 void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	A3D_APP_LOG_T(g_log, "scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
 
-	auto inputManager = scene.inputManager();
-
 	GlfwWindow* window = nullptr;
 	if (scene.visualWorld()) {
 		window = dynamic_cast<GlfwWindow*>(scene.visualWorld()->renderContext());
 	}
 
-	auto keysPressed = scene.inputManager()->keysPressed();
-
 	// get input
 
-	auto keysDown = scene.inputManager()->keysDown();
+	auto im = static_cast<DesktopInputManager*>(scene.inputManager());
+
+	auto keysPressed = im->keysPressed();
+	auto keysDown = im->keysDown();
 
 	auto cursorCaptured = true;
 	if (window) {
@@ -329,7 +328,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 			static const float MOUSE_SPEED_SCALAR = .002;
 			static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
 
-			vec2 mousePositionDelta = scene.inputManager()->mousePositionDelta();
+			vec2 mousePositionDelta = im->mousePositionDelta();
 			float deltaRotX = atan(MOUSE_SPEED * mousePositionDelta.x);
 			float deltaRotY = atan(MOUSE_SPEED * mousePositionDelta.y);
 

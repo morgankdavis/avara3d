@@ -1,6 +1,9 @@
 #include "a3dviewport.h"
 
 #include <QDateTime>
+#include <QEvent>
+#include <QMouseEvent>
+#include <QWidget>
 
 #include "imgui.h"
 
@@ -13,6 +16,12 @@ using namespace std;
 
 
 /*********************************************************************************************
+	Private Static Non-Member Prototypes
+ *********************************************************************************************/
+
+static ImGuiKey ImGuiKeyFromQtKey(int qt_key);
+
+/*********************************************************************************************
 	Public Lifecycle Functions
  *********************************************************************************************/
 
@@ -23,6 +32,12 @@ A3DViewport::A3DViewport(RenderingApi renderingApi, QWidget* parent):
 
 	// optional: better default size
 	setMinimumSize(1280, 768);
+
+	setMouseTracking(true);
+
+	setFocusPolicy(Qt::StrongFocus); // tab + click focus
+	// setFocusPolicy(Qt::ClickFocus);
+	setFocus();
 }
 
 A3DViewport::~A3DViewport() {
@@ -40,6 +55,128 @@ Scene* A3DViewport::scene() const {
 
 void A3DViewport::scene(Scene* scene) {
 	_scene = scene;
+}
+
+/*********************************************************************************************
+	QWidget Protected Member Functions
+ *********************************************************************************************/
+
+bool A3DViewport::event(QEvent* e) {
+
+	if (_renderer->isInitialized()) {
+
+		ImGuiIO &io = ImGui::GetIO();
+
+		switch (e->type()) {
+			case QEvent::MouseMove: {
+				auto *ev = static_cast<QMouseEvent *>(e);
+				const QPointF p = ev->position();
+				io.MousePos = ImVec2(float(p.x()), float(p.y()));
+				break;
+			}
+			case QEvent::MouseButtonPress:
+			case QEvent::MouseButtonRelease: {
+				auto *ev = static_cast<QMouseEvent *>(e);
+				const bool down = (e->type() == QEvent::MouseButtonPress);
+				int buttonIndex = 0;
+				switch (ev->button()) {
+					case Qt::LeftButton:
+						buttonIndex = 0;
+						break;
+					case Qt::RightButton:
+						buttonIndex = 1;
+						break;
+					case Qt::MiddleButton:
+						buttonIndex = 2;
+						break;
+					default:
+						break;
+				}
+				if (buttonIndex >= 0 && buttonIndex < IM_ARRAYSIZE(io.MouseDown)) {
+					io.MouseDown[buttonIndex] = down;
+				}
+				break;
+			}
+			case QEvent::Wheel: {
+				auto *ev = static_cast<QWheelEvent *>(e);
+				const QPoint numDegrees = ev->angleDelta() / 8;
+				if (numDegrees.y() != 0) {
+					io.MouseWheel += float(numDegrees.y()) / 120.0f;
+				}
+				if (numDegrees.x() != 0) {
+					io.MouseWheelH += float(numDegrees.x()) / 120.0f;
+				}
+				break;
+			}
+			default:
+				break;
+		}
+	}
+
+	return QOpenGLWidget::event(e);
+}
+
+void A3DViewport::keyPressEvent(QKeyEvent* e) {
+
+	if (_renderer->isInitialized()) {
+
+		ImGuiIO &io = ImGui::GetIO();
+
+		const QString text = e->text();
+		if (!text.isEmpty()) {
+			QByteArray utf8 = text.toUtf8();
+			io.AddInputCharactersUTF8(utf8.constData());
+		}
+
+		int key = e->key();
+		A3D_LOG_I("KEY: {}", key);
+		if (key >= 0 && key < IM_ARRAYSIZE(io.KeysDown)) {
+			io.KeysDown[key] = true;
+		}
+
+		io.KeyCtrl = e->modifiers().testFlag(Qt::ControlModifier);
+		io.KeyShift = e->modifiers().testFlag(Qt::ShiftModifier);
+		io.KeyAlt = e->modifiers().testFlag(Qt::AltModifier);
+		io.KeySuper = e->modifiers().testFlag(Qt::MetaModifier);
+
+		if (io.WantCaptureKeyboard) {
+			e->accept();
+		}
+		else {
+			QOpenGLWidget::keyPressEvent(e);
+		}
+	}
+	else {
+		QOpenGLWidget::keyPressEvent(e);
+	}
+}
+
+void A3DViewport::keyReleaseEvent(QKeyEvent* e) {
+
+	if (_renderer->isInitialized()) {
+
+		ImGuiIO &io = ImGui::GetIO();
+
+		int key = e->key();
+		if (key >= 0 && key < IM_ARRAYSIZE(io.KeysDown)) {
+			io.KeysDown[key] = false;
+		}
+
+		io.KeyCtrl = e->modifiers().testFlag(Qt::ControlModifier);
+		io.KeyShift = e->modifiers().testFlag(Qt::ShiftModifier);
+		io.KeyAlt = e->modifiers().testFlag(Qt::AltModifier);
+		io.KeySuper = e->modifiers().testFlag(Qt::MetaModifier);
+
+		if (io.WantCaptureKeyboard) {
+			e->accept();
+		}
+		else {
+			QOpenGLWidget::keyReleaseEvent(e);
+		}
+	}
+	else {
+		QOpenGLWidget::keyReleaseEvent(e);
+	}
 }
 
 /*********************************************************************************************
@@ -135,4 +272,33 @@ glm::vec2 A3DViewport::framebufferScale() const {
 
 unsigned A3DViewport::defaultFramebuffer() const {
 	return static_cast<unsigned>(defaultFramebufferObject());
+}
+
+/*********************************************************************************************
+	Private Static Non-Member Functions
+ *********************************************************************************************/
+
+static ImGuiKey ImGuiKeyFromQtKey(int qt_key) {
+
+	using IK = ImGuiKey;
+
+	switch (qt_key) {
+		case Qt::Key_Backspace: return ImGuiKey_Backspace;
+		case Qt::Key_Delete:    return ImGuiKey_Delete;
+		case Qt::Key_Tab:       return ImGuiKey_Tab;
+		case Qt::Key_Left:      return ImGuiKey_LeftArrow;
+		case Qt::Key_Right:     return ImGuiKey_RightArrow;
+		case Qt::Key_Up:        return ImGuiKey_UpArrow;
+		case Qt::Key_Down:      return ImGuiKey_DownArrow;
+		case Qt::Key_Home:      return ImGuiKey_Home;
+		case Qt::Key_End:       return ImGuiKey_End;
+		case Qt::Key_PageUp:    return ImGuiKey_PageUp;
+		case Qt::Key_PageDown:  return ImGuiKey_PageDown;
+		case Qt::Key_Return:
+		case Qt::Key_Enter:     return ImGuiKey_Enter;
+		case Qt::Key_Escape:    return ImGuiKey_Escape;
+		default:                break;
+	}
+
+	return ImGuiKey_None;
 }

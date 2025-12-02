@@ -211,9 +211,9 @@ namespace a3d {
 
 	enum class Key : int {
 		Unknown = 0,
-		Space = 32,
-		Apostrophe = 39,
-		Comma = 44,
+		Space = 32, //+
+		Apostrophe = 39, //+
+		Comma = 44, //+
 		Minus = 45,
 		Period = 46,
 		Slash = 47,

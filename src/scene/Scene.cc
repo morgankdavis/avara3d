@@ -94,7 +94,7 @@ Scene::Scene(unique_ptr<VisualWorld> visualWorld,
 
 	if (_visualWorld) _visualWorld->attachedToScene(*this);
 	if (_physicalWorld) _physicalWorld->attachedToScene(*this);
-	if (_inputManager) _inputManager->attachedToScene(*this);
+//	if (_inputManager) _inputManager->attachedToScene(*this);
 }
 
 Scene::Scene(const string& name,
@@ -118,7 +118,7 @@ Scene::~Scene() {
 	if (_rootNode) _rootNode->detachedFromScene(*this);
 	if (_visualWorld) _visualWorld->detachedFromScene(*this);
 	if (_physicalWorld) _physicalWorld->detachedFromScene(*this);
-	if (_inputManager) _inputManager->detachedFromScene(*this);
+//	if (_inputManager) _inputManager->detachedFromScene(*this);
 }
 
 /*********************************************************************************************
@@ -235,13 +235,13 @@ InputManager* Scene::inputManager() const {
 void Scene::inputManager(unique_ptr<InputManager> inputManager) {
 
 	if (_inputManager) {
-		_inputManager->detachedFromScene(*this);
+//		_inputManager->detachedFromScene(*this);
 	}
 
 	_inputManager = std::move(inputManager);
 
 	if (_inputManager) {
-		_inputManager->attachedToScene(*this);
+//		_inputManager->attachedToScene(*this);
 	}
 }
 

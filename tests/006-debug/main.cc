@@ -146,7 +146,9 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 	// get input
 
-	auto keysPressed = scene.inputManager()->keysPressed();
+	auto im = static_cast<DesktopInputManager*>(scene.inputManager());
+
+	auto keysPressed = im->keysPressed();
 
 	if (keysPressed.count(Key::Escape)) {
 		window->close();
@@ -208,7 +210,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 		// mouselook
 
-		vec2 mousePositionDelta = scene.inputManager()->mousePositionDelta();
+		vec2 mousePositionDelta = im->mousePositionDelta();
 
 		auto pov = scene.visualWorld()->pointOfView().lock();
 		if (pov) {
@@ -232,7 +234,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 			static float MOVE_SPEED = utils::Max(scene.rootNode()->extent());
 
-			auto keysDown = scene.inputManager()->keysDown();
+			auto keysDown = im->keysDown();
 
 			if (keysDown.count(Key::W)) {
 				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camForward;

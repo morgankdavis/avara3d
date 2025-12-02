@@ -420,8 +420,6 @@ int main(int argc, const char* argv[]) {
 void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	A3D_APP_LOG_T(g_log, "scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
 
-	auto inputManager = scene.inputManager();
-
 	GlfwWindow* window = nullptr;
 	if (scene.visualWorld()) {
 		window = static_cast<GlfwWindow*>(scene.visualWorld()->renderContext());
@@ -437,10 +435,12 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 	// get input
 
-	auto mouseButtonsDown = inputManager->mouseButtonsDown();
-	auto mouseButtonsPressed = inputManager->mouseButtonsPressed();
-	auto keysDown = inputManager->keysDown();
-	auto keysPressed = inputManager->keysPressed();
+	auto im = static_cast<DesktopInputManager*>(scene.inputManager());
+
+	auto mouseButtonsDown = im->mouseButtonsDown();
+	auto mouseButtonsPressed = im->mouseButtonsPressed();
+	auto keysDown = im->keysDown();
+	auto keysPressed = im->keysPressed();
 	auto cursorCaptured = true;
 	if (window) {
 		cursorCaptured = window->cursorCaptured();
@@ -713,7 +713,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 		AddRing(scene);
 	}
 
-	vec2 mouseScrollWheelDelta = scene.inputManager()->mouseScrollWheelDelta();
+	vec2 mouseScrollWheelDelta = im->mouseScrollWheelDelta();
 	if (mouseScrollWheelDelta.y > 0) {
 
 		auto newSpeed = std::clamp(scene.physicalWorld()->speed() + mouseScrollWheelDelta.y * 0.1,
@@ -725,7 +725,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 		// mouselook
 
-		vec2 mousePositionDelta = inputManager->mousePositionDelta();
+		vec2 mousePositionDelta = im->mousePositionDelta();
 
 		if (auto pov = scene.visualWorld()->pointOfView().lock()) {
 

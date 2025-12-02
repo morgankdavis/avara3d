@@ -77,6 +77,7 @@ namespace a3d {
 		RenderingApi 			renderingApi() const override;
 
 		bool 					initialize(const RenderContext& context) override;
+		bool					isInitialized() const override;
 
 		void 					beginFrame(const Scene& scene,
 										   const RenderContext& context,
@@ -145,6 +146,7 @@ namespace a3d {
 	private:
 
 		//RenderContext*									_context;
+		bool											_isInitialized;
 		MeshElementGLMapping 							_meshElementGLMapping;
 		TextureGLMapping								_textureGLMapping;
 		LinesGLMapping									_linesGLMapping;

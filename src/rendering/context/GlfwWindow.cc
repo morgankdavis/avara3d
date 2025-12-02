@@ -317,7 +317,6 @@ bool GlfwWindow::vSyncEnabled() const {
 }
 
 void GlfwWindow::vSyncEnabled(bool enabled) {
-	RenderContext::vSyncEnabled(enabled);
 
 	if (enabled) {
 		glfwSwapInterval(1);

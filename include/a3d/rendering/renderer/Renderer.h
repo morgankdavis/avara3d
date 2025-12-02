@@ -52,6 +52,7 @@ namespace a3d {
 		virtual RenderingApi 			renderingApi() const = 0;
 
 		virtual bool 					initialize(const RenderContext& context) = 0;
+		virtual bool					isInitialized() const = 0;
 
 		virtual void 					beginFrame(const Scene& scene,
 												   const RenderContext& context,
