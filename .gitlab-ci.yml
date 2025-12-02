@@ -71,6 +71,7 @@ windows-debug:
     - mkdir gitlab-build
     - cd gitlab-build
     - cmake
+      -DCMAKE_PREFIX_PATH="C:/Qt/6.10.1/msvc2022_64"
       -DCMAKE_BUILD_TYPE="Debug"
       -T"ClangCL"
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
