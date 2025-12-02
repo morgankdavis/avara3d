@@ -23,7 +23,7 @@
 
 //#ifdef OPENGL_CORE
 #include "imgui.h"
-#include "imgui_impl_glfw.h"
+//#include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 //#endif
 
@@ -302,7 +302,8 @@ OpenGlRenderer::OpenGlRenderer():
 		_activeLines{},
 		_glEnvironmentUBO{0},
 		_overlayTitleFont{},
-		_overlayBodyFont{} { }
+		_overlayBodyFont{}
+		/*_defaultFramebuffer{0}*/ { }
 
 OpenGlRenderer::~OpenGlRenderer() {
 	A3D_LOG_D("Destroying OpenGlRenderer {:p}", static_cast<void*>(this));
@@ -317,10 +318,9 @@ OpenGlRenderer::~OpenGlRenderer() {
 	CleanupTextureResources(_activeTextures, _textureGLMapping);
 	CleanupLinesResources(_activeLines, _linesGLMapping);
 
-	// a3de
-	//ImGui_ImplOpenGL3_Shutdown();
-	//ImGui_ImplGlfw_Shutdown();
-	//ImGui::DestroyContext();
+	ImGui_ImplOpenGL3_Shutdown();
+//	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
 }
 	
 /*********************************************************************************************
@@ -343,8 +343,7 @@ bool OpenGlRenderer::initialize(const RenderContext& context) {
 
 	// setup Imgui
 
-	// a3de
-	//InitImgui(context);
+	InitImgui(context);
 
 	_overlayTitleFont = utils::FontNamed(STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
 	if (_overlayTitleFont->buffer()->size()) {
@@ -359,8 +358,6 @@ bool OpenGlRenderer::initialize(const RenderContext& context) {
 	else {
 		A3D_LOG_E("Unable to load font: {}.{}", STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
 	}
-
-
 
 	return true;
 }
@@ -410,6 +407,7 @@ void OpenGlRenderer::postTraversal(const Scene& scene,
 }
 
 void OpenGlRenderer::render(const Scene& scene,
+							const RenderContext& context,
 							const DebugOptions& debugOptions,
 							Stats& stats) {
 
@@ -424,7 +422,7 @@ void OpenGlRenderer::render(const Scene& scene,
 	auto framebufferWidth = framebufferSize.x;
 	auto framebufferHeight = framebufferSize.y;
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, context.defaultFramebuffer());
 	glViewport(0, 0, (GLsizei)framebufferWidth, (GLsizei)framebufferHeight);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -506,6 +504,7 @@ void OpenGlRenderer::render(const Scene& scene,
 }
 
 void OpenGlRenderer::render(Mesh& mesh,
+							const RenderContext& context,
 							const mat4& modelMat,
 							const mat4& viewMat,
 							const mat4& projectionMat,
@@ -513,11 +512,12 @@ void OpenGlRenderer::render(Mesh& mesh,
 							Stats& stats) {
 
 	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
-		render(mesh.aabbLines(), modelMat, viewMat, projectionMat);
+		render(mesh.aabbLines(), context, modelMat, viewMat, projectionMat);
 	}
 }
 
 void OpenGlRenderer::render(MeshElement& element,
+							const RenderContext& context,
 							Material& material,
 							const mat4& modelMat,
 							const mat4& viewMat,
@@ -575,6 +575,7 @@ void OpenGlRenderer::render(MeshElement& element,
 }
 	
 void OpenGlRenderer::render(const std::vector<Line>& lines,
+							const RenderContext& context,
 							const glm::mat4& modelMat,
 							const glm::mat4& viewMat,
 							const glm::mat4& projectionMat) {
@@ -2305,7 +2306,7 @@ void InitImgui(const RenderContext& context) {
 	ImGuiIO& io = ImGui::GetIO();
 	io.IniFilename = nullptr;
 
-	GLFWwindow* glfwWindow = dynamic_cast<const GlfwWindow*>(&context)->glfwWindow();
+//	GLFWwindow* glfwWindow = dynamic_cast<const GlfwWindow*>(&context)->glfwWindow();
 
 //	ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
 //	ImGui_ImplOpenGL3_Init();
@@ -2318,7 +2319,7 @@ void InitImgui(const RenderContext& context) {
 }
 
 void UpdateImguiScale(const RenderContext& context, const Font& overLayFont, const Font& bodyFont) {
-	return;// a3de
+
 	// https://github.com/ocornut/imgui/blob/master/docs/FAQ.md#q-how-should-i-handle-dpi-in-my-application
 	// https://github.com/ocornut/imgui/discussions/3925
 	// https://github.com/ocornut/imgui/issues/3757
@@ -2368,7 +2369,9 @@ void AddImguiFont(const RenderContext& context, const Font& font, float size) {
 }
 
 void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
-return;// a3de
+
+	return;
+
 	using namespace ImGui;
 
 #ifdef WINDOWS
@@ -2471,7 +2474,7 @@ return;// a3de
 			recordingStr);
 
 	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
+	//ImGui_ImplGlfw_NewFrame(); // a3de
 	NewFrame();
 
 	ImGuiWindowFlags windowFlags = 0;

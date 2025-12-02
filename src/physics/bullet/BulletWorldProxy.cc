@@ -196,6 +196,7 @@ void BulletWorldProxy::updateCollisionPairs() {
 }
 
 void BulletWorldProxy::drawDebug(Renderer &renderer,
+								 const RenderContext& context,
 								 const glm::mat4 &viewMat,
 								 const glm::mat4 &projectionMat,
 								 const DebugOptions &debugOptions) {
@@ -206,7 +207,7 @@ void BulletWorldProxy::drawDebug(Renderer &renderer,
 	_btDebugDrawer->setDebugMode(btDebugModes);
 	_btDebugDrawer->clear();
 	_btWorld->debugDrawWorld();
-	_btDebugDrawer->draw(renderer, viewMat, projectionMat);
+	_btDebugDrawer->draw(renderer, context, viewMat, projectionMat);
 #endif
 }
 

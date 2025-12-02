@@ -162,6 +162,7 @@ void Mesh::burnTransform(const mat4& transform, bool normals) {
 }
 
 void Mesh::draw(Renderer& renderer,
+				const RenderContext& context,
 				const mat4& modelMat,
 				const mat4& viewMat,
 				const mat4& projectionMat,
@@ -169,6 +170,7 @@ void Mesh::draw(Renderer& renderer,
 				Stats& stats) {
 
 	renderer.render(*this,
+					context,
 					modelMat, viewMat, projectionMat,
 					debugOptions, stats);
 	
@@ -184,6 +186,7 @@ void Mesh::draw(Renderer& renderer,
 		}
 
 		element->draw(renderer,
+					  context,
 					  *material,
 					  modelMat,
 					  viewMat,

@@ -25,6 +25,7 @@ namespace a3d {
 
 	class Line;
 	class Renderer;
+	class RenderContext;
 	
 	
 	class BulletDebugDrawer : public btIDebugDraw {
@@ -44,8 +45,9 @@ namespace a3d {
 
 		void 	clear();
 		void 	draw(Renderer& renderer,
-							 const glm::mat4& viewMat,
-							 const glm::mat4& projectionMat);
+					 const RenderContext& context,
+					 const glm::mat4& viewMat,
+					 const glm::mat4& projectionMat);
 
 /*********************************************************************************************
 	btIDebugDraw Members

@@ -29,6 +29,7 @@ namespace a3d {
 
 
 	class BulletDebugDrawer;
+	class RenderContext;
 
 
 	class BulletWorldProxy : public PhysicalWorldProxy {
@@ -60,6 +61,7 @@ namespace a3d {
 		void 	updateCollisionPairs() override;
 
 		void 	drawDebug(Renderer &renderer,
+						  const RenderContext& context,
 						  const glm::mat4 &viewMat,
 						  const glm::mat4 &projectionMat,
 						  const DebugOptions &debugOptions) override;

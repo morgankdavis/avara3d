@@ -299,7 +299,7 @@ void VisualWorld::draw(const Scene& scene,
 					}
 
 					A3D_GL_CHECK()
-					renderer->render(scene, debugOptions, stats);
+					renderer->render(scene, *_renderContext, debugOptions, stats);
 					A3D_GL_CHECK()
 
 					A3D_GL_CHECK()
@@ -313,6 +313,7 @@ void VisualWorld::draw(const Scene& scene,
 					if (pov->light()) lightNodes.push_back(pov.get());
 					A3D_GL_CHECK()
 					scene.rootNode()->draw(*renderer,
+										   *_renderContext,
 										   viewMat,
 										   projectionMat,
 										   debugOptions,
@@ -329,6 +330,7 @@ void VisualWorld::draw(const Scene& scene,
 
 						if (auto bulletWorldProxy = dynamic_cast<BulletWorldProxy *>(physicalWorld->proxy())) {
 							bulletWorldProxy->drawDebug(*renderer,
+														*_renderContext,
 														viewMat,
 														projectionMat,
 														debugOptions);

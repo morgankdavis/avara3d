@@ -69,6 +69,7 @@ private:
 	std::shared_ptr<a3d::Node>*		_meshNode;
 	std::vector<std::shared_ptr<a3d::Mesh>>*	_meshes;
 	std::shared_ptr<a3d::Mesh>*			_mesh;
+	a3d::Node*						_pointLightNode;
 
 
 	std::unique_ptr<a3d::Scene> _scene;

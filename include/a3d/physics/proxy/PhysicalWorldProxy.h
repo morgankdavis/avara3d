@@ -22,6 +22,7 @@ namespace a3d {
 	class PhysicalWorld;
 	class PhysicsBody;
 	class Renderer;
+	class RenderContext;
 
 
 	class PhysicalWorldProxy {
@@ -53,6 +54,7 @@ namespace a3d {
 		virtual void 	updateCollisionPairs() = 0;
 
 		virtual void 	drawDebug(Renderer &renderer,
+								  const RenderContext& context,
 								  const glm::mat4 &viewMat,
 								  const glm::mat4 &projectionMat,
 								  const DebugOptions &debugOptions) = 0;

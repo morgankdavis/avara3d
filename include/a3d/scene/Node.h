@@ -31,6 +31,7 @@ namespace a3d {
 	class Light;
 	class Mesh;
 	class Renderer;
+	class RenderContext;
 	class Scene;
 	class PhysicalWorld;
 	class PhysicsBody;
@@ -173,6 +174,7 @@ namespace a3d {
 		void	 							applyPhysicsTransform(const glm::mat4& transform);
 
 		void 								draw(Renderer& renderer,
+												 const RenderContext& context,
 												 const glm::mat4& viewMat,
 												 const glm::mat4& projectionMat,
 												 const DebugOptions& debugOptions,

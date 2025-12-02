@@ -26,6 +26,7 @@ namespace a3d {
 	class Node;
 	class Program;
 	class Renderer;
+	class RenderContext;
 
 
 	class MeshElement {
@@ -45,6 +46,7 @@ namespace a3d {
  *********************************************************************************************/
 
 		void 							draw(Renderer& renderer,
+											 const RenderContext& context,
 											 Material& material,
 											 const glm::mat4& modelMat,
 											 const glm::mat4& viewMat,

@@ -87,6 +87,8 @@ namespace a3d {
 		void							attachedToVisualWorld(VisualWorld* world);
 		void							detachedFromVisualWorld(VisualWorld* world);
 
+		virtual unsigned				defaultFramebuffer() const = 0;
+
 /*********************************************************************************************
 	Protected Member Variables
  *********************************************************************************************/

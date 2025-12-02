@@ -102,6 +102,8 @@ namespace a3d {
 		glm::uvec2				framebufferSize() const override;
 		glm::vec2				framebufferScale() const override;
 
+		unsigned 				defaultFramebuffer() const override;
+
 /*********************************************************************************************
 	Internal Member Functions
  *********************************************************************************************/

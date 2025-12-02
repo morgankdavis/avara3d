@@ -44,6 +44,7 @@ MeshElement::~MeshElement() {
  *********************************************************************************************/
 
 void MeshElement::draw(Renderer& renderer,
+					   const RenderContext& context,
 					   Material& material,
 					   const mat4& modelMat,
 					   const mat4& viewMat,
@@ -52,6 +53,7 @@ void MeshElement::draw(Renderer& renderer,
 					   Stats& stats) {
 	
 	renderer.render(*this,
+					context,
 					material,
 					modelMat,
 					viewMat,

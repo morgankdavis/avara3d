@@ -13,6 +13,7 @@
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
+#include "imgui_impl_glfw.h"
 
 #include "a3d/Utilities.h"
 #include "a3d/diagnostic/exception/Exception.h"
@@ -133,14 +134,19 @@ GlfwWindow::GlfwWindow(RenderingApi renderingAPI,
 
 			if (OpenGlRenderer::InitGL((GLADloadproc)glfwGetProcAddress)) {
 				RenderContext::renderer()->initialize(*this);
+				ImGui_ImplGlfw_InitForOpenGL(_glfwWindow.get(), true);
 			}
 			else {
+				// TODO: move
 				glfwTerminate();
+				ImGui_ImplGlfw_Shutdown();
 				throw Exception("Failed to initialize GLAD.");
 			}
 		}
 		else {
+			// TODO: move
 			glfwTerminate();
+			ImGui_ImplGlfw_Shutdown();
 			throw Exception("Couldn't create GLFW Window.");
 		}
 	}
@@ -157,6 +163,7 @@ GlfwWindow::~GlfwWindow() {
 	// TODO: must modify to support multiple windows
 	glfwSetErrorCallback(nullptr);
 	glfwTerminate();
+	ImGui_ImplGlfw_Shutdown();
 }
 
 /*********************************************************************************************
@@ -340,6 +347,10 @@ glm::vec2 GlfwWindow::framebufferScale() const {
 	vec2 scale;
 	glfwGetWindowContentScale(_glfwWindow.get(), &scale.x, &scale.y);
 	return scale;
+}
+
+unsigned GlfwWindow::defaultFramebuffer() const {
+	return 0;
 }
 
 /*********************************************************************************************

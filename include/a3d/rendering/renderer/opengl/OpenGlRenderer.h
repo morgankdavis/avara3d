@@ -76,7 +76,7 @@ namespace a3d {
 
 		RenderingApi 			renderingApi() const override;
 
-		bool 					initialize(const RenderContext& context) override;
+		bool 					initialize(const RenderContext& context);
 
 		void 					beginFrame(const Scene& scene,
 										   const RenderContext& context,
@@ -98,15 +98,18 @@ namespace a3d {
 											  Stats& stats) override;
 
 		void 					render(const Scene& scene,
+									   const RenderContext& context,
 									   const DebugOptions& debugOptions,
 									   Stats& stats) override;
 		void 					render(Mesh& mesh,
+									   const RenderContext& context,
 									   const glm::mat4& modelMat,
 									   const glm::mat4& viewMat,
 									   const glm::mat4& projectionMat,
 									   const DebugOptions& debugOptions,
 									   Stats& stats) override;
 		void 					render(MeshElement& element,
+									   const RenderContext& context,
 									   Material& material,
 									   const glm::mat4& modelMat,
 									   const glm::mat4& viewMat,
@@ -114,6 +117,7 @@ namespace a3d {
 									   const DebugOptions& debugOptions,
 									   Stats& stats) override;
 		void 					render(const std::vector<Line>& lines,
+									   const RenderContext& context,
 									   const glm::mat4& modelMat,
 									   const glm::mat4& viewMat,
 									   const glm::mat4& projectionMat) override;
@@ -140,6 +144,7 @@ namespace a3d {
 
 	private:
 
+		//RenderContext*									_context;
 		MeshElementGLMapping 							_meshElementGLMapping;
 		TextureGLMapping								_textureGLMapping;
 		LinesGLMapping									_linesGLMapping;
@@ -149,6 +154,7 @@ namespace a3d {
 		unsigned										_glEnvironmentUBO;
 		std::unique_ptr<Font>							_overlayTitleFont;
 		std::unique_ptr<Font>							_overlayBodyFont;
+//		unsigned										_defaultFramebuffer;
 	};
 }
 

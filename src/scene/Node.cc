@@ -926,6 +926,7 @@ void Node::applyPhysicsTransform(const mat4& transform) {
 }
 
 void Node::draw(Renderer& renderer,
+				const RenderContext& context,
 				const mat4& viewMat,
 				const mat4& projectionMat,
 				const DebugOptions& debugOptions,
@@ -943,6 +944,7 @@ void Node::draw(Renderer& renderer,
 		if (_mesh) {
 
 			_mesh->draw(renderer,
+						context,
 						worldTransform(),
 						viewMat,
 						projectionMat,
@@ -953,6 +955,7 @@ void Node::draw(Renderer& renderer,
 
 	for (auto& child : _children) {
 		child->draw(renderer,
+					context,
 					viewMat,
 					projectionMat,
 					debugOptions,

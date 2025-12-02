@@ -1,7 +1,5 @@
 #include "a3dviewport.h"
 
-#include "a3dviewport.h"
-
 #include "a3d/a3d.h"
 
 
@@ -10,33 +8,12 @@ using namespace a3de;
 using namespace std;
 
 
-//A3DViewport::A3DViewport(RenderingApi renderingApi, a3d::Scene* scene, QWidget* parent):
-//        RenderContext(renderingApi),
-//        QOpenGLWidget(parent) {
-//
-//	_scene = scene;
-//
-//	_width = 800;
-//	_height = 600;
-//
-//    // optional: better default size
-//    setMinimumSize(800, 600);
-//}
-
 A3DViewport::A3DViewport(RenderingApi renderingApi, QWidget* parent):
 		RenderContext(renderingApi),
 		QOpenGLWidget(parent) {
 
-	// *** _renderer gets set in RenderContext(), but is null here?? ***
-//	_renderer = make_unique<OpenGLRenderer>();
-
-	_width = 800;
-	_height = 600;
-
-	//RenderContext::_renderer = make_unique<OpenGLRenderer>();
-
 	// optional: better default size
-	setMinimumSize(800, 600);
+	setMinimumSize(1280, 768);
 }
 
 A3DViewport::~A3DViewport() = default;
@@ -52,6 +29,10 @@ glm::uvec2 A3DViewport::framebufferSize() const {
 glm::vec2 A3DViewport::framebufferScale() const {
 	auto s = devicePixelRatioF();
     return {s, s};
+}
+
+unsigned A3DViewport::defaultFramebuffer() const {
+	return static_cast<unsigned>(defaultFramebufferObject());
 }
 
 void A3DViewport::initializeGL() {
@@ -74,15 +55,13 @@ void A3DViewport::initializeGL() {
 }
 
 void A3DViewport::resizeGL(int w, int h) {
-	//A3D_LOG_D("w: {}, h: {}", w, h);
 	_width = w;
 	_height = h;
 }
 
 void A3DViewport::paintGL() {
 
-	if (scene) {
-		scene->update_();
-	}
+	scene->update_();
+	update();
 }
 

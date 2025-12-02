@@ -73,15 +73,18 @@ namespace a3d {
 												 Stats& stats) = 0;
 
 		virtual void 					render(const Scene& scene,
+											   const RenderContext& context,
 											   const DebugOptions& debugOptions,
 											   Stats& stats) = 0;
 		virtual void 					render(Mesh& mesh,
+											   const RenderContext& context,
 											   const glm::mat4& modelMat,
 											   const glm::mat4& viewMat,
 											   const glm::mat4& projectionMat,
 											   const DebugOptions& debugOptions,
 											   Stats& stats) = 0;
 		virtual void 					render(MeshElement& element,
+											   const RenderContext& context,
 											   Material& material,
 											   const glm::mat4& modelMat,
 											   const glm::mat4& viewMat,
@@ -89,6 +92,7 @@ namespace a3d {
 											   const DebugOptions& debugOptions,
 											   Stats& stats) = 0;
 		virtual void 					render(const std::vector<Line>& lines,
+											   const RenderContext& context,
 											   const glm::mat4& modelMat,
 											   const glm::mat4& viewMat,
 											   const glm::mat4& projectionMat) = 0;

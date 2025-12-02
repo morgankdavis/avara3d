@@ -20,17 +20,15 @@ namespace a3de {
 		a3d::Scene* scene;
 
 
-
-		//A3DViewport(a3d::RenderingApi renderingApi, a3d::Scene* scene, QWidget* parent = nullptr);
 		A3DViewport(a3d::RenderingApi renderingApi, QWidget* parent = nullptr);
-
 		~A3DViewport() override;
-		//A3DViewport();
 
 		void swapBuffers() override;
 
 		glm::uvec2 framebufferSize() const override;
 		glm::vec2 framebufferScale() const override;
+
+		unsigned defaultFramebuffer() const override;
 
 	protected:
 
@@ -42,8 +40,6 @@ namespace a3de {
 
 		//a3d::Scene* _scene;
 		int _width, _height;
-
-		//std::unique_ptr<a3d::Engine> m_engine;
 	};
 }
 

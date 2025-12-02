@@ -30,6 +30,7 @@ namespace a3d {
 	class MeshElement;
 	class Node;
 	class Renderer;
+	class RenderContext;
 
 
 	class Mesh {
@@ -87,6 +88,7 @@ namespace a3d {
 															  bool normals);
 
 		void 									draw(Renderer& renderer,
+													 const RenderContext& context,
 													 const glm::mat4& modelMat,
 													 const glm::mat4& viewMat,
 													 const glm::mat4& projectionMat,
