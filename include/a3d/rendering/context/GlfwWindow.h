@@ -90,6 +90,9 @@ namespace a3d {
 	RenderContext Internal Member Functions
  *********************************************************************************************/
 
+		void 					beginFrame(const Scene& scene) override;
+		void 					endFrame(const Scene& scene) override;
+
 		void 					swapBuffers() override;
 
 		glm::uvec2				framebufferSize() const override;

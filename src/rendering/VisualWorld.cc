@@ -270,17 +270,14 @@ void VisualWorld::draw(const Scene& scene,
 
 		if (auto renderer = _renderContext->renderer()) {
 
-			A3D_GL_CHECK()
 			if (auto willRender = VisualWorld::willRender()) {
 				willRender(*this, runT, deltaRunT);
 			}
-			A3D_GL_CHECK()
 
 			auto startTime = scene.time();
 
-			A3D_GL_CHECK()
+			_renderContext->beginFrame(scene);
 			renderer->beginFrame(scene, *_renderContext, debugOptions, stats);
-			A3D_GL_CHECK()
 
 			if (auto pov = pointOfView().lock()) {
 
@@ -298,20 +295,16 @@ void VisualWorld::draw(const Scene& scene,
 						perspectiveCamera->aspectRatio(aspectRatio);
 					}
 
-					A3D_GL_CHECK()
 					renderer->render(scene, *_renderContext, debugOptions, stats);
-					A3D_GL_CHECK()
 
-					A3D_GL_CHECK()
 					renderer->preTraversal(scene, *_renderContext, debugOptions, stats);
-					A3D_GL_CHECK()
 
 					auto viewMat = inverse(pov->worldTransform());
 					auto projectionMat = pov->camera()->projection();
 
 					vector<Node *> lightNodes;
 					if (pov->light()) lightNodes.push_back(pov.get());
-					A3D_GL_CHECK()
+
 					scene.rootNode()->draw(*renderer,
 										   *_renderContext,
 										   viewMat,
@@ -319,13 +312,10 @@ void VisualWorld::draw(const Scene& scene,
 										   debugOptions,
 										   lightNodes,
 										   stats);
-					A3D_GL_CHECK()
 					//--stats.nodes; // don't count the root node
 
-					A3D_GL_CHECK()
 					renderer->postTraversal(scene, *_renderContext, lightNodes, debugOptions, stats);
 
-					A3D_GL_CHECK()
 					if (physicalWorld) {
 
 						if (auto bulletWorldProxy = dynamic_cast<BulletWorldProxy *>(physicalWorld->proxy())) {
@@ -336,7 +326,6 @@ void VisualWorld::draw(const Scene& scene,
 														debugOptions);
 						}
 					}
-					A3D_GL_CHECK()
 				}
 				else {
 					A3D_LOG_W("Point of view not in our scene!");
@@ -350,17 +339,14 @@ void VisualWorld::draw(const Scene& scene,
 
 			UpdateTimeStats(stats, startTime, scene.time());
 
-			A3D_GL_CHECK()
 			renderer->endFrame(scene, *_renderContext, debugOptions, stats);
-			A3D_GL_CHECK()
+			_renderContext->endFrame(scene);
 
 			_renderContext->swapBuffers();
-			A3D_GL_CHECK()
 
 			if (auto didRender = VisualWorld::didRender()) {
 				didRender(*this, runT, deltaRunT);
 			}
-			A3D_GL_CHECK()
 
 			if (_renderContext->recordingGIF()) {
 				_renderContext->saveGIFFrame(deltaRunT);

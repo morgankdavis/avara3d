@@ -330,6 +330,14 @@ void GlfwWindow::vSyncEnabled(bool enabled) {
 	RenderContext Internal Member Functions
  *********************************************************************************************/
 
+void GlfwWindow::beginFrame(const Scene& scene) {
+	ImGui_ImplGlfw_NewFrame();
+}
+
+void GlfwWindow::endFrame(const Scene& scene) {
+
+}
+
 void GlfwWindow::swapBuffers() {
 	glfwSwapBuffers(_glfwWindow.get());
 }

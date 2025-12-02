@@ -18,6 +18,14 @@ A3DViewport::A3DViewport(RenderingApi renderingApi, QWidget* parent):
 
 A3DViewport::~A3DViewport() = default;
 
+void A3DViewport::beginFrame(const a3d::Scene& scene) {
+
+}
+
+void A3DViewport::endFrame(const a3d::Scene& scene) {
+
+}
+
 void A3DViewport::swapBuffers() {} // nada
 
 glm::uvec2 A3DViewport::framebufferSize() const {

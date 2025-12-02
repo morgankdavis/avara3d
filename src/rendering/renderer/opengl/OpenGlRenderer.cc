@@ -45,10 +45,8 @@
 #include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/camera/Camera.h"
 #include "a3d/rendering/context/RenderContext.h"
-#include "a3d/rendering/context/GlfwWindow.h"
 #include "a3d/rendering/light/AmbientLight.h"
 #include "a3d/rendering/light/DirectionalLight.h"
-#include "a3d/rendering/light/Light.h"
 #include "a3d/rendering/light/PointLight.h"
 #include "a3d/rendering/light/SpotLight.h"
 #include "a3d/rendering/material/Material.h"
@@ -2308,12 +2306,12 @@ void InitImgui(const RenderContext& context) {
 
 //	GLFWwindow* glfwWindow = dynamic_cast<const GlfwWindow*>(&context)->glfwWindow();
 
-//	ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
-//	ImGui_ImplOpenGL3_Init();
+	//ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
+	ImGui_ImplOpenGL3_Init();
 
 // a3de
 // cgpt thinks:
-	ImGui_ImplOpenGL3_Init("#version 330 core"); // or "#version 330"
+	//ImGui_ImplOpenGL3_Init("#version 330 core"); // or "#version 330"
 	// STILL NEED ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
 	// -> put in GlfwWindow?
 }
@@ -2370,7 +2368,7 @@ void AddImguiFont(const RenderContext& context, const Font& font, float size) {
 
 void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 
-	return;
+	//return; // a3de
 
 	using namespace ImGui;
 

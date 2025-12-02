@@ -8,6 +8,11 @@
 
 #include "a3d/rendering/context/RenderContext.h"
 
+namespace a3d {
+
+	class Scene;
+}
+
 namespace a3de {
 
 	class A3DViewport : public QOpenGLWidget, public a3d::RenderContext {
@@ -22,6 +27,9 @@ namespace a3de {
 
 		A3DViewport(a3d::RenderingApi renderingApi, QWidget* parent = nullptr);
 		~A3DViewport() override;
+
+		void beginFrame(const a3d::Scene& scene) override;
+		void endFrame(const a3d::Scene& scene) override;
 
 		void swapBuffers() override;
 

@@ -77,6 +77,9 @@ namespace a3d {
 	Internal Member Functions
  *********************************************************************************************/
 
+		virtual void 					beginFrame(const Scene& scene) = 0;
+		virtual void 					endFrame(const Scene& scene) = 0;
+
 		virtual void 					swapBuffers() = 0;
 
 		virtual glm::uvec2				framebufferSize() const = 0;
