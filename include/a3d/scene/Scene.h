@@ -92,26 +92,14 @@ namespace a3d {
 		DebugOptions 						debugOptions() const;
 		void 								debugOptions(DebugOptions options);
 
-		void								run();
-		void								stop();
-
-		bool								running() const;
+		void 								update();
 
 		double 								time() const;
 
-		bool								paused() const;
-		void								paused(bool flag);
-
 		const Stats&						stats() const;
 
-		UpdateCallback 						update() const;
-		void 								update(UpdateCallback function);
-
-
-
-		void update_();
-
-
+		UpdateCallback 						updateCallback() const;
+		void 								updateCallback(UpdateCallback function);
 
 /*********************************************************************************************
 	Private Member Variables
@@ -125,9 +113,7 @@ namespace a3d {
 		std::unique_ptr<PhysicalWorld> 		_physicalWorld;
 		std::unique_ptr<InputManager>		_inputManager;
 		DebugOptions						_debugOptions;
-		bool								_running;
 		double 								_startTime;
-		bool								_paused;
 		Stats								_stats;
 		UpdateCallback						_update;
 	};

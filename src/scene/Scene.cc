@@ -45,7 +45,6 @@ using namespace std::filesystem;
  *********************************************************************************************/
 
 static void 						GetRunTime(double time, // time since reference
-											  bool paused,
 											  double& runT, // time since reference excluding paused time
 											  double& deltaRunT); // time since last call excluding paused time
 static void 						UpdateUserTimeStats(Stats& stats, double startTime, double endTime);
@@ -72,9 +71,7 @@ Scene::Scene():
 		_inputManager{},
 		_debugOptions{DebugOptions::None},
 		_stats{},
-		_running{false},
 		_startTime{0},
-		_paused{false},
 		_update{} {
 
 	_rootNode->attachedToScene(*this);
@@ -266,82 +263,55 @@ void Scene::debugOptions(DebugOptions options) {
 	_debugOptions = options;
 }
 
-void Scene::run() {
+void Scene::update() {
 
 	if (_rootNode) {
 
-		auto now = std::chrono::system_clock::now();
+		static auto now = std::chrono::system_clock::now();
 		_startTime = std::chrono::duration<double>(now.time_since_epoch()).count();
 
-		_running = true;
+		static double deltaT, runT, deltaRunT; // TODO: manage these in caller
 
-		double deltaT, runT, deltaRunT;
+		GetRunTime(time(),
+				   runT,
+				   deltaRunT);
 
-		do {
+		//_stats = {};
+		memset(&_stats, 0, sizeof(Stats));
+		UpdateFrameTimeStats(_stats, runT);
 
-			GetRunTime(time(),
-					   _paused,
-					   runT,
-					   deltaRunT);
+		if (_inputManager) {
+			_inputManager->update();
+		}
 
-			//_stats = {};
-			memset(&_stats, 0, sizeof(Stats));
-			UpdateFrameTimeStats(_stats, runT);
+		if (_update) {
 
-			if (_inputManager) {
-				_inputManager->update();
-			}
+			auto updateStartTime = time();
+			(_update)(*this, runT, deltaRunT);
+			UpdateUserTimeStats(_stats, updateStartTime, time());
+		}
 
-			if (_update) {
+		if (_physicalWorld) {
 
-				auto updateStartTime = time();
-				(_update)(*this, runT, deltaRunT);
-				UpdateUserTimeStats(_stats, updateStartTime, time());
-			}
+			_physicalWorld->step(*this,
+								 runT,
+								 deltaRunT,
+								 _stats);
+		}
 
-			if (!_paused) {
+		if (_visualWorld) {
 
-				if (_physicalWorld) {
-
-					_physicalWorld->step(*this,
-										 runT,
-										 deltaRunT,
-										 _stats);
-				}
-
-				if (_visualWorld) {
-
-					_visualWorld->draw(*this,
-									   (_physicalWorld ? _physicalWorld.get() : nullptr),
-									   runT,
-									   deltaRunT,
-									   _debugOptions,
-									   _stats);
-				}
-			}
-			else {
-				this_thread::sleep_for(chrono::microseconds(16667));
-			}
-
-		} while (_running);
+			_visualWorld->draw(*this,
+							   (_physicalWorld ? _physicalWorld.get() : nullptr),
+							   runT,
+							   deltaRunT,
+							   _debugOptions,
+							   _stats);
+		}
 	}
 	else {
 		A3D_LOG_E("No root node attached to Scene {:p}", static_cast<void*>(this));
 	}
-}
-
-void Scene::stop() {
-
-	if (_running) {
-		_running = false;
-	}
-	else {
-		A3D_LOG_W("Attempting to stop when Scene not running.");
-	}
-}
-
-bool Scene::running() const {
-	return _running;
 }
 
 double Scene::time() const {
@@ -356,100 +326,31 @@ double Scene::time() const {
 	return 0;
 }
 
-bool Scene::paused() const {
-	return _paused;
-}
-
-void Scene::paused(bool flag) {
-	_paused = flag;
-}
+//bool Scene::paused() const {
+//	return _paused;
+//}
+//
+//void Scene::paused(bool flag) {
+//	_paused = flag;
+//}
 
 const Stats& Scene::stats() const {
 	return _stats;
 }
 
-Scene::UpdateCallback Scene::update() const {
+Scene::UpdateCallback Scene::updateCallback() const {
 	return _update;
 }
 
-void Scene::update(UpdateCallback function) {
+void Scene::updateCallback(UpdateCallback function) {
 	_update = function;
 }
-
-
-
-
-void Scene::update_() {
-//	if (_rootNode) {
-
-		static auto now = std::chrono::system_clock::now();
-		_startTime = std::chrono::duration<double>(now.time_since_epoch()).count();
-
-		_running = true;
-
-	static double deltaT, runT, deltaRunT;
-
-//		do {
-
-			GetRunTime(time(),
-					   _paused,
-					   runT,
-					   deltaRunT);
-
-			//_stats = {};
-			memset(&_stats, 0, sizeof(Stats));
-			UpdateFrameTimeStats(_stats, runT);
-
-			if (_inputManager) {
-				_inputManager->update();
-			}
-
-			if (_update) {
-
-				auto updateStartTime = time();
-				(_update)(*this, runT, deltaRunT);
-				UpdateUserTimeStats(_stats, updateStartTime, time());
-			}
-
-			if (!_paused) {
-
-				if (_physicalWorld) {
-
-					_physicalWorld->step(*this,
-										 runT,
-										 deltaRunT,
-										 _stats);
-				}
-
-				if (_visualWorld) {
-
-					_visualWorld->draw(*this,
-									   (_physicalWorld ? _physicalWorld.get() : nullptr),
-									   runT,
-									   deltaRunT,
-									   _debugOptions,
-									   _stats);
-				}
-			}
-			else {
-				this_thread::sleep_for(chrono::microseconds(16667));
-			}
-
-//		} while (_running);
-//	}
-//	else {
-//		A3D_LOG_E("No root node attached to Scene {:p}", static_cast<void*>(this));
-//	}
-}
-
-
 
 /*********************************************************************************************
 	Private Static
  *********************************************************************************************/
 
 void GetRunTime(double time, // time since reference
-				bool paused,
 				double& runT, // time since reference excluding paused time
 				double& deltaRunT) { // time since last call excluding paused time
 
@@ -458,14 +359,11 @@ void GetRunTime(double time, // time since reference
 	double deltaT = t - prevT;
 	prevT = t;
 
-	static double pauseTime = 0;
-	runT = t - pauseTime;
+	runT = t;
 
 	static double prevRunT = runT;
 	deltaRunT = runT - prevRunT;
 	prevRunT = runT;
-
-	if (paused) pauseTime += deltaT;
 }
 
 void UpdateUserTimeStats(Stats& stats, double startTime, double endTime) {

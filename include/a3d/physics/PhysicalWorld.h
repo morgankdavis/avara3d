@@ -78,17 +78,19 @@ namespace a3d {
 
 		Scene*								scene() const;
 
-		DidSimulateCallback					didSimulate() const;
-		void								didSimulate(DidSimulateCallback function);
+		// TODO: willSimulateCallback ?
 
-		BeginContactCallback 				beginContact() const;
-		void 								beginContact(PhysicalWorld::BeginContactCallback function);
+		DidSimulateCallback					didSimulateCallback() const;
+		void								didSimulateCallback(DidSimulateCallback function);
 
-		ContinueContactCallback				continueContact() const;
-		void 								continueContact(PhysicalWorld::ContinueContactCallback function);
+		BeginContactCallback 				beginContactCallback() const;
+		void 								beginContactCallback(PhysicalWorld::BeginContactCallback function);
 
-		EndContactCallback 					endContact() const;
-		void 								endContact(PhysicalWorld::EndContactCallback function);
+		ContinueContactCallback				continueContactCallback() const;
+		void 								continueContactCallback(PhysicalWorld::ContinueContactCallback function);
+
+		EndContactCallback 					endContactCallback() const;
+		void 								endContactCallback(PhysicalWorld::EndContactCallback function);
 
 /*********************************************************************************************
 	Internal Member Functions

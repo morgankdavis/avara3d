@@ -82,7 +82,7 @@ int main(int argc, const char* argv[]) {
 		DebugOptions debugOptions = DebugOptions::ShowStatsOverlay
 									| DebugOptions::ShowBoundingBoxes;
 		scene->debugOptions(debugOptions);
-		scene->update(bind(&UpdateCallback, _1, _2, _3));
+		scene->updateCallback(bind(&UpdateCallback, _1, _2, _3));
 
 		//auto ambientLight = make_shared<Light>(LightType::Ambient, make_shared<Color>(0.25f, 0.25, 0.25, 1.0));
 		auto ambientLight = make_shared<AmbientLight>(Color::Gray());
@@ -123,7 +123,10 @@ int main(int argc, const char* argv[]) {
 
 		window->center();
 		window->open();
-		scene->run();
+
+		do {
+			scene->update();
+		} while (window->isOpen());
 	}
 	catch (Exception& e) {
 		A3D_APP_LOG_F(g_log, "Exception: {}", e.what());

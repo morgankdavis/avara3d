@@ -76,7 +76,7 @@ int main(int argc, const char* argv[]) {
 
 		auto scene = make_unique<Scene>(std::move(visualWorld), nullptr, std::move(inputManager));
 		scene->debugOptions(DebugOptions::ShowStatsOverlay);
-		scene->update(bind(&UpdateCallback, _1, _2, _3));
+		scene->updateCallback(bind(&UpdateCallback, _1, _2, _3));
 
 		auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.1f));
 		auto ambientLightNode = Node::LightNode(ambientLight);
@@ -244,10 +244,12 @@ int main(int argc, const char* argv[]) {
 	//		}
 	//	}
 
-
 		window->center();
 		window->open();
-		scene->run();
+
+		do {
+			scene->update();
+		} while (window->isOpen());
 	}
 	catch (Exception& e)
 	{

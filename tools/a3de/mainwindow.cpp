@@ -186,7 +186,7 @@ void MainWindow::initA3D(A3DViewport& viewport) {
 		_scene->visualWorld(std::move(visualWorld));
 //		scene->inputManager(std::move(inputManager));
 		_scene->debugOptions(DebugOptions::ShowStatsOverlay);
-		_scene->update(bind(&MainWindow::updateCallback, this, _1, _2, _3));
+		_scene->updateCallback(bind(&MainWindow::updateCallback, this, _1, _2, _3));
 
 		auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.1f));
 		ambientLight->name("ambient");

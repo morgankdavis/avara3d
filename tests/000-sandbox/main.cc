@@ -102,11 +102,11 @@ int main(int argc, const char* argv[]) {
 
 		auto physicalWorld = make_unique<PhysicalWorld>();
 		physicalWorld->timestep(PHYSICS_TIMESTEP);
-		physicalWorld->didSimulate(bind(&DidSimulatePhysicsCallback, _1, _2, _3));
+		physicalWorld->didSimulateCallback(bind(&DidSimulatePhysicsCallback, _1, _2, _3));
 
 		auto scene = make_unique<Scene>(std::move(visualWorld), std::move(physicalWorld), std::move(inputManager));
 		scene->debugOptions(DebugOptions::ShowStatsOverlay);
-		scene->update(bind(&UpdateCallback, _1, _2, _3));
+		scene->updateCallback(bind(&UpdateCallback, _1, _2, _3));
 
 	//	auto ambientColor = DARK
 	//						? Color::LightGray()
@@ -227,7 +227,11 @@ int main(int argc, const char* argv[]) {
 
 		window->center();
 		window->open();
-		scene->run();
+
+		do {
+			scene->update();
+		} while (window->isOpen());
+
 		return 0;
 
 
@@ -355,7 +359,10 @@ int main(int argc, const char* argv[]) {
 
 		window->center();
 		window->open();
-		scene->run();
+
+		do {
+			scene->update();
+		} while (window->isOpen());
 	}
 	catch (Exception& e)
 	{
@@ -395,10 +402,6 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 	if (keysPressed.count(Key::Escape)) {
 		window->close();
-	}
-
-	if (keysPressed.count(Key::ForwardDelete)) {
-		scene.paused(!scene.paused());
 	}
 
 	if (keysPressed.count(Key::T)) {

@@ -198,12 +198,12 @@ void GlfwWindow::close() {
 		stopGIFRecording();
 	}
 
-	if (_visualWorld && _visualWorld->scene()) {
-		auto scene = _visualWorld->scene();
-		if (scene->running()) {
-			scene->stop();
-		}
-	}
+//	if (_visualWorld && _visualWorld->scene()) {
+//		auto scene = _visualWorld->scene();
+//		if (scene->running()) {
+//			scene->stop();
+//		}
+//	}
 
 	glfwSetWindowSizeCallback(_glfwWindow.get(), nullptr);
 	glfwSetWindowCloseCallback(_glfwWindow.get(), nullptr);

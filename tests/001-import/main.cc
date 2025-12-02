@@ -61,7 +61,7 @@ int main(int argc, const char* argv[]) {
 
 	auto scene = make_unique<Scene>();
 	scene->visualWorld(std::move(visualWorld));
-	scene->update(bind(&UpdateCallback, _1, _2, _3));
+	scene->updateCallback(bind(&UpdateCallback, _1, _2, _3));
 
 //	auto options = SceneImportOptions::ImportAll;
 //	auto options = SceneImportOptions::ImportMeshes;
@@ -102,7 +102,10 @@ int main(int argc, const char* argv[]) {
 
 	window->center();
 	window->open();
-	scene->run();
+
+	do {
+		scene->update();
+	} while (window->isOpen());
 
 	return 0;
 }

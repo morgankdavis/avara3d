@@ -70,11 +70,14 @@ int main(int argc, const char* argv[]) {
 		auto scene = utils::SceneNamed("import_test/import_test");
 		scene->visualWorld(std::move(visualWorld));
 		scene->inputManager(std::move(inputManager));
-		scene->update(bind(&UpdateCallback, _1, _2, _3));
+		scene->updateCallback(bind(&UpdateCallback, _1, _2, _3));
 
 		window->center();
 		window->open();
-		scene->run();
+
+		do {
+			scene->update();
+		} while (window->isOpen());
 	}
 	catch (Exception& e) {
 		cerr << "Exception: " << e.what() << "\n";

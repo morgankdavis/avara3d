@@ -61,7 +61,7 @@ void A3DViewport::resizeGL(int w, int h) {
 
 void A3DViewport::paintGL() {
 
-	scene->update_();
+	scene->update();
 	update();
 }
 

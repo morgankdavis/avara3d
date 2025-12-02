@@ -76,7 +76,7 @@ namespace a3d {
 
 		RenderingApi 			renderingApi() const override;
 
-		bool 					initialize(const RenderContext& context);
+		bool 					initialize(const RenderContext& context) override;
 
 		void 					beginFrame(const Scene& scene,
 										   const RenderContext& context,

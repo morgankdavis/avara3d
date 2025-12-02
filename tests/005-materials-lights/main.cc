@@ -93,7 +93,7 @@ int main(int argc, const char* argv[]) {
 		scene->visualWorld(std::move(visualWorld));
 		scene->inputManager(std::move(inputManager));
 		scene->debugOptions(DebugOptions::ShowStatsOverlay);
-		scene->update(bind(&UpdateCallback, _1, _2, _3));
+		scene->updateCallback(bind(&UpdateCallback, _1, _2, _3));
 
 		auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.1f));
 		ambientLight->name("ambient");
@@ -190,10 +190,8 @@ int main(int argc, const char* argv[]) {
 		window->open();
 
 		do {
-			scene->update_();
+			scene->update();
 		} while (window->isOpen());
-
-		//scene->run();
 	}
 	catch (Exception& e)
 	{
@@ -295,10 +293,6 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 	if (keysPressed.count(Key::Slash)) {
 		window->cursorCaptured(!(window->cursorCaptured()));
-	}
-
-	if (keysPressed.count(Key::ForwardDelete)) {
-		scene.paused(!scene.paused());
 	}
 
 	if (window->cursorCaptured()) {

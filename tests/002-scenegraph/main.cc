@@ -69,7 +69,7 @@ int main(int argc, const char* argv[]) {
 
 	auto scene = make_unique<Scene>();
 	scene->visualWorld(std::move(visualWorld));
-	scene->update(bind(&UpdateCallback, _1, _2, _3));
+	scene->updateCallback(bind(&UpdateCallback, _1, _2, _3));
 
 
 	if (USING_TEST == TEST::TRAVERSAL) {
@@ -506,10 +506,12 @@ int main(int argc, const char* argv[]) {
 ////		window.display();
 //	}
 
-	// do we even need to open the window?
 	window->center();
 	window->open();
-	scene->run();
+
+	do {
+		scene->update();
+	} while (window->isOpen());
 
 	return 0;
 }

@@ -117,35 +117,35 @@ Scene* PhysicalWorld::scene() const {
 	return _scene;
 }
 
-PhysicalWorld::DidSimulateCallback PhysicalWorld::didSimulate() const {
+PhysicalWorld::DidSimulateCallback PhysicalWorld::didSimulateCallback() const {
 	return _didSimulate;
 }
 
-void PhysicalWorld::didSimulate(DidSimulateCallback function) {
+void PhysicalWorld::didSimulateCallback(DidSimulateCallback function) {
 	_didSimulate = function;
 }
 
-PhysicalWorld::BeginContactCallback PhysicalWorld::beginContact() const {
+PhysicalWorld::BeginContactCallback PhysicalWorld::beginContactCallback() const {
 	return _beginContact;
 }
 
-void PhysicalWorld::beginContact(PhysicalWorld::BeginContactCallback function) {
+void PhysicalWorld::beginContactCallback(PhysicalWorld::BeginContactCallback function) {
 	_beginContact = function;
 }
 
-PhysicalWorld::ContinueContactCallback PhysicalWorld::continueContact() const {
+PhysicalWorld::ContinueContactCallback PhysicalWorld::continueContactCallback() const {
 	return _continueContact;
 }
 
-void PhysicalWorld::continueContact(PhysicalWorld::ContinueContactCallback function) {
+void PhysicalWorld::continueContactCallback(PhysicalWorld::ContinueContactCallback function) {
 	_continueContact = function;
 }
 
-PhysicalWorld::EndContactCallback PhysicalWorld::endContact() const {
+PhysicalWorld::EndContactCallback PhysicalWorld::endContactCallback() const {
 	return _endContact;
 }
 
-void PhysicalWorld::endContact(PhysicalWorld::EndContactCallback function) {
+void PhysicalWorld::endContactCallback(PhysicalWorld::EndContactCallback function) {
 	_endContact = function;
 }
 
@@ -205,7 +205,7 @@ void PhysicalWorld::step(const Scene& scene,
 
 		UpdateTimeStats(stats, startTime, scene.time());
 
-		if (auto didSimulate = PhysicalWorld::didSimulate()) {
+		if (auto didSimulate = PhysicalWorld::didSimulateCallback()) {
 			didSimulate(*this, runT, deltaRunT);
 		}
 	}
