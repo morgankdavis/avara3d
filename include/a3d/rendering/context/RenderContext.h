@@ -45,8 +45,8 @@ namespace a3d {
 
 	public:
 
-		virtual bool 					vSyncEnabled() const;
-		virtual void 					vSyncEnabled(bool enabled);
+		virtual bool 					vSyncEnabled() const = 0;
+		virtual void 					vSyncEnabled(bool enabled) = 0;
 
 		AntialiasingMode 				antialiasingMode() const;
 
@@ -98,7 +98,6 @@ namespace a3d {
 
 	protected:
 
-		bool							_vSyncEnabled;
 		AntialiasingMode				_antialiasingMode;
 		std::unique_ptr<GifWriter>		_gifWriter;
 		bool							_recordingGIF;

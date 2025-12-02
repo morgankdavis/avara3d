@@ -20,34 +20,60 @@ namespace a3de {
 
 	Q_OBJECT
 
+/*********************************************************************************************
+	Public Lifecycle Functions
+ *********************************************************************************************/
+
 	public:
 
-		a3d::Scene* scene;
-
-
-		A3DViewport(a3d::RenderingApi renderingApi, QWidget* parent = nullptr);
+		explicit A3DViewport(a3d::RenderingApi renderingApi, QWidget* parent = nullptr);
 		~A3DViewport() override;
 
-		void beginFrame(const a3d::Scene& scene) override;
-		void endFrame(const a3d::Scene& scene) override;
+/*********************************************************************************************
+	Public Member Functions
+ *********************************************************************************************/
 
-		void swapBuffers() override;
+		a3d::Scene*		scene() const;
+		void 			scene(a3d::Scene* scene);
 
-		glm::uvec2 framebufferSize() const override;
-		glm::vec2 framebufferScale() const override;
+/*********************************************************************************************
+	RenderContext Public Member Functions
+ *********************************************************************************************/
 
-		unsigned defaultFramebuffer() const override;
+		bool 			vSyncEnabled() const override;
+		void 			vSyncEnabled(bool enabled) override;
+
+/*********************************************************************************************
+	RenderContext Internal Member Functions
+ *********************************************************************************************/
+
+		void 			beginFrame(const a3d::Scene& scene) override;
+		void 			endFrame(const a3d::Scene& scene) override;
+
+		void 			swapBuffers() override;
+
+		glm::uvec2 		framebufferSize() const override;
+		glm::vec2 		framebufferScale() const override;
+
+		unsigned 		defaultFramebuffer() const override;
+
+/*********************************************************************************************
+	QOpenGLWidget Protected Member Functions
+ *********************************************************************************************/
 
 	protected:
 
-		void initializeGL() override;
-		void resizeGL(int w, int h) override;
-		void paintGL() override;
+		void 			initializeGL() override;
+		void 			resizeGL(int w, int h) override;
+		void 			paintGL() override;
+
+/*********************************************************************************************
+	Private Member Variables
+ *********************************************************************************************/
 
 	private:
 
-		//a3d::Scene* _scene;
-		int _width, _height;
+		a3d::Scene* 	_scene;
 	};
 }
 

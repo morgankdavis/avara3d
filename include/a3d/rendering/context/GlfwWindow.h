@@ -83,7 +83,7 @@ namespace a3d {
 	RenderContext Public Member Functions
  *********************************************************************************************/
 
-		bool 					vSyncEnabled() const override; // why is this necessary?
+		bool 					vSyncEnabled() const override;
 		void 					vSyncEnabled(bool enabled) override;
 
 /*********************************************************************************************
@@ -130,6 +130,7 @@ namespace a3d {
  *********************************************************************************************/
 
 		std::unique_ptr<GLFWwindow, DestroyGLFWWindow>	_glfwWindow;
+		bool											_vSyncEnabled;
 		bool											_cursorCaptured;
 		bool											_open;
 		bool											_hidden;

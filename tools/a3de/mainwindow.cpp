@@ -11,50 +11,9 @@
 
 using namespace a3d;
 using namespace a3de;
-
-
-MainWindow::MainWindow(QWidget* parent):
-		QMainWindow(parent),
-		ui(new Ui::MainWindow) {
-
-	ui->setupUi(this);
-
-
-
-
-	_viewport = new A3DViewport(RenderingApi::OpenGL, this);
-
-
-	initA3D(*_viewport);
-
-
-
-	_viewport->scene = _scene.get();
-
-
-
-
-
-	setCentralWidget(_viewport);
-}
-
-MainWindow::~MainWindow()
-{
-	delete ui;
-}
-
-
-
-
-
-
-//using namespace a3d;
 using namespace glm;
 using namespace std;
 using namespace std::placeholders;
-
-
-
 
 
 constexpr LogLevel				A3D_APP_LOG_LEVEL =		LogLevel::Debug;
@@ -70,10 +29,25 @@ constexpr bool 					ORTHO_CAMERA =			false;
 constexpr bool					DARK =					false;
 
 
+MainWindow::MainWindow(QWidget* parent):
+		QMainWindow(parent),
+		_ui(new Ui::MainWindow) {
 
-void MainWindow::initA3D(A3DViewport& viewport) {
+	_ui->setupUi(this);
+	statusBar()->hide();
 
-	//return;
+	_viewport = new A3DViewport(RenderingApi::OpenGL, this);
+	initScene(*_viewport);
+	_viewport->scene(_scene.get());
+
+	setCentralWidget(_viewport);
+}
+
+MainWindow::~MainWindow() {
+	delete _ui;
+}
+
+void MainWindow::initScene(A3DViewport &viewport) {
 
 	using utils::MeshNamed;
 
@@ -82,93 +56,6 @@ void MainWindow::initA3D(A3DViewport& viewport) {
 		logBuildInfo();
 
 		auto visualWorld = make_unique<VisualWorld>(viewport);
-
-//		MaterialProperty background = monostate{};
-//		if (DARK) background = Color::Black();
-//		else background = make_shared<Texture>(utils::CubeImageNamed("kloppenheim", "png"));
-//		visualWorld->background(background);
-//		visualWorld->willRender(bind(&MainWindow::willRenderCallback, this, _1, _2, _3));
-//		visualWorld->didRender(bind(&MainWindow::didRenderCallback, this, _1, _2, _3));
-//
-//		auto physicalWorld = make_unique<PhysicalWorld>();
-//		physicalWorld->timestep(PHYSICS_TIMESTEP);
-//		physicalWorld->didSimulate(bind(&MainWindow::didSimulatePhysicsCallback, this, _1, _2, _3));
-//
-//		//auto scene = make_unique<Scene>(std::move(visualWorld), std::move(physicalWorld), std::move(inputManager));
-//		_scene = make_unique<Scene>(std::move(visualWorld), std::move(physicalWorld), nullptr);
-//		_scene->debugOptions(DebugOptions::ShowStatsOverlay);
-//		_scene->update(bind(&MainWindow::updateCallback, this, _1, _2, _3));
-//
-//		auto ambientLight = make_shared<AmbientLight>(Color::DarkGray());
-//		auto ambientLightNode = Node::LightNode(ambientLight);
-//		_scene->rootNode()->addChild(ambientLightNode);
-//
-//
-//
-//
-//
-//		// ground plane
-//
-//		const float PLANE_LENGTH = 20.0;
-//		const float PLANE_WIDTH = 20.0;
-//		auto planeNode = make_shared<Node>("Ground plane node");
-//		//planeNode->mesh(Mesh::Box(PLANE_LENGTH, PLANE_WIDTH, 0));
-//		planeNode->mesh(Box::Mesh(PLANE_LENGTH, PLANE_WIDTH, 0));
-//		auto gridImage = DARK ? utils::ImageNamed("grid10")->inverted() : utils::ImageNamed("grid10");
-//		auto planeTexture = make_shared<Texture>(std::move(gridImage));
-//		planeTexture->sampler()->wrapS(WrapMode::Repeat);
-//		planeTexture->sampler()->wrapT(WrapMode::Repeat);
-//		planeTexture->sampler()->maxAnisotropy(16);
-//		planeTexture->sampler()->minificationFilter(FilterMode::LinearMipmapLinear);
-//		planeTexture->sampler()->magnificationFilter(FilterMode::Linear);
-//		shared_ptr<Material> planeMaterial = nullptr;
-//		if (DARK) {
-//			planeMaterial = make_shared<Material>(monostate{},
-//												  monostate{},
-//												  Color::White(),
-//												  planeTexture);
-//		}
-//		else {
-//			planeMaterial = make_shared<Material>(monostate{},
-//												  planeTexture,
-//												  monostate{});
-//		}
-////
-//		planeMaterial->uvScale(PLANE_LENGTH/10.0f);
-//		planeMaterial->doubleSided(false);
-//		planeNode->mesh()->addMaterial(planeMaterial);
-//		planeNode->rotation({1, 0, 0}, radians(3*90.0));
-//		planeNode->position({planeNode->position().x, 0, planeNode->position().z});
-//
-//		_scene->rootNode()->addChild(planeNode);
-//
-//
-//
-//
-//
-//
-//
-//		auto pointLight = make_shared<PointLight>(Color::LightGray());
-//		pointLight->constantAttenuation(1.0);
-//		auto pointLightNode = Node::LightNode(pointLight);
-//		pointLightNode->position({5, 5, 0});
-//
-//		auto material = make_shared<Material>(monostate{},
-//											  monostate{},
-//											  monostate{},
-//											  Color::White());
-//
-//		auto sphere = Sphere::Mesh(0.1f, 12, material);
-//
-//		pointLightNode->mesh(sphere);
-//
-//		_scene->rootNode()->addChild(pointLightNode);
-
-
-
-
-
-
 
 		visualWorld->fogStartDistance(500.0);
 		visualWorld->fogEndDistance(5000.0);
@@ -204,39 +91,6 @@ void MainWindow::initA3D(A3DViewport& viewport) {
 		auto geometry = Sphere::Mesh(1.5, 4, material);
 		pointLightNode->mesh(geometry);
 		_scene->rootNode()->addChild(pointLightNode);
-
-
-		// random lights
-
-//		{
-//			const int NUM_RANDOM_LIGHTS = 64;
-//			for (int l = 0; l < NUM_RANDOM_LIGHTS; ++l) {
-//				auto light = make_shared<Light>(LightType::Point);
-//				light->attenuationFactor(0.0001);
-//				static const float yOffset = 30;
-//				static const int range = 75;
-//				auto lightNode = Node::LightNode(light);
-//				int randX = utils::Uniform(-range, range);
-//				int randY = utils::Uniform(-range, range);
-//				int randZ = utils::Uniform(-range, range);
-//				lightNode->position(vec3(randX, randY + yOffset, randZ));
-//				auto color = Color::Random();
-//				light->color(color);
-//
-//				auto geometry = make_shared<Sphere>(1.5, 16);
-//
-////				auto materialProperty = make_shared<MaterialProperty>(color);
-////				auto material = make_shared<Material>();
-////				material->emissive(materialProperty);
-////				geometry->addMaterial(material);
-////				lightNode->geometry(geometry);
-//
-//				scene->rootNode()->addChild(lightNode);
-//			}
-//		}
-
-
-
 	}
 	catch (Exception& e)
 	{
@@ -244,9 +98,6 @@ void MainWindow::initA3D(A3DViewport& viewport) {
 		//return -1;
 	}
 }
-
-
-
 
 void MainWindow::initLog() {
 	string executableName = *utils::ExecutableName();
@@ -325,5 +176,3 @@ void MainWindow::didRenderCallback(a3d::VisualWorld& world, double time, double 
 void MainWindow::didSimulatePhysicsCallback(a3d::PhysicalWorld& world, double time, double deltaTime) {
 	A3D_APP_LOG_T(_log, "");
 }
-
-

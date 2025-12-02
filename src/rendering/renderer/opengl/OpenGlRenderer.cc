@@ -23,7 +23,6 @@
 
 //#ifdef OPENGL_CORE
 #include "imgui.h"
-//#include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 //#endif
 
@@ -2304,16 +2303,7 @@ void InitImgui(const RenderContext& context) {
 	ImGuiIO& io = ImGui::GetIO();
 	io.IniFilename = nullptr;
 
-//	GLFWwindow* glfwWindow = dynamic_cast<const GlfwWindow*>(&context)->glfwWindow();
-
-	//ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
-	ImGui_ImplOpenGL3_Init();
-
-// a3de
-// cgpt thinks:
-	//ImGui_ImplOpenGL3_Init("#version 330 core"); // or "#version 330"
-	// STILL NEED ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
-	// -> put in GlfwWindow?
+	ImGui_ImplOpenGL3_Init(); // "#version 330 core"
 }
 
 void UpdateImguiScale(const RenderContext& context, const Font& overLayFont, const Font& bodyFont) {
@@ -2367,8 +2357,6 @@ void AddImguiFont(const RenderContext& context, const Font& font, float size) {
 }
 
 void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
-
-	//return; // a3de
 
 	using namespace ImGui;
 
@@ -2472,7 +2460,6 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 			recordingStr);
 
 	ImGui_ImplOpenGL3_NewFrame();
-	//ImGui_ImplGlfw_NewFrame(); // a3de
 	NewFrame();
 
 	ImGuiWindowFlags windowFlags = 0;

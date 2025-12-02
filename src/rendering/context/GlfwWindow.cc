@@ -65,6 +65,7 @@ GlfwWindow::GlfwWindow(RenderingApi renderingAPI,
 					   AntialiasingMode antialiasingMode):
 		RenderContext{renderingAPI},
 		_glfwWindow{},
+		_vSyncEnabled{false},
 		_highDPIEnabled{enableHighDPI},
 		_open{false},
 		_hidden{false},

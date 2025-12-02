@@ -44,11 +44,11 @@ using namespace std::filesystem;
 	Private Static Non-Member Prototypes
  *********************************************************************************************/
 
-static void 						GetRunTime(double time, // time since reference
-											  double& runT, // time since reference excluding paused time
-											  double& deltaRunT); // time since last call excluding paused time
-static void 						UpdateUserTimeStats(Stats& stats, double startTime, double endTime);
-static void							UpdateFrameTimeStats(Stats& stats, double time);
+static void 		GetRunTime(double time, // time since reference
+							  double& runT, // time since reference excluding paused time
+							  double& deltaRunT); // time since last call excluding paused time
+static void 		UpdateUserTimeStats(Stats& stats, double startTime, double endTime);
+static void			UpdateFrameTimeStats(Stats& stats, double time);
 
 /*********************************************************************************************
 	Public Static Member Functions

@@ -32,13 +32,13 @@ using namespace std;
 	Public Member Functions
  *********************************************************************************************/
 
-bool RenderContext::vSyncEnabled() const {
-	return _vSyncEnabled;
-}
-
-void RenderContext::vSyncEnabled(bool enabled) {
-	_vSyncEnabled = enabled;
-}
+//bool RenderContext::vSyncEnabled() const {
+//	return _vSyncEnabled;
+//}
+//
+//void RenderContext::vSyncEnabled(bool enabled) {
+//	_vSyncEnabled = enabled;
+//}
 
 AntialiasingMode RenderContext::antialiasingMode() const {
 	return _antialiasingMode;
@@ -124,7 +124,7 @@ Renderer* RenderContext::renderer() const {
  *********************************************************************************************/
 
 RenderContext::RenderContext(RenderingApi renderingApi):
-		_vSyncEnabled{false},
+//		_vSyncEnabled{false},
 		_antialiasingMode{AntialiasingMode::None},
 		_gifWriter{},
 		_recordingGIF{false},
