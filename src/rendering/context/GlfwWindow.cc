@@ -38,8 +38,6 @@ using namespace std;
  *********************************************************************************************/
 
 static bool 	InitGLFW();
-//static bool 	InitGLAD();
-//static void 	LogGLInfo();
 static void 	GLFWWindowSizeCallback(GLFWwindow* glfwWindow,
 									  int width,
 									  int height);
@@ -405,28 +403,6 @@ static bool InitGLFW() {
 	}
 	return true;
 }
-
-//bool GlfwWindow::InitGLAD() {
-//	A3D_LOG_I("");
-//
-//	// NOTE: OpenGL context must be setup first
-//
-//	static bool initialized = false;
-//	if (!initialized) {
-//
-//		auto initStatus = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-//		if (initStatus != 0) {
-//
-//			LogGLInfo();
-//			initialized = true;
-//		}
-//		else {
-//			A3D_LOG_F("Failed to initialize GLAD: {}", initStatus);
-//			return false;
-//		}
-//	}
-//	return true;
-//}
 
 void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
 	A3D_LOG_D("glfwWindow: {:p}, width: {}, height: {}",

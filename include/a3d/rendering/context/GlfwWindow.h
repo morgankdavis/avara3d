@@ -41,13 +41,6 @@ namespace a3d {
 
 	public:
 
-
-		// a3de
-		static bool 	InitGLAD();
-
-
-
-
 		GlfwWindow(RenderingApi renderingAPI,
 				   const std::string& title,
 				   const glm::uvec2& size,
