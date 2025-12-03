@@ -57,7 +57,6 @@ DesktopInputManager::~DesktopInputManager() {
  *********************************************************************************************/
 
 DesktopInputManagerErrorMask DesktopInputManager::errorMask() const {
-
 	return _errorMask;
 }
 
