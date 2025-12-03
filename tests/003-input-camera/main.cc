@@ -53,7 +53,7 @@ int main(int argc, const char* argv[]) {
 		window->cursorCaptured(CAPTURE_CURSOR);
 
 		auto inputManager = make_unique<GlfwInputManager>(window.get());
-		if (inputManager->errorMask() == WindowInputManagerErrorMask::PermissionDenied) {
+		if (inputManager->errorMask() == DesktopInputManagerErrorMask::PermissionDenied) {
 			cerr << "WindowInputManager permission denied.\n" << endl;
 			// on macOS 10.15 Catalina+, this is probably a permissions issue,
 			// and the OS will alert the user.

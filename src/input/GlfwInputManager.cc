@@ -8,12 +8,12 @@
 
 #include "a3d/input/GlfwInputManager.h"
 
-#ifdef MACOS
-#include <IOKit/hid/IOHIDLib.h> // for kIOReturnNotPermitted
-#endif
+//#ifdef MACOS
+//#include <IOKit/hid/IOHIDLib.h> // for kIOReturnNotPermitted
+//#endif
 
 #include "GLFW/glfw3.h"
-#include "manymouse.h"
+//#include "manymouse.h"
 
 #include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/log/Log.h"
@@ -28,8 +28,8 @@ using namespace glm;
 
 
 // TODO: get rid of these/make non constant
-constexpr bool FLIP_MOUSE_VERTICAL = true;
-constexpr bool FLIP_MOUSE_HORIZONTAL = false;
+//constexpr bool FLIP_MOUSE_VERTICAL = true;
+//constexpr bool FLIP_MOUSE_HORIZONTAL = false;
 
 
 /*********************************************************************************************
@@ -44,18 +44,18 @@ static GlfwInputManager* InputManagerFromGLFWWindow(GLFWwindow* glfwWindow);
 
 GlfwInputManager::GlfwInputManager(GlfwWindow* window):
     DesktopInputManager{},
-    _usingManyMouse{false},
-    _window{window},
-    _errorMask{WindowInputManagerErrorMask::None} {
+//    _usingManyMouse{false},
+    _window{window}
+   /* _errorMask{DesktopInputManagerErrorMask::None}*/ {
 
     registerGLFWCallbacks(window->glfwWindow());
-    initMouseInput();
+//    initMouseInput();
 }
 
 GlfwInputManager::~GlfwInputManager() {
     A3D_LOG_D("Destroying WindowInputManager {:p}", static_cast<void*>(this));
 
-    quitManyMouse();
+//    quitManyMouse();
     if (_window) {
         unregisterGLFWCallbacks(_window->glfwWindow());
     }
@@ -65,10 +65,10 @@ GlfwInputManager::~GlfwInputManager() {
     Public Member Functions
  *********************************************************************************************/
 
-WindowInputManagerErrorMask GlfwInputManager::errorMask() const {
-
-    return _errorMask;
-}
+//DesktopInputManagerErrorMask GlfwInputManager::errorMask() const {
+//
+//    return _errorMask;
+//}
 
 /*********************************************************************************************
 	InputManager Internal Member Functions
@@ -76,46 +76,48 @@ WindowInputManagerErrorMask GlfwInputManager::errorMask() const {
 
 void GlfwInputManager::update() {
 
-    if (_usingManyMouse) {
+    DesktopInputManager::update();
 
-        static ManyMouseEvent event;
-
-        while (ManyMouse_PollEvent(&event)) {
-
-            switch (event.type) {
-
-            case MANYMOUSE_EVENT_RELMOTION:
-
-                if (event.item == 0) {
-                    _mousePositionDelta.x = (FLIP_MOUSE_HORIZONTAL ? -event.value : event.value);
-                }
-                else {
-                    _mousePositionDelta.y = (FLIP_MOUSE_VERTICAL ? -event.value : event.value);
-                }
-                break;
-
-            case MANYMOUSE_EVENT_SCROLL:
-
-                if (event.item == 0) {
-                    _mouseScrollWheelDelta.y += event.value;
-                }
-                else {
-                    _mouseScrollWheelDelta.x += event.value;
-                }
-                break;
-
-            case MANYMOUSE_EVENT_DISCONNECT:
-
-                A3D_LOG_W("Mouse {} disconnected.", event.device);
-                break;
-
-            case MANYMOUSE_EVENT_ABSMOTION:
-            case MANYMOUSE_EVENT_BUTTON:
-            case MANYMOUSE_EVENT_MAX:
-                break;
-            }
-        }
-    }
+//    if (_usingManyMouse) {
+//
+//        static ManyMouseEvent event;
+//
+//        while (ManyMouse_PollEvent(&event)) {
+//
+//            switch (event.type) {
+//
+//            case MANYMOUSE_EVENT_RELMOTION:
+//
+//                if (event.item == 0) {
+//                    _mousePositionDelta.x = (FLIP_MOUSE_HORIZONTAL ? -event.value : event.value);
+//                }
+//                else {
+//                    _mousePositionDelta.y = (FLIP_MOUSE_VERTICAL ? -event.value : event.value);
+//                }
+//                break;
+//
+//            case MANYMOUSE_EVENT_SCROLL:
+//
+//                if (event.item == 0) {
+//                    _mouseScrollWheelDelta.y += event.value;
+//                }
+//                else {
+//                    _mouseScrollWheelDelta.x += event.value;
+//                }
+//                break;
+//
+//            case MANYMOUSE_EVENT_DISCONNECT:
+//
+//                A3D_LOG_W("Mouse {} disconnected.", event.device);
+//                break;
+//
+//            case MANYMOUSE_EVENT_ABSMOTION:
+//            case MANYMOUSE_EVENT_BUTTON:
+//            case MANYMOUSE_EVENT_MAX:
+//                break;
+//            }
+//        }
+//    }
 
     // needed for non-mouse events (keyboard, not joystrick, OTHER NON-INPUT??)
     // https://www.glfw.org/docs/latest/group__window.html#ga37bd57223967b4211d60ca1a0bf3c832
@@ -126,68 +128,68 @@ void GlfwInputManager::update() {
 	Private Member Functions
  *********************************************************************************************/
 
-void GlfwInputManager::initMouseInput() {
-    // starting with macOS 10.15 Catalina, GLFW 3.3 raw mouse input never works, and ManyMouse
-    // requires the user manually allow "Input Monitoring" in System Preferences ->
-    // Privacy & Security -> Input Monitoring, or IOHIDDeviceOpen() in ManyMouse will fail with
-    // message "TCC deny IOHIDDeviceOpen" / kIOReturnNotPermitted.  ManyMouse was modified to
-    // surface kIOReturnNotPermitted and set _errorMask for the clien tot check.
+//void GlfwInputManager::initMouseInput() {
+//    // starting with macOS 10.15 Catalina, GLFW 3.3 raw mouse input never works, and ManyMouse
+//    // requires the user manually allow "Input Monitoring" in System Preferences ->
+//    // Privacy & Security -> Input Monitoring, or IOHIDDeviceOpen() in ManyMouse will fail with
+//    // message "TCC deny IOHIDDeviceOpen" / kIOReturnNotPermitted.  ManyMouse was modified to
+//    // report kIOReturnNotPermitted and set _errorMask for the client to check.
+//
+//    if (glfwRawMouseMotionSupported()) {
+//        A3D_LOG_I("Using GLFW raw mouse input.");
+//        glfwSetInputMode(_window->glfwWindow(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+//        glfwSetCursorPosCallback(_window->glfwWindow(),
+//                                 GlfwInputManager::GLFWCursorPositionCallback);
+//        _usingManyMouse = false;
+//    }
+//    else {
+//        A3D_LOG_W("GLFW raw mouse input unavailable.  Using ManyMouse.");
+//        initManyMouse();
+//        _usingManyMouse = true;
+//    }
+//}
+//
+//void GlfwInputManager::initManyMouse() {
+//    A3D_LOG_D("");
+//
+//    // TODO: must modify to support multiple windows
+//    auto availableMice = ManyMouse_Init();
+//
+//    if (availableMice < 0) {
+//        A3D_LOG_E("Error initializing ManyMouse: {}", availableMice);
+//        ManyMouse_Quit(); // doesn't seem to allow for re-initialization later
+//
+//#ifdef MACOS
+//        // special case for macOS Sonoma 10.15+
+//        // see note at initMouseInput() above.
+//        if (availableMice == kIOReturnNotPermitted) { // == -536870174
+//            A3D_LOG_E("Please allow \"Input Monitoring\" in System Preferences -> " \
+//                "Privacy & Security -> Input Monitoring");
+//            _errorMask = WindowInputManagerErrorMask::PermissionDenied;
+//        }
+//        else {
+//            _errorMask = WindowInputManagerErrorMask::UnknownError;
+//        }
+//#else
+//        _errorMask = WindowInputManagerErrorMask::UnknownError;
+//#endif
+//    }
+//    else if (availableMice == 0) {
+//        A3D_LOG_W("No available mice.");
+//        _errorMask = WindowInputManagerErrorMask::NoMice;
+//    }
+//    else {
+//        A3D_LOG_I("ManyMouse driver: {}", ManyMouse_DriverName());
+//        for (unsigned m = 0; m < availableMice; ++m) {
+//            A3D_LOG_I("Mouse[{}]: {}", m, ManyMouse_DeviceName(m));
+//        }
+//    }
+//}
 
-    if (glfwRawMouseMotionSupported()) {
-        A3D_LOG_I("Using GLFW raw mouse input.");
-        glfwSetInputMode(_window->glfwWindow(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-        glfwSetCursorPosCallback(_window->glfwWindow(),
-                                 GlfwInputManager::GLFWCursorPositionCallback);
-        _usingManyMouse = false;
-    }
-    else {
-        A3D_LOG_W("GLFW raw mouse input unavailable.  Using ManyMouse.");
-        initManyMouse();
-        _usingManyMouse = true;
-    }
-}
-
-void GlfwInputManager::initManyMouse() {
-    A3D_LOG_D("");
-
-    // TODO: must modify to support multiple windows
-    auto availableMice = ManyMouse_Init();
-
-    if (availableMice < 0) {
-        A3D_LOG_E("Error initializing ManyMouse: {}", availableMice);
-        ManyMouse_Quit(); // doesn't seem to allow for re-initialization later
-
-#ifdef MACOS
-        // special case for macOS Sonoma 10.15+
-        // see note at initMouseInput() above.
-        if (availableMice == kIOReturnNotPermitted) { // == -536870174
-            A3D_LOG_E("Please allow \"Input Monitoring\" in System Preferences -> " \
-                "Privacy & Security -> Input Monitoring");
-            _errorMask = WindowInputManagerErrorMask::PermissionDenied;
-        }
-        else {
-            _errorMask = WindowInputManagerErrorMask::UnknownError;
-        }
-#else
-        _errorMask = WindowInputManagerErrorMask::UnknownError;
-#endif
-    }
-    else if (availableMice == 0) {
-        A3D_LOG_W("No available mice.");
-        _errorMask = WindowInputManagerErrorMask::NoMice;
-    }
-    else {
-        A3D_LOG_I("ManyMouse driver: {}", ManyMouse_DriverName());
-        for (unsigned m = 0; m < availableMice; ++m) {
-            A3D_LOG_I("Mouse[{}]: {}", m, ManyMouse_DeviceName(m));
-        }
-    }
-}
-
-void GlfwInputManager::quitManyMouse() {
-
-    ManyMouse_Quit();
-}
+//void GlfwInputManager::quitManyMouse() {
+//
+//    ManyMouse_Quit();
+//}
 
 void GlfwInputManager::registerGLFWCallbacks(GLFWwindow* glfwWindow) {
 

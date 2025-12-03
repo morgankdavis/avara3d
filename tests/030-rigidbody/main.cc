@@ -89,7 +89,7 @@ int main(int argc, const char* argv[]) {
 		window->cursorCaptured(CAPTURE_CURSOR);
 
 		auto inputManager = make_unique<GlfwInputManager>(window.get());
-		if (inputManager->errorMask() == WindowInputManagerErrorMask::PermissionDenied) {
+		if (inputManager->errorMask() == DesktopInputManagerErrorMask::PermissionDenied) {
 			A3D_APP_LOG_E(g_log, "WindowInputManager permission denied.");
 			// on macOS 10.15 Catalina+, this is probably a permissions issue,
 			// and the OS will alert the user.
@@ -447,16 +447,16 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	}
 
 	// TEMPORARY for macOS mouse input testing
-	if (keysPressed.count(Key::Z)) {
-		A3D_APP_LOG_I(g_log, "Trying to re-initialize mouse input.");
-		auto windowInputManager = static_cast<GlfwInputManager*>(scene.inputManager());
-		try {
-			windowInputManager->initMouseInput();
-		}
-		catch (Exception) {
-			A3D_APP_LOG_E(g_log, "Nada");
-		}
-	}
+//	if (keysPressed.count(Key::Z)) {
+//		A3D_APP_LOG_I(g_log, "Trying to re-initialize mouse input.");
+//		auto windowInputManager = static_cast<GlfwInputManager*>(scene.inputManager());
+//		try {
+//			windowInputManager->initMouseInput();
+//		}
+//		catch (Exception) {
+//			A3D_APP_LOG_E(g_log, "Nada");
+//		}
+//	}
 
 	if (keysPressed.count(Key::Escape)) {
 		window->close();

@@ -45,7 +45,7 @@ namespace a3d {
 	Public Member Functions
  *********************************************************************************************/
 
-		WindowInputManagerErrorMask		errorMask() const;
+//		DesktopInputManagerErrorMask		errorMask() const;
 
 /*********************************************************************************************
 	InputManager Internal Member Functions
@@ -57,12 +57,12 @@ namespace a3d {
 	Private Member Functions
  *********************************************************************************************/
 
-		void 							initMouseInput();
+//		void 							initMouseInput();
 
 	private:
 
-		void 							initManyMouse();
-		void 							quitManyMouse();
+//		void 							initManyMouse();
+//		void 							quitManyMouse();
 		void 							registerGLFWCallbacks(GLFWwindow* glfwWindow);
 		void 							unregisterGLFWCallbacks(GLFWwindow* glfwWindow);
 
@@ -90,9 +90,9 @@ namespace a3d {
 	Private Member Variables
  *********************************************************************************************/
 
-		bool							_usingManyMouse;
-		GlfwWindow*							_window;
-		WindowInputManagerErrorMask		_errorMask;
+//		bool							_usingManyMouse;
+		GlfwWindow*						_window;
+//		DesktopInputManagerErrorMask	_errorMask;
 	};
 }
 

@@ -33,6 +33,8 @@ MainWindow::MainWindow(QWidget* parent):
 		QMainWindow(parent),
 		_ui(new Ui::MainWindow) {
 
+	//setWindowTitle("a3de");
+
 	_ui->setupUi(this);
 	statusBar()->hide();
 

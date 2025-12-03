@@ -25,6 +25,8 @@ namespace a3d {
 	Public Member Functions
  *********************************************************************************************/
 
+		DesktopInputManagerErrorMask		errorMask() const;
+
 		bool 								keyDown(Key key);
 		bool 								mouseButtonDown(MouseButton button);
 
@@ -41,6 +43,12 @@ namespace a3d {
 
 		glm::vec2 							mousePositionDelta(); // mouse position delta since last query
 		glm::vec2 							mouseScrollWheelDelta(); // mouse wheen scroll delta since last query
+
+/*********************************************************************************************
+	InputManager Internal Member Functions
+ *********************************************************************************************/
+
+		void update() override;
 
 /*********************************************************************************************
 	Protected Member Variables
@@ -63,8 +71,18 @@ namespace a3d {
 
 	private:
 
-		void			 			clearMousePositionDelta(); // called after mousePositionDelta()
-		void 						clearMouseScrollWheelDelta(); // called after mouseScrollWheelDelta()
+		void 					initManyMouse();
+		void 					quitManyMouse();
+
+		void			 		clearMousePositionDelta(); // called after mousePositionDelta()
+		void 					clearMouseScrollWheelDelta(); // called after mouseScrollWheelDelta()
+
+/*********************************************************************************************
+	Private Member Variables
+ *********************************************************************************************/
+
+//		bool							_usingManyMouse;
+		DesktopInputManagerErrorMask	_errorMask;
 	};
 }
 
