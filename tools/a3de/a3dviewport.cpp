@@ -4,10 +4,13 @@
 #include <QEvent>
 #include <QMouseEvent>
 #include <QWidget>
+#include <QWindow>
 
 #include "imgui.h"
 
 #include "a3d/a3d.h"
+
+#include "QtInputManager.h"
 
 
 using namespace a3d;
@@ -28,12 +31,15 @@ static ImGuiKey ImGuiKeyFromQtKey(int qt_key);
 A3DViewport::A3DViewport(RenderingApi renderingApi, QWidget* parent):
 		RenderContext(renderingApi),
 		QOpenGLWidget(parent),
-		_scene{} {
+		_scene{},
+		_cursorCaptured{false},
+		_lastCapturedCursorPosition{},
+		_inputManager{nullptr} {
 
 	// optional: better default size
 	setMinimumSize(1280, 768);
 
-	setMouseTracking(true);
+	//setMouseTracking(true);
 
 	setFocusPolicy(Qt::StrongFocus); // tab + click focus
 	// setFocusPolicy(Qt::ClickFocus);
@@ -41,8 +47,7 @@ A3DViewport::A3DViewport(RenderingApi renderingApi, QWidget* parent):
 }
 
 A3DViewport::~A3DViewport() {
-
-	ImGui::DestroyContext();
+	//ImGui::DestroyContext();
 }
 
 /*********************************************************************************************
@@ -57,6 +62,94 @@ void A3DViewport::scene(Scene* scene) {
 	_scene = scene;
 }
 
+bool A3DViewport::cursorCaptured() const {
+	return _cursorCaptured;
+}
+
+void A3DViewport::cursorCaptured(bool captured) {
+	// according to CGPT, Wayland has a mechanism to "freeze" the cursor
+	// (not to warp it) but as of 6.10.1, Qt does not provide an API for it.
+
+	_cursorCaptured = captured;
+
+	if (!windowHandle()) {
+		this->winId(); // forces creation
+	}
+
+	windowHandle()->setMouseGrabEnabled(captured);
+	setMouseTracking(captured);
+
+	if (captured) {
+
+		if (!_cursorCaptured) {
+			_lastCapturedCursorPosition = {};
+		}
+
+		setCursor(Qt::BlankCursor);
+		grabMouse();
+		grabKeyboard();
+
+		centerCursor();
+
+		_cursorCaptured = true;
+	}
+	else {
+
+		setCursor(Qt::ArrowCursor);
+		//QGuiApplication::restoreOverrideCursor();
+		releaseMouse();
+		releaseKeyboard();
+
+		_cursorCaptured = false;
+	}
+}
+
+/*********************************************************************************************
+	Public Member Functions
+ *********************************************************************************************/
+
+void A3DViewport::inputManager(QtInputManager* manager) {
+	_inputManager = manager;
+}
+
+/*********************************************************************************************
+	RenderContext Public Member Functions
+ *********************************************************************************************/
+
+bool A3DViewport::vSyncEnabled() const {
+	return true;
+}
+
+void A3DViewport::vSyncEnabled(bool enabled) {
+	throw Exception("Qt forces vsync.");
+}
+
+/*********************************************************************************************
+	RenderContext Internal Member Functions
+ *********************************************************************************************/
+
+void A3DViewport::beginFrame(const a3d::Scene& scene) {}
+
+void A3DViewport::endFrame(const a3d::Scene& scene) {}
+
+void A3DViewport::swapBuffers() {} // nada
+
+glm::uvec2 A3DViewport::framebufferSize() const {
+	// note that GLFW handles scale a little differently and
+	// expects framebufferSize without the multiplied scale factor.
+	auto s = devicePixelRatioF();
+	return {width() * s, height() * s};
+}
+
+glm::vec2 A3DViewport::framebufferScale() const {
+	auto s = devicePixelRatioF();
+	return {s, s};
+}
+
+unsigned A3DViewport::defaultFramebuffer() const {
+	return static_cast<unsigned>(defaultFramebufferObject());
+}
+
 /*********************************************************************************************
 	QWidget Protected Member Functions
  *********************************************************************************************/
@@ -65,18 +158,18 @@ bool A3DViewport::event(QEvent* e) {
 
 	if (_renderer->isInitialized()) {
 
-		ImGuiIO &io = ImGui::GetIO();
+		ImGuiIO& io = ImGui::GetIO();
 
 		switch (e->type()) {
 			case QEvent::MouseMove: {
-				auto *ev = static_cast<QMouseEvent *>(e);
+				auto* ev = static_cast<QMouseEvent*>(e);
 				const QPointF p = ev->position();
 				io.MousePos = ImVec2(float(p.x()), float(p.y()));
 				break;
 			}
 			case QEvent::MouseButtonPress:
 			case QEvent::MouseButtonRelease: {
-				auto *ev = static_cast<QMouseEvent *>(e);
+				auto* ev = static_cast<QMouseEvent*>(e);
 				const bool down = (e->type() == QEvent::MouseButtonPress);
 				int buttonIndex = 0;
 				switch (ev->button()) {
@@ -98,7 +191,7 @@ bool A3DViewport::event(QEvent* e) {
 				break;
 			}
 			case QEvent::Wheel: {
-				auto *ev = static_cast<QWheelEvent *>(e);
+				auto* ev = static_cast<QWheelEvent*>(e);
 				const QPoint numDegrees = ev->angleDelta() / 8;
 				if (numDegrees.y() != 0) {
 					io.MouseWheel += float(numDegrees.y()) / 120.0f;
@@ -113,6 +206,10 @@ bool A3DViewport::event(QEvent* e) {
 		}
 	}
 
+	if (_inputManager) {
+		_inputManager->event(e);
+	}
+
 	return QOpenGLWidget::event(e);
 }
 
@@ -120,7 +217,7 @@ void A3DViewport::keyPressEvent(QKeyEvent* e) {
 
 	if (_renderer->isInitialized()) {
 
-		ImGuiIO &io = ImGui::GetIO();
+		ImGuiIO& io = ImGui::GetIO();
 
 		const QString text = e->text();
 		if (!text.isEmpty()) {
@@ -129,7 +226,7 @@ void A3DViewport::keyPressEvent(QKeyEvent* e) {
 		}
 
 		int key = e->key();
-		A3D_LOG_I("KEY: {}", key);
+//		A3D_LOG_I("KEY: {}", key);
 		if (key >= 0 && key < IM_ARRAYSIZE(io.KeysDown)) {
 			io.KeysDown[key] = true;
 		}
@@ -143,10 +240,16 @@ void A3DViewport::keyPressEvent(QKeyEvent* e) {
 			e->accept();
 		}
 		else {
+			if (_inputManager) {
+				_inputManager->keyPressed(key);
+			}
 			QOpenGLWidget::keyPressEvent(e);
 		}
 	}
 	else {
+		if (_inputManager) {
+			_inputManager->keyPressed(e->key());
+		}
 		QOpenGLWidget::keyPressEvent(e);
 	}
 }
@@ -155,7 +258,7 @@ void A3DViewport::keyReleaseEvent(QKeyEvent* e) {
 
 	if (_renderer->isInitialized()) {
 
-		ImGuiIO &io = ImGui::GetIO();
+		ImGuiIO& io = ImGui::GetIO();
 
 		int key = e->key();
 		if (key >= 0 && key < IM_ARRAYSIZE(io.KeysDown)) {
@@ -171,11 +274,43 @@ void A3DViewport::keyReleaseEvent(QKeyEvent* e) {
 			e->accept();
 		}
 		else {
+			if (_inputManager) {
+				_inputManager->keyReleased(key);
+			}
 			QOpenGLWidget::keyReleaseEvent(e);
 		}
 	}
 	else {
+		if (_inputManager) {
+			_inputManager->keyReleased(e->key());
+		}
 		QOpenGLWidget::keyReleaseEvent(e);
+	}
+}
+
+void A3DViewport::mouseMoveEvent(QMouseEvent *e) {
+
+	if (e->source() == Qt::MouseEventNotSynthesized) {
+
+		auto pos = e->position();
+
+		if (!_lastCapturedCursorPosition.has_value()) {
+			_lastCapturedCursorPosition = pos;
+		}
+
+		QPointF delta = pos - *_lastCapturedCursorPosition;
+		if (_inputManager) {
+			_inputManager->mouseMoved(delta);
+		}
+
+		_lastCapturedCursorPosition = pos;
+
+//		A3D_LOG_I("position: ({}, {})", e->position().x(), e->position().y());
+//		A3D_LOG_I("delta: ({}, {})", delta.x(), delta.y());
+
+		if (_cursorCaptured) {
+			centerCursor();
+		}
 	}
 }
 
@@ -194,7 +329,7 @@ void A3DViewport::initializeGL() {
 		return reinterpret_cast<void*>(fp);
 	};
 
-	if (a3d::OpenGlRenderer::InitGL(loader)) {
+	if (a3d::OpenGLRenderer::InitGL(loader)) {
 
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -237,41 +372,11 @@ void A3DViewport::paintGL() {
 }
 
 /*********************************************************************************************
-	RenderContext Public Member Functions
+	Private Member Functions
  *********************************************************************************************/
 
-bool A3DViewport::vSyncEnabled() const {
-	return true;
-}
-
-void A3DViewport::vSyncEnabled(bool enabled) {
-	throw Exception("Qt forces vSync.");
-}
-
-/*********************************************************************************************
-	RenderContext Internal Member Functions
- *********************************************************************************************/
-
-void A3DViewport::beginFrame(const a3d::Scene& scene) {}
-
-void A3DViewport::endFrame(const a3d::Scene& scene) {}
-
-void A3DViewport::swapBuffers() {} // nada
-
-glm::uvec2 A3DViewport::framebufferSize() const {
-	// note that Glfw handles scale a little differently and
-	// would expect this without the scale factor.
-	auto s = devicePixelRatioF();
-	return {width() * s, height() * s};
-}
-
-glm::vec2 A3DViewport::framebufferScale() const {
-	auto s = devicePixelRatioF();
-    return {s, s};
-}
-
-unsigned A3DViewport::defaultFramebuffer() const {
-	return static_cast<unsigned>(defaultFramebufferObject());
+void A3DViewport::centerCursor() {
+	QCursor::setPos(round(width()/2.0), round(height()/2.0));
 }
 
 /*********************************************************************************************

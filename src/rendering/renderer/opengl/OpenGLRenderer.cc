@@ -1,12 +1,12 @@
 //
-//  OpenGlRenderer.cc
+//  OpenGLRenderer.cc
 //  avara3d
 //
 //  Created by Morgan Davis on 4/24/18.
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/rendering/renderer/opengl/OpenGlRenderer.h"
+#include "a3d/rendering/renderer/opengl/OpenGLRenderer.h"
 
 #include <algorithm>
 #include <iostream>
@@ -77,13 +77,13 @@ using namespace std;
 	 Private Constant Definitions
  *********************************************************************************************/
 
-const std::string 	OpenGlRenderer::STATS_TITLE_FONT_NAME = 		"Take cover";
-const std::string 	OpenGlRenderer::STATS_TITLE_FONT_TYPE = 		"ttf";
-const float 		OpenGlRenderer::STATS_TITLE_FONT_SIZE =			21.0;
-const std::string 	OpenGlRenderer::STATS_BODY_FONT_NAME = 			"SourceCodePro-Semibold";
-const std::string 	OpenGlRenderer::STATS_BODY_FONT_TYPE = 			"otf";
-const float 		OpenGlRenderer::STATS_BODY_FONT_SIZE =			15.0;
-const float 		OpenGlRenderer::STATS_TITLE_TO_BODY_PADDING =	0.0;
+const std::string 	OpenGLRenderer::STATS_TITLE_FONT_NAME = 		"Take cover";
+const std::string 	OpenGLRenderer::STATS_TITLE_FONT_TYPE = 		"ttf";
+const float 		OpenGLRenderer::STATS_TITLE_FONT_SIZE =			21.0;
+const std::string 	OpenGLRenderer::STATS_BODY_FONT_NAME = 			"SourceCodePro-Semibold";
+const std::string 	OpenGLRenderer::STATS_BODY_FONT_TYPE = 			"otf";
+const float 		OpenGLRenderer::STATS_BODY_FONT_SIZE =			15.0;
+const float 		OpenGLRenderer::STATS_TITLE_TO_BODY_PADDING =	0.0;
 
 /*********************************************************************************************
 	Private Types
@@ -157,21 +157,21 @@ typedef struct {
 
 static void 		RenderSkybox(Mesh& skyboxMesh,
 								Node& pointOfView,
-								OpenGlRenderer::MeshElementGLMapping& elementGLMapping,
-								OpenGlRenderer::TextureGLMapping& textureGLMapping,
+								OpenGLRenderer::MeshElementGLMapping& elementGLMapping,
+								OpenGLRenderer::TextureGLMapping& textureGLMapping,
 								unordered_set<Texture*>& activeTextures);
 static void 		GetMeshElementGLVertexDataHandles(MeshElement& element,
-													 OpenGlRenderer::MeshElementGLMapping& glMapping,
+													 OpenGLRenderer::MeshElementGLMapping& glMapping,
 													 GLuint& glVBO, GLuint& glVAO, GLuint& glEBO);
 static void 		GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
-												OpenGlRenderer::MeshElementGLMapping& glMapping,
+												OpenGLRenderer::MeshElementGLMapping& glMapping,
 												GLuint& glVBO, GLuint& glVAO, GLuint& glEBO);
 static void 		GetLinesVertexDataHandles(const vector<Line>& lines,
 											 Program& program,
-											 OpenGlRenderer::LinesGLMapping& glMapping,
+											 OpenGLRenderer::LinesGLMapping& glMapping,
 											 GLuint& glVBO, GLuint& glVAO);
 static void 		GetTextureGLTextureHandles(Material& material,
-											  OpenGlRenderer::TextureGLMapping& glMapping,
+											  OpenGLRenderer::TextureGLMapping& glMapping,
 											  unordered_set<Texture*>& activeTextures,
 											  map<MaterialPropertyType, GLuint>& glTextureHandles);
 static void 		BufferMeshElementVertexData(const MeshElement& element,
@@ -221,17 +221,17 @@ static void 		DrawLines(const vector<Line>& lines,
 							 const mat4& projectionMat,
 							 GLuint glVAO);
 static void 		CleanupMeshElementResources(unordered_set<MeshElement*>& active,
-											   OpenGlRenderer::MeshElementGLMapping& glMapping);
+											   OpenGLRenderer::MeshElementGLMapping& glMapping);
 static void 		CleanupTextureResources(unordered_set<Texture*>& active,
-										   OpenGlRenderer::TextureGLMapping& glMapping);
+										   OpenGLRenderer::TextureGLMapping& glMapping);
 static void 		CleanupLinesResources(unordered_set<const vector<Line>*>& active,
-										 OpenGlRenderer::LinesGLMapping& glMapping);
+										 OpenGLRenderer::LinesGLMapping& glMapping);
 static void 		DeleteMeshElementGLResources(MeshElement* element,
-												OpenGlRenderer::MeshElementGLMapping& glMapping);
+												OpenGLRenderer::MeshElementGLMapping& glMapping);
 static void 		DeleteTextureGLResources(Texture* texture,
-											OpenGlRenderer::TextureGLMapping& glMapping);
+											OpenGLRenderer::TextureGLMapping& glMapping);
 static void 		DeleteLinesGLResources(const vector<Line>& lines,
-										  OpenGlRenderer::LinesGLMapping& glMapping);
+										  OpenGLRenderer::LinesGLMapping& glMapping);
 static vector<Node*> 	SortedLights(map<Node*, float> lights);
 static void			InitImgui(const RenderContext& context);
 void 				UpdateImguiScale(const RenderContext& context, const Font& overLayFont, const Font& bodyFont);
@@ -253,7 +253,7 @@ static void 		LogGLInfo();
 	Private Static Members
  *********************************************************************************************/
 
-bool OpenGlRenderer::InitGL(GLGetProcAddress getProcAddress) {
+bool OpenGLRenderer::InitGL(GLGetProcAddress getProcAddress) {
 
 	static bool initialized = false;
 	if (initialized) return true;
@@ -289,7 +289,7 @@ bool OpenGlRenderer::InitGL(GLGetProcAddress getProcAddress) {
 	Internal Lifecycle Functions
  *********************************************************************************************/
 
-OpenGlRenderer::OpenGlRenderer():
+OpenGLRenderer::OpenGLRenderer():
 		Renderer{},
 		_isInitialized{false},
 		_meshElementGLMapping{},
@@ -303,8 +303,8 @@ OpenGlRenderer::OpenGlRenderer():
 		_overlayBodyFont{}
 		/*_defaultFramebuffer{0}*/ { }
 
-OpenGlRenderer::~OpenGlRenderer() {
-	A3D_LOG_D("Destroying OpenGlRenderer {:p}", static_cast<void*>(this));
+OpenGLRenderer::~OpenGLRenderer() {
+	A3D_LOG_D("Destroying OpenGLRenderer {:p}", static_cast<void*>(this));
 	
 	_activeMeshElements.clear();
 	_activeTextures.clear();
@@ -325,11 +325,11 @@ OpenGlRenderer::~OpenGlRenderer() {
 	Renderer Internal Member Functions
  *********************************************************************************************/
 
-RenderingApi OpenGlRenderer::renderingApi() const {
+RenderingApi OpenGLRenderer::renderingApi() const {
 	return RenderingApi::OpenGL;
 }
 
-bool OpenGlRenderer::initialize(const RenderContext& context) {
+bool OpenGLRenderer::initialize(const RenderContext& context) {
 	
 	A3D_LOG_I("");
 
@@ -362,11 +362,11 @@ bool OpenGlRenderer::initialize(const RenderContext& context) {
 	return true;
 }
 
-bool OpenGlRenderer::isInitialized() const {
+bool OpenGLRenderer::isInitialized() const {
 	return _isInitialized;
 }
 	
-void OpenGlRenderer::beginFrame(const Scene& scene,
+void OpenGLRenderer::beginFrame(const Scene& scene,
 								const RenderContext& context,
 								const DebugOptions& debugOptions,
 								Stats& stats) {
@@ -376,7 +376,7 @@ void OpenGlRenderer::beginFrame(const Scene& scene,
 	_activeLines.clear();
 }
 
-void OpenGlRenderer::endFrame(const Scene& scene,
+void OpenGLRenderer::endFrame(const Scene& scene,
 							  const RenderContext& context,
 							  const DebugOptions& debugOptions,
 							  Stats& stats) {
@@ -393,14 +393,14 @@ void OpenGlRenderer::endFrame(const Scene& scene,
 	A3D_GL_CHECK();
 }
 
-void OpenGlRenderer::preTraversal(const Scene& scene,
+void OpenGLRenderer::preTraversal(const Scene& scene,
 								  const RenderContext& context,
 								  const DebugOptions& debugOptions,
 								  Stats& stats) {
 
 }
 
-void OpenGlRenderer::postTraversal(const Scene& scene,
+void OpenGLRenderer::postTraversal(const Scene& scene,
 								   const RenderContext& context,
 								   const vector<Node*>& lightNodes,
 								   const DebugOptions& debugOptions,
@@ -410,7 +410,7 @@ void OpenGlRenderer::postTraversal(const Scene& scene,
 	Program::Default().bindUniformBlock("EnvironmentBlock", _glEnvironmentUBO);
 }
 
-void OpenGlRenderer::render(const Scene& scene,
+void OpenGLRenderer::render(const Scene& scene,
 							const RenderContext& context,
 							const DebugOptions& debugOptions,
 							Stats& stats) {
@@ -507,7 +507,7 @@ void OpenGlRenderer::render(const Scene& scene,
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, prevReadFbo);
 }
 
-void OpenGlRenderer::render(Mesh& mesh,
+void OpenGLRenderer::render(Mesh& mesh,
 							const RenderContext& context,
 							const mat4& modelMat,
 							const mat4& viewMat,
@@ -520,7 +520,7 @@ void OpenGlRenderer::render(Mesh& mesh,
 	}
 }
 
-void OpenGlRenderer::render(MeshElement& element,
+void OpenGLRenderer::render(MeshElement& element,
 							const RenderContext& context,
 							Material& material,
 							const mat4& modelMat,
@@ -578,7 +578,7 @@ void OpenGlRenderer::render(MeshElement& element,
 //	}
 }
 	
-void OpenGlRenderer::render(const std::vector<Line>& lines,
+void OpenGLRenderer::render(const std::vector<Line>& lines,
 							const RenderContext& context,
 							const glm::mat4& modelMat,
 							const glm::mat4& viewMat,
@@ -613,7 +613,7 @@ void OpenGlRenderer::render(const std::vector<Line>& lines,
 //	}
 }
 
-unique_ptr<Image> OpenGlRenderer::snapshot(const RenderContext& context) const {
+unique_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 
 	auto framebufferSize = context.framebufferSize();
 	auto framebufferWidth = (unsigned)round(framebufferSize.x);
@@ -630,7 +630,7 @@ unique_ptr<Image> OpenGlRenderer::snapshot(const RenderContext& context) const {
 	return make_unique<Image>(std::move(buffer), framebufferWidth, framebufferHeight, 4);
 }
 
-void OpenGlRenderer::framebufferScaleChanged(const RenderContext& context) {
+void OpenGLRenderer::framebufferScaleChanged(const RenderContext& context) {
 	A3D_LOG_D("context: {:p}", static_cast<const void*>(&context));
 
 	UpdateImguiScale(context, *_overlayTitleFont, *_overlayBodyFont);
@@ -642,8 +642,8 @@ void OpenGlRenderer::framebufferScaleChanged(const RenderContext& context) {
 
 void RenderSkybox(Mesh& skyboxMesh,
 				  Node& pointOfView,
-				  OpenGlRenderer::MeshElementGLMapping& elementGLMapping,
-				  OpenGlRenderer::TextureGLMapping& textureGLMapping,
+				  OpenGLRenderer::MeshElementGLMapping& elementGLMapping,
+				  OpenGLRenderer::TextureGLMapping& textureGLMapping,
 				  unordered_set<Texture*>& activeTextures) {
 
 	auto program = Program::Skybox();
@@ -696,7 +696,7 @@ void RenderSkybox(Mesh& skyboxMesh,
 }
 	
 void GetMeshElementGLVertexDataHandles(MeshElement& element,
-									   OpenGlRenderer::MeshElementGLMapping& glMapping,
+									   OpenGLRenderer::MeshElementGLMapping& glMapping,
 									   GLuint& glVBO, GLuint& glVAO, GLuint& glEBO) {
 
 	// looks up and populates glVBO, glVAO, and glEBO, loading the vertex data if needed
@@ -721,7 +721,7 @@ void GetMeshElementGLVertexDataHandles(MeshElement& element,
 }
 
 void GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
-								  OpenGlRenderer::MeshElementGLMapping& glMapping,
+								  OpenGLRenderer::MeshElementGLMapping& glMapping,
 								  GLuint& glVBO, GLuint& glVAO, GLuint& glEBO) {
 
 	// looks up and populates glVBO, glVAO, and glEBO, loading the vertex data if needed
@@ -753,7 +753,7 @@ void GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
 
 void GetLinesVertexDataHandles(const vector<Line>& lines,
 							   Program& program,
-							   OpenGlRenderer::LinesGLMapping& glMapping,
+							   OpenGLRenderer::LinesGLMapping& glMapping,
 							   GLuint& glVBO, GLuint& glVAO) {
 
 	if (!glMapping.count(&lines)) {
@@ -770,7 +770,7 @@ void GetLinesVertexDataHandles(const vector<Line>& lines,
 }
 
 void GetTextureGLTextureHandles(Material& material,
-								OpenGlRenderer::TextureGLMapping& glMapping,
+								OpenGLRenderer::TextureGLMapping& glMapping,
 								unordered_set<Texture*>& activeTextures,
 								map<MaterialPropertyType, GLuint>& glTextureHandles) {
 
@@ -2017,7 +2017,7 @@ void DrawLines(const vector<Line>& lines,
 }
 
 void CleanupMeshElementResources(unordered_set<MeshElement*>& active,
-								 OpenGlRenderer::MeshElementGLMapping& glMapping) {
+								 OpenGLRenderer::MeshElementGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 
 	// gather sorted vector of elements used this frame
@@ -2056,7 +2056,7 @@ void CleanupMeshElementResources(unordered_set<MeshElement*>& active,
 }
 
 void CleanupTextureResources(unordered_set<Texture*> &active,
-							 OpenGlRenderer::TextureGLMapping& glMapping) {
+							 OpenGLRenderer::TextureGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 
 	// gather sorted vector of properties used this frame
@@ -2096,7 +2096,7 @@ void CleanupTextureResources(unordered_set<Texture*> &active,
 
 // this has to be the slowest way on earth to do this.
 void CleanupLinesResources(unordered_set<const vector<Line>*>& active,
-						   OpenGlRenderer::LinesGLMapping& glMapping) {
+						   OpenGLRenderer::LinesGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 
 //	// gather sorted vector of Lines used this frame
@@ -2207,7 +2207,7 @@ void CleanupLinesResources(unordered_set<const vector<Line>*>& active,
 }
 
 void DeleteMeshElementGLResources(MeshElement* element,
-								  OpenGlRenderer::MeshElementGLMapping& glMapping) {
+								  OpenGLRenderer::MeshElementGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	
 	if (glMapping.count(element)) {
@@ -2235,7 +2235,7 @@ void DeleteMeshElementGLResources(MeshElement* element,
 }
 
 void DeleteTextureGLResources(Texture* texture,
-							  OpenGlRenderer::TextureGLMapping& glMapping) {
+							  OpenGLRenderer::TextureGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	
 	if (glMapping.count(texture)) {
@@ -2257,7 +2257,7 @@ void DeleteTextureGLResources(Texture* texture,
 }
 
 void DeleteLinesGLResources(const vector<Line>& lines,
-							OpenGlRenderer::LinesGLMapping& glMapping) {
+							OpenGLRenderer::LinesGLMapping& glMapping) {
 #ifndef DISABLE_RESOURCE_MANAGEMENT
 	
 //	if (glMapping.count(&lines)) {
@@ -2334,8 +2334,8 @@ void UpdateImguiScale(const RenderContext& context, const Font& overLayFont, con
 	io.Fonts->ClearFonts(); // crashes by itself
 	io.Fonts->ClearTexData(); // does not work, but does not crash
 
-	AddImguiFont(context, overLayFont, OpenGlRenderer::STATS_TITLE_FONT_SIZE);
-	AddImguiFont(context, bodyFont, OpenGlRenderer::STATS_BODY_FONT_SIZE);
+	AddImguiFont(context, overLayFont, OpenGLRenderer::STATS_TITLE_FONT_SIZE);
+	AddImguiFont(context, bodyFont, OpenGLRenderer::STATS_BODY_FONT_SIZE);
 
 	ImGui_ImplOpenGL3_CreateFontsTexture();
 }

@@ -15,16 +15,19 @@ find_package(Qt6 REQUIRED COMPONENTS Widgets OpenGLWidgets)
 
 set(PROJECT_SOURCES
         main.cpp
-        mainwindow.cpp
         mainwindow.h
+        mainwindow.cpp
         mainwindow.ui
+        a3dviewport.h
+        a3dviewport.cpp
+        QtInputManager.h
+        QtInputManager.cc
 )
 
 #if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(a3de
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        a3dviewport.h a3dviewport.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET a3de APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
@@ -44,9 +47,9 @@ set(PROJECT_SOURCES
 #    endif()
 #endif()
 
-#add_subdirectory(${CMAKE_SOURCE_DIR}/external/imgui-1.90)
+
 target_include_directories(a3de PRIVATE ${CMAKE_SOURCE_DIR}/external/imgui-1.90)
-#target_include_directories(a3de PRIVATE ${CMAKE_SOURCE_DIR}/external/imgui-1.90/backends)
+target_include_directories(a3de PRIVATE ${CMAKE_SOURCE_DIR}/external/magic_enum-0.9.3/include)
 
 #target_link_libraries(a3de PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::OpenGLWidgets)
 target_link_libraries(a3de PRIVATE

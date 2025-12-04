@@ -1,5 +1,5 @@
 //
-//  WindowInputManager.h
+//  GLFWInputManager.h
 //  avara3d
 //
 //  Created by Morgan Davis on 4/16/2024.
@@ -25,21 +25,21 @@ struct GLFWwindow;
 namespace a3d {
 
 
-	class GlfwWindow;
+	class GLFWWindow;
 
 	
-	class GlfwInputManager : public DesktopInputManager {
+	class GLFWInputManager : public DesktopInputManager {
+
+	public:
 
 /*********************************************************************************************
 	Public Lifecycle Functions
  *********************************************************************************************/
 
-	public:
-
-		explicit GlfwInputManager(GlfwWindow* window);
-		GlfwInputManager(const InputManager& other) = delete; // copy constructor
-		GlfwInputManager& operator=(const InputManager& other) = delete; // copy assignment
-		~GlfwInputManager() override;
+		explicit GLFWInputManager(GLFWWindow* window);
+		GLFWInputManager(const InputManager& other) = delete; // copy constructor
+		GLFWInputManager& operator=(const InputManager& other) = delete; // copy assignment
+		~GLFWInputManager() override;
 
 /*********************************************************************************************
 	Public Member Functions
@@ -53,16 +53,15 @@ namespace a3d {
 
 		void 							update() override;
 
+	private:
+
 /*********************************************************************************************
 	Private Member Functions
  *********************************************************************************************/
 
-//		void 							initMouseInput();
-
-	private:
-
-//		void 							initManyMouse();
-//		void 							quitManyMouse();
+		void 							initMouseInput();
+		void 							initManyMouse();
+		void 							quitManyMouse();
 		void 							registerGLFWCallbacks(GLFWwindow* glfwWindow);
 		void 							unregisterGLFWCallbacks(GLFWwindow* glfwWindow);
 
@@ -90,8 +89,8 @@ namespace a3d {
 	Private Member Variables
  *********************************************************************************************/
 
-//		bool							_usingManyMouse;
-		GlfwWindow*						_window;
+		GLFWWindow*						_window;
+		bool							_usingManyMouse;
 //		DesktopInputManagerErrorMask	_errorMask;
 	};
 }

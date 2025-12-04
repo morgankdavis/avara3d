@@ -59,7 +59,7 @@ int main(int argc, const char* argv[]) {
 		InitLog();
 		LogBuildInfo();
 
-		auto window = make_unique<GlfwWindow>(RenderingApi::OpenGL,
+		auto window = make_unique<GLFWWindow>(RenderingApi::OpenGL,
 											  *utils::ExecutableName(),
 											  WINDOW_SIZE,
 											  FULLSCREEN,
@@ -68,9 +68,9 @@ int main(int argc, const char* argv[]) {
 		window->vSyncEnabled(ENABLE_VSYNC);
 		window->cursorCaptured(CAPTURE_CURSOR);
 
-		auto inputManager = make_unique<GlfwInputManager>(window.get());
+		auto inputManager = make_unique<GLFWInputManager>(window.get());
 		if (inputManager->errorMask() == DesktopInputManagerErrorMask::PermissionDenied) {
-			A3D_APP_LOG_E(g_log, "WindowInputManager permission denied.");
+			A3D_APP_LOG_E(g_log, "GLFWInputManager permission denied.");
 			// on macOS 10.15 Catalina+, this is probably a permissions issue,
 			// and the OS will alert the user.
 			// just keep going and let the user decide what they want to do.
@@ -216,7 +216,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 	A3D_APP_LOG_T(g_log, "scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
 
-	auto window = dynamic_cast<GlfwWindow*>(scene.visualWorld()->renderContext());
+	auto window = dynamic_cast<GLFWWindow*>(scene.visualWorld()->renderContext());
 
 	// get input
 

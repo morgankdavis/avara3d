@@ -1,12 +1,13 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 
-#include "a3dviewport.h"
-
 #include "glm/glm.hpp"
 
 #include "a3d/a3d.h"
 #include "a3d/Utilities.h"
+
+#include "a3dviewport.h"
+#include "QtInputManager.h"
 
 
 using namespace a3d;
@@ -55,6 +56,14 @@ void MainWindow::initScene(A3DViewport &viewport) {
 		initLog();
 		logBuildInfo();
 
+		auto inputManager = make_unique<QtInputManager>(*_viewport);
+		if (inputManager->errorMask() == DesktopInputManagerErrorMask::PermissionDenied) {
+			A3D_APP_LOG_E(_log, "GLFWInputManager permission denied.");
+			// on macOS 10.15 Catalina+, this is probably a permissions issue,
+			// and the OS will alert the user.
+			// just keep going and let the user decide what they want to do.
+		}
+
 		auto visualWorld = make_unique<VisualWorld>(viewport);
 
 		visualWorld->fogStartDistance(500.0);
@@ -71,7 +80,7 @@ void MainWindow::initScene(A3DViewport &viewport) {
 																| SceneImportOptions::ImportCameras);
 
 		_scene->visualWorld(std::move(visualWorld));
-//		scene->inputManager(std::move(inputManager));
+		_scene->inputManager(std::move(inputManager));
 		_scene->debugOptions(DebugOptions::ShowStatsOverlay);
 		_scene->updateCallback(bind(&MainWindow::updateCallback, this, _1, _2, _3));
 

@@ -42,7 +42,7 @@ int main(int argc, const char* argv[]) {
 
 	cout << "test001::main()\n" << endl;
 
-	auto window = make_unique<GlfwWindow>(RenderingApi::OpenGL,
+	auto window = make_unique<GLFWWindow>(RenderingApi::OpenGL,
 										  *utils::ExecutableName(),
 										  WINDOW_SIZE,
 										  FULLSCREEN,

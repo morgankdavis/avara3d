@@ -1,5 +1,5 @@
 //
-//  Window.h
+//  GLFWWindow.h
 //  avara3d
 //
 //  Created by Morgan Davis on 4/16/2024.
@@ -33,7 +33,7 @@ namespace a3d {
 	class Scene;
 
 	
-	class GlfwWindow : public RenderContext {
+	class GLFWWindow : public RenderContext {
 
 /*********************************************************************************************
 	Public Lifecycle Functions
@@ -41,15 +41,15 @@ namespace a3d {
 
 	public:
 
-		GlfwWindow(RenderingApi renderingAPI,
+		GLFWWindow(RenderingApi renderingAPI,
 				   const std::string& title,
 				   const glm::uvec2& size,
 				   bool fullScreen,
 				   bool enableHighDPI = true,
 				   AntialiasingMode antialiasingMode = AntialiasingMode::None);
-		GlfwWindow(const GlfwWindow& other) = delete; // copy constructor
-		GlfwWindow& operator=(const GlfwWindow& other) = delete; // copy assignment
-		~GlfwWindow() override;
+		GLFWWindow(const GLFWWindow& other) = delete; // copy constructor
+		GLFWWindow& operator=(const GLFWWindow& other) = delete; // copy assignment
+		~GLFWWindow() override;
 
 /*********************************************************************************************
 	Public Member Functions
@@ -121,7 +121,7 @@ namespace a3d {
 
 		struct DestroyGLFWWindow {
 			void operator()(GLFWwindow* window){
-				GlfwWindow::Destroy(window);
+				GLFWWindow::Destroy(window);
 			}
 		};
 

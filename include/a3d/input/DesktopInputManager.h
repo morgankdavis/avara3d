@@ -10,11 +10,11 @@ namespace a3d {
 
 	class DesktopInputManager : public InputManager {
 
+	public:
+
 /*********************************************************************************************
 	Public Lifecycle Functions
  *********************************************************************************************/
-
-	public:
 
 		DesktopInputManager();
 		DesktopInputManager(const DesktopInputManager& other) = delete; // copy constructor
@@ -24,8 +24,6 @@ namespace a3d {
 /*********************************************************************************************
 	Public Member Functions
  *********************************************************************************************/
-
-		DesktopInputManagerErrorMask		errorMask() const;
 
 		bool 								keyDown(Key key);
 		bool 								mouseButtonDown(MouseButton button);
@@ -44,17 +42,25 @@ namespace a3d {
 		glm::vec2 							mousePositionDelta(); // mouse position delta since last query
 		glm::vec2 							mouseScrollWheelDelta(); // mouse wheen scroll delta since last query
 
+		DesktopInputManagerErrorMask		errorMask() const;
+
 /*********************************************************************************************
 	InputManager Internal Member Functions
  *********************************************************************************************/
 
-		void update() override;
+//		void update() override;
+
+	protected:
+
+/*********************************************************************************************
+	Protected Member Functions
+ *********************************************************************************************/
+
+//		void 					initManyMouse();
 
 /*********************************************************************************************
 	Protected Member Variables
  *********************************************************************************************/
-
-	protected:
 
 		std::unordered_set<Key> 			_keysDown;
 		std::unordered_set<MouseButton> 	_mouseButtonsDown;
@@ -64,15 +70,15 @@ namespace a3d {
 		std::unordered_set<MouseButton> 	_mouseButtonsPressedCleared;
 		glm::vec2  							_mousePositionDelta;
 		glm::vec2  							_mouseScrollWheelDelta;
+		DesktopInputManagerErrorMask		_errorMask;
+
+	private:
 
 /*********************************************************************************************
 	Private Member Functions
  *********************************************************************************************/
 
-	private:
-
-		void 					initManyMouse();
-		void 					quitManyMouse();
+//		void 					quitManyMouse();
 
 		void			 		clearMousePositionDelta(); // called after mousePositionDelta()
 		void 					clearMouseScrollWheelDelta(); // called after mouseScrollWheelDelta()
@@ -82,7 +88,7 @@ namespace a3d {
  *********************************************************************************************/
 
 //		bool							_usingManyMouse;
-		DesktopInputManagerErrorMask	_errorMask;
+//		DesktopInputManagerErrorMask	_errorMask;
 	};
 }
 

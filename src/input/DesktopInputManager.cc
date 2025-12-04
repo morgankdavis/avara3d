@@ -8,11 +8,11 @@
 
 #include "a3d/input/DesktopInputManager.h"
 
-#ifdef MACOS
-#include <IOKit/hid/IOHIDLib.h> // for kIOReturnNotPermitted
-#endif
-
-#include "manymouse.h"
+//#ifdef MACOS
+//#include <IOKit/hid/IOHIDLib.h> // for kIOReturnNotPermitted
+//#endif
+//
+//#include "manymouse.h"
 
 #include "a3d/diagnostic/log/Log.h"
 
@@ -22,8 +22,8 @@ using namespace std;
 using namespace glm;
 
 
-constexpr bool INVERT_MOUSE_VERTICAL = true;
-constexpr bool INVERT_MOUSE_HORIZONTAL = false;
+//constexpr bool INVERT_MOUSE_VERTICAL = true;
+//constexpr bool INVERT_MOUSE_HORIZONTAL = false;
 
 
 /*********************************************************************************************
@@ -32,7 +32,6 @@ constexpr bool INVERT_MOUSE_HORIZONTAL = false;
 
 DesktopInputManager::DesktopInputManager():
 //		_usingManyMouse{false},
-		_errorMask{DesktopInputManagerErrorMask::None},
 		_keysDown{},
 		_mouseButtonsDown{},
 		_keysPressed{},
@@ -40,25 +39,22 @@ DesktopInputManager::DesktopInputManager():
 		_mouseButtonsPressed{},
 		_mouseButtonsPressedCleared{},
 		_mousePositionDelta{0.0f, 0.0f},
-		_mouseScrollWheelDelta{0.0f, 0.0f}
+		_mouseScrollWheelDelta{0.0f, 0.0f},
+		_errorMask{DesktopInputManagerErrorMask::None}
 		/*_scene{}*/ {
 
-	initManyMouse();
+	//initManyMouse();
 }
 
 DesktopInputManager::~DesktopInputManager() {
 	A3D_LOG_D("Destroying InputManager {:p}", static_cast<void*>(this));
 
-	quitManyMouse();
+	//quitManyMouse();
 }
 
 /*********************************************************************************************
 	Public Member Functions
  *********************************************************************************************/
-
-DesktopInputManagerErrorMask DesktopInputManager::errorMask() const {
-	return _errorMask;
-}
 
 bool DesktopInputManager::keyDown(Key key) {
 	return _keysDown.count(key);
@@ -120,6 +116,10 @@ vec2 DesktopInputManager::mouseScrollWheelDelta() {
 	return mouseScrollWheelDeltaCopy;
 }
 
+DesktopInputManagerErrorMask DesktopInputManager::errorMask() const {
+	return _errorMask;
+}
+
 //Scene* DesktopInputManager::scene() const {
 //	return _scene;
 //}
@@ -128,40 +128,81 @@ vec2 DesktopInputManager::mouseScrollWheelDelta() {
 	InputManager Internal Member Functions
  *********************************************************************************************/
 
-void DesktopInputManager::update() {
+//void DesktopInputManager::update() {
+//
+////	if (_usingManyMouse) {
+//
+////	A3D_LOG_I("update()");
+//
+//		static ManyMouseEvent event;
+//
+//		while (ManyMouse_PollEvent(&event)) {
+//			A3D_LOG_I("POLL");
+//			switch (event.type) {
+//				case MANYMOUSE_EVENT_RELMOTION:
+//					A3D_LOG_I("MANYMOUSE_EVENT_RELMOTION");
+//					if (event.item == 0) _mousePositionDelta.x = (INVERT_MOUSE_HORIZONTAL ? -event.value : event.value);
+//					else _mousePositionDelta.y = (INVERT_MOUSE_VERTICAL ? -event.value : event.value);
+//					A3D_LOG_I("x: {}, y: {}", _mousePositionDelta.x, _mousePositionDelta.y);
+//					break;
+//				case MANYMOUSE_EVENT_SCROLL:
+//					if (event.item == 0) _mouseScrollWheelDelta.y += event.value;
+//					else _mouseScrollWheelDelta.x += event.value;
+//					break;
+//				case MANYMOUSE_EVENT_DISCONNECT:
+//					A3D_LOG_W("Mouse {} disconnected.", event.device);
+//					break;
+//				case MANYMOUSE_EVENT_ABSMOTION:
+//				case MANYMOUSE_EVENT_BUTTON:
+//				case MANYMOUSE_EVENT_MAX:
+//					break;
+//			}
+//		}
+//
+//	//A3D_LOG_I("DONE POLLLING");
+////	}
+//}
 
-//	if (_usingManyMouse) {
+/*********************************************************************************************
+	Protected Member Functions
+ *********************************************************************************************/
 
-//	A3D_LOG_I("update()");
-
-		static ManyMouseEvent event;
-
-		while (ManyMouse_PollEvent(&event)) {
-			A3D_LOG_I("POLL");
-			switch (event.type) {
-				case MANYMOUSE_EVENT_RELMOTION:
-					A3D_LOG_I("MANYMOUSE_EVENT_RELMOTION");
-					if (event.item == 0) _mousePositionDelta.x = (INVERT_MOUSE_HORIZONTAL ? -event.value : event.value);
-					else _mousePositionDelta.y = (INVERT_MOUSE_VERTICAL ? -event.value : event.value);
-					A3D_LOG_I("x: {}, y: {}", _mousePositionDelta.x, _mousePositionDelta.y);
-					break;
-				case MANYMOUSE_EVENT_SCROLL:
-					if (event.item == 0) _mouseScrollWheelDelta.y += event.value;
-					else _mouseScrollWheelDelta.x += event.value;
-					break;
-				case MANYMOUSE_EVENT_DISCONNECT:
-					A3D_LOG_W("Mouse {} disconnected.", event.device);
-					break;
-				case MANYMOUSE_EVENT_ABSMOTION:
-				case MANYMOUSE_EVENT_BUTTON:
-				case MANYMOUSE_EVENT_MAX:
-					break;
-			}
-		}
-
-	//A3D_LOG_I("DONE POLLLING");
+//void DesktopInputManager::initManyMouse() {
+//	A3D_LOG_D("");
+//
+//	// TODO: must modify to support multiple windows
+//	auto availableMice = ManyMouse_Init();
+//
+//	if (availableMice < 0) {
+//		A3D_LOG_E("Error initializing ManyMouse: {}", availableMice);
+//		ManyMouse_Quit(); // doesn't seem to allow for re-initialization later
+//
+//#ifdef MACOS
+//		// special case for macOS Sonoma 10.15+
+//        // see note at initMouseInput() above.
+//        if (availableMice == kIOReturnNotPermitted) { // == -536870174
+//            A3D_LOG_E("Please allow \"Input Monitoring\" in System Preferences -> " \
+//                "Privacy & Security -> Input Monitoring");
+//            _errorMask = WindowInputManagerErrorMask::PermissionDenied;
+//        }
+//        else {
+//            _errorMask = WindowInputManagerErrorMask::UnknownError;
+//        }
+//#else
+//		_errorMask = DesktopInputManagerErrorMask::UnknownError;
+//#endif
 //	}
-}
+//	else if (availableMice == 0) {
+//		A3D_LOG_W("No available mice.");
+//		_errorMask = DesktopInputManagerErrorMask::NoMice;
+//	}
+//	else {
+//		A3D_LOG_I("ManyMouse driver: {}", ManyMouse_DriverName());
+//		for (unsigned m = 0; m < availableMice; ++m) {
+//			A3D_LOG_I("Mouse[{}]: {}", m, ManyMouse_DeviceName(m));
+//		}
+//	}
+//}
 
 /*********************************************************************************************
 	Internal Member Functions
@@ -204,47 +245,11 @@ void DesktopInputManager::update() {
 //    }
 //}
 
-void DesktopInputManager::initManyMouse() {
-	A3D_LOG_D("");
 
-	// TODO: must modify to support multiple windows
-	auto availableMice = ManyMouse_Init();
-
-	if (availableMice < 0) {
-		A3D_LOG_E("Error initializing ManyMouse: {}", availableMice);
-		ManyMouse_Quit(); // doesn't seem to allow for re-initialization later
-
-#ifdef MACOS
-		// special case for macOS Sonoma 10.15+
-        // see note at initMouseInput() above.
-        if (availableMice == kIOReturnNotPermitted) { // == -536870174
-            A3D_LOG_E("Please allow \"Input Monitoring\" in System Preferences -> " \
-                "Privacy & Security -> Input Monitoring");
-            _errorMask = WindowInputManagerErrorMask::PermissionDenied;
-        }
-        else {
-            _errorMask = WindowInputManagerErrorMask::UnknownError;
-        }
-#else
-		_errorMask = DesktopInputManagerErrorMask::UnknownError;
-#endif
-	}
-	else if (availableMice == 0) {
-		A3D_LOG_W("No available mice.");
-		_errorMask = DesktopInputManagerErrorMask::NoMice;
-	}
-	else {
-		A3D_LOG_I("ManyMouse driver: {}", ManyMouse_DriverName());
-		for (unsigned m = 0; m < availableMice; ++m) {
-			A3D_LOG_I("Mouse[{}]: {}", m, ManyMouse_DeviceName(m));
-		}
-	}
-}
-
-void DesktopInputManager::quitManyMouse() {
-
-	ManyMouse_Quit();
-}
+//void DesktopInputManager::quitManyMouse() {
+//
+//	ManyMouse_Quit();
+//}
 
 void DesktopInputManager::clearMousePositionDelta() {
 	_mousePositionDelta.x = 0.0f;

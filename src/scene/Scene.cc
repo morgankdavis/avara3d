@@ -19,7 +19,7 @@
 #include "a3d/CubeImage.h"
 #include "a3d/Image.h"
 #include "a3d/diagnostic/log/Log.h"
-#include "a3d/input/GlfwInputManager.h"
+#include "a3d/input/GLFWInputManager.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/physics/PhysicsBody.h"

@@ -1,12 +1,12 @@
 //
-//  Window.cc
+//  GLFWWindow.cc
 //  avara3d
 //
 //  Created by Morgan Davis on 10/21/16.
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/rendering/context/GlfwWindow.h"
+#include "a3d/rendering/context/GLFWWindow.h"
 
 #include <iostream>
 #include <sstream>
@@ -18,12 +18,12 @@
 #include "a3d/Utilities.h"
 #include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/log/Log.h"
-#include "a3d/input/GlfwInputManager.h"
+#include "a3d/input/GLFWInputManager.h"
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/camera/Camera.h"
 #include "a3d/rendering/renderer/Renderer.h"
-#include "a3d/rendering/renderer/opengl/OpenGlRenderer.h"
+#include "a3d/rendering/renderer/opengl/OpenGLRenderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 
@@ -57,7 +57,7 @@ bool 			GetGLFWMouseMonitor(GLFWmonitor** monitor, GLFWwindow* window);
 	Public Lifescycle
  *********************************************************************************************/
 
-GlfwWindow::GlfwWindow(RenderingApi renderingAPI,
+GLFWWindow::GLFWWindow(RenderingApi renderingAPI,
 					   const string& title,
 					   const glm::uvec2& size,
 					   bool fullScreen,
@@ -131,7 +131,7 @@ GlfwWindow::GlfwWindow(RenderingApi renderingAPI,
 			glfwMakeContextCurrent(_glfwWindow.get());
 			vSyncEnabled(false);
 
-			if (OpenGlRenderer::InitGL((GLADloadproc)glfwGetProcAddress)) {
+			if (OpenGLRenderer::InitGL((GLADloadproc)glfwGetProcAddress)) {
 				RenderContext::renderer()->initialize(*this);
 				ImGui_ImplGlfw_InitForOpenGL(_glfwWindow.get(), true);
 			}
@@ -154,8 +154,8 @@ GlfwWindow::GlfwWindow(RenderingApi renderingAPI,
 	}
 }
 
-GlfwWindow::~GlfwWindow() {
-	A3D_LOG_D("Destroying Window {:p}", static_cast<void*>(this));
+GLFWWindow::~GLFWWindow() {
+	A3D_LOG_D("Destroying GLFWWindow {:p}", static_cast<void*>(this));
 
 	close(); // meh?
 
@@ -169,7 +169,7 @@ GlfwWindow::~GlfwWindow() {
 	Public Member Functions
  *********************************************************************************************/
 
-void GlfwWindow::open() {
+void GLFWWindow::open() {
 	A3D_LOG_I("");
 
 	if (_visualWorld && _visualWorld->scene()) {
@@ -191,7 +191,7 @@ void GlfwWindow::open() {
 	}
 }
 
-void GlfwWindow::close() {
+void GLFWWindow::close() {
 
 	if (_recordingGIF) {
 		stopGIFRecording();
@@ -216,41 +216,41 @@ void GlfwWindow::close() {
 	_open = false;
 }
 
-bool GlfwWindow::isOpen() const {
+bool GLFWWindow::isOpen() const {
 	// GLFW_VISIBLE is still true after the window is closed... ?
 	// return glfwGetWindowAttrib(_glfwWindow.get(), GLFW_VISIBLE) == GLFW_TRUE;
 	return _open;
 }
 
-string GlfwWindow::title() const {
+string GLFWWindow::title() const {
 	return glfwGetWindowTitle(_glfwWindow.get());
 }
 
-void GlfwWindow::title(const string& title) {
+void GLFWWindow::title(const string& title) {
 	glfwSetWindowTitle(_glfwWindow.get(), title.c_str());
 }
 
-uvec2 GlfwWindow::size() const {
+uvec2 GLFWWindow::size() const {
 	ivec2 size;
 	glfwGetWindowSize(_glfwWindow.get(), &size.x, &size.y);
 	return {size.x, size.y};
 }
 
-void GlfwWindow::size(const uvec2& size) {
+void GLFWWindow::size(const uvec2& size) {
 	glfwSetWindowSize(_glfwWindow.get(), (int)size.x, (int)size.y);
 }
 
-uvec2 GlfwWindow::position() const {
+uvec2 GLFWWindow::position() const {
 	ivec2 pos;
 	glfwGetWindowPos(_glfwWindow.get(), &pos.x, &pos.y);
 	return {pos.x, pos.y};
 }
 
-void GlfwWindow::position(const uvec2& pos) {
+void GLFWWindow::position(const uvec2& pos) {
 	glfwSetWindowPos(_glfwWindow.get(), (int)pos.x, (int)pos.y);
 }
 
-void GlfwWindow::center() {
+void GLFWWindow::center() {
 	// as of GLFW 3.3, there is no "get the monitor this window is on" function.
 	// glfwGetWindowMonitor() only applies to full-screen windows.
 
@@ -271,13 +271,13 @@ void GlfwWindow::center() {
 	}
 }
 
-bool GlfwWindow::hidden() const {
+bool GLFWWindow::hidden() const {
 	// GLFW_VISIBLE seems yp have a mind of its own..
 	// return glfwGetWindowAttrib(_glfwWindow.get(), GLFW_VISIBLE) == GLFW_TRUE;
 	return _hidden;
 }
 
-void GlfwWindow::hidden(bool hidden) {
+void GLFWWindow::hidden(bool hidden) {
 
 	if (hidden) {
 		glfwHideWindow(_glfwWindow.get());
@@ -288,15 +288,16 @@ void GlfwWindow::hidden(bool hidden) {
 	_hidden = hidden;
 }
 
-bool GlfwWindow::cursorCaptured() const {
+bool GLFWWindow::cursorCaptured() const {
 	return _cursorCaptured;
 }
 
-void GlfwWindow::cursorCaptured(bool captured) {
+void GLFWWindow::cursorCaptured(bool captured) {
 	_cursorCaptured = captured;
 	glfwSetInputMode(_glfwWindow.get(),
 					 GLFW_CURSOR,
 					 (captured ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL));
+
 //	if (captured) {
 //		glfwSetInputMode(_glfwWindow.get(),
 //						 GLFW_CURSOR,
@@ -304,7 +305,7 @@ void GlfwWindow::cursorCaptured(bool captured) {
 //	}
 }
 
-bool GlfwWindow::highDPIEnabled() const {
+bool GLFWWindow::highDPIEnabled() const {
 	return _highDPIEnabled;
 }
 
@@ -312,11 +313,11 @@ bool GlfwWindow::highDPIEnabled() const {
 	RenderContext Public Member Functions
  *********************************************************************************************/
 
-bool GlfwWindow::vSyncEnabled() const {
+bool GLFWWindow::vSyncEnabled() const {
 	return _vSyncEnabled;
 }
 
-void GlfwWindow::vSyncEnabled(bool enabled) {
+void GLFWWindow::vSyncEnabled(bool enabled) {
 
 	if (enabled) {
 		glfwSwapInterval(1);
@@ -330,32 +331,32 @@ void GlfwWindow::vSyncEnabled(bool enabled) {
 	RenderContext Internal Member Functions
  *********************************************************************************************/
 
-void GlfwWindow::beginFrame(const Scene& scene) {
+void GLFWWindow::beginFrame(const Scene& scene) {
 	ImGui_ImplGlfw_NewFrame();
 }
 
-void GlfwWindow::endFrame(const Scene& scene) {
+void GLFWWindow::endFrame(const Scene& scene) {
 
 }
 
-void GlfwWindow::swapBuffers() {
+void GLFWWindow::swapBuffers() {
 	glfwSwapBuffers(_glfwWindow.get());
 }
 
-glm::uvec2 GlfwWindow::framebufferSize() const {
+glm::uvec2 GLFWWindow::framebufferSize() const {
 	ivec2 size;
 	glfwGetFramebufferSize(_glfwWindow.get(), &size.x, &size.y);
 	return {size.x, size.y};
 }
 
 
-glm::vec2 GlfwWindow::framebufferScale() const {
+glm::vec2 GLFWWindow::framebufferScale() const {
 	vec2 scale;
 	glfwGetWindowContentScale(_glfwWindow.get(), &scale.x, &scale.y);
 	return scale;
 }
 
-unsigned GlfwWindow::defaultFramebuffer() const {
+unsigned GLFWWindow::defaultFramebuffer() const {
 	return 0;
 }
 
@@ -364,11 +365,11 @@ unsigned GlfwWindow::defaultFramebuffer() const {
  *********************************************************************************************/
 
 // TODO: move this...
-void GlfwWindow::pollInput() {
+void GLFWWindow::pollInput() {
 	glfwPollEvents();
 }
 
-GLFWwindow* GlfwWindow::glfwWindow() const {
+GLFWwindow* GLFWWindow::glfwWindow() const {
 	return _glfwWindow.get();
 }
 
@@ -376,7 +377,7 @@ GLFWwindow* GlfwWindow::glfwWindow() const {
 	Internal Static Member Functions
  *********************************************************************************************/
 
-void GlfwWindow::Destroy(GLFWwindow* window) {
+void GLFWWindow::Destroy(GLFWwindow* window) {
 	glfwDestroyWindow(window);
 }
 
@@ -416,14 +417,14 @@ void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
 	A3D_LOG_D("glfwWindow: {:p}, width: {}, height: {}",
 			  static_cast<void*>(glfwWindow), width, height);
 
-	auto window = (GlfwWindow*)glfwGetWindowUserPointer(glfwWindow);
+	auto window = (GLFWWindow*)glfwGetWindowUserPointer(glfwWindow);
 	window->size({width, height});
 }
 
 void GLFWWindowCloseCallback(GLFWwindow* glfwWindow) {
 	A3D_LOG_I("glfwWindow: {:p}", static_cast<void*>(glfwWindow));
 
-	auto window = (GlfwWindow*)glfwGetWindowUserPointer(glfwWindow);
+	auto window = (GLFWWindow*)glfwGetWindowUserPointer(glfwWindow);
 	window->close();
 }
 
@@ -431,7 +432,7 @@ void GLFWFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height) 
 	A3D_LOG_D("glfwWindow: {:p}, width: {}, height: {}",
 			  static_cast<void*>(glfwWindow), width, height);
 
-	auto window = (GlfwWindow*)glfwGetWindowUserPointer(glfwWindow);
+	auto window = (GLFWWindow*)glfwGetWindowUserPointer(glfwWindow);
 	window->renderer()->framebufferScaleChanged(*window);
 }
 

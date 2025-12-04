@@ -18,7 +18,7 @@
 #include "a3d/diagnostic/log/Log.h"
 #include "a3d/rendering/camera/PerspectiveCamera.h"
 #include "a3d/rendering/renderer/Renderer.h"
-#include "a3d/rendering/renderer/opengl/OpenGlRenderer.h"
+#include "a3d/rendering/renderer/opengl/OpenGLRenderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 
@@ -139,7 +139,7 @@ RenderContext::RenderContext(RenderingApi renderingApi):
 
 	switch (renderingApi) {
 		case RenderingApi::OpenGL: {
-			_renderer = make_unique<OpenGlRenderer>();
+			_renderer = make_unique<OpenGLRenderer>();
 			break;
 		}
 		case RenderingApi::OpenGLES: {

@@ -1,5 +1,5 @@
 //
-//  OpenGlRenderer.h
+//  OpenGLRenderer.h
 //  avara3d
 //
 //  Created by Morgan Davis on 4/24/18.
@@ -32,7 +32,7 @@ namespace a3d {
 	class Texture;
 	
 	
-	class OpenGlRenderer : public Renderer {
+	class OpenGLRenderer : public Renderer {
 
 /**************************************************************************************
 	Internal Types
@@ -63,12 +63,12 @@ namespace a3d {
 	Internal Lifecycle Functions
  *********************************************************************************************/
 
-		OpenGlRenderer();
-		OpenGlRenderer(const OpenGlRenderer& other) = delete; // copy constructor
-		OpenGlRenderer& operator=(const OpenGlRenderer& other) = delete; // copy assignment
-		OpenGlRenderer(OpenGlRenderer&& other) = delete; // move constructor
-		OpenGlRenderer& operator=(OpenGlRenderer&& other) = delete; // move assignment
-		~OpenGlRenderer() override;
+		OpenGLRenderer();
+		OpenGLRenderer(const OpenGLRenderer& other) = delete; // copy constructor
+		OpenGLRenderer& operator=(const OpenGLRenderer& other) = delete; // copy assignment
+		OpenGLRenderer(OpenGLRenderer&& other) = delete; // move constructor
+		OpenGLRenderer& operator=(OpenGLRenderer&& other) = delete; // move assignment
+		~OpenGLRenderer() override;
 
 /*********************************************************************************************
 	Renderer Internal Member Functions
