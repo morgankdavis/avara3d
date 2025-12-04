@@ -327,6 +327,8 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 			float deltaRotX = atan(MOUSE_SPEED * mousePositionDelta.x);
 			float deltaRotY = atan(MOUSE_SPEED * mousePositionDelta.y);
 
+			A3D_LOG_I("delta: ({}, {})", mousePositionDelta.x, mousePositionDelta.y);
+
 			vec3 angles = pov->eulerAngles();
 			pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
 

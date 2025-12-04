@@ -9,7 +9,6 @@
 #ifndef AVARA3D_NODE_H
 #define AVARA3D_NODE_H
 
-
 #include <map>
 #include <memory>
 #include <optional>
@@ -23,9 +22,7 @@
 
 #include "a3d/Types.h"
 
-
 namespace a3d {
-
 
 	class Camera;
 	class Light;
@@ -37,7 +34,6 @@ namespace a3d {
 	class PhysicsBody;
 	class VisualWorld;
 
-	
 	class Node : public std::enable_shared_from_this<Node> {
 
 /*********************************************************************************************

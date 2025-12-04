@@ -221,8 +221,7 @@ void GLFWInputManager::GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
 
         // if button is in "cleared" it means the client already read it, so don't add it again until
         // we get button up, and then back down again
-        if (inputManager->_mouseButtonsPressedCleared.count(a3dButton) == 0)
-        {
+        if (inputManager->_mouseButtonsPressedCleared.count(a3dButton) == 0) {
             inputManager->_mouseButtonsPressed.insert(a3dButton);
         }
     }

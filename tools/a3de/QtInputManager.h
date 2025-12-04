@@ -2,56 +2,50 @@
 #ifndef AVARA3D_QTINPUTMANAGER_H
 #define AVARA3D_QTINPUTMANAGER_H
 
-
 #include "a3d/input/DesktopInputManager.h"
 
+//class QEvent;
+//class QPoint;
+//class QPointF;
 
-class QEvent;
-//class QKeyEvent;
-//class QMouseEvent;
+namespace a3d {
 
+	namespace head {
 
-//namespace a3de {
-//	class A3DViewport;
-//}
-class QPointF;
+		namespace qt {
 
+			class QtViewport;
 
-namespace a3de {
+			class QtInputManager : public a3d::DesktopInputManager {
 
+			public:
 
-	class A3DViewport;
+		/*********************************************************************************************
+			Public Lifecycle Functions
+		 *********************************************************************************************/
 
+				explicit QtInputManager(QtViewport& viewport);
 
-	class QtInputManager : public a3d::DesktopInputManager {
+		/*********************************************************************************************
+			Internal Member Functions
+		 *********************************************************************************************/
 
-	public:
+				//void	event(QEvent* e);
+				void 	keyPressed(int qtKey);
+				void 	keyReleased(int qtKey);
+				void 	mouseMoved(float x, float y);//QPointF delta);
+				void	mouseButtonPressed(int qtButton);
+				void	mouseButtonReleased(int qtButton);
+				void	mouseWheelScrolled(int x, int y);//QPoint delta);
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+		/*********************************************************************************************
+			InputManager Internal Member Functions
+		 *********************************************************************************************/
 
-		explicit QtInputManager(A3DViewport& viewport);
-
-/*********************************************************************************************
- 	Internal Member Functions
- *********************************************************************************************/
-
-		void	event(QEvent* e);
-
-		// mouse button
-		// mouse wheel
-
-		void 	keyPressed(int key);
-		void 	keyReleased(int key);
-		void 	mouseMoved(QPointF delta);
-
-/*********************************************************************************************
-	InputManager Internal Member Functions
- *********************************************************************************************/
-
-		void	update() override;
-	};
+				void	update() override;
+			};
+		}
+	}
 }
 
 

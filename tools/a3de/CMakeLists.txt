@@ -15,11 +15,11 @@ find_package(Qt6 REQUIRED COMPONENTS Widgets OpenGLWidgets)
 
 set(PROJECT_SOURCES
         main.cpp
-        mainwindow.h
-        mainwindow.cpp
-        mainwindow.ui
-        a3dviewport.h
-        a3dviewport.cpp
+        MainWindow.h
+        MainWindow.cpp
+        MainWindow.ui
+        QtViewport.h
+        QtViewport.cpp
         QtInputManager.h
         QtInputManager.cc
 )
