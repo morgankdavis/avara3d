@@ -33,12 +33,10 @@
 #include "a3d/scene/importer/GlTFImporter.h"
 #include "a3d/Utilities.h"
 
-
 using namespace a3d;
 using namespace glm;
 using namespace std;
 using namespace std::filesystem;
-
 
 /*********************************************************************************************
 	Private Static Non-Member Prototypes

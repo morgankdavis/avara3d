@@ -1,3 +1,11 @@
+//
+//  MainWindow.h
+//  avara3d
+//
+//  Created by Morgan Davis on 12/2/2025.
+//  Copyright © 2025 Morgan K Davis. All rights reserved.
+//
+
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 

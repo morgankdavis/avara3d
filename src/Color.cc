@@ -10,11 +10,9 @@
 
 #include "a3d/Utilities.h"
 
-
 using namespace a3d;
 using namespace glm;
 using namespace std;
-
 
 /*********************************************************************************************
 	Public Static Member Functions

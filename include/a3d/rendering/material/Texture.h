@@ -9,18 +9,14 @@
 #ifndef AVARA3D_TEXTURE_H
 #define AVARA3D_TEXTURE_H
 
-
 #include <memory>
 
 #include "a3d/Types.h"
 
-
 namespace a3d {
-
 
 //	class Sampleable;
 	class Sampler;
-
 
 	class Texture {
 
@@ -64,6 +60,5 @@ namespace a3d {
 		TextureDirtyMask				_dirtyMask;
 	};
 }
-
 
 #endif //AVARA3D_TEXTURE_H

@@ -24,11 +24,9 @@
 #include "a3d/scene/Node.h"
 #include "a3d/scene/importer/GlTFImporter.h"
 
-
 using namespace a3d;
 using namespace glm;
 using namespace std;
-
 
 /*********************************************************************************************
 	Public Static Member Functions

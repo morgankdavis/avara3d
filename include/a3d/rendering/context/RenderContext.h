@@ -9,7 +9,6 @@
 #ifndef AVARA3D_RENDERCONTEXT_H
 #define AVARA3D_RENDERCONTEXT_H
 
-
 #include <filesystem>
 #include <functional>
 #include <memory>
@@ -19,13 +18,10 @@
 
 #include "a3d/Types.h"
 
-
 struct GifWriter;
 
-
 namespace a3d {
-	
-	
+
 	class Camera;
 	class Image;
 	class InputManager;
@@ -36,7 +32,6 @@ namespace a3d {
 	class Scene;
 	class VisualWorld;
 
-	
 	class RenderContext {
 
 /*********************************************************************************************
@@ -111,6 +106,5 @@ namespace a3d {
 		std::unique_ptr<Renderer>		_renderer;
 	};
 }
-
 
 #endif /* AVARA3D_RENDERCONTEXT_H */

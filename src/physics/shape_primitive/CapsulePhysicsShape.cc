@@ -11,9 +11,7 @@
 #include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/physics/proxy/PhysicsShapeProxy.h"
 
-
 using namespace a3d;
-
 
 /*********************************************************************************************
 	Public Lifecycle Functions

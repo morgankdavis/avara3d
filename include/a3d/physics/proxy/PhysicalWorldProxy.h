@@ -9,21 +9,17 @@
 #ifndef AVARA3D_PHYSICALWORLDPROXY_H
 #define AVARA3D_PHYSICALWORLDPROXY_H
 
-
 #include <memory>
 #include <vector>
 
 #include "a3d/Types.h"
 
-
 namespace a3d {
-
 
 	class PhysicalWorld;
 	class PhysicsBody;
 	class Renderer;
 	class RenderContext;
-
 
 	class PhysicalWorldProxy {
 
@@ -60,6 +56,5 @@ namespace a3d {
 								  const DebugOptions &debugOptions) = 0;
 	};
 }
-
 
 #endif //AVARA3D_PHYSICALWORLDPROXY_H

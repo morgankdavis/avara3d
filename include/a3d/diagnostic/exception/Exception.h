@@ -9,10 +9,8 @@
 #ifndef AVARA3D_EXCEPTION_H
 #define AVARA3D_EXCEPTION_H
 
-
 #include <stdexcept>
 #include <string>
-
 
 namespace a3d {
 	
@@ -27,6 +25,5 @@ namespace a3d {
 		explicit Exception(const std::string& what);
 	};
 }
-
 
 #endif /* AVARA3D_EXCEPTION_H */

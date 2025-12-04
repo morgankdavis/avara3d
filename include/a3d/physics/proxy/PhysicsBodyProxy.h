@@ -9,18 +9,14 @@
 #ifndef AVARA3D_PHYSICSBODYPROXY_H
 #define AVARA3D_PHYSICSBODYPROXY_H
 
-
 #include "glm/glm.hpp"
 
 #include "a3d/Types.h"
 
-
 namespace a3d {
-
 
 	class PhysicsBody;
 	class PhysicsShapeProxy;
-
 
 	class PhysicsBodyProxy {
 
@@ -129,6 +125,5 @@ namespace a3d {
 		bool							_autocalculatesMomentOfInertia;
 	};
 }
-
 
 #endif //AVARA3D_PHYSICSBODYPROXY_H

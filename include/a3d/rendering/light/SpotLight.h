@@ -9,20 +9,16 @@
 #ifndef AVARA3D_SPOTLIGHT_H
 #define AVARA3D_SPOTLIGHT_H
 
-
 #include <memory>
 #include <optional>
 #include <string>
 
 #include "a3d/rendering/light/AttenuatedLight.h"
 
-
 namespace a3d {
 
-
 	class Color;
-	
-	
+
 	class SpotLight : public AttenuatedLight {
 
 /*********************************************************************************************
@@ -77,6 +73,5 @@ namespace a3d {
 		SpotlightFeatheringMode	_featherMode;
 	};
 }
-
 
 #endif /* AVARA3D_SPOTLIGHT_H */

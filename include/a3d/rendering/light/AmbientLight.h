@@ -9,20 +9,16 @@
 #ifndef AVARA3D_AMBIENTLIGHT_H
 #define AVARA3D_AMBIENTLIGHT_H
 
-
 #include <memory>
 #include <optional>
 #include <string>
 
 #include "a3d/rendering/light/Light.h"
 
-
 namespace a3d {
 
-
 	class Color;
-	
-	
+
 	class AmbientLight : public Light {
 
 /*********************************************************************************************
@@ -45,6 +41,5 @@ namespace a3d {
 //		AmbientLight();
 	};
 }
-
 
 #endif /* AVARA3D_AMBIENTLIGHT_H */

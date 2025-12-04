@@ -9,7 +9,6 @@
 #ifndef AVARA3D_OPENGLRENDERER_H
 #define AVARA3D_OPENGLRENDERER_H
 
-
 #include <map>
 #include <string>
 #include <unordered_set>
@@ -20,17 +19,14 @@
 #include "a3d/Types.h"
 #include "a3d/rendering/renderer/Renderer.h"
 
-
 namespace a3d {
-	
-	
+
 	class Color;
 	class Font;
 	class Mesh;
 	class MeshElement;
 	class Line;
 	class Texture;
-	
 	
 	class OpenGLRenderer : public Renderer {
 
@@ -159,6 +155,5 @@ namespace a3d {
 //		unsigned										_defaultFramebuffer;
 	};
 }
-
 
 #endif /* AVARA3D_OPENGLRENDERER_H */

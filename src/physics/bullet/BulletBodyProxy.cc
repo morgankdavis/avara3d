@@ -26,11 +26,9 @@
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 
-
 using namespace a3d;
 using namespace glm;
 using namespace std;
-
 
 /*********************************************************************************************
 	Internal Lifecycle Functions

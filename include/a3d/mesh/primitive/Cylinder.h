@@ -9,18 +9,14 @@
 #ifndef AVARA3D_CYLINDER_H
 #define AVARA3D_CYLINDER_H
 
-
 #include <memory>
 
 #include "a3d/mesh/MeshElement.h"
 
-
 namespace a3d {
-
 
 	class Mesh;
 	class Material;
-
 	
 	class Cylinder: public MeshElement {
 
@@ -78,6 +74,5 @@ namespace a3d {
 		unsigned 	_rings;
 	};
 }
-
 
 #endif /* AVARA3D_CYLINDER_H */

@@ -1,10 +1,15 @@
+//
+//  DesktopInputManager.h
+//  avara3d
+//
+//  Created by Morgan Davis on 12/2/2025.
+//  Copyright © 2025 Morgan K Davis. All rights reserved.
+//
 
 #ifndef AVARA3D_DESKTOPINPUTMANAGER_H
 #define AVARA3D_DESKTOPINPUTMANAGER_H
 
-
 #include "a3d/input/InputManager.h"
-
 
 namespace a3d {
 
@@ -45,20 +50,6 @@ namespace a3d {
 		DesktopInputManagerErrorMask		errorMask() const;
 
 /*********************************************************************************************
-	InputManager Internal Member Functions
- *********************************************************************************************/
-
-//		void update() override;
-
-	protected:
-
-/*********************************************************************************************
-	Protected Member Functions
- *********************************************************************************************/
-
-//		void 					initManyMouse();
-
-/*********************************************************************************************
 	Protected Member Variables
  *********************************************************************************************/
 
@@ -78,19 +69,9 @@ namespace a3d {
 	Private Member Functions
  *********************************************************************************************/
 
-//		void 					quitManyMouse();
-
 		void			 		clearMousePositionDelta(); // called after mousePositionDelta()
 		void 					clearMouseScrollWheelDelta(); // called after mouseScrollWheelDelta()
-
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
-
-//		bool							_usingManyMouse;
-//		DesktopInputManagerErrorMask	_errorMask;
 	};
 }
-
 
 #endif //AVARA3D_DESKTOPINPUTMANAGER_H

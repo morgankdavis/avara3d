@@ -9,7 +9,6 @@
 #ifndef AVARA3D_MESH_H
 #define AVARA3D_MESH_H
 
-
 #include <filesystem>
 #include <map>
 #include <memory>
@@ -21,9 +20,7 @@
 
 #include "a3d/Types.h"
 
-
 namespace a3d {
-
 
 	class Line;
 	class Material;
@@ -31,7 +28,6 @@ namespace a3d {
 	class Node;
 	class Renderer;
 	class RenderContext;
-
 
 	class Mesh {
 
@@ -129,6 +125,5 @@ namespace a3d {
 		MeshDirtyMask							_dirtyMask;
 	};
 }
-
 
 #endif /* AVARA3D_MESH_H */

@@ -216,5 +216,4 @@ namespace a3d {
 	};
 }
 
-
 #endif /* AVARA3D_NODE_H */

@@ -55,7 +55,6 @@
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 
-
 #define A3D_GL_CHECK() \
     do { \
         GLenum err; \
@@ -64,14 +63,11 @@
         } \
     } while (0);
 
-
 using namespace a3d;
 using namespace glm;
 using namespace std;
 
-
 //#define DISABLE_RESOURCE_MANAGEMENT
-
 
 /*********************************************************************************************
 	 Private Constant Definitions

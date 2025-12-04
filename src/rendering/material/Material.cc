@@ -12,11 +12,9 @@
 #include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/log/Log.h"
 
-
 using namespace a3d;
 using namespace glm;
 using namespace std;
-
 
 /*********************************************************************************************
 	Public Static Member Functions

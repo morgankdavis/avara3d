@@ -9,7 +9,6 @@
 #ifndef AVARA3D_FILELOGSINK_H
 #define AVARA3D_FILELOGSINK_H
 
-
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -18,7 +17,6 @@
 #include <vector>
 
 #include "a3d/diagnostic/log/sink/LogSink.h"
-
 
 namespace a3d {
 

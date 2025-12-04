@@ -9,19 +9,15 @@
 #ifndef AVARA3D_IMAGE_H
 #define AVARA3D_IMAGE_H
 
-
 #include <filesystem>
 #include <memory>
 #include <string>
 
 //#include "a3d/rendering/material/Sampleable.h"
 
-
 namespace a3d {
-	
-	
-	class Buffer;
 
+	class Buffer;
 
 	class Image {// : public Sampleable {
 
@@ -78,6 +74,5 @@ namespace a3d {
 		std::unique_ptr<Buffer>		_buffer;
 	};
 }
-
 
 #endif /* AVARA3D_IMAGE_H */

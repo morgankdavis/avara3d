@@ -15,10 +15,8 @@
 #include "a3d/rendering/light/PointLight.h"
 #include "a3d/rendering/light/SpotLight.h"
 
-
 using namespace a3d;
 using namespace std;
-
 
 /*********************************************************************************************
 	Public Static Member Functions

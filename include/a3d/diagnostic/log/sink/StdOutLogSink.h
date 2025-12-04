@@ -9,13 +9,11 @@
 #ifndef AVARA3D_STDOUTLOGSINK_H
 #define AVARA3D_STDOUTLOGSINK_H
 
-
 #include <cstdio>
 #include <string>
 
 #include "a3d/Types.h"
 #include "a3d/diagnostic/log/sink/LogSink.h"
-
 
 namespace a3d {
 
@@ -43,6 +41,5 @@ namespace a3d {
 		void 	write(const std::string& output, LogLevel level);
 	};
 }
-
 
 #endif //AVARA3D_STDOUTLOGSINK_H

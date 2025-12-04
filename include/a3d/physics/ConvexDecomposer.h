@@ -9,20 +9,15 @@
 #ifndef AVARA3D_CONVEXDECOMPOSER_H
 #define AVARA3D_CONVEXDECOMPOSER_H
 
-
 #include <functional>
 #include <memory>
 #include <vector>
 
-
 class IVHACD;
-
 
 namespace a3d {
 
-
 	class MeshElement;
-
 
 	class ConvexDecomposer {
 
@@ -74,6 +69,5 @@ namespace a3d {
 		MeshElement*									_sourceElement;
 	};
 }
-
 
 #endif //AVARA3D_CONVEXDECOMPOSER_H

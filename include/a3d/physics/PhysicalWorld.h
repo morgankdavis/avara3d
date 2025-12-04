@@ -9,7 +9,6 @@
 #ifndef AVARA3D_PHYSICALWORLD_H
 #define AVARA3D_PHYSICALWORLD_H
 
-
 #include <functional>
 #include <memory>
 #include <optional>
@@ -18,9 +17,7 @@
 
 #include "a3d/Types.h"
 
-
 namespace a3d {
-	
 
 	class HitTestResult;
 	class PhysicsBody;
@@ -28,8 +25,7 @@ namespace a3d {
 	class PhysicsShape;
 	class PhysicalWorldProxy;
 	class Scene;
-	
-	
+
 	class PhysicalWorld {
 
 /*********************************************************************************************
@@ -126,6 +122,5 @@ namespace a3d {
 		EndContactCallback						_endContact;
 	};
 }
-
 
 #endif /* AVARA3D_PHYSICALWORLD_H */

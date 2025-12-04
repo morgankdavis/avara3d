@@ -9,9 +9,7 @@
 #ifndef AVARA3D_BUILDINFO_H
 #define AVARA3D_BUILDINFO_H
 
-
 #include <iomanip>
-
 
 namespace a3d {
 
@@ -76,6 +74,5 @@ namespace a3d {
 		std::tm				_time;
 	};
 }
-
 
 #endif //AVARA3D_BUILDINFO_H

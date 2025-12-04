@@ -8,9 +8,7 @@
 
 #include "a3d/physics/proxy/PhysicalWorldProxy.h"
 
-
 using namespace a3d;
-
 
 /*********************************************************************************************
 	Internal Lifecycle Functions

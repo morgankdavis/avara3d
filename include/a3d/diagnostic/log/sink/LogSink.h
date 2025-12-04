@@ -9,7 +9,6 @@
 #ifndef AVARA3D_LOGSINK_H
 #define AVARA3D_LOGSINK_H
 
-
 namespace a3d {
 
 	class LogSink {
@@ -29,6 +28,5 @@ namespace a3d {
 		virtual void flush();
 	};
 }
-
 
 #endif //AVARA3D_LOGSINK_H

@@ -8,11 +8,9 @@
 
 #include "a3d/physics/PhysicsContact.h"
 
-
 using namespace a3d;
 using namespace glm;
 using namespace std;
-
 
 /*********************************************************************************************
 	Public Lifecycle Functions

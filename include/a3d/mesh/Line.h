@@ -9,13 +9,11 @@
 #ifndef AVARA3D_LINE_H
 #define AVARA3D_LINE_H
 
-
 #include <memory>
 
 #include "glm/glm.hpp"
 
 #include "a3d/Color.h"
-
 
 namespace a3d {
 
@@ -69,6 +67,5 @@ namespace a3d {
 		Color 					_toColor;
 	};
 }
-
 
 #endif /* AVARA3D_LINE_H */

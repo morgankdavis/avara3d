@@ -9,7 +9,6 @@
 #ifndef AVARA3D_LOG_H
 #define AVARA3D_LOG_H
 
-
 #include <cstdio>
 #include <filesystem>
 #include <format>
@@ -23,9 +22,7 @@
 
 #include "a3d/Types.h"
 
-
 #define NOOP ((void)0)
-
 
 /*********************************************************************************************
 	Public Macro Functions
@@ -177,6 +174,5 @@ namespace a3d {
 		LogLevel										_flushLevel;
 	};
 }
-
 
 #endif /* AVARA3D_LOG_H */

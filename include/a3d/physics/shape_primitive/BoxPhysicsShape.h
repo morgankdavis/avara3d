@@ -9,9 +9,7 @@
 #ifndef AVARA3D_BOXPHYSICSSHAPE_H
 #define AVARA3D_BOXPHYSICSSHAPE_H
 
-
 #include "a3d/physics/PhysicsShape.h"
-
 
 namespace a3d {
 
@@ -57,6 +55,5 @@ namespace a3d {
 		float 					_length;
 	};
 }
-
 
 #endif //AVARA3D_BOXPHYSICSSHAPE_H

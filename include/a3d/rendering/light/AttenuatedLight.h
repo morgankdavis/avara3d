@@ -9,20 +9,16 @@
 #ifndef AVARA3D_ATTENTUATEDLIGHT_H
 #define AVARA3D_ATTENTUATEDLIGHT_H
 
-
 #include <memory>
 #include <optional>
 #include <string>
 
 #include "a3d/rendering/light/Light.h"
 
-
 namespace a3d {
 
-
 	class Color;
-	
-	
+
 	class AttenuatedLight : public Light {
 
 /*********************************************************************************************
@@ -82,6 +78,5 @@ namespace a3d {
 //		LightCutoff		_cutoff;
 	};
 }
-
 
 #endif /* AVARA3D_ATTENTUATEDLIGHT_H */

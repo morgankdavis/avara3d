@@ -9,7 +9,6 @@
 #ifndef AVARA3D_GLFWINPUTMANAGER_H
 #define AVARA3D_GLFWINPUTMANAGER_H
 
-
 #include <memory>
 #include <set>
 
@@ -18,15 +17,11 @@
 #include "a3d/Types.h"
 #include "a3d/input/DesktopInputManager.h"
 
-
 struct GLFWwindow;
-
 
 namespace a3d {
 
-
 	class GLFWWindow;
-
 	
 	class GLFWInputManager : public DesktopInputManager {
 
@@ -40,12 +35,6 @@ namespace a3d {
 		GLFWInputManager(const InputManager& other) = delete; // copy constructor
 		GLFWInputManager& operator=(const InputManager& other) = delete; // copy assignment
 		~GLFWInputManager() override;
-
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
-
-//		DesktopInputManagerErrorMask		errorMask() const;
 
 /*********************************************************************************************
 	InputManager Internal Member Functions
@@ -91,9 +80,7 @@ namespace a3d {
 
 		GLFWWindow*						_window;
 		bool							_usingManyMouse;
-//		DesktopInputManagerErrorMask	_errorMask;
 	};
 }
-
 
 #endif /* AVARA3D_GLFWINPUTMANAGER_H */

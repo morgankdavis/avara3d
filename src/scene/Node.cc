@@ -26,11 +26,9 @@
 #include "a3d/rendering/camera/Camera.h"
 #include "a3d/rendering/light/Light.h"
 
-
 using namespace a3d;
 using namespace glm;
 using namespace std;
-
 
 //#define ALTERNATE_EULERS
 

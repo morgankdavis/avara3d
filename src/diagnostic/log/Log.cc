@@ -23,10 +23,8 @@
 #include "a3d/diagnostic/log/sink/FileLogSink.h"
 #include "a3d/diagnostic/log/sink/StdOutLogSink.h"
 
-
 using namespace a3d;
 using namespace std;
-
 
 /*********************************************************************************************
 	Public Static Member Functions

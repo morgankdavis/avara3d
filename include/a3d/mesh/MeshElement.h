@@ -9,7 +9,6 @@
 #ifndef AVARA3D_MESHELEMENT_H
 #define AVARA3D_MESHELEMENT_H
 
-
 #include <memory>
 #include <vector>
 
@@ -17,9 +16,7 @@
 
 #include "a3d/Types.h"
 
-
 namespace a3d {
-
 
 	class Line;
 	class Material;
@@ -27,7 +24,6 @@ namespace a3d {
 	class Program;
 	class Renderer;
 	class RenderContext;
-
 
 	class MeshElement {
 		
@@ -86,6 +82,5 @@ namespace a3d {
 		MeshElementDirtyMask			_dirtyMask;
 	};
 }
-
 
 #endif /* AVARA3D_MESHELEMENT_H */

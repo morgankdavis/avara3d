@@ -1,3 +1,11 @@
+//
+//  MainWindow.cpp
+//  avara3d
+//
+//  Created by Morgan Davis on 12/2/2025.
+//  Copyright © 2025 Morgan K Davis. All rights reserved.
+//
+
 #include "MainWindow.h"
 #include "./ui_MainWindow.h"
 
@@ -9,13 +17,11 @@
 #include "QtViewport.h"
 #include "QtInputManager.h"
 
-
 using namespace a3d;
 using namespace a3de;
 using namespace glm;
 using namespace std;
 using namespace std::placeholders;
-
 
 constexpr LogLevel				A3D_APP_LOG_LEVEL =		LogLevel::Debug;
 constexpr uvec2					WINDOW_SIZE =			{1280, 768};
@@ -28,7 +34,6 @@ constexpr float					MOUSE_SENSITIVITY =		0.5;
 constexpr float					PHYSICS_TIMESTEP =		1.0/120.0;
 constexpr bool 					ORTHO_CAMERA =			false;
 constexpr bool					DARK =					false;
-
 
 MainWindow::MainWindow(QWidget* parent):
 		QMainWindow(parent),

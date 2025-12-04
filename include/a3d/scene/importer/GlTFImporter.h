@@ -9,7 +9,6 @@
 #ifndef AVARA3D_GLTFIMPORTER_H
 #define AVARA3D_GLTFIMPORTER_H
 
-
 #include <array>
 #include <cstddef>
 #include <filesystem>
@@ -23,9 +22,7 @@
 #include "a3d/Types.h"
 #include "a3d/scene/Scene.h"
 
-
 namespace a3d {
-
 
 	class Camera;
 	class Color;
@@ -37,7 +34,6 @@ namespace a3d {
 	class Node;
 	class Sampler;
 	class Texture;
-
 
 	class GlTFImporter {
 		
@@ -108,6 +104,5 @@ namespace a3d {
 		std::map<std::size_t, std::shared_ptr<Sampler>> 	_samplers;
 	};
 }
-
 
 #endif //AVARA3D_GLTFIMPORTER_H

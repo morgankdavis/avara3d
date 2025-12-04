@@ -16,7 +16,6 @@
 
 #include "a3d/Types.h"
 
-
 namespace a3d {
 
 	class Camera {
@@ -60,6 +59,5 @@ namespace a3d {
 		glm::mat4							_projection;
 	};
 }
-
 
 #endif /* AVARA3D_CAMERA_H */

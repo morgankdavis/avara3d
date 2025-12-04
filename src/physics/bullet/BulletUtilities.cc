@@ -16,10 +16,8 @@
 
 #include "a3d/Utilities.h"
 
-
 using namespace a3d;
 using namespace glm;
-
 
 vec3 a3d::GLMVec3FromBTVector3(const btVector3& from) {
 	return {from.x(), from.y(), from.z()};

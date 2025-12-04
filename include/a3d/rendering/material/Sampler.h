@@ -9,17 +9,13 @@
 #ifndef AVARA3D_SAMPLER_H
 #define AVARA3D_SAMPLER_H
 
-
 #include "a3d/Types.h"
 
-
 namespace a3d {
-
 
 	class Color;
 	class Image;
 //	class Sampleable;
-
 
 	class Sampler {
 
@@ -77,6 +73,5 @@ namespace a3d {
 		SamplerDirtyMask					_dirtyMask;
 	};
 }
-
 
 #endif //AVARA3D_SAMPLER_H

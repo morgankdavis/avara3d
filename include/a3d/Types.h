@@ -9,7 +9,6 @@
 #ifndef AVARA3D_TYPES_H
 #define AVARA3D_TYPES_H
 
-
 #include <memory>
 #include <set>
 #include <unordered_set> // temporary?
@@ -21,9 +20,7 @@
 #include <glm/detail/type_quat.hpp>
 #include <glm/glm.hpp>
 
-
 namespace a3d {
-
 
 	class Color;
 	class CubeImage;
@@ -494,6 +491,5 @@ namespace a3d {
 	};
 	A3D_ENABLE_ENUM_MASK_OPS(SamplerDirtyMask)
 }
-
 
 #endif /* AVARA3D_TYPES_H */

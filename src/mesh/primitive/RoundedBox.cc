@@ -15,12 +15,9 @@
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/rendering/material/Material.h"
 
-
 using namespace a3d;
-using namespace generator;
 using namespace glm;
 using namespace std;
-
 
 /*********************************************************************************************
 	Pubic Static Members
@@ -69,6 +66,8 @@ RoundedBox::RoundedBox(float radius,
 		_lengthSegments{lengthSegments},
 		_widthSegments{widthSegments},
 		_heightSegments{heightSegments} {
+
+	using namespace generator;
 
 	/// @param radius Radius of the rounded edges.
 	/// @param size Half of the side length in x (0), y (1) and z (2) direction.

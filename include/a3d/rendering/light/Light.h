@@ -9,23 +9,19 @@
 #ifndef AVARA3D_LIGHT_H
 #define AVARA3D_LIGHT_H
 
-
 #include <memory>
 #include <optional>
 #include <string>
 
 #include "a3d/Types.h"
 
-
 namespace a3d {
-
 
 	class AmbientLight;
 	class Color;
 	class DirectionalLight;
 	class PointLight;
 	class SpotLight;
-	
 	
 	class Light {
 
@@ -85,6 +81,5 @@ namespace a3d {
 		std::shared_ptr<Color>				_color;
 	};
 }
-
 
 #endif /* AVARA3D_LIGHT_H */

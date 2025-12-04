@@ -26,13 +26,9 @@ using namespace a3d;
 using namespace std;
 using namespace glm;
 
-
 // TODO: get rid of these/make non constant
-//constexpr bool FLIP_MOUSE_VERTICAL = true;
-//constexpr bool FLIP_MOUSE_HORIZONTAL = false;
 constexpr bool MANYMOUSE_INVERT_VERTICAL = true;
 constexpr bool MANYMOUSE_INVERT_HORIZONTAL = false;
-
 
 /*********************************************************************************************
 	Private Static Non-Member Prototypes

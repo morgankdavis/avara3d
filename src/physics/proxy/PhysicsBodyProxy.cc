@@ -10,9 +10,7 @@
 
 #include "a3d/diagnostic/log/Log.h"
 
-
 using namespace a3d;
-
 
 /*********************************************************************************************
 	Internal Lifecycle Functions

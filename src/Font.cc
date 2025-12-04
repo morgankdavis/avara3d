@@ -13,10 +13,8 @@
 #include "a3d/Buffer.h"
 #include "a3d/diagnostic/log/Log.h"
 
-
 using namespace a3d;
 using namespace std;
-
 
 /*********************************************************************************************
 	Public Lifecycle Functions

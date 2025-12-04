@@ -9,15 +9,12 @@
 #ifndef AVARA3D_VISUALWORLD_H
 #define AVARA3D_VISUALWORLD_H
 
-
 #include <functional>
 #include <memory>
 
 #include "a3d/Types.h"
 
-
 namespace a3d {
-
 
 	class Color;
 	class Material;
@@ -27,7 +24,6 @@ namespace a3d {
 	class RenderContext;
 	class Renderer;
 	class Scene;
-
 
 	class VisualWorld {
 
@@ -128,6 +124,5 @@ namespace a3d {
 		DidRenderCallback 						_didRender;
 	};
 }
-
 
 #endif //AVARA3D_VISUALWORLD_H

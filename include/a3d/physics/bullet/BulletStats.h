@@ -9,16 +9,12 @@
 #ifndef AVARA3D_BULLETSTATS_H
 #define AVARA3D_BULLETSTATS_H
 
-
 #include <memory>
 #include <unordered_set>
 
-
 namespace a3d {
 
-
 	class PhysicsShape;
-
 
 	struct BulletStats {
 
@@ -43,6 +39,5 @@ namespace a3d {
 		std::unordered_set<PhysicsShape*>	concavePolyhedronShapes;
 	};
 }
-
 
 #endif //AVARA3D_BULLETSTATS_H

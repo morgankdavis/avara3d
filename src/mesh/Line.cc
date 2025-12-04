@@ -10,11 +10,9 @@
 
 #include "a3d/Color.h"
 
-
 using namespace a3d;
 using namespace glm;
 using namespace std;
-
 
 /*********************************************************************************************
 	Internal Lifecycle Functions

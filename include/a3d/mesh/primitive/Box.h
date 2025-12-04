@@ -9,18 +9,14 @@
 #ifndef AVARA3D_BOX_H
 #define AVARA3D_BOX_H
 
-
 #include <memory>
 
 #include "a3d/mesh/MeshElement.h"
 
-
 namespace a3d {
-
 
 	class Mesh;
 	class Material;
-
 
 	class Box: public MeshElement {
 
@@ -81,6 +77,5 @@ namespace a3d {
 		unsigned 	_heightSegments;
 	};
 }
-
 
 #endif /* AVARA3D_BOX_H */

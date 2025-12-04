@@ -9,16 +9,13 @@
 #ifndef AVARA3D_PHYSICSBODY_H
 #define AVARA3D_PHYSICSBODY_H
 
-
 #include <memory>
 
 #include "glm/glm.hpp"
 
 #include "a3d/Types.h"
 
-
 namespace a3d {
-	
 
 	class Mesh;
 	class Node;
@@ -27,8 +24,7 @@ namespace a3d {
 	class PhysicsShapeProxy;
 	class PhysicsShape;
 	class Scene;
-	
-	
+
 	class PhysicsBody {
 
 /*********************************************************************************************
@@ -200,6 +196,5 @@ namespace a3d {
 		PhysicalWorld*						_world;
 	};
 }
-
 
 #endif /* AVARA3D_PHYSICSBODY_H */

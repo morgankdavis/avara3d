@@ -15,12 +15,9 @@
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/rendering/material/Material.h"
 
-
 using namespace a3d;
-using namespace generator;
 using namespace glm;
 using namespace std;
-
 
 /*********************************************************************************************
 	Pubic Static Members
@@ -52,6 +49,8 @@ TorusKnot::TorusKnot(unsigned p,
 		_q{q},
 		_slices{slices},
 		_segments{segments} {
+
+	using namespace generator;
 
 	// p & q are mysteries!
 

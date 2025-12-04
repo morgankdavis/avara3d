@@ -15,12 +15,9 @@
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/rendering/material/Material.h"
 
-
 using namespace a3d;
-using namespace generator;
 using namespace glm;
 using namespace std;
-
 
 /*********************************************************************************************
 	Pubic Static Members
@@ -45,6 +42,8 @@ Sphere::Sphere(float radius,
 		MeshElement{},
 		_radius{radius},
 		_segments{segments} {
+
+	using namespace generator;
 
 	/// @param radius The radius of the containing sphere.
 	/// @param segments The number of segments per icosahedron edge. Must be >= 1.

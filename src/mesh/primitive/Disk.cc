@@ -15,12 +15,9 @@
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/rendering/material/Material.h"
 
-
 using namespace a3d;
-using namespace generator;
 using namespace glm;
 using namespace std;
-
 
 /*********************************************************************************************
 	Pubic Static Members
@@ -53,6 +50,8 @@ Disk::Disk(float radius,
 		_innerRadius{innerRadius},
 		_slices{slices},
 		_rings{rings} {
+
+	using namespace generator;
 
 	/// @param radius Outer radius of the disk on the xy-plane.
 	/// @param innerRadius radius of the inner circle on the xy-plane.

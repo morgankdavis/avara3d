@@ -9,11 +9,9 @@
 #ifndef AVARA3D_SPRING_H
 #define AVARA3D_SPRING_H
 
-
 #include <memory>
 
 #include "a3d/mesh/MeshElement.h"
-
 
 namespace a3d {
 
@@ -77,6 +75,5 @@ namespace a3d {
 		unsigned 	_segments;
 	};
 }
-
 
 #endif //AVARA3D_SPRING_H

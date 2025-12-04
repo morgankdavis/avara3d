@@ -15,12 +15,9 @@
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/rendering/material/Material.h"
 
-
 using namespace a3d;
-using namespace generator;
 using namespace glm;
 using namespace std;
-
 
 /*********************************************************************************************
 	Pubic Static Members
@@ -57,6 +54,8 @@ Spring::Spring(float minorRadius,
 		_length{length},
 		_slices{slices},
 		_segments{segments} {
+
+	using namespace generator;
 
 	/// @param minor Radius of the spring it self.
 	/// @param major Radius from the z-axis

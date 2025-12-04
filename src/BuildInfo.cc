@@ -12,10 +12,8 @@
 
 #include "BuildInfo.cmake.h"
 
-
 using namespace a3d;
 using namespace std;
-
 
 /*********************************************************************************************
 	Public Static Member Functions

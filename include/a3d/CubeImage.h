@@ -9,18 +9,14 @@
 #ifndef AVARA3D_CUBEIMAGE_H
 #define AVARA3D_CUBEIMAGE_H
 
-
 #include <filesystem>
 #include <memory>
 
 //#include "a3d/rendering/material/Sampleable.h"
 
-
 namespace a3d {
 
-	
 	class Image;
-	
 
 	class CubeImage {//: public Sampleable {
 
@@ -73,6 +69,5 @@ namespace a3d {
 		std::unique_ptr<Image>		_negZ;
 	};
 }
-
 
 #endif /* AVARA3D_CUBEIMAGE_H */

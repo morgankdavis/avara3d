@@ -10,10 +10,8 @@
 
 #include "a3d/physics/PhysicsShape.h"
 
-
 using namespace a3d;
 using namespace std;
-
 
 /*********************************************************************************************
 	Public Lifecycle Functions

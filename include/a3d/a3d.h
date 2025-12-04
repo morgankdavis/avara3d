@@ -9,7 +9,6 @@
 #ifndef AVARA3D_A3D_H
 #define AVARA3D_A3D_H
 
-
 #include "a3d/Buffer.h"
 #include "a3d/BuildInfo.h"
 #include "a3d/Color.h"
@@ -71,6 +70,5 @@
 #include "a3d/rendering/renderer/Renderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
-
 
 #endif /* AVARA3D_A3D_H */

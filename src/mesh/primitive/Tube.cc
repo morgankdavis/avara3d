@@ -15,12 +15,10 @@
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/rendering/material/Material.h"
 
-
 using namespace a3d;
 using namespace generator;
 using namespace glm;
 using namespace std;
-
 
 /*********************************************************************************************
 	Pubic Static Members
@@ -60,6 +58,8 @@ Tube::Tube(float innerRadius,
 		_slices{slices},
 		_segments{segments},
 		_rings{rings} {
+
+	using namespace generator;
 
 	/// @param radius The outer radius of the cylinder on the xy-plane.
 	/// @param innerRadius The inner radius of the cylinder on the xy-plane.

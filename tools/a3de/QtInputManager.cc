@@ -1,18 +1,21 @@
+//
+//  QtInputManager.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 12/2/2025.
+//  Copyright © 2025 Morgan K Davis. All rights reserved.
+//
 
 #include "QtInputManager.h"
 
 #include <QEvent>
 #include <QMouseEvent>
 
-#include "magic_enum.hpp"
-
 #include "a3d/diagnostic/log/Log.h"
 
 #include "QtViewport.h"
 
-
 using InputManger = a3d::head::qt::QtInputManager;
-
 
 /*********************************************************************************************
 	Private Static Prototypes

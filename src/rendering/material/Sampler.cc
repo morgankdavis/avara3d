@@ -8,10 +8,8 @@
 
 #include "a3d/rendering/material/Sampler.h"
 
-
 using namespace a3d;
 using namespace std;
-
 
 /*********************************************************************************************
 	Public Lifecycle Functions

@@ -9,18 +9,15 @@
 #ifndef AVARA3D_BULLETSHAPEPROXY_H
 #define AVARA3D_BULLETSHAPEPROXY_H
 
-
 #include <memory>
 #include <vector>
 
 #include "a3d/physics/proxy/PhysicsShapeProxy.h"
 
-
 class btCollisionShape;
 class btIndexedMesh;
 class btRigidBody;
 class btTriangleIndexVertexArray;
-
 
 namespace a3d {
 
@@ -51,6 +48,5 @@ namespace a3d {
 		std::vector<std::unique_ptr<btTriangleIndexVertexArray>>	_btIndexVertexArrays;
 	};
 }
-
 
 #endif //AVARA3D_BULLETSHAPEPROXY_H

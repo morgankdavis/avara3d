@@ -17,11 +17,9 @@
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/diagnostic/log/Log.h"
 
-
 using namespace a3d;
 using namespace std;
 using namespace VHACD;
-
 
 /*********************************************************************************************
 	Internal Lifecycle Functions

@@ -12,10 +12,8 @@
 
 #include "a3d/Image.h"
 
-
 using namespace a3d;
 using namespace std;
-
 
 /*********************************************************************************************
 	Public Lifecycle Functions

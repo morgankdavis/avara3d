@@ -11,15 +11,12 @@
 #ifndef AVARA3D_PROGRAM_H
 #define AVARA3D_PROGRAM_H
 
-
 #include <map>
 #include <memory>
 #include <optional>
 #include <string>
 
-
 #include "a3d/Types.h"
-
 
 namespace a3d {
 
@@ -119,6 +116,5 @@ namespace a3d {
 		// std::map<std::string, int>			_uniformLocationCache;
 	};
 }
-
 
 #endif /* AVARA3D_PROGRAM_H */

@@ -9,7 +9,6 @@
 #ifndef AVARA3D_INPUTMANAGER_H
 #define AVARA3D_INPUTMANAGER_H
 
-
 #include <memory>
 #include <set>
 
@@ -17,9 +16,7 @@
 
 #include "a3d/Types.h"
 
-
 namespace a3d {
-
 
 	class RenderContext;
 	class Scene;
@@ -39,29 +36,11 @@ namespace a3d {
 //		virtual ~InputManager() = 0;
 
 /*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
-
-//		Scene*								scene() const;
-
-/*********************************************************************************************
 	Internal Member Functions
  *********************************************************************************************/
 
-//		void								attachedToScene(Scene& scene);
-//		void								detachedFromScene(Scene& scene);
-
 		virtual void						update() = 0;
-
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
-
-	private:
-
-//		Scene*						_scene;
 	};
 }
 
 #endif /* AVARA3D_INPUTMANAGER_H */
-

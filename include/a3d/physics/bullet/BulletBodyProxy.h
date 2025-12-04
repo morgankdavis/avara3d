@@ -9,20 +9,15 @@
 #ifndef AVARA3D_BULLETBODYPROXY_H
 #define AVARA3D_BULLETBODYPROXY_H
 
-
 #include <memory>
 
 #include "a3d/physics/proxy/PhysicsBodyProxy.h"
 
-
 class btRigidBody;
-
 
 namespace a3d {
 
-
 	class BulletMotionState;
-
 
 	class BulletBodyProxy : public PhysicsBodyProxy {
 
@@ -136,6 +131,5 @@ namespace a3d {
 		std::unique_ptr<BulletMotionState>	_motionState;
 	};
 }
-
 
 #endif //AVARA3D_BULLETBODYPROXY_H

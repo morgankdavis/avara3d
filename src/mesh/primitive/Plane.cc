@@ -15,12 +15,9 @@
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/rendering/material/Material.h"
 
-
 using namespace a3d;
-using namespace generator;
 using namespace glm;
 using namespace std;
-
 
 /*********************************************************************************************
 	Pubic Static Members
@@ -53,6 +50,8 @@ Plane::Plane(float width,
 		_height{height},
 		_widthSegements{widthSegements},
 		_heightSegments{heightSegments} {
+
+	using namespace generator;
 
 	/// @param size Half of the side length in x (0) and y (1) direction.
 	/// @param segments Number of subdivisions in the x (0) and y (1) direction.

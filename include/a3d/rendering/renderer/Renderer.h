@@ -9,7 +9,6 @@
 #ifndef AVARA3D_RENDERER_H
 #define AVARA3D_RENDERER_H
 
-
 #include <memory>
 #include <set>
 
@@ -17,9 +16,7 @@
 
 #include "a3d/Types.h"
 
-
 namespace a3d {
-	
 
 	class Image;
 	class Line;
@@ -30,8 +27,7 @@ namespace a3d {
 	class Point;
 	class RenderContext;
 	class Scene;
-	
-	
+
 	class Renderer {
 
 /*********************************************************************************************
@@ -103,6 +99,5 @@ namespace a3d {
 		virtual void					framebufferScaleChanged(const RenderContext& context) = 0;
 	};
 }
-
 
 #endif /* AVARA3D_RENDERER_H */

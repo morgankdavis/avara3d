@@ -9,9 +9,7 @@
 #ifndef AVARA3D_SPHEREPHYSICSSHAPE_H
 #define AVARA3D_SPHEREPHYSICSSHAPE_H
 
-
 #include "a3d/physics/PhysicsShape.h"
-
 
 namespace a3d {
 
@@ -49,6 +47,5 @@ namespace a3d {
 		float 					_radius;
 	};
 }
-
 
 #endif //AVARA3D_SPHEREPHYSICSSHAPE_H

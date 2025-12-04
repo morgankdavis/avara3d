@@ -9,7 +9,6 @@
 #ifndef AVARA3D_GLFWWINDOW_H
 #define AVARA3D_GLFWWINDOW_H
 
-
 #include <memory>
 #include <optional>
 #include <string>
@@ -17,12 +16,9 @@
 #include "a3d/Types.h"
 #include "a3d/rendering/context/RenderContext.h"
 
-
 struct GLFWwindow;
 
-
 namespace a3d {
-
 
 	class Camera;
 	class Color;
@@ -31,7 +27,6 @@ namespace a3d {
 	class Node;
 	class Renderer;
 	class Scene;
-
 	
 	class GLFWWindow : public RenderContext {
 
@@ -137,6 +132,5 @@ namespace a3d {
 		bool											_highDPIEnabled;
 	};
 }
-
 
 #endif /* AVARA3D_GLFWWINDOW_H */

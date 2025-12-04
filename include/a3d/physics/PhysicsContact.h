@@ -9,19 +9,15 @@
 #ifndef AVARA3D_PHYSICSCONTACT_H
 #define AVARA3D_PHYSICSCONTACT_H
 
-
 #include <memory>
 
 #include "glm/glm.hpp"
 
 #include "a3d/Types.h"
 
-
 namespace a3d {
-	
-	
+
 	class Node;
-	
 
 	class PhysicsContact {
 
@@ -60,6 +56,5 @@ namespace a3d {
 		float							_sweepTestFraction;
 	};
 }
-
 
 #endif /* AVARA3D_PHYSICSCONTACT_H */

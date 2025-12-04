@@ -9,7 +9,6 @@
 #ifndef AVARA3D_MATERIAL_H
 #define AVARA3D_MATERIAL_H
 
-
 #include <memory>
 #include <optional>
 #include <string>
@@ -17,9 +16,7 @@
 
 #include "a3d/Types.h"
 
-
 namespace a3d {
-
 
 	class Color;
 	class Texture;
@@ -122,6 +119,5 @@ namespace a3d {
 		MaterialDirtyMask					_dirtyMask;
 	};
 }
-
 
 #endif /* AVARA3D_MATERIAL_H */

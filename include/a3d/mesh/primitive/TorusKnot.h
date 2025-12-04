@@ -9,18 +9,14 @@
 #ifndef AVARA3D_TORUSKNOT_H
 #define AVARA3D_TORUSKNOT_H
 
-
 #include <memory>
 
 #include "a3d/mesh/MeshElement.h"
 
-
 namespace a3d {
-
 
 	class Mesh;
 	class Material;
-
 
 	class TorusKnot: public MeshElement {
 
@@ -73,6 +69,5 @@ namespace a3d {
 		unsigned	_segments;
 	};
 }
-
 
 #endif //AVARA3D_TORUSKNOT_H

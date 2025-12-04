@@ -9,7 +9,6 @@
 #ifndef AVARA3D_BULLETWORLDPROXY_H
 #define AVARA3D_BULLETWORLDPROXY_H
 
-
 #include <memory>
 
 #include "glm/glm.hpp"
@@ -17,20 +16,16 @@
 #include "a3d/physics/bullet/BulletStats.h"
 #include "a3d/physics/proxy/PhysicalWorldProxy.h"
 
-
 class btCollisionDispatcher;
 struct btDbvtBroadphase;
 class btDiscreteDynamicsWorld;
 class btSequentialImpulseConstraintSolver;
 class btDefaultCollisionConfiguration;
 
-
 namespace a3d {
-
 
 	class BulletDebugDrawer;
 	class RenderContext;
-
 
 	class BulletWorldProxy : public PhysicalWorldProxy {
 
@@ -83,6 +78,5 @@ namespace a3d {
 		BulletStats												_stats;
 	};
 }
-
 
 #endif //AVARA3D_BULLETWORLDPROXY_H

@@ -9,9 +9,7 @@
 #ifndef AVARA3D_CAPSULEPHYSICSSHAPE_H
 #define AVARA3D_CAPSULEPHYSICSSHAPE_H
 
-
 #include "a3d/physics/PhysicsShape.h"
-
 
 namespace a3d {
 
@@ -53,6 +51,5 @@ namespace a3d {
 		float 					_height;
 	};
 }
-
 
 #endif //AVARA3D_CAPSULEPHYSICSSHAPE_H

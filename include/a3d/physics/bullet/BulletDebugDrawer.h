@@ -9,7 +9,6 @@
 #ifndef AVARA3D_BULLETDEBUGDRAWER_H
 #define AVARA3D_BULLETDEBUGDRAWER_H
 
-
 #include <memory>
 #include <tuple>
 #include <vector>
@@ -19,14 +18,11 @@
 
 #include "a3d/Types.h"
 
-
 namespace a3d {
-	
 
 	class Line;
 	class Renderer;
 	class RenderContext;
-	
 	
 	class BulletDebugDrawer : public btIDebugDraw {
 

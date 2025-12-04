@@ -9,15 +9,11 @@
 #ifndef AVARA3D_BULLETMOTIONSTATE_H
 #define AVARA3D_BULLETMOTIONSTATE_H
 
-
 #include "LinearMath/btMotionState.h"
-
 
 namespace a3d {
 
-
 	class PhysicsBody;
-
 
 	class BulletMotionState : public btMotionState {
 

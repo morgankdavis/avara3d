@@ -10,9 +10,7 @@
 
 #include "a3d/diagnostic/exception/Exception.h"
 
-
 using namespace a3d;
-
 
 /*********************************************************************************************
 	Public Lifecycle Functions

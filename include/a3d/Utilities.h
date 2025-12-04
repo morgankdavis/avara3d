@@ -9,7 +9,6 @@
 #ifndef AVARA3D_UTILITIES_H
 #define AVARA3D_UTILITIES_H
 
-
 #include <filesystem>
 #include <fstream>
 #include <memory>
@@ -22,13 +21,10 @@
 
 #include "a3d/scene/Scene.h"
 
-
 struct GLFWmonitor;
 
-
 namespace a3d {
-	
-	
+
 	class Buffer;
 	class Color;
 	class CubeImage;
@@ -39,13 +35,13 @@ namespace a3d {
 	class RenderContext;
 	class Scene;
 	
-	
 	namespace utils {
 		
 /*********************************************************************************************
 	Output
  *********************************************************************************************/
-		
+
+		// TODO: remove these
 		std::ostream& operator<<(std::ostream& os, const glm::vec3& v);
 		std::ostream& operator<<(std::ostream& os, const glm::vec4& v);
 		std::ostream& operator<<(std::ostream& os, const glm::quat& q);
@@ -180,11 +176,11 @@ namespace a3d {
 	Misc
  *********************************************************************************************/
 
-		void SaveSnapshot(RenderContext& context);
-		void StartGIFRecording(RenderContext& context,
-							   glm::vec2 fitInside,
-							   unsigned maxFramerate);
-		void StopGIFRecording(RenderContext& context);
+		void 							SaveSnapshot(RenderContext& context);
+		void 							StartGIFRecording(RenderContext& context,
+														  glm::vec2 fitInside,
+														  unsigned maxFramerate);
+		void 							StopGIFRecording(RenderContext& context);
 	}
 }
 

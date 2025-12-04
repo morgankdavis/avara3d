@@ -24,11 +24,9 @@
 #include "a3d/physics/bullet/BulletUtilities.h"
 #include "a3d/scene/Node.h"
 
-
 using namespace a3d;
 using namespace glm;
 using namespace std;
-
 
 /*********************************************************************************************
 	Private Static Non-Member Prototypes

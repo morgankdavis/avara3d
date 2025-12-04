@@ -9,15 +9,12 @@
 #ifndef AVARA3D_BULLETUTILITIES_H
 #define AVARA3D_BULLETUTILITIES_H
 
-
 #include "glm/glm.hpp"
-
 
 class btQuaternion;
 class btTransform;
 class btVector3;
 class btVector4;
-
 
 namespace a3d {
 
@@ -31,6 +28,5 @@ namespace a3d {
 	glm::mat4		TransformByRemovingScale(const glm::mat4& m, bool& scaled);
 //	btTransform&	BTIdentityTransform();
 }
-
 
 #endif //AVARA3D_BULLETUTILITIES_H

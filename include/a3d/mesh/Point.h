@@ -9,19 +9,15 @@
 #ifndef AVARA3D_POINT_H
 #define AVARA3D_POINT_H
 
-
 #include <memory>
 
 #include "glm/glm.hpp"
 
 #include "a3d/Color.h"
 
-
 namespace a3d {
 	
-	
 	class Color;
-
 	
 	class Point {
 
@@ -53,6 +49,5 @@ namespace a3d {
 		Color 					_color;
 	};
 }
-
 
 #endif /* AVARA3D_POINT_H */

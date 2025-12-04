@@ -9,13 +9,11 @@
 #ifndef AVARA3D_COLOR_H
 #define AVARA3D_COLOR_H
 
-
 #include <memory>
 #include <string>
 #include <vector>
 
 #include "glm/glm.hpp"
-
 
 namespace a3d {
 	
@@ -91,6 +89,5 @@ namespace a3d {
 		glm::vec4 _rgba;
 	};
 }
-
 
 #endif /* AVARA3D_COLOR_H */

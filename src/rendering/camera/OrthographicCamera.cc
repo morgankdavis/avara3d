@@ -13,11 +13,9 @@
 #include "a3d/Utilities.h"
 #include "a3d/diagnostic/log/Log.h"
 
-
 using namespace a3d;
 using namespace std;
 using namespace glm;
-
 
 /*********************************************************************************************
 	Public Lifecycle Functions

@@ -15,12 +15,9 @@
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/rendering/material/Material.h"
 
-
 using namespace a3d;
-using namespace generator;
 using namespace glm;
 using namespace std;
-
 
 /*********************************************************************************************
 	Pubic Static Members
@@ -57,6 +54,8 @@ Cone::Cone(float radius,
 		_slices{slices},
 		_segments{segments},
 		_rings{rings} {
+
+	using namespace generator;
 
 	/// @param radius Radius of the negative z end on the xy-plane.
 	/// @param size Half of the length of the cylinder along the z-axis.

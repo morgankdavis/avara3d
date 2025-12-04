@@ -9,7 +9,6 @@
 #ifndef AVARA3D_PHYSICSSHAPE_H
 #define AVARA3D_PHYSICSSHAPE_H
 
-
 #include <memory>
 #include <unordered_set>
 #include <variant>
@@ -17,9 +16,7 @@
 
 #include "a3d/Types.h"
 
-
 namespace a3d {
-	
 	
 	class Mesh;
 	class Node;
@@ -27,7 +24,6 @@ namespace a3d {
 	class PhysicalWorld;
 	class PhysicsShapeProxy;
 	class Scene;
-	
 
 	class PhysicsShape {
 
@@ -120,6 +116,5 @@ namespace a3d {
 		std::unordered_set<PhysicsBody*>	_bodies;
 	};
 }
-
 
 #endif /* AVARA3D_PHYSICSSHAPE_H */

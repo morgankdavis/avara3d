@@ -9,7 +9,6 @@
 #ifndef AVARA3D_HITTESTRESULT_H
 #define AVARA3D_HITTESTRESULT_H
 
-
 namespace a3d {
 	
 	class HitTestResult {
@@ -47,6 +46,5 @@ namespace a3d {
 		
 	};
 }
-
 
 #endif /* AVARA3D_HITTESTRESULT_H */

@@ -9,7 +9,6 @@
 #ifndef AVARA3D_SCENE_H
 #define AVARA3D_SCENE_H
 
-
 #include <filesystem>
 #include <functional>
 #include <map>
@@ -20,9 +19,7 @@
 
 #include "a3d/Types.h"
 
-
 namespace a3d {
-
 
 	class Color;
 	class InputManager;
@@ -33,7 +30,6 @@ namespace a3d {
 	class RenderContext;
 	class VisualWorld;
 
-	
 	class Scene {
 
 /*********************************************************************************************
@@ -118,6 +114,5 @@ namespace a3d {
 		UpdateCallback						_update;
 	};
 }
-
 
 #endif /* AVARA3D_SCENE_H */

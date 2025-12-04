@@ -9,19 +9,15 @@
 #ifndef AVARA3D_FONT_H
 #define AVARA3D_FONT_H
 
-
 #include <filesystem>
 #include <memory>
 #include <optional>
 
 #include "a3d/Types.h"
 
-
 namespace a3d {
-	
-	
+
 	class Buffer;
-	
 	
 	class Font {
 
@@ -54,6 +50,5 @@ namespace a3d {
 		std::unique_ptr<Buffer>				_buffer;
 	};
 }
-
 
 #endif /* AVARA3D_FONT_H */

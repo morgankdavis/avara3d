@@ -9,11 +9,9 @@
 #ifndef AVARA3D_BUFFER_H
 #define AVARA3D_BUFFER_H
 
-
 #include <filesystem>
 #include <memory>
 #include <vector>
-
 
 namespace a3d {
 	
@@ -50,6 +48,5 @@ namespace a3d {
 		std::size_t 				_size;
 	};
 }
-
 
 #endif /* AVARA3D_BUFFER_H */

@@ -9,7 +9,6 @@
 #ifndef AVARA3D_DIRECTIONALLIGHT_H
 #define AVARA3D_DIRECTIONALLIGHT_H
 
-
 #include <memory>
 #include <optional>
 #include <string>
@@ -18,13 +17,10 @@
 
 #include "a3d/rendering/light/Light.h"
 
-
 namespace a3d {
-
 
 	class Color;
 	class Node;
-	
 	
 	class DirectionalLight : public Light {
 
@@ -64,6 +60,5 @@ namespace a3d {
 //		glm::vec3			_direction; // TODO: INIT ME
 	};
 }
-
 
 #endif /* AVARA3D_DIRECTIONALLIGHT_H */

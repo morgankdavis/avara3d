@@ -9,7 +9,6 @@
 #ifndef AVARA3D_CONFIGURATION_H
 #define AVARA3D_CONFIGURATION_H
 
-
 namespace a3d {
 
 	constexpr double 	FRAMETIME_AVERAGING_INTERVAL = 	0.5;
@@ -22,6 +21,5 @@ namespace a3d {
 	constexpr unsigned 	MAX_POINT_LIGHTS =				128;
 	constexpr unsigned 	MAX_SPOT_LIGHTS =				64;
 }
-
 
 #endif //AVARA3D_CONFIGURATION_H

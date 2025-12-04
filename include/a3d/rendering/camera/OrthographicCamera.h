@@ -9,10 +9,8 @@
 #ifndef AVARA3D_ORTHOGRAPHICCAMERA_H
 #define AVARA3D_ORTHOGRAPHICCAMERA_H
 
-
 #include "a3d/Types.h"
 #include "a3d/rendering/camera/Camera.h"
-
 
 namespace a3d {
 
