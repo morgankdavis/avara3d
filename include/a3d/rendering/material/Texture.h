@@ -20,11 +20,8 @@ namespace a3d {
 
 	class Texture {
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		/// Public Lifecycle Functions ///
 
 		Texture();
 		explicit Texture(const Sampleable& contents,
@@ -32,9 +29,7 @@ namespace a3d {
 						 unsigned mappingChannel = 0);
 		~Texture();
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		std::shared_ptr<Sampler>		sampler() const;
 		void							sampler(const std::shared_ptr<Sampler>& sampler);
@@ -48,11 +43,8 @@ namespace a3d {
 		TextureDirtyMask 				dirtyMask() const;
 		void 							dirtyMask(TextureDirtyMask mask);
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
-
 	private:
+		/// Private Member Variables ///
 
 		std::shared_ptr<Sampler>		_sampler;
 		Sampleable						_contents;

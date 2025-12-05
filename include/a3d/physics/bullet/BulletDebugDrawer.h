@@ -26,18 +26,13 @@ namespace a3d {
 	
 	class BulletDebugDrawer : public btIDebugDraw {
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		/// Public Lifecycle Functions ///
 
 		BulletDebugDrawer();
 		~BulletDebugDrawer() override;
 		
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+		/// Internal Member Functions ///
 
 		void 	clear();
 		void 	draw(Renderer& renderer,
@@ -45,9 +40,7 @@ namespace a3d {
 					 const glm::mat4& viewMat,
 					 const glm::mat4& projectionMat);
 
-/*********************************************************************************************
-	btIDebugDraw Members
- *********************************************************************************************/
+		/// btIDebugDraw Members ///
 
 		void 	drawLine(const btVector3& from,
 						 const btVector3& to,
@@ -155,11 +148,8 @@ namespace a3d {
 		void 	setDebugMode(int debugMode) override;
 		int 	getDebugMode() const override;
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
-
 	private:
+		/// Private Member Variables ///
 
 		int							_debugMode;
 		std::vector<Line>			_lines;

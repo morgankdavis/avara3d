@@ -14,9 +14,7 @@ using namespace a3d;
 using namespace glm;
 using namespace std;
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
+/// Internal Lifecycle Functions ///
 
 Point::Point(const vec3& location):
 	Point{location, Color{1.0f}} {
@@ -29,9 +27,7 @@ Point::Point(const vec3& location, const Color& color):
 	
 }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 const vec3& Point::location() const {
 	return _location;

@@ -12,15 +12,11 @@ using namespace a3d;
 using namespace glm;
 using namespace std;
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 PhysicsContact::PhysicsContact() { }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 weak_ptr<Node> PhysicsContact::nodeA() const {
 	return _nodeA;

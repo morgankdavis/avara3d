@@ -21,9 +21,7 @@ using namespace a3d;
 using namespace glm;
 using namespace std;
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 MeshElement::MeshElement(const vector<Vertex>& verticies,
 						 const vector<Face>& faces):
@@ -37,9 +35,7 @@ MeshElement::~MeshElement() {
 	A3D_LOG_D("Destroying MeshElement {:p}", static_cast<void*>(this));
 }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 void MeshElement::draw(Renderer& renderer,
 					   const RenderContext& context,
@@ -173,9 +169,7 @@ void MeshElement::dirtyMask(MeshElementDirtyMask mask) {
 	_dirtyMask = mask;
 }
 
-/*********************************************************************************************
-	Protected Lifecycle
- *********************************************************************************************/
+/// Protected Lifecycle ///
 
 MeshElement::MeshElement():
 		//_vertices{},

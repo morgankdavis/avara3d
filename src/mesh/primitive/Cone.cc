@@ -19,9 +19,7 @@ using namespace a3d;
 using namespace glm;
 using namespace std;
 
-/*********************************************************************************************
-	Pubic Static Members
- *********************************************************************************************/
+/// Pubic Static Members ///
 
 shared_ptr<Mesh> Cone::Mesh(float radius,
 							float height,
@@ -39,9 +37,7 @@ shared_ptr<Mesh> Cone::Mesh(float radius,
 								  material);
 }
 
-/*********************************************************************************************
-	Public Lifecycle Functions
-*********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 Cone::Cone(float radius,
 		   float height,
@@ -83,9 +79,7 @@ Cone::Cone(float radius,
 	burnTransform(xRotation, true);
 }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 float Cone::radius() const {
 	return _radius;

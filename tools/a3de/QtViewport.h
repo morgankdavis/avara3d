@@ -28,7 +28,7 @@ namespace a3d::head::qt {
 	Q_OBJECT
 
 	public:
-		/// Public Lifecycle Functions /// public:
+		/// Public Lifecycle Functions ///
 
 		explicit QtViewport(a3d::RenderingApi renderingApi, QWidget* parent = nullptr);
 		~QtViewport() override;

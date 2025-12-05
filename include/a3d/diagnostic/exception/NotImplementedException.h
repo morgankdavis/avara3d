@@ -17,11 +17,8 @@ namespace a3d {
 
 	class NotImplementedException : public Exception {
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		/// Internal Lifecycle Functions ///
 
 		explicit NotImplementedException(const std::string& what);
 

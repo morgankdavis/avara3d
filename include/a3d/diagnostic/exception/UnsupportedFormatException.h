@@ -17,11 +17,8 @@ namespace a3d {
 
 	class UnsupportedFormatException : public Exception {
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		/// Internal Lifecycle Functions ///
 
 		explicit UnsupportedFormatException(const std::string& what);
 

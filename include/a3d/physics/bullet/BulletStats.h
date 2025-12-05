@@ -18,17 +18,12 @@ namespace a3d {
 
 	struct BulletStats {
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		/// Public Lifecycle Functions ///
 
 		BulletStats();
 
-/*********************************************************************************************
-	Internal Member Variables
- *********************************************************************************************/
+		/// Internal Member Variables ///
 
 		unsigned 	numStaticBodies;
 		unsigned 	numDynamicBodies;

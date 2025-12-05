@@ -24,11 +24,8 @@ namespace a3d {
 	
 	class DirectionalLight : public Light {
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		/// Public Lifecycle Functions ///
 
 		DirectionalLight();
 		explicit DirectionalLight(const std::string& name);
@@ -36,27 +33,19 @@ namespace a3d {
 		DirectionalLight(const std::string& name, const std::shared_ptr<Color>& color);
 //		~DirectionalLight();
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 //		const glm::vec3&	direction() const;
 //		void				direction(const glm::vec3& direction);
 
-/*********************************************************************************************
-	Protected Lifecycle Functions
- *********************************************************************************************/
-
 //	protected:
+		/// Protected Lifecycle Functions ///
 //
 //		DirectionalLight();
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
-
 //	private:
-//
+		/// Private Member Variables ///
+
 //		glm::vec3			_direction; // TODO: INIT ME
 	};
 }

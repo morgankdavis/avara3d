@@ -31,19 +31,14 @@ namespace a3d {
 
 	class Mesh {
 
-/*********************************************************************************************
-	Public Static Member Functions
- *********************************************************************************************/
-
 	public:
+		/// Public Static Member Functions ///
 
 		static std::shared_ptr<Mesh> 			FromFile(const std::filesystem::path& path,
 														 MeshImportOptions options =
 														 MeshImportOptions::ImportMaterials);
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+		/// Public Lifecycle Functions ///
 
 		Mesh(const std::string& name,
 			 std::unique_ptr<MeshElement> element,
@@ -57,72 +52,60 @@ namespace a3d {
 			 const std::vector<std::shared_ptr<Material>>& materials);
 		virtual ~Mesh();
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
-		std::optional<std::string> 				name() const;
-		void 									name(const std::string& name);
+		std::optional<std::string> 	name() const;
+		void 						name(const std::string& name);
 
 		const std::vector<std::unique_ptr<MeshElement>>&	elements();
 		const std::vector<std::shared_ptr<Material>>& 		materials();
 
-		std::shared_ptr<Material> 				firstMaterial() const;
-		std::shared_ptr<Material> 				materialNamed(const std::string& name) const;
-		void 									addMaterial(const std::shared_ptr<Material>& material);
-		void 									insertMaterial(const std::shared_ptr<Material>& material,
-															   int index);
-		void 									removeMaterial(int index);
-		void 									replaceMaterial(int index,
-																const std::shared_ptr<Material>& replacement);
+		std::shared_ptr<Material> 	firstMaterial() const;
+		std::shared_ptr<Material> 	materialNamed(const std::string& name) const;
+		void 						addMaterial(const std::shared_ptr<Material>& material);
+		void 						insertMaterial(const std::shared_ptr<Material>& material,
+												   int index);
+		void 						removeMaterial(int index);
+		void 						replaceMaterial(int index,
+													const std::shared_ptr<Material>& replacement);
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+		/// Internal Member Functions ///
 
-		void 									burnTransform(const glm::mat4& transform,
-															  bool normals);
+		void 						burnTransform(const glm::mat4& transform,
+												  bool normals);
 
-		void 									draw(Renderer& renderer,
-													 const RenderContext& context,
-													 const glm::mat4& modelMat,
-													 const glm::mat4& viewMat,
-													 const glm::mat4& projectionMat,
-													 const DebugOptions& debugOptions,
-													 Stats& stats);
+		void 						draw(Renderer& renderer,
+										 const RenderContext& context,
+										 const glm::mat4& modelMat,
+										 const glm::mat4& viewMat,
+										 const glm::mat4& projectionMat,
+										 const DebugOptions& debugOptions,
+										 Stats& stats);
 
-		AABB									aabb(const Node* convertTo = nullptr) const;
-		glm::vec3 								extent(const Node* convertTo = nullptr) const;
+		AABB						aabb(const Node* convertTo = nullptr) const;
+		glm::vec3 					extent(const Node* convertTo = nullptr) const;
 
-		const std::vector<Line>&				aabbLines();
+		const std::vector<Line>&	aabbLines();
 
-		MeshDirtyMask 							dirtyMask() const;
-		void 									dirtyMask(MeshDirtyMask mask);
-
-/*********************************************************************************************
-	Protected Member Variables
- *********************************************************************************************/
+		MeshDirtyMask 				dirtyMask() const;
+		void 						dirtyMask(MeshDirtyMask mask);
 
 	protected:
+		/// Protected Member Variables ///
 
 		std::vector<std::unique_ptr<MeshElement>>	_elements;
 		std::vector<std::shared_ptr<Material>>		_materials;
 
-/*********************************************************************************************
-	Private Lifecycle Functions
- *********************************************************************************************/
-
 	private:
+		/// Private Lifecycle Functions ///
 
 		Mesh();
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
+		/// Private Member Variables ///
 
-		std::optional<std::string>				_name;
-		std::vector<Line>						_aabbLines;
-		MeshDirtyMask							_dirtyMask;
+		std::optional<std::string>	_name;
+		std::vector<Line>			_aabbLines;
+		MeshDirtyMask				_dirtyMask;
 	};
 }
 

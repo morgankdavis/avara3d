@@ -16,9 +16,7 @@ using namespace a3d;
 using namespace glm;
 using namespace std;
 
-/*********************************************************************************************
-	Public Static Member Functions
- *********************************************************************************************/
+/// Public Static Member Functions ///
 
 shared_ptr<Material> Material::DefaultMaterial() {
 	static shared_ptr<Material> material = nullptr;
@@ -38,9 +36,7 @@ shared_ptr<Material> Material::EmissionMaterial(MaterialProperty property) {
 	return make_shared<Material>(monostate{}, monostate{}, monostate{}, property);
 }
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 Material::Material():
 		_name{},
@@ -85,9 +81,7 @@ Material::~Material() {
 	A3D_LOG_D("Destroying Material {:p}", static_cast<void*>(this));
 }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 const optional<string>& Material::name() const {
 	return _name;
@@ -196,9 +190,7 @@ void Material::blendFunction(BlendFunction function) {
 	_blendFunction = function;
 }
 
-/*********************************************************************************************
-	Internal Static Member Functions
- *********************************************************************************************/
+/// Internal Static Member Functions ///
 
 shared_ptr<Material> Material::MissingTextureMaterial() {
 	static shared_ptr<Material> material = nullptr;
@@ -214,9 +206,7 @@ MaterialProperty Material::MissingTextureProperty() {
 	return {Color::Magenta()};
 }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 MaterialDirtyMask Material::dirtyMask() const {
 	return _dirtyMask;

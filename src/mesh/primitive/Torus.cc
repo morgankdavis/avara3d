@@ -19,9 +19,7 @@ using namespace a3d;
 using namespace glm;
 using namespace std;
 
-/*********************************************************************************************
-	Pubic Static Members
- *********************************************************************************************/
+/// Pubic Static Members ///
 
 shared_ptr<Mesh> Torus::Mesh(float minorRadius,
 							 float majorRadius,
@@ -37,9 +35,7 @@ shared_ptr<Mesh> Torus::Mesh(float minorRadius,
 								  material);
 }
 
-/*********************************************************************************************
-	Public Lifecycle Functions
-*********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 Torus::Torus(float minorRadius,
 			 float majorRadius,
@@ -77,9 +73,7 @@ Torus::Torus(float minorRadius,
 	}
 }
 
-/*********************************************************************************************
- 	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 float Torus::minorRadius() const {
 	return _minorRadius;

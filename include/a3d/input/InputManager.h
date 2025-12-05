@@ -21,25 +21,18 @@ namespace a3d {
 	class RenderContext;
 	class Scene;
 
-	
 	class InputManager {
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		/// Public Lifecycle Functions ///
 
 		InputManager();
 		InputManager(const InputManager& other) = delete; // copy constructor
 		InputManager& operator=(const InputManager& other) = delete; // copy assignment
-//		virtual ~InputManager() = 0;
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+		/// Internal Member Functions ///
 
-		virtual void						update() = 0;
+		virtual void	update() = 0;
 	};
 }
 

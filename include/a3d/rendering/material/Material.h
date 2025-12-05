@@ -22,19 +22,14 @@ namespace a3d {
 	class Texture;
 
 	class Material {
-		
-/*********************************************************************************************
-	Public Static Member Functions
- *********************************************************************************************/
 
 	public:
+		/// Public Static Member Functions ///
 
 		static std::shared_ptr<Material> 	DefaultMaterial();
 		static std::shared_ptr<Material> 	EmissionMaterial(MaterialProperty property);
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+		/// Public Lifecycle Functions ///
 
 		Material();
 		Material(const MaterialProperty& ambient,
@@ -46,9 +41,7 @@ namespace a3d {
 				 const MaterialProperty& emission);
 		~Material();
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		const std::optional<std::string>&	name() const;
 		void 								name(const std::string& name);
@@ -85,25 +78,18 @@ namespace a3d {
 		BlendFunction						blendFunction() const;
 		void 								blendFunction(BlendFunction function);
 
-/*********************************************************************************************
-	Internal Static Member Functions
- *********************************************************************************************/
+		/// Internal Static Member Functions ///
 
 		static std::shared_ptr<Material> 	MissingTextureMaterial();
 		static MaterialProperty 			MissingTextureProperty();
 		
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+		/// Internal Member Functions ///
 
 		MaterialDirtyMask 					dirtyMask() const;
 		void 								dirtyMask(MaterialDirtyMask mask);
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
-
 	private:
+		/// Private Member Variables ///
 
 		std::optional<std::string>			_name;
 		MaterialProperty					_ambient;

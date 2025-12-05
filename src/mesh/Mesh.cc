@@ -28,9 +28,7 @@ using namespace a3d;
 using namespace glm;
 using namespace std;
 
-/*********************************************************************************************
-	Public Static Member Functions
- *********************************************************************************************/
+/// Public Static Member Functions ///
 
 shared_ptr<Mesh> Mesh::FromFile(const filesystem::path& path,
 								MeshImportOptions options) {
@@ -40,9 +38,7 @@ shared_ptr<Mesh> Mesh::FromFile(const filesystem::path& path,
 	return GlTFImporter(path, sceneOpts).firstMesh();
 }
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 Mesh::Mesh(const std::string& name,
 		   std::unique_ptr<MeshElement> element,
@@ -90,9 +86,7 @@ Mesh::~Mesh() {
 	}
 }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 optional<string> Mesh::name() const {
 	return _name;
@@ -148,9 +142,7 @@ void Mesh::replaceMaterial(int index, const shared_ptr<Material>& replacement) {
 	insertMaterial(replacement, index);
 }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 void Mesh::burnTransform(const mat4& transform, bool normals) {
 	for (auto& element : elements()) {
@@ -331,9 +323,7 @@ void Mesh::dirtyMask(MeshDirtyMask mask) {
 	_dirtyMask = mask;
 }
 
-/*********************************************************************************************
-	Private Lifecycle Functions
- *********************************************************************************************/
+/// Private Lifecycle Functions ///
 
 Mesh::Mesh():
 		_name{},

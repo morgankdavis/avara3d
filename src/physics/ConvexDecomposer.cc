@@ -21,9 +21,7 @@ using namespace a3d;
 using namespace std;
 using namespace VHACD;
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
+/// Internal Lifecycle Functions ///
 
 ConvexDecomposer::ConvexDecomposer(MeshElement& element,
 								   Options& options):
@@ -31,9 +29,7 @@ ConvexDecomposer::ConvexDecomposer(MeshElement& element,
 		_options{options} {
 }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
 

@@ -38,9 +38,7 @@ using namespace glm;
 using namespace std;
 using namespace std::filesystem;
 
-/*********************************************************************************************
-	Private Static Non-Member Prototypes
- *********************************************************************************************/
+/// Private Static Non-Member Prototypes ///
 
 static void 		GetRunTime(double time, // time since reference
 							  double& runT, // time since reference excluding paused time
@@ -48,18 +46,14 @@ static void 		GetRunTime(double time, // time since reference
 static void 		UpdateUserTimeStats(Stats& stats, double startTime, double endTime);
 static void			UpdateFrameTimeStats(Stats& stats, double time);
 
-/*********************************************************************************************
-	Public Static Member Functions
- *********************************************************************************************/
+/// Public Static Member Functions ///
 
 unique_ptr<Scene> Scene::FromFile(const filesystem::path& path,
 								  SceneImportOptions options) {
 	return GlTFImporter(path, options).scene();
 }
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 Scene::Scene():
 		_name{},
@@ -119,9 +113,7 @@ Scene::~Scene() {
 //	if (_inputManager) _inputManager->detachedFromScene(*this);
 }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 const optional<std::string>& Scene::name() const {
 	return _name;
@@ -344,9 +336,7 @@ void Scene::updateCallback(UpdateCallback function) {
 	_update = function;
 }
 
-/*********************************************************************************************
-	Private Static
- *********************************************************************************************/
+/// Private Static ///
 
 void GetRunTime(double time, // time since reference
 				double& runT, // time since reference excluding paused time

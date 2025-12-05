@@ -30,11 +30,8 @@ namespace a3d {
 	
 	class GLFWWindow : public RenderContext {
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		/// Public Lifecycle Functions ///
 
 		GLFWWindow(RenderingApi renderingAPI,
 				   const std::string& title,
@@ -46,9 +43,7 @@ namespace a3d {
 		GLFWWindow& operator=(const GLFWWindow& other) = delete; // copy assignment
 		~GLFWWindow() override;
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		void 					open();
 		void					close();
@@ -74,16 +69,12 @@ namespace a3d {
 
 		bool					highDPIEnabled() const;
 
-/*********************************************************************************************
-	RenderContext Public Member Functions
- *********************************************************************************************/
+		/// RenderContext Public Member Functions ///
 
 		bool 					vSyncEnabled() const override;
 		void 					vSyncEnabled(bool enabled) override;
 
-/*********************************************************************************************
-	RenderContext Internal Member Functions
- *********************************************************************************************/
+		/// RenderContext Internal Member Functions ///
 
 		void 					beginFrame(const Scene& scene) override;
 		void 					endFrame(const Scene& scene) override;
@@ -95,24 +86,17 @@ namespace a3d {
 
 		unsigned 				defaultFramebuffer() const override;
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+		/// Internal Member Functions ///
 
 		void 					pollInput();
 		GLFWwindow* 			glfwWindow() const;
 
-/*********************************************************************************************
-	Internal Static Member Functions
- *********************************************************************************************/
+		/// Internal Static Member Functions ///
 
 		static void				Destroy(GLFWwindow* window);
 
-/*********************************************************************************************
-	Private Types
- *********************************************************************************************/
-
 	private:
+		/// Private Types ///
 
 		struct DestroyGLFWWindow {
 			void operator()(GLFWwindow* window){
@@ -120,9 +104,7 @@ namespace a3d {
 			}
 		};
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
+		/// Private Member Variables ///
 
 		std::unique_ptr<GLFWwindow, DestroyGLFWWindow>	_glfwWindow;
 		bool											_vSyncEnabled;

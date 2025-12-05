@@ -21,22 +21,16 @@ namespace a3d {
 
 	class SpotLight : public AttenuatedLight {
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		/// Public Lifecycle Functions ///
 
 		SpotLight();
 		explicit SpotLight(const std::string& name);
 		explicit SpotLight(const std::shared_ptr<Color>& color);
 		SpotLight(const std::string& name, const std::shared_ptr<Color>& color);
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
-
 	public:
+		/// Public Member Functions ///
 
 		float					innerAngle() const;
 		void					innerAngle(float angle);
@@ -47,26 +41,19 @@ namespace a3d {
 		SpotlightFeatheringMode	featheringMode() const;
 		void					featheringMode(SpotlightFeatheringMode mode);
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+		/// Internal Member Functions ///
 
 		float					innerAngleCos() const;
 		float					outerAngleCos() const;
 
-/*********************************************************************************************
-	Private Lifecycle Functions
- *********************************************************************************************/
+		/// Private Lifecycle Functions ///
 
 //	private:
 //
 //		SpotLight();
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
-
 	private:
+		/// Private Member Variables ///
 
 		float					_innerAngleCos;
 		float					_outerAngleCos;

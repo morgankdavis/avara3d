@@ -27,37 +27,28 @@ namespace a3d {
 
 	class PhysicsShape {
 
-/*********************************************************************************************
-	Public Types
- *********************************************************************************************/
-
 	public:
+		/// Public Types ///
 
 		using Source = std::variant<
 				std::monostate,
 				std::weak_ptr<Mesh>,
 				std::weak_ptr<Node>>;
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+		/// Public Lifecycle Functions ///
 
 		PhysicsShape(PhysicsShapeType type, const std::shared_ptr<Mesh>& mesh);
 		PhysicsShape(PhysicsShapeType type, const std::shared_ptr<Node>& node);
 		~PhysicsShape();
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		virtual PhysicsShapeType 			type() const;
 		virtual void 						type(PhysicsShapeType type);
 
 		Source 								source() const;
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+		/// Internal Member Functions ///
 
 		void 								attachedToBody(PhysicsBody& body);
 		void 								detachedFromBody(PhysicsBody& body);
@@ -91,26 +82,18 @@ namespace a3d {
 
 		PhysicsShapeProxy*					proxy() const;
 
-/*********************************************************************************************
-	Protected Lifecycle
- *********************************************************************************************/
-
 	protected:
+		/// Protected Lifecycle ///
 
 		PhysicsShape();
 
-/*********************************************************************************************
-	Protected Member Functions
- *********************************************************************************************/
+		/// Protected Member Functions ///
 
 		PhysicsShapeType 					_type;
 		std::unique_ptr<PhysicsShapeProxy>	_proxy;
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
-
 	private:
+		/// Private Member Variables ///
 
 		Source 								_source;
 		std::unordered_set<PhysicsBody*>	_bodies;

@@ -30,9 +30,7 @@ using namespace a3d;
 using namespace glm;
 using namespace std;
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
+/// Internal Lifecycle Functions ///
 
 BulletBodyProxy::BulletBodyProxy(PhysicsBody& body, PhysicsBodyType type):
 		PhysicsBodyProxy{body, type},
@@ -94,9 +92,7 @@ BulletBodyProxy::~BulletBodyProxy() {
 	A3D_LOG_D("Destroying BulletBodyProxy {:p}", static_cast<void*>(this));
 }
 
-/*********************************************************************************************
-	PhysicsBodyModelProxy Internal Member Functions
- *********************************************************************************************/
+/// PhysicsBodyModelProxy Internal Member Functions ///
 
 PhysicsBodyType BulletBodyProxy::type() const {
 
@@ -457,17 +453,13 @@ void BulletBodyProxy::clearForces() {
 	_btBody->clearForces();
 }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 btRigidBody* BulletBodyProxy::btBody() {
 	return _btBody.get();
 }
 
-/*********************************************************************************************
-	Private Member Functions
- *********************************************************************************************/
+/// Private Member Functions ///
 
 void BulletBodyProxy::calculateMomentOfIntertia() {
 

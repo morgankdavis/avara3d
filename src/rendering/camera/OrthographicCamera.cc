@@ -17,9 +17,7 @@ using namespace a3d;
 using namespace std;
 using namespace glm;
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 OrthographicCamera::OrthographicCamera():
 	Camera{},
@@ -49,9 +47,7 @@ OrthographicCamera::~OrthographicCamera() {
 	}
 }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 AABB OrthographicCamera::extent() const {
 	return _extent;
@@ -62,9 +58,7 @@ void OrthographicCamera::extent(const AABB& e) {
 	constructProjectionMatrix();
 }
 
-/*********************************************************************************************
-	Camera Protected Member Functions
- *********************************************************************************************/
+/// Camera Protected Member Functions ///
 
 void OrthographicCamera::constructProjectionMatrix() {
 

@@ -24,9 +24,7 @@ using namespace a3d;
 using namespace glm;
 using namespace std;
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 PhysicsShape::PhysicsShape(PhysicsShapeType type, const shared_ptr<Mesh>& mesh):
 		_source{mesh},
@@ -72,9 +70,7 @@ PhysicsShape::~PhysicsShape() {
 	A3D_LOG_D("Destroying PhysicsShape {:p}", static_cast<void*>(this));
 }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 PhysicsShape::Source PhysicsShape::source() const {
 	return _source;
@@ -93,9 +89,7 @@ void PhysicsShape::type(PhysicsShapeType type) {
 	checkCreateProxy();
 }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 void PhysicsShape::attachedToBody(PhysicsBody& body) {
 	A3D_LOG_T("body: {:p}", static_cast<void*>(&body));

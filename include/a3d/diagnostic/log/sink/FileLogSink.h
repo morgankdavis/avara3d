@@ -22,20 +22,15 @@ namespace a3d {
 
 	class FileLogSink : public LogSink {
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		/// Public Lifecycle Functions ///
 
 		explicit FileLogSink(const std::filesystem::path& relPath,
 							 int maxFiles = DEFAULT_MAX_FILES,
 							 int maxFilesize = DEFAULT_MAX_FILESIZE);
 		~FileLogSink() override;
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		const std::filesystem::path&		filepath() const;
 
@@ -44,32 +39,23 @@ namespace a3d {
 
 		void 								flush() override;
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+		/// Internal Member Functions ///
 
 		void 								write(const std::string& output);
 
-/*********************************************************************************************
-	Private Constants
- *********************************************************************************************/
-
 	private:
+		/// Private Constants ///
 
 		static constexpr unsigned 			DEFAULT_MAX_FILES = 5;
 		static constexpr unsigned 			DEFAULT_MAX_FILESIZE = 1024 * 1024 * 1; // 1MB
 
-/*********************************************************************************************
-	Private Member Functions
- *********************************************************************************************/
+		/// Private Member Functions ///
 
 		void 								openStream();
 		void 								checkRotate();
 		void 								rotate();
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
+		/// Private Member Variables ///
 
 		std::filesystem::path				_filepath;
 		int									_maxFiles;

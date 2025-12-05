@@ -16,6 +16,12 @@
 
 #include "a3d/diagnostic/log/Log.h"
 
+QT_BEGIN_NAMESPACE
+namespace Ui {
+	class MainWindow;
+}
+QT_END_NAMESPACE
+
 namespace a3d {
 	class Mesh;
 	class Node;
@@ -27,12 +33,6 @@ namespace a3d {
 namespace a3d::head::qt {
 	class QtViewport;
 }
-
-QT_BEGIN_NAMESPACE
-namespace Ui {
-	class MainWindow;
-}
-QT_END_NAMESPACE
 
 namespace a3de {
 

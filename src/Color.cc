@@ -14,9 +14,7 @@ using namespace a3d;
 using namespace glm;
 using namespace std;
 
-/*********************************************************************************************
-	Public Static Member Functions
- *********************************************************************************************/
+/// Public Static Member Functions ///
 
 std::shared_ptr<Color> Color::Black() {
 	return make_unique<Color>(glm::vec4{0.0f, 0.0f, 0.0f, 1.0f});
@@ -98,9 +96,7 @@ shared_ptr<Color> Color::Random() {
 	return make_unique<Color>(glm::u8vec3{utils::Uniform(0, 255), utils::Uniform(0, 255), utils::Uniform(0, 255)});
 }
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 Color::Color():
 		_rgba{1.0, 1.0, 1.0, 1.0} { }
@@ -139,9 +135,7 @@ Color::Color(const string& hexString) {
 	// TODO
 }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 float Color::r() const {
 	return _rgba.r;

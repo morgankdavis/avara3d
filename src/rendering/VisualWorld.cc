@@ -36,17 +36,13 @@ using namespace a3d;
 using namespace glm;
 using namespace std;
 
-/*********************************************************************************************
-	Private Static Non-Member Prototypes
- *********************************************************************************************/
+/// Private Static Non-Member Prototypes ///
 
 static unique_ptr<Mesh> MakeSkyboxMesh(const MaterialProperty& property);
 static unique_ptr<Mesh> GroundPlaneMesh();
 static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 VisualWorld::VisualWorld(RenderContext& context):
 		_background{},
@@ -77,9 +73,7 @@ VisualWorld::~VisualWorld() {
 	//renderContext(nullptr);
 }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 const MaterialProperty& VisualWorld::background() {
 	return _background;
@@ -232,9 +226,7 @@ void VisualWorld::didRender(DidRenderCallback function) {
 	_didRender = function;
 }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 void VisualWorld::attachedToScene(Scene& scene) {
 	A3D_LOG_T("scene: {:p}", static_cast<void*>(&scene));
@@ -423,9 +415,7 @@ weak_ptr<Node> VisualWorld::defaultPointOfView() {
 	return {};
 }
 
-/*********************************************************************************************
-	Private Static Member Functions
- *********************************************************************************************/
+/// Private Static Member Functions ///
 
 unique_ptr<Mesh> MakeSkyboxMesh(const MaterialProperty& property) {
 

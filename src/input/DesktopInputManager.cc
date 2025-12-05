@@ -14,9 +14,7 @@ using namespace a3d;
 using namespace std;
 using namespace glm;
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 DesktopInputManager::DesktopInputManager():
 		_keysDown{},
@@ -33,9 +31,7 @@ DesktopInputManager::~DesktopInputManager() {
 	A3D_LOG_D("Destroying InputManager {:p}", static_cast<void*>(this));
 }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 bool DesktopInputManager::keyDown(Key key) {
 	return _keysDown.count(key);

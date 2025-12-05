@@ -19,24 +19,17 @@ namespace a3d {
 
 	class StdOutLogSink : public LogSink {
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+	/// Public Lifecycle Functions ///
 
 		StdOutLogSink();
 		~StdOutLogSink() override;
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+	/// Public Member Functions ///
 
 		void 	flush() override;
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+	/// Internal Member Functions ///
 
 		void 	write(const std::string& output, LogLevel level);
 	};

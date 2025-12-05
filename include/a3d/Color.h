@@ -19,11 +19,8 @@ namespace a3d {
 	
 	class Color {
 
-/*********************************************************************************************
-	Public Static Member Functions
- *********************************************************************************************/
-
 	public:
+		/// Public Static Member Functions ///
 
 		static std::shared_ptr<Color> 		Black();
 		static std::shared_ptr<Color> 		DarkGray();
@@ -47,9 +44,7 @@ namespace a3d {
 
 		static std::shared_ptr<Color> 		Random();
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+		/// Public Lifecycle Functions ///
 
 		Color();
 		explicit Color(const glm::vec3& rgb);
@@ -62,9 +57,7 @@ namespace a3d {
 
 		// TODO: operator*, operator[]
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		float r() const;
 		float g() const;
@@ -82,9 +75,8 @@ namespace a3d {
 		glm::u8vec3 u8rgb() const;
 		glm::u8vec4 u8rgba() const;
 
-/*********************************************************************************************
-	Public Member Variables
- *********************************************************************************************/
+	private:
+		/// Private Member Variables ///
 
 		glm::vec4 _rgba;
 	};

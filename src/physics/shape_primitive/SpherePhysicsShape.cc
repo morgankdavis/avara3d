@@ -12,18 +12,14 @@
 
 using namespace a3d;
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 SpherePhysicsShape::SpherePhysicsShape(float radius):
 		_radius{radius} {}
 
 SpherePhysicsShape::~SpherePhysicsShape() {}
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 float SpherePhysicsShape::radius() const {
 	return _radius;
@@ -33,9 +29,7 @@ void SpherePhysicsShape::radius(float radius) {
 	_radius = radius;
 }
 
-/*********************************************************************************************
-	PhysicsShape Public Member Functions
- *********************************************************************************************/
+/// PhysicsShape Public Member Functions ///
 
 PhysicsShapeType SpherePhysicsShape::type() const {
 	return PhysicsShapeType::Primitive;

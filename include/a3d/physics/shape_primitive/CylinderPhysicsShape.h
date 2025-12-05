@@ -15,18 +15,13 @@ namespace a3d {
 
 	class CylinderPhysicsShape : public PhysicsShape {
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		/// Public Lifecycle Functions ///
 
 		CylinderPhysicsShape(float radius, float height);
 		~CylinderPhysicsShape();
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		float 					radius() const;
 		void					radius(float radius);
@@ -34,18 +29,13 @@ namespace a3d {
 		float 					height() const;
 		void					height(float height);
 
-/*********************************************************************************************
-	PhysicsShape Public Member Functions
- *********************************************************************************************/
+		/// PhysicsShape Public Member Functions ///
 
 		PhysicsShapeType		type() const override;
 		void					type(PhysicsShapeType type) override;
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
-
 	private:
+		/// Private Member Variables ///
 
 		float 					_radius;
 		float 					_height;

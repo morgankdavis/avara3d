@@ -24,9 +24,7 @@
 
 #define NOOP ((void)0)
 
-/*********************************************************************************************
-	Public Macro Functions
- *********************************************************************************************/
+/// Public Macro Functions ///
 
 #ifdef A3D_DEBUG
 #define A3D_APP_LOG_T(log_, fmtStr, ...)	log_->log(a3d::LogLevel::Trace, \
@@ -52,9 +50,7 @@
 											{__FILE_NAME__, __LINE__, __FUNCTION__}, \
 											fmt::format(fmtStr, ##__VA_ARGS__))
 
-/*********************************************************************************************
-	Internal Macro Functions
- *********************************************************************************************/
+/// Internal Macro Functions ///
 
 #ifdef A3D_DEBUG
 #define A3D_LOG_T(fmtStr, ...) 		a3d::Log::MainLog().log(a3d::LogLevel::Trace, \
@@ -89,25 +85,17 @@ namespace a3d {
 
 	class Log {
 
-/*********************************************************************************************
-	Internal Types
- *********************************************************************************************/
-
 	public:
+		/// Internal Types ///
 
 		/* filename, line, function */
 		using SourceInfo = std::tuple<std::string, unsigned, std::string>;
 
-
-/*********************************************************************************************
-	Public Static Member Functions
- *********************************************************************************************/
+		/// Public Static Member Functions ///
 
 		static Log& MainLog();
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+		/// Public Lifecycle Functions ///
 
 		Log(const std::string& name,
 			std::unique_ptr<LogSink> sink,
@@ -119,9 +107,7 @@ namespace a3d {
 			LogLevel flushLevel = DEFAULT_FLUSH_LEVEL);
 		Log();
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		const std::string& 		name() const;
 
@@ -146,27 +132,20 @@ namespace a3d {
 
 		void 					flush();
 
-/*********************************************************************************************
-	Private  Member Functions
- *********************************************************************************************/
-
 	private:
+		/// Private  Member Functions ///
 
 		void 					log(LogLevel level,
 									const std::string& msg);
 
 		void 					dispatch(LogLevel level, std::string& output);
 
-/*********************************************************************************************
-	Private Constants
- *********************************************************************************************/
+		/// Private Constants ///
 
 		static constexpr LogLevel DEFAULT_LEVEL = LogLevel::Debug;
 		static constexpr LogLevel DEFAULT_FLUSH_LEVEL = LogLevel::Warn;
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
+		/// Private Member Variables ///
 
 		std::string										_name;
 		std::unordered_set<std::unique_ptr<LogSink>>	_sinks;

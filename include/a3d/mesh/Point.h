@@ -21,27 +21,21 @@ namespace a3d {
 	
 	class Point {
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
+/// Internal Lifecycle Functions ///
 
 	public:
 
 		explicit Point(const glm::vec3& location);
 		Point(const glm::vec3& location, const Color& color);
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 		const glm::vec3& 		location() const;
 		void 					location(const glm::vec3& point);
 		const Color&			color() const;
 		void 					color(const Color& color);
 		
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
+/// Private Member Variables ///
 
 	private:
 

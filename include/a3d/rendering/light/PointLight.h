@@ -21,22 +21,16 @@ namespace a3d {
 
 	class PointLight : public AttenuatedLight {
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		/// Public Lifecycle Functions ///
 
 		PointLight();
 		explicit PointLight(const std::string& name);
 		explicit PointLight(const std::shared_ptr<Color>& color);
 		PointLight(const std::string& name, const std::shared_ptr<Color>& color);
 
-/*********************************************************************************************
-	Private Lifecycle Functions
- *********************************************************************************************/
-
 	private:
+		/// Private Lifecycle Functions ///
 
 //		PointLight();
 	};

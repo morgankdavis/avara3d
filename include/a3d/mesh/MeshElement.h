@@ -26,20 +26,15 @@ namespace a3d {
 	class RenderContext;
 
 	class MeshElement {
-		
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
 
 	public:
+		/// Public Lifecycle Functions ///
 
 		MeshElement(const std::vector<Vertex>& verticies,
 					const std::vector<Face>& faces);
 		virtual ~MeshElement();
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+		/// Internal Member Functions ///
 
 		void 							draw(Renderer& renderer,
 											 const RenderContext& context,
@@ -64,17 +59,12 @@ namespace a3d {
 		MeshElementDirtyMask 			dirtyMask() const;
 		void 							dirtyMask(MeshElementDirtyMask mask);
 
-/*********************************************************************************************
-	Protected Lifecycle
- *********************************************************************************************/
-
 	protected:
+		/// Protected Lifecycle ///
 
 		MeshElement();
 
-/*********************************************************************************************
-	Protected Member Variables
- *********************************************************************************************/
+		/// Protected Member Variables ///
 
 		std::vector<Vertex>				_vertices;
 		std::vector<Face>				_faces;

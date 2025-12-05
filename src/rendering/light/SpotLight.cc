@@ -14,9 +14,7 @@
 using namespace a3d;
 using namespace std;
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 SpotLight::SpotLight():
 		AttenuatedLight() {
@@ -52,9 +50,7 @@ SpotLight::SpotLight(const string& name, const shared_ptr<Color>& color):
 //	}
 //}
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 float SpotLight::innerAngle() const {
 	return glm::acos(_innerAngleCos);
@@ -80,9 +76,7 @@ void SpotLight::featheringMode(SpotlightFeatheringMode mode) {
 	_featherMode = mode;
 }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 float SpotLight::innerAngleCos() const {
 	return _innerAngleCos;
@@ -92,9 +86,7 @@ float SpotLight::outerAngleCos() const {
 	return _outerAngleCos;
 }
 
-/*********************************************************************************************
-	Private Lifecycle Functions
- *********************************************************************************************/
+/// Private Lifecycle Functions ///
 
 //SpotLight::SpotLight():
 //		_innerAngle{10.0},

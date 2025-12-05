@@ -17,9 +17,7 @@ using namespace a3d;
 using namespace std;
 using namespace glm;
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 PerspectiveCamera::PerspectiveCamera():
 		Camera{},
@@ -58,9 +56,7 @@ PerspectiveCamera::~PerspectiveCamera() {
 	}
 }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 float PerspectiveCamera::zNear() const {
 	return _zNear;
@@ -103,9 +99,7 @@ void PerspectiveCamera::aspectRatio(float ratio) {
 	}
 }
 
-/*********************************************************************************************
-	Camera Protected Member Functions
- *********************************************************************************************/
+/// Camera Protected Member Functions ///
 
 void PerspectiveCamera::constructProjectionMatrix() {
 	_projection = glm::perspective(_yFov,

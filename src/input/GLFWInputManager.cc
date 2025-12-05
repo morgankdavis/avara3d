@@ -30,15 +30,11 @@ using namespace glm;
 constexpr bool MANYMOUSE_INVERT_VERTICAL = true;
 constexpr bool MANYMOUSE_INVERT_HORIZONTAL = false;
 
-/*********************************************************************************************
-	Private Static Non-Member Prototypes
- *********************************************************************************************/
+/// Private Static Non-Member Prototypes ///
 
 static GLFWInputManager* InputManagerFromGLFWWindow(GLFWwindow* glfwWindow);
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 GLFWInputManager::GLFWInputManager(GLFWWindow* window):
     DesktopInputManager{},
@@ -62,18 +58,14 @@ GLFWInputManager::~GLFWInputManager() {
     }
 }
 
-/*********************************************************************************************
-    Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 //DesktopInputManagerErrorMask GlfwInputManager::errorMask() const {
 //
 //    return _errorMask;
 //}
 
-/*********************************************************************************************
-	InputManager Internal Member Functions
- *********************************************************************************************/
+/// InputManager Internal Member Functions ///
 
 void GLFWInputManager::update() {
 
@@ -115,9 +107,7 @@ void GLFWInputManager::update() {
     _window->pollInput();
 }
 
-/*********************************************************************************************
-	Private Member Functions
- *********************************************************************************************/
+/// Private Member Functions ///
 
 void GLFWInputManager::initMouseInput() {
     // starting with macOS 10.15 Catalina, GLFW 3.3 raw mouse input never works, and ManyMouse
@@ -199,9 +189,7 @@ void GLFWInputManager::unregisterGLFWCallbacks(GLFWwindow* glfwWindow) {
     glfwSetKeyCallback(glfwWindow, nullptr);
 }
 
-/*********************************************************************************************
-	Private Static Member Functions
- *********************************************************************************************/
+/// Private Static Member Functions ///
 
 void GLFWInputManager::GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
 											   int button,
@@ -287,9 +275,7 @@ void GLFWInputManager::GLFWKeyCallback(GLFWwindow* glfwWindow,
     }
 }
 
-/*********************************************************************************************
-	Private Static Functions
- *********************************************************************************************/
+/// Private Static Functions ///
 
 GLFWInputManager* InputManagerFromGLFWWindow(GLFWwindow* glfwWindow) {
 

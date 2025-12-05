@@ -21,20 +21,15 @@ namespace a3d {
 
 	class AttenuatedLight : public Light {
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		/// Public Lifecycle Functions ///
 
 //		explicit AttenuatedLight(const std::string& name, float );
 //		explicit AttenuatedLight(const std::shared_ptr<Color>& color);
 //		AttenuatedLight(const std::string& name, const std::shared_ptr<Color>& color);
 		virtual ~AttenuatedLight() = 0;
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		// I = 1 / (Kc + (Kl * d) + (Kq * d^2))
 		//
@@ -57,17 +52,12 @@ namespace a3d {
 		LightCutoff		cutoff() const;
 		void			cutoff(LightCutoff cutoff);
 
-/*********************************************************************************************
-	Protected Lifecycle Functions
- *********************************************************************************************/
-
 	protected:
+		/// Protected Lifecycle Functions ///
 
 		AttenuatedLight();
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
+		/// Private Member Variables ///
 
 	private:
 

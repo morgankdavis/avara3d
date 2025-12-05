@@ -34,11 +34,8 @@ namespace a3d {
 
 	class RenderContext {
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
-
 	public:
+		/// Public Member Functions ///
 
 		virtual bool 					vSyncEnabled() const = 0;
 		virtual void 					vSyncEnabled(bool enabled) = 0;
@@ -59,18 +56,14 @@ namespace a3d {
 
 		Renderer* 						renderer() const;
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
+		/// Internal Lifecycle Functions ///
 
 		explicit RenderContext(RenderingApi renderingApi);
 		RenderContext(const RenderContext& other) = delete; // copy constructor
 		RenderContext& operator=(const RenderContext& other) = delete; // copy assignment
 		virtual ~RenderContext();
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+		/// Internal Member Functions ///
 
 		virtual void 					beginFrame(const Scene& scene) = 0;
 		virtual void 					endFrame(const Scene& scene) = 0;
@@ -87,11 +80,8 @@ namespace a3d {
 
 		virtual unsigned				defaultFramebuffer() const = 0;
 
-/*********************************************************************************************
-	Protected Member Variables
- *********************************************************************************************/
-
 	protected:
+		/// Protected Member Variables ///
 
 		AntialiasingMode				_antialiasingMode;
 		std::unique_ptr<GifWriter>		_gifWriter;

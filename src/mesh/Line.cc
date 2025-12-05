@@ -14,9 +14,7 @@ using namespace a3d;
 using namespace glm;
 using namespace std;
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
+/// Internal Lifecycle Functions ///
 
 Line::Line(const vec3& fromLocation,
 		   const vec3& toLocation):
@@ -44,9 +42,7 @@ Line::Line(const vec3& fromLocation,
 		_fromColor{fromColor},
 		_toColor{toColor} { }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 const vec3& Line::fromLocation() const {
 	return _fromLocation;

@@ -16,19 +16,14 @@ namespace a3d {
 	class DesktopInputManager : public InputManager {
 
 	public:
-
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+		/// Public Lifecycle Functions ///
 
 		DesktopInputManager();
 		DesktopInputManager(const DesktopInputManager& other) = delete; // copy constructor
 		DesktopInputManager& operator=(const DesktopInputManager& other) = delete; // copy assignment
 		virtual ~DesktopInputManager() = 0;
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		bool 								keyDown(Key key);
 		bool 								mouseButtonDown(MouseButton button);
@@ -49,9 +44,7 @@ namespace a3d {
 
 		DesktopInputManagerErrorMask		errorMask() const;
 
-/*********************************************************************************************
-	Protected Member Variables
- *********************************************************************************************/
+		/// Protected Member Variables ///
 
 		std::unordered_set<Key> 			_keysDown;
 		std::unordered_set<MouseButton> 	_mouseButtonsDown;
@@ -64,10 +57,7 @@ namespace a3d {
 		DesktopInputManagerErrorMask		_errorMask;
 
 	private:
-
-/*********************************************************************************************
-	Private Member Functions
- *********************************************************************************************/
+		/// Private Member Functions ///
 
 		void			 		clearMousePositionDelta(); // called after mousePositionDelta()
 		void 					clearMouseScrollWheelDelta(); // called after mouseScrollWheelDelta()

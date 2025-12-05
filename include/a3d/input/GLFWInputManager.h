@@ -26,60 +26,48 @@ namespace a3d {
 	class GLFWInputManager : public DesktopInputManager {
 
 	public:
-
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+		/// Public Lifecycle Functions ///
 
 		explicit GLFWInputManager(GLFWWindow* window);
 		GLFWInputManager(const InputManager& other) = delete; // copy constructor
 		GLFWInputManager& operator=(const InputManager& other) = delete; // copy assignment
 		~GLFWInputManager() override;
 
-/*********************************************************************************************
-	InputManager Internal Member Functions
- *********************************************************************************************/
+		/// InputManager Internal Member Functions ///
 
-		void 							update() override;
+		void 				update() override;
 
 	private:
+		/// Private Member Functions ///
 
-/*********************************************************************************************
-	Private Member Functions
- *********************************************************************************************/
+		void 				initMouseInput();
+		void 				initManyMouse();
+		void 				quitManyMouse();
+		void 				registerGLFWCallbacks(GLFWwindow* glfwWindow);
+		void 				unregisterGLFWCallbacks(GLFWwindow* glfwWindow);
 
-		void 							initMouseInput();
-		void 							initManyMouse();
-		void 							quitManyMouse();
-		void 							registerGLFWCallbacks(GLFWwindow* glfwWindow);
-		void 							unregisterGLFWCallbacks(GLFWwindow* glfwWindow);
+		/// Private Static Member Functions ///
 
-/*********************************************************************************************
-	Private Static Member Functions
- *********************************************************************************************/
+		static void 		GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
+												   int button,
+												   int action,
+												   int mods);
+		static void 		GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
+													  double xPos,
+													  double yPos);
+		static void 		GLFWScrollWheelCallback(GLFWwindow* glfwWindow,
+												   double xOffset,
+												   double yOffset);
+		static void 		GLFWKeyCallback(GLFWwindow* glfwWindow,
+										   int key,
+										   int scancode,
+										   int action,
+										   int mods);
 
-		static void 					GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
-															   int button,
-															   int action,
-															   int mods);
-		static void 					GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
-																  double xPos,
-																  double yPos);
-		static void 					GLFWScrollWheelCallback(GLFWwindow* glfwWindow,
-															   double xOffset,
-															   double yOffset);
-		static void 					GLFWKeyCallback(GLFWwindow* glfwWindow,
-													   int key,
-													   int scancode,
-													   int action,
-													   int mods);
+		/// Private Member Variables ///
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
-
-		GLFWWindow*						_window;
-		bool							_usingManyMouse;
+		GLFWWindow*			_window;
+		bool				_usingManyMouse;
 	};
 }
 

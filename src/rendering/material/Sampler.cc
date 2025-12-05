@@ -11,9 +11,7 @@
 using namespace a3d;
 using namespace std;
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 Sampler::Sampler():
 // TODO: are these sensible?
@@ -27,9 +25,7 @@ Sampler::Sampler():
 
 Sampler::~Sampler() {}
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 FilterMode Sampler::minificationFilter() const {
 	return _minificationFilter;
@@ -99,9 +95,7 @@ void Sampler::wrapR(WrapMode mode) {
 	_dirtyMask = A3D_MASK_ADD(_dirtyMask, SamplerDirtyMask::WrapR);
 }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 SamplerDirtyMask Sampler::dirtyMask() const {
 	return _dirtyMask;

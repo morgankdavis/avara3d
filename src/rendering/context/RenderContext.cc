@@ -26,9 +26,7 @@ using namespace a3d;
 using namespace glm;
 using namespace std;
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 //bool RenderContext::vSyncEnabled() const {
 //	return _vSyncEnabled;
@@ -117,9 +115,7 @@ Renderer* RenderContext::renderer() const {
 	return _renderer.get();
 }
 
-/*********************************************************************************************
-	Internal Lifescycle
- *********************************************************************************************/
+/// Internal Lifescycle ///
 
 RenderContext::RenderContext(RenderingApi renderingApi):
 //		_vSyncEnabled{false},
@@ -159,9 +155,7 @@ RenderContext::~RenderContext() {
 	}
 }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 void RenderContext::saveGIFFrame(double deltaRunT) {
 

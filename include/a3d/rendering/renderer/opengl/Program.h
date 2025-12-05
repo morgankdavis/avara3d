@@ -22,11 +22,8 @@ namespace a3d {
 
 	class Program {
 
-/*********************************************************************************************
-	Internal Static Member Functions
- *********************************************************************************************/
-
 	public:
+		/// Internal Static Member Functions ///
 
 		static Program& 	Default();
 		static Program& 	Skybox();
@@ -35,16 +32,12 @@ namespace a3d {
 		static Program& 	Points();
 		static Program& 	GroundPlane();
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
+		/// Internal Lifecycle Functions ///
 
 		explicit Program(const std::string& name);
 		~Program();
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+		/// Internal Member Functions ///
 
 		bool 								compile();
 		bool 								link();
@@ -88,11 +81,8 @@ namespace a3d {
 		const std::optional<std::string>&	fragmentShaderSource() const;
 		void 								fragmentShaderSource(std::string source);
 
-/*********************************************************************************************
-	Private Member Functions
- *********************************************************************************************/
-
 	private:
+		/// Private Member Functions ///
 
 		std::optional<std::string>			shaderSource(const std::string& name,
 														   const std::string& type);
@@ -103,9 +93,7 @@ namespace a3d {
 		void 								glID(unsigned glID);
 		void 								isLinked(bool isLinked);
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
+		/// Private Member Variables ///
 
 		std::string  						_name;
 		unsigned  							_glID;

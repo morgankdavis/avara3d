@@ -17,37 +17,26 @@ namespace a3d {
 	class OrthographicCamera : public Camera {
 
 	public:
-
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+		/// Public Lifecycle Functions ///
 
 		OrthographicCamera();
 		explicit OrthographicCamera(const AABB& extent);
 		OrthographicCamera(const std::string& name, const AABB& extent);
 		~OrthographicCamera() override;
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		AABB 		extent() const;
 		void	 	extent(const AABB& e);
 
-/*********************************************************************************************
-	Camera Protected Member Functions
- *********************************************************************************************/
-
 	protected:
+		/// Camera Protected Member Functions ///
 
 		void 		constructProjectionMatrix() override;
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
-
 	private:
-
+		/// Private Member Variables ///
+		
 		AABB 		_extent;
 	};
 }

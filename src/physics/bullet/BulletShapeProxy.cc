@@ -44,9 +44,7 @@ using namespace a3d;
 using namespace glm;
 using namespace std;
 
-/*********************************************************************************************
-	Private Static Non-Member Prototypes
- *********************************************************************************************/
+/// Private Static Non-Member Prototypes ///
 
 static unique_ptr<btCollisionShape>
 BTShapeFromSourceMesh(Mesh& mesh,
@@ -104,9 +102,7 @@ BTCompoundConvexHullHACDShapeFromMeshElement(MeshElement& element,
 static vector<unique_ptr<MeshElement>>
 HACDMeshElementsFromMeshElement(MeshElement& element);
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
+/// Internal Lifecycle Functions ///
 
 BulletShapeProxy::BulletShapeProxy(PhysicsShape& shape):
 		PhysicsShapeProxy{shape},
@@ -188,17 +184,13 @@ BulletShapeProxy::~BulletShapeProxy() {
 	A3D_LOG_D("Destroying BulletShapeProxy {:p}", static_cast<void*>(this));
 }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 const vector <unique_ptr<btCollisionShape>>& BulletShapeProxy::btShapes() {
 	return _btShapes;
 }
 
-/*********************************************************************************************
-	Static Non-Member Functions
- *********************************************************************************************/
+/// Static Non-Member Functions ///
 
 static unique_ptr<btCollisionShape>
 BTShapeFromSourceMesh(Mesh& mesh,

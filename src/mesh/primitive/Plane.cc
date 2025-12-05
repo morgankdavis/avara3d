@@ -19,9 +19,7 @@ using namespace a3d;
 using namespace glm;
 using namespace std;
 
-/*********************************************************************************************
-	Pubic Static Members
- *********************************************************************************************/
+/// Pubic Static Members ///
 
 shared_ptr<Mesh> Plane::Mesh(float width,
 							 float height,
@@ -37,9 +35,7 @@ shared_ptr<Mesh> Plane::Mesh(float width,
 								  material);
 }
 
-/*********************************************************************************************
-	Public Lifecycle Functions
-*********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 Plane::Plane(float width,
 			 float height,
@@ -72,9 +68,7 @@ Plane::Plane(float width,
 	}
 }
 
-/*********************************************************************************************
- 	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 float Plane::width() const {
 	return _width;

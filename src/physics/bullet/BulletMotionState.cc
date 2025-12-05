@@ -16,17 +16,13 @@
 
 using namespace a3d;
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
+/// Internal Lifecycle Functions ///
 
 BulletMotionState::BulletMotionState(PhysicsBody& body):
 		btMotionState{},
 		_body{&body} { }
 
-/*********************************************************************************************
-	btMotionState Members
-*********************************************************************************************/
+/// btMotionState Members ///
 
 // apply node transform to kinematic physics body (only called for kinematic bodies)
 void BulletMotionState::getWorldTransform(btTransform &transform) const {
@@ -53,9 +49,7 @@ void BulletMotionState::setWorldTransform(const btTransform& transform) {
 //	}
 }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 PhysicsBody* BulletMotionState::body() const {
 	return _body;

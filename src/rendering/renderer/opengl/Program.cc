@@ -27,9 +27,7 @@ using namespace a3d;
 using namespace glm;
 using namespace std;
 
-/*********************************************************************************************
-	Internal Static Member Functions
- *********************************************************************************************/
+/// Internal Static Member Functions ///
 
 Program& Program::Default() {
 	static auto program = Program("default");
@@ -61,9 +59,7 @@ Program& Program::GroundPlane() {
 	return program;
 }
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
+/// Internal Lifecycle Functions ///
 
 Program::Program(const string& name):
 		_name{name},
@@ -102,9 +98,7 @@ Program::~Program() {
 	
 }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 bool Program::compile() {
 	
@@ -445,9 +439,7 @@ void Program::fragmentShaderSource(string source) {
 	_fragmentShaderSource = source;
 }
 
-/*********************************************************************************************
-	Private Member Functions
- *********************************************************************************************/
+/// Private Member Functions ///
 
 //optional<string> Program::shaderSource(const string &name, const string &type) {
 //

@@ -28,15 +28,11 @@ using namespace a3d;
 using namespace glm;
 using namespace std;
 
-/*********************************************************************************************
-	Private Static Non-Member Prototypes
- *********************************************************************************************/
+/// Private Static Non-Member Prototypes ///
 
 static btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const DebugOptions& options);
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
+/// Internal Lifecycle Functions ///
 
 BulletWorldProxy::BulletWorldProxy(PhysicalWorld& world):
 		PhysicalWorldProxy{world},
@@ -64,9 +60,7 @@ BulletWorldProxy::~BulletWorldProxy() {
 	A3D_LOG_D("Destroying BulletWorldProxy {:p}", static_cast<void*>(this));
 }
 
-/*********************************************************************************************
-	PhysicalWorldModelProxy Internal Member Functions
- *********************************************************************************************/
+/// PhysicalWorldModelProxy Internal Member Functions ///
 
 void BulletWorldProxy::add(PhysicsBody& body) {
 	A3D_LOG_D("body: {:p}", static_cast<void*>(&body));
@@ -209,9 +203,7 @@ void BulletWorldProxy::drawDebug(Renderer &renderer,
 #endif
 }
 
-/*********************************************************************************************
-	Private Static Non-Member Functions
- *********************************************************************************************/
+/// Private Static Non-Member Functions ///
 
 btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const DebugOptions& options) {
 	btIDebugDraw::DebugDrawModes btModes = btIDebugDraw::DBG_NoDebug;

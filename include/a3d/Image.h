@@ -21,11 +21,8 @@ namespace a3d {
 
 	class Image {// : public Sampleable {
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		/// Public Lifecycle Functions ///
 
 		explicit Image(const std::filesystem::path& path,
 					   bool flipVertical = true,
@@ -41,9 +38,7 @@ namespace a3d {
 			  bool flipHorizontal = false);
 		~Image();// override;
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		unsigned 					width() const;
 		unsigned 					height() const;
@@ -52,11 +47,8 @@ namespace a3d {
 		const Buffer& 				buffer() const;
 		bool 						writePNG(const std::filesystem::path& path) const;
 
-/*********************************************************************************************
-	Private Member Functions
- *********************************************************************************************/
-
 	private:
+		/// Private Member Functions ///
 
 		void 						loadBuffer(Buffer& buffer,
 											   bool flipVertical,
@@ -64,9 +56,7 @@ namespace a3d {
 		void 						flipVertical(); // "flip"
 		void 						flipHorizontal(); // "mirror"
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
+		/// Private Member Variables ///
 
 		unsigned					_width;
 		unsigned					_height;

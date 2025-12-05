@@ -16,11 +16,8 @@ namespace a3d {
 	
 	class Exception : public std::runtime_error {
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		/// Internal Lifecycle Functions ///
 
 		explicit Exception(const std::string& what);
 	};

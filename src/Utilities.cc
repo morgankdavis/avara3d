@@ -64,15 +64,11 @@ using namespace a3d;
 using namespace glm;
 using namespace std;
 
-/*********************************************************************************************
- 	Private Static Prototypes
- *********************************************************************************************/
+/// Private Static Prototypes ///
 
 static void StringFromTreeRec(Node& n, stringstream& ss, unsigned depth);
 
-/*********************************************************************************************
- 	Output
- *********************************************************************************************/
+/// Output ///
 
 ostream& a3d::utils::operator<<(ostream& os, const glm::vec3& v) {
 	os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
@@ -201,9 +197,7 @@ string a3d::utils::StackTrace(unsigned dropFunctions) {
 }
 #endif
 
-/*********************************************************************************************
- 	Numeric
- *********************************************************************************************/
+/// Numeric ///
 
 int a3d::utils::Uniform(int min, int max) {
 	static random_device rd;
@@ -251,9 +245,7 @@ bool a3d::utils::Equal(const glm::vec4& a, const glm::vec4& b, float tolerance) 
 	&& Equal(a.w, b.w, tolerance);
 }
 
-/*********************************************************************************************
-	Time
- *********************************************************************************************/
+/// Time ///
 
 double a3d::utils::Time() {
 
@@ -261,9 +253,7 @@ double a3d::utils::Time() {
 	return chrono::duration<double>(now.time_since_epoch()).count();
 }
 
-/*********************************************************************************************
-	String
- *********************************************************************************************/
+/// String ///
 
 void a3d::utils::Replace(string &str,
 						 const std::string &oldStr,
@@ -292,9 +282,7 @@ vector<string> a3d::utils::Split(const string& s, string delim) {
 	return res;
 }
 
-/*********************************************************************************************
- 	Filesystem
- *********************************************************************************************/
+/// Filesystem ///
 
 // *** executable and working directories ***
 
@@ -585,9 +573,7 @@ shared_ptr<Mesh> a3d::utils::MeshNamed(const string& name,
 	return nullptr;
 }
 
-/*********************************************************************************************
- 	Misc
- *********************************************************************************************/
+/// Misc ///
 
 void a3d::utils::SaveSnapshot(RenderContext& context) {
 
@@ -625,9 +611,7 @@ void a3d::utils::StopGIFRecording(RenderContext& context) {
 	context.stopGIFRecording();
 }
 
-/*********************************************************************************************
- 	Private
- *********************************************************************************************/
+/// Private ///
 
 void StringFromTreeRec(Node& n, stringstream& ss, unsigned depth) {
 

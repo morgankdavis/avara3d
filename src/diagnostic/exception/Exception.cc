@@ -14,9 +14,7 @@
 using namespace a3d;
 using namespace std;
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
+/// Internal Lifecycle Functions ///
 
 Exception::Exception(const string& what):
 	runtime_error{what} {

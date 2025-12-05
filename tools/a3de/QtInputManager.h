@@ -18,16 +18,11 @@ namespace a3d::head::qt {
 	class QtInputManager : public a3d::DesktopInputManager {
 
 	public:
-
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+		/// Public Lifecycle Functions ///
 
 		explicit QtInputManager(QtViewport& viewport);
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+		/// Internal Member Functions ///
 
 		void 	keyPressed(int qtKey);
 		void 	keyReleased(int qtKey);
@@ -36,13 +31,10 @@ namespace a3d::head::qt {
 		void	mouseButtonReleased(int qtButton);
 		void	mouseWheelScrolled(int x, int y);
 
-/*********************************************************************************************
-	InputManager Internal Member Functions
- *********************************************************************************************/
+		/// InputManager Internal Member Functions ///
 
 		void	update() override;
 	};
 }
-
 
 #endif //AVARA3D_QTINPUTMANAGER_H

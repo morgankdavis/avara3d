@@ -18,9 +18,7 @@
 using namespace a3d;
 using namespace std;
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 StdOutLogSink::StdOutLogSink() { }
 
@@ -28,9 +26,7 @@ StdOutLogSink::~StdOutLogSink() {
 	flush();
 }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 void StdOutLogSink::flush() {
 
@@ -39,9 +35,7 @@ void StdOutLogSink::flush() {
 	cerr.flush();
 }
 
-/*********************************************************************************************
-	Internal Member Functions
- **************************************************************************************/
+/// Internal Member Functions ///
 
 void StdOutLogSink::write(const string& output, LogLevel level) {
 

@@ -28,29 +28,22 @@ namespace a3d {
 
 	class PhysicalWorld {
 
-/*********************************************************************************************
-	Public Types
- *********************************************************************************************/
-
 	public:
+		/// Public Types ///
 
 		using DidSimulateCallback = 	std::function<void(PhysicalWorld& world, double time, double deltaTime)>;
 		using BeginContactCallback = 	std::function<void(PhysicalWorld& world, PhysicsContact& contact)>;
 		using ContinueContactCallback =	std::function<void(PhysicalWorld& world, PhysicsContact& contact)>;
 		using EndContactCallback = 		std::function<void(PhysicalWorld& world, PhysicsContact& contact)>;
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+		/// Public Lifecycle Functions ///
 
 		PhysicalWorld();
 		PhysicalWorld(const PhysicalWorld& other) = delete; // copy constructor
 		PhysicalWorld& operator=(const PhysicalWorld& other) = delete; // copy assignment
 		~PhysicalWorld();
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		const glm::vec3&					gravity() const;
 		void 								gravity(const glm::vec3& gravity);
@@ -88,9 +81,7 @@ namespace a3d {
 		EndContactCallback 					endContactCallback() const;
 		void 								endContactCallback(PhysicalWorld::EndContactCallback function);
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+		/// Internal Member Functions ///
 
 		void								attachedToScene(Scene& scene);
 		void								detachedFromScene(Scene& scene);
@@ -105,11 +96,8 @@ namespace a3d {
 
 		PhysicalWorldProxy*					proxy() const;
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
-
 	private:
+		/// Private Member Variables ///
 
 		glm::vec3 								_gravity;
 		float 									_speed;

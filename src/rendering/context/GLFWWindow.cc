@@ -31,9 +31,7 @@ using namespace a3d;
 using namespace glm;
 using namespace std;
 
-/*********************************************************************************************
-	Private Static Non-Member Prototypes
- *********************************************************************************************/
+/// Private Static Non-Member Prototypes ///
 
 static bool 	InitGLFW();
 static void 	GLFWWindowSizeCallback(GLFWwindow* glfwWindow,
@@ -51,9 +49,7 @@ static void 	GLFWErrorCallback(int error,
 bool 			GetGLFWWindowMonitor(GLFWmonitor** monitor, GLFWwindow* window);
 bool 			GetGLFWMouseMonitor(GLFWmonitor** monitor, GLFWwindow* window);
 
-/*********************************************************************************************
-	Public Lifescycle
- *********************************************************************************************/
+/// Public Lifescycle ///
 
 GLFWWindow::GLFWWindow(RenderingApi renderingAPI,
 					   const string& title,
@@ -163,9 +159,7 @@ GLFWWindow::~GLFWWindow() {
 	ImGui_ImplGlfw_Shutdown();
 }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 void GLFWWindow::open() {
 	A3D_LOG_I("");
@@ -307,9 +301,7 @@ bool GLFWWindow::highDPIEnabled() const {
 	return _highDPIEnabled;
 }
 
-/*********************************************************************************************
-	RenderContext Public Member Functions
- *********************************************************************************************/
+/// RenderContext Public Member Functions ///
 
 bool GLFWWindow::vSyncEnabled() const {
 	return _vSyncEnabled;
@@ -325,9 +317,7 @@ void GLFWWindow::vSyncEnabled(bool enabled) {
 	}
 }
 
-/*********************************************************************************************
-	RenderContext Internal Member Functions
- *********************************************************************************************/
+/// RenderContext Internal Member Functions ///
 
 void GLFWWindow::beginFrame(const Scene& scene) {
 	ImGui_ImplGlfw_NewFrame();
@@ -358,9 +348,7 @@ unsigned GLFWWindow::defaultFramebuffer() const {
 	return 0;
 }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 // TODO: move this...
 void GLFWWindow::pollInput() {
@@ -371,17 +359,13 @@ GLFWwindow* GLFWWindow::glfwWindow() const {
 	return _glfwWindow.get();
 }
 
-/*********************************************************************************************
-	Internal Static Member Functions
- *********************************************************************************************/
+/// Internal Static Member Functions ///
 
 void GLFWWindow::Destroy(GLFWwindow* window) {
 	glfwDestroyWindow(window);
 }
 
-/*********************************************************************************************
-	Private Static Non-Member Functions
- *********************************************************************************************/
+/// Private Static Non-Member Functions ///
 
 static bool InitGLFW() {
 	

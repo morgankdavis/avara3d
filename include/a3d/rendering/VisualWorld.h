@@ -27,26 +27,19 @@ namespace a3d {
 
 	class VisualWorld {
 
-/*********************************************************************************************
-	Public Types
- *********************************************************************************************/
-
 	public:
+		/// Public Types ///
 
 		using WillRenderCallback =	std::function<void(VisualWorld& world, double time, double deltaTime)>;
 		using DidRenderCallback =	std::function<void(VisualWorld& world, double time, double deltaTime)>;
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+		/// Public Lifecycle Functions ///
 
 		VisualWorld() = delete;
 		explicit VisualWorld(RenderContext& context);
 		virtual ~VisualWorld();
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		const MaterialProperty&					background();
 		void 									background(const MaterialProperty& background);
@@ -84,9 +77,7 @@ namespace a3d {
 		DidRenderCallback 						didRender() const;
 		void 									didRender(DidRenderCallback function);
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+		/// Internal Member Functions ///
 
 		void									attachedToScene(Scene& scene);
 		void									detachedFromScene(Scene& scene);
@@ -102,11 +93,8 @@ namespace a3d {
 		Mesh*									groundPlaneMesh() const;
 		std::weak_ptr<Node>						defaultPointOfView();
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
-
 	private:
+		/// Private Member Variables ///
 
 		MaterialProperty						_background;
 		std::unique_ptr<Mesh>					_skyboxMesh;

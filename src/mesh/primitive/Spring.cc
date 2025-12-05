@@ -19,9 +19,7 @@ using namespace a3d;
 using namespace glm;
 using namespace std;
 
-/*********************************************************************************************
-	Pubic Static Members
- *********************************************************************************************/
+/// Pubic Static Members ///
 
 shared_ptr<Mesh> Spring::Mesh(float minorRadius,
 							  float majorRadius,
@@ -39,9 +37,7 @@ shared_ptr<Mesh> Spring::Mesh(float minorRadius,
 								  material);
 }
 
-/*********************************************************************************************
-	Public Lifecycle Functions
-*********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 Spring::Spring(float minorRadius,
 			   float majorRadius,
@@ -80,9 +76,7 @@ Spring::Spring(float minorRadius,
 	}
 }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 float Spring::minorRadius() const {
 	return _minorRadius;

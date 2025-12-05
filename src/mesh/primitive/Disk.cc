@@ -19,9 +19,7 @@ using namespace a3d;
 using namespace glm;
 using namespace std;
 
-/*********************************************************************************************
-	Pubic Static Members
- *********************************************************************************************/
+/// Pubic Static Members ///
 
 shared_ptr<Mesh> Disk::Mesh(float radius,
 							float height,
@@ -37,9 +35,7 @@ shared_ptr<Mesh> Disk::Mesh(float radius,
 								  material);
 }
 
-/*********************************************************************************************
-	Public Lifecycle Functions
-*********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 Disk::Disk(float radius,
 		   float innerRadius,
@@ -79,9 +75,7 @@ Disk::Disk(float radius,
 	burnTransform(xRotation, true);
 }
 
-/*********************************************************************************************
- 	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 float Disk::radius() const {
 	return _radius;

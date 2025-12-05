@@ -25,15 +25,11 @@ using namespace a3d;
 using namespace std;
 using Viewport = a3d::head::qt::QtViewport;
 
-/*********************************************************************************************
-	Private Static Non-Member Prototypes
- *********************************************************************************************/
+/// Private Static Non-Member Prototypes ///
 
 static ImGuiKey ImGuiKeyFromQtKey(int qt_key);
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 Viewport::QtViewport(RenderingApi renderingApi, QWidget* parent):
 		RenderContext(renderingApi),
@@ -58,9 +54,7 @@ Viewport::~QtViewport() {
 	//ImGui::DestroyContext();
 }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 Scene* Viewport::scene() const {
 	return _scene;
@@ -112,17 +106,13 @@ void Viewport::cursorCaptured(bool captured) {
 	}
 }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 void Viewport::inputManager(QtInputManager* manager) {
 	_inputManager = manager;
 }
 
-/*********************************************************************************************
-	RenderContext Public Member Functions
- *********************************************************************************************/
+/// RenderContext Public Member Functions ///
 
 bool Viewport::vSyncEnabled() const {
 	return true;
@@ -132,9 +122,7 @@ void Viewport::vSyncEnabled(bool enabled) {
 	throw Exception("Qt forces vsync.");
 }
 
-/*********************************************************************************************
-	RenderContext Internal Member Functions
- *********************************************************************************************/
+/// RenderContext Internal Member Functions ///
 
 void Viewport::beginFrame(const a3d::Scene& scene) {}
 
@@ -158,9 +146,7 @@ unsigned Viewport::defaultFramebuffer() const {
 	return static_cast<unsigned>(defaultFramebufferObject());
 }
 
-/*********************************************************************************************
-	QWidget Protected Member Functions
- *********************************************************************************************/
+/// QWidget Protected Member Functions ///
 
 bool Viewport::event(QEvent* e) {
 
@@ -341,9 +327,7 @@ void Viewport::mouseMoveEvent(QMouseEvent *e) {
 	e->accept();
 }
 
-/*********************************************************************************************
-	QOpenGLWidget Protected Member Functions
- *********************************************************************************************/
+/// QOpenGLWidget Protected Member Functions ///
 
 void Viewport::initializeGL() {
 
@@ -398,9 +382,7 @@ void Viewport::paintGL() {
 	update();
 }
 
-/*********************************************************************************************
-	Private Member Functions
- *********************************************************************************************/
+/// Private Member Functions ///
 
 void Viewport::centerCursor() {
 //	QCursor::setPos(round(width()/2.0), round(height()/2.0));
@@ -408,9 +390,7 @@ void Viewport::centerCursor() {
 	QCursor::setPos(mapToGlobal(center));
 }
 
-/*********************************************************************************************
-	Private Static Non-Member Functions
- *********************************************************************************************/
+/// Private Static Non-Member Functions ///
 
 ImGuiKey ImGuiKeyFromQtKey(int qt_key) {
 

@@ -15,9 +15,7 @@
 using namespace a3d;
 using namespace std;
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 CubeImage::CubeImage(unique_ptr<Image> posX,
 					 unique_ptr<Image> negX,
@@ -32,9 +30,7 @@ CubeImage::CubeImage(unique_ptr<Image> posX,
 	_posZ{std::move(posZ)},
 	_negZ{std::move(negZ)} { }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 Image* CubeImage::posX() const {
 	return _posX.get();

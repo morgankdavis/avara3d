@@ -12,9 +12,7 @@
 
 using namespace a3d;
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
+/// Internal Lifecycle Functions ///
 
 PhysicsBodyProxy::PhysicsBodyProxy(PhysicsBody& body, PhysicsBodyType type):
 		_body{},
@@ -26,9 +24,7 @@ PhysicsBodyProxy::PhysicsBodyProxy(PhysicsBody& body, PhysicsBodyType type):
 
 PhysicsBodyProxy::~PhysicsBodyProxy() { }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 bool PhysicsBodyProxy::autocalculatesMomentOfInertia() const {
 	return _autocalculatesMomentOfInertia;

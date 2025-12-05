@@ -19,9 +19,7 @@ using namespace a3d;
 using namespace glm;
 using namespace std;
 
-/*********************************************************************************************
-	Pubic Static Members
- *********************************************************************************************/
+/// Pubic Static Members ///
 
 shared_ptr<Mesh> Cylinder::Mesh(float radius,
 								float height,
@@ -39,9 +37,7 @@ shared_ptr<Mesh> Cylinder::Mesh(float radius,
 								  material);
 }
 
-/*********************************************************************************************
-	Public Lifecycle Functions
-*********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 Cylinder::Cylinder(float radius,
 				   float height,
@@ -83,9 +79,7 @@ Cylinder::Cylinder(float radius,
 	burnTransform(xRotation, true);
 }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 float Cylinder::radius() const {
 	return _radius;

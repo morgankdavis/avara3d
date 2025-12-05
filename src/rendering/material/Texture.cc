@@ -11,9 +11,7 @@
 using namespace a3d;
 using namespace std;
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 Texture::Texture():
 		_sampler{nullptr},
@@ -31,9 +29,7 @@ Texture::Texture(const Sampleable& contents,
 
 Texture::~Texture() {}
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 shared_ptr<Sampler> Texture::sampler() const {
 	return _sampler;

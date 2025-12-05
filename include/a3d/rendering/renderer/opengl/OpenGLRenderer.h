@@ -30,11 +30,8 @@ namespace a3d {
 	
 	class OpenGLRenderer : public Renderer {
 
-/**************************************************************************************
-	Internal Types
- **************************************************************************************/
-
 	public:
+		/// Internal Types ///
 
 		/* <a3d::MeshElement* : <gl_vbo, gl_vao, gl_ebo>> */
 		using MeshElementGLMapping =
@@ -48,16 +45,12 @@ namespace a3d {
 		using LinesGLMapping =
 				std::map<const std::vector<Line>*, std::pair<unsigned, unsigned>>;
 
-/*********************************************************************************************
-	Private Static Members
- *********************************************************************************************/
+		/// Private Static Members ///
 
 		using GLGetProcAddress = void* (*)(const char* name);
 		static bool InitGL(GLGetProcAddress getProcAddress);
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
+		/// Internal Lifecycle Functions ///
 
 		OpenGLRenderer();
 		OpenGLRenderer(const OpenGLRenderer& other) = delete; // copy constructor
@@ -66,9 +59,7 @@ namespace a3d {
 		OpenGLRenderer& operator=(OpenGLRenderer&& other) = delete; // move assignment
 		~OpenGLRenderer() override;
 
-/*********************************************************************************************
-	Renderer Internal Member Functions
- *********************************************************************************************/
+		/// Renderer Internal Member Functions ///
 
 		RenderingApi 			renderingApi() const override;
 
@@ -123,9 +114,7 @@ namespace a3d {
 
 		void					framebufferScaleChanged(const RenderContext& context) override;
 
-/*********************************************************************************************
-	 Internal Constant Declarations
- *********************************************************************************************/
+		///  Internal Constant Declarations ///
 
 		static const std::string 	STATS_TITLE_FONT_NAME;
 		static const std::string 	STATS_TITLE_FONT_TYPE;
@@ -135,11 +124,8 @@ namespace a3d {
 		static const float 			STATS_BODY_FONT_SIZE;
 		static const float 			STATS_TITLE_TO_BODY_PADDING;
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
-
 	private:
+		/// Private Member Variables ///
 
 		//RenderContext*									_context;
 		bool											_isInitialized;

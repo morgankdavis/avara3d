@@ -27,27 +27,20 @@ namespace a3d {
 
 	class PhysicsBody {
 
-/*********************************************************************************************
-	Public Static Member Functions
- *********************************************************************************************/
-
 	public:
+		/// Public Static Member Functions ///
 
 		static std::unique_ptr<PhysicsBody> 	StaticBody();
 		static std::unique_ptr<PhysicsBody> 	DynamicBody();
 		static std::unique_ptr<PhysicsBody> 	KinematicBody();
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+		/// Public Lifecycle Functions ///
 
 		explicit PhysicsBody(PhysicsBodyType type);
 		PhysicsBody(PhysicsBodyType type, const std::shared_ptr<PhysicsShape>& shape);
 		~PhysicsBody();
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		PhysicsBodyType 					type() const;
 		void 								type(PhysicsBodyType type);
@@ -126,9 +119,7 @@ namespace a3d {
 		bool								autocalculatesMomentOfInertia() const;
 		void								autocalculatesMomentOfInertia(bool autocalculate);
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+		/// Internal Member Functions ///
 		
 //		void 								resting(bool resting);
 		
@@ -174,20 +165,15 @@ namespace a3d {
 
 		PhysicsBodyProxy*					proxy() const;
 
-/*********************************************************************************************
-	Private Member Functions
- *********************************************************************************************/
-
 	private:
+		/// Private Member Functions ///
 
 		void 								checkAutocreateShape(const std::shared_ptr<Node>& node);
 		void 								checkAutocreateShape(const std::shared_ptr<Mesh>& mesh);
 
 		void 								checkAddToWorld();
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
+		/// Private Member Variables ///
 
 		std::shared_ptr<PhysicsShape>		_shape;
 		std::unique_ptr<PhysicsBodyProxy>	_proxy;

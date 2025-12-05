@@ -32,28 +32,21 @@ namespace a3d {
 
 	class Scene {
 
-/*********************************************************************************************
-	Public Types
- *********************************************************************************************/
-
 	public:
+		/// Public Types ///
 
 		using UpdateCallback =				std::function<void(
 				Scene& scene,
 				double time,
 				double deltaTime)>;
 
-/*********************************************************************************************
-	Public Static Member Functions
- *********************************************************************************************/
+		/// Public Static Member Functions ///
 
 		static std::unique_ptr<Scene> 		FromFile(const std::filesystem::path& path,
 													  SceneImportOptions options =
 													  SceneImportOptions::ImportAll);
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+		/// Public Lifecycle Functions ///
 
 		Scene();
 		explicit Scene(const std::string& name);
@@ -66,9 +59,7 @@ namespace a3d {
 			  std::unique_ptr<InputManager> inputManager);
 		~Scene();
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		const std::optional<std::string>&	name() const;
 		void 								name(const std::string& name);
@@ -97,11 +88,8 @@ namespace a3d {
 		UpdateCallback 						updateCallback() const;
 		void 								updateCallback(UpdateCallback function);
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
-
 	private:
+		/// Private Member Variables ///
 
 		std::optional<std::string>			_name;
 		std::shared_ptr<Node>				_rootNode;

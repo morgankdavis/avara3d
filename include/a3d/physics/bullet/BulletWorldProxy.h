@@ -29,18 +29,13 @@ namespace a3d {
 
 	class BulletWorldProxy : public PhysicalWorldProxy {
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		/// Internal Lifecycle Functions ///
 
 		explicit BulletWorldProxy(PhysicalWorld& world);
 		~BulletWorldProxy() override;
 
-/*********************************************************************************************
-	PhysicalWorldModelProxy Internal Member Functions
- *********************************************************************************************/
+		/// PhysicalWorldModelProxy Internal Member Functions ///
 
 		void 	add(PhysicsBody& body) override;
 		void 	remove(PhysicsBody& body) override;
@@ -61,11 +56,8 @@ namespace a3d {
 						  const glm::mat4 &projectionMat,
 						  const DebugOptions &debugOptions) override;
 
-/*********************************************************************************************
-	 Private Member Variables
- *********************************************************************************************/
-
 	private:
+		///  Private Member Variables ///
 
 		std::unique_ptr<btDiscreteDynamicsWorld>				_btWorld;
 		std::unique_ptr<btDefaultCollisionConfiguration> 		_btCollisionConfiguration;

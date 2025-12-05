@@ -19,18 +19,14 @@ using namespace a3d;
 using namespace glm;
 using namespace std;
 
-/*********************************************************************************************
-	Private Static Non-Member Prototypes
- *********************************************************************************************/
+/// Private Static Non-Member Prototypes ///
 
 static vec3 		GLMVec3FromBTVector3(const btVector3& from);
 static vec4 		GLMVec4FromBTVector4(const btVector4& from);
 static btVector3 	BTVector3FromGLMVec3(const vec3& from);
 static btVector4 	BTVector4FromGLMVec4(const vec4& from);
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 BulletDebugDrawer::BulletDebugDrawer():
 	_debugMode{btIDebugDraw::DBG_NoDebug},
@@ -38,9 +34,7 @@ BulletDebugDrawer::BulletDebugDrawer():
 
 BulletDebugDrawer::~BulletDebugDrawer() { }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 void BulletDebugDrawer::clear() {
 	_lines.clear();
@@ -57,9 +51,7 @@ void BulletDebugDrawer::draw(Renderer& renderer,
 	}
 }
 
-/*********************************************************************************************
-	btIDebugDraw Members
- *********************************************************************************************/
+/// btIDebugDraw Members ///
 
 void BulletDebugDrawer::drawLine(const btVector3& from,
 								 const btVector3& to,
@@ -220,9 +212,7 @@ int BulletDebugDrawer::getDebugMode() const {
 	return _debugMode;
 }
 
-/*********************************************************************************************
-	Static
- *********************************************************************************************/
+/// Static ///
 
 vec3 GLMVec3FromBTVector3(const btVector3& from) {
 	return vec3(from.x(), from.y(), from.z());

@@ -25,11 +25,8 @@ namespace a3d {
 	
 	class Light {
 
-/*********************************************************************************************
-	Public Static Member Functions
- *********************************************************************************************/
-
 	public:
+		/// Public Static Member Functions ///
 
 		static std::shared_ptr<a3d::AmbientLight> 		AmbientLight();
 		static std::shared_ptr<a3d::AmbientLight> 		AmbientLight(const std::shared_ptr<Color>& color);
@@ -43,9 +40,7 @@ namespace a3d {
 		static std::shared_ptr<a3d::SpotLight> 			SpotLight();
 		static std::shared_ptr<a3d::SpotLight> 			SpotLight(const std::shared_ptr<Color>& color);
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+		/// Public Lifecycle Functions ///
 
 		Light();
 		explicit Light(const std::string& name);
@@ -53,9 +48,7 @@ namespace a3d {
 		Light(const std::string& name, const std::shared_ptr<Color>& color);
 		virtual ~Light() = 0;
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		const std::optional<std::string>&	name() const;
 		void 								name(const std::string& name);
@@ -63,19 +56,14 @@ namespace a3d {
 		const std::shared_ptr<Color>&		color() const;
 		void 								color(const std::shared_ptr<Color>& color);
 
-/*********************************************************************************************
-	Protected Lifecycle Functions
- *********************************************************************************************/
+		/// Protected Lifecycle Functions ///
 
 //	protected:
 //
 //		Light();
 
-/*********************************************************************************************
-	Protected Member Variables
- *********************************************************************************************/
-
 	protected:
+		/// Protected Member Variables ///
 
 		std::optional<std::string>			_name;
 		std::shared_ptr<Color>				_color;

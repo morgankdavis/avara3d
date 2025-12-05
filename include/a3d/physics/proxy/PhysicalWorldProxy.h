@@ -23,18 +23,13 @@ namespace a3d {
 
 	class PhysicalWorldProxy {
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		/// Internal Lifecycle Functions ///
 
 		explicit PhysicalWorldProxy(PhysicalWorld& world);
 		virtual ~PhysicalWorldProxy();
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+		/// Internal Member Functions ///
 
 		virtual void 	add(PhysicsBody& body) = 0;
 		virtual void 	remove(PhysicsBody& body) = 0;

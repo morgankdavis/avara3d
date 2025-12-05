@@ -27,10 +27,7 @@ namespace a3d {
 	class Image;
 	class Texture;
 
-
-/**************************************************************************************
-	Public Type Utilities
- **************************************************************************************/
+	/// Public Type Utilities ///
 
 // works great in Linux, macOS, but typeof() is a GNU lanuage extension (C23)
 //
@@ -81,9 +78,7 @@ namespace a3d {
 		A3D_ENABLE_ASSIGNMENT_OP(T, T, &) \
 		A3D_ENABLE_UNARY_OP(T, ~)
 
-/**************************************************************************************
-	Public Types
- **************************************************************************************/
+	/// Public Types ///
 
 	enum class LogLevel : unsigned {
 		Trace =		0,
@@ -428,9 +423,7 @@ namespace a3d {
 	};
 	A3D_ENABLE_ENUM_MASK_OPS(DebugOptions)
 
-/**************************************************************************************
-	Internal Types
- **************************************************************************************/
+	/// Internal Types ///
 
 	enum class ShaderType {
 		Vertex,

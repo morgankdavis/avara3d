@@ -19,9 +19,7 @@ using namespace a3d;
 using namespace glm;
 using namespace std;
 
-/*********************************************************************************************
-	Pubic Static Members
- *********************************************************************************************/
+/// Pubic Static Members ///
 
 shared_ptr<Mesh> TorusKnot::Mesh(unsigned p,
 								 unsigned q,
@@ -36,9 +34,7 @@ shared_ptr<Mesh> TorusKnot::Mesh(unsigned p,
 								  material);
 }
 
-/*********************************************************************************************
-	Public Lifecycle Functions
-*********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 TorusKnot::TorusKnot(unsigned p,
 					 unsigned q,
@@ -72,9 +68,7 @@ TorusKnot::TorusKnot(unsigned p,
 	}
 }
 
-/*********************************************************************************************
- 	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 unsigned TorusKnot::p() const {
 	return _p;

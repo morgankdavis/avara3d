@@ -69,9 +69,7 @@ using namespace std;
 
 //#define DISABLE_RESOURCE_MANAGEMENT
 
-/*********************************************************************************************
-	 Private Constant Definitions
- *********************************************************************************************/
+///  Private Constant Definitions ///
 
 const std::string 	OpenGLRenderer::STATS_TITLE_FONT_NAME = 		"Take cover";
 const std::string 	OpenGLRenderer::STATS_TITLE_FONT_TYPE = 		"ttf";
@@ -81,9 +79,7 @@ const std::string 	OpenGLRenderer::STATS_BODY_FONT_TYPE = 			"otf";
 const float 		OpenGLRenderer::STATS_BODY_FONT_SIZE =			15.0;
 const float 		OpenGLRenderer::STATS_TITLE_TO_BODY_PADDING =	0.0;
 
-/*********************************************************************************************
-	Private Types
- *********************************************************************************************/
+/// Private Types ///
 
 enum class MaterialContentsType : unsigned {
 	None = 		0,
@@ -147,9 +143,7 @@ typedef struct {
 	alignas(16) FogGLSLStruct				fog;
 } EnvironmentBlock;
 
-/*********************************************************************************************
-	Private Static Non-Member Prototypes
- *********************************************************************************************/
+/// Private Static Non-Member Prototypes ///
 
 static void 		RenderSkybox(Mesh& skyboxMesh,
 								Node& pointOfView,
@@ -245,9 +239,7 @@ static GLenum 		GLWrapModeForWrapMode(WrapMode mode);
 static void 		LogGLInfo();
 //static void 		CheckGLError();
 
-/*********************************************************************************************
-	Private Static Members
- *********************************************************************************************/
+/// Private Static Members ///
 
 bool OpenGLRenderer::InitGL(GLGetProcAddress getProcAddress) {
 
@@ -281,9 +273,7 @@ bool OpenGLRenderer::InitGL(GLGetProcAddress getProcAddress) {
 	return true;
 }
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
+/// Internal Lifecycle Functions ///
 
 OpenGLRenderer::OpenGLRenderer():
 		Renderer{},
@@ -317,9 +307,7 @@ OpenGLRenderer::~OpenGLRenderer() {
 	ImGui::DestroyContext();
 }
 	
-/*********************************************************************************************
-	Renderer Internal Member Functions
- *********************************************************************************************/
+/// Renderer Internal Member Functions ///
 
 RenderingApi OpenGLRenderer::renderingApi() const {
 	return RenderingApi::OpenGL;
@@ -632,9 +620,7 @@ void OpenGLRenderer::framebufferScaleChanged(const RenderContext& context) {
 	UpdateImguiScale(context, *_overlayTitleFont, *_overlayBodyFont);
 }
 	
-/*********************************************************************************************
-	Private Static Non-Member Functions
- *********************************************************************************************/
+/// Private Static Non-Member Functions ///
 
 void RenderSkybox(Mesh& skyboxMesh,
 				  Node& pointOfView,

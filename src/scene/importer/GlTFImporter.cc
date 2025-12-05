@@ -46,18 +46,14 @@ using namespace fastgltf;
 using namespace glm;
 using namespace std;
 
-/*********************************************************************************************
-	Private Static Non-Member Prototypes
- *********************************************************************************************/
+/// Private Static Non-Member Prototypes ///
 
 static fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options);
 static mat4 TransformFromGlTFNode(fastgltf::Node& node);
 static shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 3>& arr);
 static shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 4>& arr);
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
+/// Internal Lifecycle Functions ///
 
 GlTFImporter::GlTFImporter(const filesystem::path& path,
 						   SceneImportOptions options):
@@ -80,9 +76,7 @@ GlTFImporter::GlTFImporter(const filesystem::path& path,
 	}
 }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 unique_ptr<a3d::Scene> GlTFImporter::scene() {
 
@@ -166,9 +160,7 @@ SceneImportOptions GlTFImporter::options() const {
 	return _options;
 }
 
-/*********************************************************************************************
-	Private Member Functions
- *********************************************************************************************/
+/// Private Member Functions ///
 
 bool GlTFImporter::parse() {
 
@@ -857,9 +849,7 @@ shared_ptr<a3d::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
 	return nullptr;
 }
 
-/*********************************************************************************************
-	Private Static Non-Member Functions
- *********************************************************************************************/
+/// Private Static Non-Member Functions ///
 
 fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options) {
 

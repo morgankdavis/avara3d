@@ -12,9 +12,7 @@
 
 using namespace a3d;
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 CylinderPhysicsShape::CylinderPhysicsShape(float radius, float height):
 		_radius{radius},
@@ -22,9 +20,7 @@ CylinderPhysicsShape::CylinderPhysicsShape(float radius, float height):
 
 CylinderPhysicsShape::~CylinderPhysicsShape() {}
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 float CylinderPhysicsShape::radius() const {
 	return _radius;
@@ -42,9 +38,7 @@ void CylinderPhysicsShape::height(float height) {
 	_height = height;
 }
 
-/*********************************************************************************************
-	PhysicsShape Public Member Functions
- *********************************************************************************************/
+/// PhysicsShape Public Member Functions ///
 
 PhysicsShapeType CylinderPhysicsShape::type() const {
 	return PhysicsShapeType::Primitive;

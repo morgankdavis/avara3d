@@ -17,11 +17,8 @@ namespace a3d {
 
 	class PhysicsShapeProxy {
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		/// Internal Lifecycle Functions ///
 
 		explicit PhysicsShapeProxy(PhysicsShape& shape);
 		virtual ~PhysicsShapeProxy() = 0;

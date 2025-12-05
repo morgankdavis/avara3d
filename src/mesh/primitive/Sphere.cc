@@ -19,9 +19,7 @@ using namespace a3d;
 using namespace glm;
 using namespace std;
 
-/*********************************************************************************************
-	Pubic Static Members
- *********************************************************************************************/
+/// Pubic Static Members ///
 
 shared_ptr<Mesh> Sphere::Mesh(float radius,
 							  unsigned segments,
@@ -33,9 +31,7 @@ shared_ptr<Mesh> Sphere::Mesh(float radius,
 								  material);
 }
 
-/*********************************************************************************************
-	Public Lifecycle Functions
-*********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 Sphere::Sphere(float radius,
 			   unsigned segments):
@@ -63,9 +59,7 @@ Sphere::Sphere(float radius,
 	}
 }
 
-/*********************************************************************************************
- 	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 float Sphere::radius() const {
 	return _radius;

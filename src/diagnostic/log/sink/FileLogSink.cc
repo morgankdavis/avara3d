@@ -17,9 +17,7 @@
 using namespace a3d;
 using namespace std;
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 FileLogSink::FileLogSink(const filesystem::path& relPath,
 						 int maxFiles,
@@ -51,9 +49,7 @@ FileLogSink::~FileLogSink() {
 	}
 }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 const filesystem::path& FileLogSink::filepath() const {
 	return _filepath;
@@ -74,9 +70,7 @@ void FileLogSink::flush() {
 	}
 }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 void FileLogSink::write(const string& output) {
 
@@ -85,9 +79,7 @@ void FileLogSink::write(const string& output) {
 	checkRotate();
 }
 
-/*********************************************************************************************
-	Private Member Functions
- *********************************************************************************************/
+/// Private Member Functions ///
 
 void FileLogSink::openStream() {
 

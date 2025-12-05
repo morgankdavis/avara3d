@@ -26,9 +26,7 @@
 using namespace a3d;
 using namespace std;
 
-/*********************************************************************************************
-	Public Static Member Functions
- *********************************************************************************************/
+/// Public Static Member Functions ///
 
 Log& Log::MainLog() {
 	
@@ -50,18 +48,14 @@ Log& Log::MainLog() {
 	return *logger;
 }
 
-/*********************************************************************************************
-	Private Static Prototypes
- *********************************************************************************************/
+/// Private Static Prototypes ///
 
 string TimestampString();
 string HeaderString(const string& logName, LogLevel level,
 					const Log::SourceInfo& sourceInfo);
 string HeaderString(const string& logName, LogLevel level);
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 Log::Log(const string& name,
 		 unique_ptr<LogSink> sink,
@@ -86,9 +80,7 @@ Log::Log(const string& name,
 
 Log::Log() { }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 const string& Log::name() const {
 	return _name;
@@ -159,9 +151,7 @@ void Log::flush() {
 	}
 }
 
-/*********************************************************************************************
-	Private  Member Functions
- *********************************************************************************************/
+/// Private  Member Functions ///
 
 void Log::log(LogLevel level,
 			  const std::string& msg) {
@@ -195,9 +185,7 @@ void Log::dispatch(LogLevel level, std::string& output) {
 	}
 }
 
-/*********************************************************************************************
-	Private Static Functions
- *********************************************************************************************/
+/// Private Static Functions ///
 
 // TODO: move to utilities?
 string TimestampString() {

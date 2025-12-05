@@ -15,23 +15,17 @@
 
 using InputManger = a3d::head::qt::QtInputManager;
 
-/*********************************************************************************************
-	Private Static Prototypes
- *********************************************************************************************/
+/// Private Static Prototypes ///
 
 a3d::Key a3dKeyFromQtKey(int qtKey);
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 InputManger::QtInputManager(QtViewport& viewport) {
 	viewport.inputManager(this);
 }
 
-/*********************************************************************************************
- 	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 void InputManger::keyPressed(int qtKey) {
 
@@ -91,15 +85,11 @@ void InputManger::mouseWheelScrolled(int x, int y) {//QPoint delta) {
 	_mouseScrollWheelDelta.y += (float)y;
 }
 
-/*********************************************************************************************
-	InputManager Internal Member Functions
- *********************************************************************************************/
+/// InputManager Internal Member Functions ///
 
 void InputManger::update() {}
 
-/*********************************************************************************************
-	Private Static Functions
- *********************************************************************************************/
+/// Private Static Functions ///
 
 a3d::Key a3dKeyFromQtKey(int qtKey) {
 

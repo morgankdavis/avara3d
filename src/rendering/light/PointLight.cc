@@ -14,9 +14,7 @@
 using namespace a3d;
 using namespace std;
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 PointLight::PointLight():
 		AttenuatedLight() {}

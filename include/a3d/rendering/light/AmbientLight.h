@@ -21,24 +21,13 @@ namespace a3d {
 
 	class AmbientLight : public Light {
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		/// Public Lifecycle Functions ///
 
 		AmbientLight();
 		explicit AmbientLight(const std::string& name);
 		explicit AmbientLight(const std::shared_ptr<Color>& color);
 		AmbientLight(const std::string& name, const std::shared_ptr<Color>& color);
-
-/*********************************************************************************************
-	Private Lifecycle Functions
- *********************************************************************************************/
-
-//	private:
-//
-//		AmbientLight();
 	};
 }
 

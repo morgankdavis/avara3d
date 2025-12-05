@@ -21,15 +21,11 @@ using namespace a3d;
 using namespace glm;
 using namespace std;
 
-/*********************************************************************************************
-	Private Static Non-Member Prorotypes
- *********************************************************************************************/
+/// Private Static Non-Member Prorotypes ///
 
 static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 PhysicalWorld::PhysicalWorld():
 		_gravity{0, -9.807, 0},
@@ -48,9 +44,7 @@ PhysicalWorld::~PhysicalWorld() {
 	A3D_LOG_D("Destroying PhysicalWorld {:p}", static_cast<void*>(this));
 }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 const vec3& PhysicalWorld::gravity() const {
 	return _gravity;
@@ -147,9 +141,7 @@ void PhysicalWorld::endContactCallback(PhysicalWorld::EndContactCallback functio
 	_endContact = function;
 }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 void PhysicalWorld::attachedToScene(Scene& scene) {
 	A3D_LOG_T("scene: {:p}", static_cast<void*>(&scene));
@@ -216,9 +208,7 @@ PhysicalWorldProxy* PhysicalWorld::proxy() const {
 	return  _proxy.get();
 }
 
-/*********************************************************************************************
-	Private Static Non-Member Functions
- *********************************************************************************************/
+/// Private Static Non-Member Functions ///
 
 void UpdateTimeStats(Stats& stats, double startTime, double endTime) {
 

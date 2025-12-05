@@ -15,20 +15,15 @@ namespace a3d {
 
 	class PerspectiveCamera : public Camera {
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		/// Public Lifecycle Functions ///
 
 		PerspectiveCamera();
 		PerspectiveCamera(float zNear, float zFar, float yFov);
 		PerspectiveCamera(const std::string& name, float zNear, float zFar, float yFov);
 		~PerspectiveCamera() override;
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		float 			zNear() const;
 		void 			zNear(float zNear);
@@ -42,19 +37,13 @@ namespace a3d {
 		float 			aspectRatio() const;
 		void 			aspectRatio(float ratio);
 
-/*********************************************************************************************
-	Camera Protected Member Functions
- *********************************************************************************************/
-
 	protected:
+		/// Camera Protected Member Functions ///
 
 		void 			constructProjectionMatrix() override;
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
-
 	private:
+		/// Private Member Variables ///
 
 		float			_zNear;
 		float			_zFar;

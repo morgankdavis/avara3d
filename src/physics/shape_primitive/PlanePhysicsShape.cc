@@ -12,9 +12,7 @@
 
 using namespace a3d;
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 PlanePhysicsShape::PlanePhysicsShape(float width, float height):
 		_width{width},
@@ -22,9 +20,7 @@ PlanePhysicsShape::PlanePhysicsShape(float width, float height):
 
 PlanePhysicsShape::~PlanePhysicsShape() {}
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 float PlanePhysicsShape::width() const {
 	return _width;
@@ -42,9 +38,7 @@ void PlanePhysicsShape::height(float height) {
 	_height = height;
 }
 
-/*********************************************************************************************
-	PhysicsShape Public Member Functions
- *********************************************************************************************/
+/// PhysicsShape Public Member Functions ///
 
 PhysicsShapeType PlanePhysicsShape::type() const {
 	return PhysicsShapeType::Primitive;

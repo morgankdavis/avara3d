@@ -23,26 +23,18 @@ namespace a3d {
 
 	class BulletShapeProxy : public PhysicsShapeProxy {
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		/// Internal Lifecycle Functions ///
 
 		explicit BulletShapeProxy(PhysicsShape& shape);
 		~BulletShapeProxy() override;
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+		/// Internal Member Functions ///
 
 		const std::vector<std::unique_ptr<btCollisionShape>>& btShapes();
 
-/*********************************************************************************************
-	 Private Member Variables
- *********************************************************************************************/
-
 	private:
+		///  Private Member Variables ///
 
 		std::vector<std::unique_ptr<btCollisionShape>>				_btShapes;
 		std::vector<std::unique_ptr<btTriangleIndexVertexArray>>	_btIndexVertexArrays;
