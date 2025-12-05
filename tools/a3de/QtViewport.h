@@ -44,10 +44,6 @@ namespace a3d::head::qt {
 		void 					cursorCaptured(bool captured);
 
 	public:
-		/// Public Member Functions ///
-
-		void					inputManager(QtInputManager* manager);
-
 		/// RenderContext Public Member Functions ///
 
 		bool 					vSyncEnabled() const override;
@@ -64,6 +60,10 @@ namespace a3d::head::qt {
 		glm::vec2 				framebufferScale() const override;
 
 		unsigned 				defaultFramebuffer() const override;
+
+		/// Internal Member Functions ///
+
+		void					inputManager(QtInputManager* manager);
 
 	protected:
 		/// QWidget Protected Member Functions ///

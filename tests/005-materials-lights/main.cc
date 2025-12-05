@@ -75,8 +75,8 @@ int main(int argc, const char* argv[]) {
 		visualWorld->fogDensityExponent(1.0);
 		visualWorld->fogColor(Color::LightGray());
 		//visualWorld->usesDefaultLighting(true);
-		visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
-		visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
+		visualWorld->willRenderCallback(bind(&WillRenderCallback, _1, _2, _3));
+		visualWorld->didRenderCallback(bind(&DidRenderCallback, _1, _2, _3));
 		visualWorld->background(make_shared<Texture>(std::move(utils::CubeImageNamed("nebula1_blue", "png"))));
 
 		auto scene = utils::SceneNamed("cat_island/cat_island", SceneImportOptions::ImportMeshes

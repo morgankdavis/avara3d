@@ -22,8 +22,9 @@ namespace a3d {
 
 	class Camera;
 	class Color;
+	class GLFWInputManager;
 	class Image;
-	class InputManager;
+//	class InputManager;
 	class Node;
 	class Renderer;
 	class Scene;
@@ -88,8 +89,9 @@ namespace a3d {
 
 		/// Internal Member Functions ///
 
-		void 					pollInput();
-		GLFWwindow* 			glfwWindow() const;
+		void					inputManager(GLFWInputManager* manager);
+		void 					pollInput(); // remove?
+		GLFWwindow* 			glfwWindow() const; // remove?
 
 		/// Internal Static Member Functions ///
 
@@ -106,12 +108,14 @@ namespace a3d {
 
 		/// Private Member Variables ///
 
-		std::unique_ptr<GLFWwindow, DestroyGLFWWindow>	_glfwWindow;
-		bool											_vSyncEnabled;
-		bool											_cursorCaptured;
-		bool											_open;
-		bool											_hidden;
-		bool											_highDPIEnabled;
+		std::unique_ptr<GLFWwindow,
+				DestroyGLFWWindow>	_glfwWindow;
+		bool						_vSyncEnabled;
+		bool						_cursorCaptured;
+		bool						_open;
+		bool						_hidden;
+		bool						_highDPIEnabled;
+		GLFWInputManager*			_inputManager;
 	};
 }
 

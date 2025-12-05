@@ -74,8 +74,8 @@ void MainWindow::initScene(a3d::head::qt::QtViewport &viewport) {
 		visualWorld->fogDensityExponent(1.0);
 		visualWorld->fogColor(Color::LightGray());
 		//visualWorld->usesDefaultLighting(true);
-		visualWorld->willRender(bind(&MainWindow::willRenderCallback, this, _1, _2, _3));
-		visualWorld->didRender(bind(&MainWindow::didRenderCallback, this, _1, _2, _3));
+		visualWorld->willRenderCallback(bind(&MainWindow::willRenderCallback, this, _1, _2, _3));
+		visualWorld->didRenderCallback(bind(&MainWindow::didRenderCallback, this, _1, _2, _3));
 		visualWorld->background(make_shared<Texture>(std::move(utils::CubeImageNamed("nebula1_blue", "png"))));
 
 		_scene = utils::SceneNamed("cat_island/cat_island", SceneImportOptions::ImportMeshes

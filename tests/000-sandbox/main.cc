@@ -87,8 +87,8 @@ int main(int argc, const char* argv[]) {
 		if (DARK) background = Color::Black();
 		else background = make_shared<Texture>(utils::CubeImageNamed("kloppenheim", "png"));
 		visualWorld->background(background);
-		visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
-		visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
+		visualWorld->willRenderCallback(bind(&WillRenderCallback, _1, _2, _3));
+		visualWorld->didRenderCallback(bind(&DidRenderCallback, _1, _2, _3));
 
 		auto physicalWorld = make_unique<PhysicalWorld>();
 		physicalWorld->timestep(PHYSICS_TIMESTEP);

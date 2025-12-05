@@ -117,7 +117,7 @@ void Viewport::cursorCaptured(bool captured) {
 	}
 }
 
-/// Public Member Functions ///
+/// Internal Member Functions ///
 
 void Viewport::inputManager(QtInputManager* manager) {
 	_inputManager = manager;

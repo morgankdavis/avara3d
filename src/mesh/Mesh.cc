@@ -10,7 +10,6 @@
 
 #include <utility>
 
-#include "glm/gtx/transform.hpp"
 #include "magic_enum.hpp"
 
 #include "a3d/Color.h"

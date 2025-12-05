@@ -22,6 +22,10 @@
 #include "a3d/scene/Scene.h"
 
 
+#include "imgui_impl_glfw.h" // TEMPORARY
+
+
+
 using namespace a3d;
 using namespace std;
 using namespace glm;
@@ -42,6 +46,7 @@ GLFWInputManager::GLFWInputManager(GLFWWindow* window):
     _usingManyMouse{false}
    /* _errorMask{DesktopInputManagerErrorMask::None}*/ {
 
+    window->inputManager(this);
     registerGLFWCallbacks(window->glfwWindow());
     initMouseInput();
 }
@@ -57,13 +62,6 @@ GLFWInputManager::~GLFWInputManager() {
         unregisterGLFWCallbacks(_window->glfwWindow());
     }
 }
-
-/// Public Member Functions ///
-
-//DesktopInputManagerErrorMask GlfwInputManager::errorMask() const {
-//
-//    return _errorMask;
-//}
 
 /// InputManager Internal Member Functions ///
 
@@ -179,6 +177,10 @@ void GLFWInputManager::registerGLFWCallbacks(GLFWwindow* glfwWindow) {
     glfwSetScrollCallback(glfwWindow, GLFWInputManager::GLFWScrollWheelCallback);
     glfwSetKeyCallback(glfwWindow, GLFWInputManager::GLFWKeyCallback);
 
+    // TEMPORARY?
+    glfwSetCursorEnterCallback(glfwWindow, GLFWInputManager::CursorEnterCallback);
+    glfwSetCharCallback(glfwWindow, GLFWInputManager::CharCallback);
+
     // TODO: probably re-factor key callback creation code
 }
 
@@ -196,6 +198,8 @@ void GLFWInputManager::GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
 											   int button,
 											   int action,
 											   int mods) {
+
+    ImGui_ImplGlfw_MouseButtonCallback(glfwWindow, button, action, mods);
 
     auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
 
@@ -219,6 +223,8 @@ void GLFWInputManager::GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
 void GLFWInputManager::GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
 												  double xPos,
 												  double yPos) {
+
+    ImGui_ImplGlfw_CursorPosCallback(glfwWindow, xPos, yPos);
 
     auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
 
@@ -247,6 +253,8 @@ void GLFWInputManager::GLFWScrollWheelCallback(GLFWwindow* glfwWindow,
 											   double xOffset,
 											   double yOffset) {
 
+    ImGui_ImplGlfw_ScrollCallback(glfwWindow, xOffset, yOffset);
+
     auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
 
     inputManager->_mouseScrollWheelDelta.x += (float)xOffset;
@@ -259,21 +267,35 @@ void GLFWInputManager::GLFWKeyCallback(GLFWwindow* glfwWindow,
 									   int action,
 									   int mods) {
 
-    auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
+    ImGui_ImplGlfw_KeyCallback(glfwWindow, key, scancode, action, mods);
 
-    if (action == GLFW_PRESS) {
-        inputManager->_keysDown.insert(static_cast<Key>(key));
+    if (!ImGui::GetIO().WantCaptureKeyboard) {
 
-        // if key is in "cleared" it means the client already read it, so don't add it again until
-        // we get key up, and then back down again
-        if (inputManager->_keysPressedCleared.count(static_cast<Key>(key)) == 0) {
-            inputManager->_keysPressed.insert(static_cast<Key>(key));
+        auto inputManager = InputManagerFromGLFWWindow(glfwWindow);
+
+        if (action == GLFW_PRESS) {
+            inputManager->_keysDown.insert(static_cast<Key>(key));
+
+            // if key is in "cleared" it means the client already read it, so don't add it again until
+            // we get key up, and then back down again
+            if (inputManager->_keysPressedCleared.count(static_cast<Key>(key)) == 0) {
+                inputManager->_keysPressed.insert(static_cast<Key>(key));
+            }
+        } else if (action == GLFW_RELEASE) {
+            inputManager->_keysDown.erase(static_cast<Key>(key));
+            inputManager->_keysPressedCleared.erase(static_cast<Key>(key));
         }
     }
-    else if (action == GLFW_RELEASE) {
-        inputManager->_keysDown.erase(static_cast<Key>(key));
-        inputManager->_keysPressedCleared.erase(static_cast<Key>(key));
-    }
+}
+
+// TEMPORARY
+
+void GLFWInputManager::CursorEnterCallback(GLFWwindow* window, int entered) {
+    ImGui_ImplGlfw_CursorEnterCallback(window, entered);
+}
+
+void GLFWInputManager::CharCallback(GLFWwindow* window, unsigned int c) {
+    ImGui_ImplGlfw_CharCallback(window, c);
 }
 
 /// Private Static Functions ///

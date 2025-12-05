@@ -57,8 +57,8 @@ VisualWorld::VisualWorld(RenderContext& context):
 		_autoEnablesDefaultLighting{true},
 		_renderContext{&context},
 		_scene{},
-		_willRender{},
-		_didRender{} {
+		_willRenderCallback{},
+		_didRenderCallback{} {
 
 	_renderContext->attachedToVisualWorld(this);
 
@@ -210,20 +210,20 @@ Scene* VisualWorld::scene() const {
 	return _scene;
 }
 
-VisualWorld::WillRenderCallback VisualWorld::willRender() const {
-	return _willRender;
+VisualWorld::WillRenderCallback VisualWorld::willRenderCallback() const {
+	return _willRenderCallback;
 }
 
-void VisualWorld::willRender(WillRenderCallback function) {
-	_willRender = function;
+void VisualWorld::willRenderCallback(WillRenderCallback function) {
+	_willRenderCallback = function;
 }
 
-VisualWorld::DidRenderCallback VisualWorld::didRender() const {
-	return _didRender;
+VisualWorld::DidRenderCallback VisualWorld::didRenderCallback() const {
+	return _didRenderCallback;
 }
 
-void VisualWorld::didRender(DidRenderCallback function) {
-	_didRender = function;
+void VisualWorld::didRenderCallback(DidRenderCallback function) {
+	_didRenderCallback = function;
 }
 
 /// Internal Member Functions ///
@@ -260,7 +260,7 @@ void VisualWorld::draw(const Scene& scene,
 
 		if (auto renderer = _renderContext->renderer()) {
 
-			if (auto willRender = VisualWorld::willRender()) {
+			if (auto willRender = VisualWorld::willRenderCallback()) {
 				willRender(*this, runT, deltaRunT);
 			}
 
@@ -334,7 +334,7 @@ void VisualWorld::draw(const Scene& scene,
 
 			_renderContext->swapBuffers();
 
-			if (auto didRender = VisualWorld::didRender()) {
+			if (auto didRender = VisualWorld::didRenderCallback()) {
 				didRender(*this, runT, deltaRunT);
 			}
 

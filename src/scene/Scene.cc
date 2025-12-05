@@ -64,7 +64,7 @@ Scene::Scene():
 		_debugOptions{DebugOptions::None},
 		_stats{},
 		_startTime{0},
-		_update{} {
+		_updateCallback{} {
 
 	_rootNode->attachedToScene(*this);
 }
@@ -149,7 +149,7 @@ void Scene::rootNode(const shared_ptr<Node>& node) {
 //
 //void Scene::rootNode(unique_ptr<Node>& node) {
 //
-////	if () // check they are not the same
+//	if () // check they are not the same
 //	if (_rootNode) {
 //		_rootNode->detachedFromScene(this);
 //	}
@@ -274,10 +274,10 @@ void Scene::update() {
 			_inputManager->update();
 		}
 
-		if (_update) {
+		if (_updateCallback) {
 
 			auto updateStartTime = time();
-			(_update)(*this, runT, deltaRunT);
+			(_updateCallback)(*this, runT, deltaRunT);
 			UpdateUserTimeStats(_stats, updateStartTime, time());
 		}
 
@@ -329,11 +329,11 @@ const Stats& Scene::stats() const {
 }
 
 Scene::UpdateCallback Scene::updateCallback() const {
-	return _update;
+	return _updateCallback;
 }
 
 void Scene::updateCallback(UpdateCallback function) {
-	_update = function;
+	_updateCallback = function;
 }
 
 /// Private Static ///

@@ -64,8 +64,8 @@ int main(int argc, const char* argv[]) {
 		visualWorld->fogDensityExponent(1.0);
 		visualWorld->fogColor(Color::LightGray());
 		visualWorld->background(make_shared<Texture>(utils::CubeImageNamed("sky1", "png")));
-		visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
-		visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
+		visualWorld->willRenderCallback(bind(&WillRenderCallback, _1, _2, _3));
+		visualWorld->didRenderCallback(bind(&DidRenderCallback, _1, _2, _3));
 
 		auto scene = make_unique<Scene>(std::move(visualWorld), nullptr, std::move(inputManager));
 //	DebugOptions debugOptions = DebugOptions::None;

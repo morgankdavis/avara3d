@@ -32,10 +32,10 @@ PhysicalWorld::PhysicalWorld():
 		_speed{1.0},
 		_timestep{1.0/60.0},
 		_scene{},
-		_didSimulate{},
-		_beginContact{},
-		_continueContact{},
-		_endContact{} {
+		_didSimulateCallback{},
+		_beginContactCallback{},
+		_continueContactCallback{},
+		_endContactCallback{} {
 
 	_proxy = make_unique<BulletWorldProxy>(*this);
 }
@@ -110,35 +110,35 @@ Scene* PhysicalWorld::scene() const {
 }
 
 PhysicalWorld::DidSimulateCallback PhysicalWorld::didSimulateCallback() const {
-	return _didSimulate;
+	return _didSimulateCallback;
 }
 
 void PhysicalWorld::didSimulateCallback(DidSimulateCallback function) {
-	_didSimulate = function;
+	_didSimulateCallback = function;
 }
 
 PhysicalWorld::BeginContactCallback PhysicalWorld::beginContactCallback() const {
-	return _beginContact;
+	return _beginContactCallback;
 }
 
 void PhysicalWorld::beginContactCallback(PhysicalWorld::BeginContactCallback function) {
-	_beginContact = function;
+	_beginContactCallback = function;
 }
 
 PhysicalWorld::ContinueContactCallback PhysicalWorld::continueContactCallback() const {
-	return _continueContact;
+	return _continueContactCallback;
 }
 
 void PhysicalWorld::continueContactCallback(PhysicalWorld::ContinueContactCallback function) {
-	_continueContact = function;
+	_continueContactCallback = function;
 }
 
 PhysicalWorld::EndContactCallback PhysicalWorld::endContactCallback() const {
-	return _endContact;
+	return _endContactCallback;
 }
 
 void PhysicalWorld::endContactCallback(PhysicalWorld::EndContactCallback function) {
-	_endContact = function;
+	_endContactCallback = function;
 }
 
 /// Internal Member Functions ///

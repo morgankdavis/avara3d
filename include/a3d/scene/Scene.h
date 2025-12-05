@@ -99,7 +99,7 @@ namespace a3d {
 		DebugOptions						_debugOptions;
 		double 								_startTime;
 		Stats								_stats;
-		UpdateCallback						_update;
+		UpdateCallback						_updateCallback;
 	};
 }
 

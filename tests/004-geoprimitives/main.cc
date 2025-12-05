@@ -64,8 +64,8 @@ int main(int argc, const char* argv[]) {
 		auto visualWorld = make_unique<VisualWorld>(*window);
 		//auto backgroundColor = make_shared<Color>(109.0f/255.0f, 136.0f/255.0f, 164.0f/255.0f, 1.0f);
 		visualWorld->background(Color::Black());
-		visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
-		visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
+		visualWorld->willRenderCallback(bind(&WillRenderCallback, _1, _2, _3));
+		visualWorld->didRenderCallback(bind(&DidRenderCallback, _1, _2, _3));
 
 		auto scene = make_unique<Scene>(std::move(visualWorld), nullptr, std::move(inputManager));
 		scene->debugOptions(DebugOptions::ShowStatsOverlay);

@@ -33,6 +33,15 @@ namespace a3d {
 		GLFWInputManager& operator=(const InputManager& other) = delete; // copy assignment
 		~GLFWInputManager() override;
 
+		/// Internal Member Functions ///
+
+		void glfwCursorPosCallback(double xpos, double ypos);
+//		void glfwCursorEnterCallback(int entered);
+		void glfwMouseButtonCallback(int button, int action, int mods);
+		void glfwScrollCallback(double xoffset, double yoffset);
+		void glfwKeyCallback(int key, int scancode, int action, int mods);
+//		void glfwCharCallback(unsigned int c);
+
 		/// InputManager Internal Member Functions ///
 
 		void 				update() override;
@@ -63,6 +72,10 @@ namespace a3d {
 										   int scancode,
 										   int action,
 										   int mods);
+
+		// TEMPORARY
+		static void CursorEnterCallback(GLFWwindow* window, int entered);
+		static void CharCallback(GLFWwindow* window, unsigned int c);
 
 		/// Private Member Variables ///
 

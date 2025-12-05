@@ -63,7 +63,8 @@ GLFWWindow::GLFWWindow(RenderingApi renderingAPI,
 		_highDPIEnabled{enableHighDPI},
 		_open{false},
 		_hidden{false},
-		_cursorCaptured{false}
+		_cursorCaptured{false},
+		_inputManager{}
 		/*_antialiasingMode{antialiasingMode}*/ { // wtf
 	A3D_LOG_D("");
 
@@ -350,7 +351,11 @@ unsigned GLFWWindow::defaultFramebuffer() const {
 
 /// Internal Member Functions ///
 
-// TODO: move this...
+void GLFWWindow::inputManager(GLFWInputManager* manager) {
+	_inputManager = manager;
+}
+
+//// TODO: move this...
 void GLFWWindow::pollInput() {
 	glfwPollEvents();
 }

@@ -71,11 +71,11 @@ namespace a3d {
 
 		Scene*									scene() const;
 
-		WillRenderCallback 						willRender() const;
-		void 									willRender(WillRenderCallback function);
+		WillRenderCallback 						willRenderCallback() const;
+		void 									willRenderCallback(WillRenderCallback function);
 
-		DidRenderCallback 						didRender() const;
-		void 									didRender(DidRenderCallback function);
+		DidRenderCallback 						didRenderCallback() const;
+		void 									didRenderCallback(DidRenderCallback function);
 
 		/// Internal Member Functions ///
 
@@ -108,8 +108,8 @@ namespace a3d {
 		std::weak_ptr<Node>						_pointOfView;
 		RenderContext*							_renderContext;
 		Scene*									_scene;
-		WillRenderCallback 						_willRender;
-		DidRenderCallback 						_didRender;
+		WillRenderCallback 						_willRenderCallback;
+		DidRenderCallback 						_didRenderCallback;
 	};
 }
 

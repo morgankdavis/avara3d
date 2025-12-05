@@ -104,10 +104,10 @@ namespace a3d {
 		float 									_timestep;
 		std::unique_ptr<PhysicalWorldProxy>		_proxy;
 		Scene*									_scene;
-		DidSimulateCallback						_didSimulate;
-		BeginContactCallback					_beginContact;
-		ContinueContactCallback					_continueContact;
-		EndContactCallback						_endContact;
+		DidSimulateCallback						_didSimulateCallback;
+		BeginContactCallback					_beginContactCallback;
+		ContinueContactCallback					_continueContactCallback;
+		EndContactCallback						_endContactCallback;
 	};
 }
 
