@@ -20,12 +20,10 @@
 // testing
 #include "a3d/physics/ConvexDecomposer.h"
 
-
 using namespace a3d;
 using namespace glm;
 using namespace std;
 using namespace std::placeholders;
-
 
 constexpr LogLevel				A3D_APP_LOG_LEVEL =		LogLevel::Debug;
 constexpr uvec2					WINDOW_SIZE =			{1280, 768};
@@ -39,12 +37,10 @@ constexpr float					MOUSE_SENSITIVITY =		0.5;
 constexpr float					PHYSICS_TIMESTEP =		1.0/128.0;
 constexpr bool					DARK =					true;
 
-
 void UpdateCallback(Scene& scene, double time, double deltaTime);
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
 void DidRenderCallback(VisualWorld& world, double time, double deltaTime);
 void DidSimulatePhysicsCallback(PhysicalWorld& world, double time, double deltaTime);
-
 
 void InitLog();
 void LogBuildInfo();
@@ -65,12 +61,9 @@ void SpawnInvisiblePrimitives(Scene& scene);
 shared_ptr<Node> ChainmailLink(float minorRadius, float majorRadius);
 void SpawnChainMail(Scene& scene);
 
-
-unique_ptr<a3d::Log>	g_log;
-Node*					g_palmNode;
-Node*					g_duckSpinnerNode;
-Node*					g_duckNode;
-
+Node*	g_palmNode;
+Node*	g_duckSpinnerNode;
+Node*	g_duckNode;
 
 int main(int argc, const char* argv[]) {
 
@@ -90,7 +83,7 @@ int main(int argc, const char* argv[]) {
 
 		auto inputManager = make_unique<GLFWInputManager>(window.get());
 		if (inputManager->errorMask() == DesktopInputManagerErrorMask::PermissionDenied) {
-			A3D_APP_LOG_E(g_log, "GLFWInputManager permission denied.");
+			A3D_APP_LOG_E("GLFWInputManager permission denied.");
 			// on macOS 10.15 Catalina+, this is probably a permissions issue,
 			// and the OS will alert the user.
 			// just keep going and let the user decide what they want to do.
@@ -282,7 +275,7 @@ int main(int argc, const char* argv[]) {
 
 		auto duckNode = Node::MeshNode(utils::MeshNamed("rubber_duck/rubber_duck"));
 		g_duckNode = duckNode.get();
-		A3D_APP_LOG_I(g_log, "DUCK NODE: {}", utils::StringFromTree(*duckNode));
+		A3D_APP_LOG_I("DUCK NODE: {}", utils::StringFromTree(*duckNode));
 		duckNode->position({/*4.5*/0, 25, 0});
 
 
@@ -366,7 +359,7 @@ int main(int argc, const char* argv[]) {
 
 
 
-	A3D_APP_LOG_I(g_log, "*** SCENE EXTENT: {} ***",
+	A3D_APP_LOG_I("*** SCENE EXTENT: {} ***",
 				  utils::StringFromGLMVec3(scene->rootNode()->extent()));
 
 	//	A3D_A3D_APP_LOG_I("Graph:\n{}", StringFromTree(*scene->rootNode()));
@@ -405,7 +398,7 @@ int main(int argc, const char* argv[]) {
 		} while (window->isOpen());
 	}
 	catch (Exception& e) {
-		A3D_APP_LOG_F(g_log, "Exception: {}", e.what());
+		A3D_APP_LOG_F("Exception: {}", e.what());
 		return -1;
 	}
 
@@ -413,12 +406,10 @@ int main(int argc, const char* argv[]) {
 }
 
 
-/***************************************************************************************
-	Scene Callbacks
- ***************************************************************************************/
+/// Scene Callbacks ///
 
 void UpdateCallback(Scene& scene, double time, double deltaTime) {
-	A3D_APP_LOG_T(g_log, "scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
+	A3D_APP_LOG_T("scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
 
 	GLFWWindow* window = nullptr;
 	if (scene.visualWorld()) {
@@ -448,19 +439,19 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 	// TEMPORARY for macOS mouse input testing
 //	if (keysPressed.count(Key::Z)) {
-//		A3D_APP_LOG_I(g_log, "Trying to re-initialize mouse input.");
+//		A3D_APP_LOG_I("Trying to re-initialize mouse input.");
 //		auto windowInputManager = static_cast<GlfwInputManager*>(scene.inputManager());
 //		try {
 //			windowInputManager->initMouseInput();
 //		}
 //		catch (Exception) {
-//			A3D_APP_LOG_E(g_log, "Nada");
+//			A3D_APP_LOG_E("Nada");
 //		}
 //	}
 
 	if (keysPressed.count(Key::Escape)) {
 		window->close();
-		A3D_APP_LOG_I(g_log, "open? {}", window->isOpen() ? "ya" : "no");
+		A3D_APP_LOG_I("open? {}", window->isOpen() ? "ya" : "no");
 	}
 
 	if (keysPressed.count(Key::Slash)) {
@@ -530,14 +521,14 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 		if (auto pov = scene.visualWorld()->pointOfView().lock()) {
 			auto pos = pov->worldPosition();
 			auto orient = pov->worldOrientation();
-			A3D_APP_LOG_I(g_log, "\ncamera position: ({:.4f}, {:.4f}, {:.4f})\n"
+			A3D_APP_LOG_I("\ncamera position: ({:.4f}, {:.4f}, {:.4f})\n"
 								 "camera orientation: ({:.6f}, {:.6f}, {:.6f}, {:.6f})",
 						  pos.x, pos.y, pos.x, orient.x, orient.y, orient.z, orient.w);
 		}
 	}
 
 //		if (keysPressed.count(Key::T)) {
-//			A3D_APP_LOG_I(g_log, "TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
+//			A3D_APP_LOG_I("TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
 //		}
 
 	// spawn duck fruit
@@ -783,29 +774,23 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	}
 }
 
-/***************************************************************************************
-	VisualWorld Callbacks
- ***************************************************************************************/
+/// VisualWorld Callbacks ///
 
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T(g_log, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	A3D_APP_LOG_T("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 void DidRenderCallback(VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T(g_log, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	A3D_APP_LOG_T("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
-/***************************************************************************************
-	PhysicalWorld Callbacks
- ***************************************************************************************/
+/// PhysicalWorld Callbacks ///
 
 void DidSimulatePhysicsCallback(PhysicalWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T(g_log, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	A3D_APP_LOG_T("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
-/***************************************************************************************
-	Static
- ***************************************************************************************/
+/// Static ///
 
 void InitLog() {
 
@@ -817,8 +802,9 @@ void InitLog() {
 	sinks.insert(std::move(nativeSink));
 	sinks.insert(std::move(fileSink));
 
-	g_log = make_unique<Log>(executableName, std::move(sinks));
-	g_log->level(A3D_APP_LOG_LEVEL);
+	auto appLog = make_unique<Log>(executableName, std::move(sinks));
+	appLog->level(A3D_APP_LOG_LEVEL);
+	Log::AppLog(std::move(appLog));
 
 	Log::MainLog().level(A3D_APP_LOG_LEVEL);
 }
@@ -827,12 +813,12 @@ void LogBuildInfo() {
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
-	A3D_APP_LOG_I(g_log, "A3D version: {}.{}.{}",
+	A3D_APP_LOG_I("A3D version: {}.{}.{}",
 		  version.major, version.minor, version.patch);
-	A3D_APP_LOG_I(g_log, "Build: {}", buildInfo.number());
-	A3D_APP_LOG_I(g_log, "Type: {}",
+	A3D_APP_LOG_I("Build: {}", buildInfo.number());
+	A3D_APP_LOG_I("Type: {}",
 		  buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
-	A3D_APP_LOG_I(g_log, "Origin: {}",
+	A3D_APP_LOG_I("Origin: {}",
 		  buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
 }
 

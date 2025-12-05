@@ -15,12 +15,10 @@
 #include "a3d/a3d.h"
 #include "a3d/Utilities.h"
 
-
 using namespace a3d;
 using namespace glm;
 using namespace std;
 using namespace std::placeholders;
-
 
 constexpr LogLevel				A3D_APP_LOG_LEVEL =		LogLevel::Debug;
 constexpr uvec2					WINDOW_SIZE =			{1280, 768};
@@ -31,19 +29,14 @@ constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
 
-
 void UpdateCallback(Scene& scene, double time, double deltaTime);
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
 void DidRenderCallback(VisualWorld& world, double time, double deltaTime);
 
-
 void InitLog();
 void LogBuildInfo();
 
-
-std::unique_ptr<a3d::Log>		g_log;
-std::shared_ptr<a3d::Node>			g_pointLightPivotNode;
-
+std::shared_ptr<a3d::Node>	g_pointLightPivotNode;
 
 int main(int argc, const char* argv[]) {
 
@@ -62,7 +55,7 @@ int main(int argc, const char* argv[]) {
 
 		auto inputManager = make_unique<GLFWInputManager>(window.get());
 		if (inputManager->errorMask() == DesktopInputManagerErrorMask::PermissionDenied) {
-			A3D_APP_LOG_E(g_log, "GLFWInputManager permission denied.");
+			A3D_APP_LOG_E("GLFWInputManager permission denied.");
 			// on macOS 10.15 Catalina+, this is probably a permissions issue,
 			// and the OS will alert the user.
 			// just keep going and let the user decide what they want to do.
@@ -253,19 +246,17 @@ int main(int argc, const char* argv[]) {
 	}
 	catch (Exception& e)
 	{
-		A3D_APP_LOG_F(g_log, "Exception: {}", e.what());
+		A3D_APP_LOG_F("Exception: {}", e.what());
 		return -1;
 	}
 
 	return 0;
 }
 
-/***************************************************************************************
-	Scene Callbacks
- ***************************************************************************************/
+/// Scene Callbacks ///
 
 void UpdateCallback(Scene& scene, double time, double deltaTime) {
-	A3D_APP_LOG_T(g_log, "scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
+	A3D_APP_LOG_T("scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
 
 	GLFWWindow* window = nullptr;
 	if (scene.visualWorld()) {
@@ -378,21 +369,17 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	}
 }
 
-/***************************************************************************************
-	VisualWorld Callbacks
- ***************************************************************************************/
+/// VisualWorld Callbacks ///
 
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T(g_log, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	A3D_APP_LOG_T("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 void DidRenderCallback(VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T(g_log, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	A3D_APP_LOG_T("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
-/***************************************************************************************
-	Static
- ***************************************************************************************/
+/// Static ///
 
 void InitLog() {
 
@@ -404,8 +391,9 @@ void InitLog() {
 	sinks.insert(std::move(nativeSink));
 	sinks.insert(std::move(fileSink));
 
-	g_log = make_unique<Log>(executableName, std::move(sinks));
-	g_log->level(A3D_APP_LOG_LEVEL);
+	auto appLog = make_unique<Log>(executableName, std::move(sinks));
+	appLog->level(A3D_APP_LOG_LEVEL);
+	Log::AppLog(std::move(appLog));
 
 	Log::MainLog().level(A3D_APP_LOG_LEVEL);
 }
@@ -414,8 +402,8 @@ void LogBuildInfo() {
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
-	A3D_APP_LOG_I(g_log, "A3D version: {}.{}.{}", version.major, version.minor, version.patch);
-	A3D_APP_LOG_I(g_log, "Build: {}", buildInfo.number());
-	A3D_APP_LOG_I(g_log, "Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
-	A3D_APP_LOG_I(g_log, "Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
+	A3D_APP_LOG_I("A3D version: {}.{}.{}", version.major, version.minor, version.patch);
+	A3D_APP_LOG_I("Build: {}", buildInfo.number());
+	A3D_APP_LOG_I("Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
+	A3D_APP_LOG_I("Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
 }

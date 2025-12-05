@@ -63,7 +63,7 @@ void MainWindow::initScene(a3d::head::qt::QtViewport &viewport) {
 
 		auto inputManager = make_unique<a3d::head::qt::QtInputManager>(*_viewport);
 		if (inputManager->errorMask() == DesktopInputManagerErrorMask::PermissionDenied) {
-			A3D_APP_LOG_E(_log, "GLFWInputManager permission denied.");
+			A3D_APP_LOG_E("GLFWInputManager permission denied.");
 			// on macOS 10.15 Catalina+, this is probably a permissions issue,
 			// and the OS will alert the user.
 			// just keep going and let the user decide what they want to do.
@@ -108,7 +108,7 @@ void MainWindow::initScene(a3d::head::qt::QtViewport &viewport) {
 	}
 	catch (Exception& e)
 	{
-		A3D_APP_LOG_F(_log, "Exception: {}", e.what());
+		A3D_APP_LOG_F("Exception: {}", e.what());
 		//return -1;
 	}
 }
@@ -132,24 +132,24 @@ void MainWindow::logBuildInfo() {
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
-	A3D_APP_LOG_I(_log, "A3D version: {}.{}.{}", version.major, version.minor, version.patch);
-	A3D_APP_LOG_I(_log, "Build: {}", buildInfo.number());
-	A3D_APP_LOG_I(_log, "Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
-	A3D_APP_LOG_I(_log, "Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
+	A3D_APP_LOG_I("A3D version: {}.{}.{}", version.major, version.minor, version.patch);
+	A3D_APP_LOG_I("Build: {}", buildInfo.number());
+	A3D_APP_LOG_I("Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
+	A3D_APP_LOG_I("Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
 }
 
 
 void MainWindow::updateCallback(a3d::Scene& scene, double time, double deltaTime) {
-	A3D_APP_LOG_T(_log, "");
+	A3D_APP_LOG_T("");
 
 //	static int invocations = 0;
 //	if (invocations == 2) {
 //		double time = utils::Time() - g_startTime;
-//		A3D_APP_LOG_I(_log, "START TIME: {}", time);
+//		A3D_APP_LOG_I("START TIME: {}", time);
 //	}
 //	++invocations;
 //
-//	A3D_APP_LOG_T(_log, "scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
+//	A3D_APP_LOG_T("scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
 
 	//auto window = dynamic_cast<GlfwWindow*>(scene.visualWorld()->renderContext());
 
@@ -173,7 +173,7 @@ void MainWindow::updateCallback(a3d::Scene& scene, double time, double deltaTime
 	}
 
 	if (keysPressed.count(Key::T)) {
-		A3D_APP_LOG_I(_log, "TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
+		A3D_APP_LOG_I("TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
 	}
 
 //	if 		(keysPressed.count(Key::One))	SetAllFilterModes(FilterMode::Nearest, scene);
@@ -244,21 +244,21 @@ void MainWindow::updateCallback(a3d::Scene& scene, double time, double deltaTime
 
 		auto mouseButtonsPressed = im->mouseButtonsPressed();
 		if (mouseButtonsPressed.count(MouseButton::One)) {
-			A3D_APP_LOG_D(_log, "one");
+			A3D_APP_LOG_D("one");
 		}
 		if (mouseButtonsPressed.count(MouseButton::Two)) {
-			A3D_APP_LOG_D(_log, "two");
+			A3D_APP_LOG_D("two");
 		}
 		if (mouseButtonsPressed.count(MouseButton::Three)) {
-			A3D_APP_LOG_D(_log, "three");
+			A3D_APP_LOG_D("three");
 		}
 
 		auto scrollWheelDelta = im->mouseScrollWheelDelta();
 		if (fabs(scrollWheelDelta.x) > .0001) {
-			A3D_APP_LOG_D(_log, "x: {}", scrollWheelDelta.x);
+			A3D_APP_LOG_D("x: {}", scrollWheelDelta.x);
 		}
 		else if (fabs(scrollWheelDelta.y) > .0001) {
-			A3D_APP_LOG_D(_log, "y: {}", scrollWheelDelta.y);
+			A3D_APP_LOG_D("y: {}", scrollWheelDelta.y);
 		}
 
 		vec2 mousePositionDelta = im->mousePositionDelta();
@@ -368,13 +368,13 @@ void MainWindow::updateCallback(a3d::Scene& scene, double time, double deltaTime
 }
 
 void MainWindow::willRenderCallback(a3d::VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T(_log, "");
+	A3D_APP_LOG_T("");
 }
 
 void MainWindow::didRenderCallback(a3d::VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T(_log, "");
+	A3D_APP_LOG_T("");
 }
 
 void MainWindow::didSimulatePhysicsCallback(a3d::PhysicalWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T(_log, "");
+	A3D_APP_LOG_T("");
 }

@@ -29,6 +29,7 @@ namespace a3d {
 		InputManager();
 		InputManager(const InputManager& other) = delete; // copy constructor
 		InputManager& operator=(const InputManager& other) = delete; // copy assignment
+		virtual ~InputManager();
 
 		/// Internal Member Functions ///
 

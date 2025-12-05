@@ -17,12 +17,10 @@
 #include "a3d/a3d.h"
 #include "a3d/Utilities.h"
 
-
 using namespace a3d;
 using namespace glm;
 using namespace std;
 using namespace std::placeholders;
-
 
 constexpr uvec2					WINDOW_SIZE =			{1280, 768};
 constexpr bool					FULLSCREEN =			false;
@@ -32,11 +30,9 @@ constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
 
-
 void UpdateCallback(Scene& scene, double time, double deltaTime);
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
 void DidRenderCallback(VisualWorld& world, double time, double deltaTime);
-
 
 int main(int argc, const char* argv[]) {
 
@@ -87,9 +83,7 @@ int main(int argc, const char* argv[]) {
 	return 0;
 }
 
-/***************************************************************************************
-	Scene Callbacks
- ***************************************************************************************/
+/// Scene Callbacks ///
 
 void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
@@ -180,9 +174,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	}
 }
 
-/***************************************************************************************
-	VisualWorld Callbacks
- ***************************************************************************************/
+/// VisualWorld Callbacks ///
 
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime) {
 }

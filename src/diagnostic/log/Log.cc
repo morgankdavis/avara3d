@@ -48,6 +48,14 @@ Log& Log::MainLog() {
 	return *logger;
 }
 
+Log& Log::AppLog() {
+	return *_appLog;
+}
+
+void Log::AppLog(unique_ptr<Log> log) {
+	_appLog = std::move(log);
+}
+
 /// Private Static Prototypes ///
 
 string TimestampString();
@@ -229,3 +237,7 @@ string HeaderString(const string& logName, LogLevel level) {
 					   logName,
 					   magic_enum::enum_name(level));
 }
+
+/// Private Static Member Variables ///
+
+std::unique_ptr<Log> Log::_appLog; // weird.

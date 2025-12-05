@@ -14,3 +14,4 @@ using namespace std;
 /// Public Lifecycle Functions ///
 
 InputManager::InputManager() {}
+InputManager::~InputManager() {}
