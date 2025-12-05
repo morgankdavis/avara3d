@@ -11,8 +11,6 @@
 #include <QEvent>
 #include <QMouseEvent>
 
-#include "a3d/diagnostic/log/Log.h"
-
 #include "QtViewport.h"
 
 using InputManger = a3d::head::qt::QtInputManager;
@@ -35,12 +33,7 @@ InputManger::QtInputManager(QtViewport& viewport) {
  	Internal Member Functions
  *********************************************************************************************/
 
-//void InputManger::event(QEvent* e) {}
-
 void InputManger::keyPressed(int qtKey) {
-	A3D_LOG_I("qtKey: {}", qtKey);
-
-	using a3d::Key;
 
 	auto a3dKey = a3dKeyFromQtKey(qtKey);
 
@@ -54,9 +47,6 @@ void InputManger::keyPressed(int qtKey) {
 }
 
 void InputManger::keyReleased(int qtKey) {
-	A3D_LOG_I("KEY: {}", qtKey);
-
-	using a3d::Key;
 
 	auto a3dKey = a3dKeyFromQtKey(qtKey);
 

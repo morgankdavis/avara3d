@@ -11,48 +11,37 @@
 
 #include "a3d/input/DesktopInputManager.h"
 
-//class QEvent;
-//class QPoint;
-//class QPointF;
+namespace a3d::head::qt {
 
-namespace a3d {
+	class QtViewport;
 
-	namespace head {
+	class QtInputManager : public a3d::DesktopInputManager {
 
-		namespace qt {
+	public:
 
-			class QtViewport;
+/*********************************************************************************************
+	Public Lifecycle Functions
+ *********************************************************************************************/
 
-			class QtInputManager : public a3d::DesktopInputManager {
+		explicit QtInputManager(QtViewport& viewport);
 
-			public:
+/*********************************************************************************************
+	Internal Member Functions
+ *********************************************************************************************/
 
-		/*********************************************************************************************
-			Public Lifecycle Functions
-		 *********************************************************************************************/
+		void 	keyPressed(int qtKey);
+		void 	keyReleased(int qtKey);
+		void 	mouseMoved(float x, float y);
+		void	mouseButtonPressed(int qtButton);
+		void	mouseButtonReleased(int qtButton);
+		void	mouseWheelScrolled(int x, int y);
 
-				explicit QtInputManager(QtViewport& viewport);
+/*********************************************************************************************
+	InputManager Internal Member Functions
+ *********************************************************************************************/
 
-		/*********************************************************************************************
-			Internal Member Functions
-		 *********************************************************************************************/
-
-				//void	event(QEvent* e);
-				void 	keyPressed(int qtKey);
-				void 	keyReleased(int qtKey);
-				void 	mouseMoved(float x, float y);//QPointF delta);
-				void	mouseButtonPressed(int qtButton);
-				void	mouseButtonReleased(int qtButton);
-				void	mouseWheelScrolled(int x, int y);//QPoint delta);
-
-		/*********************************************************************************************
-			InputManager Internal Member Functions
-		 *********************************************************************************************/
-
-				void	update() override;
-			};
-		}
-	}
+		void	update() override;
+	};
 }
 
 

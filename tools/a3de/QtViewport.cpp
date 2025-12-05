@@ -11,6 +11,7 @@
 #include <QDateTime>
 #include <QEvent>
 #include <QMouseEvent>
+#include <QOpenGLFunctions_3_3_Core>
 #include <QWidget>
 #include <QWindow>
 
@@ -310,8 +311,6 @@ void Viewport::mouseMoveEvent(QMouseEvent *e) {
 
 	if (e->source() == Qt::MouseEventNotSynthesized) {
 
-		bool wasCursorCaptured = _cursorCaptured;
-
 		auto pos = e->position();
 		QPointF center(width() / 2.0, height() / 2.0);
 
@@ -321,27 +320,22 @@ void Viewport::mouseMoveEvent(QMouseEvent *e) {
 			return;
 		}
 
-//		if (!wasCursorCaptured && _cursorCaptured) { // HMMMMMMMMMMMMMMMMM
-//			_lastCapturedCursorPosition = {};
-//		}
-//		else {
-			if (!_lastCapturedCursorPosition.has_value()) {
-				_lastCapturedCursorPosition = pos;
-			}
-
-			QPointF delta = pos - *_lastCapturedCursorPosition;
-			if (_inputManager) {
-				_inputManager->mouseMoved(delta.x(), delta.y());
-			}
-
+		if (!_lastCapturedCursorPosition.has_value()) {
 			_lastCapturedCursorPosition = pos;
+		}
 
-			if (_cursorCaptured) {
-				_warpingCursor = true;
-				centerCursor();
-				_lastCapturedCursorPosition = center;
-			}
-//		}
+		QPointF delta = pos - *_lastCapturedCursorPosition;
+		if (_cursorCaptured && _inputManager) {
+			_inputManager->mouseMoved(float(delta.x()), float(delta.y()));
+		}
+
+		_lastCapturedCursorPosition = pos;
+
+		if (_cursorCaptured) {
+			_warpingCursor = true;
+			centerCursor();
+			_lastCapturedCursorPosition = center;
+		}
 	}
 
 	e->accept();

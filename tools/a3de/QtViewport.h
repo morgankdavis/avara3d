@@ -12,108 +12,84 @@
 #include <memory>
 
 #include <QOpenGLWidget>
-#include <QOpenGLFunctions_3_3_Core>
 
 #include "a3d/rendering/context/RenderContext.h"
 
 namespace a3d {
-
 	class Scene;
+}
 
-	namespace head::qt {
+namespace a3d::head::qt {
 
-		class QtInputManager;
+	class QtInputManager;
 
-		class QtViewport : public QOpenGLWidget, public a3d::RenderContext {
+	class QtViewport : public QOpenGLWidget, public a3d::RenderContext {
 
-		Q_OBJECT
+	Q_OBJECT
 
-		public:
+	public:
+		/// Public Lifecycle Functions /// public:
 
-	/*********************************************************************************************
-		Public Lifecycle Functions
-	 *********************************************************************************************/
+		explicit QtViewport(a3d::RenderingApi renderingApi, QWidget* parent = nullptr);
+		~QtViewport() override;
 
-			explicit QtViewport(a3d::RenderingApi renderingApi, QWidget* parent = nullptr);
-			~QtViewport() override;
+		/// Public Member Functions ///
 
-	/*********************************************************************************************
-		Public Member Functions
-	 *********************************************************************************************/
+		a3d::Scene*				scene() const;
+		void 					scene(a3d::Scene* scene);
 
-			a3d::Scene*				scene() const;
-			void 					scene(a3d::Scene* scene);
+		bool 					cursorCaptured() const;
+		void 					cursorCaptured(bool captured);
 
-			bool 					cursorCaptured() const;
-			void 					cursorCaptured(bool captured);
+	public:
+		/// Public Member Functions ///
 
-		public:
+		void					inputManager(QtInputManager* manager);
 
-	/*********************************************************************************************
-		Public Member Functions
-	 *********************************************************************************************/
+		/// RenderContext Public Member Functions ///
 
-			void					inputManager(QtInputManager* manager);
+		bool 					vSyncEnabled() const override;
+		void 					vSyncEnabled(bool enabled) override;
 
-	/*********************************************************************************************
-		RenderContext Public Member Functions
-	 *********************************************************************************************/
+		/// RenderContext Internal Member Functions ///
 
-			bool 					vSyncEnabled() const override;
-			void 					vSyncEnabled(bool enabled) override;
+		void 					beginFrame(const a3d::Scene& scene) override;
+		void 					endFrame(const a3d::Scene& scene) override;
 
-	/*********************************************************************************************
-		RenderContext Internal Member Functions
-	 *********************************************************************************************/
+		void 					swapBuffers() override;
 
-			void 					beginFrame(const a3d::Scene& scene) override;
-			void 					endFrame(const a3d::Scene& scene) override;
+		glm::uvec2 				framebufferSize() const override;
+		glm::vec2 				framebufferScale() const override;
 
-			void 					swapBuffers() override;
+		unsigned 				defaultFramebuffer() const override;
 
-			glm::uvec2 				framebufferSize() const override;
-			glm::vec2 				framebufferScale() const override;
+	protected:
+		/// QWidget Protected Member Functions ///
 
-			unsigned 				defaultFramebuffer() const override;
+		bool 					event(QEvent* e) override;
+		void 					keyPressEvent(QKeyEvent* e) override;
+		void 					keyReleaseEvent(QKeyEvent* e) override;
+		void 					mouseMoveEvent(QMouseEvent *e) override;
 
-		protected:
+		/// QOpenGLWidget Protected Member Functions ///
 
-	/*********************************************************************************************
-		QWidget Protected Member Functions
-	 *********************************************************************************************/
+		void 					initializeGL() override;
+		void 					resizeGL(int w, int h) override;
+		void 					paintGL() override;
 
-			bool 					event(QEvent* e) override;
-			void 					keyPressEvent(QKeyEvent* e) override;
-			void 					keyReleaseEvent(QKeyEvent* e) override;
-			void 					mouseMoveEvent(QMouseEvent *e) override;
+	private:
+		/// Private Member Functions ///
 
-	/*********************************************************************************************
-		QOpenGLWidget Protected Member Functions
-	 *********************************************************************************************/
+		void					centerCursor();
 
-			void 					initializeGL() override;
-			void 					resizeGL(int w, int h) override;
-			void 					paintGL() override;
+		/// Private Member Variables ///
 
-		private:
-
-	/*********************************************************************************************
-		Private Member Functions
-	 *********************************************************************************************/
-
-			void					centerCursor();
-
-	/*********************************************************************************************
-		Private Member Variables
-	 *********************************************************************************************/
-
-			a3d::Scene* 			_scene;
-			bool					_cursorCaptured;
-			std::optional<QPointF> 	_lastCapturedCursorPosition;
-			QtInputManager*			_inputManager;
-			bool 					_warpingCursor;
-		};
-	}
+		a3d::Scene* 			_scene;
+		bool					_cursorCaptured;
+		std::optional<QPointF> 	_lastCapturedCursorPosition;
+		QtInputManager*			_inputManager;
+		bool 					_warpingCursor;
+	};
 }
 
 #endif // A3DVIEWPORT_H
