@@ -110,6 +110,7 @@ void GLFWInputManager::update() {
 /// Private Member Functions ///
 
 void GLFWInputManager::initMouseInput() {
+
     // starting with macOS 10.15 Catalina, GLFW 3.3 raw mouse input never works, and ManyMouse
     // requires the user manually allow "Input Monitoring" in System Preferences ->
     // Privacy & Security -> Input Monitoring, or IOHIDDeviceOpen() in ManyMouse will fail with

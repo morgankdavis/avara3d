@@ -223,10 +223,6 @@ bool Viewport::event(QEvent* e) {
 		}
 	}
 
-//	if (_inputManager) {
-//		_inputManager->event(e);
-//	}
-
 	return QOpenGLWidget::event(e);
 }
 
@@ -243,20 +239,18 @@ void Viewport::keyPressEvent(QKeyEvent* e) {
 		}
 
 		int key = e->key();
-		if (key >= 0 && key < IM_ARRAYSIZE(io.KeysDown)) {
-			io.KeysDown[key] = true;
-		}
+		io.AddKeyEvent(ImGuiKeyFromQtKey(key), true);
 
-		io.KeyCtrl = e->modifiers().testFlag(Qt::ControlModifier);
-		io.KeyShift = e->modifiers().testFlag(Qt::ShiftModifier);
-		io.KeyAlt = e->modifiers().testFlag(Qt::AltModifier);
-		io.KeySuper = e->modifiers().testFlag(Qt::MetaModifier);
+		io.AddKeyEvent(ImGuiKey_ModCtrl,  e->modifiers().testFlag(Qt::ControlModifier));
+		io.AddKeyEvent(ImGuiKey_ModShift, e->modifiers().testFlag(Qt::ShiftModifier));
+		io.AddKeyEvent(ImGuiKey_ModAlt,   e->modifiers().testFlag(Qt::AltModifier));
+		io.AddKeyEvent(ImGuiKey_ModSuper, e->modifiers().testFlag(Qt::MetaModifier));
 
 		if (io.WantCaptureKeyboard) {
 			e->accept();
 		}
 		else {
-			if (_inputManager) {
+			if (_inputManager && !e->isAutoRepeat()) {
 				_inputManager->keyPressed(key);
 			}
 			QOpenGLWidget::keyPressEvent(e);
@@ -277,14 +271,12 @@ void Viewport::keyReleaseEvent(QKeyEvent* e) {
 		ImGuiIO& io = ImGui::GetIO();
 
 		int key = e->key();
-		if (key >= 0 && key < IM_ARRAYSIZE(io.KeysDown)) {
-			io.KeysDown[key] = false;
-		}
+		io.AddKeyEvent(ImGuiKeyFromQtKey(key), false);
 
-		io.KeyCtrl = e->modifiers().testFlag(Qt::ControlModifier);
-		io.KeyShift = e->modifiers().testFlag(Qt::ShiftModifier);
-		io.KeyAlt = e->modifiers().testFlag(Qt::AltModifier);
-		io.KeySuper = e->modifiers().testFlag(Qt::MetaModifier);
+		io.AddKeyEvent(ImGuiKey_ModCtrl,  e->modifiers().testFlag(Qt::ControlModifier));
+		io.AddKeyEvent(ImGuiKey_ModShift, e->modifiers().testFlag(Qt::ShiftModifier));
+		io.AddKeyEvent(ImGuiKey_ModAlt,   e->modifiers().testFlag(Qt::AltModifier));
+		io.AddKeyEvent(ImGuiKey_ModSuper, e->modifiers().testFlag(Qt::MetaModifier));
 
 		if (io.WantCaptureKeyboard) {
 			e->accept();
@@ -297,7 +289,7 @@ void Viewport::keyReleaseEvent(QKeyEvent* e) {
 		}
 	}
 	else {
-		if (_inputManager) {
+		if (_inputManager && !e->isAutoRepeat()) {
 			_inputManager->keyReleased(e->key());
 		}
 		QOpenGLWidget::keyReleaseEvent(e);
@@ -353,14 +345,13 @@ void Viewport::initializeGL() {
 
 	if (a3d::OpenGLRenderer::InitGL(loader)) {
 
-		IMGUI_CHECKVERSION();
-		ImGui::CreateContext();
+		_renderer->initialize(*this);
+
 		ImGuiIO& io = ImGui::GetIO();
 		io.IniFilename = nullptr;
-		ImGui::StyleColorsDark();
-		io.DisplaySize = ImVec2(float(width()), float(height()));
-
-		_renderer->initialize(*this);
+		//ImGui::StyleColorsDark();
+//		io.DisplaySize = ImVec2(float(width()), float(height()));
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	}
 	else {
 		A3D_LOG_F("Failed to initialize OpenGL function loader.");
