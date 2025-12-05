@@ -31,7 +31,9 @@ static ImGuiKey ImGuiKeyFromQtKey(int qt_key);
 
 /// Public Lifecycle Functions ///
 
-Viewport::QtViewport(RenderingApi renderingApi, QWidget* parent):
+Viewport::QtViewport(RenderingApi renderingApi,
+					 AntialiasingMode antialiasingMode,
+					 QWidget* parent):
 		RenderContext(renderingApi),
 		QOpenGLWidget(parent),
 		_scene{},
@@ -40,11 +42,20 @@ Viewport::QtViewport(RenderingApi renderingApi, QWidget* parent):
 		_inputManager{nullptr},
 		_warpingCursor{false} {
 
-	// optional: better default size
-	setMinimumSize(1280, 768);
+	setMinimumSize(320, 240);
+
+	QSurfaceFormat fmt;
+//	fmt.setDepthBufferSize(24);
+//	fmt.setStencilBufferSize(8);
+	fmt.setVersion(3, 3);
+	fmt.setProfile(QSurfaceFormat::CoreProfile);
+	fmt.setSamples(static_cast<underlying_type<AntialiasingMode>::type>(antialiasingMode));
+	setFormat(fmt);
+	_antialiasingMode = antialiasingMode;
+
+//	resize()
 
 	setMouseTracking(true);
-
 	setFocusPolicy(Qt::StrongFocus); // tab + click focus
 	// setFocusPolicy(Qt::ClickFocus);
 	setFocus();

@@ -57,9 +57,8 @@ namespace a3de {
 
 		Ui::MainWindow*				_ui;
 		a3d::head::qt::QtViewport*	_viewport;
-		std::unique_ptr<a3d::Log>	_log;
 		std::unique_ptr<a3d::Scene> _scene;
-		a3d::Node*					_pointLightNode;
+		std::shared_ptr<a3d::Node>	_pointLightNode;
 	};
 }
 

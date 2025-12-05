@@ -29,7 +29,7 @@ constexpr LogLevel				A3D_APP_LOG_LEVEL =		LogLevel::Debug;
 constexpr uvec2					WINDOW_SIZE =			{1280, 768};
 constexpr bool					FULLSCREEN =			false;
 constexpr bool					ENABLE_HIGH_DPI =		true;
-constexpr AntialiasingMode		MSAA_MODE =				AntialiasingMode::Msaa16X;
+constexpr AntialiasingMode		AA_MODE =				AntialiasingMode::Msaa16X;
 constexpr bool					ENABLE_VSYNC =			false;
 constexpr bool					USE_DEFAULT_LIGHTING =	false;
 constexpr bool					CAPTURE_CURSOR =		false;
@@ -77,7 +77,7 @@ int main(int argc, const char* argv[]) {
 											  WINDOW_SIZE,
 											  FULLSCREEN,
 											  ENABLE_HIGH_DPI,
-											  MSAA_MODE);
+											  AA_MODE);
 		window->vSyncEnabled(ENABLE_VSYNC);
 		window->cursorCaptured(CAPTURE_CURSOR);
 

@@ -25,15 +25,9 @@ using namespace std::placeholders;
 
 constexpr LogLevel				A3D_APP_LOG_LEVEL =		LogLevel::Debug;
 constexpr uvec2					WINDOW_SIZE =			{1280, 768};
-constexpr bool					FULLSCREEN =			false;
-constexpr bool					ENABLE_HIGH_DPI =		true;
-constexpr AntialiasingMode		MSAA_MODE =				AntialiasingMode::Msaa4X;
-constexpr bool					ENABLE_VSYNC =			false;
+constexpr AntialiasingMode		AA_MODE =				AntialiasingMode::Msaa4X;
 constexpr bool					CAPTURE_CURSOR =		false;
 constexpr float					MOUSE_SENSITIVITY =		0.5;
-constexpr float					PHYSICS_TIMESTEP =		1.0/120.0;
-constexpr bool 					ORTHO_CAMERA =			false;
-constexpr bool					DARK =					false;
 
 MainWindow::MainWindow(QWidget* parent):
 		QMainWindow(parent),
@@ -42,7 +36,11 @@ MainWindow::MainWindow(QWidget* parent):
 	_ui->setupUi(this);
 	statusBar()->hide();
 
-	_viewport = new a3d::head::qt::QtViewport(RenderingApi::OpenGL, this);
+	resize(WINDOW_SIZE.x, WINDOW_SIZE.y);
+
+	_viewport = new a3d::head::qt::QtViewport(RenderingApi::OpenGL,
+											  AA_MODE,
+											  this);
 	initScene(*_viewport);
 	_viewport->scene(_scene.get());
 
@@ -98,13 +96,19 @@ void MainWindow::initScene(a3d::head::qt::QtViewport &viewport) {
 		pointLight->name("point");
 		pointLight->quadraticAttenuation(0.002);
 		auto pointLightNode = Node::LightNode(pointLight);
-		_pointLightNode = pointLightNode.get(); // <- how is this not crashing?
+		_pointLightNode = pointLightNode; // <- how is this not crashing?
 		auto material = make_shared<Material>();
 		material->name("LIGHT material");
 		material->emission(Color::White());
 		auto geometry = Sphere::Mesh(1.5, 4, material);
 		pointLightNode->mesh(geometry);
 		_scene->rootNode()->addChild(pointLightNode);
+
+//		if (FULLSCREEN) {
+//			showFullScreen(); // blows up ?
+//		}
+
+		viewport.cursorCaptured(CAPTURE_CURSOR);
 	}
 	catch (Exception& e)
 	{
@@ -122,8 +126,9 @@ void MainWindow::initLog() {
 	sinks.insert(std::move(nativeSink));
 	sinks.insert(std::move(fileSink));
 
-	_log = make_unique<Log>(executableName, std::move(sinks));
-	_log->level(A3D_APP_LOG_LEVEL);
+	auto appLog = make_unique<Log>(executableName, std::move(sinks));
+	appLog->level(A3D_APP_LOG_LEVEL);
+	Log::AppLog(std::move(appLog));
 
 	Log::MainLog().level(A3D_APP_LOG_LEVEL);
 }
