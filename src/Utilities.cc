@@ -383,6 +383,14 @@ vector<std::filesystem::path> a3d::utils::BaseSearchPaths() {
 		// [engine] unix/msys debug
 		path = (*execDir).parent_path().parent_path().parent_path() / "data";
 		basePaths.push_back(path);
+
+		// [local] macos bundle
+		path = (*execDir).parent_path().parent_path().parent_path().parent_path().parent_path().parent_path() / "tests" / "data";
+		basePaths.push_back(path);
+
+		// engine
+		path = (*execDir).parent_path().parent_path().parent_path().parent_path().parent_path().parent_path() / "data";
+		basePaths.push_back(path);
 		
 		// fallback
 		path = (*execDir);
