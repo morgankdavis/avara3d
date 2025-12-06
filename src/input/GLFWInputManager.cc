@@ -144,16 +144,16 @@ void GLFWInputManager::initMouseInput() {
     // message "TCC deny IOHIDDeviceOpen" / kIOReturnNotPermitted.  ManyMouse was modified to
     // report kIOReturnNotPermitted and set _errorMask for the client to check.
 
-    if (glfwRawMouseMotionSupported()) {
+    // if (glfwRawMouseMotionSupported()) {
         A3D_LOG_I("Using GLFW raw mouse input.");
         glfwSetInputMode(_window->glfwWindow(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
         _usingManyMouse = false;
-    }
-    else {
-        A3D_LOG_W("GLFW raw mouse input unavailable.  Using ManyMouse.");
-        _usingManyMouse = true;
-        initManyMouse();
-    }
+    // }
+    // else {
+    //     A3D_LOG_W("GLFW raw mouse input unavailable.  Using ManyMouse.");
+    //     _usingManyMouse = true;
+    //     initManyMouse();
+    // }
 }
 
 void GLFWInputManager::initManyMouse() {
