@@ -33,18 +33,16 @@ namespace a3d {
 		GLFWInputManager& operator=(const InputManager& other) = delete; // copy assignment
 		~GLFWInputManager() override;
 
-		/// Internal Member Functions ///
-
-		void glfwCursorPosCallback(double xpos, double ypos);
-//		void glfwCursorEnterCallback(int entered);
-		void glfwMouseButtonCallback(int button, int action, int mods);
-		void glfwScrollCallback(double xoffset, double yoffset);
-		void glfwKeyCallback(int key, int scancode, int action, int mods);
-//		void glfwCharCallback(unsigned int c);
-
 		/// InputManager Internal Member Functions ///
 
 		void 				update() override;
+
+		/// Internal Member Functions ///
+
+		void glfwMouseDeltaEvent(double xDelta, double yDelta);
+		void glfwMouseButtonEvent(int button, int action, int mods);
+		void glfwScrollEvent(double xOffset, double yOffset);
+		void glfwKeyEvent(int key, int scanCode, int action, int mods);
 
 	private:
 		/// Private Member Functions ///
@@ -52,30 +50,6 @@ namespace a3d {
 		void 				initMouseInput();
 		void 				initManyMouse();
 		void 				quitManyMouse();
-		void 				registerGLFWCallbacks(GLFWwindow* glfwWindow);
-		void 				unregisterGLFWCallbacks(GLFWwindow* glfwWindow);
-
-		/// Private Static Member Functions ///
-
-		static void 		GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
-												   int button,
-												   int action,
-												   int mods);
-		static void 		GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
-													  double xPos,
-													  double yPos);
-		static void 		GLFWScrollWheelCallback(GLFWwindow* glfwWindow,
-												   double xOffset,
-												   double yOffset);
-		static void 		GLFWKeyCallback(GLFWwindow* glfwWindow,
-										   int key,
-										   int scancode,
-										   int action,
-										   int mods);
-
-		// TEMPORARY
-		static void CursorEnterCallback(GLFWwindow* window, int entered);
-		static void CharCallback(GLFWwindow* window, unsigned int c);
 
 		/// Private Member Variables ///
 

@@ -168,9 +168,11 @@ bool Viewport::event(QEvent* e) {
 		auto type = e->type();
 		switch (type) {
 			case QEvent::MouseMove: {
-				auto* ev = static_cast<QMouseEvent*>(e);
-				const QPointF p = ev->position();
-				io.MousePos = ImVec2(float(p.x()), float(p.y()));
+				if (!_cursorCaptured) {
+					auto *ev = static_cast<QMouseEvent *>(e);
+					const QPointF p = ev->position();
+					io.MousePos = ImVec2(float(p.x()), float(p.y()));
+				}
 				break;
 			}
 			case QEvent::MouseButtonPress:
@@ -314,7 +316,7 @@ void Viewport::mouseMoveEvent(QMouseEvent *e) {
 		}
 
 		QPointF delta = pos - *_lastCapturedCursorPosition;
-		if (_cursorCaptured && _inputManager) {
+		if (_inputManager && _cursorCaptured && !ImGui::GetIO().WantCaptureMouse) {
 			_inputManager->mouseMoved(float(delta.x()), float(delta.y()));
 		}
 
@@ -344,14 +346,7 @@ void Viewport::initializeGL() {
 	};
 
 	if (a3d::OpenGLRenderer::InitGL(loader)) {
-
 		_renderer->initialize(*this);
-
-		ImGuiIO& io = ImGui::GetIO();
-		io.IniFilename = nullptr;
-		//ImGui::StyleColorsDark();
-//		io.DisplaySize = ImVec2(float(width()), float(height()));
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	}
 	else {
 		A3D_LOG_F("Failed to initialize OpenGL function loader.");

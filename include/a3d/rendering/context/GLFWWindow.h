@@ -24,7 +24,6 @@ namespace a3d {
 	class Color;
 	class GLFWInputManager;
 	class Image;
-//	class InputManager;
 	class Node;
 	class Renderer;
 	class Scene;
@@ -46,58 +45,82 @@ namespace a3d {
 
 		/// Public Member Functions ///
 
-		void 					open();
-		void					close();
+		void 				open();
+		void				close();
 
-		bool 					isOpen() const;
+		bool 				isOpen() const;
 
-		std::string				title() const;
-		void					title(const std::string& title);
+		std::string			title() const;
+		void				title(const std::string& title);
 
-		glm::uvec2				size() const;
-		void					size(const glm::uvec2& size);
+		glm::uvec2			size() const;
+		void				size(const glm::uvec2& size);
 
-		glm::uvec2				position() const;
-		void					position(const glm::uvec2& pos);
+		glm::uvec2			position() const;
+		void				position(const glm::uvec2& pos);
 
-		void					center();
+		void				center();
 
-		bool 					hidden() const;
-		void					hidden(bool hidden);
+		bool 				hidden() const;
+		void				hidden(bool hidden);
 
-		bool 					cursorCaptured() const;
-		void 					cursorCaptured(bool captured);
+		bool 				cursorCaptured() const;
+		void 				cursorCaptured(bool captured);
 
-		bool					highDPIEnabled() const;
+		bool				highDPIEnabled() const;
 
 		/// RenderContext Public Member Functions ///
 
-		bool 					vSyncEnabled() const override;
-		void 					vSyncEnabled(bool enabled) override;
+		bool 				vSyncEnabled() const override;
+		void 				vSyncEnabled(bool enabled) override;
 
 		/// RenderContext Internal Member Functions ///
 
-		void 					beginFrame(const Scene& scene) override;
-		void 					endFrame(const Scene& scene) override;
+		void 				beginFrame(const Scene& scene) override;
+		void 				endFrame(const Scene& scene) override;
 
-		void 					swapBuffers() override;
+		void 				swapBuffers() override;
 
-		glm::uvec2				framebufferSize() const override;
-		glm::vec2				framebufferScale() const override;
+		glm::uvec2			framebufferSize() const override;
+		glm::vec2			framebufferScale() const override;
 
-		unsigned 				defaultFramebuffer() const override;
+		unsigned 			defaultFramebuffer() const override;
 
 		/// Internal Member Functions ///
 
-		void					inputManager(GLFWInputManager* manager);
-		void 					pollInput(); // remove?
-		GLFWwindow* 			glfwWindow() const; // remove?
+		void				inputManager(GLFWInputManager* manager);
+		void 				pollInput(); // remove?
+		GLFWwindow* 		glfwWindow() const; // remove?
 
 		/// Internal Static Member Functions ///
 
-		static void				Destroy(GLFWwindow* window);
+		static void			Destroy(GLFWwindow* window);
 
 	private:
+		/// Private Static Member Functions ///
+
+		static void 				GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
+															  double xPos,
+															  double yPos);
+		static void 				GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
+														   int button,
+														   int action,
+														   int mods);
+		static void 				GLFWScrollWheelCallback(GLFWwindow* glfwWindow,
+														   double xOffset,
+														   double yOffset);
+		static void 				GLFWKeyCallback(GLFWwindow* glfwWindow,
+												   int key,
+												   int scanCode,
+												   int action,
+												   int mods);
+		static GLFWInputManager* 	InputManagerFromGLFWWindow(GLFWwindow* glfwWindow);
+
+		/// Private Member Functions ///
+
+		void registerGLFWCallbacks();
+		void unregisterGLFWCallbacks();
+
 		/// Private Types ///
 
 		struct DestroyGLFWWindow {

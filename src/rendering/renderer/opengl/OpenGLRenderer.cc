@@ -71,13 +71,13 @@ using namespace std;
 
 ///  Private Constant Definitions ///
 
-const std::string 	OpenGLRenderer::STATS_TITLE_FONT_NAME = 		"Take cover";
-const std::string 	OpenGLRenderer::STATS_TITLE_FONT_TYPE = 		"ttf";
-const float 		OpenGLRenderer::STATS_TITLE_FONT_SIZE =			21.0;
+const std::string 	OpenGLRenderer::STATS_TITLE_FONT_NAME = 		"SourceCodePro-Bold";
+const std::string 	OpenGLRenderer::STATS_TITLE_FONT_TYPE = 		"otf";
+const float 		OpenGLRenderer::STATS_TITLE_FONT_SIZE =			23.0;
 const std::string 	OpenGLRenderer::STATS_BODY_FONT_NAME = 			"SourceCodePro-Semibold";
 const std::string 	OpenGLRenderer::STATS_BODY_FONT_TYPE = 			"otf";
 const float 		OpenGLRenderer::STATS_BODY_FONT_SIZE =			15.0;
-const float 		OpenGLRenderer::STATS_TITLE_TO_BODY_PADDING =	0.0;
+const float 		OpenGLRenderer::STATS_TITLE_TO_BODY_PADDING =	-3.0;
 
 /// Private Types ///
 
@@ -2294,11 +2294,14 @@ void InitImgui(const RenderContext& context) {
 	CreateContext();
 	ImGuiIO& io = GetIO();
 	io.IniFilename = nullptr;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	ImGui_ImplOpenGL3_Init();
 	//ImGui_ImplOpenGL3_Init("#version 330 core");
 }
 
-void UpdateImguiScale(const RenderContext& context, const Font& overLayFont, const Font& bodyFont) {
+void UpdateImguiScale(const RenderContext& context,
+					  const Font& overLayFont,
+					  const Font& bodyFont) {
 
 	// https://github.com/ocornut/imgui/blob/master/docs/FAQ.md#q-how-should-i-handle-dpi-in-my-application
 	// https://github.com/ocornut/imgui/discussions/3925
@@ -2314,7 +2317,7 @@ void UpdateImguiScale(const RenderContext& context, const Font& overLayFont, con
 	// re-add the fonts with the new oversample scales,
 	// and re-create the font atlas data.
 
-	ImGuiIO& io = ImGui::GetIO();
+	ImGuiIO& io = GetIO();
 	io.Fonts->Clear(); // works
 	io.Fonts->ClearFonts(); // crashes by itself
 	io.Fonts->ClearTexData(); // does not work, but does not crash
@@ -2327,6 +2330,8 @@ void UpdateImguiScale(const RenderContext& context, const Font& overLayFont, con
 
 void AddImguiFont(const RenderContext& context, const Font& font, float size) {
 
+	using namespace ImGui;
+
 	auto scaleXY = context.framebufferScale();
 
 	ImFontConfig fontConfig;
@@ -2338,7 +2343,7 @@ void AddImguiFont(const RenderContext& context, const Font& font, float size) {
 	// this means Imgui eventually frees the font data, and then the Font/Buffer double-free it
 	fontConfig.FontDataOwnedByAtlas = false;
 
-	ImGuiIO& io = ImGui::GetIO();
+	ImGuiIO& io = GetIO();
 
 	io.DisplayFramebufferScale = ImVec2(scaleXY.x, scaleXY.y);
 
@@ -2357,8 +2362,8 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 	auto scale = std::max(scaleXY.x, scaleXY.y);
 	// this is probably going to need more attention when we start
 	// using Imgui for more than just rendering text
-	//ImGui::GetStyle().ScaleAllSizes(scale);
-	ImGui::GetIO().FontGlobalScale = scale;
+	//GetStyle().ScaleAllSizes(scale);
+	GetIO().FontGlobalScale = scale;
 #endif
 
 	constexpr int PADDING = 20;
@@ -2457,49 +2462,51 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 	NewFrame();
 
 	ImGuiWindowFlags windowFlags = 0;
-//	windowFlags |= ImGuiWindowFlags_NoTitleBar;
+	windowFlags |= ImGuiWindowFlags_NoTitleBar;
 //	windowFlags |= ImGuiWindowFlags_NoScrollbar;
 //	windowFlags |= ImGuiWindowFlags_NoMove;
 //	windowFlags |= ImGuiWindowFlags_NoResize;
 //	windowFlags |= ImGuiWindowFlags_NoCollapse;
 //	windowFlags |= ImGuiWindowFlags_NoNav;
 //	windowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
-//
+
 	ImGuiIO& io = GetIO();
 	auto fonts = io.Fonts->Fonts;
-//
+
 //	// draw the text shadow
 //	SetNextWindowBgAlpha(0);
 //	Begin("StatsTextShadow", nullptr, windowFlags);
 //	ImGuiStyle& style = GetStyle();
 //	style.WindowBorderSize = 0;
 //	SetWindowPos({10.0f, 2.0f});
-//	ImVec2 cursorPos = ImGui::GetCursorPos();
-//	ImGui::SetCursorPos(ImVec2(cursorPos.x + 1.0, cursorPos.y + 1.0));
-//	ImGui::PushFont(fonts[0]);
+//	ImVec2 cursorPos = GetCursorPos();
+//	SetCursorPos(ImVec2(cursorPos.x + 1.0, cursorPos.y + 1.0));
+////	PushFont(fonts[1]);
+//	PushFont(fonts[0]);
 //	TextColored(ImVec4{0, 0, 0, .5}, "avara3d");
-//	ImGui::PopFont();
-//	cursorPos = ImGui::GetCursorPos();
-//	ImGui::SetCursorPos(ImVec2(cursorPos.x,
-//							   cursorPos.y + OpenGLRenderer::STATS_TITLE_TO_BODY_PADDING));
-//	ImGui::PushFont(fonts[1]);
+//	PopFont();
+//	cursorPos = GetCursorPos();
+//	SetCursorPos(ImVec2(cursorPos.x,
+//						cursorPos.y + OpenGLRenderer::STATS_TITLE_TO_BODY_PADDING));
+//	PushFont(fonts[1]);
 //	TextColored(ImVec4{0, 0, 0, .5}, "%s", str.c_str());
-//	ImGui::PopFont();
+//	PopFont();
 //	End();
 //
 //	// draw the text
 //	SetNextWindowBgAlpha(0);
 //	Begin("StatsText", nullptr, windowFlags);
 //	SetWindowPos({10.0f, 2.0f});
-//	ImGui::PushFont(fonts[0]);
+////	PushFont(fonts[1]);
+//	PushFont(fonts[0]);
 //	TextColored(ImVec4{1, 1, 1, 1}, "avara3d");
-//	ImGui::PopFont();
-//	cursorPos = ImGui::GetCursorPos();
-//	ImGui::SetCursorPos(ImVec2(cursorPos.x,
-//							   cursorPos.y + OpenGLRenderer::STATS_TITLE_TO_BODY_PADDING));
-//	ImGui::PushFont(fonts[1]);
+//	PopFont();
+//	cursorPos = GetCursorPos();
+//	SetCursorPos(ImVec2(cursorPos.x,
+//						cursorPos.y + OpenGLRenderer::STATS_TITLE_TO_BODY_PADDING));
+//	PushFont(fonts[1]);
 //	TextColored(ImVec4{1, 1, 1, 1}, "%s", str.c_str());
-//	ImGui::PopFont();
+//	PopFont();
 //	End();
 
 	// input test

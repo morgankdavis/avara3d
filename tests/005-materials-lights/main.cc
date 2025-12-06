@@ -21,7 +21,7 @@ using namespace glm;
 using namespace std;
 using namespace std::placeholders;
 
-constexpr LogLevel				A3D_APP_LOG_LEVEL =				LogLevel::Debug;
+constexpr LogLevel				A3D_APP_LOG_LEVEL =		LogLevel::Debug;
 constexpr uvec2					WINDOW_SIZE =			{1280, 768};
 constexpr bool					FULLSCREEN =			false;
 constexpr bool					ENABLE_HIGH_DPI =		true;

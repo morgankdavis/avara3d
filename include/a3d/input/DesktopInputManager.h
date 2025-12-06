@@ -44,6 +44,7 @@ namespace a3d {
 
 		DesktopInputManagerErrorMask		errorMask() const;
 
+	protected:
 		/// Protected Member Variables ///
 
 		std::unordered_set<Key> 			_keysDown;

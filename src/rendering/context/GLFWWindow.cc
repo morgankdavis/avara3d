@@ -9,7 +9,6 @@
 #include "a3d/rendering/context/GLFWWindow.h"
 
 #include <iostream>
-#include <sstream>
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
@@ -46,8 +45,8 @@ static void 	GLFWContentScaleCallback(GLFWwindow* glfwWindow,
 										float yScale);
 static void 	GLFWErrorCallback(int error,
 								 const char* description);
-bool 			GetGLFWWindowMonitor(GLFWmonitor** monitor, GLFWwindow* window);
-bool 			GetGLFWMouseMonitor(GLFWmonitor** monitor, GLFWwindow* window);
+static bool 	GetGLFWWindowMonitor(GLFWmonitor** monitor, GLFWwindow* window);
+static bool 	GetGLFWMouseMonitor(GLFWmonitor** monitor, GLFWwindow* window);
 
 /// Public Lifescycle ///
 
@@ -64,8 +63,7 @@ GLFWWindow::GLFWWindow(RenderingApi renderingAPI,
 		_open{false},
 		_hidden{false},
 		_cursorCaptured{false},
-		_inputManager{}
-		/*_antialiasingMode{antialiasingMode}*/ { // wtf
+		_inputManager{} {
 	A3D_LOG_D("");
 
 	_antialiasingMode = antialiasingMode; // see above (?)
@@ -129,6 +127,7 @@ GLFWWindow::GLFWWindow(RenderingApi renderingAPI,
 			if (OpenGLRenderer::InitGL((GLADloadproc)glfwGetProcAddress)) {
 				RenderContext::renderer()->initialize(*this);
 				ImGui_ImplGlfw_InitForOpenGL(_glfwWindow.get(), true);
+				registerGLFWCallbacks();
 			}
 			else {
 				// TODO: move
@@ -155,6 +154,7 @@ GLFWWindow::~GLFWWindow() {
 	close(); // meh?
 
 	// TODO: must modify to support multiple windows
+	unregisterGLFWCallbacks();
 	glfwSetErrorCallback(nullptr);
 	glfwTerminate();
 	ImGui_ImplGlfw_Shutdown();
@@ -321,12 +321,11 @@ void GLFWWindow::vSyncEnabled(bool enabled) {
 /// RenderContext Internal Member Functions ///
 
 void GLFWWindow::beginFrame(const Scene& scene) {
+	pollInput();
 	ImGui_ImplGlfw_NewFrame();
 }
 
-void GLFWWindow::endFrame(const Scene& scene) {
-
-}
+void GLFWWindow::endFrame(const Scene& scene) { }
 
 void GLFWWindow::swapBuffers() {
 	glfwSwapBuffers(_glfwWindow.get());
@@ -355,7 +354,6 @@ void GLFWWindow::inputManager(GLFWInputManager* manager) {
 	_inputManager = manager;
 }
 
-//// TODO: move this...
 void GLFWWindow::pollInput() {
 	glfwPollEvents();
 }
@@ -364,10 +362,98 @@ GLFWwindow* GLFWWindow::glfwWindow() const {
 	return _glfwWindow.get();
 }
 
+/// Private Member Functions ///
+
+void GLFWWindow::registerGLFWCallbacks() {
+
+	glfwSetMouseButtonCallback(_glfwWindow.get(), GLFWWindow::GLFWMouseButtonCallback);
+	glfwSetCursorPosCallback(_glfwWindow.get(), GLFWWindow::GLFWCursorPositionCallback);
+	glfwSetScrollCallback(_glfwWindow.get(), GLFWWindow::GLFWScrollWheelCallback);
+	glfwSetKeyCallback(_glfwWindow.get(), GLFWWindow::GLFWKeyCallback);
+}
+
+void GLFWWindow::unregisterGLFWCallbacks() {
+
+	glfwSetMouseButtonCallback(_glfwWindow.get(), nullptr);
+	glfwSetCursorPosCallback(_glfwWindow.get(), nullptr);
+	glfwSetScrollCallback(_glfwWindow.get(), nullptr);
+	glfwSetKeyCallback(_glfwWindow.get(), nullptr);
+}
+
 /// Internal Static Member Functions ///
 
 void GLFWWindow::Destroy(GLFWwindow* window) {
 	glfwDestroyWindow(window);
+}
+
+/// Private Static member Functions ///
+
+void GLFWWindow::GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
+											double xPos,
+											double yPos) {
+
+	static double lastXPos = xPos;
+	static double lastYPos = yPos;
+
+	auto window = (GLFWWindow*)glfwGetWindowUserPointer(glfwWindow);
+	if (!window->cursorCaptured()) {
+		ImGui_ImplGlfw_CursorPosCallback(glfwWindow, xPos, yPos);
+	}
+	else {
+
+		if (auto inputManager = InputManagerFromGLFWWindow(glfwWindow)) {
+
+			if (!ImGui::GetIO().WantCaptureMouse) {
+				inputManager->glfwMouseDeltaEvent(-(lastXPos - xPos), (lastYPos - yPos));
+			}
+		}
+	}
+
+	lastXPos = xPos;
+	lastYPos = yPos;
+}
+
+void GLFWWindow::GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
+										 int button,
+										 int action,
+										 int mods) {
+
+	ImGui_ImplGlfw_MouseButtonCallback(glfwWindow, button, action, mods);
+
+	if (auto inputManager = InputManagerFromGLFWWindow(glfwWindow)) {
+		inputManager->glfwMouseButtonEvent(button, action, mods);
+	}
+}
+
+void GLFWWindow::GLFWScrollWheelCallback(GLFWwindow* glfwWindow,
+										 double xOffset,
+										 double yOffset) {
+
+	ImGui_ImplGlfw_ScrollCallback(glfwWindow, xOffset, yOffset);
+
+	if (auto inputManager = InputManagerFromGLFWWindow(glfwWindow)) {
+		inputManager->glfwScrollEvent(xOffset, yOffset);
+	}
+}
+
+void GLFWWindow::GLFWKeyCallback(GLFWwindow* glfwWindow,
+								 int key,
+								 int scanCode,
+								 int action,
+								 int mods) {
+
+	ImGui_ImplGlfw_KeyCallback(glfwWindow, key, scanCode, action, mods);
+
+	if (!ImGui::GetIO().WantCaptureKeyboard) {
+
+		if (auto inputManager = InputManagerFromGLFWWindow(glfwWindow)) {
+			inputManager->glfwKeyEvent(key, scanCode, action, mods);
+		}
+	}
+}
+
+GLFWInputManager* GLFWWindow::InputManagerFromGLFWWindow(GLFWwindow* glfwWindow) {
+	return ((GLFWWindow*)glfwGetWindowUserPointer(glfwWindow))->_inputManager;
 }
 
 /// Private Static Non-Member Functions ///
@@ -433,7 +519,6 @@ void GLFWErrorCallback(int error, const char* description) {
 }
 
 bool GetGLFWWindowMonitor(GLFWmonitor** monitor, GLFWwindow* window) {
-	// somebody saved me an hour
 	// https://github.com/glfw/glfw/issues/1699#issuecomment-723692566
 
 	bool success = false;
@@ -573,3 +658,4 @@ bool GetGLFWMouseMonitor(GLFWmonitor** monitor, GLFWwindow* window) {
 	// false: monitor is unmodified
 	return success;
 }
+
