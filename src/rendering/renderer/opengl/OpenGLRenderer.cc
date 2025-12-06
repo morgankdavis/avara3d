@@ -224,8 +224,9 @@ static void 		DeleteLinesGLResources(const vector<Line>& lines,
 										  OpenGLRenderer::LinesGLMapping& glMapping);
 static vector<Node*> 	SortedLights(map<Node*, float> lights);
 static void			InitImgui(const RenderContext& context);
-void 				UpdateImguiScale(const RenderContext& context, const Font& overLayFont, const Font& bodyFont);
-void 				AddImguiFont(const RenderContext& context, const Font& font, float size);
+static void 		UpdateImguiScale(const RenderContext& context, const Font& overLayFont, const Font& bodyFont);
+static void 		AddImguiFont(const RenderContext& context, const Font& font, float size);
+static void 		DrawDebugOptions(Scene& scene, const RenderContext& context);
 static void 		DrawStatsOverlay(Stats& stats, const RenderContext& context);
 static string 		StatusOverlayDescriptionForAntialiasingMode(AntialiasingMode mode);
 static void 		SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode);
@@ -361,6 +362,9 @@ void OpenGLRenderer::beginFrame(const Scene& scene,
 
 	// see ordering note in DrawStatsOverlay()
 	ImGui_ImplOpenGL3_NewFrame();
+	// these have to be called in this order for input to work.
+	// ImGui_ImplOpenGL3_NewFrame(); -> in beginFrame()
+	// ImGui_ImplGlfw_NewFrame() -> in GLFWWindow::beginFrame()
 }
 
 void OpenGLRenderer::endFrame(const Scene& scene,
@@ -368,9 +372,13 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 							  const DebugOptions& debugOptions,
 							  Stats& stats) {
 
+	ImGui::NewFrame();
+	DrawDebugOptions(const_cast<Scene&>(scene), context); // TODO: CHEATING
 	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay)) {
 		DrawStatsOverlay(stats, context);
 	}
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 	CleanupMeshElementResources(_activeMeshElements, _meshElementGLMapping);
 	CleanupTextureResources(_activeTextures, _textureGLMapping);
@@ -2353,10 +2361,109 @@ void AddImguiFont(const RenderContext& context, const Font& font, float size) {
 								   &fontConfig);
 }
 
+void DrawDebugOptions(Scene& scene, const RenderContext& context) {
+
+	using namespace ImGui;
+
+	// TODO: refactor
+#ifdef WINDOWS
+	auto scaleXY = context.framebufferScale();
+	auto scale = std::max(scaleXY.x, scaleXY.y);
+	// this is probably going to need more attention when we start
+	// using Imgui for more than just rendering text
+	//GetStyle().ScaleAllSizes(scale);
+	GetIO().FontGlobalScale = scale;
+#endif
+
+	ImGuiWindowFlags windowFlags = 0;
+	windowFlags |= ImGuiWindowFlags_NoTitleBar;
+	windowFlags |= ImGuiWindowFlags_NoScrollbar;
+	windowFlags |= ImGuiWindowFlags_NoMove;
+	windowFlags |= ImGuiWindowFlags_NoResize;
+	windowFlags |= ImGuiWindowFlags_NoCollapse;
+	windowFlags |= ImGuiWindowFlags_NoNav;
+	windowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
+
+	ImGuiIO& io = GetIO();
+	auto fonts = io.Fonts->Fonts;
+
+	const float WIN_WIDTH = 180;
+	const ImVec2 windowSize(WIN_WIDTH, 0);
+	ImGui::SetNextWindowSize(windowSize, ImGuiCond_Always);
+	ImGui::SetNextWindowPos(
+			ImVec2(io.DisplaySize.x - WIN_WIDTH, 8),
+			ImGuiCond_Always);
+	SetNextWindowBgAlpha(0);
+	Begin("Debug Options", nullptr, windowFlags);
+	PushFont(fonts[1]);
+
+	auto debugOptions = scene.debugOptions();
+
+	static bool stats = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay);
+	if (Checkbox("Stats", &stats)) {
+		if (stats)
+			scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowStatsOverlay));
+		else
+			scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowStatsOverlay));
+	}
+
+	bool meshWF = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes);
+	if (Checkbox("Mesh wireframes", &meshWF)) {
+		if (meshWF)
+			scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowWireframes));
+		else
+			scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowWireframes));
+	}
+
+	bool meshAABBs = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes);
+	if (Checkbox("Mesh AABBs", &meshAABBs)) {
+		if (meshAABBs)
+			scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowBoundingBoxes));
+		else
+			scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowBoundingBoxes));
+	}
+
+	bool physWF = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes);
+	if (Checkbox("Physics wireframes", &physWF)) {
+		if (physWF)
+			scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsWireframes));
+		else
+			scene.debugOptions(A3D_MASK_REMOVE(debugOptions,DebugOptions::ShowPhysicsWireframes));
+	}
+
+	bool physAABBs = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes);
+	if (Checkbox("Physics AABBs", &physAABBs)) {
+		if (physAABBs)
+			scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
+		else
+			scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
+	}
+
+	bool physContacts = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints);
+	if (Checkbox("Physics contacts", &physContacts)) {
+		if (physContacts)
+			scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsContactPoints));
+		else
+			scene.debugOptions(A3D_MASK_REMOVE(debugOptions,DebugOptions::ShowPhysicsContactPoints));
+	}
+
+	bool physNorms = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsNormals);
+	if (Checkbox("Physics normals", &physNorms)) {
+		if (physNorms)
+			scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsNormals));
+		else
+			scene.debugOptions(A3D_MASK_REMOVE(debugOptions,DebugOptions::ShowPhysicsNormals));
+	}
+
+	PopFont();
+	End();
+}
+
 void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 
 	using namespace ImGui;
 
+	// TODO: refactor
 #ifdef WINDOWS
 	auto scaleXY = context.framebufferScale();
 	auto scale = std::max(scaleXY.x, scaleXY.y);
@@ -2420,7 +2527,7 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 			 "{:<{}} {}\n" \
 			 "\n" \
 			 "{:<{}} ({:.1f}, {:.1f}, {:.1f})\n" \
-			 "{:<{}} ({:.4f}, {:.4f}, {:.4f}, {:.4f})\n" \
+			 /*"{:<{}} ({:.4f}, {:.4f}, {:.4f}, {:.4f})\n" \*/
 			 "{}",
 
 			version.major, version.minor, version.patch, buildInfo.number(),
@@ -2453,91 +2560,91 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 			" concave polyhedron", PADDING, stats.concavePolyhedronShapes,
 
 			"camera position", PADDING, stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
-			"camera orientation", PADDING, stats.cameraOrientation.x, stats.cameraOrientation.y, stats.cameraOrientation.z, stats.cameraOrientation.w,
+			//"camera orientation", PADDING, stats.cameraOrientation.x, stats.cameraOrientation.y, stats.cameraOrientation.z, stats.cameraOrientation.w,
 			recordingStr);
 
-	// these have to be called in this order for input to work.
-	// ImGui_ImplOpenGL3_NewFrame(); -> in beginFrame()
-	// ImGui_ImplGlfw_NewFrame() -> in GLFWWindow::beginFrame()
-	NewFrame();
+//	// these have to be called in this order for input to work.
+//	// ImGui_ImplOpenGL3_NewFrame(); -> in beginFrame()
+//	// ImGui_ImplGlfw_NewFrame() -> in GLFWWindow::beginFrame()
+//	NewFrame();
 
 	ImGuiWindowFlags windowFlags = 0;
 	windowFlags |= ImGuiWindowFlags_NoTitleBar;
-//	windowFlags |= ImGuiWindowFlags_NoScrollbar;
-//	windowFlags |= ImGuiWindowFlags_NoMove;
-//	windowFlags |= ImGuiWindowFlags_NoResize;
-//	windowFlags |= ImGuiWindowFlags_NoCollapse;
-//	windowFlags |= ImGuiWindowFlags_NoNav;
-//	windowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
+	windowFlags |= ImGuiWindowFlags_NoScrollbar;
+	windowFlags |= ImGuiWindowFlags_NoMove;
+	windowFlags |= ImGuiWindowFlags_NoResize;
+	windowFlags |= ImGuiWindowFlags_NoCollapse;
+	windowFlags |= ImGuiWindowFlags_NoNav;
+	windowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
 
 	ImGuiIO& io = GetIO();
 	auto fonts = io.Fonts->Fonts;
 
-//	// draw the text shadow
-//	SetNextWindowBgAlpha(0);
-//	Begin("StatsTextShadow", nullptr, windowFlags);
-//	ImGuiStyle& style = GetStyle();
-//	style.WindowBorderSize = 0;
-//	SetWindowPos({10.0f, 2.0f});
-//	ImVec2 cursorPos = GetCursorPos();
-//	SetCursorPos(ImVec2(cursorPos.x + 1.0, cursorPos.y + 1.0));
-////	PushFont(fonts[1]);
-//	PushFont(fonts[0]);
-//	TextColored(ImVec4{0, 0, 0, .5}, "avara3d");
-//	PopFont();
-//	cursorPos = GetCursorPos();
-//	SetCursorPos(ImVec2(cursorPos.x,
-//						cursorPos.y + OpenGLRenderer::STATS_TITLE_TO_BODY_PADDING));
+	// draw the text shadow
+	SetNextWindowBgAlpha(0);
+	Begin("StatsTextShadow", nullptr, windowFlags);
+	ImGuiStyle& style = GetStyle();
+	style.WindowBorderSize = 0;
+	SetWindowPos({10.0f, 2.0f});
+	ImVec2 cursorPos = GetCursorPos();
+	SetCursorPos(ImVec2(cursorPos.x + 1.0, cursorPos.y + 1.0));
 //	PushFont(fonts[1]);
-//	TextColored(ImVec4{0, 0, 0, .5}, "%s", str.c_str());
-//	PopFont();
-//	End();
-//
-//	// draw the text
-//	SetNextWindowBgAlpha(0);
-//	Begin("StatsText", nullptr, windowFlags);
-//	SetWindowPos({10.0f, 2.0f});
-////	PushFont(fonts[1]);
-//	PushFont(fonts[0]);
-//	TextColored(ImVec4{1, 1, 1, 1}, "avara3d");
-//	PopFont();
-//	cursorPos = GetCursorPos();
-//	SetCursorPos(ImVec2(cursorPos.x,
-//						cursorPos.y + OpenGLRenderer::STATS_TITLE_TO_BODY_PADDING));
+	PushFont(fonts[0]);
+	TextColored(ImVec4{0, 0, 0, .5}, "avara3d");
+	PopFont();
+	cursorPos = GetCursorPos();
+	SetCursorPos(ImVec2(cursorPos.x,
+						cursorPos.y + OpenGLRenderer::STATS_TITLE_TO_BODY_PADDING));
+	PushFont(fonts[1]);
+	TextColored(ImVec4{0, 0, 0, .5}, "%s", str.c_str());
+	PopFont();
+	End();
+
+	// draw the text
+	SetNextWindowBgAlpha(0);
+	Begin("StatsText", nullptr, windowFlags);
+	SetWindowPos({10.0f, 2.0f});
 //	PushFont(fonts[1]);
-//	TextColored(ImVec4{1, 1, 1, 1}, "%s", str.c_str());
-//	PopFont();
-//	End();
+	PushFont(fonts[0]);
+	TextColored(ImVec4{1, 1, 1, 1}, "avara3d");
+	PopFont();
+	cursorPos = GetCursorPos();
+	SetCursorPos(ImVec2(cursorPos.x,
+						cursorPos.y + OpenGLRenderer::STATS_TITLE_TO_BODY_PADDING));
+	PushFont(fonts[1]);
+	TextColored(ImVec4{1, 1, 1, 1}, "%s", str.c_str());
+	PopFont();
+	End();
 
 	// input test
 
-	Begin("Input test", nullptr, windowFlags);
-	SetWindowPos({10.0f, 2.0f});
-	ImGui::PushFont(fonts[1]);
-	// --- Button + hover ---
-	if (ImGui::Button("Click me")) {
-		A3D_LOG_I("ImGui button was CLICKED");
-	}
-	if (ImGui::IsItemHovered()) {
-		ImGui::SameLine();
-		ImGui::Text("(hovering)");
-	}
-	static bool toggled = false;
-	if (ImGui::Checkbox("Toggle", &toggled)) {
-		A3D_LOG_I("Toggle is now: {}", toggled ? "ON" : "OFF");
-	}
-	static char textBuf[128] = "type here";
-	if (ImGui::InputText("Text field", textBuf, sizeof(textBuf))) {
-		A3D_LOG_I("Text changed: '{}'", textBuf);
-	}
-	Text("MousePos: (%.1f, %.1f)", io.MousePos.x, io.MousePos.y);
-	Text("MouseDown[0]: %s", io.MouseDown[0] ? "true" : "false");
-	Text("WantCaptureMouse: %s", io.WantCaptureMouse ? "true" : "false");
-	ImGui::PopFont();
-	End();
+//	Begin("Input test", nullptr, windowFlags);
+//	SetWindowPos({10.0f, 2.0f});
+//	ImGui::PushFont(fonts[1]);
+//	// --- Button + hover ---
+//	if (ImGui::Button("Click me")) {
+//		A3D_LOG_I("ImGui button was CLICKED");
+//	}
+//	if (ImGui::IsItemHovered()) {
+//		ImGui::SameLine();
+//		ImGui::Text("(hovering)");
+//	}
+//	static bool toggled = false;
+//	if (ImGui::Checkbox("Toggle", &toggled)) {
+//		A3D_LOG_I("Toggle is now: {}", toggled ? "ON" : "OFF");
+//	}
+//	static char textBuf[128] = "type here";
+//	if (ImGui::InputText("Text field", textBuf, sizeof(textBuf))) {
+//		A3D_LOG_I("Text changed: '{}'", textBuf);
+//	}
+//	Text("MousePos: (%.1f, %.1f)", io.MousePos.x, io.MousePos.y);
+//	Text("MouseDown[0]: %s", io.MouseDown[0] ? "true" : "false");
+//	Text("WantCaptureMouse: %s", io.WantCaptureMouse ? "true" : "false");
+//	ImGui::PopFont();
+//	End();
 
-	Render();
-	ImGui_ImplOpenGL3_RenderDrawData(GetDrawData());
+//	Render();
+//	ImGui_ImplOpenGL3_RenderDrawData(GetDrawData());
 }
 
 string StatusOverlayDescriptionForAntialiasingMode(AntialiasingMode mode) {
