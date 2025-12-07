@@ -253,7 +253,7 @@ namespace a3d {
 		GraveAccent = 96,
 		World1 = 161, // non-US #1
 		World2 = 162, // non-US #2
-		
+
 		/* Function keys */
 		Escape = 256,
 		Enter = 257,

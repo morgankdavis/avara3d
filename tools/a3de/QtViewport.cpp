@@ -53,8 +53,6 @@ Viewport::QtViewport(RenderingApi renderingApi,
 	setFormat(fmt);
 	_antialiasingMode = antialiasingMode;
 
-//	resize()
-
 	setMouseTracking(true);
 	setFocusPolicy(Qt::StrongFocus); // tab + click focus
 	// setFocusPolicy(Qt::ClickFocus);
@@ -229,14 +227,15 @@ bool Viewport::event(QEvent* e) {
 
 void Viewport::keyPressEvent(QKeyEvent* e) {
 
-	// e->accept() == don't propagate further -- but what about QOpenGLWidget::keyPressEvent(e)?
+	// e->accept() == don't propagate further -- what about QOpenGLWidget::keyPressEvent(e)?
 
 	if (_renderer->isInitialized()) {
 
 		int key = e->key();
+		int mods = e->modifiers();
 
 		if (!ImGui::GetIO().WantCaptureKeyboard && _inputManager) {
-			_inputManager->keyPressed(key);
+			_inputManager->keyPressed(key, mods);
 		}
 		else if (!_cursorCaptured) {
 
@@ -261,14 +260,15 @@ void Viewport::keyPressEvent(QKeyEvent* e) {
 
 void Viewport::keyReleaseEvent(QKeyEvent* e) {
 
-	// e->accept() == don't propagate further -- but what about QOpenGLWidget::keyPressEvent(e)?
+	// e->accept() == don't propagate further -- what about QOpenGLWidget::keyPressEvent(e)?
 
 	if (_renderer->isInitialized()) {
 
 		int key = e->key();
+		int mods = e->modifiers();
 
 		if (!ImGui::GetIO().WantCaptureKeyboard && _inputManager) {
-			_inputManager->keyReleased(key);
+			_inputManager->keyReleased(key, mods);
 		}
 		else if (!_cursorCaptured) {
 

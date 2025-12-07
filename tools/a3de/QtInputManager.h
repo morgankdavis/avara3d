@@ -24,8 +24,8 @@ namespace a3d::head::qt {
 
 		/// Internal Member Functions ///
 
-		void 	keyPressed(int qtKey);
-		void 	keyReleased(int qtKey);
+		void 	keyPressed(int qtKey, int modifiers);
+		void 	keyReleased(int qtKey, int modifiers);
 		void 	mouseMoved(float x, float y);
 		void	mouseButtonPressed(int qtButton);
 		void	mouseButtonReleased(int qtButton);
