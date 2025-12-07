@@ -411,9 +411,9 @@ namespace a3d {
 		std::chrono::nanoseconds frameTime;
 		std::chrono::nanoseconds engineCpuTime;
 		std::chrono::nanoseconds physicsTime;
-		std::chrono::nanoseconds renderSubmissionTime;
+		std::chrono::nanoseconds renderCpuTime;
 		std::chrono::nanoseconds drawTime;
-		std::chrono::nanoseconds applicationTime;
+		std::chrono::nanoseconds applicationCpuTime;
 
 		unsigned 	numNodes;
 		unsigned 	numMeshes;

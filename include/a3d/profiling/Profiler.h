@@ -26,9 +26,9 @@ namespace a3d {
 			Frame,
 			EngineCpu,
 			Physics,
-			RenderSubmission,
+			RenderCpu,
 			Draw, // TODO: remove?
-			Application
+			ApplicationCpu
 		};
 
 		/// Public Lifecycle Functions ///

@@ -46,7 +46,8 @@ namespace a3d {
 		void	step(double deltaT,
 					 float speed,
 					 float timestep,
-					 FrameStats& stats) override;
+					 FrameStats& stats,
+					 Profiler& profiler) override;
 
 		void 	updateCollisionPairs() override;
 

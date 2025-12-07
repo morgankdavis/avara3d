@@ -2659,7 +2659,7 @@ void DrawStatsOverlay(FrameStats& stats,
 		frameSamples[i] = chrono::duration<float, milli>(sample.frameTime).count();
 		physSamples[i] = chrono::duration<float, milli>(sample.physicsTime).count();
 		drawSamples[i] = chrono::duration<float, milli>(sample.drawTime).count();
-		appSamples[i] = chrono::duration<float, milli>(sample.applicationTime).count();
+		appSamples[i] = chrono::duration<float, milli>(sample.applicationCpuTime).count();
 	}
 
 	ImGui::PlotLines("Frame",

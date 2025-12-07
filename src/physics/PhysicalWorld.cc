@@ -194,14 +194,14 @@ void PhysicalWorld::step(const Scene& scene,
 
 //		auto startTime = scene.time();
 
-		_proxy->step(deltaRunT, _speed, _timestep, stats);
+		_proxy->step(deltaRunT, _speed, _timestep, stats, profiler);
 
 //		UpdateTimeStats(stats, startTime, scene.time());
 
 		if (auto didSimulate = PhysicalWorld::didSimulateCallback()) {
 			Timer appTimer(true);
 			didSimulate(*this, runT, deltaRunT);
-			profiler.add(Profiler::Tag::Application, appTimer.stop());
+			profiler.add(Profiler::Tag::ApplicationCpu, appTimer.stop());
 		}
 	}
 	else {

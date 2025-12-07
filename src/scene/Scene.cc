@@ -287,20 +287,18 @@ void Scene::update() {
 
 			Timer appTimer(true);
 			(_updateCallback)(*this, runT, deltaRunT);
-			_profiler.add(Profiler::Tag::Application, appTimer.stop());
+			_profiler.add(Profiler::Tag::ApplicationCpu, appTimer.stop());
 
 //			/* TODO: REMOVE */ UpdateUserTimeStats(_stats, updateStartTime, time());
 		}
 
 		if (_physicalWorld) {
 
-			Timer physicsTimer(true);
 			_physicalWorld->step(*this,
 								 runT,
 								 deltaRunT,
 								 stats,
 								 _profiler);
-			_profiler.add(Profiler::Tag::Physics, physicsTimer.stop());
 		}
 
 		if (_visualWorld) {
@@ -326,8 +324,7 @@ void Scene::update() {
 	stats.frameTime = _profiler.time(Profiler::Tag::Frame);
 	stats.physicsTime = _profiler.time(Profiler::Tag::Physics);
 	stats.drawTime = _profiler.time(Profiler::Tag::Draw);
-	stats.applicationTime = _profiler.time(Profiler::Tag::Application);
-
+	stats.applicationCpuTime = _profiler.time(Profiler::Tag::ApplicationCpu);
 
 	_frameStatsHistory.add(stats);
 

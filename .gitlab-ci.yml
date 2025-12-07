@@ -35,7 +35,7 @@ linux-debug:
 macos-debug:
   stage: build
   tags:
-    - macos-12.6
+    - macos-15
   except:
     - testing
     - stable
@@ -122,7 +122,7 @@ linux-release:
 macos-release:
   stage: build
   tags:
-    - macos-12.6
+    - macos-15
   environment: production
   only:
    - testing
@@ -212,7 +212,7 @@ linux-release-manual:
 macos-release-manual:
   stage: build
   tags:
-    - macos-12.6
+    - macos-15
   environment: production
   when: manual
   script:

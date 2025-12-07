@@ -275,7 +275,6 @@ int main(int argc, const char* argv[]) {
 
 		auto duckNode = Node::MeshNode(utils::MeshNamed("rubber_duck/rubber_duck"));
 		g_duckNode = duckNode.get();
-		A3D_APP_LOG_I("DUCK NODE: {}", utils::StringFromTree(*duckNode));
 		duckNode->position({/*4.5*/0, 25, 0});
 
 

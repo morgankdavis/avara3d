@@ -267,7 +267,7 @@ void VisualWorld::draw(const Scene& scene,
 			if (auto willRender = VisualWorld::willRenderCallback()) {
 				Timer appTimer(true);
 				willRender(*this, runT, deltaRunT);
-				profiler.add(Profiler::Tag::Application, appTimer.stop());
+				profiler.add(Profiler::Tag::ApplicationCpu, appTimer.stop());
 			}
 
 			auto startTime = scene.time();
@@ -343,7 +343,7 @@ void VisualWorld::draw(const Scene& scene,
 			if (auto didRender = VisualWorld::didRenderCallback()) {
 				Timer appTimer(true);
 				didRender(*this, runT, deltaRunT);
-				profiler.add(Profiler::Tag::Application, appTimer.stop());
+				profiler.add(Profiler::Tag::ApplicationCpu, appTimer.stop());
 			}
 
 			if (_renderContext->recordingGIF()) {
