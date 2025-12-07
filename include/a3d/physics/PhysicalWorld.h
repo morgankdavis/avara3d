@@ -24,6 +24,7 @@ namespace a3d {
 	class PhysicsContact;
 	class PhysicsShape;
 	class PhysicalWorldProxy;
+	class Profiler;
 	class Scene;
 
 	class PhysicalWorld {
@@ -92,7 +93,8 @@ namespace a3d {
 		void								step(const Scene& scene,
 												 double runT,
 												 double deltaRunT,
-												 Stats& stats);
+												 FrameStats& stats,
+												 Profiler& profiler);
 
 		PhysicalWorldProxy*					proxy() const;
 

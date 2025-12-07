@@ -69,34 +69,34 @@ namespace a3d {
 		void 					beginFrame(const Scene& scene,
 										   const RenderContext& context,
 										   const DebugOptions& debugOptions,
-										   Stats& stats) override;
+										   FrameStats& stats) override;
 		void 					endFrame(const Scene& scene,
 										 const RenderContext& context,
 										 const DebugOptions& debugOptions,
-										 Stats& stats,
+										 FrameStats& stats,
 										 const FrameStatsHistory& statsHistory) override;
 
 		void 					preTraversal(const Scene& scene,
 											 const RenderContext& context,
 											 const DebugOptions& debugOptions,
-											 Stats& stats) override;
+											 FrameStats& stats) override;
 		void 					postTraversal(const Scene& scene,
 											  const RenderContext& context,
 											  const std::vector<Node*>& lightNodes,
 											  const DebugOptions& debugOptions,
-											  Stats& stats) override;
+											  FrameStats& stats) override;
 
 		void 					render(const Scene& scene,
 									   const RenderContext& context,
 									   const DebugOptions& debugOptions,
-									   Stats& stats) override;
+									   FrameStats& stats) override;
 		void 					render(Mesh& mesh,
 									   const RenderContext& context,
 									   const glm::mat4& modelMat,
 									   const glm::mat4& viewMat,
 									   const glm::mat4& projectionMat,
 									   const DebugOptions& debugOptions,
-									   Stats& stats) override;
+									   FrameStats& stats) override;
 		void 					render(MeshElement& element,
 									   const RenderContext& context,
 									   Material& material,
@@ -104,7 +104,7 @@ namespace a3d {
 									   const glm::mat4& viewMat,
 									   const glm::mat4& projectionMat,
 									   const DebugOptions& debugOptions,
-									   Stats& stats) override;
+									   FrameStats& stats) override;
 		void 					render(const std::vector<Line>& lines,
 									   const RenderContext& context,
 									   const glm::mat4& modelMat,

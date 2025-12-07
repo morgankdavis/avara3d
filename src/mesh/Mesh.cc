@@ -156,7 +156,7 @@ void Mesh::draw(Renderer& renderer,
 				const mat4& viewMat,
 				const mat4& projectionMat,
 				const DebugOptions& debugOptions,
-				Stats& stats) {
+				FrameStats& stats) {
 
 	renderer.render(*this,
 					context,
@@ -184,7 +184,7 @@ void Mesh::draw(Renderer& renderer,
 					  stats);
 	}
 
-	++stats.meshes;
+	++stats.numMeshes;
 }
 
 AABB Mesh::aabb(const Node* convertTo) const {

@@ -921,9 +921,9 @@ void Node::draw(Renderer& renderer,
 				const mat4& projectionMat,
 				const DebugOptions& debugOptions,
 				std::vector<Node*>& lightNodes,
-				Stats& stats) {
+				FrameStats& stats) {
 
-	++stats.nodes;
+	++stats.numNodes;
 
 	if (!_hidden) {
 

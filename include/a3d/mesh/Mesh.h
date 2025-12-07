@@ -80,7 +80,7 @@ namespace a3d {
 										 const glm::mat4& viewMat,
 										 const glm::mat4& projectionMat,
 										 const DebugOptions& debugOptions,
-										 Stats& stats);
+										 FrameStats& stats);
 
 		AABB						aabb(const Node* convertTo = nullptr) const;
 		glm::vec3 					extent(const Node* convertTo = nullptr) const;

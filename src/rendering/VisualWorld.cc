@@ -40,7 +40,7 @@ using namespace std;
 
 static unique_ptr<Mesh> MakeSkyboxMesh(const MaterialProperty& property);
 static unique_ptr<Mesh> GroundPlaneMesh();
-static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
+//static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
 
 /// Public Lifecycle Functions ///
 
@@ -254,7 +254,7 @@ void VisualWorld::draw(const Scene& scene,
 					   double runT,
 					   double deltaRunT,
 					   DebugOptions debugOptions,
-					   Stats& stats,
+					   FrameStats& stats,
 					   const FrameStatsHistory& statsHistory) {
 
 	if (_renderContext) {
@@ -276,7 +276,7 @@ void VisualWorld::draw(const Scene& scene,
 				if (povScene != nullptr && povScene == &scene) {
 
 					stats.cameraPosition = pov->worldPosition();
-					stats.cameraOrientation = pov->worldOrientation();
+//					stats.cameraOrientation = pov->worldOrientation();
 
 					auto frameBufferSize = _renderContext->framebufferSize();
 
@@ -328,7 +328,7 @@ void VisualWorld::draw(const Scene& scene,
 				// TODO: throw?
 			}
 
-			UpdateTimeStats(stats, startTime, scene.time());
+//			UpdateTimeStats(stats, startTime, scene.time());
 
 			_renderContext->endFrame(scene);
 			renderer->endFrame(scene, *_renderContext, debugOptions, stats, statsHistory);
@@ -435,30 +435,30 @@ unique_ptr<Mesh> GroundPlaneMesh() {
 	return make_unique<a3d::Mesh>(make_unique<Plane>(1.0, 1.0, 1, 1), nullptr);
 }
 
-void UpdateTimeStats(Stats& stats, double startTime, double endTime) {
-
-	// current
-	auto drawTime = endTime - startTime;
-	stats.currentDrawtime = drawTime * 1000.0f;
-
-	// average
-	static double avg = 0.0;
-	static double sampleStartTime = startTime;
-	static unsigned drawsSinceSampleStart = 0;
-	static double accumulatedDrawTimeSinceSampleStart = 0;
-	double elapsedTimeSinceSampleStart = endTime - sampleStartTime;
-	if (elapsedTimeSinceSampleStart >= FRAMETIME_AVERAGING_INTERVAL) {
-
-		avg = (accumulatedDrawTimeSinceSampleStart * 1000.0f) / drawsSinceSampleStart;
-
-		sampleStartTime = startTime;
-		drawsSinceSampleStart = 0;
-		accumulatedDrawTimeSinceSampleStart = 0;
-	}
-	else {
-		++drawsSinceSampleStart;
-		accumulatedDrawTimeSinceSampleStart += drawTime;
-	}
-
-	stats.averageDrawtime = avg;
-}
+//void UpdateTimeStats(Stats& stats, double startTime, double endTime) {
+//
+//	// current
+//	auto drawTime = endTime - startTime;
+//	stats.currentDrawtime = drawTime * 1000.0f;
+//
+//	// average
+//	static double avg = 0.0;
+//	static double sampleStartTime = startTime;
+//	static unsigned drawsSinceSampleStart = 0;
+//	static double accumulatedDrawTimeSinceSampleStart = 0;
+//	double elapsedTimeSinceSampleStart = endTime - sampleStartTime;
+//	if (elapsedTimeSinceSampleStart >= FRAMETIME_AVERAGING_INTERVAL) {
+//
+//		avg = (accumulatedDrawTimeSinceSampleStart * 1000.0f) / drawsSinceSampleStart;
+//
+//		sampleStartTime = startTime;
+//		drawsSinceSampleStart = 0;
+//		accumulatedDrawTimeSinceSampleStart = 0;
+//	}
+//	else {
+//		++drawsSinceSampleStart;
+//		accumulatedDrawTimeSinceSampleStart += drawTime;
+//	}
+//
+//	stats.averageDrawtime = avg;
+//}

@@ -88,7 +88,7 @@ namespace a3d {
 													 double runT,
 													 double deltaRunT,
 													 DebugOptions debugOptions,
-													 Stats& stats,
+													 FrameStats& stats,
 													 const FrameStatsHistory& statsHistory);
 
 		Mesh*									skyboxMesh() const;

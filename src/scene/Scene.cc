@@ -25,7 +25,7 @@
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/profiling/Profiler.h"
-#include "a3d/profiling/timer/Timer.h"
+#include "a3d/profiling/Timer.h"
 #include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/camera/Camera.h"
 #include "a3d/rendering/context/RenderContext.h"
@@ -45,8 +45,8 @@ using namespace std::filesystem;
 static void 		GetRunTime(double time, // time since reference
 							  double& runT, // time since reference excluding paused time
 							  double& deltaRunT); // time since last call excluding paused time
-static void 		UpdateUserTimeStats(Stats& stats, double startTime, double endTime);
-static void			UpdateFrameTimeStats(Stats& stats, double time);
+//static void 		UpdateUserTimeStats(Stats& stats, double startTime, double endTime);
+//static void			UpdateFrameTimeStats(Stats& stats, double time);
 
 /// Public Static Member Functions ///
 
@@ -64,7 +64,7 @@ Scene::Scene():
 		_physicalWorld{},
 		_inputManager{},
 		_debugOptions{DebugOptions::None},
-		_stats{},
+//		_stats{},
 		_startTime{0},
 		_updateCallback{},
 		_profiler{},
@@ -258,8 +258,10 @@ void Scene::debugOptions(DebugOptions options) {
 
 void Scene::update() {
 
-	FrameStats stats;
-	Timer wholeFrameTimer(true);
+	static FrameStats stats;
+	memset(&stats, 0, sizeof(FrameStats));
+
+	Timer frameTimer(true);
 
 	if (_rootNode) {
 
@@ -272,9 +274,8 @@ void Scene::update() {
 				   runT,
 				   deltaRunT);
 
-		//_stats = {};
-		memset(&_stats, 0, sizeof(Stats));
-		UpdateFrameTimeStats(_stats, runT);
+//		memset(&_stats, 0, sizeof(Stats));
+//		UpdateFrameTimeStats(_stats, runT);
 
 		if (_inputManager) {
 			_inputManager->update();
@@ -282,39 +283,50 @@ void Scene::update() {
 
 		if (_updateCallback) {
 
-			auto updateStartTime = time();
+//			/* TODO: REMOVE */ auto updateStartTime = time();
+
+			Timer applicationTimer(true);
 			(_updateCallback)(*this, runT, deltaRunT);
-			UpdateUserTimeStats(_stats, updateStartTime, time());
+			_profiler.add(Profiler::Tag::Application, applicationTimer.stop());
+
+//			/* TODO: REMOVE */ UpdateUserTimeStats(_stats, updateStartTime, time());
 		}
 
 		if (_physicalWorld) {
 
+			Timer physicsTimer(true);
 			_physicalWorld->step(*this,
 								 runT,
 								 deltaRunT,
-								 _stats);
+								 stats,
+								 _profiler);
+			_profiler.add(Profiler::Tag::Physics, physicsTimer.stop());
 		}
 
 		if (_visualWorld) {
 
+			Timer drawTimer(true);
 			_visualWorld->draw(*this,
 							   (_physicalWorld ? _physicalWorld.get() : nullptr),
 							   runT,
 							   deltaRunT,
 							   _debugOptions,
-							   _stats,
+							   stats,
 							   _frameStatsHistory);
+			_profiler.add(Profiler::Tag::Draw, drawTimer.stop());
 		}
 	}
 	else {
 		A3D_LOG_E("No root node attached to Scene {:p}", static_cast<void*>(this));
 	}
 
+	_profiler.add(Profiler::Tag::Frame, frameTimer.stop());
 
+	stats.frameTime = _profiler.time(Profiler::Tag::Frame);
+	stats.physicsTime = _profiler.time(Profiler::Tag::Physics);
+	stats.drawTime = _profiler.time(Profiler::Tag::Draw);
+	stats.applicationTime = _profiler.time(Profiler::Tag::Application);
 
-	_profiler.add(Profiler::Tag::WholeFrame, wholeFrameTimer.stop());
-
-	stats.frameTime = _profiler.time(Profiler::Tag::WholeFrame);
 
 	_frameStatsHistory.add(stats);
 
@@ -341,9 +353,9 @@ double Scene::time() const {
 //	_paused = flag;
 //}
 
-const Stats& Scene::stats() const {
-	return _stats;
-}
+//const Stats& Scene::stats() const {
+//	return _stats;
+//}
 
 Scene::UpdateCallback Scene::updateCallback() const {
 	return _updateCallback;
@@ -371,62 +383,62 @@ void GetRunTime(double time, // time since reference
 	prevRunT = runT;
 }
 
-void UpdateUserTimeStats(Stats& stats, double startTime, double endTime) {
-
-	// current
-	auto updateTime = endTime - startTime;
-	stats.currentUsertime = updateTime * 1000.0f;
-
-	// average
-	static double avg = 0.0;
-	static double sampleStartTime = startTime;
-	static unsigned updatesSinceSampleStart = 0;
-	static double accumulatedUpdateTimeSinceSampleStart = 0;
-	double elapsedTimeSinceSampleStart = endTime - sampleStartTime;
-	if (elapsedTimeSinceSampleStart >= FRAMETIME_AVERAGING_INTERVAL) {
-
-		avg = (accumulatedUpdateTimeSinceSampleStart * 1000.0f) / updatesSinceSampleStart;
-
-		sampleStartTime = startTime;
-		updatesSinceSampleStart = 0;
-		accumulatedUpdateTimeSinceSampleStart = 0;
-	}
-	else {
-		++updatesSinceSampleStart;
-		accumulatedUpdateTimeSinceSampleStart += updateTime;
-	}
-
-	stats.averageUsertime = avg;
+//void UpdateUserTimeStats(Stats& stats, double startTime, double endTime) {
+//
+//	// current
+//	auto updateTime = endTime - startTime;
+//	stats.currentUsertime = updateTime * 1000.0f;
+//
+//	// average
+//	static double avg = 0.0;
+//	static double sampleStartTime = startTime;
+//	static unsigned updatesSinceSampleStart = 0;
+//	static double accumulatedUpdateTimeSinceSampleStart = 0;
+//	double elapsedTimeSinceSampleStart = endTime - sampleStartTime;
+//	if (elapsedTimeSinceSampleStart >= FRAMETIME_AVERAGING_INTERVAL) {
+//
+//		avg = (accumulatedUpdateTimeSinceSampleStart * 1000.0f) / updatesSinceSampleStart;
+//
+//		sampleStartTime = startTime;
+//		updatesSinceSampleStart = 0;
+//		accumulatedUpdateTimeSinceSampleStart = 0;
+//	}
+//	else {
+//		++updatesSinceSampleStart;
+//		accumulatedUpdateTimeSinceSampleStart += updateTime;
+//	}
+//
+//	stats.averageUsertime = avg;
+////	stats.averagingInterval = FRAMETIME_AVERAGING_INTERVAL;
+//}
+//
+//void UpdateFrameTimeStats(Stats& stats, double time) {
+//
+//	// current
+//	static double previousTime = time;
+//	double deltaTime = time - previousTime;
+//	previousTime = time;
+//	stats.currentFramerate = 60.0f / deltaTime;
+//	stats.currentFrametime = deltaTime * 1000.0f;
+//
+//	// average
+//	static double fpsAvg = 0.0;
+//	static double msAvg = 0.0;
+//	static unsigned framesSinceSampleStart = 0;
+//	static double sampleStartTime = time;
+//	double elapsedTimeSinceSampleStart = time - sampleStartTime;
+//	if (elapsedTimeSinceSampleStart >= FRAMETIME_AVERAGING_INTERVAL) {
+//
+//		fpsAvg = (double)framesSinceSampleStart / elapsedTimeSinceSampleStart;
+//		msAvg = (elapsedTimeSinceSampleStart * 1000.0f) / framesSinceSampleStart;
+//
+//		sampleStartTime = time;
+//		framesSinceSampleStart = 0;
+//	}
+//	else {
+//		++framesSinceSampleStart;
+//	}
+//	stats.averageFramerate = fpsAvg;
+//	stats.averageFrametime = msAvg;
 //	stats.averagingInterval = FRAMETIME_AVERAGING_INTERVAL;
-}
-
-void UpdateFrameTimeStats(Stats& stats, double time) {
-
-	// current
-	static double previousTime = time;
-	double deltaTime = time - previousTime;
-	previousTime = time;
-	stats.currentFramerate = 60.0f / deltaTime;
-	stats.currentFrametime = deltaTime * 1000.0f;
-
-	// average
-	static double fpsAvg = 0.0;
-	static double msAvg = 0.0;
-	static unsigned framesSinceSampleStart = 0;
-	static double sampleStartTime = time;
-	double elapsedTimeSinceSampleStart = time - sampleStartTime;
-	if (elapsedTimeSinceSampleStart >= FRAMETIME_AVERAGING_INTERVAL) {
-
-		fpsAvg = (double)framesSinceSampleStart / elapsedTimeSinceSampleStart;
-		msAvg = (elapsedTimeSinceSampleStart * 1000.0f) / framesSinceSampleStart;
-
-		sampleStartTime = time;
-		framesSinceSampleStart = 0;
-	}
-	else {
-		++framesSinceSampleStart;
-	}
-	stats.averageFramerate = fpsAvg;
-	stats.averageFrametime = msAvg;
-	stats.averagingInterval = FRAMETIME_AVERAGING_INTERVAL;
-}
+//}

@@ -85,7 +85,7 @@ namespace a3d {
 
 		double 								time() const;
 
-		const Stats&						stats() const;
+//		const Stats&						stats() const;
 
 		UpdateCallback 						updateCallback() const;
 		void 								updateCallback(UpdateCallback function);
@@ -100,7 +100,7 @@ namespace a3d {
 		std::unique_ptr<InputManager>		_inputManager;
 		DebugOptions						_debugOptions;
 		double 								_startTime;
-		Stats								_stats;
+//		Stats								_stats;
 		UpdateCallback						_updateCallback;
 
 

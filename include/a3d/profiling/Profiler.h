@@ -1,9 +1,16 @@
+//
+//  Profiler.h
+//  avara3d
+//
+//  Created by Morgan Davis on 12/6/25.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//
 
 #ifndef AVARA3D_PROFILER_H
 #define AVARA3D_PROFILER_H
 
 #include <chrono>
-#include <set>
+#include <map>
 #include <string>
 #include <tuple>
 #include <unordered_set>
@@ -13,17 +20,18 @@ namespace a3d {
 	class Profiler {
 
 	public:
+		/// Public Types ///
 
 		enum class Tag {
-			WholeFrame,
+			Frame,
 			EngineCpu,
 			Physics,
 			RenderSubmission,
-			// Draw?
+			Draw, // TODO: remove?
 			Application
 		};
 
-//		static Profiler& Instance();
+		/// Public Lifecycle Functions ///
 
 		Profiler() = default;
 		Profiler(const Profiler&) = delete;
@@ -31,24 +39,21 @@ namespace a3d {
 		Profiler(Profiler&&) = delete;
 		Profiler& operator=(Profiler&&) = delete;
 
-		void add(Tag tag, std::chrono::nanoseconds ns);
-		void add(std::string key, std::chrono::nanoseconds ns);
+		/// Public Member Functions ///
 
-		std::chrono::nanoseconds time(Tag tag) const;
-		std::chrono::nanoseconds time(std::string key) const;
+		void add(Tag tag, std::chrono::nanoseconds ns);
+		void add(const std::string& key, std::chrono::nanoseconds ns);
+
+		std::chrono::nanoseconds time(Tag tag);
+		std::chrono::nanoseconds time(const std::string& key);
 
 		void reset();
 
 	private:
+		/// Private Member Variables ///
 
-//		Profiler() = default;
-//		~Profiler() = default;
-
-		using TaggedSample = 	std::tuple<Tag, std::chrono::nanoseconds>;
-		using KeyedSample = 	std::tuple<std::string, std::chrono::nanoseconds>;
-
-		std::set<TaggedSample>	_taggedSamples;
-		std::set<KeyedSample> 	_keyedSamples;
+		std::map<Tag, std::chrono::nanoseconds>			_taggedSamples;
+		std::map<std::string, std::chrono::nanoseconds>	_keyedSamples;
 	};
 }
 

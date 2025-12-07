@@ -14,6 +14,8 @@
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsContact.h"
 #include "a3d/physics/bullet/BulletWorldProxy.h"
+#include "a3d/profiling/Profiler.h"
+#include "a3d/profiling/Timer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 
@@ -21,9 +23,9 @@ using namespace a3d;
 using namespace glm;
 using namespace std;
 
-/// Private Static Non-Member Prorotypes ///
-
-static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
+///// Private Static Non-Member Prorotypes ///
+//
+//static void UpdateTimeStats(FrameStats& stats, double startTime, double endTime);
 
 /// Public Lifecycle Functions ///
 
@@ -185,18 +187,21 @@ void PhysicalWorld::remove(PhysicsBody& body) {
 void PhysicalWorld::step(const Scene& scene,
 						 double runT,
 						 double deltaRunT,
-						 Stats& stats) {
+						 FrameStats& stats,
+						 Profiler& profiler) {
 
 	if (_proxy) {
 
-		auto startTime = scene.time();
+//		auto startTime = scene.time();
 
 		_proxy->step(deltaRunT, _speed, _timestep, stats);
 
-		UpdateTimeStats(stats, startTime, scene.time());
+//		UpdateTimeStats(stats, startTime, scene.time());
 
 		if (auto didSimulate = PhysicalWorld::didSimulateCallback()) {
+			Timer applicationTimer(true);
 			didSimulate(*this, runT, deltaRunT);
+			profiler.add(Profiler::Tag::Application, applicationTimer.stop());
 		}
 	}
 	else {
@@ -208,32 +213,32 @@ PhysicalWorldProxy* PhysicalWorld::proxy() const {
 	return  _proxy.get();
 }
 
-/// Private Static Non-Member Functions ///
-
-void UpdateTimeStats(Stats& stats, double startTime, double endTime) {
-
-	// current
-	auto stepTime = endTime - startTime;
-	stats.currentPhysicstime = stepTime * 1000.0f;
-
-	// average
-	static double avg = 0.0;
-	static double sampleStartTime = startTime;
-	static unsigned stepsSinceSampleStart = 0;
-	static double accumulatedStepTimeSinceSampleStart = 0;
-	double elapsedTimeSinceSampleStart = endTime - sampleStartTime;
-	if (elapsedTimeSinceSampleStart >= FRAMETIME_AVERAGING_INTERVAL) {
-
-		avg = (accumulatedStepTimeSinceSampleStart * 1000.0f) / stepsSinceSampleStart;
-
-		sampleStartTime = startTime;
-		stepsSinceSampleStart = 0;
-		accumulatedStepTimeSinceSampleStart = 0;
-	}
-	else {
-		++stepsSinceSampleStart;
-		accumulatedStepTimeSinceSampleStart += stepTime;
-	}
-
-	stats.averagePhysicstime = avg;
-}
+///// Private Static Non-Member Functions ///
+//
+//void UpdateTimeStats(FrameStats& stats, double startTime, double endTime) {
+//
+//	// current
+//	auto stepTime = endTime - startTime;
+//	stats.currentPhysicstime = stepTime * 1000.0f;
+//
+//	// average
+//	static double avg = 0.0;
+//	static double sampleStartTime = startTime;
+//	static unsigned stepsSinceSampleStart = 0;
+//	static double accumulatedStepTimeSinceSampleStart = 0;
+//	double elapsedTimeSinceSampleStart = endTime - sampleStartTime;
+//	if (elapsedTimeSinceSampleStart >= FRAMETIME_AVERAGING_INTERVAL) {
+//
+//		avg = (accumulatedStepTimeSinceSampleStart * 1000.0f) / stepsSinceSampleStart;
+//
+//		sampleStartTime = startTime;
+//		stepsSinceSampleStart = 0;
+//		accumulatedStepTimeSinceSampleStart = 0;
+//	}
+//	else {
+//		++stepsSinceSampleStart;
+//		accumulatedStepTimeSinceSampleStart += stepTime;
+//	}
+//
+//	stats.averagePhysicstime = avg;
+//}

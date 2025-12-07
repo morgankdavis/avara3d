@@ -43,7 +43,7 @@ namespace a3d {
 											 const glm::mat4& viewMat,
 											 const glm::mat4& projectionMat,
 											 const DebugOptions& debugOptions,
-											 Stats& stats);
+											 FrameStats& stats);
 
 		void 							burnTransform(const glm::mat4& transform,
 													  bool normals);

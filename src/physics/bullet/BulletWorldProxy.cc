@@ -163,7 +163,7 @@ void BulletWorldProxy::gravity(float gravity) {
 void BulletWorldProxy::step(double deltaT,
 							float speed,
 							float timestep,
-							Stats& stats) {
+							FrameStats& stats) {
 
 	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=9320
 	auto result = _btWorld->stepSimulation(btScalar(deltaT * speed),
@@ -174,13 +174,13 @@ void BulletWorldProxy::step(double deltaT,
 //		A3D_LOG_W("Max physics simulation substeps reached: {}", result);
 //	}
 
-	stats.staticBodies += _stats.numStaticBodies;
-	stats.dynamicBodies += _stats.numDynamicBodies;
-	stats.kinematicBodies += _stats.numKinematicBodies;
-	stats.convexHullShapes = _stats.convexHullShapes.size();
-	stats.concavePolyhedronShapes = _stats.concavePolyhedronShapes.size();
-	stats.boundingBoxShapes = _stats.boundingBoxShapes.size();
-	stats.primitiveShapes = _stats.primitiveShapes.size();
+	stats.numStaticBodies += _stats.numStaticBodies;
+	stats.numDynamicBodies += _stats.numDynamicBodies;
+	stats.numKinematicBodies += _stats.numKinematicBodies;
+	stats.numConvexHullShapes = _stats.convexHullShapes.size();
+	stats.numConcavePolyhedronShapes = _stats.concavePolyhedronShapes.size();
+	stats.numBoundingBoxShapes = _stats.boundingBoxShapes.size();
+	stats.numPrimitiveShapes = _stats.primitiveShapes.size();
 }
 
 void BulletWorldProxy::updateCollisionPairs() {

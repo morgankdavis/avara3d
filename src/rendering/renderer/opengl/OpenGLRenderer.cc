@@ -186,7 +186,7 @@ static void 		SendMaterialPropertyUniforms(const MaterialProperty& property,
 static void 		SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 											const Scene& scene,
 											const vector<Node*>& lightNodes,
-											Stats& stats);
+											FrameStats& stats);
 static void 		SetTextureSamplingOptions(Texture& texture,
 											 GLuint glTextureHandle);
 static void 		SetMaterialFilteringOptions(const Material& material,
@@ -223,14 +223,14 @@ static void 		DeleteTextureGLResources(Texture* texture,
 											OpenGLRenderer::TextureGLMapping& glMapping);
 static void 		DeleteLinesGLResources(const vector<Line>& lines,
 										  OpenGLRenderer::LinesGLMapping& glMapping);
-static vector<Node*> 	SortedLights(map<Node*, float> lights);
+static vector<Node*>SortedLights(map<Node*, float> lights);
 static void			InitImgui(const RenderContext& context);
 static void 		UpdateImguiScale(const RenderContext& context,
 									 const Font& overLayFont,
 									 const Font& bodyFont);
 static void 		AddImguiFont(const RenderContext& context, const Font& font, float size);
 static void 		DrawDebugOptions(Scene& scene, const RenderContext& context);
-static void 		DrawStatsOverlay(Stats& stats,
+static void 		DrawStatsOverlay(FrameStats& stats,
 									 const FrameStatsHistory& statsHistory,
 									 const RenderContext& context);
 static string 		StatusOverlayDescriptionForAntialiasingMode(AntialiasingMode mode);
@@ -363,7 +363,7 @@ bool OpenGLRenderer::isInitialized() const {
 void OpenGLRenderer::beginFrame(const Scene& scene,
 								const RenderContext& context,
 								const DebugOptions& debugOptions,
-								Stats& stats) {
+								FrameStats& stats) {
 
 	_activeMeshElements.clear();
 	_activeTextures.clear();
@@ -379,7 +379,7 @@ void OpenGLRenderer::beginFrame(const Scene& scene,
 void OpenGLRenderer::endFrame(const Scene& scene,
 							  const RenderContext& context,
 							  const DebugOptions& debugOptions,
-							  Stats& stats,
+							  FrameStats& stats,
 							  const FrameStatsHistory& statsHistory) {
 
 	ImGui::NewFrame();
@@ -401,7 +401,7 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 void OpenGLRenderer::preTraversal(const Scene& scene,
 								  const RenderContext& context,
 								  const DebugOptions& debugOptions,
-								  Stats& stats) {
+								  FrameStats& stats) {
 
 }
 
@@ -409,7 +409,7 @@ void OpenGLRenderer::postTraversal(const Scene& scene,
 								   const RenderContext& context,
 								   const vector<Node*>& lightNodes,
 								   const DebugOptions& debugOptions,
-								   Stats& stats) {
+								   FrameStats& stats) {
 
 	SendEnvironmentUniforms(_glEnvironmentUBO, scene, lightNodes, stats);
 	Program::Default().bindUniformBlock("EnvironmentBlock", _glEnvironmentUBO);
@@ -418,7 +418,7 @@ void OpenGLRenderer::postTraversal(const Scene& scene,
 void OpenGLRenderer::render(const Scene& scene,
 							const RenderContext& context,
 							const DebugOptions& debugOptions,
-							Stats& stats) {
+							FrameStats& stats) {
 
 	GLint prevDrawFbo = 0;
 	GLint prevReadFbo = 0;
@@ -518,7 +518,7 @@ void OpenGLRenderer::render(Mesh& mesh,
 							const mat4& viewMat,
 							const mat4& projectionMat,
 							const DebugOptions& debugOptions,
-							Stats& stats) {
+							FrameStats& stats) {
 
 	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
 		render(mesh.aabbLines(), context, modelMat, viewMat, projectionMat);
@@ -532,7 +532,7 @@ void OpenGLRenderer::render(MeshElement& element,
 							const mat4& viewMat,
 							const mat4& projectionMat,
 							const DebugOptions& debugOptions,
-							Stats& stats) {
+							FrameStats& stats) {
 
 	// check and load vertex data if necessary
 
@@ -1391,7 +1391,7 @@ void SendMaterialPropertyUniforms(const MaterialProperty& property,
 void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 							 const Scene& scene,
 							 const vector<Node*>& lightNodes,
-							 Stats& stats) {
+							 FrameStats& stats) {
 	// program "Default" must be active
 
 	// block
@@ -1408,7 +1408,7 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 
 		auto numLights = lightNodes.size();
 
-		stats.lights = numLights;
+		stats.numLights = numLights;
 
 		if (((numLights == 0) && scene.visualWorld()->autoEnablesDefaultLighting())) {
 
@@ -2469,7 +2469,7 @@ void DrawDebugOptions(Scene& scene, const RenderContext& context) {
 	End();
 }
 
-void DrawStatsOverlay(Stats& stats,
+void DrawStatsOverlay(FrameStats& stats,
 					  const FrameStatsHistory& statsHistory,
 					  const RenderContext& context) {
 
@@ -2545,31 +2545,31 @@ void DrawStatsOverlay(Stats& stats,
 			version.major, version.minor, version.patch, buildInfo.number(),
 			buildInfo.type() == BuildInfo::Type::Debug ? "debug" : "release",
 
-			"frametime", PADDING, stats.averageFrametime,
-			" draw", PADDING, stats.averageDrawtime,
-			" physics", PADDING, stats.averagePhysicstime,
-			" user", PADDING, stats.averageUsertime,
-			"framerate", PADDING, stats.averageFramerate, (context.vSyncEnabled() ? "[vsync]" : ""),
+			"frametime", PADDING, 0.f,//stats.averageFrametime,
+			" draw", PADDING, 0.f,//stats.averageDrawtime,
+			" physics", PADDING, 0.f,//stats.averagePhysicstime,
+			" user", PADDING, 0.f,//stats.averageUsertime,
+			"framerate", PADDING, 0.f,/*stats.averageFramerate,*/ (context.vSyncEnabled() ? "[vsync]" : ""),
 
 			"resolution", PADDING, context.framebufferSize().x, context.framebufferSize().y,
 			"antialiasing", PADDING, StatusOverlayDescriptionForAntialiasingMode(context.antialiasingMode()),
 			"framebuffer scale", PADDING, context.framebufferScale().x, context.framebufferScale().y,
 
-			"nodes", PADDING, stats.nodes,
-			"meshes", PADDING, stats.meshes,
-			"elements", PADDING, stats.elements,
-			"polygons", PADDING, float(stats.polygons)/1000.0f,//(int)round(float(stats.polygons)/1000.0f),
-			"lights", PADDING, stats.lights,
+			"nodes", PADDING, stats.numNodes,
+			"meshes", PADDING, stats.numMeshes,
+			"elements", PADDING, stats.numElements,
+			"polygons", PADDING, float(stats.numPolygons)/1000.0f,//(int)round(float(stats.polygons)/1000.0f),
+			"lights", PADDING, stats.numLights,
 
-			"physics bodies", PADDING, stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
-			" static", PADDING, stats.staticBodies,
-			" dynamic", PADDING, stats.dynamicBodies,
-			" kinematic", PADDING, stats.kinematicBodies,
-			"physics shapes", PADDING, stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
-			" primitive", PADDING, stats.primitiveShapes,
-			" bounding box", PADDING, stats.boundingBoxShapes,
-			" convex hull", PADDING, stats.convexHullShapes,
-			" concave polyhedron", PADDING, stats.concavePolyhedronShapes,
+			"physics bodies", PADDING, stats.numDynamicBodies + stats.numKinematicBodies + stats.numStaticBodies,
+			" static", PADDING, stats.numStaticBodies,
+			" dynamic", PADDING, stats.numDynamicBodies,
+			" kinematic", PADDING, stats.numKinematicBodies,
+			"physics shapes", PADDING, stats.numConcavePolyhedronShapes + stats.numBoundingBoxShapes + stats.numConvexHullShapes,
+			" primitive", PADDING, stats.numPrimitiveShapes,
+			" bounding box", PADDING, stats.numBoundingBoxShapes,
+			" convex hull", PADDING, stats.numConvexHullShapes,
+			" concave polyhedron", PADDING, stats.numConcavePolyhedronShapes,
 
 			"camera position", PADDING, stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
 			//"camera orientation", PADDING, stats.cameraOrientation.x, stats.cameraOrientation.y, stats.cameraOrientation.z, stats.cameraOrientation.w,
@@ -2639,12 +2639,27 @@ void DrawStatsOverlay(Stats& stats,
 
 	auto& samples = statsHistory.samples();
 
+	// TODO: convert to one loop & use stride
+
 	static std::vector<float> frameSamples;
 	frameSamples.resize(samples.size());
+
+	static std::vector<float> physSamples;
+	physSamples.resize(samples.size());
+
+	static std::vector<float> drawSamples;
+	drawSamples.resize(samples.size());
+
+	static std::vector<float> appSamples;
+	appSamples.resize(samples.size());
+
 	for (size_t i = 0; i < samples.size(); ++i) {
-		auto timeNS = get<1>(samples[i]).frameTime;
-		auto timeMS = std::chrono::duration<double, std::milli>(timeNS).count();
-		frameSamples[i] = timeMS;
+		auto sample = get<1>(samples[i]);
+
+		frameSamples[i] = chrono::duration<float, milli>(sample.frameTime).count();
+		physSamples[i] = chrono::duration<float, milli>(sample.physicsTime).count();
+		drawSamples[i] = chrono::duration<float, milli>(sample.drawTime).count();
+		appSamples[i] = chrono::duration<float, milli>(sample.applicationTime).count();
 	}
 
 	ImGui::PlotLines("Frame",
@@ -2653,7 +2668,34 @@ void DrawStatsOverlay(Stats& stats,
 					 0,
 					 nullptr,
 					 //FLT_MAX, FLT_MAX,
-					 0, 17.0f,
+					 0, 16.67f,
+					 ImVec2(128.0f, 32.0f));
+
+	ImGui::PlotLines("Physics",
+					 physSamples.data(),
+					 static_cast<int>(physSamples.size()),
+					 0,
+					 nullptr,
+					//FLT_MAX, FLT_MAX,
+					 0, 16.67f,
+					 ImVec2(128.0f, 32.0f));
+
+	ImGui::PlotLines("Draw",
+					 drawSamples.data(),
+					 static_cast<int>(drawSamples.size()),
+					 0,
+					 nullptr,
+					//FLT_MAX, FLT_MAX,
+					 0, 16.67f,
+					 ImVec2(128.0f, 32.0f));
+
+	ImGui::PlotLines("App",
+					 appSamples.data(),
+					 static_cast<int>(appSamples.size()),
+					 0,
+					 nullptr,
+					//FLT_MAX, FLT_MAX,
+					 0, 16.67f,
 					 ImVec2(128.0f, 32.0f));
 
 	ImGui::PopFont();

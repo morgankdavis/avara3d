@@ -1,3 +1,10 @@
+//
+//  FrameStatsHistory.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 12/6/25.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//
 
 #include "a3d/profiling/FrameStatsHistory.h"
 
@@ -6,8 +13,12 @@
 using namespace a3d;
 using namespace std;
 
+/// Public Lifecycle Functions ///
+
 FrameStatsHistory::FrameStatsHistory(float historySeconds):
 		_historySeconds(historySeconds) {}
+
+/// Public Member Functions ///
 
 void FrameStatsHistory::add(FrameStats stats) {
 

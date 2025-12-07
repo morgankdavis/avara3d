@@ -1,36 +1,48 @@
+//
+//  Profiler.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 12/6/25.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//
 
 #include "a3d/profiling/Profiler.h"
 
 using namespace a3d;
 using namespace std;
 
-//Profiler& Profiler::Instance() {
-//	static Profiler inst;
-//	return inst;
-//}
+/// Public Member Functions ///
 
-void Profiler::add(Tag tag, std::chrono::nanoseconds ns) {
-	_taggedSamples.insert({tag, ns});
-}
-
-void Profiler::add(string key, std::chrono::nanoseconds ns) {
-	_keyedSamples.insert({key, ns});
-}
-
-std::chrono::nanoseconds Profiler::time(Tag tag) const {
-	std::chrono::nanoseconds ns;
-	for (auto& item : _taggedSamples) {
-		if (get<0>(item) == tag) ns += get<1>(item);
+void Profiler::add(Tag tag, chrono::nanoseconds ns) {
+	if (_taggedSamples.contains(tag)) {
+		_taggedSamples[tag] = _taggedSamples[tag] + ns;
 	}
-	return ns;
+	else {
+		_taggedSamples[tag] = ns;
+	}
 }
 
-std::chrono::nanoseconds Profiler::time(string key) const {
-	std::chrono::nanoseconds ns;
-	for (auto& item : _keyedSamples) {
-		if (get<0>(item) == key) ns += get<1>(item);
+void Profiler::add(const string& key, chrono::nanoseconds ns) {
+	if (_keyedSamples.contains(key)) {
+		_keyedSamples[key] = _keyedSamples[key] + ns;
 	}
-	return ns;
+	else {
+		_keyedSamples[key] = ns;
+	}
+}
+
+chrono::nanoseconds Profiler::time(Tag tag) {
+	if (_taggedSamples.contains(tag)) {
+		return _taggedSamples[tag];
+	}
+	return chrono::nanoseconds(0);
+}
+
+chrono::nanoseconds Profiler::time(const string& key) {
+	if (_keyedSamples.contains(key)) {
+		return _keyedSamples[key];
+	}
+	return chrono::nanoseconds(0);
 }
 
 void Profiler::reset() {

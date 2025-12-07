@@ -44,7 +44,7 @@ void MeshElement::draw(Renderer& renderer,
 					   const mat4& viewMat,
 					   const mat4& projectionMat,
 					   const DebugOptions& debugOptions,
-					   Stats& stats) {
+					   FrameStats& stats) {
 	
 	renderer.render(*this,
 					context,
@@ -55,8 +55,8 @@ void MeshElement::draw(Renderer& renderer,
 					debugOptions,
 					stats);
 
-	++stats.elements;
-	stats.polygons += _faces.size();
+	++stats.numElements;
+	stats.numPolygons += _faces.size();
 }
 
 void MeshElement::burnTransform(const mat4& transform, bool normals) {

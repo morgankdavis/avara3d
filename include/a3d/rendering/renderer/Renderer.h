@@ -49,34 +49,34 @@ namespace a3d {
 		virtual void 					beginFrame(const Scene& scene,
 												   const RenderContext& context,
 												   const DebugOptions& debugOptions,
-												   Stats& stats) = 0;
+												   FrameStats& stats) = 0;
 		virtual void 					endFrame(const Scene& scene,
 												 const RenderContext& context,
 												 const DebugOptions& debugOptions,
-												 Stats& stats,
+												 FrameStats& stats,
 												 const FrameStatsHistory& statsHistory) = 0;
 
 		virtual void 					preTraversal(const Scene& scene,
 												   const RenderContext& context,
 												   const DebugOptions& debugOptions,
-												   Stats& stats) = 0;
+													 FrameStats& stats) = 0;
 		virtual void 					postTraversal(const Scene& scene,
 												 const RenderContext& context,
 												 const std::vector<Node*>& lightNodes,
 												 const DebugOptions& debugOptions,
-												 Stats& stats) = 0;
+													  FrameStats& stats) = 0;
 
 		virtual void 					render(const Scene& scene,
 											   const RenderContext& context,
 											   const DebugOptions& debugOptions,
-											   Stats& stats) = 0;
+											   FrameStats& stats) = 0;
 		virtual void 					render(Mesh& mesh,
 											   const RenderContext& context,
 											   const glm::mat4& modelMat,
 											   const glm::mat4& viewMat,
 											   const glm::mat4& projectionMat,
 											   const DebugOptions& debugOptions,
-											   Stats& stats) = 0;
+											   FrameStats& stats) = 0;
 		virtual void 					render(MeshElement& element,
 											   const RenderContext& context,
 											   Material& material,
@@ -84,7 +84,7 @@ namespace a3d {
 											   const glm::mat4& viewMat,
 											   const glm::mat4& projectionMat,
 											   const DebugOptions& debugOptions,
-											   Stats& stats) = 0;
+											   FrameStats& stats) = 0;
 		virtual void 					render(const std::vector<Line>& lines,
 											   const RenderContext& context,
 											   const glm::mat4& modelMat,

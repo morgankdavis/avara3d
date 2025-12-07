@@ -40,7 +40,7 @@ namespace a3d {
 		virtual void	step(double deltaT,
 							 float speed,
 							 float timestep,
-							 Stats& stats) = 0;
+							 FrameStats& stats) = 0;
 
 		virtual void 	updateCollisionPairs() = 0;
 
