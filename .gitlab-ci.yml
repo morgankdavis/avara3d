@@ -43,13 +43,13 @@ macos-debug:
     - echo "Starting macOS debug build..."
     - mkdir gitlab-build
     - cd gitlab-build
-    - /opt/local/bin/cmake
+    - /usr/local/bin/cmake
       -DCMAKE_BUILD_TYPE="Debug"
       -G"Ninja"
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
-    - /opt/local/bin/cmake --build . --target install -j4
+    - /usr/local/bin/cmake --build . --target install -j4
     - mv packaged/avara3d ../
     - echo "macOS debug build complete."
   artifacts:
@@ -133,13 +133,13 @@ macos-release:
     - echo "Starting macOS release build..."
     - mkdir gitlab-build
     - cd gitlab-build
-    - /opt/local/bin/cmake
+    - /usr/local/bin/cmake
       -DCMAKE_BUILD_TYPE="Release"
       -G"Ninja"
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
-    - /opt/local/bin/cmake --build . --target install -j4
+    - /usr/local/bin/cmake --build . --target install -j4
     - mv packaged/avara3d ../
     - echo "macOS release build complete."
   artifacts:
@@ -219,13 +219,13 @@ macos-release-manual:
     - echo "Starting macOS release build..."
     - mkdir gitlab-build
     - cd gitlab-build
-    - /opt/local/bin/cmake
+    - /usr/local/bin/cmake
       -DCMAKE_BUILD_TYPE="Release"
       -G"Ninja"
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
-    - /opt/local/bin/cmake --build . --target install -j4
+    - /usr/local/bin/cmake --build . --target install -j4
     - mv packaged/avara3d ../
     - echo "macOS release build complete."
   artifacts:
