@@ -391,22 +391,20 @@ void GLFWWindow::Destroy(GLFWwindow* window) {
 void GLFWWindow::GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
 											double xPos,
 											double yPos) {
-
 	static double lastXPos = xPos;
 	static double lastYPos = yPos;
 
-	auto window = (GLFWWindow*)glfwGetWindowUserPointer(glfwWindow);
-	if (!window->cursorCaptured()) {
-		ImGui_ImplGlfw_CursorPosCallback(glfwWindow, xPos, yPos);
+	auto window = WindowFromGLFWwindow(glfwWindow);
+	auto inputManager = window->_inputManager;
+
+	if (window->cursorCaptured() && inputManager) {
+		inputManager->glfwMouseDeltaEvent(-(lastXPos - xPos), (lastYPos - yPos));
 	}
 	else {
-
-		if (auto inputManager = InputManagerFromGLFWWindow(glfwWindow)) {
-
-			if (!ImGui::GetIO().WantCaptureMouse) {
-				inputManager->glfwMouseDeltaEvent(-(lastXPos - xPos), (lastYPos - yPos));
-			}
-		}
+		ImGui_ImplGlfw_CursorPosCallback(glfwWindow, xPos, yPos);
+//		if (!ImGui::GetIO().WantCaptureMouse && inputManager) {
+//			inputManager->glfwMouseDeltaEvent(-(lastXPos - xPos), (lastYPos - yPos));
+//		}
 	}
 
 	lastXPos = xPos;
@@ -418,10 +416,17 @@ void GLFWWindow::GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
 										 int action,
 										 int mods) {
 
-	ImGui_ImplGlfw_MouseButtonCallback(glfwWindow, button, action, mods);
+	auto window = WindowFromGLFWwindow(glfwWindow);
+	auto inputManager = window->_inputManager;
 
-	if (auto inputManager = InputManagerFromGLFWWindow(glfwWindow)) {
+	if (window->cursorCaptured() && inputManager) {
 		inputManager->glfwMouseButtonEvent(button, action, mods);
+	}
+	else {
+		ImGui_ImplGlfw_MouseButtonCallback(glfwWindow, button, action, mods);
+//		if (inputManager) {
+//			inputManager->glfwMouseButtonEvent(button, action, mods);
+//		}
 	}
 }
 
@@ -429,10 +434,17 @@ void GLFWWindow::GLFWScrollWheelCallback(GLFWwindow* glfwWindow,
 										 double xOffset,
 										 double yOffset) {
 
-	ImGui_ImplGlfw_ScrollCallback(glfwWindow, xOffset, yOffset);
+	auto window = WindowFromGLFWwindow(glfwWindow);
+	auto inputManager = window->_inputManager;
 
-	if (auto inputManager = InputManagerFromGLFWWindow(glfwWindow)) {
+	if (window->cursorCaptured() && inputManager) {
 		inputManager->glfwScrollEvent(xOffset, yOffset);
+	}
+	else {
+		ImGui_ImplGlfw_ScrollCallback(glfwWindow, xOffset, yOffset);
+//		if (inputManager) {
+//			inputManager->glfwScrollEvent(xOffset, yOffset);
+//		}
 	}
 }
 
@@ -442,18 +454,26 @@ void GLFWWindow::GLFWKeyCallback(GLFWwindow* glfwWindow,
 								 int action,
 								 int mods) {
 
-	ImGui_ImplGlfw_KeyCallback(glfwWindow, key, scanCode, action, mods);
+	auto window = WindowFromGLFWwindow(glfwWindow);
+	auto inputManager = window->_inputManager;
 
-	if (!ImGui::GetIO().WantCaptureKeyboard) {
-
-		if (auto inputManager = InputManagerFromGLFWWindow(glfwWindow)) {
-			inputManager->glfwKeyEvent(key, scanCode, action, mods);
-		}
+	if (!ImGui::GetIO().WantCaptureKeyboard && inputManager) {
+		inputManager->glfwKeyEvent(key, scanCode, action, mods);
+	}
+	else if (!window->cursorCaptured()) {
+		ImGui_ImplGlfw_KeyCallback(glfwWindow, key, scanCode, action, mods);
+//		if (!ImGui::GetIO().WantCaptureKeyboard && inputManager) {
+//			inputManager->glfwKeyEvent(key, scanCode, action, mods);
+//		}
 	}
 }
 
-GLFWInputManager* GLFWWindow::InputManagerFromGLFWWindow(GLFWwindow* glfwWindow) {
-	return ((GLFWWindow*)glfwGetWindowUserPointer(glfwWindow))->_inputManager;
+GLFWWindow* GLFWWindow::WindowFromGLFWwindow(GLFWwindow* glfwWindow) {
+	return (GLFWWindow*)glfwGetWindowUserPointer(glfwWindow);
+}
+
+GLFWInputManager* GLFWWindow::InputManagerFromGLFwWindow(GLFWwindow* glfwWindow) {
+	return WindowFromGLFWwindow(glfwWindow)->_inputManager;
 }
 
 /// Private Static Non-Member Functions ///

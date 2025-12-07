@@ -173,8 +173,7 @@ bool Viewport::event(QEvent* e) {
 					const QPointF p = ev->position();
 					io.MousePos = ImVec2(float(p.x()), float(p.y()));
 				}
-				break;
-			}
+				break; }
 			case QEvent::MouseButtonPress:
 			case QEvent::MouseButtonRelease: {
 				auto* ev = static_cast<QMouseEvent*>(e);
@@ -193,10 +192,7 @@ bool Viewport::event(QEvent* e) {
 					default:
 						break;
 				}
-				if (buttonIndex >= 0 && buttonIndex < IM_ARRAYSIZE(io.MouseDown)) {
-					io.MouseDown[buttonIndex] = down;
-				}
-				if (_inputManager) {
+				if (_cursorCaptured && _inputManager) {
 					if (type == QEvent::MouseButtonPress) {
 						_inputManager->mouseButtonPressed(buttonIndex);
 					}
@@ -204,22 +200,25 @@ bool Viewport::event(QEvent* e) {
 						_inputManager->mouseButtonReleased(buttonIndex);
 					}
 				}
-				break;
-			}
+				else if (buttonIndex >= 0 && buttonIndex < IM_ARRAYSIZE(io.MouseDown)) {
+					io.MouseDown[buttonIndex] = down;
+				}
+				break; }
 			case QEvent::Wheel: {
 				auto* ev = static_cast<QWheelEvent*>(e);
 				const QPoint numDegrees = ev->angleDelta() / 8;
-				if (numDegrees.y() != 0) {
-					io.MouseWheel += float(numDegrees.y()) / 120.0f;
-				}
-				if (numDegrees.x() != 0) {
-					io.MouseWheelH += float(numDegrees.x()) / 120.0f;
-				}
-				if (_inputManager) {
+				if (_cursorCaptured && _inputManager) {
 					_inputManager->mouseWheelScrolled(numDegrees.x(), numDegrees.y());
 				}
-				break;
-			}
+				else {
+					if (numDegrees.y() != 0) {
+						io.MouseWheel += float(numDegrees.y()) / 120.0f;
+					}
+					if (numDegrees.x() != 0) {
+						io.MouseWheelH += float(numDegrees.x()) / 120.0f;
+					}
+				}
+				break; }
 			default:
 				break;
 		}
@@ -230,104 +229,102 @@ bool Viewport::event(QEvent* e) {
 
 void Viewport::keyPressEvent(QKeyEvent* e) {
 
+	// e->accept() == don't propagate further -- but what about QOpenGLWidget::keyPressEvent(e)?
+
 	if (_renderer->isInitialized()) {
 
-		ImGuiIO& io = ImGui::GetIO();
-
-		const QString text = e->text();
-		if (!text.isEmpty()) {
-			QByteArray utf8 = text.toUtf8();
-			io.AddInputCharactersUTF8(utf8.constData());
-		}
-
 		int key = e->key();
-		io.AddKeyEvent(ImGuiKeyFromQtKey(key), true);
 
-		io.AddKeyEvent(ImGuiKey_ModCtrl,  e->modifiers().testFlag(Qt::ControlModifier));
-		io.AddKeyEvent(ImGuiKey_ModShift, e->modifiers().testFlag(Qt::ShiftModifier));
-		io.AddKeyEvent(ImGuiKey_ModAlt,   e->modifiers().testFlag(Qt::AltModifier));
-		io.AddKeyEvent(ImGuiKey_ModSuper, e->modifiers().testFlag(Qt::MetaModifier));
-
-		if (io.WantCaptureKeyboard) {
-			e->accept();
+		if (!ImGui::GetIO().WantCaptureKeyboard && _inputManager) {
+			_inputManager->keyPressed(key);
 		}
-		else {
-			if (_inputManager && !e->isAutoRepeat()) {
-				_inputManager->keyPressed(key);
+		else if (!_cursorCaptured) {
+
+			ImGuiIO& io = ImGui::GetIO();
+			const QString text = e->text();
+
+			if (!text.isEmpty()) {
+				QByteArray utf8 = text.toUtf8();
+				io.AddInputCharactersUTF8(utf8.constData());
 			}
-			QOpenGLWidget::keyPressEvent(e);
+
+			io.AddKeyEvent(ImGuiKeyFromQtKey(key), true);
+
+			io.AddKeyEvent(ImGuiKey_ModCtrl,  e->modifiers().testFlag(Qt::ControlModifier));
+			io.AddKeyEvent(ImGuiKey_ModShift, e->modifiers().testFlag(Qt::ShiftModifier));
+			io.AddKeyEvent(ImGuiKey_ModAlt,   e->modifiers().testFlag(Qt::AltModifier));
+			io.AddKeyEvent(ImGuiKey_ModSuper, e->modifiers().testFlag(Qt::MetaModifier));
 		}
 	}
-	else {
-		if (_inputManager) {
-			_inputManager->keyPressed(e->key());
-		}
-		QOpenGLWidget::keyPressEvent(e);
-	}
+	QOpenGLWidget::keyPressEvent(e);
 }
 
 void Viewport::keyReleaseEvent(QKeyEvent* e) {
 
+	// e->accept() == don't propagate further -- but what about QOpenGLWidget::keyPressEvent(e)?
+
 	if (_renderer->isInitialized()) {
 
-		ImGuiIO& io = ImGui::GetIO();
-
 		int key = e->key();
-		io.AddKeyEvent(ImGuiKeyFromQtKey(key), false);
 
-		io.AddKeyEvent(ImGuiKey_ModCtrl,  e->modifiers().testFlag(Qt::ControlModifier));
-		io.AddKeyEvent(ImGuiKey_ModShift, e->modifiers().testFlag(Qt::ShiftModifier));
-		io.AddKeyEvent(ImGuiKey_ModAlt,   e->modifiers().testFlag(Qt::AltModifier));
-		io.AddKeyEvent(ImGuiKey_ModSuper, e->modifiers().testFlag(Qt::MetaModifier));
-
-		if (io.WantCaptureKeyboard) {
-			e->accept();
+		if (!ImGui::GetIO().WantCaptureKeyboard && _inputManager) {
+			_inputManager->keyReleased(key);
 		}
-		else {
-			if (_inputManager) {
-				_inputManager->keyReleased(key);
-			}
-			QOpenGLWidget::keyReleaseEvent(e);
+		else if (!_cursorCaptured) {
+
+			ImGuiIO& io = ImGui::GetIO();
+
+			io.AddKeyEvent(ImGuiKeyFromQtKey(key), false);
+			io.AddKeyEvent(ImGuiKey_ModCtrl,  e->modifiers().testFlag(Qt::ControlModifier));
+			io.AddKeyEvent(ImGuiKey_ModShift, e->modifiers().testFlag(Qt::ShiftModifier));
+			io.AddKeyEvent(ImGuiKey_ModAlt,   e->modifiers().testFlag(Qt::AltModifier));
+			io.AddKeyEvent(ImGuiKey_ModSuper, e->modifiers().testFlag(Qt::MetaModifier));
 		}
 	}
-	else {
-		if (_inputManager && !e->isAutoRepeat()) {
-			_inputManager->keyReleased(e->key());
-		}
-		QOpenGLWidget::keyReleaseEvent(e);
-	}
+
+	QOpenGLWidget::keyReleaseEvent(e);
 }
 
 void Viewport::mouseMoveEvent(QMouseEvent *e) {
 
-	if (e->source() == Qt::MouseEventNotSynthesized) {
+	auto pos = e->position();
+	static QPointF lastPos = pos;
 
-		auto pos = e->position();
-		QPointF center(width() / 2.0, height() / 2.0);
+	if (_renderer->isInitialized()) {
 
-		if (_warpingCursor) {
-			_warpingCursor = false;
-			_lastCapturedCursorPosition = center;
-			return;
-		}
+		if (e->source() == Qt::MouseEventNotSynthesized) {
 
-		if (!_lastCapturedCursorPosition.has_value()) {
+			QPointF center(width() / 2.0, height() / 2.0);
+
+			if (_warpingCursor) {
+				_warpingCursor = false;
+				_lastCapturedCursorPosition = center;
+				return;
+			}
+
+			if (!_lastCapturedCursorPosition.has_value()) {
+				_lastCapturedCursorPosition = pos;
+			}
+
+			QPointF delta = lastPos - *_lastCapturedCursorPosition;
+			if (_cursorCaptured && _inputManager) {
+				_inputManager->mouseMoved(float(delta.x()), float(delta.y()));
+			}
+			else {
+				// imgui handled in event()
+			}
+
 			_lastCapturedCursorPosition = pos;
-		}
 
-		QPointF delta = pos - *_lastCapturedCursorPosition;
-		if (_inputManager && _cursorCaptured && !ImGui::GetIO().WantCaptureMouse) {
-			_inputManager->mouseMoved(float(delta.x()), float(delta.y()));
-		}
-
-		_lastCapturedCursorPosition = pos;
-
-		if (_cursorCaptured) {
-			_warpingCursor = true;
-			centerCursor();
-			_lastCapturedCursorPosition = center;
+			if (_cursorCaptured) {
+				_warpingCursor = true;
+				centerCursor();
+				_lastCapturedCursorPosition = center;
+			}
 		}
 	}
+
+	lastPos = pos;
 
 	e->accept();
 }

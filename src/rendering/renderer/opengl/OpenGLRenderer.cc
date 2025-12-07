@@ -2580,68 +2580,68 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 	ImGuiIO& io = GetIO();
 	auto fonts = io.Fonts->Fonts;
 
-	// draw the text shadow
-	SetNextWindowBgAlpha(0);
-	Begin("StatsTextShadow", nullptr, windowFlags);
-	ImGuiStyle& style = GetStyle();
-	style.WindowBorderSize = 0;
-	SetWindowPos({10.0f, 2.0f});
-	ImVec2 cursorPos = GetCursorPos();
-	SetCursorPos(ImVec2(cursorPos.x + 1.0, cursorPos.y + 1.0));
+//	// draw the text shadow
+//	SetNextWindowBgAlpha(0);
+//	Begin("StatsTextShadow", nullptr, windowFlags);
+//	ImGuiStyle& style = GetStyle();
+//	style.WindowBorderSize = 0;
+//	SetWindowPos({10.0f, 2.0f});
+//	ImVec2 cursorPos = GetCursorPos();
+//	SetCursorPos(ImVec2(cursorPos.x + 1.0, cursorPos.y + 1.0));
+////	PushFont(fonts[1]);
+//	PushFont(fonts[0]);
+//	TextColored(ImVec4{0, 0, 0, .5}, "avara3d");
+//	PopFont();
+//	cursorPos = GetCursorPos();
+//	SetCursorPos(ImVec2(cursorPos.x,
+//						cursorPos.y + OpenGLRenderer::STATS_TITLE_TO_BODY_PADDING));
 //	PushFont(fonts[1]);
-	PushFont(fonts[0]);
-	TextColored(ImVec4{0, 0, 0, .5}, "avara3d");
-	PopFont();
-	cursorPos = GetCursorPos();
-	SetCursorPos(ImVec2(cursorPos.x,
-						cursorPos.y + OpenGLRenderer::STATS_TITLE_TO_BODY_PADDING));
-	PushFont(fonts[1]);
-	TextColored(ImVec4{0, 0, 0, .5}, "%s", str.c_str());
-	PopFont();
-	End();
-
-	// draw the text
-	SetNextWindowBgAlpha(0);
-	Begin("StatsText", nullptr, windowFlags);
-	SetWindowPos({10.0f, 2.0f});
+//	TextColored(ImVec4{0, 0, 0, .5}, "%s", str.c_str());
+//	PopFont();
+//	End();
+//
+//	// draw the text
+//	SetNextWindowBgAlpha(0);
+//	Begin("StatsText", nullptr, windowFlags);
+//	SetWindowPos({10.0f, 2.0f});
+////	PushFont(fonts[1]);
+//	PushFont(fonts[0]);
+//	TextColored(ImVec4{1, 1, 1, 1}, "avara3d");
+//	PopFont();
+//	cursorPos = GetCursorPos();
+//	SetCursorPos(ImVec2(cursorPos.x,
+//						cursorPos.y + OpenGLRenderer::STATS_TITLE_TO_BODY_PADDING));
 //	PushFont(fonts[1]);
-	PushFont(fonts[0]);
-	TextColored(ImVec4{1, 1, 1, 1}, "avara3d");
-	PopFont();
-	cursorPos = GetCursorPos();
-	SetCursorPos(ImVec2(cursorPos.x,
-						cursorPos.y + OpenGLRenderer::STATS_TITLE_TO_BODY_PADDING));
-	PushFont(fonts[1]);
-	TextColored(ImVec4{1, 1, 1, 1}, "%s", str.c_str());
-	PopFont();
-	End();
+//	TextColored(ImVec4{1, 1, 1, 1}, "%s", str.c_str());
+//	PopFont();
+//	End();
 
 	// input test
 
-//	Begin("Input test", nullptr, windowFlags);
-//	SetWindowPos({10.0f, 2.0f});
-//	ImGui::PushFont(fonts[1]);
-//	// --- Button + hover ---
-//	if (ImGui::Button("Click me")) {
-//		A3D_LOG_I("ImGui button was CLICKED");
-//	}
-//	if (ImGui::IsItemHovered()) {
-//		ImGui::SameLine();
-//		ImGui::Text("(hovering)");
-//	}
-//	static bool toggled = false;
-//	if (ImGui::Checkbox("Toggle", &toggled)) {
-//		A3D_LOG_I("Toggle is now: {}", toggled ? "ON" : "OFF");
-//	}
-//	static char textBuf[128] = "type here";
-//	if (ImGui::InputText("Text field", textBuf, sizeof(textBuf))) {
-//		A3D_LOG_I("Text changed: '{}'", textBuf);
-//	}
-//	Text("MousePos: (%.1f, %.1f)", io.MousePos.x, io.MousePos.y);
-//	Text("MouseDown[0]: %s", io.MouseDown[0] ? "true" : "false");
-//	Text("WantCaptureMouse: %s", io.WantCaptureMouse ? "true" : "false");
-//	ImGui::PopFont();
-//	End();
+	Begin("Input test", nullptr, windowFlags);
+	SetWindowPos({10.0f, 2.0f});
+	ImGui::PushFont(fonts[1]);
+	// --- Button + hover ---
+	if (ImGui::Button("Click me")) {
+		A3D_LOG_I("ImGui button was CLICKED");
+	}
+	if (ImGui::IsItemHovered()) {
+		ImGui::SameLine();
+		ImGui::Text("(hovering)");
+	}
+	static bool toggled = false;
+	if (ImGui::Checkbox("Toggle", &toggled)) {
+		A3D_LOG_I("Toggle is now: {}", toggled ? "ON" : "OFF");
+	}
+	static char textBuf[128] = "type here";
+	if (ImGui::InputText("Text field", textBuf, sizeof(textBuf))) {
+		A3D_LOG_I("Text changed: '{}'", textBuf);
+	}
+	Text("MousePos: (%.1f, %.1f)", io.MousePos.x, io.MousePos.y);
+	Text("MouseDown[0]: %s", io.MouseDown[0] ? "true" : "false");
+	Text("WantCaptureMouse: %s", io.WantCaptureMouse ? "true" : "false");
+	ImGui::PopFont();
+	End();
 
 //	Render();
 //	ImGui_ImplOpenGL3_RenderDrawData(GetDrawData());

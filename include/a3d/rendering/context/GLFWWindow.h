@@ -114,7 +114,8 @@ namespace a3d {
 												   int scanCode,
 												   int action,
 												   int mods);
-		static GLFWInputManager* 	InputManagerFromGLFWWindow(GLFWwindow* glfwWindow);
+		static GLFWWindow* WindowFromGLFWwindow(GLFWwindow* glfwWindow);
+		static GLFWInputManager* 	InputManagerFromGLFwWindow(GLFWwindow* glfwWindow);
 
 		/// Private Member Functions ///
 

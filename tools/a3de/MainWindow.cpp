@@ -247,24 +247,24 @@ void MainWindow::updateCallback(a3d::Scene& scene, double time, double deltaTime
 
 	if (viewport->cursorCaptured()) {
 
-		auto mouseButtonsPressed = im->mouseButtonsPressed();
-		if (mouseButtonsPressed.count(MouseButton::One)) {
-			A3D_APP_LOG_D("one");
-		}
-		if (mouseButtonsPressed.count(MouseButton::Two)) {
-			A3D_APP_LOG_D("two");
-		}
-		if (mouseButtonsPressed.count(MouseButton::Three)) {
-			A3D_APP_LOG_D("three");
-		}
-
-		auto scrollWheelDelta = im->mouseScrollWheelDelta();
-		if (fabs(scrollWheelDelta.x) > .0001) {
-			A3D_APP_LOG_D("x: {}", scrollWheelDelta.x);
-		}
-		else if (fabs(scrollWheelDelta.y) > .0001) {
-			A3D_APP_LOG_D("y: {}", scrollWheelDelta.y);
-		}
+//		auto mouseButtonsPressed = im->mouseButtonsPressed();
+//		if (mouseButtonsPressed.count(MouseButton::One)) {
+//			A3D_APP_LOG_D("one");
+//		}
+//		if (mouseButtonsPressed.count(MouseButton::Two)) {
+//			A3D_APP_LOG_D("two");
+//		}
+//		if (mouseButtonsPressed.count(MouseButton::Three)) {
+//			A3D_APP_LOG_D("three");
+//		}
+//
+//		auto scrollWheelDelta = im->mouseScrollWheelDelta();
+//		if (fabs(scrollWheelDelta.x) > .0001) {
+//			A3D_APP_LOG_D("x: {}", scrollWheelDelta.x);
+//		}
+//		else if (fabs(scrollWheelDelta.y) > .0001) {
+//			A3D_APP_LOG_D("y: {}", scrollWheelDelta.y);
+//		}
 
 		vec2 mousePositionDelta = im->mousePositionDelta();
 
