@@ -285,9 +285,9 @@ void Scene::update() {
 
 //			/* TODO: REMOVE */ auto updateStartTime = time();
 
-			Timer applicationTimer(true);
+			Timer appTimer(true);
 			(_updateCallback)(*this, runT, deltaRunT);
-			_profiler.add(Profiler::Tag::Application, applicationTimer.stop());
+			_profiler.add(Profiler::Tag::Application, appTimer.stop());
 
 //			/* TODO: REMOVE */ UpdateUserTimeStats(_stats, updateStartTime, time());
 		}
@@ -312,6 +312,7 @@ void Scene::update() {
 							   deltaRunT,
 							   _debugOptions,
 							   stats,
+							   _profiler,
 							   _frameStatsHistory);
 			_profiler.add(Profiler::Tag::Draw, drawTimer.stop());
 		}

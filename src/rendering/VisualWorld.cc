@@ -22,6 +22,8 @@
 #include "a3d/mesh/primitive/Plane.h"
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/physics/bullet/BulletWorldProxy.h"
+#include "a3d/profiling/Profiler.h"
+#include "a3d/profiling/Timer.h"
 #include "a3d/rendering/light/Light.h"
 #include "a3d/rendering/material/Material.h"
 #include "a3d/rendering/material/Sampler.h"
@@ -255,6 +257,7 @@ void VisualWorld::draw(const Scene& scene,
 					   double deltaRunT,
 					   DebugOptions debugOptions,
 					   FrameStats& stats,
+					   Profiler& profiler,
 					   const FrameStatsHistory& statsHistory) {
 
 	if (_renderContext) {
@@ -262,7 +265,9 @@ void VisualWorld::draw(const Scene& scene,
 		if (auto renderer = _renderContext->renderer()) {
 
 			if (auto willRender = VisualWorld::willRenderCallback()) {
+				Timer appTimer(true);
 				willRender(*this, runT, deltaRunT);
+				profiler.add(Profiler::Tag::Application, appTimer.stop());
 			}
 
 			auto startTime = scene.time();
@@ -336,7 +341,9 @@ void VisualWorld::draw(const Scene& scene,
 			_renderContext->swapBuffers();
 
 			if (auto didRender = VisualWorld::didRenderCallback()) {
+				Timer appTimer(true);
 				didRender(*this, runT, deltaRunT);
+				profiler.add(Profiler::Tag::Application, appTimer.stop());
 			}
 
 			if (_renderContext->recordingGIF()) {

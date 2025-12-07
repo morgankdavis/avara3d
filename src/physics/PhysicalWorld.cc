@@ -199,9 +199,9 @@ void PhysicalWorld::step(const Scene& scene,
 //		UpdateTimeStats(stats, startTime, scene.time());
 
 		if (auto didSimulate = PhysicalWorld::didSimulateCallback()) {
-			Timer applicationTimer(true);
+			Timer appTimer(true);
 			didSimulate(*this, runT, deltaRunT);
-			profiler.add(Profiler::Tag::Application, applicationTimer.stop());
+			profiler.add(Profiler::Tag::Application, appTimer.stop());
 		}
 	}
 	else {
@@ -213,7 +213,7 @@ PhysicalWorldProxy* PhysicalWorld::proxy() const {
 	return  _proxy.get();
 }
 
-///// Private Static Non-Member Functions ///
+/// Private Static Non-Member Functions ///
 //
 //void UpdateTimeStats(FrameStats& stats, double startTime, double endTime) {
 //

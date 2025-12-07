@@ -22,6 +22,7 @@ namespace a3d {
 	class Mesh;
 	class Node;
 	class PhysicalWorld;
+	class Profiler;
 	class RenderContext;
 	class Renderer;
 	class Scene;
@@ -89,6 +90,7 @@ namespace a3d {
 													 double deltaRunT,
 													 DebugOptions debugOptions,
 													 FrameStats& stats,
+													 Profiler& profiler,
 													 const FrameStatsHistory& statsHistory);
 
 		Mesh*									skyboxMesh() const;

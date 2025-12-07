@@ -67,8 +67,8 @@ Node*	g_duckNode;
 
 int main(int argc, const char* argv[]) {
 
-	try
-	{
+	try {
+
 		InitLog();
 		LogBuildInfo();
 
