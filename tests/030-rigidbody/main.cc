@@ -806,6 +806,10 @@ void InitLog() {
 	appLog->level(A3D_APP_LOG_LEVEL);
 	Log::AppLog(std::move(appLog));
 
+//	auto appLog = Log(executableName, std::move(sinks));
+//	appLog.level(A3D_APP_LOG_LEVEL);
+//	Log::AppLog(appLog);
+
 	Log::MainLog().level(A3D_APP_LOG_LEVEL);
 }
 

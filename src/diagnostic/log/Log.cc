@@ -31,10 +31,11 @@ using namespace std;
 /// Internal Static Member Functions ///
 
 Log& Log::MainLog() {
-	
-	static unique_ptr<Log> logger = nullptr;
 
-	if (!logger) {
+	static Log log("a3d");
+	static bool initialized = false;
+
+	if (!initialized) {
 
 		string executableName = *utils::ExecutableName();
 		auto nativeSink = make_unique<StdOutLogSink>();
@@ -44,10 +45,11 @@ Log& Log::MainLog() {
 		sinks.insert(std::move(nativeSink));
 		sinks.insert(std::move(fileSink));
 
-		logger = make_unique<Log>("a3d", std::move(sinks));
+		log._sinks = std::move(sinks);
+		//logger = make_unique<Log>("a3d", std::move(sinks));
 	}
 
-	return *logger;
+	return log;
 }
 
 /// Public Static Member Functions ///
@@ -59,6 +61,10 @@ Log& Log::AppLog() {
 void Log::AppLog(unique_ptr<Log> log) {
 	_appLog = std::move(log);
 }
+
+//void Log::AppLog(const Log& log) {
+//	_appLog = std::move(log);
+//}
 
 /// Private Static Prototypes ///
 
@@ -162,6 +168,14 @@ void Log::flush() {
 		sink->flush();
 	}
 }
+
+/// Private Lifecycle ///
+
+Log::Log(const std::string& name):
+		_name{name},
+		_sinks{},
+		_level{DEFAULT_LEVEL},
+		_flushLevel{DEFAULT_FLUSH_LEVEL} {}
 
 /// Private  Member Functions ///
 

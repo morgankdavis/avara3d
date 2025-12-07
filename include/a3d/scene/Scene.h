@@ -18,6 +18,8 @@
 #include <vector>
 
 #include "a3d/Types.h"
+#include "a3d/profiling/FrameStatsHistory.h"
+#include "a3d/profiling/Profiler.h"
 
 namespace a3d {
 
@@ -100,6 +102,11 @@ namespace a3d {
 		double 								_startTime;
 		Stats								_stats;
 		UpdateCallback						_updateCallback;
+
+
+
+		Profiler							_profiler;
+		FrameStatsHistory					_frameStatsHistory;
 	};
 }
 

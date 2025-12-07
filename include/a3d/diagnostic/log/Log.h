@@ -91,6 +91,7 @@ namespace a3d {
 
 		static Log& AppLog();
 		static void AppLog(std::unique_ptr<Log> log);
+//		static void AppLog(const Log& log);
 
 		/// Public Static Member Functions ///
 
@@ -135,6 +136,10 @@ namespace a3d {
 		void 					flush();
 
 	private:
+		/// Private Lifecycle ///
+
+		Log(const std::string& name);
+
 		/// Private Member Functions ///
 
 		void 					log(LogLevel level,
@@ -150,6 +155,7 @@ namespace a3d {
 		/// Private Static Member Variables ///
 
 		static std::unique_ptr<Log>						_appLog;
+//		static Log										_appLog;
 
 		/// Private Member Variables ///
 

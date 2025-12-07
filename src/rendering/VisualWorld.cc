@@ -254,7 +254,8 @@ void VisualWorld::draw(const Scene& scene,
 					   double runT,
 					   double deltaRunT,
 					   DebugOptions debugOptions,
-					   Stats& stats) {
+					   Stats& stats,
+					   const FrameStatsHistory& statsHistory) {
 
 	if (_renderContext) {
 
@@ -330,7 +331,7 @@ void VisualWorld::draw(const Scene& scene,
 			UpdateTimeStats(stats, startTime, scene.time());
 
 			_renderContext->endFrame(scene);
-			renderer->endFrame(scene, *_renderContext, debugOptions, stats);
+			renderer->endFrame(scene, *_renderContext, debugOptions, stats, statsHistory);
 
 			_renderContext->swapBuffers();
 

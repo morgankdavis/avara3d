@@ -18,6 +18,7 @@
 
 namespace a3d {
 
+	class FrameStatsHistory;
 	class Image;
 	class Line;
 	class Node;
@@ -52,7 +53,8 @@ namespace a3d {
 		virtual void 					endFrame(const Scene& scene,
 												 const RenderContext& context,
 												 const DebugOptions& debugOptions,
-												 Stats& stats) = 0;
+												 Stats& stats,
+												 const FrameStatsHistory& statsHistory) = 0;
 
 		virtual void 					preTraversal(const Scene& scene,
 												   const RenderContext& context,

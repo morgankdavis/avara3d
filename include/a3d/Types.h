@@ -9,6 +9,7 @@
 #ifndef AVARA3D_TYPES_H
 #define AVARA3D_TYPES_H
 
+#include <chrono>
 #include <memory>
 #include <set>
 #include <unordered_set> // temporary?
@@ -369,7 +370,7 @@ namespace a3d {
 		float z;
 	} Extent;
 
-	typedef struct {
+	struct Stats{
 		// the frame time as of the last frame in ms
 		double		currentFrametime;
 		// the framerate as of the last frame in frames/second
@@ -404,7 +405,30 @@ namespace a3d {
 		unsigned	boundingBoxShapes;
 		unsigned	convexHullShapes;
 		unsigned	concavePolyhedronShapes;
-	} Stats;
+	};
+
+	struct FrameStats {
+		std::chrono::nanoseconds frameTime;
+		std::chrono::nanoseconds engineCpuTime;
+		std::chrono::nanoseconds physicstime;
+		std::chrono::nanoseconds renderSubmissionTime;
+		std::chrono::nanoseconds applicationTime;
+
+		unsigned 	numNodes;
+		unsigned 	numMeshes;
+		unsigned 	numElements;
+		unsigned 	numPolygons;
+		unsigned 	numLights;
+		glm::vec3 	cameraPosition;
+
+		unsigned	numStaticBodies;
+		unsigned	numDynamicBodies;
+		unsigned	numKinematicBodies;
+		unsigned	numPrimitiveShapes;
+		unsigned	numBoundingBoxShapes;
+		unsigned	numConvexHullShapes;
+		unsigned	numConcavePolyhedronShapes;
+	};
 
 	enum DebugOptions : unsigned {
 		None =							0,

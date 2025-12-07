@@ -24,6 +24,8 @@
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicalWorld.h"
+#include "a3d/profiling/Profiler.h"
+#include "a3d/profiling/timer/Timer.h"
 #include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/camera/Camera.h"
 #include "a3d/rendering/context/RenderContext.h"
@@ -64,7 +66,9 @@ Scene::Scene():
 		_debugOptions{DebugOptions::None},
 		_stats{},
 		_startTime{0},
-		_updateCallback{} {
+		_updateCallback{},
+		_profiler{},
+		_frameStatsHistory{FRAME_STATS_HISTORY_DURATION} {
 
 	_rootNode->attachedToScene(*this);
 }
@@ -141,7 +145,6 @@ void Scene::rootNode(const shared_ptr<Node>& node) {
 		_rootNode->attachedToScene(*this);
 	}
 }
-
 
 //Node* Scene::rootNode() const {
 //	return _rootNode.get();
@@ -255,6 +258,9 @@ void Scene::debugOptions(DebugOptions options) {
 
 void Scene::update() {
 
+	FrameStats stats;
+	Timer wholeFrameTimer(true);
+
 	if (_rootNode) {
 
 		static auto now = std::chrono::system_clock::now();
@@ -296,12 +302,23 @@ void Scene::update() {
 							   runT,
 							   deltaRunT,
 							   _debugOptions,
-							   _stats);
+							   _stats,
+							   _frameStatsHistory);
 		}
 	}
 	else {
 		A3D_LOG_E("No root node attached to Scene {:p}", static_cast<void*>(this));
 	}
+
+
+
+	_profiler.add(Profiler::Tag::WholeFrame, wholeFrameTimer.stop());
+
+	stats.frameTime = _profiler.time(Profiler::Tag::WholeFrame);
+
+	_frameStatsHistory.add(stats);
+
+	_profiler.reset();
 }
 
 double Scene::time() const {

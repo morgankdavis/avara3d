@@ -225,13 +225,21 @@ static void 		DeleteLinesGLResources(const vector<Line>& lines,
 										  OpenGLRenderer::LinesGLMapping& glMapping);
 static vector<Node*> 	SortedLights(map<Node*, float> lights);
 static void			InitImgui(const RenderContext& context);
-static void 		UpdateImguiScale(const RenderContext& context, const Font& overLayFont, const Font& bodyFont);
+static void 		UpdateImguiScale(const RenderContext& context,
+									 const Font& overLayFont,
+									 const Font& bodyFont);
 static void 		AddImguiFont(const RenderContext& context, const Font& font, float size);
 static void 		DrawDebugOptions(Scene& scene, const RenderContext& context);
-static void 		DrawStatsOverlay(Stats& stats, const RenderContext& context);
+static void 		DrawStatsOverlay(Stats& stats,
+									 const FrameStatsHistory& statsHistory,
+									 const RenderContext& context);
 static string 		StatusOverlayDescriptionForAntialiasingMode(AntialiasingMode mode);
-static void 		SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode);
-static void 		SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode);
+static void 		SetTextureMinificationFilter(GLuint glTextureHandle,
+												 bool cube,
+												 FilterMode mode);
+static void 		SetTextureMagnificationFilter(GLuint glTextureHandle,
+												  bool cube,
+												  FilterMode mode);
 static void 		SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max);
 static void 		SetTextureWrapS(GLuint glTextureHandle, bool cube, WrapMode mode);
 static void 		SetTextureWrapT(GLuint glTextureHandle, bool cube, WrapMode mode);
@@ -371,12 +379,13 @@ void OpenGLRenderer::beginFrame(const Scene& scene,
 void OpenGLRenderer::endFrame(const Scene& scene,
 							  const RenderContext& context,
 							  const DebugOptions& debugOptions,
-							  Stats& stats) {
+							  Stats& stats,
+							  const FrameStatsHistory& statsHistory) {
 
 	ImGui::NewFrame();
 	DrawDebugOptions(const_cast<Scene&>(scene), context); // TODO: CHEATING
 	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay)) {
-		DrawStatsOverlay(stats, context);
+		DrawStatsOverlay(stats, statsHistory, context);
 	}
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -2460,7 +2469,9 @@ void DrawDebugOptions(Scene& scene, const RenderContext& context) {
 	End();
 }
 
-void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
+void DrawStatsOverlay(Stats& stats,
+					  const FrameStatsHistory& statsHistory,
+					  const RenderContext& context) {
 
 	using namespace ImGui;
 
@@ -2616,6 +2627,39 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 	TextColored(ImVec4{1, 1, 1, 1}, "%s", str.c_str());
 	PopFont();
 	End();
+
+
+
+
+
+
+	Begin("Stats graph", nullptr, windowFlags);
+	SetWindowPos({512.0f, 2.0f});
+	ImGui::PushFont(fonts[1]);
+
+	auto& samples = statsHistory.samples();
+
+	static std::vector<float> frameSamples;
+	frameSamples.resize(samples.size());
+	for (size_t i = 0; i < samples.size(); ++i) {
+		auto timeNS = get<1>(samples[i]).frameTime;
+		auto timeMS = std::chrono::duration<double, std::milli>(timeNS).count();
+		frameSamples[i] = timeMS;
+	}
+
+	ImGui::PlotLines("Frame",
+					 frameSamples.data(),
+					 static_cast<int>(frameSamples.size()),
+					 0,
+					 nullptr,
+					 //FLT_MAX, FLT_MAX,
+					 0, 17.0f,
+					 ImVec2(128.0f, 32.0f));
+
+	ImGui::PopFont();
+	End();
+
+
 
 	// input test
 

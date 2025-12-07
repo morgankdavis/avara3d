@@ -73,7 +73,8 @@ namespace a3d {
 		void 					endFrame(const Scene& scene,
 										 const RenderContext& context,
 										 const DebugOptions& debugOptions,
-										 Stats& stats) override;
+										 Stats& stats,
+										 const FrameStatsHistory& statsHistory) override;
 
 		void 					preTraversal(const Scene& scene,
 											 const RenderContext& context,

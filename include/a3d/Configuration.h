@@ -11,7 +11,8 @@
 
 namespace a3d {
 
-	constexpr double 	FRAMETIME_AVERAGING_INTERVAL = 	0.5;
+	constexpr double 	FRAMETIME_AVERAGING_INTERVAL = 	0.5; // seconds
+	constexpr double 	FRAME_STATS_HISTORY_DURATION = 	1.5; // seconds
 	constexpr unsigned 	MAX_PHYSICS_SUBSTEPS = 			1;
 
 	// for now, just add all lights.
