@@ -10,7 +10,9 @@
 
 //#include <algorithm> // needs to be under windows.h
 #include <chrono>
+#include <cstring>
 #include <ctime>
+#include <format>
 #include <fstream>
 #include <memory>
 #include <random>
@@ -42,7 +44,6 @@
 #undef max // windows.h defines a 'max'... (we want std::max())
 #include <algorithm> // needs to be under windows.h
 
-#include "fmt/format.h"
 #include "glm/gtc/quaternion.hpp"
 
 #include "a3d/Buffer.h"
@@ -89,7 +90,7 @@ ostream& a3d::utils::operator<<(ostream& os, const mat4& m) {
 	// "GLM uses column major ordering, so the addressing is m[col][row]"
 	// http://stackoverflow.com/questions/26454838/glm-multiplication-order
 
-	auto str = fmt::format("{:.2f}\t{:.2f}\t{:.2f}\t{:.2f}\n" \
+	auto str = std::format("{:.2f}\t{:.2f}\t{:.2f}\t{:.2f}\n" \
 							"{:.2f}\t{:.2f}\t{:.2f}\t{:.2f}\n" \
 						   "{:.2f}\t{:.2f}\t{:.2f}\t{:.2f}\n" \
 						   "{:.2f}\t{:.2f}\t{:.2f}\t{:.2f}",
@@ -166,7 +167,7 @@ string a3d::utils::DateTimeString() {
 	gettimeofday(&curTime, NULL); // gettimeofday() is POSIX
 	int milli = curTime.tv_usec / 1000;
 	strftime(buf, sizeof(buf), "%Y.%m.%d_%H.%M.%S", localtime(&curTime.tv_sec));
-	char msBuf[strlen(buf) + 5];
+	char msBuf[std::strlen(buf) + 5];
 	snprintf(msBuf, sizeof(msBuf), "%s.%03d", buf, milli);
 	return string(msBuf);
 #endif
@@ -587,7 +588,7 @@ void a3d::utils::SaveSnapshot(RenderContext& context) {
 
 	auto execDir = ExecutableDirectory();
 	if (execDir) {
-		auto filename = fmt::format("Snapshot_{}.png", DateTimeString());
+		auto filename = std::format("Snapshot_{}.png", DateTimeString());
 		A3D_LOG_I("Saving snapshot to '{}'", (*execDir/filesystem::path(filename)).string());
 		auto image = context.snapshot();
 		auto fullPath = *execDir / filename;
@@ -604,7 +605,7 @@ void a3d::utils::StartGIFRecording(RenderContext& context,
 
 	auto execDir = ExecutableDirectory();
 	if (execDir) {
-		auto filename = fmt::format("Recording_{}.gif", DateTimeString());
+		auto filename = std::format("Recording_{}.gif", DateTimeString());
 		A3D_LOG_I("Starting GIF recording at '{}'", (*execDir/filesystem::path(filename)).string());
 		auto fullPath = *execDir / filename;
 		context.startGIFRecording(fullPath.string(), fitInside, maxFramerate);

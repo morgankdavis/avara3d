@@ -18,7 +18,6 @@
 #include <tuple>
 #include <unordered_set>
 
-#include "fmt/format.h"
 
 #include "a3d/Types.h"
 
@@ -29,74 +28,52 @@
 #ifdef A3D_DEBUG
 #define A3D_APP_LOG_T(fmtStr, ...)	a3d::Log::AppLog().log(a3d::LogLevel::Trace, \
 										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
-										fmt::format(fmtStr, ##__VA_ARGS__))
+										std::format(fmtStr, ##__VA_ARGS__))
 #define A3D_APP_LOG_D(fmtStr, ...) 	a3d::Log::AppLog().log(a3d::LogLevel::Debug, \
 										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
-										fmt::format(fmtStr, ##__VA_ARGS__))
+										std::format(fmtStr, ##__VA_ARGS__))
 #else
 #define A3D_APP_LOG_T(fmtStr, ...) 	NOOP
 #define A3D_APP_LOG_D(fmtStr, ...) 	NOOP
 #endif
 #define A3D_APP_LOG_I(fmtStr, ...)	a3d::Log::AppLog().log(a3d::LogLevel::Info, \
 										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
-										fmt::format(fmtStr, ##__VA_ARGS__))
+										std::format(fmtStr, ##__VA_ARGS__))
 #define A3D_APP_LOG_W(fmtStr, ...)	a3d::Log::AppLog().log(a3d::LogLevel::Warn, \
 										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
-										fmt::format(fmtStr, ##__VA_ARGS__))
+										std::format(fmtStr, ##__VA_ARGS__))
 #define A3D_APP_LOG_E(fmtStr, ...)	a3d::Log::AppLog().log(a3d::LogLevel::Error, \
 										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
-										fmt::format(fmtStr, ##__VA_ARGS__))
+										std::format(fmtStr, ##__VA_ARGS__))
 #define A3D_APP_LOG_F(fmtStr, ...)	a3d::Log::AppLog().log(a3d::LogLevel::Fatal, \
 										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
-										fmt::format(fmtStr, ##__VA_ARGS__))
-//#define A3D_APP_LOG_T(log_, fmtStr, ...)	log_->log(a3d::LogLevel::Trace, \
-//											{__FILE_NAME__, __LINE__, __FUNCTION__}, \
-//											fmt::format(fmtStr, ##__VA_ARGS__))
-//#define A3D_APP_LOG_D(log_, fmtStr, ...) 	log_->log(a3d::LogLevel::Debug, \
-//											{__FILE_NAME__, __LINE__, __FUNCTION__}, \
-//											fmt::format(fmtStr, ##__VA_ARGS__))
-//#else
-//#define A3D_APP_LOG_T(log, fmtStr, ...) 	NOOP
-//#define A3D_APP_LOG_D(log, fmtStr, ...) 	NOOP
-//#endif
-//#define A3D_APP_LOG_I(log_, fmtStr, ...)	log_->log(a3d::LogLevel::Info, \
-//											{__FILE_NAME__, __LINE__, __FUNCTION__}, \
-//											fmt::format(fmtStr, ##__VA_ARGS__))
-//#define A3D_APP_LOG_W(log_, fmtStr, ...)	log_->log(a3d::LogLevel::Warn, \
-//											{__FILE_NAME__, __LINE__, __FUNCTION__}, \
-//											fmt::format(fmtStr, ##__VA_ARGS__))
-//#define A3D_APP_LOG_E(log_, fmtStr, ...)	log_->log(a3d::LogLevel::Error, \
-//											{__FILE_NAME__, __LINE__, __FUNCTION__}, \
-//											fmt::format(fmtStr, ##__VA_ARGS__))
-//#define A3D_APP_LOG_F(log_, fmtStr, ...)	log_->log(a3d::LogLevel::Fatal, \
-//											{__FILE_NAME__, __LINE__, __FUNCTION__}, \
-//											fmt::format(fmtStr, ##__VA_ARGS__))
+										std::format(fmtStr, ##__VA_ARGS__))
 
 /// Internal Macro Functions ///
 
 #ifdef A3D_DEBUG
 #define A3D_LOG_T(fmtStr, ...) 		a3d::Log::MainLog().log(a3d::LogLevel::Trace, \
 										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
-										fmt::format(fmtStr, ##__VA_ARGS__))
+										std::format(fmtStr, ##__VA_ARGS__))
 #define A3D_LOG_D(fmtStr, ...) 		a3d::Log::MainLog().log(a3d::LogLevel::Debug, \
 										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
-										fmt::format(fmtStr, ##__VA_ARGS__))
+										std::format(fmtStr, ##__VA_ARGS__))
 #else
 	#define A3D_LOG_T(fmtStr, ...) 	NOOP
 	#define A3D_LOG_D(fmtStr, ...) 	NOOP
 #endif
 #define A3D_LOG_I(fmtStr, ...) 		a3d::Log::MainLog().log(a3d::LogLevel::Info, \
 										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
-										fmt::format(fmtStr, ##__VA_ARGS__))
+										std::format(fmtStr, ##__VA_ARGS__))
 #define A3D_LOG_W(fmtStr, ...) 		a3d::Log::MainLog().log(a3d::LogLevel::Warn, \
 										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
-										fmt::format(fmtStr, ##__VA_ARGS__))
+										std::format(fmtStr, ##__VA_ARGS__))
 #define A3D_LOG_E(fmtStr, ...) 		a3d::Log::MainLog().log(a3d::LogLevel::Error, \
 										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
-										fmt::format(fmtStr, ##__VA_ARGS__))
+										std::format(fmtStr, ##__VA_ARGS__))
 #define A3D_LOG_F(fmtStr, ...) 		a3d::Log::MainLog().log(a3d::LogLevel::Fatal, \
 										{__FILE_NAME__, __LINE__, __FUNCTION__}, \
-										fmt::format(fmtStr, ##__VA_ARGS__))
+										std::format(fmtStr, ##__VA_ARGS__))
 
 namespace a3d {
 
@@ -112,10 +89,13 @@ namespace a3d {
 
 		/// Public Static Member Functions ///
 
-		static Log& MainLog();
-
 		static Log& AppLog();
 		static void AppLog(std::unique_ptr<Log> log);
+
+		/// Public Static Member Functions ///
+
+		static Log& MainLog();
+
 
 		/// Public Lifecycle Functions ///
 

@@ -9,9 +9,9 @@
 #include "a3d/scene/Node.h"
 
 #include <algorithm>
+#include <format>
 #include <utility>
 
-#include "fmt/format.h"
 #include "glm/gtx/matrix_decompose.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtx/string_cast.hpp"
@@ -540,7 +540,7 @@ mat4 Node::worldTransform() const {
 void Node::addChild(const shared_ptr<Node>& node) {
 
 	if (containsChild(node)) {
-		throw Exception(fmt::format("Node already exists in tree: {:p}, (\"{}\")",
+		throw Exception(std::format("Node already exists in tree: {:p}, (\"{}\")",
 									static_cast<void*>(node.get()),
 									(node->name() ? *node->name() : "(unnamed)")));
 	}

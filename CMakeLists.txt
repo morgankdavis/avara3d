@@ -123,11 +123,6 @@ target_include_directories(avara3d PRIVATE external/stb)
 target_include_directories(avara3d PRIVATE external/v-hacd-4.1.0)
 
 
-### add special defines ###
-
-target_compile_definitions(avara3d PUBLIC FMT_HEADER_ONLY)
-
-
 ### setup clang-tidy ###
 # TODO: use clang-style?
 

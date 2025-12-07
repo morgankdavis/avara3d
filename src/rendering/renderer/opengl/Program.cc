@@ -8,6 +8,8 @@
 
 #include "a3d/rendering/renderer/opengl/Program.h"
 
+#include <format>
+
 #ifdef OPENGL_ES
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
@@ -15,7 +17,6 @@
 #include "glad/glad.h"
 #endif
 
-#include "fmt/format.h"
 #include "glm/gtc/type_ptr.hpp"
 #include "magic_enum.hpp"
 
@@ -496,13 +497,13 @@ void Program::prepare() {
 			else {
 				//A3D_LOG_C("Failed linking '{}' program:\n{}", _name, *_logString);
 				//A3D_LOG_C("Failed linking program '{}'.", _name);
-				throw Exception(fmt::format("Failed linking program '{}'.", _name));
+				throw Exception(std::format("Failed linking program '{}'.", _name));
 			}
 		}
 		else {
 			//A3D_LOG_C("Failed compiling '{}' shaders:\n{}", _name, *_logString);
 			//A3D_LOG_C("Failed compiling '{}' shaders.", _name);
-			throw Exception(fmt::format("Failed compiling '{}' shaders.", _name));
+			throw Exception(std::format("Failed compiling '{}' shaders.", _name));
 		}
 	}
 }
