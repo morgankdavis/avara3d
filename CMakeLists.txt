@@ -9,6 +9,7 @@ include(cmake/EnvironmentDetect.cmake)
 include(cmake/UtilityFunctions.cmake)
 
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
 	set(CMAKE_BUILD_TYPE "Debug")
@@ -121,11 +122,6 @@ target_include_directories(avara3d PRIVATE external/magic_enum-0.9.3/include)
 target_include_directories(avara3d PRIVATE external/manymouse/include)
 target_include_directories(avara3d PRIVATE external/stb)
 target_include_directories(avara3d PRIVATE external/v-hacd-4.1.0)
-
-
-### add special defines ###
-
-target_compile_definitions(avara3d PUBLIC FMT_HEADER_ONLY)
 
 
 ### setup clang-tidy ###

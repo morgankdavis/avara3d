@@ -9,7 +9,7 @@
 
 #include "a3d/diagnostic/log/sink/FileLogSink.h"
 
-#include "fmt/format.h"
+#include <format>
 
 #include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/log/Log.h"
@@ -33,7 +33,7 @@ FileLogSink::FileLogSink(const filesystem::path& relPath,
 	auto code = errorCode.value();
 	if (code != 0) {
 		// TODO: esception sublass
-		throw Exception(fmt::format("Error creating intermediate directories for log: '{}', code: {}.",
+		throw Exception(std::format("Error creating intermediate directories for log: '{}', code: {}.",
 									_filepath.string(), to_string(code)));
 	}
 
@@ -149,7 +149,7 @@ void FileLogSink::rotate() {
 			auto code = errorCode.value();
 			if (code != 0) {
 				// TODO: exception subclass
-				throw Exception(fmt::format("Error removing log file: '{}', code: {}.",
+				throw Exception(std::format("Error removing log file: '{}', code: {}.",
 											path.string(), to_string(code)));
 			}
 		}

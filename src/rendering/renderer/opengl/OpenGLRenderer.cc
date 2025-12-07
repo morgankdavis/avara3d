@@ -9,6 +9,7 @@
 #include "a3d/rendering/renderer/opengl/OpenGLRenderer.h"
 
 #include <algorithm>
+#include <format>
 #include <iostream>
 #include <set>
 #include <utility>
@@ -2479,7 +2480,7 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 	if (context.recordingGIF()) {
 		auto time = context.recordedGIFTime();
 		auto numFrames = context.recordedGIFFrames();
-		recordingStr = fmt::format("\n{:<{}} {:.1f} s / {} {}",
+		recordingStr = std::format("\n{:<{}} {:.1f} s / {} {}",
 								   "RECORDING",
 								   PADDING,
 								   time,
@@ -2493,7 +2494,7 @@ void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
 
-	auto str = fmt::format(
+	auto str = std::format(
 			"v{}.{}.{} build {}\n" \
 			 "{}\n"
 			"\n" \

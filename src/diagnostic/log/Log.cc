@@ -8,7 +8,9 @@
 
 #include "a3d/diagnostic/log/Log.h"
 
+#include <cstring>
 #include <ctime>
+#include <format>
 #include <utility>
 
 #ifdef POSIX
@@ -26,7 +28,7 @@
 using namespace a3d;
 using namespace std;
 
-/// Public Static Member Functions ///
+/// Internal Static Member Functions ///
 
 Log& Log::MainLog() {
 	
@@ -47,6 +49,8 @@ Log& Log::MainLog() {
 
 	return *logger;
 }
+
+/// Public Static Member Functions ///
 
 Log& Log::AppLog() {
 	return *_appLog;
@@ -145,7 +149,7 @@ void Log::log(LogLevel level,
 	if (static_cast<underlying_type<LogLevel>::type>(level)
 		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
 
-		auto lineStr = fmt::format("{} {}\n",
+		auto lineStr = std::format("{} {}\n",
 								   HeaderString(_name, level, sourceInfo),
 								   msg);
 		dispatch(level, lineStr);
@@ -167,7 +171,7 @@ void Log::log(LogLevel level,
 	if (static_cast<underlying_type<LogLevel>::type>(level)
 		>= static_cast<underlying_type<LogLevel>::type>(_level)) {
 
-		auto lineStr = fmt::format("{} {}\n",
+		auto lineStr = std::format("{} {}\n",
 								   HeaderString(_name, level),
 								   msg);
 		dispatch(level, lineStr);
@@ -212,7 +216,7 @@ string TimestampString() {
 	gettimeofday(&curTime, NULL); // gettimeofday() is POSIX
 	int milli = curTime.tv_usec / 1000;
 	strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", localtime(&curTime.tv_sec));
-	char msBuf[strlen(buf) + 5];
+	char msBuf[std::strlen(buf) + 5];
 	snprintf(msBuf, sizeof(msBuf), "%s.%03d", buf, milli);
 	return string(msBuf);
 #endif
@@ -221,7 +225,7 @@ string TimestampString() {
 string HeaderString(const string& logName, LogLevel level,
 					const Log::SourceInfo& sourceInfo) {
 
-	return fmt::format("{} [{}] [{}] [{}:{}] [{}()]",
+	return std::format("{} [{}] [{}] [{}:{}] [{}()]",
 					   TimestampString(),
 					   logName,
 					   magic_enum::enum_name(level),
@@ -232,7 +236,7 @@ string HeaderString(const string& logName, LogLevel level,
 
 string HeaderString(const string& logName, LogLevel level) {
 
-	return fmt::format("{} [{}] [{}]",
+	return std::format("{} [{}] [{}]",
 					   TimestampString(),
 					   logName,
 					   magic_enum::enum_name(level));

@@ -9,6 +9,7 @@
 #include "a3d/scene/importer/GlTFImporter.h"
 
 #include <filesystem>
+#include <format>
 #include <utility>
 #include <variant>
 
@@ -16,7 +17,6 @@
 #include "fastgltf/tools.hpp"
 #include "fastgltf/types.hpp"
 #include "fastgltf/util.hpp"
-#include "fmt/format.h"
 #include "glm/gtc/type_ptr.hpp"
 #include "magic_enum.hpp"
 
@@ -72,7 +72,7 @@ GlTFImporter::GlTFImporter(const filesystem::path& path,
 
 	auto extension = path.extension();
 	if (!(extension == ".gltf" || extension == ".glb")) {
-		throw UnsupportedFormatException(fmt::format("Unsupported format: {}", extension.string()));
+		throw UnsupportedFormatException(std::format("Unsupported format: {}", extension.string()));
 	}
 }
 
