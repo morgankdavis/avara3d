@@ -1,0 +1,11 @@
+
+#ifndef AVARA3D_FRAMESTATSHISTORY_H
+#define AVARA3D_FRAMESTATSHISTORY_H
+
+
+class FrameStatsHistory {
+
+};
+
+
+#endif //AVARA3D_FRAMESTATSHISTORY_H
