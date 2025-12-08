@@ -171,7 +171,7 @@ void BulletWorldProxy::step(double deltaT,
 	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=9320
 	Timer physicsTimer(true);
 	auto result = _btWorld->stepSimulation(btScalar(deltaT * speed),
-										   MAX_PHYSICS_SUBSTEPS,
+										   config::MAX_PHYSICS_SUBSTEPS,
 										   timestep);
 	profiler.add(Profiler::Tag::Physics, physicsTimer.stop());
 

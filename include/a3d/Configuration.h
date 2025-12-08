@@ -9,18 +9,20 @@
 #ifndef AVARA3D_CONFIGURATION_H
 #define AVARA3D_CONFIGURATION_H
 
-namespace a3d {
+namespace a3d::config {
 
-	constexpr double 	FRAMETIME_AVERAGING_INTERVAL = 	0.5; // seconds
-	constexpr double 	FRAME_STATS_HISTORY_DURATION = 	1.5; // seconds
-	constexpr unsigned 	MAX_PHYSICS_SUBSTEPS = 			1;
+	constexpr std::chrono::milliseconds
+						FRAMETIME_AVERAGING_INTERVAL	{250};
+	constexpr std::chrono::milliseconds
+						FRAME_STATS_HISTORY_DURATION 	{3000};
+	constexpr unsigned 	MAX_PHYSICS_SUBSTEPS 			{1};
 
 	// for now, just add all lights.
 	// when we start doing spacial partitioning we will be smarter about lights.
-	constexpr unsigned 	MAX_AMBIENT_LIGHTS =			16;
-	constexpr unsigned 	MAX_DIRECTIONAL_LIGHTS =		16;
-	constexpr unsigned 	MAX_POINT_LIGHTS =				128;
-	constexpr unsigned 	MAX_SPOT_LIGHTS =				64;
+	constexpr unsigned 	MAX_AMBIENT_LIGHTS				{16};
+	constexpr unsigned 	MAX_DIRECTIONAL_LIGHTS			{16};
+	constexpr unsigned 	MAX_POINT_LIGHTS				{128};
+	constexpr unsigned 	MAX_SPOT_LIGHTS					{64};
 }
 
 #endif //AVARA3D_CONFIGURATION_H

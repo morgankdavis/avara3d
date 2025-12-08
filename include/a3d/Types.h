@@ -410,10 +410,10 @@ namespace a3d {
 	struct FrameStats {
 		std::chrono::nanoseconds frameTime;
 		std::chrono::nanoseconds engineCpuTime;
-		std::chrono::nanoseconds physicsTime;
 		std::chrono::nanoseconds renderCpuTime;
-		std::chrono::nanoseconds drawTime;
-		std::chrono::nanoseconds applicationCpuTime;
+		std::chrono::nanoseconds renderGpuTime;
+		std::chrono::nanoseconds physicsTime;
+		std::chrono::nanoseconds applicationTime;
 
 		unsigned 	numNodes;
 		unsigned 	numMeshes;

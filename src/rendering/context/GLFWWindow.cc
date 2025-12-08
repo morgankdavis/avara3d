@@ -316,6 +316,7 @@ void GLFWWindow::vSyncEnabled(bool enabled) {
 	else {
 		glfwSwapInterval(0);
 	}
+	_vSyncEnabled = enabled;
 }
 
 /// RenderContext Internal Member Functions ///

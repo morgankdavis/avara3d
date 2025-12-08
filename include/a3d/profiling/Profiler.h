@@ -25,10 +25,10 @@ namespace a3d {
 		enum class Tag {
 			Frame,
 			EngineCpu,
-			Physics,
 			RenderCpu,
-			Draw, // TODO: remove?
-			ApplicationCpu
+			RenderGpu,
+			Physics,
+			Application
 		};
 
 		/// Public Lifecycle Functions ///

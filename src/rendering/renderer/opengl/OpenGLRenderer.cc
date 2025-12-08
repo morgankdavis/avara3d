@@ -134,13 +134,13 @@ typedef struct {
 
 typedef struct {
 	alignas(16)	uint32_t 					numAmbientLights;
-	alignas(16) AmbientLightGLSLStruct		ambientLights[MAX_AMBIENT_LIGHTS];
+	alignas(16) AmbientLightGLSLStruct		ambientLights[a3d::config::MAX_AMBIENT_LIGHTS];
 	alignas(16) uint32_t 					numDirectionalLights;
-	alignas(16) DirectionalLightGLSLStruct	directionalLights[MAX_DIRECTIONAL_LIGHTS];
+	alignas(16) DirectionalLightGLSLStruct	directionalLights[a3d::config::MAX_DIRECTIONAL_LIGHTS];
 	alignas(16) uint32_t 					numPointLights;
-	alignas(16) PointLightGLSLStruct		pointLights[MAX_POINT_LIGHTS];
+	alignas(16) PointLightGLSLStruct		pointLights[a3d::config::MAX_POINT_LIGHTS];
 	alignas(16) uint32_t 					numSpotLights;
-	alignas(16) SpotLightGLSLStruct			spotLights[MAX_SPOT_LIGHTS];
+	alignas(16) SpotLightGLSLStruct			spotLights[a3d::config::MAX_SPOT_LIGHTS];
 	alignas(16) FogGLSLStruct				fog;
 } EnvironmentBlock;
 
@@ -1423,10 +1423,10 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 			vector<PointLightGLSLStruct> pointStructs;
 			vector<SpotLightGLSLStruct> spotStructs;
 
-			ambientStructs.reserve(MAX_AMBIENT_LIGHTS);
-			directionalStructs.reserve(MAX_DIRECTIONAL_LIGHTS);
-			pointStructs.reserve(MAX_POINT_LIGHTS);
-			spotStructs.reserve(MAX_SPOT_LIGHTS);
+			ambientStructs.reserve(config::MAX_AMBIENT_LIGHTS);
+			directionalStructs.reserve(config::MAX_DIRECTIONAL_LIGHTS);
+			pointStructs.reserve(config::MAX_POINT_LIGHTS);
+			spotStructs.reserve(config::MAX_SPOT_LIGHTS);
 
 			for (unsigned l = 0; l < numLights; ++l) {
 
@@ -2505,6 +2505,24 @@ void DrawStatsOverlay(FrameStats& stats,
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
 
+	chrono::nanoseconds frameNsAvg, engineCpuNsAvg, renderCpuNsAvg,
+			renderGpuNsAvg, physicsNsAvg, appCpuNsAvg;
+
+	FrameStatsHistory::GetAverages(statsHistory,
+									 frameNsAvg, engineCpuNsAvg, renderCpuNsAvg,
+									 renderGpuNsAvg, physicsNsAvg, appCpuNsAvg,
+									 a3d::config::FRAMETIME_AVERAGING_INTERVAL);
+
+
+	float frameMsFAvg, engineCpuMsFAvg, renderCpuMsFAvg,
+			renderGpuMsFAvg, physicsMsFAvg, appCpuMsFAvg;
+	frameMsFAvg = std::chrono::duration<float, std::milli>(frameNsAvg).count();
+	engineCpuMsFAvg = std::chrono::duration<float, std::milli>(engineCpuNsAvg).count();
+	renderCpuMsFAvg = std::chrono::duration<float, std::milli>(appCpuNsAvg).count();
+	renderGpuMsFAvg = std::chrono::duration<float, std::milli>(renderGpuNsAvg).count();
+	physicsMsFAvg = std::chrono::duration<float, std::milli>(physicsNsAvg).count();
+	appCpuMsFAvg = std::chrono::duration<float, std::milli>(appCpuNsAvg).count();
+
 	auto str = std::format(
 			"v{}.{}.{} build {}\n" \
 			 "{}\n"
@@ -2545,10 +2563,10 @@ void DrawStatsOverlay(FrameStats& stats,
 			version.major, version.minor, version.patch, buildInfo.number(),
 			buildInfo.type() == BuildInfo::Type::Debug ? "debug" : "release",
 
-			"frametime", PADDING, 0.f,//stats.averageFrametime,
-			" draw", PADDING, 0.f,//stats.averageDrawtime,
-			" physics", PADDING, 0.f,//stats.averagePhysicstime,
-			" user", PADDING, 0.f,//stats.averageUsertime,
+			"frametime", PADDING, frameMsFAvg,//stats.averageFrametime,
+			" draw", PADDING, renderCpuMsFAvg,//stats.averageDrawtime,
+			" physics", PADDING, physicsMsFAvg,//stats.averagePhysicstime,
+			" user", PADDING, appCpuMsFAvg,//stats.averageUsertime,
 			"framerate", PADDING, 0.f,/*stats.averageFramerate,*/ (context.vSyncEnabled() ? "[vsync]" : ""),
 
 			"resolution", PADDING, context.framebufferSize().x, context.framebufferSize().y,
@@ -2658,8 +2676,8 @@ void DrawStatsOverlay(FrameStats& stats,
 
 		frameSamples[i] = chrono::duration<float, milli>(sample.frameTime).count();
 		physSamples[i] = chrono::duration<float, milli>(sample.physicsTime).count();
-		drawSamples[i] = chrono::duration<float, milli>(sample.drawTime).count();
-		appSamples[i] = chrono::duration<float, milli>(sample.applicationCpuTime).count();
+		drawSamples[i] = chrono::duration<float, milli>(sample.renderGpuTime).count();
+		appSamples[i] = chrono::duration<float, milli>(sample.applicationTime).count();
 	}
 
 	ImGui::PlotLines("Frame",

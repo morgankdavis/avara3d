@@ -267,7 +267,7 @@ void VisualWorld::draw(const Scene& scene,
 			if (auto willRender = VisualWorld::willRenderCallback()) {
 				Timer appTimer(true);
 				willRender(*this, runT, deltaRunT);
-				profiler.add(Profiler::Tag::ApplicationCpu, appTimer.stop());
+				profiler.add(Profiler::Tag::Application, appTimer.stop());
 			}
 
 			auto startTime = scene.time();
@@ -333,8 +333,6 @@ void VisualWorld::draw(const Scene& scene,
 				// TODO: throw?
 			}
 
-//			UpdateTimeStats(stats, startTime, scene.time());
-
 			_renderContext->endFrame(scene);
 			renderer->endFrame(scene, *_renderContext, debugOptions, stats, statsHistory);
 
@@ -343,7 +341,7 @@ void VisualWorld::draw(const Scene& scene,
 			if (auto didRender = VisualWorld::didRenderCallback()) {
 				Timer appTimer(true);
 				didRender(*this, runT, deltaRunT);
-				profiler.add(Profiler::Tag::ApplicationCpu, appTimer.stop());
+				profiler.add(Profiler::Tag::Application, appTimer.stop());
 			}
 
 			if (_renderContext->recordingGIF()) {
@@ -441,31 +439,3 @@ unique_ptr<Mesh> GroundPlaneMesh() {
 	//return make_unique<a3d::Mesh>(make_unique<Box>(0.5, 0.5, 0.5), nullptr);
 	return make_unique<a3d::Mesh>(make_unique<Plane>(1.0, 1.0, 1, 1), nullptr);
 }
-
-//void UpdateTimeStats(Stats& stats, double startTime, double endTime) {
-//
-//	// current
-//	auto drawTime = endTime - startTime;
-//	stats.currentDrawtime = drawTime * 1000.0f;
-//
-//	// average
-//	static double avg = 0.0;
-//	static double sampleStartTime = startTime;
-//	static unsigned drawsSinceSampleStart = 0;
-//	static double accumulatedDrawTimeSinceSampleStart = 0;
-//	double elapsedTimeSinceSampleStart = endTime - sampleStartTime;
-//	if (elapsedTimeSinceSampleStart >= FRAMETIME_AVERAGING_INTERVAL) {
-//
-//		avg = (accumulatedDrawTimeSinceSampleStart * 1000.0f) / drawsSinceSampleStart;
-//
-//		sampleStartTime = startTime;
-//		drawsSinceSampleStart = 0;
-//		accumulatedDrawTimeSinceSampleStart = 0;
-//	}
-//	else {
-//		++drawsSinceSampleStart;
-//		accumulatedDrawTimeSinceSampleStart += drawTime;
-//	}
-//
-//	stats.averageDrawtime = avg;
-//}
