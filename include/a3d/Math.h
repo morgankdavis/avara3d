@@ -5,11 +5,6 @@
 //  Created by Morgan Davis on 12/7/25.
 //  Copyright © 2025 Morgan K Davis. All rights reserved.
 //
-//  Mote: Large portions of this code is based on GLM.
-//  GLM uses the MIT license.
-//  Did we take enough to warrant including GLM's license?  I donno.
-//  #dontsueme
-//
 
 #ifndef AVARA3D_MATH_H
 #define AVARA3D_MATH_H
@@ -179,13 +174,17 @@ namespace a3d::math {
 	mat3 operator*(const mat3& a, const mat3& b);
 	mat4 operator*(const mat4& a, const mat4& b);
 
+	mat2 transpose(const mat2& m);
+	mat3 transpose(const mat3& m);
+	mat4 transpose(const mat4& m);
+
 	mat2 inverse(const mat2& m);
 	mat3 inverse(const mat3& m);
 	mat4 inverse(const mat4& m);
 
-	mat2 transpose(const mat2& m);
-	mat3 transpose(const mat3& m);
-	mat4 transpose(const mat4& m);
+	//f32 determinant(mat2 const& m);
+	//f32 determinant(mat3 const& m);
+	//f32 determinant(mat4 const& m);
 
 	// v + v
 	template <typename V, std::enable_if_t<detail::is_vec_v<V>, int> = 0>
@@ -380,6 +379,87 @@ namespace a3d::math {
 	f32 max(f32 a, f32 b);
 	f32	clamp(f32 val, f32 low, f32 high);
 	void swap(f32& a, f32& b);
+
+	// genTypeT mix(genTypeT x, genTypeT y, genTypeU a);
+	// vec<L, T, Q> mix(vec<L, T, Q> const& x, vec<L, T, Q> const& y, vec<L, U, Q> const& a);
+	// vec<L, T, Q> mix(vec<L, T, Q> const& x, vec<L, T, Q> const& y, U a);
+
+
+
+
+
+//	mat<4, 4, T, Q> translate(vec<3, T, Q> const& v);
+//	mat<4, 4, T, Q> rotate(T angle, vec<3, T, Q> const& v);
+//	mat<4, 4, T, Q> scale(vec<3, T, Q> const& v);
+
+
+
+
+//	genType length(genType x)
+//	T length(vec<L, T, Q> const& v);
+//	genType distance(genType const& p0, genType const& p1);
+//	T distance(vec<L, T, Q> const& p0, vec<L, T, Q> const& p1);
+//	T dot(T x, T y);
+//	T dot(vec<L, T, Q> const& x, vec<L, T, Q> const& y);
+//	vec<3, T, Q> cross(vec<3, T, Q> const& x, vec<3, T, Q> const& y);
+//	vec<L, T, Q> normalize(vec<L, T, Q> const& x);
+
+
+
+//	vec<3, T, Q> eulerAngles(qua<T, Q> const& x);
+//	T roll(qua<T, Q> const& q);
+//	T pitch(qua<T, Q> const& q);
+//	T yaw(qua<T, Q> const& q);
+//	mat<3, 3, T, Q> mat3_cast(qua<T, Q> const& q);
+//	mat<4, 4, T, Q> mat4_cast(qua<T, Q> const& q);
+//	qua<T, Q> quat_cast(mat<3, 3, T, Q> const& m);
+//	quat_cast(mat<4, 4, T, Q> const& m4);
+//	quatLookAt(vec<3, T, Q> const& direction, vec<3, T, Q> const& up);
+
+
+
+//vec<3, T, Q> cross(vec<3, T, Q> const& v, qua<T, Q> const& q);
+//vec<3, T, Q> cross(qua<T, Q> const& q, vec<3, T, Q> const& v);
+//vec<3, T, Q> rotate(qua<T, Q> const& q, vec<3, T, Q> const& v);
+//vec<4, T, Q> rotate(qua<T, Q> const& q, vec<4, T, Q> const& v);
+
+
+
+
+
+//	vec<2, T, Q> make_vec2(vec<1, T, Q> const& v);
+//	vec<2, T, Q> make_vec2(vec<2, T, Q> const& v);
+//	vec<2, T, Q> make_vec2(vec<3, T, Q> const& v);
+//	vec<2, T, Q> make_vec2(vec<4, T, Q> const& v);
+//	vec<3, T, Q> make_vec3(vec<1, T, Q> const& v);
+//	vec<3, T, Q> make_vec3(vec<2, T, Q> const& v);
+//	vec<3, T, Q> make_vec3(vec<3, T, Q> const& v);
+//	vec<3, T, Q> make_vec3(vec<4, T, Q> const& v);
+//	vec<4, T, Q> make_vec4(vec<1, T, Q> const& v);
+//	vec<4, T, Q> make_vec4(vec<2, T, Q> const& v);
+//	vec<4, T, Q> make_vec4(vec<3, T, Q> const& v);
+//	vec<4, T, Q> make_vec4(vec<4, T, Q> const& v);
+//	vec<2, T, defaultp> make_vec2(T const * const ptr);
+//	vec<3, T, defaultp> make_vec3(T const * const ptr);
+//	vec<4, T, defaultp> make_vec4(T const * const ptr);
+//	mat<2, 2, T, defaultp> make_mat2x2(T const * const ptr);
+//	mat<3, 3, T, defaultp> make_mat3x3(T const * const ptr);
+//	mat<4, 4, T, defaultp> make_mat4x4(T const * const ptr);
+//	mat<2, 2, T, defaultp> make_mat2(T const * const ptr);
+//	mat<3, 3, T, defaultp> make_mat3(T const * const ptr);
+//	mat<4, 4, T, defaultp> make_mat4(T const * const ptr);
+//	qua<T, defaultp> make_quat(T const * const ptr);
+
+
+
+
+
+// ivec operations?
+
+// EASING
+
+// RANDOM?
+
 
 /*
  	lookAt()

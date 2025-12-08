@@ -53,11 +53,54 @@ mat3 math::operator*(const mat3& a, const mat3& b) {
 
 mat4 math::operator*(const mat4& a, const mat4& b) {
 
-	mat4 r;
+	mat4 r(0.0f);
 	r.c0 = a * b.c0;
 	r.c1 = a * b.c1;
 	r.c2 = a * b.c2;
 	r.c3 = a * b.c3;
+	return r;
+}
+
+// mat2 transpose
+mat2 math::transpose(const mat2& m) {
+
+	// rows become columns
+	// row 0 = (m00, m01) -> c0.x, c1.x
+	// row 1 = (m10, m11) -> c0.y, c1.y
+	mat2 r(0.0);
+	r.c0 = vec2{ m.c0.x, m.c1.x };
+	r.c1 = vec2{ m.c0.y, m.c1.y };
+	return r;
+}
+
+// mat3 transpose
+mat3 math::transpose(const mat3& m) {
+
+	mat3 r(0.0);
+	// row 0 -> first column
+	r.c0 = vec3{ m.c0.x, m.c1.x, m.c2.x };
+	// row 1 -> second column
+	r.c1 = vec3{ m.c0.y, m.c1.y, m.c2.y };
+	// row 2 -> third column
+	r.c2 = vec3{ m.c0.z, m.c1.z, m.c2.z };
+	return r;
+}
+
+// mat4 transpose
+mat4 math::transpose(const mat4& m) {
+
+	mat4 r(0.0);
+	r.c0 = vec4{ m.c0.x, m.c1.x, m.c2.x, m.c3.x };
+	r.c1 = vec4{ m.c0.y, m.c1.y, m.c2.y, m.c3.y };
+	r.c2 = vec4{ m.c0.z, m.c1.z, m.c2.z, m.c3.z };
+	r.c3 = vec4{ m.c0.w, m.c1.w, m.c2.w, m.c3.w };
+	return r;
+}
+
+mat4 math::translate(const mat4& m, const vec3& v) {
+
+	mat4 r(m);
+	r[3] = m[0] * v[0] + m[1] * v[1] + m[2] * v[2] + m[3];
 	return r;
 }
 
@@ -75,7 +118,7 @@ mat2 math::inverse(const mat2& m) {
 
 	const f32 invDet = 1.0f / det;
 
-	mat2 r;
+	mat2 r(0.0);
 	r.c0 = vec2{  d * invDet, -c * invDet };
 	r.c1 = vec2{ -b * invDet,  a * invDet };
 	return r;
@@ -105,7 +148,7 @@ mat3 math::inverse(const mat3& m) {
 
 	const f32 invDet = 1.0f / det;
 
-	mat3 r;
+	mat3 r(0.0);
 	// remember: columns are (row0, row1, row2)
 	r.c0 = vec3{ inv00 * invDet, inv10 * invDet, inv20 * invDet };
 	r.c1 = vec3{ inv01 * invDet, inv11 * invDet, inv21 * invDet };
@@ -115,20 +158,16 @@ mat3 math::inverse(const mat3& m) {
 
 mat4 math::inverse(const mat4& m) {
 
-	// Row-major copy of m
-	f32 a[4][4] = {
-			{ m.c0.x, m.c1.x, m.c2.x, m.c3.x }, // row 0
-			{ m.c0.y, m.c1.y, m.c2.y, m.c3.y }, // row 1
-			{ m.c0.z, m.c1.z, m.c2.z, m.c3.z }, // row 2
-			{ m.c0.w, m.c1.w, m.c2.w, m.c3.w }  // row 3
-	};
+	// row-major copy of m
+	f32 a[4][4] = { { m.c0.x, m.c1.x, m.c2.x, m.c3.x }, // row 0
+					{ m.c0.y, m.c1.y, m.c2.y, m.c3.y }, // row 1
+					{ m.c0.z, m.c1.z, m.c2.z, m.c3.z }, // row 2
+					{ m.c0.w, m.c1.w, m.c2.w, m.c3.w } }; // row 3
 
-	f32 inv[4][4] = {
-			{ 1.0f, 0.0f, 0.0f, 0.0f },
-			{ 0.0f, 1.0f, 0.0f, 0.0f },
-			{ 0.0f, 0.0f, 1.0f, 0.0f },
-			{ 0.0f, 0.0f, 0.0f, 1.0f }
-	};
+	f32 inv[4][4] = { { 1.0f, 0.0f, 0.0f, 0.0f },
+					  { 0.0f, 1.0f, 0.0f, 0.0f },
+					  { 0.0f, 0.0f, 1.0f, 0.0f },
+					  { 0.0f, 0.0f, 0.0f, 1.0f } };
 
 	// Gauss-Jordan elimination with partial pivoting
 	for (int col = 0; col < 4; ++col) {
@@ -143,7 +182,7 @@ mat4 math::inverse(const mat4& m) {
 			}
 		}
 
-		// Singular?
+		// singular?
 		assert(max_abs != 0.0f && "mat4 inverse: matrix is singular");
 
 		// Swap rows in both 'a' and 'inv'
@@ -152,7 +191,7 @@ mat4 math::inverse(const mat4& m) {
 			std::swap(inv[col], inv[pivot_row]);
 		}
 
-		// Normalize pivot row
+		// normalize pivot row
 		const f32 pivot = a[col][col];
 		const f32 inv_pivot = 1.0f / pivot;
 		for (int j = 0; j < 4; ++j) {
@@ -160,7 +199,7 @@ mat4 math::inverse(const mat4& m) {
 			inv[col][j] *= inv_pivot;
 		}
 
-		// Eliminate this column from other rows
+		// eliminate this column from other rows
 		for (int r = 0; r < 4; ++r) {
 			if (r == col) continue;
 			const f32 factor = a[r][col];
@@ -173,54 +212,11 @@ mat4 math::inverse(const mat4& m) {
 	}
 
 	// 'inv' is now row-major inverse; convert back to column-major mat4
-	mat4 r;
+	mat4 r(0.0);
 	r.c0 = vec4{ inv[0][0], inv[1][0], inv[2][0], inv[3][0] };
 	r.c1 = vec4{ inv[0][1], inv[1][1], inv[2][1], inv[3][1] };
 	r.c2 = vec4{ inv[0][2], inv[1][2], inv[2][2], inv[3][2] };
 	r.c3 = vec4{ inv[0][3], inv[1][3], inv[2][3], inv[3][3] };
-	return r;
-}
-
-// mat2 transpose
-mat2 math::transpose(const mat2& m) {
-
-	// rows become columns
-	// row 0 = (m00, m01) -> c0.x, c1.x
-	// row 1 = (m10, m11) -> c0.y, c1.y
-	mat2 r;
-	r.c0 = vec2{ m.c0.x, m.c1.x };
-	r.c1 = vec2{ m.c0.y, m.c1.y };
-	return r;
-}
-
-// mat3 transpose
-mat3 math::transpose(const mat3& m) {
-
-	mat3 r;
-	// row 0 -> first column
-	r.c0 = vec3{ m.c0.x, m.c1.x, m.c2.x };
-	// row 1 -> second column
-	r.c1 = vec3{ m.c0.y, m.c1.y, m.c2.y };
-	// row 2 -> third column
-	r.c2 = vec3{ m.c0.z, m.c1.z, m.c2.z };
-	return r;
-}
-
-// mat4 transpose
-mat4 math::transpose(const mat4& m) {
-
-	mat4 r;
-	r.c0 = vec4{ m.c0.x, m.c1.x, m.c2.x, m.c3.x };
-	r.c1 = vec4{ m.c0.y, m.c1.y, m.c2.y, m.c3.y };
-	r.c2 = vec4{ m.c0.z, m.c1.z, m.c2.z, m.c3.z };
-	r.c3 = vec4{ m.c0.w, m.c1.w, m.c2.w, m.c3.w };
-	return r;
-}
-
-mat4 math::translate(const mat4& m, const vec3& v) {
-
-	mat4 r(m);
-	r[3] = m[0] * v[0] + m[1] * v[1] + m[2] * v[2] + m[3];
 	return r;
 }
 
@@ -233,33 +229,28 @@ mat4 math::rotate(const mat4& m, f32 angle, const vec3& v) {
 	vec3 axis(normalize(v));
 	vec3 temp((f32(1) - c) * axis);
 
-	mat4 rot;
-
+	mat4 rot(0.0);
 	rot[0][0] = c + temp[0] * axis[0];
 	rot[0][1] = temp[0] * axis[1] + s * axis[2];
 	rot[0][2] = temp[0] * axis[2] - s * axis[1];
-
 	rot[1][0] = temp[1] * axis[0] - s * axis[2];
 	rot[1][1] = c + temp[1] * axis[1];
 	rot[1][2] = temp[1] * axis[2] + s * axis[0];
-
 	rot[2][0] = temp[2] * axis[0] + s * axis[1];
 	rot[2][1] = temp[2] * axis[1] - s * axis[0];
 	rot[2][2] = c + temp[2] * axis[2];
 
-	mat4 r;
-
+	mat4 r(0.0);
 	r[0] = m[0] * rot[0][0] + m[1] * rot[0][1] + m[2] * rot[0][2];
 	r[1] = m[0] * rot[1][0] + m[1] * rot[1][1] + m[2] * rot[1][2];
 	r[2] = m[0] * rot[2][0] + m[1] * rot[2][1] + m[2] * rot[2][2];
 	r[3] = m[3];
-
 	return r;
 }
 
 mat4 math::scale(const mat4& m, const vec3& v) {
 
-	mat4 r;
+	mat4 r(0.0);
 	r[0] = m[0] * v[0];
 	r[1] = m[1] * v[1];
 	r[2] = m[2] * v[2];
