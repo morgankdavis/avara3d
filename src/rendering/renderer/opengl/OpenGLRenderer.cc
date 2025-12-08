@@ -2523,6 +2523,8 @@ void DrawStatsOverlay(FrameStats& stats,
 	physicsMsFAvg = std::chrono::duration<float, std::milli>(physicsNsAvg).count();
 	appCpuMsFAvg = std::chrono::duration<float, std::milli>(appCpuNsAvg).count();
 
+	float fps = 1000.0 / frameMsFAvg;
+
 	auto str = std::format(
 			"v{}.{}.{} build {}\n" \
 			 "{}\n"
@@ -2567,7 +2569,7 @@ void DrawStatsOverlay(FrameStats& stats,
 			" draw", PADDING, renderCpuMsFAvg,//stats.averageDrawtime,
 			" physics", PADDING, physicsMsFAvg,//stats.averagePhysicstime,
 			" user", PADDING, appCpuMsFAvg,//stats.averageUsertime,
-			"framerate", PADDING, 0.f,/*stats.averageFramerate,*/ (context.vSyncEnabled() ? "[vsync]" : ""),
+			"framerate", PADDING, fps,/*stats.averageFramerate,*/ (context.vSyncEnabled() ? "[vsync]" : ""),
 
 			"resolution", PADDING, context.framebufferSize().x, context.framebufferSize().y,
 			"antialiasing", PADDING, StatusOverlayDescriptionForAntialiasingMode(context.antialiasingMode()),
@@ -2676,7 +2678,7 @@ void DrawStatsOverlay(FrameStats& stats,
 
 		frameSamples[i] = chrono::duration<float, milli>(sample.frameTime).count();
 		physSamples[i] = chrono::duration<float, milli>(sample.physicsTime).count();
-		drawSamples[i] = chrono::duration<float, milli>(sample.renderGpuTime).count();
+		drawSamples[i] = chrono::duration<float, milli>(sample.renderCpuTime).count();
 		appSamples[i] = chrono::duration<float, milli>(sample.applicationTime).count();
 	}
 

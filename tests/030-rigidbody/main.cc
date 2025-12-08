@@ -9,6 +9,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <thread>
 #include <utility>
 #include <vector>
 
@@ -684,6 +685,10 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 		else {
 			utils::StopGIFRecording(*window);
 		}
+	}
+
+	if (keysDown.count(Key::Z)) {
+		this_thread::sleep_for(std::chrono::milliseconds(8));
 	}
 
 	if (keysPressed.count(Key::U)) {
