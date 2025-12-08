@@ -370,43 +370,6 @@ namespace a3d {
 		float z;
 	} Extent;
 
-//	struct Stats{
-//		// the frame time as of the last frame in ms
-//		double		currentFrametime;
-//		// the framerate as of the last frame in frames/second
-//		double		currentFramerate;
-//		// the average of frame time over averagingInterval in ms
-//		double		averageFrametime;
-//		// the average of frame rate over averagingInterval in frames/second
-//		double		averageFramerate;
-//		// time interval over which to average averageFrametime, averageFramerate,
-//		// averagePhysicstime, and averageDrawtime over in seconds
-//		double 		averagingInterval;
-//
-//		double		currentPhysicstime;
-//		double		currentDrawtime;
-//		double		currentUsertime;
-//		double 		averagePhysicstime;
-//		double		averageDrawtime;
-//		double		averageUsertime;
-//
-//		unsigned 	nodes;
-//		unsigned 	meshes;
-//		unsigned 	elements;
-//		unsigned 	polygons;
-//		unsigned 	lights;
-//		glm::vec3 	cameraPosition;
-//		glm::quat 	cameraOrientation;
-//
-//		unsigned	staticBodies;
-//		unsigned	dynamicBodies;
-//		unsigned	kinematicBodies;
-//		unsigned	primitiveShapes;
-//		unsigned	boundingBoxShapes;
-//		unsigned	convexHullShapes;
-//		unsigned	concavePolyhedronShapes;
-//	};
-
 	struct FrameStats {
 		std::chrono::nanoseconds frameTime;
 		std::chrono::nanoseconds engineCpuTime;

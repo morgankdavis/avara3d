@@ -16,7 +16,6 @@ if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
 endif ()
 message("[BUILD TYPE: " ${CMAKE_BUILD_TYPE} "]")
 
-
 ### create BuildInfo.cmake.h ###
 
 set(A3D_BUILD_TYPE ${CMAKE_BUILD_TYPE})
@@ -32,7 +31,6 @@ else ()
 endif ()
 
 configure_file(cmake/BuildInfo.cmake.in BuildInfo.cmake.h)
-
 
 ### add external libraries ###
 
@@ -71,8 +69,9 @@ add_subdirectory(external/glfw-3.4.0)
 
 add_subdirectory(external/imgui-1.90)
 
-add_subdirectory(external/manymouse)
+add_subdirectory(external/implot-0.17)
 
+add_subdirectory(external/manymouse)
 
 ### add a3d ###
 
@@ -82,7 +81,6 @@ file(GLOB_RECURSE SOURCES src/*.c*)
 add_library(avara3d STATIC
 		${HEADERS}
 		${SOURCES})
-
 
 ### setup a3d environment defines ###
 
@@ -107,7 +105,6 @@ elseif (WINDOWS)
 	target_compile_definitions(avara3d PUBLIC "WINDOWS")
 endif ()
 
-
 ### add library headers ###
 
 target_include_directories(avara3d PUBLIC include)
@@ -118,11 +115,11 @@ target_include_directories(avara3d PRIVATE external/glad-3.3/include)
 target_include_directories(avara3d PRIVATE external/glfw-3.4.0/include)
 target_include_directories(avara3d PRIVATE external/imgui-1.90)
 target_include_directories(avara3d PRIVATE external/imgui-1.90/backends)
+target_include_directories(avara3d PRIVATE external/implot-0.17)
 target_include_directories(avara3d PRIVATE external/magic_enum-0.9.3/include)
 target_include_directories(avara3d PRIVATE external/manymouse/include)
 target_include_directories(avara3d PRIVATE external/stb)
 target_include_directories(avara3d PRIVATE external/v-hacd-4.1.0)
-
 
 ### setup clang-tidy ###
 # TODO: use clang-style?
@@ -134,21 +131,22 @@ target_include_directories(avara3d PRIVATE external/v-hacd-4.1.0)
 #			CXX_CLANG_TIDY "${CLANG_TIDY_EXE};--format-style=file")
 #endif ()
 
-
 ### link a3d to common libraries ###
 
-target_link_libraries(avara3d PUBLIC
+target_link_libraries(avara3d
+		PUBLIC
 		${BULLET_LIBRARIES}
 		fastgltf
 		generator
-		imgui)
-
+		imgui
+		implot)
 
 ### link a3d to platform-specific libraries ###
 
 if (DESKTOP)
 
-	target_link_libraries(avara3d PUBLIC
+	target_link_libraries(avara3d
+			PUBLIC
 			glad
 			glfw
 			manymouse)
@@ -157,7 +155,8 @@ endif()
 
 if (LINUX)
 
-	target_link_libraries(avara3d PUBLIC
+	target_link_libraries(avara3d
+			PUBLIC
 			dl
 			pthread
 			X11
@@ -171,13 +170,15 @@ if (LINUX)
 		find_library(EGL_LIBRARY EGL)
 		find_library(OPENGLES3_LIBRARY GLESv2)
 
-		target_link_libraries(avara3d PUBLIC
+		target_link_libraries(avara3d
+				PUBLIC
 				${EGL_LIBRARY}
 				${OPENGLES3_LIBRARY})
 
 	else ()
 
-		target_link_libraries(avara3d PUBLIC
+		target_link_libraries(avara3d
+				PUBLIC
 				GL)
 
 	endif ()
@@ -195,7 +196,8 @@ elseif (MACOS)
 			${FRAMEWORK_IOKIT}
 			${FRAMEWORK_OPENGL})
 
-	target_link_libraries(avara3d PUBLIC
+	target_link_libraries(avara3d
+			PUBLIC
 			${FRAMEWORKS}
 			z)
 
@@ -218,7 +220,6 @@ elseif (WINDOWS)
 
 endif ()
 
-
 ### set root install dir before adding tests ###
 
 if (RPI)
@@ -234,16 +235,13 @@ endif ()
 string(TOLOWER ${CMAKE_BUILD_TYPE} LOWER_RELEASE_TYPE)
 set(INSTALL_ROOT_DIR "${PROJECT_BINARY_DIR}/packaged/avara3d/${PLATFORM_STRING}/${LOWER_RELEASE_TYPE}")
 
-
 ### add editor ###
 
 add_subdirectory(tools/a3de)
 
-
 ### add tests ###
 
 add_subdirectory(tests)
-
 
 ### install ###
 

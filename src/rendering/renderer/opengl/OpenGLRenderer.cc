@@ -25,6 +25,7 @@
 //#ifdef OPENGL_CORE
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
+#include "implot.h"
 //#endif
 
 #include "magic_enum.hpp"
@@ -314,6 +315,7 @@ OpenGLRenderer::~OpenGLRenderer() {
 
 	ImGui_ImplOpenGL3_Shutdown();
 //	ImGui_ImplGlfw_Shutdown();
+	ImPlot::DestroyContext();
 	ImGui::DestroyContext();
 }
 	
@@ -2309,7 +2311,8 @@ void InitImgui(const RenderContext& context) {
 	using namespace ImGui;
 
 	IMGUI_CHECKVERSION();
-	CreateContext();
+	ImGui::CreateContext();
+	ImPlot::CreateContext();
 	ImGuiIO& io = GetIO();
 	io.IniFilename = nullptr;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
@@ -2409,6 +2412,64 @@ void DrawDebugOptions(Scene& scene, const RenderContext& context) {
 
 	auto debugOptions = scene.debugOptions();
 
+
+
+
+
+
+
+
+	static const ImVec4 transparent(0, 0, 0, 0);
+	static const ImVec4 bg(0, 0, 0, 0);
+	static const ImVec4 black(0.0, 0.0, 0.0, 1.0);
+	static const ImVec4 shadow(0.0, 0.0, 0.0, 0.5);
+	static const ImVec4 checkbg1(0.25, 0.25, 0.25, 0.5);
+	static const ImVec4 checkbg2(0.5, 0.5, 0.5, 0.5);
+	static const ImVec4 white(1.0, 1.0, 1.0, 1.0);
+	static const ImVec4 gray(0.5, 0.5, 0.5, 1.0);
+	static const ImVec4 red(1.0, 0.0, 0.0, 1.0);
+	static const ImVec4 blue(0.0, 0.0, 1.0, 1.0);
+	static const ImVec4 green(0.0, 1.0, 0.0, 1.0);
+	static const ImVec4 orange(1.0, 0.5, 0.0, 1.0);
+
+
+
+	ImGui::PushStyleColor(ImGuiCol_FrameBg,        checkbg1);
+	ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, checkbg2);
+	ImGui::PushStyleColor(ImGuiCol_FrameBgActive,  checkbg1);
+	ImGui::PushStyleColor(ImGuiCol_CheckMark,      white);
+
+
+
+
+
+
+
+
+
+
+
+
+	ImVec2 basePos = ImGui::GetCursorScreenPos();
+
+	ImGui::BeginDisabled();
+
+	ImGui::PushStyleColor(ImGuiCol_Text, shadow);
+	ImGui::PushStyleColor(ImGuiCol_FrameBg, transparent);
+	ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, transparent);
+	ImGui::PushStyleColor(ImGuiCol_FrameBgActive, transparent);
+	ImGui::PushStyleColor(ImGuiCol_CheckMark, transparent);
+
+	ImGui::SetCursorScreenPos(ImVec2(basePos.x + 1, basePos .y + 1));
+
+	bool dummy = false;
+	ImGui::Checkbox("Stats", &dummy);
+
+	ImGui::PopStyleColor(5);
+	ImGui::EndDisabled();
+
+	ImGui::SetCursorScreenPos(basePos);
+
 	static bool stats = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay);
 	if (Checkbox("Stats", &stats)) {
 		if (stats)
@@ -2416,6 +2477,31 @@ void DrawDebugOptions(Scene& scene, const RenderContext& context) {
 		else
 			scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowStatsOverlay));
 	}
+
+
+
+
+
+
+
+
+	basePos = ImGui::GetCursorScreenPos();
+
+	ImGui::BeginDisabled();
+
+	ImGui::PushStyleColor(ImGuiCol_Text, shadow);
+	ImGui::PushStyleColor(ImGuiCol_FrameBg, transparent);
+	ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, transparent);
+	ImGui::PushStyleColor(ImGuiCol_FrameBgActive, transparent);
+	ImGui::PushStyleColor(ImGuiCol_CheckMark, transparent);
+
+	ImGui::SetCursorScreenPos(ImVec2(basePos.x + 1, basePos .y + 1));
+
+	ImGui::Checkbox("Mesh wireframes", &dummy);
+
+	ImGui::PopStyleColor(5);
+	ImGui::EndDisabled();
+	ImGui::SetCursorScreenPos(basePos);
 
 	bool meshWF = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes);
 	if (Checkbox("Mesh wireframes", &meshWF)) {
@@ -2465,6 +2551,8 @@ void DrawDebugOptions(Scene& scene, const RenderContext& context) {
 			scene.debugOptions(A3D_MASK_REMOVE(debugOptions,DebugOptions::ShowPhysicsNormals));
 	}
 
+	ImGui::PopStyleColor(4);
+
 	PopFont();
 	End();
 }
@@ -2496,72 +2584,78 @@ void DrawStatsOverlay(FrameStats& stats,
 								   PADDING,
 								   time,
 								   numFrames,
-								   (numFrames==1 ? "frame" : "frames"));
-	}
-	else {
+								   (numFrames == 1 ? "frame" : "frames"));
+	} else {
 		recordingStr = "";
 	}
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
 
-	chrono::nanoseconds frameNsAvg, engineCpuNsAvg, renderCpuNsAvg,
+	static chrono::nanoseconds frameNsAvg, engineCpuNsAvg, renderCpuNsAvg,
 			renderGpuNsAvg, physicsNsAvg, appCpuNsAvg;
-
-	FrameStatsHistory::GetAverages(statsHistory,
-									 frameNsAvg, engineCpuNsAvg, renderCpuNsAvg,
-									 renderGpuNsAvg, physicsNsAvg, appCpuNsAvg,
-									 a3d::config::FRAMETIME_AVERAGING_INTERVAL);
-
-
-	float frameMsFAvg, engineCpuMsFAvg, renderCpuMsFAvg,
+	static float frameMsFAvg, engineCpuMsFAvg, renderCpuMsFAvg,
 			renderGpuMsFAvg, physicsMsFAvg, appCpuMsFAvg;
-	frameMsFAvg = std::chrono::duration<float, std::milli>(frameNsAvg).count();
-	engineCpuMsFAvg = std::chrono::duration<float, std::milli>(engineCpuNsAvg).count();
-	renderCpuMsFAvg = std::chrono::duration<float, std::milli>(appCpuNsAvg).count();
-	renderGpuMsFAvg = std::chrono::duration<float, std::milli>(renderGpuNsAvg).count();
-	physicsMsFAvg = std::chrono::duration<float, std::milli>(physicsNsAvg).count();
-	appCpuMsFAvg = std::chrono::duration<float, std::milli>(appCpuNsAvg).count();
+	static float fpsAvg;
 
-	float fpsAvg = 1000.0f / frameMsFAvg;
+//	static const float AVG_UPDATE_INTERNAL = .25;
+//	static chrono::time_point<chrono::steady_clock> lastAvgUpdate = chrono::steady_clock::now();
+//	chrono::time_point<chrono::steady_clock> now = chrono::steady_clock::now();
+//	if (chrono::duration<float>(now - lastAvgUpdate).count() > AVG_UPDATE_INTERNAL) {
+//		lastAvgUpdate = now;
+
+		FrameStatsHistory::GetAverages(statsHistory,
+									   frameNsAvg, engineCpuNsAvg, renderCpuNsAvg,
+									   renderGpuNsAvg, physicsNsAvg, appCpuNsAvg,
+									   a3d::config::FRAMETIME_AVERAGING_INTERVAL);
+
+		frameMsFAvg = std::chrono::duration<float, std::milli>(frameNsAvg).count();
+		engineCpuMsFAvg = std::chrono::duration<float, std::milli>(engineCpuNsAvg).count();
+		renderCpuMsFAvg = std::chrono::duration<float, std::milli>(appCpuNsAvg).count();
+		renderGpuMsFAvg = std::chrono::duration<float, std::milli>(renderGpuNsAvg).count();
+		physicsMsFAvg = std::chrono::duration<float, std::milli>(physicsNsAvg).count();
+		appCpuMsFAvg = std::chrono::duration<float, std::milli>(appCpuNsAvg).count();
+
+		fpsAvg = 1000.0f / frameMsFAvg;
+//	}
 
 	auto str = std::format(
 			"v{}.{}.{} build {}\n" \
-			 "{}\n"
+             "{}\n"
 			"\n" \
 
 			"{:<{}} {:.2f} ms\n" \
-			 "{:<{}} {:.2f} ms\n" \
-			 "{:<{}} {:.2f} ms\n" \
-			 "{:<{}} {:.2f} ms\n" \
-			 "{:<{}} {:.0f} fps {}\n" \
-			 "\n" \
+             "{:<{}} {:.2f} ms\n" \
+             "{:<{}} {:.2f} ms\n" \
+             "{:<{}} {:.2f} ms\n" \
+             "{:<{}} {:.0f} fps {}\n" \
+             "\n" \
 
 			"{:<{}} ({}, {})\n" \
-			"{:<{}} {}\n" \
-			 "{:<{}} ({:.1f}, {:.1f})\n" \
-			 "\n" \
+            "{:<{}} {}\n" \
+             "{:<{}} ({:.1f}, {:.1f})\n" \
+             "\n" \
 
 			"{:<{}} {}\n" \
-			 "{:<{}} {}\n" \
-			 "{:<{}} {}\n" \
-			 "{:<{}} {:.1f}k\n" \
-			 "{:<{}} {}\n" \
-			 "\n" \
-			 "{:<{}} {}\n" \
-			 "{:<{}} {}\n" \
-			 "{:<{}} {}\n" \
-			 "{:<{}} {}\n" \
-			 "{:<{}} {}\n" \
-			 "{:<{}} {}\n" \
-			 "{:<{}} {}\n" \
-			 "{:<{}} {}\n" \
-			 "{:<{}} {}\n" \
-			 "\n" \
-			 "\n" \
-			 "{:<{}} ({:.1f}, {:.1f}, {:.1f})\n" \
-			 /*"{:<{}} ({:.4f}, {:.4f}, {:.4f}, {:.4f})\n" \*/
-			 "{}",
+             "{:<{}} {}\n" \
+             "{:<{}} {}\n" \
+             "{:<{}} {:.1f}k\n" \
+             "{:<{}} {}\n" \
+             "\n" \
+             "{:<{}} {}\n" \
+             "{:<{}} {}\n" \
+             "{:<{}} {}\n" \
+             "{:<{}} {}\n" \
+             "{:<{}} {}\n" \
+             "{:<{}} {}\n" \
+             "{:<{}} {}\n" \
+             "{:<{}} {}\n" \
+             "{:<{}} {}\n" \
+             "\n" \
+             "\n" \
+             "{:<{}} ({:.1f}, {:.1f}, {:.1f})\n" \
+             /*"{:<{}} ({:.4f}, {:.4f}, {:.4f}, {:.4f})\n" \*/
+			"{}",
 
 			version.major, version.minor, version.patch, buildInfo.number(),
 			buildInfo.type() == BuildInfo::Type::Debug ? "debug" : "release",
@@ -2579,14 +2673,15 @@ void DrawStatsOverlay(FrameStats& stats,
 			"nodes", PADDING, stats.numNodes,
 			"meshes", PADDING, stats.numMeshes,
 			"elements", PADDING, stats.numElements,
-			"polygons", PADDING, float(stats.numPolygons)/1000.0f,//(int)round(float(stats.polygons)/1000.0f),
+			"polygons", PADDING, float(stats.numPolygons) / 1000.0f,//(int)round(float(stats.polygons)/1000.0f),
 			"lights", PADDING, stats.numLights,
 
 			"physics bodies", PADDING, stats.numDynamicBodies + stats.numKinematicBodies + stats.numStaticBodies,
 			" static", PADDING, stats.numStaticBodies,
 			" dynamic", PADDING, stats.numDynamicBodies,
 			" kinematic", PADDING, stats.numKinematicBodies,
-			"physics shapes", PADDING, stats.numConcavePolyhedronShapes + stats.numBoundingBoxShapes + stats.numConvexHullShapes,
+			"physics shapes", PADDING,
+			stats.numConcavePolyhedronShapes + stats.numBoundingBoxShapes + stats.numConvexHullShapes,
 			" primitive", PADDING, stats.numPrimitiveShapes,
 			" bounding box", PADDING, stats.numBoundingBoxShapes,
 			" convex hull", PADDING, stats.numConvexHullShapes,
@@ -2610,13 +2705,13 @@ void DrawStatsOverlay(FrameStats& stats,
 	windowFlags |= ImGuiWindowFlags_NoNav;
 	windowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
 
-	ImGuiIO& io = GetIO();
+	ImGuiIO &io = GetIO();
 	auto fonts = io.Fonts->Fonts;
 
 	// draw the text shadow
 	SetNextWindowBgAlpha(0);
 	Begin("StatsTextShadow", nullptr, windowFlags);
-	ImGuiStyle& style = GetStyle();
+	ImGuiStyle &style = GetStyle();
 	style.WindowBorderSize = 0;
 	SetWindowPos({10.0f, 2.0f});
 	ImVec2 cursorPos = GetCursorPos();
@@ -2652,13 +2747,7 @@ void DrawStatsOverlay(FrameStats& stats,
 
 
 
-
-
-	Begin("Stats graph", nullptr, windowFlags);
-	SetWindowPos({512.0f, 2.0f});
-	ImGui::PushFont(fonts[1]);
-
-	auto& samples = statsHistory.samples();
+	auto &samples = statsHistory.samples();
 
 	// TODO: convert to one loop & use stride
 
@@ -2676,51 +2765,193 @@ void DrawStatsOverlay(FrameStats& stats,
 
 	for (size_t i = 0; i < samples.size(); ++i) {
 		auto sample = get<1>(samples[i]);
-
 		frameSamples[i] = chrono::duration<float, milli>(sample.frameTime).count();
 		physSamples[i] = chrono::duration<float, milli>(sample.physicsTime).count();
 		drawSamples[i] = chrono::duration<float, milli>(sample.renderCpuTime).count();
 		appSamples[i] = chrono::duration<float, milli>(sample.applicationTime).count();
 	}
 
-	ImGui::PlotLines("Frame",
-					 frameSamples.data(),
-					 static_cast<int>(frameSamples.size()),
-					 0,
-					 nullptr,
-					 //FLT_MAX, FLT_MAX,
-					 0, 16.67f,
-					 ImVec2(128.0f, 32.0f));
 
-	ImGui::PlotLines("Physics",
-					 physSamples.data(),
-					 static_cast<int>(physSamples.size()),
-					 0,
-					 nullptr,
-					//FLT_MAX, FLT_MAX,
-					 0, 16.67f,
-					 ImVec2(128.0f, 32.0f));
 
-	ImGui::PlotLines("Draw",
-					 drawSamples.data(),
-					 static_cast<int>(drawSamples.size()),
-					 0,
-					 nullptr,
-					//FLT_MAX, FLT_MAX,
-					 0, 16.67f,
-					 ImVec2(128.0f, 32.0f));
+	static const ImVec4 bg(0, 0, 0, 0);
+	static const ImVec4 black(0.0, 0.0, 0.0, 1.0);
+	static const ImVec4 shadow(0.0, 0.0, 0.0, 0.5);
+	static const ImVec4 white(1.0, 1.0, 1.0, 1.0);
+	static const ImVec4 dgray(0.25, 0.25, 0.25, 1.0);
+	static const ImVec4 gray(0.5, 0.5, 0.5, 1.0);
+	static const ImVec4 red(1.0, 0.0, 0.0, 1.0);
+	static const ImVec4 blue(0.0, 0.0, 1.0, 1.0);
+	static const ImVec4 green(0.0, 1.0, 0.0, 1.0);
+	static const ImVec4 orange(1.0, 0.5, 0.0, 1.0);
+	static const ImVec4 milk(1.0, 1.0, 1.0, 0.5);
 
-	ImGui::PlotLines("App",
-					 appSamples.data(),
-					 static_cast<int>(appSamples.size()),
-					 0,
-					 nullptr,
-					//FLT_MAX, FLT_MAX,
-					 0, 16.67f,
-					 ImVec2(128.0f, 32.0f));
 
-	ImGui::PopFont();
-	End();
+	static const float PLOT_WIDTH = 100;
+	static const float PLOT_HEIGHT_1 = 32.0;
+	static const float PLOT_HEIGHT_2 = 24.0;
+
+	{
+		SetNextWindowBgAlpha(0);
+		Begin("StatsPlotsShadow", nullptr, windowFlags);
+		ImGuiStyle &style = GetStyle();
+		style.WindowBorderSize = 0;
+		SetWindowPos({513.0f, 3.0f});
+		PushFont(fonts[1]);
+
+		ImGui::PushStyleColor(ImGuiCol_FrameBg, bg);
+
+		ImGui::PushStyleColor(ImGuiCol_Text, shadow);
+		ImGui::PushStyleColor(ImGuiCol_PlotLines, shadow);
+
+//		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
+//		ImGui::PushStyleColor(ImGuiCol_Border, shadow);
+
+		PlotLines("",//"Frame",
+				  frameSamples.data(),
+				  static_cast<int>(frameSamples.size()),
+				  0,
+				  nullptr,
+				  0, 16.67f, //FLT_MAX, FLT_MAX,
+				  ImVec2(PLOT_WIDTH, PLOT_HEIGHT_1));
+
+		PlotLines("",//"Physics",
+				  physSamples.data(),
+				  static_cast<int>(physSamples.size()),
+				  0,
+				  nullptr,
+				  0, 16.67f, //FLT_MAX, FLT_MAX,
+				  ImVec2(PLOT_WIDTH, PLOT_HEIGHT_2));
+
+		PlotLines("",//"Draw",
+				  drawSamples.data(),
+				  static_cast<int>(drawSamples.size()),
+				  0,
+				  nullptr,
+				  0, 16.67f, //FLT_MAX, FLT_MAX,
+				  ImVec2(PLOT_WIDTH, PLOT_HEIGHT_2));
+
+		PlotLines("",//"App",
+				  appSamples.data(),
+				  static_cast<int>(appSamples.size()),
+				  0,
+				  nullptr,
+
+				  0, 16.67f, //FLT_MAX, FLT_MAX,
+				  ImVec2(PLOT_WIDTH, PLOT_HEIGHT_2));
+
+//		ImGui::PopStyleColor(); // ImGuiCol_Border
+//		ImGui::PopStyleVar(); // ImGuiStyleVar_FrameBorderSize
+
+		ImGui::PopStyleColor(); // black lines
+		ImGui::PopStyleColor(); // black text
+
+		ImGui::PopStyleColor(); // background
+
+
+		PopFont();
+		End();
+	}
+
+
+
+	{
+		SetNextWindowBgAlpha(0);
+		Begin("StatsPlots", nullptr, windowFlags);
+		ImGuiStyle &style = GetStyle();
+		style.WindowBorderSize = 0;
+		SetWindowPos({512.0f, 2.0f});
+		PushFont(fonts[1]);
+
+		ImGui::PushStyleColor(ImGuiCol_FrameBg, bg);
+		ImGui::PushStyleColor(ImGuiCol_PlotLines, white);
+
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
+		ImGui::PushStyleColor(ImGuiCol_Border, milk);
+
+		PlotLines("",//"Frame",
+				  frameSamples.data(),
+				  static_cast<int>(frameSamples.size()),
+				  0,
+				  nullptr,
+				  0, 16.67f, //FLT_MAX, FLT_MAX,
+				  ImVec2(PLOT_WIDTH, PLOT_HEIGHT_1));
+
+
+		PlotLines("",//"Physics",
+				  physSamples.data(),
+				  static_cast<int>(physSamples.size()),
+				  0,
+				  nullptr,
+				  0, 16.67f, //FLT_MAX, FLT_MAX,
+				  ImVec2(PLOT_WIDTH, PLOT_HEIGHT_2));
+
+		PlotLines("",//"Draw",
+				  drawSamples.data(),
+				  static_cast<int>(drawSamples.size()),
+				  0,
+				  nullptr,
+				  0, 16.67f, //FLT_MAX, FLT_MAX,
+				  ImVec2(PLOT_WIDTH, PLOT_HEIGHT_2));
+
+		PlotLines("",//"App",
+				  appSamples.data(),
+				  static_cast<int>(appSamples.size()),
+				  0,
+				  nullptr,
+				  0, 16.67f, //FLT_MAX, FLT_MAX,
+				  ImVec2(PLOT_WIDTH, PLOT_HEIGHT_2));
+
+		ImGui::PopStyleColor(); // ImGuiCol_Border
+		ImGui::PopStyleVar(); // ImGuiStyleVar_FrameBorderSize
+
+		ImGui::PopStyleColor(); // plot lines
+		ImGui::PopStyleColor(); // background
+
+
+		PopFont();
+		End();
+	}
+
+
+
+//	{
+//		static ImPlotAxisFlags flags = ImPlotAxisFlags_NoTickLabels;
+//
+//		if (ImPlot::BeginPlot("##Scrolling", ImVec2(-1,ImGui::GetTextLineHeight()*10))) {
+//			ImPlot::SetupAxes(nullptr, nullptr, flags, flags);
+//	//		ImPlot::SetupAxisLimits(ImAxis_X1, t - history, t, ImGuiCond_Always);
+//	//		ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 1);
+//			//ImPlot::SetupAxisLimits(ImAxis_X1, 0, 5000, ImGuiCond_Always);
+//			ImPlot::SetupAxisLimits(ImAxis_X1, 0, 5000);
+//			ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 20);
+//	//		ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, 0.5f);
+//			//ImPlot::PlotShaded("Mouse X", &sdata1.Data[0].x, &sdata1.Data[0].y, sdata1.Data.size(), -INFINITY, 0, sdata1.Offset, 2 * sizeof(float));
+//			//ImPlot::PlotLine("Mouse Y", &sdata2.Data[0].x, &sdata2.Data[0].y, sdata2.Data.size(), 0, sdata2.Offset, 2*sizeof(float));
+//
+//	//		ImPlot::PlotLine("Frame",
+//	//						 frameSamples.data(),
+//	//						 static_cast<int>(frameSamples.size()),
+//	//						 flags,
+//	//						 0,
+//	//						 sizeof(float));
+//	//
+//	//		ImPlot::PlotLine("Physics",
+//	//						 physSamples.data(),
+//	//						 static_cast<int>(physSamples.size()),
+//	//						 flags,
+//	//						 0,
+//	//						 sizeof(float));
+//
+//			ImPlot::PlotLine("Frame", frameSamples.data(), static_cast<int>(frameSamples.size()), -INFINITY, 0);
+//			ImPlot::PlotLine("Physics", physSamples.data(), static_cast<int>(physSamples.size()), -INFINITY, 0);
+//
+//			ImPlot::EndPlot();
+//
+//		}
+//	}
+
+
+
 
 
 
@@ -2728,27 +2959,27 @@ void DrawStatsOverlay(FrameStats& stats,
 
 //	Begin("Input test", nullptr, windowFlags);
 //	SetWindowPos({10.0f, 2.0f});
-//	ImGui::PushFont(fonts[1]);
+//	PushFont(fonts[1]);
 //	// --- Button + hover ---
-//	if (ImGui::Button("Click me")) {
+//	if (Button("Click me")) {
 //		A3D_LOG_I("ImGui button was CLICKED");
 //	}
-//	if (ImGui::IsItemHovered()) {
-//		ImGui::SameLine();
-//		ImGui::Text("(hovering)");
+//	if (IsItemHovered()) {
+//		SameLine();
+//		Text("(hovering)");
 //	}
 //	static bool toggled = false;
-//	if (ImGui::Checkbox("Toggle", &toggled)) {
+//	if (Checkbox("Toggle", &toggled)) {
 //		A3D_LOG_I("Toggle is now: {}", toggled ? "ON" : "OFF");
 //	}
 //	static char textBuf[128] = "type here";
-//	if (ImGui::InputText("Text field", textBuf, sizeof(textBuf))) {
+//	if (InputText("Text field", textBuf, sizeof(textBuf))) {
 //		A3D_LOG_I("Text changed: '{}'", textBuf);
 //	}
 //	Text("MousePos: (%.1f, %.1f)", io.MousePos.x, io.MousePos.y);
 //	Text("MouseDown[0]: %s", io.MouseDown[0] ? "true" : "false");
 //	Text("WantCaptureMouse: %s", io.WantCaptureMouse ? "true" : "false");
-//	ImGui::PopFont();
+//	PopFont();
 //	End();
 
 //	Render();
