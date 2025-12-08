@@ -2523,7 +2523,7 @@ void DrawStatsOverlay(FrameStats& stats,
 	physicsMsFAvg = std::chrono::duration<float, std::milli>(physicsNsAvg).count();
 	appCpuMsFAvg = std::chrono::duration<float, std::milli>(appCpuNsAvg).count();
 
-	float fps = 1000.0 / frameMsFAvg;
+	float fpsAvg = 1000.0f / frameMsFAvg;
 
 	auto str = std::format(
 			"v{}.{}.{} build {}\n" \
@@ -2558,6 +2558,7 @@ void DrawStatsOverlay(FrameStats& stats,
 			 "{:<{}} {}\n" \
 			 "{:<{}} {}\n" \
 			 "\n" \
+			 "\n" \
 			 "{:<{}} ({:.1f}, {:.1f}, {:.1f})\n" \
 			 /*"{:<{}} ({:.4f}, {:.4f}, {:.4f}, {:.4f})\n" \*/
 			 "{}",
@@ -2569,7 +2570,7 @@ void DrawStatsOverlay(FrameStats& stats,
 			" draw", PADDING, renderCpuMsFAvg,//stats.averageDrawtime,
 			" physics", PADDING, physicsMsFAvg,//stats.averagePhysicstime,
 			" user", PADDING, appCpuMsFAvg,//stats.averageUsertime,
-			"framerate", PADDING, fps,/*stats.averageFramerate,*/ (context.vSyncEnabled() ? "[vsync]" : ""),
+			"framerate", PADDING, fpsAvg,/*stats.averageFramerate,*/ (context.vSyncEnabled() ? "[vsync]" : ""),
 
 			"resolution", PADDING, context.framebufferSize().x, context.framebufferSize().y,
 			"antialiasing", PADDING, StatusOverlayDescriptionForAntialiasingMode(context.antialiasingMode()),
