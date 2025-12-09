@@ -263,7 +263,7 @@ mat4 math::perspective(f32 fovy, f32 aspect, f32 zNear, f32 zFar) {
 
 	const f32 tanHalfFovy = tan(fovy / static_cast<f32>(2));
 
-	mat4 r(0.0));
+	mat4 r(0.0);
 	r[0][0] = static_cast<f32>(1) / (aspect * tanHalfFovy);
 	r[1][1] = static_cast<f32>(1) / (tanHalfFovy);
 	r[2][2] = -(zFar + zNear) / (zFar - zNear);
