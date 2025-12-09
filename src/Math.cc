@@ -15,23 +15,23 @@ using namespace a3d::math;
 
 vec2 math::operator*(const mat2& m, const vec2& v) {
 
-	return vec2{ m.c0.x * v.x + m.c1.x * v.y,
-				 m.c0.y * v.x + m.c1.y * v.y };
+	return { m.c0.x * v.x + m.c1.x * v.y,
+			 m.c0.y * v.x + m.c1.y * v.y };
 }
 
 vec3 math::operator*(const mat3& m, const vec3& v) {
 
-	return vec3{ m.c0.x * v.x + m.c1.x * v.y + m.c2.x * v.z,
-				 m.c0.y * v.x + m.c1.y * v.y + m.c2.y * v.z,
-				 m.c0.z * v.x + m.c1.z * v.y + m.c2.z * v.z };
+	return { m.c0.x * v.x + m.c1.x * v.y + m.c2.x * v.z,
+			 m.c0.y * v.x + m.c1.y * v.y + m.c2.y * v.z,
+			 m.c0.z * v.x + m.c1.z * v.y + m.c2.z * v.z };
 }
 
 vec4 math::operator*(const mat4& m, const vec4& v) {
 
-	return vec4{ m.c0.x * v.x + m.c1.x * v.y + m.c2.x * v.z + m.c3.x * v.w,
-				 m.c0.y * v.x + m.c1.y * v.y + m.c2.y * v.z + m.c3.y * v.w,
-				 m.c0.z * v.x + m.c1.z * v.y + m.c2.z * v.z + m.c3.z * v.w,
-				 m.c0.w * v.x + m.c1.w * v.y + m.c2.w * v.z + m.c3.w * v.w };
+	return { m.c0.x * v.x + m.c1.x * v.y + m.c2.x * v.z + m.c3.x * v.w,
+			 m.c0.y * v.x + m.c1.y * v.y + m.c2.y * v.z + m.c3.y * v.w,
+			 m.c0.z * v.x + m.c1.z * v.y + m.c2.z * v.z + m.c3.z * v.w,
+			 m.c0.w * v.x + m.c1.w * v.y + m.c2.w * v.z + m.c3.w * v.w };
 }
 
 mat2 math::operator*(const mat2& a, const mat2& b) {
@@ -119,8 +119,8 @@ mat2 math::inverse(const mat2& m) {
 	const f32 invDet = 1.0f / det;
 
 	mat2 r(0.0);
-	r.c0 = vec2{  d * invDet, -c * invDet };
-	r.c1 = vec2{ -b * invDet,  a * invDet };
+	r.c0 = {  d * invDet, -c * invDet };
+	r.c1 = { -b * invDet,  a * invDet };
 	return r;
 }
 
@@ -130,7 +130,7 @@ mat3 math::inverse(const mat3& m) {
 	const f32 m10 = m.c0.y; const f32 m11 = m.c1.y; const f32 m12 = m.c2.y;
 	const f32 m20 = m.c0.z; const f32 m21 = m.c1.z; const f32 m22 = m.c2.z;
 
-	// Cofactors for the adjugate (before dividing by det)
+	// cofactors for the adjugate (before dividing by det)
 	const f32 inv00 =  (m11 * m22 - m12 * m21);
 	const f32 inv01 = -(m01 * m22 - m02 * m21);
 	const f32 inv02 =  (m01 * m12 - m02 * m11);
@@ -150,9 +150,9 @@ mat3 math::inverse(const mat3& m) {
 
 	mat3 r(0.0);
 	// remember: columns are (row0, row1, row2)
-	r.c0 = vec3{ inv00 * invDet, inv10 * invDet, inv20 * invDet };
-	r.c1 = vec3{ inv01 * invDet, inv11 * invDet, inv21 * invDet };
-	r.c2 = vec3{ inv02 * invDet, inv12 * invDet, inv22 * invDet };
+	r.c0 = { inv00 * invDet, inv10 * invDet, inv20 * invDet };
+	r.c1 = { inv01 * invDet, inv11 * invDet, inv21 * invDet };
+	r.c2 = { inv02 * invDet, inv12 * invDet, inv22 * invDet };
 	return r;
 }
 
@@ -171,7 +171,7 @@ mat4 math::inverse(const mat4& m) {
 
 	// Gauss-Jordan elimination with partial pivoting
 	for (int col = 0; col < 4; ++col) {
-		// Find pivot row
+		// find pivot row
 		int pivot_row = col;
 		f32 max_abs = std::fabs(a[col][col]);
 		for (int r = col + 1; r < 4; ++r) {
@@ -185,7 +185,7 @@ mat4 math::inverse(const mat4& m) {
 		// singular?
 		assert(max_abs != 0.0f && "mat4 inverse: matrix is singular");
 
-		// Swap rows in both 'a' and 'inv'
+		// swap rows in both 'a' and 'inv'
 		if (pivot_row != col) {
 			std::swap(a[col],  a[pivot_row]);
 			std::swap(inv[col], inv[pivot_row]);
@@ -263,7 +263,7 @@ mat4 math::perspective(f32 fovy, f32 aspect, f32 zNear, f32 zFar) {
 
 	const f32 tanHalfFovy = tan(fovy / static_cast<f32>(2));
 
-	mat4 r(static_cast<f32>(0));
+	mat4 r(0.0));
 	r[0][0] = static_cast<f32>(1) / (aspect * tanHalfFovy);
 	r[1][1] = static_cast<f32>(1) / (tanHalfFovy);
 	r[2][2] = -(zFar + zNear) / (zFar - zNear);
@@ -274,7 +274,7 @@ mat4 math::perspective(f32 fovy, f32 aspect, f32 zNear, f32 zFar) {
 
 mat4 math::ortho(f32 left, f32 right, f32 bottom, f32 top, f32 zNear, f32 zFar) {
 
-	mat4 r(1);
+	mat4 r(1.0);
 	r[0][0] = static_cast<f32>(2) / (right - left);
 	r[1][1] = static_cast<f32>(2) / (top - bottom);
 	r[2][2] = -static_cast<f32>(2) / (zFar - zNear);
@@ -456,20 +456,16 @@ mat3 math::mat3_cast(quat const& q) {
 	f32 qwy(q.w * q.y);
 	f32 qwz(q.w * q.z);
 
-	mat3 r(f32(1));
-
-	r[0][0] = f32(1) - f32(2) * (qyy +  qzz);
+	mat3 r(1.0);
+	r[0][0] = f32(1) - f32(2) * (qyy + qzz);
 	r[0][1] = f32(2) * (qxy + qwz);
 	r[0][2] = f32(2) * (qxz - qwy);
-
 	r[1][0] = f32(2) * (qxy - qwz);
-	r[1][1] = f32(1) - f32(2) * (qxx +  qzz);
+	r[1][1] = f32(1) - f32(2) * (qxx + qzz);
 	r[1][2] = f32(2) * (qyz + qwx);
-
 	r[2][0] = f32(2) * (qxz + qwy);
 	r[2][1] = f32(2) * (qyz - qwx);
-	r[2][2] = f32(1) - f32(2) * (qxx +  qyy);
-
+	r[2][2] = f32(1) - f32(2) * (qxx + qyy);
 	return r;
 }
 
@@ -478,14 +474,10 @@ mat4 math::mat4_cast(quat const& q) {
 }
 
 f32 math::radians(f32 degrees) {
-	static_assert(std::numeric_limits<f32>::is_iec559,
-				  "'radians' only accept floating-point input");
 	return degrees * static_cast<f32>(0.01745329251994329576923690768489);
 }
 
 f32 math::degrees(f32 radians) {
-	static_assert(std::numeric_limits<f32>::is_iec559,
-				  "'degrees' only accept floating-point input");
 	return radians * static_cast<f32>(57.295779513082320876798154814105);
 }
 
