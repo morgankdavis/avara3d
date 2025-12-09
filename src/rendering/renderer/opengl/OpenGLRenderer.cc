@@ -230,6 +230,7 @@ static void 		UpdateImguiScale(const RenderContext& context,
 									 const Font& overLayFont,
 									const Font& bodyFont);
 static void 		AddImguiFont(const RenderContext& context, const Font& font, float size);
+void 				DigUpdateGlobalFontScale();
 void 				DigEndWindow();
 void 				DigDrawText(float x,
 								float y,
@@ -409,6 +410,7 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 							  const FrameStatsHistory& statsHistory) {
 
 	ImGui::NewFrame();
+	DigUpdateGlobalFontScale();
 	DrawDebugOptions(const_cast<Scene&>(scene), context); // TODO: CHEATING
 	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay)) {
 		DrawStatsOverlay(stats, statsHistory, context);
@@ -2398,6 +2400,18 @@ void AddImguiFont(const RenderContext& context, const Font& font, float size) {
 								   &fontConfig);
 }
 
+void DigUpdateGlobalFontScale() {
+
+#ifdef WINDOWS
+	auto scaleXY = context.framebufferScale();
+	auto scale = std::max(scaleXY.x, scaleXY.y);
+	// this is probably going to need more attention when we start
+	// using Imgui for more than just rendering text
+	//GetStyle().ScaleAllSizes(scale);
+	GetIO().FontGlobalScale = scale;
+#endif
+}
+
 void DigBeginWindow(float x,
 					float y,
 					int id) {
@@ -2471,11 +2485,11 @@ void DigDrawPlot(float x, float y, float w, float h,
 	static const ImVec4 white(1.0, 1.0, 1.0, 1.0);
 	static const ImVec4 milk(1.0, 1.0, 1.0, 0.5);
 
-	ImGui::PushStyleColor(ImGuiCol_FrameBg, bg);
+	PushStyleColor(ImGuiCol_FrameBg, bg);
 
 	DigBeginWindow(x+1, y+1, id);
-	ImGui::PushStyleColor(ImGuiCol_Text, shadow);
-	ImGui::PushStyleColor(ImGuiCol_PlotLines, shadow);
+	PushStyleColor(ImGuiCol_Text, shadow);
+	PushStyleColor(ImGuiCol_PlotLines, shadow);
 	PlotLines("",
 			  values,
 			  valuesCount,
@@ -2483,16 +2497,16 @@ void DigDrawPlot(float x, float y, float w, float h,
 			  nullptr,
 			  scaleMin, scaleMax,
 			  ImVec2(w, h));
-	ImGui::PopStyleColor(); // black lines
-	ImGui::PopStyleColor(); // black text
+	PopStyleColor(); // black lines
+	PopStyleColor(); // black text
 	DigEndWindow();
 
 	DigBeginWindow(x, y, id+1000);
-	ImGui::PushStyleColor(ImGuiCol_Text, shadow);
-	ImGui::PushStyleColor(ImGuiCol_PlotLines, white);
+	PushStyleColor(ImGuiCol_Text, shadow);
+	PushStyleColor(ImGuiCol_PlotLines, white);
 	if (outlined) {
-		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.5f);
-		ImGui::PushStyleColor(ImGuiCol_Border, milk);
+		PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.5f);
+		PushStyleColor(ImGuiCol_Border, milk);
 	}
 	PlotLines("",
 			  values,
@@ -2502,14 +2516,14 @@ void DigDrawPlot(float x, float y, float w, float h,
 			  scaleMin, scaleMax,
 			  ImVec2(w, h));
 	if (outlined) {
-		ImGui::PopStyleColor(); // ImGuiCol_Border
-		ImGui::PopStyleVar(); // ImGuiStyleVar_FrameBorderSize
+		PopStyleColor(); // ImGuiCol_Border
+		PopStyleVar(); // ImGuiStyleVar_FrameBorderSize
 	}
-	ImGui::PopStyleColor(); // black lines
-	ImGui::PopStyleColor(); // black text
+	PopStyleColor(); // black lines
+	PopStyleColor(); // black text
 	DigEndWindow();
 
-	ImGui::PopStyleColor(); // background
+	PopStyleColor(); // background
 }
 
 bool DigDrawCheckbox(float x,
@@ -2545,10 +2559,10 @@ bool DigDrawCheckbox(float x,
 	DigEndWindow();
 
 	DigBeginWindow(x, y, id+5000);
-	ImGui::PushStyleColor(ImGuiCol_FrameBg,        checkbg1);
-	ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, checkbg2);
-	ImGui::PushStyleColor(ImGuiCol_FrameBgActive,  checkbg1);
-	ImGui::PushStyleColor(ImGuiCol_CheckMark,      white);
+	PushStyleColor(ImGuiCol_FrameBg,        checkbg1);
+	PushStyleColor(ImGuiCol_FrameBgHovered, checkbg2);
+	PushStyleColor(ImGuiCol_FrameBgActive,  checkbg1);
+	PushStyleColor(ImGuiCol_CheckMark,      white);
 	bool ret = Checkbox(text, &checked);
 	PopStyleColor(4);
 	DigEndWindow();
@@ -2639,18 +2653,8 @@ void DrawStatsOverlay(FrameStats& stats,
 
 	using namespace ImGui;
 
-	// TODO: refactor
-#ifdef WINDOWS
-	auto scaleXY = context.framebufferScale();
-	auto scale = std::max(scaleXY.x, scaleXY.y);
-	// this is probably going to need more attention when we start
-	// using Imgui for more than just rendering text
-	//GetStyle().ScaleAllSizes(scale);
-	GetIO().FontGlobalScale = scale;
-#endif
-
-	const int TEXT_PADDING = 14;
-	const float xPos = 10.0;
+	static const int TEXT_PADDING = 14;
+	static const float xPos = 10.0;
 	float yPos = 0;
 	int id = 0;
 
@@ -2848,17 +2852,16 @@ void DrawStatsOverlay(FrameStats& stats,
 	}
 
 	auto bulkStatsStr = std::format(
-			"{:<{}} ({}, {})\n" \
+	/*		"{:<{}} ({}, {})\n" \
             "{:<{}} {}\n" \
-             "{:<{}} ({:.1f}, {:.1f})\n" \
-             "\n" \
-
+             "{:<{}} ({:.1f}, {:.1f})\n" \*/
+            /* "\n" \*/
 			"{:<{}} {}\n" \
              "{:<{}} {}\n" \
              "{:<{}} {}\n" \
              "{:<{}} {:.1f}k\n" \
              "{:<{}} {}\n" \
-             "\n" \
+             /*"\n" \*/
              "{:<{}} {}\n" \
              "{:<{}} {}\n" \
              "{:<{}} {}\n" \
@@ -2868,14 +2871,14 @@ void DrawStatsOverlay(FrameStats& stats,
              "{:<{}} {}\n" \
              "{:<{}} {}\n" \
              "{:<{}} {}\n" \
-             "\n" \
-             "{:<{}} ({:.1f}, {:.1f}, {:.1f})\n" \
+            /* "\n" \*/
+           /*  "{:<{}} ({:.1f}, {:.1f}, {:.1f})\n" \*/
              /*"{:<{}} ({:.4f}, {:.4f}, {:.4f}, {:.4f})\n" \*/
 			"{}",
 
-			"resolution", TEXT_PADDING, context.framebufferSize().x, context.framebufferSize().y,
-			"antialiasing", TEXT_PADDING, StatusOverlayDescriptionForAntialiasingMode(context.antialiasingMode()),
-			"fb scale", TEXT_PADDING, context.framebufferScale().x, context.framebufferScale().y,
+//			"resolution", TEXT_PADDING, context.framebufferSize().x, context.framebufferSize().y,
+//			"antialiasing", TEXT_PADDING, StatusOverlayDescriptionForAntialiasingMode(context.antialiasingMode()),
+//			"fb scale", TEXT_PADDING, context.framebufferScale().x, context.framebufferScale().y,
 
 			"nodes", TEXT_PADDING, stats.numNodes,
 			"meshes", TEXT_PADDING, stats.numMeshes,
@@ -2893,7 +2896,7 @@ void DrawStatsOverlay(FrameStats& stats,
 			" convex hull", TEXT_PADDING, stats.numConvexHullShapes,
 			" concave poly", TEXT_PADDING, stats.numConcavePolyhedronShapes,
 
-			"camera pos", TEXT_PADDING, stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
+//			"camera pos", TEXT_PADDING, stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
 			//"camera orientation", TEXT_PADDING, stats.cameraOrientation.x, stats.cameraOrientation.y, stats.cameraOrientation.z, stats.cameraOrientation.w,
 			recordingStr);
 
@@ -2963,9 +2966,6 @@ void DrawStatsOverlay(FrameStats& stats,
 //	Text("WantCaptureMouse: %s", io.WantCaptureMouse ? "true" : "false");
 //	PopFont();
 //	End();
-
-//	Render();
-//	ImGui_ImplOpenGL3_RenderDrawData(GetDrawData());
 }
 
 string StatusOverlayDescriptionForAntialiasingMode(AntialiasingMode mode) {
