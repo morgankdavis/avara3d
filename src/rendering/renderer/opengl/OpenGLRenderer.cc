@@ -230,7 +230,7 @@ static void 		UpdateImguiScale(const RenderContext& context,
 									 const Font& overLayFont,
 									const Font& bodyFont);
 static void 		AddImguiFont(const RenderContext& context, const Font& font, float size);
-void 				DigUpdateGlobalFontScale();
+void 				DigUpdateGlobalFontScale(const RenderContext& context);
 void 				DigEndWindow();
 void 				DigDrawText(float x,
 								float y,
@@ -410,7 +410,7 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 							  const FrameStatsHistory& statsHistory) {
 
 	ImGui::NewFrame();
-	DigUpdateGlobalFontScale();
+	DigUpdateGlobalFontScale(context);
 	DrawDebugOptions(const_cast<Scene&>(scene), context); // TODO: CHEATING
 	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay)) {
 		DrawStatsOverlay(stats, statsHistory, context);
@@ -2400,7 +2400,7 @@ void AddImguiFont(const RenderContext& context, const Font& font, float size) {
 								   &fontConfig);
 }
 
-void DigUpdateGlobalFontScale() {
+void DigUpdateGlobalFontScale(const RenderContext& context) {
 
 #ifdef WINDOWS
 	auto scaleXY = context.framebufferScale();
