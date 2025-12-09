@@ -2657,7 +2657,7 @@ void DrawStatsOverlay(FrameStats& stats,
 	ImGuiIO &io = GetIO();
 	auto fonts = io.Fonts->Fonts;
 
-	yPos += 10;
+	yPos += 0;
 	DigDrawText(xPos, yPos, "avara3d", 0, 0.0, 0.0, id);
 
 	auto buildInfo = BuildInfo::Info();
