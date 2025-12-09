@@ -246,10 +246,14 @@ void 				DigDrawPlot(float x, float y, float w, float h,
 								float scaleMin,
 								float scaleMax,
 								int stride,
+								bool outlined,
 								int id);
-void 				DigDrawCheckbox(float x,
+bool 				DigDrawCheckbox(float x,
 									float y,
-									string& text);
+									const char* text,
+									bool& checked,
+									int font,
+									int id);
 static void 		DrawDebugOptions(Scene& scene, const RenderContext& context);
 static void 		DrawStatsOverlay(FrameStats& stats,
 									const FrameStatsHistory& statsHistory,
@@ -2457,6 +2461,7 @@ void DigDrawPlot(float x, float y, float w, float h,
 				 float scaleMin,
 				 float scaleMax,
 				 int stride,
+				 bool outlined,
 				 int id) {
 
 	using namespace ImGui;
@@ -2476,7 +2481,7 @@ void DigDrawPlot(float x, float y, float w, float h,
 			  valuesCount,
 			  0,
 			  nullptr,
-			  scaleMin, scaleMax, //FLT_MAX, FLT_MAX,
+			  scaleMin, scaleMax,
 			  ImVec2(w, h));
 	ImGui::PopStyleColor(); // black lines
 	ImGui::PopStyleColor(); // black text
@@ -2485,17 +2490,21 @@ void DigDrawPlot(float x, float y, float w, float h,
 	DigBeginWindow(x, y, id+1000);
 	ImGui::PushStyleColor(ImGuiCol_Text, shadow);
 	ImGui::PushStyleColor(ImGuiCol_PlotLines, white);
-	ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.5f);
-	ImGui::PushStyleColor(ImGuiCol_Border, milk);
+	if (outlined) {
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.5f);
+		ImGui::PushStyleColor(ImGuiCol_Border, milk);
+	}
 	PlotLines("",
 			  values,
 			  valuesCount,
 			  0,
 			  nullptr,
-			  scaleMin, scaleMax, //FLT_MAX, FLT_MAX,
+			  scaleMin, scaleMax,
 			  ImVec2(w, h));
-	ImGui::PopStyleColor(); // ImGuiCol_Border
-	ImGui::PopStyleVar(); // ImGuiStyleVar_FrameBorderSize
+	if (outlined) {
+		ImGui::PopStyleColor(); // ImGuiCol_Border
+		ImGui::PopStyleVar(); // ImGuiStyleVar_FrameBorderSize
+	}
 	ImGui::PopStyleColor(); // black lines
 	ImGui::PopStyleColor(); // black text
 	DigEndWindow();
@@ -2503,12 +2512,52 @@ void DigDrawPlot(float x, float y, float w, float h,
 	ImGui::PopStyleColor(); // background
 }
 
-void DigDrawCheckbox(float x,
+bool DigDrawCheckbox(float x,
 					 float y,
-					 string& text) {
+					 const char* text,
+					 bool& checked,
+					 int font,
+					 int id) {
 
 	using namespace ImGui;
+
+	static const ImVec4 transparent(0, 0, 0, 0);
+	static const ImVec4 shadow(0.0, 0.0, 0.0, 0.5);
+	static const ImVec4 checkbg1(0.25, 0.25, 0.25, 0.5);
+	static const ImVec4 checkbg2(0.5, 0.5, 0.5, 0.5);
+	static const ImVec4 white(1.0, 1.0, 1.0, 1.0);
+
+	ImGuiIO& io = GetIO();
+	auto fonts = io.Fonts->Fonts;
+	PushFont(fonts[font]);
+
+	DigBeginWindow(x+1, y+1, id);
+	BeginDisabled();
+	PushStyleColor(ImGuiCol_Text, shadow);
+	PushStyleColor(ImGuiCol_FrameBg, transparent);
+	PushStyleColor(ImGuiCol_FrameBgHovered, transparent);
+	PushStyleColor(ImGuiCol_FrameBgActive, transparent);
+	PushStyleColor(ImGuiCol_CheckMark, transparent);
+	static bool dummy = false;
+	Checkbox(text, &dummy);
+	EndDisabled();
+	PopStyleColor(5);
+	DigEndWindow();
+
+	DigBeginWindow(x, y, id+5000);
+	ImGui::PushStyleColor(ImGuiCol_FrameBg,        checkbg1);
+	ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, checkbg2);
+	ImGui::PushStyleColor(ImGuiCol_FrameBgActive,  checkbg1);
+	ImGui::PushStyleColor(ImGuiCol_CheckMark,      white);
+	bool ret = Checkbox(text, &checked);
+	PopStyleColor(4);
+	DigEndWindow();
+
+	PopFont();
+
+	return ret;
 }
+
 
 void DrawDebugOptions(Scene& scene, const RenderContext& context) {
 
@@ -2524,161 +2573,64 @@ void DrawDebugOptions(Scene& scene, const RenderContext& context) {
 	GetIO().FontGlobalScale = scale;
 #endif
 
-	ImGuiWindowFlags windowFlags = 0;
-	windowFlags |= ImGuiWindowFlags_NoTitleBar;
-	windowFlags |= ImGuiWindowFlags_NoScrollbar;
-	windowFlags |= ImGuiWindowFlags_NoMove;
-	windowFlags |= ImGuiWindowFlags_NoResize;
-	windowFlags |= ImGuiWindowFlags_NoCollapse;
-	windowFlags |= ImGuiWindowFlags_NoNav;
-	windowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
-
 	ImGuiIO& io = GetIO();
-	auto fonts = io.Fonts->Fonts;
 
 	const float WIN_WIDTH = 180;
-	const ImVec2 windowSize(WIN_WIDTH, 0);
-	ImGui::SetNextWindowSize(windowSize, ImGuiCond_Always);
-	ImGui::SetNextWindowPos(
-			ImVec2(io.DisplaySize.x - WIN_WIDTH, 8),
-			ImGuiCond_Always);
-	SetNextWindowBgAlpha(0);
-	Begin("Debug Options", nullptr, windowFlags);
-	PushFont(fonts[1]);
+	const float xPos = io.DisplaySize.x - WIN_WIDTH;
+	float yPos = 0;
+	int id = 0;
+	static const float Y_PAD = 24.0;
 
 	auto debugOptions = scene.debugOptions();
 
-
-
-
-
-
-
-
-	static const ImVec4 transparent(0, 0, 0, 0);
-	static const ImVec4 bg(0, 0, 0, 0);
-	static const ImVec4 black(0.0, 0.0, 0.0, 1.0);
-	static const ImVec4 shadow(0.0, 0.0, 0.0, 0.5);
-	static const ImVec4 checkbg1(0.25, 0.25, 0.25, 0.5);
-	static const ImVec4 checkbg2(0.5, 0.5, 0.5, 0.5);
-	static const ImVec4 white(1.0, 1.0, 1.0, 1.0);
-	static const ImVec4 gray(0.5, 0.5, 0.5, 1.0);
-	static const ImVec4 red(1.0, 0.0, 0.0, 1.0);
-	static const ImVec4 blue(0.0, 0.0, 1.0, 1.0);
-	static const ImVec4 green(0.0, 1.0, 0.0, 1.0);
-	static const ImVec4 orange(1.0, 0.5, 0.0, 1.0);
-
-
-
-	ImGui::PushStyleColor(ImGuiCol_FrameBg,        checkbg1);
-	ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, checkbg2);
-	ImGui::PushStyleColor(ImGuiCol_FrameBgActive,  checkbg1);
-	ImGui::PushStyleColor(ImGuiCol_CheckMark,      white);
-
-
-
-
-
-
-
-
-
-
-
-
-	ImVec2 basePos = ImGui::GetCursorScreenPos();
-
-	ImGui::BeginDisabled();
-
-	ImGui::PushStyleColor(ImGuiCol_Text, shadow);
-	ImGui::PushStyleColor(ImGuiCol_FrameBg, transparent);
-	ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, transparent);
-	ImGui::PushStyleColor(ImGuiCol_FrameBgActive, transparent);
-	ImGui::PushStyleColor(ImGuiCol_CheckMark, transparent);
-
-	ImGui::SetCursorScreenPos(ImVec2(basePos.x + 1, basePos .y + 1));
-
-	bool dummy = false;
-	ImGui::Checkbox("Stats", &dummy);
-
-	ImGui::PopStyleColor(5);
-	ImGui::EndDisabled();
-
-	ImGui::SetCursorScreenPos(basePos);
-
+	yPos = 3.0;
 	static bool stats = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay);
-	if (Checkbox("Stats", &stats)) {
-		if (stats)
-			scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowStatsOverlay));
-		else
-			scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowStatsOverlay));
+	if (DigDrawCheckbox(xPos, yPos, "Stats", stats, 1, ++id)) {
+		if (stats) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowStatsOverlay));
+		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowStatsOverlay));
 	}
 
-
-
-
-
-
-
-
-	basePos = ImGui::GetCursorScreenPos();
-
-	ImGui::BeginDisabled();
-
-	ImGui::PushStyleColor(ImGuiCol_Text, shadow);
-	ImGui::PushStyleColor(ImGuiCol_FrameBg, transparent);
-	ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, transparent);
-	ImGui::PushStyleColor(ImGuiCol_FrameBgActive, transparent);
-	ImGui::PushStyleColor(ImGuiCol_CheckMark, transparent);
-
-	ImGui::SetCursorScreenPos(ImVec2(basePos.x + 1, basePos .y + 1));
-
-	ImGui::Checkbox("Mesh wireframes", &dummy);
-
-	ImGui::PopStyleColor(5);
-	ImGui::EndDisabled();
-	ImGui::SetCursorScreenPos(basePos);
-
+	yPos += Y_PAD;
 	bool meshWF = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes);
-	if (Checkbox("Mesh wireframes", &meshWF)) {
+	if (DigDrawCheckbox(xPos, yPos, "Mesh wireframes", meshWF, 1, ++id)) {
 		if (meshWF) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowWireframes));
 		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowWireframes));
 	}
 
+	yPos += Y_PAD;
 	bool meshAABBs = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes);
-	if (Checkbox("Mesh AABBs", &meshAABBs)) {
+	if (DigDrawCheckbox(xPos, yPos, "Mesh AABBs", meshAABBs, 1, ++id)) {
 		if (meshAABBs) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowBoundingBoxes));
 		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowBoundingBoxes));
 	}
 
+	yPos += Y_PAD;
 	bool physWF = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes);
-	if (Checkbox("Physics wireframes", &physWF)) {
+	if (DigDrawCheckbox(xPos, yPos, "Physics wireframes", physWF, 1, ++id)) {
 		if (physWF) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsWireframes));
 		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions,DebugOptions::ShowPhysicsWireframes));
 	}
 
+	yPos += Y_PAD;
 	bool physAABBs = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes);
-	if (Checkbox("Physics AABBs", &physAABBs)) {
+	if (DigDrawCheckbox(xPos, yPos, "Physics AABBs", physAABBs, 1, ++id)) {
 		if (physAABBs) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
 		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
 	}
 
+	yPos += Y_PAD;
 	bool physContacts = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints);
-	if (Checkbox("Physics contacts", &physContacts)) {
+	if (DigDrawCheckbox(xPos, yPos, "Physics contacts", physContacts, 1, ++id)) {
 		if (physContacts) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsContactPoints));
 		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions,DebugOptions::ShowPhysicsContactPoints));
 	}
 
+	yPos += Y_PAD;
 	bool physNorms = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsNormals);
-	if (Checkbox("Physics normals", &physNorms)) {
+	if (DigDrawCheckbox(xPos, yPos, "Physics normals", physNorms, 1, ++id)) {
 		if (physNorms) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsNormals));
 		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions,DebugOptions::ShowPhysicsNormals));
 	}
-
-	ImGui::PopStyleColor(4);
-
-	PopFont();
-	End();
 }
 
 void DrawStatsOverlay(FrameStats& stats,
@@ -2697,19 +2649,10 @@ void DrawStatsOverlay(FrameStats& stats,
 	GetIO().FontGlobalScale = scale;
 #endif
 
-	const int PADDING = 14;
+	const int TEXT_PADDING = 14;
 	const float xPos = 10.0;
 	float yPos = 0;
 	int id = 0;
-
-	ImGuiWindowFlags windowFlags = 0;
-	windowFlags |= ImGuiWindowFlags_NoTitleBar;
-	windowFlags |= ImGuiWindowFlags_NoScrollbar;
-	windowFlags |= ImGuiWindowFlags_NoMove;
-	windowFlags |= ImGuiWindowFlags_NoResize;
-	windowFlags |= ImGuiWindowFlags_NoCollapse;
-	windowFlags |= ImGuiWindowFlags_NoNav;
-	windowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
 
 	ImGuiIO &io = GetIO();
 	auto fonts = io.Fonts->Fonts;
@@ -2773,18 +2716,22 @@ void DrawStatsOverlay(FrameStats& stats,
 		appSamples[i] = chrono::duration<float, milli>(sample.applicationTime).count();
 	}
 
-	static const float PLOT_WIDTH = 96.0;//158;
-	static const float PLOT_HEIGHT_1 = 38.0;
+//	static const float PLOT_WIDTH = 96.0;
+//	static const float PLOT_WIDTH = 158.0;
+	static const float PLOT_WIDTH = 122.0;
+	static const bool PLOT_OUTLINED = true;
+	static const float PLOT_HEIGHT_1 = 42.0;
 	static const float PLOT_HEIGHT_2 = 24.0;
 	static const float PLOT_X_OFFSET = 0.0;
 	static const float PLOT_STR_Y_PAD = 5.0;
 	static const float PLOT_Y_PAD = 18.0;
 	static const float PLOT_Y_MIN = 0.0;
 	static const float PLOT_Y_MAX = 17.0;
+	static const int RT_TEXT_PADDING = TEXT_PADDING - 3;
 
 	auto frameTimeStr = std::format(
-			"{:<{}} {:.2f} ms\n",
-			"frame", PADDING, frameMsFAvg);
+			"{:<{}} {:.1f}ms\n",
+			"frame", RT_TEXT_PADDING, frameMsFAvg);
 	yPos += 42;
 	DigDrawText(xPos, yPos, frameTimeStr.c_str(), 1, 0.0, 0.0, ++id);
 	yPos += PLOT_Y_PAD;
@@ -2795,13 +2742,14 @@ void DrawStatsOverlay(FrameStats& stats,
 				nullptr,
 				PLOT_Y_MIN, PLOT_Y_MAX,
 				0,
+				PLOT_OUTLINED,
 				++id);
 
 	// engine cpu
 
 	auto engineCpuTimeStr = std::format(
-			"{:<{}} {:.2f} ms\n",
-			"engine cpu", PADDING, engineCpuMsFAvg);
+			"{:<{}} {:.1f}ms\n",
+			"engine cpu", RT_TEXT_PADDING, engineCpuMsFAvg);
 	yPos += PLOT_HEIGHT_1 + PLOT_STR_Y_PAD;
 	DigDrawText(xPos, yPos, engineCpuTimeStr.c_str(), 1, 0.0, 0.0, ++id);
 	yPos += PLOT_Y_PAD;
@@ -2812,13 +2760,14 @@ void DrawStatsOverlay(FrameStats& stats,
 				nullptr,
 				PLOT_Y_MIN, PLOT_Y_MAX,
 				0,
+				PLOT_OUTLINED,
 				++id);
 
 	// physics
 
 	auto physTimeStr = std::format(
-			"{:<{}} {:.2f} ms\n",
-			"physics", PADDING, physicsMsFAvg);
+			"{:<{}} {:.1f}ms\n",
+			"physics", RT_TEXT_PADDING, physicsMsFAvg);
 	yPos += PLOT_HEIGHT_2 + PLOT_STR_Y_PAD;
 	DigDrawText(xPos, yPos, physTimeStr.c_str(), 1, 0.0, 0.0, ++id);
 	yPos += PLOT_Y_PAD;
@@ -2829,13 +2778,14 @@ void DrawStatsOverlay(FrameStats& stats,
 				nullptr,
 				PLOT_Y_MIN, PLOT_Y_MAX,
 				0,
+				PLOT_OUTLINED,
 				++id);
 
 	// render cpu
 
 	auto renderCpuTimeStr = std::format(
-			"{:<{}} {:.2f} ms\n",
-			"render cpu", PADDING, renderCpuMsFAvg);
+			"{:<{}} {:.1f}ms\n",
+			"render cpu", RT_TEXT_PADDING, renderCpuMsFAvg);
 	yPos += PLOT_HEIGHT_2 + PLOT_STR_Y_PAD;
 	DigDrawText(xPos, yPos, renderCpuTimeStr.c_str(), 1, 0.0, 0.0, ++id);
 	yPos += PLOT_Y_PAD;
@@ -2846,13 +2796,14 @@ void DrawStatsOverlay(FrameStats& stats,
 				nullptr,
 				PLOT_Y_MIN, PLOT_Y_MAX,
 				0,
+				PLOT_OUTLINED,
 				++id);
 
 	// render gpu
 
 	auto renderGpuTimeStr = std::format(
-			"{:<{}} {:.2f} ms\n",
-			"render gpu", PADDING, renderGpuMsFAvg);
+			"{:<{}} {:.1f}ms\n",
+			"render gpu", RT_TEXT_PADDING, renderGpuMsFAvg);
 	yPos += PLOT_HEIGHT_2 + PLOT_STR_Y_PAD;
 	DigDrawText(xPos, yPos, renderGpuTimeStr.c_str(), 1, 0.0, 0.0, ++id);
 	yPos += PLOT_Y_PAD;
@@ -2863,13 +2814,14 @@ void DrawStatsOverlay(FrameStats& stats,
 				nullptr,
 				PLOT_Y_MIN, PLOT_Y_MAX,
 				0,
+				PLOT_OUTLINED,
 				++id);
 
 	// application
 
 	auto appTimeStr = std::format(
-			"{:<{}} {:.2f} ms\n",
-			"app", PADDING, appCpuMsFAvg);
+			"{:<{}} {:.1f}ms\n",
+			"app", RT_TEXT_PADDING, appCpuMsFAvg);
 	yPos += PLOT_HEIGHT_2 + PLOT_STR_Y_PAD;
 	DigDrawText(xPos, yPos, appTimeStr.c_str(), 1, 0.0, 0.0, ++id);
 	yPos += PLOT_Y_PAD;
@@ -2880,6 +2832,7 @@ void DrawStatsOverlay(FrameStats& stats,
 				nullptr,
 				PLOT_Y_MIN, PLOT_Y_MAX,
 				0,
+				PLOT_OUTLINED,
 				++id);
 
 	string recordingStr = "";
@@ -2888,7 +2841,7 @@ void DrawStatsOverlay(FrameStats& stats,
 		auto numFrames = context.recordedGIFFrames();
 		recordingStr = std::format("\n{:<{}} {:.1f} s / {} {}",
 								   "RECORDING",
-								   PADDING,
+								   TEXT_PADDING,
 								   time,
 								   numFrames,
 								   (numFrames == 1 ? "frame" : "frames"));
@@ -2920,39 +2873,32 @@ void DrawStatsOverlay(FrameStats& stats,
              /*"{:<{}} ({:.4f}, {:.4f}, {:.4f}, {:.4f})\n" \*/
 			"{}",
 
-			"resolution", PADDING, context.framebufferSize().x, context.framebufferSize().y,
-			"antialiasing", PADDING, StatusOverlayDescriptionForAntialiasingMode(context.antialiasingMode()),
-			"fb scale", PADDING, context.framebufferScale().x, context.framebufferScale().y,
+			"resolution", TEXT_PADDING, context.framebufferSize().x, context.framebufferSize().y,
+			"antialiasing", TEXT_PADDING, StatusOverlayDescriptionForAntialiasingMode(context.antialiasingMode()),
+			"fb scale", TEXT_PADDING, context.framebufferScale().x, context.framebufferScale().y,
 
-			"nodes", PADDING, stats.numNodes,
-			"meshes", PADDING, stats.numMeshes,
-			"elements", PADDING, stats.numElements,
-			"polygons", PADDING, float(stats.numPolygons) / 1000.0f,//(int)round(float(stats.polygons)/1000.0f),
-			"lights", PADDING, stats.numLights,
+			"nodes", TEXT_PADDING, stats.numNodes,
+			"meshes", TEXT_PADDING, stats.numMeshes,
+			"elements", TEXT_PADDING, stats.numElements,
+			"polygons", TEXT_PADDING, float(stats.numPolygons) / 1000.0f,//(int)round(float(stats.polygons)/1000.0f),
+			"lights", TEXT_PADDING, stats.numLights,
 
-			"phys bodies", PADDING, stats.numDynamicBodies + stats.numKinematicBodies + stats.numStaticBodies,
-			" static", PADDING, stats.numStaticBodies,
-			" dynamic", PADDING, stats.numDynamicBodies,
-			" kinematic", PADDING, stats.numKinematicBodies,
-			"phys shapes", PADDING,
-			stats.numConcavePolyhedronShapes + stats.numBoundingBoxShapes + stats.numConvexHullShapes,
-			" primitive", PADDING, stats.numPrimitiveShapes,
-			" bounding box", PADDING, stats.numBoundingBoxShapes,
-			" convex hull", PADDING, stats.numConvexHullShapes,
-			" concave poly", PADDING, stats.numConcavePolyhedronShapes,
+			"phys bodies", TEXT_PADDING, stats.numDynamicBodies + stats.numKinematicBodies + stats.numStaticBodies,
+			" static", TEXT_PADDING, stats.numStaticBodies,
+			" dynamic", TEXT_PADDING, stats.numDynamicBodies,
+			" kinematic", TEXT_PADDING, stats.numKinematicBodies,
+			"phys shapes", TEXT_PADDING, stats.numConcavePolyhedronShapes + stats.numBoundingBoxShapes + stats.numConvexHullShapes,
+			" primitive", TEXT_PADDING, stats.numPrimitiveShapes,
+			" bounding box", TEXT_PADDING, stats.numBoundingBoxShapes,
+			" convex hull", TEXT_PADDING, stats.numConvexHullShapes,
+			" concave poly", TEXT_PADDING, stats.numConcavePolyhedronShapes,
 
-			"camera pos", PADDING, stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
-			//"camera orientation", PADDING, stats.cameraOrientation.x, stats.cameraOrientation.y, stats.cameraOrientation.z, stats.cameraOrientation.w,
+			"camera pos", TEXT_PADDING, stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
+			//"camera orientation", TEXT_PADDING, stats.cameraOrientation.x, stats.cameraOrientation.y, stats.cameraOrientation.z, stats.cameraOrientation.w,
 			recordingStr);
 
 	yPos += 40;
 	DigDrawText(xPos, yPos, bulkStatsStr.c_str(), 1, 0.0, 0.0, ++id);
-
-
-
-
-
-
 
 //	{
 //		static ImPlotAxisFlags flags = ImPlotAxisFlags_NoTickLabels;
