@@ -508,8 +508,8 @@ static bool InitGLFW() {
 }
 
 void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
-	A3D_LOG_D("glfwWindow: {:p}, width: {}, height: {}",
-			  static_cast<void*>(glfwWindow), width, height);
+//	A3D_LOG_D("glfwWindow: {:p}, width: {}, height: {}",
+//			  static_cast<void*>(glfwWindow), width, height);
 
 	auto window = (GLFWWindow*)glfwGetWindowUserPointer(glfwWindow);
 	window->size({width, height});
@@ -523,8 +523,8 @@ void GLFWWindowCloseCallback(GLFWwindow* glfwWindow) {
 }
 
 void GLFWFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
-	A3D_LOG_D("glfwWindow: {:p}, width: {}, height: {}",
-			  static_cast<void*>(glfwWindow), width, height);
+//	A3D_LOG_D("glfwWindow: {:p}, width: {}, height: {}",
+//			  static_cast<void*>(glfwWindow), width, height);
 
 	auto window = (GLFWWindow*)glfwGetWindowUserPointer(glfwWindow);
 	window->renderer()->framebufferScaleChanged(*window);
