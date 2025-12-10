@@ -13,6 +13,12 @@ namespace a3d::math {
 	vec2::vec2(f32 x_, f32 y_):
 			x{x_}, y{y_} {}
 
+	vec2::vec2(const vec3& v):
+			x{v.x}, y{v.y} {}
+
+	vec2::vec2(const vec4& v):
+			x{v.x}, y{v.y} {}
+
 	f32 &vec2::operator[](std::size_t i) {
 		assert(i < 2);
 		return (&x)[i];
@@ -26,11 +32,11 @@ namespace a3d::math {
 	vec3::vec3(f32 x_, f32 y_, f32 z_):
 			x{x_}, y{y_}, z{z_} {}
 
-//	vec3::vec2(const vec3& v):
-//			x{v.x}, y{v.y} {}
-//
-//	vec3::vec2(const vec4& v):
-//			x{v.x}, y{v.y} {}
+	vec3::vec3(const vec2& v):
+			x{v.x}, y{v.y}, z{0} {}
+
+	vec3::vec3(const vec4& v):
+			x{v.x}, y{v.y}, z{v.z} {}
 
 	f32 &vec3::operator[](std::size_t i) {
 		assert(i < 3);
@@ -45,6 +51,12 @@ namespace a3d::math {
 	vec4::vec4(f32 x_, f32 y_, f32 z_, f32 w_):
 			x{x_}, y{y_}, z{z_}, w{w_} {}
 
+	vec4::vec4(const vec2& v):
+			x{v.x}, y{v.y}, z{0}, w{0} {}
+
+	vec4::vec4(const vec3& v):
+			x{v.x}, y{v.y}, z{v.z}, w{0} {}
+
 	f32 &vec4::operator[](std::size_t i) {
 		assert(i < 4);
 		return (&x)[i];
@@ -57,6 +69,12 @@ namespace a3d::math {
 
 	ivec2::ivec2(i32 x_, i32 y_) :
 			x{x_}, y{y_} {}
+
+	ivec2::ivec2(const ivec3& v):
+			x{v.x}, y{v.y} {}
+
+	ivec2::ivec2(const ivec4& v):
+			x{v.x}, y{v.y} {}
 
 	i32 &ivec2::operator[](std::size_t i) {
 		assert(i < 2);
@@ -71,6 +89,12 @@ namespace a3d::math {
 	ivec3::ivec3(i32 x_, i32 y_, i32 z_) :
 			x{x_}, y{y_}, z{z_} {}
 
+	ivec3::ivec3(const ivec2& v):
+			x{v.x}, y{v.y}, z{0} {}
+
+	ivec3::ivec3(const ivec4& v):
+			x{v.x}, y{v.y}, z{v.z} {}
+
 	i32 &ivec3::operator[](std::size_t i) {
 		assert(i < 3);
 		return (&x)[i];
@@ -84,12 +108,75 @@ namespace a3d::math {
 	ivec4::ivec4(i32 x_, i32 y_, i32 z_, i32 w_) :
 			x{x_}, y{y_}, z{z_}, w{w_} {}
 
+	ivec4::ivec4(const ivec2& v):
+			x{v.x}, y{v.y}, z{0}, w{0} {}
+
+	ivec4::ivec4(const ivec3& v):
+			x{v.x}, y{v.y}, z{v.z}, w{0} {}
+
 	i32 &ivec4::operator[](std::size_t i) {
 		assert(i < 4);
 		return (&x)[i];
 	}
 
 	const i32 &ivec4::operator[](std::size_t i) const {
+		assert(i < 4);
+		return (&x)[i];
+	}
+
+	uvec2::uvec2(u32 x_, u32 y_) :
+			x{x_}, y{y_} {}
+
+	uvec2::uvec2(const uvec3& v):
+			x{v.x}, y{v.y} {}
+
+	uvec2::uvec2(const uvec4& v):
+			x{v.x}, y{v.y} {}
+
+	u32 &uvec2::operator[](std::size_t i) {
+		assert(i < 2);
+		return (&x)[i];
+	}
+
+	const u32 &uvec2::operator[](std::size_t i) const {
+		assert(i < 2);
+		return (&x)[i];
+	}
+
+	uvec3::uvec3(u32 x_, u32 y_, u32 z_) :
+			x{x_}, y{y_}, z{z_} {}
+
+	uvec3::uvec3(const uvec2& v):
+			x{v.x}, y{v.y}, z{0} {}
+
+	uvec3::uvec3(const uvec4& v):
+			x{v.x}, y{v.y}, z{v.z} {}
+
+	u32 &uvec3::operator[](std::size_t i) {
+		assert(i < 3);
+		return (&x)[i];
+	}
+
+	const u32 &uvec3::operator[](std::size_t i) const {
+		assert(i < 3);
+		return (&x)[i];
+	}
+
+	uvec4::uvec4(u32 x_, u32 y_, u32 z_, u32 w_) :
+			x{x_}, y{y_}, z{z_}, w{w_} {}
+
+	uvec4::uvec4(const uvec2& v):
+			x{v.x}, y{v.y}, z{0}, w{0} {}
+
+	uvec4::uvec4(const uvec3& v):
+			x{v.x}, y{v.y}, z{v.z}, w{0} {}
+
+	u32 &uvec4::operator[](std::size_t i) {
+		assert(i < 4);
+		return (&x)[i];
+	}
+
+	const u32 &uvec4::operator[](std::size_t i) const {
 		assert(i < 4);
 		return (&x)[i];
 	}
@@ -228,15 +315,15 @@ namespace a3d::math {
 
 // length
 	f32 length(const vec2 &v) {
-		return std::sqrt(dot(v, v));
+		return sqrt(dot(v, v));
 	}
 
 	f32 length(const vec3 &v) {
-		return std::sqrt(dot(v, v));
+		return sqrt(dot(v, v));
 	}
 
 	f32 length(const vec4 &v) {
-		return std::sqrt(dot(v, v));
+		return sqrt(dot(v, v));
 	}
 
 // normalize
@@ -265,27 +352,27 @@ namespace a3d::math {
 					a.x * b.y - a.y * b.x};
 	}
 
-	f32 *value_ptr(vec2 &v) {
+	f32* value_ptr(vec2 &v) {
 		return &v.x;
 	}
 
-	const f32 *value_ptr(const vec2 &v) {
+	const f32* value_ptr(const vec2 &v) {
 		return &v.x;
 	}
 
-	f32 *value_ptr(vec3 &v) {
+	f32* value_ptr(vec3 &v) {
 		return &v.x;
 	}
 
-	const f32 *value_ptr(const vec3 &v) {
+	const f32* value_ptr(const vec3 &v) {
 		return &v.x;
 	}
 
-	f32 *value_ptr(vec4 &v) {
+	f32* value_ptr(vec4 &v) {
 		return &v.x;
 	}
 
-	const f32 *value_ptr(const vec4 &v) {
+	const f32* value_ptr(const vec4 &v) {
 		return &v.x;
 	}
 
@@ -372,27 +459,134 @@ namespace a3d::math {
 		return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 	}
 
-	i32 *value_ptr(ivec2 &v) {
+	i32* value_ptr(ivec2 &v) {
 		return &v.x;
 	}
 
-	const i32 *value_ptr(const ivec2 &v) {
+	const i32* value_ptr(const ivec2 &v) {
 		return &v.x;
 	}
 
-	i32 *value_ptr(ivec3 &v) {
+	i32* value_ptr(ivec3 &v) {
 		return &v.x;
 	}
 
-	const i32 *value_ptr(const ivec3 &v) {
+	const i32* value_ptr(const ivec3 &v) {
 		return &v.x;
 	}
 
-	i32 *value_ptr(ivec4 &v) {
+	i32* value_ptr(ivec4 &v) {
 		return &v.x;
 	}
 
-	const i32 *value_ptr(const ivec4 &v) {
+	const i32* value_ptr(const ivec4 &v) {
+		return &v.x;
+	}
+
+	// ----- uvec add -----
+
+	uvec2 operator+(const uvec2 &a, const uvec2 &b) {
+		return uvec2{a.x + b.x, a.y + b.y};
+	}
+
+	uvec3 operator+(const uvec3 &a, const uvec3 &b) {
+		return uvec3{a.x + b.x, a.y + b.y, a.z + b.z};
+	}
+
+	uvec4 operator+(const uvec4 &a, const uvec4 &b) {
+		return uvec4{a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w};
+	}
+
+// ----- uvec subtract -----
+
+	uvec2 operator-(const uvec2 &a, const uvec2 &b) {
+		return uvec2{a.x - b.x, a.y - b.y};
+	}
+
+	uvec3 operator-(const uvec3 &a, const uvec3 &b) {
+		return uvec3{a.x - b.x, a.y - b.y, a.z - b.z};
+	}
+
+	uvec4 operator-(const uvec4 &a, const uvec4 &b) {
+		return uvec4{a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w};
+	}
+
+// ----- uvec * scalar -----
+
+	uvec2 operator*(const uvec2 &v, u32 s) {
+		return uvec2{v.x * s, v.y * s};
+	}
+
+	uvec3 operator*(const uvec3 &v, u32 s) {
+		return uvec3{v.x * s, v.y * s, v.z * s};
+	}
+
+	uvec4 operator*(const uvec4 &v, u32 s) {
+		return uvec4{v.x * s, v.y * s, v.z * s, v.w * s};
+	}
+
+	uvec2 operator*(u32 s, const uvec2 &v) {
+		return v * s;
+	}
+
+	uvec3 operator*(u32 s, const uvec3 &v) {
+		return v * s;
+	}
+
+	uvec4 operator*(u32 s, const uvec4 &v) {
+		return v * s;
+	}
+
+// ----- uvec / scalar (integer division) -----
+
+	uvec2 operator/(const uvec2 &v, u32 s) {
+		// no zero check here; up to you if you want asserts
+		return uvec2{v.x / s, v.y / s};
+	}
+
+	uvec3 operator/(const uvec3 &v, u32 s) {
+		return uvec3{v.x / s, v.y / s, v.z / s};
+	}
+
+	uvec4 operator/(const uvec4 &v, u32 s) {
+		return uvec4{v.x / s, v.y / s, v.z / s, v.w / s};
+	}
+
+// ----- uvec dot -----
+
+	u32 dot(const uvec2 &a, const uvec2 &b) {
+		return a.x * b.x + a.y * b.y;
+	}
+
+	u32 dot(const uvec3 &a, const uvec3 &b) {
+		return a.x * b.x + a.y * b.y + a.z * b.z;
+	}
+
+	u32 dot(const uvec4 &a, const uvec4 &b) {
+		return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+	}
+
+	u32* value_ptr(uvec2 &v) {
+		return &v.x;
+	}
+
+	const u32* value_ptr(const uvec2 &v) {
+		return &v.x;
+	}
+
+	u32* value_ptr(uvec3 &v) {
+		return &v.x;
+	}
+
+	const u32* value_ptr(const uvec3 &v) {
+		return &v.x;
+	}
+
+	u32* value_ptr(uvec4 &v) {
+		return &v.x;
+	}
+
+	const u32* value_ptr(const uvec4 &v) {
 		return &v.x;
 	}
 
@@ -420,30 +614,29 @@ namespace a3d::math {
 		return mat4(0.0f);
 	}
 
-	f32 *value_ptr(mat2 &m) {
+	f32* value_ptr(mat2 &m) {
 		return &m.c0.x;
 	}
 
-	const f32 *value_ptr(const mat2 &m) {
+	const f32* value_ptr(const mat2 &m) {
 		return &m.c0.x;
 	}
 
-	f32 *value_ptr(mat3 &m) {
+	f32* value_ptr(mat3 &m) {
 		return &m.c0.x;
 	}
 
-	const f32 *value_ptr(const mat3 &m) {
+	const f32* value_ptr(const mat3 &m) {
 		return &m.c0.x;
 	}
 
-	f32 *value_ptr(mat4 &m) {
+	f32* value_ptr(mat4 &m) {
 		return &m.c0.x;
 	}
 
-	const f32 *value_ptr(const mat4 &m) {
+	const f32* value_ptr(const mat4 &m) {
 		return &m.c0.x;
 	}
-
 
 // mat * vec
 	vec2 operator*(const mat2 &m, const vec2 &v) {
@@ -835,11 +1028,11 @@ namespace a3d::math {
 		return mat4(mat3_cast(q));
 	}
 
-	f32 *value_ptr(quat &q) {
+	f32* value_ptr(quat &q) {
 		return &q.w;
 	}
 
-	const f32 *value_ptr(const quat &q) {
+	const f32* value_ptr(const quat &q) {
 		return &q.w;
 	}
 
