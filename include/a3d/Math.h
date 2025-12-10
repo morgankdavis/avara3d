@@ -22,149 +22,175 @@ namespace a3d::math {
 	using f32 = float;
 	using i32 = std::int32_t;
 
-	struct vec2;
-	struct vec3;
-	struct vec4;
-
-	namespace detail {
-
-		template <typename Derived, typename T, std::size_t N>
-		struct vec {
-			T& operator[](std::size_t i) {
-				assert(i < N);
-				return (&static_cast<Derived*>(this)->x)[i];
-			}
-
-			const T& operator[](std::size_t i) const {
-				assert(i < N);
-				return (&static_cast<const Derived*>(this)->x)[i];
-			}
-		};
-
-		template <typename Derived, typename ColT, std::size_t NCols>
-		struct mat {
-			ColT& operator[](std::size_t i) {
-				assert(i < NCols);
-				return (&static_cast<Derived*>(this)->c0)[i];
-			}
-
-			const ColT& operator[](std::size_t i) const {
-				assert(i < NCols);
-				return (&static_cast<const Derived*>(this)->c0)[i];
-			}
-		};
-
-		template <typename T> struct is_vec : std::false_type {};
-		template <> struct is_vec<vec2> : std::true_type {};
-		template <> struct is_vec<vec3> : std::true_type {};
-		template <> struct is_vec<vec4> : std::true_type {};
-
-		template <typename T>
-		constexpr bool is_vec_v = is_vec<T>::value;
-
-		template <typename T> struct vec_size;
-		template <> struct vec_size<vec2> : std::integral_constant<std::size_t, 2> {};
-		template <> struct vec_size<vec3> : std::integral_constant<std::size_t, 3> {};
-		template <> struct vec_size<vec4> : std::integral_constant<std::size_t, 4> {};
-
-		template <typename T>
-		constexpr std::size_t vec_size_v = vec_size<T>::value;
-
-		template <typename V>
-		f32* data(V& v) {
-			static_assert(is_vec_v<V>, "math::detail::data only valid for vec2/3/4");
-			return &v.x;
-		}
-
-		template <typename V>
-		const f32* data(const V& v) {
-			static_assert(is_vec_v<V>, "math::detail::data only valid for vec2/3/4");
-			return &v.x;
-		}
-	}
-
-	struct vec2 : detail::vec<vec2, f32, 2> {
+	struct vec2 {
 		f32 x, y;
-
 		vec2() = default;
-		vec2(f32 x_, f32 y_) : x{x_}, y{y_} {}
+		vec2(f32 x_, f32 y_);
+		f32& operator[](std::size_t i);
+		const f32& operator[](std::size_t i) const;
 	};
 
-	struct vec3 : detail::vec<vec3, f32, 3> {
+	struct vec3 {
 		f32 x, y, z;
-
 		vec3() = default;
-		vec3(f32 x_, f32 y_, f32 z_) : x{x_}, y{y_}, z{z_} {}
+		vec3(f32 x_, f32 y_, f32 z_);
+		f32& operator[](std::size_t i);
+		const f32& operator[](std::size_t i) const;
 	};
 
-	struct vec4 : detail::vec<vec4, f32, 4> {
+	struct vec4 {
 		f32 x, y, z, w;
-
 		vec4() = default;
-		vec4(f32 x_, f32 y_, f32 z_, f32 w_) : x{x_}, y{y_}, z{z_}, w{w_} {}
+		vec4(f32 x_, f32 y_, f32 z_, f32 w_);
+		f32& operator[](std::size_t i);
+		const f32& operator[](std::size_t i) const;
 	};
 
-	struct ivec2 : detail::vec<ivec2, i32, 2> {
+	struct ivec2 {
 		i32 x, y;
-
 		ivec2() = default;
-		ivec2(i32 x_, i32 y_) : x{x_}, y{y_} {}
+		ivec2(i32 x_, i32 y_);
+		i32& operator[](std::size_t i);
+		const i32& operator[](std::size_t i) const;
 	};
 
-	struct ivec3 : detail::vec<ivec3, i32, 3> {
+	struct ivec3 {
 		i32 x, y, z;
-
 		ivec3() = default;
-		ivec3(i32 x_, i32 y_, i32 z_) : x{x_}, y{y_}, z{z_} {}
+		ivec3(i32 x_, i32 y_, i32 z_);
+		i32& operator[](std::size_t i);
+		const i32& operator[](std::size_t i) const;
 	};
 
-	struct ivec4 : detail::vec<ivec4, i32, 4> {
+	struct ivec4 {
 		i32 x, y, z, w;
-
 		ivec4() = default;
-		ivec4(i32 x_, i32 y_, i32 z_, i32 w_) : x{x_}, y{y_}, z{z_}, w{w_} {}
+		ivec4(i32 x_, i32 y_, i32 z_, i32 w_);
+		i32& operator[](std::size_t i);
+		const i32& operator[](std::size_t i) const;
 	};
 
-	struct mat2 : detail::mat<mat2, vec2, 2> {
+	struct mat2 {
 		vec2 c0, c1;
-
 		mat2() = default;
-
-		explicit mat2(f32 diag):
-				c0{ diag, 0.0f },
-				c1{ 0.0f, diag } {}
+		explicit mat2(f32 diag);
+		vec2& operator[](std::size_t i);
+		const vec2& operator[](std::size_t i) const;
 	};
 
-	struct mat3 : detail::mat<mat3, vec3, 3> {
+	struct mat3 {
 		vec3 c0, c1, c2;
-
 		mat3() = default;
-
-		explicit mat3(f32 diag):
-				c0{ diag, 0.0f, 0.0f },
-				c1{ 0.0f, diag, 0.0f },
-				c2{ 0.0f, 0.0f, diag } {}
+		explicit mat3(f32 diag);
+		vec3& operator[](std::size_t i);
+		const vec3& operator[](std::size_t i) const;
 	};
 
-	struct mat4 : detail::mat<mat4, vec4, 4> {
+	struct mat4 {
 		vec4 c0, c1, c2, c3;
-
 		mat4() = default;
-
-		explicit mat4(f32 diag):
-				c0{ diag, 0.0f, 0.0f, 0.0f },
-				c1{ 0.0f, diag, 0.0f, 0.0f },
-				c2{ 0.0f, 0.0f, diag, 0.0f },
-				c3{ 0.0f, 0.0f, 0.0f, diag } {}
-
-		explicit mat4(const mat3& m):
-				c0{ m.c0.x, m.c0.y, m.c0.z, 0.0f },
-				c1{ m.c1.x, m.c1.y, m.c1.z, 0.0f },
-				c2{ m.c2.x, m.c2.y, m.c2.z, 0.0f },
-				c3{ 0.0f,   0.0f,   0.0f,   1.0f } {}
+		explicit mat4(f32 diag);
+		explicit mat4(const mat3& m);
+		vec4& operator[](std::size_t i);
+		const vec4& operator[](std::size_t i) const;
 	};
 
-	struct quat { f32 w, x, y, z; };
+	struct quat {
+		f32 w, x, y, z;
+		quat() = default;
+		quat(f32 w_, f32 x_, f32 y_, f32 z_);
+	};
+
+	/// Float Vector Operations ///
+
+	vec2 operator+(const vec2& a, const vec2& b);
+	vec3 operator+(const vec3& a, const vec3& b);
+	vec4 operator+(const vec4& a, const vec4& b);
+
+	vec2 operator-(const vec2& a, const vec2& b);
+	vec3 operator-(const vec3& a, const vec3& b);
+	vec4 operator-(const vec4& a, const vec4& b);
+
+	vec2 operator*(const vec2& v, f32 s);
+	vec3 operator*(const vec3& v, f32 s);
+	vec4 operator*(const vec4& v, f32 s);
+	vec2 operator*(f32 s, const vec2& v);
+	vec3 operator*(f32 s, const vec3& v);
+	vec4 operator*(f32 s, const vec4& v);
+
+	vec2 operator/(const vec2& v, f32 s);
+	vec3 operator/(const vec3& v, f32 s);
+	vec4 operator/(const vec4& v, f32 s);
+
+	f32 dot(const vec2& a, const vec2& b);
+	f32 dot(const vec3& a, const vec3& b);
+	f32 dot(const vec4& a, const vec4& b);
+
+	f32 length(const vec2& v);
+	f32 length(const vec3& v);
+	f32 length(const vec4& v);
+
+	vec2 normalize(const vec2& v);
+	vec3 normalize(const vec3& v);
+	vec4 normalize(const vec4& v);
+
+	vec3 cross(const vec3& a, const vec3& b);
+
+	inline f32* value_ptr(vec2& v)       { return &v.x; }
+	inline const f32* value_ptr(const vec2& v) { return &v.x; }
+	inline f32* value_ptr(vec3& v)       { return &v.x; }
+	inline const f32* value_ptr(const vec3& v) { return &v.x; }
+	inline f32* value_ptr(vec4& v)       { return &v.x; }
+	inline const f32* value_ptr(const vec4& v) { return &v.x; }
+
+	/// Integer Vector Operations ///
+
+	ivec2 operator+(const ivec2& a, const ivec2& b);
+	ivec3 operator+(const ivec3& a, const ivec3& b);
+	ivec4 operator+(const ivec4& a, const ivec4& b);
+
+	ivec2 operator-(const ivec2& a, const ivec2& b);
+	ivec3 operator-(const ivec3& a, const ivec3& b);
+	ivec4 operator-(const ivec4& a, const ivec4& b);
+
+	ivec2 operator*(const ivec2& v, i32 s);
+	ivec3 operator*(const ivec3& v, i32 s);
+	ivec4 operator*(const ivec4& v, i32 s);
+	ivec2 operator*(i32 s, const ivec2& v);
+	ivec3 operator*(i32 s, const ivec3& v);
+	ivec4 operator*(i32 s, const ivec4& v);
+
+	ivec2 operator/(const ivec2& v, i32 s);
+	ivec3 operator/(const ivec3& v, i32 s);
+	ivec4 operator/(const ivec4& v, i32 s);
+
+	i32 dot(const ivec2& a, const ivec2& b);
+	i32 dot(const ivec3& a, const ivec3& b);
+	i32 dot(const ivec4& a, const ivec4& b);
+
+	inline i32* value_ptr(ivec2& v)             { return &v.x; }
+	inline const i32* value_ptr(const ivec2& v) { return &v.x; }
+	inline i32* value_ptr(ivec3& v)             { return &v.x; }
+	inline const i32* value_ptr(const ivec3& v) { return &v.x; }
+	inline i32* value_ptr(ivec4& v)             { return &v.x; }
+	inline const i32* value_ptr(const ivec4& v) { return &v.x; }
+
+	/// Matrix Operations ///
+
+	inline mat2 identity2() { return mat2(1.0f); }
+	inline mat3 identity3() { return mat3(1.0f); }
+	inline mat4 identity4() { return mat4(1.0f); }
+
+	inline mat2 zero2() { return mat2(0.0f); }
+	inline mat3 zero3() { return mat3(0.0f); }
+	inline mat4 zero4() { return mat4(0.0f); }
+
+	inline f32* value_ptr(mat2& m)       { return &m.c0.x; }
+	inline const f32* value_ptr(const mat2& m) { return &m.c0.x; }
+	inline f32* value_ptr(mat3& m)       { return &m.c0.x; }
+	inline const f32* value_ptr(const mat3& m) { return &m.c0.x; }
+	inline f32* value_ptr(mat4& m)       { return &m.c0.x; }
+	inline const f32* value_ptr(const mat4& m) { return &m.c0.x; }
 
 	vec2 operator*(const mat2& m, const vec2& v);
 	vec3 operator*(const mat3& m, const vec3& v);
@@ -182,173 +208,36 @@ namespace a3d::math {
 	mat3 inverse(const mat3& m);
 	mat4 inverse(const mat4& m);
 
-	//f32 determinant(mat2 const& m);
-	//f32 determinant(mat3 const& m);
-	//f32 determinant(mat4 const& m);
+	/// Quaternion Operations ///
 
-	// v + v
-	template <typename V, std::enable_if_t<detail::is_vec_v<V>, int> = 0>
-	V operator+(const V& a, const V& b) {
-		V r{};
-		const auto* pa = detail::data(a);
-		const auto* pb = detail::data(b);
-		auto* pr = detail::data(r);
-		for (std::size_t i = 0; i < detail::vec_size_v<V>; ++i)
-			pr[i] = pa[i] + pb[i];
-		return r;
-	}
+	quat identity_quat();
 
-	// v - v
-	template <typename V, std::enable_if_t<detail::is_vec_v<V>, int> = 0>
-	V operator-(const V& a, const V& b) {
-		V r{};
-		const auto* pa = detail::data(a);
-		const auto* pb = detail::data(b);
-		auto* pr = detail::data(r);
-		for (std::size_t i = 0; i < detail::vec_size_v<V>; ++i)
-			pr[i] = pa[i] - pb[i];
-		return r;
-	}
+	f32  dot(const quat& a, const quat& b);
+	f32  length(const quat& q);
+	quat normalize(const quat& q);
+	quat conjugate(const quat& q);
+	quat inverse(const quat& q);
 
-	// v * scalar
-	template <typename V, typename S,
-			std::enable_if_t<detail::is_vec_v<V> && std::is_arithmetic_v<S>, int> = 0>
-	V operator*(const V& v, S s) {
-		V r{};
-		const auto* pv = detail::data(v);
-		auto* pr = detail::data(r);
-		const f32 sf = static_cast<f32>(s);
-		for (std::size_t i = 0; i < detail::vec_size_v<V>; ++i)
-			pr[i] = pv[i] * sf;
-		return r;
-	}
+	quat operator*(const quat& a, const quat& b);
 
-	// scalar * v
-	template <typename V, typename S,
-	        std::enable_if_t<detail::is_vec_v<V> && std::is_arithmetic_v<S>, int> = 0>
-	V operator*(S s, const V& v) {
-		return v * s;
-	}
+	quat operator+(const quat& a, const quat& b);
+	quat operator*(const quat& q, f32 s);
+	quat operator*(f32 s, const quat& q);
 
-	// v / scalar
-	template <typename V, typename S,
-			std::enable_if_t<detail::is_vec_v<V> && std::is_arithmetic_v<S>, int> = 0>
-	V operator/(const V& v, S s) {
-		V r{};
-		const auto* pv = detail::data(v);
-		auto* pr = detail::data(r);
-		const f32 inv = static_cast<f32>(1.0f / s);
-		for (std::size_t i = 0; i < detail::vec_size_v<V>; ++i)
-			pr[i] = pv[i] * inv;
-		return r;
-	}
+	vec3 rotate(const quat& q, const vec3& v);
+	inline vec3 operator*(const quat& q, const vec3& v) { return rotate(q, v); }
 
-	// (optional) compound ops
-	template <typename V, std::enable_if_t<detail::is_vec_v<V>, int> = 0>
-	V& operator+=(V& a, const V& b) {
-		auto* pa = detail::data(a);
-		const auto* pb = detail::data(b);
-		for (std::size_t i = 0; i < detail::vec_size_v<V>; ++i)
-			pa[i] += pb[i];
-		return a;
-	}
+	quat angle_axis(f32 angle_radians, const vec3& axis);
 
-	template <typename V, std::enable_if_t<detail::is_vec_v<V>, int> = 0>
-	V& operator-=(V& a, const V& b) {
-		auto* pa = detail::data(a);
-		const auto* pb = detail::data(b);
-		for (std::size_t i = 0; i < detail::vec_size_v<V>; ++i)
-			pa[i] -= pb[i];
-		return a;
-	}
-
-	template <typename V, typename S,
-	        std::enable_if_t<detail::is_vec_v<V> && std::is_arithmetic_v<S>, int> = 0>
-	V& operator*=(V& v, S s) {
-		auto* pv = detail::data(v);
-		const f32 sf = static_cast<f32>(s);
-		for (std::size_t i = 0; i < detail::vec_size_v<V>; ++i)
-			pv[i] *= sf;
-		return v;
-	}
-
-	template <typename V, typename S,
-	        std::enable_if_t<detail::is_vec_v<V> && std::is_arithmetic_v<S>, int> = 0>
-	V& operator/=(V& v, S s) {
-		auto* pv = detail::data(v);
-		const f32 inv = static_cast<f32>(1.0f / s);
-		for (std::size_t i = 0; i < detail::vec_size_v<V>; ++i)
-			pv[i] *= inv;
-		return v;
-	}
-
-	template <typename V, std::enable_if_t<detail::is_vec_v<V>, int> = 0>
-	f32 dot(const V& a, const V& b) {
-		const auto* pa = detail::data(a);
-		const auto* pb = detail::data(b);
-		f32 s = 0.0f;
-		for (std::size_t i = 0; i < detail::vec_size_v<V>; ++i)
-			s += pa[i] * pb[i];
-		return s;
-	}
-
-	vec3 cross(const vec3& a, const vec3& b) {
-		return vec3{ a.y * b.z - a.z * b.y,
-					 a.z * b.x - a.x * b.z,
-					 a.x * b.y - a.y * b.x };
-	}
-
-	template <typename V, std::enable_if_t<detail::is_vec_v<V>, int> = 0>
-	f32 length(const V& v) {
-		return std::sqrt(dot(v, v));
-	}
-
-	template <typename V, std::enable_if_t<detail::is_vec_v<V>, int> = 0>
-	V normalize(const V& v) {
-		f32 len = length(v);
-		return (len > 0.0f) ? v / len : v;
-	}
-
-	mat4 translate(const mat4& m, const vec3& v);
-	mat4 rotate(const mat4& m, f32 angle, const vec3& v);
-	mat4 scale(const mat4& m, const vec3& v);
-
-	mat4 perspective(f32 fovy, f32 aspect, f32 zNear, f32 zFar);
-	mat4 ortho(f32 left, f32 right, f32 bottom, f32 top, f32 zNear, f32 zFar);
-
-	bool decompose(const mat3& mat,
-				   vec3& scale,
-				   quat& orientation,
-				   vec3& translation,
-				   vec3& skew,
-				   vec4& perspective);
+	quat slerp(const quat& a, const quat& b, f32 t);
 
 	mat3 mat3_cast(quat const& q);
 	mat4 mat4_cast(quat const& q);
 
-	template <typename V>
-	auto value_ptr(V& v) -> decltype(&v.x) {
-		static_assert(std::is_standard_layout_v<V>,
-					  "value_ptr(vec): needs standard-layout type");
-		return &v.x;
-	}
+	inline f32* value_ptr(quat& q) ;
+	inline const f32* value_ptr(const quat& q);
 
-	template <typename V>
-	auto value_ptr(const V& v) -> decltype(&v.x) {
-		return &v.x;
-	}
-
-	template <typename M>
-	auto value_ptr(M& m) -> decltype(&m.c0.x) {
-		static_assert(std::is_standard_layout_v<M>,
-					  "value_ptr(mat): needs standard-layout type");
-		return &m.c0.x;
-	}
-
-	template <typename M>
-	auto value_ptr(const M& m) -> decltype(&m.c0.x) {
-		return &m.c0.x;
-	}
+	/// Meh ///
 
 	f32 radians(f32 degrees);
 	f32 degrees(f32 radians);
@@ -386,42 +275,6 @@ namespace a3d::math {
 
 
 
-
-
-//	mat<4, 4, T, Q> translate(vec<3, T, Q> const& v);
-//	mat<4, 4, T, Q> rotate(T angle, vec<3, T, Q> const& v);
-//	mat<4, 4, T, Q> scale(vec<3, T, Q> const& v);
-
-
-
-
-//	genType length(genType x)
-//	T length(vec<L, T, Q> const& v);
-//	genType distance(genType const& p0, genType const& p1);
-//	T distance(vec<L, T, Q> const& p0, vec<L, T, Q> const& p1);
-//	T dot(T x, T y);
-//	T dot(vec<L, T, Q> const& x, vec<L, T, Q> const& y);
-//	vec<3, T, Q> cross(vec<3, T, Q> const& x, vec<3, T, Q> const& y);
-//	vec<L, T, Q> normalize(vec<L, T, Q> const& x);
-
-
-
-//	vec<3, T, Q> eulerAngles(qua<T, Q> const& x);
-//	T roll(qua<T, Q> const& q);
-//	T pitch(qua<T, Q> const& q);
-//	T yaw(qua<T, Q> const& q);
-//	mat<3, 3, T, Q> mat3_cast(qua<T, Q> const& q);
-//	mat<4, 4, T, Q> mat4_cast(qua<T, Q> const& q);
-//	qua<T, Q> quat_cast(mat<3, 3, T, Q> const& m);
-//	quat_cast(mat<4, 4, T, Q> const& m4);
-//	quatLookAt(vec<3, T, Q> const& direction, vec<3, T, Q> const& up);
-
-
-
-//vec<3, T, Q> cross(vec<3, T, Q> const& v, qua<T, Q> const& q);
-//vec<3, T, Q> cross(qua<T, Q> const& q, vec<3, T, Q> const& v);
-//vec<3, T, Q> rotate(qua<T, Q> const& q, vec<3, T, Q> const& v);
-//vec<4, T, Q> rotate(qua<T, Q> const& q, vec<4, T, Q> const& v);
 
 
 
