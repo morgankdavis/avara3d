@@ -272,7 +272,7 @@ void VisualWorld::draw(const Scene& scene,
 
 			auto startTime = scene.time();
 
-			renderer->beginFrame(scene, *_renderContext, debugOptions, stats);
+			renderer->beginFrame(scene, *_renderContext, debugOptions, stats, profiler);
 			_renderContext->beginFrame(scene);
 
 			if (auto pov = pointOfView().lock()) {
@@ -334,7 +334,7 @@ void VisualWorld::draw(const Scene& scene,
 			}
 
 			_renderContext->endFrame(scene);
-			renderer->endFrame(scene, *_renderContext, debugOptions, stats, statsHistory);
+			renderer->endFrame(scene, *_renderContext, debugOptions, stats, profiler, statsHistory);
 
 			_renderContext->swapBuffers();
 

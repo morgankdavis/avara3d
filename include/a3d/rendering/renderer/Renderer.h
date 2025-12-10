@@ -26,6 +26,7 @@ namespace a3d {
 	class Mesh;
 	class MeshElement;
 	class Point;
+	class Profiler;
 	class RenderContext;
 	class Scene;
 
@@ -49,11 +50,13 @@ namespace a3d {
 		virtual void 					beginFrame(const Scene& scene,
 												   const RenderContext& context,
 												   const DebugOptions& debugOptions,
-												   FrameStats& stats) = 0;
+												   FrameStats& stats,
+												   Profiler& profiler) = 0;
 		virtual void 					endFrame(const Scene& scene,
 												 const RenderContext& context,
 												 const DebugOptions& debugOptions,
 												 FrameStats& stats,
+												 Profiler& profiler,
 												 const FrameStatsHistory& statsHistory) = 0;
 
 		virtual void 					preTraversal(const Scene& scene,

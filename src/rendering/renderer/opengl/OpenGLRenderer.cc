@@ -386,11 +386,28 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 bool OpenGLRenderer::isInitialized() const {
 	return _isInitialized;
 }
-	
+
+GLuint g_gpuTimeQuery;
 void OpenGLRenderer::beginFrame(const Scene& scene,
 								const RenderContext& context,
 								const DebugOptions& debugOptions,
-								FrameStats& stats) {
+								FrameStats& stats,
+								Profiler& profiler) {
+
+	if (g_gpuTimeQuery> 0) {
+		// Frame N+1: read back result when it’s ready
+		GLuint64 ns = 0;
+		glGetQueryObjectui64v(g_gpuTimeQuery, GL_QUERY_RESULT, &ns);
+//		double ms = ns / 1e6;
+
+		auto gpuTimeNs = std::chrono::nanoseconds{
+				static_cast<std::chrono::nanoseconds::rep>(ns)
+		};
+		profiler.add(Profiler::Tag::RenderGpu, gpuTimeNs);
+	}
+
+	glGenQueries(1, &g_gpuTimeQuery);
+	glBeginQuery(GL_TIME_ELAPSED, g_gpuTimeQuery);
 
 	_activeMeshElements.clear();
 	_activeTextures.clear();
@@ -407,6 +424,7 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 							  const RenderContext& context,
 							  const DebugOptions& debugOptions,
 							  FrameStats& stats,
+							  Profiler& profiler,
 							  const FrameStatsHistory& statsHistory) {
 
 	ImGui::NewFrame();
@@ -424,6 +442,8 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 
 //	CheckGLError();
 	A3D_GL_CHECK();
+
+	glEndQuery(GL_TIME_ELAPSED);
 }
 
 void OpenGLRenderer::preTraversal(const Scene& scene,
@@ -2688,7 +2708,7 @@ void DrawStatsOverlay(FrameStats& stats,
 
 	frameMsFAvg = chrono::duration<float, std::milli>(frameNsAvg).count();
 	engineCpuMsFAvg = chrono::duration<float, std::milli>(engineCpuNsAvg).count();
-	renderCpuMsFAvg = chrono::duration<float, std::milli>(appCpuNsAvg).count();
+	renderCpuMsFAvg = chrono::duration<float, std::milli>(renderCpuNsAvg).count();
 	renderGpuMsFAvg = chrono::duration<float, std::milli>(renderGpuNsAvg).count();
 	physicsMsFAvg = chrono::duration<float, std::milli>(physicsNsAvg).count();
 	appCpuMsFAvg = chrono::duration<float, std::milli>(appCpuNsAvg).count();
@@ -2736,7 +2756,7 @@ void DrawStatsOverlay(FrameStats& stats,
 	auto frameTimeStr = std::format(
 			"{:<{}} {:.1f}ms\n",
 			"frame", RT_TEXT_PADDING, frameMsFAvg);
-	yPos += 42;
+	yPos += 48;
 	DigDrawText(xPos, yPos, frameTimeStr.c_str(), 1, 0.0, 0.0, ++id);
 	yPos += PLOT_Y_PAD;
 	DigDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_1,
