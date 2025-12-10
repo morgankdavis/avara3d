@@ -22,6 +22,13 @@ namespace a3d::math {
 	using f32 = float;
 	using i32 = std::int32_t;
 
+//	class vec2;
+//	class vec3;
+//	class vec4;
+//	class ivec2;
+//	class ivec3;
+//	class ivec4;
+
 	struct vec2 {
 		f32 x, y;
 		vec2() = default;
@@ -34,6 +41,8 @@ namespace a3d::math {
 		f32 x, y, z;
 		vec3() = default;
 		vec3(f32 x_, f32 y_, f32 z_);
+//		explicit vec2(const vec3& v);
+//		explicit vec2(const vec4& v);
 		f32& operator[](std::size_t i);
 		const f32& operator[](std::size_t i) const;
 	};
@@ -204,6 +213,10 @@ namespace a3d::math {
 	mat3 transpose(const mat3& m);
 	mat4 transpose(const mat4& m);
 
+	f32 determinant(const mat2& m);
+	f32 determinant(const mat3& m);
+	f32 determinant(const mat4& m);
+
 	mat2 inverse(const mat2& m);
 	mat3 inverse(const mat3& m);
 	mat4 inverse(const mat4& m);
@@ -234,8 +247,8 @@ namespace a3d::math {
 	mat3 mat3_cast(quat const& q);
 	mat4 mat4_cast(quat const& q);
 
-	inline f32* value_ptr(quat& q) ;
-	inline const f32* value_ptr(const quat& q);
+	f32* value_ptr(quat& q) ;
+	const f32* value_ptr(const quat& q);
 
 	/// Meh ///
 
@@ -271,7 +284,7 @@ namespace a3d::math {
 
 
 
-
+	f32 epsilon();
 
 
 
@@ -335,6 +348,13 @@ namespace a3d::math {
 	# define M_SQRT2	1.41421356237309504880	// sqrt(2)
 	# define M_SQRT1_2	0.70710678118654752440	// 1/sqrt(2)
 */
+
+	bool decompose(const mat4& ModelMatrix,
+				   vec3 Scale,
+				   quat& Orientation,
+				   vec3& Translation,
+				   vec3& Skew,
+				   vec4& Perspective);
 }
 
 #endif //AVARA3D_MATH_H

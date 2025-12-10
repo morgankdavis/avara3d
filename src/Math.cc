@@ -1,5 +1,5 @@
 //
-//  Math.h
+//  Math.cc
 //  avara3d
 //
 //  Created by Morgan Davis on 12/7/25.
@@ -25,6 +25,12 @@ namespace a3d::math {
 
 	vec3::vec3(f32 x_, f32 y_, f32 z_):
 			x{x_}, y{y_}, z{z_} {}
+
+//	vec3::vec2(const vec3& v):
+//			x{v.x}, y{v.y} {}
+//
+//	vec3::vec2(const vec4& v):
+//			x{v.x}, y{v.y} {}
 
 	f32 &vec3::operator[](std::size_t i) {
 		assert(i < 3);
@@ -236,16 +242,19 @@ namespace a3d::math {
 // normalize
 	vec2 normalize(const vec2 &v) {
 		f32 len = length(v);
+		assert(!"math::normalize called on zero-length vec2");
 		return (len > 0.0f) ? v / len : v;
 	}
 
 	vec3 normalize(const vec3 &v) {
 		f32 len = length(v);
+		assert(!"math::normalize called on zero-length vec3");
 		return (len > 0.0f) ? v / len : v;
 	}
 
 	vec4 normalize(const vec4 &v) {
 		f32 len = length(v);
+		assert(!"math::normalize called on zero-length ved4");
 		return (len > 0.0f) ? v / len : v;
 	}
 
@@ -503,6 +512,36 @@ namespace a3d::math {
 		r.c2 = vec4{m.c0.z, m.c1.z, m.c2.z, m.c3.z};
 		r.c3 = vec4{m.c0.w, m.c1.w, m.c2.w, m.c3.w};
 		return r;
+	}
+
+	f32 determinant(const mat2& m) {
+		return m[0][0] * m[1][1] - m[1][0] * m[0][1];;
+	}
+
+	f32 determinant(const mat3& m) {
+		return
+				+ m[0][0] * (m[1][1] * m[2][2] - m[2][1] * m[1][2])
+				- m[1][0] * (m[0][1] * m[2][2] - m[2][1] * m[0][2])
+				+ m[2][0] * (m[0][1] * m[1][2] - m[1][1] * m[0][2]);
+	}
+
+	f32 determinant(const mat4& m) {
+		f32 subFactor00 = m[2][2] * m[3][3] - m[3][2] * m[2][3];
+		f32 subFactor01 = m[2][1] * m[3][3] - m[3][1] * m[2][3];
+		f32 subFactor02 = m[2][1] * m[3][2] - m[3][1] * m[2][2];
+		f32 subFactor03 = m[2][0] * m[3][3] - m[3][0] * m[2][3];
+		f32 subFactor04 = m[2][0] * m[3][2] - m[3][0] * m[2][2];
+		f32 subFactor05 = m[2][0] * m[3][1] - m[3][0] * m[2][1];
+
+		vec4 detCof(
+				+ (m[1][1] * subFactor00 - m[1][2] * subFactor01 + m[1][3] * subFactor02),
+				- (m[1][0] * subFactor00 - m[1][2] * subFactor03 + m[1][3] * subFactor04),
+				+ (m[1][0] * subFactor01 - m[1][1] * subFactor03 + m[1][3] * subFactor05),
+				- (m[1][0] * subFactor02 - m[1][1] * subFactor04 + m[1][2] * subFactor05));
+
+		return
+				m[0][0] * detCof[0] + m[0][1] * detCof[1] +
+				m[0][2] * detCof[2] + m[0][3] * detCof[3];
 	}
 
 // inverse(mat2)
@@ -911,5 +950,189 @@ namespace a3d::math {
 	void swap(f32 &a, f32 &b) {
 		std::swap(a, b);
 	}
+
+
+
+
+
+
+
+
+
+	f32 epsilon() {
+		return std::numeric_limits<f32>::epsilon();
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+//bool decompose(const mat4& ModelMatrix,
+//			   vec3 Scale,
+//			   quat& Orientation,
+//			   vec3& Translation,
+//			   vec3& Skew,
+//			   vec4& Perspective) {
+//
+//	mat4 LocalMatrix(ModelMatrix);
+//
+//	// Normalize the matrix.
+//	if(epsilonEqual(LocalMatrix[3][3], static_cast<f32>(0), epsilon()))
+//	return false;
+//
+//	for(std::size_t i = 0; i < 4; ++i)
+//	for(std::size_t j = 0; j < 4; ++j)
+//	LocalMatrix[i][j] /= LocalMatrix[3][3];
+//
+//	// perspectiveMatrix is used to solve for perspective, but it also provides
+//	// an easy way to test for singularity of the upper 3x3 component.
+//	mat4 PerspectiveMatrix(LocalMatrix);
+//
+//	for(std::size_t i = 0; i < 3; i++)
+//	PerspectiveMatrix[i][3] = static_cast<f32>(0);
+//	PerspectiveMatrix[3][3] = static_cast<f32>(1);
+//
+//	/// TODO: Fixme!
+//	if(epsilonEqual(determinant(PerspectiveMatrix), static_cast<f32>(0), epsilon()))
+//	return false;
+//
+//	// First, isolate perspective.  This is the messiest.
+//	if(
+//	epsilonNotEqual(LocalMatrix[0][3], static_cast<f32>(0), epsilon()) ||
+//	epsilonNotEqual(LocalMatrix[1][3], static_cast<f32>(0), epsilon()) ||
+//	epsilonNotEqual(LocalMatrix[2][3], static_cast<f32>(0), epsilon()))
+//{
+//	// rightHandSide is the right hand side of the equation.
+//	vec4 RightHandSide;
+//	RightHandSide[0] = LocalMatrix[0][3];
+//	RightHandSide[1] = LocalMatrix[1][3];
+//	RightHandSide[2] = LocalMatrix[2][3];
+//	RightHandSide[3] = LocalMatrix[3][3];
+//
+//	// Solve the equation by inverting PerspectiveMatrix and multiplying
+//	// rightHandSide by the inverse.  (This is the easiest way, not
+//	// necessarily the best.)
+//	mat4 InversePerspectiveMatrix = inverse(PerspectiveMatrix);//   inverse(PerspectiveMatrix, inversePerspectiveMatrix);
+//	mat4 TransposedInversePerspectiveMatrix = transpose(InversePerspectiveMatrix);//   transposeMatrix4(inversePerspectiveMatrix, transposedInversePerspectiveMatrix);
+//
+//	Perspective = TransposedInversePerspectiveMatrix * RightHandSide;
+//	//  v4MulPointByMatrix(rightHandSide, transposedInversePerspectiveMatrix, perspectivePoint);
+//
+//	// Clear the perspective partition
+//	LocalMatrix[0][3] = LocalMatrix[1][3] = LocalMatrix[2][3] = static_cast<f32>(0);
+//	LocalMatrix[3][3] = static_cast<f32>(1);
+//}
+//else
+//{
+//// No perspective.
+//Perspective = vec4(0, 0, 0, 1);
+//}
+//
+//// Next take care of translation (easy).
+//Translation = vec3(LocalMatrix[3]);
+//LocalMatrix[3] = vec4(0, 0, 0, LocalMatrix[3].w);
+//
+//vec3 Row[3], Pdum3;
+//
+//// Now get scale and shear.
+//for(std::size_t i = 0; i < 3; ++i)
+//for(std::size_t j = 0; j < 3; ++j)
+//Row[i][j] = LocalMatrix[i][j];
+//
+//// Compute X scale factor and normalize first row.
+//Scale.x = length(Row[0]);// v3Length(Row[0]);
+//
+//Row[0] = detail::scale(Row[0], static_cast<f32>(1));
+//
+//// Compute XY shear factor and make 2nd row orthogonal to 1st.
+//Skew.z = dot(Row[0], Row[1]);
+//Row[1] = detail::combine(Row[1], Row[0], static_cast<f32>(1), -Skew.z);
+//
+//// Now, compute Y scale and normalize 2nd row.
+//Scale.y = length(Row[1]);
+//Row[1] = detail::scale(Row[1], static_cast<f32>(1));
+//Skew.z /= Scale.y;
+//
+//// Compute XZ and YZ shears, orthogonalize 3rd row.
+//Skew.y = glm::dot(Row[0], Row[2]);
+//Row[2] = detail::combine(Row[2], Row[0], static_cast<f32>(1), -Skew.y);
+//Skew.x = glm::dot(Row[1], Row[2]);
+//Row[2] = detail::combine(Row[2], Row[1], static_cast<f32>(1), -Skew.x);
+//
+//// Next, get Z scale and normalize 3rd row.
+//Scale.z = length(Row[2]);
+//Row[2] = detail::scale(Row[2], static_cast<f32>(1));
+//Skew.y /= Scale.z;
+//Skew.x /= Scale.z;
+//
+//// At this point, the matrix (in rows[]) is orthonormal.
+//// Check for a coordinate system flip.  If the determinant
+//// is -1, then negate the matrix and the scaling factors.
+//Pdum3 = cross(Row[1], Row[2]); // v3Cross(row[1], row[2], Pdum3);
+//if(dot(Row[0], Pdum3) < 0)
+//{
+//for(std::size_t i = 0; i < 3; i++)
+//{
+//Scale[i] *= static_cast<f32>(-1);
+//Row[i] *= static_cast<f32>(-1);
+//}
+//}
+//
+//// Now, get the rotations out, as described in the gem.
+//
+//// FIXME - Add the ability to return either quaternions (which are
+//// easier to recompose with) or Euler angles (rx, ry, rz), which
+//// are easier for authors to deal with. The latter will only be useful
+//// when we fix https://bugs.webkit.org/show_bug.cgi?id=23799, so I
+//// will leave the Euler angle code here for now.
+//
+//// ret.rotateY = asin(-Row[0][2]);
+//// if (cos(ret.rotateY) != 0) {
+////     ret.rotateX = atan2(Row[1][2], Row[2][2]);
+////     ret.rotateZ = atan2(Row[0][1], Row[0][0]);
+//// } else {
+////     ret.rotateX = atan2(-Row[2][0], Row[1][1]);
+////     ret.rotateZ = 0;
+//// }
+//
+//int i, j, k = 0;
+//	f32 root, trace = Row[0].x + Row[1].y + Row[2].z;
+//if(trace > static_cast<f32>(0))
+//{
+//root = sqrt(trace + static_cast<f32>(1.0));
+//Orientation.w = static_cast<f32>(0.5) * root;
+//root = static_cast<f32>(0.5) / root;
+//Orientation.x = root * (Row[1].z - Row[2].y);
+//Orientation.y = root * (Row[2].x - Row[0].z);
+//Orientation.z = root * (Row[0].y - Row[1].x);
+//} // End if > 0
+//else
+//{
+//static int Next[3] = {1, 2, 0};
+//i = 0;
+//if(Row[1].y > Row[0].x) i = 1;
+//if(Row[2].z > Row[i][i]) i = 2;
+//j = Next[i];
+//k = Next[j];
+//
+//root = sqrt(Row[i][i] - Row[j][j] - Row[k][k] + static_cast<f32>(1.0));
+//
+//Orientation[i] = static_cast<f32>(0.5) * root;
+//root = static_cast<f32>(0.5) / root;
+//Orientation[j] = root * (Row[i][j] + Row[j][i]);
+//Orientation[k] = root * (Row[i][k] + Row[k][i]);
+//Orientation.w = root * (Row[j][k] - Row[k][j]);
+//} // End if <= 0
+//
+//return true;
+//}
 }
 	
