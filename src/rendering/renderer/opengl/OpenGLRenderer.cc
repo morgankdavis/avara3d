@@ -2784,8 +2784,8 @@ void DrawStatsOverlay(FrameStats& stats,
 //			"{:<{}} {:.1f}ms\n",
 //			"frame", RT_TEXT_PADDING, frameMsFAvg);
 	auto frameTimeStr = std::format(
-			"{}{:11.1f}ms\n",
-			"rate", frameMsFAvg);
+			"{}{:10.1f}ms\n",
+			"frame", frameMsFAvg);
 	yPos += 48;
 	DigDrawText(xPos, yPos, frameTimeStr.c_str(), 1, 0.0, 0.0, ++id);
 	yPos += PLOT_Y_PAD;
