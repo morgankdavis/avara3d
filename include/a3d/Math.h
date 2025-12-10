@@ -459,12 +459,12 @@ namespace a3d::math {
 	# define M_SQRT1_2	0.70710678118654752440	// 1/sqrt(2)
 */
 
-	bool decompose(const mat4& ModelMatrix,
-				   vec3 Scale,
-				   quat& Orientation,
-				   vec3& Translation,
-				   vec3& Skew,
-				   vec4& Perspective);
+	bool decompose(const mat4& modelMatrix,
+				   vec3 scale,
+				   quat& orientation,
+				   vec3& translation,
+				   vec3& skew,
+				   vec4& perspective);
 }
 
 #endif //AVARA3D_MATH_H

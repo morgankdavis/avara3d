@@ -1489,163 +1489,166 @@ namespace a3d::math {
 		}
 	}
 
-	bool decompose(const mat4& ModelMatrix,
-				   vec3 Scale,
-				   quat& Orientation,
-				   vec3& Translation,
-				   vec3& Skew,
-				   vec4& Perspective) {
+	bool decompose(const mat4& modelMatrix,
+				   vec3 scale,
+				   quat& orientation,
+				   vec3& translation,
+				   vec3& skew,
+				   vec4& perspective) {
 
-		mat4 LocalMatrix(ModelMatrix);
+		mat4 localMatrix(modelMatrix);
 
 		// Normalize the matrix.
-		if(decomposedetail::epsilonEqual(LocalMatrix[3][3], static_cast<f32>(0), decomposedetail::epsilon()))
+		if(decomposedetail::epsilonEqual(localMatrix[3][3],
+										 static_cast<f32>(0),
+										 decomposedetail::epsilon()))
 			return false;
 
 		for(std::size_t i = 0; i < 4; ++i)
 			for(std::size_t j = 0; j < 4; ++j)
-				LocalMatrix[i][j] /= LocalMatrix[3][3];
+				localMatrix[i][j] /= localMatrix[3][3];
 
 		// perspectiveMatrix is used to solve for perspective, but it also provides
 		// an easy way to test for singularity of the upper 3x3 component.
-		mat4 PerspectiveMatrix(LocalMatrix);
+		mat4 perspectiveMatrix(localMatrix);
 
 		for(std::size_t i = 0; i < 3; i++)
-			PerspectiveMatrix[i][3] = static_cast<f32>(0);
-		PerspectiveMatrix[3][3] = static_cast<f32>(1);
+			perspectiveMatrix[i][3] = static_cast<f32>(0);
+		perspectiveMatrix[3][3] = static_cast<f32>(1);
 
 		// TODO: Fixme!
-		if(decomposedetail::epsilonEqual(determinant(PerspectiveMatrix), static_cast<f32>(0), decomposedetail::epsilon()))
+		if(decomposedetail::epsilonEqual(determinant(perspectiveMatrix),
+										 static_cast<f32>(0),
+										 decomposedetail::epsilon()))
 			return false;
 
 		// First, isolate perspective.  This is the messiest.
-		if(
-				decomposedetail::epsilonNotEqual(LocalMatrix[0][3], static_cast<f32>(0), decomposedetail::epsilon()) ||
-				decomposedetail::epsilonNotEqual(LocalMatrix[1][3], static_cast<f32>(0), decomposedetail::epsilon()) ||
-				decomposedetail::epsilonNotEqual(LocalMatrix[2][3], static_cast<f32>(0), decomposedetail::epsilon()))
-		{
+		if(decomposedetail::epsilonNotEqual(localMatrix[0][3],
+											static_cast<f32>(0),
+											decomposedetail::epsilon()) ||
+		   decomposedetail::epsilonNotEqual(localMatrix[1][3],
+											static_cast<f32>(0),
+											decomposedetail::epsilon()) ||
+		   decomposedetail::epsilonNotEqual(localMatrix[2][3],
+											static_cast<f32>(0),
+											decomposedetail::epsilon())) {
 			// rightHandSide is the right hand side of the equation.
-			vec4 RightHandSide;
-			RightHandSide[0] = LocalMatrix[0][3];
-			RightHandSide[1] = LocalMatrix[1][3];
-			RightHandSide[2] = LocalMatrix[2][3];
-			RightHandSide[3] = LocalMatrix[3][3];
+			vec4 rightHandSide;
+			rightHandSide[0] = localMatrix[0][3];
+			rightHandSide[1] = localMatrix[1][3];
+			rightHandSide[2] = localMatrix[2][3];
+			rightHandSide[3] = localMatrix[3][3];
 
 			// Solve the equation by inverting PerspectiveMatrix and multiplying
 			// rightHandSide by the inverse.  (This is the easiest way, not
 			// necessarily the best.)
-			mat4 InversePerspectiveMatrix = inverse(PerspectiveMatrix);//   inverse(PerspectiveMatrix, inversePerspectiveMatrix);
-			mat4 TransposedInversePerspectiveMatrix = transpose(InversePerspectiveMatrix);//   transposeMatrix4(inversePerspectiveMatrix, transposedInversePerspectiveMatrix);
+			mat4 inversePerspectiveMatrix = inverse(perspectiveMatrix);//   inverse(PerspectiveMatrix, inversePerspectiveMatrix);
+			mat4 transposedInversePerspectiveMatrix = transpose(inversePerspectiveMatrix);//   transposeMatrix4(inversePerspectiveMatrix, transposedInversePerspectiveMatrix);
 
-			Perspective = TransposedInversePerspectiveMatrix * RightHandSide;
+			perspective = transposedInversePerspectiveMatrix * rightHandSide;
 			//  v4MulPointByMatrix(rightHandSide, transposedInversePerspectiveMatrix, perspectivePoint);
 
 			// Clear the perspective partition
-			LocalMatrix[0][3] = LocalMatrix[1][3] = LocalMatrix[2][3] = static_cast<f32>(0);
-			LocalMatrix[3][3] = static_cast<f32>(1);
+			localMatrix[0][3] = localMatrix[1][3] = localMatrix[2][3] = static_cast<f32>(0);
+			localMatrix[3][3] = static_cast<f32>(1);
 		}
-		else
-		{
-// No perspective.
-			Perspective = vec4(0, 0, 0, 1);
+		else {
+		// No perspective.
+			perspective = vec4(0, 0, 0, 1);
 		}
 
-// Next take care of translation (easy).
-		Translation = vec3(LocalMatrix[3]);
-		LocalMatrix[3] = vec4(0, 0, 0, LocalMatrix[3].w);
+		// Next take care of translation (easy).
+		translation = vec3(localMatrix[3]);
+		localMatrix[3] = vec4(0, 0, 0, localMatrix[3].w);
 
-		vec3 Row[3], Pdum3;
+		vec3 row[3], pdum3;
 
-// Now get scale and shear.
+		// Now get scale and shear.
 		for(std::size_t i = 0; i < 3; ++i)
 			for(std::size_t j = 0; j < 3; ++j)
-				Row[i][j] = LocalMatrix[i][j];
+				row[i][j] = localMatrix[i][j];
 
-// Compute X scale factor and normalize first row.
-		Scale.x = length(Row[0]);// v3Length(Row[0]);
+		// Compute X scale factor and normalize first row.
+		scale.x = length(row[0]);// v3Length(Row[0]);
 
-		Row[0] = decomposedetail::scale(Row[0], static_cast<f32>(1));
+		row[0] = decomposedetail::scale(row[0], static_cast<f32>(1));
 
-// Compute XY shear factor and make 2nd row orthogonal to 1st.
-		Skew.z = dot(Row[0], Row[1]);
-		Row[1] = decomposedetail::combine(Row[1], Row[0], static_cast<f32>(1), -Skew.z);
+		// Compute XY shear factor and make 2nd row orthogonal to 1st.
+		skew.z = dot(row[0], row[1]);
+		row[1] = decomposedetail::combine(row[1], row[0], static_cast<f32>(1), -skew.z);
 
-// Now, compute Y scale and normalize 2nd row.
-		Scale.y = length(Row[1]);
-		Row[1] = decomposedetail::scale(Row[1], static_cast<f32>(1));
-		Skew.z /= Scale.y;
+		// Now, compute Y scale and normalize 2nd row.
+		scale.y = length(row[1]);
+		row[1] = decomposedetail::scale(row[1], static_cast<f32>(1));
+		skew.z /= scale.y;
 
-// Compute XZ and YZ shears, orthogonalize 3rd row.
-		Skew.y = dot(Row[0], Row[2]);
-		Row[2] = decomposedetail::combine(Row[2], Row[0], static_cast<f32>(1), -Skew.y);
-		Skew.x = dot(Row[1], Row[2]);
-		Row[2] = decomposedetail::combine(Row[2], Row[1], static_cast<f32>(1), -Skew.x);
+		// Compute XZ and YZ shears, orthogonalize 3rd row.
+		skew.y = dot(row[0], row[2]);
+		row[2] = decomposedetail::combine(row[2], row[0], static_cast<f32>(1), -skew.y);
+		skew.x = dot(row[1], row[2]);
+		row[2] = decomposedetail::combine(row[2], row[1], static_cast<f32>(1), -skew.x);
 
-// Next, get Z scale and normalize 3rd row.
-		Scale.z = length(Row[2]);
-		Row[2] = decomposedetail::scale(Row[2], static_cast<f32>(1));
-		Skew.y /= Scale.z;
-		Skew.x /= Scale.z;
+		// Next, get Z scale and normalize 3rd row.
+		scale.z = length(row[2]);
+		row[2] = decomposedetail::scale(row[2], static_cast<f32>(1));
+		skew.y /= scale.z;
+		skew.x /= scale.z;
 
-// At this point, the matrix (in rows[]) is orthonormal.
-// Check for a coordinate system flip.  If the determinant
-// is -1, then negate the matrix and the scaling factors.
-		Pdum3 = cross(Row[1], Row[2]); // v3Cross(row[1], row[2], Pdum3);
-		if(dot(Row[0], Pdum3) < 0)
-		{
-			for(std::size_t i = 0; i < 3; i++)
-			{
-				Scale[i] *= static_cast<f32>(-1);
-				Row[i] *= static_cast<f32>(-1);
+		// At this point, the matrix (in rows[]) is orthonormal.
+		// Check for a coordinate system flip.  If the determinant
+		// is -1, then negate the matrix and the scaling factors.
+		pdum3 = cross(row[1], row[2]); // v3Cross(row[1], row[2], Pdum3);
+		if(dot(row[0], pdum3) < 0) {
+			for(std::size_t i = 0; i < 3; i++) {
+				scale[i] *= static_cast<f32>(-1);
+				row[i] *= static_cast<f32>(-1);
 			}
 		}
 
-// Now, get the rotations out, as described in the gem.
+		// Now, get the rotations out, as described in the gem.
 
-// FIXME - Add the ability to return either quaternions (which are
-// easier to recompose with) or Euler angles (rx, ry, rz), which
-// are easier for authors to deal with. The latter will only be useful
-// when we fix https://bugs.webkit.org/show_bug.cgi?id=23799, so I
-// will leave the Euler angle code here for now.
+		// FIXME - Add the ability to return either quaternions (which are
+		// easier to recompose with) or Euler angles (rx, ry, rz), which
+		// are easier for authors to deal with. The latter will only be useful
+		// when we fix https://bugs.webkit.org/show_bug.cgi?id=23799, so I
+		// will leave the Euler angle code here for now.
 
-// ret.rotateY = asin(-Row[0][2]);
-// if (cos(ret.rotateY) != 0) {
-//     ret.rotateX = atan2(Row[1][2], Row[2][2]);
-//     ret.rotateZ = atan2(Row[0][1], Row[0][0]);
-// } else {
-//     ret.rotateX = atan2(-Row[2][0], Row[1][1]);
-//     ret.rotateZ = 0;
-// }
+		// ret.rotateY = asin(-Row[0][2]);
+		// if (cos(ret.rotateY) != 0) {
+		//     ret.rotateX = atan2(Row[1][2], Row[2][2]);
+		//     ret.rotateZ = atan2(Row[0][1], Row[0][0]);
+		// } else {
+		//     ret.rotateX = atan2(-Row[2][0], Row[1][1]);
+		//     ret.rotateZ = 0;
+		// }
 
-int i, j, k = 0;
-	f32 root, trace = Row[0].x + Row[1].y + Row[2].z;
-if(trace > static_cast<f32>(0))
-{
-root = sqrt(trace + static_cast<f32>(1.0));
-Orientation.w = static_cast<f32>(0.5) * root;
-root = static_cast<f32>(0.5) / root;
-Orientation.x = root * (Row[1].z - Row[2].y);
-Orientation.y = root * (Row[2].x - Row[0].z);
-Orientation.z = root * (Row[0].y - Row[1].x);
-} // End if > 0
-else
-{
-static int Next[3] = {1, 2, 0};
-i = 0;
-if(Row[1].y > Row[0].x) i = 1;
-if(Row[2].z > Row[i][i]) i = 2;
-j = Next[i];
-k = Next[j];
+		int i, j, k = 0;
+		f32 root, trace = row[0].x + row[1].y + row[2].z;
+		if(trace > static_cast<f32>(0)) {
+			root = sqrt(trace + static_cast<f32>(1.0));
+			orientation.w = static_cast<f32>(0.5) * root;
+			root = static_cast<f32>(0.5) / root;
+			orientation.x = root * (row[1].z - row[2].y);
+			orientation.y = root * (row[2].x - row[0].z);
+			orientation.z = root * (row[0].y - row[1].x);
+		} // End if > 0
+		else {
+			static int next[3] = {1, 2, 0};
+			i = 0;
+			if(row[1].y > row[0].x) i = 1;
+			if(row[2].z > row[i][i]) i = 2;
+			j = next[i];
+			k = next[j];
 
-root = sqrt(Row[i][i] - Row[j][j] - Row[k][k] + static_cast<f32>(1.0));
+			root = sqrt(row[i][i] - row[j][j] - row[k][k] + static_cast<f32>(1.0));
 
-Orientation[i] = static_cast<f32>(0.5) * root;
-root = static_cast<f32>(0.5) / root;
-Orientation[j] = root * (Row[i][j] + Row[j][i]);
-Orientation[k] = root * (Row[i][k] + Row[k][i]);
-Orientation.w = root * (Row[j][k] - Row[k][j]);
-} // End if <= 0
+			orientation[i] = static_cast<f32>(0.5) * root;
+			root = static_cast<f32>(0.5) / root;
+			orientation[j] = root * (row[i][j] + row[j][i]);
+			orientation[k] = root * (row[i][k] + row[k][i]);
+			orientation.w = root * (row[j][k] - row[k][j]);
+		} // End if <= 0
 
-return true;
-}
+		return true;
+	}
 }
