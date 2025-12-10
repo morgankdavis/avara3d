@@ -2455,7 +2455,7 @@ void DigUpdateGlobalFontScale(const RenderContext& context) {
 	// this is probably going to need more attention when we start
 	// using Imgui for more than just rendering text
 	//GetStyle().ScaleAllSizes(scale);
-	GetIO().FontGlobalScale = scale;
+	ImGui::GetIO().FontGlobalScale = scale;
 #endif
 }
 
