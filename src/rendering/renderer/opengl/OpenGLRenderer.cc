@@ -145,6 +145,15 @@ typedef struct {
 	alignas(16) FogGLSLStruct				fog;
 } EnvironmentBlock;
 
+//struct GpuTimer {
+//	static const int MAX_FRAMES = 4;
+//	GLuint queries[MAX_FRAMES]{};
+//	int writeIndex = 0;
+//	int readIndex = 1;
+//	double lastMs = 0.0;
+//};
+//GpuTimer g_timer;
+
 /// Private Static Non-Member Prototypes ///
 
 static void 		RenderSkybox(Mesh& skyboxMesh,
@@ -394,12 +403,25 @@ void OpenGLRenderer::beginFrame(const Scene& scene,
 								FrameStats& stats,
 								Profiler& profiler) {
 
+
+//	GLuint available = GL_FALSE;
+//	glGetQueryObjectuiv(g_timer.queries[g_timer.readIndex], GL_QUERY_RESULT_AVAILABLE, &available);
+//	if (available) {
+//		GLuint64 ns = 0;
+//		glGetQueryObjectui64v(g_timer.queries[g_timer.readIndex], GL_QUERY_RESULT, &ns);
+//		g_timer.lastMs = ns / 1e6;
+//		g_timer.readIndex = (g_timer.readIndex + 1) % GpuTimer::MAX_FRAMES;
+//
+//		auto gpuTimeNs = std::chrono::nanoseconds{
+//				static_cast<std::chrono::nanoseconds::rep>(ns)
+//		};
+//		profiler.add(Profiler::Tag::RenderGpu, gpuTimeNs);
+//	}
+
+
 	if (g_gpuTimeQuery> 0) {
-		// Frame N+1: read back result when it’s ready
 		GLuint64 ns = 0;
 		glGetQueryObjectui64v(g_gpuTimeQuery, GL_QUERY_RESULT, &ns);
-//		double ms = ns / 1e6;
-
 		auto gpuTimeNs = std::chrono::nanoseconds{
 				static_cast<std::chrono::nanoseconds::rep>(ns)
 		};
@@ -408,6 +430,8 @@ void OpenGLRenderer::beginFrame(const Scene& scene,
 
 	glGenQueries(1, &g_gpuTimeQuery);
 	glBeginQuery(GL_TIME_ELAPSED, g_gpuTimeQuery);
+
+//	glBeginQuery(GL_TIME_ELAPSED, g_timer.queries[g_timer.writeIndex]);
 
 	_activeMeshElements.clear();
 	_activeTextures.clear();
@@ -444,6 +468,9 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 	A3D_GL_CHECK();
 
 	glEndQuery(GL_TIME_ELAPSED);
+
+//	glEndQuery(GL_TIME_ELAPSED);//, g_timer.queries[g_timer.writeIndex]);
+//	g_timer.writeIndex = (g_timer.writeIndex + 1) % GpuTimer::MAX_FRAMES;
 }
 
 void OpenGLRenderer::preTraversal(const Scene& scene,
@@ -2753,9 +2780,12 @@ void DrawStatsOverlay(FrameStats& stats,
 	static const float PLOT_Y_MAX = 17.0;
 	static const int RT_TEXT_PADDING = TEXT_PADDING - 3;
 
+//	auto frameTimeStr = std::format(
+//			"{:<{}} {:.1f}ms\n",
+//			"frame", RT_TEXT_PADDING, frameMsFAvg);
 	auto frameTimeStr = std::format(
-			"{:<{}} {:.1f}ms\n",
-			"frame", RT_TEXT_PADDING, frameMsFAvg);
+			"{}{:11.1f}ms\n",
+			"rate", frameMsFAvg);
 	yPos += 48;
 	DigDrawText(xPos, yPos, frameTimeStr.c_str(), 1, 0.0, 0.0, ++id);
 	yPos += PLOT_Y_PAD;
@@ -2871,6 +2901,15 @@ void DrawStatsOverlay(FrameStats& stats,
 								   (numFrames == 1 ? "frame" : "frames"));
 	}
 
+//	auto rateStr = std::format(
+//			"{:<{}} {:.1f}fps\n",
+//			"rate", RT_TEXT_PADDING, fpsAvg);
+	auto rateStr = std::format(
+			"{}{:10.1f}fps\n",
+			"rate", fpsAvg);
+	yPos += 36;
+	DigDrawText(xPos, yPos, rateStr.c_str(), 1, 0.0, 0.0, ++id);
+
 	auto bulkStatsStr = std::format(
 	/*		"{:<{}} ({}, {})\n" \
             "{:<{}} {}\n" \
@@ -2903,7 +2942,7 @@ void DrawStatsOverlay(FrameStats& stats,
 			"nodes", TEXT_PADDING, stats.numNodes,
 			"meshes", TEXT_PADDING, stats.numMeshes,
 			"elements", TEXT_PADDING, stats.numElements,
-			"polygons", TEXT_PADDING, float(stats.numPolygons) / 1000.0f,//(int)round(float(stats.polygons)/1000.0f),
+			"polygons", TEXT_PADDING, float(stats.numPolygons) / 1000.0f,
 			"lights", TEXT_PADDING, stats.numLights,
 
 			"phys bodies", TEXT_PADDING, stats.numDynamicBodies + stats.numKinematicBodies + stats.numStaticBodies,
@@ -2920,7 +2959,7 @@ void DrawStatsOverlay(FrameStats& stats,
 			//"camera orientation", TEXT_PADDING, stats.cameraOrientation.x, stats.cameraOrientation.y, stats.cameraOrientation.z, stats.cameraOrientation.w,
 			recordingStr);
 
-	yPos += 40;
+	yPos += 36;
 	DigDrawText(xPos, yPos, bulkStatsStr.c_str(), 1, 0.0, 0.0, ++id);
 
 //	{
