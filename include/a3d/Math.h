@@ -136,12 +136,12 @@ namespace a3d::math {
 
 	vec3 cross(const vec3& a, const vec3& b);
 
-	inline f32* value_ptr(vec2& v)       { return &v.x; }
-	inline const f32* value_ptr(const vec2& v) { return &v.x; }
-	inline f32* value_ptr(vec3& v)       { return &v.x; }
-	inline const f32* value_ptr(const vec3& v) { return &v.x; }
-	inline f32* value_ptr(vec4& v)       { return &v.x; }
-	inline const f32* value_ptr(const vec4& v) { return &v.x; }
+	f32* value_ptr(vec2& v);
+	const f32* value_ptr(const vec2& v);
+	f32* value_ptr(vec3& v);
+	const f32* value_ptr(const vec3& v);
+	f32* value_ptr(vec4& v);
+	const f32* value_ptr(const vec4& v);
 
 	/// Integer Vector Operations ///
 
@@ -168,29 +168,29 @@ namespace a3d::math {
 	i32 dot(const ivec3& a, const ivec3& b);
 	i32 dot(const ivec4& a, const ivec4& b);
 
-	inline i32* value_ptr(ivec2& v)             { return &v.x; }
-	inline const i32* value_ptr(const ivec2& v) { return &v.x; }
-	inline i32* value_ptr(ivec3& v)             { return &v.x; }
-	inline const i32* value_ptr(const ivec3& v) { return &v.x; }
-	inline i32* value_ptr(ivec4& v)             { return &v.x; }
-	inline const i32* value_ptr(const ivec4& v) { return &v.x; }
+	i32* value_ptr(ivec2& v);
+	const i32* value_ptr(const ivec2& v);
+	i32* value_ptr(ivec3& v);
+	const i32* value_ptr(const ivec3& v);
+	i32* value_ptr(ivec4& v) ;
+	const i32* value_ptr(const ivec4& v);
 
 	/// Matrix Operations ///
 
-	inline mat2 identity2() { return mat2(1.0f); }
-	inline mat3 identity3() { return mat3(1.0f); }
-	inline mat4 identity4() { return mat4(1.0f); }
+	mat2 identity2();
+	mat3 identity3();
+	mat4 identity4();
 
-	inline mat2 zero2() { return mat2(0.0f); }
-	inline mat3 zero3() { return mat3(0.0f); }
-	inline mat4 zero4() { return mat4(0.0f); }
+	mat2 zero2();
+	mat3 zero3();
+	mat4 zero4();
 
-	inline f32* value_ptr(mat2& m)       { return &m.c0.x; }
-	inline const f32* value_ptr(const mat2& m) { return &m.c0.x; }
-	inline f32* value_ptr(mat3& m)       { return &m.c0.x; }
-	inline const f32* value_ptr(const mat3& m) { return &m.c0.x; }
-	inline f32* value_ptr(mat4& m)       { return &m.c0.x; }
-	inline const f32* value_ptr(const mat4& m) { return &m.c0.x; }
+	f32* value_ptr(mat2& m);
+	const f32* value_ptr(const mat2& m);
+	f32* value_ptr(mat3& m);
+	const f32* value_ptr(const mat3& m);
+	f32* value_ptr(mat4& m);
+	const f32* value_ptr(const mat4& m);
 
 	vec2 operator*(const mat2& m, const vec2& v);
 	vec3 operator*(const mat3& m, const vec3& v);
@@ -225,9 +225,9 @@ namespace a3d::math {
 	quat operator*(f32 s, const quat& q);
 
 	vec3 rotate(const quat& q, const vec3& v);
-	inline vec3 operator*(const quat& q, const vec3& v) { return rotate(q, v); }
+	vec3 operator*(const quat& q, const vec3& v);
 
-	quat angle_axis(f32 angle_radians, const vec3& axis);
+	quat angle_axis(f32 angle, const vec3& axis);
 
 	quat slerp(const quat& a, const quat& b, f32 t);
 
@@ -269,13 +269,15 @@ namespace a3d::math {
 	f32	clamp(f32 val, f32 low, f32 high);
 	void swap(f32& a, f32& b);
 
+
+
+
+
+
+
 	// genTypeT mix(genTypeT x, genTypeT y, genTypeU a);
 	// vec<L, T, Q> mix(vec<L, T, Q> const& x, vec<L, T, Q> const& y, vec<L, U, Q> const& a);
 	// vec<L, T, Q> mix(vec<L, T, Q> const& x, vec<L, T, Q> const& y, U a);
-
-
-
-
 
 
 
