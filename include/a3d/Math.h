@@ -155,215 +155,273 @@ namespace a3d::math {
 		f32 w, x, y, z;
 		quat() = default;
 		quat(f32 w_, f32 x_, f32 y_, f32 z_);
+		f32& operator[](std::size_t i);
+		const f32& operator[](std::size_t i) const;
 	};
 
 	/// Float Vector Operations ///
 
-	vec2 operator+(const vec2& a, const vec2& b);
-	vec3 operator+(const vec3& a, const vec3& b);
-	vec4 operator+(const vec4& a, const vec4& b);
+	vec2 		operator+(const vec2& a, const vec2& b);
+	vec3 		operator+(const vec3& a, const vec3& b);
+	vec4 		operator+(const vec4& a, const vec4& b);
 
-	vec2 operator-(const vec2& a, const vec2& b);
-	vec3 operator-(const vec3& a, const vec3& b);
-	vec4 operator-(const vec4& a, const vec4& b);
+	vec2 		operator-(const vec2& a, const vec2& b);
+	vec3 		operator-(const vec3& a, const vec3& b);
+	vec4 		operator-(const vec4& a, const vec4& b);
 
-	vec2 operator*(const vec2& v, f32 s);
-	vec3 operator*(const vec3& v, f32 s);
-	vec4 operator*(const vec4& v, f32 s);
-	vec2 operator*(f32 s, const vec2& v);
-	vec3 operator*(f32 s, const vec3& v);
-	vec4 operator*(f32 s, const vec4& v);
+	vec2 		operator*(const vec2& v, f32 s);
+	vec3 		operator*(const vec3& v, f32 s);
+	vec4 		operator*(const vec4& v, f32 s);
+	vec2 		operator*(f32 s, const vec2& v);
+	vec3 		operator*(f32 s, const vec3& v);
+	vec4 		operator*(f32 s, const vec4& v);
 
-	vec2 operator/(const vec2& v, f32 s);
-	vec3 operator/(const vec3& v, f32 s);
-	vec4 operator/(const vec4& v, f32 s);
+	vec2 		operator/(const vec2& v, f32 s);
+	vec3 		operator/(const vec3& v, f32 s);
+	vec4 		operator/(const vec4& v, f32 s);
 
-	f32 dot(const vec2& a, const vec2& b);
-	f32 dot(const vec3& a, const vec3& b);
-	f32 dot(const vec4& a, const vec4& b);
+	vec2& 		operator+=(vec2& a, const vec2& b);
+	vec3& 		operator+=(vec3& a, const vec3& b);
+	vec4& 		operator+=(vec4& a, const vec4& b);
 
-	f32 length(const vec2& v);
-	f32 length(const vec3& v);
-	f32 length(const vec4& v);
+	vec2& 		operator-=(vec2& a, const vec2& b);
+	vec3& 		operator-=(vec3& a, const vec3& b);
+	vec4& 		operator-=(vec4& a, const vec4& b);
 
-	vec2 normalize(const vec2& v);
-	vec3 normalize(const vec3& v);
-	vec4 normalize(const vec4& v);
+	vec2& 		operator*=(vec2& v, f32 s);
+	vec3& 		operator*=(vec3& v, f32 s);
+	vec4& 		operator*=(vec4& v, f32 s);
 
-	vec3 cross(const vec3& a, const vec3& b);
+	vec2& 		operator/=(vec2& v, f32 s);
+	vec3& 		operator/=(vec3& v, f32 s);
+	vec4& 		operator/=(vec4& v, f32 s);
 
-	f32* value_ptr(vec2& v);
-	const f32* value_ptr(const vec2& v);
-	f32* value_ptr(vec3& v);
-	const f32* value_ptr(const vec3& v);
-	f32* value_ptr(vec4& v);
-	const f32* value_ptr(const vec4& v);
+	f32 		dot(const vec2& a, const vec2& b);
+	f32 		dot(const vec3& a, const vec3& b);
+	f32 		dot(const vec4& a, const vec4& b);
+
+	f32 		length(const vec2& v);
+	f32 		length(const vec3& v);
+	f32 		length(const vec4& v);
+
+	vec2		normalize(const vec2& v);
+	vec3 		normalize(const vec3& v);
+	vec4	 	normalize(const vec4& v);
+
+	vec3 		cross(const vec3& a, const vec3& b);
+
+	f32* 		value_ptr(vec2& v);
+	const f32* 	value_ptr(const vec2& v);
+	f32* 		value_ptr(vec3& v);
+	const f32* 	value_ptr(const vec3& v);
+	f32* 		value_ptr(vec4& v);
+	const f32* 	value_ptr(const vec4& v);
 
 	/// Signed Integer Vector Operations ///
 
-	ivec2 operator+(const ivec2& a, const ivec2& b);
-	ivec3 operator+(const ivec3& a, const ivec3& b);
-	ivec4 operator+(const ivec4& a, const ivec4& b);
+	ivec2 		operator+(const ivec2& a, const ivec2& b);
+	ivec3 		operator+(const ivec3& a, const ivec3& b);
+	ivec4 		operator+(const ivec4& a, const ivec4& b);
 
-	ivec2 operator-(const ivec2& a, const ivec2& b);
-	ivec3 operator-(const ivec3& a, const ivec3& b);
-	ivec4 operator-(const ivec4& a, const ivec4& b);
+	ivec2 		operator-(const ivec2& a, const ivec2& b);
+	ivec3	 	operator-(const ivec3& a, const ivec3& b);
+	ivec4 		operator-(const ivec4& a, const ivec4& b);
 
-	ivec2 operator*(const ivec2& v, i32 s);
-	ivec3 operator*(const ivec3& v, i32 s);
-	ivec4 operator*(const ivec4& v, i32 s);
-	ivec2 operator*(i32 s, const ivec2& v);
-	ivec3 operator*(i32 s, const ivec3& v);
-	ivec4 operator*(i32 s, const ivec4& v);
+	ivec2 		operator*(const ivec2& v, i32 s);
+	ivec3 		operator*(const ivec3& v, i32 s);
+	ivec4 		operator*(const ivec4& v, i32 s);
+	ivec2 		operator*(i32 s, const ivec2& v);
+	ivec3 		operator*(i32 s, const ivec3& v);
+	ivec4 		operator*(i32 s, const ivec4& v);
 
-	ivec2 operator/(const ivec2& v, i32 s);
-	ivec3 operator/(const ivec3& v, i32 s);
-	ivec4 operator/(const ivec4& v, i32 s);
+	ivec2 		operator/(const ivec2& v, i32 s);
+	ivec3		operator/(const ivec3& v, i32 s);
+	ivec4 		operator/(const ivec4& v, i32 s);
 
-	i32 dot(const ivec2& a, const ivec2& b);
-	i32 dot(const ivec3& a, const ivec3& b);
-	i32 dot(const ivec4& a, const ivec4& b);
+	ivec2& 		operator+=(ivec2& a, const ivec2& b);
+	ivec3& 		operator+=(ivec3& a, const ivec3& b);
+	ivec4& 		operator+=(ivec4& a, const ivec4& b);
 
-	i32* value_ptr(ivec2& v);
-	const i32* value_ptr(const ivec2& v);
-	i32* value_ptr(ivec3& v);
-	const i32* value_ptr(const ivec3& v);
-	i32* value_ptr(ivec4& v) ;
-	const i32* value_ptr(const ivec4& v);
+	ivec2& 		operator-=(ivec2& a, const ivec2& b);
+	ivec3& 		operator-=(ivec3& a, const ivec3& b);
+	ivec4& 		operator-=(ivec4& a, const ivec4& b);
+
+	ivec2& 		operator*=(ivec2& v, i32 s);
+	ivec3& 		operator*=(ivec3& v, i32 s);
+	ivec4& 		operator*=(ivec4& v, i32 s);
+
+	ivec2& 		operator/=(ivec2& v, i32 s);
+	ivec3& 		operator/=(ivec3& v, i32 s);
+	ivec4& 		operator/=(ivec4& v, i32 s);
+
+	i32 		dot(const ivec2& a, const ivec2& b);
+	i32 		dot(const ivec3& a, const ivec3& b);
+	i32 		dot(const ivec4& a, const ivec4& b);
+
+	i32* 		value_ptr(ivec2& v);
+	const i32* 	value_ptr(const ivec2& v);
+	i32* 		value_ptr(ivec3& v);
+	const i32* 	value_ptr(const ivec3& v);
+	i32* 		value_ptr(ivec4& v) ;
+	const i32* 	value_ptr(const ivec4& v);
 
 	/// Unsigned Integer Vector Operations ///
 
-	uvec2 operator+(const uvec2& a, const uvec2& b);
-	uvec3 operator+(const uvec3& a, const uvec3& b);
-	uvec4 operator+(const uvec4& a, const uvec4& b);
+	uvec2 		operator+(const uvec2& a, const uvec2& b);
+	uvec3 		operator+(const uvec3& a, const uvec3& b);
+	uvec4 		operator+(const uvec4& a, const uvec4& b);
 
-	uvec2 operator-(const uvec2& a, const uvec2& b);
-	uvec3 operator-(const uvec3& a, const uvec3& b);
-	uvec4 operator-(const uvec4& a, const uvec4& b);
+	uvec2 		operator-(const uvec2& a, const uvec2& b);
+	uvec3 		operator-(const uvec3& a, const uvec3& b);
+	uvec4 		operator-(const uvec4& a, const uvec4& b);
 
-	uvec2 operator*(const uvec2& v, u32 s);
-	uvec3 operator*(const uvec3& v, u32 s);
-	uvec4 operator*(const uvec4& v, u32 s);
-	uvec2 operator*(u32 s, const uvec2& v);
-	uvec3 operator*(u32 s, const uvec3& v);
-	uvec4 operator*(u32 s, const uvec4& v);
+	uvec2 		operator*(const uvec2& v, u32 s);
+	uvec3 		operator*(const uvec3& v, u32 s);
+	uvec4 		operator*(const uvec4& v, u32 s);
+	uvec2 		operator*(u32 s, const uvec2& v);
+	uvec3 		operator*(u32 s, const uvec3& v);
+	uvec4 		operator*(u32 s, const uvec4& v);
 
-	uvec2 operator/(const uvec2& v, u32 s);
-	uvec3 operator/(const uvec3& v, u32 s);
-	uvec4 operator/(const uvec4& v, u32 s);
+	uvec2 		operator/(const uvec2& v, u32 s);
+	uvec3 		operator/(const uvec3& v, u32 s);
+	uvec4 		operator/(const uvec4& v, u32 s);
 
-	u32 dot(const uvec2& a, const uvec2& b);
-	u32 dot(const uvec3& a, const uvec3& b);
-	u32 dot(const uvec4& a, const uvec4& b);
+	uvec2& 		operator+=(uvec2& a, const uvec2& b);
+	uvec3& 		operator+=(uvec3& a, const uvec3& b);
+	uvec4& 		operator+=(uvec4& a, const uvec4& b);
 
-	u32* value_ptr(uvec2& v);
-	const u32* value_ptr(const uvec2& v);
-	u32* value_ptr(uvec3& v);
-	const u32* value_ptr(const uvec3& v);
-	u32* value_ptr(uvec4& v) ;
-	const u32* value_ptr(const uvec4& v);
+	uvec2& 		operator-=(uvec2& a, const uvec2& b);
+	uvec3& 		operator-=(uvec3& a, const uvec3& b);
+	uvec4& 		operator-=(uvec4& a, const uvec4& b);
+
+	uvec2& 		operator*=(uvec2& v, u32 s);
+	uvec3& 		operator*=(uvec3& v, u32 s);
+	uvec4& 		operator*=(uvec4& v, u32 s);
+
+	uvec2& 		operator/=(uvec2& v, u32 s);
+	uvec3& 		operator/=(uvec3& v, u32 s);
+	uvec4& 		operator/=(uvec4& v, u32 s);
+
+	u32 		dot(const uvec2& a, const uvec2& b);
+	u32 		dot(const uvec3& a, const uvec3& b);
+	u32 		dot(const uvec4& a, const uvec4& b);
+
+	u32* 		value_ptr(uvec2& v);
+	const u32* 	value_ptr(const uvec2& v);
+	u32* 		value_ptr(uvec3& v);
+	const u32* 	value_ptr(const uvec3& v);
+	u32* 		value_ptr(uvec4& v) ;
+	const u32* 	value_ptr(const uvec4& v);
 
 	/// Matrix Operations ///
 
-	mat2 identity2();
-	mat3 identity3();
-	mat4 identity4();
+	mat2 		identity2();
+	mat3 		identity3();
+	mat4 		identity4();
 
-	mat2 zero2();
-	mat3 zero3();
-	mat4 zero4();
+	mat2 		zero2();
+	mat3 		zero3();
+	mat4 		zero4();
 
-	f32* value_ptr(mat2& m);
-	const f32* value_ptr(const mat2& m);
-	f32* value_ptr(mat3& m);
-	const f32* value_ptr(const mat3& m);
-	f32* value_ptr(mat4& m);
-	const f32* value_ptr(const mat4& m);
+	f32* 		value_ptr(mat2& m);
+	const f32* 	value_ptr(const mat2& m);
+	f32* 		value_ptr(mat3& m);
+	const f32* 	value_ptr(const mat3& m);
+	f32* 		value_ptr(mat4& m);
+	const f32* 	value_ptr(const mat4& m);
 
-	vec2 operator*(const mat2& m, const vec2& v);
-	vec3 operator*(const mat3& m, const vec3& v);
-	vec4 operator*(const mat4& m, const vec4& v);
+	vec2 		operator*(const mat2& m, const vec2& v);
+	vec3 		operator*(const mat3& m, const vec3& v);
+	vec4 		operator*(const mat4& m, const vec4& v);
 
-	mat2 operator*(const mat2& a, const mat2& b);
-	mat3 operator*(const mat3& a, const mat3& b);
-	mat4 operator*(const mat4& a, const mat4& b);
+	mat2 		operator*(const mat2& a, const mat2& b);
+	mat3 		operator*(const mat3& a, const mat3& b);
+	mat4 		operator*(const mat4& a, const mat4& b);
 
-	mat2 transpose(const mat2& m);
-	mat3 transpose(const mat3& m);
-	mat4 transpose(const mat4& m);
+	mat2& 		operator*=(mat2& a, const mat2& b);
+	mat3& 		operator*=(mat3& a, const mat3& b);
+	mat4& 		operator*=(mat4& a, const mat4& b);
 
-	f32 determinant(const mat2& m);
-	f32 determinant(const mat3& m);
-	f32 determinant(const mat4& m);
+	mat2 		transpose(const mat2& m);
+	mat3 		transpose(const mat3& m);
+	mat4 		transpose(const mat4& m);
 
-	mat2 inverse(const mat2& m);
-	mat3 inverse(const mat3& m);
-	mat4 inverse(const mat4& m);
+	f32 		determinant(const mat2& m);
+	f32			determinant(const mat3& m);
+	f32 		determinant(const mat4& m);
+
+	mat2 		inverse(const mat2& m);
+	mat3	 	inverse(const mat3& m);
+	mat4 		inverse(const mat4& m);
 
 	/// Quaternion Operations ///
 
-	quat identity_quat();
+	quat 		identity_quat();
 
-	f32  dot(const quat& a, const quat& b);
-	f32  length(const quat& q);
-	quat normalize(const quat& q);
-	quat conjugate(const quat& q);
-	quat inverse(const quat& q);
+	f32  		dot(const quat& a, const quat& b);
+	f32  		length(const quat& q);
+	quat 		normalize(const quat& q);
+	quat 		conjugate(const quat& q);
+	quat		inverse(const quat& q);
 
-	quat operator*(const quat& a, const quat& b);
+	quat 		operator*(const quat& a, const quat& b);
 
-	quat operator+(const quat& a, const quat& b);
-	quat operator*(const quat& q, f32 s);
-	quat operator*(f32 s, const quat& q);
+	quat 		operator+(const quat& a, const quat& b);
+	quat 		operator*(const quat& q, f32 s);
+	quat 		operator*(f32 s, const quat& q);
 
-	vec3 rotate(const quat& q, const vec3& v);
-	vec3 operator*(const quat& q, const vec3& v);
+	quat& 		operator+=(quat& a, const quat& b);
+	quat& 		operator*=(quat& q, f32 s);
+	quat& 		operator*=(quat& a, const quat& b);
 
-	quat angle_axis(f32 angle, const vec3& axis);
+	vec3 		rotate(const quat& q, const vec3& v);
+	vec3 		operator*(const quat& q, const vec3& v);
 
-	quat slerp(const quat& a, const quat& b, f32 t);
+	quat 		angle_axis(f32 angle, const vec3& axis);
 
-	mat3 mat3_cast(quat const& q);
-	mat4 mat4_cast(quat const& q);
+	quat 		slerp(const quat& a, const quat& b, f32 t);
 
-	f32* value_ptr(quat& q) ;
-	const f32* value_ptr(const quat& q);
+	mat3 		mat3_cast(quat const& q);
+	mat4 		mat4_cast(quat const& q);
+
+	f32* 		value_ptr(quat& q) ;
+	const f32* 	value_ptr(const quat& q);
 
 	/// Meh ///
 
-	f32 radians(f32 degrees);
-	f32 degrees(f32 radians);
+	f32 		radians(f32 degrees);
+	f32 		degrees(f32 radians);
 
-	f32 sin(f32 num);
-	f32 cos(f32 num);
-	f32 tan(f32 num);
-	f32 asin(f32 num);
-	f32 acos(f32 num);
-	f32 atan(f32 num);
-	f32 sinh(f32 num);
-	f32 cosh(f32 num);
-	f32 tanh(f32 num);
-	f32 asinh(f32 num);
-	f32 acosh(f32 num);
-	f32 atanh(f32 num);
+	f32	 		sin(f32 num);
+	f32 		cos(f32 num);
+	f32 		tan(f32 num);
+	f32 		asin(f32 num);
+	f32 		acos(f32 num);
+	f32 		atan(f32 num);
+	f32 		sinh(f32 num);
+	f32 		cosh(f32 num);
+	f32 		tanh(f32 num);
+	f32 		asinh(f32 num);
+	f32 		acosh(f32 num);
+	f32 		atanh(f32 num);
 
-	f32 ceil(f32 num);
-	f32 floor(f32 num);
-	f32 round(f32 num);
-	f32 exp(f32 num);
-	f32 pow(f32 x, f32 y);
-	f32 abs(f32 num);
-	f32 log(f32 num);
-	f32 log10(f32 num);
-	f32 sqrt(f32 num);
-	f32 min(f32 a, f32 b);
-	f32 max(f32 a, f32 b);
-	f32	clamp(f32 val, f32 low, f32 high);
-	void swap(f32& a, f32& b);
+	f32 		ceil(f32 num);
+	f32 		floor(f32 num);
+	f32 		round(f32 num);
+	f32 		exp(f32 num);
+	f32 		pow(f32 x, f32 y);
+	f32 		abs(f32 num);
+	f32 		log(f32 num);
+	f32 		log10(f32 num);
+	f32 		sqrt(f32 num);
+	f32 		min(f32 a, f32 b);
+	f32 		max(f32 a, f32 b);
+	f32			clamp(f32 val, f32 low, f32 high);
+	void 		swap(f32& a, f32& b);
 
 
 
-	f32 epsilon();
+//	f32 		epsilon();
 
 
 

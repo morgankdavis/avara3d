@@ -19,12 +19,12 @@ namespace a3d::math {
 	vec2::vec2(const vec4& v):
 			x{v.x}, y{v.y} {}
 
-	f32 &vec2::operator[](std::size_t i) {
+	f32& vec2::operator[](std::size_t i) {
 		assert(i < 2);
 		return (&x)[i];
 	}
 
-	const f32 &vec2::operator[](std::size_t i) const {
+	const f32& vec2::operator[](std::size_t i) const {
 		assert(i < 2);
 		return (&x)[i];
 	}
@@ -38,12 +38,12 @@ namespace a3d::math {
 	vec3::vec3(const vec4& v):
 			x{v.x}, y{v.y}, z{v.z} {}
 
-	f32 &vec3::operator[](std::size_t i) {
+	f32& vec3::operator[](std::size_t i) {
 		assert(i < 3);
 		return (&x)[i];
 	}
 
-	const f32 &vec3::operator[](std::size_t i) const {
+	const f32& vec3::operator[](std::size_t i) const {
 		assert(i < 3);
 		return (&x)[i];
 	}
@@ -57,12 +57,12 @@ namespace a3d::math {
 	vec4::vec4(const vec3& v):
 			x{v.x}, y{v.y}, z{v.z}, w{0} {}
 
-	f32 &vec4::operator[](std::size_t i) {
+	f32& vec4::operator[](std::size_t i) {
 		assert(i < 4);
 		return (&x)[i];
 	}
 
-	const f32 &vec4::operator[](std::size_t i) const {
+	const f32& vec4::operator[](std::size_t i) const {
 		assert(i < 4);
 		return (&x)[i];
 	}
@@ -76,12 +76,12 @@ namespace a3d::math {
 	ivec2::ivec2(const ivec4& v):
 			x{v.x}, y{v.y} {}
 
-	i32 &ivec2::operator[](std::size_t i) {
+	i32& ivec2::operator[](std::size_t i) {
 		assert(i < 2);
 		return (&x)[i];
 	}
 
-	const i32 &ivec2::operator[](std::size_t i) const {
+	const i32& ivec2::operator[](std::size_t i) const {
 		assert(i < 2);
 		return (&x)[i];
 	}
@@ -95,12 +95,12 @@ namespace a3d::math {
 	ivec3::ivec3(const ivec4& v):
 			x{v.x}, y{v.y}, z{v.z} {}
 
-	i32 &ivec3::operator[](std::size_t i) {
+	i32& ivec3::operator[](std::size_t i) {
 		assert(i < 3);
 		return (&x)[i];
 	}
 
-	const i32 &ivec3::operator[](std::size_t i) const {
+	const i32& ivec3::operator[](std::size_t i) const {
 		assert(i < 3);
 		return (&x)[i];
 	}
@@ -114,12 +114,12 @@ namespace a3d::math {
 	ivec4::ivec4(const ivec3& v):
 			x{v.x}, y{v.y}, z{v.z}, w{0} {}
 
-	i32 &ivec4::operator[](std::size_t i) {
+	i32& ivec4::operator[](std::size_t i) {
 		assert(i < 4);
 		return (&x)[i];
 	}
 
-	const i32 &ivec4::operator[](std::size_t i) const {
+	const i32& ivec4::operator[](std::size_t i) const {
 		assert(i < 4);
 		return (&x)[i];
 	}
@@ -133,12 +133,12 @@ namespace a3d::math {
 	uvec2::uvec2(const uvec4& v):
 			x{v.x}, y{v.y} {}
 
-	u32 &uvec2::operator[](std::size_t i) {
+	u32& uvec2::operator[](std::size_t i) {
 		assert(i < 2);
 		return (&x)[i];
 	}
 
-	const u32 &uvec2::operator[](std::size_t i) const {
+	const u32& uvec2::operator[](std::size_t i) const {
 		assert(i < 2);
 		return (&x)[i];
 	}
@@ -152,12 +152,12 @@ namespace a3d::math {
 	uvec3::uvec3(const uvec4& v):
 			x{v.x}, y{v.y}, z{v.z} {}
 
-	u32 &uvec3::operator[](std::size_t i) {
+	u32& uvec3::operator[](std::size_t i) {
 		assert(i < 3);
 		return (&x)[i];
 	}
 
-	const u32 &uvec3::operator[](std::size_t i) const {
+	const u32& uvec3::operator[](std::size_t i) const {
 		assert(i < 3);
 		return (&x)[i];
 	}
@@ -171,12 +171,12 @@ namespace a3d::math {
 	uvec4::uvec4(const uvec3& v):
 			x{v.x}, y{v.y}, z{v.z}, w{0} {}
 
-	u32 &uvec4::operator[](std::size_t i) {
+	u32& uvec4::operator[](std::size_t i) {
 		assert(i < 4);
 		return (&x)[i];
 	}
 
-	const u32 &uvec4::operator[](std::size_t i) const {
+	const u32& uvec4::operator[](std::size_t i) const {
 		assert(i < 4);
 		return (&x)[i];
 	}
@@ -184,12 +184,12 @@ namespace a3d::math {
 	mat2::mat2(f32 diag)
 			: c0{diag, 0.0f}, c1{0.0f, diag} {}
 
-	vec2 &mat2::operator[](std::size_t i) {
+	vec2& mat2::operator[](std::size_t i) {
 		assert(i < 2);
 		return (&c0)[i];
 	}
 
-	const vec2 &mat2::operator[](std::size_t i) const {
+	const vec2& mat2::operator[](std::size_t i) const {
 		assert(i < 2);
 		return (&c0)[i];
 	}
@@ -199,12 +199,12 @@ namespace a3d::math {
 			c1{0.0f, diag, 0.0f},
 			c2{0.0f, 0.0f, diag} {}
 
-	vec3 &mat3::operator[](std::size_t i) {
+	vec3& mat3::operator[](std::size_t i) {
 		assert(i < 3);
 		return (&c0)[i];
 	}
 
-	const vec3 &mat3::operator[](std::size_t i) const {
+	const vec3& mat3::operator[](std::size_t i) const {
 		assert(i < 3);
 		return (&c0)[i];
 	}
@@ -221,18 +221,28 @@ namespace a3d::math {
 			c2{m.c2.x, m.c2.y, m.c2.z, 0.0f},
 			c3{0.0f, 0.0f, 0.0f, 1.0f} {}
 
-	vec4 &mat4::operator[](std::size_t i) {
+	vec4& mat4::operator[](std::size_t i) {
 		assert(i < 4);
 		return (&c0)[i];
 	}
 
-	const vec4 &mat4::operator[](std::size_t i) const {
+	const vec4& mat4::operator[](std::size_t i) const {
 		assert(i < 4);
 		return (&c0)[i];
 	}
 
 	quat::quat(f32 w_, f32 x_, f32 y_, f32 z_) :
 			w{w_}, x{x_}, y{y_}, z{z_} {}
+
+	f32& quat::operator[](std::size_t i) {
+		assert(i < 4);
+		return (&w)[i];
+	}
+
+	const f32& quat::operator[](std::size_t i) const {
+		assert(i < 4);
+		return (&w)[i];
+	}
 
 	vec2 operator+(const vec2 &a, const vec2 &b) {
 		return vec2{a.x + b.x, a.y + b.y};
@@ -298,6 +308,93 @@ namespace a3d::math {
 	vec4 operator/(const vec4 &v, f32 s) {
 		f32 inv = 1.0f / s;
 		return vec4{v.x * inv, v.y * inv, v.z * inv, v.w * inv};
+	}
+
+	vec2& operator+=(vec2& a, const vec2& b) {
+		a.x += b.x;
+		a.y += b.y;
+		return a;
+	}
+
+	vec3& operator+=(vec3& a, const vec3& b) {
+		a.x += b.x;
+		a.y += b.y;
+		a.z += b.z;
+		return a;
+	}
+
+	vec4& operator+=(vec4& a, const vec4& b) {
+		a.x += b.x;
+		a.y += b.y;
+		a.z += b.z;
+		a.w += b.w;
+		return a;
+	}
+
+	vec2& operator-=(vec2& a, const vec2& b) {
+		a.x -= b.x;
+		a.y -= b.y;
+		return a;
+	}
+
+	vec3& operator-=(vec3& a, const vec3& b) {
+		a.x -= b.x;
+		a.y -= b.y;
+		a.z -= b.z;
+		return a;
+	}
+
+	vec4& operator-=(vec4& a, const vec4& b) {
+		a.x -= b.x;
+		a.y -= b.y;
+		a.z -= b.z;
+		a.w -= b.w;
+		return a;
+	}
+
+	vec2& operator*=(vec2& v, f32 s) {
+		v.x *= s;
+		v.y *= s;
+		return v;
+	}
+
+	vec3& operator*=(vec3& v, f32 s) {
+		v.x *= s;
+		v.y *= s;
+		v.z *= s;
+		return v;
+	}
+
+	vec4& operator*=(vec4& v, f32 s) {
+		v.x *= s;
+		v.y *= s;
+		v.z *= s;
+		v.w *= s;
+		return v;
+	}
+
+	vec2& operator/=(vec2& v, f32 s) {
+		f32 inv = 1.0f / s;
+		v.x *= inv;
+		v.y *= inv;
+		return v;
+	}
+
+	vec3& operator/=(vec3& v, f32 s) {
+		f32 inv = 1.0f / s;
+		v.x *= inv;
+		v.y *= inv;
+		v.z *= inv;
+		return v;
+	}
+
+	vec4& operator/=(vec4& v, f32 s) {
+		f32 inv = 1.0f / s;
+		v.x *= inv;
+		v.y *= inv;
+		v.z *= inv;
+		v.w *= inv;
+		return v;
 	}
 
 // dot
@@ -445,6 +542,90 @@ namespace a3d::math {
 		return ivec4{v.x / s, v.y / s, v.z / s, v.w / s};
 	}
 
+	ivec2& operator+=(ivec2& a, const ivec2& b) {
+		a.x += b.x;
+		a.y += b.y;
+		return a;
+	}
+
+	ivec3& operator+=(ivec3& a, const ivec3& b) {
+		a.x += b.x;
+		a.y += b.y;
+		a.z += b.z;
+		return a;
+	}
+
+	ivec4& operator+=(ivec4& a, const ivec4& b) {
+		a.x += b.x;
+		a.y += b.y;
+		a.z += b.z;
+		a.w += b.w;
+		return a;
+	}
+
+	ivec2& operator-=(ivec2& a, const ivec2& b) {
+		a.x -= b.x;
+		a.y -= b.y;
+		return a;
+	}
+
+	ivec3& operator-=(ivec3& a, const ivec3& b) {
+		a.x -= b.x;
+		a.y -= b.y;
+		a.z -= b.z;
+		return a;
+	}
+
+	ivec4& operator-=(ivec4& a, const ivec4& b) {
+		a.x -= b.x;
+		a.y -= b.y;
+		a.z -= b.z;
+		a.w -= b.w;
+		return a;
+	}
+
+	ivec2& operator*=(ivec2& v, i32 s) {
+		v.x *= s;
+		v.y *= s;
+		return v;
+	}
+
+	ivec3& operator*=(ivec3& v, i32 s) {
+		v.x *= s;
+		v.y *= s;
+		v.z *= s;
+		return v;
+	}
+
+	ivec4& operator*=(ivec4& v, i32 s) {
+		v.x *= s;
+		v.y *= s;
+		v.z *= s;
+		v.w *= s;
+		return v;
+	}
+
+	ivec2& operator/=(ivec2& v, i32 s) {
+		v.x /= s;
+		v.y /= s;
+		return v;
+	}
+
+	ivec3& operator/=(ivec3& v, i32 s) {
+		v.x /= s;
+		v.y /= s;
+		v.z /= s;
+		return v;
+	}
+
+	ivec4& operator/=(ivec4& v, i32 s) {
+		v.x /= s;
+		v.y /= s;
+		v.z /= s;
+		v.w /= s;
+		return v;
+	}
+
 // ----- ivec dot -----
 
 	i32 dot(const ivec2 &a, const ivec2 &b) {
@@ -550,6 +731,90 @@ namespace a3d::math {
 
 	uvec4 operator/(const uvec4 &v, u32 s) {
 		return uvec4{v.x / s, v.y / s, v.z / s, v.w / s};
+	}
+
+	uvec2& operator+=(uvec2& a, const uvec2& b) {
+		a.x += b.x;
+		a.y += b.y;
+		return a;
+	}
+
+	uvec3& operator+=(uvec3& a, const uvec3& b) {
+		a.x += b.x;
+		a.y += b.y;
+		a.z += b.z;
+		return a;
+	}
+
+	uvec4& operator+=(uvec4& a, const uvec4& b) {
+		a.x += b.x;
+		a.y += b.y;
+		a.z += b.z;
+		a.w += b.w;
+		return a;
+	}
+
+	uvec2& operator-=(uvec2& a, const uvec2& b) {
+		a.x -= b.x;
+		a.y -= b.y;
+		return a;
+	}
+
+	uvec3& operator-=(uvec3& a, const uvec3& b) {
+		a.x -= b.x;
+		a.y -= b.y;
+		a.z -= b.z;
+		return a;
+	}
+
+	uvec4& operator-=(uvec4& a, const uvec4& b) {
+		a.x -= b.x;
+		a.y -= b.y;
+		a.z -= b.z;
+		a.w -= b.w;
+		return a;
+	}
+
+	uvec2& operator*=(uvec2& v, u32 s) {
+		v.x *= s;
+		v.y *= s;
+		return v;
+	}
+
+	uvec3& operator*=(uvec3& v, u32 s) {
+		v.x *= s;
+		v.y *= s;
+		v.z *= s;
+		return v;
+	}
+
+	uvec4& operator*=(uvec4& v, u32 s) {
+		v.x *= s;
+		v.y *= s;
+		v.z *= s;
+		v.w *= s;
+		return v;
+	}
+
+	uvec2& operator/=(uvec2& v, u32 s) {
+		v.x /= s;
+		v.y /= s;
+		return v;
+	}
+
+	uvec3& operator/=(uvec3& v, u32 s) {
+		v.x /= s;
+		v.y /= s;
+		v.z /= s;
+		return v;
+	}
+
+	uvec4& operator/=(uvec4& v, u32 s) {
+		v.x /= s;
+		v.y /= s;
+		v.z /= s;
+		v.w /= s;
+		return v;
 	}
 
 // ----- uvec dot -----
@@ -680,6 +945,21 @@ namespace a3d::math {
 		r.c2 = a * b.c2;
 		r.c3 = a * b.c3;
 		return r;
+	}
+
+	mat2& operator*=(mat2& a, const mat2& b) {
+		a = a * b;
+		return a;
+	}
+
+	mat3& operator*=(mat3& a, const mat3& b) {
+		a = a * b;
+		return a;
+	}
+
+	mat4& operator*=(mat4& a, const mat4& b) {
+		a = a * b;
+		return a;
 	}
 
 // transpose
@@ -893,6 +1173,27 @@ namespace a3d::math {
 
 	quat operator*(f32 s, const quat &q) {
 		return q * s;
+	}
+
+	quat& operator+=(quat& a, const quat& b) {
+		a.w += b.w;
+		a.x += b.x;
+		a.y += b.y;
+		a.z += b.z;
+		return a;
+	}
+
+	quat& operator*=(quat& q, f32 s) {
+		q.w *= s;
+		q.x *= s;
+		q.y *= s;
+		q.z *= s;
+		return q;
+	}
+
+	quat& operator*=(quat& a, const quat& b) {
+		a = a * b; // use your Hamilton product
+		return a;
 	}
 
 // ----- Hamilton product (rotation composition) -----
@@ -1152,180 +1453,199 @@ namespace a3d::math {
 
 
 
-	f32 epsilon() {
-		return std::numeric_limits<f32>::epsilon();
+
+
+
+
+
+
+
+
+
+	namespace decomposedetail {
+
+		f32 epsilon() {
+			return std::numeric_limits<f32>::epsilon();
+		}
+
+		bool epsilonEqual(const float &x,
+						  const float &y,
+						  const float &epsilon) {
+			return abs(x - y) < epsilon;
+		}
+
+		bool epsilonNotEqual(const float &x, const float &y, const float &epsilon) {
+			return abs(x - y) >= epsilon;
+		}
+
+		vec3 combine(vec3 const &a,
+					 vec3 const &b,
+					 f32 ascl, f32 bscl) {
+			return (a * ascl) + (b * bscl);
+		}
+
+		vec3 scale(vec3 const &v, f32 desiredLength) {
+			return v * desiredLength / length(v);
+		}
 	}
 
+	bool decompose(const mat4& ModelMatrix,
+				   vec3 Scale,
+				   quat& Orientation,
+				   vec3& Translation,
+				   vec3& Skew,
+				   vec4& Perspective) {
 
+		mat4 LocalMatrix(ModelMatrix);
 
+		// Normalize the matrix.
+		if(decomposedetail::epsilonEqual(LocalMatrix[3][3], static_cast<f32>(0), decomposedetail::epsilon()))
+			return false;
 
+		for(std::size_t i = 0; i < 4; ++i)
+			for(std::size_t j = 0; j < 4; ++j)
+				LocalMatrix[i][j] /= LocalMatrix[3][3];
 
+		// perspectiveMatrix is used to solve for perspective, but it also provides
+		// an easy way to test for singularity of the upper 3x3 component.
+		mat4 PerspectiveMatrix(LocalMatrix);
 
+		for(std::size_t i = 0; i < 3; i++)
+			PerspectiveMatrix[i][3] = static_cast<f32>(0);
+		PerspectiveMatrix[3][3] = static_cast<f32>(1);
 
+		// TODO: Fixme!
+		if(decomposedetail::epsilonEqual(determinant(PerspectiveMatrix), static_cast<f32>(0), decomposedetail::epsilon()))
+			return false;
 
+		// First, isolate perspective.  This is the messiest.
+		if(
+				decomposedetail::epsilonNotEqual(LocalMatrix[0][3], static_cast<f32>(0), decomposedetail::epsilon()) ||
+				decomposedetail::epsilonNotEqual(LocalMatrix[1][3], static_cast<f32>(0), decomposedetail::epsilon()) ||
+				decomposedetail::epsilonNotEqual(LocalMatrix[2][3], static_cast<f32>(0), decomposedetail::epsilon()))
+		{
+			// rightHandSide is the right hand side of the equation.
+			vec4 RightHandSide;
+			RightHandSide[0] = LocalMatrix[0][3];
+			RightHandSide[1] = LocalMatrix[1][3];
+			RightHandSide[2] = LocalMatrix[2][3];
+			RightHandSide[3] = LocalMatrix[3][3];
 
+			// Solve the equation by inverting PerspectiveMatrix and multiplying
+			// rightHandSide by the inverse.  (This is the easiest way, not
+			// necessarily the best.)
+			mat4 InversePerspectiveMatrix = inverse(PerspectiveMatrix);//   inverse(PerspectiveMatrix, inversePerspectiveMatrix);
+			mat4 TransposedInversePerspectiveMatrix = transpose(InversePerspectiveMatrix);//   transposeMatrix4(inversePerspectiveMatrix, transposedInversePerspectiveMatrix);
 
+			Perspective = TransposedInversePerspectiveMatrix * RightHandSide;
+			//  v4MulPointByMatrix(rightHandSide, transposedInversePerspectiveMatrix, perspectivePoint);
 
+			// Clear the perspective partition
+			LocalMatrix[0][3] = LocalMatrix[1][3] = LocalMatrix[2][3] = static_cast<f32>(0);
+			LocalMatrix[3][3] = static_cast<f32>(1);
+		}
+		else
+		{
+// No perspective.
+			Perspective = vec4(0, 0, 0, 1);
+		}
 
+// Next take care of translation (easy).
+		Translation = vec3(LocalMatrix[3]);
+		LocalMatrix[3] = vec4(0, 0, 0, LocalMatrix[3].w);
 
-//bool decompose(const mat4& ModelMatrix,
-//			   vec3 Scale,
-//			   quat& Orientation,
-//			   vec3& Translation,
-//			   vec3& Skew,
-//			   vec4& Perspective) {
-//
-//	mat4 LocalMatrix(ModelMatrix);
-//
-//	// Normalize the matrix.
-//	if(epsilonEqual(LocalMatrix[3][3], static_cast<f32>(0), epsilon()))
-//	return false;
-//
-//	for(std::size_t i = 0; i < 4; ++i)
-//	for(std::size_t j = 0; j < 4; ++j)
-//	LocalMatrix[i][j] /= LocalMatrix[3][3];
-//
-//	// perspectiveMatrix is used to solve for perspective, but it also provides
-//	// an easy way to test for singularity of the upper 3x3 component.
-//	mat4 PerspectiveMatrix(LocalMatrix);
-//
-//	for(std::size_t i = 0; i < 3; i++)
-//	PerspectiveMatrix[i][3] = static_cast<f32>(0);
-//	PerspectiveMatrix[3][3] = static_cast<f32>(1);
-//
-//	/// TODO: Fixme!
-//	if(epsilonEqual(determinant(PerspectiveMatrix), static_cast<f32>(0), epsilon()))
-//	return false;
-//
-//	// First, isolate perspective.  This is the messiest.
-//	if(
-//	epsilonNotEqual(LocalMatrix[0][3], static_cast<f32>(0), epsilon()) ||
-//	epsilonNotEqual(LocalMatrix[1][3], static_cast<f32>(0), epsilon()) ||
-//	epsilonNotEqual(LocalMatrix[2][3], static_cast<f32>(0), epsilon()))
-//{
-//	// rightHandSide is the right hand side of the equation.
-//	vec4 RightHandSide;
-//	RightHandSide[0] = LocalMatrix[0][3];
-//	RightHandSide[1] = LocalMatrix[1][3];
-//	RightHandSide[2] = LocalMatrix[2][3];
-//	RightHandSide[3] = LocalMatrix[3][3];
-//
-//	// Solve the equation by inverting PerspectiveMatrix and multiplying
-//	// rightHandSide by the inverse.  (This is the easiest way, not
-//	// necessarily the best.)
-//	mat4 InversePerspectiveMatrix = inverse(PerspectiveMatrix);//   inverse(PerspectiveMatrix, inversePerspectiveMatrix);
-//	mat4 TransposedInversePerspectiveMatrix = transpose(InversePerspectiveMatrix);//   transposeMatrix4(inversePerspectiveMatrix, transposedInversePerspectiveMatrix);
-//
-//	Perspective = TransposedInversePerspectiveMatrix * RightHandSide;
-//	//  v4MulPointByMatrix(rightHandSide, transposedInversePerspectiveMatrix, perspectivePoint);
-//
-//	// Clear the perspective partition
-//	LocalMatrix[0][3] = LocalMatrix[1][3] = LocalMatrix[2][3] = static_cast<f32>(0);
-//	LocalMatrix[3][3] = static_cast<f32>(1);
-//}
-//else
-//{
-//// No perspective.
-//Perspective = vec4(0, 0, 0, 1);
-//}
-//
-//// Next take care of translation (easy).
-//Translation = vec3(LocalMatrix[3]);
-//LocalMatrix[3] = vec4(0, 0, 0, LocalMatrix[3].w);
-//
-//vec3 Row[3], Pdum3;
-//
-//// Now get scale and shear.
-//for(std::size_t i = 0; i < 3; ++i)
-//for(std::size_t j = 0; j < 3; ++j)
-//Row[i][j] = LocalMatrix[i][j];
-//
-//// Compute X scale factor and normalize first row.
-//Scale.x = length(Row[0]);// v3Length(Row[0]);
-//
-//Row[0] = detail::scale(Row[0], static_cast<f32>(1));
-//
-//// Compute XY shear factor and make 2nd row orthogonal to 1st.
-//Skew.z = dot(Row[0], Row[1]);
-//Row[1] = detail::combine(Row[1], Row[0], static_cast<f32>(1), -Skew.z);
-//
-//// Now, compute Y scale and normalize 2nd row.
-//Scale.y = length(Row[1]);
-//Row[1] = detail::scale(Row[1], static_cast<f32>(1));
-//Skew.z /= Scale.y;
-//
-//// Compute XZ and YZ shears, orthogonalize 3rd row.
-//Skew.y = glm::dot(Row[0], Row[2]);
-//Row[2] = detail::combine(Row[2], Row[0], static_cast<f32>(1), -Skew.y);
-//Skew.x = glm::dot(Row[1], Row[2]);
-//Row[2] = detail::combine(Row[2], Row[1], static_cast<f32>(1), -Skew.x);
-//
-//// Next, get Z scale and normalize 3rd row.
-//Scale.z = length(Row[2]);
-//Row[2] = detail::scale(Row[2], static_cast<f32>(1));
-//Skew.y /= Scale.z;
-//Skew.x /= Scale.z;
-//
-//// At this point, the matrix (in rows[]) is orthonormal.
-//// Check for a coordinate system flip.  If the determinant
-//// is -1, then negate the matrix and the scaling factors.
-//Pdum3 = cross(Row[1], Row[2]); // v3Cross(row[1], row[2], Pdum3);
-//if(dot(Row[0], Pdum3) < 0)
-//{
-//for(std::size_t i = 0; i < 3; i++)
-//{
-//Scale[i] *= static_cast<f32>(-1);
-//Row[i] *= static_cast<f32>(-1);
-//}
-//}
-//
-//// Now, get the rotations out, as described in the gem.
-//
-//// FIXME - Add the ability to return either quaternions (which are
-//// easier to recompose with) or Euler angles (rx, ry, rz), which
-//// are easier for authors to deal with. The latter will only be useful
-//// when we fix https://bugs.webkit.org/show_bug.cgi?id=23799, so I
-//// will leave the Euler angle code here for now.
-//
-//// ret.rotateY = asin(-Row[0][2]);
-//// if (cos(ret.rotateY) != 0) {
-////     ret.rotateX = atan2(Row[1][2], Row[2][2]);
-////     ret.rotateZ = atan2(Row[0][1], Row[0][0]);
-//// } else {
-////     ret.rotateX = atan2(-Row[2][0], Row[1][1]);
-////     ret.rotateZ = 0;
-//// }
-//
-//int i, j, k = 0;
-//	f32 root, trace = Row[0].x + Row[1].y + Row[2].z;
-//if(trace > static_cast<f32>(0))
-//{
-//root = sqrt(trace + static_cast<f32>(1.0));
-//Orientation.w = static_cast<f32>(0.5) * root;
-//root = static_cast<f32>(0.5) / root;
-//Orientation.x = root * (Row[1].z - Row[2].y);
-//Orientation.y = root * (Row[2].x - Row[0].z);
-//Orientation.z = root * (Row[0].y - Row[1].x);
-//} // End if > 0
-//else
-//{
-//static int Next[3] = {1, 2, 0};
-//i = 0;
-//if(Row[1].y > Row[0].x) i = 1;
-//if(Row[2].z > Row[i][i]) i = 2;
-//j = Next[i];
-//k = Next[j];
-//
-//root = sqrt(Row[i][i] - Row[j][j] - Row[k][k] + static_cast<f32>(1.0));
-//
-//Orientation[i] = static_cast<f32>(0.5) * root;
-//root = static_cast<f32>(0.5) / root;
-//Orientation[j] = root * (Row[i][j] + Row[j][i]);
-//Orientation[k] = root * (Row[i][k] + Row[k][i]);
-//Orientation.w = root * (Row[j][k] - Row[k][j]);
-//} // End if <= 0
-//
-//return true;
-//}
+		vec3 Row[3], Pdum3;
+
+// Now get scale and shear.
+		for(std::size_t i = 0; i < 3; ++i)
+			for(std::size_t j = 0; j < 3; ++j)
+				Row[i][j] = LocalMatrix[i][j];
+
+// Compute X scale factor and normalize first row.
+		Scale.x = length(Row[0]);// v3Length(Row[0]);
+
+		Row[0] = decomposedetail::scale(Row[0], static_cast<f32>(1));
+
+// Compute XY shear factor and make 2nd row orthogonal to 1st.
+		Skew.z = dot(Row[0], Row[1]);
+		Row[1] = decomposedetail::combine(Row[1], Row[0], static_cast<f32>(1), -Skew.z);
+
+// Now, compute Y scale and normalize 2nd row.
+		Scale.y = length(Row[1]);
+		Row[1] = decomposedetail::scale(Row[1], static_cast<f32>(1));
+		Skew.z /= Scale.y;
+
+// Compute XZ and YZ shears, orthogonalize 3rd row.
+		Skew.y = dot(Row[0], Row[2]);
+		Row[2] = decomposedetail::combine(Row[2], Row[0], static_cast<f32>(1), -Skew.y);
+		Skew.x = dot(Row[1], Row[2]);
+		Row[2] = decomposedetail::combine(Row[2], Row[1], static_cast<f32>(1), -Skew.x);
+
+// Next, get Z scale and normalize 3rd row.
+		Scale.z = length(Row[2]);
+		Row[2] = decomposedetail::scale(Row[2], static_cast<f32>(1));
+		Skew.y /= Scale.z;
+		Skew.x /= Scale.z;
+
+// At this point, the matrix (in rows[]) is orthonormal.
+// Check for a coordinate system flip.  If the determinant
+// is -1, then negate the matrix and the scaling factors.
+		Pdum3 = cross(Row[1], Row[2]); // v3Cross(row[1], row[2], Pdum3);
+		if(dot(Row[0], Pdum3) < 0)
+		{
+			for(std::size_t i = 0; i < 3; i++)
+			{
+				Scale[i] *= static_cast<f32>(-1);
+				Row[i] *= static_cast<f32>(-1);
+			}
+		}
+
+// Now, get the rotations out, as described in the gem.
+
+// FIXME - Add the ability to return either quaternions (which are
+// easier to recompose with) or Euler angles (rx, ry, rz), which
+// are easier for authors to deal with. The latter will only be useful
+// when we fix https://bugs.webkit.org/show_bug.cgi?id=23799, so I
+// will leave the Euler angle code here for now.
+
+// ret.rotateY = asin(-Row[0][2]);
+// if (cos(ret.rotateY) != 0) {
+//     ret.rotateX = atan2(Row[1][2], Row[2][2]);
+//     ret.rotateZ = atan2(Row[0][1], Row[0][0]);
+// } else {
+//     ret.rotateX = atan2(-Row[2][0], Row[1][1]);
+//     ret.rotateZ = 0;
+// }
+
+int i, j, k = 0;
+	f32 root, trace = Row[0].x + Row[1].y + Row[2].z;
+if(trace > static_cast<f32>(0))
+{
+root = sqrt(trace + static_cast<f32>(1.0));
+Orientation.w = static_cast<f32>(0.5) * root;
+root = static_cast<f32>(0.5) / root;
+Orientation.x = root * (Row[1].z - Row[2].y);
+Orientation.y = root * (Row[2].x - Row[0].z);
+Orientation.z = root * (Row[0].y - Row[1].x);
+} // End if > 0
+else
+{
+static int Next[3] = {1, 2, 0};
+i = 0;
+if(Row[1].y > Row[0].x) i = 1;
+if(Row[2].z > Row[i][i]) i = 2;
+j = Next[i];
+k = Next[j];
+
+root = sqrt(Row[i][i] - Row[j][j] - Row[k][k] + static_cast<f32>(1.0));
+
+Orientation[i] = static_cast<f32>(0.5) * root;
+root = static_cast<f32>(0.5) / root;
+Orientation[j] = root * (Row[i][j] + Row[j][i]);
+Orientation[k] = root * (Row[i][k] + Row[k][i]);
+Orientation.w = root * (Row[j][k] - Row[k][j]);
+} // End if <= 0
+
+return true;
 }
-	
+}
