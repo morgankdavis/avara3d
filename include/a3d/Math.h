@@ -15,6 +15,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
+#include <string>
 #include <type_traits>
 
 namespace a3d::math {
@@ -618,6 +619,11 @@ namespace a3d::math {
 				   vec3& translation,
 				   vec3& skew,
 				   vec4& perspective);
+
+	bool decompose_trs(const mat4& m,
+					   vec3& scale,
+					   quat& rotation,
+					   vec3& translation);
 }
 
 #endif //AVARA3D_MATH_H

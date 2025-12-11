@@ -2046,4 +2046,99 @@ namespace a3d::math {
 
 		return true;
 	}
+
+	bool decompose_trs(const mat4& m,
+					   vec3& scale,
+					   quat& rotation,
+					   vec3& translation) {
+
+		// 1. translation is just the 4th column (assuming column-major)
+		translation = vec3{ m.c3.x, m.c3.y, m.c3.z };
+
+		// 2. extract the basis vectors (columns 0..2)
+		vec3 col0{ m.c0.x, m.c0.y, m.c0.z };
+		vec3 col1{ m.c1.x, m.c1.y, m.c1.z };
+		vec3 col2{ m.c2.x, m.c2.y, m.c2.z };
+
+		// 3. scale is the length of each basis vector
+		f32 sx = length(col0);
+		f32 sy = length(col1);
+		f32 sz = length(col2);
+
+		const f32 eps = 1e-6f;
+		if (sx < eps || sy < eps || sz < eps) {
+			// degenerate scale, can't get a proper rotation
+			scale      = vec3{ sx, sy, sz };
+			rotation   = identity_quat();
+			return false;
+		}
+
+		scale = vec3{ sx, sy, sz };
+
+		// 4. normalize the columns to get a pure rotation matrix
+		col0 = col0 / sx;
+		col1 = col1 / sy;
+		col2 = col2 / sz;
+
+		// 5. handle possible negative determinant (flipped coordinate system)
+		// build the 3x3 rotation matrix rows/cols as needed
+		// we'll use rows here:
+		vec3 row0{ col0.x, col1.x, col2.x };
+		vec3 row1{ col0.y, col1.y, col2.y };
+		vec3 row2{ col0.z, col1.z, col2.z };
+
+		// determinant sign check
+		f32 det = dot(row0, cross(row1, row2));
+		if (det < 0.0f) {
+			// flip one axis to make it a proper rotation
+			scale.x = -scale.x;
+			col0    = -col0;
+			row0    = -row0;
+		}
+
+		// 6. convert this 3x3 rotation to a quaternion
+
+		f32 trace = row0.x + row1.y + row2.z;
+		quat q;
+
+		if (trace > 0.0f) {
+			f32 root = std::sqrt(trace + 1.0f);
+			q.w = 0.5f * root;
+			root = 0.5f / root;
+			q.x = root * (row1.z - row2.y);
+			q.y = root * (row2.x - row0.z);
+			q.z = root * (row0.y - row1.x);
+		}
+		else {
+			int i = 0;
+			if (row1.y > row0.x) i = 1;
+			if (row2.z > (i == 0 ? row0.x : row1.y)) i = 2;
+
+			static const int next[3] = {1, 2, 0};
+			int j = next[i];
+			int k = next[j];
+
+			f32 rvals[3] = { row0[i], row1[i], row2[i] };
+
+			f32 root = std::sqrt(rvals[i] - rvals[j] - rvals[k] + 1.0f);
+			f32* qv[3] = { &q.x, &q.y, &q.z };
+
+			*qv[i] = 0.5f * root;
+			root   = 0.5f / root;
+
+			f32 m_ij[3][3] = {
+					{ row0.x, row0.y, row0.z },
+					{ row1.x, row1.y, row1.z },
+					{ row2.x, row2.y, row2.z }
+			};
+
+			*qv[j] = root * (m_ij[i][j] + m_ij[j][i]);
+			*qv[k] = root * (m_ij[i][k] + m_ij[k][i]);
+			q.w    = root * (m_ij[j][k] - m_ij[k][j]);
+		}
+
+		rotation = q;
+
+		return true;
+	}
 }

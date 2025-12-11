@@ -375,19 +375,34 @@ vec3 Node::right() const {
 	return vec3(normalize(mat4_cast(_orientation) * vec4(1.0, 0.0, 0.0, 1.0)));
 }
 
+//void Node::transform(const mat4& transform) {
+//	vec3 scale;
+//	quat orientation;
+//	vec3 translation;
+//	vec3 skew;
+//	vec4 perspective;
+//
+//	decompose(transform,
+//			  scale,
+//			  orientation,
+//			  translation,
+//			  skew,
+//			  perspective);
+//
+//	_position = translation;
+//	_scale = scale;
+//	_orientation = orientation;
+//}
+
 void Node::transform(const mat4& transform) {
 	vec3 scale;
 	quat orientation;
 	vec3 translation;
-	vec3 skew;
-	vec4 perspective;
-	
-	decompose(transform,
-			  scale,
-			  orientation,
-			  translation,
-			  skew,
-			  perspective);
+
+	decompose_trs(transform,
+				  scale,
+				  orientation,
+				  translation);
 
 	_position = translation;
 	_scale = scale;
