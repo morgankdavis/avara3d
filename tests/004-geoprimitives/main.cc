@@ -10,24 +10,22 @@
 #include <string>
 #include <utility>
 
-#include "glm/glm.hpp"
-
 #include "a3d/a3d.h"
 #include "a3d/Utilities.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
-constexpr LogLevel				A3D_APP_LOG_LEVEL =		LogLevel::Debug;
-constexpr uvec2					WINDOW_SIZE =			{1280, 768};
-constexpr bool					FULLSCREEN =			false;
-constexpr bool					ENABLE_HIGH_DPI =		true;
-constexpr AntialiasingMode		ANTIALIAS_MODE =		AntialiasingMode::Msaa4X;
-constexpr bool					ENABLE_VSYNC =			false;
-constexpr bool					CAPTURE_CURSOR =		false;
-constexpr float					MOUSE_SENSITIVITY =		0.5;
+const LogLevel				A3D_APP_LOG_LEVEL	{LogLevel::Debug};
+const uvec2					WINDOW_SIZE			{1280, 768};
+const bool					FULLSCREEN			{false};
+const bool					ENABLE_HIGH_DPI		{true};
+const AntialiasingMode		ANTIALIAS_MODE		{AntialiasingMode::Msaa4X};
+const bool					ENABLE_VSYNC		{false};
+const bool					CAPTURE_CURSOR		{false};
+const float					MOUSE_SENSITIVITY	{0.5};
 
 void UpdateCallback(Scene& scene, double time, double deltaTime);
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime);

@@ -35,11 +35,11 @@
 #include "a3d/Color.h"
 #include "a3d/Configuration.h"
 #include "a3d/CubeImage.h"
-#include "a3d/Font.h"
-#include "a3d/Image.h"
-#include "a3d/Utilities.h"
 #include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/log/Log.h"
+#include "a3d/Font.h"
+#include "a3d/Image.h"
+#include "a3d/Math.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/mesh/Line.h"
@@ -56,6 +56,7 @@
 #include "a3d/rendering/renderer/opengl/Program.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
+#include "a3d/Utilities.h"
 
 #define A3D_GL_CHECK() \
     do { \
@@ -66,7 +67,7 @@
     } while (0);
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
 //#define DISABLE_RESOURCE_MANAGEMENT
@@ -96,41 +97,41 @@ typedef struct {
 typedef struct {
 	vec4		color;
 	vec3		direction_world;
-	float32_t	PAD0_;
+	f32			PAD0_;
 } DirectionalLightGLSLStruct;
 
 typedef struct {
 	vec4		color;
 	vec3		position_world;
-	float32_t	PAD0_;
-	float32_t	constantAttenuation;
-	float32_t	linearAttenuation;
-	float32_t	quadraticAttenuation;
-	float32_t	PAD1_;
+	f32			PAD0_;
+	f32			constantAttenuation;
+	f32			linearAttenuation;
+	f32			quadraticAttenuation;
+	f32			PAD1_;
 } PointLightGLSLStruct;
 
 typedef struct {
 	vec4		color;
 	vec3		position_world;
-	float32_t	PAD0_;
+	f32			PAD0_;
 	vec3		direction_world;
-	float32_t	PAD1_;
-	float32_t	innerAngleCos;
-	float32_t	outerAngleCos;
+	f32			PAD1_;
+	f32			innerAngleCos;
+	f32			outerAngleCos;
 	uint32_t	featheringMode;
-	float32_t	constantAttenuation;
-	float32_t	linearAttenuation;
-	float32_t	quadraticAttenuation;
-	float32_t	PAD2_;
-	float32_t	PAD3_;
+	f32			constantAttenuation;
+	f32			linearAttenuation;
+	f32			quadraticAttenuation;
+	f32			PAD2_;
+	f32			PAD3_;
 } SpotLightGLSLStruct;
 
 typedef struct {
 	vec4		color;
-	float32_t	startDistance;
-	float32_t	endDistance;
-	float32_t	densityExponent;
-	float32_t	PAD0_;
+	f32			startDistance;
+	f32			endDistance;
+	f32			densityExponent;
+	f32			PAD0_;
 } FogGLSLStruct;
 
 typedef struct {
@@ -660,9 +661,9 @@ void OpenGLRenderer::render(MeshElement& element,
 	
 void OpenGLRenderer::render(const std::vector<Line>& lines,
 							const RenderContext& context,
-							const glm::mat4& modelMat,
-							const glm::mat4& viewMat,
-							const glm::mat4& projectionMat) {
+							const mat4& modelMat,
+							const mat4& viewMat,
+							const mat4& projectionMat) {
 	
 	auto program = Program::Lines();
 	

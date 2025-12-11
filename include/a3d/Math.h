@@ -19,7 +19,10 @@
 
 namespace a3d::math {
 
+	/// Types ///
+
 	using f32 = float;
+	using u8 = std::uint8_t;
 	using i32 = std::int32_t;
 	using u32 = std::uint32_t;
 
@@ -32,12 +35,36 @@ namespace a3d::math {
 	class uvec2;
 	class uvec3;
 	class uvec4;
+	class u8vec2;
+	class u8vec3;
+	class u8vec4;
 	class mat2;
 	class mat3;
 	class mat4;
 
+	// using vec2 = f32vec2;
+	// using vec3 = f32vec3;
+	// using vec4 = f32vec4;
+
+	// using ivec2 = i32vec2
+	// using ivec3 = i32vec3
+	// using ivec4 = i32vec4
+
+	// using uvec2 = u32vec2
+	// using uvec3 = u32vec3
+	// using uvec4 = u32vec4
+
+	// using mat2 = f32mat2;
+	// using mat3 = f32mat3;
+	// using mat4 = f32mat4;
+	// using quat = f32quat;
+
 	struct vec2 {
-		f32 x, y;
+//		f32 x, y;
+		union {
+			struct { f32 x, y; };
+			struct { f32 s, t; };
+		};
 		vec2() = default;
 		vec2(f32 x_, f32 y_);
 		explicit vec2(const vec3& v);
@@ -47,9 +74,14 @@ namespace a3d::math {
 	};
 
 	struct vec3 {
-		f32 x, y, z;
+		union {
+			struct { f32 x, y, z; };
+			struct { f32 r, g, b; };
+			struct { f32 s, t, p; };
+		};
 		vec3() = default;
 		vec3(f32 x_, f32 y_, f32 z_);
+		vec3(const vec2& v, f32 z_);
 		explicit vec3(const vec2& v);
 		explicit vec3(const vec4& v);
 		f32& operator[](std::size_t i);
@@ -57,9 +89,13 @@ namespace a3d::math {
 	};
 
 	struct vec4 {
-		f32 x, y, z, w;
+		union {
+			struct { f32 x, y, z, w; };
+			struct { f32 r, g, b, a; };
+		};
 		vec4() = default;
 		vec4(f32 x_, f32 y_, f32 z_, f32 w_);
+		vec4(const vec3& v, f32 w_);
 		explicit vec4(const vec2& v);
 		explicit vec4(const vec3& v);
 		f32& operator[](std::size_t i);
@@ -80,6 +116,7 @@ namespace a3d::math {
 		i32 x, y, z;
 		ivec3() = default;
 		ivec3(i32 x_, i32 y_, i32 z_);
+		ivec3(const ivec2& v, i32 z_);
 		explicit ivec3(const ivec2& v);
 		explicit ivec3(const ivec4& v);
 		i32& operator[](std::size_t i);
@@ -90,6 +127,7 @@ namespace a3d::math {
 		i32 x, y, z, w;
 		ivec4() = default;
 		ivec4(i32 x_, i32 y_, i32 z_, i32 w_);
+		ivec4(const ivec3& v, i32 w_);
 		explicit ivec4(const ivec2& v);
 		explicit ivec4(const ivec3& v);
 		i32& operator[](std::size_t i);
@@ -110,6 +148,7 @@ namespace a3d::math {
 		u32 x, y, z;
 		uvec3() = default;
 		uvec3(u32 x_, u32 y_, u32 z_);
+		uvec3(const uvec2& c, u32 z_);
 		explicit uvec3(const uvec2& v);
 		explicit uvec3(const uvec4& v);
 		u32& operator[](std::size_t i);
@@ -120,10 +159,49 @@ namespace a3d::math {
 		u32 x, y, z, w;
 		uvec4() = default;
 		uvec4(u32 x_, u32 y_, u32 z_, u32 w_);
+		uvec4(const uvec3& v, u32 w_);
 		explicit uvec4(const uvec2& v);
 		explicit uvec4(const uvec3& v);
 		u32& operator[](std::size_t i);
 		const u32& operator[](std::size_t i) const;
+	};
+
+	struct u8vec2 {
+		u8 x, y;
+		u8vec2() = default;
+		u8vec2(u8 x_, u8 y_);
+		explicit u8vec2(const u8vec3& v);
+		explicit u8vec2(const u8vec4& v);
+		u8& operator[](std::size_t i);
+		const u8& operator[](std::size_t i) const;
+	};
+
+	struct u8vec3 {
+		union {
+			struct { u8 x, y, z; };
+			struct { u8 r, g, b; };
+		};
+		u8vec3() = default;
+		u8vec3(u8 x_, u8 y_, u8 z_);
+		u8vec3(const u8vec2& v, u8 z_);
+		explicit u8vec3(const u8vec2& v);
+		explicit u8vec3(const u8vec4& v);
+		u8& operator[](std::size_t i);
+		const u8& operator[](std::size_t i) const;
+	};
+
+	struct u8vec4 {
+		union {
+			struct { u8 x, y, z, w; };
+			struct { u8 r, g, b, a; };
+		};
+		u8vec4() = default;
+		u8vec4(u8 x_, u8 y_, u8 z_, u8 w_);
+		u8vec4(const u8vec3& z, u8 w_);
+		explicit u8vec4(const u8vec2& v);
+		explicit u8vec4(const u8vec3& v);
+		u8& operator[](std::size_t i);
+		const u8& operator[](std::size_t i) const;
 	};
 
 	struct mat2 {
@@ -159,7 +237,7 @@ namespace a3d::math {
 		const f32& operator[](std::size_t i) const;
 	};
 
-	/// Float Vector Operations ///
+	/// 32-bit Float Vector ///
 
 	vec2 		operator+(const vec2& a, const vec2& b);
 	vec3 		operator+(const vec3& a, const vec3& b);
@@ -217,7 +295,7 @@ namespace a3d::math {
 	f32* 		value_ptr(vec4& v);
 	const f32* 	value_ptr(const vec4& v);
 
-	/// Signed Integer Vector Operations ///
+	/// Signed 32-bit Integer Vector ///
 
 	ivec2 		operator+(const ivec2& a, const ivec2& b);
 	ivec3 		operator+(const ivec3& a, const ivec3& b);
@@ -265,7 +343,7 @@ namespace a3d::math {
 	i32* 		value_ptr(ivec4& v) ;
 	const i32* 	value_ptr(const ivec4& v);
 
-	/// Unsigned Integer Vector Operations ///
+	/// Unsigned 32-bit Integer Vector ///
 
 	uvec2 		operator+(const uvec2& a, const uvec2& b);
 	uvec3 		operator+(const uvec3& a, const uvec3& b);
@@ -313,7 +391,7 @@ namespace a3d::math {
 	u32* 		value_ptr(uvec4& v) ;
 	const u32* 	value_ptr(const uvec4& v);
 
-	/// Matrix Operations ///
+	/// 32-bit Float Matrix ///
 
 	mat2 		identity2();
 	mat3 		identity3();
@@ -354,7 +432,12 @@ namespace a3d::math {
 	mat3	 	inverse(const mat3& m);
 	mat4 		inverse(const mat4& m);
 
-	/// Quaternion Operations ///
+	mat4 		translate(const mat4& m, const vec3& v);
+	mat4 		rotate(const mat4& m, f32 angle, const vec3& v);
+	mat4 		scale(const mat4& m, const vec3& v);
+	mat4 		scale(const mat4& m, f32 s);
+
+	/// 32-bit Float Quaternion ///
 
 	quat 		identity_quat();
 
@@ -387,7 +470,7 @@ namespace a3d::math {
 	f32* 		value_ptr(quat& q) ;
 	const f32* 	value_ptr(const quat& q);
 
-	/// Meh ///
+	/// 32-bit Float Trig ///
 
 	f32 		radians(f32 degrees);
 	f32 		degrees(f32 radians);
@@ -398,12 +481,15 @@ namespace a3d::math {
 	f32 		asin(f32 num);
 	f32 		acos(f32 num);
 	f32 		atan(f32 num);
+	f32 		atan2(f32 x, f32 y);
 	f32 		sinh(f32 num);
 	f32 		cosh(f32 num);
 	f32 		tanh(f32 num);
 	f32 		asinh(f32 num);
 	f32 		acosh(f32 num);
 	f32 		atanh(f32 num);
+
+	/// 32-bit Float Utilities ///
 
 	f32 		ceil(f32 num);
 	f32 		floor(f32 num);
@@ -418,6 +504,18 @@ namespace a3d::math {
 	f32 		max(f32 a, f32 b);
 	f32			clamp(f32 val, f32 low, f32 high);
 	void 		swap(f32& a, f32& b);
+
+	// exp2() ?
+	// log2() ?
+
+
+
+
+	mat4 perspective(f32 fovy, f32 aspect, f32 zNear, f32 zFar); // rh
+	mat4 ortho(f32 left, f32 right, f32 bottom, f32 top, f32 zNear, f32 zFar); // rh
+
+	// lookAt() -- L*&R handed version???
+
 
 
 

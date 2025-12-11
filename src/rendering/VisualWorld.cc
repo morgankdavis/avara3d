@@ -35,7 +35,7 @@
 #include "a3d/scene/Scene.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
 /// Private Static Non-Member Prototypes ///
@@ -385,13 +385,13 @@ weak_ptr<Node> VisualWorld::defaultPointOfView() {
 		// ztan(angle) = x
 		// z = x/tan(angle)
 
-		auto maxZ = abs(aabb.max.z);
+		auto maxZ = math::abs(aabb.max.z);
 
-		auto xH = abs(aabb.min.x) + abs(aabb.max.x) / 2.0f;
+		auto xH = math::abs(aabb.min.x) + math::abs(aabb.max.x) / 2.0f;
 		auto angleH = fovH / 2.0;
 		auto zH = xH / tan(angleH);
 
-		auto xV = abs(aabb.min.y) + abs(aabb.max.y) / 2.0f;
+		auto xV = math::abs(aabb.min.y) + math::abs(aabb.max.y) / 2.0f;
 		auto angleV = fovV / 2.0;
 		auto zV = xV / tan(angleV);
 

@@ -71,19 +71,19 @@ namespace a3d {
 
 		/// Internal Member Functions ///
 
-		void 						burnTransform(const glm::mat4& transform,
+		void 						burnTransform(const math::mat4& transform,
 												  bool normals);
 
 		void 						draw(Renderer& renderer,
 										 const RenderContext& context,
-										 const glm::mat4& modelMat,
-										 const glm::mat4& viewMat,
-										 const glm::mat4& projectionMat,
+										 const math::mat4& modelMat,
+										 const math::mat4& viewMat,
+										 const math::mat4& projectionMat,
 										 const DebugOptions& debugOptions,
 										 FrameStats& stats);
 
 		AABB						aabb(const Node* convertTo = nullptr) const;
-		glm::vec3 					extent(const Node* convertTo = nullptr) const;
+		math::vec3 					extent(const Node* convertTo = nullptr) const;
 
 		const std::vector<Line>&	aabbLines();
 

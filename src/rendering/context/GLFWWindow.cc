@@ -27,7 +27,7 @@
 #include "a3d/scene/Scene.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
 /// Private Static Non-Member Prototypes ///
@@ -52,7 +52,7 @@ static bool 	GetGLFWMouseMonitor(GLFWmonitor** monitor, GLFWwindow* window);
 
 GLFWWindow::GLFWWindow(RenderingApi renderingAPI,
 					   const string& title,
-					   const glm::uvec2& size,
+					   const uvec2& size,
 					   bool fullScreen,
 					   bool enableHighDPI,
 					   AntialiasingMode antialiasingMode):
@@ -226,7 +226,7 @@ void GLFWWindow::title(const string& title) {
 uvec2 GLFWWindow::size() const {
 	ivec2 size;
 	glfwGetWindowSize(_glfwWindow.get(), &size.x, &size.y);
-	return {size.x, size.y};
+	return uvec2(size.x, size.y);
 }
 
 void GLFWWindow::size(const uvec2& size) {
@@ -236,7 +236,7 @@ void GLFWWindow::size(const uvec2& size) {
 uvec2 GLFWWindow::position() const {
 	ivec2 pos;
 	glfwGetWindowPos(_glfwWindow.get(), &pos.x, &pos.y);
-	return {pos.x, pos.y};
+	return uvec2(pos.x, pos.y);
 }
 
 void GLFWWindow::position(const uvec2& pos) {
@@ -256,8 +256,8 @@ void GLFWWindow::center() {
 
 		auto winSize = this->size();
 
-		this->position({ screenPos.x + ((screenSize.x/2.0) - (winSize.x/2.0)),
-						 screenPos.y + ((screenSize.y/2.0) - (winSize.y/2.0)) });
+		this->position(uvec2(screenPos.x + ((screenSize.x/2.0) - (winSize.x/2.0)),
+							 screenPos.y + ((screenSize.y/2.0) - (winSize.y/2.0))));
 	}
 	else {
 		A3D_LOG_E("Can't get window monitor.");
@@ -332,14 +332,14 @@ void GLFWWindow::swapBuffers() {
 	glfwSwapBuffers(_glfwWindow.get());
 }
 
-glm::uvec2 GLFWWindow::framebufferSize() const {
+uvec2 GLFWWindow::framebufferSize() const {
 	ivec2 size;
 	glfwGetFramebufferSize(_glfwWindow.get(), &size.x, &size.y);
-	return {size.x, size.y};
+	return uvec2(size.x, size.y);
 }
 
 
-glm::vec2 GLFWWindow::framebufferScale() const {
+vec2 GLFWWindow::framebufferScale() const {
 	vec2 scale;
 	glfwGetWindowContentScale(_glfwWindow.get(), &scale.x, &scale.y);
 	return scale;
@@ -512,7 +512,7 @@ void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
 //			  static_cast<void*>(glfwWindow), width, height);
 
 	auto window = (GLFWWindow*)glfwGetWindowUserPointer(glfwWindow);
-	window->size({width, height});
+	window->size(uvec2(width, height));
 }
 
 void GLFWWindowCloseCallback(GLFWwindow* glfwWindow) {

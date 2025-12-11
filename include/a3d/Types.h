@@ -18,8 +18,7 @@
 #include <variant>
 #include <vector>
 
-#include <glm/detail/type_quat.hpp>
-#include <glm/glm.hpp>
+#include "a3d/Math.h"
 
 namespace a3d {
 
@@ -348,9 +347,9 @@ namespace a3d {
 	A3D_ENABLE_ENUM_MASK_OPS(DesktopInputManagerErrorMask)
 
 	typedef struct {
-		glm::vec3 position;
-		glm::vec3 normal;
-		glm::vec2 texCoord;
+		math::vec3 position;
+		math::vec3 normal;
+		math::vec2 texCoord;
 	} Vertex;
 
 	typedef struct {
@@ -360,8 +359,8 @@ namespace a3d {
 	} Face;
 
 	typedef struct {
-		glm::vec3 min;
-		glm::vec3 max;
+		math::vec3 min;
+		math::vec3 max;
 	} AABB;
 
 	typedef struct {
@@ -383,7 +382,7 @@ namespace a3d {
 		unsigned 	numElements;
 		unsigned 	numPolygons;
 		unsigned 	numLights;
-		glm::vec3 	cameraPosition;
+		math::vec3 	cameraPosition;
 
 		unsigned	numStaticBodies;
 		unsigned	numDynamicBodies;

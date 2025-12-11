@@ -40,16 +40,16 @@ namespace a3d::utils {
 	/// Output ///
 
 	// TODO: remove these
-	std::ostream& operator<<(std::ostream& os, const glm::vec3& v);
-	std::ostream& operator<<(std::ostream& os, const glm::vec4& v);
-	std::ostream& operator<<(std::ostream& os, const glm::quat& q);
-	std::ostream& operator<<(std::ostream& os, const glm::mat4& m);
+	std::ostream& operator<<(std::ostream& os, const math::vec3& v);
+	std::ostream& operator<<(std::ostream& os, const math::vec4& v);
+	std::ostream& operator<<(std::ostream& os, const math::quat& q);
+	std::ostream& operator<<(std::ostream& os, const math::mat4& m);
 	std::ostream& operator<<(std::ostream& os, const Color& c);
 
-	std::string StringFromGLMVec3(const glm::vec3& v);
-	std::string StringFromGLMVec4(const glm::vec4& v);
-	std::string StringFromGLMQuat(const glm::quat& q);
-	std::string StringFromGLMMat4(const glm::mat4& m);
+	std::string StringFromGLMVec3(const math::vec3& v);
+	std::string StringFromGLMVec4(const math::vec4& v);
+	std::string StringFromGLMQuat(const math::quat& q);
+	std::string StringFromGLMMat4(const math::mat4& m);
 	std::string StringFromColor(const Color& c);
 
 	std::string StringFromTree(const Node& root);
@@ -65,13 +65,13 @@ namespace a3d::utils {
 	int Uniform(int min, int max);
 	float Uniform(float min, float max);
 
-	bool Zero(const glm::vec3& v, float tolerance = 0.0001);
-	float Max(const glm::vec3& v);
+	bool Zero(const math::vec3& v, float tolerance = 0.0001);
+	float Max(const math::vec3& v);
 
 	bool Equal(float a, float b, float tolerance = 0.0001);
-	bool Equal(const glm::vec2& a, const glm::vec2& b, float tolerance = 0.0001);
-	bool Equal(const glm::vec3& a, const glm::vec3& b, float tolerance = 0.0001);
-	bool Equal(const glm::vec4& a, const glm::vec4& b, float tolerance = 0.0001);
+	bool Equal(const math::vec2& a, const math::vec2& b, float tolerance = 0.0001);
+	bool Equal(const math::vec3& a, const math::vec3& b, float tolerance = 0.0001);
+	bool Equal(const math::vec4& a, const math::vec4& b, float tolerance = 0.0001);
 
 	/// Time ///
 
@@ -166,7 +166,7 @@ namespace a3d::utils {
 
 	void 							SaveSnapshot(RenderContext& context);
 	void 							StartGIFRecording(RenderContext& context,
-													  glm::vec2 fitInside,
+													  math::uvec2 fitInside,
 													  unsigned maxFramerate);
 	void 							StopGIFRecording(RenderContext& context);
 }

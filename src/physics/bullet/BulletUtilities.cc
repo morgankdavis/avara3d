@@ -8,8 +8,6 @@
 
 #include "a3d/physics/bullet/BulletUtilities.h"
 
-#include "glm/gtc/type_ptr.hpp"
-#include "glm/gtx/matrix_decompose.hpp"
 #include "LinearMath/btQuaternion.h"
 #include "LinearMath/btTransform.h"
 #include "LinearMath/btVector3.h"
@@ -17,37 +15,37 @@
 #include "a3d/Utilities.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 
-vec3 a3d::GLMVec3FromBTVector3(const btVector3& from) {
+vec3 a3d::A3DVec3FromBTVector3(const btVector3& from) {
 	return {from.x(), from.y(), from.z()};
 }
 
-vec4 a3d::GLMVec4FromBTVector4(const btVector4& from) {
+vec4 a3d::A3DVec4FromBTVector4(const btVector4& from) {
 	return vec4{from.x(), from.y(), from.z(), from.w()};
 }
 
-mat4 a3d::GLMMat4FromBTTransform(const btTransform& from) {
+mat4 a3d::A3DMat4FromBTTransform(const btTransform& from) {
 	mat4 glmMat;
 	from.getOpenGLMatrix(value_ptr(glmMat));
 	return glmMat;
 }
 
-btVector3 a3d::BTVector3FromGLMVec3(const vec3& from) {
+btVector3 a3d::BTVector3FromA3DVec3(const math::vec3 &from) {
 	return {from.x, from.y, from.z};
 }
 
-btVector4 a3d::BTVector4FromGLMVec4(const vec4& from) {
+btVector4 a3d::BTVector4FromA3DVec4(const math::vec4 &from) {
 	return {from.x, from.y, from.z, from.w};
 }
 
-btQuaternion a3d::BTQuaternionFromGLMQuat(const quat& from) {
+btQuaternion a3d::BTQuaternionFromA3DQuat(const math::quat &from) {
 
 	return {from.x, from.y, from.z, from.w};
 
 }
 
-btTransform a3d::BTTransformFromGLMMat4(const mat4& from) {
+btTransform a3d::BTTransformFromA3DMat4(const math::mat4 &from) {
 
 	// this version (probably) does not strip scale & sheer
 

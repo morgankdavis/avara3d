@@ -43,7 +43,7 @@
 
 using namespace a3d;
 using namespace fastgltf;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
 /// Private Static Non-Member Prototypes ///
@@ -894,16 +894,16 @@ mat4 TransformFromGlTFNode(fastgltf::Node& node) {
 			//auto trs = get<fastgltf::Node::TRS>(transform);
 			const auto& id4 = mat4(1.0);
 
-			auto t = glm::translate(id4, { transform.translation[0],
+			auto t = translate(id4, { transform.translation[0],
 										   transform.translation[1],
 										   transform.translation[2] });
 
-			auto r = glm::mat4_cast(quat{ transform.rotation[3],
+			auto r = mat4_cast(quat{ transform.rotation[3],
 										  transform.rotation[0],
 										  transform.rotation[1],
 										  transform.rotation[2] });
 
-			auto s = glm::scale(id4, { transform.scale[0],
+			auto s = scale(id4, { transform.scale[0],
 									   transform.scale[1],
 									   transform.scale[2] });
 
@@ -928,16 +928,16 @@ mat4 TransformFromGlTFNode(fastgltf::Node& node) {
 //		auto trs = get<fastgltf::Node::TRS>(transform);
 //		const auto& id4 = mat4(1.0);
 //
-//		auto t = glm::translate(id4, { trs.translation[0],
+//		auto t = translate(id4, { trs.translation[0],
 //									   trs.translation[1],
 //									   trs.translation[2] });
 //
-//		auto r = glm::mat4_cast(quat{ trs.rotation[3],
+//		auto r = mat4_cast(quat{ trs.rotation[3],
 //									  trs.rotation[0],
 //									  trs.rotation[1],
 //									  trs.rotation[2] });
 //
-//		auto s = glm::scale(id4, { trs.scale[0],
+//		auto s = scale(id4, { trs.scale[0],
 //								   trs.scale[1],
 //								   trs.scale[2] });
 //

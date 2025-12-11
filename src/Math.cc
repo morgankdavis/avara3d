@@ -10,6 +10,8 @@
 
 namespace a3d::math {
 
+	/// Types ///
+
 	vec2::vec2(f32 x_, f32 y_):
 			x{x_}, y{y_} {}
 
@@ -32,6 +34,9 @@ namespace a3d::math {
 	vec3::vec3(f32 x_, f32 y_, f32 z_):
 			x{x_}, y{y_}, z{z_} {}
 
+	vec3::vec3(const vec2& v, f32 z_):
+		x{v.x}, y{v.y}, z{z_} {}
+
 	vec3::vec3(const vec2& v):
 			x{v.x}, y{v.y}, z{0} {}
 
@@ -51,6 +56,9 @@ namespace a3d::math {
 	vec4::vec4(f32 x_, f32 y_, f32 z_, f32 w_):
 			x{x_}, y{y_}, z{z_}, w{w_} {}
 
+	vec4::vec4(const vec3& v, f32 w_):
+		x{v.x}, y{v.y}, z{v.z}, w{w_} {}
+
 	vec4::vec4(const vec2& v):
 			x{v.x}, y{v.y}, z{0}, w{0} {}
 
@@ -67,7 +75,7 @@ namespace a3d::math {
 		return (&x)[i];
 	}
 
-	ivec2::ivec2(i32 x_, i32 y_) :
+	ivec2::ivec2(i32 x_, i32 y_):
 			x{x_}, y{y_} {}
 
 	ivec2::ivec2(const ivec3& v):
@@ -86,8 +94,11 @@ namespace a3d::math {
 		return (&x)[i];
 	}
 
-	ivec3::ivec3(i32 x_, i32 y_, i32 z_) :
+	ivec3::ivec3(i32 x_, i32 y_, i32 z_):
 			x{x_}, y{y_}, z{z_} {}
+
+	ivec3::ivec3(const ivec2& v, i32 z_):
+			x{v.x}, y{v.y}, z{z_} {}
 
 	ivec3::ivec3(const ivec2& v):
 			x{v.x}, y{v.y}, z{0} {}
@@ -105,8 +116,11 @@ namespace a3d::math {
 		return (&x)[i];
 	}
 
-	ivec4::ivec4(i32 x_, i32 y_, i32 z_, i32 w_) :
+	ivec4::ivec4(i32 x_, i32 y_, i32 z_, i32 w_):
 			x{x_}, y{y_}, z{z_}, w{w_} {}
+
+	ivec4::ivec4(const ivec3& v, i32 w_):
+			x{v.x}, y{v.y}, z{v.z}, w{w_} {}
 
 	ivec4::ivec4(const ivec2& v):
 			x{v.x}, y{v.y}, z{0}, w{0} {}
@@ -143,8 +157,11 @@ namespace a3d::math {
 		return (&x)[i];
 	}
 
-	uvec3::uvec3(u32 x_, u32 y_, u32 z_) :
+	uvec3::uvec3(u32 x_, u32 y_, u32 z_):
 			x{x_}, y{y_}, z{z_} {}
+
+	uvec3::uvec3(const uvec2& v, u32 z_):
+			x{v.x}, y{v.y}, z{z_} {}
 
 	uvec3::uvec3(const uvec2& v):
 			x{v.x}, y{v.y}, z{0} {}
@@ -162,8 +179,11 @@ namespace a3d::math {
 		return (&x)[i];
 	}
 
-	uvec4::uvec4(u32 x_, u32 y_, u32 z_, u32 w_) :
+	uvec4::uvec4(u32 x_, u32 y_, u32 z_, u32 w_):
 			x{x_}, y{y_}, z{z_}, w{w_} {}
+
+	uvec4::uvec4(const uvec3& v, u32 w_):
+			x{v.x}, y{v.y}, z{v.z}, w{w_} {}
 
 	uvec4::uvec4(const uvec2& v):
 			x{v.x}, y{v.y}, z{0}, w{0} {}
@@ -177,6 +197,69 @@ namespace a3d::math {
 	}
 
 	const u32& uvec4::operator[](std::size_t i) const {
+		assert(i < 4);
+		return (&x)[i];
+	}
+
+	u8vec2::u8vec2(u8 x_, u8 y_) :
+			x{x_}, y{y_} {}
+
+	u8vec2::u8vec2(const u8vec3& v):
+			x{v.x}, y{v.y} {}
+
+	u8vec2::u8vec2(const u8vec4& v):
+			x{v.x}, y{v.y} {}
+
+	u8& u8vec2::operator[](std::size_t i) {
+		assert(i < 2);
+		return (&x)[i];
+	}
+
+	const u8& u8vec2::operator[](std::size_t i) const {
+		assert(i < 2);
+		return (&x)[i];
+	}
+
+	u8vec3::u8vec3(u8 x_, u8 y_, u8 z_):
+			x{x_}, y{y_}, z{z_} {}
+
+	u8vec3::u8vec3(const u8vec2& v, u8 z_):
+			x{v.x}, y{v.y}, z{z_} {}
+
+	u8vec3::u8vec3(const u8vec2& v):
+			x{v.x}, y{v.y}, z{0} {}
+
+	u8vec3::u8vec3(const u8vec4& v):
+			x{v.x}, y{v.y}, z{v.z} {}
+
+	u8& u8vec3::operator[](std::size_t i) {
+		assert(i < 3);
+		return (&x)[i];
+	}
+
+	const u8& u8vec3::operator[](std::size_t i) const {
+		assert(i < 3);
+		return (&x)[i];
+	}
+
+	u8vec4::u8vec4(u8 x_, u8 y_, u8 z_, u8 w_):
+			x{x_}, y{y_}, z{z_}, w{w_} {}
+
+	u8vec4::u8vec4(const u8vec3& v, u8 w_):
+			x{v.x}, y{v.y}, z{v.z}, w{w_} {}
+
+	u8vec4::u8vec4(const u8vec2& v):
+			x{v.x}, y{v.y}, z{0}, w{0} {}
+
+	u8vec4::u8vec4(const u8vec3& v):
+			x{v.x}, y{v.y}, z{v.z}, w{0} {}
+
+	u8& u8vec4::operator[](std::size_t i) {
+		assert(i < 4);
+		return (&x)[i];
+	}
+
+	const u8& u8vec4::operator[](std::size_t i) const {
 		assert(i < 4);
 		return (&x)[i];
 	}
@@ -243,6 +326,8 @@ namespace a3d::math {
 		assert(i < 4);
 		return (&w)[i];
 	}
+
+	/// 32-bit Float Vector ///
 
 	vec2 operator+(const vec2 &a, const vec2 &b) {
 		return vec2{a.x + b.x, a.y + b.y};
@@ -473,7 +558,7 @@ namespace a3d::math {
 		return &v.x;
 	}
 
-// ----- ivec add -----
+	/// Signed 32-bit Integer Vector ///
 
 	ivec2 operator+(const ivec2 &a, const ivec2 &b) {
 		return ivec2{a.x + b.x, a.y + b.y};
@@ -664,7 +749,7 @@ namespace a3d::math {
 		return &v.x;
 	}
 
-	// ----- uvec add -----
+	/// Unsigned 32-bit Integer Vector ///
 
 	uvec2 operator+(const uvec2 &a, const uvec2 &b) {
 		return uvec2{a.x + b.x, a.y + b.y};
@@ -854,6 +939,8 @@ namespace a3d::math {
 	const u32* value_ptr(const uvec4 &v) {
 		return &v.x;
 	}
+
+	/// 32-bit Float Matrix ///
 
 	mat2 identity2() {
 		return mat2(1.0f);
@@ -1125,6 +1212,61 @@ namespace a3d::math {
 		return r;
 	}
 
+	mat4 translate(const mat4& m, const vec3& v) {
+		mat4 result(m);
+		result[3] = m[0] * v[0] + m[1] * v[1] + m[2] * v[2] + m[3];
+		return result;
+	}
+
+	mat4 rotate(const mat4& m, f32 angle, const vec3& v) {
+		const f32 a = angle;
+		const f32 c = cos(a);
+		const f32 s = sin(a);
+
+		vec3 axis(normalize(v));
+		vec3 temp((f32(1) - c) * axis);
+
+		mat4 rotate;
+		rotate[0][0] = c + temp[0] * axis[0];
+		rotate[0][1] = temp[0] * axis[1] + s * axis[2];
+		rotate[0][2] = temp[0] * axis[2] - s * axis[1];
+
+		rotate[1][0] = temp[1] * axis[0] - s * axis[2];
+		rotate[1][1] = c + temp[1] * axis[1];
+		rotate[1][2] = temp[1] * axis[2] + s * axis[0];
+
+		rotate[2][0] = temp[2] * axis[0] + s * axis[1];
+		rotate[2][1] = temp[2] * axis[1] - s * axis[0];
+		rotate[2][2] = c + temp[2] * axis[2];
+
+		mat4 result;
+		result[0] = m[0] * rotate[0][0] + m[1] * rotate[0][1] + m[2] * rotate[0][2];
+		result[1] = m[0] * rotate[1][0] + m[1] * rotate[1][1] + m[2] * rotate[1][2];
+		result[2] = m[0] * rotate[2][0] + m[1] * rotate[2][1] + m[2] * rotate[2][2];
+		result[3] = m[3];
+		return result;
+	}
+
+	mat4 scale(const mat4& m, const vec3& v){
+		mat4 result;
+		result[0] = m[0] * v[0];
+		result[1] = m[1] * v[1];
+		result[2] = m[2] * v[2];
+		result[3] = m[3];
+		return result;
+	}
+
+	mat4 scale(const mat4& m, f32 s) {
+		mat4 result = m;
+		result.c0.x *= s;
+		result.c1.y *= s;
+		result.c2.z *= s;
+		// leave c3 (translation) alone
+		return result;
+	}
+
+	/// 32-bit Float Quaternion ///
+
 	quat identity_quat() {
 		return quat{1.0f, 0.0f, 0.0f, 0.0f};
 	}
@@ -1245,7 +1387,7 @@ namespace a3d::math {
 		return rotate(q, v);
 	}
 
-// ----- angle-axis (like glm::angleAxis) -----
+// ----- angle-axis (like angleAxis) -----
 
 	quat angle_axis(f32 angle, const vec3 &axis) {
 		// Normalize axis to be safe
@@ -1265,7 +1407,7 @@ namespace a3d::math {
 		return quat{c, n.x * s, n.y * s, n.z * s};
 	}
 
-// ----- slerp (glm::slerp style) -----
+// ----- slerp (slerp style) -----
 
 	quat slerp(const quat &a, const quat &b, f32 t) {
 		// Clamp t just in case
@@ -1337,6 +1479,8 @@ namespace a3d::math {
 		return &q.w;
 	}
 
+	/// 32-bit Float Trig ///
+
 	f32 radians(f32 degrees) {
 		return degrees * static_cast<f32>(0.01745329251994329576923690768489);
 	}
@@ -1369,6 +1513,10 @@ namespace a3d::math {
 		return std::atan(num);
 	}
 
+	f32 atan2(f32 x, f32 y) {
+		return std::atan2(x, y);
+	}
+
 	f32 sinh(f32 num) {
 		return std::sinh(num);
 	}
@@ -1392,6 +1540,8 @@ namespace a3d::math {
 	f32 atanh(f32 num) {
 		return std::atanh(num);
 	}
+
+	/// 32-bit Float Utilities ///
 
 	f32 ceil(f32 num) {
 		return std::ceil(num);
@@ -1445,22 +1595,29 @@ namespace a3d::math {
 		std::swap(a, b);
 	}
 
+	mat4 perspective(f32 fovy, f32 aspect, f32 zNear, f32 zFar) {
+		assert(math::abs(aspect - std::numeric_limits<f32>::epsilon()) > static_cast<f32>(0));
+		f32 const tanHalfFovy = tan(fovy / static_cast<f32>(2));
+		mat4 result(static_cast<f32>(0));
+		result[0][0] = static_cast<f32>(1) / (aspect * tanHalfFovy);
+		result[1][1] = static_cast<f32>(1) / (tanHalfFovy);
+		result[2][2] = - (zFar + zNear) / (zFar - zNear);
+		result[2][3] = - static_cast<f32>(1);
+		result[3][2] = - (static_cast<f32>(2) * zFar * zNear) / (zFar - zNear);
+		return result;
+	}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	mat4 ortho(f32 left, f32 right, f32 bottom, f32 top, f32 zNear, f32 zFar) {
+		mat4 result(1);
+		result[0][0] = static_cast<f32>(2) / (right - left);
+		result[1][1] = static_cast<f32>(2) / (top - bottom);
+		result[2][2] = - static_cast<f32>(2) / (zFar - zNear);
+		result[3][0] = - (right + left) / (right - left);
+		result[3][1] = - (top + bottom) / (top - bottom);
+		result[3][2] = - (zFar + zNear) / (zFar - zNear);
+		return result;
+	}
 
 	namespace decomposedetail {
 

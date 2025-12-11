@@ -17,7 +17,7 @@
 
 using namespace a3d;
 using namespace generator;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
 /// Pubic Static Members ///

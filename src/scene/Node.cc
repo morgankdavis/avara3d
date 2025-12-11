@@ -12,13 +12,9 @@
 #include <format>
 #include <utility>
 
-#include "glm/gtx/matrix_decompose.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtx/string_cast.hpp"
-#include "glm/gtx/quaternion.hpp"
-
 #include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/log/Log.h"
+#include "a3d/Math.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsShape.h"
@@ -27,7 +23,7 @@
 #include "a3d/rendering/light/Light.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
 //#define ALTERNATE_EULERS
@@ -168,10 +164,10 @@ vec4 Node::rotation() const {
 	 */
 
 	// WORKS (but clips rotation to 2PI)
-	vec4 angleAxis = vec4(_orientation.x / sqrt(1-_orientation.w*_orientation.w),
-						  _orientation.y / sqrt(1-_orientation.w*_orientation.w),
-						  _orientation.z / sqrt(1-_orientation.w*_orientation.w),
-						  2 * acos(_orientation.w));
+	vec4 angleAxis = vec4(_orientation.x / math::sqrt(1-_orientation.w*_orientation.w),
+						  _orientation.y / math::sqrt(1-_orientation.w*_orientation.w),
+						  _orientation.z / math::sqrt(1-_orientation.w*_orientation.w),
+						  2 * math::acos(_orientation.w));
 
 	return angleAxis;
 
@@ -217,7 +213,7 @@ void Node::rotation(const vec3& axis, float angle) {
 
 
 	vec3 axisNormalized = normalize(vec3(axis.x, axis.y, axis.z));
-	_orientation = angleAxis(angle, axisNormalized);
+	_orientation = angle_axis(angle, axisNormalized); // a3d::math
 
 	//addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
 //	}
@@ -225,8 +221,8 @@ void Node::rotation(const vec3& axis, float angle) {
 
 vec3 Node::eulerAngles() const {  // pitch, yaw, roll
 
-	// glm::eulerAngleYXZ()
-	// glm::yawPitchRoll()
+	// eulerAngleYXZ()
+	// yawPitchRoll()
 	// https://glm.g-truc.net/0.9.3/api/a00164.html#ga4c297724e663cb77cc2cf7e4ab89b77e
 
 	// !? https://glm.g-truc.net/0.9.0/api/a00151.html
@@ -242,9 +238,9 @@ vec3 Node::eulerAngles() const {  // pitch, yaw, roll
 
 	auto q = _orientation;
 
-	float pitch = atan2(2.0f*q.x*q.w - 2.0f*q.y*q.z, 1.0f - 2.0f*q.x*q.x - 2.0f*q.z*q.z);
-	float yaw = atan2(2.0f*q.y*q.w - 2.0f*q.x*q.z, 1.0f - 2.0f*q.y*q.y - 2.0f*q.z*q.z);
-	float roll = asin(2*q.x*q.y + 2.0f*q.z*q.w);
+	float pitch = math::atan2(2.0f*q.x*q.w - 2.0f*q.y*q.z, 1.0f - 2.0f*q.x*q.x - 2.0f*q.z*q.z);
+	float yaw = math::atan2(2.0f*q.y*q.w - 2.0f*q.x*q.z, 1.0f - 2.0f*q.y*q.y - 2.0f*q.z*q.z);
+	float roll = math::asin(2*q.x*q.y + 2.0f*q.z*q.w);
 
 	return vec3(pitch, yaw, roll);
 	
@@ -261,7 +257,7 @@ vec3 Node::eulerAngles() const {  // pitch, yaw, roll
 #endif
 
 	// clips to +-180
-	//return glm::eulerAngles(_orientation);
+	//return eulerAngles(_orientation);
 }
 
 void Node::eulerAngles(const vec3& eulerAngles) { // pitch, yaw, roll
@@ -282,12 +278,12 @@ void Node::eulerAngles(const vec3& eulerAngles) { // pitch, yaw, roll
 	float roll = eulerAngles.z;
 
 	// ORIGINAL
-	float c1 = cos(yaw / 2.0f);
-	float c2 = cos(roll / 2.0f);
-	float c3 = cos(pitch / 2.0f);
-	float s1 = sin(yaw / 2.0f);
-	float s2 = sin(roll / 2.0f);
-	float s3 = sin(pitch / 2.0f);
+	float c1 = math::cos(yaw / 2.0f);
+	float c2 = math::cos(roll / 2.0f);
+	float c3 = math::cos(pitch / 2.0f);
+	float s1 = math::sin(yaw / 2.0f);
+	float s2 = math::sin(roll / 2.0f);
+	float s3 = math::sin(pitch / 2.0f);
 
 	float w = c1*c2*c3 - s1*s2*s3;
 	float x = s1*s2*c3 + c1*c2*s3;
@@ -354,7 +350,7 @@ vec3 Node::scale() const {
 	return _scale;
 }
 
-void Node::scale(const glm::vec3& scale) {
+void Node::scale(const vec3& scale) {
 	_scale = scale;
 }
 
@@ -362,7 +358,7 @@ mat4 Node::transform() const {
 
 	mat4 t = translate(mat4(1.0), _position);
 	mat4 r = mat4_cast(_orientation);
-	mat4 s = glm::scale(mat4(1.0), _scale);
+	mat4 s = math::scale(mat4(1.0), _scale);
 	
 	return t * r * s;
 }

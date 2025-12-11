@@ -14,8 +14,6 @@
 #include <unordered_set>
 #include <utility>
 
-#include "glm/glm.hpp"
-
 #include "a3d/Types.h"
 #include "a3d/rendering/renderer/Renderer.h"
 
@@ -94,24 +92,24 @@ namespace a3d {
 									   FrameStats& stats) override;
 		void 					render(Mesh& mesh,
 									   const RenderContext& context,
-									   const glm::mat4& modelMat,
-									   const glm::mat4& viewMat,
-									   const glm::mat4& projectionMat,
+									   const math::mat4& modelMat,
+									   const math::mat4& viewMat,
+									   const math::mat4& projectionMat,
 									   const DebugOptions& debugOptions,
 									   FrameStats& stats) override;
 		void 					render(MeshElement& element,
 									   const RenderContext& context,
 									   Material& material,
-									   const glm::mat4& modelMat,
-									   const glm::mat4& viewMat,
-									   const glm::mat4& projectionMat,
+									   const math::mat4& modelMat,
+									   const math::mat4& viewMat,
+									   const math::mat4& projectionMat,
 									   const DebugOptions& debugOptions,
 									   FrameStats& stats) override;
 		void 					render(const std::vector<Line>& lines,
 									   const RenderContext& context,
-									   const glm::mat4& modelMat,
-									   const glm::mat4& viewMat,
-									   const glm::mat4& projectionMat) override;
+									   const math::mat4& modelMat,
+									   const math::mat4& viewMat,
+									   const math::mat4& projectionMat) override;
 
 		std::unique_ptr<Image> 	snapshot(const RenderContext& context) const override;
 

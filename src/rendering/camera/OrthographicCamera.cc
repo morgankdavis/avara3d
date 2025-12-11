@@ -15,7 +15,7 @@
 
 using namespace a3d;
 using namespace std;
-using namespace glm;
+using namespace a3d::math;
 
 /// Public Lifecycle Functions ///
 
@@ -65,10 +65,10 @@ void OrthographicCamera::constructProjectionMatrix() {
 	// left, right, bottom, top, near, far
 	// DeVries 9.5.1
 
-	_projection = glm::ortho(_extent.min.x,
-							 _extent.max.x,
-							 _extent.min.y,
-							 _extent.max.y,
-							 _extent.min.z,
-							 _extent.max.z);
+	_projection = ortho(_extent.min.x,
+						_extent.max.x,
+						_extent.min.y,
+						_extent.max.y,
+						_extent.min.z,
+						_extent.max.z);
 }

@@ -44,14 +44,13 @@
 #undef max // windows.h defines a 'max'... (we want std::max())
 #include <algorithm> // needs to be under windows.h
 
-#include "glm/gtc/quaternion.hpp"
-
 #include "a3d/Buffer.h"
 #include "a3d/Color.h"
 #include "a3d/CubeImage.h"
 #include "a3d/Font.h"
 #include "a3d/Image.h"
 #include "a3d/diagnostic/log/Log.h"
+#include "a3d/Math.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/rendering/camera/Camera.h"
@@ -62,7 +61,7 @@
 #include "a3d/scene/Scene.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
 /// Private Static Prototypes ///
@@ -71,17 +70,17 @@ static void StringFromTreeRec(Node& n, stringstream& ss, unsigned depth);
 
 /// Output ///
 
-ostream& a3d::utils::operator<<(ostream& os, const glm::vec3& v) {
+ostream& a3d::utils::operator<<(ostream& os, const vec3& v) {
 	os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
 	return os;
 }
 
-ostream& a3d::utils::operator<<(ostream& os, const glm::vec4& v) {
+ostream& a3d::utils::operator<<(ostream& os, const vec4& v) {
 	os << "(" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")";
 	return os;
 }
 
-ostream& a3d::utils::operator<<(ostream& os, const glm::quat& q) {
+ostream& a3d::utils::operator<<(ostream& os, const quat& q) {
 	os << "(" << q.x << ", " << q.y << ", " << q.z << ", " << q.w << ")";
 	return os;
 }
@@ -228,18 +227,18 @@ bool a3d::utils::Equal(float a, float b, float tolerance) {
 	return (fabs(a - b) <= tolerance);
 }
 
-bool a3d::utils::Equal(const glm::vec2& a, const glm::vec2& b, float tolerance) {
+bool a3d::utils::Equal(const vec2& a, const vec2& b, float tolerance) {
 	return Equal(a.x, b.x, tolerance)
 		   && Equal(a.y, b.y, tolerance);
 }
 
-bool a3d::utils::Equal(const glm::vec3& a, const glm::vec3& b, float tolerance) {
+bool a3d::utils::Equal(const vec3& a, const vec3& b, float tolerance) {
 	return Equal(a.x, b.x, tolerance)
 	&& Equal(a.y, b.y, tolerance)
 	&& Equal(a.z, b.z, tolerance);
 }
 
-bool a3d::utils::Equal(const glm::vec4& a, const glm::vec4& b, float tolerance) {
+bool a3d::utils::Equal(const vec4& a, const vec4& b, float tolerance) {
 	return Equal(a.x, b.x, tolerance)
 	&& Equal(a.y, b.y, tolerance)
 	&& Equal(a.z, b.z, tolerance)
@@ -600,7 +599,7 @@ void a3d::utils::SaveSnapshot(RenderContext& context) {
 }
 
 void a3d::utils::StartGIFRecording(RenderContext& context,
-								   vec2 fitInside,
+								   uvec2 fitInside,
 								   unsigned maxFramerate) {
 
 	auto execDir = ExecutableDirectory();

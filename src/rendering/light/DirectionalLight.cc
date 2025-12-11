@@ -12,7 +12,7 @@
 #include "a3d/diagnostic/log/Log.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
 /// Public Lifecycle Functions ///

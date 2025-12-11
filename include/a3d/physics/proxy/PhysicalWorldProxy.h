@@ -48,8 +48,8 @@ namespace a3d {
 
 		virtual void 	drawDebug(Renderer &renderer,
 								  const RenderContext& context,
-								  const glm::mat4 &viewMat,
-								  const glm::mat4 &projectionMat,
+								  const math::mat4 &viewMat,
+								  const math::mat4 &projectionMat,
 								  const DebugOptions &debugOptions) = 0;
 	};
 }

@@ -34,7 +34,7 @@ namespace a3d {
 
 		/// Internal Member Functions ///
 
-		glm::mat4 							projection() const;
+		math::mat4 							projection() const;
 
 	protected:
 		/// Protected Member Functions ///
@@ -44,7 +44,7 @@ namespace a3d {
 		/// Protected Member Variables ///
 
 		std::optional<std::string>			_name;
-		glm::mat4							_projection;
+		math::mat4							_projection;
 	};
 }
 

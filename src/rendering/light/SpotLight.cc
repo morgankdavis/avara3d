@@ -19,8 +19,8 @@ using namespace std;
 SpotLight::SpotLight():
 		AttenuatedLight() {
 	// see DeVries 16.5
-	_innerAngleCos = static_cast<float>(glm::cos(10.0));
-	_outerAngleCos = static_cast<float>(glm::cos(15.0));
+	_innerAngleCos = static_cast<float>(cos(10.0));
+	_outerAngleCos = static_cast<float>(cos(15.0));
 	_featherMode = SpotlightFeatheringMode::Linear;
 }
 
@@ -53,19 +53,19 @@ SpotLight::SpotLight(const string& name, const shared_ptr<Color>& color):
 /// Public Member Functions ///
 
 float SpotLight::innerAngle() const {
-	return glm::acos(_innerAngleCos);
+	return acos(_innerAngleCos);
 }
 
 void SpotLight::innerAngle(float angle) {
-	_innerAngleCos = static_cast<float>(glm::cos(angle));
+	_innerAngleCos = static_cast<float>(cos(angle));
 }
 
 float SpotLight::outerAngle() const {
-	return glm::acos(_outerAngleCos);
+	return acos(_outerAngleCos);
 }
 
 void SpotLight::outerAngle(float angle) {
-	_outerAngleCos = static_cast<float>(glm::cos(angle));
+	_outerAngleCos = static_cast<float>(cos(angle));
 }
 
 SpotlightFeatheringMode SpotLight::featheringMode() const {

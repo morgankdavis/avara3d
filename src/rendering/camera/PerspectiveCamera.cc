@@ -15,7 +15,7 @@
 
 using namespace a3d;
 using namespace std;
-using namespace glm;
+using namespace a3d::math;
 
 /// Public Lifecycle Functions ///
 
@@ -102,8 +102,8 @@ void PerspectiveCamera::aspectRatio(float ratio) {
 /// Camera Protected Member Functions ///
 
 void PerspectiveCamera::constructProjectionMatrix() {
-	_projection = glm::perspective(_yFov,
-								   _aspectRatio,
-								   _zNear,
-								   _zFar);
+	_projection = perspective(_yFov,
+							  _aspectRatio,
+							  _zNear,
+							  _zFar);
 }

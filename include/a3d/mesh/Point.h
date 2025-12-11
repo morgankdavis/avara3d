@@ -11,9 +11,8 @@
 
 #include <memory>
 
-#include "glm/glm.hpp"
-
 #include "a3d/Color.h"
+#include "a3d/Math.h"
 
 namespace a3d {
 	
@@ -25,13 +24,13 @@ namespace a3d {
 
 	public:
 
-		explicit Point(const glm::vec3& location);
-		Point(const glm::vec3& location, const Color& color);
+		explicit Point(const math::vec3& location);
+		Point(const math::vec3& location, const Color& color);
 
 /// Internal Member Functions ///
 
-		const glm::vec3& 		location() const;
-		void 					location(const glm::vec3& point);
+		const math::vec3& 		location() const;
+		void 					location(const math::vec3& point);
 		const Color&			color() const;
 		void 					color(const Color& color);
 		
@@ -39,7 +38,7 @@ namespace a3d {
 
 	private:
 
-		glm::vec3 				_location;
+		math::vec3 				_location;
 		Color 					_color;
 	};
 }
