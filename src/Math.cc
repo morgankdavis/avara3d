@@ -8,6 +8,8 @@
 
 #include "a3d/Math.h"
 
+#include <sstream>
+
 namespace a3d::math {
 
 	/// Types ///
@@ -410,7 +412,6 @@ namespace a3d::math {
 		return vec4{a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w};
 	}
 
-// v - v
 	vec2 operator-(const vec2 &a, const vec2 &b) {
 		return vec2{a.x - b.x, a.y - b.y};
 	}
@@ -423,7 +424,6 @@ namespace a3d::math {
 		return vec4{a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w};
 	}
 
-// v * s
 	vec2 operator*(const vec2 &v, f32 s) {
 		return vec2{v.x * s, v.y * s};
 	}
@@ -448,7 +448,6 @@ namespace a3d::math {
 		return v * s;
 	}
 
-// v / s
 	vec2 operator/(const vec2 &v, f32 s) {
 		f32 inv = 1.0f / s;
 		return vec2{v.x * inv, v.y * inv};
@@ -551,7 +550,6 @@ namespace a3d::math {
 		return v;
 	}
 
-// dot
 	f32 dot(const vec2 &a, const vec2 &b) {
 		return a.x * b.x + a.y * b.y;
 	}
@@ -564,7 +562,6 @@ namespace a3d::math {
 		return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 	}
 
-// length
 	f32 length(const vec2 &v) {
 		return sqrt(dot(v, v));
 	}
@@ -577,7 +574,6 @@ namespace a3d::math {
 		return sqrt(dot(v, v));
 	}
 
-// normalize
 	vec2 normalize(const vec2 &v) {
 		f32 len = length(v);
 		assert(len != 0.0f && "math::normalize called on zero-length vec2");
@@ -596,11 +592,28 @@ namespace a3d::math {
 		return (len > 0.0f) ? v / len : v;
 	}
 
-// cross (vec3 only)
 	vec3 cross(const vec3 &a, const vec3 &b) {
 		return vec3{a.y * b.z - a.z * b.y,
 					a.z * b.x - a.x * b.z,
 					a.x * b.y - a.y * b.x};
+	}
+
+	std::string to_string(const vec2& v) {
+		std::ostringstream ss;
+		ss << "vec2(" << v.x << ", " << v.y << ")";
+		return ss.str();
+	}
+
+	std::string to_string(const vec3& v) {
+		std::ostringstream ss;
+		ss << "vec3(" << v.x << ", " << v.y << ", " << v.z << ")";
+		return ss.str();
+	}
+
+	std::string to_string(const vec4& v) {
+		std::ostringstream ss;
+		ss << "vec4(" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")";
+		return ss.str();
 	}
 
 	f32* value_ptr(vec2 &v) {
@@ -665,8 +678,6 @@ namespace a3d::math {
 		return ivec4{a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w};
 	}
 
-// ----- ivec subtract -----
-
 	ivec2 operator-(const ivec2 &a, const ivec2 &b) {
 		return ivec2{a.x - b.x, a.y - b.y};
 	}
@@ -678,8 +689,6 @@ namespace a3d::math {
 	ivec4 operator-(const ivec4 &a, const ivec4 &b) {
 		return ivec4{a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w};
 	}
-
-// ----- ivec * scalar -----
 
 	ivec2 operator*(const ivec2 &v, i32 s) {
 		return ivec2{v.x * s, v.y * s};
@@ -705,10 +714,8 @@ namespace a3d::math {
 		return v * s;
 	}
 
-// ----- ivec / scalar (integer division) -----
-
 	ivec2 operator/(const ivec2 &v, i32 s) {
-		// no zero check here; up to you if you want asserts
+		// no zero check -- assert?
 		return ivec2{v.x / s, v.y / s};
 	}
 
@@ -804,8 +811,6 @@ namespace a3d::math {
 		return v;
 	}
 
-// ----- ivec dot -----
-
 	i32 dot(const ivec2 &a, const ivec2 &b) {
 		return a.x * b.x + a.y * b.y;
 	}
@@ -816,6 +821,24 @@ namespace a3d::math {
 
 	i32 dot(const ivec4 &a, const ivec4 &b) {
 		return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+	}
+
+	std::string to_string(const ivec2& v) {
+		std::ostringstream ss;
+		ss << "ivec2(" << v.x << ", " << v.y << ")";
+		return ss.str();
+	}
+
+	std::string to_string(const ivec3& v) {
+		std::ostringstream ss;
+		ss << "ivec3(" << v.x << ", " << v.y << ", " << v.z << ")";
+		return ss.str();
+	}
+
+	std::string to_string(const ivec4& v) {
+		std::ostringstream ss;
+		ss << "ivec4(" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")";
+		return ss.str();
 	}
 
 	i32* value_ptr(ivec2 &v) {
@@ -868,8 +891,6 @@ namespace a3d::math {
 		return uvec4{a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w};
 	}
 
-// ----- uvec subtract -----
-
 	uvec2 operator-(const uvec2 &a, const uvec2 &b) {
 		return uvec2{a.x - b.x, a.y - b.y};
 	}
@@ -881,8 +902,6 @@ namespace a3d::math {
 	uvec4 operator-(const uvec4 &a, const uvec4 &b) {
 		return uvec4{a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w};
 	}
-
-// ----- uvec * scalar -----
 
 	uvec2 operator*(const uvec2 &v, u32 s) {
 		return uvec2{v.x * s, v.y * s};
@@ -908,10 +927,8 @@ namespace a3d::math {
 		return v * s;
 	}
 
-// ----- uvec / scalar (integer division) -----
-
 	uvec2 operator/(const uvec2 &v, u32 s) {
-		// no zero check here; up to you if you want asserts
+		// no zero check -- assert?
 		return uvec2{v.x / s, v.y / s};
 	}
 
@@ -1007,8 +1024,6 @@ namespace a3d::math {
 		return v;
 	}
 
-// ----- uvec dot -----
-
 	u32 dot(const uvec2 &a, const uvec2 &b) {
 		return a.x * b.x + a.y * b.y;
 	}
@@ -1019,6 +1034,24 @@ namespace a3d::math {
 
 	u32 dot(const uvec4 &a, const uvec4 &b) {
 		return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+	}
+
+	std::string to_string(const uvec2& v) {
+		std::ostringstream ss;
+		ss << "uvec2(" << v.x << ", " << v.y << ")";
+		return ss.str();
+	}
+
+	std::string to_string(const uvec3& v) {
+		std::ostringstream ss;
+		ss << "uvec3(" << v.x << ", " << v.y << ", " << v.z << ")";
+		return ss.str();
+	}
+
+	std::string to_string(const uvec4& v) {
+		std::ostringstream ss;
+		ss << "uvec4(" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")";
+		return ss.str();
 	}
 
 	u32* value_ptr(uvec2 &v) {
@@ -1057,6 +1090,32 @@ namespace a3d::math {
 		return uvec4{ ptr[0], ptr[1], ptr[2], ptr[3] };
 	}
 
+	/// Unsigned 8-bit Integer Vector ///
+
+	std::string to_string(const u8vec2& v) {
+		std::ostringstream ss;
+		ss << "u8vec2(" << static_cast<unsigned>(v.x)
+		   << ", " << static_cast<unsigned>(v.y) << ")";
+		return ss.str();
+	}
+
+	std::string to_string(const u8vec3& v) {
+		std::ostringstream ss;
+		ss << "u8vec3(" << static_cast<unsigned>(v.x)
+		   << ", " << static_cast<unsigned>(v.y)
+		   << ", " << static_cast<unsigned>(v.z) << ")";
+		return ss.str();
+	}
+
+	std::string to_string(const u8vec4& v) {
+		std::ostringstream ss;
+		ss << "u8vec4(" << static_cast<unsigned>(v.x)
+		   << ", " << static_cast<unsigned>(v.y)
+		   << ", " << static_cast<unsigned>(v.z)
+		   << ", " << static_cast<unsigned>(v.w) << ")";
+		return ss.str();
+	}
+
 	/// 32-bit Float Matrix ///
 
 	mat2 identity2() {
@@ -1083,7 +1142,6 @@ namespace a3d::math {
 		return mat4(0.0f);
 	}
 
-// mat * vec
 	vec2 operator*(const mat2 &m, const vec2 &v) {
 		return vec2{m.c0.x * v.x + m.c1.x * v.y,
 					m.c0.y * v.x + m.c1.y * v.y};
@@ -1102,7 +1160,6 @@ namespace a3d::math {
 					m.c0.w * v.x + m.c1.w * v.y + m.c2.w * v.z + m.c3.w * v.w};
 	}
 
-// mat * mat
 	mat2 operator*(const mat2 &a, const mat2 &b) {
 		mat2 r(0.0f);
 		r.c0 = a * b.c0;
@@ -1142,7 +1199,6 @@ namespace a3d::math {
 		return a;
 	}
 
-// transpose
 	mat2 transpose(const mat2 &m) {
 		mat2 r;
 		r.c0 = vec2{m.c0.x, m.c1.x};
@@ -1197,7 +1253,6 @@ namespace a3d::math {
 				m[0][2] * detCof[2] + m[0][3] * detCof[3];
 	}
 
-// inverse(mat2)
 	mat2 inverse(const mat2 &m) {
 		f32 a = m.c0.x, c = m.c0.y;
 		f32 b = m.c1.x, d = m.c1.y;
@@ -1212,7 +1267,6 @@ namespace a3d::math {
 		return r;
 	}
 
-// inverse(mat3) – same as we already derived
 	mat3 inverse(const mat3 &m) {
 		f32 m00 = m.c0.x, m01 = m.c1.x, m02 = m.c2.x;
 		f32 m10 = m.c0.y, m11 = m.c1.y, m12 = m.c2.y;
@@ -1267,11 +1321,8 @@ namespace a3d::math {
 				}
 			}
 
-//			// singular?
-//			assert(max_abs != 0.0f && "mat4 inverse: matrix is singular");
-			if (max_abs == 0.0f) {
-				// BAD!
-			}
+			// singular?
+			assert(max_abs != 0.0f && "mat4 inverse: matrix is singular");
 
 			// swap rows in both 'a' and 'inv'
 			if (pivot_row != col) {
@@ -1353,13 +1404,34 @@ namespace a3d::math {
 	}
 
 	mat4 scale(const mat4& m, f32 s) {
-//		mat4 result = m;
-//		result.c0.x *= s;
-//		result.c1.y *= s;
-//		result.c2.z *= s;
-//		// leave c3 (translation) alone
-//		return result;
 		return scale(m, vec3{s, s, s});
+	}
+
+	std::string to_string(const mat2& m) {
+		std::ostringstream ss;
+		ss << "mat2("
+		   << "c0=(" << m.c0.x << ", " << m.c0.y << "), "
+		   << "c1=(" << m.c1.x << ", " << m.c1.y << "))";
+		return ss.str();
+	}
+
+	std::string to_string(const mat3& m) {
+		std::ostringstream ss;
+		ss << "mat3("
+		   << "c0=(" << m.c0.x << ", " << m.c0.y << ", " << m.c0.z << "), "
+		   << "c1=(" << m.c1.x << ", " << m.c1.y << ", " << m.c1.z << "), "
+		   << "c2=(" << m.c2.x << ", " << m.c2.y << ", " << m.c2.z << "))";
+		return ss.str();
+	}
+
+	std::string to_string(const mat4& m) {
+		std::ostringstream ss;
+		ss << "mat4("
+		   << "c0=(" << m.c0.x << ", " << m.c0.y << ", " << m.c0.z << ", " << m.c0.w << "), "
+		   << "c1=(" << m.c1.x << ", " << m.c1.y << ", " << m.c1.z << ", " << m.c1.w << "), "
+		   << "c2=(" << m.c2.x << ", " << m.c2.y << ", " << m.c2.z << ", " << m.c2.w << "), "
+		   << "c3=(" << m.c3.x << ", " << m.c3.y << ", " << m.c3.z << ", " << m.c3.w << "))";
+		return ss.str();
 	}
 
 	f32* value_ptr(mat2 &m) {
@@ -1427,7 +1499,7 @@ namespace a3d::math {
 	quat normalize(const quat &q) {
 		f32 len = length(q);
 		if (len == 0.0f) {
-			// Return identity if length is zero; tweak if you prefer different behavior
+			// return identity if length is zero -- different behavior?
 			return identity_quat();
 		}
 		f32 inv = 1.0f / len;
@@ -1447,8 +1519,6 @@ namespace a3d::math {
 		quat c = conjugate(q);
 		return quat{c.w * inv_n2, c.x * inv_n2, c.y * inv_n2, c.z * inv_n2};
 	}
-
-// ----- component-wise + and scalar * (handy for slerp) -----
 
 	quat operator+(const quat &a, const quat &b) {
 		return quat{a.w + b.w, a.x + b.x, a.y + b.y, a.z + b.z};
@@ -1483,9 +1553,7 @@ namespace a3d::math {
 		return a;
 	}
 
-// ----- Hamilton product (rotation composition) -----
-
-// Convention: result = a * b applies b first, then a (GLM-style)
+	// convention: result = a * b applies b first, then a (GLM-style)
 	quat operator*(const quat &a, const quat &b) {
 		return quat{a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z,
 					a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,
@@ -1493,15 +1561,13 @@ namespace a3d::math {
 					a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w};
 	}
 
-// ----- rotate vec3 by quat (q * v * q^-1, optimized form) -----
-
 	vec3 rotate(const quat &q, const vec3 &v) {
-		// Using the "u, s" form: q = (s, u)
+		// using the "u, s" form: q = (s, u)
 		vec3 u{q.x, q.y, q.z};
 		f32 s = q.w;
 
-		f32 dot_uv = u.x * v.x + u.y * v.y + u.z * v.z;      // dot(u, v)
-		f32 dot_uu = u.x * u.x + u.y * u.y + u.z * u.z;      // dot(u, u)
+		f32 dot_uv = u.x * v.x + u.y * v.y + u.z * v.z; // dot(u, v)
+		f32 dot_uu = u.x * u.x + u.y * u.y + u.z * u.z; // dot(u, u)
 
 		vec3 cross_uv{u.y * v.z - u.z * v.y,
 					  u.z * v.x - u.x * v.z,
@@ -1532,10 +1598,8 @@ namespace a3d::math {
 		return rotate(q, v);
 	}
 
-// ----- angle-axis (like angleAxis) -----
-
 	quat angle_axis(f32 angle, const vec3 &axis) {
-		// Normalize axis to be safe
+		// normalize axis to be safe
 		f32 len = std::sqrt(axis.x * axis.x + axis.y * axis.y + axis.z * axis.z);
 		if (len == 0.0f) {
 			return identity_quat();
@@ -1552,10 +1616,8 @@ namespace a3d::math {
 		return quat{c, n.x * s, n.y * s, n.z * s};
 	}
 
-// ----- slerp (slerp style) -----
-
 	quat slerp(const quat &a, const quat &b, f32 t) {
-		// Clamp t just in case
+		// clamp t just in case
 		if (t <= 0.0f) return a;
 		if (t >= 1.0f) return b;
 
@@ -1564,13 +1626,13 @@ namespace a3d::math {
 
 		f32 cosTheta = dot(q1, q2);
 
-		// Use shortest path
+		// use shortest path
 		if (cosTheta < 0.0f) {
 			q2 = quat{-q2.w, -q2.x, -q2.y, -q2.z};
 			cosTheta = -cosTheta;
 		}
 
-		// If very close, fall back to lerp
+		// if very close, fall back to lerp
 		const f32 eps = 1e-6f;
 		if (cosTheta > 1.0f - eps) {
 			quat result = (1.0f - t) * q1 + t * q2;
@@ -1614,6 +1676,12 @@ namespace a3d::math {
 
 	mat4 mat4_cast(quat const &q) {
 		return mat4(mat3_cast(q));
+	}
+
+	std::string to_string(const quat& q) {
+		std::ostringstream ss;
+		ss << "quat(" << q.w << ", " << q.x << ", " << q.y << ", " << q.z << ")";
+		return ss.str();
 	}
 
 	f32* value_ptr(quat &q) {
@@ -1747,9 +1815,6 @@ namespace a3d::math {
 	mat4 perspective(f32 fovy, f32 aspect, f32 zNear, f32 zFar) {
 		assert(math::abs(aspect) > std::numeric_limits<f32>::epsilon() &&
 			   "aspect must be non-zero");
-//		if (math::abs(aspect) <= std::numeric_limits<f32>::epsilon()) {
-//			// BAD!
-//		}
 		f32 const tanHalfFovy = tan(fovy / static_cast<f32>(2));
 		mat4 result(static_cast<f32>(0));
 		result[0][0] = static_cast<f32>(1) / (aspect * tanHalfFovy);
@@ -1828,7 +1893,7 @@ namespace a3d::math {
 
 		mat4 localMatrix(modelMatrix);
 
-		// Normalize the matrix.
+		// normalize the matrix.
 		if(decomposedetail::epsilonEqual(localMatrix[3][3],
 										 static_cast<f32>(0),
 										 decomposedetail::epsilon()))
@@ -1852,7 +1917,7 @@ namespace a3d::math {
 										 decomposedetail::epsilon()))
 			return false;
 
-		// First, isolate perspective.  This is the messiest.
+		// first, isolate perspective.  this is the messiest.
 		if(decomposedetail::epsilonNotEqual(localMatrix[0][3],
 											static_cast<f32>(0),
 											decomposedetail::epsilon()) ||
@@ -1869,8 +1934,8 @@ namespace a3d::math {
 			rightHandSide[2] = localMatrix[2][3];
 			rightHandSide[3] = localMatrix[3][3];
 
-			// Solve the equation by inverting PerspectiveMatrix and multiplying
-			// rightHandSide by the inverse.  (This is the easiest way, not
+			// solve the equation by inverting perspectiveMatrix and multiplying
+			// rightHandSide by the inverse.  (this is the easiest way, not
 			// necessarily the best.)
 			mat4 inversePerspectiveMatrix = inverse(perspectiveMatrix);//   inverse(PerspectiveMatrix, inversePerspectiveMatrix);
 			mat4 transposedInversePerspectiveMatrix = transpose(inversePerspectiveMatrix);//   transposeMatrix4(inversePerspectiveMatrix, transposedInversePerspectiveMatrix);
@@ -1878,54 +1943,54 @@ namespace a3d::math {
 			perspective = transposedInversePerspectiveMatrix * rightHandSide;
 			//  v4MulPointByMatrix(rightHandSide, transposedInversePerspectiveMatrix, perspectivePoint);
 
-			// Clear the perspective partition
+			// clear the perspective partition
 			localMatrix[0][3] = localMatrix[1][3] = localMatrix[2][3] = static_cast<f32>(0);
 			localMatrix[3][3] = static_cast<f32>(1);
 		}
 		else {
-		// No perspective.
+		// no perspective.
 			perspective = vec4(0, 0, 0, 1);
 		}
 
-		// Next take care of translation (easy).
+		// next take care of translation (easy).
 		translation = vec3(localMatrix[3]);
 		localMatrix[3] = vec4(0, 0, 0, localMatrix[3].w);
 
 		vec3 row[3], pdum3;
 
-		// Now get scale and shear.
+		// now get scale and shear.
 		for(std::size_t i = 0; i < 3; ++i)
 			for(std::size_t j = 0; j < 3; ++j)
 				row[i][j] = localMatrix[i][j];
 
-		// Compute X scale factor and normalize first row.
+		// compute X scale factor and normalize first row.
 		scale.x = length(row[0]);// v3Length(Row[0]);
 
 		row[0] = decomposedetail::scale(row[0], static_cast<f32>(1));
 
-		// Compute XY shear factor and make 2nd row orthogonal to 1st.
+		// compute XY shear factor and make 2nd row orthogonal to 1st.
 		skew.z = dot(row[0], row[1]);
 		row[1] = decomposedetail::combine(row[1], row[0], static_cast<f32>(1), -skew.z);
 
-		// Now, compute Y scale and normalize 2nd row.
+		// now, compute Y scale and normalize 2nd row.
 		scale.y = length(row[1]);
 		row[1] = decomposedetail::scale(row[1], static_cast<f32>(1));
 		skew.z /= scale.y;
 
-		// Compute XZ and YZ shears, orthogonalize 3rd row.
+		// compute XZ and YZ shears, orthogonalize 3rd row.
 		skew.y = dot(row[0], row[2]);
 		row[2] = decomposedetail::combine(row[2], row[0], static_cast<f32>(1), -skew.y);
 		skew.x = dot(row[1], row[2]);
 		row[2] = decomposedetail::combine(row[2], row[1], static_cast<f32>(1), -skew.x);
 
-		// Next, get Z scale and normalize 3rd row.
+		// next, get Z scale and normalize 3rd row.
 		scale.z = length(row[2]);
 		row[2] = decomposedetail::scale(row[2], static_cast<f32>(1));
 		skew.y /= scale.z;
 		skew.x /= scale.z;
 
-		// At this point, the matrix (in rows[]) is orthonormal.
-		// Check for a coordinate system flip.  If the determinant
+		// at this point, the matrix (in rows[]) is orthonormal.
+		// check for a coordinate system flip.  If the determinant
 		// is -1, then negate the matrix and the scaling factors.
 		pdum3 = cross(row[1], row[2]); // v3Cross(row[1], row[2], Pdum3);
 		if(dot(row[0], pdum3) < 0) {
@@ -1935,9 +2000,9 @@ namespace a3d::math {
 			}
 		}
 
-		// Now, get the rotations out, as described in the gem.
+		// now, get the rotations out, as described in the gem.
 
-		// FIXME - Add the ability to return either quaternions (which are
+		// FIXME - add the ability to return either quaternions (which are
 		// easier to recompose with) or Euler angles (rx, ry, rz), which
 		// are easier for authors to deal with. The latter will only be useful
 		// when we fix https://bugs.webkit.org/show_bug.cgi?id=23799, so I
@@ -1961,7 +2026,7 @@ namespace a3d::math {
 			orientation.x = root * (row[1].z - row[2].y);
 			orientation.y = root * (row[2].x - row[0].z);
 			orientation.z = root * (row[0].y - row[1].x);
-		} // End if > 0
+		}
 		else {
 			static int next[3] = {1, 2, 0};
 			i = 0;
@@ -1977,7 +2042,7 @@ namespace a3d::math {
 			orientation[j] = root * (row[i][j] + row[j][i]);
 			orientation[k] = root * (row[i][k] + row[k][i]);
 			orientation.w = root * (row[j][k] - row[k][j]);
-		} // End if <= 0
+		}
 
 		return true;
 	}

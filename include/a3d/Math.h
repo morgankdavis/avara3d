@@ -293,6 +293,10 @@ namespace a3d::math {
 
 	vec3 		cross(const vec3& a, const vec3& b);
 
+	std::string to_string(const vec2& v);
+	std::string to_string(const vec3& v);
+	std::string to_string(const vec4& v);
+
 	f32* 		value_ptr(vec2& v);
 	const f32* 	value_ptr(const vec2& v);
 	f32* 		value_ptr(vec3& v);
@@ -349,6 +353,10 @@ namespace a3d::math {
 	i32 		dot(const ivec3& a, const ivec3& b);
 	i32 		dot(const ivec4& a, const ivec4& b);
 
+	std::string to_string(const ivec2& v);
+	std::string to_string(const ivec3& v);
+	std::string to_string(const ivec4& v);
+
 	i32* 		value_ptr(ivec2& v);
 	const i32* 	value_ptr(const ivec2& v);
 	i32* 		value_ptr(ivec3& v);
@@ -401,6 +409,10 @@ namespace a3d::math {
 	u32 		dot(const uvec3& a, const uvec3& b);
 	u32 		dot(const uvec4& a, const uvec4& b);
 
+	std::string to_string(const uvec2& v);
+	std::string to_string(const uvec3& v);
+	std::string to_string(const uvec4& v);
+
 	u32* 		value_ptr(uvec2& v);
 	const u32* 	value_ptr(const uvec2& v);
 	u32* 		value_ptr(uvec3& v);
@@ -408,9 +420,17 @@ namespace a3d::math {
 	u32* 		value_ptr(uvec4& v) ;
 	const u32* 	value_ptr(const uvec4& v);
 
-	uvec2 		make_vec2(const u32* ptr);
-	uvec3 		make_vec3(const u32* ptr);
-	uvec4 		make_vec4(const u32* ptr);
+	uvec2 		make_uvec2(const u32* ptr);
+	uvec3 		make_uvec3(const u32* ptr);
+	uvec4 		make_uvec4(const u32* ptr);
+
+	/// Unsigned 8-bit Integer Vector ///
+
+	// DO IT
+
+	std::string to_string(const u8vec2& v);
+	std::string to_string(const u8vec3& v);
+	std::string to_string(const u8vec4& v);
 
 	/// 32-bit Float Matrix ///
 
@@ -450,6 +470,10 @@ namespace a3d::math {
 	mat4 		rotate(const mat4& m, f32 angle, const vec3& v);
 	mat4 		scale(const mat4& m, const vec3& v);
 	mat4 		scale(const mat4& m, f32 s);
+
+	std::string to_string(const mat2& m);
+	std::string to_string(const mat3& m);
+	std::string to_string(const mat4& m);
 
 	f32* 		value_ptr(mat2& m);
 	const f32* 	value_ptr(const mat2& m);
@@ -491,6 +515,8 @@ namespace a3d::math {
 
 	mat3 		mat3_cast(quat const& q);
 	mat4 		mat4_cast(quat const& q);
+
+	std::string to_string(const quat& q);
 
 	f32* 		value_ptr(quat& q) ;
 	const f32* 	value_ptr(const quat& q);
