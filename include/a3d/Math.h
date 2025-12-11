@@ -299,6 +299,10 @@ namespace a3d::math {
 	f32* 		value_ptr(vec4& v);
 	const f32* 	value_ptr(const vec4& v);
 
+	vec2 		make_vec2(const f32* ptr);
+	vec3 		make_vec3(const f32* ptr);
+	vec4 		make_vec4(const f32* ptr);
+
 	/// Signed 32-bit Integer Vector ///
 
 	ivec2 		operator-(const ivec2& v);
@@ -351,6 +355,10 @@ namespace a3d::math {
 	i32* 		value_ptr(ivec4& v) ;
 	const i32* 	value_ptr(const ivec4& v);
 
+	ivec2 		make_vec2(const i32* ptr);
+	ivec3 		make_vec3(const i32* ptr);
+	ivec4 		make_vec4(const i32* ptr);
+
 	/// Unsigned 32-bit Integer Vector ///
 
 	uvec2 		operator+(const uvec2& a, const uvec2& b);
@@ -399,6 +407,10 @@ namespace a3d::math {
 	u32* 		value_ptr(uvec4& v) ;
 	const u32* 	value_ptr(const uvec4& v);
 
+	uvec2 		make_vec2(const u32* ptr);
+	uvec3 		make_vec3(const u32* ptr);
+	uvec4 		make_vec4(const u32* ptr);
+
 	/// 32-bit Float Matrix ///
 
 	mat2 		identity2();
@@ -408,13 +420,6 @@ namespace a3d::math {
 	mat2 		zero2();
 	mat3 		zero3();
 	mat4 		zero4();
-
-	f32* 		value_ptr(mat2& m);
-	const f32* 	value_ptr(const mat2& m);
-	f32* 		value_ptr(mat3& m);
-	const f32* 	value_ptr(const mat3& m);
-	f32* 		value_ptr(mat4& m);
-	const f32* 	value_ptr(const mat4& m);
 
 	vec2 		operator*(const mat2& m, const vec2& v);
 	vec3 		operator*(const mat3& m, const vec3& v);
@@ -444,6 +449,17 @@ namespace a3d::math {
 	mat4 		rotate(const mat4& m, f32 angle, const vec3& v);
 	mat4 		scale(const mat4& m, const vec3& v);
 	mat4 		scale(const mat4& m, f32 s);
+
+	f32* 		value_ptr(mat2& m);
+	const f32* 	value_ptr(const mat2& m);
+	f32* 		value_ptr(mat3& m);
+	const f32* 	value_ptr(const mat3& m);
+	f32* 		value_ptr(mat4& m);
+	const f32* 	value_ptr(const mat4& m);
+
+	mat2 		make_mat2(const f32* ptr);
+	mat3 		make_mat3(const f32* ptr);
+	mat4 		make_mat4(const f32* ptr);
 
 	/// 32-bit Float Quaternion ///
 
@@ -477,6 +493,8 @@ namespace a3d::math {
 
 	f32* 		value_ptr(quat& q) ;
 	const f32* 	value_ptr(const quat& q);
+
+	quat 		make_quat(const f32* ptr);
 
 	/// 32-bit Float Trig ///
 

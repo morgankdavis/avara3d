@@ -570,6 +570,18 @@ namespace a3d::math {
 		return &v.x;
 	}
 
+	vec2 make_vec2(const f32* ptr) {
+		return vec2{ ptr[0], ptr[1] };
+	}
+
+	vec3 make_vec3(const f32* ptr) {
+		return vec3{ ptr[0], ptr[1], ptr[2] };
+	}
+
+	vec4 make_vec4(const f32* ptr) {
+		return vec4{ ptr[0], ptr[1], ptr[2], ptr[3] };
+	}
+
 	/// Signed 32-bit Integer Vector ///
 
 	ivec2 operator-(const ivec2& v) {
@@ -773,6 +785,18 @@ namespace a3d::math {
 		return &v.x;
 	}
 
+	ivec2 make_ivec2(const i32* ptr) {
+		return ivec2{ ptr[0], ptr[1] };
+	}
+
+	ivec3 make_ivec3(const i32* ptr) {
+		return ivec3{ ptr[0], ptr[1], ptr[2] };
+	}
+
+	ivec4 make_ivec4(const i32* ptr) {
+		return ivec4{ ptr[0], ptr[1], ptr[2], ptr[3] };
+	}
+
 	/// Unsigned 32-bit Integer Vector ///
 
 	uvec2 operator+(const uvec2 &a, const uvec2 &b) {
@@ -964,6 +988,18 @@ namespace a3d::math {
 		return &v.x;
 	}
 
+	uvec2 make_uvec2(const u32* ptr) {
+		return uvec2{ ptr[0], ptr[1] };
+	}
+
+	uvec3 make_uvec3(const u32* ptr) {
+		return uvec3{ ptr[0], ptr[1], ptr[2] };
+	}
+
+	uvec4 make_uvec4(const u32* ptr) {
+		return uvec4{ ptr[0], ptr[1], ptr[2], ptr[3] };
+	}
+
 	/// 32-bit Float Matrix ///
 
 	mat2 identity2() {
@@ -988,30 +1024,6 @@ namespace a3d::math {
 
 	mat4 zero4() {
 		return mat4(0.0f);
-	}
-
-	f32* value_ptr(mat2 &m) {
-		return &m.c0.x;
-	}
-
-	const f32* value_ptr(const mat2 &m) {
-		return &m.c0.x;
-	}
-
-	f32* value_ptr(mat3 &m) {
-		return &m.c0.x;
-	}
-
-	const f32* value_ptr(const mat3 &m) {
-		return &m.c0.x;
-	}
-
-	f32* value_ptr(mat4 &m) {
-		return &m.c0.x;
-	}
-
-	const f32* value_ptr(const mat4 &m) {
-		return &m.c0.x;
 	}
 
 // mat * vec
@@ -1289,6 +1301,54 @@ namespace a3d::math {
 		return result;
 	}
 
+	f32* value_ptr(mat2 &m) {
+		return &m.c0.x;
+	}
+
+	const f32* value_ptr(const mat2 &m) {
+		return &m.c0.x;
+	}
+
+	f32* value_ptr(mat3 &m) {
+		return &m.c0.x;
+	}
+
+	const f32* value_ptr(const mat3 &m) {
+		return &m.c0.x;
+	}
+
+	f32* value_ptr(mat4 &m) {
+		return &m.c0.x;
+	}
+
+	const f32* value_ptr(const mat4 &m) {
+		return &m.c0.x;
+	}
+
+	mat2 make_mat2(const f32* ptr) {
+		mat2 m;
+		m.c0 = vec2{ ptr[0], ptr[1] };
+		m.c1 = vec2{ ptr[2], ptr[3] };
+		return m;
+	}
+
+	mat3 make_mat3(const f32* ptr) {
+		mat3 m;
+		m.c0 = vec3{ ptr[0], ptr[1], ptr[2] };
+		m.c1 = vec3{ ptr[3], ptr[4], ptr[5] };
+		m.c2 = vec3{ ptr[6], ptr[7], ptr[8] };
+		return m;
+	}
+
+	mat4 make_mat4(const f32* ptr) {
+		mat4 m;
+		m.c0 = vec4{ ptr[0],  ptr[1],  ptr[2],  ptr[3]  };
+		m.c1 = vec4{ ptr[4],  ptr[5],  ptr[6],  ptr[7]  };
+		m.c2 = vec4{ ptr[8],  ptr[9],  ptr[10], ptr[11] };
+		m.c3 = vec4{ ptr[12], ptr[13], ptr[14], ptr[15] };
+		return m;
+	}
+
 	/// 32-bit Float Quaternion ///
 
 	quat identity_quat() {
@@ -1501,6 +1561,10 @@ namespace a3d::math {
 
 	const f32* value_ptr(const quat &q) {
 		return &q.w;
+	}
+
+	quat make_quat(const f32* ptr) {
+		return quat{ ptr[0], ptr[1], ptr[2], ptr[3] };
 	}
 
 	/// 32-bit Float Trig ///
