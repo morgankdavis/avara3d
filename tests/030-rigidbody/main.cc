@@ -13,8 +13,6 @@
 #include <utility>
 #include <vector>
 
-#include <glm/glm.hpp>
-
 #include "a3d/a3d.h"
 #include "a3d/Utilities.h"
 
@@ -22,21 +20,21 @@
 #include "a3d/physics/ConvexDecomposer.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
-constexpr LogLevel				A3D_APP_LOG_LEVEL =		LogLevel::Debug;
-constexpr uvec2					WINDOW_SIZE =			{1280, 768};
-constexpr bool					FULLSCREEN =			false;
-constexpr bool					ENABLE_HIGH_DPI =		true;
-constexpr AntialiasingMode		AA_MODE =				AntialiasingMode::Msaa16X;
-constexpr bool					ENABLE_VSYNC =			false;
-constexpr bool					USE_DEFAULT_LIGHTING =	false;
-constexpr bool					CAPTURE_CURSOR =		false;
-constexpr float					MOUSE_SENSITIVITY =		0.5;
-constexpr float					PHYSICS_TIMESTEP =		1.0/128.0;
-constexpr bool					DARK =					true;
+const LogLevel				A3D_APP_LOG_LEVEL 		{LogLevel::Debug};
+const uvec2					WINDOW_SIZE 			{1280, 768};
+const bool					FULLSCREEN 				{false};
+const bool					ENABLE_HIGH_DPI			{true};
+const AntialiasingMode		AA_MODE					{AntialiasingMode::Msaa16X};
+const bool					ENABLE_VSYNC			{false};
+const bool					USE_DEFAULT_LIGHTING	{false};
+const bool					CAPTURE_CURSOR			{false};
+const float					MOUSE_SENSITIVITY		{0.5};
+const float					PHYSICS_TIMESTEP		{1.0/128.0};
+const bool					DARK					{true};
 
 void UpdateCallback(Scene& scene, double time, double deltaTime);
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
@@ -137,14 +135,14 @@ int main(int argc, const char* argv[]) {
 		auto sunNode = Node::LightNode(sunLight);
 		scene->rootNode()->addChild(sunNode);
 		if (DARK) {
-			sunNode->eulerAngles({glm::radians(0.0f),
-								  glm::radians(45.0),
-								  glm::radians(0.0)});
+			sunNode->eulerAngles({radians(0.0f),
+								  radians(45.0),
+								  radians(0.0)});
 		}
 		else {
-			sunNode->eulerAngles({glm::radians(-30.0f),
-								  glm::radians(90.0 + 45.0),
-								  glm::radians(0.0)});
+			sunNode->eulerAngles({radians(-30.0f),
+								  radians(90.0 + 45.0),
+								  radians(0.0)});
 		}
 
 
@@ -348,8 +346,8 @@ int main(int argc, const char* argv[]) {
 
 
 		auto boxesLight = Light::SpotLight(Color::LightGray());
-		boxesLight->innerAngle(glm::radians(20.0));
-		boxesLight->outerAngle(glm::radians(25.0));
+		boxesLight->innerAngle(radians(20.0));
+		boxesLight->outerAngle(radians(25.0));
 		boxesLight->quadraticAttenuation(0.035);
 		boxesLight->featheringMode(SpotlightFeatheringMode::Soft);
 		auto boxesLightNode = Node::LightNode(boxesLight);
@@ -421,7 +419,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 	if (g_duckSpinnerNode) {
 		auto duckSpinnerEuler = g_duckSpinnerNode->eulerAngles();
-		g_duckSpinnerNode->eulerAngles({0, duckSpinnerEuler.y - rotationDeg, 0});
+		g_duckSpinnerNode->eulerAngles({0, duckSpinnerEuler.y - (float)rotationDeg, 0});
 	}
 
 	// get input
@@ -548,8 +546,8 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 			}
 			else {
 				auto flashLight = Light::SpotLight();
-				flashLight->innerAngle(glm::radians(5.0f));
-				flashLight->outerAngle(glm::radians(7.5f));
+				flashLight->innerAngle(radians(5.0f));
+				flashLight->outerAngle(radians(7.5f));
 				flashLight->featheringMode(SpotlightFeatheringMode::Sharp);
 				flashLight->quadraticAttenuation(.001);
 				cameraNode->light(flashLight);
@@ -733,8 +731,8 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 			static const float MOUSE_SPEED_SCALAR = .002;
 			static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
 
-			float deltaRotX = atan(MOUSE_SPEED * mousePositionDelta.x);
-			float deltaRotY = atan(MOUSE_SPEED * mousePositionDelta.y);
+			float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
+			float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
 
 			vec3 angles = pov->eulerAngles();
 			pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
@@ -1297,7 +1295,8 @@ void SpawnHACDTeapot(Scene& scene) {
 
 	auto hacdTeapotMesh = make_shared<Mesh>(decomposedElements, decomposedTeapotMaterials);
 	auto decomposedTeapotNode = Node::MeshNode(hacdTeapotMesh);
-	decomposedTeapotNode->scale(vec3(1.0f) * 20.0f);
+	//decomposedTeapotNode->scale(vec3(1.0) * 20.0f); // a3d::math
+	decomposedTeapotNode->scale(decomposedTeapotNode->scale() * 20.0f);
 //	decomposedTeapotNode->rotation({1, 0, 0}, radians(-90.0));
 	decomposedTeapotNode->position({0, 10, 0});
 	scene.rootNode()->addChild(decomposedTeapotNode);
@@ -1318,9 +1317,9 @@ void AddBoxes(Scene& scene) {
 	for (int k=0; k<OBJECT_ARRAY_SIZE_Y; ++k) {
 		for (int i=0;i <OBJECT_ARRAY_SIZE_X; ++i) {
 			for(int j = 0; j<OBJECT_ARRAY_SIZE_Z; ++j) {
-				vec3 position = { SPACING * i - (OBJECT_ARRAY_SIZE_X / 2.0) + X_OFFSET,
-								  DROP_HEIGHT + SPACING * k - (OBJECT_ARRAY_SIZE_Y / 2.0),
-								  SPACING * j  - (OBJECT_ARRAY_SIZE_Z / 2.0) + Z_OFFSET};
+				vec3 position = vec3( SPACING * i - (OBJECT_ARRAY_SIZE_X / 2.0) + X_OFFSET,
+									  DROP_HEIGHT + SPACING * k - (OBJECT_ARRAY_SIZE_Y / 2.0),
+									  SPACING * j  - (OBJECT_ARRAY_SIZE_Z / 2.0) + Z_OFFSET );
 				AddBox(scene, position, Color::Random());
 			}
 		}
@@ -1716,7 +1715,7 @@ shared_ptr<Node> ChainmailLink(float minorRadius, float majorRadius) {
 		auto partNode = Node::NamedNode("Ring capsule part node " + to_string(s + 1));
 		partNode->mesh(visualMesh);
 
-		quat rotation = angleAxis(angle, vec3(0, 0, 1));
+		quat rotation = angle_axis(angle, vec3(0, 0, 1));
 		mat4 rotMatrix = mat4_cast(rotation);
 		mat4 translation = translate(mat4(1.0f), vec3(1, 0, 0));
 		mat4 transform = rotMatrix * translation;
@@ -1793,9 +1792,9 @@ void SpawnChainMail(Scene& scene) {
 			//link->rotation({1, 0, 0}, (float)(h%2 == 0 ? (PI/6.0) : (-PI/6.0)));
 			//auto stagger = (w%2 == 0 ? 0 : TORUS_MAJOR_RADIUS);
 			auto stagger = 0;
-			link->position({( ( ((2 * TORUS_MAJOR_RADIUS) * 1.15) * w) + wStagger),
-								   /*GROUND_OFFSET*/0 + ((1 * TORUS_MAJOR_RADIUS) * 1.15) * h,
-							0});
+			link->position(vec3(( ( ((2 * TORUS_MAJOR_RADIUS) * 1.15) * w) + wStagger),
+					/*GROUND_OFFSET*/0 + ((1 * TORUS_MAJOR_RADIUS) * 1.15) * h,
+								0));
 			chainmailNode->addChild(link);
 			//scene.rootNode()->addChild(link);
 		}
@@ -1805,9 +1804,9 @@ void SpawnChainMail(Scene& scene) {
 //	chainmailNode->position({-chainmailNode->extent().x/2.0 + TORUS_MAJOR_RADIUS,
 //							 GROUND_OFFSET,
 //							 -chainmailNode->extent().y/2.0 + TORUS_MAJOR_RADIUS});
-	chainmailNode->position({-chainmailNode->extent().x/2.0,
+	chainmailNode->position({-chainmailNode->extent().x/2.0f,
 							 GROUND_OFFSET,
-							 -chainmailNode->extent().z/2.0});
+							 -chainmailNode->extent().z/2.0f});
 	scene.rootNode()->addChild(chainmailNode);
 
 //	auto link = ChainmailLink(TORUS_MINOR_RADIUS, TORUS_MAJOR_RADIUS);
