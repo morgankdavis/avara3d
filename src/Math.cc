@@ -593,9 +593,9 @@ namespace a3d::math {
 	}
 
 	vec3 cross(const vec3 &a, const vec3 &b) {
-		return vec3{a.y * b.z - a.z * b.y,
-					a.z * b.x - a.x * b.z,
-					a.x * b.y - a.y * b.x};
+		return vec3{ a.y * b.z - a.z * b.y,
+					 a.z * b.x - a.x * b.z,
+					 a.x * b.y - a.y * b.x };
 	}
 
 	std::string to_string(const vec2& v) {
@@ -866,15 +866,15 @@ namespace a3d::math {
 	}
 
 	ivec2 make_ivec2(const i32* ptr) {
-		return ivec2{ ptr[0], ptr[1] };
+		return ivec2{ptr[0], ptr[1]};
 	}
 
 	ivec3 make_ivec3(const i32* ptr) {
-		return ivec3{ ptr[0], ptr[1], ptr[2] };
+		return ivec3{ptr[0], ptr[1], ptr[2]};
 	}
 
 	ivec4 make_ivec4(const i32* ptr) {
-		return ivec4{ ptr[0], ptr[1], ptr[2], ptr[3] };
+		return ivec4{ptr[0], ptr[1], ptr[2], ptr[3]};
 	}
 
 	/// Unsigned 32-bit Integer Vector ///
@@ -1143,21 +1143,21 @@ namespace a3d::math {
 	}
 
 	vec2 operator*(const mat2 &m, const vec2 &v) {
-		return vec2{m.c0.x * v.x + m.c1.x * v.y,
-					m.c0.y * v.x + m.c1.y * v.y};
+		return vec2{ m.c0.x * v.x + m.c1.x * v.y,
+					 m.c0.y * v.x + m.c1.y * v.y };
 	}
 
 	vec3 operator*(const mat3 &m, const vec3 &v) {
-		return vec3{m.c0.x * v.x + m.c1.x * v.y + m.c2.x * v.z,
-					m.c0.y * v.x + m.c1.y * v.y + m.c2.y * v.z,
-					m.c0.z * v.x + m.c1.z * v.y + m.c2.z * v.z};
+		return vec3{ m.c0.x * v.x + m.c1.x * v.y + m.c2.x * v.z,
+					 m.c0.y * v.x + m.c1.y * v.y + m.c2.y * v.z,
+					 m.c0.z * v.x + m.c1.z * v.y + m.c2.z * v.z };
 	}
 
 	vec4 operator*(const mat4 &m, const vec4 &v) {
-		return vec4{m.c0.x * v.x + m.c1.x * v.y + m.c2.x * v.z + m.c3.x * v.w,
-					m.c0.y * v.x + m.c1.y * v.y + m.c2.y * v.z + m.c3.y * v.w,
-					m.c0.z * v.x + m.c1.z * v.y + m.c2.z * v.z + m.c3.z * v.w,
-					m.c0.w * v.x + m.c1.w * v.y + m.c2.w * v.z + m.c3.w * v.w};
+		return vec4{ m.c0.x * v.x + m.c1.x * v.y + m.c2.x * v.z + m.c3.x * v.w,
+					 m.c0.y * v.x + m.c1.y * v.y + m.c2.y * v.z + m.c3.y * v.w,
+					 m.c0.z * v.x + m.c1.z * v.y + m.c2.z * v.z + m.c3.z * v.w,
+					 m.c0.w * v.x + m.c1.w * v.y + m.c2.w * v.z + m.c3.w * v.w };
 	}
 
 	mat2 operator*(const mat2 &a, const mat2 &b) {
@@ -1228,10 +1228,9 @@ namespace a3d::math {
 	}
 
 	f32 determinant(const mat3& m) {
-		return
-				+ m[0][0] * (m[1][1] * m[2][2] - m[2][1] * m[1][2])
-				- m[1][0] * (m[0][1] * m[2][2] - m[2][1] * m[0][2])
-				+ m[2][0] * (m[0][1] * m[1][2] - m[1][1] * m[0][2]);
+		return + m[0][0] * (m[1][1] * m[2][2] - m[2][1] * m[1][2])
+			   - m[1][0] * (m[0][1] * m[2][2] - m[2][1] * m[0][2])
+			   + m[2][0] * (m[0][1] * m[1][2] - m[1][1] * m[0][2]);
 	}
 
 	f32 determinant(const mat4& m) {
@@ -1242,15 +1241,13 @@ namespace a3d::math {
 		f32 subFactor04 = m[2][0] * m[3][2] - m[3][0] * m[2][2];
 		f32 subFactor05 = m[2][0] * m[3][1] - m[3][0] * m[2][1];
 
-		vec4 detCof(
-				+ (m[1][1] * subFactor00 - m[1][2] * subFactor01 + m[1][3] * subFactor02),
-				- (m[1][0] * subFactor00 - m[1][2] * subFactor03 + m[1][3] * subFactor04),
-				+ (m[1][0] * subFactor01 - m[1][1] * subFactor03 + m[1][3] * subFactor05),
-				- (m[1][0] * subFactor02 - m[1][1] * subFactor04 + m[1][2] * subFactor05));
+		vec4 detCof( + (m[1][1] * subFactor00 - m[1][2] * subFactor01 + m[1][3] * subFactor02),
+					 - (m[1][0] * subFactor00 - m[1][2] * subFactor03 + m[1][3] * subFactor04),
+					 + (m[1][0] * subFactor01 - m[1][1] * subFactor03 + m[1][3] * subFactor05),
+					 - (m[1][0] * subFactor02 - m[1][1] * subFactor04 + m[1][2] * subFactor05) );
 
-		return
-				m[0][0] * detCof[0] + m[0][1] * detCof[1] +
-				m[0][2] * detCof[2] + m[0][3] * detCof[3];
+		return m[0][0] * detCof[0] + m[0][1] * detCof[1] +
+			   m[0][2] * detCof[2] + m[0][3] * detCof[3];
 	}
 
 	mat2 inverse(const mat2 &m) {
@@ -1296,17 +1293,16 @@ namespace a3d::math {
 	}
 
 	mat4 inverse(const mat4 &m) {
-
 		// row-major copy of m
-		f32 a[4][4] = {{m.c0.x, m.c1.x, m.c2.x, m.c3.x}, // row 0
-					   {m.c0.y, m.c1.y, m.c2.y, m.c3.y}, // row 1
-					   {m.c0.z, m.c1.z, m.c2.z, m.c3.z}, // row 2
-					   {m.c0.w, m.c1.w, m.c2.w, m.c3.w}}; // row 3
+		f32 a[4][4] = { {m.c0.x, m.c1.x, m.c2.x, m.c3.x}, // row 0
+						{m.c0.y, m.c1.y, m.c2.y, m.c3.y}, // row 1
+						{m.c0.z, m.c1.z, m.c2.z, m.c3.z}, // row 2
+						{m.c0.w, m.c1.w, m.c2.w, m.c3.w} }; // row 3
 
-		f32 inv[4][4] = {{1.0f, 0.0f, 0.0f, 0.0f},
-						 {0.0f, 1.0f, 0.0f, 0.0f},
-						 {0.0f, 0.0f, 1.0f, 0.0f},
-						 {0.0f, 0.0f, 0.0f, 1.0f}};
+		f32 inv[4][4] = { {1.0f, 0.0f, 0.0f, 0.0f},
+						  {0.0f, 1.0f, 0.0f, 0.0f},
+						  {0.0f, 0.0f, 1.0f, 0.0f},
+						  {0.0f, 0.0f, 0.0f, 1.0f} };
 
 		// Gauss-Jordan elimination with partial pivoting
 		for (int col = 0; col < 4; ++col) {
@@ -1555,10 +1551,10 @@ namespace a3d::math {
 
 	// convention: result = a * b applies b first, then a (GLM-style)
 	quat operator*(const quat &a, const quat &b) {
-		return quat{a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z,
-					a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,
-					a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x,
-					a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w};
+		return quat{ a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z,
+					 a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,
+					 a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x,
+					 a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w };
 	}
 
 	vec3 rotate(const quat &q, const vec3 &v) {
@@ -1569,29 +1565,29 @@ namespace a3d::math {
 		f32 dot_uv = u.x * v.x + u.y * v.y + u.z * v.z; // dot(u, v)
 		f32 dot_uu = u.x * u.x + u.y * u.y + u.z * u.z; // dot(u, u)
 
-		vec3 cross_uv{u.y * v.z - u.z * v.y,
-					  u.z * v.x - u.x * v.z,
-					  u.x * v.y - u.y * v.x};
+		vec3 cross_uv{ u.y * v.z - u.z * v.y,
+					   u.z * v.x - u.x * v.z,
+					   u.x * v.y - u.y * v.x };
 
 		// 2 * dot(u, v) * u
-		vec3 term1{2.0f * dot_uv * u.x,
-				   2.0f * dot_uv * u.y,
-				   2.0f * dot_uv * u.z};
+		vec3 term1{ 2.0f * dot_uv * u.x,
+					2.0f * dot_uv * u.y,
+					2.0f * dot_uv * u.z };
 
 		// (s^2 - dot(u, u)) * v
 		f32 s2_minus_uu = s * s - dot_uu;
-		vec3 term2{s2_minus_uu * v.x,
-				   s2_minus_uu * v.y,
-				   s2_minus_uu * v.z};
+		vec3 term2{ s2_minus_uu * v.x,
+					s2_minus_uu * v.y,
+					s2_minus_uu * v.z };
 
 		// 2 * s * cross(u, v)
-		vec3 term3{2.0f * s * cross_uv.x,
-				   2.0f * s * cross_uv.y,
-				   2.0f * s * cross_uv.z};
+		vec3 term3{ 2.0f * s * cross_uv.x,
+					2.0f * s * cross_uv.y,
+					2.0f * s * cross_uv.z };
 
-		return vec3{term1.x + term2.x + term3.x,
-					term1.y + term2.y + term3.y,
-					term1.z + term2.z + term3.z};
+		return vec3{ term1.x + term2.x + term3.x,
+					 term1.y + term2.y + term3.y,
+					 term1.z + term2.z + term3.z };
 	}
 
 	vec3 operator*(const quat &q, const vec3 &v) {
@@ -1609,9 +1605,9 @@ namespace a3d::math {
 		f32 s = std::sin(half);
 		f32 c = std::cos(half);
 
-		vec3 n{axis.x * inv_len,
-			   axis.y * inv_len,
-			   axis.z * inv_len};
+		vec3 n{ axis.x * inv_len,
+				axis.y * inv_len,
+				axis.z * inv_len };
 
 		return quat{c, n.x * s, n.y * s, n.z * s};
 	}
@@ -1650,7 +1646,6 @@ namespace a3d::math {
 	}
 
 	mat3 mat3_cast(quat const &q) {
-
 		f32 qxx(q.x * q.x);
 		f32 qyy(q.y * q.y);
 		f32 qzz(q.z * q.z);
