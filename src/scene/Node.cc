@@ -213,7 +213,7 @@ void Node::rotation(const vec3& axis, float angle) {
 
 
 	vec3 axisNormalized = normalize(vec3(axis.x, axis.y, axis.z));
-	_orientation = angle_axis(angle, axisNormalized); // a3d::math
+	_orientation = angle_axis(angle, axisNormalized);
 
 	//addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
 //	}
