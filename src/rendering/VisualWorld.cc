@@ -296,6 +296,9 @@ void VisualWorld::draw(const Scene& scene,
 					auto viewMat = inverse(pov->worldTransform());
 					auto projectionMat = pov->camera()->projection();
 
+					A3D_APP_LOG_D("viewMat: {}", to_string(viewMat));
+					A3D_APP_LOG_D("projectionMat: {}", to_string(projectionMat));
+
 					vector<Node *> lightNodes;
 					if (pov->light()) lightNodes.push_back(pov.get());
 
