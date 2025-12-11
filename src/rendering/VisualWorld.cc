@@ -33,6 +33,7 @@
 #include "a3d/rendering/renderer/Renderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
+#include "a3d/Utilities.h"
 
 using namespace a3d;
 using namespace glm;
@@ -297,6 +298,9 @@ void VisualWorld::draw(const Scene& scene,
 
 					auto viewMat = inverse(pov->worldTransform());
 					auto projectionMat = pov->camera()->projection();
+
+					A3D_APP_LOG_D("viewMat: {}", utils::StringFromGLMMat4(viewMat));
+					A3D_APP_LOG_D("projectionMat: {}", utils::StringFromGLMMat4(projectionMat));
 
 					vector<Node *> lightNodes;
 					if (pov->light()) lightNodes.push_back(pov.get());
