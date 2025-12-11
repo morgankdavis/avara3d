@@ -383,6 +383,7 @@ namespace a3d {
 		unsigned 	numPolygons;
 		unsigned 	numLights;
 		math::vec3 	cameraPosition;
+		math::quat 	cameraOrientation;
 
 		unsigned	numStaticBodies;
 		unsigned	numDynamicBodies;
