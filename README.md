@@ -86,14 +86,14 @@ cmake --build . -j$(sysctl -n hw.ncpu)
 
 _Tested on Windows 11 25H2 / build 26200.7171_
 
-#### Install [Visual Studio Community 18 2026](visualstudio.microsoft.com/downloads)
+#### Install [Visual Studio Community 18 2026](https://visualstudio.microsoft.com/downloads/)
 - Check "Desktop development with C++"
 - Click the "Individual components" tab, add the following components:
     - Git for Windows
     - C++ Clang Compiler for Windows (20.1.8)
     - MSBuild support for LLVM (clang-cl) toolset
 
-#### Install [CMake](https://cmake.org/downloads/)
+#### Install [CMake](https://cmake.org/download/)
 
 #### Optional: Install Qt to build the a3de editor
 Use [the official installer](https://www.qt.io/development/download) ("Qt Framework and Tools")
