@@ -65,7 +65,7 @@ namespace a3d::math {
 			struct { f32 x, y; };
 			struct { f32 s, t; };
 		};
-		vec2() = default;
+		vec2();
 		vec2(f32 x_, f32 y_);
 		explicit vec2(const vec3& v);
 		explicit vec2(const vec4& v);
@@ -79,7 +79,7 @@ namespace a3d::math {
 			struct { f32 r, g, b; };
 			struct { f32 s, t, p; };
 		};
-		vec3() = default;
+		vec3();
 		vec3(f32 x_, f32 y_, f32 z_);
 		vec3(const vec2& v, f32 z_);
 		explicit vec3(const vec2& v);
@@ -93,7 +93,7 @@ namespace a3d::math {
 			struct { f32 x, y, z, w; };
 			struct { f32 r, g, b, a; };
 		};
-		vec4() = default;
+		vec4();
 		vec4(f32 x_, f32 y_, f32 z_, f32 w_);
 		vec4(const vec3& v, f32 w_);
 		explicit vec4(const vec2& v);
@@ -104,7 +104,7 @@ namespace a3d::math {
 
 	struct ivec2 {
 		i32 x, y;
-		ivec2() = default;
+		ivec2();
 		ivec2(i32 x_, i32 y_);
 		explicit ivec2(const ivec3& v);
 		explicit ivec2(const ivec4& v);
@@ -114,7 +114,7 @@ namespace a3d::math {
 
 	struct ivec3 {
 		i32 x, y, z;
-		ivec3() = default;
+		ivec3();
 		ivec3(i32 x_, i32 y_, i32 z_);
 		ivec3(const ivec2& v, i32 z_);
 		explicit ivec3(const ivec2& v);
@@ -125,7 +125,7 @@ namespace a3d::math {
 
 	struct ivec4 {
 		i32 x, y, z, w;
-		ivec4() = default;
+		ivec4();
 		ivec4(i32 x_, i32 y_, i32 z_, i32 w_);
 		ivec4(const ivec3& v, i32 w_);
 		explicit ivec4(const ivec2& v);
@@ -136,7 +136,7 @@ namespace a3d::math {
 
 	struct uvec2 {
 		u32 x, y;
-		uvec2() = default;
+		uvec2();
 		uvec2(u32 x_, u32 y_);
 		explicit uvec2(const uvec3& v);
 		explicit uvec2(const uvec4& v);
@@ -146,7 +146,7 @@ namespace a3d::math {
 
 	struct uvec3 {
 		u32 x, y, z;
-		uvec3() = default;
+		uvec3();
 		uvec3(u32 x_, u32 y_, u32 z_);
 		uvec3(const uvec2& c, u32 z_);
 		explicit uvec3(const uvec2& v);
@@ -157,7 +157,7 @@ namespace a3d::math {
 
 	struct uvec4 {
 		u32 x, y, z, w;
-		uvec4() = default;
+		uvec4();
 		uvec4(u32 x_, u32 y_, u32 z_, u32 w_);
 		uvec4(const uvec3& v, u32 w_);
 		explicit uvec4(const uvec2& v);
@@ -168,7 +168,7 @@ namespace a3d::math {
 
 	struct u8vec2 {
 		u8 x, y;
-		u8vec2() = default;
+		u8vec2();
 		u8vec2(u8 x_, u8 y_);
 		explicit u8vec2(const u8vec3& v);
 		explicit u8vec2(const u8vec4& v);
@@ -181,7 +181,7 @@ namespace a3d::math {
 			struct { u8 x, y, z; };
 			struct { u8 r, g, b; };
 		};
-		u8vec3() = default;
+		u8vec3();
 		u8vec3(u8 x_, u8 y_, u8 z_);
 		u8vec3(const u8vec2& v, u8 z_);
 		explicit u8vec3(const u8vec2& v);
@@ -195,7 +195,7 @@ namespace a3d::math {
 			struct { u8 x, y, z, w; };
 			struct { u8 r, g, b, a; };
 		};
-		u8vec4() = default;
+		u8vec4();
 		u8vec4(u8 x_, u8 y_, u8 z_, u8 w_);
 		u8vec4(const u8vec3& z, u8 w_);
 		explicit u8vec4(const u8vec2& v);
@@ -206,7 +206,7 @@ namespace a3d::math {
 
 	struct mat2 {
 		vec2 c0, c1;
-		mat2() = default;
+		mat2();
 		explicit mat2(f32 diag);
 		vec2& operator[](std::size_t i);
 		const vec2& operator[](std::size_t i) const;
@@ -214,7 +214,7 @@ namespace a3d::math {
 
 	struct mat3 {
 		vec3 c0, c1, c2;
-		mat3() = default;
+		mat3();
 		explicit mat3(f32 diag);
 		vec3& operator[](std::size_t i);
 		const vec3& operator[](std::size_t i) const;
@@ -222,7 +222,7 @@ namespace a3d::math {
 
 	struct mat4 {
 		vec4 c0, c1, c2, c3;
-		mat4() = default;
+		mat4();
 		explicit mat4(f32 diag);
 		explicit mat4(const mat3& m);
 		vec4& operator[](std::size_t i);
@@ -231,8 +231,9 @@ namespace a3d::math {
 
 	struct quat {
 		f32 w, x, y, z;
-		quat() = default;
+		quat();
 		quat(f32 w_, f32 x_, f32 y_, f32 z_);
+		explicit quat(f32 s);
 		f32& operator[](std::size_t i);
 		const f32& operator[](std::size_t i) const;
 	};
@@ -540,6 +541,8 @@ namespace a3d::math {
 	mat4 perspective(f32 fovy, f32 aspect, f32 zNear, f32 zFar); // rh
 	mat4 ortho(f32 left, f32 right, f32 bottom, f32 top, f32 zNear, f32 zFar); // rh
 
+	mat4 look_at(const vec3& eye, const vec3& center, const vec3& up);
+
 	// lookAt() -- L*&R handed version???
 
 
@@ -584,7 +587,7 @@ namespace a3d::math {
 */
 
 	bool decompose(const mat4& modelMatrix,
-				   vec3 scale,
+				   vec3& scale,
 				   quat& orientation,
 				   vec3& translation,
 				   vec3& skew,

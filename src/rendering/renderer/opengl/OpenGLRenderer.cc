@@ -2055,7 +2055,7 @@ void DrawSkyboxElement(MeshElement& element,
 
 	program.use();
 
-	auto viewMat = lookAt({0.0f, 0.0f, 0.0f}, // eye - location
+	auto viewMat = look_at({0.0f, 0.0f, 0.0f}, // eye - location
 						  pointOfView.worldForward(), // center - look at
 						  pointOfView.worldUp()); // up
 	

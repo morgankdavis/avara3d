@@ -9,8 +9,6 @@
 #include "MainWindow.h"
 #include "./ui_MainWindow.h"
 
-#include "glm/glm.hpp"
-
 #include "a3d/a3d.h"
 #include "a3d/Utilities.h"
 

@@ -14,10 +14,10 @@
 
 #ifdef GENERATOR_USE_GLM
 
-// Added by Morgan
-//#ifndef GLM_ENABLE_EXPERIMENTAL// silence GCC warning (what is the option to disable for GCC?)
-//#define GLM_ENABLE_EXPERIMENTAL
-//#endif
+// mkd added
+#ifndef GLM_ENABLE_EXPERIMENTAL// silence GCC warning (what is the option to disable for GCC?)
+#define GLM_ENABLE_EXPERIMENTAL
+#endif
 
 #include <stdexcept>
 #include <limits>

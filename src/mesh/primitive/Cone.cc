@@ -9,8 +9,7 @@
 #include "a3d/mesh/primitive/Cone.h"
 
 #include "generator/generator.hpp"
-#include "glm/glm.hpp"
-
+#
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/rendering/material/Material.h"

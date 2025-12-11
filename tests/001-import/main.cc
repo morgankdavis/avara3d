@@ -10,8 +10,6 @@
 #include <memory>
 #include <utility>
 
-#include "glm/gtc/matrix_transform.hpp"
-
 #include "a3d/a3d.h"
 #include "a3d/Utilities.h"
 

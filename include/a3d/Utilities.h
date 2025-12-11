@@ -17,8 +17,6 @@
 #include <string>
 #include <vector>
 
-#include "glm/glm.hpp"
-
 #include "a3d/scene/Scene.h"
 
 struct GLFWmonitor;

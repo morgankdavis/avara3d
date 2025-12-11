@@ -17,7 +17,6 @@
 #include <optional>
 
 #include "fastgltf/types.hpp"
-#include "glm/glm.hpp"
 
 #include "a3d/Types.h"
 #include "a3d/scene/Scene.h"

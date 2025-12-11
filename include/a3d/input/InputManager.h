@@ -12,8 +12,6 @@
 #include <memory>
 #include <set>
 
-#include "glm/vec2.hpp"
-
 #include "a3d/Types.h"
 
 namespace a3d {

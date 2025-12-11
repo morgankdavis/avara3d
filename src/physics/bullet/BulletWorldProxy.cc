@@ -11,7 +11,6 @@
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
 #include "BulletCollision/Gimpact/btGImpactShape.h"
-#include "glm/gtc/type_ptr.hpp"
 #include "LinearMath/btIDebugDraw.h"
 #include "magic_enum.hpp"
 

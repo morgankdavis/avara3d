@@ -9,7 +9,6 @@
 #include "a3d/physics/bullet/BulletBodyProxy.h"
 
 #include "btBulletDynamicsCommon.h"
-#include "glm/gtc/type_ptr.hpp"
 
 #include "a3d/diagnostic/log/Log.h"
 #include "a3d/mesh/Mesh.h"

@@ -47,6 +47,6 @@ void Camera::name(const string& name) {
 
 /// Internal Member Functions ///
 
-mat4 Camera::projection() const {
-	return _projection;
-}
+//mat4 Camera::projection() const {
+//	return _projection;
+//}

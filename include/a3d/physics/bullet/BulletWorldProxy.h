@@ -11,8 +11,6 @@
 
 #include <memory>
 
-#include "glm/glm.hpp"
-
 #include "a3d/physics/bullet/BulletStats.h"
 #include "a3d/physics/proxy/PhysicalWorldProxy.h"
 

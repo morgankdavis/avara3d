@@ -17,7 +17,6 @@
 #include "fastgltf/tools.hpp"
 #include "fastgltf/types.hpp"
 #include "fastgltf/util.hpp"
-#include "glm/gtc/type_ptr.hpp"
 #include "magic_enum.hpp"
 
 #include "a3d/Buffer.h"

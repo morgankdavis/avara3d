@@ -17,7 +17,6 @@
 #include "glad/glad.h"
 #endif
 
-#include "glm/gtc/type_ptr.hpp"
 #include "magic_enum.hpp"
 
 #include "a3d/Utilities.h"

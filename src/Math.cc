@@ -12,6 +12,9 @@ namespace a3d::math {
 
 	/// Types ///
 
+	vec2::vec2():
+		x{0}, y{0} {}
+
 	vec2::vec2(f32 x_, f32 y_):
 			x{x_}, y{y_} {}
 
@@ -30,6 +33,9 @@ namespace a3d::math {
 		assert(i < 2);
 		return (&x)[i];
 	}
+
+	vec3::vec3():
+			x{0}, y{0}, z{0} {}
 
 	vec3::vec3(f32 x_, f32 y_, f32 z_):
 			x{x_}, y{y_}, z{z_} {}
@@ -53,6 +59,9 @@ namespace a3d::math {
 		return (&x)[i];
 	}
 
+	vec4::vec4():
+			x{0}, y{0}, z{0}, w{0} {}
+
 	vec4::vec4(f32 x_, f32 y_, f32 z_, f32 w_):
 			x{x_}, y{y_}, z{z_}, w{w_} {}
 
@@ -75,6 +84,9 @@ namespace a3d::math {
 		return (&x)[i];
 	}
 
+	ivec2::ivec2():
+			x{0}, y{0} {}
+
 	ivec2::ivec2(i32 x_, i32 y_):
 			x{x_}, y{y_} {}
 
@@ -93,6 +105,9 @@ namespace a3d::math {
 		assert(i < 2);
 		return (&x)[i];
 	}
+
+	ivec3::ivec3():
+			x{0}, y{0}, z{0} {}
 
 	ivec3::ivec3(i32 x_, i32 y_, i32 z_):
 			x{x_}, y{y_}, z{z_} {}
@@ -116,6 +131,9 @@ namespace a3d::math {
 		return (&x)[i];
 	}
 
+	ivec4::ivec4():
+			x{0}, y{0}, z{0}, w{0} {}
+
 	ivec4::ivec4(i32 x_, i32 y_, i32 z_, i32 w_):
 			x{x_}, y{y_}, z{z_}, w{w_} {}
 
@@ -138,6 +156,9 @@ namespace a3d::math {
 		return (&x)[i];
 	}
 
+	uvec2::uvec2():
+			x{0}, y{0} {}
+
 	uvec2::uvec2(u32 x_, u32 y_) :
 			x{x_}, y{y_} {}
 
@@ -156,6 +177,9 @@ namespace a3d::math {
 		assert(i < 2);
 		return (&x)[i];
 	}
+
+	uvec3::uvec3():
+			x{0}, y{0}, z{0} {}
 
 	uvec3::uvec3(u32 x_, u32 y_, u32 z_):
 			x{x_}, y{y_}, z{z_} {}
@@ -179,6 +203,9 @@ namespace a3d::math {
 		return (&x)[i];
 	}
 
+	uvec4::uvec4():
+			x{0}, y{0}, z{0}, w{0} {}
+
 	uvec4::uvec4(u32 x_, u32 y_, u32 z_, u32 w_):
 			x{x_}, y{y_}, z{z_}, w{w_} {}
 
@@ -201,6 +228,9 @@ namespace a3d::math {
 		return (&x)[i];
 	}
 
+	u8vec2::u8vec2():
+			x{0}, y{0} {}
+
 	u8vec2::u8vec2(u8 x_, u8 y_) :
 			x{x_}, y{y_} {}
 
@@ -219,6 +249,9 @@ namespace a3d::math {
 		assert(i < 2);
 		return (&x)[i];
 	}
+
+	u8vec3::u8vec3():
+			x{0}, y{0}, z{0} {}
 
 	u8vec3::u8vec3(u8 x_, u8 y_, u8 z_):
 			x{x_}, y{y_}, z{z_} {}
@@ -242,6 +275,9 @@ namespace a3d::math {
 		return (&x)[i];
 	}
 
+	u8vec4::u8vec4():
+			x{0}, y{0}, z{0}, w{0} {}
+
 	u8vec4::u8vec4(u8 x_, u8 y_, u8 z_, u8 w_):
 			x{x_}, y{y_}, z{z_}, w{w_} {}
 
@@ -264,6 +300,10 @@ namespace a3d::math {
 		return (&x)[i];
 	}
 
+	mat2::mat2():
+			c0{1,0},
+			c1{0,1} {}
+
 	mat2::mat2(f32 diag)
 			: c0{diag, 0.0f}, c1{0.0f, diag} {}
 
@@ -276,6 +316,11 @@ namespace a3d::math {
 		assert(i < 2);
 		return (&c0)[i];
 	}
+
+	mat3::mat3():
+			c0{1,0,0},
+			c1{0,1,0},
+			c2{0,0,1} {}
 
 	mat3::mat3(f32 diag) :
 			c0{diag, 0.0f, 0.0f},
@@ -291,6 +336,12 @@ namespace a3d::math {
 		assert(i < 3);
 		return (&c0)[i];
 	}
+
+	mat4::mat4():
+			c0{1,0,0,0},
+			c1{0,1,0,0},
+			c2{0,0,1,0},
+			c3{0,0,0,1} {}
 
 	mat4::mat4(f32 diag) :
 			c0{diag, 0.0f, 0.0f, 0.0f},
@@ -314,8 +365,14 @@ namespace a3d::math {
 		return (&c0)[i];
 	}
 
+	quat::quat():
+			w{1.0f}, x{0.0f}, y{0.0f}, z{0.0f} {}
+
 	quat::quat(f32 w_, f32 x_, f32 y_, f32 z_) :
 			w{w_}, x{x_}, y{y_}, z{z_} {}
+
+	quat::quat(f32 s):
+			w{s}, x{0.0f}, y{0.0f}, z{0.0f} {}
 
 	f32& quat::operator[](std::size_t i) {
 		assert(i < 4);
@@ -523,19 +580,19 @@ namespace a3d::math {
 // normalize
 	vec2 normalize(const vec2 &v) {
 		f32 len = length(v);
-		assert(!"math::normalize called on zero-length vec2");
+		assert(len != 0.0f && "math::normalize called on zero-length vec2");
 		return (len > 0.0f) ? v / len : v;
 	}
 
 	vec3 normalize(const vec3 &v) {
 		f32 len = length(v);
-		assert(!"math::normalize called on zero-length vec3");
+		assert(len != 0.0f && "math::normalize called on zero-length vec3");
 		return (len > 0.0f) ? v / len : v;
 	}
 
 	vec4 normalize(const vec4 &v) {
 		f32 len = length(v);
-		assert(!"math::normalize called on zero-length ved4");
+		assert(len != 0.0f && "math::normalize called on zero-length vec4");
 		return (len > 0.0f) ? v / len : v;
 	}
 
@@ -1210,8 +1267,11 @@ namespace a3d::math {
 				}
 			}
 
-			// singular?
-			assert(max_abs != 0.0f && "mat4 inverse: matrix is singular");
+//			// singular?
+//			assert(max_abs != 0.0f && "mat4 inverse: matrix is singular");
+			if (max_abs == 0.0f) {
+				// BAD!
+			}
 
 			// swap rows in both 'a' and 'inv'
 			if (pivot_row != col) {
@@ -1293,12 +1353,13 @@ namespace a3d::math {
 	}
 
 	mat4 scale(const mat4& m, f32 s) {
-		mat4 result = m;
-		result.c0.x *= s;
-		result.c1.y *= s;
-		result.c2.z *= s;
-		// leave c3 (translation) alone
-		return result;
+//		mat4 result = m;
+//		result.c0.x *= s;
+//		result.c1.y *= s;
+//		result.c2.z *= s;
+//		// leave c3 (translation) alone
+//		return result;
+		return scale(m, vec3{s, s, s});
 	}
 
 	f32* value_ptr(mat2 &m) {
@@ -1684,7 +1745,11 @@ namespace a3d::math {
 	}
 
 	mat4 perspective(f32 fovy, f32 aspect, f32 zNear, f32 zFar) {
-		assert(math::abs(aspect - std::numeric_limits<f32>::epsilon()) > static_cast<f32>(0));
+		assert(math::abs(aspect) > std::numeric_limits<f32>::epsilon() &&
+			   "aspect must be non-zero");
+//		if (math::abs(aspect) <= std::numeric_limits<f32>::epsilon()) {
+//			// BAD!
+//		}
 		f32 const tanHalfFovy = tan(fovy / static_cast<f32>(2));
 		mat4 result(static_cast<f32>(0));
 		result[0][0] = static_cast<f32>(1) / (aspect * tanHalfFovy);
@@ -1695,7 +1760,6 @@ namespace a3d::math {
 		return result;
 	}
 
-
 	mat4 ortho(f32 left, f32 right, f32 bottom, f32 top, f32 zNear, f32 zFar) {
 		mat4 result(1);
 		result[0][0] = static_cast<f32>(2) / (right - left);
@@ -1704,6 +1768,27 @@ namespace a3d::math {
 		result[3][0] = - (right + left) / (right - left);
 		result[3][1] = - (top + bottom) / (top - bottom);
 		result[3][2] = - (zFar + zNear) / (zFar - zNear);
+		return result;
+	}
+
+	mat4 look_at(const vec3& eye, const vec3& center, const vec3& up) {
+		vec3 const f(normalize(center - eye));
+		vec3 const s(normalize(cross(f, up)));
+		vec3 const u(cross(s, f));
+
+		mat4 result(1);
+		result[0][0] = s.x;
+		result[1][0] = s.y;
+		result[2][0] = s.z;
+		result[0][1] = u.x;
+		result[1][1] = u.y;
+		result[2][1] = u.z;
+		result[0][2] =-f.x;
+		result[1][2] =-f.y;
+		result[2][2] =-f.z;
+		result[3][0] =-dot(s, eye);
+		result[3][1] =-dot(u, eye);
+		result[3][2] = dot(f, eye);
 		return result;
 	}
 
@@ -1735,7 +1820,7 @@ namespace a3d::math {
 	}
 
 	bool decompose(const mat4& modelMatrix,
-				   vec3 scale,
+				   vec3& scale,
 				   quat& orientation,
 				   vec3& translation,
 				   vec3& skew,

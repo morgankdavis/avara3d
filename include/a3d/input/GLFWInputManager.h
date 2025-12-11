@@ -12,8 +12,6 @@
 #include <memory>
 #include <set>
 
-#include "glm/vec2.hpp"
-
 #include "a3d/Types.h"
 #include "a3d/input/DesktopInputManager.h"
 

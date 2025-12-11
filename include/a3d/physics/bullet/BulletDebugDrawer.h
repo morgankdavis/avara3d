@@ -13,7 +13,6 @@
 #include <tuple>
 #include <vector>
 
-#include "glm/glm.hpp"
 #include "LinearMath/btIDebugDraw.h"
 
 #include "a3d/Types.h"

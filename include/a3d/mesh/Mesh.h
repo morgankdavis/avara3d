@@ -16,8 +16,6 @@
 #include <string>
 #include <vector>
 
-#include "glm/glm.hpp"
-
 #include "a3d/Types.h"
 
 namespace a3d {

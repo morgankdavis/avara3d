@@ -34,17 +34,17 @@ namespace a3d {
 
 		/// Internal Member Functions ///
 
-		math::mat4 							projection() const;
+		virtual math::mat4 					projection() const = 0;
 
 	protected:
 		/// Protected Member Functions ///
 
-		virtual void 						constructProjectionMatrix() = 0;
+//		virtual void 						constructProjectionMatrix() = 0;
 
 		/// Protected Member Variables ///
 
 		std::optional<std::string>			_name;
-		math::mat4							_projection;
+//		math::mat4							_projection;
 	};
 }
 

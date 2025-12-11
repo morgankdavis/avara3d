@@ -13,8 +13,6 @@
 #include <optional>
 #include <string>
 
-#include "glm/glm.hpp"
-
 #include "a3d/rendering/light/Light.h"
 
 namespace a3d {

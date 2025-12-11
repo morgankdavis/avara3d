@@ -9,7 +9,6 @@
 #include "a3d/mesh/primitive/Plane.h"
 
 #include "generator/generator.hpp"
-#include "glm/glm.hpp"
 
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"

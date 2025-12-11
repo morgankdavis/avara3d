@@ -11,8 +11,6 @@
 #include <utility>
 #include <variant>
 
-#include "glm/glm.hpp"
-
 #include "a3d/Color.h"
 #include "a3d/Configuration.h"
 #include "a3d/CubeImage.h"

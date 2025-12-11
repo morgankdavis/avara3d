@@ -10,8 +10,6 @@
 #include <utility>
 #include <vector>
 
-#include "glm/glm.hpp"
-
 #include "a3d/a3d.h"
 #include "a3d/Utilities.h"
 #include "a3d/physics/bullet/BulletBodyProxy.h"
