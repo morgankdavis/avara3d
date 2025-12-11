@@ -2052,10 +2052,10 @@ namespace a3d::math {
 					   quat& rotation,
 					   vec3& translation) {
 
-		// 1. translation is just the 4th column (assuming column-major)
+		// 1. translation: last column (assuming standard column-major T*R*S)
 		translation = vec3{ m.c3.x, m.c3.y, m.c3.z };
 
-		// 2. extract the basis vectors (columns 0..2)
+		// 2. extract basis vectors from upper 3x3 (columns 0..2)
 		vec3 col0{ m.c0.x, m.c0.y, m.c0.z };
 		vec3 col1{ m.c1.x, m.c1.y, m.c1.z };
 		vec3 col2{ m.c2.x, m.c2.y, m.c2.z };
@@ -2067,7 +2067,7 @@ namespace a3d::math {
 
 		const f32 eps = 1e-6f;
 		if (sx < eps || sy < eps || sz < eps) {
-			// degenerate scale, can't get a proper rotation
+			// degenerate scale, can't get a stable rotation
 			scale      = vec3{ sx, sy, sz };
 			rotation   = identity_quat();
 			return false;
@@ -2075,66 +2075,69 @@ namespace a3d::math {
 
 		scale = vec3{ sx, sy, sz };
 
-		// 4. normalize the columns to get a pure rotation matrix
+		// 4. normalize columns to get pure rotation basis
 		col0 = col0 / sx;
 		col1 = col1 / sy;
 		col2 = col2 / sz;
 
-		// 5. handle possible negative determinant (flipped coordinate system)
-		// build the 3x3 rotation matrix rows/cols as needed
-		// we'll use rows here:
-		vec3 row0{ col0.x, col1.x, col2.x };
-		vec3 row1{ col0.y, col1.y, col2.y };
-		vec3 row2{ col0.z, col1.z, col2.z };
+		// 5. build the 3x3 rotation matrix components
+		// eows from the (normalized) columns:
+		f32 r00 = col0.x, r01 = col1.x, r02 = col2.x;
+		f32 r10 = col0.y, r11 = col1.y, r12 = col2.y;
+		f32 r20 = col0.z, r21 = col1.z, r22 = col2.z;
 
-		// determinant sign check
-		f32 det = dot(row0, cross(row1, row2));
+		// 6. fix handedness if determinant is negative
+		f32 det = r00 * (r11 * r22 - r12 * r21)
+				  - r01 * (r10 * r22 - r12 * r20)
+				  + r02 * (r10 * r21 - r11 * r20);
+
 		if (det < 0.0f) {
-			// flip one axis to make it a proper rotation
-			scale.x = -scale.x;
+			// flip one axis (X here) to make it a proper rotation
+			sx = -sx;
+			scale.x = sx;
 			col0    = -col0;
-			row0    = -row0;
+
+			// rebuild rows with flipped X axis
+			r00 = col0.x; r10 = col0.y; r20 = col0.z;
 		}
 
-		// 6. convert this 3x3 rotation to a quaternion
-
-		f32 trace = row0.x + row1.y + row2.z;
+		// 7. convert rotation matrix to quaternion (standard algorithm)
 		quat q;
+		f32 trace = r00 + r11 + r22;
 
 		if (trace > 0.0f) {
-			f32 root = std::sqrt(trace + 1.0f);
+			f32 root = std::sqrt(trace + 1.0f);  // 4 * qw
 			q.w = 0.5f * root;
 			root = 0.5f / root;
-			q.x = root * (row1.z - row2.y);
-			q.y = root * (row2.x - row0.z);
-			q.z = root * (row0.y - row1.x);
+			q.x = (r21 - r12) * root;
+			q.y = (r02 - r20) * root;
+			q.z = (r10 - r01) * root;
 		}
 		else {
-			int i = 0;
-			if (row1.y > row0.x) i = 1;
-			if (row2.z > (i == 0 ? row0.x : row1.y)) i = 2;
-
-			static const int next[3] = {1, 2, 0};
-			int j = next[i];
-			int k = next[j];
-
-			f32 rvals[3] = { row0[i], row1[i], row2[i] };
-
-			f32 root = std::sqrt(rvals[i] - rvals[j] - rvals[k] + 1.0f);
-			f32* qv[3] = { &q.x, &q.y, &q.z };
-
-			*qv[i] = 0.5f * root;
-			root   = 0.5f / root;
-
-			f32 m_ij[3][3] = {
-					{ row0.x, row0.y, row0.z },
-					{ row1.x, row1.y, row1.z },
-					{ row2.x, row2.y, row2.z }
-			};
-
-			*qv[j] = root * (m_ij[i][j] + m_ij[j][i]);
-			*qv[k] = root * (m_ij[i][k] + m_ij[k][i]);
-			q.w    = root * (m_ij[j][k] - m_ij[k][j]);
+			if (r00 >= r11 && r00 >= r22) {
+				f32 root = std::sqrt(1.0f + r00 - r11 - r22);
+				f32 inv  = 0.5f / root;
+				q.x = 0.5f * root;
+				q.y = (r01 + r10) * inv;
+				q.z = (r02 + r20) * inv;
+				q.w = (r21 - r12) * inv;
+			}
+			else if (r11 > r22) {
+				f32 root = std::sqrt(1.0f + r11 - r00 - r22);
+				f32 inv  = 0.5f / root;
+				q.y = 0.5f * root;
+				q.x = (r01 + r10) * inv;
+				q.z = (r12 + r21) * inv;
+				q.w = (r02 - r20) * inv;
+			}
+			else {
+				f32 root = std::sqrt(1.0f + r22 - r00 - r11);
+				f32 inv  = 0.5f / root;
+				q.z = 0.5f * root;
+				q.x = (r02 + r20) * inv;
+				q.y = (r12 + r21) * inv;
+				q.w = (r10 - r01) * inv;
+			}
 		}
 
 		rotation = q;
