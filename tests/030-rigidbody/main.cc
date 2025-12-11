@@ -357,6 +357,8 @@ int main(int argc, const char* argv[]) {
 		boxesLightNode->orientation({0.0999, 0.1969, -0.0202, 0.9751});
 		scene->rootNode()->addChild(boxesLightNode);
 
+		A3D_APP_LOG_D("boxesLightNode world mat: {}", utils::StringFromGLMMat4(boxesLightNode->worldTransform()));
+
 
 
 	A3D_APP_LOG_I("*** SCENE EXTENT: {} ***",
