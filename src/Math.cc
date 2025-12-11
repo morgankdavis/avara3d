@@ -329,6 +329,18 @@ namespace a3d::math {
 
 	/// 32-bit Float Vector ///
 
+	vec2 operator-(const vec2& v) {
+		return { -v.x, -v.y };
+	}
+
+	vec3 operator-(const vec3& v) {
+		return { -v.x, -v.y, -v.z };
+	}
+
+	vec4 operator-(const vec4& v) {
+		return { -v.x, -v.y, -v.z, -v.w };
+	}
+
 	vec2 operator+(const vec2 &a, const vec2 &b) {
 		return vec2{a.x + b.x, a.y + b.y};
 	}
@@ -559,6 +571,18 @@ namespace a3d::math {
 	}
 
 	/// Signed 32-bit Integer Vector ///
+
+	ivec2 operator-(const ivec2& v) {
+		return { -v.x, -v.y };
+	}
+
+	ivec3 operator-(const ivec3& v) {
+		return { -v.x, -v.y, -v.z };
+	}
+
+	ivec4 operator-(const ivec4& v) {
+		return { -v.x, -v.y, -v.z, -v.w };
+	}
 
 	ivec2 operator+(const ivec2 &a, const ivec2 &b) {
 		return ivec2{a.x + b.x, a.y + b.y};

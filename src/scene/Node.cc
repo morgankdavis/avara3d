@@ -364,15 +364,15 @@ mat4 Node::transform() const {
 }
 
 vec3 Node::forward() const {
-	return normalize(mat4_cast(_orientation) * vec4(0.0, 0.0, -1.0, 1.0));
+	return vec3(normalize(mat4_cast(_orientation) * vec4(0.0, 0.0, -1.0, 1.0)));
 }
 
 vec3 Node::up() const {
-	return normalize(mat4_cast(_orientation) * vec4(0.0, 1.0, 0.0, 1.0));
+	return vec3(normalize(mat4_cast(_orientation) * vec4(0.0, 1.0, 0.0, 1.0)));
 }
 
 vec3 Node::right() const {
-	return normalize(mat4_cast(_orientation) * vec4(1.0, 0.0, 0.0, 1.0));
+	return vec3(normalize(mat4_cast(_orientation) * vec4(1.0, 0.0, 0.0, 1.0)));
 }
 
 void Node::transform(const mat4& transform) {
@@ -395,7 +395,7 @@ void Node::transform(const mat4& transform) {
 }
 
 vec3 Node::worldPosition() const {
-	return worldTransform()[3];
+	return vec3(worldTransform()[3]);
 }
 
 vec4 Node::worldRotation() const {
@@ -454,7 +454,7 @@ vec3 Node::worldScale() const {
 
 	// OK?
 
-	return worldTransform() * vec4(_scale, 0.0); // TODO: 0, not 1? right?
+	return vec3(worldTransform() * vec4(_scale, 0.0)); // TODO: 0, not 1? right?
 }
 
 vec3 Node::worldForward() const {
@@ -476,7 +476,7 @@ vec3 Node::worldForward() const {
 //
 //	return normalize(rotationMat * vec4(0, 0, -1, 1));
 
-	return normalize(mat4_cast(worldOrientation()) * vec4(0, 0, -1, 1));
+	return vec3(normalize(mat4_cast(worldOrientation()) * vec4(0, 0, -1, 1)));
 }
 
 vec3 Node::worldUp() const {
@@ -498,7 +498,7 @@ vec3 Node::worldUp() const {
 //
 //	return normalize(rotationMat * vec4(0, 1, 0, 1));
 
-	return normalize(mat4_cast(worldOrientation()) * vec4(0, 1, 0, 1));
+	return vec3(normalize(mat4_cast(worldOrientation()) * vec4(0, 1, 0, 1)));
 }
 
 vec3 Node::worldRight() const {
@@ -520,7 +520,7 @@ vec3 Node::worldRight() const {
 //
 //	return normalize(rotationMat * vec4(1, 0, 0, 1));
 
-	return normalize(mat4_cast(worldOrientation()) * vec4(1, 0, 0, 1));
+	return vec3(normalize(mat4_cast(worldOrientation()) * vec4(1, 0, 0, 1)));
 }
 
 mat4 Node::worldTransform() const {

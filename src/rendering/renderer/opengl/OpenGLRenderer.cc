@@ -366,7 +366,7 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 
 	// create environment UBO
 
-	uint32 ubo;
+	uint32_t ubo;
 	glGenBuffers(1, &ubo);
 	_glEnvironmentUBO = ubo;
 

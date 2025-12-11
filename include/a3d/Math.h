@@ -239,6 +239,10 @@ namespace a3d::math {
 
 	/// 32-bit Float Vector ///
 
+	vec2 		operator-(const vec2& v);
+	vec3 		operator-(const vec3& v);
+	vec4 		operator-(const vec4& v);
+
 	vec2 		operator+(const vec2& a, const vec2& b);
 	vec3 		operator+(const vec3& a, const vec3& b);
 	vec4 		operator+(const vec4& a, const vec4& b);
@@ -296,6 +300,10 @@ namespace a3d::math {
 	const f32* 	value_ptr(const vec4& v);
 
 	/// Signed 32-bit Integer Vector ///
+
+	ivec2 		operator-(const ivec2& v);
+	ivec3 		operator-(const ivec3& v);
+	ivec4 		operator-(const ivec4& v);
 
 	ivec2 		operator+(const ivec2& a, const ivec2& b);
 	ivec3 		operator+(const ivec3& a, const ivec3& b);
