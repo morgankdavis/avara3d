@@ -2728,44 +2728,53 @@ void DrawStatsOverlay(FrameStats& stats,
 			renderGpuMsFAvg, physicsMsFAvg, appCpuMsFAvg;
 	static float fpsAvg;
 
-	FrameStatsHistory::GetAverages(statsHistory,
-								   frameNsAvg, engineCpuNsAvg, renderCpuNsAvg,
-								   renderGpuNsAvg, physicsNsAvg, appCpuNsAvg,
-								   a3d::config::FRAMETIME_AVERAGING_INTERVAL);
-
-	frameMsFAvg = chrono::duration<float, std::milli>(frameNsAvg).count();
-	engineCpuMsFAvg = chrono::duration<float, std::milli>(engineCpuNsAvg).count();
-	renderCpuMsFAvg = chrono::duration<float, std::milli>(renderCpuNsAvg).count();
-	renderGpuMsFAvg = chrono::duration<float, std::milli>(renderGpuNsAvg).count();
-	physicsMsFAvg = chrono::duration<float, std::milli>(physicsNsAvg).count();
-	appCpuMsFAvg = chrono::duration<float, std::milli>(appCpuNsAvg).count();
-	fpsAvg = 1000.0f / frameMsFAvg;
-
-	auto &samples = statsHistory.samples();
-
-	// TODO: convert to one loop & use stride
-
 	static vector<float> frameSamples;
-	frameSamples.resize(samples.size());
 	static vector<float> physSamples;
-	physSamples.resize(samples.size());
 	static vector<float> engCpuSamples;
-	engCpuSamples.resize(samples.size());
 	static vector<float> renderCpuSamples;
-	renderCpuSamples.resize(samples.size());
 	static vector<float> renderGpuSamples;
-	renderGpuSamples.resize(samples.size());
 	static vector<float> appSamples;
-	appSamples.resize(samples.size());
 
-	for (size_t i = 0; i < samples.size(); ++i) {
-		auto sample = get<1>(samples[i]);
-		frameSamples[i] = chrono::duration<float, milli>(sample.frameTime).count();
-		physSamples[i] = chrono::duration<float, milli>(sample.physicsTime).count();
-		renderCpuSamples[i] = chrono::duration<float, milli>(sample.renderCpuTime).count();
-		renderGpuSamples[i] = chrono::duration<float, milli>(sample.renderGpuTime).count();
-		appSamples[i] = chrono::duration<float, milli>(sample.applicationTime).count();
+	static unsigned frame = 0;
+	static const unsigned SKIP_FRAMES = 2;
+
+	if (!(frame % SKIP_FRAMES)) {
+
+		FrameStatsHistory::GetAverages(statsHistory,
+									   frameNsAvg, engineCpuNsAvg, renderCpuNsAvg,
+									   renderGpuNsAvg, physicsNsAvg, appCpuNsAvg,
+									   a3d::config::FRAMETIME_AVERAGING_INTERVAL);
+
+		frameMsFAvg = chrono::duration<float, std::milli>(frameNsAvg).count();
+		engineCpuMsFAvg = chrono::duration<float, std::milli>(engineCpuNsAvg).count();
+		renderCpuMsFAvg = chrono::duration<float, std::milli>(renderCpuNsAvg).count();
+		renderGpuMsFAvg = chrono::duration<float, std::milli>(renderGpuNsAvg).count();
+		physicsMsFAvg = chrono::duration<float, std::milli>(physicsNsAvg).count();
+		appCpuMsFAvg = chrono::duration<float, std::milli>(appCpuNsAvg).count();
+		fpsAvg = 1000.0f / frameMsFAvg;
+
+		auto &samples = statsHistory.samples();
+
+		// TODO: convert to one loop & use stride
+
+		frameSamples.resize(samples.size());
+		physSamples.resize(samples.size());
+		engCpuSamples.resize(samples.size());
+		renderCpuSamples.resize(samples.size());
+		renderGpuSamples.resize(samples.size());
+		appSamples.resize(samples.size());
+
+		for (size_t i = 0; i < samples.size(); ++i) {
+			auto sample = get<1>(samples[i]);
+			frameSamples[i] = chrono::duration<float, milli>(sample.frameTime).count();
+			physSamples[i] = chrono::duration<float, milli>(sample.physicsTime).count();
+			renderCpuSamples[i] = chrono::duration<float, milli>(sample.renderCpuTime).count();
+			renderGpuSamples[i] = chrono::duration<float, milli>(sample.renderGpuTime).count();
+			appSamples[i] = chrono::duration<float, milli>(sample.applicationTime).count();
+		}
 	}
+
+	++frame;
 
 //	static const float PLOT_WIDTH = 96.0;
 //	static const float PLOT_WIDTH = 158.0;
