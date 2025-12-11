@@ -9,14 +9,10 @@
 #ifndef AVARA3D_MATH_H
 #define AVARA3D_MATH_H
 
-#include <algorithm>
-#include <cassert>
-#include <cmath>
-#include <cstddef>
+//#include <cstddef>
 #include <cstdint>
-#include <cstdlib>
+//#include <cstdlib>
 #include <string>
-#include <type_traits>
 
 namespace a3d::math {
 

@@ -8,6 +8,9 @@
 
 #include "a3d/Math.h"
 
+#include <algorithm>
+#include <cmath>
+#include <cassert>
 #include <sstream>
 
 namespace a3d::math {

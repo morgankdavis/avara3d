@@ -396,7 +396,7 @@ weak_ptr<Node> VisualWorld::defaultPointOfView() {
 		zH += maxZ;
 		zV += maxZ;
 
-		auto z = fmax(zH, zV);
+		auto z = math::max(zH, zV);
 		auto midX = (aabb.min.x + aabb.max.x) / 2.0f;
 		auto midY = (aabb.min.y + aabb.max.y) / 2.0f;
 

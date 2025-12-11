@@ -12,6 +12,7 @@
 #include "a3d/diagnostic/log/Log.h"
 
 using namespace a3d;
+using namespace a3d::math;
 using namespace std;
 
 /// Public Lifecycle Functions ///
@@ -19,8 +20,8 @@ using namespace std;
 SpotLight::SpotLight():
 		AttenuatedLight() {
 	// see DeVries 16.5
-	_innerAngleCos = static_cast<float>(cos(10.0));
-	_outerAngleCos = static_cast<float>(cos(15.0));
+	_innerAngleCos = static_cast<float>(math::cos(10.0));
+	_outerAngleCos = static_cast<float>(math::cos(15.0));
 	_featherMode = SpotlightFeatheringMode::Linear;
 }
 

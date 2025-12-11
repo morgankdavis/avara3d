@@ -2431,8 +2431,8 @@ void AddImguiFont(const RenderContext& context, const Font& font, float size) {
 
 	ImFontConfig fontConfig;
 
-	fontConfig.OversampleH = (int)std::ceil(scaleXY.x);
-	fontConfig.OversampleV = (int)std::ceil(scaleXY.y);
+	fontConfig.OversampleH = (int)ceil(scaleXY.x);
+	fontConfig.OversampleV = (int)ceil(scaleXY.y);
 
 	// by default Imgui transferrs font memory ownership to itself
 	// this means Imgui eventually frees the font data, and then the Font/Buffer double-free it
