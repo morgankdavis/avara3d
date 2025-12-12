@@ -57,7 +57,6 @@ namespace a3d::math {
 	// using quat = f32quat;
 
 	struct vec2 {
-//		f32 x, y;
 		union {
 			struct { f32 x, y; };
 			struct { f32 s, t; };
@@ -276,6 +275,14 @@ namespace a3d::math {
 	vec3& 		operator/=(vec3& v, f32 s);
 	vec4& 		operator/=(vec4& v, f32 s);
 
+	bool 		operator==(const vec2& a, const vec2& b) noexcept;
+	bool 		operator==(const vec3& a, const vec3& b) noexcept;
+	bool 		operator==(const vec4& a, const vec4& b) noexcept;
+
+	bool 		operator!=(const vec2& a, const vec2& b) noexcept;
+	bool		operator!=(const vec3& a, const vec3& b) noexcept;
+	bool 		operator!=(const vec4& a, const vec4& b) noexcept;
+
 	f32 		dot(const vec2& a, const vec2& b);
 	f32 		dot(const vec3& a, const vec3& b);
 	f32 		dot(const vec4& a, const vec4& b);
@@ -346,6 +353,14 @@ namespace a3d::math {
 	ivec3& 		operator/=(ivec3& v, i32 s);
 	ivec4& 		operator/=(ivec4& v, i32 s);
 
+	bool 		operator==(const ivec2& a, const ivec2& b) noexcept;
+	bool 		operator==(const ivec3& a, const ivec3& b) noexcept;
+	bool 		operator==(const ivec4& a, const ivec4& b) noexcept;
+
+	bool 		operator!=(const ivec2& a, const ivec2& b) noexcept;
+	bool 		operator!=(const ivec3& a, const ivec3& b) noexcept;
+	bool 		operator!=(const ivec4& a, const ivec4& b) noexcept;
+
 	i32 		dot(const ivec2& a, const ivec2& b);
 	i32 		dot(const ivec3& a, const ivec3& b);
 	i32 		dot(const ivec4& a, const ivec4& b);
@@ -402,6 +417,14 @@ namespace a3d::math {
 	uvec3& 		operator/=(uvec3& v, u32 s);
 	uvec4& 		operator/=(uvec4& v, u32 s);
 
+	bool 		operator==(const uvec2& a, const uvec2& b) noexcept;
+	bool 		operator==(const uvec3& a, const uvec3& b) noexcept;
+	bool 		operator==(const uvec4& a, const uvec4& b) noexcept;
+
+	bool 		operator!=(const uvec2& a, const uvec2& b) noexcept;
+	bool 		operator!=(const uvec3& a, const uvec3& b) noexcept;
+	bool 		operator!=(const uvec4& a, const uvec4& b) noexcept;
+
 	u32 		dot(const uvec2& a, const uvec2& b);
 	u32 		dot(const uvec3& a, const uvec3& b);
 	u32 		dot(const uvec4& a, const uvec4& b);
@@ -424,6 +447,14 @@ namespace a3d::math {
 	/// Unsigned 8-bit Integer Vector ///
 
 	// DO IT
+
+	bool 		operator==(const u8vec2& a, const u8vec2& b) noexcept;
+	bool 		operator==(const u8vec3& a, const u8vec3& b) noexcept;
+	bool 		operator==(const u8vec4& a, const u8vec4& b) noexcept;
+
+	bool 		operator!=(const u8vec2& a, const u8vec2& b) noexcept;
+	bool 		operator!=(const u8vec3& a, const u8vec3& b) noexcept;
+	bool 		operator!=(const u8vec4& a, const u8vec4& b) noexcept;
 
 	std::string to_string(const u8vec2& v);
 	std::string to_string(const u8vec3& v);
@@ -450,6 +481,15 @@ namespace a3d::math {
 	mat2& 		operator*=(mat2& a, const mat2& b);
 	mat3& 		operator*=(mat3& a, const mat3& b);
 	mat4& 		operator*=(mat4& a, const mat4& b);
+
+	bool 		operator==(const mat2& a, const mat2& b) noexcept;
+	bool 		operator!=(const mat2& a, const mat2& b) noexcept;
+
+	bool 		operator==(const mat3& a, const mat3& b) noexcept;
+	bool		operator!=(const mat3& a, const mat3& b) noexcept;
+
+	bool 		operator==(const mat4& a, const mat4& b) noexcept;
+	bool 		operator!=(const mat4& a, const mat4& b) noexcept;
 
 	mat2 		transpose(const mat2& m);
 	mat3 		transpose(const mat3& m);
@@ -487,12 +527,6 @@ namespace a3d::math {
 
 	quat 		identity_quat();
 
-	f32  		dot(const quat& a, const quat& b);
-	f32  		length(const quat& q);
-	quat 		normalize(const quat& q);
-	quat 		conjugate(const quat& q);
-	quat		inverse(const quat& q);
-
 	quat 		operator*(const quat& a, const quat& b);
 
 	quat 		operator+(const quat& a, const quat& b);
@@ -502,6 +536,15 @@ namespace a3d::math {
 	quat& 		operator+=(quat& a, const quat& b);
 	quat& 		operator*=(quat& q, f32 s);
 	quat& 		operator*=(quat& a, const quat& b);
+
+	bool 		operator==(const quat& a, const quat& b) noexcept;
+	bool 		operator!=(const quat& a, const quat& b) noexcept;
+
+	f32  		dot(const quat& a, const quat& b);
+	f32  		length(const quat& q);
+	quat 		normalize(const quat& q);
+	quat 		conjugate(const quat& q);
+	quat		inverse(const quat& q);
 
 	vec3 		rotate(const quat& q, const vec3& v);
 	vec3 		operator*(const quat& q, const vec3& v);

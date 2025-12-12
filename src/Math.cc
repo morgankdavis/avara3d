@@ -553,6 +553,30 @@ namespace a3d::math {
 		return v;
 	}
 
+	bool operator==(const vec2& a, const vec2& b) noexcept {
+		return a.x == b.x && a.y == b.y;
+	}
+
+	bool operator==(const vec3& a, const vec3& b) noexcept {
+		return a.x == b.x && a.y == b.y && a.z == b.z;
+	}
+
+	bool operator==(const vec4& a, const vec4& b) noexcept {
+		return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
+	}
+
+	bool operator!=(const vec2& a, const vec2& b) noexcept {
+		return !(a == b);
+	}
+
+	bool operator!=(const vec3& a, const vec3& b) noexcept {
+		return !(a == b);
+	}
+
+	bool operator!=(const vec4& a, const vec4& b) noexcept {
+		return !(a == b);
+	}
+
 	f32 dot(const vec2 &a, const vec2 &b) {
 		return a.x * b.x + a.y * b.y;
 	}
@@ -814,6 +838,30 @@ namespace a3d::math {
 		return v;
 	}
 
+	bool operator==(const ivec2& a, const ivec2& b) noexcept {
+		return a.x == b.x && a.y == b.y;
+	}
+
+	bool operator==(const ivec3& a, const ivec3& b) noexcept {
+		return a.x == b.x && a.y == b.y && a.z == b.z;
+	}
+
+	bool operator==(const ivec4& a, const ivec4& b) noexcept {
+		return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
+	}
+
+	bool operator!=(const ivec2& a, const ivec2& b) noexcept {
+		return !(a == b);
+	}
+
+	bool operator!=(const ivec3& a, const ivec3& b) noexcept {
+		return !(a == b);
+	}
+
+	bool operator!=(const ivec4& a, const ivec4& b) noexcept {
+		return !(a == b);
+	}
+
 	i32 dot(const ivec2 &a, const ivec2 &b) {
 		return a.x * b.x + a.y * b.y;
 	}
@@ -1027,6 +1075,30 @@ namespace a3d::math {
 		return v;
 	}
 
+	bool operator==(const uvec2& a, const uvec2& b) noexcept {
+		return a.x == b.x && a.y == b.y;
+	}
+
+	bool operator==(const uvec3& a, const uvec3& b) noexcept {
+		return a.x == b.x && a.y == b.y && a.z == b.z;
+	}
+
+	bool operator==(const uvec4& a, const uvec4& b) noexcept {
+		return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
+	}
+
+	bool operator!=(const uvec2& a, const uvec2& b) noexcept {
+		return !(a == b);
+	}
+
+	bool operator!=(const uvec3& a, const uvec3& b) noexcept {
+		return !(a == b);
+	}
+
+	bool operator!=(const uvec4& a, const uvec4& b) noexcept {
+		return !(a == b);
+	}
+
 	u32 dot(const uvec2 &a, const uvec2 &b) {
 		return a.x * b.x + a.y * b.y;
 	}
@@ -1094,6 +1166,30 @@ namespace a3d::math {
 	}
 
 	/// Unsigned 8-bit Integer Vector ///
+
+	bool operator==(const u8vec2& a, const u8vec2& b) noexcept {
+		return a.x == b.x && a.y == b.y;
+	}
+
+	bool operator==(const u8vec3& a, const u8vec3& b) noexcept {
+		return a.x == b.x && a.y == b.y && a.z == b.z;
+	}
+
+	bool operator==(const u8vec4& a, const u8vec4& b) noexcept {
+		return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
+	}
+
+	bool operator!=(const u8vec2& a, const u8vec2& b) noexcept {
+		return !(a == b);
+	}
+
+	bool operator!=(const u8vec3& a, const u8vec3& b) noexcept {
+		return !(a == b);
+	}
+
+	bool operator!=(const u8vec4& a, const u8vec4& b) noexcept {
+		return !(a == b);
+	}
 
 	std::string to_string(const u8vec2& v) {
 		std::ostringstream ss;
@@ -1200,6 +1296,36 @@ namespace a3d::math {
 	mat4& operator*=(mat4& a, const mat4& b) {
 		a = a * b;
 		return a;
+	}
+
+	bool operator==(const mat2& a, const mat2& b) noexcept {
+		return a.c0 == b.c0 &&
+			   a.c1 == b.c1;
+	}
+
+	bool operator==(const mat3& a, const mat3& b) noexcept {
+		return a.c0 == b.c0 &&
+			   a.c1 == b.c1 &&
+			   a.c2 == b.c2;
+	}
+
+	bool operator==(const mat4& a, const mat4& b) noexcept {
+		return a.c0 == b.c0 &&
+			   a.c1 == b.c1 &&
+			   a.c2 == b.c2 &&
+			   a.c3 == b.c3;
+	}
+
+	bool operator!=(const mat2& a, const mat2& b) noexcept {
+		return !(a == b);
+	}
+
+	bool operator!=(const mat3& a, const mat3& b) noexcept {
+		return !(a == b);
+	}
+
+	bool operator!=(const mat4& a, const mat4& b) noexcept {
+		return !(a == b);
 	}
 
 	mat2 transpose(const mat2 &m) {
@@ -1489,42 +1615,6 @@ namespace a3d::math {
 		return quat{1.0f, 0.0f, 0.0f, 0.0f};
 	}
 
-	f32 dot(const quat &a, const quat &b) {
-		return a.w * b.w + a.x * b.x + a.y * b.y + a.z * b.z;
-	}
-
-	f32 length(const quat &q) {
-		return std::sqrt(dot(q, q));
-	}
-
-	quat normalize(const quat &q) {
-		f32 len = length(q);
-		const f32 eps = 1e-6f;
-		if (len < eps) {
-			// zero or near-zero quaternion: treat as identity
-			return identity_quat();
-		}
-		f32 inv = 1.0f / len;
-		return quat{ q.w * inv, q.x * inv, q.y * inv, q.z * inv };
-	}
-
-
-	quat conjugate(const quat &q) {
-		return quat{q.w, -q.x, -q.y, -q.z};
-	}
-
-	quat inverse(const quat &q) {
-		f32 n2 = dot(q, q);
-		const f32 eps = 1e-6f;
-		if (n2 < eps) {
-			// effectively zero-length quat, can't invert sensibly
-			return identity_quat();
-		}
-		f32 inv_n2 = 1.0f / n2;
-		quat c = conjugate(q);
-		return quat{ c.w * inv_n2, c.x * inv_n2, c.y * inv_n2, c.z * inv_n2 };
-	}
-
 	quat operator+(const quat &a, const quat &b) {
 		return quat{a.w + b.w, a.x + b.x, a.y + b.y, a.z + b.z};
 	}
@@ -1556,6 +1646,17 @@ namespace a3d::math {
 	quat& operator*=(quat& a, const quat& b) {
 		a = a * b; // use your Hamilton product
 		return a;
+	}
+
+	bool operator==(const quat& a, const quat& b) noexcept {
+		return a.w == b.w &&
+			   a.x == b.x &&
+			   a.y == b.y &&
+			   a.z == b.z;
+	}
+
+	bool operator!=(const quat& a, const quat& b) noexcept {
+		return !(a == b);
 	}
 
 	// convention: result = a * b applies b first, then a (GLM-style)
@@ -1601,6 +1702,42 @@ namespace a3d::math {
 
 	vec3 operator*(const quat &q, const vec3 &v) {
 		return rotate(q, v);
+	}
+
+	f32 dot(const quat &a, const quat &b) {
+		return a.w * b.w + a.x * b.x + a.y * b.y + a.z * b.z;
+	}
+
+	f32 length(const quat &q) {
+		return std::sqrt(dot(q, q));
+	}
+
+	quat normalize(const quat &q) {
+		f32 len = length(q);
+		const f32 eps = 1e-6f;
+		if (len < eps) {
+			// zero or near-zero quaternion: treat as identity
+			return identity_quat();
+		}
+		f32 inv = 1.0f / len;
+		return quat{ q.w * inv, q.x * inv, q.y * inv, q.z * inv };
+	}
+
+
+	quat conjugate(const quat &q) {
+		return quat{q.w, -q.x, -q.y, -q.z};
+	}
+
+	quat inverse(const quat &q) {
+		f32 n2 = dot(q, q);
+		const f32 eps = 1e-6f;
+		if (n2 < eps) {
+			// effectively zero-length quat, can't invert sensibly
+			return identity_quat();
+		}
+		f32 inv_n2 = 1.0f / n2;
+		quat c = conjugate(q);
+		return quat{ c.w * inv_n2, c.x * inv_n2, c.y * inv_n2, c.z * inv_n2 };
 	}
 
 	quat axis_angle(const vec3& axis, f32 angle) {
