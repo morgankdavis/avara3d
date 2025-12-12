@@ -402,7 +402,6 @@ int main(int argc, const char* argv[]) {
 	return 0;
 }
 
-
 /// Scene Callbacks ///
 
 void UpdateCallback(Scene& scene, double time, double deltaTime) {
@@ -418,7 +417,9 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 	if (g_duckSpinnerNode) {
 		auto duckSpinnerEuler = g_duckSpinnerNode->eulerAngles();
-		g_duckSpinnerNode->eulerAngles({0, duckSpinnerEuler.y - (float)rotationDeg, 0});
+		g_duckSpinnerNode->eulerAngles({0, duckSpinnerEuler.yaw - (float)rotationDeg, 0});
+//		g_duckSpinnerNode->eulerAngles({duckSpinnerEuler.pitch - (float)rotationDeg, 0, 0});
+//		g_duckSpinnerNode->eulerAngles({0, 0, duckSpinnerEuler.roll - (float)rotationDeg});
 	}
 
 	// get input
@@ -1067,7 +1068,7 @@ void ShootBall(Scene& scene, const vec3& location, const vec3& direction) {
 		auto physicsBody = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, physicsShape);
 		physicsBody->mass(.354); // 12fl oz water 70F
 //	physicsBody->friction(5);
-///
+
 		physicsBody->restitution(1.0);
 		physicsBody->friction(0.35);
 		physicsBody->rollingFriction(0.05);
@@ -1084,11 +1085,11 @@ void ShootBall(Scene& scene, const vec3& location, const vec3& direction) {
 		// add random factor
 
 		static const float PI = 3.1415; // windows doesn't like M_PI from cmath (?)
-		float heading = Uniform(0.0f, 2*PI);
 		float pitch = Uniform(0.0f, 2*PI);
 		float roll = Uniform(0.0f, 2*PI);
+		float yaw = Uniform(0.0f, 2*PI);
 
-		node->eulerAngles({heading, pitch, roll});
+		node->eulerAngles({pitch, yaw, roll});
 
 //		float linearVelocityX = Uniform(-2.0f, 2.0f);
 //		float linearVelocityY = Uniform(5.0f, 12.0f);
