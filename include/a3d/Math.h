@@ -14,27 +14,27 @@
 
 namespace a3d::math {
 
-	class f32vec2;
-	class f32vec3;
-	class f32vec4;
+	struct f32vec2;
+	struct f32vec3;
+	struct f32vec4;
 
-	class i32vec2;
-	class i32vec3;
+	struct i32vec2;
+	struct i32vec3;
 	class i32vec4;
 
-	class u32vec2;
-	class u32vec3;
-	class u32vec4;
+	struct u32vec2;
+	struct u32vec3;
+	struct u32vec4;
 
-	class u8vec2;
-	class u8vec3;
-	class u8vec4;
+	struct u8vec2;
+	struct u8vec3;
+	struct u8vec4;
 
-	class f32mat2;
-	class f32mat3;
-	class f32mat4;
+	struct f32mat2;
+	struct f32mat3;
+	struct f32mat4;
 
-	class f32quat;
+	struct f32quat;
 
 	/// Types ///
 
@@ -713,10 +713,10 @@ namespace a3d::math {
 	mat4 		ortho(f32 left, f32 right, f32 bottom, f32 top, f32 zNear, f32 zFar); // rh
 	mat4 		look_at(const vec3& eye, const vec3& center, const vec3& up); // rh
 
-	bool 		decompose_trs(const mat4& m,
-							  vec3& scale,
-							  quat& rotation,
-							  vec3& translation);
+	bool 		decompose(const mat4& m,
+						  vec3& scale,
+						  quat& rotation,
+						  vec3& translation);
 
 	// genTypeT mix(genTypeT x, genTypeT y, genTypeU a);
 	// vec<L, T, Q> mix(vec<L, T, Q> const& x, vec<L, T, Q> const& y, vec<L, U, Q> const& a);

@@ -86,7 +86,7 @@ mat4 a3d::TransformByRemovingScale(const mat4& m, bool& scaled) {
 	quat orientation;
 	vec3 translation;
 
-	decompose_trs(m,
+	decompose(m,
 			  scale,
 			  orientation,
 			  translation);

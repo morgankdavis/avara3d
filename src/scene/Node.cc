@@ -237,10 +237,10 @@ void Node::transform(const mat4& transform) {
 	quat orientation;
 	vec3 translation;
 
-	decompose_trs(transform,
-				  scale,
-				  orientation,
-				  translation);
+	decompose(transform,
+			  scale,
+			  orientation,
+			  translation);
 
 	_position = translation;
 	_scale = scale;

@@ -2492,10 +2492,10 @@ namespace a3d::math {
 		return result;
 	}
 
-	bool decompose_trs(const mat4& m,
-					   vec3& scale,
-					   quat& rotation,
-					   vec3& translation) {
+	bool decompose(const mat4& m,
+				   vec3& scale,
+				   quat& rotation,
+				   vec3& translation) {
 
 		// 1. translation: last column (assuming standard column-major T*R*S)
 		translation = vec3{ m.c3.x, m.c3.y, m.c3.z };

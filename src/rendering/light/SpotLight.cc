@@ -54,19 +54,19 @@ SpotLight::SpotLight(const string& name, const shared_ptr<Color>& color):
 /// Public Member Functions ///
 
 float SpotLight::innerAngle() const {
-	return acos(_innerAngleCos);
+	return math::acos(_innerAngleCos);
 }
 
 void SpotLight::innerAngle(float angle) {
-	_innerAngleCos = static_cast<float>(cos(angle));
+	_innerAngleCos = static_cast<float>(math::cos(angle));
 }
 
 float SpotLight::outerAngle() const {
-	return acos(_outerAngleCos);
+	return math::acos(_outerAngleCos);
 }
 
 void SpotLight::outerAngle(float angle) {
-	_outerAngleCos = static_cast<float>(cos(angle));
+	_outerAngleCos = static_cast<float>(math::cos(angle));
 }
 
 SpotlightFeatheringMode SpotLight::featheringMode() const {
