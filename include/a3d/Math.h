@@ -595,10 +595,10 @@ namespace a3d::math {
 	vec3 		rotate(const quat& q, const vec3& v);
 	vec3 		operator*(const quat& q, const vec3& v);
 
-	quat 		axis_angle(const vec3& axis, f32 angle);
+	quat 		quaternion(const vec3& axis, f32 angle);
 	vec4 		axis_angle(const quat& q);
 
-	quat 		euler_angles(const vec3& angles); // pitch/yaw/roll to quaternion, y–x–z order
+	quat 		quaternion(const vec3& eulerAngles); // pitch/yaw/roll to quaternion, y–x–z order
 	vec3 		euler_angles(const quat& q); // pitch/yaw/roll to quaternion, y–x–z order
 
 	quat 		slerp(const quat& a, const quat& b, f32 t);
@@ -652,14 +652,14 @@ namespace a3d::math {
 
 
 
-	mat4 perspective(f32 fovy, f32 aspect, f32 zNear, f32 zFar); // rh
-	mat4 ortho(f32 left, f32 right, f32 bottom, f32 top, f32 zNear, f32 zFar); // rh
-	mat4 look_at(const vec3& eye, const vec3& center, const vec3& up); // rh
+	mat4 		perspective(f32 fovy, f32 aspect, f32 zNear, f32 zFar); // rh
+	mat4 		ortho(f32 left, f32 right, f32 bottom, f32 top, f32 zNear, f32 zFar); // rh
+	mat4 		look_at(const vec3& eye, const vec3& center, const vec3& up); // rh
 
-	bool decompose_trs(const mat4& m,
-					   vec3& scale,
-					   quat& rotation,
-					   vec3& translation);
+	bool 		decompose_trs(const mat4& m,
+							  vec3& scale,
+							  quat& rotation,
+							  vec3& translation);
 
 	// genTypeT mix(genTypeT x, genTypeT y, genTypeU a);
 	// vec<L, T, Q> mix(vec<L, T, Q> const& x, vec<L, T, Q> const& y, vec<L, U, Q> const& a);

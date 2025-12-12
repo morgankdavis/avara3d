@@ -417,7 +417,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 	if (g_duckSpinnerNode) {
 		auto duckSpinnerEuler = g_duckSpinnerNode->eulerAngles();
-		g_duckSpinnerNode->eulerAngles({0, duckSpinnerEuler.yaw - (float)rotationDeg, 0});
+//		g_duckSpinnerNode->eulerAngles({0, duckSpinnerEuler.yaw - (float)rotationDeg, 0});
 //		g_duckSpinnerNode->eulerAngles({duckSpinnerEuler.pitch - (float)rotationDeg, 0, 0});
 //		g_duckSpinnerNode->eulerAngles({0, 0, duckSpinnerEuler.roll - (float)rotationDeg});
 	}
@@ -1715,7 +1715,7 @@ shared_ptr<Node> ChainmailLink(float minorRadius, float majorRadius) {
 		auto partNode = Node::NamedNode("Ring capsule part node " + to_string(s + 1));
 		partNode->mesh(visualMesh);
 
-		quat rotation = axis_angle(vec3(0, 0, 1), angle);
+		quat rotation = quaternion(vec3(0, 0, 1), angle);
 		mat4 rotMatrix = mat4_cast(rotation);
 		mat4 translation = translate(mat4(1.0f), vec3(1, 0, 0));
 		mat4 transform = rotMatrix * translation;

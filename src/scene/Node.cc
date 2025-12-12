@@ -153,22 +153,18 @@ vec4 Node::rotation() const {
 }
 
 void Node::rotation(const vec3& axis, float angle) {
-	_orientation = axis_angle(axis, angle);
+	_orientation = quaternion(axis, angle);
 }
 
 vec3 Node::eulerAngles() const {
-
 	if (!_eulerAngles.has_value()) {
-		// best-effort decompose current quat
-		vec3 angles = euler_angles(_orientation);
-		_eulerAngles = angles;
+		_eulerAngles = euler_angles(_orientation);
 	}
 	return *_eulerAngles;
 }
 
 void Node::eulerAngles(const vec3& angles) {
-
-	_orientation = euler_angles(angles);
+	_orientation = quaternion(angles);
 	_eulerAngles = angles;
 }
 

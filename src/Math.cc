@@ -1962,7 +1962,7 @@ namespace a3d::math {
 		return quat{ c.w * inv_n2, c.x * inv_n2, c.y * inv_n2, c.z * inv_n2 };
 	}
 
-	quat axis_angle(const vec3& axis, f32 angle) {
+	quat quaternion(const vec3& axis, f32 angle) {
 		// normalize axis to be safe
 		f32 len = math::sqrt(axis.x * axis.x + axis.y * axis.y + axis.z * axis.z);
 		const f32 eps = 1e-6f;
@@ -2006,16 +2006,16 @@ namespace a3d::math {
 	// pitch: rotation about +X
 	// yaw:   rotation about +Y
 	// roll:  rotation about +Z
-	quat euler_angles(const vec3& angles) {
+	quat quaternion(const vec3& eulerAngles) {
 
 		// local axis unit vectors
 		vec3 axisX{1.0f, 0.0f, 0.0f};
 		vec3 axisY{0.0f, 1.0f, 0.0f};
 		vec3 axisZ{0.0f, 0.0f, 1.0f};
 
-		quat qPitch = axis_angle(axisX, angles.pitch);
-		quat qYaw   = axis_angle(axisY, angles.yaw);
-		quat qRoll  = axis_angle(axisZ, angles.roll);
+		quat qPitch = quaternion(axisX, eulerAngles.pitch);
+		quat qYaw   = quaternion(axisY, eulerAngles.yaw);
+		quat qRoll  = quaternion(axisZ, eulerAngles.roll);
 
 		// rpply roll, then pitch, then yaw:
 		// R = Ry * Rx * Rz  => q = qYaw * qPitch * qRoll
