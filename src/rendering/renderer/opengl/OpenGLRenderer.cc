@@ -10,7 +10,6 @@
 
 #include <algorithm>
 #include <format>
-#include <iostream>
 #include <set>
 #include <utility>
 #include <vector>
@@ -35,7 +34,6 @@
 #include "a3d/Color.h"
 #include "a3d/Configuration.h"
 #include "a3d/CubeImage.h"
-#include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/log/Log.h"
 #include "a3d/Font.h"
 #include "a3d/Image.h"
@@ -72,15 +70,14 @@ using namespace std;
 
 //#define DISABLE_RESOURCE_MANAGEMENT
 
-///  Private Constant Definitions ///
+///  Private Constants ///
 
-const std::string 	OpenGLRenderer::STATS_TITLE_FONT_NAME = 		"SourceCodePro-Bold";
-const std::string 	OpenGLRenderer::STATS_TITLE_FONT_TYPE = 		"otf";
-const float 		OpenGLRenderer::STATS_TITLE_FONT_SIZE =			23.0;
-const std::string 	OpenGLRenderer::STATS_BODY_FONT_NAME = 			"SourceCodePro-Semibold";
-const std::string 	OpenGLRenderer::STATS_BODY_FONT_TYPE = 			"otf";
-const float 		OpenGLRenderer::STATS_BODY_FONT_SIZE =			15.0;
-const float 		OpenGLRenderer::STATS_TITLE_TO_BODY_PADDING =	-3.0;
+const std::string 	STATS_TITLE_FONT_NAME  		{"SourceCodePro-Bold"};
+const std::string 	STATS_TITLE_FONT_TYPE  		{"otf"};
+const float 		STATS_TITLE_FONT_SIZE 		{23.0};
+const std::string 	STATS_BODY_FONT_NAME  		{"SourceCodePro-Semibold"};
+const std::string 	STATS_BODY_FONT_TYPE  		{"otf"};
+const float 		STATS_BODY_FONT_SIZE 		{15.0};
 
 /// Private Types ///
 
@@ -1553,6 +1550,9 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 					lightStruct.color = spotLight->color()->rgba();
 					lightStruct.position_world = node->worldPosition();
 					lightStruct.direction_world = node->worldForward();
+					A3D_LOG_D("[{}] direction_world: {}",
+							  spotLight->name() ? *spotLight->name() : "noname",
+							  to_string(lightStruct.direction_world));
 					lightStruct.innerAngleCos = spotLight->innerAngleCos();
 					lightStruct.outerAngleCos = spotLight->outerAngleCos();
 					lightStruct.featheringMode = magic_enum::enum_underlying(spotLight->featheringMode());
@@ -2417,8 +2417,8 @@ void UpdateImguiScale(const RenderContext& context,
 	io.Fonts->ClearFonts(); // crashes by itself
 	io.Fonts->ClearTexData(); // does not work, but does not crash
 
-	AddImguiFont(context, overLayFont, OpenGLRenderer::STATS_TITLE_FONT_SIZE);
-	AddImguiFont(context, bodyFont, OpenGLRenderer::STATS_BODY_FONT_SIZE);
+	AddImguiFont(context, overLayFont, STATS_TITLE_FONT_SIZE);
+	AddImguiFont(context, bodyFont, STATS_BODY_FONT_SIZE);
 
 	ImGui_ImplOpenGL3_CreateFontsTexture();
 }
@@ -2670,7 +2670,7 @@ void DrawDebugOptions(Scene& scene, const RenderContext& context) {
 	bool physWF = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes);
 	if (DigDrawCheckbox(xPos, yPos, "Physics wireframes", physWF, 1, ++id)) {
 		if (physWF) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsWireframes));
-		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions,DebugOptions::ShowPhysicsWireframes));
+		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsWireframes));
 	}
 
 	yPos += Y_PAD;
@@ -2684,14 +2684,14 @@ void DrawDebugOptions(Scene& scene, const RenderContext& context) {
 	bool physContacts = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints);
 	if (DigDrawCheckbox(xPos, yPos, "Physics contacts", physContacts, 1, ++id)) {
 		if (physContacts) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsContactPoints));
-		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions,DebugOptions::ShowPhysicsContactPoints));
+		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsContactPoints));
 	}
 
 	yPos += Y_PAD;
 	bool physNorms = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsNormals);
 	if (DigDrawCheckbox(xPos, yPos, "Physics normals", physNorms, 1, ++id)) {
 		if (physNorms) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsNormals));
-		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions,DebugOptions::ShowPhysicsNormals));
+		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsNormals));
 	}
 }
 

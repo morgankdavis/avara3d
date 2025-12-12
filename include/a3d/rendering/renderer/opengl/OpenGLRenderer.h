@@ -115,16 +115,6 @@ namespace a3d {
 
 		void					framebufferScaleChanged(const RenderContext& context) override;
 
-		///  Internal Constant Declarations ///
-
-		static const std::string 	STATS_TITLE_FONT_NAME;
-		static const std::string 	STATS_TITLE_FONT_TYPE;
-		static const float 			STATS_TITLE_FONT_SIZE;
-		static const std::string 	STATS_BODY_FONT_NAME;
-		static const std::string 	STATS_BODY_FONT_TYPE;
-		static const float 			STATS_BODY_FONT_SIZE;
-		static const float 			STATS_TITLE_TO_BODY_PADDING;
-
 	private:
 		/// Private Member Variables ///
 
