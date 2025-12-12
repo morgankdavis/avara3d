@@ -49,14 +49,6 @@ namespace a3d::utils {
 	int Uniform(int min, int max);
 	float Uniform(float min, float max);
 
-	bool Zero(const math::vec3& v, float tolerance = 0.0001);
-	float Max(const math::vec3& v);
-
-	bool Equal(float a, float b, float tolerance = 0.0001);
-	bool Equal(const math::vec2& a, const math::vec2& b, float eps = 1e-8f);
-	bool Equal(const math::vec3& a, const math::vec3& b, float eps = 1e-8f);
-	bool Equal(const math::vec4& a, const math::vec4& b, float eps = 1e-8f);
-
 	/// Time ///
 
 	double	Time();

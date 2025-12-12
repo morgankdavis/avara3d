@@ -330,7 +330,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 			// move
 
-			static float MOVE_SPEED = utils::Max(scene.rootNode()->extent());
+			static float MOVE_SPEED = math::max(scene.rootNode()->extent());
 
 			if (keysDown.count(Key::W)) {
 				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camForward;

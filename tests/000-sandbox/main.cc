@@ -569,7 +569,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 			// move
 
 			static float MOVE_SPEED = 0;
-			if (!MOVE_SPEED) MOVE_SPEED = utils::Max(scene.rootNode()->extent());
+			if (!MOVE_SPEED) MOVE_SPEED = math::max(scene.rootNode()->extent());
 
 			float moveMultiplier = 1.0;
 			if (keysDown.count(Key::LeftControl)) {

@@ -147,38 +147,6 @@ float a3d::utils::Uniform(float min, float max) {
 	return dis(gen);
 }
 
-bool a3d::utils::Zero(const vec3& v, float tolerance) {
-	return Equal(v.x, 0, tolerance)
-	&& Equal(v.y, 0, tolerance)
-	&& Equal(v.z, 0, tolerance);
-}
-
-float a3d::utils::Max(const vec3& v) {
-	return std::max(std::max(v.x, v.y), v.z);
-}
-
-bool a3d::utils::Equal(float a, float b, float tolerance) {
-	return (fabs(a - b) <= tolerance);
-}
-
-bool a3d::utils::Equal(const vec2& a, const vec2& b, float eps) {
-	return Equal(a.x, b.x, eps)
-		   && Equal(a.y, b.y, eps);
-}
-
-bool a3d::utils::Equal(const vec3& a, const vec3& b, float eps) {
-	return Equal(a.x, b.x, eps)
-		   && Equal(a.y, b.y, eps)
-		   && Equal(a.z, b.z, eps);
-}
-
-bool a3d::utils::Equal(const vec4& a, const vec4& b, float eps) {
-	return Equal(a.x, b.x, eps)
-		   && Equal(a.y, b.y, eps)
-		   && Equal(a.z, b.z, eps)
-		   && Equal(a.w, b.w, eps);
-}
-
 /// Time ///
 
 double a3d::utils::Time() {

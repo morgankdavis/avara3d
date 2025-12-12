@@ -68,6 +68,7 @@ namespace a3d::math {
 		};
 		f32vec2();
 		f32vec2(f32 x_, f32 y_);
+		explicit f32vec2(f32 n);
 		explicit f32vec2(const f32vec3& v);
 		explicit f32vec2(const f32vec4& v);
 		f32& operator[](std::size_t i);
@@ -84,6 +85,7 @@ namespace a3d::math {
 		f32vec3();
 		f32vec3(f32 x_, f32 y_, f32 z_);
 		f32vec3(const f32vec2& v, f32 z_);
+		explicit f32vec3(f32 n);
 		explicit f32vec3(const f32vec2& v);
 		explicit f32vec3(const f32vec4& v);
 		f32& operator[](std::size_t i);
@@ -108,6 +110,7 @@ namespace a3d::math {
 		i32 x, y;
 		i32vec2();
 		i32vec2(i32 x_, i32 y_);
+		explicit i32vec2(i32 n);
 		explicit i32vec2(const i32vec3& v);
 		explicit i32vec2(const i32vec4& v);
 		i32& operator[](std::size_t i);
@@ -119,6 +122,7 @@ namespace a3d::math {
 		i32vec3();
 		i32vec3(i32 x_, i32 y_, i32 z_);
 		i32vec3(const i32vec2& v, i32 z_);
+		explicit i32vec3(i32 n);
 		explicit i32vec3(const i32vec2& v);
 		explicit i32vec3(const i32vec4& v);
 		i32& operator[](std::size_t i);
@@ -130,6 +134,7 @@ namespace a3d::math {
 		i32vec4();
 		i32vec4(i32 x_, i32 y_, i32 z_, i32 w_);
 		i32vec4(const i32vec3& v, i32 w_);
+		explicit i32vec4(i32 n);
 		explicit i32vec4(const i32vec2& v);
 		explicit i32vec4(const i32vec3& v);
 		i32& operator[](std::size_t i);
@@ -140,6 +145,7 @@ namespace a3d::math {
 		u32 x, y;
 		u32vec2();
 		u32vec2(u32 x_, u32 y_);
+		explicit u32vec2(u32 n);
 		explicit u32vec2(const u32vec3& v);
 		explicit u32vec2(const u32vec4& v);
 		u32& operator[](std::size_t i);
@@ -151,6 +157,7 @@ namespace a3d::math {
 		u32vec3();
 		u32vec3(u32 x_, u32 y_, u32 z_);
 		u32vec3(const u32vec2& c, u32 z_);
+		explicit u32vec3(u32 n);
 		explicit u32vec3(const u32vec2& v);
 		explicit u32vec3(const u32vec4& v);
 		u32& operator[](std::size_t i);
@@ -162,6 +169,7 @@ namespace a3d::math {
 		u32vec4();
 		u32vec4(u32 x_, u32 y_, u32 z_, u32 w_);
 		u32vec4(const u32vec3& v, u32 w_);
+		explicit u32vec4(u32 n);
 		explicit u32vec4(const u32vec2& v);
 		explicit u32vec4(const u32vec3& v);
 		u32& operator[](std::size_t i);
@@ -172,6 +180,7 @@ namespace a3d::math {
 		u8 x, y;
 		u8vec2();
 		u8vec2(u8 x_, u8 y_);
+		explicit u8vec2(u8 n);
 		explicit u8vec2(const u8vec3& v);
 		explicit u8vec2(const u8vec4& v);
 		u8& operator[](std::size_t i);
@@ -186,6 +195,7 @@ namespace a3d::math {
 		u8vec3();
 		u8vec3(u8 x_, u8 y_, u8 z_);
 		u8vec3(const u8vec2& v, u8 z_);
+		explicit u8vec3(u8 n);
 		explicit u8vec3(const u8vec2& v);
 		explicit u8vec3(const u8vec4& v);
 		u8& operator[](std::size_t i);
@@ -200,6 +210,7 @@ namespace a3d::math {
 		u8vec4();
 		u8vec4(u8 x_, u8 y_, u8 z_, u8 w_);
 		u8vec4(const u8vec3& z, u8 w_);
+		explicit u8vec4(u8 n);
 		explicit u8vec4(const u8vec2& v);
 		explicit u8vec4(const u8vec3& v);
 		u8& operator[](std::size_t i);
@@ -239,6 +250,10 @@ namespace a3d::math {
 		f32& operator[](std::size_t i);
 		const f32& operator[](std::size_t i) const;
 	};
+
+	/// Constants ///
+
+	const f32 F32_COMP_EPS = 1e-6f;
 
 	/// 32-bit Float Vector ///
 
@@ -288,6 +303,14 @@ namespace a3d::math {
 	bool 		operator!=(const f32vec2& a, const f32vec2& b);
 	bool		operator!=(const f32vec3& a, const f32vec3& b);
 	bool 		operator!=(const f32vec4& a, const f32vec4& b);
+
+	f32 		min(const f32vec2& v);
+	f32 		min(const f32vec3& v);
+	f32 		min(const f32vec4& v);
+
+	f32 		max(const f32vec2& v);
+	f32 		max(const f32vec3& v);
+	f32 		max(const f32vec4& v);
 
 	f32 		dot(const f32vec2& a, const f32vec2& b);
 	f32 		dot(const f32vec3& a, const f32vec3& b);
@@ -367,6 +390,14 @@ namespace a3d::math {
 	bool 		operator!=(const i32vec3& a, const i32vec3& b);
 	bool 		operator!=(const i32vec4& a, const i32vec4& b);
 
+	f32 		min(const i32vec2& v);
+	f32 		min(const i32vec3& v);
+	f32 		min(const i32vec4& v);
+
+	f32			max(const i32vec2& v);
+	f32 		max(const i32vec3& v);
+	f32 		max(const i32vec4& v);
+
 	i32 		dot(const i32vec2& a, const i32vec2& b);
 	i32 		dot(const i32vec3& a, const i32vec3& b);
 	i32 		dot(const i32vec4& a, const i32vec4& b);
@@ -430,6 +461,14 @@ namespace a3d::math {
 	bool 		operator!=(const u32vec2& a, const u32vec2& b);
 	bool 		operator!=(const u32vec3& a, const u32vec3& b);
 	bool 		operator!=(const u32vec4& a, const u32vec4& b);
+
+	f32 		min(const u32vec2& v);
+	f32 		min(const u32vec3& v);
+	f32 		min(const u32vec4& v);
+
+	f32 		max(const u32vec2& v);
+	f32 		max(const u32vec3& v);
+	f32 		max(const u32vec4& v);
 
 	u32 		dot(const u32vec2& a, const u32vec2& b);
 	u32 		dot(const u32vec3& a, const u32vec3& b);
@@ -495,6 +534,14 @@ namespace a3d::math {
 	bool 		operator!=(const u8vec2& a, const u8vec2& b);
 	bool 		operator!=(const u8vec3& a, const u8vec3& b);
 	bool 		operator!=(const u8vec4& a, const u8vec4& b);
+
+	f32			min(const u8vec2& v);
+	f32 		min(const u8vec3& v);
+	f32 		min(const u8vec4& v);
+
+	f32 		max(const u8vec2& v);
+	f32 		max(const u8vec3& v);
+	f32 		max(const u8vec4& v);
 
 	u8*       	value_ptr(u8vec2& v);
 	const u8*  	value_ptr(const u8vec2& v);
@@ -625,39 +672,42 @@ namespace a3d::math {
 	f32 		radians(f32 degrees);
 	f32 		degrees(f32 radians);
 
-	f32	 		sin(f32 num);
-	f32 		cos(f32 num);
-	f32 		tan(f32 num);
-	f32 		asin(f32 num);
-	f32 		acos(f32 num);
-	f32 		atan(f32 num);
+	f32	 		sin(f32 n);
+	f32 		cos(f32 n);
+	f32 		tan(f32 n);
+	f32 		asin(f32 n);
+	f32 		acos(f32 n);
+	f32 		atan(f32 n);
 	f32 		atan2(f32 x, f32 y);
-	f32 		sinh(f32 num);
-	f32 		cosh(f32 num);
-	f32 		tanh(f32 num);
-	f32 		asinh(f32 num);
-	f32 		acosh(f32 num);
-	f32 		atanh(f32 num);
+	f32 		sinh(f32 n);
+	f32 		cosh(f32 n);
+	f32 		tanh(f32 n);
+	f32 		asinh(f32 n);
+	f32 		acosh(f32 n);
+	f32 		atanh(f32 n);
 
 	/// 32-bit Float Common ///
 
-	f32 		ceil(f32 num);
-	f32 		floor(f32 num);
-	f32 		round(f32 num);
-	f32 		exp(f32 num);
-	f32 		exp2(f32 num);
+	bool		equal(f32 a, f32 b, f32 eps = F32_COMP_EPS);
+	f32 		ceil(f32 n);
+	f32 		floor(f32 n);
+	f32 		round(f32 n);
+	f32 		exp(f32 n);
+	f32 		exp2(f32 n);
 	f32 		pow(f32 x, f32 y);
-	f32 		abs(f32 num);
-	f32 		log(f32 num);
-	f32 		log2(f32 num);
-	f32 		log10(f32 num);
-	f32 		sqrt(f32 num);
+	f32 		abs(f32 n);
+	f32 		abs(f32 n);
+	f32 		log(f32 n);
+	f32 		log2(f32 n);
+	f32 		log10(f32 n);
+	f32 		sqrt(f32 n);
 	f32 		min(f32 a, f32 b);
 	f32 		max(f32 a, f32 b);
 	f32			clamp(f32 val, f32 low, f32 high);
 	void 		swap(f32& a, f32& b);
-
-
+	bool 		isnan(f32 n);
+	bool 		isinf(f32 n);
+	bool 		signbit(f32 n);
 
 	mat4 		perspective(f32 fovy, f32 aspect, f32 zNear, f32 zFar); // rh
 	mat4 		ortho(f32 left, f32 right, f32 bottom, f32 top, f32 zNear, f32 zFar); // rh

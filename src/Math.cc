@@ -29,6 +29,9 @@ namespace a3d::math {
 	f32vec2::f32vec2(f32 x_, f32 y_):
 			x{x_}, y{y_} {}
 
+	f32vec2::f32vec2(f32 n):
+			x{n}, y{n} {}
+
 	f32vec2::f32vec2(const f32vec3& v):
 			x{v.x}, y{v.y} {}
 
@@ -50,6 +53,9 @@ namespace a3d::math {
 
 	f32vec3::f32vec3(f32 x_, f32 y_, f32 z_):
 			x{x_}, y{y_}, z{z_} {}
+
+	f32vec3::f32vec3(f32 n):
+			x{n}, y{n}, z{n} {}
 
 	f32vec3::f32vec3(const f32vec2& v, f32 z_):
 			x{v.x}, y{v.y}, z{z_} {}
@@ -101,6 +107,9 @@ namespace a3d::math {
 	i32vec2::i32vec2(i32 x_, i32 y_):
 			x{x_}, y{y_} {}
 
+	i32vec2::i32vec2(i32 n):
+			x{n}, y{n} {}
+
 	i32vec2::i32vec2(const i32vec3& v):
 			x{v.x}, y{v.y} {}
 
@@ -125,6 +134,9 @@ namespace a3d::math {
 
 	i32vec3::i32vec3(const i32vec2& v, i32 z_):
 			x{v.x}, y{v.y}, z{z_} {}
+
+	i32vec3::i32vec3(i32 n):
+			x{n}, y{n}, z{n} {}
 
 	i32vec3::i32vec3(const i32vec2& v):
 			x{v.x}, y{v.y}, z{0} {}
@@ -151,6 +163,9 @@ namespace a3d::math {
 	i32vec4::i32vec4(const i32vec3& v, i32 w_):
 			x{v.x}, y{v.y}, z{v.z}, w{w_} {}
 
+	i32vec4::i32vec4(i32 n):
+			x{n}, y{n}, z{n}, w{n} {}
+
 	i32vec4::i32vec4(const i32vec2& v):
 			x{v.x}, y{v.y}, z{0}, w{0} {}
 
@@ -172,6 +187,9 @@ namespace a3d::math {
 
 	u32vec2::u32vec2(u32 x_, u32 y_) :
 			x{x_}, y{y_} {}
+
+	u32vec2::u32vec2(u32 n):
+			x{n}, y{n} {}
 
 	u32vec2::u32vec2(const u32vec3& v):
 			x{v.x}, y{v.y} {}
@@ -198,6 +216,9 @@ namespace a3d::math {
 	u32vec3::u32vec3(const u32vec2& v, u32 z_):
 			x{v.x}, y{v.y}, z{z_} {}
 
+	u32vec3::u32vec3(u32 n):
+			x{n}, y{n}, z{n} {}
+
 	u32vec3::u32vec3(const u32vec2& v):
 			x{v.x}, y{v.y}, z{0} {}
 
@@ -223,6 +244,9 @@ namespace a3d::math {
 	u32vec4::u32vec4(const u32vec3& v, u32 w_):
 			x{v.x}, y{v.y}, z{v.z}, w{w_} {}
 
+	u32vec4::u32vec4(u32 n):
+			x{n}, y{n}, z{n}, w{n} {}
+
 	u32vec4::u32vec4(const u32vec2& v):
 			x{v.x}, y{v.y}, z{0}, w{0} {}
 
@@ -244,6 +268,9 @@ namespace a3d::math {
 
 	u8vec2::u8vec2(u8 x_, u8 y_) :
 			x{x_}, y{y_} {}
+
+	u8vec2::u8vec2(u8 n):
+			x{n}, y{n} {}
 
 	u8vec2::u8vec2(const u8vec3& v):
 			x{v.x}, y{v.y} {}
@@ -270,6 +297,9 @@ namespace a3d::math {
 	u8vec3::u8vec3(const u8vec2& v, u8 z_):
 			x{v.x}, y{v.y}, z{z_} {}
 
+	u8vec3::u8vec3(u8 n):
+			x{n}, y{n}, z{n} {}
+
 	u8vec3::u8vec3(const u8vec2& v):
 			x{v.x}, y{v.y}, z{0} {}
 
@@ -294,6 +324,9 @@ namespace a3d::math {
 
 	u8vec4::u8vec4(const u8vec3& v, u8 w_):
 			x{v.x}, y{v.y}, z{v.z}, w{w_} {}
+
+	u8vec4::u8vec4(u8 n):
+			x{n}, y{n}, z{n}, w{n} {}
 
 	u8vec4::u8vec4(const u8vec2& v):
 			x{v.x}, y{v.y}, z{0}, w{0} {}
@@ -560,19 +593,21 @@ namespace a3d::math {
 	}
 
 	bool operator==(const f32vec2& a, const f32vec2& b) {
-		return a.x == b.x && a.y == b.y;
+		return equal(a.x, b.x) &&
+			   equal(a.y, b.y);
 	}
 
 	bool operator==(const f32vec3& a, const f32vec3& b) {
-		return a.x == b.x && a.y == b.y && a.z == b.z;
+		return equal(a.x, b.x) &&
+			   equal(a.y, b.y) &&
+			   equal(a.z, b.z);
 	}
 
 	bool operator==(const f32vec4& a, const f32vec4& b) {
-		return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
-	}
-
-	bool operator!=(const f32vec2& a, const f32vec2& b) {
-		return !(a == b);
+		return equal(a.x, b.x) &&
+			   equal(a.y, b.y) &&
+			   equal(a.z, b.z) &&
+			   equal(a.w, b.w);
 	}
 
 	bool operator!=(const f32vec3& a, const f32vec3& b) {
@@ -581,6 +616,30 @@ namespace a3d::math {
 
 	bool operator!=(const f32vec4& a, const f32vec4& b) {
 		return !(a == b);
+	}
+
+	f32 min(const f32vec2& v) {
+		return std::min(v.x, v.y);
+	}
+
+	f32 min(const f32vec3& v) {
+		return std::min(v.x, std::min(v.y, v.z));
+	}
+
+	f32 min(const f32vec4& v) {
+		return std::min(std::min(v.x, v.y), std::min(v.z, v.w));
+	}
+
+	f32 max(const f32vec2& v) {
+		return std::max(v.x, v.y);
+	}
+
+	f32 max(const f32vec3& v) {
+		return std::max(v.x, std::max(v.y, v.z));
+	}
+
+	f32 max(const f32vec4& v) {
+		return std::max(std::max(v.x, v.y), std::max(v.z, v.w));
 	}
 
 	f32 dot(const f32vec2 &a, const f32vec2 &b) {
@@ -868,6 +927,30 @@ namespace a3d::math {
 		return !(a == b);
 	}
 
+	f32 min(const i32vec2& v) {
+		return static_cast<f32>(std::min(v.x, v.y));
+	}
+
+	f32 min(const i32vec3& v) {
+		return static_cast<f32>(std::min(v.x, std::min(v.y, v.z)));
+	}
+
+	f32 min(const i32vec4& v) {
+		return static_cast<f32>(std::min(std::min(v.x, v.y), std::min(v.z, v.w)));
+	}
+
+	f32 max(const i32vec2& v) {
+		return static_cast<f32>(std::max(v.x, v.y));
+	}
+
+	f32 max(const i32vec3& v) {
+		return static_cast<f32>(std::max(v.x, std::max(v.y, v.z)));
+	}
+
+	f32 max(const i32vec4& v) {
+		return static_cast<f32>(std::max(std::max(v.x, v.y), std::max(v.z, v.w)));
+	}
+
 	i32 dot(const i32vec2 &a, const i32vec2 &b) {
 		return a.x * b.x + a.y * b.y;
 	}
@@ -1103,6 +1186,30 @@ namespace a3d::math {
 
 	bool operator!=(const u32vec4& a, const u32vec4& b) {
 		return !(a == b);
+	}
+
+	f32 min(const u32vec2& v) {
+		return static_cast<f32>(std::min(v.x, v.y));
+	}
+
+	f32 min(const u32vec3& v) {
+		return static_cast<f32>(std::min(v.x, std::min(v.y, v.z)));
+	}
+
+	f32 min(const u32vec4& v) {
+		return static_cast<f32>(std::min(std::min(v.x, v.y), std::min(v.z, v.w)));
+	}
+
+	f32 max(const u32vec2& v) {
+		return static_cast<f32>(std::max(v.x, v.y));
+	}
+
+	f32 max(const u32vec3& v) {
+		return static_cast<f32>(std::max(v.x, std::max(v.y, v.z)));
+	}
+
+	f32 max(const u32vec4& v) {
+		return static_cast<f32>(std::max(std::max(v.x, v.y), std::max(v.z, v.w)));
 	}
 
 	u32 dot(const u32vec2 &a, const u32vec2 &b) {
@@ -1381,6 +1488,30 @@ namespace a3d::math {
 
 	bool operator!=(const u8vec4& a, const u8vec4& b) {
 		return !(a == b);
+	}
+
+	f32 min(const u8vec2& v) {
+		return static_cast<f32>(std::min(v.x, v.y));
+	}
+
+	f32 min(const u8vec3& v) {
+		return static_cast<f32>(std::min(v.x, std::min(v.y, v.z)));
+	}
+
+	f32 min(const u8vec4& v) {
+		return static_cast<f32>(std::min(std::min(v.x, v.y), std::min(v.z, v.w)));
+	}
+
+	f32 max(const u8vec2& v) {
+		return static_cast<f32>(std::max(v.x, v.y));
+	}
+
+	f32 max(const u8vec3& v) {
+		return static_cast<f32>(std::max(v.x, std::max(v.y, v.z)));
+	}
+
+	f32 max(const u8vec4& v) {
+		return static_cast<f32>(std::max(std::max(v.x, v.y), std::max(v.z, v.w)));
 	}
 
 	u8* value_ptr(u8vec2& v) {
@@ -1665,9 +1796,9 @@ namespace a3d::math {
 		for (int col = 0; col < 4; ++col) {
 			// find pivot row
 			int pivot_row = col;
-			f32 max_abs = std::fabs(a[col][col]);
+			f32 max_abs = math::abs(a[col][col]);
 			for (int r = col + 1; r < 4; ++r) {
-				f32 val = std::fabs(a[r][col]);
+				f32 val = math::abs(a[r][col]);
 				if (val > max_abs) {
 					max_abs = val;
 					pivot_row = r;
@@ -1680,8 +1811,8 @@ namespace a3d::math {
 
 			// swap rows in both 'a' and 'inv'
 			if (pivot_row != col) {
-				std::swap(a[col], a[pivot_row]);
-				std::swap(inv[col], inv[pivot_row]);
+				std::swap(a[col], a[pivot_row]); // TODO: wrap with a3d::math
+				std::swap(inv[col], inv[pivot_row]); // TODO: wrap with a3d::math
 			}
 
 			// normalize pivot row
@@ -1971,7 +2102,7 @@ namespace a3d::math {
 	}
 
 	f32 length(const f32quat &q) {
-		return std::sqrt(dot(q, q));
+		return math::sqrt(dot(q, q));
 	}
 
 	f32quat normalize(const f32quat &q) {
@@ -2011,8 +2142,8 @@ namespace a3d::math {
 		}
 		f32 inv_len = 1.0f / len;
 		f32 half = 0.5f * angle;
-		f32 s = std::sin(half);
-		f32 c = std::cos(half);
+		f32 s = math::sin(half);
+		f32 c = math::cos(half);
 
 		vec3 n{ axis.x * inv_len,
 				axis.y * inv_len,
@@ -2026,7 +2157,7 @@ namespace a3d::math {
 
 		const f32 eps = 1e-6f;
 
-		f32 angle = 2.0f * math::acos(std::clamp(q.w, -1.0f, 1.0f));
+		f32 angle = 2.0f * math::acos(math::clamp(q.w, -1.0f, 1.0f));
 		f32 s2    = 1.0f - q.w * q.w;
 		f32 s     = s2 > eps ? math::sqrt(s2) : 0.0f;
 
@@ -2086,13 +2217,13 @@ namespace a3d::math {
 			angles.pitch = math::pi_over_2();  //  π/2
 		}
 		else {
-			angles.pitch = std::asin(sinp);
+			angles.pitch = math::asin(sinp);
 		}
 
 		// yaw and roll from atan2; this is undefined at exact +/- 90° pitch,
 		// but numerically you'll still get a consistent choice.
-		angles.yaw  = std::atan2(r02, r22);
-		angles.roll = std::atan2(r10, r11);
+		angles.yaw  = math::atan2(r02, r22);
+		angles.roll = math::atan2(r10, r11);
 
 		return angles;
 	}
@@ -2120,11 +2251,11 @@ namespace a3d::math {
 			return normalize(result);
 		}
 
-		f32 theta = std::acos(cosTheta);
-		f32 sinTheta = std::sin(theta);
+		f32 theta = math::acos(cosTheta);
+		f32 sinTheta = math::sin(theta);
 
-		f32 w1 = std::sin((1.0f - t) * theta) / sinTheta;
-		f32 w2 = std::sin(t * theta) / sinTheta;
+		f32 w1 = math::sin((1.0f - t) * theta) / sinTheta;
+		f32 w2 = math::sin(t * theta) / sinTheta;
 
 		f32quat result = q1 * w1 + q2 * w2;
 		return normalize(result);
@@ -2240,6 +2371,10 @@ namespace a3d::math {
 
 	/// 32-bit Float Utilities ///
 
+	bool equal(f32 a, f32 b, f32 eps) {
+		return math::abs(a - b) <= eps;
+	}
+
 	f32 ceil(f32 num) {
 		return std::ceil(num);
 	}
@@ -2298,6 +2433,18 @@ namespace a3d::math {
 
 	void swap(f32 &a, f32 &b) {
 		std::swap(a, b);
+	}
+
+	bool isnan(f32 num) {
+		return std::isnan(num);
+	}
+
+	bool isinf(f32 num) {
+		return std::isinf(num);
+	}
+
+	bool signbit(f32 num) {
+		return std::signbit(num);
 	}
 
 	mat4 perspective(f32 fovy, f32 aspect, f32 zNear, f32 zFar) {
@@ -2404,7 +2551,7 @@ namespace a3d::math {
 		f32 trace = r00 + r11 + r22;
 
 		if (trace > 0.0f) {
-			f32 root = std::sqrt(trace + 1.0f);  // 4 * qw
+			f32 root = math::sqrt(trace + 1.0f);  // 4 * qw
 			q.w = 0.5f * root;
 			root = 0.5f / root;
 			q.x = (r21 - r12) * root;
@@ -2413,7 +2560,7 @@ namespace a3d::math {
 		}
 		else {
 			if (r00 >= r11 && r00 >= r22) {
-				f32 root = std::sqrt(1.0f + r00 - r11 - r22);
+				f32 root = math::sqrt(1.0f + r00 - r11 - r22);
 				f32 inv  = 0.5f / root;
 				q.x = 0.5f * root;
 				q.y = (r01 + r10) * inv;
@@ -2421,7 +2568,7 @@ namespace a3d::math {
 				q.w = (r21 - r12) * inv;
 			}
 			else if (r11 > r22) {
-				f32 root = std::sqrt(1.0f + r11 - r00 - r22);
+				f32 root = math::sqrt(1.0f + r11 - r00 - r22);
 				f32 inv  = 0.5f / root;
 				q.y = 0.5f * root;
 				q.x = (r01 + r10) * inv;
@@ -2429,7 +2576,7 @@ namespace a3d::math {
 				q.w = (r02 - r20) * inv;
 			}
 			else {
-				f32 root = std::sqrt(1.0f + r22 - r00 - r11);
+				f32 root = math::sqrt(1.0f + r22 - r00 - r11);
 				f32 inv  = 0.5f / root;
 				q.z = 0.5f * root;
 				q.x = (r02 + r20) * inv;
@@ -2456,24 +2603,24 @@ namespace a3d::math {
 		if (width <= 0) return std::format("{}", v);
 
 		// special values
-		if (std::isnan(v)) return mat_right_fit("nan", width);
-		if (std::isinf(v)) return mat_right_fit((v < 0) ? "-inf" : "inf", width);
+		if (math::isnan(v)) return mat_right_fit("nan", width);
+		if (math::isinf(v)) return mat_right_fit((v < 0) ? "-inf" : "inf", width);
 
 		// avoid "-0.000..."
 		if (v == 0.0f) v = 0.0f;
 
-		const bool neg = std::signbit(v);
-		const float a = std::fabs(v);
+		const bool neg = math::signbit(v);
+		const float a = math::abs(v);
 
 		// count integer digits of |v|
 		int int_digits = 1;
 		if (a >= 1.0f) {
-			int_digits = static_cast<int>(std::floor(std::log10(a))) + 1;
+			int_digits = static_cast<int>(math::floor(math::log10(a))) + 1;
 		}
 
 		// decimals that can fit if we include '.' (when decimals > 0)
 		int max_dec = width - (neg ? 1 : 0) - int_digits - 1;
-		max_dec = std::clamp(max_dec, 0, (int)width);
+		max_dec = math::clamp(max_dec, 0, (int)width);
 
 		// try fixed, reducing decimals until it fits
 		for (int dec = max_dec; dec >= 0; --dec) {
@@ -2482,7 +2629,7 @@ namespace a3d::math {
 		}
 
 		// fallback: scientific, try to fit by reducing precision
-		for (int prec = std::min(6, (int)width); prec >= 0; --prec) {
+		for (int prec = math::min(6, (int)width); prec >= 0; --prec) {
 			std::string s = std::format("{:{}.{}e}", v, width, prec);
 			if ((int)s.size() <= width) return mat_right_fit(std::move(s), width);
 		}
