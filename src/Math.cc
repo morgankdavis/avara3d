@@ -11,9 +11,15 @@
 #include <algorithm>
 #include <cmath>
 #include <cassert>
+#include <format>
 #include <sstream>
 
 namespace a3d::math {
+
+	/// Private Utility Prototypes ///
+
+	static inline std::string mat_right_fit(std::string s, unsigned width);
+	static inline std::string mat_fmtf(float v, unsigned width);
 
 	/// Types ///
 
@@ -1756,30 +1762,64 @@ namespace a3d::math {
 		return scale(m, vec3{s, s, s});
 	}
 
-	std::string to_string(const f32mat2& m) {
+//	std::string to_string(const f32mat2& m) {
+//		std::ostringstream ss;
+//		ss << "f32mat2("
+//		   << "c0=(" << m.c0.x << ", " << m.c0.y << "), "
+//		   << "c1=(" << m.c1.x << ", " << m.c1.y << "))";
+//		return ss.str();
+//	}
+//
+//	std::string to_string(const f32mat3& m) {
+//		std::ostringstream ss;
+//		ss << "f32mat3("
+//		   << "c0=(" << m.c0.x << ", " << m.c0.y << ", " << m.c0.z << "), "
+//		   << "c1=(" << m.c1.x << ", " << m.c1.y << ", " << m.c1.z << "), "
+//		   << "c2=(" << m.c2.x << ", " << m.c2.y << ", " << m.c2.z << "))";
+//		return ss.str();
+//	}
+//
+//	std::string to_string(const f32mat4& m) {
+//		std::ostringstream ss;
+//		ss << "f32mat4("
+//		   << "c0=(" << m.c0.x << ", " << m.c0.y << ", " << m.c0.z << ", " << m.c0.w << "), "
+//		   << "c1=(" << m.c1.x << ", " << m.c1.y << ", " << m.c1.z << ", " << m.c1.w << "), "
+//		   << "c2=(" << m.c2.x << ", " << m.c2.y << ", " << m.c2.z << ", " << m.c2.w << "), "
+//		   << "c3=(" << m.c3.x << ", " << m.c3.y << ", " << m.c3.z << ", " << m.c3.w << "))";
+//		return ss.str();
+//	}
+
+	std::string to_string(const f32mat2& m, unsigned pad) {
 		std::ostringstream ss;
-		ss << "f32mat2("
-		   << "c0=(" << m.c0.x << ", " << m.c0.y << "), "
-		   << "c1=(" << m.c1.x << ", " << m.c1.y << "))";
+		ss << "f32mat2(\n"
+		   << "  (" << mat_fmtf(m.c0.x, pad) << ", " << mat_fmtf(m.c1.x, pad) << ")\n"
+		   << "  (" << mat_fmtf(m.c0.y, pad) << ", " << mat_fmtf(m.c1.y, pad) << ")\n"
+		   << ")";
 		return ss.str();
 	}
 
-	std::string to_string(const f32mat3& m) {
+	std::string to_string(const f32mat3& m, unsigned pad) {
 		std::ostringstream ss;
-		ss << "f32mat3("
-		   << "c0=(" << m.c0.x << ", " << m.c0.y << ", " << m.c0.z << "), "
-		   << "c1=(" << m.c1.x << ", " << m.c1.y << ", " << m.c1.z << "), "
-		   << "c2=(" << m.c2.x << ", " << m.c2.y << ", " << m.c2.z << "))";
+		ss << "f32mat3(\n"
+		   << "  (" << mat_fmtf(m.c0.x, pad) << ", " << mat_fmtf(m.c1.x, pad) << ", " << mat_fmtf(m.c2.x, pad) << ")\n"
+		   << "  (" << mat_fmtf(m.c0.y, pad) << ", " << mat_fmtf(m.c1.y, pad) << ", " << mat_fmtf(m.c2.y, pad) << ")\n"
+		   << "  (" << mat_fmtf(m.c0.z, pad) << ", " << mat_fmtf(m.c1.z, pad) << ", " << mat_fmtf(m.c2.z, pad) << ")\n"
+		   << ")";
 		return ss.str();
 	}
 
-	std::string to_string(const f32mat4& m) {
+	std::string to_string(const f32mat4& m, unsigned pad) {
 		std::ostringstream ss;
-		ss << "f32mat4("
-		   << "c0=(" << m.c0.x << ", " << m.c0.y << ", " << m.c0.z << ", " << m.c0.w << "), "
-		   << "c1=(" << m.c1.x << ", " << m.c1.y << ", " << m.c1.z << ", " << m.c1.w << "), "
-		   << "c2=(" << m.c2.x << ", " << m.c2.y << ", " << m.c2.z << ", " << m.c2.w << "), "
-		   << "c3=(" << m.c3.x << ", " << m.c3.y << ", " << m.c3.z << ", " << m.c3.w << "))";
+		ss << "f32mat4(\n"
+		   << "  (" << mat_fmtf(m.c0.x, pad) << ", " << mat_fmtf(m.c1.x, pad) << ", " << mat_fmtf(m.c2.x, pad) << ", " << mat_fmtf(
+				m.c3.x, pad) << ")\n"
+		   << "  (" << mat_fmtf(m.c0.y, pad) << ", " << mat_fmtf(m.c1.y, pad) << ", " << mat_fmtf(m.c2.y, pad) << ", " << mat_fmtf(
+				m.c3.y, pad) << ")\n"
+		   << "  (" << mat_fmtf(m.c0.z, pad) << ", " << mat_fmtf(m.c1.z, pad) << ", " << mat_fmtf(m.c2.z, pad) << ", " << mat_fmtf(
+				m.c3.z, pad) << ")\n"
+		   << "  (" << mat_fmtf(m.c0.w, pad) << ", " << mat_fmtf(m.c1.w, pad) << ", " << mat_fmtf(m.c2.w, pad) << ", " << mat_fmtf(
+				m.c3.w, pad) << ")\n"
+		   << ")";
 		return ss.str();
 	}
 
@@ -2401,5 +2441,52 @@ namespace a3d::math {
 		rotation = q;
 
 		return true;
+	}
+
+	/// Private Utilities ///
+
+	std::string mat_right_fit(std::string s, unsigned width) {
+		if (width <= 0) return s;
+		if ((int)s.size() < width) return std::format("{:>{}}", s, width);
+		if ((int)s.size() == width) return s;
+		return std::string(width, '#'); // overflow marker (guaranteed width)
+	}
+
+	std::string mat_fmtf(float v, unsigned width) {
+		if (width <= 0) return std::format("{}", v);
+
+		// special values
+		if (std::isnan(v)) return mat_right_fit("nan", width);
+		if (std::isinf(v)) return mat_right_fit((v < 0) ? "-inf" : "inf", width);
+
+		// avoid "-0.000..."
+		if (v == 0.0f) v = 0.0f;
+
+		const bool neg = std::signbit(v);
+		const float a = std::fabs(v);
+
+		// count integer digits of |v|
+		int int_digits = 1;
+		if (a >= 1.0f) {
+			int_digits = static_cast<int>(std::floor(std::log10(a))) + 1;
+		}
+
+		// decimals that can fit if we include '.' (when decimals > 0)
+		int max_dec = width - (neg ? 1 : 0) - int_digits - 1;
+		max_dec = std::clamp(max_dec, 0, (int)width);
+
+		// try fixed, reducing decimals until it fits
+		for (int dec = max_dec; dec >= 0; --dec) {
+			std::string s = std::format("{:{}.{}f}", v, width, dec); // dynamic width + precision
+			if ((int)s.size() <= width) return mat_right_fit(std::move(s), width);
+		}
+
+		// fallback: scientific, try to fit by reducing precision
+		for (int prec = std::min(6, (int)width); prec >= 0; --prec) {
+			std::string s = std::format("{:{}.{}e}", v, width, prec);
+			if ((int)s.size() <= width) return mat_right_fit(std::move(s), width);
+		}
+
+		return std::string(width, '#');
 	}
 }

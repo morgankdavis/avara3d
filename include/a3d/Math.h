@@ -561,9 +561,9 @@ namespace a3d::math {
 	f32mat4 	scale(const f32mat4& m, const vec3& v);
 	f32mat4 	scale(const f32mat4& m, f32 s);
 
-	std::string to_string(const f32mat2& m);
-	std::string to_string(const f32mat3& m);
-	std::string to_string(const f32mat4& m);
+	std::string to_string(const f32mat2& m, unsigned pad = 10);
+	std::string to_string(const f32mat3& m, unsigned pad = 10);
+	std::string to_string(const f32mat4& m, unsigned pad = 10);
 
 	f32* 		value_ptr(f32mat2& m);
 	const f32* 	value_ptr(const f32mat2& m);

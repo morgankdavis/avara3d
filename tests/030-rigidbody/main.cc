@@ -356,6 +356,9 @@ int main(int argc, const char* argv[]) {
 		scene->rootNode()->addChild(boxesLightNode);
 
 
+		A3D_APP_LOG_I("boxesLightNode: {}", to_string(boxesLightNode->transform()));
+
+
 	A3D_APP_LOG_I("*** SCENE EXTENT: {} ***",
 				  to_string(scene->rootNode()->extent()));
 
