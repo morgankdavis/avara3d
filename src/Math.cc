@@ -1320,8 +1320,9 @@ namespace a3d::math {
 				}
 			}
 
-			// singular?
-			assert(max_abs != 0.0f && "mat4 inverse: matrix is singular");
+			const f32 eps = 1e-8f;
+			assert(max_abs > eps && "mat4 inverse: matrix is singular or ill-conditioned");
+			// or return mat4(1.0f);
 
 			// swap rows in both 'a' and 'inv'
 			if (pivot_row != col) {
@@ -1341,7 +1342,8 @@ namespace a3d::math {
 			for (int r = 0; r < 4; ++r) {
 				if (r == col) continue;
 				const f32 factor = a[r][col];
-				if (factor == 0.0f) continue;
+				const f32 eps = 1e-12f; // can be smaller here
+				if (math::abs(factor) < eps) continue;
 				for (int j = 0; j < 4; ++j) {
 					a[r][j] -= factor * a[col][j];
 					inv[r][j] -= factor * inv[col][j];
@@ -1497,13 +1499,15 @@ namespace a3d::math {
 
 	quat normalize(const quat &q) {
 		f32 len = length(q);
-		if (len == 0.0f) {
-			// return identity if length is zero -- different behavior?
+		const f32 eps = 1e-6f;
+		if (len < eps) {
+			// zero or near-zero quaternion: treat as identity
 			return identity_quat();
 		}
 		f32 inv = 1.0f / len;
-		return quat{q.w * inv, q.x * inv, q.y * inv, q.z * inv};
+		return quat{ q.w * inv, q.x * inv, q.y * inv, q.z * inv };
 	}
+
 
 	quat conjugate(const quat &q) {
 		return quat{q.w, -q.x, -q.y, -q.z};
@@ -1511,12 +1515,14 @@ namespace a3d::math {
 
 	quat inverse(const quat &q) {
 		f32 n2 = dot(q, q);
-		if (n2 == 0.0f) {
+		const f32 eps = 1e-6f;
+		if (n2 < eps) {
+			// effectively zero-length quat, can't invert sensibly
 			return identity_quat();
 		}
 		f32 inv_n2 = 1.0f / n2;
 		quat c = conjugate(q);
-		return quat{c.w * inv_n2, c.x * inv_n2, c.y * inv_n2, c.z * inv_n2};
+		return quat{ c.w * inv_n2, c.x * inv_n2, c.y * inv_n2, c.z * inv_n2 };
 	}
 
 	quat operator+(const quat &a, const quat &b) {
@@ -1597,10 +1603,11 @@ namespace a3d::math {
 		return rotate(q, v);
 	}
 
-	quat angle_axis(f32 angle, const vec3 &axis) {
+	quat axis_angle(const vec3& axis, f32 angle) {
 		// normalize axis to be safe
-		f32 len = std::sqrt(axis.x * axis.x + axis.y * axis.y + axis.z * axis.z);
-		if (len == 0.0f) {
+		f32 len = math::sqrt(axis.x * axis.x + axis.y * axis.y + axis.z * axis.z);
+		const f32 eps = 1e-6f;
+		if (len < eps) {
 			return identity_quat();
 		}
 		f32 inv_len = 1.0f / len;
@@ -1613,6 +1620,27 @@ namespace a3d::math {
 				axis.z * inv_len };
 
 		return quat{c, n.x * s, n.y * s, n.z * s};
+	}
+
+	vec4 axis_angle(const quat& q_) {
+		quat q = normalize(q_);
+
+		const f32 eps = 1e-6f;
+
+		f32 angle = 2.0f * math::acos(std::clamp(q.w, -1.0f, 1.0f));
+		f32 s2    = 1.0f - q.w * q.w;
+		f32 s     = s2 > eps ? math::sqrt(s2) : 0.0f;
+
+		vec3 axis;
+		if (s < eps) {
+			// axis is undefined; pick something stable
+			axis = vec3{1.0f, 0.0f, 0.0f};
+		}
+		else {
+			axis = vec3{ q.x / s, q.y / s, q.z / s };
+		}
+
+		return vec4{ axis.x, axis.y, axis.z, angle };
 	}
 
 	quat slerp(const quat &a, const quat &b, f32 t) {

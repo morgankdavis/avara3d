@@ -1714,7 +1714,7 @@ shared_ptr<Node> ChainmailLink(float minorRadius, float majorRadius) {
 		auto partNode = Node::NamedNode("Ring capsule part node " + to_string(s + 1));
 		partNode->mesh(visualMesh);
 
-		quat rotation = angle_axis(angle, vec3(0, 0, 1));
+		quat rotation = axis_angle(vec3(0, 0, 1), angle);
 		mat4 rotMatrix = mat4_cast(rotation);
 		mat4 translation = translate(mat4(1.0f), vec3(1, 0, 0));
 		mat4 transform = rotMatrix * translation;

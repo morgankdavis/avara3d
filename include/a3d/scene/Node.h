@@ -71,7 +71,7 @@ namespace a3d {
 		math::vec3 							position() const;
 		void 								position(const math::vec3& position);
 
-		math::vec4 							rotation() const; // axis-angle, xyzw
+		math::vec4 							rotation() const; // axis-angle
 		void 								rotation(const math::vec3& axis, float angle);
 
 		math::vec3 							eulerAngles() const; // pitch, yaw, roll

@@ -227,22 +227,22 @@ bool a3d::utils::Equal(float a, float b, float tolerance) {
 	return (fabs(a - b) <= tolerance);
 }
 
-bool a3d::utils::Equal(const vec2& a, const vec2& b, float tolerance) {
-	return Equal(a.x, b.x, tolerance)
-		   && Equal(a.y, b.y, tolerance);
+bool a3d::utils::Equal(const vec2& a, const vec2& b, float eps) {
+	return Equal(a.x, b.x, eps)
+		   && Equal(a.y, b.y, eps);
 }
 
-bool a3d::utils::Equal(const vec3& a, const vec3& b, float tolerance) {
-	return Equal(a.x, b.x, tolerance)
-	&& Equal(a.y, b.y, tolerance)
-	&& Equal(a.z, b.z, tolerance);
+bool a3d::utils::Equal(const vec3& a, const vec3& b, float eps) {
+	return Equal(a.x, b.x, eps)
+		   && Equal(a.y, b.y, eps)
+		   && Equal(a.z, b.z, eps);
 }
 
-bool a3d::utils::Equal(const vec4& a, const vec4& b, float tolerance) {
-	return Equal(a.x, b.x, tolerance)
-	&& Equal(a.y, b.y, tolerance)
-	&& Equal(a.z, b.z, tolerance)
-	&& Equal(a.w, b.w, tolerance);
+bool a3d::utils::Equal(const vec4& a, const vec4& b, float eps) {
+	return Equal(a.x, b.x, eps)
+		   && Equal(a.y, b.y, eps)
+		   && Equal(a.z, b.z, eps)
+		   && Equal(a.w, b.w, eps);
 }
 
 /// Time ///

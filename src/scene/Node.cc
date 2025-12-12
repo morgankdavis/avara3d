@@ -152,85 +152,11 @@ void Node::position(const vec3& position) {
 }
 
 vec4 Node::rotation() const {
-
-	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToAngle/
-
-	/*
-		angle = 2 * acos(qw)
-		x = qx / sqrt(1-qw*qw)
-
-		y = qy / sqrt(1-qw*qw)
-		z = qz / sqrt(1-qw*qw)
-	 */
-
-	// WORKS (but clips rotation to 2PI)
-	vec4 angleAxis = vec4(_orientation.x / math::sqrt(1-_orientation.w*_orientation.w),
-						  _orientation.y / math::sqrt(1-_orientation.w*_orientation.w),
-						  _orientation.z / math::sqrt(1-_orientation.w*_orientation.w),
-						  2 * math::acos(_orientation.w));
-
-	return angleAxis;
-
-
-	// cgpt:
-
-//	quat q = worldOrientation();       // get world-space orientation
-//	q = normalize(q);                  // just in case
-//
-//	const f32 eps = 1e-6f;
-//
-//	f32 angle = 2.0f * std::acos(std::clamp(q.w, -1.0f, 1.0f));
-//	f32 s2    = 1.0f - q.w * q.w;
-//	f32 s     = s2 > eps ? std::sqrt(s2) : 0.0f;
-//
-//	vec3 axis;
-//	if (s < eps) {
-//		// Axis is undefined; choose something stable
-//		axis = vec3{1.0f, 0.0f, 0.0f};
-//	} else {
-//		axis = vec3{ q.x / s, q.y / s, q.z / s };
-//	}
-//
-//	return vec4{ axis.x, axis.y, axis.z, angle };
+	return axis_angle(_orientation);
 }
 
 void Node::rotation(const vec3& axis, float angle) {
-	
-//	if (_physicsBody && _physicsBody->type() == PHYSICS_BODY_TYPE::STATIC) {
-//		throw Exception("Can't manipulate )
-//	}
-//	else {
-
-	// these methods produce the same results. perhaps GLM is faster...
-	
-	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/angleToQuaternion/
-
-	/*
-		qx = ax * sin(angle/2)
-		qy = ay * sin(angle/2)
-		qz = az * sin(angle/2)
-		qw = cos(angle/2)
-
-		where:
-
-		the axis is normalised so: ax*ax + ay*ay + az*az = 1
-		the quaternion is also normalised so cos(angle/2)2 + ax*ax * sin(angle/2)2 + ay*ay * sin(angle/2)2+ az*az * sin(angle/2)2 = 1
-	 */
-
-//		float qx = rotation.x * sin(rotation.w/2.0f);
-//		float qy = rotation.y * sin(rotation.w/2.0f);
-//		float qz = rotation.z * sin(rotation.w/2.0f);
-//		float qw = cos(rotation.w/2.0f);
-//
-//		_orientation = quat(qw, qx, qy, qz);
-
-
-
-	vec3 axisNormalized = normalize(vec3(axis.x, axis.y, axis.z));
-	_orientation = angle_axis(angle, axisNormalized);
-
-	//addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
-//	}
+	_orientation = axis_angle(axis, angle);
 }
 
 vec3 Node::eulerAngles() const {  // pitch, yaw, roll
@@ -378,18 +304,42 @@ mat4 Node::transform() const {
 }
 
 vec3 Node::forward() const {
-	return vec3(normalize(mat4_cast(_orientation) * vec4(0.0, 0.0, -1.0, 1.0)));
+
+	// method 1
+	vec3 localForward{0.0f, 0.0f, -1.0f}; // assuming local forward is -Z
+	return normalize(rotate(_orientation, localForward));
+
+	// method 2
+	// mat4 t = transform();
+	// column 2 = +Z in world space GLM/OpenGL conventions
+	// if local forward is -Z instead of +Z, negate
+	// return normalize(-vec3{t.c2.x, t.c2.y, t.c2.z});
 }
 
 vec3 Node::up() const {
-	return vec3(normalize(mat4_cast(_orientation) * vec4(0.0, 1.0, 0.0, 1.0)));
+
+	// method 1
+	vec3 localForward{0.0f, 1.0f, 0.0f};
+	return normalize(rotate(_orientation, localForward));
+
+	// method 2
+	// mat4 t = transform();
+	// return normalize({t.c1.x, t.c1.y, t.c1.z });
 }
 
 vec3 Node::right() const {
-	return vec3(normalize(mat4_cast(_orientation) * vec4(1.0, 0.0, 0.0, 1.0)));
+
+	// method 1
+	vec3 localForward{1.0f, 0.0f, 0.0f};
+	return normalize(rotate(_orientation, localForward));
+
+	// method 2
+	// mat4 t = transform();
+	// return normalize(t.c0.x, t.c0.y, t.c0.z});
 }
 
 void Node::transform(const mat4& transform) {
+
 	vec3 scale;
 	quat orientation;
 	vec3 translation;
@@ -405,45 +355,19 @@ void Node::transform(const mat4& transform) {
 }
 
 vec3 Node::worldPosition() const {
+
 	return vec3(worldTransform()[3]);
 }
 
 vec4 Node::worldRotation() const {
-	throw Exception("worldRotation() not implemented."); // TODO: custom exception
-	return {0.0, 0.0, 0.0, 0.0};
+
+	return axis_angle(worldOrientation());
 }
 
 vec3 Node::worldEulerAngles() const {
+
 	throw Exception("worldEulerAngles() not implemented."); // TODO: custom exception
 	return {0.0, 0.0, 0.0};
-
-
-	// cgpt
-//	quat q = worldOrientation();
-//	f32 w = q.w;
-//	f32 x = q.x;
-//	f32 y = q.y;
-//	f32 z = q.z;
-//
-//	// Roll (X axis rotation)
-//	f32 sinr_cosp = 2.0f * (w * x + y * z);
-//	f32 cosr_cosp = 1.0f - 2.0f * (x * x + y * y);
-//	f32 roll = std::atan2(sinr_cosp, cosr_cosp);
-//
-//	// Pitch (Y axis rotation)
-//	f32 sinp = 2.0f * (w * y - z * x);
-//	f32 pitch;
-//	if (std::abs(sinp) >= 1.0f)
-//		pitch = (sinp > 0 ? 0.5f : -0.5f) * math::pi(); // clamp to 90°
-//	else
-//		pitch = std::asin(sinp);
-//
-//	// Yaw (Z axis rotation)
-//	f32 siny_cosp = 2.0f * (w * z + x * y);
-//	f32 cosy_cosp = 1.0f - 2.0f * (y * y + z * z);
-//	f32 yaw = std::atan2(siny_cosp, cosy_cosp);
-//
-//	return vec3{ pitch, yaw, roll }; // or whatever order you prefer
 }
 
 quat Node::worldOrientation() const {
@@ -467,43 +391,33 @@ vec3 Node::worldScale() const {
 vec3 Node::worldForward() const {
 
 	// method 1
-	// fine.
-	quat q = worldOrientation();
-	vec3 localForward{0.0f, 0.0f, -1.0f}; // assuming local forward is -Z
-	return normalize(rotate(q, localForward));
+	return normalize(rotate(worldOrientation(), {0.0f, 0.0f, -1.0f})); // local forward is -Z
 
 	// method 2
-	// cheaper is worldTransform is cached.
 	// mat4 w = worldTransform();
-	// vec3 f{ w.c2.x, w.c2.y, w.c2.z }; // column 2 = +Z in world space GLM/OpenGL conventions
-	// f = -f; // if local forward is -Z instead of +Z, negate
-	// return normalize(f);
+	// column 2 = +Z in world space GLM/OpenGL conventions
+	// if local forward is -Z instead of +Z, negate
+	// return normalize(-vec3{w.c2.x, w.c2.y, w.c2.z});
 }
 
 vec3 Node::worldUp() const {
 
 	// method 1
-	quat q = worldOrientation();
-	vec3 localForward{0.0f, 1.0f, 0.0f};
-	return normalize(rotate(q, localForward));
+	return normalize(rotate(worldOrientation(), {0.0f, 1.0f, 0.0f}));
 
 	// method 2
 	// mat4 w = worldTransform();
-	// vec3 f{ w.c1.x, w.c1.y, w.c1.z };
-	// return normalize(f);
+	// return normalize({w.c1.x, w.c1.y, w.c1.z});
 }
 
 vec3 Node::worldRight() const {
 
 	// method 1
-	quat q = worldOrientation();
-	vec3 localForward{1.0f, 0.0f, 0.0f};
-	return normalize(rotate(q, localForward));
+	return normalize(rotate(worldOrientation(), {1.0f, 0.0f, 0.0f}));
 
 	// method 2
 	// mat4 w = worldTransform();
-	// vec3 f{ w.c0.x, w.c0.y, w.c0.z };
-	// return normalize(f);
+	// return normalize({w.c0.x, w.c0.y, w.c0.z});
 }
 
 mat4 Node::worldTransform() const {
@@ -553,11 +467,6 @@ void Node::removeFromParent() {
 			}
 		}
 		parent->_children = newChildren;
-
-//		auto vec = _parent->_children;
-//		vec.erase(remove(vec.begin(), vec.end(), shared_from_this()), vec.end());
-//// TODO: can we avoid the copy?
-//		_parent->_children = vec;
 
 		detachedFromParent(*parent);
 	}
@@ -632,7 +541,7 @@ weak_ptr<Node> Node::parent() const {
 void Node::attachedToParent(Node& parent) {
 	A3D_LOG_T("parent: {:p}", static_cast<void*>(&parent));
 
-//	_parent = parent; // moved to Node::addChild() to avoid needing to pass 'parent' as a shared_ptr
+	// _parent = parent; // moved to Node::addChild() to avoid needing to pass 'parent' as a shared_ptr
 
 	// the only Node with a direct pointer to the Scene is the root node,
 	// and attachedToParent() is never called on the root node.

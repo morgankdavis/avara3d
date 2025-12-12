@@ -506,7 +506,8 @@ namespace a3d::math {
 	vec3 		rotate(const quat& q, const vec3& v);
 	vec3 		operator*(const quat& q, const vec3& v);
 
-	quat 		angle_axis(f32 angle, const vec3& axis);
+	quat 		axis_angle(const vec3& axis, f32 angle);
+	vec4 		axis_angle(const quat& q);
 
 	quat 		slerp(const quat& a, const quat& b, f32 t);
 
