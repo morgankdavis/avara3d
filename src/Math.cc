@@ -1882,6 +1882,7 @@ namespace a3d::math {
 		}
 	}
 
+	// ! warning: this appears to not always give correct results for orientation !
 	bool decompose(const mat4& modelMatrix,
 				   vec3& scale,
 				   quat& orientation,

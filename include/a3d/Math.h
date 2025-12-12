@@ -609,6 +609,7 @@ namespace a3d::math {
 	# define M_SQRT1_2	0.70710678118654752440	// 1/sqrt(2)
 */
 
+	// ! warning: this appears to not always give correct results for orientation !
 	bool decompose(const mat4& modelMatrix,
 				   vec3& scale,
 				   quat& orientation,

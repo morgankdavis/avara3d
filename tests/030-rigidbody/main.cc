@@ -356,10 +356,6 @@ int main(int argc, const char* argv[]) {
 		scene->rootNode()->addChild(boxesLightNode);
 
 
-		A3D_APP_LOG_D("boxesLightNode world mat: {}", to_string(boxesLightNode->worldTransform()));
-
-
-
 	A3D_APP_LOG_I("*** SCENE EXTENT: {} ***",
 				  utils::StringFromGLMVec3(scene->rootNode()->extent()));
 

@@ -172,12 +172,26 @@ vec4 Node::rotation() const {
 	return angleAxis;
 
 
-	// doesn't really work at all, surprisingly
-//	mat4 rotMat = mat4_cast(_orientation);
+	// cgpt:
+
+//	quat q = worldOrientation();       // get world-space orientation
+//	q = normalize(q);                  // just in case
+//
+//	const f32 eps = 1e-6f;
+//
+//	f32 angle = 2.0f * std::acos(std::clamp(q.w, -1.0f, 1.0f));
+//	f32 s2    = 1.0f - q.w * q.w;
+//	f32 s     = s2 > eps ? std::sqrt(s2) : 0.0f;
+//
 //	vec3 axis;
-//	float angle;
-//	axisAngle(rotMat, axis, angle);
-//	return vec4(axis.x, axis.y, axis.z, angle);
+//	if (s < eps) {
+//		// Axis is undefined; choose something stable
+//		axis = vec3{1.0f, 0.0f, 0.0f};
+//	} else {
+//		axis = vec3{ q.x / s, q.y / s, q.z / s };
+//	}
+//
+//	return vec4{ axis.x, axis.y, axis.z, angle };
 }
 
 void Node::rotation(const vec3& axis, float angle) {
@@ -375,25 +389,6 @@ vec3 Node::right() const {
 	return vec3(normalize(mat4_cast(_orientation) * vec4(1.0, 0.0, 0.0, 1.0)));
 }
 
-//void Node::transform(const mat4& transform) {
-//	vec3 scale;
-//	quat orientation;
-//	vec3 translation;
-//	vec3 skew;
-//	vec4 perspective;
-//
-//	decompose(transform,
-//			  scale,
-//			  orientation,
-//			  translation,
-//			  skew,
-//			  perspective);
-//
-//	_position = translation;
-//	_scale = scale;
-//	_orientation = orientation;
-//}
-
 void Node::transform(const mat4& transform) {
 	vec3 scale;
 	quat orientation;
@@ -421,121 +416,94 @@ vec4 Node::worldRotation() const {
 vec3 Node::worldEulerAngles() const {
 	throw Exception("worldEulerAngles() not implemented."); // TODO: custom exception
 	return {0.0, 0.0, 0.0};
+
+
+	// cgpt
+//	quat q = worldOrientation();
+//	f32 w = q.w;
+//	f32 x = q.x;
+//	f32 y = q.y;
+//	f32 z = q.z;
+//
+//	// Roll (X axis rotation)
+//	f32 sinr_cosp = 2.0f * (w * x + y * z);
+//	f32 cosr_cosp = 1.0f - 2.0f * (x * x + y * y);
+//	f32 roll = std::atan2(sinr_cosp, cosr_cosp);
+//
+//	// Pitch (Y axis rotation)
+//	f32 sinp = 2.0f * (w * y - z * x);
+//	f32 pitch;
+//	if (std::abs(sinp) >= 1.0f)
+//		pitch = (sinp > 0 ? 0.5f : -0.5f) * math::pi(); // clamp to 90°
+//	else
+//		pitch = std::asin(sinp);
+//
+//	// Yaw (Z axis rotation)
+//	f32 siny_cosp = 2.0f * (w * z + x * y);
+//	f32 cosy_cosp = 1.0f - 2.0f * (y * y + z * z);
+//	f32 yaw = std::atan2(siny_cosp, cosy_cosp);
+//
+//	return vec3{ pitch, yaw, roll }; // or whatever order you prefer
 }
 
 quat Node::worldOrientation() const {
 
-	vec3 scale;
-	quat orientation;
-	vec3 translation;
-	vec3 skew;
-	vec4 perspective;
-
-	decompose(worldTransform(),
-			  scale,
-			  orientation,
-			  translation,
-			  skew,
-			  perspective);
-
-	return orientation;
-
-	// THESE ARE ALL WRONG (try mouselook)
-	//return worldTransform() * mat4_cast(_orientation);
-	//return normalize(quat(worldTransform() * mat4_cast(_orientation)));
-	//return normalize(quat(worldTransform() * mat4_cast(normalize(_orientation))));
+	if (auto parent = _parent.lock()) {
+		return normalize(parent->worldOrientation() * _orientation);
+	}
+	else {
+		return _orientation;
+	}
 }
 
 vec3 Node::worldScale() const {
 
-	// FUCKED CAMERA: HERE?
-
-	// OG
-
-//	vec3 scale;
-//	quat orientation;
-//	vec3 translation;
-//	vec3 skew;
-//	vec4 perspective;
-//
-//	decompose(worldTransform(),
-//			  scale,
-//			  orientation,
-//			  translation,
-//			  skew,
-//			  perspective);
-//
-//	return scale;
-
-	// OK?
-
-	return vec3(worldTransform() * vec4(_scale, 0.0)); // TODO: 0, not 1? right?
+	mat4 w = worldTransform();
+	return { length(vec3(w.c0)),
+			 length(vec3(w.c1)),
+			 length(vec3(w.c2)) };
 }
 
 vec3 Node::worldForward() const {
 
-//	vec3 scale;
-//	quat orientation;
-//	vec3 translation;
-//	vec3 skew;
-//	vec4 perspective;
-//
-//	decompose(worldTransform(),
-//			  scale,
-//			  orientation,
-//			  translation,
-//			  skew,
-//			  perspective);
-//
-//	mat4 rotationMat = mat4_cast(orientation);
-//
-//	return normalize(rotationMat * vec4(0, 0, -1, 1));
+	// method 1
+	// fine.
+	quat q = worldOrientation();
+	vec3 localForward{0.0f, 0.0f, -1.0f}; // assuming local forward is -Z
+	return normalize(rotate(q, localForward));
 
-	return vec3(normalize(mat4_cast(worldOrientation()) * vec4(0, 0, -1, 1)));
+	// method 2
+	// cheaper is worldTransform is cached.
+	// mat4 w = worldTransform();
+	// vec3 f{ w.c2.x, w.c2.y, w.c2.z }; // column 2 = +Z in world space GLM/OpenGL conventions
+	// f = -f; // if local forward is -Z instead of +Z, negate
+	// return normalize(f);
 }
 
 vec3 Node::worldUp() const {
 
-//	vec3 scale;
-//	quat orientation;
-//	vec3 translation;
-//	vec3 skew;
-//	vec4 perspective;
-//
-//	decompose(worldTransform(),
-//			  scale,
-//			  orientation,
-//			  translation,
-//			  skew,
-//			  perspective);
-//
-//	mat4 rotationMat = mat4_cast(orientation);
-//
-//	return normalize(rotationMat * vec4(0, 1, 0, 1));
+	// method 1
+	quat q = worldOrientation();
+	vec3 localForward{0.0f, 1.0f, 0.0f};
+	return normalize(rotate(q, localForward));
 
-	return vec3(normalize(mat4_cast(worldOrientation()) * vec4(0, 1, 0, 1)));
+	// method 2
+	// mat4 w = worldTransform();
+	// vec3 f{ w.c1.x, w.c1.y, w.c1.z };
+	// return normalize(f);
 }
 
 vec3 Node::worldRight() const {
 
-//	vec3 scale;
-//	quat orientation;
-//	vec3 translation;
-//	vec3 skew;
-//	vec4 perspective;
-//
-//	decompose(worldTransform(),
-//			  scale,
-//			  orientation,
-//			  translation,
-//			  skew,
-//			  perspective);
-//
-//	mat4 rotationMat = mat4_cast(orientation);
-//
-//	return normalize(rotationMat * vec4(1, 0, 0, 1));
+	// method 1
+	quat q = worldOrientation();
+	vec3 localForward{1.0f, 0.0f, 0.0f};
+	return normalize(rotate(q, localForward));
 
-	return vec3(normalize(mat4_cast(worldOrientation()) * vec4(1, 0, 0, 1)));
+	// method 2
+	// mat4 w = worldTransform();
+	// vec3 f{ w.c0.x, w.c0.y, w.c0.z };
+	// return normalize(f);
 }
 
 mat4 Node::worldTransform() const {
