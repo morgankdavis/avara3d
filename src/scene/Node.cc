@@ -26,8 +26,6 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-//#define ALTERNATE_EULERS
-
 /// Pulic Static Members ///
 
 shared_ptr<Node> Node::NamedNode(const string& name) {
@@ -95,9 +93,7 @@ Node::~Node() {
 
 	// since PhysicsBody's 'node' is a weak_ptr, all that detachedFromNode did was
 	// set 'node' to an empty weak_ptr -- uncesessary.
-	//if (_physicsBody) _physicsBody->detachedFromNode(*this);
-
-//	physicsBody(nullptr);
+	// if (_physicsBody) _physicsBody->detachedFromNode(*this);
 }
 
 /// Public Member Functions ///

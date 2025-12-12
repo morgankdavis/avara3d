@@ -357,7 +357,7 @@ int main(int argc, const char* argv[]) {
 
 
 	A3D_APP_LOG_I("*** SCENE EXTENT: {} ***",
-				  utils::StringFromGLMVec3(scene->rootNode()->extent()));
+				  to_string(scene->rootNode()->extent()));
 
 	//	A3D_A3D_APP_LOG_I("Graph:\n{}", StringFromTree(*scene->rootNode()));
 	//	auto children = scene->rootNode()->children(true);

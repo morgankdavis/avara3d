@@ -37,21 +37,7 @@ namespace a3d::utils {
 
 	/// Output ///
 
-	// TODO: remove these
-	std::ostream& operator<<(std::ostream& os, const math::vec3& v);
-	std::ostream& operator<<(std::ostream& os, const math::vec4& v);
-	std::ostream& operator<<(std::ostream& os, const math::quat& q);
-	std::ostream& operator<<(std::ostream& os, const math::mat4& m);
-	std::ostream& operator<<(std::ostream& os, const Color& c);
-
-	std::string StringFromGLMVec3(const math::vec3& v);
-	std::string StringFromGLMVec4(const math::vec4& v);
-	std::string StringFromGLMQuat(const math::quat& q);
-	std::string StringFromGLMMat4(const math::mat4& m);
-	std::string StringFromColor(const Color& c);
-
 	std::string StringFromTree(const Node& root);
-
 	std::string DateTimeString();
 
 #ifdef POSIX
