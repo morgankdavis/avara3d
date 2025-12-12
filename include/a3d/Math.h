@@ -705,6 +705,25 @@ namespace a3d::math {
 	f32 		max(f32 a, f32 b);
 	f32			clamp(f32 val, f32 low, f32 high);
 	void 		swap(f32& a, f32& b);
+
+//	template <class T, std::size_t N>
+//	inline void swap_array(T (&a)[N], T (&b)[N])
+//	noexcept(noexcept(std::swap(a[0], b[0])))
+//	{
+//		using std::swap;
+//		for (std::size_t i = 0; i < N; ++i)
+//			swap(a[i], b[i]);
+//	}
+
+	template <class T, std::size_t N>
+	inline void swap_array(T (&a)[N], T (&b)[N])
+	noexcept(noexcept(std::swap(a[0], b[0])))
+	{
+		using std::swap;
+		for (std::size_t i = 0; i < N; ++i)
+			swap(a[i], b[i]);
+	}
+
 	bool 		isnan(f32 n);
 	bool 		isinf(f32 n);
 	bool 		signbit(f32 n);

@@ -560,8 +560,8 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 			static const float MOUSE_SPEED_SCALAR = .002;
 			static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
 
-			float deltaRotX = atan(MOUSE_SPEED * mousePositionDelta.x);
-			float deltaRotY = atan(MOUSE_SPEED * mousePositionDelta.y);
+			float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
+			float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
 
 			vec3 angles = pov->eulerAngles();
 			pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
