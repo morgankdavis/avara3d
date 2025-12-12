@@ -75,7 +75,7 @@ namespace a3d {
 		void 								rotation(const math::vec3& axis, float angle);
 
 		math::vec3 							eulerAngles() const; // pitch, yaw, roll
-		void 								eulerAngles(const math::vec3& eulerAngles);
+		void 								eulerAngles(const math::vec3& angles);
 
 		math::quat 							orientation() const; // wxyz
 		void 								orientation(const math::quat& orientation);
@@ -93,7 +93,7 @@ namespace a3d {
 		math::vec3 							worldPosition() const;
 		math::vec4 							worldRotation() const; // axis-angle
 		math::vec3 							worldEulerAngles() const; // pitch, yaw, roll
-		math::quat 							worldOrientation() const; // angle == 1st component
+		math::quat 							worldOrientation() const; // wxyz
 		math::vec3 							worldScale() const;
 
 		math::vec3 							worldForward() const;
@@ -191,6 +191,7 @@ namespace a3d {
 		math::vec3							_position;
 		math::quat							_orientation;
 		math::vec3							_scale;
+		mutable std::optional<math::vec3>	_eulerAngles;
 		std::unique_ptr<PhysicsBody>		_physicsBody;
 		bool								_hidden;
 		Scene*								_scene;

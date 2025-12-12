@@ -72,6 +72,7 @@ namespace a3d::math {
 			struct { f32 x, y, z; };
 			struct { f32 r, g, b; };
 			struct { f32 s, t, p; };
+			struct { f32 pitch, yaw, roll; };
 		};
 		vec3();
 		vec3(f32 x_, f32 y_, f32 z_);
@@ -597,6 +598,9 @@ namespace a3d::math {
 	quat 		axis_angle(const vec3& axis, f32 angle);
 	vec4 		axis_angle(const quat& q);
 
+	quat 		euler_angles(const vec3& angles); // pitch/yaw/roll to quaternion, y–x–z order
+	vec3 		euler_angles(const quat& q); // pitch/yaw/roll to quaternion, y–x–z order
+
 	quat 		slerp(const quat& a, const quat& b, f32 t);
 
 	mat3 		mat3_cast(quat const& q);
@@ -628,15 +632,17 @@ namespace a3d::math {
 	f32 		acosh(f32 num);
 	f32 		atanh(f32 num);
 
-	/// 32-bit Float Utilities ///
+	/// 32-bit Float Common ///
 
 	f32 		ceil(f32 num);
 	f32 		floor(f32 num);
 	f32 		round(f32 num);
 	f32 		exp(f32 num);
+	f32 		exp2(f32 num);
 	f32 		pow(f32 x, f32 y);
 	f32 		abs(f32 num);
 	f32 		log(f32 num);
+	f32 		log2(f32 num);
 	f32 		log10(f32 num);
 	f32 		sqrt(f32 num);
 	f32 		min(f32 a, f32 b);
@@ -644,13 +650,10 @@ namespace a3d::math {
 	f32			clamp(f32 val, f32 low, f32 high);
 	void 		swap(f32& a, f32& b);
 
-	// exp2() ?
-	// log2() ?
 
 
 	mat4 perspective(f32 fovy, f32 aspect, f32 zNear, f32 zFar); // rh
 	mat4 ortho(f32 left, f32 right, f32 bottom, f32 top, f32 zNear, f32 zFar); // rh
-
 	mat4 look_at(const vec3& eye, const vec3& center, const vec3& up); // rh
 
 	bool decompose_trs(const mat4& m,
@@ -666,21 +669,22 @@ namespace a3d::math {
 
 	// RANDOM?
 
-/*
-	# define M_E		2.7182818284590452354	// e
-	# define M_LOG2E	1.4426950408889634074	// log_2 e
-	# define M_LOG10E	0.43429448190325182765	// log_10 e
-	# define M_LN2		0.69314718055994530942	// log_e 2
-	# define M_LN10		2.30258509299404568402	// log_e 10
-	# define M_PI		3.14159265358979323846	// pi
-	# define M_PI_2		1.57079632679489661923	// pi/2
-	# define M_PI_4		0.78539816339744830962	// pi/4
-	# define M_1_PI		0.31830988618379067154	// 1/pi
-	# define M_2_PI		0.63661977236758134308	// 2/pi
-	# define M_2_SQRTPI	1.12837916709551257390	// 2/sqrt(pi)
-	# define M_SQRT2	1.41421356237309504880	// sqrt(2)
-	# define M_SQRT1_2	0.70710678118654752440	// 1/sqrt(2)
-*/
+	/// Constants ///
+
+	inline f32 e() 			{ return 2.7182818284590452354; }	// e
+	inline f32 log2e() 		{ return 1.4426950408889634074; }	// log_2 e
+	inline f32 log10e() 	{ return 0.43429448190325182765; }	// log_10 e
+	inline f32 nl2() 		{ return 0.69314718055994530942; }	// log_e 2
+	inline f32 nl10() 		{ return 2.30258509299404568402; }	// log_e 10
+	inline f32 pi() 		{ return 3.14159265358979323846; }	// pi
+	inline f32 pi_over_2()	{ return 1.57079632679489661923; }	// pi/2
+	inline f32 pi_over_4() 	{ return 0.78539816339744830962; }	// pi/4
+
+//# define M_1_PI		0.31830988618379067154	// 1/pi
+//# define M_2_PI		0.63661977236758134308	// 2/pi
+//# define M_2_SQRTPI	1.12837916709551257390	// 2/sqrt(pi)
+//# define M_SQRT2	1.41421356237309504880	// sqrt(2)
+//# define M_SQRT1_2	0.70710678118654752440	// 1/sqrt(2)
 }
 
 #endif //AVARA3D_MATH_H

@@ -2002,6 +2002,61 @@ namespace a3d::math {
 		return vec4{ axis.x, axis.y, axis.z, angle };
 	}
 
+	// convert pitch/yaw/roll to quaternion, Y–X–Z order
+	// pitch: rotation about +X
+	// yaw:   rotation about +Y
+	// roll:  rotation about +Z
+	quat euler_angles(const vec3& angles) {
+
+		// local axis unit vectors
+		vec3 axisX{1.0f, 0.0f, 0.0f};
+		vec3 axisY{0.0f, 1.0f, 0.0f};
+		vec3 axisZ{0.0f, 0.0f, 1.0f};
+
+		quat qPitch = axis_angle(axisX, angles.pitch);
+		quat qYaw   = axis_angle(axisY, angles.yaw);
+		quat qRoll  = axis_angle(axisZ, angles.roll);
+
+		// rpply roll, then pitch, then yaw:
+		// R = Ry * Rx * Rz  => q = qYaw * qPitch * qRoll
+		quat q = qYaw * qPitch * qRoll;
+		return normalize(q);
+	}
+
+	vec3 euler_angles(const quat& q) {
+
+		mat3 m = mat3_cast(q);
+
+		// row-major aliases from column-major storage
+		const f32 r02 = m.c2.x; // row 0, col 2
+		const f32 r12 = m.c2.y; // row 1, col 2
+		const f32 r22 = m.c2.z; // row 2, col 2
+
+		const f32 r10 = m.c0.y; // row 1, col 0
+		const f32 r11 = m.c1.y; // row 1, col 1
+
+		vec3 angles;
+
+		// pitch: asin(-r12)
+		f32 sinp = -r12;
+		if (sinp <= -1.0f) {
+			angles.pitch = -math::pi_over_2(); // -π/2
+		}
+		else if (sinp >= 1.0f) {
+			angles.pitch = math::pi_over_2();  //  π/2
+		}
+		else {
+			angles.pitch = std::asin(sinp);
+		}
+
+		// yaw and roll from atan2; this is undefined at exact +/- 90° pitch,
+		// but numerically you'll still get a consistent choice.
+		angles.yaw  = std::atan2(r02, r22);
+		angles.roll = std::atan2(r10, r11);
+
+		return angles;
+	}
+
 	quat slerp(const quat &a, const quat &b, f32 t) {
 		// clamp t just in case
 		if (t <= 0.0f) return a;
@@ -2161,6 +2216,10 @@ namespace a3d::math {
 		return std::exp(num);
 	}
 
+	f32 exp2(f32 num) {
+		return std::exp2(num);
+	}
+
 	f32 pow(f32 x, f32 y) {
 		return std::pow(x, y);
 	}
@@ -2170,6 +2229,10 @@ namespace a3d::math {
 	}
 
 	f32 log(f32 num) {
+		return std::log(num);
+	}
+
+	f32 log2(f32 num) {
 		return std::log(num);
 	}
 

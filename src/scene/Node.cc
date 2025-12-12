@@ -54,6 +54,7 @@ Node::Node():
 		_position{0.0f, 0.0f, 0.0f},
 		_orientation{},
 		_scale{1.0f, 1.0f, 1.0f},
+		_eulerAngles{},
 		_physicsBody{},
 		_hidden{false},
 		_scene{},
@@ -155,123 +156,20 @@ void Node::rotation(const vec3& axis, float angle) {
 	_orientation = axis_angle(axis, angle);
 }
 
-vec3 Node::eulerAngles() const {  // pitch, yaw, roll
+vec3 Node::eulerAngles() const {
 
-	// eulerAngleYXZ()
-	// yawPitchRoll()
-	// https://glm.g-truc.net/0.9.3/api/a00164.html#ga4c297724e663cb77cc2cf7e4ab89b77e
-
-	// !? https://glm.g-truc.net/0.9.0/api/a00151.html
-
-	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
-	// https://download.tuxfamily.org/arakhne/apidocs/afc/org/arakhne/afc/math/geometry/d3/doc-files/euler_plane.gif
-	// note that the linked equation seems to have switched attitude and bank
-
-#ifndef ALTERNATE_EULERS
-
-	// works great, but appears to be ZXY order.
-	// different ordering? http://graphics.wikia.com/wiki/Conversion_between_quaternions_and_Euler_angles
-
-	auto q = _orientation;
-
-	float pitch = math::atan2(2.0f*q.x*q.w - 2.0f*q.y*q.z, 1.0f - 2.0f*q.x*q.x - 2.0f*q.z*q.z);
-	float yaw = math::atan2(2.0f*q.y*q.w - 2.0f*q.x*q.z, 1.0f - 2.0f*q.y*q.y - 2.0f*q.z*q.z);
-	float roll = math::asin(2*q.x*q.y + 2.0f*q.z*q.w);
-
-	return vec3(pitch, yaw, roll);
-	
-#else
-	// http://bediyap.com/programming/convert-quaternion-to-euler-rotations/
-
-	auto q = _orientation;
-	vec3 res = vec3(0.0f, 0.0f, 0.0f);
-	res.x = atan2(2*(q.y*q.z + q.w*q.x), q.w*q.w - q.x*q.x - q.y*q.y + q.z*q.z);
-	res.y = asin(-2*(q.x*q.z - q.w*q.y));
-	res.z = atan2(2*(q.x*q.y + q.w*q.z), q.w*q.w + q.x*q.x - q.y*q.y - q.z*q.z);
-	
-	return res;
-#endif
-
-	// clips to +-180
-	//return eulerAngles(_orientation);
+	if (!_eulerAngles.has_value()) {
+		// best-effort decompose current quat
+		vec3 angles = euler_angles(_orientation);
+		_eulerAngles = angles;
+	}
+	return *_eulerAngles;
 }
 
-void Node::eulerAngles(const vec3& eulerAngles) { // pitch, yaw, roll
+void Node::eulerAngles(const vec3& angles) {
 
-	// NOTE:
-	// this first formula works well for one rotation at a time,
-	// but it combines multiple rotations in a different order than SceneKit
-	// so we break it into three different rotations and apply them how we like.
-	
-	
-#ifndef ALTERNATE_EULERS
-	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
-	
-	// this works. order appears to be different from SceneKit
-
-	float pitch = eulerAngles.x;
-	float yaw = eulerAngles.y;
-	float roll = eulerAngles.z;
-
-	// ORIGINAL
-	float c1 = math::cos(yaw / 2.0f);
-	float c2 = math::cos(roll / 2.0f);
-	float c3 = math::cos(pitch / 2.0f);
-	float s1 = math::sin(yaw / 2.0f);
-	float s2 = math::sin(roll / 2.0f);
-	float s3 = math::sin(pitch / 2.0f);
-
-	float w = c1*c2*c3 - s1*s2*s3;
-	float x = s1*s2*c3 + c1*c2*s3;
-	float y = s1*c2*c3 + c1*s2*s3;
-	float z = c1*s2*c3 - s1*c2*s3;
-
-	_orientation = quat(w, x, y, z);
-	
-#else
-
-	// https://gamedev.stackexchange.com/questions/13436/glm-euler-angles-to-quaternion
-
-
-
-//	float sx = sin(eulerAngles.x/2.0), sy = sin(eulerAngles.y/2.0), sz = sin(eulerAngles.z/2.0),
-//	cx = cos(eulerAngles.x/2.0), cy = cos(eulerAngles.y/2.0), cz = cos(eulerAngles.z/2.0);
-//
-//	_orientation = normalize(quat( cx*cy*cz + sx*sy*sz,
-//	   sx*cy*cz - cx*sy*sz,
-//	   cx*sy*cz + sx*cy*sz,
-//	   cx*cy*sz - sx*sy*cz )); // for XYZ application order
-
-
-
-	//_orientation = toQuat( orientate3( eulerAngles ) );
-
-	//_orientation = toQuat( yawPitchRoll( eulerAngles.y, eulerAngles.x, eulerAngles.z ) );
-
-
-//	// https://www.opengl.org/discussion_boards/showthread.php/174858-GLM-Initializing-Quaternion-with-Eular-XYZ
-//	quat quatAroundX = angleAxis( eulerAngles.x, vec3(1.0,0.0,0.0) );
-//	quat quatAroundY = angleAxis( eulerAngles.y, vec3(0.0,1.0,0.0) );
-//	quat quatAroundZ = angleAxis( eulerAngles.z, vec3(0.0,0.0,1.0) );
-//	//quat finalOrientation = normalize(quatAroundX * quatAroundY * quatAroundZ);
-//	quat finalOrientation = quatAroundZ * quatAroundY * quatAroundX;
-//	_orientation = finalOrientation;
-
-
-
-
-	//_orientation = quat(eulerAngles); // WOW this works, but still acts strange after 180
-
-
-	//return;
-	
-	auto rotationX = rotate(mat4(1.0f), eulerAngles.x, vec3(1.0f, 0.0f, 0.0f));
-	auto rotationY = rotate(mat4(1.0f), eulerAngles.y, vec3(0.0f, 1.0f, 0.0f));
-	auto rotationZ = rotate(mat4(1.0f), eulerAngles.z, vec3(0.0f, 0.0f, 1.0f));
-
-	//_orientation = normalize(quat_cast(rotationZ * rotationX * rotationY)); // equation above order
-	_orientation = normalize(quat_cast(rotationZ * rotationY * rotationX)); // SceneKit order
-#endif
+	_orientation = euler_angles(angles);
+	_eulerAngles = angles;
 }
 
 quat Node::orientation() const {
@@ -279,7 +177,9 @@ quat Node::orientation() const {
 }
 
 void Node::orientation(const quat& orientation) {
+
 	_orientation = orientation;
+	_eulerAngles = std::nullopt;
 }
 
 vec3 Node::scale() const {
