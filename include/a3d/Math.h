@@ -275,13 +275,13 @@ namespace a3d::math {
 	vec3& 		operator/=(vec3& v, f32 s);
 	vec4& 		operator/=(vec4& v, f32 s);
 
-	bool 		operator==(const vec2& a, const vec2& b) noexcept;
-	bool 		operator==(const vec3& a, const vec3& b) noexcept;
-	bool 		operator==(const vec4& a, const vec4& b) noexcept;
+	bool 		operator==(const vec2& a, const vec2& b);
+	bool 		operator==(const vec3& a, const vec3& b);
+	bool 		operator==(const vec4& a, const vec4& b);
 
-	bool 		operator!=(const vec2& a, const vec2& b) noexcept;
-	bool		operator!=(const vec3& a, const vec3& b) noexcept;
-	bool 		operator!=(const vec4& a, const vec4& b) noexcept;
+	bool 		operator!=(const vec2& a, const vec2& b);
+	bool		operator!=(const vec3& a, const vec3& b);
+	bool 		operator!=(const vec4& a, const vec4& b);
 
 	f32 		dot(const vec2& a, const vec2& b);
 	f32 		dot(const vec3& a, const vec3& b);
@@ -353,13 +353,13 @@ namespace a3d::math {
 	ivec3& 		operator/=(ivec3& v, i32 s);
 	ivec4& 		operator/=(ivec4& v, i32 s);
 
-	bool 		operator==(const ivec2& a, const ivec2& b) noexcept;
-	bool 		operator==(const ivec3& a, const ivec3& b) noexcept;
-	bool 		operator==(const ivec4& a, const ivec4& b) noexcept;
+	bool 		operator==(const ivec2& a, const ivec2& b);
+	bool 		operator==(const ivec3& a, const ivec3& b);
+	bool 		operator==(const ivec4& a, const ivec4& b);
 
-	bool 		operator!=(const ivec2& a, const ivec2& b) noexcept;
-	bool 		operator!=(const ivec3& a, const ivec3& b) noexcept;
-	bool 		operator!=(const ivec4& a, const ivec4& b) noexcept;
+	bool 		operator!=(const ivec2& a, const ivec2& b);
+	bool 		operator!=(const ivec3& a, const ivec3& b);
+	bool 		operator!=(const ivec4& a, const ivec4& b);
 
 	i32 		dot(const ivec2& a, const ivec2& b);
 	i32 		dot(const ivec3& a, const ivec3& b);
@@ -417,13 +417,13 @@ namespace a3d::math {
 	uvec3& 		operator/=(uvec3& v, u32 s);
 	uvec4& 		operator/=(uvec4& v, u32 s);
 
-	bool 		operator==(const uvec2& a, const uvec2& b) noexcept;
-	bool 		operator==(const uvec3& a, const uvec3& b) noexcept;
-	bool 		operator==(const uvec4& a, const uvec4& b) noexcept;
+	bool 		operator==(const uvec2& a, const uvec2& b);
+	bool 		operator==(const uvec3& a, const uvec3& b);
+	bool 		operator==(const uvec4& a, const uvec4& b);
 
-	bool 		operator!=(const uvec2& a, const uvec2& b) noexcept;
-	bool 		operator!=(const uvec3& a, const uvec3& b) noexcept;
-	bool 		operator!=(const uvec4& a, const uvec4& b) noexcept;
+	bool 		operator!=(const uvec2& a, const uvec2& b);
+	bool 		operator!=(const uvec3& a, const uvec3& b);
+	bool 		operator!=(const uvec4& a, const uvec4& b);
 
 	u32 		dot(const uvec2& a, const uvec2& b);
 	u32 		dot(const uvec3& a, const uvec3& b);
@@ -448,13 +448,13 @@ namespace a3d::math {
 
 	// DO IT
 
-	bool 		operator==(const u8vec2& a, const u8vec2& b) noexcept;
-	bool 		operator==(const u8vec3& a, const u8vec3& b) noexcept;
-	bool 		operator==(const u8vec4& a, const u8vec4& b) noexcept;
+	bool 		operator==(const u8vec2& a, const u8vec2& b);
+	bool 		operator==(const u8vec3& a, const u8vec3& b);
+	bool 		operator==(const u8vec4& a, const u8vec4& b);
 
-	bool 		operator!=(const u8vec2& a, const u8vec2& b) noexcept;
-	bool 		operator!=(const u8vec3& a, const u8vec3& b) noexcept;
-	bool 		operator!=(const u8vec4& a, const u8vec4& b) noexcept;
+	bool 		operator!=(const u8vec2& a, const u8vec2& b);
+	bool 		operator!=(const u8vec3& a, const u8vec3& b);
+	bool 		operator!=(const u8vec4& a, const u8vec4& b);
 
 	std::string to_string(const u8vec2& v);
 	std::string to_string(const u8vec3& v);
@@ -482,14 +482,14 @@ namespace a3d::math {
 	mat3& 		operator*=(mat3& a, const mat3& b);
 	mat4& 		operator*=(mat4& a, const mat4& b);
 
-	bool 		operator==(const mat2& a, const mat2& b) noexcept;
-	bool 		operator!=(const mat2& a, const mat2& b) noexcept;
+	bool 		operator==(const mat2& a, const mat2& b);
+	bool 		operator!=(const mat2& a, const mat2& b);
 
-	bool 		operator==(const mat3& a, const mat3& b) noexcept;
-	bool		operator!=(const mat3& a, const mat3& b) noexcept;
+	bool 		operator==(const mat3& a, const mat3& b);
+	bool		operator!=(const mat3& a, const mat3& b);
 
-	bool 		operator==(const mat4& a, const mat4& b) noexcept;
-	bool 		operator!=(const mat4& a, const mat4& b) noexcept;
+	bool 		operator==(const mat4& a, const mat4& b);
+	bool 		operator!=(const mat4& a, const mat4& b);
 
 	mat2 		transpose(const mat2& m);
 	mat3 		transpose(const mat3& m);
@@ -537,8 +537,8 @@ namespace a3d::math {
 	quat& 		operator*=(quat& q, f32 s);
 	quat& 		operator*=(quat& a, const quat& b);
 
-	bool 		operator==(const quat& a, const quat& b) noexcept;
-	bool 		operator!=(const quat& a, const quat& b) noexcept;
+	bool 		operator==(const quat& a, const quat& b);
+	bool 		operator!=(const quat& a, const quat& b);
 
 	f32  		dot(const quat& a, const quat& b);
 	f32  		length(const quat& q);
@@ -608,10 +608,12 @@ namespace a3d::math {
 	mat4 perspective(f32 fovy, f32 aspect, f32 zNear, f32 zFar); // rh
 	mat4 ortho(f32 left, f32 right, f32 bottom, f32 top, f32 zNear, f32 zFar); // rh
 
-	mat4 look_at(const vec3& eye, const vec3& center, const vec3& up);
+	mat4 look_at(const vec3& eye, const vec3& center, const vec3& up); // rh
 
-	// lookAt() -- L*&R handed version???
-
+	bool decompose_trs(const mat4& m,
+					   vec3& scale,
+					   quat& rotation,
+					   vec3& translation);
 
 
 
@@ -652,19 +654,6 @@ namespace a3d::math {
 	# define M_SQRT2	1.41421356237309504880	// sqrt(2)
 	# define M_SQRT1_2	0.70710678118654752440	// 1/sqrt(2)
 */
-
-	// ! warning: this appears to not always give correct results for orientation !
-	bool decompose(const mat4& modelMatrix,
-				   vec3& scale,
-				   quat& orientation,
-				   vec3& translation,
-				   vec3& skew,
-				   vec4& perspective);
-
-	bool decompose_trs(const mat4& m,
-					   vec3& scale,
-					   quat& rotation,
-					   vec3& translation);
 }
 
 #endif //AVARA3D_MATH_H

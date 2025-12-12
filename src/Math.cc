@@ -553,27 +553,27 @@ namespace a3d::math {
 		return v;
 	}
 
-	bool operator==(const vec2& a, const vec2& b) noexcept {
+	bool operator==(const vec2& a, const vec2& b) {
 		return a.x == b.x && a.y == b.y;
 	}
 
-	bool operator==(const vec3& a, const vec3& b) noexcept {
+	bool operator==(const vec3& a, const vec3& b) {
 		return a.x == b.x && a.y == b.y && a.z == b.z;
 	}
 
-	bool operator==(const vec4& a, const vec4& b) noexcept {
+	bool operator==(const vec4& a, const vec4& b) {
 		return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
 	}
 
-	bool operator!=(const vec2& a, const vec2& b) noexcept {
+	bool operator!=(const vec2& a, const vec2& b) {
 		return !(a == b);
 	}
 
-	bool operator!=(const vec3& a, const vec3& b) noexcept {
+	bool operator!=(const vec3& a, const vec3& b) {
 		return !(a == b);
 	}
 
-	bool operator!=(const vec4& a, const vec4& b) noexcept {
+	bool operator!=(const vec4& a, const vec4& b) {
 		return !(a == b);
 	}
 
@@ -838,27 +838,27 @@ namespace a3d::math {
 		return v;
 	}
 
-	bool operator==(const ivec2& a, const ivec2& b) noexcept {
+	bool operator==(const ivec2& a, const ivec2& b) {
 		return a.x == b.x && a.y == b.y;
 	}
 
-	bool operator==(const ivec3& a, const ivec3& b) noexcept {
+	bool operator==(const ivec3& a, const ivec3& b) {
 		return a.x == b.x && a.y == b.y && a.z == b.z;
 	}
 
-	bool operator==(const ivec4& a, const ivec4& b) noexcept {
+	bool operator==(const ivec4& a, const ivec4& b) {
 		return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
 	}
 
-	bool operator!=(const ivec2& a, const ivec2& b) noexcept {
+	bool operator!=(const ivec2& a, const ivec2& b) {
 		return !(a == b);
 	}
 
-	bool operator!=(const ivec3& a, const ivec3& b) noexcept {
+	bool operator!=(const ivec3& a, const ivec3& b) {
 		return !(a == b);
 	}
 
-	bool operator!=(const ivec4& a, const ivec4& b) noexcept {
+	bool operator!=(const ivec4& a, const ivec4& b) {
 		return !(a == b);
 	}
 
@@ -1075,27 +1075,27 @@ namespace a3d::math {
 		return v;
 	}
 
-	bool operator==(const uvec2& a, const uvec2& b) noexcept {
+	bool operator==(const uvec2& a, const uvec2& b) {
 		return a.x == b.x && a.y == b.y;
 	}
 
-	bool operator==(const uvec3& a, const uvec3& b) noexcept {
+	bool operator==(const uvec3& a, const uvec3& b) {
 		return a.x == b.x && a.y == b.y && a.z == b.z;
 	}
 
-	bool operator==(const uvec4& a, const uvec4& b) noexcept {
+	bool operator==(const uvec4& a, const uvec4& b) {
 		return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
 	}
 
-	bool operator!=(const uvec2& a, const uvec2& b) noexcept {
+	bool operator!=(const uvec2& a, const uvec2& b) {
 		return !(a == b);
 	}
 
-	bool operator!=(const uvec3& a, const uvec3& b) noexcept {
+	bool operator!=(const uvec3& a, const uvec3& b) {
 		return !(a == b);
 	}
 
-	bool operator!=(const uvec4& a, const uvec4& b) noexcept {
+	bool operator!=(const uvec4& a, const uvec4& b) {
 		return !(a == b);
 	}
 
@@ -1167,27 +1167,27 @@ namespace a3d::math {
 
 	/// Unsigned 8-bit Integer Vector ///
 
-	bool operator==(const u8vec2& a, const u8vec2& b) noexcept {
+	bool operator==(const u8vec2& a, const u8vec2& b) {
 		return a.x == b.x && a.y == b.y;
 	}
 
-	bool operator==(const u8vec3& a, const u8vec3& b) noexcept {
+	bool operator==(const u8vec3& a, const u8vec3& b) {
 		return a.x == b.x && a.y == b.y && a.z == b.z;
 	}
 
-	bool operator==(const u8vec4& a, const u8vec4& b) noexcept {
+	bool operator==(const u8vec4& a, const u8vec4& b) {
 		return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
 	}
 
-	bool operator!=(const u8vec2& a, const u8vec2& b) noexcept {
+	bool operator!=(const u8vec2& a, const u8vec2& b) {
 		return !(a == b);
 	}
 
-	bool operator!=(const u8vec3& a, const u8vec3& b) noexcept {
+	bool operator!=(const u8vec3& a, const u8vec3& b) {
 		return !(a == b);
 	}
 
-	bool operator!=(const u8vec4& a, const u8vec4& b) noexcept {
+	bool operator!=(const u8vec4& a, const u8vec4& b) {
 		return !(a == b);
 	}
 
@@ -1298,33 +1298,33 @@ namespace a3d::math {
 		return a;
 	}
 
-	bool operator==(const mat2& a, const mat2& b) noexcept {
+	bool operator==(const mat2& a, const mat2& b) {
 		return a.c0 == b.c0 &&
 			   a.c1 == b.c1;
 	}
 
-	bool operator==(const mat3& a, const mat3& b) noexcept {
+	bool operator==(const mat3& a, const mat3& b) {
 		return a.c0 == b.c0 &&
 			   a.c1 == b.c1 &&
 			   a.c2 == b.c2;
 	}
 
-	bool operator==(const mat4& a, const mat4& b) noexcept {
+	bool operator==(const mat4& a, const mat4& b) {
 		return a.c0 == b.c0 &&
 			   a.c1 == b.c1 &&
 			   a.c2 == b.c2 &&
 			   a.c3 == b.c3;
 	}
 
-	bool operator!=(const mat2& a, const mat2& b) noexcept {
+	bool operator!=(const mat2& a, const mat2& b) {
 		return !(a == b);
 	}
 
-	bool operator!=(const mat3& a, const mat3& b) noexcept {
+	bool operator!=(const mat3& a, const mat3& b) {
 		return !(a == b);
 	}
 
-	bool operator!=(const mat4& a, const mat4& b) noexcept {
+	bool operator!=(const mat4& a, const mat4& b) {
 		return !(a == b);
 	}
 
@@ -1648,14 +1648,14 @@ namespace a3d::math {
 		return a;
 	}
 
-	bool operator==(const quat& a, const quat& b) noexcept {
+	bool operator==(const quat& a, const quat& b) {
 		return a.w == b.w &&
 			   a.x == b.x &&
 			   a.y == b.y &&
 			   a.z == b.z;
 	}
 
-	bool operator!=(const quat& a, const quat& b) noexcept {
+	bool operator!=(const quat& a, const quat& b) {
 		return !(a == b);
 	}
 
@@ -2018,197 +2018,6 @@ namespace a3d::math {
 		result[3][1] =-dot(u, eye);
 		result[3][2] = dot(f, eye);
 		return result;
-	}
-
-	namespace decomposedetail {
-
-		f32 epsilon() {
-			return std::numeric_limits<f32>::epsilon();
-		}
-
-		bool epsilonEqual(const float &x,
-						  const float &y,
-						  const float &epsilon) {
-			return abs(x - y) < epsilon;
-		}
-
-		bool epsilonNotEqual(const float &x, const float &y, const float &epsilon) {
-			return abs(x - y) >= epsilon;
-		}
-
-		vec3 combine(vec3 const &a,
-					 vec3 const &b,
-					 f32 ascl, f32 bscl) {
-			return (a * ascl) + (b * bscl);
-		}
-
-		vec3 scale(vec3 const &v, f32 desiredLength) {
-			return v * desiredLength / length(v);
-		}
-	}
-
-	// ! warning: this appears to not always give correct results for orientation !
-	bool decompose(const mat4& modelMatrix,
-				   vec3& scale,
-				   quat& orientation,
-				   vec3& translation,
-				   vec3& skew,
-				   vec4& perspective) {
-
-		mat4 localMatrix(modelMatrix);
-
-		// normalize the matrix.
-		if(decomposedetail::epsilonEqual(localMatrix[3][3],
-										 static_cast<f32>(0),
-										 decomposedetail::epsilon()))
-			return false;
-
-		for(std::size_t i = 0; i < 4; ++i)
-			for(std::size_t j = 0; j < 4; ++j)
-				localMatrix[i][j] /= localMatrix[3][3];
-
-		// perspectiveMatrix is used to solve for perspective, but it also provides
-		// an easy way to test for singularity of the upper 3x3 component.
-		mat4 perspectiveMatrix(localMatrix);
-
-		for(std::size_t i = 0; i < 3; i++)
-			perspectiveMatrix[i][3] = static_cast<f32>(0);
-		perspectiveMatrix[3][3] = static_cast<f32>(1);
-
-		// TODO: Fixme!
-		if(decomposedetail::epsilonEqual(determinant(perspectiveMatrix),
-										 static_cast<f32>(0),
-										 decomposedetail::epsilon()))
-			return false;
-
-		// first, isolate perspective.  this is the messiest.
-		if(decomposedetail::epsilonNotEqual(localMatrix[0][3],
-											static_cast<f32>(0),
-											decomposedetail::epsilon()) ||
-		   decomposedetail::epsilonNotEqual(localMatrix[1][3],
-											static_cast<f32>(0),
-											decomposedetail::epsilon()) ||
-		   decomposedetail::epsilonNotEqual(localMatrix[2][3],
-											static_cast<f32>(0),
-											decomposedetail::epsilon())) {
-			// rightHandSide is the right hand side of the equation.
-			vec4 rightHandSide;
-			rightHandSide[0] = localMatrix[0][3];
-			rightHandSide[1] = localMatrix[1][3];
-			rightHandSide[2] = localMatrix[2][3];
-			rightHandSide[3] = localMatrix[3][3];
-
-			// solve the equation by inverting perspectiveMatrix and multiplying
-			// rightHandSide by the inverse.  (this is the easiest way, not
-			// necessarily the best.)
-			mat4 inversePerspectiveMatrix = inverse(perspectiveMatrix);//   inverse(PerspectiveMatrix, inversePerspectiveMatrix);
-			mat4 transposedInversePerspectiveMatrix = transpose(inversePerspectiveMatrix);//   transposeMatrix4(inversePerspectiveMatrix, transposedInversePerspectiveMatrix);
-
-			perspective = transposedInversePerspectiveMatrix * rightHandSide;
-			//  v4MulPointByMatrix(rightHandSide, transposedInversePerspectiveMatrix, perspectivePoint);
-
-			// clear the perspective partition
-			localMatrix[0][3] = localMatrix[1][3] = localMatrix[2][3] = static_cast<f32>(0);
-			localMatrix[3][3] = static_cast<f32>(1);
-		}
-		else {
-		// no perspective.
-			perspective = vec4(0, 0, 0, 1);
-		}
-
-		// next take care of translation (easy).
-		translation = vec3(localMatrix[3]);
-		localMatrix[3] = vec4(0, 0, 0, localMatrix[3].w);
-
-		vec3 row[3], pdum3;
-
-		// now get scale and shear.
-		for(std::size_t i = 0; i < 3; ++i)
-			for(std::size_t j = 0; j < 3; ++j)
-				row[i][j] = localMatrix[i][j];
-
-		// compute X scale factor and normalize first row.
-		scale.x = length(row[0]);// v3Length(Row[0]);
-
-		row[0] = decomposedetail::scale(row[0], static_cast<f32>(1));
-
-		// compute XY shear factor and make 2nd row orthogonal to 1st.
-		skew.z = dot(row[0], row[1]);
-		row[1] = decomposedetail::combine(row[1], row[0], static_cast<f32>(1), -skew.z);
-
-		// now, compute Y scale and normalize 2nd row.
-		scale.y = length(row[1]);
-		row[1] = decomposedetail::scale(row[1], static_cast<f32>(1));
-		skew.z /= scale.y;
-
-		// compute XZ and YZ shears, orthogonalize 3rd row.
-		skew.y = dot(row[0], row[2]);
-		row[2] = decomposedetail::combine(row[2], row[0], static_cast<f32>(1), -skew.y);
-		skew.x = dot(row[1], row[2]);
-		row[2] = decomposedetail::combine(row[2], row[1], static_cast<f32>(1), -skew.x);
-
-		// next, get Z scale and normalize 3rd row.
-		scale.z = length(row[2]);
-		row[2] = decomposedetail::scale(row[2], static_cast<f32>(1));
-		skew.y /= scale.z;
-		skew.x /= scale.z;
-
-		// at this point, the matrix (in rows[]) is orthonormal.
-		// check for a coordinate system flip.  If the determinant
-		// is -1, then negate the matrix and the scaling factors.
-		pdum3 = cross(row[1], row[2]); // v3Cross(row[1], row[2], Pdum3);
-		if(dot(row[0], pdum3) < 0) {
-			for(std::size_t i = 0; i < 3; i++) {
-				scale[i] *= static_cast<f32>(-1);
-				row[i] *= static_cast<f32>(-1);
-			}
-		}
-
-		// now, get the rotations out, as described in the gem.
-
-		// FIXME - add the ability to return either quaternions (which are
-		// easier to recompose with) or Euler angles (rx, ry, rz), which
-		// are easier for authors to deal with. The latter will only be useful
-		// when we fix https://bugs.webkit.org/show_bug.cgi?id=23799, so I
-		// will leave the Euler angle code here for now.
-
-		// ret.rotateY = asin(-Row[0][2]);
-		// if (cos(ret.rotateY) != 0) {
-		//     ret.rotateX = atan2(Row[1][2], Row[2][2]);
-		//     ret.rotateZ = atan2(Row[0][1], Row[0][0]);
-		// } else {
-		//     ret.rotateX = atan2(-Row[2][0], Row[1][1]);
-		//     ret.rotateZ = 0;
-		// }
-
-		int i, j, k = 0;
-		f32 root, trace = row[0].x + row[1].y + row[2].z;
-		if(trace > static_cast<f32>(0)) {
-			root = sqrt(trace + static_cast<f32>(1.0));
-			orientation.w = static_cast<f32>(0.5) * root;
-			root = static_cast<f32>(0.5) / root;
-			orientation.x = root * (row[1].z - row[2].y);
-			orientation.y = root * (row[2].x - row[0].z);
-			orientation.z = root * (row[0].y - row[1].x);
-		}
-		else {
-			static int next[3] = {1, 2, 0};
-			i = 0;
-			if(row[1].y > row[0].x) i = 1;
-			if(row[2].z > row[i][i]) i = 2;
-			j = next[i];
-			k = next[j];
-
-			root = sqrt(row[i][i] - row[j][j] - row[k][k] + static_cast<f32>(1.0));
-
-			orientation[i] = static_cast<f32>(0.5) * root;
-			root = static_cast<f32>(0.5) / root;
-			orientation[j] = root * (row[i][j] + row[j][i]);
-			orientation[k] = root * (row[i][k] + row[k][i]);
-			orientation.w = root * (row[j][k] - row[k][j]);
-		}
-
-		return true;
 	}
 
 	bool decompose_trs(const mat4& m,

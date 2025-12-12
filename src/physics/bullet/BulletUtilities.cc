@@ -85,15 +85,11 @@ mat4 a3d::TransformByRemovingScale(const mat4& m, bool& scaled) {
 	vec3 scale;
 	quat orientation;
 	vec3 translation;
-	vec3 skew;
-	vec4 perspective;
 
-	decompose(m,
+	decompose_trs(m,
 			  scale,
 			  orientation,
-			  translation,
-			  skew,
-			  perspective);
+			  translation);
 
 	scaled = !utils::Equal(scale, {1, 1, 1});
 	if (scaled) return translate(mat4(1.0), translation) * mat4_cast(orientation) * mat4(1.0);
