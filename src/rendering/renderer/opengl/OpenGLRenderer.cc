@@ -1552,9 +1552,6 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 					lightStruct.color = spotLight->color()->rgba();
 					lightStruct.position_world = node->worldPosition();
 					lightStruct.direction_world = node->worldForward();
-					A3D_LOG_D("[{}] direction_world: {}",
-							  spotLight->name() ? *spotLight->name() : "noname",
-							  utils::StringFromGLMVec3(lightStruct.direction_world));
 					lightStruct.innerAngleCos = spotLight->innerAngleCos();
 					lightStruct.outerAngleCos = spotLight->outerAngleCos();
 					lightStruct.featheringMode = magic_enum::enum_underlying(spotLight->featheringMode());
