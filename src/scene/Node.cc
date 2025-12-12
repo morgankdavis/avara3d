@@ -154,6 +154,7 @@ vec4 Node::rotation() const {
 
 void Node::rotation(const vec3& axis, float angle) {
 	_orientation = quaternion(axis, angle);
+	_eulerAngles = std::nullopt;
 }
 
 vec3 Node::eulerAngles() const {
@@ -244,11 +245,13 @@ void Node::transform(const mat4& transform) {
 	_position = translation;
 	_scale = scale;
 	_orientation = orientation;
+
+	_eulerAngles = std::nullopt;
 }
 
 vec3 Node::worldPosition() const {
 
-	return vec3(worldTransform()[3]);
+	return vec3{worldTransform()[3]};
 }
 
 vec4 Node::worldRotation() const {
