@@ -68,7 +68,7 @@ public:
 		>::type = 0
 	>
 	vec(const Args&... args) :
-		data_{ args... }
+		data_{ static_cast<T>(args)... } // mkd: static_cast<T> to fix -Wc++11-narrowing
 	{
 		static_assert(sizeof...(args) == N, "Invalid number of arguments!");
 	}
