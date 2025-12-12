@@ -9,9 +9,7 @@
 #ifndef AVARA3D_MATH_H
 #define AVARA3D_MATH_H
 
-//#include <cstddef>
 #include <cstdint>
-//#include <cstdlib>
 #include <string>
 
 namespace a3d::math {
@@ -446,7 +444,41 @@ namespace a3d::math {
 
 	/// Unsigned 8-bit Integer Vector ///
 
-	// DO IT
+	u8vec2     	operator+(const u8vec2& a, const u8vec2& b);
+	u8vec3     	operator+(const u8vec3& a, const u8vec3& b);
+	u8vec4     	operator+(const u8vec4& a, const u8vec4& b);
+
+	u8vec2     	operator-(const u8vec2& a, const u8vec2& b);
+	u8vec3     	operator-(const u8vec3& a, const u8vec3& b);
+	u8vec4     	operator-(const u8vec4& a, const u8vec4& b);
+
+	u8vec2     	operator*(const u8vec2& v, f32 s);
+	u8vec3     	operator*(const u8vec3& v, f32 s);
+	u8vec4     	operator*(const u8vec4& v, f32 s);
+
+	u8vec2     	operator*(f32 s, const u8vec2& v);
+	u8vec3     	operator*(f32 s, const u8vec3& v);
+	u8vec4     	operator*(f32 s, const u8vec4& v);
+
+	u8vec2     	operator/(const u8vec2& v, f32 s);
+	u8vec3     	operator/(const u8vec3& v, f32 s);
+	u8vec4     	operator/(const u8vec4& v, f32 s);
+
+	u8vec2&    	operator+=(u8vec2& a, const u8vec2& b);
+	u8vec3&    	operator+=(u8vec3& a, const u8vec3& b);
+	u8vec4&    	operator+=(u8vec4& a, const u8vec4& b);
+
+	u8vec2&    	operator-=(u8vec2& a, const u8vec2& b);
+	u8vec3&    	operator-=(u8vec3& a, const u8vec3& b);
+	u8vec4&    	operator-=(u8vec4& a, const u8vec4& b);
+
+	u8vec2&    	operator*=(u8vec2& v, f32 s);
+	u8vec3&    	operator*=(u8vec3& v, f32 s);
+	u8vec4&    	operator*=(u8vec4& v, f32 s);
+
+	u8vec2&    	operator/=(u8vec2& v, f32 s);
+	u8vec3&    	operator/=(u8vec3& v, f32 s);
+	u8vec4&    	operator/=(u8vec4& v, f32 s);
 
 	bool 		operator==(const u8vec2& a, const u8vec2& b);
 	bool 		operator==(const u8vec3& a, const u8vec3& b);
@@ -455,6 +487,19 @@ namespace a3d::math {
 	bool 		operator!=(const u8vec2& a, const u8vec2& b);
 	bool 		operator!=(const u8vec3& a, const u8vec3& b);
 	bool 		operator!=(const u8vec4& a, const u8vec4& b);
+
+	u8*       	value_ptr(u8vec2& v);
+	const u8*  	value_ptr(const u8vec2& v);
+
+	u8*        	value_ptr(u8vec3& v);
+	const u8*  	value_ptr(const u8vec3& v);
+
+	u8*        	value_ptr(u8vec4& v);
+	const u8*  	value_ptr(const u8vec4& v);
+
+	u8vec2     	make_u8vec2(const u8* ptr);
+	u8vec3     	make_u8vec3(const u8* ptr);
+	u8vec4     	make_u8vec4(const u8* ptr);
 
 	std::string to_string(const u8vec2& v);
 	std::string to_string(const u8vec3& v);
@@ -603,8 +648,6 @@ namespace a3d::math {
 	// log2() ?
 
 
-
-
 	mat4 perspective(f32 fovy, f32 aspect, f32 zNear, f32 zFar); // rh
 	mat4 ortho(f32 left, f32 right, f32 bottom, f32 top, f32 zNear, f32 zFar); // rh
 
@@ -615,31 +658,15 @@ namespace a3d::math {
 					   quat& rotation,
 					   vec3& translation);
 
-
-
-//	f32 		epsilon();
-
-
-
 	// genTypeT mix(genTypeT x, genTypeT y, genTypeU a);
 	// vec<L, T, Q> mix(vec<L, T, Q> const& x, vec<L, T, Q> const& y, vec<L, U, Q> const& a);
 	// vec<L, T, Q> mix(vec<L, T, Q> const& x, vec<L, T, Q> const& y, U a);
 
+	// EASING
 
-
-
-// ivec operations?
-
-// EASING
-
-// RANDOM?
-
+	// RANDOM?
 
 /*
- 	lookAt()
-
-	mat4_cast
-
 	# define M_E		2.7182818284590452354	// e
 	# define M_LOG2E	1.4426950408889634074	// log_2 e
 	# define M_LOG10E	0.43429448190325182765	// log_10 e

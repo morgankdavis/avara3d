@@ -1167,6 +1167,192 @@ namespace a3d::math {
 
 	/// Unsigned 8-bit Integer Vector ///
 
+	u8vec2 operator+(const u8vec2& a, const u8vec2& b) {
+		return u8vec2{ static_cast<u8>(a.x + b.x),
+					   static_cast<u8>(a.y + b.y) };
+	}
+
+	u8vec3 operator+(const u8vec3& a, const u8vec3& b) {
+		return u8vec3{ static_cast<u8>(a.x + b.x),
+					   static_cast<u8>(a.y + b.y),
+					   static_cast<u8>(a.z + b.z) };
+	}
+
+	u8vec4 operator+(const u8vec4& a, const u8vec4& b) {
+		return u8vec4{ static_cast<u8>(a.x + b.x),
+					   static_cast<u8>(a.y + b.y),
+					   static_cast<u8>(a.z + b.z),
+					   static_cast<u8>(a.w + b.w) };
+	}
+
+	u8vec2 operator-(const u8vec2& a, const u8vec2& b) {
+		return u8vec2{ static_cast<u8>(a.x - b.x),
+					   static_cast<u8>(a.y - b.y) };
+	}
+
+	u8vec3 operator-(const u8vec3& a, const u8vec3& b) {
+		return u8vec3{ static_cast<u8>(a.x - b.x),
+					   static_cast<u8>(a.y - b.y),
+					   static_cast<u8>(a.z - b.z) };
+	}
+
+	u8vec4 operator-(const u8vec4& a, const u8vec4& b) {
+		return u8vec4{ static_cast<u8>(a.x - b.x),
+					   static_cast<u8>(a.y - b.y),
+					   static_cast<u8>(a.z - b.z),
+					   static_cast<u8>(a.w - b.w) };
+	}
+
+	u8vec2 operator*(const u8vec2& v, f32 s) {
+		return u8vec2{
+				static_cast<u8>(v.x * s),
+				static_cast<u8>(v.y * s)
+		};
+	}
+
+	u8vec3 operator*(const u8vec3& v, f32 s) {
+		return u8vec3{
+				static_cast<u8>(v.x * s),
+				static_cast<u8>(v.y * s),
+				static_cast<u8>(v.z * s)
+		};
+	}
+
+	u8vec4 operator*(const u8vec4& v, f32 s) {
+		return u8vec4{
+				static_cast<u8>(v.x * s),
+				static_cast<u8>(v.y * s),
+				static_cast<u8>(v.z * s),
+				static_cast<u8>(v.w * s)
+		};
+	}
+
+	u8vec2 operator*(f32 s, const u8vec2& v) {
+		return v * s;
+	}
+
+	u8vec3 operator*(f32 s, const u8vec3& v) {
+		return v * s;
+	}
+
+	u8vec4 operator*(f32 s, const u8vec4& v) {
+		return v * s;
+	}
+
+	u8vec2 operator/(const u8vec2& v, f32 s) {
+		f32 inv = 1.0f / s;
+		return u8vec2{
+				static_cast<u8>(v.x * inv),
+				static_cast<u8>(v.y * inv)
+		};
+	}
+
+	u8vec3 operator/(const u8vec3& v, f32 s) {
+		f32 inv = 1.0f / s;
+		return u8vec3{
+				static_cast<u8>(v.x * inv),
+				static_cast<u8>(v.y * inv),
+				static_cast<u8>(v.z * inv)
+		};
+	}
+
+	u8vec4 operator/(const u8vec4& v, f32 s) {
+		f32 inv = 1.0f / s;
+		return u8vec4{
+				static_cast<u8>(v.x * inv),
+				static_cast<u8>(v.y * inv),
+				static_cast<u8>(v.z * inv),
+				static_cast<u8>(v.w * inv)
+		};
+	}
+
+	u8vec2& operator+=(u8vec2& a, const u8vec2& b) {
+		a.x = static_cast<u8>(a.x + b.x);
+		a.y = static_cast<u8>(a.y + b.y);
+		return a;
+	}
+
+	u8vec3& operator+=(u8vec3& a, const u8vec3& b) {
+		a.x = static_cast<u8>(a.x + b.x);
+		a.y = static_cast<u8>(a.y + b.y);
+		a.z = static_cast<u8>(a.z + b.z);
+		return a;
+	}
+
+	u8vec4& operator+=(u8vec4& a, const u8vec4& b) {
+		a.x = static_cast<u8>(a.x + b.x);
+		a.y = static_cast<u8>(a.y + b.y);
+		a.z = static_cast<u8>(a.z + b.z);
+		a.w = static_cast<u8>(a.w + b.w);
+		return a;
+	}
+
+	u8vec2& operator-=(u8vec2& a, const u8vec2& b) {
+		a.x = static_cast<u8>(a.x - b.x);
+		a.y = static_cast<u8>(a.y - b.y);
+		return a;
+	}
+
+	u8vec3& operator-=(u8vec3& a, const u8vec3& b) {
+		a.x = static_cast<u8>(a.x - b.x);
+		a.y = static_cast<u8>(a.y - b.y);
+		a.z = static_cast<u8>(a.z - b.z);
+		return a;
+	}
+
+	u8vec4& operator-=(u8vec4& a, const u8vec4& b) {
+		a.x = static_cast<u8>(a.x - b.x);
+		a.y = static_cast<u8>(a.y - b.y);
+		a.z = static_cast<u8>(a.z - b.z);
+		a.w = static_cast<u8>(a.w - b.w);
+		return a;
+	}
+
+	u8vec2& operator*=(u8vec2& v, f32 s) {
+		v.x = static_cast<u8>(v.x * s);
+		v.y = static_cast<u8>(v.y * s);
+		return v;
+	}
+
+	u8vec3& operator*=(u8vec3& v, f32 s) {
+		v.x = static_cast<u8>(v.x * s);
+		v.y = static_cast<u8>(v.y * s);
+		v.z = static_cast<u8>(v.z * s);
+		return v;
+	}
+
+	u8vec4& operator*=(u8vec4& v, f32 s) {
+		v.x = static_cast<u8>(v.x * s);
+		v.y = static_cast<u8>(v.y * s);
+		v.z = static_cast<u8>(v.z * s);
+		v.w = static_cast<u8>(v.w * s);
+		return v;
+	}
+
+	u8vec2& operator/=(u8vec2& v, f32 s) {
+		f32 inv = 1.0f / s;
+		v.x = static_cast<u8>(v.x * inv);
+		v.y = static_cast<u8>(v.y * inv);
+		return v;
+	}
+
+	u8vec3& operator/=(u8vec3& v, f32 s) {
+		f32 inv = 1.0f / s;
+		v.x = static_cast<u8>(v.x * inv);
+		v.y = static_cast<u8>(v.y * inv);
+		v.z = static_cast<u8>(v.z * inv);
+		return v;
+	}
+
+	u8vec4& operator/=(u8vec4& v, f32 s) {
+		f32 inv = 1.0f / s;
+		v.x = static_cast<u8>(v.x * inv);
+		v.y = static_cast<u8>(v.y * inv);
+		v.z = static_cast<u8>(v.z * inv);
+		v.w = static_cast<u8>(v.w * inv);
+		return v;
+	}
+
 	bool operator==(const u8vec2& a, const u8vec2& b) {
 		return a.x == b.x && a.y == b.y;
 	}
@@ -1189,6 +1375,42 @@ namespace a3d::math {
 
 	bool operator!=(const u8vec4& a, const u8vec4& b) {
 		return !(a == b);
+	}
+
+	u8* value_ptr(u8vec2& v) {
+		return &v.x;
+	}
+
+	const u8* value_ptr(const u8vec2& v) {
+		return &v.x;
+	}
+
+	u8* value_ptr(u8vec3& v) {
+		return &v.x;
+	}
+
+	const u8* value_ptr(const u8vec3& v) {
+		return &v.x;
+	}
+
+	u8* value_ptr(u8vec4& v) {
+		return &v.x;
+	}
+
+	const u8* value_ptr(const u8vec4& v) {
+		return &v.x;
+	}
+
+	u8vec2 make_u8vec2(const u8* ptr) {
+		return u8vec2{ ptr[0], ptr[1] };
+	}
+
+	u8vec3 make_u8vec3(const u8* ptr) {
+		return u8vec3{ ptr[0], ptr[1], ptr[2] };
+	}
+
+	u8vec4 make_u8vec4(const u8* ptr) {
+		return u8vec4{ ptr[0], ptr[1], ptr[2], ptr[3] };
 	}
 
 	std::string to_string(const u8vec2& v) {
