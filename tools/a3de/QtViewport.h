@@ -56,8 +56,8 @@ namespace a3d::head::qt {
 
 		void 					swapBuffers() override;
 
-		glm::uvec2 				framebufferSize() const override;
-		glm::vec2 				framebufferScale() const override;
+		math::uvec2 			framebufferSize() const override;
+		math::vec2 				framebufferScale() const override;
 
 		unsigned 				defaultFramebuffer() const override;
 
