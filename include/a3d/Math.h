@@ -20,7 +20,7 @@ namespace a3d::math {
 
 	struct i32vec2;
 	struct i32vec3;
-	class i32vec4;
+	struct i32vec4;
 
 	struct u32vec2;
 	struct u32vec3;
