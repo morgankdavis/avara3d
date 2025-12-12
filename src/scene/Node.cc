@@ -192,7 +192,7 @@ mat4 Node::transform() const {
 	mat4 t = translate(mat4(1.0), _position);
 	mat4 r = mat4_cast(_orientation);
 	mat4 s = math::scale(mat4(1.0), _scale);
-	
+
 	return t * r * s;
 }
 

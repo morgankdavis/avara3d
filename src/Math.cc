@@ -17,66 +17,66 @@ namespace a3d::math {
 
 	/// Types ///
 
-	vec2::vec2():
-		x{0}, y{0} {}
+	f32vec2::f32vec2():
+			x{0}, y{0} {}
 
-	vec2::vec2(f32 x_, f32 y_):
+	f32vec2::f32vec2(f32 x_, f32 y_):
 			x{x_}, y{y_} {}
 
-	vec2::vec2(const vec3& v):
+	f32vec2::f32vec2(const f32vec3& v):
 			x{v.x}, y{v.y} {}
 
-	vec2::vec2(const vec4& v):
+	f32vec2::f32vec2(const f32vec4& v):
 			x{v.x}, y{v.y} {}
 
-	f32& vec2::operator[](std::size_t i) {
+	f32& f32vec2::operator[](std::size_t i) {
 		assert(i < 2);
 		return (&x)[i];
 	}
 
-	const f32& vec2::operator[](std::size_t i) const {
+	const f32& f32vec2::operator[](std::size_t i) const {
 		assert(i < 2);
 		return (&x)[i];
 	}
 
-	vec3::vec3():
+	f32vec3::f32vec3():
 			x{0}, y{0}, z{0} {}
 
-	vec3::vec3(f32 x_, f32 y_, f32 z_):
+	f32vec3::f32vec3(f32 x_, f32 y_, f32 z_):
 			x{x_}, y{y_}, z{z_} {}
 
-	vec3::vec3(const vec2& v, f32 z_):
-		x{v.x}, y{v.y}, z{z_} {}
+	f32vec3::f32vec3(const f32vec2& v, f32 z_):
+			x{v.x}, y{v.y}, z{z_} {}
 
-	vec3::vec3(const vec2& v):
+	f32vec3::f32vec3(const f32vec2& v):
 			x{v.x}, y{v.y}, z{0} {}
 
-	vec3::vec3(const vec4& v):
+	f32vec3::f32vec3(const f32vec4& v):
 			x{v.x}, y{v.y}, z{v.z} {}
 
-	f32& vec3::operator[](std::size_t i) {
+	f32& f32vec3::operator[](std::size_t i) {
 		assert(i < 3);
 		return (&x)[i];
 	}
 
-	const f32& vec3::operator[](std::size_t i) const {
+	const f32& f32vec3::operator[](std::size_t i) const {
 		assert(i < 3);
 		return (&x)[i];
 	}
 
-	vec4::vec4():
+	f32vec4::f32vec4():
 			x{0}, y{0}, z{0}, w{0} {}
 
-	vec4::vec4(f32 x_, f32 y_, f32 z_, f32 w_):
+	f32vec4::f32vec4(f32 x_, f32 y_, f32 z_, f32 w_):
 			x{x_}, y{y_}, z{z_}, w{w_} {}
 
-	vec4::vec4(const vec3& v, f32 w_):
-		x{v.x}, y{v.y}, z{v.z}, w{w_} {}
+	f32vec4::f32vec4(const f32vec3& v, f32 w_):
+			x{v.x}, y{v.y}, z{v.z}, w{w_} {}
 
-	vec4::vec4(const vec2& v):
+	f32vec4::f32vec4(const f32vec2& v):
 			x{v.x}, y{v.y}, z{0}, w{0} {}
 
-	vec4::vec4(const vec3& v):
+	f32vec4::f32vec4(const f32vec3& v):
 			x{v.x}, y{v.y}, z{v.z}, w{0} {}
 
 	f32& vec4::operator[](std::size_t i) {
@@ -89,146 +89,146 @@ namespace a3d::math {
 		return (&x)[i];
 	}
 
-	ivec2::ivec2():
+	i32vec2::i32vec2():
 			x{0}, y{0} {}
 
-	ivec2::ivec2(i32 x_, i32 y_):
+	i32vec2::i32vec2(i32 x_, i32 y_):
 			x{x_}, y{y_} {}
 
-	ivec2::ivec2(const ivec3& v):
+	i32vec2::i32vec2(const i32vec3& v):
 			x{v.x}, y{v.y} {}
 
-	ivec2::ivec2(const ivec4& v):
+	i32vec2::i32vec2(const i32vec4& v):
 			x{v.x}, y{v.y} {}
 
-	i32& ivec2::operator[](std::size_t i) {
+	i32& i32vec2::operator[](std::size_t i) {
 		assert(i < 2);
 		return (&x)[i];
 	}
 
-	const i32& ivec2::operator[](std::size_t i) const {
+	const i32& i32vec2::operator[](std::size_t i) const {
 		assert(i < 2);
 		return (&x)[i];
 	}
 
-	ivec3::ivec3():
+	i32vec3::i32vec3():
 			x{0}, y{0}, z{0} {}
 
-	ivec3::ivec3(i32 x_, i32 y_, i32 z_):
+	i32vec3::i32vec3(i32 x_, i32 y_, i32 z_):
 			x{x_}, y{y_}, z{z_} {}
 
-	ivec3::ivec3(const ivec2& v, i32 z_):
+	i32vec3::i32vec3(const i32vec2& v, i32 z_):
 			x{v.x}, y{v.y}, z{z_} {}
 
-	ivec3::ivec3(const ivec2& v):
+	i32vec3::i32vec3(const i32vec2& v):
 			x{v.x}, y{v.y}, z{0} {}
 
-	ivec3::ivec3(const ivec4& v):
+	i32vec3::i32vec3(const i32vec4& v):
 			x{v.x}, y{v.y}, z{v.z} {}
 
-	i32& ivec3::operator[](std::size_t i) {
+	i32& i32vec3::operator[](std::size_t i) {
 		assert(i < 3);
 		return (&x)[i];
 	}
 
-	const i32& ivec3::operator[](std::size_t i) const {
+	const i32& i32vec3::operator[](std::size_t i) const {
 		assert(i < 3);
 		return (&x)[i];
 	}
 
-	ivec4::ivec4():
+	i32vec4::i32vec4():
 			x{0}, y{0}, z{0}, w{0} {}
 
-	ivec4::ivec4(i32 x_, i32 y_, i32 z_, i32 w_):
+	i32vec4::i32vec4(i32 x_, i32 y_, i32 z_, i32 w_):
 			x{x_}, y{y_}, z{z_}, w{w_} {}
 
-	ivec4::ivec4(const ivec3& v, i32 w_):
+	i32vec4::i32vec4(const i32vec3& v, i32 w_):
 			x{v.x}, y{v.y}, z{v.z}, w{w_} {}
 
-	ivec4::ivec4(const ivec2& v):
+	i32vec4::i32vec4(const i32vec2& v):
 			x{v.x}, y{v.y}, z{0}, w{0} {}
 
-	ivec4::ivec4(const ivec3& v):
+	i32vec4::i32vec4(const i32vec3& v):
 			x{v.x}, y{v.y}, z{v.z}, w{0} {}
 
-	i32& ivec4::operator[](std::size_t i) {
+	i32& i32vec4::operator[](std::size_t i) {
 		assert(i < 4);
 		return (&x)[i];
 	}
 
-	const i32& ivec4::operator[](std::size_t i) const {
+	const i32& i32vec4::operator[](std::size_t i) const {
 		assert(i < 4);
 		return (&x)[i];
 	}
 
-	uvec2::uvec2():
+	u32vec2::u32vec2():
 			x{0}, y{0} {}
 
-	uvec2::uvec2(u32 x_, u32 y_) :
+	u32vec2::u32vec2(u32 x_, u32 y_) :
 			x{x_}, y{y_} {}
 
-	uvec2::uvec2(const uvec3& v):
+	u32vec2::u32vec2(const u32vec3& v):
 			x{v.x}, y{v.y} {}
 
-	uvec2::uvec2(const uvec4& v):
+	u32vec2::u32vec2(const u32vec4& v):
 			x{v.x}, y{v.y} {}
 
-	u32& uvec2::operator[](std::size_t i) {
+	u32& u32vec2::operator[](std::size_t i) {
 		assert(i < 2);
 		return (&x)[i];
 	}
 
-	const u32& uvec2::operator[](std::size_t i) const {
+	const u32& u32vec2::operator[](std::size_t i) const {
 		assert(i < 2);
 		return (&x)[i];
 	}
 
-	uvec3::uvec3():
+	u32vec3::u32vec3():
 			x{0}, y{0}, z{0} {}
 
-	uvec3::uvec3(u32 x_, u32 y_, u32 z_):
+	u32vec3::u32vec3(u32 x_, u32 y_, u32 z_):
 			x{x_}, y{y_}, z{z_} {}
 
-	uvec3::uvec3(const uvec2& v, u32 z_):
+	u32vec3::u32vec3(const u32vec2& v, u32 z_):
 			x{v.x}, y{v.y}, z{z_} {}
 
-	uvec3::uvec3(const uvec2& v):
+	u32vec3::u32vec3(const u32vec2& v):
 			x{v.x}, y{v.y}, z{0} {}
 
-	uvec3::uvec3(const uvec4& v):
+	u32vec3::u32vec3(const u32vec4& v):
 			x{v.x}, y{v.y}, z{v.z} {}
 
-	u32& uvec3::operator[](std::size_t i) {
+	u32& u32vec3::operator[](std::size_t i) {
 		assert(i < 3);
 		return (&x)[i];
 	}
 
-	const u32& uvec3::operator[](std::size_t i) const {
+	const u32& u32vec3::operator[](std::size_t i) const {
 		assert(i < 3);
 		return (&x)[i];
 	}
 
-	uvec4::uvec4():
+	u32vec4::u32vec4():
 			x{0}, y{0}, z{0}, w{0} {}
 
-	uvec4::uvec4(u32 x_, u32 y_, u32 z_, u32 w_):
+	u32vec4::u32vec4(u32 x_, u32 y_, u32 z_, u32 w_):
 			x{x_}, y{y_}, z{z_}, w{w_} {}
 
-	uvec4::uvec4(const uvec3& v, u32 w_):
+	u32vec4::u32vec4(const u32vec3& v, u32 w_):
 			x{v.x}, y{v.y}, z{v.z}, w{w_} {}
 
-	uvec4::uvec4(const uvec2& v):
+	u32vec4::u32vec4(const u32vec2& v):
 			x{v.x}, y{v.y}, z{0}, w{0} {}
 
-	uvec4::uvec4(const uvec3& v):
+	u32vec4::u32vec4(const u32vec3& v):
 			x{v.x}, y{v.y}, z{v.z}, w{0} {}
 
-	u32& uvec4::operator[](std::size_t i) {
+	u32& u32vec4::operator[](std::size_t i) {
 		assert(i < 4);
 		return (&x)[i];
 	}
 
-	const u32& uvec4::operator[](std::size_t i) const {
+	const u32& u32vec4::operator[](std::size_t i) const {
 		assert(i < 4);
 		return (&x)[i];
 	}
@@ -305,181 +305,181 @@ namespace a3d::math {
 		return (&x)[i];
 	}
 
-	mat2::mat2():
+	f32mat2::f32mat2():
 			c0{1,0},
 			c1{0,1} {}
 
-	mat2::mat2(f32 diag)
+	f32mat2::f32mat2(f32 diag)
 			: c0{diag, 0.0f}, c1{0.0f, diag} {}
 
-	vec2& mat2::operator[](std::size_t i) {
+	vec2& f32mat2::operator[](std::size_t i) {
 		assert(i < 2);
 		return (&c0)[i];
 	}
 
-	const vec2& mat2::operator[](std::size_t i) const {
+	const vec2& f32mat2::operator[](std::size_t i) const {
 		assert(i < 2);
 		return (&c0)[i];
 	}
 
-	mat3::mat3():
+	f32mat3::f32mat3():
 			c0{1,0,0},
 			c1{0,1,0},
 			c2{0,0,1} {}
 
-	mat3::mat3(f32 diag) :
+	f32mat3::f32mat3(f32 diag) :
 			c0{diag, 0.0f, 0.0f},
 			c1{0.0f, diag, 0.0f},
 			c2{0.0f, 0.0f, diag} {}
 
-	vec3& mat3::operator[](std::size_t i) {
+	vec3& f32mat3::operator[](std::size_t i) {
 		assert(i < 3);
 		return (&c0)[i];
 	}
 
-	const vec3& mat3::operator[](std::size_t i) const {
+	const vec3& f32mat3::operator[](std::size_t i) const {
 		assert(i < 3);
 		return (&c0)[i];
 	}
 
-	mat4::mat4():
+	f32mat4::f32mat4():
 			c0{1,0,0,0},
 			c1{0,1,0,0},
 			c2{0,0,1,0},
 			c3{0,0,0,1} {}
 
-	mat4::mat4(f32 diag) :
+	f32mat4::f32mat4(f32 diag) :
 			c0{diag, 0.0f, 0.0f, 0.0f},
 			c1{0.0f, diag, 0.0f, 0.0f},
 			c2{0.0f, 0.0f, diag, 0.0f},
 			c3{0.0f, 0.0f, 0.0f, diag} {}
 
-	mat4::mat4(const mat3 &m) :
+	f32mat4::f32mat4(const f32mat3 &m) :
 			c0{m.c0.x, m.c0.y, m.c0.z, 0.0f},
 			c1{m.c1.x, m.c1.y, m.c1.z, 0.0f},
 			c2{m.c2.x, m.c2.y, m.c2.z, 0.0f},
 			c3{0.0f, 0.0f, 0.0f, 1.0f} {}
 
-	vec4& mat4::operator[](std::size_t i) {
+	vec4& f32mat4::operator[](std::size_t i) {
 		assert(i < 4);
 		return (&c0)[i];
 	}
 
-	const vec4& mat4::operator[](std::size_t i) const {
+	const vec4& f32mat4::operator[](std::size_t i) const {
 		assert(i < 4);
 		return (&c0)[i];
 	}
 
-	quat::quat():
+	f32quat::f32quat():
 			w{1.0f}, x{0.0f}, y{0.0f}, z{0.0f} {}
 
-	quat::quat(f32 w_, f32 x_, f32 y_, f32 z_) :
+	f32quat::f32quat(f32 w_, f32 x_, f32 y_, f32 z_) :
 			w{w_}, x{x_}, y{y_}, z{z_} {}
 
-	quat::quat(f32 s):
+	f32quat::f32quat(f32 s):
 			w{s}, x{0.0f}, y{0.0f}, z{0.0f} {}
 
-	f32& quat::operator[](std::size_t i) {
+	f32& f32quat::operator[](std::size_t i) {
 		assert(i < 4);
 		return (&w)[i];
 	}
 
-	const f32& quat::operator[](std::size_t i) const {
+	const f32& f32quat::operator[](std::size_t i) const {
 		assert(i < 4);
 		return (&w)[i];
 	}
 
 	/// 32-bit Float Vector ///
 
-	vec2 operator-(const vec2& v) {
+	f32vec2 operator-(const f32vec2& v) {
 		return { -v.x, -v.y };
 	}
 
-	vec3 operator-(const vec3& v) {
+	f32vec3 operator-(const f32vec3& v) {
 		return { -v.x, -v.y, -v.z };
 	}
 
-	vec4 operator-(const vec4& v) {
+	f32vec4 operator-(const f32vec4& v) {
 		return { -v.x, -v.y, -v.z, -v.w };
 	}
 
-	vec2 operator+(const vec2 &a, const vec2 &b) {
-		return vec2{a.x + b.x, a.y + b.y};
+	f32vec2 operator+(const f32vec2 &a, const f32vec2 &b) {
+		return f32vec2{a.x + b.x, a.y + b.y};
 	}
 
-	vec3 operator+(const vec3 &a, const vec3 &b) {
-		return vec3{a.x + b.x, a.y + b.y, a.z + b.z};
+	f32vec3 operator+(const f32vec3 &a, const f32vec3 &b) {
+		return f32vec3{a.x + b.x, a.y + b.y, a.z + b.z};
 	}
 
-	vec4 operator+(const vec4 &a, const vec4 &b) {
-		return vec4{a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w};
+	f32vec4 operator+(const f32vec4 &a, const f32vec4 &b) {
+		return f32vec4{a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w};
 	}
 
-	vec2 operator-(const vec2 &a, const vec2 &b) {
-		return vec2{a.x - b.x, a.y - b.y};
+	f32vec2 operator-(const f32vec2 &a, const f32vec2 &b) {
+		return f32vec2{a.x - b.x, a.y - b.y};
 	}
 
-	vec3 operator-(const vec3 &a, const vec3 &b) {
-		return vec3{a.x - b.x, a.y - b.y, a.z - b.z};
+	f32vec3 operator-(const f32vec3 &a, const f32vec3 &b) {
+		return f32vec3{a.x - b.x, a.y - b.y, a.z - b.z};
 	}
 
-	vec4 operator-(const vec4 &a, const vec4 &b) {
-		return vec4{a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w};
+	f32vec4 operator-(const f32vec4 &a, const f32vec4 &b) {
+		return f32vec4{a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w};
 	}
 
-	vec2 operator*(const vec2 &v, f32 s) {
-		return vec2{v.x * s, v.y * s};
+	f32vec2 operator*(const f32vec2 &v, f32 s) {
+		return f32vec2{v.x * s, v.y * s};
 	}
 
-	vec3 operator*(const vec3 &v, f32 s) {
-		return vec3{v.x * s, v.y * s, v.z * s};
+	f32vec3 operator*(const f32vec3 &v, f32 s) {
+		return f32vec3{v.x * s, v.y * s, v.z * s};
 	}
 
-	vec4 operator*(const vec4 &v, f32 s) {
-		return vec4{v.x * s, v.y * s, v.z * s, v.w * s};
+	f32vec4 operator*(const f32vec4 &v, f32 s) {
+		return f32vec4{v.x * s, v.y * s, v.z * s, v.w * s};
 	}
 
-	vec2 operator*(f32 s, const vec2 &v) {
+	f32vec2 operator*(f32 s, const f32vec2 &v) {
 		return v * s;
 	}
 
-	vec3 operator*(f32 s, const vec3 &v) {
+	f32vec3 operator*(f32 s, const f32vec3 &v) {
 		return v * s;
 	}
 
-	vec4 operator*(f32 s, const vec4 &v) {
+	f32vec4 operator*(f32 s, const f32vec4 &v) {
 		return v * s;
 	}
 
-	vec2 operator/(const vec2 &v, f32 s) {
+	f32vec2 operator/(const f32vec2 &v, f32 s) {
 		f32 inv = 1.0f / s;
-		return vec2{v.x * inv, v.y * inv};
+		return f32vec2{v.x * inv, v.y * inv};
 	}
 
-	vec3 operator/(const vec3 &v, f32 s) {
+	f32vec3 operator/(const f32vec3 &v, f32 s) {
 		f32 inv = 1.0f / s;
-		return vec3{v.x * inv, v.y * inv, v.z * inv};
+		return f32vec3{v.x * inv, v.y * inv, v.z * inv};
 	}
 
-	vec4 operator/(const vec4 &v, f32 s) {
+	f32vec4 operator/(const f32vec4 &v, f32 s) {
 		f32 inv = 1.0f / s;
-		return vec4{v.x * inv, v.y * inv, v.z * inv, v.w * inv};
+		return f32vec4{v.x * inv, v.y * inv, v.z * inv, v.w * inv};
 	}
 
-	vec2& operator+=(vec2& a, const vec2& b) {
+	f32vec2& operator+=(f32vec2& a, const f32vec2& b) {
 		a.x += b.x;
 		a.y += b.y;
 		return a;
 	}
 
-	vec3& operator+=(vec3& a, const vec3& b) {
+	f32vec3& operator+=(f32vec3& a, const f32vec3& b) {
 		a.x += b.x;
 		a.y += b.y;
 		a.z += b.z;
 		return a;
 	}
 
-	vec4& operator+=(vec4& a, const vec4& b) {
+	f32vec4& operator+=(f32vec4& a, const f32vec4& b) {
 		a.x += b.x;
 		a.y += b.y;
 		a.z += b.z;
@@ -487,20 +487,20 @@ namespace a3d::math {
 		return a;
 	}
 
-	vec2& operator-=(vec2& a, const vec2& b) {
+	f32vec2& operator-=(f32vec2& a, const f32vec2& b) {
 		a.x -= b.x;
 		a.y -= b.y;
 		return a;
 	}
 
-	vec3& operator-=(vec3& a, const vec3& b) {
+	f32vec3& operator-=(f32vec3& a, const f32vec3& b) {
 		a.x -= b.x;
 		a.y -= b.y;
 		a.z -= b.z;
 		return a;
 	}
 
-	vec4& operator-=(vec4& a, const vec4& b) {
+	f32vec4& operator-=(f32vec4& a, const f32vec4& b) {
 		a.x -= b.x;
 		a.y -= b.y;
 		a.z -= b.z;
@@ -508,20 +508,20 @@ namespace a3d::math {
 		return a;
 	}
 
-	vec2& operator*=(vec2& v, f32 s) {
+	f32vec2& operator*=(f32vec2& v, f32 s) {
 		v.x *= s;
 		v.y *= s;
 		return v;
 	}
 
-	vec3& operator*=(vec3& v, f32 s) {
+	f32vec3& operator*=(f32vec3& v, f32 s) {
 		v.x *= s;
 		v.y *= s;
 		v.z *= s;
 		return v;
 	}
 
-	vec4& operator*=(vec4& v, f32 s) {
+	f32vec4& operator*=(f32vec4& v, f32 s) {
 		v.x *= s;
 		v.y *= s;
 		v.z *= s;
@@ -529,14 +529,14 @@ namespace a3d::math {
 		return v;
 	}
 
-	vec2& operator/=(vec2& v, f32 s) {
+	f32vec2& operator/=(f32vec2& v, f32 s) {
 		f32 inv = 1.0f / s;
 		v.x *= inv;
 		v.y *= inv;
 		return v;
 	}
 
-	vec3& operator/=(vec3& v, f32 s) {
+	f32vec3& operator/=(f32vec3& v, f32 s) {
 		f32 inv = 1.0f / s;
 		v.x *= inv;
 		v.y *= inv;
@@ -544,7 +544,7 @@ namespace a3d::math {
 		return v;
 	}
 
-	vec4& operator/=(vec4& v, f32 s) {
+	f32vec4& operator/=(f32vec4& v, f32 s) {
 		f32 inv = 1.0f / s;
 		v.x *= inv;
 		v.y *= inv;
@@ -553,221 +553,221 @@ namespace a3d::math {
 		return v;
 	}
 
-	bool operator==(const vec2& a, const vec2& b) {
+	bool operator==(const f32vec2& a, const f32vec2& b) {
 		return a.x == b.x && a.y == b.y;
 	}
 
-	bool operator==(const vec3& a, const vec3& b) {
+	bool operator==(const f32vec3& a, const f32vec3& b) {
 		return a.x == b.x && a.y == b.y && a.z == b.z;
 	}
 
-	bool operator==(const vec4& a, const vec4& b) {
+	bool operator==(const f32vec4& a, const f32vec4& b) {
 		return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
 	}
 
-	bool operator!=(const vec2& a, const vec2& b) {
+	bool operator!=(const f32vec2& a, const f32vec2& b) {
 		return !(a == b);
 	}
 
-	bool operator!=(const vec3& a, const vec3& b) {
+	bool operator!=(const f32vec3& a, const f32vec3& b) {
 		return !(a == b);
 	}
 
-	bool operator!=(const vec4& a, const vec4& b) {
+	bool operator!=(const f32vec4& a, const f32vec4& b) {
 		return !(a == b);
 	}
 
-	f32 dot(const vec2 &a, const vec2 &b) {
+	f32 dot(const f32vec2 &a, const f32vec2 &b) {
 		return a.x * b.x + a.y * b.y;
 	}
 
-	f32 dot(const vec3 &a, const vec3 &b) {
+	f32 dot(const f32vec3 &a, const f32vec3 &b) {
 		return a.x * b.x + a.y * b.y + a.z * b.z;
 	}
 
-	f32 dot(const vec4 &a, const vec4 &b) {
+	f32 dot(const f32vec4 &a, const f32vec4 &b) {
 		return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 	}
 
-	f32 length(const vec2 &v) {
+	f32 length(const f32vec2 &v) {
 		return sqrt(dot(v, v));
 	}
 
-	f32 length(const vec3 &v) {
+	f32 length(const f32vec3 &v) {
 		return sqrt(dot(v, v));
 	}
 
-	f32 length(const vec4 &v) {
+	f32 length(const f32vec4 &v) {
 		return sqrt(dot(v, v));
 	}
 
-	vec2 normalize(const vec2 &v) {
+	f32vec2 normalize(const f32vec2 &v) {
 		f32 len = length(v);
-		assert(len != 0.0f && "math::normalize called on zero-length vec2");
+		assert(len != 0.0f && "math::normalize called on zero-length f32vec2");
 		return (len > 0.0f) ? v / len : v;
 	}
 
-	vec3 normalize(const vec3 &v) {
+	f32vec3 normalize(const f32vec3 &v) {
 		f32 len = length(v);
-		assert(len != 0.0f && "math::normalize called on zero-length vec3");
+		assert(len != 0.0f && "math::normalize called on zero-length f32vec3");
 		return (len > 0.0f) ? v / len : v;
 	}
 
-	vec4 normalize(const vec4 &v) {
+	f32vec4 normalize(const f32vec4 &v) {
 		f32 len = length(v);
-		assert(len != 0.0f && "math::normalize called on zero-length vec4");
+		assert(len != 0.0f && "math::normalize called on zero-length f32vec4");
 		return (len > 0.0f) ? v / len : v;
 	}
 
-	vec3 cross(const vec3 &a, const vec3 &b) {
-		return vec3{ a.y * b.z - a.z * b.y,
-					 a.z * b.x - a.x * b.z,
-					 a.x * b.y - a.y * b.x };
+	f32vec3 cross(const f32vec3 &a, const f32vec3 &b) {
+		return f32vec3{ a.y * b.z - a.z * b.y,
+						a.z * b.x - a.x * b.z,
+						a.x * b.y - a.y * b.x };
 	}
 
-	std::string to_string(const vec2& v) {
+	std::string to_string(const f32vec2& v) {
 		std::ostringstream ss;
-		ss << "vec2(" << v.x << ", " << v.y << ")";
+		ss << "f32vec2(" << v.x << ", " << v.y << ")";
 		return ss.str();
 	}
 
-	std::string to_string(const vec3& v) {
+	std::string to_string(const f32vec3& v) {
 		std::ostringstream ss;
-		ss << "vec3(" << v.x << ", " << v.y << ", " << v.z << ")";
+		ss << "f32vec3(" << v.x << ", " << v.y << ", " << v.z << ")";
 		return ss.str();
 	}
 
-	std::string to_string(const vec4& v) {
+	std::string to_string(const f32vec4& v) {
 		std::ostringstream ss;
-		ss << "vec4(" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")";
+		ss << "f32vec4(" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")";
 		return ss.str();
 	}
 
-	f32* value_ptr(vec2 &v) {
+	f32* value_ptr(f32vec2 &v) {
 		return &v.x;
 	}
 
-	const f32* value_ptr(const vec2 &v) {
+	const f32* value_ptr(const f32vec2 &v) {
 		return &v.x;
 	}
 
-	f32* value_ptr(vec3 &v) {
+	f32* value_ptr(f32vec3 &v) {
 		return &v.x;
 	}
 
-	const f32* value_ptr(const vec3 &v) {
+	const f32* value_ptr(const f32vec3 &v) {
 		return &v.x;
 	}
 
-	f32* value_ptr(vec4 &v) {
+	f32* value_ptr(f32vec4 &v) {
 		return &v.x;
 	}
 
-	const f32* value_ptr(const vec4 &v) {
+	const f32* value_ptr(const f32vec4 &v) {
 		return &v.x;
 	}
 
-	vec2 make_vec2(const f32* ptr) {
-		return vec2{ ptr[0], ptr[1] };
+	f32vec2 make_vec2(const f32* ptr) {
+		return f32vec2{ ptr[0], ptr[1] };
 	}
 
-	vec3 make_vec3(const f32* ptr) {
-		return vec3{ ptr[0], ptr[1], ptr[2] };
+	f32vec3 make_vec3(const f32* ptr) {
+		return f32vec3{ ptr[0], ptr[1], ptr[2] };
 	}
 
-	vec4 make_vec4(const f32* ptr) {
-		return vec4{ ptr[0], ptr[1], ptr[2], ptr[3] };
+	f32vec4 make_vec4(const f32* ptr) {
+		return f32vec4{ ptr[0], ptr[1], ptr[2], ptr[3] };
 	}
 
 	/// Signed 32-bit Integer Vector ///
 
-	ivec2 operator-(const ivec2& v) {
+	i32vec2 operator-(const i32vec2& v) {
 		return { -v.x, -v.y };
 	}
 
-	ivec3 operator-(const ivec3& v) {
+	i32vec3 operator-(const i32vec3& v) {
 		return { -v.x, -v.y, -v.z };
 	}
 
-	ivec4 operator-(const ivec4& v) {
+	i32vec4 operator-(const i32vec4& v) {
 		return { -v.x, -v.y, -v.z, -v.w };
 	}
 
-	ivec2 operator+(const ivec2 &a, const ivec2 &b) {
-		return ivec2{a.x + b.x, a.y + b.y};
+	i32vec2 operator+(const i32vec2 &a, const i32vec2 &b) {
+		return i32vec2{a.x + b.x, a.y + b.y};
 	}
 
-	ivec3 operator+(const ivec3 &a, const ivec3 &b) {
-		return ivec3{a.x + b.x, a.y + b.y, a.z + b.z};
+	i32vec3 operator+(const i32vec3 &a, const i32vec3 &b) {
+		return i32vec3{a.x + b.x, a.y + b.y, a.z + b.z};
 	}
 
-	ivec4 operator+(const ivec4 &a, const ivec4 &b) {
-		return ivec4{a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w};
+	i32vec4 operator+(const i32vec4 &a, const i32vec4 &b) {
+		return i32vec4{a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w};
 	}
 
-	ivec2 operator-(const ivec2 &a, const ivec2 &b) {
-		return ivec2{a.x - b.x, a.y - b.y};
+	i32vec2 operator-(const i32vec2 &a, const i32vec2 &b) {
+		return i32vec2{a.x - b.x, a.y - b.y};
 	}
 
-	ivec3 operator-(const ivec3 &a, const ivec3 &b) {
-		return ivec3{a.x - b.x, a.y - b.y, a.z - b.z};
+	i32vec3 operator-(const i32vec3 &a, const i32vec3 &b) {
+		return i32vec3{a.x - b.x, a.y - b.y, a.z - b.z};
 	}
 
-	ivec4 operator-(const ivec4 &a, const ivec4 &b) {
-		return ivec4{a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w};
+	i32vec4 operator-(const i32vec4 &a, const i32vec4 &b) {
+		return i32vec4{a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w};
 	}
 
-	ivec2 operator*(const ivec2 &v, i32 s) {
-		return ivec2{v.x * s, v.y * s};
+	i32vec2 operator*(const i32vec2 &v, i32 s) {
+		return i32vec2{v.x * s, v.y * s};
 	}
 
-	ivec3 operator*(const ivec3 &v, i32 s) {
-		return ivec3{v.x * s, v.y * s, v.z * s};
+	i32vec3 operator*(const i32vec3 &v, i32 s) {
+		return i32vec3{v.x * s, v.y * s, v.z * s};
 	}
 
-	ivec4 operator*(const ivec4 &v, i32 s) {
-		return ivec4{v.x * s, v.y * s, v.z * s, v.w * s};
+	i32vec4 operator*(const i32vec4 &v, i32 s) {
+		return i32vec4{v.x * s, v.y * s, v.z * s, v.w * s};
 	}
 
-	ivec2 operator*(i32 s, const ivec2 &v) {
+	i32vec2 operator*(i32 s, const i32vec2 &v) {
 		return v * s;
 	}
 
-	ivec3 operator*(i32 s, const ivec3 &v) {
+	i32vec3 operator*(i32 s, const i32vec3 &v) {
 		return v * s;
 	}
 
-	ivec4 operator*(i32 s, const ivec4 &v) {
+	i32vec4 operator*(i32 s, const i32vec4 &v) {
 		return v * s;
 	}
 
-	ivec2 operator/(const ivec2 &v, i32 s) {
+	i32vec2 operator/(const i32vec2 &v, i32 s) {
 		// no zero check -- assert?
-		return ivec2{v.x / s, v.y / s};
+		return i32vec2{v.x / s, v.y / s};
 	}
 
-	ivec3 operator/(const ivec3 &v, i32 s) {
-		return ivec3{v.x / s, v.y / s, v.z / s};
+	i32vec3 operator/(const i32vec3 &v, i32 s) {
+		return i32vec3{v.x / s, v.y / s, v.z / s};
 	}
 
-	ivec4 operator/(const ivec4 &v, i32 s) {
-		return ivec4{v.x / s, v.y / s, v.z / s, v.w / s};
+	i32vec4 operator/(const i32vec4 &v, i32 s) {
+		return i32vec4{v.x / s, v.y / s, v.z / s, v.w / s};
 	}
 
-	ivec2& operator+=(ivec2& a, const ivec2& b) {
+	i32vec2& operator+=(i32vec2& a, const i32vec2& b) {
 		a.x += b.x;
 		a.y += b.y;
 		return a;
 	}
 
-	ivec3& operator+=(ivec3& a, const ivec3& b) {
+	i32vec3& operator+=(i32vec3& a, const i32vec3& b) {
 		a.x += b.x;
 		a.y += b.y;
 		a.z += b.z;
 		return a;
 	}
 
-	ivec4& operator+=(ivec4& a, const ivec4& b) {
+	i32vec4& operator+=(i32vec4& a, const i32vec4& b) {
 		a.x += b.x;
 		a.y += b.y;
 		a.z += b.z;
@@ -775,20 +775,20 @@ namespace a3d::math {
 		return a;
 	}
 
-	ivec2& operator-=(ivec2& a, const ivec2& b) {
+	i32vec2& operator-=(i32vec2& a, const i32vec2& b) {
 		a.x -= b.x;
 		a.y -= b.y;
 		return a;
 	}
 
-	ivec3& operator-=(ivec3& a, const ivec3& b) {
+	i32vec3& operator-=(i32vec3& a, const i32vec3& b) {
 		a.x -= b.x;
 		a.y -= b.y;
 		a.z -= b.z;
 		return a;
 	}
 
-	ivec4& operator-=(ivec4& a, const ivec4& b) {
+	i32vec4& operator-=(i32vec4& a, const i32vec4& b) {
 		a.x -= b.x;
 		a.y -= b.y;
 		a.z -= b.z;
@@ -796,20 +796,20 @@ namespace a3d::math {
 		return a;
 	}
 
-	ivec2& operator*=(ivec2& v, i32 s) {
+	i32vec2& operator*=(i32vec2& v, i32 s) {
 		v.x *= s;
 		v.y *= s;
 		return v;
 	}
 
-	ivec3& operator*=(ivec3& v, i32 s) {
+	i32vec3& operator*=(i32vec3& v, i32 s) {
 		v.x *= s;
 		v.y *= s;
 		v.z *= s;
 		return v;
 	}
 
-	ivec4& operator*=(ivec4& v, i32 s) {
+	i32vec4& operator*=(i32vec4& v, i32 s) {
 		v.x *= s;
 		v.y *= s;
 		v.z *= s;
@@ -817,20 +817,20 @@ namespace a3d::math {
 		return v;
 	}
 
-	ivec2& operator/=(ivec2& v, i32 s) {
+	i32vec2& operator/=(i32vec2& v, i32 s) {
 		v.x /= s;
 		v.y /= s;
 		return v;
 	}
 
-	ivec3& operator/=(ivec3& v, i32 s) {
+	i32vec3& operator/=(i32vec3& v, i32 s) {
 		v.x /= s;
 		v.y /= s;
 		v.z /= s;
 		return v;
 	}
 
-	ivec4& operator/=(ivec4& v, i32 s) {
+	i32vec4& operator/=(i32vec4& v, i32 s) {
 		v.x /= s;
 		v.y /= s;
 		v.z /= s;
@@ -838,173 +838,173 @@ namespace a3d::math {
 		return v;
 	}
 
-	bool operator==(const ivec2& a, const ivec2& b) {
+	bool operator==(const i32vec2& a, const i32vec2& b) {
 		return a.x == b.x && a.y == b.y;
 	}
 
-	bool operator==(const ivec3& a, const ivec3& b) {
+	bool operator==(const i32vec3& a, const i32vec3& b) {
 		return a.x == b.x && a.y == b.y && a.z == b.z;
 	}
 
-	bool operator==(const ivec4& a, const ivec4& b) {
+	bool operator==(const i32vec4& a, const i32vec4& b) {
 		return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
 	}
 
-	bool operator!=(const ivec2& a, const ivec2& b) {
+	bool operator!=(const i32vec2& a, const i32vec2& b) {
 		return !(a == b);
 	}
 
-	bool operator!=(const ivec3& a, const ivec3& b) {
+	bool operator!=(const i32vec3& a, const i32vec3& b) {
 		return !(a == b);
 	}
 
-	bool operator!=(const ivec4& a, const ivec4& b) {
+	bool operator!=(const i32vec4& a, const i32vec4& b) {
 		return !(a == b);
 	}
 
-	i32 dot(const ivec2 &a, const ivec2 &b) {
+	i32 dot(const i32vec2 &a, const i32vec2 &b) {
 		return a.x * b.x + a.y * b.y;
 	}
 
-	i32 dot(const ivec3 &a, const ivec3 &b) {
+	i32 dot(const i32vec3 &a, const i32vec3 &b) {
 		return a.x * b.x + a.y * b.y + a.z * b.z;
 	}
 
-	i32 dot(const ivec4 &a, const ivec4 &b) {
+	i32 dot(const i32vec4 &a, const i32vec4 &b) {
 		return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 	}
 
-	std::string to_string(const ivec2& v) {
+	std::string to_string(const i32vec2& v) {
 		std::ostringstream ss;
-		ss << "ivec2(" << v.x << ", " << v.y << ")";
+		ss << "i32vec2(" << v.x << ", " << v.y << ")";
 		return ss.str();
 	}
 
-	std::string to_string(const ivec3& v) {
+	std::string to_string(const i32vec3& v) {
 		std::ostringstream ss;
-		ss << "ivec3(" << v.x << ", " << v.y << ", " << v.z << ")";
+		ss << "i32vec3(" << v.x << ", " << v.y << ", " << v.z << ")";
 		return ss.str();
 	}
 
-	std::string to_string(const ivec4& v) {
+	std::string to_string(const i32vec4& v) {
 		std::ostringstream ss;
-		ss << "ivec4(" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")";
+		ss << "i32vec4(" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")";
 		return ss.str();
 	}
 
-	i32* value_ptr(ivec2 &v) {
+	i32* value_ptr(i32vec2 &v) {
 		return &v.x;
 	}
 
-	const i32* value_ptr(const ivec2 &v) {
+	const i32* value_ptr(const i32vec2 &v) {
 		return &v.x;
 	}
 
-	i32* value_ptr(ivec3 &v) {
+	i32* value_ptr(i32vec3 &v) {
 		return &v.x;
 	}
 
-	const i32* value_ptr(const ivec3 &v) {
+	const i32* value_ptr(const i32vec3 &v) {
 		return &v.x;
 	}
 
-	i32* value_ptr(ivec4 &v) {
+	i32* value_ptr(i32vec4 &v) {
 		return &v.x;
 	}
 
-	const i32* value_ptr(const ivec4 &v) {
+	const i32* value_ptr(const i32vec4 &v) {
 		return &v.x;
 	}
 
-	ivec2 make_ivec2(const i32* ptr) {
-		return ivec2{ptr[0], ptr[1]};
+	i32vec2 make_vec2(const i32* ptr) {
+		return i32vec2{ptr[0], ptr[1]};
 	}
 
-	ivec3 make_ivec3(const i32* ptr) {
-		return ivec3{ptr[0], ptr[1], ptr[2]};
+	i32vec3 make_vec3(const i32* ptr) {
+		return i32vec3{ptr[0], ptr[1], ptr[2]};
 	}
 
-	ivec4 make_ivec4(const i32* ptr) {
-		return ivec4{ptr[0], ptr[1], ptr[2], ptr[3]};
+	i32vec4 make_vec4(const i32* ptr) {
+		return i32vec4{ptr[0], ptr[1], ptr[2], ptr[3]};
 	}
 
 	/// Unsigned 32-bit Integer Vector ///
 
-	uvec2 operator+(const uvec2 &a, const uvec2 &b) {
-		return uvec2{a.x + b.x, a.y + b.y};
+	u32vec2 operator+(const u32vec2 &a, const u32vec2 &b) {
+		return u32vec2{a.x + b.x, a.y + b.y};
 	}
 
-	uvec3 operator+(const uvec3 &a, const uvec3 &b) {
-		return uvec3{a.x + b.x, a.y + b.y, a.z + b.z};
+	u32vec3 operator+(const u32vec3 &a, const u32vec3 &b) {
+		return u32vec3{a.x + b.x, a.y + b.y, a.z + b.z};
 	}
 
-	uvec4 operator+(const uvec4 &a, const uvec4 &b) {
-		return uvec4{a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w};
+	u32vec4 operator+(const u32vec4 &a, const u32vec4 &b) {
+		return u32vec4{a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w};
 	}
 
-	uvec2 operator-(const uvec2 &a, const uvec2 &b) {
-		return uvec2{a.x - b.x, a.y - b.y};
+	u32vec2 operator-(const u32vec2 &a, const u32vec2 &b) {
+		return u32vec2{a.x - b.x, a.y - b.y};
 	}
 
-	uvec3 operator-(const uvec3 &a, const uvec3 &b) {
-		return uvec3{a.x - b.x, a.y - b.y, a.z - b.z};
+	u32vec3 operator-(const u32vec3 &a, const u32vec3 &b) {
+		return u32vec3{a.x - b.x, a.y - b.y, a.z - b.z};
 	}
 
-	uvec4 operator-(const uvec4 &a, const uvec4 &b) {
-		return uvec4{a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w};
+	u32vec4 operator-(const u32vec4 &a, const u32vec4 &b) {
+		return u32vec4{a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w};
 	}
 
-	uvec2 operator*(const uvec2 &v, u32 s) {
-		return uvec2{v.x * s, v.y * s};
+	u32vec2 operator*(const u32vec2 &v, u32 s) {
+		return u32vec2{v.x * s, v.y * s};
 	}
 
-	uvec3 operator*(const uvec3 &v, u32 s) {
-		return uvec3{v.x * s, v.y * s, v.z * s};
+	u32vec3 operator*(const u32vec3 &v, u32 s) {
+		return u32vec3{v.x * s, v.y * s, v.z * s};
 	}
 
-	uvec4 operator*(const uvec4 &v, u32 s) {
-		return uvec4{v.x * s, v.y * s, v.z * s, v.w * s};
+	u32vec4 operator*(const u32vec4 &v, u32 s) {
+		return u32vec4{v.x * s, v.y * s, v.z * s, v.w * s};
 	}
 
-	uvec2 operator*(u32 s, const uvec2 &v) {
+	u32vec2 operator*(u32 s, const u32vec2 &v) {
 		return v * s;
 	}
 
-	uvec3 operator*(u32 s, const uvec3 &v) {
+	u32vec3 operator*(u32 s, const u32vec3 &v) {
 		return v * s;
 	}
 
-	uvec4 operator*(u32 s, const uvec4 &v) {
+	u32vec4 operator*(u32 s, const u32vec4 &v) {
 		return v * s;
 	}
 
-	uvec2 operator/(const uvec2 &v, u32 s) {
+	u32vec2 operator/(const u32vec2 &v, u32 s) {
 		// no zero check -- assert?
-		return uvec2{v.x / s, v.y / s};
+		return u32vec2{v.x / s, v.y / s};
 	}
 
-	uvec3 operator/(const uvec3 &v, u32 s) {
-		return uvec3{v.x / s, v.y / s, v.z / s};
+	u32vec3 operator/(const u32vec3 &v, u32 s) {
+		return u32vec3{v.x / s, v.y / s, v.z / s};
 	}
 
-	uvec4 operator/(const uvec4 &v, u32 s) {
-		return uvec4{v.x / s, v.y / s, v.z / s, v.w / s};
+	u32vec4 operator/(const u32vec4 &v, u32 s) {
+		return u32vec4{v.x / s, v.y / s, v.z / s, v.w / s};
 	}
 
-	uvec2& operator+=(uvec2& a, const uvec2& b) {
+	u32vec2& operator+=(u32vec2& a, const u32vec2& b) {
 		a.x += b.x;
 		a.y += b.y;
 		return a;
 	}
 
-	uvec3& operator+=(uvec3& a, const uvec3& b) {
+	u32vec3& operator+=(u32vec3& a, const u32vec3& b) {
 		a.x += b.x;
 		a.y += b.y;
 		a.z += b.z;
 		return a;
 	}
 
-	uvec4& operator+=(uvec4& a, const uvec4& b) {
+	u32vec4& operator+=(u32vec4& a, const u32vec4& b) {
 		a.x += b.x;
 		a.y += b.y;
 		a.z += b.z;
@@ -1012,20 +1012,20 @@ namespace a3d::math {
 		return a;
 	}
 
-	uvec2& operator-=(uvec2& a, const uvec2& b) {
+	u32vec2& operator-=(u32vec2& a, const u32vec2& b) {
 		a.x -= b.x;
 		a.y -= b.y;
 		return a;
 	}
 
-	uvec3& operator-=(uvec3& a, const uvec3& b) {
+	u32vec3& operator-=(u32vec3& a, const u32vec3& b) {
 		a.x -= b.x;
 		a.y -= b.y;
 		a.z -= b.z;
 		return a;
 	}
 
-	uvec4& operator-=(uvec4& a, const uvec4& b) {
+	u32vec4& operator-=(u32vec4& a, const u32vec4& b) {
 		a.x -= b.x;
 		a.y -= b.y;
 		a.z -= b.z;
@@ -1033,20 +1033,20 @@ namespace a3d::math {
 		return a;
 	}
 
-	uvec2& operator*=(uvec2& v, u32 s) {
+	u32vec2& operator*=(u32vec2& v, u32 s) {
 		v.x *= s;
 		v.y *= s;
 		return v;
 	}
 
-	uvec3& operator*=(uvec3& v, u32 s) {
+	u32vec3& operator*=(u32vec3& v, u32 s) {
 		v.x *= s;
 		v.y *= s;
 		v.z *= s;
 		return v;
 	}
 
-	uvec4& operator*=(uvec4& v, u32 s) {
+	u32vec4& operator*=(u32vec4& v, u32 s) {
 		v.x *= s;
 		v.y *= s;
 		v.z *= s;
@@ -1054,20 +1054,20 @@ namespace a3d::math {
 		return v;
 	}
 
-	uvec2& operator/=(uvec2& v, u32 s) {
+	u32vec2& operator/=(u32vec2& v, u32 s) {
 		v.x /= s;
 		v.y /= s;
 		return v;
 	}
 
-	uvec3& operator/=(uvec3& v, u32 s) {
+	u32vec3& operator/=(u32vec3& v, u32 s) {
 		v.x /= s;
 		v.y /= s;
 		v.z /= s;
 		return v;
 	}
 
-	uvec4& operator/=(uvec4& v, u32 s) {
+	u32vec4& operator/=(u32vec4& v, u32 s) {
 		v.x /= s;
 		v.y /= s;
 		v.z /= s;
@@ -1075,94 +1075,94 @@ namespace a3d::math {
 		return v;
 	}
 
-	bool operator==(const uvec2& a, const uvec2& b) {
+	bool operator==(const u32vec2& a, const u32vec2& b) {
 		return a.x == b.x && a.y == b.y;
 	}
 
-	bool operator==(const uvec3& a, const uvec3& b) {
+	bool operator==(const u32vec3& a, const u32vec3& b) {
 		return a.x == b.x && a.y == b.y && a.z == b.z;
 	}
 
-	bool operator==(const uvec4& a, const uvec4& b) {
+	bool operator==(const u32vec4& a, const u32vec4& b) {
 		return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
 	}
 
-	bool operator!=(const uvec2& a, const uvec2& b) {
+	bool operator!=(const u32vec2& a, const u32vec2& b) {
 		return !(a == b);
 	}
 
-	bool operator!=(const uvec3& a, const uvec3& b) {
+	bool operator!=(const u32vec3& a, const u32vec3& b) {
 		return !(a == b);
 	}
 
-	bool operator!=(const uvec4& a, const uvec4& b) {
+	bool operator!=(const u32vec4& a, const u32vec4& b) {
 		return !(a == b);
 	}
 
-	u32 dot(const uvec2 &a, const uvec2 &b) {
+	u32 dot(const u32vec2 &a, const u32vec2 &b) {
 		return a.x * b.x + a.y * b.y;
 	}
 
-	u32 dot(const uvec3 &a, const uvec3 &b) {
+	u32 dot(const u32vec3 &a, const u32vec3 &b) {
 		return a.x * b.x + a.y * b.y + a.z * b.z;
 	}
 
-	u32 dot(const uvec4 &a, const uvec4 &b) {
+	u32 dot(const u32vec4 &a, const u32vec4 &b) {
 		return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 	}
 
-	std::string to_string(const uvec2& v) {
+	std::string to_string(const u32vec2& v) {
 		std::ostringstream ss;
-		ss << "uvec2(" << v.x << ", " << v.y << ")";
+		ss << "u32vec2(" << v.x << ", " << v.y << ")";
 		return ss.str();
 	}
 
-	std::string to_string(const uvec3& v) {
+	std::string to_string(const u32vec3& v) {
 		std::ostringstream ss;
-		ss << "uvec3(" << v.x << ", " << v.y << ", " << v.z << ")";
+		ss << "u32vec3(" << v.x << ", " << v.y << ", " << v.z << ")";
 		return ss.str();
 	}
 
-	std::string to_string(const uvec4& v) {
+	std::string to_string(const u32vec4& v) {
 		std::ostringstream ss;
-		ss << "uvec4(" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")";
+		ss << "u32vec4(" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")";
 		return ss.str();
 	}
 
-	u32* value_ptr(uvec2 &v) {
+	u32* value_ptr(u32vec2 &v) {
 		return &v.x;
 	}
 
-	const u32* value_ptr(const uvec2 &v) {
+	const u32* value_ptr(const u32vec2 &v) {
 		return &v.x;
 	}
 
-	u32* value_ptr(uvec3 &v) {
+	u32* value_ptr(u32vec3 &v) {
 		return &v.x;
 	}
 
-	const u32* value_ptr(const uvec3 &v) {
+	const u32* value_ptr(const u32vec3 &v) {
 		return &v.x;
 	}
 
-	u32* value_ptr(uvec4 &v) {
+	u32* value_ptr(u32vec4 &v) {
 		return &v.x;
 	}
 
-	const u32* value_ptr(const uvec4 &v) {
+	const u32* value_ptr(const u32vec4 &v) {
 		return &v.x;
 	}
 
-	uvec2 make_uvec2(const u32* ptr) {
-		return uvec2{ ptr[0], ptr[1] };
+	u32vec2 make_vec2(const u32* ptr) {
+		return u32vec2{ ptr[0], ptr[1] };
 	}
 
-	uvec3 make_uvec3(const u32* ptr) {
-		return uvec3{ ptr[0], ptr[1], ptr[2] };
+	u32vec3 make_vec3(const u32* ptr) {
+		return u32vec3{ ptr[0], ptr[1], ptr[2] };
 	}
 
-	uvec4 make_uvec4(const u32* ptr) {
-		return uvec4{ ptr[0], ptr[1], ptr[2], ptr[3] };
+	u32vec4 make_vec4(const u32* ptr) {
+		return u32vec4{ ptr[0], ptr[1], ptr[2], ptr[3] };
 	}
 
 	/// Unsigned 8-bit Integer Vector ///
@@ -1401,15 +1401,15 @@ namespace a3d::math {
 		return &v.x;
 	}
 
-	u8vec2 make_u8vec2(const u8* ptr) {
+	u8vec2 make_vec2(const u8* ptr) {
 		return u8vec2{ ptr[0], ptr[1] };
 	}
 
-	u8vec3 make_u8vec3(const u8* ptr) {
+	u8vec3 make_vec3(const u8* ptr) {
 		return u8vec3{ ptr[0], ptr[1], ptr[2] };
 	}
 
-	u8vec4 make_u8vec4(const u8* ptr) {
+	u8vec4 make_vec4(const u8* ptr) {
 		return u8vec4{ ptr[0], ptr[1], ptr[2], ptr[3] };
 	}
 
@@ -1439,65 +1439,65 @@ namespace a3d::math {
 
 	/// 32-bit Float Matrix ///
 
-	mat2 identity2() {
-		return mat2(1.0f);
+	f32mat2 identity2() {
+		return f32mat2(1.0f);
 	}
 
-	mat3 identity3() {
-		return mat3(1.0f);
+	f32mat3 identity3() {
+		return f32mat3(1.0f);
 	}
 
-	mat4 identity4() {
-		return mat4(1.0f);
+	f32mat4 identity4() {
+		return f32mat4(1.0f);
 	}
 
-	mat2 zero2() {
-		return mat2(0.0f);
+	f32mat2 zero2() {
+		return f32mat2(0.0f);
 	}
 
-	mat3 zero3() {
-		return mat3(0.0f);
+	f32mat3 zero3() {
+		return f32mat3(0.0f);
 	}
 
-	mat4 zero4() {
-		return mat4(0.0f);
+	f32mat4 zero4() {
+		return f32mat4(0.0f);
 	}
 
-	vec2 operator*(const mat2 &m, const vec2 &v) {
+	vec2 operator*(const f32mat2 &m, const vec2 &v) {
 		return vec2{ m.c0.x * v.x + m.c1.x * v.y,
 					 m.c0.y * v.x + m.c1.y * v.y };
 	}
 
-	vec3 operator*(const mat3 &m, const vec3 &v) {
+	vec3 operator*(const f32mat3 &m, const vec3 &v) {
 		return vec3{ m.c0.x * v.x + m.c1.x * v.y + m.c2.x * v.z,
 					 m.c0.y * v.x + m.c1.y * v.y + m.c2.y * v.z,
 					 m.c0.z * v.x + m.c1.z * v.y + m.c2.z * v.z };
 	}
 
-	vec4 operator*(const mat4 &m, const vec4 &v) {
+	vec4 operator*(const f32mat4 &m, const vec4 &v) {
 		return vec4{ m.c0.x * v.x + m.c1.x * v.y + m.c2.x * v.z + m.c3.x * v.w,
 					 m.c0.y * v.x + m.c1.y * v.y + m.c2.y * v.z + m.c3.y * v.w,
 					 m.c0.z * v.x + m.c1.z * v.y + m.c2.z * v.z + m.c3.z * v.w,
 					 m.c0.w * v.x + m.c1.w * v.y + m.c2.w * v.z + m.c3.w * v.w };
 	}
 
-	mat2 operator*(const mat2 &a, const mat2 &b) {
-		mat2 r(0.0f);
+	f32mat2 operator*(const f32mat2 &a, const f32mat2 &b) {
+		f32mat2 r(0.0f);
 		r.c0 = a * b.c0;
 		r.c1 = a * b.c1;
 		return r;
 	}
 
-	mat3 operator*(const mat3 &a, const mat3 &b) {
-		mat3 r(0.0f);
+	f32mat3 operator*(const f32mat3 &a, const f32mat3 &b) {
+		f32mat3 r(0.0f);
 		r.c0 = a * b.c0;
 		r.c1 = a * b.c1;
 		r.c2 = a * b.c2;
 		return r;
 	}
 
-	mat4 operator*(const mat4 &a, const mat4 &b) {
-		mat4 r(0.0f);
+	f32mat4 operator*(const f32mat4 &a, const f32mat4 &b) {
+		f32mat4 r(0.0f);
 		r.c0 = a * b.c0;
 		r.c1 = a * b.c1;
 		r.c2 = a * b.c2;
@@ -1505,68 +1505,68 @@ namespace a3d::math {
 		return r;
 	}
 
-	mat2& operator*=(mat2& a, const mat2& b) {
+	f32mat2& operator*=(f32mat2& a, const f32mat2& b) {
 		a = a * b;
 		return a;
 	}
 
-	mat3& operator*=(mat3& a, const mat3& b) {
+	f32mat3& operator*=(f32mat3& a, const f32mat3& b) {
 		a = a * b;
 		return a;
 	}
 
-	mat4& operator*=(mat4& a, const mat4& b) {
+	f32mat4& operator*=(f32mat4& a, const f32mat4& b) {
 		a = a * b;
 		return a;
 	}
 
-	bool operator==(const mat2& a, const mat2& b) {
+	bool operator==(const f32mat2& a, const f32mat2& b) {
 		return a.c0 == b.c0 &&
 			   a.c1 == b.c1;
 	}
 
-	bool operator==(const mat3& a, const mat3& b) {
+	bool operator==(const f32mat3& a, const f32mat3& b) {
 		return a.c0 == b.c0 &&
 			   a.c1 == b.c1 &&
 			   a.c2 == b.c2;
 	}
 
-	bool operator==(const mat4& a, const mat4& b) {
+	bool operator==(const f32mat4& a, const f32mat4& b) {
 		return a.c0 == b.c0 &&
 			   a.c1 == b.c1 &&
 			   a.c2 == b.c2 &&
 			   a.c3 == b.c3;
 	}
 
-	bool operator!=(const mat2& a, const mat2& b) {
+	bool operator!=(const f32mat2& a, const f32mat2& b) {
 		return !(a == b);
 	}
 
-	bool operator!=(const mat3& a, const mat3& b) {
+	bool operator!=(const f32mat3& a, const f32mat3& b) {
 		return !(a == b);
 	}
 
-	bool operator!=(const mat4& a, const mat4& b) {
+	bool operator!=(const f32mat4& a, const f32mat4& b) {
 		return !(a == b);
 	}
 
-	mat2 transpose(const mat2 &m) {
-		mat2 r;
+	f32mat2 transpose(const f32mat2 &m) {
+		f32mat2 r;
 		r.c0 = vec2{m.c0.x, m.c1.x};
 		r.c1 = vec2{m.c0.y, m.c1.y};
 		return r;
 	}
 
-	mat3 transpose(const mat3 &m) {
-		mat3 r;
+	f32mat3 transpose(const f32mat3 &m) {
+		f32mat3 r;
 		r.c0 = vec3{m.c0.x, m.c1.x, m.c2.x};
 		r.c1 = vec3{m.c0.y, m.c1.y, m.c2.y};
 		r.c2 = vec3{m.c0.z, m.c1.z, m.c2.z};
 		return r;
 	}
 
-	mat4 transpose(const mat4 &m) {
-		mat4 r;
+	f32mat4 transpose(const f32mat4 &m) {
+		f32mat4 r;
 		r.c0 = vec4{m.c0.x, m.c1.x, m.c2.x, m.c3.x};
 		r.c1 = vec4{m.c0.y, m.c1.y, m.c2.y, m.c3.y};
 		r.c2 = vec4{m.c0.z, m.c1.z, m.c2.z, m.c3.z};
@@ -1574,17 +1574,17 @@ namespace a3d::math {
 		return r;
 	}
 
-	f32 determinant(const mat2& m) {
+	f32 determinant(const f32mat2& m) {
 		return m[0][0] * m[1][1] - m[1][0] * m[0][1];;
 	}
 
-	f32 determinant(const mat3& m) {
+	f32 determinant(const f32mat3& m) {
 		return + m[0][0] * (m[1][1] * m[2][2] - m[2][1] * m[1][2])
 			   - m[1][0] * (m[0][1] * m[2][2] - m[2][1] * m[0][2])
 			   + m[2][0] * (m[0][1] * m[1][2] - m[1][1] * m[0][2]);
 	}
 
-	f32 determinant(const mat4& m) {
+	f32 determinant(const f32mat4& m) {
 		f32 subFactor00 = m[2][2] * m[3][3] - m[3][2] * m[2][3];
 		f32 subFactor01 = m[2][1] * m[3][3] - m[3][1] * m[2][3];
 		f32 subFactor02 = m[2][1] * m[3][2] - m[3][1] * m[2][2];
@@ -1601,7 +1601,7 @@ namespace a3d::math {
 			   m[0][2] * detCof[2] + m[0][3] * detCof[3];
 	}
 
-	mat2 inverse(const mat2 &m) {
+	f32mat2 inverse(const f32mat2 &m) {
 		f32 a = m.c0.x, c = m.c0.y;
 		f32 b = m.c1.x, d = m.c1.y;
 
@@ -1609,13 +1609,13 @@ namespace a3d::math {
 		assert(det != 0.0f);
 		f32 invDet = 1.0f / det;
 
-		mat2 r;
+		f32mat2 r;
 		r.c0 = vec2{d * invDet, -c * invDet};
 		r.c1 = vec2{-b * invDet, a * invDet};
 		return r;
 	}
 
-	mat3 inverse(const mat3 &m) {
+	f32mat3 inverse(const f32mat3 &m) {
 		f32 m00 = m.c0.x, m01 = m.c1.x, m02 = m.c2.x;
 		f32 m10 = m.c0.y, m11 = m.c1.y, m12 = m.c2.y;
 		f32 m20 = m.c0.z, m21 = m.c1.z, m22 = m.c2.z;
@@ -1636,14 +1636,14 @@ namespace a3d::math {
 		assert(det != 0.0f);
 		f32 invDet = 1.0f / det;
 
-		mat3 r;
+		f32mat3 r;
 		r.c0 = vec3{inv00 * invDet, inv10 * invDet, inv20 * invDet};
 		r.c1 = vec3{inv01 * invDet, inv11 * invDet, inv21 * invDet};
 		r.c2 = vec3{inv02 * invDet, inv12 * invDet, inv22 * invDet};
 		return r;
 	}
 
-	mat4 inverse(const mat4 &m) {
+	f32mat4 inverse(const f32mat4 &m) {
 		// row-major copy of m
 		f32 a[4][4] = { {m.c0.x, m.c1.x, m.c2.x, m.c3.x}, // row 0
 						{m.c0.y, m.c1.y, m.c2.y, m.c3.y}, // row 1
@@ -1669,8 +1669,8 @@ namespace a3d::math {
 			}
 
 			const f32 eps = 1e-8f;
-			assert(max_abs > eps && "mat4 inverse: matrix is singular or ill-conditioned");
-			// or return mat4(1.0f);
+			assert(max_abs > eps && "f32mat4 inverse: f32matrix is singular or ill-conditioned");
+			// or return f32mat4(1.0f);
 
 			// swap rows in both 'a' and 'inv'
 			if (pivot_row != col) {
@@ -1699,8 +1699,8 @@ namespace a3d::math {
 			}
 		}
 
-		// 'inv' is now row-major inverse; convert back to column-major mat4
-		mat4 r(0.0);
+		// 'inv' is now row-major inverse; convert back to column-major f32mat4
+		f32mat4 r(0.0);
 		r.c0 = vec4{inv[0][0], inv[1][0], inv[2][0], inv[3][0]};
 		r.c1 = vec4{inv[0][1], inv[1][1], inv[2][1], inv[3][1]};
 		r.c2 = vec4{inv[0][2], inv[1][2], inv[2][2], inv[3][2]};
@@ -1708,13 +1708,13 @@ namespace a3d::math {
 		return r;
 	}
 
-	mat4 translate(const mat4& m, const vec3& v) {
-		mat4 result(m);
+	f32mat4 translate(const f32mat4& m, const vec3& v) {
+		f32mat4 result(m);
 		result[3] = m[0] * v[0] + m[1] * v[1] + m[2] * v[2] + m[3];
 		return result;
 	}
 
-	mat4 rotate(const mat4& m, f32 angle, const vec3& v) {
+	f32mat4 rotate(const f32mat4& m, f32 angle, const vec3& v) {
 		const f32 a = angle;
 		const f32 c = cos(a);
 		const f32 s = sin(a);
@@ -1722,7 +1722,7 @@ namespace a3d::math {
 		vec3 axis(normalize(v));
 		vec3 temp((f32(1) - c) * axis);
 
-		mat4 rotate;
+		f32mat4 rotate;
 		rotate[0][0] = c + temp[0] * axis[0];
 		rotate[0][1] = temp[0] * axis[1] + s * axis[2];
 		rotate[0][2] = temp[0] * axis[2] - s * axis[1];
@@ -1735,7 +1735,7 @@ namespace a3d::math {
 		rotate[2][1] = temp[2] * axis[1] - s * axis[0];
 		rotate[2][2] = c + temp[2] * axis[2];
 
-		mat4 result;
+		f32mat4 result;
 		result[0] = m[0] * rotate[0][0] + m[1] * rotate[0][1] + m[2] * rotate[0][2];
 		result[1] = m[0] * rotate[1][0] + m[1] * rotate[1][1] + m[2] * rotate[1][2];
 		result[2] = m[0] * rotate[2][0] + m[1] * rotate[2][1] + m[2] * rotate[2][2];
@@ -1743,8 +1743,8 @@ namespace a3d::math {
 		return result;
 	}
 
-	mat4 scale(const mat4& m, const vec3& v){
-		mat4 result;
+	f32mat4 scale(const f32mat4& m, const vec3& v){
+		f32mat4 result;
 		result[0] = m[0] * v[0];
 		result[1] = m[1] * v[1];
 		result[2] = m[2] * v[2];
@@ -1752,30 +1752,30 @@ namespace a3d::math {
 		return result;
 	}
 
-	mat4 scale(const mat4& m, f32 s) {
+	f32mat4 scale(const f32mat4& m, f32 s) {
 		return scale(m, vec3{s, s, s});
 	}
 
-	std::string to_string(const mat2& m) {
+	std::string to_string(const f32mat2& m) {
 		std::ostringstream ss;
-		ss << "mat2("
+		ss << "f32mat2("
 		   << "c0=(" << m.c0.x << ", " << m.c0.y << "), "
 		   << "c1=(" << m.c1.x << ", " << m.c1.y << "))";
 		return ss.str();
 	}
 
-	std::string to_string(const mat3& m) {
+	std::string to_string(const f32mat3& m) {
 		std::ostringstream ss;
-		ss << "mat3("
+		ss << "f32mat3("
 		   << "c0=(" << m.c0.x << ", " << m.c0.y << ", " << m.c0.z << "), "
 		   << "c1=(" << m.c1.x << ", " << m.c1.y << ", " << m.c1.z << "), "
 		   << "c2=(" << m.c2.x << ", " << m.c2.y << ", " << m.c2.z << "))";
 		return ss.str();
 	}
 
-	std::string to_string(const mat4& m) {
+	std::string to_string(const f32mat4& m) {
 		std::ostringstream ss;
-		ss << "mat4("
+		ss << "f32mat4("
 		   << "c0=(" << m.c0.x << ", " << m.c0.y << ", " << m.c0.z << ", " << m.c0.w << "), "
 		   << "c1=(" << m.c1.x << ", " << m.c1.y << ", " << m.c1.z << ", " << m.c1.w << "), "
 		   << "c2=(" << m.c2.x << ", " << m.c2.y << ", " << m.c2.z << ", " << m.c2.w << "), "
@@ -1783,47 +1783,47 @@ namespace a3d::math {
 		return ss.str();
 	}
 
-	f32* value_ptr(mat2 &m) {
+	f32* value_ptr(f32mat2 &m) {
 		return &m.c0.x;
 	}
 
-	const f32* value_ptr(const mat2 &m) {
+	const f32* value_ptr(const f32mat2 &m) {
 		return &m.c0.x;
 	}
 
-	f32* value_ptr(mat3 &m) {
+	f32* value_ptr(f32mat3 &m) {
 		return &m.c0.x;
 	}
 
-	const f32* value_ptr(const mat3 &m) {
+	const f32* value_ptr(const f32mat3 &m) {
 		return &m.c0.x;
 	}
 
-	f32* value_ptr(mat4 &m) {
+	f32* value_ptr(f32mat4 &m) {
 		return &m.c0.x;
 	}
 
-	const f32* value_ptr(const mat4 &m) {
+	const f32* value_ptr(const f32mat4 &m) {
 		return &m.c0.x;
 	}
 
-	mat2 make_mat2(const f32* ptr) {
-		mat2 m;
+	f32mat2 make_mat2(const f32* ptr) {
+		f32mat2 m;
 		m.c0 = vec2{ ptr[0], ptr[1] };
 		m.c1 = vec2{ ptr[2], ptr[3] };
 		return m;
 	}
 
-	mat3 make_mat3(const f32* ptr) {
-		mat3 m;
+	f32mat3 make_mat3(const f32* ptr) {
+		f32mat3 m;
 		m.c0 = vec3{ ptr[0], ptr[1], ptr[2] };
 		m.c1 = vec3{ ptr[3], ptr[4], ptr[5] };
 		m.c2 = vec3{ ptr[6], ptr[7], ptr[8] };
 		return m;
 	}
 
-	mat4 make_mat4(const f32* ptr) {
-		mat4 m;
+	f32mat4 make_mat4(const f32* ptr) {
+		f32mat4 m;
 		m.c0 = vec4{ ptr[0],  ptr[1],  ptr[2],  ptr[3]  };
 		m.c1 = vec4{ ptr[4],  ptr[5],  ptr[6],  ptr[7]  };
 		m.c2 = vec4{ ptr[8],  ptr[9],  ptr[10], ptr[11] };
@@ -1833,23 +1833,23 @@ namespace a3d::math {
 
 	/// 32-bit Float Quaternion ///
 
-	quat identity_quat() {
-		return quat{1.0f, 0.0f, 0.0f, 0.0f};
+	f32quat identity_quat() {
+		return f32quat{1.0f, 0.0f, 0.0f, 0.0f};
 	}
 
-	quat operator+(const quat &a, const quat &b) {
-		return quat{a.w + b.w, a.x + b.x, a.y + b.y, a.z + b.z};
+	f32quat operator+(const f32quat &a, const f32quat &b) {
+		return f32quat{a.w + b.w, a.x + b.x, a.y + b.y, a.z + b.z};
 	}
 
-	quat operator*(const quat &q, f32 s) {
-		return quat{q.w * s, q.x * s, q.y * s, q.z * s};
+	f32quat operator*(const f32quat &q, f32 s) {
+		return f32quat{q.w * s, q.x * s, q.y * s, q.z * s};
 	}
 
-	quat operator*(f32 s, const quat &q) {
+	f32quat operator*(f32 s, const f32quat &q) {
 		return q * s;
 	}
 
-	quat& operator+=(quat& a, const quat& b) {
+	f32quat& operator+=(f32quat& a, const f32quat& b) {
 		a.w += b.w;
 		a.x += b.x;
 		a.y += b.y;
@@ -1857,7 +1857,7 @@ namespace a3d::math {
 		return a;
 	}
 
-	quat& operator*=(quat& q, f32 s) {
+	f32quat& operator*=(f32quat& q, f32 s) {
 		q.w *= s;
 		q.x *= s;
 		q.y *= s;
@@ -1865,31 +1865,31 @@ namespace a3d::math {
 		return q;
 	}
 
-	quat& operator*=(quat& a, const quat& b) {
+	f32quat& operator*=(f32quat& a, const f32quat& b) {
 		a = a * b; // use your Hamilton product
 		return a;
 	}
 
-	bool operator==(const quat& a, const quat& b) {
+	bool operator==(const f32quat& a, const f32quat& b) {
 		return a.w == b.w &&
 			   a.x == b.x &&
 			   a.y == b.y &&
 			   a.z == b.z;
 	}
 
-	bool operator!=(const quat& a, const quat& b) {
+	bool operator!=(const f32quat& a, const f32quat& b) {
 		return !(a == b);
 	}
 
 	// convention: result = a * b applies b first, then a (GLM-style)
-	quat operator*(const quat &a, const quat &b) {
-		return quat{ a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z,
-					 a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,
-					 a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x,
-					 a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w };
+	f32quat operator*(const f32quat &a, const f32quat &b) {
+		return f32quat{ a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z,
+						a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,
+						a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x,
+						a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w };
 	}
 
-	vec3 rotate(const quat &q, const vec3 &v) {
+	vec3 rotate(const f32quat &q, const vec3 &v) {
 		// using the "u, s" form: q = (s, u)
 		vec3 u{q.x, q.y, q.z};
 		f32 s = q.w;
@@ -1922,52 +1922,52 @@ namespace a3d::math {
 					 term1.z + term2.z + term3.z };
 	}
 
-	vec3 operator*(const quat &q, const vec3 &v) {
+	vec3 operator*(const f32quat &q, const vec3 &v) {
 		return rotate(q, v);
 	}
 
-	f32 dot(const quat &a, const quat &b) {
+	f32 dot(const f32quat &a, const f32quat &b) {
 		return a.w * b.w + a.x * b.x + a.y * b.y + a.z * b.z;
 	}
 
-	f32 length(const quat &q) {
+	f32 length(const f32quat &q) {
 		return std::sqrt(dot(q, q));
 	}
 
-	quat normalize(const quat &q) {
+	f32quat normalize(const f32quat &q) {
 		f32 len = length(q);
 		const f32 eps = 1e-6f;
 		if (len < eps) {
-			// zero or near-zero quaternion: treat as identity
-			return identity_quat();
+			// zero or near-zero f32quaternion: treat as identity
+			return quat(1.0f);
 		}
 		f32 inv = 1.0f / len;
-		return quat{ q.w * inv, q.x * inv, q.y * inv, q.z * inv };
+		return f32quat{ q.w * inv, q.x * inv, q.y * inv, q.z * inv };
 	}
 
 
-	quat conjugate(const quat &q) {
-		return quat{q.w, -q.x, -q.y, -q.z};
+	f32quat conjugate(const f32quat &q) {
+		return f32quat{q.w, -q.x, -q.y, -q.z};
 	}
 
-	quat inverse(const quat &q) {
+	f32quat inverse(const f32quat &q) {
 		f32 n2 = dot(q, q);
 		const f32 eps = 1e-6f;
 		if (n2 < eps) {
-			// effectively zero-length quat, can't invert sensibly
-			return identity_quat();
+			// effectively zero-length f32quat, can't invert sensibly
+			return quat(1.0f);
 		}
 		f32 inv_n2 = 1.0f / n2;
-		quat c = conjugate(q);
-		return quat{ c.w * inv_n2, c.x * inv_n2, c.y * inv_n2, c.z * inv_n2 };
+		f32quat c = conjugate(q);
+		return f32quat{ c.w * inv_n2, c.x * inv_n2, c.y * inv_n2, c.z * inv_n2 };
 	}
 
-	quat quaternion(const vec3& axis, f32 angle) {
+	f32quat quaternion(const vec3& axis, f32 angle) {
 		// normalize axis to be safe
 		f32 len = math::sqrt(axis.x * axis.x + axis.y * axis.y + axis.z * axis.z);
 		const f32 eps = 1e-6f;
 		if (len < eps) {
-			return identity_quat();
+			return quat(1.0f);
 		}
 		f32 inv_len = 1.0f / len;
 		f32 half = 0.5f * angle;
@@ -1978,11 +1978,11 @@ namespace a3d::math {
 				axis.y * inv_len,
 				axis.z * inv_len };
 
-		return quat{c, n.x * s, n.y * s, n.z * s};
+		return f32quat{c, n.x * s, n.y * s, n.z * s};
 	}
 
-	vec4 axis_angle(const quat& q_) {
-		quat q = normalize(q_);
+	vec4 axis_angle(const f32quat& q_) {
+		f32quat q = normalize(q_);
 
 		const f32 eps = 1e-6f;
 
@@ -2002,28 +2002,28 @@ namespace a3d::math {
 		return vec4{ axis.x, axis.y, axis.z, angle };
 	}
 
-	// convert pitch/yaw/roll to quaternion, Y–X–Z order
+	// convert pitch/yaw/roll to f32quaternion, Y–X–Z order
 	// pitch: rotation about +X
 	// yaw:   rotation about +Y
 	// roll:  rotation about +Z
-	quat quaternion(const vec3& eulerAngles) {
+	f32quat quaternion(const vec3& eulerAngles) {
 
 		// local axis unit vectors
 		vec3 axisX{1.0f, 0.0f, 0.0f};
 		vec3 axisY{0.0f, 1.0f, 0.0f};
 		vec3 axisZ{0.0f, 0.0f, 1.0f};
 
-		quat qPitch = quaternion(axisX, eulerAngles.pitch);
-		quat qYaw   = quaternion(axisY, eulerAngles.yaw);
-		quat qRoll  = quaternion(axisZ, eulerAngles.roll);
+		f32quat qPitch = quaternion(axisX, eulerAngles.pitch);
+		f32quat qYaw   = quaternion(axisY, eulerAngles.yaw);
+		f32quat qRoll  = quaternion(axisZ, eulerAngles.roll);
 
 		// rpply roll, then pitch, then yaw:
 		// R = Ry * Rx * Rz  => q = qYaw * qPitch * qRoll
-		quat q = qYaw * qPitch * qRoll;
+		f32quat q = qYaw * qPitch * qRoll;
 		return normalize(q);
 	}
 
-	vec3 euler_angles(const quat& q) {
+	vec3 euler_angles(const f32quat& q) {
 
 		mat3 m = mat3_cast(q);
 
@@ -2057,26 +2057,26 @@ namespace a3d::math {
 		return angles;
 	}
 
-	quat slerp(const quat &a, const quat &b, f32 t) {
+	f32quat slerp(const f32quat &a, const f32quat &b, f32 t) {
 		// clamp t just in case
 		if (t <= 0.0f) return a;
 		if (t >= 1.0f) return b;
 
-		quat q1 = normalize(a);
-		quat q2 = normalize(b);
+		f32quat q1 = normalize(a);
+		f32quat q2 = normalize(b);
 
 		f32 cosTheta = dot(q1, q2);
 
 		// use shortest path
 		if (cosTheta < 0.0f) {
-			q2 = quat{-q2.w, -q2.x, -q2.y, -q2.z};
+			q2 = f32quat{-q2.w, -q2.x, -q2.y, -q2.z};
 			cosTheta = -cosTheta;
 		}
 
 		// if very close, fall back to lerp
 		const f32 eps = 1e-6f;
 		if (cosTheta > 1.0f - eps) {
-			quat result = (1.0f - t) * q1 + t * q2;
+			f32quat result = (1.0f - t) * q1 + t * q2;
 			return normalize(result);
 		}
 
@@ -2086,11 +2086,11 @@ namespace a3d::math {
 		f32 w1 = std::sin((1.0f - t) * theta) / sinTheta;
 		f32 w2 = std::sin(t * theta) / sinTheta;
 
-		quat result = q1 * w1 + q2 * w2;
+		f32quat result = q1 * w1 + q2 * w2;
 		return normalize(result);
 	}
 
-	mat3 mat3_cast(quat const &q) {
+	mat3 mat3_cast(f32quat const &q) {
 		f32 qxx(q.x * q.x);
 		f32 qyy(q.y * q.y);
 		f32 qzz(q.z * q.z);
@@ -2114,26 +2114,26 @@ namespace a3d::math {
 		return r;
 	}
 
-	mat4 mat4_cast(quat const &q) {
+	mat4 mat4_cast(f32quat const &q) {
 		return mat4(mat3_cast(q));
 	}
 
-	std::string to_string(const quat& q) {
+	std::string to_string(const f32quat& q) {
 		std::ostringstream ss;
-		ss << "quat(" << q.w << ", " << q.x << ", " << q.y << ", " << q.z << ")";
+		ss << "f32quat(" << q.w << ", " << q.x << ", " << q.y << ", " << q.z << ")";
 		return ss.str();
 	}
 
-	f32* value_ptr(quat &q) {
+	f32* value_ptr(f32quat &q) {
 		return &q.w;
 	}
 
-	const f32* value_ptr(const quat &q) {
+	const f32* value_ptr(const f32quat &q) {
 		return &q.w;
 	}
 
-	quat make_quat(const f32* ptr) {
-		return quat{ ptr[0], ptr[1], ptr[2], ptr[3] };
+	f32quat make_quat(const f32* ptr) {
+		return f32quat{ ptr[0], ptr[1], ptr[2], ptr[3] };
 	}
 
 	/// 32-bit Float Trig ///
