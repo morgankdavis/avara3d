@@ -239,13 +239,17 @@ static void 		UpdateImguiScale(const RenderContext& context,
 static void 		AddImguiFont(const RenderContext& context, const Font& font, float size);
 void 				DigUpdateGlobalFontScale(const RenderContext& context);
 void 				DigEndWindow();
+//void 				DigDrawText(float x,
+//								float y,
+//								const char* text,
+//								int font,
+//								float xOffset,
+//								float yOffset,
+//								int id);
 void 				DigDrawText(float x,
 								float y,
 								const char* text,
-								int font,
-								float xOffset,
-								float yOffset,
-								int id);
+								int font);
 void 				DigDrawPlot(float x, float y, float w, float h,
 								const float* values,
 								int valuesCount,
@@ -2446,7 +2450,6 @@ void AddImguiFont(const RenderContext& context, const Font& font, float size) {
 }
 
 void DigUpdateGlobalFontScale(const RenderContext& context) {
-
 #ifdef WINDOWS
 	auto scaleXY = context.framebufferScale();
 	auto scale = std::max(scaleXY.x, scaleXY.y);
@@ -2473,25 +2476,33 @@ void DigBeginWindow(float x,
 	windowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
 
 	SetNextWindowBgAlpha(0);
-	Begin(to_string(id).c_str(), nullptr, windowFlags);
-	ImGuiStyle &style = GetStyle();
+	SetNextWindowPos({x, y}, ImGuiCond_Always);
+
+	Begin((string("Win##") + to_string(id)).c_str(), nullptr, windowFlags);
+
+	ImGuiStyle& style = GetStyle();
 	style.WindowBorderSize = 0;
-	SetWindowPos({x, y});
+	//SetWindowPos({x, y});
+
+//	PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+//	PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 }
 
 void DigEndWindow() {
-
-	using namespace ImGui;
-	End();
+//	ImGui::PopStyleVar(2);
+	ImGui::End();
 }
 
-void DigDrawText(float x,
-				 float y,
-				 const char* text,
-				 int font,
-				 float xOffset,
-				 float yOffset,
-				 int id) {
+// *** TEMPORARY ***
+void 				DigDrawText(float x,
+								float y,
+								const char* text,
+								int font,
+								float xOffset,
+								float yOffset,
+								int id) {
+	DigDrawText(x, y, text, font);
+	return;
 
 	using namespace ImGui;
 
@@ -2502,7 +2513,7 @@ void DigDrawText(float x,
 	PushFont(fonts[font]);
 
 	DigBeginWindow(x+1, y+1, id);
-	TextColored({0, 0, 0, .5}, "%s", text);
+	TextColored({0, 0, 0, 1}, "%s", text);
 	DigEndWindow();
 
 	DigBeginWindow(x, y, id+1000);
@@ -2511,6 +2522,48 @@ void DigDrawText(float x,
 
 	PopFont();
 }
+
+void DigDrawText(float x,
+				 float y,
+				 const char* text,
+				 int font) {
+
+	using namespace ImGui;
+
+	ImGuiIO& io = GetIO();
+	ImFont* f = io.Fonts->Fonts[font];
+	ImDrawList* dl = GetForegroundDrawList();
+
+	dl->AddText(f, f->FontSize, ImVec2(x+1, y+1), IM_COL32(0,0,0,255), text); // 200
+	dl->AddText(f, f->FontSize, ImVec2(x,   y),   IM_COL32(255,255,255,255), text);
+}
+
+//void DigDrawText(float x,
+//				 float y,
+//				 const char* text,
+//				 int font,
+//				 float xOffset,
+//				 float yOffset,
+//				 int id) {
+//
+//	using namespace ImGui;
+//
+//	static ImGuiIO &io = GetIO();
+//	static auto fonts = io.Fonts->Fonts;
+//	static const ImVec4 textColor {1, 1, 1, 1};
+//
+//	PushFont(fonts[font]);
+//
+//	DigBeginWindow(x+1, y+1, id);
+//	TextColored({0, 0, 0, .5}, "%s", text);
+//	DigEndWindow();
+//
+//	DigBeginWindow(x, y, id+1000);
+//	TextColored(textColor, "%s", text);
+//	DigEndWindow();
+//
+//	PopFont();
+//}
 
 void DigDrawPlot(float x, float y, float w, float h,
 				 const float* values,
@@ -2526,7 +2579,7 @@ void DigDrawPlot(float x, float y, float w, float h,
 	using namespace ImGui;
 
 	static const ImVec4 bg(0, 0, 0, 0);
-	static const ImVec4 shadow(0.0, 0.0, 0.0, 0.5);
+	static const ImVec4 shadow(0.0, 0.0, 0.0, 1.0);
 	static const ImVec4 white(1.0, 1.0, 1.0, 1.0);
 	static const ImVec4 milk(1.0, 1.0, 1.0, 0.5);
 
@@ -2581,7 +2634,7 @@ bool DigDrawCheckbox(float x,
 	using namespace ImGui;
 
 	static const ImVec4 transparent(0, 0, 0, 0);
-	static const ImVec4 shadow(0.0, 0.0, 0.0, 0.5);
+	static const ImVec4 shadow(0.0, 0.0, 0.0, 1.0);
 	static const ImVec4 checkbg1(0.25, 0.25, 0.25, 0.5);
 	static const ImVec4 checkbg2(0.5, 0.5, 0.5, 0.5);
 	static const ImVec4 white(1.0, 1.0, 1.0, 1.0);
@@ -2622,16 +2675,6 @@ void DrawDebugOptions(Scene& scene, const RenderContext& context) {
 
 	using namespace ImGui;
 
-	// TODO: refactor
-#ifdef WINDOWS
-	auto scaleXY = context.framebufferScale();
-	auto scale = std::max(scaleXY.x, scaleXY.y);
-	// this is probably going to need more attention when we start
-	// using Imgui for more than just rendering text
-	//GetStyle().ScaleAllSizes(scale);
-	GetIO().FontGlobalScale = scale;
-#endif
-
 	ImGuiIO& io = GetIO();
 
 	const float WIN_WIDTH = 180;
@@ -2644,49 +2687,49 @@ void DrawDebugOptions(Scene& scene, const RenderContext& context) {
 
 	yPos = 3.0;
 	static bool stats = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay);
-	if (DigDrawCheckbox(xPos, yPos, "Stats", stats, 1, ++id)) {
+	if (DigDrawCheckbox(xPos, yPos, "stats", stats, 1, ++id)) {
 		if (stats) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowStatsOverlay));
 		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowStatsOverlay));
 	}
 
 	yPos += Y_PAD;
 	bool meshWF = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes);
-	if (DigDrawCheckbox(xPos, yPos, "Mesh wireframes", meshWF, 1, ++id)) {
+	if (DigDrawCheckbox(xPos, yPos, "mesh wireframes", meshWF, 1, ++id)) {
 		if (meshWF) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowWireframes));
 		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowWireframes));
 	}
 
 	yPos += Y_PAD;
 	bool meshAABBs = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes);
-	if (DigDrawCheckbox(xPos, yPos, "Mesh AABBs", meshAABBs, 1, ++id)) {
+	if (DigDrawCheckbox(xPos, yPos, "mesh AABBs", meshAABBs, 1, ++id)) {
 		if (meshAABBs) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowBoundingBoxes));
 		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowBoundingBoxes));
 	}
 
 	yPos += Y_PAD;
 	bool physWF = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes);
-	if (DigDrawCheckbox(xPos, yPos, "Physics wireframes", physWF, 1, ++id)) {
+	if (DigDrawCheckbox(xPos, yPos, "physics wireframes", physWF, 1, ++id)) {
 		if (physWF) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsWireframes));
 		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsWireframes));
 	}
 
 	yPos += Y_PAD;
 	bool physAABBs = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes);
-	if (DigDrawCheckbox(xPos, yPos, "Physics AABBs", physAABBs, 1, ++id)) {
+	if (DigDrawCheckbox(xPos, yPos, "physics AABBs", physAABBs, 1, ++id)) {
 		if (physAABBs) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
 		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
 	}
 
 	yPos += Y_PAD;
 	bool physContacts = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints);
-	if (DigDrawCheckbox(xPos, yPos, "Physics contacts", physContacts, 1, ++id)) {
+	if (DigDrawCheckbox(xPos, yPos, "physics contacts", physContacts, 1, ++id)) {
 		if (physContacts) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsContactPoints));
 		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsContactPoints));
 	}
 
 	yPos += Y_PAD;
 	bool physNorms = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsNormals);
-	if (DigDrawCheckbox(xPos, yPos, "Physics normals", physNorms, 1, ++id)) {
+	if (DigDrawCheckbox(xPos, yPos, "Pphysics normals", physNorms, 1, ++id)) {
 		if (physNorms) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsNormals));
 		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsNormals));
 	}
@@ -2703,7 +2746,7 @@ void DrawStatsOverlay(FrameStats& stats,
 	float yPos = 0;
 	int id = 0;
 
-	ImGuiIO &io = GetIO();
+	ImGuiIO& io = GetIO();
 	auto fonts = io.Fonts->Fonts;
 
 	yPos += 0;
