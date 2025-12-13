@@ -234,7 +234,7 @@ static void 		DeleteLinesGLResources(const vector<Line>& lines,
 static vector<Node*>SortedLights(map<Node*, float> lights);
 static void			InitImgui(const RenderContext& context);
 static void 		UpdateImguiScale(const RenderContext& context,
-									 const Font& overLayFont,
+									 const Font& titleFont,
 									const Font& bodyFont);
 static void 		AddImguiFont(const RenderContext& context, const Font& font, float size);
 void 				DigUpdateGlobalFontScale(const RenderContext& context);
@@ -1605,280 +1605,11 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 
 	memcpy(&environmentStruct.fog, &fogStruct, sizeof(fogStruct));
 
-
-
 	// send 'em
 
 	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(EnvironmentBlock), &environmentStruct, GL_DYNAMIC_DRAW);
-
-
-
-//	 int programID = Program::Default().glID();
-
-
-
-
-
-
-//	const char* names[16] = {
-//			"EnvironmentBlock.color",
-//			"EnvironmentBlock.numAmbientLights",
-//			"EnvironmentBlock.ambientLights[0].color",
-//			"EnvironmentBlock.numDirectionalLights",
-//			"EnvironmentBlock.directionalLights[0].color",
-//			"EnvironmentBlock.numPointLights",
-//			"EnvironmentBlock.pointLights[0].color",
-//			"EnvironmentBlock.pointLights[0].position_world",
-//			"EnvironmentBlock.pointLights[0].constantAttenuation",
-//			"EnvironmentBlock.pointLights[0].linearAttenuation",
-//			"EnvironmentBlock.pointLights[0].quadraticAttenuation",
-//			"EnvironmentBlock.numSpotLights",
-//			"EnvironmentBlock.spotLights[0].color",
-//			"EnvironmentBlock.fog.color",
-//			"EnvironmentBlock.fog.startDistance",
-//			"EnvironmentBlock.fog.endDistance",
-////			"EnvironmentBlock.fog.densityExponent"
-//	};
-//	GLuint indices[16]; for (int i = 0; i < 16; ++i) indices[i] = 0;
-//	GLint offsets[16]; for (int i = 0; i < 16; ++i) offsets[i] = 0;
-//
-//	glGetUniformIndices(programID, 16, names, indices);
-//	glGetActiveUniformsiv(programID, 16, indices, GL_UNIFORM_OFFSET, offsets);
-//
-////	for (int i = 0; i < 16; i++) {
-////		A3D_LOG_D("Uniform index for {}: {}",
-////				  names[i], indices[i] == GL_INVALID_INDEX ? "BAD" : "GOOD");
-////	}
-//
-////	environmentStruct.ambientLights[0].color = rgba(1.0, 0, 0, 1);
-////	glBufferSubData(GL_UNIFORM_BUFFER, offsets[1], sizeof(rgba),
-////					(const void*)&environmentStruct.ambientLights[0].color);
-//
-//	environmentStruct.color = vec3(1.0, 0, 0);
-//	glBufferSubData(GL_UNIFORM_BUFFER, offsets[0], sizeof(vec3),
-//					(const void*)&environmentStruct.color);
-
-
-
-
-	//environmentStruct.color = vec3(1.0, 0, 0);
-
-	//Program::Default().bindUniformBlock("EnvironmentBlock", glEnvironmentUBO);
-
-//	environmentStruct.fog.color = vec4(1.0, 0.0, 0.0, 1.0);
-//	glBufferSubData(GL_UNIFORM_BUFFER, offsets[1], sizeof(vec4),
-//					(const void*)&environmentStruct.ambientLights[0].color);
-
-
-
-
-
-//	glBufferSubData(GL_UNIFORM_BUFFER, offsets[0], sizeof(uint32_t),
-//					(const void*)0);
-////	glBufferSubData(GL_UNIFORM_BUFFER, offsets[0], sizeof(uint32_t),
-////					(const void*)&environmentStruct.numAmbientLights);
-////	glBufferSubData(GL_UNIFORM_BUFFER, offsets[1], sizeof(AmbientLightGLSLStruct) * MAX_AMBIENT_LIGHTS,
-////					(const void*)environmentStruct.ambientLights);
-//
-//	glBufferSubData(GL_UNIFORM_BUFFER, offsets[2], sizeof(uint32_t),
-//					(const void*)0);
-////	glBufferSubData(GL_UNIFORM_BUFFER, offsets[3], sizeof(DirectionalLightGLSLStruct) * MAX_DIRECTIONAL_LIGHTS,
-////					(const void*)environmentStruct.directionalLights);
-//
-//	glBufferSubData(GL_UNIFORM_BUFFER, offsets[4], sizeof(uint32_t),
-//					(const void*)0);
-//
-//	glBufferSubData(GL_UNIFORM_BUFFER, offsets[5], sizeof(vec4),
-//					(const void*)&environmentStruct.pointLights[0].color);
-//	glBufferSubData(GL_UNIFORM_BUFFER, offsets[6], sizeof(vec3),
-//					(const void*)&environmentStruct.pointLights[0].position_world);
-//	glBufferSubData(GL_UNIFORM_BUFFER, offsets[7], sizeof(float32_t),
-//					(const void*)&environmentStruct.pointLights[0].constantAttenuation);
-//	glBufferSubData(GL_UNIFORM_BUFFER, offsets[8], sizeof(float32_t),
-//					(const void*)&environmentStruct.pointLights[0].linearAttenuation);
-//	glBufferSubData(GL_UNIFORM_BUFFER, offsets[9], sizeof(float32_t),
-//					(const void*)&environmentStruct.pointLights[0].quadraticAttenuation);
-//
-//
-//
-//	glBufferSubData(GL_UNIFORM_BUFFER, offsets[10], sizeof(uint32_t),
-//					(const void*)0);
-////	glBufferSubData(GL_UNIFORM_BUFFER, offsets[7], sizeof(SpotLightGLSLStruct) * MAX_SPOT_LIGHTS,
-////					(const void*)environmentStruct.spotLights);
-//
-//
-//	glBufferSubData(GL_UNIFORM_BUFFER, offsets[12], sizeof(vec4),
-//					(const void*)&environmentStruct.fog.color);
-//	glBufferSubData(GL_UNIFORM_BUFFER, offsets[13], sizeof(float32_t),
-//					(const void*)&environmentStruct.fog.startDistance);
-//	glBufferSubData(GL_UNIFORM_BUFFER, offsets[14], sizeof(float32_t),
-//					(const void*)&environmentStruct.fog.endDistance);
-//	glBufferSubData(GL_UNIFORM_BUFFER, offsets[15], sizeof(float32_t),
-//					(const void*)&environmentStruct.fog.densityExponent);
-
-
-
-
-
-
-//	 const char* names[9] = {
-//	 	"EnvironmentBlock.numAmbientLights", // 0
-//	 	"EnvironmentBlock.ambientLights[0].color", // 16
-//	 	"EnvironmentBlock.numDirectionalLights", // 80
-//	 	"EnvironmentBlock.directionalLights[0].color", // 96
-//	 	"EnvironmentBlock.numPointLights", // 224
-//	 	"EnvironmentBlock.pointLights[0].color", // 240
-//	 	"EnvironmentBlock.numSpotLights", // 1776
-//	 	"EnvironmentBlock.spotLights[0].color", // 1792
-//	 	"EnvironmentBlock.fog.color" // 2432
-//	 };
-//	 GLuint indices[9]; for (int i = 0; i < 9; i++) indices[i] = 0;
-//	 GLint offsets[9]; for (int i = 0; i < 9; i++) offsets[i] = 0;
-//
-//	 glGetUniformIndices(programID, 9, names, indices);
-//	 glGetActiveUniformsiv(programID, 9, indices, GL_UNIFORM_OFFSET, offsets);
-//
-//	 for (int i = 0; i < 9; i++) {
-//	 	A3D_LOG_D("Uniform index for {}: {}",
-//	 		names[i], indices[i] == GL_INVALID_INDEX ? "BAD" : "GOOD");
-//	 }
-//
-//	 glBufferSubData(GL_UNIFORM_BUFFER, offsets[0], sizeof(uint32_t),
-//	 	(const void*)&environmentStruct.numAmbientLights);
-//	 glBufferSubData(GL_UNIFORM_BUFFER, offsets[1], sizeof(AmbientLightGLSLStruct) * MAX_AMBIENT_LIGHTS,
-//	 	(const void*)environmentStruct.ambientLights);
-//	 glBufferSubData(GL_UNIFORM_BUFFER, offsets[2], sizeof(uint32_t),
-//	 	(const void*)&environmentStruct.numDirectionalLights);
-//	 glBufferSubData(GL_UNIFORM_BUFFER, offsets[3], sizeof(DirectionalLightGLSLStruct) * MAX_DIRECTIONAL_LIGHTS,
-//	 	(const void*)environmentStruct.directionalLights);
-//	 glBufferSubData(GL_UNIFORM_BUFFER, offsets[4], sizeof(uint32_t),
-//	 	(const void*)&environmentStruct.numPointLights);
-//	 glBufferSubData(GL_UNIFORM_BUFFER, offsets[5], sizeof(PointLightGLSLStruct) * MAX_POINT_LIGHTS,
-//	 	(const void*)environmentStruct.pointLights);
-//	 glBufferSubData(GL_UNIFORM_BUFFER, offsets[6], sizeof(uint32_t),
-//	 	(const void*)&environmentStruct.numSpotLights);
-//	 glBufferSubData(GL_UNIFORM_BUFFER, offsets[7], sizeof(SpotLightGLSLStruct) * MAX_SPOT_LIGHTS,
-//	 	(const void*)environmentStruct.spotLights);
-//	 glBufferSubData(GL_UNIFORM_BUFFER, offsets[8], sizeof(FogGLSLStruct),
-//	 	(const void*)&environmentStruct.fog);
 }
-
-// ORIGINAL
-//void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
-//							 const Scene& scene,
-//							 const vector<Node*>& lightNodes,
-//							 Stats& stats) {
-//	// program "Default" must be active
-//
-//	// block
-//
-//	EnvironmentBlock environmentStruct;
-//
-//	// lights
-//
-//	if (scene.visualWorld()->usesDefaultLighting()) {
-//
-//		Program::Default().setUniform("useDefaultLighting", true);
-//	}
-//	else {
-//
-////		auto lights = vector<Node*>();
-//		auto lights = lightNodes;
-//		Node* ambientLightNode = nullptr;
-//
-//		// find all lights in the scene
-////		for (auto &node: scene.rootNode()->children(true)) {
-////			if (auto light = node->light()) {
-////				if (light->type() == LightType::Point) {
-////					lights.push_back(node.get());
-////				}
-////				else if (light->type() == LightType::Ambient) {
-////					ambientLightNode = node.get();
-////				}
-////			}
-////		}
-//
-//		if (lightNodes.size() > MAX_DYNAMIC_LIGHTS) {
-//
-//			// find all light distances from the camera
-//
-//			auto lightsUnsorted = map<Node*, float>();
-//			auto cameraPos_world = scene.visualWorld()->pointOfView().lock()->worldPosition();
-//			for (auto& lightNode : lightNodes) {
-//				auto lightPos_world = lightNode->worldPosition();
-//				auto lightToCamera = lightPos_world - cameraPos_world;
-//				auto lightToCameraDistance = length(lightToCamera);
-//				lightsUnsorted[lightNode] = lightToCameraDistance;
-//			}
-//
-//			vector<Node*> sorted;
-//			lights = SortedLights(lightsUnsorted);
-//
-//			unsigned endIndex = std::min((unsigned)lights.size(), (unsigned)MAX_DYNAMIC_LIGHTS);
-//			auto first = lights.begin() + 0;
-//			auto last = lights.begin() + endIndex;
-//			auto lightsSlice = vector<Node*>(first, last);
-//
-//			lights = lightsSlice;
-//		}
-//
-//		if (ambientLightNode) lights.push_back(ambientLightNode);
-//
-//		auto numLights = lights.size();
-//		LightGLSLStruct lightStruct[numLights];
-//
-//		stats.lights = std::max(int(0), int(numLights - 1)); // not counting ambient
-//
-//		// TODO: move this?
-//		// should useDefaultLighing be a root uniform or elsewhere?
-//		if (((numLights == 0) && scene.visualWorld()->autoEnablesDefaultLighting())) {
-//
-//			Program::Default().setUniform("useDefaultLighting", true);
-//		}
-//		else {
-//
-//			Program::Default().setUniform("useDefaultLighting", false);
-//
-//			for (unsigned l = 0; l < numLights; ++l) {
-//				auto node = lights[l];
-//				auto light = node->light();
-//
-//				lightStruct[l].type = static_cast<unsigned>(light->type());
-//				lightStruct[l].position_world = node->worldPosition();
-//				lightStruct[l].attenuationFactor = light->attenuationFactor();
-//
-//				auto color = *light->color();
-//				lightStruct[l].color = {color.r, color.g, color.b, color.a};
-//			}
-//		}
-//
-//		environmentStruct.numLights = numLights;
-//		memcpy(&environmentStruct.lights, &lightStruct, sizeof(lightStruct));
-//	}
-//
-//	// fog
-//
-//	auto visualWorld = scene.visualWorld();
-//	FogGLSLStruct fogStruct;
-//	fogStruct.startDistance = visualWorld->fogStartDistance();
-//	fogStruct.endDistance = visualWorld->fogEndDistance();
-//	fogStruct.densityExponent = visualWorld->fogDensityExponent();
-//	fogStruct.startDistance = visualWorld->fogStartDistance();
-//	auto fogColor = visualWorld->fogColor();
-//	if (visualWorld->fogColor()) fogStruct.color = {fogColor->r,
-//													fogColor->g,
-//													fogColor->b,
-//													fogColor->a};
-//	else fogStruct.color = {0.0, 0.0, 0.0, 0.0};
-//
-//	memcpy(&environmentStruct.fog, &fogStruct, sizeof(fogStruct));
-//
-//	// send 'em
-//
-//	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
-//	glBufferData(GL_UNIFORM_BUFFER, sizeof(environmentStruct), &environmentStruct, GL_DYNAMIC_DRAW);
-//}
 
 void SetTextureSamplingOptions(Texture& texture,
 							   GLuint glTextureHandle) {
@@ -2397,7 +2128,7 @@ void InitImgui(const RenderContext& context) {
 }
 
 void UpdateImguiScale(const RenderContext& context,
-					  const Font& overLayFont,
+					  const Font& titleFont,
 					  const Font& bodyFont) {
 
 	// https://github.com/ocornut/imgui/blob/master/docs/FAQ.md#q-how-should-i-handle-dpi-in-my-application
@@ -2419,7 +2150,7 @@ void UpdateImguiScale(const RenderContext& context,
 	io.Fonts->ClearFonts(); // crashes by itself
 	io.Fonts->ClearTexData(); // does not work, but does not crash
 
-	AddImguiFont(context, overLayFont, STATS_TITLE_FONT_SIZE);
+	AddImguiFont(context, titleFont, STATS_TITLE_FONT_SIZE);
 	AddImguiFont(context, bodyFont, STATS_BODY_FONT_SIZE);
 
 	ImGui_ImplOpenGL3_CreateFontsTexture();
@@ -2539,165 +2270,12 @@ void DigDrawPlot(float x, float y, float w, float h,
 	PopStyleColor();
 }
 
-// GOOD
-//bool DigDrawCheckbox(float x, float y,
-//					 const char* text,
-//					 bool& checked,
-//					 int font,
-//					 int id)
-//{
-//	using namespace ImGui;
-//
-//	ImGuiIO& io = GetIO();
-//	ImFont* f = io.Fonts->Fonts[font];
-//	PushFont(f);
-//
-//	const ImVec4 transparent(0, 0, 0, 0);
-//	const ImVec4 shadow(0, 0, 0, 1);
-//	const ImVec4 checkbg1(0.25f, 0.25f, 0.25f, 0.5f);
-//	const ImVec4 checkbg2(0.50f, 0.50f, 0.50f, 0.5f);
-//	const ImVec4 white(1, 1, 1, 1);
-//
-//	// use visible label text in both passes, but keep IDs unique.
-//	const std::string shadowLabel = std::string(text) + "##shadow";
-//	const std::string realLabel   = std::string(text) + "##real";
-//
-//	// shadow pass (non-interactive, non-blocking)
-//	PushID(id);
-//	SetCursorScreenPos(ImVec2(x + 1.0f, y + 1.0f));
-//	BeginDisabled(true);
-//
-//	PushStyleColor(ImGuiCol_Text,           shadow);
-//	PushStyleColor(ImGuiCol_CheckMark,      shadow);
-//
-//	// IMPORTANT: don't fill the box in shadow pass, or it will "solidify" the real box.
-//	PushStyleColor(ImGuiCol_FrameBg,        transparent);
-//	PushStyleColor(ImGuiCol_FrameBgHovered, transparent);
-//	PushStyleColor(ImGuiCol_FrameBgActive,  transparent);
-//
-//	bool dummy = checked;
-//	Checkbox(shadowLabel.c_str(), &dummy);
-//
-//	// IMPORTANT: allow the real checkbox (drawn next) to receive hover/click even though rects overlap.
-//	ImGui::SetItemAllowOverlap();
-//
-//	PopStyleColor(5);
-//	EndDisabled();
-//	PopID();
-//
-////	// --- real pass (interactive) ---
-////	PushID(id);
-////	SetCursorScreenPos(ImVec2(x, y));
-////	PushStyleColor(ImGuiCol_FrameBg,        checkbg1);
-////	PushStyleColor(ImGuiCol_FrameBgHovered, checkbg2);
-////	PushStyleColor(ImGuiCol_FrameBgActive,  checkbg1);
-////	PushStyleColor(ImGuiCol_CheckMark,      white);
-////
-////	bool ret = Checkbox(realLabel.c_str(), &checked);
-////
-////	PopStyleColor(4);
-////	PopID();
-//
-//// --- Real pass (interactive) ---
-//	PushID(id);
-//	SetCursorScreenPos(ImVec2(x, y));
-//
-//// no fill
-//	PushStyleColor(ImGuiCol_FrameBg,        transparent);
-//	PushStyleColor(ImGuiCol_FrameBgHovered, transparent);
-//	PushStyleColor(ImGuiCol_FrameBgActive,  transparent);
-//
-//// border
-//	PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);  // thickness
-//	PushStyleColor(ImGuiCol_Border,        checkbg2);   // normal border
-//	PushStyleColor(ImGuiCol_BorderShadow,  transparent);
-//
-//// checkmark
-//	PushStyleColor(ImGuiCol_CheckMark, white);
-//
-//	bool ret = Checkbox(realLabel.c_str(), &checked);
-//
-//	PopStyleColor(6);     // 3 bg + border + borderShadow + checkmark
-//	PopStyleVar(1);
-//	PopID();
-//
-//	PopFont();
-//	return ret;
-//}
-
-//bool DigDrawCheckbox(float x, float y,
-//					 const char* text,
-//					 bool& checked,
-//					 int font,
-//					 int id) {
-//
-//	using namespace ImGui;
-//
-//	ImGuiIO& io = GetIO();
-//	ImFont* f = io.Fonts->Fonts[font];
-//	PushFont(f);
-//
-//	const ImVec4 transparent(0,0,0,0);
-//	const ImVec4 black(0,0,0,1);
-//	const ImVec4 white(1,1,1,1);
-//
-//	const float shadow_off = 1.0f;
-//	const float border_thickness = 1.0f;
-//
-//	const std::string shadowLabel = std::string(text) + "##shadow";
-//	const std::string realLabel   = std::string(text) + "##real";
-//
-//	auto push_outline_style = [&](const ImVec4& col) {
-//		PushStyleVar(ImGuiStyleVar_FrameBorderSize, border_thickness);
-//
-//		PushStyleColor(ImGuiCol_FrameBg,        transparent);
-//		PushStyleColor(ImGuiCol_FrameBgHovered, transparent);
-//		PushStyleColor(ImGuiCol_FrameBgActive,  transparent);
-//
-//		PushStyleColor(ImGuiCol_Border,       col);
-//		PushStyleColor(ImGuiCol_BorderShadow, transparent);
-//
-//		PushStyleColor(ImGuiCol_CheckMark, col);
-//		PushStyleColor(ImGuiCol_Text,      col);
-//	};
-//
-//	// --- shadow pass (non-interactive, non-blocking) ---
-//	PushID(id);
-//	SetCursorScreenPos(ImVec2(x + shadow_off, y + shadow_off));
-//	BeginDisabled(true);
-//
-//	push_outline_style(black);
-//	bool dummy = checked;
-//	Checkbox(shadowLabel.c_str(), &dummy);
-//	SetItemAllowOverlap(); // ! don't steal hover/click from the real one !
-//	PopStyleColor(7);
-//	PopStyleVar(1);
-//
-//	EndDisabled();
-//	PopID();
-//
-//	// --- real pass (interactive) ---
-//	PushID(id);
-//	SetCursorScreenPos(ImVec2(x, y));
-//
-//	push_outline_style(white);
-//	bool ret = Checkbox(realLabel.c_str(), &checked);
-//	PopStyleColor(7);
-//	PopStyleVar(1);
-//
-//	PopID();
-//
-//	PopFont();
-//
-//	return ret;
-//}
-
 bool DigDrawCheckbox(float x, float y,
 					 const char* text,
 					 bool& checked,
 					 int font,
-					 int id)
-{
+					 int id) {
+
 	using namespace ImGui;
 
 	ImGuiIO& io = GetIO();
@@ -2711,7 +2289,7 @@ bool DigDrawCheckbox(float x, float y,
 	const float box_size = GetFrameHeight();                 // checkbox square size
 	const float label_gap = GetStyle().ItemInnerSpacing.x;   // spacing between box and label
 
-	// --- Shadow checkbox (non-interactive, non-blocking) ---
+	// --- shadow checkbox (non-interactive, non-blocking) ---
 	PushID(id);
 	SetCursorScreenPos(ImVec2(x + shadow_off, y + shadow_off));
 	BeginDisabled(true);
@@ -2733,19 +2311,19 @@ bool DigDrawCheckbox(float x, float y,
 	EndDisabled();
 	PopID();
 
-	// --- Real checkbox (interactive, NO label) ---
+	// --- real checkbox (interactive, NO label) ---
 	bool ret = false;
 
 	PushID(id);
 	SetCursorScreenPos(ImVec2(x, y));
 
 	PushStyleVar(ImGuiStyleVar_FrameBorderSize, border_thickness);
-	PushStyleColor(ImGuiCol_FrameBg,        transparent);
-	PushStyleColor(ImGuiCol_FrameBgHovered, transparent);
-	PushStyleColor(ImGuiCol_FrameBgActive,  transparent);
-	PushStyleColor(ImGuiCol_Border,         ImVec4(1,1,1,1));
-	PushStyleColor(ImGuiCol_BorderShadow,   transparent);
-	PushStyleColor(ImGuiCol_CheckMark,      ImVec4(1,1,1,1));
+	PushStyleColor(ImGuiCol_FrameBg,        	transparent);
+	PushStyleColor(ImGuiCol_FrameBgHovered, 	transparent);
+	PushStyleColor(ImGuiCol_FrameBgActive,  	transparent);
+	PushStyleColor(ImGuiCol_Border,         	ImVec4(1,1,1,1));
+	PushStyleColor(ImGuiCol_BorderShadow,   	transparent);
+	PushStyleColor(ImGuiCol_CheckMark,      	ImVec4(1,1,1,1));
 
 	ret = Checkbox("##real", &checked);
 
@@ -2753,10 +2331,10 @@ bool DigDrawCheckbox(float x, float y,
 	PopStyleVar();
 	PopID();
 
-	// --- Draw label ourselves (true solid shadow, like DigDrawText) ---
+	// --- rraw label ourselves (true solid shadow, like DigDrawText) ---
 	ImDrawList* dl = GetWindowDrawList(); // or GetForegroundDrawList() to match DigDrawText layer exactly
 
-	// Align label vertically with checkbox frame (center-ish)
+	// align label vertically with checkbox frame (center-ish)
 	float text_y = y + GetStyle().FramePadding.y;
 
 	ImVec2 label_pos(x + box_size + label_gap, text_y);
@@ -2935,15 +2513,29 @@ void DrawStatsOverlay(FrameStats& stats,
 	static const float PLOT_Y_MAX = 17.0;
 	static const int RT_TEXT_PADDING = TEXT_PADDING - 3;
 
-//	auto frameTimeStr = std::format(
-//			"{:<{}} {:.1f}ms\n",
-//			"frame", RT_TEXT_PADDING, frameMsFAvg);
+//	auto rateStr = std::format(
+//			"{:.0f}fps\n",
+//			fpsAvg);
+//	yPos += 48;
+//	DigDrawText(xPos, yPos, rateStr.c_str(), 1);
+
+	auto rateStr = std::format(
+			"{:14.0f}fps\n",
+			fpsAvg);
+	yPos += 42;
+	DigDrawText(xPos, yPos, rateStr.c_str(), 1);
+
 	auto frameTimeStr = std::format(
-			"{}{:10.1f}ms\n",
-			"frame", frameMsFAvg);
-	yPos += 48;
+			"{:<{}} {:.1f}ms\n",
+			"frame", RT_TEXT_PADDING, frameMsFAvg);
+//	auto frameTimeStr = std::format(
+//			"{}{:10.1f}ms\n{:14.1f}fps",
+//			"frame", frameMsFAvg, fpsAvg);
+//	yPos += 48;
+	yPos += 15;
 	DigDrawText(xPos, yPos, frameTimeStr.c_str(), 1);
 	yPos += PLOT_Y_PAD;
+//	yPos += PLOT_Y_PAD + 16;
 	DigDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_1,
 				frameSamples.data(),
 				static_cast<int>(frameSamples.size()),
@@ -3057,13 +2649,10 @@ void DrawStatsOverlay(FrameStats& stats,
 	}
 
 //	auto rateStr = std::format(
-//			"{:<{}} {:.1f}fps\n",
-//			"rate", RT_TEXT_PADDING, fpsAvg);
-	auto rateStr = std::format(
-			"{}{:10.1f}fps\n",
-			"rate", fpsAvg);
-	yPos += 36;
-	DigDrawText(xPos, yPos, rateStr.c_str(), 1);
+//			"{}{:10.1f}fps\n",
+//			"rate", fpsAvg);
+//	yPos += 36;
+//	DigDrawText(xPos, yPos, rateStr.c_str(), 1);
 
 	auto bulkStatsStr = std::format(
 			/*		"{:<{}} ({}, {})\n" \
