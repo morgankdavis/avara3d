@@ -16,8 +16,7 @@
 #include <memory>
 #include <string>
 #include <tuple>
-#include <unordered_set>
-
+#include <vector>
 
 #include "a3d/Types.h"
 
@@ -105,7 +104,7 @@ namespace a3d {
 			LogLevel level = DEFAULT_LEVEL,
 			LogLevel flushLevel = DEFAULT_FLUSH_LEVEL);
 		Log(const std::string& name,
-			std::unordered_set<std::unique_ptr<LogSink>> sinks,
+			std::vector<std::unique_ptr<LogSink>> sinks,
 			LogLevel level = DEFAULT_LEVEL,
 			LogLevel flushLevel = DEFAULT_FLUSH_LEVEL);
 		Log();
@@ -114,7 +113,7 @@ namespace a3d {
 
 		const std::string& 		name() const;
 
-		const std::unordered_set<std::unique_ptr<LogSink>>&	sinks() const;
+		const std::vector<std::unique_ptr<LogSink>>&	sinks() const;
 
 		LogLevel 				level() const;
 		void					level(LogLevel level);
@@ -160,7 +159,7 @@ namespace a3d {
 		/// Private Member Variables ///
 
 		std::string										_name;
-		std::unordered_set<std::unique_ptr<LogSink>>	_sinks;
+		std::vector<std::unique_ptr<LogSink>>			_sinks;
 		LogLevel										_level;
 		LogLevel										_flushLevel;
 	};

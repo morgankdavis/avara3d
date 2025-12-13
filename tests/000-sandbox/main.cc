@@ -630,9 +630,9 @@ void InitLog() {
 	auto nativeSink = make_unique<StdOutLogSink>();
 	auto fileSink = make_unique<FileLogSink>(*(utils::ExecutableDirectory())
 											 / (executableName + string(".log")));
-	auto sinks = unordered_set<unique_ptr<LogSink>>();
-	sinks.insert(std::move(nativeSink));
-	sinks.insert(std::move(fileSink));
+	auto sinks = vector<unique_ptr<LogSink>>();
+	sinks.push_back(std::move(nativeSink));
+	sinks.push_back(std::move(fileSink));
 
 	auto appLog = make_unique<Log>(executableName, std::move(sinks));
 	appLog->level(A3D_APP_LOG_LEVEL);

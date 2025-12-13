@@ -41,9 +41,9 @@ Log& Log::MainLog() {
 		auto nativeSink = make_unique<StdOutLogSink>();
 		auto fileSink = make_unique<FileLogSink>(*(utils::ExecutableDirectory()) / "a3d.log");
 
-		auto sinks = unordered_set<unique_ptr<LogSink>>();
-		sinks.insert(std::move(nativeSink));
-		sinks.insert(std::move(fileSink));
+		auto sinks = vector<unique_ptr<LogSink>>();
+		sinks.push_back(std::move(nativeSink));
+		sinks.push_back(std::move(fileSink));
 
 		log._sinks = std::move(sinks);
 		//logger = make_unique<Log>("a3d", std::move(sinks));
@@ -86,17 +86,17 @@ Log::Log(const string& name,
 		_level{level},
 		_flushLevel{flushLevel} {
 
-	_sinks.insert(std::move(sink));
+	_sinks.push_back(std::move(sink));
 }
 
 Log::Log(const string& name,
-		 unordered_set<unique_ptr<LogSink>> sinks,
+		 vector<unique_ptr<LogSink>> sinks,
 		 LogLevel level,
 		 LogLevel flushLevel):
-		_name(name),
-		_sinks(std::move(sinks)),
-		_level(level),
-		_flushLevel(flushLevel) { }
+		_name{name},
+		_sinks{std::move(sinks)},
+		_level{level},
+		_flushLevel{flushLevel} { }
 
 Log::Log() { }
 
@@ -106,7 +106,7 @@ const string& Log::name() const {
 	return _name;
 }
 
-const unordered_set<unique_ptr<LogSink>>& Log::sinks() const {
+const vector<unique_ptr<LogSink>>& Log::sinks() const {
 	return _sinks;
 }
 
