@@ -18,7 +18,7 @@ using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
-const LogLevel				A3D_APP_LOG_LEVEL	{LogLevel::Debug};
+const LogLevel				APP_LOG_LEVEL	{LogLevel::Debug};
 const uvec2					WINDOW_SIZE			{1280, 768};
 const bool					FULLSCREEN			{false};
 const bool					ENABLE_HIGH_DPI		{true};
@@ -383,6 +383,7 @@ void DidRenderCallback(VisualWorld& world, double time, double deltaTime) {
 void InitLog() {
 
 	string executableName = *utils::ExecutableName();
+
 	auto nativeSink = make_unique<StdOutLogSink>();
 	auto fileSink = make_unique<FileLogSink>(*(utils::ExecutableDirectory())
 											 / (executableName + string(".log")));
@@ -390,11 +391,9 @@ void InitLog() {
 	sinks.push_back(std::move(nativeSink));
 	sinks.push_back(std::move(fileSink));
 
-	auto appLog = make_unique<Log>(executableName, std::move(sinks));
-	appLog->level(A3D_APP_LOG_LEVEL);
+	Log appLog{executableName, std::move(sinks)};
+	appLog.level(APP_LOG_LEVEL);
 	Log::AppLog(std::move(appLog));
-
-	Log::MainLog().level(A3D_APP_LOG_LEVEL);
 }
 
 void LogBuildInfo() {

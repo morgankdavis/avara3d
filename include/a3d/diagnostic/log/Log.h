@@ -14,6 +14,7 @@
 #include <format>
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -89,13 +90,11 @@ namespace a3d {
 		/// Public Static Member Functions ///
 
 		static Log& AppLog();
-		static void AppLog(std::unique_ptr<Log> log);
-//		static void AppLog(const Log& log);
+		static void AppLog(Log log);
 
 		/// Public Static Member Functions ///
 
 		static Log& MainLog();
-
 
 		/// Public Lifecycle Functions ///
 
@@ -107,13 +106,17 @@ namespace a3d {
 			std::vector<std::unique_ptr<LogSink>> sinks,
 			LogLevel level = DEFAULT_LEVEL,
 			LogLevel flushLevel = DEFAULT_FLUSH_LEVEL);
+		Log(const Log& other) = delete; // copy constructor
+		Log& operator=(const Log& other) = delete; // copy assignment
+		Log(Log&&) noexcept = default;
+		Log& operator=(Log&&) noexcept = default;
 		Log();
 
 		/// Public Member Functions ///
 
 		const std::string& 		name() const;
 
-		const std::vector<std::unique_ptr<LogSink>>&	sinks() const;
+		const std::vector<std::unique_ptr<LogSink>>& sinks() const;
 
 		LogLevel 				level() const;
 		void					level(LogLevel level);
@@ -153,8 +156,8 @@ namespace a3d {
 
 		/// Private Static Member Variables ///
 
-		static std::unique_ptr<Log>						_appLog;
-//		static Log										_appLog;
+//		static std::unique_ptr<Log>						_appLog;
+		static std::optional<Log>						_appLog;
 
 		/// Private Member Variables ///
 

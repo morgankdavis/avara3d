@@ -29,9 +29,9 @@ namespace a3d {
 
 		void 	flush() override;
 
-	/// Internal Member Functions ///
+	/// Public LogSink Member Functions ///
 
-		void 	write(const std::string& output, LogLevel level);
+		void 	write(const std::string& output, LogLevel level) override;
 	};
 }
 

@@ -303,7 +303,7 @@ void Viewport::mouseMoveEvent(QMouseEvent *e) {
 				return;
 			}
 
-			if (!_lastCapturedCursorPosition.has_value()) {
+			if (!_lastCapturedCursorPosition) {
 				_lastCapturedCursorPosition = pos;
 			}
 

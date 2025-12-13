@@ -158,7 +158,7 @@ void Node::rotation(const vec3& axis, float angle) {
 }
 
 vec3 Node::eulerAngles() const {
-	if (!_eulerAngles.has_value()) {
+	if (!_eulerAngles) {
 		_eulerAngles = euler_angles(_orientation);
 	}
 	return *_eulerAngles;
@@ -345,29 +345,53 @@ void Node::addChildren(const vector<shared_ptr<Node>>& nodes) {
 	}
 }
 
+//void Node::removeFromParent() {
+//
+//	if (auto parent = _parent.lock()) {
+//		// https://stackoverflow.com/questions/39912/how-do-i-remove-an-item-from-a-stl-vector-with-a-certain-value
+//		// https://stackoverflow.com/questions/3385229/c-erase-vector-element-by-value-rather-than-by-position
+//		// http://en.cppreference.com/w/cpp/algorithm/remove
+//		// new: https://stackoverflow.com/questions/875103/how-do-i-erase-an-element-from-stdvector-by-index
+//
+//		auto existingChildren = parent->_children;
+//		auto newChildren = vector<shared_ptr<Node>>();
+//		newChildren.reserve(existingChildren.size()-1);
+//		for (auto& child : existingChildren) {
+//			if (child.get() != this) {
+//				newChildren.push_back(child);
+//			}
+//		}
+//		parent->_children = newChildren;
+//
+//		detachedFromParent(*parent);
+//	}
+//	else {
+//		A3D_LOG_W("Parent is gone!");
+//		// TODO: throw?
+//	}
+//}
+
 void Node::removeFromParent() {
 
-	if (auto parent = _parent.lock()) {
-		// https://stackoverflow.com/questions/39912/how-do-i-remove-an-item-from-a-stl-vector-with-a-certain-value
-		// https://stackoverflow.com/questions/3385229/c-erase-vector-element-by-value-rather-than-by-position
-		// http://en.cppreference.com/w/cpp/algorithm/remove
-		// new: https://stackoverflow.com/questions/875103/how-do-i-erase-an-element-from-stdvector-by-index
+	auto parent = _parent.lock();
+	if (parent) {
+		auto& children = parent->_children;
+		const auto removed = erase_if(children,
+									  [this](const shared_ptr<Node>& c) {
+										  return c.get() == this;
+									  });
 
-		auto existingChildren = parent->_children;
-		auto newChildren = vector<shared_ptr<Node>>();
-		newChildren.reserve(existingChildren.size()-1);
-		for (auto& child : existingChildren) {
-			if (child.get() != this) {
-				newChildren.push_back(child);
-			}
+		if (removed > 0) {
+			detachedFromParent(*parent);
+			// _parent.reset(); ?
 		}
-		parent->_children = newChildren;
-
-		detachedFromParent(*parent);
+		else {
+			A3D_LOG_W("removeFromParent: node not found in parent->_children");
+		}
 	}
 	else {
 		A3D_LOG_W("Parent is gone!");
-		// TODO: throw?
+		// throw?
 	}
 }
 
@@ -759,12 +783,12 @@ void Node::getAABBRec(AABB& aabb) {
 
 	if (_mesh) {
 		auto geoAABB = _mesh->aabb(this);
-		aabb.min.x = std::min(aabb.min.x, geoAABB.min.x);
-		aabb.max.x = std::max(aabb.max.x, geoAABB.max.x);
-		aabb.min.y = std::min(aabb.min.y, geoAABB.min.y);
-		aabb.max.y = std::max(aabb.max.y, geoAABB.max.y);
-		aabb.min.z = std::min(aabb.min.z, geoAABB.min.z);
-		aabb.max.z = std::max(aabb.max.z, geoAABB.max.z);
+		aabb.min.x = math::min(aabb.min.x, geoAABB.min.x);
+		aabb.max.x = math::max(aabb.max.x, geoAABB.max.x);
+		aabb.min.y = math::min(aabb.min.y, geoAABB.min.y);
+		aabb.max.y = math::max(aabb.max.y, geoAABB.max.y);
+		aabb.min.z = math::min(aabb.min.z, geoAABB.min.z);
+		aabb.max.z = math::max(aabb.max.z, geoAABB.max.z);
 	}
 
 	for (auto& child : _children) {

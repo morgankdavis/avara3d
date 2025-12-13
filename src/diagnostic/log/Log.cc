@@ -30,43 +30,47 @@ using namespace std;
 
 /// Internal Static Member Functions ///
 
+//Log& Log::MainLog() {
+//	static Log log = []{
+//		Log l("a3d");
+//		string executableName = *utils::ExecutableName();
+//		auto nativeSink = make_unique<StdOutLogSink>();
+//		auto fileSink = make_unique<FileLogSink>(*(utils::ExecutableDirectory()) / "a3d.log");
+//
+//		auto sinks = vector<unique_ptr<LogSink>>();
+//		sinks.push_back(std::move(nativeSink));
+//		sinks.push_back(std::move(fileSink));
+//
+//		log._sinks = std::move(sinks);
+//		//logger = make_unique<Log>("a3d", std::move(sinks));
+//		return l;
+//	}();
+//	return log;
+//}
+
 Log& Log::MainLog() {
-
-	static Log log("a3d");
-	static bool initialized = false;
-
-	if (!initialized) {
-
-		string executableName = *utils::ExecutableName();
-		auto nativeSink = make_unique<StdOutLogSink>();
-		auto fileSink = make_unique<FileLogSink>(*(utils::ExecutableDirectory()) / "a3d.log");
-
+	static Log log = []{
+		Log l("a3d");
 		auto sinks = vector<unique_ptr<LogSink>>();
-		sinks.push_back(std::move(nativeSink));
-		sinks.push_back(std::move(fileSink));
-
-		log._sinks = std::move(sinks);
-		//logger = make_unique<Log>("a3d", std::move(sinks));
-
-		initialized = true;
-	}
-
+		sinks.push_back(make_unique<StdOutLogSink>());
+		sinks.push_back(make_unique<FileLogSink>(*utils::ExecutableDirectory() / "a3d.log"));
+		l._sinks = std::move(sinks);
+//		l.level(A3D_APP_LOG_LEVEL);
+		return l;
+	}();
 	return log;
 }
 
 /// Public Static Member Functions ///
 
 Log& Log::AppLog() {
-	return *_appLog;
+	if (_appLog) return *_appLog;
+	throw Exception("AppLog not set.");
 }
 
-void Log::AppLog(unique_ptr<Log> log) {
+void Log::AppLog(Log log) {
 	_appLog = std::move(log);
 }
-
-//void Log::AppLog(const Log& log) {
-//	_appLog = std::move(log);
-//}
 
 /// Private Static Prototypes ///
 
@@ -196,16 +200,7 @@ void Log::log(LogLevel level,
 
 void Log::dispatch(LogLevel level, std::string& output) {
 
-	for (auto& sink : _sinks) {
-
-		if (auto stdOutSink = dynamic_cast<StdOutLogSink*>(sink.get())) {
-			stdOutSink->write(output, level);
-		}
-
-		if (auto fileLogSink = dynamic_cast<FileLogSink*>(sink.get())) {
-			fileLogSink->write(output);
-		}
-	}
+	for (auto& sink : _sinks) sink->write(output, level);
 
 	if (static_cast<underlying_type<LogLevel>::type>(level)
 		>= static_cast<underlying_type<LogLevel>::type>(_flushLevel)) {
@@ -258,6 +253,7 @@ string HeaderString(const string& logName, LogLevel level) {
 					   magic_enum::enum_name(level));
 }
 
-/// Private Static Member Variables ///
+///// Private Static Member Variables ///
 
-std::unique_ptr<Log> Log::_appLog; // weird.
+//std::unique_ptr<Log> Log::_appLog; // weird.
+std::optional<Log> Log::_appLog; // weird.
