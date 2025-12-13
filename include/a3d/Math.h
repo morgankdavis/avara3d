@@ -550,14 +550,6 @@ namespace a3d::math {
 		const vec4& operator[](std::size_t i) const;
 	};
 
-	f32mat2 	identity2();
-	f32mat3 	identity3();
-	f32mat4 	identity4();
-
-	f32mat2 	zero2();
-	f32mat3 	zero3();
-	f32mat4 	zero4();
-
 	vec2 		operator*(const f32mat2& m, const vec2& v);
 	vec3 		operator*(const f32mat3& m, const vec3& v);
 	vec4 		operator*(const f32mat4& m, const vec4& v);
@@ -622,17 +614,18 @@ namespace a3d::math {
 		const f32& operator[](std::size_t i) const;
 	};
 
-	f32quat 	identity_quat();
-
-	f32quat 	operator*(const f32quat& a, const f32quat& b);
+	f32quat 	operator-(const f32quat& q);
 
 	f32quat 	operator+(const f32quat& a, const f32quat& b);
+
+	f32quat 	operator*(const f32quat& a, const f32quat& b);
 	f32quat 	operator*(const f32quat& q, f32 s);
 	f32quat 	operator*(f32 s, const f32quat& q);
 
 	f32quat& 	operator+=(f32quat& a, const f32quat& b);
-	f32quat& 	operator*=(f32quat& q, f32 s);
+
 	f32quat& 	operator*=(f32quat& a, const f32quat& b);
+	f32quat& 	operator*=(f32quat& q, f32 s);
 
 	bool 		operator==(const f32quat& a, const f32quat& b);
 	bool 		operator!=(const f32quat& a, const f32quat& b);
@@ -649,8 +642,8 @@ namespace a3d::math {
 	f32quat 	quaternion(const vec3& axis, f32 angle);
 	vec4 		axis_angle(const f32quat& q);
 
-	f32quat 	quaternion(const vec3& eulerAngles); // pitch/yaw/roll to f32quaternion, y–x–z order
-	vec3 		euler_angles(const f32quat& q); // pitch/yaw/roll to f32quaternion, y–x–z order
+	f32quat 	quaternion(const vec3& eulerAngles); // pitch/yaw/roll to quaternion, y–x–z order
+	vec3 		euler_angles(const f32quat& q); // pitch/yaw/roll to quaternion, y–x–z order
 
 	f32quat 	slerp(const f32quat& a, const f32quat& b, f32 t);
 
@@ -676,6 +669,131 @@ namespace a3d::math {
 						  vec3& scale,
 						  quat& rotation,
 						  vec3& translation);
+
+	/// Random / Probability ///
+
+	f32 		uniform_01(); // [0, 1)
+	f32 		uniform_01(std::mt19937* gen); // [0, 1)
+
+	f32 		uniform_n11(); // [-1, 1)
+	f32 		uniform_n11(std::mt19937* gen); // [-1, 1)
+
+	u8 			uniform_linear(u8 min, u8 max); // [min, max]
+	u8 			uniform_linear(std::mt19937* gen, u8 min, u8 max); // [min, max]
+
+	u32 		uniform_linear(u32 min, u32 max); // [min, max]
+	u32 		uniform_linear(std::mt19937* gen, u32 min, u32 max); // [min, max]
+
+	i32 		uniform_linear(i32 min, i32 max); // [min, max]
+	i32 		uniform_linear(std::mt19937* gen, i32 min, i32 max); // [min, max]
+
+	f32 		uniform_linear(f32 min, f32 max); // [min, max)
+	f32 		uniform_linear(std::mt19937* gen, f32 min, f32 max); // [min, max)
+
+	f32vec2 	uniform_circular(f32 radius);
+	f32vec2 	uniform_circular(std::mt19937* gen, f32 radius);
+
+	f32vec3		uniform_spherical(f32 radius);
+	f32vec3		uniform_spherical(std::mt19937* gen, f32 radius);
+
+	f32vec2		uniform_disk(f32 radius);
+	f32vec2		uniform_disk(std::mt19937* gen, f32 radius);
+
+	f32vec3		uniform_ball(f32 radius);
+	f32vec3		uniform_ball(std::mt19937* gen, f32 radius);
+
+	f32			gaussian(f32 mean, f32 deviation, f32 min, f32 max);
+	f32			gaussian(std::mt19937* gen, f32 mean, f32 deviation, f32 min, f32 max);
+
+	bool 		bernoulli(f32 p);
+	bool 		bernoulli(std::mt19937* gen, f32 p);
+
+	/// Easing ///
+
+	f32 		saturate(f32 t);
+
+	f32 		lerp(f32 a, f32 b, f32 t);       // unclamped
+	f32 		lerp_01(f32 a, f32 b, f32 t);    // clamps t to [0,1]
+
+	f32vec2 	lerp(const f32vec2& a, const f32vec2& b, f32 t);
+	f32vec2 	lerp_01(const f32vec2& a, const f32vec2& b, f32 t);
+
+	f32vec3 	lerp(const f32vec3& a, const f32vec3& b, f32 t);
+	f32vec3 	lerp_01(const f32vec3& a, const f32vec3& b, f32 t);
+
+	f32vec4 	lerp(const f32vec4& a, const f32vec4& b, f32 t);
+	f32vec4 	lerp_01(const f32vec4& a, const f32vec4& b, f32 t);
+
+	f32 		inverse_lerp(f32 a, f32 b, f32 v);       // unclamped
+	f32 		inv_lerp_01(f32 a, f32 b, f32 v);    // clamps result to [0,1]
+
+	f32 		remap(f32 inA, f32 inB, f32 outA, f32 outB, f32 v);       // unclamped
+	f32 		remap_01(f32 inA, f32 inB, f32 outA, f32 outB, f32 v);    // clamps normalized t to [0,1]
+
+	f32 		step(f32 edge, f32 x);               // x < edge ? 0 : 1
+
+	f32 		smoothstep(f32 t);                   // unclamped, expects t in [0,1]
+	f32 		smoothstep_01(f32 t);                // clamps t to [0,1]
+
+	f32 		smootherstep(f32 t);                 // unclamped, expects t in [0,1]
+	f32 		smootherstep_01(f32 t);              // clamps t to [0,1]
+
+	f32 		smoothstep(f32 edge0, f32 edge1, f32 x);              // clamps internally (classic)
+	f32 		smoothstep_unclamped(f32 edge0, f32 edge1, f32 x);    // no clamp of normalized t
+
+	f32 		smootherstep(f32 edge0, f32 edge1, f32 x);            // clamps internally
+	f32 		smootherstep_unclamped(f32 edge0, f32 edge1, f32 x);  // no clamp of normalized t
+
+	f32 		ease_linear(f32 t);
+	f32 		ease_linear_01(f32 t);
+
+	f32 		ease_in_quadratic(f32 t);
+	f32		 	ease_out_quadratic(f32 t);
+	f32 		ease_in_out_quadratic(f32 t);
+
+	f32 		ease_in_cubic(f32 t);
+	f32 		ease_out_cubic(f32 t);
+	f32		 	ease_in_out_cubic(f32 t);
+
+	f32 		ease_in_quartic(f32 t);
+	f32 		ease_out_quartic(f32 t);
+	f32 		ease_in_out_quartic(f32 t);
+
+	f32 		ease_in_quintic(f32 t);
+	f32 		ease_out_quintic(f32 t);
+	f32 		ease_in_out_quintic(f32 t);
+
+	f32 		ease_in_sine(f32 t);
+	f32 		ease_out_sine(f32 t);
+	f32 		ease_in_out_sine(f32 t);
+
+	f32 		ease_in_circular(f32 t);
+	f32 		ease_out_circular(f32 t);
+	f32 		ease_in_out_circular(f32 t);
+
+	f32 		ease_in_exponential(f32 t);
+	f32 		ease_out_exponential(f32 t);
+	f32 		ease_in_out_exponential(f32 t);
+
+	f32 		ease_in_back(f32 t, f32 overshoot = 1.70158f);
+	f32 		ease_out_back(f32 t, f32 overshoot = 1.70158f);
+	f32 		ease_in_out_back(f32 t, f32 overshoot = 1.70158f);
+
+	f32 		ease_in_elastic(f32 t);
+	f32 		ease_out_elastic(f32 t);
+	f32 		ease_in_out_elastic(f32 t);
+
+	f32 		ease_in_bounce(f32 t);
+	f32 		ease_out_bounce(f32 t);
+	f32 		ease_in_out_bounce(f32 t);
+
+	f32quat 	nlerp(const f32quat& a, const f32quat& b, f32 t, bool shortest_path = true);
+	f32quat 	nlerp_01(const f32quat& a, const f32quat& b, f32 t, bool shortest_path = true);
+
+	f32quat 	slerp(const f32quat& a, const f32quat& b, f32 t, bool shortest_path = true);
+	f32quat 	slerp_01(const f32quat& a, const f32quat& b, f32 t, bool shortest_path = true);
+
+	// TODO: colors/color spaces
 
 	/// Scalar Angles ///
 
@@ -728,6 +846,7 @@ namespace a3d::math {
 	f32 		min(f32 a, f32 b);
 	f32 		max(f32 a, f32 b);
 	f32			clamp(f32 val, f32 low, f32 high);
+	f32 		clamp_01(f32 t);
 
 	/// Bitwise / Classification ///
 
@@ -741,46 +860,6 @@ namespace a3d::math {
 	template <class T2, std::size_t N>
 	void 		swap(T2 (&a)[N], T2 (&b)[N]) {
 		for (std::size_t i = 0; i < N; ++i) std::swap(a[i], b[i]); }
-
-	/// Random ///
-
-	f32 		uniform_01(); // [0, 1)
-	f32 		uniform_01(std::mt19937* gen); // [0, 1)
-
-	f32 		uniform_n11(); // [-1, 1)
-	f32 		uniform_n11(std::mt19937* gen); // [-1, 1)
-
-	u8 			uniform_linear(u8 min, u8 max); // [min, max]
-	u8 			uniform_linear(std::mt19937* gen, u8 min, u8 max); // [min, max]
-
-	u32 		uniform_linear(u32 min, u32 max); // [min, max]
-	u32 		uniform_linear(std::mt19937* gen, u32 min, u32 max); // [min, max]
-
-	i32 		uniform_linear(i32 min, i32 max); // [min, max]
-	i32 		uniform_linear(std::mt19937* gen, i32 min, i32 max); // [min, max]
-
-	f32 		uniform_linear(f32 min, f32 max); // [min, max)
-	f32 		uniform_linear(std::mt19937* gen, f32 min, f32 max); // [min, max)
-
-	f32vec2 	uniform_circular(f32 radius);
-	f32vec2 	uniform_circular(std::mt19937* gen, f32 radius);
-
-	f32vec3		uniform_spherical(f32 radius);
-	f32vec3		uniform_spherical(std::mt19937* gen, f32 radius);
-
-	f32vec2		uniform_disk(f32 radius);
-	f32vec2		uniform_disk(std::mt19937* gen, f32 radius);
-
-	f32vec3		uniform_ball(f32 radius);
-	f32vec3		uniform_ball(std::mt19937* gen, f32 radius);
-
-	f32			gaussian(f32 mean, f32 deviation, f32 min, f32 max);
-	f32			gaussian(std::mt19937* gen, f32 mean, f32 deviation, f32 min, f32 max);
-
-	bool 		bernoulli(f32 p);
-	bool 		bernoulli(std::mt19937* gen, f32 p);
-
-	// TODO: easing
 
 	/// Constants ///
 

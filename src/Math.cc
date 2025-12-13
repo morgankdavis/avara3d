@@ -20,8 +20,9 @@ namespace a3d::math {
 
 	static inline std::mt19937& default_random_gen();
 	static inline std::mt19937& pick_random_gen(std::mt19937* gen);
-	static inline std::string mat_right_fit(std::string s, int width);
-	static inline std::string mat_fmtf(float v, unsigned width);
+	static inline f32 			ease_out_bounce_impl(f32 t);
+	static inline std::string 	mat_right_fit(std::string s, int width);
+	static inline std::string 	mat_fmtf(float v, unsigned width);
 
 	/// Types ///
 
@@ -1578,30 +1579,6 @@ namespace a3d::math {
 
 	/// 32-bit Float Matrix ///
 
-	f32mat2 identity2() {
-		return f32mat2(1.0f);
-	}
-
-	f32mat3 identity3() {
-		return f32mat3(1.0f);
-	}
-
-	f32mat4 identity4() {
-		return f32mat4(1.0f);
-	}
-
-	f32mat2 zero2() {
-		return f32mat2(0.0f);
-	}
-
-	f32mat3 zero3() {
-		return f32mat3(0.0f);
-	}
-
-	f32mat4 zero4() {
-		return f32mat4(0.0f);
-	}
-
 	vec2 operator*(const f32mat2 &m, const vec2 &v) {
 		return vec2{ m.c0.x * v.x + m.c1.x * v.y,
 					 m.c0.y * v.x + m.c1.y * v.y };
@@ -2006,12 +1983,20 @@ namespace a3d::math {
 
 	/// 32-bit Float Quaternion ///
 
-	f32quat identity_quat() {
-		return f32quat{1.0f, 0.0f, 0.0f, 0.0f};
+	f32quat operator-(const f32quat& q) {
+		return { -q.w, -q.x, -q.y, -q.z };
 	}
 
 	f32quat operator+(const f32quat &a, const f32quat &b) {
 		return f32quat{a.w + b.w, a.x + b.x, a.y + b.y, a.z + b.z};
+	}
+
+	// convention: result = a * b applies b first, then a (GLM-style)
+	f32quat operator*(const f32quat &a, const f32quat &b) {
+		return f32quat{ a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z,
+						a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,
+						a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x,
+						a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w };
 	}
 
 	f32quat operator*(const f32quat &q, f32 s) {
@@ -2030,17 +2015,17 @@ namespace a3d::math {
 		return a;
 	}
 
+	f32quat& operator*=(f32quat& a, const f32quat& b) {
+		a = a * b; // use Hamilton product
+		return a;
+	}
+
 	f32quat& operator*=(f32quat& q, f32 s) {
 		q.w *= s;
 		q.x *= s;
 		q.y *= s;
 		q.z *= s;
 		return q;
-	}
-
-	f32quat& operator*=(f32quat& a, const f32quat& b) {
-		a = a * b; // use your Hamilton product
-		return a;
 	}
 
 	bool operator==(const f32quat& a, const f32quat& b) {
@@ -2052,14 +2037,6 @@ namespace a3d::math {
 
 	bool operator!=(const f32quat& a, const f32quat& b) {
 		return !(a == b);
-	}
-
-	// convention: result = a * b applies b first, then a (GLM-style)
-	f32quat operator*(const f32quat &a, const f32quat &b) {
-		return f32quat{ a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z,
-						a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,
-						a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x,
-						a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w };
 	}
 
 	vec3 rotate(const f32quat &q, const vec3 &v) {
@@ -2380,7 +2357,7 @@ namespace a3d::math {
 		if (sx < eps || sy < eps || sz < eps) {
 			// degenerate scale, can't get a stable rotation
 			scale      = vec3{ sx, sy, sz };
-			rotation   = identity_quat();
+			rotation   = quat(1.0f);
 			return false;
 		}
 
@@ -2456,165 +2433,7 @@ namespace a3d::math {
 		return true;
 	}
 
-	/// Scalar Angles ///
-
-	f32 radians(f32 degrees) {
-		return degrees * static_cast<f32>(0.01745329251994329576923690768489);
-	}
-
-	f32 degrees(f32 radians) {
-		return radians * static_cast<f32>(57.295779513082320876798154814105);
-	}
-
-	/// Scalar Trig ///
-
-	f32 sin(f32 n) {
-		return std::sin(n);
-	}
-
-	f32 cos(f32 n) {
-		return std::cos(n);
-	}
-
-	f32 tan(f32 n) {
-		return std::tan(n);
-	}
-
-	f32 asin(f32 n) {
-		return std::asin(n);
-	}
-
-	f32 acos(f32 n) {
-		return std::acos(n);
-	}
-
-	f32 atan(f32 n) {
-		return std::atan(n);
-	}
-
-	f32 atan2(f32 x, f32 y) {
-		return std::atan2(x, y);
-	}
-
-	f32 sinh(f32 n) {
-		return std::sinh(n);
-	}
-
-	f32 cosh(f32 n) {
-		return std::cosh(n);
-	}
-
-	f32 tanh(f32 n) {
-		return std::tanh(n);
-	}
-
-	f32 asinh(f32 n) {
-		return std::asinh(n);
-	}
-
-	f32 acosh(f32 n) {
-		return std::acosh(n);
-	}
-
-	f32 atanh(f32 n) {
-		return std::atanh(n);
-	}
-
-	/// Scalar Comparison ///
-
-	bool equal(f32 a, f32 b, f32 eps) {
-		return math::abs(a - b) <= eps;
-	}
-
-	/// Scalar Rounding ///
-
-	f32 ceil(f32 n) {
-		return std::ceil(n);
-	}
-
-	f32 floor(f32 n) {
-		return std::floor(n);
-	}
-
-	f32 round(f32 n) {
-		return std::round(n);
-	}
-
-	/// Scalar Exponentials & Logarithms ///
-
-	f32 exp(f32 n) {
-		return std::exp(n);
-	}
-
-	f32 exp2(f32 n) {
-		return std::exp2(n);
-	}
-
-	f32 pow(f32 x, f32 y) {
-		return std::pow(x, y);
-	}
-
-	f32 log(f32 n) {
-		return std::log(n);
-	}
-
-	f32 log2(f32 n) {
-		return std::log(n);
-	}
-
-	f32 log10(f32 n) {
-		return std::log10(n);
-	}
-
-	/// Scalar Magnitude ///
-
-	f32 abs(f32 n) {
-		return std::abs(n);
-	}
-
-	f32 sqrt(f32 n) {
-		return std::sqrt(n);
-	}
-
-	f32 cbrt(f32 n) {
-		return std::cbrt(n);
-	}
-
-	/// Scalar Range / Ordering ///
-
-	f32 min(f32 a, f32 b) {
-		return std::min(a, b);
-	}
-
-	f32 max(f32 a, f32 b) {
-		return std::max(a, b);
-	}
-
-	f32 clamp(f32 val, f32 low, f32 high) {
-		return std::clamp(val, low, high);
-	}
-
-	/// Bitwise / Classification ///
-
-	bool is_nan(f32 n) {
-		return std::isnan(n);
-	}
-
-	bool is_inf(f32 n) {
-		return std::isinf(n);
-	}
-
-	bool sign_bit(f32 n) {
-		return std::signbit(n);
-	}
-
-	/// Swap Utilities ///
-
-	void swap(f32 &a, f32 &b) {
-		std::swap(a, b);
-	}
-
-	/// Random ///
+	/// Random / Probability ///
 
 	f32 uniform_01() {
 		return uniform_01(nullptr);
@@ -2779,6 +2598,678 @@ namespace a3d::math {
 		return dis(pick_random_gen(gen));
 	}
 
+	/// Easing ///
+
+	f32 saturate(f32 t) {\
+		return clamp_01(t);
+	}
+
+	f32 lerp(f32 a, f32 b, f32 t) {
+		return a + (b - a) * t;
+	}
+
+	f32 lerp_01(f32 a, f32 b, f32 t) {
+		return lerp(a, b, clamp_01(t));
+	}
+
+	f32vec2 lerp(const f32vec2& a, const f32vec2& b, f32 t) {
+		return a + (b - a) * t;
+	}
+
+	f32vec2 lerp_01(const f32vec2& a, const f32vec2& b, f32 t) {
+		return lerp(a, b, clamp_01(t));
+	}
+
+	f32vec3 lerp(const f32vec3& a, const f32vec3& b, f32 t) {
+		return a + (b - a) * t;
+	}
+
+	f32vec3 lerp_01(const f32vec3& a, const f32vec3& b, f32 t) {
+		return lerp(a, b, clamp_01(t));
+	}
+
+	f32vec4 lerp(const f32vec4& a, const f32vec4& b, f32 t) {
+		return a + (b - a) * t;
+	}
+
+	f32vec4 lerp_01(const f32vec4& a, const f32vec4& b, f32 t) {
+		return lerp(a, b, clamp_01(t));
+	}
+
+	f32 inverse_lerp(f32 a, f32 b, f32 v) {
+		const f32 denom = (b - a);
+		if (denom == f32(0)) return f32(0);
+		return (v - a) / denom;
+	}
+
+	f32 inverse_lerp_01(f32 a, f32 b, f32 v) {
+		return clamp_01(inverse_lerp(a, b, v));
+	}
+
+	f32 remap(f32 inA, f32 inB, f32 outA, f32 outB, f32 v) {
+		// remap = lerp(outA, outB, inverse_lerp(inA, inB, v))
+
+		const f32 t = inverse_lerp(inA, inB, v);
+		return lerp(outA, outB, t);
+	}
+
+	f32 remap_01(f32 inA, f32 inB, f32 outA, f32 outB, f32 v) {
+		// remap_01 clamps normalized t to [0,1]
+
+		const f32 t = inverse_lerp_01(inA, inB, v);
+		return lerp(outA, outB, t);
+	}
+
+	f32 step(f32 edge, f32 x) {
+		// step(edge,x) = (x < edge) ? 0 : 1
+
+		return (x < edge) ? f32(0) : f32(1);
+	}
+
+	f32 smoothstep(f32 t) {
+		// smoothstep(t) = t^2 * (3 - 2t)    (expects t in [0,1])
+
+		return t * t * (f32(3) - f32(2) * t);
+	}
+
+	f32 smoothstep_01(f32 t) {
+		// smoothstep_01(t) = smoothstep(clamp(t,0,1))
+
+		t = clamp_01(t);
+		return smoothstep(t);
+	}
+
+	f32 smootherstep(f32 t) {
+		// smootherstep(t) = t^3 * (t * (t*6 - 15) + 10)   (expects t in [0,1])
+
+		return t * t * t * (t * (t * f32(6) - f32(15)) + f32(10));
+	}
+
+	f32 smootherstep_01(f32 t) {
+		t = clamp_01(t);
+		return smootherstep(t);
+	}
+
+	f32 smoothstep_unclamped(f32 edge0, f32 edge1, f32 x) {
+		// normalize WITHOUT clamping:
+		// t = (x - edge0) / (edge1 - edge0)
+		// smoothstep = t^2 * (3 - 2t)
+
+		const f32 denom = (edge1 - edge0);
+		if (denom == f32(0)) return f32(0);
+		const f32 t = (x - edge0) / denom;
+		return smoothstep(t);
+	}
+
+	f32 smoothstep(f32 edge0, f32 edge1, f32 x) {
+		// classic smoothstep:
+		// t = clamp( (x - edge0) / (edge1 - edge0), 0, 1 )
+		// f(t) = t^2 * (3 - 2t)
+
+		const f32 denom = (edge1 - edge0);
+		if (denom == f32(0)) return f32(0);
+		const f32 t = clamp_01((x - edge0) / denom);
+		return smoothstep(t);
+	}
+
+	f32 smootherstep_unclamped(f32 edge0, f32 edge1, f32 x) {
+		// t = (x - edge0) / (edge1 - edge0)
+		// f(t) = t^3 * (t * (t*6 - 15) + 10)
+
+		const f32 denom = (edge1 - edge0);
+		if (denom == f32(0)) return f32(0);
+		const f32 t = (x - edge0) / denom;
+		return smootherstep(t);
+	}
+
+	f32 smootherstep(f32 edge0, f32 edge1, f32 x) {
+		// t = clamp( (x - edge0) / (edge1 - edge0), 0, 1 )
+		// f(t) = t^3 * (t * (t*6 - 15) + 10)
+
+		const f32 denom = (edge1 - edge0);
+		if (denom == f32(0)) return f32(0);
+		const f32 t = clamp_01((x - edge0) / denom);
+		return smootherstep(t);
+	}
+
+	f32 ease_linear(f32 t) {
+		// f(t) = t
+
+		return t;
+	}
+
+	f32 ease_linear_01(f32 t) {
+		// f(t) = clamp(t,0,1)
+
+		return clamp_01(t);
+	}
+
+	f32 ease_in_quadratic(f32 t) {
+		// f(t) = t^2
+
+		t = clamp_01(t);
+		return t * t;
+	}
+
+	f32 ease_out_quadratic(f32 t) {
+		// f(t) = 1 - (1 - t)^2
+
+		t = clamp_01(t);
+		f32 u = f32(1) - t;
+		return f32(1) - u * u;
+	}
+
+	f32 ease_in_out_quadratic(f32 t) {
+		// f(t) = { 2t^2              		| t < 1/2
+		//        { 1 - (-2t+2)^2 / 2     	| otherwise
+
+		t = clamp_01(t);
+		if (t < f32(0.5)) {
+			return f32(2) * t * t;
+		}
+		f32 u = f32(-2) * t + f32(2);
+		return f32(1) - (u * u) / f32(2);
+	}
+
+	f32 ease_in_cubic(f32 t) {
+		// f(t) = t^3
+
+		t = clamp_01(t);
+		return t * t * t;
+	}
+
+	f32 ease_out_cubic(f32 t) {
+		// f(t) = 1 - (1 - t)^3
+
+		t = clamp_01(t);
+		f32 u = f32(1) - t;
+		return f32(1) - u * u * u;
+	}
+
+	f32 ease_in_out_cubic(f32 t) {
+		// f(t) = { 4t^3                   	| t < 1/2
+		//        { 1 - (-2t+2)^3 / 2      	| otherwise
+
+		t = clamp_01(t);
+		if (t < f32(0.5)) {
+			return f32(4) * t * t * t;
+		}
+		f32 u = f32(-2) * t + f32(2);
+		return f32(1) - (u * u * u) / f32(2);
+	}
+
+	f32 ease_in_quartic(f32 t) {
+		// f(t) = t^4
+
+		t = clamp_01(t);
+		f32 t2 = t * t;
+		return t2 * t2;
+	}
+
+	f32 ease_out_quartic(f32 t) {
+		// f(t) = 1 - (1 - t)^4
+
+		t = clamp_01(t);
+		f32 u = f32(1) - t;
+		f32 u2 = u * u;
+		return f32(1) - (u2 * u2);
+	}
+
+	f32 ease_in_out_quartic(f32 t) {
+		// f(t) = { 8t^4                    | t < 1/2
+		//        { 1 - (-2t+2)^4 / 2       | otherwise
+
+		t = clamp_01(t);
+		if (t < f32(0.5)) {
+			f32 t2 = t * t;
+			return f32(8) * t2 * t2;
+		}
+		f32 u = f32(-2) * t + f32(2);
+		f32 u2 = u * u;
+		return f32(1) - (u2 * u2) / f32(2);
+	}
+
+	f32 ease_in_quintic(f32 t) {
+		// f(t) = t^5
+
+		t = clamp_01(t);
+		f32 t2 = t * t;
+		return t2 * t2 * t;
+	}
+
+	f32 ease_out_quintic(f32 t) {
+		// f(t) = 1 - (1 - t)^5
+
+		t = clamp_01(t);
+		f32 u = f32(1) - t;
+		f32 u2 = u * u;
+		return f32(1) - (u2 * u2 * u);
+	}
+
+	f32 ease_in_out_quintic(f32 t) {
+		// f(t) = { 16t^5                   | t < 1/2
+		//        { 1 - (-2t+2)^5 / 2       | otherwise
+
+		t = clamp_01(t);
+		if (t < f32(0.5)) {
+			f32 t2 = t * t;
+			return f32(16) * t2 * t2 * t;
+		}
+		f32 u = f32(-2) * t + f32(2);
+		f32 u2 = u * u;
+		return f32(1) - (u2 * u2 * u) / f32(2);
+	}
+
+	f32 ease_in_sine(f32 t) {
+		// f(t) = 1 - cos( (t*pi) / 2 )
+
+		t = clamp_01(t);
+		return f32(1) - math::cos((t * pi()) / f32(2));
+	}
+
+	f32 ease_out_sine(f32 t) {
+		// f(t) = sin( (t*pi) / 2 )
+
+		t = clamp_01(t);
+		return math::sin((t * pi()) / f32(2));
+	}
+
+	f32 ease_in_out_sine(f32 t) {
+		// f(t) = -(cos(pi*t) - 1) / 2
+		t = clamp_01(t);
+		return (f32(1) - math::cos(pi() * t)) / f32(2);
+	}
+
+	f32 ease_in_circular(f32 t) {
+		// f(t) = 1 - sqrt(1 - t^2)
+
+		t = clamp_01(t);
+		return f32(1) - math::sqrt(math::max(f32(0), f32(1) - t * t));
+	}
+
+	f32 ease_out_circular(f32 t) {
+		// f(t) = sqrt(1 - (t - 1)^2)
+
+		t = clamp_01(t);
+		f32 u = t - f32(1);
+		return math::sqrt(math::max(f32(0), f32(1) - u * u));
+	}
+
+	f32 ease_in_out_circular(f32 t) {
+		// f(t) = { (1 - sqrt(1 - (2t)^2)) / 2    	| t < 1/2
+		//        { (sqrt(1 - (-2t+2)^2) + 1) / 2   | otherwise
+
+		t = clamp_01(t);
+		if (t < f32(0.5)) {
+			f32 x = f32(2) * t;
+			return (f32(1) - math::sqrt(math::max(f32(0), f32(1) - x * x))) / f32(2);
+		}
+		f32 x = f32(-2) * t + f32(2);
+		return (math::sqrt(math::max(f32(0), f32(1) - x * x)) + f32(1)) / f32(2);
+	}
+
+	f32 ease_in_exponential(f32 t) {
+		// f(t) = { 0                          	| t = 0
+		//        { 2^(10t - 10)               	| otherwise
+
+		t = clamp_01(t);
+		if (t == f32(0)) return f32(0);
+		return math::pow(f32(2), f32(10) * t - f32(10));
+	}
+
+	f32 ease_out_exponential(f32 t) {
+		// f(t) = { 1                          	| t = 1
+		//        { 1 - 2^(-10t)               	| otherwise
+
+		t = clamp_01(t);
+		if (t == f32(1)) return f32(1);
+		return f32(1) - math::pow(f32(2), -f32(10) * t);
+	}
+
+	f32 ease_in_out_exponential(f32 t) {
+		// f(t) = { 0                           | t = 0
+		//        { 1                           | t = 1
+		//        { 2^(20t-10) / 2             	| t < 1/2
+		//        { (2 - 2^(-20t+10)) / 2      	| otherwise
+
+		t = clamp_01(t);
+		if (t == f32(0)) return f32(0);
+		if (t == f32(1)) return f32(1);
+		if (t < f32(0.5)) {
+			return math::pow(f32(2), f32(20) * t - f32(10)) / f32(2);
+		}
+		return (f32(2) - math::pow(f32(2), -f32(20) * t + f32(10))) / f32(2);
+	}
+
+	f32 ease_in_back(f32 t, f32 overshoot) {
+		// Penner-style:
+		// c1 = overshoot, c3 = c1 + 1
+		// f(t) = c3*t^3 - c1*t^2
+
+		t = clamp_01(t);
+		const f32 c1 = overshoot;
+		const f32 c3 = c1 + f32(1);
+		return c3 * t * t * t - c1 * t * t;
+	}
+
+	f32 ease_out_back(f32 t, f32 overshoot) {
+		// f(t) = 1 + c3*(t-1)^3 + c1*(t-1)^2
+
+		t = clamp_01(t);
+		const f32 c1 = overshoot;
+		const f32 c3 = c1 + f32(1);
+		f32 u = t - f32(1);
+		return f32(1) + c3 * u * u * u + c1 * u * u;
+	}
+
+	f32 ease_in_out_back(f32 t, f32 overshoot) {
+		// c2 = overshoot * 1.525
+		// f(t) = { ( (2t)^2 * ((c2+1)*2t - c2) ) / 2            	| t < 1/2
+		//        { ( (2t-2)^2 * ((c2+1)*(2t-2) + c2) + 2 ) / 2 	| otherwise
+
+		t = clamp_01(t);
+		const f32 c2 = overshoot * f32(1.525);
+
+		if (t < f32(0.5)) {
+			f32 x = f32(2) * t;
+			return (x * x * ((c2 + f32(1)) * x - c2)) / f32(2);
+		}
+		f32 x = f32(2) * t - f32(2);
+		return (x * x * ((c2 + f32(1)) * x + c2) + f32(2)) / f32(2);
+	}
+
+	f32 ease_in_elastic(f32 t) {
+		// f(t) = { 0                                   	| t = 0
+		//        { 1                                     	| t = 1
+		//        { -2^(10t-10) * sin((10t - 10.75)*c4)  	| otherwise
+
+		t = clamp_01(t);
+		if (t == f32(0)) return f32(0);
+		if (t == f32(1)) return f32(1);
+		const f32 c4 = two_pi() / f32(3);
+		return -math::pow(f32(2), f32(10) * t - f32(10)) *
+			   math::sin((f32(10) * t - f32(10.75)) * c4);
+	}
+
+	f32 ease_out_elastic(f32 t) {
+		// f(t) = { 0                                    	| t = 0
+		//        { 1                                    	| t = 1
+		//        { 2^(-10t) * sin((10t - 0.75)*c4) + 1    	| otherwise
+
+		t = clamp_01(t);
+		if (t == f32(0)) return f32(0);
+		if (t == f32(1)) return f32(1);
+		const f32 c4 = two_pi() / f32(3);
+		return math::pow(f32(2), -f32(10) * t) *
+			   math::sin((f32(10) * t - f32(0.75)) * c4) + f32(1);
+	}
+
+	f32 ease_in_out_elastic(f32 t) {
+		// f(t) = { 0                                            		| t = 0
+		//        { 1                                               	| t = 1
+		//        { -(2^(20t-10) * sin((20t - 11.125)*c5)) / 2       	| t < 1/2
+		//        {  (2^(-20t+10) * sin((20t - 11.125)*c5)) / 2 + 1   	| otherwise
+
+		t = clamp_01(t);
+		if (t == f32(0)) return f32(0);
+		if (t == f32(1)) return f32(1);
+		const f32 c5 = two_pi() / f32(4.5);
+
+		if (t < f32(0.5)) {
+			return -(math::pow(f32(2), f32(20) * t - f32(10)) *
+					 math::sin((f32(20) * t - f32(11.125)) * c5)) / f32(2);
+		}
+		return (math::pow(f32(2), -f32(20) * t + f32(10)) *
+				math::sin((f32(20) * t - f32(11.125)) * c5)) / f32(2) + f32(1);
+	}
+
+	f32 ease_out_bounce(f32 t) {
+		// f_out(t) = piecewise(...)
+
+		t = clamp_01(t);
+		return ease_out_bounce_impl(t);
+	}
+
+	f32 ease_in_bounce(f32 t) {
+		// f_in(t) = 1 - f_out(1 - t)
+
+		t = clamp_01(t);
+		return f32(1) - ease_out_bounce_impl(f32(1) - t);
+	}
+
+	f32 ease_in_out_bounce(f32 t) {
+		// f(t) = { (1 - f_out(1 - 2t)) / 2    	| t < 1/2
+		//        { (1 + f_out(2t - 1)) / 2   	| otherwise
+
+		t = clamp_01(t);
+		if (t < f32(0.5)) {
+			return (f32(1) - ease_out_bounce_impl(f32(1) - f32(2) * t)) / f32(2);
+		}
+		return (f32(1) + ease_out_bounce_impl(f32(2) * t - f32(1))) / f32(2);
+	}
+
+	f32quat nlerp(const f32quat& a_in, const f32quat& b_in, f32 t, bool shortest_path) {
+		// nlerp(a,b,t) = normalize( (1-t)*a + t*b )
+
+		f32quat a = a_in;
+		f32quat b = b_in;
+
+		// shortest path: if dot < 0, flip b (since q and -q are same rotation)
+		f32 d = dot(a, b);
+		if (shortest_path && d < f32(0)) {
+			b = -b;
+			d = -d;
+		}
+
+		const f32 it = f32(1) - t;
+		return normalize((a*it) + (b*t));
+	}
+
+	f32quat nlerp_01(const f32quat& a, const f32quat& b, f32 t, bool shortest_path) {
+		return nlerp(a, b, clamp_01(t), shortest_path);
+	}
+
+	f32quat slerp(const f32quat& a_in, const f32quat& b_in, f32 t, bool shortest_path) {
+		// slerp(a,b,t) =
+		//   sin((1-t)*Ω)/sin(Ω) * a  +  sin(t*Ω)/sin(Ω) * b
+		//
+		// where Ω = acos(dot(a,b)) and a,b are unit quaternions.
+
+		f32quat a = normalize(a_in);
+		f32quat b = normalize(b_in);
+
+		f32 d = dot(a, b);
+
+		// shortest path: flip b if needed
+		if (shortest_path && d < f32(0)) {
+			b = -b;
+			d = -d;
+		}
+
+		// numerical safety
+		d = math::clamp(d, f32(-1), f32(1));
+
+		// if very close, fall back to nlerp (avoids division by tiny sin(Ω))
+		// threshold ~0.9995 is common.
+		if (d > f32(0.9995)) {
+			return nlerp(a, b, t, false);
+		}
+
+		const f32 omega = math::acos(d);          // Ω
+		const f32 sin_omega = math::sin(omega);   // sin(Ω)
+
+		const f32 s0 = math::sin((f32(1) - t) * omega) / sin_omega;
+		const f32 s1 = math::sin(t * omega) / sin_omega;
+
+		return (a*s0) + (b*s1);
+	}
+
+	f32quat slerp_01(const f32quat& a, const f32quat& b, f32 t, bool shortest_path) {
+		return slerp(a, b, clamp_01(t), shortest_path);
+	}
+
+	/// Scalar Angles ///
+
+	f32 radians(f32 degrees) {
+		return degrees * static_cast<f32>(0.01745329251994329576923690768489);
+	}
+
+	f32 degrees(f32 radians) {
+		return radians * static_cast<f32>(57.295779513082320876798154814105);
+	}
+
+	/// Scalar Trig ///
+
+	f32 sin(f32 n) {
+		return std::sin(n);
+	}
+
+	f32 cos(f32 n) {
+		return std::cos(n);
+	}
+
+	f32 tan(f32 n) {
+		return std::tan(n);
+	}
+
+	f32 asin(f32 n) {
+		return std::asin(n);
+	}
+
+	f32 acos(f32 n) {
+		return std::acos(n);
+	}
+
+	f32 atan(f32 n) {
+		return std::atan(n);
+	}
+
+	f32 atan2(f32 x, f32 y) {
+		return std::atan2(x, y);
+	}
+
+	f32 sinh(f32 n) {
+		return std::sinh(n);
+	}
+
+	f32 cosh(f32 n) {
+		return std::cosh(n);
+	}
+
+	f32 tanh(f32 n) {
+		return std::tanh(n);
+	}
+
+	f32 asinh(f32 n) {
+		return std::asinh(n);
+	}
+
+	f32 acosh(f32 n) {
+		return std::acosh(n);
+	}
+
+	f32 atanh(f32 n) {
+		return std::atanh(n);
+	}
+
+	/// Scalar Comparison ///
+
+	bool equal(f32 a, f32 b, f32 eps) {
+		return math::abs(a - b) <= eps;
+	}
+
+	/// Scalar Rounding ///
+
+	f32 ceil(f32 n) {
+		return std::ceil(n);
+	}
+
+	f32 floor(f32 n) {
+		return std::floor(n);
+	}
+
+	f32 round(f32 n) {
+		return std::round(n);
+	}
+
+	/// Scalar Exponentials & Logarithms ///
+
+	f32 exp(f32 n) {
+		return std::exp(n);
+	}
+
+	f32 exp2(f32 n) {
+		return std::exp2(n);
+	}
+
+	f32 pow(f32 x, f32 y) {
+		return std::pow(x, y);
+	}
+
+	f32 log(f32 n) {
+		return std::log(n);
+	}
+
+	f32 log2(f32 n) {
+		return std::log(n);
+	}
+
+	f32 log10(f32 n) {
+		return std::log10(n);
+	}
+
+	/// Scalar Magnitude ///
+
+	f32 abs(f32 n) {
+		return std::abs(n);
+	}
+
+	f32 sqrt(f32 n) {
+		return std::sqrt(n);
+	}
+
+	f32 cbrt(f32 n) {
+		return std::cbrt(n);
+	}
+
+	/// Scalar Range / Ordering ///
+
+	f32 min(f32 a, f32 b) {
+		return std::min(a, b);
+	}
+
+	f32 max(f32 a, f32 b) {
+		return std::max(a, b);
+	}
+
+	f32 clamp(f32 val, f32 low, f32 high) {
+		return std::clamp(val, low, high);
+	}
+
+	f32 clamp_01(f32 t) {
+		return std::clamp(t, f32(0.0), f32(1.0));
+	}
+
+	/// Bitwise / Classification ///
+
+	bool is_nan(f32 n) {
+		return std::isnan(n);
+	}
+
+	bool is_inf(f32 n) {
+		return std::isinf(n);
+	}
+
+	bool sign_bit(f32 n) {
+		return std::signbit(n);
+	}
+
+	/// Swap Utilities ///
+
+	void swap(f32 &a, f32 &b) {
+		std::swap(a, b);
+	}
+
 	/// Private Utilities ///
 
 	std::mt19937& default_random_gen() {
@@ -2794,6 +3285,28 @@ namespace a3d::math {
 
 	std::mt19937& pick_random_gen(std::mt19937* gen) {
 		return gen ? *gen : default_random_gen();
+	}
+
+	f32 ease_out_bounce_impl(f32 t) {
+		// Piecewise parabola bounce (Penner)
+		const f32 n1 = f32(7.5625);
+		const f32 d1 = f32(2.75);
+
+		if (t < f32(1) / d1) {
+			return n1 * t * t;
+		}
+		else if (t < f32(2) / d1) {
+			t -= f32(1.5) / d1;
+			return n1 * t * t + f32(0.75);
+		}
+		else if (t < f32(2.5) / d1) {
+			t -= f32(2.25) / d1;
+			return n1 * t * t + f32(0.9375);
+		}
+		else {
+			t -= f32(2.625) / d1;
+			return n1 * t * t + f32(0.984375);
+		}
 	}
 
 	std::string mat_right_fit(std::string s, int width) {
