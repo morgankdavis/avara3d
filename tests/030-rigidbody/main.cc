@@ -63,6 +63,92 @@ void SpawnChainMail(Scene& scene);
 Node*	g_palmNode;
 Node*	g_duckNode;
 
+
+
+
+
+
+
+
+
+
+
+
+struct WanderRotate {
+	// Tunables
+	float min_interval_s = 0.8f;
+	float max_interval_s = 2.5f;
+	float min_speed_rad  = 0.5f;   // ~3 deg/s
+	float max_speed_rad  = 1.0f;    // ~34 deg/s
+	float smoothing      = 2.0f;    // bigger = snappier (1/s)
+
+	// State
+	float timer_s = 0.0f;
+	float next_change_s = 1.0f;
+
+	vec3 ang_vel = {0,0,0};         // current rad/s (axis * speed)
+	vec3 target_ang_vel = {0,0,0};  // desired rad/s
+
+	uint32_t rng = 0x12345678u;     // replace with your RNG
+
+	// --- helpers ---
+	float rand01() {
+		// xorshift32
+		rng ^= rng << 13; rng ^= rng >> 17; rng ^= rng << 5;
+		return (rng & 0x00FFFFFF) / float(0x01000000);
+	}
+
+	float rand_range(float a, float b) { return a + (b - a) * rand01(); }
+
+	vec3 rand_unit_vec3() {
+		// Uniform on sphere using rejection or spherical coords
+		float z = rand_range(-1.0f, 1.0f);
+		float a = rand_range(0.0f, 6.28318530718f);
+		float r = std::sqrt(std::max(0.0f, 1.0f - z*z));
+		return { r*std::cos(a), z, r*std::sin(a) };
+	}
+
+	void choose_new_target() {
+		vec3 axis = rand_unit_vec3();
+		float speed = rand_range(min_speed_rad, max_speed_rad);
+		target_ang_vel = axis * speed;
+		next_change_s = rand_range(min_interval_s, max_interval_s);
+		timer_s = 0.0f;
+	}
+
+	void update(Node& n, float dt) {
+		timer_s += dt;
+		if (timer_s >= next_change_s) choose_new_target();
+
+		// Exponential smoothing toward target
+		// alpha = 1 - exp(-smoothing * dt)  (frame-rate independent)
+		float alpha = 1.0f - std::exp(-smoothing * dt);
+		ang_vel = ang_vel + (target_ang_vel - ang_vel) * alpha;
+
+		// Integrate into orientation
+		float angle = length(ang_vel) * dt;
+		if (angle > 1e-6f) {
+			vec3 axis = normalize(ang_vel);
+			quat dq = math::quaternion(axis, angle);   // implement or use yours
+			n.orientation(normalize(dq * n.orientation()));       // or n.rotation *= dq depending on convention
+		}
+	}
+};
+
+
+
+
+
+
+WanderRotate* wr;
+
+
+
+
+
+
+
+
 int main(int argc, const char* argv[]) {
 
 	try {
@@ -386,6 +472,8 @@ int main(int argc, const char* argv[]) {
 //		cameraNode->light(flashLight);
 //		scene->visualWorld()->pointOfView(cameraNode);
 
+wr = new WanderRotate();
+
 		window->center();
 		window->open();
 
@@ -414,11 +502,15 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	// rotate the duck
 	auto rotationDeg = deltaTime * radians(30.0); // 30deg/sec
 
+//	if (g_duckNode) {
+//		auto duckEuler = g_duckNode->eulerAngles();
+//		g_duckNode->eulerAngles({0, duckEuler.yaw - (float)rotationDeg, 0});
+////		g_duckNode->eulerAngles({duckEuler.pitch - (float)rotationDeg, 0, 0});
+////		g_duckNode->eulerAngles({0, 0, duckEuler.roll - (float)rotationDeg});
+//	}
+
 	if (g_duckNode) {
-		auto duckEuler = g_duckNode->eulerAngles();
-		g_duckNode->eulerAngles({0, duckEuler.yaw - (float)rotationDeg, 0});
-//		g_duckNode->eulerAngles({duckEuler.pitch - (float)rotationDeg, 0, 0});
-//		g_duckNode->eulerAngles({0, 0, duckEuler.roll - (float)rotationDeg});
+		wr->update(*g_duckNode, deltaTime);
 	}
 
 	// get input
@@ -1566,13 +1658,13 @@ void SpawnChainMail(Scene& scene) {
 		}
 	}
 
-	chainmailNode->rotation({1, 0, 0}, PI/2.0);
+	chainmailNode->rotation({1, 0, 0}, pi_over_2());
 //	chainmailNode->position({-chainmailNode->extent().x/2.0 + TORUS_MAJOR_RADIUS,
 //							 GROUND_OFFSET,
 //							 -chainmailNode->extent().y/2.0 + TORUS_MAJOR_RADIUS});
-	chainmailNode->position({-chainmailNode->extent().x/2.0f,
+	chainmailNode->position({-chainmailNode->extent().x/2.0f + 1.0f,
 							 GROUND_OFFSET,
-							 -chainmailNode->extent().z/2.0f});
+							 -chainmailNode->extent().z/2.0f + 1.0f});
 	scene.rootNode()->addChild(chainmailNode);
 
 //	auto link = ChainmailLink(TORUS_MINOR_RADIUS, TORUS_MAJOR_RADIUS);
