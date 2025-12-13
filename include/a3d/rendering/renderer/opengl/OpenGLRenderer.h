@@ -14,8 +14,6 @@
 #include <unordered_set>
 #include <utility>
 
-#include "glm/glm.hpp"
-
 #include "a3d/Types.h"
 #include "a3d/rendering/renderer/Renderer.h"
 
@@ -94,38 +92,28 @@ namespace a3d {
 									   FrameStats& stats) override;
 		void 					render(Mesh& mesh,
 									   const RenderContext& context,
-									   const glm::mat4& modelMat,
-									   const glm::mat4& viewMat,
-									   const glm::mat4& projectionMat,
+									   const math::mat4& modelMat,
+									   const math::mat4& viewMat,
+									   const math::mat4& projectionMat,
 									   const DebugOptions& debugOptions,
 									   FrameStats& stats) override;
 		void 					render(MeshElement& element,
 									   const RenderContext& context,
 									   Material& material,
-									   const glm::mat4& modelMat,
-									   const glm::mat4& viewMat,
-									   const glm::mat4& projectionMat,
+									   const math::mat4& modelMat,
+									   const math::mat4& viewMat,
+									   const math::mat4& projectionMat,
 									   const DebugOptions& debugOptions,
 									   FrameStats& stats) override;
 		void 					render(const std::vector<Line>& lines,
 									   const RenderContext& context,
-									   const glm::mat4& modelMat,
-									   const glm::mat4& viewMat,
-									   const glm::mat4& projectionMat) override;
+									   const math::mat4& modelMat,
+									   const math::mat4& viewMat,
+									   const math::mat4& projectionMat) override;
 
 		std::unique_ptr<Image> 	snapshot(const RenderContext& context) const override;
 
 		void					framebufferScaleChanged(const RenderContext& context) override;
-
-		///  Internal Constant Declarations ///
-
-		static const std::string 	STATS_TITLE_FONT_NAME;
-		static const std::string 	STATS_TITLE_FONT_TYPE;
-		static const float 			STATS_TITLE_FONT_SIZE;
-		static const std::string 	STATS_BODY_FONT_NAME;
-		static const std::string 	STATS_BODY_FONT_TYPE;
-		static const float 			STATS_BODY_FONT_SIZE;
-		static const float 			STATS_TITLE_TO_BODY_PADDING;
 
 	private:
 		/// Private Member Variables ///

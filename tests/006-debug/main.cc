@@ -9,24 +9,22 @@
 #include <memory>
 #include <utility>
 
-#include <glm/glm.hpp>
-
 #include "a3d/a3d.h"
 #include "a3d/Utilities.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
-constexpr LogLevel				A3D_APP_LOG_LEVEL =				LogLevel::Debug;
-constexpr uvec2					WINDOW_SIZE =			{1280, 768};
-constexpr bool					FULLSCREEN =			false;
-constexpr bool					ENABLE_HIGH_DPI =		true;
-constexpr AntialiasingMode		ANTIALIAS_MODE =		AntialiasingMode::None;
-constexpr bool					ENABLE_VSYNC =			false;
-constexpr bool					CAPTURE_CURSOR =		false;
-constexpr float					MOUSE_SENSITIVITY =		0.5;
+const LogLevel				A3D_APP_LOG_LEVEL		{LogLevel::Debug};
+const uvec2					WINDOW_SIZE				{1280, 768};
+const bool					FULLSCREEN				{false};
+const bool					ENABLE_HIGH_DPI			{true};
+const AntialiasingMode		ANTIALIAS_MODE			{AntialiasingMode::None};
+const bool					ENABLE_VSYNC			{false};
+const bool					CAPTURE_CURSOR			{false};
+const float					MOUSE_SENSITIVITY		{0.5};
 
 void UpdateCallback(Scene& scene, double time, double deltaTime);
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
@@ -214,15 +212,15 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 			static const float MOUSE_SPEED_SCALAR = .002;
 			static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
 
-			float deltaRotX = atan(MOUSE_SPEED * mousePositionDelta.x);
-			float deltaRotY = atan(MOUSE_SPEED * mousePositionDelta.y);
+			float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
+			float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
 
 			vec3 angles = pov->eulerAngles();
 			pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
 
 			// move
 
-			static float MOVE_SPEED = utils::Max(scene.rootNode()->extent());
+			static float MOVE_SPEED = math::max(scene.rootNode()->extent());
 
 			auto keysDown = im->keysDown();
 

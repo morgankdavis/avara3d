@@ -18,7 +18,7 @@
 #include "a3d/Utilities.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
@@ -31,13 +31,13 @@ enum class TEST {
 	ROTATION*/
 };
 
-constexpr TEST					USING_TEST =			TEST::TRAVERSAL;
-constexpr uvec2					WINDOW_SIZE =			{1280, 768};
-constexpr bool					FULLSCREEN =			false;
-constexpr bool					ENABLE_HIGH_DPI =		true;
-constexpr AntialiasingMode		ANTIALIAS_MODE =		AntialiasingMode::Msaa4X;
-constexpr bool					ENABLE_VSYNC =			false;
-constexpr bool					CAPTURE_CURSOR =		false;
+const TEST					USING_TEST			{TEST::TRAVERSAL};
+const uvec2					WINDOW_SIZE			{1280, 768};
+const bool					FULLSCREEN			{false};
+const bool					ENABLE_HIGH_DPI		{true};
+const AntialiasingMode		ANTIALIAS_MODE		{AntialiasingMode::Msaa4X};
+const bool					ENABLE_VSYNC		{false};
+const bool					CAPTURE_CURSOR		{false};
 
 void UpdateCallback(Scene& scene, float time, float deltaTime);
 void WillRenderCallback(VisualWorld& world, float time, float deltaTime);

@@ -12,7 +12,7 @@
 
 using namespace a3d;
 using namespace std;
-using namespace glm;
+using namespace a3d::math;
 
 /// Public Lifecycle Functions ///
 

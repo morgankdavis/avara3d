@@ -17,8 +17,6 @@
 #include <string>
 #include <vector>
 
-#include "glm/glm.hpp"
-
 #include "a3d/scene/Scene.h"
 
 struct GLFWmonitor;
@@ -39,39 +37,12 @@ namespace a3d::utils {
 
 	/// Output ///
 
-	// TODO: remove these
-	std::ostream& operator<<(std::ostream& os, const glm::vec3& v);
-	std::ostream& operator<<(std::ostream& os, const glm::vec4& v);
-	std::ostream& operator<<(std::ostream& os, const glm::quat& q);
-	std::ostream& operator<<(std::ostream& os, const glm::mat4& m);
-	std::ostream& operator<<(std::ostream& os, const Color& c);
-
-	std::string StringFromGLMVec3(const glm::vec3& v);
-	std::string StringFromGLMVec4(const glm::vec4& v);
-	std::string StringFromGLMQuat(const glm::quat& q);
-	std::string StringFromGLMMat4(const glm::mat4& m);
-	std::string StringFromColor(const Color& c);
-
 	std::string StringFromTree(const Node& root);
-
 	std::string DateTimeString();
 
 #ifdef POSIX
 	std::string StackTrace(unsigned dropFunctions = 0);
 #endif
-
-	/// Numeric ///
-
-	int Uniform(int min, int max);
-	float Uniform(float min, float max);
-
-	bool Zero(const glm::vec3& v, float tolerance = 0.0001);
-	float Max(const glm::vec3& v);
-
-	bool Equal(float a, float b, float tolerance = 0.0001);
-	bool Equal(const glm::vec2& a, const glm::vec2& b, float tolerance = 0.0001);
-	bool Equal(const glm::vec3& a, const glm::vec3& b, float tolerance = 0.0001);
-	bool Equal(const glm::vec4& a, const glm::vec4& b, float tolerance = 0.0001);
 
 	/// Time ///
 
@@ -166,7 +137,7 @@ namespace a3d::utils {
 
 	void 							SaveSnapshot(RenderContext& context);
 	void 							StartGIFRecording(RenderContext& context,
-													  glm::vec2 fitInside,
+													  math::uvec2 fitInside,
 													  unsigned maxFramerate);
 	void 							StopGIFRecording(RenderContext& context);
 }

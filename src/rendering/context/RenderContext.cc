@@ -23,7 +23,7 @@
 #include "a3d/scene/Scene.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
 /// Public Member Functions ///
@@ -67,8 +67,8 @@ void RenderContext::startGIFRecording(const filesystem::path& path,
 		auto fbSize = framebufferSize();
 		auto scale = std::min(float(fitInside.x)/float(fbSize.x),
 							  float(fitInside.y)/float(fbSize.y));
-		_gifRecordingWidth = (unsigned)round(float(fbSize.x) * scale);
-		_gifRecordingHeight = (unsigned)round(float(fbSize.y) * scale);
+		_gifRecordingWidth = (unsigned)math::round(float(fbSize.x) * scale);
+		_gifRecordingHeight = (unsigned)math::round(float(fbSize.y) * scale);
 
 		unsigned frameTimeMS = 1000 /* (ms/sec) */ / _gifRecordingMaxFramerate /* (frames/sec) */;
 		// -> ms/frame

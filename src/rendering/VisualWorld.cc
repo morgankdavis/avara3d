@@ -11,8 +11,6 @@
 #include <utility>
 #include <variant>
 
-#include "glm/glm.hpp"
-
 #include "a3d/Color.h"
 #include "a3d/Configuration.h"
 #include "a3d/CubeImage.h"
@@ -36,7 +34,7 @@
 #include "a3d/Utilities.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
 /// Private Static Non-Member Prototypes ///
@@ -282,7 +280,7 @@ void VisualWorld::draw(const Scene& scene,
 				if (povScene != nullptr && povScene == &scene) {
 
 					stats.cameraPosition = pov->worldPosition();
-//					stats.cameraOrientation = pov->worldOrientation();
+					stats.cameraOrientation = pov->worldOrientation();
 
 					auto frameBufferSize = _renderContext->framebufferSize();
 
@@ -386,20 +384,20 @@ weak_ptr<Node> VisualWorld::defaultPointOfView() {
 		// ztan(angle) = x
 		// z = x/tan(angle)
 
-		auto maxZ = abs(aabb.max.z);
+		auto maxZ = math::abs(aabb.max.z);
 
-		auto xH = abs(aabb.min.x) + abs(aabb.max.x) / 2.0f;
+		auto xH = math::abs(aabb.min.x) + math::abs(aabb.max.x) / 2.0f;
 		auto angleH = fovH / 2.0;
 		auto zH = xH / tan(angleH);
 
-		auto xV = abs(aabb.min.y) + abs(aabb.max.y) / 2.0f;
+		auto xV = math::abs(aabb.min.y) + math::abs(aabb.max.y) / 2.0f;
 		auto angleV = fovV / 2.0;
 		auto zV = xV / tan(angleV);
 
 		zH += maxZ;
 		zV += maxZ;
 
-		auto z = fmax(zH, zV);
+		auto z = math::max(zH, zV);
 		auto midX = (aabb.min.x + aabb.max.x) / 2.0f;
 		auto midY = (aabb.min.y + aabb.max.y) / 2.0f;
 

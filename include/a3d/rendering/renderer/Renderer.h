@@ -12,8 +12,6 @@
 #include <memory>
 #include <set>
 
-#include "glm/glm.hpp"
-
 #include "a3d/Types.h"
 
 namespace a3d {
@@ -75,24 +73,24 @@ namespace a3d {
 											   FrameStats& stats) = 0;
 		virtual void 					render(Mesh& mesh,
 											   const RenderContext& context,
-											   const glm::mat4& modelMat,
-											   const glm::mat4& viewMat,
-											   const glm::mat4& projectionMat,
+											   const math::mat4& modelMat,
+											   const math::mat4& viewMat,
+											   const math::mat4& projectionMat,
 											   const DebugOptions& debugOptions,
 											   FrameStats& stats) = 0;
 		virtual void 					render(MeshElement& element,
 											   const RenderContext& context,
 											   Material& material,
-											   const glm::mat4& modelMat,
-											   const glm::mat4& viewMat,
-											   const glm::mat4& projectionMat,
+											   const math::mat4& modelMat,
+											   const math::mat4& viewMat,
+											   const math::mat4& projectionMat,
 											   const DebugOptions& debugOptions,
 											   FrameStats& stats) = 0;
 		virtual void 					render(const std::vector<Line>& lines,
 											   const RenderContext& context,
-											   const glm::mat4& modelMat,
-											   const glm::mat4& viewMat,
-											   const glm::mat4& projectionMat) = 0;
+											   const math::mat4& modelMat,
+											   const math::mat4& viewMat,
+											   const math::mat4& projectionMat) = 0;
 
 		virtual std::unique_ptr<Image>	snapshot(const RenderContext& context) const = 0;
 

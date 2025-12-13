@@ -10,21 +10,22 @@
 
 #include "a3d/physics/bullet/BulletDebugDrawer.h"
 
-#include "a3d/Color.h"
+//#include "a3d/Color.h"
 #include "a3d/mesh/Line.h"
 #include "a3d/diagnostic/log/Log.h"
+#include "a3d/physics/bullet/BulletUtilities.h"
 #include "a3d/rendering/renderer/Renderer.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
 /// Private Static Non-Member Prototypes ///
 
-static vec3 		GLMVec3FromBTVector3(const btVector3& from);
-static vec4 		GLMVec4FromBTVector4(const btVector4& from);
-static btVector3 	BTVector3FromGLMVec3(const vec3& from);
-static btVector4 	BTVector4FromGLMVec4(const vec4& from);
+//static vec3 		A3DVec3FromBTVector3(const btVector3& from);
+//static vec4 		A3DVec4FromBTVector4(const btVector4& from);
+//static btVector3 	BTVector3FromA3DVec3(const vec3& from);
+//static btVector4 	BTVector4FromA3DVec4(const vec4& from);
 
 /// Public Lifecycle Functions ///
 
@@ -45,7 +46,7 @@ void BulletDebugDrawer::draw(Renderer& renderer,
 							 const mat4& viewMat,
 							 const mat4& projectionMat) {
 
-	constexpr auto M4_I = mat4(1.0);
+	const auto M4_I = mat4(1.0);
 	if (getDebugMode() != btIDebugDraw::DBG_NoDebug) {
 		renderer.render(_lines, context, M4_I, viewMat, projectionMat);
 	}
@@ -65,10 +66,10 @@ void BulletDebugDrawer::drawLine(const btVector3& from,
 								 const btVector3& fromColor,
 								 const btVector3& toColor) {
 
-	_lines.push_back(Line(GLMVec3FromBTVector3(from),
-						  GLMVec3FromBTVector3(to),
-						  GLMVec3FromBTVector3(fromColor),
-						  GLMVec3FromBTVector3(toColor)));
+	_lines.push_back(Line(A3DVec3FromBTVector3(from),
+						  A3DVec3FromBTVector3(to),
+						  A3DVec3FromBTVector3(fromColor),
+						  A3DVec3FromBTVector3(toColor)));
 //						  Color{fromColor.x(), fromColor.y(), fromColor.z(), 1.0},
 //						  Color{toColor.x(), toColor.y(), toColor.z(), 1.0}));
 }

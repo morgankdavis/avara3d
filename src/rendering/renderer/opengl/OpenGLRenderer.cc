@@ -10,7 +10,6 @@
 
 #include <algorithm>
 #include <format>
-#include <iostream>
 #include <set>
 #include <utility>
 #include <vector>
@@ -35,11 +34,10 @@
 #include "a3d/Color.h"
 #include "a3d/Configuration.h"
 #include "a3d/CubeImage.h"
+#include "a3d/diagnostic/log/Log.h"
 #include "a3d/Font.h"
 #include "a3d/Image.h"
-#include "a3d/Utilities.h"
-#include "a3d/diagnostic/exception/Exception.h"
-#include "a3d/diagnostic/log/Log.h"
+#include "a3d/Math.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/mesh/Line.h"
@@ -56,6 +54,7 @@
 #include "a3d/rendering/renderer/opengl/Program.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
+#include "a3d/Utilities.h"
 
 #define A3D_GL_CHECK() \
     do { \
@@ -66,20 +65,19 @@
     } while (0);
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
 //#define DISABLE_RESOURCE_MANAGEMENT
 
-///  Private Constant Definitions ///
+///  Private Constants ///
 
-const std::string 	OpenGLRenderer::STATS_TITLE_FONT_NAME = 		"SourceCodePro-Bold";
-const std::string 	OpenGLRenderer::STATS_TITLE_FONT_TYPE = 		"otf";
-const float 		OpenGLRenderer::STATS_TITLE_FONT_SIZE =			23.0;
-const std::string 	OpenGLRenderer::STATS_BODY_FONT_NAME = 			"SourceCodePro-Semibold";
-const std::string 	OpenGLRenderer::STATS_BODY_FONT_TYPE = 			"otf";
-const float 		OpenGLRenderer::STATS_BODY_FONT_SIZE =			15.0;
-const float 		OpenGLRenderer::STATS_TITLE_TO_BODY_PADDING =	-3.0;
+const std::string 	STATS_TITLE_FONT_NAME  		{"SourceCodePro-Bold"};
+const std::string 	STATS_TITLE_FONT_TYPE  		{"otf"};
+const float 		STATS_TITLE_FONT_SIZE 		{23.0};
+const std::string 	STATS_BODY_FONT_NAME  		{"SourceCodePro-Semibold"};
+const std::string 	STATS_BODY_FONT_TYPE  		{"otf"};
+const float 		STATS_BODY_FONT_SIZE 		{15.0};
 
 /// Private Types ///
 
@@ -96,41 +94,41 @@ typedef struct {
 typedef struct {
 	vec4		color;
 	vec3		direction_world;
-	float32_t	PAD0_;
+	f32			PAD0_;
 } DirectionalLightGLSLStruct;
 
 typedef struct {
 	vec4		color;
 	vec3		position_world;
-	float32_t	PAD0_;
-	float32_t	constantAttenuation;
-	float32_t	linearAttenuation;
-	float32_t	quadraticAttenuation;
-	float32_t	PAD1_;
+	f32			PAD0_;
+	f32			constantAttenuation;
+	f32			linearAttenuation;
+	f32			quadraticAttenuation;
+	f32			PAD1_;
 } PointLightGLSLStruct;
 
 typedef struct {
 	vec4		color;
 	vec3		position_world;
-	float32_t	PAD0_;
+	f32			PAD0_;
 	vec3		direction_world;
-	float32_t	PAD1_;
-	float32_t	innerAngleCos;
-	float32_t	outerAngleCos;
+	f32			PAD1_;
+	f32			innerAngleCos;
+	f32			outerAngleCos;
 	uint32_t	featheringMode;
-	float32_t	constantAttenuation;
-	float32_t	linearAttenuation;
-	float32_t	quadraticAttenuation;
-	float32_t	PAD2_;
-	float32_t	PAD3_;
+	f32			constantAttenuation;
+	f32			linearAttenuation;
+	f32			quadraticAttenuation;
+	f32			PAD2_;
+	f32			PAD3_;
 } SpotLightGLSLStruct;
 
 typedef struct {
 	vec4		color;
-	float32_t	startDistance;
-	float32_t	endDistance;
-	float32_t	densityExponent;
-	float32_t	PAD0_;
+	f32			startDistance;
+	f32			endDistance;
+	f32			densityExponent;
+	f32			PAD0_;
 } FogGLSLStruct;
 
 typedef struct {
@@ -365,7 +363,7 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 
 	// create environment UBO
 
-	uint32 ubo;
+	uint32_t ubo;
 	glGenBuffers(1, &ubo);
 	_glEnvironmentUBO = ubo;
 
@@ -660,9 +658,9 @@ void OpenGLRenderer::render(MeshElement& element,
 	
 void OpenGLRenderer::render(const std::vector<Line>& lines,
 							const RenderContext& context,
-							const glm::mat4& modelMat,
-							const glm::mat4& viewMat,
-							const glm::mat4& projectionMat) {
+							const mat4& modelMat,
+							const mat4& viewMat,
+							const mat4& projectionMat) {
 	
 	auto program = Program::Lines();
 	
@@ -2054,7 +2052,7 @@ void DrawSkyboxElement(MeshElement& element,
 
 	program.use();
 
-	auto viewMat = lookAt({0.0f, 0.0f, 0.0f}, // eye - location
+	auto viewMat = look_at({0.0f, 0.0f, 0.0f}, // eye - location
 						  pointOfView.worldForward(), // center - look at
 						  pointOfView.worldUp()); // up
 	
@@ -2416,8 +2414,8 @@ void UpdateImguiScale(const RenderContext& context,
 	io.Fonts->ClearFonts(); // crashes by itself
 	io.Fonts->ClearTexData(); // does not work, but does not crash
 
-	AddImguiFont(context, overLayFont, OpenGLRenderer::STATS_TITLE_FONT_SIZE);
-	AddImguiFont(context, bodyFont, OpenGLRenderer::STATS_BODY_FONT_SIZE);
+	AddImguiFont(context, overLayFont, STATS_TITLE_FONT_SIZE);
+	AddImguiFont(context, bodyFont, STATS_BODY_FONT_SIZE);
 
 	ImGui_ImplOpenGL3_CreateFontsTexture();
 }
@@ -2430,8 +2428,8 @@ void AddImguiFont(const RenderContext& context, const Font& font, float size) {
 
 	ImFontConfig fontConfig;
 
-	fontConfig.OversampleH = (int)std::ceil(scaleXY.x);
-	fontConfig.OversampleV = (int)std::ceil(scaleXY.y);
+	fontConfig.OversampleH = math::ceil(scaleXY.x);
+	fontConfig.OversampleV = math::ceil(scaleXY.y);
 
 	// by default Imgui transferrs font memory ownership to itself
 	// this means Imgui eventually frees the font data, and then the Font/Buffer double-free it
@@ -2669,7 +2667,7 @@ void DrawDebugOptions(Scene& scene, const RenderContext& context) {
 	bool physWF = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes);
 	if (DigDrawCheckbox(xPos, yPos, "Physics wireframes", physWF, 1, ++id)) {
 		if (physWF) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsWireframes));
-		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions,DebugOptions::ShowPhysicsWireframes));
+		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsWireframes));
 	}
 
 	yPos += Y_PAD;
@@ -2683,14 +2681,14 @@ void DrawDebugOptions(Scene& scene, const RenderContext& context) {
 	bool physContacts = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints);
 	if (DigDrawCheckbox(xPos, yPos, "Physics contacts", physContacts, 1, ++id)) {
 		if (physContacts) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsContactPoints));
-		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions,DebugOptions::ShowPhysicsContactPoints));
+		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsContactPoints));
 	}
 
 	yPos += Y_PAD;
 	bool physNorms = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsNormals);
 	if (DigDrawCheckbox(xPos, yPos, "Physics normals", physNorms, 1, ++id)) {
 		if (physNorms) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsNormals));
-		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions,DebugOptions::ShowPhysicsNormals));
+		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsNormals));
 	}
 }
 

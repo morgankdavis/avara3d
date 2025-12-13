@@ -12,13 +12,9 @@
 #include <format>
 #include <utility>
 
-#include "glm/gtx/matrix_decompose.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtx/string_cast.hpp"
-#include "glm/gtx/quaternion.hpp"
-
 #include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/log/Log.h"
+#include "a3d/Math.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsShape.h"
@@ -27,10 +23,8 @@
 #include "a3d/rendering/light/Light.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
-
-//#define ALTERNATE_EULERS
 
 /// Pulic Static Members ///
 
@@ -60,6 +54,7 @@ Node::Node():
 		_position{0.0f, 0.0f, 0.0f},
 		_orientation{},
 		_scale{1.0f, 1.0f, 1.0f},
+		_eulerAngles{},
 		_physicsBody{},
 		_hidden{false},
 		_scene{},
@@ -99,9 +94,7 @@ Node::~Node() {
 
 	// since PhysicsBody's 'node' is a weak_ptr, all that detachedFromNode did was
 	// set 'node' to an empty weak_ptr -- uncesessary.
-	//if (_physicsBody) _physicsBody->detachedFromNode(*this);
-
-//	physicsBody(nullptr);
+	// if (_physicsBody) _physicsBody->detachedFromNode(*this);
 }
 
 /// Public Member Functions ///
@@ -156,190 +149,24 @@ void Node::position(const vec3& position) {
 }
 
 vec4 Node::rotation() const {
-
-	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToAngle/
-
-	/*
-		angle = 2 * acos(qw)
-		x = qx / sqrt(1-qw*qw)
-
-		y = qy / sqrt(1-qw*qw)
-		z = qz / sqrt(1-qw*qw)
-	 */
-
-	// WORKS (but clips rotation to 2PI)
-	vec4 angleAxis = vec4(_orientation.x / sqrt(1-_orientation.w*_orientation.w),
-						  _orientation.y / sqrt(1-_orientation.w*_orientation.w),
-						  _orientation.z / sqrt(1-_orientation.w*_orientation.w),
-						  2 * acos(_orientation.w));
-
-	return angleAxis;
-
-
-	// doesn't really work at all, surprisingly
-//	mat4 rotMat = mat4_cast(_orientation);
-//	vec3 axis;
-//	float angle;
-//	axisAngle(rotMat, axis, angle);
-//	return vec4(axis.x, axis.y, axis.z, angle);
+	return axis_angle(_orientation);
 }
 
 void Node::rotation(const vec3& axis, float angle) {
-	
-//	if (_physicsBody && _physicsBody->type() == PHYSICS_BODY_TYPE::STATIC) {
-//		throw Exception("Can't manipulate )
-//	}
-//	else {
-
-	// these methods produce the same results. perhaps GLM is faster...
-	
-	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/angleToQuaternion/
-
-	/*
-		qx = ax * sin(angle/2)
-		qy = ay * sin(angle/2)
-		qz = az * sin(angle/2)
-		qw = cos(angle/2)
-
-		where:
-
-		the axis is normalised so: ax*ax + ay*ay + az*az = 1
-		the quaternion is also normalised so cos(angle/2)2 + ax*ax * sin(angle/2)2 + ay*ay * sin(angle/2)2+ az*az * sin(angle/2)2 = 1
-	 */
-
-//		float qx = rotation.x * sin(rotation.w/2.0f);
-//		float qy = rotation.y * sin(rotation.w/2.0f);
-//		float qz = rotation.z * sin(rotation.w/2.0f);
-//		float qw = cos(rotation.w/2.0f);
-//
-//		_orientation = quat(qw, qx, qy, qz);
-
-
-
-	vec3 axisNormalized = normalize(vec3(axis.x, axis.y, axis.z));
-	_orientation = angleAxis(angle, axisNormalized);
-
-	//addChildrenDirtyMask(NODE_DIRTY_MASK::WORLD_TRANSFORM);
-//	}
+	_orientation = quaternion(axis, angle);
+	_eulerAngles = std::nullopt;
 }
 
-vec3 Node::eulerAngles() const {  // pitch, yaw, roll
-
-	// glm::eulerAngleYXZ()
-	// glm::yawPitchRoll()
-	// https://glm.g-truc.net/0.9.3/api/a00164.html#ga4c297724e663cb77cc2cf7e4ab89b77e
-
-	// !? https://glm.g-truc.net/0.9.0/api/a00151.html
-
-	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
-	// https://download.tuxfamily.org/arakhne/apidocs/afc/org/arakhne/afc/math/geometry/d3/doc-files/euler_plane.gif
-	// note that the linked equation seems to have switched attitude and bank
-
-#ifndef ALTERNATE_EULERS
-
-	// works great, but appears to be ZXY order.
-	// different ordering? http://graphics.wikia.com/wiki/Conversion_between_quaternions_and_Euler_angles
-
-	auto q = _orientation;
-
-	float pitch = atan2(2.0f*q.x*q.w - 2.0f*q.y*q.z, 1.0f - 2.0f*q.x*q.x - 2.0f*q.z*q.z);
-	float yaw = atan2(2.0f*q.y*q.w - 2.0f*q.x*q.z, 1.0f - 2.0f*q.y*q.y - 2.0f*q.z*q.z);
-	float roll = asin(2*q.x*q.y + 2.0f*q.z*q.w);
-
-	return vec3(pitch, yaw, roll);
-	
-#else
-	// http://bediyap.com/programming/convert-quaternion-to-euler-rotations/
-
-	auto q = _orientation;
-	vec3 res = vec3(0.0f, 0.0f, 0.0f);
-	res.x = atan2(2*(q.y*q.z + q.w*q.x), q.w*q.w - q.x*q.x - q.y*q.y + q.z*q.z);
-	res.y = asin(-2*(q.x*q.z - q.w*q.y));
-	res.z = atan2(2*(q.x*q.y + q.w*q.z), q.w*q.w + q.x*q.x - q.y*q.y - q.z*q.z);
-	
-	return res;
-#endif
-
-	// clips to +-180
-	//return glm::eulerAngles(_orientation);
+vec3 Node::eulerAngles() const {
+	if (!_eulerAngles.has_value()) {
+		_eulerAngles = euler_angles(_orientation);
+	}
+	return *_eulerAngles;
 }
 
-void Node::eulerAngles(const vec3& eulerAngles) { // pitch, yaw, roll
-
-	// NOTE:
-	// this first formula works well for one rotation at a time,
-	// but it combines multiple rotations in a different order than SceneKit
-	// so we break it into three different rotations and apply them how we like.
-	
-	
-#ifndef ALTERNATE_EULERS
-	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
-	
-	// this works. order appears to be different from SceneKit
-
-	float pitch = eulerAngles.x;
-	float yaw = eulerAngles.y;
-	float roll = eulerAngles.z;
-
-	// ORIGINAL
-	float c1 = cos(yaw / 2.0f);
-	float c2 = cos(roll / 2.0f);
-	float c3 = cos(pitch / 2.0f);
-	float s1 = sin(yaw / 2.0f);
-	float s2 = sin(roll / 2.0f);
-	float s3 = sin(pitch / 2.0f);
-
-	float w = c1*c2*c3 - s1*s2*s3;
-	float x = s1*s2*c3 + c1*c2*s3;
-	float y = s1*c2*c3 + c1*s2*s3;
-	float z = c1*s2*c3 - s1*c2*s3;
-
-	_orientation = quat(w, x, y, z);
-	
-#else
-
-	// https://gamedev.stackexchange.com/questions/13436/glm-euler-angles-to-quaternion
-
-
-
-//	float sx = sin(eulerAngles.x/2.0), sy = sin(eulerAngles.y/2.0), sz = sin(eulerAngles.z/2.0),
-//	cx = cos(eulerAngles.x/2.0), cy = cos(eulerAngles.y/2.0), cz = cos(eulerAngles.z/2.0);
-//
-//	_orientation = normalize(quat( cx*cy*cz + sx*sy*sz,
-//	   sx*cy*cz - cx*sy*sz,
-//	   cx*sy*cz + sx*cy*sz,
-//	   cx*cy*sz - sx*sy*cz )); // for XYZ application order
-
-
-
-	//_orientation = toQuat( orientate3( eulerAngles ) );
-
-	//_orientation = toQuat( yawPitchRoll( eulerAngles.y, eulerAngles.x, eulerAngles.z ) );
-
-
-//	// https://www.opengl.org/discussion_boards/showthread.php/174858-GLM-Initializing-Quaternion-with-Eular-XYZ
-//	quat quatAroundX = angleAxis( eulerAngles.x, vec3(1.0,0.0,0.0) );
-//	quat quatAroundY = angleAxis( eulerAngles.y, vec3(0.0,1.0,0.0) );
-//	quat quatAroundZ = angleAxis( eulerAngles.z, vec3(0.0,0.0,1.0) );
-//	//quat finalOrientation = normalize(quatAroundX * quatAroundY * quatAroundZ);
-//	quat finalOrientation = quatAroundZ * quatAroundY * quatAroundX;
-//	_orientation = finalOrientation;
-
-
-
-
-	//_orientation = quat(eulerAngles); // WOW this works, but still acts strange after 180
-
-
-	//return;
-	
-	auto rotationX = rotate(mat4(1.0f), eulerAngles.x, vec3(1.0f, 0.0f, 0.0f));
-	auto rotationY = rotate(mat4(1.0f), eulerAngles.y, vec3(0.0f, 1.0f, 0.0f));
-	auto rotationZ = rotate(mat4(1.0f), eulerAngles.z, vec3(0.0f, 0.0f, 1.0f));
-
-	//_orientation = normalize(quat_cast(rotationZ * rotationX * rotationY)); // equation above order
-	_orientation = normalize(quat_cast(rotationZ * rotationY * rotationX)); // SceneKit order
-#endif
+void Node::eulerAngles(const vec3& angles) {
+	_orientation = quaternion(angles);
+	_eulerAngles = angles;
 }
 
 quat Node::orientation() const {
@@ -347,14 +174,16 @@ quat Node::orientation() const {
 }
 
 void Node::orientation(const quat& orientation) {
+
 	_orientation = orientation;
+	_eulerAngles = std::nullopt;
 }
 
 vec3 Node::scale() const {
 	return _scale;
 }
 
-void Node::scale(const glm::vec3& scale) {
+void Node::scale(const vec3& scale) {
 	_scale = scale;
 }
 
@@ -362,169 +191,128 @@ mat4 Node::transform() const {
 
 	mat4 t = translate(mat4(1.0), _position);
 	mat4 r = mat4_cast(_orientation);
-	mat4 s = glm::scale(mat4(1.0), _scale);
-	
+	mat4 s = math::scale(mat4(1.0), _scale);
+
 	return t * r * s;
 }
 
 vec3 Node::forward() const {
-	return normalize(mat4_cast(_orientation) * vec4(0.0, 0.0, -1.0, 1.0));
+
+	// method 1
+	vec3 localForward{0.0f, 0.0f, -1.0f}; // assuming local forward is -Z
+	return normalize(rotate(_orientation, localForward));
+
+	// method 2
+	// mat4 t = transform();
+	// column 2 = +Z in world space GLM/OpenGL conventions
+	// if local forward is -Z instead of +Z, negate
+	// return normalize(-vec3{t.c2.x, t.c2.y, t.c2.z});
 }
 
 vec3 Node::up() const {
-	return normalize(mat4_cast(_orientation) * vec4(0.0, 1.0, 0.0, 1.0));
+
+	// method 1
+	vec3 localForward{0.0f, 1.0f, 0.0f};
+	return normalize(rotate(_orientation, localForward));
+
+	// method 2
+	// mat4 t = transform();
+	// return normalize({t.c1.x, t.c1.y, t.c1.z });
 }
 
 vec3 Node::right() const {
-	return normalize(mat4_cast(_orientation) * vec4(1.0, 0.0, 0.0, 1.0));
+
+	// method 1
+	vec3 localForward{1.0f, 0.0f, 0.0f};
+	return normalize(rotate(_orientation, localForward));
+
+	// method 2
+	// mat4 t = transform();
+	// return normalize(t.c0.x, t.c0.y, t.c0.z});
 }
 
 void Node::transform(const mat4& transform) {
+
 	vec3 scale;
 	quat orientation;
 	vec3 translation;
-	vec3 skew;
-	vec4 perspective;
-	
+
 	decompose(transform,
 			  scale,
 			  orientation,
-			  translation,
-			  skew,
-			  perspective);
+			  translation);
 
 	_position = translation;
 	_scale = scale;
 	_orientation = orientation;
+
+	_eulerAngles = std::nullopt;
 }
 
 vec3 Node::worldPosition() const {
-	return worldTransform()[3];
+
+	return vec3{worldTransform()[3]};
 }
 
 vec4 Node::worldRotation() const {
-	throw Exception("worldRotation() not implemented."); // TODO: custom exception
-	return {0.0, 0.0, 0.0, 0.0};
+
+	return axis_angle(worldOrientation());
 }
 
 vec3 Node::worldEulerAngles() const {
+
 	throw Exception("worldEulerAngles() not implemented."); // TODO: custom exception
 	return {0.0, 0.0, 0.0};
 }
 
 quat Node::worldOrientation() const {
 
-	vec3 scale;
-	quat orientation;
-	vec3 translation;
-	vec3 skew;
-	vec4 perspective;
-
-	decompose(worldTransform(),
-			  scale,
-			  orientation,
-			  translation,
-			  skew,
-			  perspective);
-
-	return orientation;
-
-	// THESE ARE ALL WRONG (try mouselook)
-	//return worldTransform() * mat4_cast(_orientation);
-	//return normalize(quat(worldTransform() * mat4_cast(_orientation)));
-	//return normalize(quat(worldTransform() * mat4_cast(normalize(_orientation))));
+	if (auto parent = _parent.lock()) {
+		return normalize(parent->worldOrientation() * _orientation);
+	}
+	else {
+		return _orientation;
+	}
 }
 
 vec3 Node::worldScale() const {
 
-	// FUCKED CAMERA: HERE?
-
-	// OG
-
-//	vec3 scale;
-//	quat orientation;
-//	vec3 translation;
-//	vec3 skew;
-//	vec4 perspective;
-//
-//	decompose(worldTransform(),
-//			  scale,
-//			  orientation,
-//			  translation,
-//			  skew,
-//			  perspective);
-//
-//	return scale;
-
-	// OK?
-
-	return worldTransform() * vec4(_scale, 0.0); // TODO: 0, not 1? right?
+	mat4 w = worldTransform();
+	return { length(vec3(w.c0)),
+			 length(vec3(w.c1)),
+			 length(vec3(w.c2)) };
 }
 
 vec3 Node::worldForward() const {
 
-//	vec3 scale;
-//	quat orientation;
-//	vec3 translation;
-//	vec3 skew;
-//	vec4 perspective;
-//
-//	decompose(worldTransform(),
-//			  scale,
-//			  orientation,
-//			  translation,
-//			  skew,
-//			  perspective);
-//
-//	mat4 rotationMat = mat4_cast(orientation);
-//
-//	return normalize(rotationMat * vec4(0, 0, -1, 1));
+	// method 1
+	return normalize(rotate(worldOrientation(), {0.0f, 0.0f, -1.0f})); // local forward is -Z
 
-	return normalize(mat4_cast(worldOrientation()) * vec4(0, 0, -1, 1));
+	// method 2
+	// mat4 w = worldTransform();
+	// column 2 = +Z in world space GLM/OpenGL conventions
+	// if local forward is -Z instead of +Z, negate
+	// return normalize(-vec3{w.c2.x, w.c2.y, w.c2.z});
 }
 
 vec3 Node::worldUp() const {
 
-//	vec3 scale;
-//	quat orientation;
-//	vec3 translation;
-//	vec3 skew;
-//	vec4 perspective;
-//
-//	decompose(worldTransform(),
-//			  scale,
-//			  orientation,
-//			  translation,
-//			  skew,
-//			  perspective);
-//
-//	mat4 rotationMat = mat4_cast(orientation);
-//
-//	return normalize(rotationMat * vec4(0, 1, 0, 1));
+	// method 1
+	return normalize(rotate(worldOrientation(), {0.0f, 1.0f, 0.0f}));
 
-	return normalize(mat4_cast(worldOrientation()) * vec4(0, 1, 0, 1));
+	// method 2
+	// mat4 w = worldTransform();
+	// return normalize({w.c1.x, w.c1.y, w.c1.z});
 }
 
 vec3 Node::worldRight() const {
 
-//	vec3 scale;
-//	quat orientation;
-//	vec3 translation;
-//	vec3 skew;
-//	vec4 perspective;
-//
-//	decompose(worldTransform(),
-//			  scale,
-//			  orientation,
-//			  translation,
-//			  skew,
-//			  perspective);
-//
-//	mat4 rotationMat = mat4_cast(orientation);
-//
-//	return normalize(rotationMat * vec4(1, 0, 0, 1));
+	// method 1
+	return normalize(rotate(worldOrientation(), {1.0f, 0.0f, 0.0f}));
 
-	return normalize(mat4_cast(worldOrientation()) * vec4(1, 0, 0, 1));
+	// method 2
+	// mat4 w = worldTransform();
+	// return normalize({w.c0.x, w.c0.y, w.c0.z});
 }
 
 mat4 Node::worldTransform() const {
@@ -574,11 +362,6 @@ void Node::removeFromParent() {
 			}
 		}
 		parent->_children = newChildren;
-
-//		auto vec = _parent->_children;
-//		vec.erase(remove(vec.begin(), vec.end(), shared_from_this()), vec.end());
-//// TODO: can we avoid the copy?
-//		_parent->_children = vec;
 
 		detachedFromParent(*parent);
 	}
@@ -653,7 +436,7 @@ weak_ptr<Node> Node::parent() const {
 void Node::attachedToParent(Node& parent) {
 	A3D_LOG_T("parent: {:p}", static_cast<void*>(&parent));
 
-//	_parent = parent; // moved to Node::addChild() to avoid needing to pass 'parent' as a shared_ptr
+	// _parent = parent; // moved to Node::addChild() to avoid needing to pass 'parent' as a shared_ptr
 
 	// the only Node with a direct pointer to the Scene is the root node,
 	// and attachedToParent() is never called on the root node.

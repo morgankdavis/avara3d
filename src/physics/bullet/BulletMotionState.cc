@@ -28,7 +28,7 @@ BulletMotionState::BulletMotionState(PhysicsBody& body):
 void BulletMotionState::getWorldTransform(btTransform &transform) const {
 
 	if (auto node = _body->node().lock()) {
-		transform = BTTransformFromGLMMat4(node->worldTransform());
+		transform = BTTransformFromA3DMat4(node->worldTransform());
 	}
 	// causes warning to be printed every time a new PhysicsBody is created,
 	// since when the body is created, it's not yet attahed to a Node.
@@ -42,7 +42,7 @@ void BulletMotionState::getWorldTransform(btTransform &transform) const {
 void BulletMotionState::setWorldTransform(const btTransform& transform) {
 
 	if (auto node = _body->node().lock()) {
-		node->applyPhysicsTransform(GLMMat4FromBTTransform(transform));
+		node->applyPhysicsTransform(A3DMat4FromBTTransform(transform));
 	}
 //	else {
 //		A3D_LOG_W("node is null.");

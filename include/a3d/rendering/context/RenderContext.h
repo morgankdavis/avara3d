@@ -14,8 +14,6 @@
 #include <memory>
 #include <vector>
 
-#include "glm/glm.hpp"
-
 #include "a3d/Types.h"
 
 struct GifWriter;
@@ -46,7 +44,7 @@ namespace a3d {
 
 		virtual bool 					recordingGIF() const;
 		virtual void 					startGIFRecording(const std::filesystem::path& path,
-														  glm::uvec2 fitInside,
+														  math::uvec2 fitInside,
 														  unsigned maxFramerate);
 		virtual double 					recordedGIFTime() const;
 		virtual unsigned 				recordedGIFFrames() const;
@@ -70,8 +68,8 @@ namespace a3d {
 
 		virtual void 					swapBuffers() = 0;
 
-		virtual glm::uvec2				framebufferSize() const = 0;
-		virtual glm::vec2				framebufferScale() const = 0;
+		virtual math::uvec2				framebufferSize() const = 0;
+		virtual math::vec2				framebufferScale() const = 0;
 
 		virtual void 					saveGIFFrame(double deltaRunT);
 

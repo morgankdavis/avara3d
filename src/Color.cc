@@ -8,92 +8,92 @@
 
 #include "a3d/Color.h"
 
-#include "a3d/Utilities.h"
-
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
 /// Public Static Member Functions ///
 
 std::shared_ptr<Color> Color::Black() {
-	return make_unique<Color>(glm::vec4{0.0f, 0.0f, 0.0f, 1.0f});
+	return make_unique<Color>(vec4{0.0f, 0.0f, 0.0f, 1.0f});
 }
 
 std::shared_ptr<Color> Color::DarkGray() {
-	return make_unique<Color>(glm::vec4{0.25f, 0.25f, 0.25f, 1.0f});
+	return make_unique<Color>(vec4{0.25f, 0.25f, 0.25f, 1.0f});
 }
 
 std::shared_ptr<Color> Color::Gray() {
-	return make_unique<Color>(glm::vec4{0.5f, 0.5, 0.5f, 1.0f});
+	return make_unique<Color>(vec4{0.5f, 0.5, 0.5f, 1.0f});
 }
 
 std::shared_ptr<Color> Color::LightGray() {
-	return make_unique<Color>(glm::vec4{0.75f, 0.75f, 0.75f, 1.0f});
+	return make_unique<Color>(vec4{0.75f, 0.75f, 0.75f, 1.0f});
 }
 
 std::shared_ptr<Color> Color::White() {
-	return make_unique<Color>(glm::vec4{1.0f, 1.0f, 1.0f, 1.0f});
+	return make_unique<Color>(vec4{1.0f, 1.0f, 1.0f, 1.0f});
 }
 
 std::shared_ptr<Color> Color::Maroon() {
-	return make_unique<Color>(glm::vec4{128.0f/255.0f, 0.0f, 0.0f, 1.0f});
+	return make_unique<Color>(vec4{128.0f/255.0f, 0.0f, 0.0f, 1.0f});
 }
 
 std::shared_ptr<Color> Color::Red() {
-	return make_unique<Color>(glm::vec4{1.0f, 0.0f, 0.0f, 1.0f});
+	return make_unique<Color>(vec4{1.0f, 0.0f, 0.0f, 1.0f});
 }
 
 std::shared_ptr<Color> Color::Orange() {
-	return make_unique<Color>(glm::vec4{1.0f, 165.0f/255.0f, 0.0f, 1.0f});
+	return make_unique<Color>(vec4{1.0f, 165.0f/255.0f, 0.0f, 1.0f});
 }
 
 std::shared_ptr<Color> Color::Yellow() {
-	return make_unique<Color>(glm::vec4{1.0f, 1.0f, 0.0f, 1.0f});
+	return make_unique<Color>(vec4{1.0f, 1.0f, 0.0f, 1.0f});
 }
 
 std::shared_ptr<Color> Color::Olive() {
-	return make_unique<Color>(glm::vec4{128.0f/255.0f, 128.0f/255.0f, 0.0f, 1.0f});
+	return make_unique<Color>(vec4{128.0f/255.0f, 128.0f/255.0f, 0.0f, 1.0f});
 }
 
 std::shared_ptr<Color> Color::Lime() {
-	return make_unique<Color>(glm::vec4{0.0f, 1.0f, 0.0f, 1.0f});
+	return make_unique<Color>(vec4{0.0f, 1.0f, 0.0f, 1.0f});
 }
 
 std::shared_ptr<Color> Color::Green() {
-	return make_unique<Color>(glm::vec4{0.0f, 128.0f/255.0f, 0.0f, 1.0f});
+	return make_unique<Color>(vec4{0.0f, 128.0f/255.0f, 0.0f, 1.0f});
 }
 
 std::shared_ptr<Color> Color::Cyan() {
-	return make_unique<Color>(glm::vec4{0.0f, 1.0f, 1.0f, 1.0f});
+	return make_unique<Color>(vec4{0.0f, 1.0f, 1.0f, 1.0f});
 }
 
 std::shared_ptr<Color> Color::Blue() {
-	return make_unique<Color>(glm::vec4{0.0f, 0.0f, 1.0f, 1.0f});
+	return make_unique<Color>(vec4{0.0f, 0.0f, 1.0f, 1.0f});
 }
 
 std::shared_ptr<Color> Color::Navy() {
-	return make_unique<Color>(glm::vec4{0.0f, 0.0f, 128.0f/255.0f, 1.0f});
+	return make_unique<Color>(vec4{0.0f, 0.0f, 128.0f/255.0f, 1.0f});
 }
 
 std::shared_ptr<Color> Color::Teal() {
-	return make_unique<Color>(glm::vec4{0.0f, 128.0f/255.0f, 128.0f/255.0f, 1.0f});
+	return make_unique<Color>(vec4{0.0f, 128.0f/255.0f, 128.0f/255.0f, 1.0f});
 }
 
 std::shared_ptr<Color> Color::Magenta() {
-	return make_unique<Color>(glm::vec4{1.0f, 0.0f, 1.0f, 1.0f});
+	return make_unique<Color>(vec4{1.0f, 0.0f, 1.0f, 1.0f});
 }
 
 std::shared_ptr<Color> Color::Purple() {
-	return make_unique<Color>(glm::vec4{128.0f/255.0f, 0.0f, 128.0f/255.0f, 1.0f});
+	return make_unique<Color>(vec4{128.0f/255.0f, 0.0f, 128.0f/255.0f, 1.0f});
 }
 
 std::shared_ptr<Color> Color::Brown() {
-	return make_unique<Color>(glm::vec4{153.0f/255.0f, 102.0f/255.0f, 51.0f/255.0f, 1.0f});
+	return make_unique<Color>(vec4{153.0f/255.0f, 102.0f/255.0f, 51.0f/255.0f, 1.0f});
 }
 
 shared_ptr<Color> Color::Random() {
-	return make_unique<Color>(glm::u8vec3{utils::Uniform(0, 255), utils::Uniform(0, 255), utils::Uniform(0, 255)});
+	return make_unique<Color>(u8vec3(uniform_linear(0, 255),
+									 uniform_linear(0, 255),
+									 uniform_linear(0, 255)));
 }
 
 /// Public Lifecycle Functions ///
@@ -101,19 +101,19 @@ shared_ptr<Color> Color::Random() {
 Color::Color():
 		_rgba{1.0, 1.0, 1.0, 1.0} { }
 
-Color::Color(const glm::vec3& rgb):
+Color::Color(const vec3& rgb):
 		_rgba{vec4(rgb, 1.0)} {}
 
-Color::Color(const glm::vec4& rgba):
+Color::Color(const vec4& rgba):
 		_rgba{rgba} {}
 
-Color::Color(const glm::u8vec3& irgb):
+Color::Color(const u8vec3& irgb):
 		_rgba{(float)irgb.r/255.0f,
 			  (float)irgb.g/255.0f,
 			  (float)irgb.b/255.0f,
 			  1.0} {}
 
-Color::Color(const glm::u8vec4& irgba):
+Color::Color(const u8vec4& irgba):
 		_rgba{(float)irgba.r/255.0f,
 			  (float)irgba.g/255.0f,
 			  (float)irgba.b/255.0f,
@@ -154,23 +154,23 @@ float Color::a() const {
 }
 
 uint8_t Color::u8r() const {
-	return static_cast<uint8_t>(round(_rgba.r * 255.f));
+	return static_cast<uint8_t>(math::round(_rgba.r * 255.f));
 }
 
 uint8_t Color::u8g() const {
-	return static_cast<uint8_t>(round(_rgba.g * 255.f));
+	return static_cast<uint8_t>(math::round(_rgba.g * 255.f));
 }
 
 uint8_t Color::u8b() const {
-	return static_cast<uint8_t>(round(_rgba.b * 255.f));
+	return static_cast<uint8_t>(math::round(_rgba.b * 255.f));
 }
 
 uint8_t Color::u8a() const {
-	return static_cast<uint8_t>(round(_rgba.a * 255.f));
+	return static_cast<uint8_t>(math::round(_rgba.a * 255.f));
 }
 
 vec3 Color::rgb() const {
-	return _rgba;
+	return vec3(_rgba);
 }
 
 vec4 Color::rgba() const {

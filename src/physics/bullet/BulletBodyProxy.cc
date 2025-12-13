@@ -9,7 +9,6 @@
 #include "a3d/physics/bullet/BulletBodyProxy.h"
 
 #include "btBulletDynamicsCommon.h"
-#include "glm/gtc/type_ptr.hpp"
 
 #include "a3d/diagnostic/log/Log.h"
 #include "a3d/mesh/Mesh.h"
@@ -27,7 +26,7 @@
 #include "a3d/scene/Scene.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
 /// Internal Lifecycle Functions ///
@@ -193,15 +192,15 @@ void BulletBodyProxy::mass(float mass) {
 	_btBody->setActivationState(ACTIVE_TAG);
 }
 
-glm::vec3 BulletBodyProxy::momentOfInertia() const {
-	return GLMVec3FromBTVector3(_btBody->getLocalInertia());
+vec3 BulletBodyProxy::momentOfInertia() const {
+	return A3DVec3FromBTVector3(_btBody->getLocalInertia());
 }
 
-void BulletBodyProxy::momentOfInertia(const glm::vec3& moment) {
+void BulletBodyProxy::momentOfInertia(const vec3& moment) {
 
 	if (!_autocalculatesMomentOfInertia) {
 		_btBody->setMassProps(mass(),
-							  BTVector3FromGLMVec3(moment));
+							  BTVector3FromA3DVec3(moment));
 		_btBody->updateInertiaTensor();
 	}
 	else {
@@ -209,13 +208,13 @@ void BulletBodyProxy::momentOfInertia(const glm::vec3& moment) {
 	}
 }
 
-glm::vec3 BulletBodyProxy::centerOfMass() const {
-	return GLMVec3FromBTVector3(_btBody->getCenterOfMassPosition());
+vec3 BulletBodyProxy::centerOfMass() const {
+	return A3DVec3FromBTVector3(_btBody->getCenterOfMassPosition());
 }
 
-void BulletBodyProxy::centerOfMass(const glm::vec3& offset) {
+void BulletBodyProxy::centerOfMass(const vec3& offset) {
 	_btBody->setCenterOfMassTransform(
-			BTTransformFromGLMMat4(translate(mat4(1.0), offset)));
+			BTTransformFromA3DMat4(translate(mat4(1.0), offset)));
 }
 
 float BulletBodyProxy::friction() const {
@@ -242,36 +241,36 @@ void BulletBodyProxy::restitution(float restitution) {
 	_btBody->setRestitution(restitution);
 }
 
-glm::vec3 BulletBodyProxy::linearVelocity() const {
-	return GLMVec3FromBTVector3(_btBody->getLinearVelocity());
+vec3 BulletBodyProxy::linearVelocity() const {
+	return A3DVec3FromBTVector3(_btBody->getLinearVelocity());
 }
 
-void BulletBodyProxy::linearVelocity(const glm::vec3& velocity) {
-	_btBody->setLinearVelocity(BTVector3FromGLMVec3(velocity));
+void BulletBodyProxy::linearVelocity(const vec3& velocity) {
+	_btBody->setLinearVelocity(BTVector3FromA3DVec3(velocity));
 }
 
-glm::vec3 BulletBodyProxy::angularVelocity() const {
-	return GLMVec3FromBTVector3(_btBody->getAngularVelocity());
+vec3 BulletBodyProxy::angularVelocity() const {
+	return A3DVec3FromBTVector3(_btBody->getAngularVelocity());
 }
 
-void BulletBodyProxy::angularVelocity(const glm::vec3& velocity) {
-	_btBody->setAngularVelocity(BTVector3FromGLMVec3(velocity));
+void BulletBodyProxy::angularVelocity(const vec3& velocity) {
+	_btBody->setAngularVelocity(BTVector3FromA3DVec3(velocity));
 }
 
-glm::vec3 BulletBodyProxy::linearFactor() const {
-	return GLMVec3FromBTVector3(_btBody->getLinearFactor());
+vec3 BulletBodyProxy::linearFactor() const {
+	return A3DVec3FromBTVector3(_btBody->getLinearFactor());
 }
 
-void BulletBodyProxy::linearFactor(const glm::vec3& factor) {
-	_btBody->setLinearFactor(BTVector3FromGLMVec3(factor));
+void BulletBodyProxy::linearFactor(const vec3& factor) {
+	_btBody->setLinearFactor(BTVector3FromA3DVec3(factor));
 }
 
-glm::vec3 BulletBodyProxy::angularFactor() const {
-	return GLMVec3FromBTVector3(_btBody->getAngularFactor());
+vec3 BulletBodyProxy::angularFactor() const {
+	return A3DVec3FromBTVector3(_btBody->getAngularFactor());
 }
 
-void BulletBodyProxy::angularFactor(const glm::vec3& factor) {
-	_btBody->setAngularFactor(BTVector3FromGLMVec3(factor));
+void BulletBodyProxy::angularFactor(const vec3& factor) {
+	_btBody->setAngularFactor(BTVector3FromA3DVec3(factor));
 }
 
 float BulletBodyProxy::linearDamping() const {
@@ -307,29 +306,29 @@ void BulletBodyProxy::angularSleepingThreshold(float threshold) {
 }
 
 void BulletBodyProxy::applyForce(const vec3& force, const vec3& location) {
-	_btBody->applyForce(BTVector3FromGLMVec3(force),
-						BTVector3FromGLMVec3(location));
+	_btBody->applyForce(BTVector3FromA3DVec3(force),
+						BTVector3FromA3DVec3(location));
 }
 
 void BulletBodyProxy::applyCentralForce(const vec3& force) {
-	_btBody->applyCentralForce(BTVector3FromGLMVec3(force));
+	_btBody->applyCentralForce(BTVector3FromA3DVec3(force));
 }
 
 void BulletBodyProxy::applyImpulse(const vec3& impulse, const vec3& location) {
-	_btBody->applyImpulse(BTVector3FromGLMVec3(impulse),
-						BTVector3FromGLMVec3(location));
+	_btBody->applyImpulse(BTVector3FromA3DVec3(impulse),
+						  BTVector3FromA3DVec3(location));
 }
 
 void BulletBodyProxy::applyCentralImpulse(const vec3& impulse) {
-	_btBody->applyCentralImpulse(BTVector3FromGLMVec3(impulse));
+	_btBody->applyCentralImpulse(BTVector3FromA3DVec3(impulse));
 }
 
 void BulletBodyProxy::applyTorque(const vec3& torque) {
-	_btBody->applyTorque(BTVector3FromGLMVec3(torque));
+	_btBody->applyTorque(BTVector3FromA3DVec3(torque));
 }
 
 void BulletBodyProxy::applyTorqueImpulse(const vec3& torque) {
-	_btBody->applyTorqueImpulse(BTVector3FromGLMVec3(torque));
+	_btBody->applyTorqueImpulse(BTVector3FromA3DVec3(torque));
 }
 
 bool BulletBodyProxy::affectedByGravity() const {
@@ -341,11 +340,11 @@ bool BulletBodyProxy::affectedByGravity() const {
 }
 
 vec3 BulletBodyProxy::totalForce() const {
-	return GLMVec3FromBTVector3(_btBody->getTotalForce());
+	return A3DVec3FromBTVector3(_btBody->getTotalForce());
 }
 
 vec3 BulletBodyProxy::totalTorque() const {
-	return GLMVec3FromBTVector3(_btBody->getTotalTorque());
+	return A3DVec3FromBTVector3(_btBody->getTotalTorque());
 }
 
 void BulletBodyProxy::affectedByGravity(bool affectedByGravity) {
@@ -398,14 +397,14 @@ void BulletBodyProxy::resting(bool resting) {
 	_btBody->setActivationState(activationState);
 }
 
-//glm::mat4 BulletBodyProxy::worldTransform() const {
+//mat4 BulletBodyProxy::worldTransform() const {
 //
 //	static btTransform transform;
 //	_btBody->getMotionState()->getWorldTransform(transform);
 //	return GLMMat4FromBTTransform(transform);
 //}
 //
-//void BulletBodyProxy::worldTransform(const glm::mat4& transform) {
+//void BulletBodyProxy::worldTransform(const mat4& transform) {
 //
 //	bool wasScaled = false;
 //	auto btTransform = BTTransformFromGLMMat4(
@@ -424,7 +423,7 @@ void BulletBodyProxy::resting(bool resting) {
 //	_btBody->setMotionState(_motionState.get());
 //}
 
-void BulletBodyProxy::worldTransform(const glm::mat4& transform) {
+void BulletBodyProxy::worldTransform(const mat4& transform) {
 
 //	bool wasScaled = false;
 //	auto btTransform = BTTransformFromGLMMat4(
@@ -443,7 +442,7 @@ void BulletBodyProxy::worldTransform(const glm::mat4& transform) {
 //	_btBody->setMotionState(_motionState.get());
 
 
-	_btBody->setWorldTransform(BTTransformFromGLMMat4(transform));
+	_btBody->setWorldTransform(BTTransformFromA3DMat4(transform));
 
 	//_motionState = make_shared<MotionState>(_body, btTransform);
 	//_btBody->setMotionState(_motionState.get());

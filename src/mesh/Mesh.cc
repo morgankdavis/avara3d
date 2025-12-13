@@ -24,7 +24,7 @@
 #include "a3d/scene/importer/GlTFImporter.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
 /// Public Static Member Functions ///

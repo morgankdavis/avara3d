@@ -22,6 +22,7 @@
 #include "QtInputManager.h"
 
 using namespace a3d;
+using namespace a3d::math;
 using namespace std;
 using Viewport = a3d::head::qt::QtViewport;
 
@@ -139,16 +140,16 @@ void Viewport::endFrame(const a3d::Scene& scene) {}
 
 void Viewport::swapBuffers() {}
 
-glm::uvec2 Viewport::framebufferSize() const {
+uvec2 Viewport::framebufferSize() const {
 	// note that GLFW handles scale a little differently and
 	// expects framebufferSize without the multiplied scale factor.
 	auto s = devicePixelRatioF();
-	return {width() * s, height() * s};
+	return uvec2(width() * s, height() * s);
 }
 
-glm::vec2 Viewport::framebufferScale() const {
+vec2 Viewport::framebufferScale() const {
 	auto s = devicePixelRatioF();
-	return {s, s};
+	return vec2(s, s);
 }
 
 unsigned Viewport::defaultFramebuffer() const {

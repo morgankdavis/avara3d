@@ -13,12 +13,13 @@
 #include "a3d/Color.h"
 #include "a3d/Types.h"
 #include "a3d/diagnostic/log/Log.h"
+#include "a3d/Math.h"
 #include "a3d/mesh/Line.h"
 #include "a3d/scene/Node.h"
 #include "a3d/rendering/renderer/Renderer.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
 /// Public Lifecycle Functions ///
@@ -62,7 +63,7 @@ void MeshElement::draw(Renderer& renderer,
 void MeshElement::burnTransform(const mat4& transform, bool normals) {
 
 	for (auto& vert : _vertices) {
-		vert.position = {transform * vec4(vert.position, 1.0f)};
+		vert.position = vec3(transform * vec4(vert.position, 1.0f));
 
 		if (normals) {
 			vert.normal = normalize(vec3(transform * vec4(vert.normal, 0.0f)));
@@ -107,7 +108,7 @@ AABB MeshElement::aabb(const Node* convertTo) const {
 	return aabb;
 }
 
-glm::vec3 MeshElement::extent(const Node* convertTo) const {
+vec3 MeshElement::extent(const Node* convertTo) const {
 	auto aabb = MeshElement::aabb(convertTo);
 	return { aabb.max.x - aabb.min.x,
 			 aabb.max.y - aabb.min.y,

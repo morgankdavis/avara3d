@@ -41,7 +41,7 @@
 #include "a3d/Types.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
 /// Private Static Non-Member Prototypes ///
@@ -457,7 +457,7 @@ void AddBTShapeFromNodeRec(Node& node,
 							  btIndexVertexArrays);
 	}
 
-	btParentShape.addChildShape(BTTransformFromGLMMat4(node.transform()),
+	btParentShape.addChildShape(BTTransformFromA3DMat4(node.transform()),
 								newShape.get());
 	btShapes.push_back(std::move(newShape));
 }
@@ -471,7 +471,7 @@ BTConvexHullShapeFromMeshElement(MeshElement& element) {
 	// https://pybullet.org/Bullet/BulletFull/classbtConvexHullShape.html#a069cf26ba277f9f5f141128fee345eaf
 	btConvexHullShape originalShape{};
 	for (const auto& vertex : element.vertices()) {
-		originalShape.addPoint(BTVector3FromGLMVec3(vertex.position), false);
+		originalShape.addPoint(BTVector3FromA3DVec3(vertex.position), false);
 	}
 	originalShape.recalcLocalAabb();
 
