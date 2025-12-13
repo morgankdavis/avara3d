@@ -891,7 +891,8 @@ namespace a3d::math {
 	/// Bitwise / Classification ///
 
 	bool 		is_nan(f32 n);
-	bool 		is_inf(f32 n);
+	bool 		is_infinite(f32 n);
+	bool		is_finite(f32 n);
 	bool 		sign_bit(f32 n);
 
 	/// Swap Utilities ///

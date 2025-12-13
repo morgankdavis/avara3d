@@ -3491,8 +3491,12 @@ namespace a3d::math {
 		return std::isnan(n);
 	}
 
-	bool is_inf(f32 n) {
+	bool is_infinite(f32 n) {
 		return std::isinf(n);
+	}
+
+	bool is_finite(f32 n) {
+		return std::isfinite(n);
 	}
 
 	bool sign_bit(f32 n) {
@@ -3566,7 +3570,7 @@ namespace a3d::math {
 
 		// special values
 		if (math::is_nan(v)) return mat_right_fit("nan", width);
-		if (math::is_inf(v)) return mat_right_fit((v < 0) ? "-inf" : "inf", width);
+		if (math::is_infinite(v)) return mat_right_fit((v < 0) ? "-inf" : "inf", width);
 
 		// avoid "-0.000..."
 		if (v == 0.0f) v = 0.0f;
