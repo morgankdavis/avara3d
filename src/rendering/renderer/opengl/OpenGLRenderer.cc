@@ -87,15 +87,20 @@ enum class MaterialContentsType : unsigned {
 	Sampler = 	2
 };
 
+static_assert(sizeof(vec4) == 16);
+static_assert(sizeof(vec3) == 12);
+
 typedef struct {
 	vec4		color;
 } AmbientLightGLSLStruct;
+static_assert(sizeof(AmbientLightGLSLStruct) == 16);
 
 typedef struct {
 	vec4		color;
 	vec3		direction_world;
 	f32			_pad_0_;
 } DirectionalLightGLSLStruct;
+static_assert(sizeof(DirectionalLightGLSLStruct) == 32);
 
 typedef struct {
 	vec4		color;
@@ -106,6 +111,7 @@ typedef struct {
 	f32			quadraticAttenuation;
 	f32			_pad_1_;
 } PointLightGLSLStruct;
+static_assert(sizeof(PointLightGLSLStruct) == 48);
 
 typedef struct {
 	vec4		color;
@@ -122,6 +128,7 @@ typedef struct {
 	f32			_pad_2_;
 	f32			_pad_3_;
 } SpotLightGLSLStruct;
+static_assert(sizeof(SpotLightGLSLStruct) == 80);
 
 typedef struct {
 	vec4		color;
@@ -130,9 +137,11 @@ typedef struct {
 	f32			densityExponent;
 	f32			_pad_0_;
 } FogGLSLStruct;
+static_assert(sizeof(FogGLSLStruct) == 32);
 
 typedef struct {
 	alignas(16)	uint32_t 					numAmbientLights;
+	//uint32_t _pad_0_[3];
 	alignas(16) AmbientLightGLSLStruct		ambientLights[a3d::config::MAX_AMBIENT_LIGHTS];
 	alignas(16) uint32_t 					numDirectionalLights;
 	alignas(16) DirectionalLightGLSLStruct	directionalLights[a3d::config::MAX_DIRECTIONAL_LIGHTS];
@@ -1474,7 +1483,7 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 
 	// block
 
-	EnvironmentBlock environmentStruct;
+	EnvironmentBlock environmentStruct{};
 
 	// lights
 
@@ -1527,41 +1536,45 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 				// the vertex?  sure, but maybe messy?
 
 				if (auto ambientLight = dynamic_cast<AmbientLight*>(light)) {
-
-					AmbientLightGLSLStruct lightStruct;
-					lightStruct.color = ambientLight->color()->rgba();
-					ambientStructs.push_back(lightStruct);
+					if (ambientStructs.size() < config::MAX_AMBIENT_LIGHTS) {
+						AmbientLightGLSLStruct lightStruct{};
+						lightStruct.color = ambientLight->color()->rgba();
+						ambientStructs.push_back(lightStruct);
+					}
 				}
 				else if (auto directionalLight = dynamic_cast<DirectionalLight*>(light)) {
-
-					DirectionalLightGLSLStruct lightStruct;
-					lightStruct.color = directionalLight->color()->rgba();
-					lightStruct.direction_world = node->worldForward();
-					directionalStructs.push_back(lightStruct);
+					if (directionalStructs.size() < config::MAX_DIRECTIONAL_LIGHTS) {
+						DirectionalLightGLSLStruct lightStruct{};
+						lightStruct.color = directionalLight->color()->rgba();
+						lightStruct.direction_world = node->worldForward();
+						directionalStructs.push_back(lightStruct);
+					}
 				}
 				else if (auto pointLight = dynamic_cast<PointLight*>(light)) {
-
-					PointLightGLSLStruct lightStruct;
-					lightStruct.color = pointLight->color()->rgba();
-					lightStruct.position_world = node->worldPosition();
-					lightStruct.constantAttenuation = pointLight->constantAttenuation();
-					lightStruct.linearAttenuation = pointLight->linearAttenuation();
-					lightStruct.quadraticAttenuation = pointLight->quadraticAttenuation();
-					pointStructs.push_back(lightStruct);
+					if (pointStructs.size() < config::MAX_POINT_LIGHTS) {
+						PointLightGLSLStruct lightStruct{};
+						lightStruct.color = pointLight->color()->rgba();
+						lightStruct.position_world = node->worldPosition();
+						lightStruct.constantAttenuation = pointLight->constantAttenuation();
+						lightStruct.linearAttenuation = pointLight->linearAttenuation();
+						lightStruct.quadraticAttenuation = pointLight->quadraticAttenuation();
+						pointStructs.push_back(lightStruct);
+					}
 				}
 				else if (auto spotLight = dynamic_cast<SpotLight*>(light)) {
-
-					SpotLightGLSLStruct lightStruct;
-					lightStruct.color = spotLight->color()->rgba();
-					lightStruct.position_world = node->worldPosition();
-					lightStruct.direction_world = node->worldForward();
-					lightStruct.innerAngleCos = spotLight->innerAngleCos();
-					lightStruct.outerAngleCos = spotLight->outerAngleCos();
-					lightStruct.featheringMode = magic_enum::enum_underlying(spotLight->featheringMode());
-					lightStruct.constantAttenuation = spotLight->constantAttenuation();
-					lightStruct.linearAttenuation = spotLight->linearAttenuation();
-					lightStruct.quadraticAttenuation = spotLight->quadraticAttenuation();
-					spotStructs.push_back(lightStruct);
+					if (spotStructs.size() < config::MAX_SPOT_LIGHTS) {
+						SpotLightGLSLStruct lightStruct{};
+						lightStruct.color = spotLight->color()->rgba();
+						lightStruct.position_world = node->worldPosition();
+						lightStruct.direction_world = node->worldForward();
+						lightStruct.innerAngleCos = spotLight->innerAngleCos();
+						lightStruct.outerAngleCos = spotLight->outerAngleCos();
+						lightStruct.featheringMode = magic_enum::enum_underlying(spotLight->featheringMode());
+						lightStruct.constantAttenuation = spotLight->constantAttenuation();
+						lightStruct.linearAttenuation = spotLight->linearAttenuation();
+						lightStruct.quadraticAttenuation = spotLight->quadraticAttenuation();
+						spotStructs.push_back(lightStruct);
+					}
 				}
 			}
 
@@ -1590,11 +1603,10 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 	// fog
 
 	auto visualWorld = scene.visualWorld();
-	FogGLSLStruct fogStruct;
+	FogGLSLStruct fogStruct{};
 	fogStruct.startDistance = visualWorld->fogStartDistance();
 	fogStruct.endDistance = visualWorld->fogEndDistance();
 	fogStruct.densityExponent = visualWorld->fogDensityExponent();
-	fogStruct.startDistance = visualWorld->fogStartDistance();
 	auto fogColor = visualWorld->fogColor();
 	if (visualWorld->fogColor()) {
 		fogStruct.color = fogColor->rgba();
