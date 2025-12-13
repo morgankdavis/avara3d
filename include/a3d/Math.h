@@ -529,6 +529,7 @@ namespace a3d::math {
 		vec2 c0, c1;
 		f32mat2();
 		explicit f32mat2(f32 diag);
+		f32mat2(const vec2& c0_, const vec2& c1_);
 		vec2& operator[](std::size_t i);
 		const vec2& operator[](std::size_t i) const;
 	};
@@ -537,6 +538,7 @@ namespace a3d::math {
 		vec3 c0, c1, c2;
 		f32mat3();
 		explicit f32mat3(f32 diag);
+		f32mat3(const vec3& c0_, const vec3& c1_, const vec3& c2_);
 		vec3& operator[](std::size_t i);
 		const vec3& operator[](std::size_t i) const;
 	};
@@ -545,10 +547,15 @@ namespace a3d::math {
 		vec4 c0, c1, c2, c3;
 		f32mat4();
 		explicit f32mat4(f32 diag);
+		f32mat4(const vec4& c0_, const vec4& c1_, const vec4& c2_, const vec4& c3_);
 		explicit f32mat4(const f32mat3& m);
 		vec4& operator[](std::size_t i);
 		const vec4& operator[](std::size_t i) const;
 	};
+
+	f32mat2 	operator-(const f32mat2& m);
+	f32mat3 	operator-(const f32mat3& m);
+	f32mat4 	operator-(const f32mat4& m);
 
 	vec2 		operator*(const f32mat2& m, const vec2& v);
 	vec3 		operator*(const f32mat3& m, const vec3& v);

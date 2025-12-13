@@ -351,8 +351,11 @@ namespace a3d::math {
 			c0{1,0},
 			c1{0,1} {}
 
-	f32mat2::f32mat2(f32 diag)
-			: c0{diag, 0.0f}, c1{0.0f, diag} {}
+	f32mat2::f32mat2(f32 diag):
+			c0{diag, 0.0f}, c1{0.0f, diag} {}
+
+	f32mat2::f32mat2(const vec2& c0_, const vec2& c1_):
+			c0{c0_}, c1{c1_} {}
 
 	vec2& f32mat2::operator[](std::size_t i) {
 		assert(i < 2);
@@ -373,6 +376,9 @@ namespace a3d::math {
 			c0{diag, 0.0f, 0.0f},
 			c1{0.0f, diag, 0.0f},
 			c2{0.0f, 0.0f, diag} {}
+
+	f32mat3::f32mat3(const vec3& c0_, const vec3& c1_, const vec3& c2_):
+			c0{c0_}, c1{c1_}, c2{c2_} {}
 
 	vec3& f32mat3::operator[](std::size_t i) {
 		assert(i < 3);
@@ -395,6 +401,9 @@ namespace a3d::math {
 			c1{0.0f, diag, 0.0f, 0.0f},
 			c2{0.0f, 0.0f, diag, 0.0f},
 			c3{0.0f, 0.0f, 0.0f, diag} {}
+
+	f32mat4::f32mat4(const vec4& c0_, const vec4& c1_, const vec4& c2_, const vec4& c3_):
+			c0{c0_}, c1{c1_}, c2{c2_}, c3{c3_} {}
 
 	f32mat4::f32mat4(const f32mat3 &m) :
 			c0{m.c0.x, m.c0.y, m.c0.z, 0.0f},
@@ -1573,11 +1582,30 @@ namespace a3d::math {
 		ss << "u8vec4(" << static_cast<unsigned>(v.x)
 		   << ", " << static_cast<unsigned>(v.y)
 		   << ", " << static_cast<unsigned>(v.z)
-		   << ", " << static_cast<unsigned>(v.w) << ")";
+				<< ", " << static_cast<unsigned>(v.w) << ")";
 		return ss.str();
 	}
 
 	/// 32-bit Float Matrix ///
+
+	f32mat2 operator-(const f32mat2& m) {
+		// result.ci = -m.ci
+		return f32mat2{ f32vec2{ -m.c0.x, -m.c0.y },
+						f32vec2{ -m.c1.x, -m.c1.y } };
+	}
+
+	f32mat3 operator-(const f32mat3& m) {
+		return f32mat3{ f32vec3{ -m.c0.x, -m.c0.y, -m.c0.z },
+						f32vec3{ -m.c1.x, -m.c1.y, -m.c1.z },
+						f32vec3{ -m.c2.x, -m.c2.y, -m.c2.z } };
+	}
+
+	f32mat4 operator-(const f32mat4& m) {
+		return f32mat4{ f32vec4{ -m.c0.x, -m.c0.y, -m.c0.z, -m.c0.w },
+						f32vec4{ -m.c1.x, -m.c1.y, -m.c1.z, -m.c1.w },
+						f32vec4{ -m.c2.x, -m.c2.y, -m.c2.z, -m.c2.w },
+						f32vec4{ -m.c3.x, -m.c3.y, -m.c3.z, -m.c3.w } };
+	}
 
 	vec2 operator*(const f32mat2 &m, const vec2 &v) {
 		return vec2{ m.c0.x * v.x + m.c1.x * v.y,
