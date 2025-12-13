@@ -75,41 +75,41 @@ Node*	g_duckNode;
 
 
 struct WanderRotate {
-	// Tunables
-	float min_interval_s = 0.8f;
-	float max_interval_s = 2.5f;
-	float min_speed_rad  = 0.5f;   // ~3 deg/s
-	float max_speed_rad  = 1.0f;    // ~34 deg/s
-	float smoothing      = 1.0f;    // bigger = snappier (1/s)
+	// tunables
+	float minInterval = 0.8f; // seconds
+	float maxInterval = 2.5f; // seconds
+	float minSpeed  = 0.5f; // rad/s
+	float maxSpeed  = 1.0f; // rad/s
+	float smoothing = 1.0f; // bigger = snappier
 
-	// State
-	float timer_s = 0.0f;
-	float next_change_s = 1.0f;
+	// state
+	float timer = 0.0f;
+	float nextChange = 1.0f;
 
-	vec3 ang_vel = {0,0,0};         // current rad/s (axis * speed)
-	vec3 target_ang_vel = {0,0,0};  // desired rad/s
+	vec3 angularVelocity = {0, 0, 0}; // current rad/s (axis * speed)
+	vec3 targetAngularVelocity = {0, 0, 0}; // desired rad/s
 
 	void choose_new_target() {
 		vec3 axis = uniform_spherical(1.0);
-		float speed = uniform_linear(min_speed_rad, max_speed_rad);
-		target_ang_vel = axis * speed;
-		next_change_s = uniform_linear(min_interval_s, max_interval_s);
-		timer_s = 0.0f;
+		float speed = uniform_linear(minSpeed, maxSpeed);
+		targetAngularVelocity = axis * speed;
+		nextChange = uniform_linear(minInterval, maxInterval);
+		timer = 0.0f;
 	}
 
 	void update(Node& n, float dt) {
-		timer_s += dt;
-		if (timer_s >= next_change_s) choose_new_target();
+		timer += dt;
+		if (timer >= nextChange) choose_new_target();
 
 		// exponential smoothing toward target
 		// alpha = 1 - exp(-smoothing * dt)  (frame-rate independent)
-		float alpha = 1.0f - std::exp(-smoothing * dt);
-		ang_vel = ang_vel + (target_ang_vel - ang_vel) * alpha;
+		float alpha = 1.0f - math::exp(-smoothing * dt);
+		angularVelocity = angularVelocity + (targetAngularVelocity - angularVelocity) * alpha;
 
 		// integrate into orientation
-		float angle = length(ang_vel) * dt;
+		float angle = length(angularVelocity) * dt;
 		if (angle > 1e-6f) {
-			vec3 axis = normalize(ang_vel);
+			vec3 axis = normalize(angularVelocity);
 			quat dq = math::quaternion(axis, angle); // implement or use yours
 			n.orientation(normalize(dq * n.orientation())); // or n.rotation *= dq depending on convention
 		}

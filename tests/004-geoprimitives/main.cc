@@ -34,7 +34,8 @@ void DidRenderCallback(VisualWorld& world, double time, double deltaTime);
 void InitLog();
 void LogBuildInfo();
 
-std::shared_ptr<a3d::Node>	g_pointLightPivotNode;
+//std::shared_ptr<a3d::Node>	g_pointLightPivotNode;
+a3d::Node*	g_pointLightPivotNode;
 
 int main(int argc, const char* argv[]) {
 
@@ -82,10 +83,10 @@ int main(int argc, const char* argv[]) {
 											  Color::White());
 		auto sphere = Sphere::Mesh(0.25f, 12, material);
 		pointLightNode->mesh(sphere);
-		g_pointLightPivotNode = Node::NamedNode("point light pivot");
-		g_pointLightPivotNode->addChild(pointLightNode);
-		scene->rootNode()->addChild(g_pointLightPivotNode);
-
+		auto pointLightPivotNode = Node::NamedNode("point light pivot");
+		g_pointLightPivotNode = pointLightPivotNode.get();
+		pointLightPivotNode->addChild(pointLightNode);
+		scene->rootNode()->addChild(pointLightPivotNode);
 
 		{
 			auto mesh = Box::Mesh(1.5f, 1.0f, 1.5f);

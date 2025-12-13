@@ -47,6 +47,8 @@ Log& Log::MainLog() {
 
 		log._sinks = std::move(sinks);
 		//logger = make_unique<Log>("a3d", std::move(sinks));
+
+		initialized = true;
 	}
 
 	return log;
