@@ -456,8 +456,9 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 	}
 	DigEndOverlay();
 
-//	if (!(ImGui::IsAnyItemHovered() || ImGui::IsAnyItemActive()))
-//		ImGui::GetIO().WantCaptureMouse = false;
+	// pass input through Imgui window
+	if (!(ImGui::IsAnyItemHovered() || ImGui::IsAnyItemActive()))
+		ImGui::GetIO().WantCaptureMouse = false;
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -2538,6 +2539,159 @@ void DigDrawPlot(float x, float y, float w, float h,
 	PopStyleColor();
 }
 
+// GOOD
+//bool DigDrawCheckbox(float x, float y,
+//					 const char* text,
+//					 bool& checked,
+//					 int font,
+//					 int id)
+//{
+//	using namespace ImGui;
+//
+//	ImGuiIO& io = GetIO();
+//	ImFont* f = io.Fonts->Fonts[font];
+//	PushFont(f);
+//
+//	const ImVec4 transparent(0, 0, 0, 0);
+//	const ImVec4 shadow(0, 0, 0, 1);
+//	const ImVec4 checkbg1(0.25f, 0.25f, 0.25f, 0.5f);
+//	const ImVec4 checkbg2(0.50f, 0.50f, 0.50f, 0.5f);
+//	const ImVec4 white(1, 1, 1, 1);
+//
+//	// use visible label text in both passes, but keep IDs unique.
+//	const std::string shadowLabel = std::string(text) + "##shadow";
+//	const std::string realLabel   = std::string(text) + "##real";
+//
+//	// shadow pass (non-interactive, non-blocking)
+//	PushID(id);
+//	SetCursorScreenPos(ImVec2(x + 1.0f, y + 1.0f));
+//	BeginDisabled(true);
+//
+//	PushStyleColor(ImGuiCol_Text,           shadow);
+//	PushStyleColor(ImGuiCol_CheckMark,      shadow);
+//
+//	// IMPORTANT: don't fill the box in shadow pass, or it will "solidify" the real box.
+//	PushStyleColor(ImGuiCol_FrameBg,        transparent);
+//	PushStyleColor(ImGuiCol_FrameBgHovered, transparent);
+//	PushStyleColor(ImGuiCol_FrameBgActive,  transparent);
+//
+//	bool dummy = checked;
+//	Checkbox(shadowLabel.c_str(), &dummy);
+//
+//	// IMPORTANT: allow the real checkbox (drawn next) to receive hover/click even though rects overlap.
+//	ImGui::SetItemAllowOverlap();
+//
+//	PopStyleColor(5);
+//	EndDisabled();
+//	PopID();
+//
+////	// --- real pass (interactive) ---
+////	PushID(id);
+////	SetCursorScreenPos(ImVec2(x, y));
+////	PushStyleColor(ImGuiCol_FrameBg,        checkbg1);
+////	PushStyleColor(ImGuiCol_FrameBgHovered, checkbg2);
+////	PushStyleColor(ImGuiCol_FrameBgActive,  checkbg1);
+////	PushStyleColor(ImGuiCol_CheckMark,      white);
+////
+////	bool ret = Checkbox(realLabel.c_str(), &checked);
+////
+////	PopStyleColor(4);
+////	PopID();
+//
+//// --- Real pass (interactive) ---
+//	PushID(id);
+//	SetCursorScreenPos(ImVec2(x, y));
+//
+//// no fill
+//	PushStyleColor(ImGuiCol_FrameBg,        transparent);
+//	PushStyleColor(ImGuiCol_FrameBgHovered, transparent);
+//	PushStyleColor(ImGuiCol_FrameBgActive,  transparent);
+//
+//// border
+//	PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);  // thickness
+//	PushStyleColor(ImGuiCol_Border,        checkbg2);   // normal border
+//	PushStyleColor(ImGuiCol_BorderShadow,  transparent);
+//
+//// checkmark
+//	PushStyleColor(ImGuiCol_CheckMark, white);
+//
+//	bool ret = Checkbox(realLabel.c_str(), &checked);
+//
+//	PopStyleColor(6);     // 3 bg + border + borderShadow + checkmark
+//	PopStyleVar(1);
+//	PopID();
+//
+//	PopFont();
+//	return ret;
+//}
+
+//bool DigDrawCheckbox(float x, float y,
+//					 const char* text,
+//					 bool& checked,
+//					 int font,
+//					 int id) {
+//
+//	using namespace ImGui;
+//
+//	ImGuiIO& io = GetIO();
+//	ImFont* f = io.Fonts->Fonts[font];
+//	PushFont(f);
+//
+//	const ImVec4 transparent(0,0,0,0);
+//	const ImVec4 black(0,0,0,1);
+//	const ImVec4 white(1,1,1,1);
+//
+//	const float shadow_off = 1.0f;
+//	const float border_thickness = 1.0f;
+//
+//	const std::string shadowLabel = std::string(text) + "##shadow";
+//	const std::string realLabel   = std::string(text) + "##real";
+//
+//	auto push_outline_style = [&](const ImVec4& col) {
+//		PushStyleVar(ImGuiStyleVar_FrameBorderSize, border_thickness);
+//
+//		PushStyleColor(ImGuiCol_FrameBg,        transparent);
+//		PushStyleColor(ImGuiCol_FrameBgHovered, transparent);
+//		PushStyleColor(ImGuiCol_FrameBgActive,  transparent);
+//
+//		PushStyleColor(ImGuiCol_Border,       col);
+//		PushStyleColor(ImGuiCol_BorderShadow, transparent);
+//
+//		PushStyleColor(ImGuiCol_CheckMark, col);
+//		PushStyleColor(ImGuiCol_Text,      col);
+//	};
+//
+//	// --- shadow pass (non-interactive, non-blocking) ---
+//	PushID(id);
+//	SetCursorScreenPos(ImVec2(x + shadow_off, y + shadow_off));
+//	BeginDisabled(true);
+//
+//	push_outline_style(black);
+//	bool dummy = checked;
+//	Checkbox(shadowLabel.c_str(), &dummy);
+//	SetItemAllowOverlap(); // ! don't steal hover/click from the real one !
+//	PopStyleColor(7);
+//	PopStyleVar(1);
+//
+//	EndDisabled();
+//	PopID();
+//
+//	// --- real pass (interactive) ---
+//	PushID(id);
+//	SetCursorScreenPos(ImVec2(x, y));
+//
+//	push_outline_style(white);
+//	bool ret = Checkbox(realLabel.c_str(), &checked);
+//	PopStyleColor(7);
+//	PopStyleVar(1);
+//
+//	PopID();
+//
+//	PopFont();
+//
+//	return ret;
+//}
+
 bool DigDrawCheckbox(float x, float y,
 					 const char* text,
 					 bool& checked,
@@ -2550,51 +2704,71 @@ bool DigDrawCheckbox(float x, float y,
 	ImFont* f = io.Fonts->Fonts[font];
 	PushFont(f);
 
-	const ImVec4 transparent(0, 0, 0, 0);
-	const ImVec4 shadow(0, 0, 0, 1);
-	const ImVec4 checkbg1(0.25f, 0.25f, 0.25f, 0.5f);
-	const ImVec4 checkbg2(0.50f, 0.50f, 0.50f, 0.5f);
-	const ImVec4 white(1, 1, 1, 1);
+	const ImVec4 transparent(0,0,0,0);
+	const float shadow_off = 1.0f;
+	const float border_thickness = 1.0f;
 
-	// use visible label text in both passes, but keep IDs unique.
-	const std::string shadowLabel = std::string(text) + "##shadow";
-	const std::string realLabel   = std::string(text) + "##real";
+	const float box_size = GetFrameHeight();                 // checkbox square size
+	const float label_gap = GetStyle().ItemInnerSpacing.x;   // spacing between box and label
 
-	// shadow pass (non-interactive, non-blocking)
+	// --- Shadow checkbox (non-interactive, non-blocking) ---
 	PushID(id);
-	SetCursorScreenPos(ImVec2(x + 1.0f, y + 1.0f));
+	SetCursorScreenPos(ImVec2(x + shadow_off, y + shadow_off));
 	BeginDisabled(true);
 
-	PushStyleColor(ImGuiCol_Text,           shadow);
-	PushStyleColor(ImGuiCol_CheckMark,      shadow);
-
-	// IMPORTANT: don't fill the box in shadow pass, or it will "solidify" the real box.
+	PushStyleVar(ImGuiStyleVar_FrameBorderSize, border_thickness);
 	PushStyleColor(ImGuiCol_FrameBg,        transparent);
 	PushStyleColor(ImGuiCol_FrameBgHovered, transparent);
 	PushStyleColor(ImGuiCol_FrameBgActive,  transparent);
+	PushStyleColor(ImGuiCol_Border,         ImVec4(0,0,0,1));
+	PushStyleColor(ImGuiCol_BorderShadow,   transparent);
+	PushStyleColor(ImGuiCol_CheckMark,      ImVec4(0,0,0,1));
 
 	bool dummy = checked;
-	Checkbox(shadowLabel.c_str(), &dummy);
+	Checkbox("##shadow", &dummy);
+	SetItemAllowOverlap();
 
-	// IMPORTANT: allow the real checkbox (drawn next) to receive hover/click even though rects overlap.
-	ImGui::SetItemAllowOverlap();
-
-	PopStyleColor(5);
+	PopStyleColor(6);
+	PopStyleVar();
 	EndDisabled();
 	PopID();
 
-	// --- real pass (interactive) ---
+	// --- Real checkbox (interactive, NO label) ---
+	bool ret = false;
+
 	PushID(id);
 	SetCursorScreenPos(ImVec2(x, y));
-	PushStyleColor(ImGuiCol_FrameBg,        checkbg1);
-	PushStyleColor(ImGuiCol_FrameBgHovered, checkbg2);
-	PushStyleColor(ImGuiCol_FrameBgActive,  checkbg1);
-	PushStyleColor(ImGuiCol_CheckMark,      white);
 
-	bool ret = Checkbox(realLabel.c_str(), &checked);
+	PushStyleVar(ImGuiStyleVar_FrameBorderSize, border_thickness);
+	PushStyleColor(ImGuiCol_FrameBg,        transparent);
+	PushStyleColor(ImGuiCol_FrameBgHovered, transparent);
+	PushStyleColor(ImGuiCol_FrameBgActive,  transparent);
+	PushStyleColor(ImGuiCol_Border,         ImVec4(1,1,1,1));
+	PushStyleColor(ImGuiCol_BorderShadow,   transparent);
+	PushStyleColor(ImGuiCol_CheckMark,      ImVec4(1,1,1,1));
 
-	PopStyleColor(4);
+	ret = Checkbox("##real", &checked);
+
+	PopStyleColor(6);
+	PopStyleVar();
 	PopID();
+
+	// --- Draw label ourselves (true solid shadow, like DigDrawText) ---
+	ImDrawList* dl = GetWindowDrawList(); // or GetForegroundDrawList() to match DigDrawText layer exactly
+
+	// Align label vertically with checkbox frame (center-ish)
+	float text_y = y + GetStyle().FramePadding.y;
+
+	ImVec2 label_pos(x + box_size + label_gap, text_y);
+
+	dl->AddText(f, f->FontSize,
+				ImVec2(label_pos.x + shadow_off, label_pos.y + shadow_off),
+				IM_COL32(0,0,0,255),
+				text);
+	dl->AddText(f, f->FontSize,
+				label_pos,
+				IM_COL32(255,255,255,255),
+				text);
 
 	PopFont();
 	return ret;
