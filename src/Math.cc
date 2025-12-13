@@ -9,8 +9,9 @@
 #include "a3d/Math.h"
 
 #include <algorithm>
-#include <cmath>
 #include <cassert>
+#include <cmath>
+#include <cctype>
 #include <format>
 #include <sstream>
 
@@ -21,6 +22,7 @@ namespace a3d::math {
 	static inline std::mt19937& default_random_gen();
 	static inline std::mt19937& pick_random_gen(std::mt19937* gen);
 	static inline f32 			ease_out_bounce_impl(f32 t);
+	static inline f32 			hue2rgb(f32 p, f32 q, f32 t);
 	static inline std::string 	mat_right_fit(std::string s, int width);
 	static inline std::string 	mat_fmtf(float v, unsigned width);
 
@@ -631,27 +633,27 @@ namespace a3d::math {
 	}
 
 	f32 min(const f32vec2& v) {
-		return std::min(v.x, v.y);
+		return math::min(v.x, v.y);
 	}
 
 	f32 min(const f32vec3& v) {
-		return std::min(v.x, std::min(v.y, v.z));
+		return math::min(v.x, math::min(v.y, v.z));
 	}
 
 	f32 min(const f32vec4& v) {
-		return std::min(std::min(v.x, v.y), std::min(v.z, v.w));
+		return math::min(math::min(v.x, v.y), math::min(v.z, v.w));
 	}
 
 	f32 max(const f32vec2& v) {
-		return std::max(v.x, v.y);
+		return math::max(v.x, v.y);
 	}
 
 	f32 max(const f32vec3& v) {
-		return std::max(v.x, std::max(v.y, v.z));
+		return math::max(v.x, math::max(v.y, v.z));
 	}
 
 	f32 max(const f32vec4& v) {
-		return std::max(std::max(v.x, v.y), std::max(v.z, v.w));
+		return math::max(math::max(v.x, v.y), math::max(v.z, v.w));
 	}
 
 	f32 dot(const f32vec2 &a, const f32vec2 &b) {
@@ -940,27 +942,27 @@ namespace a3d::math {
 	}
 
 	f32 min(const i32vec2& v) {
-		return static_cast<f32>(std::min(v.x, v.y));
+		return math::min(v.x, v.y);
 	}
 
 	f32 min(const i32vec3& v) {
-		return static_cast<f32>(std::min(v.x, std::min(v.y, v.z)));
+		return math::min(v.x, math::min(v.y, v.z));
 	}
 
 	f32 min(const i32vec4& v) {
-		return static_cast<f32>(std::min(std::min(v.x, v.y), std::min(v.z, v.w)));
+		return math::min(math::min(v.x, v.y), math::min(v.z, v.w));
 	}
 
 	f32 max(const i32vec2& v) {
-		return static_cast<f32>(std::max(v.x, v.y));
+		return math::max(v.x, v.y);
 	}
 
 	f32 max(const i32vec3& v) {
-		return static_cast<f32>(std::max(v.x, std::max(v.y, v.z)));
+		return math::max(v.x, math::max(v.y, v.z));
 	}
 
 	f32 max(const i32vec4& v) {
-		return static_cast<f32>(std::max(std::max(v.x, v.y), std::max(v.z, v.w)));
+		return math::max(math::max(v.x, v.y), math::max(v.z, v.w));
 	}
 
 	i32 dot(const i32vec2 &a, const i32vec2 &b) {
@@ -1201,27 +1203,27 @@ namespace a3d::math {
 	}
 
 	f32 min(const u32vec2& v) {
-		return static_cast<f32>(std::min(v.x, v.y));
+		return math::min(v.x, v.y);
 	}
 
 	f32 min(const u32vec3& v) {
-		return static_cast<f32>(std::min(v.x, std::min(v.y, v.z)));
+		return math::min(v.x, math::min(v.y, v.z));
 	}
 
 	f32 min(const u32vec4& v) {
-		return static_cast<f32>(std::min(std::min(v.x, v.y), std::min(v.z, v.w)));
+		return math::min(math::min(v.x, v.y), math::min(v.z, v.w));
 	}
 
 	f32 max(const u32vec2& v) {
-		return static_cast<f32>(std::max(v.x, v.y));
+		return math::max(v.x, v.y);
 	}
 
 	f32 max(const u32vec3& v) {
-		return static_cast<f32>(std::max(v.x, std::max(v.y, v.z)));
+		return math::max(v.x, math::max(v.y, v.z));
 	}
 
 	f32 max(const u32vec4& v) {
-		return static_cast<f32>(std::max(std::max(v.x, v.y), std::max(v.z, v.w)));
+		return math::max(math::max(v.x, v.y), math::max(v.z, v.w));
 	}
 
 	u32 dot(const u32vec2 &a, const u32vec2 &b) {
@@ -1503,27 +1505,27 @@ namespace a3d::math {
 	}
 
 	f32 min(const u8vec2& v) {
-		return static_cast<f32>(std::min(v.x, v.y));
+		return math::min(v.x, v.y);
 	}
 
 	f32 min(const u8vec3& v) {
-		return static_cast<f32>(std::min(v.x, std::min(v.y, v.z)));
+		return math::min(v.x, math::min(v.y, v.z));
 	}
 
 	f32 min(const u8vec4& v) {
-		return static_cast<f32>(std::min(std::min(v.x, v.y), std::min(v.z, v.w)));
+		return math::min(math::min(v.x, v.y), math::min(v.z, v.w));
 	}
 
 	f32 max(const u8vec2& v) {
-		return static_cast<f32>(std::max(v.x, v.y));
+		return math::max(v.x, v.y);
 	}
 
 	f32 max(const u8vec3& v) {
-		return static_cast<f32>(std::max(v.x, std::max(v.y, v.z)));
+		return math::max(v.x, math::max(v.y, v.z));
 	}
 
 	f32 max(const u8vec4& v) {
-		return static_cast<f32>(std::max(std::max(v.x, v.y), std::max(v.z, v.w)));
+		return math::max(math::max(v.x, v.y), math::max(v.z, v.w));
 	}
 
 	u8* value_ptr(u8vec2& v) {
@@ -1818,8 +1820,8 @@ namespace a3d::math {
 
 			// swap rows in both 'a' and 'inv'
 			if (pivot_row != col) {
-				std::swap(a[col], a[pivot_row]); // TODO: wrap with a3d::math
-				std::swap(inv[col], inv[pivot_row]); // TODO: wrap with a3d::math
+				math::swap(a[col], a[pivot_row]); // TODO: wrap with a3d::math
+				math::swap(inv[col], inv[pivot_row]); // TODO: wrap with a3d::math
 			}
 
 			// normalize pivot row
@@ -1864,7 +1866,7 @@ namespace a3d::math {
 		const f32 s = sin(a);
 
 		vec3 axis(normalize(v));
-		vec3 temp((f32(1.0) - c) * axis);
+		vec3 temp((f32(1) - c) * axis);
 
 		f32mat4 rotate;
 		rotate[0][0] = c + temp[0] * axis[0];
@@ -2280,15 +2282,15 @@ namespace a3d::math {
 		f32 qwz(q.w * q.z);
 
 		mat3 r(1.0);
-		r[0][0] = f32(1.0) - f32(2.0) * (qyy + qzz);
-		r[0][1] = f32(2.0) * (qxy + qwz);
-		r[0][2] = f32(2.0) * (qxz - qwy);
-		r[1][0] = f32(2.0) * (qxy - qwz);
-		r[1][1] = f32(1.0) - f32(2.0) * (qxx + qzz);
-		r[1][2] = f32(2.0) * (qyz + qwx);
-		r[2][0] = f32(2.0) * (qxz + qwy);
-		r[2][1] = f32(2.0) * (qyz - qwx);
-		r[2][2] = f32(1.0) - f32(2.0) * (qxx + qyy);
+		r[0][0] = f32(1) - f32(2) * (qyy + qzz);
+		r[0][1] = f32(2) * (qxy + qwz);
+		r[0][2] = f32(2) * (qxz - qwy);
+		r[1][0] = f32(2) * (qxy - qwz);
+		r[1][1] = f32(1) - f32(2) * (qxx + qzz);
+		r[1][2] = f32(2) * (qyz + qwx);
+		r[2][0] = f32(2) * (qxz + qwy);
+		r[2][1] = f32(2) * (qyz - qwx);
+		r[2][2] = f32(1) - f32(2) * (qxx + qyy);
 		return r;
 	}
 
@@ -2561,7 +2563,7 @@ namespace a3d::math {
 
 	f32vec2 uniform_disk(std::mt19937* gen, f32 radius) {
 		auto& g = pick_random_gen(gen);
-		radius = std::fabs(radius);
+		radius = math::abs(radius);
 
 		// uniform in disk area:
 		// r = R*sqrt(u), theta uniform
@@ -2590,7 +2592,7 @@ namespace a3d::math {
 		const f32 dy = r_xy * math::sin(phi);
 		const f32 dz = z;
 
-		const f32 r = radius * static_cast<f32>(math::cbrt(static_cast<double>(uniform_01(&g))));
+		const f32 r = radius * math::cbrt(uniform_01(&g));
 
 		return f32vec3{ r * dx, r * dy, r * dz };
 	}
@@ -2613,7 +2615,7 @@ namespace a3d::math {
 			if (v >= min && v <= max) return v;
 		}
 		// fallback
-		return std::clamp(dis(g), min, max);
+		return math::clamp(dis(g), min, max);
 	}
 
 	bool bernoulli(f32 p) {
@@ -3136,6 +3138,205 @@ namespace a3d::math {
 		return slerp(a, b, clamp_01(t), shortest_path);
 	}
 
+	/// Color & Color Spaces ///
+
+	f32 srgb_to_linear(f32 c) {
+		// IEC 61966-2-1:
+		// linear = c/12.92              		| c <= 0.04045
+		// linear = ((c+0.055)/1.055)^2.4  		| otherwise
+		c = clamp_01(c);
+		if (c <= f32(0.04045)) return c / f32(12.92);
+		return math::pow((c + f32(0.055)) / f32(1.055), f32(2.4));
+	}
+
+	f32 linear_to_srgb(f32 c) {
+		// IEC 61966-2-1:
+		// srgb = 12.92 * c               		| c <= 0.0031308
+		// srgb = 1.055*c^(1/2.4) - 0.055 		| otherwise
+		c = clamp_01(c);
+		if (c <= f32(0.0031308)) return c * f32(12.92);
+		return f32(1.055) * math::pow(c, f32(1) / f32(2.4)) - f32(0.055);
+	}
+
+	f32vec3 srgb_to_linear(const f32vec3& c) {
+		return f32vec3{ srgb_to_linear(c.r), srgb_to_linear(c.g), srgb_to_linear(c.b) };
+	}
+
+	f32vec3 linear_to_srgb(const f32vec3& c) {
+		return f32vec3{ linear_to_srgb(c.r), linear_to_srgb(c.g), linear_to_srgb(c.b) };
+	}
+
+	f32vec4 srgb_to_linear(const f32vec4& c) {
+		// alpha unchanged
+		return f32vec4{ srgb_to_linear(c.r), srgb_to_linear(c.g), srgb_to_linear(c.b), c.a };
+	}
+
+	f32vec4 linear_to_srgb(const f32vec4& c) {
+		// alpha unchanged
+		return f32vec4{ linear_to_srgb(c.r), linear_to_srgb(c.g), linear_to_srgb(c.b), c.a };
+	}
+
+	f32vec3 saturate(const f32vec3& c) {
+		return f32vec3{ clamp_01(c.r), clamp_01(c.g), clamp_01(c.b) };
+	}
+
+	f32vec4 saturate(const f32vec4& c) {
+		return f32vec4{ clamp_01(c.r), clamp_01(c.g), clamp_01(c.b), clamp_01(c.a) };
+	}
+
+	f32 luminance_rec709(const f32vec3& rgb_linear) {
+		return rgb_linear.r * f32(0.2126) +
+			   rgb_linear.g * f32(0.7152) +
+			   rgb_linear.b * f32(0.0722);
+	}
+
+	f32 luminance_rec709(const f32vec4& rgba_linear) {
+		return luminance_rec709(f32vec3{ rgba_linear.r, rgba_linear.g, rgba_linear.b });
+	}
+
+	f32vec4 premultiply_alpha(const f32vec4& rgba) {
+		// rgb' = rgb * a
+		return f32vec4{ rgba.r * rgba.a, rgba.g * rgba.a, rgba.b * rgba.a, rgba.a };
+	}
+
+	f32vec4 unpremultiply_alpha(const f32vec4& rgba) {
+		// rgb' = rgb / a (guard a==0)
+		if (rgba.a <= f32(0)) return f32vec4{ f32(0), f32(0), f32(0), rgba.a };
+		const f32 inv = f32(1) / rgba.a;
+		return f32vec4{ rgba.r * inv, rgba.g * inv, rgba.b * inv, rgba.a };
+	}
+
+	f32vec3 lerp_linear_rgb(const f32vec3& a, const f32vec3& b, f32 t) {
+		return f32vec3{ a.r + (b.r - a.r) * t,
+						a.g + (b.g - a.g) * t,
+						a.b + (b.b - a.b) * t };
+	}
+
+	f32vec4 lerp_linear_rgba(const f32vec4& a, const f32vec4& b, f32 t) {
+		return f32vec4{ a.r + (b.r - a.r) * t,
+						a.g + (b.g - a.g) * t,
+						a.b + (b.b - a.b) * t,
+						a.a + (b.a - a.a) * t };
+	}
+
+	f32vec3 rgb_to_hsv(const f32vec3& rgb) {
+		const f32 r = rgb.r, g = rgb.g, b = rgb.b;
+		const f32 mx = math::max(r, math::max(g, b));
+		const f32 mn = math::min(r, math::min(g, b));
+		const f32 d  = mx - mn;
+
+		// v = max channel
+		const f32 v = mx;
+
+		// s = d / mx (or 0 if mx==0)
+		const f32 s = (mx > f32(0)) ? (d / mx) : f32(0);
+
+		// hue in [0,1)
+		f32 h = f32(0);
+		if (d > f32(0)) {
+			if (mx == r) {
+				h = (g - b) / d;
+				if (h < f32(0)) h += f32(6);
+			}
+			else if (mx == g) {
+				h = (b - r) / d + f32(2);
+			}
+			else { // mx == b
+				h = (r - g) / d + f32(4);
+			}
+			h /= f32(6);
+		}
+
+		return f32vec3{ h, s, v }; // (h,s,v)
+	}
+
+	f32vec3 hsv_to_rgb(const f32vec3& hsv) {
+		f32 h = hsv.x; // hue in [0,1) (wrapped below)
+		const f32 s = clamp_01(hsv.y);
+		const f32 v = clamp_01(hsv.z);
+
+		// Wrap hue into [0,1)
+		h = h - math::floor(h);
+
+		// HSV -> RGB:
+		// c = v*s
+		// hp = h*6
+		// x = c*(1 - |(hp mod 2) - 1|)
+		// m = v - c
+		const f32 c = v * s;
+		const f32 hp = h * f32(6);
+		const f32 x = c * (f32(1) - math::abs(math::mod(hp, f32(2)) - f32(1)));
+		const f32 m = v - c;
+
+		f32 rp=0, gp=0, bp=0;
+		if      (hp < f32(1)) { rp=c; gp=x; bp=0; }
+		else if (hp < f32(2)) { rp=x; gp=c; bp=0; }
+		else if (hp < f32(3)) { rp=0; gp=c; bp=x; }
+		else if (hp < f32(4)) { rp=0; gp=x; bp=c; }
+		else if (hp < f32(5)) { rp=x; gp=0; bp=c; }
+		else                  { rp=c; gp=0; bp=x; }
+
+		return f32vec3{ rp + m, gp + m, bp + m }; // returned as rgb (use .r/.g/.b)
+	}
+
+	f32vec3 rgb_to_hsl(const f32vec3& rgb) {
+		const f32 r = rgb.r, g = rgb.g, b = rgb.b;
+		const f32 mx = math::max(r, math::max(g, b));
+		const f32 mn = math::min(r, math::min(g, b));
+		const f32 d  = mx - mn;
+
+		// l = (mx + mn)/2
+		const f32 l = (mx + mn) / f32(2);
+
+		// s = d / (1 - |2l - 1|) (or 0 if d==0)
+		f32 s = f32(0);
+		if (d > f32(0)) {
+			const f32 denom = f32(1) - math::abs(f32(2) * l - f32(1));
+			s = (denom > f32(0)) ? (d / denom) : f32(0);
+		}
+
+		// hue in [0,1)
+		f32 h = f32(0);
+		if (d > f32(0)) {
+			if (mx == r) {
+				h = (g - b) / d;
+				if (h < f32(0)) h += f32(6);
+			}
+			else if (mx == g) {
+				h = (b - r) / d + f32(2);
+			}
+			else {
+				h = (r - g) / d + f32(4);
+			}
+			h /= f32(6);
+		}
+
+		return f32vec3{ h, s, l }; // (h,s,l)
+	}
+
+	f32vec3 hsl_to_rgb(const f32vec3& hsl) {
+		f32 h = hsl.x;
+		const f32 s = clamp_01(hsl.y);
+		const f32 l = clamp_01(hsl.z);
+
+		// wrap hue into [0,1)
+		h = h - math::floor(h);
+
+		if (s == f32(0)) {
+			// achromatic
+			return f32vec3{ l, l, l };
+		}
+
+		const f32 q = (l < f32(0.5)) ? (l * (f32(1) + s)) : (l + s - l * s);
+		const f32 p = f32(2) * l - q;
+
+		const f32 r = hue2rgb(p, q, h + f32(1.0/3.0));
+		const f32 g = hue2rgb(p, q, h);
+		const f32 b = hue2rgb(p, q, h - f32(1.0/3.0));
+
+		return f32vec3{ r, g, b };
+	}
+
 	/// Scalar Angles ///
 
 	f32 radians(f32 degrees) {
@@ -3172,8 +3373,8 @@ namespace a3d::math {
 		return std::atan(n);
 	}
 
-	f32 atan2(f32 x, f32 y) {
-		return std::atan2(x, y);
+	f32 atan2(f32 y, f32 x) {
+		return std::atan2(y, x);
 	}
 
 	f32 sinh(f32 n) {
@@ -3239,7 +3440,7 @@ namespace a3d::math {
 	}
 
 	f32 log2(f32 n) {
-		return std::log(n);
+		return std::log2(n);
 	}
 
 	f32 log10(f32 n) {
@@ -3262,20 +3463,26 @@ namespace a3d::math {
 
 	/// Scalar Range / Ordering ///
 
-	f32 min(f32 a, f32 b) {
-		return std::min(a, b);
-	}
-
-	f32 max(f32 a, f32 b) {
-		return std::max(a, b);
-	}
-
-	f32 clamp(f32 val, f32 low, f32 high) {
-		return std::clamp(val, low, high);
-	}
-
 	f32 clamp_01(f32 t) {
-		return std::clamp(t, f32(0.0), f32(1.0));
+		return std::clamp(t, f32(0), f32(1));
+	}
+
+	/// Scalar Remainder / Wrap ///
+
+	f32 fmod(f32 x, f32 y) {
+		return std::fmod(x, y);
+	}
+
+	f32 mod(f32 x, f32 y) {
+		f32 r = std::fmod(x, y);
+		if (r < 0) r += y;
+		return r;
+	}
+
+	f32 wrap(f32 x, f32 lo, f32 hi) {
+		f32 w = hi - lo;
+		if (w == 0) return lo;
+		return lo + mod(x - lo, w);
 	}
 
 	/// Bitwise / Classification ///
@@ -3335,6 +3542,16 @@ namespace a3d::math {
 			t -= f32(2.625) / d1;
 			return n1 * t * t + f32(0.984375);
 		}
+	}
+
+	f32 hue2rgb(f32 p, f32 q, f32 t) {
+		// HSL helper
+		if (t < f32(0)) t += f32(1);
+		if (t > f32(1)) t -= f32(1);
+		if (t < f32(1.0/6.0)) return p + (q - p) * f32(6) * t;
+		if (t < f32(1.0/2.0)) return q;
+		if (t < f32(2.0/3.0)) return p + (q - p) * (f32(2.0/3.0) - t) * f32(6);
+		return p;
 	}
 
 	std::string mat_right_fit(std::string s, int width) {

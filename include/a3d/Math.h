@@ -800,7 +800,31 @@ namespace a3d::math {
 	f32quat 	slerp(const f32quat& a, const f32quat& b, f32 t, bool shortest_path = true);
 	f32quat 	slerp_01(const f32quat& a, const f32quat& b, f32 t, bool shortest_path = true);
 
-	// TODO: colors/color spaces
+	/// Color & Color Spaces ///
+
+	f32 		srgb_to_linear(f32 c);
+	f32 		linear_to_srgb(f32 c);
+
+	f32vec3 	srgb_to_linear(const f32vec3& c);
+	f32vec3		linear_to_srgb(const f32vec3& c);
+
+	f32vec4 	srgb_to_linear(const f32vec4& c); // alpha unchanged
+	f32vec4 	linear_to_srgb(const f32vec4& c); // alpha unchanged
+
+	f32vec3 	saturate(const f32vec3& c);
+	f32vec4 	saturate(const f32vec4& c);
+
+	f32 		luminance_rec709(const f32vec3& rgb); // dot(rgb, {0.2126,0.7152,0.0722})
+	f32 		luminance_rec709(const f32vec4& rgba);
+
+	f32vec3 	lerp_linear_rgb(const f32vec3& a, const f32vec3& b, f32 t);
+	f32vec4 	lerp_linear_rgba(const f32vec4& a, const f32vec4& b, f32 t);
+
+	f32vec3 	rgb_to_hsv(const f32vec3& rgb_linear);
+	f32vec3 	hsv_to_rgb(const f32vec3& hsv); // returns linear rgb
+
+	f32vec3 	rgb_to_hsl(const f32vec3& rgb_linear);
+	f32vec3 	hsl_to_rgb(const f32vec3& hsl); // returns linear rgb
 
 	/// Scalar Angles ///
 
@@ -815,7 +839,7 @@ namespace a3d::math {
 	f32 		asin(f32 n);
 	f32 		acos(f32 n);
 	f32 		atan(f32 n);
-	f32 		atan2(f32 x, f32 y);
+	f32 		atan2(f32 y, f32 x);
 	f32 		sinh(f32 n);
 	f32 		cosh(f32 n);
 	f32 		tanh(f32 n);
@@ -850,10 +874,19 @@ namespace a3d::math {
 
 	/// Scalar Range / Ordering ///
 
-	f32 		min(f32 a, f32 b);
-	f32 		max(f32 a, f32 b);
-	f32			clamp(f32 val, f32 low, f32 high);
+	template <class T>
+	constexpr T min(T a, T b) { return (b < a) ? b : a; }
+	template <class T>
+	constexpr T max(T a, T b) { return (a < b) ? b : a; }
+	template <class T>
+	constexpr T clamp(T v, T lo, T hi) { return (v < lo) ? lo : (hi < v) ? hi : v; }
 	f32 		clamp_01(f32 t);
+
+	/// Scalar Remainder / Wrap ///
+
+	f32 		fmod(f32 x, f32 y);
+	f32 		mod(f32 x, f32 y); // positive modulo
+	f32 		wrap(f32 x, f32 lo, f32 hi);
 
 	/// Bitwise / Classification ///
 
