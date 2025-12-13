@@ -44,11 +44,6 @@ namespace a3d::utils {
 	std::string StackTrace(unsigned dropFunctions = 0);
 #endif
 
-	/// Numeric ///
-
-	int Uniform(int min, int max);
-	float Uniform(float min, float max);
-
 	/// Time ///
 
 	double	Time();

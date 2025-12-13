@@ -131,22 +131,6 @@ string a3d::utils::StackTrace(unsigned dropFunctions) {
 }
 #endif
 
-/// Numeric ///
-
-int a3d::utils::Uniform(int min, int max) {
-	static random_device rd;
-	static mt19937 gen(rd());
-	uniform_int_distribution<> dis(min, max);
-	return dis(gen);
-}
-
-float a3d::utils::Uniform(float min, float max) {
-	static random_device rd;
-	static mt19937 gen(rd());
-	uniform_real_distribution<> dis(min, max);
-	return dis(gen);
-}
-
 /// Time ///
 
 double a3d::utils::Time() {

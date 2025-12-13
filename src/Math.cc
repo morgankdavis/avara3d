@@ -18,7 +18,9 @@ namespace a3d::math {
 
 	/// Private Utility Prototypes ///
 
-	static inline std::string mat_right_fit(std::string s, unsigned width);
+	static inline std::mt19937& default_random_gen();
+	static inline std::mt19937& pick_random_gen(std::mt19937* gen);
+	static inline std::string mat_right_fit(std::string s, int width);
 	static inline std::string mat_fmtf(float v, unsigned width);
 
 	/// Types ///
@@ -1857,7 +1859,7 @@ namespace a3d::math {
 		const f32 s = sin(a);
 
 		vec3 axis(normalize(v));
-		vec3 temp((f32(1) - c) * axis);
+		vec3 temp((f32(1.0) - c) * axis);
 
 		f32mat4 rotate;
 		rotate[0][0] = c + temp[0] * axis[0];
@@ -2273,15 +2275,15 @@ namespace a3d::math {
 		f32 qwz(q.w * q.z);
 
 		mat3 r(1.0);
-		r[0][0] = f32(1) - f32(2) * (qyy + qzz);
-		r[0][1] = f32(2) * (qxy + qwz);
-		r[0][2] = f32(2) * (qxz - qwy);
-		r[1][0] = f32(2) * (qxy - qwz);
-		r[1][1] = f32(1) - f32(2) * (qxx + qzz);
-		r[1][2] = f32(2) * (qyz + qwx);
-		r[2][0] = f32(2) * (qxz + qwy);
-		r[2][1] = f32(2) * (qyz - qwx);
-		r[2][2] = f32(1) - f32(2) * (qxx + qyy);
+		r[0][0] = f32(1.0) - f32(2.0) * (qyy + qzz);
+		r[0][1] = f32(2.0) * (qxy + qwz);
+		r[0][2] = f32(2.0) * (qxz - qwy);
+		r[1][0] = f32(2.0) * (qxy - qwz);
+		r[1][1] = f32(1.0) - f32(2.0) * (qxx + qzz);
+		r[1][2] = f32(2.0) * (qyz + qwx);
+		r[2][0] = f32(2.0) * (qxz + qwy);
+		r[2][1] = f32(2.0) * (qyz - qwx);
+		r[2][2] = f32(1.0) - f32(2.0) * (qxx + qyy);
 		return r;
 	}
 
@@ -2307,164 +2309,26 @@ namespace a3d::math {
 		return f32quat{ ptr[0], ptr[1], ptr[2], ptr[3] };
 	}
 
-	/// 32-bit Float Trig ///
-
-	f32 radians(f32 degrees) {
-		return degrees * static_cast<f32>(0.01745329251994329576923690768489);
-	}
-
-	f32 degrees(f32 radians) {
-		return radians * static_cast<f32>(57.295779513082320876798154814105);
-	}
-
-	f32 sin(f32 num) {
-		return std::sin(num);
-	}
-
-	f32 cos(f32 num) {
-		return std::cos(num);
-	}
-
-	f32 tan(f32 num) {
-		return std::tan(num);
-	}
-
-	f32 asin(f32 num) {
-		return std::asin(num);
-	}
-
-	f32 acos(f32 num) {
-		return std::acos(num);
-	}
-
-	f32 atan(f32 num) {
-		return std::atan(num);
-	}
-
-	f32 atan2(f32 x, f32 y) {
-		return std::atan2(x, y);
-	}
-
-	f32 sinh(f32 num) {
-		return std::sinh(num);
-	}
-
-	f32 cosh(f32 num) {
-		return std::cosh(num);
-	}
-
-	f32 tanh(f32 num) {
-		return std::tanh(num);
-	}
-
-	f32 asinh(f32 num) {
-		return std::asinh(num);
-	}
-
-	f32 acosh(f32 num) {
-		return std::acosh(num);
-	}
-
-	f32 atanh(f32 num) {
-		return std::atanh(num);
-	}
-
-	/// 32-bit Float Utilities ///
-
-	bool equal(f32 a, f32 b, f32 eps) {
-		return math::abs(a - b) <= eps;
-	}
-
-	f32 ceil(f32 num) {
-		return std::ceil(num);
-	}
-
-	f32 floor(f32 num) {
-		return std::floor(num);
-	}
-
-	f32 round(f32 num) {
-		return std::round(num);
-	}
-
-	f32 exp(f32 num) {
-		return std::exp(num);
-	}
-
-	f32 exp2(f32 num) {
-		return std::exp2(num);
-	}
-
-	f32 pow(f32 x, f32 y) {
-		return std::pow(x, y);
-	}
-
-	f32 abs(f32 num) {
-		return std::abs(num);
-	}
-
-	f32 log(f32 num) {
-		return std::log(num);
-	}
-
-	f32 log2(f32 num) {
-		return std::log(num);
-	}
-
-	f32 log10(f32 num) {
-		return std::log10(num);
-	}
-
-	f32 sqrt(f32 num) {
-		return std::sqrt(num);
-	}
-
-	f32 min(f32 a, f32 b) {
-		return std::min(a, b);
-	}
-
-	f32 max(f32 a, f32 b) {
-		return std::max(a, b);
-	}
-
-	f32 clamp(f32 val, f32 low, f32 high) {
-		return std::clamp(val, low, high);
-	}
-
-	void swap(f32 &a, f32 &b) {
-		std::swap(a, b);
-	}
-
-	bool isnan(f32 num) {
-		return std::isnan(num);
-	}
-
-	bool isinf(f32 num) {
-		return std::isinf(num);
-	}
-
-	bool signbit(f32 num) {
-		return std::signbit(num);
-	}
+	/// Projection & Camera ///
 
 	mat4 perspective(f32 fovy, f32 aspect, f32 zNear, f32 zFar) {
 		assert(math::abs(aspect) > std::numeric_limits<f32>::epsilon() &&
 			   "aspect must be non-zero");
-		f32 const tanHalfFovy = tan(fovy / static_cast<f32>(2));
-		mat4 result(static_cast<f32>(0));
-		result[0][0] = static_cast<f32>(1) / (aspect * tanHalfFovy);
-		result[1][1] = static_cast<f32>(1) / (tanHalfFovy);
+		f32 const tanHalfFovy = tan(fovy / static_cast<f32>(2.0));
+		mat4 result(static_cast<f32>(0.0));
+		result[0][0] = static_cast<f32>(1.0) / (aspect * tanHalfFovy);
+		result[1][1] = static_cast<f32>(1.0) / (tanHalfFovy);
 		result[2][2] = - (zFar + zNear) / (zFar - zNear);
-		result[2][3] = - static_cast<f32>(1);
-		result[3][2] = - (static_cast<f32>(2) * zFar * zNear) / (zFar - zNear);
+		result[2][3] = - static_cast<f32>(1.0);
+		result[3][2] = - (static_cast<f32>(2.0) * zFar * zNear) / (zFar - zNear);
 		return result;
 	}
 
 	mat4 ortho(f32 left, f32 right, f32 bottom, f32 top, f32 zNear, f32 zFar) {
-		mat4 result(1);
-		result[0][0] = static_cast<f32>(2) / (right - left);
-		result[1][1] = static_cast<f32>(2) / (top - bottom);
-		result[2][2] = - static_cast<f32>(2) / (zFar - zNear);
+		mat4 result(1.0f);
+		result[0][0] = static_cast<f32>(2.0) / (right - left);
+		result[1][1] = static_cast<f32>(2.0) / (top - bottom);
+		result[2][2] = - static_cast<f32>(2.0) / (zFar - zNear);
 		result[3][0] = - (right + left) / (right - left);
 		result[3][1] = - (top + bottom) / (top - bottom);
 		result[3][2] = - (zFar + zNear) / (zFar - zNear);
@@ -2476,7 +2340,7 @@ namespace a3d::math {
 		vec3 const s(normalize(cross(f, up)));
 		vec3 const u(cross(s, f));
 
-		mat4 result(1);
+		mat4 result(1.0f);
 		result[0][0] = s.x;
 		result[1][0] = s.y;
 		result[2][0] = s.z;
@@ -2491,6 +2355,8 @@ namespace a3d::math {
 		result[3][2] = dot(f, eye);
 		return result;
 	}
+
+	/// Matrix Decomposition ///
 
 	bool decompose(const mat4& m,
 				   vec3& scale,
@@ -2590,9 +2456,347 @@ namespace a3d::math {
 		return true;
 	}
 
+	/// Scalar Angles ///
+
+	f32 radians(f32 degrees) {
+		return degrees * static_cast<f32>(0.01745329251994329576923690768489);
+	}
+
+	f32 degrees(f32 radians) {
+		return radians * static_cast<f32>(57.295779513082320876798154814105);
+	}
+
+	/// Scalar Trig ///
+
+	f32 sin(f32 n) {
+		return std::sin(n);
+	}
+
+	f32 cos(f32 n) {
+		return std::cos(n);
+	}
+
+	f32 tan(f32 n) {
+		return std::tan(n);
+	}
+
+	f32 asin(f32 n) {
+		return std::asin(n);
+	}
+
+	f32 acos(f32 n) {
+		return std::acos(n);
+	}
+
+	f32 atan(f32 n) {
+		return std::atan(n);
+	}
+
+	f32 atan2(f32 x, f32 y) {
+		return std::atan2(x, y);
+	}
+
+	f32 sinh(f32 n) {
+		return std::sinh(n);
+	}
+
+	f32 cosh(f32 n) {
+		return std::cosh(n);
+	}
+
+	f32 tanh(f32 n) {
+		return std::tanh(n);
+	}
+
+	f32 asinh(f32 n) {
+		return std::asinh(n);
+	}
+
+	f32 acosh(f32 n) {
+		return std::acosh(n);
+	}
+
+	f32 atanh(f32 n) {
+		return std::atanh(n);
+	}
+
+	/// Scalar Comparison ///
+
+	bool equal(f32 a, f32 b, f32 eps) {
+		return math::abs(a - b) <= eps;
+	}
+
+	/// Scalar Rounding ///
+
+	f32 ceil(f32 n) {
+		return std::ceil(n);
+	}
+
+	f32 floor(f32 n) {
+		return std::floor(n);
+	}
+
+	f32 round(f32 n) {
+		return std::round(n);
+	}
+
+	/// Scalar Exponentials & Logarithms ///
+
+	f32 exp(f32 n) {
+		return std::exp(n);
+	}
+
+	f32 exp2(f32 n) {
+		return std::exp2(n);
+	}
+
+	f32 pow(f32 x, f32 y) {
+		return std::pow(x, y);
+	}
+
+	f32 log(f32 n) {
+		return std::log(n);
+	}
+
+	f32 log2(f32 n) {
+		return std::log(n);
+	}
+
+	f32 log10(f32 n) {
+		return std::log10(n);
+	}
+
+	/// Scalar Magnitude ///
+
+	f32 abs(f32 n) {
+		return std::abs(n);
+	}
+
+	f32 sqrt(f32 n) {
+		return std::sqrt(n);
+	}
+
+	f32 cbrt(f32 n) {
+		return std::cbrt(n);
+	}
+
+	/// Scalar Range / Ordering ///
+
+	f32 min(f32 a, f32 b) {
+		return std::min(a, b);
+	}
+
+	f32 max(f32 a, f32 b) {
+		return std::max(a, b);
+	}
+
+	f32 clamp(f32 val, f32 low, f32 high) {
+		return std::clamp(val, low, high);
+	}
+
+	/// Bitwise / Classification ///
+
+	bool is_nan(f32 n) {
+		return std::isnan(n);
+	}
+
+	bool is_inf(f32 n) {
+		return std::isinf(n);
+	}
+
+	bool sign_bit(f32 n) {
+		return std::signbit(n);
+	}
+
+	/// Swap Utilities ///
+
+	void swap(f32 &a, f32 &b) {
+		std::swap(a, b);
+	}
+
+	/// Random ///
+
+	f32 uniform_01() {
+		return uniform_01(nullptr);
+	}
+
+	f32 uniform_01(std::mt19937* gen) {
+		auto& g = pick_random_gen(gen);
+		return std::generate_canonical<f32, 24>(g);
+		// or (what's the difference again...?)
+//		std::uniform_real_distribution<f32> dis(f32(0), f32(1));
+//		return dis(pick_random_gen(gen));
+	}
+
+	f32 uniform_n11() {
+		return uniform_n11(nullptr);
+	}
+
+	f32 uniform_n11(std::mt19937* gen) {
+		return uniform_01(gen) * f32(2) - f32(1);
+	}
+
+	u8 uniform_linear(u8 min, u8 max) {
+		return uniform_linear(nullptr, min, max);
+	}
+
+	u8 uniform_linear(std::mt19937* gen, u8 min, u8 max) {
+		// aoid uniform_int_distribution<u8> quirks; generate in int.
+		std::uniform_int_distribution<int> dis(static_cast<int>(min),
+											   static_cast<int>(max));
+		return static_cast<u8>(dis(pick_random_gen(gen)));
+	}
+
+	u32 uniform_linear(u32 min, u32 max) {
+		return uniform_linear(nullptr, min, max);
+	}
+
+	u32 uniform_linear(std::mt19937* gen, u32 min, u32 max) {
+		std::uniform_int_distribution<u32> dis(min, max); // inclusive
+		return dis(pick_random_gen(gen));
+	}
+
+	i32 uniform_linear(i32 min, i32 max) {
+		return uniform_linear(nullptr, min, max);
+	}
+
+	i32 uniform_linear(std::mt19937* gen, i32 min, i32 max) {
+		std::uniform_int_distribution<i32> dis(min, max); // inclusive
+		return dis(pick_random_gen(gen));
+	}
+
+	f32 uniform_linear(f32 min, f32 max) {
+		return uniform_linear(nullptr, min, max);
+	}
+
+	f32 uniform_linear(std::mt19937* gen, f32 min, f32 max) {
+		return min + (max - min) * uniform_01(gen);
+		// std::uniform_real_distribution<f32> dis(min, max); // [min,max)
+		// return dis(pick_random_gen(gen));
+	}
+
+	f32vec2 uniform_circular(f32 radius) {
+		return uniform_circular(nullptr, radius);
+	}
+
+	f32vec2 uniform_circular(std::mt19937* gen, f32 radius) {
+		auto& g = pick_random_gen(gen);
+		radius = math::abs(radius);
+
+		const f32 theta = two_pi() * uniform_01(&g);
+		return f32vec2{ radius * math::cos(theta),
+						radius * math::sin(theta) };
+	}
+
+	f32vec3 uniform_spherical(f32 radius) {
+		return uniform_spherical(nullptr, radius);
+	}
+
+	f32vec3 uniform_spherical(std::mt19937* gen, f32 radius) {
+		auto& g = pick_random_gen(gen);
+		radius = math::abs(radius);
+
+		// uniform on sphere surface:
+		// z ~ U[-1,1), phi ~ U[0,2pi)
+		const f32 z   = uniform_n11(&g);
+		const f32 phi = two_pi() * uniform_01(&g);
+
+		const f32 r_xy = math::sqrt(math::max(f32(0), f32(1) - z * z));
+		const f32 x = r_xy * math::cos(phi);
+		const f32 y = r_xy * math::sin(phi);
+
+		return f32vec3{ radius * x, radius * y, radius * z };
+	}
+
+	f32vec2 uniform_disk(f32 radius) {
+		return uniform_disk(nullptr, radius);
+	}
+
+	f32vec2 uniform_disk(std::mt19937* gen, f32 radius) {
+		auto& g = pick_random_gen(gen);
+		radius = std::fabs(radius);
+
+		// uniform in disk area:
+		// r = R*sqrt(u), theta uniform
+		const f32 theta = two_pi() * uniform_01(&g);
+		const f32 r     = radius * math::sqrt(uniform_01(&g));
+
+		return f32vec2{ r * math::cos(theta),
+						r * math::sin(theta) };
+	}
+
+	f32vec3 uniform_ball(f32 radius) {
+		return uniform_ball(nullptr, radius);
+	}
+
+	f32vec3 uniform_ball(std::mt19937* gen, f32 radius) {
+		auto& g = pick_random_gen(gen);
+		radius = math::abs(radius);
+
+		// uniform in ball volume:
+		// direction uniform on sphere, radius scaled by cbrt(u)
+		const f32 z   = uniform_n11(&g);
+		const f32 phi = two_pi() * uniform_01(&g);
+
+		const f32 r_xy = math::sqrt(math::max(f32(0), f32(1) - z * z));
+		const f32 dx = r_xy * math::cos(phi);
+		const f32 dy = r_xy * math::sin(phi);
+		const f32 dz = z;
+
+		const f32 r = radius * static_cast<f32>(math::cbrt(static_cast<double>(uniform_01(&g))));
+
+		return f32vec3{ r * dx, r * dy, r * dz };
+	}
+
+	f32 gaussian(f32 mean, f32 deviation, f32 min, f32 max) {
+		return gaussian(nullptr, mean, deviation, min, max);
+	}
+
+	f32 gaussian(std::mt19937* gen, f32 mean, f32 deviation, f32 min, f32 max) {
+
+		if (min > max) math::swap(min, max);
+		if (!(deviation > f32(0))) return math::clamp(mean, min, max);
+
+		std::normal_distribution<f32> dis(mean, deviation);
+		auto& g = pick_random_gen(gen);
+
+		// rejection sampling (usually fast unless range is tiny)
+		for (int i = 0; i < 16; ++i) {
+			f32 v = dis(g);
+			if (v >= min && v <= max) return v;
+		}
+		// fallback
+		return std::clamp(dis(g), min, max);
+	}
+
+	bool bernoulli(f32 p) {
+		return bernoulli(nullptr, p);
+	}
+
+	bool bernoulli(std::mt19937* gen, f32 p) {
+		p = math::clamp(p, f32(0), f32(1));
+		std::bernoulli_distribution dis(static_cast<double>(p));
+		return dis(pick_random_gen(gen));
+	}
+
 	/// Private Utilities ///
 
-	std::string mat_right_fit(std::string s, unsigned width) {
+	std::mt19937& default_random_gen() {
+		thread_local std::mt19937 gen([]{
+			std::random_device rd;
+			std::seed_seq seq{
+					rd(), rd(), rd(), rd(), rd(), rd(), rd(), rd()
+			};
+			return std::mt19937(seq);
+		}());
+		return gen;
+	}
+
+	std::mt19937& pick_random_gen(std::mt19937* gen) {
+		return gen ? *gen : default_random_gen();
+	}
+
+	std::string mat_right_fit(std::string s, int width) {
 		if (width <= 0) return s;
 		if ((int)s.size() < width) return std::format("{:>{}}", s, width);
 		if ((int)s.size() == width) return s;
@@ -2603,13 +2807,13 @@ namespace a3d::math {
 		if (width <= 0) return std::format("{}", v);
 
 		// special values
-		if (math::isnan(v)) return mat_right_fit("nan", width);
-		if (math::isinf(v)) return mat_right_fit((v < 0) ? "-inf" : "inf", width);
+		if (math::is_nan(v)) return mat_right_fit("nan", width);
+		if (math::is_inf(v)) return mat_right_fit((v < 0) ? "-inf" : "inf", width);
 
 		// avoid "-0.000..."
 		if (v == 0.0f) v = 0.0f;
 
-		const bool neg = math::signbit(v);
+		const bool neg = math::sign_bit(v);
 		const float a = math::abs(v);
 
 		// count integer digits of |v|

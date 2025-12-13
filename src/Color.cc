@@ -8,8 +8,6 @@
 
 #include "a3d/Color.h"
 
-#include "a3d/Utilities.h"
-
 using namespace a3d;
 using namespace a3d::math;
 using namespace std;
@@ -93,9 +91,9 @@ std::shared_ptr<Color> Color::Brown() {
 }
 
 shared_ptr<Color> Color::Random() {
-	return make_unique<Color>(u8vec3(utils::Uniform(0, 255),
-									 utils::Uniform(0, 255),
-									 utils::Uniform(0, 255)));
+	return make_unique<Color>(u8vec3(uniform_linear(0, 255),
+									 uniform_linear(0, 255),
+									 uniform_linear(0, 255)));
 }
 
 /// Public Lifecycle Functions ///
