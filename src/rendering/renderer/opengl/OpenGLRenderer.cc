@@ -2366,7 +2366,7 @@ void DrawDebugOptions(Scene& scene, const RenderContext& context) {
 
 	auto debugOptions = scene.debugOptions();
 
-	yPos = 10.0;
+	yPos = 12.0;
 	static bool stats = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay);
 	if (DigDrawCheckbox(xPos, yPos, "stats", stats, 1, ++id)) {
 		if (stats) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowStatsOverlay));
@@ -2424,7 +2424,6 @@ void DrawStatsOverlay(FrameStats& stats,
 
 	//ShowMetricsWindow();
 
-	static const int TEXT_PADDING = 14;
 	static const float xPos = 10.0;
 	float yPos = 0;
 	int id = 0;
@@ -2459,7 +2458,7 @@ void DrawStatsOverlay(FrameStats& stats,
 	static vector<float> renderGpuSamples;
 	static vector<float> appSamples;
 
-	static unsigned frame = 0;
+	static size_t frame = 0;
 	static const unsigned SKIP_FRAMES = 2;
 
 	if (!(frame % SKIP_FRAMES)) {
@@ -2500,9 +2499,7 @@ void DrawStatsOverlay(FrameStats& stats,
 
 	++frame;
 
-//	static const float PLOT_WIDTH = 96.0;
-//	static const float PLOT_WIDTH = 158.0;
-	static const float PLOT_WIDTH = 122.0;
+	static const float PLOT_WIDTH = 122.0 + 8;
 	static const bool PLOT_OUTLINED = true;
 	static const float PLOT_HEIGHT_1 = 42.0;
 	static const float PLOT_HEIGHT_2 = 24.0;
@@ -2511,6 +2508,7 @@ void DrawStatsOverlay(FrameStats& stats,
 	static const float PLOT_Y_PAD = 18.0;
 	static const float PLOT_Y_MIN = 0.0;
 	static const float PLOT_Y_MAX = 17.0;
+	static const int TEXT_PADDING = 15;
 	static const int RT_TEXT_PADDING = TEXT_PADDING - 3;
 
 //	auto rateStr = std::format(
@@ -2520,9 +2518,9 @@ void DrawStatsOverlay(FrameStats& stats,
 //	DigDrawText(xPos, yPos, rateStr.c_str(), 1);
 
 	auto rateStr = std::format(
-			"{:14.0f}fps\n",
+			"{:15.0f}fps\n",
 			fpsAvg);
-	yPos += 42;
+	yPos += 48;
 	DigDrawText(xPos, yPos, rateStr.c_str(), 1);
 
 	auto frameTimeStr = std::format(

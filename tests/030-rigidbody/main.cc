@@ -61,7 +61,6 @@ shared_ptr<Node> ChainmailLink(float minorRadius, float majorRadius);
 void SpawnChainMail(Scene& scene);
 
 Node*	g_palmNode;
-Node*	g_duckSpinnerNode;
 Node*	g_duckNode;
 
 int main(int argc, const char* argv[]) {
@@ -304,7 +303,7 @@ int main(int argc, const char* argv[]) {
 	//	_duckNode->physicsBody(make_shared<PhysicsBody>(PhysicsBodyType::Kinematic, duckPhysicsShape));
 
 		auto duckSpinnerNode = Node::NamedNode("duck spinner");
-		g_duckSpinnerNode = duckSpinnerNode.get();
+//		g_duckSpinnerNode = duckSpinnerNode.get();
 		duckSpinnerNode->addChild(duckNode);
 		scene->rootNode()->addChild(duckSpinnerNode);
 
@@ -415,11 +414,11 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	// rotate the duck
 	auto rotationDeg = deltaTime * radians(30.0); // 30deg/sec
 
-	if (g_duckSpinnerNode) {
-		auto duckSpinnerEuler = g_duckSpinnerNode->eulerAngles();
-//		g_duckSpinnerNode->eulerAngles({0, duckSpinnerEuler.yaw - (float)rotationDeg, 0});
-//		g_duckSpinnerNode->eulerAngles({duckSpinnerEuler.pitch - (float)rotationDeg, 0, 0});
-//		g_duckSpinnerNode->eulerAngles({0, 0, duckSpinnerEuler.roll - (float)rotationDeg});
+	if (g_duckNode) {
+		auto duckEuler = g_duckNode->eulerAngles();
+		g_duckNode->eulerAngles({0, duckEuler.yaw - (float)rotationDeg, 0});
+//		g_duckNode->eulerAngles({duckEuler.pitch - (float)rotationDeg, 0, 0});
+//		g_duckNode->eulerAngles({0, 0, duckEuler.roll - (float)rotationDeg});
 	}
 
 	// get input
@@ -520,7 +519,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 			auto pos = pov->worldPosition();
 			auto orient = pov->worldOrientation();
 			A3D_APP_LOG_I("\ncamera position: ({:.4f}, {:.4f}, {:.4f})\n"
-								 "camera orientation: ({:.6f}, {:.6f}, {:.6f}, {:.6f})",
+						  "camera orientation: ({:.6f}, {:.6f}, {:.6f}, {:.6f})",
 						  pos.x, pos.y, pos.x, orient.x, orient.y, orient.z, orient.w);
 		}
 	}
