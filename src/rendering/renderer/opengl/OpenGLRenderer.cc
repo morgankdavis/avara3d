@@ -238,14 +238,8 @@ static void 		UpdateImguiScale(const RenderContext& context,
 									const Font& bodyFont);
 static void 		AddImguiFont(const RenderContext& context, const Font& font, float size);
 void 				DigUpdateGlobalFontScale(const RenderContext& context);
-void 				DigEndWindow();
-//void 				DigDrawText(float x,
-//								float y,
-//								const char* text,
-//								int font,
-//								float xOffset,
-//								float yOffset,
-//								int id);
+void 				DigBeginOverlay(int id, bool allowsInput);
+void 				DigEndOverlay();
 void 				DigDrawText(float x,
 								float y,
 								const char* text,
@@ -455,10 +449,16 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 
 	ImGui::NewFrame();
 	DigUpdateGlobalFontScale(context);
+	DigBeginOverlay(0, true);
 	DrawDebugOptions(const_cast<Scene&>(scene), context); // TODO: CHEATING
 	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay)) {
 		DrawStatsOverlay(stats, statsHistory, context);
 	}
+	DigEndOverlay();
+
+//	if (!(ImGui::IsAnyItemHovered() || ImGui::IsAnyItemActive()))
+//		ImGui::GetIO().WantCaptureMouse = false;
+
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -2460,35 +2460,27 @@ void DigUpdateGlobalFontScale(const RenderContext& context) {
 #endif
 }
 
-void DigBeginOverlay(int id) {
+void DigBeginOverlay(int id, bool allowsInput) {
 
-	ImGuiIO& io = ImGui::GetIO();
+	using namespace ImGui;
+
+	ImGuiIO& io = GetIO();
 	ImGuiWindowFlags flags =
 			ImGuiWindowFlags_NoDecoration |
 			ImGuiWindowFlags_NoMove |
 			ImGuiWindowFlags_NoSavedSettings |
 			ImGuiWindowFlags_NoNav |
-			ImGuiWindowFlags_NoInputs |
 			ImGuiWindowFlags_NoBackground;
 
-	ImGui::SetNextWindowPos(ImVec2(0,0), ImGuiCond_Always);
-	ImGui::SetNextWindowSize(io.DisplaySize, ImGuiCond_Always);
-	ImGui::Begin(("DigOverlay##" + std::to_string(id)).c_str(), nullptr, flags);
+	if (!allowsInput) flags |= ImGuiWindowFlags_NoInputs;
+
+	SetNextWindowPos(ImVec2(0,0), ImGuiCond_Always);
+	SetNextWindowSize(io.DisplaySize, ImGuiCond_Always);
+	Begin(("##overlay" + std::to_string(id)).c_str(), nullptr, flags);
 }
 
 void DigEndOverlay() {
 	ImGui::End();
-}
-
-// *** TEMPORARY ***
-void 				DigDrawText(float x,
-								float y,
-								const char* text,
-								int font,
-								float xOffset,
-								float yOffset,
-								int id) {
-	DigDrawText(x, y, text, font);
 }
 
 void DigDrawText(float x,
@@ -2505,70 +2497,6 @@ void DigDrawText(float x,
 	dl->AddText(f, f->FontSize, ImVec2(x+1, y+1), IM_COL32(0,0,0,255), text); // 200
 	dl->AddText(f, f->FontSize, ImVec2(x,   y),   IM_COL32(255,255,255,255), text);
 }
-
-//void DigDrawText(float x,
-//				 float y,
-//				 const char* text,
-//				 int font,
-//				 float xOffset,
-//				 float yOffset,
-//				 int id) {
-//
-//	using namespace ImGui;
-//
-//	static ImGuiIO &io = GetIO();
-//	static auto fonts = io.Fonts->Fonts;
-//	static const ImVec4 textColor {1, 1, 1, 1};
-//
-//	PushFont(fonts[font]);
-//
-//	DigBeginWindow(x+1, y+1, id);
-//	TextColored({0, 0, 0, .5}, "%s", text);
-//	DigEndWindow();
-//
-//	DigBeginWindow(x, y, id+1000);
-//	TextColored(textColor, "%s", text);
-//	DigEndWindow();
-//
-//	PopFont();
-//}
-
-//void DigDrawPlot(float x, float y, float w, float h,
-//				 const float* values,
-//				 int valuesCount,
-//				 float scaleMin,
-//				 float scaleMax,
-//				 bool outlined,
-//				 int id) {
-//
-//	using namespace ImGui;
-//
-//	PushStyleColor(ImGuiCol_FrameBg, ImVec4(0,0,0,0));
-//
-//	// shadow pass
-//	SetCursorScreenPos(ImVec2(x+1, y+1));
-//	PushStyleColor(ImGuiCol_PlotLines, ImVec4(0,0,0,1));
-//	PlotLines(("##plot_s" + std::to_string(id)).c_str(),
-//			  values, valuesCount, 0, nullptr, scaleMin, scaleMax, ImVec2(w,h));
-//	PopStyleColor();
-//
-//	// main pass
-//	SetCursorScreenPos(ImVec2(x, y));
-//	PushStyleColor(ImGuiCol_PlotLines, ImVec4(1,1,1,1));
-//	if (outlined) {
-//		PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.5f);
-//		PushStyleColor(ImGuiCol_Border, ImVec4(1,1,1,0.5f));
-//	}
-//	PlotLines(("##plot" + std::to_string(id)).c_str(),
-//			  values, valuesCount, 0, nullptr, scaleMin, scaleMax, ImVec2(w,h));
-//	if (outlined) {
-//		PopStyleColor();
-//		PopStyleVar();
-//	}
-//	PopStyleColor();
-//
-//	PopStyleColor();
-//}
 
 void DigDrawPlot(float x, float y, float w, float h,
 				 const float* values,
@@ -2610,109 +2538,71 @@ void DigDrawPlot(float x, float y, float w, float h,
 	PopStyleColor();
 }
 
-bool DigDrawCheckbox(float x,
-					 float y,
+bool DigDrawCheckbox(float x, float y,
 					 const char* text,
 					 bool& checked,
-					 int /*font*/,
-					 int id) {
-
+					 int font,
+					 int id)
+{
 	using namespace ImGui;
 
-	static const ImVec4 transparent(0, 0, 0, 0);
-	static const ImVec4 shadow(0.0, 0.0, 0.0, 1.0);
-	static const ImVec4 checkbg1(0.25, 0.25, 0.25, 0.5);
-	static const ImVec4 checkbg2(0.5, 0.5, 0.5, 0.5);
-	static const ImVec4 white(1.0, 1.0, 1.0, 1.0);
+	ImGuiIO& io = GetIO();
+	ImFont* f = io.Fonts->Fonts[font];
+	PushFont(f);
 
-	// Shadow pass (non-interactive)
+	const ImVec4 transparent(0, 0, 0, 0);
+	const ImVec4 shadow(0, 0, 0, 1);
+	const ImVec4 checkbg1(0.25f, 0.25f, 0.25f, 0.5f);
+	const ImVec4 checkbg2(0.50f, 0.50f, 0.50f, 0.5f);
+	const ImVec4 white(1, 1, 1, 1);
+
+	// use visible label text in both passes, but keep IDs unique.
+	const std::string shadowLabel = std::string(text) + "##shadow";
+	const std::string realLabel   = std::string(text) + "##real";
+
+	// shadow pass (non-interactive, non-blocking)
 	PushID(id);
 	SetCursorScreenPos(ImVec2(x + 1.0f, y + 1.0f));
 	BeginDisabled(true);
-	PushStyleColor(ImGuiCol_Text, shadow);
-	PushStyleColor(ImGuiCol_FrameBg, transparent);
+
+	PushStyleColor(ImGuiCol_Text,           shadow);
+	PushStyleColor(ImGuiCol_CheckMark,      shadow);
+
+	// IMPORTANT: don't fill the box in shadow pass, or it will "solidify" the real box.
+	PushStyleColor(ImGuiCol_FrameBg,        transparent);
 	PushStyleColor(ImGuiCol_FrameBgHovered, transparent);
-	PushStyleColor(ImGuiCol_FrameBgActive, transparent);
-	PushStyleColor(ImGuiCol_CheckMark, transparent);
-	bool dummy = checked;                  // per-call, not static (avoid cross-widget weirdness)
-	Checkbox("##shadow", &dummy);          // no label text in shadow pass
+	PushStyleColor(ImGuiCol_FrameBgActive,  transparent);
+
+	bool dummy = checked;
+	Checkbox(shadowLabel.c_str(), &dummy);
+
+	// IMPORTANT: allow the real checkbox (drawn next) to receive hover/click even though rects overlap.
+	ImGui::SetItemAllowOverlap();
+
 	PopStyleColor(5);
 	EndDisabled();
 	PopID();
 
-	// Real pass (interactive) + label (same line)
-	bool ret = false;
+	// --- real pass (interactive) ---
 	PushID(id);
 	SetCursorScreenPos(ImVec2(x, y));
 	PushStyleColor(ImGuiCol_FrameBg,        checkbg1);
 	PushStyleColor(ImGuiCol_FrameBgHovered, checkbg2);
 	PushStyleColor(ImGuiCol_FrameBgActive,  checkbg1);
 	PushStyleColor(ImGuiCol_CheckMark,      white);
-	ret = Checkbox("##real", &checked);
-	PopStyleColor(4);
 
-	SameLine(0.0f, GetStyle().ItemInnerSpacing.x);
-	TextUnformatted(text);
+	bool ret = Checkbox(realLabel.c_str(), &checked);
+
+	PopStyleColor(4);
 	PopID();
 
+	PopFont();
 	return ret;
 }
-
-//bool DigDrawCheckbox(float x,
-//					 float y,
-//					 const char* text,
-//					 bool& checked,
-//					 int font,
-//					 int id) {
-//
-//	using namespace ImGui;
-//
-//	static const ImVec4 transparent(0, 0, 0, 0);
-//	static const ImVec4 shadow(0.0, 0.0, 0.0, 1.0);
-//	static const ImVec4 checkbg1(0.25, 0.25, 0.25, 0.5);
-//	static const ImVec4 checkbg2(0.5, 0.5, 0.5, 0.5);
-//	static const ImVec4 white(1.0, 1.0, 1.0, 1.0);
-//
-//	ImGuiIO& io = GetIO();
-//	auto fonts = io.Fonts->Fonts;
-//	PushFont(fonts[font]);
-//
-//	DigBeginWindow(x+1, y+1, id);
-//	SetCursorScreenPos(ImVec2(x+1, y+1));
-//	BeginDisabled();
-//	PushStyleColor(ImGuiCol_Text, shadow);
-//	PushStyleColor(ImGuiCol_FrameBg, transparent);
-//	PushStyleColor(ImGuiCol_FrameBgHovered, transparent);
-//	PushStyleColor(ImGuiCol_FrameBgActive, transparent);
-//	PushStyleColor(ImGuiCol_CheckMark, transparent);
-//	static bool dummy = false;
-//	Checkbox(text, &dummy);
-//	EndDisabled();
-//	PopStyleColor(5);
-//	DigEndWindow();
-//
-//	DigBeginWindow(x, y, id+5000);
-//	SetCursorScreenPos(ImVec2(x, y));
-//	PushStyleColor(ImGuiCol_FrameBg,        checkbg1);
-//	PushStyleColor(ImGuiCol_FrameBgHovered, checkbg2);
-//	PushStyleColor(ImGuiCol_FrameBgActive,  checkbg1);
-//	PushStyleColor(ImGuiCol_CheckMark,      white);
-//	bool ret = Checkbox(text, &checked);
-//	PopStyleColor(4);
-//	DigEndWindow();
-//
-//	PopFont();
-//
-//	return ret;
-////	return true;
-//}
-
 
 void DrawDebugOptions(Scene& scene, const RenderContext& context) {
 
 	using namespace ImGui;
-
-	DigBeginOverlay(1);
 
 	ImGuiIO& io = GetIO();
 
@@ -2724,7 +2614,7 @@ void DrawDebugOptions(Scene& scene, const RenderContext& context) {
 
 	auto debugOptions = scene.debugOptions();
 
-	yPos = 3.0;
+	yPos = 10.0;
 	static bool stats = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay);
 	if (DigDrawCheckbox(xPos, yPos, "stats", stats, 1, ++id)) {
 		if (stats) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowStatsOverlay));
@@ -2768,12 +2658,10 @@ void DrawDebugOptions(Scene& scene, const RenderContext& context) {
 
 	yPos += Y_PAD;
 	bool physNorms = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsNormals);
-	if (DigDrawCheckbox(xPos, yPos, "Pphysics normals", physNorms, 1, ++id)) {
+	if (DigDrawCheckbox(xPos, yPos, "physics normals", physNorms, 1, ++id)) {
 		if (physNorms) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsNormals));
 		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsNormals));
 	}
-
-	DigEndOverlay();
 }
 
 void DrawStatsOverlay(FrameStats& stats,
@@ -2792,10 +2680,8 @@ void DrawStatsOverlay(FrameStats& stats,
 	ImGuiIO& io = GetIO();
 	auto fonts = io.Fonts->Fonts;
 
-	DigBeginOverlay(0);
-
-	yPos += 0;
-	DigDrawText(xPos, yPos, "avara3d", 0, 0.0, 0.0, id);
+	yPos += 4;
+	DigDrawText(xPos, yPos, "avara3d", 0);
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
@@ -2806,7 +2692,7 @@ void DrawStatsOverlay(FrameStats& stats,
 			version.major, version.minor, version.patch, buildInfo.number(),
 			buildInfo.type() == BuildInfo::Type::Debug ? "debug" : "release");
 	yPos += 25;
-	DigDrawText(xPos, yPos, buildStr.c_str(), 1, 0.0, 0.0, ++id);
+	DigDrawText(xPos, yPos, buildStr.c_str(), 1);
 
 	static chrono::nanoseconds frameNsAvg, engineCpuNsAvg, renderCpuNsAvg,
 			renderGpuNsAvg, physicsNsAvg, appCpuNsAvg;
@@ -2882,7 +2768,7 @@ void DrawStatsOverlay(FrameStats& stats,
 			"{}{:10.1f}ms\n",
 			"frame", frameMsFAvg);
 	yPos += 48;
-	DigDrawText(xPos, yPos, frameTimeStr.c_str(), 1, 0.0, 0.0, ++id);
+	DigDrawText(xPos, yPos, frameTimeStr.c_str(), 1);
 	yPos += PLOT_Y_PAD;
 	DigDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_1,
 				frameSamples.data(),
@@ -2900,7 +2786,7 @@ void DrawStatsOverlay(FrameStats& stats,
 			"{:<{}} {:.1f}ms\n",
 			"engine cpu", RT_TEXT_PADDING, engineCpuMsFAvg);
 	yPos += PLOT_HEIGHT_1 + PLOT_STR_Y_PAD;
-	DigDrawText(xPos, yPos, engineCpuTimeStr.c_str(), 1, 0.0, 0.0, ++id);
+	DigDrawText(xPos, yPos, engineCpuTimeStr.c_str(), 1);
 	yPos += PLOT_Y_PAD;
 	DigDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_2,
 				engCpuSamples.data(),
@@ -2918,7 +2804,7 @@ void DrawStatsOverlay(FrameStats& stats,
 			"{:<{}} {:.1f}ms\n",
 			"physics", RT_TEXT_PADDING, physicsMsFAvg);
 	yPos += PLOT_HEIGHT_2 + PLOT_STR_Y_PAD;
-	DigDrawText(xPos, yPos, physTimeStr.c_str(), 1, 0.0, 0.0, ++id);
+	DigDrawText(xPos, yPos, physTimeStr.c_str(), 1);
 	yPos += PLOT_Y_PAD;
 	DigDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_2,
 				physSamples.data(),
@@ -2936,7 +2822,7 @@ void DrawStatsOverlay(FrameStats& stats,
 			"{:<{}} {:.1f}ms\n",
 			"render cpu", RT_TEXT_PADDING, renderCpuMsFAvg);
 	yPos += PLOT_HEIGHT_2 + PLOT_STR_Y_PAD;
-	DigDrawText(xPos, yPos, renderCpuTimeStr.c_str(), 1, 0.0, 0.0, ++id);
+	DigDrawText(xPos, yPos, renderCpuTimeStr.c_str(), 1);
 	yPos += PLOT_Y_PAD;
 	DigDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_2,
 				renderCpuSamples.data(),
@@ -2954,7 +2840,7 @@ void DrawStatsOverlay(FrameStats& stats,
 			"{:<{}} {:.1f}ms\n",
 			"render gpu", RT_TEXT_PADDING, renderGpuMsFAvg);
 	yPos += PLOT_HEIGHT_2 + PLOT_STR_Y_PAD;
-	DigDrawText(xPos, yPos, renderGpuTimeStr.c_str(), 1, 0.0, 0.0, ++id);
+	DigDrawText(xPos, yPos, renderGpuTimeStr.c_str(), 1);
 	yPos += PLOT_Y_PAD;
 	DigDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_2,
 				renderGpuSamples.data(),
@@ -2972,7 +2858,7 @@ void DrawStatsOverlay(FrameStats& stats,
 			"{:<{}} {:.1f}ms\n",
 			"app", RT_TEXT_PADDING, appCpuMsFAvg);
 	yPos += PLOT_HEIGHT_2 + PLOT_STR_Y_PAD;
-	DigDrawText(xPos, yPos, appTimeStr.c_str(), 1, 0.0, 0.0, ++id);
+	DigDrawText(xPos, yPos, appTimeStr.c_str(), 1);
 	yPos += PLOT_Y_PAD;
 	DigDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_2,
 				appSamples.data(),
@@ -3003,7 +2889,7 @@ void DrawStatsOverlay(FrameStats& stats,
 			"{}{:10.1f}fps\n",
 			"rate", fpsAvg);
 	yPos += 36;
-	DigDrawText(xPos, yPos, rateStr.c_str(), 1, 0.0, 0.0, ++id);
+	DigDrawText(xPos, yPos, rateStr.c_str(), 1);
 
 	auto bulkStatsStr = std::format(
 			/*		"{:<{}} ({}, {})\n" \
@@ -3055,46 +2941,7 @@ void DrawStatsOverlay(FrameStats& stats,
 			recordingStr);
 
 	yPos += 36;
-	DigDrawText(xPos, yPos, bulkStatsStr.c_str(), 1, 0.0, 0.0, ++id);
-
-	DigEndOverlay();
-
-//	{
-//		static ImPlotAxisFlags flags = ImPlotAxisFlags_NoTickLabels;
-//
-//		if (ImPlot::BeginPlot("##Scrolling", ImVec2(-1,ImGui::GetTextLineHeight()*10))) {
-//			ImPlot::SetupAxes(nullptr, nullptr, flags, flags);
-//	//		ImPlot::SetupAxisLimits(ImAxis_X1, t - history, t, ImGuiCond_Always);
-//	//		ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 1);
-//			//ImPlot::SetupAxisLimits(ImAxis_X1, 0, 5000, ImGuiCond_Always);
-//			ImPlot::SetupAxisLimits(ImAxis_X1, 0, 5000);
-//			ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 20);
-//	//		ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, 0.5f);
-//			//ImPlot::PlotShaded("Mouse X", &sdata1.Data[0].x, &sdata1.Data[0].y, sdata1.Data.size(), -INFINITY, 0, sdata1.Offset, 2 * sizeof(float));
-//			//ImPlot::PlotLine("Mouse Y", &sdata2.Data[0].x, &sdata2.Data[0].y, sdata2.Data.size(), 0, sdata2.Offset, 2*sizeof(float));
-//
-//	//		ImPlot::PlotLine("Frame",
-//	//						 frameSamples.data(),
-//	//						 static_cast<int>(frameSamples.size()),
-//	//						 flags,
-//	//						 0,
-//	//						 sizeof(float));
-//	//
-//	//		ImPlot::PlotLine("Physics",
-//	//						 physSamples.data(),
-//	//						 static_cast<int>(physSamples.size()),
-//	//						 flags,
-//	//						 0,
-//	//						 sizeof(float));
-//
-//			ImPlot::PlotLine("Frame", frameSamples.data(), static_cast<int>(frameSamples.size()), -INFINITY, 0);
-//			ImPlot::PlotLine("Physics", physSamples.data(), static_cast<int>(physSamples.size()), -INFINITY, 0);
-//
-//			ImPlot::EndPlot();
-//
-//		}
-//	}
-
+	DigDrawText(xPos, yPos, bulkStatsStr.c_str(), 1);
 
 	// input test
 
@@ -3123,348 +2970,6 @@ void DrawStatsOverlay(FrameStats& stats,
 //	PopFont();
 //	End();
 }
-
-//void DrawStatsOverlay(FrameStats& stats,
-//					  const FrameStatsHistory& statsHistory,
-//					  const RenderContext& context) {
-//
-//	using namespace ImGui;
-//
-//	static const int TEXT_PADDING = 14;
-//	static const float xPos = 10.0;
-//	float yPos = 0;
-//	int id = 0;
-//
-//	ImGuiIO& io = GetIO();
-//	auto fonts = io.Fonts->Fonts;
-//
-//	yPos += 0;
-//	DigDrawText(xPos, yPos, "avara3d", 0, 0.0, 0.0, id);
-//
-//	auto buildInfo = BuildInfo::Info();
-//	auto version = buildInfo.version();
-//	static auto buildStr = std::format(
-//			"v{}.{}.{} build {}\n" \
-//             "{}\n"
-//			"\n" ,
-//			version.major, version.minor, version.patch, buildInfo.number(),
-//			buildInfo.type() == BuildInfo::Type::Debug ? "debug" : "release");
-//	yPos += 25;
-//	DigDrawText(xPos, yPos, buildStr.c_str(), 1, 0.0, 0.0, ++id);
-//
-//	static chrono::nanoseconds frameNsAvg, engineCpuNsAvg, renderCpuNsAvg,
-//			renderGpuNsAvg, physicsNsAvg, appCpuNsAvg;
-//	static float frameMsFAvg, engineCpuMsFAvg, renderCpuMsFAvg,
-//			renderGpuMsFAvg, physicsMsFAvg, appCpuMsFAvg;
-//	static float fpsAvg;
-//
-//	static vector<float> frameSamples;
-//	static vector<float> physSamples;
-//	static vector<float> engCpuSamples;
-//	static vector<float> renderCpuSamples;
-//	static vector<float> renderGpuSamples;
-//	static vector<float> appSamples;
-//
-//	static unsigned frame = 0;
-//	static const unsigned SKIP_FRAMES = 2;
-//
-//	if (!(frame % SKIP_FRAMES)) {
-//
-//		FrameStatsHistory::GetAverages(statsHistory,
-//									   frameNsAvg, engineCpuNsAvg, renderCpuNsAvg,
-//									   renderGpuNsAvg, physicsNsAvg, appCpuNsAvg,
-//									   a3d::config::FRAMETIME_AVERAGING_INTERVAL);
-//
-//		frameMsFAvg = chrono::duration<float, std::milli>(frameNsAvg).count();
-//		engineCpuMsFAvg = chrono::duration<float, std::milli>(engineCpuNsAvg).count();
-//		renderCpuMsFAvg = chrono::duration<float, std::milli>(renderCpuNsAvg).count();
-//		renderGpuMsFAvg = chrono::duration<float, std::milli>(renderGpuNsAvg).count();
-//		physicsMsFAvg = chrono::duration<float, std::milli>(physicsNsAvg).count();
-//		appCpuMsFAvg = chrono::duration<float, std::milli>(appCpuNsAvg).count();
-//		fpsAvg = 1000.0f / frameMsFAvg;
-//
-//		auto &samples = statsHistory.samples();
-//
-//		// TODO: convert to one loop & use stride
-//
-//		frameSamples.resize(samples.size());
-//		physSamples.resize(samples.size());
-//		engCpuSamples.resize(samples.size());
-//		renderCpuSamples.resize(samples.size());
-//		renderGpuSamples.resize(samples.size());
-//		appSamples.resize(samples.size());
-//
-//		for (size_t i = 0; i < samples.size(); ++i) {
-//			auto sample = get<1>(samples[i]);
-//			frameSamples[i] = chrono::duration<float, milli>(sample.frameTime).count();
-//			physSamples[i] = chrono::duration<float, milli>(sample.physicsTime).count();
-//			renderCpuSamples[i] = chrono::duration<float, milli>(sample.renderCpuTime).count();
-//			renderGpuSamples[i] = chrono::duration<float, milli>(sample.renderGpuTime).count();
-//			appSamples[i] = chrono::duration<float, milli>(sample.applicationTime).count();
-//		}
-//	}
-//
-//	++frame;
-//
-////	static const float PLOT_WIDTH = 96.0;
-////	static const float PLOT_WIDTH = 158.0;
-//	static const float PLOT_WIDTH = 122.0;
-//	static const bool PLOT_OUTLINED = true;
-//	static const float PLOT_HEIGHT_1 = 42.0;
-//	static const float PLOT_HEIGHT_2 = 24.0;
-//	static const float PLOT_X_OFFSET = 0.0;
-//	static const float PLOT_STR_Y_PAD = 5.0;
-//	static const float PLOT_Y_PAD = 18.0;
-//	static const float PLOT_Y_MIN = 0.0;
-//	static const float PLOT_Y_MAX = 17.0;
-//	static const int RT_TEXT_PADDING = TEXT_PADDING - 3;
-//
-////	auto frameTimeStr = std::format(
-////			"{:<{}} {:.1f}ms\n",
-////			"frame", RT_TEXT_PADDING, frameMsFAvg);
-//	auto frameTimeStr = std::format(
-//			"{}{:10.1f}ms\n",
-//			"frame", frameMsFAvg);
-//	yPos += 48;
-//	DigDrawText(xPos, yPos, frameTimeStr.c_str(), 1, 0.0, 0.0, ++id);
-//	yPos += PLOT_Y_PAD;
-//	DigDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_1,
-//				frameSamples.data(),
-//				static_cast<int>(frameSamples.size()),
-//				0,
-//				nullptr,
-//				PLOT_Y_MIN, PLOT_Y_MAX,
-//				0,
-//				PLOT_OUTLINED,
-//				++id);
-//
-//	// engine cpu
-//
-//	auto engineCpuTimeStr = std::format(
-//			"{:<{}} {:.1f}ms\n",
-//			"engine cpu", RT_TEXT_PADDING, engineCpuMsFAvg);
-//	yPos += PLOT_HEIGHT_1 + PLOT_STR_Y_PAD;
-//	DigDrawText(xPos, yPos, engineCpuTimeStr.c_str(), 1, 0.0, 0.0, ++id);
-//	yPos += PLOT_Y_PAD;
-//	DigDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_2,
-//				engCpuSamples.data(),
-//				static_cast<int>(engCpuSamples.size()),
-//				0,
-//				nullptr,
-//				PLOT_Y_MIN, PLOT_Y_MAX,
-//				0,
-//				PLOT_OUTLINED,
-//				++id);
-//
-//	// physics
-//
-//	auto physTimeStr = std::format(
-//			"{:<{}} {:.1f}ms\n",
-//			"physics", RT_TEXT_PADDING, physicsMsFAvg);
-//	yPos += PLOT_HEIGHT_2 + PLOT_STR_Y_PAD;
-//	DigDrawText(xPos, yPos, physTimeStr.c_str(), 1, 0.0, 0.0, ++id);
-//	yPos += PLOT_Y_PAD;
-//	DigDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_2,
-//				physSamples.data(),
-//				static_cast<int>(physSamples.size()),
-//				0,
-//				nullptr,
-//				PLOT_Y_MIN, PLOT_Y_MAX,
-//				0,
-//				PLOT_OUTLINED,
-//				++id);
-//
-//	// render cpu
-//
-//	auto renderCpuTimeStr = std::format(
-//			"{:<{}} {:.1f}ms\n",
-//			"render cpu", RT_TEXT_PADDING, renderCpuMsFAvg);
-//	yPos += PLOT_HEIGHT_2 + PLOT_STR_Y_PAD;
-//	DigDrawText(xPos, yPos, renderCpuTimeStr.c_str(), 1, 0.0, 0.0, ++id);
-//	yPos += PLOT_Y_PAD;
-//	DigDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_2,
-//				renderCpuSamples.data(),
-//				static_cast<int>(renderCpuSamples.size()),
-//				0,
-//				nullptr,
-//				PLOT_Y_MIN, PLOT_Y_MAX,
-//				0,
-//				PLOT_OUTLINED,
-//				++id);
-//
-//	// render gpu
-//
-//	auto renderGpuTimeStr = std::format(
-//			"{:<{}} {:.1f}ms\n",
-//			"render gpu", RT_TEXT_PADDING, renderGpuMsFAvg);
-//	yPos += PLOT_HEIGHT_2 + PLOT_STR_Y_PAD;
-//	DigDrawText(xPos, yPos, renderGpuTimeStr.c_str(), 1, 0.0, 0.0, ++id);
-//	yPos += PLOT_Y_PAD;
-//	DigDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_2,
-//				renderGpuSamples.data(),
-//				static_cast<int>(renderGpuSamples.size()),
-//				0,
-//				nullptr,
-//				PLOT_Y_MIN, PLOT_Y_MAX,
-//				0,
-//				PLOT_OUTLINED,
-//				++id);
-//
-//	// application
-//
-//	auto appTimeStr = std::format(
-//			"{:<{}} {:.1f}ms\n",
-//			"app", RT_TEXT_PADDING, appCpuMsFAvg);
-//	yPos += PLOT_HEIGHT_2 + PLOT_STR_Y_PAD;
-//	DigDrawText(xPos, yPos, appTimeStr.c_str(), 1, 0.0, 0.0, ++id);
-//	yPos += PLOT_Y_PAD;
-//	DigDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_2,
-//				appSamples.data(),
-//				static_cast<int>(appSamples.size()),
-//				0,
-//				nullptr,
-//				PLOT_Y_MIN, PLOT_Y_MAX,
-//				0,
-//				PLOT_OUTLINED,
-//				++id);
-//
-//	string recordingStr = "";
-//	if (context.recordingGIF()) {
-//		auto time = context.recordedGIFTime();
-//		auto numFrames = context.recordedGIFFrames();
-//		recordingStr = std::format("\n{:<{}} {:.1f} s / {} {}",
-//								   "RECORDING",
-//								   TEXT_PADDING,
-//								   time,
-//								   numFrames,
-//								   (numFrames == 1 ? "frame" : "frames"));
-//	}
-//
-////	auto rateStr = std::format(
-////			"{:<{}} {:.1f}fps\n",
-////			"rate", RT_TEXT_PADDING, fpsAvg);
-//	auto rateStr = std::format(
-//			"{}{:10.1f}fps\n",
-//			"rate", fpsAvg);
-//	yPos += 36;
-//	DigDrawText(xPos, yPos, rateStr.c_str(), 1, 0.0, 0.0, ++id);
-//
-//	auto bulkStatsStr = std::format(
-//	/*		"{:<{}} ({}, {})\n" \
-//            "{:<{}} {}\n" \
-//             "{:<{}} ({:.1f}, {:.1f})\n" \*/
-//            /* "\n" \*/
-//			"{:<{}} {}\n" \
-//             "{:<{}} {}\n" \
-//             "{:<{}} {}\n" \
-//             "{:<{}} {:.1f}k\n" \
-//             "{:<{}} {}\n" \
-//             /*"\n" \*/
-//             "{:<{}} {}\n" \
-//             "{:<{}} {}\n" \
-//             "{:<{}} {}\n" \
-//             "{:<{}} {}\n" \
-//             "{:<{}} {}\n" \
-//             "{:<{}} {}\n" \
-//             "{:<{}} {}\n" \
-//             "{:<{}} {}\n" \
-//             "{:<{}} {}\n" \
-//            /* "\n" \*/
-//           /*  "{:<{}} ({:.1f}, {:.1f}, {:.1f})\n" \*/
-//             /*"{:<{}} ({:.4f}, {:.4f}, {:.4f}, {:.4f})\n" \*/
-//			"{}",
-//
-////			"resolution", TEXT_PADDING, context.framebufferSize().x, context.framebufferSize().y,
-////			"antialiasing", TEXT_PADDING, StatusOverlayDescriptionForAntialiasingMode(context.antialiasingMode()),
-////			"fb scale", TEXT_PADDING, context.framebufferScale().x, context.framebufferScale().y,
-//
-//			"nodes", TEXT_PADDING, stats.numNodes,
-//			"meshes", TEXT_PADDING, stats.numMeshes,
-//			"elements", TEXT_PADDING, stats.numElements,
-//			"polygons", TEXT_PADDING, float(stats.numPolygons) / 1000.0f,
-//			"lights", TEXT_PADDING, stats.numLights,
-//
-//			"phys bodies", TEXT_PADDING, stats.numDynamicBodies + stats.numKinematicBodies + stats.numStaticBodies,
-//			" static", TEXT_PADDING, stats.numStaticBodies,
-//			" dynamic", TEXT_PADDING, stats.numDynamicBodies,
-//			" kinematic", TEXT_PADDING, stats.numKinematicBodies,
-//			"phys shapes", TEXT_PADDING, stats.numConcavePolyhedronShapes + stats.numBoundingBoxShapes + stats.numConvexHullShapes,
-//			" primitive", TEXT_PADDING, stats.numPrimitiveShapes,
-//			" bounding box", TEXT_PADDING, stats.numBoundingBoxShapes,
-//			" convex hull", TEXT_PADDING, stats.numConvexHullShapes,
-//			" concave poly", TEXT_PADDING, stats.numConcavePolyhedronShapes,
-//
-////			"camera pos", TEXT_PADDING, stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
-//			//"camera orientation", TEXT_PADDING, stats.cameraOrientation.x, stats.cameraOrientation.y, stats.cameraOrientation.z, stats.cameraOrientation.w,
-//			recordingStr);
-//
-//	yPos += 36;
-//	DigDrawText(xPos, yPos, bulkStatsStr.c_str(), 1, 0.0, 0.0, ++id);
-//
-////	{
-////		static ImPlotAxisFlags flags = ImPlotAxisFlags_NoTickLabels;
-////
-////		if (ImPlot::BeginPlot("##Scrolling", ImVec2(-1,ImGui::GetTextLineHeight()*10))) {
-////			ImPlot::SetupAxes(nullptr, nullptr, flags, flags);
-////	//		ImPlot::SetupAxisLimits(ImAxis_X1, t - history, t, ImGuiCond_Always);
-////	//		ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 1);
-////			//ImPlot::SetupAxisLimits(ImAxis_X1, 0, 5000, ImGuiCond_Always);
-////			ImPlot::SetupAxisLimits(ImAxis_X1, 0, 5000);
-////			ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 20);
-////	//		ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, 0.5f);
-////			//ImPlot::PlotShaded("Mouse X", &sdata1.Data[0].x, &sdata1.Data[0].y, sdata1.Data.size(), -INFINITY, 0, sdata1.Offset, 2 * sizeof(float));
-////			//ImPlot::PlotLine("Mouse Y", &sdata2.Data[0].x, &sdata2.Data[0].y, sdata2.Data.size(), 0, sdata2.Offset, 2*sizeof(float));
-////
-////	//		ImPlot::PlotLine("Frame",
-////	//						 frameSamples.data(),
-////	//						 static_cast<int>(frameSamples.size()),
-////	//						 flags,
-////	//						 0,
-////	//						 sizeof(float));
-////	//
-////	//		ImPlot::PlotLine("Physics",
-////	//						 physSamples.data(),
-////	//						 static_cast<int>(physSamples.size()),
-////	//						 flags,
-////	//						 0,
-////	//						 sizeof(float));
-////
-////			ImPlot::PlotLine("Frame", frameSamples.data(), static_cast<int>(frameSamples.size()), -INFINITY, 0);
-////			ImPlot::PlotLine("Physics", physSamples.data(), static_cast<int>(physSamples.size()), -INFINITY, 0);
-////
-////			ImPlot::EndPlot();
-////
-////		}
-////	}
-//
-//
-//	// input test
-//
-////	Begin("Input test", nullptr, windowFlags);
-////	SetWindowPos({10.0f, 2.0f});
-////	PushFont(fonts[1]);
-////	// --- Button + hover ---
-////	if (Button("Click me")) {
-////		A3D_LOG_I("ImGui button was CLICKED");
-////	}
-////	if (IsItemHovered()) {
-////		SameLine();
-////		Text("(hovering)");
-////	}
-////	static bool toggled = false;
-////	if (Checkbox("Toggle", &toggled)) {
-////		A3D_LOG_I("Toggle is now: {}", toggled ? "ON" : "OFF");
-////	}
-////	static char textBuf[128] = "type here";
-////	if (InputText("Text field", textBuf, sizeof(textBuf))) {
-////		A3D_LOG_I("Text changed: '{}'", textBuf);
-////	}
-////	Text("MousePos: (%.1f, %.1f)", io.MousePos.x, io.MousePos.y);
-////	Text("MouseDown[0]: %s", io.MouseDown[0] ? "true" : "false");
-////	Text("WantCaptureMouse: %s", io.WantCaptureMouse ? "true" : "false");
-////	PopFont();
-////	End();
-//}
 
 string StatusOverlayDescriptionForAntialiasingMode(AntialiasingMode mode) {
 
