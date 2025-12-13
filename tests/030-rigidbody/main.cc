@@ -80,7 +80,7 @@ struct WanderRotate {
 	float max_interval_s = 2.5f;
 	float min_speed_rad  = 0.5f;   // ~3 deg/s
 	float max_speed_rad  = 1.0f;    // ~34 deg/s
-	float smoothing      = 2.0f;    // bigger = snappier (1/s)
+	float smoothing      = 1.0f;    // bigger = snappier (1/s)
 
 	// State
 	float timer_s = 0.0f;
@@ -89,30 +89,11 @@ struct WanderRotate {
 	vec3 ang_vel = {0,0,0};         // current rad/s (axis * speed)
 	vec3 target_ang_vel = {0,0,0};  // desired rad/s
 
-	uint32_t rng = 0x12345678u;     // replace with your RNG
-
-	// --- helpers ---
-	float rand01() {
-		// xorshift32
-		rng ^= rng << 13; rng ^= rng >> 17; rng ^= rng << 5;
-		return (rng & 0x00FFFFFF) / float(0x01000000);
-	}
-
-	float rand_range(float a, float b) { return a + (b - a) * rand01(); }
-
-	vec3 rand_unit_vec3() {
-		// Uniform on sphere using rejection or spherical coords
-		float z = rand_range(-1.0f, 1.0f);
-		float a = rand_range(0.0f, 6.28318530718f);
-		float r = std::sqrt(std::max(0.0f, 1.0f - z*z));
-		return { r*std::cos(a), z, r*std::sin(a) };
-	}
-
 	void choose_new_target() {
-		vec3 axis = rand_unit_vec3();
-		float speed = rand_range(min_speed_rad, max_speed_rad);
+		vec3 axis = uniform_spherical(1.0);
+		float speed = uniform_linear(min_speed_rad, max_speed_rad);
 		target_ang_vel = axis * speed;
-		next_change_s = rand_range(min_interval_s, max_interval_s);
+		next_change_s = uniform_linear(min_interval_s, max_interval_s);
 		timer_s = 0.0f;
 	}
 
@@ -120,17 +101,17 @@ struct WanderRotate {
 		timer_s += dt;
 		if (timer_s >= next_change_s) choose_new_target();
 
-		// Exponential smoothing toward target
+		// exponential smoothing toward target
 		// alpha = 1 - exp(-smoothing * dt)  (frame-rate independent)
 		float alpha = 1.0f - std::exp(-smoothing * dt);
 		ang_vel = ang_vel + (target_ang_vel - ang_vel) * alpha;
 
-		// Integrate into orientation
+		// integrate into orientation
 		float angle = length(ang_vel) * dt;
 		if (angle > 1e-6f) {
 			vec3 axis = normalize(ang_vel);
-			quat dq = math::quaternion(axis, angle);   // implement or use yours
-			n.orientation(normalize(dq * n.orientation()));       // or n.rotation *= dq depending on convention
+			quat dq = math::quaternion(axis, angle); // implement or use yours
+			n.orientation(normalize(dq * n.orientation())); // or n.rotation *= dq depending on convention
 		}
 	}
 };

@@ -94,33 +94,33 @@ typedef struct {
 typedef struct {
 	vec4		color;
 	vec3		direction_world;
-	f32			PAD0_;
+	f32			_pad_0_;
 } DirectionalLightGLSLStruct;
 
 typedef struct {
 	vec4		color;
 	vec3		position_world;
-	f32			PAD0_;
+	f32			_pad_0_;
 	f32			constantAttenuation;
 	f32			linearAttenuation;
 	f32			quadraticAttenuation;
-	f32			PAD1_;
+	f32			_pad_1_;
 } PointLightGLSLStruct;
 
 typedef struct {
 	vec4		color;
 	vec3		position_world;
-	f32			PAD0_;
+	f32			_pad_0_;
 	vec3		direction_world;
-	f32			PAD1_;
+	f32			_pad_1_;
 	f32			innerAngleCos;
 	f32			outerAngleCos;
 	uint32_t	featheringMode;
 	f32			constantAttenuation;
 	f32			linearAttenuation;
 	f32			quadraticAttenuation;
-	f32			PAD2_;
-	f32			PAD3_;
+	f32			_pad_2_;
+	f32			_pad_3_;
 } SpotLightGLSLStruct;
 
 typedef struct {
@@ -128,7 +128,7 @@ typedef struct {
 	f32			startDistance;
 	f32			endDistance;
 	f32			densityExponent;
-	f32			PAD0_;
+	f32			_pad_0_;
 } FogGLSLStruct;
 
 typedef struct {
