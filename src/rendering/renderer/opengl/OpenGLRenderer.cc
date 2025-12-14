@@ -2745,10 +2745,14 @@ void DrawStatsOverlay(FrameStats& stats,
 	yPos += 36;
 	DigDrawText(xPos, yPos, bulkStatsStr.c_str(), 1);
 
+
+
 	// input test
 
-//	Begin("Input test", nullptr, windowFlags);
+//	Begin("Input test", nullptr, 0);
 //	SetWindowPos({10.0f, 2.0f});
+//	ImGuiIO& io = GetIO();
+//	auto fonts = io.Fonts->Fonts;
 //	PushFont(fonts[1]);
 //	// --- Button + hover ---
 //	if (Button("Click me")) {
