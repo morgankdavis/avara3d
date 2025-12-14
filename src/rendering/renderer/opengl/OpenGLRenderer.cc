@@ -699,7 +699,7 @@ unique_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 	return make_unique<Image>(std::move(buffer), framebufferWidth, framebufferHeight, 4);
 }
 
-void OpenGLRenderer::framebufferScaleChanged(const RenderContext& context) {
+void OpenGLRenderer::viewportScaleChanged(const RenderContext& context) {
 	//A3D_LOG_D("context: {:p}", static_cast<const void*>(&context));
 
 	ImguiUpdateScale(context, *_overlayTitleFont, *_overlayBodyFont);
@@ -2173,6 +2173,8 @@ void DrawStats(FrameStats& stats,
 			renderGpuMsFAvg, physicsMsFAvg, appCpuMsFAvg;
 	static float fpsAvg;
 
+	// TODO: use STRIDE
+
 	static vector<float> frameSamples;
 	static vector<float> physSamples;
 	static vector<float> engCpuSamples;
@@ -2586,7 +2588,7 @@ void ImguiAddFont(const RenderContext& context, const Font& font, float size) {
 
 void ImguiUpdateGlobalFontScale(const RenderContext& context) {
 #ifdef WINDOWS
-	auto scaleXY = context.framebufferScale();
+	auto scaleXY = context.viewportScale();
 	auto scale = std::max(scaleXY.x, scaleXY.y);
 	// this is probably going to need more attention when we start
 	// using Imgui for more than just rendering text

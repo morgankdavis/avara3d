@@ -113,7 +113,7 @@ namespace a3d {
 
 		std::unique_ptr<Image> 	snapshot(const RenderContext& context) const override;
 
-		void					framebufferScaleChanged(const RenderContext& context) override;
+		void					viewportScaleChanged(const RenderContext& context) override;
 
 	private:
 		/// Private Member Variables ///
