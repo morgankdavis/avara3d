@@ -241,38 +241,43 @@ static void 		DeleteTextureGLResources(Texture* texture,
 static void 		DeleteLinesGLResources(const vector<Line>& lines,
 										  OpenGLRenderer::LinesGLMapping& glMapping);
 static vector<Node*>SortedLights(map<Node*, float> lights);
-static void			InitImgui(const RenderContext& context);
-static void 		UpdateImguiScale(const RenderContext& context,
-									 const Font& titleFont,
-									const Font& bodyFont);
-static void 		AddImguiFont(const RenderContext& context, const Font& font, float size);
-void 				DigUpdateGlobalFontScale(const RenderContext& context);
-void 				DigBeginOverlay(int id, bool allowsInput);
-void 				DigEndOverlay();
-void 				DigDrawText(float x,
-								float y,
-								const char* text,
-								int font);
-void 				DigDrawPlot(float x, float y, float w, float h,
-								const float* values,
-								int valuesCount,
-								int valuesOffset,
-								const char* overlayText,
-								float scaleMin,
-								float scaleMax,
-								int stride,
-								bool outlined,
-								int id);
-bool 				DigDrawCheckbox(float x,
-									float y,
-									const char* text,
-									bool& checked,
-									int font,
-									int id);
+static void 		DrawOverlay(const RenderContext& context,
+							   const Scene& scene,
+							   FrameStats& stats,
+							   const FrameStatsHistory& statsHistory,
+							   DebugOptions debugOptions);
+static void 		DrawStats(FrameStats& stats,
+							 const FrameStatsHistory& statsHistory,
+							 const RenderContext& context);
 static void 		DrawDebugOptions(Scene& scene, const RenderContext& context);
-static void 		DrawStatsOverlay(FrameStats& stats,
-									const FrameStatsHistory& statsHistory,
-									const RenderContext& context);
+static void			ImguiInit(const RenderContext& context);
+static void 		ImguiUpdateScale(const RenderContext& context,
+									const Font& titleFont,
+									const Font& bodyFont);
+static void 		ImguiAddFont(const RenderContext& context, const Font& font, float size);
+void 				ImguiUpdateGlobalFontScale(const RenderContext& context);
+void 				ImguiBeginOverlay(int id, bool allowsInput);
+void 				ImguiEndOverlay();
+void 				ImguiDrawText(float x,
+								  float y,
+								  const char* text,
+								  int font);
+void 				ImguiDrawPlot(float x, float y, float w, float h,
+								  const float* values,
+								  int valuesCount,
+								  int valuesOffset,
+								  const char* overlayText,
+								  float scaleMin,
+								  float scaleMax,
+								  int stride,
+								  bool outlined,
+								  int id);
+bool 				ImguiDrawCheckbox(float x,
+									  float y,
+									  const char* text,
+									  bool& checked,
+									  int font,
+									  int id);
 static string 		StatusOverlayDescriptionForAntialiasingMode(AntialiasingMode mode);
 static void 		SetTextureMinificationFilter(GLuint glTextureHandle,
 												bool cube,
@@ -353,7 +358,6 @@ OpenGLRenderer::~OpenGLRenderer() {
 	CleanupLinesResources(_activeLines, _linesGLMapping);
 
 	ImGui_ImplOpenGL3_Shutdown();
-//	ImGui_ImplGlfw_Shutdown();
 //	ImPlot::DestroyContext();
 	ImGui::DestroyContext();
 }
@@ -376,13 +380,13 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 
 	// setup Imgui
 
-	InitImgui(context);
+	ImguiInit(context);
 
 	_overlayTitleFont = utils::FontNamed(STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
 	if (_overlayTitleFont->buffer()->size()) {
 		_overlayBodyFont = utils::FontNamed(STATS_BODY_FONT_NAME, STATS_BODY_FONT_TYPE);
 		if (_overlayBodyFont->buffer()->size()) {
-			UpdateImguiScale(context, *_overlayTitleFont, *_overlayBodyFont);
+			ImguiUpdateScale(context, *_overlayTitleFont, *_overlayBodyFont);
 		}
 		else {
 			A3D_LOG_E("Unable to load font: {}.{}", STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
@@ -422,7 +426,6 @@ void OpenGLRenderer::beginFrame(const Scene& scene,
 //		profiler.add(Profiler::Tag::RenderGpu, gpuTimeNs);
 //	}
 
-
 	if (g_gpuTimeQuery> 0) {
 		GLuint64 ns = 0;
 		glGetQueryObjectui64v(g_gpuTimeQuery, GL_QUERY_RESULT, &ns);
@@ -440,22 +443,6 @@ void OpenGLRenderer::beginFrame(const Scene& scene,
 	_activeMeshElements.clear();
 	_activeTextures.clear();
 	_activeLines.clear();
-
-
-
-
-//	auto framebufferSize = context.framebufferSize();
-//	glBindFramebuffer(GL_FRAMEBUFFER, context.defaultFramebuffer());
-//	glViewport(0, 0, (GLsizei)framebufferSize.x, (GLsizei)framebufferSize.y);
-
-
-
-
-	// see ordering note in DrawStatsOverlay()
-//	ImGui_ImplOpenGL3_NewFrame();
-	// these have to be called in this order for input to work.
-	// ImGui_ImplOpenGL3_NewFrame(); -> in beginFrame()
-	// ImGui_ImplGlfw_NewFrame() -> in GLFWWindow::beginFrame()
 }
 
 void OpenGLRenderer::endFrame(const Scene& scene,
@@ -465,33 +452,7 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 							  Profiler& profiler,
 							  const FrameStatsHistory& statsHistory) {
 
-	glBindFramebuffer(GL_FRAMEBUFFER, context.defaultFramebuffer());
-	auto fbSize = context.viewportLogicalSize();
-	auto fbScale = context.viewportScale();
-	ImGuiIO& io = ImGui::GetIO();
-	io.DisplaySize = ImVec2(float(fbSize.x), float(fbSize.y));
-	io.DisplayFramebufferScale = ImVec2(fbScale.x, fbScale.y);
-
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui::NewFrame();
-
-	DigUpdateGlobalFontScale(context);
-
-	DigBeginOverlay(0, true);
-	DrawDebugOptions(const_cast<Scene&>(scene), context); // TODO: CHEATING
-	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay)) {
-		DrawStatsOverlay(stats, statsHistory, context);
-	}
-
-	DigEndOverlay();
-
-	// pass input through Imgui window
-	if (!(ImGui::IsAnyItemHovered() || ImGui::IsAnyItemActive()))
-		ImGui::GetIO().WantCaptureMouse = false;
-
-	ImGui::Render();
-
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	DrawOverlay(context, scene, stats, statsHistory, debugOptions);
 
 	CleanupMeshElementResources(_activeMeshElements, _meshElementGLMapping);
 	CleanupTextureResources(_activeTextures, _textureGLMapping);
@@ -741,7 +702,7 @@ unique_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 void OpenGLRenderer::framebufferScaleChanged(const RenderContext& context) {
 	//A3D_LOG_D("context: {:p}", static_cast<const void*>(&context));
 
-	UpdateImguiScale(context, *_overlayTitleFont, *_overlayBodyFont);
+	ImguiUpdateScale(context, *_overlayTitleFont, *_overlayBodyFont);
 }
 	
 /// Private Static Non-Member Functions ///
@@ -2141,343 +2102,45 @@ vector<Node*> SortedLights(map<Node*, float> lights) {
 	return sortedVector;
 }
 
-void InitImgui(const RenderContext& context) {
+void DrawOverlay(const RenderContext& context,
+				 const Scene& scene,
+				 FrameStats& stats,
+				 const FrameStatsHistory& statsHistory,
+				 DebugOptions debugOptions) {
 
-	using namespace ImGui;
-
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-//	ImPlot::CreateContext();
-	ImGuiIO& io = GetIO();
-	io.IniFilename = nullptr;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-//	ImGui_ImplOpenGL3_Init();
-	ImGui_ImplOpenGL3_Init("#version 330 core");
-	// Linux desktop is "#version 330"
-	// on mac core profile often "#version 150"
-	// for GLES "#version 300 es"
-}
-
-//void UpdateImguiScale(const RenderContext& context,
-//					  const Font& titleFont,
-//					  const Font& bodyFont) {
-//
-//	// https://github.com/ocornut/imgui/blob/master/docs/FAQ.md#q-how-should-i-handle-dpi-in-my-application
-//	// https://github.com/ocornut/imgui/discussions/3925
-//	// https://github.com/ocornut/imgui/issues/3757
-//	// https://gist.github.com/benpm/21afb58f2c8dfdbf881ca90c76ad602e
-//	// https://gist.github.com/benpm/21afb58f2c8dfdbf881ca90c76ad602e#file-high_dpi-cpp-L2
-//
-//	using namespace ImGui;
-//
-//	ImGui_ImplOpenGL3_DestroyFontsTexture();
-//
-//	// clear all the font data,
-//	// re-add the fonts with the new oversample scales,
-//	// and re-create the font atlas data.
-//
-//	ImGuiIO& io = GetIO();
-//	io.Fonts->Clear(); // works
-//	io.Fonts->ClearFonts(); // crashes by itself
-//	io.Fonts->ClearTexData(); // does not work, but does not crash
-//
-//	AddImguiFont(context, titleFont, STATS_TITLE_FONT_SIZE);
-//	AddImguiFont(context, bodyFont, STATS_BODY_FONT_SIZE);
-//
-//	ImGui_ImplOpenGL3_CreateFontsTexture();
-//}
-
-void UpdateImguiScale(const RenderContext& context,
-					  const Font& titleFont,
-					  const Font& bodyFont) {
-
-	using namespace ImGui;
-
-	ImGui_ImplOpenGL3_DestroyDeviceObjects(); // was DestroyFontsTexture()
-
-	auto fbSize = context.framebufferSize();
+	//	glBindFramebuffer(GL_FRAMEBUFFER, context.defaultFramebuffer());
+	// this needs to be set every time with Qt (not with GLFW). donno why.
+	auto fbSize = context.viewportLogicalSize();
 	auto fbScale = context.viewportScale();
 	ImGuiIO& io = ImGui::GetIO();
 	io.DisplaySize = ImVec2(float(fbSize.x), float(fbSize.y));
 	io.DisplayFramebufferScale = ImVec2(fbScale.x, fbScale.y);
 
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui::NewFrame();
 
+	ImguiUpdateGlobalFontScale(context);
 
-
-	GetIO().Fonts->Clear();
-
-	AddImguiFont(context, titleFont, STATS_TITLE_FONT_SIZE);
-	AddImguiFont(context, bodyFont, STATS_BODY_FONT_SIZE);
-
-	ImGui_ImplOpenGL3_CreateDeviceObjects();  // was CreateFontsTexture()
-}
-
-void AddImguiFont(const RenderContext& context, const Font& font, float size) {
-
-	using namespace ImGui;
-
-	auto scaleXY = context.viewportScale();
-
-	ImFontConfig fontConfig;
-
-	fontConfig.OversampleH = math::ceil(scaleXY.x);
-	fontConfig.OversampleV = math::ceil(scaleXY.y);
-
-	// by default Imgui transferrs font memory ownership to itself
-	// this means Imgui eventually frees the font data, and then the Font/Buffer double-free it
-	fontConfig.FontDataOwnedByAtlas = false;
-
-	ImGuiIO& io = GetIO();
-
-	//io.DisplayFramebufferScale = ImVec2(scaleXY.x, scaleXY.y);
-
-	A3D_LOG_E("io.DisplaySize2: {} {}", io.DisplaySize.x, io.DisplaySize.y);
-	A3D_LOG_E("io.DisplayFramebufferScale2: {} {}", io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
-
-	io.Fonts->AddFontFromMemoryTTF(font.buffer()->data(),
-								   (int)font.buffer()->size(),
-								   size,
-								   &fontConfig);
-}
-
-void DigUpdateGlobalFontScale(const RenderContext& context) {
-#ifdef WINDOWS
-	auto scaleXY = context.framebufferScale();
-	auto scale = std::max(scaleXY.x, scaleXY.y);
-	// this is probably going to need more attention when we start
-	// using Imgui for more than just rendering text
-	//GetStyle().ScaleAllSizes(scale);
-	ImGui::GetIO().FontGlobalScale = scale;
-#endif
-}
-
-void DigBeginOverlay(int id, bool allowsInput) {
-
-	using namespace ImGui;
-
-	ImGuiIO& io = GetIO();
-	ImGuiWindowFlags flags =
-			ImGuiWindowFlags_NoDecoration |
-			ImGuiWindowFlags_NoMove |
-			ImGuiWindowFlags_NoSavedSettings |
-			ImGuiWindowFlags_NoNav |
-			ImGuiWindowFlags_NoBackground;
-
-	if (!allowsInput) flags |= ImGuiWindowFlags_NoInputs;
-
-	SetNextWindowPos(ImVec2(0,0), ImGuiCond_Always);
-	SetNextWindowSize(io.DisplaySize, ImGuiCond_Always);
-	Begin(("##overlay" + std::to_string(id)).c_str(), nullptr, flags);
-}
-
-void DigEndOverlay() {
-	ImGui::End();
-}
-
-void DigDrawText(float x,
-				 float y,
-				 const char* text,
-				 int font) {
-
-	using namespace ImGui;
-
-	ImGuiIO& io = GetIO();
-	ImFont* f = io.Fonts->Fonts[font];
-	ImDrawList* dl = GetForegroundDrawList();
-
-	dl->AddText(f, f->LegacySize, ImVec2(x+1, y+1), IM_COL32(0,0,0,255), text);
-	dl->AddText(f, f->LegacySize, ImVec2(x,   y),   IM_COL32(255,255,255,255), text);
-}
-
-void DigDrawPlot(float x, float y, float w, float h,
-				 const float* values,
-				 int valuesCount,
-				 int valuesOffset,
-				 const char* overlayText,
-				 float scaleMin,
-				 float scaleMax,
-				 int stride,
-				 bool outlined,
-				 int id) {
-
-	using namespace ImGui;
-
-	PushStyleColor(ImGuiCol_FrameBg, ImVec4(0,0,0,0));
-
-	// shadow pass
-	SetCursorScreenPos(ImVec2(x+1, y+1));
-	PushStyleColor(ImGuiCol_PlotLines, ImVec4(0,0,0,1));
-	PlotLines(("##plot_s" + std::to_string(id)).c_str(),
-			  values, valuesCount, 0, nullptr, scaleMin, scaleMax, ImVec2(w,h));
-	PopStyleColor();
-
-	// main pass
-	SetCursorScreenPos(ImVec2(x, y));
-	PushStyleColor(ImGuiCol_PlotLines, ImVec4(1,1,1,1));
-	if (outlined) {
-		PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.5f);
-		PushStyleColor(ImGuiCol_Border, ImVec4(1,1,1,0.5f));
-	}
-	PlotLines(("##plot" + std::to_string(id)).c_str(),
-			  values, valuesCount, 0, nullptr, scaleMin, scaleMax, ImVec2(w,h));
-	if (outlined) {
-		PopStyleColor();
-		PopStyleVar();
-	}
-	PopStyleColor();
-
-	PopStyleColor();
-}
-
-bool DigDrawCheckbox(float x, float y,
-					 const char* text,
-					 bool& checked,
-					 int font,
-					 int id) {
-
-	using namespace ImGui;
-
-	ImGuiIO& io = GetIO();
-	ImFont* f = io.Fonts->Fonts[font];
-	PushFont(f);
-
-	const ImVec4 transparent(0,0,0,0);
-	const float shadow_off = 1.0f;
-	const float border_thickness = 1.0f;
-
-	const float box_size = GetFrameHeight();                 // checkbox square size
-	const float label_gap = GetStyle().ItemInnerSpacing.x;   // spacing between box and label
-
-	// --- shadow checkbox (non-interactive, non-blocking) ---
-	PushID(id);
-	SetCursorScreenPos(ImVec2(x + shadow_off, y + shadow_off));
-	BeginDisabled(true);
-
-	PushStyleVar(ImGuiStyleVar_FrameBorderSize, border_thickness);
-	PushStyleColor(ImGuiCol_FrameBg,        transparent);
-	PushStyleColor(ImGuiCol_FrameBgHovered, transparent);
-	PushStyleColor(ImGuiCol_FrameBgActive,  transparent);
-	PushStyleColor(ImGuiCol_Border,         ImVec4(0,0,0,1));
-	PushStyleColor(ImGuiCol_BorderShadow,   transparent);
-	PushStyleColor(ImGuiCol_CheckMark,      ImVec4(0,0,0,1));
-
-	bool dummy = checked;
-	SetNextItemAllowOverlap();
-	Checkbox("##shadow", &dummy);
-
-	PopStyleColor(6);
-	PopStyleVar();
-	EndDisabled();
-	PopID();
-
-	// --- real checkbox (interactive, NO label) ---
-	bool ret = false;
-
-	PushID(id);
-	SetCursorScreenPos(ImVec2(x, y));
-
-	PushStyleVar(ImGuiStyleVar_FrameBorderSize, border_thickness);
-	PushStyleColor(ImGuiCol_FrameBg,        	transparent);
-	PushStyleColor(ImGuiCol_FrameBgHovered, 	transparent);
-	PushStyleColor(ImGuiCol_FrameBgActive,  	transparent);
-	PushStyleColor(ImGuiCol_Border,         	ImVec4(1,1,1,1));
-	PushStyleColor(ImGuiCol_BorderShadow,   	transparent);
-	PushStyleColor(ImGuiCol_CheckMark,      	ImVec4(1,1,1,1));
-
-	ret = Checkbox("##real", &checked);
-
-	PopStyleColor(6);
-	PopStyleVar();
-	PopID();
-
-	// --- rraw label ourselves (true solid shadow, like DigDrawText) ---
-	ImDrawList* dl = GetWindowDrawList(); // or GetForegroundDrawList() to match DigDrawText layer exactly
-
-	// align label vertically with checkbox frame (center-ish)
-	float text_y = y + GetStyle().FramePadding.y;
-
-	ImVec2 label_pos(x + box_size + label_gap, text_y);
-
-	dl->AddText(f, f->LegacySize,
-				ImVec2(label_pos.x + shadow_off, label_pos.y + shadow_off),
-				IM_COL32(0,0,0,255),
-				text);
-	dl->AddText(f, f->LegacySize,
-				label_pos,
-				IM_COL32(255,255,255,255),
-				text);
-
-	PopFont();
-	return ret;
-}
-
-void DrawDebugOptions(Scene& scene, const RenderContext& context) {
-
-	using namespace ImGui;
-
-	ImGuiIO& io = GetIO();
-
-	const float WIN_WIDTH = 168;
-	const float xPos = io.DisplaySize.x - WIN_WIDTH;
-	float yPos = 0;
-	int id = 0;
-	static const float Y_PAD = 24.0;
-
-	auto debugOptions = scene.debugOptions();
-
-	yPos = 12.0;
-	static bool stats = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay);
-	if (DigDrawCheckbox(xPos, yPos, "stats", stats, 1, ++id)) {
-		if (stats) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowStatsOverlay));
-		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowStatsOverlay));
+	ImguiBeginOverlay(0, true);
+	DrawDebugOptions(const_cast<Scene&>(scene), context); // TODO: CHEATING
+	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay)) {
+		DrawStats(stats, statsHistory, context);
 	}
 
-	yPos += Y_PAD;
-	bool meshWF = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes);
-	if (DigDrawCheckbox(xPos, yPos, "mesh wireframes", meshWF, 1, ++id)) {
-		if (meshWF) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowWireframes));
-		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowWireframes));
-	}
+	ImguiEndOverlay();
 
-	yPos += Y_PAD;
-	bool meshAABBs = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes);
-	if (DigDrawCheckbox(xPos, yPos, "mesh AABBs", meshAABBs, 1, ++id)) {
-		if (meshAABBs) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowBoundingBoxes));
-		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowBoundingBoxes));
-	}
+	// pass input through Imgui window
+	if (!(ImGui::IsAnyItemHovered() || ImGui::IsAnyItemActive()))
+		ImGui::GetIO().WantCaptureMouse = false;
 
-	yPos += Y_PAD;
-	bool physWF = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes);
-	if (DigDrawCheckbox(xPos, yPos, "physics wireframes", physWF, 1, ++id)) {
-		if (physWF) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsWireframes));
-		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsWireframes));
-	}
+	ImGui::Render();
 
-	yPos += Y_PAD;
-	bool physAABBs = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes);
-	if (DigDrawCheckbox(xPos, yPos, "physics AABBs", physAABBs, 1, ++id)) {
-		if (physAABBs) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
-		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
-	}
-
-	yPos += Y_PAD;
-	bool physContacts = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints);
-	if (DigDrawCheckbox(xPos, yPos, "physics contacts", physContacts, 1, ++id)) {
-		if (physContacts) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsContactPoints));
-		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsContactPoints));
-	}
-
-	yPos += Y_PAD;
-	bool physNorms = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsNormals);
-	if (DigDrawCheckbox(xPos, yPos, "physics normals", physNorms, 1, ++id)) {
-		if (physNorms) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsNormals));
-		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsNormals));
-	}
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void DrawStatsOverlay(FrameStats& stats,
-					  const FrameStatsHistory& statsHistory,
-					  const RenderContext& context) {
+void DrawStats(FrameStats& stats,
+			   const FrameStatsHistory& statsHistory,
+			   const RenderContext& context) {
 
 	using namespace ImGui;
 
@@ -2491,7 +2154,7 @@ void DrawStatsOverlay(FrameStats& stats,
 	auto fonts = io.Fonts->Fonts;
 
 	yPos += 4;
-	DigDrawText(xPos, yPos, "avara3d", 0);
+	ImguiDrawText(xPos, yPos, "avara3d", 0);
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
@@ -2502,7 +2165,7 @@ void DrawStatsOverlay(FrameStats& stats,
 			version.major, version.minor, version.patch, buildInfo.number(),
 			buildInfo.type() == BuildInfo::Type::Debug ? "debug" : "release");
 	yPos += 25;
-	DigDrawText(xPos, yPos, buildStr.c_str(), 1);
+	ImguiDrawText(xPos, yPos, buildStr.c_str(), 1);
 
 	static chrono::nanoseconds frameNsAvg, engineCpuNsAvg, renderCpuNsAvg,
 			renderGpuNsAvg, physicsNsAvg, appCpuNsAvg;
@@ -2580,7 +2243,7 @@ void DrawStatsOverlay(FrameStats& stats,
 			"{:15.0f}fps\n",
 			fpsAvg);
 	yPos += 48;
-	DigDrawText(xPos, yPos, rateStr.c_str(), 1);
+	ImguiDrawText(xPos, yPos, rateStr.c_str(), 1);
 
 	auto frameTimeStr = std::format(
 			"{:<{}} {:.1f}ms\n",
@@ -2590,18 +2253,18 @@ void DrawStatsOverlay(FrameStats& stats,
 //			"frame", frameMsFAvg, fpsAvg);
 //	yPos += 48;
 	yPos += 15;
-	DigDrawText(xPos, yPos, frameTimeStr.c_str(), 1);
+	ImguiDrawText(xPos, yPos, frameTimeStr.c_str(), 1);
 	yPos += PLOT_Y_PAD;
 //	yPos += PLOT_Y_PAD + 16;
-	DigDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_1,
-				frameSamples.data(),
-				static_cast<int>(frameSamples.size()),
-				0,
-				nullptr,
-				PLOT_Y_MIN, PLOT_Y_MAX,
-				0,
-				PLOT_OUTLINED,
-				++id);
+	ImguiDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_1,
+				  frameSamples.data(),
+				  static_cast<int>(frameSamples.size()),
+				  0,
+				  nullptr,
+				  PLOT_Y_MIN, PLOT_Y_MAX,
+				  0,
+				  PLOT_OUTLINED,
+				  ++id);
 
 	// engine cpu
 
@@ -2609,17 +2272,17 @@ void DrawStatsOverlay(FrameStats& stats,
 			"{:<{}} {:.1f}ms\n",
 			"engine cpu", RT_TEXT_PADDING, engineCpuMsFAvg);
 	yPos += PLOT_HEIGHT_1 + PLOT_STR_Y_PAD;
-	DigDrawText(xPos, yPos, engineCpuTimeStr.c_str(), 1);
+	ImguiDrawText(xPos, yPos, engineCpuTimeStr.c_str(), 1);
 	yPos += PLOT_Y_PAD;
-	DigDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_2,
-				engCpuSamples.data(),
-				static_cast<int>(engCpuSamples.size()),
-				0,
-				nullptr,
-				PLOT_Y_MIN, PLOT_Y_MAX,
-				0,
-				PLOT_OUTLINED,
-				++id);
+	ImguiDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_2,
+				  engCpuSamples.data(),
+				  static_cast<int>(engCpuSamples.size()),
+				  0,
+				  nullptr,
+				  PLOT_Y_MIN, PLOT_Y_MAX,
+				  0,
+				  PLOT_OUTLINED,
+				  ++id);
 
 	// physics
 
@@ -2627,17 +2290,17 @@ void DrawStatsOverlay(FrameStats& stats,
 			"{:<{}} {:.1f}ms\n",
 			"physics", RT_TEXT_PADDING, physicsMsFAvg);
 	yPos += PLOT_HEIGHT_2 + PLOT_STR_Y_PAD;
-	DigDrawText(xPos, yPos, physTimeStr.c_str(), 1);
+	ImguiDrawText(xPos, yPos, physTimeStr.c_str(), 1);
 	yPos += PLOT_Y_PAD;
-	DigDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_2,
-				physSamples.data(),
-				static_cast<int>(physSamples.size()),
-				0,
-				nullptr,
-				PLOT_Y_MIN, PLOT_Y_MAX,
-				0,
-				PLOT_OUTLINED,
-				++id);
+	ImguiDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_2,
+				  physSamples.data(),
+				  static_cast<int>(physSamples.size()),
+				  0,
+				  nullptr,
+				  PLOT_Y_MIN, PLOT_Y_MAX,
+				  0,
+				  PLOT_OUTLINED,
+				  ++id);
 
 	// render cpu
 
@@ -2645,17 +2308,17 @@ void DrawStatsOverlay(FrameStats& stats,
 			"{:<{}} {:.1f}ms\n",
 			"render cpu", RT_TEXT_PADDING, renderCpuMsFAvg);
 	yPos += PLOT_HEIGHT_2 + PLOT_STR_Y_PAD;
-	DigDrawText(xPos, yPos, renderCpuTimeStr.c_str(), 1);
+	ImguiDrawText(xPos, yPos, renderCpuTimeStr.c_str(), 1);
 	yPos += PLOT_Y_PAD;
-	DigDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_2,
-				renderCpuSamples.data(),
-				static_cast<int>(renderCpuSamples.size()),
-				0,
-				nullptr,
-				PLOT_Y_MIN, PLOT_Y_MAX,
-				0,
-				PLOT_OUTLINED,
-				++id);
+	ImguiDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_2,
+				  renderCpuSamples.data(),
+				  static_cast<int>(renderCpuSamples.size()),
+				  0,
+				  nullptr,
+				  PLOT_Y_MIN, PLOT_Y_MAX,
+				  0,
+				  PLOT_OUTLINED,
+				  ++id);
 
 	// render gpu
 
@@ -2663,17 +2326,17 @@ void DrawStatsOverlay(FrameStats& stats,
 			"{:<{}} {:.1f}ms\n",
 			"render gpu", RT_TEXT_PADDING, renderGpuMsFAvg);
 	yPos += PLOT_HEIGHT_2 + PLOT_STR_Y_PAD;
-	DigDrawText(xPos, yPos, renderGpuTimeStr.c_str(), 1);
+	ImguiDrawText(xPos, yPos, renderGpuTimeStr.c_str(), 1);
 	yPos += PLOT_Y_PAD;
-	DigDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_2,
-				renderGpuSamples.data(),
-				static_cast<int>(renderGpuSamples.size()),
-				0,
-				nullptr,
-				PLOT_Y_MIN, PLOT_Y_MAX,
-				0,
-				PLOT_OUTLINED,
-				++id);
+	ImguiDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_2,
+				  renderGpuSamples.data(),
+				  static_cast<int>(renderGpuSamples.size()),
+				  0,
+				  nullptr,
+				  PLOT_Y_MIN, PLOT_Y_MAX,
+				  0,
+				  PLOT_OUTLINED,
+				  ++id);
 
 	// application
 
@@ -2681,17 +2344,17 @@ void DrawStatsOverlay(FrameStats& stats,
 			"{:<{}} {:.1f}ms\n",
 			"app", RT_TEXT_PADDING, appCpuMsFAvg);
 	yPos += PLOT_HEIGHT_2 + PLOT_STR_Y_PAD;
-	DigDrawText(xPos, yPos, appTimeStr.c_str(), 1);
+	ImguiDrawText(xPos, yPos, appTimeStr.c_str(), 1);
 	yPos += PLOT_Y_PAD;
-	DigDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_2,
-				appSamples.data(),
-				static_cast<int>(appSamples.size()),
-				0,
-				nullptr,
-				PLOT_Y_MIN, PLOT_Y_MAX,
-				0,
-				PLOT_OUTLINED,
-				++id);
+	ImguiDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_2,
+				  appSamples.data(),
+				  static_cast<int>(appSamples.size()),
+				  0,
+				  nullptr,
+				  PLOT_Y_MIN, PLOT_Y_MAX,
+				  0,
+				  PLOT_OUTLINED,
+				  ++id);
 
 	string recordingStr = "";
 	if (context.recordingGIF()) {
@@ -2761,7 +2424,7 @@ void DrawStatsOverlay(FrameStats& stats,
 			recordingStr);
 
 	yPos += 36;
-	DigDrawText(xPos, yPos, bulkStatsStr.c_str(), 1);
+	ImguiDrawText(xPos, yPos, bulkStatsStr.c_str(), 1);
 
 
 
@@ -2793,6 +2456,303 @@ void DrawStatsOverlay(FrameStats& stats,
 //	Text("WantCaptureMouse: %s", io.WantCaptureMouse ? "true" : "false");
 //	PopFont();
 //	End();
+}
+
+void DrawDebugOptions(Scene& scene, const RenderContext& context) {
+
+	using namespace ImGui;
+
+	ImGuiIO& io = GetIO();
+
+	const float WIN_WIDTH = 168;
+	const float xPos = io.DisplaySize.x - WIN_WIDTH;
+	float yPos = 0;
+	int id = 0;
+	static const float Y_PAD = 24.0;
+
+	auto debugOptions = scene.debugOptions();
+
+	yPos = 12.0;
+	static bool stats = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay);
+	if (ImguiDrawCheckbox(xPos, yPos, "stats", stats, 1, ++id)) {
+		if (stats) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowStatsOverlay));
+		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowStatsOverlay));
+	}
+
+	yPos += Y_PAD;
+	bool meshWF = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes);
+	if (ImguiDrawCheckbox(xPos, yPos, "mesh wireframes", meshWF, 1, ++id)) {
+		if (meshWF) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowWireframes));
+		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowWireframes));
+	}
+
+	yPos += Y_PAD;
+	bool meshAABBs = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes);
+	if (ImguiDrawCheckbox(xPos, yPos, "mesh AABBs", meshAABBs, 1, ++id)) {
+		if (meshAABBs) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowBoundingBoxes));
+		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowBoundingBoxes));
+	}
+
+	yPos += Y_PAD;
+	bool physWF = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes);
+	if (ImguiDrawCheckbox(xPos, yPos, "physics wireframes", physWF, 1, ++id)) {
+		if (physWF) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsWireframes));
+		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsWireframes));
+	}
+
+	yPos += Y_PAD;
+	bool physAABBs = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes);
+	if (ImguiDrawCheckbox(xPos, yPos, "physics AABBs", physAABBs, 1, ++id)) {
+		if (physAABBs) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
+		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
+	}
+
+	yPos += Y_PAD;
+	bool physContacts = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints);
+	if (ImguiDrawCheckbox(xPos, yPos, "physics contacts", physContacts, 1, ++id)) {
+		if (physContacts) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsContactPoints));
+		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsContactPoints));
+	}
+
+	yPos += Y_PAD;
+	bool physNorms = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsNormals);
+	if (ImguiDrawCheckbox(xPos, yPos, "physics normals", physNorms, 1, ++id)) {
+		if (physNorms) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsNormals));
+		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsNormals));
+	}
+}
+
+void ImguiInit(const RenderContext& context) {
+
+	using namespace ImGui;
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+//	ImPlot::CreateContext();
+	ImGuiIO& io = GetIO();
+	io.IniFilename = nullptr;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	ImGui_ImplOpenGL3_Init();
+//	ImGui_ImplOpenGL3_Init("#version 330 core");
+	// Linux: "#version 330"
+	// macOS core: "#version 150" ?
+	// GLES: "#version 300 es"
+}
+
+void ImguiUpdateScale(const RenderContext& context,
+					  const Font& titleFont,
+					  const Font& bodyFont) {
+
+	using namespace ImGui;
+
+	ImGui_ImplOpenGL3_DestroyDeviceObjects(); // was DestroyFontsTexture()
+
+	auto fbSize = context.framebufferSize();
+	auto fbScale = context.viewportScale();
+	ImGuiIO& io = ImGui::GetIO();
+	io.DisplaySize = ImVec2(float(fbSize.x), float(fbSize.y));
+	io.DisplayFramebufferScale = ImVec2(fbScale.x, fbScale.y);
+
+	GetIO().Fonts->Clear();
+
+	ImguiAddFont(context, titleFont, STATS_TITLE_FONT_SIZE);
+	ImguiAddFont(context, bodyFont, STATS_BODY_FONT_SIZE);
+
+	ImGui_ImplOpenGL3_CreateDeviceObjects();  // was CreateFontsTexture()
+}
+
+void ImguiAddFont(const RenderContext& context, const Font& font, float size) {
+
+	using namespace ImGui;
+
+	auto scaleXY = context.viewportScale();
+
+	ImFontConfig fontConfig;
+
+	fontConfig.OversampleH = math::ceil(scaleXY.x);
+	fontConfig.OversampleV = math::ceil(scaleXY.y);
+
+	// by default Imgui transferrs font memory ownership to itself
+	// this means Imgui eventually frees the font data, and then the Font/Buffer double-free it
+	fontConfig.FontDataOwnedByAtlas = false;
+
+	ImGuiIO& io = GetIO();
+
+	io.Fonts->AddFontFromMemoryTTF(font.buffer()->data(),
+								   (int)font.buffer()->size(),
+								   size,
+								   &fontConfig);
+}
+
+void ImguiUpdateGlobalFontScale(const RenderContext& context) {
+#ifdef WINDOWS
+	auto scaleXY = context.framebufferScale();
+	auto scale = std::max(scaleXY.x, scaleXY.y);
+	// this is probably going to need more attention when we start
+	// using Imgui for more than just rendering text
+	//GetStyle().ScaleAllSizes(scale);
+	ImGui::GetIO().FontGlobalScale = scale;
+#endif
+}
+
+void ImguiBeginOverlay(int id, bool allowsInput) {
+
+	using namespace ImGui;
+
+	ImGuiIO& io = GetIO();
+	ImGuiWindowFlags flags =
+			ImGuiWindowFlags_NoDecoration |
+			ImGuiWindowFlags_NoMove |
+			ImGuiWindowFlags_NoSavedSettings |
+			ImGuiWindowFlags_NoNav |
+			ImGuiWindowFlags_NoBackground;
+
+	if (!allowsInput) flags |= ImGuiWindowFlags_NoInputs;
+
+	SetNextWindowPos(ImVec2(0,0), ImGuiCond_Always);
+	SetNextWindowSize(io.DisplaySize, ImGuiCond_Always);
+	Begin(("##overlay" + std::to_string(id)).c_str(), nullptr, flags);
+}
+
+void ImguiEndOverlay() {
+	ImGui::End();
+}
+
+void ImguiDrawText(float x,
+				   float y,
+				   const char* text,
+				   int font) {
+
+	using namespace ImGui;
+
+	ImGuiIO& io = GetIO();
+	ImFont* f = io.Fonts->Fonts[font];
+	ImDrawList* dl = GetForegroundDrawList();
+
+	dl->AddText(f, f->LegacySize, ImVec2(x+1, y+1), IM_COL32(0,0,0,255), text);
+	dl->AddText(f, f->LegacySize, ImVec2(x,   y),   IM_COL32(255,255,255,255), text);
+}
+
+void ImguiDrawPlot(float x, float y, float w, float h,
+				   const float* values,
+				   int valuesCount,
+				   int valuesOffset,
+				   const char* overlayText,
+				   float scaleMin,
+				   float scaleMax,
+				   int stride,
+				   bool outlined,
+				   int id) {
+
+	using namespace ImGui;
+
+	PushStyleColor(ImGuiCol_FrameBg, ImVec4(0,0,0,0));
+
+	// shadow pass
+	SetCursorScreenPos(ImVec2(x+1, y+1));
+	PushStyleColor(ImGuiCol_PlotLines, ImVec4(0,0,0,1));
+	PlotLines(("##plot_s" + std::to_string(id)).c_str(),
+			  values, valuesCount, 0, nullptr, scaleMin, scaleMax, ImVec2(w,h));
+	PopStyleColor();
+
+	// main pass
+	SetCursorScreenPos(ImVec2(x, y));
+	PushStyleColor(ImGuiCol_PlotLines, ImVec4(1,1,1,1));
+	if (outlined) {
+		PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.5f);
+		PushStyleColor(ImGuiCol_Border, ImVec4(1,1,1,0.5f));
+	}
+	PlotLines(("##plot" + std::to_string(id)).c_str(),
+			  values, valuesCount, 0, nullptr, scaleMin, scaleMax, ImVec2(w,h));
+	if (outlined) {
+		PopStyleColor();
+		PopStyleVar();
+	}
+	PopStyleColor();
+
+	PopStyleColor();
+}
+
+bool ImguiDrawCheckbox(float x, float y,
+					   const char* text,
+					   bool& checked,
+					   int font,
+					   int id) {
+
+	using namespace ImGui;
+
+	ImGuiIO& io = GetIO();
+	ImFont* f = io.Fonts->Fonts[font];
+	PushFont(f);
+
+	const ImVec4 transparent(0,0,0,0);
+	const float shadow_off = 1.0f;
+	const float border_thickness = 1.0f;
+
+	const float box_size = GetFrameHeight(); // checkbox square size
+	const float label_gap = GetStyle().ItemInnerSpacing.x; // spacing between box and label
+
+	// shadow checkbox (non-interactive, non-blocking)
+	PushID(id);
+	SetCursorScreenPos(ImVec2(x + shadow_off, y + shadow_off));
+	BeginDisabled(true);
+
+	PushStyleVar(ImGuiStyleVar_FrameBorderSize, border_thickness);
+	PushStyleColor(ImGuiCol_FrameBg,        transparent);
+	PushStyleColor(ImGuiCol_FrameBgHovered, transparent);
+	PushStyleColor(ImGuiCol_FrameBgActive,  transparent);
+	PushStyleColor(ImGuiCol_Border,         ImVec4(0,0,0,1));
+	PushStyleColor(ImGuiCol_BorderShadow,   transparent);
+	PushStyleColor(ImGuiCol_CheckMark,      ImVec4(0,0,0,1));
+
+	bool dummy = checked;
+	SetNextItemAllowOverlap();
+	Checkbox("##shadow", &dummy);
+
+	PopStyleColor(6);
+	PopStyleVar();
+	EndDisabled();
+	PopID();
+
+	// real checkbox (interactive, NO label)
+	bool ret = false;
+
+	PushID(id);
+	SetCursorScreenPos(ImVec2(x, y));
+
+	PushStyleVar(ImGuiStyleVar_FrameBorderSize, border_thickness);
+	PushStyleColor(ImGuiCol_FrameBg,        	transparent);
+	PushStyleColor(ImGuiCol_FrameBgHovered, 	transparent);
+	PushStyleColor(ImGuiCol_FrameBgActive,  	transparent);
+	PushStyleColor(ImGuiCol_Border,         	ImVec4(1,1,1,1));
+	PushStyleColor(ImGuiCol_BorderShadow,   	transparent);
+	PushStyleColor(ImGuiCol_CheckMark,      	ImVec4(1,1,1,1));
+
+	ret = Checkbox("##real", &checked);
+
+	PopStyleColor(6);
+	PopStyleVar();
+	PopID();
+
+	// raw label ourselves (true solid shadow, like DigDrawText)
+	ImDrawList* dl = GetWindowDrawList(); // or GetForegroundDrawList() to match DigDrawText layer exactly
+
+	// align label vertically with checkbox frame (center-ish)
+	float text_y = y + GetStyle().FramePadding.y;
+
+	ImVec2 label_pos(x + box_size + label_gap, text_y);
+
+	dl->AddText(f, f->LegacySize,
+				ImVec2(label_pos.x + shadow_off, label_pos.y + shadow_off),
+				IM_COL32(0,0,0,255),
+				text);
+	dl->AddText(f, f->LegacySize,
+				label_pos,
+				IM_COL32(255,255,255,255),
+				text);
+
+	PopFont();
+	return ret;
 }
 
 string StatusOverlayDescriptionForAntialiasingMode(AntialiasingMode mode) {

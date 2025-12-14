@@ -33,7 +33,7 @@ namespace a3d::head::qt {
 		explicit QtViewport(a3d::RenderingApi renderingApi,
 							AntialiasingMode antialiasingModeQWidget,
 							QWidget* parent = nullptr);
-		~QtViewport() override;
+		~QtViewport() = default;
 
 		/// Public Member Functions ///
 

@@ -61,9 +61,9 @@ Viewport::QtViewport(RenderingApi renderingApi,
 	setFocus();
 }
 
-Viewport::~QtViewport() {
-	//ImGui::DestroyContext();
-}
+//Viewport::~QtViewport() {
+//	//ImGui::DestroyContext();
+//}
 
 /// Public Member Functions ///
 
