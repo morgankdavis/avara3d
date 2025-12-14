@@ -83,6 +83,7 @@ namespace a3d {
 
 		math::uvec2			viewportLogicalSize() const override;
 		math::vec2			viewportScale() const override;
+		math::uvec2			framebufferSize() const override;
 
 		unsigned 			defaultFramebuffer() const override;
 
@@ -114,7 +115,7 @@ namespace a3d {
 												   int scanCode,
 												   int action,
 												   int mods);
-		static GLFWWindow* WindowFromGLFWwindow(GLFWwindow* glfwWindow);
+		static GLFWWindow*			WindowFromGLFWwindow(GLFWwindow* glfwWindow);
 		static GLFWInputManager* 	InputManagerFromGLFwWindow(GLFWwindow* glfwWindow);
 
 		/// Private Member Functions ///

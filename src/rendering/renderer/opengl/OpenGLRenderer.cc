@@ -2569,17 +2569,18 @@ void ImguiUpdateScale(const RenderContext& context) {
 
 	using namespace ImGui;
 
-	auto fbSize = context.viewportLogicalSize();
-	auto fbScale = context.viewportScale();
+	auto vpSize = context.viewportLogicalSize();
+	auto vpScale = context.viewportScale();
 	ImGuiIO& io = ImGui::GetIO();
-	io.DisplaySize = ImVec2(float(fbSize.x), float(fbSize.y));
-	io.DisplayFramebufferScale = ImVec2(fbScale.x, fbScale.y);
+	io.DisplaySize = ImVec2(float(vpSize.x), float(vpSize.y));
+	io.DisplayFramebufferScale = ImVec2(vpScale.x, vpScale.y);
+
+	glViewport(0, 0, vpSize.x*vpScale.x, vpSize.y*vpScale.y);
 }
 
 void ImguiAddFont(const RenderContext& context, const Font& font, ImFont*& imFont) {
 
 	using namespace ImGui;
-
 
 	ImFontConfig fontConfig{};
 	fontConfig.FontDataOwnedByAtlas = false;
@@ -2596,6 +2597,7 @@ void ImguiAddFont(const RenderContext& context, const Font& font, ImFont*& imFon
 }
 
 void ImguiUpdateGlobalFontScale(const RenderContext& context) {
+return;
 #ifdef WINDOWS
 	auto scaleXY = context.viewportScale();
 	auto scale = std::max(scaleXY.x, scaleXY.y);

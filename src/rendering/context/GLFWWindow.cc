@@ -122,7 +122,7 @@ GLFWWindow::GLFWWindow(RenderingApi renderingAPI,
 			glfwSetWindowUserPointer(_glfwWindow.get(), static_cast<void*>(this));
 
 			glfwMakeContextCurrent(_glfwWindow.get());
-			vSyncEnabled(false);
+			GLFWWindow::vSyncEnabled(false);
 
 			if (OpenGLRenderer::InitGL((GLADloadproc)glfwGetProcAddress)) {
 				RenderContext::renderer()->initialize(*this);
@@ -357,14 +357,65 @@ void GLFWWindow::swapBuffers() {
 	glfwSwapBuffers(_glfwWindow.get());
 }
 
+/*
+Define these three things strictly:
+
+viewportLogicalSize = “screen coordinates” size
+framebufferSize = pixel size of the actual render target
+viewportScale = framebufferSize / viewportLogicalSize (NOT content scale)
+*/
+
+// uvec2 GLFWWindow::viewportLogicalSize() const {
+// 	// wtf windows?
+// 	// it appears glfwGetWindowSize() does not return DIP size in windows like
+// 	// it does in Linux and macOS, but rather actual pixel size.
+// 	// so we need to "un-scale" it...
+// 	// update: apparently X11 does this too?
+// #ifdef WINDOWS
+// 	ivec2 size;
+// 	vec2 scale = viewportScale();
+// 	//glfwGetFramebufferSize(_glfwWindow.get(), &size.x, &size.y);
+// 	glfwGetWindowSize(_glfwWindow.get(), &size.x, &size.y);
+// 	return uvec2(size.x/scale.x, size.y/scale.y);
+// #else
+// 	return size();
+// #endif
+// }
+
 uvec2 GLFWWindow::viewportLogicalSize() const {
+	// glfwGetWindowSize on Linux and macOS return the logical size.
+	// on Windows and X11 it returns the pixel size (screen coords <-> pixels 1:1)
+// 	// wtf windows?
+// 	// it appears glfwGetWindowSize() does not return DIP size in windows like
+// 	// it does in Linux and macOS, but rather actual pixel size.
+// 	// so we need to "un-scale" it...
+// 	// update: apparently X11 does this too?
+// #ifdef WINDOWS
+// 	ivec2 size;
+// 	vec2 scale = viewportScale();
+// 	//glfwGetFramebufferSize(_glfwWindow.get(), &size.x, &size.y);
+// 	glfwGetWindowSize(_glfwWindow.get(), &size.x, &size.y);
+// 	return uvec2(size.x/scale.x, size.y/scale.y);
+// #else
 	return size();
+// #endif
 }
 
 vec2 GLFWWindow::viewportScale() const {
-	vec2 scale;
-	glfwGetWindowContentScale(_glfwWindow.get(), &scale.x, &scale.y);
-	return scale;
+	// see note in viewportLogicalSize().
+	// on Windows and X11, this is more of a "UI" scaling hint.
+	// vec2 scale;
+	// glfwGetWindowContentScale(_glfwWindow.get(), &scale.x, &scale.y);
+	// return scale;
+	uvec2 fbSize = framebufferSize();
+	uvec2 vpLogicalSize = viewportLogicalSize();
+	return vec2(float(fbSize.x)/float(vpLogicalSize.x), float(fbSize.y)/float(vpLogicalSize.y));
+}
+
+math::uvec2 GLFWWindow::framebufferSize() const {
+	ivec2 size;
+	glfwGetFramebufferSize(_glfwWindow.get(), &size.x, &size.y);
+	return uvec2(size.x, size.y);
 }
 
 unsigned GLFWWindow::defaultFramebuffer() const {

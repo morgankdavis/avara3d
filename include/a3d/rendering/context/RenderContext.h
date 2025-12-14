@@ -70,7 +70,8 @@ namespace a3d {
 
 		virtual math::uvec2				viewportLogicalSize() const = 0; // DIPs
 		virtual math::vec2				viewportScale() const = 0;
-		math::uvec2						framebufferSize() const;
+		//math::uvec2						framebufferSize() const;
+		virtual math::uvec2				framebufferSize() const = 0;
 
 		virtual void 					saveGIFFrame(double deltaRunT);
 

@@ -20,7 +20,15 @@ using namespace std;
 
 /// Public Lifecycle Functions ///
 
-StdOutLogSink::StdOutLogSink() { }
+StdOutLogSink::StdOutLogSink() {
+	// on Windows, output often just kinda stops unless you manually flush it...
+	// (or until more new stuff arrives).
+#ifdef WINDOWS
+	//setvbuf(stdout, nullptr, _IOLBF, 0); // line-buffered -- crashes?
+	//setvbuf(stdout, nullptr, _IONBF, 0); // unbuffered (SLOW)
+	cout.setf(ios::unitbuf); // flush after every insertion (not AS slow?)
+#endif
+}
 
 StdOutLogSink::~StdOutLogSink() {
 	flush();

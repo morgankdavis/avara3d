@@ -185,11 +185,11 @@ void RenderContext::saveGIFFrame(double deltaRunT) {
 	}
 }
 
-uvec2 RenderContext::framebufferSize() const {
-	auto scale = viewportScale();
-	auto size = viewportLogicalSize();
-	return uvec2(math::round(size.x * scale.x), math::round(size.y * scale.y));
-}
+// uvec2 RenderContext::framebufferSize() const {
+// 	auto scale = viewportScale();
+// 	auto size = viewportLogicalSize();
+// 	return uvec2(math::round(size.x * scale.x), math::round(size.y * scale.y));
+// }
 
 void RenderContext::attachedToVisualWorld(VisualWorld* world) {
 	A3D_LOG_T("world: {:p}", static_cast<void*>(world));

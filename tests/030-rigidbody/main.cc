@@ -46,7 +46,7 @@ void LogBuildInfo();
 void SpawnDuckFruit(Scene& scene, Node& duckNode);
 void AddSlurm(Scene& scene, const vec3& location, const vec3& axis, float angle);
 void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction);
-void AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color);
+// void AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color);
 void AddCardboardBox(Scene& scene, const vec3& location, const vec3& axis, float angle);
 void SpawnHACDTeapot(Scene& scene);
 void AddBoxes(Scene& scene);
@@ -674,6 +674,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	}
 
 	if (keysPressed.count(Key::F)) {
+		//Log::MainLog().flush();
 		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
 			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
 											   DebugOptions::ShowWireframes));
