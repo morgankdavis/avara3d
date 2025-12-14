@@ -21,7 +21,6 @@
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/camera/Camera.h"
-#include "a3d/rendering/renderer/Renderer.h"
 #include "a3d/rendering/renderer/opengl/OpenGLRenderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
@@ -357,59 +356,13 @@ void GLFWWindow::swapBuffers() {
 	glfwSwapBuffers(_glfwWindow.get());
 }
 
-/*
-Define these three things strictly:
-
-viewportLogicalSize = “screen coordinates” size
-framebufferSize = pixel size of the actual render target
-viewportScale = framebufferSize / viewportLogicalSize (NOT content scale)
-*/
-
-// uvec2 GLFWWindow::viewportLogicalSize() const {
-// 	// wtf windows?
-// 	// it appears glfwGetWindowSize() does not return DIP size in windows like
-// 	// it does in Linux and macOS, but rather actual pixel size.
-// 	// so we need to "un-scale" it...
-// 	// update: apparently X11 does this too?
-// #ifdef WINDOWS
-// 	ivec2 size;
-// 	vec2 scale = viewportScale();
-// 	//glfwGetFramebufferSize(_glfwWindow.get(), &size.x, &size.y);
-// 	glfwGetWindowSize(_glfwWindow.get(), &size.x, &size.y);
-// 	return uvec2(size.x/scale.x, size.y/scale.y);
-// #else
-// 	return size();
-// #endif
-// }
-
 uvec2 GLFWWindow::viewportLogicalSize() const {
-	// glfwGetWindowSize on Linux and macOS return the logical size.
+	// glfwGetWindowSize (what size() uses) return the logical size on Linux and macOS.
 	// on Windows and X11 it returns the pixel size (screen coords <-> pixels 1:1)
-// 	// wtf windows?
-// 	// it appears glfwGetWindowSize() does not return DIP size in windows like
-// 	// it does in Linux and macOS, but rather actual pixel size.
-// 	// so we need to "un-scale" it...
-// 	// update: apparently X11 does this too?
-// #ifdef WINDOWS
-// 	ivec2 size;
-// 	vec2 scale = viewportScale();
-// 	//glfwGetFramebufferSize(_glfwWindow.get(), &size.x, &size.y);
-// 	glfwGetWindowSize(_glfwWindow.get(), &size.x, &size.y);
-// 	return uvec2(size.x/scale.x, size.y/scale.y);
-// #else
+	// Windows and X11, glfwGetWindowContentScale() will report something other than 1,
+	// but it's intended as more of a UI-scaling thing, apparently.
+	// see note in RenderContext::viewportScale()
 	return size();
-// #endif
-}
-
-vec2 GLFWWindow::viewportScale() const {
-	// see note in viewportLogicalSize().
-	// on Windows and X11, this is more of a "UI" scaling hint.
-	// vec2 scale;
-	// glfwGetWindowContentScale(_glfwWindow.get(), &scale.x, &scale.y);
-	// return scale;
-	uvec2 fbSize = framebufferSize();
-	uvec2 vpLogicalSize = viewportLogicalSize();
-	return vec2(float(fbSize.x)/float(vpLogicalSize.x), float(fbSize.y)/float(vpLogicalSize.y));
 }
 
 math::uvec2 GLFWWindow::framebufferSize() const {

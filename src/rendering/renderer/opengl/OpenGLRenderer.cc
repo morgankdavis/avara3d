@@ -264,7 +264,6 @@ static void 		ImguiUpdateScale(const RenderContext& context);
 static void 		ImguiAddFont(const RenderContext& context,
 								 const Font& font,
 								 ImFont*& imFont);
-void 				ImguiUpdateGlobalFontScale(const RenderContext& context);
 void 				ImguiBeginOverlay(int id, bool allowsInput);
 void 				ImguiEndOverlay();
 void 				ImguiDrawText(float x,
@@ -2110,8 +2109,6 @@ void DrawOverlay(const RenderContext& context,
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui::NewFrame();
 
-	ImguiUpdateGlobalFontScale(context);
-
 	ImguiBeginOverlay(0, true);
 	DrawDebugOptions(const_cast<Scene&>(scene), context, titleFont, bodyFont); // TODO: const_cast CHEATING
 	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay)) {
@@ -2594,19 +2591,6 @@ void ImguiAddFont(const RenderContext& context, const Font& font, ImFont*& imFon
 												 (int)font.buffer()->size(),
 												 0.0f,
 												 &fontConfig);
-}
-
-void ImguiUpdateGlobalFontScale(const RenderContext& context) {
-return;
-#ifdef WINDOWS
-	auto scaleXY = context.viewportScale();
-	auto scale = std::max(scaleXY.x, scaleXY.y);
-	// this is probably going to need more attention when we start
-	// using Imgui for more than just rendering text
-	//GetStyle().ScaleAllSizes(scale);
-//	ImGui::GetIO().FontGlobalScale = scale;
-	ImGui::GetStyle().FontScaleMain = scale;
-#endif
 }
 
 void ImguiBeginOverlay(int id, bool allowsInput) {

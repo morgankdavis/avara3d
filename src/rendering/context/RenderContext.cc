@@ -185,11 +185,13 @@ void RenderContext::saveGIFFrame(double deltaRunT) {
 	}
 }
 
-// uvec2 RenderContext::framebufferSize() const {
-// 	auto scale = viewportScale();
-// 	auto size = viewportLogicalSize();
-// 	return uvec2(math::round(size.x * scale.x), math::round(size.y * scale.y));
-// }
+vec2 RenderContext::viewportScale() const {
+	// see note in GLFWWindow::viewportLogicalSize().
+	// on Windows and X11, DPI/glfwGetWindowContentScale() is mostly a "UI" scaling hint.
+	uvec2 fbSize = framebufferSize();
+	uvec2 vpLogicalSize = viewportLogicalSize();
+	return vec2(float(fbSize.x)/float(vpLogicalSize.x), float(fbSize.y)/float(vpLogicalSize.y));
+}
 
 void RenderContext::attachedToVisualWorld(VisualWorld* world) {
 	A3D_LOG_T("world: {:p}", static_cast<void*>(world));

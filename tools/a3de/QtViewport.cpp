@@ -142,12 +142,15 @@ void Viewport::endFrame(const a3d::Scene& scene) {}
 void Viewport::swapBuffers() {}
 
 uvec2 Viewport::viewportLogicalSize() const {
+	// see notes in GLFWWindow::viewportLogicalSize() and RenderContext::viewportScale()
 	return uvec2(width(), height());
 }
 
-vec2 Viewport::viewportScale() const {
-	auto s = devicePixelRatioF();
-	return vec2(s, s);
+uvec2 Viewport::framebufferSize() const {
+	// see notes in GLFWWindow::viewportLogicalSize() and RenderContext::viewportScale()
+	auto scale = float(devicePixelRatioF());
+	return { uint32_t(math::round(width() * scale)),
+			 uint32_t(math::round(height() * scale)) };
 }
 
 unsigned Viewport::defaultFramebuffer() const {

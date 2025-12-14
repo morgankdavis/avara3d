@@ -57,7 +57,7 @@ namespace a3d::head::qt {
 		void 					swapBuffers() override;
 
 		math::uvec2				viewportLogicalSize() const override;
-		math::vec2 				viewportScale() const override;
+		math::uvec2				framebufferSize() const override;
 
 		unsigned 				defaultFramebuffer() const override;
 
