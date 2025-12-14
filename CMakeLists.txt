@@ -67,9 +67,9 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 add_subdirectory(external/glfw-3.4.0)
 
-add_subdirectory(external/imgui-1.90)
+add_subdirectory(external/imgui-1.92.5)
 
-add_subdirectory(external/implot-0.17)
+#add_subdirectory(external/implot-0.17)
 
 add_subdirectory(external/manymouse)
 
@@ -113,9 +113,9 @@ target_include_directories(avara3d PRIVATE external/generator/include)
 target_include_directories(avara3d PRIVATE external/gif-h)
 target_include_directories(avara3d PRIVATE external/glad-3.3/include)
 target_include_directories(avara3d PRIVATE external/glfw-3.4.0/include)
-target_include_directories(avara3d PRIVATE external/imgui-1.90)
-target_include_directories(avara3d PRIVATE external/imgui-1.90/backends)
-target_include_directories(avara3d PRIVATE external/implot-0.17)
+target_include_directories(avara3d PRIVATE external/imgui-1.92.5)
+target_include_directories(avara3d PRIVATE external/imgui-1.92.5/backends)
+#target_include_directories(avara3d PRIVATE external/implot-0.17)
 target_include_directories(avara3d PRIVATE external/magic_enum-0.9.3/include)
 target_include_directories(avara3d PRIVATE external/manymouse/include)
 target_include_directories(avara3d PRIVATE external/stb)
@@ -138,8 +138,7 @@ target_link_libraries(avara3d
 		${BULLET_LIBRARIES}
 		fastgltf
 		generator
-		imgui
-		implot)
+		imgui) # implot
 
 ### link a3d to platform-specific libraries ###
 

@@ -361,6 +361,15 @@ void Viewport::paintGL() {
 	double dt = double(nowNs - lastNs) / 1e9;
 	lastNs = nowNs;
 
+
+
+//	glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebuffer());  // Qt: defaultFramebufferObject()
+//	auto fb = framebufferSize();                              // width*dpr, height*dpr
+//	glViewport(0, 0, (int)fb.x, (int)fb.y);
+
+
+
+
 	ImGuiIO& io = ImGui::GetIO();
 
 	const float w  = float(width());

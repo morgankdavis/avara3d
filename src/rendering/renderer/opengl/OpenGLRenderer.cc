@@ -24,7 +24,7 @@
 //#ifdef OPENGL_CORE
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
-#include "implot.h"
+//#include "implot.h"
 //#endif
 
 #include "magic_enum.hpp"
@@ -354,7 +354,7 @@ OpenGLRenderer::~OpenGLRenderer() {
 
 	ImGui_ImplOpenGL3_Shutdown();
 //	ImGui_ImplGlfw_Shutdown();
-	ImPlot::DestroyContext();
+//	ImPlot::DestroyContext();
 	ImGui::DestroyContext();
 }
 	
@@ -408,7 +408,6 @@ void OpenGLRenderer::beginFrame(const Scene& scene,
 								FrameStats& stats,
 								Profiler& profiler) {
 
-
 //	GLuint available = GL_FALSE;
 //	glGetQueryObjectuiv(g_timer.queries[g_timer.readIndex], GL_QUERY_RESULT_AVAILABLE, &available);
 //	if (available) {
@@ -442,8 +441,18 @@ void OpenGLRenderer::beginFrame(const Scene& scene,
 	_activeTextures.clear();
 	_activeLines.clear();
 
+
+
+
+//	auto framebufferSize = context.framebufferSize();
+//	glBindFramebuffer(GL_FRAMEBUFFER, context.defaultFramebuffer());
+//	glViewport(0, 0, (GLsizei)framebufferSize.x, (GLsizei)framebufferSize.y);
+
+
+
+
 	// see ordering note in DrawStatsOverlay()
-	ImGui_ImplOpenGL3_NewFrame();
+//	ImGui_ImplOpenGL3_NewFrame();
 	// these have to be called in this order for input to work.
 	// ImGui_ImplOpenGL3_NewFrame(); -> in beginFrame()
 	// ImGui_ImplGlfw_NewFrame() -> in GLFWWindow::beginFrame()
@@ -456,6 +465,7 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 							  Profiler& profiler,
 							  const FrameStatsHistory& statsHistory) {
 
+	ImGui_ImplOpenGL3_NewFrame();
 	ImGui::NewFrame();
 	DigUpdateGlobalFontScale(context);
 	DigBeginOverlay(0, true);
@@ -512,14 +522,9 @@ void OpenGLRenderer::render(const Scene& scene,
 	glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &prevDrawFbo);
 	glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &prevReadFbo);
 
-	auto renderContext = scene.visualWorld()->renderContext();
-
-	auto framebufferSize = renderContext->framebufferSize();
-	auto framebufferWidth = framebufferSize.x;
-	auto framebufferHeight = framebufferSize.y;
-
+	auto framebufferSize = context.framebufferSize();
 	glBindFramebuffer(GL_FRAMEBUFFER, context.defaultFramebuffer());
-	glViewport(0, 0, (GLsizei)framebufferWidth, (GLsizei)framebufferHeight);
+	glViewport(0, 0, (GLsizei)framebufferSize.x, (GLsizei)framebufferSize.y);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -2131,7 +2136,7 @@ void InitImgui(const RenderContext& context) {
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	ImPlot::CreateContext();
+//	ImPlot::CreateContext();
 	ImGuiIO& io = GetIO();
 	io.IniFilename = nullptr;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
@@ -2139,33 +2144,57 @@ void InitImgui(const RenderContext& context) {
 	//ImGui_ImplOpenGL3_Init("#version 330 core");
 }
 
+//void UpdateImguiScale(const RenderContext& context,
+//					  const Font& titleFont,
+//					  const Font& bodyFont) {
+//
+//	// https://github.com/ocornut/imgui/blob/master/docs/FAQ.md#q-how-should-i-handle-dpi-in-my-application
+//	// https://github.com/ocornut/imgui/discussions/3925
+//	// https://github.com/ocornut/imgui/issues/3757
+//	// https://gist.github.com/benpm/21afb58f2c8dfdbf881ca90c76ad602e
+//	// https://gist.github.com/benpm/21afb58f2c8dfdbf881ca90c76ad602e#file-high_dpi-cpp-L2
+//
+//	using namespace ImGui;
+//
+//	ImGui_ImplOpenGL3_DestroyFontsTexture();
+//
+//	// clear all the font data,
+//	// re-add the fonts with the new oversample scales,
+//	// and re-create the font atlas data.
+//
+//	ImGuiIO& io = GetIO();
+//	io.Fonts->Clear(); // works
+//	io.Fonts->ClearFonts(); // crashes by itself
+//	io.Fonts->ClearTexData(); // does not work, but does not crash
+//
+//	AddImguiFont(context, titleFont, STATS_TITLE_FONT_SIZE);
+//	AddImguiFont(context, bodyFont, STATS_BODY_FONT_SIZE);
+//
+//	ImGui_ImplOpenGL3_CreateFontsTexture();
+//}
+
 void UpdateImguiScale(const RenderContext& context,
 					  const Font& titleFont,
 					  const Font& bodyFont) {
 
-	// https://github.com/ocornut/imgui/blob/master/docs/FAQ.md#q-how-should-i-handle-dpi-in-my-application
-	// https://github.com/ocornut/imgui/discussions/3925
-	// https://github.com/ocornut/imgui/issues/3757
-	// https://gist.github.com/benpm/21afb58f2c8dfdbf881ca90c76ad602e
-	// https://gist.github.com/benpm/21afb58f2c8dfdbf881ca90c76ad602e#file-high_dpi-cpp-L2
-
 	using namespace ImGui;
 
-	ImGui_ImplOpenGL3_DestroyFontsTexture();
+	GLint fbo = 0;
+	glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &fbo);
+	A3D_LOG_E("SCALE BEFORE: {}", fbo);
 
-	// clear all the font data,
-	// re-add the fonts with the new oversample scales,
-	// and re-create the font atlas data.
+	ImGui_ImplOpenGL3_DestroyDeviceObjects(); // was DestroyFontsTexture()
 
-	ImGuiIO& io = GetIO();
-	io.Fonts->Clear(); // works
-	io.Fonts->ClearFonts(); // crashes by itself
-	io.Fonts->ClearTexData(); // does not work, but does not crash
+	GetIO().Fonts->Clear();
 
 	AddImguiFont(context, titleFont, STATS_TITLE_FONT_SIZE);
 	AddImguiFont(context, bodyFont, STATS_BODY_FONT_SIZE);
 
-	ImGui_ImplOpenGL3_CreateFontsTexture();
+	ImGui_ImplOpenGL3_CreateDeviceObjects();  // was CreateFontsTexture()
+
+	fbo = 0;
+	glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &fbo);
+	A3D_LOG_E("SCALE AFTER: {}", fbo);
 }
 
 void AddImguiFont(const RenderContext& context, const Font& font, float size) {
@@ -2238,8 +2267,8 @@ void DigDrawText(float x,
 	ImFont* f = io.Fonts->Fonts[font];
 	ImDrawList* dl = GetForegroundDrawList();
 
-	dl->AddText(f, f->FontSize, ImVec2(x+1, y+1), IM_COL32(0,0,0,255), text); // 200
-	dl->AddText(f, f->FontSize, ImVec2(x,   y),   IM_COL32(255,255,255,255), text);
+	dl->AddText(f, f->LegacySize, ImVec2(x+1, y+1), IM_COL32(0,0,0,255), text);
+	dl->AddText(f, f->LegacySize, ImVec2(x,   y),   IM_COL32(255,255,255,255), text);
 }
 
 void DigDrawPlot(float x, float y, float w, float h,
@@ -2315,8 +2344,8 @@ bool DigDrawCheckbox(float x, float y,
 	PushStyleColor(ImGuiCol_CheckMark,      ImVec4(0,0,0,1));
 
 	bool dummy = checked;
+	SetNextItemAllowOverlap();
 	Checkbox("##shadow", &dummy);
-	SetItemAllowOverlap();
 
 	PopStyleColor(6);
 	PopStyleVar();
@@ -2351,11 +2380,11 @@ bool DigDrawCheckbox(float x, float y,
 
 	ImVec2 label_pos(x + box_size + label_gap, text_y);
 
-	dl->AddText(f, f->FontSize,
+	dl->AddText(f, f->LegacySize,
 				ImVec2(label_pos.x + shadow_off, label_pos.y + shadow_off),
 				IM_COL32(0,0,0,255),
 				text);
-	dl->AddText(f, f->FontSize,
+	dl->AddText(f, f->LegacySize,
 				label_pos,
 				IM_COL32(255,255,255,255),
 				text);
@@ -2370,7 +2399,7 @@ void DrawDebugOptions(Scene& scene, const RenderContext& context) {
 
 	ImGuiIO& io = GetIO();
 
-	const float WIN_WIDTH = 180;
+	const float WIN_WIDTH = 168;
 	const float xPos = io.DisplaySize.x - WIN_WIDTH;
 	float yPos = 0;
 	int id = 0;
@@ -2436,7 +2465,7 @@ void DrawStatsOverlay(FrameStats& stats,
 
 	//ShowMetricsWindow();
 
-	static const float xPos = 10.0;
+	static const float xPos = 12.0;
 	float yPos = 0;
 	int id = 0;
 
