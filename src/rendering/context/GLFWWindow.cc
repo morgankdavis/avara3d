@@ -548,8 +548,8 @@ void GLFWFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height) 
 //	A3D_LOG_D("glfwWindow: {:p}, width: {}, height: {}",
 //			  static_cast<void*>(glfwWindow), width, height);
 
-	auto window = (GLFWWindow*)glfwGetWindowUserPointer(glfwWindow);
-	window->renderer()->viewportScaleChanged(*window);
+//	auto window = (GLFWWindow*)glfwGetWindowUserPointer(glfwWindow);
+//	window->renderer()->viewportScaleChanged(*window);
 }
 
 void GLFWContentScaleCallback(GLFWwindow* glfwWindow, float xScale, float yScale) {

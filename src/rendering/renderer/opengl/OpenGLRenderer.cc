@@ -245,23 +245,33 @@ static void 		DrawOverlay(const RenderContext& context,
 							   const Scene& scene,
 							   FrameStats& stats,
 							   const FrameStatsHistory& statsHistory,
-							   DebugOptions debugOptions);
+							   DebugOptions debugOptions,
+							   ImFont& titleFont,
+							   ImFont& bodyFont);
 static void 		DrawStats(FrameStats& stats,
 							 const FrameStatsHistory& statsHistory,
-							 const RenderContext& context);
-static void 		DrawDebugOptions(Scene& scene, const RenderContext& context);
-static void			ImguiInit(const RenderContext& context);
-static void 		ImguiUpdateScale(const RenderContext& context,
-									const Font& titleFont,
-									const Font& bodyFont);
-static void 		ImguiAddFont(const RenderContext& context, const Font& font, float size);
+							 const RenderContext& context,
+							 ImFont& titleFont,
+							 ImFont& bodyFont);
+static void 		DrawDebugOptions(Scene& scene,
+									 const RenderContext& context,
+									ImFont& titleFont,
+									ImFont& bodyFont);
+static void			ImguiInit(const RenderContext& context,
+								 ImFont*& titleFont,
+								 ImFont*& bodyFont);
+static void 		ImguiUpdateScale(const RenderContext& context);
+static void 		ImguiAddFont(const RenderContext& context,
+								 const Font& font,
+								 ImFont*& imFont);
 void 				ImguiUpdateGlobalFontScale(const RenderContext& context);
 void 				ImguiBeginOverlay(int id, bool allowsInput);
 void 				ImguiEndOverlay();
 void 				ImguiDrawText(float x,
 								  float y,
 								  const char* text,
-								  int font);
+								  ImFont& font,
+								  float size);
 void 				ImguiDrawPlot(float x, float y, float w, float h,
 								  const float* values,
 								  int valuesCount,
@@ -276,7 +286,8 @@ bool 				ImguiDrawCheckbox(float x,
 									  float y,
 									  const char* text,
 									  bool& checked,
-									  int font,
+									  ImFont& font,
+									  float size,
 									  int id);
 static string 		StatusOverlayDescriptionForAntialiasingMode(AntialiasingMode mode);
 static void 		SetTextureMinificationFilter(GLuint glTextureHandle,
@@ -339,10 +350,7 @@ OpenGLRenderer::OpenGLRenderer():
 		_activeMeshElements{},
 		_activeTextures{},
 		_activeLines{},
-		_glEnvironmentUBO{0},
-		_overlayTitleFont{},
-		_overlayBodyFont{}
-		/*_defaultFramebuffer{0}*/ { }
+		_glEnvironmentUBO{0} {}
 
 OpenGLRenderer::~OpenGLRenderer() {
 	A3D_LOG_D("Destroying OpenGLRenderer {:p}", static_cast<void*>(this));
@@ -369,32 +377,13 @@ RenderingApi OpenGLRenderer::renderingApi() const {
 }
 
 bool OpenGLRenderer::initialize(const RenderContext& context) {
-	
 	A3D_LOG_I("");
-
-	// create environment UBO
 
 	uint32_t ubo;
 	glGenBuffers(1, &ubo);
 	_glEnvironmentUBO = ubo;
 
-	// setup Imgui
-
-	ImguiInit(context);
-
-	_overlayTitleFont = utils::FontNamed(STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
-	if (_overlayTitleFont->buffer()->size()) {
-		_overlayBodyFont = utils::FontNamed(STATS_BODY_FONT_NAME, STATS_BODY_FONT_TYPE);
-		if (_overlayBodyFont->buffer()->size()) {
-			ImguiUpdateScale(context, *_overlayTitleFont, *_overlayBodyFont);
-		}
-		else {
-			A3D_LOG_E("Unable to load font: {}.{}", STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
-		}
-	}
-	else {
-		A3D_LOG_E("Unable to load font: {}.{}", STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
-	}
+	ImguiInit(context, _overlayTitleImFont, _overlayBodyImFont);
 
 	_isInitialized = true;
 
@@ -452,7 +441,8 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 							  Profiler& profiler,
 							  const FrameStatsHistory& statsHistory) {
 
-	DrawOverlay(context, scene, stats, statsHistory, debugOptions);
+	DrawOverlay(context, scene, stats, statsHistory, debugOptions,
+				*_overlayTitleImFont, *_overlayBodyImFont);
 
 	CleanupMeshElementResources(_activeMeshElements, _meshElementGLMapping);
 	CleanupTextureResources(_activeTextures, _textureGLMapping);
@@ -699,11 +689,14 @@ unique_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 	return make_unique<Image>(std::move(buffer), framebufferWidth, framebufferHeight, 4);
 }
 
-void OpenGLRenderer::viewportScaleChanged(const RenderContext& context) {
-	//A3D_LOG_D("context: {:p}", static_cast<const void*>(&context));
-
-	ImguiUpdateScale(context, *_overlayTitleFont, *_overlayBodyFont);
-}
+//void OpenGLRenderer::viewportScaleChanged(const RenderContext& context) {
+//	//A3D_LOG_D("context: {:p}", static_cast<const void*>(&context));
+//
+////	ImguiUpdateScale(context,
+////					 *_overlayTitleFont, *_overlayBodyFont,
+////					 _overlayTitleImFont, _overlayBodyImFont);
+//	ImguiUpdateScale(context);
+//}
 	
 /// Private Static Non-Member Functions ///
 
@@ -2106,15 +2099,13 @@ void DrawOverlay(const RenderContext& context,
 				 const Scene& scene,
 				 FrameStats& stats,
 				 const FrameStatsHistory& statsHistory,
-				 DebugOptions debugOptions) {
+				 DebugOptions debugOptions,
+				 ImFont& titleFont,
+				 ImFont& bodyFont) {
 
-	//	glBindFramebuffer(GL_FRAMEBUFFER, context.defaultFramebuffer());
-	// this needs to be set every time with Qt (not with GLFW). donno why.
-	auto fbSize = context.viewportLogicalSize();
-	auto fbScale = context.viewportScale();
-	ImGuiIO& io = ImGui::GetIO();
-	io.DisplaySize = ImVec2(float(fbSize.x), float(fbSize.y));
-	io.DisplayFramebufferScale = ImVec2(fbScale.x, fbScale.y);
+	// glBindFramebuffer(GL_FRAMEBUFFER, context.defaultFramebuffer());
+
+	ImguiUpdateScale(context);
 
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui::NewFrame();
@@ -2122,9 +2113,9 @@ void DrawOverlay(const RenderContext& context,
 	ImguiUpdateGlobalFontScale(context);
 
 	ImguiBeginOverlay(0, true);
-	DrawDebugOptions(const_cast<Scene&>(scene), context); // TODO: CHEATING
+	DrawDebugOptions(const_cast<Scene&>(scene), context, titleFont, bodyFont); // TODO: const_cast CHEATING
 	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay)) {
-		DrawStats(stats, statsHistory, context);
+		DrawStats(stats, statsHistory, context, titleFont, bodyFont);
 	}
 
 	ImguiEndOverlay();
@@ -2140,7 +2131,9 @@ void DrawOverlay(const RenderContext& context,
 
 void DrawStats(FrameStats& stats,
 			   const FrameStatsHistory& statsHistory,
-			   const RenderContext& context) {
+			   const RenderContext& context,
+			   ImFont& titleFont,
+			   ImFont& bodyFont) {
 
 	using namespace ImGui;
 
@@ -2154,7 +2147,7 @@ void DrawStats(FrameStats& stats,
 	auto fonts = io.Fonts->Fonts;
 
 	yPos += 4;
-	ImguiDrawText(xPos, yPos, "avara3d", 0);
+	ImguiDrawText(xPos, yPos, "avara3d", titleFont, STATS_TITLE_FONT_SIZE);
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
@@ -2165,7 +2158,7 @@ void DrawStats(FrameStats& stats,
 			version.major, version.minor, version.patch, buildInfo.number(),
 			buildInfo.type() == BuildInfo::Type::Debug ? "debug" : "release");
 	yPos += 25;
-	ImguiDrawText(xPos, yPos, buildStr.c_str(), 1);
+	ImguiDrawText(xPos, yPos, buildStr.c_str(), bodyFont, STATS_BODY_FONT_SIZE);
 
 	static chrono::nanoseconds frameNsAvg, engineCpuNsAvg, renderCpuNsAvg,
 			renderGpuNsAvg, physicsNsAvg, appCpuNsAvg;
@@ -2245,7 +2238,7 @@ void DrawStats(FrameStats& stats,
 			"{:15.0f}fps\n",
 			fpsAvg);
 	yPos += 48;
-	ImguiDrawText(xPos, yPos, rateStr.c_str(), 1);
+	ImguiDrawText(xPos, yPos, rateStr.c_str(), bodyFont, STATS_BODY_FONT_SIZE);
 
 	auto frameTimeStr = std::format(
 			"{:<{}} {:.1f}ms\n",
@@ -2255,7 +2248,7 @@ void DrawStats(FrameStats& stats,
 //			"frame", frameMsFAvg, fpsAvg);
 //	yPos += 48;
 	yPos += 15;
-	ImguiDrawText(xPos, yPos, frameTimeStr.c_str(), 1);
+	ImguiDrawText(xPos, yPos, frameTimeStr.c_str(), bodyFont, STATS_BODY_FONT_SIZE);
 	yPos += PLOT_Y_PAD;
 //	yPos += PLOT_Y_PAD + 16;
 	ImguiDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_1,
@@ -2274,7 +2267,7 @@ void DrawStats(FrameStats& stats,
 			"{:<{}} {:.1f}ms\n",
 			"engine cpu", RT_TEXT_PADDING, engineCpuMsFAvg);
 	yPos += PLOT_HEIGHT_1 + PLOT_STR_Y_PAD;
-	ImguiDrawText(xPos, yPos, engineCpuTimeStr.c_str(), 1);
+	ImguiDrawText(xPos, yPos, engineCpuTimeStr.c_str(), bodyFont, STATS_BODY_FONT_SIZE);
 	yPos += PLOT_Y_PAD;
 	ImguiDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_2,
 				  engCpuSamples.data(),
@@ -2292,7 +2285,7 @@ void DrawStats(FrameStats& stats,
 			"{:<{}} {:.1f}ms\n",
 			"physics", RT_TEXT_PADDING, physicsMsFAvg);
 	yPos += PLOT_HEIGHT_2 + PLOT_STR_Y_PAD;
-	ImguiDrawText(xPos, yPos, physTimeStr.c_str(), 1);
+	ImguiDrawText(xPos, yPos, physTimeStr.c_str(), bodyFont, STATS_BODY_FONT_SIZE);
 	yPos += PLOT_Y_PAD;
 	ImguiDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_2,
 				  physSamples.data(),
@@ -2310,7 +2303,7 @@ void DrawStats(FrameStats& stats,
 			"{:<{}} {:.1f}ms\n",
 			"render cpu", RT_TEXT_PADDING, renderCpuMsFAvg);
 	yPos += PLOT_HEIGHT_2 + PLOT_STR_Y_PAD;
-	ImguiDrawText(xPos, yPos, renderCpuTimeStr.c_str(), 1);
+	ImguiDrawText(xPos, yPos, renderCpuTimeStr.c_str(), bodyFont, STATS_BODY_FONT_SIZE);
 	yPos += PLOT_Y_PAD;
 	ImguiDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_2,
 				  renderCpuSamples.data(),
@@ -2328,7 +2321,7 @@ void DrawStats(FrameStats& stats,
 			"{:<{}} {:.1f}ms\n",
 			"render gpu", RT_TEXT_PADDING, renderGpuMsFAvg);
 	yPos += PLOT_HEIGHT_2 + PLOT_STR_Y_PAD;
-	ImguiDrawText(xPos, yPos, renderGpuTimeStr.c_str(), 1);
+	ImguiDrawText(xPos, yPos, renderGpuTimeStr.c_str(), bodyFont, STATS_BODY_FONT_SIZE);
 	yPos += PLOT_Y_PAD;
 	ImguiDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_2,
 				  renderGpuSamples.data(),
@@ -2346,7 +2339,7 @@ void DrawStats(FrameStats& stats,
 			"{:<{}} {:.1f}ms\n",
 			"app", RT_TEXT_PADDING, appCpuMsFAvg);
 	yPos += PLOT_HEIGHT_2 + PLOT_STR_Y_PAD;
-	ImguiDrawText(xPos, yPos, appTimeStr.c_str(), 1);
+	ImguiDrawText(xPos, yPos, appTimeStr.c_str(), bodyFont, STATS_BODY_FONT_SIZE);
 	yPos += PLOT_Y_PAD;
 	ImguiDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_2,
 				  appSamples.data(),
@@ -2426,7 +2419,7 @@ void DrawStats(FrameStats& stats,
 			recordingStr);
 
 	yPos += 36;
-	ImguiDrawText(xPos, yPos, bulkStatsStr.c_str(), 1);
+	ImguiDrawText(xPos, yPos, bulkStatsStr.c_str(), bodyFont, STATS_BODY_FONT_SIZE);
 
 
 
@@ -2460,7 +2453,8 @@ void DrawStats(FrameStats& stats,
 //	End();
 }
 
-void DrawDebugOptions(Scene& scene, const RenderContext& context) {
+void DrawDebugOptions(Scene& scene, const RenderContext& context,
+					  ImFont& titleFont, ImFont& bodyFont) {
 
 	using namespace ImGui;
 
@@ -2476,55 +2470,55 @@ void DrawDebugOptions(Scene& scene, const RenderContext& context) {
 
 	yPos = 12.0;
 	static bool stats = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay);
-	if (ImguiDrawCheckbox(xPos, yPos, "stats", stats, 1, ++id)) {
+	if (ImguiDrawCheckbox(xPos, yPos, "stats", stats, bodyFont, STATS_BODY_FONT_SIZE, ++id)) {
 		if (stats) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowStatsOverlay));
 		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowStatsOverlay));
 	}
 
 	yPos += Y_PAD;
 	bool meshWF = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes);
-	if (ImguiDrawCheckbox(xPos, yPos, "mesh wireframes", meshWF, 1, ++id)) {
+	if (ImguiDrawCheckbox(xPos, yPos, "mesh wireframes", meshWF, bodyFont, STATS_BODY_FONT_SIZE, ++id)) {
 		if (meshWF) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowWireframes));
 		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowWireframes));
 	}
 
 	yPos += Y_PAD;
 	bool meshAABBs = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes);
-	if (ImguiDrawCheckbox(xPos, yPos, "mesh AABBs", meshAABBs, 1, ++id)) {
+	if (ImguiDrawCheckbox(xPos, yPos, "mesh AABBs", meshAABBs, bodyFont, STATS_BODY_FONT_SIZE, ++id)) {
 		if (meshAABBs) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowBoundingBoxes));
 		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowBoundingBoxes));
 	}
 
 	yPos += Y_PAD;
 	bool physWF = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes);
-	if (ImguiDrawCheckbox(xPos, yPos, "physics wireframes", physWF, 1, ++id)) {
+	if (ImguiDrawCheckbox(xPos, yPos, "physics wireframes", physWF, bodyFont, STATS_BODY_FONT_SIZE, ++id)) {
 		if (physWF) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsWireframes));
 		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsWireframes));
 	}
 
 	yPos += Y_PAD;
 	bool physAABBs = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes);
-	if (ImguiDrawCheckbox(xPos, yPos, "physics AABBs", physAABBs, 1, ++id)) {
+	if (ImguiDrawCheckbox(xPos, yPos, "physics AABBs", physAABBs, bodyFont, STATS_BODY_FONT_SIZE, ++id)) {
 		if (physAABBs) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
 		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
 	}
 
 	yPos += Y_PAD;
 	bool physContacts = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints);
-	if (ImguiDrawCheckbox(xPos, yPos, "physics contacts", physContacts, 1, ++id)) {
+	if (ImguiDrawCheckbox(xPos, yPos, "physics contacts", physContacts, bodyFont, STATS_BODY_FONT_SIZE, ++id)) {
 		if (physContacts) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsContactPoints));
 		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsContactPoints));
 	}
 
 	yPos += Y_PAD;
 	bool physNorms = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsNormals);
-	if (ImguiDrawCheckbox(xPos, yPos, "physics normals", physNorms, 1, ++id)) {
+	if (ImguiDrawCheckbox(xPos, yPos, "physics normals", physNorms, bodyFont, STATS_BODY_FONT_SIZE, ++id)) {
 		if (physNorms) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsNormals));
 		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsNormals));
 	}
 }
 
-void ImguiInit(const RenderContext& context) {
+void ImguiInit(const RenderContext& context, ImFont*& titleFont, ImFont*& bodyFont) {
 
 	using namespace ImGui;
 
@@ -2539,51 +2533,66 @@ void ImguiInit(const RenderContext& context) {
 	// Linux: "#version 330"
 	// macOS core: "#version 150" ?
 	// GLES: "#version 300 es"
+
+	auto overlayTitleFont = utils::FontNamed(STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
+	if (overlayTitleFont->buffer()->size()) {
+		auto overlayBodyFont = utils::FontNamed(STATS_BODY_FONT_NAME, STATS_BODY_FONT_TYPE);
+		if (overlayBodyFont->buffer()->size()) {
+
+			ImGui_ImplOpenGL3_DestroyDeviceObjects(); // was DestroyFontsTexture()
+
+			auto fbSize = context.framebufferSize();
+			auto fbScale = context.viewportScale();
+			ImGuiIO& io = ImGui::GetIO();
+			io.DisplaySize = ImVec2(float(fbSize.x), float(fbSize.y));
+			io.DisplayFramebufferScale = ImVec2(fbScale.x, fbScale.y);
+
+			ImGui::GetIO().Fonts->Clear();
+
+			ImguiAddFont(context, *overlayTitleFont, titleFont);
+			ImguiAddFont(context, *overlayBodyFont, bodyFont);
+
+			ImGui_ImplOpenGL3_CreateDeviceObjects();  // was CreateFontsTexture()
+		}
+		else {
+			A3D_LOG_E("Unable to load font: {}.{}", STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
+		}
+	}
+	else {
+		A3D_LOG_E("Unable to load font: {}.{}", STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
+	}
+
+	ImguiUpdateScale(context);
 }
 
-void ImguiUpdateScale(const RenderContext& context,
-					  const Font& titleFont,
-					  const Font& bodyFont) {
+void ImguiUpdateScale(const RenderContext& context) {
 
 	using namespace ImGui;
 
-	ImGui_ImplOpenGL3_DestroyDeviceObjects(); // was DestroyFontsTexture()
-
-	auto fbSize = context.framebufferSize();
+	auto fbSize = context.viewportLogicalSize();
 	auto fbScale = context.viewportScale();
 	ImGuiIO& io = ImGui::GetIO();
 	io.DisplaySize = ImVec2(float(fbSize.x), float(fbSize.y));
 	io.DisplayFramebufferScale = ImVec2(fbScale.x, fbScale.y);
-
-	GetIO().Fonts->Clear();
-
-	ImguiAddFont(context, titleFont, STATS_TITLE_FONT_SIZE);
-	ImguiAddFont(context, bodyFont, STATS_BODY_FONT_SIZE);
-
-	ImGui_ImplOpenGL3_CreateDeviceObjects();  // was CreateFontsTexture()
 }
 
-void ImguiAddFont(const RenderContext& context, const Font& font, float size) {
+void ImguiAddFont(const RenderContext& context, const Font& font, ImFont*& imFont) {
 
 	using namespace ImGui;
 
-	auto scaleXY = context.viewportScale();
 
-	ImFontConfig fontConfig;
-
-	fontConfig.OversampleH = math::ceil(scaleXY.x);
-	fontConfig.OversampleV = math::ceil(scaleXY.y);
-
-	// by default Imgui transferrs font memory ownership to itself
-	// this means Imgui eventually frees the font data, and then the Font/Buffer double-free it
+	ImFontConfig fontConfig{};
 	fontConfig.FontDataOwnedByAtlas = false;
 
-	ImGuiIO& io = GetIO();
+	// ! leave oversampling automatic (0) in modern ImGui
+	fontConfig.OversampleH = 0;
+	fontConfig.OversampleV = 0;
 
-	io.Fonts->AddFontFromMemoryTTF(font.buffer()->data(),
-								   (int)font.buffer()->size(),
-								   size,
-								   &fontConfig);
+	// size_pixels = 0.0f => treat as a font source; size picked via PushFont(font, size_px)
+	imFont = GetIO().Fonts->AddFontFromMemoryTTF(font.buffer()->data(),
+												 (int)font.buffer()->size(),
+												 0.0f,
+												 &fontConfig);
 }
 
 void ImguiUpdateGlobalFontScale(const RenderContext& context) {
@@ -2593,7 +2602,8 @@ void ImguiUpdateGlobalFontScale(const RenderContext& context) {
 	// this is probably going to need more attention when we start
 	// using Imgui for more than just rendering text
 	//GetStyle().ScaleAllSizes(scale);
-	ImGui::GetIO().FontGlobalScale = scale;
+//	ImGui::GetIO().FontGlobalScale = scale;
+	ImGui::GetStyle().FontScaleMain = scale;
 #endif
 }
 
@@ -2623,16 +2633,18 @@ void ImguiEndOverlay() {
 void ImguiDrawText(float x,
 				   float y,
 				   const char* text,
-				   int font) {
+				   ImFont& font,
+				   float size) {
 
 	using namespace ImGui;
 
-	ImGuiIO& io = GetIO();
-	ImFont* f = io.Fonts->Fonts[font];
+	PushFont(&font, size); // modern: choose size here :contentReference[oaicite:3]{index=3}
 	ImDrawList* dl = GetForegroundDrawList();
 
-	dl->AddText(f, f->LegacySize, ImVec2(x+1, y+1), IM_COL32(0,0,0,255), text);
-	dl->AddText(f, f->LegacySize, ImVec2(x,   y),   IM_COL32(255,255,255,255), text);
+	dl->AddText(ImVec2(x+1, y+1), IM_COL32(0,0,0,255), text);
+	dl->AddText(ImVec2(x,   y  ), IM_COL32(255,255,255,255), text);
+
+	ImGui::PopFont();
 }
 
 void ImguiDrawPlot(float x, float y, float w, float h,
@@ -2678,14 +2690,13 @@ void ImguiDrawPlot(float x, float y, float w, float h,
 bool ImguiDrawCheckbox(float x, float y,
 					   const char* text,
 					   bool& checked,
-					   int font,
+					   ImFont& font,
+					   float size,
 					   int id) {
 
 	using namespace ImGui;
 
-	ImGuiIO& io = GetIO();
-	ImFont* f = io.Fonts->Fonts[font];
-	PushFont(f);
+	ImGui::PushFont(&font, size);
 
 	const ImVec4 transparent(0,0,0,0);
 	const float shadow_off = 1.0f;
@@ -2744,12 +2755,10 @@ bool ImguiDrawCheckbox(float x, float y,
 
 	ImVec2 label_pos(x + box_size + label_gap, text_y);
 
-	dl->AddText(f, f->LegacySize,
-				ImVec2(label_pos.x + shadow_off, label_pos.y + shadow_off),
+	dl->AddText(ImVec2(label_pos.x + shadow_off, label_pos.y + shadow_off),
 				IM_COL32(0,0,0,255),
 				text);
-	dl->AddText(f, f->LegacySize,
-				label_pos,
+	dl->AddText(label_pos,
 				IM_COL32(255,255,255,255),
 				text);
 

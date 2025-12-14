@@ -17,6 +17,8 @@
 #include "a3d/Types.h"
 #include "a3d/rendering/renderer/Renderer.h"
 
+class ImFont;
+
 namespace a3d {
 
 	class Color;
@@ -113,7 +115,7 @@ namespace a3d {
 
 		std::unique_ptr<Image> 	snapshot(const RenderContext& context) const override;
 
-		void					viewportScaleChanged(const RenderContext& context) override;
+//		void					viewportScaleChanged(const RenderContext& context) override;
 
 	private:
 		/// Private Member Variables ///
@@ -127,9 +129,8 @@ namespace a3d {
 		std::unordered_set<Texture*>					_activeTextures;
 		std::unordered_set<const std::vector<Line>*>	_activeLines;
 		unsigned										_glEnvironmentUBO;
-		std::unique_ptr<Font>							_overlayTitleFont;
-		std::unique_ptr<Font>							_overlayBodyFont;
-//		unsigned										_defaultFramebuffer;
+		ImFont*											_overlayTitleImFont;
+		ImFont*											_overlayBodyImFont;
 	};
 }
 

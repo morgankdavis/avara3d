@@ -12,7 +12,7 @@
 #include <QEvent>
 #include <QMouseEvent>
 #include <QOpenGLFunctions_3_3_Core>
-#include <QWidget>1
+#include <QWidget>
 #include <QWindow>
 
 #include "imgui.h"
