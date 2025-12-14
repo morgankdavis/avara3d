@@ -285,17 +285,42 @@ bool GLFWWindow::cursorCaptured() const {
 	return _cursorCaptured;
 }
 
-void GLFWWindow::cursorCaptured(bool captured) {
-	_cursorCaptured = captured;
-	glfwSetInputMode(_glfwWindow.get(),
-					 GLFW_CURSOR,
-					 (captured ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL));
+static GLFWcursor* invisible = nullptr;
+static GLFWcursor* getInvisibleCursor()
+{
+	if (invisible) return invisible;
 
-//	if (captured) {
-//		glfwSetInputMode(_glfwWindow.get(),
-//						 GLFW_CURSOR,
-//						 GLFW_CURSOR_HIDDEN);
-//	}
+	const int w = 16, h = 16;
+	static unsigned char pixels[w * h * 4] = {}; // all zero = transparent RGBA
+	GLFWimage img{ w, h, pixels };
+	invisible = glfwCreateCursor(&img, 0, 0);
+	return invisible;
+}
+
+
+void GLFWWindow::cursorCaptured(bool captured) {
+
+	_cursorCaptured = captured;
+
+	auto window = _glfwWindow.get();
+
+	if (captured) {
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		// hack.
+		// GLFW_CURSOR_DISABLED is supposed to:
+		// "hide the cursor and lock it to the specified window"
+		// [www.glfw.org/docs/latest/input_guide.html]
+		// but at least on Wayland + Kwin, it doesn't actually hide, it just freezes.
+		static const int w = 16, h = 16;
+		static unsigned char pixels[w * h * 4] = {};
+		static GLFWimage img{ w, h, pixels };
+		static auto invCursor = glfwCreateCursor(&img, 0, 0);
+		glfwSetCursor(window, invCursor);
+	}
+	else {
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		glfwSetCursor(window, nullptr);
+	}
 }
 
 bool GLFWWindow::highDPIEnabled() const {

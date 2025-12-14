@@ -39,6 +39,7 @@ Viewport::QtViewport(RenderingApi renderingApi,
 		QOpenGLWidget(parent),
 		_scene{},
 		_cursorCaptured{false},
+		_lastCursorPosition{},
 		_lastCapturedCursorPosition{},
 		_inputManager{nullptr},
 		_warpingCursor{false} {
@@ -289,7 +290,9 @@ void Viewport::keyReleaseEvent(QKeyEvent* e) {
 void Viewport::mouseMoveEvent(QMouseEvent *e) {
 
 	auto pos = e->position();
-	static QPointF lastPos = pos;
+	if (!_lastCursorPosition) {
+		_lastCursorPosition = pos;
+	}
 
 	if (_renderer->isInitialized()) {
 
@@ -307,7 +310,8 @@ void Viewport::mouseMoveEvent(QMouseEvent *e) {
 				_lastCapturedCursorPosition = pos;
 			}
 
-			QPointF delta = lastPos - *_lastCapturedCursorPosition;
+			QPointF delta = *_lastCursorPosition - *_lastCapturedCursorPosition;
+
 			if (_cursorCaptured && _inputManager) {
 				_inputManager->mouseMoved(float(delta.x()), float(delta.y()));
 			}
@@ -325,7 +329,7 @@ void Viewport::mouseMoveEvent(QMouseEvent *e) {
 		}
 	}
 
-	lastPos = pos;
+	_lastCursorPosition = pos;
 
 	e->accept();
 }

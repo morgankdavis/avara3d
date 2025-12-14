@@ -88,6 +88,7 @@ namespace a3d::head::qt {
 
 		a3d::Scene* 			_scene;
 		bool					_cursorCaptured;
+		std::optional<QPointF>	_lastCursorPosition;
 		std::optional<QPointF> 	_lastCapturedCursorPosition;
 		QtInputManager*			_inputManager;
 		bool 					_warpingCursor;
