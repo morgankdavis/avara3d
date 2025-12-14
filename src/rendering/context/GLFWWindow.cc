@@ -357,14 +357,11 @@ void GLFWWindow::swapBuffers() {
 	glfwSwapBuffers(_glfwWindow.get());
 }
 
-uvec2 GLFWWindow::framebufferSize() const {
-	ivec2 size;
-	glfwGetFramebufferSize(_glfwWindow.get(), &size.x, &size.y);
-	return uvec2(size.x, size.y);
+uvec2 GLFWWindow::viewportLogicalSize() const {
+	return size();
 }
 
-
-vec2 GLFWWindow::framebufferScale() const {
+vec2 GLFWWindow::viewportScale() const {
 	vec2 scale;
 	glfwGetWindowContentScale(_glfwWindow.get(), &scale.x, &scale.y);
 	return scale;

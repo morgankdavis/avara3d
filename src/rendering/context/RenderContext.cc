@@ -163,10 +163,6 @@ void RenderContext::saveGIFFrame(double deltaRunT) {
 	_gifRecordingCurrentFrameTimeAccum += deltaRunT;
 
 	float frameTimeMS = 1000.0f /* (ms/sec) */ / (float)_gifRecordingMaxFramerate /* (frames/sec) */;
-	// -> ms/frame
-	//unsigned frameTimeHS = frameTimeMS / 10.0; // 100th sec/frame
-
-	//unsigned frameTime = 1000.0/_gifRecordingMaxFramerate; // ms/frame
 
 	if (_gifRecordingCurrentFrameTimeAccum >= frameTimeMS/1000.0) {
 
@@ -185,9 +181,14 @@ void RenderContext::saveGIFFrame(double deltaRunT) {
 
 		++_gifRecordedFrames;
 
-		//secondsAccum = secondsAccum - frameTimeMS/1000.0;
 		_gifRecordingCurrentFrameTimeAccum = 0;
 	}
+}
+
+uvec2 RenderContext::framebufferSize() const {
+	auto scale = viewportScale();
+	auto size = viewportLogicalSize();
+	return uvec2(math::round(size.x * scale.x), math::round(size.y * scale.y));
 }
 
 void RenderContext::attachedToVisualWorld(VisualWorld* world) {

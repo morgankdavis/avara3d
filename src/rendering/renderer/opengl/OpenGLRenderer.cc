@@ -465,14 +465,24 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 							  Profiler& profiler,
 							  const FrameStatsHistory& statsHistory) {
 
+	glBindFramebuffer(GL_FRAMEBUFFER, context.defaultFramebuffer());
+	auto fbSize = context.viewportLogicalSize();
+	auto fbScale = context.viewportScale();
+	ImGuiIO& io = ImGui::GetIO();
+	io.DisplaySize = ImVec2(float(fbSize.x), float(fbSize.y));
+	io.DisplayFramebufferScale = ImVec2(fbScale.x, fbScale.y);
+
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui::NewFrame();
+
 	DigUpdateGlobalFontScale(context);
+
 	DigBeginOverlay(0, true);
 	DrawDebugOptions(const_cast<Scene&>(scene), context); // TODO: CHEATING
 	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay)) {
 		DrawStatsOverlay(stats, statsHistory, context);
 	}
+
 	DigEndOverlay();
 
 	// pass input through Imgui window
@@ -480,6 +490,7 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 		ImGui::GetIO().WantCaptureMouse = false;
 
 	ImGui::Render();
+
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 	CleanupMeshElementResources(_activeMeshElements, _meshElementGLMapping);
@@ -2140,8 +2151,11 @@ void InitImgui(const RenderContext& context) {
 	ImGuiIO& io = GetIO();
 	io.IniFilename = nullptr;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-	ImGui_ImplOpenGL3_Init();
-	//ImGui_ImplOpenGL3_Init("#version 330 core");
+//	ImGui_ImplOpenGL3_Init();
+	ImGui_ImplOpenGL3_Init("#version 330 core");
+	// Linux desktop is "#version 330"
+	// on mac core profile often "#version 150"
+	// for GLES "#version 300 es"
 }
 
 //void UpdateImguiScale(const RenderContext& context,
@@ -2179,11 +2193,16 @@ void UpdateImguiScale(const RenderContext& context,
 
 	using namespace ImGui;
 
-	GLint fbo = 0;
-	glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &fbo);
-	A3D_LOG_E("SCALE BEFORE: {}", fbo);
-
 	ImGui_ImplOpenGL3_DestroyDeviceObjects(); // was DestroyFontsTexture()
+
+	auto fbSize = context.framebufferSize();
+	auto fbScale = context.viewportScale();
+	ImGuiIO& io = ImGui::GetIO();
+	io.DisplaySize = ImVec2(float(fbSize.x), float(fbSize.y));
+	io.DisplayFramebufferScale = ImVec2(fbScale.x, fbScale.y);
+
+
+
 
 	GetIO().Fonts->Clear();
 
@@ -2191,17 +2210,13 @@ void UpdateImguiScale(const RenderContext& context,
 	AddImguiFont(context, bodyFont, STATS_BODY_FONT_SIZE);
 
 	ImGui_ImplOpenGL3_CreateDeviceObjects();  // was CreateFontsTexture()
-
-	fbo = 0;
-	glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &fbo);
-	A3D_LOG_E("SCALE AFTER: {}", fbo);
 }
 
 void AddImguiFont(const RenderContext& context, const Font& font, float size) {
 
 	using namespace ImGui;
 
-	auto scaleXY = context.framebufferScale();
+	auto scaleXY = context.viewportScale();
 
 	ImFontConfig fontConfig;
 
@@ -2214,7 +2229,10 @@ void AddImguiFont(const RenderContext& context, const Font& font, float size) {
 
 	ImGuiIO& io = GetIO();
 
-	io.DisplayFramebufferScale = ImVec2(scaleXY.x, scaleXY.y);
+	//io.DisplayFramebufferScale = ImVec2(scaleXY.x, scaleXY.y);
+
+	A3D_LOG_E("io.DisplaySize2: {} {}", io.DisplaySize.x, io.DisplaySize.y);
+	A3D_LOG_E("io.DisplayFramebufferScale2: {} {}", io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
 
 	io.Fonts->AddFontFromMemoryTTF(font.buffer()->data(),
 								   (int)font.buffer()->size(),

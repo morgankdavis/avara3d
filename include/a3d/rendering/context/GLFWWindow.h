@@ -81,8 +81,8 @@ namespace a3d {
 
 		void 				swapBuffers() override;
 
-		math::uvec2			framebufferSize() const override;
-		math::vec2			framebufferScale() const override;
+		math::uvec2			viewportLogicalSize() const override;
+		math::vec2			viewportScale() const override;
 
 		unsigned 			defaultFramebuffer() const override;
 
