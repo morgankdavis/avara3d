@@ -58,12 +58,6 @@ void MainWindow::initScene(a3d::head::qt::QtViewport &viewport) {
 		logBuildInfo();
 
 		auto inputManager = make_unique<a3d::head::qt::QtInputManager>(*_viewport);
-		if (inputManager->errorMask() == DesktopInputManagerErrorMask::PermissionDenied) {
-			A3D_APP_LOG_E("GLFWInputManager permission denied.");
-			// on macOS 10.15 Catalina+, this is probably a permissions issue,
-			// and the OS will alert the user.
-			// just keep going and let the user decide what they want to do.
-		}
 
 		auto visualWorld = make_unique<VisualWorld>(viewport);
 
