@@ -26,6 +26,7 @@ namespace a3d {
 	class Mesh;
 	class Renderer;
 	class RenderContext;
+	class RenderItem;
 	class Scene;
 	class PhysicalWorld;
 	class PhysicsBody;
@@ -156,6 +157,10 @@ namespace a3d {
 		math::vec3							extent();
 
 		void	 							applyPhysicsTransform(const math::mat4& transform);
+
+		void 								gather(std::vector<RenderItem>& nodes,
+												   std::vector<Node*>& lightNodes,
+												   FrameStats& stats);
 
 		void 								draw(Renderer& renderer,
 												 const RenderContext& context,

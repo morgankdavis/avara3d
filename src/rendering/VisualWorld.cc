@@ -22,6 +22,7 @@
 #include "a3d/physics/bullet/BulletWorldProxy.h"
 #include "a3d/profiling/Profiler.h"
 #include "a3d/profiling/Timer.h"
+#include "a3d/rendering/RenderItem.h"
 #include "a3d/rendering/light/Light.h"
 #include "a3d/rendering/material/Material.h"
 #include "a3d/rendering/material/Sampler.h"
@@ -264,12 +265,10 @@ void VisualWorld::draw(const Scene& scene,
 		if (auto renderer = _renderContext->renderer()) {
 
 			if (auto willRender = VisualWorld::willRenderCallback()) {
-				Timer appTimer(true);
+				Timer appTimer(true); ///
 				willRender(*this, runT, deltaRunT);
-				profiler.add(Profiler::Tag::Application, appTimer.stop());
+				profiler.add(Profiler::Tag::Application, appTimer.stop()); ///
 			}
-
-			auto startTime = scene.time();
 
 			renderer->beginFrame(scene, *_renderContext, debugOptions, stats, profiler);
 			_renderContext->beginFrame(scene);
@@ -279,27 +278,63 @@ void VisualWorld::draw(const Scene& scene,
 				auto povScene = pov->scene();
 				if (povScene != nullptr && povScene == &scene) {
 
+					/***************/ Timer engineTimer1(true);
+
 					stats.cameraPosition = pov->worldPosition();
 					stats.cameraOrientation = pov->worldOrientation();
 
 					auto frameBufferSize = _renderContext->framebufferSize();
 
-					// TODO: can this be avoided?
 					if (auto perspectiveCamera = dynamic_pointer_cast<PerspectiveCamera>(pov->camera())) {
 						auto aspectRatio = float(frameBufferSize.x) / float(frameBufferSize.y);
 						perspectiveCamera->aspectRatio(aspectRatio);
 					}
 
+					/***************/ profiler.add(Profiler::Tag::EngineCpu, engineTimer1.stop());
+
+					/***************/ Timer submitTimer1(true);
+
 					renderer->render(scene, *_renderContext, debugOptions, stats);
 
 					renderer->preTraversal(scene, *_renderContext, debugOptions, stats);
 
+					/***************/ profiler.add(Profiler::Tag::RenderCpu, submitTimer1.stop());
+
+					/***************/ Timer engineTimer2(true);
+
 					auto viewMat = inverse(pov->worldTransform());
 					auto projectionMat = pov->camera()->projection();
 
-					vector<Node *> lightNodes;
-					if (pov->light()) lightNodes.push_back(pov.get());
+					vector<Node*> lightNodes;
+//#define RENDER_LIST
+#ifdef RENDER_LIST
 
+					vector<RenderItem> items{};
+					vector <AABB> aabbs{};
+					// Meshes/ABBs
+
+
+					scene.rootNode()->gather(items, lightNodes, stats);
+
+					/***************/ profiler.add(Profiler::Tag::EngineCpu, engineTimer2.stop());
+
+					/***************/ Timer submitTimer2(true);
+
+					for (auto& item : items) {
+						renderer->render(*item.element,
+										 *_renderContext,
+										 *item.material,
+										 item.model,
+										 viewMat,
+										 projectionMat,
+										 debugOptions,
+										 stats);
+					}
+
+					/***************/ profiler.add(Profiler::Tag::RenderCpu, submitTimer2.stop());
+
+//					renderer->draw();
+#else
 					scene.rootNode()->draw(*renderer,
 										   *_renderContext,
 										   viewMat,
@@ -307,6 +342,7 @@ void VisualWorld::draw(const Scene& scene,
 										   debugOptions,
 										   lightNodes,
 										   stats);
+#endif
 					//--stats.nodes; // don't count the root node
 
 					renderer->postTraversal(scene, *_renderContext, lightNodes, debugOptions, stats);

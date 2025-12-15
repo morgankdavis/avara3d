@@ -71,8 +71,6 @@ add_subdirectory(external/imgui-1.92.5)
 
 #add_subdirectory(external/implot-0.17)
 
-add_subdirectory(external/manymouse)
-
 ### add a3d ###
 
 file(GLOB_RECURSE HEADERS include/*.h)
@@ -117,7 +115,6 @@ target_include_directories(avara3d PRIVATE external/imgui-1.92.5)
 target_include_directories(avara3d PRIVATE external/imgui-1.92.5/backends)
 #target_include_directories(avara3d PRIVATE external/implot-0.17)
 target_include_directories(avara3d PRIVATE external/magic_enum-0.9.3/include)
-target_include_directories(avara3d PRIVATE external/manymouse/include)
 target_include_directories(avara3d PRIVATE external/stb)
 target_include_directories(avara3d PRIVATE external/v-hacd-4.1.0)
 
@@ -147,8 +144,7 @@ if (DESKTOP)
 	target_link_libraries(avara3d
 			PUBLIC
 			glad
-			glfw
-			manymouse)
+			glfw)
 
 endif()
 

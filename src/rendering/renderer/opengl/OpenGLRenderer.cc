@@ -51,6 +51,7 @@
 #include "a3d/rendering/material/Material.h"
 #include "a3d/rendering/material/Sampler.h"
 #include "a3d/rendering/material/Texture.h"
+#include "a3d/rendering/renderer/opengl/OpenGLDrawItem.h"
 #include "a3d/rendering/renderer/opengl/Program.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
@@ -217,7 +218,8 @@ static void 		DrawMeshElement(MeshElement& element,
 								   const mat4& modelMat,
 								   const mat4& viewMat,
 								   const mat4& projectionMat,
-								   GLuint vao, GLuint ebo);
+								   GLuint vao, GLuint ebo/*,
+								   vector<OpenGLDrawItem>& drawItmes*/);
 static void 		DrawSkyboxElement(MeshElement& element,
 									 Program& program,
 									 Node& pointOfView,
@@ -349,7 +351,8 @@ OpenGLRenderer::OpenGLRenderer():
 		_activeMeshElements{},
 		_activeTextures{},
 		_activeLines{},
-		_glEnvironmentUBO{0} {}
+		_glEnvironmentUBO{0}/*,
+		_drawItems{}*/ {}
 
 OpenGLRenderer::~OpenGLRenderer() {
 	A3D_LOG_D("Destroying OpenGLRenderer {:p}", static_cast<void*>(this));
@@ -399,6 +402,8 @@ void OpenGLRenderer::beginFrame(const Scene& scene,
 								const DebugOptions& debugOptions,
 								FrameStats& stats,
 								Profiler& profiler) {
+
+//	_drawItems.clear();
 
 //	GLuint available = GL_FALSE;
 //	glGetQueryObjectuiv(g_timer.queries[g_timer.readIndex], GL_QUERY_RESULT_AVAILABLE, &available);
@@ -623,7 +628,7 @@ void OpenGLRenderer::render(MeshElement& element,
 
 	// update
 
-	DrawMeshElement(element, program, modelMat, viewMat, projectionMat, vao, ebo);
+	DrawMeshElement(element, program, modelMat, viewMat, projectionMat, vao, ebo);//, _drawItems);
 
 	// save reference for housekeeping
 
@@ -688,15 +693,26 @@ unique_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 	return make_unique<Image>(std::move(buffer), framebufferWidth, framebufferHeight, 4);
 }
 
-//void OpenGLRenderer::viewportScaleChanged(const RenderContext& context) {
-//	//A3D_LOG_D("context: {:p}", static_cast<const void*>(&context));
+//void OpenGLRenderer::draw() {
 //
-////	ImguiUpdateScale(context,
-////					 *_overlayTitleFont, *_overlayBodyFont,
-////					 _overlayTitleImFont, _overlayBodyImFont);
-//	ImguiUpdateScale(context);
+//	int i=0;
+//	for (auto& item : _drawItems) {
+//		A3D_LOG_D("drawing item {}...", i++);
+//
+//		item.program->use();
+//
+//		item.program->setUniform("modelMat", item.model);
+//		item.program->setUniform("viewMat", item.view);
+//		item.program->setUniform("projMat", item.projection);
+//
+//		// update
+//
+//		glBindVertexArray(item.vao);
+//		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, item.ebo);\
+//		glDrawElements(GL_TRIANGLES, item.numElements, GL_UNSIGNED_INT, nullptr);
+//	}
 //}
-	
+
 /// Private Static Non-Member Functions ///
 
 void RenderSkybox(Mesh& skyboxMesh,
@@ -1744,22 +1760,28 @@ void DrawMeshElement(MeshElement& element,
 					 const mat4& modelMat,
 					 const mat4& viewMat,
 					 const mat4& projectionMat,
-					 GLuint vao, GLuint ebo) {
+					 GLuint vao, GLuint ebo/*,
+					 vector<OpenGLDrawItem>& drawItmes*/) {
 
 	program.use();
 
 	// uniforms
-	
+
 	program.setUniform("modelMat", modelMat);
 	program.setUniform("viewMat", viewMat);
 	program.setUniform("projMat", projectionMat);
-	
+
 	// update
-	
+
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	auto numFaces = element.faces().size();
 	glDrawElements(GL_TRIANGLES, (GLsizei)numFaces*3, GL_UNSIGNED_INT, nullptr);
+
+//	drawItmes.push_back({&program,
+//						 modelMat, viewMat, projectionMat,
+//						 vao, ebo,
+//						 static_cast<unsigned>(numFaces*3)});
 }
 
 void DrawSkyboxElement(MeshElement& element,
@@ -2204,6 +2226,7 @@ void DrawStats(FrameStats& stats,
 		for (size_t i = 0; i < samples.size(); ++i) {
 			auto sample = get<1>(samples[i]);
 			frameSamples[i] = chrono::duration<float, milli>(sample.frameTime).count();
+			engCpuSamples[i] = chrono::duration<float, milli>(sample.engineCpuTime).count();
 			physSamples[i] = chrono::duration<float, milli>(sample.physicsTime).count();
 			renderCpuSamples[i] = chrono::duration<float, milli>(sample.renderCpuTime).count();
 			renderGpuSamples[i] = chrono::duration<float, milli>(sample.renderGpuTime).count();
@@ -2276,29 +2299,11 @@ void DrawStats(FrameStats& stats,
 				  PLOT_OUTLINED,
 				  ++id);
 
-	// physics
-
-	auto physTimeStr = std::format(
-			"{:<{}} {:.1f}ms\n",
-			"physics", RT_TEXT_PADDING, physicsMsFAvg);
-	yPos += PLOT_HEIGHT_2 + PLOT_STR_Y_PAD;
-	ImguiDrawText(xPos, yPos, physTimeStr.c_str(), bodyFont, STATS_BODY_FONT_SIZE);
-	yPos += PLOT_Y_PAD;
-	ImguiDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_2,
-				  physSamples.data(),
-				  static_cast<int>(physSamples.size()),
-				  0,
-				  nullptr,
-				  PLOT_Y_MIN, PLOT_Y_MAX,
-				  0,
-				  PLOT_OUTLINED,
-				  ++id);
-
 	// render cpu
 
 	auto renderCpuTimeStr = std::format(
 			"{:<{}} {:.1f}ms\n",
-			"render cpu", RT_TEXT_PADDING, renderCpuMsFAvg);
+			"render sub", RT_TEXT_PADDING, renderCpuMsFAvg);
 	yPos += PLOT_HEIGHT_2 + PLOT_STR_Y_PAD;
 	ImguiDrawText(xPos, yPos, renderCpuTimeStr.c_str(), bodyFont, STATS_BODY_FONT_SIZE);
 	yPos += PLOT_Y_PAD;
@@ -2316,13 +2321,31 @@ void DrawStats(FrameStats& stats,
 
 	auto renderGpuTimeStr = std::format(
 			"{:<{}} {:.1f}ms\n",
-			"render gpu", RT_TEXT_PADDING, renderGpuMsFAvg);
+			"draw", RT_TEXT_PADDING, renderGpuMsFAvg);
 	yPos += PLOT_HEIGHT_2 + PLOT_STR_Y_PAD;
 	ImguiDrawText(xPos, yPos, renderGpuTimeStr.c_str(), bodyFont, STATS_BODY_FONT_SIZE);
 	yPos += PLOT_Y_PAD;
 	ImguiDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_2,
 				  renderGpuSamples.data(),
 				  static_cast<int>(renderGpuSamples.size()),
+				  0,
+				  nullptr,
+				  PLOT_Y_MIN, PLOT_Y_MAX,
+				  0,
+				  PLOT_OUTLINED,
+				  ++id);
+
+	// physics
+
+	auto physTimeStr = std::format(
+			"{:<{}} {:.1f}ms\n",
+			"physics", RT_TEXT_PADDING, physicsMsFAvg);
+	yPos += PLOT_HEIGHT_2 + PLOT_STR_Y_PAD;
+	ImguiDrawText(xPos, yPos, physTimeStr.c_str(), bodyFont, STATS_BODY_FONT_SIZE);
+	yPos += PLOT_Y_PAD;
+	ImguiDrawPlot(xPos + PLOT_X_OFFSET, yPos, PLOT_WIDTH, PLOT_HEIGHT_2,
+				  physSamples.data(),
+				  static_cast<int>(physSamples.size()),
 				  0,
 				  nullptr,
 				  PLOT_Y_MIN, PLOT_Y_MAX,

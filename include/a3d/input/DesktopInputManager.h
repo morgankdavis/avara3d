@@ -42,8 +42,6 @@ namespace a3d {
 		math::vec2 							mousePositionDelta(); // mouse position delta since last query
 		math::vec2 							mouseScrollWheelDelta(); // mouse wheen scroll delta since last query
 
-		DesktopInputManagerErrorMask		errorMask() const;
-
 	protected:
 		/// Protected Member Variables ///
 
@@ -53,9 +51,8 @@ namespace a3d {
 		std::unordered_set<Key> 			_keysPressedCleared;
 		std::unordered_set<MouseButton> 	_mouseButtonsPressed;
 		std::unordered_set<MouseButton> 	_mouseButtonsPressedCleared;
-		math::vec2  							_mousePositionDelta;
-		math::vec2  							_mouseScrollWheelDelta;
-		DesktopInputManagerErrorMask		_errorMask;
+		math::vec2  						_mousePositionDelta;
+		math::vec2  						_mouseScrollWheelDelta;
 
 	private:
 		/// Private Member Functions ///

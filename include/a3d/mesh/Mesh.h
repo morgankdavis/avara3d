@@ -26,6 +26,7 @@ namespace a3d {
 	class Node;
 	class Renderer;
 	class RenderContext;
+	class RenderItem;
 
 	class Mesh {
 
@@ -71,6 +72,10 @@ namespace a3d {
 
 		void 						burnTransform(const math::mat4& transform,
 												  bool normals);
+
+		void 						gather(std::vector<RenderItem>& items,
+										   math::mat4& model,
+										   FrameStats& stats);
 
 		void 						draw(Renderer& renderer,
 										 const RenderContext& context,

@@ -16,6 +16,7 @@
 #include "a3d/Math.h"
 #include "a3d/mesh/Line.h"
 #include "a3d/scene/Node.h"
+#include "a3d/rendering/RenderItem.h"
 #include "a3d/rendering/renderer/Renderer.h"
 
 using namespace a3d;
@@ -37,6 +38,16 @@ MeshElement::~MeshElement() {
 }
 
 /// Internal Member Functions ///
+
+void MeshElement::gather(vector<RenderItem>& items,
+						 Material& material,
+						 mat4& model,
+						 FrameStats& stats) {
+	++stats.numElements;
+	stats.numPolygons += _faces.size();
+
+	items.push_back({this, &material, model});
+}
 
 void MeshElement::draw(Renderer& renderer,
 					   const RenderContext& context,

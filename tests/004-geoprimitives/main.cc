@@ -53,12 +53,6 @@ int main(int argc, const char* argv[]) {
 		window->cursorCaptured(CAPTURE_CURSOR);
 
 		auto inputManager = make_unique<GLFWInputManager>(window.get());
-		if (inputManager->errorMask() == DesktopInputManagerErrorMask::PermissionDenied) {
-			A3D_APP_LOG_E("GLFWInputManager permission denied.");
-			// on macOS 10.15 Catalina+, this is probably a permissions issue,
-			// and the OS will alert the user.
-			// just keep going and let the user decide what they want to do.
-		}
 
 		auto visualWorld = make_unique<VisualWorld>(*window);
 		//auto backgroundColor = make_shared<Color>(109.0f/255.0f, 136.0f/255.0f, 164.0f/255.0f, 1.0f);

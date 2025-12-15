@@ -150,6 +150,25 @@ void Mesh::burnTransform(const mat4& transform, bool normals) {
 	//node()->lock()->transform(mat4(1.0));
 }
 
+void Mesh::gather(vector<RenderItem>& items, mat4& model, FrameStats& stats) {
+
+	for (int e=0; e<_elements.size(); ++e) {
+		auto& element = _elements[e];
+
+		Material* material = nullptr;
+		if (_materials.size() > e) {
+			material = _materials[e].get();
+		}
+		else {
+			material = Material::DefaultMaterial().get();
+		}
+
+		element->gather(items, *material, model, stats);
+	}
+
+	++stats.numMeshes;
+}
+
 void Mesh::draw(Renderer& renderer,
 				const RenderContext& context,
 				const mat4& modelMat,

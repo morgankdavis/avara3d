@@ -338,14 +338,6 @@ namespace a3d {
 		Eight = 7
 	};
 
-	enum class DesktopInputManagerErrorMask : unsigned {
-		None =					0,
-		NoMice =				1 << 0,
-		PermissionDenied =		1 << 1,
-		UnknownError =			1 << 2
-	};
-	A3D_ENABLE_ENUM_MASK_OPS(DesktopInputManagerErrorMask)
-
 	typedef struct {
 		math::vec3 position;
 		math::vec3 normal;

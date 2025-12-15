@@ -26,6 +26,7 @@ namespace a3d {
 	class Mesh;
 	class MeshElement;
 	class Line;
+	class OpenGLDrawItem;
 	class Texture;
 	
 	class OpenGLRenderer : public Renderer {
@@ -115,7 +116,7 @@ namespace a3d {
 
 		std::unique_ptr<Image> 	snapshot(const RenderContext& context) const override;
 
-//		void					viewportScaleChanged(const RenderContext& context) override;
+//		void					draw() override;
 
 	private:
 		/// Private Member Variables ///
@@ -131,6 +132,7 @@ namespace a3d {
 		unsigned										_glEnvironmentUBO;
 		ImFont*											_overlayTitleImFont;
 		ImFont*											_overlayBodyImFont;
+//		std::vector<OpenGLDrawItem> 					_drawItems;
 	};
 }
 

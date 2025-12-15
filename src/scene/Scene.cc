@@ -291,7 +291,7 @@ void Scene::update() {
 
 		if (_visualWorld) {
 
-			Timer drawTimer(true);
+			//Timer drawTimer(true);
 			_visualWorld->draw(*this,
 							   (_physicalWorld ? _physicalWorld.get() : nullptr),
 							   runT,
@@ -300,7 +300,7 @@ void Scene::update() {
 							   stats,
 							   _profiler,
 							   _frameStatsHistory);
-			_profiler.add(Profiler::Tag::RenderCpu, drawTimer.stop());
+			//_profiler.add(Profiler::Tag::RenderCpu, drawTimer.stop());
 		}
 	}
 	else {

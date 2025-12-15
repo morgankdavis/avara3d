@@ -51,9 +51,9 @@ Node::Node():
 		_camera{},
 		_light{},
 		_mesh{},
-		_position{0.0f, 0.0f, 0.0f},
-		_orientation{},
-		_scale{1.0f, 1.0f, 1.0f},
+		_position{0.0},
+		_orientation{1.0},
+		_scale{1.0},
 		_eulerAngles{},
 		_physicsBody{},
 		_hidden{false},
@@ -719,6 +719,29 @@ void Node::applyPhysicsTransform(const mat4& transform) {
 	}
 	else {
 		this->transform(transform);
+	}
+}
+
+void Node::gather(vector<RenderItem>& items,
+				  vector<Node*>& lightNodes,
+				  FrameStats& stats) {
+
+	++stats.numNodes;
+
+	if (!_hidden) {
+
+		if (_light) {
+			lightNodes.push_back(this);
+		}
+
+		if (_mesh) {
+			auto model = worldTransform();
+			_mesh->gather(items, model, stats);
+		}
+	}
+
+	for (auto& child : _children) {
+		child->gather(items, lightNodes, stats);
 	}
 }
 

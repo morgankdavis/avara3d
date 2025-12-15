@@ -94,8 +94,7 @@ namespace a3d {
 
 		virtual std::unique_ptr<Image>	snapshot(const RenderContext& context) const = 0;
 
-		// TODO: remove
-//		virtual void					viewportScaleChanged(const RenderContext& context) = 0;
+//		virtual void					draw() = 0;
 	};
 }
 

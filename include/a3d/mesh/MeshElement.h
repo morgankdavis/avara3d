@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "a3d/Types.h"
+#include "a3d/Math.h"
 
 namespace a3d {
 
@@ -22,6 +23,7 @@ namespace a3d {
 	class Program;
 	class Renderer;
 	class RenderContext;
+	class RenderItem;
 
 	class MeshElement {
 
@@ -33,6 +35,11 @@ namespace a3d {
 		virtual ~MeshElement();
 
 		/// Internal Member Functions ///
+
+		void 							gather(std::vector<RenderItem>& items,
+											   Material& material,
+											   math::mat4& model,
+											   FrameStats& stats);
 
 		void 							draw(Renderer& renderer,
 											 const RenderContext& context,

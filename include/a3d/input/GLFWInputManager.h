@@ -33,26 +33,23 @@ namespace a3d {
 
 		/// InputManager Internal Member Functions ///
 
-		void 				update() override;
+		void			update() override;
 
 		/// Internal Member Functions ///
 
-		void glfwMouseDeltaEvent(double xDelta, double yDelta);
-		void glfwMouseButtonEvent(int button, int action, int mods);
-		void glfwScrollEvent(double xOffset, double yOffset);
-		void glfwKeyEvent(int key, int scanCode, int action, int mods);
+		void 			glfwMouseDeltaEvent(double xDelta, double yDelta);
+		void 			glfwMouseButtonEvent(int button, int action, int mods);
+		void 			glfwScrollEvent(double xOffset, double yOffset);
+		void 			glfwKeyEvent(int key, int scanCode, int action, int mods);
 
 	private:
 		/// Private Member Functions ///
 
-		void 				initMouseInput();
-		void 				initManyMouse();
-		void 				quitManyMouse();
+		void			initMouseInput();
 
 		/// Private Member Variables ///
 
-		GLFWWindow*			_window;
-		bool				_usingManyMouse;
+		GLFWWindow*		_window;
 	};
 }
 
