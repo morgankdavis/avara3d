@@ -984,7 +984,7 @@ void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
 
 		// add random factor
 
-		node->eulerAngles({ uniform_linear(0.0, two_pi()),
+		node->eulerAngles({ uniform_linear(0.0f, two_pi()),
 							uniform_linear(0.0f, two_pi()),
 							uniform_linear(0.0f, two_pi()) });
 

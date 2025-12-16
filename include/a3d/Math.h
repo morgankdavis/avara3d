@@ -10,6 +10,7 @@
 #define AVARA3D_MATH_H
 
 #include <cstdint>
+#include <float.h>
 #include <optional>
 #include <random>
 #include <string>
@@ -918,6 +919,8 @@ namespace a3d::math {
 	inline constexpr f32 two_over_sqrt_pi()	{ return f32(1.12837916709551257390); }	// 2/sqrt(pi)
 	inline constexpr f32 sqrt2()			{ return f32(1.41421356237309504880); }	// sqrt(2)
 	inline constexpr f32 one_over_sqrt2()	{ return f32(0.70710678118654752440); }	// 1/sqrt(2)
+	inline constexpr f32 f32_min() 			{ return f32(FLT_MIN); }
+	inline constexpr f32 f32_max() 			{ return f32(FLT_MAX); }
 }
 
 #endif //AVARA3D_MATH_H
