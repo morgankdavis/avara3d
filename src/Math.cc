@@ -11,7 +11,6 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
-#include <cctype>
 #include <format>
 #include <sstream>
 
@@ -356,15 +355,15 @@ namespace a3d::math {
 	f32mat2::f32mat2(f32 diag):
 			c0{diag, 0.0f}, c1{0.0f, diag} {}
 
-	f32mat2::f32mat2(const vec2& c0_, const vec2& c1_):
+	f32mat2::f32mat2(const f32vec2& c0_, const f32vec2& c1_):
 			c0{c0_}, c1{c1_} {}
 
-	vec2& f32mat2::operator[](std::size_t i) {
+	f32vec2& f32mat2::operator[](std::size_t i) {
 		assert(i < 2);
 		return (&c0)[i];
 	}
 
-	const vec2& f32mat2::operator[](std::size_t i) const {
+	const f32vec2& f32mat2::operator[](std::size_t i) const {
 		assert(i < 2);
 		return (&c0)[i];
 	}
@@ -379,15 +378,15 @@ namespace a3d::math {
 			c1{0.0f, diag, 0.0f},
 			c2{0.0f, 0.0f, diag} {}
 
-	f32mat3::f32mat3(const vec3& c0_, const vec3& c1_, const vec3& c2_):
+	f32mat3::f32mat3(const f32vec3& c0_, const f32vec3& c1_, const f32vec3& c2_):
 			c0{c0_}, c1{c1_}, c2{c2_} {}
 
-	vec3& f32mat3::operator[](std::size_t i) {
+	f32vec3& f32mat3::operator[](std::size_t i) {
 		assert(i < 3);
 		return (&c0)[i];
 	}
 
-	const vec3& f32mat3::operator[](std::size_t i) const {
+	const f32vec3& f32mat3::operator[](std::size_t i) const {
 		assert(i < 3);
 		return (&c0)[i];
 	}
@@ -404,7 +403,7 @@ namespace a3d::math {
 			c2{0.0f, 0.0f, diag, 0.0f},
 			c3{0.0f, 0.0f, 0.0f, diag} {}
 
-	f32mat4::f32mat4(const vec4& c0_, const vec4& c1_, const vec4& c2_, const vec4& c3_):
+	f32mat4::f32mat4(const f32vec4& c0_, const f32vec4& c1_, const f32vec4& c2_, const f32vec4& c3_):
 			c0{c0_}, c1{c1_}, c2{c2_}, c3{c3_} {}
 
 	f32mat4::f32mat4(const f32mat3 &m) :
@@ -418,7 +417,7 @@ namespace a3d::math {
 		return (&c0)[i];
 	}
 
-	const vec4& f32mat4::operator[](std::size_t i) const {
+	const f32vec4& f32mat4::operator[](std::size_t i) const {
 		assert(i < 4);
 		return (&c0)[i];
 	}
@@ -1609,22 +1608,22 @@ namespace a3d::math {
 						f32vec4{ -m.c3.x, -m.c3.y, -m.c3.z, -m.c3.w } };
 	}
 
-	vec2 operator*(const f32mat2 &m, const vec2 &v) {
-		return vec2{ m.c0.x * v.x + m.c1.x * v.y,
-					 m.c0.y * v.x + m.c1.y * v.y };
+	f32vec2 operator*(const f32mat2 &m, const f32vec2 &v) {
+		return f32vec2{ m.c0.x * v.x + m.c1.x * v.y,
+						m.c0.y * v.x + m.c1.y * v.y };
 	}
 
-	vec3 operator*(const f32mat3 &m, const vec3 &v) {
-		return vec3{ m.c0.x * v.x + m.c1.x * v.y + m.c2.x * v.z,
-					 m.c0.y * v.x + m.c1.y * v.y + m.c2.y * v.z,
-					 m.c0.z * v.x + m.c1.z * v.y + m.c2.z * v.z };
+	f32vec3 operator*(const f32mat3 &m, const f32vec3 &v) {
+		return f32vec3{ m.c0.x * v.x + m.c1.x * v.y + m.c2.x * v.z,
+						m.c0.y * v.x + m.c1.y * v.y + m.c2.y * v.z,
+						m.c0.z * v.x + m.c1.z * v.y + m.c2.z * v.z };
 	}
 
-	vec4 operator*(const f32mat4 &m, const vec4 &v) {
-		return vec4{ m.c0.x * v.x + m.c1.x * v.y + m.c2.x * v.z + m.c3.x * v.w,
-					 m.c0.y * v.x + m.c1.y * v.y + m.c2.y * v.z + m.c3.y * v.w,
-					 m.c0.z * v.x + m.c1.z * v.y + m.c2.z * v.z + m.c3.z * v.w,
-					 m.c0.w * v.x + m.c1.w * v.y + m.c2.w * v.z + m.c3.w * v.w };
+	f32vec4 operator*(const f32mat4 &m, const f32vec4 &v) {
+		return f32vec4{ m.c0.x * v.x + m.c1.x * v.y + m.c2.x * v.z + m.c3.x * v.w,
+						m.c0.y * v.x + m.c1.y * v.y + m.c2.y * v.z + m.c3.y * v.w,
+						m.c0.z * v.x + m.c1.z * v.y + m.c2.z * v.z + m.c3.z * v.w,
+						m.c0.w * v.x + m.c1.w * v.y + m.c2.w * v.z + m.c3.w * v.w };
 	}
 
 	f32mat2 operator*(const f32mat2 &a, const f32mat2 &b) {
@@ -1756,8 +1755,8 @@ namespace a3d::math {
 		f32 invDet = 1.0f / det;
 
 		f32mat2 r;
-		r.c0 = vec2{d * invDet, -c * invDet};
-		r.c1 = vec2{-b * invDet, a * invDet};
+		r.c0 = f32vec2{d * invDet, -c * invDet};
+		r.c1 = f32vec2{-b * invDet, a * invDet};
 		return r;
 	}
 
@@ -1783,9 +1782,9 @@ namespace a3d::math {
 		f32 invDet = 1.0f / det;
 
 		f32mat3 r;
-		r.c0 = vec3{inv00 * invDet, inv10 * invDet, inv20 * invDet};
-		r.c1 = vec3{inv01 * invDet, inv11 * invDet, inv21 * invDet};
-		r.c2 = vec3{inv02 * invDet, inv12 * invDet, inv22 * invDet};
+		r.c0 = f32vec3{inv00 * invDet, inv10 * invDet, inv20 * invDet};
+		r.c1 = f32vec3{inv01 * invDet, inv11 * invDet, inv21 * invDet};
+		r.c2 = f32vec3{inv02 * invDet, inv12 * invDet, inv22 * invDet};
 		return r;
 	}
 
@@ -1847,26 +1846,26 @@ namespace a3d::math {
 
 		// 'inv' is now row-major inverse; convert back to column-major f32mat4
 		f32mat4 r(0.0);
-		r.c0 = vec4{inv[0][0], inv[1][0], inv[2][0], inv[3][0]};
-		r.c1 = vec4{inv[0][1], inv[1][1], inv[2][1], inv[3][1]};
-		r.c2 = vec4{inv[0][2], inv[1][2], inv[2][2], inv[3][2]};
-		r.c3 = vec4{inv[0][3], inv[1][3], inv[2][3], inv[3][3]};
+		r.c0 = f32vec4{inv[0][0], inv[1][0], inv[2][0], inv[3][0]};
+		r.c1 = f32vec4{inv[0][1], inv[1][1], inv[2][1], inv[3][1]};
+		r.c2 = f32vec4{inv[0][2], inv[1][2], inv[2][2], inv[3][2]};
+		r.c3 = f32vec4{inv[0][3], inv[1][3], inv[2][3], inv[3][3]};
 		return r;
 	}
 
-	f32mat4 translate(const f32mat4& m, const vec3& v) {
+	f32mat4 translate(const f32mat4& m, const f32vec3& v) {
 		f32mat4 result(m);
 		result[3] = m[0] * v[0] + m[1] * v[1] + m[2] * v[2] + m[3];
 		return result;
 	}
 
-	f32mat4 rotate(const f32mat4& m, f32 angle, const vec3& v) {
+	f32mat4 rotate(const f32mat4& m, f32 angle, const f32vec3& v) {
 		const f32 a = angle;
 		const f32 c = cos(a);
 		const f32 s = sin(a);
 
-		vec3 axis(normalize(v));
-		vec3 temp((f32(1) - c) * axis);
+		f32vec3 axis(normalize(v));
+		f32vec3 temp((f32(1) - c) * axis);
 
 		f32mat4 rotate;
 		rotate[0][0] = c + temp[0] * axis[0];
@@ -1889,7 +1888,7 @@ namespace a3d::math {
 		return result;
 	}
 
-	f32mat4 scale(const f32mat4& m, const vec3& v){
+	f32mat4 scale(const f32mat4& m, const f32vec3& v){
 		f32mat4 result;
 		result[0] = m[0] * v[0];
 		result[1] = m[1] * v[1];
@@ -2142,7 +2141,7 @@ namespace a3d::math {
 		return f32quat{ c.w * inv_n2, c.x * inv_n2, c.y * inv_n2, c.z * inv_n2 };
 	}
 
-	f32quat quaternion(const vec3& axis, f32 angle) {
+	f32quat quaternion(const f32vec3& axis, f32 angle) {
 		// normalize axis to be safe
 		f32 len = math::sqrt(axis.x * axis.x + axis.y * axis.y + axis.z * axis.z);
 		const f32 eps = 1e-6f;
@@ -2170,28 +2169,28 @@ namespace a3d::math {
 		f32 s2    = 1.0f - q.w * q.w;
 		f32 s     = s2 > eps ? math::sqrt(s2) : 0.0f;
 
-		vec3 axis;
+		f32vec3 axis;
 		if (s < eps) {
 			// axis is undefined; pick something stable
-			axis = vec3{1.0f, 0.0f, 0.0f};
+			axis = f32vec3{1.0f, 0.0f, 0.0f};
 		}
 		else {
-			axis = vec3{ q.x / s, q.y / s, q.z / s };
+			axis = f32vec3{ q.x / s, q.y / s, q.z / s };
 		}
 
-		return vec4{ axis.x, axis.y, axis.z, angle };
+		return f32vec4{ axis.x, axis.y, axis.z, angle };
 	}
 
 	// convert pitch/yaw/roll to f32quaternion, Y–X–Z order
 	// pitch: rotation about +X
 	// yaw:   rotation about +Y
 	// roll:  rotation about +Z
-	f32quat quaternion(const vec3& eulerAngles) {
+	f32quat quaternion(const f32vec3& eulerAngles) {
 
 		// local axis unit vectors
-		vec3 axisX{1.0f, 0.0f, 0.0f};
-		vec3 axisY{0.0f, 1.0f, 0.0f};
-		vec3 axisZ{0.0f, 0.0f, 1.0f};
+		f32vec3 axisX{1.0f, 0.0f, 0.0f};
+		f32vec3 axisY{0.0f, 1.0f, 0.0f};
+		f32vec3 axisZ{0.0f, 0.0f, 1.0f};
 
 		f32quat qPitch = quaternion(axisX, eulerAngles.pitch);
 		f32quat qYaw   = quaternion(axisY, eulerAngles.yaw);
@@ -2203,9 +2202,9 @@ namespace a3d::math {
 		return normalize(q);
 	}
 
-	vec3 euler_angles(const f32quat& q) {
+	f32vec3 euler_angles(const f32quat& q) {
 
-		mat3 m = mat3_cast(q);
+		f32mat3 m = mat3_cast(q);
 
 		// row-major aliases from column-major storage
 		const f32 r02 = m.c2.x; // row 0, col 2
@@ -2215,7 +2214,7 @@ namespace a3d::math {
 		const f32 r10 = m.c0.y; // row 1, col 0
 		const f32 r11 = m.c1.y; // row 1, col 1
 
-		vec3 angles;
+		f32vec3 angles;
 
 		// pitch: asin(-r12)
 		f32 sinp = -r12;
@@ -2270,7 +2269,7 @@ namespace a3d::math {
 		return normalize(result);
 	}
 
-	mat3 mat3_cast(f32quat const &q) {
+	f32mat3 mat3_cast(f32quat const &q) {
 		f32 qxx(q.x * q.x);
 		f32 qyy(q.y * q.y);
 		f32 qzz(q.z * q.z);
@@ -2281,7 +2280,7 @@ namespace a3d::math {
 		f32 qwy(q.w * q.y);
 		f32 qwz(q.w * q.z);
 
-		mat3 r(1.0);
+		f32mat3 r(1.0);
 		r[0][0] = f32(1) - f32(2) * (qyy + qzz);
 		r[0][1] = f32(2) * (qxy + qwz);
 		r[0][2] = f32(2) * (qxz - qwy);
@@ -2294,7 +2293,7 @@ namespace a3d::math {
 		return r;
 	}
 
-	mat4 mat4_cast(f32quat const &q) {
+	f32mat4 mat4_cast(f32quat const &q) {
 		return mat4(mat3_cast(q));
 	}
 
@@ -2318,11 +2317,11 @@ namespace a3d::math {
 
 	/// Projection & Camera ///
 
-	mat4 perspective(f32 fovy, f32 aspect, f32 zNear, f32 zFar) {
+	f32mat4 perspective(f32 fovy, f32 aspect, f32 zNear, f32 zFar) {
 		assert(math::abs(aspect) > std::numeric_limits<f32>::epsilon() &&
 			   "aspect must be non-zero");
 		f32 const tanHalfFovy = tan(fovy / static_cast<f32>(2.0));
-		mat4 result(static_cast<f32>(0.0));
+		f32mat4 result(static_cast<f32>(0.0));
 		result[0][0] = static_cast<f32>(1.0) / (aspect * tanHalfFovy);
 		result[1][1] = static_cast<f32>(1.0) / (tanHalfFovy);
 		result[2][2] = - (zFar + zNear) / (zFar - zNear);
@@ -2331,8 +2330,8 @@ namespace a3d::math {
 		return result;
 	}
 
-	mat4 ortho(f32 left, f32 right, f32 bottom, f32 top, f32 zNear, f32 zFar) {
-		mat4 result(1.0f);
+	f32mat4 ortho(f32 left, f32 right, f32 bottom, f32 top, f32 zNear, f32 zFar) {
+		f32mat4 result(1.0f);
 		result[0][0] = static_cast<f32>(2.0) / (right - left);
 		result[1][1] = static_cast<f32>(2.0) / (top - bottom);
 		result[2][2] = - static_cast<f32>(2.0) / (zFar - zNear);
@@ -2342,41 +2341,41 @@ namespace a3d::math {
 		return result;
 	}
 
-	mat4 look_at(const vec3& eye, const vec3& center, const vec3& up) {
-		vec3 const f(normalize(center - eye));
-		vec3 const s(normalize(cross(f, up)));
-		vec3 const u(cross(s, f));
+	f32mat4 look_at(const f32vec3& eye, const f32vec3& center, const f32vec3& up) {
+		f32vec3 const f(normalize(center - eye));
+		f32vec3 const s(normalize(cross(f, up)));
+		f32vec3 const u(cross(s, f));
 
-		mat4 result(1.0f);
+		f32mat4 result(1.0f);
 		result[0][0] = s.x;
 		result[1][0] = s.y;
 		result[2][0] = s.z;
 		result[0][1] = u.x;
 		result[1][1] = u.y;
 		result[2][1] = u.z;
-		result[0][2] =-f.x;
-		result[1][2] =-f.y;
-		result[2][2] =-f.z;
-		result[3][0] =-dot(s, eye);
-		result[3][1] =-dot(u, eye);
+		result[0][2] = -f.x;
+		result[1][2] = -f.y;
+		result[2][2] = -f.z;
+		result[3][0] = -dot(s, eye);
+		result[3][1] = -dot(u, eye);
 		result[3][2] = dot(f, eye);
 		return result;
 	}
 
 	/// Matrix Decomposition ///
 
-	bool decompose(const mat4& m,
-				   vec3& scale,
-				   quat& rotation,
-				   vec3& translation) {
+	bool decompose(const f32mat4& m,
+				   f32vec3& scale,
+				   f32quat& rotation,
+				   f32vec3& translation) {
 
 		// 1. translation: last column (assuming standard column-major T*R*S)
-		translation = vec3{ m.c3.x, m.c3.y, m.c3.z };
+		translation = f32vec3{ m.c3.x, m.c3.y, m.c3.z };
 
 		// 2. extract basis vectors from upper 3x3 (columns 0..2)
-		vec3 col0{ m.c0.x, m.c0.y, m.c0.z };
-		vec3 col1{ m.c1.x, m.c1.y, m.c1.z };
-		vec3 col2{ m.c2.x, m.c2.y, m.c2.z };
+		f32vec3 col0{ m.c0.x, m.c0.y, m.c0.z };
+		f32vec3 col1{ m.c1.x, m.c1.y, m.c1.z };
+		f32vec3 col2{ m.c2.x, m.c2.y, m.c2.z };
 
 		// 3. scale is the length of each basis vector
 		f32 sx = length(col0);
@@ -2386,12 +2385,12 @@ namespace a3d::math {
 		const f32 eps = 1e-6f;
 		if (sx < eps || sy < eps || sz < eps) {
 			// degenerate scale, can't get a stable rotation
-			scale      = vec3{ sx, sy, sz };
-			rotation   = quat(1.0f);
+			scale      = f32vec3{ sx, sy, sz };
+			rotation   = f32quat(1.0f);
 			return false;
 		}
 
-		scale = vec3{ sx, sy, sz };
+		scale = f32vec3{ sx, sy, sz };
 
 		// 4. normalize columns to get pure rotation basis
 		col0 = col0 / sx;

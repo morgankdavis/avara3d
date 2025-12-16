@@ -1106,20 +1106,21 @@ void BufferTexture(const Texture& texture,
 				GLenum side = sides[s];
 				auto image = images[s];
 
-				unsigned bytesPerPixel = image->bytesPerPixel();
-				GLint glInternalFormat = GL_RGBA;
-				if (bytesPerPixel == 3) glInternalFormat = GL_RGB;
-				else if (bytesPerPixel == 1) glInternalFormat = GL_RED;
+				assert(image->bytesPerPixel() == 4);
+//				unsigned bytesPerPixel = image->bytesPerPixel();
+//				GLint glInternalFormat = GL_RGBA;
+//				if (bytesPerPixel == 3) glInternalFormat = GL_RGB;
+//				else if (bytesPerPixel == 1) glInternalFormat = GL_RED;
 
 				glTexImage2D(side,
 							 0,
-							 glInternalFormat,//GL_RGB, //GL_SRGB_ALPHA,
+							 GL_RGBA8,//glInternalFormat,//GL_RGB, //GL_SRGB_ALPHA,
 							 image->width(),
 							 image->height(),
 							 0,
 							 GL_RGBA,//(image->bytesPerPixel() == 3 ? GL_RGB : GL_RGBA),
 							 GL_UNSIGNED_BYTE,
-							 image->buffer().data());
+							 *(image->buffer()));
 			}
 
 			auto sampler = texture.sampler();
@@ -1151,13 +1152,13 @@ void BufferTexture(const Texture& texture,
 
 			glTexImage2D(GL_TEXTURE_2D,
 						 0,
-						 GL_RGBA,//glInternalFormat,//GL_RGBA,//GL_SRGB_ALPHA,
+						 GL_RGBA8,//glInternalFormat,//GL_RGBA,//GL_SRGB_ALPHA,
 						 image->width(),
 						 image->height(),
 						 0,
 						 GL_RGBA,//(image->bytesPerPixel() == 3 ? GL_RGB : GL_RGBA),
 						 GL_UNSIGNED_BYTE,
-						 image->buffer().data());
+						 *(image->buffer()));
 
 			auto sampler = texture.sampler();
 			SetTextureMinificationFilter(glTextureHandle, false, sampler->minificationFilter());

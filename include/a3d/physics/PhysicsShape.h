@@ -35,6 +35,8 @@ namespace a3d {
 				std::weak_ptr<Mesh>,
 				std::weak_ptr<Node>>;
 
+		// TODO: static MeshShape(), NodeShape()
+
 		/// Public Lifecycle Functions ///
 
 		PhysicsShape(PhysicsShapeType type, const std::shared_ptr<Mesh>& mesh);

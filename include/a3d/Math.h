@@ -526,40 +526,40 @@ namespace a3d::math {
 	/// 32-bit Float Matrix ///
 
 	struct f32mat2 {
-		vec2 c0, c1;
+		f32vec2 c0, c1;
 		f32mat2();
 		explicit f32mat2(f32 diag);
-		f32mat2(const vec2& c0_, const vec2& c1_);
-		vec2& operator[](std::size_t i);
-		const vec2& operator[](std::size_t i) const;
+		f32mat2(const f32vec2& c0_, const f32vec2& c1_);
+		f32vec2& operator[](std::size_t i);
+		const f32vec2& operator[](std::size_t i) const;
 	};
 
 	struct f32mat3 {
-		vec3 c0, c1, c2;
+		f32vec3 c0, c1, c2;
 		f32mat3();
 		explicit f32mat3(f32 diag);
-		f32mat3(const vec3& c0_, const vec3& c1_, const vec3& c2_);
-		vec3& operator[](std::size_t i);
-		const vec3& operator[](std::size_t i) const;
+		f32mat3(const f32vec3& c0_, const f32vec3& c1_, const f32vec3& c2_);
+		f32vec3& operator[](std::size_t i);
+		const f32vec3& operator[](std::size_t i) const;
 	};
 
 	struct f32mat4 {
-		vec4 c0, c1, c2, c3;
+		f32vec4 c0, c1, c2, c3;
 		f32mat4();
 		explicit f32mat4(f32 diag);
-		f32mat4(const vec4& c0_, const vec4& c1_, const vec4& c2_, const vec4& c3_);
+		f32mat4(const f32vec4& c0_, const f32vec4& c1_, const f32vec4& c2_, const f32vec4& c3_);
 		explicit f32mat4(const f32mat3& m);
-		vec4& operator[](std::size_t i);
-		const vec4& operator[](std::size_t i) const;
+		f32vec4& operator[](std::size_t i);
+		const f32vec4& operator[](std::size_t i) const;
 	};
 
 	f32mat2 	operator-(const f32mat2& m);
 	f32mat3 	operator-(const f32mat3& m);
 	f32mat4 	operator-(const f32mat4& m);
 
-	vec2 		operator*(const f32mat2& m, const vec2& v);
-	vec3 		operator*(const f32mat3& m, const vec3& v);
-	vec4 		operator*(const f32mat4& m, const vec4& v);
+	f32vec2 	operator*(const f32mat2& m, const f32vec2& v);
+	f32vec3 	operator*(const f32mat3& m, const f32vec3& v);
+	f32vec4 	operator*(const f32mat4& m, const f32vec4& v);
 
 	f32mat2 	operator*(const f32mat2& a, const f32mat2& b);
 	f32mat3 	operator*(const f32mat3& a, const f32mat3& b);
@@ -590,9 +590,9 @@ namespace a3d::math {
 	f32mat3	 	inverse(const f32mat3& m);
 	f32mat4 	inverse(const f32mat4& m);
 
-	f32mat4 	translate(const f32mat4& m, const vec3& v);
-	f32mat4 	rotate(const f32mat4& m, f32 angle, const vec3& v);
-	f32mat4 	scale(const f32mat4& m, const vec3& v);
+	f32mat4 	translate(const f32mat4& m, const f32vec3& v);
+	f32mat4 	rotate(const f32mat4& m, f32 angle, const f32vec3& v);
+	f32mat4 	scale(const f32mat4& m, const f32vec3& v);
 	f32mat4 	scale(const f32mat4& m, f32 s);
 
 	std::string to_string(const f32mat2& m, unsigned pad = 10);
@@ -643,19 +643,19 @@ namespace a3d::math {
 	f32quat 	conjugate(const f32quat& q);
 	f32quat		inverse(const f32quat& q);
 
-	vec3 		rotate(const f32quat& q, const vec3& v);
-	vec3 		operator*(const f32quat& q, const vec3& v);
+	f32vec3 	rotate(const f32quat& q, const f32vec3& v);
+	f32vec3 	operator*(const f32quat& q, const f32vec3& v);
 
-	f32quat 	quaternion(const vec3& axis, f32 angle);
-	vec4 		axis_angle(const f32quat& q);
+	f32quat 	quaternion(const f32vec3& axis, f32 angle);
+	f32vec4 	axis_angle(const f32quat& q);
 
-	f32quat 	quaternion(const vec3& eulerAngles); // pitch/yaw/roll to quaternion, y–x–z order
-	vec3 		euler_angles(const f32quat& q); // pitch/yaw/roll to quaternion, y–x–z order
+	f32quat 	quaternion(const f32vec3& eulerAngles); // pitch/yaw/roll to quaternion, y–x–z order
+	f32vec3 	euler_angles(const f32quat& q); // pitch/yaw/roll to quaternion, y–x–z order
 
 	f32quat 	slerp(const f32quat& a, const f32quat& b, f32 t);
 
-	mat3 		mat3_cast(f32quat const& q);
-	mat4 		mat4_cast(f32quat const& q);
+	f32mat3 	mat3_cast(f32quat const& q);
+	f32mat4 	mat4_cast(f32quat const& q);
 
 	std::string to_string(const f32quat& q);
 
@@ -666,16 +666,16 @@ namespace a3d::math {
 
 	/// Projection & Camera ///
 
-	mat4 		perspective(f32 fovy, f32 aspect, f32 zNear, f32 zFar); // rh
-	mat4 		ortho(f32 left, f32 right, f32 bottom, f32 top, f32 zNear, f32 zFar); // rh
-	mat4 		look_at(const vec3& eye, const vec3& center, const vec3& up); // rh
+	f32mat4 	perspective(f32 fovy, f32 aspect, f32 zNear, f32 zFar); // rh
+	f32mat4 	ortho(f32 left, f32 right, f32 bottom, f32 top, f32 zNear, f32 zFar); // rh
+	f32mat4 	look_at(const f32vec3& eye, const f32vec3& center, const f32vec3& up); // rh
 
 	/// Matrix Decomposition ///
 
-	bool 		decompose(const mat4& m,
-						  vec3& scale,
-						  quat& rotation,
-						  vec3& translation);
+	bool 		decompose(const f32mat4& m,
+						  f32vec3& scale,
+						  f32quat& rotation,
+						  f32vec3& translation);
 
 	/// Random / Probability ///
 
@@ -800,7 +800,7 @@ namespace a3d::math {
 	f32quat 	slerp(const f32quat& a, const f32quat& b, f32 t, bool shortest_path = true);
 	f32quat 	slerp_01(const f32quat& a, const f32quat& b, f32 t, bool shortest_path = true);
 
-	/// Color & Color Spaces ///
+	/// Color ///
 
 	f32 		srgb_to_linear(f32 c);
 	f32 		linear_to_srgb(f32 c);
