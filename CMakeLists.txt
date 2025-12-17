@@ -1,4 +1,3 @@
-
 cmake_minimum_required(VERSION 3.20)
 
 project(avara3d
@@ -75,10 +74,8 @@ add_subdirectory(external/imgui-1.92.5)
 
 ### add a3d ###
 
-file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS include/*.h)
-file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.c*)
-#file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/include/*.h")
-#file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.c*")
+file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/include/*.h")
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.c*")
 
 add_library(avara3d STATIC
 		${HEADERS}
