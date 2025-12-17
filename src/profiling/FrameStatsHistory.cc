@@ -20,7 +20,7 @@ void FrameStatsHistory::GetAverages(const FrameStatsHistory& history,
 									chrono::nanoseconds& renderGpu,
 									chrono::nanoseconds& physics,
 									chrono::nanoseconds& appCpu,
-									chrono::milliseconds averagingTime) {
+									chrono::milliseconds averagingDuration) {
 	frame = chrono::nanoseconds(0);
 	engineCpu = chrono::nanoseconds(0);
 	renderCpu = chrono::nanoseconds(0);
@@ -33,7 +33,7 @@ void FrameStatsHistory::GetAverages(const FrameStatsHistory& history,
 	unsigned count = 0;
 	for (auto it = history._samples.rbegin(); it != history._samples.rend(); ++it) {
 		auto sample = get<1>(*it);
-		if ((now - get<0>(*it)) < averagingTime) {
+		if ((now - get<0>(*it)) < averagingDuration) {
 			frame += sample.frameTime;
 			engineCpu += sample.engineCpuTime;
 			renderCpu += sample.renderCpuTime;

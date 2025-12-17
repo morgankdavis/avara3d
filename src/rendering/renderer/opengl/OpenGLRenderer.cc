@@ -2175,9 +2175,9 @@ void DrawStats(FrameStats& stats,
 	static const float INDENT_WIDTH = 8.0f;
 
 	struct StatsTextLayout {
-		float xLeft; // left edge of the label column
-		float xRight; // right edge of the value column (adjustable)
-		float gap; // minimum gap between label and value
+		float xLeft;
+		float xRight;
+		float gap; // min gap between label and value
 	};
 
 	const auto DrawLabelValue = [](float& y,
@@ -2279,7 +2279,24 @@ void DrawStats(FrameStats& stats,
 			renderGpuNsAvg, physicsNsAvg, appCpuNsAvg;
 	static float frameMsFAvg, engineCpuMsFAvg, renderCpuMsFAvg,
 			renderGpuMsFAvg, physicsMsFAvg, appCpuMsFAvg;
-	static float fpsAvg;
+	static float fpsAvg = 0;
+
+	A3D_EVERY(config::FRAME_STATS_AVERAGE_UPDATE_INTERVAL) {
+
+		FrameStatsHistory::GetAverages(statsHistory,
+									   frameNsAvg, engineCpuNsAvg, renderCpuNsAvg,
+									   renderGpuNsAvg, physicsNsAvg, appCpuNsAvg,
+									   config::FRAME_STATS_AVERAGING_DURATION);
+
+		// ! ~zero cost
+		frameMsFAvg = chrono::duration<float, std::milli>(frameNsAvg).count();
+		engineCpuMsFAvg = chrono::duration<float, std::milli>(engineCpuNsAvg).count();
+		renderCpuMsFAvg = chrono::duration<float, std::milli>(renderCpuNsAvg).count();
+		renderGpuMsFAvg = chrono::duration<float, std::milli>(renderGpuNsAvg).count();
+		physicsMsFAvg = chrono::duration<float, std::milli>(physicsNsAvg).count();
+		appCpuMsFAvg = chrono::duration<float, std::milli>(appCpuNsAvg).count();
+		if (frameMsFAvg > 0) fpsAvg = 1000.0f / frameMsFAvg;
+	}
 
 	// TODO: use STRIDE
 
@@ -2292,21 +2309,7 @@ void DrawStats(FrameStats& stats,
 
 	static size_t frame = 0;
 	static const unsigned SKIP_FRAMES = 2;
-
 	if (!(frame % SKIP_FRAMES)) {
-
-		FrameStatsHistory::GetAverages(statsHistory,
-									   frameNsAvg, engineCpuNsAvg, renderCpuNsAvg,
-									   renderGpuNsAvg, physicsNsAvg, appCpuNsAvg,
-									   a3d::config::FRAMETIME_AVERAGING_INTERVAL);
-
-		frameMsFAvg = chrono::duration<float, std::milli>(frameNsAvg).count();
-		engineCpuMsFAvg = chrono::duration<float, std::milli>(engineCpuNsAvg).count();
-		renderCpuMsFAvg = chrono::duration<float, std::milli>(renderCpuNsAvg).count();
-		renderGpuMsFAvg = chrono::duration<float, std::milli>(renderGpuNsAvg).count();
-		physicsMsFAvg = chrono::duration<float, std::milli>(physicsNsAvg).count();
-		appCpuMsFAvg = chrono::duration<float, std::milli>(appCpuNsAvg).count();
-		fpsAvg = 1000.0f / frameMsFAvg;
 
 		auto &samples = statsHistory.samples();
 
@@ -2340,11 +2343,11 @@ void DrawStats(FrameStats& stats,
 
 	yPos += 48;
 	auto rateValue = std::format("{:.0f}fps", fpsAvg);
-	DrawLabelValue(yPos, layout, "", rateValue.c_str(),
+	DrawLabelValue(yPos, layout, "", rateValue,
 				   bodyFont, STATS_BODY_FONT_SIZE, 15);
 
 	auto frameValue = std::format("{:.1f}ms", frameMsFAvg);
-	DrawLabelValue(yPos, layout, "frame", frameValue.c_str(),
+	DrawLabelValue(yPos, layout, "frame", frameValue,
 				   bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
 
 	DrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_1,
@@ -2359,7 +2362,7 @@ void DrawStats(FrameStats& stats,
 			 PLOT_HEIGHT_1 + PLOT_STR_Y_PAD);
 
 	auto engineCpuValue = std::format("{:.1f}ms", engineCpuMsFAvg);
-	DrawLabelValue(yPos, layout, "engine cpu", engineCpuValue.c_str(),
+	DrawLabelValue(yPos, layout, "engine cpu", engineCpuValue,
 				   bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
 
 	DrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2,
@@ -2374,7 +2377,7 @@ void DrawStats(FrameStats& stats,
 			 PLOT_HEIGHT_2 + PLOT_STR_Y_PAD);
 
 	auto renderCpuValue = std::format("{:.1f}ms", renderCpuMsFAvg);
-	DrawLabelValue(yPos, layout, "render sub", renderCpuValue.c_str(),
+	DrawLabelValue(yPos, layout, "render sub", renderCpuValue,
 				   bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
 
 	DrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2,
@@ -2389,7 +2392,7 @@ void DrawStats(FrameStats& stats,
 			 PLOT_HEIGHT_2 + PLOT_STR_Y_PAD);
 
 	auto renderGpuValue = std::format("{:.1f}ms", renderGpuMsFAvg);
-	DrawLabelValue(yPos, layout, "draw", renderGpuValue.c_str(),
+	DrawLabelValue(yPos, layout, "draw", renderGpuValue,
 				   bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
 
 	DrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2,
@@ -2404,7 +2407,7 @@ void DrawStats(FrameStats& stats,
 			 PLOT_HEIGHT_2 + PLOT_STR_Y_PAD);
 
 	auto physValue = std::format("{:.1f}ms", physicsMsFAvg);
-	DrawLabelValue(yPos, layout, "physics", physValue.c_str(),
+	DrawLabelValue(yPos, layout, "physics", physValue,
 				   bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
 
 	DrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2,
@@ -2419,7 +2422,7 @@ void DrawStats(FrameStats& stats,
 			 PLOT_HEIGHT_2 + PLOT_STR_Y_PAD);
 
 	auto appValue = std::format("{:.1f}ms", appCpuMsFAvg);
-	DrawLabelValue(yPos, layout, "app", appValue.c_str(),
+	DrawLabelValue(yPos, layout, "app", appValue,
 				   bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
 
 	DrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2,

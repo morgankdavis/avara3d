@@ -32,7 +32,7 @@ namespace a3d {
 								std::chrono::nanoseconds& renderGpu,
 								std::chrono::nanoseconds& physics,
 								std::chrono::nanoseconds& appCpu,
-								std::chrono::milliseconds averagingTime);
+								std::chrono::milliseconds averagingDuration);
 		/// Public Lifecycle Functions ///
 
 		explicit FrameStatsHistory(std::chrono::milliseconds historyTime);

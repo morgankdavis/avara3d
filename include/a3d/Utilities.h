@@ -35,6 +35,37 @@ namespace a3d {
 	
 namespace a3d::utils {
 
+	// TODO: move
+
+	/// Rate Limiting ///
+
+	namespace pork {
+
+		template<class Clock, class Rep, class Period>
+		inline bool every_tick(typename Clock::time_point& last,
+							   std::chrono::duration<Rep, Period> interval)
+		{
+			const auto now = Clock::now();
+			if (now - last >= interval) {
+				last = now;          // "at most once" behavior (no catch-up)
+				return true;
+			}
+			return false;
+		}
+
+	}
+
+#define A3D_CAT2(a,b) a##b
+#define A3D_CAT(a,b)  A3D_CAT2(a,b)
+
+#define A3D_EVERY_IMPL(id, interval)                            	\
+    if (static auto A3D_CAT(_a3d_last_, id) =                     	\
+            std::chrono::steady_clock::now() - (interval);      	\
+        a3d::utils::pork::every_tick<std::chrono::steady_clock>(	\
+            A3D_CAT(_a3d_last_, id), (interval)))
+
+#define A3D_EVERY(interval) A3D_EVERY_IMPL(__COUNTER__, interval)
+
 	/// Output ///
 
 	std::string StringFromTree(const Node& root);
