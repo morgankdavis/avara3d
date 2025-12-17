@@ -11,14 +11,16 @@ include(cmake/UtilityFunctions.cmake)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+option(A3D_BUILD_TESTS "Build A3D tests" ON)
+option(A3D_BUILD_EDITOR "Build A3D editor" ON)
+
 if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
 	set(CMAKE_BUILD_TYPE "Debug")
 endif ()
 message("[BUILD TYPE: " ${CMAKE_BUILD_TYPE} "]")
+set(A3D_BUILD_TYPE ${CMAKE_BUILD_TYPE})
 
 ### create BuildInfo.cmake.h ###
-
-set(A3D_BUILD_TYPE ${CMAKE_BUILD_TYPE})
 
 if ((GITLAB_CI_PIPELINE_IID STREQUAL "") OR (NOT DEFINED GITLAB_CI_PIPELINE_IID))
 	set(A3D_BUILD_NUMBER 0)
@@ -238,11 +240,15 @@ set(INSTALL_ROOT_DIR "${PROJECT_BINARY_DIR}/packaged/avara3d/${PLATFORM_STRING}/
 
 ### add editor ###
 
-add_subdirectory(tools/a3de)
+if (A3D_BUILD_EDITOR)
+	add_subdirectory(tools/a3de)
+endif ()
 
 ### add tests ###
 
-add_subdirectory(tests)
+if (A3D_BUILD_TESTS)
+	add_subdirectory(tests)
+endif ()
 
 ### install ###
 
