@@ -3,8 +3,8 @@ set(UNIT_NUMBER "030")
 set(UNIT_DESCRIPTION "rigidbody")
 set(TEST_NAME "${UNIT_NUMBER}-${UNIT_DESCRIPTION}")
 
-file(GLOB HEADERS *.h*)
-file(GLOB SOURCES *.c*)
+file(GLOB HEADERS CONFIGURE_DEPENDS *.h*)
+file(GLOB SOURCES CONFIGURE_DEPENDS *.c*)
 add_executable(${TEST_NAME} ${HEADERS} ${SOURCES})
 
 #set_target_properties(${TEST_NAME} PROPERTIES

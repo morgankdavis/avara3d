@@ -73,8 +73,8 @@ add_subdirectory(external/imgui-1.92.5)
 
 ### add a3d ###
 
-file(GLOB_RECURSE HEADERS include/*.h)
-file(GLOB_RECURSE SOURCES src/*.c*)
+file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/include/*.h")
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.c*")
 
 add_library(avara3d STATIC
 		${HEADERS}
@@ -82,7 +82,7 @@ add_library(avara3d STATIC
 
 ### setup a3d environment defines ###
 
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+if (CMAKE_BUILD_TYPE STREQUAL "Debug") # A3D_BUILD_TYPE ?
 	target_compile_definitions(avara3d PUBLIC "A3D_DEBUG")
 endif ()
 if (A3D_DESKTOP)
@@ -151,15 +151,20 @@ endif()
 
 if (A3D_LINUX)
 
+#	target_link_libraries(avara3d
+#			PUBLIC
+#			dl
+#			pthread
+#			X11
+#			Xrandr
+#			Xxf86vm
+#			Xi
+#			z)
+	find_package(Threads REQUIRED)
 	target_link_libraries(avara3d
 			PUBLIC
-			dl
-			pthread
-			X11
-			Xrandr
-			Xxf86vm
-			Xi
-			z)
+			Threads::Threads
+			${CMAKE_DL_LIBS})
 
 	if (A3D_RPI)
 

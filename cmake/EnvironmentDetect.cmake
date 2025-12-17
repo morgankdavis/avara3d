@@ -22,12 +22,12 @@ if (WIN64)
 	set(A3D_WIN64 TRUE)
 endif()
 
-if (RPI)
+if (RPI) # is this a command line option or something?
 	message("[RPI]")
 	set(A3D_RPI TRUE)
 endif()
 
-if (MACOS OR WINDOWS OR LINUX)
+if (A3D_MACOS OR A3D_WINDOWS OR A3D_LINUX)
 	message("[DESKTOP]")
 	set(A3D_DESKTOP TRUE)
 	set(A3D_GL_DESKTOP TRUE)
