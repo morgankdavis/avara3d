@@ -2180,12 +2180,13 @@ void DrawStats(FrameStats& stats,
 		float gap; // minimum gap between label and value
 	};
 
-	const auto DrawLabelValue = [](float y,
+	const auto DrawLabelValue = [](float& y,
 								   const StatsTextLayout& layout,
 								   const char* label,
-								   const char* value,
+								   const std::string& value,
 								   ImFont& font,
-								   float fontSize) {
+								   float fontSize,
+								   float lineStep) {
 
 		const auto SnapPx = [](float x) -> float {
 			return math::floor(x + 0.5f);
@@ -2201,7 +2202,7 @@ void DrawStats(FrameStats& stats,
 
 		// measure at SAME font+size you draw with
 		const ImVec2 labelSz = TextSizeA(font, fontSize, label);
-		const ImVec2 valueSz = TextSizeA(font, fontSize, value);
+		const ImVec2 valueSz = TextSizeA(font, fontSize, value.c_str());
 
 		float xValue = layout.xRight - valueSz.x;
 		const float minXValue = layout.xLeft + labelSz.x + layout.gap;
@@ -2210,43 +2211,49 @@ void DrawStats(FrameStats& stats,
 		// pixel snap
 		xValue = SnapPx(xValue);
 
-		ImguiDrawText(xValue, y, value, font, fontSize);
+		ImguiDrawText(xValue, y, value.c_str(), font, fontSize);
+
+		y += lineStep;
 	};
 
-	const auto DrawLabelValueIndented = [DrawLabelValue](float y,
+	const auto DrawLabelValueIndented = [DrawLabelValue](float& y,
 														 const StatsTextLayout& layout,
 														 const char* label,
-														 const char* value,
+														 const std::string& value,
 														 ImFont& font,
 														 float fontSize,
-														 float indentPx) {
+														 float indentPx,
+														 float lineStep) {
 		StatsTextLayout l = layout;
 		l.xLeft += indentPx;
-		DrawLabelValue(y, l, label, value, font, fontSize);
+		DrawLabelValue(y, l, label, value, font, fontSize, 0);
+		y += lineStep;
 	};
 
-	const auto DrawStatsRow = [DrawLabelValue](float& yPos,
-											   const StatsTextLayout& layout,
-											   const char* label,
-											   const std::string& value,
-											   ImFont& font,
-											   float fontSize,
-											   float lineStep) {
-		DrawLabelValue(yPos, layout, label, value.c_str(), font, fontSize);
-		yPos += lineStep;
+	const auto DrawPlot = [](float x, float& y, float w, float h,
+							 const float* values,
+							 int valuesCount,
+							 int valuesOffset,
+							 const char* overlayText,
+							 float scaleMin,
+							 float scaleMax,
+							 int stride,
+							 bool outlined,
+							 int id,
+							 float lineStep) {
+
+		ImguiDrawPlot(x, y, w, h,
+					  values,
+					  valuesCount,
+					  valuesOffset,
+					  overlayText,
+					  scaleMin, scaleMax,
+					  stride,
+					  outlined,
+					  id);
+		y += lineStep;
 	};
 
-	const auto DrawStatsRowIndented = [DrawLabelValueIndented](float& yPos,
-															   const StatsTextLayout& layout,
-															   const char* label,
-															   const std::string& value,
-															   ImFont& font,
-															   float fontSize,
-															   float lineStep,
-															   float indentPx ) {
-		DrawLabelValueIndented(yPos, layout, label, value.c_str(), font, fontSize, indentPx);
-		yPos += lineStep;
-	};
 
 	float yPos = 0;
 	int id = 0;
@@ -2333,163 +2340,164 @@ void DrawStats(FrameStats& stats,
 
 	yPos += 48;
 	auto rateValue = std::format("{:.0f}fps", fpsAvg);
-	DrawLabelValue(yPos, layout, "", rateValue.c_str(), bodyFont, STATS_BODY_FONT_SIZE);
+	DrawLabelValue(yPos, layout, "", rateValue.c_str(),
+				   bodyFont, STATS_BODY_FONT_SIZE, 15);
 
-	yPos += 15;
 	auto frameValue = std::format("{:.1f}ms", frameMsFAvg);
-	DrawLabelValue(yPos, layout, "frame", frameValue.c_str(), bodyFont, STATS_BODY_FONT_SIZE);
+	DrawLabelValue(yPos, layout, "frame", frameValue.c_str(),
+				   bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
 
-	yPos += PLOT_Y_PAD;
-	ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_1,
-				  frameSamples.data(),
-				  static_cast<int>(frameSamples.size()),
-				  0,
-				  nullptr,
-				  PLOT_Y_MIN, PLOT_Y_MAX,
-				  0,
-				  PLOT_OUTLINED,
-				  ++id);
+	DrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_1,
+			 frameSamples.data(),
+			 static_cast<int>(frameSamples.size()),
+			 0,
+			 nullptr,
+			 PLOT_Y_MIN, PLOT_Y_MAX,
+			 0,
+			 PLOT_OUTLINED,
+			 ++id,
+			 PLOT_HEIGHT_1 + PLOT_STR_Y_PAD);
 
-	yPos += PLOT_HEIGHT_1 + PLOT_STR_Y_PAD;
 	auto engineCpuValue = std::format("{:.1f}ms", engineCpuMsFAvg);
-	DrawLabelValue(yPos, layout, "engine cpu", engineCpuValue.c_str(), bodyFont, STATS_BODY_FONT_SIZE);
+	DrawLabelValue(yPos, layout, "engine cpu", engineCpuValue.c_str(),
+				   bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
 
-	yPos += PLOT_Y_PAD;
-	ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2,
-				  engCpuSamples.data(),
-				  static_cast<int>(engCpuSamples.size()),
-				  0,
-				  nullptr,
-				  PLOT_Y_MIN, PLOT_Y_MAX,
-				  0,
-				  PLOT_OUTLINED,
-				  ++id);
+	DrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2,
+			 engCpuSamples.data(),
+			 static_cast<int>(engCpuSamples.size()),
+			 0,
+			 nullptr,
+			 PLOT_Y_MIN, PLOT_Y_MAX,
+			 0,
+			 PLOT_OUTLINED,
+			 ++id,
+			 PLOT_HEIGHT_2 + PLOT_STR_Y_PAD);
 
-	yPos += PLOT_HEIGHT_2 + PLOT_STR_Y_PAD;
 	auto renderCpuValue = std::format("{:.1f}ms", renderCpuMsFAvg);
-	DrawLabelValue(yPos, layout, "render sub", renderCpuValue.c_str(), bodyFont, STATS_BODY_FONT_SIZE);
+	DrawLabelValue(yPos, layout, "render sub", renderCpuValue.c_str(),
+				   bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
 
-	yPos += PLOT_Y_PAD;
-	ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2,
-				  renderCpuSamples.data(),
-				  static_cast<int>(renderCpuSamples.size()),
-				  0,
-				  nullptr,
-				  PLOT_Y_MIN, PLOT_Y_MAX,
-				  0,
-				  PLOT_OUTLINED,
-				  ++id);
+	DrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2,
+			 renderCpuSamples.data(),
+			 static_cast<int>(renderCpuSamples.size()),
+			 0,
+			 nullptr,
+			 PLOT_Y_MIN, PLOT_Y_MAX,
+			 0,
+			 PLOT_OUTLINED,
+			 ++id,
+			 PLOT_HEIGHT_2 + PLOT_STR_Y_PAD);
 
-	yPos += PLOT_HEIGHT_2 + PLOT_STR_Y_PAD;
 	auto renderGpuValue = std::format("{:.1f}ms", renderGpuMsFAvg);
-	DrawLabelValue(yPos, layout, "draw", renderGpuValue.c_str(), bodyFont, STATS_BODY_FONT_SIZE);
+	DrawLabelValue(yPos, layout, "draw", renderGpuValue.c_str(),
+				   bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
 
-	yPos += PLOT_Y_PAD;
-	ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2,
-				  renderGpuSamples.data(),
-				  static_cast<int>(renderGpuSamples.size()),
-				  0,
-				  nullptr,
-				  PLOT_Y_MIN, PLOT_Y_MAX,
-				  0,
-				  PLOT_OUTLINED,
-				  ++id);
+	DrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2,
+			 renderGpuSamples.data(),
+			 static_cast<int>(renderGpuSamples.size()),
+			 0,
+			 nullptr,
+			 PLOT_Y_MIN, PLOT_Y_MAX,
+			 0,
+			 PLOT_OUTLINED,
+			 ++id,
+			 PLOT_HEIGHT_2 + PLOT_STR_Y_PAD);
 
-	yPos += PLOT_HEIGHT_2 + PLOT_STR_Y_PAD;
 	auto physValue = std::format("{:.1f}ms", physicsMsFAvg);
-	DrawLabelValue(yPos, layout, "physics", physValue.c_str(), bodyFont, STATS_BODY_FONT_SIZE);
+	DrawLabelValue(yPos, layout, "physics", physValue.c_str(),
+				   bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
 
-	yPos += PLOT_Y_PAD;
-	ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2,
-				  physSamples.data(),
-				  static_cast<int>(physSamples.size()),
-				  0,
-				  nullptr,
-				  PLOT_Y_MIN, PLOT_Y_MAX,
-				  0,
-				  PLOT_OUTLINED,
-				  ++id);
+	DrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2,
+			 physSamples.data(),
+			 static_cast<int>(physSamples.size()),
+			 0,
+			 nullptr,
+			 PLOT_Y_MIN, PLOT_Y_MAX,
+			 0,
+			 PLOT_OUTLINED,
+			 ++id,
+			 PLOT_HEIGHT_2 + PLOT_STR_Y_PAD);
 
-	yPos += PLOT_HEIGHT_2 + PLOT_STR_Y_PAD;
 	auto appValue = std::format("{:.1f}ms", appCpuMsFAvg);
-	DrawLabelValue(yPos, layout, "app", appValue.c_str(), bodyFont, STATS_BODY_FONT_SIZE);
+	DrawLabelValue(yPos, layout, "app", appValue.c_str(),
+				   bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
 
-	yPos += PLOT_Y_PAD;
-	ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2,
-				  appSamples.data(),
-				  static_cast<int>(appSamples.size()),
-				  0,
-				  nullptr,
-				  PLOT_Y_MIN, PLOT_Y_MAX,
-				  0,
-				  PLOT_OUTLINED,
-				  ++id);
+	DrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2,
+			 appSamples.data(),
+			 static_cast<int>(appSamples.size()),
+			 0,
+			 nullptr,
+			 PLOT_Y_MIN, PLOT_Y_MAX,
+			 0,
+			 PLOT_OUTLINED,
+			 ++id,
+			 0);
 
 	yPos += 42;
 
 	StatsTextLayout bulkLayout = layout;
 
-	DrawStatsRow(yPos, bulkLayout,
-				 "nodes", std::format("{}", stats.numNodes),
-				 bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
-	DrawStatsRow(yPos, bulkLayout,
-				 "meshes", std::format("{}", stats.numMeshes),
-				 bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
-	DrawStatsRow(yPos, bulkLayout,
-				 "elements", std::format("{}", stats.numElements),
-				 bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
-	DrawStatsRow(yPos, bulkLayout,
-				 "polygons", std::format("{:.1f}k", float(stats.numPolygons) / 1000.0f),
-				 bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
-	DrawStatsRow(yPos, bulkLayout,
-				 "lights", std::format("{}", stats.numLights),
-				 bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+	DrawLabelValue(yPos, bulkLayout,
+				   "nodes", std::format("{}", stats.numNodes),
+				   bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+	DrawLabelValue(yPos, bulkLayout,
+				   "meshes", std::format("{}", stats.numMeshes),
+				   bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+	DrawLabelValue(yPos, bulkLayout,
+				   "elements", std::format("{}", stats.numElements),
+				   bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+	DrawLabelValue(yPos, bulkLayout,
+				   "polygons", std::format("{:.1f}k", float(stats.numPolygons) / 1000.0f),
+				   bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+	DrawLabelValue(yPos, bulkLayout,
+				   "lights", std::format("{}", stats.numLights),
+				   bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
 
 	yPos += STAT_LINE_STEP;
 
-	DrawStatsRow(yPos, bulkLayout,
-				 "phys bodies", std::format("{}",
-											stats.numDynamicBodies
-											+ stats.numKinematicBodies
-											+ stats.numStaticBodies),
-				 bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
-	DrawStatsRowIndented(yPos, bulkLayout,
-						 "static", std::format("{}", stats.numStaticBodies),
-						 bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP, INDENT_WIDTH);
-	DrawStatsRowIndented(yPos, bulkLayout,
-						 "dynamic", std::format("{}", stats.numDynamicBodies),
-						 bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP, INDENT_WIDTH);
-	DrawStatsRowIndented(yPos, bulkLayout,
-						 "kinematic", std::format("{}", stats.numKinematicBodies),
-						 bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP, INDENT_WIDTH);
+	DrawLabelValue(yPos, bulkLayout,
+				   "phys bodies", std::format("{}",
+											  stats.numDynamicBodies
+											  + stats.numKinematicBodies
+											  + stats.numStaticBodies),
+				   bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+	DrawLabelValueIndented(yPos, bulkLayout,
+						   "static", std::format("{}", stats.numStaticBodies),
+						   bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
+	DrawLabelValueIndented(yPos, bulkLayout,
+						   "dynamic", std::format("{}", stats.numDynamicBodies),
+						   bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
+	DrawLabelValueIndented(yPos, bulkLayout,
+						   "kinematic", std::format("{}", stats.numKinematicBodies),
+						   bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
 
 	yPos += STAT_LINE_STEP;
 
-	DrawStatsRow(yPos, bulkLayout,
-				 "phys shapes", std::format("{}",
-											stats.numConcavePolyhedronShapes
-											+ stats.numBoundingBoxShapes
-											+ stats.numConvexHullShapes),
-				 bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
-	DrawStatsRowIndented(yPos, bulkLayout,
-						 "primitive", std::format("{}", stats.numPrimitiveShapes),
-						 bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP, INDENT_WIDTH);
-	DrawStatsRowIndented(yPos, bulkLayout,
-						 "bbox", std::format("{}", stats.numBoundingBoxShapes),
-						 bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP, INDENT_WIDTH);
-	DrawStatsRowIndented(yPos, bulkLayout,
-						 "hull", std::format("{}", stats.numConvexHullShapes),
-						 bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP, INDENT_WIDTH);
-	DrawStatsRowIndented(yPos, bulkLayout,
-						 "concave", std::format("{}", stats.numConcavePolyhedronShapes),
-						 bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP, INDENT_WIDTH);
+	DrawLabelValue(yPos, bulkLayout,
+				   "phys shapes", std::format("{}",
+											  stats.numConcavePolyhedronShapes
+											  + stats.numBoundingBoxShapes
+											  + stats.numConvexHullShapes),
+				   bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+	DrawLabelValueIndented(yPos, bulkLayout,
+						   "primitive", std::format("{}", stats.numPrimitiveShapes),
+						   bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
+	DrawLabelValueIndented(yPos, bulkLayout,
+						   "bbox", std::format("{}", stats.numBoundingBoxShapes),
+						   bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
+	DrawLabelValueIndented(yPos, bulkLayout,
+						   "hull", std::format("{}", stats.numConvexHullShapes),
+						   bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
+	DrawLabelValueIndented(yPos, bulkLayout,
+						   "concave", std::format("{}", stats.numConcavePolyhedronShapes),
+						   bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
 
 	if (context.recordingGIF()) {
-		DrawStatsRow(yPos, bulkLayout, "RECORDING",
-					 std::format("{:.1f}s / {} {}", context.recordedGIFTime(),
-								 context.recordedGIFFrames(),
-								 context.recordedGIFFrames() == 1 ? "frame" : "frames"),
-					 bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+		DrawLabelValue(yPos, bulkLayout, "RECORDING",
+					   std::format("{:.1f}s / {} {}", context.recordedGIFTime(),
+								   context.recordedGIFFrames(),
+								   context.recordedGIFFrames() == 1 ? "frame" : "frames"),
+					   bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
 	}
 
 	// input test
