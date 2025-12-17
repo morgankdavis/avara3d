@@ -152,21 +152,22 @@ void Mesh::burnTransform(const mat4& transform, bool normals) {
 
 void Mesh::gather(vector<RenderItem>& items, mat4& model, FrameStats& stats) {
 
-	for (int e=0; e<_elements.size(); ++e) {
-		auto& element = _elements[e];
-
-		Material* material = nullptr;
-		if (_materials.size() > e) {
-			material = _materials[e].get();
-		}
-		else {
-			material = Material::DefaultMaterial().get();
-		}
-
-		element->gather(items, *material, model, stats);
-	}
-
-	++stats.numMeshes;
+	// for (int e=0; e<_elements.size(); ++e) {
+	// 	auto& element = _elements[e];
+	//
+	// 	Material* material = nullptr;
+	// 	if (_materials.size() > e) {
+	// 		material = _materials[e].get();
+	// 	}
+	// 	else {
+	// 		material = Material::DefaultMaterial().get();
+	// 	}
+	//
+	//	// cl.exe on windows thinks this doesn't match declaration in MeshElement.h?
+	// 	element->gather(items, *material, model, stats);
+	// }
+	//
+	// ++stats.numMeshes;
 }
 
 void Mesh::draw(Renderer& renderer,
