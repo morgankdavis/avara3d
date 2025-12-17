@@ -11,9 +11,6 @@ linux-debug:
     - testing
     - stable
   script:
-    - echo "MAGIC ENUM?"
-    - ls -la external/magic_enum-0.9.3/include || true
-    - ls -la external/magic_enum-0.9.3/include/magic_enum.hpp || true
     - echo "Starting Linux debug build..."
     - mkdir gitlab-build
     - cd gitlab-build

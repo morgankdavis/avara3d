@@ -3,8 +3,11 @@ set(UNIT_NUMBER "005")
 set(UNIT_DESCRIPTION "materials-lights")
 set(TEST_NAME "${UNIT_NUMBER}-${UNIT_DESCRIPTION}")
 
-file(GLOB HEADERS CONFIGURE_DEPENDS *.h*)
-file(GLOB SOURCES CONFIGURE_DEPENDS *.c*)
+# causes "'magic_enum.hpp' file not found" ???
+#file(GLOB CONFIGURE_DEPENDS HEADERS *.h*)
+#file(GLOB CONFIGURE_DEPENDS SOURCES *.c*)
+file(GLOB HEADERS *.h*)
+file(GLOB SOURCES *.c*)
 add_executable(${TEST_NAME} ${HEADERS} ${SOURCES})
 
 #set_target_properties(${TEST_NAME} PROPERTIES

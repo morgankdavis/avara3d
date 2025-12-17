@@ -3,8 +3,11 @@ set(UNIT_NUMBER "000")
 set(UNIT_DESCRIPTION "sandbox")
 set(TEST_NAME "${UNIT_NUMBER}-${UNIT_DESCRIPTION}")
 
-file(GLOB CONFIGURE_DEPENDS HEADERS *.h*)
-file(GLOB CONFIGURE_DEPENDS SOURCES *.c*)
+# causes "'magic_enum.hpp' file not found" ???
+#file(GLOB CONFIGURE_DEPENDS HEADERS *.h*)
+#file(GLOB CONFIGURE_DEPENDS SOURCES *.c*)
+file(GLOB HEADERS *.h*)
+file(GLOB SOURCES *.c*)
 add_executable(${TEST_NAME} ${HEADERS} ${SOURCES})
 
 #set_target_properties(${TEST_NAME} PROPERTIES
