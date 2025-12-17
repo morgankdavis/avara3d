@@ -51,7 +51,7 @@
 #include "a3d/rendering/material/Material.h"
 #include "a3d/rendering/material/Sampler.h"
 #include "a3d/rendering/material/Texture.h"
-#include "a3d/rendering/renderer/opengl/OpenGLDrawItem.h"
+//#include "a3d/rendering/renderer/opengl/OpenGLDrawItem.h"
 #include "a3d/rendering/renderer/opengl/Program.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
@@ -2427,8 +2427,6 @@ void DrawStats(FrameStats& stats,
 	yPos += 42;
 
 	StatsTextLayout bulkLayout = layout;
-
-	auto indent = [](const char* s){ return s; }; // optional, see below
 
 	DrawStatsRow(yPos, bulkLayout,
 				 "nodes", std::format("{}", stats.numNodes),

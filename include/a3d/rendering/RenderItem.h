@@ -17,6 +17,7 @@ namespace a3d {
 		MeshElement*	element;
 		Material*		material;
 		math::mat4	 	model;
+		Node*			dbg_node;
 	};
 
 //	struct LightNode {
