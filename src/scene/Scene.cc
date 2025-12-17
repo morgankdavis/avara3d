@@ -239,7 +239,7 @@ DebugOptions Scene::debugOptions() const {
 
 void Scene::debugOptions(DebugOptions options) {
 
-#ifdef OPENGL_ES
+#ifdef A3D_GL_ES
 	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
 		throw Exception("DEBUG_OPTIONS::SHOW_WIREFRAMES not supported on this platform.");
 	}

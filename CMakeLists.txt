@@ -44,7 +44,7 @@ set(INSTALL_LIBS OFF CACHE BOOL "" FORCE)
 set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
 set(INSTALL_CMAKE_FILES OFF CACHE BOOL "" FORCE)
 add_subdirectory(external/bullet-3.17)
-include_directories(external/bullet-3.17/src)
+#include_directories(external/bullet-3.17/src)
 # breaks Win11 build (?)
 #target_compile_options(Bullet3Collision PUBLIC
 #		"-Wno-deprecated-volatile")
@@ -85,28 +85,29 @@ add_library(avara3d STATIC
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 	target_compile_definitions(avara3d PUBLIC "A3D_DEBUG")
 endif ()
-if (DESKTOP)
-	target_compile_definitions(avara3d PUBLIC "DESKTOP")
-	target_compile_definitions(avara3d PUBLIC "OPENGL_CORE")
+if (A3D_DESKTOP)
+	target_compile_definitions(avara3d PUBLIC "A3D_DESKTOP")
+	target_compile_definitions(avara3d PUBLIC "A3D_GL_DESKTOP")
 endif ()
-if (LINUX)
-	target_compile_definitions(avara3d PUBLIC "LINUX")
-	target_compile_definitions(avara3d PUBLIC "POSIX")
-	if (RPI)
-		target_compile_definitions(avara3d PUBLIC "RPI")
-		target_compile_definitions(avara3d PUBLIC "OPENGL_ES")
+if (A3D_LINUX)
+	target_compile_definitions(avara3d PUBLIC "A3D_LINUX")
+	target_compile_definitions(avara3d PUBLIC "A3D_POSIX")
+	if (A3D_RPI)
+		target_compile_definitions(avara3d PUBLIC "A3D_RPI")
+		target_compile_definitions(avara3d PUBLIC "A3D_GL_ES")
 	endif()
-elseif (MACOS)
-	target_compile_definitions(avara3d PUBLIC "MACOS")
-	target_compile_definitions(avara3d PUBLIC "POSIX")
-elseif (WINDOWS)
-	target_compile_definitions(avara3d PUBLIC "WINDOWS")
+elseif (A3D_MACOS)
+	target_compile_definitions(avara3d PUBLIC "A3D_MACOS")
+	target_compile_definitions(avara3d PUBLIC "A3D_POSIX")
+elseif (A3D_WINDOWS)
+	target_compile_definitions(avara3d PUBLIC "A3D_WINDOWS")
 endif ()
 
 ### add library headers ###
 
 target_include_directories(avara3d PUBLIC include)
 target_include_directories(avara3d PRIVATE "${PROJECT_BINARY_DIR}") # BuildInfo.cmake.h
+target_include_directories(avara3d PRIVATE external/bullet-3.17/src)
 target_include_directories(avara3d PRIVATE external/generator/include)
 target_include_directories(avara3d PRIVATE external/gif-h)
 target_include_directories(avara3d PRIVATE external/glad-3.3/include)
@@ -139,7 +140,7 @@ target_link_libraries(avara3d
 
 ### link a3d to platform-specific libraries ###
 
-if (DESKTOP)
+if (A3D_DESKTOP)
 
 	target_link_libraries(avara3d
 			PUBLIC
@@ -148,7 +149,7 @@ if (DESKTOP)
 
 endif()
 
-if (LINUX)
+if (A3D_LINUX)
 
 	target_link_libraries(avara3d
 			PUBLIC
@@ -160,7 +161,7 @@ if (LINUX)
 			Xi
 			z)
 
-	if (RPI)
+	if (A3D_RPI)
 
 		find_library(EGL_LIBRARY EGL)
 		find_library(OPENGLES3_LIBRARY GLESv2)
@@ -178,7 +179,7 @@ if (LINUX)
 
 	endif ()
 
-elseif (MACOS)
+elseif (A3D_MACOS)
 
 	find_library(FRAMEWORK_COCOA Cocoa)
 	find_library(FRAMEWORK_CORE_VIDEO CoreVideo)
@@ -199,7 +200,7 @@ elseif (MACOS)
 	# https://stackoverflow.com/questions/43551483/how-to-set-rpath-in-cmake
 	set(CMAKE_MACOSX_RPATH 1) # silence "MACOSX_RPATH is not specified [...]"
 
-elseif (WINDOWS)
+elseif (A3D_WINDOWS)
 
 	# this is so stupid.
 	# MSVC with clang 19+ (apparently) removed __FILE_NAME__ but __FILE__ still exists...
@@ -217,13 +218,13 @@ endif ()
 
 ### set root install dir before adding tests ###
 
-if (RPI)
+if (A3D_RPI)
 	set(PLATFORM_STRING "raspberry-pi")
-elseif (LINUX)
+elseif (A3D_LINUX)
 	set(PLATFORM_STRING "linux")
-elseif (MACOS)
+elseif (A3D_MACOS)
 	set(PLATFORM_STRING "macos")
-elseif (WINDOWS)
+elseif (A3D_WINDOWS)
 	set(PLATFORM_STRING "windows")
 endif ()
 

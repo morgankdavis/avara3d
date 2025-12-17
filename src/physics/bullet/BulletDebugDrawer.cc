@@ -6,7 +6,7 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifdef OPENGL_CORE
+#ifdef A3D_GL_DESKTOP
 
 #include "a3d/physics/bullet/BulletDebugDrawer.h"
 
@@ -231,4 +231,4 @@ btVector4 BTVector4FromGLMVec4(const vec4& from) {
 	return btVector4(from.x, from.y, from.z, from.w);
 }
 
-#endif // OPENGL_CORE
+#endif // A3D_GL_DESKTOP

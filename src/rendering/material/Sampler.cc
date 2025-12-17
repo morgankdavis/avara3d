@@ -48,7 +48,7 @@ void Sampler::magnificationFilter(FilterMode mode) {
 }
 
 float Sampler::maxAnisotropy() const {
-#ifdef OPENGL_ES
+#ifdef A3D_GL_ES
 	return 0;
 #else
 	return _maxAnisotropy;
@@ -56,7 +56,7 @@ float Sampler::maxAnisotropy() const {
 }
 
 void Sampler::maxAnisotropy(float max) {
-#ifdef OPENGL_ES
+#ifdef A3D_GL_ES
 	throw Exception("Anisotropy is not supported on this platform.");
 #endif
 

@@ -63,7 +63,7 @@ namespace a3d {
 		std::unique_ptr<btCollisionDispatcher>					_btCollisionDispatcher;
 		std::unique_ptr<btDbvtBroadphase>						_btBroadphase;
 		std::unique_ptr<btSequentialImpulseConstraintSolver>	_btConstraintSolver;
-#ifdef DESKTOP
+#ifdef A3D_GL_DESKTOP
 		std::unique_ptr<BulletDebugDrawer>						_btDebugDrawer;
 #endif
 		BulletStats												_stats;

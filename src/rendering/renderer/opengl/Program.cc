@@ -10,7 +10,7 @@
 
 #include <format>
 
-#ifdef OPENGL_ES
+#ifdef A3D_GL_ES
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
 #else
@@ -448,7 +448,7 @@ void Program::fragmentShaderSource(string source) {
 //	if (source) {
 //		// add appropriate GLSL version header
 //
-//#ifdef OPENGL_ES
+//#ifdef A3D_GL_ES
 //		static const string PLATFORM_HEADER = "#version 300 es\n\nprecision mediump int;\nprecision mediump float;";
 //#else
 //		static const string PLATFORM_HEADER = "#version 410";
@@ -466,7 +466,7 @@ optional<string> Program::shaderSource(const string& name, const string& type) {
 	if (source) {
 
 
-#ifdef OPENGL_ES
+#ifdef A3D_GL_ES
 		// replace dekstop GLSL header string with ES version string
 		static const string ES_HEADER = "#version 300 es\n\nprecision mediump int;\nprecision mediump float;";
 

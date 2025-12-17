@@ -8,7 +8,7 @@
 
 #include "a3d/input/GLFWInputManager.h"
 
-#ifdef MACOS
+#ifdef A3D_MACOS
 #include <IOKit/hid/IOHIDLib.h> // for kIOReturnNotPermitted
 #endif
 

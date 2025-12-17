@@ -68,7 +68,7 @@ GLFWWindow::GLFWWindow(RenderingApi renderingAPI,
 	_antialiasingMode = antialiasingMode; // see above (?)
 
 	if (InitGLFW()) {
-#ifdef OPENGL_CORE
+#ifdef A3D_GL_DESKTOP
 		// TODO: move these version numbers
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -77,7 +77,7 @@ GLFWWindow::GLFWWindow(RenderingApi renderingAPI,
 		glfwWindowHint(GLFW_SAMPLES, static_cast<int>(antialiasingMode));
 		glfwWindowHint(GLFW_SCALE_TO_MONITOR, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-	#ifdef LINUX
+	#ifdef A3D_LINUX
 		// check if X or Wayland...?
 		// TODO: change these
 		glfwWindowHintString(GLFW_WAYLAND_APP_ID, "avara3d");
@@ -87,7 +87,7 @@ GLFWWindow::GLFWWindow(RenderingApi renderingAPI,
 			glfwWindowHintString(GLFW_X11_INSTANCE_NAME, (*execName).c_str());
 		}
 	#endif
-	#ifdef MACOS
+	#ifdef A3D_MACOS
 		// the documentation says this has the same affect as GLFW_SCALE_TO_MONITOR, but if you don't also
 		// set GLFW_COCOA_RETINA_FRAMEBUFFER to GLFW_FALSE, retina framebuffer isn't actually disabled.
 		glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));

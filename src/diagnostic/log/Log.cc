@@ -13,7 +13,7 @@
 #include <format>
 #include <utility>
 
-#ifdef POSIX
+#ifdef A3D_POSIX
 #include <sys/time.h>
 #endif
 
@@ -215,7 +215,7 @@ string TimestampString() {
 
 	constexpr size_t BUF_SIZE = 256;
 	char buf[BUF_SIZE];
-#ifdef WINDOWS
+#ifdef A3D_WINDOWS
 	time_t rawtime;
 	struct tm * timeinfo;
 	time(&rawtime);

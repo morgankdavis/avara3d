@@ -157,7 +157,7 @@ void Material::doubleSided(bool flag) {
 }
 
 FillMode Material::fillMode() const {
-#ifdef OPENGL_ES
+#ifdef A3D_GL_ES
 	return FILL_MODE::FILL;
 #else
 	return _fillMode;
@@ -165,7 +165,7 @@ FillMode Material::fillMode() const {
 }
 
 void Material::fillMode(FillMode mode) {
-#ifdef OPENGL_ES
+#ifdef A3D_GL_ES
 	if (mode == FILL_MODE::LINES || mode == FILL_MODE::POINTS) {
 		throw Exception("Fill mode not supported with this rendering API.");
 	}

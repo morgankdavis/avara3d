@@ -14,14 +14,14 @@
 #include <utility>
 #include <vector>
 
-#ifdef OPENGL_ES
+#ifdef A3D_GL_ES
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
 #else
 #include "glad/glad.h"
 #endif
 
-//#ifdef OPENGL_CORE
+//#ifdef A3D_GL_DESKTOP
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
 //#include "implot.h"
@@ -385,6 +385,7 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 	glGenBuffers(1, &ubo);
 	_glEnvironmentUBO = ubo;
 
+	// TODO: make failable?
 	ImguiInit(context, _overlayTitleImFont, _overlayBodyImFont);
 
 	_isInitialized = true;
@@ -1704,13 +1705,13 @@ void SetMaterialOpenGLState(const Material& material,
 	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes)) {
 		//_program = Program::Wireframe();
 		
-#ifdef OPENGL_CORE
+#ifdef A3D_GL_DESKTOP
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glEnable(GL_LINE_SMOOTH);
 #endif
 	}
 	else {
-#ifdef OPENGL_CORE
+#ifdef A3D_GL_DESKTOP
 		if (material.fillMode() == FillMode::Lines) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		}
@@ -1735,7 +1736,7 @@ void SetMaterialOpenGLState(const Material& material,
 void SetSkyboxOpenGLState() {
 	
 	glDepthMask(GL_FALSE);
-#ifdef OPENGL_CORE
+#ifdef A3D_GL_DESKTOP
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 #endif
 	glDisable(GL_CULL_FACE);
@@ -1746,7 +1747,7 @@ void SetLinesGLState() {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glDepthMask(GL_TRUE);
-#ifdef OPENGL_CORE
+#ifdef A3D_GL_DESKTOP
 	glEnable(GL_LINE_SMOOTH);
 #endif
 	
@@ -2870,7 +2871,7 @@ void SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FilterMode
 }
 
 void SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max) {
-#ifdef OPENGL_CORE
+#ifdef A3D_GL_DESKTOP
 
 	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 	
@@ -2920,7 +2921,7 @@ GLenum GLFilterModeForFilterMode(FilterMode mode) {
 GLenum GLWrapModeForWrapMode(WrapMode mode) {
 	switch (mode) {
 		case WrapMode::ClampToEdge:				return GL_CLAMP_TO_EDGE;
-//#ifdef OPENGL_CORE
+//#ifdef A3D_GL_DESKTOP
 //		case WRAP_MODE::CLAMP_TO_BORDER:		return GL_CLAMP_TO_BORDER;
 //#endif
 		case WrapMode::Repeat:					return GL_REPEAT;

@@ -18,25 +18,25 @@
 #include <random>
 #include <sstream>
 
-#ifdef POSIX
+#ifdef A3D_POSIX
 #include <errno.h>
 #include <execinfo.h>
 #include <unistd.h>
 #include <sys/time.h>
 #endif
 
-#ifdef LINUX
+#ifdef A3D_LINUX
 #include <libgen.h>
 #include <linux/limits.h> // PATH_MAX
 #endif
 
-#ifdef MACOS
+#ifdef A3D_MACOS
 #include <CoreGraphics/CoreGraphics.h>
 #include <mach-o/dyld.h>
 #include <sys/syslimits.h> // PATH_MAX
 #endif
 
-#ifdef WINDOWS
+#ifdef A3D_WINDOWS
 #include <windows.h> // MAX_PATH
 #define PATH_MAX MAX_PATH
 #endif
@@ -88,7 +88,7 @@ string a3d::utils::StringFromTree(const Node& root) {
 string a3d::utils::DateTimeString() {
 	constexpr size_t BUF_SIZE = 128;
 	char buf[BUF_SIZE];
-#ifdef WINDOWS
+#ifdef A3D_WINDOWS
 	time_t rawtime;
 	struct tm * timeinfo;
 	time(&rawtime);
@@ -106,7 +106,7 @@ string a3d::utils::DateTimeString() {
 #endif
 }
 
-#ifdef POSIX
+#ifdef A3D_POSIX
 string a3d::utils::StackTrace(unsigned dropFunctions) {
 
 	auto traceStr = string();
@@ -173,13 +173,13 @@ vector<string> a3d::utils::Split(const string& s, string delim) {
 // *** executable and working directories ***
 
 std::optional<std::filesystem::path> a3d::utils::ExecutablePath() {
-#if defined(MACOS)
+#if defined(A3D_MACOS)
 	char path[PATH_MAX];
 	uint32_t size = sizeof(path);
 	if (_NSGetExecutablePath(path, &size) == 0) {
 		return std::filesystem::path(path);
 	}
-#elif defined(LINUX)
+#elif defined(A3D_LINUX)
 	// https://stackoverflow.com/questions/143174/how-do-i-get-the-directory-that-a-program-is-running-from
 	char path[PATH_MAX];
 	ssize_t count = std::min(size_t(readlink("/proc/self/exe", path, PATH_MAX)),
@@ -188,7 +188,7 @@ std::optional<std::filesystem::path> a3d::utils::ExecutablePath() {
 		path[count] = '\0';
 		return std::filesystem::path(path);
 	}
-#elif defined(WINDOWS)
+#elif defined(A3D_WINDOWS)
 	char path[PATH_MAX];
 	if (GetModuleFileName(NULL, path, PATH_MAX)) {
 		return std::filesystem::path(path);
@@ -218,7 +218,7 @@ std::optional<std::string> a3d::utils::ExecutableName() {
 }
 
 std::optional<std::filesystem::path> a3d::utils::CurrentWorkingDirectory() {
-#ifdef POSIX
+#ifdef A3D_POSIX
 	char cwd[PATH_MAX];
 	if (getcwd(cwd, sizeof(cwd))) {
 		return std::filesystem::path(cwd);

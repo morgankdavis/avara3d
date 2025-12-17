@@ -40,7 +40,7 @@ namespace a3d::utils {
 	std::string StringFromTree(const Node& root);
 	std::string DateTimeString();
 
-#ifdef POSIX
+#ifdef A3D_POSIX
 	std::string StackTrace(unsigned dropFunctions = 0);
 #endif
 
