@@ -15,6 +15,7 @@
 #include <utility>
 
 #include "a3d/Types.h"
+#include "a3d/profiling/OpenGLDrawTimer.h"
 #include "a3d/rendering/renderer/Renderer.h"
 
 class ImFont;
@@ -26,7 +27,7 @@ namespace a3d {
 	class Mesh;
 	class MeshElement;
 	class Line;
-	class OpenGLDrawItem;
+//	class OpenGLDrawItem;
 	class Texture;
 	
 	class OpenGLRenderer : public Renderer {
@@ -133,6 +134,7 @@ namespace a3d {
 		ImFont*											_overlayTitleImFont;
 		ImFont*											_overlayBodyImFont;
 //		std::vector<OpenGLDrawItem> 					_drawItems;
+		OpenGLDrawTimer									_drawTimer;
 	};
 }
 

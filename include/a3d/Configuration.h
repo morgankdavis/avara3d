@@ -26,6 +26,9 @@ namespace a3d::config {
 	const unsigned 					MAX_DIRECTIONAL_LIGHTS			{16};
 	const unsigned 					MAX_POINT_LIGHTS				{128};
 	const unsigned 					MAX_SPOT_LIGHTS					{64};
+
+	// ring buffer size for GL timing queries
+	const unsigned 					GL_DRAW_TIMER_BUFFER_SIZE		{4};
 }
 
 #endif //AVARA3D_CONFIGURATION_H
