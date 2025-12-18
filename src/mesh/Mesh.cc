@@ -10,7 +10,7 @@
 
 #include <utility>
 
-#include "magic_enum.hpp"
+#include "magic_enum/magic_enum.hpp"
 
 #include "a3d/Color.h"
 #include "a3d/Image.h"

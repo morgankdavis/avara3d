@@ -14,7 +14,7 @@
 #include "btBulletCollisionCommon.h"
 #include "BulletCollision/Gimpact/btGImpactShape.h"
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
-#include "magic_enum.hpp"
+#include "magic_enum/magic_enum.hpp"
 
 #include "a3d/diagnostic/log/Log.h"
 #include "a3d/mesh/Mesh.h"

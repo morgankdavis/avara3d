@@ -57,6 +57,7 @@ set(BULLET_LIBRARIES
 		BulletDynamics)
 
 add_subdirectory(external/fastgltf-0.6.1)
+#add_subdirectory(external/fastgltf-0.9.0)
 
 add_subdirectory(external/generator)
 

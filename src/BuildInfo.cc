@@ -8,7 +8,7 @@
 
 #include "a3d/BuildInfo.h"
 
-#include "magic_enum.hpp"
+#include "magic_enum/magic_enum.hpp"
 
 #include "BuildInfo.cmake.h"
 

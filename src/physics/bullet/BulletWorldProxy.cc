@@ -12,7 +12,7 @@
 #include "btBulletDynamicsCommon.h"
 #include "BulletCollision/Gimpact/btGImpactShape.h"
 #include "LinearMath/btIDebugDraw.h"
-#include "magic_enum.hpp"
+#include "magic_enum/magic_enum.hpp"
 
 #include "a3d/Configuration.h"
 #include "a3d/diagnostic/log/Log.h"

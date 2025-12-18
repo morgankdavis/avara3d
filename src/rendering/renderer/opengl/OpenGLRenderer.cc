@@ -27,7 +27,7 @@
 //#include "implot.h"
 //#endif
 
-#include "magic_enum.hpp"
+#include "magic_enum/magic_enum.hpp"
 
 #include "a3d/Buffer.h"
 #include "a3d/BuildInfo.h"
