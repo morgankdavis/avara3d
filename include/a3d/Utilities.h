@@ -62,19 +62,48 @@ namespace a3d::utils {
 				}
 				return false;
 			}
-
-		#define A3D_CAT2(a, b) a##b
-		#define A3D_CAT(a, b)  A3D_CAT2(a,b)
-
-		#define A3D_EVERY_IMPL(id, interval)                                \
-					if (static auto A3D_CAT(_a3d_last_, id) =                        \
-							std::chrono::steady_clock::now() - (interval);        \
-						a3d::utils::chrono::detail::every_tick<std::chrono::steady_clock>(    \
-							A3D_CAT(_a3d_last_, id), (interval)))
 		}
 
-		// interval in std::chrono::milliseconds
-		#define A3D_EVERY(interval) A3D_EVERY_IMPL(__COUNTER__, interval)
+		// run at most every 'interval' (duration)
+		#define A3D_EVERY(interval_expr)                                                 \
+			if ([&]() -> bool {                                                          \
+					struct State {                                                       \
+						std::chrono::steady_clock::time_point last;                      \
+						std::chrono::steady_clock::duration interval;                    \
+						explicit State(std::chrono::steady_clock::duration i)            \
+							: last(std::chrono::steady_clock::now() - i), interval(i) {} \
+					};                                                                    \
+					static State s{ (interval_expr) };                                   \
+					return a3d::utils::chrono::detail::every_tick<std::chrono::steady_clock>( \
+						s.last, s.interval);                                             \
+				}())
+
+		// run exactly once on 'invocation'th call, not before or after
+		#define A3D_ON(invocation_expr)                                                  \
+			if ([&]() -> bool {                                                          \
+					struct State {                                                       \
+						long long count = 0;                                             \
+						long long target;                                                \
+						bool done = false;                                               \
+						explicit State(long long t) : target(t < 1 ? 1 : t) {}           \
+					};                                                                    \
+					static State s{ static_cast<long long>(invocation_expr) };           \
+					if (s.done) return false;                                            \
+					if (++s.count == s.target) { s.done = true; return true; }           \
+					return false;                                                        \
+				}())
+
+		// skip the first 'invocations' calls, the run each thereafter
+		#define A3D_AFTER(invocations_expr)                                              \
+			if ([&]() -> bool {                                                          \
+					struct State {                                                       \
+						long long count = 0;                                             \
+						long long target;                                                \
+						explicit State(long long t) : target(t) {}                       \
+					};                                                                    \
+					static State s{ static_cast<long long>(invocations_expr) };          \
+					return (s.count++ >= s.target);                                      \
+				}())
 	}
 
 	/// Output ///

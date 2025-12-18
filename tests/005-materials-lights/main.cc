@@ -192,12 +192,11 @@ int main(int argc, const char* argv[]) {
 /// Scene Callbacks ///
 
 void UpdateCallback(Scene& scene, double time, double deltaTime) {
-	static int invocations = 0;
-	if (invocations == 2) {
+
+	A3D_ON(2) {
 		double time = utils::chrono::Time() - g_startTime;
 		A3D_APP_LOG_I("START TIME: {}", time);
 	}
-	++invocations;
 
 	A3D_APP_LOG_T("scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
 

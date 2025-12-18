@@ -165,6 +165,8 @@ bool GlTFImporter::parse() {
 
 	if (!_parsed) {
 
+		auto startTime = utils::chrono::Time();
+
 		A3D_LOG_I("Parsing glTF: '{}'...", _path.string());
 
 		auto extensions = Extensions::KHR_lights_punctual
