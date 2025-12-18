@@ -102,6 +102,7 @@ elseif (A3D_MACOS)
 	target_compile_definitions(avara3d PUBLIC "A3D_POSIX")
 elseif (A3D_WINDOWS)
 	target_compile_definitions(avara3d PUBLIC "A3D_WINDOWS")
+	target_compile_definitions(avara3d PRIVATE NOMINMAX WIN32_LEAN_AND_MEAN)
 endif ()
 
 ### add library headers ###

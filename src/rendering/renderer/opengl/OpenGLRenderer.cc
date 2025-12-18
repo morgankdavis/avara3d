@@ -1788,6 +1788,7 @@ void DrawLines(const vector<Line>& lines,
 
 	// uniforms
 	
+	//program.setUniform("modelMat", modelMat);
 	program.setUniform("modelMat", modelMat);
 	program.setUniform("viewMat", viewMat);
 	program.setUniform("projMat", projectionMat);

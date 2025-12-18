@@ -325,6 +325,55 @@ mat4 Node::worldTransform() const {
 	}
 }
 
+vec3 Node::convertFrom(const vec3& pos, const Node& from) {
+	if (&from == this) return pos;
+
+	const mat4 fromWorld = from.worldTransform(); // from-local -> world
+	const mat4 thisWorld = this->worldTransform(); // this-local -> world
+	const mat4 worldToThis = math::inverse(thisWorld);
+
+	const vec4 worldPos = fromWorld * math::vec4{pos.x, pos.y, pos.z, 1.0f};
+	const vec4 thisPos  = worldToThis * worldPos;
+
+	return vec3(thisPos);
+}
+
+vec3 Node::convertTo(const vec3& pos, const Node& to) {
+	if (&to == this) return pos;
+
+	const mat4 thisWorld = this->worldTransform(); // this-local -> world
+	const mat4 toWorld   = to.worldTransform(); // to-local -> world
+	const mat4 worldToTo = math::inverse(toWorld);
+
+	const vec4 worldPos = thisWorld * vec4{pos.x, pos.y, pos.z, 1.0f};
+	const vec4 toPos    = worldToTo * worldPos;
+
+	return vec3(toPos);
+}
+
+mat4 Node::convertFrom(const mat4& t, const Node& from) {
+	if (&from == this) return t;
+
+	const mat4 fromWorld = from.worldTransform(); // from-local -> world
+	const mat4 thisWorld = this->worldTransform(); // this-local -> world
+	const mat4 worldToThis = math::inverse(thisWorld);
+
+	// interpret `t` as a transform in `from`'s local space (from-local -> from-local)
+	// convert it into this node's local space
+	return worldToThis * (fromWorld * t);
+}
+
+math::mat4 Node::convertTo(const math::mat4& t, const Node& to) {
+	if (&to == this) return t;
+
+	const mat4 thisWorld = this->worldTransform(); // this-local -> world
+	const mat4 toWorld   = to.worldTransform(); // to-local -> world
+	const mat4 worldToTo = math::inverse(toWorld);
+
+	// interpret `t` as a transform in *this* local space - convert into `to` local space
+	return worldToTo * (thisWorld * t);
+}
+
 void Node::addChild(const shared_ptr<Node>& node) {
 
 	if (containsChild(node)) {

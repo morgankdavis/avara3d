@@ -103,6 +103,11 @@ namespace a3d {
 
 		math::mat4 							worldTransform() const;
 
+		math::vec3 							convertFrom(const math::vec3& pos, const Node& from);
+		math::vec3 							convertTo(const math::vec3& pos, const Node& to);
+		math::mat4 							convertFrom(const math::mat4& t, const Node& from);
+		math::mat4 							convertTo(const math::mat4& t, const Node& to);
+
 		void 								addChild(const std::shared_ptr<Node>& node);
 		void 								addChildren(const std::vector<std::shared_ptr<Node>>& nodes);
 		void 								removeFromParent();
@@ -120,10 +125,6 @@ namespace a3d {
 
 		std::weak_ptr<Node>					parent() const;
 
-//		math::vec3 							convertFrom(const math::vec3& pos, const Node& from);
-//		math::vec3 							convertTo(const math::vec3& pos, const Node& to);
-//		math::mat4 							convertFrom(const math::mat4& t, const Node& from);
-//		math::mat4 							convertTo(const math::mat4& t, const Node& to);
 
 		/// Internal Member Functions ///
 
