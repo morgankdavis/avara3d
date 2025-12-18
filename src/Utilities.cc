@@ -42,7 +42,6 @@
 #define PATH_MAX MAX_PATH
 #endif
 
-#undef max // windows.h defines a 'max'... (we want std::max())
 #include <algorithm> // needs to be under windows.h
 
 #include "a3d/Buffer.h"
