@@ -345,7 +345,7 @@ OpenGLRenderer::OpenGLRenderer():
 		_glEnvironmentUBO{0},
 		_overlayTitleImFont{nullptr},
 		_overlayBodyImFont{nullptr},
-		_drawTimer(config::GL_DRAW_TIMER_BUFFER_SIZE) {}
+		_drawTimer{config::GL_DRAW_TIMER_BUFFER_SIZE} {}
 
 OpenGLRenderer::~OpenGLRenderer() {
 	A3D_LOG_D("Destroying OpenGLRenderer {:p}", static_cast<void*>(this));
