@@ -2254,12 +2254,12 @@ void DrawStats(FrameStats& stats,
 									   config::FRAME_STATS_AVERAGING_DURATION);
 
 		// ! ~zero cost
-		frameMsFAvg = chrono::duration<float, std::milli>(frameNsAvg).count();
-		engineCpuMsFAvg = chrono::duration<float, std::milli>(engineCpuNsAvg).count();
-		renderCpuMsFAvg = chrono::duration<float, std::milli>(renderCpuNsAvg).count();
-		renderGpuMsFAvg = chrono::duration<float, std::milli>(renderGpuNsAvg).count();
-		physicsMsFAvg = chrono::duration<float, std::milli>(physicsNsAvg).count();
-		appCpuMsFAvg = chrono::duration<float, std::milli>(appCpuNsAvg).count();
+		frameMsFAvg = utils::chrono::ns_to_ms_f(frameNsAvg);
+		engineCpuMsFAvg = utils::chrono::ns_to_ms_f(engineCpuNsAvg);
+		renderCpuMsFAvg = utils::chrono::ns_to_ms_f(renderCpuNsAvg);
+		renderGpuMsFAvg = utils::chrono::ns_to_ms_f(renderGpuNsAvg);
+		physicsMsFAvg = utils::chrono::ns_to_ms_f(physicsNsAvg);
+		appCpuMsFAvg = utils::chrono::ns_to_ms_f(appCpuNsAvg);
 		if (frameMsFAvg > 0) fpsAvg = 1000.0f / frameMsFAvg;
 	}
 
@@ -2285,12 +2285,12 @@ void DrawStats(FrameStats& stats,
 
 		for (size_t i = 0; i < samples.size(); ++i) {
 			auto sample = get<1>(samples[i]);
-			frameSamples[i] = chrono::duration<float, milli>(sample.frameTime).count();
-			engCpuSamples[i] = chrono::duration<float, milli>(sample.engineCpuTime).count();
-			physSamples[i] = chrono::duration<float, milli>(sample.physicsTime).count();
-			renderCpuSamples[i] = chrono::duration<float, milli>(sample.renderCpuTime).count();
-			renderGpuSamples[i] = chrono::duration<float, milli>(sample.renderGpuTime).count();
-			appSamples[i] = chrono::duration<float, milli>(sample.applicationTime).count();
+			frameSamples[i] = utils::chrono::ns_to_ms_f(sample.frameTime);
+			engCpuSamples[i] = utils::chrono::ns_to_ms_f(sample.engineCpuTime);
+			physSamples[i] = utils::chrono::ns_to_ms_f(sample.physicsTime);
+			renderCpuSamples[i] = utils::chrono::ns_to_ms_f(sample.renderCpuTime);
+			renderGpuSamples[i] = utils::chrono::ns_to_ms_f(sample.renderGpuTime);
+			appSamples[i] = utils::chrono::ns_to_ms_f(sample.applicationTime);
 		}
 	}
 

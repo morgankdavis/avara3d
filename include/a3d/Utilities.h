@@ -9,6 +9,7 @@
 #ifndef AVARA3D_UTILITIES_H
 #define AVARA3D_UTILITIES_H
 
+#include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <memory>
@@ -37,34 +38,44 @@ namespace a3d::utils {
 
 	// TODO: move
 
-	/// Rate Limiting ///
+	/// Chronology ///
 
-	namespace pork {
+	namespace chrono {
 
-		template<class Clock, class Rep, class Period>
-		inline bool every_tick(typename Clock::time_point& last,
-							   std::chrono::duration<Rep, Period> interval)
-		{
-			const auto now = Clock::now();
-			if (now - last >= interval) {
-				last = now;          // "at most once" behavior (no catch-up)
-				return true;
+		double Time(); // TODO: CHANGE THIS?
+
+		std::chrono::milliseconds milliseconds(std::chrono::seconds sec);
+		std::chrono::milliseconds milliseconds(std::chrono::nanoseconds ns);
+		std::chrono::milliseconds sec_f_to_ms(float secF);
+		float ns_to_ms_f(std::chrono::nanoseconds ns);
+		int ns_to_ms_i(std::chrono::nanoseconds ns);
+
+		namespace detail {
+
+			template<class Clock, class Rep, class Period>
+			inline bool every_tick(typename Clock::time_point &last,
+								   std::chrono::duration<Rep, Period> interval) {
+				const auto now = Clock::now();
+				if (now - last >= interval) {
+					last = now;          // "at most once" behavior (no catch-up)
+					return true;
+				}
+				return false;
 			}
-			return false;
+
+		#define A3D_CAT2(a, b) a##b
+		#define A3D_CAT(a, b)  A3D_CAT2(a,b)
+
+		#define A3D_EVERY_IMPL(id, interval)                                \
+					if (static auto A3D_CAT(_a3d_last_, id) =                        \
+							std::chrono::steady_clock::now() - (interval);        \
+						a3d::utils::chrono::detail::every_tick<std::chrono::steady_clock>(    \
+							A3D_CAT(_a3d_last_, id), (interval)))
 		}
 
+		// interval in std::chrono::milliseconds
+		#define A3D_EVERY(interval) A3D_EVERY_IMPL(__COUNTER__, interval)
 	}
-
-#define A3D_CAT2(a,b) a##b
-#define A3D_CAT(a,b)  A3D_CAT2(a,b)
-
-#define A3D_EVERY_IMPL(id, interval)                            	\
-    if (static auto A3D_CAT(_a3d_last_, id) =                     	\
-            std::chrono::steady_clock::now() - (interval);      	\
-        a3d::utils::pork::every_tick<std::chrono::steady_clock>(	\
-            A3D_CAT(_a3d_last_, id), (interval)))
-
-#define A3D_EVERY(interval) A3D_EVERY_IMPL(__COUNTER__, interval)
 
 	/// Output ///
 
@@ -74,10 +85,6 @@ namespace a3d::utils {
 #ifdef A3D_POSIX
 	std::string StackTrace(unsigned dropFunctions = 0);
 #endif
-
-	/// Time ///
-
-	double	Time();
 
 	/// String ///
 

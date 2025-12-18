@@ -326,7 +326,7 @@ double Scene::time() const {
 	// https://randomascii.wordpress.com/2012/02/13/dont-store-that-in-a-float/
 
 	if (_startTime != 0) {
-		auto now = chrono::system_clock::now();
+		auto now = chrono::steady_clock::now();
 		auto nowSinceEpoch = chrono::duration<double>(now.time_since_epoch()).count();
 		return nowSinceEpoch - _startTime;
 	}

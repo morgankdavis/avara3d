@@ -9,11 +9,12 @@
 #include "a3d/Utilities.h"
 
 //#include <algorithm> // needs to be under windows.h
-#include <chrono>
+#include <cmath>
 #include <cstring>
 #include <ctime>
 #include <format>
 #include <fstream>
+#include <limits>
 #include <memory>
 #include <random>
 #include <sstream>
@@ -67,6 +68,43 @@ using namespace std;
 /// Private Static Prototypes ///
 
 static void StringFromTreeRec(Node& n, stringstream& ss, unsigned depth);
+
+/// Chronology ///
+
+double a3d::utils::chrono::Time() {
+	auto now = std::chrono::steady_clock::now();
+	return std::chrono::duration<double>(now.time_since_epoch()).count();
+}
+
+std::chrono::milliseconds a3d::utils::chrono::milliseconds(std::chrono::seconds sec) {
+	return std::chrono::duration_cast<std::chrono::milliseconds>(sec);
+}
+
+std::chrono::milliseconds a3d::utils::chrono::milliseconds(std::chrono::nanoseconds ns) {
+	// truncates toward zero (fast)
+	// return std::chrono::duration_cast<std::chrono::milliseconds>(ns)
+	// rounds to nearest millisecond
+	return std::chrono::round<std::chrono::milliseconds>(ns);
+}
+
+std::chrono::milliseconds a3d::utils::chrono::sec_f_to_ms(float secF) {
+	// round to nearest ms
+	return std::chrono::round<std::chrono::milliseconds>(std::chrono::duration<float>(secF));
+}
+
+float a3d::utils::chrono::ns_to_ms_f(std::chrono::nanoseconds ns) {
+	return std::chrono::duration<float, milli>(ns).count();
+}
+
+int a3d::utils::chrono::ns_to_ms_i(std::chrono::nanoseconds ns) {
+	// ns -> ms (int) - truncates toward zero, then clamp to int range
+	const auto ms_ll = std::chrono::duration_cast<std::chrono::milliseconds>(ns).count();
+	if (ms_ll > static_cast<long long>(std::numeric_limits<int>::max()))
+		return std::numeric_limits<int>::max();
+	if (ms_ll < static_cast<long long>(std::numeric_limits<int>::min()))
+		return std::numeric_limits<int>::min();
+	return static_cast<int>(ms_ll);
+}
 
 /// Output ///
 
@@ -130,14 +168,6 @@ string a3d::utils::StackTrace(unsigned dropFunctions) {
 	return traceStr;
 }
 #endif
-
-/// Time ///
-
-double a3d::utils::Time() {
-
-	auto now = chrono::system_clock::now();
-	return chrono::duration<double>(now.time_since_epoch()).count();
-}
 
 /// String ///
 

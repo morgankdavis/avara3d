@@ -82,7 +82,7 @@ unique_ptr<a3d::Scene> GlTFImporter::scene() {
 	if (!_scene) {
 		if (parse()) {
 
-			auto startTime = utils::Time();
+			auto startTime = utils::chrono::Time();
 
 			auto a3dScene = make_unique<a3d::Scene>();
 
@@ -106,7 +106,7 @@ unique_ptr<a3d::Scene> GlTFImporter::scene() {
 
 					// TODO: throw out nodes that don't have anything attached to them, or any children?
 
-					A3D_LOG_I("Done loading scene.  Time: {}", utils::Time() - startTime);
+					A3D_LOG_I("Done loading scene.  Time: {}", utils::chrono::Time() - startTime);
 
 					_scene = std::move(a3dScene);
 				}
@@ -132,7 +132,7 @@ shared_ptr<a3d::Mesh> GlTFImporter::firstMesh() {
 
 	if (parse()) {
 
-		auto startTime = utils::Time();
+		auto startTime = utils::chrono::Time();
 
 		auto& meshes = _asset.meshes;
 		if (!meshes.empty()) {
@@ -140,7 +140,7 @@ shared_ptr<a3d::Mesh> GlTFImporter::firstMesh() {
 			mesh = meshFromGlTFMeshIndex(_asset, 0);
 
 			if (mesh) {
-				A3D_LOG_I("Done loading mesh.  Time: {}", utils::Time() - startTime);
+				A3D_LOG_I("Done loading mesh.  Time: {}", utils::chrono::Time() - startTime);
 			}
 		}
 		else {
@@ -166,8 +166,6 @@ bool GlTFImporter::parse() {
 	if (!_parsed) {
 
 		A3D_LOG_I("Parsing glTF: '{}'...", _path.string());
-
-		auto startTime = utils::Time();
 
 		auto extensions = Extensions::KHR_lights_punctual
 						  | Extensions::KHR_materials_specular
