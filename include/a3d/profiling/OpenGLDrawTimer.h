@@ -6,13 +6,15 @@
 #include <cstdint>
 #include <vector>
 
+#include "a3d/Configuration.h"
+
 namespace a3d {
 
 	// double/triple/... buffer GL_TIME_ELAPSED queries
 	class OpenGLDrawTimer {
 
 	public:
-		explicit OpenGLDrawTimer(int bufferedFrames);
+		explicit OpenGLDrawTimer(int bufferedFrames = config::GL_DRAW_TIMER_BUFFER_SIZE);
 		~OpenGLDrawTimer();
 		OpenGLDrawTimer(const OpenGLDrawTimer&) = delete;
 		OpenGLDrawTimer& operator=(const OpenGLDrawTimer&) = delete;
@@ -24,7 +26,7 @@ namespace a3d {
 		std::chrono::nanoseconds	end();
 
 	private:
-		int							_size;
+		int							_bufferSize;
 		std::vector<unsigned> 		_glQueries;
 		size_t 						_frame;
 		std::chrono::nanoseconds	_lastTime;
