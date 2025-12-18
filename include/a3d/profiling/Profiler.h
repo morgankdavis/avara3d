@@ -44,6 +44,7 @@ namespace a3d {
 		void add(Tag tag, std::chrono::nanoseconds ns);
 		void add(const std::string& key, std::chrono::nanoseconds ns); // ! untested
 
+		// ! TEMPORARY !
 		void subtract(Tag tag, std::chrono::nanoseconds ns); // ! untested
 		void subtract(const std::string& key, std::chrono::nanoseconds ns); // ! untested
 

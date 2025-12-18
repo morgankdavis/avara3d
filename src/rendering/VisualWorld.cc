@@ -306,6 +306,8 @@ void VisualWorld::draw(const Scene& scene,
 					auto projectionMat = pov->camera()->projection();
 
 					vector<Node*> lightNodes;
+
+					/***************/ Timer submitTimer2(true);
 //#define RENDER_LIST
 #ifdef RENDER_LIST
 
@@ -347,6 +349,10 @@ void VisualWorld::draw(const Scene& scene,
 
 					renderer->postTraversal(scene, *_renderContext, lightNodes, debugOptions, stats);
 
+					/***************/ profiler.add(Profiler::Tag::RenderCpu, submitTimer2.stop());
+
+					/***************/ profiler.add(Profiler::Tag::EngineCpu, engineTimer2.stop());
+
 					if (physicalWorld) {
 
 						if (auto bulletWorldProxy = dynamic_cast<BulletWorldProxy *>(physicalWorld->proxy())) {
@@ -370,6 +376,10 @@ void VisualWorld::draw(const Scene& scene,
 
 			_renderContext->endFrame(scene);
 			renderer->endFrame(scene, *_renderContext, debugOptions, stats, profiler, statsHistory);
+
+			// !!!!!!!!!!!! GROSS (TEMPORARY) HACK !!!!!!!!!!!!!!!!!!!!!!
+			auto submissionTime = profiler.time(Profiler::Tag::RenderCpu);
+			/***************/ profiler.subtract(Profiler::Tag::EngineCpu, submissionTime);
 
 			_renderContext->swapBuffers();
 
