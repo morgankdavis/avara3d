@@ -21,9 +21,7 @@ namespace a3d {
 
 		void						initialize();
 		void 						begin();
-		void	 					end();
-		std::chrono::nanoseconds 	resolve();
-		std::chrono::nanoseconds 	lastTime() const;
+		std::chrono::nanoseconds	end();
 
 	private:
 		int							_size;

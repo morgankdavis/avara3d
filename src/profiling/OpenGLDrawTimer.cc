@@ -42,16 +42,14 @@ void OpenGLDrawTimer::begin() {
 	_active = true;
 }
 
-void OpenGLDrawTimer::end() {
+chrono::nanoseconds OpenGLDrawTimer::end() {
 	assert(_initialized && _active);
 	glEndQuery(GL_TIME_ELAPSED);
 	const int write = _frame % _size;
 	_issued[(size_t)write] = 1;
 	_active = false;
-}
 
-chrono::nanoseconds OpenGLDrawTimer::resolve() {
-	if (!_initialized) return _lastTime;
+	//if (!_initialized) return _lastTime;
 
 	const int read = (_frame + 1) % _size; // N-1 frames old slot
 	if (_issued[(size_t)read]) {
@@ -68,6 +66,24 @@ chrono::nanoseconds OpenGLDrawTimer::resolve() {
 	return _lastTime;
 }
 
-chrono::nanoseconds OpenGLDrawTimer::lastTime() const {
-	return _lastTime;
-}
+//chrono::nanoseconds OpenGLDrawTimer::resolve() {
+//	if (!_initialized) return _lastTime;
+//
+//	const int read = (_frame + 1) % _size; // N-1 frames old slot
+//	if (_issued[(size_t)read]) {
+//		GLint available = 0;
+//		glGetQueryObjectiv(_glQueries[(size_t)read], GL_QUERY_RESULT_AVAILABLE, &available);
+//		if (available) {
+//			GLuint64 ns = 0;
+//			glGetQueryObjectui64v(_glQueries[(size_t)read], GL_QUERY_RESULT, &ns);
+//			_lastTime = chrono::nanoseconds{ (chrono::nanoseconds::rep)ns };
+//		}
+//	}
+//
+//	++_frame;
+//	return _lastTime;
+//}
+
+//chrono::nanoseconds OpenGLDrawTimer::lastTime() const {
+//	return _lastTime;
+//}
