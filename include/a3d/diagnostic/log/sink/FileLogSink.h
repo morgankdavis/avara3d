@@ -37,11 +37,11 @@ namespace a3d {
 		int 								maxFiles() const;
 		int 								maxFilesize() const;
 
+		/// Public LogSink Member Functions ///
+
+		void 								write(const std::string& output,
+												   LogLevel level) override;
 		void 								flush() override;
-
-		/// Internal Member Functions ///
-
-		void 								write(const std::string& output);
 
 	private:
 		/// Private Constants ///

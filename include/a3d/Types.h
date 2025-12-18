@@ -9,6 +9,7 @@
 #ifndef AVARA3D_TYPES_H
 #define AVARA3D_TYPES_H
 
+#include <chrono>
 #include <memory>
 #include <set>
 #include <unordered_set> // temporary?
@@ -17,8 +18,7 @@
 #include <variant>
 #include <vector>
 
-#include <glm/detail/type_quat.hpp>
-#include <glm/glm.hpp>
+#include "a3d/Math.h"
 
 namespace a3d {
 
@@ -338,18 +338,10 @@ namespace a3d {
 		Eight = 7
 	};
 
-	enum class DesktopInputManagerErrorMask : unsigned {
-		None =					0,
-		NoMice =				1 << 0,
-		PermissionDenied =		1 << 1,
-		UnknownError =			1 << 2
-	};
-	A3D_ENABLE_ENUM_MASK_OPS(DesktopInputManagerErrorMask)
-
 	typedef struct {
-		glm::vec3 position;
-		glm::vec3 normal;
-		glm::vec2 texCoord;
+		math::vec3 position;
+		math::vec3 normal;
+		math::vec2 texCoord;
 	} Vertex;
 
 	typedef struct {
@@ -359,8 +351,8 @@ namespace a3d {
 	} Face;
 
 	typedef struct {
-		glm::vec3 min;
-		glm::vec3 max;
+		math::vec3 min;
+		math::vec3 max;
 	} AABB;
 
 	typedef struct {
@@ -369,42 +361,30 @@ namespace a3d {
 		float z;
 	} Extent;
 
-	typedef struct {
-		// the frame time as of the last frame in ms
-		double		currentFrametime;
-		// the framerate as of the last frame in frames/second
-		double		currentFramerate;
-		// the average of frame time over averagingInterval in ms
-		double		averageFrametime;
-		// the average of frame rate over averagingInterval in frames/second
-		double		averageFramerate;
-		// time interval over which to average averageFrametime, averageFramerate,
-		// averagePhysicstime, and averageDrawtime over in seconds
-		double 		averagingInterval;
+	struct FrameStats {
+		std::chrono::nanoseconds frameTime;
+		std::chrono::nanoseconds engineCpuTime;
+		std::chrono::nanoseconds renderCpuTime;
+		std::chrono::nanoseconds renderGpuTime;
+		std::chrono::nanoseconds physicsTime;
+		std::chrono::nanoseconds applicationTime;
 
-		double		currentPhysicstime;
-		double		currentDrawtime;
-		double		currentUsertime;
-		double 		averagePhysicstime;
-		double		averageDrawtime;
-		double		averageUsertime;
+		unsigned 	numNodes;
+		unsigned 	numMeshes;
+		unsigned 	numElements;
+		unsigned 	numPolygons;
+		unsigned 	numLights;
+		math::vec3 	cameraPosition;
+		math::quat 	cameraOrientation;
 
-		unsigned 	nodes;
-		unsigned 	meshes;
-		unsigned 	elements;
-		unsigned 	polygons;
-		unsigned 	lights;
-		glm::vec3 	cameraPosition;
-		glm::quat 	cameraOrientation;
-
-		unsigned	staticBodies;
-		unsigned	dynamicBodies;
-		unsigned	kinematicBodies;
-		unsigned	primitiveShapes;
-		unsigned	boundingBoxShapes;
-		unsigned	convexHullShapes;
-		unsigned	concavePolyhedronShapes;
-	} Stats;
+		unsigned	numStaticBodies;
+		unsigned	numDynamicBodies;
+		unsigned	numKinematicBodies;
+		unsigned	numPrimitiveShapes;
+		unsigned	numBoundingBoxShapes;
+		unsigned	numConvexHullShapes;
+		unsigned	numConcavePolyhedronShapes;
+	};
 
 	enum DebugOptions : unsigned {
 		None =							0,

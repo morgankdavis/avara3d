@@ -35,7 +35,7 @@ namespace a3d {
 
 		GLFWWindow(RenderingApi renderingAPI,
 				   const std::string& title,
-				   const glm::uvec2& size,
+				   const math::uvec2& size,
 				   bool fullScreen,
 				   bool enableHighDPI = true,
 				   AntialiasingMode antialiasingMode = AntialiasingMode::None);
@@ -53,11 +53,11 @@ namespace a3d {
 		std::string			title() const;
 		void				title(const std::string& title);
 
-		glm::uvec2			size() const;
-		void				size(const glm::uvec2& size);
+		math::uvec2			size() const;
+		void				size(const math::uvec2& size);
 
-		glm::uvec2			position() const;
-		void				position(const glm::uvec2& pos);
+		math::uvec2			position() const;
+		void				position(const math::uvec2& pos);
 
 		void				center();
 
@@ -81,8 +81,8 @@ namespace a3d {
 
 		void 				swapBuffers() override;
 
-		glm::uvec2			framebufferSize() const override;
-		glm::vec2			framebufferScale() const override;
+		math::uvec2			viewportLogicalSize() const override;
+		math::uvec2			framebufferSize() const override;
 
 		unsigned 			defaultFramebuffer() const override;
 
@@ -114,7 +114,7 @@ namespace a3d {
 												   int scanCode,
 												   int action,
 												   int mods);
-		static GLFWWindow* WindowFromGLFWwindow(GLFWwindow* glfwWindow);
+		static GLFWWindow*			WindowFromGLFWwindow(GLFWwindow* glfwWindow);
 		static GLFWInputManager* 	InputManagerFromGLFwWindow(GLFWwindow* glfwWindow);
 
 		/// Private Member Functions ///

@@ -24,7 +24,7 @@
 #include "a3d/scene/importer/GlTFImporter.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
 /// Public Static Member Functions ///
@@ -150,13 +150,33 @@ void Mesh::burnTransform(const mat4& transform, bool normals) {
 	//node()->lock()->transform(mat4(1.0));
 }
 
+void Mesh::gather(vector<RenderItem>& items, mat4& model, FrameStats& stats) {
+
+	// for (int e=0; e<_elements.size(); ++e) {
+	// 	auto& element = _elements[e];
+	//
+	// 	Material* material = nullptr;
+	// 	if (_materials.size() > e) {
+	// 		material = _materials[e].get();
+	// 	}
+	// 	else {
+	// 		material = Material::DefaultMaterial().get();
+	// 	}
+	//
+	//	// cl.exe on windows thinks this doesn't match declaration in MeshElement.h?
+	// 	element->gather(items, *material, model, stats);
+	// }
+	//
+	// ++stats.numMeshes;
+}
+
 void Mesh::draw(Renderer& renderer,
 				const RenderContext& context,
 				const mat4& modelMat,
 				const mat4& viewMat,
 				const mat4& projectionMat,
 				const DebugOptions& debugOptions,
-				Stats& stats) {
+				FrameStats& stats) {
 
 	renderer.render(*this,
 					context,
@@ -184,7 +204,7 @@ void Mesh::draw(Renderer& renderer,
 					  stats);
 	}
 
-	++stats.meshes;
+	++stats.numMeshes;
 }
 
 AABB Mesh::aabb(const Node* convertTo) const {

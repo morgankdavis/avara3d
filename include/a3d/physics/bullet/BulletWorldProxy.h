@@ -11,8 +11,6 @@
 
 #include <memory>
 
-#include "glm/glm.hpp"
-
 #include "a3d/physics/bullet/BulletStats.h"
 #include "a3d/physics/proxy/PhysicalWorldProxy.h"
 
@@ -46,14 +44,15 @@ namespace a3d {
 		void	step(double deltaT,
 					 float speed,
 					 float timestep,
-					 Stats& stats) override;
+					 FrameStats& stats,
+					 Profiler& profiler) override;
 
 		void 	updateCollisionPairs() override;
 
 		void 	drawDebug(Renderer &renderer,
 						  const RenderContext& context,
-						  const glm::mat4 &viewMat,
-						  const glm::mat4 &projectionMat,
+						  const math::mat4 &viewMat,
+						  const math::mat4 &projectionMat,
 						  const DebugOptions &debugOptions) override;
 
 	private:
@@ -64,7 +63,7 @@ namespace a3d {
 		std::unique_ptr<btCollisionDispatcher>					_btCollisionDispatcher;
 		std::unique_ptr<btDbvtBroadphase>						_btBroadphase;
 		std::unique_ptr<btSequentialImpulseConstraintSolver>	_btConstraintSolver;
-#ifdef DESKTOP
+#ifdef A3D_GL_DESKTOP
 		std::unique_ptr<BulletDebugDrawer>						_btDebugDrawer;
 #endif
 		BulletStats												_stats;

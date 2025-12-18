@@ -13,7 +13,7 @@
 #include <format>
 #include <utility>
 
-#ifdef POSIX
+#ifdef A3D_POSIX
 #include <sys/time.h>
 #endif
 
@@ -30,33 +30,45 @@ using namespace std;
 
 /// Internal Static Member Functions ///
 
+//Log& Log::MainLog() {
+//	static Log log = []{
+//		Log l("a3d");
+//		string executableName = *utils::ExecutableName();
+//		auto nativeSink = make_unique<StdOutLogSink>();
+//		auto fileSink = make_unique<FileLogSink>(*(utils::ExecutableDirectory()) / "a3d.log");
+//
+//		auto sinks = vector<unique_ptr<LogSink>>();
+//		sinks.push_back(std::move(nativeSink));
+//		sinks.push_back(std::move(fileSink));
+//
+//		log._sinks = std::move(sinks);
+//		//logger = make_unique<Log>("a3d", std::move(sinks));
+//		return l;
+//	}();
+//	return log;
+//}
+
 Log& Log::MainLog() {
-	
-	static unique_ptr<Log> logger = nullptr;
-
-	if (!logger) {
-
-		string executableName = *utils::ExecutableName();
-		auto nativeSink = make_unique<StdOutLogSink>();
-		auto fileSink = make_unique<FileLogSink>(*(utils::ExecutableDirectory()) / "a3d.log");
-
-		auto sinks = unordered_set<unique_ptr<LogSink>>();
-		sinks.insert(std::move(nativeSink));
-		sinks.insert(std::move(fileSink));
-
-		logger = make_unique<Log>("a3d", std::move(sinks));
-	}
-
-	return *logger;
+	static Log log = []{
+		Log l("a3d");
+		auto sinks = vector<unique_ptr<LogSink>>();
+		sinks.push_back(make_unique<StdOutLogSink>());
+		sinks.push_back(make_unique<FileLogSink>(*utils::ExecutableDirectory() / "a3d.log"));
+		l._sinks = std::move(sinks);
+//		l.level(A3D_APP_LOG_LEVEL);
+		return l;
+	}();
+	return log;
 }
 
 /// Public Static Member Functions ///
 
 Log& Log::AppLog() {
-	return *_appLog;
+	if (_appLog) return *_appLog;
+	throw Exception("AppLog not set.");
 }
 
-void Log::AppLog(unique_ptr<Log> log) {
+void Log::AppLog(Log log) {
 	_appLog = std::move(log);
 }
 
@@ -78,17 +90,17 @@ Log::Log(const string& name,
 		_level{level},
 		_flushLevel{flushLevel} {
 
-	_sinks.insert(std::move(sink));
+	_sinks.push_back(std::move(sink));
 }
 
 Log::Log(const string& name,
-		 unordered_set<unique_ptr<LogSink>> sinks,
+		 vector<unique_ptr<LogSink>> sinks,
 		 LogLevel level,
 		 LogLevel flushLevel):
-		_name(name),
-		_sinks(std::move(sinks)),
-		_level(level),
-		_flushLevel(flushLevel) { }
+		_name{name},
+		_sinks{std::move(sinks)},
+		_level{level},
+		_flushLevel{flushLevel} { }
 
 Log::Log() { }
 
@@ -98,7 +110,7 @@ const string& Log::name() const {
 	return _name;
 }
 
-const unordered_set<unique_ptr<LogSink>>& Log::sinks() const {
+const vector<unique_ptr<LogSink>>& Log::sinks() const {
 	return _sinks;
 }
 
@@ -163,6 +175,14 @@ void Log::flush() {
 	}
 }
 
+/// Private Lifecycle ///
+
+Log::Log(const std::string& name):
+		_name{name},
+		_sinks{},
+		_level{DEFAULT_LEVEL},
+		_flushLevel{DEFAULT_FLUSH_LEVEL} {}
+
 /// Private  Member Functions ///
 
 void Log::log(LogLevel level,
@@ -180,16 +200,7 @@ void Log::log(LogLevel level,
 
 void Log::dispatch(LogLevel level, std::string& output) {
 
-	for (auto& sink : _sinks) {
-
-		if (auto stdOutSink = dynamic_cast<StdOutLogSink*>(sink.get())) {
-			stdOutSink->write(output, level);
-		}
-
-		if (auto fileLogSink = dynamic_cast<FileLogSink*>(sink.get())) {
-			fileLogSink->write(output);
-		}
-	}
+	for (auto& sink : _sinks) sink->write(output, level);
 
 	if (static_cast<underlying_type<LogLevel>::type>(level)
 		>= static_cast<underlying_type<LogLevel>::type>(_flushLevel)) {
@@ -204,7 +215,7 @@ string TimestampString() {
 
 	constexpr size_t BUF_SIZE = 256;
 	char buf[BUF_SIZE];
-#ifdef WINDOWS
+#ifdef A3D_WINDOWS
 	time_t rawtime;
 	struct tm * timeinfo;
 	time(&rawtime);
@@ -242,6 +253,7 @@ string HeaderString(const string& logName, LogLevel level) {
 					   magic_enum::enum_name(level));
 }
 
-/// Private Static Member Variables ///
+///// Private Static Member Variables ///
 
-std::unique_ptr<Log> Log::_appLog; // weird.
+//std::unique_ptr<Log> Log::_appLog; // weird.
+std::optional<Log> Log::_appLog; // weird.

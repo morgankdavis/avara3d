@@ -29,10 +29,14 @@ namespace a3d {
 		AABB 		extent() const;
 		void	 	extent(const AABB& e);
 
+		/// Camera Internal Member Functions ///
+
+		math::mat4 		projection() const override;
+
 	protected:
 		/// Camera Protected Member Functions ///
 
-		void 		constructProjectionMatrix() override;
+//		void 		constructProjectionMatrix() override;
 
 	private:
 		/// Private Member Variables ///

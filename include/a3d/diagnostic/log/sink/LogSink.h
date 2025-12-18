@@ -9,6 +9,10 @@
 #ifndef AVARA3D_LOGSINK_H
 #define AVARA3D_LOGSINK_H
 
+#include <string>
+
+#include "a3d/diagnostic/log/Log.h"
+
 namespace a3d {
 
 	class LogSink {
@@ -21,6 +25,7 @@ namespace a3d {
 		
 /// Public Member Functions ///
 
+		virtual void write(const std::string& output, LogLevel level) = 0;
 		virtual void flush();
 	};
 }

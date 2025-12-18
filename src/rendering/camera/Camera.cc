@@ -15,7 +15,7 @@
 
 using namespace a3d;
 using namespace std;
-using namespace glm;
+using namespace a3d::math;
 
 /// Public Lifecycle Functions ///
 
@@ -47,6 +47,6 @@ void Camera::name(const string& name) {
 
 /// Internal Member Functions ///
 
-mat4 Camera::projection() const {
-	return _projection;
-}
+//mat4 Camera::projection() const {
+//	return _projection;
+//}

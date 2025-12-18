@@ -39,10 +39,8 @@ namespace a3d {
 		// only reports mouse buttons down for one query until they are released
 		std::unordered_set<MouseButton> 	mouseButtonsPressed();
 
-		glm::vec2 							mousePositionDelta(); // mouse position delta since last query
-		glm::vec2 							mouseScrollWheelDelta(); // mouse wheen scroll delta since last query
-
-		DesktopInputManagerErrorMask		errorMask() const;
+		math::vec2 							mousePositionDelta(); // mouse position delta since last query
+		math::vec2 							mouseScrollWheelDelta(); // mouse wheen scroll delta since last query
 
 	protected:
 		/// Protected Member Variables ///
@@ -53,9 +51,8 @@ namespace a3d {
 		std::unordered_set<Key> 			_keysPressedCleared;
 		std::unordered_set<MouseButton> 	_mouseButtonsPressed;
 		std::unordered_set<MouseButton> 	_mouseButtonsPressedCleared;
-		glm::vec2  							_mousePositionDelta;
-		glm::vec2  							_mouseScrollWheelDelta;
-		DesktopInputManagerErrorMask		_errorMask;
+		math::vec2  						_mousePositionDelta;
+		math::vec2  						_mouseScrollWheelDelta;
 
 	private:
 		/// Private Member Functions ///

@@ -15,7 +15,7 @@
 #include "a3d/rendering/material/Material.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
 /// Pubic Static Members ///

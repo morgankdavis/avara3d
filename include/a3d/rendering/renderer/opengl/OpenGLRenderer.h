@@ -14,10 +14,11 @@
 #include <unordered_set>
 #include <utility>
 
-#include "glm/glm.hpp"
-
 #include "a3d/Types.h"
+#include "a3d/profiling/OpenGLDrawTimer.h"
 #include "a3d/rendering/renderer/Renderer.h"
+
+class ImFont;
 
 namespace a3d {
 
@@ -26,6 +27,7 @@ namespace a3d {
 	class Mesh;
 	class MeshElement;
 	class Line;
+//	class OpenGLDrawItem;
 	class Texture;
 	
 	class OpenGLRenderer : public Renderer {
@@ -69,60 +71,53 @@ namespace a3d {
 		void 					beginFrame(const Scene& scene,
 										   const RenderContext& context,
 										   const DebugOptions& debugOptions,
-										   Stats& stats) override;
+										   FrameStats& stats,
+										   Profiler& profiler) override;
 		void 					endFrame(const Scene& scene,
 										 const RenderContext& context,
 										 const DebugOptions& debugOptions,
-										 Stats& stats) override;
+										 FrameStats& stats,
+										 Profiler& profiler,
+										 const FrameStatsHistory& statsHistory) override;
 
 		void 					preTraversal(const Scene& scene,
 											 const RenderContext& context,
 											 const DebugOptions& debugOptions,
-											 Stats& stats) override;
+											 FrameStats& stats) override;
 		void 					postTraversal(const Scene& scene,
 											  const RenderContext& context,
 											  const std::vector<Node*>& lightNodes,
 											  const DebugOptions& debugOptions,
-											  Stats& stats) override;
+											  FrameStats& stats) override;
 
 		void 					render(const Scene& scene,
 									   const RenderContext& context,
 									   const DebugOptions& debugOptions,
-									   Stats& stats) override;
+									   FrameStats& stats) override;
 		void 					render(Mesh& mesh,
 									   const RenderContext& context,
-									   const glm::mat4& modelMat,
-									   const glm::mat4& viewMat,
-									   const glm::mat4& projectionMat,
+									   const math::mat4& modelMat,
+									   const math::mat4& viewMat,
+									   const math::mat4& projectionMat,
 									   const DebugOptions& debugOptions,
-									   Stats& stats) override;
+									   FrameStats& stats) override;
 		void 					render(MeshElement& element,
 									   const RenderContext& context,
 									   Material& material,
-									   const glm::mat4& modelMat,
-									   const glm::mat4& viewMat,
-									   const glm::mat4& projectionMat,
+									   const math::mat4& modelMat,
+									   const math::mat4& viewMat,
+									   const math::mat4& projectionMat,
 									   const DebugOptions& debugOptions,
-									   Stats& stats) override;
+									   FrameStats& stats) override;
 		void 					render(const std::vector<Line>& lines,
 									   const RenderContext& context,
-									   const glm::mat4& modelMat,
-									   const glm::mat4& viewMat,
-									   const glm::mat4& projectionMat) override;
+									   const math::mat4& modelMat,
+									   const math::mat4& viewMat,
+									   const math::mat4& projectionMat) override;
 
 		std::unique_ptr<Image> 	snapshot(const RenderContext& context) const override;
 
-		void					framebufferScaleChanged(const RenderContext& context) override;
-
-		///  Internal Constant Declarations ///
-
-		static const std::string 	STATS_TITLE_FONT_NAME;
-		static const std::string 	STATS_TITLE_FONT_TYPE;
-		static const float 			STATS_TITLE_FONT_SIZE;
-		static const std::string 	STATS_BODY_FONT_NAME;
-		static const std::string 	STATS_BODY_FONT_TYPE;
-		static const float 			STATS_BODY_FONT_SIZE;
-		static const float 			STATS_TITLE_TO_BODY_PADDING;
+//		void					draw() override;
 
 	private:
 		/// Private Member Variables ///
@@ -136,9 +131,10 @@ namespace a3d {
 		std::unordered_set<Texture*>					_activeTextures;
 		std::unordered_set<const std::vector<Line>*>	_activeLines;
 		unsigned										_glEnvironmentUBO;
-		std::unique_ptr<Font>							_overlayTitleFont;
-		std::unique_ptr<Font>							_overlayBodyFont;
-//		unsigned										_defaultFramebuffer;
+		ImFont*											_overlayTitleImFont;
+		ImFont*											_overlayBodyImFont;
+//		std::vector<OpenGLDrawItem> 					_drawItems;
+		OpenGLDrawTimer									_drawTimer;
 	};
 }
 

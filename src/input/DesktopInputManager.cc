@@ -12,7 +12,7 @@
 
 using namespace a3d;
 using namespace std;
-using namespace glm;
+using namespace a3d::math;
 
 /// Public Lifecycle Functions ///
 
@@ -24,8 +24,7 @@ DesktopInputManager::DesktopInputManager():
 		_mouseButtonsPressed{},
 		_mouseButtonsPressedCleared{},
 		_mousePositionDelta{0.0f, 0.0f},
-		_mouseScrollWheelDelta{0.0f, 0.0f},
-		_errorMask{DesktopInputManagerErrorMask::None} {}
+		_mouseScrollWheelDelta{0.0f, 0.0f} {}
 
 DesktopInputManager::~DesktopInputManager() {
 	A3D_LOG_D("Destroying InputManager {:p}", static_cast<void*>(this));
@@ -91,10 +90,6 @@ vec2 DesktopInputManager::mouseScrollWheelDelta() {
 	auto mouseScrollWheelDeltaCopy = _mouseScrollWheelDelta;
 	clearMouseScrollWheelDelta();
 	return mouseScrollWheelDeltaCopy;
-}
-
-DesktopInputManagerErrorMask DesktopInputManager::errorMask() const {
-	return _errorMask;
 }
 
 void DesktopInputManager::clearMousePositionDelta() {

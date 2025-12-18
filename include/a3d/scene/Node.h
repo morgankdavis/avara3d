@@ -17,9 +17,6 @@
 #include <string>
 #include <vector>
 
-#include "glm/glm.hpp"
-#include "glm/gtc/quaternion.hpp"
-
 #include "a3d/Types.h"
 
 namespace a3d {
@@ -29,6 +26,7 @@ namespace a3d {
 	class Mesh;
 	class Renderer;
 	class RenderContext;
+	class RenderItem;
 	class Scene;
 	class PhysicalWorld;
 	class PhysicsBody;
@@ -71,39 +69,39 @@ namespace a3d {
 		const std::shared_ptr<Mesh>& 		mesh() const;
 		void 								mesh(const std::shared_ptr<Mesh>& mesh);
 
-		glm::vec3 							position() const;
-		void 								position(const glm::vec3& position);
+		math::vec3 							position() const;
+		void 								position(const math::vec3& position);
 
-		glm::vec4 							rotation() const;
-		void 								rotation(const glm::vec3& axis, float angle);
+		math::vec4 							rotation() const; // axis-angle
+		void 								rotation(const math::vec3& axis, float angle);
 
-		glm::vec3 							eulerAngles() const; // pitch, yaw, roll
-		void 								eulerAngles(const glm::vec3& eulerAngles);
+		math::vec3 							eulerAngles() const; // pitch, yaw, roll
+		void 								eulerAngles(const math::vec3& angles);
 
-		glm::quat 							orientation() const; // angle == 1st component
-		void 								orientation(const glm::quat& orientation);
+		math::quat 							orientation() const; // wxyz
+		void 								orientation(const math::quat& orientation);
 
-		glm::vec3 							scale() const;
-		void 								scale(const glm::vec3& scale);
+		math::vec3 							scale() const;
+		void 								scale(const math::vec3& scale);
 
-		glm::vec3 							forward() const;
-		glm::vec3 							up() const;
-		glm::vec3 							right() const;
+		math::vec3 							forward() const;
+		math::vec3 							up() const;
+		math::vec3 							right() const;
 
-		glm::mat4 							transform() const;
-		void 								transform(const glm::mat4& transform);
+		math::mat4 							transform() const;
+		void 								transform(const math::mat4& transform);
 
-		glm::vec3 							worldPosition() const;
-		glm::vec4 							worldRotation() const; // axis-angle
-		glm::vec3 							worldEulerAngles() const; // pitch, yaw, roll
-		glm::quat 							worldOrientation() const; // angle == 1st component
-		glm::vec3 							worldScale() const;
+		math::vec3 							worldPosition() const;
+		math::vec4 							worldRotation() const; // axis-angle
+		math::vec3 							worldEulerAngles() const; // pitch, yaw, roll
+		math::quat 							worldOrientation() const; // wxyz
+		math::vec3 							worldScale() const;
 
-		glm::vec3 							worldForward() const;
-		glm::vec3 							worldUp() const;
-		glm::vec3 							worldRight() const;
+		math::vec3 							worldForward() const;
+		math::vec3 							worldUp() const;
+		math::vec3 							worldRight() const;
 
-		glm::mat4 							worldTransform() const;
+		math::mat4 							worldTransform() const;
 
 		void 								addChild(const std::shared_ptr<Node>& node);
 		void 								addChildren(const std::vector<std::shared_ptr<Node>>& nodes);
@@ -122,10 +120,10 @@ namespace a3d {
 
 		std::weak_ptr<Node>					parent() const;
 
-//		glm::vec3 							convertFrom(const glm::vec3& pos, const Node& from);
-//		glm::vec3 							convertTo(const glm::vec3& pos, const Node& to);
-//		glm::mat4 							convertFrom(const glm::mat4& t, const Node& from);
-//		glm::mat4 							convertTo(const glm::mat4& t, const Node& to);
+//		math::vec3 							convertFrom(const math::vec3& pos, const Node& from);
+//		math::vec3 							convertTo(const math::vec3& pos, const Node& to);
+//		math::mat4 							convertFrom(const math::mat4& t, const Node& from);
+//		math::mat4 							convertTo(const math::mat4& t, const Node& to);
 
 		/// Internal Member Functions ///
 
@@ -156,17 +154,21 @@ namespace a3d {
 		bool 								containsChild(const std::shared_ptr<Node>& node);
 
 		AABB								aabb();
-		glm::vec3							extent();
+		math::vec3							extent();
 
-		void	 							applyPhysicsTransform(const glm::mat4& transform);
+		void	 							applyPhysicsTransform(const math::mat4& transform);
+
+		void 								gather(std::vector<RenderItem>& nodes,
+												   std::vector<Node*>& lightNodes,
+												   FrameStats& stats);
 
 		void 								draw(Renderer& renderer,
 												 const RenderContext& context,
-												 const glm::mat4& viewMat,
-												 const glm::mat4& projectionMat,
+												 const math::mat4& viewMat,
+												 const math::mat4& projectionMat,
 												 const DebugOptions& debugOptions,
 												 std::vector<Node*>& lightNodes,
-												 Stats& stats);
+												 FrameStats& stats);
 
 		void								_debugPrint();
 		void								_debugPrintRec(Node& node,
@@ -191,9 +193,10 @@ namespace a3d {
 		std::shared_ptr<Camera>				_camera;
 		std::shared_ptr<Mesh>				_mesh;
 		std::vector<std::shared_ptr<Node>>	_children;
-		glm::vec3							_position;
-		glm::quat							_orientation;
-		glm::vec3							_scale;
+		math::vec3							_position;
+		math::quat							_orientation;
+		math::vec3							_scale;
+		mutable std::optional<math::vec3>	_eulerAngles;
 		std::unique_ptr<PhysicsBody>		_physicsBody;
 		bool								_hidden;
 		Scene*								_scene;

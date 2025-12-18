@@ -22,12 +22,13 @@
 #include "QtInputManager.h"
 
 using namespace a3d;
+using namespace a3d::math;
 using namespace std;
 using Viewport = a3d::head::qt::QtViewport;
 
 /// Private Static Non-Member Prototypes ///
 
-static ImGuiKey ImGuiKeyFromQtKey(int qt_key);
+static ImGuiKey ImGuiKeyFromQtKey(int qtKey);
 
 /// Public Lifecycle Functions ///
 
@@ -38,6 +39,7 @@ Viewport::QtViewport(RenderingApi renderingApi,
 		QOpenGLWidget(parent),
 		_scene{},
 		_cursorCaptured{false},
+		_lastCursorPosition{},
 		_lastCapturedCursorPosition{},
 		_inputManager{nullptr},
 		_warpingCursor{false} {
@@ -59,9 +61,9 @@ Viewport::QtViewport(RenderingApi renderingApi,
 	setFocus();
 }
 
-Viewport::~QtViewport() {
-	//ImGui::DestroyContext();
-}
+//Viewport::~QtViewport() {
+//	//ImGui::DestroyContext();
+//}
 
 /// Public Member Functions ///
 
@@ -139,16 +141,16 @@ void Viewport::endFrame(const a3d::Scene& scene) {}
 
 void Viewport::swapBuffers() {}
 
-glm::uvec2 Viewport::framebufferSize() const {
-	// note that GLFW handles scale a little differently and
-	// expects framebufferSize without the multiplied scale factor.
-	auto s = devicePixelRatioF();
-	return {width() * s, height() * s};
+uvec2 Viewport::viewportLogicalSize() const {
+	// see notes in GLFWWindow::viewportLogicalSize() and RenderContext::viewportScale()
+	return uvec2(width(), height());
 }
 
-glm::vec2 Viewport::framebufferScale() const {
-	auto s = devicePixelRatioF();
-	return {s, s};
+uvec2 Viewport::framebufferSize() const {
+	// see notes in GLFWWindow::viewportLogicalSize() and RenderContext::viewportScale()
+	auto scale = float(devicePixelRatioF());
+	return { uint32_t(math::round(width() * scale)),
+			 uint32_t(math::round(height() * scale)) };
 }
 
 unsigned Viewport::defaultFramebuffer() const {
@@ -248,11 +250,11 @@ void Viewport::keyPressEvent(QKeyEvent* e) {
 			}
 
 			io.AddKeyEvent(ImGuiKeyFromQtKey(key), true);
-
-			io.AddKeyEvent(ImGuiKey_ModCtrl,  e->modifiers().testFlag(Qt::ControlModifier));
-			io.AddKeyEvent(ImGuiKey_ModShift, e->modifiers().testFlag(Qt::ShiftModifier));
-			io.AddKeyEvent(ImGuiKey_ModAlt,   e->modifiers().testFlag(Qt::AltModifier));
-			io.AddKeyEvent(ImGuiKey_ModSuper, e->modifiers().testFlag(Qt::MetaModifier));
+			auto mods = e->modifiers();
+			io.AddKeyEvent(ImGuiMod_Ctrl,  mods.testFlag(Qt::ControlModifier));
+			io.AddKeyEvent(ImGuiMod_Shift, mods.testFlag(Qt::ShiftModifier));
+			io.AddKeyEvent(ImGuiMod_Alt,   mods.testFlag(Qt::AltModifier));
+			io.AddKeyEvent(ImGuiMod_Super, mods.testFlag(Qt::MetaModifier));
 		}
 	}
 	QOpenGLWidget::keyPressEvent(e);
@@ -275,10 +277,11 @@ void Viewport::keyReleaseEvent(QKeyEvent* e) {
 			ImGuiIO& io = ImGui::GetIO();
 
 			io.AddKeyEvent(ImGuiKeyFromQtKey(key), false);
-			io.AddKeyEvent(ImGuiKey_ModCtrl,  e->modifiers().testFlag(Qt::ControlModifier));
-			io.AddKeyEvent(ImGuiKey_ModShift, e->modifiers().testFlag(Qt::ShiftModifier));
-			io.AddKeyEvent(ImGuiKey_ModAlt,   e->modifiers().testFlag(Qt::AltModifier));
-			io.AddKeyEvent(ImGuiKey_ModSuper, e->modifiers().testFlag(Qt::MetaModifier));
+			auto mods = e->modifiers();
+			io.AddKeyEvent(ImGuiMod_Ctrl,  mods.testFlag(Qt::ControlModifier));
+			io.AddKeyEvent(ImGuiMod_Shift, mods.testFlag(Qt::ShiftModifier));
+			io.AddKeyEvent(ImGuiMod_Alt,   mods.testFlag(Qt::AltModifier));
+			io.AddKeyEvent(ImGuiMod_Super, mods.testFlag(Qt::MetaModifier));
 		}
 	}
 
@@ -288,7 +291,9 @@ void Viewport::keyReleaseEvent(QKeyEvent* e) {
 void Viewport::mouseMoveEvent(QMouseEvent *e) {
 
 	auto pos = e->position();
-	static QPointF lastPos = pos;
+	if (!_lastCursorPosition) {
+		_lastCursorPosition = pos;
+	}
 
 	if (_renderer->isInitialized()) {
 
@@ -302,11 +307,12 @@ void Viewport::mouseMoveEvent(QMouseEvent *e) {
 				return;
 			}
 
-			if (!_lastCapturedCursorPosition.has_value()) {
+			if (!_lastCapturedCursorPosition) {
 				_lastCapturedCursorPosition = pos;
 			}
 
-			QPointF delta = lastPos - *_lastCapturedCursorPosition;
+			QPointF delta = *_lastCursorPosition - *_lastCapturedCursorPosition;
+
 			if (_cursorCaptured && _inputManager) {
 				_inputManager->mouseMoved(float(delta.x()), float(delta.y()));
 			}
@@ -324,7 +330,7 @@ void Viewport::mouseMoveEvent(QMouseEvent *e) {
 		}
 	}
 
-	lastPos = pos;
+	_lastCursorPosition = pos;
 
 	e->accept();
 }
@@ -360,16 +366,13 @@ void Viewport::paintGL() {
 	double dt = double(nowNs - lastNs) / 1e9;
 	lastNs = nowNs;
 
-	ImGuiIO& io = ImGui::GetIO();
-
-	const float w  = float(width());
-	const float h  = float(height());
-	const float dpr = float(devicePixelRatioF());
-
-	io.DisplaySize = ImVec2(w, h);
-	io.DisplayFramebufferScale = ImVec2(dpr, dpr);
-
-	io.DeltaTime = (dt > 0.0) ? float(dt) : 1.0f/60.0f;
+//	ImGuiIO& io = ImGui::GetIO();
+//	const auto w  = float(width());
+//	const auto h  = float(height());
+//	const auto dpr = float(devicePixelRatioF());
+//	io.DisplaySize = ImVec2(w, h);
+//	io.DisplayFramebufferScale = ImVec2(dpr, dpr);
+//	io.DeltaTime = (dt > 0.0) ? float(dt) : 1.0f/60.0f;
 
 	_scene->update();
 
@@ -386,11 +389,11 @@ void Viewport::centerCursor() {
 
 /// Private Static Non-Member Functions ///
 
-ImGuiKey ImGuiKeyFromQtKey(int qt_key) {
+ImGuiKey ImGuiKeyFromQtKey(int qtKey) {
 
 	using IK = ImGuiKey;
 
-	switch (qt_key) {
+	switch (qtKey) {
 		case Qt::Key_Backspace: return ImGuiKey_Backspace;
 		case Qt::Key_Delete:    return ImGuiKey_Delete;
 		case Qt::Key_Tab:       return ImGuiKey_Tab;

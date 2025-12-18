@@ -37,10 +37,14 @@ namespace a3d {
 		float 			aspectRatio() const;
 		void 			aspectRatio(float ratio);
 
+		/// Camera Internal Member Functions ///
+
+		math::mat4 		projection() const override;
+
 	protected:
 		/// Camera Protected Member Functions ///
 
-		void 			constructProjectionMatrix() override;
+//		void 			constructProjectionMatrix() override;
 
 	private:
 		/// Private Member Variables ///

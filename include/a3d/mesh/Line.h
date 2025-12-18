@@ -11,9 +11,8 @@
 
 #include <memory>
 
-#include "glm/glm.hpp"
-
 #include "a3d/Color.h"
+#include "a3d/Math.h"
 
 namespace a3d {
 
@@ -23,27 +22,27 @@ namespace a3d {
 
 	public:
 
-		Line(const glm::vec3& fromLocation,
-			 const glm::vec3& toLocation);
-		Line(const glm::vec3& fromLocation,
-			 const glm::vec3& toLocation,
+		Line(const math::vec3& fromLocation,
+			 const math::vec3& toLocation);
+		Line(const math::vec3& fromLocation,
+			 const math::vec3& toLocation,
 			 const Color& color);
-		Line(const glm::vec3& fromLocation,
-			 const glm::vec3& toLocation,
-			 const glm::vec3& fromColor,
-			 const glm::vec3& toColor);
-		Line(const glm::vec3& fromLocation,
-			 const glm::vec3& toLocation,
+		Line(const math::vec3& fromLocation,
+			 const math::vec3& toLocation,
+			 const math::vec3& fromColor,
+			 const math::vec3& toColor);
+		Line(const math::vec3& fromLocation,
+			 const math::vec3& toLocation,
 			 const Color& fromColor,
 			 const Color& toColor);
 
 		/// Internal Member Functions ///
 
-		const glm::vec3& 		fromLocation() const;
-		void 					fromLocation(const glm::vec3& location);
+		const math::vec3& 		fromLocation() const;
+		void 					fromLocation(const math::vec3& location);
 
-		const glm::vec3& 		toLocation() const;
-		void 					toLocation(const glm::vec3& location);
+		const math::vec3& 		toLocation() const;
+		void 					toLocation(const math::vec3& location);
 
 		const Color& 			fromColor() const;
 		void 					fromColor(const Color& color);
@@ -54,8 +53,8 @@ namespace a3d {
 	private:
 		/// Private Member Variables ///
 
-		glm::vec3 				_fromLocation;
-		glm::vec3 				_toLocation;
+		math::vec3 				_fromLocation;
+		math::vec3 				_toLocation;
 		Color 					_fromColor;
 		Color 					_toColor;
 	};

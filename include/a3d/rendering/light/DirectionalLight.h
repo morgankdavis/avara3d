@@ -13,8 +13,6 @@
 #include <optional>
 #include <string>
 
-#include "glm/glm.hpp"
-
 #include "a3d/rendering/light/Light.h"
 
 namespace a3d {
@@ -35,8 +33,8 @@ namespace a3d {
 
 		/// Public Member Functions ///
 
-//		const glm::vec3&	direction() const;
-//		void				direction(const glm::vec3& direction);
+//		const math::vec3&	direction() const;
+//		void				direction(const math::vec3& direction);
 
 //	protected:
 		/// Protected Lifecycle Functions ///
@@ -46,7 +44,7 @@ namespace a3d {
 //	private:
 		/// Private Member Variables ///
 
-//		glm::vec3			_direction; // TODO: INIT ME
+//		math::vec3			_direction; // TODO: INIT ME
 	};
 }
 

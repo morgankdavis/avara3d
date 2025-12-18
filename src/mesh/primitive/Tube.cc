@@ -9,7 +9,6 @@
 #include "a3d/mesh/primitive/Tube.h"
 
 #include "generator/generator.hpp"
-#include "glm/glm.hpp"
 
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
@@ -17,7 +16,7 @@
 
 using namespace a3d;
 using namespace generator;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
 /// Pubic Static Members ///

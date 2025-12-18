@@ -9,9 +9,10 @@
 #include "a3d/mesh/Point.h"
 
 #include "a3d/Color.h"
+#include "a3d/Math.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
 /// Internal Lifecycle Functions ///

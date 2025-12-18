@@ -1,5 +1,4 @@
-
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.20)
 
 project(avara3d
 		VERSION 0.0.1
@@ -11,15 +10,16 @@ include(cmake/UtilityFunctions.cmake)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+option(A3D_BUILD_TESTS "Build A3D tests" ON)
+option(A3D_BUILD_EDITOR "Build A3D editor" ON)
+
 if ((CMAKE_BUILD_TYPE STREQUAL "") OR (NOT DEFINED CMAKE_BUILD_TYPE))
 	set(CMAKE_BUILD_TYPE "Debug")
 endif ()
 message("[BUILD TYPE: " ${CMAKE_BUILD_TYPE} "]")
-
+set(A3D_BUILD_TYPE ${CMAKE_BUILD_TYPE})
 
 ### create BuildInfo.cmake.h ###
-
-set(A3D_BUILD_TYPE ${CMAKE_BUILD_TYPE})
 
 if ((GITLAB_CI_PIPELINE_IID STREQUAL "") OR (NOT DEFINED GITLAB_CI_PIPELINE_IID))
 	set(A3D_BUILD_NUMBER 0)
@@ -33,7 +33,6 @@ endif ()
 
 configure_file(cmake/BuildInfo.cmake.in BuildInfo.cmake.h)
 
-
 ### add external libraries ###
 
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
@@ -46,7 +45,7 @@ set(INSTALL_LIBS OFF CACHE BOOL "" FORCE)
 set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
 set(INSTALL_CMAKE_FILES OFF CACHE BOOL "" FORCE)
 add_subdirectory(external/bullet-3.17)
-include_directories(external/bullet-3.17/src)
+#include_directories(external/bullet-3.17/src)
 # breaks Win11 build (?)
 #target_compile_options(Bullet3Collision PUBLIC
 #		"-Wno-deprecated-volatile")
@@ -69,60 +68,57 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 add_subdirectory(external/glfw-3.4.0)
 
-add_subdirectory(external/imgui-1.90)
+add_subdirectory(external/imgui-1.92.5)
 
-add_subdirectory(external/manymouse)
-
+#add_subdirectory(external/implot-0.17)
 
 ### add a3d ###
 
-file(GLOB_RECURSE HEADERS include/*.h)
-file(GLOB_RECURSE SOURCES src/*.c*)
+file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/include/*.h")
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.c*")
 
 add_library(avara3d STATIC
 		${HEADERS}
 		${SOURCES})
 
-
 ### setup a3d environment defines ###
 
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+if (CMAKE_BUILD_TYPE STREQUAL "Debug") # A3D_BUILD_TYPE ?
 	target_compile_definitions(avara3d PUBLIC "A3D_DEBUG")
 endif ()
-if (DESKTOP)
-	target_compile_definitions(avara3d PUBLIC "DESKTOP")
-	target_compile_definitions(avara3d PUBLIC "OPENGL_CORE")
+if (A3D_DESKTOP)
+	target_compile_definitions(avara3d PUBLIC "A3D_DESKTOP")
+	target_compile_definitions(avara3d PUBLIC "A3D_GL_DESKTOP")
 endif ()
-if (LINUX)
-	target_compile_definitions(avara3d PUBLIC "LINUX")
-	target_compile_definitions(avara3d PUBLIC "POSIX")
-	if (RPI)
-		target_compile_definitions(avara3d PUBLIC "RPI")
-		target_compile_definitions(avara3d PUBLIC "OPENGL_ES")
+if (A3D_LINUX)
+	target_compile_definitions(avara3d PUBLIC "A3D_LINUX")
+	target_compile_definitions(avara3d PUBLIC "A3D_POSIX")
+	if (A3D_RPI)
+		target_compile_definitions(avara3d PUBLIC "A3D_RPI")
+		target_compile_definitions(avara3d PUBLIC "A3D_GL_ES")
 	endif()
-elseif (MACOS)
-	target_compile_definitions(avara3d PUBLIC "MACOS")
-	target_compile_definitions(avara3d PUBLIC "POSIX")
-elseif (WINDOWS)
-	target_compile_definitions(avara3d PUBLIC "WINDOWS")
+elseif (A3D_MACOS)
+	target_compile_definitions(avara3d PUBLIC "A3D_MACOS")
+	target_compile_definitions(avara3d PUBLIC "A3D_POSIX")
+elseif (A3D_WINDOWS)
+	target_compile_definitions(avara3d PUBLIC "A3D_WINDOWS")
 endif ()
-
 
 ### add library headers ###
 
 target_include_directories(avara3d PUBLIC include)
 target_include_directories(avara3d PRIVATE "${PROJECT_BINARY_DIR}") # BuildInfo.cmake.h
+target_include_directories(avara3d PRIVATE external/bullet-3.17/src)
 target_include_directories(avara3d PRIVATE external/generator/include)
 target_include_directories(avara3d PRIVATE external/gif-h)
 target_include_directories(avara3d PRIVATE external/glad-3.3/include)
 target_include_directories(avara3d PRIVATE external/glfw-3.4.0/include)
-target_include_directories(avara3d PRIVATE external/imgui-1.90)
-target_include_directories(avara3d PRIVATE external/imgui-1.90/backends)
+target_include_directories(avara3d PRIVATE external/imgui-1.92.5)
+target_include_directories(avara3d PRIVATE external/imgui-1.92.5/backends)
+#target_include_directories(avara3d PRIVATE external/implot-0.17)
 target_include_directories(avara3d PRIVATE external/magic_enum-0.9.3/include)
-target_include_directories(avara3d PRIVATE external/manymouse/include)
 target_include_directories(avara3d PRIVATE external/stb)
 target_include_directories(avara3d PRIVATE external/v-hacd-4.1.0)
-
 
 ### setup clang-tidy ###
 # TODO: use clang-style?
@@ -134,55 +130,62 @@ target_include_directories(avara3d PRIVATE external/v-hacd-4.1.0)
 #			CXX_CLANG_TIDY "${CLANG_TIDY_EXE};--format-style=file")
 #endif ()
 
-
 ### link a3d to common libraries ###
 
-target_link_libraries(avara3d PUBLIC
+target_link_libraries(avara3d
+		PUBLIC
 		${BULLET_LIBRARIES}
 		fastgltf
 		generator
-		imgui)
-
+		imgui) # implot
 
 ### link a3d to platform-specific libraries ###
 
-if (DESKTOP)
+if (A3D_DESKTOP)
 
-	target_link_libraries(avara3d PUBLIC
+	target_link_libraries(avara3d
+			PUBLIC
 			glad
-			glfw
-			manymouse)
+			glfw)
 
 endif()
 
-if (LINUX)
+if (A3D_LINUX)
 
-	target_link_libraries(avara3d PUBLIC
-			dl
-			pthread
-			X11
-			Xrandr
-			Xxf86vm
-			Xi
-			z)
+#	target_link_libraries(avara3d
+#			PUBLIC
+#			dl
+#			pthread
+#			X11
+#			Xrandr
+#			Xxf86vm
+#			Xi
+#			z)
+	find_package(Threads REQUIRED)
+	target_link_libraries(avara3d
+			PUBLIC
+			Threads::Threads
+			${CMAKE_DL_LIBS})
 
-	if (RPI)
+	if (A3D_RPI)
 
 		find_library(EGL_LIBRARY EGL)
 		find_library(OPENGLES3_LIBRARY GLESv2)
 
-		target_link_libraries(avara3d PUBLIC
+		target_link_libraries(avara3d
+				PUBLIC
 				${EGL_LIBRARY}
 				${OPENGLES3_LIBRARY})
 
 	else ()
 
-		target_link_libraries(avara3d PUBLIC
+		target_link_libraries(avara3d
+				PUBLIC
 				GL)
 
 	endif ()
 
-elseif (MACOS)
+elseif (A3D_MACOS)
 
 	find_library(FRAMEWORK_COCOA Cocoa)
 	find_library(FRAMEWORK_CORE_VIDEO CoreVideo)
@@ -195,14 +198,15 @@ elseif (MACOS)
 			${FRAMEWORK_IOKIT}
 			${FRAMEWORK_OPENGL})
 
-	target_link_libraries(avara3d PUBLIC
+	target_link_libraries(avara3d
+			PUBLIC
 			${FRAMEWORKS}
 			z)
 
 	# https://stackoverflow.com/questions/43551483/how-to-set-rpath-in-cmake
 	set(CMAKE_MACOSX_RPATH 1) # silence "MACOSX_RPATH is not specified [...]"
 
-elseif (WINDOWS)
+elseif (A3D_WINDOWS)
 
 	# this is so stupid.
 	# MSVC with clang 19+ (apparently) removed __FILE_NAME__ but __FILE__ still exists...
@@ -218,32 +222,32 @@ elseif (WINDOWS)
 
 endif ()
 
-
 ### set root install dir before adding tests ###
 
-if (RPI)
+if (A3D_RPI)
 	set(PLATFORM_STRING "raspberry-pi")
-elseif (LINUX)
+elseif (A3D_LINUX)
 	set(PLATFORM_STRING "linux")
-elseif (MACOS)
+elseif (A3D_MACOS)
 	set(PLATFORM_STRING "macos")
-elseif (WINDOWS)
+elseif (A3D_WINDOWS)
 	set(PLATFORM_STRING "windows")
 endif ()
 
 string(TOLOWER ${CMAKE_BUILD_TYPE} LOWER_RELEASE_TYPE)
 set(INSTALL_ROOT_DIR "${PROJECT_BINARY_DIR}/packaged/avara3d/${PLATFORM_STRING}/${LOWER_RELEASE_TYPE}")
 
-
 ### add editor ###
 
-add_subdirectory(tools/a3de)
-
+if (A3D_BUILD_EDITOR)
+	add_subdirectory(tools/a3de)
+endif ()
 
 ### add tests ###
 
-add_subdirectory(tests)
-
+if (A3D_BUILD_TESTS)
+	add_subdirectory(tests)
+endif ()
 
 ### install ###
 

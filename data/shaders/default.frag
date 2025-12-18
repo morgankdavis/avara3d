@@ -134,6 +134,7 @@ vec3 CalcPointLighting(vec4 Kd, vec4 Ks);
 vec3 CalcSpotLighting(vec4 Kd, vec4 Ks);
 float Attenuate(float Kc, float Kl, float Kq, float d);
 vec4 AppleFog(vec4 fragColor);
+vec3 LinearToSRGB(vec3 linear);
 vec4 ApplyGammaCorrection(vec4 fragColor);
 bool FloatsEqual(float a, float b, float eps);
 
@@ -501,12 +502,16 @@ vec4 AppleFog(vec4 fragColor) {
 	return color;
 }
 
+vec3 LinearToSRGB(vec3 linear) {
+	bvec3 cutoff = lessThanEqual(linear, vec3(0.0031308));
+	vec3 lower = linear * 12.92;
+	vec3 upper = 1.055 * pow(linear, vec3(1.0/2.4)) - 0.055;
+	return mix(upper, lower, vec3(cutoff));
+}
+
 vec4 ApplyGammaCorrection(vec4 fragColor) {
 
-	// ! not implemented !
-
-	//fragColor.rgb = pow(fragColor.rgb, vec3(1.0/GAMMA));
-
+	//return vec4(LinearToSRGB(fragColor.rgb), fragColor.a);
 	return fragColor;
 }
 

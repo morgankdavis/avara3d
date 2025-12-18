@@ -12,9 +12,8 @@
 #include <memory>
 #include <vector>
 
-#include "glm/glm.hpp"
-
 #include "a3d/Types.h"
+#include "a3d/Math.h"
 
 namespace a3d {
 
@@ -24,6 +23,7 @@ namespace a3d {
 	class Program;
 	class Renderer;
 	class RenderContext;
+	class RenderItem;
 
 	class MeshElement {
 
@@ -36,25 +36,30 @@ namespace a3d {
 
 		/// Internal Member Functions ///
 
+		void 							gather(std::vector<RenderItem>& items,
+											   Material& material,
+											   math::mat4& model,
+											   FrameStats& stats);
+
 		void 							draw(Renderer& renderer,
 											 const RenderContext& context,
 											 Material& material,
-											 const glm::mat4& modelMat,
-											 const glm::mat4& viewMat,
-											 const glm::mat4& projectionMat,
+											 const math::mat4& modelMat,
+											 const math::mat4& viewMat,
+											 const math::mat4& projectionMat,
 											 const DebugOptions& debugOptions,
-											 Stats& stats);
+											 FrameStats& stats);
 
-		void 							burnTransform(const glm::mat4& transform,
+		void 							burnTransform(const math::mat4& transform,
 													  bool normals);
 
 		const std::vector<Vertex>& 		vertices() const;
 		const std::vector<Face>&		faces() const;
 
 		AABB							aabb(const Node* convertTo = nullptr) const;
-		glm::vec3 						extent(const Node* convertTo = nullptr) const;
+		math::vec3 						extent(const Node* convertTo = nullptr) const;
 
-		const std::vector<Line>&				aabbLines();
+		const std::vector<Line>&		aabbLines();
 
 		MeshElementDirtyMask 			dirtyMask() const;
 		void 							dirtyMask(MeshElementDirtyMask mask);

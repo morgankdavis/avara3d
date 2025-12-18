@@ -10,14 +10,13 @@
 
 #include <format>
 
-#ifdef OPENGL_ES
+#ifdef A3D_GL_ES
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
 #else
 #include "glad/glad.h"
 #endif
 
-#include "glm/gtc/type_ptr.hpp"
 #include "magic_enum.hpp"
 
 #include "a3d/Utilities.h"
@@ -25,7 +24,7 @@
 #include "a3d/diagnostic/log/Log.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
 /// Internal Static Member Functions ///
@@ -449,7 +448,7 @@ void Program::fragmentShaderSource(string source) {
 //	if (source) {
 //		// add appropriate GLSL version header
 //
-//#ifdef OPENGL_ES
+//#ifdef A3D_GL_ES
 //		static const string PLATFORM_HEADER = "#version 300 es\n\nprecision mediump int;\nprecision mediump float;";
 //#else
 //		static const string PLATFORM_HEADER = "#version 410";
@@ -467,7 +466,7 @@ optional<string> Program::shaderSource(const string& name, const string& type) {
 	if (source) {
 
 
-#ifdef OPENGL_ES
+#ifdef A3D_GL_ES
 		// replace dekstop GLSL header string with ES version string
 		static const string ES_HEADER = "#version 300 es\n\nprecision mediump int;\nprecision mediump float;";
 

@@ -14,10 +14,10 @@
 #include <format>
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <string>
 #include <tuple>
-#include <unordered_set>
-
+#include <vector>
 
 #include "a3d/Types.h"
 
@@ -90,12 +90,11 @@ namespace a3d {
 		/// Public Static Member Functions ///
 
 		static Log& AppLog();
-		static void AppLog(std::unique_ptr<Log> log);
+		static void AppLog(Log log);
 
 		/// Public Static Member Functions ///
 
 		static Log& MainLog();
-
 
 		/// Public Lifecycle Functions ///
 
@@ -104,16 +103,20 @@ namespace a3d {
 			LogLevel level = DEFAULT_LEVEL,
 			LogLevel flushLevel = DEFAULT_FLUSH_LEVEL);
 		Log(const std::string& name,
-			std::unordered_set<std::unique_ptr<LogSink>> sinks,
+			std::vector<std::unique_ptr<LogSink>> sinks,
 			LogLevel level = DEFAULT_LEVEL,
 			LogLevel flushLevel = DEFAULT_FLUSH_LEVEL);
+		Log(const Log& other) = delete; // copy constructor
+		Log& operator=(const Log& other) = delete; // copy assignment
+		Log(Log&&) noexcept = default;
+		Log& operator=(Log&&) noexcept = default;
 		Log();
 
 		/// Public Member Functions ///
 
 		const std::string& 		name() const;
 
-		const std::unordered_set<std::unique_ptr<LogSink>>&	sinks() const;
+		const std::vector<std::unique_ptr<LogSink>>& sinks() const;
 
 		LogLevel 				level() const;
 		void					level(LogLevel level);
@@ -135,6 +138,10 @@ namespace a3d {
 		void 					flush();
 
 	private:
+		/// Private Lifecycle ///
+
+		Log(const std::string& name);
+
 		/// Private Member Functions ///
 
 		void 					log(LogLevel level,
@@ -149,12 +156,13 @@ namespace a3d {
 
 		/// Private Static Member Variables ///
 
-		static std::unique_ptr<Log>						_appLog;
+//		static std::unique_ptr<Log>						_appLog;
+		static std::optional<Log>						_appLog;
 
 		/// Private Member Variables ///
 
 		std::string										_name;
-		std::unordered_set<std::unique_ptr<LogSink>>	_sinks;
+		std::vector<std::unique_ptr<LogSink>>			_sinks;
 		LogLevel										_level;
 		LogLevel										_flushLevel;
 	};

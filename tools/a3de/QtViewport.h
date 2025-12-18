@@ -33,7 +33,7 @@ namespace a3d::head::qt {
 		explicit QtViewport(a3d::RenderingApi renderingApi,
 							AntialiasingMode antialiasingModeQWidget,
 							QWidget* parent = nullptr);
-		~QtViewport() override;
+		~QtViewport() = default;
 
 		/// Public Member Functions ///
 
@@ -56,8 +56,8 @@ namespace a3d::head::qt {
 
 		void 					swapBuffers() override;
 
-		glm::uvec2 				framebufferSize() const override;
-		glm::vec2 				framebufferScale() const override;
+		math::uvec2				viewportLogicalSize() const override;
+		math::uvec2				framebufferSize() const override;
 
 		unsigned 				defaultFramebuffer() const override;
 
@@ -88,6 +88,7 @@ namespace a3d::head::qt {
 
 		a3d::Scene* 			_scene;
 		bool					_cursorCaptured;
+		std::optional<QPointF>	_lastCursorPosition;
 		std::optional<QPointF> 	_lastCapturedCursorPosition;
 		QtInputManager*			_inputManager;
 		bool 					_warpingCursor;

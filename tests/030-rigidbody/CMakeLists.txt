@@ -3,6 +3,9 @@ set(UNIT_NUMBER "030")
 set(UNIT_DESCRIPTION "rigidbody")
 set(TEST_NAME "${UNIT_NUMBER}-${UNIT_DESCRIPTION}")
 
+# causes "'magic_enum.hpp' file not found" ???
+#file(GLOB CONFIGURE_DEPENDS HEADERS *.h*)
+#file(GLOB CONFIGURE_DEPENDS SOURCES *.c*)
 file(GLOB HEADERS *.h*)
 file(GLOB SOURCES *.c*)
 add_executable(${TEST_NAME} ${HEADERS} ${SOURCES})

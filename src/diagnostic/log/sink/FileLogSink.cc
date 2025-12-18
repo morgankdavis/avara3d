@@ -63,20 +63,20 @@ int FileLogSink::maxFilesize() const {
 	return _maxFilesize;
 }
 
+/// Public LogSink Member Functions ///
+
+void FileLogSink::write(const string& output, LogLevel level) {
+
+	*_fileStream << output;
+
+	checkRotate();
+}
+
 void FileLogSink::flush() {
 
 	if (_fileStream && _fileStream->is_open()) {
 		_fileStream->flush();
 	}
-}
-
-/// Internal Member Functions ///
-
-void FileLogSink::write(const string& output) {
-
-	*_fileStream << output;
-
-	checkRotate();
 }
 
 /// Private Member Functions ///

@@ -19,7 +19,7 @@
 #include "a3d/scene/Scene.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
 /// Public Static Member Functions ///
@@ -116,7 +116,7 @@ vec3 PhysicsBody::centerOfMass() const {
 	return _proxy->centerOfMass();
 }
 
-void PhysicsBody::centerOfMass(const glm::vec3& offset) {
+void PhysicsBody::centerOfMass(const vec3& offset) {
 	_proxy->centerOfMass(offset);
 }
 
@@ -262,11 +262,11 @@ void PhysicsBody::applyTorque(const vec3& torque, bool impulse) {
 	}
 }
 
-glm::vec3 PhysicsBody::totalForce() const {
+vec3 PhysicsBody::totalForce() const {
 	return _proxy->totalForce();
 }
 
-glm::vec3 PhysicsBody::totalTorque() const {
+vec3 PhysicsBody::totalTorque() const {
 	return _proxy->totalTorque();
 }
 

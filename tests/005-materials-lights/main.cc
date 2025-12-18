@@ -10,26 +10,26 @@
 #include <memory>
 #include <vector>
 #include <utility>
-
-#include "glm/glm.hpp"
+#include <vector>
 
 #include "a3d/a3d.h"
+#include "a3d/Math.h"
 #include "a3d/Utilities.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
-constexpr LogLevel				A3D_APP_LOG_LEVEL =		LogLevel::Debug;
-constexpr uvec2					WINDOW_SIZE =			{1280, 768};
-constexpr bool					FULLSCREEN =			false;
-constexpr bool					ENABLE_HIGH_DPI =		true;
-constexpr AntialiasingMode		ANTIALIAS_MODE =		AntialiasingMode::Msaa4X;
-constexpr bool					ENABLE_VSYNC =			false;
-constexpr bool					CAPTURE_CURSOR =		false;
-constexpr bool 					ORTHO_CAMERA =			false;
-constexpr float					MOUSE_SENSITIVITY =		0.5;
+const LogLevel				APP_LOG_LEVEL		{LogLevel::Debug};
+const uvec2					WINDOW_SIZE				{1280, 768};
+const bool					FULLSCREEN				{false};
+const bool					ENABLE_HIGH_DPI			{true};
+const AntialiasingMode		ANTIALIAS_MODE			{AntialiasingMode::Msaa4X};
+const bool					ENABLE_VSYNC			{false};
+const bool					CAPTURE_CURSOR			{false};
+const bool 					ORTHO_CAMERA			{false};
+const float					MOUSE_SENSITIVITY		{0.5};
 
 void UpdateCallback(Scene& scene, double time, double deltaTime);
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
@@ -62,12 +62,6 @@ int main(int argc, const char* argv[]) {
 		window->cursorCaptured(CAPTURE_CURSOR);
 
 		auto inputManager = make_unique<GLFWInputManager>(window.get());
-		if (inputManager->errorMask() == DesktopInputManagerErrorMask::PermissionDenied) {
-			A3D_APP_LOG_E("GLFWInputManager permission denied.");
-			// on macOS 10.15 Catalina+, this is probably a permissions issue,
-			// and the OS will alert the user.
-			// just keep going and let the user decide what they want to do.
-		}
 
 		auto visualWorld = make_unique<VisualWorld>(*window);
 		visualWorld->fogStartDistance(500.0);
@@ -315,8 +309,8 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 			static const float MOUSE_SPEED_SCALAR = .002;
 			static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
 
-			float deltaRotX = atan(MOUSE_SPEED * mousePositionDelta.x);
-			float deltaRotY = atan(MOUSE_SPEED * mousePositionDelta.y);
+			float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
+			float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
 
 			vec3 angles = pov->eulerAngles();
 			pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
@@ -326,7 +320,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 //			auto keysDown = im->keysDown();
 
 			static float MOVE_SPEED = 0;
-			if (!MOVE_SPEED) MOVE_SPEED = utils::Max(scene.rootNode()->extent());
+			if (!MOVE_SPEED) MOVE_SPEED = math::max(scene.rootNode()->extent());
 
 			float moveMultiplier = 1.0;
 			if (keysDown.count(Key::LeftControl)) {
@@ -369,7 +363,8 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 		auto center = vec3(0, 30, 0);
 
 		static auto extent = scene.rootNode()->extent();
-		static float radius = std::max(std::max(extent.x, extent.y), extent.z) * .46;
+		//static float radius = std::max(std::max(extent.x, extent.y), extent.z) * .46;
+		static float radius = math::max(extent) * .46; // a3d::math
 		static float radiusX = radius;
 		static float radiusY = radius;
 
@@ -377,8 +372,8 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 		static float angle = 0;
 		angle += rotationSpeed * deltaTime;
 
-		float x = sin(angle) * radiusX;
-		float y = cos(angle) * radiusY;
+		float x = math::sin(angle) * radiusX;
+		float y = math::cos(angle) * radiusY;
 
 		g_pointLightNode->position(center + vec3(x, y, -x));
 	}
@@ -399,18 +394,17 @@ void DidRenderCallback(VisualWorld& world, double time, double deltaTime) {
 void InitLog() {
 
 	string executableName = *utils::ExecutableName();
+
 	auto nativeSink = make_unique<StdOutLogSink>();
 	auto fileSink = make_unique<FileLogSink>(*(utils::ExecutableDirectory())
 											 / (executableName + string(".log")));
-	auto sinks = unordered_set<unique_ptr<LogSink>>();
-	sinks.insert(std::move(nativeSink));
-	sinks.insert(std::move(fileSink));
+	auto sinks = vector<unique_ptr<LogSink>>();
+	sinks.push_back(std::move(nativeSink));
+	sinks.push_back(std::move(fileSink));
 
-	auto appLog = make_unique<Log>(executableName, std::move(sinks));
-	appLog->level(A3D_APP_LOG_LEVEL);
+	Log appLog{executableName, std::move(sinks)};
+	appLog.level(APP_LOG_LEVEL);
 	Log::AppLog(std::move(appLog));
-
-	Log::MainLog().level(A3D_APP_LOG_LEVEL);
 }
 
 void LogBuildInfo() {

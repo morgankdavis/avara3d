@@ -10,7 +10,7 @@
 
 #include <iostream>
 
-#ifdef WINDOWS
+#ifdef A3D_WINDOWS
 #include <windows.h>
 #undef ERROR // see note at LOG_LEVEL
 #endif
@@ -20,7 +20,15 @@ using namespace std;
 
 /// Public Lifecycle Functions ///
 
-StdOutLogSink::StdOutLogSink() { }
+StdOutLogSink::StdOutLogSink() {
+	// on Windows, output often just kinda stops unless you manually flush it...
+	// (or until more new stuff arrives).
+#ifdef A3D_WINDOWS
+	//setvbuf(stdout, nullptr, _IOLBF, 0); // line-buffered -- crashes?
+	//setvbuf(stdout, nullptr, _IONBF, 0); // unbuffered (SLOW)
+	cout.setf(ios::unitbuf); // flush after every insertion (not AS slow?)
+#endif
+}
 
 StdOutLogSink::~StdOutLogSink() {
 	flush();
@@ -47,7 +55,7 @@ void StdOutLogSink::write(const string& output, LogLevel level) {
 		cout << output;
 	}
 
-#ifdef WINDOWS
+#ifdef A3D_WINDOWS
 	OutputDebugStringA((const char*)output.c_str()); // this broke with C++20.  trying to include windows.h ^^
 #endif
 }

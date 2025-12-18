@@ -13,8 +13,6 @@
 #include <memory>
 #include <optional>
 
-#include "glm/glm.hpp"
-
 #include "a3d/Types.h"
 
 namespace a3d {
@@ -24,6 +22,7 @@ namespace a3d {
 	class PhysicsContact;
 	class PhysicsShape;
 	class PhysicalWorldProxy;
+	class Profiler;
 	class Scene;
 
 	class PhysicalWorld {
@@ -45,8 +44,8 @@ namespace a3d {
 
 		/// Public Member Functions ///
 
-		const glm::vec3&					gravity() const;
-		void 								gravity(const glm::vec3& gravity);
+		const math::vec3&					gravity() const;
+		void 								gravity(const math::vec3& gravity);
 
 		float								speed() const;
 		void 								speed(float speed);
@@ -57,11 +56,11 @@ namespace a3d {
 		std::optional<PhysicsContact>		contactTest(const PhysicsBody& bodyA,
 														 const PhysicsBody& bodyB);
 		std::optional<PhysicsContact> 		contactTest(const PhysicsBody& body);
-		std::optional<HitTestResult> 		rayTest(const glm::vec3& fromVec,
-													const glm::vec3& toVec);
+		std::optional<HitTestResult> 		rayTest(const math::vec3& fromVec,
+													const math::vec3& toVec);
 		std::optional<PhysicsContact> 		convexSweepTest(const PhysicsContact& contact,
-															 const glm::mat4& fromMat,
-															 const glm::mat4& toMat);
+															 const math::mat4& fromMat,
+															 const math::mat4& toMat);
 
 		void 								updateCollisionPairs();
 
@@ -92,14 +91,15 @@ namespace a3d {
 		void								step(const Scene& scene,
 												 double runT,
 												 double deltaRunT,
-												 Stats& stats);
+												 FrameStats& stats,
+												 Profiler& profiler);
 
 		PhysicalWorldProxy*					proxy() const;
 
 	private:
 		/// Private Member Variables ///
 
-		glm::vec3 								_gravity;
+		math::vec3 								_gravity;
 		float 									_speed;
 		float 									_timestep;
 		std::unique_ptr<PhysicalWorldProxy>		_proxy;

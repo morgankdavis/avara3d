@@ -21,13 +21,12 @@
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/camera/Camera.h"
-#include "a3d/rendering/renderer/Renderer.h"
 #include "a3d/rendering/renderer/opengl/OpenGLRenderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
 /// Private Static Non-Member Prototypes ///
@@ -52,7 +51,7 @@ static bool 	GetGLFWMouseMonitor(GLFWmonitor** monitor, GLFWwindow* window);
 
 GLFWWindow::GLFWWindow(RenderingApi renderingAPI,
 					   const string& title,
-					   const glm::uvec2& size,
+					   const uvec2& size,
 					   bool fullScreen,
 					   bool enableHighDPI,
 					   AntialiasingMode antialiasingMode):
@@ -69,7 +68,7 @@ GLFWWindow::GLFWWindow(RenderingApi renderingAPI,
 	_antialiasingMode = antialiasingMode; // see above (?)
 
 	if (InitGLFW()) {
-#ifdef OPENGL_CORE
+#ifdef A3D_GL_DESKTOP
 		// TODO: move these version numbers
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -78,7 +77,7 @@ GLFWWindow::GLFWWindow(RenderingApi renderingAPI,
 		glfwWindowHint(GLFW_SAMPLES, static_cast<int>(antialiasingMode));
 		glfwWindowHint(GLFW_SCALE_TO_MONITOR, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-	#ifdef LINUX
+	#ifdef A3D_LINUX
 		// check if X or Wayland...?
 		// TODO: change these
 		glfwWindowHintString(GLFW_WAYLAND_APP_ID, "avara3d");
@@ -88,7 +87,7 @@ GLFWWindow::GLFWWindow(RenderingApi renderingAPI,
 			glfwWindowHintString(GLFW_X11_INSTANCE_NAME, (*execName).c_str());
 		}
 	#endif
-	#ifdef MACOS
+	#ifdef A3D_MACOS
 		// the documentation says this has the same affect as GLFW_SCALE_TO_MONITOR, but if you don't also
 		// set GLFW_COCOA_RETINA_FRAMEBUFFER to GLFW_FALSE, retina framebuffer isn't actually disabled.
 		glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
@@ -122,7 +121,7 @@ GLFWWindow::GLFWWindow(RenderingApi renderingAPI,
 			glfwSetWindowUserPointer(_glfwWindow.get(), static_cast<void*>(this));
 
 			glfwMakeContextCurrent(_glfwWindow.get());
-			vSyncEnabled(false);
+			GLFWWindow::vSyncEnabled(false);
 
 			if (OpenGLRenderer::InitGL((GLADloadproc)glfwGetProcAddress)) {
 				RenderContext::renderer()->initialize(*this);
@@ -226,7 +225,7 @@ void GLFWWindow::title(const string& title) {
 uvec2 GLFWWindow::size() const {
 	ivec2 size;
 	glfwGetWindowSize(_glfwWindow.get(), &size.x, &size.y);
-	return {size.x, size.y};
+	return uvec2(size.x, size.y);
 }
 
 void GLFWWindow::size(const uvec2& size) {
@@ -236,7 +235,7 @@ void GLFWWindow::size(const uvec2& size) {
 uvec2 GLFWWindow::position() const {
 	ivec2 pos;
 	glfwGetWindowPos(_glfwWindow.get(), &pos.x, &pos.y);
-	return {pos.x, pos.y};
+	return uvec2(pos.x, pos.y);
 }
 
 void GLFWWindow::position(const uvec2& pos) {
@@ -256,8 +255,8 @@ void GLFWWindow::center() {
 
 		auto winSize = this->size();
 
-		this->position({ screenPos.x + ((screenSize.x/2.0) - (winSize.x/2.0)),
-						 screenPos.y + ((screenSize.y/2.0) - (winSize.y/2.0)) });
+		this->position(uvec2(screenPos.x + ((screenSize.x/2.0) - (winSize.x/2.0)),
+							 screenPos.y + ((screenSize.y/2.0) - (winSize.y/2.0))));
 	}
 	else {
 		A3D_LOG_E("Can't get window monitor.");
@@ -285,17 +284,42 @@ bool GLFWWindow::cursorCaptured() const {
 	return _cursorCaptured;
 }
 
-void GLFWWindow::cursorCaptured(bool captured) {
-	_cursorCaptured = captured;
-	glfwSetInputMode(_glfwWindow.get(),
-					 GLFW_CURSOR,
-					 (captured ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL));
+static GLFWcursor* invisible = nullptr;
+static GLFWcursor* getInvisibleCursor()
+{
+	if (invisible) return invisible;
 
-//	if (captured) {
-//		glfwSetInputMode(_glfwWindow.get(),
-//						 GLFW_CURSOR,
-//						 GLFW_CURSOR_HIDDEN);
-//	}
+	const int w = 16, h = 16;
+	static unsigned char pixels[w * h * 4] = {}; // all zero = transparent RGBA
+	GLFWimage img{ w, h, pixels };
+	invisible = glfwCreateCursor(&img, 0, 0);
+	return invisible;
+}
+
+
+void GLFWWindow::cursorCaptured(bool captured) {
+
+	_cursorCaptured = captured;
+
+	auto window = _glfwWindow.get();
+
+	if (captured) {
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		// hack.
+		// GLFW_CURSOR_DISABLED is supposed to:
+		// "hide the cursor and lock it to the specified window"
+		// [www.glfw.org/docs/latest/input_guide.html]
+		// but at least on Wayland + Kwin, it doesn't actually hide, it just freezes.
+		static const int w = 16, h = 16;
+		static unsigned char pixels[w * h * 4] = {};
+		static GLFWimage img{ w, h, pixels };
+		static auto invCursor = glfwCreateCursor(&img, 0, 0);
+		glfwSetCursor(window, invCursor);
+	}
+	else {
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		glfwSetCursor(window, nullptr);
+	}
 }
 
 bool GLFWWindow::highDPIEnabled() const {
@@ -316,6 +340,7 @@ void GLFWWindow::vSyncEnabled(bool enabled) {
 	else {
 		glfwSwapInterval(0);
 	}
+	_vSyncEnabled = enabled;
 }
 
 /// RenderContext Internal Member Functions ///
@@ -331,17 +356,19 @@ void GLFWWindow::swapBuffers() {
 	glfwSwapBuffers(_glfwWindow.get());
 }
 
-glm::uvec2 GLFWWindow::framebufferSize() const {
-	ivec2 size;
-	glfwGetFramebufferSize(_glfwWindow.get(), &size.x, &size.y);
-	return {size.x, size.y};
+uvec2 GLFWWindow::viewportLogicalSize() const {
+	// glfwGetWindowSize (what size() uses) return the logical size on Linux and macOS.
+	// on Windows and X11 it returns the pixel size (screen coords <-> pixels 1:1)
+	// Windows and X11, glfwGetWindowContentScale() will report something other than 1,
+	// but it's intended as more of a UI-scaling thing, apparently.
+	// see note in RenderContext::viewportScale()
+	return size();
 }
 
-
-glm::vec2 GLFWWindow::framebufferScale() const {
-	vec2 scale;
-	glfwGetWindowContentScale(_glfwWindow.get(), &scale.x, &scale.y);
-	return scale;
+math::uvec2 GLFWWindow::framebufferSize() const {
+	ivec2 size;
+	glfwGetFramebufferSize(_glfwWindow.get(), &size.x, &size.y);
+	return uvec2(size.x, size.y);
 }
 
 unsigned GLFWWindow::defaultFramebuffer() const {
@@ -507,11 +534,11 @@ static bool InitGLFW() {
 }
 
 void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
-	A3D_LOG_D("glfwWindow: {:p}, width: {}, height: {}",
-			  static_cast<void*>(glfwWindow), width, height);
+//	A3D_LOG_D("glfwWindow: {:p}, width: {}, height: {}",
+//			  static_cast<void*>(glfwWindow), width, height);
 
 	auto window = (GLFWWindow*)glfwGetWindowUserPointer(glfwWindow);
-	window->size({width, height});
+	window->size(uvec2(width, height));
 }
 
 void GLFWWindowCloseCallback(GLFWwindow* glfwWindow) {
@@ -522,11 +549,11 @@ void GLFWWindowCloseCallback(GLFWwindow* glfwWindow) {
 }
 
 void GLFWFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
-	A3D_LOG_D("glfwWindow: {:p}, width: {}, height: {}",
-			  static_cast<void*>(glfwWindow), width, height);
+//	A3D_LOG_D("glfwWindow: {:p}, width: {}, height: {}",
+//			  static_cast<void*>(glfwWindow), width, height);
 
-	auto window = (GLFWWindow*)glfwGetWindowUserPointer(glfwWindow);
-	window->renderer()->framebufferScaleChanged(*window);
+//	auto window = (GLFWWindow*)glfwGetWindowUserPointer(glfwWindow);
+//	window->renderer()->viewportScaleChanged(*window);
 }
 
 void GLFWContentScaleCallback(GLFWwindow* glfwWindow, float xScale, float yScale) {

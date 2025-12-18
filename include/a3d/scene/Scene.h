@@ -18,6 +18,8 @@
 #include <vector>
 
 #include "a3d/Types.h"
+#include "a3d/profiling/FrameStatsHistory.h"
+#include "a3d/profiling/Profiler.h"
 
 namespace a3d {
 
@@ -83,8 +85,6 @@ namespace a3d {
 
 		double 								time() const;
 
-		const Stats&						stats() const;
-
 		UpdateCallback 						updateCallback() const;
 		void 								updateCallback(UpdateCallback function);
 
@@ -98,8 +98,12 @@ namespace a3d {
 		std::unique_ptr<InputManager>		_inputManager;
 		DebugOptions						_debugOptions;
 		double 								_startTime;
-		Stats								_stats;
 		UpdateCallback						_updateCallback;
+
+
+
+		Profiler							_profiler;
+		FrameStatsHistory					_frameStatsHistory;
 	};
 }
 

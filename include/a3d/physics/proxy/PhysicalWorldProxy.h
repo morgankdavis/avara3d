@@ -18,6 +18,7 @@ namespace a3d {
 
 	class PhysicalWorld;
 	class PhysicsBody;
+	class Profiler;
 	class Renderer;
 	class RenderContext;
 
@@ -40,14 +41,15 @@ namespace a3d {
 		virtual void	step(double deltaT,
 							 float speed,
 							 float timestep,
-							 Stats& stats) = 0;
+							 FrameStats& stats,
+							 Profiler& profiler) = 0;
 
 		virtual void 	updateCollisionPairs() = 0;
 
 		virtual void 	drawDebug(Renderer &renderer,
 								  const RenderContext& context,
-								  const glm::mat4 &viewMat,
-								  const glm::mat4 &projectionMat,
+								  const math::mat4 &viewMat,
+								  const math::mat4 &projectionMat,
 								  const DebugOptions &debugOptions) = 0;
 	};
 }

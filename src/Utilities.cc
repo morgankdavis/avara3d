@@ -18,25 +18,25 @@
 #include <random>
 #include <sstream>
 
-#ifdef POSIX
+#ifdef A3D_POSIX
 #include <errno.h>
 #include <execinfo.h>
 #include <unistd.h>
 #include <sys/time.h>
 #endif
 
-#ifdef LINUX
+#ifdef A3D_LINUX
 #include <libgen.h>
 #include <linux/limits.h> // PATH_MAX
 #endif
 
-#ifdef MACOS
+#ifdef A3D_MACOS
 #include <CoreGraphics/CoreGraphics.h>
 #include <mach-o/dyld.h>
 #include <sys/syslimits.h> // PATH_MAX
 #endif
 
-#ifdef WINDOWS
+#ifdef A3D_WINDOWS
 #include <windows.h> // MAX_PATH
 #define PATH_MAX MAX_PATH
 #endif
@@ -44,14 +44,13 @@
 #undef max // windows.h defines a 'max'... (we want std::max())
 #include <algorithm> // needs to be under windows.h
 
-#include "glm/gtc/quaternion.hpp"
-
 #include "a3d/Buffer.h"
 #include "a3d/Color.h"
 #include "a3d/CubeImage.h"
 #include "a3d/Font.h"
 #include "a3d/Image.h"
 #include "a3d/diagnostic/log/Log.h"
+#include "a3d/Math.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/rendering/camera/Camera.h"
@@ -62,7 +61,7 @@
 #include "a3d/scene/Scene.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
 /// Private Static Prototypes ///
@@ -70,72 +69,6 @@ using namespace std;
 static void StringFromTreeRec(Node& n, stringstream& ss, unsigned depth);
 
 /// Output ///
-
-ostream& a3d::utils::operator<<(ostream& os, const glm::vec3& v) {
-	os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
-	return os;
-}
-
-ostream& a3d::utils::operator<<(ostream& os, const glm::vec4& v) {
-	os << "(" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")";
-	return os;
-}
-
-ostream& a3d::utils::operator<<(ostream& os, const glm::quat& q) {
-	os << "(" << q.x << ", " << q.y << ", " << q.z << ", " << q.w << ")";
-	return os;
-}
-
-ostream& a3d::utils::operator<<(ostream& os, const mat4& m) {
-	// "GLM uses column major ordering, so the addressing is m[col][row]"
-	// http://stackoverflow.com/questions/26454838/glm-multiplication-order
-
-	auto str = std::format("{:.2f}\t{:.2f}\t{:.2f}\t{:.2f}\n" \
-							"{:.2f}\t{:.2f}\t{:.2f}\t{:.2f}\n" \
-						   "{:.2f}\t{:.2f}\t{:.2f}\t{:.2f}\n" \
-						   "{:.2f}\t{:.2f}\t{:.2f}\t{:.2f}",
-						   m[0][0], m[1][0], m[2][0], m[3][0], // column major, OpenGL/GLM style
-						   m[0][1], m[1][1], m[2][1], m[3][1],
-						   m[0][2], m[1][2], m[2][2], m[3][2],
-						   m[0][3], m[1][3], m[2][3], m[3][3]);
-
-	return (os << str);
-}
-
-ostream& a3d::utils::operator<<(ostream& os, const Color& c) {
-	os << "(" << c.r() << ", " << c.g() << ", " << c.b() << ", " << c.a() << ")";
-	return os;
-}
-
-string a3d::utils::StringFromGLMVec3(const vec3& v) {
-	ostringstream stringStream;
-	stringStream << v;
-	return stringStream.str();
-}
-
-string a3d::utils::StringFromGLMVec4(const vec4& v) {
-	ostringstream stringStream;
-	stringStream << v;
-	return stringStream.str();
-}
-
-string a3d::utils::StringFromGLMQuat(const quat& q) {
-	ostringstream stringStream;
-	stringStream << q;
-	return stringStream.str();
-}
-
-string a3d::utils::StringFromGLMMat4(const mat4& m) {
-	ostringstream stringStream;
-	stringStream << m;
-	return stringStream.str();
-}
-
-string a3d::utils::StringFromColor(const Color& c) {
-	ostringstream stringStream;
-	stringStream << c;
-	return stringStream.str();
-}
 
 string a3d::utils::StringFromTree(const Node& root) {
 
@@ -155,7 +88,7 @@ string a3d::utils::StringFromTree(const Node& root) {
 string a3d::utils::DateTimeString() {
 	constexpr size_t BUF_SIZE = 128;
 	char buf[BUF_SIZE];
-#ifdef WINDOWS
+#ifdef A3D_WINDOWS
 	time_t rawtime;
 	struct tm * timeinfo;
 	time(&rawtime);
@@ -173,7 +106,7 @@ string a3d::utils::DateTimeString() {
 #endif
 }
 
-#ifdef POSIX
+#ifdef A3D_POSIX
 string a3d::utils::StackTrace(unsigned dropFunctions) {
 
 	auto traceStr = string();
@@ -197,54 +130,6 @@ string a3d::utils::StackTrace(unsigned dropFunctions) {
 	return traceStr;
 }
 #endif
-
-/// Numeric ///
-
-int a3d::utils::Uniform(int min, int max) {
-	static random_device rd;
-	static mt19937 gen(rd());
-	uniform_int_distribution<> dis(min, max);
-	return dis(gen);
-}
-
-float a3d::utils::Uniform(float min, float max) {
-	static random_device rd;
-	static mt19937 gen(rd());
-	uniform_real_distribution<> dis(min, max);
-	return dis(gen);
-}
-
-bool a3d::utils::Zero(const vec3& v, float tolerance) {
-	return Equal(v.x, 0, tolerance)
-	&& Equal(v.y, 0, tolerance)
-	&& Equal(v.z, 0, tolerance);
-}
-
-float a3d::utils::Max(const vec3& v) {
-	return std::max(std::max(v.x, v.y), v.z);
-}
-
-bool a3d::utils::Equal(float a, float b, float tolerance) {
-	return (fabs(a - b) <= tolerance);
-}
-
-bool a3d::utils::Equal(const glm::vec2& a, const glm::vec2& b, float tolerance) {
-	return Equal(a.x, b.x, tolerance)
-		   && Equal(a.y, b.y, tolerance);
-}
-
-bool a3d::utils::Equal(const glm::vec3& a, const glm::vec3& b, float tolerance) {
-	return Equal(a.x, b.x, tolerance)
-	&& Equal(a.y, b.y, tolerance)
-	&& Equal(a.z, b.z, tolerance);
-}
-
-bool a3d::utils::Equal(const glm::vec4& a, const glm::vec4& b, float tolerance) {
-	return Equal(a.x, b.x, tolerance)
-	&& Equal(a.y, b.y, tolerance)
-	&& Equal(a.z, b.z, tolerance)
-	&& Equal(a.w, b.w, tolerance);
-}
 
 /// Time ///
 
@@ -288,13 +173,13 @@ vector<string> a3d::utils::Split(const string& s, string delim) {
 // *** executable and working directories ***
 
 std::optional<std::filesystem::path> a3d::utils::ExecutablePath() {
-#if defined(MACOS)
+#if defined(A3D_MACOS)
 	char path[PATH_MAX];
 	uint32_t size = sizeof(path);
 	if (_NSGetExecutablePath(path, &size) == 0) {
 		return std::filesystem::path(path);
 	}
-#elif defined(LINUX)
+#elif defined(A3D_LINUX)
 	// https://stackoverflow.com/questions/143174/how-do-i-get-the-directory-that-a-program-is-running-from
 	char path[PATH_MAX];
 	ssize_t count = std::min(size_t(readlink("/proc/self/exe", path, PATH_MAX)),
@@ -303,7 +188,7 @@ std::optional<std::filesystem::path> a3d::utils::ExecutablePath() {
 		path[count] = '\0';
 		return std::filesystem::path(path);
 	}
-#elif defined(WINDOWS)
+#elif defined(A3D_WINDOWS)
 	char path[PATH_MAX];
 	if (GetModuleFileName(NULL, path, PATH_MAX)) {
 		return std::filesystem::path(path);
@@ -333,7 +218,7 @@ std::optional<std::string> a3d::utils::ExecutableName() {
 }
 
 std::optional<std::filesystem::path> a3d::utils::CurrentWorkingDirectory() {
-#ifdef POSIX
+#ifdef A3D_POSIX
 	char cwd[PATH_MAX];
 	if (getcwd(cwd, sizeof(cwd))) {
 		return std::filesystem::path(cwd);
@@ -600,7 +485,7 @@ void a3d::utils::SaveSnapshot(RenderContext& context) {
 }
 
 void a3d::utils::StartGIFRecording(RenderContext& context,
-								   vec2 fitInside,
+								   uvec2 fitInside,
 								   unsigned maxFramerate) {
 
 	auto execDir = ExecutableDirectory();

@@ -11,24 +11,21 @@
 #include <string>
 #include <utility>
 
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-
 #include "a3d/a3d.h"
 #include "a3d/Utilities.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
-constexpr uvec2					WINDOW_SIZE =			{1280, 768};
-constexpr bool					FULLSCREEN =			false;
-constexpr bool					ENABLE_HIGH_DPI =		true;
-constexpr AntialiasingMode		ANTIALIAS_MODE =		AntialiasingMode::Msaa4X;
-constexpr bool					ENABLE_VSYNC =			false;
-constexpr bool					CAPTURE_CURSOR =		false;
-constexpr float					MOUSE_SENSITIVITY =		0.5;
+const uvec2					WINDOW_SIZE			{1280, 768};
+const bool					FULLSCREEN			{false};
+const bool					ENABLE_HIGH_DPI		{true};
+const AntialiasingMode		ANTIALIAS_MODE		{AntialiasingMode::Msaa4X};
+const bool					ENABLE_VSYNC		{false};
+const bool					CAPTURE_CURSOR		{false};
+const float					MOUSE_SENSITIVITY	{0.5};
 
 void UpdateCallback(Scene& scene, double time, double deltaTime);
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
@@ -49,12 +46,6 @@ int main(int argc, const char* argv[]) {
 		window->cursorCaptured(CAPTURE_CURSOR);
 
 		auto inputManager = make_unique<GLFWInputManager>(window.get());
-		if (inputManager->errorMask() == DesktopInputManagerErrorMask::PermissionDenied) {
-			cerr << "GLFWInputManager permission denied.\n" << endl;
-			// on macOS 10.15 Catalina+, this is probably a permissions issue,
-			// and the OS will alert the user.
-			// just keep going and let the user decide what they want to do.
-		}
 
 		auto visualWorld = make_unique<VisualWorld>(*window);
 		//visualWorld->usesDefaultLighting(true);
@@ -135,8 +126,8 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 		static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
 
 		vec2 mousePositionDelta = im->mousePositionDelta();
-		float deltaRotX = atan(MOUSE_SPEED * mousePositionDelta.x);
-		float deltaRotY = atan(MOUSE_SPEED * mousePositionDelta.y);
+		float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
+		float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
 
 		vec3 angles = pov->eulerAngles();
 		// weird angles
@@ -147,7 +138,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 		// move
 
-		static float MOVE_SPEED = utils::Max(scene.rootNode()->extent());
+		static float MOVE_SPEED = math::max(scene.rootNode()->extent());
 
 		if(keysDown.count(Key::W)) {
 			vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camForward;

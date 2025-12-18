@@ -13,7 +13,6 @@
 #include <tuple>
 #include <vector>
 
-#include "glm/glm.hpp"
 #include "LinearMath/btIDebugDraw.h"
 
 #include "a3d/Types.h"
@@ -37,8 +36,8 @@ namespace a3d {
 		void 	clear();
 		void 	draw(Renderer& renderer,
 					 const RenderContext& context,
-					 const glm::mat4& viewMat,
-					 const glm::mat4& projectionMat);
+					 const math::mat4& viewMat,
+					 const math::mat4& projectionMat);
 
 		/// btIDebugDraw Members ///
 

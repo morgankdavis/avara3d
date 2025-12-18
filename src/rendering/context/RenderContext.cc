@@ -23,7 +23,7 @@
 #include "a3d/scene/Scene.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
 /// Public Member Functions ///
@@ -67,8 +67,8 @@ void RenderContext::startGIFRecording(const filesystem::path& path,
 		auto fbSize = framebufferSize();
 		auto scale = std::min(float(fitInside.x)/float(fbSize.x),
 							  float(fitInside.y)/float(fbSize.y));
-		_gifRecordingWidth = (unsigned)round(float(fbSize.x) * scale);
-		_gifRecordingHeight = (unsigned)round(float(fbSize.y) * scale);
+		_gifRecordingWidth = (unsigned)math::round(float(fbSize.x) * scale);
+		_gifRecordingHeight = (unsigned)math::round(float(fbSize.y) * scale);
 
 		unsigned frameTimeMS = 1000 /* (ms/sec) */ / _gifRecordingMaxFramerate /* (frames/sec) */;
 		// -> ms/frame
@@ -163,10 +163,6 @@ void RenderContext::saveGIFFrame(double deltaRunT) {
 	_gifRecordingCurrentFrameTimeAccum += deltaRunT;
 
 	float frameTimeMS = 1000.0f /* (ms/sec) */ / (float)_gifRecordingMaxFramerate /* (frames/sec) */;
-	// -> ms/frame
-	//unsigned frameTimeHS = frameTimeMS / 10.0; // 100th sec/frame
-
-	//unsigned frameTime = 1000.0/_gifRecordingMaxFramerate; // ms/frame
 
 	if (_gifRecordingCurrentFrameTimeAccum >= frameTimeMS/1000.0) {
 
@@ -185,9 +181,16 @@ void RenderContext::saveGIFFrame(double deltaRunT) {
 
 		++_gifRecordedFrames;
 
-		//secondsAccum = secondsAccum - frameTimeMS/1000.0;
 		_gifRecordingCurrentFrameTimeAccum = 0;
 	}
+}
+
+vec2 RenderContext::viewportScale() const {
+	// see note in GLFWWindow::viewportLogicalSize().
+	// on Windows and X11, DPI/glfwGetWindowContentScale() is mostly a "UI" scaling hint.
+	uvec2 fbSize = framebufferSize();
+	uvec2 vpLogicalSize = viewportLogicalSize();
+	return vec2(float(fbSize.x)/float(vpLogicalSize.x), float(fbSize.y)/float(vpLogicalSize.y));
 }
 
 void RenderContext::attachedToVisualWorld(VisualWorld* world) {

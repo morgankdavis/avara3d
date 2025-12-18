@@ -49,11 +49,11 @@ namespace a3d {
 		//void bindFragDataLocation(unsigned location, const char* name);
 		
 		void 								setUniform(const char* name, float x, float y, float z);
-		void 								setUniform(const char* name, const glm::vec2& v);
-		void 								setUniform(const char* name, const glm::vec3& v);
-		void 								setUniform(const char* name, const glm::vec4& v);
-		void 								setUniform(const char* name, const glm::mat3& m);
-		void 								setUniform(const char* name, const glm::mat4& m);
+		void 								setUniform(const char* name, const math::vec2& v);
+		void 								setUniform(const char* name, const math::vec3& v);
+		void 								setUniform(const char* name, const math::vec4& v);
+		void 								setUniform(const char* name, const math::mat3& m);
+		void 								setUniform(const char* name, const math::mat4& m);
 		void 								setUniform(const char* name, bool val);
 		void 								setUniform(const char* name, int val);
 		void 								setUniform(const char* name, unsigned val);

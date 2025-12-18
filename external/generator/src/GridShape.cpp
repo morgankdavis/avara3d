@@ -2,7 +2,6 @@
 
 // added by Morgan to make Android happy
 #include <cmath>
-#include <ctgmath>
 
 using namespace generator;
 

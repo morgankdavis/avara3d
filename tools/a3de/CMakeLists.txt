@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.20)
 
 project(a3de VERSION 0.1 LANGUAGES CXX)
 
@@ -50,8 +50,7 @@ if (Qt6_FOUND)
     #    endif()
     #endif()
 
-
-    target_include_directories(a3de PRIVATE ${CMAKE_SOURCE_DIR}/external/imgui-1.90)
+    target_include_directories(a3de PRIVATE ${CMAKE_SOURCE_DIR}/external/imgui-1.92.5)
     #target_include_directories(a3de PRIVATE ${CMAKE_SOURCE_DIR}/external/magic_enum-0.9.3/include)
 
     #target_link_libraries(a3de PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::OpenGLWidgets)

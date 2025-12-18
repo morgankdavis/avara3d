@@ -16,7 +16,6 @@
 #include "a3d/Buffer.h"
 #include "a3d/Color.h"
 #include "a3d/Configuration.h"
-#include "a3d/CubeImage.h"
 #include "a3d/Image.h"
 #include "a3d/diagnostic/log/Log.h"
 #include "a3d/input/GLFWInputManager.h"
@@ -24,6 +23,8 @@
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicalWorld.h"
+#include "a3d/profiling/Profiler.h"
+#include "a3d/profiling/Timer.h"
 #include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/camera/Camera.h"
 #include "a3d/rendering/context/RenderContext.h"
@@ -31,10 +32,9 @@
 #include "a3d/rendering/renderer/Renderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/importer/GlTFImporter.h"
-#include "a3d/Utilities.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 using namespace std::filesystem;
 
@@ -43,8 +43,6 @@ using namespace std::filesystem;
 static void 		GetRunTime(double time, // time since reference
 							  double& runT, // time since reference excluding paused time
 							  double& deltaRunT); // time since last call excluding paused time
-static void 		UpdateUserTimeStats(Stats& stats, double startTime, double endTime);
-static void			UpdateFrameTimeStats(Stats& stats, double time);
 
 /// Public Static Member Functions ///
 
@@ -62,9 +60,10 @@ Scene::Scene():
 		_physicalWorld{},
 		_inputManager{},
 		_debugOptions{DebugOptions::None},
-		_stats{},
 		_startTime{0},
-		_updateCallback{} {
+		_updateCallback{},
+		_profiler{},
+		_frameStatsHistory{a3d::config::FRAME_STATS_HISTORY_DURATION} {
 
 	_rootNode->attachedToScene(*this);
 }
@@ -141,7 +140,6 @@ void Scene::rootNode(const shared_ptr<Node>& node) {
 		_rootNode->attachedToScene(*this);
 	}
 }
-
 
 //Node* Scene::rootNode() const {
 //	return _rootNode.get();
@@ -241,7 +239,7 @@ DebugOptions Scene::debugOptions() const {
 
 void Scene::debugOptions(DebugOptions options) {
 
-#ifdef OPENGL_ES
+#ifdef A3D_GL_ES
 	if (DEBUG_OPTIONS_CONTAINS(options, DEBUG_OPTIONS::SHOW_WIREFRAMES)) {
 		throw Exception("DEBUG_OPTIONS::SHOW_WIREFRAMES not supported on this platform.");
 	}
@@ -255,6 +253,11 @@ void Scene::debugOptions(DebugOptions options) {
 
 void Scene::update() {
 
+	static FrameStats stats;
+	memset(&stats, 0, sizeof(FrameStats));
+
+	Timer frameTimer(true);
+
 	if (_rootNode) {
 
 		static auto now = std::chrono::system_clock::now();
@@ -266,19 +269,15 @@ void Scene::update() {
 				   runT,
 				   deltaRunT);
 
-		//_stats = {};
-		memset(&_stats, 0, sizeof(Stats));
-		UpdateFrameTimeStats(_stats, runT);
-
 		if (_inputManager) {
 			_inputManager->update();
 		}
 
 		if (_updateCallback) {
 
-			auto updateStartTime = time();
+			Timer appTimer(true);
 			(_updateCallback)(*this, runT, deltaRunT);
-			UpdateUserTimeStats(_stats, updateStartTime, time());
+			_profiler.add(Profiler::Tag::Application, appTimer.stop());
 		}
 
 		if (_physicalWorld) {
@@ -286,22 +285,40 @@ void Scene::update() {
 			_physicalWorld->step(*this,
 								 runT,
 								 deltaRunT,
-								 _stats);
+								 stats,
+								 _profiler);
 		}
 
 		if (_visualWorld) {
 
+			//Timer drawTimer(true);
 			_visualWorld->draw(*this,
 							   (_physicalWorld ? _physicalWorld.get() : nullptr),
 							   runT,
 							   deltaRunT,
 							   _debugOptions,
-							   _stats);
+							   stats,
+							   _profiler,
+							   _frameStatsHistory);
+			//_profiler.add(Profiler::Tag::RenderCpu, drawTimer.stop());
 		}
 	}
 	else {
 		A3D_LOG_E("No root node attached to Scene {:p}", static_cast<void*>(this));
 	}
+
+	_profiler.add(Profiler::Tag::Frame, frameTimer.stop());
+
+	stats.frameTime = _profiler.time(Profiler::Tag::Frame);
+	stats.engineCpuTime = _profiler.time(Profiler::Tag::EngineCpu);
+	stats.renderCpuTime = _profiler.time(Profiler::Tag::RenderCpu);
+	stats.renderGpuTime = _profiler.time(Profiler::Tag::RenderGpu);
+	stats.physicsTime = _profiler.time(Profiler::Tag::Physics);
+	stats.applicationTime = _profiler.time(Profiler::Tag::Application);
+
+	_frameStatsHistory.add(stats);
+
+	_profiler.reset();
 }
 
 double Scene::time() const {
@@ -314,18 +331,6 @@ double Scene::time() const {
 		return nowSinceEpoch - _startTime;
 	}
 	return 0;
-}
-
-//bool Scene::paused() const {
-//	return _paused;
-//}
-//
-//void Scene::paused(bool flag) {
-//	_paused = flag;
-//}
-
-const Stats& Scene::stats() const {
-	return _stats;
 }
 
 Scene::UpdateCallback Scene::updateCallback() const {
@@ -352,64 +357,4 @@ void GetRunTime(double time, // time since reference
 	static double prevRunT = runT;
 	deltaRunT = runT - prevRunT;
 	prevRunT = runT;
-}
-
-void UpdateUserTimeStats(Stats& stats, double startTime, double endTime) {
-
-	// current
-	auto updateTime = endTime - startTime;
-	stats.currentUsertime = updateTime * 1000.0f;
-
-	// average
-	static double avg = 0.0;
-	static double sampleStartTime = startTime;
-	static unsigned updatesSinceSampleStart = 0;
-	static double accumulatedUpdateTimeSinceSampleStart = 0;
-	double elapsedTimeSinceSampleStart = endTime - sampleStartTime;
-	if (elapsedTimeSinceSampleStart >= FRAMETIME_AVERAGING_INTERVAL) {
-
-		avg = (accumulatedUpdateTimeSinceSampleStart * 1000.0f) / updatesSinceSampleStart;
-
-		sampleStartTime = startTime;
-		updatesSinceSampleStart = 0;
-		accumulatedUpdateTimeSinceSampleStart = 0;
-	}
-	else {
-		++updatesSinceSampleStart;
-		accumulatedUpdateTimeSinceSampleStart += updateTime;
-	}
-
-	stats.averageUsertime = avg;
-//	stats.averagingInterval = FRAMETIME_AVERAGING_INTERVAL;
-}
-
-void UpdateFrameTimeStats(Stats& stats, double time) {
-
-	// current
-	static double previousTime = time;
-	double deltaTime = time - previousTime;
-	previousTime = time;
-	stats.currentFramerate = 60.0f / deltaTime;
-	stats.currentFrametime = deltaTime * 1000.0f;
-
-	// average
-	static double fpsAvg = 0.0;
-	static double msAvg = 0.0;
-	static unsigned framesSinceSampleStart = 0;
-	static double sampleStartTime = time;
-	double elapsedTimeSinceSampleStart = time - sampleStartTime;
-	if (elapsedTimeSinceSampleStart >= FRAMETIME_AVERAGING_INTERVAL) {
-
-		fpsAvg = (double)framesSinceSampleStart / elapsedTimeSinceSampleStart;
-		msAvg = (elapsedTimeSinceSampleStart * 1000.0f) / framesSinceSampleStart;
-
-		sampleStartTime = time;
-		framesSinceSampleStart = 0;
-	}
-	else {
-		++framesSinceSampleStart;
-	}
-	stats.averageFramerate = fpsAvg;
-	stats.averageFrametime = msAvg;
-	stats.averagingInterval = FRAMETIME_AVERAGING_INTERVAL;
 }

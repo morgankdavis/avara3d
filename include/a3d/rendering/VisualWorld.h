@@ -17,10 +17,12 @@
 namespace a3d {
 
 	class Color;
+	class FrameStatsHistory;
 	class Material;
 	class Mesh;
 	class Node;
 	class PhysicalWorld;
+	class Profiler;
 	class RenderContext;
 	class Renderer;
 	class Scene;
@@ -87,7 +89,9 @@ namespace a3d {
 													 double runT,
 													 double deltaRunT,
 													 DebugOptions debugOptions,
-													 Stats& stats);
+													 FrameStats& stats,
+													 Profiler& profiler,
+													 const FrameStatsHistory& statsHistory);
 
 		Mesh*									skyboxMesh() const;
 		Mesh*									groundPlaneMesh() const;

@@ -38,11 +38,11 @@ namespace a3d {
 		float					mass() const override;
 		void					mass(float mass) override;
 
-		glm::vec3				momentOfInertia() const override;
-		void					momentOfInertia(const glm::vec3& moment) override;
+		math::vec3				momentOfInertia() const override;
+		void					momentOfInertia(const math::vec3& moment) override;
 
-		glm::vec3				centerOfMass() const override;
-		void					centerOfMass(const glm::vec3& offset) override;
+		math::vec3				centerOfMass() const override;
+		void					centerOfMass(const math::vec3& offset) override;
 
 		float					friction() const override;
 		void					friction(float friction) override;
@@ -53,17 +53,17 @@ namespace a3d {
 		float					restitution() const override;
 		void					restitution(float restitution) override;
 
-		glm::vec3				linearVelocity() const override;
-		void					linearVelocity(const glm::vec3& velocity) override;
+		math::vec3				linearVelocity() const override;
+		void					linearVelocity(const math::vec3& velocity) override;
 
-		glm::vec3				angularVelocity() const override;
-		void					angularVelocity(const glm::vec3& velocity) override;
+		math::vec3				angularVelocity() const override;
+		void					angularVelocity(const math::vec3& velocity) override;
 
-		glm::vec3				linearFactor() const override;
-		void					linearFactor(const glm::vec3& factor) override;
+		math::vec3				linearFactor() const override;
+		void					linearFactor(const math::vec3& factor) override;
 
-		glm::vec3				angularFactor() const override;
-		void					angularFactor(const glm::vec3& factor) override;
+		math::vec3				angularFactor() const override;
+		void					angularFactor(const math::vec3& factor) override;
 
 		float					linearDamping() const override;
 		void					linearDamping(float damping) override;
@@ -77,16 +77,16 @@ namespace a3d {
 		float					angularSleepingThreshold() const override;
 		void					angularSleepingThreshold(float threshold) override;
 
-		void					applyForce(const glm::vec3& force, const glm::vec3& location) override;
-		void					applyCentralForce(const glm::vec3& force) override;
-		void					applyImpulse(const glm::vec3& impulse, const glm::vec3& location) override;
-		void					applyCentralImpulse(const glm::vec3& impulse) override;
+		void					applyForce(const math::vec3& force, const math::vec3& location) override;
+		void					applyCentralForce(const math::vec3& force) override;
+		void					applyImpulse(const math::vec3& impulse, const math::vec3& location) override;
+		void					applyCentralImpulse(const math::vec3& impulse) override;
 
-		void					applyTorque(const glm::vec3& torque) override;
-		void					applyTorqueImpulse(const glm::vec3& torque) override;
+		void					applyTorque(const math::vec3& torque) override;
+		void					applyTorqueImpulse(const math::vec3& torque) override;
 
-		glm::vec3 				totalForce() const override;
-		glm::vec3 				totalTorque() const override;
+		math::vec3 				totalForce() const override;
+		math::vec3 				totalTorque() const override;
 
 		bool					affectedByGravity() const override;
 		void					affectedByGravity(bool affectedByGravity) override;
@@ -97,10 +97,10 @@ namespace a3d {
 		bool 					resting() const override;
 		void					resting(bool resting) override;
 
-//		glm::mat4				worldTransform() const override;
-//		void					worldTransform(const glm::mat4& transform) override;
+//		math::mat4				worldTransform() const override;
+//		void					worldTransform(const math::mat4& transform) override;
 
-		void					worldTransform(const glm::mat4& transform) override;
+		void					worldTransform(const math::mat4& transform) override;
 
 		void					clearForces() override;
 

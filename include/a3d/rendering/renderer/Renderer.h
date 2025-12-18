@@ -12,12 +12,11 @@
 #include <memory>
 #include <set>
 
-#include "glm/glm.hpp"
-
 #include "a3d/Types.h"
 
 namespace a3d {
 
+	class FrameStatsHistory;
 	class Image;
 	class Line;
 	class Node;
@@ -25,6 +24,7 @@ namespace a3d {
 	class Mesh;
 	class MeshElement;
 	class Point;
+	class Profiler;
 	class RenderContext;
 	class Scene;
 
@@ -48,50 +48,53 @@ namespace a3d {
 		virtual void 					beginFrame(const Scene& scene,
 												   const RenderContext& context,
 												   const DebugOptions& debugOptions,
-												   Stats& stats) = 0;
+												   FrameStats& stats,
+												   Profiler& profiler) = 0;
 		virtual void 					endFrame(const Scene& scene,
 												 const RenderContext& context,
 												 const DebugOptions& debugOptions,
-												 Stats& stats) = 0;
+												 FrameStats& stats,
+												 Profiler& profiler,
+												 const FrameStatsHistory& statsHistory) = 0;
 
 		virtual void 					preTraversal(const Scene& scene,
 												   const RenderContext& context,
 												   const DebugOptions& debugOptions,
-												   Stats& stats) = 0;
+													 FrameStats& stats) = 0;
 		virtual void 					postTraversal(const Scene& scene,
 												 const RenderContext& context,
 												 const std::vector<Node*>& lightNodes,
 												 const DebugOptions& debugOptions,
-												 Stats& stats) = 0;
+													  FrameStats& stats) = 0;
 
 		virtual void 					render(const Scene& scene,
 											   const RenderContext& context,
 											   const DebugOptions& debugOptions,
-											   Stats& stats) = 0;
+											   FrameStats& stats) = 0;
 		virtual void 					render(Mesh& mesh,
 											   const RenderContext& context,
-											   const glm::mat4& modelMat,
-											   const glm::mat4& viewMat,
-											   const glm::mat4& projectionMat,
+											   const math::mat4& modelMat,
+											   const math::mat4& viewMat,
+											   const math::mat4& projectionMat,
 											   const DebugOptions& debugOptions,
-											   Stats& stats) = 0;
+											   FrameStats& stats) = 0;
 		virtual void 					render(MeshElement& element,
 											   const RenderContext& context,
 											   Material& material,
-											   const glm::mat4& modelMat,
-											   const glm::mat4& viewMat,
-											   const glm::mat4& projectionMat,
+											   const math::mat4& modelMat,
+											   const math::mat4& viewMat,
+											   const math::mat4& projectionMat,
 											   const DebugOptions& debugOptions,
-											   Stats& stats) = 0;
+											   FrameStats& stats) = 0;
 		virtual void 					render(const std::vector<Line>& lines,
 											   const RenderContext& context,
-											   const glm::mat4& modelMat,
-											   const glm::mat4& viewMat,
-											   const glm::mat4& projectionMat) = 0;
+											   const math::mat4& modelMat,
+											   const math::mat4& viewMat,
+											   const math::mat4& projectionMat) = 0;
 
 		virtual std::unique_ptr<Image>	snapshot(const RenderContext& context) const = 0;
 
-		virtual void					framebufferScaleChanged(const RenderContext& context) = 0;
+//		virtual void					draw() = 0;
 	};
 }
 

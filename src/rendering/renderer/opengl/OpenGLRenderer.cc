@@ -10,21 +10,21 @@
 
 #include <algorithm>
 #include <format>
-#include <iostream>
 #include <set>
 #include <utility>
 #include <vector>
 
-#ifdef OPENGL_ES
+#ifdef A3D_GL_ES
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
 #else
 #include "glad/glad.h"
 #endif
 
-//#ifdef OPENGL_CORE
+//#ifdef A3D_GL_DESKTOP
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
+//#include "implot.h"
 //#endif
 
 #include "magic_enum.hpp"
@@ -34,11 +34,10 @@
 #include "a3d/Color.h"
 #include "a3d/Configuration.h"
 #include "a3d/CubeImage.h"
+#include "a3d/diagnostic/log/Log.h"
 #include "a3d/Font.h"
 #include "a3d/Image.h"
-#include "a3d/Utilities.h"
-#include "a3d/diagnostic/exception/Exception.h"
-#include "a3d/diagnostic/log/Log.h"
+#include "a3d/Math.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/mesh/Line.h"
@@ -52,9 +51,11 @@
 #include "a3d/rendering/material/Material.h"
 #include "a3d/rendering/material/Sampler.h"
 #include "a3d/rendering/material/Texture.h"
+//#include "a3d/rendering/renderer/opengl/OpenGLDrawItem.h"
 #include "a3d/rendering/renderer/opengl/Program.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
+#include "a3d/Utilities.h"
 
 #define A3D_GL_CHECK() \
     do { \
@@ -65,20 +66,19 @@
     } while (0);
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
 //#define DISABLE_RESOURCE_MANAGEMENT
 
-///  Private Constant Definitions ///
+///  Private Constants ///
 
-const std::string 	OpenGLRenderer::STATS_TITLE_FONT_NAME = 		"SourceCodePro-Bold";
-const std::string 	OpenGLRenderer::STATS_TITLE_FONT_TYPE = 		"otf";
-const float 		OpenGLRenderer::STATS_TITLE_FONT_SIZE =			23.0;
-const std::string 	OpenGLRenderer::STATS_BODY_FONT_NAME = 			"SourceCodePro-Semibold";
-const std::string 	OpenGLRenderer::STATS_BODY_FONT_TYPE = 			"otf";
-const float 		OpenGLRenderer::STATS_BODY_FONT_SIZE =			15.0;
-const float 		OpenGLRenderer::STATS_TITLE_TO_BODY_PADDING =	-3.0;
+const std::string 	STATS_TITLE_FONT_NAME  		{"SourceCodePro-Bold"};
+const std::string 	STATS_TITLE_FONT_TYPE  		{"otf"};
+const float 		STATS_TITLE_FONT_SIZE 		{23.0};
+const std::string 	STATS_BODY_FONT_NAME  		{"SourceCodePro-Semibold"};
+const std::string 	STATS_BODY_FONT_TYPE  		{"otf"};
+const float 		STATS_BODY_FONT_SIZE 		{15.0};
 
 /// Private Types ///
 
@@ -88,59 +88,68 @@ enum class MaterialContentsType : unsigned {
 	Sampler = 	2
 };
 
+static_assert(sizeof(vec4) == 16);
+static_assert(sizeof(vec3) == 12);
+
 typedef struct {
 	vec4		color;
 } AmbientLightGLSLStruct;
+static_assert(sizeof(AmbientLightGLSLStruct) == 16);
 
 typedef struct {
 	vec4		color;
 	vec3		direction_world;
-	float32_t	PAD0_;
+	f32			_pad_0_;
 } DirectionalLightGLSLStruct;
+static_assert(sizeof(DirectionalLightGLSLStruct) == 32);
 
 typedef struct {
 	vec4		color;
 	vec3		position_world;
-	float32_t	PAD0_;
-	float32_t	constantAttenuation;
-	float32_t	linearAttenuation;
-	float32_t	quadraticAttenuation;
-	float32_t	PAD1_;
+	f32			_pad_0_;
+	f32			constantAttenuation;
+	f32			linearAttenuation;
+	f32			quadraticAttenuation;
+	f32			_pad_1_;
 } PointLightGLSLStruct;
+static_assert(sizeof(PointLightGLSLStruct) == 48);
 
 typedef struct {
 	vec4		color;
 	vec3		position_world;
-	float32_t	PAD0_;
+	f32			_pad_0_;
 	vec3		direction_world;
-	float32_t	PAD1_;
-	float32_t	innerAngleCos;
-	float32_t	outerAngleCos;
+	f32			_pad_1_;
+	f32			innerAngleCos;
+	f32			outerAngleCos;
 	uint32_t	featheringMode;
-	float32_t	constantAttenuation;
-	float32_t	linearAttenuation;
-	float32_t	quadraticAttenuation;
-	float32_t	PAD2_;
-	float32_t	PAD3_;
+	f32			constantAttenuation;
+	f32			linearAttenuation;
+	f32			quadraticAttenuation;
+	f32			_pad_2_;
+	f32			_pad_3_;
 } SpotLightGLSLStruct;
+static_assert(sizeof(SpotLightGLSLStruct) == 80);
 
 typedef struct {
 	vec4		color;
-	float32_t	startDistance;
-	float32_t	endDistance;
-	float32_t	densityExponent;
-	float32_t	PAD0_;
+	f32			startDistance;
+	f32			endDistance;
+	f32			densityExponent;
+	f32			_pad_0_;
 } FogGLSLStruct;
+static_assert(sizeof(FogGLSLStruct) == 32);
 
 typedef struct {
 	alignas(16)	uint32_t 					numAmbientLights;
-	alignas(16) AmbientLightGLSLStruct		ambientLights[MAX_AMBIENT_LIGHTS];
+	//uint32_t _pad_0_[3];
+	alignas(16) AmbientLightGLSLStruct		ambientLights[a3d::config::MAX_AMBIENT_LIGHTS];
 	alignas(16) uint32_t 					numDirectionalLights;
-	alignas(16) DirectionalLightGLSLStruct	directionalLights[MAX_DIRECTIONAL_LIGHTS];
+	alignas(16) DirectionalLightGLSLStruct	directionalLights[a3d::config::MAX_DIRECTIONAL_LIGHTS];
 	alignas(16) uint32_t 					numPointLights;
-	alignas(16) PointLightGLSLStruct		pointLights[MAX_POINT_LIGHTS];
+	alignas(16) PointLightGLSLStruct		pointLights[a3d::config::MAX_POINT_LIGHTS];
 	alignas(16) uint32_t 					numSpotLights;
-	alignas(16) SpotLightGLSLStruct			spotLights[MAX_SPOT_LIGHTS];
+	alignas(16) SpotLightGLSLStruct			spotLights[a3d::config::MAX_SPOT_LIGHTS];
 	alignas(16) FogGLSLStruct				fog;
 } EnvironmentBlock;
 
@@ -186,7 +195,7 @@ static void 		SendMaterialPropertyUniforms(const MaterialProperty& property,
 static void 		SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 											const Scene& scene,
 											const vector<Node*>& lightNodes,
-											Stats& stats);
+											FrameStats& stats);
 static void 		SetTextureSamplingOptions(Texture& texture,
 											 GLuint glTextureHandle);
 static void 		SetMaterialFilteringOptions(const Material& material,
@@ -200,7 +209,8 @@ static void 		DrawMeshElement(MeshElement& element,
 								   const mat4& modelMat,
 								   const mat4& viewMat,
 								   const mat4& projectionMat,
-								   GLuint vao, GLuint ebo);
+								   GLuint vao, GLuint ebo/*,
+								   vector<OpenGLDrawItem>& drawItmes*/);
 static void 		DrawSkyboxElement(MeshElement& element,
 									 Program& program,
 									 Node& pointOfView,
@@ -223,15 +233,61 @@ static void 		DeleteTextureGLResources(Texture* texture,
 											OpenGLRenderer::TextureGLMapping& glMapping);
 static void 		DeleteLinesGLResources(const vector<Line>& lines,
 										  OpenGLRenderer::LinesGLMapping& glMapping);
-static vector<Node*> 	SortedLights(map<Node*, float> lights);
-static void			InitImgui(const RenderContext& context);
-static void 		UpdateImguiScale(const RenderContext& context, const Font& overLayFont, const Font& bodyFont);
-static void 		AddImguiFont(const RenderContext& context, const Font& font, float size);
-static void 		DrawDebugOptions(Scene& scene, const RenderContext& context);
-static void 		DrawStatsOverlay(Stats& stats, const RenderContext& context);
+static vector<Node*>SortedLights(map<Node*, float> lights);
+static void 		DrawOverlay(const RenderContext& context,
+							   const Scene& scene,
+							   FrameStats& stats,
+							   const FrameStatsHistory& statsHistory,
+							   DebugOptions debugOptions,
+							   ImFont& titleFont,
+							   ImFont& bodyFont);
+static void 		DrawStats(FrameStats& stats,
+							 const FrameStatsHistory& statsHistory,
+							 const RenderContext& context,
+							 ImFont& titleFont,
+							 ImFont& bodyFont);
+static void 		DrawDebugOptions(Scene& scene,
+									 const RenderContext& context,
+									ImFont& titleFont,
+									ImFont& bodyFont);
+static void			ImguiInit(const RenderContext& context,
+								 ImFont*& titleFont,
+								 ImFont*& bodyFont);
+static void 		ImguiUpdateScale(const RenderContext& context);
+static void 		ImguiAddFont(const RenderContext& context,
+								 const Font& font,
+								 ImFont*& imFont);
+void 				ImguiBeginOverlay(int id, bool allowsInput);
+void 				ImguiEndOverlay();
+void 				ImguiDrawText(float x,
+								  float y,
+								  const char* text,
+								  ImFont& font,
+								  float size);
+void 				ImguiDrawPlot(float x, float y, float w, float h,
+								  const float* values,
+								  int valuesCount,
+								  int valuesOffset,
+								  const char* overlayText,
+								  float scaleMin,
+								  float scaleMax,
+								  int stride,
+								  bool outlined,
+								  int id);
+bool 				ImguiDrawCheckbox(float x,
+									  float y,
+									  const char* text,
+									  bool& checked,
+									  ImFont& font,
+									  float size,
+									  int id);
 static string 		StatusOverlayDescriptionForAntialiasingMode(AntialiasingMode mode);
-static void 		SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode);
-static void 		SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode);
+static void 		SetTextureMinificationFilter(GLuint glTextureHandle,
+												bool cube,
+												FilterMode mode);
+static void 		SetTextureMagnificationFilter(GLuint glTextureHandle,
+												 bool cube,
+												 FilterMode mode);
 static void 		SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max);
 static void 		SetTextureWrapS(GLuint glTextureHandle, bool cube, WrapMode mode);
 static void 		SetTextureWrapT(GLuint glTextureHandle, bool cube, WrapMode mode);
@@ -287,9 +343,9 @@ OpenGLRenderer::OpenGLRenderer():
 		_activeTextures{},
 		_activeLines{},
 		_glEnvironmentUBO{0},
-		_overlayTitleFont{},
-		_overlayBodyFont{}
-		/*_defaultFramebuffer{0}*/ { }
+		_overlayTitleImFont{nullptr},
+		_overlayBodyImFont{nullptr},
+		_drawTimer{config::GL_DRAW_TIMER_BUFFER_SIZE} {}
 
 OpenGLRenderer::~OpenGLRenderer() {
 	A3D_LOG_D("Destroying OpenGLRenderer {:p}", static_cast<void*>(this));
@@ -305,7 +361,7 @@ OpenGLRenderer::~OpenGLRenderer() {
 	CleanupLinesResources(_activeLines, _linesGLMapping);
 
 	ImGui_ImplOpenGL3_Shutdown();
-//	ImGui_ImplGlfw_Shutdown();
+//	ImPlot::DestroyContext();
 	ImGui::DestroyContext();
 }
 	
@@ -316,32 +372,16 @@ RenderingApi OpenGLRenderer::renderingApi() const {
 }
 
 bool OpenGLRenderer::initialize(const RenderContext& context) {
-	
 	A3D_LOG_I("");
 
-	// create environment UBO
-
-	uint32 ubo;
+	uint32_t ubo;
 	glGenBuffers(1, &ubo);
 	_glEnvironmentUBO = ubo;
 
-	// setup Imgui
+	_drawTimer.initialize();
 
-	InitImgui(context);
-
-	_overlayTitleFont = utils::FontNamed(STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
-	if (_overlayTitleFont->buffer()->size()) {
-		_overlayBodyFont = utils::FontNamed(STATS_BODY_FONT_NAME, STATS_BODY_FONT_TYPE);
-		if (_overlayBodyFont->buffer()->size()) {
-			UpdateImguiScale(context, *_overlayTitleFont, *_overlayBodyFont);
-		}
-		else {
-			A3D_LOG_E("Unable to load font: {}.{}", STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
-		}
-	}
-	else {
-		A3D_LOG_E("Unable to load font: {}.{}", STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
-	}
+	// TODO: make failable?
+	ImguiInit(context, _overlayTitleImFont, _overlayBodyImFont);
 
 	_isInitialized = true;
 
@@ -351,35 +391,31 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 bool OpenGLRenderer::isInitialized() const {
 	return _isInitialized;
 }
-	
+
 void OpenGLRenderer::beginFrame(const Scene& scene,
 								const RenderContext& context,
 								const DebugOptions& debugOptions,
-								Stats& stats) {
+								FrameStats& stats,
+								Profiler& profiler) {
+
+//	_drawItems.clear();
+
+	_drawTimer.begin();
 
 	_activeMeshElements.clear();
 	_activeTextures.clear();
 	_activeLines.clear();
-
-	// see ordering note in DrawStatsOverlay()
-	ImGui_ImplOpenGL3_NewFrame();
-	// these have to be called in this order for input to work.
-	// ImGui_ImplOpenGL3_NewFrame(); -> in beginFrame()
-	// ImGui_ImplGlfw_NewFrame() -> in GLFWWindow::beginFrame()
 }
 
 void OpenGLRenderer::endFrame(const Scene& scene,
 							  const RenderContext& context,
 							  const DebugOptions& debugOptions,
-							  Stats& stats) {
+							  FrameStats& stats,
+							  Profiler& profiler,
+							  const FrameStatsHistory& statsHistory) {
 
-	ImGui::NewFrame();
-	DrawDebugOptions(const_cast<Scene&>(scene), context); // TODO: CHEATING
-	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay)) {
-		DrawStatsOverlay(stats, context);
-	}
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	DrawOverlay(context, scene, stats, statsHistory, debugOptions,
+				*_overlayTitleImFont, *_overlayBodyImFont);
 
 	CleanupMeshElementResources(_activeMeshElements, _meshElementGLMapping);
 	CleanupTextureResources(_activeTextures, _textureGLMapping);
@@ -387,12 +423,14 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 
 //	CheckGLError();
 	A3D_GL_CHECK();
+
+	profiler.add(Profiler::Tag::RenderGpu, _drawTimer.end());
 }
 
 void OpenGLRenderer::preTraversal(const Scene& scene,
 								  const RenderContext& context,
 								  const DebugOptions& debugOptions,
-								  Stats& stats) {
+								  FrameStats& stats) {
 
 }
 
@@ -400,7 +438,7 @@ void OpenGLRenderer::postTraversal(const Scene& scene,
 								   const RenderContext& context,
 								   const vector<Node*>& lightNodes,
 								   const DebugOptions& debugOptions,
-								   Stats& stats) {
+								   FrameStats& stats) {
 
 	SendEnvironmentUniforms(_glEnvironmentUBO, scene, lightNodes, stats);
 	Program::Default().bindUniformBlock("EnvironmentBlock", _glEnvironmentUBO);
@@ -409,21 +447,16 @@ void OpenGLRenderer::postTraversal(const Scene& scene,
 void OpenGLRenderer::render(const Scene& scene,
 							const RenderContext& context,
 							const DebugOptions& debugOptions,
-							Stats& stats) {
+							FrameStats& stats) {
 
 	GLint prevDrawFbo = 0;
 	GLint prevReadFbo = 0;
 	glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &prevDrawFbo);
 	glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &prevReadFbo);
 
-	auto renderContext = scene.visualWorld()->renderContext();
-
-	auto framebufferSize = renderContext->framebufferSize();
-	auto framebufferWidth = framebufferSize.x;
-	auto framebufferHeight = framebufferSize.y;
-
+	auto framebufferSize = context.framebufferSize();
 	glBindFramebuffer(GL_FRAMEBUFFER, context.defaultFramebuffer());
-	glViewport(0, 0, (GLsizei)framebufferWidth, (GLsizei)framebufferHeight);
+	glViewport(0, 0, (GLsizei)framebufferSize.x, (GLsizei)framebufferSize.y);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -509,7 +542,7 @@ void OpenGLRenderer::render(Mesh& mesh,
 							const mat4& viewMat,
 							const mat4& projectionMat,
 							const DebugOptions& debugOptions,
-							Stats& stats) {
+							FrameStats& stats) {
 
 	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
 		render(mesh.aabbLines(), context, modelMat, viewMat, projectionMat);
@@ -523,7 +556,7 @@ void OpenGLRenderer::render(MeshElement& element,
 							const mat4& viewMat,
 							const mat4& projectionMat,
 							const DebugOptions& debugOptions,
-							Stats& stats) {
+							FrameStats& stats) {
 
 	// check and load vertex data if necessary
 
@@ -561,7 +594,7 @@ void OpenGLRenderer::render(MeshElement& element,
 
 	// update
 
-	DrawMeshElement(element, program, modelMat, viewMat, projectionMat, vao, ebo);
+	DrawMeshElement(element, program, modelMat, viewMat, projectionMat, vao, ebo);//, _drawItems);
 
 	// save reference for housekeeping
 
@@ -576,9 +609,9 @@ void OpenGLRenderer::render(MeshElement& element,
 	
 void OpenGLRenderer::render(const std::vector<Line>& lines,
 							const RenderContext& context,
-							const glm::mat4& modelMat,
-							const glm::mat4& viewMat,
-							const glm::mat4& projectionMat) {
+							const mat4& modelMat,
+							const mat4& viewMat,
+							const mat4& projectionMat) {
 	
 	auto program = Program::Lines();
 	
@@ -626,12 +659,26 @@ unique_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 	return make_unique<Image>(std::move(buffer), framebufferWidth, framebufferHeight, 4);
 }
 
-void OpenGLRenderer::framebufferScaleChanged(const RenderContext& context) {
-	//A3D_LOG_D("context: {:p}", static_cast<const void*>(&context));
+//void OpenGLRenderer::draw() {
+//
+//	int i=0;
+//	for (auto& item : _drawItems) {
+//		A3D_LOG_D("drawing item {}...", i++);
+//
+//		item.program->use();
+//
+//		item.program->setUniform("modelMat", item.model);
+//		item.program->setUniform("viewMat", item.view);
+//		item.program->setUniform("projMat", item.projection);
+//
+//		// update
+//
+//		glBindVertexArray(item.vao);
+//		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, item.ebo);\
+//		glDrawElements(GL_TRIANGLES, item.numElements, GL_UNSIGNED_INT, nullptr);
+//	}
+//}
 
-	UpdateImguiScale(context, *_overlayTitleFont, *_overlayBodyFont);
-}
-	
 /// Private Static Non-Member Functions ///
 
 void RenderSkybox(Mesh& skyboxMesh,
@@ -1025,20 +1072,21 @@ void BufferTexture(const Texture& texture,
 				GLenum side = sides[s];
 				auto image = images[s];
 
-				unsigned bytesPerPixel = image->bytesPerPixel();
-				GLint glInternalFormat = GL_RGBA;
-				if (bytesPerPixel == 3) glInternalFormat = GL_RGB;
-				else if (bytesPerPixel == 1) glInternalFormat = GL_RED;
+				assert(image->bytesPerPixel() == 4);
+//				unsigned bytesPerPixel = image->bytesPerPixel();
+//				GLint glInternalFormat = GL_RGBA;
+//				if (bytesPerPixel == 3) glInternalFormat = GL_RGB;
+//				else if (bytesPerPixel == 1) glInternalFormat = GL_RED;
 
 				glTexImage2D(side,
 							 0,
-							 glInternalFormat,//GL_RGB, //GL_SRGB_ALPHA,
+							 GL_RGBA8,//glInternalFormat,//GL_RGB, //GL_SRGB_ALPHA,
 							 image->width(),
 							 image->height(),
 							 0,
 							 GL_RGBA,//(image->bytesPerPixel() == 3 ? GL_RGB : GL_RGBA),
 							 GL_UNSIGNED_BYTE,
-							 image->buffer().data());
+							 *(image->buffer()));
 			}
 
 			auto sampler = texture.sampler();
@@ -1070,13 +1118,13 @@ void BufferTexture(const Texture& texture,
 
 			glTexImage2D(GL_TEXTURE_2D,
 						 0,
-						 GL_RGBA,//glInternalFormat,//GL_RGBA,//GL_SRGB_ALPHA,
+						 GL_RGBA8,//glInternalFormat,//GL_RGBA,//GL_SRGB_ALPHA,
 						 image->width(),
 						 image->height(),
 						 0,
 						 GL_RGBA,//(image->bytesPerPixel() == 3 ? GL_RGB : GL_RGBA),
 						 GL_UNSIGNED_BYTE,
-						 image->buffer().data());
+						 *(image->buffer()));
 
 			auto sampler = texture.sampler();
 			SetTextureMinificationFilter(glTextureHandle, false, sampler->minificationFilter());
@@ -1382,12 +1430,12 @@ void SendMaterialPropertyUniforms(const MaterialProperty& property,
 void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 							 const Scene& scene,
 							 const vector<Node*>& lightNodes,
-							 Stats& stats) {
+							 FrameStats& stats) {
 	// program "Default" must be active
 
 	// block
 
-	EnvironmentBlock environmentStruct;
+	EnvironmentBlock environmentStruct{};
 
 	// lights
 
@@ -1399,7 +1447,7 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 
 		auto numLights = lightNodes.size();
 
-		stats.lights = numLights;
+		stats.numLights = numLights;
 
 		if (((numLights == 0) && scene.visualWorld()->autoEnablesDefaultLighting())) {
 
@@ -1414,10 +1462,10 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 			vector<PointLightGLSLStruct> pointStructs;
 			vector<SpotLightGLSLStruct> spotStructs;
 
-			ambientStructs.reserve(MAX_AMBIENT_LIGHTS);
-			directionalStructs.reserve(MAX_DIRECTIONAL_LIGHTS);
-			pointStructs.reserve(MAX_POINT_LIGHTS);
-			spotStructs.reserve(MAX_SPOT_LIGHTS);
+			ambientStructs.reserve(config::MAX_AMBIENT_LIGHTS);
+			directionalStructs.reserve(config::MAX_DIRECTIONAL_LIGHTS);
+			pointStructs.reserve(config::MAX_POINT_LIGHTS);
+			spotStructs.reserve(config::MAX_SPOT_LIGHTS);
 
 			for (unsigned l = 0; l < numLights; ++l) {
 
@@ -1440,41 +1488,45 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 				// the vertex?  sure, but maybe messy?
 
 				if (auto ambientLight = dynamic_cast<AmbientLight*>(light)) {
-
-					AmbientLightGLSLStruct lightStruct;
-					lightStruct.color = ambientLight->color()->rgba();
-					ambientStructs.push_back(lightStruct);
+					if (ambientStructs.size() < config::MAX_AMBIENT_LIGHTS) {
+						AmbientLightGLSLStruct lightStruct{};
+						lightStruct.color = ambientLight->color()->rgba();
+						ambientStructs.push_back(lightStruct);
+					}
 				}
 				else if (auto directionalLight = dynamic_cast<DirectionalLight*>(light)) {
-
-					DirectionalLightGLSLStruct lightStruct;
-					lightStruct.color = directionalLight->color()->rgba();
-					lightStruct.direction_world = node->worldForward();
-					directionalStructs.push_back(lightStruct);
+					if (directionalStructs.size() < config::MAX_DIRECTIONAL_LIGHTS) {
+						DirectionalLightGLSLStruct lightStruct{};
+						lightStruct.color = directionalLight->color()->rgba();
+						lightStruct.direction_world = node->worldForward();
+						directionalStructs.push_back(lightStruct);
+					}
 				}
 				else if (auto pointLight = dynamic_cast<PointLight*>(light)) {
-
-					PointLightGLSLStruct lightStruct;
-					lightStruct.color = pointLight->color()->rgba();
-					lightStruct.position_world = node->worldPosition();
-					lightStruct.constantAttenuation = pointLight->constantAttenuation();
-					lightStruct.linearAttenuation = pointLight->linearAttenuation();
-					lightStruct.quadraticAttenuation = pointLight->quadraticAttenuation();
-					pointStructs.push_back(lightStruct);
+					if (pointStructs.size() < config::MAX_POINT_LIGHTS) {
+						PointLightGLSLStruct lightStruct{};
+						lightStruct.color = pointLight->color()->rgba();
+						lightStruct.position_world = node->worldPosition();
+						lightStruct.constantAttenuation = pointLight->constantAttenuation();
+						lightStruct.linearAttenuation = pointLight->linearAttenuation();
+						lightStruct.quadraticAttenuation = pointLight->quadraticAttenuation();
+						pointStructs.push_back(lightStruct);
+					}
 				}
 				else if (auto spotLight = dynamic_cast<SpotLight*>(light)) {
-
-					SpotLightGLSLStruct lightStruct;
-					lightStruct.color = spotLight->color()->rgba();
-					lightStruct.position_world = node->worldPosition();
-					lightStruct.direction_world = node->worldForward();
-					lightStruct.innerAngleCos = spotLight->innerAngleCos();
-					lightStruct.outerAngleCos = spotLight->outerAngleCos();
-					lightStruct.featheringMode = magic_enum::enum_underlying(spotLight->featheringMode());
-					lightStruct.constantAttenuation = spotLight->constantAttenuation();
-					lightStruct.linearAttenuation = spotLight->linearAttenuation();
-					lightStruct.quadraticAttenuation = spotLight->quadraticAttenuation();
-					spotStructs.push_back(lightStruct);
+					if (spotStructs.size() < config::MAX_SPOT_LIGHTS) {
+						SpotLightGLSLStruct lightStruct{};
+						lightStruct.color = spotLight->color()->rgba();
+						lightStruct.position_world = node->worldPosition();
+						lightStruct.direction_world = node->worldForward();
+						lightStruct.innerAngleCos = spotLight->innerAngleCos();
+						lightStruct.outerAngleCos = spotLight->outerAngleCos();
+						lightStruct.featheringMode = magic_enum::enum_underlying(spotLight->featheringMode());
+						lightStruct.constantAttenuation = spotLight->constantAttenuation();
+						lightStruct.linearAttenuation = spotLight->linearAttenuation();
+						lightStruct.quadraticAttenuation = spotLight->quadraticAttenuation();
+						spotStructs.push_back(lightStruct);
+					}
 				}
 			}
 
@@ -1503,11 +1555,10 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 	// fog
 
 	auto visualWorld = scene.visualWorld();
-	FogGLSLStruct fogStruct;
+	FogGLSLStruct fogStruct{};
 	fogStruct.startDistance = visualWorld->fogStartDistance();
 	fogStruct.endDistance = visualWorld->fogEndDistance();
 	fogStruct.densityExponent = visualWorld->fogDensityExponent();
-	fogStruct.startDistance = visualWorld->fogStartDistance();
 	auto fogColor = visualWorld->fogColor();
 	if (visualWorld->fogColor()) {
 		fogStruct.color = fogColor->rgba();
@@ -1518,280 +1569,11 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 
 	memcpy(&environmentStruct.fog, &fogStruct, sizeof(fogStruct));
 
-
-
 	// send 'em
 
 	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(EnvironmentBlock), &environmentStruct, GL_DYNAMIC_DRAW);
-
-
-
-//	 int programID = Program::Default().glID();
-
-
-
-
-
-
-//	const char* names[16] = {
-//			"EnvironmentBlock.color",
-//			"EnvironmentBlock.numAmbientLights",
-//			"EnvironmentBlock.ambientLights[0].color",
-//			"EnvironmentBlock.numDirectionalLights",
-//			"EnvironmentBlock.directionalLights[0].color",
-//			"EnvironmentBlock.numPointLights",
-//			"EnvironmentBlock.pointLights[0].color",
-//			"EnvironmentBlock.pointLights[0].position_world",
-//			"EnvironmentBlock.pointLights[0].constantAttenuation",
-//			"EnvironmentBlock.pointLights[0].linearAttenuation",
-//			"EnvironmentBlock.pointLights[0].quadraticAttenuation",
-//			"EnvironmentBlock.numSpotLights",
-//			"EnvironmentBlock.spotLights[0].color",
-//			"EnvironmentBlock.fog.color",
-//			"EnvironmentBlock.fog.startDistance",
-//			"EnvironmentBlock.fog.endDistance",
-////			"EnvironmentBlock.fog.densityExponent"
-//	};
-//	GLuint indices[16]; for (int i = 0; i < 16; ++i) indices[i] = 0;
-//	GLint offsets[16]; for (int i = 0; i < 16; ++i) offsets[i] = 0;
-//
-//	glGetUniformIndices(programID, 16, names, indices);
-//	glGetActiveUniformsiv(programID, 16, indices, GL_UNIFORM_OFFSET, offsets);
-//
-////	for (int i = 0; i < 16; i++) {
-////		A3D_LOG_D("Uniform index for {}: {}",
-////				  names[i], indices[i] == GL_INVALID_INDEX ? "BAD" : "GOOD");
-////	}
-//
-////	environmentStruct.ambientLights[0].color = rgba(1.0, 0, 0, 1);
-////	glBufferSubData(GL_UNIFORM_BUFFER, offsets[1], sizeof(rgba),
-////					(const void*)&environmentStruct.ambientLights[0].color);
-//
-//	environmentStruct.color = vec3(1.0, 0, 0);
-//	glBufferSubData(GL_UNIFORM_BUFFER, offsets[0], sizeof(vec3),
-//					(const void*)&environmentStruct.color);
-
-
-
-
-	//environmentStruct.color = vec3(1.0, 0, 0);
-
-	//Program::Default().bindUniformBlock("EnvironmentBlock", glEnvironmentUBO);
-
-//	environmentStruct.fog.color = vec4(1.0, 0.0, 0.0, 1.0);
-//	glBufferSubData(GL_UNIFORM_BUFFER, offsets[1], sizeof(vec4),
-//					(const void*)&environmentStruct.ambientLights[0].color);
-
-
-
-
-
-//	glBufferSubData(GL_UNIFORM_BUFFER, offsets[0], sizeof(uint32_t),
-//					(const void*)0);
-////	glBufferSubData(GL_UNIFORM_BUFFER, offsets[0], sizeof(uint32_t),
-////					(const void*)&environmentStruct.numAmbientLights);
-////	glBufferSubData(GL_UNIFORM_BUFFER, offsets[1], sizeof(AmbientLightGLSLStruct) * MAX_AMBIENT_LIGHTS,
-////					(const void*)environmentStruct.ambientLights);
-//
-//	glBufferSubData(GL_UNIFORM_BUFFER, offsets[2], sizeof(uint32_t),
-//					(const void*)0);
-////	glBufferSubData(GL_UNIFORM_BUFFER, offsets[3], sizeof(DirectionalLightGLSLStruct) * MAX_DIRECTIONAL_LIGHTS,
-////					(const void*)environmentStruct.directionalLights);
-//
-//	glBufferSubData(GL_UNIFORM_BUFFER, offsets[4], sizeof(uint32_t),
-//					(const void*)0);
-//
-//	glBufferSubData(GL_UNIFORM_BUFFER, offsets[5], sizeof(vec4),
-//					(const void*)&environmentStruct.pointLights[0].color);
-//	glBufferSubData(GL_UNIFORM_BUFFER, offsets[6], sizeof(vec3),
-//					(const void*)&environmentStruct.pointLights[0].position_world);
-//	glBufferSubData(GL_UNIFORM_BUFFER, offsets[7], sizeof(float32_t),
-//					(const void*)&environmentStruct.pointLights[0].constantAttenuation);
-//	glBufferSubData(GL_UNIFORM_BUFFER, offsets[8], sizeof(float32_t),
-//					(const void*)&environmentStruct.pointLights[0].linearAttenuation);
-//	glBufferSubData(GL_UNIFORM_BUFFER, offsets[9], sizeof(float32_t),
-//					(const void*)&environmentStruct.pointLights[0].quadraticAttenuation);
-//
-//
-//
-//	glBufferSubData(GL_UNIFORM_BUFFER, offsets[10], sizeof(uint32_t),
-//					(const void*)0);
-////	glBufferSubData(GL_UNIFORM_BUFFER, offsets[7], sizeof(SpotLightGLSLStruct) * MAX_SPOT_LIGHTS,
-////					(const void*)environmentStruct.spotLights);
-//
-//
-//	glBufferSubData(GL_UNIFORM_BUFFER, offsets[12], sizeof(vec4),
-//					(const void*)&environmentStruct.fog.color);
-//	glBufferSubData(GL_UNIFORM_BUFFER, offsets[13], sizeof(float32_t),
-//					(const void*)&environmentStruct.fog.startDistance);
-//	glBufferSubData(GL_UNIFORM_BUFFER, offsets[14], sizeof(float32_t),
-//					(const void*)&environmentStruct.fog.endDistance);
-//	glBufferSubData(GL_UNIFORM_BUFFER, offsets[15], sizeof(float32_t),
-//					(const void*)&environmentStruct.fog.densityExponent);
-
-
-
-
-
-
-//	 const char* names[9] = {
-//	 	"EnvironmentBlock.numAmbientLights", // 0
-//	 	"EnvironmentBlock.ambientLights[0].color", // 16
-//	 	"EnvironmentBlock.numDirectionalLights", // 80
-//	 	"EnvironmentBlock.directionalLights[0].color", // 96
-//	 	"EnvironmentBlock.numPointLights", // 224
-//	 	"EnvironmentBlock.pointLights[0].color", // 240
-//	 	"EnvironmentBlock.numSpotLights", // 1776
-//	 	"EnvironmentBlock.spotLights[0].color", // 1792
-//	 	"EnvironmentBlock.fog.color" // 2432
-//	 };
-//	 GLuint indices[9]; for (int i = 0; i < 9; i++) indices[i] = 0;
-//	 GLint offsets[9]; for (int i = 0; i < 9; i++) offsets[i] = 0;
-//
-//	 glGetUniformIndices(programID, 9, names, indices);
-//	 glGetActiveUniformsiv(programID, 9, indices, GL_UNIFORM_OFFSET, offsets);
-//
-//	 for (int i = 0; i < 9; i++) {
-//	 	A3D_LOG_D("Uniform index for {}: {}",
-//	 		names[i], indices[i] == GL_INVALID_INDEX ? "BAD" : "GOOD");
-//	 }
-//
-//	 glBufferSubData(GL_UNIFORM_BUFFER, offsets[0], sizeof(uint32_t),
-//	 	(const void*)&environmentStruct.numAmbientLights);
-//	 glBufferSubData(GL_UNIFORM_BUFFER, offsets[1], sizeof(AmbientLightGLSLStruct) * MAX_AMBIENT_LIGHTS,
-//	 	(const void*)environmentStruct.ambientLights);
-//	 glBufferSubData(GL_UNIFORM_BUFFER, offsets[2], sizeof(uint32_t),
-//	 	(const void*)&environmentStruct.numDirectionalLights);
-//	 glBufferSubData(GL_UNIFORM_BUFFER, offsets[3], sizeof(DirectionalLightGLSLStruct) * MAX_DIRECTIONAL_LIGHTS,
-//	 	(const void*)environmentStruct.directionalLights);
-//	 glBufferSubData(GL_UNIFORM_BUFFER, offsets[4], sizeof(uint32_t),
-//	 	(const void*)&environmentStruct.numPointLights);
-//	 glBufferSubData(GL_UNIFORM_BUFFER, offsets[5], sizeof(PointLightGLSLStruct) * MAX_POINT_LIGHTS,
-//	 	(const void*)environmentStruct.pointLights);
-//	 glBufferSubData(GL_UNIFORM_BUFFER, offsets[6], sizeof(uint32_t),
-//	 	(const void*)&environmentStruct.numSpotLights);
-//	 glBufferSubData(GL_UNIFORM_BUFFER, offsets[7], sizeof(SpotLightGLSLStruct) * MAX_SPOT_LIGHTS,
-//	 	(const void*)environmentStruct.spotLights);
-//	 glBufferSubData(GL_UNIFORM_BUFFER, offsets[8], sizeof(FogGLSLStruct),
-//	 	(const void*)&environmentStruct.fog);
 }
-
-// ORIGINAL
-//void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
-//							 const Scene& scene,
-//							 const vector<Node*>& lightNodes,
-//							 Stats& stats) {
-//	// program "Default" must be active
-//
-//	// block
-//
-//	EnvironmentBlock environmentStruct;
-//
-//	// lights
-//
-//	if (scene.visualWorld()->usesDefaultLighting()) {
-//
-//		Program::Default().setUniform("useDefaultLighting", true);
-//	}
-//	else {
-//
-////		auto lights = vector<Node*>();
-//		auto lights = lightNodes;
-//		Node* ambientLightNode = nullptr;
-//
-//		// find all lights in the scene
-////		for (auto &node: scene.rootNode()->children(true)) {
-////			if (auto light = node->light()) {
-////				if (light->type() == LightType::Point) {
-////					lights.push_back(node.get());
-////				}
-////				else if (light->type() == LightType::Ambient) {
-////					ambientLightNode = node.get();
-////				}
-////			}
-////		}
-//
-//		if (lightNodes.size() > MAX_DYNAMIC_LIGHTS) {
-//
-//			// find all light distances from the camera
-//
-//			auto lightsUnsorted = map<Node*, float>();
-//			auto cameraPos_world = scene.visualWorld()->pointOfView().lock()->worldPosition();
-//			for (auto& lightNode : lightNodes) {
-//				auto lightPos_world = lightNode->worldPosition();
-//				auto lightToCamera = lightPos_world - cameraPos_world;
-//				auto lightToCameraDistance = length(lightToCamera);
-//				lightsUnsorted[lightNode] = lightToCameraDistance;
-//			}
-//
-//			vector<Node*> sorted;
-//			lights = SortedLights(lightsUnsorted);
-//
-//			unsigned endIndex = std::min((unsigned)lights.size(), (unsigned)MAX_DYNAMIC_LIGHTS);
-//			auto first = lights.begin() + 0;
-//			auto last = lights.begin() + endIndex;
-//			auto lightsSlice = vector<Node*>(first, last);
-//
-//			lights = lightsSlice;
-//		}
-//
-//		if (ambientLightNode) lights.push_back(ambientLightNode);
-//
-//		auto numLights = lights.size();
-//		LightGLSLStruct lightStruct[numLights];
-//
-//		stats.lights = std::max(int(0), int(numLights - 1)); // not counting ambient
-//
-//		// TODO: move this?
-//		// should useDefaultLighing be a root uniform or elsewhere?
-//		if (((numLights == 0) && scene.visualWorld()->autoEnablesDefaultLighting())) {
-//
-//			Program::Default().setUniform("useDefaultLighting", true);
-//		}
-//		else {
-//
-//			Program::Default().setUniform("useDefaultLighting", false);
-//
-//			for (unsigned l = 0; l < numLights; ++l) {
-//				auto node = lights[l];
-//				auto light = node->light();
-//
-//				lightStruct[l].type = static_cast<unsigned>(light->type());
-//				lightStruct[l].position_world = node->worldPosition();
-//				lightStruct[l].attenuationFactor = light->attenuationFactor();
-//
-//				auto color = *light->color();
-//				lightStruct[l].color = {color.r, color.g, color.b, color.a};
-//			}
-//		}
-//
-//		environmentStruct.numLights = numLights;
-//		memcpy(&environmentStruct.lights, &lightStruct, sizeof(lightStruct));
-//	}
-//
-//	// fog
-//
-//	auto visualWorld = scene.visualWorld();
-//	FogGLSLStruct fogStruct;
-//	fogStruct.startDistance = visualWorld->fogStartDistance();
-//	fogStruct.endDistance = visualWorld->fogEndDistance();
-//	fogStruct.densityExponent = visualWorld->fogDensityExponent();
-//	fogStruct.startDistance = visualWorld->fogStartDistance();
-//	auto fogColor = visualWorld->fogColor();
-//	if (visualWorld->fogColor()) fogStruct.color = {fogColor->r,
-//													fogColor->g,
-//													fogColor->b,
-//													fogColor->a};
-//	else fogStruct.color = {0.0, 0.0, 0.0, 0.0};
-//
-//	memcpy(&environmentStruct.fog, &fogStruct, sizeof(fogStruct));
-//
-//	// send 'em
-//
-//	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
-//	glBufferData(GL_UNIFORM_BUFFER, sizeof(environmentStruct), &environmentStruct, GL_DYNAMIC_DRAW);
-//}
 
 void SetTextureSamplingOptions(Texture& texture,
 							   GLuint glTextureHandle) {
@@ -1888,13 +1670,13 @@ void SetMaterialOpenGLState(const Material& material,
 	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes)) {
 		//_program = Program::Wireframe();
 		
-#ifdef OPENGL_CORE
+#ifdef A3D_GL_DESKTOP
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glEnable(GL_LINE_SMOOTH);
 #endif
 	}
 	else {
-#ifdef OPENGL_CORE
+#ifdef A3D_GL_DESKTOP
 		if (material.fillMode() == FillMode::Lines) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		}
@@ -1919,7 +1701,7 @@ void SetMaterialOpenGLState(const Material& material,
 void SetSkyboxOpenGLState() {
 	
 	glDepthMask(GL_FALSE);
-#ifdef OPENGL_CORE
+#ifdef A3D_GL_DESKTOP
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 #endif
 	glDisable(GL_CULL_FACE);
@@ -1930,7 +1712,7 @@ void SetLinesGLState() {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glDepthMask(GL_TRUE);
-#ifdef OPENGL_CORE
+#ifdef A3D_GL_DESKTOP
 	glEnable(GL_LINE_SMOOTH);
 #endif
 	
@@ -1945,22 +1727,28 @@ void DrawMeshElement(MeshElement& element,
 					 const mat4& modelMat,
 					 const mat4& viewMat,
 					 const mat4& projectionMat,
-					 GLuint vao, GLuint ebo) {
+					 GLuint vao, GLuint ebo/*,
+					 vector<OpenGLDrawItem>& drawItmes*/) {
 
 	program.use();
 
 	// uniforms
-	
+
 	program.setUniform("modelMat", modelMat);
 	program.setUniform("viewMat", viewMat);
 	program.setUniform("projMat", projectionMat);
-	
+
 	// update
-	
+
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	auto numFaces = element.faces().size();
 	glDrawElements(GL_TRIANGLES, (GLsizei)numFaces*3, GL_UNSIGNED_INT, nullptr);
+
+//	drawItmes.push_back({&program,
+//						 modelMat, viewMat, projectionMat,
+//						 vao, ebo,
+//						 static_cast<unsigned>(numFaces*3)});
 }
 
 void DrawSkyboxElement(MeshElement& element,
@@ -1970,7 +1758,7 @@ void DrawSkyboxElement(MeshElement& element,
 
 	program.use();
 
-	auto viewMat = lookAt({0.0f, 0.0f, 0.0f}, // eye - location
+	auto viewMat = look_at({0.0f, 0.0f, 0.0f}, // eye - location
 						  pointOfView.worldForward(), // center - look at
 						  pointOfView.worldUp()); // up
 	
@@ -2295,357 +2083,715 @@ vector<Node*> SortedLights(map<Node*, float> lights) {
 	return sortedVector;
 }
 
-void InitImgui(const RenderContext& context) {
+void DrawOverlay(const RenderContext& context,
+				 const Scene& scene,
+				 FrameStats& stats,
+				 const FrameStatsHistory& statsHistory,
+				 DebugOptions debugOptions,
+				 ImFont& titleFont,
+				 ImFont& bodyFont) {
 
-	using namespace ImGui;
+	// glBindFramebuffer(GL_FRAMEBUFFER, context.defaultFramebuffer());
 
-	IMGUI_CHECKVERSION();
-	CreateContext();
-	ImGuiIO& io = GetIO();
-	io.IniFilename = nullptr;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-	ImGui_ImplOpenGL3_Init();
-	//ImGui_ImplOpenGL3_Init("#version 330 core");
+	ImguiUpdateScale(context);
+
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui::NewFrame();
+
+	ImguiBeginOverlay(0, true);
+	DrawDebugOptions(const_cast<Scene&>(scene), context, titleFont, bodyFont); // TODO: const_cast CHEATING
+	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay)) {
+		DrawStats(stats, statsHistory, context, titleFont, bodyFont);
+	}
+
+	ImguiEndOverlay();
+
+	// pass input through Imgui window
+	if (!(ImGui::IsAnyItemHovered() || ImGui::IsAnyItemActive()))
+		ImGui::GetIO().WantCaptureMouse = false;
+
+	ImGui::Render();
+
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void UpdateImguiScale(const RenderContext& context,
-					  const Font& overLayFont,
-					  const Font& bodyFont) {
-
-	// https://github.com/ocornut/imgui/blob/master/docs/FAQ.md#q-how-should-i-handle-dpi-in-my-application
-	// https://github.com/ocornut/imgui/discussions/3925
-	// https://github.com/ocornut/imgui/issues/3757
-	// https://gist.github.com/benpm/21afb58f2c8dfdbf881ca90c76ad602e
-	// https://gist.github.com/benpm/21afb58f2c8dfdbf881ca90c76ad602e#file-high_dpi-cpp-L2
+void DrawStats(FrameStats& stats,
+			   const FrameStatsHistory& statsHistory,
+			   const RenderContext& context,
+			   ImFont& titleFont,
+			   ImFont& bodyFont) {
 
 	using namespace ImGui;
 
-	ImGui_ImplOpenGL3_DestroyFontsTexture();
+	//ShowMetricsWindow();
 
-	// clear all the font data,
-	// re-add the fonts with the new oversample scales,
-	// and re-create the font atlas data.
+	static const float X_POS = 12.0;
+	static const float COLUMN_WIDTH = 130.0f;
+	static const bool PLOT_OUTLINED = true;
+	static const float PLOT_HEIGHT_1 = 48.0;
+	static const float PLOT_HEIGHT_2 = 24.0;
+	static const float PLOT_X_OFFSET = 0.0;
+	static const float PLOT_STR_Y_PAD = 8.0;
+	static const float PLOT_Y_PAD = 18.0;
+	static const float PLOT_Y_MIN = 0.0;
+	static const float PLOT_Y_MAX = 17.0;
+	static const int TEXT_PADDING = 15;
+	static const float STAT_LINE_STEP = STATS_BODY_FONT_SIZE + 1.0f;
+	static const float INDENT_WIDTH = 8.0f;
 
-	ImGuiIO& io = GetIO();
-	io.Fonts->Clear(); // works
-	io.Fonts->ClearFonts(); // crashes by itself
-	io.Fonts->ClearTexData(); // does not work, but does not crash
+	struct StatsTextLayout {
+		float xLeft;
+		float xRight;
+		float gap; // min gap between label and value
+	};
 
-	AddImguiFont(context, overLayFont, OpenGLRenderer::STATS_TITLE_FONT_SIZE);
-	AddImguiFont(context, bodyFont, OpenGLRenderer::STATS_BODY_FONT_SIZE);
+	const auto DrawLabelValue = [](float& y,
+								   const StatsTextLayout& layout,
+								   const char* label,
+								   const std::string& value,
+								   ImFont& font,
+								   float fontSize,
+								   float lineStep) {
 
-	ImGui_ImplOpenGL3_CreateFontsTexture();
-}
+		const auto SnapPx = [](float x) -> float {
+			return math::floor(x + 0.5f);
+		};
 
-void AddImguiFont(const RenderContext& context, const Font& font, float size) {
+		const auto TextSizeA = [](ImFont& f, float size, const char* text) -> ImVec2 {
+			const float wrapWidth = 0.0f;
+			return f.CalcTextSizeA(size, math::f32_max(), wrapWidth, text);
+		};
 
-	using namespace ImGui;
+		// draw label
+		ImguiDrawText(SnapPx(layout.xLeft), y, label, font, fontSize);
 
-	auto scaleXY = context.framebufferScale();
+		// measure at SAME font+size you draw with
+		const ImVec2 labelSz = TextSizeA(font, fontSize, label);
+		const ImVec2 valueSz = TextSizeA(font, fontSize, value.c_str());
 
-	ImFontConfig fontConfig;
+		float xValue = layout.xRight - valueSz.x;
+		const float minXValue = layout.xLeft + labelSz.x + layout.gap;
+		if (xValue < minXValue) xValue = minXValue;
 
-	fontConfig.OversampleH = (int)std::ceil(scaleXY.x);
-	fontConfig.OversampleV = (int)std::ceil(scaleXY.y);
+		// pixel snap
+		xValue = SnapPx(xValue);
 
-	// by default Imgui transferrs font memory ownership to itself
-	// this means Imgui eventually frees the font data, and then the Font/Buffer double-free it
-	fontConfig.FontDataOwnedByAtlas = false;
+		ImguiDrawText(xValue, y, value.c_str(), font, fontSize);
 
-	ImGuiIO& io = GetIO();
+		y += lineStep;
+	};
 
-	io.DisplayFramebufferScale = ImVec2(scaleXY.x, scaleXY.y);
+	const auto DrawLabelValueIndented = [DrawLabelValue](float& y,
+														 const StatsTextLayout& layout,
+														 const char* label,
+														 const std::string& value,
+														 ImFont& font,
+														 float fontSize,
+														 float indentPx,
+														 float lineStep) {
+		StatsTextLayout l = layout;
+		l.xLeft += indentPx;
+		DrawLabelValue(y, l, label, value, font, fontSize, 0);
+		y += lineStep;
+	};
 
-	io.Fonts->AddFontFromMemoryTTF(font.buffer()->data(),
-								   (int)font.buffer()->size(),
-								   size,
-								   &fontConfig);
-}
+	const auto DrawPlot = [](float x, float& y, float w, float h,
+							 const float* values,
+							 int valuesCount,
+							 int valuesOffset,
+							 const char* overlayText,
+							 float scaleMin,
+							 float scaleMax,
+							 int stride,
+							 bool outlined,
+							 int id,
+							 float lineStep) {
 
-void DrawDebugOptions(Scene& scene, const RenderContext& context) {
+		ImguiDrawPlot(x, y, w, h,
+					  values,
+					  valuesCount,
+					  valuesOffset,
+					  overlayText,
+					  scaleMin, scaleMax,
+					  stride,
+					  outlined,
+					  id);
+		y += lineStep;
+	};
 
-	using namespace ImGui;
 
-	// TODO: refactor
-#ifdef WINDOWS
-	auto scaleXY = context.framebufferScale();
-	auto scale = std::max(scaleXY.x, scaleXY.y);
-	// this is probably going to need more attention when we start
-	// using Imgui for more than just rendering text
-	//GetStyle().ScaleAllSizes(scale);
-	GetIO().FontGlobalScale = scale;
-#endif
-
-	ImGuiWindowFlags windowFlags = 0;
-	windowFlags |= ImGuiWindowFlags_NoTitleBar;
-	windowFlags |= ImGuiWindowFlags_NoScrollbar;
-	windowFlags |= ImGuiWindowFlags_NoMove;
-	windowFlags |= ImGuiWindowFlags_NoResize;
-	windowFlags |= ImGuiWindowFlags_NoCollapse;
-	windowFlags |= ImGuiWindowFlags_NoNav;
-	windowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
+	float yPos = 0;
+	int id = 0;
 
 	ImGuiIO& io = GetIO();
 	auto fonts = io.Fonts->Fonts;
 
-	const float WIN_WIDTH = 180;
-	const ImVec2 windowSize(WIN_WIDTH, 0);
-	ImGui::SetNextWindowSize(windowSize, ImGuiCond_Always);
-	ImGui::SetNextWindowPos(
-			ImVec2(io.DisplaySize.x - WIN_WIDTH, 8),
-			ImGuiCond_Always);
-	SetNextWindowBgAlpha(0);
-	Begin("Debug Options", nullptr, windowFlags);
-	PushFont(fonts[1]);
-
-	auto debugOptions = scene.debugOptions();
-
-	static bool stats = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay);
-	if (Checkbox("Stats", &stats)) {
-		if (stats)
-			scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowStatsOverlay));
-		else
-			scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowStatsOverlay));
-	}
-
-	bool meshWF = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes);
-	if (Checkbox("Mesh wireframes", &meshWF)) {
-		if (meshWF)
-			scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowWireframes));
-		else
-			scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowWireframes));
-	}
-
-	bool meshAABBs = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes);
-	if (Checkbox("Mesh AABBs", &meshAABBs)) {
-		if (meshAABBs)
-			scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowBoundingBoxes));
-		else
-			scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowBoundingBoxes));
-	}
-
-	bool physWF = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes);
-	if (Checkbox("Physics wireframes", &physWF)) {
-		if (physWF)
-			scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsWireframes));
-		else
-			scene.debugOptions(A3D_MASK_REMOVE(debugOptions,DebugOptions::ShowPhysicsWireframes));
-	}
-
-	bool physAABBs = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes);
-	if (Checkbox("Physics AABBs", &physAABBs)) {
-		if (physAABBs)
-			scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
-		else
-			scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
-	}
-
-	bool physContacts = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints);
-	if (Checkbox("Physics contacts", &physContacts)) {
-		if (physContacts)
-			scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsContactPoints));
-		else
-			scene.debugOptions(A3D_MASK_REMOVE(debugOptions,DebugOptions::ShowPhysicsContactPoints));
-	}
-
-	bool physNorms = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsNormals);
-	if (Checkbox("Physics normals", &physNorms)) {
-		if (physNorms)
-			scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsNormals));
-		else
-			scene.debugOptions(A3D_MASK_REMOVE(debugOptions,DebugOptions::ShowPhysicsNormals));
-	}
-
-	PopFont();
-	End();
-}
-
-void DrawStatsOverlay(Stats& stats, const RenderContext& context) {
-
-	using namespace ImGui;
-
-	// TODO: refactor
-#ifdef WINDOWS
-	auto scaleXY = context.framebufferScale();
-	auto scale = std::max(scaleXY.x, scaleXY.y);
-	// this is probably going to need more attention when we start
-	// using Imgui for more than just rendering text
-	//GetStyle().ScaleAllSizes(scale);
-	GetIO().FontGlobalScale = scale;
-#endif
-
-	constexpr int PADDING = 20;
-
-	string recordingStr;
-	if (context.recordingGIF()) {
-		auto time = context.recordedGIFTime();
-		auto numFrames = context.recordedGIFFrames();
-		recordingStr = std::format("\n{:<{}} {:.1f} s / {} {}",
-								   "RECORDING",
-								   PADDING,
-								   time,
-								   numFrames,
-								   (numFrames==1 ? "frame" : "frames"));
-	}
-	else {
-		recordingStr = "";
-	}
+	yPos += 4;
+	ImguiDrawText(X_POS, yPos, "avara3d", titleFont, STATS_TITLE_FONT_SIZE);
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
-
-	auto str = std::format(
+	static auto buildStr = std::format(
 			"v{}.{}.{} build {}\n" \
-			 "{}\n"
-			"\n" \
-
-			"{:<{}} {:.2f} ms\n" \
-			 "{:<{}} {:.2f} ms\n" \
-			 "{:<{}} {:.2f} ms\n" \
-			 "{:<{}} {:.2f} ms\n" \
-			 "{:<{}} {:.0f} fps {}\n" \
-			 "\n" \
-
-			"{:<{}} ({}, {})\n" \
-			"{:<{}} {}\n" \
-			 "{:<{}} ({:.1f}, {:.1f})\n" \
-			 "\n" \
-
-			"{:<{}} {}\n" \
-			 "{:<{}} {}\n" \
-			 "{:<{}} {}\n" \
-			 "{:<{}} {:.1f}k\n" \
-			 "{:<{}} {}\n" \
-			 "\n" \
-			 "{:<{}} {}\n" \
-			 "{:<{}} {}\n" \
-			 "{:<{}} {}\n" \
-			 "{:<{}} {}\n" \
-			 "{:<{}} {}\n" \
-			 "{:<{}} {}\n" \
-			 "{:<{}} {}\n" \
-			 "{:<{}} {}\n" \
-			 "{:<{}} {}\n" \
-			 "\n" \
-			 "{:<{}} ({:.1f}, {:.1f}, {:.1f})\n" \
-			 /*"{:<{}} ({:.4f}, {:.4f}, {:.4f}, {:.4f})\n" \*/
-			 "{}",
-
+             "{}\n"
+			"\n" ,
 			version.major, version.minor, version.patch, buildInfo.number(),
-			buildInfo.type() == BuildInfo::Type::Debug ? "debug" : "release",
+			buildInfo.type() == BuildInfo::Type::Debug ? "debug" : "release");
+	yPos += 25;
+	ImguiDrawText(X_POS, yPos, buildStr.c_str(), bodyFont, STATS_BODY_FONT_SIZE);
 
-			"frametime", PADDING, stats.averageFrametime,
-			" draw", PADDING, stats.averageDrawtime,
-			" physics", PADDING, stats.averagePhysicstime,
-			" user", PADDING, stats.averageUsertime,
-			"framerate", PADDING, stats.averageFramerate, (context.vSyncEnabled() ? "[vsync]" : ""),
+	static chrono::nanoseconds frameNsAvg, engineCpuNsAvg, renderCpuNsAvg,
+			renderGpuNsAvg, physicsNsAvg, appCpuNsAvg;
+	static float frameMsFAvg, engineCpuMsFAvg, renderCpuMsFAvg,
+			renderGpuMsFAvg, physicsMsFAvg, appCpuMsFAvg;
+	static float fpsAvg = 0;
 
-			"resolution", PADDING, context.framebufferSize().x, context.framebufferSize().y,
-			"antialiasing", PADDING, StatusOverlayDescriptionForAntialiasingMode(context.antialiasingMode()),
-			"framebuffer scale", PADDING, context.framebufferScale().x, context.framebufferScale().y,
+	A3D_EVERY(config::FRAME_STATS_AVERAGE_UPDATE_INTERVAL) {
 
-			"nodes", PADDING, stats.nodes,
-			"meshes", PADDING, stats.meshes,
-			"elements", PADDING, stats.elements,
-			"polygons", PADDING, float(stats.polygons)/1000.0f,//(int)round(float(stats.polygons)/1000.0f),
-			"lights", PADDING, stats.lights,
+		FrameStatsHistory::GetAverages(statsHistory,
+									   frameNsAvg, engineCpuNsAvg, renderCpuNsAvg,
+									   renderGpuNsAvg, physicsNsAvg, appCpuNsAvg,
+									   config::FRAME_STATS_AVERAGING_DURATION);
 
-			"physics bodies", PADDING, stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies,
-			" static", PADDING, stats.staticBodies,
-			" dynamic", PADDING, stats.dynamicBodies,
-			" kinematic", PADDING, stats.kinematicBodies,
-			"physics shapes", PADDING, stats.concavePolyhedronShapes + stats.boundingBoxShapes + stats.convexHullShapes,
-			" primitive", PADDING, stats.primitiveShapes,
-			" bounding box", PADDING, stats.boundingBoxShapes,
-			" convex hull", PADDING, stats.convexHullShapes,
-			" concave polyhedron", PADDING, stats.concavePolyhedronShapes,
+		// ! ~zero cost
+		frameMsFAvg = chrono::duration<float, std::milli>(frameNsAvg).count();
+		engineCpuMsFAvg = chrono::duration<float, std::milli>(engineCpuNsAvg).count();
+		renderCpuMsFAvg = chrono::duration<float, std::milli>(renderCpuNsAvg).count();
+		renderGpuMsFAvg = chrono::duration<float, std::milli>(renderGpuNsAvg).count();
+		physicsMsFAvg = chrono::duration<float, std::milli>(physicsNsAvg).count();
+		appCpuMsFAvg = chrono::duration<float, std::milli>(appCpuNsAvg).count();
+		if (frameMsFAvg > 0) fpsAvg = 1000.0f / frameMsFAvg;
+	}
 
-			"camera position", PADDING, stats.cameraPosition.x, stats.cameraPosition.y, stats.cameraPosition.z,
-			//"camera orientation", PADDING, stats.cameraOrientation.x, stats.cameraOrientation.y, stats.cameraOrientation.z, stats.cameraOrientation.w,
-			recordingStr);
+	static vector<float> frameSamples;
+	static vector<float> physSamples;
+	static vector<float> engCpuSamples;
+	static vector<float> renderCpuSamples;
+	static vector<float> renderGpuSamples;
+	static vector<float> appSamples;
 
-//	// these have to be called in this order for input to work.
-//	// ImGui_ImplOpenGL3_NewFrame(); -> in beginFrame()
-//	// ImGui_ImplGlfw_NewFrame() -> in GLFWWindow::beginFrame()
-//	NewFrame();
+	static size_t frame = 0;
+	static const unsigned SKIP_FRAMES = 2;
+	if (!((frame++) % SKIP_FRAMES)) {
 
-	ImGuiWindowFlags windowFlags = 0;
-	windowFlags |= ImGuiWindowFlags_NoTitleBar;
-	windowFlags |= ImGuiWindowFlags_NoScrollbar;
-	windowFlags |= ImGuiWindowFlags_NoMove;
-	windowFlags |= ImGuiWindowFlags_NoResize;
-	windowFlags |= ImGuiWindowFlags_NoCollapse;
-	windowFlags |= ImGuiWindowFlags_NoNav;
-	windowFlags |= ImGuiWindowFlags_AlwaysAutoResize;
+		auto &samples = statsHistory.samples();
 
-	ImGuiIO& io = GetIO();
-	auto fonts = io.Fonts->Fonts;
+		frameSamples.resize(samples.size());
+		physSamples.resize(samples.size());
+		engCpuSamples.resize(samples.size());
+		renderCpuSamples.resize(samples.size());
+		renderGpuSamples.resize(samples.size());
+		appSamples.resize(samples.size());
 
-	// draw the text shadow
-	SetNextWindowBgAlpha(0);
-	Begin("StatsTextShadow", nullptr, windowFlags);
-	ImGuiStyle& style = GetStyle();
-	style.WindowBorderSize = 0;
-	SetWindowPos({10.0f, 2.0f});
-	ImVec2 cursorPos = GetCursorPos();
-	SetCursorPos(ImVec2(cursorPos.x + 1.0, cursorPos.y + 1.0));
-//	PushFont(fonts[1]);
-	PushFont(fonts[0]);
-	TextColored(ImVec4{0, 0, 0, .5}, "avara3d");
-	PopFont();
-	cursorPos = GetCursorPos();
-	SetCursorPos(ImVec2(cursorPos.x,
-						cursorPos.y + OpenGLRenderer::STATS_TITLE_TO_BODY_PADDING));
-	PushFont(fonts[1]);
-	TextColored(ImVec4{0, 0, 0, .5}, "%s", str.c_str());
-	PopFont();
-	End();
+		for (size_t i = 0; i < samples.size(); ++i) {
+			auto sample = get<1>(samples[i]);
+			frameSamples[i] = chrono::duration<float, milli>(sample.frameTime).count();
+			engCpuSamples[i] = chrono::duration<float, milli>(sample.engineCpuTime).count();
+			physSamples[i] = chrono::duration<float, milli>(sample.physicsTime).count();
+			renderCpuSamples[i] = chrono::duration<float, milli>(sample.renderCpuTime).count();
+			renderGpuSamples[i] = chrono::duration<float, milli>(sample.renderGpuTime).count();
+			appSamples[i] = chrono::duration<float, milli>(sample.applicationTime).count();
+		}
+	}
 
-	// draw the text
-	SetNextWindowBgAlpha(0);
-	Begin("StatsText", nullptr, windowFlags);
-	SetWindowPos({10.0f, 2.0f});
-//	PushFont(fonts[1]);
-	PushFont(fonts[0]);
-	TextColored(ImVec4{1, 1, 1, 1}, "avara3d");
-	PopFont();
-	cursorPos = GetCursorPos();
-	SetCursorPos(ImVec2(cursorPos.x,
-						cursorPos.y + OpenGLRenderer::STATS_TITLE_TO_BODY_PADDING));
-	PushFont(fonts[1]);
-	TextColored(ImVec4{1, 1, 1, 1}, "%s", str.c_str());
-	PopFont();
-	End();
+	StatsTextLayout layout {
+			.xLeft = X_POS,
+			.xRight = X_POS + COLUMN_WIDTH,
+			.gap = 12.0f
+	};
+
+	yPos += 48;
+	auto rateValue = std::format("{:.0f}fps", fpsAvg);
+	DrawLabelValue(yPos, layout, "", rateValue,
+				   bodyFont, STATS_BODY_FONT_SIZE, 15);
+
+	auto frameValue = std::format("{:.1f}ms", frameMsFAvg);
+	DrawLabelValue(yPos, layout, "frame", frameValue,
+				   bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
+
+	DrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_1,
+			 frameSamples.data(),
+			 static_cast<int>(frameSamples.size()),
+			 0,
+			 nullptr,
+			 PLOT_Y_MIN, PLOT_Y_MAX,
+			 0,
+			 PLOT_OUTLINED,
+			 ++id,
+			 PLOT_HEIGHT_1 + PLOT_STR_Y_PAD);
+
+	auto engineCpuValue = std::format("{:.1f}ms", engineCpuMsFAvg);
+	DrawLabelValue(yPos, layout, "engine cpu", engineCpuValue,
+				   bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
+
+	DrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2,
+			 engCpuSamples.data(),
+			 static_cast<int>(engCpuSamples.size()),
+			 0,
+			 nullptr,
+			 PLOT_Y_MIN, PLOT_Y_MAX,
+			 0,
+			 PLOT_OUTLINED,
+			 ++id,
+			 PLOT_HEIGHT_2 + PLOT_STR_Y_PAD);
+
+	auto renderCpuValue = std::format("{:.1f}ms", renderCpuMsFAvg);
+	DrawLabelValue(yPos, layout, "render sub", renderCpuValue,
+				   bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
+
+	DrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2,
+			 renderCpuSamples.data(),
+			 static_cast<int>(renderCpuSamples.size()),
+			 0,
+			 nullptr,
+			 PLOT_Y_MIN, PLOT_Y_MAX,
+			 0,
+			 PLOT_OUTLINED,
+			 ++id,
+			 PLOT_HEIGHT_2 + PLOT_STR_Y_PAD);
+
+	auto renderGpuValue = std::format("{:.1f}ms", renderGpuMsFAvg);
+	DrawLabelValue(yPos, layout, "draw", renderGpuValue,
+				   bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
+
+	DrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2,
+			 renderGpuSamples.data(),
+			 static_cast<int>(renderGpuSamples.size()),
+			 0,
+			 nullptr,
+			 PLOT_Y_MIN, PLOT_Y_MAX,
+			 0,
+			 PLOT_OUTLINED,
+			 ++id,
+			 PLOT_HEIGHT_2 + PLOT_STR_Y_PAD);
+
+	auto physValue = std::format("{:.1f}ms", physicsMsFAvg);
+	DrawLabelValue(yPos, layout, "physics", physValue,
+				   bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
+
+	DrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2,
+			 physSamples.data(),
+			 static_cast<int>(physSamples.size()),
+			 0,
+			 nullptr,
+			 PLOT_Y_MIN, PLOT_Y_MAX,
+			 0,
+			 PLOT_OUTLINED,
+			 ++id,
+			 PLOT_HEIGHT_2 + PLOT_STR_Y_PAD);
+
+	auto appValue = std::format("{:.1f}ms", appCpuMsFAvg);
+	DrawLabelValue(yPos, layout, "app", appValue,
+				   bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
+
+	DrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2,
+			 appSamples.data(),
+			 static_cast<int>(appSamples.size()),
+			 0,
+			 nullptr,
+			 PLOT_Y_MIN, PLOT_Y_MAX,
+			 0,
+			 PLOT_OUTLINED,
+			 ++id,
+			 0);
+
+	yPos += 42;
+
+	StatsTextLayout bulkLayout = layout;
+
+	DrawLabelValue(yPos, bulkLayout,
+				   "nodes", std::format("{}", stats.numNodes),
+				   bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+	DrawLabelValue(yPos, bulkLayout,
+				   "meshes", std::format("{}", stats.numMeshes),
+				   bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+	DrawLabelValue(yPos, bulkLayout,
+				   "elements", std::format("{}", stats.numElements),
+				   bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+	DrawLabelValue(yPos, bulkLayout,
+				   "polygons", std::format("{:.1f}k", float(stats.numPolygons) / 1000.0f),
+				   bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+	DrawLabelValue(yPos, bulkLayout,
+				   "lights", std::format("{}", stats.numLights),
+				   bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+
+	yPos += STAT_LINE_STEP;
+
+	DrawLabelValue(yPos, bulkLayout,
+				   "phys bodies", std::format("{}",
+											  stats.numDynamicBodies
+											  + stats.numKinematicBodies
+											  + stats.numStaticBodies),
+				   bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+	DrawLabelValueIndented(yPos, bulkLayout,
+						   "static", std::format("{}", stats.numStaticBodies),
+						   bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
+	DrawLabelValueIndented(yPos, bulkLayout,
+						   "dynamic", std::format("{}", stats.numDynamicBodies),
+						   bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
+	DrawLabelValueIndented(yPos, bulkLayout,
+						   "kinematic", std::format("{}", stats.numKinematicBodies),
+						   bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
+
+	yPos += STAT_LINE_STEP;
+
+	DrawLabelValue(yPos, bulkLayout,
+				   "phys shapes", std::format("{}",
+											  stats.numConcavePolyhedronShapes
+											  + stats.numBoundingBoxShapes
+											  + stats.numConvexHullShapes),
+				   bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+	DrawLabelValueIndented(yPos, bulkLayout,
+						   "primitive", std::format("{}", stats.numPrimitiveShapes),
+						   bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
+	DrawLabelValueIndented(yPos, bulkLayout,
+						   "bbox", std::format("{}", stats.numBoundingBoxShapes),
+						   bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
+	DrawLabelValueIndented(yPos, bulkLayout,
+						   "hull", std::format("{}", stats.numConvexHullShapes),
+						   bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
+	DrawLabelValueIndented(yPos, bulkLayout,
+						   "concave", std::format("{}", stats.numConcavePolyhedronShapes),
+						   bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
+
+	if (context.recordingGIF()) {
+		DrawLabelValue(yPos, bulkLayout, "RECORDING",
+					   std::format("{:.1f}s / {} {}", context.recordedGIFTime(),
+								   context.recordedGIFFrames(),
+								   context.recordedGIFFrames() == 1 ? "frame" : "frames"),
+					   bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+	}
 
 	// input test
 
-//	Begin("Input test", nullptr, windowFlags);
+//	Begin("Input test", nullptr, 0);
 //	SetWindowPos({10.0f, 2.0f});
-//	ImGui::PushFont(fonts[1]);
+//	ImGuiIO& io = GetIO();
+//	auto fonts = io.Fonts->Fonts;
+//	PushFont(fonts[1]);
 //	// --- Button + hover ---
-//	if (ImGui::Button("Click me")) {
+//	if (Button("Click me")) {
 //		A3D_LOG_I("ImGui button was CLICKED");
 //	}
-//	if (ImGui::IsItemHovered()) {
-//		ImGui::SameLine();
-//		ImGui::Text("(hovering)");
+//	if (IsItemHovered()) {
+//		SameLine();
+//		Text("(hovering)");
 //	}
 //	static bool toggled = false;
-//	if (ImGui::Checkbox("Toggle", &toggled)) {
+//	if (Checkbox("Toggle", &toggled)) {
 //		A3D_LOG_I("Toggle is now: {}", toggled ? "ON" : "OFF");
 //	}
 //	static char textBuf[128] = "type here";
-//	if (ImGui::InputText("Text field", textBuf, sizeof(textBuf))) {
+//	if (InputText("Text field", textBuf, sizeof(textBuf))) {
 //		A3D_LOG_I("Text changed: '{}'", textBuf);
 //	}
 //	Text("MousePos: (%.1f, %.1f)", io.MousePos.x, io.MousePos.y);
 //	Text("MouseDown[0]: %s", io.MouseDown[0] ? "true" : "false");
 //	Text("WantCaptureMouse: %s", io.WantCaptureMouse ? "true" : "false");
-//	ImGui::PopFont();
+//	PopFont();
 //	End();
+}
 
-//	Render();
-//	ImGui_ImplOpenGL3_RenderDrawData(GetDrawData());
+void DrawDebugOptions(Scene& scene, const RenderContext& context,
+					  ImFont& titleFont, ImFont& bodyFont) {
+
+	using namespace ImGui;
+
+	ImGuiIO& io = GetIO();
+
+	const float WIN_WIDTH = 168;
+	const float xPos = io.DisplaySize.x - WIN_WIDTH;
+	float yPos = 0;
+	int id = 0;
+	static const float Y_PAD = 24.0;
+
+	auto debugOptions = scene.debugOptions();
+
+	yPos = 12.0;
+	static bool stats = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay);
+	if (ImguiDrawCheckbox(xPos, yPos, "stats", stats, bodyFont, STATS_BODY_FONT_SIZE, ++id)) {
+		if (stats) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowStatsOverlay));
+		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowStatsOverlay));
+	}
+
+	yPos += Y_PAD;
+	bool meshWF = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes);
+	if (ImguiDrawCheckbox(xPos, yPos, "mesh wireframes", meshWF, bodyFont, STATS_BODY_FONT_SIZE, ++id)) {
+		if (meshWF) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowWireframes));
+		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowWireframes));
+	}
+
+	yPos += Y_PAD;
+	bool meshAABBs = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes);
+	if (ImguiDrawCheckbox(xPos, yPos, "mesh AABBs", meshAABBs, bodyFont, STATS_BODY_FONT_SIZE, ++id)) {
+		if (meshAABBs) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowBoundingBoxes));
+		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowBoundingBoxes));
+	}
+
+	yPos += Y_PAD;
+	bool physWF = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes);
+	if (ImguiDrawCheckbox(xPos, yPos, "physics wireframes", physWF, bodyFont, STATS_BODY_FONT_SIZE, ++id)) {
+		if (physWF) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsWireframes));
+		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsWireframes));
+	}
+
+	yPos += Y_PAD;
+	bool physAABBs = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes);
+	if (ImguiDrawCheckbox(xPos, yPos, "physics AABBs", physAABBs, bodyFont, STATS_BODY_FONT_SIZE, ++id)) {
+		if (physAABBs) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
+		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
+	}
+
+	yPos += Y_PAD;
+	bool physContacts = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints);
+	if (ImguiDrawCheckbox(xPos, yPos, "physics contacts", physContacts, bodyFont, STATS_BODY_FONT_SIZE, ++id)) {
+		if (physContacts) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsContactPoints));
+		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsContactPoints));
+	}
+
+	yPos += Y_PAD;
+	bool physNorms = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsNormals);
+	if (ImguiDrawCheckbox(xPos, yPos, "physics normals", physNorms, bodyFont, STATS_BODY_FONT_SIZE, ++id)) {
+		if (physNorms) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsNormals));
+		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsNormals));
+	}
+}
+
+void ImguiInit(const RenderContext& context, ImFont*& titleFont, ImFont*& bodyFont) {
+
+	using namespace ImGui;
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+//	ImPlot::CreateContext();
+	ImGuiIO& io = GetIO();
+	io.IniFilename = nullptr;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	ImGui_ImplOpenGL3_Init();
+//	ImGui_ImplOpenGL3_Init("#version 330 core");
+	// Linux: "#version 330"
+	// macOS core: "#version 150" ?
+	// GLES: "#version 300 es"
+
+	auto overlayTitleFont = utils::FontNamed(STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
+	if (overlayTitleFont->buffer()->size()) {
+		auto overlayBodyFont = utils::FontNamed(STATS_BODY_FONT_NAME, STATS_BODY_FONT_TYPE);
+		if (overlayBodyFont->buffer()->size()) {
+
+			ImGui_ImplOpenGL3_DestroyDeviceObjects(); // was DestroyFontsTexture()
+
+			auto fbSize = context.framebufferSize();
+			auto fbScale = context.viewportScale();
+			ImGuiIO& io = ImGui::GetIO();
+			io.DisplaySize = ImVec2(float(fbSize.x), float(fbSize.y));
+			io.DisplayFramebufferScale = ImVec2(fbScale.x, fbScale.y);
+
+			ImGui::GetIO().Fonts->Clear();
+
+			ImguiAddFont(context, *overlayTitleFont, titleFont);
+			ImguiAddFont(context, *overlayBodyFont, bodyFont);
+
+			ImGui_ImplOpenGL3_CreateDeviceObjects();  // was CreateFontsTexture()
+		}
+		else {
+			A3D_LOG_E("Unable to load font: {}.{}", STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
+		}
+	}
+	else {
+		A3D_LOG_E("Unable to load font: {}.{}", STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
+	}
+
+	ImguiUpdateScale(context);
+}
+
+void ImguiUpdateScale(const RenderContext& context) {
+
+	using namespace ImGui;
+
+	auto vpSize = context.viewportLogicalSize();
+	auto vpScale = context.viewportScale();
+	ImGuiIO& io = ImGui::GetIO();
+	io.DisplaySize = ImVec2(float(vpSize.x), float(vpSize.y));
+	io.DisplayFramebufferScale = ImVec2(vpScale.x, vpScale.y);
+
+	glViewport(0, 0, vpSize.x*vpScale.x, vpSize.y*vpScale.y);
+}
+
+void ImguiAddFont(const RenderContext& context, const Font& font, ImFont*& imFont) {
+
+	using namespace ImGui;
+
+	ImFontConfig fontConfig{};
+	fontConfig.FontDataOwnedByAtlas = false;
+
+	// ! leave oversampling automatic (0) in modern ImGui
+	fontConfig.OversampleH = 0;
+	fontConfig.OversampleV = 0;
+
+	// size_pixels = 0.0f => treat as a font source; size picked via PushFont(font, size_px)
+	imFont = GetIO().Fonts->AddFontFromMemoryTTF(font.buffer()->data(),
+												 (int)font.buffer()->size(),
+												 0.0f,
+												 &fontConfig);
+}
+
+void ImguiBeginOverlay(int id, bool allowsInput) {
+
+	using namespace ImGui;
+
+	ImGuiIO& io = GetIO();
+	ImGuiWindowFlags flags =
+			ImGuiWindowFlags_NoDecoration |
+			ImGuiWindowFlags_NoMove |
+			ImGuiWindowFlags_NoSavedSettings |
+			ImGuiWindowFlags_NoNav |
+			ImGuiWindowFlags_NoBackground;
+
+	if (!allowsInput) flags |= ImGuiWindowFlags_NoInputs;
+
+	SetNextWindowPos(ImVec2(0,0), ImGuiCond_Always);
+	SetNextWindowSize(io.DisplaySize, ImGuiCond_Always);
+	Begin(("##overlay" + std::to_string(id)).c_str(), nullptr, flags);
+}
+
+void ImguiEndOverlay() {
+	ImGui::End();
+}
+
+void ImguiDrawText(float x,
+				   float y,
+				   const char* text,
+				   ImFont& font,
+				   float size) {
+
+	using namespace ImGui;
+
+	PushFont(&font, size); // modern: choose size here :contentReference[oaicite:3]{index=3}
+	ImDrawList* dl = GetForegroundDrawList();
+
+	dl->AddText(ImVec2(x+1, y+1), IM_COL32(0,0,0,255), text);
+	dl->AddText(ImVec2(x,   y  ), IM_COL32(255,255,255,255), text);
+
+	ImGui::PopFont();
+}
+
+void ImguiDrawPlot(float x, float y, float w, float h,
+				   const float* values,
+				   int valuesCount,
+				   int valuesOffset,
+				   const char* overlayText,
+				   float scaleMin,
+				   float scaleMax,
+				   int stride,
+				   bool outlined,
+				   int id) {
+
+	using namespace ImGui;
+
+	PushStyleColor(ImGuiCol_FrameBg, ImVec4(0,0,0,0));
+
+	// shadow pass
+	SetCursorScreenPos(ImVec2(x+1, y+1));
+	PushStyleColor(ImGuiCol_PlotLines, ImVec4(0,0,0,1));
+	PlotLines(("##plot_s" + std::to_string(id)).c_str(),
+			  values, valuesCount, 0, nullptr, scaleMin, scaleMax, ImVec2(w,h));
+	PopStyleColor();
+
+	// main pass
+	SetCursorScreenPos(ImVec2(x, y));
+	PushStyleColor(ImGuiCol_PlotLines, ImVec4(1,1,1,1));
+	if (outlined) {
+		PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.5f);
+		PushStyleColor(ImGuiCol_Border, ImVec4(1,1,1,0.5f));
+	}
+	PlotLines(("##plot" + std::to_string(id)).c_str(),
+			  values, valuesCount, 0, nullptr, scaleMin, scaleMax, ImVec2(w,h));
+	if (outlined) {
+		PopStyleColor();
+		PopStyleVar();
+	}
+	PopStyleColor();
+
+	PopStyleColor();
+}
+
+bool ImguiDrawCheckbox(float x, float y,
+					   const char* text,
+					   bool& checked,
+					   ImFont& font,
+					   float size,
+					   int id) {
+
+	using namespace ImGui;
+
+	ImGui::PushFont(&font, size);
+
+	const ImVec4 transparent(0,0,0,0);
+	const float shadow_off = 1.0f;
+	const float border_thickness = 1.0f;
+
+	const float box_size = GetFrameHeight(); // checkbox square size
+	const float label_gap = GetStyle().ItemInnerSpacing.x; // spacing between box and label
+
+	// shadow checkbox (non-interactive, non-blocking)
+	PushID(id);
+	SetCursorScreenPos(ImVec2(x + shadow_off, y + shadow_off));
+	BeginDisabled(true);
+
+	PushStyleVar(ImGuiStyleVar_FrameBorderSize, border_thickness);
+	PushStyleColor(ImGuiCol_FrameBg,        transparent);
+	PushStyleColor(ImGuiCol_FrameBgHovered, transparent);
+	PushStyleColor(ImGuiCol_FrameBgActive,  transparent);
+	PushStyleColor(ImGuiCol_Border,         ImVec4(0,0,0,1));
+	PushStyleColor(ImGuiCol_BorderShadow,   transparent);
+	PushStyleColor(ImGuiCol_CheckMark,      ImVec4(0,0,0,1));
+
+	bool dummy = checked;
+	SetNextItemAllowOverlap();
+	Checkbox("##shadow", &dummy);
+
+	PopStyleColor(6);
+	PopStyleVar();
+	EndDisabled();
+	PopID();
+
+	// real checkbox (interactive, NO label)
+	bool ret = false;
+
+	PushID(id);
+	SetCursorScreenPos(ImVec2(x, y));
+
+	PushStyleVar(ImGuiStyleVar_FrameBorderSize, border_thickness);
+	PushStyleColor(ImGuiCol_FrameBg,        	transparent);
+	PushStyleColor(ImGuiCol_FrameBgHovered, 	transparent);
+	PushStyleColor(ImGuiCol_FrameBgActive,  	transparent);
+	PushStyleColor(ImGuiCol_Border,         	ImVec4(1,1,1,1));
+	PushStyleColor(ImGuiCol_BorderShadow,   	transparent);
+	PushStyleColor(ImGuiCol_CheckMark,      	ImVec4(1,1,1,1));
+
+	ret = Checkbox("##real", &checked);
+
+	PopStyleColor(6);
+	PopStyleVar();
+	PopID();
+
+	// raw label ourselves (true solid shadow, like DigDrawText)
+	ImDrawList* dl = GetWindowDrawList(); // or GetForegroundDrawList() to match DigDrawText layer exactly
+
+	// align label vertically with checkbox frame (center-ish)
+	float text_y = y + GetStyle().FramePadding.y;
+
+	ImVec2 label_pos(x + box_size + label_gap, text_y);
+
+	dl->AddText(ImVec2(label_pos.x + shadow_off, label_pos.y + shadow_off),
+				IM_COL32(0,0,0,255),
+				text);
+	dl->AddText(label_pos,
+				IM_COL32(255,255,255,255),
+				text);
+
+	PopFont();
+	return ret;
 }
 
 string StatusOverlayDescriptionForAntialiasingMode(AntialiasingMode mode) {
@@ -2695,7 +2841,7 @@ void SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FilterMode
 }
 
 void SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max) {
-#ifdef OPENGL_CORE
+#ifdef A3D_GL_DESKTOP
 
 	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 	
@@ -2745,7 +2891,7 @@ GLenum GLFilterModeForFilterMode(FilterMode mode) {
 GLenum GLWrapModeForWrapMode(WrapMode mode) {
 	switch (mode) {
 		case WrapMode::ClampToEdge:				return GL_CLAMP_TO_EDGE;
-//#ifdef OPENGL_CORE
+//#ifdef A3D_GL_DESKTOP
 //		case WRAP_MODE::CLAMP_TO_BORDER:		return GL_CLAMP_TO_BORDER;
 //#endif
 		case WrapMode::Repeat:					return GL_REPEAT;

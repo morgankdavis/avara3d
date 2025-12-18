@@ -9,14 +9,13 @@
 #include "a3d/mesh/primitive/Plane.h"
 
 #include "generator/generator.hpp"
-#include "glm/glm.hpp"
 
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/rendering/material/Material.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
 /// Pubic Static Members ///
