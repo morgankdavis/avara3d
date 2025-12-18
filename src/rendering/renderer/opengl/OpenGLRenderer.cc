@@ -153,15 +153,6 @@ typedef struct {
 	alignas(16) FogGLSLStruct				fog;
 } EnvironmentBlock;
 
-//struct GpuTimer {
-//	static const int MAX_FRAMES = 4;
-//	GLuint queries[MAX_FRAMES]{};
-//	int writeIndex = 0;
-//	int readIndex = 1;
-//	double lastMs = 0.0;
-//};
-//GpuTimer g_timer;
-
 /// Private Static Non-Member Prototypes ///
 
 static void 		RenderSkybox(Mesh& skyboxMesh,
@@ -351,8 +342,10 @@ OpenGLRenderer::OpenGLRenderer():
 		_activeMeshElements{},
 		_activeTextures{},
 		_activeLines{},
-		_glEnvironmentUBO{0}/*,
-		_drawItems{}*/ {}
+		_glEnvironmentUBO{0},
+		_overlayTitleImFont{nullptr},
+		_overlayBodyImFont{nullptr},
+		_drawTimer(config::GL_DRAW_TIMER_BUFFER_SIZE) {}
 
 OpenGLRenderer::~OpenGLRenderer() {
 	A3D_LOG_D("Destroying OpenGLRenderer {:p}", static_cast<void*>(this));
@@ -385,6 +378,8 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 	glGenBuffers(1, &ubo);
 	_glEnvironmentUBO = ubo;
 
+	_drawTimer.initialize();
+
 	// TODO: make failable?
 	ImguiInit(context, _overlayTitleImFont, _overlayBodyImFont);
 
@@ -397,7 +392,6 @@ bool OpenGLRenderer::isInitialized() const {
 	return _isInitialized;
 }
 
-GLuint g_gpuTimeQuery;
 void OpenGLRenderer::beginFrame(const Scene& scene,
 								const RenderContext& context,
 								const DebugOptions& debugOptions,
@@ -406,33 +400,7 @@ void OpenGLRenderer::beginFrame(const Scene& scene,
 
 //	_drawItems.clear();
 
-//	GLuint available = GL_FALSE;
-//	glGetQueryObjectuiv(g_timer.queries[g_timer.readIndex], GL_QUERY_RESULT_AVAILABLE, &available);
-//	if (available) {
-//		GLuint64 ns = 0;
-//		glGetQueryObjectui64v(g_timer.queries[g_timer.readIndex], GL_QUERY_RESULT, &ns);
-//		g_timer.lastMs = ns / 1e6;
-//		g_timer.readIndex = (g_timer.readIndex + 1) % GpuTimer::MAX_FRAMES;
-//
-//		auto gpuTimeNs = std::chrono::nanoseconds{
-//				static_cast<std::chrono::nanoseconds::rep>(ns)
-//		};
-//		profiler.add(Profiler::Tag::RenderGpu, gpuTimeNs);
-//	}
-
-	if (g_gpuTimeQuery> 0) {
-		GLuint64 ns = 0;
-		glGetQueryObjectui64v(g_gpuTimeQuery, GL_QUERY_RESULT, &ns);
-		auto gpuTimeNs = std::chrono::nanoseconds{
-				static_cast<std::chrono::nanoseconds::rep>(ns)
-		};
-		profiler.add(Profiler::Tag::RenderGpu, gpuTimeNs);
-	}
-
-	glGenQueries(1, &g_gpuTimeQuery);
-	glBeginQuery(GL_TIME_ELAPSED, g_gpuTimeQuery);
-
-//	glBeginQuery(GL_TIME_ELAPSED, g_timer.queries[g_timer.writeIndex]);
+	_drawTimer.begin();
 
 	_activeMeshElements.clear();
 	_activeTextures.clear();
@@ -456,10 +424,7 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 //	CheckGLError();
 	A3D_GL_CHECK();
 
-	glEndQuery(GL_TIME_ELAPSED);
-
-//	glEndQuery(GL_TIME_ELAPSED);//, g_timer.queries[g_timer.writeIndex]);
-//	g_timer.writeIndex = (g_timer.writeIndex + 1) % GpuTimer::MAX_FRAMES;
+	profiler.add(Profiler::Tag::RenderGpu, _drawTimer.end());
 }
 
 void OpenGLRenderer::preTraversal(const Scene& scene,
@@ -2298,8 +2263,6 @@ void DrawStats(FrameStats& stats,
 		if (frameMsFAvg > 0) fpsAvg = 1000.0f / frameMsFAvg;
 	}
 
-	// TODO: use STRIDE
-
 	static vector<float> frameSamples;
 	static vector<float> physSamples;
 	static vector<float> engCpuSamples;
@@ -2309,11 +2272,9 @@ void DrawStats(FrameStats& stats,
 
 	static size_t frame = 0;
 	static const unsigned SKIP_FRAMES = 2;
-	if (!(frame % SKIP_FRAMES)) {
+	if (!((frame++) % SKIP_FRAMES)) {
 
 		auto &samples = statsHistory.samples();
-
-		// TODO: convert to one loop & use stride
 
 		frameSamples.resize(samples.size());
 		physSamples.resize(samples.size());
@@ -2332,8 +2293,6 @@ void DrawStats(FrameStats& stats,
 			appSamples[i] = chrono::duration<float, milli>(sample.applicationTime).count();
 		}
 	}
-
-	++frame;
 
 	StatsTextLayout layout {
 			.xLeft = X_POS,
