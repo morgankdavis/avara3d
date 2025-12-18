@@ -45,6 +45,7 @@ macos-debug:
     - cd gitlab-build
     - /usr/local/bin/cmake
       -DCMAKE_BUILD_TYPE="Debug"
+      -DA3D_MACOS_UNIVERSAL=ON
       -G"Ninja"
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
@@ -135,6 +136,7 @@ macos-release:
     - cd gitlab-build
     - /usr/local/bin/cmake
       -DCMAKE_BUILD_TYPE="Release"
+      -DA3D_MACOS_UNIVERSAL=ON
       -G"Ninja"
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
