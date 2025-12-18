@@ -47,7 +47,7 @@ double 							g_startTime;
 int main(int argc, const char* argv[]) {
 
 	try {
-		g_startTime = utils::Time();
+		g_startTime = utils::chrono::Time();
 
 		InitLog();
 		LogBuildInfo();
@@ -194,7 +194,7 @@ int main(int argc, const char* argv[]) {
 void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	static int invocations = 0;
 	if (invocations == 2) {
-		double time = utils::Time() - g_startTime;
+		double time = utils::chrono::Time() - g_startTime;
 		A3D_APP_LOG_I("START TIME: {}", time);
 	}
 	++invocations;

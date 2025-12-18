@@ -199,10 +199,10 @@ bool GlTFImporter::parse() {
 
 			if (auto& info = asset.assetInfo) {
 				A3D_LOG_D("Done parsing glTF.  Version: '{}', Copyright: '{}', Generator: '{}'.  Parse time: {}",
-						  info->gltfVersion, info->copyright, info->generator, utils::Time() - startTime);
+						  info->gltfVersion, info->copyright, info->generator, utils::chrono::Time() - startTime);
 			}
 			else {
-				A3D_LOG_D("Done parsing glTF.  Time: {}", utils::Time() - startTime);
+				A3D_LOG_D("Done parsing glTF.  Time: {}", utils::chrono::Time() - startTime);
 			}
 
 			_asset = std::move(expectedAsset.get());
