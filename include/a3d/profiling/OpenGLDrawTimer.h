@@ -14,7 +14,8 @@ namespace a3d {
 	class OpenGLDrawTimer {
 
 	public:
-		explicit OpenGLDrawTimer(int bufferedFrames = config::GL_DRAW_TIMER_BUFFER_SIZE);
+		//explicit OpenGLDrawTimer(int bufferedFrames = config::GL_DRAW_TIMER_BUFFER_SIZE);
+		explicit OpenGLDrawTimer(unsigned bufferedFrames);
 		~OpenGLDrawTimer();
 		OpenGLDrawTimer(const OpenGLDrawTimer&) = delete;
 		OpenGLDrawTimer& operator=(const OpenGLDrawTimer&) = delete;
@@ -26,7 +27,7 @@ namespace a3d {
 		std::chrono::nanoseconds	end();
 
 	private:
-		int							_bufferSize;
+		unsigned					_bufferSize;
 		std::vector<unsigned> 		_glQueries;
 		size_t 						_frame;
 		std::chrono::nanoseconds	_lastTime;

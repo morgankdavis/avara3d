@@ -15,8 +15,8 @@
 using namespace a3d;
 using namespace std;
 
-OpenGLDrawTimer::OpenGLDrawTimer(int bufferedFrames):
-		_bufferSize(math::max(2, bufferedFrames)),
+OpenGLDrawTimer::OpenGLDrawTimer(unsigned bufferedFrames):
+		_bufferSize(math::max(unsigned(2), bufferedFrames)),
 		_glQueries(static_cast<size_t>(_bufferSize), 0),
 		_frame{0},
 		_lastTime{chrono::nanoseconds{static_cast<chrono::nanoseconds::rep>(0)}} { }
