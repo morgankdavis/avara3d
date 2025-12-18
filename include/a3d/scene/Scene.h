@@ -9,7 +9,6 @@
 #ifndef AVARA3D_SCENE_H
 #define AVARA3D_SCENE_H
 
-
 #include <filesystem>
 #include <functional>
 #include <map>
@@ -19,10 +18,10 @@
 #include <vector>
 
 #include "a3d/Types.h"
-
+#include "a3d/profiling/FrameStatsHistory.h"
+#include "a3d/profiling/Profiler.h"
 
 namespace a3d {
-
 
 	class Color;
 	class InputManager;
@@ -33,31 +32,23 @@ namespace a3d {
 	class RenderContext;
 	class VisualWorld;
 
-	
 	class Scene {
 
-/*********************************************************************************************
-	Public Types
- *********************************************************************************************/
-
 	public:
+		/// Public Types ///
 
 		using UpdateCallback =				std::function<void(
 				Scene& scene,
 				double time,
 				double deltaTime)>;
 
-/*********************************************************************************************
-	Public Static Member Functions
- *********************************************************************************************/
+		/// Public Static Member Functions ///
 
 		static std::unique_ptr<Scene> 		FromFile(const std::filesystem::path& path,
 													  SceneImportOptions options =
 													  SceneImportOptions::ImportAll);
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+		/// Public Lifecycle Functions ///
 
 		Scene();
 		explicit Scene(const std::string& name);
@@ -70,9 +61,7 @@ namespace a3d {
 			  std::unique_ptr<InputManager> inputManager);
 		~Scene();
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		const std::optional<std::string>&	name() const;
 		void 								name(const std::string& name);
@@ -92,26 +81,15 @@ namespace a3d {
 		DebugOptions 						debugOptions() const;
 		void 								debugOptions(DebugOptions options);
 
-		void								run();
-		void								stop();
-
-		bool								running() const;
+		void 								update();
 
 		double 								time() const;
 
-		bool								paused() const;
-		void								paused(bool flag);
-
-		const Stats&						stats() const;
-
-		UpdateCallback 						update() const;
-		void 								update(UpdateCallback function);
-
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
+		UpdateCallback 						updateCallback() const;
+		void 								updateCallback(UpdateCallback function);
 
 	private:
+		/// Private Member Variables ///
 
 		std::optional<std::string>			_name;
 		std::shared_ptr<Node>				_rootNode;
@@ -119,13 +97,14 @@ namespace a3d {
 		std::unique_ptr<PhysicalWorld> 		_physicalWorld;
 		std::unique_ptr<InputManager>		_inputManager;
 		DebugOptions						_debugOptions;
-		bool								_running;
 		double 								_startTime;
-		bool								_paused;
-		Stats								_stats;
-		UpdateCallback						_update;
+		UpdateCallback						_updateCallback;
+
+
+
+		Profiler							_profiler;
+		FrameStatsHistory					_frameStatsHistory;
 	};
 }
-
 
 #endif /* AVARA3D_SCENE_H */

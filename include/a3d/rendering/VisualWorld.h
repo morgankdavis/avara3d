@@ -9,48 +9,39 @@
 #ifndef AVARA3D_VISUALWORLD_H
 #define AVARA3D_VISUALWORLD_H
 
-
 #include <functional>
 #include <memory>
 
 #include "a3d/Types.h"
 
-
 namespace a3d {
 
-
 	class Color;
+	class FrameStatsHistory;
 	class Material;
 	class Mesh;
 	class Node;
 	class PhysicalWorld;
+	class Profiler;
 	class RenderContext;
 	class Renderer;
 	class Scene;
 
-
 	class VisualWorld {
 
-/*********************************************************************************************
-	Public Types
- *********************************************************************************************/
-
 	public:
+		/// Public Types ///
 
 		using WillRenderCallback =	std::function<void(VisualWorld& world, double time, double deltaTime)>;
 		using DidRenderCallback =	std::function<void(VisualWorld& world, double time, double deltaTime)>;
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+		/// Public Lifecycle Functions ///
 
 		VisualWorld() = delete;
 		explicit VisualWorld(RenderContext& context);
 		virtual ~VisualWorld();
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		const MaterialProperty&					background();
 		void 									background(const MaterialProperty& background);
@@ -82,15 +73,13 @@ namespace a3d {
 
 		Scene*									scene() const;
 
-		WillRenderCallback 						willRender() const;
-		void 									willRender(WillRenderCallback function);
+		WillRenderCallback 						willRenderCallback() const;
+		void 									willRenderCallback(WillRenderCallback function);
 
-		DidRenderCallback 						didRender() const;
-		void 									didRender(DidRenderCallback function);
+		DidRenderCallback 						didRenderCallback() const;
+		void 									didRenderCallback(DidRenderCallback function);
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+		/// Internal Member Functions ///
 
 		void									attachedToScene(Scene& scene);
 		void									detachedFromScene(Scene& scene);
@@ -100,17 +89,16 @@ namespace a3d {
 													 double runT,
 													 double deltaRunT,
 													 DebugOptions debugOptions,
-													 Stats& stats);
+													 FrameStats& stats,
+													 Profiler& profiler,
+													 const FrameStatsHistory& statsHistory);
 
 		Mesh*									skyboxMesh() const;
 		Mesh*									groundPlaneMesh() const;
 		std::weak_ptr<Node>						defaultPointOfView();
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
-
 	private:
+		/// Private Member Variables ///
 
 		MaterialProperty						_background;
 		std::unique_ptr<Mesh>					_skyboxMesh;
@@ -124,10 +112,9 @@ namespace a3d {
 		std::weak_ptr<Node>						_pointOfView;
 		RenderContext*							_renderContext;
 		Scene*									_scene;
-		WillRenderCallback 						_willRender;
-		DidRenderCallback 						_didRender;
+		WillRenderCallback 						_willRenderCallback;
+		DidRenderCallback 						_didRenderCallback;
 	};
 }
-
 
 #endif //AVARA3D_VISUALWORLD_H

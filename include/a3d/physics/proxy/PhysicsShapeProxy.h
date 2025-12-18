@@ -9,28 +9,20 @@
 #ifndef AVARA3D_PHYSICSSHAPEPROXY_H
 #define AVARA3D_PHYSICSSHAPEPROXY_H
 
-
 #include "a3d/Types.h"
-
 
 namespace a3d {
 
-
 	class PhysicsShape;
-
 
 	class PhysicsShapeProxy {
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		/// Internal Lifecycle Functions ///
 
 		explicit PhysicsShapeProxy(PhysicsShape& shape);
 		virtual ~PhysicsShapeProxy() = 0;
 	};
 }
-
 
 #endif //AVARA3D_PHYSICSSHAPEPROXY_H

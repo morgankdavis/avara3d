@@ -9,30 +9,21 @@
 #ifndef AVARA3D_DIRECTIONALLIGHT_H
 #define AVARA3D_DIRECTIONALLIGHT_H
 
-
 #include <memory>
 #include <optional>
 #include <string>
 
-#include "glm/glm.hpp"
-
 #include "a3d/rendering/light/Light.h"
 
-
 namespace a3d {
-
 
 	class Color;
 	class Node;
 	
-	
 	class DirectionalLight : public Light {
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		/// Public Lifecycle Functions ///
 
 		DirectionalLight();
 		explicit DirectionalLight(const std::string& name);
@@ -40,30 +31,21 @@ namespace a3d {
 		DirectionalLight(const std::string& name, const std::shared_ptr<Color>& color);
 //		~DirectionalLight();
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
-//		const glm::vec3&	direction() const;
-//		void				direction(const glm::vec3& direction);
-
-/*********************************************************************************************
-	Protected Lifecycle Functions
- *********************************************************************************************/
+//		const math::vec3&	direction() const;
+//		void				direction(const math::vec3& direction);
 
 //	protected:
+		/// Protected Lifecycle Functions ///
 //
 //		DirectionalLight();
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
-
 //	private:
-//
-//		glm::vec3			_direction; // TODO: INIT ME
+		/// Private Member Variables ///
+
+//		math::vec3			_direction; // TODO: INIT ME
 	};
 }
-
 
 #endif /* AVARA3D_DIRECTIONALLIGHT_H */

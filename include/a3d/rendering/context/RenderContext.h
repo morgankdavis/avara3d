@@ -9,23 +9,17 @@
 #ifndef AVARA3D_RENDERCONTEXT_H
 #define AVARA3D_RENDERCONTEXT_H
 
-
 #include <filesystem>
 #include <functional>
 #include <memory>
 #include <vector>
 
-#include "glm/glm.hpp"
-
 #include "a3d/Types.h"
-
 
 struct GifWriter;
 
-
 namespace a3d {
-	
-	
+
 	class Camera;
 	class Image;
 	class InputManager;
@@ -36,17 +30,13 @@ namespace a3d {
 	class Scene;
 	class VisualWorld;
 
-	
 	class RenderContext {
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
-
 	public:
+		/// Public Member Functions ///
 
-		virtual bool 					vSyncEnabled() const;
-		virtual void 					vSyncEnabled(bool enabled);
+		virtual bool 					vSyncEnabled() const = 0;
+		virtual void 					vSyncEnabled(bool enabled) = 0;
 
 		AntialiasingMode 				antialiasingMode() const;
 
@@ -54,7 +44,7 @@ namespace a3d {
 
 		virtual bool 					recordingGIF() const;
 		virtual void 					startGIFRecording(const std::filesystem::path& path,
-														  glm::uvec2 fitInside,
+														  math::uvec2 fitInside,
 														  unsigned maxFramerate);
 		virtual double 					recordedGIFTime() const;
 		virtual unsigned 				recordedGIFFrames() const;
@@ -64,36 +54,34 @@ namespace a3d {
 
 		Renderer* 						renderer() const;
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
+		/// Internal Lifecycle Functions ///
 
 		explicit RenderContext(RenderingApi renderingApi);
 		RenderContext(const RenderContext& other) = delete; // copy constructor
 		RenderContext& operator=(const RenderContext& other) = delete; // copy assignment
 		virtual ~RenderContext();
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+		/// Internal Member Functions ///
+
+		virtual void 					beginFrame(const Scene& scene) = 0;
+		virtual void 					endFrame(const Scene& scene) = 0;
 
 		virtual void 					swapBuffers() = 0;
 
-		virtual glm::uvec2				framebufferSize() const = 0;
-		virtual glm::vec2				framebufferScale() const = 0;
+		virtual math::uvec2				viewportLogicalSize() const = 0; // DIPs
+		virtual math::uvec2				framebufferSize() const = 0;
+		math::vec2						viewportScale() const;
 
 		virtual void 					saveGIFFrame(double deltaRunT);
 
 		void							attachedToVisualWorld(VisualWorld* world);
 		void							detachedFromVisualWorld(VisualWorld* world);
 
-/*********************************************************************************************
-	Protected Member Variables
- *********************************************************************************************/
+		virtual unsigned				defaultFramebuffer() const = 0;
 
 	protected:
+		/// Protected Member Variables ///
 
-		bool							_vSyncEnabled;
 		AntialiasingMode				_antialiasingMode;
 		std::unique_ptr<GifWriter>		_gifWriter;
 		bool							_recordingGIF;
@@ -107,6 +95,5 @@ namespace a3d {
 		std::unique_ptr<Renderer>		_renderer;
 	};
 }
-
 
 #endif /* AVARA3D_RENDERCONTEXT_H */

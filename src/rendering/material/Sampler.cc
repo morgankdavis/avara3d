@@ -8,14 +8,10 @@
 
 #include "a3d/rendering/material/Sampler.h"
 
-
 using namespace a3d;
 using namespace std;
 
-
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 Sampler::Sampler():
 // TODO: are these sensible?
@@ -29,9 +25,7 @@ Sampler::Sampler():
 
 Sampler::~Sampler() {}
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 FilterMode Sampler::minificationFilter() const {
 	return _minificationFilter;
@@ -54,7 +48,7 @@ void Sampler::magnificationFilter(FilterMode mode) {
 }
 
 float Sampler::maxAnisotropy() const {
-#ifdef OPENGL_ES
+#ifdef A3D_GL_ES
 	return 0;
 #else
 	return _maxAnisotropy;
@@ -62,7 +56,7 @@ float Sampler::maxAnisotropy() const {
 }
 
 void Sampler::maxAnisotropy(float max) {
-#ifdef OPENGL_ES
+#ifdef A3D_GL_ES
 	throw Exception("Anisotropy is not supported on this platform.");
 #endif
 
@@ -101,9 +95,7 @@ void Sampler::wrapR(WrapMode mode) {
 	_dirtyMask = A3D_MASK_ADD(_dirtyMask, SamplerDirtyMask::WrapR);
 }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 SamplerDirtyMask Sampler::dirtyMask() const {
 	return _dirtyMask;

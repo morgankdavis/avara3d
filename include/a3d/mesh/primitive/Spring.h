@@ -9,26 +9,19 @@
 #ifndef AVARA3D_SPRING_H
 #define AVARA3D_SPRING_H
 
-
 #include <memory>
 
 #include "a3d/mesh/MeshElement.h"
 
-
 namespace a3d {
-
 
 	class Mesh;
 	class Material;
 
-
 	class Spring: public MeshElement {
 
-/*********************************************************************************************
-	Public Static Member Functions
- *********************************************************************************************/
-
 	public:
+		/// Public Static Member Functions ///
 
 		static std::shared_ptr<Mesh> Mesh(float minorRadius,
 										  float majorRadius,
@@ -37,9 +30,7 @@ namespace a3d {
 										  unsigned segments = DEFAULT_SEGMENTS,
 										  std::shared_ptr<Material> material = nullptr);
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+		/// Public Lifecycle Functions ///
 
 		Spring(float minorRadius,
 			   float majorRadius,
@@ -47,9 +38,7 @@ namespace a3d {
 			   unsigned slices = DEFAULT_SLICES,
 			   unsigned segments = DEFAULT_SEGMENTS);
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		float 		minorRadius() const;
 		float 		majorRadius() const;
@@ -57,18 +46,13 @@ namespace a3d {
 		unsigned 	slices() const;
 		unsigned 	segments() const;
 
-/*********************************************************************************************
-	Private Constants
- *********************************************************************************************/
-
 	private:
+		/// Private Constants ///
 
 		static constexpr unsigned DEFAULT_SLICES = 8;
 		static constexpr unsigned DEFAULT_SEGMENTS = 32;
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
+		/// Private Member Variables ///
 
 		float 		_minorRadius;
 		float 		_majorRadius;
@@ -77,6 +61,5 @@ namespace a3d {
 		unsigned 	_segments;
 	};
 }
-
 
 #endif //AVARA3D_SPRING_H

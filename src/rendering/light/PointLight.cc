@@ -9,16 +9,12 @@
 #include "a3d/rendering/light/PointLight.h"
 
 #include "a3d/Color.h"
-#include "a3d/diagnostic/logging/Logger.h"
-
+#include "a3d/diagnostic/log/Log.h"
 
 using namespace a3d;
 using namespace std;
 
-
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 PointLight::PointLight():
 		AttenuatedLight() {}

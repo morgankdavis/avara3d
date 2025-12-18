@@ -10,15 +10,11 @@
 
 #include "a3d/Color.h"
 
-
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
-
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
+/// Internal Lifecycle Functions ///
 
 Line::Line(const vec3& fromLocation,
 		   const vec3& toLocation):
@@ -28,10 +24,10 @@ Line::Line(const vec3& fromLocation, const vec3& toLocation,
 		   const Color& color):
 		Line{fromLocation, toLocation, color, color} { }
 
-Line::Line(const glm::vec3& fromLocation,
-		   const glm::vec3& toLocation,
-		   const glm::vec3& fromColor,
-		   const glm::vec3& toColor):
+Line::Line(const vec3& fromLocation,
+		   const vec3& toLocation,
+		   const vec3& fromColor,
+		   const vec3& toColor):
 		_fromLocation{fromLocation},
 		_toLocation{toLocation},
 		_fromColor{Color(fromColor)},
@@ -46,9 +42,7 @@ Line::Line(const vec3& fromLocation,
 		_fromColor{fromColor},
 		_toColor{toColor} { }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 const vec3& Line::fromLocation() const {
 	return _fromLocation;

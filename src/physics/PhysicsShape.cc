@@ -13,22 +13,17 @@
 #include "magic_enum.hpp"
 
 #include "a3d/mesh/Mesh.h"
-#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/diagnostic/log/Log.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/proxy/PhysicsShapeProxy.h"
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/physics/bullet/BulletShapeProxy.h"
 #include "a3d/scene/Node.h"
 
-
 using namespace a3d;
-using namespace glm;
 using namespace std;
 
-
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 PhysicsShape::PhysicsShape(PhysicsShapeType type, const shared_ptr<Mesh>& mesh):
 		_source{mesh},
@@ -74,9 +69,7 @@ PhysicsShape::~PhysicsShape() {
 	A3D_LOG_D("Destroying PhysicsShape {:p}", static_cast<void*>(this));
 }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 PhysicsShape::Source PhysicsShape::source() const {
 	return _source;
@@ -95,9 +88,7 @@ void PhysicsShape::type(PhysicsShapeType type) {
 	checkCreateProxy();
 }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 void PhysicsShape::attachedToBody(PhysicsBody& body) {
 	A3D_LOG_T("body: {:p}", static_cast<void*>(&body));

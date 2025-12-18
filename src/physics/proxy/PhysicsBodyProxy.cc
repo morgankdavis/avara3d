@@ -8,15 +8,11 @@
 
 #include "a3d/physics/proxy/PhysicsBodyProxy.h"
 
-#include "a3d/diagnostic/logging/Logger.h"
-
+#include "a3d/diagnostic/log/Log.h"
 
 using namespace a3d;
 
-
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
+/// Internal Lifecycle Functions ///
 
 PhysicsBodyProxy::PhysicsBodyProxy(PhysicsBody& body, PhysicsBodyType type):
 		_body{},
@@ -28,9 +24,7 @@ PhysicsBodyProxy::PhysicsBodyProxy(PhysicsBody& body, PhysicsBodyType type):
 
 PhysicsBodyProxy::~PhysicsBodyProxy() { }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 bool PhysicsBodyProxy::autocalculatesMomentOfInertia() const {
 	return _autocalculatesMomentOfInertia;

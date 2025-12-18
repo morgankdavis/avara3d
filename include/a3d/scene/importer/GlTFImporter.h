@@ -9,7 +9,6 @@
 #ifndef AVARA3D_GLTFIMPORTER_H
 #define AVARA3D_GLTFIMPORTER_H
 
-
 #include <array>
 #include <cstddef>
 #include <filesystem>
@@ -18,14 +17,11 @@
 #include <optional>
 
 #include "fastgltf/types.hpp"
-#include "glm/glm.hpp"
 
 #include "a3d/Types.h"
 #include "a3d/scene/Scene.h"
 
-
 namespace a3d {
-
 
 	class Camera;
 	class Color;
@@ -38,21 +34,15 @@ namespace a3d {
 	class Sampler;
 	class Texture;
 
-
 	class GlTFImporter {
-		
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
 
 	public:
+		/// Internal Lifecycle Functions ///
 
 		explicit GlTFImporter(const std::filesystem::path& path,
 							  SceneImportOptions options = SceneImportOptions::ImportAll);
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+		/// Internal Member Functions ///
 
 		std::unique_ptr<Scene>			scene();
 		std::shared_ptr<Mesh>			firstMesh();
@@ -60,11 +50,8 @@ namespace a3d {
 		const std::filesystem::path&	path() const;
 		SceneImportOptions				options() const;
 
-/*********************************************************************************************
-	Private Member Functions
- *********************************************************************************************/
-
 	private:
+		/// Private Member Functions ///
 
 		bool							parse();
 		void 							visitGlTFNode(fastgltf::Asset& asset,
@@ -90,9 +77,7 @@ namespace a3d {
 		std::shared_ptr<Camera> 		cameraFromGlTFNode(fastgltf::Asset& asset,
 														  fastgltf::Node& node);
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
+		/// Private Member Variables ///
 
 		bool												_parsed;
 		fastgltf::Asset										_asset;
@@ -108,6 +93,5 @@ namespace a3d {
 		std::map<std::size_t, std::shared_ptr<Sampler>> 	_samplers;
 	};
 }
-
 
 #endif //AVARA3D_GLTFIMPORTER_H

@@ -10,40 +10,32 @@
 #include <string>
 #include <utility>
 
-#include "glm/glm.hpp"
-
 #include "a3d/a3d.h"
 #include "a3d/Utilities.h"
 
-
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
-
-constexpr LogLevel				A3D_APP_LOG_LEVEL =		LogLevel::Debug;
-constexpr uvec2					WINDOW_SIZE =			{1280, 768};
-constexpr bool					FULLSCREEN =			false;
-constexpr bool					ENABLE_HIGH_DPI =		true;
-constexpr AntialiasingMode		ANTIALIAS_MODE =		AntialiasingMode::Msaa4X;
-constexpr bool					ENABLE_VSYNC =			false;
-constexpr bool					CAPTURE_CURSOR =		false;
-constexpr float					MOUSE_SENSITIVITY =		0.5;
-
+const LogLevel				APP_LOG_LEVEL	{LogLevel::Debug};
+const uvec2					WINDOW_SIZE			{1280, 768};
+const bool					FULLSCREEN			{false};
+const bool					ENABLE_HIGH_DPI		{true};
+const AntialiasingMode		ANTIALIAS_MODE		{AntialiasingMode::Msaa4X};
+const bool					ENABLE_VSYNC		{false};
+const bool					CAPTURE_CURSOR		{false};
+const float					MOUSE_SENSITIVITY	{0.5};
 
 void UpdateCallback(Scene& scene, double time, double deltaTime);
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
 void DidRenderCallback(VisualWorld& world, double time, double deltaTime);
 
-
 void InitLog();
 void LogBuildInfo();
 
-
-std::unique_ptr<a3d::Logger>		g_logger;
-std::shared_ptr<a3d::Node>			g_pointLightPivotNode;
-
+//std::shared_ptr<a3d::Node>	g_pointLightPivotNode;
+a3d::Node*	g_pointLightPivotNode;
 
 int main(int argc, const char* argv[]) {
 
@@ -51,32 +43,26 @@ int main(int argc, const char* argv[]) {
 		InitLog();
 		LogBuildInfo();
 
-		auto window = make_unique<Window>(RenderingApi::OpenGL,
-										  *utils::ExecutableName(),
-										  WINDOW_SIZE,
-										  FULLSCREEN,
-										  ENABLE_HIGH_DPI,
-										  ANTIALIAS_MODE);
+		auto window = make_unique<GLFWWindow>(RenderingApi::OpenGL,
+											  *utils::ExecutableName(),
+											  WINDOW_SIZE,
+											  FULLSCREEN,
+											  ENABLE_HIGH_DPI,
+											  ANTIALIAS_MODE);
 		window->vSyncEnabled(ENABLE_VSYNC);
 		window->cursorCaptured(CAPTURE_CURSOR);
 
-		auto inputManager = make_unique<WindowInputManager>(window.get());
-		if (inputManager->errorMask() == WindowInputManagerErrorMask::PermissionDenied) {
-			A3D_APP_LOG_E(g_logger, "WindowInputManager permission denied.");
-			// on macOS 10.15 Catalina+, this is probably a permissions issue,
-			// and the OS will alert the user.
-			// just keep going and let the user decide what they want to do.
-		}
+		auto inputManager = make_unique<GLFWInputManager>(window.get());
 
 		auto visualWorld = make_unique<VisualWorld>(*window);
 		//auto backgroundColor = make_shared<Color>(109.0f/255.0f, 136.0f/255.0f, 164.0f/255.0f, 1.0f);
 		visualWorld->background(Color::Black());
-		visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
-		visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
+		visualWorld->willRenderCallback(bind(&WillRenderCallback, _1, _2, _3));
+		visualWorld->didRenderCallback(bind(&DidRenderCallback, _1, _2, _3));
 
 		auto scene = make_unique<Scene>(std::move(visualWorld), nullptr, std::move(inputManager));
 		scene->debugOptions(DebugOptions::ShowStatsOverlay);
-		scene->update(bind(&UpdateCallback, _1, _2, _3));
+		scene->updateCallback(bind(&UpdateCallback, _1, _2, _3));
 
 		auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.1f));
 		auto ambientLightNode = Node::LightNode(ambientLight);
@@ -91,10 +77,10 @@ int main(int argc, const char* argv[]) {
 											  Color::White());
 		auto sphere = Sphere::Mesh(0.25f, 12, material);
 		pointLightNode->mesh(sphere);
-		g_pointLightPivotNode = Node::NamedNode("point light pivot");
-		g_pointLightPivotNode->addChild(pointLightNode);
-		scene->rootNode()->addChild(g_pointLightPivotNode);
-
+		auto pointLightPivotNode = Node::NamedNode("point light pivot");
+		g_pointLightPivotNode = pointLightPivotNode.get();
+		pointLightPivotNode->addChild(pointLightNode);
+		scene->rootNode()->addChild(pointLightPivotNode);
 
 		{
 			auto mesh = Box::Mesh(1.5f, 1.0f, 1.5f);
@@ -244,39 +230,38 @@ int main(int argc, const char* argv[]) {
 	//		}
 	//	}
 
-
 		window->center();
 		window->open();
-		scene->run();
+
+		do {
+			scene->update();
+		} while (window->isOpen());
 	}
 	catch (Exception& e)
 	{
-		A3D_APP_LOG_F(g_logger, "Exception: {}", e.what());
+		A3D_APP_LOG_F("Exception: {}", e.what());
 		return -1;
 	}
 
 	return 0;
 }
 
-/***************************************************************************************
-	Scene Callbacks
- ***************************************************************************************/
+/// Scene Callbacks ///
 
 void UpdateCallback(Scene& scene, double time, double deltaTime) {
-	A3D_APP_LOG_T(g_logger, "scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
+	A3D_APP_LOG_T("scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
 
-	auto inputManager = scene.inputManager();
-
-	Window* window = nullptr;
+	GLFWWindow* window = nullptr;
 	if (scene.visualWorld()) {
-		window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
+		window = dynamic_cast<GLFWWindow*>(scene.visualWorld()->renderContext());
 	}
-
-	auto keysPressed = scene.inputManager()->keysPressed();
 
 	// get input
 
-	auto keysDown = scene.inputManager()->keysDown();
+	auto im = static_cast<DesktopInputManager*>(scene.inputManager());
+
+	auto keysPressed = im->keysPressed();
+	auto keysDown = im->keysDown();
 
 	auto cursorCaptured = true;
 	if (window) {
@@ -327,9 +312,9 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 			static const float MOUSE_SPEED_SCALAR = .002;
 			static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
 
-			vec2 mousePositionDelta = scene.inputManager()->mousePositionDelta();
-			float deltaRotX = atan(MOUSE_SPEED * mousePositionDelta.x);
-			float deltaRotY = atan(MOUSE_SPEED * mousePositionDelta.y);
+			vec2 mousePositionDelta = im->mousePositionDelta();
+			float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
+			float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
 
 			vec3 angles = pov->eulerAngles();
 			// weird angles
@@ -340,7 +325,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 			// move
 
-			static float MOVE_SPEED = utils::Max(scene.rootNode()->extent());
+			static float MOVE_SPEED = math::max(scene.rootNode()->extent());
 
 			if (keysDown.count(Key::W)) {
 				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camForward;
@@ -373,48 +358,44 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 		auto rotationDeg = deltaTime * radians(-30.0); // 10deg/sec
 
 		auto duckSpinnerEuler = g_pointLightPivotNode->eulerAngles();
-		g_pointLightPivotNode->eulerAngles({0, duckSpinnerEuler.y - rotationDeg, 0});
+		g_pointLightPivotNode->eulerAngles(vec3(0, duckSpinnerEuler.y - rotationDeg, 0));
 	}
 }
 
-/***************************************************************************************
-	VisualWorld Callbacks
- ***************************************************************************************/
+/// VisualWorld Callbacks ///
 
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	A3D_APP_LOG_T("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 void DidRenderCallback(VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	A3D_APP_LOG_T("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
-/***************************************************************************************
-	Static
- ***************************************************************************************/
+/// Static ///
 
 void InitLog() {
 
 	string executableName = *utils::ExecutableName();
-	auto nativeSink = make_unique<StdOutLoggerSink>();
-	auto fileSink = make_unique<FileLoggerSink>(*(utils::ExecutableDirectory())
-												/ (executableName + string(".log")));
-	auto sinks = unordered_set<unique_ptr<LoggerSink>>();
-	sinks.insert(std::move(nativeSink));
-	sinks.insert(std::move(fileSink));
 
-	g_logger = make_unique<Logger>(executableName, std::move(sinks));
-	g_logger->level(A3D_APP_LOG_LEVEL);
+	auto nativeSink = make_unique<StdOutLogSink>();
+	auto fileSink = make_unique<FileLogSink>(*(utils::ExecutableDirectory())
+											 / (executableName + string(".log")));
+	auto sinks = vector<unique_ptr<LogSink>>();
+	sinks.push_back(std::move(nativeSink));
+	sinks.push_back(std::move(fileSink));
 
-	Logger::MainLogger().level(A3D_APP_LOG_LEVEL);
+	Log appLog{executableName, std::move(sinks)};
+	appLog.level(APP_LOG_LEVEL);
+	Log::AppLog(std::move(appLog));
 }
 
 void LogBuildInfo() {
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
-	A3D_APP_LOG_I(g_logger, "A3D version: {}.{}.{}", version.major, version.minor, version.patch);
-	A3D_APP_LOG_I(g_logger, "Build: {}", buildInfo.number());
-	A3D_APP_LOG_I(g_logger, "Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
-	A3D_APP_LOG_I(g_logger, "Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
+	A3D_APP_LOG_I("A3D version: {}.{}.{}", version.major, version.minor, version.patch);
+	A3D_APP_LOG_I("Build: {}", buildInfo.number());
+	A3D_APP_LOG_I("Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
+	A3D_APP_LOG_I("Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
 }

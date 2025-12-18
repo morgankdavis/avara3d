@@ -8,40 +8,31 @@
 
 #include "a3d/physics/PhysicalWorld.h"
 
-#include "a3d/Configuration.h"
-#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/diagnostic/log/Log.h"
 #include "a3d/physics/HitTestResult.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsContact.h"
 #include "a3d/physics/bullet/BulletWorldProxy.h"
+#include "a3d/profiling/Profiler.h"
+#include "a3d/profiling/Timer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 
-
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
-
-/*********************************************************************************************
-	Private Static Non-Member Prorotypes
- *********************************************************************************************/
-
-static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
-
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 PhysicalWorld::PhysicalWorld():
 		_gravity{0, -9.807, 0},
 		_speed{1.0},
 		_timestep{1.0/60.0},
 		_scene{},
-		_didSimulate{},
-		_beginContact{},
-		_continueContact{},
-		_endContact{} {
+		_didSimulateCallback{},
+		_beginContactCallback{},
+		_continueContactCallback{},
+		_endContactCallback{} {
 
 	_proxy = make_unique<BulletWorldProxy>(*this);
 }
@@ -50,9 +41,7 @@ PhysicalWorld::~PhysicalWorld() {
 	A3D_LOG_D("Destroying PhysicalWorld {:p}", static_cast<void*>(this));
 }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 const vec3& PhysicalWorld::gravity() const {
 	return _gravity;
@@ -117,41 +106,39 @@ Scene* PhysicalWorld::scene() const {
 	return _scene;
 }
 
-PhysicalWorld::DidSimulateCallback PhysicalWorld::didSimulate() const {
-	return _didSimulate;
+PhysicalWorld::DidSimulateCallback PhysicalWorld::didSimulateCallback() const {
+	return _didSimulateCallback;
 }
 
-void PhysicalWorld::didSimulate(DidSimulateCallback function) {
-	_didSimulate = function;
+void PhysicalWorld::didSimulateCallback(DidSimulateCallback function) {
+	_didSimulateCallback = function;
 }
 
-PhysicalWorld::BeginContactCallback PhysicalWorld::beginContact() const {
-	return _beginContact;
+PhysicalWorld::BeginContactCallback PhysicalWorld::beginContactCallback() const {
+	return _beginContactCallback;
 }
 
-void PhysicalWorld::beginContact(PhysicalWorld::BeginContactCallback function) {
-	_beginContact = function;
+void PhysicalWorld::beginContactCallback(PhysicalWorld::BeginContactCallback function) {
+	_beginContactCallback = function;
 }
 
-PhysicalWorld::ContinueContactCallback PhysicalWorld::continueContact() const {
-	return _continueContact;
+PhysicalWorld::ContinueContactCallback PhysicalWorld::continueContactCallback() const {
+	return _continueContactCallback;
 }
 
-void PhysicalWorld::continueContact(PhysicalWorld::ContinueContactCallback function) {
-	_continueContact = function;
+void PhysicalWorld::continueContactCallback(PhysicalWorld::ContinueContactCallback function) {
+	_continueContactCallback = function;
 }
 
-PhysicalWorld::EndContactCallback PhysicalWorld::endContact() const {
-	return _endContact;
+PhysicalWorld::EndContactCallback PhysicalWorld::endContactCallback() const {
+	return _endContactCallback;
 }
 
-void PhysicalWorld::endContact(PhysicalWorld::EndContactCallback function) {
-	_endContact = function;
+void PhysicalWorld::endContactCallback(PhysicalWorld::EndContactCallback function) {
+	_endContactCallback = function;
 }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 void PhysicalWorld::attachedToScene(Scene& scene) {
 	A3D_LOG_T("scene: {:p}", static_cast<void*>(&scene));
@@ -195,18 +182,17 @@ void PhysicalWorld::remove(PhysicsBody& body) {
 void PhysicalWorld::step(const Scene& scene,
 						 double runT,
 						 double deltaRunT,
-						 Stats& stats) {
+						 FrameStats& stats,
+						 Profiler& profiler) {
 
 	if (_proxy) {
 
-		auto startTime = scene.time();
+		_proxy->step(deltaRunT, _speed, _timestep, stats, profiler);
 
-		_proxy->step(deltaRunT, _speed, _timestep, stats);
-
-		UpdateTimeStats(stats, startTime, scene.time());
-
-		if (auto didSimulate = PhysicalWorld::didSimulate()) {
+		if (auto didSimulate = PhysicalWorld::didSimulateCallback()) {
+			Timer appTimer(true);
 			didSimulate(*this, runT, deltaRunT);
+			profiler.add(Profiler::Tag::Application, appTimer.stop());
 		}
 	}
 	else {
@@ -216,36 +202,4 @@ void PhysicalWorld::step(const Scene& scene,
 
 PhysicalWorldProxy* PhysicalWorld::proxy() const {
 	return  _proxy.get();
-}
-
-/*********************************************************************************************
-	Private Static Non-Member Functions
- *********************************************************************************************/
-
-void UpdateTimeStats(Stats& stats, double startTime, double endTime) {
-
-	// current
-	auto stepTime = endTime - startTime;
-	stats.currentPhysicstime = stepTime * 1000.0f;
-
-	// average
-	static double avg = 0.0;
-	static double sampleStartTime = startTime;
-	static unsigned stepsSinceSampleStart = 0;
-	static double accumulatedStepTimeSinceSampleStart = 0;
-	double elapsedTimeSinceSampleStart = endTime - sampleStartTime;
-	if (elapsedTimeSinceSampleStart >= FRAMETIME_AVERAGING_INTERVAL) {
-
-		avg = (accumulatedStepTimeSinceSampleStart * 1000.0f) / stepsSinceSampleStart;
-
-		sampleStartTime = startTime;
-		stepsSinceSampleStart = 0;
-		accumulatedStepTimeSinceSampleStart = 0;
-	}
-	else {
-		++stepsSinceSampleStart;
-		accumulatedStepTimeSinceSampleStart += stepTime;
-	}
-
-	stats.averagePhysicstime = avg;
 }

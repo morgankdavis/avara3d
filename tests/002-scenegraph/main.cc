@@ -17,12 +17,10 @@
 #include "a3d/a3d.h"
 #include "a3d/Utilities.h"
 
-
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
-
 
 enum class TEST {
 	TRAVERSAL/*,
@@ -33,43 +31,40 @@ enum class TEST {
 	ROTATION*/
 };
 
-
-constexpr TEST					USING_TEST =			TEST::TRAVERSAL;
-constexpr uvec2					WINDOW_SIZE =			{1280, 768};
-constexpr bool					FULLSCREEN =			false;
-constexpr bool					ENABLE_HIGH_DPI =		true;
-constexpr AntialiasingMode		ANTIALIAS_MODE =		AntialiasingMode::Msaa4X;
-constexpr bool					ENABLE_VSYNC =			false;
-constexpr bool					CAPTURE_CURSOR =		false;
-
+const TEST					USING_TEST			{TEST::TRAVERSAL};
+const uvec2					WINDOW_SIZE			{1280, 768};
+const bool					FULLSCREEN			{false};
+const bool					ENABLE_HIGH_DPI		{true};
+const AntialiasingMode		ANTIALIAS_MODE		{AntialiasingMode::Msaa4X};
+const bool					ENABLE_VSYNC		{false};
+const bool					CAPTURE_CURSOR		{false};
 
 void UpdateCallback(Scene& scene, float time, float deltaTime);
 void WillRenderCallback(VisualWorld& world, float time, float deltaTime);
 void DidRenderCallback(VisualWorld& world, float time, float deltaTime);
 
-
 int main(int argc, const char* argv[]) {
 
 	cout << "test002::main()\n" << endl;
 
-	auto window = make_unique<Window>(RenderingApi::OpenGL,
-									  *utils::ExecutableName(),
-									  WINDOW_SIZE,
-									  FULLSCREEN,
-									  ENABLE_HIGH_DPI,
-									  ANTIALIAS_MODE);
+	auto window = make_unique<GLFWWindow>(RenderingApi::OpenGL,
+										  *utils::ExecutableName(),
+										  WINDOW_SIZE,
+										  FULLSCREEN,
+										  ENABLE_HIGH_DPI,
+										  ANTIALIAS_MODE);
 	window->vSyncEnabled(ENABLE_VSYNC);
 	window->cursorCaptured(CAPTURE_CURSOR);
 
 	auto visualWorld = make_unique<VisualWorld>(*window);
 	auto backgroundColor = make_shared<Color>(u8vec3{109, 136, 164});
 	visualWorld->background(backgroundColor);
-	visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
-	visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
+	visualWorld->willRenderCallback(bind(&WillRenderCallback, _1, _2, _3));
+	visualWorld->didRenderCallback(bind(&DidRenderCallback, _1, _2, _3));
 
 	auto scene = make_unique<Scene>();
 	scene->visualWorld(std::move(visualWorld));
-	scene->update(bind(&UpdateCallback, _1, _2, _3));
+	scene->updateCallback(bind(&UpdateCallback, _1, _2, _3));
 
 
 	if (USING_TEST == TEST::TRAVERSAL) {
@@ -506,17 +501,17 @@ int main(int argc, const char* argv[]) {
 ////		window.display();
 //	}
 
-	// do we even need to open the window?
 	window->center();
 	window->open();
-	scene->run();
+
+	do {
+		scene->update();
+	} while (window->isOpen());
 
 	return 0;
 }
 
-/***************************************************************************************
-	Scene Callbacks
- ***************************************************************************************/
+/// Scene Callbacks ///
 
 void UpdateCallback(Scene& scene, float time, float deltaTime) {
 
@@ -540,9 +535,7 @@ void UpdateCallback(Scene& scene, float time, float deltaTime) {
 //	}
 }
 
-/***************************************************************************************
-	VisualWorld Callbacks
- ***************************************************************************************/
+/// VisualWorld Callbacks ///
 
 void WillRenderCallback(VisualWorld& world, float time, float deltaTime) {
 

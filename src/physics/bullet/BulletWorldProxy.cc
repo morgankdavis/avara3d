@@ -11,34 +11,29 @@
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
 #include "BulletCollision/Gimpact/btGImpactShape.h"
-#include "glm/gtc/type_ptr.hpp"
 #include "LinearMath/btIDebugDraw.h"
 #include "magic_enum.hpp"
 
 #include "a3d/Configuration.h"
-#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/diagnostic/log/Log.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsShape.h"
 #include "a3d/physics/bullet/BulletBodyProxy.h"
 #include "a3d/physics/bullet/BulletDebugDrawer.h"
 #include "a3d/physics/bullet/BulletUtilities.h"
+#include "a3d/profiling/Profiler.h"
+#include "a3d/profiling/Timer.h"
 #include "a3d/scene/Node.h"
 
-
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
-
-/*********************************************************************************************
-	Private Static Non-Member Prototypes
- *********************************************************************************************/
+/// Private Static Non-Member Prototypes ///
 
 static btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const DebugOptions& options);
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
+/// Internal Lifecycle Functions ///
 
 BulletWorldProxy::BulletWorldProxy(PhysicalWorld& world):
 		PhysicalWorldProxy{world},
@@ -55,7 +50,7 @@ BulletWorldProxy::BulletWorldProxy(PhysicalWorld& world):
 
 	A3D_LOG_I("Bullet Physics version: {}",  btGetVersion());
 
-#ifdef OPENGL_CORE
+#ifdef A3D_GL_DESKTOP
 	_btDebugDrawer = make_unique<BulletDebugDrawer>();
 	_btWorld->setDebugDrawer(_btDebugDrawer.get());
 #endif
@@ -66,9 +61,7 @@ BulletWorldProxy::~BulletWorldProxy() {
 	A3D_LOG_D("Destroying BulletWorldProxy {:p}", static_cast<void*>(this));
 }
 
-/*********************************************************************************************
-	PhysicalWorldModelProxy Internal Member Functions
- *********************************************************************************************/
+/// PhysicalWorldModelProxy Internal Member Functions ///
 
 void BulletWorldProxy::add(PhysicsBody& body) {
 	A3D_LOG_D("body: {:p}", static_cast<void*>(&body));
@@ -82,7 +75,7 @@ void BulletWorldProxy::add(PhysicsBody& body) {
 	// now that the body has a Node, set its initial transform here.
 	if (auto node = body.node().lock()) {
 		auto nodeTransform = node->worldTransform();
-		auto btTransform = BTTransformFromGLMMat4(nodeTransform);
+		auto btTransform = BTTransformFromA3DMat4(nodeTransform);
 		btBody->setWorldTransform(btTransform);
 		// without proceedToTransform(), objects still spawn at the origin for 1st step (?)
 		btBody->proceedToTransform(btTransform);
@@ -171,24 +164,27 @@ void BulletWorldProxy::gravity(float gravity) {
 void BulletWorldProxy::step(double deltaT,
 							float speed,
 							float timestep,
-							Stats& stats) {
+							FrameStats& stats,
+							Profiler& profiler) {
 
 	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=9320
+	Timer physicsTimer(true);
 	auto result = _btWorld->stepSimulation(btScalar(deltaT * speed),
-										   MAX_PHYSICS_SUBSTEPS,
+										   config::MAX_PHYSICS_SUBSTEPS,
 										   timestep);
+	profiler.add(Profiler::Tag::Physics, physicsTimer.stop());
 
 //	if (result >= MAX_PHYSICS_SUBSTEPS) {
 //		A3D_LOG_W("Max physics simulation substeps reached: {}", result);
 //	}
 
-	stats.staticBodies += _stats.numStaticBodies;
-	stats.dynamicBodies += _stats.numDynamicBodies;
-	stats.kinematicBodies += _stats.numKinematicBodies;
-	stats.convexHullShapes = _stats.convexHullShapes.size();
-	stats.concavePolyhedronShapes = _stats.concavePolyhedronShapes.size();
-	stats.boundingBoxShapes = _stats.boundingBoxShapes.size();
-	stats.primitiveShapes = _stats.primitiveShapes.size();
+	stats.numStaticBodies += _stats.numStaticBodies;
+	stats.numDynamicBodies += _stats.numDynamicBodies;
+	stats.numKinematicBodies += _stats.numKinematicBodies;
+	stats.numConvexHullShapes = _stats.convexHullShapes.size();
+	stats.numConcavePolyhedronShapes = _stats.concavePolyhedronShapes.size();
+	stats.numBoundingBoxShapes = _stats.boundingBoxShapes.size();
+	stats.numPrimitiveShapes = _stats.primitiveShapes.size();
 }
 
 void BulletWorldProxy::updateCollisionPairs() {
@@ -196,23 +192,22 @@ void BulletWorldProxy::updateCollisionPairs() {
 }
 
 void BulletWorldProxy::drawDebug(Renderer &renderer,
-								 const glm::mat4 &viewMat,
-								 const glm::mat4 &projectionMat,
+								 const RenderContext& context,
+								 const mat4 &viewMat,
+								 const mat4 &projectionMat,
 								 const DebugOptions &debugOptions) {
 
-#ifdef OPENGL_CORE
+#ifdef A3D_GL_DESKTOP
 	auto btDebugModes = BTDebugDrawModesForA3DDebugOptions(debugOptions);
 
 	_btDebugDrawer->setDebugMode(btDebugModes);
 	_btDebugDrawer->clear();
 	_btWorld->debugDrawWorld();
-	_btDebugDrawer->draw(renderer, viewMat, projectionMat);
+	_btDebugDrawer->draw(renderer, context, viewMat, projectionMat);
 #endif
 }
 
-/*********************************************************************************************
-	Private Static Non-Member Functions
- *********************************************************************************************/
+/// Private Static Non-Member Functions ///
 
 btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const DebugOptions& options) {
 	btIDebugDraw::DebugDrawModes btModes = btIDebugDraw::DBG_NoDebug;

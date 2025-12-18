@@ -9,32 +9,23 @@
 #ifndef AVARA3D_SAMPLER_H
 #define AVARA3D_SAMPLER_H
 
-
 #include "a3d/Types.h"
-
 
 namespace a3d {
 
-
 	class Color;
 	class Image;
-	class Sampleable;
-
+//	class Sampleable;
 
 	class Sampler {
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		/// Public Lifecycle Functions ///
 
 		Sampler();
 		~Sampler();
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		FilterMode 							minificationFilter() const;
 		void 								minificationFilter(FilterMode mode);
@@ -54,18 +45,13 @@ namespace a3d {
 		WrapMode 							wrapR() const;
 		void 								wrapR(WrapMode mode);
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+		/// Internal Member Functions ///
 
 		SamplerDirtyMask 					dirtyMask() const;
 		void 								dirtyMask(SamplerDirtyMask mask);
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
-
 	private:
+		/// Private Member Variables ///
 
 		FilterMode							_minificationFilter;
 		FilterMode							_magnificationFilter;
@@ -77,6 +63,5 @@ namespace a3d {
 		SamplerDirtyMask					_dirtyMask;
 	};
 }
-
 
 #endif //AVARA3D_SAMPLER_H

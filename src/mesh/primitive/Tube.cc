@@ -9,22 +9,17 @@
 #include "a3d/mesh/primitive/Tube.h"
 
 #include "generator/generator.hpp"
-#include "glm/glm.hpp"
 
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/rendering/material/Material.h"
 
-
 using namespace a3d;
 using namespace generator;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
-
-/*********************************************************************************************
-	Pubic Static Members
- *********************************************************************************************/
+/// Pubic Static Members ///
 
 shared_ptr<Mesh> Tube::Mesh(float innerRadius,
 							float outerRadius,
@@ -43,9 +38,7 @@ shared_ptr<Mesh> Tube::Mesh(float innerRadius,
 								  material);
 }
 
-/*********************************************************************************************
-	Public Lifecycle Functions
-*********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 Tube::Tube(float innerRadius,
 		   float outerRadius,
@@ -60,6 +53,8 @@ Tube::Tube(float innerRadius,
 		_slices{slices},
 		_segments{segments},
 		_rings{rings} {
+
+	using namespace generator;
 
 	/// @param radius The outer radius of the cylinder on the xy-plane.
 	/// @param innerRadius The inner radius of the cylinder on the xy-plane.
@@ -85,9 +80,7 @@ Tube::Tube(float innerRadius,
 	}
 }
 
-/*********************************************************************************************
- 	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 float Tube::innerRadius() const {
 	return _innerRadius;

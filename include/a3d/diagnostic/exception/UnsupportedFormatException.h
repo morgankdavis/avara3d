@@ -9,27 +9,21 @@
 #ifndef AVARA3D_UNSUPPORTEDFORMATEXCEPTION_H
 #define AVARA3D_UNSUPPORTEDFORMATEXCEPTION_H
 
-
 #include <string>
 
 #include "a3d/diagnostic/exception/Exception.h"
-
 
 namespace a3d {
 
 	class UnsupportedFormatException : public Exception {
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		/// Internal Lifecycle Functions ///
 
 		explicit UnsupportedFormatException(const std::string& what);
 
 		// add format str?
 	};
 }
-
 
 #endif //AVARA3D_UNSUPPORTEDFORMATEXCEPTION_H

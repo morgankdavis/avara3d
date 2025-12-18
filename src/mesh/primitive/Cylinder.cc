@@ -9,22 +9,16 @@
 #include "a3d/mesh/primitive/Cylinder.h"
 
 #include "generator/generator.hpp"
-#include "glm/glm.hpp"
 
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/rendering/material/Material.h"
 
-
 using namespace a3d;
-using namespace generator;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
-
-/*********************************************************************************************
-	Pubic Static Members
- *********************************************************************************************/
+/// Pubic Static Members ///
 
 shared_ptr<Mesh> Cylinder::Mesh(float radius,
 								float height,
@@ -42,9 +36,7 @@ shared_ptr<Mesh> Cylinder::Mesh(float radius,
 								  material);
 }
 
-/*********************************************************************************************
-	Public Lifecycle Functions
-*********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 Cylinder::Cylinder(float radius,
 				   float height,
@@ -57,6 +49,8 @@ Cylinder::Cylinder(float radius,
 		_slices{slices},
 		_segments{segments},
 		_rings{rings} {
+
+	using namespace generator;
 
 	/// @param radius Radius of the cylinder along the xy-plane.
 	/// @param size Half of the length of the cylinder along the z-axis.
@@ -84,9 +78,7 @@ Cylinder::Cylinder(float radius,
 	burnTransform(xRotation, true);
 }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 float Cylinder::radius() const {
 	return _radius;

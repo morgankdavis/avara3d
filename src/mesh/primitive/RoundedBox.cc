@@ -9,22 +9,16 @@
 #include "a3d/mesh/primitive/RoundedBox.h"
 
 #include "generator/generator.hpp"
-#include "glm/glm.hpp"
 
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/rendering/material/Material.h"
 
-
 using namespace a3d;
-using namespace generator;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
-
-/*********************************************************************************************
-	Pubic Static Members
- *********************************************************************************************/
+/// Pubic Static Members ///
 
 shared_ptr<Mesh> RoundedBox::Mesh(float radius,
 								  float length,
@@ -48,9 +42,7 @@ shared_ptr<Mesh> RoundedBox::Mesh(float radius,
 								  material);
 }
 
-/*********************************************************************************************
-	Public Lifecycle Functions
-*********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 RoundedBox::RoundedBox(float radius,
 					   float length,
@@ -69,6 +61,8 @@ RoundedBox::RoundedBox(float radius,
 		_lengthSegments{lengthSegments},
 		_widthSegments{widthSegments},
 		_heightSegments{heightSegments} {
+
+	using namespace generator;
 
 	/// @param radius Radius of the rounded edges.
 	/// @param size Half of the side length in x (0), y (1) and z (2) direction.
@@ -96,9 +90,7 @@ RoundedBox::RoundedBox(float radius,
 	burnTransform(xRotation, true);
 }
 
-/*********************************************************************************************
- 	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 float RoundedBox::radius() const {
 	return _radius;

@@ -242,3 +242,8 @@ fastlane/readme.md
 #*.so.*
 #*.dylib
 
+
+# Qt stuff
+.qtcreator/
+*.user
+*.pro.user

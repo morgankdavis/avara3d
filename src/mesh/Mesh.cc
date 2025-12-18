@@ -10,12 +10,11 @@
 
 #include <utility>
 
-#include "glm/gtx/transform.hpp"
 #include "magic_enum.hpp"
 
 #include "a3d/Color.h"
 #include "a3d/Image.h"
-#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/diagnostic/log/Log.h"
 #include "a3d/diagnostic/exception/UnsupportedFormatException.h"
 #include "a3d/mesh/Line.h"
 #include "a3d/mesh/MeshElement.h"
@@ -24,15 +23,11 @@
 #include "a3d/scene/Node.h"
 #include "a3d/scene/importer/GlTFImporter.h"
 
-
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
-
-/*********************************************************************************************
-	Public Static Member Functions
- *********************************************************************************************/
+/// Public Static Member Functions ///
 
 shared_ptr<Mesh> Mesh::FromFile(const filesystem::path& path,
 								MeshImportOptions options) {
@@ -42,9 +37,7 @@ shared_ptr<Mesh> Mesh::FromFile(const filesystem::path& path,
 	return GlTFImporter(path, sceneOpts).firstMesh();
 }
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 Mesh::Mesh(const std::string& name,
 		   std::unique_ptr<MeshElement> element,
@@ -92,9 +85,7 @@ Mesh::~Mesh() {
 	}
 }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 optional<string> Mesh::name() const {
 	return _name;
@@ -150,9 +141,7 @@ void Mesh::replaceMaterial(int index, const shared_ptr<Material>& replacement) {
 	insertMaterial(replacement, index);
 }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 void Mesh::burnTransform(const mat4& transform, bool normals) {
 	for (auto& element : elements()) {
@@ -161,14 +150,36 @@ void Mesh::burnTransform(const mat4& transform, bool normals) {
 	//node()->lock()->transform(mat4(1.0));
 }
 
+void Mesh::gather(vector<RenderItem>& items, mat4& model, FrameStats& stats) {
+
+	// for (int e=0; e<_elements.size(); ++e) {
+	// 	auto& element = _elements[e];
+	//
+	// 	Material* material = nullptr;
+	// 	if (_materials.size() > e) {
+	// 		material = _materials[e].get();
+	// 	}
+	// 	else {
+	// 		material = Material::DefaultMaterial().get();
+	// 	}
+	//
+	//	// cl.exe on windows thinks this doesn't match declaration in MeshElement.h?
+	// 	element->gather(items, *material, model, stats);
+	// }
+	//
+	// ++stats.numMeshes;
+}
+
 void Mesh::draw(Renderer& renderer,
+				const RenderContext& context,
 				const mat4& modelMat,
 				const mat4& viewMat,
 				const mat4& projectionMat,
 				const DebugOptions& debugOptions,
-				Stats& stats) {
+				FrameStats& stats) {
 
 	renderer.render(*this,
+					context,
 					modelMat, viewMat, projectionMat,
 					debugOptions, stats);
 	
@@ -184,6 +195,7 @@ void Mesh::draw(Renderer& renderer,
 		}
 
 		element->draw(renderer,
+					  context,
 					  *material,
 					  modelMat,
 					  viewMat,
@@ -192,7 +204,7 @@ void Mesh::draw(Renderer& renderer,
 					  stats);
 	}
 
-	++stats.meshes;
+	++stats.numMeshes;
 }
 
 AABB Mesh::aabb(const Node* convertTo) const {
@@ -330,9 +342,7 @@ void Mesh::dirtyMask(MeshDirtyMask mask) {
 	_dirtyMask = mask;
 }
 
-/*********************************************************************************************
-	Private Lifecycle Functions
- *********************************************************************************************/
+/// Private Lifecycle Functions ///
 
 Mesh::Mesh():
 		_name{},

@@ -9,23 +9,18 @@
 #ifndef AVARA3D_COLOR_H
 #define AVARA3D_COLOR_H
 
-
 #include <memory>
 #include <string>
 #include <vector>
 
-#include "glm/glm.hpp"
-
+#include "a3d/Math.h"
 
 namespace a3d {
 	
 	class Color {
 
-/*********************************************************************************************
-	Public Static Member Functions
- *********************************************************************************************/
-
 	public:
+		/// Public Static Member Functions ///
 
 		static std::shared_ptr<Color> 		Black();
 		static std::shared_ptr<Color> 		DarkGray();
@@ -49,24 +44,20 @@ namespace a3d {
 
 		static std::shared_ptr<Color> 		Random();
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+		/// Public Lifecycle Functions ///
 
 		Color();
-		explicit Color(const glm::vec3& rgb);
-		explicit Color(const glm::vec4& rgba);
-		explicit Color(const glm::u8vec3& irgb);
-		explicit Color(const glm::u8vec4& irgba);
+		explicit Color(const math::vec3& rgb);
+		explicit Color(const math::vec4& rgba);
+		explicit Color(const math::u8vec3& irgb);
+		explicit Color(const math::u8vec4& irgba);
 		explicit Color(float white);
 		explicit Color(uint32_t color);
 		explicit Color(const std::string& hexString);
 
 		// TODO: operator*, operator[]
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		float r() const;
 		float g() const;
@@ -78,19 +69,17 @@ namespace a3d {
 		uint8_t u8b() const;
 		uint8_t u8a() const;
 
-		glm::vec3 rgb() const;
-		glm::vec4 rgba() const;
+		math::vec3 rgb() const;
+		math::vec4 rgba() const;
 
-		glm::u8vec3 u8rgb() const;
-		glm::u8vec4 u8rgba() const;
+		math::u8vec3 u8rgb() const;
+		math::u8vec4 u8rgba() const;
 
-/*********************************************************************************************
-	Public Member Variables
- *********************************************************************************************/
+	private:
+		/// Private Member Variables ///
 
-		glm::vec4 _rgba;
+		math::vec4 _rgba;
 	};
 }
-
 
 #endif /* AVARA3D_COLOR_H */

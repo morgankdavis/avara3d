@@ -10,17 +10,13 @@
 
 #include "a3d/Color.h"
 #include "a3d/diagnostic/exception/Exception.h"
-#include "a3d/diagnostic/logging/Logger.h"
-
+#include "a3d/diagnostic/log/Log.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
-
-/*********************************************************************************************
-	Public Static Member Functions
- *********************************************************************************************/
+/// Public Static Member Functions ///
 
 shared_ptr<Material> Material::DefaultMaterial() {
 	static shared_ptr<Material> material = nullptr;
@@ -40,9 +36,7 @@ shared_ptr<Material> Material::EmissionMaterial(MaterialProperty property) {
 	return make_shared<Material>(monostate{}, monostate{}, monostate{}, property);
 }
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 Material::Material():
 		_name{},
@@ -87,9 +81,7 @@ Material::~Material() {
 	A3D_LOG_D("Destroying Material {:p}", static_cast<void*>(this));
 }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 const optional<string>& Material::name() const {
 	return _name;
@@ -165,7 +157,7 @@ void Material::doubleSided(bool flag) {
 }
 
 FillMode Material::fillMode() const {
-#ifdef OPENGL_ES
+#ifdef A3D_GL_ES
 	return FILL_MODE::FILL;
 #else
 	return _fillMode;
@@ -173,7 +165,7 @@ FillMode Material::fillMode() const {
 }
 
 void Material::fillMode(FillMode mode) {
-#ifdef OPENGL_ES
+#ifdef A3D_GL_ES
 	if (mode == FILL_MODE::LINES || mode == FILL_MODE::POINTS) {
 		throw Exception("Fill mode not supported with this rendering API.");
 	}
@@ -198,9 +190,7 @@ void Material::blendFunction(BlendFunction function) {
 	_blendFunction = function;
 }
 
-/*********************************************************************************************
-	Internal Static Member Functions
- *********************************************************************************************/
+/// Internal Static Member Functions ///
 
 shared_ptr<Material> Material::MissingTextureMaterial() {
 	static shared_ptr<Material> material = nullptr;
@@ -216,9 +206,7 @@ MaterialProperty Material::MissingTextureProperty() {
 	return {Color::Magenta()};
 }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 MaterialDirtyMask Material::dirtyMask() const {
 	return _dirtyMask;

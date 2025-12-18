@@ -11,17 +11,13 @@
 #include <iostream>
 
 #include "a3d/Utilities.h"
-#include "a3d/diagnostic/logging/Logger.h"
-
+#include "a3d/diagnostic/log/Log.h"
 
 using namespace a3d;
 using namespace std;
-using namespace glm;
+using namespace a3d::math;
 
-
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 Camera::Camera():
 		_name{} {}
@@ -39,9 +35,7 @@ Camera::~Camera() {
 	}
 }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 const optional<string>& Camera::name() const {
 	return _name;
@@ -51,10 +45,8 @@ void Camera::name(const string& name) {
 	_name = name;
 }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
-mat4 Camera::projection() const {
-	return _projection;
-}
+//mat4 Camera::projection() const {
+//	return _projection;
+//}

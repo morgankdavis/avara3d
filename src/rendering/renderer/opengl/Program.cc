@@ -8,30 +8,26 @@
 
 #include "a3d/rendering/renderer/opengl/Program.h"
 
-#ifdef OPENGL_ES
+#include <format>
+
+#ifdef A3D_GL_ES
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
 #else
 #include "glad/glad.h"
 #endif
 
-#include "fmt/format.h"
-#include "glm/gtc/type_ptr.hpp"
 #include "magic_enum.hpp"
 
 #include "a3d/Utilities.h"
 #include "a3d/diagnostic/exception/Exception.h"
-#include "a3d/diagnostic/logging/Logger.h"
-
+#include "a3d/diagnostic/log/Log.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
-
-/*********************************************************************************************
-	Internal Static Member Functions
- *********************************************************************************************/
+/// Internal Static Member Functions ///
 
 Program& Program::Default() {
 	static auto program = Program("default");
@@ -63,9 +59,7 @@ Program& Program::GroundPlane() {
 	return program;
 }
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
+/// Internal Lifecycle Functions ///
 
 Program::Program(const string& name):
 		_name{name},
@@ -104,9 +98,7 @@ Program::~Program() {
 	
 }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 bool Program::compile() {
 	
@@ -447,9 +439,7 @@ void Program::fragmentShaderSource(string source) {
 	_fragmentShaderSource = source;
 }
 
-/*********************************************************************************************
-	Private Member Functions
- *********************************************************************************************/
+/// Private Member Functions ///
 
 //optional<string> Program::shaderSource(const string &name, const string &type) {
 //
@@ -458,7 +448,7 @@ void Program::fragmentShaderSource(string source) {
 //	if (source) {
 //		// add appropriate GLSL version header
 //
-//#ifdef OPENGL_ES
+//#ifdef A3D_GL_ES
 //		static const string PLATFORM_HEADER = "#version 300 es\n\nprecision mediump int;\nprecision mediump float;";
 //#else
 //		static const string PLATFORM_HEADER = "#version 410";
@@ -476,7 +466,7 @@ optional<string> Program::shaderSource(const string& name, const string& type) {
 	if (source) {
 
 
-#ifdef OPENGL_ES
+#ifdef A3D_GL_ES
 		// replace dekstop GLSL header string with ES version string
 		static const string ES_HEADER = "#version 300 es\n\nprecision mediump int;\nprecision mediump float;";
 
@@ -506,13 +496,13 @@ void Program::prepare() {
 			else {
 				//A3D_LOG_C("Failed linking '{}' program:\n{}", _name, *_logString);
 				//A3D_LOG_C("Failed linking program '{}'.", _name);
-				throw Exception(fmt::format("Failed linking program '{}'.", _name));
+				throw Exception(std::format("Failed linking program '{}'.", _name));
 			}
 		}
 		else {
 			//A3D_LOG_C("Failed compiling '{}' shaders:\n{}", _name, *_logString);
 			//A3D_LOG_C("Failed compiling '{}' shaders.", _name);
-			throw Exception(fmt::format("Failed compiling '{}' shaders.", _name));
+			throw Exception(std::format("Failed compiling '{}' shaders.", _name));
 		}
 	}
 }

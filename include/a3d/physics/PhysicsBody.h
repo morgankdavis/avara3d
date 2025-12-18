@@ -9,16 +9,11 @@
 #ifndef AVARA3D_PHYSICSBODY_H
 #define AVARA3D_PHYSICSBODY_H
 
-
 #include <memory>
-
-#include "glm/glm.hpp"
 
 #include "a3d/Types.h"
 
-
 namespace a3d {
-	
 
 	class Mesh;
 	class Node;
@@ -27,31 +22,23 @@ namespace a3d {
 	class PhysicsShapeProxy;
 	class PhysicsShape;
 	class Scene;
-	
-	
+
 	class PhysicsBody {
 
-/*********************************************************************************************
-	Public Static Member Functions
- *********************************************************************************************/
-
 	public:
+		/// Public Static Member Functions ///
 
 		static std::unique_ptr<PhysicsBody> 	StaticBody();
 		static std::unique_ptr<PhysicsBody> 	DynamicBody();
 		static std::unique_ptr<PhysicsBody> 	KinematicBody();
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+		/// Public Lifecycle Functions ///
 
 		explicit PhysicsBody(PhysicsBodyType type);
 		PhysicsBody(PhysicsBodyType type, const std::shared_ptr<PhysicsShape>& shape);
 		~PhysicsBody();
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		PhysicsBodyType 					type() const;
 		void 								type(PhysicsBodyType type);
@@ -62,11 +49,11 @@ namespace a3d {
 		float 								mass() const;
 		void 								mass(float mass);
 		
-		glm::vec3 							momentOfInertia() const;
-		void 								momentOfInertia(const glm::vec3& moment);
+		math::vec3 							momentOfInertia() const;
+		void 								momentOfInertia(const math::vec3& moment);
 
-		glm::vec3							centerOfMass() const;
-		void								centerOfMass(const glm::vec3& offset);
+		math::vec3							centerOfMass() const;
+		void								centerOfMass(const math::vec3& offset);
 
 		float 								friction() const;
 		void 								friction(float friction);
@@ -77,17 +64,17 @@ namespace a3d {
 		float 								restitution() const;
 		void 								restitution(float restitution);
 
-		glm::vec3 							linearVelocity() const;
-		void 								linearVelocity(glm::vec3 velocity);
+		math::vec3 							linearVelocity() const;
+		void 								linearVelocity(math::vec3 velocity);
 
-		glm::vec3 							angularVelocity() const;
-		void 								angularVelocity(const glm::vec3& velocity);
+		math::vec3 							angularVelocity() const;
+		void 								angularVelocity(const math::vec3& velocity);
 
-		glm::vec3							linearFactor() const;
-		void 								linearFactor(const glm::vec3& factor);
+		math::vec3							linearFactor() const;
+		void 								linearFactor(const math::vec3& factor);
 
-		glm::vec3							angularFactor() const;
-		void 								angularFactor(const glm::vec3& factor);
+		math::vec3							angularFactor() const;
+		void 								angularFactor(const math::vec3& factor);
 
 		float								linearDamping() const;
 		void 								linearDamping(float damping);
@@ -105,16 +92,16 @@ namespace a3d {
 		// contactTestBitmask
 		// collisionBitmask
 
-		void 								applyForce(const glm::vec3& force,
+		void 								applyForce(const math::vec3& force,
 													   bool impulse);
-		void 								applyForce(const glm::vec3& force,
-													   const glm::vec3& location,
+		void 								applyForce(const math::vec3& force,
+													   const math::vec3& location,
 													   bool impulse);
-		void 								applyTorque(const glm::vec3& torque,
+		void 								applyTorque(const math::vec3& torque,
 														bool impulse);
 
-		glm::vec3							totalForce() const;
-		glm::vec3 							totalTorque() const;
+		math::vec3							totalForce() const;
+		math::vec3 							totalTorque() const;
 
 		bool 								affectedByGravity() const;
 		void 								affectedByGravity(bool affectedByGravity);
@@ -130,9 +117,7 @@ namespace a3d {
 		bool								autocalculatesMomentOfInertia() const;
 		void								autocalculatesMomentOfInertia(bool autocalculate);
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+		/// Internal Member Functions ///
 		
 //		void 								resting(bool resting);
 		
@@ -178,20 +163,15 @@ namespace a3d {
 
 		PhysicsBodyProxy*					proxy() const;
 
-/*********************************************************************************************
-	Private Member Functions
- *********************************************************************************************/
-
 	private:
+		/// Private Member Functions ///
 
 		void 								checkAutocreateShape(const std::shared_ptr<Node>& node);
 		void 								checkAutocreateShape(const std::shared_ptr<Mesh>& mesh);
 
 		void 								checkAddToWorld();
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
+		/// Private Member Variables ///
 
 		std::shared_ptr<PhysicsShape>		_shape;
 		std::unique_ptr<PhysicsBodyProxy>	_proxy;
@@ -200,6 +180,5 @@ namespace a3d {
 		PhysicalWorld*						_world;
 	};
 }
-
 
 #endif /* AVARA3D_PHYSICSBODY_H */

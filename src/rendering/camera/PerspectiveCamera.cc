@@ -8,20 +8,14 @@
 
 #include "a3d/rendering/camera/PerspectiveCamera.h"
 
-#include "glm/gtc/matrix_transform.hpp"
-
 #include "a3d/Utilities.h"
-#include "a3d/diagnostic/logging/Logger.h"
-
+#include "a3d/diagnostic/log/Log.h"
 
 using namespace a3d;
 using namespace std;
-using namespace glm;
+using namespace a3d::math;
 
-
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 PerspectiveCamera::PerspectiveCamera():
 		Camera{},
@@ -37,7 +31,7 @@ PerspectiveCamera::PerspectiveCamera(float zNear, float zFar, float yFov):
 		_yFov{yFov},
 		_aspectRatio{0} {
 
-	constructProjectionMatrix();
+	//constructProjectionMatrix();
 }
 
 PerspectiveCamera::PerspectiveCamera(const string& name, float zNear, float zFar, float yFov):
@@ -47,7 +41,7 @@ PerspectiveCamera::PerspectiveCamera(const string& name, float zNear, float zFar
 		_yFov{yFov},
 		_aspectRatio{0} {
 
-	constructProjectionMatrix();
+	//constructProjectionMatrix();
 }
 
 PerspectiveCamera::~PerspectiveCamera() {
@@ -60,9 +54,7 @@ PerspectiveCamera::~PerspectiveCamera() {
 	}
 }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 float PerspectiveCamera::zNear() const {
 	return _zNear;
@@ -70,7 +62,7 @@ float PerspectiveCamera::zNear() const {
 
 void PerspectiveCamera::zNear(float zNear) {
 	_zNear = zNear;
-	constructProjectionMatrix();
+	//constructProjectionMatrix();
 }
 
 float PerspectiveCamera::zFar() const {
@@ -79,7 +71,7 @@ float PerspectiveCamera::zFar() const {
 
 void PerspectiveCamera::zFar(float zFar) {
 	_zFar = zFar;
-	constructProjectionMatrix();
+	//constructProjectionMatrix();
 }
 
 float PerspectiveCamera::yFov() const {
@@ -89,7 +81,7 @@ float PerspectiveCamera::yFov() const {
 void PerspectiveCamera::yFov(float yFov) {
 	//if (fov > 0 || fov < M_PI) {
 	_yFov = yFov;
-	constructProjectionMatrix();
+	//constructProjectionMatrix();
 	//}
 }
 
@@ -99,19 +91,36 @@ float PerspectiveCamera::aspectRatio() const {
 
 void PerspectiveCamera::aspectRatio(float ratio) {
 	// small optimization as Window::mainLoop() calls this every update
-	if (!utils::Equal(ratio, _aspectRatio, 0.001)) {
+	//if (!utils::Equal(ratio, _aspectRatio, 0.001)) {
+	if (ratio != 0) {
 		_aspectRatio = ratio;
-		constructProjectionMatrix();
+		//constructProjectionMatrix();
+	}
+	else {
+		A3D_LOG_E("_aspectRatio is 0.");
 	}
 }
 
-/*********************************************************************************************
-	Camera Protected Member Functions
- *********************************************************************************************/
+/// Camera Internal Member Functions ///
 
-void PerspectiveCamera::constructProjectionMatrix() {
-	_projection = glm::perspective(_yFov,
-								   _aspectRatio,
-								   _zNear,
-								   _zFar);
+mat4 PerspectiveCamera::projection() const {
+	return perspective(_yFov,
+					   _aspectRatio,
+					   _zNear,
+					   _zFar);
 }
+
+/// Camera Protected Member Functions ///
+
+//void PerspectiveCamera::constructProjectionMatrix() {
+//	if (_aspectRatio != 0.0f) {
+//		_projection = perspective(_yFov,
+//								  _aspectRatio,
+//								  _zNear,
+//								  _zFar);
+//	}
+//	else {
+//		A3D_LOG_W("_aspectRatio is 0.");
+//	}
+//}
+

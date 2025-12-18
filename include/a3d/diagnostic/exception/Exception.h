@@ -9,24 +9,18 @@
 #ifndef AVARA3D_EXCEPTION_H
 #define AVARA3D_EXCEPTION_H
 
-
 #include <stdexcept>
 #include <string>
-
 
 namespace a3d {
 	
 	class Exception : public std::runtime_error {
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		/// Internal Lifecycle Functions ///
 
 		explicit Exception(const std::string& what);
 	};
 }
-
 
 #endif /* AVARA3D_EXCEPTION_H */

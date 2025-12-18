@@ -10,44 +10,37 @@
 #include <memory>
 #include <utility>
 
-#include "glm/gtc/matrix_transform.hpp"
-
 #include "a3d/a3d.h"
 #include "a3d/Utilities.h"
 
-
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
-
-constexpr uvec2					WINDOW_SIZE =			{1280, 768};
-constexpr bool					FULLSCREEN =			false;
-constexpr bool					ENABLE_HIGH_DPI =		true;
-constexpr AntialiasingMode		ANTIALIAS_MODE =		AntialiasingMode::Msaa4X;
-constexpr bool					ENABLE_VSYNC =			false;
-constexpr bool					CAPTURE_CURSOR =		false;
-
+const uvec2					WINDOW_SIZE			{1280, 768};
+const bool					FULLSCREEN			{false};
+const bool					ENABLE_HIGH_DPI		{true};
+const AntialiasingMode		ANTIALIAS_MODE		{AntialiasingMode::Msaa4X};
+const bool					ENABLE_VSYNC		{false};
+const bool					CAPTURE_CURSOR		{false};
 
 void UpdateCallback(Scene& scene, double time, double deltaTime);
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
 void DidRenderCallback(VisualWorld& world, double time, double deltaTime);
 
-
-a3d::Node* 		g_importMeshRoot;
-
+a3d::Node*	g_importMeshRoot;
 
 int main(int argc, const char* argv[]) {
 
 	cout << "test001::main()\n" << endl;
 
-	auto window = make_unique<Window>(RenderingApi::OpenGL,
-									  *utils::ExecutableName(),
-									  WINDOW_SIZE,
-									  FULLSCREEN,
-									  ENABLE_HIGH_DPI,
-									  ANTIALIAS_MODE);
+	auto window = make_unique<GLFWWindow>(RenderingApi::OpenGL,
+										  *utils::ExecutableName(),
+										  WINDOW_SIZE,
+										  FULLSCREEN,
+										  ENABLE_HIGH_DPI,
+										  ANTIALIAS_MODE);
 	window->vSyncEnabled(ENABLE_VSYNC);
 	window->cursorCaptured(CAPTURE_CURSOR);
 
@@ -56,12 +49,12 @@ int main(int argc, const char* argv[]) {
 	auto backgroundColor = make_shared<Color>(u8vec3{109, 136, 164});
 	auto background = MaterialProperty(backgroundColor);
 	visualWorld->background(background); // TODO: is this copying?
-	visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
-	visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
+	visualWorld->willRenderCallback(bind(&WillRenderCallback, _1, _2, _3));
+	visualWorld->didRenderCallback(bind(&DidRenderCallback, _1, _2, _3));
 
 	auto scene = make_unique<Scene>();
 	scene->visualWorld(std::move(visualWorld));
-	scene->update(bind(&UpdateCallback, _1, _2, _3));
+	scene->updateCallback(bind(&UpdateCallback, _1, _2, _3));
 
 //	auto options = SceneImportOptions::ImportAll;
 //	auto options = SceneImportOptions::ImportMeshes;
@@ -102,14 +95,15 @@ int main(int argc, const char* argv[]) {
 
 	window->center();
 	window->open();
-	scene->run();
+
+	do {
+		scene->update();
+	} while (window->isOpen());
 
 	return 0;
 }
 
-/***************************************************************************************
-	Scene Callbacks
- ***************************************************************************************/
+/// Scene Callbacks ///
 
 void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
@@ -130,9 +124,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	}
 }
 
-/***************************************************************************************
-	VisualWorld Callbacks
- ***************************************************************************************/
+/// VisualWorld Callbacks ///
 
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime) {
 

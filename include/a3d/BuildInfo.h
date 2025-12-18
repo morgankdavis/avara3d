@@ -9,19 +9,14 @@
 #ifndef AVARA3D_BUILDINFO_H
 #define AVARA3D_BUILDINFO_H
 
-
 #include <iomanip>
-
 
 namespace a3d {
 
 	class BuildInfo {
 
-/*********************************************************************************************
-	Public Types
- *********************************************************************************************/
-
 	public:
+		/// Public Types ///
 
 		struct Version { // semver.org
 			int major;
@@ -41,15 +36,11 @@ namespace a3d {
 			AdHoc
 		};
 
-/*********************************************************************************************
-	Public Static Member Functions
- *********************************************************************************************/
+		/// Public Static Member Functions ///
 
 		static BuildInfo& Info();
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		unsigned 		number() const;
 		const Version&	version() const;
@@ -57,17 +48,12 @@ namespace a3d {
 		Origin 			origin() const;
 		const std::tm&	time() const;
 
-/*********************************************************************************************
-	Private Lifecycle Functions
- *********************************************************************************************/
-
 	private:
+		/// Private Lifecycle Functions ///
 
 		BuildInfo();
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
+		/// Private Member Variables ///
 
 		unsigned			_number;
 		Version 			_version;
@@ -76,6 +62,5 @@ namespace a3d {
 		std::tm				_time;
 	};
 }
-
 
 #endif //AVARA3D_BUILDINFO_H

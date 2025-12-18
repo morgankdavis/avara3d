@@ -9,10 +9,10 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <thread>
+#include <tuple>
 #include <utility>
 #include <vector>
-
-#include <glm/glm.hpp>
 
 #include "a3d/a3d.h"
 #include "a3d/Utilities.h"
@@ -20,43 +20,36 @@
 // testing
 #include "a3d/physics/ConvexDecomposer.h"
 
-
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
-
-constexpr LogLevel				A3D_APP_LOG_LEVEL =		LogLevel::Debug;
-constexpr uvec2					WINDOW_SIZE =			{1280, 768};
-constexpr bool					FULLSCREEN =			true;
-constexpr bool					ENABLE_HIGH_DPI =		true;
-constexpr AntialiasingMode		MSAA_MODE =				AntialiasingMode::Msaa16X;
-constexpr bool					ENABLE_VSYNC =			false;
-constexpr bool					USE_DEFAULT_LIGHTING =	false;
-constexpr bool					CAPTURE_CURSOR =		false;
-constexpr float					MOUSE_SENSITIVITY =		0.5;
-constexpr float					PHYSICS_TIMESTEP =		1.0/128.0;
-constexpr bool					DARK =					true;
-
+const LogLevel				APP_LOG_LEVEL 			{LogLevel::Debug};
+const uvec2					WINDOW_SIZE 			{1280, 768};
+const bool					FULLSCREEN 				{false};
+const bool					ENABLE_HIGH_DPI			{true};
+const AntialiasingMode		AA_MODE					{AntialiasingMode::Msaa16X};
+const bool					ENABLE_VSYNC			{false};
+const bool					USE_DEFAULT_LIGHTING	{false};
+const bool					CAPTURE_CURSOR			{false};
+const float					MOUSE_SENSITIVITY		{0.5};
+const float					PHYSICS_TIMESTEP		{1.0/128.0};
+const bool					DARK					{true};
 
 void UpdateCallback(Scene& scene, double time, double deltaTime);
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
 void DidRenderCallback(VisualWorld& world, double time, double deltaTime);
 void DidSimulatePhysicsCallback(PhysicalWorld& world, double time, double deltaTime);
 
-
 void InitLog();
 void LogBuildInfo();
 void SpawnDuckFruit(Scene& scene, Node& duckNode);
-void AddSlurm(Scene& scene, const vec3& location, const vec3& axis, float angle);
-void ShootBall(Scene& scene, const vec3& location, const vec3& direction);
-void AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color);
+void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction);
 void AddCardboardBox(Scene& scene, const vec3& location, const vec3& axis, float angle);
 void SpawnHACDTeapot(Scene& scene);
 void AddBoxes(Scene& scene);
 void AddCardboardBoxes(Scene& scene);
-void AddSlurms(Scene& scene);
 void AddRing(Scene& scene);
 shared_ptr<Node> ColoredSphereNode(shared_ptr<Color> color, string name);
 void SpawnRecursiveTestTree(Scene& scene);
@@ -65,36 +58,81 @@ void SpawnInvisiblePrimitives(Scene& scene);
 shared_ptr<Node> ChainmailLink(float minorRadius, float majorRadius);
 void SpawnChainMail(Scene& scene);
 
+Node*	g_palmNode;
+Node*	g_duckNode;
 
-unique_ptr<a3d::Logger>	g_logger;
-Node*					g_palmNode;
-Node*					g_duckSpinnerNode;
-Node*					g_duckNode;
+
+
+// vector<tuple<shared_ptr<Mesh>, shared_ptr<PhysicsShape>, float>> g_duckFruit{};
+vector<tuple<shared_ptr<Mesh>, shared_ptr<PhysicsShape>, float>>* g_duckFruit{};
+
+
+
+// TODO: put this somewhere.
+struct WanderRotate {
+	// tunables
+	float minInterval = 0.8f; // seconds
+	float maxInterval = 2.5f; // seconds
+	float minSpeed  = 0.5f; // rad/s
+	float maxSpeed  = 1.0f; // rad/s
+	float smoothing = 1.0f; // bigger = snappier
+
+	// state
+	float timer = 0.0f;
+	float nextChange = 1.0f;
+
+	vec3 angularVelocity = {0, 0, 0}; // current rad/s (axis * speed)
+	vec3 targetAngularVelocity = {0, 0, 0}; // desired rad/s
+
+	void chooseNewTarget() {
+		vec3 axis = uniform_spherical(1.0);
+		float speed = uniform_linear(minSpeed, maxSpeed);
+		targetAngularVelocity = axis * speed;
+		nextChange = uniform_linear(minInterval, maxInterval);
+		timer = 0.0f;
+	}
+
+	void update(Node& n, float dt) {
+		timer += dt;
+		if (timer >= nextChange) chooseNewTarget();
+
+		// exponential smoothing toward target
+		// alpha = 1 - exp(-smoothing * dt)  (frame-rate independent)
+		float alpha = 1.0f - math::exp(-smoothing * dt);
+		angularVelocity = angularVelocity + (targetAngularVelocity - angularVelocity) * alpha;
+
+		// integrate into orientation
+		float angle = length(angularVelocity) * dt;
+		if (angle > 1e-6f) {
+			vec3 axis = normalize(angularVelocity);
+			quat dq = math::quaternion(axis, angle); // implement or use yours
+			n.orientation(normalize(dq * n.orientation())); // or n.rotation *= dq depending on convention
+		}
+	}
+};
+
+WanderRotate* wr;
+
+
 
 
 int main(int argc, const char* argv[]) {
 
-	try
-	{
+	try {
+
 		InitLog();
 		LogBuildInfo();
 
-		auto window = make_unique<Window>(RenderingApi::OpenGL,
-										  *utils::ExecutableName(),
-										  WINDOW_SIZE,
-										  FULLSCREEN,
-										  ENABLE_HIGH_DPI,
-										  MSAA_MODE);
+		auto window = make_unique<GLFWWindow>(RenderingApi::OpenGL,
+											  *utils::ExecutableName(),
+											  WINDOW_SIZE,
+											  FULLSCREEN,
+											  ENABLE_HIGH_DPI,
+											  AA_MODE);
 		window->vSyncEnabled(ENABLE_VSYNC);
 		window->cursorCaptured(CAPTURE_CURSOR);
 
-		auto inputManager = make_unique<WindowInputManager>(window.get());
-		if (inputManager->errorMask() == WindowInputManagerErrorMask::PermissionDenied) {
-			A3D_APP_LOG_E(g_logger, "WindowInputManager permission denied.");
-			// on macOS 10.15 Catalina+, this is probably a permissions issue,
-			// and the OS will alert the user.
-			// just keep going and let the user decide what they want to do.
-		}
+		auto inputManager = make_unique<GLFWInputManager>(window.get());
 
 		auto visualWorld = make_unique<VisualWorld>(*window);
 		visualWorld->fogStartDistance(50.0);
@@ -108,18 +146,18 @@ int main(int argc, const char* argv[]) {
 		if (DARK) background = Color::Black();
 		else background = make_shared<Texture>(utils::CubeImageNamed("stormy", "png"));
 		visualWorld->background(background);
-		visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
-		visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
+		visualWorld->willRenderCallback(bind(&WillRenderCallback, _1, _2, _3));
+		visualWorld->didRenderCallback(bind(&DidRenderCallback, _1, _2, _3));
 
 		auto physicalWorld = make_unique<PhysicalWorld>();
 		physicalWorld->timestep(PHYSICS_TIMESTEP);
-		physicalWorld->didSimulate(bind(&DidSimulatePhysicsCallback, _1, _2, _3));
+		physicalWorld->didSimulateCallback(bind(&DidSimulatePhysicsCallback, _1, _2, _3));
 
 		auto scene = make_unique<Scene>(std::move(visualWorld),
 										std::move(physicalWorld),
 										std::move(inputManager));
 		scene->debugOptions(DebugOptions::ShowStatsOverlay);
-		scene->update(bind(&UpdateCallback, _1, _2, _3));
+		scene->updateCallback(bind(&UpdateCallback, _1, _2, _3));
 
 
 
@@ -143,14 +181,14 @@ int main(int argc, const char* argv[]) {
 		auto sunNode = Node::LightNode(sunLight);
 		scene->rootNode()->addChild(sunNode);
 		if (DARK) {
-			sunNode->eulerAngles({glm::radians(0.0f),
-								  glm::radians(45.0),
-								  glm::radians(0.0)});
+			sunNode->eulerAngles({radians(0.0f),
+								  radians(45.0),
+								  radians(0.0)});
 		}
 		else {
-			sunNode->eulerAngles({glm::radians(-30.0f),
-								  glm::radians(90.0 + 45.0),
-								  glm::radians(0.0)});
+			sunNode->eulerAngles({radians(-30.0f),
+								  radians(90.0 + 45.0),
+								  radians(0.0)});
 		}
 
 
@@ -214,8 +252,8 @@ int main(int argc, const char* argv[]) {
 
 
 
-		const float PLANE_LENGTH = 50.0;
-		const float PLANE_WIDTH = 50.0;
+		static const float PLANE_LENGTH = 50.0;
+		static const float PLANE_WIDTH = 50.0;
 		auto planeNode = Node::NamedNode("Ground plane node");
 		planeNode->mesh(Box::Mesh(PLANE_LENGTH, PLANE_WIDTH, 0));
 		//auto gridImage = DARK ? utils::ImageNamed("grid10")->inverted() : utils::ImageNamed("grid10");
@@ -282,7 +320,6 @@ int main(int argc, const char* argv[]) {
 
 		auto duckNode = Node::MeshNode(utils::MeshNamed("rubber_duck/rubber_duck"));
 		g_duckNode = duckNode.get();
-		A3D_APP_LOG_I(g_logger, "DUCK NODE: {}", utils::StringFromTree(*duckNode));
 		duckNode->position({/*4.5*/0, 25, 0});
 
 
@@ -313,10 +350,40 @@ int main(int argc, const char* argv[]) {
 	//	_duckNode->physicsBody(make_shared<PhysicsBody>(PhysicsBodyType::Kinematic, duckPhysicsShape));
 
 		auto duckSpinnerNode = Node::NamedNode("duck spinner");
-		g_duckSpinnerNode = duckSpinnerNode.get();
+//		g_duckSpinnerNode = duckSpinnerNode.get();
 		duckSpinnerNode->addChild(duckNode);
 		scene->rootNode()->addChild(duckSpinnerNode);
 
+
+
+		vector<tuple<shared_ptr<Mesh>, shared_ptr<PhysicsShape>, float>> duckFruit{};
+
+
+		auto mesh = utils::MeshNamed("cherries_lod/cherries_lod");
+		auto shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, mesh);
+		duckFruit.push_back({mesh, shape, 0.05});
+
+		mesh = utils::MeshNamed("orange_lod/orange_lod");
+		shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, mesh);
+		duckFruit.push_back({mesh, shape, 0.185});
+
+		mesh = utils::MeshNamed("pear_lod/pear_lod");
+		shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, mesh);
+		duckFruit.push_back({mesh, shape, 0.24});
+
+		mesh = utils::MeshNamed("apple_lod/apple_lod");
+		shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, mesh);
+		duckFruit.push_back({mesh, shape, 0.225});
+
+		mesh = utils::MeshNamed("banana_lod/banana_lod");
+		shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, mesh);
+		duckFruit.push_back({mesh, shape, 0.14});
+
+		mesh = utils::MeshNamed("pineapple_lod/pineapple_lod");
+		shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, mesh);
+		duckFruit.push_back({mesh, shape, 0.9});
+
+		g_duckFruit = &duckFruit;
 
 
 	////	// add the paddle
@@ -338,11 +405,6 @@ int main(int argc, const char* argv[]) {
 		AddCardboardBoxes(*scene);
 
 
-	//	// add slurms
-	//	AddSlurms(*scene);
-
-
-
 	// box spotlight
 //	auto boxesLight = Light::SpotLight();
 //	boxesLight->innerAngle(glm::radians(2.5));
@@ -355,8 +417,8 @@ int main(int argc, const char* argv[]) {
 
 
 		auto boxesLight = Light::SpotLight(Color::LightGray());
-		boxesLight->innerAngle(glm::radians(20.0));
-		boxesLight->outerAngle(glm::radians(25.0));
+		boxesLight->innerAngle(radians(20.0));
+		boxesLight->outerAngle(radians(25.0));
 		boxesLight->quadraticAttenuation(0.035);
 		boxesLight->featheringMode(SpotlightFeatheringMode::Soft);
 		auto boxesLightNode = Node::LightNode(boxesLight);
@@ -365,9 +427,8 @@ int main(int argc, const char* argv[]) {
 		scene->rootNode()->addChild(boxesLightNode);
 
 
-
-	A3D_APP_LOG_I(g_logger, "*** SCENE EXTENT: {} ***",
-				  utils::StringFromGLMVec3(scene->rootNode()->extent()));
+	A3D_APP_LOG_I("*** SCENE EXTENT: {} ***",
+				  to_string(scene->rootNode()->extent()));
 
 	//	A3D_A3D_APP_LOG_I("Graph:\n{}", StringFromTree(*scene->rootNode()));
 	//	auto children = scene->rootNode()->children(true);
@@ -376,7 +437,7 @@ int main(int argc, const char* argv[]) {
 	//		if (child == scene->rootNode()){
 	//			A3D_A3D_APP_LOG_I("\troot");
 	//		}
-	//		else if (child->name().has_value()) {
+	//		else if (child->name()) {
 	//			A3D_A3D_APP_LOG_I("\t{}", *child->name());
 	//		}
 	//		else {
@@ -397,75 +458,75 @@ int main(int argc, const char* argv[]) {
 //		cameraNode->light(flashLight);
 //		scene->visualWorld()->pointOfView(cameraNode);
 
-
-
+wr = new WanderRotate();
 
 		window->center();
 		window->open();
-		scene->run();
+
+		do {
+			scene->update();
+		} while (window->isOpen());
 	}
 	catch (Exception& e) {
-		A3D_APP_LOG_F(g_logger, "Exception: {}", e.what());
+		A3D_APP_LOG_F("Exception: {}", e.what());
 		return -1;
 	}
 
 	return 0;
 }
 
-
-/***************************************************************************************
-	Scene Callbacks
- ***************************************************************************************/
+/// Scene Callbacks ///
 
 void UpdateCallback(Scene& scene, double time, double deltaTime) {
-	A3D_APP_LOG_T(g_logger, "scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
+	A3D_APP_LOG_T("scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
 
-	auto inputManager = scene.inputManager();
-
-	Window* window = nullptr;
+	GLFWWindow* window = nullptr;
 	if (scene.visualWorld()) {
-		window = static_cast<Window*>(scene.visualWorld()->renderContext());
+		window = static_cast<GLFWWindow*>(scene.visualWorld()->renderContext());
 	}
 
 	// rotate the duck
 	auto rotationDeg = deltaTime * radians(30.0); // 30deg/sec
 
-	if (g_duckSpinnerNode) {
-		auto duckSpinnerEuler = g_duckSpinnerNode->eulerAngles();
-		g_duckSpinnerNode->eulerAngles({0, duckSpinnerEuler.y - rotationDeg, 0});
+//	if (g_duckNode) {
+//		auto duckEuler = g_duckNode->eulerAngles();
+//		g_duckNode->eulerAngles({0, duckEuler.yaw - (float)rotationDeg, 0});
+////		g_duckNode->eulerAngles({duckEuler.pitch - (float)rotationDeg, 0, 0});
+////		g_duckNode->eulerAngles({0, 0, duckEuler.roll - (float)rotationDeg});
+//	}
+
+	if (g_duckNode) {
+		wr->update(*g_duckNode, deltaTime);
 	}
 
 	// get input
 
-	auto mouseButtonsDown = inputManager->mouseButtonsDown();
-	auto mouseButtonsPressed = inputManager->mouseButtonsPressed();
-	auto keysDown = inputManager->keysDown();
-	auto keysPressed = inputManager->keysPressed();
+	auto im = static_cast<DesktopInputManager*>(scene.inputManager());
+
+	auto mouseButtonsDown = im->mouseButtonsDown();
+	auto mouseButtonsPressed = im->mouseButtonsPressed();
+	auto keysDown = im->keysDown();
+	auto keysPressed = im->keysPressed();
 	auto cursorCaptured = true;
 	if (window) {
 		cursorCaptured = window->cursorCaptured();
 	}
 
 	// TEMPORARY for macOS mouse input testing
-	if (keysPressed.count(Key::Z)) {
-		A3D_APP_LOG_I(g_logger, "Trying to re-initialize mouse input.");
-		auto windowInputManager = static_cast<WindowInputManager*>(scene.inputManager());
-		try {
-			windowInputManager->initMouseInput();
-		}
-		catch (Exception) {
-			A3D_APP_LOG_E(g_logger, "Nada");
-		}
-	}
+//	if (keysPressed.count(Key::Z)) {
+//		A3D_APP_LOG_I("Trying to re-initialize mouse input.");
+//		auto windowInputManager = static_cast<GlfwInputManager*>(scene.inputManager());
+//		try {
+//			windowInputManager->initMouseInput();
+//		}
+//		catch (Exception) {
+//			A3D_APP_LOG_E("Nada");
+//		}
+//	}
 
 	if (keysPressed.count(Key::Escape)) {
 		window->close();
-		A3D_APP_LOG_I(g_logger, "open? {}", window->isOpen() ? "ya" : "no");
-	}
-
-	if (keysPressed.count(Key::ForwardDelete)) {
-		//window->size({320, 240});
-		scene.paused(!scene.paused());
+		A3D_APP_LOG_I("open? {}", window->isOpen() ? "ya" : "no");
 	}
 
 	if (keysPressed.count(Key::Slash)) {
@@ -535,176 +596,178 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 		if (auto pov = scene.visualWorld()->pointOfView().lock()) {
 			auto pos = pov->worldPosition();
 			auto orient = pov->worldOrientation();
-			A3D_APP_LOG_I(g_logger, "\ncamera position: ({:.4f}, {:.4f}, {:.4f})\n"
-									"camera orientation: ({:.6f}, {:.6f}, {:.6f}, {:.6f})",
+			A3D_APP_LOG_I("\ncamera position: ({:.4f}, {:.4f}, {:.4f})\n"
+						  "camera orientation: ({:.6f}, {:.6f}, {:.6f}, {:.6f})",
 						  pos.x, pos.y, pos.x, orient.x, orient.y, orient.z, orient.w);
 		}
 	}
 
-
-	if (!scene.paused()) {
-
 //		if (keysPressed.count(Key::T)) {
-//			A3D_APP_LOG_I(g_logger, "TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
+//			A3D_APP_LOG_I("TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
 //		}
 
-		// spawn duck fruit
+	// spawn duck fruit
 
-		if (keysPressed.count(Key::GraveAccent)) {
-			AddBoxes(scene);
-		}
+	if (keysPressed.count(Key::GraveAccent)) {
+		AddBoxes(scene);
+	}
 
-		if (keysDown.count(Key::Tab)) {
-			SpawnDuckFruit(scene, *g_duckNode);
-		}
+	if (keysDown.count(Key::Tab)) {
+		SpawnDuckFruit(scene, *g_duckNode);
+	}
 
-		if (keysPressed.count(Key::L)) {
-			if (auto cameraNode = scene.visualWorld()->pointOfView().lock()) {
-				if (cameraNode->light()) {
-					cameraNode->light(nullptr);
-				}
-				else {
-					auto flashLight = Light::SpotLight();
-					flashLight->innerAngle(glm::radians(5.0f));
-					flashLight->outerAngle(glm::radians(7.5f));
-					flashLight->featheringMode(SpotlightFeatheringMode::Sharp);
-					flashLight->quadraticAttenuation(.001);
-					cameraNode->light(flashLight);
-				}
-			}
-		}
-
-		if (keysPressed.count(Key::Q)) {
-			SpawnAutogeneratedPrimitives(scene);
-		}
-
-		// if (keysPressed.count(Key::Z)) {
-		// 	SpawnInvisiblePrimitives(scene);
-		// }
-
-		if (keysPressed.count(Key::M)) {
-			SpawnChainMail(scene);
-		}
-
-		if (keysPressed.count(Key::O)) {
-			SpawnRecursiveTestTree(scene);
-		}
-
-		if (keysPressed.count(Key::T)) {
-			SpawnHACDTeapot(scene);
-		}
-
-		if (keysPressed.count(Key::H)) {
-			// NOTE: once the window is hidden, the scene keeps running but you
-			// no longer get key events from the window!
-			window->hidden(!window->hidden());
-		}
-
-
-		if (scene.visualWorld() && cursorCaptured) {
-
-			if (mouseButtonsPressed.count(MouseButton::One)) {
-				if (auto pov = scene.visualWorld()->pointOfView().lock()) {
-					ShootBall(scene,
-							  pov->worldPosition(),
-							  pov->worldForward());
-				}
-			}
-
-			if (mouseButtonsDown.count(MouseButton::Two)) {
-				if (auto pov = scene.visualWorld()->pointOfView().lock()) {
-					ShootBall(scene,
-							  pov->worldPosition(),
-							  pov->worldForward());
-				}
-			}
-		}
-
-		if (keysPressed.count(Key::F)) {
-			if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
-				scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
-												  DebugOptions::ShowWireframes));
+	if (keysPressed.count(Key::L)) {
+		if (auto cameraNode = scene.visualWorld()->pointOfView().lock()) {
+			if (cameraNode->light()) {
+				cameraNode->light(nullptr);
 			}
 			else {
-				scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+				auto flashLight = Light::SpotLight();
+				flashLight->innerAngle(radians(5.0f));
+				flashLight->outerAngle(radians(7.5f));
+				flashLight->featheringMode(SpotlightFeatheringMode::Sharp);
+				flashLight->quadraticAttenuation(.001);
+				cameraNode->light(flashLight);
+			}
+		}
+	}
+
+	if (keysPressed.count(Key::Q)) {
+		SpawnAutogeneratedPrimitives(scene);
+	}
+
+	// if (keysPressed.count(Key::Z)) {
+	// 	SpawnInvisiblePrimitives(scene);
+	// }
+
+	if (keysPressed.count(Key::M)) {
+		SpawnChainMail(scene);
+	}
+
+	if (keysPressed.count(Key::O)) {
+		SpawnRecursiveTestTree(scene);
+	}
+
+	if (keysPressed.count(Key::T)) {
+		SpawnHACDTeapot(scene);
+	}
+
+	if (keysPressed.count(Key::H)) {
+		// NOTE: once the window is hidden, the scene keeps running but you
+		// no longer get key events from the window!
+		window->hidden(!window->hidden());
+	}
+
+
+	if (scene.visualWorld() && cursorCaptured) {
+
+		if (mouseButtonsPressed.count(MouseButton::One)) {
+			if (auto pov = scene.visualWorld()->pointOfView().lock()) {
+				ShootSlurm(scene,
+						   pov->worldPosition(),
+						   pov->worldForward());
+			}
+		}
+
+		if (mouseButtonsDown.count(MouseButton::Two)) {
+			if (auto pov = scene.visualWorld()->pointOfView().lock()) {
+				ShootSlurm(scene,
+						   pov->worldPosition(),
+						   pov->worldForward());
+			}
+		}
+	}
+
+	if (keysPressed.count(Key::F)) {
+		//Log::MainLog().flush();
+		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
+			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
 											   DebugOptions::ShowWireframes));
-			}
 		}
-		if (keysPressed.count(Key::B)) {
-			if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
-				scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
-												  DebugOptions::ShowBoundingBoxes));
-			}
-			else {
-				scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+		else {
+			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+											DebugOptions::ShowWireframes));
+		}
+	}
+	if (keysPressed.count(Key::B)) {
+		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
+			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
 											   DebugOptions::ShowBoundingBoxes));
-			}
 		}
-		if (keysPressed.count(Key::I)) {
-			if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
-				scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
-												  DebugOptions::ShowStatsOverlay));
-			}
-			else {
-				scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+		else {
+			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+											DebugOptions::ShowBoundingBoxes));
+		}
+	}
+	if (keysPressed.count(Key::I)) {
+		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
+			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
 											   DebugOptions::ShowStatsOverlay));
-			}
 		}
-		if (keysPressed.count(Key::P)) {
-			if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes)) {
-				scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
-												  DebugOptions::ShowPhysicsBoundingBoxes));
-			}
-			else {
-				scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+		else {
+			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+											DebugOptions::ShowStatsOverlay));
+		}
+	}
+	if (keysPressed.count(Key::P)) {
+		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes)) {
+			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
 											   DebugOptions::ShowPhysicsBoundingBoxes));
-			}
 		}
-		if (keysPressed.count(Key::G)) {
-			if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes)) {
-				scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
-												  DebugOptions::ShowPhysicsWireframes));
-			}
-			else {
-				scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+		else {
+			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+											DebugOptions::ShowPhysicsBoundingBoxes));
+		}
+	}
+	if (keysPressed.count(Key::G)) {
+		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes)) {
+			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
 											   DebugOptions::ShowPhysicsWireframes));
-			}
 		}
-		if (keysPressed.count(Key::C)) {
-			if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints)) {
-				scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
-												  DebugOptions::ShowPhysicsContactPoints));
-			}
-			else {
-				scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+		else {
+			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+											DebugOptions::ShowPhysicsWireframes));
+		}
+	}
+	if (keysPressed.count(Key::C)) {
+		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints)) {
+			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
 											   DebugOptions::ShowPhysicsContactPoints));
-			}
 		}
-		if (keysPressed.count(Key::N)) {
-			if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsNormals)) {
-				scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
-												  DebugOptions::ShowPhysicsNormals));
-			}
-			else {
-				scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+		else {
+			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+											DebugOptions::ShowPhysicsContactPoints));
+		}
+	}
+	if (keysPressed.count(Key::N)) {
+		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsNormals)) {
+			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
 											   DebugOptions::ShowPhysicsNormals));
-			}
 		}
-
-		if (keysPressed.count(Key::V)) {
-			window->vSyncEnabled(!window->vSyncEnabled());
+		else {
+			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+											DebugOptions::ShowPhysicsNormals));
 		}
+	}
 
-		if (keysPressed.count(Key::R)) {
-			if (!window->recordingGIF()) {
-				utils::StartGIFRecording(*window, {320, 240}, 8);
-			}
-			else {
-				utils::StopGIFRecording(*window);
-			}
+	if (keysPressed.count(Key::V)) {
+		window->vSyncEnabled(!window->vSyncEnabled());
+	}
+
+	if (keysPressed.count(Key::R)) {
+		if (!window->recordingGIF()) {
+			utils::StartGIFRecording(*window, {320, 240}, 8);
 		}
+		else {
+			utils::StopGIFRecording(*window);
+		}
+	}
 
-		if (keysPressed.count(Key::U)) {
+	if (keysDown.count(Key::Z)) {
+		this_thread::sleep_for(std::chrono::milliseconds(8));
+	}
+
+	if (keysPressed.count(Key::U)) {
 //			for (auto &n: scene.rootNode()->children(true)) {
 //				auto mesh = n->mesh();
 //				if (mesh) {
@@ -718,261 +781,171 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 //				}
 //			}
 
-			AddRing(scene);
-		}
+		AddRing(scene);
+	}
 
-		vec2 mouseScrollWheelDelta = scene.inputManager()->mouseScrollWheelDelta();
-		if (mouseScrollWheelDelta.y > 0) {
+	vec2 mouseScrollWheelDelta = im->mouseScrollWheelDelta();
+	if (mouseScrollWheelDelta.y > 0) {
 
-			auto newSpeed = std::clamp(scene.physicalWorld()->speed() + mouseScrollWheelDelta.y * 0.1,
-									   0.1, 1.0);
-			scene.physicalWorld()->speed((float)newSpeed);
-		}
+		auto newSpeed = std::clamp(scene.physicalWorld()->speed() + mouseScrollWheelDelta.y * 0.1,
+								   0.1, 1.0);
+		scene.physicalWorld()->speed((float)newSpeed);
+	}
 
-		if (cursorCaptured) {
+	if (cursorCaptured) {
 
-			// mouselook
+		// mouselook
 
-			vec2 mousePositionDelta = inputManager->mousePositionDelta();
+		vec2 mousePositionDelta = im->mousePositionDelta();
 
-			if (auto pov = scene.visualWorld()->pointOfView().lock()) {
+		if (auto pov = scene.visualWorld()->pointOfView().lock()) {
 
-				// look
+			// look
 
-				vec3 camForward = pov->worldForward();
-				vec3 camRight = pov->worldRight();
-				vec3 camUp = pov->worldUp();
+			vec3 camForward = pov->worldForward();
+			vec3 camRight = pov->worldRight();
+			vec3 camUp = pov->worldUp();
 
-				static const float MOUSE_SPEED_SCALAR = .002;
-				static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
+			static const float MOUSE_SPEED_SCALAR = .002;
+			static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
 
-				float deltaRotX = atan(MOUSE_SPEED * mousePositionDelta.x);
-				float deltaRotY = atan(MOUSE_SPEED * mousePositionDelta.y);
+			float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
+			float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
 
-				vec3 angles = pov->eulerAngles();
-				pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
+			vec3 angles = pov->eulerAngles();
+			pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
 
-				// move
+			// move
 
-				static float MOVE_SPEED = utils::Max(scene.rootNode()->extent());
+			static float MOVE_SPEED = math::max(scene.rootNode()->extent());
 
-				float moveMultiplier = 1.0;
-				if (keysDown.count(Key::LeftControl)) {
-					moveMultiplier = 2.0;
+			float moveMultiplier = 1.0;
+			if (keysDown.count(Key::LeftControl)) {
+				moveMultiplier = 2.0;
+			}
+
+			if (keysDown.count(Key::W) || mouseButtonsDown.count(MouseButton::Four)) {
+				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * camForward;
+				pov->position(pov->position() + positionDelta);
+			}
+			else if (keysDown.count(Key::S)) {
+				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * -camForward;
+				pov->position(pov->position() + positionDelta);
+			}
+
+			if (keysDown.count(Key::A)) {
+				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * -camRight;
+				pov->position(pov->position() + positionDelta);
+			}
+			else if (keysDown.count(Key::D)) {
+				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * camRight;
+				pov->position(pov->position() + positionDelta);
+			}
+
+			if (keysDown.count(Key::Space)) {
+				float direction = 1;
+				if (keysDown.count(Key::LeftShift)) {
+					direction = -1;
 				}
-
-				if (keysDown.count(Key::W) || mouseButtonsDown.count(MouseButton::Four)) {
-					vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * camForward;
-					pov->position(pov->position() + positionDelta);
-				}
-				else if (keysDown.count(Key::S)) {
-					vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * -camForward;
-					pov->position(pov->position() + positionDelta);
-				}
-
-				if (keysDown.count(Key::A)) {
-					vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * -camRight;
-					pov->position(pov->position() + positionDelta);
-				}
-				else if (keysDown.count(Key::D)) {
-					vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * camRight;
-					pov->position(pov->position() + positionDelta);
-				}
-
-				if (keysDown.count(Key::Space)) {
-					float direction = 1;
-					if (keysDown.count(Key::LeftShift)) {
-						direction = -1;
-					}
-					vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * camUp;
-					pov->position(pov->position() + positionDelta * direction);
-				}
+				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * camUp;
+				pov->position(pov->position() + positionDelta * direction);
 			}
 		}
 	}
 }
 
-/***************************************************************************************
-	VisualWorld Callbacks
- ***************************************************************************************/
+/// VisualWorld Callbacks ///
 
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	A3D_APP_LOG_T("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 void DidRenderCallback(VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	A3D_APP_LOG_T("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
-/***************************************************************************************
-	PhysicalWorld Callbacks
- ***************************************************************************************/
+/// PhysicalWorld Callbacks ///
 
 void DidSimulatePhysicsCallback(PhysicalWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	A3D_APP_LOG_T("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
-/***************************************************************************************
-	Static
- ***************************************************************************************/
+/// Static ///
 
 void InitLog() {
 
 	string executableName = *utils::ExecutableName();
-	auto nativeSink = make_unique<StdOutLoggerSink>();
-	auto fileSink = make_unique<FileLoggerSink>(*(utils::ExecutableDirectory())
-												/ (executableName + string(".log")));
-	auto sinks = unordered_set<unique_ptr<LoggerSink>>();
-	sinks.insert(std::move(nativeSink));
-	sinks.insert(std::move(fileSink));
 
-	g_logger = make_unique<Logger>(executableName, std::move(sinks));
-	g_logger->level(A3D_APP_LOG_LEVEL);
+	auto nativeSink = make_unique<StdOutLogSink>();
+	auto fileSink = make_unique<FileLogSink>(*(utils::ExecutableDirectory())
+											 / (executableName + string(".log")));
+	auto sinks = vector<unique_ptr<LogSink>>();
+	sinks.push_back(std::move(nativeSink));
+	sinks.push_back(std::move(fileSink));
 
-	Logger::MainLogger().level(A3D_APP_LOG_LEVEL);
+	Log appLog{executableName, std::move(sinks)};
+	appLog.level(APP_LOG_LEVEL);
+	Log::AppLog(std::move(appLog));
 }
 
 void LogBuildInfo() {
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
-	A3D_APP_LOG_I(g_logger, "A3D version: {}.{}.{}",
+	A3D_APP_LOG_I("A3D version: {}.{}.{}",
 		  version.major, version.minor, version.patch);
-	A3D_APP_LOG_I(g_logger, "Build: {}", buildInfo.number());
-	A3D_APP_LOG_I(g_logger, "Type: {}",
+	A3D_APP_LOG_I("Build: {}", buildInfo.number());
+	A3D_APP_LOG_I("Type: {}",
 		  buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
-	A3D_APP_LOG_I(g_logger, "Origin: {}",
+	A3D_APP_LOG_I("Origin: {}",
 		  buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
 }
 
 void SpawnDuckFruit(Scene& scene, Node& duckNode) {
 
-	using utils::MeshNamed;
-	using utils::Uniform;
-
-	constexpr float SPAWN_RATE = 5.0; // pieces/sec
+	static const float SPAWN_RATE = 10.0; // pieces/sec
 
 	auto time = scene.time();
 	static auto lastSSpawnTime = 0.f;
 	auto elapsedTime = time - lastSSpawnTime;
 	if (elapsedTime >= (1.0/SPAWN_RATE)) {
 
-//		AddCardboardBox(scene, {0, 10, 0}, {1, 0, 0}, 0.0f);
-//		lastSSpawnTime = time;
-//		return nullptr;
+		auto duckFruit = (*g_duckFruit)[uniform_linear(0, 5)];
 
+		shared_ptr<Node> node = Node::MeshNode(get<0>(duckFruit));
+		shared_ptr<PhysicsShape> physShape = get<1>(duckFruit);
+		float mass = get<2>(duckFruit);
 
-		int fruitNum = utils::Uniform(0, 5);
-		static shared_ptr<Node> node = nullptr;
-		//shared_ptr<PhysicsShape> physicsShape = nullptr;
-		float mass = 1;
-
-		switch (fruitNum) {
-			case 0: {
-				node = Node::MeshNode(MeshNamed("cherries_lod/cherries_lod"));
-				mass = 0.05;
-				break;
-			}
-			case 1: {
-				node = Node::MeshNode(MeshNamed("orange_lod/orange"));
-				mass = 0.185;
-				break;
-			}
-			case 2: {
-				node = Node::MeshNode(MeshNamed("pear_lod/pear_lod"));
-				mass = 0.24;
-				break;
-			}
-			case 3: {
-				node = Node::MeshNode(MeshNamed("apple_lod/apple_lod"));
-				mass = 0.225;
-				break;
-			}
-			case 4: {
-				node = Node::MeshNode(MeshNamed("banana_lod/banana_lod"));
-				mass = 0.14;
-				break;
-			}
-			case 5: {
-				node = Node::MeshNode(MeshNamed("pineapple_lod/pineapple_lod"));
-				mass = 0.9;
-				break;
-			}
-			default: (void)0;
-		}
-
-//		node->scale({5.0, 5.0, 5.0});
 		// add local offset to duck, then convert that position to world space,
 		// then attach to root node (below)
-		node->position(duckNode.worldPosition() + vec3(0.0, 3, 0.0));
+		node->transform(duckNode.worldTransform() * translate(mat4(1.0), vec3(0.0, 3.25, 0.2)));
 
-		//	node->scale({3.0, 3.0, 3.0});
-		//#warning TEMPORARY workaround for physics scaling
-		//	for (auto& c : node->children(true)) {
-		//		A3D_APP_LOG_D(_logger, "c tr: {}", StringFromGLMMat4(c->transform()));
-		//		c->mesh()->burnTransform(node->transform(), true);
-		//		node->transform(mat4(1.0));
-		//	}
+		auto phyBody = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, physShape);
+		phyBody->mass(mass);
+		phyBody->restitution(0.25);
+		phyBody->friction(1.0);
 
-		//auto physicsShape = PhysicsShape::ConvexHullShape();
-		auto physicsBody = PhysicsBody::DynamicBody();
-		//physicsBody->shape(physicsShape);
-
-
-		// *** without this a compound body would be maade including 'sphereMesh' below
-		// this way we are telling AE to make the physics body based solely on this particular mesh
-//		auto shape = make_shared<PhysicsShape>(PHYSICS_SHAPE_TYPE::CONVEX_HULL,
-//											   node->children(false).front()->mesh());
-//		physicsBody->shape(shape);
-		///////////////////
-
-
-
-		physicsBody->mass(mass);
-		physicsBody->restitution(0.25);
-		physicsBody->friction(1);
-
-
-		//physicsBody->angularDamping(0.1);
-		//physicsBody->angularFactor({.1, .1, .1});
-
-//		physicsBody->linearSleepingThreshold(0.1);
-//		physicsBody->angularSleepingThreshold(.01);
-
-
-		// add a visual-only child
-//		auto sphereMesh = make_shared<Sphere>(.5f, 16);
-//		//auto sphereNode =
-//		auto sphereNode = Node::MeshNode(sphereMesh);
-//		sphereNode->position({1, 0, 0});
-//		node->addChild(sphereNode);
-
-
-
-		// add random factor
-
-		static const float PI = 3.1415; // windows doesn't like M_PI from cmath (?)
-		float heading = Uniform(0.0f, 2*PI);
-		float pitch = Uniform(0.0f, 2*PI);
-		float roll = Uniform(0.0f, 2*PI);
-
+		// fruit starting orientation
+		float heading = uniform_linear(0.0f, two_pi());
+		float pitch = uniform_linear(0.0f, two_pi());
+		float roll = uniform_linear(0.0f, two_pi());
 		node->eulerAngles({heading, pitch, roll});
 
-		float linearVelocityX = Uniform(-2.0f, 2.0f);
-		float linearVelocityY = Uniform(5.0f, 12.0f);
-		float linearVelocityZ = Uniform(-2.0f, 2.0f);
+		// fruit linear velocity
 
-		physicsBody->linearVelocity({linearVelocityX, linearVelocityY, linearVelocityZ});
+		float lvX = uniform_n11() * 2.0f;
+		float lvY = uniform_linear(1.0f, 10.0f);
+		float lvZ = uniform_n11() * 2.0f;
+		auto direction = duckNode.worldOrientation() * vec3{lvX, lvY, lvZ};
+		phyBody->linearVelocity(direction);
 
-		constexpr float ANGULAR_VARIANCE = 45.0; // deg/sec
-		float angularVelocityX = Uniform(radians(-ANGULAR_VARIANCE), radians(ANGULAR_VARIANCE));
-		float angularVelocityY = Uniform(radians(-ANGULAR_VARIANCE), radians(ANGULAR_VARIANCE));
-		float angularVelocityZ = Uniform(radians(-ANGULAR_VARIANCE), radians(ANGULAR_VARIANCE));
+		// fruit spin
+		const float ANGULAR_VARIANCE = radians(60.0); // deg/sec
+		phyBody->angularVelocity({ uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+								   uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+								   uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE) });
 
-		physicsBody->angularVelocity({angularVelocityX, angularVelocityY, angularVelocityZ});
-
-		node->physicsBody(std::move(physicsBody));
-		//node->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
+		node->physicsBody(std::move(phyBody));
 
 		scene.rootNode()->addChild(node);
 
@@ -980,99 +953,15 @@ void SpawnDuckFruit(Scene& scene, Node& duckNode) {
 	}
 }
 
-void AddSlurm(Scene& scene, const vec3& location, const vec3& axis, float angle) {
+void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
 
-//	static auto fileScene = SceneNamed("slurm/slurm", "obj");
-//	static auto fileNode = fileScene->rootNode();
-//	static auto fileCanNode = fileNode->childNamed("g slurm", false);
-//	static auto fileMaterials = fileCanNode->mesh()->materials();
-//
-//	auto canNode = Node::MeshNode(fileCanNode->mesh());
-//	for (auto& m : fileMaterials) {
-//		canNode->mesh()->addMaterial(m);
-//	}
-//
-//	//auto node = make_shared<Node>("Slurm");
-//	//node->addChild(canNode);
-//	auto node = canNode;
-
-	static auto mesh = utils::MeshNamed("slurm/slurm");
-	mesh->firstMaterial()->emission(mesh->firstMaterial()->diffuse());
-
-	auto node = Node::MeshNode(mesh);
-
-	node->position(location);
-	node->rotation(axis, angle);
-	auto physicsBody = PhysicsBody::DynamicBody();
-	physicsBody->mass(.4);
-	static auto physicsShape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, node);
-	physicsBody->shape(physicsShape);
-//	physicsBody->friction(5);
-	node->physicsBody(std::move(physicsBody));
-	scene.rootNode()->addChild(node);
-
-//	return node;
-}
-
-void ShootBall(Scene& scene, const vec3& location, const vec3& direction) {
-
-	using utils::Uniform;
-
-	constexpr float SHOOT_RATE = 20; // balls/sec
+	const float SHOOT_RATE = 20; // cans/sec
 
 	auto time = scene.time();
 	static auto lastShootTime = 0.0f;
 	if ((time - lastShootTime) >= (1.0/SHOOT_RATE)) {
 
-
-#define SLURM
-
-
-#ifndef SLURM
-
-
-		static shared_ptr<Color> colors[] = {
-				Color::White(),
-				Color::Red(),
-				Color::Orange(),
-				Color::Yellow(),
-				Color::Lime(),
-				Color::Blue()
-		};
-		auto color = colors[Uniform(0, 5)];
-
-
-		constexpr float BALL_RADIUS = 0.55;
-		auto sphereGrometry = make_shared<Sphere>(BALL_RADIUS, 3);
-		auto node = Node::MeshNode(sphereGrometry);
-		auto diffuseProperty = make_shared<MaterialProperty>(color);
-		auto specularProperty = make_shared<MaterialProperty>(Color::White());
-		auto material = make_shared<Material>(nullptr, diffuseProperty, specularProperty);
-		material->specularExponent(125.0);
-		node->mesh()->addMaterial(material);
-		node->position(location);
-
-
-//		auto node = SceneNamed("beachball1/beachball1", "obj")->rootNode()->children(false)[0];
-//		node->position(location);
-
-
-		auto physicsBody = PhysicsBody::DynamicBody();
-		physicsBody->mass(0.2); // vollyball
-		physicsBody->restitution(1.0);
-		physicsBody->friction(0.015);
-		physicsBody->rollingFriction(0.15);
-//		physicsBody->friction(0);
-//		physicsBody->rollingFriction(0);
-
-
-
-
-#else
-
 		static auto mesh = utils::MeshNamed("slurm/slurm");
-		//static auto mesh = utils::MeshNamed("flashlight/flashlight");
-		//mesh->hidden(true);
 		mesh->materials()[0]->emission(mesh->materials()[0]->diffuse());
 		mesh->materials()[1]->emission(mesh->materials()[1]->diffuse());
 
@@ -1083,69 +972,31 @@ void ShootBall(Scene& scene, const vec3& location, const vec3& direction) {
 		static auto extent = node->extent();
 		static auto physicsShape = make_shared<CylinderPhysicsShape>(extent.x/2.0, extent.y);
 		auto physicsBody = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, physicsShape);
-		physicsBody->mass(.354); // 12fl oz water 70F
-//	physicsBody->friction(5);
-///
+		physicsBody->mass(.354); // 12fl oz water @ 70F
+
 		physicsBody->restitution(1.0);
 		physicsBody->friction(0.35);
 		physicsBody->rollingFriction(0.05);
 
-
-#endif
-
-		auto light = Light::PointLight();
+		static auto light = Light::PointLight();
 		light->quadraticAttenuation(0.04);
 		node->light(light);
 
-
-
 		// add random factor
 
-		static const float PI = 3.1415; // windows doesn't like M_PI from cmath (?)
-		float heading = Uniform(0.0f, 2*PI);
-		float pitch = Uniform(0.0f, 2*PI);
-		float roll = Uniform(0.0f, 2*PI);
+		node->eulerAngles({ uniform_linear(0.0f, two_pi()),
+							uniform_linear(0.0f, two_pi()),
+							uniform_linear(0.0f, two_pi()) });
 
-		node->eulerAngles({heading, pitch, roll});
+		static const float ANGULAR_VARIANCE = radians(260.0); // deg/sec
+		physicsBody->angularVelocity({ uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+									   uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+									   uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE) });
 
-//		float linearVelocityX = Uniform(-2.0f, 2.0f);
-//		float linearVelocityY = Uniform(5.0f, 12.0f);
-//		float linearVelocityZ = Uniform(-2.0f, 2.0f);
-//
-//		physicsBody->linearVelocity({linearVelocityX, linearVelocityY, linearVelocityZ});
-
-		constexpr float ANGULAR_VARIANCE = 270.0; // deg/sec
-		float angularVelocityX = Uniform(radians(-ANGULAR_VARIANCE), radians(ANGULAR_VARIANCE));
-		float angularVelocityY = Uniform(radians(-ANGULAR_VARIANCE), radians(ANGULAR_VARIANCE));
-		float angularVelocityZ = Uniform(radians(-ANGULAR_VARIANCE), radians(ANGULAR_VARIANCE));
-
-		physicsBody->angularVelocity({angularVelocityX, angularVelocityY, angularVelocityZ});
-
-//		node->physicsBody(std::move(physicsBody));
-		//node->physicsBody()->shape()->type(PHYSICS_SHAPE_TYPE::CONCAVE_POLYHEDRON);
-
-
-
-
-
-
-		constexpr float BALL_VELOCITY = 50.0;
-		constexpr float DIRECTION_VARIATION = 0.015;
-		auto variedDirection = direction + vec3(Uniform(-DIRECTION_VARIATION, DIRECTION_VARIATION),
-												Uniform(-DIRECTION_VARIATION, DIRECTION_VARIATION),
-												Uniform(-DIRECTION_VARIATION, DIRECTION_VARIATION));
-		physicsBody->linearVelocity(normalize(variedDirection) * BALL_VELOCITY);
-
-//		physicsBody->linearVelocity(normalize(direction) * BALL_VELOCITY);
-
-//		constexpr float velocityVariation = 0.05f;
-//		physicsBody->linearVelocity(direction + vec3(Uniform(-velocityVariation, velocityVariation),
-//													 Uniform(-velocityVariation, velocityVariation),
-//													 Uniform(-velocityVariation, velocityVariation)));
-//		constexpr float angularVelocityVariation = radians(15.0f); // deg/sec
-//		physicsBody->angularVelocity(vec3(Uniform(-angularVelocityVariation, angularVelocityVariation),
-//										  Uniform(-angularVelocityVariation, angularVelocityVariation),
-//										  Uniform(-angularVelocityVariation, angularVelocityVariation)));
+		const float VELOCITY = uniform_linear(40.0f, 60.0f);
+		static const float DIRECTION_VARIATION = 0.01;
+		const vec3 variedDirection = normalize(direction + uniform_ball(DIRECTION_VARIATION));
+		physicsBody->linearVelocity(variedDirection * VELOCITY);
 
 		node->physicsBody(std::move(physicsBody));
 
@@ -1155,82 +1006,9 @@ void ShootBall(Scene& scene, const vec3& location, const vec3& direction) {
 	}
 }
 
-//shared_ptr<Node> ShootBall(Scene& scene, const vec3& location, const vec3& direction) {
-//
-//	constexpr float SHOOT_RATE = 20; // balls/sec
-//
-//	float time = scene.renderContext().lock()->sceneTime();
-//	static float lastShootTime = 0;
-//	if ((time - lastShootTime) >= (1.0/SHOOT_RATE)) {
-//
-//		static shared_ptr<Color> colors[] = {
-//			Color::White(),
-//			Color::Red(),
-//			Color::Orange(),
-//			Color::Yellow(),
-//			Color::Lime(),
-//			Color::Blue()
-//		};
-//		auto color = colors[Uniform(0, 5)];
-//
-//
-//		constexpr float BALL_RADIUS = 0.55;
-//		auto sphereGrometry = make_shared<Sphere>(BALL_RADIUS, 3);
-//		auto node = Node::MeshNode(sphereGrometry);
-//		auto diffuseProperty = make_shared<MaterialProperty>(color);
-//		auto specularProperty = make_shared<MaterialProperty>(Color::White());
-//		auto material = make_shared<Material>(nullptr, diffuseProperty, specularProperty);
-//		material->specularExponent(125.0);
-//		node->mesh()->addMaterial(material);
-//		node->position(location);
-//
-//
-////		auto node = SceneNamed("beachball1/beachball1", "obj")->rootNode()->children(false)[0];
-////		node->position(location);
-//
-//
-//		auto physicsBody = PhysicsBody::DynamicBody();
-//		physicsBody->mass(0.2); // vollyball
-//		physicsBody->restitution(1.0);
-//		physicsBody->friction(0.015);
-//		physicsBody->rollingFriction(0.15);
-////		physicsBody->friction(0);
-////		physicsBody->rollingFriction(0);
-//
-//		constexpr float BALL_VELOCITY = 45.0;
-//		constexpr float DIRECTION_VARIATION = 0.035f;
-//		auto variedDirection = direction + vec3(Uniform(-DIRECTION_VARIATION, DIRECTION_VARIATION),
-//												Uniform(-DIRECTION_VARIATION, DIRECTION_VARIATION),
-//												Uniform(-DIRECTION_VARIATION, DIRECTION_VARIATION));
-//		physicsBody->linearVelocity(normalize(variedDirection) * BALL_VELOCITY);
-//
-////		physicsBody->linearVelocity(normalize(direction) * BALL_VELOCITY);
-//
-////		constexpr float velocityVariation = 0.05f;
-////		physicsBody->linearVelocity(direction + vec3(Uniform(-velocityVariation, velocityVariation),
-////													 Uniform(-velocityVariation, velocityVariation),
-////													 Uniform(-velocityVariation, velocityVariation)));
-////		constexpr float angularVelocityVariation = radians(15.0f); // deg/sec
-////		physicsBody->angularVelocity(vec3(Uniform(-angularVelocityVariation, angularVelocityVariation),
-////										  Uniform(-angularVelocityVariation, angularVelocityVariation),
-////										  Uniform(-angularVelocityVariation, angularVelocityVariation)));
-//
-//		node->physicsBody(physicsBody);
-//
-//		scene.rootNode()->addChild(node);
-//
-//		lastShootTime = time;
-//
-//		return node;
-//	}
-//
-//	return nullptr;
-//}
-
 void AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color) {
 
 	auto node = Node::MeshNode(Box::Mesh(1.0, 1.0, 1.0));
-	//auto materialProperty = shared_ptr<Color>(std::move(color));
 	auto material = make_shared<Material>(monostate{}, monostate{}, monostate{}, color);
 	node->mesh()->addMaterial(material);
 	node->position(location);
@@ -1276,7 +1054,6 @@ void AddCardboardBox(Scene& scene, const vec3& location, const vec3& axis, float
 
 void SpawnHACDTeapot(Scene& scene) {
 
-	//auto teapotNode = SceneNamed("teapot", "dae")->rootNode()->child("teapot", false);
 	auto teapotNode = Node::MeshNode(utils::MeshNamed("teapot/teapot"));
 
 	ConvexDecomposer::Options options;
@@ -1290,10 +1067,6 @@ void SpawnHACDTeapot(Scene& scene) {
 	for (auto& element : teapotNode->mesh()->elements()) {
 		auto decomposer = ConvexDecomposer(*element, options);
 		auto elements = decomposer.decompose();
-
-//		decomposedElements.insert(decomposedElements.begin(),
-//								  elements.begin(),
-//								  elements.end());
 
 		decomposedElements.insert(decomposedElements.end(),
 								  make_move_iterator(elements.begin()),
@@ -1312,8 +1085,7 @@ void SpawnHACDTeapot(Scene& scene) {
 
 	auto hacdTeapotMesh = make_shared<Mesh>(decomposedElements, decomposedTeapotMaterials);
 	auto decomposedTeapotNode = Node::MeshNode(hacdTeapotMesh);
-	decomposedTeapotNode->scale(vec3(1.0f) * 20.0f);
-//	decomposedTeapotNode->rotation({1, 0, 0}, radians(-90.0));
+	decomposedTeapotNode->scale(decomposedTeapotNode->scale() * 20.0f);
 	decomposedTeapotNode->position({0, 10, 0});
 	scene.rootNode()->addChild(decomposedTeapotNode);
 }
@@ -1321,11 +1093,11 @@ void SpawnHACDTeapot(Scene& scene) {
 void AddBoxes(Scene& scene) {
 
 	// 16 items
-	constexpr int OBJECT_ARRAY_SIZE_X = 2;
-	constexpr int OBJECT_ARRAY_SIZE_Y = 4;
-	constexpr int OBJECT_ARRAY_SIZE_Z = 2;
-	constexpr float X_OFFSET = -10.0;
-	constexpr float Z_OFFSET = 10.0;
+	static const int OBJECT_ARRAY_SIZE_X = 2;
+	static const int OBJECT_ARRAY_SIZE_Y = 4;
+	static const int OBJECT_ARRAY_SIZE_Z = 2;
+	static const float X_OFFSET = -10.0;
+	static const float Z_OFFSET = 10.0;
 
 	int SPACING = 1.0;
 	int DROP_HEIGHT = 40.0;
@@ -1333,9 +1105,9 @@ void AddBoxes(Scene& scene) {
 	for (int k=0; k<OBJECT_ARRAY_SIZE_Y; ++k) {
 		for (int i=0;i <OBJECT_ARRAY_SIZE_X; ++i) {
 			for(int j = 0; j<OBJECT_ARRAY_SIZE_Z; ++j) {
-				vec3 position = { SPACING * i - (OBJECT_ARRAY_SIZE_X / 2.0) + X_OFFSET,
-								  DROP_HEIGHT + SPACING * k - (OBJECT_ARRAY_SIZE_Y / 2.0),
-								  SPACING * j  - (OBJECT_ARRAY_SIZE_Z / 2.0) + Z_OFFSET};
+				vec3 position = vec3( SPACING * i - (OBJECT_ARRAY_SIZE_X / 2.0) + X_OFFSET,
+									  DROP_HEIGHT + SPACING * k - (OBJECT_ARRAY_SIZE_Y / 2.0),
+									  SPACING * j  - (OBJECT_ARRAY_SIZE_Z / 2.0) + Z_OFFSET );
 				AddBox(scene, position, Color::Random());
 			}
 		}
@@ -1349,13 +1121,13 @@ void AddCardboardBoxes(Scene& scene) {
 	static const vec3 AXIS = {0, 1, 0};
 	static const float ANGLE = radians(25.0);
 
-	constexpr float X_BASE = -15.0;
-	constexpr float Y_BASE = 0.5;
-	constexpr float Z_BASE = -10.0;
+	static const float X_BASE = -15.0;
+	static const float Y_BASE = 0.5;
+	static const float Z_BASE = -10.0;
 
-	constexpr float X_OFFSET = 0.75;
-	constexpr float Y_OFFSET = 1.5;
-	constexpr float Z_OFFSET = -0.36;
+	static const float X_OFFSET = 0.75;
+	static const float Y_OFFSET = 1.5;
+	static const float Z_OFFSET = -0.36;
 
 	for (int r=0; r<HEIGHT; ++r) {
 		float x = X_BASE + (X_OFFSET * r);
@@ -1366,18 +1138,6 @@ void AddCardboardBoxes(Scene& scene) {
 			AddCardboardBox(scene, {x, y, z}, AXIS, ANGLE);
 			x += 1.5; z -= 0.75;
 		}
-	}
-}
-
-void AddSlurms(Scene& scene) {
-
-	float x = 15 - .25;
-	float y = 5.5;
-	float z = -9;
-
-	for (int i=0; i<19; ++i) {
-		AddSlurm(scene, {x, y, z}, {0, 1, 0}, radians((float)utils::Uniform(0, 359)));
-		z += 1;
 	}
 }
 
@@ -1731,7 +1491,7 @@ shared_ptr<Node> ChainmailLink(float minorRadius, float majorRadius) {
 		auto partNode = Node::NamedNode("Ring capsule part node " + to_string(s + 1));
 		partNode->mesh(visualMesh);
 
-		quat rotation = angleAxis(angle, vec3(0, 0, 1));
+		quat rotation = quaternion(vec3(0, 0, 1), angle);
 		mat4 rotMatrix = mat4_cast(rotation);
 		mat4 translation = translate(mat4(1.0f), vec3(1, 0, 0));
 		mat4 transform = rotMatrix * translation;
@@ -1808,21 +1568,21 @@ void SpawnChainMail(Scene& scene) {
 			//link->rotation({1, 0, 0}, (float)(h%2 == 0 ? (PI/6.0) : (-PI/6.0)));
 			//auto stagger = (w%2 == 0 ? 0 : TORUS_MAJOR_RADIUS);
 			auto stagger = 0;
-			link->position({( ( ((2 * TORUS_MAJOR_RADIUS) * 1.15) * w) + wStagger),
-								   /*GROUND_OFFSET*/0 + ((1 * TORUS_MAJOR_RADIUS) * 1.15) * h,
-							0});
+			link->position(vec3(( ( ((2 * TORUS_MAJOR_RADIUS) * 1.15) * w) + wStagger),
+					/*GROUND_OFFSET*/0 + ((1 * TORUS_MAJOR_RADIUS) * 1.15) * h,
+								0));
 			chainmailNode->addChild(link);
 			//scene.rootNode()->addChild(link);
 		}
 	}
 
-	chainmailNode->rotation({1, 0, 0}, PI/2.0);
+	chainmailNode->rotation({1, 0, 0}, pi_over_2());
 //	chainmailNode->position({-chainmailNode->extent().x/2.0 + TORUS_MAJOR_RADIUS,
 //							 GROUND_OFFSET,
 //							 -chainmailNode->extent().y/2.0 + TORUS_MAJOR_RADIUS});
-	chainmailNode->position({-chainmailNode->extent().x/2.0,
+	chainmailNode->position({-chainmailNode->extent().x/2.0f + 1.0f,
 							 GROUND_OFFSET,
-							 -chainmailNode->extent().z/2.0});
+							 -chainmailNode->extent().z/2.0f + 1.0f});
 	scene.rootNode()->addChild(chainmailNode);
 
 //	auto link = ChainmailLink(TORUS_MINOR_RADIUS, TORUS_MAJOR_RADIUS);

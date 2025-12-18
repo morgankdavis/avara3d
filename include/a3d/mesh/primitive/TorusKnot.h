@@ -9,26 +9,19 @@
 #ifndef AVARA3D_TORUSKNOT_H
 #define AVARA3D_TORUSKNOT_H
 
-
 #include <memory>
 
 #include "a3d/mesh/MeshElement.h"
 
-
 namespace a3d {
-
 
 	class Mesh;
 	class Material;
 
-
 	class TorusKnot: public MeshElement {
 
-/*********************************************************************************************
- 	Public Static Member Functions
- *********************************************************************************************/
-
 	public:
+		/// Public Static Member Functions ///
 
 		static std::shared_ptr<Mesh> Mesh(unsigned p,
 										  unsigned q,
@@ -36,36 +29,27 @@ namespace a3d {
 										  unsigned segments = DEFAULT_SEGMENTS,
 										  std::shared_ptr<Material> material = nullptr);
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+		/// Public Lifecycle Functions ///
 
 		TorusKnot(unsigned p,
 				  unsigned q,
 				  unsigned slices = DEFAULT_SLICES,
 				  unsigned segments = DEFAULT_SEGMENTS);
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		unsigned 	p() const;
 		unsigned 	q() const;
 		unsigned 	slices() const;
 		unsigned 	segments() const;
 
-/*********************************************************************************************
-	Private Constants
- *********************************************************************************************/
-
 	private:
+		/// Private Constants ///
 
 		static constexpr unsigned DEFAULT_SLICES = 8;
 		static constexpr unsigned DEFAULT_SEGMENTS = 96;
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
+		/// Private Member Variables ///
 
 		unsigned	_p;
 		unsigned	_q;
@@ -73,6 +57,5 @@ namespace a3d {
 		unsigned	_segments;
 	};
 }
-
 
 #endif //AVARA3D_TORUSKNOT_H

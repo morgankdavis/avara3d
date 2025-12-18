@@ -14,16 +14,11 @@
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/rendering/material/Material.h"
 
-
 using namespace a3d;
-using namespace generator;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
-
-/*********************************************************************************************
-	Pubic Static Members
- *********************************************************************************************/
+/// Pubic Static Members ///
 
 shared_ptr<Mesh> Box::Mesh(float length,
 						   float width,
@@ -44,9 +39,7 @@ shared_ptr<Mesh> Box::Mesh(float length,
 								  material);
 }
 
-/*********************************************************************************************
-	Public Lifecycle Functions
-*********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 Box::Box(float length,
 		 float width,
@@ -61,6 +54,8 @@ Box::Box(float length,
 		_lengthSegments{lengthSegments},
 		_widthSegments{widthSegments},
 		_heightSegments{heightSegments} {
+
+	using namespace generator;
 
 	/// @param size Half of the side length in x (0), y (1) and z (2) direction.
 	/// @param segments The number of segments in x (0), y (1) and z (2)
@@ -82,9 +77,7 @@ Box::Box(float length,
 	std::reverse(_faces.begin(), _faces.end());
 }
 
-/*********************************************************************************************
- 	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 float Box::length() const {
 	return _length;

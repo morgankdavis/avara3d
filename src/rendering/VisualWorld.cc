@@ -11,17 +11,18 @@
 #include <utility>
 #include <variant>
 
-#include "glm/glm.hpp"
-
 #include "a3d/Color.h"
 #include "a3d/Configuration.h"
 #include "a3d/CubeImage.h"
-#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/diagnostic/log/Log.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/primitive/Box.h"
 #include "a3d/mesh/primitive/Plane.h"
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/physics/bullet/BulletWorldProxy.h"
+#include "a3d/profiling/Profiler.h"
+#include "a3d/profiling/Timer.h"
+#include "a3d/rendering/RenderItem.h"
 #include "a3d/rendering/light/Light.h"
 #include "a3d/rendering/material/Material.h"
 #include "a3d/rendering/material/Sampler.h"
@@ -31,24 +32,19 @@
 #include "a3d/rendering/renderer/Renderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
-
+#include "a3d/Utilities.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
-
-/*********************************************************************************************
-	Private Static Non-Member Prototypes
- *********************************************************************************************/
+/// Private Static Non-Member Prototypes ///
 
 static unique_ptr<Mesh> MakeSkyboxMesh(const MaterialProperty& property);
 static unique_ptr<Mesh> GroundPlaneMesh();
-static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
+//static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 VisualWorld::VisualWorld(RenderContext& context):
 		_background{},
@@ -63,8 +59,8 @@ VisualWorld::VisualWorld(RenderContext& context):
 		_autoEnablesDefaultLighting{true},
 		_renderContext{&context},
 		_scene{},
-		_willRender{},
-		_didRender{} {
+		_willRenderCallback{},
+		_didRenderCallback{} {
 
 	_renderContext->attachedToVisualWorld(this);
 
@@ -79,9 +75,7 @@ VisualWorld::~VisualWorld() {
 	//renderContext(nullptr);
 }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 const MaterialProperty& VisualWorld::background() {
 	return _background;
@@ -89,10 +83,14 @@ const MaterialProperty& VisualWorld::background() {
 
 void VisualWorld::background(const MaterialProperty& background) {
 
-	if (auto* texture = get_if<shared_ptr<Texture>>(&background)) {
+	if (auto texture = get_if<shared_ptr<Texture>>(&background)) {
 
-		if (dynamic_pointer_cast<CubeImage>((*texture)->contents())) {
-			auto material = make_shared<Material>(monostate{}, monostate{}, monostate{}, background);
+		if (auto cubeImage = get_if<shared_ptr<CubeImage>>(&((*texture)->contents()))) {
+
+			auto material = make_shared<Material>(monostate{},
+												  monostate{},
+												  monostate{},
+												  background);
 
 			auto sampler = (*texture)->sampler();
 			sampler->wrapS(WrapMode::ClampToEdge);
@@ -108,6 +106,24 @@ void VisualWorld::background(const MaterialProperty& background) {
 				_skyboxMesh->replaceMaterial(0, material);
 			}
 		}
+
+//		if (dynamic_pointer_cast<CubeImage>((*texture)->contents())) {
+//			auto material = make_shared<Material>(monostate{}, monostate{}, monostate{}, background);
+//
+//			auto sampler = (*texture)->sampler();
+//			sampler->wrapS(WrapMode::ClampToEdge);
+//			sampler->wrapT(WrapMode::ClampToEdge);
+//			sampler->wrapR(WrapMode::ClampToEdge);
+//
+//			// generate the skybox mesh if it hasn't already been
+//			if (!_skyboxMesh) {
+//				_skyboxMesh = MakeSkyboxMesh(background);
+//			}
+//			else {
+//				// we already have the mesh, just update its material
+//				_skyboxMesh->replaceMaterial(0, material);
+//			}
+//		}
 	}
 
 	_background = background;
@@ -196,25 +212,23 @@ Scene* VisualWorld::scene() const {
 	return _scene;
 }
 
-VisualWorld::WillRenderCallback VisualWorld::willRender() const {
-	return _willRender;
+VisualWorld::WillRenderCallback VisualWorld::willRenderCallback() const {
+	return _willRenderCallback;
 }
 
-void VisualWorld::willRender(WillRenderCallback function) {
-	_willRender = function;
+void VisualWorld::willRenderCallback(WillRenderCallback function) {
+	_willRenderCallback = function;
 }
 
-VisualWorld::DidRenderCallback VisualWorld::didRender() const {
-	return _didRender;
+VisualWorld::DidRenderCallback VisualWorld::didRenderCallback() const {
+	return _didRenderCallback;
 }
 
-void VisualWorld::didRender(DidRenderCallback function) {
-	_didRender = function;
+void VisualWorld::didRenderCallback(DidRenderCallback function) {
+	_didRenderCallback = function;
 }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 void VisualWorld::attachedToScene(Scene& scene) {
 	A3D_LOG_T("scene: {:p}", static_cast<void*>(&scene));
@@ -228,64 +242,122 @@ void VisualWorld::detachedFromScene(Scene& scene) {
 	_scene = nullptr;
 }
 
+#include "glad/glad.h"
+#define A3D_GL_CHECK()                           \
+    do {                                              \
+        GLenum err;                                   \
+        while ((err = glGetError()) != GL_NO_ERROR) { \
+            A3D_LOG_E("GL error 0x{:X}", err); \
+        }                                             \
+    } while (0);
+
 void VisualWorld::draw(const Scene& scene,
 					   const PhysicalWorld* physicalWorld,
 					   double runT,
 					   double deltaRunT,
 					   DebugOptions debugOptions,
-					   Stats& stats) {
+					   FrameStats& stats,
+					   Profiler& profiler,
+					   const FrameStatsHistory& statsHistory) {
 
 	if (_renderContext) {
 
 		if (auto renderer = _renderContext->renderer()) {
 
-			if (auto willRender = VisualWorld::willRender()) {
+			if (auto willRender = VisualWorld::willRenderCallback()) {
+				Timer appTimer(true); ///
 				willRender(*this, runT, deltaRunT);
+				profiler.add(Profiler::Tag::Application, appTimer.stop()); ///
 			}
 
-			auto startTime = scene.time();
-
-			renderer->beginFrame(scene, *_renderContext, debugOptions, stats);
+			renderer->beginFrame(scene, *_renderContext, debugOptions, stats, profiler);
+			_renderContext->beginFrame(scene);
 
 			if (auto pov = pointOfView().lock()) {
 
 				auto povScene = pov->scene();
 				if (povScene != nullptr && povScene == &scene) {
 
+					/***************/ Timer engineTimer1(true);
+
 					stats.cameraPosition = pov->worldPosition();
 					stats.cameraOrientation = pov->worldOrientation();
 
 					auto frameBufferSize = _renderContext->framebufferSize();
 
-					// TODO: can this be avoided?
 					if (auto perspectiveCamera = dynamic_pointer_cast<PerspectiveCamera>(pov->camera())) {
 						auto aspectRatio = float(frameBufferSize.x) / float(frameBufferSize.y);
 						perspectiveCamera->aspectRatio(aspectRatio);
 					}
 
-					renderer->render(scene, debugOptions, stats);
+					/***************/ profiler.add(Profiler::Tag::EngineCpu, engineTimer1.stop());
+
+					/***************/ Timer submitTimer1(true);
+
+					renderer->render(scene, *_renderContext, debugOptions, stats);
 
 					renderer->preTraversal(scene, *_renderContext, debugOptions, stats);
+
+					/***************/ profiler.add(Profiler::Tag::RenderCpu, submitTimer1.stop());
+
+					/***************/ Timer engineTimer2(true);
 
 					auto viewMat = inverse(pov->worldTransform());
 					auto projectionMat = pov->camera()->projection();
 
-					vector<Node *> lightNodes;
-					if (pov->light()) lightNodes.push_back(pov.get());
+					vector<Node*> lightNodes;
+
+					/***************/ Timer submitTimer2(true);
+//#define RENDER_LIST
+#ifdef RENDER_LIST
+
+					vector<RenderItem> items{};
+					vector <AABB> aabbs{};
+					// Meshes/ABBs
+
+
+					scene.rootNode()->gather(items, lightNodes, stats);
+
+					/***************/ profiler.add(Profiler::Tag::EngineCpu, engineTimer2.stop());
+
+					/***************/ Timer submitTimer2(true);
+
+					for (auto& item : items) {
+						renderer->render(*item.element,
+										 *_renderContext,
+										 *item.material,
+										 item.model,
+										 viewMat,
+										 projectionMat,
+										 debugOptions,
+										 stats);
+					}
+
+					/***************/ profiler.add(Profiler::Tag::RenderCpu, submitTimer2.stop());
+
+//					renderer->draw();
+#else
 					scene.rootNode()->draw(*renderer,
+										   *_renderContext,
 										   viewMat,
 										   projectionMat,
 										   debugOptions,
 										   lightNodes,
 										   stats);
+#endif
 					//--stats.nodes; // don't count the root node
 
 					renderer->postTraversal(scene, *_renderContext, lightNodes, debugOptions, stats);
+
+					/***************/ profiler.add(Profiler::Tag::RenderCpu, submitTimer2.stop());
+
+					/***************/ profiler.add(Profiler::Tag::EngineCpu, engineTimer2.stop());
 
 					if (physicalWorld) {
 
 						if (auto bulletWorldProxy = dynamic_cast<BulletWorldProxy *>(physicalWorld->proxy())) {
 							bulletWorldProxy->drawDebug(*renderer,
+														*_renderContext,
 														viewMat,
 														projectionMat,
 														debugOptions);
@@ -302,14 +374,19 @@ void VisualWorld::draw(const Scene& scene,
 				// TODO: throw?
 			}
 
-			UpdateTimeStats(stats, startTime, scene.time());
+			_renderContext->endFrame(scene);
+			renderer->endFrame(scene, *_renderContext, debugOptions, stats, profiler, statsHistory);
 
-			renderer->endFrame(scene, *_renderContext, debugOptions, stats);
+			// !!!!!!!!!!!! GROSS (TEMPORARY) HACK !!!!!!!!!!!!!!!!!!!!!!
+			auto submissionTime = profiler.time(Profiler::Tag::RenderCpu);
+			/***************/ profiler.subtract(Profiler::Tag::EngineCpu, submissionTime);
 
 			_renderContext->swapBuffers();
 
-			if (auto didRender = VisualWorld::didRender()) {
+			if (auto didRender = VisualWorld::didRenderCallback()) {
+				Timer appTimer(true);
 				didRender(*this, runT, deltaRunT);
+				profiler.add(Profiler::Tag::Application, appTimer.stop());
 			}
 
 			if (_renderContext->recordingGIF()) {
@@ -353,20 +430,20 @@ weak_ptr<Node> VisualWorld::defaultPointOfView() {
 		// ztan(angle) = x
 		// z = x/tan(angle)
 
-		auto maxZ = abs(aabb.max.z);
+		auto maxZ = math::abs(aabb.max.z);
 
-		auto xH = abs(aabb.min.x) + abs(aabb.max.x) / 2.0f;
+		auto xH = math::abs(aabb.min.x) + math::abs(aabb.max.x) / 2.0f;
 		auto angleH = fovH / 2.0;
 		auto zH = xH / tan(angleH);
 
-		auto xV = abs(aabb.min.y) + abs(aabb.max.y) / 2.0f;
+		auto xV = math::abs(aabb.min.y) + math::abs(aabb.max.y) / 2.0f;
 		auto angleV = fovV / 2.0;
 		auto zV = xV / tan(angleV);
 
 		zH += maxZ;
 		zV += maxZ;
 
-		auto z = fmax(zH, zV);
+		auto z = math::max(zH, zV);
 		auto midX = (aabb.min.x + aabb.max.x) / 2.0f;
 		auto midY = (aabb.min.y + aabb.max.y) / 2.0f;
 
@@ -389,9 +466,7 @@ weak_ptr<Node> VisualWorld::defaultPointOfView() {
 	return {};
 }
 
-/*********************************************************************************************
-	Private Static Member Functions
- *********************************************************************************************/
+/// Private Static Member Functions ///
 
 unique_ptr<Mesh> MakeSkyboxMesh(const MaterialProperty& property) {
 
@@ -408,32 +483,4 @@ unique_ptr<Mesh> GroundPlaneMesh() {
 
 	//return make_unique<a3d::Mesh>(make_unique<Box>(0.5, 0.5, 0.5), nullptr);
 	return make_unique<a3d::Mesh>(make_unique<Plane>(1.0, 1.0, 1, 1), nullptr);
-}
-
-void UpdateTimeStats(Stats& stats, double startTime, double endTime) {
-
-	// current
-	auto drawTime = endTime - startTime;
-	stats.currentDrawtime = drawTime * 1000.0f;
-
-	// average
-	static double avg = 0.0;
-	static double sampleStartTime = startTime;
-	static unsigned drawsSinceSampleStart = 0;
-	static double accumulatedDrawTimeSinceSampleStart = 0;
-	double elapsedTimeSinceSampleStart = endTime - sampleStartTime;
-	if (elapsedTimeSinceSampleStart >= FRAMETIME_AVERAGING_INTERVAL) {
-
-		avg = (accumulatedDrawTimeSinceSampleStart * 1000.0f) / drawsSinceSampleStart;
-
-		sampleStartTime = startTime;
-		drawsSinceSampleStart = 0;
-		accumulatedDrawTimeSinceSampleStart = 0;
-	}
-	else {
-		++drawsSinceSampleStart;
-		accumulatedDrawTimeSinceSampleStart += drawTime;
-	}
-
-	stats.averageDrawtime = avg;
 }

@@ -11,16 +11,12 @@
 #include <utility>
 
 #include "a3d/Buffer.h"
-#include "a3d/diagnostic/logging/Logger.h"
-
+#include "a3d/diagnostic/log/Log.h"
 
 using namespace a3d;
 using namespace std;
 
-
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 Font::Font(const filesystem::path& path):
 	_name{},
@@ -51,9 +47,7 @@ Font::~Font() {
 	A3D_LOG_D("Destroying Font {:p}", static_cast<void*>(this));
 }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 const optional<string>& Font::name() const {
 	return _name;

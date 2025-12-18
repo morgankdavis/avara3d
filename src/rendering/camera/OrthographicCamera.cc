@@ -8,37 +8,31 @@
 
 #include "a3d/rendering/camera/OrthographicCamera.h"
 
-#include "glm/gtc/matrix_transform.hpp"
-
 #include "a3d/Utilities.h"
-#include "a3d/diagnostic/logging/Logger.h"
-
+#include "a3d/diagnostic/log/Log.h"
 
 using namespace a3d;
 using namespace std;
-using namespace glm;
+using namespace a3d::math;
 
-
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 OrthographicCamera::OrthographicCamera():
 	Camera{},
 	_extent{{-1, -1, -1}, {1, 1, 1}} {
-	constructProjectionMatrix();
+	//constructProjectionMatrix();
 }
 
 OrthographicCamera::OrthographicCamera(const AABB& extent):
 		Camera{},
 		_extent{extent} {
-	constructProjectionMatrix();
+	//constructProjectionMatrix();
 }
 
 OrthographicCamera::OrthographicCamera(const string& name, const AABB& extent):
 	Camera{name},
 	_extent{extent} {
-	constructProjectionMatrix();
+	//constructProjectionMatrix();
 }
 
 OrthographicCamera::~OrthographicCamera() {
@@ -51,9 +45,7 @@ OrthographicCamera::~OrthographicCamera() {
 	}
 }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 AABB OrthographicCamera::extent() const {
 	return _extent;
@@ -61,22 +53,31 @@ AABB OrthographicCamera::extent() const {
 
 void OrthographicCamera::extent(const AABB& e) {
 	_extent = e;
-	constructProjectionMatrix();
+	//constructProjectionMatrix();
 }
 
-/*********************************************************************************************
-	Camera Protected Member Functions
- *********************************************************************************************/
+/// Camera Internal Member Functions ///
 
-void OrthographicCamera::constructProjectionMatrix() {
-
-	// left, right, bottom, top, near, far
-	// DeVries 9.5.1
-
-	_projection = glm::ortho(_extent.min.x,
-							 _extent.max.x,
-							 _extent.min.y,
-							 _extent.max.y,
-							 _extent.min.z,
-							 _extent.max.z);
+mat4 OrthographicCamera::projection() const {
+	return ortho(_extent.min.x,
+				 _extent.max.x,
+				 _extent.min.y,
+				 _extent.max.y,
+				 _extent.min.z,
+				 _extent.max.z);
 }
+
+/// Camera Protected Member Functions ///
+
+//void OrthographicCamera::constructProjectionMatrix() {
+//
+//	// left, right, bottom, top, near, far
+//	// DeVries 9.5.1
+//
+//	_projection = ortho(_extent.min.x,
+//						_extent.max.x,
+//						_extent.min.y,
+//						_extent.max.y,
+//						_extent.min.z,
+//						_extent.max.z);
+//}

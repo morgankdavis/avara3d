@@ -9,21 +9,17 @@
 #include "a3d/diagnostic/exception/Exception.h"
 
 #include "a3d/Utilities.h"
-#include "a3d/diagnostic/logging/Logger.h"
-
+#include "a3d/diagnostic/log/Log.h"
 
 using namespace a3d;
 using namespace std;
 
-
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
+/// Internal Lifecycle Functions ///
 
 Exception::Exception(const string& what):
 	runtime_error{what} {
 
-#ifdef POSIX
+#ifdef A3D_POSIX
 		A3D_LOG_E("Exception: {}\nStack trace:\n{}", what, utils::StackTrace(1));
 #else
 		A3D_LOG_E("Exception: {}", what);

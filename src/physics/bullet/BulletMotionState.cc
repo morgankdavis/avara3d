@@ -12,30 +12,23 @@
 #include "a3d/physics/bullet/BulletUtilities.h"
 #include "a3d/scene/Node.h"
 
-
-#include "a3d/diagnostic/logging/Logger.h"
-
+#include "a3d/diagnostic/log/Log.h"
 
 using namespace a3d;
 
-
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
+/// Internal Lifecycle Functions ///
 
 BulletMotionState::BulletMotionState(PhysicsBody& body):
 		btMotionState{},
 		_body{&body} { }
 
-/*********************************************************************************************
-	btMotionState Members
-*********************************************************************************************/
+/// btMotionState Members ///
 
-// apply node transform to kinematic physics body
+// apply node transform to kinematic physics body (only called for kinematic bodies)
 void BulletMotionState::getWorldTransform(btTransform &transform) const {
 
 	if (auto node = _body->node().lock()) {
-		transform = BTTransformFromGLMMat4(node->worldTransform());
+		transform = BTTransformFromA3DMat4(node->worldTransform());
 	}
 	// causes warning to be printed every time a new PhysicsBody is created,
 	// since when the body is created, it's not yet attahed to a Node.
@@ -45,20 +38,18 @@ void BulletMotionState::getWorldTransform(btTransform &transform) const {
 //	}
 }
 
-// apply dynamic physics body transform to node
+// apply dynamic physics body transform to node (only called for dynamic bodies)
 void BulletMotionState::setWorldTransform(const btTransform& transform) {
 
 	if (auto node = _body->node().lock()) {
-		node->applyPhysicsTransform(GLMMat4FromBTTransform(transform));
+		node->applyPhysicsTransform(A3DMat4FromBTTransform(transform));
 	}
 //	else {
 //		A3D_LOG_W("node is null.");
 //	}
 }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 PhysicsBody* BulletMotionState::body() const {
 	return _body;

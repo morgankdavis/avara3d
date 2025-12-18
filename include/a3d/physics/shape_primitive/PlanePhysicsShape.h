@@ -9,26 +9,19 @@
 #ifndef AVARA3D_PLANEPHYSICSSHAPE_H
 #define AVARA3D_PLANEPHYSICSSHAPE_H
 
-
 #include "a3d/physics/PhysicsShape.h"
-
 
 namespace a3d {
 
 	class PlanePhysicsShape : public PhysicsShape {
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		/// Public Lifecycle Functions ///
 
 		PlanePhysicsShape(float width, float height);
 		~PlanePhysicsShape();
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		float 					width() const;
 		void					width(float width);
@@ -36,23 +29,17 @@ namespace a3d {
 		float 					height() const;
 		void					height(float height);
 
-/*********************************************************************************************
-	PhysicsShape Public Member Functions
- *********************************************************************************************/
+		/// PhysicsShape Public Member Functions ///
 
 		PhysicsShapeType		type() const override;
 		void					type(PhysicsShapeType type) override;
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
-
 	private:
+		/// Private Member Variables ///
 
 		float 					_width;
 		float 					_height;
 	};
 }
-
 
 #endif //AVARA3D_PLANEPHYSICSSHAPE_H

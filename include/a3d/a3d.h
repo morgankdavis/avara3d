@@ -9,7 +9,6 @@
 #ifndef AVARA3D_A3D_H
 #define AVARA3D_A3D_H
 
-
 #include "a3d/Buffer.h"
 #include "a3d/BuildInfo.h"
 #include "a3d/Color.h"
@@ -20,11 +19,12 @@
 #include "a3d/Types.h"
 #include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/exception/UnsupportedFormatException.h"
-#include "a3d/diagnostic/logging/Logger.h"
-#include "a3d/diagnostic/logging/sink/FileLoggerSink.h"
-#include "a3d/diagnostic/logging/sink/StdOutLoggerSink.h"
+#include "a3d/diagnostic/log/Log.h"
+#include "a3d/diagnostic/log/sink/FileLogSink.h"
+#include "a3d/diagnostic/log/sink/StdOutLogSink.h"
 #include "a3d/input/InputManager.h"
-#include "a3d/input/WindowInputManager.h"
+#include "a3d/input/GLFWInputManager.h"
+#include "a3d/Math.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/mesh/Line.h"
@@ -57,7 +57,7 @@
 #include "a3d/rendering/camera/OrthographicCamera.h"
 #include "a3d/rendering/camera/PerspectiveCamera.h"
 #include "a3d/rendering/context/RenderContext.h"
-#include "a3d/rendering/context/Window.h"
+#include "a3d/rendering/context/GLFWWindow.h"
 #include "a3d/rendering/light/AmbientLight.h"
 #include "a3d/rendering/light/AttenuatedLight.h"
 #include "a3d/rendering/light/DirectionalLight.h"
@@ -65,11 +65,11 @@
 #include "a3d/rendering/light/PointLight.h"
 #include "a3d/rendering/light/SpotLight.h"
 #include "a3d/rendering/material/Material.h"
-#include "a3d/rendering/material/Sampleable.h"
 #include "a3d/rendering/material/Sampler.h"
 #include "a3d/rendering/material/Texture.h"
+#include "a3d/rendering/renderer/opengl/OpenGLRenderer.h"
+#include "a3d/rendering/renderer/Renderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
-
 
 #endif /* AVARA3D_A3D_H */

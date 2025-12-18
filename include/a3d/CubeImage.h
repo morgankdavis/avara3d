@@ -9,26 +9,19 @@
 #ifndef AVARA3D_CUBEIMAGE_H
 #define AVARA3D_CUBEIMAGE_H
 
-
 #include <filesystem>
 #include <memory>
 
-#include "a3d/rendering/material/Sampleable.h"
-
+//#include "a3d/rendering/material/Sampleable.h"
 
 namespace a3d {
 
-	
 	class Image;
-	
 
-	class CubeImage : public Sampleable {
-
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+	class CubeImage {//: public Sampleable {
 
 	public:
+		/// Public Lifecycle Functions ///
 
 		CubeImage(std::unique_ptr<Image> posX,
 				  std::unique_ptr<Image> negX,
@@ -37,9 +30,7 @@ namespace a3d {
 				  std::unique_ptr<Image> posZ,
 				  std::unique_ptr<Image> negZ);
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		Image*		posX() const;
 		void 		posX(std::unique_ptr<Image> image);
@@ -58,12 +49,9 @@ namespace a3d {
 		
 		Image* 		negZ() const;
 		void 		negZ(std::unique_ptr<Image> image);
-		
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
 
 	private:
+		/// Private Member Variables ///
 
 		std::unique_ptr<Image>		_posX;
 		std::unique_ptr<Image>		_negX;
@@ -73,6 +61,5 @@ namespace a3d {
 		std::unique_ptr<Image>		_negZ;
 	};
 }
-
 
 #endif /* AVARA3D_CUBEIMAGE_H */

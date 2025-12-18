@@ -9,30 +9,23 @@
 #ifndef AVARA3D_BUFFER_H
 #define AVARA3D_BUFFER_H
 
-
 #include <filesystem>
 #include <memory>
 #include <vector>
-
 
 namespace a3d {
 	
 	class Buffer {
 
-/*********************************************************************************************
-	 Public Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		///  Public Lifecycle Functions ///
 
 		explicit Buffer(const std::filesystem::path& path);
 		explicit Buffer(const std::vector<std::byte>& buf);
 		Buffer(const std::byte* buf, std::size_t size);
 		~Buffer();
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		std::byte* 					data() const;
 		std::size_t 				size() const;
@@ -40,16 +33,12 @@ namespace a3d {
 		std::byte*					operator*() const;
 		std::byte					operator[](std::size_t idx) const;
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
-
 	private:
+		/// Private Member Variables ///
 
 		std::unique_ptr<std::byte*> _data;
 		std::size_t 				_size;
 	};
 }
-
 
 #endif /* AVARA3D_BUFFER_H */

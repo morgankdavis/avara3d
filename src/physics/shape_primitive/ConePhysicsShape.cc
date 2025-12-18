@@ -10,13 +10,9 @@
 
 #include "a3d/diagnostic/exception/Exception.h"
 
-
 using namespace a3d;
 
-
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 ConePhysicsShape::ConePhysicsShape(float radius, float height):
 		_radius{radius},
@@ -24,9 +20,7 @@ ConePhysicsShape::ConePhysicsShape(float radius, float height):
 
 ConePhysicsShape::~ConePhysicsShape() {}
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 float ConePhysicsShape::radius() const {
 	return _radius;
@@ -44,9 +38,7 @@ void ConePhysicsShape::height(float height) {
 	_height = height;
 }
 
-/*********************************************************************************************
-	PhysicsShape Public Member Functions
- *********************************************************************************************/
+/// PhysicsShape Public Member Functions ///
 
 PhysicsShapeType ConePhysicsShape::type() const {
 	return PhysicsShapeType::Primitive;

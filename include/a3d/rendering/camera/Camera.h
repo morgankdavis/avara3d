@@ -16,50 +16,36 @@
 
 #include "a3d/Types.h"
 
-
 namespace a3d {
 
 	class Camera {
 
 	public:
-
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+		/// Public Lifecycle Functions ///
 
 		Camera();
 		explicit Camera(const std::string& name);
 		virtual ~Camera() = 0;
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		const std::optional<std::string>&	name() const;
 		void 								name(const std::string& name);
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+		/// Internal Member Functions ///
 
-		glm::mat4 							projection() const;
-
-/*********************************************************************************************
-	Protected Member Functions
- *********************************************************************************************/
+		virtual math::mat4 					projection() const = 0;
 
 	protected:
+		/// Protected Member Functions ///
 
-		virtual void 						constructProjectionMatrix() = 0;
+//		virtual void 						constructProjectionMatrix() = 0;
 
-/*********************************************************************************************
-	Protected Member Variables
- *********************************************************************************************/
+		/// Protected Member Variables ///
 
 		std::optional<std::string>			_name;
-		glm::mat4							_projection;
+//		math::mat4							_projection;
 	};
 }
-
 
 #endif /* AVARA3D_CAMERA_H */

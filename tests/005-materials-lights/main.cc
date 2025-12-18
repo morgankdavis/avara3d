@@ -10,34 +10,30 @@
 #include <memory>
 #include <vector>
 #include <utility>
-
-#include "glm/glm.hpp"
+#include <vector>
 
 #include "a3d/a3d.h"
+#include "a3d/Math.h"
 #include "a3d/Utilities.h"
 
-
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
-
-constexpr LogLevel				A3D_APP_LOG_LEVEL =				LogLevel::Debug;
-constexpr uvec2					WINDOW_SIZE =			{1280, 768};
-constexpr bool					FULLSCREEN =			false;
-constexpr bool					ENABLE_HIGH_DPI =		true;
-constexpr AntialiasingMode		ANTIALIAS_MODE =		AntialiasingMode::Msaa4X;
-constexpr bool					ENABLE_VSYNC =			false;
-constexpr bool					CAPTURE_CURSOR =		false;
-constexpr bool 					ORTHO_CAMERA =			false;
-constexpr float					MOUSE_SENSITIVITY =		0.5;
-
+const LogLevel				APP_LOG_LEVEL		{LogLevel::Debug};
+const uvec2					WINDOW_SIZE				{1280, 768};
+const bool					FULLSCREEN				{false};
+const bool					ENABLE_HIGH_DPI			{true};
+const AntialiasingMode		ANTIALIAS_MODE			{AntialiasingMode::Msaa4X};
+const bool					ENABLE_VSYNC			{false};
+const bool					CAPTURE_CURSOR			{false};
+const bool 					ORTHO_CAMERA			{false};
+const float					MOUSE_SENSITIVITY		{0.5};
 
 void UpdateCallback(Scene& scene, double time, double deltaTime);
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
 void DidRenderCallback(VisualWorld& world, double time, double deltaTime);
-
 
 void InitLog();
 void LogBuildInfo();
@@ -45,11 +41,8 @@ void SetAllFilterModes(FilterMode mode, Scene& scene);
 void SetAllMaxAnisotropy(float anisotropy, Scene& scene);
 void ProcessEdit(Node& node, set<Key>& keysDown, set<Key>& keysPressed);
 
-
-std::unique_ptr<a3d::Logger>	g_logger;
 a3d::Node*						g_pointLightNode;
 double 							g_startTime;
-
 
 int main(int argc, const char* argv[]) {
 
@@ -59,22 +52,16 @@ int main(int argc, const char* argv[]) {
 		InitLog();
 		LogBuildInfo();
 
-		auto window = make_unique<Window>(RenderingApi::OpenGL,
-										  *utils::ExecutableName(),
-										  WINDOW_SIZE,
-										  FULLSCREEN,
-										  ENABLE_HIGH_DPI,
-										  ANTIALIAS_MODE);
+		auto window = make_unique<GLFWWindow>(RenderingApi::OpenGL,
+											  *utils::ExecutableName(),
+											  WINDOW_SIZE,
+											  FULLSCREEN,
+											  ENABLE_HIGH_DPI,
+											  ANTIALIAS_MODE);
 		window->vSyncEnabled(ENABLE_VSYNC);
 		window->cursorCaptured(CAPTURE_CURSOR);
 
-		auto inputManager = make_unique<WindowInputManager>(window.get());
-		if (inputManager->errorMask() == WindowInputManagerErrorMask::PermissionDenied) {
-			A3D_APP_LOG_E(g_logger, "WindowInputManager permission denied.");
-			// on macOS 10.15 Catalina+, this is probably a permissions issue,
-			// and the OS will alert the user.
-			// just keep going and let the user decide what they want to do.
-		}
+		auto inputManager = make_unique<GLFWInputManager>(window.get());
 
 		auto visualWorld = make_unique<VisualWorld>(*window);
 		visualWorld->fogStartDistance(500.0);
@@ -82,8 +69,8 @@ int main(int argc, const char* argv[]) {
 		visualWorld->fogDensityExponent(1.0);
 		visualWorld->fogColor(Color::LightGray());
 		//visualWorld->usesDefaultLighting(true);
-		visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
-		visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
+		visualWorld->willRenderCallback(bind(&WillRenderCallback, _1, _2, _3));
+		visualWorld->didRenderCallback(bind(&DidRenderCallback, _1, _2, _3));
 		visualWorld->background(make_shared<Texture>(std::move(utils::CubeImageNamed("nebula1_blue", "png"))));
 
 		auto scene = utils::SceneNamed("cat_island/cat_island", SceneImportOptions::ImportMeshes
@@ -93,7 +80,7 @@ int main(int argc, const char* argv[]) {
 		scene->visualWorld(std::move(visualWorld));
 		scene->inputManager(std::move(inputManager));
 		scene->debugOptions(DebugOptions::ShowStatsOverlay);
-		scene->update(bind(&UpdateCallback, _1, _2, _3));
+		scene->updateCallback(bind(&UpdateCallback, _1, _2, _3));
 
 		auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.1f));
 		ambientLight->name("ambient");
@@ -188,44 +175,46 @@ int main(int argc, const char* argv[]) {
 
 		window->center();
 		window->open();
-		scene->run();
+
+		do {
+			scene->update();
+		} while (window->isOpen());
 	}
 	catch (Exception& e)
 	{
-		A3D_APP_LOG_F(g_logger, "Exception: {}", e.what());
+		A3D_APP_LOG_F("Exception: {}", e.what());
 		return -1;
 	}
 
 	return 0;
 }
 
-/***************************************************************************************
-	Scene Callbacks
- ***************************************************************************************/
+/// Scene Callbacks ///
 
 void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	static int invocations = 0;
 	if (invocations == 2) {
 		double time = utils::Time() - g_startTime;
-		A3D_APP_LOG_I(g_logger, "START TIME: {}", time);
+		A3D_APP_LOG_I("START TIME: {}", time);
 	}
 	++invocations;
 
-	A3D_APP_LOG_T(g_logger, "scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
+	A3D_APP_LOG_T("scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
 
-	auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
+	auto window = dynamic_cast<GLFWWindow*>(scene.visualWorld()->renderContext());
 
 	// get input
 
-	auto keysPressed = scene.inputManager()->keysPressed();
-	auto keysDown = scene.inputManager()->keysDown();
+	auto im = static_cast<DesktopInputManager*>(scene.inputManager());
+	auto keysPressed = im->keysPressed();
+	auto keysDown = im->keysDown();
 
 	if (keysPressed.count(Key::Escape)) {
 		window->close();
 	}
 
 	if (keysPressed.count(Key::T)) {
-		A3D_APP_LOG_I(g_logger, "TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
+		A3D_APP_LOG_I("TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
 	}
 
 	if 		(keysPressed.count(Key::One))	SetAllFilterModes(FilterMode::Nearest, scene);
@@ -292,19 +281,15 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 		window->cursorCaptured(!(window->cursorCaptured()));
 	}
 
-	if (keysPressed.count(Key::ForwardDelete)) {
-		scene.paused(!scene.paused());
-	}
-
 	if (window->cursorCaptured()) {
 
-		vec2 mousePositionDelta = scene.inputManager()->mousePositionDelta();
+		vec2 mousePositionDelta = im->mousePositionDelta();
 
 		// move camera
 
 		if (auto pov = scene.visualWorld()->pointOfView().lock()) {
 
-			vec2 mouseScrollWheelDelta = scene.inputManager()->mouseScrollWheelDelta();
+			vec2 mouseScrollWheelDelta = im->mouseScrollWheelDelta();
 			if (mouseScrollWheelDelta.y) {
 
 				static const float FOV_SPEED = 2.5; // degrees/roll
@@ -324,18 +309,18 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 			static const float MOUSE_SPEED_SCALAR = .002;
 			static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
 
-			float deltaRotX = atan(MOUSE_SPEED * mousePositionDelta.x);
-			float deltaRotY = atan(MOUSE_SPEED * mousePositionDelta.y);
+			float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
+			float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
 
 			vec3 angles = pov->eulerAngles();
 			pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
 
 			// move
 
-			auto keysDown = scene.inputManager()->keysDown();
+//			auto keysDown = im->keysDown();
 
 			static float MOVE_SPEED = 0;
-			if (!MOVE_SPEED) MOVE_SPEED = utils::Max(scene.rootNode()->extent());
+			if (!MOVE_SPEED) MOVE_SPEED = math::max(scene.rootNode()->extent());
 
 			float moveMultiplier = 1.0;
 			if (keysDown.count(Key::LeftControl)) {
@@ -378,7 +363,8 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 		auto center = vec3(0, 30, 0);
 
 		static auto extent = scene.rootNode()->extent();
-		static float radius = std::max(std::max(extent.x, extent.y), extent.z) * .46;
+		//static float radius = std::max(std::max(extent.x, extent.y), extent.z) * .46;
+		static float radius = math::max(extent) * .46; // a3d::math
 		static float radiusX = radius;
 		static float radiusY = radius;
 
@@ -386,58 +372,54 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 		static float angle = 0;
 		angle += rotationSpeed * deltaTime;
 
-		float x = sin(angle) * radiusX;
-		float y = cos(angle) * radiusY;
+		float x = math::sin(angle) * radiusX;
+		float y = math::cos(angle) * radiusY;
 
 		g_pointLightNode->position(center + vec3(x, y, -x));
 	}
 }
 
-/***************************************************************************************
-	VisualWorld Callbacks
- ***************************************************************************************/
+/// VisualWorld Callbacks ///
 
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	A3D_APP_LOG_T("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 void DidRenderCallback(VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T(g_logger, "world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	A3D_APP_LOG_T("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
-/***************************************************************************************
-	Static
- ***************************************************************************************/
+/// Static ///
 
 void InitLog() {
 
 	string executableName = *utils::ExecutableName();
-	auto nativeSink = make_unique<StdOutLoggerSink>();
-	auto fileSink = make_unique<FileLoggerSink>(*(utils::ExecutableDirectory())
-												/ (executableName + string(".log")));
-	auto sinks = unordered_set<unique_ptr<LoggerSink>>();
-	sinks.insert(std::move(nativeSink));
-	sinks.insert(std::move(fileSink));
 
-	g_logger = make_unique<Logger>(executableName, std::move(sinks));
-	g_logger->level(A3D_APP_LOG_LEVEL);
+	auto nativeSink = make_unique<StdOutLogSink>();
+	auto fileSink = make_unique<FileLogSink>(*(utils::ExecutableDirectory())
+											 / (executableName + string(".log")));
+	auto sinks = vector<unique_ptr<LogSink>>();
+	sinks.push_back(std::move(nativeSink));
+	sinks.push_back(std::move(fileSink));
 
-	Logger::MainLogger().level(A3D_APP_LOG_LEVEL);
+	Log appLog{executableName, std::move(sinks)};
+	appLog.level(APP_LOG_LEVEL);
+	Log::AppLog(std::move(appLog));
 }
 
 void LogBuildInfo() {
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
-	A3D_APP_LOG_I(g_logger, "A3D version: {}.{}.{}", version.major, version.minor, version.patch);
-	A3D_APP_LOG_I(g_logger, "Build: {}", buildInfo.number());
-	A3D_APP_LOG_I(g_logger, "Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
-	A3D_APP_LOG_I(g_logger, "Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
+	A3D_APP_LOG_I("A3D version: {}.{}.{}", version.major, version.minor, version.patch);
+	A3D_APP_LOG_I("Build: {}", buildInfo.number());
+	A3D_APP_LOG_I("Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
+	A3D_APP_LOG_I("Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
 }
 
 void SetAllFilterModes(FilterMode mode, Scene& scene) {
 
-	A3D_APP_LOG_I(g_logger, "SetAllFilterModes: {}", (unsigned)mode);
+	A3D_APP_LOG_I("SetAllFilterModes: {}", (unsigned)mode);
 
 	for (auto& node : scene.rootNode()->children(true)) {
 
@@ -448,12 +430,18 @@ void SetAllFilterModes(FilterMode mode, Scene& scene) {
 
 				for (auto& [property, type] : material->properties()) {
 
-					if (holds_alternative<shared_ptr<Texture>>(*property)) {
-						auto texture = get<shared_ptr<Texture>>(*property);
-						auto sampler = texture->sampler();
+					if (auto texture = get_if<shared_ptr<Texture>>(property)) {
+						auto sampler = (*texture)->sampler();
 						sampler->minificationFilter(mode);
 						sampler->magnificationFilter(mode);
 					}
+
+//					if (holds_alternative<shared_ptr<Texture>>(*property)) {
+//						auto texture = get<shared_ptr<Texture>>(*property);
+//						auto sampler = texture->sampler();
+//						sampler->minificationFilter(mode);
+//						sampler->magnificationFilter(mode);
+//					}
 				}
 			}
 		}
@@ -462,7 +450,7 @@ void SetAllFilterModes(FilterMode mode, Scene& scene) {
 
 void SetAllMaxAnisotropy(float anisotropy, Scene& scene) {
 
-	A3D_APP_LOG_I(g_logger, "SetAllMaxAnisotropy: {}", anisotropy);
+	A3D_APP_LOG_I("SetAllMaxAnisotropy: {}", anisotropy);
 
 	for (auto& node : scene.rootNode()->children(true)) {
 
@@ -473,11 +461,16 @@ void SetAllMaxAnisotropy(float anisotropy, Scene& scene) {
 
 				for (auto& [property, type] : material->properties()) {
 
-					if (holds_alternative<shared_ptr<Texture>>(*property)) {
-						auto texture = get<shared_ptr<Texture>>(*property);
-						auto sampler = texture->sampler();
+					if (auto texture = get_if<shared_ptr<Texture>>(property)) {
+						auto sampler = (*texture)->sampler();
 						sampler->maxAnisotropy(anisotropy);
 					}
+
+//					if (holds_alternative<shared_ptr<Texture>>(*property)) {
+//						auto texture = get<shared_ptr<Texture>>(*property);
+//						auto sampler = texture->sampler();
+//						sampler->maxAnisotropy(anisotropy);
+//					}
 				}
 			}
 		}

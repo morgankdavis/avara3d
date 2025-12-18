@@ -9,47 +9,37 @@
 #ifndef AVARA3D_BULLETDEBUGDRAWER_H
 #define AVARA3D_BULLETDEBUGDRAWER_H
 
-
 #include <memory>
 #include <tuple>
 #include <vector>
 
-#include "glm/glm.hpp"
 #include "LinearMath/btIDebugDraw.h"
 
 #include "a3d/Types.h"
 
-
 namespace a3d {
-	
 
 	class Line;
 	class Renderer;
-	
+	class RenderContext;
 	
 	class BulletDebugDrawer : public btIDebugDraw {
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		/// Public Lifecycle Functions ///
 
 		BulletDebugDrawer();
 		~BulletDebugDrawer() override;
 		
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+		/// Internal Member Functions ///
 
 		void 	clear();
 		void 	draw(Renderer& renderer,
-							 const glm::mat4& viewMat,
-							 const glm::mat4& projectionMat);
+					 const RenderContext& context,
+					 const math::mat4& viewMat,
+					 const math::mat4& projectionMat);
 
-/*********************************************************************************************
-	btIDebugDraw Members
- *********************************************************************************************/
+		/// btIDebugDraw Members ///
 
 		void 	drawLine(const btVector3& from,
 						 const btVector3& to,
@@ -157,11 +147,8 @@ namespace a3d {
 		void 	setDebugMode(int debugMode) override;
 		int 	getDebugMode() const override;
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
-
 	private:
+		/// Private Member Variables ///
 
 		int							_debugMode;
 		std::vector<Line>			_lines;

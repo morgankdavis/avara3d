@@ -16,7 +16,7 @@
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
 #include "magic_enum.hpp"
 
-#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/diagnostic/log/Log.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/primitive/Box.h"
 #include "a3d/mesh/primitive/Capsule.h"
@@ -40,15 +40,11 @@
 #include "a3d/scene/Node.h"
 #include "a3d/Types.h"
 
-
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
-
-/*********************************************************************************************
-	Private Static Non-Member Prototypes
- *********************************************************************************************/
+/// Private Static Non-Member Prototypes ///
 
 static unique_ptr<btCollisionShape>
 BTShapeFromSourceMesh(Mesh& mesh,
@@ -106,9 +102,7 @@ BTCompoundConvexHullHACDShapeFromMeshElement(MeshElement& element,
 static vector<unique_ptr<MeshElement>>
 HACDMeshElementsFromMeshElement(MeshElement& element);
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
+/// Internal Lifecycle Functions ///
 
 BulletShapeProxy::BulletShapeProxy(PhysicsShape& shape):
 		PhysicsShapeProxy{shape},
@@ -119,50 +113,51 @@ BulletShapeProxy::BulletShapeProxy(PhysicsShape& shape):
 
 	auto bodyType = (*shape.bodies().begin())->type();
 
-	unique_ptr<btCollisionShape> newShape = nullptr;
-
 	auto btShapes = vector<unique_ptr<btCollisionShape>>();
 	auto btIndexVertexArrays = vector<unique_ptr<btTriangleIndexVertexArray>>();
 
 	auto sourceObject = shape.source();
 
-	// souce MESH
-	if (holds_alternative<weak_ptr<Mesh>>(sourceObject)) {
-		auto sourceMesh = get<weak_ptr<Mesh>>(sourceObject);
-		if (auto sSourceMesh = sourceMesh.lock()) {
-			newShape = BTShapeFromSourceMesh(*sSourceMesh,
-											 shape.type(),
-											 bodyType,
-											 btShapes,
-											 btIndexVertexArrays);
-		}
-		else {
-			A3D_LOG_W("sourceMesh is null.");
-			// TODO: throw?
-		}
-	}
+	auto newShape = std::visit([&shape, &bodyType, &btShapes, &btIndexVertexArrays]
+			(auto&& source) -> unique_ptr<btCollisionShape> {
 
-	// source NODE
-	else if (holds_alternative<weak_ptr<Node>>(sourceObject)) {
-		auto sourceNode = get<weak_ptr<Node>>(sourceObject);
-		if (auto sSourceNode = sourceNode.lock()) {
-			newShape = BTShapeFromSourceNode(*sSourceNode,
-											 shape.type(),
-											 bodyType,
-											 btShapes,
-											 btIndexVertexArrays);
-		}
-		else {
-			A3D_LOG_W("sourceNode is null.");
-			// TODO: throw?
-		}
-	}
+		using T = std::decay_t<decltype(source)>;
 
-	// primitive subclass
-	else if (holds_alternative<monostate>(sourceObject)) {
+		if constexpr (std::is_same_v<T, weak_ptr<Mesh>>) {
 
-		newShape = BTShapeFromPrimitiveShape(shape);
-	}
+			if (auto sourceMesh = source.lock()) {
+				return BTShapeFromSourceMesh(*sourceMesh,
+												 shape.type(),
+												 bodyType,
+												 btShapes,
+												 btIndexVertexArrays);
+			}
+			else {
+				A3D_LOG_W("sourceMesh is null.");
+				// TODO: throw?
+				return nullptr;
+			}
+		}
+		else if constexpr (std::is_same_v<T, weak_ptr<Node>>) {
+
+			if (auto sourceNode = source.lock()) {
+				return BTShapeFromSourceNode(*sourceNode,
+												 shape.type(),
+												 bodyType,
+												 btShapes,
+												 btIndexVertexArrays);
+			}
+			else {
+				A3D_LOG_W("sourceNode is null.");
+				// TODO: throw?
+				return nullptr;
+			}
+		}
+
+		else if constexpr (std::is_same_v<T, std::monostate>) {
+			return BTShapeFromPrimitiveShape(shape);
+		}
+	}, sourceObject);
 
 	if (newShape) {
 
@@ -189,17 +184,13 @@ BulletShapeProxy::~BulletShapeProxy() {
 	A3D_LOG_D("Destroying BulletShapeProxy {:p}", static_cast<void*>(this));
 }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 const vector <unique_ptr<btCollisionShape>>& BulletShapeProxy::btShapes() {
 	return _btShapes;
 }
 
-/*********************************************************************************************
-	Static Non-Member Functions
- *********************************************************************************************/
+/// Static Non-Member Functions ///
 
 static unique_ptr<btCollisionShape>
 BTShapeFromSourceMesh(Mesh& mesh,
@@ -466,7 +457,7 @@ void AddBTShapeFromNodeRec(Node& node,
 							  btIndexVertexArrays);
 	}
 
-	btParentShape.addChildShape(BTTransformFromGLMMat4(node.transform()),
+	btParentShape.addChildShape(BTTransformFromA3DMat4(node.transform()),
 								newShape.get());
 	btShapes.push_back(std::move(newShape));
 }
@@ -480,7 +471,7 @@ BTConvexHullShapeFromMeshElement(MeshElement& element) {
 	// https://pybullet.org/Bullet/BulletFull/classbtConvexHullShape.html#a069cf26ba277f9f5f141128fee345eaf
 	btConvexHullShape originalShape{};
 	for (const auto& vertex : element.vertices()) {
-		originalShape.addPoint(BTVector3FromGLMVec3(vertex.position), false);
+		originalShape.addPoint(BTVector3FromA3DVec3(vertex.position), false);
 	}
 	originalShape.recalcLocalAabb();
 

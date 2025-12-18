@@ -9,22 +9,16 @@
 #include "a3d/mesh/primitive/TorusKnot.h"
 
 #include "generator/generator.hpp"
-#include "glm/glm.hpp"
 
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/rendering/material/Material.h"
 
-
 using namespace a3d;
-using namespace generator;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
-
-/*********************************************************************************************
-	Pubic Static Members
- *********************************************************************************************/
+/// Pubic Static Members ///
 
 shared_ptr<Mesh> TorusKnot::Mesh(unsigned p,
 								 unsigned q,
@@ -39,9 +33,7 @@ shared_ptr<Mesh> TorusKnot::Mesh(unsigned p,
 								  material);
 }
 
-/*********************************************************************************************
-	Public Lifecycle Functions
-*********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 TorusKnot::TorusKnot(unsigned p,
 					 unsigned q,
@@ -52,6 +44,8 @@ TorusKnot::TorusKnot(unsigned p,
 		_q{q},
 		_slices{slices},
 		_segments{segments} {
+
+	using namespace generator;
 
 	// p & q are mysteries!
 
@@ -73,9 +67,7 @@ TorusKnot::TorusKnot(unsigned p,
 	}
 }
 
-/*********************************************************************************************
- 	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 unsigned TorusKnot::p() const {
 	return _p;

@@ -9,51 +9,38 @@
 #ifndef AVARA3D_FONT_H
 #define AVARA3D_FONT_H
 
-
 #include <filesystem>
 #include <memory>
 #include <optional>
 
 #include "a3d/Types.h"
 
-
 namespace a3d {
-	
-	
+
 	class Buffer;
-	
 	
 	class Font {
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		/// Public Lifecycle Functions ///
 
 		explicit Font(const std::filesystem::path& path);
 		explicit Font(std::unique_ptr<Buffer> buffer);
 		~Font();
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		const std::optional<std::string>&	name() const;
 		FontType 							type() const;
 		const Buffer* 						buffer() const;
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
-
 	private:
+		/// Private Member Variables ///
 
 		std::optional<std::string>			_name;
 		FontType							_type;
 		std::unique_ptr<Buffer>				_buffer;
 	};
 }
-
 
 #endif /* AVARA3D_FONT_H */

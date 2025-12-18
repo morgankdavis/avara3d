@@ -9,27 +9,20 @@
 #ifndef AVARA3D_IMAGE_H
 #define AVARA3D_IMAGE_H
 
-
 #include <filesystem>
 #include <memory>
 #include <string>
 
-#include "a3d/rendering/material/Sampleable.h"
-
+//#include "a3d/rendering/material/Sampleable.h"
 
 namespace a3d {
-	
-	
+
 	class Buffer;
 
-
-	class Image : public Sampleable {
-
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+	class Image {// : public Sampleable {
 
 	public:
+		/// Public Lifecycle Functions ///
 
 		explicit Image(const std::filesystem::path& path,
 					   bool flipVertical = true,
@@ -43,11 +36,9 @@ namespace a3d {
 			  unsigned bytesPerPixel,
 			  bool flipVertical = true,
 			  bool flipHorizontal = false);
-		~Image() override;
+		~Image();// override;
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		unsigned 					width() const;
 		unsigned 					height() const;
@@ -56,11 +47,8 @@ namespace a3d {
 		const Buffer& 				buffer() const;
 		bool 						writePNG(const std::filesystem::path& path) const;
 
-/*********************************************************************************************
-	Private Member Functions
- *********************************************************************************************/
-
 	private:
+		/// Private Member Functions ///
 
 		void 						loadBuffer(Buffer& buffer,
 											   bool flipVertical,
@@ -68,9 +56,7 @@ namespace a3d {
 		void 						flipVertical(); // "flip"
 		void 						flipHorizontal(); // "mirror"
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
+		/// Private Member Variables ///
 
 		unsigned					_width;
 		unsigned					_height;
@@ -78,6 +64,5 @@ namespace a3d {
 		std::unique_ptr<Buffer>		_buffer;
 	};
 }
-
 
 #endif /* AVARA3D_IMAGE_H */

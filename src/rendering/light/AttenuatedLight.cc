@@ -9,16 +9,12 @@
 #include "a3d/rendering/light/AttenuatedLight.h"
 
 #include "a3d/diagnostic/exception/NotImplementedException.h"
-#include "a3d/diagnostic/logging/Logger.h"
-
+#include "a3d/diagnostic/log/Log.h"
 
 using namespace a3d;
 using namespace std;
 
-
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 AttenuatedLight::~AttenuatedLight() {
 
@@ -30,9 +26,7 @@ AttenuatedLight::~AttenuatedLight() {
 	}
 }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 float AttenuatedLight::constantAttenuation() const {
 	return _constantAttenuation;
@@ -68,9 +62,7 @@ void AttenuatedLight::cutoff(LightCutoff cutoff) {
 //	_cutoff = cutoff;
 }
 
-/*********************************************************************************************
-	Private Lifecycle Functions
- *********************************************************************************************/
+/// Private Lifecycle Functions ///
 
 AttenuatedLight::AttenuatedLight():
 		_constantAttenuation{1.0},

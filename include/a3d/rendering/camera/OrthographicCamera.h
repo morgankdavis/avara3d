@@ -9,47 +9,38 @@
 #ifndef AVARA3D_ORTHOGRAPHICCAMERA_H
 #define AVARA3D_ORTHOGRAPHICCAMERA_H
 
-
 #include "a3d/Types.h"
 #include "a3d/rendering/camera/Camera.h"
-
 
 namespace a3d {
 
 	class OrthographicCamera : public Camera {
 
 	public:
-
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+		/// Public Lifecycle Functions ///
 
 		OrthographicCamera();
 		explicit OrthographicCamera(const AABB& extent);
 		OrthographicCamera(const std::string& name, const AABB& extent);
 		~OrthographicCamera() override;
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+		/// Public Member Functions ///
 
 		AABB 		extent() const;
 		void	 	extent(const AABB& e);
 
-/*********************************************************************************************
-	Camera Protected Member Functions
- *********************************************************************************************/
+		/// Camera Internal Member Functions ///
+
+		math::mat4 		projection() const override;
 
 	protected:
+		/// Camera Protected Member Functions ///
 
-		void 		constructProjectionMatrix() override;
-
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
+//		void 		constructProjectionMatrix() override;
 
 	private:
-
+		/// Private Member Variables ///
+		
 		AABB 		_extent;
 	};
 }

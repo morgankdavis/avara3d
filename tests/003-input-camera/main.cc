@@ -11,70 +11,60 @@
 #include <string>
 #include <utility>
 
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-
 #include "a3d/a3d.h"
 #include "a3d/Utilities.h"
 
-
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
-
-constexpr uvec2					WINDOW_SIZE =			{1280, 768};
-constexpr bool					FULLSCREEN =			false;
-constexpr bool					ENABLE_HIGH_DPI =		true;
-constexpr AntialiasingMode		ANTIALIAS_MODE =		AntialiasingMode::Msaa4X;
-constexpr bool					ENABLE_VSYNC =			false;
-constexpr bool					CAPTURE_CURSOR =		false;
-constexpr float					MOUSE_SENSITIVITY =		0.5;
-
+const uvec2					WINDOW_SIZE			{1280, 768};
+const bool					FULLSCREEN			{false};
+const bool					ENABLE_HIGH_DPI		{true};
+const AntialiasingMode		ANTIALIAS_MODE		{AntialiasingMode::Msaa4X};
+const bool					ENABLE_VSYNC		{false};
+const bool					CAPTURE_CURSOR		{false};
+const float					MOUSE_SENSITIVITY	{0.5};
 
 void UpdateCallback(Scene& scene, double time, double deltaTime);
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
 void DidRenderCallback(VisualWorld& world, double time, double deltaTime);
-
 
 int main(int argc, const char* argv[]) {
 
 	try {
 		cout << "test003::main()\n" << endl;
 
-		auto window = make_unique<Window>(RenderingApi::OpenGL,
-										  *utils::ExecutableName(),
-										  WINDOW_SIZE,
-										  FULLSCREEN,
-										  ENABLE_HIGH_DPI,
-										  ANTIALIAS_MODE);
+		auto window = make_unique<GLFWWindow>(RenderingApi::OpenGL,
+											  *utils::ExecutableName(),
+											  WINDOW_SIZE,
+											  FULLSCREEN,
+											  ENABLE_HIGH_DPI,
+											  ANTIALIAS_MODE);
 		window->vSyncEnabled(ENABLE_VSYNC);
 		window->cursorCaptured(CAPTURE_CURSOR);
 
-		auto inputManager = make_unique<WindowInputManager>(window.get());
-		if (inputManager->errorMask() == WindowInputManagerErrorMask::PermissionDenied) {
-			cerr << "WindowInputManager permission denied.\n" << endl;
-			// on macOS 10.15 Catalina+, this is probably a permissions issue,
-			// and the OS will alert the user.
-			// just keep going and let the user decide what they want to do.
-		}
+		auto inputManager = make_unique<GLFWInputManager>(window.get());
 
 		auto visualWorld = make_unique<VisualWorld>(*window);
 		//visualWorld->usesDefaultLighting(true);
 		auto backgroundColor = make_shared<Color>(u8vec3{109, 136, 164});
 		visualWorld->background(backgroundColor);
-		visualWorld->willRender(bind(&WillRenderCallback, _1, _2, _3));
-		visualWorld->didRender(bind(&DidRenderCallback, _1, _2, _3));
+		visualWorld->willRenderCallback(bind(&WillRenderCallback, _1, _2, _3));
+		visualWorld->didRenderCallback(bind(&DidRenderCallback, _1, _2, _3));
 
 		auto scene = utils::SceneNamed("import_test/import_test");
 		scene->visualWorld(std::move(visualWorld));
 		scene->inputManager(std::move(inputManager));
-		scene->update(bind(&UpdateCallback, _1, _2, _3));
+		scene->updateCallback(bind(&UpdateCallback, _1, _2, _3));
 
 		window->center();
 		window->open();
-		scene->run();
+
+		do {
+			scene->update();
+		} while (window->isOpen());
 	}
 	catch (Exception& e) {
 		cerr << "Exception: " << e.what() << "\n";
@@ -84,22 +74,22 @@ int main(int argc, const char* argv[]) {
 	return 0;
 }
 
-/***************************************************************************************
-	Scene Callbacks
- ***************************************************************************************/
+/// Scene Callbacks ///
 
 void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
-	auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
+	auto window = dynamic_cast<GLFWWindow*>(scene.visualWorld()->renderContext());
 
 	// get input
 
-	auto keysDown = scene.inputManager()->keysDown();
+	auto im = static_cast<DesktopInputManager*>(scene.inputManager());
+
+	auto keysDown = im->keysDown();
 	for (auto k : keysDown) {
 		cout << "Key: " << static_cast<underlying_type<Key>::type>(k) << endl;
 	}
 
-	auto keysPressed = scene.inputManager()->keysPressed();
+	auto keysPressed = im->keysPressed();
 	if (keysPressed.count(Key::Slash)) {
 		window->cursorCaptured(!(window->cursorCaptured()));
 	}
@@ -108,11 +98,11 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 		exit(0);
 	}
 
-	for (auto mb : scene.inputManager()->mouseButtonsDown()) {
+	for (auto mb : im->mouseButtonsDown()) {
 		cout << "Mouse button: " << static_cast<underlying_type<MouseButton>::type>(mb) << endl;
 	}
 
-	vec2 mouseScrollWheelDelta = scene.inputManager()->mouseScrollWheelDelta();
+	vec2 mouseScrollWheelDelta = im->mouseScrollWheelDelta();
 	if (mouseScrollWheelDelta.x > 0 || mouseScrollWheelDelta.y > 0) {
 		cout << "Mouse scroll wheel delta: (" << mouseScrollWheelDelta.x << ", "
 			 << mouseScrollWheelDelta.y << ")" << endl;
@@ -135,9 +125,9 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 		static const float MOUSE_SPEED_SCALAR = .002;
 		static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
 
-		vec2 mousePositionDelta = scene.inputManager()->mousePositionDelta();
-		float deltaRotX = atan(MOUSE_SPEED * mousePositionDelta.x);
-		float deltaRotY = atan(MOUSE_SPEED * mousePositionDelta.y);
+		vec2 mousePositionDelta = im->mousePositionDelta();
+		float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
+		float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
 
 		vec3 angles = pov->eulerAngles();
 		// weird angles
@@ -148,7 +138,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 		// move
 
-		static float MOVE_SPEED = utils::Max(scene.rootNode()->extent());
+		static float MOVE_SPEED = math::max(scene.rootNode()->extent());
 
 		if(keysDown.count(Key::W)) {
 			vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camForward;
@@ -175,9 +165,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	}
 }
 
-/***************************************************************************************
-	VisualWorld Callbacks
- ***************************************************************************************/
+/// VisualWorld Callbacks ///
 
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime) {
 }

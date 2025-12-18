@@ -9,14 +9,10 @@
 #ifndef AVARA3D_BULLETWORLDPROXY_H
 #define AVARA3D_BULLETWORLDPROXY_H
 
-
 #include <memory>
-
-#include "glm/glm.hpp"
 
 #include "a3d/physics/bullet/BulletStats.h"
 #include "a3d/physics/proxy/PhysicalWorldProxy.h"
-
 
 class btCollisionDispatcher;
 struct btDbvtBroadphase;
@@ -24,27 +20,20 @@ class btDiscreteDynamicsWorld;
 class btSequentialImpulseConstraintSolver;
 class btDefaultCollisionConfiguration;
 
-
 namespace a3d {
 
-
 	class BulletDebugDrawer;
-
+	class RenderContext;
 
 	class BulletWorldProxy : public PhysicalWorldProxy {
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		/// Internal Lifecycle Functions ///
 
 		explicit BulletWorldProxy(PhysicalWorld& world);
 		~BulletWorldProxy() override;
 
-/*********************************************************************************************
-	PhysicalWorldModelProxy Internal Member Functions
- *********************************************************************************************/
+		/// PhysicalWorldModelProxy Internal Member Functions ///
 
 		void 	add(PhysicsBody& body) override;
 		void 	remove(PhysicsBody& body) override;
@@ -55,32 +44,30 @@ namespace a3d {
 		void	step(double deltaT,
 					 float speed,
 					 float timestep,
-					 Stats& stats) override;
+					 FrameStats& stats,
+					 Profiler& profiler) override;
 
 		void 	updateCollisionPairs() override;
 
 		void 	drawDebug(Renderer &renderer,
-						  const glm::mat4 &viewMat,
-						  const glm::mat4 &projectionMat,
+						  const RenderContext& context,
+						  const math::mat4 &viewMat,
+						  const math::mat4 &projectionMat,
 						  const DebugOptions &debugOptions) override;
 
-/*********************************************************************************************
-	 Private Member Variables
- *********************************************************************************************/
-
 	private:
+		///  Private Member Variables ///
 
 		std::unique_ptr<btDiscreteDynamicsWorld>				_btWorld;
 		std::unique_ptr<btDefaultCollisionConfiguration> 		_btCollisionConfiguration;
 		std::unique_ptr<btCollisionDispatcher>					_btCollisionDispatcher;
 		std::unique_ptr<btDbvtBroadphase>						_btBroadphase;
 		std::unique_ptr<btSequentialImpulseConstraintSolver>	_btConstraintSolver;
-#ifdef DESKTOP
+#ifdef A3D_GL_DESKTOP
 		std::unique_ptr<BulletDebugDrawer>						_btDebugDrawer;
 #endif
 		BulletStats												_stats;
 	};
 }
-
 
 #endif //AVARA3D_BULLETWORLDPROXY_H

@@ -9,17 +9,13 @@
 #include "a3d/rendering/light/DirectionalLight.h"
 
 #include "a3d/Color.h"
-#include "a3d/diagnostic/logging/Logger.h"
-
+#include "a3d/diagnostic/log/Log.h"
 
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
-
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 DirectionalLight::DirectionalLight():
 		Light() {}
@@ -50,9 +46,7 @@ DirectionalLight::DirectionalLight(const string& name, const shared_ptr<Color>& 
 //	}
 //}
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 //const vec3& DirectionalLight::direction() const {
 //	return _direction;

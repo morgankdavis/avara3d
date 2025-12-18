@@ -9,22 +9,16 @@
 #include "a3d/mesh/primitive/Sphere.h"
 
 #include "generator/generator.hpp"
-#include "glm/glm.hpp"
 
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/rendering/material/Material.h"
 
-
 using namespace a3d;
-using namespace generator;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
-
-/*********************************************************************************************
-	Pubic Static Members
- *********************************************************************************************/
+/// Pubic Static Members ///
 
 shared_ptr<Mesh> Sphere::Mesh(float radius,
 							  unsigned segments,
@@ -36,15 +30,15 @@ shared_ptr<Mesh> Sphere::Mesh(float radius,
 								  material);
 }
 
-/*********************************************************************************************
-	Public Lifecycle Functions
-*********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 Sphere::Sphere(float radius,
 			   unsigned segments):
 		MeshElement{},
 		_radius{radius},
 		_segments{segments} {
+
+	using namespace generator;
 
 	/// @param radius The radius of the containing sphere.
 	/// @param segments The number of segments per icosahedron edge. Must be >= 1.
@@ -64,9 +58,7 @@ Sphere::Sphere(float radius,
 	}
 }
 
-/*********************************************************************************************
- 	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 float Sphere::radius() const {
 	return _radius;

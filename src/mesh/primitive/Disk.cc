@@ -9,22 +9,16 @@
 #include "a3d/mesh/primitive/Disk.h"
 
 #include "generator/generator.hpp"
-#include "glm/glm.hpp"
 
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/rendering/material/Material.h"
 
-
 using namespace a3d;
-using namespace generator;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
-
-/*********************************************************************************************
-	Pubic Static Members
- *********************************************************************************************/
+/// Pubic Static Members ///
 
 shared_ptr<Mesh> Disk::Mesh(float radius,
 							float height,
@@ -40,9 +34,7 @@ shared_ptr<Mesh> Disk::Mesh(float radius,
 								  material);
 }
 
-/*********************************************************************************************
-	Public Lifecycle Functions
-*********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 Disk::Disk(float radius,
 		   float innerRadius,
@@ -53,6 +45,8 @@ Disk::Disk(float radius,
 		_innerRadius{innerRadius},
 		_slices{slices},
 		_rings{rings} {
+
+	using namespace generator;
 
 	/// @param radius Outer radius of the disk on the xy-plane.
 	/// @param innerRadius radius of the inner circle on the xy-plane.
@@ -80,9 +74,7 @@ Disk::Disk(float radius,
 	burnTransform(xRotation, true);
 }
 
-/*********************************************************************************************
- 	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 float Disk::radius() const {
 	return _radius;

@@ -15,30 +15,26 @@
 #include "a3d/Buffer.h"
 #include "a3d/Image.h"
 #include "a3d/diagnostic/exception/Exception.h"
-#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/diagnostic/log/Log.h"
 #include "a3d/rendering/camera/PerspectiveCamera.h"
 #include "a3d/rendering/renderer/Renderer.h"
 #include "a3d/rendering/renderer/opengl/OpenGLRenderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 
-
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
+/// Public Member Functions ///
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
-
-bool RenderContext::vSyncEnabled() const {
-	return _vSyncEnabled;
-}
-
-void RenderContext::vSyncEnabled(bool enabled) {
-	_vSyncEnabled = enabled;
-}
+//bool RenderContext::vSyncEnabled() const {
+//	return _vSyncEnabled;
+//}
+//
+//void RenderContext::vSyncEnabled(bool enabled) {
+//	_vSyncEnabled = enabled;
+//}
 
 AntialiasingMode RenderContext::antialiasingMode() const {
 	return _antialiasingMode;
@@ -71,8 +67,8 @@ void RenderContext::startGIFRecording(const filesystem::path& path,
 		auto fbSize = framebufferSize();
 		auto scale = std::min(float(fitInside.x)/float(fbSize.x),
 							  float(fitInside.y)/float(fbSize.y));
-		_gifRecordingWidth = (unsigned)round(float(fbSize.x) * scale);
-		_gifRecordingHeight = (unsigned)round(float(fbSize.y) * scale);
+		_gifRecordingWidth = (unsigned)math::round(float(fbSize.x) * scale);
+		_gifRecordingHeight = (unsigned)math::round(float(fbSize.y) * scale);
 
 		unsigned frameTimeMS = 1000 /* (ms/sec) */ / _gifRecordingMaxFramerate /* (frames/sec) */;
 		// -> ms/frame
@@ -119,12 +115,10 @@ Renderer* RenderContext::renderer() const {
 	return _renderer.get();
 }
 
-/*********************************************************************************************
-	Internal Lifescycle
- *********************************************************************************************/
+/// Internal Lifescycle ///
 
 RenderContext::RenderContext(RenderingApi renderingApi):
-		_vSyncEnabled{false},
+//		_vSyncEnabled{false},
 		_antialiasingMode{AntialiasingMode::None},
 		_gifWriter{},
 		_recordingGIF{false},
@@ -134,19 +128,22 @@ RenderContext::RenderContext(RenderingApi renderingApi):
 		_gifRecordingCurrentFrameTimeAccum{0},
 		_gifRecordedTime{0},
 		_gifRecordedFrames{0},
-		_visualWorld{},
-		_renderer{} {
+		_visualWorld{}
+		/*_renderer{}*/ {
 
 	switch (renderingApi) {
 		case RenderingApi::OpenGL: {
-			_renderer = make_unique<OpenGLRenderer>();//(*this);
-			break; }
+			_renderer = make_unique<OpenGLRenderer>();
+			break;
+		}
 		case RenderingApi::OpenGLES: {
 			throw Exception("Unsupported rendering API: OpenGLES");
-			break; }
+			break;
+		}
 		case RenderingApi::Vulkan: {
 			throw Exception("Unsupported rendering API: Vulkan");
-			break; }
+			break;
+		}
 	}
 }
 
@@ -158,9 +155,7 @@ RenderContext::~RenderContext() {
 	}
 }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 void RenderContext::saveGIFFrame(double deltaRunT) {
 
@@ -168,10 +163,6 @@ void RenderContext::saveGIFFrame(double deltaRunT) {
 	_gifRecordingCurrentFrameTimeAccum += deltaRunT;
 
 	float frameTimeMS = 1000.0f /* (ms/sec) */ / (float)_gifRecordingMaxFramerate /* (frames/sec) */;
-	// -> ms/frame
-	//unsigned frameTimeHS = frameTimeMS / 10.0; // 100th sec/frame
-
-	//unsigned frameTime = 1000.0/_gifRecordingMaxFramerate; // ms/frame
 
 	if (_gifRecordingCurrentFrameTimeAccum >= frameTimeMS/1000.0) {
 
@@ -190,9 +181,16 @@ void RenderContext::saveGIFFrame(double deltaRunT) {
 
 		++_gifRecordedFrames;
 
-		//secondsAccum = secondsAccum - frameTimeMS/1000.0;
 		_gifRecordingCurrentFrameTimeAccum = 0;
 	}
+}
+
+vec2 RenderContext::viewportScale() const {
+	// see note in GLFWWindow::viewportLogicalSize().
+	// on Windows and X11, DPI/glfwGetWindowContentScale() is mostly a "UI" scaling hint.
+	uvec2 fbSize = framebufferSize();
+	uvec2 vpLogicalSize = viewportLogicalSize();
+	return vec2(float(fbSize.x)/float(vpLogicalSize.x), float(fbSize.y)/float(vpLogicalSize.y));
 }
 
 void RenderContext::attachedToVisualWorld(VisualWorld* world) {

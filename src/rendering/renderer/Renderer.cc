@@ -8,21 +8,17 @@
 
 #include "a3d/rendering/renderer/Renderer.h"
 
-#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/diagnostic/log/Log.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/context/RenderContext.h"
 #include "a3d/rendering/material/Material.h"
 #include "a3d/scene/Scene.h"
 
-
 using namespace a3d;
 using namespace std;
 
-
-/*********************************************************************************************
-	Internal Lifescycle
- *********************************************************************************************/
+/// Internal Lifescycle ///
 
 Renderer::Renderer() {}
 

@@ -8,21 +8,15 @@
 
 #include "a3d/physics/PhysicsContact.h"
 
-
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
-
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 PhysicsContact::PhysicsContact() { }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 weak_ptr<Node> PhysicsContact::nodeA() const {
 	return _nodeA;

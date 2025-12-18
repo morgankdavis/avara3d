@@ -11,25 +11,19 @@
 #ifndef AVARA3D_PROGRAM_H
 #define AVARA3D_PROGRAM_H
 
-
 #include <map>
 #include <memory>
 #include <optional>
 #include <string>
 
-
 #include "a3d/Types.h"
-
 
 namespace a3d {
 
 	class Program {
 
-/*********************************************************************************************
-	Internal Static Member Functions
- *********************************************************************************************/
-
 	public:
+		/// Internal Static Member Functions ///
 
 		static Program& 	Default();
 		static Program& 	Skybox();
@@ -38,16 +32,12 @@ namespace a3d {
 		static Program& 	Points();
 		static Program& 	GroundPlane();
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
+		/// Internal Lifecycle Functions ///
 
 		explicit Program(const std::string& name);
 		~Program();
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+		/// Internal Member Functions ///
 
 		bool 								compile();
 		bool 								link();
@@ -59,11 +49,11 @@ namespace a3d {
 		//void bindFragDataLocation(unsigned location, const char* name);
 		
 		void 								setUniform(const char* name, float x, float y, float z);
-		void 								setUniform(const char* name, const glm::vec2& v);
-		void 								setUniform(const char* name, const glm::vec3& v);
-		void 								setUniform(const char* name, const glm::vec4& v);
-		void 								setUniform(const char* name, const glm::mat3& m);
-		void 								setUniform(const char* name, const glm::mat4& m);
+		void 								setUniform(const char* name, const math::vec2& v);
+		void 								setUniform(const char* name, const math::vec3& v);
+		void 								setUniform(const char* name, const math::vec4& v);
+		void 								setUniform(const char* name, const math::mat3& m);
+		void 								setUniform(const char* name, const math::mat4& m);
 		void 								setUniform(const char* name, bool val);
 		void 								setUniform(const char* name, int val);
 		void 								setUniform(const char* name, unsigned val);
@@ -91,11 +81,8 @@ namespace a3d {
 		const std::optional<std::string>&	fragmentShaderSource() const;
 		void 								fragmentShaderSource(std::string source);
 
-/*********************************************************************************************
-	Private Member Functions
- *********************************************************************************************/
-
 	private:
+		/// Private Member Functions ///
 
 		std::optional<std::string>			shaderSource(const std::string& name,
 														   const std::string& type);
@@ -106,9 +93,7 @@ namespace a3d {
 		void 								glID(unsigned glID);
 		void 								isLinked(bool isLinked);
 
-/*********************************************************************************************
-	Private Member Variables
- *********************************************************************************************/
+		/// Private Member Variables ///
 
 		std::string  						_name;
 		unsigned  							_glID;
@@ -119,6 +104,5 @@ namespace a3d {
 		// std::map<std::string, int>			_uniformLocationCache;
 	};
 }
-
 
 #endif /* AVARA3D_PROGRAM_H */

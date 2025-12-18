@@ -9,22 +9,16 @@
 #include "a3d/mesh/primitive/Cone.h"
 
 #include "generator/generator.hpp"
-#include "glm/glm.hpp"
-
+#
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/rendering/material/Material.h"
 
-
 using namespace a3d;
-using namespace generator;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
-
-/*********************************************************************************************
-	Pubic Static Members
- *********************************************************************************************/
+/// Pubic Static Members ///
 
 shared_ptr<Mesh> Cone::Mesh(float radius,
 							float height,
@@ -42,9 +36,7 @@ shared_ptr<Mesh> Cone::Mesh(float radius,
 								  material);
 }
 
-/*********************************************************************************************
-	Public Lifecycle Functions
-*********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 Cone::Cone(float radius,
 		   float height,
@@ -57,6 +49,8 @@ Cone::Cone(float radius,
 		_slices{slices},
 		_segments{segments},
 		_rings{rings} {
+
+	using namespace generator;
 
 	/// @param radius Radius of the negative z end on the xy-plane.
 	/// @param size Half of the length of the cylinder along the z-axis.
@@ -84,9 +78,7 @@ Cone::Cone(float radius,
 	burnTransform(xRotation, true);
 }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 float Cone::radius() const {
 	return _radius;

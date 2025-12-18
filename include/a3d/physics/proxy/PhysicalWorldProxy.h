@@ -9,35 +9,28 @@
 #ifndef AVARA3D_PHYSICALWORLDPROXY_H
 #define AVARA3D_PHYSICALWORLDPROXY_H
 
-
 #include <memory>
 #include <vector>
 
 #include "a3d/Types.h"
 
-
 namespace a3d {
-
 
 	class PhysicalWorld;
 	class PhysicsBody;
+	class Profiler;
 	class Renderer;
-
+	class RenderContext;
 
 	class PhysicalWorldProxy {
 
-/*********************************************************************************************
-	Internal Lifecycle Functions
- *********************************************************************************************/
-
 	public:
+		/// Internal Lifecycle Functions ///
 
 		explicit PhysicalWorldProxy(PhysicalWorld& world);
 		virtual ~PhysicalWorldProxy();
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+		/// Internal Member Functions ///
 
 		virtual void 	add(PhysicsBody& body) = 0;
 		virtual void 	remove(PhysicsBody& body) = 0;
@@ -48,16 +41,17 @@ namespace a3d {
 		virtual void	step(double deltaT,
 							 float speed,
 							 float timestep,
-							 Stats& stats) = 0;
+							 FrameStats& stats,
+							 Profiler& profiler) = 0;
 
 		virtual void 	updateCollisionPairs() = 0;
 
 		virtual void 	drawDebug(Renderer &renderer,
-								  const glm::mat4 &viewMat,
-								  const glm::mat4 &projectionMat,
+								  const RenderContext& context,
+								  const math::mat4 &viewMat,
+								  const math::mat4 &projectionMat,
 								  const DebugOptions &debugOptions) = 0;
 	};
 }
-
 
 #endif //AVARA3D_PHYSICALWORLDPROXY_H

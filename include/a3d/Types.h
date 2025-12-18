@@ -9,7 +9,7 @@
 #ifndef AVARA3D_TYPES_H
 #define AVARA3D_TYPES_H
 
-
+#include <chrono>
 #include <memory>
 #include <set>
 #include <unordered_set> // temporary?
@@ -18,20 +18,16 @@
 #include <variant>
 #include <vector>
 
-#include <glm/detail/type_quat.hpp>
-#include <glm/glm.hpp>
-
+#include "a3d/Math.h"
 
 namespace a3d {
 
-
 	class Color;
+	class CubeImage;
+	class Image;
 	class Texture;
 
-
-/**************************************************************************************
-	Public Type Utilities
- **************************************************************************************/
+	/// Public Type Utilities ///
 
 // works great in Linux, macOS, but typeof() is a GNU lanuage extension (C23)
 //
@@ -82,9 +78,7 @@ namespace a3d {
 		A3D_ENABLE_ASSIGNMENT_OP(T, T, &) \
 		A3D_ENABLE_UNARY_OP(T, ~)
 
-/**************************************************************************************
-	Public Types
- **************************************************************************************/
+	/// Public Types ///
 
 	enum class LogLevel : unsigned {
 		Trace =		0,
@@ -129,6 +123,11 @@ namespace a3d {
 			std::monostate,
 			std::shared_ptr<Texture>,
 			std::shared_ptr<Color>>;
+
+	using Sampleable = std::variant<
+			std::monostate,
+			std::shared_ptr<Image>,
+			std::shared_ptr<CubeImage>>;
 
 	enum class MaterialPropertyType {
 		Ambient,
@@ -204,9 +203,9 @@ namespace a3d {
 
 	enum class Key : int {
 		Unknown = 0,
-		Space = 32,
-		Apostrophe = 39,
-		Comma = 44,
+		Space = 32, //+
+		Apostrophe = 39, //+
+		Comma = 44, //+
 		Minus = 45,
 		Period = 46,
 		Slash = 47,
@@ -254,7 +253,7 @@ namespace a3d {
 		GraveAccent = 96,
 		World1 = 161, // non-US #1
 		World2 = 162, // non-US #2
-		
+
 		/* Function keys */
 		Escape = 256,
 		Enter = 257,
@@ -339,18 +338,10 @@ namespace a3d {
 		Eight = 7
 	};
 
-	enum class WindowInputManagerErrorMask : unsigned {
-		None =					0,
-		NoMice =				1 << 0,
-		PermissionDenied =		1 << 1,
-		UnknownError =			1 << 2
-	};
-	A3D_ENABLE_ENUM_MASK_OPS(WindowInputManagerErrorMask)
-
 	typedef struct {
-		glm::vec3 position;
-		glm::vec3 normal;
-		glm::vec2 texCoord;
+		math::vec3 position;
+		math::vec3 normal;
+		math::vec2 texCoord;
 	} Vertex;
 
 	typedef struct {
@@ -360,8 +351,8 @@ namespace a3d {
 	} Face;
 
 	typedef struct {
-		glm::vec3 min;
-		glm::vec3 max;
+		math::vec3 min;
+		math::vec3 max;
 	} AABB;
 
 	typedef struct {
@@ -370,42 +361,30 @@ namespace a3d {
 		float z;
 	} Extent;
 
-	typedef struct {
-		// the frame time as of the last frame in ms
-		double		currentFrametime;
-		// the framerate as of the last frame in frames/second
-		double		currentFramerate;
-		// the average of frame time over averagingInterval in ms
-		double		averageFrametime;
-		// the average of frame rate over averagingInterval in frames/second
-		double		averageFramerate;
-		// time interval over which to average averageFrametime, averageFramerate,
-		// averagePhysicstime, and averageDrawtime over in seconds
-		double 		averagingInterval;
+	struct FrameStats {
+		std::chrono::nanoseconds frameTime;
+		std::chrono::nanoseconds engineCpuTime;
+		std::chrono::nanoseconds renderCpuTime;
+		std::chrono::nanoseconds renderGpuTime;
+		std::chrono::nanoseconds physicsTime;
+		std::chrono::nanoseconds applicationTime;
 
-		double		currentPhysicstime;
-		double		currentDrawtime;
-		double		currentUsertime;
-		double 		averagePhysicstime;
-		double		averageDrawtime;
-		double		averageUsertime;
+		unsigned 	numNodes;
+		unsigned 	numMeshes;
+		unsigned 	numElements;
+		unsigned 	numPolygons;
+		unsigned 	numLights;
+		math::vec3 	cameraPosition;
+		math::quat 	cameraOrientation;
 
-		unsigned 	nodes;
-		unsigned 	meshes;
-		unsigned 	elements;
-		unsigned 	polygons;
-		unsigned 	lights;
-		glm::vec3 	cameraPosition;
-		glm::quat 	cameraOrientation;
-
-		unsigned	staticBodies;
-		unsigned	dynamicBodies;
-		unsigned	kinematicBodies;
-		unsigned	primitiveShapes;
-		unsigned	boundingBoxShapes;
-		unsigned	convexHullShapes;
-		unsigned	concavePolyhedronShapes;
-	} Stats;
+		unsigned	numStaticBodies;
+		unsigned	numDynamicBodies;
+		unsigned	numKinematicBodies;
+		unsigned	numPrimitiveShapes;
+		unsigned	numBoundingBoxShapes;
+		unsigned	numConvexHullShapes;
+		unsigned	numConcavePolyhedronShapes;
+	};
 
 	enum DebugOptions : unsigned {
 		None =							0,
@@ -424,9 +403,7 @@ namespace a3d {
 	};
 	A3D_ENABLE_ENUM_MASK_OPS(DebugOptions)
 
-/**************************************************************************************
-	Internal Types
- **************************************************************************************/
+	/// Internal Types ///
 
 	enum class ShaderType {
 		Vertex,
@@ -487,6 +464,5 @@ namespace a3d {
 	};
 	A3D_ENABLE_ENUM_MASK_OPS(SamplerDirtyMask)
 }
-
 
 #endif /* AVARA3D_TYPES_H */

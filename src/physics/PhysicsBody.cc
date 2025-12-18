@@ -10,7 +10,7 @@
 
 #include "magic_enum.hpp"
 
-#include "a3d/diagnostic/logging/Logger.h"
+#include "a3d/diagnostic/log/Log.h"
 #include "a3d/physics/PhysicsShape.h"
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/physics/bullet/BulletBodyProxy.h"
@@ -18,15 +18,11 @@
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 
-
 using namespace a3d;
-using namespace glm;
+using namespace a3d::math;
 using namespace std;
 
-
-/*********************************************************************************************
-	Public Static Member Functions
- *********************************************************************************************/
+/// Public Static Member Functions ///
 
 unique_ptr<PhysicsBody> PhysicsBody::StaticBody() {
 	return make_unique<PhysicsBody>(PhysicsBodyType::Static);
@@ -40,9 +36,7 @@ unique_ptr<PhysicsBody> PhysicsBody::KinematicBody() {
 	return make_unique<PhysicsBody>(PhysicsBodyType::Kinematic);
 }
 
-/*********************************************************************************************
-	Public Lifecycle Functions
- *********************************************************************************************/
+/// Public Lifecycle Functions ///
 
 PhysicsBody::PhysicsBody(PhysicsBodyType type):
 		_shape{},
@@ -66,9 +60,7 @@ PhysicsBody::~PhysicsBody() {
 	if (_proxy) _proxy->detachedFromBody(*this);
 }
 
-/*********************************************************************************************
-	Public Member Functions
- *********************************************************************************************/
+/// Public Member Functions ///
 
 PhysicsBodyType PhysicsBody::type() const {
 	return _proxy->type();
@@ -124,7 +116,7 @@ vec3 PhysicsBody::centerOfMass() const {
 	return _proxy->centerOfMass();
 }
 
-void PhysicsBody::centerOfMass(const glm::vec3& offset) {
+void PhysicsBody::centerOfMass(const vec3& offset) {
 	_proxy->centerOfMass(offset);
 }
 
@@ -270,11 +262,11 @@ void PhysicsBody::applyTorque(const vec3& torque, bool impulse) {
 	}
 }
 
-glm::vec3 PhysicsBody::totalForce() const {
+vec3 PhysicsBody::totalForce() const {
 	return _proxy->totalForce();
 }
 
-glm::vec3 PhysicsBody::totalTorque() const {
+vec3 PhysicsBody::totalTorque() const {
 	return _proxy->totalTorque();
 }
 
@@ -290,9 +282,7 @@ void PhysicsBody::autocalculatesMomentOfInertia(bool autocalculate) {
 	_proxy->autocalculatesMomentOfInertia(autocalculate);
 }
 
-/*********************************************************************************************
-	Internal Member Functions
- *********************************************************************************************/
+/// Internal Member Functions ///
 
 void PhysicsBody::attachedToNode(const shared_ptr<Node>& node) {
 	A3D_LOG_T("node: {:p}", static_cast<void*>(node.get()));
@@ -405,9 +395,7 @@ PhysicsBodyProxy* PhysicsBody::proxy() const {
 	return _proxy.get();
 }
 
-/*********************************************************************************************
-	Private Member Functions
- *********************************************************************************************/
+/// Private Member Functions ///
 
 void PhysicsBody::checkAutocreateShape(const shared_ptr<Node>& node) {
 
