@@ -121,48 +121,50 @@ elseif (FASTGLTF_ENABLE_CPP_MODULES)
 endif ()
 
 
-include(GNUInstallDirs)
-include(CMakePackageConfigHelpers)
+# mkd: disabled
 
-write_basic_package_version_file(
-    "${PROJECT_BINARY_DIR}/fastgltfConfigVersion.cmake"
-    VERSION ${PACKAGE_VERSION}
-    COMPATIBILITY SameMajorVersion
-)
-
-install(
-    FILES ${FASTGLTF_HEADERS}
-    DESTINATION include/fastgltf
-)
-
-install(FILES
-    "${CMAKE_CURRENT_BINARY_DIR}/fastgltfConfigVersion.cmake"
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/fastgltf
-)
-
-install(
-    TARGETS fastgltf
-    EXPORT fastgltf-targets
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
-
-install(
-    EXPORT fastgltf-targets
-    FILE fastgltfConfig.cmake
-    NAMESPACE fastgltf::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/fastgltf
-)
-
-
-if (FASTGLTF_ENABLE_EXAMPLES)
-    add_subdirectory(examples)
-endif ()
-if (FASTGLTF_ENABLE_TESTS)
-    add_subdirectory(tests)
-endif ()
-if (FASTGLTF_ENABLE_DOCS)
-    add_subdirectory(docs)
-endif ()
+#include(GNUInstallDirs)
+#include(CMakePackageConfigHelpers)
+#
+#write_basic_package_version_file(
+#    "${PROJECT_BINARY_DIR}/fastgltfConfigVersion.cmake"
+#    VERSION ${PACKAGE_VERSION}
+#    COMPATIBILITY SameMajorVersion
+#)
+#
+#install(
+#    FILES ${FASTGLTF_HEADERS}
+#    DESTINATION include/fastgltf
+#)
+#
+#install(FILES
+#    "${CMAKE_CURRENT_BINARY_DIR}/fastgltfConfigVersion.cmake"
+#    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/fastgltf
+#)
+#
+#install(
+#    TARGETS fastgltf
+#    EXPORT fastgltf-targets
+#    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+#    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+#)
+#
+#install(
+#    EXPORT fastgltf-targets
+#    FILE fastgltfConfig.cmake
+#    NAMESPACE fastgltf::
+#    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/fastgltf
+#)
+#
+#
+#if (FASTGLTF_ENABLE_EXAMPLES)
+#    add_subdirectory(examples)
+#endif ()
+#if (FASTGLTF_ENABLE_TESTS)
+#    add_subdirectory(tests)
+#endif ()
+#if (FASTGLTF_ENABLE_DOCS)
+#    add_subdirectory(docs)
+#endif ()
