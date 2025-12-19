@@ -13,10 +13,14 @@
 #include <utility>
 #include <variant>
 
-#include "fastgltf/parser.hpp"
-#include "fastgltf/tools.hpp"
-#include "fastgltf/types.hpp"
+// TODO: clean up
+#include <fastgltf/core.hpp>
+#include "fastgltf/math.hpp"
+//#include <fastgltf/parser.hpp>
+#include <fastgltf/tools.hpp>
+#include <fastgltf/types.hpp>
 #include "fastgltf/util.hpp"
+
 #include "magic_enum/magic_enum.hpp"
 
 #include "a3d/Buffer.h"
@@ -48,9 +52,14 @@ using namespace std;
 /// Private Static Non-Member Prototypes ///
 
 static fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options);
+static std::span<const byte> BytesFromDataSource(const DataSource& src);
+static std::span<const byte> BytesFromBufferView(const Asset& asset, size_t bufferViewIndex);
 static mat4 TransformFromGlTFNode(fastgltf::Node& node);
-static shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 3>& arr);
-static shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 4>& arr);
+//static shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 3>& arr);
+//static shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 4>& arr);
+// NEW for fastgltf 0.9:
+static shared_ptr<a3d::Color> ColorFromGlTFColorArray(const fastgltf::math::nvec3& v);
+static shared_ptr<a3d::Color> ColorFromGlTFColorArray(const fastgltf::math::nvec4& v);
 
 /// Internal Lifecycle Functions ///
 
@@ -175,45 +184,60 @@ bool GlTFImporter::parse() {
 						  | Extensions::KHR_texture_transform;
 		auto parser = Parser(extensions);
 
-		auto extension = _path.extension();
+//		auto extension = _path.extension();
 		auto directory = _path.parent_path();
 
 		auto options = GlTFOptionsFromImportOptions(_options);
 
-		GltfDataBuffer data;
-		data.loadFromFile(_path);
-
-		auto expectedAsset = Expected<Asset>(Error::None);
-
-		if (extension == ".gltf") {
-			expectedAsset = parser.loadGLTF(&data, directory, options);
-		}
-		else if (extension == ".glb") {
-			expectedAsset = parser.loadBinaryGLTF(&data, directory, options);
-		}
-		else {
-			A3D_LOG_E("Unsupported file extension: {}", extension.string());
-		}
-
-		if (auto error = expectedAsset.error(); error == Error::None) {
-
-			auto& asset = expectedAsset.get();
-
-			if (auto& info = asset.assetInfo) {
-				A3D_LOG_D("Done parsing glTF.  Version: '{}', Copyright: '{}', Generator: '{}'.  Parse time: {}",
-						  info->gltfVersion, info->copyright, info->generator, utils::chrono::Time() - startTime);
-			}
-			else {
-				A3D_LOG_D("Done parsing glTF.  Time: {}", utils::chrono::Time() - startTime);
-			}
-
-			_asset = std::move(expectedAsset.get());
-		}
-		else {
-
-			A3D_LOG_E("Error parsing glTF file: {}", magic_enum::enum_name(error));
+		auto gltfFile = fastgltf::MappedGltfFile::FromPath(_path);
+		if (!bool(gltfFile)) {
+			std::cerr << "Failed to open glTF file: " << fastgltf::getErrorMessage(gltfFile.error()) << '\n';
 			return false;
 		}
+
+		auto asset = parser.loadGltf(gltfFile.get(), directory, options);
+		if (asset.error() != fastgltf::Error::None) {
+			std::cerr << "Failed to load glTF: " << fastgltf::getErrorMessage(asset.error()) << '\n';
+			return false;
+		}
+
+		_asset = std::move(asset.get());
+
+
+//		GltfDataBuffer data;
+//		data.loadFromFile(_path);
+//
+//		auto expectedAsset = Expected<Asset>(Error::None);
+//
+//		if (extension == ".gltf") {
+//			expectedAsset = parser.loadGLTF(&data, directory, options);
+//		}
+//		else if (extension == ".glb") {
+//			expectedAsset = parser.loadBinaryGLTF(&data, directory, options);
+//		}
+//		else {
+//			A3D_LOG_E("Unsupported file extension: {}", extension.string());
+//		}
+//
+//		if (auto error = expectedAsset.error(); error == Error::None) {
+//
+//			auto& asset = expectedAsset.get();
+//
+//			if (auto& info = asset.assetInfo) {
+//				A3D_LOG_D("Done parsing glTF.  Version: '{}', Copyright: '{}', Generator: '{}'.  Parse time: {}",
+//						  info->gltfVersion, info->copyright, info->generator, utils::chrono::Time() - startTime);
+//			}
+//			else {
+//				A3D_LOG_D("Done parsing glTF.  Time: {}", utils::chrono::Time() - startTime);
+//			}
+//
+//			_asset = std::move(expectedAsset.get());
+//		}
+//		else {
+//
+//			A3D_LOG_E("Error parsing glTF file: {}", magic_enum::enum_name(error));
+//			return false;
+//		}
 	}
 
 	return true;
@@ -292,205 +316,310 @@ shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlTFMeshIndex(fastgltf::Asset& asset
 	return nullptr;
 }
 
-unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(fastgltf::Asset& asset,
-																		fastgltf::Primitive& primitive) {
+std::unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(
+		fastgltf::Asset& asset,
+		fastgltf::Primitive& primitive)
+{
+	using namespace fastgltf;
 
-	// TODO: make this suck less
+	if (primitive.type != PrimitiveType::Triangles) {
+		A3D_LOG_W("Unsupported primitive type: {}", magic_enum::enum_name(primitive.type));
+		return nullptr;
+	}
 
-	if (primitive.type == PrimitiveType::Triangles) {
+	auto posAttr = primitive.findAttribute("POSITION");
+	if (!posAttr) {
+		A3D_LOG_E("Primitive has no POSITION attribute.");
+		return nullptr;
+	}
 
-		if (auto indiciesAccessorIndex = primitive.indicesAccessor) {
-			auto& indiciesAccessor = asset.accessors[*indiciesAccessorIndex];
+	const std::size_t posAccessorIndex = posAttr->accessorIndex;
+	const auto& posAccessor = asset.accessors[posAccessorIndex];
 
-			vector<Vertex> verts;
-			vector<Face> faces;
+	const std::size_t vertexCount = posAccessor.count;
+	if (vertexCount == 0) {
+		A3D_LOG_W("Primitive has 0 vertices.");
+		return nullptr;
+	}
 
-			// faces
+	auto to_vec3 = [](const fastgltf::math::fvec3& v) -> a3d::math::vec3 {
+		return { v[0], v[1], v[2] };
+	};
+	auto to_vec2 = [](const fastgltf::math::fvec2& v) -> a3d::math::vec2 {
+		return { v[0], v[1] };
+	};
 
-			{
-				vector<uint32_t> indices;
-				indices.resize(indiciesAccessor.count);
+	std::vector<Vertex> verts(vertexCount);
 
-				iterateAccessorWithIndex<uint32_t>(
-						asset,
-						indiciesAccessor,
-						[&](uint32_t index, size_t idx) {
-							indices[idx] = index;
+	// Positions
+	iterateAccessorWithIndex<fastgltf::math::fvec3>(
+			asset, posAccessor,
+			[&](fastgltf::math::fvec3 v, std::size_t i) {
+				if (i < verts.size()) verts[i].position = to_vec3(v);
+			}
+	);
+
+	// Normals (optional)
+	if (auto nAttr = primitive.findAttribute("NORMAL"); nAttr) {
+		const auto& nAccessor = asset.accessors[nAttr->accessorIndex];
+		iterateAccessorWithIndex<fastgltf::math::fvec3>(
+				asset, nAccessor,
+				[&](fastgltf::math::fvec3 n, std::size_t i) {
+					if (i < verts.size()) verts[i].normal = to_vec3(n);
+				}
+		);
+	}
+
+	// Texcoords (optional)
+	if (auto uvAttr = primitive.findAttribute("TEXCOORD_0"); uvAttr) {
+		const auto& uvAccessor = asset.accessors[uvAttr->accessorIndex];
+		iterateAccessorWithIndex<fastgltf::math::fvec2>(
+				asset, uvAccessor,
+				[&](fastgltf::math::fvec2 uv, std::size_t i) {
+					if (i < verts.size()) verts[i].texCoord = to_vec2(uv);
+				}
+		);
+	}
+
+	// Indices (optional)
+	std::vector<uint32_t> indices;
+	if (primitive.indicesAccessor) {
+		const auto& idxAccessor = asset.accessors[*primitive.indicesAccessor];
+		indices.resize(idxAccessor.count);
+		iterateAccessorWithIndex<uint32_t>(
+				asset, idxAccessor,
+				[&](uint32_t idx, std::size_t i) {
+					if (i < indices.size()) indices[i] = idx;
+				}
+		);
+	} else {
+		indices.resize(vertexCount);
+		for (std::size_t i = 0; i < vertexCount; ++i)
+			indices[i] = static_cast<uint32_t>(i);
+	}
+
+	if (indices.size() < 3) {
+		A3D_LOG_W("Primitive has fewer than 3 indices; cannot form triangles.");
+		return nullptr;
+	}
+	if (indices.size() % 3 != 0) {
+		A3D_LOG_W("Index count {} is not divisible by 3; truncating.", indices.size());
+	}
+
+	const std::size_t triIndexCount = (indices.size() / 3) * 3;
+	std::vector<Face> faces;
+	faces.reserve(triIndexCount / 3);
+
+	for (std::size_t i = 0; i < triIndexCount; i += 3) {
+		faces.push_back({
+								static_cast<unsigned>(indices[i + 0]),
+								static_cast<unsigned>(indices[i + 1]),
+								static_cast<unsigned>(indices[i + 2]),
 						});
-
-				for (size_t i = 0; i < indices.size(); i += 3) {
-					faces.push_back( {unsigned(indices[i + 0]),
-									  unsigned(indices[i + 1]),
-									  unsigned(indices[i + 2])} );
-				}
-			}
-
-			// positions
-
-			{
-				auto attrib = primitive.findAttribute("POSITION");
-
-				auto accessorIndex = attrib->second;
-				auto accessor = asset.accessors[accessorIndex];
-
-				auto type = accessor.type;
-				if (type == AccessorType::Vec3) {
-
-					auto componentType = accessor.componentType;
-					if (componentType == ComponentType::Float) {
-
-						auto& bufferView = asset.bufferViews[*accessor.bufferViewIndex];
-						auto& buffer = asset.buffers[bufferView.bufferIndex];
-						auto& bufferData = buffer.data;
-
-						if (auto vec = std::get_if<sources::Vector>(&bufferData)) {
-
-							auto offset = bufferView.byteOffset + accessor.byteOffset;
-							auto length = bufferView.byteLength;
-							auto elementByteSize = getElementByteSize(type, componentType);
-							auto numElements = length / elementByteSize;
-
-							auto ptr = reinterpret_cast<uint8_t*>(&vec->bytes[offset]);
-							auto stride = bufferView.byteStride
-										  ? *(bufferView.byteStride)
-										  : sizeof(vec3);
-
-							for (size_t i = 0; i < numElements; ++i) {
-								auto v3Ptr = reinterpret_cast<vec3*>(ptr);
-								verts.push_back({*v3Ptr, {}, {}});
-								ptr += stride;
-							}
-						}
-						else {
-							A3D_LOG_W("Unsupported position buffer data.");
-						}
-					}
-					else {
-						A3D_LOG_W("Unsupported position accessor component type: {}",
-								  magic_enum::enum_name(componentType));
-					}
-				}
-				else {
-					A3D_LOG_W("Unsupported position accessor type: {}",
-							  magic_enum::enum_name(type));
-				}
-			}
-
-			// normals
-
-			{
-				auto attrib = primitive.findAttribute("NORMAL");
-
-				auto accessorIndex = attrib->second;
-				auto accessor = asset.accessors[accessorIndex];
-
-				auto type = accessor.type;
-				if (type == AccessorType::Vec3) {
-
-					auto componentType = accessor.componentType;
-					if (componentType == ComponentType::Float) {
-
-						auto& bufferView = asset.bufferViews[*accessor.bufferViewIndex];
-						auto& buffer = asset.buffers[bufferView.bufferIndex];
-						auto& bufferData = buffer.data;
-
-						if (auto vec = std::get_if<sources::Vector>(&bufferData)) {
-
-							auto offset = bufferView.byteOffset + accessor.byteOffset;
-							auto length = bufferView.byteLength;
-							auto elementByteSize = getElementByteSize(type, componentType);
-							auto numElements = length / elementByteSize;
-
-							auto ptr = reinterpret_cast<uint8_t*>(&vec->bytes[offset]);
-							auto stride = bufferView.byteStride
-										  ? *(bufferView.byteStride)
-										  : sizeof(vec3);
-
-							for (size_t i = 0; i < numElements; ++i) {
-								auto v3Ptr = reinterpret_cast<vec3*>(ptr);
-								verts[i].normal = *v3Ptr;
-								ptr += stride;
-							}
-						}
-						else {
-							A3D_LOG_W("Unsupported normals buffer data.");
-						}
-					}
-					else {
-						A3D_LOG_W("Unsupported normals accessor component type: {}",
-								  magic_enum::enum_name(componentType));
-					}
-				}
-				else {
-					A3D_LOG_W("Unsupported normals accessor type: {}",
-							  magic_enum::enum_name(type));
-				}
-			}
-
-			// texture coordinates
-
-			{
-				auto attrib = primitive.findAttribute("TEXCOORD_0");
-
-				auto accessorIndex = attrib->second;
-				auto accessor = asset.accessors[accessorIndex];
-
-				auto type = accessor.type;
-				if (type == AccessorType::Vec2) {
-
-					auto componentType = accessor.componentType;
-					if (componentType == ComponentType::Float) {
-
-						auto& bufferView = asset.bufferViews[*accessor.bufferViewIndex];
-						auto& buffer = asset.buffers[bufferView.bufferIndex];
-						auto& bufferData = buffer.data;
-
-						if (auto vec = std::get_if<sources::Vector>(&bufferData)) {
-
-							auto offset = bufferView.byteOffset + accessor.byteOffset;
-							auto length = bufferView.byteLength;
-							auto elementByteSize = getElementByteSize(type, componentType);
-							auto numElements = length / elementByteSize;
-
-							auto ptr = reinterpret_cast<uint8_t*>(&vec->bytes[offset]);
-							auto stride = bufferView.byteStride
-										  ? *(bufferView.byteStride)
-										  : sizeof(vec2);
-
-							for (size_t i = 0; i < numElements; ++i) {
-								auto v2Ptr = reinterpret_cast<vec2*>(ptr);
-								verts[i].texCoord = *v2Ptr;
-								ptr += stride;
-							}
-						}
-						else {
-							A3D_LOG_W("Unsupported texcoords buffer data.");
-						}
-					}
-					else {
-						A3D_LOG_W("Unsupported texcoords accessor component type: {}",
-								  magic_enum::enum_name(componentType));
-					}
-				}
-				else {
-					A3D_LOG_W("Unsupported texcoords accessor type: {}",
-							  magic_enum::enum_name(type));
-				}
-			}
-
-			return make_unique<MeshElement>(verts, faces);
-		}
-		else {
-			A3D_LOG_E("Missing vertex indicies.");
-		}
-	}
-	else {
-		A3D_LOG_W("Unsupported primitive type: {}",
-				  magic_enum::enum_name(primitive.type));
 	}
 
-	return nullptr;
+	return std::make_unique<MeshElement>(verts, faces);
 }
+
+//unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(fastgltf::Asset& asset,
+//																		fastgltf::Primitive& primitive) {
+//
+//	// TODO: make this suck less
+//
+//	if (primitive.type == PrimitiveType::Triangles) {
+//
+//		if (auto indiciesAccessorIndex = primitive.indicesAccessor) {
+//			auto& indiciesAccessor = asset.accessors[*indiciesAccessorIndex];
+//
+//			vector<Vertex> verts;
+//			vector<Face> faces;
+//
+//			// faces
+//
+//			{
+//				vector<uint32_t> indices;
+//				indices.resize(indiciesAccessor.count);
+//
+//				iterateAccessorWithIndex<uint32_t>(
+//						asset,
+//						indiciesAccessor,
+//						[&](uint32_t index, size_t idx) {
+//							indices[idx] = index;
+//						});
+//
+//				for (size_t i = 0; i < indices.size(); i += 3) {
+//					faces.push_back( {unsigned(indices[i + 0]),
+//									  unsigned(indices[i + 1]),
+//									  unsigned(indices[i + 2])} );
+//				}
+//			}
+//
+//			// positions
+//
+//			{
+//				auto attrib = primitive.findAttribute("POSITION");
+//
+//				auto accessorIndex = attrib->second;
+//				auto accessor = asset.accessors[accessorIndex];
+//
+//				auto type = accessor.type;
+//				if (type == AccessorType::Vec3) {
+//
+//					auto componentType = accessor.componentType;
+//					if (componentType == ComponentType::Float) {
+//
+//						auto& bufferView = asset.bufferViews[*accessor.bufferViewIndex];
+//						auto& buffer = asset.buffers[bufferView.bufferIndex];
+//						auto& bufferData = buffer.data;
+//
+//						if (auto vec = std::get_if<sources::Vector>(&bufferData)) {
+//
+//							auto offset = bufferView.byteOffset + accessor.byteOffset;
+//							auto length = bufferView.byteLength;
+//							auto elementByteSize = getElementByteSize(type, componentType);
+//							auto numElements = length / elementByteSize;
+//
+//							auto ptr = reinterpret_cast<uint8_t*>(&vec->bytes[offset]);
+//							auto stride = bufferView.byteStride
+//										  ? *(bufferView.byteStride)
+//										  : sizeof(vec3);
+//
+//							for (size_t i = 0; i < numElements; ++i) {
+//								auto v3Ptr = reinterpret_cast<vec3*>(ptr);
+//								verts.push_back({*v3Ptr, {}, {}});
+//								ptr += stride;
+//							}
+//						}
+//						else {
+//							A3D_LOG_W("Unsupported position buffer data.");
+//						}
+//					}
+//					else {
+//						A3D_LOG_W("Unsupported position accessor component type: {}",
+//								  magic_enum::enum_name(componentType));
+//					}
+//				}
+//				else {
+//					A3D_LOG_W("Unsupported position accessor type: {}",
+//							  magic_enum::enum_name(type));
+//				}
+//			}
+//
+//			// normals
+//
+//			{
+//				auto attrib = primitive.findAttribute("NORMAL");
+//
+//				auto accessorIndex = attrib->second;
+//				auto accessor = asset.accessors[accessorIndex];
+//
+//				auto type = accessor.type;
+//				if (type == AccessorType::Vec3) {
+//
+//					auto componentType = accessor.componentType;
+//					if (componentType == ComponentType::Float) {
+//
+//						auto& bufferView = asset.bufferViews[*accessor.bufferViewIndex];
+//						auto& buffer = asset.buffers[bufferView.bufferIndex];
+//						auto& bufferData = buffer.data;
+//
+//						if (auto vec = std::get_if<sources::Vector>(&bufferData)) {
+//
+//							auto offset = bufferView.byteOffset + accessor.byteOffset;
+//							auto length = bufferView.byteLength;
+//							auto elementByteSize = getElementByteSize(type, componentType);
+//							auto numElements = length / elementByteSize;
+//
+//							auto ptr = reinterpret_cast<uint8_t*>(&vec->bytes[offset]);
+//							auto stride = bufferView.byteStride
+//										  ? *(bufferView.byteStride)
+//										  : sizeof(vec3);
+//
+//							for (size_t i = 0; i < numElements; ++i) {
+//								auto v3Ptr = reinterpret_cast<vec3*>(ptr);
+//								verts[i].normal = *v3Ptr;
+//								ptr += stride;
+//							}
+//						}
+//						else {
+//							A3D_LOG_W("Unsupported normals buffer data.");
+//						}
+//					}
+//					else {
+//						A3D_LOG_W("Unsupported normals accessor component type: {}",
+//								  magic_enum::enum_name(componentType));
+//					}
+//				}
+//				else {
+//					A3D_LOG_W("Unsupported normals accessor type: {}",
+//							  magic_enum::enum_name(type));
+//				}
+//			}
+//
+//			// texture coordinates
+//
+//			{
+//				auto attrib = primitive.findAttribute("TEXCOORD_0");
+//
+//				auto accessorIndex = attrib->second;
+//				auto accessor = asset.accessors[accessorIndex];
+//
+//				auto type = accessor.type;
+//				if (type == AccessorType::Vec2) {
+//
+//					auto componentType = accessor.componentType;
+//					if (componentType == ComponentType::Float) {
+//
+//						auto& bufferView = asset.bufferViews[*accessor.bufferViewIndex];
+//						auto& buffer = asset.buffers[bufferView.bufferIndex];
+//						auto& bufferData = buffer.data;
+//
+//						if (auto vec = std::get_if<sources::Vector>(&bufferData)) {
+//
+//							auto offset = bufferView.byteOffset + accessor.byteOffset;
+//							auto length = bufferView.byteLength;
+//							auto elementByteSize = getElementByteSize(type, componentType);
+//							auto numElements = length / elementByteSize;
+//
+//							auto ptr = reinterpret_cast<uint8_t*>(&vec->bytes[offset]);
+//							auto stride = bufferView.byteStride
+//										  ? *(bufferView.byteStride)
+//										  : sizeof(vec2);
+//
+//							for (size_t i = 0; i < numElements; ++i) {
+//								auto v2Ptr = reinterpret_cast<vec2*>(ptr);
+//								verts[i].texCoord = *v2Ptr;
+//								ptr += stride;
+//							}
+//						}
+//						else {
+//							A3D_LOG_W("Unsupported texcoords buffer data.");
+//						}
+//					}
+//					else {
+//						A3D_LOG_W("Unsupported texcoords accessor component type: {}",
+//								  magic_enum::enum_name(componentType));
+//					}
+//				}
+//				else {
+//					A3D_LOG_W("Unsupported texcoords accessor type: {}",
+//							  magic_enum::enum_name(type));
+//				}
+//			}
+//
+//			return make_unique<MeshElement>(verts, faces);
+//		}
+//		else {
+//			A3D_LOG_E("Missing vertex indicies.");
+//		}
+//	}
+//	else {
+//		A3D_LOG_W("Unsupported primitive type: {}",
+//				  magic_enum::enum_name(primitive.type));
+//	}
+//
+//	return nullptr;
+//}
 
 shared_ptr<a3d::Material> GlTFImporter::materialFromGlTFPrimitive(fastgltf::Asset& asset,
 																  fastgltf::Primitive& primitive) {
@@ -687,48 +816,37 @@ shared_ptr<a3d::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset
 
 			A3D_LOG_D("Importing image '{}'...", image.name);
 
-			auto a3dImage = std::visit([&asset](auto&& dataSource) -> shared_ptr<Image> {
-
-				using T = std::decay_t<decltype(dataSource)>;
-
-				if constexpr (std::is_same_v<T, sources::Vector>) { // .gltf
-
-					A3D_LOG_D("Creating texture image...");
-
-					auto uint8Vec = dataSource.bytes;
-					auto a3dBuffer = make_unique<a3d::Buffer>(reinterpret_cast<std::byte*>(uint8Vec.data()), uint8Vec.size());
-					return make_shared<a3d::Image>(std::move(a3dBuffer), false);
-				}
-				else if constexpr (std::is_same_v<T, sources::BufferView>) { // .glb
-
-					auto bufferViewIndex = dataSource.bufferViewIndex;
-					auto& bufferView = asset.bufferViews[bufferViewIndex];
-
-					if (auto byteStride = bufferView.byteStride) { // TODO: is this unpacked for us?
-
-						A3D_LOG_W("Texture buffer has stride: {}.  Skipping.", *(bufferView.byteStride));
-						return nullptr;
-					}
-					else {
-						A3D_LOG_D("Creating texture image...");
-
-						auto buffer = asset.buffers[bufferView.bufferIndex];
-						auto byteOffset = bufferView.byteOffset;
-						auto byteLength = bufferView.byteLength;
-
-						if (auto uint8Vec = std::get_if<sources::Vector>(&buffer.data))
-						{
-							auto a3dBuffer = make_unique<a3d::Buffer>(reinterpret_cast<std::byte*>(&uint8Vec[byteOffset]), byteLength);
-							return make_shared<a3d::Image>(std::move(a3dBuffer), false);
-						}
-						else {
-							A3D_LOG_W("Unexpected texture data.");
-							return nullptr;
-						}
-
-//						if (auto bufferData = buffer.data; holds_alternative<sources::Vector>(bufferData)) {
+//			auto a3dImage = std::visit([&asset](auto&& dataSource) -> shared_ptr<Image> {
 //
-//							auto uint8Vec = get<sources::Vector>(bufferData).bytes;
+//				using T = std::decay_t<decltype(dataSource)>;
+//
+//				if constexpr (std::is_same_v<T, sources::Vector>) { // .gltf
+//
+//					A3D_LOG_D("Creating texture image...");
+//
+//					auto uint8Vec = dataSource.bytes;
+//					auto a3dBuffer = make_unique<a3d::Buffer>(reinterpret_cast<std::byte*>(uint8Vec.data()), uint8Vec.size());
+//					return make_shared<a3d::Image>(std::move(a3dBuffer), false);
+//				}
+//				else if constexpr (std::is_same_v<T, sources::BufferView>) { // .glb
+//
+//					auto bufferViewIndex = dataSource.bufferViewIndex;
+//					auto& bufferView = asset.bufferViews[bufferViewIndex];
+//
+//					if (auto byteStride = bufferView.byteStride) { // TODO: is this unpacked for us?
+//
+//						A3D_LOG_W("Texture buffer has stride: {}.  Skipping.", *(bufferView.byteStride));
+//						return nullptr;
+//					}
+//					else {
+//						A3D_LOG_D("Creating texture image...");
+//
+//						auto buffer = asset.buffers[bufferView.bufferIndex];
+//						auto byteOffset = bufferView.byteOffset;
+//						auto byteLength = bufferView.byteLength;
+//
+//						if (auto uint8Vec = std::get_if<sources::Vector>(&buffer.data))
+//						{
 //							auto a3dBuffer = make_unique<a3d::Buffer>(reinterpret_cast<std::byte*>(&uint8Vec[byteOffset]), byteLength);
 //							return make_shared<a3d::Image>(std::move(a3dBuffer), false);
 //						}
@@ -736,17 +854,70 @@ shared_ptr<a3d::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset
 //							A3D_LOG_W("Unexpected texture data.");
 //							return nullptr;
 //						}
+//
+////						if (auto bufferData = buffer.data; holds_alternative<sources::Vector>(bufferData)) {
+////
+////							auto uint8Vec = get<sources::Vector>(bufferData).bytes;
+////							auto a3dBuffer = make_unique<a3d::Buffer>(reinterpret_cast<std::byte*>(&uint8Vec[byteOffset]), byteLength);
+////							return make_shared<a3d::Image>(std::move(a3dBuffer), false);
+////						}
+////						else {
+////							A3D_LOG_W("Unexpected texture data.");
+////							return nullptr;
+////						}
+//					}
+//				}
+//				else if constexpr (std::is_same_v<T, std::monostate>) {
+//
+//					A3D_LOG_W("Unexpected texture data.");
+//					return nullptr;
+//				}
+//
+//				return nullptr;
+//
+//			}, dataSource);
+
+			auto a3dImage = std::visit(fastgltf::visitor{
+					[&](const fastgltf::sources::Vector& v) -> std::shared_ptr<a3d::Image> {
+						auto bytes = std::span<const std::byte>(v.bytes.data(), v.bytes.size());
+						auto a3dBuffer = std::make_unique<a3d::Buffer>(
+								const_cast<std::byte*>(bytes.data()), bytes.size()); // ideally make Buffer accept const
+						return std::make_shared<a3d::Image>(std::move(a3dBuffer), false);
+					},
+					[&](const fastgltf::sources::BufferView& bvSrc) -> std::shared_ptr<a3d::Image> {
+						auto bytes = BytesFromBufferView(asset, bvSrc.bufferViewIndex);
+						if (bytes.empty()) {
+							A3D_LOG_W("Unexpected/empty BufferView image data.");
+							return nullptr;
+						}
+
+						auto a3dBuffer = std::make_unique<a3d::Buffer>(
+								const_cast<std::byte*>(bytes.data()), bytes.size());
+						return std::make_shared<a3d::Image>(std::move(a3dBuffer), false);
+					},
+					[&](const fastgltf::sources::Array& a) -> std::shared_ptr<a3d::Image> {
+						auto bytes = std::span<const std::byte>(a.bytes.data(), a.bytes.size());
+						auto a3dBuffer = std::make_unique<a3d::Buffer>(
+								const_cast<std::byte*>(bytes.data()), bytes.size());
+						return std::make_shared<a3d::Image>(std::move(a3dBuffer), false);
+					},
+					[&](const fastgltf::sources::ByteView& bv) -> std::shared_ptr<a3d::Image> {
+						auto bytes = std::span<const std::byte>(bv.bytes.data(), bv.bytes.size());
+						auto a3dBuffer = std::make_unique<a3d::Buffer>(
+								const_cast<std::byte*>(bytes.data()), bytes.size());
+						return std::make_shared<a3d::Image>(std::move(a3dBuffer), false);
+					},
+					[&](const fastgltf::sources::URI&) -> std::shared_ptr<a3d::Image> {
+						// If you pass Options::LoadExternalImages, you usually won't see URI here,
+						// but keep this log because it indicates you didn’t load image bytes.
+						A3D_LOG_W("Image is still a URI; enable Options::LoadExternalImages (and provide base dir).");
+						return nullptr;
+					},
+					[&](const auto&) -> std::shared_ptr<a3d::Image> {
+						A3D_LOG_W("Unsupported image DataSource.");
+						return nullptr;
 					}
-				}
-				else if constexpr (std::is_same_v<T, std::monostate>) {
-
-					A3D_LOG_W("Unexpected texture data.");
-					return nullptr;
-				}
-
-				return nullptr;
-
-			}, dataSource);
+			}, image.data);
 
 			if (a3dImage) _images[*imageIndex] = a3dImage;
 			return a3dImage;
@@ -857,14 +1028,12 @@ fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options) {
 	// TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
 
 	if ((options & SceneImportOptions::ImportMeshes) != SceneImportOptions::None) {
-		gltfOptions |= Options::LoadGLBBuffers
-					   | Options::LoadExternalBuffers
+		gltfOptions |= Options::LoadExternalBuffers
 					   | Options::GenerateMeshIndices;
 	}
 
 	if ((options & SceneImportOptions::ImportMaterials) != SceneImportOptions::None) {
-		gltfOptions |= Options::LoadGLBBuffers
-					   | Options::LoadExternalBuffers
+		gltfOptions |= Options::LoadExternalBuffers
 					   | Options::LoadExternalImages;
 	}
 
@@ -879,88 +1048,150 @@ fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options) {
 	return gltfOptions;
 }
 
-mat4 TransformFromGlTFNode(fastgltf::Node& node) {
-
-	auto transform = node.transform;
-
-
-	return std::visit([&node](auto&& transform) -> mat4 {
-
-		using T = std::decay_t<decltype(transform)>;
-
-		if constexpr (std::is_same_v<T, fastgltf::Node::TRS>) {
-
-			//auto trs = get<fastgltf::Node::TRS>(transform);
-			const auto& id4 = mat4(1.0);
-
-			auto t = translate(id4, { transform.translation[0],
-										   transform.translation[1],
-										   transform.translation[2] });
-
-			auto r = mat4_cast(quat{ transform.rotation[3],
-										  transform.rotation[0],
-										  transform.rotation[1],
-										  transform.rotation[2] });
-
-			auto s = scale(id4, { transform.scale[0],
-									   transform.scale[1],
-									   transform.scale[2] });
-
-			return t * r * s;
-		}
-		else if constexpr (std::is_same_v<T, fastgltf::Node::TransformMatrix>) {
-
-			//auto matrix = get<fastgltf::Node::TransformMatrix>(transform);
-			return make_mat4(&transform[0]);
-		}
-		else {
-			A3D_LOG_W("No transform associated with node: {}", node.name);
-		}
-
-		return mat4(1.0);
-
-	}, transform);
-
-
-//	if (holds_alternative<fastgltf::Node::TRS>(transform)) {
-//
-//		auto trs = get<fastgltf::Node::TRS>(transform);
-//		const auto& id4 = mat4(1.0);
-//
-//		auto t = translate(id4, { trs.translation[0],
-//									   trs.translation[1],
-//									   trs.translation[2] });
-//
-//		auto r = mat4_cast(quat{ trs.rotation[3],
-//									  trs.rotation[0],
-//									  trs.rotation[1],
-//									  trs.rotation[2] });
-//
-//		auto s = scale(id4, { trs.scale[0],
-//								   trs.scale[1],
-//								   trs.scale[2] });
-//
-//		return t * r * s;
-//	}
-//	else if (holds_alternative<fastgltf::Node::TransformMatrix>(transform)) {
-//
-//		auto matrix = get<fastgltf::Node::TransformMatrix>(transform);
-//		return make_mat4(&matrix[0]);
-//	}
-//	else {
-//		A3D_LOG_W("No transform associated with node: {}", node.name);
-//	}
-//
-//	return mat4(1.0);
+static std::span<const byte> BytesFromDataSource(const DataSource& src) {
+	return std::visit(visitor {
+			[](const sources::Vector& v) -> std::span<const byte> {
+				return { v.bytes.data(), v.bytes.size() };
+			},
+			[](const fastgltf::sources::Array& a) -> std::span<const byte> {
+				return { a.bytes.data(), a.bytes.size() };
+			},
+			[](const sources::ByteView& bv) -> std::span<const byte> {
+				// In newer fastgltf, ByteView is commonly used by mapped-file loaders.
+				// Most builds expose it as a (ptr,len) pair or span-like member; adjust field names if needed.
+				return { bv.bytes.data(), bv.bytes.size() };
+			},
+			[](const auto&) -> std::span<const byte> {
+				return {};
+			}
+	}, src);
 }
 
-shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 3>& arr) {
+static std::span<const byte> BytesFromBufferView(const Asset& asset, size_t bufferViewIndex) {
+	const auto& bv = asset.bufferViews[bufferViewIndex];
+	const auto& buf = asset.buffers[bv.bufferIndex];
 
+	auto base = BytesFromDataSource(buf.data);
+	if (base.empty()) return {};
+
+	const std::size_t begin = bv.byteOffset;
+	const std::size_t len   = bv.byteLength;
+
+	if (begin + len > base.size()) return {};
+	return base.subspan(begin, len);
+}
+
+
+//mat4 TransformFromGlTFNode(fastgltf::Node& node) {
+//
+//	auto transform = node.transform;
+//
+//
+//	return std::visit([&node](auto&& transform) -> mat4 {
+//
+//		using T = std::decay_t<decltype(transform)>;
+//
+//		if constexpr (std::is_same_v<T, fastgltf::Node::TRS>) {
+//
+//			//auto trs = get<fastgltf::Node::TRS>(transform);
+//			const auto& id4 = mat4(1.0);
+//
+//			auto t = translate(id4, { transform.translation[0],
+//										   transform.translation[1],
+//										   transform.translation[2] });
+//
+//			auto r = mat4_cast(quat{ transform.rotation[3],
+//										  transform.rotation[0],
+//										  transform.rotation[1],
+//										  transform.rotation[2] });
+//
+//			auto s = scale(id4, { transform.scale[0],
+//									   transform.scale[1],
+//									   transform.scale[2] });
+//
+//			return t * r * s;
+//		}
+//		else if constexpr (std::is_same_v<T, fastgltf::Node::TransformMatrix>) {
+//
+//			//auto matrix = get<fastgltf::Node::TransformMatrix>(transform);
+//			return make_mat4(&transform[0]);
+//		}
+//		else {
+//			A3D_LOG_W("No transform associated with node: {}", node.name);
+//		}
+//
+//		return mat4(1.0);
+//
+//	}, transform);
+//
+//
+////	if (holds_alternative<fastgltf::Node::TRS>(transform)) {
+////
+////		auto trs = get<fastgltf::Node::TRS>(transform);
+////		const auto& id4 = mat4(1.0);
+////
+////		auto t = translate(id4, { trs.translation[0],
+////									   trs.translation[1],
+////									   trs.translation[2] });
+////
+////		auto r = mat4_cast(quat{ trs.rotation[3],
+////									  trs.rotation[0],
+////									  trs.rotation[1],
+////									  trs.rotation[2] });
+////
+////		auto s = scale(id4, { trs.scale[0],
+////								   trs.scale[1],
+////								   trs.scale[2] });
+////
+////		return t * r * s;
+////	}
+////	else if (holds_alternative<fastgltf::Node::TransformMatrix>(transform)) {
+////
+////		auto matrix = get<fastgltf::Node::TransformMatrix>(transform);
+////		return make_mat4(&matrix[0]);
+////	}
+////	else {
+////		A3D_LOG_W("No transform associated with node: {}", node.name);
+////	}
+////
+////	return mat4(1.0);
+//}
+
+mat4 TransformFromGlTFNode(fastgltf::Node& node) {
+
+	// fastgltf 0.9: node.transform is not the old nested TRS/TransformMatrix types.
+	// Use the helper that returns a matrix for either representation.
+	const fastgltf::math::fmat4x4 m = fastgltf::getTransformMatrix(node);
+
+	// Convert fastgltf matrix to your mat4.
+	// This matches your old make_mat4(&matrix[0]) pattern, just with 2D indexing.
+	return make_mat4(&m[0][0]);
+}
+
+//shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 3>& arr) {
+//
+//	return make_shared<Color>(vec3{arr[0], arr[1], arr[2]});
+//}
+//
+//shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 4>& arr) {
+//
+//	array<float, 3> rgbArray = {arr[0], arr[1], arr[2]};
+//	return ColorFromGlTFColorArray(rgbArray);
+//}
+
+shared_ptr<a3d::Color> ColorFromGlTFColorArray(const std::array<float, 3>& arr) {
 	return make_shared<Color>(vec3{arr[0], arr[1], arr[2]});
 }
 
-shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 4>& arr) {
+shared_ptr<a3d::Color> ColorFromGlTFColorArray(const std::array<float, 4>& arr) {
+	return make_shared<Color>(vec3{arr[0], arr[1], arr[2]});
+}
 
-	array<float, 3> rgbArray = {arr[0], arr[1], arr[2]};
-	return ColorFromGlTFColorArray(rgbArray);
+// fastgltf 0.9 math vectors:
+shared_ptr<a3d::Color> ColorFromGlTFColorArray(const fastgltf::math::nvec3& v) {
+	return make_shared<Color>(vec3{v[0], v[1], v[2]});
+}
+
+shared_ptr<a3d::Color> ColorFromGlTFColorArray(const fastgltf::math::nvec4& v) {
+	return make_shared<Color>(vec3{v[0], v[1], v[2]});
 }
