@@ -235,58 +235,6 @@ vec3 Mesh::extent(const Node* convertTo) const {
 			 aabb.max.z - aabb.min.z };
 }
 
-//const vector<Line>& Mesh::aabbLines(bool& dirty) {
-//
-//	if (A3D_MASK_CONTAINS(_dirtyMask, MeshDirtyMask::AABBLines)) {
-//
-//		A3D_LOG_T("Creating AABB Lines for Mesh {:p}...", static_cast<void*>(this));
-//
-//		auto aabb = Mesh::aabb();
-//
-//		float xMin = aabb.min.x;
-//		float xMax = aabb.max.x;
-//		float yMin = aabb.min.y;
-//		float yMax = aabb.max.y;
-//		float zMin = aabb.min.z;
-//		float zMax = aabb.max.z;
-//
-//		vec3 one = 		{xMin, yMax, zMin};
-//		vec3 two =      {xMin, yMax, zMax};
-//		vec3 three =    {xMax, yMax, zMax};
-//		vec3 four =     {xMax, yMax, zMin};
-//		vec3 five =     {xMin, yMin, zMin};
-//		vec3 six =      {xMin, yMin, zMax};
-//		vec3 seven =    {xMax, yMin, zMax};
-//		vec3 eight =    {xMax, yMin, zMin};
-//
-//		static auto red = Color::Red();
-//
-//		_aabbLines = vector<Line>{
-//			{one, two, red},
-//			{two, three, red},
-//			{three, four, red},
-//			{four, one, red},
-//			{five, six, red},
-//			{six, seven, red},
-//			{seven, eight, red},
-//			{eight, five, red},
-//			{one, five, red},
-//			{two, six, red},
-//			{three, seven, red},
-//			{four, eight, red}
-//		};
-//
-//		dirty = true;
-//
-//		_dirtyMask = A3D_MASK_REMOVE(_dirtyMask, MeshDirtyMask::AABBLines);
-//	}
-//	else {
-//		dirty = false;
-//	}
-//
-//	return _aabbLines;
-//}
-
 const vector<Line>& Mesh::aabbLines() {
 
 	if (A3D_MASK_CONTAINS(_dirtyMask, MeshDirtyMask::AABBLines)) {
