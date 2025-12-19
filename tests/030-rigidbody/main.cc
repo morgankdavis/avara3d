@@ -319,6 +319,8 @@ int main(int argc, const char* argv[]) {
 		// add the duck
 
 		auto duckNode = Node::MeshNode(utils::MeshNamed("rubber_duck/rubber_duck"));
+//		auto duckNode = Node::MeshNode(utils::MeshNamed("siamese/siamese"));
+//		auto duckNode = Node::MeshNode(utils::MeshNamed("teapot/teapot"));
 		g_duckNode = duckNode.get();
 		duckNode->position({/*4.5*/0, 25, 0});
 

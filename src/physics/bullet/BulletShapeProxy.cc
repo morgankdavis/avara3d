@@ -320,7 +320,7 @@ BTShapeFromMeshElement(MeshElement& element,
 		A3D_LOG_I("Creating box physics shape for MeshElement {:p}...",
 				 static_cast<void*>(&element));
 
-		auto extent = element.extent();
+		auto extent = element.localExtent();
 		return make_unique<btBoxShape>(btVector3((btScalar)extent.x/2.0f,
 												 (btScalar)extent.y/2.0f,
 												 (btScalar)extent.z/2.0f));

@@ -286,6 +286,9 @@ namespace a3d::math {
 	f32 		max(const i32vec3& v);
 	f32 		max(const i32vec4& v);
 
+	f32vec3		min(const f32vec3& a, const f32vec3& b);
+	f32vec3		max(const f32vec3& a, const f32vec3& b);
+
 	i32 		dot(const i32vec2& a, const i32vec2& b);
 	i32 		dot(const i32vec3& a, const i32vec3& b);
 	i32 		dot(const i32vec4& a, const i32vec4& b);
@@ -540,6 +543,7 @@ namespace a3d::math {
 		f32mat3();
 		explicit f32mat3(f32 diag);
 		f32mat3(const f32vec3& c0_, const f32vec3& c1_, const f32vec3& c2_);
+		f32mat3(const f32mat4 &m);
 		f32vec3& operator[](std::size_t i);
 		const f32vec3& operator[](std::size_t i) const;
 	};
@@ -919,8 +923,8 @@ namespace a3d::math {
 	inline constexpr f32 two_over_sqrt_pi()	{ return f32(1.12837916709551257390); }	// 2/sqrt(pi)
 	inline constexpr f32 sqrt2()			{ return f32(1.41421356237309504880); }	// sqrt(2)
 	inline constexpr f32 one_over_sqrt2()	{ return f32(0.70710678118654752440); }	// 1/sqrt(2)
-	inline constexpr f32 f32_min() 			{ return f32(FLT_MIN); }
-	inline constexpr f32 f32_max() 			{ return f32(FLT_MAX); }
+	inline constexpr f32 f32_lowest() 		{ return f32(std::numeric_limits<float>::lowest()); }
+	inline constexpr f32 f32_max() 			{ return f32(std::numeric_limits<float>::max()); }
 }
 
 #endif //AVARA3D_MATH_H

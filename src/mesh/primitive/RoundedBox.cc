@@ -88,6 +88,8 @@ RoundedBox::RoundedBox(float radius,
 	// this orientation is what bullet expects
 	auto xRotation = rotate(mat4(1.0), (float)radians(-90.0), vec3(1.0, 0.0, 0.0));
 	burnTransform(xRotation, true);
+
+	//genLocalAABB(); // ^^ burnTransform() calls genLocalAABB()
 }
 
 /// Public Member Functions ///

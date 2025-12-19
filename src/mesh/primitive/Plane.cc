@@ -65,6 +65,8 @@ Plane::Plane(float width,
 						   unsigned(t.vertices[1]),
 						   unsigned(t.vertices[2]) });
 	}
+
+	genLocalAABB();
 }
 
 /// Public Member Functions ///

@@ -75,6 +75,8 @@ Box::Box(float length,
 						   unsigned(t.vertices[2]) });
 	}
 	std::reverse(_faces.begin(), _faces.end());
+
+	genLocalAABB();
 }
 
 /// Public Member Functions ///

@@ -56,6 +56,8 @@ Sphere::Sphere(float radius,
 						   unsigned(t.vertices[1]),
 						   unsigned(t.vertices[2]) });
 	}
+
+	genLocalAABB();
 }
 
 /// Public Member Functions ///

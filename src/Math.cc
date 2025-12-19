@@ -381,6 +381,11 @@ namespace a3d::math {
 	f32mat3::f32mat3(const f32vec3& c0_, const f32vec3& c1_, const f32vec3& c2_):
 			c0{c0_}, c1{c1_}, c2{c2_} {}
 
+	f32mat3::f32mat3(const f32mat4 &m) :
+			c0{m.c0.x, m.c0.y, m.c0.z},
+			c1{m.c1.x, m.c1.y, m.c1.z},
+			c2{m.c2.x, m.c2.y, m.c2.z} {}
+
 	f32vec3& f32mat3::operator[](std::size_t i) {
 		assert(i < 3);
 		return (&c0)[i];
@@ -962,6 +967,14 @@ namespace a3d::math {
 
 	f32 max(const i32vec4& v) {
 		return math::max(math::max(v.x, v.y), math::max(v.z, v.w));
+	}
+
+	f32vec3 min(const f32vec3& a, const f32vec3& b) {
+		return { math::min(a.x,b.x), math::min(a.y,b.y), math::min(a.z,b.z) };
+	}
+
+	f32vec3 max(const f32vec3& a, const f32vec3& b) {
+		return { math::max(a.x,b.x), math::max(a.y,b.y), math::max(a.z,b.z) };
 	}
 
 	i32 dot(const i32vec2 &a, const i32vec2 &b) {

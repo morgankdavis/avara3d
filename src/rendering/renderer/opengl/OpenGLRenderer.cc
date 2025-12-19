@@ -166,10 +166,10 @@ static void 		GetMeshElementGLVertexDataHandles(MeshElement& element,
 static void 		GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
 												OpenGLRenderer::MeshElementGLMapping& glMapping,
 												GLuint& glVBO, GLuint& glVAO, GLuint& glEBO);
-static void 		GetLinesVertexDataHandles(const vector<Line>& lines,
-											 Program& program,
-											 OpenGLRenderer::LinesGLMapping& glMapping,
-											 GLuint& glVBO, GLuint& glVAO);
+//static void 		GetLinesVertexDataHandles(const vector<Line>& lines,`
+//											 Program& program,
+//											 OpenGLRenderer::LinesGLMapping& glMapping,
+//											 GLuint& glVBO, GLuint& glVAO);
 static void 		GetTextureGLTextureHandles(Material& material,
 											  OpenGLRenderer::TextureGLMapping& glMapping,
 											  unordered_set<Texture*>& activeTextures,
@@ -545,7 +545,8 @@ void OpenGLRenderer::render(Mesh& mesh,
 							FrameStats& stats) {
 
 	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
-		render(mesh.aabbLines(), context, modelMat, viewMat, projectionMat);
+		render(mesh.obbLines(), context, modelMat, viewMat, projectionMat);
+		render(mesh.worldAabbLines(modelMat, false), context, mat4(1.0), viewMat, projectionMat);
 	}
 }
 
@@ -606,41 +607,97 @@ void OpenGLRenderer::render(MeshElement& element,
 //		render(element.aabbLines(), modelMat, viewMat, projectionMat);
 //	}
 }
-	
+
+void OpenGLRenderer::EnsureDebugLinesBuffers(Program& program) {
+	if (_dbgLinesVBO != 0) return;
+
+	glGenBuffers(1, &_dbgLinesVBO);
+	glGenVertexArrays(1, &_dbgLinesVAO);
+
+	glBindVertexArray(_dbgLinesVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, _dbgLinesVBO);
+
+	const unsigned POSITION_LOCATION = 0;
+	const unsigned COLOR_LOCATION = 1;
+
+	glVertexAttribPointer(POSITION_LOCATION, 3, GL_FLOAT, GL_FALSE, sizeof(vec3)*2, (void*)0);
+	glEnableVertexAttribArray(POSITION_LOCATION);
+
+	glVertexAttribPointer(COLOR_LOCATION, 3, GL_FLOAT, GL_FALSE, sizeof(vec3)*2, (void*)sizeof(vec3));
+	glEnableVertexAttribArray(COLOR_LOCATION);
+}
+
 void OpenGLRenderer::render(const std::vector<Line>& lines,
 							const RenderContext& context,
 							const mat4& modelMat,
 							const mat4& viewMat,
 							const mat4& projectionMat) {
-	
-	auto program = Program::Lines();
-	
-	// check and load vertex data if necessary
-	
-	GLuint vbo, vao;
-	GetLinesVertexDataHandles(lines,
-							  program,
-							  _linesGLMapping,
-							  vbo, vao);
 
-	// configure OpenGL state
+	auto program = Program::Lines();
+
+	EnsureDebugLinesBuffers(program);
+
+	vector<vec3> buf;
+	buf.reserve(lines.size() * 4);
+	for (const auto& line : lines) {
+		buf.push_back(line.fromLocation());
+		buf.push_back(line.fromColor().rgb());
+		buf.push_back(line.toLocation());
+		buf.push_back(line.toColor().rgb());
+	}
 
 	SetLinesGLState();
-	
-	// update
 
-	DrawLines(lines,
-			  program,
-			  modelMat, viewMat, projectionMat,
-			  vao);
-	
-	// save reference for housekeeping
+	program.use();
+	program.setUniform("modelMat", modelMat);
+	program.setUniform("viewMat", viewMat);
+	program.setUniform("projMat", projectionMat);
 
-	// TODO: this is slow
-//	for (auto line : lines) {
-		_activeLines.insert(&lines);
-//	}
+	glBindVertexArray(_dbgLinesVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, _dbgLinesVBO);
+
+	glBufferData(GL_ARRAY_BUFFER,
+				 (GLsizeiptr)(buf.size() * sizeof(vec3)),
+				 buf.data(),
+				 GL_DYNAMIC_DRAW);
+
+	glDrawArrays(GL_LINES, 0, (GLsizei)lines.size() * 2);
 }
+
+//void OpenGLRenderer::render(const std::vector<Line>& lines,
+//							const RenderContext& context,
+//							const mat4& modelMat,
+//							const mat4& viewMat,
+//							const mat4& projectionMat) {
+//
+//	auto program = Program::Lines();
+//
+//	// check and load vertex data if necessary
+//
+//	GLuint vbo, vao;
+//	GetLinesVertexDataHandles(lines,
+//							  program,
+//							  _linesGLMapping,
+//							  vbo, vao);
+//
+//	// configure OpenGL state
+//
+//	SetLinesGLState();
+//
+//	// update
+//
+//	DrawLines(lines,
+//			  program,
+//			  modelMat, viewMat, projectionMat,
+//			  vao);
+//
+//	// save reference for housekeeping
+//
+//	// TODO: this is slow
+////	for (auto line : lines) {
+//		_activeLines.insert(&lines);
+////	}
+//}
 
 unique_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 
@@ -792,23 +849,23 @@ void GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
 	}
 }
 
-void GetLinesVertexDataHandles(const vector<Line>& lines,
-							   Program& program,
-							   OpenGLRenderer::LinesGLMapping& glMapping,
-							   GLuint& glVBO, GLuint& glVAO) {
-
-	if (!glMapping.count(&lines)) {
-
-		BufferLinesVertexData(lines, program, glVBO, glVAO);
-
-		glMapping[&lines] = make_pair(glVBO, glVAO);
-	}
-	else {
-		auto mapping = glMapping[&lines];
-		glVBO = get<0>(mapping);
-		glVAO = get<1>(mapping);
-	}
-}
+//void GetLinesVertexDataHandles(const vector<Line>& lines,
+//							   Program& program,
+//							   OpenGLRenderer::LinesGLMapping& glMapping,
+//							   GLuint& glVBO, GLuint& glVAO) {
+//
+//	if (!glMapping.count(&lines)) {
+//
+//		BufferLinesVertexData(lines, program, glVBO, glVAO);
+//
+//		glMapping[&lines] = make_pair(glVBO, glVAO);
+//	}
+//	else {
+//		auto mapping = glMapping[&lines];
+//		glVBO = get<0>(mapping);
+//		glVAO = get<1>(mapping);
+//	}
+//}
 
 void GetTextureGLTextureHandles(Material& material,
 								OpenGLRenderer::TextureGLMapping& glMapping,
@@ -1796,7 +1853,7 @@ void DrawLines(const vector<Line>& lines,
 	// update
 	
 	glBindVertexArray(glVAO);
-	glDrawArrays(GL_LINES, 0, (GLsizei)lines.size() * 4);
+	glDrawArrays(GL_LINES, 0, (GLsizei)lines.size() * 2);
 }
 
 void CleanupMeshElementResources(unordered_set<MeshElement*>& active,

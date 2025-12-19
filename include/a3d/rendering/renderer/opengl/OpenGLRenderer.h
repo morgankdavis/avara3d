@@ -28,6 +28,7 @@ namespace a3d {
 	class MeshElement;
 	class Line;
 //	class OpenGLDrawItem;
+	class Program; // TEMPROARY
 	class Texture;
 	
 	class OpenGLRenderer : public Renderer {
@@ -135,6 +136,12 @@ namespace a3d {
 		ImFont*											_overlayBodyImFont;
 //		std::vector<OpenGLDrawItem> 					_drawItems;
 		OpenGLDrawTimer									_drawTimer;
+
+
+
+		void EnsureDebugLinesBuffers(Program& program);
+		unsigned _dbgLinesVBO = 0;
+		unsigned _dbgLinesVAO = 0;
 	};
 }
 

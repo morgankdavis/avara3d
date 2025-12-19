@@ -732,8 +732,8 @@ bool Node::containsChild(const shared_ptr<Node>& node) {
 
 AABB Node::aabb() {
 
-	static const float maxFloat = numeric_limits<float>::max();
-	static const float minFloat = numeric_limits<float>::min();
+	static const float maxFloat = math::f32_max();//flnumeric_limits<float>::max();
+	static const float minFloat = math::f32_lowest();//numeric_limits<float>::min();
 
 	AABB aabb = { {maxFloat, maxFloat, maxFloat},
 				  {minFloat, minFloat, minFloat} };
@@ -854,7 +854,7 @@ void Node::_debugPrintRec(Node& node,
 void Node::getAABBRec(AABB& aabb) {
 
 	if (_mesh) {
-		auto geoAABB = _mesh->aabb(this);
+		auto geoAABB = _mesh->localAABB();
 		aabb.min.x = math::min(aabb.min.x, geoAABB.min.x);
 		aabb.max.x = math::max(aabb.max.x, geoAABB.max.x);
 		aabb.min.y = math::min(aabb.min.y, geoAABB.min.y);
