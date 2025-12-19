@@ -338,7 +338,7 @@ namespace fastgltf::math {
 	/** Computes the euclidean length of this vector */
 	FASTGLTF_EXPORT template <typename T, std::size_t N>
 	[[nodiscard]] T length(const vec<T, N>& v) noexcept {
-		return sqrt(dot(v, v));
+		return std::sqrt(dot(v, v));
 	}
 
 	/** Normalizes the vector to have a length of 1 */
@@ -565,7 +565,7 @@ namespace fastgltf::math {
 	/** Normalizes the quaternion to have a length of 1 */
 	FASTGLTF_EXPORT template <typename T>
 	[[nodiscard]] auto normalize(const quat<T>& q) noexcept {
-		return q / sqrt(dot(q, q));
+		return q / std::sqrt(dot(q, q));
 	}
 
 	/** Spherical interpolation of two quaternions */
@@ -937,10 +937,10 @@ namespace fastgltf::math {
 			max(.0f, 1.f - matrix[0][0] - matrix[1][1] + matrix[2][2]),
 			max(.0f, 1.f + matrix[0][0] + matrix[1][1] + matrix[2][2])
 		);
-		rotation.x() = static_cast<float>(sqrt(static_cast<double>(rotation.x()))) / 2;
-		rotation.y() = static_cast<float>(sqrt(static_cast<double>(rotation.y()))) / 2;
-		rotation.z() = static_cast<float>(sqrt(static_cast<double>(rotation.z()))) / 2;
-		rotation.w() = static_cast<float>(sqrt(static_cast<double>(rotation.w()))) / 2;
+		rotation.x() = static_cast<float>(std::sqrt(static_cast<double>(rotation.x()))) / 2;
+		rotation.y() = static_cast<float>(std::sqrt(static_cast<double>(rotation.y()))) / 2;
+		rotation.z() = static_cast<float>(std::sqrt(static_cast<double>(rotation.z()))) / 2;
+		rotation.w() = static_cast<float>(std::sqrt(static_cast<double>(rotation.w()))) / 2;
 
 		rotation.x() = std::copysignf(rotation.x(), matrix[1][2] - matrix[2][1]);
 		rotation.y() = std::copysignf(rotation.y(), matrix[2][0] - matrix[0][2]);
