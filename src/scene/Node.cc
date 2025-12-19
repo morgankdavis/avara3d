@@ -732,8 +732,8 @@ bool Node::containsChild(const shared_ptr<Node>& node) {
 
 AABB Node::aabb() {
 
-	static const float maxFloat = math::f32_max();//flnumeric_limits<float>::max();
-	static const float minFloat = math::f32_lowest();//numeric_limits<float>::min();
+	static const float maxFloat = math::f32_max();
+	static const float minFloat = math::f32_lowest();
 
 	AABB aabb = { {maxFloat, maxFloat, maxFloat},
 				  {minFloat, minFloat, minFloat} };

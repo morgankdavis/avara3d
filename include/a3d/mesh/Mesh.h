@@ -86,21 +86,20 @@ namespace a3d {
 										 const DebugOptions& debugOptions,
 										 FrameStats& stats);
 
-		AABB						obb() const;
-		void						genLocalAABB();
 		AABB						localAABB() const;
 		AABB						worldAABB(const AABB& local,
 											  const math::mat4& worldMat,
 											  bool vertfit) const;
 //		math::vec3 					extent(const Node* convertTo = nullptr) const;
 
-		std::vector<Line>			obbLines();
-		std::vector<Line>			worldAabbLines(const math::mat4& worldMat, bool vertfit);
-
 		MeshDirtyMask 				dirtyMask() const;
 		void 						dirtyMask(MeshDirtyMask mask);
 
 	protected:
+		/// Protected Member Functions ///
+
+		void						genLocalAABB();
+
 		/// Protected Member Variables ///
 
 		std::vector<std::unique_ptr<MeshElement>>	_elements;
@@ -114,10 +113,8 @@ namespace a3d {
 		/// Private Member Variables ///
 
 		std::optional<std::string>	_name;
-//		std::vector<Line>			_aabbLines;
-		MeshDirtyMask				_dirtyMask;
-
 		AABB						_localAABB;
+		MeshDirtyMask				_dirtyMask;
 	};
 }
 

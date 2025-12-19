@@ -215,6 +215,7 @@ static void 		DrawSkyboxElement(MeshElement& element,
 									 Program& program,
 									 Node& pointOfView,
 									 GLuint vao, GLuint ebo);
+vector<Line> 		AABBLines(const AABB& aabb, Color color);
 static void 		DrawLines(const vector<Line>& lines,
 							 Program& program,
 							 const mat4& modelMat,
@@ -545,8 +546,16 @@ void OpenGLRenderer::render(Mesh& mesh,
 							FrameStats& stats) {
 
 	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
-		render(mesh.obbLines(), context, modelMat, viewMat, projectionMat);
-		render(mesh.worldAabbLines(modelMat, false), context, mat4(1.0), viewMat, projectionMat);
+
+		auto localAABB = mesh.localAABB();
+
+		// notice identity modelMat
+		auto worldLines = AABBLines(mesh.worldAABB(localAABB, modelMat, false), *Color::Red());
+		render(worldLines, context, mat4(1.0), viewMat, projectionMat);
+
+		// multiplying local AABB by modelMat creates OBB
+		auto localLines = AABBLines(localAABB, *Color::Gray());
+		render(localLines, context, modelMat, viewMat, projectionMat);
 	}
 }
 
@@ -1832,6 +1841,38 @@ void DrawSkyboxElement(MeshElement& element,
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	auto numFaces = faces.size();
 	glDrawElements(GL_TRIANGLES, (GLsizei)numFaces*3, GL_UNSIGNED_INT, nullptr);
+}
+
+vector<Line> AABBLines(const AABB& aabb, Color color) {
+
+	float xMin = aabb.min.x;
+	float xMax = aabb.max.x;
+	float yMin = aabb.min.y;
+	float yMax = aabb.max.y;
+	float zMin = aabb.min.z;
+	float zMax = aabb.max.z;
+
+	vec3 one = 		{xMin, yMax, zMin};
+	vec3 two =      {xMin, yMax, zMax};
+	vec3 three =    {xMax, yMax, zMax};
+	vec3 four =     {xMax, yMax, zMin};
+	vec3 five =     {xMin, yMin, zMin};
+	vec3 six =      {xMin, yMin, zMax};
+	vec3 seven =    {xMax, yMin, zMax};
+	vec3 eight =    {xMax, yMin, zMin};
+
+	return vector<Line>{ {one, two, color},
+						 {two, three, color},
+						 {three, four, color},
+						 {four, one, color},
+						 {five, six, color},
+						 {six, seven, color},
+						 {seven, eight, color},
+						 {eight, five, color},
+						 {one, five, color},
+						 {two, six, color},
+						 {three, seven, color},
+						 {four, eight, color} };
 }
 
 void DrawLines(const vector<Line>& lines,

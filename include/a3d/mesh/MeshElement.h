@@ -56,17 +56,17 @@ namespace a3d {
 		const std::vector<Vertex>& 		vertices() const;
 		const std::vector<Face>&		faces() const;
 
-//		AABB							aabb(const Node* convertTo = nullptr) const;
-		void							genLocalAABB();
 		AABB							localAABB() const;
 		math::vec3 						localExtent() const;
-
-//		const std::vector<Line>&		aabbLines();
 
 		MeshElementDirtyMask 			dirtyMask() const;
 		void 							dirtyMask(MeshElementDirtyMask mask);
 
 	protected:
+		/// Protected Member Functions ///
+
+		void							genLocalAABB();
+
 		/// Protected Lifecycle ///
 
 		MeshElement();
@@ -75,10 +75,8 @@ namespace a3d {
 
 		std::vector<Vertex>				_vertices;
 		std::vector<Face>				_faces;
-//		std::vector<Line>				_aabbLines;
-		MeshElementDirtyMask			_dirtyMask;
-
 		AABB							_localAABB;
+		MeshElementDirtyMask			_dirtyMask;
 	};
 }
 
