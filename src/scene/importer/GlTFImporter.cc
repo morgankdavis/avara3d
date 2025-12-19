@@ -13,10 +13,8 @@
 #include <utility>
 #include <variant>
 
-// TODO: clean up
 #include <fastgltf/core.hpp>
 #include "fastgltf/math.hpp"
-//#include <fastgltf/parser.hpp>
 #include <fastgltf/tools.hpp>
 #include <fastgltf/types.hpp>
 #include "fastgltf/util.hpp"
@@ -45,19 +43,15 @@
 #include "a3d/Utilities.h"
 
 using namespace a3d;
-using namespace fastgltf;
 using namespace a3d::math;
 using namespace std;
 
 /// Private Static Non-Member Prototypes ///
 
 static fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options);
-static std::span<const byte> BytesFromDataSource(const DataSource& src);
-static std::span<const byte> BytesFromBufferView(const Asset& asset, size_t bufferViewIndex);
+static std::span<const byte> BytesFromDataSource(const fastgltf::DataSource& src);
+static std::span<const byte> BytesFromBufferView(const fastgltf::Asset& asset, size_t bufferViewIndex);
 static mat4 TransformFromGlTFNode(fastgltf::Node& node);
-//static shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 3>& arr);
-//static shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 4>& arr);
-// NEW for fastgltf 0.9:
 static shared_ptr<a3d::Color> ColorFromGlTFColorArray(const fastgltf::math::nvec3& v);
 static shared_ptr<a3d::Color> ColorFromGlTFColorArray(const fastgltf::math::nvec4& v);
 
@@ -172,6 +166,8 @@ SceneImportOptions GlTFImporter::options() const {
 
 bool GlTFImporter::parse() {
 
+	using namespace fastgltf;
+
 	if (!_parsed) {
 
 		auto startTime = utils::chrono::Time();
@@ -184,60 +180,21 @@ bool GlTFImporter::parse() {
 						  | Extensions::KHR_texture_transform;
 		auto parser = Parser(extensions);
 
-//		auto extension = _path.extension();
-		auto directory = _path.parent_path();
-
-		auto options = GlTFOptionsFromImportOptions(_options);
-
-		auto gltfFile = fastgltf::MappedGltfFile::FromPath(_path);
+		auto gltfFile = MappedGltfFile::FromPath(_path);
 		if (!bool(gltfFile)) {
-			std::cerr << "Failed to open glTF file: " << fastgltf::getErrorMessage(gltfFile.error()) << '\n';
+			A3D_LOG_E("Failed to open glTF file: {}", getErrorMessage(gltfFile.error()));
 			return false;
 		}
 
+		auto directory = _path.parent_path();
+		auto options = GlTFOptionsFromImportOptions(_options);
 		auto asset = parser.loadGltf(gltfFile.get(), directory, options);
 		if (asset.error() != fastgltf::Error::None) {
-			std::cerr << "Failed to load glTF: " << fastgltf::getErrorMessage(asset.error()) << '\n';
+			A3D_LOG_E("Failed to load glTF {}", getErrorMessage(asset.error()));
 			return false;
 		}
 
 		_asset = std::move(asset.get());
-
-
-//		GltfDataBuffer data;
-//		data.loadFromFile(_path);
-//
-//		auto expectedAsset = Expected<Asset>(Error::None);
-//
-//		if (extension == ".gltf") {
-//			expectedAsset = parser.loadGLTF(&data, directory, options);
-//		}
-//		else if (extension == ".glb") {
-//			expectedAsset = parser.loadBinaryGLTF(&data, directory, options);
-//		}
-//		else {
-//			A3D_LOG_E("Unsupported file extension: {}", extension.string());
-//		}
-//
-//		if (auto error = expectedAsset.error(); error == Error::None) {
-//
-//			auto& asset = expectedAsset.get();
-//
-//			if (auto& info = asset.assetInfo) {
-//				A3D_LOG_D("Done parsing glTF.  Version: '{}', Copyright: '{}', Generator: '{}'.  Parse time: {}",
-//						  info->gltfVersion, info->copyright, info->generator, utils::chrono::Time() - startTime);
-//			}
-//			else {
-//				A3D_LOG_D("Done parsing glTF.  Time: {}", utils::chrono::Time() - startTime);
-//			}
-//
-//			_asset = std::move(expectedAsset.get());
-//		}
-//		else {
-//
-//			A3D_LOG_E("Error parsing glTF file: {}", magic_enum::enum_name(error));
-//			return false;
-//		}
 	}
 
 	return true;
@@ -261,9 +218,10 @@ void GlTFImporter::visitGlTFNode(fastgltf::Asset& asset,
 		a3dNode->light(lightFromGlTFNode(asset, node));
 	}
 
-	//if ((_options & SceneImportOptions::ImportCameras) != SceneImportOptions::None) {
+	// (during .6.1 -> .9 migration): this was disabled... why...?
+	if ((_options & SceneImportOptions::ImportCameras) != SceneImportOptions::None) {
 		a3dNode->camera(cameraFromGlTFNode(asset, node));
-	//}
+	}
 
 	for (auto c: node.children) {
 		visitGlTFNode(asset, asset.nodes[c], a3dNode.get());
@@ -318,8 +276,8 @@ shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlTFMeshIndex(fastgltf::Asset& asset
 
 std::unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(
 		fastgltf::Asset& asset,
-		fastgltf::Primitive& primitive)
-{
+		fastgltf::Primitive& primitive) {
+
 	using namespace fastgltf;
 
 	if (primitive.type != PrimitiveType::Triangles) {
@@ -333,10 +291,10 @@ std::unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(
 		return nullptr;
 	}
 
-	const std::size_t posAccessorIndex = posAttr->accessorIndex;
+	const size_t posAccessorIndex = posAttr->accessorIndex;
 	const auto& posAccessor = asset.accessors[posAccessorIndex];
 
-	const std::size_t vertexCount = posAccessor.count;
+	const size_t vertexCount = posAccessor.count;
 	if (vertexCount == 0) {
 		A3D_LOG_W("Primitive has 0 vertices.");
 		return nullptr;
@@ -349,52 +307,53 @@ std::unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(
 		return { v[0], v[1] };
 	};
 
-	std::vector<Vertex> verts(vertexCount);
+	vector<Vertex> verts(vertexCount);
 
-	// Positions
+	// positions
 	iterateAccessorWithIndex<fastgltf::math::fvec3>(
 			asset, posAccessor,
-			[&](fastgltf::math::fvec3 v, std::size_t i) {
+			[&](fastgltf::math::fvec3 v, size_t i) {
 				if (i < verts.size()) verts[i].position = to_vec3(v);
 			}
 	);
 
-	// Normals (optional)
+	// normals
 	if (auto nAttr = primitive.findAttribute("NORMAL"); nAttr) {
 		const auto& nAccessor = asset.accessors[nAttr->accessorIndex];
 		iterateAccessorWithIndex<fastgltf::math::fvec3>(
 				asset, nAccessor,
-				[&](fastgltf::math::fvec3 n, std::size_t i) {
+				[&](fastgltf::math::fvec3 n, size_t i) {
 					if (i < verts.size()) verts[i].normal = to_vec3(n);
 				}
 		);
 	}
 
-	// Texcoords (optional)
+	// texcoords
 	if (auto uvAttr = primitive.findAttribute("TEXCOORD_0"); uvAttr) {
 		const auto& uvAccessor = asset.accessors[uvAttr->accessorIndex];
 		iterateAccessorWithIndex<fastgltf::math::fvec2>(
 				asset, uvAccessor,
-				[&](fastgltf::math::fvec2 uv, std::size_t i) {
+				[&](fastgltf::math::fvec2 uv, size_t i) {
 					if (i < verts.size()) verts[i].texCoord = to_vec2(uv);
 				}
 		);
 	}
 
-	// Indices (optional)
-	std::vector<uint32_t> indices;
+	// indices
+	vector<uint32_t> indices;
 	if (primitive.indicesAccessor) {
 		const auto& idxAccessor = asset.accessors[*primitive.indicesAccessor];
 		indices.resize(idxAccessor.count);
 		iterateAccessorWithIndex<uint32_t>(
 				asset, idxAccessor,
-				[&](uint32_t idx, std::size_t i) {
+				[&](uint32_t idx, size_t i) {
 					if (i < indices.size()) indices[i] = idx;
 				}
 		);
-	} else {
+	}
+	else {
 		indices.resize(vertexCount);
-		for (std::size_t i = 0; i < vertexCount; ++i)
+		for (size_t i = 0; i < vertexCount; ++i)
 			indices[i] = static_cast<uint32_t>(i);
 	}
 
@@ -406,220 +365,18 @@ std::unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(
 		A3D_LOG_W("Index count {} is not divisible by 3; truncating.", indices.size());
 	}
 
-	const std::size_t triIndexCount = (indices.size() / 3) * 3;
-	std::vector<Face> faces;
+	const size_t triIndexCount = (indices.size() / 3) * 3;
+	vector<Face> faces;
 	faces.reserve(triIndexCount / 3);
 
-	for (std::size_t i = 0; i < triIndexCount; i += 3) {
-		faces.push_back({
-								static_cast<unsigned>(indices[i + 0]),
-								static_cast<unsigned>(indices[i + 1]),
-								static_cast<unsigned>(indices[i + 2]),
-						});
+	for (size_t i = 0; i < triIndexCount; i += 3) {
+		faces.push_back({ static_cast<unsigned>(indices[i + 0]),
+						  static_cast<unsigned>(indices[i + 1]),
+						  static_cast<unsigned>(indices[i + 2]) });
 	}
 
-	return std::make_unique<MeshElement>(verts, faces);
+	return make_unique<MeshElement>(verts, faces);
 }
-
-//unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(fastgltf::Asset& asset,
-//																		fastgltf::Primitive& primitive) {
-//
-//	// TODO: make this suck less
-//
-//	if (primitive.type == PrimitiveType::Triangles) {
-//
-//		if (auto indiciesAccessorIndex = primitive.indicesAccessor) {
-//			auto& indiciesAccessor = asset.accessors[*indiciesAccessorIndex];
-//
-//			vector<Vertex> verts;
-//			vector<Face> faces;
-//
-//			// faces
-//
-//			{
-//				vector<uint32_t> indices;
-//				indices.resize(indiciesAccessor.count);
-//
-//				iterateAccessorWithIndex<uint32_t>(
-//						asset,
-//						indiciesAccessor,
-//						[&](uint32_t index, size_t idx) {
-//							indices[idx] = index;
-//						});
-//
-//				for (size_t i = 0; i < indices.size(); i += 3) {
-//					faces.push_back( {unsigned(indices[i + 0]),
-//									  unsigned(indices[i + 1]),
-//									  unsigned(indices[i + 2])} );
-//				}
-//			}
-//
-//			// positions
-//
-//			{
-//				auto attrib = primitive.findAttribute("POSITION");
-//
-//				auto accessorIndex = attrib->second;
-//				auto accessor = asset.accessors[accessorIndex];
-//
-//				auto type = accessor.type;
-//				if (type == AccessorType::Vec3) {
-//
-//					auto componentType = accessor.componentType;
-//					if (componentType == ComponentType::Float) {
-//
-//						auto& bufferView = asset.bufferViews[*accessor.bufferViewIndex];
-//						auto& buffer = asset.buffers[bufferView.bufferIndex];
-//						auto& bufferData = buffer.data;
-//
-//						if (auto vec = std::get_if<sources::Vector>(&bufferData)) {
-//
-//							auto offset = bufferView.byteOffset + accessor.byteOffset;
-//							auto length = bufferView.byteLength;
-//							auto elementByteSize = getElementByteSize(type, componentType);
-//							auto numElements = length / elementByteSize;
-//
-//							auto ptr = reinterpret_cast<uint8_t*>(&vec->bytes[offset]);
-//							auto stride = bufferView.byteStride
-//										  ? *(bufferView.byteStride)
-//										  : sizeof(vec3);
-//
-//							for (size_t i = 0; i < numElements; ++i) {
-//								auto v3Ptr = reinterpret_cast<vec3*>(ptr);
-//								verts.push_back({*v3Ptr, {}, {}});
-//								ptr += stride;
-//							}
-//						}
-//						else {
-//							A3D_LOG_W("Unsupported position buffer data.");
-//						}
-//					}
-//					else {
-//						A3D_LOG_W("Unsupported position accessor component type: {}",
-//								  magic_enum::enum_name(componentType));
-//					}
-//				}
-//				else {
-//					A3D_LOG_W("Unsupported position accessor type: {}",
-//							  magic_enum::enum_name(type));
-//				}
-//			}
-//
-//			// normals
-//
-//			{
-//				auto attrib = primitive.findAttribute("NORMAL");
-//
-//				auto accessorIndex = attrib->second;
-//				auto accessor = asset.accessors[accessorIndex];
-//
-//				auto type = accessor.type;
-//				if (type == AccessorType::Vec3) {
-//
-//					auto componentType = accessor.componentType;
-//					if (componentType == ComponentType::Float) {
-//
-//						auto& bufferView = asset.bufferViews[*accessor.bufferViewIndex];
-//						auto& buffer = asset.buffers[bufferView.bufferIndex];
-//						auto& bufferData = buffer.data;
-//
-//						if (auto vec = std::get_if<sources::Vector>(&bufferData)) {
-//
-//							auto offset = bufferView.byteOffset + accessor.byteOffset;
-//							auto length = bufferView.byteLength;
-//							auto elementByteSize = getElementByteSize(type, componentType);
-//							auto numElements = length / elementByteSize;
-//
-//							auto ptr = reinterpret_cast<uint8_t*>(&vec->bytes[offset]);
-//							auto stride = bufferView.byteStride
-//										  ? *(bufferView.byteStride)
-//										  : sizeof(vec3);
-//
-//							for (size_t i = 0; i < numElements; ++i) {
-//								auto v3Ptr = reinterpret_cast<vec3*>(ptr);
-//								verts[i].normal = *v3Ptr;
-//								ptr += stride;
-//							}
-//						}
-//						else {
-//							A3D_LOG_W("Unsupported normals buffer data.");
-//						}
-//					}
-//					else {
-//						A3D_LOG_W("Unsupported normals accessor component type: {}",
-//								  magic_enum::enum_name(componentType));
-//					}
-//				}
-//				else {
-//					A3D_LOG_W("Unsupported normals accessor type: {}",
-//							  magic_enum::enum_name(type));
-//				}
-//			}
-//
-//			// texture coordinates
-//
-//			{
-//				auto attrib = primitive.findAttribute("TEXCOORD_0");
-//
-//				auto accessorIndex = attrib->second;
-//				auto accessor = asset.accessors[accessorIndex];
-//
-//				auto type = accessor.type;
-//				if (type == AccessorType::Vec2) {
-//
-//					auto componentType = accessor.componentType;
-//					if (componentType == ComponentType::Float) {
-//
-//						auto& bufferView = asset.bufferViews[*accessor.bufferViewIndex];
-//						auto& buffer = asset.buffers[bufferView.bufferIndex];
-//						auto& bufferData = buffer.data;
-//
-//						if (auto vec = std::get_if<sources::Vector>(&bufferData)) {
-//
-//							auto offset = bufferView.byteOffset + accessor.byteOffset;
-//							auto length = bufferView.byteLength;
-//							auto elementByteSize = getElementByteSize(type, componentType);
-//							auto numElements = length / elementByteSize;
-//
-//							auto ptr = reinterpret_cast<uint8_t*>(&vec->bytes[offset]);
-//							auto stride = bufferView.byteStride
-//										  ? *(bufferView.byteStride)
-//										  : sizeof(vec2);
-//
-//							for (size_t i = 0; i < numElements; ++i) {
-//								auto v2Ptr = reinterpret_cast<vec2*>(ptr);
-//								verts[i].texCoord = *v2Ptr;
-//								ptr += stride;
-//							}
-//						}
-//						else {
-//							A3D_LOG_W("Unsupported texcoords buffer data.");
-//						}
-//					}
-//					else {
-//						A3D_LOG_W("Unsupported texcoords accessor component type: {}",
-//								  magic_enum::enum_name(componentType));
-//					}
-//				}
-//				else {
-//					A3D_LOG_W("Unsupported texcoords accessor type: {}",
-//							  magic_enum::enum_name(type));
-//				}
-//			}
-//
-//			return make_unique<MeshElement>(verts, faces);
-//		}
-//		else {
-//			A3D_LOG_E("Missing vertex indicies.");
-//		}
-//	}
-//	else {
-//		A3D_LOG_W("Unsupported primitive type: {}",
-//				  magic_enum::enum_name(primitive.type));
-//	}
-//
-//	return nullptr;
-//}
 
 shared_ptr<a3d::Material> GlTFImporter::materialFromGlTFPrimitive(fastgltf::Asset& asset,
 																  fastgltf::Primitive& primitive) {
@@ -816,67 +573,6 @@ shared_ptr<a3d::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset
 
 			A3D_LOG_D("Importing image '{}'...", image.name);
 
-//			auto a3dImage = std::visit([&asset](auto&& dataSource) -> shared_ptr<Image> {
-//
-//				using T = std::decay_t<decltype(dataSource)>;
-//
-//				if constexpr (std::is_same_v<T, sources::Vector>) { // .gltf
-//
-//					A3D_LOG_D("Creating texture image...");
-//
-//					auto uint8Vec = dataSource.bytes;
-//					auto a3dBuffer = make_unique<a3d::Buffer>(reinterpret_cast<std::byte*>(uint8Vec.data()), uint8Vec.size());
-//					return make_shared<a3d::Image>(std::move(a3dBuffer), false);
-//				}
-//				else if constexpr (std::is_same_v<T, sources::BufferView>) { // .glb
-//
-//					auto bufferViewIndex = dataSource.bufferViewIndex;
-//					auto& bufferView = asset.bufferViews[bufferViewIndex];
-//
-//					if (auto byteStride = bufferView.byteStride) { // TODO: is this unpacked for us?
-//
-//						A3D_LOG_W("Texture buffer has stride: {}.  Skipping.", *(bufferView.byteStride));
-//						return nullptr;
-//					}
-//					else {
-//						A3D_LOG_D("Creating texture image...");
-//
-//						auto buffer = asset.buffers[bufferView.bufferIndex];
-//						auto byteOffset = bufferView.byteOffset;
-//						auto byteLength = bufferView.byteLength;
-//
-//						if (auto uint8Vec = std::get_if<sources::Vector>(&buffer.data))
-//						{
-//							auto a3dBuffer = make_unique<a3d::Buffer>(reinterpret_cast<std::byte*>(&uint8Vec[byteOffset]), byteLength);
-//							return make_shared<a3d::Image>(std::move(a3dBuffer), false);
-//						}
-//						else {
-//							A3D_LOG_W("Unexpected texture data.");
-//							return nullptr;
-//						}
-//
-////						if (auto bufferData = buffer.data; holds_alternative<sources::Vector>(bufferData)) {
-////
-////							auto uint8Vec = get<sources::Vector>(bufferData).bytes;
-////							auto a3dBuffer = make_unique<a3d::Buffer>(reinterpret_cast<std::byte*>(&uint8Vec[byteOffset]), byteLength);
-////							return make_shared<a3d::Image>(std::move(a3dBuffer), false);
-////						}
-////						else {
-////							A3D_LOG_W("Unexpected texture data.");
-////							return nullptr;
-////						}
-//					}
-//				}
-//				else if constexpr (std::is_same_v<T, std::monostate>) {
-//
-//					A3D_LOG_W("Unexpected texture data.");
-//					return nullptr;
-//				}
-//
-//				return nullptr;
-//
-//			}, dataSource);
-
 			auto a3dImage = std::visit(fastgltf::visitor{
 					[&](const fastgltf::sources::Vector& v) -> std::shared_ptr<a3d::Image> {
 						auto bytes = std::span<const std::byte>(v.bytes.data(), v.bytes.size());
@@ -890,7 +586,6 @@ shared_ptr<a3d::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset
 							A3D_LOG_W("Unexpected/empty BufferView image data.");
 							return nullptr;
 						}
-
 						auto a3dBuffer = std::make_unique<a3d::Buffer>(
 								const_cast<std::byte*>(bytes.data()), bytes.size());
 						return std::make_shared<a3d::Image>(std::move(a3dBuffer), false);
@@ -908,9 +603,8 @@ shared_ptr<a3d::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset
 						return std::make_shared<a3d::Image>(std::move(a3dBuffer), false);
 					},
 					[&](const fastgltf::sources::URI&) -> std::shared_ptr<a3d::Image> {
-						// If you pass Options::LoadExternalImages, you usually won't see URI here,
 						// but keep this log because it indicates you didn’t load image bytes.
-						A3D_LOG_W("Image is still a URI; enable Options::LoadExternalImages (and provide base dir).");
+						A3D_LOG_W("Image is a URI -- is Options::LoadExternalImages enabled?");
 						return nullptr;
 					},
 					[&](const auto&) -> std::shared_ptr<a3d::Image> {
@@ -1023,6 +717,8 @@ shared_ptr<a3d::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
 
 fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options) {
 
+	using namespace fastgltf;
+
 	auto gltfOptions = Options::None;
 
 	// TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
@@ -1048,15 +744,15 @@ fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options) {
 	return gltfOptions;
 }
 
-static std::span<const byte> BytesFromDataSource(const DataSource& src) {
-	return std::visit(visitor {
-			[](const sources::Vector& v) -> std::span<const byte> {
+static std::span<const byte> BytesFromDataSource(const fastgltf::DataSource& src) {
+	return std::visit(fastgltf::visitor {
+			[](const fastgltf::sources::Vector& v) -> std::span<const byte> {
 				return { v.bytes.data(), v.bytes.size() };
 			},
 			[](const fastgltf::sources::Array& a) -> std::span<const byte> {
 				return { a.bytes.data(), a.bytes.size() };
 			},
-			[](const sources::ByteView& bv) -> std::span<const byte> {
+			[](const fastgltf::sources::ByteView& bv) -> std::span<const byte> {
 				// In newer fastgltf, ByteView is commonly used by mapped-file loaders.
 				// Most builds expose it as a (ptr,len) pair or span-like member; adjust field names if needed.
 				return { bv.bytes.data(), bv.bytes.size() };
@@ -1067,7 +763,7 @@ static std::span<const byte> BytesFromDataSource(const DataSource& src) {
 	}, src);
 }
 
-static std::span<const byte> BytesFromBufferView(const Asset& asset, size_t bufferViewIndex) {
+static std::span<const byte> BytesFromBufferView(const fastgltf::Asset& asset, size_t bufferViewIndex) {
 	const auto& bv = asset.bufferViews[bufferViewIndex];
 	const auto& buf = asset.buffers[bv.bufferIndex];
 
@@ -1081,113 +777,12 @@ static std::span<const byte> BytesFromBufferView(const Asset& asset, size_t buff
 	return base.subspan(begin, len);
 }
 
-
-//mat4 TransformFromGlTFNode(fastgltf::Node& node) {
-//
-//	auto transform = node.transform;
-//
-//
-//	return std::visit([&node](auto&& transform) -> mat4 {
-//
-//		using T = std::decay_t<decltype(transform)>;
-//
-//		if constexpr (std::is_same_v<T, fastgltf::Node::TRS>) {
-//
-//			//auto trs = get<fastgltf::Node::TRS>(transform);
-//			const auto& id4 = mat4(1.0);
-//
-//			auto t = translate(id4, { transform.translation[0],
-//										   transform.translation[1],
-//										   transform.translation[2] });
-//
-//			auto r = mat4_cast(quat{ transform.rotation[3],
-//										  transform.rotation[0],
-//										  transform.rotation[1],
-//										  transform.rotation[2] });
-//
-//			auto s = scale(id4, { transform.scale[0],
-//									   transform.scale[1],
-//									   transform.scale[2] });
-//
-//			return t * r * s;
-//		}
-//		else if constexpr (std::is_same_v<T, fastgltf::Node::TransformMatrix>) {
-//
-//			//auto matrix = get<fastgltf::Node::TransformMatrix>(transform);
-//			return make_mat4(&transform[0]);
-//		}
-//		else {
-//			A3D_LOG_W("No transform associated with node: {}", node.name);
-//		}
-//
-//		return mat4(1.0);
-//
-//	}, transform);
-//
-//
-////	if (holds_alternative<fastgltf::Node::TRS>(transform)) {
-////
-////		auto trs = get<fastgltf::Node::TRS>(transform);
-////		const auto& id4 = mat4(1.0);
-////
-////		auto t = translate(id4, { trs.translation[0],
-////									   trs.translation[1],
-////									   trs.translation[2] });
-////
-////		auto r = mat4_cast(quat{ trs.rotation[3],
-////									  trs.rotation[0],
-////									  trs.rotation[1],
-////									  trs.rotation[2] });
-////
-////		auto s = scale(id4, { trs.scale[0],
-////								   trs.scale[1],
-////								   trs.scale[2] });
-////
-////		return t * r * s;
-////	}
-////	else if (holds_alternative<fastgltf::Node::TransformMatrix>(transform)) {
-////
-////		auto matrix = get<fastgltf::Node::TransformMatrix>(transform);
-////		return make_mat4(&matrix[0]);
-////	}
-////	else {
-////		A3D_LOG_W("No transform associated with node: {}", node.name);
-////	}
-////
-////	return mat4(1.0);
-//}
-
 mat4 TransformFromGlTFNode(fastgltf::Node& node) {
 
-	// fastgltf 0.9: node.transform is not the old nested TRS/TransformMatrix types.
-	// Use the helper that returns a matrix for either representation.
 	const fastgltf::math::fmat4x4 m = fastgltf::getTransformMatrix(node);
-
-	// Convert fastgltf matrix to your mat4.
-	// This matches your old make_mat4(&matrix[0]) pattern, just with 2D indexing.
-	return make_mat4(&m[0][0]);
+	return a3d::math::make_mat4(&m[0][0]);
 }
 
-//shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 3>& arr) {
-//
-//	return make_shared<Color>(vec3{arr[0], arr[1], arr[2]});
-//}
-//
-//shared_ptr<a3d::Color> ColorFromGlTFColorArray(array<float, 4>& arr) {
-//
-//	array<float, 3> rgbArray = {arr[0], arr[1], arr[2]};
-//	return ColorFromGlTFColorArray(rgbArray);
-//}
-
-shared_ptr<a3d::Color> ColorFromGlTFColorArray(const std::array<float, 3>& arr) {
-	return make_shared<Color>(vec3{arr[0], arr[1], arr[2]});
-}
-
-shared_ptr<a3d::Color> ColorFromGlTFColorArray(const std::array<float, 4>& arr) {
-	return make_shared<Color>(vec3{arr[0], arr[1], arr[2]});
-}
-
-// fastgltf 0.9 math vectors:
 shared_ptr<a3d::Color> ColorFromGlTFColorArray(const fastgltf::math::nvec3& v) {
 	return make_shared<Color>(vec3{v[0], v[1], v[2]});
 }
