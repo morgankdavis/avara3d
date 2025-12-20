@@ -226,14 +226,14 @@ static void 		CleanupMeshElementResources(unordered_set<MeshElement*>& active,
 											   OpenGLRenderer::MeshElementGLMapping& glMapping);
 static void 		CleanupTextureResources(unordered_set<Texture*>& active,
 										   OpenGLRenderer::TextureGLMapping& glMapping);
-static void 		CleanupLinesResources(unordered_set<const vector<Line>*>& active,
-										 OpenGLRenderer::LinesGLMapping& glMapping);
+//static void 		CleanupLinesResources(unordered_set<const vector<Line>*>& active,
+//										 OpenGLRenderer::LinesGLMapping& glMapping);
 static void 		DeleteMeshElementGLResources(MeshElement* element,
 												OpenGLRenderer::MeshElementGLMapping& glMapping);
 static void 		DeleteTextureGLResources(Texture* texture,
 											OpenGLRenderer::TextureGLMapping& glMapping);
-static void 		DeleteLinesGLResources(const vector<Line>& lines,
-										  OpenGLRenderer::LinesGLMapping& glMapping);
+//static void 		DeleteLinesGLResources(const vector<Line>& lines,
+//										  OpenGLRenderer::LinesGLMapping& glMapping);
 static vector<Node*>SortedLights(map<Node*, float> lights);
 static void 		DrawOverlay(const RenderContext& context,
 							   const Scene& scene,
@@ -339,10 +339,10 @@ OpenGLRenderer::OpenGLRenderer():
 		_isInitialized{false},
 		_meshElementGLMapping{},
 		_textureGLMapping{},
-		_linesGLMapping{},
+//		_linesGLMapping{},
 		_activeMeshElements{},
 		_activeTextures{},
-		_activeLines{},
+//		_activeLines{},
 		_glEnvironmentUBO{0},
 		_overlayTitleImFont{nullptr},
 		_overlayBodyImFont{nullptr},
@@ -353,13 +353,13 @@ OpenGLRenderer::~OpenGLRenderer() {
 	
 	_activeMeshElements.clear();
 	_activeTextures.clear();
-	_activeLines.clear();
+//	_activeLines.clear();
 	
 	glDeleteBuffers(1, &_glEnvironmentUBO);
 
 	CleanupMeshElementResources(_activeMeshElements, _meshElementGLMapping);
 	CleanupTextureResources(_activeTextures, _textureGLMapping);
-	CleanupLinesResources(_activeLines, _linesGLMapping);
+//	CleanupLinesResources(_activeLines, _linesGLMapping);
 
 	// TODO: move
 	if (_dbgLinesVBO) {
@@ -430,7 +430,7 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 
 	CleanupMeshElementResources(_activeMeshElements, _meshElementGLMapping);
 	CleanupTextureResources(_activeTextures, _textureGLMapping);
-	CleanupLinesResources(_activeLines, _linesGLMapping);
+//	CleanupLinesResources(_activeLines, _linesGLMapping);
 
 //	CheckGLError();
 	A3D_GL_CHECK();
@@ -659,6 +659,10 @@ void OpenGLRenderer::EnsureDebugLinesBuffers(Program& program) {
 	glEnableVertexAttribArray(COLOR_LOCATION);
 }
 
+// TODO: split into render(lines) and render(AABB)
+// for lines, stay immediate
+// for AABBs, upload a unit cube wireframe and use different model mats
+// 		(use center+halt extent rep for faster line creation?)
 void OpenGLRenderer::render(const std::vector<Line>& lines,
 							const RenderContext& context,
 							const mat4& modelMat,
@@ -1999,116 +2003,116 @@ void CleanupTextureResources(unordered_set<Texture*> &active,
 }
 
 // this has to be the slowest way on earth to do this.
-void CleanupLinesResources(unordered_set<const vector<Line>*>& active,
-						   OpenGLRenderer::LinesGLMapping& glMapping) {
-#ifndef DISABLE_RESOURCE_MANAGEMENT
-
-//	// gather sorted vector of Lines used this frame
-//	auto activeLineSetsSorted = vector<Line*>();
-//	activeLineSetsSorted.reserve(glMapping.size());
-//	copy(active.begin(), active.end(), back_inserter(activeLineSetsSorted));
-//	sort(activeLineSetsSorted.begin(), activeLineSetsSorted.end());
+//void CleanupLinesResources(unordered_set<const vector<Line>*>& active,
+//						   OpenGLRenderer::LinesGLMapping& glMapping) {
+//#ifndef DISABLE_RESOURCE_MANAGEMENT
 //
-//	// gather sorted vector of Lines in the mapping
-//	auto storedLineSetsSorted = vector<Line*>();
-//	storedLineSetsSorted.reserve(glMapping.size());
-//	for (auto it = glMapping.begin(); it != glMapping.end(); ++it) {
-//		storedLineSetsSorted.push_back(it->first);
-//	}
-//	sort(storedLineSetsSorted.begin(), storedLineSetsSorted.end());
-//
-//	// find unused LineSets
-//	auto unused = vector<Line*>(storedLineSetsSorted.size());
-//	vector<Line*>::iterator it;
-//	it = set_difference(storedLineSetsSorted.begin(), storedLineSetsSorted.end(),
-//						activeLineSetsSorted.begin(), activeLineSetsSorted.end(),
-//						unused.begin());
-//	unused.resize(it - unused.begin());
-//
-//	// deallocate unused LineSets
-//	if (unused.size()) {
-//		//A3D_LOG_D("Deleting GL resources for {} line sets...", unused.size());
-//
-//		for (it=unused.begin(); it!=unused.end(); ++it) {
-//			Line* lines = *it;
-//			DeleteLinesGLResources(lines, glMapping);
-//		}
-//	}
-
-
-
-//	// gather sorted vector of Lines used this frame
-//	auto activeSorted = vector<const vector<Line>*>();
-//	activeSorted.reserve(glMapping.size());
-//	copy(active.begin(), active.end(), back_inserter(activeSorted));
-//	sort(activeSorted.begin(), activeSorted.end());
-//
-//
-//
-//	bool activeGZero = false;
-//	static bool wasActiveGZero = false;
-//	if (active.size() > 0) {
-//		activeGZero = true;
-//	}
-//	else {
-//		activeGZero = false;
-//	}
-//	if (!activeGZero && wasActiveGZero) {
-//		A3D_LOG_I("Newly inactive.");
-//	}
-//	else if (activeGZero && !wasActiveGZero) {
-//		A3D_LOG_I("Newly active.");
-//	}
-//	wasActiveGZero = activeGZero;
-//
-//
-//
-//	// gather sorted vector of Lines in the mapping
-//	auto allSorted = vector<const vector<Line>*>();
-//	allSorted.reserve(glMapping.size());
-//	for (auto [lines, glRes] : glMapping) {
-//		allSorted.push_back(lines);
-//	}
-//	sort(allSorted.begin(), allSorted.end());
-//
-//	//A3D_LOG_D("allSorted: {}", allSorted.size());
-//	//A3D_LOG_D("activeSorted: {}", activeSorted.size());
-//
-//	auto unused = vector<const vector<Line>*>();
-//	vector<const vector<Line>*>::iterator it;
-//
-//	auto allB = allSorted.begin();
-//	auto allE = allSorted.end();
-//	auto activeB = activeSorted.begin();
-//	auto activeE = activeSorted.end();
-//	auto unusedB = unused.begin();
-//
-////	it = set_difference(allSorted.begin(), allSorted.end(),
-////						activeSorted.begin(), activeSorted.end(),
+////	// gather sorted vector of Lines used this frame
+////	auto activeLineSetsSorted = vector<Line*>();
+////	activeLineSetsSorted.reserve(glMapping.size());
+////	copy(active.begin(), active.end(), back_inserter(activeLineSetsSorted));
+////	sort(activeLineSetsSorted.begin(), activeLineSetsSorted.end());
+////
+////	// gather sorted vector of Lines in the mapping
+////	auto storedLineSetsSorted = vector<Line*>();
+////	storedLineSetsSorted.reserve(glMapping.size());
+////	for (auto it = glMapping.begin(); it != glMapping.end(); ++it) {
+////		storedLineSetsSorted.push_back(it->first);
+////	}
+////	sort(storedLineSetsSorted.begin(), storedLineSetsSorted.end());
+////
+////	// find unused LineSets
+////	auto unused = vector<Line*>(storedLineSetsSorted.size());
+////	vector<Line*>::iterator it;
+////	it = set_difference(storedLineSetsSorted.begin(), storedLineSetsSorted.end(),
+////						activeLineSetsSorted.begin(), activeLineSetsSorted.end(),
 ////						unused.begin());
-////	//unused.resize(it - unused.begin());
+////	unused.resize(it - unused.begin());
 ////
-////	//A3D_LOG_D("unused: {}", unused.size());
-////
+////	// deallocate unused LineSets
 ////	if (unused.size()) {
 ////		//A3D_LOG_D("Deleting GL resources for {} line sets...", unused.size());
 ////
-////		for (auto lines : unused) {
-////			DeleteLinesGLResources(*lines, glMapping);
+////		for (it=unused.begin(); it!=unused.end(); ++it) {
+////			Line* lines = *it;
+////			DeleteLinesGLResources(lines, glMapping);
 ////		}
 ////	}
 //
-
-
-
-	for (auto lines : active) {
-		DeleteLinesGLResources(*lines, glMapping);
-	}
-
-	active.clear();
-
-#endif
-}
+//
+//
+////	// gather sorted vector of Lines used this frame
+////	auto activeSorted = vector<const vector<Line>*>();
+////	activeSorted.reserve(glMapping.size());
+////	copy(active.begin(), active.end(), back_inserter(activeSorted));
+////	sort(activeSorted.begin(), activeSorted.end());
+////
+////
+////
+////	bool activeGZero = false;
+////	static bool wasActiveGZero = false;
+////	if (active.size() > 0) {
+////		activeGZero = true;
+////	}
+////	else {
+////		activeGZero = false;
+////	}
+////	if (!activeGZero && wasActiveGZero) {
+////		A3D_LOG_I("Newly inactive.");
+////	}
+////	else if (activeGZero && !wasActiveGZero) {
+////		A3D_LOG_I("Newly active.");
+////	}
+////	wasActiveGZero = activeGZero;
+////
+////
+////
+////	// gather sorted vector of Lines in the mapping
+////	auto allSorted = vector<const vector<Line>*>();
+////	allSorted.reserve(glMapping.size());
+////	for (auto [lines, glRes] : glMapping) {
+////		allSorted.push_back(lines);
+////	}
+////	sort(allSorted.begin(), allSorted.end());
+////
+////	//A3D_LOG_D("allSorted: {}", allSorted.size());
+////	//A3D_LOG_D("activeSorted: {}", activeSorted.size());
+////
+////	auto unused = vector<const vector<Line>*>();
+////	vector<const vector<Line>*>::iterator it;
+////
+////	auto allB = allSorted.begin();
+////	auto allE = allSorted.end();
+////	auto activeB = activeSorted.begin();
+////	auto activeE = activeSorted.end();
+////	auto unusedB = unused.begin();
+////
+//////	it = set_difference(allSorted.begin(), allSorted.end(),
+//////						activeSorted.begin(), activeSorted.end(),
+//////						unused.begin());
+//////	//unused.resize(it - unused.begin());
+//////
+//////	//A3D_LOG_D("unused: {}", unused.size());
+//////
+//////	if (unused.size()) {
+//////		//A3D_LOG_D("Deleting GL resources for {} line sets...", unused.size());
+//////
+//////		for (auto lines : unused) {
+//////			DeleteLinesGLResources(*lines, glMapping);
+//////		}
+//////	}
+////
+//
+//
+//
+//	for (auto lines : active) {
+//		DeleteLinesGLResources(*lines, glMapping);
+//	}
+//
+//	active.clear();
+//
+//#endif
+//}
 
 void DeleteMeshElementGLResources(MeshElement* element,
 								  OpenGLRenderer::MeshElementGLMapping& glMapping) {
@@ -2160,27 +2164,27 @@ void DeleteTextureGLResources(Texture* texture,
 #endif
 }
 
-void DeleteLinesGLResources(const vector<Line>& lines,
-							OpenGLRenderer::LinesGLMapping& glMapping) {
-#ifndef DISABLE_RESOURCE_MANAGEMENT
-	
-//	if (glMapping.count(&lines)) {
-
-		//A3D_LOG_T("Deleting GL resources for Lines {:p}..", static_cast<const void*>(&lines));
-
-		auto glHandles = glMapping[&lines];
-
-		auto vbo = get<0>(glHandles);
-		auto vao = get<1>(glHandles);
-
-		glDeleteBuffers(1, &vbo);
-		glDeleteVertexArrays(1, &vao);
-
-		glMapping.erase(&lines);
-//	}
-	
-#endif
-}
+//void DeleteLinesGLResources(const vector<Line>& lines,
+//							OpenGLRenderer::LinesGLMapping& glMapping) {
+//#ifndef DISABLE_RESOURCE_MANAGEMENT
+//
+////	if (glMapping.count(&lines)) {
+//
+//		//A3D_LOG_T("Deleting GL resources for Lines {:p}..", static_cast<const void*>(&lines));
+//
+//		auto glHandles = glMapping[&lines];
+//
+//		auto vbo = get<0>(glHandles);
+//		auto vao = get<1>(glHandles);
+//
+//		glDeleteBuffers(1, &vbo);
+//		glDeleteVertexArrays(1, &vao);
+//
+//		glMapping.erase(&lines);
+////	}
+//
+//#endif
+//}
 
 vector<Node*> SortedLights(map<Node*, float> lights) {
 	// map: <node, distance from camera>

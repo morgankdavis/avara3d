@@ -45,8 +45,8 @@ namespace a3d {
 				std::map<Texture*, unsigned>;
 
 		/* <vector<a3d::Line>>* : <gl_vbo, gl_vao>> */
-		using LinesGLMapping =
-				std::map<const std::vector<Line>*, std::pair<unsigned, unsigned>>;
+//		using LinesGLMapping =
+//				std::map<const std::vector<Line>*, std::pair<unsigned, unsigned>>;
 
 		/// Private Static Members ///
 
@@ -129,7 +129,7 @@ namespace a3d {
 		bool											_isInitialized;
 		MeshElementGLMapping 							_meshElementGLMapping;
 		TextureGLMapping								_textureGLMapping;
-		LinesGLMapping									_linesGLMapping;
+//		LinesGLMapping									_linesGLMapping;
 		std::unordered_set<MeshElement*>				_activeMeshElements;
 		std::unordered_set<Texture*>					_activeTextures;
 		std::unordered_set<const std::vector<Line>*>	_activeLines;
