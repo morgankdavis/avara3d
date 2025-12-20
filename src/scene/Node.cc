@@ -730,35 +730,25 @@ bool Node::containsChild(const shared_ptr<Node>& node) {
 	return false;
 }
 
-AABB Node::aabb() {
+AABB Node::aabb(bool vertfit) const {
+	AABB out = AABB::InvalidAABB();
 
-	static const float maxFloat = math::f32_max();
-	static const float minFloat = math::f32_lowest();
+	const mat4 W = worldTransform();
 
-	AABB aabb = { {maxFloat, maxFloat, maxFloat},
-				  {minFloat, minFloat, minFloat} };
-
-	getAABBRec(aabb);
-
-	if (aabb.min.x == maxFloat
-		|| aabb.min.y == maxFloat
-		|| aabb.min.z == maxFloat
-		|| aabb.max.x == minFloat
-		|| aabb.max.y == minFloat
-		|| aabb.max.z == minFloat) {
-		static AABB zeroAABB = { {0, 0, 0},
-								 {0, 0, 0} };
-		return zeroAABB;
+	if (mesh()) {
+		out = AABB::Union(out, mesh()->worldAABB(W, vertfit));
 	}
 
-	return aabb;
+	for (auto& child : children()) {
+		out = AABB::Union(out, child->aabb());
+	}
+
+	return out;
 }
 
-vec3 Node::extent() {
-	auto aabb = Node::aabb();
-	return {aabb.max.x - aabb.min.x,
-			aabb.max.y - aabb.min.y,
-			aabb.max.z - aabb.min.z};
+vec3 Node::extent(bool vertfit) const {
+	auto aabb = Node::aabb(vertfit);
+	return aabb.max - aabb.min;
 }
 
 void Node::applyPhysicsTransform(const mat4& transform) {

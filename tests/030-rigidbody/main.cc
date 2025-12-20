@@ -429,8 +429,8 @@ int main(int argc, const char* argv[]) {
 		scene->rootNode()->addChild(boxesLightNode);
 
 
-	A3D_APP_LOG_I("*** SCENE EXTENT: {} ***",
-				  to_string(scene->rootNode()->extent()));
+//	A3D_APP_LOG_I("*** SCENE EXTENT: {} ***",
+//				  to_string(scene->rootNode()->extent()));
 
 	//	A3D_A3D_APP_LOG_I("Graph:\n{}", StringFromTree(*scene->rootNode()));
 	//	auto children = scene->rootNode()->children(true);
@@ -819,7 +819,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 			// move
 
-			static float MOVE_SPEED = math::max(scene.rootNode()->extent());
+			static float MOVE_SPEED = math::max(scene.extent());
 
 			float moveMultiplier = 1.0;
 			if (keysDown.count(Key::LeftControl)) {
@@ -964,7 +964,8 @@ void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
 
 		node->position(location);
 
-		static auto extent = node->extent();
+		//static auto extent = node->mesh()->worldExtent(node->worldTransform());
+		static auto extent = node->mesh()->localExtent();
 		static auto physicsShape = make_shared<CylinderPhysicsShape>(extent.x/2.0, extent.y);
 		auto physicsBody = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, physicsShape);
 		physicsBody->mass(.354); // 12fl oz water @ 70F

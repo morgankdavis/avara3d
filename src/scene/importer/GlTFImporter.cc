@@ -331,12 +331,50 @@ std::unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(
 	// texcoords
 	if (auto uvAttr = primitive.findAttribute("TEXCOORD_0"); uvAttr) {
 		const auto& uvAccessor = asset.accessors[uvAttr->accessorIndex];
-		iterateAccessorWithIndex<fastgltf::math::fvec2>(
-				asset, uvAccessor,
-				[&](fastgltf::math::fvec2 uv, size_t i) {
-					if (i < verts.size()) verts[i].texCoord = to_vec2(uv);
-				}
-		);
+
+		using fastgltf::AccessorType;
+		using fastgltf::math::fvec2;
+		using fastgltf::math::fvec3;
+		using fastgltf::math::fvec4;
+
+		switch (uvAccessor.type) {
+			case AccessorType::Vec2: {
+				iterateAccessorWithIndex<fvec2>(asset, uvAccessor,
+												[&](fvec2 uv, size_t i) {
+													if (i < verts.size()) {
+														verts[i].texCoord = { uv[0], uv[1] };
+													}
+												});
+				break;
+			}
+			case AccessorType::Vec3: {
+				// non-compliant glTF...
+				A3D_LOG_W("TEXCOORD_0 is VEC3; truncating to (u,v).");
+				iterateAccessorWithIndex<fvec3>(asset, uvAccessor,
+												[&](fvec3 uvw, size_t i) {
+													if (i < verts.size()) {
+														verts[i].texCoord = { uvw[0], uvw[1] };
+													}
+												});
+				break;
+			}
+			case AccessorType::Vec4: {
+				// non-compliant glTF...
+				A3D_LOG_W("TEXCOORD_0 is VEC4; truncating to (u,v).");
+				iterateAccessorWithIndex<fvec4>(asset, uvAccessor,
+												[&](fvec4 uvzw, size_t i) {
+													if (i < verts.size()) {
+														verts[i].texCoord = { uvzw[0], uvzw[1] };
+													}
+												});
+				break;
+			}
+			default: {
+				A3D_LOG_W("TEXCOORD_0 has unexpected accessor.type={} (expected VEC2). Skipping UVs.",
+						  magic_enum::enum_name(uvAccessor.type));
+				break;
+			}
+		}
 	}
 
 	// indices

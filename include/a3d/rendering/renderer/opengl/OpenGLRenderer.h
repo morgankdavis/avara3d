@@ -93,6 +93,8 @@ namespace a3d {
 
 		void 					render(const Scene& scene,
 									   const RenderContext& context,
+									   const math::mat4& viewMat,
+									   const math::mat4& projectionMat,
 									   const DebugOptions& debugOptions,
 									   FrameStats& stats) override;
 		void 					render(Mesh& mesh,

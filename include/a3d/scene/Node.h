@@ -154,8 +154,8 @@ namespace a3d {
 
 		bool 								containsChild(const std::shared_ptr<Node>& node);
 
-		AABB								aabb();
-		math::vec3							extent();
+		AABB 								aabb(bool vertfit = false) const; // recursive world AABB
+		math::vec3 							extent(bool vertfit = false) const; // recursive world extent
 
 		void	 							applyPhysicsTransform(const math::mat4& transform);
 

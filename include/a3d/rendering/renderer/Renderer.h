@@ -69,6 +69,8 @@ namespace a3d {
 
 		virtual void 					render(const Scene& scene,
 											   const RenderContext& context,
+											   const math::mat4& viewMat,
+											   const math::mat4& projectionMat,
 											   const DebugOptions& debugOptions,
 											   FrameStats& stats) = 0;
 		virtual void 					render(Mesh& mesh,

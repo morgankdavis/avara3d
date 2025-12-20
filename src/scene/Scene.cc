@@ -233,6 +233,29 @@ void Scene::inputManager(unique_ptr<InputManager> inputManager) {
 	}
 }
 
+//AABB Scene::aabb() {
+//
+//}
+//
+//vec3 Scene::extent() {
+//
+//}
+
+AABB Scene::aabb(bool vertfit) const {
+	AABB out = AABB::InvalidAABB();
+
+	for (auto& node : rootNode()->children()) {
+		out = AABB::Union(out, node->aabb());
+	}
+
+	return out;
+}
+
+vec3 Scene::extent(bool vertfit) const {
+	auto aabb = Scene::aabb(vertfit);
+	return aabb.max - aabb.min;
+}
+
 DebugOptions Scene::debugOptions() const {
 	return _debugOptions;
 }

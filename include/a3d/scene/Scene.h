@@ -78,6 +78,9 @@ namespace a3d {
 		InputManager* 						inputManager() const;
 		void 								inputManager(std::unique_ptr<InputManager> manager);
 
+		AABB 								aabb(bool vertfit = false) const;
+		math::vec3 							extent(bool vertfit = false) const;
+
 		DebugOptions 						debugOptions() const;
 		void 								debugOptions(DebugOptions options);
 

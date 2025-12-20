@@ -87,10 +87,10 @@ namespace a3d {
 										 FrameStats& stats);
 
 		AABB						localAABB() const;
-		AABB						worldAABB(const AABB& local,
-											  const math::mat4& worldMat,
+		AABB						worldAABB(const math::mat4& worldMat,
 											  bool vertfit) const;
-//		math::vec3 					extent(const Node* convertTo = nullptr) const;
+		math::vec3 					localExtent() const;
+		math::vec3 					worldExtent(const math::mat4& worldTransform) const;
 
 		MeshDirtyMask 				dirtyMask() const;
 		void 						dirtyMask(MeshDirtyMask mask);

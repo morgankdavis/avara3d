@@ -216,9 +216,9 @@ AABB Mesh::localAABB() const {
 	return _localAABB;
 }
 
-AABB Mesh::worldAABB(const AABB& local, const math::mat4& worldMat, bool vertfit) const {
+AABB Mesh::worldAABB(const math::mat4& worldTransform, bool vertfit) const {
 
-	// minimal fit over verticies - smaller - slow!
+	// fit over verticies - tighter - slow!
 	if (vertfit) {
 
 		static const float maxFloat = math::f32_max();
@@ -228,35 +228,47 @@ AABB Mesh::worldAABB(const AABB& local, const math::mat4& worldMat, bool vertfit
 
 		for (const auto& e : _elements) {
 			for (const auto& v : e->vertices()) {
-				vec3 p = vec3(worldMat * vec4(v.position, 1.0f));
-				out.min.x = math::min(out.min.x, p.x); out.max.x = math::max(out.max.x, p.x);
-				out.min.y = math::min(out.min.y, p.y); out.max.y = math::max(out.max.y, p.y);
-				out.min.z = math::min(out.min.z, p.z); out.max.z = math::max(out.max.z, p.z);
+				vec3 p = vec3(worldTransform * vec4(v.position, 1.0f));
+				out.min.x = math::min(out.min.x, p.x);
+				out.max.x = math::max(out.max.x, p.x);
+				out.min.y = math::min(out.min.y, p.y);
+				out.max.y = math::max(out.max.y, p.y);
+				out.min.z = math::min(out.min.z, p.z);
+				out.max.z = math::max(out.max.z, p.z);
 			}
 		}
 
 		return out;
 	}
-	// fit over OBB - larger - fast!
+	// fit over OBB - looser - fast!
 	else {
 
-		const vec3 c = (local.min + local.max) / 2.0f; // local center
-		const vec3 e = (local.max - local.min) / 2.0f; // local half extents
+		auto localAABB = Mesh::localAABB();
 
-		const vec3 C = vec3{worldMat * vec4(c, 1.0f)}; // world center
+		const vec3 c = (localAABB.min + localAABB.max) / 2.0f; // local center
+		const vec3 e = (localAABB.max - localAABB.min) / 2.0f; // local half extents
+
+		const vec3 C = vec3{worldTransform * vec4(c, 1.0f)}; // world center
 
 		// linear part (rotation/scale/shear)
-		const mat3 L = math::mat3{worldMat};
+		const mat3 L = math::mat3{worldTransform};
 
-		// TODO: remove with abs(m3)
-		const mat3 A = mat3{ vec3(math::abs(L[0][0]), math::abs(L[0][1]), math::abs(L[0][2])),
-							 vec3(math::abs(L[1][0]), math::abs(L[1][1]), math::abs(L[1][2])),
-							 vec3(math::abs(L[2][0]), math::abs(L[2][1]), math::abs(L[2][2])) };
+		const mat3 A = math::abs(L);
 
 		const vec3 E = A * e; // world half extents
 
 		return AABB{C - E, C + E};
 	}
+}
+
+vec3 Mesh::localExtent() const {
+	auto aabb = localAABB();
+	return aabb.max - aabb.min;
+}
+
+vec3 Mesh::worldExtent(const mat4& worldTransform) const {
+	auto aabb = worldAABB(worldTransform, true);
+	return aabb.max - aabb.min;
 }
 
 MeshDirtyMask Mesh::dirtyMask() const {
@@ -278,12 +290,14 @@ void Mesh::genLocalAABB() {
 
 	for (const auto& element : _elements) {
 		auto elementAABB = element->localAABB();
-		aabb.min.x = math::min(aabb.min.x, elementAABB.min.x);
-		aabb.max.x = math::max(aabb.max.x, elementAABB.max.x);
-		aabb.min.y = math::min(aabb.min.y, elementAABB.min.y);
-		aabb.max.y = math::max(aabb.max.y, elementAABB.max.y);
-		aabb.min.z = math::min(aabb.min.z, elementAABB.min.z);
-		aabb.max.z = math::max(aabb.max.z, elementAABB.max.z);
+//		aabb.min.x = math::min(aabb.min.x, elementAABB.min.x);
+//		aabb.max.x = math::max(aabb.max.x, elementAABB.max.x);
+//		aabb.min.y = math::min(aabb.min.y, elementAABB.min.y);
+//		aabb.max.y = math::max(aabb.max.y, elementAABB.max.y);
+//		aabb.min.z = math::min(aabb.min.z, elementAABB.min.z);
+//		aabb.max.z = math::max(aabb.max.z, elementAABB.max.z);
+		aabb.min = min(aabb.min, elementAABB.min);
+		aabb.max = max(aabb.max, elementAABB.max);
 	}
 
 	_localAABB = aabb;

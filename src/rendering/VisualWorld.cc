@@ -280,8 +280,8 @@ void VisualWorld::draw(const Scene& scene,
 
 					/***************/ Timer engineTimer1(true);
 
-					stats.cameraPosition = pov->worldPosition();
-					stats.cameraOrientation = pov->worldOrientation();
+//					stats.cameraPosition = pov->worldPosition();
+//					stats.cameraOrientation = pov->worldOrientation();
 
 					auto frameBufferSize = _renderContext->framebufferSize();
 
@@ -290,20 +290,20 @@ void VisualWorld::draw(const Scene& scene,
 						perspectiveCamera->aspectRatio(aspectRatio);
 					}
 
+					auto viewMat = inverse(pov->worldTransform());
+					auto projectionMat = pov->camera()->projection();
+
 					/***************/ profiler.add(Profiler::Tag::EngineCpu, engineTimer1.stop());
 
 					/***************/ Timer submitTimer1(true);
 
-					renderer->render(scene, *_renderContext, debugOptions, stats);
+					renderer->render(scene, *_renderContext, viewMat, projectionMat, debugOptions, stats);
 
 					renderer->preTraversal(scene, *_renderContext, debugOptions, stats);
 
 					/***************/ profiler.add(Profiler::Tag::RenderCpu, submitTimer1.stop());
 
 					/***************/ Timer engineTimer2(true);
-
-					auto viewMat = inverse(pov->worldTransform());
-					auto projectionMat = pov->camera()->projection();
 
 					vector<Node*> lightNodes;
 

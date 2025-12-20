@@ -165,6 +165,14 @@ namespace a3d::math {
 	f32 		max(const f32vec3& v);
 	f32 		max(const f32vec4& v);
 
+	f32vec2 	min(const f32vec2& a, const f32vec2& b);
+	f32vec3 	min(const f32vec3& a, const f32vec3& b);
+	f32vec4 	min(const f32vec4& a, const f32vec4& b);
+
+	f32vec2		max(const f32vec2& a, const f32vec2& b);
+	f32vec3		max(const f32vec3& a, const f32vec3& b);
+	f32vec4		max(const f32vec4& a, const f32vec4& b);
+
 	f32 		dot(const f32vec2& a, const f32vec2& b);
 	f32 		dot(const f32vec3& a, const f32vec3& b);
 	f32 		dot(const f32vec4& a, const f32vec4& b);
@@ -286,8 +294,13 @@ namespace a3d::math {
 	f32 		max(const i32vec3& v);
 	f32 		max(const i32vec4& v);
 
-	f32vec3		min(const f32vec3& a, const f32vec3& b);
-	f32vec3		max(const f32vec3& a, const f32vec3& b);
+	i32vec2 	min(const i32vec2& a, const i32vec2& b);
+	i32vec3 	min(const i32vec3& a, const i32vec3& b);
+	i32vec4 	min(const i32vec4& a, const i32vec4& b);
+
+	i32vec2		max(const i32vec2& a, const i32vec2& b);
+	i32vec3		max(const i32vec3& a, const i32vec3& b);
+	i32vec4		max(const i32vec4& a, const i32vec4& b);
 
 	i32 		dot(const i32vec2& a, const i32vec2& b);
 	i32 		dot(const i32vec3& a, const i32vec3& b);
@@ -395,6 +408,14 @@ namespace a3d::math {
 	f32 		max(const u32vec2& v);
 	f32 		max(const u32vec3& v);
 	f32 		max(const u32vec4& v);
+
+	u32vec2 	min(const u32vec2& a, const u32vec2& b);
+	u32vec3 	min(const u32vec3& a, const u32vec3& b);
+	u32vec4 	min(const u32vec4& a, const u32vec4& b);
+
+	u32vec2		max(const u32vec2& a, const u32vec2& b);
+	u32vec3		max(const u32vec3& a, const u32vec3& b);
+	u32vec4		max(const u32vec4& a, const u32vec4& b);
 
 	u32 		dot(const u32vec2& a, const u32vec2& b);
 	u32 		dot(const u32vec3& a, const u32vec3& b);
@@ -510,6 +531,14 @@ namespace a3d::math {
 	f32 		max(const u8vec3& v);
 	f32 		max(const u8vec4& v);
 
+	u8vec2 		min(const u8vec2& a, const u8vec2& b);
+	u8vec3 		min(const u8vec3& a, const u8vec3& b);
+	u8vec4 		min(const u8vec4& a, const u8vec4& b);
+
+	u8vec2		max(const u8vec2& a, const u8vec2& b);
+	u8vec3		max(const u8vec3& a, const u8vec3& b);
+	u8vec4		max(const u8vec4& a, const u8vec4& b);
+
 	u8*       	value_ptr(u8vec2& v);
 	const u8*  	value_ptr(const u8vec2& v);
 
@@ -582,6 +611,10 @@ namespace a3d::math {
 
 	bool 		operator==(const f32mat4& a, const f32mat4& b);
 	bool 		operator!=(const f32mat4& a, const f32mat4& b);
+
+	f32mat2 	abs(const f32mat2& m);
+	f32mat3 	abs(const f32mat3& m);
+	f32mat4 	abs(const f32mat4& m);
 
 	f32mat2 	transpose(const f32mat2& m);
 	f32mat3 	transpose(const f32mat3& m);

@@ -660,6 +660,30 @@ namespace a3d::math {
 		return math::max(math::max(v.x, v.y), math::max(v.z, v.w));
 	}
 
+	f32vec2 min(const f32vec2& a, const f32vec2& b) {
+		return { math::min(a.x,b.x), math::min(a.y,b.y) };
+	}
+
+	f32vec3 min(const f32vec3& a, const f32vec3& b) {
+		return { math::min(a.x,b.x), math::min(a.y,b.y), math::min(a.z,b.z) };
+	}
+
+	f32vec4 min(const f32vec4& a, const f32vec4& b) {
+		return { math::min(a.x,b.x), math::min(a.y,b.y), math::min(a.z,b.z), math::min(a.w,b.w) };
+	}
+
+	f32vec2 max(const f32vec2& a, const f32vec2& b) {
+		return { math::max(a.x,b.x), math::max(a.y,b.y) };
+	}
+
+	f32vec3 max(const f32vec3& a, const f32vec3& b) {
+		return { math::max(a.x,b.x), math::max(a.y,b.y), math::max(a.z,b.z) };
+	}
+
+	f32vec4 max(const f32vec4& a, const f32vec4& b) {
+		return { math::max(a.x,b.x), math::max(a.y,b.y), math::max(a.z,b.z), math::max(a.w,b.w) };
+	}
+
 	f32 dot(const f32vec2 &a, const f32vec2 &b) {
 		return a.x * b.x + a.y * b.y;
 	}
@@ -969,12 +993,28 @@ namespace a3d::math {
 		return math::max(math::max(v.x, v.y), math::max(v.z, v.w));
 	}
 
-	f32vec3 min(const f32vec3& a, const f32vec3& b) {
+	i32vec2 min(const i32vec2& a, const i32vec2& b) {
+		return { math::min(a.x,b.x), math::min(a.y,b.y) };
+	}
+
+	i32vec3 min(const i32vec3& a, const i32vec3& b) {
 		return { math::min(a.x,b.x), math::min(a.y,b.y), math::min(a.z,b.z) };
 	}
 
-	f32vec3 max(const f32vec3& a, const f32vec3& b) {
+	i32vec4 min(const i32vec4& a, const i32vec4& b) {
+		return { math::min(a.x,b.x), math::min(a.y,b.y), math::min(a.z,b.z), math::min(a.w,b.w) };
+	}
+
+	i32vec2 max(const i32vec2& a, const i32vec2& b) {
+		return { math::max(a.x,b.x), math::max(a.y,b.y) };
+	}
+
+	i32vec3 max(const i32vec3& a, const i32vec3& b) {
 		return { math::max(a.x,b.x), math::max(a.y,b.y), math::max(a.z,b.z) };
+	}
+
+	i32vec4 max(const i32vec4& a, const i32vec4& b) {
+		return { math::max(a.x,b.x), math::max(a.y,b.y), math::max(a.z,b.z), math::max(a.w,b.w) };
 	}
 
 	i32 dot(const i32vec2 &a, const i32vec2 &b) {
@@ -1236,6 +1276,30 @@ namespace a3d::math {
 
 	f32 max(const u32vec4& v) {
 		return math::max(math::max(v.x, v.y), math::max(v.z, v.w));
+	}
+
+	u32vec2 min(const u32vec2& a, const u32vec2& b) {
+		return { math::min(a.x,b.x), math::min(a.y,b.y) };
+	}
+
+	u32vec3 min(const u32vec3& a, const u32vec3& b) {
+		return { math::min(a.x,b.x), math::min(a.y,b.y), math::min(a.z,b.z) };
+	}
+
+	u32vec4 min(const u32vec4& a, const u32vec4& b) {
+		return { math::min(a.x,b.x), math::min(a.y,b.y), math::min(a.z,b.z), math::min(a.w,b.w) };
+	}
+
+	u32vec2 max(const u32vec2& a, const u32vec2& b) {
+		return { math::max(a.x,b.x), math::max(a.y,b.y) };
+	}
+
+	u32vec3 max(const u32vec3& a, const u32vec3& b) {
+		return { math::max(a.x,b.x), math::max(a.y,b.y), math::max(a.z,b.z) };
+	}
+
+	u32vec4 max(const u32vec4& a, const u32vec4& b) {
+		return { math::max(a.x,b.x), math::max(a.y,b.y), math::max(a.z,b.z), math::max(a.w,b.w) };
 	}
 
 	u32 dot(const u32vec2 &a, const u32vec2 &b) {
@@ -1540,6 +1604,30 @@ namespace a3d::math {
 		return math::max(math::max(v.x, v.y), math::max(v.z, v.w));
 	}
 
+	u8vec2 min(const u8vec2& a, const u8vec2& b) {
+		return { math::min(a.x,b.x), math::min(a.y,b.y) };
+	}
+
+	u8vec3 min(const u8vec3& a, const u8vec3& b) {
+		return { math::min(a.x,b.x), math::min(a.y,b.y), math::min(a.z,b.z) };
+	}
+
+	u8vec4 min(const u8vec4& a, const u8vec4& b) {
+		return { math::min(a.x,b.x), math::min(a.y,b.y), math::min(a.z,b.z), math::min(a.w,b.w) };
+	}
+
+	u8vec2 max(const u8vec2& a, const u8vec2& b) {
+		return { math::max(a.x,b.x), math::max(a.y,b.y) };
+	}
+
+	u8vec3 max(const u8vec3& a, const u8vec3& b) {
+		return { math::max(a.x,b.x), math::max(a.y,b.y), math::max(a.z,b.z) };
+	}
+
+	u8vec4 max(const u8vec4& a, const u8vec4& b) {
+		return { math::max(a.x,b.x), math::max(a.y,b.y), math::max(a.z,b.z), math::max(a.w,b.w) };
+	}
+
 	u8* value_ptr(u8vec2& v) {
 		return &v.x;
 	}
@@ -1706,6 +1794,27 @@ namespace a3d::math {
 
 	bool operator!=(const f32mat4& a, const f32mat4& b) {
 		return !(a == b);
+	}
+
+	f32mat2 abs(const f32mat2& m) {
+		using math::abs;
+		return f32mat2{ f32vec2{abs(m[0][0]), abs(m[0][1])},
+						f32vec2{abs(m[1][0]), abs(m[1][1])} };
+	}
+
+	f32mat3 abs(const f32mat3& m) {
+		using math::abs;
+		return f32mat3{ f32vec3{abs(m[0][0]), abs(m[0][1]), abs(m[0][2])},
+						f32vec3{abs(m[1][0]), abs(m[1][1]), abs(m[1][2])},
+						f32vec3{abs(m[2][0]), abs(m[2][1]), abs(m[2][2])} };
+	}
+
+	f32mat4 abs(const f32mat4& m) {
+		using math::abs;
+		return f32mat4{ f32vec4{abs(m[0][0]), abs(m[0][1]), abs(m[0][2]), abs(m[0][3])},
+						f32vec4{abs(m[1][0]), abs(m[1][1]), abs(m[1][2]), abs(m[1][3])},
+						f32vec4{abs(m[2][0]), abs(m[2][1]), abs(m[2][2]), abs(m[2][3])},
+						f32vec4{abs(m[3][0]), abs(m[3][1]), abs(m[3][2]), abs(m[3][3])} };
 	}
 
 	f32mat2 transpose(const f32mat2 &m) {

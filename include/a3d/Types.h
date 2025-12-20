@@ -338,28 +338,41 @@ namespace a3d {
 		Eight = 7
 	};
 
-	typedef struct {
+	struct Vertex {
 		math::vec3 position;
 		math::vec3 normal;
 		math::vec2 texCoord;
-	} Vertex;
+	};
 
-	typedef struct {
+	struct Face {
 		unsigned a;
 		unsigned b;
 		unsigned c;
-	} Face;
+	};
 
-	typedef struct {
+	// TODO: move?
+	struct AABB {
 		math::vec3 min;
 		math::vec3 max;
-	} AABB;
 
-	typedef struct {
-		float x;
-		float y;
-		float z;
-	} Extent;
+		bool valid() const { return min.x <= max.x && min.y <= max.y && min.z <= max.z; }
+
+		static AABB InvalidAABB() {
+			return {{1,1,1}, {-1,-1,-1}};
+		}
+
+		static AABB Union(const AABB& a, const AABB& b) {
+			if (!a.valid()) return b;
+			if (!b.valid()) return a;
+			return { math::min(a.min, b.min),
+					 math::max(a.max, b.max) };
+		}
+
+		static void Expand(AABB& a, const math::vec3& p) {
+			a.min = math::min(a.min, p);
+			a.max = math::max(a.max, p);
+		}
+	};
 
 	struct FrameStats {
 		std::chrono::nanoseconds frameTime;
@@ -374,9 +387,6 @@ namespace a3d {
 		unsigned 	numElements;
 		unsigned 	numPolygons;
 		unsigned 	numLights;
-		math::vec3 	cameraPosition;
-		math::quat 	cameraOrientation;
-
 		unsigned	numStaticBodies;
 		unsigned	numDynamicBodies;
 		unsigned	numKinematicBodies;
