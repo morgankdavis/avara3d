@@ -49,11 +49,6 @@ Program& Program::Lines() {
 	return program;
 }
 
-Program& Program::Points() {
-	static auto program = Program("points");
-	return program;
-}
-
 Program& Program::GroundPlane() {
 	static auto program = Program("ground_plane");
 	return program;
@@ -73,18 +68,15 @@ Program::Program(const string& name):
 		_glID = glCreateProgram();
 
 		if (_glID == 0) {
-			//logString(string("Unable to create shader program."));
-			//string errMsg = "Unable to create shader program.";
-			A3D_LOG_F("Unable to create shader program.");
-			//throw Exception(errMsg);
+			throw Exception("Unable to create shader program.");
 		}
 		else {
 			auto vsSource = Program::shaderSource(name, "vert");
 			auto fsSource = Program::shaderSource(name, "frag");
 			
 			if (vsSource && fsSource) {
-				vertexShaderSource(*vsSource);
-				fragmentShaderSource(*fsSource);
+				_vertexShaderSource = *vsSource;
+				_fragmentShaderSource = *fsSource;
 				
 				prepare();
 			}
@@ -101,50 +93,10 @@ Program::~Program() {
 /// Internal Member Functions ///
 
 bool Program::compile() {
-	
-	if (vertexShaderSource()) {
-		if (!compile(*vertexShaderSource(), ShaderType::Vertex)) return false;
-	}
-	
-	if (fragmentShaderSource()) {
-		if (!compile(*fragmentShaderSource(), ShaderType::Fragment)) return false;
-	}
-	
+	if (!compile(_vertexShaderSource, ShaderType::Vertex)) return false;
+	if (!compile(_fragmentShaderSource, ShaderType::Fragment)) return false;
 	return true;
 }
-
-//bool Program::link() {
-//
-//	if (isLinked()) return true;
-//	if (_glID <= 0) return false;
-//
-//	glLinkProgram(_glID);
-//
-//	GLint status = 0;
-//	glGetProgramiv(_glID, GL_LINK_STATUS, &status);
-//
-//	if (status != GL_NO_ERROR) {
-//		GLint length = 0;
-//		_logString = nullopt;
-//
-//		glGetProgramiv(_glID, GL_INFO_LOG_LENGTH, &length);
-//		if (length > 0) {
-//			// TODO: put on stack
-//			auto c_log = (GLchar*)new char[length];
-//			GLint written = 0;
-//			glGetProgramInfoLog(_glID, length, &written, c_log);
-//			_logString = string(c_log);
-//			//A3D_LOG_E("Link log:\n{}", c_log);
-//			delete[] c_log;
-//		}
-//
-//		return false;
-//	}
-//	else {
-//		isLinked(true);
-//		return true;
-//	}
-//}
 
 bool Program::link() {
 
@@ -230,10 +182,6 @@ void Program::unuse() {
 void Program::bindAttributeLocation(GLuint location, const char* name) {
 	glBindAttribLocation(_glID, location, name);
 }
-
-//void Program::bindFragDataLocation(GLuint location, const char* name) {
-//	glBindFragDataLocation(_glID, location, name);
-//}
 
 void Program::setUniform(const char* name, float x, float y, float z) {
 	
@@ -366,51 +314,6 @@ unsigned Program::getAttributeLocation(const char* name) const {
 	return glGetAttribLocation(_glID, name);
 }
 
-//void Program::printActiveUniforms() const {
-//
-//	GLint nUniforms, size, location, maxLen;
-//	GLchar* name;
-//	GLsizei written;
-//	GLenum type;
-//
-//	glGetProgramiv(_glID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLen);
-//	glGetProgramiv(_glID, GL_ACTIVE_UNIFORMS, &nUniforms);
-//
-//	name = (GLchar*)malloc(maxLen);
-//
-//	printf(" Location | Name\n");
-//	printf("------------------------------------------------\n");
-//	for (int i=0 ; i<nUniforms ; ++i) {
-//		glGetActiveUniform(_glID, i, maxLen, &written, &size, &type, name);
-//		location = glGetUniformLocation(_glID, name);
-//		printf(" %-8d | %s\n" ,location, name);
-//	}
-//
-//	free(name);
-//}
-//
-//void Program::printActiveAttribs() const {
-//
-//	GLint written, size, location, maxLength, nAttribs;
-//	GLenum type;
-//	GLchar* name;
-//
-//	glGetProgramiv(_glID, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength);
-//	glGetProgramiv(_glID, GL_ACTIVE_ATTRIBUTES, &nAttribs);
-//
-//	name = (GLchar*)malloc(maxLength);
-//
-//	printf(" Index | Name\n");
-//	printf("------------------------------------------------\n");
-//	for (int i=0 ; i<nAttribs ; i++) {
-//		glGetActiveAttrib(_glID, i, maxLength, &written, &size, &type, name);
-//		location = glGetAttribLocation(_glID, name);
-//		printf(" %-5d | %s\n", location, name);
-//	}
-//
-//	free(name);
-//}
-
 const string& Program::name() const {
 	return _name;
 }
@@ -423,41 +326,7 @@ bool Program::isLinked() const {
 	return _isLinked;
 }
 
-const optional<string>& Program::vertexShaderSource() const {
-	return _vertexShaderSource;
-}
-
-void Program::vertexShaderSource(string source) {
-	_vertexShaderSource = source;
-}
-
-const optional<string>& Program::fragmentShaderSource() const {
-	return _fragmentShaderSource;
-}
-
-void Program::fragmentShaderSource(string source) {
-	_fragmentShaderSource = source;
-}
-
 /// Private Member Functions ///
-
-//optional<string> Program::shaderSource(const string &name, const string &type) {
-//
-//	auto source = utils::ShaderSource(name, type);
-//
-//	if (source) {
-//		// add appropriate GLSL version header
-//
-//#ifdef A3D_GL_ES
-//		static const string PLATFORM_HEADER = "#version 300 es\n\nprecision mediump int;\nprecision mediump float;";
-//#else
-//		static const string PLATFORM_HEADER = "#version 410";
-//#endif
-//		return PLATFORM_HEADER + "\n\n" + *source;
-//	}
-//
-//	return nullopt;
-//}
 
 optional<string> Program::shaderSource(const string& name, const string& type) {
 
@@ -506,58 +375,6 @@ void Program::prepare() {
 		}
 	}
 }
-
-//bool Program::compile(const string& source, SHADER_TYPE type) {
-//
-//	GLuint shaderID = 0;
-//
-//	switch (type) {
-//		case SHADER_TYPE::VERTEX:
-//			shaderID = glCreateShader(GL_VERTEX_SHADER);
-//			break;
-//		case SHADER_TYPE::FRAGMENT:
-//			shaderID = glCreateShader(GL_FRAGMENT_SHADER);
-//			break;
-//		default:
-//			return false;
-//	}
-//
-//	const char* c_source = source.c_str();
-//	glShaderSource(shaderID, 1, &c_source, NULL);
-//	glCompileShader(shaderID);
-//
-//	GLint status = 0;
-//	glGetShaderiv(shaderID, GL_COMPILE_STATUS, &status);
-//	if (status != GL_NO_ERROR) {
-//		int length = 0;
-//		_logString = nullopt;
-//		glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &length);
-//		if (length > 0) {
-//			// TODO: put on stack
-////			GLchar c_log[length];
-////			int written = 0;
-////			glGetShaderInfoLog(shaderID, length, &written, c_log);
-////			_logString = string(c_log);
-////			A3D_LOG_W("Failed to compile {} shader:\n{}",
-////					 StringFromShaderType(type), *_logString);
-//
-//			auto c_log = (GLchar*)new char[length];
-//			GLint written = 0;
-//			glGetShaderInfoLog(shaderID, length, &written, c_log);
-//			_logString = string(c_log);
-//			A3D_LOG_W("Failed to compile {} shader:\n{}",
-//					 StringFromShaderType(type), *_logString);
-//			delete[] c_log;
-//		}
-//
-//		return false;
-//	}
-//	else {
-//		glAttachShader(_glID, shaderID);
-//
-//		return true;
-//	}
-//}
 
 bool Program::compile(const string& source, ShaderType type) {
 

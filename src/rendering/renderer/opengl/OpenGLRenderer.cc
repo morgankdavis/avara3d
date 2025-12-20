@@ -541,16 +541,11 @@ void OpenGLRenderer::render(const Scene& scene,
 
 	}, background);
 
-
-
 	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
 
 		auto worldLines = AABBLines(scene.aabb(false), *Color::Green());
 		render(worldLines, context, mat4(1.0), viewMat, projectionMat);
 	}
-
-
-
 
 //	SendEnvironmentUniforms(_glEnvironmentUBO, scene, stats);
 //	Program::Default().bindUniformBlock("EnvironmentBlock", _glEnvironmentUBO);
