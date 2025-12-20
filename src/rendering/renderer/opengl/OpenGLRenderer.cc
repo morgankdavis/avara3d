@@ -361,6 +361,16 @@ OpenGLRenderer::~OpenGLRenderer() {
 	CleanupTextureResources(_activeTextures, _textureGLMapping);
 	CleanupLinesResources(_activeLines, _linesGLMapping);
 
+	// TODO: move
+	if (_dbgLinesVBO) {
+		glDeleteBuffers(1, &_dbgLinesVBO);
+		_dbgLinesVBO = 0;
+	}
+	if (_dbgLinesVAO) {
+		glDeleteVertexArrays(1, &_dbgLinesVAO);
+		_dbgLinesVAO = 0;
+	}
+
 	ImGui_ImplOpenGL3_Shutdown();
 //	ImPlot::DestroyContext();
 	ImGui::DestroyContext();
@@ -447,6 +457,8 @@ void OpenGLRenderer::postTraversal(const Scene& scene,
 
 void OpenGLRenderer::render(const Scene& scene,
 							const RenderContext& context,
+							const mat4& viewMat,
+							const mat4& projectionMat,
 							const DebugOptions& debugOptions,
 							FrameStats& stats) {
 
@@ -529,6 +541,17 @@ void OpenGLRenderer::render(const Scene& scene,
 
 	}, background);
 
+
+
+	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
+
+		auto worldLines = AABBLines(scene.aabb(false), *Color::Green());
+		render(worldLines, context, mat4(1.0), viewMat, projectionMat);
+	}
+
+
+
+
 //	SendEnvironmentUniforms(_glEnvironmentUBO, scene, stats);
 //	Program::Default().bindUniformBlock("EnvironmentBlock", _glEnvironmentUBO);
 
@@ -550,7 +573,7 @@ void OpenGLRenderer::render(Mesh& mesh,
 		auto localAABB = mesh.localAABB();
 
 		// notice identity modelMat
-		auto worldLines = AABBLines(mesh.worldAABB(localAABB, modelMat, false), *Color::Red());
+		auto worldLines = AABBLines(mesh.worldAABB(modelMat, false), *Color::Red());
 		render(worldLines, context, mat4(1.0), viewMat, projectionMat);
 
 		// multiplying local AABB by modelMat creates OBB

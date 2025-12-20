@@ -319,7 +319,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 //			auto keysDown = im->keysDown();
 
 			static float MOVE_SPEED = 0;
-			if (!MOVE_SPEED) MOVE_SPEED = math::max(scene.rootNode()->aabb());
+			if (!MOVE_SPEED) MOVE_SPEED = math::max(scene.rootNode()->extent());
 
 			float moveMultiplier = 1.0;
 			if (keysDown.count(Key::LeftControl)) {
@@ -361,7 +361,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 		auto center = vec3(0, 30, 0);
 
-		static auto extent = scene.rootNode()->aabb();
+		static auto extent = scene.rootNode()->extent();
 		//static float radius = std::max(std::max(extent.x, extent.y), extent.z) * .46;
 		static float radius = math::max(extent) * .46; // a3d::math
 		static float radiusX = radius;
