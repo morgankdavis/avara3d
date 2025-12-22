@@ -8,6 +8,8 @@
 
 #include "a3d/rendering/material/Sampler.h"
 
+#include "a3d/IdGenerator.h"
+
 using namespace a3d;
 using namespace std;
 
@@ -15,6 +17,7 @@ using namespace std;
 
 Sampler::Sampler():
 // TODO: are these sensible?
+		_id{IdGenerator<SamplerId>::next()},
 		_minificationFilter{FilterMode::LinearMipmapLinear},
 		_magnificationFilter{FilterMode::Linear},
 		_maxAnisotropy{16},
@@ -96,6 +99,10 @@ void Sampler::wrapR(WrapMode mode) {
 }
 
 /// Internal Member Functions ///
+
+SamplerId Sampler::id() const noexcept {
+	return _id;
+}
 
 SamplerDirtyMask Sampler::dirtyMask() const {
 	return _dirtyMask;

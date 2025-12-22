@@ -85,12 +85,15 @@ namespace a3d {
 		
 		/// Internal Member Functions ///
 
+		MaterialId 							id() const noexcept;
+
 		MaterialDirtyMask 					dirtyMask() const;
 		void 								dirtyMask(MaterialDirtyMask mask);
 
 	private:
 		/// Private Member Variables ///
 
+		MaterialId 							_id;
 		std::optional<std::string>			_name;
 		MaterialProperty					_ambient;
 		MaterialProperty					_diffuse;

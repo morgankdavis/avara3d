@@ -609,7 +609,7 @@ void OpenGLRenderer::render(MeshElement& element,
 
 	if (!wireframe) {
 
-		// send material and material property uniforms
+		// send material and2 material property uniforms
 		SendMaterialUniforms(material, program, glTextureHandles);
 
 		// update material property filtering options

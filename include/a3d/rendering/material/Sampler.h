@@ -47,12 +47,15 @@ namespace a3d {
 
 		/// Internal Member Functions ///
 
+		SamplerId 							id() const noexcept;
+
 		SamplerDirtyMask 					dirtyMask() const;
 		void 								dirtyMask(SamplerDirtyMask mask);
 
 	private:
 		/// Private Member Variables ///
 
+		SamplerId 							_id;
 		FilterMode							_minificationFilter;
 		FilterMode							_magnificationFilter;
 		float								_maxAnisotropy;

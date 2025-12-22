@@ -9,6 +9,7 @@
 #include "a3d/rendering/material/Material.h"
 
 #include "a3d/Color.h"
+#include "a3d/IdGenerator.h"
 #include "a3d/diagnostic/exception/Exception.h"
 #include "a3d/diagnostic/log/Log.h"
 
@@ -39,6 +40,7 @@ shared_ptr<Material> Material::EmissionMaterial(MaterialProperty property) {
 /// Public Lifecycle Functions ///
 
 Material::Material():
+		_id{IdGenerator<MaterialId>::next()},
 		_name{},
 		_ambient{},
 		_diffuse{},
@@ -207,6 +209,10 @@ MaterialProperty Material::MissingTextureProperty() {
 }
 
 /// Internal Member Functions ///
+
+MaterialId Material::id() const noexcept {
+	return _id;
+}
 
 MaterialDirtyMask Material::dirtyMask() const {
 	return _dirtyMask;

@@ -13,6 +13,7 @@
 #include "magic_enum/magic_enum.hpp"
 
 #include "a3d/Color.h"
+#include "a3d/IdGenerator.h"
 #include "a3d/Image.h"
 #include "a3d/diagnostic/log/Log.h"
 #include "a3d/diagnostic/exception/UnsupportedFormatException.h"
@@ -146,6 +147,10 @@ void Mesh::replaceMaterial(int index, const shared_ptr<Material>& replacement) {
 }
 
 /// Internal Member Functions ///
+
+MeshId Mesh::id() const noexcept {
+	return _id;
+}
 
 void Mesh::burnTransform(const mat4& transform, bool normals) {
 	for (auto& element : elements()) {
@@ -306,6 +311,7 @@ void Mesh::genLocalAABB() {
 /// Private Lifecycle Functions ///
 
 Mesh::Mesh():
+		_id{IdGenerator<MeshId>::next()},
 		_name{},
 		_elements{},
 		_materials{},

@@ -345,9 +345,9 @@ namespace a3d {
 	};
 
 	struct Face {
-		unsigned a;
-		unsigned b;
-		unsigned c;
+		uint32_t a;
+		uint32_t b;
+		uint32_t c;
 	};
 
 	// TODO: move?
@@ -415,6 +415,11 @@ namespace a3d {
 
 	/// Internal Types ///
 
+	using MeshId = uint32_t;
+	using MaterialId = uint32_t;
+	using TextureId = uint32_t;
+	using SamplerId = uint32_t;
+
 	enum class ShaderType {
 		Vertex,
 		Fragment
@@ -458,6 +463,7 @@ namespace a3d {
 	enum class TextureDirtyMask : unsigned {
 		None =					0,
 		Contents = 				1 << 0,
+		Sampler =				1 << 1, // TODO: move to MaterialBinding dirty mask?
 		All = 					UINT_MAX
 	};
 	A3D_ENABLE_ENUM_MASK_OPS(TextureDirtyMask)

@@ -9,6 +9,7 @@
 #ifndef AVARA3D_TEXTURE_H
 #define AVARA3D_TEXTURE_H
 
+#include <atomic>
 #include <memory>
 
 #include "a3d/Types.h"
@@ -37,8 +38,13 @@ namespace a3d {
 		const Sampleable&				contents() const;
 		void							contents(const Sampleable& contents);
 
+		// TODO: move to TextureBinding
 		unsigned						mappingChannel() const;
 		void							mappingChannel(unsigned channel);
+
+		/// Internal Member Functions ///
+
+		TextureId	 					id() const noexcept;
 
 		TextureDirtyMask 				dirtyMask() const;
 		void 							dirtyMask(TextureDirtyMask mask);
@@ -46,6 +52,7 @@ namespace a3d {
 	private:
 		/// Private Member Variables ///
 
+		TextureId 						_id;
 		std::shared_ptr<Sampler>		_sampler;
 		Sampleable						_contents;
 		unsigned						_mappingChannel;

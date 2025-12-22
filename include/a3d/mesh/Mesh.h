@@ -71,6 +71,8 @@ namespace a3d {
 
 		/// Internal Member Functions ///
 
+		MeshId						id() const noexcept;
+
 		void 						burnTransform(const math::mat4& transform,
 												  bool normals);
 
@@ -112,6 +114,7 @@ namespace a3d {
 
 		/// Private Member Variables ///
 
+		MeshId 						_id;
 		std::optional<std::string>	_name;
 		AABB						_localAABB;
 		MeshDirtyMask				_dirtyMask;

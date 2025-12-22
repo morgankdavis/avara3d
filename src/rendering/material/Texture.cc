@@ -8,12 +8,15 @@
 
 #include "a3d/rendering/material/Texture.h"
 
+#include "a3d/IdGenerator.h"
+
 using namespace a3d;
 using namespace std;
 
 /// Public Lifecycle Functions ///
 
 Texture::Texture():
+		_id{IdGenerator<TextureId>::next()},
 		_sampler{nullptr},
 		_contents{monostate{}},
 		_mappingChannel{0},
@@ -22,10 +25,11 @@ Texture::Texture():
 Texture::Texture(const Sampleable& contents,
 				 const shared_ptr<Sampler>& sampler,
 				 unsigned mappingChannel):
-		_sampler{sampler},
-		_contents{contents},
-		_mappingChannel{mappingChannel},
-		_dirtyMask{TextureDirtyMask::All} { }
+		Texture() {
+	_sampler = sampler;
+	_contents = contents;
+	_mappingChannel = mappingChannel;
+}
 
 Texture::~Texture() {}
 
@@ -37,6 +41,7 @@ shared_ptr<Sampler> Texture::sampler() const {
 
 void Texture::sampler(const shared_ptr<Sampler>& sampler) {
 	_sampler = sampler;
+	_dirtyMask = A3D_MASK_ADD(_dirtyMask, TextureDirtyMask::Sampler);
 }
 
 const Sampleable& Texture::contents() const {
@@ -45,6 +50,7 @@ const Sampleable& Texture::contents() const {
 
 void Texture::contents(const Sampleable& contents) {
 	_contents = contents;
+	_dirtyMask = A3D_MASK_ADD(_dirtyMask, TextureDirtyMask::Contents);
 }
 
 unsigned Texture::mappingChannel() const {
@@ -53,6 +59,12 @@ unsigned Texture::mappingChannel() const {
 
 void Texture::mappingChannel(unsigned channel) {
 	_mappingChannel = channel;
+}
+
+/// Internal Member Functions ///
+
+TextureId Texture::id() const noexcept {
+	return _id;
 }
 
 TextureDirtyMask Texture::dirtyMask() const {
