@@ -159,18 +159,6 @@ namespace a3d {
 
 		void	 							applyPhysicsTransform(const math::mat4& transform);
 
-		void 								gather(std::vector<RenderItem>& nodes,
-												   std::vector<Node*>& lightNodes,
-												   FrameStats& stats);
-
-		void 								draw(Renderer& renderer,
-												 const RenderContext& context,
-												 const math::mat4& viewMat,
-												 const math::mat4& projectionMat,
-												 const DebugOptions& debugOptions,
-												 std::vector<Node*>& lightNodes,
-												 FrameStats& stats);
-
 		void								_debugPrint();
 		void								_debugPrintRec(Node& node,
 															   unsigned level);

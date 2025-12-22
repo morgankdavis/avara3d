@@ -60,7 +60,8 @@ VisualWorld::VisualWorld(RenderContext& context):
 		_renderContext{&context},
 		_scene{},
 		_willRenderCallback{},
-		_didRenderCallback{} {
+		_didRenderCallback{}/*,
+		_packetizer{}*/ {
 
 	_renderContext->attachedToVisualWorld(this);
 
@@ -304,25 +305,20 @@ void VisualWorld::draw(const Scene& scene,
 					/***************/ profiler.add(Profiler::Tag::RenderCpu, submitTimer1.stop());
 
 					/***************/ Timer engineTimer2(true);
-
-					vector<Node*> lightNodes;
-
-					/***************/ Timer submitTimer2(true);
-//#define RENDER_LIST
-#ifdef RENDER_LIST
-
-					vector<RenderItem> items{};
-					vector <AABB> aabbs{};
-					// Meshes/ABBs
-
-
-					scene.rootNode()->gather(items, lightNodes, stats);
-
+					auto gatherItems = RenderPacketizer::GatherRenderItems(scene,
+																		   *_renderContext,
+																		   viewMat,
+																		   stats);
 					/***************/ profiler.add(Profiler::Tag::EngineCpu, engineTimer2.stop());
 
 					/***************/ Timer submitTimer2(true);
 
-					for (auto& item : items) {
+					renderer->postTraversal(scene,
+											*_renderContext,
+											gatherItems.temp_lightNodes,
+											debugOptions, stats);
+
+					for (const auto& item : gatherItems.renderItems) {
 						renderer->render(*item.element,
 										 *_renderContext,
 										 *item.material,
@@ -333,25 +329,18 @@ void VisualWorld::draw(const Scene& scene,
 										 stats);
 					}
 
-					/***************/ profiler.add(Profiler::Tag::RenderCpu, submitTimer2.stop());
-
-//					renderer->draw();
-#else
-					scene.rootNode()->draw(*renderer,
-										   *_renderContext,
-										   viewMat,
-										   projectionMat,
-										   debugOptions,
-										   lightNodes,
-										   stats);
-#endif
-					//--stats.nodes; // don't count the root node
-
-					renderer->postTraversal(scene, *_renderContext, lightNodes, debugOptions, stats);
+					// ! temporary !
+					for (const auto& meshInstance : gatherItems.temp_meshInstances) {
+						renderer->render(*meshInstance.mesh,
+										 *_renderContext,
+										 meshInstance.model,
+										 viewMat,
+										 projectionMat,
+										 debugOptions,
+										 stats);
+					}
 
 					/***************/ profiler.add(Profiler::Tag::RenderCpu, submitTimer2.stop());
-
-					/***************/ profiler.add(Profiler::Tag::EngineCpu, engineTimer2.stop());
 
 					if (physicalWorld) {
 
@@ -376,10 +365,6 @@ void VisualWorld::draw(const Scene& scene,
 
 			_renderContext->endFrame(scene);
 			renderer->endFrame(scene, *_renderContext, debugOptions, stats, profiler, statsHistory);
-
-			// !!!!!!!!!!!! GROSS (TEMPORARY) HACK !!!!!!!!!!!!!!!!!!!!!!
-			auto submissionTime = profiler.time(Profiler::Tag::RenderCpu);
-			/***************/ profiler.subtract(Profiler::Tag::EngineCpu, submissionTime);
 
 			_renderContext->swapBuffers();
 

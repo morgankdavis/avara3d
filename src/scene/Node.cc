@@ -761,68 +761,6 @@ void Node::applyPhysicsTransform(const mat4& transform) {
 	}
 }
 
-void Node::gather(vector<RenderItem>& items,
-				  vector<Node*>& lightNodes,
-				  FrameStats& stats) {
-
-	++stats.numNodes;
-
-	if (!_hidden) {
-
-		if (_light) {
-			lightNodes.push_back(this);
-		}
-
-		if (_mesh) {
-			auto model = worldTransform();
-			_mesh->gather(items, model, stats);
-		}
-	}
-
-	for (auto& child : _children) {
-		child->gather(items, lightNodes, stats);
-	}
-}
-
-void Node::draw(Renderer& renderer,
-				const RenderContext& context,
-				const mat4& viewMat,
-				const mat4& projectionMat,
-				const DebugOptions& debugOptions,
-				std::vector<Node*>& lightNodes,
-				FrameStats& stats) {
-
-	++stats.numNodes;
-
-	if (!_hidden) {
-
-		if (_light) {
-			lightNodes.push_back(this);
-		}
-
-		if (_mesh) {
-
-			_mesh->draw(renderer,
-						context,
-						worldTransform(),
-						viewMat,
-						projectionMat,
-						debugOptions,
-						stats);
-		}
-	}
-
-	for (auto& child : _children) {
-		child->draw(renderer,
-					context,
-					viewMat,
-					projectionMat,
-					debugOptions,
-					lightNodes,
-					stats);
-	}
-}
-
 void Node::_debugPrint() {
 
 	int level = 0;

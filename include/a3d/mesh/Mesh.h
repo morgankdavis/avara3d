@@ -76,18 +76,6 @@ namespace a3d {
 		void 						burnTransform(const math::mat4& transform,
 												  bool normals);
 
-		void 						gather(std::vector<RenderItem>& items,
-										   math::mat4& model,
-										   FrameStats& stats);
-
-		void 						draw(Renderer& renderer,
-										 const RenderContext& context,
-										 const math::mat4& modelMat,
-										 const math::mat4& viewMat,
-										 const math::mat4& projectionMat,
-										 const DebugOptions& debugOptions,
-										 FrameStats& stats);
-
 		AABB						localAABB() const;
 		AABB						worldAABB(const math::mat4& worldMat,
 											  bool vertfit) const;

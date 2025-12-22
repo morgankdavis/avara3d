@@ -35,28 +35,28 @@ void Profiler::add(const string& key, chrono::nanoseconds ns) {
 	}
 }
 
-void Profiler::subtract(Tag tag, std::chrono::nanoseconds ns) {
-	if (_taggedSamples.contains(tag)) {
-		// ! note, if ns is larger than _taggedSamples[tag], bad things happen.
-		auto newNS = _taggedSamples[tag] - ns;
-		_taggedSamples[tag] = newNS;
-	}
-	else {
-		A3D_LOG_E("Can't subtract {}ns for {} -- no samples exist yet for tag.",
-				  ns, magic_enum::enum_name(tag));
-	}
-}
-void Profiler::subtract(const std::string& key, std::chrono::nanoseconds ns) {
-	if (_keyedSamples.contains(key)) {
-		// ! note, if ns is larger than _taggedSamples[tag], bad things happen.
-		auto newNS = _keyedSamples[key] - ns;
-		_keyedSamples[key] = newNS;
-	}
-	else {
-		A3D_LOG_E("Can't subtract {}ns key '{}' -- no samples exist yet for key.",
-				  ns, key);
-	}
-}
+//void Profiler::subtract(Tag tag, std::chrono::nanoseconds ns) {
+//	if (_taggedSamples.contains(tag)) {
+//		// ! note, if ns is larger than _taggedSamples[tag], bad things happen.
+//		auto newNS = _taggedSamples[tag] - ns;
+//		_taggedSamples[tag] = newNS;
+//	}
+//	else {
+//		A3D_LOG_E("Can't subtract {}ns for {} -- no samples exist yet for tag.",
+//				  ns, magic_enum::enum_name(tag));
+//	}
+//}
+//void Profiler::subtract(const std::string& key, std::chrono::nanoseconds ns) {
+//	if (_keyedSamples.contains(key)) {
+//		// ! note, if ns is larger than _taggedSamples[tag], bad things happen.
+//		auto newNS = _keyedSamples[key] - ns;
+//		_keyedSamples[key] = newNS;
+//	}
+//	else {
+//		A3D_LOG_E("Can't subtract {}ns key '{}' -- no samples exist yet for key.",
+//				  ns, key);
+//	}
+//}
 
 chrono::nanoseconds Profiler::time(Tag tag) {
 	if (_taggedSamples.contains(tag)) {

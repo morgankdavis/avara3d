@@ -41,38 +41,6 @@ MeshElement::~MeshElement() {
 
 /// Internal Member Functions ///
 
-void MeshElement::gather(vector<RenderItem>& items,
-						 Material& material,
-						 mat4& model,
-						 FrameStats& stats) {
-	++stats.numElements;
-	stats.numPolygons += _faces.size();
-
-	items.push_back({this, &material, model});
-}
-
-void MeshElement::draw(Renderer& renderer,
-					   const RenderContext& context,
-					   Material& material,
-					   const mat4& modelMat,
-					   const mat4& viewMat,
-					   const mat4& projectionMat,
-					   const DebugOptions& debugOptions,
-					   FrameStats& stats) {
-	
-	renderer.render(*this,
-					context,
-					material,
-					modelMat,
-					viewMat,
-					projectionMat,
-					debugOptions,
-					stats);
-
-	++stats.numElements;
-	stats.numPolygons += _faces.size();
-}
-
 void MeshElement::burnTransform(const mat4& transform, bool normals) {
 
 	for (auto& vert : _vertices) {
@@ -99,11 +67,66 @@ AABB MeshElement::localAABB() const {
 	return _localAABB;
 }
 
+AABB MeshElement::worldAABB(const math::mat4& worldTransform, bool vertfit) const {
+
+	// TODO: consolidate (Mesh has the same function)
+
+	// fit over verticies - tighter - slow!
+	if (vertfit) {
+
+		static const float maxFloat = math::f32_max();
+		static const float minFloat = math::f32_lowest();
+		AABB out = { {maxFloat, maxFloat, maxFloat},
+					 {minFloat, minFloat, minFloat} };
+
+		for (const auto& v : vertices()) {
+			vec3 p = vec3(worldTransform * vec4(v.position, 1.0f));
+			out.min.x = math::min(out.min.x, p.x);
+			out.max.x = math::max(out.max.x, p.x);
+			out.min.y = math::min(out.min.y, p.y);
+			out.max.y = math::max(out.max.y, p.y);
+			out.min.z = math::min(out.min.z, p.z);
+			out.max.z = math::max(out.max.z, p.z);
+		}
+
+		return out;
+	}
+		// fit over OBB - looser - fast!
+	else {
+
+		auto localAABB = MeshElement::localAABB();
+
+		const vec3 c = (localAABB.min + localAABB.max) / 2.0f; // local center
+		const vec3 e = (localAABB.max - localAABB.min) / 2.0f; // local half extents
+
+		const vec3 C = vec3{worldTransform * vec4(c, 1.0f)}; // world center
+
+		// linear part (rotation/scale/shear)
+		const mat3 L = math::mat3{worldTransform};
+
+		const mat3 A = math::abs(L);
+
+		const vec3 E = A * e; // world half extents
+
+		return AABB{C - E, C + E};
+	}
+}
+
+//vec3 MeshElement::localExtent() const {
+//	auto aabb = MeshElement::localAABB();
+//	return { aabb.max.x - aabb.min.x,
+//			 aabb.max.y - aabb.min.y,
+//			 aabb.max.z - aabb.min.z };
+//}
+
 vec3 MeshElement::localExtent() const {
-	auto aabb = MeshElement::localAABB();
-	return { aabb.max.x - aabb.min.x,
-			 aabb.max.y - aabb.min.y,
-			 aabb.max.z - aabb.min.z };
+	auto aabb = localAABB();
+	return aabb.max - aabb.min;
+}
+
+vec3 MeshElement::worldExtent(const mat4& worldTransform) const {
+	auto aabb = worldAABB(worldTransform, true);
+	return aabb.max - aabb.min;
 }
 
 MeshElementDirtyMask MeshElement::dirtyMask() const {

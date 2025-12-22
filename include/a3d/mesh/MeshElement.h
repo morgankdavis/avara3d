@@ -36,20 +36,6 @@ namespace a3d {
 
 		/// Internal Member Functions ///
 
-		void 							gather(std::vector<RenderItem>& items,
-											   Material& material,
-											   math::mat4& model,
-											   FrameStats& stats);
-
-		void 							draw(Renderer& renderer,
-											 const RenderContext& context,
-											 Material& material,
-											 const math::mat4& modelMat,
-											 const math::mat4& viewMat,
-											 const math::mat4& projectionMat,
-											 const DebugOptions& debugOptions,
-											 FrameStats& stats);
-
 		void 							burnTransform(const math::mat4& transform,
 													  bool normals);
 
@@ -57,7 +43,10 @@ namespace a3d {
 		const std::vector<Face>&		faces() const;
 
 		AABB							localAABB() const;
+		AABB							worldAABB(const math::mat4& worldMat,
+											  bool vertfit) const;
 		math::vec3 						localExtent() const;
+		math::vec3 						worldExtent(const math::mat4& worldTransform) const;
 
 		MeshElementDirtyMask 			dirtyMask() const;
 		void 							dirtyMask(MeshElementDirtyMask mask);

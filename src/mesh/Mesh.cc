@@ -160,68 +160,13 @@ void Mesh::burnTransform(const mat4& transform, bool normals) {
 	genLocalAABB();
 }
 
-void Mesh::gather(vector<RenderItem>& items, mat4& model, FrameStats& stats) {
-
-	// for (int e=0; e<_elements.size(); ++e) {
-	// 	auto& element = _elements[e];
-	//
-	// 	Material* material = nullptr;
-	// 	if (_materials.size() > e) {
-	// 		material = _materials[e].get();
-	// 	}
-	// 	else {
-	// 		material = Material::DefaultMaterial().get();
-	// 	}
-	//
-	//	// cl.exe on windows thinks this doesn't match declaration in MeshElement.h?
-	// 	element->gather(items, *material, model, stats);
-	// }
-	//
-	// ++stats.numMeshes;
-}
-
-void Mesh::draw(Renderer& renderer,
-				const RenderContext& context,
-				const mat4& modelMat,
-				const mat4& viewMat,
-				const mat4& projectionMat,
-				const DebugOptions& debugOptions,
-				FrameStats& stats) {
-
-	renderer.render(*this,
-					context,
-					modelMat, viewMat, projectionMat,
-					debugOptions, stats);
-	
-	for (int e=0; e<_elements.size(); ++e) {
-
-		auto& element = _elements[e];
-		shared_ptr<Material> material = nullptr;
-		if (_materials.size() > e) {
-			material = _materials[e];
-		}
-		else {
-			material = Material::DefaultMaterial();
-		}
-
-		element->draw(renderer,
-					  context,
-					  *material,
-					  modelMat,
-					  viewMat,
-					  projectionMat,
-					  debugOptions,
-					  stats);
-	}
-
-	++stats.numMeshes;
-}
-
 AABB Mesh::localAABB() const {
 	return _localAABB;
 }
 
 AABB Mesh::worldAABB(const math::mat4& worldTransform, bool vertfit) const {
+
+	// TODO: consolidate (MeshElement has the same function)
 
 	// fit over verticies - tighter - slow!
 	if (vertfit) {

@@ -13,6 +13,7 @@
 #include <memory>
 
 #include "a3d/Types.h"
+#include "a3d/rendering/RenderPacketizer.h"
 
 namespace a3d {
 
@@ -23,8 +24,8 @@ namespace a3d {
 	class Node;
 	class PhysicalWorld;
 	class Profiler;
-	class RenderContext;
 	class Renderer;
+	class RenderContext;
 	class Scene;
 
 	class VisualWorld {
@@ -114,6 +115,9 @@ namespace a3d {
 		Scene*									_scene;
 		WillRenderCallback 						_willRenderCallback;
 		DidRenderCallback 						_didRenderCallback;
+
+		// TODO: move
+//		RenderPacketizer						_packetizer;
 	};
 }
 
