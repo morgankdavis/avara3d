@@ -13,7 +13,7 @@
 #include <memory>
 
 #include "a3d/Types.h"
-#include "a3d/rendering/RenderPacketizer.h"
+#include "a3d/rendering/RenderGatherer.h"
 
 namespace a3d {
 

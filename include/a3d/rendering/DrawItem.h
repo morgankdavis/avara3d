@@ -23,10 +23,10 @@ namespace a3d {
 		Material* 		material = 		nullptr;
 
 		math::mat4 		model = 		math::mat4(1.0);
+		float 			depth =			0.0f;
 
 		PassKind 		pass = 			PassKind::Main;
 
-		float 			depth =			0.0f;
 		uint64_t 		sortKey = 		0;
 	};
 }

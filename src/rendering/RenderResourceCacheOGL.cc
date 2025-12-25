@@ -25,10 +25,10 @@ PipelineOGL RenderResourceCacheOGL::buildPipeline(const PipelineKey& key) {
 	p.key.doubleSided = key.doubleSided;
 	p.key.fillMode = key.fillMode;
 	p.key.blendFunction = key.blendFunction;
+	p.key.depthWrite = true;
 
 	// For now assume depth always on for your main pass:
 	p.depthTest  = true;
-	p.depthWrite = true;
 
 #warning TEMPORARY
 	switch (p.key.shaderKind) {

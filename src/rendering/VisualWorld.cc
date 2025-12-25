@@ -23,7 +23,8 @@
 #include "a3d/profiling/Profiler.h"
 #include "a3d/profiling/Timer.h"
 #include "a3d/rendering/RenderItem.h"
-#include "a3d/rendering/RenderResolverOGL.h"
+#include "a3d/rendering/RenderPacket.h"
+//#include "a3d/rendering/RenderResolver.h"
 #include "a3d/rendering/RenderResourceCacheOGL.h"
 #include "a3d/rendering/light/Light.h"
 #include "a3d/rendering/material/Material.h"
@@ -319,11 +320,11 @@ void VisualWorld::draw(const Scene& scene,
 
 
 					Timer engineTimer2(true); /***************/
-					auto gatherItems = RenderPacketizer::GatherRenderItems(scene,
-																		   *_renderContext,
-																		   viewMat,
-																		   debugOptions,
-																		   stats);
+					auto gatherItems = RenderGatherer::GatherRenderItems(scene,
+																		 *_renderContext,
+																		 viewMat,
+																		 debugOptions,
+																		 stats);
 					profiler.add(Profiler::Tag::EngineCpu, engineTimer2.stop());
 
 
@@ -342,23 +343,48 @@ void VisualWorld::draw(const Scene& scene,
 					static RenderResourceCacheOGL _cache{};
 //					auto& cache = static_cast<OpenGLRenderer&>(*renderer).cache();
 
-					for (const auto& item : gatherItems.renderItems) {
+//					for (const auto& item : gatherItems.renderItems) {
+//
+//						PipelineKey pipelineKey = RenderGatherer::ComputePipelineKey(*item.material,
+//																						1);
+//						PipelineHandle pipelineHandle = _cache.ensurePipeline(pipelineKey);
+//						renderer->bindPipeline(pipelineHandle, _cache);
+//
+//						// later: bind mesh/material + draw
+//
+//						renderer->render(*item.element,
+//										 *_renderContext,
+//										 *item.material,
+//										 item.model,
+//										 viewMat,
+//										 projectionMat,
+//										 debugOptions,
+//										 stats);
+//					}
 
-						PipelineKey pipelineKey = RenderResolverOGL::ComputePipelineKey(*item.material,
-																						1);
-						PipelineHandle pipelineHandle = _cache.ensurePipeline(pipelineKey);
-						renderer->bindPipeline(pipelineHandle, _cache);
+					RenderPacket packet = RenderGatherer::BuildRenderPacket(gatherItems,
+																			debugOptions,
+																			_cache,
+																			/*vertexLayoutKey=*/1);
 
-						// later: bind mesh/material + draw
+					for (const auto& di : packet.main) {
 
-						renderer->render(*item.element,
-										 *_renderContext,
-										 *item.material,
-										 item.model,
-										 viewMat,
-										 projectionMat,
+						renderer->bindPipeline(di.pipeline, _cache);
+
+						// TEMP: still use old rendering until Step 2 is done
+						renderer->render(*di.element, *_renderContext, *di.material,
+										 di.model, viewMat, projectionMat,
 										 debugOptions,
 										 stats);
+					}
+
+					for (const auto& di : packet.wire) {
+
+						renderer->bindPipeline(di.pipeline, _cache);
+
+						renderer->render(*di.element, *_renderContext, *di.material,
+										 di.model, viewMat, projectionMat,
+										 debugOptions, stats);
 					}
 
 					// ! temporary !

@@ -7,6 +7,8 @@
 
 #include <vector>
 
+#include "a3d/rendering/DrawItem.h"
+
 namespace a3d {
 
 	class DrawItem;

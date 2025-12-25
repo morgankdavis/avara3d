@@ -11,6 +11,11 @@
 
 namespace a3d {
 
+
+	using PipelineHandle = uint32_t;
+	static constexpr PipelineHandle INVALID_PIPELINE = 0xFFFFFFFFu;
+
+
 	enum class ShaderKind : uint8_t {
 		Default,
 //		Skybox,

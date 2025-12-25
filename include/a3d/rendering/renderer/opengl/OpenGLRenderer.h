@@ -167,10 +167,10 @@ namespace a3d {
 		void bindPipeline(PipelineHandle h, const RenderResourceCacheOGL& cache) override;
 		void bindMaterial(const Material& material) override;
 		void bindMeshElement(const MeshElement& element) override;
-		void setPerObject(const math::mat4& model,
-						  const math::mat4& view,
-						  const math::mat4& projection) override;
-		void drawBound() override;
+//		void setPerObject(const math::mat4& model,
+//						  const math::mat4& view,
+//						  const math::mat4& projection) override;
+//		void drawBound() override;
 
 		RenderResourceCacheOGL _cache;
 		GLStateCache _state;

@@ -12,14 +12,11 @@
 #include "glad/glad.h"
 #endif
 
-#include "a3d/rendering/RenderResolverOGL.h"
+#include "a3d/rendering/PipelineKey.h"
+#include "a3d/rendering/RenderResolver.h"
 
 namespace a3d {
 
-
-
-	using PipelineHandle = uint32_t;
-	static constexpr PipelineHandle INVALID_PIPELINE = 0xFFFFFFFFu;
 
 
 
@@ -36,11 +33,12 @@ namespace a3d {
 //		// optionally: vertex layout ID, defines, etc.
 //	};
 
+
 	struct PipelineOGL {
-		GLuint program = 0;
-		PipelineKey key; // store it
-		bool depthTest = true;
-		bool depthWrite = true;
+		PipelineKey 	key;
+		GLuint 			program = 		0;
+		bool 			depthTest = 	true;
+//		bool 			depthWrite =	true;
 	};
 
 

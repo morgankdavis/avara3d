@@ -1,21 +1,25 @@
 
-#ifndef AVARA3D_RENDERPACKETIZER_H
-#define AVARA3D_RENDERPACKETIZER_H
+#ifndef AVARA3D_RENDERGATHERER_H
+#define AVARA3D_RENDERGATHERER_H
 
 #include <vector>
 
 #include "a3d/Math.h"
 #include "a3d/Types.h"
-#include "a3d/rendering/RenderItem.h"
+#include "a3d/rendering/PipelineKey.h"
 
 namespace a3d {
 
-#warning TEMPORARY
-	class Node; // temporary
+	struct RenderItem;
+	struct RenderPacket;
+	struct RenderResourceCacheOGL;
+
+	class Material;
+	class Mesh;
+	class Node;
 	class RenderContext;
 	class Scene;
 
-#warning TEMPORARY
 	// ! temporary !
 	struct MeshInstance {
 		Mesh*		mesh;
@@ -29,7 +33,7 @@ namespace a3d {
 		std::vector<Node*> 			temp_lightNodes; // for postTraversal selection
 	};
 
-	class RenderPacketizer {
+	class RenderGatherer {
 
 	public:
 
@@ -38,7 +42,25 @@ namespace a3d {
 											  const a3d::math::mat4& view,
 											  const DebugOptions& debugOptions, // ! temporary !
 											  a3d::FrameStats& stats);
+
+
+
+
+
+
+
+		static PipelineKey ComputePipelineKey(const Material& material, uint32_t vertexLayoutKey);
+		static PipelineKey MakeMainKey(const RenderItem& item, uint32_t vertexLayoutKey);
+		static PipelineKey MakeWireKey(const RenderItem& item, uint32_t vertexLayoutKey);
+
+
+
+
+		static RenderPacket BuildRenderPacket(const GatherOutput& gather,
+											  const DebugOptions& debugOptions,
+											  RenderResourceCacheOGL& cache,
+											  uint32_t vertexLayoutKey);
 	};
 }
 
-#endif //AVARA3D_RENDERPACKETIZER_H
+#endif //AVARA3D_RENDERGATHERER_H

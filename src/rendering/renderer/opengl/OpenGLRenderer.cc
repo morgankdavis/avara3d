@@ -3150,17 +3150,20 @@ void OpenGLRenderer::bindPipeline(PipelineHandle h, const RenderResourceCacheOGL
 		glDisable(GL_DEPTH_TEST);
 	}
 
-	glDepthMask(p.depthWrite ? GL_TRUE : GL_FALSE);
+	glDepthMask(p.key.depthWrite ? GL_TRUE : GL_FALSE);
 
-	// fill mode
+#ifndef A3D_GL_ES
+	const bool lineSmooth = (p.key.fillMode == FillMode::Lines) && (p.key.pass == PassKind::Wire);
+	if (lineSmooth) glEnable(GL_LINE_SMOOTH);
+	else glDisable(GL_LINE_SMOOTH);
+#endif
+
 #ifndef A3D_GL_ES
 	switch (p.key.fillMode) {
-		case FillMode::Fill:	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);	break;
-		case FillMode::Lines:	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);	break;
-		case FillMode::Points:	glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);	break;
+		case FillMode::Fill:   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);  break;
+		case FillMode::Lines:  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);  break;
+		case FillMode::Points: glPolygonMode(GL_FRONT_AND_BACK, GL_POINT); break;
 	}
-
-	glEnable(GL_LINE_SMOOTH); // ! try without !
 #endif
 
 	// blend (your enum only has Disabled right now)
@@ -3171,8 +3174,6 @@ void OpenGLRenderer::bindPipeline(PipelineHandle h, const RenderResourceCacheOGL
 		glEnable(GL_BLEND);
 		// glBlendFunc(...) based on your future BlendFunction values
 	}
-
-	glDepthMask(p.key.depthWrite);
 
 	if (p.key.polygonOffset) {
 		glEnable(GL_POLYGON_OFFSET_LINE);
@@ -3193,12 +3194,12 @@ void OpenGLRenderer::bindMeshElement(const MeshElement& element) {
 
 }
 
-void OpenGLRenderer::setPerObject(const math::mat4& model,
-								  const math::mat4& view,
-								  const math::mat4& projection) {
-
-}
-
-void OpenGLRenderer::drawBound() {
-
-}
+//void OpenGLRenderer::setPerObject(const math::mat4& model,
+//								  const math::mat4& view,
+//								  const math::mat4& projection) {
+//
+//}
+//
+//void OpenGLRenderer::drawBound() {
+//
+//}

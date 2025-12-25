@@ -107,10 +107,10 @@ namespace a3d {
 		virtual void bindPipeline(PipelineHandle h, const RenderResourceCacheOGL& cache) = 0;
 		virtual void bindMaterial(const Material& material) = 0;
 		virtual void bindMeshElement(const MeshElement& element) = 0;
-		virtual void setPerObject(const math::mat4& model,
-								  const math::mat4& view,
-								  const math::mat4& projection) = 0;
-		virtual void drawBound() = 0;
+//		virtual void setPerObject(const math::mat4& model,
+//								  const math::mat4& view,
+//								  const math::mat4& projection) = 0;
+//		virtual void drawBound() = 0;
 	};
 }
 
