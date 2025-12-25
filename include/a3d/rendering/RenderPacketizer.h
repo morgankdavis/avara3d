@@ -10,10 +10,12 @@
 
 namespace a3d {
 
+#warning TEMPORARY
 	class Node; // temporary
 	class RenderContext;
 	class Scene;
 
+#warning TEMPORARY
 	// ! temporary !
 	struct MeshInstance {
 		Mesh*		mesh;
@@ -32,9 +34,10 @@ namespace a3d {
 	public:
 
 		static GatherOutput GatherRenderItems(const a3d::Scene& scene,
-														 const a3d::RenderContext& context,
-														 const a3d::math::mat4& view,
-														 a3d::FrameStats& stats);
+											  const a3d::RenderContext& context,
+											  const a3d::math::mat4& view,
+											  const DebugOptions& debugOptions, // ! temporary !
+											  a3d::FrameStats& stats);
 	};
 }
 

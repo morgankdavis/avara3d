@@ -23,6 +23,8 @@
 #include "a3d/profiling/Profiler.h"
 #include "a3d/profiling/Timer.h"
 #include "a3d/rendering/RenderItem.h"
+#include "a3d/rendering/RenderResolverOGL.h"
+#include "a3d/rendering/RenderResourceCacheOGL.h"
 #include "a3d/rendering/light/Light.h"
 #include "a3d/rendering/material/Material.h"
 #include "a3d/rendering/material/Sampler.h"
@@ -244,12 +246,12 @@ void VisualWorld::detachedFromScene(Scene& scene) {
 }
 
 #include "glad/glad.h"
-#define A3D_GL_CHECK()                           \
-    do {                                              \
-        GLenum err;                                   \
-        while ((err = glGetError()) != GL_NO_ERROR) { \
-            A3D_LOG_E("GL error 0x{:X}", err); \
-        }                                             \
+#define A3D_GL_CHECK()                           		\
+    do {                                              	\
+        GLenum err;                                   	\
+        while ((err = glGetError()) != GL_NO_ERROR) { 	\
+            A3D_LOG_E("GL error 0x{:X}", err); 			\
+        }                                             	\
     } while (0);
 
 void VisualWorld::draw(const Scene& scene,
@@ -279,10 +281,7 @@ void VisualWorld::draw(const Scene& scene,
 				auto povScene = pov->scene();
 				if (povScene != nullptr && povScene == &scene) {
 
-					/***************/ Timer engineTimer1(true);
-
-//					stats.cameraPosition = pov->worldPosition();
-//					stats.cameraOrientation = pov->worldOrientation();
+					Timer engineTimer1(true); /***************/
 
 					auto frameBufferSize = _renderContext->framebufferSize();
 
@@ -294,31 +293,64 @@ void VisualWorld::draw(const Scene& scene,
 					auto viewMat = inverse(pov->worldTransform());
 					auto projectionMat = pov->camera()->projection();
 
-					/***************/ profiler.add(Profiler::Tag::EngineCpu, engineTimer1.stop());
+					profiler.add(Profiler::Tag::EngineCpu, engineTimer1.stop()); /***************/
 
-					/***************/ Timer submitTimer1(true);
 
-					renderer->render(scene, *_renderContext, viewMat, projectionMat, debugOptions, stats);
+
+
+					Timer submitTimer1(true); /***************/
+
+					renderer->render(scene,
+									 *_renderContext,
+									 viewMat,
+									 projectionMat,
+									 debugOptions,
+									 stats);
 
 					renderer->preTraversal(scene, *_renderContext, debugOptions, stats);
 
-					/***************/ profiler.add(Profiler::Tag::RenderCpu, submitTimer1.stop());
+					profiler.add(Profiler::Tag::RenderCpu, submitTimer1.stop()); /***************/
 
-					/***************/ Timer engineTimer2(true);
+
+
+
+
+
+
+
+					Timer engineTimer2(true); /***************/
 					auto gatherItems = RenderPacketizer::GatherRenderItems(scene,
 																		   *_renderContext,
 																		   viewMat,
+																		   debugOptions,
 																		   stats);
-					/***************/ profiler.add(Profiler::Tag::EngineCpu, engineTimer2.stop());
+					profiler.add(Profiler::Tag::EngineCpu, engineTimer2.stop());
 
-					/***************/ Timer submitTimer2(true);
 
+
+
+					Timer submitTimer2(true); /***************/
 					renderer->postTraversal(scene,
 											*_renderContext,
 											gatherItems.temp_lightNodes,
 											debugOptions, stats);
 
+
+
+
+
+					static RenderResourceCacheOGL _cache{};
+//					auto& cache = static_cast<OpenGLRenderer&>(*renderer).cache();
+
 					for (const auto& item : gatherItems.renderItems) {
+
+						PipelineKey pipelineKey = RenderResolverOGL::ComputePipelineKey(*item.material,
+																						1);
+						PipelineHandle pipelineHandle = _cache.ensurePipeline(pipelineKey);
+						renderer->bindPipeline(pipelineHandle, _cache);
+
+						// later: bind mesh/material + draw
+
 						renderer->render(*item.element,
 										 *_renderContext,
 										 *item.material,
@@ -340,7 +372,10 @@ void VisualWorld::draw(const Scene& scene,
 										 stats);
 					}
 
-					/***************/ profiler.add(Profiler::Tag::RenderCpu, submitTimer2.stop());
+					profiler.add(Profiler::Tag::RenderCpu, submitTimer2.stop()); /***************/
+
+
+
 
 					if (physicalWorld) {
 

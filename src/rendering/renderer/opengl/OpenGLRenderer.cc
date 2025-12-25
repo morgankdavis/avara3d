@@ -57,12 +57,12 @@
 #include "a3d/scene/Scene.h"
 #include "a3d/Utilities.h"
 
-#define A3D_GL_CHECK() \
-    do { \
-        GLenum err; \
-        while ((err = glGetError()) != GL_NO_ERROR) { \
-            A3D_LOG_E("GL error 0x{:X}", err); \
-        } \
+#define A3D_GL_CHECK()									\
+    do {												\
+        GLenum err;										\
+        while ((err = glGetError()) != GL_NO_ERROR) {	\
+            A3D_LOG_E("GL error 0x{:X}", err);			\
+        }												\
     } while (0);
 
 using namespace a3d;
@@ -248,7 +248,7 @@ static void 		DrawStats(FrameStats& stats,
 							 ImFont& titleFont,
 							 ImFont& bodyFont);
 static void 		DrawDebugOptions(Scene& scene,
-									 const RenderContext& context,
+									const RenderContext& context,
 									ImFont& titleFont,
 									ImFont& bodyFont);
 static void			ImguiInit(const RenderContext& context,
@@ -256,8 +256,8 @@ static void			ImguiInit(const RenderContext& context,
 								 ImFont*& bodyFont);
 static void 		ImguiUpdateScale(const RenderContext& context);
 static void 		ImguiAddFont(const RenderContext& context,
-								 const Font& font,
-								 ImFont*& imFont);
+								const Font& font,
+								ImFont*& imFont);
 void 				ImguiBeginOverlay(int id, bool allowsInput);
 void 				ImguiEndOverlay();
 void 				ImguiDrawText(float x,
@@ -346,7 +346,8 @@ OpenGLRenderer::OpenGLRenderer():
 		_glEnvironmentUBO{0},
 		_overlayTitleImFont{nullptr},
 		_overlayBodyImFont{nullptr},
-		_drawTimer{config::GL_DRAW_TIMER_BUFFER_SIZE} {}
+		_drawTimer{config::GL_DRAW_TIMER_BUFFER_SIZE},
+		_cache{} {}
 
 OpenGLRenderer::~OpenGLRenderer() {
 	A3D_LOG_D("Destroying OpenGLRenderer {:p}", static_cast<void*>(this));
@@ -618,7 +619,7 @@ void OpenGLRenderer::render(MeshElement& element,
 	
 	// configure OpenGL state
 
-	SetMaterialOpenGLState(material, debugOptions);
+	//SetMaterialOpenGLState(material, debugOptions);
 
 	// update
 
@@ -3113,3 +3114,91 @@ void LogGLInfo() {
 //		A3D_LOG_E("*** GL error 0x{:X} at %s ***", err, where);
 //	}
 //}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void OpenGLRenderer::bindPipeline(PipelineHandle h, const RenderResourceCacheOGL& cache) {
+	if (_state.pipeline == h) return;
+
+	const PipelineOGL& p = cache.pipeline(h);
+
+	glUseProgram(p.program);
+
+	if (p.key.doubleSided) {
+		glDisable(GL_CULL_FACE);
+	}
+	else {
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+	}
+
+	if (p.depthTest) {
+		glEnable(GL_DEPTH_TEST);
+	}
+	else {
+		glDisable(GL_DEPTH_TEST);
+	}
+
+	glDepthMask(p.depthWrite ? GL_TRUE : GL_FALSE);
+
+	// fill mode
+#ifndef A3D_GL_ES
+	switch (p.key.fillMode) {
+		case FillMode::Fill:	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);	break;
+		case FillMode::Lines:	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);	break;
+		case FillMode::Points:	glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);	break;
+	}
+
+	glEnable(GL_LINE_SMOOTH); // ! try without !
+#endif
+
+	// blend (your enum only has Disabled right now)
+	if (p.key.blendFunction == BlendFunction::Disabled) {
+		glDisable(GL_BLEND);
+	}
+	else {
+		glEnable(GL_BLEND);
+		// glBlendFunc(...) based on your future BlendFunction values
+	}
+
+	glDepthMask(p.key.depthWrite);
+
+	if (p.key.polygonOffset) {
+		glEnable(GL_POLYGON_OFFSET_LINE);
+		glPolygonOffset(.01, 0); // ! check !
+	}
+	else {
+		glDisable(GL_POLYGON_OFFSET_LINE);
+	}
+
+	_state.pipeline = h;
+}
+
+void OpenGLRenderer::bindMaterial(const Material& material) {
+
+}
+
+void OpenGLRenderer::bindMeshElement(const MeshElement& element) {
+
+}
+
+void OpenGLRenderer::setPerObject(const math::mat4& model,
+								  const math::mat4& view,
+								  const math::mat4& projection) {
+
+}
+
+void OpenGLRenderer::drawBound() {
+
+}

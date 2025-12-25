@@ -16,6 +16,8 @@
 
 #include "a3d/Types.h"
 #include "a3d/profiling/OpenGLDrawTimer.h"
+//#include "a3d/rendering/RenderResolverOGL.h"
+//#include "a3d/rendering/RenderResourceCacheOGL.h"
 #include "a3d/rendering/renderer/Renderer.h"
 
 class ImFont;
@@ -30,6 +32,14 @@ namespace a3d {
 //	class OpenGLDrawItem;
 	class Program; // TEMPROARY
 	class Texture;
+
+
+
+	struct GLStateCache {
+		PipelineHandle pipeline = INVALID_PIPELINE;
+	};
+
+
 	
 	class OpenGLRenderer : public Renderer {
 
@@ -144,6 +154,26 @@ namespace a3d {
 		void EnsureDebugLinesBuffers(Program& program);
 		unsigned _dbgLinesVBO = 0;
 		unsigned _dbgLinesVAO = 0;
+
+
+
+
+
+
+
+		RenderResourceCacheOGL& cache() { return _cache; }
+		const RenderResourceCacheOGL& cache() const { return _cache; }
+
+		void bindPipeline(PipelineHandle h, const RenderResourceCacheOGL& cache) override;
+		void bindMaterial(const Material& material) override;
+		void bindMeshElement(const MeshElement& element) override;
+		void setPerObject(const math::mat4& model,
+						  const math::mat4& view,
+						  const math::mat4& projection) override;
+		void drawBound() override;
+
+		RenderResourceCacheOGL _cache;
+		GLStateCache _state;
 	};
 }
 

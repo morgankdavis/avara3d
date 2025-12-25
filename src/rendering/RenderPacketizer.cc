@@ -21,6 +21,7 @@ struct GatherEntry {
 GatherOutput RenderPacketizer::GatherRenderItems(const Scene& scene,
 												 const RenderContext& context,
 												 const mat4& view,
+												 const DebugOptions& debugOptions, // ! temporary !
 												 FrameStats& stats) {
 
 	GatherOutput out{};
@@ -36,11 +37,10 @@ GatherOutput RenderPacketizer::GatherRenderItems(const Scene& scene,
 		auto [n, parentWorld] = stack.back();
 		stack.pop_back();
 
-		const mat4 world = parentWorld * n->transform();
+		if (n->hidden()) continue;
 
-		if (n->hidden()) {
-			continue;
-		}
+		const mat4 world = parentWorld * n->transform();
+		const bool wireframe = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes);
 
 		if (auto* mesh = n->mesh().get()) {
 
@@ -55,12 +55,10 @@ GatherOutput RenderPacketizer::GatherRenderItems(const Scene& scene,
 
 				Material* mat = nullptr;
 				if (!materials.empty()) {
-					const size_t mi = e % materials.size();
-					mat = materials[mi].get();
+					const size_t index = e % materials.size();
+					mat = materials[index].get();
 				}
-				if (!mat) {
-					mat = Material::DefaultMaterial().get();
-				}
+				if (!mat) mat = Material::DefaultMaterial().get();
 
 				RenderItem item;
 				item.mesh = mesh;
@@ -68,10 +66,13 @@ GatherOutput RenderPacketizer::GatherRenderItems(const Scene& scene,
 				item.element = element;
 				item.material = mat;
 				item.model = world;
-
 				item.aabb = element->worldAABB(world, false);
-
 				item.transparent = (mat->blendFunction() != BlendFunction::Disabled);
+
+				// ! temnporary !
+#warning TEMPORARY
+				if (wireframe) item.style = RenderStyle::Wireframe; // TODO: test WireframeOverlay
+				else item.style = RenderStyle::Normal;
 
 				// depth: view-space Z of bounds center
 				const vec3 center = (item.aabb.min + item.aabb.max) / 2.0f;

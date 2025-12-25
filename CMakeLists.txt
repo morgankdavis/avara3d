@@ -112,7 +112,9 @@ target_include_directories(avara3d PRIVATE "${PROJECT_BINARY_DIR}") # BuildInfo.
 target_include_directories(avara3d PRIVATE external/bullet-3.17/src)
 target_include_directories(avara3d PRIVATE external/generator/include)
 target_include_directories(avara3d PRIVATE external/gif-h)
-target_include_directories(avara3d PRIVATE external/glad-3.3/include)
+if (A3D_GL_DESKTOP)
+target_include_directories(avara3d PUBLIC external/glad-3.3/include) # ! temporary PUBLIC !
+endif ()
 target_include_directories(avara3d PRIVATE external/glfw-3.4.0/include)
 target_include_directories(avara3d PRIVATE external/imgui-1.92.5)
 target_include_directories(avara3d PRIVATE external/imgui-1.92.5/backends)

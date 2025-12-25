@@ -430,6 +430,12 @@ namespace a3d {
 		Lines,
 		Points
 	};
+
+	enum class RenderStyle : uint8_t {
+		Normal,
+		Wireframe,
+		WireframeOverlay
+	};
 		
 	enum class NodeDirtyMask : unsigned {
 		None =					0,

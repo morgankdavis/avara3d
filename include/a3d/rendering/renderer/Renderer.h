@@ -13,6 +13,7 @@
 #include <set>
 
 #include "a3d/Types.h"
+#include "a3d/rendering/RenderResourceCacheOGL.h"
 
 namespace a3d {
 
@@ -97,6 +98,19 @@ namespace a3d {
 		virtual std::unique_ptr<Image>	snapshot(const RenderContext& context) const = 0;
 
 //		virtual void					draw() = 0;
+
+
+
+
+
+
+		virtual void bindPipeline(PipelineHandle h, const RenderResourceCacheOGL& cache) = 0;
+		virtual void bindMaterial(const Material& material) = 0;
+		virtual void bindMeshElement(const MeshElement& element) = 0;
+		virtual void setPerObject(const math::mat4& model,
+								  const math::mat4& view,
+								  const math::mat4& projection) = 0;
+		virtual void drawBound() = 0;
 	};
 }
 
