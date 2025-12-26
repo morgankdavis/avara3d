@@ -1,15 +1,12 @@
 #version 330
 
-
 // donno if this works
 #define FEQ(a, b, eps) (abs(a-b) <= eps)
-
 
 #define MAX_AMBIENT_LIGHTS								16
 #define MAX_DIRECTIONAL_LIGHTS							16
 #define MAX_POINT_LIGHTS								128
 #define MAX_SPOT_LIGHTS									64
-
 
 const float GAMMA =										2.2f;
 
@@ -32,7 +29,6 @@ const uint LIGHT_TYPE_SPOT =							3u;
 const uint SPOTLIGHT_FEATHERING_MODE_LINEAR =			0u;
 const uint SPOTLIGHT_FEATHERING_MODE_SHARP =			1u;
 const uint SPOTLIGHT_FEATHERING_MODE_SOFT =				2u;
-
 
 struct Samplers {
 	sampler2D ambient;
@@ -97,9 +93,6 @@ in 			vec3 		frag_vertNorm_eye;
 in 			vec2 		frag_texCoord;
 
 uniform 	mat4 		viewMat;
-
-// PUT INTO "MaterialBlock" ? {
-uniform		bool		useDefaultLighting;
 uniform 	uint 		ambientContentsType;
 uniform 	uint 		diffuseContentsType;
 uniform 	uint 		specularContentsType;
@@ -109,22 +102,41 @@ uniform		float 		uvScale;
 uniform		bool 		locksAmbientWithDiffuse;
 uniform 	Samplers 	samplers;
 uniform 	Colors 		colors;
-// }
 
 layout(std140) uniform EnvironmentBlock {
-	uint				numAmbientLights;
-	AmbientLight 		ambientLights[MAX_AMBIENT_LIGHTS];
-	uint				numDirectionalLights;
-	DirectionalLight	directionalLights[MAX_DIRECTIONAL_LIGHTS];
-	uint				numPointLights;
-	PointLight 			pointLights[MAX_POINT_LIGHTS];
-	uint				numSpotLights;
-	SpotLight 			spotLights[MAX_SPOT_LIGHTS];
-	Fog 				fog;
+	uint useDefaultLighting;
+	uint _pad0_0;
+	uint _pad0_1;
+	uint _pad0_2;
+
+	uint numAmbientLights;
+	uint _pad1_0;
+	uint _pad1_1;
+	uint _pad1_2;
+	AmbientLight ambientLights[MAX_AMBIENT_LIGHTS];
+
+	uint numDirectionalLights;
+	uint _pad2_0;
+	uint _pad2_1;
+	uint _pad2_2;
+	DirectionalLight directionalLights[MAX_DIRECTIONAL_LIGHTS];
+
+	uint numPointLights;
+	uint _pad3_0;
+	uint _pad3_1;
+	uint _pad3_2;
+	PointLight pointLights[MAX_POINT_LIGHTS];
+
+	uint numSpotLights;
+	uint _pad4_0;
+	uint _pad4_1;
+	uint _pad4_2;
+	SpotLight spotLights[MAX_SPOT_LIGHTS];
+
+	Fog fog;
 } Environment;
 
 out 		vec4 		fragColor;
-
 
 vec4 GetBaseColor(uint propertyType, uint propertyContentsType);
 vec4 ApplyDefaultLighting();
@@ -138,13 +150,12 @@ vec3 LinearToSRGB(vec3 linear);
 vec4 ApplyGammaCorrection(vec4 fragColor);
 bool FloatsEqual(float a, float b, float eps);
 
-
 void main () {
 
 	fragColor = vec4(0.0);
 
 	// using default lighting?
-	if (useDefaultLighting) {
+	if (Environment.useDefaultLighting > 0u) {
 
 		fragColor = ApplyDefaultLighting();
 	}

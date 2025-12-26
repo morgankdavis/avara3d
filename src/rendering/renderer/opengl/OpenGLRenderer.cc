@@ -141,17 +141,25 @@ struct FogGLSLStruct {
 static_assert(sizeof(FogGLSLStruct) == 32);
 
 struct EnvironmentBlock {
-	alignas(16)	uint32_t 					numAmbientLights;
-	//uint32_t _pad_0_[3];
-	alignas(16) AmbientLightGLSLStruct		ambientLights[a3d::config::MAX_AMBIENT_LIGHTS];
-	alignas(16) uint32_t 					numDirectionalLights;
-	alignas(16) DirectionalLightGLSLStruct	directionalLights[a3d::config::MAX_DIRECTIONAL_LIGHTS];
-	alignas(16) uint32_t 					numPointLights;
-	alignas(16) PointLightGLSLStruct		pointLights[a3d::config::MAX_POINT_LIGHTS];
-	alignas(16) uint32_t 					numSpotLights;
-	alignas(16) SpotLightGLSLStruct			spotLights[a3d::config::MAX_SPOT_LIGHTS];
-	alignas(16) FogGLSLStruct				fog;
+	uint32_t useDefaultLighting;
+	uint32_t _pad0_[3];
+	uint32_t numAmbientLights;
+	uint32_t _pad1_[3];
+	AmbientLightGLSLStruct ambientLights[config::MAX_AMBIENT_LIGHTS];
+	uint32_t numDirectionalLights;
+	uint32_t _pad2_[3];
+	DirectionalLightGLSLStruct directionalLights[config::MAX_DIRECTIONAL_LIGHTS];
+	uint32_t numPointLights;
+	uint32_t _pad3_[3];
+	PointLightGLSLStruct pointLights[config::MAX_POINT_LIGHTS];
+	uint32_t numSpotLights;
+	uint32_t _pad4_[3];
+	SpotLightGLSLStruct spotLights[config::MAX_SPOT_LIGHTS];
+	FogGLSLStruct fog;
 };
+static_assert(offsetof(EnvironmentBlock, useDefaultLighting) == 0);
+static_assert(offsetof(EnvironmentBlock, numAmbientLights)   == 16);
+static_assert(offsetof(EnvironmentBlock, ambientLights)      == 32);
 
 /// Private Static Non-Member Prototypes ///
 
@@ -1545,7 +1553,7 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 
 	if (scene.visualWorld()->usesDefaultLighting()) {
 
-		Program::Default().setUniform("useDefaultLighting", true);
+		environmentStruct.useDefaultLighting = 1u;
 	}
 	else {
 
@@ -1555,11 +1563,11 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 
 		if (((numLights == 0) && scene.visualWorld()->autoEnablesDefaultLighting())) {
 
-			Program::Default().setUniform("useDefaultLighting", true);
+			environmentStruct.useDefaultLighting = 1u;
 		}
 		else {
 
-			Program::Default().setUniform("useDefaultLighting", false);
+			environmentStruct.useDefaultLighting = 0u;
 
 			vector<AmbientLightGLSLStruct> ambientStructs;
 			vector<DirectionalLightGLSLStruct> directionalStructs;
