@@ -29,8 +29,6 @@ namespace a3d {
 
 	/// Public Type Utilities ///
 
-#define A3D_PROFILE(profiler, tag) a3d::ScopeTimer scopeTimer{profiler, tag};
-
 // works great in Linux, macOS, but typeof() is a GNU lanuage extension (C23)
 //
 //	#define A3D_MASK_CONTAINS(mask, bit) \

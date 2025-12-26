@@ -8,26 +8,19 @@
 
 #include "a3d/rendering/VisualWorld.h"
 
-#include <utility>
 #include <variant>
 
 #include "a3d/Color.h"
-#include "a3d/Configuration.h"
 #include "a3d/CubeImage.h"
-//#include "a3d/Types.h"
-#include "a3d/Utilities.h"
 #include "a3d/diagnostic/log/Log.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/primitive/Box.h"
 #include "a3d/mesh/primitive/Plane.h"
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/physics/bullet/BulletWorldProxy.h"
-#include "a3d/profiling/Profiler.h"
-#include "a3d/profiling/Timer.h"
-#include "a3d/profiling/ScopeTimer.h"
+#include "a3d/profiling/Profiling.h"
 #include "a3d/rendering/RenderItem.h"
 #include "a3d/rendering/RenderPacket.h"
-//#include "a3d/rendering/RenderResolver.h"
 #include "a3d/rendering/RenderResourceCacheOGL.h"
 #include "a3d/rendering/light/Light.h"
 #include "a3d/rendering/material/Material.h"
@@ -271,9 +264,9 @@ void VisualWorld::draw(const Scene& scene,
 		if (auto renderer = _renderContext->renderer()) {
 
 			if (auto willRender = VisualWorld::willRenderCallback()) {
-				{ A3D_PROFILE(profiler, Profiler::Tag::Application);
+				A3D_PROFILE(profiler, Profiler::Tag::Application, [&] {
 					willRender(*this, runT, deltaRunT);
-				}
+				}); // A3D_PROFILE
 			}
 
 			renderer->beginFrame(scene, *_renderContext, debugOptions, stats, profiler);
@@ -284,22 +277,21 @@ void VisualWorld::draw(const Scene& scene,
 				auto povScene = pov->scene();
 				if (povScene != nullptr && povScene == &scene) {
 
-					mat4 viewMat;
-					mat4 projectionMat;
-					{ A3D_PROFILE(profiler, Profiler::Tag::EngineCpu);
+					auto [viewMat, projectionMat] = A3D_PROFILE(profiler,
+																Profiler::Tag::EngineCpu, [&] {
 
 						auto frameBufferSize = _renderContext->framebufferSize();
 
-						if (auto perspectiveCamera = dynamic_pointer_cast<PerspectiveCamera>(pov->camera())) {
+						if (auto pc = dynamic_pointer_cast<PerspectiveCamera>(pov->camera())) {
 							auto aspectRatio = float(frameBufferSize.x) / float(frameBufferSize.y);
-							perspectiveCamera->aspectRatio(aspectRatio);
+							pc->aspectRatio(aspectRatio);
 						}
 
-						viewMat = inverse(pov->worldTransform());
-						projectionMat = pov->camera()->projection();
-					}
+						return std::tuple{ inverse(pov->worldTransform()),
+										   pov->camera()->projection() };
+					}); // A3D_PROFILE
 
-					{ A3D_PROFILE(profiler, Profiler::Tag::RenderCpu);
+					A3D_PROFILE(profiler, Profiler::Tag::RenderCpu, [&] {
 
 						renderer->render(scene,
 										 *_renderContext,
@@ -309,19 +301,18 @@ void VisualWorld::draw(const Scene& scene,
 										 stats);
 
 						renderer->preTraversal(scene, *_renderContext, debugOptions, stats);
-					}
+					}); // A3D_PROFILE
 
-					GatherOutput gatherItems;
-					{ A3D_PROFILE(profiler, Profiler::Tag::EngineCpu);
+					auto gatherItems = A3D_PROFILE(profiler, Profiler::Tag::EngineCpu, [&] {
 
-						gatherItems = RenderGatherer::GatherRenderItems(scene,
-																		*_renderContext,
-																		viewMat,
-																		debugOptions,
-																		stats);
-					}
+						return RenderGatherer::GatherRenderItems(scene,
+																 *_renderContext,
+																 viewMat,
+																 debugOptions,
+																 stats);
+					}); // A3D_PROFILE
 
-					{ A3D_PROFILE(profiler, Profiler::Tag::RenderCpu);
+					A3D_PROFILE(profiler, Profiler::Tag::RenderCpu, [&] {
 
 						renderer->postTraversal(scene,
 												*_renderContext,
@@ -353,28 +344,26 @@ void VisualWorld::draw(const Scene& scene,
 							renderer->drawBound();
 						}
 
-
-
 						// ! temporary !
-						for (const auto &meshInstance: gatherItems.temp_meshInstances) {
-							renderer->render(*meshInstance.mesh,
+						for (const auto &mi: gatherItems.temp_meshInstances) {
+							renderer->render(*mi.mesh,
 											 *_renderContext,
-											 meshInstance.model,
+											 mi.model,
 											 viewMat,
 											 projectionMat,
 											 debugOptions,
 											 stats);
 						}
-					}
+					}); // A3D_PROFILE
 
 					if (physicalWorld) {
 
-						if (auto bulletWorldProxy = dynamic_cast<BulletWorldProxy *>(physicalWorld->proxy())) {
-							bulletWorldProxy->drawDebug(*renderer,
-														*_renderContext,
-														viewMat,
-														projectionMat,
-														debugOptions);
+						if (auto bwp = dynamic_cast<BulletWorldProxy *>(physicalWorld->proxy())) {
+							bwp->drawDebug(*renderer,
+										   *_renderContext,
+										   viewMat,
+										   projectionMat,
+										   debugOptions);
 						}
 					}
 				}
@@ -389,7 +378,8 @@ void VisualWorld::draw(const Scene& scene,
 			}
 
 			_renderContext->endFrame(scene);
-			renderer->endFrame(scene, *_renderContext, debugOptions, stats, profiler, statsHistory);
+			renderer->endFrame(scene, *_renderContext,
+							   debugOptions, stats, profiler, statsHistory);
 
 			_renderContext->swapBuffers();
 
@@ -404,7 +394,8 @@ void VisualWorld::draw(const Scene& scene,
 			}
 		}
 		else {
-			A3D_LOG_E("No Renderer attached to RenderContext {:p}", static_cast<void*>(_renderContext));
+			A3D_LOG_E("No Renderer attached to RenderContext {:p}",
+					  static_cast<void*>(_renderContext));
 		}
 	}
 	else {
@@ -457,7 +448,8 @@ weak_ptr<Node> VisualWorld::defaultPointOfView() {
 		auto midX = (aabb.min.x + aabb.max.x) / 2.0f;
 		auto midY = (aabb.min.y + aabb.max.y) / 2.0f;
 
-		auto eye = vec3(midX, midY, z / 2.0f); // not sure why z is devided by 2.0, but it seems to work better...
+		// not sure why z is devided by 2.0, but it seems to work better...
+		auto eye = vec3(midX, midY, z / 2.0f);
 		//vec3 eye = vec3(midX, midY, z);
 
 		mat4 viewMat = translate(mat4(1.0f), eye);
