@@ -367,25 +367,44 @@ void VisualWorld::draw(const Scene& scene,
 																			_cache,
 																			/*vertexLayoutKey=*/1);
 
+//					for (const auto& di : packet.main) {
+//
+//						renderer->bindPipeline(di.pipeline, _cache);
+//
+//						// TEMP: still use old rendering until Step 2 is done
+//						renderer->render(*di.element, *_renderContext, *di.material,
+//										 di.model, viewMat, projectionMat,
+//										 debugOptions,
+//										 stats);
+//					}
+//
+//					for (const auto& di : packet.wire) {
+//
+//						renderer->bindPipeline(di.pipeline, _cache);
+//
+//						renderer->render(*di.element, *_renderContext, *di.material,
+//										 di.model, viewMat, projectionMat,
+//										 debugOptions, stats);
+//					}
+
 					for (const auto& di : packet.main) {
 
 						renderer->bindPipeline(di.pipeline, _cache);
-
-						// TEMP: still use old rendering until Step 2 is done
-						renderer->render(*di.element, *_renderContext, *di.material,
-										 di.model, viewMat, projectionMat,
-										 debugOptions,
-										 stats);
+						renderer->bindMaterial(*di.material);
+						renderer->bindMeshElement(*di.element);
+						renderer->setPerObject(di.model, viewMat, projectionMat);
+						renderer->drawBound();
 					}
 
 					for (const auto& di : packet.wire) {
 
 						renderer->bindPipeline(di.pipeline, _cache);
-
-						renderer->render(*di.element, *_renderContext, *di.material,
-										 di.model, viewMat, projectionMat,
-										 debugOptions, stats);
+						// optional: bindMaterial for wire, depending on shader
+						renderer->bindMeshElement(*di.element);
+						renderer->setPerObject(di.model, viewMat, projectionMat);
+						renderer->drawBound();
 					}
+
 
 					// ! temporary !
 					for (const auto& meshInstance : gatherItems.temp_meshInstances) {

@@ -578,6 +578,64 @@ void OpenGLRenderer::render(Mesh& mesh,
 	}
 }
 
+//void OpenGLRenderer::render(MeshElement& element,
+//							const RenderContext& context,
+//							Material& material,
+//							const mat4& modelMat,
+//							const mat4& viewMat,
+//							const mat4& projectionMat,
+//							const DebugOptions& debugOptions,
+//							FrameStats& stats) {
+//
+//	// check and load vertex data if necessary
+//
+//	GLuint vbo, vao, ebo;
+//	GetMeshElementGLVertexDataHandles(element,
+//									  _meshElementGLMapping,
+//									  vbo, vao, ebo);
+//
+//	auto wireframe = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes);
+//
+//	auto program = wireframe
+//			? Program::Wireframe()
+//			: Program::Default();
+//
+//	// and load material contents if necessary
+//
+//	auto glTextureHandles = map<MaterialPropertyType, GLuint>();
+//	GetTextureGLTextureHandles(material,
+//							   _textureGLMapping,
+//							   _activeTextures,
+//							   glTextureHandles);
+//
+//	if (!wireframe) {
+//
+//		// send material and2 material property uniforms
+//		SendMaterialUniforms(material, program, glTextureHandles);
+//
+//		// update material property filtering options
+//		SetMaterialFilteringOptions(material, glTextureHandles);
+//	}
+//
+//	// configure OpenGL state
+//
+//	//SetMaterialOpenGLState(material, debugOptions);
+//
+//	// update
+//
+//	DrawMeshElement(element, program, modelMat, viewMat, projectionMat, vao, ebo);//, _drawItems);
+//
+//	// save reference for housekeeping
+//
+//	_activeMeshElements.emplace(&element);
+//
+//	// draw AABB lines
+//
+////	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
+////		render(element.aabbLines(), modelMat, viewMat, projectionMat);
+////	}
+//}
+
 void OpenGLRenderer::render(MeshElement& element,
 							const RenderContext& context,
 							Material& material,
@@ -587,53 +645,20 @@ void OpenGLRenderer::render(MeshElement& element,
 							const DebugOptions& debugOptions,
 							FrameStats& stats) {
 
-	// check and load vertex data if necessary
-
-	GLuint vbo, vao, ebo;
-	GetMeshElementGLVertexDataHandles(element,
-									  _meshElementGLMapping,
-									  vbo, vao, ebo);
-
-	auto wireframe = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes);
-
-	auto program = wireframe
-			? Program::Wireframe()
-			: Program::Default();
-
-	// and load material contents if necessary
-
-	auto glTextureHandles = map<MaterialPropertyType, GLuint>();
-	GetTextureGLTextureHandles(material,
-							   _textureGLMapping,
-							   _activeTextures,
-							   glTextureHandles);
-
-	if (!wireframe) {
-
-		// send material and2 material property uniforms
-		SendMaterialUniforms(material, program, glTextureHandles);
-
-		// update material property filtering options
-		SetMaterialFilteringOptions(material, glTextureHandles);
-	}
-	
-	// configure OpenGL state
-
-	//SetMaterialOpenGLState(material, debugOptions);
-
-	// update
-
-	DrawMeshElement(element, program, modelMat, viewMat, projectionMat, vao, ebo);//, _drawItems);
-
-	// save reference for housekeeping
-
-	_activeMeshElements.emplace(&element);
-
-	// draw AABB lines
-
-//	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
-//		render(element.aabbLines(), modelMat, viewMat, projectionMat);
+//	auto wireframe = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes);
+//	if (!wireframe) {
+//
+//		// send material and2 material property uniforms
+//		SendMaterialUniforms(material, Program::Default(), glTextureHandles);
+//
+//		// update material property filtering options
+//		SetMaterialFilteringOptions(material, glTextureHandles);
 //	}
+
+	bindMaterial(material);
+	bindMeshElement(element);
+	setPerObject(modelMat, viewMat, projectionMat);
+	drawBound();
 }
 
 void OpenGLRenderer::EnsureDebugLinesBuffers(Program& program) {
@@ -3129,11 +3154,14 @@ void LogGLInfo() {
 
 
 void OpenGLRenderer::bindPipeline(PipelineHandle h, const RenderResourceCacheOGL& cache) {
+
 	if (_state.pipeline == h) return;
 
 	const PipelineOGL& p = cache.pipeline(h);
 
 	glUseProgram(p.program);
+	_state.program = p.program;
+	_state.material = nullptr; // program changed; force rebind material if you want
 
 	if (p.key.doubleSided) {
 		glDisable(GL_CULL_FACE);
@@ -3188,18 +3216,121 @@ void OpenGLRenderer::bindPipeline(PipelineHandle h, const RenderResourceCacheOGL
 
 void OpenGLRenderer::bindMaterial(const Material& material) {
 
+	// Optional: skip if same material and same program
+	if (_state.material == &material) return;
+
+	// If current pipeline is wireframe, you can skip material entirely.
+	// (Your wireframe shader probably ignores material properties/textures.)
+	GLint program = (GLint)_state.program;
+	if (!program) return;
+
+	// If you want to branch on shaderKind, easiest is to fetch it from the pipeline:
+	// const auto& p = cache.pipeline(_state.pipeline);  // if cache accessible here
+	// if (p.key.shaderKind == ShaderKind::Wireframe) return;
+
+	// Ensure textures exist and get GL texture IDs
+	std::map<MaterialPropertyType, GLuint> glTextureHandles;
+	GetTextureGLTextureHandles(const_cast<Material&>(material),
+							   _textureGLMapping,
+							   _activeTextures,
+							   glTextureHandles);
+
+	// IMPORTANT: your existing SendMaterialUniforms takes Program&.
+	// You have two options:
+
+	// Option A (fastest hack): reconstruct Program wrapper by shader kind.
+	// If you have a Program::FromGLID(GLuint) use that, otherwise:
+	Program& prog = Program::Default(); // TODO: pick based on current pipeline shaderKind
+	// Ensure prog.glID() == _state.program in debug builds.
+
+	SendMaterialUniforms(material, prog, glTextureHandles);
+	SetMaterialFilteringOptions(material, glTextureHandles);
+
+	_state.material = &material;
 }
 
 void OpenGLRenderer::bindMeshElement(const MeshElement& element) {
 
+	auto* e = const_cast<MeshElement*>(&element);
+
+	auto it = _meshElementGLMapping.find(e);
+	if (it == _meshElementGLMapping.end()) {
+		GLuint vao=0, vbo=0, ebo=0;
+		glGenVertexArrays(1, &vao);
+		glGenBuffers(1, &vbo);
+		glGenBuffers(1, &ebo);
+
+		glBindVertexArray(vao);
+
+		// VBO upload
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBufferData(GL_ARRAY_BUFFER,
+					 element.vertices().size() * sizeof(Vertex),
+					 element.vertices().data(),
+					 GL_STATIC_DRAW);
+
+		// Build index buffer from Face list (3 indices per face)
+		std::vector<uint32_t> indices;
+		indices.reserve(element.faces().size() * 3);
+		for (auto& f : element.faces()) {
+			indices.push_back((uint32_t)f.a);
+			indices.push_back((uint32_t)f.b);
+			indices.push_back((uint32_t)f.c);
+		}
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+					 indices.size() * sizeof(uint32_t),
+					 indices.data(),
+					 GL_STATIC_DRAW);
+
+		// Vertex attrib layout (position/normal/uv) — match your shader
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
+
+		_meshElementGLMapping.emplace(e, std::make_tuple(vbo, vao, ebo));
+		it = _meshElementGLMapping.find(e);
+
+		_activeMeshElements.insert(e);
+		_boundElement = { vao, (GLsizei)indices.size(), GL_UNSIGNED_INT };
+		return;
+	}
+
+	GLuint vbo, vao, ebo;
+	std::tie(vbo, vao, ebo) = it->second;
+	glBindVertexArray(vao);
+
+	// for now assume static; later if dirtyMask includes vertex data, re-upload
+
+	_activeMeshElements.insert(e);
+
+	// indexCount needs to be known; simplest: recompute from faces size
+	_boundElement = { vao, (GLsizei)element.faces().size() * 3, GL_UNSIGNED_INT };
 }
 
-//void OpenGLRenderer::setPerObject(const math::mat4& model,
-//								  const math::mat4& view,
-//								  const math::mat4& projection) {
-//
-//}
-//
-//void OpenGLRenderer::drawBound() {
-//
-//}
+void OpenGLRenderer::setPerObject(const mat4& model, const mat4& view, const mat4& proj) {
+
+	// TEMP: query locations from currently bound program each call (slow but fine)
+	// Later: cache these per Program.
+	GLint program = 0;
+	glGetIntegerv(GL_CURRENT_PROGRAM, &program);
+	if (!program) return;
+
+	GLint locM = glGetUniformLocation(program, "modelMat");
+	GLint locV = glGetUniformLocation(program, "viewMat");
+	GLint locP = glGetUniformLocation(program, "projMat");
+
+	if (locM >= 0) glUniformMatrix4fv(locM, 1, GL_FALSE, &model[0][0]); // value_ptr() ?
+	if (locV >= 0) glUniformMatrix4fv(locV, 1, GL_FALSE, &view[0][0]); // value_ptr() ?
+	if (locP >= 0) glUniformMatrix4fv(locP, 1, GL_FALSE, &proj[0][0]); // value_ptr() ?
+}
+
+void OpenGLRenderer::drawBound() {
+
+	if (_boundElement.vao == 0 || _boundElement.indexCount == 0) return;
+	glDrawElements(GL_TRIANGLES, _boundElement.indexCount, _boundElement.indexType, (void*)0);
+}

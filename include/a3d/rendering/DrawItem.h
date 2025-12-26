@@ -6,7 +6,7 @@
 #define AVARA3D_DRAWITEM_H
 
 #include "a3d/Math.h"
-#include "a3d/rendering/RenderResourceCacheOGL.h"
+#include "a3d/rendering/PipelineKey.h"
 
 namespace a3d {
 

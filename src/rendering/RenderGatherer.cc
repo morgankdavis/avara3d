@@ -3,6 +3,7 @@
 
 #include "a3d/rendering/RenderItem.h"
 #include "a3d/rendering/RenderPacket.h"
+#include "a3d/rendering/RenderResourceCacheOGL.h"
 #include "a3d/rendering/context/RenderContext.h"
 #include "a3d/rendering/material/Material.h"
 #include "a3d/mesh/Mesh.h"

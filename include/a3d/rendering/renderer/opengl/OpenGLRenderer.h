@@ -37,6 +37,14 @@ namespace a3d {
 
 	struct GLStateCache {
 		PipelineHandle pipeline = INVALID_PIPELINE;
+		GLuint program = 0;                 // NEW: currently bound GL program
+		const Material* material = nullptr; // NEW: last bound material (optional)
+	};
+
+	struct BoundElement {
+		GLuint vao = 0;
+		GLsizei indexCount = 0;
+		GLenum indexType = GL_UNSIGNED_INT;
 	};
 
 
@@ -167,13 +175,14 @@ namespace a3d {
 		void bindPipeline(PipelineHandle h, const RenderResourceCacheOGL& cache) override;
 		void bindMaterial(const Material& material) override;
 		void bindMeshElement(const MeshElement& element) override;
-//		void setPerObject(const math::mat4& model,
-//						  const math::mat4& view,
-//						  const math::mat4& projection) override;
-//		void drawBound() override;
+		void setPerObject(const math::mat4& model,
+						  const math::mat4& view,
+						  const math::mat4& projection) override;
+		void drawBound() override;
 
 		RenderResourceCacheOGL _cache;
 		GLStateCache _state;
+		BoundElement _boundElement;
 	};
 }
 
