@@ -14,6 +14,8 @@
 #include "a3d/Color.h"
 #include "a3d/Configuration.h"
 #include "a3d/CubeImage.h"
+//#include "a3d/Types.h"
+#include "a3d/Utilities.h"
 #include "a3d/diagnostic/log/Log.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/primitive/Box.h"
@@ -22,6 +24,7 @@
 #include "a3d/physics/bullet/BulletWorldProxy.h"
 #include "a3d/profiling/Profiler.h"
 #include "a3d/profiling/Timer.h"
+#include "a3d/profiling/ScopeTimer.h"
 #include "a3d/rendering/RenderItem.h"
 #include "a3d/rendering/RenderPacket.h"
 //#include "a3d/rendering/RenderResolver.h"
@@ -35,7 +38,6 @@
 #include "a3d/rendering/renderer/Renderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
-#include "a3d/Utilities.h"
 
 using namespace a3d;
 using namespace a3d::math;
@@ -269,9 +271,9 @@ void VisualWorld::draw(const Scene& scene,
 		if (auto renderer = _renderContext->renderer()) {
 
 			if (auto willRender = VisualWorld::willRenderCallback()) {
-				Timer appTimer(true); ///
-				willRender(*this, runT, deltaRunT);
-				profiler.add(Profiler::Tag::Application, appTimer.stop()); ///
+				{ A3D_PROFILE(profiler, Profiler::Tag::Application);
+					willRender(*this, runT, deltaRunT);
+				}
 			}
 
 			renderer->beginFrame(scene, *_renderContext, debugOptions, stats, profiler);
@@ -282,145 +284,88 @@ void VisualWorld::draw(const Scene& scene,
 				auto povScene = pov->scene();
 				if (povScene != nullptr && povScene == &scene) {
 
-					Timer engineTimer1(true); /***************/
+					mat4 viewMat;
+					mat4 projectionMat;
+					{ A3D_PROFILE(profiler, Profiler::Tag::EngineCpu);
 
-					auto frameBufferSize = _renderContext->framebufferSize();
+						auto frameBufferSize = _renderContext->framebufferSize();
 
-					if (auto perspectiveCamera = dynamic_pointer_cast<PerspectiveCamera>(pov->camera())) {
-						auto aspectRatio = float(frameBufferSize.x) / float(frameBufferSize.y);
-						perspectiveCamera->aspectRatio(aspectRatio);
+						if (auto perspectiveCamera = dynamic_pointer_cast<PerspectiveCamera>(pov->camera())) {
+							auto aspectRatio = float(frameBufferSize.x) / float(frameBufferSize.y);
+							perspectiveCamera->aspectRatio(aspectRatio);
+						}
+
+						viewMat = inverse(pov->worldTransform());
+						projectionMat = pov->camera()->projection();
 					}
 
-					auto viewMat = inverse(pov->worldTransform());
-					auto projectionMat = pov->camera()->projection();
+					{ A3D_PROFILE(profiler, Profiler::Tag::RenderCpu);
 
-					profiler.add(Profiler::Tag::EngineCpu, engineTimer1.stop()); /***************/
-
-
-
-
-					Timer submitTimer1(true); /***************/
-
-					renderer->render(scene,
-									 *_renderContext,
-									 viewMat,
-									 projectionMat,
-									 debugOptions,
-									 stats);
-
-					renderer->preTraversal(scene, *_renderContext, debugOptions, stats);
-
-					profiler.add(Profiler::Tag::RenderCpu, submitTimer1.stop()); /***************/
-
-
-
-
-
-
-
-
-					Timer engineTimer2(true); /***************/
-					auto gatherItems = RenderGatherer::GatherRenderItems(scene,
-																		 *_renderContext,
-																		 viewMat,
-																		 debugOptions,
-																		 stats);
-					profiler.add(Profiler::Tag::EngineCpu, engineTimer2.stop());
-
-
-
-
-					Timer submitTimer2(true); /***************/
-					renderer->postTraversal(scene,
-											*_renderContext,
-											gatherItems.temp_lightNodes,
-											debugOptions, stats);
-
-
-
-
-
-					static RenderResourceCacheOGL _cache{};
-//					auto& cache = static_cast<OpenGLRenderer&>(*renderer).cache();
-
-//					for (const auto& item : gatherItems.renderItems) {
-//
-//						PipelineKey pipelineKey = RenderGatherer::ComputePipelineKey(*item.material,
-//																						1);
-//						PipelineHandle pipelineHandle = _cache.ensurePipeline(pipelineKey);
-//						renderer->bindPipeline(pipelineHandle, _cache);
-//
-//						// later: bind mesh/material + draw
-//
-//						renderer->render(*item.element,
-//										 *_renderContext,
-//										 *item.material,
-//										 item.model,
-//										 viewMat,
-//										 projectionMat,
-//										 debugOptions,
-//										 stats);
-//					}
-
-					RenderPacket packet = RenderGatherer::BuildRenderPacket(gatherItems,
-																			debugOptions,
-																			_cache,
-																			/*vertexLayoutKey=*/1);
-
-//					for (const auto& di : packet.main) {
-//
-//						renderer->bindPipeline(di.pipeline, _cache);
-//
-//						// TEMP: still use old rendering until Step 2 is done
-//						renderer->render(*di.element, *_renderContext, *di.material,
-//										 di.model, viewMat, projectionMat,
-//										 debugOptions,
-//										 stats);
-//					}
-//
-//					for (const auto& di : packet.wire) {
-//
-//						renderer->bindPipeline(di.pipeline, _cache);
-//
-//						renderer->render(*di.element, *_renderContext, *di.material,
-//										 di.model, viewMat, projectionMat,
-//										 debugOptions, stats);
-//					}
-
-					for (const auto& di : packet.main) {
-
-						renderer->bindPipeline(di.pipeline, _cache);
-						renderer->bindMaterial(*di.material);
-						renderer->bindMeshElement(*di.element);
-						renderer->setPerObject(di.model, viewMat, projectionMat);
-						renderer->drawBound();
-					}
-
-					for (const auto& di : packet.wire) {
-
-						renderer->bindPipeline(di.pipeline, _cache);
-						// optional: bindMaterial for wire, depending on shader
-						renderer->bindMeshElement(*di.element);
-						renderer->setPerObject(di.model, viewMat, projectionMat);
-						renderer->drawBound();
-					}
-
-
-					// ! temporary !
-					for (const auto& meshInstance : gatherItems.temp_meshInstances) {
-						renderer->render(*meshInstance.mesh,
+						renderer->render(scene,
 										 *_renderContext,
-										 meshInstance.model,
 										 viewMat,
 										 projectionMat,
 										 debugOptions,
 										 stats);
+
+						renderer->preTraversal(scene, *_renderContext, debugOptions, stats);
 					}
 
-					profiler.add(Profiler::Tag::RenderCpu, submitTimer2.stop()); /***************/
+					GatherOutput gatherItems;
+					{ A3D_PROFILE(profiler, Profiler::Tag::EngineCpu);
+
+						gatherItems = RenderGatherer::GatherRenderItems(scene,
+																		*_renderContext,
+																		viewMat,
+																		debugOptions,
+																		stats);
+					}
+
+					{ A3D_PROFILE(profiler, Profiler::Tag::RenderCpu);
+
+						renderer->postTraversal(scene,
+												*_renderContext,
+												gatherItems.temp_lightNodes,
+												debugOptions, stats);
+
+
+						static RenderResourceCacheOGL _cache{};
+						RenderPacket packet = RenderGatherer::BuildRenderPacket(gatherItems,
+																				debugOptions,
+																				_cache,
+								/*vertexLayoutKey=*/1);
+
+						for (const auto &di: packet.main) {
+
+							renderer->bindPipeline(di.pipeline, _cache);
+							renderer->bindMaterial(*di.material);
+							renderer->bindMeshElement(*di.element);
+							renderer->setPerObject(di.model, viewMat, projectionMat);
+							renderer->drawBound();
+						}
+
+						for (const auto &di: packet.wire) {
+
+							renderer->bindPipeline(di.pipeline, _cache);
+							// optional: bindMaterial for wire, depending on shader
+							renderer->bindMeshElement(*di.element);
+							renderer->setPerObject(di.model, viewMat, projectionMat);
+							renderer->drawBound();
+						}
 
 
 
+						// ! temporary !
+						for (const auto &meshInstance: gatherItems.temp_meshInstances) {
+							renderer->render(*meshInstance.mesh,
+											 *_renderContext,
+											 meshInstance.model,
+											 viewMat,
+											 projectionMat,
+											 debugOptions,
+											 stats);
+						}
+					}
 
 					if (physicalWorld) {
 

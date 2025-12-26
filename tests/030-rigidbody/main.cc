@@ -159,6 +159,7 @@ int main(int argc, const char* argv[]) {
 		scene->debugOptions(DebugOptions::ShowStatsOverlay);
 		scene->updateCallback(bind(&UpdateCallback, _1, _2, _3));
 
+		//scene->visualWorld()->usesDefaultLighting(true);
 
 
 		// ambient light

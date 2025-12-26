@@ -24,7 +24,7 @@ GatherOutput RenderGatherer::GatherRenderItems(const Scene& scene,
 											   const RenderContext& context,
 											   const mat4& view,
 											   const DebugOptions& debugOptions, // ! temporary !
-												 FrameStats& stats) {
+											   FrameStats& stats) {
 
 	GatherOutput out{};
 	out.renderItems.reserve(1024);
@@ -160,16 +160,14 @@ RenderPacket RenderGatherer::BuildRenderPacket(const GatherOutput& gather,
 
 	RenderPacket packet;
 	packet.lightNodes = gather.temp_lightNodes;
-
 	packet.main.reserve(gather.renderItems.size());
 	packet.wire.reserve(gather.renderItems.size());
 
 	for (const RenderItem& ri : gather.renderItems) {
 
-		// Effective style for this instance (you can refine later)
+		// effective style for this instance (refine later?)
 		RenderStyle style = ri.style;
 
-		// Emit main draw?
 		if (style == RenderStyle::Normal || style == RenderStyle::WireframeOverlay) {
 			DrawItem di;
 			di.mesh = ri.mesh;
@@ -186,7 +184,6 @@ RenderPacket RenderGatherer::BuildRenderPacket(const GatherOutput& gather,
 			packet.main.push_back(std::move(di));
 		}
 
-		// Emit wire draw?
 		if (style == RenderStyle::Wireframe || style == RenderStyle::WireframeOverlay) {
 			DrawItem di;
 			di.mesh = ri.mesh;

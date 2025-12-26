@@ -53,7 +53,7 @@ namespace a3d {
 	private:
 		///  Private Constants ///
 
-		static constexpr int DEFAULT_SEGMENTS = 8;
+		static constexpr int DEFAULT_SEGMENTS = 1;
 
 		/// Private Member Variables ///
 

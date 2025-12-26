@@ -80,6 +80,8 @@ const std::string 	STATS_BODY_FONT_NAME  		{"SourceCodePro-Semibold"};
 const std::string 	STATS_BODY_FONT_TYPE  		{"otf"};
 const float 		STATS_BODY_FONT_SIZE 		{15.0};
 
+const GLuint 		ENV_BINDING_POINT 			{0};
+
 /// Private Types ///
 
 enum class MaterialContentsType : unsigned {
@@ -397,6 +399,11 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 	uint32_t ubo;
 	glGenBuffers(1, &ubo);
 	_glEnvironmentUBO = ubo;
+	glBindBufferBase(GL_UNIFORM_BUFFER, ENV_BINDING_POINT, _glEnvironmentUBO);
+
+	// TODO: do something better
+	Program::Default().bindUniformBlock("EnvironmentBlock", ENV_BINDING_POINT);
+	Program::Wireframe().bindUniformBlock("EnvironmentBlock", ENV_BINDING_POINT);
 
 	_drawTimer.initialize();
 
@@ -460,8 +467,12 @@ void OpenGLRenderer::postTraversal(const Scene& scene,
 								   const DebugOptions& debugOptions,
 								   FrameStats& stats) {
 
-	SendEnvironmentUniforms(_glEnvironmentUBO, scene, lightNodes, stats);
-	Program::Default().bindUniformBlock("EnvironmentBlock", _glEnvironmentUBO);
+	if (!A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes)) {
+
+		//Program::Default().use();
+		SendEnvironmentUniforms(_glEnvironmentUBO, scene, lightNodes, stats);
+		Program::Default().bindUniformBlock("EnvironmentBlock", _glEnvironmentUBO);
+	}
 }
 
 void OpenGLRenderer::render(const Scene& scene,
@@ -1543,125 +1554,117 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 							 const Scene& scene,
 							 const vector<Node*>& lightNodes,
 							 FrameStats& stats) {
-	// program "Default" must be active
-
 	// block
 
 	EnvironmentBlock environmentStruct{};
 
 	// lights
 
-	if (scene.visualWorld()->usesDefaultLighting()) {
+	auto numLights = lightNodes.size();
+
+	if (scene.visualWorld()->usesDefaultLighting()
+		|| ((numLights == 0) && scene.visualWorld()->autoEnablesDefaultLighting())) {
 
 		environmentStruct.useDefaultLighting = 1u;
 	}
 	else {
 
-		auto numLights = lightNodes.size();
+		environmentStruct.useDefaultLighting = 0u;
 
 		stats.numLights = numLights;
 
-		if (((numLights == 0) && scene.visualWorld()->autoEnablesDefaultLighting())) {
+		vector<AmbientLightGLSLStruct> ambientStructs;
+		vector<DirectionalLightGLSLStruct> directionalStructs;
+		vector<PointLightGLSLStruct> pointStructs;
+		vector<SpotLightGLSLStruct> spotStructs;
 
-			environmentStruct.useDefaultLighting = 1u;
-		}
-		else {
+		ambientStructs.reserve(config::MAX_AMBIENT_LIGHTS);
+		directionalStructs.reserve(config::MAX_DIRECTIONAL_LIGHTS);
+		pointStructs.reserve(config::MAX_POINT_LIGHTS);
+		spotStructs.reserve(config::MAX_SPOT_LIGHTS);
 
-			environmentStruct.useDefaultLighting = 0u;
+		for (unsigned l = 0; l < numLights; ++l) {
 
-			vector<AmbientLightGLSLStruct> ambientStructs;
-			vector<DirectionalLightGLSLStruct> directionalStructs;
-			vector<PointLightGLSLStruct> pointStructs;
-			vector<SpotLightGLSLStruct> spotStructs;
+			auto node = lightNodes[l];
+			auto light = node->light().get();
+			auto color = light->color();
 
-			ambientStructs.reserve(config::MAX_AMBIENT_LIGHTS);
-			directionalStructs.reserve(config::MAX_DIRECTIONAL_LIGHTS);
-			pointStructs.reserve(config::MAX_POINT_LIGHTS);
-			spotStructs.reserve(config::MAX_SPOT_LIGHTS);
+			// light_cutoff:
+			// if an attenuated light, first make sure it's not past its cutoff distance.
+			// this is either a hard-coded distance or calcualted based on a minimum attenuation.
+			//
+			// for min attenuation:
+			// https://gamedev.stackexchange.com/a/56934
+			// cuts light off at distance 'd'
+			// when attenuation drops below 'a'.
+			// d = sqrt(1.0 / (Kq * a))
+			//
+			// UPDATE: distance from what? the camera?  that doesn't make sense.
+			// the fragment?  sure, but probably slow.
+			// the vertex?  sure, but maybe messy?
 
-			for (unsigned l = 0; l < numLights; ++l) {
-
-				auto node = lightNodes[l];
-				auto light = node->light().get();
-				auto color = light->color();
-
-				// light_cutoff:
-				// if an attenuated light, first make sure it's not past its cutoff distance.
-				// this is either a hard-coded distance or calcualted based on a minimum attenuation.
-				//
-				// for min attenuation:
-				// https://gamedev.stackexchange.com/a/56934
-				// cuts light off at distance 'd'
-				// when attenuation drops below 'a'.
-				// d = sqrt(1.0 / (Kq * a))
-				//
-				// UPDATE: distance from what? the camera?  that doesn't make sense.
-				// the fragment?  sure, but probably slow.
-				// the vertex?  sure, but maybe messy?
-
-				if (auto ambientLight = dynamic_cast<AmbientLight*>(light)) {
-					if (ambientStructs.size() < config::MAX_AMBIENT_LIGHTS) {
-						AmbientLightGLSLStruct lightStruct{};
-						lightStruct.color = ambientLight->color()->rgba();
-						ambientStructs.push_back(lightStruct);
-					}
-				}
-				else if (auto directionalLight = dynamic_cast<DirectionalLight*>(light)) {
-					if (directionalStructs.size() < config::MAX_DIRECTIONAL_LIGHTS) {
-						DirectionalLightGLSLStruct lightStruct{};
-						lightStruct.color = directionalLight->color()->rgba();
-						lightStruct.direction_world = node->worldForward();
-						directionalStructs.push_back(lightStruct);
-					}
-				}
-				else if (auto pointLight = dynamic_cast<PointLight*>(light)) {
-					if (pointStructs.size() < config::MAX_POINT_LIGHTS) {
-						PointLightGLSLStruct lightStruct{};
-						lightStruct.color = pointLight->color()->rgba();
-						lightStruct.position_world = node->worldPosition();
-						lightStruct.constantAttenuation = pointLight->constantAttenuation();
-						lightStruct.linearAttenuation = pointLight->linearAttenuation();
-						lightStruct.quadraticAttenuation = pointLight->quadraticAttenuation();
-						pointStructs.push_back(lightStruct);
-					}
-				}
-				else if (auto spotLight = dynamic_cast<SpotLight*>(light)) {
-					if (spotStructs.size() < config::MAX_SPOT_LIGHTS) {
-						SpotLightGLSLStruct lightStruct{};
-						lightStruct.color = spotLight->color()->rgba();
-						lightStruct.position_world = node->worldPosition();
-						lightStruct.direction_world = node->worldForward();
-						lightStruct.innerAngleCos = spotLight->innerAngleCos();
-						lightStruct.outerAngleCos = spotLight->outerAngleCos();
-						lightStruct.featheringMode = magic_enum::enum_underlying(spotLight->featheringMode());
-						lightStruct.constantAttenuation = spotLight->constantAttenuation();
-						lightStruct.linearAttenuation = spotLight->linearAttenuation();
-						lightStruct.quadraticAttenuation = spotLight->quadraticAttenuation();
-						spotStructs.push_back(lightStruct);
-					}
+			if (auto ambientLight = dynamic_cast<AmbientLight*>(light)) {
+				if (ambientStructs.size() < config::MAX_AMBIENT_LIGHTS) {
+					AmbientLightGLSLStruct lightStruct{};
+					lightStruct.color = ambientLight->color()->rgba();
+					ambientStructs.push_back(lightStruct);
 				}
 			}
-
-			environmentStruct.numAmbientLights = ambientStructs.size();
-			memcpy(&environmentStruct.ambientLights,
-				   ambientStructs.data(),
-				   sizeof(AmbientLightGLSLStruct) * ambientStructs.size());
-
-			environmentStruct.numDirectionalLights = directionalStructs.size();
-			memcpy(&environmentStruct.directionalLights,
-				   directionalStructs.data(),
-				   sizeof(DirectionalLightGLSLStruct) * directionalStructs.size());
-
-			environmentStruct.numPointLights = pointStructs.size();
-			memcpy(&environmentStruct.pointLights,
-				   pointStructs.data(),
-				   sizeof(PointLightGLSLStruct) * pointStructs.size());
-
-			environmentStruct.numSpotLights = spotStructs.size();
-			memcpy(&environmentStruct.spotLights,
-				   spotStructs.data(),
-				   sizeof(SpotLightGLSLStruct) * spotStructs.size());
+			else if (auto directionalLight = dynamic_cast<DirectionalLight*>(light)) {
+				if (directionalStructs.size() < config::MAX_DIRECTIONAL_LIGHTS) {
+					DirectionalLightGLSLStruct lightStruct{};
+					lightStruct.color = directionalLight->color()->rgba();
+					lightStruct.direction_world = node->worldForward();
+					directionalStructs.push_back(lightStruct);
+				}
+			}
+			else if (auto pointLight = dynamic_cast<PointLight*>(light)) {
+				if (pointStructs.size() < config::MAX_POINT_LIGHTS) {
+					PointLightGLSLStruct lightStruct{};
+					lightStruct.color = pointLight->color()->rgba();
+					lightStruct.position_world = node->worldPosition();
+					lightStruct.constantAttenuation = pointLight->constantAttenuation();
+					lightStruct.linearAttenuation = pointLight->linearAttenuation();
+					lightStruct.quadraticAttenuation = pointLight->quadraticAttenuation();
+					pointStructs.push_back(lightStruct);
+				}
+			}
+			else if (auto spotLight = dynamic_cast<SpotLight*>(light)) {
+				if (spotStructs.size() < config::MAX_SPOT_LIGHTS) {
+					SpotLightGLSLStruct lightStruct{};
+					lightStruct.color = spotLight->color()->rgba();
+					lightStruct.position_world = node->worldPosition();
+					lightStruct.direction_world = node->worldForward();
+					lightStruct.innerAngleCos = spotLight->innerAngleCos();
+					lightStruct.outerAngleCos = spotLight->outerAngleCos();
+					lightStruct.featheringMode = magic_enum::enum_underlying(spotLight->featheringMode());
+					lightStruct.constantAttenuation = spotLight->constantAttenuation();
+					lightStruct.linearAttenuation = spotLight->linearAttenuation();
+					lightStruct.quadraticAttenuation = spotLight->quadraticAttenuation();
+					spotStructs.push_back(lightStruct);
+				}
+			}
 		}
+
+		environmentStruct.numAmbientLights = ambientStructs.size();
+		memcpy(&environmentStruct.ambientLights,
+			   ambientStructs.data(),
+			   sizeof(AmbientLightGLSLStruct) * ambientStructs.size());
+
+		environmentStruct.numDirectionalLights = directionalStructs.size();
+		memcpy(&environmentStruct.directionalLights,
+			   directionalStructs.data(),
+			   sizeof(DirectionalLightGLSLStruct) * directionalStructs.size());
+
+		environmentStruct.numPointLights = pointStructs.size();
+		memcpy(&environmentStruct.pointLights,
+			   pointStructs.data(),
+			   sizeof(PointLightGLSLStruct) * pointStructs.size());
+
+		environmentStruct.numSpotLights = spotStructs.size();
+		memcpy(&environmentStruct.spotLights,
+			   spotStructs.data(),
+			   sizeof(SpotLightGLSLStruct) * spotStructs.size());
 	}
 
 	// fog
@@ -1686,6 +1689,154 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(EnvironmentBlock), &environmentStruct, GL_DYNAMIC_DRAW);
 }
+
+//void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
+//							 const Scene& scene,
+//							 const vector<Node*>& lightNodes,
+//							 FrameStats& stats) {
+//	// program "Default" must be active
+//
+//	// block
+//
+//	EnvironmentBlock environmentStruct{};
+//
+//	// lights
+//
+//	if (scene.visualWorld()->usesDefaultLighting()) {
+//
+//		environmentStruct.useDefaultLighting = 1u;
+//	}
+//	else {
+//
+//		auto numLights = lightNodes.size();
+//
+//		stats.numLights = numLights;
+//
+//		if (((numLights == 0) && scene.visualWorld()->autoEnablesDefaultLighting())) {
+//
+//			environmentStruct.useDefaultLighting = 1u;
+//		}
+//		else {
+//
+//			environmentStruct.useDefaultLighting = 0u;
+//
+//			vector<AmbientLightGLSLStruct> ambientStructs;
+//			vector<DirectionalLightGLSLStruct> directionalStructs;
+//			vector<PointLightGLSLStruct> pointStructs;
+//			vector<SpotLightGLSLStruct> spotStructs;
+//
+//			ambientStructs.reserve(config::MAX_AMBIENT_LIGHTS);
+//			directionalStructs.reserve(config::MAX_DIRECTIONAL_LIGHTS);
+//			pointStructs.reserve(config::MAX_POINT_LIGHTS);
+//			spotStructs.reserve(config::MAX_SPOT_LIGHTS);
+//
+//			for (unsigned l = 0; l < numLights; ++l) {
+//
+//				auto node = lightNodes[l];
+//				auto light = node->light().get();
+//				auto color = light->color();
+//
+//				// light_cutoff:
+//				// if an attenuated light, first make sure it's not past its cutoff distance.
+//				// this is either a hard-coded distance or calcualted based on a minimum attenuation.
+//				//
+//				// for min attenuation:
+//				// https://gamedev.stackexchange.com/a/56934
+//				// cuts light off at distance 'd'
+//				// when attenuation drops below 'a'.
+//				// d = sqrt(1.0 / (Kq * a))
+//				//
+//				// UPDATE: distance from what? the camera?  that doesn't make sense.
+//				// the fragment?  sure, but probably slow.
+//				// the vertex?  sure, but maybe messy?
+//
+//				if (auto ambientLight = dynamic_cast<AmbientLight*>(light)) {
+//					if (ambientStructs.size() < config::MAX_AMBIENT_LIGHTS) {
+//						AmbientLightGLSLStruct lightStruct{};
+//						lightStruct.color = ambientLight->color()->rgba();
+//						ambientStructs.push_back(lightStruct);
+//					}
+//				}
+//				else if (auto directionalLight = dynamic_cast<DirectionalLight*>(light)) {
+//					if (directionalStructs.size() < config::MAX_DIRECTIONAL_LIGHTS) {
+//						DirectionalLightGLSLStruct lightStruct{};
+//						lightStruct.color = directionalLight->color()->rgba();
+//						lightStruct.direction_world = node->worldForward();
+//						directionalStructs.push_back(lightStruct);
+//					}
+//				}
+//				else if (auto pointLight = dynamic_cast<PointLight*>(light)) {
+//					if (pointStructs.size() < config::MAX_POINT_LIGHTS) {
+//						PointLightGLSLStruct lightStruct{};
+//						lightStruct.color = pointLight->color()->rgba();
+//						lightStruct.position_world = node->worldPosition();
+//						lightStruct.constantAttenuation = pointLight->constantAttenuation();
+//						lightStruct.linearAttenuation = pointLight->linearAttenuation();
+//						lightStruct.quadraticAttenuation = pointLight->quadraticAttenuation();
+//						pointStructs.push_back(lightStruct);
+//					}
+//				}
+//				else if (auto spotLight = dynamic_cast<SpotLight*>(light)) {
+//					if (spotStructs.size() < config::MAX_SPOT_LIGHTS) {
+//						SpotLightGLSLStruct lightStruct{};
+//						lightStruct.color = spotLight->color()->rgba();
+//						lightStruct.position_world = node->worldPosition();
+//						lightStruct.direction_world = node->worldForward();
+//						lightStruct.innerAngleCos = spotLight->innerAngleCos();
+//						lightStruct.outerAngleCos = spotLight->outerAngleCos();
+//						lightStruct.featheringMode = magic_enum::enum_underlying(spotLight->featheringMode());
+//						lightStruct.constantAttenuation = spotLight->constantAttenuation();
+//						lightStruct.linearAttenuation = spotLight->linearAttenuation();
+//						lightStruct.quadraticAttenuation = spotLight->quadraticAttenuation();
+//						spotStructs.push_back(lightStruct);
+//					}
+//				}
+//			}
+//
+//			environmentStruct.numAmbientLights = ambientStructs.size();
+//			memcpy(&environmentStruct.ambientLights,
+//				   ambientStructs.data(),
+//				   sizeof(AmbientLightGLSLStruct) * ambientStructs.size());
+//
+//			environmentStruct.numDirectionalLights = directionalStructs.size();
+//			memcpy(&environmentStruct.directionalLights,
+//				   directionalStructs.data(),
+//				   sizeof(DirectionalLightGLSLStruct) * directionalStructs.size());
+//
+//			environmentStruct.numPointLights = pointStructs.size();
+//			memcpy(&environmentStruct.pointLights,
+//				   pointStructs.data(),
+//				   sizeof(PointLightGLSLStruct) * pointStructs.size());
+//
+//			environmentStruct.numSpotLights = spotStructs.size();
+//			memcpy(&environmentStruct.spotLights,
+//				   spotStructs.data(),
+//				   sizeof(SpotLightGLSLStruct) * spotStructs.size());
+//		}
+//	}
+//
+//	// fog
+//
+//	auto visualWorld = scene.visualWorld();
+//	FogGLSLStruct fogStruct{};
+//	fogStruct.startDistance = visualWorld->fogStartDistance();
+//	fogStruct.endDistance = visualWorld->fogEndDistance();
+//	fogStruct.densityExponent = visualWorld->fogDensityExponent();
+//	auto fogColor = visualWorld->fogColor();
+//	if (visualWorld->fogColor()) {
+//		fogStruct.color = fogColor->rgba();
+//	}
+//	else {
+//		fogStruct.color = {0.0, 0.0, 0.0, 0.0};
+//	}
+//
+//	memcpy(&environmentStruct.fog, &fogStruct, sizeof(fogStruct));
+//
+//	// send 'em
+//
+//	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
+//	glBufferData(GL_UNIFORM_BUFFER, sizeof(EnvironmentBlock), &environmentStruct, GL_DYNAMIC_DRAW);
+//}
 
 void SetTextureSamplingOptions(Texture& texture,
 							   GLuint glTextureHandle) {
