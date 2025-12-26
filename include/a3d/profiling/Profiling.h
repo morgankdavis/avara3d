@@ -12,14 +12,15 @@
 #include "a3d/profiling/Timer.h"
 
 namespace a3d {
+
 	template <class F>
 	decltype(auto) ProfileScope(Profiler& profiler, Profiler::Tag tag, F&& f) {
 		ScopeTimer t{profiler, tag};
 		return std::forward<F>(f)();
 	}
 
-#define A3D_PROFILE(profiler, tag, ...) \
-		::a3d::ProfileScope((profiler), (tag), __VA_ARGS__)
+	#define A3D_PROFILE(profiler, tag, ...) \
+			::a3d::ProfileScope((profiler), (tag), __VA_ARGS__)
 }
 
 #endif //AVARA3D_PROFILING_H

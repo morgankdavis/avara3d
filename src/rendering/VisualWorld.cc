@@ -19,6 +19,7 @@
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/physics/bullet/BulletWorldProxy.h"
 #include "a3d/profiling/Profiling.h"
+#include "a3d/rendering/RenderGatherer.h"
 #include "a3d/rendering/RenderItem.h"
 #include "a3d/rendering/RenderPacket.h"
 #include "a3d/rendering/RenderResourceCacheOGL.h"
@@ -40,7 +41,6 @@ using namespace std;
 
 static unique_ptr<Mesh> MakeSkyboxMesh(const MaterialProperty& property);
 static unique_ptr<Mesh> GroundPlaneMesh();
-//static void UpdateTimeStats(Stats& stats, double startTime, double endTime);
 
 /// Public Lifecycle Functions ///
 
@@ -58,8 +58,7 @@ VisualWorld::VisualWorld(RenderContext& context):
 		_renderContext{&context},
 		_scene{},
 		_willRenderCallback{},
-		_didRenderCallback{}/*,
-		_packetizer{}*/ {
+		_didRenderCallback{} {
 
 	_renderContext->attachedToVisualWorld(this);
 
@@ -177,7 +176,7 @@ weak_ptr<Node> VisualWorld::pointOfView() {
 	if (!_pointOfView.lock()) {
 		// still no POV. add a default one.
 		A3D_LOG_I("Adding default point of view.");
-		_pointOfView  = defaultPointOfView();
+		_pointOfView  = defaultPOV();
 	}
 
 	return _pointOfView;
@@ -259,147 +258,140 @@ void VisualWorld::draw(const Scene& scene,
 					   Profiler& profiler,
 					   const FrameStatsHistory& statsHistory) {
 
-	if (_renderContext) {
+	if (!_renderContext) {
+		A3D_LOG_E("No RenderContext attached to VisualWorld {:p}", static_cast<void*>(this));
+		return;
+	}
 
-		if (auto renderer = _renderContext->renderer()) {
+	auto renderer = _renderContext->renderer();
+	if (!renderer) {
+		A3D_LOG_E("No Renderer attached to RenderContext {:p}", static_cast<void*>(_renderContext));
+		return;
+	}
 
-			if (auto willRender = VisualWorld::willRenderCallback()) {
-				A3D_PROFILE(profiler, Profiler::Tag::Application, [&] {
-					willRender(*this, runT, deltaRunT);
-				}); // A3D_PROFILE
-			}
+	auto pov = pointOfView().lock();
+	if (!pov) {
+		A3D_LOG_W("No point of view!");
+		return;
+	}
 
-			renderer->beginFrame(scene, *_renderContext, debugOptions, stats, profiler);
-			_renderContext->beginFrame(scene);
+	auto povScene = pov->scene();
+	if (povScene == nullptr || povScene != &scene) {
+		A3D_LOG_W("Point of view not in our scene!");
+		return;
+	}
 
-			if (auto pov = pointOfView().lock()) {
+	if (auto willRender = VisualWorld::willRenderCallback()) {
+		A3D_PROFILE(profiler, Profiler::Tag::Application, [&] {
+			willRender(*this, runT, deltaRunT);
+		});
+	}
 
-				auto povScene = pov->scene();
-				if (povScene != nullptr && povScene == &scene) {
+	renderer->beginFrame(scene, *_renderContext, debugOptions, stats, profiler);
+	_renderContext->beginFrame(scene);
 
-					auto [viewMat, projectionMat] = A3D_PROFILE(profiler,
-																Profiler::Tag::EngineCpu, [&] {
+	auto [viewMat, projMat] = A3D_PROFILE(profiler, Profiler::Tag::EngineCpu, [&] {
 
-						auto frameBufferSize = _renderContext->framebufferSize();
+		auto fbSize = _renderContext->framebufferSize();
 
-						if (auto pc = dynamic_pointer_cast<PerspectiveCamera>(pov->camera())) {
-							auto aspectRatio = float(frameBufferSize.x) / float(frameBufferSize.y);
-							pc->aspectRatio(aspectRatio);
-						}
-
-						return std::tuple{ inverse(pov->worldTransform()),
-										   pov->camera()->projection() };
-					}); // A3D_PROFILE
-
-					A3D_PROFILE(profiler, Profiler::Tag::RenderCpu, [&] {
-
-						renderer->render(scene,
-										 *_renderContext,
-										 viewMat,
-										 projectionMat,
-										 debugOptions,
-										 stats);
-
-						renderer->preTraversal(scene, *_renderContext, debugOptions, stats);
-					}); // A3D_PROFILE
-
-					auto gatherItems = A3D_PROFILE(profiler, Profiler::Tag::EngineCpu, [&] {
-
-						return RenderGatherer::GatherRenderItems(scene,
-																 *_renderContext,
-																 viewMat,
-																 debugOptions,
-																 stats);
-					}); // A3D_PROFILE
-
-					A3D_PROFILE(profiler, Profiler::Tag::RenderCpu, [&] {
-
-						renderer->postTraversal(scene,
-												*_renderContext,
-												gatherItems.temp_lightNodes,
-												debugOptions, stats);
-
-
-						static RenderResourceCacheOGL _cache{};
-						RenderPacket packet = RenderGatherer::BuildRenderPacket(gatherItems,
-																				debugOptions,
-																				_cache,
-								/*vertexLayoutKey=*/1);
-
-						for (const auto &di: packet.main) {
-
-							renderer->bindPipeline(di.pipeline, _cache);
-							renderer->bindMaterial(*di.material);
-							renderer->bindMeshElement(*di.element);
-							renderer->setPerObject(di.model, viewMat, projectionMat);
-							renderer->drawBound();
-						}
-
-						for (const auto &di: packet.wire) {
-
-							renderer->bindPipeline(di.pipeline, _cache);
-							// optional: bindMaterial for wire, depending on shader
-							renderer->bindMeshElement(*di.element);
-							renderer->setPerObject(di.model, viewMat, projectionMat);
-							renderer->drawBound();
-						}
-
-						// ! temporary !
-						for (const auto &mi: gatherItems.temp_meshInstances) {
-							renderer->render(*mi.mesh,
-											 *_renderContext,
-											 mi.model,
-											 viewMat,
-											 projectionMat,
-											 debugOptions,
-											 stats);
-						}
-					}); // A3D_PROFILE
-
-					if (physicalWorld) {
-
-						if (auto bwp = dynamic_cast<BulletWorldProxy *>(physicalWorld->proxy())) {
-							bwp->drawDebug(*renderer,
-										   *_renderContext,
-										   viewMat,
-										   projectionMat,
-										   debugOptions);
-						}
-					}
-				}
-				else {
-					A3D_LOG_W("Point of view not in our scene!");
-					// TODO: throw?
-				}
-			}
-			else {
-				A3D_LOG_W("No point of view!");
-				// TODO: throw?
-			}
-
-			_renderContext->endFrame(scene);
-			renderer->endFrame(scene, *_renderContext,
-							   debugOptions, stats, profiler, statsHistory);
-
-			_renderContext->swapBuffers();
-
-			if (auto didRender = VisualWorld::didRenderCallback()) {
-				Timer appTimer(true);
-				didRender(*this, runT, deltaRunT);
-				profiler.add(Profiler::Tag::Application, appTimer.stop());
-			}
-
-			if (_renderContext->recordingGIF()) {
-				_renderContext->saveGIFFrame(deltaRunT);
-			}
+		if (auto pc = dynamic_pointer_cast<PerspectiveCamera>(pov->camera())) {
+			auto aspectRatio = float(fbSize.x) / float(fbSize.y);
+			pc->aspectRatio(aspectRatio);
 		}
-		else {
-			A3D_LOG_E("No Renderer attached to RenderContext {:p}",
-					  static_cast<void*>(_renderContext));
+
+		return std::tuple{ inverse(pov->worldTransform()), pov->camera()->projection() };
+	});
+
+	A3D_PROFILE(profiler, Profiler::Tag::RenderCpu, [&] {
+
+		renderer->render(scene,
+						 *_renderContext,
+						 viewMat,
+						 projMat,
+						 debugOptions,
+						 stats);
+
+		renderer->preTraversal(scene, *_renderContext, debugOptions, stats);
+	});
+
+	auto gatherItems = A3D_PROFILE(profiler, Profiler::Tag::EngineCpu, [&] {
+
+		return RenderGatherer::GatherRenderItems(scene,
+												 *_renderContext,
+												 viewMat,
+												 debugOptions,
+												 stats);
+	});
+
+	A3D_PROFILE(profiler, Profiler::Tag::RenderCpu, [&] {
+
+		renderer->postTraversal(scene,
+								*_renderContext,
+								gatherItems.temp_lightNodes,
+								debugOptions, stats);
+
+
+		static RenderResourceCacheOGL _cache{};
+		RenderPacket packet = RenderGatherer::BuildRenderPacket(gatherItems,
+																debugOptions,
+																_cache,
+				/*vertexLayoutKey=*/1);
+
+		for (const auto &di: packet.main) {
+
+			renderer->bindPipeline(di.pipeline, _cache);
+			renderer->bindMaterial(*di.material);
+			renderer->bindMeshElement(*di.element);
+			renderer->setPerObject(di.model, viewMat, projMat);
+			renderer->drawBound();
+		}
+
+		for (const auto &di: packet.wire) {
+
+			renderer->bindPipeline(di.pipeline, _cache);
+			// optional: bindMaterial for wire, depending on shader
+			renderer->bindMeshElement(*di.element);
+			renderer->setPerObject(di.model, viewMat, projMat);
+			renderer->drawBound();
+		}
+
+		// ! temporary !
+		for (const auto &mi: gatherItems.temp_meshInstances) {
+			renderer->render(*mi.mesh,
+							 *_renderContext,
+							 mi.model,
+							 viewMat,
+							 projMat,
+							 debugOptions,
+							 stats);
+		}
+	});
+
+	if (physicalWorld) {
+
+		if (auto bwp = dynamic_cast<BulletWorldProxy*>(physicalWorld->proxy())) {
+			bwp->drawDebug(*renderer,
+						   *_renderContext,
+						   viewMat,
+						   projMat,
+						   debugOptions);
 		}
 	}
-	else {
-		A3D_LOG_E("No RenderContext attached to VisualWorld {:p}", static_cast<void*>(this));
+
+	_renderContext->endFrame(scene);
+	renderer->endFrame(scene, *_renderContext,
+					   debugOptions, stats, profiler, statsHistory);
+
+	_renderContext->swapBuffers();
+
+	if (auto didRender = VisualWorld::didRenderCallback()) {
+		Timer appTimer(true);
+		didRender(*this, runT, deltaRunT);
+		profiler.add(Profiler::Tag::Application, appTimer.stop());
+	}
+
+	if (_renderContext->recordingGIF()) {
+		_renderContext->saveGIFFrame(deltaRunT);
 	}
 }
 
@@ -411,61 +403,58 @@ Mesh* VisualWorld::groundPlaneMesh() const {
 	return _groundPlaneMesh.get();
 }
 
-weak_ptr<Node> VisualWorld::defaultPointOfView() {
+weak_ptr<Node> VisualWorld::defaultPOV() {
 
-	if (_scene) {
-
-		auto cameraNode = make_shared<Node>();
-		auto camera = make_shared<PerspectiveCamera>();
-		camera->name("default camera");
-
-		auto aabb = _scene->rootNode()->aabb();
-
-		auto fovH = camera->yFov();
-		auto frameBufferSize = _renderContext->framebufferSize();
-		auto aspectRatio = float(frameBufferSize.x) / float(frameBufferSize.y);
-		auto inverseAspectRatio = 1.0f / aspectRatio;
-		auto fovV = fovH * inverseAspectRatio;
-
-		// tan(angle) = x/z
-		// ztan(angle) = x
-		// z = x/tan(angle)
-
-		auto maxZ = math::abs(aabb.max.z);
-
-		auto xH = math::abs(aabb.min.x) + math::abs(aabb.max.x) / 2.0f;
-		auto angleH = fovH / 2.0;
-		auto zH = xH / tan(angleH);
-
-		auto xV = math::abs(aabb.min.y) + math::abs(aabb.max.y) / 2.0f;
-		auto angleV = fovV / 2.0;
-		auto zV = xV / tan(angleV);
-
-		zH += maxZ;
-		zV += maxZ;
-
-		auto z = math::max(zH, zV);
-		auto midX = (aabb.min.x + aabb.max.x) / 2.0f;
-		auto midY = (aabb.min.y + aabb.max.y) / 2.0f;
-
-		// not sure why z is devided by 2.0, but it seems to work better...
-		auto eye = vec3(midX, midY, z / 2.0f);
-		//vec3 eye = vec3(midX, midY, z);
-
-		mat4 viewMat = translate(mat4(1.0f), eye);
-		cameraNode->transform(viewMat);
-
-		_scene->rootNode()->addChild(cameraNode);
-
-		cameraNode->camera(camera);
-
-		return cameraNode;
-	}
-	else {
+	if (!_scene) {
 		A3D_LOG_W("Can't create default camera: scene is null.");
+		return {};
 	}
 
-	return {};
+	auto cameraNode = make_shared<Node>();
+	auto camera = make_shared<PerspectiveCamera>();
+	camera->name("Default Camera");
+
+	auto aabb = _scene->rootNode()->aabb();
+
+	auto fovH = camera->yFov();
+	auto frameBufferSize = _renderContext->framebufferSize();
+	auto aspectRatio = float(frameBufferSize.x) / float(frameBufferSize.y);
+	auto inverseAspectRatio = 1.0f / aspectRatio;
+	auto fovV = fovH * inverseAspectRatio;
+
+	// tan(angle) = x/z
+	// ztan(angle) = x
+	// z = x/tan(angle)
+
+	auto maxZ = math::abs(aabb.max.z);
+
+	auto xH = math::abs(aabb.min.x) + math::abs(aabb.max.x) / 2.0f;
+	auto angleH = fovH / 2.0;
+	auto zH = xH / tan(angleH);
+
+	auto xV = math::abs(aabb.min.y) + math::abs(aabb.max.y) / 2.0f;
+	auto angleV = fovV / 2.0;
+	auto zV = xV / tan(angleV);
+
+	zH += maxZ;
+	zV += maxZ;
+
+	auto z = math::max(zH, zV);
+	auto midX = (aabb.min.x + aabb.max.x) / 2.0f;
+	auto midY = (aabb.min.y + aabb.max.y) / 2.0f;
+
+	// not sure why z is devided by 2.0, but it seems to work better...
+	auto eye = vec3(midX, midY, z / 2.0f);
+	//vec3 eye = vec3(midX, midY, z);
+
+	mat4 viewMat = translate(mat4(1.0f), eye);
+	cameraNode->transform(viewMat);
+
+	_scene->rootNode()->addChild(cameraNode);
+
+	cameraNode->camera(camera);
+
+	return cameraNode;
 }
 
 /// Private Static Member Functions ///

@@ -13,7 +13,6 @@
 #include <memory>
 
 #include "a3d/Types.h"
-#include "a3d/rendering/RenderGatherer.h"
 
 namespace a3d {
 
@@ -96,7 +95,7 @@ namespace a3d {
 
 		Mesh*									skyboxMesh() const;
 		Mesh*									groundPlaneMesh() const;
-		std::weak_ptr<Node>						defaultPointOfView();
+		std::weak_ptr<Node>						defaultPOV();
 
 	private:
 		/// Private Member Variables ///
@@ -115,9 +114,6 @@ namespace a3d {
 		Scene*									_scene;
 		WillRenderCallback 						_willRenderCallback;
 		DidRenderCallback 						_didRenderCallback;
-
-		// TODO: move
-//		RenderPacketizer						_packetizer;
 	};
 }
 
