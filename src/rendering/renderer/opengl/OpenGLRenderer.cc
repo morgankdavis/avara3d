@@ -91,19 +91,19 @@ enum class MaterialContentsType : unsigned {
 static_assert(sizeof(vec4) == 16);
 static_assert(sizeof(vec3) == 12);
 
-typedef struct {
+struct AmbientLightGLSLStruct {
 	vec4		color;
-} AmbientLightGLSLStruct;
+};
 static_assert(sizeof(AmbientLightGLSLStruct) == 16);
 
-typedef struct {
+struct DirectionalLightGLSLStruct {
 	vec4		color;
 	vec3		direction_world;
 	f32			_pad_0_;
-} DirectionalLightGLSLStruct;
+};
 static_assert(sizeof(DirectionalLightGLSLStruct) == 32);
 
-typedef struct {
+struct PointLightGLSLStruct {
 	vec4		color;
 	vec3		position_world;
 	f32			_pad_0_;
@@ -111,10 +111,10 @@ typedef struct {
 	f32			linearAttenuation;
 	f32			quadraticAttenuation;
 	f32			_pad_1_;
-} PointLightGLSLStruct;
+};
 static_assert(sizeof(PointLightGLSLStruct) == 48);
 
-typedef struct {
+struct SpotLightGLSLStruct {
 	vec4		color;
 	vec3		position_world;
 	f32			_pad_0_;
@@ -128,19 +128,19 @@ typedef struct {
 	f32			quadraticAttenuation;
 	f32			_pad_2_;
 	f32			_pad_3_;
-} SpotLightGLSLStruct;
+};
 static_assert(sizeof(SpotLightGLSLStruct) == 80);
 
-typedef struct {
+struct FogGLSLStruct {
 	vec4		color;
 	f32			startDistance;
 	f32			endDistance;
 	f32			densityExponent;
 	f32			_pad_0_;
-} FogGLSLStruct;
+};
 static_assert(sizeof(FogGLSLStruct) == 32);
 
-typedef struct {
+struct EnvironmentBlock {
 	alignas(16)	uint32_t 					numAmbientLights;
 	//uint32_t _pad_0_[3];
 	alignas(16) AmbientLightGLSLStruct		ambientLights[a3d::config::MAX_AMBIENT_LIGHTS];
@@ -151,7 +151,7 @@ typedef struct {
 	alignas(16) uint32_t 					numSpotLights;
 	alignas(16) SpotLightGLSLStruct			spotLights[a3d::config::MAX_SPOT_LIGHTS];
 	alignas(16) FogGLSLStruct				fog;
-} EnvironmentBlock;
+};
 
 /// Private Static Non-Member Prototypes ///
 
@@ -644,16 +644,6 @@ void OpenGLRenderer::render(MeshElement& element,
 							const mat4& projectionMat,
 							const DebugOptions& debugOptions,
 							FrameStats& stats) {
-
-//	auto wireframe = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes);
-//	if (!wireframe) {
-//
-//		// send material and2 material property uniforms
-//		SendMaterialUniforms(material, Program::Default(), glTextureHandles);
-//
-//		// update material property filtering options
-//		SetMaterialFilteringOptions(material, glTextureHandles);
-//	}
 
 	bindMaterial(material);
 	bindMeshElement(element);
@@ -3324,9 +3314,9 @@ void OpenGLRenderer::setPerObject(const mat4& model, const mat4& view, const mat
 	GLint locV = glGetUniformLocation(program, "viewMat");
 	GLint locP = glGetUniformLocation(program, "projMat");
 
-	if (locM >= 0) glUniformMatrix4fv(locM, 1, GL_FALSE, &model[0][0]); // value_ptr() ?
-	if (locV >= 0) glUniformMatrix4fv(locV, 1, GL_FALSE, &view[0][0]); // value_ptr() ?
-	if (locP >= 0) glUniformMatrix4fv(locP, 1, GL_FALSE, &proj[0][0]); // value_ptr() ?
+	if (locM >= 0) glUniformMatrix4fv(locM, 1, GL_FALSE, value_ptr(model));
+	if (locV >= 0) glUniformMatrix4fv(locV, 1, GL_FALSE, value_ptr(view));
+	if (locP >= 0) glUniformMatrix4fv(locP, 1, GL_FALSE, value_ptr(proj));
 }
 
 void OpenGLRenderer::drawBound() {

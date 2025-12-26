@@ -47,6 +47,13 @@ namespace a3d {
 		GLenum indexType = GL_UNSIGNED_INT;
 	};
 
+//	struct FrameLighting {
+//		static constexpr int MaxLights = 16;
+//		int count = 0;
+//		math::vec4 pos_ws[MaxLights];   // xyz + type or 1
+//		math::vec4 color_int[MaxLights]; // rgb + intensity
+//	};
+
 
 	
 	class OpenGLRenderer : public Renderer {
@@ -183,6 +190,7 @@ namespace a3d {
 		RenderResourceCacheOGL _cache;
 		GLStateCache _state;
 		BoundElement _boundElement;
+//		FrameLighting _frameLighting;
 	};
 }
 
