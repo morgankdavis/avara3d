@@ -2584,7 +2584,7 @@ void DrawStats(FrameStats& stats,
 			renderGpuMsFAvg, physicsMsFAvg, appCpuMsFAvg;
 	static float fpsAvg = 0;
 
-	A3D_EVERY(config::FRAME_STATS_AVERAGE_UPDATE_INTERVAL) {
+	A3D_EVERY(config::FRAME_STATS_AVERAGE_UPDATE_INTERVAL, [&] {
 
 		FrameStatsHistory::GetAverages(statsHistory,
 									   frameNsAvg, engineCpuNsAvg, renderCpuNsAvg,
@@ -2599,7 +2599,7 @@ void DrawStats(FrameStats& stats,
 		physicsMsFAvg = utils::chrono::ns_to_ms_f(physicsNsAvg);
 		appCpuMsFAvg = utils::chrono::ns_to_ms_f(appCpuNsAvg);
 		if (frameMsFAvg > 0) fpsAvg = 1000.0f / frameMsFAvg;
-	}
+	});
 
 	static vector<float> frameSamples;
 	static vector<float> physSamples;

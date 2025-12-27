@@ -917,7 +917,7 @@ void SpawnDuckFruit(Scene& scene, Node& duckNode) {
 
 	static const float SPAWN_RATE = 10.0; // pieces/sec
 
-	A3D_EVERY(utils::chrono::sec_f_to_ms(1.0f/SPAWN_RATE)) {
+	A3D_EVERY(utils::chrono::sec_f_to_ms(1.0f/SPAWN_RATE), [&] {
 
 		auto duckFruit = (*g_duckFruit)[uniform_linear(0, 5)];
 
@@ -957,14 +957,14 @@ void SpawnDuckFruit(Scene& scene, Node& duckNode) {
 		node->physicsBody(std::move(phyBody));
 
 		scene.rootNode()->addChild(node);
-	}
+	});
 }
 
 void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
 
 	const float SHOOT_RATE = 20; // cans/sec
 
-	A3D_EVERY(utils::chrono::sec_f_to_ms(1.0f/SHOOT_RATE)) {
+	A3D_EVERY(utils::chrono::sec_f_to_ms(1.0f/SHOOT_RATE), [&] {
 
 		static auto mesh = utils::MeshNamed("slurm/slurm");
 		mesh->materials()[0]->emission(mesh->materials()[0]->diffuse());
@@ -1007,7 +1007,7 @@ void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
 		node->physicsBody(std::move(physicsBody));
 
 		scene.rootNode()->addChild(node);
-	}
+	});
 }
 
 void AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color) {

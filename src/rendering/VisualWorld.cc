@@ -240,34 +240,32 @@ void VisualWorld::draw(const Scene& scene,
 					   Profiler& profiler,
 					   const FrameStatsHistory& statsHistory) {
 
-	A3D_EDGE_GUARD(!_renderContext, [&] {
-		A3D_LOG_E("No RenderContext attached to VisualWorld {:p}",
-				  static_cast<void *>(this)); },
-				   return; );
+	A3D_EDGE_GUARD(!_renderContext, return;, [&] {
+		A3D_LOG_E("No RenderContext attached to VisualWorld {:p}", static_cast<void *>(this));
+	});
 
 	auto renderer = _renderContext->renderer();
-	A3D_EDGE_GUARD(!renderer, [&] {
-		A3D_LOG_E("No Renderer attached to RenderContext {:p}",
-				  static_cast<void*>(_renderContext)); },
-				   return; );
+	A3D_EDGE_GUARD(!renderer, return;, [&] {
+		A3D_LOG_E("No Renderer attached to RenderContext {:p}", static_cast<void*>(_renderContext));
+	});
 
 	A3D_ONCE([&] {
 		firstDraw();
 	});
 
 	auto pov = pointOfView().lock();
-	A3D_EDGE_GUARD(!pov, [&] {
+	A3D_EDGE_GUARD(!pov, return;, [&] {
 		A3D_LOG_E("No point of view!");
 		renderer->blank();
-		_renderContext->swapBuffers(); },
-				   return; );
+		_renderContext->swapBuffers();
+	});
 
 	auto povScene = pov->scene();
-	A3D_EDGE_GUARD(povScene == nullptr || povScene != &scene, [&] {
+	A3D_EDGE_GUARD(povScene == nullptr || povScene != &scene, return;, [&] {
 		A3D_LOG_W("Point of view not in our scene!");
 		renderer->blank();
-		_renderContext->swapBuffers(); },
-				   return; );
+		_renderContext->swapBuffers();
+	});
 
 	if (auto willRender = VisualWorld::willRenderCallback()) {
 		A3D_PROFILE(profiler, Profiler::Tag::Application, [&] {
