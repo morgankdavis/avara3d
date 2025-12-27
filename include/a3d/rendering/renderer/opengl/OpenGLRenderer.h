@@ -29,33 +29,25 @@ namespace a3d {
 	class Mesh;
 	class MeshElement;
 	class Line;
-//	class OpenGLDrawItem;
 	class Program; // TEMPROARY
 	class Texture;
 
 
 
 	struct GLStateCache {
-		PipelineHandle pipeline = INVALID_PIPELINE;
-		GLuint program = 0;                 // NEW: currently bound GL program
-		const Material* material = nullptr; // NEW: last bound material (optional)
+		PipelineHandle 	pipeline = 	INVALID_PIPELINE;
+		GLuint 			program = 	0; // currently bound GL program
+		const 			Material* 	material = nullptr; // last bound material
 	};
 
 	struct BoundElement {
-		GLuint vao = 0;
-		GLsizei indexCount = 0;
-		GLenum indexType = GL_UNSIGNED_INT;
+		GLuint 		vao = 			0;
+		GLsizei 	indexCount = 	0;
+		GLenum 		indexType = 	GL_UNSIGNED_INT;
 	};
 
-//	struct FrameLighting {
-//		static constexpr int MaxLights = 16;
-//		int count = 0;
-//		math::vec4 pos_ws[MaxLights];   // xyz + type or 1
-//		math::vec4 color_int[MaxLights]; // rgb + intensity
-//	};
 
 
-	
 	class OpenGLRenderer : public Renderer {
 
 	public:
@@ -143,9 +135,9 @@ namespace a3d {
 									   const math::mat4& viewMat,
 									   const math::mat4& projectionMat) override;
 
-		std::unique_ptr<Image> 	snapshot(const RenderContext& context) const override;
+		void					blank() override;
 
-//		void					draw() override;
+		std::unique_ptr<Image> 	snapshot(const RenderContext& context) const override;
 
 	private:
 		/// Private Member Variables ///
@@ -190,7 +182,6 @@ namespace a3d {
 		RenderResourceCacheOGL _cache;
 		GLStateCache _state;
 		BoundElement _boundElement;
-//		FrameLighting _frameLighting;
 	};
 }
 

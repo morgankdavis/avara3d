@@ -57,8 +57,10 @@ namespace a3d {
 		void 							setUniform(const char* name, unsigned val);
 		void 							setUniform(const char* name, float val);
 
-		void 							bindUniformBlock(const char* name,
-														 unsigned location);
+//		void 							bindUniformBlock(const char* name,
+//														 unsigned location);
+		void 							setUniformBlockBinding(const char* blockName,
+															   unsigned bindingPoint);
 
 		void 							bindTexture(const char* name,
 													const int& target,

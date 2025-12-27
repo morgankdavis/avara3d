@@ -287,15 +287,24 @@ void Program::setUniform(const char* name, float val) {
 	}
 }
 
-void Program::bindUniformBlock(const char* name, GLuint location) {
-	
-	GLint blockIndex = glGetUniformBlockIndex(_glID, name);
-	if (blockIndex != GL_INVALID_INDEX) {
-		glBindBufferBase(GL_UNIFORM_BUFFER, blockIndex, location);
+//void Program::bindUniformBlock(const char* name, GLuint location) {
+//
+//	GLint blockIndex = glGetUniformBlockIndex(_glID, name);
+//	if (blockIndex != GL_INVALID_INDEX) {
+//		glBindBufferBase(GL_UNIFORM_BUFFER, blockIndex, location);
+//	}
+//	else {
+//		A3D_LOG_E("Uniform block '{}' not found.", name);
+//	}
+//}
+
+void Program::setUniformBlockBinding(const char* blockName, GLuint bindingPoint) {
+	GLuint blockIndex = glGetUniformBlockIndex(_glID, blockName);
+	if (blockIndex == GL_INVALID_INDEX) {
+		A3D_LOG_E("Uniform block '{}' not found.", blockName);
+		return;
 	}
-	else {
-		A3D_LOG_E("Uniform block '{}' not found.", name);
-	}
+	glUniformBlockBinding(_glID, blockIndex, bindingPoint);
 }
 
 void Program::bindTexture(const char* name,
@@ -378,7 +387,7 @@ void Program::prepare() {
 
 bool Program::compile(const string& source, ShaderType type) {
 
-	A3D_LOG_I("Compiling {} shader for program '{}'...",
+	A3D_LOG_D("Compiling {} shader for program '{}'...",
 			 magic_enum::enum_name(type), name());
 
 	GLuint shaderID = 0;
@@ -410,7 +419,7 @@ bool Program::compile(const string& source, ShaderType type) {
 			vector<GLchar> c_log(logSize);
 			glGetShaderInfoLog(shaderID, logSize, nullptr, c_log.data());
 			_logString = string(c_log.data());
-			A3D_LOG_E("Failed to compile {} shader for program '{}':\n{}",
+			A3D_LOG_E("Failed to compile {} shader program '{}':\n{}",
 					  magic_enum::enum_name(type), name(), *_logString);
 		}
 
@@ -421,7 +430,7 @@ bool Program::compile(const string& source, ShaderType type) {
 	else {
 		glAttachShader(_glID, shaderID);
 
-		A3D_LOG_I("Done.");
+		A3D_LOG_I("{} shader {}' compiled.", magic_enum::enum_name(type), name());
 
 		return true;
 	}

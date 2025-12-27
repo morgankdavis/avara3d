@@ -13,6 +13,7 @@
 #include <filesystem>
 #include <fstream>
 #include <memory>
+#include <mutex>
 #include <optional>
 #include <set>
 #include <string>
@@ -33,7 +34,95 @@ namespace a3d {
 	class RenderContext;
 	class Scene;
 }
-	
+
+// TODO: put these somewhere else
+
+#define A3D_PP_CAT2(a,b) a##b
+#define A3D_PP_CAT(a,b)  A3D_PP_CAT2(a,b)
+
+// run only on first invocation per call site
+#define A3D_ONCE(fn) A3D_ONCE_IMPL((fn), __COUNTER__)
+#define A3D_ONCE_IMPL(fn, ctr) \
+do { \
+  static std::once_flag A3D_PP_CAT(_a3d_once_flag_, ctr); \
+  std::call_once(A3D_PP_CAT(_a3d_once_flag_, ctr), (fn)); \
+} while (0)
+
+namespace a3d::utils::detail {
+
+	template<class Clock, class Rep, class Period>
+	inline bool every_tick(typename Clock::time_point &last,
+						   std::chrono::duration<Rep, Period> interval) {
+		const auto now = Clock::now();
+		if (now - last >= interval) {
+			last = now;          // "at most once" behavior (no catch-up)
+			return true;
+		}
+		return false;
+	}
+}
+
+// run at most every 'interval' (duration)
+#define A3D_EVERY(interval_expr)                                                 \
+			if ([&]() -> bool {                                                          \
+					struct State {                                                       \
+						std::chrono::steady_clock::time_point last;                      \
+						std::chrono::steady_clock::duration interval;                    \
+						explicit State(std::chrono::steady_clock::duration i)            \
+							: last(std::chrono::steady_clock::now() - i), interval(i) {} \
+					};                                                                    \
+					static State s{ (interval_expr) };                                   \
+					return a3d::utils::detail::every_tick<std::chrono::steady_clock>( \
+						s.last, s.interval);                                             \
+				}())
+
+// run exactly once on 'invocation'th call, not before or after
+#define A3D_ON(invocation_expr)                                                  \
+			if ([&]() -> bool {                                                          \
+					struct State {                                                       \
+						long long count = 0;                                             \
+						long long target;                                                \
+						bool done = false;                                               \
+						explicit State(long long t) : target(t < 1 ? 1 : t) {}           \
+					};                                                                    \
+					static State s{ static_cast<long long>(invocation_expr) };           \
+					if (s.done) return false;                                            \
+					if (++s.count == s.target) { s.done = true; return true; }           \
+					return false;                                                        \
+				}())
+
+// skip the first 'invocations' calls, the run each thereafter
+#define A3D_AFTER(invocations_expr)                                              \
+			if ([&]() -> bool {                                                          \
+					struct State {                                                       \
+						long long count = 0;                                             \
+						long long target;                                                \
+						explicit State(long long t) : target(t) {}                       \
+					};                                                                    \
+					static State s{ static_cast<long long>(invocations_expr) };          \
+					return (s.count++ >= s.target);                                      \
+				}())
+
+// runs 'on_edge()' only on false->true transitions of 'cond'
+// runs 'fail_stmt' every time 'cond' is true (e.g. return/continue/break/throw)
+// resets when 'cond' becomes false again
+#define A3D_EDGE_GUARD(cond, on_edge, fail_stmt) A3D_EDGE_GUARD_IMPL((cond), (on_edge), fail_stmt, __COUNTER__)
+#define A3D_EDGE_GUARD_IMPL(cond, on_edge, fail_stmt, ctr) \
+do { \
+  static bool A3D_PP_CAT(_a3d_latched_, ctr) = false; \
+  const bool _a3d_bad = !!(cond); \
+  if (_a3d_bad) { \
+    if (!A3D_PP_CAT(_a3d_latched_, ctr)) { \
+      A3D_PP_CAT(_a3d_latched_, ctr) = true; \
+      auto&& _a3d_edge_fn = (on_edge); \
+      _a3d_edge_fn(); \
+    } \
+    fail_stmt; \
+  } else { \
+    A3D_PP_CAT(_a3d_latched_, ctr) = false; \
+  } \
+} while (0)
+
 namespace a3d::utils {
 
 	// TODO: move
@@ -49,61 +138,6 @@ namespace a3d::utils {
 		std::chrono::milliseconds sec_f_to_ms(float secF);
 		float ns_to_ms_f(std::chrono::nanoseconds ns);
 		int ns_to_ms_i(std::chrono::nanoseconds ns);
-
-		namespace detail {
-
-			template<class Clock, class Rep, class Period>
-			inline bool every_tick(typename Clock::time_point &last,
-								   std::chrono::duration<Rep, Period> interval) {
-				const auto now = Clock::now();
-				if (now - last >= interval) {
-					last = now;          // "at most once" behavior (no catch-up)
-					return true;
-				}
-				return false;
-			}
-		}
-
-		// run at most every 'interval' (duration)
-		#define A3D_EVERY(interval_expr)                                                 \
-			if ([&]() -> bool {                                                          \
-					struct State {                                                       \
-						std::chrono::steady_clock::time_point last;                      \
-						std::chrono::steady_clock::duration interval;                    \
-						explicit State(std::chrono::steady_clock::duration i)            \
-							: last(std::chrono::steady_clock::now() - i), interval(i) {} \
-					};                                                                    \
-					static State s{ (interval_expr) };                                   \
-					return a3d::utils::chrono::detail::every_tick<std::chrono::steady_clock>( \
-						s.last, s.interval);                                             \
-				}())
-
-		// run exactly once on 'invocation'th call, not before or after
-		#define A3D_ON(invocation_expr)                                                  \
-			if ([&]() -> bool {                                                          \
-					struct State {                                                       \
-						long long count = 0;                                             \
-						long long target;                                                \
-						bool done = false;                                               \
-						explicit State(long long t) : target(t < 1 ? 1 : t) {}           \
-					};                                                                    \
-					static State s{ static_cast<long long>(invocation_expr) };           \
-					if (s.done) return false;                                            \
-					if (++s.count == s.target) { s.done = true; return true; }           \
-					return false;                                                        \
-				}())
-
-		// skip the first 'invocations' calls, the run each thereafter
-		#define A3D_AFTER(invocations_expr)                                              \
-			if ([&]() -> bool {                                                          \
-					struct State {                                                       \
-						long long count = 0;                                             \
-						long long target;                                                \
-						explicit State(long long t) : target(t) {}                       \
-					};                                                                    \
-					static State s{ static_cast<long long>(invocations_expr) };          \
-					return (s.count++ >= s.target);                                      \
-				}())
 	}
 
 	/// Output ///

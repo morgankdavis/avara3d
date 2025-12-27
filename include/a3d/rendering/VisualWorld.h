@@ -60,7 +60,7 @@ namespace a3d {
 		const std::shared_ptr<Color>&			fogColor() const;
 		void 									fogColor(const std::shared_ptr<Color>& color);
 
-		std::weak_ptr<Node>						pointOfView();
+		std::weak_ptr<Node>&					pointOfView();
 		void 									pointOfView(const std::weak_ptr<Node>& cameraNode);
 
 		bool									usesDefaultLighting() const;
@@ -93,11 +93,15 @@ namespace a3d {
 													 Profiler& profiler,
 													 const FrameStatsHistory& statsHistory);
 
-		Mesh*									skyboxMesh() const;
+		Mesh*									skyboxMesh() const; // TODO: this should be in renderer
 		Mesh*									groundPlaneMesh() const;
-		std::weak_ptr<Node>						defaultPOV();
 
 	private:
+		/// Private Member Functions ///
+
+		void									firstDraw();
+		std::weak_ptr<Node>						defaultPOV();
+
 		/// Private Member Variables ///
 
 		MaterialProperty						_background;

@@ -95,9 +95,11 @@ namespace a3d {
 											   const math::mat4& viewMat,
 											   const math::mat4& projectionMat) = 0;
 
+		virtual void					blank() = 0;
+
 		virtual std::unique_ptr<Image>	snapshot(const RenderContext& context) const = 0;
 
-//		virtual void					draw() = 0;
+
 
 
 

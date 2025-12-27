@@ -12,6 +12,7 @@
 
 #include "a3d/Color.h"
 #include "a3d/CubeImage.h"
+#include "a3d/Utilities.h"
 #include "a3d/diagnostic/log/Log.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/primitive/Box.h"
@@ -159,26 +160,7 @@ void VisualWorld::fogColor(const shared_ptr<Color>& color) {
 	_fogColor = color;
 }
 
-weak_ptr<Node> VisualWorld::pointOfView() {
-
-	if (_pointOfView.lock()) {
-		return _pointOfView;
-	}
-	else {
-		// try to assign one from the scene
-		for (auto& node : _scene->rootNode()->children(true)) {
-			if (node->camera()) {
-				_pointOfView = node;
-				break;
-			}
-		}
-	}
-	if (!_pointOfView.lock()) {
-		// still no POV. add a default one.
-		A3D_LOG_I("Adding default point of view.");
-		_pointOfView  = defaultPOV();
-	}
-
+weak_ptr<Node>& VisualWorld::pointOfView() {
 	return _pointOfView;
 }
 
@@ -258,28 +240,34 @@ void VisualWorld::draw(const Scene& scene,
 					   Profiler& profiler,
 					   const FrameStatsHistory& statsHistory) {
 
-	if (!_renderContext) {
-		A3D_LOG_E("No RenderContext attached to VisualWorld {:p}", static_cast<void*>(this));
-		return;
-	}
+	A3D_EDGE_GUARD(!_renderContext, [&] {
+		A3D_LOG_E("No RenderContext attached to VisualWorld {:p}",
+				  static_cast<void *>(this)); },
+				   return; );
 
 	auto renderer = _renderContext->renderer();
-	if (!renderer) {
-		A3D_LOG_E("No Renderer attached to RenderContext {:p}", static_cast<void*>(_renderContext));
-		return;
-	}
+	A3D_EDGE_GUARD(!renderer, [&] {
+		A3D_LOG_E("No Renderer attached to RenderContext {:p}",
+				  static_cast<void*>(_renderContext)); },
+				   return; );
+
+	A3D_ONCE([&] {
+		firstDraw();
+	});
 
 	auto pov = pointOfView().lock();
-	if (!pov) {
-		A3D_LOG_W("No point of view!");
-		return;
-	}
+	A3D_EDGE_GUARD(!pov, [&] {
+		A3D_LOG_E("No point of view!");
+		renderer->blank();
+		_renderContext->swapBuffers(); },
+				   return; );
 
 	auto povScene = pov->scene();
-	if (povScene == nullptr || povScene != &scene) {
+	A3D_EDGE_GUARD(povScene == nullptr || povScene != &scene, [&] {
 		A3D_LOG_W("Point of view not in our scene!");
-		return;
-	}
+		renderer->blank();
+		_renderContext->swapBuffers(); },
+				   return; );
 
 	if (auto willRender = VisualWorld::willRenderCallback()) {
 		A3D_PROFILE(profiler, Profiler::Tag::Application, [&] {
@@ -401,6 +389,32 @@ Mesh* VisualWorld::skyboxMesh() const {
 
 Mesh* VisualWorld::groundPlaneMesh() const {
 	return _groundPlaneMesh.get();
+}
+
+/// Private Member Functions ///
+
+void VisualWorld::firstDraw() {
+
+	// check for or create a POV
+
+	if (!_pointOfView.lock()) {
+
+		// try to assign a POV from the scene
+		for (auto &node: _scene->rootNode()->children(true)) {
+			if (node->camera()) {
+				A3D_LOG_I("Setting {:p} as POV.", static_cast<void*>(node.get()));
+				_pointOfView = node;
+				break;
+			}
+		}
+	}
+
+	if (!_pointOfView.lock()) {
+
+		// still no POV. add a default one.
+		A3D_LOG_I("Adding default POV.");
+		_pointOfView = defaultPOV();
+	}
 }
 
 weak_ptr<Node> VisualWorld::defaultPOV() {

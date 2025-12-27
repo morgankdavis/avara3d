@@ -754,6 +754,15 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	}
 
 	if (keysPressed.count(Key::V)) {
+//		static auto pov = scene.visualWorld()->pointOfView();
+//		if (scene.visualWorld()->pointOfView().expired()) {
+//			A3D_APP_LOG_D("Adding POV...");
+//			scene.visualWorld()->pointOfView(pov);
+//		}
+//		else {
+//			A3D_APP_LOG_D("Removing POV...");
+//			scene.visualWorld()->pointOfView().reset();
+//		}
 		window->vSyncEnabled(!window->vSyncEnabled());
 	}
 

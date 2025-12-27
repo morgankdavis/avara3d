@@ -169,13 +169,15 @@ static void 		RenderSkybox(Mesh& skyboxMesh,
 								Node& pointOfView,
 								OpenGLRenderer::MeshElementGLMapping& elementGLMapping,
 								OpenGLRenderer::TextureGLMapping& textureGLMapping,
-								unordered_set<Texture*>& activeTextures);
+								unordered_set<Texture*>& activeTextures,
+								GLStateCache& state);
 static void 		GetMeshElementGLVertexDataHandles(MeshElement& element,
 													 OpenGLRenderer::MeshElementGLMapping& glMapping,
 													 GLuint& glVBO, GLuint& glVAO, GLuint& glEBO);
 static void 		GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
 												OpenGLRenderer::MeshElementGLMapping& glMapping,
-												GLuint& glVBO, GLuint& glVAO, GLuint& glEBO);
+												GLuint& glVBO, GLuint& glVAO, GLuint& glEBO,
+												GLStateCache& state);
 //static void 		GetLinesVertexDataHandles(const vector<Line>& lines,`
 //											 Program& program,
 //											 OpenGLRenderer::LinesGLMapping& glMapping,
@@ -186,10 +188,12 @@ static void 		GetTextureGLTextureHandles(Material& material,
 											  map<MaterialPropertyType, GLuint>& glTextureHandles);
 static void 		BufferMeshElementVertexData(const MeshElement& element,
 											   Program& program,
-											   GLuint& glVBO, GLuint& glVAO, GLuint& glEBO);
+											   GLuint& glVBO, GLuint& glVAO, GLuint& glEBO,
+											   GLStateCache& state);
 static void 		BufferSkyboxVertexData(Mesh& skyboxMesh,
 										  Program& program,
-										  GLuint& glVBO, GLuint& glVAO, GLuint& glEBO);
+										  GLuint& glVBO, GLuint& glVAO, GLuint& glEBO,
+										  GLStateCache& state);
 static void 		BufferLinesVertexData(const vector<Line>& lines,
 										 Program& program,
 										 GLuint& glVBO, GLuint& glVAO);
@@ -197,11 +201,13 @@ static void 		BufferTexture(const Texture &texture,
 								 GLuint& glTextureHandle);
 static void 		SendMaterialUniforms(const Material& material,
 										Program& program,
-										map<MaterialPropertyType, GLuint>& glTextureHandles);
+										map<MaterialPropertyType, GLuint>& glTextureHandles,
+										GLStateCache& state);
 static void 		SendMaterialPropertyUniforms(const MaterialProperty& property,
 												MaterialPropertyType type,
 												GLuint glTextureHandle,
-												Program& program);
+												Program& program,
+												GLStateCache& state);
 static void 		SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 											const Scene& scene,
 											const vector<Node*>& lightNodes,
@@ -224,7 +230,8 @@ static void 		DrawMeshElement(MeshElement& element,
 static void 		DrawSkyboxElement(MeshElement& element,
 									 Program& program,
 									 Node& pointOfView,
-									 GLuint vao, GLuint ebo);
+									 GLuint vao, GLuint ebo,
+									 GLStateCache& state);
 vector<Line> 		AABBLines(const AABB& aabb, Color color);
 static void 		DrawLines(const vector<Line>& lines,
 							 Program& program,
@@ -396,14 +403,19 @@ RenderingApi OpenGLRenderer::renderingApi() const {
 bool OpenGLRenderer::initialize(const RenderContext& context) {
 	A3D_LOG_I("");
 
-	uint32_t ubo;
-	glGenBuffers(1, &ubo);
-	_glEnvironmentUBO = ubo;
+	glGenBuffers(1, &_glEnvironmentUBO);
+	glBindBuffer(GL_UNIFORM_BUFFER, _glEnvironmentUBO);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(EnvironmentBlock), nullptr, GL_DYNAMIC_DRAW);
 	glBindBufferBase(GL_UNIFORM_BUFFER, ENV_BINDING_POINT, _glEnvironmentUBO);
 
 	// TODO: do something better
-	Program::Default().bindUniformBlock("EnvironmentBlock", ENV_BINDING_POINT);
-	Program::Wireframe().bindUniformBlock("EnvironmentBlock", ENV_BINDING_POINT);
+	auto bindBlock = [&](GLuint program, const char* blockName) {
+		GLuint idx = glGetUniformBlockIndex(program, blockName);
+		if (idx == GL_INVALID_INDEX) return; // program doesn't have the block
+		glUniformBlockBinding(program, idx, ENV_BINDING_POINT);
+	};
+	bindBlock(Program::Default().glID(),  "EnvironmentBlock");
+	bindBlock(Program::Wireframe().glID(), "EnvironmentBlock");
 
 	_drawTimer.initialize();
 
@@ -432,6 +444,8 @@ void OpenGLRenderer::beginFrame(const Scene& scene,
 	_activeMeshElements.clear();
 	_activeTextures.clear();
 	_activeLines.clear();
+
+	glBindBufferBase(GL_UNIFORM_BUFFER, ENV_BINDING_POINT, _glEnvironmentUBO); // necessary?
 }
 
 void OpenGLRenderer::endFrame(const Scene& scene,
@@ -467,12 +481,13 @@ void OpenGLRenderer::postTraversal(const Scene& scene,
 								   const DebugOptions& debugOptions,
 								   FrameStats& stats) {
 
-	if (!A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes)) {
+//	if (!A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes)) {
 
 		//Program::Default().use();
 		SendEnvironmentUniforms(_glEnvironmentUBO, scene, lightNodes, stats);
-		Program::Default().bindUniformBlock("EnvironmentBlock", _glEnvironmentUBO);
-	}
+		//Program::Default().bindUniformBlock("EnvironmentBlock", _glEnvironmentUBO);
+		glBindBufferBase(GL_UNIFORM_BUFFER, ENV_BINDING_POINT, _glEnvironmentUBO); // necessary?
+//	}
 }
 
 void OpenGLRenderer::render(const Scene& scene,
@@ -512,7 +527,8 @@ void OpenGLRenderer::render(const Scene& scene,
 								 *pov,
 								 _meshElementGLMapping,
 								 _textureGLMapping,
-								 _activeTextures);
+								 _activeTextures,
+								 _state);
 
 					// save reference for housekeeping
 					_activeMeshElements.emplace(skyboxMesh->elements().front().get());
@@ -715,6 +731,7 @@ void OpenGLRenderer::render(const std::vector<Line>& lines,
 	SetLinesGLState();
 
 	program.use();
+	_state.program = program.glID();
 	program.setUniform("modelMat", modelMat);
 	program.setUniform("viewMat", viewMat);
 	program.setUniform("projMat", projectionMat);
@@ -765,6 +782,11 @@ void OpenGLRenderer::render(const std::vector<Line>& lines,
 ////	}
 //}
 
+void OpenGLRenderer::blank() {
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
 unique_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 
 	auto framebufferSize = context.framebufferSize();
@@ -808,7 +830,8 @@ void RenderSkybox(Mesh& skyboxMesh,
 				  Node& pointOfView,
 				  OpenGLRenderer::MeshElementGLMapping& elementGLMapping,
 				  OpenGLRenderer::TextureGLMapping& textureGLMapping,
-				  unordered_set<Texture*>& activeTextures) {
+				  unordered_set<Texture*>& activeTextures,
+				  GLStateCache& state) {
 
 	auto program = Program::Skybox();
 	
@@ -821,7 +844,8 @@ void RenderSkybox(Mesh& skyboxMesh,
 	GLuint vbo, vao, ebo;
 	GetSkyboxGLVertexDataHandles(skyboxMesh,
 								 elementGLMapping,
-								 vbo, vao, ebo);
+								 vbo, vao, ebo,
+								 state);
 	
 	// and load material contents if necessary
 	
@@ -837,7 +861,8 @@ void RenderSkybox(Mesh& skyboxMesh,
 	SendMaterialPropertyUniforms(emissiveProperty,
 								 MaterialPropertyType::Emission,
 								 emissiveGLTextureHandle,
-								 program);
+								 program,
+								 state);
 	
 	// update material property filtering options
 
@@ -856,12 +881,13 @@ void RenderSkybox(Mesh& skyboxMesh,
 	
 	// update
 	
-	DrawSkyboxElement(*element, program, pointOfView, vao, ebo);
+	DrawSkyboxElement(*element, program, pointOfView, vao, ebo, state);
 }
 	
 void GetMeshElementGLVertexDataHandles(MeshElement& element,
 									   OpenGLRenderer::MeshElementGLMapping& glMapping,
-									   GLuint& glVBO, GLuint& glVAO, GLuint& glEBO) {
+									   GLuint& glVBO, GLuint& glVAO, GLuint& glEBO,
+									   GLStateCache& state) {
 
 	// looks up and populates glVBO, glVAO, and glEBO, loading the vertex data if needed
 
@@ -869,7 +895,7 @@ void GetMeshElementGLVertexDataHandles(MeshElement& element,
 
 		DeleteMeshElementGLResources(&element, glMapping);
 
-		BufferMeshElementVertexData(element, Program::Default(), glVBO, glVAO, glEBO);
+		BufferMeshElementVertexData(element, Program::Default(), glVBO, glVAO, glEBO, state);
 		
 		glMapping[&element] = make_tuple(glVBO, glVAO, glEBO);
 
@@ -886,7 +912,8 @@ void GetMeshElementGLVertexDataHandles(MeshElement& element,
 
 void GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
 								  OpenGLRenderer::MeshElementGLMapping& glMapping,
-								  GLuint& glVBO, GLuint& glVAO, GLuint& glEBO) {
+								  GLuint& glVBO, GLuint& glVAO, GLuint& glEBO,
+								  GLStateCache& state) {
 
 	// looks up and populates glVBO, glVAO, and glEBO, loading the vertex data if needed
 	//
@@ -900,7 +927,7 @@ void GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
 
 		DeleteMeshElementGLResources(element.get(), glMapping);
 		
-		BufferSkyboxVertexData(skyboxMesh, Program::Skybox(), glVBO, glVAO, glEBO);
+		BufferSkyboxVertexData(skyboxMesh, Program::Skybox(), glVBO, glVAO, glEBO, state);
 		
 		glMapping[element.get()] = make_tuple(glVBO, glVAO, glEBO);
 
@@ -1000,12 +1027,14 @@ void GetTextureGLTextureHandles(Material& material,
 
 void BufferMeshElementVertexData(const MeshElement& element,
 								 Program& program,
-								 GLuint& glVBO, GLuint& glVAO, GLuint& glEBO) {
+								 GLuint& glVBO, GLuint& glVAO, GLuint& glEBO,
+								 GLStateCache& state) {
 
 	A3D_LOG_D("Buffering vertex data for mesh element {:p}...",
 			  static_cast<const void*>(&element));
 	
 	program.use();
+	state.program = program.glID();
 	
 	auto verticies = element.vertices();
 	auto faces = element.faces();
@@ -1064,11 +1093,13 @@ void BufferMeshElementVertexData(const MeshElement& element,
 
 void BufferSkyboxVertexData(Mesh& skyboxMesh,
 							Program& program,
-							GLuint& glVBO, GLuint& glVAO, GLuint& glEBO) {
+							GLuint& glVBO, GLuint& glVAO, GLuint& glEBO,
+							GLStateCache& state) {
 
 	A3D_LOG_D("Buffering skybox vertex data...");
 
 	program.use();
+	state.program = program.glID();
 	
 	auto& element = skyboxMesh.elements().front();
 	auto verts = element->vertices();
@@ -1361,11 +1392,13 @@ void BufferTexture(const Texture& texture,
 
 void SendMaterialUniforms(const Material& material,
 						  Program& program,
-						  map<MaterialPropertyType, GLuint>& glTextureHandles) {
+						  map<MaterialPropertyType, GLuint>& glTextureHandles,
+						  GLStateCache& state) {
 
 	// sends uniforms for the Material, and MaterialProperties it has
 
 	program.use();
+	state.program = program.glID();
 
 	program.setUniform("specularExponent", material.specularExponent());
 	program.setUniform("uvScale", material.uvScale());
@@ -1380,7 +1413,8 @@ void SendMaterialUniforms(const Material& material,
 			SendMaterialPropertyUniforms(*property,
 										 type,
 										 glTextureHandles[type],
-										 program);
+										 program,
+										 state);
 		}
 	}
 
@@ -1390,9 +1424,11 @@ void SendMaterialUniforms(const Material& material,
 void SendMaterialPropertyUniforms(const MaterialProperty& property,
 								  MaterialPropertyType type,
 								  GLuint glTextureHandle,
-								  Program& program) {
+								  Program& program,
+								  GLStateCache& state) {
 
 	program.use();
+	state.program = program.glID();
 
 	std::visit([&type, &program, &glTextureHandle](auto&& property) -> void {
 
@@ -1991,9 +2027,11 @@ void DrawMeshElement(MeshElement& element,
 					 const mat4& viewMat,
 					 const mat4& projectionMat,
 					 GLuint vao, GLuint ebo/*,
-					 vector<OpenGLDrawItem>& drawItmes*/) {
+					 vector<OpenGLDrawItem>& drawItmes*/,
+					 GLStateCache& state) {
 
 	program.use();
+	state.program = program.glID();
 
 	// uniforms
 
@@ -2017,9 +2055,11 @@ void DrawMeshElement(MeshElement& element,
 void DrawSkyboxElement(MeshElement& element,
 					   Program& program,
 					   Node& pointOfView,
-					   GLuint vao, GLuint ebo) {
+					   GLuint vao, GLuint ebo,
+					   GLStateCache& state) {
 
 	program.use();
+	state.program = program.glID();
 
 	auto viewMat = look_at({0.0f, 0.0f, 0.0f}, // eye - location
 						  pointOfView.worldForward(), // center - look at
@@ -2077,9 +2117,11 @@ void DrawLines(const vector<Line>& lines,
 			   const mat4& modelMat,
 			   const mat4& viewMat,
 			   const mat4& projectionMat,
-			   GLuint glVAO) {
+			   GLuint glVAO,
+			   GLStateCache& state) {
 
 	program.use();
+	state.program = program.glID();
 
 	// uniforms
 	
@@ -3365,15 +3407,13 @@ void OpenGLRenderer::bindPipeline(PipelineHandle h, const RenderResourceCacheOGL
 
 void OpenGLRenderer::bindMaterial(const Material& material) {
 
-	// Optional: skip if same material and same program
+	// skip if same material and same program
 	if (_state.material == &material) return;
 
-	// If current pipeline is wireframe, you can skip material entirely.
-	// (Your wireframe shader probably ignores material properties/textures.)
-	GLint program = (GLint)_state.program;
-	if (!program) return;
+	// if current pipeline is wireframe, skip material entirely
+	if (!(GLint)_state.program) return;
 
-	// If you want to branch on shaderKind, easiest is to fetch it from the pipeline:
+	// if want to branch on shaderKind, easiest is to fetch it from the pipeline:
 	// const auto& p = cache.pipeline(_state.pipeline);  // if cache accessible here
 	// if (p.key.shaderKind == ShaderKind::Wireframe) return;
 
@@ -3392,7 +3432,7 @@ void OpenGLRenderer::bindMaterial(const Material& material) {
 	Program& prog = Program::Default(); // TODO: pick based on current pipeline shaderKind
 	// Ensure prog.glID() == _state.program in debug builds.
 
-	SendMaterialUniforms(material, prog, glTextureHandles);
+	SendMaterialUniforms(material, prog, glTextureHandles, _state);
 	SetMaterialFilteringOptions(material, glTextureHandles);
 
 	_state.material = &material;
@@ -3404,6 +3444,7 @@ void OpenGLRenderer::bindMeshElement(const MeshElement& element) {
 
 	auto it = _meshElementGLMapping.find(e);
 	if (it == _meshElementGLMapping.end()) {
+
 		GLuint vao=0, vbo=0, ebo=0;
 		glGenVertexArrays(1, &vao);
 		glGenBuffers(1, &vbo);
@@ -3419,7 +3460,7 @@ void OpenGLRenderer::bindMeshElement(const MeshElement& element) {
 					 GL_STATIC_DRAW);
 
 		// Build index buffer from Face list (3 indices per face)
-		std::vector<uint32_t> indices;
+		vector<uint32_t> indices;
 		indices.reserve(element.faces().size() * 3);
 		for (auto& f : element.faces()) {
 			indices.push_back((uint32_t)f.a);
