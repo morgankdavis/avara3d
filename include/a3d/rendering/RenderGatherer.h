@@ -37,11 +37,11 @@ namespace a3d {
 
 	public:
 
-		static GatherOutput GatherRenderItems(const a3d::Scene& scene,
-											  const a3d::RenderContext& context,
-											  const a3d::math::mat4& view,
+		static GatherOutput GatherRenderItems(const Scene& scene,
+											  const RenderContext& context,
+											  const math::mat4& view,
 											  const DebugOptions& debugOptions, // ! temporary !
-											  a3d::FrameStats& stats);
+											  FrameStats& stats);
 
 
 
@@ -57,7 +57,6 @@ namespace a3d {
 
 
 		static RenderPacket BuildRenderPacket(const GatherOutput& gather,
-											  const DebugOptions& debugOptions,
 											  RenderResourceCacheOGL& cache,
 											  uint32_t vertexLayoutKey);
 	};

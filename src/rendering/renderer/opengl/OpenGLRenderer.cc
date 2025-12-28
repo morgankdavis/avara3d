@@ -169,7 +169,7 @@ static void 		RenderSkybox(Mesh& skyboxMesh,
 								Node& pointOfView,
 								OpenGLRenderer::MeshElementGLMapping& elementGLMapping,
 								OpenGLRenderer::TextureGLMapping& textureGLMapping,
-								unordered_set<Texture*>& activeTextures,
+//								unordered_set<Texture*>& activeTextures,
 								GLStateCache& state);
 static void 		GetMeshElementGLVertexDataHandles(MeshElement& element,
 													 OpenGLRenderer::MeshElementGLMapping& glMapping,
@@ -184,7 +184,7 @@ static void 		GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
 //											 GLuint& glVBO, GLuint& glVAO);
 static void 		GetTextureGLTextureHandles(Material& material,
 											  OpenGLRenderer::TextureGLMapping& glMapping,
-											  unordered_set<Texture*>& activeTextures,
+//											  unordered_set<Texture*>& activeTextures,
 											  map<MaterialPropertyType, GLuint>& glTextureHandles);
 static void 		BufferMeshElementVertexData(const MeshElement& element,
 											   Program& program,
@@ -239,10 +239,10 @@ static void 		DrawLines(const vector<Line>& lines,
 							 const mat4& viewMat,
 							 const mat4& projectionMat,
 							 GLuint glVAO);
-static void 		CleanupMeshElementResources(unordered_set<MeshElement*>& active,
-											   OpenGLRenderer::MeshElementGLMapping& glMapping);
-static void 		CleanupTextureResources(unordered_set<Texture*>& active,
-										   OpenGLRenderer::TextureGLMapping& glMapping);
+//static void 		CleanupMeshElementResources(unordered_set<MeshElement*>& active,
+//											   OpenGLRenderer::MeshElementGLMapping& glMapping);
+//static void 		CleanupTextureResources(unordered_set<Texture*>& active,
+//										   OpenGLRenderer::TextureGLMapping& glMapping);
 //static void 		CleanupLinesResources(unordered_set<const vector<Line>*>& active,
 //										 OpenGLRenderer::LinesGLMapping& glMapping);
 static void 		DeleteMeshElementGLResources(MeshElement* element,
@@ -357,8 +357,8 @@ OpenGLRenderer::OpenGLRenderer():
 		_meshElementGLMapping{},
 		_textureGLMapping{},
 //		_linesGLMapping{},
-		_activeMeshElements{},
-		_activeTextures{},
+//		_activeMeshElements{},
+//		_activeTextures{},
 //		_activeLines{},
 		_glEnvironmentUBO{0},
 		_overlayTitleImFont{nullptr},
@@ -369,14 +369,14 @@ OpenGLRenderer::OpenGLRenderer():
 OpenGLRenderer::~OpenGLRenderer() {
 	A3D_LOG_D("Destroying OpenGLRenderer {:p}", static_cast<void*>(this));
 	
-	_activeMeshElements.clear();
-	_activeTextures.clear();
+//	_activeMeshElements.clear();
+//	_activeTextures.clear();
 //	_activeLines.clear();
 	
 	glDeleteBuffers(1, &_glEnvironmentUBO);
 
-	CleanupMeshElementResources(_activeMeshElements, _meshElementGLMapping);
-	CleanupTextureResources(_activeTextures, _textureGLMapping);
+//	CleanupMeshElementResources(_activeMeshElements, _meshElementGLMapping);
+//	CleanupTextureResources(_activeTextures, _textureGLMapping);
 //	CleanupLinesResources(_activeLines, _linesGLMapping);
 
 	// TODO: move
@@ -441,11 +441,11 @@ void OpenGLRenderer::beginFrame(const Scene& scene,
 
 	_drawTimer.begin();
 
-	_activeMeshElements.clear();
-	_activeTextures.clear();
-	_activeLines.clear();
+//	_activeMeshElements.clear();
+//	_activeTextures.clear();
+//	_activeLines.clear();
 
-	glBindBufferBase(GL_UNIFORM_BUFFER, ENV_BINDING_POINT, _glEnvironmentUBO); // necessary?
+	//glBindBufferBase(GL_UNIFORM_BUFFER, ENV_BINDING_POINT, _glEnvironmentUBO); // necessary? - nope!
 }
 
 void OpenGLRenderer::endFrame(const Scene& scene,
@@ -458,8 +458,8 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 	DrawOverlay(context, scene, stats, statsHistory, debugOptions,
 				*_overlayTitleImFont, *_overlayBodyImFont);
 
-	CleanupMeshElementResources(_activeMeshElements, _meshElementGLMapping);
-	CleanupTextureResources(_activeTextures, _textureGLMapping);
+//	CleanupMeshElementResources(_activeMeshElements, _meshElementGLMapping);
+//	CleanupTextureResources(_activeTextures, _textureGLMapping);
 //	CleanupLinesResources(_activeLines, _linesGLMapping);
 
 //	CheckGLError();
@@ -481,13 +481,8 @@ void OpenGLRenderer::postTraversal(const Scene& scene,
 								   const DebugOptions& debugOptions,
 								   FrameStats& stats) {
 
-//	if (!A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes)) {
-
-		//Program::Default().use();
-		SendEnvironmentUniforms(_glEnvironmentUBO, scene, lightNodes, stats);
-		//Program::Default().bindUniformBlock("EnvironmentBlock", _glEnvironmentUBO);
-		glBindBufferBase(GL_UNIFORM_BUFFER, ENV_BINDING_POINT, _glEnvironmentUBO); // necessary?
-//	}
+	SendEnvironmentUniforms(_glEnvironmentUBO, scene, lightNodes, stats);
+	//glBindBufferBase(GL_UNIFORM_BUFFER, ENV_BINDING_POINT, _glEnvironmentUBO); // necessary? -- nope!
 }
 
 void OpenGLRenderer::render(const Scene& scene,
@@ -527,11 +522,11 @@ void OpenGLRenderer::render(const Scene& scene,
 								 *pov,
 								 _meshElementGLMapping,
 								 _textureGLMapping,
-								 _activeTextures,
+//								 _activeTextures,
 								 _state);
 
 					// save reference for housekeeping
-					_activeMeshElements.emplace(skyboxMesh->elements().front().get());
+//					_activeMeshElements.emplace(skyboxMesh->elements().front().get());
 				}
 				else {
 					A3D_LOG_W("PointOfView has gone missing.");
@@ -709,7 +704,7 @@ void OpenGLRenderer::EnsureDebugLinesBuffers(Program& program) {
 // for lines, stay immediate
 // for AABBs, upload a unit cube wireframe and use different model mats
 // 		(use center+halt extent rep for faster line creation?)
-void OpenGLRenderer::render(const std::vector<Line>& lines,
+void OpenGLRenderer::render(const vector<Line>& lines,
 							const RenderContext& context,
 							const mat4& modelMat,
 							const mat4& viewMat,
@@ -830,7 +825,7 @@ void RenderSkybox(Mesh& skyboxMesh,
 				  Node& pointOfView,
 				  OpenGLRenderer::MeshElementGLMapping& elementGLMapping,
 				  OpenGLRenderer::TextureGLMapping& textureGLMapping,
-				  unordered_set<Texture*>& activeTextures,
+//				  unordered_set<Texture*>& activeTextures,
 				  GLStateCache& state) {
 
 	auto program = Program::Skybox();
@@ -852,7 +847,7 @@ void RenderSkybox(Mesh& skyboxMesh,
 	auto glTextureHandles = map<MaterialPropertyType, GLuint>();
 	GetTextureGLTextureHandles(*material,
 							   textureGLMapping,
-							   activeTextures,
+//							   activeTextures,
 							   glTextureHandles);
 	auto emissiveGLTextureHandle = glTextureHandles[MaterialPropertyType::Emission];
 	
@@ -962,7 +957,7 @@ void GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
 
 void GetTextureGLTextureHandles(Material& material,
 								OpenGLRenderer::TextureGLMapping& glMapping,
-								unordered_set<Texture*>& activeTextures,
+//								unordered_set<Texture*>& activeTextures,
 								map<MaterialPropertyType, GLuint>& glTextureHandles) {
 
 	// looks up and populates glTextureHandle, loading the texture data if needed
@@ -992,7 +987,7 @@ void GetTextureGLTextureHandles(Material& material,
 			}
 
 			// save reference for housekeeping
-			activeTextures.emplace(texture->get());
+//			activeTextures.emplace(texture->get());
 		}
 
 //		if (holds_alternative<shared_ptr<Texture>>(*property)) {
@@ -2136,83 +2131,83 @@ void DrawLines(const vector<Line>& lines,
 	glDrawArrays(GL_LINES, 0, (GLsizei)lines.size() * 2);
 }
 
-void CleanupMeshElementResources(unordered_set<MeshElement*>& active,
-								 OpenGLRenderer::MeshElementGLMapping& glMapping) {
-#ifndef DISABLE_RESOURCE_MANAGEMENT
-
-	// gather sorted vector of elements used this frame
-	auto activeElementsSorted = vector<MeshElement*>();
-	activeElementsSorted.reserve(active.size());
-	copy(active.begin(), active.end(), back_inserter(activeElementsSorted));
-	sort(activeElementsSorted.begin(), activeElementsSorted.end());
-	
-	// gather sorted vector of elements in the mapping
-	auto storedElementsSorted = vector<MeshElement*>();
-	storedElementsSorted.reserve(glMapping.size());
-	for (auto it = glMapping.begin(); it != glMapping.end(); ++it) {
-		storedElementsSorted.push_back(it->first);
-	}
-	sort(storedElementsSorted.begin(), storedElementsSorted.end());
-	
-	// find unused elements
-	auto unused = vector<MeshElement*>(storedElementsSorted.size());
-	vector<MeshElement*>::iterator it;
-	it = set_difference(storedElementsSorted.begin(), storedElementsSorted.end(),
-						activeElementsSorted.begin(), activeElementsSorted.end(),
-						unused.begin());
-	unused.resize(it - unused.begin());
-	
-	// deallocate unused elements
-	if (!unused.empty()) {
-		//A3D_LOG_D("Deleting GL resources for {} mesh elements...", unused.size());
-		
-		for (it=unused.begin(); it!=unused.end(); ++it) {
-			MeshElement* element = *it;
-			DeleteMeshElementGLResources(element, glMapping);
-		}
-	}
-
-#endif
-}
-
-void CleanupTextureResources(unordered_set<Texture*> &active,
-							 OpenGLRenderer::TextureGLMapping& glMapping) {
-#ifndef DISABLE_RESOURCE_MANAGEMENT
-
-	// gather sorted vector of properties used this frame
-	auto activeTexturesSorted = vector<Texture*>();
-	activeTexturesSorted.reserve(glMapping.size());
-	copy(active.begin(), active.end(), back_inserter(activeTexturesSorted));
-	sort(activeTexturesSorted.begin(), activeTexturesSorted.end());
-	
-	// gather sorted vector of properties in the mapping
-	auto storedTexturesSorted = vector<Texture*>();
-	storedTexturesSorted.reserve(glMapping.size());
-	for (auto it = glMapping.begin(); it != glMapping.end(); ++it) {
-		storedTexturesSorted.push_back(it->first);
-	}
-	sort(storedTexturesSorted.begin(), storedTexturesSorted.end());
-	
-	// find unused properties
-	auto unused = vector<Texture*>(storedTexturesSorted.size());
-	vector<Texture*>::iterator it;
-	it = set_difference(storedTexturesSorted.begin(), storedTexturesSorted.end(),
-						activeTexturesSorted.begin(), activeTexturesSorted.end(),
-						unused.begin());
-	unused.resize(it - unused.begin());
-	
-	// deallocate unused properties
-	if (!unused.empty()) {
-		//A3D_LOG_D("Deleting GL resources for {} textures...", unused.size());
-		
-		for (it=unused.begin(); it!=unused.end(); ++it) {
-			Texture* texture = *it;
-			DeleteTextureGLResources(texture, glMapping);
-		}
-	}
-	
-#endif
-}
+//void CleanupMeshElementResources(unordered_set<MeshElement*>& active,
+//								 OpenGLRenderer::MeshElementGLMapping& glMapping) {
+//#ifndef DISABLE_RESOURCE_MANAGEMENT
+//
+//	// gather sorted vector of elements used this frame
+//	auto activeElementsSorted = vector<MeshElement*>();
+//	activeElementsSorted.reserve(active.size());
+//	copy(active.begin(), active.end(), back_inserter(activeElementsSorted));
+//	sort(activeElementsSorted.begin(), activeElementsSorted.end());
+//
+//	// gather sorted vector of elements in the mapping
+//	auto storedElementsSorted = vector<MeshElement*>();
+//	storedElementsSorted.reserve(glMapping.size());
+//	for (auto it = glMapping.begin(); it != glMapping.end(); ++it) {
+//		storedElementsSorted.push_back(it->first);
+//	}
+//	sort(storedElementsSorted.begin(), storedElementsSorted.end());
+//
+//	// find unused elements
+//	auto unused = vector<MeshElement*>(storedElementsSorted.size());
+//	vector<MeshElement*>::iterator it;
+//	it = set_difference(storedElementsSorted.begin(), storedElementsSorted.end(),
+//						activeElementsSorted.begin(), activeElementsSorted.end(),
+//						unused.begin());
+//	unused.resize(it - unused.begin());
+//
+//	// deallocate unused elements
+//	if (!unused.empty()) {
+//		//A3D_LOG_D("Deleting GL resources for {} mesh elements...", unused.size());
+//
+//		for (it=unused.begin(); it!=unused.end(); ++it) {
+//			MeshElement* element = *it;
+//			DeleteMeshElementGLResources(element, glMapping);
+//		}
+//	}
+//
+//#endif
+//}
+//
+//void CleanupTextureResources(unordered_set<Texture*> &active,
+//							 OpenGLRenderer::TextureGLMapping& glMapping) {
+//#ifndef DISABLE_RESOURCE_MANAGEMENT
+//
+//	// gather sorted vector of properties used this frame
+//	auto activeTexturesSorted = vector<Texture*>();
+//	activeTexturesSorted.reserve(glMapping.size());
+//	copy(active.begin(), active.end(), back_inserter(activeTexturesSorted));
+//	sort(activeTexturesSorted.begin(), activeTexturesSorted.end());
+//
+//	// gather sorted vector of properties in the mapping
+//	auto storedTexturesSorted = vector<Texture*>();
+//	storedTexturesSorted.reserve(glMapping.size());
+//	for (auto it = glMapping.begin(); it != glMapping.end(); ++it) {
+//		storedTexturesSorted.push_back(it->first);
+//	}
+//	sort(storedTexturesSorted.begin(), storedTexturesSorted.end());
+//
+//	// find unused properties
+//	auto unused = vector<Texture*>(storedTexturesSorted.size());
+//	vector<Texture*>::iterator it;
+//	it = set_difference(storedTexturesSorted.begin(), storedTexturesSorted.end(),
+//						activeTexturesSorted.begin(), activeTexturesSorted.end(),
+//						unused.begin());
+//	unused.resize(it - unused.begin());
+//
+//	// deallocate unused properties
+//	if (!unused.empty()) {
+//		//A3D_LOG_D("Deleting GL resources for {} textures...", unused.size());
+//
+//		for (it=unused.begin(); it!=unused.end(); ++it) {
+//			Texture* texture = *it;
+//			DeleteTextureGLResources(texture, glMapping);
+//		}
+//	}
+//
+//#endif
+//}
 
 // this has to be the slowest way on earth to do this.
 //void CleanupLinesResources(unordered_set<const vector<Line>*>& active,
@@ -3421,7 +3416,7 @@ void OpenGLRenderer::bindMaterial(const Material& material) {
 	std::map<MaterialPropertyType, GLuint> glTextureHandles;
 	GetTextureGLTextureHandles(const_cast<Material&>(material),
 							   _textureGLMapping,
-							   _activeTextures,
+//							   _activeTextures,
 							   glTextureHandles);
 
 	// IMPORTANT: your existing SendMaterialUniforms takes Program&.
@@ -3485,7 +3480,7 @@ void OpenGLRenderer::bindMeshElement(const MeshElement& element) {
 		_meshElementGLMapping.emplace(e, std::make_tuple(vbo, vao, ebo));
 		it = _meshElementGLMapping.find(e);
 
-		_activeMeshElements.insert(e);
+//		_activeMeshElements.insert(e);
 		_boundElement = { vao, (GLsizei)indices.size(), GL_UNSIGNED_INT };
 		return;
 	}
@@ -3496,7 +3491,7 @@ void OpenGLRenderer::bindMeshElement(const MeshElement& element) {
 
 	// for now assume static; later if dirtyMask includes vertex data, re-upload
 
-	_activeMeshElements.insert(e);
+//	_activeMeshElements.insert(e);
 
 	// indexCount needs to be known; simplest: recompute from faces size
 	_boundElement = { vao, (GLsizei)element.faces().size() * 3, GL_UNSIGNED_INT };

@@ -19,13 +19,13 @@ namespace a3d {
 
 		Mesh* 			mesh = 			nullptr;
 		uint32_t 		elementIndex = 	0;
-		MeshElement* 	element = 		nullptr;
+		MeshElement* 	element = 		nullptr; // TODO: remove
 		Material* 		material = 		nullptr;
 
-		RenderStyle 	style;
+		RenderStyle 	style =			RenderStyle::Normal;
 
-		math::mat4 		model;
-		AABB 			aabb; // world space
+		math::mat4 		model =			math::mat4(1.0f);
+		AABB 			aabb = 			AABB::InvalidAABB(); // world space
 		float 			depth = 		0.0f; // view-space depth for later
 		bool 			transparent = 	false; // for later -- always false in BlendFunction
 	};

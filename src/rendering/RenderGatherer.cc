@@ -29,7 +29,7 @@ GatherOutput RenderGatherer::GatherRenderItems(const Scene& scene,
 	GatherOutput out{};
 	out.renderItems.reserve(1024);
 	out.temp_meshInstances.reserve(512);
-	out.temp_lightNodes.reserve(256);
+	out.temp_lightNodes.reserve(64);
 
 	vector<GatherEntry> stack;
 	stack.reserve(256);
@@ -112,16 +112,8 @@ PipelineKey RenderGatherer::ComputePipelineKey(const Material& material,
 	k.fillMode = material.fillMode();
 	k.blendFunction = material.blendFunction();
 	k.doubleSided = material.doubleSided();
-
-//#warning TEMPORARY
-//	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes)) {
-//		k.shaderKind = ShaderKind::Wireframe;
-//	}
-//	else {
 	k.shaderKind = ShaderKind::Default;
-//	}
 
-	// example:
 //	const bool hasEmission = !std::holds_alternative<std::monostate>(material.emission());
 //	k.shaderKind = hasEmission ? ShaderKind::Default : ShaderKind::Default;
 
@@ -133,6 +125,9 @@ PipelineKey RenderGatherer::MakeMainKey(const RenderItem& item, uint32_t vertexL
 
 	k.pass = PassKind::Main;
 	k.shaderKind = ShaderKind::Default;          // main
+	k.fillMode = FillMode::Fill;
+//	k.blendFunction = BlendFunction::Disabled;
+//	k.doubleSided = item.material->doubleSided();
 	k.depthWrite = true;
 	k.polygonOffset = false;
 
@@ -145,7 +140,7 @@ PipelineKey RenderGatherer::MakeWireKey(const RenderItem& item, uint32_t vertexL
 	k.pass = PassKind::Wire;
 	k.shaderKind = ShaderKind::Wireframe;        // wire program
 	k.fillMode = FillMode::Lines;                // force lines
-	k.blendFunction = BlendFunction::Disabled;   // force off for now
+//	k.blendFunction = BlendFunction::Disabled;   // force off for now
 	k.doubleSided = true;                        // debug preference
 	k.depthWrite = false;                        // key point for overlay correctness
 	k.polygonOffset = true;                      // key point for z-fighting
@@ -153,17 +148,16 @@ PipelineKey RenderGatherer::MakeWireKey(const RenderItem& item, uint32_t vertexL
 	return k;
 }
 
-RenderPacket RenderGatherer::BuildRenderPacket(const GatherOutput& gather,
-											   const DebugOptions& debugOptions,
+RenderPacket RenderGatherer::BuildRenderPacket(const GatherOutput& gatherItems,
 											   RenderResourceCacheOGL& cache,
 											   uint32_t vertexLayoutKey) {
 
 	RenderPacket packet;
-	packet.lightNodes = gather.temp_lightNodes;
-	packet.main.reserve(gather.renderItems.size());
-	packet.wire.reserve(gather.renderItems.size());
+	packet.lightNodes = gatherItems.temp_lightNodes;
+	packet.main.reserve(gatherItems.renderItems.size());
+	packet.wire.reserve(gatherItems.renderItems.size());
 
-	for (const RenderItem& ri : gather.renderItems) {
+	for (const RenderItem& ri : gatherItems.renderItems) {
 
 		// effective style for this instance (refine later?)
 		RenderStyle style = ri.style;

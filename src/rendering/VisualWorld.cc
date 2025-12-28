@@ -271,24 +271,24 @@ void VisualWorld::draw(const Scene& scene,
 	renderer->beginFrame(scene, *_renderContext, debugOptions, stats, profiler);
 	_renderContext->beginFrame(scene);
 
-	auto [viewMat, projMat] = A3D_PROFILE(profiler, Profiler::Tag::EngineCpu, [&] {
-
-		auto fbSize = _renderContext->framebufferSize();
+	auto [view, proj] = A3D_PROFILE(profiler, Profiler::Tag::EngineCpu, [&] {
 
 		if (auto pc = dynamic_pointer_cast<PerspectiveCamera>(pov->camera())) {
-			auto aspectRatio = float(fbSize.x) / float(fbSize.y);
-			pc->aspectRatio(aspectRatio);
+			auto fbSize = _renderContext->framebufferSize();
+			auto aspect = float(fbSize.x) / float(fbSize.y);
+			pc->aspectRatio(aspect);
 		}
 
 		return std::tuple{ inverse(pov->worldTransform()), pov->camera()->projection() };
 	});
 
+	// TODO: REMOVE
 	A3D_PROFILE(profiler, Profiler::Tag::RenderCpu, [&] {
 
 		renderer->render(scene,
 						 *_renderContext,
-						 viewMat,
-						 projMat,
+						 view,
+						 proj,
 						 debugOptions,
 						 stats);
 
@@ -299,7 +299,7 @@ void VisualWorld::draw(const Scene& scene,
 
 		return RenderGatherer::GatherRenderItems(scene,
 												 *_renderContext,
-												 viewMat,
+												 view,
 												 debugOptions,
 												 stats);
 	});
@@ -314,7 +314,6 @@ void VisualWorld::draw(const Scene& scene,
 
 		static RenderResourceCacheOGL _cache{};
 		RenderPacket packet = RenderGatherer::BuildRenderPacket(gatherItems,
-																debugOptions,
 																_cache,
 				/*vertexLayoutKey=*/1);
 
@@ -323,26 +322,26 @@ void VisualWorld::draw(const Scene& scene,
 			renderer->bindPipeline(di.pipeline, _cache);
 			renderer->bindMaterial(*di.material);
 			renderer->bindMeshElement(*di.element);
-			renderer->setPerObject(di.model, viewMat, projMat);
+			renderer->setPerObject(di.model, view, proj);
 			renderer->drawBound();
 		}
 
 		for (const auto &di: packet.wire) {
 
 			renderer->bindPipeline(di.pipeline, _cache);
-			// optional: bindMaterial for wire, depending on shader
+			// bindMaterial
 			renderer->bindMeshElement(*di.element);
-			renderer->setPerObject(di.model, viewMat, projMat);
+			renderer->setPerObject(di.model, view, proj);
 			renderer->drawBound();
 		}
 
-		// ! temporary !
+		// TODO: REMOVE -- ONLY used for AABB drawing
 		for (const auto &mi: gatherItems.temp_meshInstances) {
 			renderer->render(*mi.mesh,
 							 *_renderContext,
 							 mi.model,
-							 viewMat,
-							 projMat,
+							 view,
+							 proj,
 							 debugOptions,
 							 stats);
 		}
@@ -353,8 +352,8 @@ void VisualWorld::draw(const Scene& scene,
 		if (auto bwp = dynamic_cast<BulletWorldProxy*>(physicalWorld->proxy())) {
 			bwp->drawDebug(*renderer,
 						   *_renderContext,
-						   viewMat,
-						   projMat,
+						   view,
+						   proj,
 						   debugOptions);
 		}
 	}
@@ -366,9 +365,9 @@ void VisualWorld::draw(const Scene& scene,
 	_renderContext->swapBuffers();
 
 	if (auto didRender = VisualWorld::didRenderCallback()) {
-		Timer appTimer(true);
-		didRender(*this, runT, deltaRunT);
-		profiler.add(Profiler::Tag::Application, appTimer.stop());
+		A3D_PROFILE(profiler, Profiler::Tag::Application, [&] {
+			didRender(*this, runT, deltaRunT);
+		});
 	}
 
 	if (_renderContext->recordingGIF()) {
@@ -402,23 +401,23 @@ void VisualWorld::firstDraw() {
 
 		// still no POV. add a default one.
 		A3D_LOG_I("Adding default POV.");
-		_pointOfView = defaultPOV();
+		auto pov = defaultPOV();
+		_scene->rootNode()->addChild(pov);
+		_pointOfView = pov;
 	}
 }
 
-weak_ptr<Node> VisualWorld::defaultPOV() {
+shared_ptr<Node> VisualWorld::defaultPOV() {
 
 	if (!_scene) {
 		A3D_LOG_W("Can't create default camera: scene is null.");
 		return {};
 	}
 
-	auto cameraNode = make_shared<Node>();
 	auto camera = make_shared<PerspectiveCamera>();
 	camera->name("Default Camera");
 
 	auto aabb = _scene->rootNode()->aabb();
-
 	vec3 center  = (aabb.min + aabb.max) * 0.5f;
 	vec3 extents = (aabb.max - aabb.min) * 0.5f;
 
@@ -434,11 +433,10 @@ weak_ptr<Node> VisualWorld::defaultPOV() {
 	float dist = math::max(distH, distV) + extents.z;
 
 	vec3 eye = center + vec3(0, 0, dist);
-
 	mat4 view = math::look_at(eye, center, vec3(0, 1, 0));
-	cameraNode->transform(inverse(view));
 
-	_scene->rootNode()->addChild(cameraNode);
+	auto cameraNode = make_shared<Node>();
+	cameraNode->transform(inverse(view));
 
 	cameraNode->camera(camera);
 

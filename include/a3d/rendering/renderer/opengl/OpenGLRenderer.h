@@ -147,9 +147,9 @@ namespace a3d {
 		MeshElementGLMapping 							_meshElementGLMapping;
 		TextureGLMapping								_textureGLMapping;
 //		LinesGLMapping									_linesGLMapping;
-		std::unordered_set<MeshElement*>				_activeMeshElements;
-		std::unordered_set<Texture*>					_activeTextures;
-		std::unordered_set<const std::vector<Line>*>	_activeLines;
+//		std::unordered_set<MeshElement*>				_activeMeshElements;
+//		std::unordered_set<Texture*>					_activeTextures;
+//		std::unordered_set<const std::vector<Line>*>	_activeLines;
 		std::unique_ptr<Mesh>							_skyboxMesh;
 		std::unique_ptr<Mesh>							_groundPlaneMesh;
 		unsigned										_glEnvironmentUBO;

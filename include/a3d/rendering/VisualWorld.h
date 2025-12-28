@@ -99,7 +99,7 @@ namespace a3d {
 		/// Private Member Functions ///
 
 		void									firstDraw();
-		std::weak_ptr<Node>						defaultPOV();
+		std::shared_ptr<Node>					defaultPOV();
 
 		/// Private Member Variables ///
 
