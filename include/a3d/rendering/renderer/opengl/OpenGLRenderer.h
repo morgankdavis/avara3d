@@ -150,6 +150,8 @@ namespace a3d {
 		std::unordered_set<MeshElement*>				_activeMeshElements;
 		std::unordered_set<Texture*>					_activeTextures;
 		std::unordered_set<const std::vector<Line>*>	_activeLines;
+		std::unique_ptr<Mesh>							_skyboxMesh;
+		std::unique_ptr<Mesh>							_groundPlaneMesh;
 		unsigned										_glEnvironmentUBO;
 		ImFont*											_overlayTitleImFont;
 		ImFont*											_overlayBodyImFont;

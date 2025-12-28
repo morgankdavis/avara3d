@@ -82,7 +82,7 @@ namespace a3d::utils {
 
 	// *** executable and working directories ***
 
-#ifndef ANDROID
+#ifndef A3D_ANDROID
 	std::optional<std::filesystem::path> 	ExecutablePath();
 	std::optional<std::filesystem::path> 	ExecutableDirectory();
 	std::optional<std::string> 				ExecutableName();
@@ -91,7 +91,7 @@ namespace a3d::utils {
 
 	// *** search paths ***
 
-#ifndef ANDROID
+#ifndef A3D_ANDROID
 	std::vector<std::filesystem::path> 		BaseSearchPaths();
 	std::vector<std::filesystem::path> 		ShaderSearchPaths();
 	std::vector<std::filesystem::path> 		SceneSearchPaths();
@@ -104,7 +104,7 @@ namespace a3d::utils {
 
 	// *** binary and text files ***
 
-#ifdef ANDROID
+#ifdef A3D_ANDROID
 	std::optional<std::filesystem::path> InternalFilesDirectory();
 	std::optional<std::string> TextAsset(const std::string& relPath);
 	std::shared_ptr<Buffer> BinaryAsset(const std::string& relPath);
@@ -138,7 +138,7 @@ namespace a3d::utils {
 
 	// *** scenes ***
 
-#ifndef ANDROID
+#ifndef A3D_ANDROID
 	std::unique_ptr<a3d::Scene> 	SceneNamed(const std::string& name,
 											  SceneImportOptions options =
 											  SceneImportOptions::ImportAll);

@@ -41,14 +41,12 @@ using namespace std;
 /// Private Static Non-Member Prototypes ///
 
 static unique_ptr<Mesh> MakeSkyboxMesh(const MaterialProperty& property);
-static unique_ptr<Mesh> GroundPlaneMesh();
 
 /// Public Lifecycle Functions ///
 
 VisualWorld::VisualWorld(RenderContext& context):
 		_background{},
 		_skyboxMesh{},
-		_groundPlaneMesh{},
 		_fogStartDistance{0.0},
 		_fogEndDistance{0.0},
 		_fogDensityExponent{0.0},
@@ -62,9 +60,6 @@ VisualWorld::VisualWorld(RenderContext& context):
 		_didRenderCallback{} {
 
 	_renderContext->attachedToVisualWorld(this);
-
-	// *** TEMPORARY ***
-	_groundPlaneMesh = GroundPlaneMesh();
 }
 
 VisualWorld::~VisualWorld() {
@@ -385,10 +380,6 @@ Mesh* VisualWorld::skyboxMesh() const {
 	return _skyboxMesh.get();
 }
 
-Mesh* VisualWorld::groundPlaneMesh() const {
-	return _groundPlaneMesh.get();
-}
-
 /// Private Member Functions ///
 
 void VisualWorld::firstDraw() {
@@ -428,39 +419,24 @@ weak_ptr<Node> VisualWorld::defaultPOV() {
 
 	auto aabb = _scene->rootNode()->aabb();
 
-	auto fovH = camera->yFov();
-	auto frameBufferSize = _renderContext->framebufferSize();
-	auto aspectRatio = float(frameBufferSize.x) / float(frameBufferSize.y);
-	auto inverseAspectRatio = 1.0f / aspectRatio;
-	auto fovV = fovH * inverseAspectRatio;
+	vec3 center  = (aabb.min + aabb.max) * 0.5f;
+	vec3 extents = (aabb.max - aabb.min) * 0.5f;
 
-	// tan(angle) = x/z
-	// ztan(angle) = x
-	// z = x/tan(angle)
+	auto fbSize = _renderContext->framebufferSize();
+	float aspect = float(fbSize.x) / float(fbSize.y);
 
-	auto maxZ = math::abs(aabb.max.z);
+	float vFov = camera->yFov();
+	float hFov = 2.0f * math::atan(math::tan(vFov * 0.5f) * aspect);
 
-	auto xH = math::abs(aabb.min.x) + math::abs(aabb.max.x) / 2.0f;
-	auto angleH = fovH / 2.0;
-	auto zH = xH / tan(angleH);
+	float distH = extents.x / math::tan(hFov * 0.5f);
+	float distV = extents.y / math::tan(vFov * 0.5f);
 
-	auto xV = math::abs(aabb.min.y) + math::abs(aabb.max.y) / 2.0f;
-	auto angleV = fovV / 2.0;
-	auto zV = xV / tan(angleV);
+	float dist = math::max(distH, distV) + extents.z;
 
-	zH += maxZ;
-	zV += maxZ;
+	vec3 eye = center + vec3(0, 0, dist);
 
-	auto z = math::max(zH, zV);
-	auto midX = (aabb.min.x + aabb.max.x) / 2.0f;
-	auto midY = (aabb.min.y + aabb.max.y) / 2.0f;
-
-	// not sure why z is devided by 2.0, but it seems to work better...
-	auto eye = vec3(midX, midY, z / 2.0f);
-	//vec3 eye = vec3(midX, midY, z);
-
-	mat4 viewMat = translate(mat4(1.0f), eye);
-	cameraNode->transform(viewMat);
+	mat4 view = math::look_at(eye, center, vec3(0, 1, 0));
+	cameraNode->transform(inverse(view));
 
 	_scene->rootNode()->addChild(cameraNode);
 
@@ -480,10 +456,4 @@ unique_ptr<Mesh> MakeSkyboxMesh(const MaterialProperty& property) {
 	mesh->addMaterial(material);
 
 	return mesh;
-}
-
-unique_ptr<Mesh> GroundPlaneMesh() {
-
-	//return make_unique<a3d::Mesh>(make_unique<Box>(0.5, 0.5, 0.5), nullptr);
-	return make_unique<a3d::Mesh>(make_unique<Plane>(1.0, 1.0, 1, 1), nullptr);
 }

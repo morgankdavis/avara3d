@@ -93,8 +93,7 @@ namespace a3d {
 													 Profiler& profiler,
 													 const FrameStatsHistory& statsHistory);
 
-		Mesh*									skyboxMesh() const; // TODO: this should be in renderer
-		Mesh*									groundPlaneMesh() const;
+		Mesh*									skyboxMesh() const; // TODO: move to renderer
 
 	private:
 		/// Private Member Functions ///
@@ -106,7 +105,6 @@ namespace a3d {
 
 		MaterialProperty						_background;
 		std::unique_ptr<Mesh>					_skyboxMesh;
-		std::unique_ptr<Mesh>					_groundPlaneMesh;
 		float									_fogStartDistance;
 		float									_fogEndDistance;
 		float									_fogDensityExponent;
