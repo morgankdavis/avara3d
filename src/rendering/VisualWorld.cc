@@ -359,7 +359,7 @@ void VisualWorld::draw(const Scene& scene,
 			renderer->drawBound();
 		}
 
-		for (const auto &di: packet.wire) {
+		for (const auto &di: packet.wireframe) {
 
 			renderer->bindPipeline(di.pipeline, cache);
 			// bindMaterial

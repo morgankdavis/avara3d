@@ -133,48 +133,6 @@ PipelineKey RenderGatherer::MakePipelineKey(const Material& material,
 	return k;
 }
 
-//PipelineKey RenderGatherer::MakeMainOpaquePipelineKey(const RenderItem& item, uint32_t vertexLayoutKey) {
-//	PipelineKey k = MakePipelineKey(*item.material, vertexLayoutKey);
-//
-//	k.pass = PassKind::MainOpaque;
-//	k.shaderKind = ShaderKind::Default;          // main
-//	k.fillMode = FillMode::Fill;
-//	k.blendFunction = BlendFunction::Disabled;
-////	k.doubleSided = item.material->doubleSided();
-//	k.depthWrite = true;
-//	k.polygonOffset = false;
-//
-//	return k;
-//}
-//
-//PipelineKey RenderGatherer::MakeMainMaskPipelineKey(const RenderItem& item, uint32_t vertexLayoutKey) {
-//	PipelineKey k = MakePipelineKey(*item.material, vertexLayoutKey);
-//
-//	k.pass = PassKind::MainMask;
-//	k.shaderKind = ShaderKind::Default;          // main
-//	k.fillMode = FillMode::Fill;
-//	k.blendFunction = BlendFunction::Disabled;
-////	k.doubleSided = item.material->doubleSided();
-//	k.depthWrite = true;
-//	k.polygonOffset = false;
-//
-//	return k;
-//}
-//
-//PipelineKey RenderGatherer::MakeMainTransparentPipelineKey(const RenderItem& item, uint32_t vertexLayoutKey) {
-//	PipelineKey k = MakePipelineKey(*item.material, vertexLayoutKey);
-//
-//	k.pass = PassKind::MainTransparent;
-//	k.shaderKind = ShaderKind::Default;          // main
-//	k.fillMode = FillMode::Fill;
-////	k.blendFunction = BlendFunction::Disabled;
-////	k.doubleSided = item.material->doubleSided();
-//	k.depthWrite = false;
-//	k.polygonOffset = false;
-//
-//	return k;
-//}
-
 PipelineKey RenderGatherer::MakeMainOpaquePipelineKey(const RenderItem& item, uint32_t vertexLayoutKey) {
 	PipelineKey k = MakePipelineKey(*item.material, vertexLayoutKey);
 	k.pass = PassKind::MainOpaque;
@@ -213,14 +171,69 @@ PipelineKey RenderGatherer::MakeWirePipelineKey(const RenderItem& item, uint32_t
 	return k;
 }
 
+
+
+
+
+static uint32_t PtrHash32(const void* p) {
+	uintptr_t v = (uintptr_t)p >> 4;              // drop alignment bits
+	uint32_t lo = (uint32_t)v;
+	uint32_t hi = (uint32_t)(v >> 32);
+	uint32_t h  = lo ^ hi;
+	h ^= (h >> 16);
+	return h;
+}
+
+static uint16_t PtrHash16(const void* p) {
+	uint32_t h = PtrHash32(p);
+	return (uint16_t)(h ^ (h >> 16));
+}
+
+static uint64_t MakeSortKey(const DrawItem& it) {
+	uint64_t k = (uint64_t)(uint32_t)it.pipeline << 32;
+	k |= (uint64_t)PtrHash16(it.material) << 16;
+	k |= (uint64_t)PtrHash16(it.element);
+	return k;
+}
+
+
+
+static int PassOrder(PassKind p) {
+	switch (p) {
+		case PassKind::MainOpaque:      return 0;
+		case PassKind::MainMask:        return 1;
+		case PassKind::MainTransparent: return 2; // later you’ll change strategy
+		case PassKind::Wire:            return 3;
+	}
+	return 99;
+}
+
+static void SortDrawItems(std::vector<DrawItem>& items) {
+	std::sort(items.begin(), items.end(),
+			  [](const DrawItem& a, const DrawItem& b) {
+				  int pa = PassOrder(a.pass), pb = PassOrder(b.pass);
+				  if (pa != pb) return pa < pb;
+				  if (a.sortKey != b.sortKey) return a.sortKey < b.sortKey;
+				  return a.sequence < b.sequence;
+			  });
+}
+
+
+
+
+
+
+
 RenderPacket RenderGatherer::BuildRenderPacket(const GatherOutput& gatherOutput,
 											   RenderResourceCacheOGL& cache,
 											   uint32_t vertexLayoutKey) {
 
-	RenderPacket packet;
+	RenderPacket packet{};
 	packet.lightNodes = gatherOutput.temp_lightNodes;
 	packet.main.reserve(gatherOutput.renderItems.size());
-	packet.wire.reserve(gatherOutput.renderItems.size());
+	packet.wireframe.reserve(gatherOutput.renderItems.size());
+
+	uint32_t seq = 0;
 
 	for (const RenderItem& ri : gatherOutput.renderItems) {
 
@@ -228,6 +241,7 @@ RenderPacket RenderGatherer::BuildRenderPacket(const GatherOutput& gatherOutput,
 		RenderStyle style = ri.style;
 
 		if (style == RenderStyle::Normal || style == RenderStyle::WireframeOverlay) {
+
 			DrawItem di;
 //			di.mesh = ri.mesh;
 			di.elementIndex = ri.elementIndex;
@@ -237,25 +251,31 @@ RenderPacket RenderGatherer::BuildRenderPacket(const GatherOutput& gatherOutput,
 			di.depth = ri.depth;
 
 			switch (ri.material->alphaMode()) {
-				case AlphaMode::Opaque:
+				case AlphaMode::Opaque: {
 					di.pass = PassKind::MainOpaque;
-					di.pipeline = cache.ensurePipeline(MakeMainOpaquePipelineKey(ri, vertexLayoutKey));
-					break;
-				case AlphaMode::Mask:
+					di.key = MakeMainOpaquePipelineKey(ri, vertexLayoutKey);
+					break; }
+				case AlphaMode::Mask: {
 					di.pass = PassKind::MainMask;
-					di.pipeline = cache.ensurePipeline(MakeMainMaskPipelineKey(ri, vertexLayoutKey));
-					break;
-				case AlphaMode::Blend:
+					di.key = MakeMainMaskPipelineKey(ri, vertexLayoutKey);
+					break; }
+				case AlphaMode::Blend: {
 					di.pass = PassKind::MainTransparent;
-					di.pipeline = cache.ensurePipeline(MakeMainTransparentPipelineKey(ri, vertexLayoutKey));
-					break;
+					di.key = MakeMainTransparentPipelineKey(ri, vertexLayoutKey);
+					break; }
 				default: /* unreachable */ break;
 			}
+
+			di.pipeline = cache.ensurePipeline(di.key);
+
+			di.sortKey = MakeSortKey(di);
+			di.sequence = seq++;
 
 			packet.main.push_back(std::move(di));
 		}
 
 		if (style == RenderStyle::Wireframe || style == RenderStyle::WireframeOverlay) {
+
 			DrawItem di;
 //			di.mesh = ri.mesh;
 			di.elementIndex = ri.elementIndex;
@@ -265,10 +285,13 @@ RenderPacket RenderGatherer::BuildRenderPacket(const GatherOutput& gatherOutput,
 			di.depth = ri.depth;
 			di.pass = PassKind::Wire;
 
-			PipelineKey key = MakeWirePipelineKey(ri, vertexLayoutKey);
-			di.pipeline = cache.ensurePipeline(key);
+			di.key = MakeWirePipelineKey(ri, vertexLayoutKey);
+			di.pipeline = cache.ensurePipeline(di.key);
 
-			packet.wire.push_back(std::move(di));
+			di.sortKey = MakeSortKey(di);
+			di.sequence = seq++;
+
+			packet.wireframe.push_back(std::move(di));
 		}
 	}
 

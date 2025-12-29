@@ -7,6 +7,7 @@
 
 #include <vector>
 
+#include "a3d/mesh/Line.h"
 #include "a3d/rendering/DrawItem.h"
 
 namespace a3d {
@@ -17,7 +18,9 @@ namespace a3d {
 	struct RenderPacket {
 
 		std::vector<DrawItem> 	main;
-		std::vector<DrawItem> 	wire;
+		// future: mainOpaque, mainMask, mainTransparent
+		std::vector<DrawItem> 	wireframe;
+		std::vector<Line> 		debugLines;
 		std::vector<Node*> 		lightNodes;
 	};
 }

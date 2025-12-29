@@ -28,6 +28,7 @@ namespace a3d {
 		PassKind 		pass = 			PassKind::MainOpaque;
 
 		uint64_t 		sortKey = 		0;
+		uint32_t		sequence =		0;
 
 
 

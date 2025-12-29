@@ -902,7 +902,7 @@ static void DemoWindowWidgetsBasic()
                 "Ctrl+Z to undo, Ctrl+Y/Ctrl+Shift+Z to redo.\n"
                 "Escape to revert.\n\n"
                 "PROGRAMMER:\n"
-                "You can use the ImGuiInputTextFlags_CallbackResize facility if you need to wire InputText() "
+                "You can use the ImGuiInputTextFlags_CallbackResize facility if you need to wireframe InputText() "
                 "to a dynamic string type. See misc/cpp/imgui_stdlib.h for an example (this is not demonstrated "
                 "in imgui_demo.cpp).");
 
@@ -3714,7 +3714,7 @@ static void DemoWindowWidgetsTextInput()
                 "\tlock cmpxchg8b eax\n";
 
             static ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput;
-            HelpMarker("You can use the ImGuiInputTextFlags_CallbackResize facility if you need to wire InputTextMultiline() to a dynamic string type. See misc/cpp/imgui_stdlib.h for an example. (This is not demonstrated in imgui_demo.cpp because we don't want to include <string> in here)");
+            HelpMarker("You can use the ImGuiInputTextFlags_CallbackResize facility if you need to wireframe InputTextMultiline() to a dynamic string type. See misc/cpp/imgui_stdlib.h for an example. (This is not demonstrated in imgui_demo.cpp because we don't want to include <string> in here)");
             ImGui::CheckboxFlags("ImGuiInputTextFlags_ReadOnly", &flags, ImGuiInputTextFlags_ReadOnly);
             ImGui::CheckboxFlags("ImGuiInputTextFlags_WordWrap", &flags, ImGuiInputTextFlags_WordWrap);
             ImGui::SameLine(); HelpMarker("Feature is currently in Beta. Please read comments in imgui.h");
@@ -3837,7 +3837,7 @@ static void DemoWindowWidgetsTextInput()
             // you can use the ImGuiInputTextFlags_CallbackResize flag + create a custom ImGui::InputText() wrapper
             // using your preferred type. See misc/cpp/imgui_stdlib.h for an implementation of this using std::string.
             HelpMarker(
-                "Using ImGuiInputTextFlags_CallbackResize to wire your custom string type to InputText().\n\n"
+                "Using ImGuiInputTextFlags_CallbackResize to wireframe your custom string type to InputText().\n\n"
                 "See misc/cpp/imgui_stdlib.h for an implementation of this for std::string.");
             struct Funcs
             {
