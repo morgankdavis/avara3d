@@ -208,7 +208,7 @@ static int PassOrder(PassKind p) {
 	return 99;
 }
 
-static void SortDrawItems(std::vector<DrawItem>& items) {
+static void SortDrawItems(vector<DrawItem>& items) {
 	std::sort(items.begin(), items.end(),
 			  [](const DrawItem& a, const DrawItem& b) {
 				  int pa = PassOrder(a.pass), pb = PassOrder(b.pass);
@@ -232,8 +232,6 @@ RenderPacket RenderGatherer::BuildRenderPacket(const GatherOutput& gatherOutput,
 	packet.lightNodes = gatherOutput.temp_lightNodes;
 	packet.main.reserve(gatherOutput.renderItems.size());
 	packet.wireframe.reserve(gatherOutput.renderItems.size());
-
-	uint32_t seq = 0;
 
 	for (const RenderItem& ri : gatherOutput.renderItems) {
 
@@ -269,7 +267,7 @@ RenderPacket RenderGatherer::BuildRenderPacket(const GatherOutput& gatherOutput,
 			di.pipeline = cache.ensurePipeline(di.key);
 
 			di.sortKey = MakeSortKey(di);
-			di.sequence = seq++;
+			di.sequence = (uint32_t)packet.main.size();
 
 			packet.main.push_back(std::move(di));
 		}
@@ -289,11 +287,14 @@ RenderPacket RenderGatherer::BuildRenderPacket(const GatherOutput& gatherOutput,
 			di.pipeline = cache.ensurePipeline(di.key);
 
 			di.sortKey = MakeSortKey(di);
-			di.sequence = seq++;
+			di.sequence = (uint32_t)packet.wireframe.size();
 
 			packet.wireframe.push_back(std::move(di));
 		}
 	}
+
+	SortDrawItems(packet.main);
+	SortDrawItems(packet.wireframe);
 
 	return packet;
 }
