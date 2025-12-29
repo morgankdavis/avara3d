@@ -337,18 +337,18 @@ void VisualWorld::draw(const Scene& scene,
 
 	A3D_PROFILE(profiler, Profiler::Tag::RenderCpu, [&] {
 
-		renderer->postTraversal(scene,
-								*_renderContext,
-								gatherItems.temp_lightNodes,
-								debugOptions, stats);
-
-
-#warning TEMPORARY
-		auto& cache = (static_cast<OpenGLRenderer*>(renderer))->cache();
+		auto& cache = (static_cast<OpenGLRenderer*>(renderer))->cache(); // TODO: TEMPORARY!
 
 		RenderPacket packet = RenderGatherer::BuildRenderPacket(gatherItems,
 																cache,
-				/*vertexLayoutKey=*/1);
+																1, // vertexLayoutKey
+																debugOptions);
+
+		renderer->postTraversal(scene,
+								*_renderContext,
+								packet.lightNodes,
+								debugOptions, stats);
+
 
 		for (const auto &di: packet.main) {
 
@@ -368,16 +368,7 @@ void VisualWorld::draw(const Scene& scene,
 			renderer->drawBound();
 		}
 
-		// TODO: REMOVE -- ONLY used for AABB drawing
-		for (const auto &mi: gatherItems.temp_meshInstances) {
-			renderer->render(*mi.mesh,
-							 *_renderContext,
-							 mi.model,
-							 view,
-							 proj,
-							 debugOptions,
-							 stats);
-		}
+		renderer->render(packet.debugLines, *_renderContext, math::mat4(1.0f), view, proj);
 	});
 
 	if (physicalWorld) {

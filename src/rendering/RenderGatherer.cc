@@ -23,13 +23,13 @@ struct GatherEntry {
 GatherOutput RenderGatherer::GatherRenderItems(const Scene& scene,
 											   const RenderContext& context,
 											   const mat4& view,
-											   const DebugOptions& debugOptions, // ! temporary !
+											   const DebugOptions& debugOptions, // temporary
 											   FrameStats& stats) {
 
 	GatherOutput out{};
 	out.renderItems.reserve(1024);
-	out.temp_meshInstances.reserve(512);
-	out.temp_lightNodes.reserve(64);
+	out.lightNodes.reserve(64);
+	out.meshInstances.reserve(512);
 
 	vector<GatherEntry> stack;
 	stack.reserve(256);
@@ -46,8 +46,8 @@ GatherOutput RenderGatherer::GatherRenderItems(const Scene& scene,
 
 		if (auto* mesh = n->mesh().get()) {
 
-			// ! temporary !
-			out.temp_meshInstances.push_back({mesh, world});
+			// temporary?
+			out.meshInstances.push_back({mesh, world});
 
 			const auto& elements = mesh->elements();
 			const auto& materials = mesh->materials();
@@ -90,9 +90,8 @@ GatherOutput RenderGatherer::GatherRenderItems(const Scene& scene,
 			++stats.numMeshes;
 		}
 
-		// ! temporary !
 		if (n->light()) {
-			out.temp_lightNodes.push_back(n);
+			out.lightNodes.push_back(n);
 			++stats.numLights;
 		}
 
@@ -224,12 +223,80 @@ static void SortDrawItems(vector<DrawItem>& items) {
 
 
 
-RenderPacket RenderGatherer::BuildRenderPacket(const GatherOutput& gatherOutput,
+
+
+
+
+
+static void AppendBoxLinesFromCorners(std::vector<Line>& out,
+									  const math::vec3 c[8],
+									  const Color& color) {
+	// indices: 0..3 top ring, 4..7 bottom ring (match your naming if you like)
+	auto add = [&](int a, int b) { out.push_back(Line{c[a], c[b], color}); };
+
+	// top
+	add(0,1); add(1,2); add(2,3); add(3,0);
+	// bottom
+	add(4,5); add(5,6); add(6,7); add(7,4);
+	// verticals
+	add(0,4); add(1,5); add(2,6); add(3,7);
+}
+
+static void AppendAABBLinesWorld(std::vector<Line>& out, const AABB& aabb, const Color& color) {
+	math::vec3 c[8] = {
+			{aabb.min.x, aabb.max.y, aabb.min.z}, // 0
+			{aabb.min.x, aabb.max.y, aabb.max.z}, // 1
+			{aabb.max.x, aabb.max.y, aabb.max.z}, // 2
+			{aabb.max.x, aabb.max.y, aabb.min.z}, // 3
+			{aabb.min.x, aabb.min.y, aabb.min.z}, // 4
+			{aabb.min.x, aabb.min.y, aabb.max.z}, // 5
+			{aabb.max.x, aabb.min.y, aabb.max.z}, // 6
+			{aabb.max.x, aabb.min.y, aabb.min.z}, // 7
+	};
+	AppendBoxLinesFromCorners(out, c, color);
+}
+
+static void AppendOBBLinesFromLocalAABB(std::vector<Line>& out,
+										const AABB& local,
+										const math::mat4& model,
+										const Color& color) {
+	math::vec3 lc[8] = {
+			{local.min.x, local.max.y, local.min.z},
+			{local.min.x, local.max.y, local.max.z},
+			{local.max.x, local.max.y, local.max.z},
+			{local.max.x, local.max.y, local.min.z},
+			{local.min.x, local.min.y, local.min.z},
+			{local.min.x, local.min.y, local.max.z},
+			{local.max.x, local.min.y, local.max.z},
+			{local.max.x, local.min.y, local.min.z},
+	};
+
+	math::vec3 wc[8];
+	for (int i = 0; i < 8; ++i) {
+		auto h = model * math::vec4(lc[i], 1.0f);
+		wc[i] = math::vec3(h.x, h.y, h.z); // assuming affine; otherwise divide by h.w
+	}
+
+	AppendBoxLinesFromCorners(out, wc, color);
+}
+
+
+
+
+
+
+
+
+
+
+
+RenderPacket RenderGatherer::BuildRenderPacket(GatherOutput& gatherOutput,
 											   RenderResourceCacheOGL& cache,
-											   uint32_t vertexLayoutKey) {
+											   uint32_t vertexLayoutKey,
+											   const DebugOptions& debugOptions) {
 
 	RenderPacket packet{};
-	packet.lightNodes = gatherOutput.temp_lightNodes;
+
 	packet.main.reserve(gatherOutput.renderItems.size());
 	packet.wireframe.reserve(gatherOutput.renderItems.size());
 
@@ -290,6 +357,18 @@ RenderPacket RenderGatherer::BuildRenderPacket(const GatherOutput& gatherOutput,
 			di.sequence = (uint32_t)packet.wireframe.size();
 
 			packet.wireframe.push_back(std::move(di));
+		}
+	}
+
+	packet.lightNodes = std::move(gatherOutput.lightNodes);
+
+	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
+
+		packet.debugLines.reserve(gatherOutput.meshInstances.size() * 24); // 24 lines per mesh (12+12)
+
+		for (const MeshInstance &mi: gatherOutput.meshInstances) {
+			AppendAABBLinesWorld(packet.debugLines, mi.mesh->worldAABB(mi.model, false), *Color::Red());
+			AppendOBBLinesFromLocalAABB(packet.debugLines, mi.mesh->localAABB(), mi.model, *Color::Gray());
 		}
 	}
 

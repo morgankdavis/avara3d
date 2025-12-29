@@ -599,27 +599,27 @@ void OpenGLRenderer::render(const Scene& scene,
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, prevReadFbo);
 }
 
-void OpenGLRenderer::render(Mesh& mesh,
-							const RenderContext& context,
-							const mat4& modelMat,
-							const mat4& viewMat,
-							const mat4& projectionMat,
-							const DebugOptions& debugOptions,
-							FrameStats& stats) {
-
-	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
-
-		auto localAABB = mesh.localAABB();
-
-		// notice identity modelMat
-		auto worldLines = AABBLines(mesh.worldAABB(modelMat, false), *Color::Red());
-		render(worldLines, context, mat4(1.0), viewMat, projectionMat);
-
-		// multiplying local AABB by modelMat creates OBB
-		auto localLines = AABBLines(localAABB, *Color::Gray());
-		render(localLines, context, modelMat, viewMat, projectionMat);
-	}
-}
+//void OpenGLRenderer::render(Mesh& mesh,
+//							const RenderContext& context,
+//							const mat4& modelMat,
+//							const mat4& viewMat,
+//							const mat4& projectionMat,
+//							const DebugOptions& debugOptions,
+//							FrameStats& stats) {
+//
+//	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
+//
+//		auto localAABB = mesh.localAABB();
+//
+//		// notice identity modelMat
+//		auto worldLines = AABBLines(mesh.worldAABB(modelMat, false), *Color::Red());
+//		render(worldLines, context, mat4(1.0), viewMat, projectionMat);
+//
+//		// multiplying local AABB by modelMat creates OBB
+//		auto localLines = AABBLines(localAABB, *Color::Gray());
+//		render(localLines, context, modelMat, viewMat, projectionMat);
+//	}
+//}
 
 //void OpenGLRenderer::render(MeshElement& element,
 //							const RenderContext& context,
@@ -679,20 +679,20 @@ void OpenGLRenderer::render(Mesh& mesh,
 ////	}
 //}
 
-void OpenGLRenderer::render(MeshElement& element,
-							const RenderContext& context,
-							Material& material,
-							const mat4& modelMat,
-							const mat4& viewMat,
-							const mat4& projectionMat,
-							const DebugOptions& debugOptions,
-							FrameStats& stats) {
-
-	bindMaterial(material);
-	bindMeshElement(element);
-	setPerObject(modelMat, viewMat, projectionMat);
-	drawBound();
-}
+//void OpenGLRenderer::render(MeshElement& element,
+//							const RenderContext& context,
+//							Material& material,
+//							const mat4& modelMat,
+//							const mat4& viewMat,
+//							const mat4& projectionMat,
+//							const DebugOptions& debugOptions,
+//							FrameStats& stats) {
+//
+////	bindMaterial(material);
+////	bindMeshElement(element);
+////	setPerObject(modelMat, viewMat, projectionMat);
+////	drawBound();
+//}
 
 void OpenGLRenderer::EnsureDebugLinesBuffers(Program& program) {
 	if (_dbgLinesVBO != 0) return;

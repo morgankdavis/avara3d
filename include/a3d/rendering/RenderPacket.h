@@ -17,11 +17,11 @@ namespace a3d {
 
 	struct RenderPacket {
 
-		std::vector<DrawItem> 	main;
 		// future: mainOpaque, mainMask, mainTransparent
+		std::vector<DrawItem> 	main;
 		std::vector<DrawItem> 	wireframe;
-		std::vector<Line> 		debugLines;
 		std::vector<Node*> 		lightNodes;
+		std::vector<Line> 		debugLines;
 	};
 }
 

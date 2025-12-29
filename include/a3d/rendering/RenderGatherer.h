@@ -29,8 +29,8 @@ namespace a3d {
 
 	struct GatherOutput {
 		std::vector<RenderItem>		renderItems;
-		std::vector<MeshInstance> 	temp_meshInstances; // for debug AABBs
-		std::vector<Node*> 			temp_lightNodes; // for postTraversal selection
+		std::vector<Node*> 			lightNodes; // for postTraversal selection
+		std::vector<MeshInstance> 	meshInstances; // for debug AABBs
 	};
 
 	class RenderGatherer {
@@ -40,7 +40,7 @@ namespace a3d {
 		static GatherOutput GatherRenderItems(const Scene& scene,
 											  const RenderContext& context,
 											  const math::mat4& view,
-											  const DebugOptions& debugOptions, // ! temporary !
+											  const DebugOptions& debugOptions, // temporary
 											  FrameStats& stats);
 
 
@@ -59,9 +59,10 @@ namespace a3d {
 
 
 
-		static RenderPacket BuildRenderPacket(const GatherOutput& gatherOutput,
+		static RenderPacket BuildRenderPacket(GatherOutput& gatherOutput,
 											  RenderResourceCacheOGL& cache,
-											  uint32_t vertexLayoutKey);
+											  uint32_t vertexLayoutKey,
+											  const DebugOptions& debugOptions);
 	};
 }
 
