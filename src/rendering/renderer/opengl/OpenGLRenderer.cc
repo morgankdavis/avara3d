@@ -14,12 +14,12 @@
 #include <utility>
 #include <vector>
 
-#ifdef A3D_GL_ES
-#include <EGL/egl.h>
-#include <GLES3/gl3.h>
-#else
-#include "glad/glad.h"
-#endif
+//#ifdef A3D_GL_ES
+//#include <EGL/egl.h>
+//#include <GLES3/gl3.h>
+//#else
+//#include "glad/glad.h"
+//#endif
 
 //#ifdef A3D_GL_DESKTOP
 #include "imgui.h"
@@ -51,7 +51,6 @@
 #include "a3d/rendering/material/Material.h"
 #include "a3d/rendering/material/Sampler.h"
 #include "a3d/rendering/material/Texture.h"
-//#include "a3d/rendering/renderer/opengl/OpenGLDrawItem.h"
 #include "a3d/rendering/renderer/opengl/Program.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
@@ -315,6 +314,18 @@ static GLenum 		GLWrapModeForWrapMode(WrapMode mode);
 static void 		LogGLInfo();
 //static void 		CheckGLError();
 
+
+
+
+
+static void ApplyBlendFunction(BlendFunction blend);
+
+
+
+
+
+
+
 /// Private Static Members ///
 
 bool OpenGLRenderer::InitGL(GLGetProcAddress getProcAddress) {
@@ -354,7 +365,7 @@ bool OpenGLRenderer::InitGL(GLGetProcAddress getProcAddress) {
 OpenGLRenderer::OpenGLRenderer():
 		Renderer{},
 		_isInitialized{false},
-		_meshElementGLMapping{},
+		_meshElementGLMapping{}, // TODO: REMOVE
 		_textureGLMapping{},
 //		_linesGLMapping{},
 //		_activeMeshElements{},
@@ -364,7 +375,10 @@ OpenGLRenderer::OpenGLRenderer():
 		_overlayTitleImFont{nullptr},
 		_overlayBodyImFont{nullptr},
 		_drawTimer{config::GL_DRAW_TIMER_BUFFER_SIZE},
-		_cache{} {}
+		_cache{},
+
+
+		_meshElementGL{} {}
 
 OpenGLRenderer::~OpenGLRenderer() {
 	A3D_LOG_D("Destroying OpenGLRenderer {:p}", static_cast<void*>(this));
@@ -437,15 +451,14 @@ void OpenGLRenderer::beginFrame(const Scene& scene,
 								FrameStats& stats,
 								Profiler& profiler) {
 
-//	_drawItems.clear();
-
 	_drawTimer.begin();
 
-//	_activeMeshElements.clear();
-//	_activeTextures.clear();
-//	_activeLines.clear();
+	_state = {};
+	_state.pipeline = INVALID_PIPELINE;
+	_state.program = 0;
+	_state.material = nullptr;
 
-	//glBindBufferBase(GL_UNIFORM_BUFFER, ENV_BINDING_POINT, _glEnvironmentUBO); // necessary? - nope!
+	_boundElement = {};
 }
 
 void OpenGLRenderer::endFrame(const Scene& scene,
@@ -955,68 +968,94 @@ void GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
 //	}
 //}
 
-void GetTextureGLTextureHandles(Material& material,
-								OpenGLRenderer::TextureGLMapping& glMapping,
-//								unordered_set<Texture*>& activeTextures,
-								map<MaterialPropertyType, GLuint>& glTextureHandles) {
-
-	// looks up and populates glTextureHandle, loading the texture data if needed
-
-	for (auto& [property, type] : material.properties()) {
-
-		if (auto texture = get_if<shared_ptr<Texture>>(property)) {
-
-			if (A3D_MASK_CONTAINS((*texture)->dirtyMask(), TextureDirtyMask::Contents)) {
-
-				A3D_LOG_D("Texture {:p} contents dirty.", static_cast<void*>(&texture));
-
-				DeleteTextureGLResources(texture->get(), glMapping);
-
-				GLuint textureID = 0;
-				BufferTexture(**texture, textureID);
-				if (textureID > 0) {
-					glTextureHandles[type] = textureID;
-					glMapping[texture->get()] = textureID;
-				}
-
-				(*texture)->dirtyMask(A3D_MASK_REMOVE((*texture)->dirtyMask(),TextureDirtyMask::Contents));
-			}
-			else {
-				auto textureHandle = glMapping[texture->get()];
-				glTextureHandles[type] = textureHandle;
-			}
-
-			// save reference for housekeeping
-//			activeTextures.emplace(texture->get());
-		}
-
-//		if (holds_alternative<shared_ptr<Texture>>(*property)) {
+//void GetTextureGLTextureHandles(Material& material,
+//								OpenGLRenderer::TextureGLMapping& glMapping,
+////								unordered_set<Texture*>& activeTextures,
+//								map<MaterialPropertyType, GLuint>& glTextureHandles) {
 //
-//			auto texture = get<shared_ptr<Texture>>(*property).get();
+//	// looks up and populates glTextureHandle, loading the texture data if needed
 //
-//			if (A3D_MASK_CONTAINS(texture->dirtyMask(), TextureDirtyMask::Contents)) {
+//	for (auto& [property, type] : material.properties()) {
 //
-//				A3D_LOG_D("Texture {:p} contents dirty.", static_cast<void*>(texture));
+//		if (auto texture = get_if<shared_ptr<Texture>>(property)) {
 //
-//				DeleteTextureGLResources(texture, glMapping);
+//			if (A3D_MASK_CONTAINS((*texture)->dirtyMask(), TextureDirtyMask::Contents)) {
+//
+//				A3D_LOG_D("Texture {:p} contents dirty.", static_cast<void*>(&texture));
+//
+//				DeleteTextureGLResources(texture->get(), glMapping);
 //
 //				GLuint textureID = 0;
-//				BufferTexture(*texture, textureID);
+//				BufferTexture(**texture, textureID);
 //				if (textureID > 0) {
 //					glTextureHandles[type] = textureID;
-//					glMapping[texture] = textureID;
+//					glMapping[texture->get()] = textureID;
 //				}
 //
-//				texture->dirtyMask(A3D_MASK_REMOVE(texture->dirtyMask(), TextureDirtyMask::Contents));
+//				(*texture)->dirtyMask(A3D_MASK_REMOVE((*texture)->dirtyMask(),TextureDirtyMask::Contents));
 //			}
 //			else {
-//				auto textureHandle = glMapping[texture];
+//				auto textureHandle = glMapping[texture->get()];
 //				glTextureHandles[type] = textureHandle;
 //			}
 //
 //			// save reference for housekeeping
-//			activeTextures.emplace(texture);
+////			activeTextures.emplace(texture->get());
 //		}
+//	}
+//}
+
+void GetTextureGLTextureHandles(Material& material,
+								OpenGLRenderer::TextureGLMapping& glMapping,
+								std::map<MaterialPropertyType, GLuint>& glTextureHandles) {
+
+	glTextureHandles.clear();
+
+	for (auto& [property, type] : material.properties()) {
+
+		auto textureSP = std::get_if<std::shared_ptr<Texture>>(property);
+		if (!textureSP || !(*textureSP)) continue;
+
+		Texture* tex = textureSP->get();
+
+		// Look up WITHOUT inserting
+		GLuint handle = 0;
+		auto it = glMapping.find(tex);
+		if (it != glMapping.end()) handle = it->second;
+
+		const bool contentsDirty =
+				A3D_MASK_CONTAINS(tex->dirtyMask(), TextureDirtyMask::Contents);
+
+		const bool missingOrZero = (it == glMapping.end()) || (handle == 0);
+
+		if (contentsDirty || missingOrZero) {
+
+			A3D_LOG_D("Uploading texture {:p} (dirty={}, missingOrZero={})",
+					  (void*)tex, contentsDirty, missingOrZero);
+
+			// If we had an old handle, delete it cleanly
+			if (handle != 0) {
+				glDeleteTextures(1, &handle);
+				handle = 0;
+			}
+
+			GLuint newID = 0;
+			BufferTexture(*tex, newID);
+
+			if (newID == 0) {
+				A3D_LOG_E("BufferTexture failed for texture {:p}", (void*)tex);
+				// leave handle 0; still record it so you can see the failure downstream
+				glMapping.erase(tex);
+			} else {
+				handle = newID;
+				glMapping[tex] = handle;
+			}
+
+			// Clear only the Contents bit (don’t wipe other bits unless you mean to)
+			tex->dirtyMask(A3D_MASK_REMOVE(tex->dirtyMask(), TextureDirtyMask::Contents));
+		}
+
+		glTextureHandles[type] = handle;
 	}
 }
 
@@ -3139,15 +3178,16 @@ string StatusOverlayDescriptionForAntialiasingMode(AntialiasingMode mode) {
 }
 
 void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode) {
-	
+
 	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
+
+	glBindTexture(texType, glTextureHandle);
 
 	switch (mode) {
 		case FilterMode::NearestMipmapNearest:
 		case FilterMode::NearestMipmapLinear:
 		case FilterMode::LinearMipmapNearest:
 		case FilterMode::LinearMipmapLinear:
-			glBindTexture(texType, glTextureHandle);
 			glGenerateMipmap(texType);
 			break;
 		default:
@@ -3161,10 +3201,11 @@ void SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FilterMode
 
 	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 
+	glBindTexture(texType, glTextureHandle);
+
 	switch (mode) {
 		case FilterMode::Nearest:
 		case FilterMode::Linear:
-			glBindTexture(texType, glTextureHandle);
 			glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, (GLint)GLFilterModeForFilterMode(mode));
 			break;
 		default:
@@ -3177,9 +3218,10 @@ void SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max) {
 #ifdef A3D_GL_DESKTOP
 
 	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
+
+	glBindTexture(texType, glTextureHandle);
 	
 	float anisotropy = max;
-	glBindTexture(texType, glTextureHandle);
 	float largest;
 	// EXT_texture_filter_anisotropic
 	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &largest);
@@ -3194,6 +3236,7 @@ void SetTextureWrapS(GLuint glTextureHandle, bool cube, WrapMode mode) {
 	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 	
 	glBindTexture(texType, glTextureHandle);
+
 	glTexParameteri(texType, GL_TEXTURE_WRAP_S, (GLint)GLWrapModeForWrapMode(mode));
 }
 
@@ -3202,12 +3245,14 @@ void SetTextureWrapT(GLuint glTextureHandle, bool cube, WrapMode mode) {
 	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
 	
 	glBindTexture(texType, glTextureHandle);
+
 	glTexParameteri(texType, GL_TEXTURE_WRAP_T, (GLint)GLWrapModeForWrapMode(mode));
 }
 
 void SetTextureWrapR(GLuint glTextureHandle, WrapMode mode) {
 	
 	glBindTexture(GL_TEXTURE_CUBE_MAP, glTextureHandle);
+
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, (GLint)GLWrapModeForWrapMode(mode));
 }
 
@@ -3339,6 +3384,54 @@ void LogGLInfo() {
 
 
 
+
+void ApplyBlendFunction(BlendFunction f) {
+	if (f == BlendFunction::Disabled) {
+		glDisable(GL_BLEND);
+		return;
+	}
+
+	glEnable(GL_BLEND);
+	glBlendEquation(GL_FUNC_ADD);
+
+	switch (f) {
+		case BlendFunction::Alpha:
+			// out = src*a + dst*(1-a)
+			glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
+								GL_ONE,       GL_ONE_MINUS_SRC_ALPHA);
+			break;
+
+		case BlendFunction::PremultipliedAlpha:
+			// src already multiplied by alpha: out = src + dst*(1-a)
+			glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA,
+								GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+			break;
+
+		case BlendFunction::Additive:
+			// common additive: out = src*a + dst
+			glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE,
+								GL_ONE,       GL_ONE);
+			break;
+
+		default: break;
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+RenderResourceCacheOGL& OpenGLRenderer::cache() {
+	return _cache;
+}
+
+
 void OpenGLRenderer::bindPipeline(PipelineHandle h, const RenderResourceCacheOGL& cache) {
 
 	if (_state.pipeline == h) return;
@@ -3366,6 +3459,8 @@ void OpenGLRenderer::bindPipeline(PipelineHandle h, const RenderResourceCacheOGL
 
 	glDepthMask(p.key.depthWrite ? GL_TRUE : GL_FALSE);
 
+	ApplyBlendFunction(p.key.blendFunction);
+
 #ifndef A3D_GL_ES
 	const bool lineSmooth = (p.key.fillMode == FillMode::Lines) && (p.key.pass == PassKind::Wire);
 	if (lineSmooth) glEnable(GL_LINE_SMOOTH);
@@ -3379,15 +3474,6 @@ void OpenGLRenderer::bindPipeline(PipelineHandle h, const RenderResourceCacheOGL
 		case FillMode::Points: glPolygonMode(GL_FRONT_AND_BACK, GL_POINT); break;
 	}
 #endif
-
-	// blend (your enum only has Disabled right now)
-	if (p.key.blendFunction == BlendFunction::Disabled) {
-		glDisable(GL_BLEND);
-	}
-	else {
-		glEnable(GL_BLEND);
-		// glBlendFunc(...) based on your future BlendFunction values
-	}
 
 	if (p.key.polygonOffset) {
 		glEnable(GL_POLYGON_OFFSET_LINE);
@@ -3425,6 +3511,11 @@ void OpenGLRenderer::bindMaterial(const Material& material) {
 	// Option A (fastest hack): reconstruct Program wrapper by shader kind.
 	// If you have a Program::FromGLID(GLuint) use that, otherwise:
 	Program& prog = Program::Default(); // TODO: pick based on current pipeline shaderKind
+
+//	Program& prog = [&]() {
+//		switch ()
+//	}();
+
 	// Ensure prog.glID() == _state.program in debug builds.
 
 	SendMaterialUniforms(material, prog, glTextureHandles, _state);
@@ -3434,28 +3525,40 @@ void OpenGLRenderer::bindMaterial(const Material& material) {
 }
 
 void OpenGLRenderer::bindMeshElement(const MeshElement& element) {
-
 	auto* e = const_cast<MeshElement*>(&element);
+	auto& res = _meshElementGL[e];
 
-	auto it = _meshElementGLMapping.find(e);
-	if (it == _meshElementGLMapping.end()) {
+	const bool dirty = A3D_MASK_CONTAINS(e->dirtyMask(), MeshElementDirtyMask::VertexData);
+	const bool missing = (res.vao == 0);
 
-		GLuint vao=0, vbo=0, ebo=0;
-		glGenVertexArrays(1, &vao);
-		glGenBuffers(1, &vbo);
-		glGenBuffers(1, &ebo);
+	if (dirty || missing) {
+		if (!missing) {
+			glDeleteBuffers(1, &res.vbo);
+			glDeleteBuffers(1, &res.ebo);
+			glDeleteVertexArrays(1, &res.vao);
+			res = {};
+		}
 
-		glBindVertexArray(vao);
+		glGenVertexArrays(1, &res.vao);
+		glGenBuffers(1, &res.vbo);
+		glGenBuffers(1, &res.ebo);
 
-		// VBO upload
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBindVertexArray(res.vao);
+
+		glBindBuffer(GL_ARRAY_BUFFER, res.vbo);
 		glBufferData(GL_ARRAY_BUFFER,
 					 element.vertices().size() * sizeof(Vertex),
 					 element.vertices().data(),
 					 GL_STATIC_DRAW);
 
-		// Build index buffer from Face list (3 indices per face)
-		vector<uint32_t> indices;
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)sizeof(vec3));
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(vec3)*2));
+		glEnableVertexAttribArray(2);
+
+		std::vector<uint32_t> indices;
 		indices.reserve(element.faces().size() * 3);
 		for (auto& f : element.faces()) {
 			indices.push_back((uint32_t)f.a);
@@ -3463,38 +3566,22 @@ void OpenGLRenderer::bindMeshElement(const MeshElement& element) {
 			indices.push_back((uint32_t)f.c);
 		}
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+		res.indexCount = (uint32_t)indices.size();
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, res.ebo);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER,
 					 indices.size() * sizeof(uint32_t),
 					 indices.data(),
 					 GL_STATIC_DRAW);
 
-		// Vertex attrib layout (position/normal/uv) — match your shader
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
-		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
-
-		_meshElementGLMapping.emplace(e, std::make_tuple(vbo, vao, ebo));
-		it = _meshElementGLMapping.find(e);
-
-//		_activeMeshElements.insert(e);
-		_boundElement = { vao, (GLsizei)indices.size(), GL_UNSIGNED_INT };
-		return;
+		e->dirtyMask(A3D_MASK_REMOVE(e->dirtyMask(), MeshElementDirtyMask::VertexData));
 	}
 
-	GLuint vbo, vao, ebo;
-	std::tie(vbo, vao, ebo) = it->second;
-	glBindVertexArray(vao);
-
-	// for now assume static; later if dirtyMask includes vertex data, re-upload
-
-//	_activeMeshElements.insert(e);
-
-	// indexCount needs to be known; simplest: recompute from faces size
-	_boundElement = { vao, (GLsizei)element.faces().size() * 3, GL_UNSIGNED_INT };
+	// Bind VAO and set draw args
+	glBindVertexArray(res.vao);
+	_boundElement.vao = res.vao;
+	_boundElement.indexCount = (GLsizei)res.indexCount;
+	_boundElement.indexType = GL_UNSIGNED_INT;
 }
 
 void OpenGLRenderer::setPerObject(const mat4& model, const mat4& view, const mat4& proj) {
@@ -3515,7 +3602,8 @@ void OpenGLRenderer::setPerObject(const mat4& model, const mat4& view, const mat
 }
 
 void OpenGLRenderer::drawBound() {
-
 	if (_boundElement.vao == 0 || _boundElement.indexCount == 0) return;
+
+	glBindVertexArray(_boundElement.vao);
 	glDrawElements(GL_TRIANGLES, _boundElement.indexCount, _boundElement.indexType, (void*)0);
 }

@@ -242,7 +242,7 @@ void Scene::inputManager(unique_ptr<InputManager> inputManager) {
 //}
 
 AABB Scene::aabb(bool vertfit) const {
-	AABB out = AABB::InvalidAABB();
+	AABB out = AABB::Invalid();
 
 	for (auto& node : rootNode()->children()) {
 		out = AABB::Union(out, node->aabb());

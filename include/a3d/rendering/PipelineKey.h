@@ -38,7 +38,9 @@ namespace a3d {
 //	};
 
 	enum class PassKind : uint8_t {
-		Main,
+		MainOpaque,
+		MainMask,
+		MainTransparent,
 		Wire
 	};
 
@@ -49,7 +51,7 @@ namespace a3d {
 		BlendFunction 	blendFunction = 	BlendFunction::Disabled;
 		bool 			doubleSided = 		false;
 
-		PassKind 		pass = 				PassKind::Main;
+		PassKind 		pass = 				PassKind::MainOpaque;
 
 		// these two are hugely useful for wire overlay correctness
 		bool 			depthWrite = 		true; // Main = tue, Wire = false

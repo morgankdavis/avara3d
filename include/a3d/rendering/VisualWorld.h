@@ -32,8 +32,12 @@ namespace a3d {
 	public:
 		/// Public Types ///
 
-		using WillRenderCallback =	std::function<void(VisualWorld& world, double time, double deltaTime)>;
-		using DidRenderCallback =	std::function<void(VisualWorld& world, double time, double deltaTime)>;
+		using WillRenderCallback =	std::function<void(VisualWorld& world,
+														 double time,
+														 double deltaTime)>;
+		using DidRenderCallback =	std::function<void(VisualWorld& world,
+														double time,
+														double deltaTime)>;
 
 		/// Public Lifecycle Functions ///
 
@@ -43,79 +47,79 @@ namespace a3d {
 
 		/// Public Member Functions ///
 
-		const MaterialProperty&					background();
-		void 									background(const MaterialProperty& background);
+		const MaterialProperty&				background();
+		void 								background(const MaterialProperty& background);
 
 		// TODO: make Fog its own class
-		float 									fogStartDistance() const;
-		void 									fogStartDistance(float distance);
-		float 									fogEndDistance() const;
-		void 									fogEndDistance(float distance);
+		float 								fogStartDistance() const;
+		void 								fogStartDistance(float distance);
+		float 								fogEndDistance() const;
+		void 								fogEndDistance(float distance);
 		// 0 = constant, alpha respected
 		// 1 = linear, alpha ignored
 		// >=2 = exponential, alpha ignored
-		float 									fogDensityExponent() const;
-		void 									fogDensityExponent(float exponent);
+		float 								fogDensityExponent() const;
+		void 								fogDensityExponent(float exponent);
 
-		const std::shared_ptr<Color>&			fogColor() const;
-		void 									fogColor(const std::shared_ptr<Color>& color);
+		const std::shared_ptr<Color>&		fogColor() const;
+		void 								fogColor(const std::shared_ptr<Color>& color);
 
-		std::weak_ptr<Node>&					pointOfView();
-		void 									pointOfView(const std::weak_ptr<Node>& cameraNode);
+		std::weak_ptr<Node>&				pointOfView();
+		void 								pointOfView(const std::weak_ptr<Node>& cameraNode);
 
-		bool									usesDefaultLighting() const;
-		void									usesDefaultLighting(bool enabled);
+		bool								usesDefaultLighting() const;
+		void								usesDefaultLighting(bool enabled);
 
-		bool									autoEnablesDefaultLighting() const;
-		void									autoEnablesDefaultLighting(bool enabled);
+		bool								autoEnablesDefaultLighting() const;
+		void								autoEnablesDefaultLighting(bool enabled);
 
-		RenderContext* 							renderContext() const;
+		RenderContext* 						renderContext() const;
 
-		Scene*									scene() const;
+		Scene*								scene() const;
 
-		WillRenderCallback 						willRenderCallback() const;
-		void 									willRenderCallback(WillRenderCallback function);
+		WillRenderCallback 					willRenderCallback() const;
+		void 								willRenderCallback(WillRenderCallback function);
 
-		DidRenderCallback 						didRenderCallback() const;
-		void 									didRenderCallback(DidRenderCallback function);
+		DidRenderCallback 					didRenderCallback() const;
+		void 								didRenderCallback(DidRenderCallback function);
 
 		/// Internal Member Functions ///
 
-		void									attachedToScene(Scene& scene);
-		void									detachedFromScene(Scene& scene);
+		void								attachedToScene(Scene& scene);
+		void								detachedFromScene(Scene& scene);
 
-		void									draw(const Scene& scene,
-													 const PhysicalWorld* physicalWorld,
-													 double runT,
-													 double deltaRunT,
-													 DebugOptions debugOptions,
-													 FrameStats& stats,
-													 Profiler& profiler,
-													 const FrameStatsHistory& statsHistory);
+		void								draw(const Scene& scene,
+												 const PhysicalWorld* physicalWorld,
+												 double runT,
+												 double deltaRunT,
+												 DebugOptions debugOptions,
+												 FrameStats& stats,
+												 Profiler& profiler,
+												 const FrameStatsHistory& statsHistory);
 
-		Mesh*									skyboxMesh() const; // TODO: move to renderer
+		Mesh*								skyboxMesh() const; // TODO: move to renderer
 
 	private:
 		/// Private Member Functions ///
 
-		void									firstDraw();
-		std::shared_ptr<Node>					defaultPOV();
+		void								firstDraw();
+		std::shared_ptr<Node>				defaultPOV();
 
 		/// Private Member Variables ///
 
-		MaterialProperty						_background;
-		std::unique_ptr<Mesh>					_skyboxMesh;
-		float									_fogStartDistance;
-		float									_fogEndDistance;
-		float									_fogDensityExponent;
-		std::shared_ptr<Color>					_fogColor;
-		bool									_usesDefaultLighting;
-		bool									_autoEnablesDefaultLighting;
-		std::weak_ptr<Node>						_pointOfView;
-		RenderContext*							_renderContext;
-		Scene*									_scene;
-		WillRenderCallback 						_willRenderCallback;
-		DidRenderCallback 						_didRenderCallback;
+		MaterialProperty					_background;
+		std::unique_ptr<Mesh>				_skyboxMesh;
+		float								_fogStartDistance;
+		float								_fogEndDistance;
+		float								_fogDensityExponent;
+		std::shared_ptr<Color>				_fogColor;
+		bool								_usesDefaultLighting;
+		bool								_autoEnablesDefaultLighting;
+		std::weak_ptr<Node>					_pointOfView;
+		RenderContext*						_renderContext;
+		Scene*								_scene;
+		WillRenderCallback 					_willRenderCallback;
+		DidRenderCallback 					_didRenderCallback;
 	};
 }
 

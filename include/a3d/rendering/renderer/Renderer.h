@@ -104,6 +104,9 @@ namespace a3d {
 
 
 
+		// TODO: REMOVE OR REPLACE WITH NON-OGL
+		virtual RenderResourceCacheOGL& cache() = 0;
+
 
 
 		virtual void bindPipeline(PipelineHandle h, const RenderResourceCacheOGL& cache) = 0;

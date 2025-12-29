@@ -75,6 +75,13 @@ namespace a3d {
 		float 								uvScale() const;
 		void 								uvScale(float scale);
 
+		AlphaMode							alphaMode() const;
+		void 								alphaMode(AlphaMode mode);
+
+		// TODO: UNIMPLEMENTED
+		float 								alphaCutoff() const;
+		void 								alphaCutoff(float v);
+
 		BlendFunction						blendFunction() const;
 		void 								blendFunction(BlendFunction function);
 
@@ -104,6 +111,8 @@ namespace a3d {
 		bool 								_doubleSided;
 		FillMode 							_fillMode;
 		float 								_uvScale;
+		AlphaMode							_alphaMode;
+		float 								_alphaCutoff;
 		BlendFunction						_blendFunction;
 		MaterialDirtyMask					_dirtyMask;
 	};

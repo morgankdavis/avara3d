@@ -14,10 +14,15 @@
 #include <unordered_set>
 #include <utility>
 
+#ifdef A3D_GL_ES
+#include <EGL/egl.h>
+#include <GLES3/gl3.h>
+#else
+#include "glad/glad.h"
+#endif
+
 #include "a3d/Types.h"
 #include "a3d/profiling/OpenGLDrawTimer.h"
-//#include "a3d/rendering/RenderResolverOGL.h"
-//#include "a3d/rendering/RenderResourceCacheOGL.h"
 #include "a3d/rendering/renderer/Renderer.h"
 
 class ImFont;
@@ -35,9 +40,11 @@ namespace a3d {
 
 
 	struct GLStateCache {
-		PipelineHandle 	pipeline = 	INVALID_PIPELINE;
-		GLuint 			program = 	0; // currently bound GL program
-		const 			Material* 	material = nullptr; // last bound material
+		PipelineHandle 	pipeline = 		INVALID_PIPELINE;
+		GLuint 			program = 		0; // currently bound GL program
+		const 			Material* 		material = nullptr; // last bound material
+		//ShaderKind 		shaderKind = 	ShaderKind::Default;
+		uint32_t 		indexCount = 	0;
 	};
 
 	struct BoundElement {
@@ -53,9 +60,16 @@ namespace a3d {
 	public:
 		/// Internal Types ///
 
+		struct MeshElementGLRes {
+			GLuint vao = 0;
+			GLuint vbo = 0;
+			GLuint ebo = 0;
+			uint32_t indexCount = 0;
+		};
+
 		/* <a3d::MeshElement* : <gl_vbo, gl_vao, gl_ebo>> */
 		using MeshElementGLMapping =
-				std::map<MeshElement*, std::tuple<unsigned, unsigned, unsigned>>;
+				std::map<MeshElement*, std::tuple<unsigned, unsigned, unsigned>>; // TODO: REMOVE
 
 		/* <a3d::Texture* : <gl_textureHandle> */
 		using TextureGLMapping =
@@ -144,7 +158,7 @@ namespace a3d {
 
 		//RenderContext*									_context;
 		bool											_isInitialized;
-		MeshElementGLMapping 							_meshElementGLMapping;
+		MeshElementGLMapping 							_meshElementGLMapping; // TODO: REMOVE
 		TextureGLMapping								_textureGLMapping;
 //		LinesGLMapping									_linesGLMapping;
 //		std::unordered_set<MeshElement*>				_activeMeshElements;
@@ -170,8 +184,9 @@ namespace a3d {
 
 
 
-		RenderResourceCacheOGL& cache() { return _cache; }
-		const RenderResourceCacheOGL& cache() const { return _cache; }
+		public:
+//		RenderResourceCacheOGL& cache() { return _cache; }
+		RenderResourceCacheOGL& cache() override;
 
 		void bindPipeline(PipelineHandle h, const RenderResourceCacheOGL& cache) override;
 		void bindMaterial(const Material& material) override;
@@ -184,6 +199,9 @@ namespace a3d {
 		RenderResourceCacheOGL _cache;
 		GLStateCache _state;
 		BoundElement _boundElement;
+
+
+		std::unordered_map<MeshElement*, MeshElementGLRes> _meshElementGL;
 	};
 }
 

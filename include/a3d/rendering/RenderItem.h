@@ -25,7 +25,7 @@ namespace a3d {
 		RenderStyle 	style =			RenderStyle::Normal;
 
 		math::mat4 		model =			math::mat4(1.0f);
-		AABB 			aabb = 			AABB::InvalidAABB(); // world space
+		AABB 			aabb = 			AABB::Zero(); // world space
 		float 			depth = 		0.0f; // view-space depth for later
 		bool 			transparent = 	false; // for later -- always false in BlendFunction
 	};

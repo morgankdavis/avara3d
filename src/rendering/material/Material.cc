@@ -51,6 +51,8 @@ Material::Material():
 		_doubleSided{false},
 		_fillMode{FillMode::Fill},
 		_uvScale{1.0f},
+		_alphaMode{AlphaMode::Opaque},
+		_alphaCutoff{0.5f},
 		_blendFunction{BlendFunction::Disabled},
 		_dirtyMask{MaterialDirtyMask::All} {
 
@@ -182,6 +184,22 @@ float Material::uvScale() const {
 
 void Material::uvScale(float scale) {
 	_uvScale = scale;
+}
+
+AlphaMode Material::alphaMode() const {
+	return _alphaMode;
+}
+
+void Material::alphaMode(AlphaMode mode) {
+	_alphaMode = mode;
+}
+
+float Material::alphaCutoff() const {
+	return _alphaCutoff;
+}
+
+void Material::alphaCutoff(float cutoff) {
+	_alphaCutoff = cutoff;
 }
 
 BlendFunction Material::blendFunction() const {

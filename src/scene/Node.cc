@@ -731,7 +731,7 @@ bool Node::containsChild(const shared_ptr<Node>& node) {
 }
 
 AABB Node::aabb(bool vertfit) const {
-	AABB out = AABB::InvalidAABB();
+	AABB out = AABB::Invalid();
 
 	const mat4 W = worldTransform();
 

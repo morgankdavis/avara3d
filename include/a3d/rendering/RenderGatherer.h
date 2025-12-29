@@ -49,14 +49,17 @@ namespace a3d {
 
 
 
-		static PipelineKey ComputePipelineKey(const Material& material, uint32_t vertexLayoutKey);
-		static PipelineKey MakeMainKey(const RenderItem& item, uint32_t vertexLayoutKey);
-		static PipelineKey MakeWireKey(const RenderItem& item, uint32_t vertexLayoutKey);
+		static PipelineKey MakePipelineKey(const Material& material, uint32_t vertexLayoutKey);
+		static PipelineKey MakeMainOpaquePipelineKey(const RenderItem& item, uint32_t vertexLayoutKey);
+		static PipelineKey MakeMainMaskPipelineKey(const RenderItem& item, uint32_t vertexLayoutKey);
+		static PipelineKey MakeMainTransparentPipelineKey(const RenderItem& item, uint32_t vertexLayoutKey);
+
+		static PipelineKey MakeWirePipelineKey(const RenderItem& item, uint32_t vertexLayoutKey);
 
 
 
 
-		static RenderPacket BuildRenderPacket(const GatherOutput& gather,
+		static RenderPacket BuildRenderPacket(const GatherOutput& gatherOutput,
 											  RenderResourceCacheOGL& cache,
 											  uint32_t vertexLayoutKey);
 	};

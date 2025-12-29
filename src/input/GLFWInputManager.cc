@@ -12,7 +12,9 @@
 #include <IOKit/hid/IOHIDLib.h> // for kIOReturnNotPermitted
 #endif
 
+//#include "glad/glad.h"
 #include "GLFW/glfw3.h"
+
 
 #include "a3d/diagnostic/log/Log.h"
 #include "a3d/rendering/VisualWorld.h"

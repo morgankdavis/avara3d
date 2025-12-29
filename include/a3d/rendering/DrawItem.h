@@ -17,7 +17,7 @@ namespace a3d {
 
 		PipelineHandle 	pipeline = 		INVALID_PIPELINE;
 
-		Mesh* 			mesh = 			nullptr;
+//		Mesh* 			mesh = 			nullptr;
 		uint32_t 		elementIndex = 	0;
 		MeshElement* 	element = 		nullptr;
 		Material* 		material = 		nullptr;
@@ -25,9 +25,22 @@ namespace a3d {
 		math::mat4 		model = 		math::mat4(1.0);
 		float 			depth =			0.0f;
 
-		PassKind 		pass = 			PassKind::Main;
+		PassKind 		pass = 			PassKind::MainOpaque;
 
 		uint64_t 		sortKey = 		0;
+
+
+
+		// Optional: cache for faster sort. Can be derived from material/key.
+		bool transparent = false;
+//		bool isTransparent(const DrawItem& it) {
+//			return it.material && it.material->alphaMode() == AlphaMode::Blend;
+//			// or: return it.key.blendFunction != BlendFunction::Disabled;
+//		}
+		// item.transparent = (item.material->alphaMode() == AlphaMode::Blend);
+
+		// Optional: keep key only until pipeline resolve is done
+		PipelineKey key;
 	};
 }
 

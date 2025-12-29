@@ -960,33 +960,141 @@ void SpawnDuckFruit(Scene& scene, Node& duckNode) {
 	});
 }
 
+// OG
+//void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
+//
+//	const float SHOOT_RATE = 20; // cans/sec
+//
+//	A3D_EVERY(utils::chrono::sec_f_to_ms(1.0f/SHOOT_RATE), [&] {
+//
+//		static auto mesh = utils::MeshNamed("slurm/slurm");
+//		mesh->materials()[0]->emission(mesh->materials()[0]->diffuse());
+//		mesh->materials()[1]->emission(mesh->materials()[1]->diffuse());
+//
+//		auto node = Node::MeshNode(mesh);
+//
+//		node->position(location);
+//
+//		//static auto extent = node->mesh()->worldExtent(node->worldTransform());
+//		static auto extent = node->mesh()->localExtent();
+//		static auto physicsShape = make_shared<CylinderPhysicsShape>(extent.x/2.0, extent.y);
+//		auto physicsBody = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, physicsShape);
+//		physicsBody->mass(.354); // 12fl oz water @ 70F
+//
+//		physicsBody->restitution(1.0);
+//		physicsBody->friction(0.35);
+//		physicsBody->rollingFriction(0.05);
+//
+//		static auto light = Light::PointLight();
+//		light->quadraticAttenuation(0.04);
+//		node->light(light);
+//
+//		// add random factor
+//
+//		node->eulerAngles({ uniform_linear(0.0f, two_pi()),
+//							uniform_linear(0.0f, two_pi()),
+//							uniform_linear(0.0f, two_pi()) });
+//
+//		static const float ANGULAR_VARIANCE = radians(260.0); // deg/sec
+//		physicsBody->angularVelocity({ uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+//									   uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+//									   uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE) });
+//
+//		const float VELOCITY = uniform_linear(40.0f, 60.0f);
+//		static const float DIRECTION_VARIATION = 0.01;
+//		const vec3 variedDirection = normalize(direction + uniform_ball(DIRECTION_VARIATION));
+//		physicsBody->linearVelocity(variedDirection * VELOCITY);
+//
+//		node->physicsBody(std::move(physicsBody));
+//
+//		scene.rootNode()->addChild(node);
+//	});
+//}
+
+// this is super fudgecycle
+shared_ptr<Node> Hula(float minorRadius, float majorRadius) {
+
+	static auto ringPhysicsNode = Node::NamedNode("Ring physics shape node");
+
+	static const float CAPSULE_RADIUS = .1;
+	static const float TORUS_MID_RADIUS = majorRadius - (majorRadius - minorRadius); // ! cap len??
+	static const float CAPSULE_HEIGHT = (math::two_pi() * TORUS_MID_RADIUS) / 8.0f;
+	static const auto visualMesh = Capsule::Mesh(CAPSULE_RADIUS,
+												 CAPSULE_HEIGHT,
+												 16, 16, 16);
+
+	for (int s = 0; s < 8; ++s) {
+
+		float angle = (float)(math::two_pi() / 8.0) * (float)s;
+
+		auto partNode = Node::NamedNode("Ring capsule part node " + to_string(s + 1));
+		partNode->mesh(visualMesh);
+
+		quat rotation = quaternion(vec3(0, 0, 1), angle);
+		mat4 rotMatrix = mat4_cast(rotation);
+		mat4 translation = translate(mat4(1.0f), vec3(1.6, 0, 0)); // ! RADIUS
+		mat4 transform = rotMatrix * translation;
+		partNode->transform(transform);
+
+		//partNode->hidden(true);
+
+		ringPhysicsNode->addChild(partNode);
+	}
+
+	static const auto shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, ringPhysicsNode);
+
+	auto torusMesh = Torus::Mesh(minorRadius + (minorRadius / 32.0f),
+								 majorRadius+(majorRadius/32.0f), 128, 128);
+	auto ringVisualNode = Node::MeshNode(torusMesh);
+
+	auto colorProperty = Color::LightGray();
+	auto colorMaterial = make_shared<Material>(monostate{}, colorProperty, monostate{});
+	torusMesh->addMaterial(colorMaterial);
+
+	auto body = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
+	body->momentOfInertia({0, 0, 0});
+	//body->affectedByGravity(false);
+	ringVisualNode->physicsBody(std::move(body));
+
+//	ringVisualNode->position({0, 1, 0});
+
+//	scene.rootNode()->addChild(ringVisualNode);
+	return ringVisualNode;
+}
+
+
+// Hula
 void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
 
 	const float SHOOT_RATE = 20; // cans/sec
 
 	A3D_EVERY(utils::chrono::sec_f_to_ms(1.0f/SHOOT_RATE), [&] {
 
-		static auto mesh = utils::MeshNamed("slurm/slurm");
-		mesh->materials()[0]->emission(mesh->materials()[0]->diffuse());
-		mesh->materials()[1]->emission(mesh->materials()[1]->diffuse());
+//		static auto mesh = utils::MeshNamed("slurm/slurm");
+//		mesh->materials()[0]->emission(mesh->materials()[0]->diffuse());
+//		mesh->materials()[1]->emission(mesh->materials()[1]->diffuse());
+//
+//		auto node = Node::MeshNode(mesh);
+//
+//		node->position(location);
+//
+//		//static auto extent = node->mesh()->worldExtent(node->worldTransform());
+//		static auto extent = node->mesh()->localExtent();
+//		static auto physicsShape = make_shared<CylinderPhysicsShape>(extent.x/2.0, extent.y);
+//		auto physicsBody = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, physicsShape);
+//		physicsBody->mass(.354); // 12fl oz water @ 70F
+//
+//		physicsBody->restitution(1.0);
+//		physicsBody->friction(0.35);
+//		physicsBody->rollingFriction(0.05);
 
-		auto node = Node::MeshNode(mesh);
+		auto node = Hula(1.5, 1.6);
 
 		node->position(location);
 
-		//static auto extent = node->mesh()->worldExtent(node->worldTransform());
-		static auto extent = node->mesh()->localExtent();
-		static auto physicsShape = make_shared<CylinderPhysicsShape>(extent.x/2.0, extent.y);
-		auto physicsBody = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, physicsShape);
-		physicsBody->mass(.354); // 12fl oz water @ 70F
-
-		physicsBody->restitution(1.0);
-		physicsBody->friction(0.35);
-		physicsBody->rollingFriction(0.05);
-
-		static auto light = Light::PointLight();
-		light->quadraticAttenuation(0.04);
-		node->light(light);
+//		static auto light = Light::PointLight();
+//		light->quadraticAttenuation(0.04);
+//		node->light(light);
 
 		// add random factor
 
@@ -995,16 +1103,16 @@ void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
 							uniform_linear(0.0f, two_pi()) });
 
 		static const float ANGULAR_VARIANCE = radians(260.0); // deg/sec
-		physicsBody->angularVelocity({ uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+		node->physicsBody()->angularVelocity({ uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
 									   uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
 									   uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE) });
 
 		const float VELOCITY = uniform_linear(40.0f, 60.0f);
 		static const float DIRECTION_VARIATION = 0.01;
 		const vec3 variedDirection = normalize(direction + uniform_ball(DIRECTION_VARIATION));
-		physicsBody->linearVelocity(variedDirection * VELOCITY);
+		node->physicsBody()->linearVelocity(variedDirection * VELOCITY);
 
-		node->physicsBody(std::move(physicsBody));
+		//node->physicsBody(std::move(physicsBody));
 
 		scene.rootNode()->addChild(node);
 	});
@@ -1477,20 +1585,18 @@ void SpawnInvisiblePrimitives(Scene& scene) {
 
 shared_ptr<Node> ChainmailLink(float minorRadius, float majorRadius) {
 
-	static const float TWO_PI = 2 * 3.14159265358;
-
 	static auto ringPhysicsNode = Node::NamedNode("Ring physics shape node");
 
 	static const float CAPSULE_RADIUS = .1;
 	static const float TORUS_MID_RADIUS = majorRadius - (majorRadius - minorRadius);
-	static const float CAPSULE_HEIGHT = (TWO_PI * TORUS_MID_RADIUS) / 8.0f;
+	static const float CAPSULE_HEIGHT = (math::two_pi() * TORUS_MID_RADIUS) / 8.0f;
 	static const auto visualMesh = Capsule::Mesh(CAPSULE_RADIUS,
 												 CAPSULE_HEIGHT,
 												 16, 16, 16);
 
 	for (int s = 0; s < 8; ++s) {
 
-		float angle = (float)(TWO_PI / 8.0) * (float)s;
+		float angle = (float)(math::two_pi() / 8.0) * (float)s;
 
 		auto partNode = Node::NamedNode("Ring capsule part node " + to_string(s + 1));
 		partNode->mesh(visualMesh);

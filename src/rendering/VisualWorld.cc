@@ -34,6 +34,12 @@
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 
+
+#warning TEMPORARY
+#include "a3d/rendering/renderer/opengl/OpenGLRenderer.h"
+
+
+
 using namespace a3d;
 using namespace a3d::math;
 using namespace std;
@@ -226,6 +232,31 @@ void VisualWorld::detachedFromScene(Scene& scene) {
         }                                             	\
     } while (0);
 
+
+
+
+
+
+
+
+// TODO: MOVE
+//static inline uint8_t passOrder(const DrawItem& it) {
+//	// 0 = main opaque, 1 = main transparent, 2 = wire overlay
+//	if (it.pass == PassKind::Wire) return 2;
+//	return it.transparent ? 1 : 0;
+//}
+//
+//static inline float computeDepth(const DrawItem& it,
+//								 const math::vec3& camPos,
+//								 const math::vec3& camFwd) {
+//	// Use world-space center of item bounds (or model * localCenter)
+//	const math::vec3 c = it.aabb.center();
+//	return dot(camFwd, (c - camPos)); // larger => farther
+//}
+
+
+
+
 void VisualWorld::draw(const Scene& scene,
 					   const PhysicalWorld* physicalWorld,
 					   double runT,
@@ -312,14 +343,16 @@ void VisualWorld::draw(const Scene& scene,
 								debugOptions, stats);
 
 
-		static RenderResourceCacheOGL _cache{};
+#warning TEMPORARY
+		auto& cache = (static_cast<OpenGLRenderer*>(renderer))->cache();
+
 		RenderPacket packet = RenderGatherer::BuildRenderPacket(gatherItems,
-																_cache,
+																cache,
 				/*vertexLayoutKey=*/1);
 
 		for (const auto &di: packet.main) {
 
-			renderer->bindPipeline(di.pipeline, _cache);
+			renderer->bindPipeline(di.pipeline, cache);
 			renderer->bindMaterial(*di.material);
 			renderer->bindMeshElement(*di.element);
 			renderer->setPerObject(di.model, view, proj);
@@ -328,7 +361,7 @@ void VisualWorld::draw(const Scene& scene,
 
 		for (const auto &di: packet.wire) {
 
-			renderer->bindPipeline(di.pipeline, _cache);
+			renderer->bindPipeline(di.pipeline, cache);
 			// bindMaterial
 			renderer->bindMeshElement(*di.element);
 			renderer->setPerObject(di.model, view, proj);

@@ -153,8 +153,16 @@ namespace a3d {
 		ClampToEdge = 		0x812F
 	};
 
+	enum class AlphaMode : uint8_t {
+		Opaque, // no discard, no blending
+		Mask, // uses discard/alpha threshold
+		Blend }; // real transparency (glBlend enabled + depthWrite off)
+
 	enum class BlendFunction {
-		Disabled
+		Disabled,
+		Alpha,
+		Additive,
+		PremultipliedAlpha
 	};
 
 	enum class SpotlightFeatheringMode : unsigned {
@@ -357,7 +365,11 @@ namespace a3d {
 
 		bool valid() const { return min.x <= max.x && min.y <= max.y && min.z <= max.z; }
 
-		static AABB InvalidAABB() {
+		static AABB Zero() {
+			return {{0,0,0}, {0,0,0}};
+		}
+
+		static AABB Invalid() {
 			return {{1,1,1}, {-1,-1,-1}};
 		}
 
@@ -371,6 +383,10 @@ namespace a3d {
 		static void Expand(AABB& a, const math::vec3& p) {
 			a.min = math::min(a.min, p);
 			a.max = math::max(a.max, p);
+		}
+
+		static math::vec3 Center(const AABB& a) {
+			return (a.min + a.max) * 0.5f;
 		}
 	};
 

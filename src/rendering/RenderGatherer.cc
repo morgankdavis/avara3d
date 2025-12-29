@@ -104,38 +104,103 @@ GatherOutput RenderGatherer::GatherRenderItems(const Scene& scene,
 	return out;
 }
 
-PipelineKey RenderGatherer::ComputePipelineKey(const Material& material,
-											   uint32_t vertexLayoutKey) {
+PipelineKey RenderGatherer::MakePipelineKey(const Material& material,
+											uint32_t vertexLayoutKey) {
+
 	PipelineKey k{};
-
 	k.vertexLayoutKey = vertexLayoutKey;
-	k.fillMode = material.fillMode();
-	k.blendFunction = material.blendFunction();
-	k.doubleSided = material.doubleSided();
-	k.shaderKind = ShaderKind::Default;
 
-//	const bool hasEmission = !std::holds_alternative<std::monostate>(material.emission());
-//	k.shaderKind = hasEmission ? ShaderKind::Default : ShaderKind::Default;
+	k.fillMode      = material.fillMode();
+	k.blendFunction = material.blendFunction();
+	k.doubleSided   = material.doubleSided();
+	k.shaderKind    = ShaderKind::Default;
+
+	// enforce sane combos based on alphaMode
+	switch (material.alphaMode()) {
+		case AlphaMode::Opaque:
+		case AlphaMode::Mask:
+			// Mask is *not* blending — it's discard/alpha-test.
+			k.blendFunction = BlendFunction::Disabled;
+			break;
+
+		case AlphaMode::Blend:
+			if (k.blendFunction == BlendFunction::Disabled) {
+				k.blendFunction = BlendFunction::Alpha;
+			}
+			break;
+	}
 
 	return k;
 }
 
-PipelineKey RenderGatherer::MakeMainKey(const RenderItem& item, uint32_t vertexLayoutKey) {
-	PipelineKey k = ComputePipelineKey(*item.material, vertexLayoutKey);
-
-	k.pass = PassKind::Main;
-	k.shaderKind = ShaderKind::Default;          // main
-	k.fillMode = FillMode::Fill;
+//PipelineKey RenderGatherer::MakeMainOpaquePipelineKey(const RenderItem& item, uint32_t vertexLayoutKey) {
+//	PipelineKey k = MakePipelineKey(*item.material, vertexLayoutKey);
+//
+//	k.pass = PassKind::MainOpaque;
+//	k.shaderKind = ShaderKind::Default;          // main
+//	k.fillMode = FillMode::Fill;
 //	k.blendFunction = BlendFunction::Disabled;
-//	k.doubleSided = item.material->doubleSided();
+////	k.doubleSided = item.material->doubleSided();
+//	k.depthWrite = true;
+//	k.polygonOffset = false;
+//
+//	return k;
+//}
+//
+//PipelineKey RenderGatherer::MakeMainMaskPipelineKey(const RenderItem& item, uint32_t vertexLayoutKey) {
+//	PipelineKey k = MakePipelineKey(*item.material, vertexLayoutKey);
+//
+//	k.pass = PassKind::MainMask;
+//	k.shaderKind = ShaderKind::Default;          // main
+//	k.fillMode = FillMode::Fill;
+//	k.blendFunction = BlendFunction::Disabled;
+////	k.doubleSided = item.material->doubleSided();
+//	k.depthWrite = true;
+//	k.polygonOffset = false;
+//
+//	return k;
+//}
+//
+//PipelineKey RenderGatherer::MakeMainTransparentPipelineKey(const RenderItem& item, uint32_t vertexLayoutKey) {
+//	PipelineKey k = MakePipelineKey(*item.material, vertexLayoutKey);
+//
+//	k.pass = PassKind::MainTransparent;
+//	k.shaderKind = ShaderKind::Default;          // main
+//	k.fillMode = FillMode::Fill;
+////	k.blendFunction = BlendFunction::Disabled;
+////	k.doubleSided = item.material->doubleSided();
+//	k.depthWrite = false;
+//	k.polygonOffset = false;
+//
+//	return k;
+//}
+
+PipelineKey RenderGatherer::MakeMainOpaquePipelineKey(const RenderItem& item, uint32_t vertexLayoutKey) {
+	PipelineKey k = MakePipelineKey(*item.material, vertexLayoutKey);
+	k.pass = PassKind::MainOpaque;
 	k.depthWrite = true;
 	k.polygonOffset = false;
-
 	return k;
 }
 
-PipelineKey RenderGatherer::MakeWireKey(const RenderItem& item, uint32_t vertexLayoutKey) {
-	PipelineKey k = ComputePipelineKey(*item.material, vertexLayoutKey);
+PipelineKey RenderGatherer::MakeMainMaskPipelineKey(const RenderItem& item, uint32_t vertexLayoutKey) {
+	PipelineKey k = MakePipelineKey(*item.material, vertexLayoutKey);
+	k.pass = PassKind::MainMask;
+	k.depthWrite = true;          // keep early-z, just punch holes in shader
+	k.polygonOffset = false;
+	return k;
+}
+
+PipelineKey RenderGatherer::MakeMainTransparentPipelineKey(const RenderItem& item, uint32_t vertexLayoutKey) {
+	PipelineKey k = MakePipelineKey(*item.material, vertexLayoutKey);
+	k.pass = PassKind::MainTransparent;
+	k.depthWrite = false;         // critical for blending correctness
+	k.polygonOffset = false;
+	return k;
+}
+
+PipelineKey RenderGatherer::MakeWirePipelineKey(const RenderItem& item, uint32_t vertexLayoutKey) {
+	PipelineKey k = MakePipelineKey(*item.material, vertexLayoutKey);
 
 	k.pass = PassKind::Wire;
 	k.shaderKind = ShaderKind::Wireframe;        // wire program
@@ -148,39 +213,51 @@ PipelineKey RenderGatherer::MakeWireKey(const RenderItem& item, uint32_t vertexL
 	return k;
 }
 
-RenderPacket RenderGatherer::BuildRenderPacket(const GatherOutput& gatherItems,
+RenderPacket RenderGatherer::BuildRenderPacket(const GatherOutput& gatherOutput,
 											   RenderResourceCacheOGL& cache,
 											   uint32_t vertexLayoutKey) {
 
 	RenderPacket packet;
-	packet.lightNodes = gatherItems.temp_lightNodes;
-	packet.main.reserve(gatherItems.renderItems.size());
-	packet.wire.reserve(gatherItems.renderItems.size());
+	packet.lightNodes = gatherOutput.temp_lightNodes;
+	packet.main.reserve(gatherOutput.renderItems.size());
+	packet.wire.reserve(gatherOutput.renderItems.size());
 
-	for (const RenderItem& ri : gatherItems.renderItems) {
+	for (const RenderItem& ri : gatherOutput.renderItems) {
 
 		// effective style for this instance (refine later?)
 		RenderStyle style = ri.style;
 
 		if (style == RenderStyle::Normal || style == RenderStyle::WireframeOverlay) {
 			DrawItem di;
-			di.mesh = ri.mesh;
+//			di.mesh = ri.mesh;
 			di.elementIndex = ri.elementIndex;
 			di.element = ri.element;
 			di.material = ri.material;
 			di.model = ri.model;
 			di.depth = ri.depth;
-			di.pass = PassKind::Main;
 
-			PipelineKey key = MakeMainKey(ri, vertexLayoutKey);
-			di.pipeline = cache.ensurePipeline(key);
+			switch (ri.material->alphaMode()) {
+				case AlphaMode::Opaque:
+					di.pass = PassKind::MainOpaque;
+					di.pipeline = cache.ensurePipeline(MakeMainOpaquePipelineKey(ri, vertexLayoutKey));
+					break;
+				case AlphaMode::Mask:
+					di.pass = PassKind::MainMask;
+					di.pipeline = cache.ensurePipeline(MakeMainMaskPipelineKey(ri, vertexLayoutKey));
+					break;
+				case AlphaMode::Blend:
+					di.pass = PassKind::MainTransparent;
+					di.pipeline = cache.ensurePipeline(MakeMainTransparentPipelineKey(ri, vertexLayoutKey));
+					break;
+				default: /* unreachable */ break;
+			}
 
 			packet.main.push_back(std::move(di));
 		}
 
 		if (style == RenderStyle::Wireframe || style == RenderStyle::WireframeOverlay) {
 			DrawItem di;
-			di.mesh = ri.mesh;
+//			di.mesh = ri.mesh;
 			di.elementIndex = ri.elementIndex;
 			di.element = ri.element;
 			di.material = ri.material; // optional for wire, fine to keep
@@ -188,7 +265,7 @@ RenderPacket RenderGatherer::BuildRenderPacket(const GatherOutput& gatherItems,
 			di.depth = ri.depth;
 			di.pass = PassKind::Wire;
 
-			PipelineKey key = MakeWireKey(ri, vertexLayoutKey);
+			PipelineKey key = MakeWirePipelineKey(ri, vertexLayoutKey);
 			di.pipeline = cache.ensurePipeline(key);
 
 			packet.wire.push_back(std::move(di));
