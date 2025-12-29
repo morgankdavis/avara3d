@@ -48,7 +48,7 @@ void BulletDebugDrawer::draw(Renderer& renderer,
 
 	const auto M4_I = mat4(1.0);
 	if (getDebugMode() != btIDebugDraw::DBG_NoDebug) {
-		renderer.render(_lines, context, M4_I, viewMat, projectionMat);
+		//renderer.render(_lines, context, M4_I, viewMat, projectionMat);
 	}
 }
 

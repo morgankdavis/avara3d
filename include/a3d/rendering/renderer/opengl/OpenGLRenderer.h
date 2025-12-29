@@ -29,6 +29,10 @@ class ImFont;
 
 namespace a3d {
 
+
+	struct LinesPass;
+
+
 	class Color;
 	class Font;
 	class Mesh;
@@ -143,11 +147,11 @@ namespace a3d {
 //									   const math::mat4& projectionMat,
 //									   const DebugOptions& debugOptions,
 //									   FrameStats& stats) override;
-		void 					render(const std::vector<Line>& lines,
-									   const RenderContext& context,
-									   const math::mat4& modelMat,
-									   const math::mat4& viewMat,
-									   const math::mat4& projectionMat) override;
+//		void 					render(const std::vector<Line>& lines,
+//									   const RenderContext& context,
+//									   const math::mat4& modelMat,
+//									   const math::mat4& viewMat,
+//									   const math::mat4& projectionMat) override;
 
 		void					blank() override;
 
@@ -174,10 +178,16 @@ namespace a3d {
 
 
 
-		void EnsureDebugLinesBuffers(Program& program);
+
+		struct DebugLineVertex {
+			math::vec3 pos;
+			math::vec3 color;
+		};
+		//void EnsureDebugLinesBuffers(Program& program);
+		void EnsureDebugLinesBuffers();
 		unsigned _dbgLinesVBO = 0;
 		unsigned _dbgLinesVAO = 0;
-
+		std::vector<DebugLineVertex> _dbgLineVerts;
 
 
 
@@ -195,6 +205,13 @@ namespace a3d {
 						  const math::mat4& view,
 						  const math::mat4& projection) override;
 		void drawBound() override;
+
+
+		void renderLinesPass(const LinesPass& pass,
+							 const RenderContext& context,
+							 const math::mat4& viewMat,
+							 const math::mat4& projectionMat) override;
+
 
 		RenderResourceCacheOGL _cache;
 		GLStateCache _state;

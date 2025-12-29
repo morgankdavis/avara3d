@@ -13,6 +13,12 @@ namespace a3d {
 	class Mesh;
 	class MeshElement;
 
+	struct LinesPass {
+		PipelineHandle 		pipeline = 	INVALID_PIPELINE;
+		math::mat4     		model =		math::mat4(1.0f);   // usually identity for world-space lines
+		std::vector<Line> 	lines;
+	};
+
 	struct DrawItem {
 
 		PipelineHandle 	pipeline = 		INVALID_PIPELINE;

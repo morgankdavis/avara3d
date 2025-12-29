@@ -36,7 +36,7 @@ namespace a3d {
 	struct PipelineOGL {
 		PipelineKey 	key;
 		unsigned 		program = 		0; // GLuint
-		bool 			depthTest = 	true;
+//		bool 			depthTest = 	true;
 //		bool 			depthWrite =	true;
 	};
 
@@ -44,22 +44,22 @@ namespace a3d {
 
 
 
-	struct MaterialOGL {
-
-		bool doubleSided = false;
-		FillMode fillMode = FillMode::Fill;
-		BlendFunction blend = BlendFunction::Disabled;
-
-		AlphaMode alphaMode = AlphaMode::Opaque; // NEW (Mask = alpha discard, Blend = real transparency)
-
-		math::vec4 ambient, diffuse, specular, emission;
-		float specularExponent = 75.0f;
-		float uvScale = 1.0f;
-
-		//TextureHandle diffuseTex = {};
-
-		uint64_t pipelineKey = 0;
-	};
+//	struct MaterialOGL {
+//
+//		bool doubleSided = false;
+//		FillMode fillMode = FillMode::Fill;
+//		BlendFunction blend = BlendFunction::Disabled;
+//
+//		AlphaMode alphaMode = AlphaMode::Opaque; // NEW (Mask = alpha discard, Blend = real transparency)
+//
+//		math::vec4 ambient, diffuse, specular, emission;
+//		float specularExponent = 75.0f;
+//		float uvScale = 1.0f;
+//
+//		//TextureHandle diffuseTex = {};
+//
+//		uint64_t pipelineKey = 0;
+//	};
 
 
 

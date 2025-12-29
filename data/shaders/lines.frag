@@ -1,9 +1,7 @@
 #version 330
 
-
 in 	vec3 frag_color;
 out	vec4 fragColor;
-
 
 // dashed
 //flat in vec3 startPos;
@@ -11,7 +9,6 @@ out	vec4 fragColor;
 //const vec2  u_resolution = vec2(1280, 768);
 //const float u_dashSize = 50;
 //const float u_gapSize = 50;
-
 
 void main () {
 	fragColor = vec4(frag_color, 1.0);

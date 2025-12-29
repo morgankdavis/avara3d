@@ -6,42 +6,32 @@
 #define AVARA3D_PIPELINEKEY_H
 
 #include <cstdint>
+#include <cstddef> // size_t
 
 #include "a3d/Types.h"
 
 namespace a3d {
 
-
 	using PipelineHandle = uint32_t;
 	static constexpr PipelineHandle INVALID_PIPELINE = 0xFFFFFFFFu;
 
+	enum class DepthFunc : uint8_t {
+		Less, Lequal, Equal, Greater, Gequal, Notequal, Always, Never
+	};
 
 	enum class ShaderKind : uint8_t {
 		Default,
 //		Skybox,
 		Wireframe,
-//		Lines
+		Lines
 	};
-
-//	struct DepthState { bool test = true; bool write = true; };
-//	struct RasterState { bool doubleSided = false; FillMode fillMode = FillMode::Fill; };
-//	struct BlendState { BlendFunction blend = BlendFunction::Disabled; };
-//
-//	struct PipelineDesc {
-//		uint32_t   vertexLayoutKey = 0;
-//		ShaderKind shaderKind = ShaderKind::Default;
-//		DepthState depth;
-//		RasterState raster;
-//		BlendState blend;
-//
-//		bool operator==(const PipelineDesc&) const = default;
-//	};
 
 	enum class PassKind : uint8_t {
 		MainOpaque,
 		MainMask,
 		MainTransparent,
-		Wire
+		Wireframe,
+		Lines
 	};
 
 	struct PipelineKey {
@@ -54,7 +44,9 @@ namespace a3d {
 		PassKind 		pass = 				PassKind::MainOpaque;
 
 		// these two are hugely useful for wire overlay correctness
-		bool 			depthWrite = 		true; // Main = tue, Wire = false
+		bool 			depthTest = 		true;
+		bool 			depthWrite = 		true; // Main = true, Wire = false
+		DepthFunc 		depthFunc = 		DepthFunc::Less;
 		bool 			polygonOffset = 	false; // Main = false, Wire = true
 
 		bool operator==(const PipelineKey &) const = default;
@@ -73,26 +65,21 @@ namespace a3d {
 			mix((uint32_t) k.shaderKind);
 			mix((uint32_t) k.fillMode);
 			mix((uint32_t) k.blendFunction);
-			mix((uint32_t) k.doubleSided ? 1u : 0u);
+			mix((uint32_t) (k.doubleSided ? 1u : 0u));
+
 			mix((uint32_t) k.pass);
-			mix((uint32_t) k.depthWrite ? 1u : 0u);
-			mix((uint32_t) k.polygonOffset ? 1u : 0u);
+
+			// ✅ these were missing before:
+			mix((uint32_t) (k.depthTest ? 1u : 0u));
+			mix((uint32_t) (k.depthWrite ? 1u : 0u));
+			mix((uint32_t) k.depthFunc);
+
+			mix((uint32_t) (k.polygonOffset ? 1u : 0u));
 
 			return h;
 		}
 	};
-}
 
-//	struct PipelineKeyHash {
-//		size_t operator()(const PipelineKey& k) const {
-//			// hash combine (simple)
-//			size_t h = k.vertexLayoutKey;
-//			h = h * 1315423911u + (uint32_t)k.doubleSided;
-//			h = h * 1315423911u + (uint32_t)k.fillMode;
-//			h = h * 1315423911u + (uint32_t)k.blendFunction;
-//			h = h * 1315423911u + (uint32_t)k.shaderKind;
-//			return h;
-//		}
-//	};
+} // namespace a3d
 
 #endif //AVARA3D_PIPELINEKEY_H

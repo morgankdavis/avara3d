@@ -41,6 +41,7 @@
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/mesh/Line.h"
+#include "a3d/rendering/DrawItem.h"
 #include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/camera/Camera.h"
 #include "a3d/rendering/context/RenderContext.h"
@@ -162,6 +163,10 @@ static_assert(offsetof(EnvironmentBlock, useDefaultLighting) == 0);
 static_assert(offsetof(EnvironmentBlock, numAmbientLights)   == 16);
 static_assert(offsetof(EnvironmentBlock, ambientLights)      == 32);
 
+
+
+
+
 /// Private Static Non-Member Prototypes ///
 
 static void 		RenderSkybox(Mesh& skyboxMesh,
@@ -186,11 +191,8 @@ static void 		GetTextureGLTextureHandles(Material& material,
 //											  unordered_set<Texture*>& activeTextures,
 											  map<MaterialPropertyType, GLuint>& glTextureHandles);
 static void 		BufferMeshElementVertexData(const MeshElement& element,
-											   Program& program,
-											   GLuint& glVBO, GLuint& glVAO, GLuint& glEBO,
-											   GLStateCache& state);
+											   GLuint& glVBO, GLuint& glVAO, GLuint& glEBO);
 static void 		BufferSkyboxVertexData(Mesh& skyboxMesh,
-										  Program& program,
 										  GLuint& glVBO, GLuint& glVAO, GLuint& glEBO,
 										  GLStateCache& state);
 static void 		BufferLinesVertexData(const vector<Line>& lines,
@@ -299,6 +301,7 @@ bool 				ImguiDrawCheckbox(float x,
 									  float size,
 									  int id);
 static string 		StatusOverlayDescriptionForAntialiasingMode(AntialiasingMode mode);
+static GLenum 		DepthFuncToGLDepthFunc(DepthFunc f);
 static void 		SetTextureMinificationFilter(GLuint glTextureHandle,
 												bool cube,
 												FilterMode mode);
@@ -514,7 +517,14 @@ void OpenGLRenderer::render(const Scene& scene,
 	glBindFramebuffer(GL_FRAMEBUFFER, context.defaultFramebuffer());
 	glViewport(0, 0, (GLsizei)framebufferSize.x, (GLsizei)framebufferSize.y);
 
+	// clear must not be blocked by leftover state from debug passes / imgui.
+	glDisable(GL_SCISSOR_TEST); // ImGui uses scissor - leaving it on can break clears
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	glDepthMask(GL_TRUE);
+	// glStencilMask(0xFF); // if using stencil
+
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	auto background = scene.visualWorld()->background();
@@ -585,11 +595,11 @@ void OpenGLRenderer::render(const Scene& scene,
 
 	}, background);
 
-	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
-
-		auto worldLines = AABBLines(scene.aabb(false), *Color::Green());
-		render(worldLines, context, mat4(1.0), viewMat, projectionMat);
-	}
+//	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
+//
+//		auto worldLines = AABBLines(scene.aabb(false), *Color::Green());
+//		render(worldLines, context, mat4(1.0), viewMat, projectionMat);
+//	}
 
 //	SendEnvironmentUniforms(_glEnvironmentUBO, scene, stats);
 //	Program::Default().bindUniformBlock("EnvironmentBlock", _glEnvironmentUBO);
@@ -694,68 +704,66 @@ void OpenGLRenderer::render(const Scene& scene,
 ////	drawBound();
 //}
 
-void OpenGLRenderer::EnsureDebugLinesBuffers(Program& program) {
-	if (_dbgLinesVBO != 0) return;
 
-	glGenBuffers(1, &_dbgLinesVBO);
+
+
+//void OpenGLRenderer::EnsureDebugLinesBuffers(Program& program) {
+//	if (_dbgLinesVBO != 0) return;
+//
+//	glGenBuffers(1, &_dbgLinesVBO);
+//	glGenVertexArrays(1, &_dbgLinesVAO);
+//
+//	glBindVertexArray(_dbgLinesVAO);
+//	glBindBuffer(GL_ARRAY_BUFFER, _dbgLinesVBO);
+//
+//	const unsigned POSITION_LOCATION = 0;
+//	const unsigned COLOR_LOCATION = 1;
+//
+//	glVertexAttribPointer(POSITION_LOCATION, 3, GL_FLOAT, GL_FALSE, sizeof(vec3)*2, (void*)0);
+//	glEnableVertexAttribArray(POSITION_LOCATION);
+//
+//	glVertexAttribPointer(COLOR_LOCATION, 3, GL_FLOAT, GL_FALSE, sizeof(vec3)*2, (void*)sizeof(vec3));
+//	glEnableVertexAttribArray(COLOR_LOCATION);
+//}
+
+void OpenGLRenderer::EnsureDebugLinesBuffers() {
+	if (_dbgLinesVAO != 0 && _dbgLinesVBO != 0) return;
+
 	glGenVertexArrays(1, &_dbgLinesVAO);
+	glGenBuffers(1, &_dbgLinesVBO);
 
 	glBindVertexArray(_dbgLinesVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, _dbgLinesVBO);
 
-	const unsigned POSITION_LOCATION = 0;
-	const unsigned COLOR_LOCATION = 1;
+	// Attribute 0: position
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(
+			0, 3, GL_FLOAT, GL_FALSE,
+			sizeof(DebugLineVertex),
+			(void*)offsetof(DebugLineVertex, pos)
+	);
 
-	glVertexAttribPointer(POSITION_LOCATION, 3, GL_FLOAT, GL_FALSE, sizeof(vec3)*2, (void*)0);
-	glEnableVertexAttribArray(POSITION_LOCATION);
+	// Attribute 1: color
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(
+			1, 3, GL_FLOAT, GL_FALSE,
+			sizeof(DebugLineVertex),
+			(void*)offsetof(DebugLineVertex, color)
+	);
 
-	glVertexAttribPointer(COLOR_LOCATION, 3, GL_FLOAT, GL_FALSE, sizeof(vec3)*2, (void*)sizeof(vec3));
-	glEnableVertexAttribArray(COLOR_LOCATION);
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
+
+
+
+
 
 // TODO: split into render(lines) and render(AABB)
 // for lines, stay immediate
 // for AABBs, upload a unit cube wireframe and use different model mats
 // 		(use center+halt extent rep for faster line creation?)
-void OpenGLRenderer::render(const vector<Line>& lines,
-							const RenderContext& context,
-							const mat4& modelMat,
-							const mat4& viewMat,
-							const mat4& projectionMat) {
-
-	auto program = Program::Lines();
-
-	EnsureDebugLinesBuffers(program);
-
-	vector<vec3> buf;
-	buf.reserve(lines.size() * 4);
-	for (const auto& line : lines) {
-		buf.push_back(line.fromLocation());
-		buf.push_back(line.fromColor().rgb());
-		buf.push_back(line.toLocation());
-		buf.push_back(line.toColor().rgb());
-	}
-
-	SetLinesGLState();
-
-	program.use();
-	_state.program = program.glID();
-	program.setUniform("modelMat", modelMat);
-	program.setUniform("viewMat", viewMat);
-	program.setUniform("projMat", projectionMat);
-
-	glBindVertexArray(_dbgLinesVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, _dbgLinesVBO);
-
-	glBufferData(GL_ARRAY_BUFFER,
-				 (GLsizeiptr)(buf.size() * sizeof(vec3)),
-				 buf.data(),
-				 GL_DYNAMIC_DRAW);
-
-	glDrawArrays(GL_LINES, 0, (GLsizei)lines.size() * 2);
-}
-
-//void OpenGLRenderer::render(const std::vector<Line>& lines,
+//void OpenGLRenderer::render(const vector<Line>& lines,
 //							const RenderContext& context,
 //							const mat4& modelMat,
 //							const mat4& viewMat,
@@ -763,32 +771,130 @@ void OpenGLRenderer::render(const vector<Line>& lines,
 //
 //	auto program = Program::Lines();
 //
-//	// check and load vertex data if necessary
+//	//EnsureDebugLinesBuffers(program);
+//	EnsureDebugLinesBuffers();
 //
-//	GLuint vbo, vao;
-//	GetLinesVertexDataHandles(lines,
-//							  program,
-//							  _linesGLMapping,
-//							  vbo, vao);
-//
-//	// configure OpenGL state
+//	vector<vec3> buf;
+//	buf.reserve(lines.size() * 4);
+//	for (const auto& line : lines) {
+//		buf.push_back(line.fromLocation());
+//		buf.push_back(line.fromColor().rgb());
+//		buf.push_back(line.toLocation());
+//		buf.push_back(line.toColor().rgb());
+//	}
 //
 //	SetLinesGLState();
 //
-//	// update
+//	program.use();
+//	_state.program = program.glID();
+//	program.setUniform("modelMat", modelMat);
+//	program.setUniform("viewMat", viewMat);
+//	program.setUniform("projMat", projectionMat);
 //
-//	DrawLines(lines,
-//			  program,
-//			  modelMat, viewMat, projectionMat,
-//			  vao);
+//	glBindVertexArray(_dbgLinesVAO);
+//	glBindBuffer(GL_ARRAY_BUFFER, _dbgLinesVBO);
 //
-//	// save reference for housekeeping
+//	glBufferData(GL_ARRAY_BUFFER,
+//				 (GLsizeiptr)(buf.size() * sizeof(vec3)),
+//				 buf.data(),
+//				 GL_DYNAMIC_DRAW);
 //
-//	// TODO: this is slow
-////	for (auto line : lines) {
-//		_activeLines.insert(&lines);
-////	}
+//	glDrawArrays(GL_LINES, 0, (GLsizei)lines.size() * 2);
 //}
+
+
+
+
+//void OpenGLRenderer::render(const std::vector<Line>& lines,
+//							const RenderContext& context,
+//							const math::mat4& modelMat,
+//							const math::mat4& viewMat,
+//							const math::mat4& projectionMat) {
+//	if (lines.empty()) return;
+//
+//	auto program = Program::Lines();
+//	EnsureDebugLinesBuffers();
+//	SetLinesGLState();
+//
+//	// Build interleaved vertex stream: 2 vertices per line
+//	_dbgLineVerts.clear();
+//	_dbgLineVerts.reserve(lines.size() * 2);
+//
+//	for (const auto& line : lines) {
+//		_dbgLineVerts.push_back(DebugLineVertex{
+//				line.fromLocation(),
+//				line.fromColor().rgb()
+//		});
+//		_dbgLineVerts.push_back(DebugLineVertex{
+//				line.toLocation(),
+//				line.toColor().rgb()
+//		});
+//	}
+//
+//	program.use();
+//	_state.program = program.glID();
+//	program.setUniform("modelMat", modelMat);
+//	program.setUniform("viewMat", viewMat);
+//	program.setUniform("projMat", projectionMat);
+//
+//	glBindVertexArray(_dbgLinesVAO);
+//	glBindBuffer(GL_ARRAY_BUFFER, _dbgLinesVBO);
+//
+//	glBufferData(GL_ARRAY_BUFFER,
+//				 (GLsizeiptr)(_dbgLineVerts.size() * sizeof(DebugLineVertex)),
+//				 _dbgLineVerts.data(),
+//				 GL_STREAM_DRAW);
+//
+//	glDrawArrays(GL_LINES, 0, (GLsizei)_dbgLineVerts.size());
+//
+//	glBindVertexArray(0);
+//	glBindBuffer(GL_ARRAY_BUFFER, 0);
+//}
+
+
+//void OpenGLRenderer::render(const std::vector<Line>& lines,
+//							const RenderContext& context,
+//							const mat4& modelMat,
+//							const mat4& viewMat,
+//							const mat4& projectionMat) {
+//
+//	if (lines.empty()) return;
+//
+//	bindPipeline(_debugLinesPipeline, _cache);
+//	setPerObject(modelMat, viewMat, projectionMat);
+//
+//	// Bind through the same state system
+////	PipelineKey key = MakeDebugLinesPipelineKey();
+////	PipelineHandle h = _cache.ensurePipeline(key);
+////	bindPipeline(h, _cache);
+//
+//	// (No SetLinesGLState() needed anymore; the pipeline state *is* the state.)
+//
+//	EnsureDebugLinesBuffers();
+//
+//	_dbgLineVerts.clear();
+//	_dbgLineVerts.reserve(lines.size() * 2);
+//	for (const auto& line : lines) {
+//		_dbgLineVerts.push_back({ line.fromLocation(), line.fromColor().rgb() });
+//		_dbgLineVerts.push_back({ line.toLocation(),   line.toColor().rgb()   });
+//	}
+//
+//	// uniforms: use your existing setPerObject if you want
+//	setPerObject(modelMat, viewMat, projectionMat);
+//
+//	glBindVertexArray(_dbgLinesVAO);
+//	glBindBuffer(GL_ARRAY_BUFFER, _dbgLinesVBO);
+//
+//	glBufferData(GL_ARRAY_BUFFER,
+//				 (GLsizeiptr)(_dbgLineVerts.size() * sizeof(DebugLineVertex)),
+//				 _dbgLineVerts.data(),
+//				 GL_STREAM_DRAW);
+//
+//	glDrawArrays(GL_LINES, 0, (GLsizei)_dbgLineVerts.size());
+//}
+
+
+
 
 void OpenGLRenderer::blank() {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -903,7 +1009,7 @@ void GetMeshElementGLVertexDataHandles(MeshElement& element,
 
 		DeleteMeshElementGLResources(&element, glMapping);
 
-		BufferMeshElementVertexData(element, Program::Default(), glVBO, glVAO, glEBO, state);
+		BufferMeshElementVertexData(element, glVBO, glVAO, glEBO);
 		
 		glMapping[&element] = make_tuple(glVBO, glVAO, glEBO);
 
@@ -935,7 +1041,7 @@ void GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
 
 		DeleteMeshElementGLResources(element.get(), glMapping);
 		
-		BufferSkyboxVertexData(skyboxMesh, Program::Skybox(), glVBO, glVAO, glEBO, state);
+		BufferSkyboxVertexData(skyboxMesh, glVBO, glVAO, glEBO, state);
 		
 		glMapping[element.get()] = make_tuple(glVBO, glVAO, glEBO);
 
@@ -1059,81 +1165,115 @@ void GetTextureGLTextureHandles(Material& material,
 	}
 }
 
+//void BufferMeshElementVertexData(const MeshElement& element,
+//								 Program& program,
+//								 GLuint& glVBO, GLuint& glVAO, GLuint& glEBO,
+//								 GLStateCache& state) {
+//
+//	A3D_LOG_D("Buffering vertex data for mesh element {:p}...",
+//			  static_cast<const void*>(&element));
+//
+//	program.use();
+//	state.program = program.glID();
+//
+//	auto verticies = element.vertices();
+//	auto faces = element.faces();
+//
+//	glGenBuffers(1, &glVBO);
+//	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
+//	glBufferData(GL_ARRAY_BUFFER,
+//				 (GLsizeiptr)(verticies.size()*sizeof(Vertex)),
+//				 &(verticies[0]),
+//				 GL_STATIC_DRAW);
+//
+//	glGenVertexArrays(1, &glVAO);
+//	glBindVertexArray(glVAO);
+//
+//	// from 'layout (location = x)'
+//	const unsigned POSITION_LOCATION = 0;
+//	const unsigned NORMAL_LOCATION = 1;
+//	const unsigned TEXCOORD_LOCATION = 2;
+//
+//	//auto positionIndex = program.getAttributeLocation("vert_vertPos");
+//	glVertexAttribPointer(POSITION_LOCATION, 			// attrib index
+//						  3, 						// num components per attrib (3 float in vec3)
+//						  GL_FLOAT, 				// component type
+//						  GL_FALSE, 				// normalize
+//						  sizeof(Vertex), 			// stride
+//						  nullptr); 						// start offset
+//	glEnableVertexAttribArray(POSITION_LOCATION);
+//
+//	//auto normalIndex = program.getAttributeLocation("vert_vertNorm");
+//	glVertexAttribPointer(NORMAL_LOCATION, 				// attrib index
+//						  3, 						// num components per attrib (3 float in vec3)
+//						  GL_FLOAT, 				// component type
+//						  GL_FALSE, 				// normalize
+//						  sizeof(Vertex), 			// stride
+//						  (void*)sizeof(vec3)); 	// start offset
+//	glEnableVertexAttribArray(NORMAL_LOCATION);
+//
+//	//auto texCoordIndex = program.getAttributeLocation("vert_texCoord");
+//	glVertexAttribPointer(TEXCOORD_LOCATION, 							// attrib index
+//						  2, 										// num components per attrib (2 float in vec2)
+//						  GL_FLOAT, 								// component type
+//						  GL_FALSE, 								// normalize
+//						  sizeof(Vertex), 							// stride
+//						  (void*)(sizeof(vec3) + sizeof(vec3))); 	// start offset
+//	glEnableVertexAttribArray(TEXCOORD_LOCATION);
+//
+//	glGenBuffers(1, &glEBO);
+//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glEBO);
+//	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+//				 (GLsizeiptr)(faces.size() * sizeof(Face)),
+//				 &(faces[0]),
+//				 GL_STATIC_DRAW);
+//
+//	//program.unuse();
+//}
+
 void BufferMeshElementVertexData(const MeshElement& element,
-								 Program& program,
-								 GLuint& glVBO, GLuint& glVAO, GLuint& glEBO,
-								 GLStateCache& state) {
+								 GLuint& glVBO, GLuint& glVAO, GLuint& glEBO) {
 
 	A3D_LOG_D("Buffering vertex data for mesh element {:p}...",
 			  static_cast<const void*>(&element));
-	
-	program.use();
-	state.program = program.glID();
-	
+
 	auto verticies = element.vertices();
 	auto faces = element.faces();
-	
+
 	glGenBuffers(1, &glVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
 	glBufferData(GL_ARRAY_BUFFER,
 				 (GLsizeiptr)(verticies.size()*sizeof(Vertex)),
-				 &(verticies[0]),
+				 verticies.data(),
 				 GL_STATIC_DRAW);
-	
+
 	glGenVertexArrays(1, &glVAO);
 	glBindVertexArray(glVAO);
 
-	// from 'layout (location = x)'
-	const unsigned POSITION_LOCATION = 0;
-	const unsigned NORMAL_LOCATION = 1;
-	const unsigned TEXCOORD_LOCATION = 2;
-	
-	//auto positionIndex = program.getAttributeLocation("vert_vertPos");
-	glVertexAttribPointer(POSITION_LOCATION, 			// attrib index
-						  3, 						// num components per attrib (3 float in vec3)
-						  GL_FLOAT, 				// component type
-						  GL_FALSE, 				// normalize
-						  sizeof(Vertex), 			// stride
-						  nullptr); 						// start offset
-	glEnableVertexAttribArray(POSITION_LOCATION);
-	
-	//auto normalIndex = program.getAttributeLocation("vert_vertNorm");
-	glVertexAttribPointer(NORMAL_LOCATION, 				// attrib index
-						  3, 						// num components per attrib (3 float in vec3)
-						  GL_FLOAT, 				// component type
-						  GL_FALSE, 				// normalize
-						  sizeof(Vertex), 			// stride
-						  (void*)sizeof(vec3)); 	// start offset
-	glEnableVertexAttribArray(NORMAL_LOCATION);
-	
-	//auto texCoordIndex = program.getAttributeLocation("vert_texCoord");
-	glVertexAttribPointer(TEXCOORD_LOCATION, 							// attrib index
-						  2, 										// num components per attrib (2 float in vec2)
-						  GL_FLOAT, 								// component type
-						  GL_FALSE, 								// normalize
-						  sizeof(Vertex), 							// stride
-						  (void*)(sizeof(vec3) + sizeof(vec3))); 	// start offset
-	glEnableVertexAttribArray(TEXCOORD_LOCATION);
-	
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)sizeof(vec3));
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(vec3) + sizeof(vec3)));
+	glEnableVertexAttribArray(2);
+
 	glGenBuffers(1, &glEBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glEBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
 				 (GLsizeiptr)(faces.size() * sizeof(Face)),
-				 &(faces[0]),
+				 faces.data(),
 				 GL_STATIC_DRAW);
-	
-	//program.unuse();
 }
 
+
 void BufferSkyboxVertexData(Mesh& skyboxMesh,
-							Program& program,
 							GLuint& glVBO, GLuint& glVAO, GLuint& glEBO,
 							GLStateCache& state) {
 
 	A3D_LOG_D("Buffering skybox vertex data...");
 
-	program.use();
-	state.program = program.glID();
+//	program.use();
+//	state.program = program.glID();
 	
 	auto& element = skyboxMesh.elements().front();
 	auto verts = element->vertices();
@@ -1431,8 +1571,8 @@ void SendMaterialUniforms(const Material& material,
 
 	// sends uniforms for the Material, and MaterialProperties it has
 
-	program.use();
-	state.program = program.glID();
+//	program.use();
+//	state.program = program.glID();
 
 	program.setUniform("specularExponent", material.specularExponent());
 	program.setUniform("uvScale", material.uvScale());
@@ -1461,8 +1601,8 @@ void SendMaterialPropertyUniforms(const MaterialProperty& property,
 								  Program& program,
 								  GLStateCache& state) {
 
-	program.use();
-	state.program = program.glID();
+//	program.use();
+//	state.program = program.glID();
 
 	std::visit([&type, &program, &glTextureHandle](auto&& property) -> void {
 
@@ -2041,19 +2181,42 @@ void SetSkyboxOpenGLState() {
 //	glDisable(GL_BLEND);
 }
 
+
+
+
+//void SetLinesGLState() {
+//	glEnable(GL_DEPTH_TEST);
+//	glDepthFunc(GL_LESS);
+//	glDepthMask(GL_TRUE);
+//#ifdef A3D_GL_DESKTOP
+//	glEnable(GL_LINE_SMOOTH);
+//#endif
+//
+//	// https://www.opengl.org/archives/resources/faq/technical/polygonoffset.htm
+//	//glDepthRange(0.0, 0.9);
+////	glDisable(GL_POLYGON_OFFSET_FILL);
+////	glPolygonOffset(0.0, 0.0);
+//}
+
+
 void SetLinesGLState() {
+
+	glDisable(GL_CULL_FACE);
+
 	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-	glDepthMask(GL_TRUE);
-#ifdef A3D_GL_DESKTOP
-	glEnable(GL_LINE_SMOOTH);
+	glDepthMask(GL_FALSE);      // don’t write depth
+
+	glDisable(GL_BLEND);        // or enable if you want translucency later
+	// glEnable(GL_BLEND);
+	// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+#ifndef A3D_GL_ES
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 #endif
-	
-	// https://www.opengl.org/archives/resources/faq/technical/polygonoffset.htm
-	//glDepthRange(0.0, 0.9);
-//	glDisable(GL_POLYGON_OFFSET_FILL);
-//	glPolygonOffset(0.0, 0.0);
 }
+
+
+
 
 void DrawMeshElement(MeshElement& element,
 					 Program& program,
@@ -3177,6 +3340,20 @@ string StatusOverlayDescriptionForAntialiasingMode(AntialiasingMode mode) {
 	}
 }
 
+GLenum DepthFuncToGLDepthFunc(DepthFunc f) {
+	switch (f) {
+		case DepthFunc::Less:     return GL_LESS;
+		case DepthFunc::Lequal:   return GL_LEQUAL;
+		case DepthFunc::Equal:    return GL_EQUAL;
+		case DepthFunc::Greater:  return GL_GREATER;
+		case DepthFunc::Gequal:   return GL_GEQUAL;
+		case DepthFunc::Notequal: return GL_NOTEQUAL;
+		case DepthFunc::Always:   return GL_ALWAYS;
+		case DepthFunc::Never:    return GL_NEVER;
+	}
+	return GL_LESS;
+}
+
 void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode) {
 
 	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
@@ -3434,13 +3611,17 @@ RenderResourceCacheOGL& OpenGLRenderer::cache() {
 
 void OpenGLRenderer::bindPipeline(PipelineHandle h, const RenderResourceCacheOGL& cache) {
 
-	if (_state.pipeline == h) return;
+	if (_state.pipeline == h) {
+		GLint cur = 0;
+		glGetIntegerv(GL_CURRENT_PROGRAM, &cur);
+		if ((GLuint)cur == _state.program) return; // truly already bound
+		// else: stale cache, fallthrough and rebind
+	}
 
 	const PipelineOGL& p = cache.pipeline(h);
-
 	glUseProgram(p.program);
 	_state.program = p.program;
-	_state.material = nullptr; // program changed; force rebind material if you want
+	_state.material = nullptr;
 
 	if (p.key.doubleSided) {
 		glDisable(GL_CULL_FACE);
@@ -3450,28 +3631,37 @@ void OpenGLRenderer::bindPipeline(PipelineHandle h, const RenderResourceCacheOGL
 		glCullFace(GL_BACK);
 	}
 
-	if (p.depthTest) {
+	if (p.key.depthTest) {
 		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(DepthFuncToGLDepthFunc(p.key.depthFunc));
 	}
 	else {
 		glDisable(GL_DEPTH_TEST);
 	}
-
 	glDepthMask(p.key.depthWrite ? GL_TRUE : GL_FALSE);
 
 	ApplyBlendFunction(p.key.blendFunction);
-
-#ifndef A3D_GL_ES
-	const bool lineSmooth = (p.key.fillMode == FillMode::Lines) && (p.key.pass == PassKind::Wire);
-	if (lineSmooth) glEnable(GL_LINE_SMOOTH);
-	else glDisable(GL_LINE_SMOOTH);
-#endif
 
 #ifndef A3D_GL_ES
 	switch (p.key.fillMode) {
 		case FillMode::Fill:   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);  break;
 		case FillMode::Lines:  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);  break;
 		case FillMode::Points: glPolygonMode(GL_FRONT_AND_BACK, GL_POINT); break;
+	}
+#endif
+
+#ifndef A3D_GL_ES
+	const bool lineSmooth = (p.key.pass == PassKind::Lines)
+							&& (p.key.pass == PassKind::Wireframe);
+//	const bool lineSmooth = (p.key.fillMode == FillMode::Lines);
+	if (lineSmooth) {
+		glEnable(GL_LINE_SMOOTH);
+		glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+	else {
+		glDisable(GL_LINE_SMOOTH);
 	}
 #endif
 
@@ -3487,42 +3677,31 @@ void OpenGLRenderer::bindPipeline(PipelineHandle h, const RenderResourceCacheOGL
 }
 
 void OpenGLRenderer::bindMaterial(const Material& material) {
-
-	// skip if same material and same program
 	if (_state.material == &material) return;
 
-	// if current pipeline is wireframe, skip material entirely
-	if (!(GLint)_state.program) return;
+	// Look at the currently bound pipeline
+	const PipelineOGL& p = _cache.pipeline(_state.pipeline);
 
-	// if want to branch on shaderKind, easiest is to fetch it from the pipeline:
-	// const auto& p = cache.pipeline(_state.pipeline);  // if cache accessible here
-	// if (p.key.shaderKind == ShaderKind::Wireframe) return;
+	// Wireframe / lines shaders should not run the material binding path
+	if (p.key.shaderKind != ShaderKind::Default) {
+		_state.material = &material;
+		return;
+	}
 
-	// Ensure textures exist and get GL texture IDs
 	std::map<MaterialPropertyType, GLuint> glTextureHandles;
 	GetTextureGLTextureHandles(const_cast<Material&>(material),
 							   _textureGLMapping,
-//							   _activeTextures,
 							   glTextureHandles);
 
-	// IMPORTANT: your existing SendMaterialUniforms takes Program&.
-	// You have two options:
-
-	// Option A (fastest hack): reconstruct Program wrapper by shader kind.
-	// If you have a Program::FromGLID(GLuint) use that, otherwise:
-	Program& prog = Program::Default(); // TODO: pick based on current pipeline shaderKind
-
-//	Program& prog = [&]() {
-//		switch ()
-//	}();
-
-	// Ensure prog.glID() == _state.program in debug builds.
-
+	Program& prog = Program::Default();
+	// OK if SendMaterialUniforms still calls prog.use() because it matches the pipeline now
 	SendMaterialUniforms(material, prog, glTextureHandles, _state);
 	SetMaterialFilteringOptions(material, glTextureHandles);
 
 	_state.material = &material;
 }
+
+
 
 void OpenGLRenderer::bindMeshElement(const MeshElement& element) {
 	auto* e = const_cast<MeshElement*>(&element);
@@ -3607,3 +3786,41 @@ void OpenGLRenderer::drawBound() {
 	glBindVertexArray(_boundElement.vao);
 	glDrawElements(GL_TRIANGLES, _boundElement.indexCount, _boundElement.indexType, (void*)0);
 }
+
+
+
+
+
+
+void OpenGLRenderer::renderLinesPass(const LinesPass& pass,
+									 const RenderContext& context,
+									 const mat4& viewMat,
+									 const mat4& projectionMat) {
+
+	if (pass.pipeline == INVALID_PIPELINE) return;
+	if (pass.lines.empty()) return;
+
+	bindPipeline(pass.pipeline, _cache);
+	setPerObject(pass.model, viewMat, projectionMat);
+
+	EnsureDebugLinesBuffers();
+
+	_dbgLineVerts.clear();
+	_dbgLineVerts.reserve(pass.lines.size() * 2);
+
+	for (const auto& line : pass.lines) {
+		_dbgLineVerts.push_back({ line.fromLocation(), line.fromColor().rgb() });
+		_dbgLineVerts.push_back({ line.toLocation(),   line.toColor().rgb()   });
+	}
+
+	glBindVertexArray(_dbgLinesVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, _dbgLinesVBO);
+
+	glBufferData(GL_ARRAY_BUFFER,
+				 (GLsizeiptr)(_dbgLineVerts.size() * sizeof(DebugLineVertex)),
+				 _dbgLineVerts.data(),
+				 GL_STREAM_DRAW);
+
+	glDrawArrays(GL_LINES, 0, (GLsizei)_dbgLineVerts.size());
+}
+

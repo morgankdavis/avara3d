@@ -29,6 +29,7 @@ namespace a3d {
 
 	struct GatherOutput {
 		std::vector<RenderItem>		renderItems;
+		const Scene*				scene;
 		std::vector<Node*> 			lightNodes; // for postTraversal selection
 		std::vector<MeshInstance> 	meshInstances; // for debug AABBs
 	};
@@ -53,8 +54,8 @@ namespace a3d {
 		static PipelineKey MakeMainOpaquePipelineKey(const RenderItem& item, uint32_t vertexLayoutKey);
 		static PipelineKey MakeMainMaskPipelineKey(const RenderItem& item, uint32_t vertexLayoutKey);
 		static PipelineKey MakeMainTransparentPipelineKey(const RenderItem& item, uint32_t vertexLayoutKey);
-
-		static PipelineKey MakeWirePipelineKey(const RenderItem& item, uint32_t vertexLayoutKey);
+		static PipelineKey MakeWireframePipelineKey(const RenderItem& item, uint32_t vertexLayoutKey);
+		static PipelineKey MakeLinesPipelineKey();
 
 
 

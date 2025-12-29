@@ -1,13 +1,11 @@
 #version 330
 
-
 layout (location = 0) in vec3 vert_vertPos;
 
 uniform mat4 viewMat;
 uniform mat4 projMat;
 
 out vec3 frag_texCoord;
-
 
 void main() {
     //tex_coord = vertex_position * vec3(-1.0, 1.0, -1.0);

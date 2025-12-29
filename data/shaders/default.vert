@@ -1,6 +1,5 @@
 #version 330
 
-
 layout (location = 0) in vec3 vert_vertPos;
 layout (location = 1) in vec3 vert_vertNorm;
 layout (location = 2) in vec2 vert_texCoord;
@@ -16,7 +15,6 @@ out vec3 frag_vertNorm_world;
 out vec3 frag_vertPos_eye;
 out vec3 frag_vertNorm_eye;
 out vec2 frag_texCoord;
-
 
 void main() {
 

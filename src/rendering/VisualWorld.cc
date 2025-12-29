@@ -351,7 +351,6 @@ void VisualWorld::draw(const Scene& scene,
 
 
 		for (const auto &di: packet.main) {
-
 			renderer->bindPipeline(di.pipeline, cache);
 			renderer->bindMaterial(*di.material);
 			renderer->bindMeshElement(*di.element);
@@ -360,7 +359,6 @@ void VisualWorld::draw(const Scene& scene,
 		}
 
 		for (const auto &di: packet.wireframe) {
-
 			renderer->bindPipeline(di.pipeline, cache);
 			// bindMaterial
 			renderer->bindMeshElement(*di.element);
@@ -368,7 +366,7 @@ void VisualWorld::draw(const Scene& scene,
 			renderer->drawBound();
 		}
 
-		renderer->render(packet.debugLines, *_renderContext, math::mat4(1.0f), view, proj);
+		renderer->renderLinesPass(packet.debugLinesPass, *_renderContext, view, proj);
 	});
 
 	if (physicalWorld) {

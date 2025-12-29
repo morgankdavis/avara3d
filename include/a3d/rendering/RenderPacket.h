@@ -20,8 +20,9 @@ namespace a3d {
 		// future: mainOpaque, mainMask, mainTransparent
 		std::vector<DrawItem> 	main;
 		std::vector<DrawItem> 	wireframe;
+		//std::vector<Line> 		debugLines;
+		LinesPass				debugLinesPass;
 		std::vector<Node*> 		lightNodes;
-		std::vector<Line> 		debugLines;
 	};
 }
 

@@ -90,6 +90,8 @@ GatherOutput RenderGatherer::GatherRenderItems(const Scene& scene,
 			++stats.numMeshes;
 		}
 
+		out.scene = &scene;
+
 		if (n->light()) {
 			out.lightNodes.push_back(n);
 			++stats.numLights;
@@ -102,6 +104,29 @@ GatherOutput RenderGatherer::GatherRenderItems(const Scene& scene,
 
 	return out;
 }
+
+
+
+
+
+static inline void ApplyDepthPolicy(PipelineKey& key) {
+	// defaults (main pass)
+	key.depthTest  = true;
+	key.depthWrite = true;
+	key.depthFunc  = DepthFunc::Less;
+
+	// overlays
+	if (key.pass == PassKind::Lines || key.pass == PassKind::Wireframe) {
+		key.depthTest  = true;
+		key.depthWrite = false;
+		key.depthFunc  = DepthFunc::Lequal;
+	}
+}
+
+
+
+
+
 
 PipelineKey RenderGatherer::MakePipelineKey(const Material& material,
 											uint32_t vertexLayoutKey) {
@@ -137,6 +162,7 @@ PipelineKey RenderGatherer::MakeMainOpaquePipelineKey(const RenderItem& item, ui
 	k.pass = PassKind::MainOpaque;
 	k.depthWrite = true;
 	k.polygonOffset = false;
+	ApplyDepthPolicy(k);
 	return k;
 }
 
@@ -145,6 +171,7 @@ PipelineKey RenderGatherer::MakeMainMaskPipelineKey(const RenderItem& item, uint
 	k.pass = PassKind::MainMask;
 	k.depthWrite = true;          // keep early-z, just punch holes in shader
 	k.polygonOffset = false;
+	ApplyDepthPolicy(k);
 	return k;
 }
 
@@ -153,22 +180,36 @@ PipelineKey RenderGatherer::MakeMainTransparentPipelineKey(const RenderItem& ite
 	k.pass = PassKind::MainTransparent;
 	k.depthWrite = false;         // critical for blending correctness
 	k.polygonOffset = false;
+	ApplyDepthPolicy(k);
 	return k;
 }
 
-PipelineKey RenderGatherer::MakeWirePipelineKey(const RenderItem& item, uint32_t vertexLayoutKey) {
+PipelineKey RenderGatherer::MakeWireframePipelineKey(const RenderItem& item, uint32_t vertexLayoutKey) {
 	PipelineKey k = MakePipelineKey(*item.material, vertexLayoutKey);
-
-	k.pass = PassKind::Wire;
+	k.pass = PassKind::Wireframe;
 	k.shaderKind = ShaderKind::Wireframe;        // wire program
 	k.fillMode = FillMode::Lines;                // force lines
 //	k.blendFunction = BlendFunction::Disabled;   // force off for now
 	k.doubleSided = true;                        // debug preference
 	k.depthWrite = false;                        // key point for overlay correctness
 	k.polygonOffset = true;                      // key point for z-fighting
-
+	ApplyDepthPolicy(k);
 	return k;
 }
+
+PipelineKey RenderGatherer::MakeLinesPipelineKey() {
+	PipelineKey k{};
+	k.pass          = PassKind::Lines;
+	k.shaderKind    = ShaderKind::Lines;          // ✅ REQUIRED
+	k.fillMode      = FillMode::Lines;             // irrelevant for GL_LINES
+	k.doubleSided   = true;
+	k.depthWrite    = false;
+	k.blendFunction = BlendFunction::Disabled;
+	k.polygonOffset = false;
+	ApplyDepthPolicy(k);
+	return k;
+}
+
 
 
 
@@ -199,10 +240,11 @@ static uint64_t MakeSortKey(const DrawItem& it) {
 
 static int PassOrder(PassKind p) {
 	switch (p) {
-		case PassKind::MainOpaque:      return 0;
-		case PassKind::MainMask:        return 1;
-		case PassKind::MainTransparent: return 2; // later you’ll change strategy
-		case PassKind::Wire:            return 3;
+		case PassKind::MainOpaque:		return 0;
+		case PassKind::MainMask:		return 1;
+		case PassKind::MainTransparent:	return 2; // later you’ll change strategy
+		case PassKind::Wireframe:		return 3;
+		case PassKind::Lines:			return 4;
 	}
 	return 99;
 }
@@ -228,7 +270,7 @@ static void SortDrawItems(vector<DrawItem>& items) {
 
 
 
-static void AppendBoxLinesFromCorners(std::vector<Line>& out,
+static void AppendBoxLinesFromCorners(vector<Line>& out,
 									  const math::vec3 c[8],
 									  const Color& color) {
 	// indices: 0..3 top ring, 4..7 bottom ring (match your naming if you like)
@@ -242,7 +284,9 @@ static void AppendBoxLinesFromCorners(std::vector<Line>& out,
 	add(0,4); add(1,5); add(2,6); add(3,7);
 }
 
-static void AppendAABBLinesWorld(std::vector<Line>& out, const AABB& aabb, const Color& color) {
+static void AppendAABBLinesWorld(vector<Line>& out,
+								 const AABB& aabb,
+								 const Color& color) {
 	math::vec3 c[8] = {
 			{aabb.min.x, aabb.max.y, aabb.min.z}, // 0
 			{aabb.min.x, aabb.max.y, aabb.max.z}, // 1
@@ -251,12 +295,12 @@ static void AppendAABBLinesWorld(std::vector<Line>& out, const AABB& aabb, const
 			{aabb.min.x, aabb.min.y, aabb.min.z}, // 4
 			{aabb.min.x, aabb.min.y, aabb.max.z}, // 5
 			{aabb.max.x, aabb.min.y, aabb.max.z}, // 6
-			{aabb.max.x, aabb.min.y, aabb.min.z}, // 7
-	};
+			{aabb.max.x, aabb.min.y, aabb.min.z}, }; // 7
+
 	AppendBoxLinesFromCorners(out, c, color);
 }
 
-static void AppendOBBLinesFromLocalAABB(std::vector<Line>& out,
+static void AppendOBBLinesFromLocalAABB(vector<Line>& out,
 										const AABB& local,
 										const math::mat4& model,
 										const Color& color) {
@@ -268,8 +312,7 @@ static void AppendOBBLinesFromLocalAABB(std::vector<Line>& out,
 			{local.min.x, local.min.y, local.min.z},
 			{local.min.x, local.min.y, local.max.z},
 			{local.max.x, local.min.y, local.max.z},
-			{local.max.x, local.min.y, local.min.z},
-	};
+			{local.max.x, local.min.y, local.min.z} };
 
 	math::vec3 wc[8];
 	for (int i = 0; i < 8; ++i) {
@@ -348,9 +391,9 @@ RenderPacket RenderGatherer::BuildRenderPacket(GatherOutput& gatherOutput,
 			di.material = ri.material; // optional for wire, fine to keep
 			di.model = ri.model;
 			di.depth = ri.depth;
-			di.pass = PassKind::Wire;
+			di.pass = PassKind::Wireframe;
 
-			di.key = MakeWirePipelineKey(ri, vertexLayoutKey);
+			di.key = MakeWireframePipelineKey(ri, vertexLayoutKey);
 			di.pipeline = cache.ensurePipeline(di.key);
 
 			di.sortKey = MakeSortKey(di);
@@ -364,12 +407,21 @@ RenderPacket RenderGatherer::BuildRenderPacket(GatherOutput& gatherOutput,
 
 	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
 
-		packet.debugLines.reserve(gatherOutput.meshInstances.size() * 24); // 24 lines per mesh (12+12)
+		auto& lp = packet.debugLinesPass;
+		lp.model = math::mat4(1.0f);
 
-		for (const MeshInstance &mi: gatherOutput.meshInstances) {
-			AppendAABBLinesWorld(packet.debugLines, mi.mesh->worldAABB(mi.model, false), *Color::Red());
-			AppendOBBLinesFromLocalAABB(packet.debugLines, mi.mesh->localAABB(), mi.model, *Color::Gray());
+		// Build/ensure the pipeline as part of packet build (first-class pass)
+		PipelineKey k = MakeLinesPipelineKey();
+		lp.pipeline = cache.ensurePipeline(k);
+
+		lp.lines.reserve(gatherOutput.meshInstances.size() * 24); // 12+12 = 24 lines per mesh
+
+		// order matters - draw first to draw last
+		for (const MeshInstance& mi : gatherOutput.meshInstances) {
+			AppendOBBLinesFromLocalAABB(lp.lines, mi.mesh->localAABB(), mi.model, *Color::Gray());
+			AppendAABBLinesWorld(lp.lines, mi.mesh->worldAABB(mi.model, false), *Color::Red());
 		}
+		AppendAABBLinesWorld(lp.lines, gatherOutput.scene->aabb(false), *Color::Green());
 	}
 
 	SortDrawItems(packet.main);

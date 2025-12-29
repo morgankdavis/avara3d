@@ -28,12 +28,15 @@ PipelineOGL RenderResourceCacheOGL::buildPipeline(const PipelineKey& key) {
 //	p.key.depthWrite = true;
 
 	// For now assume depth always on for your main pass:
-	p.depthTest  = true;
+	p.key.depthTest  = true;
 
-#warning TEMPORARY
+	// TODO: temporary?
 	switch (p.key.shaderKind) {
 		case ShaderKind::Wireframe:
 			p.program = Program::Wireframe().glID();
+			break;
+		case ShaderKind::Lines:
+			p.program = Program::Lines().glID();
 			break;
 		default:
 			p.program = Program::Default().glID();

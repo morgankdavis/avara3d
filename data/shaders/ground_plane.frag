@@ -1,6 +1,5 @@
 #version 330
 
-
 in vec3 frag_vertPos;
 in vec3 frag_near;
 in vec3 frag_far;
@@ -10,10 +9,8 @@ uniform mat4 projMat;
 
 out vec4 fragColor;
 
-
 float checkerboard(vec2 R, float scale);
 float computeDepth(vec3 pos);
-
 
 void main() {
     float c = (

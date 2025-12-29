@@ -17,6 +17,8 @@
 
 namespace a3d {
 
+	struct LinesPass;
+
 	class FrameStatsHistory;
 	class Image;
 	class Line;
@@ -89,11 +91,11 @@ namespace a3d {
 //											   const math::mat4& projectionMat,
 //											   const DebugOptions& debugOptions,
 //											   FrameStats& stats) = 0;
-		virtual void 					render(const std::vector<Line>& lines,
-											   const RenderContext& context,
-											   const math::mat4& modelMat,
-											   const math::mat4& viewMat,
-											   const math::mat4& projectionMat) = 0;
+//		virtual void 					render(const std::vector<Line>& lines,
+//											   const RenderContext& context,
+//											   const math::mat4& modelMat,
+//											   const math::mat4& viewMat,
+//											   const math::mat4& projectionMat) = 0;
 
 		virtual void					blank() = 0;
 
@@ -116,6 +118,13 @@ namespace a3d {
 								  const math::mat4& view,
 								  const math::mat4& projection) = 0;
 		virtual void drawBound() = 0;
+
+
+
+		virtual void renderLinesPass(const LinesPass& pass,
+									 const RenderContext& context,
+									 const math::mat4& viewMat,
+									 const math::mat4& projectionMat) = 0;
 	};
 }
 
