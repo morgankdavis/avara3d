@@ -3652,13 +3652,10 @@ void OpenGLRenderer::bindPipeline(PipelineHandle h, const RenderResourceCacheOGL
 
 #ifndef A3D_GL_ES
 	const bool lineSmooth = (p.key.pass == PassKind::Lines)
-							&& (p.key.pass == PassKind::Wireframe);
-//	const bool lineSmooth = (p.key.fillMode == FillMode::Lines);
+							|| (p.key.pass == PassKind::Wireframe);
 	if (lineSmooth) {
 		glEnable(GL_LINE_SMOOTH);
 		glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 	else {
 		glDisable(GL_LINE_SMOOTH);
