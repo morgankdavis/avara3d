@@ -2,6 +2,7 @@
 #ifndef AVARA3D_RENDERGATHERER_H
 #define AVARA3D_RENDERGATHERER_H
 
+#include <memory>
 #include <vector>
 
 #include "a3d/Math.h"
@@ -24,14 +25,15 @@ namespace a3d {
 	struct MeshInstance {
 		Mesh*		mesh;
 		math::mat4 	model;
-		// put world AABB in here so it doesn't have to be re-computed in renderer
+		// put world AABB in here?
 	};
 
 	struct GatherOutput {
 		std::vector<RenderItem>		renderItems;
-		const Scene*				scene;
-		std::vector<Node*> 			lightNodes; // for postTraversal selection
-		std::vector<MeshInstance> 	meshInstances; // for debug AABBs
+		const Scene*				scene; // debug AABB
+		std::shared_ptr<Material>	backgroundMaterial;
+		std::vector<Node*> 			lightNodes;
+		std::vector<MeshInstance> 	meshInstances; // debug AABBs
 	};
 
 	class RenderGatherer {
@@ -41,7 +43,7 @@ namespace a3d {
 		static GatherOutput GatherRenderItems(const Scene& scene,
 											  const RenderContext& context,
 											  const math::mat4& view,
-											  const DebugOptions& debugOptions, // temporary
+											  const DebugOptions& debugOptions, // temporary?
 											  FrameStats& stats);
 
 
@@ -49,8 +51,8 @@ namespace a3d {
 
 
 
-
 		static PipelineKey MakePipelineKey(const Material& material, uint32_t vertexLayoutKey);
+		static PipelineKey MakeBackgroundPipelineKey();
 		static PipelineKey MakeMainOpaquePipelineKey(const RenderItem& item, uint32_t vertexLayoutKey);
 		static PipelineKey MakeMainMaskPipelineKey(const RenderItem& item, uint32_t vertexLayoutKey);
 		static PipelineKey MakeMainTransparentPipelineKey(const RenderItem& item, uint32_t vertexLayoutKey);

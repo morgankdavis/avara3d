@@ -32,6 +32,9 @@ PipelineOGL RenderResourceCacheOGL::buildPipeline(const PipelineKey& key) {
 
 	// TODO: temporary?
 	switch (p.key.shaderKind) {
+		case ShaderKind::Skybox:
+			p.program = Program::Skybox().glID();
+			break;
 		case ShaderKind::Wireframe:
 			p.program = Program::Wireframe().glID();
 			break;

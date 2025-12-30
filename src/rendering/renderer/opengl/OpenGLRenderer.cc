@@ -38,9 +38,10 @@
 #include "a3d/Font.h"
 #include "a3d/Image.h"
 #include "a3d/Math.h"
+#include "a3d/mesh/Line.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
-#include "a3d/mesh/Line.h"
+#include "a3d/mesh/primitive/Box.h"
 #include "a3d/rendering/DrawItem.h"
 #include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/camera/Camera.h"
@@ -165,39 +166,28 @@ static_assert(offsetof(EnvironmentBlock, ambientLights)      == 32);
 
 
 
+struct FBORestore {
+	GLint drawFbo = 0, readFbo = 0;
+	FBORestore() {
+		glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &drawFbo);
+		glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &readFbo);
+	}
+	~FBORestore() {
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, drawFbo);
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, readFbo);
+	}
+};
+
+
+
+
 
 
 /// Private Static Non-Member Prototypes ///
 
-static void 		RenderSkybox(Mesh& skyboxMesh,
-								Node& pointOfView,
-								OpenGLRenderer::MeshElementGLMapping& elementGLMapping,
-								OpenGLRenderer::TextureGLMapping& textureGLMapping,
-//								unordered_set<Texture*>& activeTextures,
-								GLStateCache& state);
-static void 		GetMeshElementGLVertexDataHandles(MeshElement& element,
-													 OpenGLRenderer::MeshElementGLMapping& glMapping,
-													 GLuint& glVBO, GLuint& glVAO, GLuint& glEBO);
-static void 		GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
-												OpenGLRenderer::MeshElementGLMapping& glMapping,
-												GLuint& glVBO, GLuint& glVAO, GLuint& glEBO,
-												GLStateCache& state);
-//static void 		GetLinesVertexDataHandles(const vector<Line>& lines,`
-//											 Program& program,
-//											 OpenGLRenderer::LinesGLMapping& glMapping,
-//											 GLuint& glVBO, GLuint& glVAO);
 static void 		GetTextureGLTextureHandles(Material& material,
 											  OpenGLRenderer::TextureGLMapping& glMapping,
-//											  unordered_set<Texture*>& activeTextures,
 											  map<MaterialPropertyType, GLuint>& glTextureHandles);
-static void 		BufferMeshElementVertexData(const MeshElement& element,
-											   GLuint& glVBO, GLuint& glVAO, GLuint& glEBO);
-static void 		BufferSkyboxVertexData(Mesh& skyboxMesh,
-										  GLuint& glVBO, GLuint& glVAO, GLuint& glEBO,
-										  GLStateCache& state);
-static void 		BufferLinesVertexData(const vector<Line>& lines,
-										 Program& program,
-										 GLuint& glVBO, GLuint& glVAO);
 static void 		BufferTexture(const Texture &texture,
 								 GLuint& glTextureHandle);
 static void 		SendMaterialUniforms(const Material& material,
@@ -217,41 +207,6 @@ static void 		SetTextureSamplingOptions(Texture& texture,
 											 GLuint glTextureHandle);
 static void 		SetMaterialFilteringOptions(const Material& material,
 											   map<MaterialPropertyType, GLuint>& glTextureHandles);
-static void 		SetMaterialOpenGLState(const Material& material,
-										  const DebugOptions& debugOptions);
-static void	 		SetSkyboxOpenGLState();
-static void 		SetLinesGLState();
-static void 		DrawMeshElement(MeshElement& element,
-								   Program& program,
-								   const mat4& modelMat,
-								   const mat4& viewMat,
-								   const mat4& projectionMat,
-								   GLuint vao, GLuint ebo/*,
-								   vector<OpenGLDrawItem>& drawItmes*/);
-static void 		DrawSkyboxElement(MeshElement& element,
-									 Program& program,
-									 Node& pointOfView,
-									 GLuint vao, GLuint ebo,
-									 GLStateCache& state);
-vector<Line> 		AABBLines(const AABB& aabb, Color color);
-static void 		DrawLines(const vector<Line>& lines,
-							 Program& program,
-							 const mat4& modelMat,
-							 const mat4& viewMat,
-							 const mat4& projectionMat,
-							 GLuint glVAO);
-//static void 		CleanupMeshElementResources(unordered_set<MeshElement*>& active,
-//											   OpenGLRenderer::MeshElementGLMapping& glMapping);
-//static void 		CleanupTextureResources(unordered_set<Texture*>& active,
-//										   OpenGLRenderer::TextureGLMapping& glMapping);
-//static void 		CleanupLinesResources(unordered_set<const vector<Line>*>& active,
-//										 OpenGLRenderer::LinesGLMapping& glMapping);
-static void 		DeleteMeshElementGLResources(MeshElement* element,
-												OpenGLRenderer::MeshElementGLMapping& glMapping);
-static void 		DeleteTextureGLResources(Texture* texture,
-											OpenGLRenderer::TextureGLMapping& glMapping);
-//static void 		DeleteLinesGLResources(const vector<Line>& lines,
-//										  OpenGLRenderer::LinesGLMapping& glMapping);
 static vector<Node*>SortedLights(map<Node*, float> lights);
 static void 		DrawOverlay(const RenderContext& context,
 							   const Scene& scene,
@@ -300,8 +255,7 @@ bool 				ImguiDrawCheckbox(float x,
 									  ImFont& font,
 									  float size,
 									  int id);
-static string 		StatusOverlayDescriptionForAntialiasingMode(AntialiasingMode mode);
-static GLenum 		DepthFuncToGLDepthFunc(DepthFunc f);
+static GLenum 		GLDepthFuncFromDepthFunc(DepthFunc f);
 static void 		SetTextureMinificationFilter(GLuint glTextureHandle,
 												bool cube,
 												FilterMode mode);
@@ -315,7 +269,6 @@ static void 		SetTextureWrapR(GLuint glTextureHandle, WrapMode mode);
 static GLenum 		GLFilterModeForFilterMode(FilterMode mode);
 static GLenum 		GLWrapModeForWrapMode(WrapMode mode);
 static void 		LogGLInfo();
-//static void 		CheckGLError();
 
 
 
@@ -351,13 +304,6 @@ bool OpenGLRenderer::InitGL(GLGetProcAddress getProcAddress) {
 
 	initialized = true;
 
-//	const GLubyte *vendor = glGetString(GL_VENDOR);
-//	const GLubyte *renderer = glGetString(GL_RENDERER);
-//	const GLubyte *version = glGetString(GL_VERSION);
-//	A3D_LOG_I("GL_VENDOR  : {}", vendor ? reinterpret_cast<const char *>(vendor) : "null");
-//	A3D_LOG_I("GL_RENDERER: {}", renderer ? reinterpret_cast<const char *>(renderer) : "null");
-//	A3D_LOG_I("GL_VERSION : {}", version ? reinterpret_cast<const char *>(version) : "null");
-
 	LogGLInfo();
 
 	return true;
@@ -370,33 +316,22 @@ OpenGLRenderer::OpenGLRenderer():
 		_isInitialized{false},
 		_meshElementGLMapping{}, // TODO: REMOVE
 		_textureGLMapping{},
-//		_linesGLMapping{},
-//		_activeMeshElements{},
-//		_activeTextures{},
-//		_activeLines{},
 		_glEnvironmentUBO{0},
 		_overlayTitleImFont{nullptr},
 		_overlayBodyImFont{nullptr},
 		_drawTimer{config::GL_DRAW_TIMER_BUFFER_SIZE},
 		_cache{},
+		_skyboxMesh{},
 
 
 		_meshElementGL{} {}
 
 OpenGLRenderer::~OpenGLRenderer() {
 	A3D_LOG_D("Destroying OpenGLRenderer {:p}", static_cast<void*>(this));
-	
-//	_activeMeshElements.clear();
-//	_activeTextures.clear();
-//	_activeLines.clear();
-	
+
 	glDeleteBuffers(1, &_glEnvironmentUBO);
 
-//	CleanupMeshElementResources(_activeMeshElements, _meshElementGLMapping);
-//	CleanupTextureResources(_activeTextures, _textureGLMapping);
-//	CleanupLinesResources(_activeLines, _linesGLMapping);
-
-	// TODO: move
+	// TODO: move?
 	if (_dbgLinesVBO) {
 		glDeleteBuffers(1, &_dbgLinesVBO);
 		_dbgLinesVBO = 0;
@@ -424,6 +359,9 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 	glBindBuffer(GL_UNIFORM_BUFFER, _glEnvironmentUBO);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(EnvironmentBlock), nullptr, GL_DYNAMIC_DRAW);
 	glBindBufferBase(GL_UNIFORM_BUFFER, ENV_BINDING_POINT, _glEnvironmentUBO);
+
+	// just do it here even if not used
+	_skyboxMesh = make_unique<a3d::Mesh>(make_unique<Box>(1, 1, 1), nullptr);
 
 	// TODO: do something better
 	auto bindBlock = [&](GLuint program, const char* blockName) {
@@ -457,7 +395,7 @@ void OpenGLRenderer::beginFrame(const Scene& scene,
 	_drawTimer.begin();
 
 	_state = {};
-	_state.pipeline = INVALID_PIPELINE;
+	_state.pipelineHandle = INVALID_PIPELINE_HANDLE;
 	_state.program = 0;
 	_state.material = nullptr;
 
@@ -474,11 +412,6 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 	DrawOverlay(context, scene, stats, statsHistory, debugOptions,
 				*_overlayTitleImFont, *_overlayBodyImFont);
 
-//	CleanupMeshElementResources(_activeMeshElements, _meshElementGLMapping);
-//	CleanupTextureResources(_activeTextures, _textureGLMapping);
-//	CleanupLinesResources(_activeLines, _linesGLMapping);
-
-//	CheckGLError();
 	A3D_GL_CHECK();
 
 	profiler.add(Profiler::Tag::RenderGpu, _drawTimer.end());
@@ -500,231 +433,6 @@ void OpenGLRenderer::postTraversal(const Scene& scene,
 	SendEnvironmentUniforms(_glEnvironmentUBO, scene, lightNodes, stats);
 	//glBindBufferBase(GL_UNIFORM_BUFFER, ENV_BINDING_POINT, _glEnvironmentUBO); // necessary? -- nope!
 }
-
-void OpenGLRenderer::render(const Scene& scene,
-							const RenderContext& context,
-							const mat4& viewMat,
-							const mat4& projectionMat,
-							const DebugOptions& debugOptions,
-							FrameStats& stats) {
-
-	GLint prevDrawFbo = 0;
-	GLint prevReadFbo = 0;
-	glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &prevDrawFbo);
-	glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &prevReadFbo);
-
-	auto framebufferSize = context.framebufferSize();
-	glBindFramebuffer(GL_FRAMEBUFFER, context.defaultFramebuffer());
-	glViewport(0, 0, (GLsizei)framebufferSize.x, (GLsizei)framebufferSize.y);
-
-	// clear must not be blocked by leftover state from debug passes / imgui.
-	glDisable(GL_SCISSOR_TEST); // ImGui uses scissor - leaving it on can break clears
-	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	glDepthMask(GL_TRUE);
-	// glStencilMask(0xFF); // if using stencil
-
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClearDepth(1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	auto background = scene.visualWorld()->background();
-
-	std::visit([this, &scene](auto&& background) -> void {
-
-		using T = std::decay_t<decltype(background)>;
-
-		if constexpr (std::is_same_v<T, shared_ptr<Texture>>) {
-
-			if (auto cubeImage = get_if<shared_ptr<CubeImage>>(&(background->contents()))) {
-
-				if (auto pov = scene.visualWorld()->pointOfView().lock()) {
-
-					auto skyboxMesh = scene.visualWorld()->skyboxMesh();
-
-					RenderSkybox(*skyboxMesh,
-								 *pov,
-								 _meshElementGLMapping,
-								 _textureGLMapping,
-//								 _activeTextures,
-								 _state);
-
-					// save reference for housekeeping
-//					_activeMeshElements.emplace(skyboxMesh->elements().front().get());
-				}
-				else {
-					A3D_LOG_W("PointOfView has gone missing.");
-					// TODO: throw?
-				}
-			}
-			else {
-				A3D_LOG_E("Image background not supported.");
-			}
-
-//			if (dynamic_pointer_cast<CubeImage>(background->contents())) {
-//
-//				if (auto pov = scene.visualWorld()->pointOfView().lock()) {
-//
-//					auto skyboxMesh = scene.visualWorld()->skyboxMesh();
-//
-//					RenderSkybox(*skyboxMesh,
-//								 *pov,
-//								 _meshElementGLMapping,
-//								 _textureGLMapping,
-//								 _activeTextures);
-//
-//					// save reference for housekeeping
-//					_activeMeshElements.emplace(skyboxMesh->elements().front().get());
-//				}
-//				else {
-//					A3D_LOG_W("PointOfView has gone missing.");
-//					// TODO: throw?
-//				}
-//			}
-//			else {
-//				A3D_LOG_E("Image background not supported.");
-//			}
-		}
-		else if constexpr (std::is_same_v<T, shared_ptr<Color>>) {
-
-			glClearColor(background->r(), background->g(), background->b(), 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		}
-		else if constexpr (std::is_same_v<T, std::monostate>) {
-			// nada
-		}
-
-	}, background);
-
-//	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
-//
-//		auto worldLines = AABBLines(scene.aabb(false), *Color::Green());
-//		render(worldLines, context, mat4(1.0), viewMat, projectionMat);
-//	}
-
-//	SendEnvironmentUniforms(_glEnvironmentUBO, scene, stats);
-//	Program::Default().bindUniformBlock("EnvironmentBlock", _glEnvironmentUBO);
-
-	// this is necessary for Qt to paint the widget properly
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, prevDrawFbo);
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, prevReadFbo);
-}
-
-//void OpenGLRenderer::render(Mesh& mesh,
-//							const RenderContext& context,
-//							const mat4& modelMat,
-//							const mat4& viewMat,
-//							const mat4& projectionMat,
-//							const DebugOptions& debugOptions,
-//							FrameStats& stats) {
-//
-//	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
-//
-//		auto localAABB = mesh.localAABB();
-//
-//		// notice identity modelMat
-//		auto worldLines = AABBLines(mesh.worldAABB(modelMat, false), *Color::Red());
-//		render(worldLines, context, mat4(1.0), viewMat, projectionMat);
-//
-//		// multiplying local AABB by modelMat creates OBB
-//		auto localLines = AABBLines(localAABB, *Color::Gray());
-//		render(localLines, context, modelMat, viewMat, projectionMat);
-//	}
-//}
-
-//void OpenGLRenderer::render(MeshElement& element,
-//							const RenderContext& context,
-//							Material& material,
-//							const mat4& modelMat,
-//							const mat4& viewMat,
-//							const mat4& projectionMat,
-//							const DebugOptions& debugOptions,
-//							FrameStats& stats) {
-//
-//	// check and load vertex data if necessary
-//
-//	GLuint vbo, vao, ebo;
-//	GetMeshElementGLVertexDataHandles(element,
-//									  _meshElementGLMapping,
-//									  vbo, vao, ebo);
-//
-//	auto wireframe = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes);
-//
-//	auto program = wireframe
-//			? Program::Wireframe()
-//			: Program::Default();
-//
-//	// and load material contents if necessary
-//
-//	auto glTextureHandles = map<MaterialPropertyType, GLuint>();
-//	GetTextureGLTextureHandles(material,
-//							   _textureGLMapping,
-//							   _activeTextures,
-//							   glTextureHandles);
-//
-//	if (!wireframe) {
-//
-//		// send material and2 material property uniforms
-//		SendMaterialUniforms(material, program, glTextureHandles);
-//
-//		// update material property filtering options
-//		SetMaterialFilteringOptions(material, glTextureHandles);
-//	}
-//
-//	// configure OpenGL state
-//
-//	//SetMaterialOpenGLState(material, debugOptions);
-//
-//	// update
-//
-//	DrawMeshElement(element, program, modelMat, viewMat, projectionMat, vao, ebo);//, _drawItems);
-//
-//	// save reference for housekeeping
-//
-//	_activeMeshElements.emplace(&element);
-//
-//	// draw AABB lines
-//
-////	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
-////		render(element.aabbLines(), modelMat, viewMat, projectionMat);
-////	}
-//}
-
-//void OpenGLRenderer::render(MeshElement& element,
-//							const RenderContext& context,
-//							Material& material,
-//							const mat4& modelMat,
-//							const mat4& viewMat,
-//							const mat4& projectionMat,
-//							const DebugOptions& debugOptions,
-//							FrameStats& stats) {
-//
-////	bindMaterial(material);
-////	bindMeshElement(element);
-////	setPerObject(modelMat, viewMat, projectionMat);
-////	drawBound();
-//}
-
-
-
-
-//void OpenGLRenderer::EnsureDebugLinesBuffers(Program& program) {
-//	if (_dbgLinesVBO != 0) return;
-//
-//	glGenBuffers(1, &_dbgLinesVBO);
-//	glGenVertexArrays(1, &_dbgLinesVAO);
-//
-//	glBindVertexArray(_dbgLinesVAO);
-//	glBindBuffer(GL_ARRAY_BUFFER, _dbgLinesVBO);
-//
-//	const unsigned POSITION_LOCATION = 0;
-//	const unsigned COLOR_LOCATION = 1;
-//
-//	glVertexAttribPointer(POSITION_LOCATION, 3, GL_FLOAT, GL_FALSE, sizeof(vec3)*2, (void*)0);
-//	glEnableVertexAttribArray(POSITION_LOCATION);
-//
-//	glVertexAttribPointer(COLOR_LOCATION, 3, GL_FLOAT, GL_FALSE, sizeof(vec3)*2, (void*)sizeof(vec3));
-//	glEnableVertexAttribArray(COLOR_LOCATION);
-//}
 
 void OpenGLRenderer::EnsureDebugLinesBuffers() {
 	if (_dbgLinesVAO != 0 && _dbgLinesVBO != 0) return;
@@ -755,152 +463,6 @@ void OpenGLRenderer::EnsureDebugLinesBuffers() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-
-
-
-
-// TODO: split into render(lines) and render(AABB)
-// for lines, stay immediate
-// for AABBs, upload a unit cube wireframe and use different model mats
-// 		(use center+halt extent rep for faster line creation?)
-//void OpenGLRenderer::render(const vector<Line>& lines,
-//							const RenderContext& context,
-//							const mat4& modelMat,
-//							const mat4& viewMat,
-//							const mat4& projectionMat) {
-//
-//	auto program = Program::Lines();
-//
-//	//EnsureDebugLinesBuffers(program);
-//	EnsureDebugLinesBuffers();
-//
-//	vector<vec3> buf;
-//	buf.reserve(lines.size() * 4);
-//	for (const auto& line : lines) {
-//		buf.push_back(line.fromLocation());
-//		buf.push_back(line.fromColor().rgb());
-//		buf.push_back(line.toLocation());
-//		buf.push_back(line.toColor().rgb());
-//	}
-//
-//	SetLinesGLState();
-//
-//	program.use();
-//	_state.program = program.glID();
-//	program.setUniform("modelMat", modelMat);
-//	program.setUniform("viewMat", viewMat);
-//	program.setUniform("projMat", projectionMat);
-//
-//	glBindVertexArray(_dbgLinesVAO);
-//	glBindBuffer(GL_ARRAY_BUFFER, _dbgLinesVBO);
-//
-//	glBufferData(GL_ARRAY_BUFFER,
-//				 (GLsizeiptr)(buf.size() * sizeof(vec3)),
-//				 buf.data(),
-//				 GL_DYNAMIC_DRAW);
-//
-//	glDrawArrays(GL_LINES, 0, (GLsizei)lines.size() * 2);
-//}
-
-
-
-
-//void OpenGLRenderer::render(const std::vector<Line>& lines,
-//							const RenderContext& context,
-//							const math::mat4& modelMat,
-//							const math::mat4& viewMat,
-//							const math::mat4& projectionMat) {
-//	if (lines.empty()) return;
-//
-//	auto program = Program::Lines();
-//	EnsureDebugLinesBuffers();
-//	SetLinesGLState();
-//
-//	// Build interleaved vertex stream: 2 vertices per line
-//	_dbgLineVerts.clear();
-//	_dbgLineVerts.reserve(lines.size() * 2);
-//
-//	for (const auto& line : lines) {
-//		_dbgLineVerts.push_back(DebugLineVertex{
-//				line.fromLocation(),
-//				line.fromColor().rgb()
-//		});
-//		_dbgLineVerts.push_back(DebugLineVertex{
-//				line.toLocation(),
-//				line.toColor().rgb()
-//		});
-//	}
-//
-//	program.use();
-//	_state.program = program.glID();
-//	program.setUniform("modelMat", modelMat);
-//	program.setUniform("viewMat", viewMat);
-//	program.setUniform("projMat", projectionMat);
-//
-//	glBindVertexArray(_dbgLinesVAO);
-//	glBindBuffer(GL_ARRAY_BUFFER, _dbgLinesVBO);
-//
-//	glBufferData(GL_ARRAY_BUFFER,
-//				 (GLsizeiptr)(_dbgLineVerts.size() * sizeof(DebugLineVertex)),
-//				 _dbgLineVerts.data(),
-//				 GL_STREAM_DRAW);
-//
-//	glDrawArrays(GL_LINES, 0, (GLsizei)_dbgLineVerts.size());
-//
-//	glBindVertexArray(0);
-//	glBindBuffer(GL_ARRAY_BUFFER, 0);
-//}
-
-
-//void OpenGLRenderer::render(const std::vector<Line>& lines,
-//							const RenderContext& context,
-//							const mat4& modelMat,
-//							const mat4& viewMat,
-//							const mat4& projectionMat) {
-//
-//	if (lines.empty()) return;
-//
-//	bindPipeline(_debugLinesPipeline, _cache);
-//	setPerObject(modelMat, viewMat, projectionMat);
-//
-//	// Bind through the same state system
-////	PipelineKey key = MakeDebugLinesPipelineKey();
-////	PipelineHandle h = _cache.ensurePipeline(key);
-////	bindPipeline(h, _cache);
-//
-//	// (No SetLinesGLState() needed anymore; the pipeline state *is* the state.)
-//
-//	EnsureDebugLinesBuffers();
-//
-//	_dbgLineVerts.clear();
-//	_dbgLineVerts.reserve(lines.size() * 2);
-//	for (const auto& line : lines) {
-//		_dbgLineVerts.push_back({ line.fromLocation(), line.fromColor().rgb() });
-//		_dbgLineVerts.push_back({ line.toLocation(),   line.toColor().rgb()   });
-//	}
-//
-//	// uniforms: use your existing setPerObject if you want
-//	setPerObject(modelMat, viewMat, projectionMat);
-//
-//	glBindVertexArray(_dbgLinesVAO);
-//	glBindBuffer(GL_ARRAY_BUFFER, _dbgLinesVBO);
-//
-//	glBufferData(GL_ARRAY_BUFFER,
-//				 (GLsizeiptr)(_dbgLineVerts.size() * sizeof(DebugLineVertex)),
-//				 _dbgLineVerts.data(),
-//				 GL_STREAM_DRAW);
-//
-//	glDrawArrays(GL_LINES, 0, (GLsizei)_dbgLineVerts.size());
-//}
-
-
-
-
-void OpenGLRenderer::blank() {
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
-
 unique_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 
 	auto framebufferSize = context.framebufferSize();
@@ -918,198 +480,7 @@ unique_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 	return make_unique<Image>(std::move(buffer), framebufferWidth, framebufferHeight, 4);
 }
 
-//void OpenGLRenderer::draw() {
-//
-//	int i=0;
-//	for (auto& item : _drawItems) {
-//		A3D_LOG_D("drawing item {}...", i++);
-//
-//		item.program->use();
-//
-//		item.program->setUniform("modelMat", item.model);
-//		item.program->setUniform("viewMat", item.view);
-//		item.program->setUniform("projMat", item.projection);
-//
-//		// update
-//
-//		glBindVertexArray(item.vao);
-//		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, item.ebo);\
-//		glDrawElements(GL_TRIANGLES, item.numElements, GL_UNSIGNED_INT, nullptr);
-//	}
-//}
-
 /// Private Static Non-Member Functions ///
-
-void RenderSkybox(Mesh& skyboxMesh,
-				  Node& pointOfView,
-				  OpenGLRenderer::MeshElementGLMapping& elementGLMapping,
-				  OpenGLRenderer::TextureGLMapping& textureGLMapping,
-//				  unordered_set<Texture*>& activeTextures,
-				  GLStateCache& state) {
-
-	auto program = Program::Skybox();
-	
-	auto& element = skyboxMesh.elements().front();
-	auto material = skyboxMesh.materials().front();
-	auto emissiveProperty = material->emission();
-	
-	// check and load vertex data if necessary
-	
-	GLuint vbo, vao, ebo;
-	GetSkyboxGLVertexDataHandles(skyboxMesh,
-								 elementGLMapping,
-								 vbo, vao, ebo,
-								 state);
-	
-	// and load material contents if necessary
-	
-	auto glTextureHandles = map<MaterialPropertyType, GLuint>();
-	GetTextureGLTextureHandles(*material,
-							   textureGLMapping,
-//							   activeTextures,
-							   glTextureHandles);
-	auto emissiveGLTextureHandle = glTextureHandles[MaterialPropertyType::Emission];
-	
-	// send material property uniforms
-
-	SendMaterialPropertyUniforms(emissiveProperty,
-								 MaterialPropertyType::Emission,
-								 emissiveGLTextureHandle,
-								 program,
-								 state);
-	
-	// update material property filtering options
-
-	if (auto texture = get_if<shared_ptr<Texture>>(&emissiveProperty)) {
-		SetTextureSamplingOptions(**texture, emissiveGLTextureHandle);
-	}
-
-//	if (holds_alternative<shared_ptr<Texture>>(emissiveProperty)) {
-//		auto texture = get<shared_ptr<Texture>>(emissiveProperty);
-//		SetTextureSamplingOptions(*texture, emissiveGLTextureHandle);
-//	}
-	
-	// configure OpenGL state
-	
-	SetSkyboxOpenGLState();
-	
-	// update
-	
-	DrawSkyboxElement(*element, program, pointOfView, vao, ebo, state);
-}
-	
-void GetMeshElementGLVertexDataHandles(MeshElement& element,
-									   OpenGLRenderer::MeshElementGLMapping& glMapping,
-									   GLuint& glVBO, GLuint& glVAO, GLuint& glEBO,
-									   GLStateCache& state) {
-
-	// looks up and populates glVBO, glVAO, and glEBO, loading the vertex data if needed
-
-	if (A3D_MASK_CONTAINS(element.dirtyMask(), MeshElementDirtyMask::VertexData)) {
-
-		DeleteMeshElementGLResources(&element, glMapping);
-
-		BufferMeshElementVertexData(element, glVBO, glVAO, glEBO);
-		
-		glMapping[&element] = make_tuple(glVBO, glVAO, glEBO);
-
-		element.dirtyMask(A3D_MASK_REMOVE(element.dirtyMask(),
-										  MeshElementDirtyMask::VertexData));
-	}
-	else {
-		auto mapping = glMapping[&element];
-		glVBO = get<0>(mapping);
-		glVAO = get<1>(mapping);
-		glEBO = get<2>(mapping);
-	}
-}
-
-void GetSkyboxGLVertexDataHandles(Mesh& skyboxMesh,
-								  OpenGLRenderer::MeshElementGLMapping& glMapping,
-								  GLuint& glVBO, GLuint& glVAO, GLuint& glEBO,
-								  GLStateCache& state) {
-
-	// looks up and populates glVBO, glVAO, and glEBO, loading the vertex data if needed
-	//
-	// NOTE: this is essentially exactly the same as GetMeshElementGLVertexDataHandles()
-	// except if the data needs to be loaded, it uses BufferMeshElementVertexData() as the
-	// layout is different.  This will probaly need to be refacted in the future as more layouts are used
-	
-	auto& element = skyboxMesh.elements().front();
-
-	if (A3D_MASK_CONTAINS(element->dirtyMask(), MeshElementDirtyMask::VertexData)) {
-
-		DeleteMeshElementGLResources(element.get(), glMapping);
-		
-		BufferSkyboxVertexData(skyboxMesh, glVBO, glVAO, glEBO, state);
-		
-		glMapping[element.get()] = make_tuple(glVBO, glVAO, glEBO);
-
-		element->dirtyMask(A3D_MASK_REMOVE(element->dirtyMask(),
-										   MeshElementDirtyMask::VertexData));
-	}
-	else {
-		auto mapping = glMapping[element.get()];
-		glVBO = get<0>(mapping);
-		glVAO = get<1>(mapping);
-		glEBO = get<2>(mapping);
-	}
-}
-
-//void GetLinesVertexDataHandles(const vector<Line>& lines,
-//							   Program& program,
-//							   OpenGLRenderer::LinesGLMapping& glMapping,
-//							   GLuint& glVBO, GLuint& glVAO) {
-//
-//	if (!glMapping.count(&lines)) {
-//
-//		BufferLinesVertexData(lines, program, glVBO, glVAO);
-//
-//		glMapping[&lines] = make_pair(glVBO, glVAO);
-//	}
-//	else {
-//		auto mapping = glMapping[&lines];
-//		glVBO = get<0>(mapping);
-//		glVAO = get<1>(mapping);
-//	}
-//}
-
-//void GetTextureGLTextureHandles(Material& material,
-//								OpenGLRenderer::TextureGLMapping& glMapping,
-////								unordered_set<Texture*>& activeTextures,
-//								map<MaterialPropertyType, GLuint>& glTextureHandles) {
-//
-//	// looks up and populates glTextureHandle, loading the texture data if needed
-//
-//	for (auto& [property, type] : material.properties()) {
-//
-//		if (auto texture = get_if<shared_ptr<Texture>>(property)) {
-//
-//			if (A3D_MASK_CONTAINS((*texture)->dirtyMask(), TextureDirtyMask::Contents)) {
-//
-//				A3D_LOG_D("Texture {:p} contents dirty.", static_cast<void*>(&texture));
-//
-//				DeleteTextureGLResources(texture->get(), glMapping);
-//
-//				GLuint textureID = 0;
-//				BufferTexture(**texture, textureID);
-//				if (textureID > 0) {
-//					glTextureHandles[type] = textureID;
-//					glMapping[texture->get()] = textureID;
-//				}
-//
-//				(*texture)->dirtyMask(A3D_MASK_REMOVE((*texture)->dirtyMask(),TextureDirtyMask::Contents));
-//			}
-//			else {
-//				auto textureHandle = glMapping[texture->get()];
-//				glTextureHandles[type] = textureHandle;
-//			}
-//
-//			// save reference for housekeeping
-////			activeTextures.emplace(texture->get());
-//		}
-//	}
-//}
 
 void GetTextureGLTextureHandles(Material& material,
 								OpenGLRenderer::TextureGLMapping& glMapping,
@@ -1163,203 +534,6 @@ void GetTextureGLTextureHandles(Material& material,
 
 		glTextureHandles[type] = handle;
 	}
-}
-
-//void BufferMeshElementVertexData(const MeshElement& element,
-//								 Program& program,
-//								 GLuint& glVBO, GLuint& glVAO, GLuint& glEBO,
-//								 GLStateCache& state) {
-//
-//	A3D_LOG_D("Buffering vertex data for mesh element {:p}...",
-//			  static_cast<const void*>(&element));
-//
-//	program.use();
-//	state.program = program.glID();
-//
-//	auto verticies = element.vertices();
-//	auto faces = element.faces();
-//
-//	glGenBuffers(1, &glVBO);
-//	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
-//	glBufferData(GL_ARRAY_BUFFER,
-//				 (GLsizeiptr)(verticies.size()*sizeof(Vertex)),
-//				 &(verticies[0]),
-//				 GL_STATIC_DRAW);
-//
-//	glGenVertexArrays(1, &glVAO);
-//	glBindVertexArray(glVAO);
-//
-//	// from 'layout (location = x)'
-//	const unsigned POSITION_LOCATION = 0;
-//	const unsigned NORMAL_LOCATION = 1;
-//	const unsigned TEXCOORD_LOCATION = 2;
-//
-//	//auto positionIndex = program.getAttributeLocation("vert_vertPos");
-//	glVertexAttribPointer(POSITION_LOCATION, 			// attrib index
-//						  3, 						// num components per attrib (3 float in vec3)
-//						  GL_FLOAT, 				// component type
-//						  GL_FALSE, 				// normalize
-//						  sizeof(Vertex), 			// stride
-//						  nullptr); 						// start offset
-//	glEnableVertexAttribArray(POSITION_LOCATION);
-//
-//	//auto normalIndex = program.getAttributeLocation("vert_vertNorm");
-//	glVertexAttribPointer(NORMAL_LOCATION, 				// attrib index
-//						  3, 						// num components per attrib (3 float in vec3)
-//						  GL_FLOAT, 				// component type
-//						  GL_FALSE, 				// normalize
-//						  sizeof(Vertex), 			// stride
-//						  (void*)sizeof(vec3)); 	// start offset
-//	glEnableVertexAttribArray(NORMAL_LOCATION);
-//
-//	//auto texCoordIndex = program.getAttributeLocation("vert_texCoord");
-//	glVertexAttribPointer(TEXCOORD_LOCATION, 							// attrib index
-//						  2, 										// num components per attrib (2 float in vec2)
-//						  GL_FLOAT, 								// component type
-//						  GL_FALSE, 								// normalize
-//						  sizeof(Vertex), 							// stride
-//						  (void*)(sizeof(vec3) + sizeof(vec3))); 	// start offset
-//	glEnableVertexAttribArray(TEXCOORD_LOCATION);
-//
-//	glGenBuffers(1, &glEBO);
-//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glEBO);
-//	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-//				 (GLsizeiptr)(faces.size() * sizeof(Face)),
-//				 &(faces[0]),
-//				 GL_STATIC_DRAW);
-//
-//	//program.unuse();
-//}
-
-void BufferMeshElementVertexData(const MeshElement& element,
-								 GLuint& glVBO, GLuint& glVAO, GLuint& glEBO) {
-
-	A3D_LOG_D("Buffering vertex data for mesh element {:p}...",
-			  static_cast<const void*>(&element));
-
-	auto verticies = element.vertices();
-	auto faces = element.faces();
-
-	glGenBuffers(1, &glVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
-	glBufferData(GL_ARRAY_BUFFER,
-				 (GLsizeiptr)(verticies.size()*sizeof(Vertex)),
-				 verticies.data(),
-				 GL_STATIC_DRAW);
-
-	glGenVertexArrays(1, &glVAO);
-	glBindVertexArray(glVAO);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)sizeof(vec3));
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(vec3) + sizeof(vec3)));
-	glEnableVertexAttribArray(2);
-
-	glGenBuffers(1, &glEBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glEBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-				 (GLsizeiptr)(faces.size() * sizeof(Face)),
-				 faces.data(),
-				 GL_STATIC_DRAW);
-}
-
-
-void BufferSkyboxVertexData(Mesh& skyboxMesh,
-							GLuint& glVBO, GLuint& glVAO, GLuint& glEBO,
-							GLStateCache& state) {
-
-	A3D_LOG_D("Buffering skybox vertex data...");
-
-//	program.use();
-//	state.program = program.glID();
-	
-	auto& element = skyboxMesh.elements().front();
-	auto verts = element->vertices();
-	auto faces = element->faces();
-	
-	glGenBuffers(1, &glVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
-	glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(verts.size()*sizeof(Vertex)),
-				 &(verts[0]), GL_STATIC_DRAW);
-	
-	glGenVertexArrays(1, &glVAO);
-	glBindVertexArray(glVAO);
-
-	// from 'layout (location = x)'
-	const unsigned POSITION_LOCATION = 0;
-
-	//GLuint positionIndex = program.getAttributeLocation("vert_vertPos");
-	glVertexAttribPointer(POSITION_LOCATION, // attrib index
-						  3, // num components per attrib (3 float in vec3)
-						  GL_FLOAT, // component type
-						  GL_FALSE, // normalize
-						  sizeof(Vertex), // stride
-						  nullptr); // start offset
-	glEnableVertexAttribArray(POSITION_LOCATION);
-	
-	glGenBuffers(1, &glEBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glEBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-				 (GLsizeiptr)(faces.size() * sizeof(Face)),
-				 &(faces[0]),
-				 GL_STATIC_DRAW);
-	
-	//program.unuse();
-}
-
-void BufferLinesVertexData(const vector<Line>& lines,
-						   Program& program,
-						   GLuint& glVBO, GLuint& glVAO) {
-	//A3D_LOG_D("Buffering vertex data for {} lines...", lines.size());
-
-	// pack each Line into a vector with format <fromLocation, fromColor, toLocation, toColor>
-
-	auto massagedBuffer = vector<vec3>();
-	massagedBuffer.reserve(lines.size()*4);
-
-	// TODO: stupid. change this.
-	for (auto& line : lines) {
-		auto fromLocation = line.fromLocation();
-		const auto& fromColor = line.fromColor();
-		auto toLocation = line.toLocation();
-		const auto& toColor = line.toColor();
-		massagedBuffer.push_back(fromLocation);
-		massagedBuffer.push_back(fromColor.rgb());
-		massagedBuffer.push_back(toLocation);
-		massagedBuffer.push_back(toColor.rgb());
-	}
-
-	glGenBuffers(1, &glVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, glVBO);
-	glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)(massagedBuffer.size()*sizeof(vec3)),
-				 massagedBuffer.data(), GL_STATIC_DRAW);
-
-	glGenVertexArrays(1, &glVAO);
-	glBindVertexArray(glVAO);
-
-	// from 'layout (location = x)'
-	const unsigned POSITION_LOCATION = 0;
-	const unsigned COLOR_LOCATION = 1;
-
-	//auto positionIndex = program.getAttributeLocation("vert_vertPos");
-	glVertexAttribPointer(POSITION_LOCATION, 		// attrib index
-						  3, 					// num components per attrib (3 float in vec3)
-						  GL_FLOAT, 			// component type
-						  GL_FALSE, 			// normalize
-						  sizeof(vec3)*2, 		// stride
-						  nullptr); 					// start offset
-	glEnableVertexAttribArray(POSITION_LOCATION);
-
-	//auto colorIndex = program.getAttributeLocation("vert_vertColor"); // was texCoord?
-	glVertexAttribPointer(COLOR_LOCATION, 			// attrib index
-						  3, 					// num components per attrib (3 float in vec3)
-						  GL_FLOAT, 			// component type
-						  GL_FALSE, 			// normalize
-						  sizeof(vec3)*2, 		// stride
-						  (void*)sizeof(vec3));	// start offset
-	glEnableVertexAttribArray(COLOR_LOCATION);
 }
 
 void BufferTexture(const Texture& texture,
@@ -1468,102 +642,6 @@ void BufferTexture(const Texture& texture,
 	}, contents);
 }
 
-//void BufferTexture(const Texture& texture,
-//				   GLuint& glTextureHandle) {
-//
-//	auto contents = texture.contents();
-//
-//	if (dynamic_pointer_cast<CubeImage>(contents)) {
-//
-//		A3D_LOG_D("Buffering cube texture {:p}...", static_cast<const void*>(&contents));
-//
-//		auto cubeImage = dynamic_pointer_cast<CubeImage>(contents);
-//
-//		Image* images[] = {
-//			cubeImage->posX(),
-//			cubeImage->negX(),
-//			cubeImage->posY(),
-//			cubeImage->negY(),
-//			cubeImage->posZ(),
-//			cubeImage->negZ() };
-//
-//		GLenum sides[] = {
-//			GL_TEXTURE_CUBE_MAP_POSITIVE_X,
-//			GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
-//			GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
-//			GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
-//			GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
-//			GL_TEXTURE_CUBE_MAP_NEGATIVE_Z };
-//
-//		glGenTextures(1, &glTextureHandle);
-//		glBindTexture(GL_TEXTURE_CUBE_MAP, glTextureHandle);
-//
-//		for (int s=0; s<6; ++s) {
-//			GLenum side = sides[s];
-//			auto image = images[s];
-//
-//			unsigned bytesPerPixel = image->bytesPerPixel();
-//			GLint glInternalFormat = GL_RGBA;
-//			if (bytesPerPixel == 3) glInternalFormat = GL_RGB;
-//			else if (bytesPerPixel == 1) glInternalFormat = GL_RED;
-//
-//			glTexImage2D(side,
-//						 0,
-//						 glInternalFormat,//GL_RGB, //GL_SRGB_ALPHA,
-//						 image->width(),
-//						 image->height(),
-//						 0,
-//						 GL_RGBA,//(image->bytesPerPixel() == 3 ? GL_RGB : GL_RGBA),
-//						 GL_UNSIGNED_BYTE,
-//						 image->buffer().data());
-//		}
-//
-//		auto sampler = texture.sampler();
-//		SetTextureMinificationFilter(glTextureHandle, true, sampler->minificationFilter());
-//		SetTextureMagnificationFilter(glTextureHandle, true, sampler->magnificationFilter());
-//		SetTextureMaxAnisotropy(glTextureHandle, true, sampler->maxAnisotropy());
-//		SetTextureWrapS(glTextureHandle, true, sampler->wrapS());
-//		SetTextureWrapT(glTextureHandle, true, sampler->wrapT());
-//		SetTextureWrapR(glTextureHandle, sampler->wrapR());
-//	}
-//	else if (dynamic_pointer_cast<Image>(contents)) {
-//
-//		A3D_LOG_D("Buffering 2D texture {:p}...", static_cast<const void*>(&contents));
-//
-//		auto image = dynamic_pointer_cast<Image>(contents);
-//
-//		glGenTextures(1, &glTextureHandle);
-//		A3D_LOG_D("Binding new texture handle: {}", glTextureHandle);
-//		glBindTexture(GL_TEXTURE_2D, glTextureHandle);
-//
-////		unsigned bytesPerPixel = image->bytesPerPixel();
-////		GLint glInternalFormat;
-////		if (bytesPerPixel == 3) glInternalFormat = GL_RGB;
-////		else if (bytesPerPixel == 1) glInternalFormat = GL_RED;
-//
-//		A3D_LOG_D("Buffering image {:p}: width: {}, height: {}, bytesPerPixel: {}, data size: {}",
-//				 static_cast<void*>(image.get()), image->width(), image->height(), image->bytesPerPixel(),
-//				 image->width() * image->height() * image->bytesPerPixel());
-//
-//		glTexImage2D(GL_TEXTURE_2D,
-//					 0,
-//					 GL_RGBA,//glInternalFormat,//GL_RGBA,//GL_SRGB_ALPHA,
-//					 image->width(),
-//					 image->height(),
-//					 0,
-//					 GL_RGBA,//(image->bytesPerPixel() == 3 ? GL_RGB : GL_RGBA),
-//					 GL_UNSIGNED_BYTE,
-//					 image->buffer().data());
-//
-//		auto sampler = texture.sampler();
-//		SetTextureMinificationFilter(glTextureHandle, false, sampler->minificationFilter());
-//		SetTextureMagnificationFilter(glTextureHandle, false, sampler->magnificationFilter());
-//		SetTextureMaxAnisotropy(glTextureHandle, false, sampler->maxAnisotropy());
-//		SetTextureWrapS(glTextureHandle, false, sampler->wrapS());
-//		SetTextureWrapT(glTextureHandle, false, sampler->wrapT());
-//	}
-//}
-
 void SendMaterialUniforms(const Material& material,
 						  Program& program,
 						  map<MaterialPropertyType, GLuint>& glTextureHandles,
@@ -1667,55 +745,6 @@ void SendMaterialPropertyUniforms(const MaterialProperty& property,
 				}
 
 			}, property->contents());
-
-
-
-//			if (dynamic_pointer_cast<Image>(property->contents())) {
-//
-//				string modeUniformName;
-//				string samplerUniformName;
-//				GLenum slot;
-//				GLint index;
-//
-//				switch (type) {
-//					case MaterialPropertyType::Ambient:
-//						modeUniformName = "ambientContentsType";
-//						samplerUniformName = "samplers.ambient";
-//						slot = GL_TEXTURE0;
-//						index = 0;
-//						break;
-//					case MaterialPropertyType::Diffuse:
-//						modeUniformName = "diffuseContentsType";
-//						samplerUniformName = "samplers.diffuse";
-//						slot = GL_TEXTURE1;
-//						index = 1;
-//						break;
-//					case MaterialPropertyType::Specular:
-//						modeUniformName = "specularContentsType";
-//						samplerUniformName = "samplers.specular";
-//						slot = GL_TEXTURE2;
-//						index = 2;
-//						break;
-//					case MaterialPropertyType::Emission:
-//						modeUniformName = "emissionContentsType";
-//						samplerUniformName = "samplers.emission";
-//						slot = GL_TEXTURE3;
-//						index = 3;
-//						break;
-//					default:
-//						A3D_LOG_E("Invalid MaterialPropertyType: {}",
-//								  magic_enum::enum_name<MaterialPropertyType>(type));
-//						return;
-//				}
-//
-//				program.setUniform(modeUniformName.c_str(),
-//								   static_cast<underlying_type<MaterialContentsType>::type>(MaterialContentsType::Sampler));
-//				program.bindTexture(samplerUniformName.c_str(), GL_TEXTURE_2D, slot, glTextureHandle, index);
-//			}
-//			else if (dynamic_pointer_cast<CubeImage>(property->contents())) {
-//
-//				program.bindTexture("cubeSampler", GL_TEXTURE_CUBE_MAP, GL_TEXTURE0, glTextureHandle, 0);
-//			}
 		}
 		else if constexpr (std::is_same_v<T, shared_ptr<Color>>) {
 
@@ -1900,154 +929,6 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(EnvironmentBlock), &environmentStruct, GL_DYNAMIC_DRAW);
 }
 
-//void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
-//							 const Scene& scene,
-//							 const vector<Node*>& lightNodes,
-//							 FrameStats& stats) {
-//	// program "Default" must be active
-//
-//	// block
-//
-//	EnvironmentBlock environmentStruct{};
-//
-//	// lights
-//
-//	if (scene.visualWorld()->usesDefaultLighting()) {
-//
-//		environmentStruct.useDefaultLighting = 1u;
-//	}
-//	else {
-//
-//		auto numLights = lightNodes.size();
-//
-//		stats.numLights = numLights;
-//
-//		if (((numLights == 0) && scene.visualWorld()->autoEnablesDefaultLighting())) {
-//
-//			environmentStruct.useDefaultLighting = 1u;
-//		}
-//		else {
-//
-//			environmentStruct.useDefaultLighting = 0u;
-//
-//			vector<AmbientLightGLSLStruct> ambientStructs;
-//			vector<DirectionalLightGLSLStruct> directionalStructs;
-//			vector<PointLightGLSLStruct> pointStructs;
-//			vector<SpotLightGLSLStruct> spotStructs;
-//
-//			ambientStructs.reserve(config::MAX_AMBIENT_LIGHTS);
-//			directionalStructs.reserve(config::MAX_DIRECTIONAL_LIGHTS);
-//			pointStructs.reserve(config::MAX_POINT_LIGHTS);
-//			spotStructs.reserve(config::MAX_SPOT_LIGHTS);
-//
-//			for (unsigned l = 0; l < numLights; ++l) {
-//
-//				auto node = lightNodes[l];
-//				auto light = node->light().get();
-//				auto color = light->color();
-//
-//				// light_cutoff:
-//				// if an attenuated light, first make sure it's not past its cutoff distance.
-//				// this is either a hard-coded distance or calcualted based on a minimum attenuation.
-//				//
-//				// for min attenuation:
-//				// https://gamedev.stackexchange.com/a/56934
-//				// cuts light off at distance 'd'
-//				// when attenuation drops below 'a'.
-//				// d = sqrt(1.0 / (Kq * a))
-//				//
-//				// UPDATE: distance from what? the camera?  that doesn't make sense.
-//				// the fragment?  sure, but probably slow.
-//				// the vertex?  sure, but maybe messy?
-//
-//				if (auto ambientLight = dynamic_cast<AmbientLight*>(light)) {
-//					if (ambientStructs.size() < config::MAX_AMBIENT_LIGHTS) {
-//						AmbientLightGLSLStruct lightStruct{};
-//						lightStruct.color = ambientLight->color()->rgba();
-//						ambientStructs.push_back(lightStruct);
-//					}
-//				}
-//				else if (auto directionalLight = dynamic_cast<DirectionalLight*>(light)) {
-//					if (directionalStructs.size() < config::MAX_DIRECTIONAL_LIGHTS) {
-//						DirectionalLightGLSLStruct lightStruct{};
-//						lightStruct.color = directionalLight->color()->rgba();
-//						lightStruct.direction_world = node->worldForward();
-//						directionalStructs.push_back(lightStruct);
-//					}
-//				}
-//				else if (auto pointLight = dynamic_cast<PointLight*>(light)) {
-//					if (pointStructs.size() < config::MAX_POINT_LIGHTS) {
-//						PointLightGLSLStruct lightStruct{};
-//						lightStruct.color = pointLight->color()->rgba();
-//						lightStruct.position_world = node->worldPosition();
-//						lightStruct.constantAttenuation = pointLight->constantAttenuation();
-//						lightStruct.linearAttenuation = pointLight->linearAttenuation();
-//						lightStruct.quadraticAttenuation = pointLight->quadraticAttenuation();
-//						pointStructs.push_back(lightStruct);
-//					}
-//				}
-//				else if (auto spotLight = dynamic_cast<SpotLight*>(light)) {
-//					if (spotStructs.size() < config::MAX_SPOT_LIGHTS) {
-//						SpotLightGLSLStruct lightStruct{};
-//						lightStruct.color = spotLight->color()->rgba();
-//						lightStruct.position_world = node->worldPosition();
-//						lightStruct.direction_world = node->worldForward();
-//						lightStruct.innerAngleCos = spotLight->innerAngleCos();
-//						lightStruct.outerAngleCos = spotLight->outerAngleCos();
-//						lightStruct.featheringMode = magic_enum::enum_underlying(spotLight->featheringMode());
-//						lightStruct.constantAttenuation = spotLight->constantAttenuation();
-//						lightStruct.linearAttenuation = spotLight->linearAttenuation();
-//						lightStruct.quadraticAttenuation = spotLight->quadraticAttenuation();
-//						spotStructs.push_back(lightStruct);
-//					}
-//				}
-//			}
-//
-//			environmentStruct.numAmbientLights = ambientStructs.size();
-//			memcpy(&environmentStruct.ambientLights,
-//				   ambientStructs.data(),
-//				   sizeof(AmbientLightGLSLStruct) * ambientStructs.size());
-//
-//			environmentStruct.numDirectionalLights = directionalStructs.size();
-//			memcpy(&environmentStruct.directionalLights,
-//				   directionalStructs.data(),
-//				   sizeof(DirectionalLightGLSLStruct) * directionalStructs.size());
-//
-//			environmentStruct.numPointLights = pointStructs.size();
-//			memcpy(&environmentStruct.pointLights,
-//				   pointStructs.data(),
-//				   sizeof(PointLightGLSLStruct) * pointStructs.size());
-//
-//			environmentStruct.numSpotLights = spotStructs.size();
-//			memcpy(&environmentStruct.spotLights,
-//				   spotStructs.data(),
-//				   sizeof(SpotLightGLSLStruct) * spotStructs.size());
-//		}
-//	}
-//
-//	// fog
-//
-//	auto visualWorld = scene.visualWorld();
-//	FogGLSLStruct fogStruct{};
-//	fogStruct.startDistance = visualWorld->fogStartDistance();
-//	fogStruct.endDistance = visualWorld->fogEndDistance();
-//	fogStruct.densityExponent = visualWorld->fogDensityExponent();
-//	auto fogColor = visualWorld->fogColor();
-//	if (visualWorld->fogColor()) {
-//		fogStruct.color = fogColor->rgba();
-//	}
-//	else {
-//		fogStruct.color = {0.0, 0.0, 0.0, 0.0};
-//	}
-//
-//	memcpy(&environmentStruct.fog, &fogStruct, sizeof(fogStruct));
-//
-//	// send 'em
-//
-//	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
-//	glBufferData(GL_UNIFORM_BUFFER, sizeof(EnvironmentBlock), &environmentStruct, GL_DYNAMIC_DRAW);
-//}
-
 void SetTextureSamplingOptions(Texture& texture,
 							   GLuint glTextureHandle) {
 
@@ -2185,85 +1066,60 @@ void SetSkyboxOpenGLState() {
 
 
 //void SetLinesGLState() {
-//	glEnable(GL_DEPTH_TEST);
-//	glDepthFunc(GL_LESS);
-//	glDepthMask(GL_TRUE);
-//#ifdef A3D_GL_DESKTOP
-//	glEnable(GL_LINE_SMOOTH);
-//#endif
 //
-//	// https://www.opengl.org/archives/resources/faq/technical/polygonoffset.htm
-//	//glDepthRange(0.0, 0.9);
-////	glDisable(GL_POLYGON_OFFSET_FILL);
-////	glPolygonOffset(0.0, 0.0);
+//	glDisable(GL_CULL_FACE);
+//
+//	glEnable(GL_DEPTH_TEST);
+//	glDepthMask(GL_FALSE);      // don’t write depth
+//
+//	glDisable(GL_BLEND);        // or enable if you want translucency later
+//	// glEnable(GL_BLEND);
+//	// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//
+//#ifndef A3D_GL_ES
+//	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+//#endif
 //}
-
-
-void SetLinesGLState() {
-
-	glDisable(GL_CULL_FACE);
-
-	glEnable(GL_DEPTH_TEST);
-	glDepthMask(GL_FALSE);      // don’t write depth
-
-	glDisable(GL_BLEND);        // or enable if you want translucency later
-	// glEnable(GL_BLEND);
-	// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-#ifndef A3D_GL_ES
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-#endif
-}
-
-
-
-
-void DrawMeshElement(MeshElement& element,
-					 Program& program,
-					 const mat4& modelMat,
-					 const mat4& viewMat,
-					 const mat4& projectionMat,
-					 GLuint vao, GLuint ebo/*,
-					 vector<OpenGLDrawItem>& drawItmes*/,
-					 GLStateCache& state) {
-
-	program.use();
-	state.program = program.glID();
-
-	// uniforms
-
-	program.setUniform("modelMat", modelMat);
-	program.setUniform("viewMat", viewMat);
-	program.setUniform("projMat", projectionMat);
-
-	// update
-
-	glBindVertexArray(vao);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	auto numFaces = element.faces().size();
-	glDrawElements(GL_TRIANGLES, (GLsizei)numFaces*3, GL_UNSIGNED_INT, nullptr);
-
-//	drawItmes.push_back({&program,
-//						 modelMat, viewMat, projectionMat,
-//						 vao, ebo,
-//						 static_cast<unsigned>(numFaces*3)});
-}
+//
+//
+//
+//
+//void DrawMeshElement(MeshElement& element,
+//					 Program& program,
+//					 const mat4& modelMat,
+//					 const mat4& viewMat,
+//					 const mat4& projectionMat,
+//					 GLuint vao, GLuint ebo/*,
+//					 vector<OpenGLDrawItem>& drawItmes*/,
+//					 GLStateCache& state) {
+//
+//	program.use();
+//	state.program = program.glID();
+//
+//	// uniforms
+//
+//	program.setUniform("modelMat", modelMat);
+//	program.setUniform("viewMat", viewMat);
+//	program.setUniform("projMat", projectionMat);
+//
+//	// update
+//
+//	glBindVertexArray(vao);
+//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+//	auto numFaces = element.faces().size();
+//	glDrawElements(GL_TRIANGLES, (GLsizei)numFaces*3, GL_UNSIGNED_INT, nullptr);
+//}
 
 void DrawSkyboxElement(MeshElement& element,
 					   Program& program,
-					   Node& pointOfView,
+					   const mat4& viewMat,
+					   const mat4& projectionMat,
 					   GLuint vao, GLuint ebo,
 					   GLStateCache& state) {
 
 	program.use();
 	state.program = program.glID();
 
-	auto viewMat = look_at({0.0f, 0.0f, 0.0f}, // eye - location
-						  pointOfView.worldForward(), // center - look at
-						  pointOfView.worldUp()); // up
-	
-	auto projectionMat = pointOfView.camera()->projection();
-	
 	program.setUniform("viewMat", viewMat);
 	program.setUniform("projMat", projectionMat);
 	
@@ -2276,252 +1132,6 @@ void DrawSkyboxElement(MeshElement& element,
 	auto numFaces = faces.size();
 	glDrawElements(GL_TRIANGLES, (GLsizei)numFaces*3, GL_UNSIGNED_INT, nullptr);
 }
-
-vector<Line> AABBLines(const AABB& aabb, Color color) {
-
-	float xMin = aabb.min.x;
-	float xMax = aabb.max.x;
-	float yMin = aabb.min.y;
-	float yMax = aabb.max.y;
-	float zMin = aabb.min.z;
-	float zMax = aabb.max.z;
-
-	vec3 one = 		{xMin, yMax, zMin};
-	vec3 two =      {xMin, yMax, zMax};
-	vec3 three =    {xMax, yMax, zMax};
-	vec3 four =     {xMax, yMax, zMin};
-	vec3 five =     {xMin, yMin, zMin};
-	vec3 six =      {xMin, yMin, zMax};
-	vec3 seven =    {xMax, yMin, zMax};
-	vec3 eight =    {xMax, yMin, zMin};
-
-	return vector<Line>{ {one, two, color},
-						 {two, three, color},
-						 {three, four, color},
-						 {four, one, color},
-						 {five, six, color},
-						 {six, seven, color},
-						 {seven, eight, color},
-						 {eight, five, color},
-						 {one, five, color},
-						 {two, six, color},
-						 {three, seven, color},
-						 {four, eight, color} };
-}
-
-void DrawLines(const vector<Line>& lines,
-			   Program& program,
-			   const mat4& modelMat,
-			   const mat4& viewMat,
-			   const mat4& projectionMat,
-			   GLuint glVAO,
-			   GLStateCache& state) {
-
-	program.use();
-	state.program = program.glID();
-
-	// uniforms
-	
-	//program.setUniform("modelMat", modelMat);
-	program.setUniform("modelMat", modelMat);
-	program.setUniform("viewMat", viewMat);
-	program.setUniform("projMat", projectionMat);
-	
-	// update
-	
-	glBindVertexArray(glVAO);
-	glDrawArrays(GL_LINES, 0, (GLsizei)lines.size() * 2);
-}
-
-//void CleanupMeshElementResources(unordered_set<MeshElement*>& active,
-//								 OpenGLRenderer::MeshElementGLMapping& glMapping) {
-//#ifndef DISABLE_RESOURCE_MANAGEMENT
-//
-//	// gather sorted vector of elements used this frame
-//	auto activeElementsSorted = vector<MeshElement*>();
-//	activeElementsSorted.reserve(active.size());
-//	copy(active.begin(), active.end(), back_inserter(activeElementsSorted));
-//	sort(activeElementsSorted.begin(), activeElementsSorted.end());
-//
-//	// gather sorted vector of elements in the mapping
-//	auto storedElementsSorted = vector<MeshElement*>();
-//	storedElementsSorted.reserve(glMapping.size());
-//	for (auto it = glMapping.begin(); it != glMapping.end(); ++it) {
-//		storedElementsSorted.push_back(it->first);
-//	}
-//	sort(storedElementsSorted.begin(), storedElementsSorted.end());
-//
-//	// find unused elements
-//	auto unused = vector<MeshElement*>(storedElementsSorted.size());
-//	vector<MeshElement*>::iterator it;
-//	it = set_difference(storedElementsSorted.begin(), storedElementsSorted.end(),
-//						activeElementsSorted.begin(), activeElementsSorted.end(),
-//						unused.begin());
-//	unused.resize(it - unused.begin());
-//
-//	// deallocate unused elements
-//	if (!unused.empty()) {
-//		//A3D_LOG_D("Deleting GL resources for {} mesh elements...", unused.size());
-//
-//		for (it=unused.begin(); it!=unused.end(); ++it) {
-//			MeshElement* element = *it;
-//			DeleteMeshElementGLResources(element, glMapping);
-//		}
-//	}
-//
-//#endif
-//}
-//
-//void CleanupTextureResources(unordered_set<Texture*> &active,
-//							 OpenGLRenderer::TextureGLMapping& glMapping) {
-//#ifndef DISABLE_RESOURCE_MANAGEMENT
-//
-//	// gather sorted vector of properties used this frame
-//	auto activeTexturesSorted = vector<Texture*>();
-//	activeTexturesSorted.reserve(glMapping.size());
-//	copy(active.begin(), active.end(), back_inserter(activeTexturesSorted));
-//	sort(activeTexturesSorted.begin(), activeTexturesSorted.end());
-//
-//	// gather sorted vector of properties in the mapping
-//	auto storedTexturesSorted = vector<Texture*>();
-//	storedTexturesSorted.reserve(glMapping.size());
-//	for (auto it = glMapping.begin(); it != glMapping.end(); ++it) {
-//		storedTexturesSorted.push_back(it->first);
-//	}
-//	sort(storedTexturesSorted.begin(), storedTexturesSorted.end());
-//
-//	// find unused properties
-//	auto unused = vector<Texture*>(storedTexturesSorted.size());
-//	vector<Texture*>::iterator it;
-//	it = set_difference(storedTexturesSorted.begin(), storedTexturesSorted.end(),
-//						activeTexturesSorted.begin(), activeTexturesSorted.end(),
-//						unused.begin());
-//	unused.resize(it - unused.begin());
-//
-//	// deallocate unused properties
-//	if (!unused.empty()) {
-//		//A3D_LOG_D("Deleting GL resources for {} textures...", unused.size());
-//
-//		for (it=unused.begin(); it!=unused.end(); ++it) {
-//			Texture* texture = *it;
-//			DeleteTextureGLResources(texture, glMapping);
-//		}
-//	}
-//
-//#endif
-//}
-
-// this has to be the slowest way on earth to do this.
-//void CleanupLinesResources(unordered_set<const vector<Line>*>& active,
-//						   OpenGLRenderer::LinesGLMapping& glMapping) {
-//#ifndef DISABLE_RESOURCE_MANAGEMENT
-//
-////	// gather sorted vector of Lines used this frame
-////	auto activeLineSetsSorted = vector<Line*>();
-////	activeLineSetsSorted.reserve(glMapping.size());
-////	copy(active.begin(), active.end(), back_inserter(activeLineSetsSorted));
-////	sort(activeLineSetsSorted.begin(), activeLineSetsSorted.end());
-////
-////	// gather sorted vector of Lines in the mapping
-////	auto storedLineSetsSorted = vector<Line*>();
-////	storedLineSetsSorted.reserve(glMapping.size());
-////	for (auto it = glMapping.begin(); it != glMapping.end(); ++it) {
-////		storedLineSetsSorted.push_back(it->first);
-////	}
-////	sort(storedLineSetsSorted.begin(), storedLineSetsSorted.end());
-////
-////	// find unused LineSets
-////	auto unused = vector<Line*>(storedLineSetsSorted.size());
-////	vector<Line*>::iterator it;
-////	it = set_difference(storedLineSetsSorted.begin(), storedLineSetsSorted.end(),
-////						activeLineSetsSorted.begin(), activeLineSetsSorted.end(),
-////						unused.begin());
-////	unused.resize(it - unused.begin());
-////
-////	// deallocate unused LineSets
-////	if (unused.size()) {
-////		//A3D_LOG_D("Deleting GL resources for {} line sets...", unused.size());
-////
-////		for (it=unused.begin(); it!=unused.end(); ++it) {
-////			Line* lines = *it;
-////			DeleteLinesGLResources(lines, glMapping);
-////		}
-////	}
-//
-//
-//
-////	// gather sorted vector of Lines used this frame
-////	auto activeSorted = vector<const vector<Line>*>();
-////	activeSorted.reserve(glMapping.size());
-////	copy(active.begin(), active.end(), back_inserter(activeSorted));
-////	sort(activeSorted.begin(), activeSorted.end());
-////
-////
-////
-////	bool activeGZero = false;
-////	static bool wasActiveGZero = false;
-////	if (active.size() > 0) {
-////		activeGZero = true;
-////	}
-////	else {
-////		activeGZero = false;
-////	}
-////	if (!activeGZero && wasActiveGZero) {
-////		A3D_LOG_I("Newly inactive.");
-////	}
-////	else if (activeGZero && !wasActiveGZero) {
-////		A3D_LOG_I("Newly active.");
-////	}
-////	wasActiveGZero = activeGZero;
-////
-////
-////
-////	// gather sorted vector of Lines in the mapping
-////	auto allSorted = vector<const vector<Line>*>();
-////	allSorted.reserve(glMapping.size());
-////	for (auto [lines, glRes] : glMapping) {
-////		allSorted.push_back(lines);
-////	}
-////	sort(allSorted.begin(), allSorted.end());
-////
-////	//A3D_LOG_D("allSorted: {}", allSorted.size());
-////	//A3D_LOG_D("activeSorted: {}", activeSorted.size());
-////
-////	auto unused = vector<const vector<Line>*>();
-////	vector<const vector<Line>*>::iterator it;
-////
-////	auto allB = allSorted.begin();
-////	auto allE = allSorted.end();
-////	auto activeB = activeSorted.begin();
-////	auto activeE = activeSorted.end();
-////	auto unusedB = unused.begin();
-////
-//////	it = set_difference(allSorted.begin(), allSorted.end(),
-//////						activeSorted.begin(), activeSorted.end(),
-//////						unused.begin());
-//////	//unused.resize(it - unused.begin());
-//////
-//////	//A3D_LOG_D("unused: {}", unused.size());
-//////
-//////	if (unused.size()) {
-//////		//A3D_LOG_D("Deleting GL resources for {} line sets...", unused.size());
-//////
-//////		for (auto lines : unused) {
-//////			DeleteLinesGLResources(*lines, glMapping);
-//////		}
-//////	}
-////
-//
-//
-//
-//	for (auto lines : active) {
-//		DeleteLinesGLResources(*lines, glMapping);
-//	}
-//
-//	active.clear();
-//
-//#endif
-//}
 
 void DeleteMeshElementGLResources(MeshElement* element,
 								  OpenGLRenderer::MeshElementGLMapping& glMapping) {
@@ -2550,50 +1160,6 @@ void DeleteMeshElementGLResources(MeshElement* element,
 	
 #endif
 }
-
-void DeleteTextureGLResources(Texture* texture,
-							  OpenGLRenderer::TextureGLMapping& glMapping) {
-#ifndef DISABLE_RESOURCE_MANAGEMENT
-	
-	if (glMapping.count(texture)) {
-		
-		A3D_LOG_D("Deleting GL resources for MaterialProperty {:p}...",
-				  static_cast<void*>(texture));
-
-		auto handle = glMapping[texture];
-		
-		glDeleteTextures(1, &handle);
-
-		glMapping.erase(texture);
-
-		texture->dirtyMask(A3D_MASK_REMOVE(texture->dirtyMask(),
-										  TextureDirtyMask::All));
-	}
-
-#endif
-}
-
-//void DeleteLinesGLResources(const vector<Line>& lines,
-//							OpenGLRenderer::LinesGLMapping& glMapping) {
-//#ifndef DISABLE_RESOURCE_MANAGEMENT
-//
-////	if (glMapping.count(&lines)) {
-//
-//		//A3D_LOG_T("Deleting GL resources for Lines {:p}..", static_cast<const void*>(&lines));
-//
-//		auto glHandles = glMapping[&lines];
-//
-//		auto vbo = get<0>(glHandles);
-//		auto vao = get<1>(glHandles);
-//
-//		glDeleteBuffers(1, &vbo);
-//		glDeleteVertexArrays(1, &vao);
-//
-//		glMapping.erase(&lines);
-////	}
-//
-//#endif
-//}
 
 vector<Node*> SortedLights(map<Node*, float> lights) {
 	// map: <node, distance from camera>
@@ -3329,18 +1895,7 @@ bool ImguiDrawCheckbox(float x, float y,
 	return ret;
 }
 
-string StatusOverlayDescriptionForAntialiasingMode(AntialiasingMode mode) {
-
-	switch (mode) {
-		case AntialiasingMode::Msaa2X: return "2x msaa";
-		case AntialiasingMode::Msaa4X: return "4x msaa";
-		case AntialiasingMode::Msaa8X: return "8x msaa";
-		case AntialiasingMode::Msaa16X: return "16x msaa";
-		default: return "none";
-	}
-}
-
-GLenum DepthFuncToGLDepthFunc(DepthFunc f) {
+GLenum GLDepthFuncFromDepthFunc(DepthFunc f) {
 	switch (f) {
 		case DepthFunc::Less:     return GL_LESS;
 		case DepthFunc::Lequal:   return GL_LEQUAL;
@@ -3393,43 +1948,31 @@ void SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FilterMode
 
 void SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max) {
 #ifdef A3D_GL_DESKTOP
-
 	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
-
 	glBindTexture(texType, glTextureHandle);
-	
 	float anisotropy = max;
 	float largest;
 	// EXT_texture_filter_anisotropic
 	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &largest);
 	if (max > largest) anisotropy = largest;
 	glTexParameterf(texType, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
-
 #endif
 }
 
 void SetTextureWrapS(GLuint glTextureHandle, bool cube, WrapMode mode) {
-
 	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
-	
 	glBindTexture(texType, glTextureHandle);
-
 	glTexParameteri(texType, GL_TEXTURE_WRAP_S, (GLint)GLWrapModeForWrapMode(mode));
 }
 
 void SetTextureWrapT(GLuint glTextureHandle, bool cube, WrapMode mode) {
-
 	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
-	
 	glBindTexture(texType, glTextureHandle);
-
 	glTexParameteri(texType, GL_TEXTURE_WRAP_T, (GLint)GLWrapModeForWrapMode(mode));
 }
 
 void SetTextureWrapR(GLuint glTextureHandle, WrapMode mode) {
-	
 	glBindTexture(GL_TEXTURE_CUBE_MAP, glTextureHandle);
-
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, (GLint)GLWrapModeForWrapMode(mode));
 }
 
@@ -3462,100 +2005,7 @@ void LogGLInfo() {
 	A3D_LOG_I("GL_VENDOR: {}", reinterpret_cast<const char*>(renderer));
 	A3D_LOG_I("GL_RENDERER: {}", reinterpret_cast<const char*>(renderer));
 	A3D_LOG_I("GL_VERSION: {}", reinterpret_cast<const char*>(version));
-
-//	// extensions
-//
-//	GLint numExtensions;
-//	glGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
-//	ostringstream extensionsStream;
-//	extensionsStream << "Extensions:" << endl;
-//	for (GLint e=0; e < numExtensions; ++e) {
-//		extensionsStream << "\t" << glGetStringi(GL_EXTENSIONS, e);
-//		if (e < numExtensions-1) extensionsStream << endl;
-//	}
-//	A3D_LOG_I("{}", extensionsStream.str());
-//
-//	// context info
-//
-//	GLenum contextParams[] = {
-//			GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS,
-//			GL_MAX_CUBE_MAP_TEXTURE_SIZE,
-//			GL_MAX_DRAW_BUFFERS,
-//			GL_MAX_FRAGMENT_UNIFORM_COMPONENTS,
-//			GL_MAX_TEXTURE_IMAGE_UNITS,
-//			GL_MAX_TEXTURE_SIZE,
-//			GL_MAX_VARYING_FLOATS,
-//			GL_MAX_VERTEX_ATTRIBS,
-//			GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS,
-//			GL_MAX_VERTEX_UNIFORM_COMPONENTS,
-//			GL_MAX_VIEWPORT_DIMS,
-//			GL_STEREO,
-//	};
-//	const char* contextParamNames[] = {
-//			"GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS",
-//			"GL_MAX_CUBE_MAP_TEXTURE_SIZE",
-//			"GL_MAX_DRAW_BUFFERS",
-//			"GL_MAX_FRAGMENT_UNIFORM_COMPONENTS",
-//			"GL_MAX_TEXTURE_IMAGE_UNITS",
-//			"GL_MAX_TEXTURE_SIZE",
-//			"GL_MAX_VARYING_FLOATS",
-//			"GL_MAX_VERTEX_ATTRIBS",
-//			"GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS",
-//			"GL_MAX_VERTEX_UNIFORM_COMPONENTS",
-//			"GL_MAX_VIEWPORT_DIMS",
-//			"GL_STEREO",
-//	};
-//
-//	// (integers)
-//
-//	ostringstream contextParamsStream;
-//	contextParamsStream << "Context parameters:" << endl;
-//	const int numIntParams = 10;
-//	for (int p=0; p<numIntParams; ++p) {
-//		GLint intValue = 0;
-//		glGetIntegerv(contextParams[p], &intValue);
-//		contextParamsStream << "\t" << contextParamNames[p] << ": " << intValue << endl;
-//	}
-//
-//	// (int vec2)
-//
-//	GLint maxViewportDims[2];
-//	glGetIntegerv(contextParams[10], maxViewportDims);
-//	contextParamsStream << "\t" << contextParamNames[10] << ": " << maxViewportDims[0]
-//		<< ", " << maxViewportDims[0] << endl;
-//
-//	// (boolean)
-//
-//	GLboolean stereo = 0;
-//	glGetBooleanv(contextParams[11], &stereo);
-//	contextParamsStream << "\t" << contextParamNames[11] << ": " << (stereo ? "true" : "false");
-//
-//	A3D_LOG_I("{}", contextParamsStream.str());
 }
-
-//void CheckGLError() {
-//	//A3D_GL_CHECK();
-////	auto err = glGetError();
-////	if (err != GL_NO_ERROR) {
-////		A3D_LOG_E("*** GL error: 0x{:X} ***", err);
-////	}
-//}
-//
-//void DrainGLErrors(const char* where) {
-//	GLenum err;
-//	while ((err = glGetError()) != GL_NO_ERROR) {
-//		A3D_LOG_E("*** GL error 0x{:X} at %s ***", err, where);
-//	}
-//}
-
-
-
-
-
-
-
-
-
 
 
 
@@ -3609,21 +2059,68 @@ RenderResourceCacheOGL& OpenGLRenderer::cache() {
 }
 
 
-void OpenGLRenderer::bindPipeline(PipelineHandle h, const RenderResourceCacheOGL& cache) {
+void OpenGLRenderer::clear(const RenderContext& context, bool clearDepth, bool clearStencil) {
 
-	if (_state.pipeline == h) {
+	FBORestore restore;
+
+	auto fb = context.defaultFramebuffer();
+	auto fbSize = context.framebufferSize();
+	glBindFramebuffer(GL_FRAMEBUFFER, fb);
+	glViewport(0, 0, (GLsizei)fbSize.x, (GLsizei)fbSize.y);
+
+	// clear leftover state from debug passes / imgui
+	glDisable(GL_SCISSOR_TEST);
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	glDepthMask(GL_TRUE);
+	// glStencilMask(0xFF); // if using stencil
+
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearDepth(1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void OpenGLRenderer::drawBackground(const BackgroundPass& backgroundPass,
+									const math::mat4& viewMat,
+									const math::mat4& projMat) {
+
+	if (!backgroundPass.material) return;
+
+	// TODO: check equality?
+	// TODO: stop using shared_ptr???????
+
+	if (_skyboxMesh->materials().empty()) {
+		_skyboxMesh->addMaterial(backgroundPass.material);
+	}
+	else {
+		_skyboxMesh->replaceMaterial(0, backgroundPass.material);
+	}
+
+	bindPipeline(backgroundPass.pipeline, _cache);
+	bindMaterial(*(_skyboxMesh->materials().front()));
+	bindMeshElement(*(_skyboxMesh->elements().front()));
+	setPerObject(mat4(1.0f), mat4(mat3(viewMat)), projMat); // strip transform off view mat
+
+	drawBound();
+}
+
+
+
+void OpenGLRenderer::bindPipeline(PipelineHandle pipelineHandle,
+								  const RenderResourceCacheOGL& cache) {
+
+	if (_state.pipelineHandle == pipelineHandle) {
 		GLint cur = 0;
 		glGetIntegerv(GL_CURRENT_PROGRAM, &cur);
 		if ((GLuint)cur == _state.program) return; // truly already bound
 		// else: stale cache, fallthrough and rebind
 	}
 
-	const PipelineOGL& p = cache.pipeline(h);
-	glUseProgram(p.program);
-	_state.program = p.program;
+	const PipelineOGL& pipeline = cache.pipeline(pipelineHandle);
+	glUseProgram(pipeline.program);
+	_state.program = pipeline.program;
 	_state.material = nullptr;
 
-	if (p.key.doubleSided) {
+	if (pipeline.key.doubleSided) {
 		glDisable(GL_CULL_FACE);
 	}
 	else {
@@ -3631,19 +2128,19 @@ void OpenGLRenderer::bindPipeline(PipelineHandle h, const RenderResourceCacheOGL
 		glCullFace(GL_BACK);
 	}
 
-	if (p.key.depthTest) {
+	if (pipeline.key.depthTest) {
 		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(DepthFuncToGLDepthFunc(p.key.depthFunc));
+		glDepthFunc(GLDepthFuncFromDepthFunc(pipeline.key.depthFunc));
 	}
 	else {
 		glDisable(GL_DEPTH_TEST);
 	}
-	glDepthMask(p.key.depthWrite ? GL_TRUE : GL_FALSE);
+	glDepthMask(pipeline.key.depthWrite ? GL_TRUE : GL_FALSE);
 
-	ApplyBlendFunction(p.key.blendFunction);
+	ApplyBlendFunction(pipeline.key.blendFunction);
 
 #ifndef A3D_GL_ES
-	switch (p.key.fillMode) {
+	switch (pipeline.key.fillMode) {
 		case FillMode::Fill:   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);  break;
 		case FillMode::Lines:  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);  break;
 		case FillMode::Points: glPolygonMode(GL_FRONT_AND_BACK, GL_POINT); break;
@@ -3651,8 +2148,8 @@ void OpenGLRenderer::bindPipeline(PipelineHandle h, const RenderResourceCacheOGL
 #endif
 
 #ifndef A3D_GL_ES
-	const bool lineSmooth = (p.key.pass == PassKind::Lines)
-							|| (p.key.pass == PassKind::Wireframe);
+	const bool lineSmooth = (pipeline.key.pass == PassKind::Lines)
+							|| (pipeline.key.pass == PassKind::Wireframe);
 	if (lineSmooth) {
 		glEnable(GL_LINE_SMOOTH);
 		glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
@@ -3662,7 +2159,7 @@ void OpenGLRenderer::bindPipeline(PipelineHandle h, const RenderResourceCacheOGL
 	}
 #endif
 
-	if (p.key.polygonOffset) {
+	if (pipeline.key.polygonOffset) {
 		glEnable(GL_POLYGON_OFFSET_LINE);
 		glPolygonOffset(.01, 0); // ! check !
 	}
@@ -3670,29 +2167,51 @@ void OpenGLRenderer::bindPipeline(PipelineHandle h, const RenderResourceCacheOGL
 		glDisable(GL_POLYGON_OFFSET_LINE);
 	}
 
-	_state.pipeline = h;
+	_state.pipelineHandle = pipelineHandle;
 }
 
 void OpenGLRenderer::bindMaterial(const Material& material) {
 	if (_state.material == &material) return;
 
 	// Look at the currently bound pipeline
-	const PipelineOGL& p = _cache.pipeline(_state.pipeline);
+	const PipelineOGL& pipeline = _cache.pipeline(_state.pipelineHandle);
 
 	// Wireframe / lines shaders should not run the material binding path
-	if (p.key.shaderKind != ShaderKind::Default) {
-		_state.material = &material;
-		return;
+//	if ((p.key.shaderKind != ShaderKind::Default) & (p.key.shaderKind != ShaderKind::Skybox)) {
+//		_state.material = &material;
+//		return;
+//	}
+
+// TODO: !!! THIS IS A DIRTY HACK !!!
+	Program* program;
+	switch (pipeline.key.shaderKind) {
+		case ShaderKind::Default:
+			program = &Program::Default();
+			break; // chill
+		case ShaderKind::Skybox:
+			program = &Program::Skybox();
+			break; // chill
+		default:
+			_state.material = &material;
+			return; // not chill
 	}
+
+//	if (p.key.shaderKind != ShaderKind::Default) {
+//		A3D_LOG_E("bindMaterial() skipped for shaderKind != Default (shaderKind=%d).", int(p.key.shaderKind));
+//	}
 
 	std::map<MaterialPropertyType, GLuint> glTextureHandles;
 	GetTextureGLTextureHandles(const_cast<Material&>(material),
 							   _textureGLMapping,
 							   glTextureHandles);
 
-	Program& prog = Program::Default();
+
+	//Program& program = Program::Default();
 	// OK if SendMaterialUniforms still calls prog.use() because it matches the pipeline now
-	SendMaterialUniforms(material, prog, glTextureHandles, _state);
+
+	// TODO: !!! THIS IS A DIRTY HACK !!!
+	if (pipeline.key.shaderKind == ShaderKind::Default) SendMaterialUniforms(material, *program, glTextureHandles, _state);
+
 	SetMaterialFilteringOptions(material, glTextureHandles);
 
 	_state.material = &material;
@@ -3794,7 +2313,7 @@ void OpenGLRenderer::renderLinesPass(const LinesPass& pass,
 									 const mat4& viewMat,
 									 const mat4& projectionMat) {
 
-	if (pass.pipeline == INVALID_PIPELINE) return;
+	if (pass.pipeline == INVALID_PIPELINE_HANDLE) return;
 	if (pass.lines.empty()) return;
 
 	bindPipeline(pass.pipeline, _cache);

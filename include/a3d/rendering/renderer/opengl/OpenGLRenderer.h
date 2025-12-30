@@ -38,17 +38,15 @@ namespace a3d {
 	class Mesh;
 	class MeshElement;
 	class Line;
-	class Program; // TEMPROARY
 	class Texture;
 
 
 
 	struct GLStateCache {
-		PipelineHandle 	pipeline = 		INVALID_PIPELINE;
-		GLuint 			program = 		0; // currently bound GL program
-		const 			Material* 		material = nullptr; // last bound material
-		//ShaderKind 		shaderKind = 	ShaderKind::Default;
-		uint32_t 		indexCount = 	0;
+		PipelineHandle 		pipelineHandle = 	INVALID_PIPELINE_HANDLE;
+		GLuint 				program = 			0; // currently bound GL program
+		const Material* 	material = 			nullptr; // last bound material
+		uint32_t 			indexCount = 		0;
 	};
 
 	struct BoundElement {
@@ -78,10 +76,6 @@ namespace a3d {
 		/* <a3d::Texture* : <gl_textureHandle> */
 		using TextureGLMapping =
 				std::map<Texture*, unsigned>;
-
-		/* <vector<a3d::Line>>* : <gl_vbo, gl_vao>> */
-//		using LinesGLMapping =
-//				std::map<const std::vector<Line>*, std::pair<unsigned, unsigned>>;
 
 		/// Private Static Members ///
 
@@ -126,54 +120,17 @@ namespace a3d {
 											  const DebugOptions& debugOptions,
 											  FrameStats& stats) override;
 
-		void 					render(const Scene& scene,
-									   const RenderContext& context,
-									   const math::mat4& viewMat,
-									   const math::mat4& projectionMat,
-									   const DebugOptions& debugOptions,
-									   FrameStats& stats) override;
-//		void 					render(Mesh& mesh,
-//									   const RenderContext& context,
-//									   const math::mat4& modelMat,
-//									   const math::mat4& viewMat,
-//									   const math::mat4& projectionMat,
-//									   const DebugOptions& debugOptions,
-//									   FrameStats& stats) override;
-//		void 					render(MeshElement& element,
-//									   const RenderContext& context,
-//									   Material& material,
-//									   const math::mat4& modelMat,
-//									   const math::mat4& viewMat,
-//									   const math::mat4& projectionMat,
-//									   const DebugOptions& debugOptions,
-//									   FrameStats& stats) override;
-//		void 					render(const std::vector<Line>& lines,
-//									   const RenderContext& context,
-//									   const math::mat4& modelMat,
-//									   const math::mat4& viewMat,
-//									   const math::mat4& projectionMat) override;
-
-		void					blank() override;
-
 		std::unique_ptr<Image> 	snapshot(const RenderContext& context) const override;
 
 	private:
 		/// Private Member Variables ///
 
-		//RenderContext*									_context;
 		bool											_isInitialized;
 		MeshElementGLMapping 							_meshElementGLMapping; // TODO: REMOVE
 		TextureGLMapping								_textureGLMapping;
-//		LinesGLMapping									_linesGLMapping;
-//		std::unordered_set<MeshElement*>				_activeMeshElements;
-//		std::unordered_set<Texture*>					_activeTextures;
-//		std::unordered_set<const std::vector<Line>*>	_activeLines;
-		std::unique_ptr<Mesh>							_skyboxMesh;
-		std::unique_ptr<Mesh>							_groundPlaneMesh;
 		unsigned										_glEnvironmentUBO;
 		ImFont*											_overlayTitleImFont;
 		ImFont*											_overlayBodyImFont;
-//		std::vector<OpenGLDrawItem> 					_drawItems;
 		OpenGLDrawTimer									_drawTimer;
 
 
@@ -183,7 +140,7 @@ namespace a3d {
 			math::vec3 pos;
 			math::vec3 color;
 		};
-		//void EnsureDebugLinesBuffers(Program& program);
+
 		void EnsureDebugLinesBuffers();
 		unsigned _dbgLinesVBO = 0;
 		unsigned _dbgLinesVAO = 0;
@@ -195,10 +152,21 @@ namespace a3d {
 
 
 		public:
-//		RenderResourceCacheOGL& cache() { return _cache; }
+
+
 		RenderResourceCacheOGL& cache() override;
 
-		void bindPipeline(PipelineHandle h, const RenderResourceCacheOGL& cache) override;
+
+
+		void clear(const RenderContext& context,
+				   bool clearDepth,
+				   bool clearStencil) override;
+		void drawBackground(const BackgroundPass& backgroundPass,
+							const math::mat4& viewMat,
+							const math::mat4& projMat) override;
+
+		void bindPipeline(PipelineHandle h,
+						  const RenderResourceCacheOGL& cache) override;
 		void bindMaterial(const Material& material) override;
 		void bindMeshElement(const MeshElement& element) override;
 		void setPerObject(const math::mat4& model,
@@ -216,7 +184,7 @@ namespace a3d {
 		RenderResourceCacheOGL _cache;
 		GLStateCache _state;
 		BoundElement _boundElement;
-
+		std::unique_ptr<Mesh> _skyboxMesh; // should be value?
 
 		std::unordered_map<MeshElement*, MeshElementGLRes> _meshElementGL;
 	};

@@ -4,6 +4,7 @@
 #include "a3d/rendering/RenderItem.h"
 #include "a3d/rendering/RenderPacket.h"
 #include "a3d/rendering/RenderResourceCacheOGL.h"
+#include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/context/RenderContext.h"
 #include "a3d/rendering/material/Material.h"
 #include "a3d/mesh/Mesh.h"
@@ -90,7 +91,15 @@ GatherOutput RenderGatherer::GatherRenderItems(const Scene& scene,
 			++stats.numMeshes;
 		}
 
-		out.scene = &scene;
+		out.scene = &scene; // TODO: maybe change to AABB directly?
+
+//		if (A3D_MASK_CONTAINS(scene.visualWorld()->dirtyMask(),
+//							  VisualWorldDirtyMask::Background)) {
+			out.backgroundMaterial = scene.visualWorld()->backgroundMaterial();
+			// ehhh
+//			scene.visualWorld()->dirtyMask(A3D_MASK_REMOVE(scene.visualWorld()->dirtyMask(),
+//														   VisualWorldDirtyMask::Background));
+//		}
 
 		if (n->light()) {
 			out.lightNodes.push_back(n);
@@ -142,11 +151,9 @@ PipelineKey RenderGatherer::MakePipelineKey(const Material& material,
 	// enforce sane combos based on alphaMode
 	switch (material.alphaMode()) {
 		case AlphaMode::Opaque:
-		case AlphaMode::Mask:
-			// Mask is *not* blending — it's discard/alpha-test.
+		case AlphaMode::Mask: // mask is not blending — it's discard/alpha-test
 			k.blendFunction = BlendFunction::Disabled;
 			break;
-
 		case AlphaMode::Blend:
 			if (k.blendFunction == BlendFunction::Disabled) {
 				k.blendFunction = BlendFunction::Alpha;
@@ -154,6 +161,21 @@ PipelineKey RenderGatherer::MakePipelineKey(const Material& material,
 			break;
 	}
 
+	return k;
+}
+
+PipelineKey RenderGatherer::MakeBackgroundPipelineKey() {
+	PipelineKey k{};
+	k.pass          = PassKind::Background;
+	k.shaderKind    = ShaderKind::Skybox;
+	k.fillMode      = FillMode::Fill;
+	k.doubleSided   = true; // maybe not?
+	k.depthTest  = true;
+	k.depthWrite    = false;
+	k.depthFunc = DepthFunc::Lequal;
+	k.blendFunction = BlendFunction::Disabled;
+	k.polygonOffset = false;
+	//ApplyDepthPolicy(k);
 	return k;
 }
 
@@ -240,11 +262,12 @@ static uint64_t MakeSortKey(const DrawItem& it) {
 
 static int PassOrder(PassKind p) {
 	switch (p) {
-		case PassKind::MainOpaque:		return 0;
-		case PassKind::MainMask:		return 1;
-		case PassKind::MainTransparent:	return 2; // later you’ll change strategy
-		case PassKind::Wireframe:		return 3;
-		case PassKind::Lines:			return 4;
+		case PassKind::Background:		return 0;
+		case PassKind::MainOpaque:		return 1;
+		case PassKind::MainMask:		return 2;
+		case PassKind::MainTransparent:	return 3; // later you’ll change strategy
+		case PassKind::Wireframe:		return 4;
+		case PassKind::Lines:			return 5;
 	}
 	return 99;
 }
@@ -340,8 +363,11 @@ RenderPacket RenderGatherer::BuildRenderPacket(GatherOutput& gatherOutput,
 
 	RenderPacket packet{};
 
-	packet.main.reserve(gatherOutput.renderItems.size());
-	packet.wireframe.reserve(gatherOutput.renderItems.size());
+	packet.mainPassItems.reserve(gatherOutput.renderItems.size());
+	packet.wireframePassItems.reserve(gatherOutput.renderItems.size());
+
+	packet.backgroundPass = BackgroundPass{ cache.ensurePipeline(MakeBackgroundPipelineKey()),
+											gatherOutput.backgroundMaterial };
 
 	for (const RenderItem& ri : gatherOutput.renderItems) {
 
@@ -377,9 +403,9 @@ RenderPacket RenderGatherer::BuildRenderPacket(GatherOutput& gatherOutput,
 			di.pipeline = cache.ensurePipeline(di.key);
 
 			di.sortKey = MakeSortKey(di);
-			di.sequence = (uint32_t)packet.main.size();
+			di.sequence = (uint32_t)packet.mainPassItems.size();
 
-			packet.main.push_back(std::move(di));
+			packet.mainPassItems.push_back(std::move(di));
 		}
 
 		if (style == RenderStyle::Wireframe || style == RenderStyle::WireframeOverlay) {
@@ -397,9 +423,9 @@ RenderPacket RenderGatherer::BuildRenderPacket(GatherOutput& gatherOutput,
 			di.pipeline = cache.ensurePipeline(di.key);
 
 			di.sortKey = MakeSortKey(di);
-			di.sequence = (uint32_t)packet.wireframe.size();
+			di.sequence = (uint32_t)packet.wireframePassItems.size();
 
-			packet.wireframe.push_back(std::move(di));
+			packet.wireframePassItems.push_back(std::move(di));
 		}
 	}
 
@@ -407,7 +433,7 @@ RenderPacket RenderGatherer::BuildRenderPacket(GatherOutput& gatherOutput,
 
 	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
 
-		auto& lp = packet.debugLinesPass;
+		auto& lp = packet.linesPass;
 		lp.model = math::mat4(1.0f);
 
 		// Build/ensure the pipeline as part of packet build (first-class pass)
@@ -424,8 +450,8 @@ RenderPacket RenderGatherer::BuildRenderPacket(GatherOutput& gatherOutput,
 		AppendAABBLinesWorld(lp.lines, gatherOutput.scene->aabb(false), *Color::Green());
 	}
 
-	SortDrawItems(packet.main);
-	SortDrawItems(packet.wireframe);
+	SortDrawItems(packet.mainPassItems);
+	SortDrawItems(packet.wireframePassItems);
 
 	return packet;
 }

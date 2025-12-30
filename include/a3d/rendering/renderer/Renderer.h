@@ -17,6 +17,7 @@
 
 namespace a3d {
 
+	struct BackgroundPass;
 	struct LinesPass;
 
 	class FrameStatsHistory;
@@ -70,35 +71,6 @@ namespace a3d {
 												 const DebugOptions& debugOptions,
 													  FrameStats& stats) = 0;
 
-		virtual void 					render(const Scene& scene,
-											   const RenderContext& context,
-											   const math::mat4& viewMat,
-											   const math::mat4& projectionMat,
-											   const DebugOptions& debugOptions,
-											   FrameStats& stats) = 0;
-//		virtual void 					render(Mesh& mesh,
-//											   const RenderContext& context,
-//											   const math::mat4& modelMat,
-//											   const math::mat4& viewMat,
-//											   const math::mat4& projectionMat,
-//											   const DebugOptions& debugOptions,
-//											   FrameStats& stats) = 0;
-//		virtual void 					render(MeshElement& element,
-//											   const RenderContext& context,
-//											   Material& material,
-//											   const math::mat4& modelMat,
-//											   const math::mat4& viewMat,
-//											   const math::mat4& projectionMat,
-//											   const DebugOptions& debugOptions,
-//											   FrameStats& stats) = 0;
-//		virtual void 					render(const std::vector<Line>& lines,
-//											   const RenderContext& context,
-//											   const math::mat4& modelMat,
-//											   const math::mat4& viewMat,
-//											   const math::mat4& projectionMat) = 0;
-
-		virtual void					blank() = 0;
-
 		virtual std::unique_ptr<Image>	snapshot(const RenderContext& context) const = 0;
 
 
@@ -109,6 +81,13 @@ namespace a3d {
 		// TODO: REMOVE OR REPLACE WITH NON-OGL
 		virtual RenderResourceCacheOGL& cache() = 0;
 
+
+		virtual void clear(const RenderContext& context,
+						   bool clearDepth,
+						   bool clearStencil) = 0;
+		virtual void drawBackground(const BackgroundPass& backgroundPass,
+									const math::mat4& viewMat,
+									const math::mat4& projMat) = 0;
 
 
 		virtual void bindPipeline(PipelineHandle h, const RenderResourceCacheOGL& cache) = 0;

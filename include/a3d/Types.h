@@ -80,7 +80,7 @@ namespace a3d {
 
 	/// Public Types ///
 
-	enum class LogLevel : unsigned {
+	enum class LogLevel : uint8_t {
 		Trace =		0,
 		Debug =		1,
 		Info =		2,
@@ -90,30 +90,30 @@ namespace a3d {
 		Off = 		6
 	};
 
-	enum class RenderingApi {
+	enum class RenderingApi : uint8_t {
 		OpenGL,
 		OpenGLES,
 		Vulkan
 	};
 
-	enum class SceneImportOptions : unsigned {
+	enum class SceneImportOptions : uint16_t {
 		None = 					0,
 		ImportMeshes =			1 << 0,
 		ImportMaterials =		1 << 1,
 		ImportLights =			1 << 2,
 		ImportCameras = 		1 << 3,
-		ImportAll =				UINT_MAX
+		ImportAll =				UINT16_MAX
 	};
 	A3D_ENABLE_ENUM_MASK_OPS(SceneImportOptions)
 
-	enum class MeshImportOptions : unsigned {
+	enum class MeshImportOptions : uint16_t {
 		None = 					0,
 		ImportMaterials =		1 << 1, // note maps to SceneImportOptions
-		ImportAll =				UINT_MAX
+		ImportAll =				UINT16_MAX
 	};
 	A3D_ENABLE_ENUM_MASK_OPS(MeshImportOptions)
 
-	enum class FontType : unsigned {
+	enum class FontType : uint8_t {
 		Unknown,
 		OTF,
 		TTF,
@@ -129,7 +129,7 @@ namespace a3d {
 			std::shared_ptr<Image>,
 			std::shared_ptr<CubeImage>>;
 
-	enum class MaterialPropertyType {
+	enum class MaterialPropertyType : uint8_t {
 		Ambient,
 		Diffuse,
 		Specular,
@@ -138,7 +138,7 @@ namespace a3d {
 
 	using MaterialPropertyList = std::vector<std::pair<const MaterialProperty*, MaterialPropertyType>>;
 
-	enum class FilterMode : unsigned {
+	enum class FilterMode : uint16_t {
 		Nearest = 				0x2600,
 		Linear = 				0x2601,
 		NearestMipmapNearest = 	0x2700,
@@ -147,7 +147,7 @@ namespace a3d {
 		LinearMipmapLinear = 	0x2703
 	};
 
-	enum class WrapMode : unsigned {
+	enum class WrapMode : uint16_t {
 		Repeat = 			0x2901,
 		MirroredRepeat = 	0x8370,
 		ClampToEdge = 		0x812F
@@ -158,14 +158,14 @@ namespace a3d {
 		Mask, // uses discard/alpha threshold
 		Blend }; // real transparency (glBlend enabled + depthWrite off)
 
-	enum class BlendFunction {
+	enum class BlendFunction : uint8_t {
 		Disabled,
 		Alpha,
 		Additive,
 		PremultipliedAlpha
 	};
 
-	enum class SpotlightFeatheringMode : unsigned {
+	enum class SpotlightFeatheringMode : uint8_t {
 		Linear =	0,
 		Sharp = 	1, // y = x(2-x)
 		Soft = 		2 // y = x^2
@@ -188,7 +188,7 @@ namespace a3d {
 			AttenuationLightCutoff,
 			DistanceLightCutoff>;
 
-	enum class AntialiasingMode : unsigned {
+	enum class AntialiasingMode : uint8_t {
 		None =		0,
 		Msaa2X =	2,
 		Msaa4X =	4,
@@ -196,13 +196,13 @@ namespace a3d {
 		Msaa16X =	16
 	};
 
-	enum class PhysicsBodyType : unsigned {
+	enum class PhysicsBodyType : uint8_t {
 		Static,
 		Dynamic,
 		Kinematic
 	};
 
-	enum class PhysicsShapeType : unsigned {
+	enum class PhysicsShapeType : uint8_t {
 		Primitive, // eh, do something else
 		BoundingBox,
 		ConvexHull,
@@ -412,7 +412,7 @@ namespace a3d {
 		unsigned	numConcavePolyhedronShapes;
 	};
 
-	enum DebugOptions : unsigned {
+	enum DebugOptions : uint32_t {
 		None =							0,
 		ShowStatsOverlay = 				1 << 0,
 		ShowBoundingBoxes = 			1 << 1,
@@ -453,21 +453,21 @@ namespace a3d {
 		WireframeOverlay
 	};
 		
-	enum class NodeDirtyMask : unsigned {
+	enum class NodeDirtyMask : uint32_t {
 		None =					0,
 		WorldTransform =		1 << 0,
 		All = 					UINT_MAX
 	};
 	A3D_ENABLE_ENUM_MASK_OPS(NodeDirtyMask)
 
-	enum class MeshDirtyMask : unsigned {
+	enum class MeshDirtyMask : uint32_t {
 		None =					0,
 //		AABBLines	=			1 << 0,
 		All = 					UINT_MAX
 	};
 	A3D_ENABLE_ENUM_MASK_OPS(MeshDirtyMask)
 
-	enum class MeshElementDirtyMask : unsigned {
+	enum class MeshElementDirtyMask : uint32_t {
 		None =					0,
 		VertexData =			1 << 0,
 //		AABBLines	=			1 << 1,
@@ -475,14 +475,14 @@ namespace a3d {
 	};
 	A3D_ENABLE_ENUM_MASK_OPS(MeshElementDirtyMask)
 
-	enum class MaterialDirtyMask : unsigned {
+	enum class MaterialDirtyMask : uint32_t {
 		None =					0,
 //		MaxAnisotropy = 		1 << 1,
 		All = 					UINT_MAX
 	};
 	A3D_ENABLE_ENUM_MASK_OPS(MaterialDirtyMask)
 
-	enum class TextureDirtyMask : unsigned {
+	enum class TextureDirtyMask : uint32_t {
 		None =					0,
 		Contents = 				1 << 0,
 		Sampler =				1 << 1, // TODO: move to MaterialBinding dirty mask?
@@ -490,7 +490,7 @@ namespace a3d {
 	};
 	A3D_ENABLE_ENUM_MASK_OPS(TextureDirtyMask)
 
-	enum class SamplerDirtyMask : unsigned {
+	enum class SamplerDirtyMask : uint32_t {
 		None =					0,
 		MinificationFilter = 	1 << 0,
 		MagnificationFilter = 	1 << 1,
@@ -501,6 +501,13 @@ namespace a3d {
 		All = 					UINT_MAX
 	};
 	A3D_ENABLE_ENUM_MASK_OPS(SamplerDirtyMask)
+
+//	enum class VisualWorldDirtyMask : unsigned {
+//		None =					0,
+//		Background = 			1 << 0,
+//		All = 					UINT_MAX
+//	};
+//	A3D_ENABLE_ENUM_MASK_OPS(VisualWorldDirtyMask)
 }
 
 #endif /* AVARA3D_TYPES_H */

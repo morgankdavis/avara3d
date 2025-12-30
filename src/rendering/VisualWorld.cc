@@ -15,7 +15,6 @@
 #include "a3d/Utilities.h"
 #include "a3d/diagnostic/log/Log.h"
 #include "a3d/mesh/Mesh.h"
-#include "a3d/mesh/primitive/Box.h"
 #include "a3d/mesh/primitive/Plane.h"
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/physics/bullet/BulletWorldProxy.h"
@@ -46,13 +45,13 @@ using namespace std;
 
 /// Private Static Non-Member Prototypes ///
 
-static unique_ptr<Mesh> MakeSkyboxMesh(const MaterialProperty& property);
+//static unique_ptr<Mesh> MakeSkyboxMesh(const MaterialProperty& property);
 
 /// Public Lifecycle Functions ///
 
 VisualWorld::VisualWorld(RenderContext& context):
 		_background{},
-		_skyboxMesh{},
+//		_skyboxMesh{},
 		_fogStartDistance{0.0},
 		_fogEndDistance{0.0},
 		_fogDensityExponent{0.0},
@@ -63,7 +62,9 @@ VisualWorld::VisualWorld(RenderContext& context):
 		_renderContext{&context},
 		_scene{},
 		_willRenderCallback{},
-		_didRenderCallback{} {
+		_didRenderCallback{}/*,
+		_dirtyMask{VisualWorldDirtyMask::All}*/,
+		_backgroundMaterial{} {
 
 	_renderContext->attachedToVisualWorld(this);
 }
@@ -83,38 +84,24 @@ const MaterialProperty& VisualWorld::background() {
 
 void VisualWorld::background(const MaterialProperty& background) {
 
+	// TODO: check equality?
+
+//	_dirtyMask = A3D_MASK_ADD(_dirtyMask, VisualWorldDirtyMask::Background);
+
 	if (auto texture = get_if<shared_ptr<Texture>>(&background)) {
 
 		if (auto cubeImage = get_if<shared_ptr<CubeImage>>(&((*texture)->contents()))) {
-
-			auto material = make_shared<Material>(monostate{},
-												  monostate{},
-												  monostate{},
-												  background);
 
 			auto sampler = (*texture)->sampler();
 			sampler->wrapS(WrapMode::ClampToEdge);
 			sampler->wrapT(WrapMode::ClampToEdge);
 			sampler->wrapR(WrapMode::ClampToEdge);
 
-			// generate the skybox mesh if it hasn't already been
-			if (!_skyboxMesh) {
-				_skyboxMesh = MakeSkyboxMesh(background);
-			}
-			else {
-				// we already have the mesh, just update its material
-				_skyboxMesh->replaceMaterial(0, material);
-			}
-		}
+			_backgroundMaterial = make_unique<Material>(monostate{},
+														monostate{},
+														monostate{},
+														background);
 
-//		if (dynamic_pointer_cast<CubeImage>((*texture)->contents())) {
-//			auto material = make_shared<Material>(monostate{}, monostate{}, monostate{}, background);
-//
-//			auto sampler = (*texture)->sampler();
-//			sampler->wrapS(WrapMode::ClampToEdge);
-//			sampler->wrapT(WrapMode::ClampToEdge);
-//			sampler->wrapR(WrapMode::ClampToEdge);
-//
 //			// generate the skybox mesh if it hasn't already been
 //			if (!_skyboxMesh) {
 //				_skyboxMesh = MakeSkyboxMesh(background);
@@ -123,7 +110,20 @@ void VisualWorld::background(const MaterialProperty& background) {
 //				// we already have the mesh, just update its material
 //				_skyboxMesh->replaceMaterial(0, material);
 //			}
-//		}
+		}
+		else if (auto image = get_if<shared_ptr<Image>>(&((*texture)->contents()))) {
+			A3D_LOG_W("Image background not supported.");
+			_backgroundMaterial = nullptr;
+		}
+	}
+	else if (auto color = get_if<shared_ptr<Color>>(&background)) {
+		_backgroundMaterial = make_unique<Material>(monostate{},
+													monostate{},
+													monostate{},
+													background);
+	}
+	else {
+		_backgroundMaterial = nullptr;
 	}
 
 	_background = background;
@@ -223,40 +223,6 @@ void VisualWorld::detachedFromScene(Scene& scene) {
 	_scene = nullptr;
 }
 
-#include "glad/glad.h"
-#define A3D_GL_CHECK()                           		\
-    do {                                              	\
-        GLenum err;                                   	\
-        while ((err = glGetError()) != GL_NO_ERROR) { 	\
-            A3D_LOG_E("GL error 0x{:X}", err); 			\
-        }                                             	\
-    } while (0);
-
-
-
-
-
-
-
-
-// TODO: MOVE
-//static inline uint8_t passOrder(const DrawItem& it) {
-//	// 0 = main opaque, 1 = main transparent, 2 = wire overlay
-//	if (it.pass == PassKind::Wire) return 2;
-//	return it.transparent ? 1 : 0;
-//}
-//
-//static inline float computeDepth(const DrawItem& it,
-//								 const math::vec3& camPos,
-//								 const math::vec3& camFwd) {
-//	// Use world-space center of item bounds (or model * localCenter)
-//	const math::vec3 c = it.aabb.center();
-//	return dot(camFwd, (c - camPos)); // larger => farther
-//}
-
-
-
-
 void VisualWorld::draw(const Scene& scene,
 					   const PhysicalWorld* physicalWorld,
 					   double runT,
@@ -282,14 +248,14 @@ void VisualWorld::draw(const Scene& scene,
 	auto pov = pointOfView().lock();
 	A3D_EDGE_GUARD(!pov, return;, [&] {
 		A3D_LOG_E("No point of view!");
-		renderer->blank();
+		renderer->clear(*_renderContext, true, true);
 		_renderContext->swapBuffers();
 	});
 
 	auto povScene = pov->scene();
 	A3D_EDGE_GUARD(povScene == nullptr || povScene != &scene, return;, [&] {
 		A3D_LOG_W("Point of view not in our scene!");
-		renderer->blank();
+		renderer->clear(*_renderContext, true, true);
 		_renderContext->swapBuffers();
 	});
 
@@ -316,12 +282,12 @@ void VisualWorld::draw(const Scene& scene,
 	// TODO: REMOVE
 	A3D_PROFILE(profiler, Profiler::Tag::RenderCpu, [&] {
 
-		renderer->render(scene,
-						 *_renderContext,
-						 view,
-						 proj,
-						 debugOptions,
-						 stats);
+//		renderer->render(scene,
+//						 *_renderContext,
+//						 view,
+//						 proj,
+//						 debugOptions,
+//						 stats);
 
 		renderer->preTraversal(scene, *_renderContext, debugOptions, stats);
 	});
@@ -347,10 +313,16 @@ void VisualWorld::draw(const Scene& scene,
 		renderer->postTraversal(scene,
 								*_renderContext,
 								packet.lightNodes,
-								debugOptions, stats);
+								debugOptions,
+								stats);
 
+		renderer->clear(*_renderContext, true, true);
 
-		for (const auto &di: packet.main) {
+		// TODO: PUT IN RENDERPACKET
+//		renderer->bindPipeline(packet.backgroundPass.pipeline, cache);
+		renderer->drawBackground(packet.backgroundPass, view, proj);
+
+		for (const auto &di: packet.mainPassItems) {
 			renderer->bindPipeline(di.pipeline, cache);
 			renderer->bindMaterial(*di.material);
 			renderer->bindMeshElement(*di.element);
@@ -358,7 +330,7 @@ void VisualWorld::draw(const Scene& scene,
 			renderer->drawBound();
 		}
 
-		for (const auto &di: packet.wireframe) {
+		for (const auto &di: packet.wireframePassItems) {
 			renderer->bindPipeline(di.pipeline, cache);
 			// bindMaterial
 			renderer->bindMeshElement(*di.element);
@@ -366,7 +338,7 @@ void VisualWorld::draw(const Scene& scene,
 			renderer->drawBound();
 		}
 
-		renderer->renderLinesPass(packet.debugLinesPass, *_renderContext, view, proj);
+		renderer->renderLinesPass(packet.linesPass, *_renderContext, view, proj);
 	});
 
 	if (physicalWorld) {
@@ -397,9 +369,21 @@ void VisualWorld::draw(const Scene& scene,
 	}
 }
 
-Mesh* VisualWorld::skyboxMesh() const {
-	return _skyboxMesh.get();
+shared_ptr<Material> VisualWorld::backgroundMaterial() {
+	return _backgroundMaterial;
 }
+
+//Mesh* VisualWorld::skyboxMesh() const {
+//	return _skyboxMesh.get();
+//}
+
+//VisualWorldDirtyMask VisualWorld::dirtyMask() const {
+//	return _dirtyMask;
+//}
+//
+//void VisualWorld::dirtyMask(VisualWorldDirtyMask mask) {
+//	_dirtyMask = mask;
+//}
 
 /// Private Member Functions ///
 
@@ -465,15 +449,15 @@ shared_ptr<Node> VisualWorld::defaultPOV() {
 	return cameraNode;
 }
 
-/// Private Static Member Functions ///
-
-unique_ptr<Mesh> MakeSkyboxMesh(const MaterialProperty& property) {
-
-	auto mesh = make_unique<a3d::Mesh>(make_unique<Box>(1, 1, 1), nullptr);
-
-	auto material = make_shared<Material>(monostate{}, monostate{}, monostate{}, property);
-	material->doubleSided(false);
-	mesh->addMaterial(material);
-
-	return mesh;
-}
+///// Private Static Member Functions ///
+//
+//unique_ptr<Mesh> MakeSkyboxMesh(const MaterialProperty& property) {
+//
+//	auto mesh = make_unique<a3d::Mesh>(make_unique<Box>(1, 1, 1), nullptr);
+//
+//	auto material = make_shared<Material>(monostate{}, monostate{}, monostate{}, property);
+//	material->doubleSided(false);
+//	mesh->addMaterial(material);
+//
+//	return mesh;
+//}

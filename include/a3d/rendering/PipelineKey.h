@@ -13,20 +13,29 @@
 namespace a3d {
 
 	using PipelineHandle = uint32_t;
-	static constexpr PipelineHandle INVALID_PIPELINE = 0xFFFFFFFFu;
+	static constexpr PipelineHandle INVALID_PIPELINE_HANDLE = 0xFFFFFFFFu;
 
 	enum class DepthFunc : uint8_t {
-		Less, Lequal, Equal, Greater, Gequal, Notequal, Always, Never
+		Less,
+		Lequal,
+		Equal,
+		Greater,
+		Gequal,
+		Notequal,
+		Always,
+		Never
 	};
 
 	enum class ShaderKind : uint8_t {
+		Skybox,
 		Default,
-//		Skybox,
 		Wireframe,
 		Lines
 	};
 
 	enum class PassKind : uint8_t {
+//		Clear,
+		Background,
 		MainOpaque,
 		MainMask,
 		MainTransparent,
@@ -35,15 +44,13 @@ namespace a3d {
 	};
 
 	struct PipelineKey {
+		PassKind 		pass = 				PassKind::MainOpaque;
+
 		ShaderKind 		shaderKind = 		ShaderKind::Default;
 		uint32_t 		vertexLayoutKey = 	0;
 		FillMode 		fillMode = 			FillMode::Fill;
 		BlendFunction 	blendFunction = 	BlendFunction::Disabled;
 		bool 			doubleSided = 		false;
-
-		PassKind 		pass = 				PassKind::MainOpaque;
-
-		// these two are hugely useful for wire overlay correctness
 		bool 			depthTest = 		true;
 		bool 			depthWrite = 		true; // Main = true, Wire = false
 		DepthFunc 		depthFunc = 		DepthFunc::Less;
