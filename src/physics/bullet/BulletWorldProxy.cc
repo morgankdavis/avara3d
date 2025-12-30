@@ -16,6 +16,7 @@
 
 #include "a3d/Configuration.h"
 #include "a3d/diagnostic/log/Log.h"
+#include "a3d/mesh/Line.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsShape.h"
 #include "a3d/physics/bullet/BulletBodyProxy.h"
@@ -23,6 +24,9 @@
 #include "a3d/physics/bullet/BulletUtilities.h"
 #include "a3d/profiling/Profiling.h"
 #include "a3d/scene/Node.h"
+
+// TEMPORARY
+#include "a3d/Utilities.h"
 
 using namespace a3d;
 using namespace a3d::math;
@@ -191,19 +195,51 @@ void BulletWorldProxy::updateCollisionPairs() {
 	_btWorld->getCollisionWorld()->computeOverlappingPairs();
 }
 
-void BulletWorldProxy::drawDebug(Renderer &renderer,
-								 const RenderContext& context,
-								 const mat4 &viewMat,
-								 const mat4 &projectionMat,
-								 const DebugOptions &debugOptions) {
+//void BulletWorldProxy::drawDebug(Renderer &renderer,
+//								 const RenderContext& context,
+//								 const mat4 &viewMat,
+//								 const mat4 &projectionMat,
+//								 const DebugOptions &debugOptions) {
+//
+//#ifdef A3D_GL_DESKTOP
+//	auto btDebugModes = BTDebugDrawModesForA3DDebugOptions(debugOptions);
+//
+//	_btDebugDrawer->setDebugMode(btDebugModes);
+//	_btDebugDrawer->clear();
+//	_btWorld->debugDrawWorld();
+//	_btDebugDrawer->draw(renderer, context, viewMat, projectionMat);
+//#endif
+//}
+
+vector<Line> BulletWorldProxy::debugLines(const DebugOptions &debugOptions) {
 
 #ifdef A3D_GL_DESKTOP
-	auto btDebugModes = BTDebugDrawModesForA3DDebugOptions(debugOptions);
 
-	_btDebugDrawer->setDebugMode(btDebugModes);
-	_btDebugDrawer->clear();
-	_btWorld->debugDrawWorld();
-	_btDebugDrawer->draw(renderer, context, viewMat, projectionMat);
+//	static const float DRAW_RATE = 10.0; // frames/sec
+//
+//	static vector<Line> lines{};
+//
+//	A3D_EVERY(utils::chrono::sec_f_to_ms(1.0f/DRAW_RATE), [&] {
+
+		auto btDebugModes = BTDebugDrawModesForA3DDebugOptions(debugOptions);
+		if (btDebugModes == btIDebugDraw::DBG_NoDebug) return vector<Line>{};
+		_btDebugDrawer->setDebugMode(btDebugModes);
+		_btDebugDrawer->clear();
+		_btWorld->debugDrawWorld();
+//		lines.clear();
+		return _btDebugDrawer->lines();
+//		auto newLines = _btDebugDrawer->lines();
+//		auto newLines = std::move(_btDebugDrawer->lines());
+//		lines.insert(lines.end(),
+//				 std::make_move_iterator(newLines.begin()),
+//				 std::make_move_iterator(newLines.end()));
+
+//	});
+//
+//	return lines;
+	//return vector<Line>{};
+#else
+	return vector<Line>{};
 #endif
 }
 

@@ -17,7 +17,7 @@
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/primitive/Plane.h"
 #include "a3d/physics/PhysicalWorld.h"
-#include "a3d/physics/bullet/BulletWorldProxy.h"
+//#include "a3d/physics/bullet/BulletWorldProxy.h"
 #include "a3d/profiling/Profiling.h"
 #include "a3d/rendering/RenderGatherer.h"
 #include "a3d/rendering/RenderItem.h"
@@ -101,15 +101,6 @@ void VisualWorld::background(const MaterialProperty& background) {
 														monostate{},
 														monostate{},
 														background);
-
-//			// generate the skybox mesh if it hasn't already been
-//			if (!_skyboxMesh) {
-//				_skyboxMesh = MakeSkyboxMesh(background);
-//			}
-//			else {
-//				// we already have the mesh, just update its material
-//				_skyboxMesh->replaceMaterial(0, material);
-//			}
 		}
 		else if (auto image = get_if<shared_ptr<Image>>(&((*texture)->contents()))) {
 			A3D_LOG_W("Image background not supported.");
@@ -289,19 +280,11 @@ void VisualWorld::draw(const Scene& scene,
 		renderer->preTraversal(scene, *_renderContext, debugOptions, stats);
 	});
 
-
-
-
-	// get bullet lines
-
-
-
-
 	auto gatherItems = A3D_PROFILE(profiler, Profiler::Tag::EngineCpu, [&] {
 
 		return RenderGatherer::GatherRenderItems(scene,
-												 *_renderContext,
 												 view,
+												 physicalWorld,
 												 debugOptions,
 												 stats);
 	});
@@ -345,17 +328,6 @@ void VisualWorld::draw(const Scene& scene,
 
 		renderer->renderLinesPass(packet.linesPass, *_renderContext, view, proj);
 	});
-
-	if (physicalWorld) {
-
-		if (auto bwp = dynamic_cast<BulletWorldProxy*>(physicalWorld->proxy())) {
-			bwp->drawDebug(*renderer,
-						   *_renderContext,
-						   view,
-						   proj,
-						   debugOptions);
-		}
-	}
 
 	A3D_PROFILE(profiler, Profiler::Tag::EngineCpu, [&] {
 		// there is some "RenderCpu" type stuff bundled in here for GLFWWindow and QtViewport

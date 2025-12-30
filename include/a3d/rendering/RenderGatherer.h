@@ -15,9 +15,11 @@ namespace a3d {
 	struct RenderPacket;
 	struct RenderResourceCacheOGL;
 
+	class Line;
 	class Material;
 	class Mesh;
 	class Node;
+	class PhysicalWorld;
 	class RenderContext;
 	class Scene;
 
@@ -34,6 +36,8 @@ namespace a3d {
 		std::shared_ptr<Material>	backgroundMaterial;
 		std::vector<Node*> 			lightNodes;
 		std::vector<MeshInstance> 	meshInstances; // debug AABBs
+		//const std::vector<Line>*	physicsDebugLines; // notice NON-OWNING
+		std::vector<Line>			physicsDebugLines;
 	};
 
 	class RenderGatherer {
@@ -41,8 +45,9 @@ namespace a3d {
 	public:
 
 		static GatherOutput GatherRenderItems(const Scene& scene,
-											  const RenderContext& context,
 											  const math::mat4& view,
+											  const PhysicalWorld* physicalWorld,
+//											  const std::vector<Line>& bulletDebugLines,
 											  const DebugOptions& debugOptions, // temporary?
 											  FrameStats& stats);
 

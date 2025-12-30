@@ -34,10 +34,17 @@ namespace a3d {
 		/// Internal Member Functions ///
 
 		void 	clear();
-		void 	draw(Renderer& renderer,
-					 const RenderContext& context,
-					 const math::mat4& viewMat,
-					 const math::mat4& projectionMat);
+
+		std::vector<Line> lines();
+
+//		std::vector<Line> lines(Renderer& renderer,
+//					 const RenderContext& context,
+//					 const math::mat4& viewMat,
+//					 const math::mat4& projectionMat);
+//		void 	draw(Renderer& renderer,
+//					 const RenderContext& context,
+//					 const math::mat4& viewMat,
+//					 const math::mat4& projectionMat);
 
 		/// btIDebugDraw Members ///
 

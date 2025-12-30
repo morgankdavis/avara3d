@@ -23,6 +23,7 @@ class btDefaultCollisionConfiguration;
 namespace a3d {
 
 	class BulletDebugDrawer;
+	class Line;
 	class RenderContext;
 
 	class BulletWorldProxy : public PhysicalWorldProxy {
@@ -35,25 +36,27 @@ namespace a3d {
 
 		/// PhysicalWorldModelProxy Internal Member Functions ///
 
-		void 	add(PhysicsBody& body) override;
-		void 	remove(PhysicsBody& body) override;
+		void 				add(PhysicsBody& body) override;
+		void 				remove(PhysicsBody& body) override;
 
-		float	gravity() const override;
-		void	gravity(float gravity) override;
+		float				gravity() const override;
+		void				gravity(float gravity) override;
 
-		void	step(double deltaT,
-					 float speed,
-					 float timestep,
-					 FrameStats& stats,
-					 Profiler& profiler) override;
+		void				step(double deltaT,
+								 float speed,
+								 float timestep,
+								 FrameStats& stats,
+								 Profiler& profiler) override;
 
-		void 	updateCollisionPairs() override;
+		void 				updateCollisionPairs() override;
 
-		void 	drawDebug(Renderer &renderer,
-						  const RenderContext& context,
-						  const math::mat4 &viewMat,
-						  const math::mat4 &projectionMat,
-						  const DebugOptions &debugOptions) override;
+//		void 	drawDebug(Renderer &renderer,
+//						  const RenderContext& context,
+//						  const math::mat4 &viewMat,
+//						  const math::mat4 &projectionMat,
+//						  const DebugOptions &debugOptions) override;
+
+		std::vector<Line> 	debugLines(const DebugOptions &debugOptions) override;
 
 	private:
 		///  Private Member Variables ///

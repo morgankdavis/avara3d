@@ -1,14 +1,17 @@
 
 #include "a3d/rendering/RenderGatherer.h"
 
+#include "a3d/mesh/Line.h"
+#include "a3d/mesh/Mesh.h"
+#include "a3d/mesh/MeshElement.h"
+#include "a3d/physics/PhysicalWorld.h"
+#include "a3d/physics/bullet/BulletWorldProxy.h"
 #include "a3d/rendering/RenderItem.h"
 #include "a3d/rendering/RenderPacket.h"
 #include "a3d/rendering/RenderResourceCacheOGL.h"
 #include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/context/RenderContext.h"
 #include "a3d/rendering/material/Material.h"
-#include "a3d/mesh/Mesh.h"
-#include "a3d/mesh/MeshElement.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 
@@ -22,15 +25,16 @@ struct GatherEntry {
 };
 
 GatherOutput RenderGatherer::GatherRenderItems(const Scene& scene,
-											   const RenderContext& context,
 											   const mat4& view,
+											   const PhysicalWorld* physicalWorld,
+											   //const vector<Line>& bulletDebugLines,
 											   const DebugOptions& debugOptions, // temporary
 											   FrameStats& stats) {
 
-	GatherOutput out{};
-	out.renderItems.reserve(1024);
-	out.lightNodes.reserve(64);
-	out.meshInstances.reserve(512);
+	GatherOutput output{};
+	output.renderItems.reserve(1024);
+	output.lightNodes.reserve(64);
+	output.meshInstances.reserve(512);
 
 	vector<GatherEntry> stack;
 	stack.reserve(256);
@@ -48,7 +52,7 @@ GatherOutput RenderGatherer::GatherRenderItems(const Scene& scene,
 		if (auto* mesh = n->mesh().get()) {
 
 			// temporary?
-			out.meshInstances.push_back({mesh, world});
+			output.meshInstances.push_back({mesh, world});
 
 			const auto& elements = mesh->elements();
 			const auto& materials = mesh->materials();
@@ -82,7 +86,7 @@ GatherOutput RenderGatherer::GatherRenderItems(const Scene& scene,
 				const vec4 vpos = view * vec4(center, 1.0f);
 				item.depth = vpos.z;
 
-				out.renderItems.push_back(item);
+				output.renderItems.push_back(item);
 
 				++stats.numElements;
 				stats.numPolygons += element->faces().size();
@@ -91,18 +95,12 @@ GatherOutput RenderGatherer::GatherRenderItems(const Scene& scene,
 			++stats.numMeshes;
 		}
 
-		out.scene = &scene; // TODO: maybe change to AABB directly?
+		output.scene = &scene; // TODO: maybe change to AABB directly?
 
-//		if (A3D_MASK_CONTAINS(scene.visualWorld()->dirtyMask(),
-//							  VisualWorldDirtyMask::Background)) {
-			out.backgroundMaterial = scene.visualWorld()->backgroundMaterial();
-			// ehhh
-//			scene.visualWorld()->dirtyMask(A3D_MASK_REMOVE(scene.visualWorld()->dirtyMask(),
-//														   VisualWorldDirtyMask::Background));
-//		}
+		output.backgroundMaterial = scene.visualWorld()->backgroundMaterial();
 
 		if (n->light()) {
-			out.lightNodes.push_back(n);
+			output.lightNodes.push_back(n);
 			++stats.numLights;
 		}
 
@@ -111,7 +109,22 @@ GatherOutput RenderGatherer::GatherRenderItems(const Scene& scene,
 		}
 	}
 
-	return out;
+	output.physicsDebugLines = [&]{
+		if (physicalWorld) {
+			if (auto bwp = dynamic_cast<BulletWorldProxy*>(physicalWorld->proxy())) {
+				return bwp->debugLines(debugOptions);
+			}
+		}
+		return vector<Line>{};
+	}();
+
+//	if (physicalWorld) {
+//		if (auto bwp = dynamic_cast<BulletWorldProxy*>(physicalWorld->proxy())) {
+//			output.physicsDebugLines = &(bwp->debugLines(debugOptions));
+//		}
+//	}
+
+	return output;
 }
 
 
@@ -431,24 +444,85 @@ RenderPacket RenderGatherer::BuildRenderPacket(GatherOutput& gatherOutput,
 
 	packet.lightNodes = std::move(gatherOutput.lightNodes);
 
-	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
-
-		auto& lp = packet.linesPass;
+	{
+		auto &lp = packet.linesPass;
 		lp.model = math::mat4(1.0f);
 
-		// Build/ensure the pipeline as part of packet build (first-class pass)
-		PipelineKey k = MakeLinesPipelineKey();
-		lp.pipeline = cache.ensurePipeline(k);
+		// 1) Take ownership of physics lines (zero-copy)
+		lp.lines = std::move(gatherOutput.physicsDebugLines);
 
-		lp.lines.reserve(gatherOutput.meshInstances.size() * 24); // 12+12 = 24 lines per mesh
+		// 2) Optionally append AABB/OBB lines
+		const bool showBounds = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes);
+		if (showBounds) {
+			// reserve: keep what we already have (physics) + our bbox lines
+			const size_t perMesh = 24;                 // 12 OBB + 12 AABB
+			const size_t sceneAabb = 12;               // scene AABB
+			lp.lines.reserve(lp.lines.size() + gatherOutput.meshInstances.size() * perMesh + sceneAabb);
 
-		// order matters - draw first to draw last
-		for (const MeshInstance& mi : gatherOutput.meshInstances) {
-			AppendOBBLinesFromLocalAABB(lp.lines, mi.mesh->localAABB(), mi.model, *Color::Gray());
-			AppendAABBLinesWorld(lp.lines, mi.mesh->worldAABB(mi.model, false), *Color::Red());
+			// order doesn’t really matter with depthTest + no blending, but
+			// if you care about "last wins" style later, do physics first then bounds (as here).
+			for (const MeshInstance &mi: gatherOutput.meshInstances) {
+				AppendOBBLinesFromLocalAABB(lp.lines, mi.mesh->localAABB(), mi.model, *Color::Gray());
+				AppendAABBLinesWorld(lp.lines, mi.mesh->worldAABB(mi.model, false), *Color::Red());
+			}
+			AppendAABBLinesWorld(lp.lines, gatherOutput.scene->aabb(false), *Color::Green());
 		}
-		AppendAABBLinesWorld(lp.lines, gatherOutput.scene->aabb(false), *Color::Green());
+
+		// 3) Only create/bind a pipeline if we actually have lines
+		if (!lp.lines.empty()) {
+			lp.pipeline = cache.ensurePipeline(MakeLinesPipelineKey());
+		} else {
+			lp.pipeline = INVALID_PIPELINE_HANDLE; // or whatever your "not set" handle is
+		}
 	}
+
+
+
+//	auto& lp = packet.linesPass;
+//	lp.model = math::mat4(1.0f);
+//
+//	lp.lines = std::move(gatherOutput.physicsDebugLines);
+//
+//	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
+//
+//		// Build/ensure the pipeline as part of packet build (first-class pass)
+//		PipelineKey k = MakeLinesPipelineKey();
+//		lp.pipeline = cache.ensurePipeline(k);
+//
+//		const size_t perMesh = 24;                 // 12 OBB + 12 AABB
+//		const size_t sceneAabb = 12;               // scene AABB
+//		lp.lines.reserve(lp.lines.size() + gatherOutput.meshInstances.size() * perMesh + sceneAabb);
+//		//lp.lines.reserve(gatherOutput.meshInstances.size() * 24); // 12+12 = 24 lines per mesh
+//
+//		// order matters - draw first to draw last
+//		for (const MeshInstance& mi : gatherOutput.meshInstances) {
+//			AppendOBBLinesFromLocalAABB(lp.lines, mi.mesh->localAABB(), mi.model, *Color::Gray());
+//			AppendAABBLinesWorld(lp.lines, mi.mesh->worldAABB(mi.model, false), *Color::Red());
+//		}
+//		AppendAABBLinesWorld(lp.lines, gatherOutput.scene->aabb(false), *Color::Green());
+//	}
+
+
+
+
+//	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
+//
+//		auto& lp = packet.linesPass;
+//		lp.model = math::mat4(1.0f);
+//
+//		// Build/ensure the pipeline as part of packet build (first-class pass)
+//		PipelineKey k = MakeLinesPipelineKey();
+//		lp.pipeline = cache.ensurePipeline(k);
+//
+//		lp.lines.reserve(gatherOutput.meshInstances.size() * 24); // 12+12 = 24 lines per mesh
+//
+//		// order matters - draw first to draw last
+//		for (const MeshInstance& mi : gatherOutput.meshInstances) {
+//			AppendOBBLinesFromLocalAABB(lp.lines, mi.mesh->localAABB(), mi.model, *Color::Gray());
+//			AppendAABBLinesWorld(lp.lines, mi.mesh->worldAABB(mi.model, false), *Color::Red());
+//		}
+//		AppendAABBLinesWorld(lp.lines, gatherOutput.scene->aabb(false), *Color::Green());
+//	}
 
 	SortDrawItems(packet.mainPassItems);
 	SortDrawItems(packet.wireframePassItems);

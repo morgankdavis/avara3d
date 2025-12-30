@@ -34,16 +34,28 @@ void BulletDebugDrawer::clear() {
 	_lines.clear();
 }
 
-void BulletDebugDrawer::draw(Renderer& renderer,
-							 const RenderContext& context,
-							 const mat4& viewMat,
-							 const mat4& projectionMat) {
-
-	static const auto M4_I = mat4(1.0);
-	if (getDebugMode() != btIDebugDraw::DBG_NoDebug) {
-		//renderer.render(_lines, context, M4_I, viewMat, projectionMat);
-	}
+vector<Line> BulletDebugDrawer::lines() {
+	return std::move(_lines);
 }
+
+//void BulletDebugDrawer::draw(Renderer& renderer,
+//							 const RenderContext& context,
+//							 const mat4& viewMat,
+//							 const mat4& projectionMat) {
+//
+//	static const auto M4_I = mat4(1.0);
+//	if (getDebugMode() != btIDebugDraw::DBG_NoDebug) {
+//		//renderer.render(_lines, context, M4_I, viewMat, projectionMat);
+//	}
+//}
+
+//std::vector<Line> BulletDebugDrawer::lines(Renderer& renderer,
+//						const RenderContext& context,
+//						const math::mat4& viewMat,
+//						const math::mat4& projectionMat) {
+//
+//
+//}
 
 /// btIDebugDraw Members ///
 
@@ -63,8 +75,6 @@ void BulletDebugDrawer::drawLine(const btVector3& from,
 						  A3DVec3FromBTVector3(to),
 						  A3DVec3FromBTVector3(fromColor),
 						  A3DVec3FromBTVector3(toColor)));
-//						  Color{fromColor.x(), fromColor.y(), fromColor.z(), 1.0},
-//						  Color{toColor.x(), toColor.y(), toColor.z(), 1.0}));
 }
 
 /*

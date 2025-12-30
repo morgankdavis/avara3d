@@ -16,6 +16,7 @@
 
 namespace a3d {
 
+	class Line;
 	class PhysicalWorld;
 	class PhysicsBody;
 	class Profiler;
@@ -32,25 +33,27 @@ namespace a3d {
 
 		/// Internal Member Functions ///
 
-		virtual void 	add(PhysicsBody& body) = 0;
-		virtual void 	remove(PhysicsBody& body) = 0;
+		virtual void 				add(PhysicsBody& body) = 0;
+		virtual void 				remove(PhysicsBody& body) = 0;
 
-		virtual float	gravity() const = 0;
-		virtual void	gravity(float gravity) = 0;
+		virtual float				gravity() const = 0;
+		virtual void				gravity(float gravity) = 0;
 
-		virtual void	step(double deltaT,
-							 float speed,
-							 float timestep,
-							 FrameStats& stats,
-							 Profiler& profiler) = 0;
+		virtual void				step(double deltaT,
+										 float speed,
+										 float timestep,
+										 FrameStats& stats,
+										 Profiler& profiler) = 0;
 
-		virtual void 	updateCollisionPairs() = 0;
+		virtual void 				updateCollisionPairs() = 0;
 
-		virtual void 	drawDebug(Renderer &renderer,
-								  const RenderContext& context,
-								  const math::mat4 &viewMat,
-								  const math::mat4 &projectionMat,
-								  const DebugOptions &debugOptions) = 0;
+//		virtual void 	drawDebug(Renderer &renderer,
+//								  const RenderContext& context,
+//								  const math::mat4 &viewMat,
+//								  const math::mat4 &projectionMat,
+//								  const DebugOptions &debugOptions) = 0;
+
+		virtual std::vector<Line> 	debugLines(const DebugOptions &debugOptions) = 0;
 	};
 }
 
