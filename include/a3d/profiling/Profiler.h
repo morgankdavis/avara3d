@@ -41,8 +41,8 @@ namespace a3d {
 
 		/// Public Member Functions ///
 
-		void add(Tag tag, std::chrono::nanoseconds ns);
-		void add(const std::string& key, std::chrono::nanoseconds ns); // ! untested
+		void add(Tag tag, std::chrono::nanoseconds ns) noexcept;
+		void add(const std::string& key, std::chrono::nanoseconds ns) noexcept; // ! untested
 
 		// ! TEMPORARY !
 //		void subtract(Tag tag, std::chrono::nanoseconds ns); // ! untested

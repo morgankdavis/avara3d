@@ -280,7 +280,6 @@ void Scene::update() {
 		A3D_LOG_E("No root node attached to Scene {:p}", static_cast<void *>(this));
 	});
 
-
 	static FrameStats stats;
 	memset(&stats, 0, sizeof(FrameStats));
 

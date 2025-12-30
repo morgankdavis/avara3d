@@ -17,7 +17,7 @@ using namespace std;
 
 /// Public Member Functions ///
 
-void Profiler::add(Tag tag, chrono::nanoseconds ns) {
+void Profiler::add(Tag tag, chrono::nanoseconds ns) noexcept {
 	if (_taggedSamples.contains(tag)) {
 		_taggedSamples[tag] = _taggedSamples[tag] + ns;
 	}
@@ -26,7 +26,7 @@ void Profiler::add(Tag tag, chrono::nanoseconds ns) {
 	}
 }
 
-void Profiler::add(const string& key, chrono::nanoseconds ns) {
+void Profiler::add(const string& key, chrono::nanoseconds ns) noexcept {
 	if (_keyedSamples.contains(key)) {
 		_keyedSamples[key] = _keyedSamples[key] + ns;
 	}
