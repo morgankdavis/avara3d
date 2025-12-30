@@ -35,7 +35,6 @@ const bool					USE_DEFAULT_LIGHTING	{false};
 const bool					CAPTURE_CURSOR			{false};
 const float					MOUSE_SENSITIVITY		{0.5};
 const float					PHYSICS_TIMESTEP		{1.0/128.0};
-const bool					DARK					{true};
 
 void UpdateCallback(Scene& scene, double time, double deltaTime);
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
@@ -63,7 +62,6 @@ Node*	g_duckNode;
 
 
 
-// vector<tuple<shared_ptr<Mesh>, shared_ptr<PhysicsShape>, float>> g_duckFruit{};
 vector<tuple<shared_ptr<Mesh>, shared_ptr<PhysicsShape>, float>>* g_duckFruit{};
 
 
@@ -138,13 +136,9 @@ int main(int argc, const char* argv[]) {
 		visualWorld->fogStartDistance(50.0);
 		visualWorld->fogEndDistance(400.0);
 		visualWorld->fogDensityExponent(1.0);
-		visualWorld->fogColor(DARK ? Color::DarkGray() : Color::LightGray());
-	//	MaterialProperty background = DARK
-	//									? Color::Black()
-	//									: make_shared<Texture>(CubeImageNamed("stormy", "png"));
-		MaterialProperty background = monostate{};
-		if (DARK) background = Color::Black();
-		else background = make_shared<Texture>(utils::CubeImageNamed("stormy", "png"));
+		visualWorld->fogColor(Color::DarkGray());
+		MaterialProperty background = Color::Black();
+//		MaterialProperty background = make_shared<Texture>(utils::CubeImageNamed("stormy", "png"));
 		visualWorld->background(background);
 		visualWorld->willRenderCallback(bind(&WillRenderCallback, _1, _2, _3));
 		visualWorld->didRenderCallback(bind(&DidRenderCallback, _1, _2, _3));
@@ -164,33 +158,22 @@ int main(int argc, const char* argv[]) {
 
 		// ambient light
 
-		auto ambientColor = DARK
-							? make_shared<Color>(.1f) // should be light gray
-							: Color::DarkGray();
-			auto ambientLight = make_shared<AmbientLight>(ambientColor);
-			auto ambientLightNode = Node::LightNode(ambientLight);
-			scene->rootNode()->addChild(ambientLightNode);
+		auto ambientColor = make_shared<Color>(.1f);
+		auto ambientLight = make_shared<AmbientLight>(ambientColor);
+		auto ambientLightNode = Node::LightNode(ambientLight);
+		scene->rootNode()->addChild(ambientLightNode);
 
 
 
 		// directional light
 
-		auto sunColor = DARK
-		        ? Color::Gray()
-				: make_shared<Color>(u8vec3{233, 218, 185});
+		auto sunColor = Color::Gray();
 		auto sunLight = make_shared<DirectionalLight>(sunColor);
 		auto sunNode = Node::LightNode(sunLight);
+		sunNode->eulerAngles({radians(0.0f),
+							  radians(45.0),
+							  radians(0.0)});
 		scene->rootNode()->addChild(sunNode);
-		if (DARK) {
-			sunNode->eulerAngles({radians(0.0f),
-								  radians(45.0),
-								  radians(0.0)});
-		}
-		else {
-			sunNode->eulerAngles({radians(-30.0f),
-								  radians(90.0 + 45.0),
-								  radians(0.0)});
-		}
 
 
 			//pointLightNode->mesh(Box::Mesh(0.5, 0.5, 0.5));

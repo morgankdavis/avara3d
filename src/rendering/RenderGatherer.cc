@@ -169,7 +169,7 @@ PipelineKey RenderGatherer::MakeBackgroundPipelineKey() {
 	k.pass          = PassKind::Background;
 	k.shaderKind    = ShaderKind::Skybox;
 	k.fillMode      = FillMode::Fill;
-	k.doubleSided   = true; // maybe not?
+	k.doubleSided   = true; // maybe change winding order instead
 	k.depthTest  = true;
 	k.depthWrite    = false;
 	k.depthFunc = DepthFunc::Lequal;

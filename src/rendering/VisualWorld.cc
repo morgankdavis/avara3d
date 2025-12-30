@@ -248,14 +248,14 @@ void VisualWorld::draw(const Scene& scene,
 	auto pov = pointOfView().lock();
 	A3D_EDGE_GUARD(!pov, return;, [&] {
 		A3D_LOG_E("No point of view!");
-		renderer->clear(*_renderContext, true, true);
+		renderer->clear(Renderer::ClearCommand{}, *_renderContext);
 		_renderContext->swapBuffers();
 	});
 
 	auto povScene = pov->scene();
 	A3D_EDGE_GUARD(povScene == nullptr || povScene != &scene, return;, [&] {
 		A3D_LOG_W("Point of view not in our scene!");
-		renderer->clear(*_renderContext, true, true);
+		renderer->clear(Renderer::ClearCommand{}, *_renderContext);
 		_renderContext->swapBuffers();
 	});
 
@@ -316,7 +316,7 @@ void VisualWorld::draw(const Scene& scene,
 								debugOptions,
 								stats);
 
-		renderer->clear(*_renderContext, true, true);
+		renderer->clear(Renderer::ClearCommand{}, *_renderContext);
 
 		// TODO: PUT IN RENDERPACKET
 //		renderer->bindPipeline(packet.backgroundPass.pipeline, cache);

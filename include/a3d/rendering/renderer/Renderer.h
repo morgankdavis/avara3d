@@ -78,13 +78,54 @@ namespace a3d {
 
 
 
+
+
+
+
+		struct i32Rect {
+			int32_t x = 0;
+			int32_t y = 0;
+			int32_t w = 0;
+			int32_t h = 0;
+		};
+
+		struct ClearCommand {
+			// What to clear
+			bool clearColor   = true;
+			bool clearDepth   = true;
+			bool clearStencil = false;
+
+			// Clear values
+			math::vec4 color  = {0.f, 0.f, 0.f, 1.f};
+			float      depth  = 1.0f; // typical: reset depth to far plane
+			int        stencil = 0;   // typical: reset stencil to 0
+
+			// Optional: restrict clear to a rectangle (uses scissor)
+			bool  useScissor = false;
+			i32Rect scissorRect{};
+
+			// Safety/robustness:
+			// glClear obeys scissor + write masks. If a previous pass did glDepthMask(false)
+			// (or colorMask off), your clear can "do nothing" unless you override.
+			bool forceWriteMasks = true;
+
+			// Optional: if you manage multiple render targets later.
+			// For now you can ignore this and clear the currently-bound framebuffer.
+			// GLuint framebuffer = 0;
+			// bool   bindFramebuffer = false;
+		};
+
+
+
+
+
 		// TODO: REMOVE OR REPLACE WITH NON-OGL
 		virtual RenderResourceCacheOGL& cache() = 0;
 
 
-		virtual void clear(const RenderContext& context,
-						   bool clearDepth,
-						   bool clearStencil) = 0;
+
+		virtual void clear(const ClearCommand& cmd,
+						   const RenderContext& context) = 0;
 		virtual void drawBackground(const BackgroundPass& backgroundPass,
 									const math::mat4& viewMat,
 									const math::mat4& projMat) = 0;

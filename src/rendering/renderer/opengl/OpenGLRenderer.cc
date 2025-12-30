@@ -1051,115 +1051,7 @@ void SetMaterialOpenGLState(const Material& material,
 		}
 	}
 }
-	
-void SetSkyboxOpenGLState() {
-	
-	glDepthMask(GL_FALSE);
-#ifdef A3D_GL_DESKTOP
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-#endif
-	glDisable(GL_CULL_FACE);
-//	glDisable(GL_BLEND);
-}
 
-
-
-
-//void SetLinesGLState() {
-//
-//	glDisable(GL_CULL_FACE);
-//
-//	glEnable(GL_DEPTH_TEST);
-//	glDepthMask(GL_FALSE);      // don’t write depth
-//
-//	glDisable(GL_BLEND);        // or enable if you want translucency later
-//	// glEnable(GL_BLEND);
-//	// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//
-//#ifndef A3D_GL_ES
-//	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-//#endif
-//}
-//
-//
-//
-//
-//void DrawMeshElement(MeshElement& element,
-//					 Program& program,
-//					 const mat4& modelMat,
-//					 const mat4& viewMat,
-//					 const mat4& projectionMat,
-//					 GLuint vao, GLuint ebo/*,
-//					 vector<OpenGLDrawItem>& drawItmes*/,
-//					 GLStateCache& state) {
-//
-//	program.use();
-//	state.program = program.glID();
-//
-//	// uniforms
-//
-//	program.setUniform("modelMat", modelMat);
-//	program.setUniform("viewMat", viewMat);
-//	program.setUniform("projMat", projectionMat);
-//
-//	// update
-//
-//	glBindVertexArray(vao);
-//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-//	auto numFaces = element.faces().size();
-//	glDrawElements(GL_TRIANGLES, (GLsizei)numFaces*3, GL_UNSIGNED_INT, nullptr);
-//}
-
-void DrawSkyboxElement(MeshElement& element,
-					   Program& program,
-					   const mat4& viewMat,
-					   const mat4& projectionMat,
-					   GLuint vao, GLuint ebo,
-					   GLStateCache& state) {
-
-	program.use();
-	state.program = program.glID();
-
-	program.setUniform("viewMat", viewMat);
-	program.setUniform("projMat", projectionMat);
-	
-	// update
-
-	auto& faces = element.faces();
-	
-	glBindVertexArray(vao);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	auto numFaces = faces.size();
-	glDrawElements(GL_TRIANGLES, (GLsizei)numFaces*3, GL_UNSIGNED_INT, nullptr);
-}
-
-void DeleteMeshElementGLResources(MeshElement* element,
-								  OpenGLRenderer::MeshElementGLMapping& glMapping) {
-#ifndef DISABLE_RESOURCE_MANAGEMENT
-	
-	if (glMapping.count(element)) {
-		
-		A3D_LOG_D("Deleting GL resources for MeshElement {:p}...",
-				  static_cast<void*>(element));
-		
-		auto glHandles = glMapping[element];
-		
-		GLuint vbo = get<0>(glHandles);
-		GLuint vao = get<1>(glHandles);
-		GLuint ebo = get<2>(glHandles);
-		
-		glDeleteBuffers(1, &vbo);
-		glDeleteVertexArrays(1, &vao);
-		glDeleteBuffers(1, &ebo);
-		
-		glMapping.erase(element);
-
-		element->dirtyMask(A3D_MASK_REMOVE(element->dirtyMask(),
-										  MeshElementDirtyMask::VertexData));
-	}
-	
-#endif
-}
 
 vector<Node*> SortedLights(map<Node*, float> lights) {
 	// map: <node, distance from camera>
@@ -2059,7 +1951,12 @@ RenderResourceCacheOGL& OpenGLRenderer::cache() {
 }
 
 
-void OpenGLRenderer::clear(const RenderContext& context, bool clearDepth, bool clearStencil) {
+
+
+void OpenGLRenderer::clear(const ClearCommand& cmd,
+						   const RenderContext& context) {
+	// If you later want target-specific clear:
+	// if (cmd.bindFramebuffer) glBindFramebuffer(GL_FRAMEBUFFER, cmd.framebuffer);
 
 	FBORestore restore;
 
@@ -2068,16 +1965,82 @@ void OpenGLRenderer::clear(const RenderContext& context, bool clearDepth, bool c
 	glBindFramebuffer(GL_FRAMEBUFFER, fb);
 	glViewport(0, 0, (GLsizei)fbSize.x, (GLsizei)fbSize.y);
 
-	// clear leftover state from debug passes / imgui
-	glDisable(GL_SCISSOR_TEST);
-	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	glDepthMask(GL_TRUE);
-	// glStencilMask(0xFF); // if using stencil
+	// Save state we might stomp.
+	GLboolean prevScissorEnabled = GL_FALSE;
+	GLint prevScissorBox[4] = {0,0,0,0};
+	glGetBooleanv(GL_SCISSOR_TEST, &prevScissorEnabled);
+	glGetIntegerv(GL_SCISSOR_BOX, prevScissorBox);
 
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClearDepth(1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	GLboolean prevColorMask[4] = {GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE};
+	GLboolean prevDepthMask = GL_TRUE;
+	GLint prevStencilMask = ~0;
+	glGetBooleanv(GL_COLOR_WRITEMASK, prevColorMask);
+	glGetBooleanv(GL_DEPTH_WRITEMASK, &prevDepthMask);
+	glGetIntegerv(GL_STENCIL_WRITEMASK, &prevStencilMask);
+
+	// Apply scissor if requested (partial clear).
+	if (cmd.useScissor) {
+		glEnable(GL_SCISSOR_TEST);
+		glScissor(cmd.scissorRect.x, cmd.scissorRect.y,
+				  cmd.scissorRect.w, cmd.scissorRect.h);
+	}
+	else if (prevScissorEnabled) {
+		// leave as-is
+	}
+	else {
+		glDisable(GL_SCISSOR_TEST);
+	}
+
+	// Ensure clears actually write (optional but strongly recommended).
+	if (cmd.forceWriteMasks) {
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		glDepthMask(GL_TRUE);
+		glStencilMask(0xFFFFFFFF);
+	}
+
+	// Set clear values (only when needed).
+	GLbitfield mask = 0;
+
+	if (cmd.clearColor) {
+		glClearColor(cmd.color.x, cmd.color.y, cmd.color.z, cmd.color.w);
+		mask |= GL_COLOR_BUFFER_BIT;
+	}
+
+	if (cmd.clearDepth) {
+#ifdef A3D_GL_ES
+		glClearDepthf(cmd.depth);
+#else
+		glClearDepth(cmd.depth);
+#endif
+		mask |= GL_DEPTH_BUFFER_BIT;
+	}
+
+	if (cmd.clearStencil) {
+		glClearStencil(cmd.stencil);
+		mask |= GL_STENCIL_BUFFER_BIT;
+	}
+
+	if (mask) {
+		glClear(mask);
+	}
+
+	// Restore state we modified.
+	if (cmd.forceWriteMasks) {
+		glColorMask(prevColorMask[0], prevColorMask[1], prevColorMask[2], prevColorMask[3]);
+		glDepthMask(prevDepthMask);
+		glStencilMask((GLuint)prevStencilMask);
+	}
+
+	if (cmd.useScissor) {
+		if (prevScissorEnabled) {
+			glEnable(GL_SCISSOR_TEST);
+			glScissor(prevScissorBox[0], prevScissorBox[1], prevScissorBox[2], prevScissorBox[3]);
+		} else {
+			glDisable(GL_SCISSOR_TEST);
+		}
+	}
 }
+
 
 void OpenGLRenderer::drawBackground(const BackgroundPass& backgroundPass,
 									const math::mat4& viewMat,

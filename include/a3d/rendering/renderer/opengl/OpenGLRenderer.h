@@ -158,9 +158,9 @@ namespace a3d {
 
 
 
-		void clear(const RenderContext& context,
-				   bool clearDepth,
-				   bool clearStencil) override;
+
+		void clear(const ClearCommand& cmd,
+				   const RenderContext& context) override;
 		void drawBackground(const BackgroundPass& backgroundPass,
 							const math::mat4& viewMat,
 							const math::mat4& projMat) override;
