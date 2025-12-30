@@ -265,8 +265,14 @@ void VisualWorld::draw(const Scene& scene,
 		});
 	}
 
-	renderer->beginFrame(scene, *_renderContext, debugOptions, stats, profiler);
-	_renderContext->beginFrame(scene);
+	A3D_PROFILE(profiler, Profiler::Tag::RenderCpu, [&] {
+		renderer->beginFrame(scene, *_renderContext, debugOptions, stats, profiler);
+	});
+
+	A3D_PROFILE(profiler, Profiler::Tag::EngineCpu, [&] {
+		// there is some "RenderCpu" type stuff bundled in here for GLFWWindow and QtViewport
+		_renderContext->beginFrame(scene);
+	});
 
 	auto [view, proj] = A3D_PROFILE(profiler, Profiler::Tag::EngineCpu, [&] {
 
@@ -279,18 +285,17 @@ void VisualWorld::draw(const Scene& scene,
 		return std::tuple{ inverse(pov->worldTransform()), pov->camera()->projection() };
 	});
 
-	// TODO: REMOVE
 	A3D_PROFILE(profiler, Profiler::Tag::RenderCpu, [&] {
-
-//		renderer->render(scene,
-//						 *_renderContext,
-//						 view,
-//						 proj,
-//						 debugOptions,
-//						 stats);
-
 		renderer->preTraversal(scene, *_renderContext, debugOptions, stats);
 	});
+
+
+
+
+	// get bullet lines
+
+
+
 
 	auto gatherItems = A3D_PROFILE(profiler, Profiler::Tag::EngineCpu, [&] {
 
@@ -352,11 +357,18 @@ void VisualWorld::draw(const Scene& scene,
 		}
 	}
 
-	_renderContext->endFrame(scene);
-	renderer->endFrame(scene, *_renderContext,
-					   debugOptions, stats, profiler, statsHistory);
+	A3D_PROFILE(profiler, Profiler::Tag::EngineCpu, [&] {
+		// there is some "RenderCpu" type stuff bundled in here for GLFWWindow and QtViewport
+		_renderContext->endFrame(scene);
+	});
 
-	_renderContext->swapBuffers();
+	A3D_PROFILE(profiler, Profiler::Tag::RenderCpu, [&] {
+
+		renderer->endFrame(scene, *_renderContext,
+						   debugOptions, stats, profiler, statsHistory);
+
+		_renderContext->swapBuffers();
+	});
 
 	if (auto didRender = VisualWorld::didRenderCallback()) {
 		A3D_PROFILE(profiler, Profiler::Tag::Application, [&] {
@@ -364,9 +376,12 @@ void VisualWorld::draw(const Scene& scene,
 		});
 	}
 
-	if (_renderContext->recordingGIF()) {
-		_renderContext->saveGIFFrame(deltaRunT);
-	}
+	A3D_PROFILE(profiler, Profiler::Tag::EngineCpu, [&] {
+
+		if (_renderContext->recordingGIF()) {
+			_renderContext->saveGIFFrame(deltaRunT);
+		}
+	});
 }
 
 shared_ptr<Material> VisualWorld::backgroundMaterial() {

@@ -8,13 +8,13 @@
 
 #include "a3d/physics/PhysicalWorld.h"
 
+#include "a3d/Utilities.h"
 #include "a3d/diagnostic/log/Log.h"
 #include "a3d/physics/HitTestResult.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsContact.h"
 #include "a3d/physics/bullet/BulletWorldProxy.h"
-#include "a3d/profiling/Profiler.h"
-#include "a3d/profiling/Timer.h"
+#include "a3d/profiling/Profiling.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 
@@ -185,18 +185,16 @@ void PhysicalWorld::step(const Scene& scene,
 						 FrameStats& stats,
 						 Profiler& profiler) {
 
-	if (_proxy) {
+	A3D_EDGE_GUARD(!_proxy, return;, [&] {
+		A3D_LOG_E("No PhysicalWorldProxy attached to PhysicalWorld {:p}.", static_cast<void*>(this));
+	});
 
-		_proxy->step(deltaRunT, _speed, _timestep, stats, profiler);
+	_proxy->step(deltaRunT, _speed, _timestep, stats, profiler);
 
-		if (auto didSimulate = PhysicalWorld::didSimulateCallback()) {
-			Timer appTimer(true);
+	if (auto didSimulate = PhysicalWorld::didSimulateCallback()) {
+		A3D_PROFILE(profiler, Profiler::Tag::Application, [&] {
 			didSimulate(*this, runT, deltaRunT);
-			profiler.add(Profiler::Tag::Application, appTimer.stop());
-		}
-	}
-	else {
-		A3D_LOG_E("No PhysicalWorldModelProxy attached to PhysicalWorld {:p}.", static_cast<void*>(this));
+		});
 	}
 }
 

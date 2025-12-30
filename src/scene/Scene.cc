@@ -17,14 +17,14 @@
 #include "a3d/Color.h"
 #include "a3d/Configuration.h"
 #include "a3d/Image.h"
+#include "a3d/Utilities.h"
 #include "a3d/diagnostic/log/Log.h"
 #include "a3d/input/GLFWInputManager.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicalWorld.h"
-#include "a3d/profiling/Profiler.h"
-#include "a3d/profiling/Timer.h"
+#include "a3d/profiling/Profiling.h"
 #include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/camera/Camera.h"
 #include "a3d/rendering/context/RenderContext.h"
@@ -276,12 +276,15 @@ void Scene::debugOptions(DebugOptions options) {
 
 void Scene::update() {
 
+	A3D_EDGE_GUARD(!_rootNode, return;, [&] {
+		A3D_LOG_E("No root node attached to Scene {:p}", static_cast<void *>(this));
+	});
+
+
 	static FrameStats stats;
 	memset(&stats, 0, sizeof(FrameStats));
 
-	Timer frameTimer(true);
-
-	if (_rootNode) {
+	A3D_PROFILE(_profiler, Profiler::Tag::Frame, [&] {
 
 		static auto now = std::chrono::system_clock::now();
 		_startTime = std::chrono::duration<double>(now.time_since_epoch()).count();
@@ -293,14 +296,17 @@ void Scene::update() {
 				   deltaRunT);
 
 		if (_inputManager) {
-			_inputManager->update();
+
+			A3D_PROFILE(_profiler, Profiler::Tag::EngineCpu, [&] {
+				_inputManager->update();
+			});
 		}
 
 		if (_updateCallback) {
 
-			Timer appTimer(true);
-			(_updateCallback)(*this, runT, deltaRunT);
-			_profiler.add(Profiler::Tag::Application, appTimer.stop());
+			A3D_PROFILE(_profiler, Profiler::Tag::Application, [&] {
+				(_updateCallback)(*this, runT, deltaRunT);
+			});
 		}
 
 		if (_physicalWorld) {
@@ -314,7 +320,6 @@ void Scene::update() {
 
 		if (_visualWorld) {
 
-			//Timer drawTimer(true);
 			_visualWorld->draw(*this,
 							   (_physicalWorld ? _physicalWorld.get() : nullptr),
 							   runT,
@@ -323,14 +328,8 @@ void Scene::update() {
 							   stats,
 							   _profiler,
 							   _frameStatsHistory);
-			//_profiler.add(Profiler::Tag::RenderCpu, drawTimer.stop());
 		}
-	}
-	else {
-		A3D_LOG_E("No root node attached to Scene {:p}", static_cast<void*>(this));
-	}
-
-	_profiler.add(Profiler::Tag::Frame, frameTimer.stop());
+	});
 
 	stats.frameTime = _profiler.time(Profiler::Tag::Frame);
 	stats.engineCpuTime = _profiler.time(Profiler::Tag::EngineCpu);

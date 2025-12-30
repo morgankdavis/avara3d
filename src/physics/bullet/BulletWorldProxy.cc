@@ -21,8 +21,7 @@
 #include "a3d/physics/bullet/BulletBodyProxy.h"
 #include "a3d/physics/bullet/BulletDebugDrawer.h"
 #include "a3d/physics/bullet/BulletUtilities.h"
-#include "a3d/profiling/Profiler.h"
-#include "a3d/profiling/Timer.h"
+#include "a3d/profiling/Profiling.h"
 #include "a3d/scene/Node.h"
 
 using namespace a3d;
@@ -167,15 +166,16 @@ void BulletWorldProxy::step(double deltaT,
 							FrameStats& stats,
 							Profiler& profiler) {
 
-	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=9320
-	Timer physicsTimer(true);
-	auto result = _btWorld->stepSimulation(btScalar(deltaT * speed),
-										   config::MAX_PHYSICS_SUBSTEPS,
-										   timestep);
-	profiler.add(Profiler::Tag::Physics, physicsTimer.stop());
+	auto result = A3D_PROFILE(profiler, Profiler::Tag::Physics, [&] {
+		// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=9320
+		return _btWorld->stepSimulation(btScalar(deltaT * speed),
+										config::MAX_PHYSICS_SUBSTEPS,
+										timestep);
+	});
 
-//	if (result >= MAX_PHYSICS_SUBSTEPS) {
-//		A3D_LOG_W("Max physics simulation substeps reached: {}", result);
+//	if (result > config::MAX_PHYSICS_SUBSTEPS) {
+//		A3D_LOG_W("Max physics simulation substeps exceeded: {}/{}",
+//				  result, config::MAX_PHYSICS_SUBSTEPS);
 //	}
 
 	stats.numStaticBodies += _stats.numStaticBodies;

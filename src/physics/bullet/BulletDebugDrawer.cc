@@ -20,13 +20,6 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Private Static Non-Member Prototypes ///
-
-//static vec3 		A3DVec3FromBTVector3(const btVector3& from);
-//static vec4 		A3DVec4FromBTVector4(const btVector4& from);
-//static btVector3 	BTVector3FromA3DVec3(const vec3& from);
-//static btVector4 	BTVector4FromA3DVec4(const vec4& from);
-
 /// Public Lifecycle Functions ///
 
 BulletDebugDrawer::BulletDebugDrawer():
@@ -46,7 +39,7 @@ void BulletDebugDrawer::draw(Renderer& renderer,
 							 const mat4& viewMat,
 							 const mat4& projectionMat) {
 
-	const auto M4_I = mat4(1.0);
+	static const auto M4_I = mat4(1.0);
 	if (getDebugMode() != btIDebugDraw::DBG_NoDebug) {
 		//renderer.render(_lines, context, M4_I, viewMat, projectionMat);
 	}
@@ -211,24 +204,6 @@ void BulletDebugDrawer::setDebugMode(int debugMode) {
 
 int BulletDebugDrawer::getDebugMode() const {
 	return _debugMode;
-}
-
-/// Static ///
-
-vec3 GLMVec3FromBTVector3(const btVector3& from) {
-	return vec3(from.x(), from.y(), from.z());
-}
-
-vec4 GLMVec4FromBTVector4(const btVector4& from) {
-	return vec4(from.x(), from.y(), from.z(), from.w());
-}
-
-btVector3 BTVector3FromGLMVec3(const vec3& from) {
-	return btVector3(from.x, from.y, from.z);
-}
-
-btVector4 BTVector4FromGLMVec4(const vec4& from) {
-	return btVector4(from.x, from.y, from.z, from.w);
 }
 
 #endif // A3D_GL_DESKTOP
