@@ -99,7 +99,7 @@ void PhysicsShape::attachedToBody(PhysicsBody& body) {
 }
 
 void PhysicsShape::detachedFromBody(PhysicsBody& body) {
-	A3D_LOG_T("body: {:p}", static_cast<void*>(&body));
+	log::t("body: {:p}", static_cast<void*>(&body));
 
 	_bodies.erase(&body);
 }
