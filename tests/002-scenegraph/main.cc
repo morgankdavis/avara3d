@@ -132,7 +132,7 @@ int main(int argc, const char* argv[]) {
 		a->_debugPrint();
 
 		for (auto& c : a->children(true)) {
-			A3D_LOG_I("c: {}", *c->name());
+			log::i()("c: {}", *c->name());
 		}
 
 //		2023-11-18 21:18:20.479 [ae] [info] [Node.cc:836] [_debugPrintRec()] [0] c

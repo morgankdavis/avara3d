@@ -44,7 +44,7 @@ Font::Font(unique_ptr<Buffer> buffer):
 }
 
 Font::~Font() {
-	A3D_LOG_D("Destroying Font {:p}", static_cast<void*>(this));
+	log::d()("Destroying Font {:p}", static_cast<void*>(this));
 }
 
 /// Public Member Functions ///

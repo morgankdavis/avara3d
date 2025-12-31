@@ -47,10 +47,10 @@ PerspectiveCamera::PerspectiveCamera(const string& name, float zNear, float zFar
 PerspectiveCamera::~PerspectiveCamera() {
 
 	if (_name != nullopt) {
-		A3D_LOG_D("Destroying PerspectiveCamera '{}' ({:p})", *_name, static_cast<void*>(this));
+		log::d()("Destroying PerspectiveCamera '{}' ({:p})", *_name, static_cast<void*>(this));
 	}
 	else {
-		A3D_LOG_D("Destroying PerspectiveCamera {:p}", static_cast<void*>(this));
+		log::d()("Destroying PerspectiveCamera {:p}", static_cast<void*>(this));
 	}
 }
 
@@ -97,7 +97,7 @@ void PerspectiveCamera::aspectRatio(float ratio) {
 		//constructProjectionMatrix();
 	}
 	else {
-		A3D_LOG_E("_aspectRatio is 0.");
+		log::e()("_aspectRatio is 0.");
 	}
 }
 
@@ -120,7 +120,7 @@ mat4 PerspectiveCamera::projection() const {
 //								  _zFar);
 //	}
 //	else {
-//		A3D_LOG_W("_aspectRatio is 0.");
+//		log::w()("_aspectRatio is 0.");
 //	}
 //}
 

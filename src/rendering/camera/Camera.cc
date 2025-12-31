@@ -28,10 +28,10 @@ Camera::Camera(const string& name):
 Camera::~Camera() {
 
 	if (_name != nullopt) {
-		A3D_LOG_D("Destroying Camera '{}' ({:p})", *_name, static_cast<void*>(this));
+		log::d()("Destroying Camera '{}' ({:p})", *_name, static_cast<void*>(this));
 	}
 	else {
-		A3D_LOG_D("Destroying Camera {:p}", static_cast<void*>(this));
+		log::d()("Destroying Camera {:p}", static_cast<void*>(this));
 	}
 }
 

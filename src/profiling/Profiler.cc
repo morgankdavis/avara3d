@@ -42,7 +42,7 @@ void Profiler::add(const string& key, chrono::nanoseconds ns) noexcept {
 //		_taggedSamples[tag] = newNS;
 //	}
 //	else {
-//		A3D_LOG_E("Can't subtract {}ns for {} -- no samples exist yet for tag.",
+//		log::e()("Can't subtract {}ns for {} -- no samples exist yet for tag.",
 //				  ns, magic_enum::enum_name(tag));
 //	}
 //}
@@ -53,7 +53,7 @@ void Profiler::add(const string& key, chrono::nanoseconds ns) noexcept {
 //		_keyedSamples[key] = newNS;
 //	}
 //	else {
-//		A3D_LOG_E("Can't subtract {}ns key '{}' -- no samples exist yet for key.",
+//		log::e()("Can't subtract {}ns key '{}' -- no samples exist yet for key.",
 //				  ns, key);
 //	}
 //}

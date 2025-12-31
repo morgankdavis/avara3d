@@ -38,7 +38,7 @@ PhysicalWorld::PhysicalWorld():
 }
 
 PhysicalWorld::~PhysicalWorld() {
-	A3D_LOG_D("Destroying PhysicalWorld {:p}", static_cast<void*>(this));
+	log::d()("Destroying PhysicalWorld {:p}", static_cast<void*>(this));
 }
 
 /// Public Member Functions ///
@@ -141,13 +141,13 @@ void PhysicalWorld::endContactCallback(PhysicalWorld::EndContactCallback functio
 /// Internal Member Functions ///
 
 void PhysicalWorld::attachedToScene(Scene& scene) {
-	A3D_LOG_T("scene: {:p}", static_cast<void*>(&scene));
+	log::t()("scene: {:p}", static_cast<void*>(&scene));
 
 	_scene = &scene;
 }
 
 void PhysicalWorld::detachedFromScene(Scene& scene) {
-	A3D_LOG_T("scene: {:p}", static_cast<void*>(&scene));
+	log::t()("scene: {:p}", static_cast<void*>(&scene));
 
 	// removing bodies handled in PhysicalBody::physicalWorldUnreachable()
 
@@ -155,7 +155,7 @@ void PhysicalWorld::detachedFromScene(Scene& scene) {
 }
 
 void PhysicalWorld::add(PhysicsBody& body) {
-	A3D_LOG_D("body: {}", static_cast<void*>(&body));
+	log::d()("body: {}", static_cast<void*>(&body));
 
 	if (_proxy) {
 //		body.addedToWorld(this);
@@ -163,19 +163,19 @@ void PhysicalWorld::add(PhysicsBody& body) {
 		body.addedToWorld(*this);
 	}
 	else {
-		A3D_LOG_W("_model is null.");
+		log::w()("_model is null.");
 	}
 }
 
 void PhysicalWorld::remove(PhysicsBody& body) {
-	A3D_LOG_D("body: {}", static_cast<void*>(&body));
+	log::d()("body: {}", static_cast<void*>(&body));
 
 	if (_proxy) {
 		_proxy->remove(body);
 		body.removedFromWorld(*this);
 	}
 	else {
-		A3D_LOG_W("_model is null.");
+		log::w()("_model is null.");
 	}
 }
 
@@ -186,7 +186,7 @@ void PhysicalWorld::step(const Scene& scene,
 						 Profiler& profiler) {
 
 	if (!utils::flow::edge_guard(_proxy, [&] {
-		A3D_LOG_E("No PhysicalWorldProxy attached to PhysicalWorld {:p}.", static_cast<void*>(this));
+		log::e()("No PhysicalWorldProxy attached to PhysicalWorld {:p}.", static_cast<void*>(this));
 	})) return;
 
 	_proxy->step(deltaRunT, _speed, _timestep, stats, profiler);

@@ -348,7 +348,7 @@ int main(int argc, const char* argv[]) {
 	}
 	catch (Exception& e)
 	{
-		A3D_APP_LOG_F("Exception: {}", e.what());
+		log::app::f()("Exception: {}", e.what());
 		return -1;
 	}
 
@@ -359,7 +359,7 @@ int main(int argc, const char* argv[]) {
 /// Scene Callbacks ///
 
 void UpdateCallback(Scene& scene, double time, double deltaTime) {
-	A3D_APP_LOG_T("scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
+	log::app::t()("scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
 
 	GLFWWindow* window = nullptr;
 	if (scene.visualWorld()) {
@@ -385,7 +385,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	}
 
 	if (keysPressed.count(Key::T)) {
-		A3D_APP_LOG_I("TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
+		log::app::i()("TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
 	}
 
 	if (keysPressed.count(Key::One)) {
@@ -432,13 +432,13 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	if (keysPressed.count(Key::LeftBracket)) {
 		g_mesh = &((*g_meshes)[--index]);
 		auto name = (*g_mesh)->name();
-		if (name) A3D_APP_LOG_D("name: {}", *name);
+		if (name) log::app::d()("name: {}", *name);
 		(*g_meshNode)->mesh(*g_mesh);
 	}
 	if (keysPressed.count(Key::RightBracket)) {
 		g_mesh = &((*g_meshes)[++index]);
 		auto name = (*g_mesh)->name();
-		if (name) A3D_APP_LOG_D("name: {}", *name);
+		if (name) log::app::d()("name: {}", *name);
 		//meshNode = Node::meshNode(mesh);
 		(*g_meshNode)->mesh(*g_mesh);
 	}
@@ -603,17 +603,17 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 /// VisualWorld Callbacks ///
 
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	log::app::t()("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 void DidRenderCallback(VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	log::app::t()("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 /// PhysicalWorld Callbacks ///
 
 void DidSimulatePhysicsCallback(PhysicalWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	log::app::t()("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 /// Static ///
@@ -638,8 +638,8 @@ void LogBuildInfo() {
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
-	A3D_APP_LOG_I("A3D version: {}.{}.{}", version.major, version.minor, version.patch);
-	A3D_APP_LOG_I("Build: {}", buildInfo.number());
-	A3D_APP_LOG_I("Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
-	A3D_APP_LOG_I("Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
+	log::app::i()("A3D version: {}.{}.{}", version.major, version.minor, version.patch);
+	log::app::i()("Build: {}", buildInfo.number());
+	log::app::i()("Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
+	log::app::i()("Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
 }

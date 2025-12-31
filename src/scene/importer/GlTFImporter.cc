@@ -93,7 +93,7 @@ unique_ptr<a3d::Scene> GlTFImporter::scene() {
 			if (!scenes.empty()) {
 
 				if (scenes.size() > 1) {
-					A3D_LOG_W("Ignoring extra scenes.");
+					log::w()("Ignoring extra scenes.");
 				}
 
 				auto& scene = scenes[_asset.defaultScene ? *_asset.defaultScene : 0];
@@ -109,16 +109,16 @@ unique_ptr<a3d::Scene> GlTFImporter::scene() {
 
 					// TODO: throw out nodes that don't have anything attached to them, or any children?
 
-					A3D_LOG_I("Done loading scene.  Time: {}", utils::chrono::Time() - startTime);
+					log::i()("Done loading scene.  Time: {}", utils::chrono::Time() - startTime);
 
 					_scene = std::move(a3dScene);
 				}
 				else {
-					A3D_LOG_E("No nodes in scene: {}", scene.name);
+					log::e()("No nodes in scene: {}", scene.name);
 				}
 			}
 			else {
-				A3D_LOG_E("File contains no scenes!");
+				log::e()("File contains no scenes!");
 			}
 		}
 	}
@@ -143,11 +143,11 @@ shared_ptr<a3d::Mesh> GlTFImporter::firstMesh() {
 			mesh = meshFromGlTFMeshIndex(_asset, 0);
 
 			if (mesh) {
-				A3D_LOG_I("Done loading mesh.  Time: {}", utils::chrono::Time() - startTime);
+				log::i()("Done loading mesh.  Time: {}", utils::chrono::Time() - startTime);
 			}
 		}
 		else {
-			A3D_LOG_E("File contains no meshes!");
+			log::e()("File contains no meshes!");
 		}
 	}
 
@@ -172,7 +172,7 @@ bool GlTFImporter::parse() {
 
 		auto startTime = utils::chrono::Time();
 
-		A3D_LOG_I("Parsing glTF: '{}'...", _path.string());
+		log::i()("Parsing glTF: '{}'...", _path.string());
 
 		auto extensions = Extensions::KHR_lights_punctual
 						  | Extensions::KHR_materials_specular
@@ -182,7 +182,7 @@ bool GlTFImporter::parse() {
 
 		auto gltfFile = MappedGltfFile::FromPath(_path);
 		if (!bool(gltfFile)) {
-			A3D_LOG_E("Failed to open glTF file: {}", getErrorMessage(gltfFile.error()));
+			log::e()("Failed to open glTF file: {}", getErrorMessage(gltfFile.error()));
 			return false;
 		}
 
@@ -190,7 +190,7 @@ bool GlTFImporter::parse() {
 		auto options = GlTFOptionsFromImportOptions(_options);
 		auto asset = parser.loadGltf(gltfFile.get(), directory, options);
 		if (asset.error() != fastgltf::Error::None) {
-			A3D_LOG_E("Failed to load glTF {}", getErrorMessage(asset.error()));
+			log::e()("Failed to load glTF {}", getErrorMessage(asset.error()));
 			return false;
 		}
 
@@ -245,7 +245,7 @@ shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlTFMeshIndex(fastgltf::Asset& asset
 
 		auto& mesh = asset.meshes[meshIndex];
 
-		A3D_LOG_D("Importing mesh '{}'...", mesh.name);
+		log::d()("Importing mesh '{}'...", mesh.name);
 
 		auto elements = vector<unique_ptr<MeshElement>>();
 		auto materials = vector<shared_ptr<Material>>();
@@ -281,13 +281,13 @@ std::unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(
 	using namespace fastgltf;
 
 	if (primitive.type != PrimitiveType::Triangles) {
-		A3D_LOG_W("Unsupported primitive type: {}", magic_enum::enum_name(primitive.type));
+		log::w()("Unsupported primitive type: {}", magic_enum::enum_name(primitive.type));
 		return nullptr;
 	}
 
 	auto posAttr = primitive.findAttribute("POSITION");
 	if (!posAttr) {
-		A3D_LOG_E("Primitive has no POSITION attribute.");
+		log::e()("Primitive has no POSITION attribute.");
 		return nullptr;
 	}
 
@@ -296,7 +296,7 @@ std::unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(
 
 	const size_t vertexCount = posAccessor.count;
 	if (vertexCount == 0) {
-		A3D_LOG_W("Primitive has 0 vertices.");
+		log::w()("Primitive has 0 vertices.");
 		return nullptr;
 	}
 
@@ -349,7 +349,7 @@ std::unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(
 			}
 			case AccessorType::Vec3: {
 				// non-compliant glTF...
-				A3D_LOG_W("TEXCOORD_0 is VEC3; truncating to (u,v).");
+				log::w()("TEXCOORD_0 is VEC3; truncating to (u,v).");
 				iterateAccessorWithIndex<fvec3>(asset, uvAccessor,
 												[&](fvec3 uvw, size_t i) {
 													if (i < verts.size()) {
@@ -360,7 +360,7 @@ std::unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(
 			}
 			case AccessorType::Vec4: {
 				// non-compliant glTF...
-				A3D_LOG_W("TEXCOORD_0 is VEC4; truncating to (u,v).");
+				log::w()("TEXCOORD_0 is VEC4; truncating to (u,v).");
 				iterateAccessorWithIndex<fvec4>(asset, uvAccessor,
 												[&](fvec4 uvzw, size_t i) {
 													if (i < verts.size()) {
@@ -370,7 +370,7 @@ std::unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(
 				break;
 			}
 			default: {
-				A3D_LOG_W("TEXCOORD_0 has unexpected accessor.type={} (expected VEC2). Skipping UVs.",
+				log::w()("TEXCOORD_0 has unexpected accessor.type={} (expected VEC2). Skipping UVs.",
 						  magic_enum::enum_name(uvAccessor.type));
 				break;
 			}
@@ -396,11 +396,11 @@ std::unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(
 	}
 
 	if (indices.size() < 3) {
-		A3D_LOG_W("Primitive has fewer than 3 indices; cannot form triangles.");
+		log::w()("Primitive has fewer than 3 indices; cannot form triangles.");
 		return nullptr;
 	}
 	if (indices.size() % 3 != 0) {
-		A3D_LOG_W("Index count {} is not divisible by 3; truncating.", indices.size());
+		log::w()("Index count {} is not divisible by 3; truncating.", indices.size());
 	}
 
 	const size_t triIndexCount = (indices.size() / 3) * 3;
@@ -425,7 +425,7 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlTFPrimitive(fastgltf::Asse
 
 			auto& material = asset.materials[*materialIndex];
 
-			A3D_LOG_D("Importing material '{}'...", material.name);
+			log::d()("Importing material '{}'...", material.name);
 
 			shared_ptr<a3d::Material> a3dMaterial = nullptr;
 
@@ -462,11 +462,11 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlTFPrimitive(fastgltf::Asse
 				auto colorFactor = specularMaterial->specularColorFactor;
 				auto& colorTextureInfo = specularMaterial->specularColorTexture;
 
-//				A3D_LOG_D("*** [SPECULAR] ***");
-//				A3D_LOG_D("factor: {}", factor);
-//				A3D_LOG_D("textureInfo: {}", textureInfo ? "true" : "false");
-//				A3D_LOG_D("colorFactor: ({}, {}, {})", colorFactor[0], colorFactor[1], colorFactor[2]);
-//				A3D_LOG_D("colorTextureInfo: {}", colorTextureInfo ? "true" : "false");
+//				log::d()("*** [SPECULAR] ***");
+//				log::d()("factor: {}", factor);
+//				log::d()("textureInfo: {}", textureInfo ? "true" : "false");
+//				log::d()("colorFactor: ({}, {}, {})", colorFactor[0], colorFactor[1], colorFactor[2]);
+//				log::d()("colorTextureInfo: {}", colorTextureInfo ? "true" : "false");
 
 				// if it has a 'texture' map, use it (only contains alpha)
 				// if it has no map, but a 'factor' use solid white, with an intentify of the factor.
@@ -511,7 +511,7 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlTFPrimitive(fastgltf::Asse
 					// log error to draw attention -- at time of initial glTF integration
 					// we don't have an example file with KHR_materials_anisotropy
 					auto strength = anisotropy->anisotropyStrength;
-					A3D_LOG_I("anisotropyStrength: {}", strength);
+					log::i()("anisotropyStrength: {}", strength);
 
 					for (auto [property, type] : a3dMaterial->properties()) {
 						if (holds_alternative<shared_ptr<Texture>>(*property)) {
@@ -536,7 +536,7 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlTFPrimitive(fastgltf::Asse
 		}
 	}
 	else {
-		A3D_LOG_W("Missing material.");
+		log::w()("Missing material.");
 	}
 
 	return a3d::Material::DefaultMaterial();
@@ -549,7 +549,7 @@ shared_ptr<a3d::Texture> GlTFImporter::textureFromGlTFTextureIndex(fastgltf::Ass
 
 		auto& texture = asset.textures[textureIndex];
 
-		A3D_LOG_D("Importing texture '{}'...", texture.name);
+		log::d()("Importing texture '{}'...", texture.name);
 
 		if (auto a3dImage = imageFromGlTFTexture(asset, texture) ; a3dImage) {
 
@@ -576,7 +576,7 @@ shared_ptr<a3d::Sampler> GlTFImporter::samplerFromGlTFTexture(fastgltf::Asset& a
 
 			auto& sampler = asset.samplers[*samplerIndex];
 
-			A3D_LOG_D("Importing sampler '{}'...", sampler.name);
+			log::d()("Importing sampler '{}'...", sampler.name);
 
 			auto a3dSampler = make_shared<a3d::Sampler>();
 
@@ -609,7 +609,7 @@ shared_ptr<a3d::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset
 			auto& image = asset.images[*imageIndex];
 			auto &dataSource = image.data;
 
-			A3D_LOG_D("Importing image '{}'...", image.name);
+			log::d()("Importing image '{}'...", image.name);
 
 			auto a3dImage = std::visit(fastgltf::visitor{
 					[&](const fastgltf::sources::Vector& v) -> std::shared_ptr<a3d::Image> {
@@ -621,7 +621,7 @@ shared_ptr<a3d::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset
 					[&](const fastgltf::sources::BufferView& bvSrc) -> std::shared_ptr<a3d::Image> {
 						auto bytes = BytesFromBufferView(asset, bvSrc.bufferViewIndex);
 						if (bytes.empty()) {
-							A3D_LOG_W("Unexpected/empty BufferView image data.");
+							log::w()("Unexpected/empty BufferView image data.");
 							return nullptr;
 						}
 						auto a3dBuffer = std::make_unique<a3d::Buffer>(
@@ -642,11 +642,11 @@ shared_ptr<a3d::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset
 					},
 					[&](const fastgltf::sources::URI&) -> std::shared_ptr<a3d::Image> {
 						// but keep this log because it indicates you didn’t load image bytes.
-						A3D_LOG_W("Image is a URI -- is Options::LoadExternalImages enabled?");
+						log::w()("Image is a URI -- is Options::LoadExternalImages enabled?");
 						return nullptr;
 					},
 					[&](const auto&) -> std::shared_ptr<a3d::Image> {
-						A3D_LOG_W("Unsupported image DataSource.");
+						log::w()("Unsupported image DataSource.");
 						return nullptr;
 					}
 			}, image.data);
@@ -672,7 +672,7 @@ shared_ptr<a3d::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset,
 			auto& light = asset.lights[*lightIndex];
 			auto& type = light.type;
 
-			A3D_LOG_D("Importing light '{}'...", light.name);
+			log::d()("Importing light '{}'...", light.name);
 
 			if (type == fastgltf::LightType::Directional) {
 
@@ -721,7 +721,7 @@ shared_ptr<a3d::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
 			auto& camera = asset.cameras[*cameraIndex];
 			auto name = string(camera.name);
 
-			A3D_LOG_D("Importing camera '{}'...", name);
+			log::d()("Importing camera '{}'...", name);
 
 			if (auto persCamera = std::get_if<fastgltf::Camera::Perspective>(&camera.camera))
 			{
@@ -740,7 +740,7 @@ shared_ptr<a3d::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
 				return a3dCamera;
 			}
 			else {
-				A3D_LOG_W("Orthographic cameras are not supported.");
+				log::w()("Orthographic cameras are not supported.");
 			}
 		}
 		else {

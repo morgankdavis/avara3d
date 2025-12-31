@@ -104,7 +104,7 @@ void MainWindow::initScene(a3d::head::qt::QtViewport &viewport) {
 	}
 	catch (Exception& e)
 	{
-		A3D_APP_LOG_F("Exception: {}", e.what());
+		log::app::f()("Exception: {}", e.what());
 		//return -1;
 	}
 }
@@ -129,24 +129,24 @@ void MainWindow::logBuildInfo() {
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
-	A3D_APP_LOG_I("A3D version: {}.{}.{}", version.major, version.minor, version.patch);
-	A3D_APP_LOG_I("Build: {}", buildInfo.number());
-	A3D_APP_LOG_I("Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
-	A3D_APP_LOG_I("Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
+	log::app::i()("A3D version: {}.{}.{}", version.major, version.minor, version.patch);
+	log::app::i()("Build: {}", buildInfo.number());
+	log::app::i()("Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
+	log::app::i()("Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
 }
 
 
 void MainWindow::updateCallback(a3d::Scene& scene, double time, double deltaTime) {
-	A3D_APP_LOG_T("");
+	log::app::t()("");
 
 //	static int invocations = 0;
 //	if (invocations == 2) {
 //		double time = utils::Time() - g_startTime;
-//		A3D_APP_LOG_I("START TIME: {}", time);
+//		log::app::i()("START TIME: {}", time);
 //	}
 //	++invocations;
 //
-//	A3D_APP_LOG_T("scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
+//	log::app::t()("scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
 
 	//auto window = dynamic_cast<GlfwWindow*>(scene.visualWorld()->renderContext());
 
@@ -170,7 +170,7 @@ void MainWindow::updateCallback(a3d::Scene& scene, double time, double deltaTime
 	}
 
 	if (keysPressed.count(Key::T)) {
-		A3D_APP_LOG_I("TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
+		log::app::i()("TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
 	}
 
 //	if 		(keysPressed.count(Key::One))	SetAllFilterModes(FilterMode::Nearest, scene);
@@ -241,21 +241,21 @@ void MainWindow::updateCallback(a3d::Scene& scene, double time, double deltaTime
 
 //		auto mouseButtonsPressed = im->mouseButtonsPressed();
 //		if (mouseButtonsPressed.count(MouseButton::One)) {
-//			A3D_APP_LOG_D("one");
+//			log::app::d()("one");
 //		}
 //		if (mouseButtonsPressed.count(MouseButton::Two)) {
-//			A3D_APP_LOG_D("two");
+//			log::app::d()("two");
 //		}
 //		if (mouseButtonsPressed.count(MouseButton::Three)) {
-//			A3D_APP_LOG_D("three");
+//			log::app::d()("three");
 //		}
 //
 //		auto scrollWheelDelta = im->mouseScrollWheelDelta();
 //		if (fabs(scrollWheelDelta.x) > .0001) {
-//			A3D_APP_LOG_D("x: {}", scrollWheelDelta.x);
+//			log::app::d()("x: {}", scrollWheelDelta.x);
 //		}
 //		else if (fabs(scrollWheelDelta.y) > .0001) {
-//			A3D_APP_LOG_D("y: {}", scrollWheelDelta.y);
+//			log::app::d()("y: {}", scrollWheelDelta.y);
 //		}
 
 		vec2 mousePositionDelta = im->mousePositionDelta();
@@ -287,7 +287,7 @@ void MainWindow::updateCallback(a3d::Scene& scene, double time, double deltaTime
 			float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
 			float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
 
-			//A3D_LOG_I("delta: ({}, {})", mousePositionDelta.x, mousePositionDelta.y);
+			//log::i()("delta: ({}, {})", mousePositionDelta.x, mousePositionDelta.y);
 
 			vec3 angles = pov->eulerAngles();
 			pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
@@ -365,13 +365,13 @@ void MainWindow::updateCallback(a3d::Scene& scene, double time, double deltaTime
 }
 
 void MainWindow::willRenderCallback(a3d::VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T("");
+	log::app::t()("");
 }
 
 void MainWindow::didRenderCallback(a3d::VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T("");
+	log::app::t()("");
 }
 
 void MainWindow::didSimulatePhysicsCallback(a3d::PhysicalWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T("");
+	log::app::t()("");
 }

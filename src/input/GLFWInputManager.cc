@@ -41,7 +41,7 @@ GLFWInputManager::GLFWInputManager(GLFWWindow* window):
 }
 
 GLFWInputManager::~GLFWInputManager() {
-	A3D_LOG_D("Destroying GLFWInputManager {:p}", static_cast<void *>(this));
+	log::d()("Destroying GLFWInputManager {:p}", static_cast<void *>(this));
 
 }
 
@@ -109,7 +109,7 @@ void GLFWInputManager::glfwKeyEvent(int key, int scanCode, int action, int mods)
 
 void GLFWInputManager::initMouseInput() {
 
-	A3D_LOG_I("Using GLFW raw mouse input.");
+	log::i()("Using GLFW raw mouse input.");
 	glfwSetInputMode(_window->glfwWindow(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
 }
 

@@ -34,7 +34,7 @@ void BulletMotionState::getWorldTransform(btTransform &transform) const {
 	// since when the body is created, it's not yet attahed to a Node.
 	// see note at BulletWorldProxy::add()
 //	else {
-//		A3D_LOG_W("node is null.");
+//		log::w()("node is null.");
 //	}
 }
 
@@ -45,7 +45,7 @@ void BulletMotionState::setWorldTransform(const btTransform& transform) {
 		node->applyPhysicsTransform(A3DMat4FromBTTransform(transform));
 	}
 //	else {
-//		A3D_LOG_W("node is null.");
+//		log::w()("node is null.");
 //	}
 }
 

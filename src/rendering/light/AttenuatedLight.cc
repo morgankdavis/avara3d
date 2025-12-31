@@ -19,10 +19,10 @@ using namespace std;
 AttenuatedLight::~AttenuatedLight() {
 
 	if (_name != nullopt) {
-		A3D_LOG_D("Destroying Light '{}' ({:p})", *_name, static_cast<void*>(this));
+		log::d()("Destroying Light '{}' ({:p})", *_name, static_cast<void*>(this));
 	}
 	else {
-		A3D_LOG_D("Destroying Light {:p}", static_cast<void*>(this));
+		log::d()("Destroying Light {:p}", static_cast<void*>(this));
 	}
 }
 

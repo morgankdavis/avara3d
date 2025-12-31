@@ -62,7 +62,7 @@
     do {												\
         GLenum err;										\
         while ((err = glGetError()) != GL_NO_ERROR) {	\
-            A3D_LOG_E("GL error 0x{:X}", err);			\
+            log::e()("GL error 0x{:X}", err);			\
         }												\
     } while (0);
 
@@ -291,14 +291,14 @@ bool OpenGLRenderer::InitGL(GLGetProcAddress getProcAddress) {
 
 	if (!getProcAddress) {
 		// log error, return false
-		A3D_LOG_E("getProcAddress is null.");
+		log::e()("getProcAddress is null.");
 		return false;
 	}
 
 	int status = gladLoadGLLoader((GLADloadproc)getProcAddress);
 	if (status == 0) {
 		// log "Failed to initialize GLAD"
-		A3D_LOG_E("gladLoadGLLoader");
+		log::e()("gladLoadGLLoader");
 		return false;
 	}
 
@@ -327,7 +327,7 @@ OpenGLRenderer::OpenGLRenderer():
 		_meshElementGL{} {}
 
 OpenGLRenderer::~OpenGLRenderer() {
-	A3D_LOG_D("Destroying OpenGLRenderer {:p}", static_cast<void*>(this));
+	log::d()("Destroying OpenGLRenderer {:p}", static_cast<void*>(this));
 
 	glDeleteBuffers(1, &_glEnvironmentUBO);
 
@@ -353,7 +353,7 @@ RenderingApi OpenGLRenderer::renderingApi() const {
 }
 
 bool OpenGLRenderer::initialize(const RenderContext& context) {
-	A3D_LOG_I("");
+	log::i()("");
 
 	glGenBuffers(1, &_glEnvironmentUBO);
 	glBindBuffer(GL_UNIFORM_BUFFER, _glEnvironmentUBO);
@@ -507,7 +507,7 @@ void GetTextureGLTextureHandles(Material& material,
 
 		if (contentsDirty || missingOrZero) {
 
-			A3D_LOG_D("Uploading texture {:p} (dirty={}, missingOrZero={})",
+			log::d()("Uploading texture {:p} (dirty={}, missingOrZero={})",
 					  (void*)tex, contentsDirty, missingOrZero);
 
 			// If we had an old handle, delete it cleanly
@@ -520,7 +520,7 @@ void GetTextureGLTextureHandles(Material& material,
 			BufferTexture(*tex, newID);
 
 			if (newID == 0) {
-				A3D_LOG_E("BufferTexture failed for texture {:p}", (void*)tex);
+				log::e()("BufferTexture failed for texture {:p}", (void*)tex);
 				// leave handle 0; still record it so you can see the failure downstream
 				glMapping.erase(tex);
 			} else {
@@ -547,7 +547,7 @@ void BufferTexture(const Texture& texture,
 
 		if constexpr (std::is_same_v<T, shared_ptr<CubeImage>>) {
 
-			A3D_LOG_D("Buffering cube texture {:p}...", static_cast<const void*>(&contents));
+			log::d()("Buffering cube texture {:p}...", static_cast<const void*>(&contents));
 
 			auto cubeImage = dynamic_pointer_cast<CubeImage>(contents);
 
@@ -601,12 +601,12 @@ void BufferTexture(const Texture& texture,
 		}
 		else if constexpr (std::is_same_v<T, shared_ptr<Image>>) {
 
-			A3D_LOG_D("Buffering 2D texture {:p}...", static_cast<const void*>(&contents));
+			log::d()("Buffering 2D texture {:p}...", static_cast<const void*>(&contents));
 
 			auto image = dynamic_pointer_cast<Image>(contents);
 
 			glGenTextures(1, &glTextureHandle);
-			A3D_LOG_D("Binding new texture handle: {}", glTextureHandle);
+			log::d()("Binding new texture handle: {}", glTextureHandle);
 			glBindTexture(GL_TEXTURE_2D, glTextureHandle);
 
 //		unsigned bytesPerPixel = image->bytesPerPixel();
@@ -614,7 +614,7 @@ void BufferTexture(const Texture& texture,
 //		if (bytesPerPixel == 3) glInternalFormat = GL_RGB;
 //		else if (bytesPerPixel == 1) glInternalFormat = GL_RED;
 
-			A3D_LOG_D("Buffering image {:p}: width: {}, height: {}, bytesPerPixel: {}, data size: {}",
+			log::d()("Buffering image {:p}: width: {}, height: {}, bytesPerPixel: {}, data size: {}",
 					  static_cast<void*>(image.get()), image->width(), image->height(), image->bytesPerPixel(),
 					  image->width() * image->height() * image->bytesPerPixel());
 
@@ -636,7 +636,7 @@ void BufferTexture(const Texture& texture,
 			SetTextureWrapT(glTextureHandle, false, sampler->wrapT());
 		}
 		else if constexpr (std::is_same_v<T, std::monostate>) {
-			A3D_LOG_E("Empty texture variant.");
+			log::e()("Empty texture variant.");
 		}
 
 	}, contents);
@@ -727,7 +727,7 @@ void SendMaterialPropertyUniforms(const MaterialProperty& property,
 							index = 3;
 							break;
 						default:
-							A3D_LOG_E("Invalid MaterialPropertyType: {}",
+							log::e()("Invalid MaterialPropertyType: {}",
 									  magic_enum::enum_name<MaterialPropertyType>(type));
 							return;
 					}
@@ -741,7 +741,7 @@ void SendMaterialPropertyUniforms(const MaterialProperty& property,
 					program.bindTexture("cubeSampler", GL_TEXTURE_CUBE_MAP, GL_TEXTURE0, glTextureHandle, 0);
 				}
 				else if constexpr (std::is_same_v<T, std::monostate>) {
-					A3D_LOG_E("Empty texture variant.");
+					log::e()("Empty texture variant.");
 				}
 
 			}, property->contents());
@@ -769,7 +769,7 @@ void SendMaterialPropertyUniforms(const MaterialProperty& property,
 					colorUniformName = "colors.emission";
 					break;
 				default:
-					A3D_LOG_E("Invalid MaterialPropertyType: {}",
+					log::e()("Invalid MaterialPropertyType: {}",
 							  magic_enum::enum_name<MaterialPropertyType>(type));
 					return;
 			}
@@ -781,7 +781,7 @@ void SendMaterialPropertyUniforms(const MaterialProperty& property,
 		}
 		else if constexpr (std::is_same_v<T, std::monostate>) {
 
-			A3D_LOG_W("NULL material property contents.");
+			log::w()("NULL material property contents.");
 		}
 
 	}, property);
@@ -1464,7 +1464,7 @@ void DrawStats(FrameStats& stats,
 //	PushFont(fonts[1]);
 //	// --- Button + hover ---
 //	if (Button("Click me")) {
-//		A3D_LOG_I("ImGui button was CLICKED");
+//		log::i()("ImGui button was CLICKED");
 //	}
 //	if (IsItemHovered()) {
 //		SameLine();
@@ -1472,11 +1472,11 @@ void DrawStats(FrameStats& stats,
 //	}
 //	static bool toggled = false;
 //	if (Checkbox("Toggle", &toggled)) {
-//		A3D_LOG_I("Toggle is now: {}", toggled ? "ON" : "OFF");
+//		log::i()("Toggle is now: {}", toggled ? "ON" : "OFF");
 //	}
 //	static char textBuf[128] = "type here";
 //	if (InputText("Text field", textBuf, sizeof(textBuf))) {
-//		A3D_LOG_I("Text changed: '{}'", textBuf);
+//		log::i()("Text changed: '{}'", textBuf);
 //	}
 //	Text("MousePos: (%.1f, %.1f)", io.MousePos.x, io.MousePos.y);
 //	Text("MouseDown[0]: %s", io.MouseDown[0] ? "true" : "false");
@@ -1587,11 +1587,11 @@ void ImguiInit(const RenderContext& context, ImFont*& titleFont, ImFont*& bodyFo
 			ImGui_ImplOpenGL3_CreateDeviceObjects();  // was CreateFontsTexture()
 		}
 		else {
-			A3D_LOG_E("Unable to load font: {}.{}", STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
+			log::e()("Unable to load font: {}.{}", STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
 		}
 	}
 	else {
-		A3D_LOG_E("Unable to load font: {}.{}", STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
+		log::e()("Unable to load font: {}.{}", STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
 	}
 
 	ImguiUpdateScale(context);
@@ -1833,7 +1833,7 @@ void SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FilterMode
 			glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, (GLint)GLFilterModeForFilterMode(mode));
 			break;
 		default:
-			A3D_LOG_W("Unsupported magnification filter: {}", magic_enum::enum_name(mode));
+			log::w()("Unsupported magnification filter: {}", magic_enum::enum_name(mode));
 		break;
 	}
 }
@@ -1894,9 +1894,9 @@ void LogGLInfo() {
 	const GLubyte* renderer = glGetString(GL_RENDERER);
 	const GLubyte* version = glGetString(GL_VERSION);
 
-	A3D_LOG_I("GL_VENDOR: {}", reinterpret_cast<const char*>(renderer));
-	A3D_LOG_I("GL_RENDERER: {}", reinterpret_cast<const char*>(renderer));
-	A3D_LOG_I("GL_VERSION: {}", reinterpret_cast<const char*>(version));
+	log::i()("GL_VENDOR: {}", reinterpret_cast<const char*>(renderer));
+	log::i()("GL_RENDERER: {}", reinterpret_cast<const char*>(renderer));
+	log::i()("GL_VERSION: {}", reinterpret_cast<const char*>(version));
 }
 
 
@@ -2160,7 +2160,7 @@ void OpenGLRenderer::bindMaterial(const Material& material) {
 	}
 
 //	if (p.key.shaderKind != ShaderKind::Default) {
-//		A3D_LOG_E("bindMaterial() skipped for shaderKind != Default (shaderKind=%d).", int(p.key.shaderKind));
+//		log::e()("bindMaterial() skipped for shaderKind != Default (shaderKind=%d).", int(p.key.shaderKind));
 //	}
 
 	std::map<MaterialPropertyType, GLuint> glTextureHandles;

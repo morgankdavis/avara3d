@@ -36,7 +36,7 @@ MeshElement::MeshElement(const vector<Vertex>& verticies,
 }
 
 MeshElement::~MeshElement() {
-	A3D_LOG_D("Destroying MeshElement {:p}", static_cast<void*>(this));
+	log::d()("Destroying MeshElement {:p}", static_cast<void*>(this));
 }
 
 /// Internal Member Functions ///

@@ -37,7 +37,7 @@ BulletBodyProxy::BulletBodyProxy(PhysicsBody& body, PhysicsBodyType type):
 		/*_btMotionState(nullptr)*/
 		_motionState{} {
 
-	A3D_LOG_D("body: {:p}", static_cast<void*>(&body));
+	log::d()("body: {:p}", static_cast<void*>(&body));
 
 	// make a "shell" of a body and modify its properties as they are set
 	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?p=43923&sid=187e552b028cd64fe2e831df414d382a#p43923
@@ -88,7 +88,7 @@ BulletBodyProxy::BulletBodyProxy(PhysicsBody& body, PhysicsBodyType type):
 }
 
 BulletBodyProxy::~BulletBodyProxy() {
-	A3D_LOG_D("Destroying BulletBodyProxy {:p}", static_cast<void*>(this));
+	log::d()("Destroying BulletBodyProxy {:p}", static_cast<void*>(this));
 }
 
 /// PhysicsBodyModelProxy Internal Member Functions ///
@@ -139,7 +139,7 @@ PhysicsShapeProxy* BulletBodyProxy::shapeProxy() const {
 }
 
 void BulletBodyProxy::shapeProxy(PhysicsShapeProxy* proxy) {
-	A3D_LOG_T("proxy: {:p}", static_cast<void*>(proxy));
+	log::t()("proxy: {:p}", static_cast<void*>(proxy));
 
 	if (proxy) {
 		// front is either the only btCollisionShape or a btCompound shape with child shapes at index 1+
@@ -164,7 +164,7 @@ void BulletBodyProxy::shapeProxy(PhysicsShapeProxy* proxy) {
 			}
 		}
 		else {
-			A3D_LOG_E("Could not get shape resources.");
+			log::e()("Could not get shape resources.");
 			_shapeProxy = nullptr;
 		}
 	}
@@ -204,7 +204,7 @@ void BulletBodyProxy::momentOfInertia(const vec3& moment) {
 		_btBody->updateInertiaTensor();
 	}
 	else {
-		A3D_LOG_W("Ignoring moment of inertia: autocalculatesMomentOfInertia to to true.");
+		log::w()("Ignoring moment of inertia: autocalculatesMomentOfInertia to to true.");
 	}
 }
 
@@ -367,7 +367,7 @@ void BulletBodyProxy::allowsResting(bool allowsResting) {
 	// TODO: test this
 	if (allowsResting && type() == PhysicsBodyType::Kinematic) {
 
-		A3D_LOG_E("Cannot enable resting for kinematic bodies.");
+		log::e()("Cannot enable resting for kinematic bodies.");
 	}
 	else {
 
@@ -412,7 +412,7 @@ void BulletBodyProxy::resting(bool resting) {
 //
 //	if (wasScaled) {
 //		// TODO: do something about this
-//		A3D_LOG_W("Ignorning scale for Node {:p} with PhysicsBody {:p}.",
+//		log::w()("Ignorning scale for Node {:p} with PhysicsBody {:p}.",
 //				 (void *)_body->node(), (void *)_body);
 //	}
 //
@@ -431,7 +431,7 @@ void BulletBodyProxy::worldTransform(const mat4& transform) {
 //
 //	if (wasScaled) {
 //		// TODO: do something about this
-//		A3D_LOG_W("Ignorning scale for Node {:p} with PhysicsBody {:p}.",
+//		log::w()("Ignorning scale for Node {:p} with PhysicsBody {:p}.",
 //				 (void *)_body->node(), (void *)_body);
 //	}
 //
@@ -471,10 +471,10 @@ void BulletBodyProxy::calculateMomentOfIntertia() {
 			_btBody->updateInertiaTensor();
 		}
 		else {
-			A3D_LOG_W("Missing btCollisionShape.");
+			log::w()("Missing btCollisionShape.");
 		}
 	}
 //	else {
-//		A3D_LOG_W("Missing PhysicsShapeModelProxy.");
+//		log::w()("Missing PhysicsShapeModelProxy.");
 //	}
 }

@@ -70,7 +70,7 @@ VisualWorld::VisualWorld(RenderContext& context):
 }
 
 VisualWorld::~VisualWorld() {
-	A3D_LOG_D("Destroying VisualWorld {:p}", static_cast<void*>(this));
+	log::d()("Destroying VisualWorld {:p}", static_cast<void*>(this));
 
 	if (_renderContext) _renderContext->detachedFromVisualWorld(this);
 	//renderContext(nullptr);
@@ -103,7 +103,7 @@ void VisualWorld::background(const MaterialProperty& background) {
 														background);
 		}
 		else if (auto image = get_if<shared_ptr<Image>>(&((*texture)->contents()))) {
-			A3D_LOG_W("Image background not supported.");
+			log::w()("Image background not supported.");
 			_backgroundMaterial = nullptr;
 		}
 	}
@@ -203,13 +203,13 @@ void VisualWorld::didRenderCallback(DidRenderCallback function) {
 /// Internal Member Functions ///
 
 void VisualWorld::attachedToScene(Scene& scene) {
-	A3D_LOG_T("scene: {:p}", static_cast<void*>(&scene));
+	log::t()("scene: {:p}", static_cast<void*>(&scene));
 
 	_scene = &scene;
 }
 
 void VisualWorld::detachedFromScene(Scene& scene) {
-	A3D_LOG_T("scene: {:p}", static_cast<void*>(&scene));
+	log::t()("scene: {:p}", static_cast<void*>(&scene));
 
 	_scene = nullptr;
 }
@@ -224,26 +224,26 @@ void VisualWorld::draw(const Scene& scene,
 					   const FrameStatsHistory& statsHistory) {
 
 	if (!utils::flow::edge_guard(_renderContext, [&] {
-		A3D_LOG_E("No RenderContext attached to VisualWorld {:p}", static_cast<void *>(this));
+		log::e()("No RenderContext attached to VisualWorld {:p}", static_cast<void *>(this));
 	})) return;
 
 	auto renderer = _renderContext->renderer();
 	if (!utils::flow::edge_guard(renderer, [&] {
-		A3D_LOG_E("No Renderer attached to RenderContext {:p}", static_cast<void*>(_renderContext));
+		log::e()("No Renderer attached to RenderContext {:p}", static_cast<void*>(_renderContext));
 	})) return;
 
 	utils::flow::once([&] { firstDraw(); });
 
 	auto pov = pointOfView().lock();
 	if (!utils::flow::edge_guard(pov, [&] {
-		A3D_LOG_E("No point of view!");
+		log::e()("No point of view!");
 		renderer->clear(Renderer::ClearCommand{}, *_renderContext);
 		_renderContext->swapBuffers();
 	})) return;
 
 	auto povScene = pov->scene();
 	if (!utils::flow::edge_guard(povScene && povScene == &scene, [&] {
-		A3D_LOG_E("Point of view not in our scene!");
+		log::e()("Point of view not in our scene!");
 		renderer->clear(Renderer::ClearCommand{}, *_renderContext);
 		_renderContext->swapBuffers();
 	})) return;
@@ -381,7 +381,7 @@ void VisualWorld::firstDraw() {
 		// try to assign a POV from the scene
 		for (auto &node: _scene->rootNode()->children(true)) {
 			if (node->camera()) {
-				A3D_LOG_I("Setting {:p} as POV.", static_cast<void*>(node.get()));
+				log::i()("Setting {:p} as POV.", static_cast<void*>(node.get()));
 				_pointOfView = node;
 				break;
 			}
@@ -391,7 +391,7 @@ void VisualWorld::firstDraw() {
 	if (!_pointOfView.lock()) {
 
 		// still no POV. add a default one.
-		A3D_LOG_I("Adding default POV.");
+		log::i()("Adding default POV.");
 		auto pov = defaultPOV();
 		_scene->rootNode()->addChild(pov);
 		_pointOfView = pov;
@@ -401,7 +401,7 @@ void VisualWorld::firstDraw() {
 shared_ptr<Node> VisualWorld::defaultPOV() {
 
 	if (!_scene) {
-		A3D_LOG_W("Can't create default camera: scene is null.");
+		log::w()("Can't create default camera: scene is null.");
 		return {};
 	}
 

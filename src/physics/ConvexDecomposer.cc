@@ -86,7 +86,7 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
 				   params);
 
 	while (!vhacd->IsReady()) {
-		A3D_LOG_I("VHACD not ready...");
+		log::i()("VHACD not ready...");
 	}
 
 	auto numHulls = vhacd->GetNConvexHulls();
@@ -117,7 +117,7 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
 		decomposedElements.push_back(std::move(decomposedElement));
 	}
 
-	A3D_LOG_I("numHulls: {}", numHulls);
+	log::i()("numHulls: {}", numHulls);
 
 //	_decomposedElements = decomposedElements;
 

@@ -103,7 +103,7 @@ bool Program::link() {
 	if (isLinked()) return true;
 	if (_glID <= 0) return false;
 
-	A3D_LOG_I("Linking program '{}'...", _name);
+	log::i()("Linking program '{}'...", _name);
 
 	glLinkProgram(_glID);
 
@@ -120,7 +120,7 @@ bool Program::link() {
 			vector<GLchar> c_log(logSize);
 			glGetProgramInfoLog(_glID, logSize, nullptr, c_log.data());
 			_logString = string(c_log.data());
-			A3D_LOG_E("Failed to link program '{}':\n{}",
+			log::e()("Failed to link program '{}':\n{}",
 					  name(), *_logString);
 		}
 
@@ -130,7 +130,7 @@ bool Program::link() {
 	}
 	else {
 		isLinked(true);
-		A3D_LOG_I("Done.");
+		log::i()("Done.");
 		return true;
 	}
 }
@@ -154,7 +154,7 @@ bool Program::validate() {
 			GLint written = 0;
 			glGetProgramInfoLog(_glID, length, &written, c_log);
 			_logString = string(c_log);
-			//A3D_LOG_E("Validate log:\n{}", c_log);
+			//log::e()("Validate log:\n{}", c_log);
 			delete[] c_log;
 		}
 		
@@ -168,7 +168,7 @@ bool Program::validate() {
 void Program::use() {
 	
 	if (_glID <= 0 || (!_isLinked)) {
-		A3D_LOG_E("Program '{}' not ready.", _name);
+		log::e()("Program '{}' not ready.", _name);
 	}
 	else {
 		glUseProgram(_glID);
@@ -190,7 +190,7 @@ void Program::setUniform(const char* name, float x, float y, float z) {
 		glUniform3f(loc, x, y, z);
 	}
 	else {
-		A3D_LOG_E("Uniform '{}' not found.", name);
+		log::e()("Uniform '{}' not found.", name);
 	}
 }
 
@@ -201,7 +201,7 @@ void Program::setUniform(const char* name, const vec2& v) {
 		glUniform2f(loc, v.x, v.y);
 	}
 	else {
-		A3D_LOG_E("Uniform '{}' not found.", name);
+		log::e()("Uniform '{}' not found.", name);
 	}
 }
 
@@ -217,7 +217,7 @@ void Program::setUniform(const char* name, const vec4& v) {
 		glUniform4f(loc, v.x, v.y, v.z, v.w);
 	}
 	else {
-		A3D_LOG_E("Uniform '{}' not found.", name);
+		log::e()("Uniform '{}' not found.", name);
 	}
 }
 
@@ -228,7 +228,7 @@ void Program::setUniform(const char* name, const mat3& m) {
 		glUniformMatrix3fv(loc, 1, GL_FALSE, value_ptr(m));
 	}
 	else {
-		A3D_LOG_E("Uniform '{}' not found.", name);
+		log::e()("Uniform '{}' not found.", name);
 	}
 }
 
@@ -239,7 +239,7 @@ void Program::setUniform(const char* name, const mat4& m) {
 		glUniformMatrix4fv(loc, 1, GL_FALSE, value_ptr(m));
 	}
 	else {
-		A3D_LOG_E("Uniform '{}' not found.", name);
+		log::e()("Uniform '{}' not found.", name);
 	}
 }
 
@@ -250,7 +250,7 @@ void Program::setUniform(const char* name, bool val) {
 		glUniform1i(loc, val);
 	}
 	else {
-		A3D_LOG_E("Uniform '{}' not found.", name);
+		log::e()("Uniform '{}' not found.", name);
 	}
 }
 
@@ -261,7 +261,7 @@ void Program::setUniform(const char* name, int val) {
 		glUniform1i(loc, val);
 	}
 	else {
-		A3D_LOG_E("Uniform '{}' not found.", name);
+		log::e()("Uniform '{}' not found.", name);
 	}
 }
 
@@ -272,7 +272,7 @@ void Program::setUniform(const char* name, unsigned val) {
 		glUniform1ui(loc, val);
 	}
 	else {
-		A3D_LOG_E("Uniform '{}' not found.", name);
+		log::e()("Uniform '{}' not found.", name);
 	}
 }
 
@@ -283,7 +283,7 @@ void Program::setUniform(const char* name, float val) {
 		glUniform1f(loc, val);
 	}
 	else {
-		A3D_LOG_E("Uniform '{}' not found.", name);
+		log::e()("Uniform '{}' not found.", name);
 	}
 }
 
@@ -294,14 +294,14 @@ void Program::setUniform(const char* name, float val) {
 //		glBindBufferBase(GL_UNIFORM_BUFFER, blockIndex, location);
 //	}
 //	else {
-//		A3D_LOG_E("Uniform block '{}' not found.", name);
+//		log::e()("Uniform block '{}' not found.", name);
 //	}
 //}
 
 void Program::setUniformBlockBinding(const char* blockName, GLuint bindingPoint) {
 	GLuint blockIndex = glGetUniformBlockIndex(_glID, blockName);
 	if (blockIndex == GL_INVALID_INDEX) {
-		A3D_LOG_E("Uniform block '{}' not found.", blockName);
+		log::e()("Uniform block '{}' not found.", blockName);
 		return;
 	}
 	glUniformBlockBinding(_glID, blockIndex, bindingPoint);
@@ -361,15 +361,15 @@ optional<string> Program::shaderSource(const string& name, const string& type) {
 }
 
 void Program::prepare() {
-	A3D_LOG_T	("");
+	log::t();
 	
 	if (!_isLinked) {
 		if (compile()) {
-			A3D_LOG_I("Shaders for program '{}' compiled.", _name);
+			log::i()("Shaders for program '{}' compiled.", _name);
 			
 			if (link()) {
 				// _uniformLocationCache = map<string, int>();
-				A3D_LOG_I("Program '{}' linked.", _name);
+				log::i()("Program '{}' linked.", _name);
 			}
 			else {
 				//A3D_LOG_C("Failed linking '{}' program:\n{}", _name, *_logString);
@@ -387,7 +387,7 @@ void Program::prepare() {
 
 bool Program::compile(const string& source, ShaderType type) {
 
-	A3D_LOG_D("Compiling {} shader for program '{}'...",
+	log::d()("Compiling {} shader for program '{}'...",
 			 magic_enum::enum_name(type), name());
 
 	GLuint shaderID = 0;
@@ -419,7 +419,7 @@ bool Program::compile(const string& source, ShaderType type) {
 			vector<GLchar> c_log(logSize);
 			glGetShaderInfoLog(shaderID, logSize, nullptr, c_log.data());
 			_logString = string(c_log.data());
-			A3D_LOG_E("Failed to compile {} shader program '{}':\n{}",
+			log::e()("Failed to compile {} shader program '{}':\n{}",
 					  magic_enum::enum_name(type), name(), *_logString);
 		}
 
@@ -430,7 +430,7 @@ bool Program::compile(const string& source, ShaderType type) {
 	else {
 		glAttachShader(_glID, shaderID);
 
-		A3D_LOG_I("{} shader {}' compiled.", magic_enum::enum_name(type), name());
+		log::i()("{} shader {}' compiled.", magic_enum::enum_name(type), name());
 
 		return true;
 	}
@@ -443,7 +443,7 @@ int Program::getUniformLocation(const char* name) {
 		location = glGetUniformLocation(_glID, name);
 
 	if (location < 0) {
-		A3D_LOG_E("Could not find uniform location: {}", name);
+		log::e()("Could not find uniform location: {}", name);
 	}
 		// _uniformLocationCache[name] = location;
 	// }

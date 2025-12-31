@@ -361,12 +361,12 @@ std::optional<std::filesystem::path> a3d::utils::SearchInPaths(const string& fil
 		if (std::filesystem::is_directory(searchPath)) {
 			auto path = searchPath / filename;
 			if (std::filesystem::is_regular_file(path)) {
-				//A3D_LOG_D("Found '{}' at '{}'", searchPath.string(), filename);
+				//log::d()("Found '{}' at '{}'", searchPath.string(), filename);
 				return path;
 			}
 		}
 	}
-	A3D_LOG_W("'{}' not found.", filename);
+	log::w()("'{}' not found.", filename);
 	return std::nullopt;
 }
 
@@ -396,7 +396,7 @@ std::optional<std::string> a3d::utils::ShaderSource(const string& name,
 	std::optional<string> rawSource = std::nullopt;
 	auto path = SearchInPaths((name + "." + type), ShaderSearchPaths());
 	if (path) {
-		A3D_LOG_D("Found shader at path: {}", (*path).string());
+		log::d()("Found shader at path: {}", (*path).string());
 		rawSource = TextFile(*path);
 	}
 	return rawSource;
@@ -413,7 +413,7 @@ unique_ptr<Font> a3d::utils::FontNamed(const string& name,
 									  const string& type) {
 	auto path = SearchInPaths((name + "." + type), FontSearchPaths());
 	if (path) {
-		A3D_LOG_T("Found font at path: {}", (*path).string());
+		log::t()("Found font at path: {}", (*path).string());
 		return make_unique<Font>(*path);
 	}
 	return nullptr;
@@ -435,7 +435,7 @@ unique_ptr<Image> a3d::utils::ImageNamed(const string& name,
 										bool flipVertical) {
 	auto path = SearchInPaths((name + "." + type), ImageSearchPaths());
 	if (path) {
-		A3D_LOG_D("Found image at path: {}", (*path).string());
+		log::d()("Found image at path: {}", (*path).string());
 		return make_unique<Image>(*path, flipHorizontal, flipVertical);
 	}
 	return nullptr;
@@ -472,7 +472,7 @@ unique_ptr<Scene> a3d::utils::SceneNamed(const string& name,
 	
 	auto path = SearchInPaths((name + "." + type), SceneSearchPaths());
 	if (path) {
-		A3D_LOG_T("Found scene at path: {}", (*path).string());
+		log::t()("Found scene at path: {}", (*path).string());
 		return Scene::FromFile(*path, options);
 	}
 	return nullptr;
@@ -490,7 +490,7 @@ shared_ptr<Mesh> a3d::utils::MeshNamed(const string& name,
 
 	auto path = SearchInPaths((name + "." + type), ModelSearchPaths());
 	if (path) {
-		A3D_LOG_T("Found scene at path: {}", (*path).string());
+		log::t()("Found scene at path: {}", (*path).string());
 		return Mesh::FromFile(*path, options);
 	}
 	return nullptr;
@@ -503,13 +503,13 @@ void a3d::utils::SaveSnapshot(RenderContext& context) {
 	auto execDir = ExecutableDirectory();
 	if (execDir) {
 		auto filename = std::format("Snapshot_{}.png", DateTimeString());
-		A3D_LOG_I("Saving snapshot to '{}'", (*execDir/filesystem::path(filename)).string());
+		log::i()("Saving snapshot to '{}'", (*execDir/filesystem::path(filename)).string());
 		auto image = context.snapshot();
 		auto fullPath = *execDir / filename;
 		image->writePNG(fullPath);
 	}
 	else {
-		A3D_LOG_E("Failed to save snapshot.  Couldn't locate executable directory.");
+		log::e()("Failed to save snapshot.  Couldn't locate executable directory.");
 	}
 }
 
@@ -520,12 +520,12 @@ void a3d::utils::StartGIFRecording(RenderContext& context,
 	auto execDir = ExecutableDirectory();
 	if (execDir) {
 		auto filename = std::format("Recording_{}.gif", DateTimeString());
-		A3D_LOG_I("Starting GIF recording at '{}'", (*execDir/filesystem::path(filename)).string());
+		log::i()("Starting GIF recording at '{}'", (*execDir/filesystem::path(filename)).string());
 		auto fullPath = *execDir / filename;
 		context.startGIFRecording(fullPath.string(), fitInside, maxFramerate);
 	}
 	else {
-		A3D_LOG_W("Couldn't locate executable directory.");
+		log::w()("Couldn't locate executable directory.");
 	}
 }
 

@@ -81,13 +81,13 @@ void BulletDebugDrawer::drawLine(const btVector3& from,
 void BulletDebugDrawer::drawSphere(btScalar radius,
 								   const btTransform& transform,
 								   const btVector3& color) {
-	A3D_LOG_W("(Not implemented)");
+	log::w()("(Not implemented)");
 }
 
 void BulletDebugDrawer::drawSphere(const btVector3& p,
 								   btScalar radius,
 								   const btVector3& color) {
-	A3D_LOG_W("(Not implemented)");
+	log::w()("(Not implemented)");
 }
 
 void BulletDebugDrawer::drawTriangle(const btVector3& v0,
@@ -95,7 +95,7 @@ void BulletDebugDrawer::drawTriangle(const btVector3& v0,
 									 const btVector3& v2,
 									 const btVector3& color,
 									 btScalar alpha) {
-	A3D_LOG_W("(Not implemented)");
+	log::w()("(Not implemented)");
 }
 
 */
@@ -114,12 +114,12 @@ void BulletDebugDrawer::drawContactPoint(const btVector3& pointOnB,
 }
 
 void BulletDebugDrawer::reportErrorWarning(const char* warningString) {
-	A3D_LOG_W("Bullet warning: {}", warningString);
+	log::w()(std::format("Bullet warning: {}", warningString));
 }
 
 void BulletDebugDrawer::draw3dText(const btVector3& location,
 								   const char* textString) {
-	A3D_LOG_W("(Not implemented)");
+	log::w()("(Not implemented{})", "dick");
 }
 
 /*
@@ -128,12 +128,12 @@ void BulletDebugDrawer::draw3dText(const btVector3& location,
 //void BulletDebugDrawer::drawAabb(const btVector3 &from,
 //								  const btVector3 &to,
 //								  const btVector3 &color) {
-//	A3D_LOG_W("(Not implemented)");
+//	log::w()("(Not implemented)");
 //}
 
 void BulletDebugDrawer::drawTransform(const btTransform &transform,
 									  btScalar orthoLen) {
-	A3D_LOG_W("(Not implemented)");
+	log::w()("(Not implemented)");
 }
 
 void BulletDebugDrawer::drawArc(const btVector3& center,
@@ -146,7 +146,7 @@ void BulletDebugDrawer::drawArc(const btVector3& center,
 								const btVector3& color,
 								bool drawSect,
 								btScalar stepDegrees) {
-	A3D_LOG_W("(Not implemented)");
+	log::w()("(Not implemented)");
 }
 
 void BulletDebugDrawer::drawSpherePatch(const btVector3& center,
@@ -160,20 +160,20 @@ void BulletDebugDrawer::drawSpherePatch(const btVector3& center,
 										const btVector3& color,
 										btScalar stepDegrees,
 										bool drawCenter) {
-	A3D_LOG_W("(Not implemented)");
+	log::w()("(Not implemented)");
 }
 
 void BulletDebugDrawer::drawBox(const btVector3& bbMin,
 								const btVector3& bbMax,
 								const btVector3& color) {
-	A3D_LOG_W("(Not implemented)");
+	log::w()("(Not implemented)");
 }
 
 void BulletDebugDrawer::drawBox(const btVector3& bbMin,
 								const btVector3& bbMax,
 								const btTransform& trans,
 								const btVector3& color) {
-	A3D_LOG_W("(Not implemented)");
+	log::w()("(Not implemented)");
 }
 
 void BulletDebugDrawer::drawCapsule(btScalar radius,
@@ -181,7 +181,7 @@ void BulletDebugDrawer::drawCapsule(btScalar radius,
 									int upAxis,
 									const btTransform& transform,
 									const btVector3& color) {
-	A3D_LOG_W("(Not implemented)");
+	log::w()("(Not implemented)");
 }
 
 void BulletDebugDrawer::drawCylinder(btScalar radius,
@@ -189,7 +189,7 @@ void BulletDebugDrawer::drawCylinder(btScalar radius,
 									 int upAxis,
 									 const btTransform& transform,
 									 const btVector3& color) {
-	A3D_LOG_W("(Not implemented)");
+	log::w()("(Not implemented)");
 }
 
 void BulletDebugDrawer::drawCone(btScalar radius,
@@ -197,14 +197,14 @@ void BulletDebugDrawer::drawCone(btScalar radius,
 								 int upAxis,
 								 const btTransform& transform,
 								 const btVector3& color) {
-	A3D_LOG_W("(Not implemented)");
+	log::w()("(Not implemented)");
 }
 
 void BulletDebugDrawer::drawPlane(const btVector3& planeNormal,
 								  btScalar planeConst,
 								  const btTransform& transform,
 								  const btVector3& color) {
-	A3D_LOG_W("(Not implemented)");
+	log::w()("(Not implemented)");
 }
 */
 

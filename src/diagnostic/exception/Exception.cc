@@ -20,9 +20,9 @@ Exception::Exception(const string& what):
 	runtime_error{what} {
 
 #ifdef A3D_POSIX
-		A3D_LOG_E("Exception: {}\nStack trace:\n{}", what, utils::StackTrace(1));
+		log::e()("Exception: {}\nStack trace:\n{}", what, utils::StackTrace(1));
 #else
-		A3D_LOG_E("Exception: {}", what);
+		log::e()("Exception: {}", what);
 #endif
 }
 

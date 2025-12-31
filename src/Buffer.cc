@@ -45,7 +45,7 @@ Buffer::Buffer(const byte* buf, std::size_t size):
 }
 
 Buffer::~Buffer() {
-	A3D_LOG_D("Destroying Buffer {:p}", static_cast<void*>(this));
+	log::d()("Destroying Buffer {:p}", static_cast<void*>(this));
 }
 
 /// Public Member Functions ///

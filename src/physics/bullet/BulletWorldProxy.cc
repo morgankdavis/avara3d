@@ -52,7 +52,7 @@ BulletWorldProxy::BulletWorldProxy(PhysicalWorld& world):
 													_btConstraintSolver.get(),
 													_btCollisionConfiguration.get());
 
-	A3D_LOG_I("Bullet Physics version: {}",  btGetVersion());
+	log::i()("Bullet Physics version: {}",  btGetVersion());
 
 #ifdef A3D_GL_DESKTOP
 	_btDebugDrawer = make_unique<BulletDebugDrawer>();
@@ -62,13 +62,13 @@ BulletWorldProxy::BulletWorldProxy(PhysicalWorld& world):
 
 BulletWorldProxy::~BulletWorldProxy() {
 
-	A3D_LOG_D("Destroying BulletWorldProxy {:p}", static_cast<void*>(this));
+	log::d()("Destroying BulletWorldProxy {:p}", static_cast<void*>(this));
 }
 
 /// PhysicalWorldModelProxy Internal Member Functions ///
 
 void BulletWorldProxy::add(PhysicsBody& body) {
-	A3D_LOG_D("body: {:p}", static_cast<void*>(&body));
+	log::d()("body: {:p}", static_cast<void*>(&body));
 
 	auto bodyProxy = static_cast<BulletBodyProxy*>(body.proxy());
 	auto btBody = bodyProxy->btBody();
@@ -85,7 +85,7 @@ void BulletWorldProxy::add(PhysicsBody& body) {
 		btBody->proceedToTransform(btTransform);
 	}
 	else {
-		A3D_LOG_W("Adding PhysicsBody without a Node??");
+		log::w()("Adding PhysicsBody without a Node??");
 		// TODO: throw?
 	}
 
@@ -123,7 +123,7 @@ void BulletWorldProxy::add(PhysicsBody& body) {
 }
 
 void BulletWorldProxy::remove(PhysicsBody& body) {
-	A3D_LOG_D("body: {:p}", static_cast<void*>(&body));
+	log::d()("body: {:p}", static_cast<void*>(&body));
 
 	auto bodyProxy = static_cast<BulletBodyProxy*>(body.proxy());
 	_btWorld->removeRigidBody(bodyProxy->btBody());
@@ -179,7 +179,7 @@ void BulletWorldProxy::step(double deltaT,
 	});
 
 //	if (result > config::MAX_PHYSICS_SUBSTEPS) {
-//		A3D_LOG_W("Max physics simulation substeps exceeded: {}/{}",
+//		log::w()("Max physics simulation substeps exceeded: {}/{}",
 //				  result, config::MAX_PHYSICS_SUBSTEPS);
 //	}
 
@@ -234,7 +234,7 @@ vector<Line> BulletWorldProxy::debugLines(const DebugOptions &debugOptions) {
 //				 std::make_move_iterator(newLines.begin()),
 //				 std::make_move_iterator(newLines.end()));
 		_cachedDebugLines = std::move(lines);
-		//A3D_LOG_D("_cachedDebugLines UPDATE: {}", _cachedDebugLines.size());
+		//log::d()("_cachedDebugLines UPDATE: {}", _cachedDebugLines.size());
 
 		return _cachedDebugLines;
 	});
@@ -243,7 +243,7 @@ vector<Line> BulletWorldProxy::debugLines(const DebugOptions &debugOptions) {
 //							  //return cachedLines;
 //						  });
 
-	//A3D_LOG_D("_cachedDebugLines RET: {}", _cachedDebugLines.size());
+	//log::d()("_cachedDebugLines RET: {}", _cachedDebugLines.size());
 	return _cachedDebugLines;
 	//return vector<Line>{};
 #else
@@ -291,7 +291,7 @@ btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const DebugOptio
 
 	static btIDebugDraw::DebugDrawModes previousModes = btIDebugDraw::DBG_NoDebug;
 	if (btModes != previousModes) {
-		A3D_LOG_D("Bullet debug modes: {}", magic_enum::enum_name(btModes));
+		log::d()("Bullet debug modes: {}", magic_enum::enum_name(btModes));
 	}
 	previousModes = btModes;
 

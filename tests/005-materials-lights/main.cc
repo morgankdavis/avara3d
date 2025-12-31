@@ -182,7 +182,7 @@ int main(int argc, const char* argv[]) {
 	}
 	catch (Exception& e)
 	{
-		A3D_APP_LOG_F("Exception: {}", e.what());
+		log::app::f()("Exception: {}", e.what());
 		return -1;
 	}
 
@@ -193,12 +193,12 @@ int main(int argc, const char* argv[]) {
 
 void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
-	A3D_ON(2, [&] {
+	utils::flow::on(2, [&] {
 		double time = utils::chrono::Time() - g_startTime;
-		A3D_APP_LOG_I("START TIME: {}", time);
+		log::app::i()("START TIME: {}", time);
 	});
 
-	A3D_APP_LOG_T("scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
+	log::app::t()("scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
 
 	auto window = dynamic_cast<GLFWWindow*>(scene.visualWorld()->renderContext());
 
@@ -213,7 +213,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	}
 
 	if (keysPressed.count(Key::T)) {
-		A3D_APP_LOG_I("TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
+		log::app::i()("TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
 	}
 
 	if 		(keysPressed.count(Key::One))	SetAllFilterModes(FilterMode::Nearest, scene);
@@ -381,11 +381,11 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 /// VisualWorld Callbacks ///
 
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	log::app::t()("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 void DidRenderCallback(VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	log::app::t()("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 /// Static ///
@@ -410,15 +410,15 @@ void LogBuildInfo() {
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
-	A3D_APP_LOG_I("A3D version: {}.{}.{}", version.major, version.minor, version.patch);
-	A3D_APP_LOG_I("Build: {}", buildInfo.number());
-	A3D_APP_LOG_I("Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
-	A3D_APP_LOG_I("Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
+	log::app::i()("A3D version: {}.{}.{}", version.major, version.minor, version.patch);
+	log::app::i()("Build: {}", buildInfo.number());
+	log::app::i()("Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
+	log::app::i()("Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
 }
 
 void SetAllFilterModes(FilterMode mode, Scene& scene) {
 
-	A3D_APP_LOG_I("SetAllFilterModes: {}", (unsigned)mode);
+	log::app::i()("SetAllFilterModes: {}", (unsigned)mode);
 
 	for (auto& node : scene.rootNode()->children(true)) {
 
@@ -449,7 +449,7 @@ void SetAllFilterModes(FilterMode mode, Scene& scene) {
 
 void SetAllMaxAnisotropy(float anisotropy, Scene& scene) {
 
-	A3D_APP_LOG_I("SetAllMaxAnisotropy: {}", anisotropy);
+	log::app::i()("SetAllMaxAnisotropy: {}", anisotropy);
 
 	for (auto& node : scene.rootNode()->children(true)) {
 

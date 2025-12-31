@@ -63,7 +63,7 @@ GLFWWindow::GLFWWindow(RenderingApi renderingAPI,
 		_hidden{false},
 		_cursorCaptured{false},
 		_inputManager{} {
-	A3D_LOG_D("");
+	log::d()("");
 
 	_antialiasingMode = antialiasingMode; // see above (?)
 
@@ -148,7 +148,7 @@ GLFWWindow::GLFWWindow(RenderingApi renderingAPI,
 }
 
 GLFWWindow::~GLFWWindow() {
-	A3D_LOG_D("Destroying GLFWWindow {:p}", static_cast<void*>(this));
+	log::d()("Destroying GLFWWindow {:p}", static_cast<void*>(this));
 
 	close(); // meh?
 
@@ -162,7 +162,7 @@ GLFWWindow::~GLFWWindow() {
 /// Public Member Functions ///
 
 void GLFWWindow::open() {
-	A3D_LOG_I("");
+	log::i()("");
 
 	if (_visualWorld && _visualWorld->scene()) {
 		glfwMakeContextCurrent(_glfwWindow.get());
@@ -259,7 +259,7 @@ void GLFWWindow::center() {
 							 screenPos.y + ((screenSize.y/2.0) - (winSize.y/2.0))));
 	}
 	else {
-		A3D_LOG_E("Can't get window monitor.");
+		log::e()("Can't get window monitor.");
 	}
 }
 
@@ -509,20 +509,20 @@ static bool InitGLFW() {
 	
 	static bool initialized = false;
 	if (!initialized) {
-		A3D_LOG_I("");
+		log::i()("");
 		
 		int glfwMajVers, glfwMinVers, glfwRev;
 		glfwGetVersion(&glfwMajVers, &glfwMinVers, &glfwRev);
-		A3D_LOG_I("Starting GLFW version {}.{}.{}...", glfwMajVers, glfwMinVers, glfwRev);
+		log::i()("Starting GLFW version {}.{}.{}...", glfwMajVers, glfwMinVers, glfwRev);
 
 		// TODO: must modify to support multiple windows
 		glfwSetErrorCallback(GLFWErrorCallback);
 		
 		if (glfwInit()) {
-			A3D_LOG_I("GLFW Initialized.");
+			log::i()("GLFW Initialized.");
 		}
 		else {
-			A3D_LOG_F("Error initializing GLFW.");
+			log::f()("Error initializing GLFW.");
 			return false;
 		}
 		
@@ -534,7 +534,7 @@ static bool InitGLFW() {
 }
 
 void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
-//	A3D_LOG_D("glfwWindow: {:p}, width: {}, height: {}",
+//	log::d()("glfwWindow: {:p}, width: {}, height: {}",
 //			  static_cast<void*>(glfwWindow), width, height);
 
 	auto window = (GLFWWindow*)glfwGetWindowUserPointer(glfwWindow);
@@ -542,14 +542,14 @@ void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
 }
 
 void GLFWWindowCloseCallback(GLFWwindow* glfwWindow) {
-	A3D_LOG_I("glfwWindow: {:p}", static_cast<void*>(glfwWindow));
+	log::i()("glfwWindow: {:p}", static_cast<void*>(glfwWindow));
 
 	auto window = (GLFWWindow*)glfwGetWindowUserPointer(glfwWindow);
 	window->close();
 }
 
 void GLFWFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
-//	A3D_LOG_D("glfwWindow: {:p}, width: {}, height: {}",
+//	log::d()("glfwWindow: {:p}, width: {}, height: {}",
 //			  static_cast<void*>(glfwWindow), width, height);
 
 //	auto window = (GLFWWindow*)glfwGetWindowUserPointer(glfwWindow);
@@ -557,12 +557,12 @@ void GLFWFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height) 
 }
 
 void GLFWContentScaleCallback(GLFWwindow* glfwWindow, float xScale, float yScale) {
-	A3D_LOG_D("glfwWindow: {:p}, xScale: {}, yScale: {}",
+	log::d()("glfwWindow: {:p}, xScale: {}, yScale: {}",
 			  static_cast<void*>(glfwWindow), xScale, yScale);
 }
 
 void GLFWErrorCallback(int error, const char* description) {
-	A3D_LOG_E("error: {}, description: {}", error, description);
+	log::e()("error: {}, description: {}", error, description);
 }
 
 bool GetGLFWWindowMonitor(GLFWmonitor** monitor, GLFWwindow* window) {

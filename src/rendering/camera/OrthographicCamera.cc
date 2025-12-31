@@ -38,10 +38,10 @@ OrthographicCamera::OrthographicCamera(const string& name, const AABB& extent):
 OrthographicCamera::~OrthographicCamera() {
 
 	if (_name != nullopt) {
-		A3D_LOG_D("Destroying OrthographicCamera '{}' ({:p})", *_name, static_cast<void*>(this));
+		log::d()("Destroying OrthographicCamera '{}' ({:p})", *_name, static_cast<void*>(this));
 	}
 	else {
-		A3D_LOG_D("Destroying OrthographicCamera {:p}", static_cast<void*>(this));
+		log::d()("Destroying OrthographicCamera {:p}", static_cast<void*>(this));
 	}
 }
 

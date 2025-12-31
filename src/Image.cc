@@ -67,7 +67,7 @@ Image::Image(unique_ptr<Buffer> buffer,
 }
 
 Image::~Image() {
-	A3D_LOG_D("Destroying Image {:p}", static_cast<void*>(this));
+	log::d()("Destroying Image {:p}", static_cast<void*>(this));
 }
 
 /// Public Member Functions ///
@@ -152,7 +152,7 @@ void Image::loadBuffer(Buffer& inBuf,
 
 	stbi_image_free(imgData);
 	
-	A3D_LOG_D("Loaded image data. width: {}, height: {}, bytesPerPixel: {}",
+	log::d()("Loaded image data. width: {}, height: {}, bytesPerPixel: {}",
 				  width, height, bytesPerPixel);
 	
 	_width = width;

@@ -135,7 +135,7 @@ void FileLogSink::rotate() {
 		if (index >= _maxFiles) {
 
 			// ! creates recursion with A3D log !
-			//A3D_LOG_I("Removing log file '{}...'", path.string());
+			//log::i()("Removing log file '{}...'", path.string());
 
 			error_code errorCode;
 

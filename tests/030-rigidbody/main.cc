@@ -413,21 +413,21 @@ int main(int argc, const char* argv[]) {
 		scene->rootNode()->addChild(boxesLightNode);
 
 
-//	A3D_APP_LOG_I("*** SCENE EXTENT: {} ***",
+//	log::app::i()("*** SCENE EXTENT: {} ***",
 //				  to_string(scene->rootNode()->extent()));
 
-	//	A3D_A3D_APP_LOG_I("Graph:\n{}", StringFromTree(*scene->rootNode()));
+	//	A3D_log::app::i()("Graph:\n{}", StringFromTree(*scene->rootNode()));
 	//	auto children = scene->rootNode()->children(true);
-	//	A3D_A3D_APP_LOG_I("CHILDREN REC:");
+	//	A3D_log::app::i()("CHILDREN REC:");
 	//	for (auto& child : children) {
 	//		if (child == scene->rootNode()){
-	//			A3D_A3D_APP_LOG_I("\troot");
+	//			A3D_log::app::i()("\troot");
 	//		}
 	//		else if (child->name()) {
-	//			A3D_A3D_APP_LOG_I("\t{}", *child->name());
+	//			A3D_log::app::i()("\t{}", *child->name());
 	//		}
 	//		else {
-	//			A3D_A3D_APP_LOG_I("\t{:p}", (void*)child.get());
+	//			A3D_log::app::i()("\t{:p}", (void*)child.get());
 	//		}
 	//	}
 
@@ -454,7 +454,7 @@ wr = new WanderRotate();
 		} while (window->isOpen());
 	}
 	catch (Exception& e) {
-		A3D_APP_LOG_F("Exception: {}", e.what());
+		log::app::f()("Exception: {}", e.what());
 		return -1;
 	}
 
@@ -464,7 +464,7 @@ wr = new WanderRotate();
 /// Scene Callbacks ///
 
 void UpdateCallback(Scene& scene, double time, double deltaTime) {
-	A3D_APP_LOG_T("scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
+	log::app::t()("scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
 
 	GLFWWindow* window = nullptr;
 	if (scene.visualWorld()) {
@@ -500,19 +500,19 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 	// TEMPORARY for macOS mouse input testing
 //	if (keysPressed.count(Key::Z)) {
-//		A3D_APP_LOG_I("Trying to re-initialize mouse input.");
+//		log::app::i()("Trying to re-initialize mouse input.");
 //		auto windowInputManager = static_cast<GlfwInputManager*>(scene.inputManager());
 //		try {
 //			windowInputManager->initMouseInput();
 //		}
 //		catch (Exception) {
-//			A3D_APP_LOG_E("Nada");
+//			log::app::e()("Nada");
 //		}
 //	}
 
 	if (keysPressed.count(Key::Escape)) {
 		window->close();
-		A3D_APP_LOG_I("open? {}", window->isOpen() ? "ya" : "no");
+		log::app::i()("open? {}", window->isOpen() ? "ya" : "no");
 	}
 
 	if (keysPressed.count(Key::Slash)) {
@@ -582,14 +582,14 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 		if (auto pov = scene.visualWorld()->pointOfView().lock()) {
 			auto pos = pov->worldPosition();
 			auto orient = pov->worldOrientation();
-			A3D_APP_LOG_I("\ncamera position: ({:.4f}, {:.4f}, {:.4f})\n"
+			log::app::i()("\ncamera position: ({:.4f}, {:.4f}, {:.4f})\n"
 						  "camera orientation: ({:.6f}, {:.6f}, {:.6f}, {:.6f})",
 						  pos.x, pos.y, pos.x, orient.x, orient.y, orient.z, orient.w);
 		}
 	}
 
 //		if (keysPressed.count(Key::T)) {
-//			A3D_APP_LOG_I("TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
+//			log::app::i()("TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
 //		}
 
 	// spawn duck fruit
@@ -739,11 +739,11 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	if (keysPressed.count(Key::V)) {
 //		static auto pov = scene.visualWorld()->pointOfView();
 //		if (scene.visualWorld()->pointOfView().expired()) {
-//			A3D_APP_LOG_D("Adding POV...");
+//			log::app::d()("Adding POV...");
 //			scene.visualWorld()->pointOfView(pov);
 //		}
 //		else {
-//			A3D_APP_LOG_D("Removing POV...");
+//			log::app::d()("Removing POV...");
 //			scene.visualWorld()->pointOfView().reset();
 //		}
 		window->vSyncEnabled(!window->vSyncEnabled());
@@ -852,17 +852,17 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 /// VisualWorld Callbacks ///
 
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	log::app::t()("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 void DidRenderCallback(VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	log::app::t()("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 /// PhysicalWorld Callbacks ///
 
 void DidSimulatePhysicsCallback(PhysicalWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	log::app::t()("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 /// Static ///
@@ -887,12 +887,12 @@ void LogBuildInfo() {
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
-	A3D_APP_LOG_I("A3D version: {}.{}.{}",
+	log::app::i()("A3D version: {}.{}.{}",
 		  version.major, version.minor, version.patch);
-	A3D_APP_LOG_I("Build: {}", buildInfo.number());
-	A3D_APP_LOG_I("Type: {}",
+	log::app::i()("Build: {}", buildInfo.number());
+	log::app::i()("Type: {}",
 		  buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
-	A3D_APP_LOG_I("Origin: {}",
+	log::app::i()("Origin: {}",
 		  buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
 }
 

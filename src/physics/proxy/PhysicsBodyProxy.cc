@@ -35,13 +35,13 @@ void PhysicsBodyProxy::autocalculatesMomentOfInertia(bool autocalculate) {
 }
 
 void PhysicsBodyProxy::attachedToBody(PhysicsBody& body) {
-	A3D_LOG_T("body: {:p}", static_cast<void*>(&body));
+	log::t()("body: {:p}", static_cast<void*>(&body));
 
 	_body = &body;
 }
 
 void PhysicsBodyProxy::detachedFromBody(PhysicsBody& body) {
-	A3D_LOG_T("body: {:p}", static_cast<void*>(&body));
+	log::t()("body: {:p}", static_cast<void*>(&body));
 
 	_body = nullptr;
 }

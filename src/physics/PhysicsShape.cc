@@ -31,11 +31,11 @@ PhysicsShape::PhysicsShape(PhysicsShapeType type, const shared_ptr<Mesh>& mesh):
 		/*_model(make_unique<BulletShapeProxy>(this))*/ {
 
 	if (auto name = mesh->name()) {
-		A3D_LOG_D("Creating PhysicsShape type {} for source mesh: {}...",
+		log::d()("Creating PhysicsShape type {} for source mesh: {}...",
 				  magic_enum::enum_name(type), *name);
 	}
 	else {
-		A3D_LOG_D("Creating PhysicsShape type {} for source mesh: {:p}...",
+		log::d()("Creating PhysicsShape type {} for source mesh: {:p}...",
 				  magic_enum::enum_name(type), static_cast<void *>(mesh.get()));
 	}
 }
@@ -49,11 +49,11 @@ PhysicsShape::PhysicsShape(PhysicsShapeType type, const shared_ptr<Node>& node):
 		/*_model(make_unique<BulletShapeProxy>(this))*/ {
 
 	if (auto name = node->name()) {
-		A3D_LOG_D("Creating PhysicsShape type {} for source node: {}...",
+		log::d()("Creating PhysicsShape type {} for source node: {}...",
 				  magic_enum::enum_name(type), *name);
 	}
 	else {
-		A3D_LOG_D("Creating PhysicsShape type {} for source node: {:p}...",
+		log::d()("Creating PhysicsShape type {} for source node: {:p}...",
 				  magic_enum::enum_name(type), static_cast<void *>(node.get()));
 	}
 }
@@ -64,7 +64,7 @@ PhysicsShape::PhysicsShape():
 		_proxy{} { }
 
 PhysicsShape::~PhysicsShape() {
-	A3D_LOG_D("Destroying PhysicsShape {:p}", static_cast<void*>(this));
+	log::d()("Destroying PhysicsShape {:p}", static_cast<void*>(this));
 }
 
 /// Public Member Functions ///
@@ -78,7 +78,7 @@ PhysicsShapeType PhysicsShape::type() const {
 }
 
 void PhysicsShape::type(PhysicsShapeType type) {
-	A3D_LOG_T("type: {}", magic_enum::enum_name(type));
+	log::t()("type: {}", magic_enum::enum_name(type));
 
 	_type = type;
 	_proxy = nullptr;
@@ -89,7 +89,7 @@ void PhysicsShape::type(PhysicsShapeType type) {
 /// Internal Member Functions ///
 
 void PhysicsShape::attachedToBody(PhysicsBody& body) {
-	A3D_LOG_T("body: {:p}", static_cast<void*>(&body));
+	log::t()("body: {:p}", static_cast<void*>(&body));
 
 	if (!_bodies.count(&body)) {
 		_bodies.insert(&body);
@@ -99,19 +99,19 @@ void PhysicsShape::attachedToBody(PhysicsBody& body) {
 }
 
 void PhysicsShape::detachedFromBody(PhysicsBody& body) {
-	log::t("body: {:p}", static_cast<void*>(&body));
+	log::t()("body: {:p}", static_cast<void*>(&body));
 
 	_bodies.erase(&body);
 }
 
 void PhysicsShape::physicalWorldReachable(PhysicalWorld& world) {
-	A3D_LOG_T("world: {:p}", static_cast<void*>(&world));
+	log::t()("world: {:p}", static_cast<void*>(&world));
 
 	checkCreateProxy();
 }
 
 void PhysicsShape::physicalWorldUnreachable(PhysicalWorld& world) {
-	A3D_LOG_T("world: {:p}", static_cast<void*>(&world));
+	log::t()("world: {:p}", static_cast<void*>(&world));
 }
 
 void PhysicsShape::source(const Source& sourceObject) {
@@ -120,7 +120,7 @@ void PhysicsShape::source(const Source& sourceObject) {
 }
 
 void PhysicsShape::checkCreateProxy() {
-	A3D_LOG_T("");
+	log::t()("");
 
 	if (!_proxy) {
 		_proxy = make_unique<BulletShapeProxy>(*this);

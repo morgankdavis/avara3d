@@ -83,10 +83,10 @@ Mesh::Mesh(vector<unique_ptr<MeshElement>>& elements,
 Mesh::~Mesh() {
 
 	if (_name != nullopt) {
-		A3D_LOG_D("Destroying Mesh '{}' ({:p})", *_name, static_cast<void*>(this));
+		log::d()("Destroying Mesh '{}' ({:p})", *_name, static_cast<void*>(this));
 	}
 	else {
-		A3D_LOG_D("Destroying Mesh {:p}", static_cast<void*>(this));
+		log::d()("Destroying Mesh {:p}", static_cast<void*>(this));
 	}
 }
 

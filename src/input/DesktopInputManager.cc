@@ -27,7 +27,7 @@ DesktopInputManager::DesktopInputManager():
 		_mouseScrollWheelDelta{0.0f, 0.0f} {}
 
 DesktopInputManager::~DesktopInputManager() {
-	A3D_LOG_D("Destroying InputManager {:p}", static_cast<void*>(this));
+	log::d()("Destroying InputManager {:p}", static_cast<void*>(this));
 }
 
 /// Public Member Functions ///

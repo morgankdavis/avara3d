@@ -352,7 +352,7 @@ void Viewport::initializeGL() {
 		_renderer->initialize(*this);
 	}
 	else {
-		A3D_LOG_F("Failed to initialize OpenGL function loader.");
+		log::f()("Failed to initialize OpenGL function loader.");
 	}
 }
 

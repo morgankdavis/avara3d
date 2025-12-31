@@ -56,7 +56,7 @@ void RenderContext::startGIFRecording(const filesystem::path& path,
 									  unsigned maxFramerate) {
 	
 	if (!_recordingGIF) {
-		A3D_LOG_I("Starting GIF recording...");
+		log::i()("Starting GIF recording...");
 		
 		_gifRecordingMaxFramerate = maxFramerate;
 		_gifRecordingCurrentFrameTimeAccum = 0;
@@ -103,7 +103,7 @@ void RenderContext::stopGIFRecording() {
 		//free(_gifWriter.get());
 		_gifWriter = nullptr;
 		
-		A3D_LOG_I("Stopped GIF recording.");
+		log::i()("Stopped GIF recording.");
 	}
 }
 
@@ -148,7 +148,7 @@ RenderContext::RenderContext(RenderingApi renderingApi):
 }
 
 RenderContext::~RenderContext() {
-	A3D_LOG_D("Destroying RenderContext {:p}", static_cast<void*>(this));
+	log::d()("Destroying RenderContext {:p}", static_cast<void*>(this));
 
 	if (_recordingGIF) {
 		stopGIFRecording();
@@ -194,13 +194,13 @@ vec2 RenderContext::viewportScale() const {
 }
 
 void RenderContext::attachedToVisualWorld(VisualWorld* world) {
-	A3D_LOG_T("world: {:p}", static_cast<void*>(world));
+	log::t()("world: {:p}", static_cast<void*>(world));
 
 	_visualWorld = world;
 }
 
 void RenderContext::detachedFromVisualWorld(VisualWorld* world) {
-	A3D_LOG_T("world: {:p}", static_cast<void*>(world));
+	log::t()("world: {:p}", static_cast<void*>(world));
 
 	_visualWorld = nullptr;
 }

@@ -100,10 +100,10 @@ Scene::Scene(const string& name,
 Scene::~Scene() {
 
 	if (_name != nullopt) {
-		A3D_LOG_D("Destroying Scene '{}' ({:p})", *_name, static_cast<void*>(this));
+		log::d()("Destroying Scene '{}' ({:p})", *_name, static_cast<void*>(this));
 	}
 	else {
-		A3D_LOG_D("Destroying Scene {:p}", static_cast<void*>(this));
+		log::d()("Destroying Scene {:p}", static_cast<void*>(this));
 	}
 
 	if (_rootNode) _rootNode->detachedFromScene(*this);
@@ -277,7 +277,7 @@ void Scene::debugOptions(DebugOptions options) {
 void Scene::update() {
 
 	if (!utils::flow::edge_guard(_rootNode, [&] {
-		A3D_LOG_E("No root node attached to Scene {:p}", static_cast<void *>(this));
+		log::e()("No root node attached to Scene {:p}", static_cast<void *>(this));
 	})) return;
 
 	static FrameStats stats;

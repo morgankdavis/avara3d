@@ -56,7 +56,7 @@ Material::Material():
 		_blendFunction{BlendFunction::Disabled},
 		_dirtyMask{MaterialDirtyMask::All} {
 
-	A3D_LOG_D("Creating Material {:p}", static_cast<void*>(this));
+	log::d()("Creating Material {:p}", static_cast<void*>(this));
 }
 
 Material::Material(const MaterialProperty& ambient,
@@ -82,7 +82,7 @@ Material::Material(const MaterialProperty& ambient,
 }
 
 Material::~Material() {
-	A3D_LOG_D("Destroying Material {:p}", static_cast<void*>(this));
+	log::d()("Destroying Material {:p}", static_cast<void*>(this));
 }
 
 /// Public Member Functions ///
