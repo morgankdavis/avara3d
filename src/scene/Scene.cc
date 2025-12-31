@@ -276,14 +276,14 @@ void Scene::debugOptions(DebugOptions options) {
 
 void Scene::update() {
 
-	A3D_EDGE_GUARD(!_rootNode, return;, [&] {
+	if (!utils::flow::edge_guard(_rootNode, [&] {
 		A3D_LOG_E("No root node attached to Scene {:p}", static_cast<void *>(this));
-	});
+	})) return;
 
 	static FrameStats stats;
 	memset(&stats, 0, sizeof(FrameStats));
 
-	A3D_PROFILE(_profiler, Profiler::Tag::Frame, [&] {
+	prof::profile(_profiler, Profiler::Tag::Frame, [&] {
 
 		static auto now = std::chrono::system_clock::now();
 		_startTime = std::chrono::duration<double>(now.time_since_epoch()).count();
@@ -296,14 +296,14 @@ void Scene::update() {
 
 		if (_inputManager) {
 
-			A3D_PROFILE(_profiler, Profiler::Tag::EngineCpu, [&] {
+			prof::profile(_profiler, Profiler::Tag::EngineCpu, [&] {
 				_inputManager->update();
 			});
 		}
 
 		if (_updateCallback) {
 
-			A3D_PROFILE(_profiler, Profiler::Tag::Application, [&] {
+			prof::profile(_profiler, Profiler::Tag::Application, [&] {
 				(_updateCallback)(*this, runT, deltaRunT);
 			});
 		}

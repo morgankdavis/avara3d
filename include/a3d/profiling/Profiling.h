@@ -5,22 +5,29 @@
 #ifndef AVARA3D_PROFILING_H
 #define AVARA3D_PROFILING_H
 
-#include "a3d/profiling/FrameStatsHistory.h"
-#include "a3d/profiling/OpenGLDrawTimer.h"
+#include <functional>   // std::invoke
+#include <type_traits>
+#include <utility>
+
 #include "a3d/profiling/Profiler.h"
 #include "a3d/profiling/ScopeTimer.h"
-#include "a3d/profiling/Timer.h"
 
-namespace a3d {
+namespace a3d::prof {
 
+	// Runs f() while measuring its duration into `profiler` under `tag`.
+	// Supports nesting naturally.
 	template <class F>
-	decltype(auto) ProfileScope(Profiler& profiler, Profiler::Tag tag, F&& f) {
+	decltype(auto) profile(Profiler& profiler, Profiler::Tag tag, F&& f) {
 		ScopeTimer t{profiler, tag};
-		return std::forward<F>(f)();
+		return std::invoke(std::forward<F>(f));
 	}
 
-	#define A3D_PROFILE(profiler, tag, ...) \
-			::a3d::ProfileScope((profiler), (tag), __VA_ARGS__)
-}
+	// Optional convenience: scope-style usage without a lambda
+	// auto _ = a3d::profiling::scoped(profiler, Tag::RenderCpu);
+	[[nodiscard]] inline ScopeTimer scoped(Profiler& profiler, Profiler::Tag tag) {
+		return ScopeTimer{profiler, tag};
+	}
 
-#endif //AVARA3D_PROFILING_H
+} // namespace a3d::profiling
+
+#endif // AVARA3D_PROFILING_H

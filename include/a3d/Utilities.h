@@ -41,9 +41,10 @@ namespace a3d {
 // see UtilityMacros.h
 
 // A3D_ONCE()
-// A3D_EVERY()
-// A3D_ON()
-// A3D_AFTER()
+// A3D_EVERY_MS()
+// A3D_EVERY_MS_ELSE()
+// A3D_ON_NTH()
+// A3D_AFTER_NTH()
 // A3D_EDGE_GUARD()
 
 namespace a3d::utils {

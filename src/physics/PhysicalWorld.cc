@@ -185,14 +185,14 @@ void PhysicalWorld::step(const Scene& scene,
 						 FrameStats& stats,
 						 Profiler& profiler) {
 
-	A3D_EDGE_GUARD(!_proxy, return;, [&] {
+	if (!utils::flow::edge_guard(_proxy, [&] {
 		A3D_LOG_E("No PhysicalWorldProxy attached to PhysicalWorld {:p}.", static_cast<void*>(this));
-	});
+	})) return;
 
 	_proxy->step(deltaRunT, _speed, _timestep, stats, profiler);
 
 	if (auto didSimulate = PhysicalWorld::didSimulateCallback()) {
-		A3D_PROFILE(profiler, Profiler::Tag::Application, [&] {
+		prof::profile(profiler, Profiler::Tag::Application, [&] {
 			didSimulate(*this, runT, deltaRunT);
 		});
 	}

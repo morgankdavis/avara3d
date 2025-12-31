@@ -332,8 +332,8 @@ int main(int argc, const char* argv[]) {
 		duckNode->physicsBody(make_unique<PhysicsBody>(PhysicsBodyType::Kinematic, duckPhysicsShape));
 
 	//	// #4
-	////	auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShapeType::ConcavePolyhedron, _duckNode->mesh().get());
-	//	_duckNode->physicsBody(make_shared<PhysicsBody>(PhysicsBodyType::Kinematic, duckPhysicsShape));
+//		auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShapeType::ConcavePolyhedron, duckNode);
+//		duckNode->physicsBody(make_unique<PhysicsBody>(PhysicsBodyType::Kinematic, duckPhysicsShape));
 
 		auto duckSpinnerNode = Node::NamedNode("duck spinner");
 //		g_duckSpinnerNode = duckSpinnerNode.get();
@@ -737,16 +737,16 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	}
 
 	if (keysPressed.count(Key::V)) {
-//		static auto pov = scene.visualWorld()->pointOfView();
-//		if (scene.visualWorld()->pointOfView().expired()) {
-//			A3D_APP_LOG_D("Adding POV...");
-//			scene.visualWorld()->pointOfView(pov);
-//		}
-//		else {
-//			A3D_APP_LOG_D("Removing POV...");
-//			scene.visualWorld()->pointOfView().reset();
-//		}
-		window->vSyncEnabled(!window->vSyncEnabled());
+		static auto pov = scene.visualWorld()->pointOfView();
+		if (scene.visualWorld()->pointOfView().expired()) {
+			A3D_APP_LOG_D("Adding POV...");
+			scene.visualWorld()->pointOfView(pov);
+		}
+		else {
+			A3D_APP_LOG_D("Removing POV...");
+			scene.visualWorld()->pointOfView().reset();
+		}
+//		window->vSyncEnabled(!window->vSyncEnabled());
 	}
 
 	if (keysPressed.count(Key::R)) {
@@ -900,7 +900,7 @@ void SpawnDuckFruit(Scene& scene, Node& duckNode) {
 
 	static const float SPAWN_RATE = 10.0; // pieces/sec
 
-	A3D_EVERY(utils::chrono::sec_f_to_ms(1.0f/SPAWN_RATE), [&] {
+	utils::flow::every(chrono::duration<float>(1.0f/SPAWN_RATE), [&] {
 
 		auto duckFruit = (*g_duckFruit)[uniform_linear(0, 5)];
 
@@ -948,7 +948,7 @@ void SpawnDuckFruit(Scene& scene, Node& duckNode) {
 //
 //	const float SHOOT_RATE = 20; // cans/sec
 //
-//	A3D_EVERY(utils::chrono::sec_f_to_ms(1.0f/SHOOT_RATE), [&] {
+//	A3D_EVERY_MS(utils::chrono::sec_f_to_ms(1.0f/SHOOT_RATE), [&] {
 //
 //		static auto mesh = utils::MeshNamed("slurm/slurm");
 //		mesh->materials()[0]->emission(mesh->materials()[0]->diffuse());
@@ -1051,7 +1051,7 @@ void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
 
 	const float SHOOT_RATE = 20; // cans/sec
 
-	A3D_EVERY(utils::chrono::sec_f_to_ms(1.0f/SHOOT_RATE), [&] {
+	utils::flow::every(chrono::duration<float>(1.0f/SHOOT_RATE), [&] {
 
 //		static auto mesh = utils::MeshNamed("slurm/slurm");
 //		mesh->materials()[0]->emission(mesh->materials()[0]->diffuse());

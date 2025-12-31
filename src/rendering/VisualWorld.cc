@@ -223,49 +223,47 @@ void VisualWorld::draw(const Scene& scene,
 					   Profiler& profiler,
 					   const FrameStatsHistory& statsHistory) {
 
-	A3D_EDGE_GUARD(!_renderContext, return;, [&] {
+	if (!utils::flow::edge_guard(_renderContext, [&] {
 		A3D_LOG_E("No RenderContext attached to VisualWorld {:p}", static_cast<void *>(this));
-	});
+	})) return;
 
 	auto renderer = _renderContext->renderer();
-	A3D_EDGE_GUARD(!renderer, return;, [&] {
+	if (!utils::flow::edge_guard(renderer, [&] {
 		A3D_LOG_E("No Renderer attached to RenderContext {:p}", static_cast<void*>(_renderContext));
-	});
+	})) return;
 
-	A3D_ONCE([&] {
-		firstDraw();
-	});
+	utils::flow::once([&] { firstDraw(); });
 
 	auto pov = pointOfView().lock();
-	A3D_EDGE_GUARD(!pov, return;, [&] {
+	if (!utils::flow::edge_guard(pov, [&] {
 		A3D_LOG_E("No point of view!");
 		renderer->clear(Renderer::ClearCommand{}, *_renderContext);
 		_renderContext->swapBuffers();
-	});
+	})) return;
 
 	auto povScene = pov->scene();
-	A3D_EDGE_GUARD(povScene == nullptr || povScene != &scene, return;, [&] {
-		A3D_LOG_W("Point of view not in our scene!");
+	if (!utils::flow::edge_guard(povScene && povScene == &scene, [&] {
+		A3D_LOG_E("Point of view not in our scene!");
 		renderer->clear(Renderer::ClearCommand{}, *_renderContext);
 		_renderContext->swapBuffers();
-	});
+	})) return;
 
 	if (auto willRender = VisualWorld::willRenderCallback()) {
-		A3D_PROFILE(profiler, Profiler::Tag::Application, [&] {
+		prof::profile(profiler, Profiler::Tag::Application, [&] {
 			willRender(*this, runT, deltaRunT);
 		});
 	}
 
-	A3D_PROFILE(profiler, Profiler::Tag::RenderCpu, [&] {
+	prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
 		renderer->beginFrame(scene, *_renderContext, debugOptions, stats, profiler);
 	});
 
-	A3D_PROFILE(profiler, Profiler::Tag::EngineCpu, [&] {
+	prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
 		// there is some "RenderCpu" type stuff bundled in here for GLFWWindow and QtViewport
 		_renderContext->beginFrame(scene);
 	});
 
-	auto [view, proj] = A3D_PROFILE(profiler, Profiler::Tag::EngineCpu, [&] {
+	auto [view, proj] = prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
 
 		if (auto pc = dynamic_pointer_cast<PerspectiveCamera>(pov->camera())) {
 			auto fbSize = _renderContext->framebufferSize();
@@ -276,11 +274,11 @@ void VisualWorld::draw(const Scene& scene,
 		return std::tuple{ inverse(pov->worldTransform()), pov->camera()->projection() };
 	});
 
-	A3D_PROFILE(profiler, Profiler::Tag::RenderCpu, [&] {
+	prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
 		renderer->preTraversal(scene, *_renderContext, debugOptions, stats);
 	});
 
-	auto gatherItems = A3D_PROFILE(profiler, Profiler::Tag::EngineCpu, [&] {
+	auto gatherItems = prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
 
 		return RenderGatherer::GatherRenderItems(scene,
 												 view,
@@ -289,7 +287,7 @@ void VisualWorld::draw(const Scene& scene,
 												 stats);
 	});
 
-	A3D_PROFILE(profiler, Profiler::Tag::RenderCpu, [&] {
+	prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
 
 		auto& cache = (static_cast<OpenGLRenderer*>(renderer))->cache(); // TODO: TEMPORARY!
 
@@ -329,12 +327,12 @@ void VisualWorld::draw(const Scene& scene,
 		renderer->renderLinesPass(packet.linesPass, *_renderContext, view, proj);
 	});
 
-	A3D_PROFILE(profiler, Profiler::Tag::EngineCpu, [&] {
+	prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
 		// there is some "RenderCpu" type stuff bundled in here for GLFWWindow and QtViewport
 		_renderContext->endFrame(scene);
 	});
 
-	A3D_PROFILE(profiler, Profiler::Tag::RenderCpu, [&] {
+	prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
 
 		renderer->endFrame(scene, *_renderContext,
 						   debugOptions, stats, profiler, statsHistory);
@@ -343,12 +341,12 @@ void VisualWorld::draw(const Scene& scene,
 	});
 
 	if (auto didRender = VisualWorld::didRenderCallback()) {
-		A3D_PROFILE(profiler, Profiler::Tag::Application, [&] {
+		prof::profile(profiler, Profiler::Tag::Application, [&] {
 			didRender(*this, runT, deltaRunT);
 		});
 	}
 
-	A3D_PROFILE(profiler, Profiler::Tag::EngineCpu, [&] {
+	prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
 
 		if (_renderContext->recordingGIF()) {
 			_renderContext->saveGIFFrame(deltaRunT);

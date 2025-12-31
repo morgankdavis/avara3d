@@ -1239,7 +1239,7 @@ void DrawStats(FrameStats& stats,
 			renderGpuMsFAvg, physicsMsFAvg, appCpuMsFAvg;
 	static float fpsAvg = 0;
 
-	A3D_EVERY(config::FRAME_STATS_AVERAGE_UPDATE_INTERVAL, [&] {
+	utils::flow::every(config::FRAME_STATS_AVERAGE_UPDATE_INTERVAL, [&] {
 
 		FrameStatsHistory::GetAverages(statsHistory,
 									   frameNsAvg, engineCpuNsAvg, renderCpuNsAvg,

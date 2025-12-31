@@ -16,7 +16,7 @@
 
 #include "a3d/Configuration.h"
 #include "a3d/diagnostic/log/Log.h"
-#include "a3d/mesh/Line.h"
+//#include "a3d/mesh/Line.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsShape.h"
 #include "a3d/physics/bullet/BulletBodyProxy.h"
@@ -40,7 +40,8 @@ static btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const Deb
 
 BulletWorldProxy::BulletWorldProxy(PhysicalWorld& world):
 		PhysicalWorldProxy{world},
-		_stats{} {
+		_stats{},
+		_cachedDebugLines{} {
 
 	_btCollisionConfiguration = make_unique<btDefaultCollisionConfiguration>();
 	_btCollisionDispatcher = make_unique<btCollisionDispatcher>(_btCollisionConfiguration.get());
@@ -170,7 +171,7 @@ void BulletWorldProxy::step(double deltaT,
 							FrameStats& stats,
 							Profiler& profiler) {
 
-	auto result = A3D_PROFILE(profiler, Profiler::Tag::Physics, [&] {
+	auto result = prof::profile(profiler, Profiler::Tag::Physics, [&] {
 		// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=9320
 		return _btWorld->stepSimulation(btScalar(deltaT * speed),
 										config::MAX_PHYSICS_SUBSTEPS,
@@ -215,28 +216,35 @@ vector<Line> BulletWorldProxy::debugLines(const DebugOptions &debugOptions) {
 
 #ifdef A3D_GL_DESKTOP
 
-//	static const float DRAW_RATE = 10.0; // frames/sec
-//
-//	static vector<Line> lines{};
-//
-//	A3D_EVERY(utils::chrono::sec_f_to_ms(1.0f/DRAW_RATE), [&] {
+	static const float UPDATE_RATE = 10.0; // frames/sec
+
+	utils::flow::every(chrono::duration<float>(1.0f/UPDATE_RATE), [&] {
+
+		_cachedDebugLines.clear();
 
 		auto btDebugModes = BTDebugDrawModesForA3DDebugOptions(debugOptions);
 		if (btDebugModes == btIDebugDraw::DBG_NoDebug) return vector<Line>{};
 		_btDebugDrawer->setDebugMode(btDebugModes);
 		_btDebugDrawer->clear();
 		_btWorld->debugDrawWorld();
-//		lines.clear();
-		return _btDebugDrawer->lines();
-//		auto newLines = _btDebugDrawer->lines();
+
+		auto lines = _btDebugDrawer->lines();
 //		auto newLines = std::move(_btDebugDrawer->lines());
 //		lines.insert(lines.end(),
 //				 std::make_move_iterator(newLines.begin()),
 //				 std::make_move_iterator(newLines.end()));
+		_cachedDebugLines = std::move(lines);
+		//A3D_LOG_D("_cachedDebugLines UPDATE: {}", _cachedDebugLines.size());
 
-//	});
-//
-//	return lines;
+		return _cachedDebugLines;
+	});
+//						  [&] {
+//							  //return vector<Line>{};
+//							  //return cachedLines;
+//						  });
+
+	//A3D_LOG_D("_cachedDebugLines RET: {}", _cachedDebugLines.size());
+	return _cachedDebugLines;
 	//return vector<Line>{};
 #else
 	return vector<Line>{};

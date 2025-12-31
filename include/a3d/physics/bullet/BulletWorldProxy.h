@@ -11,6 +11,7 @@
 
 #include <memory>
 
+#include "a3d/mesh/Line.h"
 #include "a3d/physics/bullet/BulletStats.h"
 #include "a3d/physics/proxy/PhysicalWorldProxy.h"
 
@@ -23,7 +24,7 @@ class btDefaultCollisionConfiguration;
 namespace a3d {
 
 	class BulletDebugDrawer;
-	class Line;
+//	class Line;
 	class RenderContext;
 
 	class BulletWorldProxy : public PhysicalWorldProxy {
@@ -70,6 +71,11 @@ namespace a3d {
 		std::unique_ptr<BulletDebugDrawer>						_btDebugDrawer;
 #endif
 		BulletStats												_stats;
+
+
+
+
+		std::vector<Line> 										_cachedDebugLines{};
 	};
 }
 
