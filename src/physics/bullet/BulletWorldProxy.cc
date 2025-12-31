@@ -216,36 +216,25 @@ vector<Line> BulletWorldProxy::debugLines(const DebugOptions &debugOptions) {
 
 #ifdef A3D_GL_DESKTOP
 
-	static const float UPDATE_RATE = 10.0; // frames/sec
+	static const float UPDATE_RATE = 30.0; // frames/sec
 
 	utils::flow::every(chrono::duration<float>(1.0f/UPDATE_RATE), [&] {
 
 		_cachedDebugLines.clear();
 
 		auto btDebugModes = BTDebugDrawModesForA3DDebugOptions(debugOptions);
-		if (btDebugModes == btIDebugDraw::DBG_NoDebug) return vector<Line>{};
+		if (btDebugModes == btIDebugDraw::DBG_NoDebug) return;// vector<Line>{};
 		_btDebugDrawer->setDebugMode(btDebugModes);
 		_btDebugDrawer->clear();
 		_btWorld->debugDrawWorld();
 
 		auto lines = _btDebugDrawer->lines();
-//		auto newLines = std::move(_btDebugDrawer->lines());
-//		lines.insert(lines.end(),
-//				 std::make_move_iterator(newLines.begin()),
-//				 std::make_move_iterator(newLines.end()));
 		_cachedDebugLines = std::move(lines);
-		//log::d()("_cachedDebugLines UPDATE: {}", _cachedDebugLines.size());
 
-		return _cachedDebugLines;
+//		return _cachedDebugLines;
 	});
-//						  [&] {
-//							  //return vector<Line>{};
-//							  //return cachedLines;
-//						  });
 
-	//log::d()("_cachedDebugLines RET: {}", _cachedDebugLines.size());
 	return _cachedDebugLines;
-	//return vector<Line>{};
 #else
 	return vector<Line>{};
 #endif
