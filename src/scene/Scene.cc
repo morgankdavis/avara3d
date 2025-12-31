@@ -114,7 +114,7 @@ Scene::~Scene() {
 
 /// Public Member Functions ///
 
-const optional<std::string>& Scene::name() const {
+const optional<string>& Scene::name() const {
 	return _name;
 }
 
@@ -285,8 +285,8 @@ void Scene::update() {
 
 	prof::profile(_profiler, Profiler::Tag::Frame, [&] {
 
-		static auto now = std::chrono::system_clock::now();
-		_startTime = std::chrono::duration<double>(now.time_since_epoch()).count();
+		static auto now = chrono::system_clock::now();
+		_startTime = chrono::duration<double>(now.time_since_epoch()).count();
 
 		static double deltaT, runT, deltaRunT; // TODO: manage these in caller
 
