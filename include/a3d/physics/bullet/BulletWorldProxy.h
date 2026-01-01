@@ -10,15 +10,22 @@
 #define AVARA3D_BULLETWORLDPROXY_H
 
 #include <memory>
+#include <mutex>
+#include <vector>
 
 #include "a3d/mesh/Line.h"
 #include "a3d/physics/bullet/BulletStats.h"
 #include "a3d/physics/proxy/PhysicalWorldProxy.h"
 
-class btCollisionDispatcher;
 struct btDbvtBroadphase;
+
+class btCollisionDispatcher;
+class btConstraintSolver;
+class btConstraintSolverPoolMt;
 class btDiscreteDynamicsWorld;
+class btITaskScheduler;
 class btSequentialImpulseConstraintSolver;
+class btSequentialImpulseConstraintSolverMt;
 class btDefaultCollisionConfiguration;
 
 namespace a3d {
@@ -55,16 +62,61 @@ namespace a3d {
 	private:
 		///  Private Member Variables ///
 
-		std::unique_ptr<btDiscreteDynamicsWorld>				_btWorld;
-		std::unique_ptr<btDefaultCollisionConfiguration> 		_btCollisionConfiguration;
-		std::unique_ptr<btCollisionDispatcher>					_btCollisionDispatcher;
-		std::unique_ptr<btDbvtBroadphase>						_btBroadphase;
-		std::unique_ptr<btSequentialImpulseConstraintSolver>	_btConstraintSolver;
+//		std::unique_ptr<btDiscreteDynamicsWorld>				_btWorld;
+//		std::unique_ptr<btDefaultCollisionConfiguration> 		_btCollisionConfiguration;
+//		std::unique_ptr<btCollisionDispatcher>					_btCollisionDispatcher;
+//		std::unique_ptr<btDbvtBroadphase>						_btBroadphase;
+//		std::unique_ptr<btSequentialImpulseConstraintSolver>	_btConstraintSolver;
+//#ifdef A3D_GL_DESKTOP
+//		std::unique_ptr<BulletDebugDrawer>						_btDebugDrawer;
+//		std::vector<Line> 										_debugLines;
+//#endif
+//		BulletStats												_stats;
+//
+//
+//
+//
+//		btITaskScheduler* _btScheduler = nullptr;                 // non-owning
+//		std::unique_ptr<btITaskScheduler> _ownedScheduler;        // owning, only if we create default
+//
+//		std::unique_ptr<btConstraintSolverPoolMt> _btSolverPool;  // pool of per-thread solvers
+//		std::unique_ptr<btSequentialImpulseConstraintSolverMt> _btSolverMt; // optional Mt solver
+//
+//
+//		mutable std::mutex _btMutex;
+//
+//
+//		std::vector<std::unique_ptr<btSequentialImpulseConstraintSolver>> _ownedSolvers;
+//		std::vector<btConstraintSolver*> _solverPtrs;
+
+// scheduler
+		btITaskScheduler* _btScheduler = nullptr;
+		std::unique_ptr<btITaskScheduler> _ownedScheduler;
+
+// config/dispatcher/broadphase
+		std::unique_ptr<btDefaultCollisionConfiguration> _btCollisionConfiguration;
+		std::unique_ptr<btCollisionDispatcher> _btCollisionDispatcher;
+		std::unique_ptr<btDbvtBroadphase> _btBroadphase;
+
+// solvers
+		std::vector<std::unique_ptr<btSequentialImpulseConstraintSolver>> _ownedSolvers;
+		std::vector<btConstraintSolver*> _solverPtrs;
+
+		std::unique_ptr<btConstraintSolverPoolMt> _btSolverPool;
+		std::unique_ptr<btSequentialImpulseConstraintSolverMt> _btSolverMt;
+
+		mutable std::mutex _btMutex;
+
 #ifdef A3D_GL_DESKTOP
-		std::unique_ptr<BulletDebugDrawer>						_btDebugDrawer;
-		std::vector<Line> 										_debugLines;
+		std::unique_ptr<BulletDebugDrawer> _btDebugDrawer;
+		std::vector<Line> _debugLines;
 #endif
-		BulletStats												_stats;
+
+		BulletStats _stats;
+
+// MUST be last so destroyed first
+		std::unique_ptr<btDiscreteDynamicsWorld> _btWorld;
+
 	};
 }
 

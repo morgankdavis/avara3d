@@ -78,7 +78,7 @@ windows-debug:
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
-    - cmake --build . --config Debug --target install -j8
+    - cmake --build . --config Debug --target install -j8 -- /v:diag
     - mv packaged/avara3d ../
     - echo "Windows debug build complete."
   artifacts:

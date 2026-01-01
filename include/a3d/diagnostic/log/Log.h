@@ -19,6 +19,12 @@
 // log::w().nl("This is a normal log line");  // explicit newline
 // log::w().raw("progress: 10%");             // no newline
 
+#if defined(_MSC_VER)
+static_assert(_MSVC_LANG >= 202002L, "Need C++20 (/std:c++20) for std::source_location");
+#else
+static_assert(__cplusplus >= 202002L, "Need C++20 for std::source_location");
+#endif
+
 namespace a3d {
 
 	class LogSink;

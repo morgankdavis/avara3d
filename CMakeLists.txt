@@ -11,6 +11,33 @@ include(cmake/UtilityFunctions.cmake)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+
+
+
+
+
+
+
+
+
+
+add_library(a3d_build_options INTERFACE)
+
+# Require C++20 for anything that links this
+target_compile_features(a3d_build_options INTERFACE cxx_std_20)
+
+# clang-cl / MSVC quality-of-life: make __cplusplus reflect reality (optional)
+if (MSVC)
+	target_compile_options(a3d_build_options INTERFACE /Zc:__cplusplus)
+endif()
+
+
+
+
+
+
+
+
 option(A3D_BUILD_TESTS "Build A3D tests" ON)
 option(A3D_BUILD_EDITOR "Build A3D editor" ON)
 
@@ -43,6 +70,9 @@ set(BULLET_LIBRARIES
 		BulletInverseDynamics
 		BulletCollision
 		BulletDynamics)
+target_compile_definitions(BulletDynamics PUBLIC BT_THREADSAFE=1)
+target_compile_definitions(BulletCollision PUBLIC BT_THREADSAFE=1)
+target_compile_definitions(LinearMath PUBLIC BT_THREADSAFE=1)
 
 add_subdirectory(external/fastgltf-0.9.0)
 
@@ -162,7 +192,9 @@ target_link_libraries(avara3d
 		generator
 		imgui
 		stb
-		vhacd) # implot
+		vhacd
+		PRIVATE
+		a3d_build_options) # implot
 
 ### link a3d to platform-specific libraries ###
 
