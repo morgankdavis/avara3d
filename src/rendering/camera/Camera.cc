@@ -10,7 +10,6 @@
 
 #include <iostream>
 
-#include "a3d/Utilities.h"
 #include "a3d/log/Log.h"
 
 using namespace a3d;

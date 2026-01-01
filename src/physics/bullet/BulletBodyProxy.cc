@@ -10,7 +10,6 @@
 
 #include <bullet/btBulletDynamicsCommon.h>
 
-#include "a3d/Utilities.h"
 #include "a3d/log/Log.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/physics/ConvexDecomposer.h"
@@ -24,6 +23,7 @@
 #include "a3d/physics/proxy/PhysicsBodyProxy.h"
 #include "a3d/physics/proxy/PhysicsShapeProxy.h"
 #include "a3d/scene/Node.h"
+#include "a3d/util/flow.h"
 
 using namespace a3d;
 using namespace a3d::math;
@@ -358,7 +358,7 @@ void BulletBodyProxy::allowsResting(bool allowsResting) {
 //		return;
 //	}
 
-	if (!utils::flow::guard(type() == PhysicsBodyType::Kinematic && allowsResting, [&] {
+	if (!util::flow::guard(type() == PhysicsBodyType::Kinematic && allowsResting, [&] {
 		log::e()("Cannot enable resting for kinematic bodies.");
 	})) return;
 

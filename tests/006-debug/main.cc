@@ -11,7 +11,8 @@
 #include <vector>
 
 #include "a3d/a3d.h"
-#include "a3d/Utilities.h"
+#include "a3d/util/filesystem.h"
+#include "a3d/util/snapshot.h"
 
 using namespace a3d;
 using namespace a3d::math;
@@ -41,7 +42,7 @@ int main(int argc, const char* argv[]) {
 		LogBuildInfo();
 
 		auto window = make_unique<GLFWWindow>(RenderingApi::OpenGL,
-											  *utils::ExecutableName(),
+											  *util::filesystem::ExecutableName(),
 											  WINDOW_SIZE,
 											  FULLSCREEN,
 											  ENABLE_HIGH_DPI,
@@ -56,7 +57,7 @@ int main(int argc, const char* argv[]) {
 		visualWorld->fogEndDistance(5000.0);
 		visualWorld->fogDensityExponent(1.0);
 		visualWorld->fogColor(Color::LightGray());
-		visualWorld->background(make_shared<Texture>(utils::CubeImageNamed("sky1", "png")));
+		visualWorld->background(make_shared<Texture>(util::filesystem::CubeImageNamed("sky1", "png")));
 		visualWorld->willRenderCallback(bind(&WillRenderCallback, _1, _2, _3));
 		visualWorld->didRenderCallback(bind(&DidRenderCallback, _1, _2, _3));
 
@@ -92,12 +93,12 @@ int main(int argc, const char* argv[]) {
 //	mesh->replaceMaterial(0, material); // TODO: EHHHHHHHH??????????/
 		pointLightNode->mesh(mesh);
 
-		auto teapotNode = Node::MeshNode(utils::MeshNamed("teapot/teapot"));
+		auto teapotNode = Node::MeshNode(util::filesystem::MeshNamed("teapot/teapot"));
 		teapotNode->rotation({1, 0, 0}, radians(30.0));
 		teapotNode->scale(teapotNode->scale() * 50.0f);
 		scene->rootNode()->addChild(teapotNode);
 
-		auto dragonNode = Node::MeshNode(utils::MeshNamed("dragon/dragon"));
+		auto dragonNode = Node::MeshNode(util::filesystem::MeshNamed("dragon/dragon"));
 		dragonNode->scale({2.5, 2.5, 2.5});
 		dragonNode->position({50, 0, 0});
 
@@ -177,15 +178,15 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	}
 
 	if (keysPressed.count(Key::Backslash)) {
-		utils::SaveSnapshot(*window);
+		util::snapshot::SaveSnapshot(*window);
 	}
 
 	if (keysPressed.count(Key::R)) {
 		if (!window->recordingGIF()) {
-			utils::StartGIFRecording(*window, {320, 240}, 8);
+			util::snapshot::StartGIFRecording(*window, {320, 240}, 8);
 		}
 		else {
-			utils::StopGIFRecording(*window);
+			util::snapshot::StopGIFRecording(*window);
 		}
 	}
 
@@ -257,10 +258,10 @@ void DidRenderCallback(VisualWorld& world, double time, double deltaTime) {
 
 void InitLog() {
 
-	string executableName = *utils::ExecutableName();
+	string executableName = *util::filesystem::ExecutableName();
 
 	auto nativeSink = make_unique<StdOutLogSink>();
-	auto fileSink = make_unique<FileLogSink>(*(utils::ExecutableDirectory())
+	auto fileSink = make_unique<FileLogSink>(*(util::filesystem::ExecutableDirectory())
 											 / (executableName + string(".log")));
 	auto sinks = vector<unique_ptr<LogSink>>();
 	sinks.push_back(std::move(nativeSink));

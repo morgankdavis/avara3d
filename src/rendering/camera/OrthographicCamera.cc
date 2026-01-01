@@ -8,7 +8,6 @@
 
 #include "a3d/rendering/camera/OrthographicCamera.h"
 
-#include "a3d/Utilities.h"
 #include "a3d/log/Log.h"
 
 using namespace a3d;

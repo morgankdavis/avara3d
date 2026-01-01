@@ -8,8 +8,8 @@
 
 #include "a3d/exception/Exception.h"
 
-#include "a3d/Utilities.h"
 #include "a3d/log/Log.h"
+#include "a3d/util/string.h"
 
 using namespace a3d;
 using namespace std;
@@ -20,7 +20,7 @@ Exception::Exception(const string& what):
 	runtime_error{what} {
 
 #ifdef A3D_POSIX
-		log::e()("Exception: {}\nStack trace:\n{}", what, utils::StackTrace(1));
+		log::e()("Exception: {}\nStack trace:\n{}", what, util::string::StackTraceString(1));
 #else
 		log::e()("Exception: {}", what);
 #endif

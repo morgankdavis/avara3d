@@ -39,7 +39,7 @@
 #include "a3d/rendering/material/Texture.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
-#include "a3d/Utilities.h"
+#include "a3d/util/chrono.h"
 
 using namespace a3d;
 using namespace a3d::math;
@@ -84,7 +84,7 @@ unique_ptr<a3d::Scene> GlTFImporter::scene() {
 	if (!_scene) {
 		if (parse()) {
 
-			auto startTime = utils::chrono::Time();
+			auto startTime = util::chrono::Time();
 
 			auto a3dScene = make_unique<a3d::Scene>();
 
@@ -108,7 +108,7 @@ unique_ptr<a3d::Scene> GlTFImporter::scene() {
 
 					// TODO: throw out nodes that don't have anything attached to them, or any children?
 
-					log::i()("Done loading scene.  Time: {}", utils::chrono::Time() - startTime);
+					log::i()("Done loading scene.  Time: {}", util::chrono::Time() - startTime);
 
 					_scene = std::move(a3dScene);
 				}
@@ -134,7 +134,7 @@ shared_ptr<a3d::Mesh> GlTFImporter::firstMesh() {
 
 	if (parse()) {
 
-		auto startTime = utils::chrono::Time();
+		auto startTime = util::chrono::Time();
 
 		auto& meshes = _asset.meshes;
 		if (!meshes.empty()) {
@@ -142,7 +142,7 @@ shared_ptr<a3d::Mesh> GlTFImporter::firstMesh() {
 			mesh = meshFromGlTFMeshIndex(_asset, 0);
 
 			if (mesh) {
-				log::i()("Done loading mesh.  Time: {}", utils::chrono::Time() - startTime);
+				log::i()("Done loading mesh.  Time: {}", util::chrono::Time() - startTime);
 			}
 		}
 		else {
@@ -169,7 +169,7 @@ bool GlTFImporter::parse() {
 
 	if (!_parsed) {
 
-		auto startTime = utils::chrono::Time();
+		auto startTime = util::chrono::Time();
 
 		log::i()("Parsing glTF: '{}'...", _path.string());
 

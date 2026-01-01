@@ -9,8 +9,8 @@
 #include "a3d/Buffer.h"
 
 #include <cstring>
+#include <fstream>
 
-#include "a3d/Utilities.h"
 #include "a3d/log/Log.h"
 
 using namespace a3d;

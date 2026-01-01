@@ -14,7 +14,6 @@
 #include <GLFW/glfw3.h>
 #include <imgui/backends/imgui_impl_glfw.h>
 
-#include "a3d/Utilities.h"
 #include "a3d/exception/Exception.h"
 #include "a3d/log/Log.h"
 #include "a3d/input/GLFWInputManager.h"
@@ -24,6 +23,7 @@
 #include "a3d/rendering/renderer/opengl/OpenGLRenderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
+#include "a3d/util/filesystem.h"
 
 using namespace a3d;
 using namespace a3d::math;
@@ -82,7 +82,7 @@ GLFWWindow::GLFWWindow(RenderingApi renderingAPI,
 		// TODO: change these
 		glfwWindowHintString(GLFW_WAYLAND_APP_ID, "avara3d");
 		glfwWindowHintString(GLFW_X11_CLASS_NAME, "avara3d");
-		auto execName = utils::ExecutableName();
+		auto execName = util::filesystem::ExecutableName();
 		if (execName != nullopt) {
 			glfwWindowHintString(GLFW_X11_INSTANCE_NAME, (*execName).c_str());
 		}

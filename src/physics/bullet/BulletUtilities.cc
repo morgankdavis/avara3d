@@ -12,8 +12,6 @@
 #include <bullet/LinearMath/btTransform.h>
 #include <bullet/LinearMath/btVector3.h>
 
-#include "a3d/Utilities.h"
-
 using namespace a3d;
 using namespace a3d::math;
 

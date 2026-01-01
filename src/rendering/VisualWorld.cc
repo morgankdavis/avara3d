@@ -12,7 +12,6 @@
 
 #include "a3d/Color.h"
 #include "a3d/CubeImage.h"
-#include "a3d/Utilities.h"
 #include "a3d/log/Log.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/primitive/Plane.h"
@@ -30,7 +29,7 @@
 #include "a3d/rendering/renderer/Renderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
-
+#include "a3d/util/flow.h"
 
 #warning TEMPORARY
 #include "a3d/rendering/renderer/opengl/OpenGLRenderer.h"
@@ -221,26 +220,26 @@ void VisualWorld::draw(const Scene& scene,
 					   Profiler& profiler,
 					   const FrameStatsHistory& statsHistory) {
 
-	if (!utils::flow::edge_guard(_renderContext, [&] {
+	if (!util::flow::edge_guard(_renderContext, [&] {
 		log::e()("No RenderContext attached to VisualWorld {:p}", static_cast<void *>(this));
 	})) return;
 
 	auto renderer = _renderContext->renderer();
-	if (!utils::flow::edge_guard(renderer, [&] {
+	if (!util::flow::edge_guard(renderer, [&] {
 		log::e()("No Renderer attached to RenderContext {:p}", static_cast<void*>(_renderContext));
 	})) return;
 
-	utils::flow::once([&] { firstDraw(); });
+	util::flow::once([&] { firstDraw(); });
 
 	auto pov = pointOfView().lock();
-	if (!utils::flow::edge_guard(pov, [&] {
+	if (!util::flow::edge_guard(pov, [&] {
 		log::e()("No point of view!");
 		renderer->clear(Renderer::ClearCommand{}, *_renderContext);
 		_renderContext->swapBuffers();
 	})) return;
 
 	auto povScene = pov->scene();
-	if (!utils::flow::edge_guard(povScene && povScene == &scene, [&] {
+	if (!util::flow::edge_guard(povScene && povScene == &scene, [&] {
 		log::e()("Point of view not in our scene!");
 		renderer->clear(Renderer::ClearCommand{}, *_renderContext);
 		_renderContext->swapBuffers();

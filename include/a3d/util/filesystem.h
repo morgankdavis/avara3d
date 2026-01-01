@@ -1,79 +1,29 @@
 //
-//  Utilities.h
+//  filesystem.h
 //  avara3d
 //
-//  Created by Morgan Davis on 12/23/16.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Created by Morgan Davis on 1/1/26.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_UTILITIES_H
-#define AVARA3D_UTILITIES_H
+#ifndef AVARA3D_UTIL_FILESYSTEM_H
+#define AVARA3D_UTIL_FILESYSTEM_H
 
-#include <chrono>
 #include <filesystem>
-#include <fstream>
-#include <memory>
-#include <mutex>
 #include <optional>
-#include <set>
-#include <string>
 #include <vector>
 
-#include "a3d/UtilityMacros.h"
-#include "a3d/scene/Scene.h"
-
-struct GLFWmonitor;
+#include "a3d/Types.h"
 
 namespace a3d {
-	class Buffer;
-	class Color;
 	class CubeImage;
 	class Font;
 	class Image;
 	class Mesh;
-	class Node;
-	class RenderContext;
 	class Scene;
 }
 
-/// Utility Macros ///
-
-// see UtilityMacros.h
-// TODO: MOVE
-
-namespace a3d::utils {
-
-	/// Chronology ///
-
-	namespace chrono {
-
-		double Time(); // TODO: CHANGE THIS?
-
-		std::chrono::milliseconds milliseconds(std::chrono::seconds sec);
-		std::chrono::milliseconds milliseconds(std::chrono::nanoseconds ns);
-		std::chrono::milliseconds sec_f_to_ms(float secF);
-		float ns_to_ms_f(std::chrono::nanoseconds ns);
-		int ns_to_ms_i(std::chrono::nanoseconds ns);
-	}
-
-	/// Output ///
-
-	std::string StringFromTree(const Node& root);
-	std::string DateTimeString();
-
-#ifdef A3D_POSIX
-	std::string StackTrace(unsigned dropFunctions = 0);
-#endif
-
-	/// String ///
-
-	void 						Replace(std::string& str,
-										const std::string& oldStr,
-										const std::string& newStr);
-	std::vector<std::string>	Split(const std::string& s,
-									  std::string delim);
-
-	/// Filesystem ///
+namespace a3d::util::filesystem {
 
 	// *** executable and working directories ***
 
@@ -149,14 +99,6 @@ namespace a3d::utils {
 												MeshImportOptions options =
 												MeshImportOptions::ImportMaterials);
 #endif
-
-	/// Misc ///
-
-	void 							SaveSnapshot(RenderContext& context);
-	void 							StartGIFRecording(RenderContext& context,
-													  math::uvec2 fitInside,
-													  unsigned maxFramerate);
-	void 							StopGIFRecording(RenderContext& context);
 }
 
-#endif /* AVARA3D_UTILITIES_H */
+#endif //AVARA3D_UTIL_FILESYSTEM_H

@@ -11,7 +11,8 @@
 #include <utility>
 
 #include "a3d/a3d.h"
-#include "a3d/Utilities.h"
+#include "a3d/util/filesystem.h"
+#include "a3d/util/snapshot.h"
 
 using namespace a3d;
 using namespace a3d::math;
@@ -36,7 +37,7 @@ int main(int argc, const char* argv[]) {
 	cout << "test001::main()\n" << endl;
 
 	auto window = make_unique<GLFWWindow>(RenderingApi::OpenGL,
-										  *utils::ExecutableName(),
+										  *util::filesystem::ExecutableName(),
 										  WINDOW_SIZE,
 										  FULLSCREEN,
 										  ENABLE_HIGH_DPI,
@@ -70,7 +71,7 @@ int main(int argc, const char* argv[]) {
 //	auto options = SceneImportOptions::ImportLights
 //				   | SceneImportOptions::ImportCameras;
 
-	auto testScene = utils::SceneNamed("import_test/import_test", options);
+	auto testScene = util::filesystem::SceneNamed("import_test/import_test", options);
 
 	auto testSceneNodes = testScene->rootNode()->children();
 	auto importLightsCamerasRoot = make_shared<Node>("importLightsCamerasRoot");

@@ -11,8 +11,10 @@
 #include <vector>
 
 #include "a3d/a3d.h"
-#include "a3d/Utilities.h"
 #include "a3d/physics/bullet/BulletBodyProxy.h"
+#include "a3d/util/filesystem.h"
+#include "a3d/util/snapshot.h"
+#include "a3d/util/string.h"
 
 using namespace a3d;
 using namespace a3d::math;
@@ -49,14 +51,14 @@ shared_ptr<Mesh>*			g_mesh;
 
 int main(int argc, const char* argv[]) {
 
-	using utils::MeshNamed;
+	using util::filesystem::MeshNamed;
 
 	try {
 		InitLog();
 		LogBuildInfo();
 
 		auto window = make_unique<GLFWWindow>(RenderingApi::OpenGL,
-											  *utils::ExecutableName(),
+											  *util::filesystem::ExecutableName(),
 											  WINDOW_SIZE,
 											  FULLSCREEN,
 											  ENABLE_HIGH_DPI,
@@ -77,7 +79,7 @@ int main(int argc, const char* argv[]) {
 	//					  : make_shared<MaterialProperty>(CubeImageNamed("kloppenheim", "png"));
 		MaterialProperty background = monostate{};
 		if (DARK) background = Color::Black();
-		else background = make_shared<Texture>(utils::CubeImageNamed("kloppenheim", "png"));
+		else background = make_shared<Texture>(util::filesystem::CubeImageNamed("kloppenheim", "png"));
 		visualWorld->background(background);
 		visualWorld->willRenderCallback(bind(&WillRenderCallback, _1, _2, _3));
 		visualWorld->didRenderCallback(bind(&DidRenderCallback, _1, _2, _3));
@@ -118,7 +120,9 @@ int main(int argc, const char* argv[]) {
 		auto planeNode = make_shared<Node>("Ground plane node");
 		//planeNode->mesh(Mesh::Box(PLANE_LENGTH, PLANE_WIDTH, 0));
 		planeNode->mesh(Box::Mesh(PLANE_LENGTH, PLANE_WIDTH, 0));
-		auto gridImage = DARK ? utils::ImageNamed("grid10")->inverted() : utils::ImageNamed("grid10");
+		auto gridImage = DARK
+				? util::filesystem::ImageNamed("grid10")->inverted()
+				: util::filesystem::ImageNamed("grid10");
 		auto planeTexture = make_shared<Texture>(std::move(gridImage));
 		planeTexture->sampler()->wrapS(WrapMode::Repeat);
 		planeTexture->sampler()->wrapT(WrapMode::Repeat);
@@ -385,7 +389,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	}
 
 	if (keysPressed.count(Key::T)) {
-		log::app::i()("TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
+		log::app::i()("TREE:\n{}", util::string::TreeString(*(scene.rootNode())));
 	}
 
 	if (keysPressed.count(Key::One)) {
@@ -521,7 +525,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	}
 
 	if (keysPressed.count(Key::Backslash)) {
-		utils::SaveSnapshot(*window);
+		util::snapshot::SaveSnapshot(*window);
 	}
 
 	if (keysPressed.count(Key::Slash)) {
@@ -530,10 +534,10 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 	if (keysPressed.count(Key::R)) {
 		if (!window->recordingGIF()) {
-			utils::StartGIFRecording(*window, {320, 240}, 8);
+			util::snapshot::StartGIFRecording(*window, {320, 240}, 8);
 		}
 		else {
-			utils::StopGIFRecording(*window);
+			util::snapshot::StopGIFRecording(*window);
 		}
 	}
 
@@ -620,10 +624,10 @@ void DidSimulatePhysicsCallback(PhysicalWorld& world, double time, double deltaT
 
 void InitLog() {
 
-	string executableName = *utils::ExecutableName();
+	string executableName = *util::filesystem::ExecutableName();
 
 	auto nativeSink = make_unique<StdOutLogSink>();
-	auto fileSink = make_unique<FileLogSink>(*(utils::ExecutableDirectory())
+	auto fileSink = make_unique<FileLogSink>(*(util::filesystem::ExecutableDirectory())
 											 / (executableName + string(".log")));
 	auto sinks = vector<unique_ptr<LogSink>>();
 	sinks.push_back(std::move(nativeSink));

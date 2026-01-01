@@ -14,9 +14,9 @@
 
 #include <magic_enum/magic_enum.hpp>
 
-#include "a3d/Utilities.h"
 #include "a3d/exception/Exception.h"
 #include "a3d/log/Log.h"
+#include "a3d/util/filesystem.h"
 
 using namespace a3d;
 using namespace a3d::math;
@@ -334,7 +334,7 @@ bool Program::isLinked() const {
 
 optional<string> Program::shaderSource(const string& name, const string& type) {
 
-	auto source = utils::ShaderSource(name, type);
+	auto source = util::filesystem::ShaderSource(name, type);
 
 	if (source) {
 

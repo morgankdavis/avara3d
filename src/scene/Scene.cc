@@ -17,7 +17,6 @@
 #include "a3d/Color.h"
 #include "a3d/Configuration.h"
 #include "a3d/Image.h"
-#include "a3d/Utilities.h"
 #include "a3d/log/Log.h"
 #include "a3d/input/GLFWInputManager.h"
 #include "a3d/mesh/Mesh.h"
@@ -32,6 +31,7 @@
 #include "a3d/rendering/renderer/Renderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/importer/GlTFImporter.h"
+#include "a3d/util/flow.h"
 
 using namespace a3d;
 using namespace a3d::math;
@@ -276,7 +276,7 @@ void Scene::debugOptions(DebugOptions options) {
 
 void Scene::update() {
 
-	if (!utils::flow::edge_guard(_rootNode, [&] {
+	if (!util::flow::edge_guard(_rootNode, [&] {
 		log::e()("No root node attached to Scene {:p}", static_cast<void *>(this));
 	})) return;
 

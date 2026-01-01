@@ -8,7 +8,6 @@
 
 #include "a3d/physics/PhysicalWorld.h"
 
-#include "a3d/Utilities.h"
 #include "a3d/log/Log.h"
 #include "a3d/physics/HitTestResult.h"
 #include "a3d/physics/PhysicsBody.h"
@@ -17,6 +16,7 @@
 #include "a3d/profiling/Profiling.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
+#include "a3d/util/flow.h"
 
 using namespace a3d;
 using namespace a3d::math;
@@ -185,7 +185,7 @@ void PhysicalWorld::step(const Scene& scene,
 						 FrameStats& stats,
 						 Profiler& profiler) {
 
-	if (!utils::flow::edge_guard(_proxy, [&] {
+	if (!util::flow::edge_guard(_proxy, [&] {
 		log::e()("No PhysicalWorldProxy attached to PhysicalWorld {:p}.", static_cast<void*>(this));
 	})) return;
 

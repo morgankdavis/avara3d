@@ -14,7 +14,11 @@
 
 #include "a3d/a3d.h"
 #include "a3d/Math.h"
-#include "a3d/Utilities.h"
+#include "a3d/util/chrono.h"
+#include "a3d/util/filesystem.h"
+#include "a3d/util/flow.h"
+#include "a3d/util/snapshot.h"
+#include "a3d/util/string.h"
 
 using namespace a3d;
 using namespace a3d::math;
@@ -47,13 +51,13 @@ double 							g_startTime;
 int main(int argc, const char* argv[]) {
 
 	try {
-		g_startTime = utils::chrono::Time();
+		g_startTime = util::chrono::Time();
 
 		InitLog();
 		LogBuildInfo();
 
 		auto window = make_unique<GLFWWindow>(RenderingApi::OpenGL,
-											  *utils::ExecutableName(),
+											  *util::filesystem::ExecutableName(),
 											  WINDOW_SIZE,
 											  FULLSCREEN,
 											  ENABLE_HIGH_DPI,
@@ -71,9 +75,9 @@ int main(int argc, const char* argv[]) {
 		//visualWorld->usesDefaultLighting(true);
 		visualWorld->willRenderCallback(bind(&WillRenderCallback, _1, _2, _3));
 		visualWorld->didRenderCallback(bind(&DidRenderCallback, _1, _2, _3));
-		visualWorld->background(make_shared<Texture>(std::move(utils::CubeImageNamed("nebula1_blue", "png"))));
+		visualWorld->background(make_shared<Texture>(std::move(util::filesystem::CubeImageNamed("nebula1_blue", "png"))));
 
-		auto scene = utils::SceneNamed("cat_island/cat_island", SceneImportOptions::ImportMeshes
+		auto scene = util::filesystem::SceneNamed("cat_island/cat_island", SceneImportOptions::ImportMeshes
 																| SceneImportOptions::ImportMaterials
 																| SceneImportOptions::ImportCameras);
 
@@ -193,8 +197,8 @@ int main(int argc, const char* argv[]) {
 
 void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
-	utils::flow::on(2, [&] {
-		double time = utils::chrono::Time() - g_startTime;
+	util::flow::on(2, [&] {
+		double time = util::chrono::Time() - g_startTime;
 		log::app::i()("START TIME: {}", time);
 	});
 
@@ -213,7 +217,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	}
 
 	if (keysPressed.count(Key::T)) {
-		log::app::i()("TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
+		log::app::i()("TREE:\n{}", util::string::TreeString(*(scene.rootNode())));
 	}
 
 	if 		(keysPressed.count(Key::One))	SetAllFilterModes(FilterMode::Nearest, scene);
@@ -264,15 +268,15 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	}
 
 	if (keysPressed.count(Key::Backslash)) {
-		utils::SaveSnapshot(*window);
+		util::snapshot::SaveSnapshot(*window);
 	}
 
 	if (keysPressed.count(Key::R)) {
 		if (!window->recordingGIF()) {
-			utils::StartGIFRecording(*window, {320, 240}, 8);
+			util::snapshot::StartGIFRecording(*window, {320, 240}, 8);
 		}
 		else {
-			utils::StopGIFRecording(*window);
+			util::snapshot::StopGIFRecording(*window);
 		}
 	}
 
@@ -392,10 +396,10 @@ void DidRenderCallback(VisualWorld& world, double time, double deltaTime) {
 
 void InitLog() {
 
-	string executableName = *utils::ExecutableName();
+	string executableName = *util::filesystem::ExecutableName();
 
 	auto nativeSink = make_unique<StdOutLogSink>();
-	auto fileSink = make_unique<FileLogSink>(*(utils::ExecutableDirectory())
+	auto fileSink = make_unique<FileLogSink>(*(util::filesystem::ExecutableDirectory())
 											 / (executableName + string(".log")));
 	auto sinks = vector<unique_ptr<LogSink>>();
 	sinks.push_back(std::move(nativeSink));

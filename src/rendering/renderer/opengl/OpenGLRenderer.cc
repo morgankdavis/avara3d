@@ -50,7 +50,9 @@
 #include "a3d/rendering/renderer/opengl/Program.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
-#include "a3d/Utilities.h"
+#include "a3d/util/chrono.h"
+#include "a3d/util/filesystem.h"
+#include "a3d/util/flow.h"
 
 #define A3D_GL_CHECK()									\
     do {												\
@@ -1233,7 +1235,7 @@ void DrawStats(FrameStats& stats,
 			renderGpuMsFAvg, physicsMsFAvg, appCpuMsFAvg;
 	static float fpsAvg = 0;
 
-	utils::flow::every(config::FRAME_STATS_AVERAGE_UPDATE_INTERVAL, [&] {
+	util::flow::every(config::FRAME_STATS_AVERAGE_UPDATE_INTERVAL, [&] {
 
 		FrameStatsHistory::GetAverages(statsHistory,
 									   frameNsAvg, engineCpuNsAvg, renderCpuNsAvg,
@@ -1241,12 +1243,12 @@ void DrawStats(FrameStats& stats,
 									   config::FRAME_STATS_AVERAGING_DURATION);
 
 		// ! ~zero cost
-		frameMsFAvg = utils::chrono::ns_to_ms_f(frameNsAvg);
-		engineCpuMsFAvg = utils::chrono::ns_to_ms_f(engineCpuNsAvg);
-		renderCpuMsFAvg = utils::chrono::ns_to_ms_f(renderCpuNsAvg);
-		renderGpuMsFAvg = utils::chrono::ns_to_ms_f(renderGpuNsAvg);
-		physicsMsFAvg = utils::chrono::ns_to_ms_f(physicsNsAvg);
-		appCpuMsFAvg = utils::chrono::ns_to_ms_f(appCpuNsAvg);
+		frameMsFAvg = util::chrono::ns_to_ms_f(frameNsAvg);
+		engineCpuMsFAvg = util::chrono::ns_to_ms_f(engineCpuNsAvg);
+		renderCpuMsFAvg = util::chrono::ns_to_ms_f(renderCpuNsAvg);
+		renderGpuMsFAvg = util::chrono::ns_to_ms_f(renderGpuNsAvg);
+		physicsMsFAvg = util::chrono::ns_to_ms_f(physicsNsAvg);
+		appCpuMsFAvg = util::chrono::ns_to_ms_f(appCpuNsAvg);
 		if (frameMsFAvg > 0) fpsAvg = 1000.0f / frameMsFAvg;
 	});
 
@@ -1272,12 +1274,12 @@ void DrawStats(FrameStats& stats,
 
 		for (size_t i = 0; i < samples.size(); ++i) {
 			auto sample = get<1>(samples[i]);
-			frameSamples[i] = utils::chrono::ns_to_ms_f(sample.frameTime);
-			engCpuSamples[i] = utils::chrono::ns_to_ms_f(sample.engineCpuTime);
-			physSamples[i] = utils::chrono::ns_to_ms_f(sample.physicsTime);
-			renderCpuSamples[i] = utils::chrono::ns_to_ms_f(sample.renderCpuTime);
-			renderGpuSamples[i] = utils::chrono::ns_to_ms_f(sample.renderGpuTime);
-			appSamples[i] = utils::chrono::ns_to_ms_f(sample.applicationTime);
+			frameSamples[i] = util::chrono::ns_to_ms_f(sample.frameTime);
+			engCpuSamples[i] = util::chrono::ns_to_ms_f(sample.engineCpuTime);
+			physSamples[i] = util::chrono::ns_to_ms_f(sample.physicsTime);
+			renderCpuSamples[i] = util::chrono::ns_to_ms_f(sample.renderCpuTime);
+			renderGpuSamples[i] = util::chrono::ns_to_ms_f(sample.renderGpuTime);
+			appSamples[i] = util::chrono::ns_to_ms_f(sample.applicationTime);
 		}
 	}
 
@@ -1442,6 +1444,7 @@ void DrawStats(FrameStats& stats,
 						   bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
 
 	if (context.recordingGIF()) {
+		yPos += STAT_LINE_STEP;
 		DrawLabelValue(yPos, bulkLayout, "RECORDING",
 					   std::format("{:.1f}s / {} {}", context.recordedGIFTime(),
 								   context.recordedGIFFrames(),
@@ -1560,9 +1563,9 @@ void ImguiInit(const RenderContext& context, ImFont*& titleFont, ImFont*& bodyFo
 	// macOS core: "#version 150" ?
 	// GLES: "#version 300 es"
 
-	auto overlayTitleFont = utils::FontNamed(STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
+	auto overlayTitleFont = util::filesystem::FontNamed(STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
 	if (overlayTitleFont->buffer()->size()) {
-		auto overlayBodyFont = utils::FontNamed(STATS_BODY_FONT_NAME, STATS_BODY_FONT_TYPE);
+		auto overlayBodyFont = util::filesystem::FontNamed(STATS_BODY_FONT_NAME, STATS_BODY_FONT_TYPE);
 		if (overlayBodyFont->buffer()->size()) {
 
 			ImGui_ImplOpenGL3_DestroyDeviceObjects(); // was DestroyFontsTexture()

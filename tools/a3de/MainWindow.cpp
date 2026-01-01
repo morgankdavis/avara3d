@@ -111,7 +111,7 @@ void MainWindow::initScene(a3d::head::qt::QtViewport &viewport) {
 
 void MainWindow::initLog() {
 
-	string executableName = *utils::ExecutableName();
+	string executableName = *util::filesystem::ExecutableName();
 
 	auto nativeSink = make_unique<StdOutLogSink>();
 	auto fileSink = make_unique<FileLogSink>(*(utils::ExecutableDirectory())
@@ -170,7 +170,7 @@ void MainWindow::updateCallback(a3d::Scene& scene, double time, double deltaTime
 	}
 
 	if (keysPressed.count(Key::T)) {
-		log::app::i()("TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
+		log::app::i()("TREE:\n{}", utils::TreeString(*(scene.rootNode())));
 	}
 
 //	if 		(keysPressed.count(Key::One))	SetAllFilterModes(FilterMode::Nearest, scene);

@@ -12,7 +12,7 @@
 #include <utility>
 
 #include "a3d/a3d.h"
-#include "a3d/Utilities.h"
+#include "a3d/util/filesystem.h"
 
 using namespace a3d;
 using namespace a3d::math;
@@ -37,7 +37,7 @@ int main(int argc, const char* argv[]) {
 		cout << "test003::main()\n" << endl;
 
 		auto window = make_unique<GLFWWindow>(RenderingApi::OpenGL,
-											  *utils::ExecutableName(),
+											  *util::filesystem::ExecutableName(),
 											  WINDOW_SIZE,
 											  FULLSCREEN,
 											  ENABLE_HIGH_DPI,
@@ -54,7 +54,7 @@ int main(int argc, const char* argv[]) {
 		visualWorld->willRenderCallback(bind(&WillRenderCallback, _1, _2, _3));
 		visualWorld->didRenderCallback(bind(&DidRenderCallback, _1, _2, _3));
 
-		auto scene = utils::SceneNamed("import_test/import_test");
+		auto scene = util::filesystem::SceneNamed("import_test/import_test");
 		scene->visualWorld(std::move(visualWorld));
 		scene->inputManager(std::move(inputManager));
 		scene->updateCallback(bind(&UpdateCallback, _1, _2, _3));

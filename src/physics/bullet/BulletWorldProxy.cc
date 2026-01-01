@@ -23,7 +23,6 @@
 #include <magic_enum/magic_enum.hpp>
 
 #include "a3d/Configuration.h"
-#include "a3d/Utilities.h"
 #include "a3d/log/Log.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsShape.h"
@@ -32,6 +31,7 @@
 #include "a3d/physics/bullet/BulletUtilities.h"
 #include "a3d/profiling/Profiling.h"
 #include "a3d/scene/Node.h"
+#include "a3d/util/flow.h"
 
 using namespace a3d;
 using namespace a3d::math;
@@ -300,7 +300,7 @@ vector<Line> BulletWorldProxy::debugLines(const DebugOptions &debugOptions) {
 
 	static const float UPDATE_RATE = 30.0; // frames/sec
 
-	utils::flow::every(chrono::duration<float>(1.0f/UPDATE_RATE), [&] {
+	util::flow::every(chrono::duration<float>(1.0f/UPDATE_RATE), [&] {
 
 		_debugLines.clear();
 
