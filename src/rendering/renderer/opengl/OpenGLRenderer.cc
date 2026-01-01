@@ -13,20 +13,15 @@
 #include <utility>
 #include <vector>
 
-//#ifdef A3D_GL_ES
-//#include <EGL/egl.h>
-//#include <GLES3/gl3.h>
-//#else
-//#include "glad/glad.h"
-//#endif
+#include "a3d/rendering/renderer/opengl/ogl.h" // MOVE?
 
 //#ifdef A3D_GL_DESKTOP
-#include "imgui.h"
-#include "imgui_impl_opengl3.h"
+#include <imgui/imgui.h>
+#include <imgui/backends/imgui_impl_opengl3.h>
 //#include "implot.h"
 //#endif
 
-#include "magic_enum/magic_enum.hpp"
+#include <magic_enum/magic_enum.hpp>
 
 #include "a3d/Buffer.h"
 #include "a3d/BuildInfo.h"

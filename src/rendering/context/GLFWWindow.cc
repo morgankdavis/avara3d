@@ -10,7 +10,7 @@
 
 #include <iostream>
 
-#include <glad/glad.h>
+#include "a3d/rendering/renderer/opengl/ogl.h" // <- MUST be before GLFW
 #include <GLFW/glfw3.h>
 #include <imgui/backends/imgui_impl_glfw.h>
 
