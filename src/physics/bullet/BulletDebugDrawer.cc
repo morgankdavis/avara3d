@@ -10,7 +10,6 @@
 
 #include "a3d/physics/bullet/BulletDebugDrawer.h"
 
-//#include "a3d/Color.h"
 #include "a3d/mesh/Line.h"
 #include "a3d/diagnostic/log/Log.h"
 #include "a3d/physics/bullet/BulletUtilities.h"

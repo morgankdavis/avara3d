@@ -34,7 +34,7 @@ const bool					ENABLE_VSYNC			{false};
 const bool					USE_DEFAULT_LIGHTING	{false};
 const bool					CAPTURE_CURSOR			{false};
 const float					MOUSE_SENSITIVITY		{0.5};
-const float					PHYSICS_TIMESTEP		{1.0/128.0};
+const float					PHYSICS_TIMESTEP		{1.0/256.0};
 
 void UpdateCallback(Scene& scene, double time, double deltaTime);
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
@@ -944,55 +944,55 @@ void SpawnDuckFruit(Scene& scene, Node& duckNode) {
 }
 
 // OG
-//void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
-//
-//	const float SHOOT_RATE = 20; // cans/sec
-//
-//	A3D_EVERY_MS(utils::chrono::sec_f_to_ms(1.0f/SHOOT_RATE), [&] {
-//
-//		static auto mesh = utils::MeshNamed("slurm/slurm");
-//		mesh->materials()[0]->emission(mesh->materials()[0]->diffuse());
-//		mesh->materials()[1]->emission(mesh->materials()[1]->diffuse());
-//
-//		auto node = Node::MeshNode(mesh);
-//
-//		node->position(location);
-//
-//		//static auto extent = node->mesh()->worldExtent(node->worldTransform());
-//		static auto extent = node->mesh()->localExtent();
-//		static auto physicsShape = make_shared<CylinderPhysicsShape>(extent.x/2.0, extent.y);
-//		auto physicsBody = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, physicsShape);
-//		physicsBody->mass(.354); // 12fl oz water @ 70F
-//
-//		physicsBody->restitution(1.0);
-//		physicsBody->friction(0.35);
-//		physicsBody->rollingFriction(0.05);
-//
-//		static auto light = Light::PointLight();
-//		light->quadraticAttenuation(0.04);
-//		node->light(light);
-//
-//		// add random factor
-//
-//		node->eulerAngles({ uniform_linear(0.0f, two_pi()),
-//							uniform_linear(0.0f, two_pi()),
-//							uniform_linear(0.0f, two_pi()) });
-//
-//		static const float ANGULAR_VARIANCE = radians(260.0); // deg/sec
-//		physicsBody->angularVelocity({ uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
-//									   uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
-//									   uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE) });
-//
-//		const float VELOCITY = uniform_linear(40.0f, 60.0f);
-//		static const float DIRECTION_VARIATION = 0.01;
-//		const vec3 variedDirection = normalize(direction + uniform_ball(DIRECTION_VARIATION));
-//		physicsBody->linearVelocity(variedDirection * VELOCITY);
-//
-//		node->physicsBody(std::move(physicsBody));
-//
-//		scene.rootNode()->addChild(node);
-//	});
-//}
+void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
+
+	const float SHOOT_RATE = 20; // cans/sec
+
+	utils::flow::every(chrono::duration<float>(1.0f/SHOOT_RATE), [&] {
+
+		static auto mesh = utils::MeshNamed("slurm/slurm");
+		mesh->materials()[0]->emission(mesh->materials()[0]->diffuse());
+		mesh->materials()[1]->emission(mesh->materials()[1]->diffuse());
+
+		auto node = Node::MeshNode(mesh);
+
+		node->position(location);
+
+		//static auto extent = node->mesh()->worldExtent(node->worldTransform());
+		static auto extent = node->mesh()->localExtent();
+		static auto physicsShape = make_shared<CylinderPhysicsShape>(extent.x/2.0, extent.y);
+		auto physicsBody = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, physicsShape);
+		physicsBody->mass(.354); // 12fl oz water @ 70F
+
+		physicsBody->restitution(1.0);
+		physicsBody->friction(0.35);
+		physicsBody->rollingFriction(0.05);
+
+		static auto light = Light::PointLight();
+		light->quadraticAttenuation(0.04);
+		node->light(light);
+
+		// add random factor
+
+		node->eulerAngles({ uniform_linear(0.0f, two_pi()),
+							uniform_linear(0.0f, two_pi()),
+							uniform_linear(0.0f, two_pi()) });
+
+		static const float ANGULAR_VARIANCE = radians(260.0); // deg/sec
+		physicsBody->angularVelocity({ uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+									   uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+									   uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE) });
+
+		const float VELOCITY = uniform_linear(40.0f, 60.0f);
+		static const float DIRECTION_VARIATION = 0.01;
+		const vec3 variedDirection = normalize(direction + uniform_ball(DIRECTION_VARIATION));
+		physicsBody->linearVelocity(variedDirection * VELOCITY);
+
+		node->physicsBody(std::move(physicsBody));
+
+		scene.rootNode()->addChild(node);
+	});
+}
 
 // this is super fudgecycle
 shared_ptr<Node> Hula(float minorRadius, float majorRadius) {
@@ -1047,59 +1047,59 @@ shared_ptr<Node> Hula(float minorRadius, float majorRadius) {
 
 
 // Hula
-void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
-
-	const float SHOOT_RATE = 20; // cans/sec
-
-	utils::flow::every(chrono::duration<float>(1.0f/SHOOT_RATE), [&] {
-
-//		static auto mesh = utils::MeshNamed("slurm/slurm");
-//		mesh->materials()[0]->emission(mesh->materials()[0]->diffuse());
-//		mesh->materials()[1]->emission(mesh->materials()[1]->diffuse());
+//void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
 //
-//		auto node = Node::MeshNode(mesh);
+//	const float SHOOT_RATE = 20; // cans/sec
+//
+//	utils::flow::every(chrono::duration<float>(1.0f/SHOOT_RATE), [&] {
+//
+////		static auto mesh = utils::MeshNamed("slurm/slurm");
+////		mesh->materials()[0]->emission(mesh->materials()[0]->diffuse());
+////		mesh->materials()[1]->emission(mesh->materials()[1]->diffuse());
+////
+////		auto node = Node::MeshNode(mesh);
+////
+////		node->position(location);
+////
+////		//static auto extent = node->mesh()->worldExtent(node->worldTransform());
+////		static auto extent = node->mesh()->localExtent();
+////		static auto physicsShape = make_shared<CylinderPhysicsShape>(extent.x/2.0, extent.y);
+////		auto physicsBody = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, physicsShape);
+////		physicsBody->mass(.354); // 12fl oz water @ 70F
+////
+////		physicsBody->restitution(1.0);
+////		physicsBody->friction(0.35);
+////		physicsBody->rollingFriction(0.05);
+//
+//		auto node = Hula(1.5, 1.6);
 //
 //		node->position(location);
 //
-//		//static auto extent = node->mesh()->worldExtent(node->worldTransform());
-//		static auto extent = node->mesh()->localExtent();
-//		static auto physicsShape = make_shared<CylinderPhysicsShape>(extent.x/2.0, extent.y);
-//		auto physicsBody = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, physicsShape);
-//		physicsBody->mass(.354); // 12fl oz water @ 70F
+////		static auto light = Light::PointLight();
+////		light->quadraticAttenuation(0.04);
+////		node->light(light);
 //
-//		physicsBody->restitution(1.0);
-//		physicsBody->friction(0.35);
-//		physicsBody->rollingFriction(0.05);
-
-		auto node = Hula(1.5, 1.6);
-
-		node->position(location);
-
-//		static auto light = Light::PointLight();
-//		light->quadraticAttenuation(0.04);
-//		node->light(light);
-
-		// add random factor
-
-		node->eulerAngles({ uniform_linear(0.0f, two_pi()),
-							uniform_linear(0.0f, two_pi()),
-							uniform_linear(0.0f, two_pi()) });
-
-		static const float ANGULAR_VARIANCE = radians(260.0); // deg/sec
-		node->physicsBody()->angularVelocity({ uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
-									   uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
-									   uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE) });
-
-		const float VELOCITY = uniform_linear(40.0f, 60.0f);
-		static const float DIRECTION_VARIATION = 0.01;
-		const vec3 variedDirection = normalize(direction + uniform_ball(DIRECTION_VARIATION));
-		node->physicsBody()->linearVelocity(variedDirection * VELOCITY);
-
-		//node->physicsBody(std::move(physicsBody));
-
-		scene.rootNode()->addChild(node);
-	});
-}
+//		// add random factor
+//
+//		node->eulerAngles({ uniform_linear(0.0f, two_pi()),
+//							uniform_linear(0.0f, two_pi()),
+//							uniform_linear(0.0f, two_pi()) });
+//
+//		static const float ANGULAR_VARIANCE = radians(260.0); // deg/sec
+//		node->physicsBody()->angularVelocity({ uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+//									   uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+//									   uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE) });
+//
+//		const float VELOCITY = uniform_linear(40.0f, 60.0f);
+//		static const float DIRECTION_VARIATION = 0.01;
+//		const vec3 variedDirection = normalize(direction + uniform_ball(DIRECTION_VARIATION));
+//		node->physicsBody()->linearVelocity(variedDirection * VELOCITY);
+//
+//		//node->physicsBody(std::move(physicsBody));
+//
+//		scene.rootNode()->addChild(node);
+//	});
+//}
 
 void AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color) {
 

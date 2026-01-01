@@ -9,7 +9,7 @@
 #ifndef AVARA3D_BULLETMOTIONSTATE_H
 #define AVARA3D_BULLETMOTIONSTATE_H
 
-#include "LinearMath/btMotionState.h"
+#include <bullet/LinearMath/btMotionState.h>
 
 namespace a3d {
 

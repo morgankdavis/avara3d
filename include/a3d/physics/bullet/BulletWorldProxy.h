@@ -24,7 +24,6 @@ class btDefaultCollisionConfiguration;
 namespace a3d {
 
 	class BulletDebugDrawer;
-//	class Line;
 	class RenderContext;
 
 	class BulletWorldProxy : public PhysicalWorldProxy {
@@ -51,12 +50,6 @@ namespace a3d {
 
 		void 				updateCollisionPairs() override;
 
-//		void 	drawDebug(Renderer &renderer,
-//						  const RenderContext& context,
-//						  const math::mat4 &viewMat,
-//						  const math::mat4 &projectionMat,
-//						  const DebugOptions &debugOptions) override;
-
 		std::vector<Line> 	debugLines(const DebugOptions &debugOptions) override;
 
 	private:
@@ -69,13 +62,9 @@ namespace a3d {
 		std::unique_ptr<btSequentialImpulseConstraintSolver>	_btConstraintSolver;
 #ifdef A3D_GL_DESKTOP
 		std::unique_ptr<BulletDebugDrawer>						_btDebugDrawer;
+		std::vector<Line> 										_debugLines;
 #endif
 		BulletStats												_stats;
-
-
-
-
-		std::vector<Line> 										_cachedDebugLines{};
 	};
 }
 

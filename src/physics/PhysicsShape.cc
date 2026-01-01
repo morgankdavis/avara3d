@@ -120,7 +120,7 @@ void PhysicsShape::source(const Source& sourceObject) {
 }
 
 void PhysicsShape::checkCreateProxy() {
-	log::t()("");
+	log::t();
 
 	if (!_proxy) {
 		_proxy = make_unique<BulletShapeProxy>(*this);

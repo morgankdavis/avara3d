@@ -8,15 +8,14 @@
 
 #include "a3d/physics/bullet/BulletWorldProxy.h"
 
-#include "btBulletCollisionCommon.h"
-#include "btBulletDynamicsCommon.h"
-#include "BulletCollision/Gimpact/btGImpactShape.h"
-#include "LinearMath/btIDebugDraw.h"
-#include "magic_enum/magic_enum.hpp"
+#include <bullet/btBulletCollisionCommon.h>
+#include <bullet/btBulletDynamicsCommon.h>
+#include <bullet/BulletCollision/Gimpact/btGImpactShape.h>
+#include <bullet/LinearMath/btIDebugDraw.h>
+#include <magic_enum/magic_enum.hpp>
 
 #include "a3d/Configuration.h"
 #include "a3d/diagnostic/log/Log.h"
-//#include "a3d/mesh/Line.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsShape.h"
 #include "a3d/physics/bullet/BulletBodyProxy.h"
@@ -41,7 +40,7 @@ static btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const Deb
 BulletWorldProxy::BulletWorldProxy(PhysicalWorld& world):
 		PhysicalWorldProxy{world},
 		_stats{},
-		_cachedDebugLines{} {
+		_debugLines{} {
 
 	_btCollisionConfiguration = make_unique<btDefaultCollisionConfiguration>();
 	_btCollisionDispatcher = make_unique<btCollisionDispatcher>(_btCollisionConfiguration.get());
@@ -56,6 +55,7 @@ BulletWorldProxy::BulletWorldProxy(PhysicalWorld& world):
 
 #ifdef A3D_GL_DESKTOP
 	_btDebugDrawer = make_unique<BulletDebugDrawer>();
+	_debugLines = {};
 	_btWorld->setDebugDrawer(_btDebugDrawer.get());
 #endif
 }
@@ -196,22 +196,6 @@ void BulletWorldProxy::updateCollisionPairs() {
 	_btWorld->getCollisionWorld()->computeOverlappingPairs();
 }
 
-//void BulletWorldProxy::drawDebug(Renderer &renderer,
-//								 const RenderContext& context,
-//								 const mat4 &viewMat,
-//								 const mat4 &projectionMat,
-//								 const DebugOptions &debugOptions) {
-//
-//#ifdef A3D_GL_DESKTOP
-//	auto btDebugModes = BTDebugDrawModesForA3DDebugOptions(debugOptions);
-//
-//	_btDebugDrawer->setDebugMode(btDebugModes);
-//	_btDebugDrawer->clear();
-//	_btWorld->debugDrawWorld();
-//	_btDebugDrawer->draw(renderer, context, viewMat, projectionMat);
-//#endif
-//}
-
 vector<Line> BulletWorldProxy::debugLines(const DebugOptions &debugOptions) {
 
 #ifdef A3D_GL_DESKTOP
@@ -220,21 +204,18 @@ vector<Line> BulletWorldProxy::debugLines(const DebugOptions &debugOptions) {
 
 	utils::flow::every(chrono::duration<float>(1.0f/UPDATE_RATE), [&] {
 
-		_cachedDebugLines.clear();
+		_debugLines.clear();
 
 		auto btDebugModes = BTDebugDrawModesForA3DDebugOptions(debugOptions);
-		if (btDebugModes == btIDebugDraw::DBG_NoDebug) return;// vector<Line>{};
+		if (btDebugModes == btIDebugDraw::DBG_NoDebug) return;
 		_btDebugDrawer->setDebugMode(btDebugModes);
 		_btDebugDrawer->clear();
 		_btWorld->debugDrawWorld();
 
-		auto lines = _btDebugDrawer->lines();
-		_cachedDebugLines = std::move(lines);
-
-//		return _cachedDebugLines;
+		_debugLines = std::move(_btDebugDrawer->lines());
 	});
 
-	return _cachedDebugLines;
+	return _debugLines;
 #else
 	return vector<Line>{};
 #endif

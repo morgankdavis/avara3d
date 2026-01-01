@@ -8,8 +8,9 @@
 
 #include "a3d/physics/bullet/BulletBodyProxy.h"
 
-#include "btBulletDynamicsCommon.h"
+#include <bullet/btBulletDynamicsCommon.h>
 
+#include "a3d/Utilities.h"
 #include "a3d/diagnostic/log/Log.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/physics/ConvexDecomposer.h"
@@ -63,26 +64,13 @@ BulletBodyProxy::BulletBodyProxy(PhysicsBody& body, PhysicsBodyType type):
 
 	_btBody = make_unique<btRigidBody>(rigidBodyInfo);
 
-	int flags = 0;
-	int activationState = _btBody->getActivationState();
+	BulletBodyProxy::type(type);
 
-	switch (/*body.type()*/type) {
-		case PhysicsBodyType::Static:
-			flags = btCollisionObject::CF_STATIC_OBJECT;
-			activationState = activationState & ~DISABLE_DEACTIVATION;
-			break;
-		case PhysicsBodyType::Dynamic:
-			flags = btCollisionObject::CF_DYNAMIC_OBJECT;
-			activationState = activationState & ~DISABLE_DEACTIVATION;
-			break;
-		case PhysicsBodyType::Kinematic:
-			flags = btCollisionObject::CF_KINEMATIC_OBJECT;
-			activationState = activationState | DISABLE_DEACTIVATION;
-			break;
+	// just checking.
+	if (_btBody->getActivationState() == DISABLE_DEACTIVATION
+		|| _btBody->getActivationState() == DISABLE_SIMULATION) {
+		log::e()("activationState={}", _btBody->getActivationState());
 	}
-
-	_btBody->setCollisionFlags(flags);
-	_btBody->setActivationState(activationState);
 
 	_btBody->setUserPointer(static_cast<void*>(&body));
 }
@@ -108,30 +96,35 @@ PhysicsBodyType BulletBodyProxy::type() const {
 
 void BulletBodyProxy::type(PhysicsBodyType type) {
 
-	int flags = 0;
-	int activationState = _btBody->getActivationState();
+	int flags = _btBody->getCollisionFlags();
+
+	// clear mutually-exclusive type bits first
+	flags &= ~(btCollisionObject::CF_STATIC_OBJECT |
+			   btCollisionObject::CF_KINEMATIC_OBJECT);
 
 	switch (type) {
 		case PhysicsBodyType::Static:
-			flags = btCollisionObject::CF_STATIC_OBJECT;
-			activationState = activationState & ~DISABLE_DEACTIVATION;
+			flags |= btCollisionObject::CF_STATIC_OBJECT;
+			_btBody->setCollisionFlags(flags);
+			_btBody->setActivationState(ACTIVE_TAG); // or ISLAND_SLEEPING?
+			_btBody->setMassProps(0.0f, btVector3(0,0,0));
 			break;
+
 		case PhysicsBodyType::Dynamic:
-			flags = btCollisionObject::CF_DYNAMIC_OBJECT;
-			if (_autocalculatesMomentOfInertia) {
-				calculateMomentOfIntertia();
-			}
-			activationState = activationState & ~DISABLE_DEACTIVATION;
+			_btBody->setCollisionFlags(flags); // dynamic == no static/kinematic flag
+			_btBody->setActivationState(ACTIVE_TAG);
+			// mass/inertia handled elsewhere after shape is set
 			break;
+
 		case PhysicsBodyType::Kinematic:
-			flags = btCollisionObject::CF_KINEMATIC_OBJECT;
-			auto as = _btBody->getActivationState();
-			activationState = activationState | DISABLE_DEACTIVATION;
+			flags |= btCollisionObject::CF_KINEMATIC_OBJECT;
+			_btBody->setCollisionFlags(flags);
+			_btBody->setActivationState(DISABLE_DEACTIVATION);
+			_btBody->setMassProps(0.0f, btVector3(0,0,0));
 			break;
 	}
 
-	_btBody->setCollisionFlags(flags);
-	_btBody->setActivationState(activationState);
+	_btBody->activate(true);
 }
 
 PhysicsShapeProxy* BulletBodyProxy::shapeProxy() const {
@@ -356,96 +349,35 @@ void BulletBodyProxy::affectedByGravity(bool affectedByGravity) {
 }
 
 bool BulletBodyProxy::allowsResting() const {
-
-	// *** test this ***
-	//return (_btBody->getActivationState() != DISABLE_DEACTIVATION);
-	return !(_btBody->getActivationState() & DISABLE_DEACTIVATION);
+	return _btBody->getActivationState() != DISABLE_DEACTIVATION;
 }
 
 void BulletBodyProxy::allowsResting(bool allowsResting) {
 
-	// TODO: test this
-	if (allowsResting && type() == PhysicsBodyType::Kinematic) {
+//	if (type() == PhysicsBodyType::Kinematic && allowsResting) {
+//		log::e()("Cannot enable resting for kinematic bodies.");
+//		return;
+//	}
 
+	if (!utils::flow::guard(type() == PhysicsBodyType::Kinematic && allowsResting, [&] {
 		log::e()("Cannot enable resting for kinematic bodies.");
-	}
-	else {
+	})) return;
 
-		int activationState = _btBody->getActivationState();
-
-		activationState = (allowsResting
-						   ? activationState & ~DISABLE_DEACTIVATION
-						   : activationState | DISABLE_DEACTIVATION);
-
-		_btBody->setActivationState(activationState);
-	}
+	_btBody->setActivationState(allowsResting ? ACTIVE_TAG : DISABLE_DEACTIVATION);
+	_btBody->activate(true);
 }
 
 bool BulletBodyProxy::resting() const {
-	//return (_btBody->getActivationState() == ISLAND_SLEEPING);
-	return (_btBody->getActivationState() & ISLAND_SLEEPING);
+	return _btBody->getActivationState() == ISLAND_SLEEPING;
 }
 
 void BulletBodyProxy::resting(bool resting) {
-
-	int activationState = _btBody->getActivationState();
-
-	activationState = (resting
-			? activationState | ISLAND_SLEEPING
-			: activationState | ACTIVE_TAG);
-
-	_btBody->setActivationState(activationState);
+	_btBody->setActivationState(resting ? ISLAND_SLEEPING : ACTIVE_TAG);
+	if (!resting) _btBody->activate(true);
 }
 
-//mat4 BulletBodyProxy::worldTransform() const {
-//
-//	static btTransform transform;
-//	_btBody->getMotionState()->getWorldTransform(transform);
-//	return GLMMat4FromBTTransform(transform);
-//}
-//
-//void BulletBodyProxy::worldTransform(const mat4& transform) {
-//
-//	bool wasScaled = false;
-//	auto btTransform = BTTransformFromGLMMat4(
-//			TransformByRemovingScale(_body->node()->worldTransform(), wasScaled));
-//
-//	if (wasScaled) {
-//		// TODO: do something about this
-//		log::w()("Ignorning scale for Node {:p} with PhysicsBody {:p}.",
-//				 (void *)_body->node(), (void *)_body);
-//	}
-//
-////	_btMotionState = make_shared<btDefaultMotionState>(btTransform);
-////	_btBody->setMotionState(_btMotionState.get());
-//
-//	_motionState = make_shared<MotionState>(_body, btTransform);
-//	_btBody->setMotionState(_motionState.get());
-//}
-
 void BulletBodyProxy::worldTransform(const mat4& transform) {
-
-//	bool wasScaled = false;
-//	auto btTransform = BTTransformFromGLMMat4(
-//			TransformByRemovingScale(_body->node()->worldTransform(), wasScaled));
-//
-//	if (wasScaled) {
-//		// TODO: do something about this
-//		log::w()("Ignorning scale for Node {:p} with PhysicsBody {:p}.",
-//				 (void *)_body->node(), (void *)_body);
-//	}
-//
-////	_btMotionState = make_shared<btDefaultMotionState>(btTransform);
-////	_btBody->setMotionState(_btMotionState.get());
-//
-//	_motionState = make_shared<MotionState>(_body, btTransform);
-//	_btBody->setMotionState(_motionState.get());
-
-
 	_btBody->setWorldTransform(BTTransformFromA3DMat4(transform));
-
-	//_motionState = make_shared<MotionState>(_body, btTransform);
-	//_btBody->setMotionState(_motionState.get());
 }
 
 void BulletBodyProxy::clearForces() {

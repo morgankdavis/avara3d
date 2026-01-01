@@ -8,9 +8,9 @@
 
 #include "a3d/physics/bullet/BulletUtilities.h"
 
-#include "LinearMath/btQuaternion.h"
-#include "LinearMath/btTransform.h"
-#include "LinearMath/btVector3.h"
+#include <bullet/LinearMath/btQuaternion.h>
+#include <bullet/LinearMath/btTransform.h>
+#include <bullet/LinearMath/btVector3.h>
 
 #include "a3d/Utilities.h"
 

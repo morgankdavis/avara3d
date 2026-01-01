@@ -13,7 +13,7 @@
 #include <tuple>
 #include <vector>
 
-#include "LinearMath/btIDebugDraw.h"
+#include <bullet/LinearMath/btIDebugDraw.h>
 
 #include "a3d/Types.h"
 

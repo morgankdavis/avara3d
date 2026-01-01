@@ -353,7 +353,7 @@ RenderingApi OpenGLRenderer::renderingApi() const {
 }
 
 bool OpenGLRenderer::initialize(const RenderContext& context) {
-	log::i()("");
+	log::i();
 
 	glGenBuffers(1, &_glEnvironmentUBO);
 	glBindBuffer(GL_UNIFORM_BUFFER, _glEnvironmentUBO);

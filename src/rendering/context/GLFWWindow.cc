@@ -63,7 +63,7 @@ GLFWWindow::GLFWWindow(RenderingApi renderingAPI,
 		_hidden{false},
 		_cursorCaptured{false},
 		_inputManager{} {
-	log::d()("");
+	log::d();
 
 	_antialiasingMode = antialiasingMode; // see above (?)
 
@@ -162,7 +162,7 @@ GLFWWindow::~GLFWWindow() {
 /// Public Member Functions ///
 
 void GLFWWindow::open() {
-	log::i()("");
+	log::i();
 
 	if (_visualWorld && _visualWorld->scene()) {
 		glfwMakeContextCurrent(_glfwWindow.get());
@@ -509,7 +509,7 @@ static bool InitGLFW() {
 	
 	static bool initialized = false;
 	if (!initialized) {
-		log::i()("");
+		log::i();
 		
 		int glfwMajVers, glfwMinVers, glfwRev;
 		glfwGetVersion(&glfwMajVers, &glfwMinVers, &glfwRev);

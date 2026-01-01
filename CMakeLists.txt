@@ -4,6 +4,7 @@ project(avara3d
 		VERSION 0.0.1
 		HOMEPAGE_URL https://avara3d.net/)
 
+include(cmake/BulletVirtualInclude.cmake)
 include(cmake/EnvironmentDetect.cmake)
 include(cmake/UtilityFunctions.cmake)
 
@@ -107,9 +108,15 @@ endif ()
 
 ### add library headers ###
 
+# (ensure virtual external include root is searched first)
+target_include_directories(avara3d SYSTEM BEFORE PRIVATE
+		"$<BUILD_INTERFACE:${A3D_THIRDPARTY_INCLUDE_ROOT}>"
+)
+
 target_include_directories(avara3d PUBLIC include)
 target_include_directories(avara3d PRIVATE "${PROJECT_BINARY_DIR}") # BuildInfo.cmake.h
-target_include_directories(avara3d PRIVATE external/bullet-3.17/src)
+#target_include_directories(avara3d PRIVATE external/bullet-3.17/src)
+target_link_libraries(avara3d PRIVATE a3d::bullet_headers)
 target_include_directories(avara3d PRIVATE external/generator/include)
 target_include_directories(avara3d PRIVATE external/gif-h)
 if (A3D_GL_DESKTOP)

@@ -137,7 +137,7 @@ void MainWindow::logBuildInfo() {
 
 
 void MainWindow::updateCallback(a3d::Scene& scene, double time, double deltaTime) {
-	log::app::t()("");
+	log::app::t();
 
 //	static int invocations = 0;
 //	if (invocations == 2) {
@@ -365,13 +365,13 @@ void MainWindow::updateCallback(a3d::Scene& scene, double time, double deltaTime
 }
 
 void MainWindow::willRenderCallback(a3d::VisualWorld& world, double time, double deltaTime) {
-	log::app::t()("");
+	log::app::t();
 }
 
 void MainWindow::didRenderCallback(a3d::VisualWorld& world, double time, double deltaTime) {
-	log::app::t()("");
+	log::app::t();
 }
 
 void MainWindow::didSimulatePhysicsCallback(a3d::PhysicalWorld& world, double time, double deltaTime) {
-	log::app::t()("");
+	log::app::t();
 }
