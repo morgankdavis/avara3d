@@ -250,4 +250,4 @@ fastlane/readme.md
 
 
 # for build system virtal includes
-/_thirdparty_include/
+_external_virtual_include/

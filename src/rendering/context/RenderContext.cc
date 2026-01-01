@@ -8,9 +8,8 @@
 
 #include "a3d/rendering/context/RenderContext.h"
 
-#include "gif.h"
-#define STB_IMAGE_RESIZE_IMPLEMENTATION
-#include "stb_image_resize2.h"
+#include <gif-h/gif.h>
+#include <stb/image_resize2.h>
 
 #include "a3d/Buffer.h"
 #include "a3d/Image.h"

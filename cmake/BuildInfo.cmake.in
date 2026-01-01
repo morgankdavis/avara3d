@@ -1,7 +1,11 @@
-#define A3D_BUILD_NUMBER     @A3D_BUILD_NUMBER@
-#define A3D_VERSION_MAJOR    @avara3d_VERSION_MAJOR@
-#define A3D_VERSION_MINOR    @avara3d_VERSION_MINOR@
-#define A3D_VERSION_PATCH    @avara3d_VERSION_PATCH@
-#define A3D_BUILD_TYPE       "@A3D_BUILD_TYPE@"
-#define A3D_BUILD_ORIGIN     "@A3D_BUILD_ORIGIN@"
-#define A3D_BUILD_TIME       "@A3D_BUILD_TIME@"
+#define A3D_BUILD_NUMBER    @A3D_BUILD_NUMBER@
+#define A3D_VERSION_MAJOR   @avara3d_VERSION_MAJOR@
+#define A3D_VERSION_MINOR   @avara3d_VERSION_MINOR@
+#define A3D_VERSION_PATCH   @avara3d_VERSION_PATCH@
+
+#ifndef A3D_BUILD_TYPE_STR  // normally defined via target_compile_definitions()
+#define A3D_BUILD_TYPE_STR "Unknown"
+#endif
+
+#define A3D_BUILD_ORIGIN    "@A3D_BUILD_ORIGIN@"
+#define A3D_BUILD_TIME      "@A3D_BUILD_TIME@"

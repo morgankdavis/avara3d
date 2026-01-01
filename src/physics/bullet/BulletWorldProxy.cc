@@ -15,6 +15,7 @@
 #include <magic_enum/magic_enum.hpp>
 
 #include "a3d/Configuration.h"
+#include "a3d/Utilities.h"
 #include "a3d/diagnostic/log/Log.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsShape.h"
@@ -23,9 +24,6 @@
 #include "a3d/physics/bullet/BulletUtilities.h"
 #include "a3d/profiling/Profiling.h"
 #include "a3d/scene/Node.h"
-
-// TEMPORARY
-#include "a3d/Utilities.h"
 
 using namespace a3d;
 using namespace a3d::math;

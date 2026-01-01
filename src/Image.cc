@@ -10,10 +10,8 @@
 
 #include <utility>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
+#include <stb/image.h>
+#include <stb/image_write.h>
 
 #include "a3d/Buffer.h"
 #include "a3d/diagnostic/exception/Exception.h"

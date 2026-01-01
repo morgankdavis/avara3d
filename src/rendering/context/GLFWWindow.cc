@@ -10,9 +10,9 @@
 
 #include <iostream>
 
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
-#include "imgui_impl_glfw.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <imgui/backends/imgui_impl_glfw.h>
 
 #include "a3d/Utilities.h"
 #include "a3d/diagnostic/exception/Exception.h"
