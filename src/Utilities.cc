@@ -8,8 +8,6 @@
 
 #include "a3d/Utilities.h"
 
-//#include <algorithm> // needs to be under windows.h
-#include <cmath>
 #include <cstring>
 #include <ctime>
 #include <format>
@@ -20,14 +18,12 @@
 #include <sstream>
 
 #ifdef A3D_POSIX
-#include <errno.h>
 #include <execinfo.h>
 #include <unistd.h>
 #include <sys/time.h>
 #endif
 
 #ifdef A3D_LINUX
-#include <libgen.h>
 #include <linux/limits.h> // PATH_MAX
 #endif
 

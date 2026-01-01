@@ -8,7 +8,7 @@
 
 #include "a3d/mesh/primitive/RoundedBox.h"
 
-#include "generator/generator.hpp"
+#include <generator/generator.hpp>
 
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"

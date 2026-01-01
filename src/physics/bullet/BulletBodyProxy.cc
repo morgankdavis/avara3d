@@ -24,7 +24,6 @@
 #include "a3d/physics/proxy/PhysicsBodyProxy.h"
 #include "a3d/physics/proxy/PhysicsShapeProxy.h"
 #include "a3d/scene/Node.h"
-#include "a3d/scene/Scene.h"
 
 using namespace a3d;
 using namespace a3d::math;

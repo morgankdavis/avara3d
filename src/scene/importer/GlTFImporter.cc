@@ -14,12 +14,11 @@
 #include <variant>
 
 #include <fastgltf/core.hpp>
-#include "fastgltf/math.hpp"
+#include <fastgltf/math.hpp>
 #include <fastgltf/tools.hpp>
 #include <fastgltf/types.hpp>
-#include "fastgltf/util.hpp"
-
-#include "magic_enum/magic_enum.hpp"
+#include <fastgltf/util.hpp>
+#include <magic_enum/magic_enum.hpp>
 
 #include "a3d/Buffer.h"
 #include "a3d/Color.h"

@@ -8,7 +8,6 @@
 
 #include "a3d/rendering/renderer/opengl/OpenGLRenderer.h"
 
-#include <algorithm>
 #include <format>
 #include <set>
 #include <utility>

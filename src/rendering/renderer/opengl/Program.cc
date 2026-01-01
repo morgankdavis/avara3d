@@ -14,10 +14,10 @@
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
 #else
-#include "glad/glad.h"
+#include <glad/glad.h>
 #endif
 
-#include "magic_enum/magic_enum.hpp"
+#include <magic_enum/magic_enum.hpp>
 
 #include "a3d/Utilities.h"
 #include "a3d/diagnostic/exception/Exception.h"

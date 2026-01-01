@@ -12,7 +12,7 @@
 #include <chrono>
 #include <memory>
 #include <set>
-#include <unordered_set> // temporary?
+#include <unordered_set>
 #include <typeinfo>
 #include <utility>
 #include <variant>

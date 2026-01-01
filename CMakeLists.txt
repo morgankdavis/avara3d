@@ -62,6 +62,8 @@ add_subdirectory(external/imgui-1.92.5)
 
 add_subdirectory(external/stb)
 
+add_subdirectory(external/v-hacd-4.1.0)
+
 ### add a3d ###
 
 file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/include/*.h")
@@ -139,7 +141,7 @@ target_include_directories(avara3d SYSTEM PUBLIC
 )
 #target_include_directories(avara3d PRIVATE external/implot-0.17)
 target_include_directories(avara3d PRIVATE external/magic_enum-0.9.3/include)
-a3d_external_virtual_include_dir("v-hacd" "${CMAKE_SOURCE_DIR}/external/v-hacd-4.1.0")
+#a3d_external_virtual_include_dir("v-hacd" "${CMAKE_SOURCE_DIR}/external/v-hacd-4.1.0")
 
 ### setup clang-tidy ###
 # TODO: use clang-style?
@@ -159,7 +161,8 @@ target_link_libraries(avara3d
 		fastgltf
 		generator
 		imgui
-		stb) # implot
+		stb
+		vhacd) # implot
 
 ### link a3d to platform-specific libraries ###
 

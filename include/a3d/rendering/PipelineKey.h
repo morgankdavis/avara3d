@@ -6,7 +6,7 @@
 #define AVARA3D_PIPELINEKEY_H
 
 #include <cstdint>
-#include <cstddef> // size_t
+#include <cstddef>
 
 #include "a3d/Types.h"
 

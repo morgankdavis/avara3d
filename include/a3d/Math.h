@@ -10,7 +10,7 @@
 #define AVARA3D_MATH_H
 
 #include <cstdint>
-#include <float.h>
+//#include <float.h>
 #include <optional>
 #include <random>
 #include <string>

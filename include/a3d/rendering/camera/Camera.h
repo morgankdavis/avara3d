@@ -9,7 +9,6 @@
 #ifndef AVARA3D_CAMERA_H
 #define AVARA3D_CAMERA_H
 
-
 #include <memory>
 #include <optional>
 #include <string>

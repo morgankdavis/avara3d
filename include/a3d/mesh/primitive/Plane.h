@@ -9,18 +9,14 @@
 #ifndef AVARA3D_PLANE_H
 #define AVARA3D_PLANE_H
 
-
 #include <memory>
 
 #include "a3d/mesh/MeshElement.h"
 
-
 namespace a3d {
-
 
 	class Mesh;
 	class Material;
-
 	
 	class Plane: public MeshElement {
 
@@ -60,6 +56,5 @@ namespace a3d {
 		unsigned	_heightSegments;
 	};
 }
-
 
 #endif /* AVARA3D_PLANE_H */

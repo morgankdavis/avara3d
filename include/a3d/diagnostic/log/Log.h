@@ -12,7 +12,7 @@
 #include <utility>
 #include <vector>
 
-#include "a3d/Types.h" // expects LogLevel to live here in your project
+#include "a3d/Types.h"
 
 // example:
 // log::w()("This is a normal log line");     // wraps .nl()

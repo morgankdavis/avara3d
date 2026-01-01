@@ -8,7 +8,7 @@
 
 #include "a3d/physics/PhysicsBody.h"
 
-#include "magic_enum/magic_enum.hpp"
+#include <magic_enum/magic_enum.hpp>
 
 #include "a3d/diagnostic/log/Log.h"
 #include "a3d/physics/PhysicsShape.h"
