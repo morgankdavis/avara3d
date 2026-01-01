@@ -2,8 +2,8 @@
 // Created by mkd on 12/31/25.
 //
 
-#ifndef AVARA3D_OGL_H
-#define AVARA3D_OGL_H
+#ifndef AVARA3D_GL_H
+#define AVARA3D_GL_H
 
 // include this ONLY from .cc/.mm files that make GL calls
 // do NOT include this from public headers (OpenGLRenderer.h etc)
@@ -18,4 +18,4 @@
 	#include <glad/glad.h>
 #endif
 
-#endif //AVARA3D_OGL_H
+#endif //AVARA3D_GL_H

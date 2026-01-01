@@ -3,7 +3,7 @@
 
 #include <cassert>
 
-#include "a3d/rendering/renderer/opengl/ogl.h" // MOVE?
+#include "a3d/rendering/renderer/opengl/gl.h" // MOVE?
 
 #include "a3d/Math.h"
 

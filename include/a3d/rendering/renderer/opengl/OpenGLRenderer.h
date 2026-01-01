@@ -17,7 +17,7 @@
 #include "a3d/Types.h"
 #include "a3d/profiling/OpenGLDrawTimer.h"
 #include "a3d/rendering/renderer/Renderer.h"
-#include "a3d/rendering/renderer/opengl/Types.h"
+#include "a3d/rendering/renderer/opengl/gl_types.h"
 
 class ImFont;
 
@@ -35,15 +35,15 @@ namespace a3d {
 
 	struct GLStateCache {
 		PipelineHandle 		pipelineHandle = 	INVALID_PIPELINE_HANDLE;
-		a3d::ogl::enum_t 	program = 			0; // currently bound GL program
+		a3d::gl::enum_t 	program = 			0; // currently bound GL program
 		const Material* 	material = 			nullptr; // last bound material
 		uint32_t 			indexCount = 		0;
 	};
 
 	struct BoundElement {
-		a3d::ogl::uint_t 	vao = 			0;
-		a3d::ogl::sizei_t 	indexCount = 	0;
-		a3d::ogl::enum_t	indexType = 	a3d::ogl::value::unsigned_int;
+		a3d::gl::uint_t 	vao = 			0;
+		a3d::gl::sizei_t 	indexCount = 	0;
+		a3d::gl::enum_t		indexType = 	a3d::gl::value::unsigned_int;
 	};
 
 
@@ -54,9 +54,9 @@ namespace a3d {
 		/// Internal Types ///
 
 		struct MeshElementGLRes {
-			a3d::ogl::uint_t vao = 0;
-			a3d::ogl::uint_t vbo = 0;
-			a3d::ogl::uint_t ebo = 0;
+			a3d::gl::uint_t vao = 0;
+			a3d::gl::uint_t vbo = 0;
+			a3d::gl::uint_t ebo = 0;
 			uint32_t indexCount = 0;
 		};
 

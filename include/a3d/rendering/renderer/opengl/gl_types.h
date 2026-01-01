@@ -8,9 +8,8 @@
 #include <cstdint>
 #include <cstddef>   // std::ptrdiff_t
 
-namespace a3d::ogl {
+namespace a3d::gl {
 
-	// Fundamental “GL-like” types (no GL headers required)
 	using enum_t     = std::uint32_t;   // GLenum
 	using uint_t     = std::uint32_t;   // GLuint
 	using int_t      = std::int32_t;    // GLint
@@ -28,8 +27,6 @@ namespace a3d::ogl {
 	using int64_t    = std::int64_t;    // GLint64
 	using uint64_t   = std::uint64_t;   // GLuint64
 
-	// Values you want usable in headers without GL headers.
-	// IMPORTANT: do NOT name these GL_* (macros will collide).
 	namespace value {
 		inline constexpr enum_t false_ = 0u;
 		inline constexpr enum_t true_  = 1u;
@@ -43,7 +40,6 @@ namespace a3d::ogl {
 		inline constexpr uint_t null_handle    = 0u;          // “0” object name
 	}
 
-	// Small strong enums you actually use in headers
 	enum class index_type : enum_t {
 		u8  = value::unsigned_byte,
 		u16 = value::unsigned_short,

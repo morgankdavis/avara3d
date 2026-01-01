@@ -10,7 +10,7 @@
 
 #include <format>
 
-#include "a3d/rendering/renderer/opengl/ogl.h" // MOVE?
+#include "a3d/rendering/renderer/opengl/gl.h" // MOVE?
 
 #include <magic_enum/magic_enum.hpp>
 
