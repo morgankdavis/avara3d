@@ -63,32 +63,29 @@ namespace a3d {
 		///  Private Member Variables ///
 
 		// scheduler
-		btITaskScheduler* _btScheduler = nullptr;
-		std::unique_ptr<btITaskScheduler> _ownedScheduler;
+		btITaskScheduler* 										_btScheduler = nullptr;
+		std::unique_ptr<btITaskScheduler> 						_ownedScheduler;
 
 		// config/dispatcher/broadphase
-		std::unique_ptr<btDefaultCollisionConfiguration> _btCollisionConfiguration;
-		std::unique_ptr<btCollisionDispatcher> _btCollisionDispatcher;
-		std::unique_ptr<btDbvtBroadphase> _btBroadphase;
+		std::unique_ptr<btDefaultCollisionConfiguration> 		_btCollisionConfiguration;
+		std::unique_ptr<btCollisionDispatcher> 					_btCollisionDispatcher;
+		std::unique_ptr<btDbvtBroadphase> 						_btBroadphase;
 
 		// solvers
-		std::vector<std::unique_ptr<btSequentialImpulseConstraintSolver>> _ownedSolvers;
-		std::vector<btConstraintSolver*> _solverPtrs;
-
-		std::unique_ptr<btConstraintSolverPoolMt> _btSolverPool;
-		std::unique_ptr<btSequentialImpulseConstraintSolverMt> _btSolverMt;
-
-		// MUST be last so destroyed first
-		std::unique_ptr<btDiscreteDynamicsWorld> _btWorld;
+		std::unique_ptr<btConstraintSolverPoolMt> 				_btSolverPool;
+		std::unique_ptr<btSequentialImpulseConstraintSolverMt> 	_btSolverMt;
 
 #ifdef A3D_GL_DESKTOP
-		std::unique_ptr<BulletDebugDrawer> _btDebugDrawer;
-		std::vector<Line> _debugLines;
+		std::unique_ptr<BulletDebugDrawer> 						_btDebugDrawer;
+		std::vector<Line> 										_debugLines;
 #endif
 
-		BulletStats _stats;
+		BulletStats 											_stats;
 
-		mutable std::mutex _btMutex;
+		mutable std::mutex 										_btMutex;
+
+		// MUST be last so destroyed first
+		std::unique_ptr<btDiscreteDynamicsWorld> 				_btWorld;
 	};
 }
 

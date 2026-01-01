@@ -11,33 +11,6 @@ include(cmake/UtilityFunctions.cmake)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-
-
-
-
-
-
-
-
-
-
-add_library(a3d_build_options INTERFACE)
-
-# Require C++20 for anything that links this
-target_compile_features(a3d_build_options INTERFACE cxx_std_20)
-
-# clang-cl / MSVC quality-of-life: make __cplusplus reflect reality (optional)
-if (MSVC)
-	target_compile_options(a3d_build_options INTERFACE /Zc:__cplusplus)
-endif()
-
-
-
-
-
-
-
-
 option(A3D_BUILD_TESTS "Build A3D tests" ON)
 option(A3D_BUILD_EDITOR "Build A3D editor" ON)
 
@@ -50,6 +23,21 @@ if(CMAKE_CONFIGURATION_TYPES)
 	message(STATUS "[BUILD TYPE: multi-config (${CMAKE_GENERATOR})]")
 else()
 	message(STATUS "[BUILD TYPE: ${CMAKE_BUILD_TYPE}]")
+endif()
+
+# *** force C++20 for all targets ***
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+add_library(avara3d_build_options INTERFACE)
+
+# require C++20 for anything that links this
+target_compile_features(avara3d_build_options INTERFACE cxx_std_20)
+
+# clang-cl / MSVC quality-of-life: make __cplusplus reflect reality
+if (MSVC)
+	target_compile_options(avara3d_build_options INTERFACE /Zc:__cplusplus)
 endif()
 
 ### add external libraries ###
@@ -186,15 +174,15 @@ target_include_directories(avara3d PRIVATE external/magic_enum-0.9.3/include)
 ### link a3d to common libraries ###
 
 target_link_libraries(avara3d
+		PRIVATE
+		avara3d_build_options
 		PUBLIC
 		${BULLET_LIBRARIES}
 		fastgltf
 		generator
 		imgui
 		stb
-		vhacd
-		PRIVATE
-		a3d_build_options) # implot
+		vhacd) # implot
 
 ### link a3d to platform-specific libraries ###
 
