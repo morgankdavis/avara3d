@@ -8,9 +8,6 @@ include(cmake/ExternalVirtualInclude.cmake)
 include(cmake/EnvironmentDetect.cmake)
 include(cmake/UtilityFunctions.cmake)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 option(A3D_BUILD_TESTS "Build A3D tests" ON)
 option(A3D_BUILD_EDITOR "Build A3D editor" ON)
 
@@ -25,7 +22,7 @@ else()
 	message(STATUS "[BUILD TYPE: ${CMAKE_BUILD_TYPE}]")
 endif()
 
-# *** force C++20 for all targets ***
+### force C++20 for all targets ###
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -35,9 +32,9 @@ add_library(avara3d_build_options INTERFACE)
 # require C++20 for anything that links this
 target_compile_features(avara3d_build_options INTERFACE cxx_std_20)
 
-# clang-cl / MSVC quality-of-life: make __cplusplus reflect reality
+# make __cplusplus reflect reality
 if (MSVC)
-	target_compile_options(avara3d_build_options INTERFACE /Zc:__cplusplus)
+	target_compile_options(avara3d_build_options INTERFACE /std:c++20 /Zc:__cplusplus)
 endif()
 
 ### add external libraries ###
@@ -51,6 +48,9 @@ set(BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
 set(INSTALL_LIBS OFF CACHE BOOL "" FORCE)
 set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
 set(INSTALL_CMAKE_FILES OFF CACHE BOOL "" FORCE)
+set(BUILD_BULLET3 OFF CACHE BOOL "" FORCE)
+set(BUILD_OPENCL OFF CACHE BOOL "" FORCE)
+set(BUILD_BULLET3_OPENCL OFF CACHE BOOL "" FORCE)
 add_subdirectory(external/bullet-3.17)
 set(BULLET_LIBRARIES
 		LinearMath
