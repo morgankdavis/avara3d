@@ -76,21 +76,47 @@ windows-debug:
   except: [testing, stable]
   script:
     - echo "Starting Windows debug build..."
-    - '& "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\bin\clang-cl.exe" --version'
-    - 'cl.exe'
-    - 'cmake --version'
-
     - mkdir gitlab-build
     - cd gitlab-build
+    - |
+      $ErrorActionPreference = "Stop"
+
+      # Ensure build.log exists so artifacts always upload even if we fail early
+      New-Item -ItemType File -Force build.log | Out-Null
+
+      function Import-VsDevEnv {
+        $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+        if (!(Test-Path $vswhere)) { throw "vswhere.exe not found at: $vswhere" }
+
+        $vsInstall = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+        if (-not $vsInstall) { throw "No Visual Studio installation found by vswhere." }
+
+        $vsDevCmd = Join-Path $vsInstall "Common7\Tools\VsDevCmd.bat"
+        if (!(Test-Path $vsDevCmd)) { throw "VsDevCmd.bat not found at: $vsDevCmd" }
+
+        # Load the VS dev environment into *this* PowerShell process
+        cmd /c "`"$vsDevCmd`" -no_logo -arch=amd64 && set" | ForEach-Object {
+          if ($_ -match "^(.*?)=(.*)$") {
+            [Environment]::SetEnvironmentVariable($matches[1], $matches[2])
+          }
+        }
+      }
+
+      Import-VsDevEnv
+
+      Write-Host "clang-cl:"; & clang-cl.exe --version
+      Write-Host "cl.exe:"; & cl.exe /Bv | Select-Object -First 25
+      Write-Host "cmake:"; & cmake --version
     - >
       cmake
+      -G "Visual Studio 17 2022"
+      -A x64
       -DCMAKE_PREFIX_PATH="C:/Qt/6.10.1/msvc2022_64"
       -DCMAKE_BUILD_TYPE=Debug
       -T "ClangCL"
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
-    # PowerShell runner: capture full log to file, print tail only on failure.
     - |
       cmake --build . --config Debug --target install --parallel 8 *> build.log
       if ($LASTEXITCODE -ne 0) {
@@ -188,8 +214,31 @@ windows-release:
     - echo "Starting Windows release build..."
     - mkdir gitlab-build
     - cd gitlab-build
+    - |
+      $ErrorActionPreference = "Stop"
+      New-Item -ItemType File -Force build.log | Out-Null
+
+      function Import-VsDevEnv {
+        $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+        if (!(Test-Path $vswhere)) { throw "vswhere.exe not found at: $vswhere" }
+        $vsInstall = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+        if (-not $vsInstall) { throw "No Visual Studio installation found by vswhere." }
+        $vsDevCmd = Join-Path $vsInstall "Common7\Tools\VsDevCmd.bat"
+        if (!(Test-Path $vsDevCmd)) { throw "VsDevCmd.bat not found at: $vsDevCmd" }
+        cmd /c "`"$vsDevCmd`" -no_logo -arch=amd64 && set" | ForEach-Object {
+          if ($_ -match "^(.*?)=(.*)$") { [Environment]::SetEnvironmentVariable($matches[1], $matches[2]) }
+        }
+      }
+
+      Import-VsDevEnv
+      Write-Host "clang-cl:"; & clang-cl.exe --version
+      Write-Host "cl.exe:"; & cl.exe /Bv | Select-Object -First 25
+      Write-Host "cmake:"; & cmake --version
     - >
       cmake
+      -G "Visual Studio 17 2022"
+      -A x64
+      -DCMAKE_PREFIX_PATH="C:/Qt/6.10.1/msvc2022_64"
       -DCMAKE_BUILD_TYPE=Release
       -T "ClangCL"
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
@@ -292,8 +341,30 @@ windows-release-manual:
     - echo "Starting Windows release build..."
     - mkdir gitlab-build
     - cd gitlab-build
+    - |
+      $ErrorActionPreference = "Stop"
+      New-Item -ItemType File -Force build.log | Out-Null
+
+      function Import-VsDevEnv {
+        $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+        if (!(Test-Path $vswhere)) { throw "vswhere.exe not found at: $vswhere" }
+        $vsInstall = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+        if (-not $vsInstall) { throw "No Visual Studio installation found by vswhere." }
+        $vsDevCmd = Join-Path $vsInstall "Common7\Tools\VsDevCmd.bat"
+        if (!(Test-Path $vsDevCmd)) { throw "VsDevCmd.bat not found at: $vsDevCmd" }
+        cmd /c "`"$vsDevCmd`" -no_logo -arch=amd64 && set" | ForEach-Object {
+          if ($_ -match "^(.*?)=(.*)$") { [Environment]::SetEnvironmentVariable($matches[1], $matches[2]) }
+        }
+      }
+
+      Import-VsDevEnv
+      Write-Host "clang-cl:"; & clang-cl.exe --version
+      Write-Host "cl.exe:"; & cl.exe /Bv | Select-Object -First 25
+      Write-Host "cmake:"; & cmake --version
     - >
       cmake
+      -G "Visual Studio 17 2022"
+      -A x64
       -DCMAKE_BUILD_TYPE=Release
       -T "ClangCL"
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
