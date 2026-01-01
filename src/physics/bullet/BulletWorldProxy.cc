@@ -8,10 +8,17 @@
 
 #include "a3d/physics/bullet/BulletWorldProxy.h"
 
+#include <algorithm>
+#include <thread>
+
 #include <bullet/btBulletCollisionCommon.h>
 #include <bullet/btBulletDynamicsCommon.h>
+#include <bullet/BulletCollision/CollisionDispatch/btCollisionDispatcherMt.h>
 #include <bullet/BulletCollision/Gimpact/btGImpactShape.h>
+#include <bullet/BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolverMt.h>
+#include <bullet/BulletDynamics/Dynamics/btDiscreteDynamicsWorldMt.h>
 #include <bullet/LinearMath/btIDebugDraw.h>
+#include <bullet/LinearMath/btThreads.h>
 #include <magic_enum/magic_enum.hpp>
 
 #include "a3d/Configuration.h"
@@ -25,31 +32,17 @@
 #include "a3d/profiling/Profiling.h"
 #include "a3d/scene/Node.h"
 
-
-
-
-#include <thread>
-#include <algorithm>
-
-#include <bullet/LinearMath/btThreads.h>
-#include <bullet/BulletCollision/CollisionDispatch/btCollisionDispatcherMt.h>
-#include <bullet/BulletDynamics/Dynamics/btDiscreteDynamicsWorldMt.h>
-#include <bullet/BulletDynamics/ConstraintSolver/btSequentialImpulseConstraintSolverMt.h>
-
-
-
-#if !defined(BT_THREADSAFE) || (BT_THREADSAFE != 1)
-#error "Bullet MT requires compiling this target with BT_THREADSAFE=1"
-#endif
-
-
-static constexpr bool A3D_USE_MT_DISPATCHER = true;
-
-
-
 using namespace a3d;
 using namespace a3d::math;
 using namespace std;
+
+// ! btCollisionDispatcherMt is known to be buggy. leave it off.
+static constexpr bool A3D_USE_MT_DISPATCHER = false;
+
+// make sure bullet is built with MT enabled
+#if !defined(BT_THREADSAFE) || (BT_THREADSAFE != 1)
+#   error "Bullet requires building with BT_THREADSAFE=1"
+#endif
 
 /// Private Static Non-Member Prototypes ///
 
@@ -58,16 +51,15 @@ static int PickNumBTThreads(btITaskScheduler* sched);
 
 /// Internal Lifecycle Functions ///
 
-BulletWorldProxy::BulletWorldProxy(PhysicalWorld& world)
-		: PhysicalWorldProxy{world}
-		, _stats{}
-		, _debugLines{}
-{
+BulletWorldProxy::BulletWorldProxy(PhysicalWorld& world):
+		PhysicalWorldProxy{world},
+		_stats{},
+		_debugLines{} {
 	log::i()("Bullet Physics version: {}", btGetVersion());
 
 #if !BT_THREADSAFE
 	log::w()("BT_THREADSAFE is NOT enabled. Rebuild Bullet with BT_THREADSAFE=1 before using Mt classes.");
-    // You *can* fall back to single-threaded world here if you want.
+    // fall back to single-threaded world?
 #endif
 
 	// 1) Task scheduler: MUST be set before using any Mt classes. :contentReference[oaicite:7]{index=7}
@@ -89,20 +81,19 @@ BulletWorldProxy::BulletWorldProxy(PhysicalWorld& world)
 			 _btScheduler->getNumThreads(),
 			 _btScheduler->getMaxNumThreads());
 
-	// 2) Standard bits
 	_btCollisionConfiguration = std::make_unique<btDefaultCollisionConfiguration>();
 
 	if constexpr (A3D_USE_MT_DISPATCHER) {
 		_btCollisionDispatcher = std::make_unique<btCollisionDispatcherMt>(_btCollisionConfiguration.get());
 		log::i()("Bullet dispatcher: MT");
-	} else {
+	}
+	else {
 		_btCollisionDispatcher = std::make_unique<btCollisionDispatcher>(_btCollisionConfiguration.get());
 		log::i()("Bullet dispatcher: ST");
 	}
 
 	_btBroadphase = std::make_unique<btDbvtBroadphase>();
 
-// 3) Build solver pool ONCE (explicit solvers)
 	const int poolSize = std::max(1, _btScheduler->getNumThreads() * 2);
 	_ownedSolvers.clear();
 	_solverPtrs.clear();
@@ -117,103 +108,26 @@ BulletWorldProxy::BulletWorldProxy(PhysicalWorld& world)
 	_btSolverPool = std::make_unique<btConstraintSolverPoolMt>(_solverPtrs.data(), poolSize);
 	_btSolverMt   = std::make_unique<btSequentialImpulseConstraintSolverMt>();
 
-// 4) NOW create world using the *final* pool pointers
 	_btWorld = std::make_unique<btDiscreteDynamicsWorldMt>(
 			_btCollisionDispatcher.get(),
 			_btBroadphase.get(),
 			_btSolverPool.get(),
 			_btSolverMt.get(),
-			_btCollisionConfiguration.get()
-	);
+			_btCollisionConfiguration.get());
 
 #ifdef A3D_GL_DESKTOP
 	_btDebugDrawer = std::make_unique<BulletDebugDrawer>();
 	_debugLines = {};
 	_btWorld->setDebugDrawer(_btDebugDrawer.get());
 #endif
-
-//	// 2) Standard bits
-//	_btCollisionConfiguration = std::make_unique<btDefaultCollisionConfiguration>();
-//
-//	// Mt dispatcher (default grainSize=40). :contentReference[oaicite:8]{index=8}
-//	_btCollisionDispatcher = std::make_unique<btCollisionDispatcherMt>(_btCollisionConfiguration.get());
-//
-//	_btBroadphase = std::make_unique<btDbvtBroadphase>();
-//
-////	// 3) Solvers for Mt world:
-////	//    - solver pool: ideally >= #threads, often "threads*2" is used in examples/issues. :contentReference[oaicite:9]{index=9}
-////	_btSolverPool = std::make_unique<btConstraintSolverPoolMt>(_btScheduler->getNumThreads() * 2);
-////
-////	//    - optional Mt solver for large islands. :contentReference[oaicite:10]{index=10}
-////	_btSolverMt = std::make_unique<btSequentialImpulseConstraintSolverMt>();
-////
-////	// 4) Mt world (note ctor signature). :contentReference[oaicite:11]{index=11}
-////	_btWorld = std::make_unique<btDiscreteDynamicsWorldMt>(
-////			_btCollisionDispatcher.get(),
-////			_btBroadphase.get(),
-////			_btSolverPool.get(),
-////			_btSolverMt.get(),
-////			_btCollisionConfiguration.get()
-////	);
-//
-//#ifdef A3D_GL_DESKTOP
-//	_btDebugDrawer = std::make_unique<BulletDebugDrawer>();
-//	_debugLines = {};
-//	_btWorld->setDebugDrawer(_btDebugDrawer.get());
-//#endif
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//	const int n = std::max(1, _btScheduler->getNumThreads()); // or *2 if you like
-//
-//	_ownedSolvers.clear();
-//	_solverPtrs.clear();
-//	_ownedSolvers.reserve(n);
-//	_solverPtrs.reserve(n);
-//
-//	for (int i = 0; i < n; ++i) {
-//		_ownedSolvers.emplace_back(std::make_unique<btSequentialImpulseConstraintSolver>());
-//		_solverPtrs.push_back(_ownedSolvers.back().get());
-//	}
-//
-//	_btSolverPool = std::make_unique<btConstraintSolverPoolMt>(_solverPtrs.data(), n);
-//	_btSolverMt   = std::make_unique<btSequentialImpulseConstraintSolverMt>();
 }
-
-//BulletWorldProxy::~BulletWorldProxy() {
-//
-//	log::d()("Destroying BulletWorldProxy {:p}", static_cast<void*>(this));
-//}
-
-//BulletWorldProxy::~BulletWorldProxy() {
-//	log::d()("Destroying BulletWorldProxy {:p}", static_cast<void*>(this));
-//
-//	// If we installed a scheduler, restore sequential before owned scheduler dies.
-//	if (_btScheduler && btGetTaskScheduler() == _btScheduler) {
-//		btSetTaskScheduler(btGetSequentialTaskScheduler()); // always available :contentReference[oaicite:13]{index=13}
-//	}
-//}
 
 BulletWorldProxy::~BulletWorldProxy() {
 	log::d()("Destroying BulletWorldProxy {:p}", static_cast<void*>(this));
 
-	// Optional but smart: ensure nobody is inside Bullet while we tear down
+	// ensure nobody is inside Bullet while we tear down
 	std::scoped_lock lock(_btMutex);
 	_btWorld.reset();
-
-//	if (_btScheduler && btGetTaskScheduler() == _btScheduler) {
-//		btSetTaskScheduler(btGetSequentialTaskScheduler());
-//	}
 
 	if (_ownedScheduler && btGetTaskScheduler() == _btScheduler) {
 		btSetTaskScheduler(btGetSequentialTaskScheduler());
@@ -332,10 +246,9 @@ void BulletWorldProxy::step(double deltaT,
 
 	auto result = prof::profile(profiler, Profiler::Tag::Physics, [&] {
 
-
 		std::scoped_lock lock(_btMutex);
 
-
+		// (optional debug check)
 		const auto& arr = _btWorld->getCollisionObjectArray();
 		for (int i = 0; i < arr.size(); ++i) {
 			const btCollisionObject* obj = arr[i];
@@ -346,10 +259,6 @@ void BulletWorldProxy::step(double deltaT,
 			}
 		}
 
-
-
-
-		// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=9320
 		return _btWorld->stepSimulation(btScalar(deltaT * speed),
 										config::MAX_PHYSICS_SUBSTEPS,
 										timestep);

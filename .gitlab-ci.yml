@@ -67,18 +67,33 @@ windows-debug:
   except:
     - testing
     - stable
+#  script:
+#    - echo "Starting Windows debug build..."
+#    - mkdir gitlab-build
+#    - cd gitlab-build
+#    - cmake
+#      -DCMAKE_PREFIX_PATH="C:/Qt/6.10.1/msvc2022_64"
+#      -DCMAKE_BUILD_TYPE="Debug"
+#      -T"ClangCL"
+#      -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
+#      -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+#      ..
+#    - cmake --build . --config Debug --target install -parallel 8
+#    - mv packaged/avara3d ../
+#    - echo "Windows debug build complete."
   script:
     - echo "Starting Windows debug build..."
-    - mkdir gitlab-build
+    - mkdir -p gitlab-build
     - cd gitlab-build
-    - cmake
+    - >
+      cmake
       -DCMAKE_PREFIX_PATH="C:/Qt/6.10.1/msvc2022_64"
       -DCMAKE_BUILD_TYPE="Debug"
-      -T"ClangCL"
+      -T "ClangCL"
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
-    - cmake --build . --config Debug --target install -j8 -- /v:diag
+    - set -o pipefail; cmake --build . --config Debug --target install --parallel 8 2>&1 | tail -n 200
     - mv packaged/avara3d ../
     - echo "Windows debug build complete."
   artifacts:

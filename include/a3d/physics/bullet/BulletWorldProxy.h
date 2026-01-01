@@ -62,50 +62,24 @@ namespace a3d {
 	private:
 		///  Private Member Variables ///
 
-//		std::unique_ptr<btDiscreteDynamicsWorld>				_btWorld;
-//		std::unique_ptr<btDefaultCollisionConfiguration> 		_btCollisionConfiguration;
-//		std::unique_ptr<btCollisionDispatcher>					_btCollisionDispatcher;
-//		std::unique_ptr<btDbvtBroadphase>						_btBroadphase;
-//		std::unique_ptr<btSequentialImpulseConstraintSolver>	_btConstraintSolver;
-//#ifdef A3D_GL_DESKTOP
-//		std::unique_ptr<BulletDebugDrawer>						_btDebugDrawer;
-//		std::vector<Line> 										_debugLines;
-//#endif
-//		BulletStats												_stats;
-//
-//
-//
-//
-//		btITaskScheduler* _btScheduler = nullptr;                 // non-owning
-//		std::unique_ptr<btITaskScheduler> _ownedScheduler;        // owning, only if we create default
-//
-//		std::unique_ptr<btConstraintSolverPoolMt> _btSolverPool;  // pool of per-thread solvers
-//		std::unique_ptr<btSequentialImpulseConstraintSolverMt> _btSolverMt; // optional Mt solver
-//
-//
-//		mutable std::mutex _btMutex;
-//
-//
-//		std::vector<std::unique_ptr<btSequentialImpulseConstraintSolver>> _ownedSolvers;
-//		std::vector<btConstraintSolver*> _solverPtrs;
-
-// scheduler
+		// scheduler
 		btITaskScheduler* _btScheduler = nullptr;
 		std::unique_ptr<btITaskScheduler> _ownedScheduler;
 
-// config/dispatcher/broadphase
+		// config/dispatcher/broadphase
 		std::unique_ptr<btDefaultCollisionConfiguration> _btCollisionConfiguration;
 		std::unique_ptr<btCollisionDispatcher> _btCollisionDispatcher;
 		std::unique_ptr<btDbvtBroadphase> _btBroadphase;
 
-// solvers
+		// solvers
 		std::vector<std::unique_ptr<btSequentialImpulseConstraintSolver>> _ownedSolvers;
 		std::vector<btConstraintSolver*> _solverPtrs;
 
 		std::unique_ptr<btConstraintSolverPoolMt> _btSolverPool;
 		std::unique_ptr<btSequentialImpulseConstraintSolverMt> _btSolverMt;
 
-		mutable std::mutex _btMutex;
+		// MUST be last so destroyed first
+		std::unique_ptr<btDiscreteDynamicsWorld> _btWorld;
 
 #ifdef A3D_GL_DESKTOP
 		std::unique_ptr<BulletDebugDrawer> _btDebugDrawer;
@@ -114,9 +88,7 @@ namespace a3d {
 
 		BulletStats _stats;
 
-// MUST be last so destroyed first
-		std::unique_ptr<btDiscreteDynamicsWorld> _btWorld;
-
+		mutable std::mutex _btMutex;
 	};
 }
 
