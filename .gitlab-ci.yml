@@ -76,6 +76,10 @@ windows-debug:
   except: [testing, stable]
   script:
     - echo "Starting Windows debug build..."
+    - '& "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\Llvm\x64\bin\clang-cl.exe" --version'
+    - 'cl.exe'
+    - 'cmake --version'
+
     - mkdir gitlab-build
     - cd gitlab-build
     - >
