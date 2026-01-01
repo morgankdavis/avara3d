@@ -14,7 +14,7 @@
 
 #include <GLFW/glfw3.h>
 
-#include "a3d/diagnostic/log/Log.h"
+#include "a3d/log/Log.h"
 #include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/context/GLFWWindow.h"
 #include "a3d/scene/Scene.h"

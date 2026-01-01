@@ -16,7 +16,7 @@
 #include <string>
 #include <vector>
 
-#include "a3d/diagnostic/log/sink/LogSink.h"
+#include "a3d/log/sink/LogSink.h"
 
 namespace a3d {
 

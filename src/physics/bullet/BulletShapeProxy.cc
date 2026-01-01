@@ -16,7 +16,7 @@
 #include <bullet/BulletCollision/CollisionShapes/btShapeHull.h>
 #include <magic_enum/magic_enum.hpp>
 
-#include "a3d/diagnostic/log/Log.h"
+#include "a3d/log/Log.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/primitive/Box.h"
 #include "a3d/mesh/primitive/Capsule.h"

@@ -6,7 +6,7 @@
 //  Copyright © 2025 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/diagnostic/exception/NotImplementedException.h"
+#include "a3d/exception/NotImplementedException.h"
 
 using namespace a3d;
 using namespace std;

@@ -13,8 +13,8 @@
 
 #include "a3d/Buffer.h"
 #include "a3d/Image.h"
-#include "a3d/diagnostic/exception/Exception.h"
-#include "a3d/diagnostic/log/Log.h"
+#include "a3d/exception/Exception.h"
+#include "a3d/log/Log.h"
 #include "a3d/rendering/camera/PerspectiveCamera.h"
 #include "a3d/rendering/renderer/Renderer.h"
 #include "a3d/rendering/renderer/opengl/OpenGLRenderer.h"

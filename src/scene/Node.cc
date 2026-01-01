@@ -12,8 +12,8 @@
 #include <format>
 #include <utility>
 
-#include "a3d/diagnostic/exception/Exception.h"
-#include "a3d/diagnostic/log/Log.h"
+#include "a3d/exception/Exception.h"
+#include "a3d/log/Log.h"
 #include "a3d/Math.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/physics/PhysicsBody.h"

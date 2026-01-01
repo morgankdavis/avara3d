@@ -8,8 +8,8 @@
 
 #include "a3d/rendering/light/AttenuatedLight.h"
 
-#include "a3d/diagnostic/exception/NotImplementedException.h"
-#include "a3d/diagnostic/log/Log.h"
+#include "a3d/exception/NotImplementedException.h"
+#include "a3d/log/Log.h"
 
 using namespace a3d;
 using namespace std;

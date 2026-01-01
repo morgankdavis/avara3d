@@ -12,7 +12,7 @@
 
 #include "a3d/Color.h"
 #include "a3d/Types.h"
-#include "a3d/diagnostic/log/Log.h"
+#include "a3d/log/Log.h"
 #include "a3d/Math.h"
 #include "a3d/mesh/Line.h"
 #include "a3d/scene/Node.h"

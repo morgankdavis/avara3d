@@ -12,7 +12,7 @@
 #include "a3d/physics/bullet/BulletUtilities.h"
 #include "a3d/scene/Node.h"
 
-#include "a3d/diagnostic/log/Log.h"
+#include "a3d/log/Log.h"
 
 using namespace a3d;
 

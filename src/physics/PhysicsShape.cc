@@ -11,7 +11,7 @@
 #include <magic_enum/magic_enum.hpp>
 
 #include "a3d/mesh/Mesh.h"
-#include "a3d/diagnostic/log/Log.h"
+#include "a3d/log/Log.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/proxy/PhysicsShapeProxy.h"
 #include "a3d/physics/PhysicalWorld.h"

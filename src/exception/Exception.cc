@@ -6,10 +6,10 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/diagnostic/exception/Exception.h"
+#include "a3d/exception/Exception.h"
 
 #include "a3d/Utilities.h"
-#include "a3d/diagnostic/log/Log.h"
+#include "a3d/log/Log.h"
 
 using namespace a3d;
 using namespace std;

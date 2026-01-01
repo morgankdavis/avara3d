@@ -13,7 +13,7 @@
 #include "a3d/Color.h"
 #include "a3d/CubeImage.h"
 #include "a3d/Utilities.h"
-#include "a3d/diagnostic/log/Log.h"
+#include "a3d/log/Log.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/primitive/Plane.h"
 #include "a3d/physics/PhysicalWorld.h"

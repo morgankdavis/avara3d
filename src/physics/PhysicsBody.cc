@@ -10,7 +10,7 @@
 
 #include <magic_enum/magic_enum.hpp>
 
-#include "a3d/diagnostic/log/Log.h"
+#include "a3d/log/Log.h"
 #include "a3d/physics/PhysicsShape.h"
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/physics/bullet/BulletBodyProxy.h"

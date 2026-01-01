@@ -11,7 +11,7 @@
 
 #include <string>
 
-#include "a3d/diagnostic/exception/Exception.h"
+#include "a3d/exception/Exception.h"
 
 namespace a3d {
 

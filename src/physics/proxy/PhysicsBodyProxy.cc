@@ -8,7 +8,7 @@
 
 #include "a3d/physics/proxy/PhysicsBodyProxy.h"
 
-#include "a3d/diagnostic/log/Log.h"
+#include "a3d/log/Log.h"
 
 using namespace a3d;
 

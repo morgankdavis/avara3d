@@ -9,7 +9,7 @@
 #include "a3d/rendering/light/SpotLight.h"
 
 #include "a3d/Color.h"
-#include "a3d/diagnostic/log/Log.h"
+#include "a3d/log/Log.h"
 
 using namespace a3d;
 using namespace a3d::math;

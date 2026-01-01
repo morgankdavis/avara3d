@@ -14,8 +14,8 @@
 #include <stb/image_write.h>
 
 #include "a3d/Buffer.h"
-#include "a3d/diagnostic/exception/Exception.h"
-#include "a3d/diagnostic/log/Log.h"
+#include "a3d/exception/Exception.h"
+#include "a3d/log/Log.h"
 
 using namespace a3d;
 using namespace std;

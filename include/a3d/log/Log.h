@@ -1,4 +1,11 @@
-// Log.h
+//
+//  Log.h
+//  avara3d
+//
+//  Created by Morgan Davis on 1/5/18.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//
+
 #ifndef A3D_LOG_H
 #define A3D_LOG_H
 
@@ -14,17 +21,6 @@
 
 #include "a3d/Types.h"
 
-// example:
-// log::w()("This is a normal log line");     // wraps .nl()
-// log::w().nl("This is a normal log line");  // explicit newline
-// log::w().raw("progress: 10%");             // no newline
-
-#if defined(_MSC_VER)
-static_assert(_MSVC_LANG >= 202002L, "Need C++20 (/std:c++20) for std::source_location");
-#else
-static_assert(__cplusplus >= 202002L, "Need C++20 for std::source_location");
-#endif
-
 namespace a3d {
 
 	class LogSink;
@@ -34,9 +30,56 @@ namespace a3d {
 	public:
 		/// Internal Types ///
 
-		/* filename, line, function */
-		using SourceInfo = std::tuple<std::string, unsigned, std::string>;
-		// using SourceInfo = std::tuple<std::string_view, unsigned, std::string_view>;
+		struct SourceInfo {
+			std::string_view filename;
+			unsigned line;
+			std::string_view function;
+		};
+
+		class Entry {
+		public:
+			Entry(Log& logger, LogLevel lvl, SourceInfo src);
+
+			void operator()(std::string_view msg) const;
+
+			template<class... Args>
+			void operator()(std::format_string<Args...> fmt, Args&&... args) const {
+				nl(fmt, std::forward<Args>(args)...);
+			}
+
+			void nl(std::string_view msg) const;
+
+			template<class... Args>
+			void nl(std::format_string<Args...> fmt, Args&&... args) const
+			requires (sizeof...(Args) > 0) {
+				nlf(fmt, std::forward<Args>(args)...);
+			}
+
+			template<class... Args>
+			void nlf(std::format_string<Args...> fmt, Args&&... args) const {
+				if (!_logger->enabled(_level)) return;
+				_logger->log(_level, _source, std::format(fmt, std::forward<Args>(args)...));
+			}
+
+			void raw(std::string_view msg) const;
+
+			template<class... Args>
+			void raw(std::format_string<Args...> fmt, Args&&... args) const
+			requires (sizeof...(Args) > 0) {
+				rawf(fmt, std::forward<Args>(args)...);
+			}
+
+			template<class... Args>
+			void rawf(std::format_string<Args...> fmt, Args&&... args) const {
+				if (!_logger->enabled(_level)) return;
+				_logger->write(_level, _source, std::format(fmt, std::forward<Args>(args)...));
+			}
+
+		private:
+			Log*       	_logger;
+			LogLevel   	_level;
+			SourceInfo 	_source;
+		};
 
 		/// Public Static Member Functions ///
 
@@ -56,18 +99,19 @@ namespace a3d {
 			LogLevel level = DEFAULT_LEVEL,
 			LogLevel flushLevel = DEFAULT_FLUSH_LEVEL);
 
-		Log(const Log& other) = delete;            // copy constructor
-		Log& operator=(const Log& other) = delete; // copy assignment
+		Log(const Log& other) = delete;
+		Log& operator=(const Log& other) = delete;
 		Log(Log&&) noexcept = default;
 		Log& operator=(Log&&) noexcept = default;
 
-		~Log(); // must be out-of-line because LogSink is incomplete here
+		~Log();
 
 		Log();
 
 		/// Public Member Functions ///
 
 		const std::string& name() const;
+
 		const std::vector<std::unique_ptr<LogSink>>& sinks() const;
 
 		LogLevel level() const;
@@ -76,7 +120,6 @@ namespace a3d {
 		LogLevel flushLevel() const;
 		void flushLevel(LogLevel flushLevel);
 
-		// ---- Original API (kept verbatim) ----
 		void trace(const std::string& msg);
 		void debug(const std::string& msg);
 		void info (const std::string& msg);
@@ -92,49 +135,6 @@ namespace a3d {
 
 		/// Internal Member Functions ///
 
-		void write(LogLevel level, const SourceInfo& sourceInfo, std::string_view msg);
-		void write(LogLevel level, std::string_view msg);
-
-		class Entry {
-		public:
-			Entry(Log& logger, LogLevel lvl, SourceInfo src);
-
-			// operator() wraps nl()
-			void operator()(std::string_view msg) const;
-
-			template<class... Args>
-			void operator()(std::format_string<Args...> fmt, Args&&... args) const {
-				nlf(fmt, std::forward<Args>(args)...);
-			}
-
-			// ---- main dudes ----
-
-			// newline-terminated (old behavior)
-			void nl(std::string_view msg) const;
-
-			template<class... Args>
-			void nlf(std::format_string<Args...> fmt, Args&&... args) const {
-				if (!_logger->enabled(_lvl)) return;
-				_logger->log(_lvl, _src, std::format(fmt, std::forward<Args>(args)...));
-			}
-
-			// no newline
-			void raw(std::string_view msg) const;
-
-			template<class... Args>
-			void rawf(std::format_string<Args...> fmt, Args&&... args) const {
-				if (!_logger->enabled(_lvl)) return;
-				_logger->write(_lvl, _src, std::format(fmt, std::forward<Args>(args)...));
-			}
-
-		private:
-			Log*       _logger;
-			LogLevel   _lvl;
-			SourceInfo _src;
-		};
-
-		// Overloads (same names) that capture source location.
-		// Default arg is evaluated at the *caller* (this is the trick).
 		Entry trace(std::source_location where = std::source_location::current());
 		Entry debug(std::source_location where = std::source_location::current());
 		Entry info (std::source_location where = std::source_location::current());
@@ -142,7 +142,16 @@ namespace a3d {
 		Entry error(std::source_location where = std::source_location::current());
 		Entry fatal(std::source_location where = std::source_location::current());
 
+		void write(LogLevel level, const SourceInfo& sourceInfo, std::string_view msg);
+		void write(LogLevel level, std::string_view msg);
+
 	private:
+		/// Private Static Member Functions ///
+
+		static std::string_view Basename(std::string_view p);
+		static std::string_view ShortFunction(std::string_view s, int keepScopes = 2);
+		static SourceInfo MakeSourceInfo(const std::source_location& where);
+
 		/// Private Lifecycle ///
 
 		Log(const std::string& name);
@@ -153,11 +162,6 @@ namespace a3d {
 		void dispatch(LogLevel level, std::string& output);
 
 		bool enabled(LogLevel lvl) const;
-
-		// moved out-of-line
-		static std::string_view Basename(std::string_view p);
-		static std::string_view ShortFunction(std::string_view s, int keepScopes = 2);
-		static SourceInfo MakeSourceInfo(const std::source_location& where);
 
 		/// Private Constants ///
 
@@ -170,15 +174,14 @@ namespace a3d {
 
 		/// Private Member Variables ///
 
-		std::string _name;
-		std::vector<std::unique_ptr<LogSink>> _sinks;
-		LogLevel _level;
-		LogLevel _flushLevel;
+		std::string								_name;
+		std::vector<std::unique_ptr<LogSink>> 	_sinks;
+		LogLevel 								_level;
+		LogLevel 								_flushLevel;
 	};
 
-	// Convenience free functions
-	// (Default argument captures call-site correctly.)
 	namespace log {
+
 		inline Log::Entry t(std::source_location where = std::source_location::current()) { return Log::MainLog().trace(where); }
 		inline Log::Entry d(std::source_location where = std::source_location::current()) { return Log::MainLog().debug(where); }
 		inline Log::Entry i(std::source_location where = std::source_location::current()) { return Log::MainLog().info(where);  }
@@ -187,6 +190,7 @@ namespace a3d {
 		inline Log::Entry f(std::source_location where = std::source_location::current()) { return Log::MainLog().fatal(where); }
 
 		namespace app {
+
 			inline Log::Entry t(std::source_location where = std::source_location::current()) { return Log::AppLog().trace(where); }
 			inline Log::Entry d(std::source_location where = std::source_location::current()) { return Log::AppLog().debug(where); }
 			inline Log::Entry i(std::source_location where = std::source_location::current()) { return Log::AppLog().info(where);  }

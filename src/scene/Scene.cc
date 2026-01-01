@@ -18,7 +18,7 @@
 #include "a3d/Configuration.h"
 #include "a3d/Image.h"
 #include "a3d/Utilities.h"
-#include "a3d/diagnostic/log/Log.h"
+#include "a3d/log/Log.h"
 #include "a3d/input/GLFWInputManager.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"

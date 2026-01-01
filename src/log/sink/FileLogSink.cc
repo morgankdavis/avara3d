@@ -7,12 +7,12 @@
 //
 
 
-#include "a3d/diagnostic/log/sink/FileLogSink.h"
+#include "a3d/log/sink/FileLogSink.h"
 
 #include <format>
 
-#include "a3d/diagnostic/exception/Exception.h"
-#include "a3d/diagnostic/log/Log.h"
+#include "a3d/exception/Exception.h"
+#include "a3d/log/Log.h"
 
 using namespace a3d;
 using namespace std;

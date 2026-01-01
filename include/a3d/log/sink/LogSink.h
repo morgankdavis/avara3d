@@ -11,7 +11,7 @@
 
 #include <string>
 
-#include "a3d/diagnostic/log/Log.h"
+#include "a3d/log/Log.h"
 
 namespace a3d {
 

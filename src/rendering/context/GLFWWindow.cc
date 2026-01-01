@@ -15,8 +15,8 @@
 #include <imgui/backends/imgui_impl_glfw.h>
 
 #include "a3d/Utilities.h"
-#include "a3d/diagnostic/exception/Exception.h"
-#include "a3d/diagnostic/log/Log.h"
+#include "a3d/exception/Exception.h"
+#include "a3d/log/Log.h"
 #include "a3d/input/GLFWInputManager.h"
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/rendering/VisualWorld.h"

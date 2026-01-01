@@ -6,7 +6,7 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/diagnostic/log/sink/StdOutLogSink.h"
+#include "a3d/log/sink/StdOutLogSink.h"
 
 #include <iostream>
 

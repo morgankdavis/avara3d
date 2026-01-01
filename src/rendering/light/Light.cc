@@ -9,7 +9,7 @@
 #include "a3d/rendering/light/Light.h"
 
 #include "a3d/Color.h"
-#include "a3d/diagnostic/log/Log.h"
+#include "a3d/log/Log.h"
 #include "a3d/rendering/light/AmbientLight.h"
 #include "a3d/rendering/light/DirectionalLight.h"
 #include "a3d/rendering/light/PointLight.h"

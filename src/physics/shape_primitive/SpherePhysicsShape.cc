@@ -8,7 +8,7 @@
 
 #include "a3d/physics/shape_primitive/SpherePhysicsShape.h"
 
-#include "a3d/diagnostic/exception/Exception.h"
+#include "a3d/exception/Exception.h"
 
 using namespace a3d;
 

@@ -14,7 +14,7 @@
 #include <v-hacd/VHACD.h>
 
 #include "a3d/mesh/MeshElement.h"
-#include "a3d/diagnostic/log/Log.h"
+#include "a3d/log/Log.h"
 
 using namespace a3d;
 using namespace std;

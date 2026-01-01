@@ -6,7 +6,7 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/diagnostic/exception/UnsupportedFormatException.h"
+#include "a3d/exception/UnsupportedFormatException.h"
 
 using namespace a3d;
 using namespace std;
