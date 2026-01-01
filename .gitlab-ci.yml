@@ -23,13 +23,14 @@ linux-debug:
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     - |
-      /usr/bin/cmake --build . --target install --parallel 4 > build.log 2>&1 || {
+      if ! /usr/bin/cmake --build . --target install --parallel 4 > build.log 2>&1; then
         tail -n 250 build.log
         exit 1
-      }
+      fi
     - mv packaged/avara3d ../
     - echo "Linux debug build complete."
   artifacts:
+    when: always
     name: "avara3d-linux-debug-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: "linux-debug"
     paths:
@@ -54,13 +55,14 @@ macos-debug:
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     - |
-      /usr/local/bin/cmake --build . --target install --parallel 4 > build.log 2>&1 || {
+      if ! /usr/local/bin/cmake --build . --target install --parallel 4 > build.log 2>&1; then
         tail -n 250 build.log
         exit 1
-      }
+      fi
     - mv packaged/avara3d ../
     - echo "macOS debug build complete."
   artifacts:
+    when: always
     name: "avara3d-macos-debug-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: "macos-debug"
     paths:
@@ -74,7 +76,7 @@ windows-debug:
   except: [testing, stable]
   script:
     - echo "Starting Windows debug build..."
-    - mkdir -p gitlab-build
+    - mkdir gitlab-build
     - cd gitlab-build
     - >
       cmake
@@ -84,15 +86,17 @@ windows-debug:
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
+    # PowerShell runner: capture full log to file, print tail only on failure.
     - |
-      set -o pipefail
-      cmake --build . --config Debug --target install --parallel 8 > build.log 2>&1 || {
-        tail -n 250 build.log
-        exit 1
+      cmake --build . --config Debug --target install --parallel 8 *> build.log
+      if ($LASTEXITCODE -ne 0) {
+        Get-Content build.log -Tail 250
+        exit $LASTEXITCODE
       }
     - mv packaged/avara3d ../
     - echo "Windows debug build complete."
   artifacts:
+    when: always
     name: "avara3d-windows-debug-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: "windows-debug"
     paths:
@@ -123,13 +127,14 @@ linux-release:
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     - |
-      /usr/bin/cmake --build . --target install --parallel 4 > build.log 2>&1 || {
+      if ! /usr/bin/cmake --build . --target install --parallel 4 > build.log 2>&1; then
         tail -n 250 build.log
         exit 1
-      }
+      fi
     - mv packaged/avara3d ../
     - echo "Linux release build complete."
   artifacts:
+    when: always
     name: "avara3d-linux-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: "linux-release"
     paths:
@@ -155,13 +160,14 @@ macos-release:
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     - |
-      /usr/local/bin/cmake --build . --target install --parallel 4 > build.log 2>&1 || {
+      if ! /usr/local/bin/cmake --build . --target install --parallel 4 > build.log 2>&1; then
         tail -n 250 build.log
         exit 1
-      }
+      fi
     - mv packaged/avara3d ../
     - echo "macOS release build complete."
   artifacts:
+    when: always
     name: "avara3d-macos-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: "macos-release"
     paths:
@@ -176,7 +182,7 @@ windows-release:
   only: [testing, stable]
   script:
     - echo "Starting Windows release build..."
-    - mkdir -p gitlab-build
+    - mkdir gitlab-build
     - cd gitlab-build
     - >
       cmake
@@ -186,14 +192,15 @@ windows-release:
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     - |
-      set -o pipefail
-      cmake --build . --config Release --target install --parallel 8 > build.log 2>&1 || {
-        tail -n 250 build.log
-        exit 1
+      cmake --build . --config Release --target install --parallel 8 *> build.log
+      if ($LASTEXITCODE -ne 0) {
+        Get-Content build.log -Tail 250
+        exit $LASTEXITCODE
       }
     - mv packaged/avara3d ../
     - echo "Windows release build complete."
   artifacts:
+    when: always
     name: "avara3d-windows-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: "windows-release"
     paths:
@@ -211,7 +218,7 @@ linux-release-manual:
   environment: production
   when: manual
   script:
-    - echo "Starting Linux release build (manual)..."
+    - echo "Starting Linux release build..."
     - mkdir -p gitlab-build
     - cd gitlab-build
     - >
@@ -224,15 +231,16 @@ linux-release-manual:
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     - |
-      /usr/bin/cmake --build . --target install --parallel 4 > build.log 2>&1 || {
+      if ! /usr/bin/cmake --build . --target install --parallel 4 > build.log 2>&1; then
         tail -n 250 build.log
         exit 1
-      }
+      fi
     - mv packaged/avara3d ../
-    - cd ..
+    - cd ../
     - tar -cfz "avara3d-linux-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}.tgz" avara3d
-    - echo "Linux manual release build complete."
+    - echo "Linux release build complete."
   artifacts:
+    when: always
     expose_as: "linux-release"
     paths:
       - "avara3d-linux-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}.tgz"
@@ -245,7 +253,7 @@ macos-release-manual:
   environment: production
   when: manual
   script:
-    - echo "Starting macOS release build (manual)..."
+    - echo "Starting macOS release build..."
     - mkdir -p gitlab-build
     - cd gitlab-build
     - >
@@ -256,13 +264,14 @@ macos-release-manual:
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     - |
-      /usr/local/bin/cmake --build . --target install --parallel 4 > build.log 2>&1 || {
+      if ! /usr/local/bin/cmake --build . --target install --parallel 4 > build.log 2>&1; then
         tail -n 250 build.log
         exit 1
-      }
+      fi
     - mv packaged/avara3d ../
-    - echo "macOS manual release build complete."
+    - echo "macOS release build complete."
   artifacts:
+    when: always
     name: "avara3d-macos-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: "macos-release"
     paths:
@@ -276,8 +285,8 @@ windows-release-manual:
   environment: production
   when: manual
   script:
-    - echo "Starting Windows release build (manual)..."
-    - mkdir -p gitlab-build
+    - echo "Starting Windows release build..."
+    - mkdir gitlab-build
     - cd gitlab-build
     - >
       cmake
@@ -287,14 +296,15 @@ windows-release-manual:
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     - |
-      set -o pipefail
-      cmake --build . --config Release --target install --parallel 8 > build.log 2>&1 || {
-        tail -n 250 build.log
-        exit 1
+      cmake --build . --config Release --target install --parallel 8 *> build.log
+      if ($LASTEXITCODE -ne 0) {
+        Get-Content build.log -Tail 250
+        exit $LASTEXITCODE
       }
     - mv packaged/avara3d ../
-    - echo "Windows manual release build complete."
+    - echo "Windows release build complete."
   artifacts:
+    when: always
     name: "avara3d-windows-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: "windows-release"
     paths:

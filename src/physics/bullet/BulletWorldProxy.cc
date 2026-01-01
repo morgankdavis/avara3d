@@ -67,6 +67,7 @@ BulletWorldProxy::BulletWorldProxy(PhysicalWorld& world):
 		_btScheduler = _ownedScheduler.get();
 	}
 
+	_prevScheduler = btGetTaskScheduler();
 	btSetTaskScheduler(_btScheduler);
 
 	const int numThreads = PickNumBTThreads(_btScheduler);
@@ -117,12 +118,30 @@ BulletWorldProxy::~BulletWorldProxy() {
 
 	{
 		std::scoped_lock lock(_btMutex);
+
+		// remove constraints first (they reference bodies)
+		for (int i = _btWorld->getNumConstraints() - 1; i >= 0; --i) {
+			btTypedConstraint* c = _btWorld->getConstraint(i);
+			_btWorld->removeConstraint(c);
+		}
+
+		// remove all collision objects / rigid bodies
+		auto& arr = _btWorld->getCollisionObjectArray();
+		for (int i = arr.size() - 1; i >= 0; --i) {
+			btCollisionObject* obj = arr[i];
+			if (btRigidBody* rb = btRigidBody::upcast(obj)) {
+				_btWorld->removeRigidBody(rb);
+			} else {
+				_btWorld->removeCollisionObject(obj);
+			}
+		}
+
 		_btWorld.reset();
 	}
 
 	// restore global scheduler if we were the ones using it
-	if (_btScheduler && btGetTaskScheduler() == _btScheduler) {
-		btSetTaskScheduler(btGetSequentialTaskScheduler());
+	if (btGetTaskScheduler() == _btScheduler) {
+		btSetTaskScheduler(_prevScheduler ? _prevScheduler : btGetSequentialTaskScheduler());
 	}
 }
 

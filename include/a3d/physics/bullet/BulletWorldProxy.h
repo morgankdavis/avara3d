@@ -65,6 +65,7 @@ namespace a3d {
 		// scheduler
 		btITaskScheduler* 										_btScheduler = nullptr;
 		std::unique_ptr<btITaskScheduler> 						_ownedScheduler;
+		btITaskScheduler* 										_prevScheduler = nullptr; // non-owning
 
 		// config/dispatcher/broadphase
 		std::unique_ptr<btDefaultCollisionConfiguration> 		_btCollisionConfiguration;
