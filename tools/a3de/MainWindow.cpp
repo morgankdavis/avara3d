@@ -10,7 +10,9 @@
 #include "./ui_MainWindow.h"
 
 #include "a3d/a3d.h"
-#include "a3d/Utilities.h"
+#include "a3d/util/filesystem.h"
+#include "a3d/util/snapshot.h"
+#include "a3d/util/string.h"
 
 #include "QtViewport.h"
 #include "QtInputManager.h"
@@ -21,7 +23,7 @@ using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
-const LogLevel				APP_LOG_LEVEL		{LogLevel::Debug};
+const LogLevel				APP_LOG_LEVEL			{LogLevel::Debug};
 const uvec2					WINDOW_SIZE				{1280, 768};
 const AntialiasingMode		AA_MODE					{AntialiasingMode::Msaa4X};
 const bool					CAPTURE_CURSOR			{false};
@@ -51,7 +53,7 @@ MainWindow::~MainWindow() {
 
 void MainWindow::initScene(a3d::head::qt::QtViewport &viewport) {
 
-	using utils::MeshNamed;
+	using util::filesystem::MeshNamed;
 
 	try {
 		initLog();
@@ -68,9 +70,9 @@ void MainWindow::initScene(a3d::head::qt::QtViewport &viewport) {
 		//visualWorld->usesDefaultLighting(true);
 		visualWorld->willRenderCallback(bind(&MainWindow::willRenderCallback, this, _1, _2, _3));
 		visualWorld->didRenderCallback(bind(&MainWindow::didRenderCallback, this, _1, _2, _3));
-		visualWorld->background(make_shared<Texture>(std::move(utils::CubeImageNamed("nebula1_blue", "png"))));
+		visualWorld->background(make_shared<Texture>(std::move(util::filesystem::CubeImageNamed("nebula1_blue", "png"))));
 
-		_scene = utils::SceneNamed("cat_island/cat_island", SceneImportOptions::ImportMeshes
+		_scene = util::filesystem::SceneNamed("cat_island/cat_island", SceneImportOptions::ImportMeshes
 																| SceneImportOptions::ImportMaterials
 																| SceneImportOptions::ImportCameras);
 
@@ -114,7 +116,7 @@ void MainWindow::initLog() {
 	string executableName = *util::filesystem::ExecutableName();
 
 	auto nativeSink = make_unique<StdOutLogSink>();
-	auto fileSink = make_unique<FileLogSink>(*(utils::ExecutableDirectory())
+	auto fileSink = make_unique<FileLogSink>(*(util::filesystem::ExecutableDirectory())
 											 / (executableName + string(".log")));
 	auto sinks = vector<unique_ptr<LogSink>>();
 	sinks.push_back(std::move(nativeSink));
@@ -170,7 +172,7 @@ void MainWindow::updateCallback(a3d::Scene& scene, double time, double deltaTime
 	}
 
 	if (keysPressed.count(Key::T)) {
-		log::app::i()("TREE:\n{}", utils::TreeString(*(scene.rootNode())));
+		log::app::i()("TREE:\n{}", util::string::TreeString(*(scene.rootNode())));
 	}
 
 //	if 		(keysPressed.count(Key::One))	SetAllFilterModes(FilterMode::Nearest, scene);
@@ -221,15 +223,15 @@ void MainWindow::updateCallback(a3d::Scene& scene, double time, double deltaTime
 //	}
 
 	if (keysPressed.count(Key::Backslash)) {
-		utils::SaveSnapshot(*viewport);
+		util::snapshot::SaveSnapshot(*viewport);
 	}
 
 	if (keysPressed.count(Key::R)) {
 		if (!viewport->recordingGIF()) {
-			utils::StartGIFRecording(*viewport, {320, 240}, 8);
+			util::snapshot::StartGIFRecording(*viewport, {320, 240}, 8);
 		}
 		else {
-			utils::StopGIFRecording(*viewport);
+			util::snapshot::StopGIFRecording(*viewport);
 		}
 	}
 

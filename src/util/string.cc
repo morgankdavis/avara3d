@@ -94,7 +94,7 @@ string a3d::util::string::DateTimeString() {
 	time(&rawtime);
 	timeinfo = localtime(&rawtime);
 	strftime(buf, sizeof(buf), "%Y.%m.%d_%I.%M.%S", timeinfo);
-	return string(buf);
+	return std::string(buf);
 #else
 	timeval curTime;
 	gettimeofday(&curTime, NULL); // gettimeofday() is POSIX
