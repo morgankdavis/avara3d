@@ -43,7 +43,7 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
 			nullptr,
 			_options.maxConvexHulls,
 			_options.resolution,
-			_options.minimumVolumePercentErrorAllowed,
+			_options.minVolumePercentErr,
 			_options.maxRecursionDepth,
 			_options.shrinkWrap,
 			_vhacdFillMode, //_options.fillMode,

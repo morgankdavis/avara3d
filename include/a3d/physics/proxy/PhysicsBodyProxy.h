@@ -15,6 +15,7 @@ namespace a3d {
 
 	class PhysicsBody;
 	class PhysicsShapeProxy;
+//	class PhysicsWorld;
 
 	class PhysicsBodyProxy {
 
@@ -107,12 +108,16 @@ namespace a3d {
 		void							attachedToBody(PhysicsBody& body);
 		void							detachedFromBody(PhysicsBody& body);
 
+//		void							addedToWorld(PhysicsWorld& world);
+//		void							removedFromWorld(PhysicsWorld& world);
+
 	protected:
 		/// Protected Member Variables ///
 
 		PhysicsBody*					_body;
 		PhysicsShapeProxy*				_shapeProxy;
 		bool							_autocalculatesMomentOfInertia;
+//		PhysicsWorld*					_world;
 	};
 }
 

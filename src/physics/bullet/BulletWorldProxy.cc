@@ -155,7 +155,7 @@ void BulletWorldProxy::add(PhysicsBody& body) {
 	auto bodyProxy = static_cast<BulletBodyProxy*>(body.proxy());
 	auto btBody = bodyProxy->btBody();
 
-	if (btBody->isInWorld()) {
+	if (btBody->isInWorld()) { // ! NOTE:  not necessarily THIS world
 		log::w()("btRigidBody already in world.");
 		return;
 	}
@@ -217,12 +217,12 @@ void BulletWorldProxy::remove(PhysicsBody& body) {
 	auto bodyProxy = static_cast<BulletBodyProxy*>(body.proxy());
 	auto btBody = bodyProxy->btBody();
 
-	if (!btBody->isInWorld()) {
+	if (!btBody->isInWorld()) { // ! NOTE:  not necessarily THIS world
 		log::w()("btRigidBody not in world.");
 		return;
 	}
 
-	_btWorld->removeRigidBody(bodyProxy->btBody());
+	_btWorld->removeRigidBody(btBody);
 
 	switch (body.type()) {
 		case PhysicsBodyType::Static:
@@ -335,6 +335,12 @@ vector<Line> BulletWorldProxy::debugLines(const DebugOptions &debugOptions) {
 #else
 	return vector<Line>{};
 #endif
+}
+
+/// Internal Member Functions ///
+
+btDiscreteDynamicsWorld* BulletWorldProxy::btWorld() {
+	return _btWorld.get();
 }
 
 /// Private Static Non-Member Functions ///

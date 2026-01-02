@@ -59,6 +59,10 @@ namespace a3d {
 
 		std::vector<Line> 	debugLines(const DebugOptions &debugOptions) override;
 
+		/// Internal Member Functions ///
+
+		btDiscreteDynamicsWorld* 								btWorld();
+
 	private:
 		///  Private Member Variables ///
 

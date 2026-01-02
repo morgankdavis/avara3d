@@ -16,10 +16,10 @@
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsShape.h"
 #include "a3d/physics/PhysicalWorld.h"
-#include "a3d/physics/bullet/BulletShapeProxy.h"
-#include "a3d/physics/bullet/BulletWorldProxy.h"
 #include "a3d/physics/bullet/BulletMotionState.h"
+#include "a3d/physics/bullet/BulletShapeProxy.h"
 #include "a3d/physics/bullet/BulletUtilities.h"
+#include "a3d/physics/bullet/BulletWorldProxy.h"
 #include "a3d/physics/proxy/PhysicsBodyProxy.h"
 #include "a3d/physics/proxy/PhysicsShapeProxy.h"
 #include "a3d/scene/Node.h"
@@ -66,10 +66,10 @@ BulletBodyProxy::BulletBodyProxy(PhysicsBody& body, PhysicsBodyType type):
 	BulletBodyProxy::type(type);
 
 	// just checking.
-	if (_btBody->getActivationState() == DISABLE_DEACTIVATION
-		|| _btBody->getActivationState() == DISABLE_SIMULATION) {
-		log::e()("activationState={}", _btBody->getActivationState());
-	}
+//	if (_btBody->getActivationState() == DISABLE_DEACTIVATION
+//		|| _btBody->getActivationState() == DISABLE_SIMULATION) {
+//		log::e()("activationState={}", _btBody->getActivationState());
+//	}
 
 	_btBody->setUserPointer(static_cast<void*>(&body));
 }
@@ -89,15 +89,11 @@ BulletBodyProxy::~BulletBodyProxy() {
 
 PhysicsBodyType BulletBodyProxy::type() const {
 
-	auto flags = _btBody->getCollisionFlags();
+	const int flags = _btBody->getCollisionFlags();
 
-	// btCollisionObject::CF_DYNAMIC_OBJECT (0) will never bitwise AND with anything
-	//	if (flags & btCollisionObject::CF_DYNAMIC_OBJECT) return PhysicsBodyType::Dynamic;
-	if (flags == btCollisionObject::CF_DYNAMIC_OBJECT) return PhysicsBodyType::Dynamic;
-	if (flags & btCollisionObject::CF_STATIC_OBJECT) return PhysicsBodyType::Static;
 	if (flags & btCollisionObject::CF_KINEMATIC_OBJECT) return PhysicsBodyType::Kinematic;
-
-	return PhysicsBodyType::Static;
+	if (flags & btCollisionObject::CF_STATIC_OBJECT)    return PhysicsBodyType::Static;
+	return PhysicsBodyType::Dynamic; // default when neither static nor kinematic
 }
 
 void BulletBodyProxy::type(PhysicsBodyType type) {
@@ -378,8 +374,64 @@ void BulletBodyProxy::resting(bool resting) {
 	if (!resting) _btBody->activate(true);
 }
 
+//void BulletBodyProxy::worldTransform(const mat4& transform) {
+//	_btBody->setWorldTransform(BTTransformFromA3DMat4(transform));
+//}
+
 void BulletBodyProxy::worldTransform(const mat4& transform) {
-	_btBody->setWorldTransform(BTTransformFromA3DMat4(transform));
+
+	btTransform btTransform = BTTransformFromA3DMat4(transform);
+
+	// Keep BOTH the rigid body and its motion state consistent.
+	// (Bullet uses these differently depending on type and interpolation.)
+	if (auto* ms = _btBody->getMotionState()) {
+		ms->setWorldTransform(btTransform);
+	}
+
+	_btBody->setWorldTransform(btTransform);
+	_btBody->setInterpolationWorldTransform(btTransform);
+
+	// If you're externally driving this body (kinematic/static), make sure it's awake.
+	_btBody->activate(true);
+
+	// Broadphase update: critical for kinematic/static teleports.
+	// Without this, the AABB in the broadphase can lag, and collisions "randomly" miss.
+	if (PhysicsBodyProxy::_body && PhysicsBodyProxy::_body->physicalWorld()) {
+		if (auto btWorldProxy = dynamic_cast<BulletWorldProxy*>(
+				PhysicsBodyProxy::_body->physicalWorld()->proxy())) {
+			auto btWorld = btWorldProxy->btWorld();
+			// !!! THIS NEEDS TO LOCK _btMutex IN BulletWorldProxy !!!
+			// AND: if (_btBody->isInWorld() && _btBody->getBroadphaseHandle()) {
+			btWorld->updateSingleAabb(_btBody.get());
+
+			// OPTIONAL but recommended if you "teleport" large distances:
+			// clears stale overlapping pairs that can persist after big jumps.
+			if (auto* proxy = _btBody->getBroadphaseHandle()) {
+				// !!! THIS NEEDS TO LOCK _btMutex IN BulletWorldProxy !!!
+				// ALSO: kills performance for normal kinemetic movement --
+				// only do for large steps:
+				/*
+				 * btTransform prev = _btBody->getWorldTransform();
+					btVector3 dp = btTransform.getOrigin() - prev.getOrigin();
+					const bool teleported = dp.length2() > (2.0f * 2.0f); // e.g. >2m jump, tune
+
+					// ...
+					btWorld->updateSingleAabb(_btBody.get());
+
+					if (teleported) {
+						if (auto* proxy = _btBody->getBroadphaseHandle()) {
+							btWorld->getBroadphase()->getOverlappingPairCache()
+								  ->cleanProxyFromPairs(proxy, btWorld->getDispatcher());
+						}
+					}
+				 */
+
+				// ^^ so, disabling this FOR now since no teleporting:
+//				btWorld->getBroadphase()->getOverlappingPairCache()
+//						->cleanProxyFromPairs(proxy, btWorld->getDispatcher());
+			}
+		}
+	}
 }
 
 void BulletBodyProxy::clearForces() {
