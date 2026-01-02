@@ -148,10 +148,16 @@ BulletWorldProxy::~BulletWorldProxy() {
 /// PhysicalWorldModelProxy Internal Member Functions ///
 
 void BulletWorldProxy::add(PhysicsBody& body) {
+	std::scoped_lock lock(_btMutex);
+
 	log::d()("body: {:p}", static_cast<void*>(&body));
 
 	auto bodyProxy = static_cast<BulletBodyProxy*>(body.proxy());
 	auto btBody = bodyProxy->btBody();
+
+	if (!util::flow::guard(!btBody->isInWorld(), [&] {
+		log::w()("btRigidBody already in world.");
+	})) return;
 
 	// since at the time of creation, the PhysicsBody isn't attached to a Node,
 	// we use an empty motion state in BulletBodyProxy::BulletBodyProxy(),
@@ -169,7 +175,6 @@ void BulletWorldProxy::add(PhysicsBody& body) {
 		// TODO: throw?
 	}
 
-	std::scoped_lock lock(_btMutex);
 	_btWorld->addRigidBody(btBody);
 
 	switch (body.type()) {
@@ -204,10 +209,17 @@ void BulletWorldProxy::add(PhysicsBody& body) {
 }
 
 void BulletWorldProxy::remove(PhysicsBody& body) {
+	std::scoped_lock lock(_btMutex);
+
 	log::d()("body: {:p}", static_cast<void*>(&body));
 
 	auto bodyProxy = static_cast<BulletBodyProxy*>(body.proxy());
-	std::scoped_lock lock(_btMutex);
+	auto btBody = bodyProxy->btBody();
+
+	if (!util::flow::guard(btBody->isInWorld(), [&] {
+		log::w()("btRigidBody not in world.");
+	})) return;
+
 	_btWorld->removeRigidBody(bodyProxy->btBody());
 
 	switch (body.type()) {
@@ -259,16 +271,16 @@ void BulletWorldProxy::step(double deltaT,
 
 		std::scoped_lock lock(_btMutex);
 
-		// (optional debug check)
-		const auto& arr = _btWorld->getCollisionObjectArray();
-		for (int i = 0; i < arr.size(); ++i) {
-			const btCollisionObject* obj = arr[i];
-			if (!btRigidBody::upcast(obj)) {
-				log::e()("Non-rigid collision object in dynamics world! idx={} ptr={:p} flags=0x{:x}",
-						 i, (void*)obj, obj->getCollisionFlags());
-				btAssert(false);
-			}
-		}
+//		// (optional debug check)
+//		const auto& arr = _btWorld->getCollisionObjectArray();
+//		for (int i = 0; i < arr.size(); ++i) {
+//			const btCollisionObject* obj = arr[i];
+//			if (!btRigidBody::upcast(obj)) {
+//				log::e()("Non-rigid collision object in dynamics world! idx={} ptr={:p} flags=0x{:x}",
+//						 i, (void*)obj, obj->getCollisionFlags());
+//				btAssert(false);
+//			}
+//		}
 
 		return _btWorld->stepSimulation(btScalar(deltaT * speed),
 										config::MAX_PHYSICS_SUBSTEPS,

@@ -76,6 +76,13 @@ BulletBodyProxy::BulletBodyProxy(PhysicsBody& body, PhysicsBodyType type):
 
 BulletBodyProxy::~BulletBodyProxy() {
 	log::d()("Destroying BulletBodyProxy {:p}", static_cast<void*>(this));
+
+#ifdef A3D_DEBUG
+	if (_btBody && _btBody->isInWorld()) {
+		log::e()("btRigidBody still in world!");
+		btAssert(false);
+	}
+#endif
 }
 
 /// PhysicsBodyModelProxy Internal Member Functions ///
