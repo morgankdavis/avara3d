@@ -155,9 +155,10 @@ void BulletWorldProxy::add(PhysicsBody& body) {
 	auto bodyProxy = static_cast<BulletBodyProxy*>(body.proxy());
 	auto btBody = bodyProxy->btBody();
 
-	if (!util::flow::guard(!btBody->isInWorld(), [&] {
+	if (btBody->isInWorld()) {
 		log::w()("btRigidBody already in world.");
-	})) return;
+		return;
+	}
 
 	// since at the time of creation, the PhysicsBody isn't attached to a Node,
 	// we use an empty motion state in BulletBodyProxy::BulletBodyProxy(),
@@ -216,9 +217,10 @@ void BulletWorldProxy::remove(PhysicsBody& body) {
 	auto bodyProxy = static_cast<BulletBodyProxy*>(body.proxy());
 	auto btBody = bodyProxy->btBody();
 
-	if (!util::flow::guard(btBody->isInWorld(), [&] {
+	if (!btBody->isInWorld()) {
 		log::w()("btRigidBody not in world.");
-	})) return;
+		return;
+	}
 
 	_btWorld->removeRigidBody(bodyProxy->btBody());
 

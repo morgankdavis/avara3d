@@ -79,12 +79,12 @@ namespace a3d::util::flow {
 	//   true  -> condition passed, nothing happened
 	//   false -> condition failed, callback ran (every time for guard; latched for edge_guard)
 
-	template<class Cond, class FailFn>
-	[[nodiscard]] inline bool guard(Cond&& cond, FailFn&& on_fail_every_time) {
-		const bool ok = static_cast<bool>(std::forward<Cond>(cond)); // supports shared_ptr, etc.
-		if (!ok) std::invoke(std::forward<FailFn>(on_fail_every_time));
-		return ok;
-	}
+//	template<class Cond, class FailFn>
+//	[[nodiscard]] inline bool guard(Cond&& cond, FailFn&& on_fail_every_time) {
+//		const bool ok = static_cast<bool>(std::forward<Cond>(cond)); // supports shared_ptr, etc.
+//		if (!ok) std::invoke(std::forward<FailFn>(on_fail_every_time));
+//		return ok;
+//	}
 
 	template<class Cond, class FailFn>
 	[[nodiscard]] inline bool edge_guard(Cond&& cond,

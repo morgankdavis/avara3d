@@ -360,14 +360,10 @@ bool BulletBodyProxy::allowsResting() const {
 
 void BulletBodyProxy::allowsResting(bool allowsResting) {
 
-//	if (type() == PhysicsBodyType::Kinematic && allowsResting) {
-//		log::e()("Cannot enable resting for kinematic bodies.");
-//		return;
-//	}
-
-	if (!util::flow::guard(type() == PhysicsBodyType::Kinematic && allowsResting, [&] {
+	if (type() == PhysicsBodyType::Kinematic && allowsResting) {
 		log::e()("Cannot enable resting for kinematic bodies.");
-	})) return;
+		return;
+	}
 
 	_btBody->setActivationState(allowsResting ? ACTIVE_TAG : DISABLE_DEACTIVATION);
 	_btBody->activate(true);
