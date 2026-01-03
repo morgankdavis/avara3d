@@ -17,6 +17,7 @@
 #include <string>
 
 #include "a3d/Types.h"
+#include "a3d/rendering/renderer/opengl/gl_types.h"
 
 namespace a3d {
 
@@ -71,7 +72,7 @@ namespace a3d {
 		unsigned 						getAttributeLocation(const char* name) const;
 
 		const std::string&				name() const;
-		unsigned 						glID();
+		gl::uint_t						glID();
 		bool	 						isLinked() const;
 
 	private:

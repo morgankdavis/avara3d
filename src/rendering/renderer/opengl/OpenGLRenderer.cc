@@ -37,6 +37,7 @@
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/mesh/primitive/Box.h"
 #include "a3d/rendering/DrawItem.h"
+#include "a3d/rendering/RenderResourceCacheOGL.h"
 #include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/camera/Camera.h"
 #include "a3d/rendering/context/RenderContext.h"
@@ -182,10 +183,10 @@ struct FBORestore {
 /// Private Static Non-Member Prototypes ///
 
 static void 		GetTextureGLTextureHandles(Material& material,
-											  OpenGLRenderer::TextureGLMapping& glMapping,
+											  RenderResourceCacheOGL& cache,
 											  map<MaterialPropertyType, GLuint>& glTextureHandles);
-static void 		BufferTexture(const Texture &texture,
-								 GLuint& glTextureHandle);
+//static void 		BufferTexture(const Texture &texture,
+//								 GLuint& glTextureHandle);
 static void 		SendMaterialUniforms(const Material& material,
 										Program& program,
 										map<MaterialPropertyType, GLuint>& glTextureHandles,
@@ -479,7 +480,7 @@ unique_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 /// Private Static Non-Member Functions ///
 
 void GetTextureGLTextureHandles(Material& material,
-								OpenGLRenderer::TextureGLMapping& glMapping,
+								RenderResourceCacheOGL& cache,
 								std::map<MaterialPropertyType, GLuint>& glTextureHandles) {
 
 	glTextureHandles.clear();
@@ -490,45 +491,48 @@ void GetTextureGLTextureHandles(Material& material,
 		if (!textureSP || !(*textureSP)) continue;
 
 		Texture* tex = textureSP->get();
+//
+//		// Look up WITHOUT inserting
+//		GLuint handle = 0;
+//		auto it = glMapping.find(tex);
+//		if (it != glMapping.end()) handle = it->second;
+//
+//		const bool contentsDirty =
+//				A3D_MASK_CONTAINS(tex->dirtyMask(), TextureDirtyMask::Contents);
+//
+//		const bool missingOrZero = (it == glMapping.end()) || (handle == 0);
+//
+//		if (contentsDirty || missingOrZero) {
+//
+//			log::d()("Uploading texture {:p} (dirty={}, missingOrZero={})",
+//					  (void*)tex, contentsDirty, missingOrZero);
+//
+//			// If we had an old handle, delete it cleanly
+//			if (handle != 0) {
+//				glDeleteTextures(1, &handle);
+//				handle = 0;
+//			}
+//
+//			GLuint newID = 0;
+//			BufferTexture(*tex, newID);
+//
+//			if (newID == 0) {
+//				log::e()("BufferTexture failed for texture {:p}", (void*)tex);
+//				// leave handle 0; still record it so you can see the failure downstream
+//				glMapping.erase(tex);
+//			} else {
+//				handle = newID;
+//				glMapping[tex] = handle;
+//			}
+//
+//			// Clear only the Contents bit (don’t wipe other bits unless you mean to)
+//			tex->dirtyMask(A3D_MASK_REMOVE(tex->dirtyMask(), TextureDirtyMask::Contents));
+//		}
+//
+//		glTextureHandles[type] = handle;
 
-		// Look up WITHOUT inserting
-		GLuint handle = 0;
-		auto it = glMapping.find(tex);
-		if (it != glMapping.end()) handle = it->second;
-
-		const bool contentsDirty =
-				A3D_MASK_CONTAINS(tex->dirtyMask(), TextureDirtyMask::Contents);
-
-		const bool missingOrZero = (it == glMapping.end()) || (handle == 0);
-
-		if (contentsDirty || missingOrZero) {
-
-			log::d()("Uploading texture {:p} (dirty={}, missingOrZero={})",
-					  (void*)tex, contentsDirty, missingOrZero);
-
-			// If we had an old handle, delete it cleanly
-			if (handle != 0) {
-				glDeleteTextures(1, &handle);
-				handle = 0;
-			}
-
-			GLuint newID = 0;
-			BufferTexture(*tex, newID);
-
-			if (newID == 0) {
-				log::e()("BufferTexture failed for texture {:p}", (void*)tex);
-				// leave handle 0; still record it so you can see the failure downstream
-				glMapping.erase(tex);
-			} else {
-				handle = newID;
-				glMapping[tex] = handle;
-			}
-
-			// Clear only the Contents bit (don’t wipe other bits unless you mean to)
-			tex->dirtyMask(A3D_MASK_REMOVE(tex->dirtyMask(), TextureDirtyMask::Contents));
-		}
-
-		glTextureHandles[type] = handle;
+		const unsigned h = cache.ensureTexture(*tex);
+		glTextureHandles[type] = (GLuint)h;
 	}
 }
 
@@ -2163,7 +2167,7 @@ void OpenGLRenderer::bindMaterial(const Material& material) {
 
 	std::map<MaterialPropertyType, GLuint> glTextureHandles;
 	GetTextureGLTextureHandles(const_cast<Material&>(material),
-							   _textureGLMapping,
+							   _cache,
 							   glTextureHandles);
 
 

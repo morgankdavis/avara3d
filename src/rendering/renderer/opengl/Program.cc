@@ -322,7 +322,7 @@ const string& Program::name() const {
 	return _name;
 }
 
-GLuint Program::glID() {
+gl::uint_t Program::glID() {
 	return _glID;
 }
 

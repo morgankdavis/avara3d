@@ -2,58 +2,24 @@
 #ifndef AVARA3D_RENDERRESOURCECACHEOGL_H
 #define AVARA3D_RENDERRESOURCECACHEOGL_H
 
+#include <cstdint>
 #include <unordered_map>
 #include <vector>
 
 #include "a3d/rendering/PipelineKey.h"
+#include "a3d/rendering/renderer/opengl/gl_types.h"
 
 namespace a3d {
 
 
 
-
-//	struct PipelineOGL {
-//		GLuint program = 0;
-//
-//		// fixed-state baked into this pipeline definition
-//		bool depthTest = true;
-//		bool depthWrite = true;
-//		bool doubleSided = false;
-//		FillMode fillMode = FillMode::Fill;
-//		BlendFunction blend = BlendFunction::Disabled;
-//
-//		// optionally: vertex layout ID, defines, etc.
-//	};
+	class Texture;
 
 
 	struct PipelineOGL {
-		PipelineKey 	key;
-		unsigned 		program = 		0; // GLuint
-//		bool 			depthTest = 	true;
-//		bool 			depthWrite =	true;
+		PipelineKey 	key =		{};
+		gl::uint_t		program = 	0;
 	};
-
-
-
-
-
-//	struct MaterialOGL {
-//
-//		bool doubleSided = false;
-//		FillMode fillMode = FillMode::Fill;
-//		BlendFunction blend = BlendFunction::Disabled;
-//
-//		AlphaMode alphaMode = AlphaMode::Opaque; // NEW (Mask = alpha discard, Blend = real transparency)
-//
-//		math::vec4 ambient, diffuse, specular, emission;
-//		float specularExponent = 75.0f;
-//		float uvScale = 1.0f;
-//
-//		//TextureHandle diffuseTex = {};
-//
-//		uint64_t pipelineKey = 0;
-//	};
-
 
 
 
@@ -62,6 +28,9 @@ namespace a3d {
 	public:
 
 		PipelineHandle ensurePipeline(const PipelineKey& key);
+		gl::uint_t ensureTexture(Texture& texture);
+
+
 
 		const PipelineOGL& pipeline(PipelineHandle h) const {
 			return _pipelineList.at(h);
@@ -70,6 +39,13 @@ namespace a3d {
 	private:
 
 		PipelineOGL buildPipeline(const PipelineKey& key);
+
+
+		struct TextureOGL {
+			gl::uint_t id = 0;
+		};
+
+		std::unordered_map<Texture*, TextureOGL> _textureMap;
 
 		std::unordered_map<
 				PipelineKey,
