@@ -10,6 +10,7 @@
 #include "a3d/Image.h"
 #include "a3d/CubeImage.h"
 #include "a3d/log/Log.h"
+#include "a3d/mesh/MeshElement.h"
 #include "a3d/rendering/renderer/opengl/gl.h"
 #include "a3d/rendering/renderer/opengl/Program.h"
 #include "a3d/rendering/material/Texture.h"
@@ -224,7 +225,8 @@ unsigned RenderResourceCacheOGL::ensureTexture(Texture& texture) {
 		handle = BufferTextureContents(texture);
 
 		if (handle == 0) {
-			log::e()("ensureTexture: BufferTextureContents failed for Texture {:p}", (void*)&texture);
+			log::e()("ensureTexture: BufferTextureContents failed for Texture {:p}",
+					(void*)&texture);
 			_textureMap.erase(it);
 			return 0;
 		}
@@ -245,6 +247,72 @@ unsigned RenderResourceCacheOGL::ensureTexture(Texture& texture) {
 	}
 
 	return handle;
+}
+
+const MeshElementOGL& RenderResourceCacheOGL::ensureMeshElement(MeshElement& element,
+																uint32_t vertexLayoutKey) {
+	auto it = _meshElementMap.find(&element);
+	if (it == _meshElementMap.end()) {
+		it = _meshElementMap.emplace(&element, MeshElementOGL{}).first;
+	}
+
+	auto& res = it->second;
+
+	const bool dirty = A3D_MASK_CONTAINS(element.dirtyMask(), MeshElementDirtyMask::VertexData);
+	const bool missing = (res.vao == 0);
+	const bool layoutChanged = (!missing && res.vertexLayoutKey != vertexLayoutKey);
+
+	if (dirty || missing || layoutChanged) {
+		if (!missing) {
+			glDeleteBuffers(1, (GLuint*)&res.vbo);
+			glDeleteBuffers(1, (GLuint*)&res.ebo);
+			glDeleteVertexArrays(1, (GLuint*)&res.vao);
+			res = {};
+		}
+
+		res.vertexLayoutKey = vertexLayoutKey;
+
+		glGenVertexArrays(1, (GLuint*)&res.vao);
+		glGenBuffers(1, (GLuint*)&res.vbo);
+		glGenBuffers(1, (GLuint*)&res.ebo);
+
+		glBindVertexArray((GLuint)res.vao);
+
+		glBindBuffer(GL_ARRAY_BUFFER, (GLuint)res.vbo);
+		glBufferData(GL_ARRAY_BUFFER,
+					 element.vertices().size() * sizeof(Vertex),
+					 element.vertices().data(),
+					 GL_STATIC_DRAW);
+
+		// TODO: use vertexLayoutKey to pick an attribute layout table.
+		// Current hard-coded Vertex layout:
+		// 0: position (vec3), 1: normal (vec3), 2: uv (vec2)
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)sizeof(math::vec3));
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(math::vec3) * 2));
+		glEnableVertexAttribArray(2);
+
+		std::vector<uint32_t> indices;
+		indices.reserve(element.faces().size() * 3);
+		for (auto& f : element.faces()) {
+			indices.push_back((uint32_t)f.a);
+			indices.push_back((uint32_t)f.b);
+			indices.push_back((uint32_t)f.c);
+		}
+		res.indexCount = (uint32_t)indices.size();
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (GLuint)res.ebo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+					 indices.size() * sizeof(uint32_t),
+					 indices.data(),
+					 GL_STATIC_DRAW);
+
+		element.dirtyMask(A3D_MASK_REMOVE(element.dirtyMask(), MeshElementDirtyMask::VertexData));
+	}
+
+	return res;
 }
 
 PipelineOGL RenderResourceCacheOGL::buildPipeline(const PipelineKey& key) {

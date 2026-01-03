@@ -12,13 +12,21 @@
 namespace a3d {
 
 
-
+	class MeshElement;
 	class Texture;
 
 
 	struct PipelineOGL {
 		PipelineKey 	key =		{};
 		gl::uint_t		program = 	0;
+	};
+
+	struct MeshElementOGL {
+		gl::uint_t 	vao = 				0;
+		gl::uint_t 	vbo = 				0;
+		gl::uint_t 	ebo = 				0;
+		uint32_t 	indexCount = 		0;
+		uint32_t 	vertexLayoutKey = 	0;
 	};
 
 
@@ -30,6 +38,8 @@ namespace a3d {
 		PipelineHandle ensurePipeline(const PipelineKey& key);
 		gl::uint_t ensureTexture(Texture& texture);
 
+
+		const MeshElementOGL& ensureMeshElement(MeshElement& element, uint32_t vertexLayoutKey);
 
 
 		const PipelineOGL& pipeline(PipelineHandle h) const {
@@ -46,6 +56,8 @@ namespace a3d {
 		};
 
 		std::unordered_map<Texture*, TextureOGL> _textureMap;
+
+		std::unordered_map<MeshElement*, MeshElementOGL> _meshElementMap;
 
 		std::unordered_map<
 				PipelineKey,

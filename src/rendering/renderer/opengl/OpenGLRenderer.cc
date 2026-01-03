@@ -2185,62 +2185,75 @@ void OpenGLRenderer::bindMaterial(const Material& material) {
 
 
 void OpenGLRenderer::bindMeshElement(const MeshElement& element) {
+//	auto* e = const_cast<MeshElement*>(&element);
+//	auto& res = _meshElementGL[e];
+//
+//	const bool dirty = A3D_MASK_CONTAINS(e->dirtyMask(), MeshElementDirtyMask::VertexData);
+//	const bool missing = (res.vao == 0);
+//
+//	if (dirty || missing) {
+//		if (!missing) {
+//			glDeleteBuffers(1, &res.vbo);
+//			glDeleteBuffers(1, &res.ebo);
+//			glDeleteVertexArrays(1, &res.vao);
+//			res = {};
+//		}
+//
+//		glGenVertexArrays(1, &res.vao);
+//		glGenBuffers(1, &res.vbo);
+//		glGenBuffers(1, &res.ebo);
+//
+//		glBindVertexArray(res.vao);
+//
+//		glBindBuffer(GL_ARRAY_BUFFER, res.vbo);
+//		glBufferData(GL_ARRAY_BUFFER,
+//					 element.vertices().size() * sizeof(Vertex),
+//					 element.vertices().data(),
+//					 GL_STATIC_DRAW);
+//
+//		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+//		glEnableVertexAttribArray(0);
+//		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)sizeof(vec3));
+//		glEnableVertexAttribArray(1);
+//		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(vec3)*2));
+//		glEnableVertexAttribArray(2);
+//
+//		std::vector<uint32_t> indices;
+//		indices.reserve(element.faces().size() * 3);
+//		for (auto& f : element.faces()) {
+//			indices.push_back((uint32_t)f.a);
+//			indices.push_back((uint32_t)f.b);
+//			indices.push_back((uint32_t)f.c);
+//		}
+//
+//		res.indexCount = (uint32_t)indices.size();
+//
+//		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, res.ebo);
+//		glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+//					 indices.size() * sizeof(uint32_t),
+//					 indices.data(),
+//					 GL_STATIC_DRAW);
+//
+//		e->dirtyMask(A3D_MASK_REMOVE(e->dirtyMask(), MeshElementDirtyMask::VertexData));
+//	}
+//
+//	// Bind VAO and set draw args
+//	glBindVertexArray(res.vao);
+//	_boundElement.vao = res.vao;
+//	_boundElement.indexCount = (GLsizei)res.indexCount;
+
+
+	// Use currently bound pipeline's vertexLayoutKey
+	const PipelineOGL& pipe = _cache.pipeline(_state.pipelineHandle);
+	const uint32_t layoutKey = pipe.key.vertexLayoutKey;
+
 	auto* e = const_cast<MeshElement*>(&element);
-	auto& res = _meshElementGL[e];
+	const auto& res = _cache.ensureMeshElement(*e, layoutKey);
 
-	const bool dirty = A3D_MASK_CONTAINS(e->dirtyMask(), MeshElementDirtyMask::VertexData);
-	const bool missing = (res.vao == 0);
-
-	if (dirty || missing) {
-		if (!missing) {
-			glDeleteBuffers(1, &res.vbo);
-			glDeleteBuffers(1, &res.ebo);
-			glDeleteVertexArrays(1, &res.vao);
-			res = {};
-		}
-
-		glGenVertexArrays(1, &res.vao);
-		glGenBuffers(1, &res.vbo);
-		glGenBuffers(1, &res.ebo);
-
-		glBindVertexArray(res.vao);
-
-		glBindBuffer(GL_ARRAY_BUFFER, res.vbo);
-		glBufferData(GL_ARRAY_BUFFER,
-					 element.vertices().size() * sizeof(Vertex),
-					 element.vertices().data(),
-					 GL_STATIC_DRAW);
-
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)sizeof(vec3));
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(vec3)*2));
-		glEnableVertexAttribArray(2);
-
-		std::vector<uint32_t> indices;
-		indices.reserve(element.faces().size() * 3);
-		for (auto& f : element.faces()) {
-			indices.push_back((uint32_t)f.a);
-			indices.push_back((uint32_t)f.b);
-			indices.push_back((uint32_t)f.c);
-		}
-
-		res.indexCount = (uint32_t)indices.size();
-
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, res.ebo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-					 indices.size() * sizeof(uint32_t),
-					 indices.data(),
-					 GL_STATIC_DRAW);
-
-		e->dirtyMask(A3D_MASK_REMOVE(e->dirtyMask(), MeshElementDirtyMask::VertexData));
-	}
-
-	// Bind VAO and set draw args
-	glBindVertexArray(res.vao);
-	_boundElement.vao = res.vao;
+	glBindVertexArray((GLuint)res.vao);
+	_boundElement.vao = (GLuint)res.vao;
 	_boundElement.indexCount = (GLsizei)res.indexCount;
+
 	_boundElement.indexType = GL_UNSIGNED_INT;
 }
 
