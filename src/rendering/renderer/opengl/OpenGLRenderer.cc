@@ -182,14 +182,15 @@ struct FBORestore {
 
 /// Private Static Non-Member Prototypes ///
 
-static void 		GetTextureGLTextureHandles(Material& material,
-											  RenderResourceCacheOGL& cache,
-											  map<MaterialPropertyType, GLuint>& glTextureHandles);
+//static void 		GetTextureGLTextureHandles(Material& material,
+//											  RenderResourceCacheOGL& cache,
+//											  map<MaterialPropertyType, GLuint>& glTextureHandles);
 //static void 		BufferTexture(const Texture &texture,
 //								 GLuint& glTextureHandle);
 static void 		SendMaterialUniforms(const Material& material,
 										Program& program,
-										map<MaterialPropertyType, GLuint>& glTextureHandles,
+//										map<MaterialPropertyType, GLuint>& glTextureHandles,
+										const std::array<GLuint, 4>& glTextureHandles,
 										GLStateCache& state);
 static void 		SendMaterialPropertyUniforms(const MaterialProperty& property,
 												MaterialPropertyType type,
@@ -200,10 +201,10 @@ static void 		SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 											const Scene& scene,
 											const vector<Node*>& lightNodes,
 											FrameStats& stats);
-static void 		SetTextureSamplingOptions(Texture& texture,
-											 GLuint glTextureHandle);
-static void 		SetMaterialFilteringOptions(const Material& material,
-											   map<MaterialPropertyType, GLuint>& glTextureHandles);
+//static void 		SetTextureSamplingOptions(Texture& texture,
+//											 GLuint glTextureHandle);
+//static void 		SetMaterialFilteringOptions(const Material& material,
+//											   map<MaterialPropertyType, GLuint>& glTextureHandles);
 static vector<Node*>SortedLights(map<Node*, float> lights);
 static void 		DrawOverlay(const RenderContext& context,
 							   const Scene& scene,
@@ -311,8 +312,8 @@ bool OpenGLRenderer::InitGL(GLGetProcAddress getProcAddress) {
 OpenGLRenderer::OpenGLRenderer():
 		Renderer{},
 		_isInitialized{false},
-		_meshElementGLMapping{}, // TODO: REMOVE
-		_textureGLMapping{},
+//		_meshElementGLMapping{}, // TODO: REMOVE
+//		_textureGLMapping{},
 		_glEnvironmentUBO{0},
 		_overlayTitleImFont{nullptr},
 		_overlayBodyImFont{nullptr},
@@ -479,62 +480,62 @@ unique_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
 
 /// Private Static Non-Member Functions ///
 
-void GetTextureGLTextureHandles(Material& material,
-								RenderResourceCacheOGL& cache,
-								std::map<MaterialPropertyType, GLuint>& glTextureHandles) {
-
-	glTextureHandles.clear();
-
-	for (auto& [property, type] : material.properties()) {
-
-		auto textureSP = std::get_if<std::shared_ptr<Texture>>(property);
-		if (!textureSP || !(*textureSP)) continue;
-
-		Texture* tex = textureSP->get();
+//void GetTextureGLTextureHandles(Material& material,
+//								RenderResourceCacheOGL& cache,
+//								std::map<MaterialPropertyType, GLuint>& glTextureHandles) {
 //
-//		// Look up WITHOUT inserting
-//		GLuint handle = 0;
-//		auto it = glMapping.find(tex);
-//		if (it != glMapping.end()) handle = it->second;
+//	glTextureHandles.clear();
 //
-//		const bool contentsDirty =
-//				A3D_MASK_CONTAINS(tex->dirtyMask(), TextureDirtyMask::Contents);
+//	for (auto& [property, type] : material.properties()) {
 //
-//		const bool missingOrZero = (it == glMapping.end()) || (handle == 0);
+//		auto textureSP = std::get_if<std::shared_ptr<Texture>>(property);
+//		if (!textureSP || !(*textureSP)) continue;
 //
-//		if (contentsDirty || missingOrZero) {
+//		Texture* tex = textureSP->get();
+////
+////		// Look up WITHOUT inserting
+////		GLuint handle = 0;
+////		auto it = glMapping.find(tex);
+////		if (it != glMapping.end()) handle = it->second;
+////
+////		const bool contentsDirty =
+////				A3D_MASK_CONTAINS(tex->dirtyMask(), TextureDirtyMask::Contents);
+////
+////		const bool missingOrZero = (it == glMapping.end()) || (handle == 0);
+////
+////		if (contentsDirty || missingOrZero) {
+////
+////			log::d()("Uploading texture {:p} (dirty={}, missingOrZero={})",
+////					  (void*)tex, contentsDirty, missingOrZero);
+////
+////			// If we had an old handle, delete it cleanly
+////			if (handle != 0) {
+////				glDeleteTextures(1, &handle);
+////				handle = 0;
+////			}
+////
+////			GLuint newID = 0;
+////			BufferTexture(*tex, newID);
+////
+////			if (newID == 0) {
+////				log::e()("BufferTexture failed for texture {:p}", (void*)tex);
+////				// leave handle 0; still record it so you can see the failure downstream
+////				glMapping.erase(tex);
+////			} else {
+////				handle = newID;
+////				glMapping[tex] = handle;
+////			}
+////
+////			// Clear only the Contents bit (don’t wipe other bits unless you mean to)
+////			tex->dirtyMask(A3D_MASK_REMOVE(tex->dirtyMask(), TextureDirtyMask::Contents));
+////		}
+////
+////		glTextureHandles[type] = handle;
 //
-//			log::d()("Uploading texture {:p} (dirty={}, missingOrZero={})",
-//					  (void*)tex, contentsDirty, missingOrZero);
-//
-//			// If we had an old handle, delete it cleanly
-//			if (handle != 0) {
-//				glDeleteTextures(1, &handle);
-//				handle = 0;
-//			}
-//
-//			GLuint newID = 0;
-//			BufferTexture(*tex, newID);
-//
-//			if (newID == 0) {
-//				log::e()("BufferTexture failed for texture {:p}", (void*)tex);
-//				// leave handle 0; still record it so you can see the failure downstream
-//				glMapping.erase(tex);
-//			} else {
-//				handle = newID;
-//				glMapping[tex] = handle;
-//			}
-//
-//			// Clear only the Contents bit (don’t wipe other bits unless you mean to)
-//			tex->dirtyMask(A3D_MASK_REMOVE(tex->dirtyMask(), TextureDirtyMask::Contents));
-//		}
-//
-//		glTextureHandles[type] = handle;
-
-		const unsigned h = cache.ensureTexture(*tex);
-		glTextureHandles[type] = (GLuint)h;
-	}
-}
+//		const unsigned h = cache.ensureTexture(*tex);
+//		glTextureHandles[type] = (GLuint)h;
+//	}
+//}
 
 void BufferTexture(const Texture& texture,
 				   GLuint& glTextureHandle) {
@@ -642,9 +643,25 @@ void BufferTexture(const Texture& texture,
 	}, contents);
 }
 
+//void SendMaterialUniforms(const Material& material,
+//						  Program& program,
+////						  map<MaterialPropertyType, GLuint>& glTextureHandles,
+//						  const std::array<GLuint, 4>& glTextureHandles,
+//						  GLStateCache& state) {
+
+static inline int SlotFor(MaterialPropertyType t) {
+	switch (t) {
+		case MaterialPropertyType::Ambient:  return 0;
+		case MaterialPropertyType::Diffuse:  return 1;
+		case MaterialPropertyType::Specular: return 2;
+		case MaterialPropertyType::Emission: return 3;
+		default: return -1;
+	}
+}
+
 void SendMaterialUniforms(const Material& material,
 						  Program& program,
-						  map<MaterialPropertyType, GLuint>& glTextureHandles,
+						  const std::array<GLuint, 4>& glTextureHandles,
 						  GLStateCache& state) {
 
 	// sends uniforms for the Material, and MaterialProperties it has
@@ -662,9 +679,13 @@ void SendMaterialUniforms(const Material& material,
 
 		if (!holds_alternative<monostate>(*property)) {
 
+			const int slot = SlotFor(type);
+			const GLuint h = (slot >= 0) ? glTextureHandles[(size_t)slot] : 0u;
+
 			SendMaterialPropertyUniforms(*property,
 										 type,
-										 glTextureHandles[type],
+//										 glTextureHandles[type],
+										 h,
 										 program,
 										 state);
 		}
@@ -929,72 +950,72 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(EnvironmentBlock), &environmentStruct, GL_DYNAMIC_DRAW);
 }
 
-void SetTextureSamplingOptions(Texture& texture,
-							   GLuint glTextureHandle) {
-
-	auto sampler = texture.sampler();
-	bool isCubemap = holds_alternative<shared_ptr<CubeImage>>(texture.contents());
-
-	if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
-						  SamplerDirtyMask::MinificationFilter)) {
-		SetTextureMinificationFilter(glTextureHandle, isCubemap, sampler->minificationFilter());
-		sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
-										   SamplerDirtyMask::MinificationFilter));
-	}
-
-	if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
-						  SamplerDirtyMask::MagnificationFilter)) {
-		SetTextureMagnificationFilter(glTextureHandle, isCubemap, sampler->magnificationFilter());
-		sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
-										   SamplerDirtyMask::MagnificationFilter));
-	}
-
-	if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
-						  SamplerDirtyMask::WrapS)) {
-		SetTextureWrapS(glTextureHandle, isCubemap, sampler->wrapS());
-		sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
-										   SamplerDirtyMask::WrapS));
-	}
-
-	if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
-						  SamplerDirtyMask::WrapT)) {
-		SetTextureWrapT(glTextureHandle, isCubemap, sampler->wrapT());
-		sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
-										   SamplerDirtyMask::WrapT));
-	}
-
-	if (isCubemap) {
-		if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
-							  SamplerDirtyMask::WrapR)) {
-			SetTextureWrapR(glTextureHandle, sampler->wrapR());
-			sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
-											   SamplerDirtyMask::WrapR));
-		}
-	}
-
-	if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
-						  SamplerDirtyMask::MaxAnisotropy)) {
-		SetTextureMaxAnisotropy(glTextureHandle, isCubemap, sampler->maxAnisotropy());
-		sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
-										   SamplerDirtyMask::MaxAnisotropy));
-	}
-}
-
-void SetMaterialFilteringOptions(const Material& material,
-								 map<MaterialPropertyType, GLuint>& glTextureHandles) {
-
-	for (auto& [property, type] : material.properties()) {
-
-		if (auto texture = get_if<shared_ptr<Texture>>(property)) {
-			SetTextureSamplingOptions(**texture, glTextureHandles[type]);
-		}
-
-//		if (holds_alternative<shared_ptr<Texture>>(*property)) {
-//			auto texture = get<shared_ptr<Texture>>(*property);
-//			SetTextureSamplingOptions(*texture, glTextureHandles[type]);
+//void SetTextureSamplingOptions(Texture& texture,
+//							   GLuint glTextureHandle) {
+//
+//	auto sampler = texture.sampler();
+//	bool isCubemap = holds_alternative<shared_ptr<CubeImage>>(texture.contents());
+//
+//	if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
+//						  SamplerDirtyMask::MinificationFilter)) {
+//		SetTextureMinificationFilter(glTextureHandle, isCubemap, sampler->minificationFilter());
+//		sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
+//										   SamplerDirtyMask::MinificationFilter));
+//	}
+//
+//	if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
+//						  SamplerDirtyMask::MagnificationFilter)) {
+//		SetTextureMagnificationFilter(glTextureHandle, isCubemap, sampler->magnificationFilter());
+//		sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
+//										   SamplerDirtyMask::MagnificationFilter));
+//	}
+//
+//	if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
+//						  SamplerDirtyMask::WrapS)) {
+//		SetTextureWrapS(glTextureHandle, isCubemap, sampler->wrapS());
+//		sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
+//										   SamplerDirtyMask::WrapS));
+//	}
+//
+//	if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
+//						  SamplerDirtyMask::WrapT)) {
+//		SetTextureWrapT(glTextureHandle, isCubemap, sampler->wrapT());
+//		sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
+//										   SamplerDirtyMask::WrapT));
+//	}
+//
+//	if (isCubemap) {
+//		if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
+//							  SamplerDirtyMask::WrapR)) {
+//			SetTextureWrapR(glTextureHandle, sampler->wrapR());
+//			sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
+//											   SamplerDirtyMask::WrapR));
 //		}
-	}
-}
+//	}
+//
+//	if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
+//						  SamplerDirtyMask::MaxAnisotropy)) {
+//		SetTextureMaxAnisotropy(glTextureHandle, isCubemap, sampler->maxAnisotropy());
+//		sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
+//										   SamplerDirtyMask::MaxAnisotropy));
+//	}
+//}
+
+//void SetMaterialFilteringOptions(const Material& material,
+//								 map<MaterialPropertyType, GLuint>& glTextureHandles) {
+//
+//	for (auto& [property, type] : material.properties()) {
+//
+//		if (auto texture = get_if<shared_ptr<Texture>>(property)) {
+//			SetTextureSamplingOptions(**texture, glTextureHandles[type]);
+//		}
+//
+////		if (holds_alternative<shared_ptr<Texture>>(*property)) {
+////			auto texture = get<shared_ptr<Texture>>(*property);
+////			SetTextureSamplingOptions(*texture, glTextureHandles[type]);
+////		}
+//	}
+//}
 
 void SetMaterialOpenGLState(const Material& material,
 							const DebugOptions& debugOptions) {
@@ -2136,7 +2157,11 @@ void OpenGLRenderer::bindPipeline(PipelineHandle pipelineHandle,
 }
 
 void OpenGLRenderer::bindMaterial(const Material& material) {
-	if (_state.material == &material) return;
+	//if (_state.material == &material) return;
+	if (_state.material == &material) {
+		_cache.ensureMaterial(const_cast<Material&>(material)); // will apply sampler dirties
+		return;
+	}
 
 	// Look at the currently bound pipeline
 	const PipelineOGL& pipeline = _cache.pipeline(_state.pipelineHandle);
@@ -2165,19 +2190,27 @@ void OpenGLRenderer::bindMaterial(const Material& material) {
 //		log::e()("bindMaterial() skipped for shaderKind != Default (shaderKind=%d).", int(p.key.shaderKind));
 //	}
 
-	std::map<MaterialPropertyType, GLuint> glTextureHandles;
-	GetTextureGLTextureHandles(const_cast<Material&>(material),
-							   _cache,
-							   glTextureHandles);
+//	std::map<MaterialPropertyType, GLuint> glTextureHandles;
+//	GetTextureGLTextureHandles(const_cast<Material&>(material),
+//							   _cache,
+//							   glTextureHandles);
 
+	// Resolve material once (uploads textures  applies sampler states via cache)
+	const auto& mr = _cache.ensureMaterial(const_cast<Material&>(material));
+	std::array<GLuint, 4> glTextureHandles = {
+			(GLuint)mr.tex[0],
+			(GLuint)mr.tex[1],
+			(GLuint)mr.tex[2],
+			(GLuint)mr.tex[3],
+	};
 
 	//Program& program = Program::Default();
 	// OK if SendMaterialUniforms still calls prog.use() because it matches the pipeline now
 
 	// TODO: !!! THIS IS A DIRTY HACK !!!
-	if (pipeline.key.shaderKind == ShaderKind::Default) SendMaterialUniforms(material, *program, glTextureHandles, _state);
-
-	SetMaterialFilteringOptions(material, glTextureHandles);
+	if (pipeline.key.shaderKind == ShaderKind::Default) {
+		SendMaterialUniforms(material, *program, glTextureHandles, _state);
+	}
 
 	_state.material = &material;
 }

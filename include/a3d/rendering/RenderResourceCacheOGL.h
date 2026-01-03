@@ -2,6 +2,7 @@
 #ifndef AVARA3D_RENDERRESOURCECACHEOGL_H
 #define AVARA3D_RENDERRESOURCECACHEOGL_H
 
+#include <array>
 #include <cstdint>
 #include <unordered_map>
 #include <vector>
@@ -12,6 +13,7 @@
 namespace a3d {
 
 
+	class Material;
 	class MeshElement;
 	class Texture;
 
@@ -29,6 +31,16 @@ namespace a3d {
 		uint32_t 	vertexLayoutKey = 	0;
 	};
 
+	static constexpr size_t kMaterialTexSlots = 4; // Ambient, Diffuse, Specular, Emission
+	struct MaterialOGL {
+		std::array<unsigned, kMaterialTexSlots> tex = {}; // GLuint stored as unsigned
+		float specularExponent = 75.0f;
+		float uvScale = 1.0f;
+	};
+
+	struct TextureOGL {
+		gl::uint_t id = 0;
+	};
 
 
 	class RenderResourceCacheOGL {
@@ -36,28 +48,24 @@ namespace a3d {
 	public:
 
 		PipelineHandle ensurePipeline(const PipelineKey& key);
-		gl::uint_t ensureTexture(Texture& texture);
 
+		const PipelineOGL& pipeline(PipelineHandle h) const;
 
 		const MeshElementOGL& ensureMeshElement(MeshElement& element, uint32_t vertexLayoutKey);
 
+		const MaterialOGL& ensureMaterial(Material& material);
 
-		const PipelineOGL& pipeline(PipelineHandle h) const {
-			return _pipelineList.at(h);
-		}
+		gl::uint_t ensureTexture(Texture& texture);
 
 	private:
 
 		PipelineOGL buildPipeline(const PipelineKey& key);
 
+		std::unordered_map<MeshElement*, MeshElementOGL> _meshElementMap;
 
-		struct TextureOGL {
-			gl::uint_t id = 0;
-		};
+		std::unordered_map<Material*, MaterialOGL> _materialMap;
 
 		std::unordered_map<Texture*, TextureOGL> _textureMap;
-
-		std::unordered_map<MeshElement*, MeshElementOGL> _meshElementMap;
 
 		std::unordered_map<
 				PipelineKey,

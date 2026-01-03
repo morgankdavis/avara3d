@@ -1,7 +1,6 @@
 
 #include "a3d/rendering/RenderResourceCacheOGL.h"
 
-
 #include <type_traits>
 #include <variant>
 
@@ -11,10 +10,11 @@
 #include "a3d/CubeImage.h"
 #include "a3d/log/Log.h"
 #include "a3d/mesh/MeshElement.h"
+#include "a3d/rendering/material/Material.h"
+#include "a3d/rendering/material/Sampler.h"
+#include "a3d/rendering/material/Texture.h"
 #include "a3d/rendering/renderer/opengl/gl.h"
 #include "a3d/rendering/renderer/opengl/Program.h"
-#include "a3d/rendering/material/Texture.h"
-#include "a3d/rendering/material/Sampler.h"
 
 using namespace a3d;
 using namespace std;
@@ -187,6 +187,16 @@ static void ApplySamplerState(Texture& texture, unsigned glTextureHandle, bool f
 	}
 }
 
+static inline int SlotFor(MaterialPropertyType t) {
+	switch (t) {
+		case MaterialPropertyType::Ambient:  return 0;
+		case MaterialPropertyType::Diffuse:  return 1;
+		case MaterialPropertyType::Specular: return 2;
+		case MaterialPropertyType::Emission: return 3;
+		default: return -1;
+	}
+}
+
 // ----------------------------------------------------------------------------
 
 
@@ -203,50 +213,8 @@ PipelineHandle RenderResourceCacheOGL::ensurePipeline(const PipelineKey& key) {
 	return h;
 }
 
-unsigned RenderResourceCacheOGL::ensureTexture(Texture& texture) {
-	auto it = _textureMap.find(&texture);
-	if (it == _textureMap.end()) {
-		it = _textureMap.emplace(&texture, TextureOGL{}).first;
-	}
-
-	unsigned handle = it->second.id;
-
-	const bool contentsDirty =
-			A3D_MASK_CONTAINS(texture.dirtyMask(), TextureDirtyMask::Contents);
-	const bool missingOrZero = (handle == 0);
-	const bool forceAll = contentsDirty || missingOrZero;
-
-	if (forceAll) {
-		if (handle != 0) {
-			glDeleteTextures(1, (GLuint*)&handle);
-			handle = 0;
-		}
-
-		handle = BufferTextureContents(texture);
-
-		if (handle == 0) {
-			log::e()("ensureTexture: BufferTextureContents failed for Texture {:p}",
-					(void*)&texture);
-			_textureMap.erase(it);
-			return 0;
-		}
-
-		it->second.id = handle;
-
-		// Clear only Contents bit
-		texture.dirtyMask(A3D_MASK_REMOVE(texture.dirtyMask(), TextureDirtyMask::Contents));
-	}
-
-	// Apply sampler state whenever sampler says it’s dirty, and always after (re)upload
-	if (handle != 0) {
-		const auto sampler = texture.sampler();
-		const bool samplerDirty = sampler && sampler->dirtyMask() != (SamplerDirtyMask)0;
-		if (forceAll || samplerDirty) {
-			ApplySamplerState(texture, handle, forceAll);
-		}
-	}
-
-	return handle;
+const PipelineOGL& RenderResourceCacheOGL::pipeline(PipelineHandle h) const {
+	return _pipelineList.at(h);
 }
 
 const MeshElementOGL& RenderResourceCacheOGL::ensureMeshElement(MeshElement& element,
@@ -313,6 +281,72 @@ const MeshElementOGL& RenderResourceCacheOGL::ensureMeshElement(MeshElement& ele
 	}
 
 	return res;
+}
+
+const MaterialOGL& RenderResourceCacheOGL::ensureMaterial(Material& material) {
+	auto it = _materialMap.find(&material);
+	if (it == _materialMap.end()) it = _materialMap.emplace(&material, MaterialOGL{}).first;
+	auto& res = it->second;
+
+	res.specularExponent = material.specularExponent();
+	res.uvScale = material.uvScale();
+	res.tex.fill(0);
+
+	for (auto& [property, type] : material.properties()) {
+		const int slot = SlotFor(type);
+		if (slot < 0) continue;
+		auto textureSP = std::get_if<std::shared_ptr<Texture>>(property);
+		if (!textureSP || !(*textureSP)) continue;
+		res.tex[(size_t)slot] = ensureTexture(*(*textureSP));
+	}
+
+	return res;
+}
+
+unsigned RenderResourceCacheOGL::ensureTexture(Texture& texture) {
+	auto it = _textureMap.find(&texture);
+	if (it == _textureMap.end()) {
+		it = _textureMap.emplace(&texture, TextureOGL{}).first;
+	}
+
+	unsigned handle = it->second.id;
+
+	const bool contentsDirty =
+			A3D_MASK_CONTAINS(texture.dirtyMask(), TextureDirtyMask::Contents);
+	const bool missingOrZero = (handle == 0);
+	const bool forceAll = contentsDirty || missingOrZero;
+
+	if (forceAll) {
+		if (handle != 0) {
+			glDeleteTextures(1, (GLuint*)&handle);
+			handle = 0;
+		}
+
+		handle = BufferTextureContents(texture);
+
+		if (handle == 0) {
+			log::e()("ensureTexture: BufferTextureContents failed for Texture {:p}",
+					 (void*)&texture);
+			_textureMap.erase(it);
+			return 0;
+		}
+
+		it->second.id = handle;
+
+		// Clear only Contents bit
+		texture.dirtyMask(A3D_MASK_REMOVE(texture.dirtyMask(), TextureDirtyMask::Contents));
+	}
+
+	// Apply sampler state whenever sampler says it’s dirty, and always after (re)upload
+	if (handle != 0) {
+		const auto sampler = texture.sampler();
+		const bool samplerDirty = sampler && sampler->dirtyMask() != (SamplerDirtyMask)0;
+		if (forceAll || samplerDirty) {
+			ApplySamplerState(texture, handle, forceAll);
+		}
+	}
+
+	return handle;
 }
 
 PipelineOGL RenderResourceCacheOGL::buildPipeline(const PipelineKey& key) {

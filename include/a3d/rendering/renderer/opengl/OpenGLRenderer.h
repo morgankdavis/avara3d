@@ -61,12 +61,12 @@ namespace a3d {
 		};
 
 		/* <a3d::MeshElement* : <gl_vbo, gl_vao, gl_ebo>> */
-		using MeshElementGLMapping =
-				std::map<MeshElement*, std::tuple<unsigned, unsigned, unsigned>>; // TODO: REMOVE
+//		using MeshElementGLMapping =
+//				std::map<MeshElement*, std::tuple<unsigned, unsigned, unsigned>>; // TODO: REMOVE
 
 		/* <a3d::Texture* : <gl_textureHandle> */
-		using TextureGLMapping =
-				std::map<Texture*, unsigned>;
+//		using TextureGLMapping =
+//				std::map<Texture*, unsigned>;
 
 		/// Private Static Members ///
 
@@ -117,8 +117,8 @@ namespace a3d {
 		/// Private Member Variables ///
 
 		bool											_isInitialized;
-		MeshElementGLMapping 							_meshElementGLMapping; // TODO: REMOVE
-		TextureGLMapping								_textureGLMapping;
+//		MeshElementGLMapping 							_meshElementGLMapping; // TODO: REMOVE
+//		TextureGLMapping								_textureGLMapping;
 		unsigned										_glEnvironmentUBO;
 		ImFont*											_overlayTitleImFont;
 		ImFont*											_overlayBodyImFont;
