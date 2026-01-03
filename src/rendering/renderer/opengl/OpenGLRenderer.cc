@@ -1446,9 +1446,10 @@ void DrawStats(FrameStats& stats,
 	if (context.recordingGIF()) {
 		yPos += STAT_LINE_STEP;
 		DrawLabelValue(yPos, bulkLayout, "RECORDING",
-					   std::format("{:.1f}s / {} {}", context.recordedGIFTime(),
-								   context.recordedGIFFrames(),
-								   context.recordedGIFFrames() == 1 ? "frame" : "frames"),
+//					   std::format("{:.1f}s / {} {}", context.recordedGIFTime(),
+//								   context.recordedGIFFrames(),
+//								   context.recordedGIFFrames() == 1 ? "frame" : "frames"),
+					   std::format("{:.0f}s", context.recordedGIFTime()),
 					   bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
 	}
 
