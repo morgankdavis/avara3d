@@ -271,57 +271,41 @@ void VisualWorld::draw(const Scene& scene,
 		return std::tuple{ inverse(pov->worldTransform()), pov->camera()->projection() };
 	});
 
-	prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
+	/*auto gatherItems = */prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
+
 		renderer->preTraversal(scene, *_renderContext, debugOptions, stats);
-	});
 
-	auto gatherItems = prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
-
-		return RenderGatherer::GatherRenderItems(scene,
-												 view,
-												 physicalWorld,
-												 debugOptions,
-												 stats);
-	});
-
-	prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
-
-		auto& cache = (static_cast<OpenGLRenderer*>(renderer))->cache(); // TODO: TEMPORARY!
-
-		RenderPacket packet = RenderGatherer::BuildRenderPacket(gatherItems,
-																cache,
-																1, // vertexLayoutKey
-																debugOptions);
+		auto gatherItems = RenderGatherer::GatherRenderItems(scene,
+															 view,
+															 physicalWorld,
+															 debugOptions,
+															 stats);
 
 		renderer->postTraversal(scene,
 								*_renderContext,
-								packet.lightNodes,
+								gatherItems.lightNodes,
 								debugOptions,
 								stats);
 
-		renderer->clear(Renderer::ClearCommand{}, *_renderContext);
+		//return gatherItems;
 
-		// TODO: PUT IN RENDERPACKET
-//		renderer->bindPipeline(packet.backgroundPass.pipeline, cache);
-		renderer->drawBackground(packet.backgroundPass, view, proj);
+//	});
+//
+//	prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
 
-		for (const auto &di: packet.mainPassItems) {
-			renderer->bindPipeline(di.pipeline, cache);
-			renderer->bindMaterial(*di.material);
-			renderer->bindMeshElement(*di.element);
-			renderer->setPerObject(di.model, view, proj);
-			renderer->drawBound();
-		}
+		RenderPacket packet = RenderGatherer::BuildRenderPacket(gatherItems,
+																1,
+																debugOptions);
 
-		for (const auto &di: packet.wireframePassItems) {
-			renderer->bindPipeline(di.pipeline, cache);
-			// bindMaterial
-			renderer->bindMeshElement(*di.element);
-			renderer->setPerObject(di.model, view, proj);
-			renderer->drawBound();
-		}
 
-		renderer->renderLinesPass(packet.linesPass, *_renderContext, view, proj);
+		Renderer::FrameParams params = { *_renderContext,
+										 view,
+										 proj,
+										 debugOptions,
+										 &stats,
+										 &profiler };
+
+		static_cast<OpenGLRenderer*>(renderer)->renderPacket(packet, params);
 	});
 
 	prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {

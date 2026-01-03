@@ -30,11 +30,27 @@ namespace a3d {
 	class Point;
 	class Profiler;
 	class RenderContext;
+	class RenderPacket;
 	class Scene;
 
 	class Renderer {
 
 	public:
+
+
+
+		struct FrameParams {
+			const RenderContext& context;
+			math::mat4 view;
+			math::mat4 proj;
+			DebugOptions debug;
+			FrameStats* stats = nullptr;
+			Profiler* profiler = nullptr;
+		};
+
+
+
+
 		/// Internal Lifecycle Functions ///
 
 		Renderer();
@@ -119,11 +135,6 @@ namespace a3d {
 
 
 
-		// TODO: REMOVE OR REPLACE WITH NON-OGL
-		virtual RenderResourceCacheOGL& cache() = 0;
-
-
-
 		virtual void clear(const ClearCommand& cmd,
 						   const RenderContext& context) = 0;
 		virtual void drawBackground(const BackgroundPass& backgroundPass,
@@ -145,6 +156,11 @@ namespace a3d {
 									 const RenderContext& context,
 									 const math::mat4& viewMat,
 									 const math::mat4& projectionMat) = 0;
+
+		virtual void resolvePacket(RenderPacket& packet, const FrameParams& frame) = 0;
+		virtual void drawPacket(const RenderPacket& packet, const FrameParams& frame) = 0;
+		virtual void renderPacket(RenderPacket& packet, const FrameParams& frame) = 0;
+
 	};
 }
 

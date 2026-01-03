@@ -8,31 +8,34 @@
 #include <memory>
 
 #include "a3d/Math.h"
+#include "a3d/mesh/Line.h"
 #include "a3d/rendering/PipelineKey.h"
 
 namespace a3d {
 
+//	class Line;
+	class Material;
 	class Mesh;
 	class MeshElement;
 
 	struct BackgroundPass {
-		PipelineHandle 				pipeline = 	INVALID_PIPELINE_HANDLE;
-		//Material*					material =	nullptr;
-		std::shared_ptr<Material> 	material =	nullptr; // gross
-		//math::mat4     			view =		math::mat4(1.0f);
+		PipelineHandle 				pipeline = 		INVALID_PIPELINE_HANDLE;
+		PipelineKey					key	=			{};
+		std::shared_ptr<Material> 	material =		nullptr; // gross
 	};
 
 	struct LinesPass {
-		PipelineHandle 		pipeline = 	INVALID_PIPELINE_HANDLE;
-		math::mat4     		model =		math::mat4(1.0f); // usually identity for world-space lines
-		std::vector<Line> 	lines =		{};
+		PipelineHandle 		pipeline = 		INVALID_PIPELINE_HANDLE;
+		PipelineKey			key =			{};
+		math::mat4     		model =			math::mat4(1.0f); // identity for world-space lines
+		std::vector<Line> 	lines =			{};
 	};
 
 	struct DrawItem {
 
 		PipelineHandle 	pipeline = 		INVALID_PIPELINE_HANDLE;
+		PipelineKey 	pipelineKey		{};
 
-//		Mesh* 			mesh = 			nullptr;
 		uint32_t 		elementIndex = 	0;
 		MeshElement* 	element = 		nullptr;
 		Material* 		material = 		nullptr;
@@ -45,15 +48,8 @@ namespace a3d {
 		uint64_t 		sortKey = 		0;
 		uint32_t		sequence =		0;
 
-		// Optional: cache for faster sort. Can be derived from material/key.
 		bool 			transparent = 	false;
-//		bool isTransparent(const DrawItem& it) {
-//			return it.material && it.material->alphaMode() == AlphaMode::Blend;
-//			// or: return it.key.blendFunction != BlendFunction::Disabled;
-//		}
-		// item.transparent = (item.material->alphaMode() == AlphaMode::Blend);
 
-		// Optional: keep key only until pipeline resolve is done
 		PipelineKey 	key;
 	};
 }

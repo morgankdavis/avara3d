@@ -37,6 +37,7 @@
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/mesh/primitive/Box.h"
 #include "a3d/rendering/DrawItem.h"
+#include "a3d/rendering/RenderPacket.h"
 #include "a3d/rendering/RenderResourceCacheOGL.h"
 #include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/camera/Camera.h"
@@ -1959,22 +1960,9 @@ void ApplyBlendFunction(BlendFunction f) {
 	}
 }
 
-
-
-
-
-
-
-
-
-
-
-RenderResourceCacheOGL& OpenGLRenderer::cache() {
-	return _cache;
-}
-
-
-
+//RenderResourceCacheOGL& OpenGLRenderer::cache() {
+//	return _cache;
+//}
 
 void OpenGLRenderer::clear(const ClearCommand& cmd,
 						   const RenderContext& context) {
@@ -1988,7 +1976,7 @@ void OpenGLRenderer::clear(const ClearCommand& cmd,
 	glBindFramebuffer(GL_FRAMEBUFFER, fb);
 	glViewport(0, 0, (GLsizei)fbSize.x, (GLsizei)fbSize.y);
 
-	// Save state we might stomp.
+	// save state we might stomp.
 	GLboolean prevScissorEnabled = GL_FALSE;
 	GLint prevScissorBox[4] = {0,0,0,0};
 	glGetBooleanv(GL_SCISSOR_TEST, &prevScissorEnabled);
@@ -2089,8 +2077,6 @@ void OpenGLRenderer::drawBackground(const BackgroundPass& backgroundPass,
 	drawBound();
 }
 
-
-
 void OpenGLRenderer::bindPipeline(PipelineHandle pipelineHandle,
 								  const RenderResourceCacheOGL& cache) {
 
@@ -2163,14 +2149,8 @@ void OpenGLRenderer::bindMaterial(const Material& material) {
 		return;
 	}
 
-	// Look at the currently bound pipeline
+	// look at the currently bound pipeline
 	const PipelineOGL& pipeline = _cache.pipeline(_state.pipelineHandle);
-
-	// Wireframe / lines shaders should not run the material binding path
-//	if ((p.key.shaderKind != ShaderKind::Default) & (p.key.shaderKind != ShaderKind::Skybox)) {
-//		_state.material = &material;
-//		return;
-//	}
 
 // TODO: !!! THIS IS A DIRTY HACK !!!
 	Program* program;
@@ -2186,16 +2166,7 @@ void OpenGLRenderer::bindMaterial(const Material& material) {
 			return; // not chill
 	}
 
-//	if (p.key.shaderKind != ShaderKind::Default) {
-//		log::e()("bindMaterial() skipped for shaderKind != Default (shaderKind=%d).", int(p.key.shaderKind));
-//	}
-
-//	std::map<MaterialPropertyType, GLuint> glTextureHandles;
-//	GetTextureGLTextureHandles(const_cast<Material&>(material),
-//							   _cache,
-//							   glTextureHandles);
-
-	// Resolve material once (uploads textures  applies sampler states via cache)
+	// resolve material once (uploads textures  applies sampler states via cache)
 	const auto& mr = _cache.ensureMaterial(const_cast<Material&>(material));
 	std::array<GLuint, 4> glTextureHandles = {
 			(GLuint)mr.tex[0],
@@ -2215,68 +2186,9 @@ void OpenGLRenderer::bindMaterial(const Material& material) {
 	_state.material = &material;
 }
 
-
-
 void OpenGLRenderer::bindMeshElement(const MeshElement& element) {
-//	auto* e = const_cast<MeshElement*>(&element);
-//	auto& res = _meshElementGL[e];
-//
-//	const bool dirty = A3D_MASK_CONTAINS(e->dirtyMask(), MeshElementDirtyMask::VertexData);
-//	const bool missing = (res.vao == 0);
-//
-//	if (dirty || missing) {
-//		if (!missing) {
-//			glDeleteBuffers(1, &res.vbo);
-//			glDeleteBuffers(1, &res.ebo);
-//			glDeleteVertexArrays(1, &res.vao);
-//			res = {};
-//		}
-//
-//		glGenVertexArrays(1, &res.vao);
-//		glGenBuffers(1, &res.vbo);
-//		glGenBuffers(1, &res.ebo);
-//
-//		glBindVertexArray(res.vao);
-//
-//		glBindBuffer(GL_ARRAY_BUFFER, res.vbo);
-//		glBufferData(GL_ARRAY_BUFFER,
-//					 element.vertices().size() * sizeof(Vertex),
-//					 element.vertices().data(),
-//					 GL_STATIC_DRAW);
-//
-//		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-//		glEnableVertexAttribArray(0);
-//		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)sizeof(vec3));
-//		glEnableVertexAttribArray(1);
-//		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(vec3)*2));
-//		glEnableVertexAttribArray(2);
-//
-//		std::vector<uint32_t> indices;
-//		indices.reserve(element.faces().size() * 3);
-//		for (auto& f : element.faces()) {
-//			indices.push_back((uint32_t)f.a);
-//			indices.push_back((uint32_t)f.b);
-//			indices.push_back((uint32_t)f.c);
-//		}
-//
-//		res.indexCount = (uint32_t)indices.size();
-//
-//		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, res.ebo);
-//		glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-//					 indices.size() * sizeof(uint32_t),
-//					 indices.data(),
-//					 GL_STATIC_DRAW);
-//
-//		e->dirtyMask(A3D_MASK_REMOVE(e->dirtyMask(), MeshElementDirtyMask::VertexData));
-//	}
-//
-//	// Bind VAO and set draw args
-//	glBindVertexArray(res.vao);
-//	_boundElement.vao = res.vao;
-//	_boundElement.indexCount = (GLsizei)res.indexCount;
 
-
-	// Use currently bound pipeline's vertexLayoutKey
+	// use currently bound pipeline's vertexLayoutKey
 	const PipelineOGL& pipe = _cache.pipeline(_state.pipelineHandle);
 	const uint32_t layoutKey = pipe.key.vertexLayoutKey;
 
@@ -2314,11 +2226,6 @@ void OpenGLRenderer::drawBound() {
 	glDrawElements(GL_TRIANGLES, _boundElement.indexCount, _boundElement.indexType, (void*)0);
 }
 
-
-
-
-
-
 void OpenGLRenderer::renderLinesPass(const LinesPass& pass,
 									 const RenderContext& context,
 									 const mat4& viewMat,
@@ -2351,3 +2258,77 @@ void OpenGLRenderer::renderLinesPass(const LinesPass& pass,
 	glDrawArrays(GL_LINES, 0, (GLsizei)_dbgLineVerts.size());
 }
 
+void OpenGLRenderer::resolvePacket(RenderPacket& packet, const FrameParams& frame) {
+
+	// "resolve / prepare / compile / bake"
+
+	auto resolvePipeline = [&](PipelineHandle &h, const PipelineKey &key) -> PipelineHandle {
+		if (h == INVALID_PIPELINE_HANDLE) h = _cache.ensurePipeline(key);
+		return h;
+	};
+
+	// background
+	if (packet.backgroundPass.material) {
+		resolvePipeline(packet.backgroundPass.pipeline, packet.backgroundPass.key);
+	}
+
+	// main + wireframe items
+	for (auto &di: packet.mainPassItems) {
+		resolvePipeline(di.pipeline, di.key);
+	}
+	for (auto &di: packet.wireframePassItems) {
+		resolvePipeline(di.pipeline, di.key);
+	}
+
+	// lines
+	if (!packet.linesPass.lines.empty()) {
+		resolvePipeline(packet.linesPass.pipeline, packet.linesPass.key);
+	} else {
+		packet.linesPass.pipeline = INVALID_PIPELINE_HANDLE;
+	}
+}
+
+void OpenGLRenderer::drawPacket(const RenderPacket& packet, const FrameParams& frame) {
+
+	// "render / execute / submit / draw"
+
+	clear(Renderer::ClearCommand{}, frame.context);
+
+	if (packet.backgroundPass.material) {
+		// uses _skyboxMesh internally, binds + draws
+		drawBackground(packet.backgroundPass, frame.view, frame.proj);
+	}
+
+	// NOTE: items are already sorted by pass + key hash, so this will batch nicely
+	for (const auto &di: packet.mainPassItems) {
+		if (di.pipeline == INVALID_PIPELINE_HANDLE) continue;
+		if (!di.element) continue;
+
+		bindPipeline(di.pipeline, _cache);
+
+		// only bind material for shaderKinds that use it (bindMaterial() already early-outs)
+		if (di.material) bindMaterial(*di.material);
+
+		bindMeshElement(*di.element);
+		setPerObject(di.model, frame.view, frame.proj);
+		drawBound();
+	}
+
+	for (const auto &di: packet.wireframePassItems) {
+		if (di.pipeline == INVALID_PIPELINE_HANDLE) continue;
+		if (!di.element) continue;
+
+		bindPipeline(di.pipeline, _cache);
+		// no bindMaterial (wire shader typically ignores it)
+		bindMeshElement(*di.element);
+		setPerObject(di.model, frame.view, frame.proj);
+		drawBound();
+	}
+
+	renderLinesPass(packet.linesPass, frame.context, frame.view, frame.proj);
+}
+
+void OpenGLRenderer::renderPacket(RenderPacket& packet, const FrameParams& frame) {
+	resolvePacket(packet, frame);
+	drawPacket(packet, frame);
+}

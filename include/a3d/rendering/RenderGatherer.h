@@ -7,13 +7,14 @@
 
 #include "a3d/Math.h"
 #include "a3d/Types.h"
+#include "a3d/rendering/DrawItem.h"
 #include "a3d/rendering/PipelineKey.h"
 
 namespace a3d {
 
 	struct RenderItem;
 	struct RenderPacket;
-	struct RenderResourceCacheOGL;
+//	struct RenderResourceCacheOGL;
 
 	class Line;
 	class Material;
@@ -67,10 +68,17 @@ namespace a3d {
 
 
 
+//		static RenderPacket BuildRenderPacket(GatherOutput& gatherOutput,
+//											  RenderResourceCacheOGL& cache,
+//											  uint32_t vertexLayoutKey,
+//											  const DebugOptions& debugOptions);
+
 		static RenderPacket BuildRenderPacket(GatherOutput& gatherOutput,
-											  RenderResourceCacheOGL& cache,
 											  uint32_t vertexLayoutKey,
 											  const DebugOptions& debugOptions);
+
+
+//		void gather(const RenderContext& ctx, const Scene& scene, std::vector<DrawItem>& out);
 	};
 }
 

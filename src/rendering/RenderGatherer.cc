@@ -6,9 +6,10 @@
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/physics/bullet/BulletWorldProxy.h"
+//#include "a3d/mesh/Line.h"
 #include "a3d/rendering/RenderItem.h"
 #include "a3d/rendering/RenderPacket.h"
-#include "a3d/rendering/RenderResourceCacheOGL.h"
+//#include "a3d/rendering/RenderResourceCacheOGL.h"
 #include "a3d/rendering/VisualWorld.h"
 #include "a3d/rendering/context/RenderContext.h"
 #include "a3d/rendering/material/Material.h"
@@ -24,6 +25,8 @@ struct GatherEntry {
 	math::mat4 	parentWorld;
 };
 
+// walk the scene, compute transforms/AABBs/depth, pick logical materials/elements/styles
+// "gather / collect / cull"
 GatherOutput RenderGatherer::GatherRenderItems(const Scene& scene,
 											   const mat4& view,
 											   const PhysicalWorld* physicalWorld,
@@ -264,8 +267,31 @@ static uint16_t PtrHash16(const void* p) {
 	return (uint16_t)(h ^ (h >> 16));
 }
 
+//static uint64_t MakeSortKey(const DrawItem& it) {
+//	//uint64_t k = (uint64_t)(uint32_t)it.pipeline << 32;
+//	// sort by pipeline *configuration* before the pipeline handle exists
+//	const size_t h = PipelineKeyHash{}(it.key);
+//	const uint32_t hk = (uint32_t)(h ^ (h >> 32)); // fold to 32-bit
+//	uint64_t k = (uint64_t)hk << 32;
+//	k |= (uint64_t)PtrHash16(it.material) << 16;
+//	k |= (uint64_t)PtrHash16(it.element);
+//	return k;
+//}
+
+static inline uint32_t FoldHash32(size_t h) {
+	uint32_t x = (uint32_t)h ^ (uint32_t)(h >> 32);
+	// cheap mix (avalanche-ish)
+	x ^= x >> 16;
+	x *= 0x7feb352d;
+	x ^= x >> 15;
+	x *= 0x846ca68b;
+	x ^= x >> 16;
+	return x;
+}
+
 static uint64_t MakeSortKey(const DrawItem& it) {
-	uint64_t k = (uint64_t)(uint32_t)it.pipeline << 32;
+	const uint32_t hk = FoldHash32(PipelineKeyHash{}(it.key));
+	uint64_t k = (uint64_t)hk << 32;
 	k |= (uint64_t)PtrHash16(it.material) << 16;
 	k |= (uint64_t)PtrHash16(it.element);
 	return k;
@@ -369,8 +395,9 @@ static void AppendOBBLinesFromLocalAABB(vector<Line>& out,
 
 
 
+// turn gathered items into backend-agnostic DrawItems + pass structs (no GL resources)
+// "build / buildDrawList / buildCommandList / record"
 RenderPacket RenderGatherer::BuildRenderPacket(GatherOutput& gatherOutput,
-											   RenderResourceCacheOGL& cache,
 											   uint32_t vertexLayoutKey,
 											   const DebugOptions& debugOptions) {
 
@@ -379,8 +406,9 @@ RenderPacket RenderGatherer::BuildRenderPacket(GatherOutput& gatherOutput,
 	packet.mainPassItems.reserve(gatherOutput.renderItems.size());
 	packet.wireframePassItems.reserve(gatherOutput.renderItems.size());
 
-	packet.backgroundPass = BackgroundPass{ cache.ensurePipeline(MakeBackgroundPipelineKey()),
-											gatherOutput.backgroundMaterial };
+	packet.backgroundPass.pipeline  = INVALID_PIPELINE_HANDLE;
+	packet.backgroundPass.key       = MakeBackgroundPipelineKey();
+	packet.backgroundPass.material  = gatherOutput.backgroundMaterial;
 
 	for (const RenderItem& ri : gatherOutput.renderItems) {
 
@@ -390,7 +418,6 @@ RenderPacket RenderGatherer::BuildRenderPacket(GatherOutput& gatherOutput,
 		if (style == RenderStyle::Normal || style == RenderStyle::WireframeOverlay) {
 
 			DrawItem di;
-//			di.mesh = ri.mesh;
 			di.elementIndex = ri.elementIndex;
 			di.element = ri.element;
 			di.material = ri.material;
@@ -413,7 +440,7 @@ RenderPacket RenderGatherer::BuildRenderPacket(GatherOutput& gatherOutput,
 				default: /* unreachable */ break;
 			}
 
-			di.pipeline = cache.ensurePipeline(di.key);
+			di.pipeline = INVALID_PIPELINE_HANDLE; // resolved later
 
 			di.sortKey = MakeSortKey(di);
 			di.sequence = (uint32_t)packet.mainPassItems.size();
@@ -424,7 +451,6 @@ RenderPacket RenderGatherer::BuildRenderPacket(GatherOutput& gatherOutput,
 		if (style == RenderStyle::Wireframe || style == RenderStyle::WireframeOverlay) {
 
 			DrawItem di;
-//			di.mesh = ri.mesh;
 			di.elementIndex = ri.elementIndex;
 			di.element = ri.element;
 			di.material = ri.material; // optional for wire, fine to keep
@@ -433,7 +459,7 @@ RenderPacket RenderGatherer::BuildRenderPacket(GatherOutput& gatherOutput,
 			di.pass = PassKind::Wireframe;
 
 			di.key = MakeWireframePipelineKey(ri, vertexLayoutKey);
-			di.pipeline = cache.ensurePipeline(di.key);
+			di.pipeline = INVALID_PIPELINE_HANDLE; // resolved later
 
 			di.sortKey = MakeSortKey(di);
 			di.sequence = (uint32_t)packet.wireframePassItems.size();
@@ -448,10 +474,8 @@ RenderPacket RenderGatherer::BuildRenderPacket(GatherOutput& gatherOutput,
 		auto &lp = packet.linesPass;
 		lp.model = math::mat4(1.0f);
 
-		// 1) Take ownership of physics lines (zero-copy)
 		lp.lines = std::move(gatherOutput.physicsDebugLines);
 
-		// 2) Optionally append AABB/OBB lines
 		const bool showBounds = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes);
 		if (showBounds) {
 			// reserve: keep what we already have (physics) + our bbox lines
@@ -468,61 +492,9 @@ RenderPacket RenderGatherer::BuildRenderPacket(GatherOutput& gatherOutput,
 			AppendAABBLinesWorld(lp.lines, gatherOutput.scene->aabb(false), *Color::Green());
 		}
 
-		// 3) Only create/bind a pipeline if we actually have lines
-		if (!lp.lines.empty()) {
-			lp.pipeline = cache.ensurePipeline(MakeLinesPipelineKey());
-		} else {
-			lp.pipeline = INVALID_PIPELINE_HANDLE; // or whatever your "not set" handle is
-		}
+		lp.key = MakeLinesPipelineKey();
+		lp.pipeline = INVALID_PIPELINE_HANDLE; // resolved later if lines exist
 	}
-
-
-
-//	auto& lp = packet.linesPass;
-//	lp.model = math::mat4(1.0f);
-//
-//	lp.lines = std::move(gatherOutput.physicsDebugLines);
-//
-//	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
-//
-//		// Build/ensure the pipeline as part of packet build (first-class pass)
-//		PipelineKey k = MakeLinesPipelineKey();
-//		lp.pipeline = cache.ensurePipeline(k);
-//
-//		const size_t perMesh = 24;                 // 12 OBB + 12 AABB
-//		const size_t sceneAabb = 12;               // scene AABB
-//		lp.lines.reserve(lp.lines.size() + gatherOutput.meshInstances.size() * perMesh + sceneAabb);
-//		//lp.lines.reserve(gatherOutput.meshInstances.size() * 24); // 12+12 = 24 lines per mesh
-//
-//		// order matters - draw first to draw last
-//		for (const MeshInstance& mi : gatherOutput.meshInstances) {
-//			AppendOBBLinesFromLocalAABB(lp.lines, mi.mesh->localAABB(), mi.model, *Color::Gray());
-//			AppendAABBLinesWorld(lp.lines, mi.mesh->worldAABB(mi.model, false), *Color::Red());
-//		}
-//		AppendAABBLinesWorld(lp.lines, gatherOutput.scene->aabb(false), *Color::Green());
-//	}
-
-
-
-
-//	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes)) {
-//
-//		auto& lp = packet.linesPass;
-//		lp.model = math::mat4(1.0f);
-//
-//		// Build/ensure the pipeline as part of packet build (first-class pass)
-//		PipelineKey k = MakeLinesPipelineKey();
-//		lp.pipeline = cache.ensurePipeline(k);
-//
-//		lp.lines.reserve(gatherOutput.meshInstances.size() * 24); // 12+12 = 24 lines per mesh
-//
-//		// order matters - draw first to draw last
-//		for (const MeshInstance& mi : gatherOutput.meshInstances) {
-//			AppendOBBLinesFromLocalAABB(lp.lines, mi.mesh->localAABB(), mi.model, *Color::Gray());
-//			AppendAABBLinesWorld(lp.lines, mi.mesh->worldAABB(mi.model, false), *Color::Red());
-//		}
-//		AppendAABBLinesWorld(lp.lines, gatherOutput.scene->aabb(false), *Color::Green());
-//	}
 
 	SortDrawItems(packet.mainPassItems);
 	SortDrawItems(packet.wireframePassItems);

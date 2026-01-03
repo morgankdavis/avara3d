@@ -33,6 +33,8 @@ namespace a3d {
 	class Texture;
 
 
+
+
 	struct GLStateCache {
 		PipelineHandle 		pipelineHandle = 	INVALID_PIPELINE_HANDLE;
 		a3d::gl::enum_t 	program = 			0; // currently bound GL program
@@ -142,12 +144,9 @@ namespace a3d {
 
 
 
+
+
 		public:
-
-
-		RenderResourceCacheOGL& cache() override;
-
-
 
 
 		void clear(const ClearCommand& cmd,
@@ -170,6 +169,11 @@ namespace a3d {
 							 const RenderContext& context,
 							 const math::mat4& viewMat,
 							 const math::mat4& projectionMat) override;
+
+
+		void resolvePacket(RenderPacket& packet, const FrameParams& frame) override;
+		void drawPacket(const RenderPacket& packet, const FrameParams& frame) override;
+		void renderPacket(RenderPacket& packet, const FrameParams& frame) override;
 
 
 		RenderResourceCacheOGL _cache;
