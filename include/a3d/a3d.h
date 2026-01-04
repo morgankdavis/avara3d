@@ -54,7 +54,7 @@
 #include "a3d/physics/shape_primitive/SpherePhysicsShape.h"
 #include "a3d/render/context/RenderContext.h"
 #include "a3d/render/context/GLFWWindow.h"
-#include "a3d/render/backend/opengl/OpenGLRenderer.h"
+#include "a3d/render/backend/opengl/OGLRenderer.h"
 #include "a3d/render/Renderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"

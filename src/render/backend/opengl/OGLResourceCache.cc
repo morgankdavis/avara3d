@@ -1,5 +1,5 @@
 
-#include "a3d/render/backend/opengl/RenderResourceCacheOGL.h"
+#include "a3d/render/backend/opengl/OGLResourceCache.h"
 
 #include <type_traits>
 #include <variant>
@@ -11,7 +11,7 @@
 #include "a3d/log/Log.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/render/backend/opengl/gl.h"
-#include "a3d/render/backend/opengl/Program.h"
+#include "a3d/render/backend/opengl/GLSLProgram.h"
 #include "a3d/visual/material/Material.h"
 #include "a3d/visual/material/Sampler.h"
 #include "a3d/visual/material/Texture.h"
@@ -204,7 +204,7 @@ static inline int SlotFor(MaterialPropertyType t) {
 // ----------------------------------------------------------------------------
 
 
-PipelineHandle RenderResourceCacheOGL::ensurePipeline(const PipelineKey& key) {
+PipelineHandle OGLResourceCache::ensurePipeline(const PipelineKey& key) {
 
 	if (auto it = _pipelineMap.find(key); it != _pipelineMap.end()) return it->second;
 
@@ -217,12 +217,12 @@ PipelineHandle RenderResourceCacheOGL::ensurePipeline(const PipelineKey& key) {
 	return h;
 }
 
-const PipelineOGL& RenderResourceCacheOGL::pipeline(PipelineHandle h) const {
+const PipelineOGL& OGLResourceCache::pipeline(PipelineHandle h) const {
 	return _pipelineList.at(h);
 }
 
-const MeshElementOGL& RenderResourceCacheOGL::ensureMeshElement(MeshElement& element,
-																uint32_t vertexLayoutKey) {
+const MeshElementOGL& OGLResourceCache::ensureMeshElement(MeshElement& element,
+														  uint32_t vertexLayoutKey) {
 	auto it = _meshElementMap.find(&element);
 	if (it == _meshElementMap.end()) {
 		it = _meshElementMap.emplace(&element, MeshElementOGL{}).first;
@@ -287,7 +287,7 @@ const MeshElementOGL& RenderResourceCacheOGL::ensureMeshElement(MeshElement& ele
 	return res;
 }
 
-const MaterialOGL& RenderResourceCacheOGL::ensureMaterial(Material& material) {
+const MaterialOGL& OGLResourceCache::ensureMaterial(Material& material) {
 	auto it = _materialMap.find(&material);
 	if (it == _materialMap.end()) it = _materialMap.emplace(&material, MaterialOGL{}).first;
 	auto& res = it->second;
@@ -307,7 +307,7 @@ const MaterialOGL& RenderResourceCacheOGL::ensureMaterial(Material& material) {
 	return res;
 }
 
-unsigned RenderResourceCacheOGL::ensureTexture(Texture& texture) {
+unsigned OGLResourceCache::ensureTexture(Texture& texture) {
 	auto it = _textureMap.find(&texture);
 	if (it == _textureMap.end()) {
 		it = _textureMap.emplace(&texture, TextureOGL{}).first;
@@ -370,16 +370,16 @@ PipelineOGL BuildPipeline(const PipelineKey& key) {
 	// TODO: temporary?
 	switch (p.key.shaderKind) {
 		case ShaderKind::Skybox:
-			p.program = Program::Skybox().glID();
+			p.program = GLSLProgram::Skybox().glID();
 			break;
 		case ShaderKind::Wireframe:
-			p.program = Program::Wireframe().glID();
+			p.program = GLSLProgram::Wireframe().glID();
 			break;
 		case ShaderKind::Lines:
-			p.program = Program::Lines().glID();
+			p.program = GLSLProgram::Lines().glID();
 			break;
 		default:
-			p.program = Program::Default().glID();
+			p.program = GLSLProgram::Default().glID();
 			break;
 	}
 

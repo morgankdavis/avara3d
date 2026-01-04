@@ -8,8 +8,8 @@
 //  Based largely on code from "OpenGL 4 Shading Language Cookbook" by David Wolff
 //
 
-#ifndef AVARA3D_PROGRAM_H
-#define AVARA3D_PROGRAM_H
+#ifndef AVARA3D_GLSLPROGRAM_H
+#define AVARA3D_GLSLPROGRAM_H
 
 #include <map>
 #include <memory>
@@ -21,21 +21,21 @@
 
 namespace a3d {
 
-	class Program {
+	class GLSLProgram {
 
 	public:
 		/// Internal Static Member Functions ///
 
-		static Program& 	Default();
-		static Program& 	Skybox();
-		static Program& 	Wireframe();
-		static Program& 	Lines();
-		static Program& 	GroundPlane();
+		static GLSLProgram& 	Default();
+		static GLSLProgram& 	Skybox();
+		static GLSLProgram& 	Wireframe();
+		static GLSLProgram& 	Lines();
+		static GLSLProgram& 	GroundPlane();
 
 		/// Internal Lifecycle Functions ///
 
-		explicit Program(const std::string& name);
-		~Program();
+		explicit GLSLProgram(const std::string& name);
+		~GLSLProgram();
 
 		/// Internal Member Functions ///
 
@@ -98,4 +98,4 @@ namespace a3d {
 	};
 }
 
-#endif /* AVARA3D_PROGRAM_H */
+#endif /* AVARA3D_GLSLPROGRAM_H */

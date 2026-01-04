@@ -13,8 +13,8 @@
 #include "a3d/log/Log.h"
 #include "a3d/physics/PhysicsShape.h"
 #include "a3d/physics/PhysicalWorld.h"
-#include "a3d/physics/bullet/BulletBodyProxy.h"
-#include "a3d/physics/bullet/BulletWorldProxy.h"
+#include "a3d/physics/backend/bullet/BulletBodyProxy.h"
+#include "a3d/physics/backend/bullet/BulletWorldProxy.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 

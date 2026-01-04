@@ -13,7 +13,7 @@
 #include <set>
 
 #include "a3d/Types.h"
-#include "a3d/render/backend/opengl/RenderResourceCacheOGL.h"
+#include "a3d/render/backend/opengl/OGLResourceCache.h"
 
 namespace a3d {
 
@@ -142,7 +142,7 @@ namespace a3d {
 									const math::mat4& projMat) = 0;
 
 
-		virtual void bindPipeline(PipelineHandle h, const RenderResourceCacheOGL& cache) = 0;
+		virtual void bindPipeline(PipelineHandle h, const OGLResourceCache& cache) = 0;
 		virtual void bindMaterial(const Material& material) = 0;
 		virtual void bindMeshElement(const MeshElement& element) = 0;
 		virtual void setPerObject(const math::mat4& model,

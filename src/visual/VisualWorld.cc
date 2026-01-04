@@ -31,7 +31,7 @@
 #include "a3d/visual/camera/PerspectiveCamera.h"
 
 #warning TEMPORARY
-#include "a3d/render/backend/opengl/OpenGLRenderer.h"
+#include "a3d/render/backend/opengl/OGLRenderer.h"
 
 
 
@@ -304,7 +304,7 @@ void VisualWorld::draw(const Scene& scene,
 										 &stats,
 										 &profiler };
 
-		static_cast<OpenGLRenderer*>(renderer)->renderPacket(packet, params);
+		static_cast<OGLRenderer*>(renderer)->renderPacket(packet, params);
 	});
 
 	prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {

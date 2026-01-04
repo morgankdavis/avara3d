@@ -6,7 +6,7 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/render/backend/opengl/OpenGLRenderer.h"
+#include "a3d/render/backend/opengl/OGLRenderer.h"
 
 #include <format>
 #include <set>
@@ -36,9 +36,9 @@
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/mesh/primitive/Box.h"
 #include "a3d/render/pipeline/DrawPacketizer.h"
-#include "a3d/render/backend/opengl/RenderResourceCacheOGL.h"
+#include "a3d/render/backend/opengl/OGLResourceCache.h"
 #include "a3d/render/context/RenderContext.h"
-#include "a3d/render/backend/opengl/Program.h"
+#include "a3d/render/backend/opengl/GLSLProgram.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 #include "a3d/util/chrono.h"
@@ -187,14 +187,14 @@ struct FBORestore {
 //static void 		BufferTexture(const Texture &texture,
 //								 GLuint& glTextureHandle);
 static void 		SendMaterialUniforms(const Material& material,
-										Program& program,
+										GLSLProgram& program,
 //										map<MaterialPropertyType, GLuint>& glTextureHandles,
 										const std::array<GLuint, 4>& glTextureHandles,
 										GLStateCache& state);
 static void 		SendMaterialPropertyUniforms(const MaterialProperty& property,
 												MaterialPropertyType type,
 												GLuint glTextureHandle,
-												Program& program,
+												GLSLProgram& program,
 												GLStateCache& state);
 static void 		SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 											const Scene& scene,
@@ -281,7 +281,7 @@ static void ApplyBlendFunction(BlendFunction blend);
 
 /// Private Static Members ///
 
-bool OpenGLRenderer::InitGL(GLGetProcAddress getProcAddress) {
+bool OGLRenderer::InitGL(GLGetProcAddress getProcAddress) {
 
 	static bool initialized = false;
 	if (initialized) return true;
@@ -308,11 +308,9 @@ bool OpenGLRenderer::InitGL(GLGetProcAddress getProcAddress) {
 
 /// Internal Lifecycle Functions ///
 
-OpenGLRenderer::OpenGLRenderer():
+OGLRenderer::OGLRenderer():
 		Renderer{},
 		_isInitialized{false},
-//		_meshElementGLMapping{}, // TODO: REMOVE
-//		_textureGLMapping{},
 		_glEnvironmentUBO{0},
 		_overlayTitleImFont{nullptr},
 		_overlayBodyImFont{nullptr},
@@ -323,7 +321,7 @@ OpenGLRenderer::OpenGLRenderer():
 
 		_meshElementGL{} {}
 
-OpenGLRenderer::~OpenGLRenderer() {
+OGLRenderer::~OGLRenderer() {
 	log::d()("Destroying OpenGLRenderer {:p}", static_cast<void*>(this));
 
 	glDeleteBuffers(1, &_glEnvironmentUBO);
@@ -345,11 +343,11 @@ OpenGLRenderer::~OpenGLRenderer() {
 	
 /// Renderer Internal Member Functions ///
 
-RenderingApi OpenGLRenderer::renderingApi() const {
+RenderingApi OGLRenderer::renderingApi() const {
 	return RenderingApi::OpenGL;
 }
 
-bool OpenGLRenderer::initialize(const RenderContext& context) {
+bool OGLRenderer::initialize(const RenderContext& context) {
 	log::i();
 
 	glGenBuffers(1, &_glEnvironmentUBO);
@@ -366,8 +364,8 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 		if (idx == GL_INVALID_INDEX) return; // program doesn't have the block
 		glUniformBlockBinding(program, idx, ENV_BINDING_POINT);
 	};
-	bindBlock(Program::Default().glID(),  "EnvironmentBlock");
-	bindBlock(Program::Wireframe().glID(), "EnvironmentBlock");
+	bindBlock(GLSLProgram::Default().glID(), "EnvironmentBlock");
+	bindBlock(GLSLProgram::Wireframe().glID(), "EnvironmentBlock");
 
 	_drawTimer.initialize();
 
@@ -379,15 +377,15 @@ bool OpenGLRenderer::initialize(const RenderContext& context) {
 	return true;
 }
 
-bool OpenGLRenderer::isInitialized() const {
+bool OGLRenderer::isInitialized() const {
 	return _isInitialized;
 }
 
-void OpenGLRenderer::beginFrame(const Scene& scene,
-								const RenderContext& context,
-								const DebugOptions& debugOptions,
-								FrameStats& stats,
-								Profiler& profiler) {
+void OGLRenderer::beginFrame(const Scene& scene,
+							 const RenderContext& context,
+							 const DebugOptions& debugOptions,
+							 FrameStats& stats,
+							 Profiler& profiler) {
 
 	_drawTimer.begin();
 
@@ -399,12 +397,12 @@ void OpenGLRenderer::beginFrame(const Scene& scene,
 	_boundElement = {};
 }
 
-void OpenGLRenderer::endFrame(const Scene& scene,
-							  const RenderContext& context,
-							  const DebugOptions& debugOptions,
-							  FrameStats& stats,
-							  Profiler& profiler,
-							  const FrameStatsHistory& statsHistory) {
+void OGLRenderer::endFrame(const Scene& scene,
+						   const RenderContext& context,
+						   const DebugOptions& debugOptions,
+						   FrameStats& stats,
+						   Profiler& profiler,
+						   const FrameStatsHistory& statsHistory) {
 
 	DrawOverlay(context, scene, stats, statsHistory, debugOptions,
 				*_overlayTitleImFont, *_overlayBodyImFont);
@@ -414,24 +412,24 @@ void OpenGLRenderer::endFrame(const Scene& scene,
 	profiler.add(Profiler::Tag::RenderGpu, _drawTimer.end());
 }
 
-void OpenGLRenderer::preTraversal(const Scene& scene,
-								  const RenderContext& context,
-								  const DebugOptions& debugOptions,
-								  FrameStats& stats) {
+void OGLRenderer::preTraversal(const Scene& scene,
+							   const RenderContext& context,
+							   const DebugOptions& debugOptions,
+							   FrameStats& stats) {
 
 }
 
-void OpenGLRenderer::postTraversal(const Scene& scene,
-								   const RenderContext& context,
-								   const vector<Node*>& lightNodes,
-								   const DebugOptions& debugOptions,
-								   FrameStats& stats) {
+void OGLRenderer::postTraversal(const Scene& scene,
+								const RenderContext& context,
+								const vector<Node*>& lightNodes,
+								const DebugOptions& debugOptions,
+								FrameStats& stats) {
 
 	SendEnvironmentUniforms(_glEnvironmentUBO, scene, lightNodes, stats);
 	//glBindBufferBase(GL_UNIFORM_BUFFER, ENV_BINDING_POINT, _glEnvironmentUBO); // necessary? -- nope!
 }
 
-void OpenGLRenderer::EnsureDebugLinesBuffers() {
+void OGLRenderer::EnsureDebugLinesBuffers() {
 	if (_dbgLinesVAO != 0 && _dbgLinesVBO != 0) return;
 
 	glGenVertexArrays(1, &_dbgLinesVAO);
@@ -460,7 +458,7 @@ void OpenGLRenderer::EnsureDebugLinesBuffers() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-unique_ptr<Image> OpenGLRenderer::snapshot(const RenderContext& context) const {
+unique_ptr<Image> OGLRenderer::snapshot(const RenderContext& context) const {
 
 	auto framebufferSize = context.framebufferSize();
 	auto framebufferWidth = (unsigned)round(framebufferSize.x);
@@ -659,7 +657,7 @@ static inline int SlotFor(MaterialPropertyType t) {
 }
 
 void SendMaterialUniforms(const Material& material,
-						  Program& program,
+						  GLSLProgram& program,
 						  const std::array<GLuint, 4>& glTextureHandles,
 						  GLStateCache& state) {
 
@@ -696,7 +694,7 @@ void SendMaterialUniforms(const Material& material,
 void SendMaterialPropertyUniforms(const MaterialProperty& property,
 								  MaterialPropertyType type,
 								  GLuint glTextureHandle,
-								  Program& program,
+								  GLSLProgram& program,
 								  GLStateCache& state) {
 
 //	program.use();
@@ -1962,8 +1960,8 @@ void ApplyBlendFunction(BlendFunction f) {
 //	return _cache;
 //}
 
-void OpenGLRenderer::clear(const ClearCommand& cmd,
-						   const RenderContext& context) {
+void OGLRenderer::clear(const ClearCommand& cmd,
+						const RenderContext& context) {
 	// If you later want target-specific clear:
 	// if (cmd.bindFramebuffer) glBindFramebuffer(GL_FRAMEBUFFER, cmd.framebuffer);
 
@@ -2051,9 +2049,9 @@ void OpenGLRenderer::clear(const ClearCommand& cmd,
 }
 
 
-void OpenGLRenderer::drawBackground(const BackgroundPass& backgroundPass,
-									const math::mat4& viewMat,
-									const math::mat4& projMat) {
+void OGLRenderer::drawBackground(const BackgroundPass& backgroundPass,
+								 const math::mat4& viewMat,
+								 const math::mat4& projMat) {
 
 	if (!backgroundPass.material) return;
 
@@ -2075,8 +2073,8 @@ void OpenGLRenderer::drawBackground(const BackgroundPass& backgroundPass,
 	drawBound();
 }
 
-void OpenGLRenderer::bindPipeline(PipelineHandle pipelineHandle,
-								  const RenderResourceCacheOGL& cache) {
+void OGLRenderer::bindPipeline(PipelineHandle pipelineHandle,
+							   const OGLResourceCache& cache) {
 
 	if (_state.pipelineHandle == pipelineHandle) {
 		GLint cur = 0;
@@ -2140,7 +2138,7 @@ void OpenGLRenderer::bindPipeline(PipelineHandle pipelineHandle,
 	_state.pipelineHandle = pipelineHandle;
 }
 
-void OpenGLRenderer::bindMaterial(const Material& material) {
+void OGLRenderer::bindMaterial(const Material& material) {
 	//if (_state.material == &material) return;
 	if (_state.material == &material) {
 		_cache.ensureMaterial(const_cast<Material&>(material)); // will apply sampler dirties
@@ -2151,13 +2149,13 @@ void OpenGLRenderer::bindMaterial(const Material& material) {
 	const PipelineOGL& pipeline = _cache.pipeline(_state.pipelineHandle);
 
 // TODO: !!! THIS IS A DIRTY HACK !!!
-	Program* program;
+	GLSLProgram* program;
 	switch (pipeline.key.shaderKind) {
 		case ShaderKind::Default:
-			program = &Program::Default();
+			program = &GLSLProgram::Default();
 			break; // chill
 		case ShaderKind::Skybox:
-			program = &Program::Skybox();
+			program = &GLSLProgram::Skybox();
 			break; // chill
 		default:
 			_state.material = &material;
@@ -2184,7 +2182,7 @@ void OpenGLRenderer::bindMaterial(const Material& material) {
 	_state.material = &material;
 }
 
-void OpenGLRenderer::bindMeshElement(const MeshElement& element) {
+void OGLRenderer::bindMeshElement(const MeshElement& element) {
 
 	// use currently bound pipeline's vertexLayoutKey
 	const PipelineOGL& pipe = _cache.pipeline(_state.pipelineHandle);
@@ -2200,7 +2198,7 @@ void OpenGLRenderer::bindMeshElement(const MeshElement& element) {
 	_boundElement.indexType = GL_UNSIGNED_INT;
 }
 
-void OpenGLRenderer::setPerObject(const mat4& model, const mat4& view, const mat4& proj) {
+void OGLRenderer::setPerObject(const mat4& model, const mat4& view, const mat4& proj) {
 
 	// TEMP: query locations from currently bound program each call (slow but fine)
 	// Later: cache these per Program.
@@ -2217,17 +2215,17 @@ void OpenGLRenderer::setPerObject(const mat4& model, const mat4& view, const mat
 	if (locP >= 0) glUniformMatrix4fv(locP, 1, GL_FALSE, value_ptr(proj));
 }
 
-void OpenGLRenderer::drawBound() {
+void OGLRenderer::drawBound() {
 	if (_boundElement.vao == 0 || _boundElement.indexCount == 0) return;
 
 	glBindVertexArray(_boundElement.vao);
 	glDrawElements(GL_TRIANGLES, _boundElement.indexCount, _boundElement.indexType, (void*)0);
 }
 
-void OpenGLRenderer::renderLinesPass(const LinesPass& pass,
-									 const RenderContext& context,
-									 const mat4& viewMat,
-									 const mat4& projectionMat) {
+void OGLRenderer::renderLinesPass(const LinesPass& pass,
+								  const RenderContext& context,
+								  const mat4& viewMat,
+								  const mat4& projectionMat) {
 
 	if (pass.pipeline == INVALID_PIPELINE_HANDLE) return;
 	if (pass.lines.empty()) return;
@@ -2256,7 +2254,7 @@ void OpenGLRenderer::renderLinesPass(const LinesPass& pass,
 	glDrawArrays(GL_LINES, 0, (GLsizei)_dbgLineVerts.size());
 }
 
-void OpenGLRenderer::resolvePacket(DrawPacket& packet, const FrameParams& frame) {
+void OGLRenderer::resolvePacket(DrawPacket& packet, const FrameParams& frame) {
 
 	// "resolve / prepare / compile / bake"
 
@@ -2286,7 +2284,7 @@ void OpenGLRenderer::resolvePacket(DrawPacket& packet, const FrameParams& frame)
 	}
 }
 
-void OpenGLRenderer::drawPacket(const DrawPacket& packet, const FrameParams& frame) {
+void OGLRenderer::drawPacket(const DrawPacket& packet, const FrameParams& frame) {
 
 	// "render / execute / submit / draw"
 
@@ -2326,7 +2324,7 @@ void OpenGLRenderer::drawPacket(const DrawPacket& packet, const FrameParams& fra
 	renderLinesPass(packet.linesPass, frame.context, frame.view, frame.proj);
 }
 
-void OpenGLRenderer::renderPacket(DrawPacket& packet, const FrameParams& frame) {
+void OGLRenderer::renderPacket(DrawPacket& packet, const FrameParams& frame) {
 	resolvePacket(packet, frame);
 	drawPacket(packet, frame);
 }

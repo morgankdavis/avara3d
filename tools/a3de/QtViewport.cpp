@@ -348,7 +348,7 @@ void Viewport::initializeGL() {
 		return reinterpret_cast<void*>(fp);
 	};
 
-	if (a3d::OpenGLRenderer::InitGL(loader)) {
+	if (a3d::OGLRenderer::InitGL(loader)) {
 		_renderer->initialize(*this);
 	}
 	else {

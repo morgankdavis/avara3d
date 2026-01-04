@@ -12,7 +12,7 @@
 #include "a3d/physics/HitTestResult.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsContact.h"
-#include "a3d/physics/bullet/BulletWorldProxy.h"
+#include "a3d/physics/backend/bullet/BulletWorldProxy.h"
 #include "a3d/profiling/Profiling.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"

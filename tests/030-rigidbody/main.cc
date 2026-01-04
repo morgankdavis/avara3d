@@ -20,7 +20,7 @@
 #include "a3d/util/snapshot.h"
 
 // testing
-#include "a3d/physics/ConvexDecomposer.h"
+#include "a3d/physics/util/ConvexDecomposer.h"
 
 using namespace a3d;
 using namespace a3d::math;

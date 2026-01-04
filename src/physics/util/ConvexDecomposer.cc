@@ -6,7 +6,7 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/physics/ConvexDecomposer.h"
+#include "a3d/physics/util/ConvexDecomposer.h"
 
 #include <utility>
 

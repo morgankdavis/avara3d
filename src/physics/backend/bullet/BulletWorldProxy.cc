@@ -6,7 +6,7 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/physics/bullet/BulletWorldProxy.h"
+#include "a3d/physics/backend/bullet/BulletWorldProxy.h"
 
 #include <algorithm>
 #include <thread>
@@ -26,9 +26,9 @@
 #include "a3d/log/Log.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsShape.h"
-#include "a3d/physics/bullet/BulletBodyProxy.h"
-#include "a3d/physics/bullet/BulletDebugDrawer.h"
-#include "a3d/physics/bullet/BulletUtilities.h"
+#include "a3d/physics/backend/bullet/BulletBodyProxy.h"
+#include "a3d/physics/backend/bullet/BulletDebugDrawer.h"
+#include "a3d/physics/backend/bullet/BulletUtilities.h"
 #include "a3d/profiling/Profiling.h"
 #include "a3d/scene/Node.h"
 #include "a3d/util/flow.h"

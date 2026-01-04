@@ -6,7 +6,7 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/physics/bullet/BulletStats.h"
+#include "a3d/physics/backend/bullet/BulletStats.h"
 
 #include "a3d/physics/PhysicsShape.h"
 

@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "a3d/a3d.h"
-#include "a3d/physics/bullet/BulletBodyProxy.h"
+#include "a3d/physics/backend/bullet/BulletBodyProxy.h"
 #include "a3d/util/filesystem.h"
 #include "a3d/util/snapshot.h"
 #include "a3d/util/string.h"

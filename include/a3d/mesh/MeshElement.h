@@ -20,7 +20,7 @@ namespace a3d {
 	class Line;
 	class Material;
 	class Node;
-	class Program;
+	class GLSLProgram;
 	class Renderer;
 	class RenderContext;
 	class RenderItem;

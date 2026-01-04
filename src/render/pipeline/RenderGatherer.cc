@@ -5,7 +5,7 @@
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/physics/PhysicalWorld.h"
-#include "a3d/physics/bullet/BulletWorldProxy.h"
+#include "a3d/physics/backend/bullet/BulletWorldProxy.h"
 #include "a3d/render/context/RenderContext.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"

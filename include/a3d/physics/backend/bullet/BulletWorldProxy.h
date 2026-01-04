@@ -14,7 +14,7 @@
 #include <vector>
 
 #include "a3d/mesh/Line.h"
-#include "a3d/physics/bullet/BulletStats.h"
+#include "a3d/physics/backend/bullet/BulletStats.h"
 #include "a3d/physics/proxy/PhysicalWorldProxy.h"
 
 struct btDbvtBroadphase;

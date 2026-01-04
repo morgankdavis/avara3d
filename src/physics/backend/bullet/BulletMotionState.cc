@@ -6,10 +6,10 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/physics/bullet/BulletMotionState.h"
+#include "a3d/physics/backend/bullet/BulletMotionState.h"
 
 #include "a3d/physics/PhysicsBody.h"
-#include "a3d/physics/bullet/BulletUtilities.h"
+#include "a3d/physics/backend/bullet/BulletUtilities.h"
 #include "a3d/scene/Node.h"
 
 #include "a3d/log/Log.h"

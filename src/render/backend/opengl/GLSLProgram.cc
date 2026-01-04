@@ -6,7 +6,7 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/render/backend/opengl/Program.h"
+#include "a3d/render/backend/opengl/GLSLProgram.h"
 
 #include <format>
 
@@ -24,34 +24,34 @@ using namespace std;
 
 /// Internal Static Member Functions ///
 
-Program& Program::Default() {
-	static auto program = Program("default");
+GLSLProgram& GLSLProgram::Default() {
+	static auto program = GLSLProgram("default");
 	return program;
 }
 
-Program& Program::Skybox() {
-	static auto program = Program("skybox");
+GLSLProgram& GLSLProgram::Skybox() {
+	static auto program = GLSLProgram("skybox");
 	return program;
 }
 
-Program& Program::Wireframe() {
-	static auto program = Program("wireframe");
+GLSLProgram& GLSLProgram::Wireframe() {
+	static auto program = GLSLProgram("wireframe");
 	return program;
 }
 
-Program& Program::Lines() {
-	static auto program = Program("lines");
+GLSLProgram& GLSLProgram::Lines() {
+	static auto program = GLSLProgram("lines");
 	return program;
 }
 
-Program& Program::GroundPlane() {
-	static auto program = Program("ground_plane");
+GLSLProgram& GLSLProgram::GroundPlane() {
+	static auto program = GLSLProgram("ground_plane");
 	return program;
 }
 
 /// Internal Lifecycle Functions ///
 
-Program::Program(const string& name):
+GLSLProgram::GLSLProgram(const string& name):
 		_name{name},
 		_glID{0},
 		_isLinked{false},
@@ -66,8 +66,8 @@ Program::Program(const string& name):
 			throw Exception("Unable to create shader program.");
 		}
 		else {
-			auto vsSource = Program::shaderSource(name, "vert");
-			auto fsSource = Program::shaderSource(name, "frag");
+			auto vsSource = GLSLProgram::shaderSource(name, "vert");
+			auto fsSource = GLSLProgram::shaderSource(name, "frag");
 			
 			if (vsSource && fsSource) {
 				_vertexShaderSource = *vsSource;
@@ -81,19 +81,19 @@ Program::Program(const string& name):
 		}
 }
 
-Program::~Program() {
+GLSLProgram::~GLSLProgram() {
 	
 }
 
 /// Internal Member Functions ///
 
-bool Program::compile() {
+bool GLSLProgram::compile() {
 	if (!compile(_vertexShaderSource, ShaderType::Vertex)) return false;
 	if (!compile(_fragmentShaderSource, ShaderType::Fragment)) return false;
 	return true;
 }
 
-bool Program::link() {
+bool GLSLProgram::link() {
 
 	if (isLinked()) return true;
 	if (_glID <= 0) return false;
@@ -130,7 +130,7 @@ bool Program::link() {
 	}
 }
 
-bool Program::validate() {
+bool GLSLProgram::validate() {
 	if (!isLinked()) return false;
 	
 	GLint status = 0;
@@ -160,7 +160,7 @@ bool Program::validate() {
 	}
 }
 
-void Program::use() {
+void GLSLProgram::use() {
 	
 	if (_glID <= 0 || (!_isLinked)) {
 		log::e()("Program '{}' not ready.", _name);
@@ -170,15 +170,15 @@ void Program::use() {
 	}
 }
 
-void Program::unuse() {
+void GLSLProgram::unuse() {
 	glUseProgram(0);
 }
 
-void Program::bindAttributeLocation(GLuint location, const char* name) {
+void GLSLProgram::bindAttributeLocation(GLuint location, const char* name) {
 	glBindAttribLocation(_glID, location, name);
 }
 
-void Program::setUniform(const char* name, float x, float y, float z) {
+void GLSLProgram::setUniform(const char* name, float x, float y, float z) {
 	
 	int loc = getUniformLocation(name);
 	if (loc >= 0) {
@@ -189,7 +189,7 @@ void Program::setUniform(const char* name, float x, float y, float z) {
 	}
 }
 
-void Program::setUniform(const char* name, const vec2& v) {
+void GLSLProgram::setUniform(const char* name, const vec2& v) {
 	
 	int loc = getUniformLocation(name);
 	if (loc >= 0) {
@@ -200,12 +200,12 @@ void Program::setUniform(const char* name, const vec2& v) {
 	}
 }
 
-void Program::setUniform(const char* name, const vec3& v) {
+void GLSLProgram::setUniform(const char* name, const vec3& v) {
 	
 	setUniform(name, v.x, v.y, v.z);
 }
 
-void Program::setUniform(const char* name, const vec4& v) {
+void GLSLProgram::setUniform(const char* name, const vec4& v) {
 	
 	int loc = getUniformLocation(name);
 	if (loc >= 0) {
@@ -216,7 +216,7 @@ void Program::setUniform(const char* name, const vec4& v) {
 	}
 }
 
-void Program::setUniform(const char* name, const mat3& m) {
+void GLSLProgram::setUniform(const char* name, const mat3& m) {
 	
 	int loc = getUniformLocation(name);
 	if (loc >= 0) {
@@ -227,7 +227,7 @@ void Program::setUniform(const char* name, const mat3& m) {
 	}
 }
 
-void Program::setUniform(const char* name, const mat4& m) {
+void GLSLProgram::setUniform(const char* name, const mat4& m) {
 	
 	int loc = getUniformLocation(name);
 	if (loc >= 0) {
@@ -238,7 +238,7 @@ void Program::setUniform(const char* name, const mat4& m) {
 	}
 }
 
-void Program::setUniform(const char* name, bool val) {
+void GLSLProgram::setUniform(const char* name, bool val) {
 	
 	int loc = getUniformLocation(name);
 	if (loc >= 0) {
@@ -249,7 +249,7 @@ void Program::setUniform(const char* name, bool val) {
 	}
 }
 
-void Program::setUniform(const char* name, int val) {
+void GLSLProgram::setUniform(const char* name, int val) {
 	
 	int loc = getUniformLocation(name);
 	if (loc >= 0) {
@@ -260,7 +260,7 @@ void Program::setUniform(const char* name, int val) {
 	}
 }
 
-void Program::setUniform(const char* name, unsigned val) {
+void GLSLProgram::setUniform(const char* name, unsigned val) {
 
 	int loc = getUniformLocation(name);
 	if (loc >= 0) {
@@ -271,7 +271,7 @@ void Program::setUniform(const char* name, unsigned val) {
 	}
 }
 
-void Program::setUniform(const char* name, float val) {
+void GLSLProgram::setUniform(const char* name, float val) {
 
 	int loc = getUniformLocation(name);
 	if (loc >= 0) {
@@ -293,7 +293,7 @@ void Program::setUniform(const char* name, float val) {
 //	}
 //}
 
-void Program::setUniformBlockBinding(const char* blockName, GLuint bindingPoint) {
+void GLSLProgram::setUniformBlockBinding(const char* blockName, GLuint bindingPoint) {
 	GLuint blockIndex = glGetUniformBlockIndex(_glID, blockName);
 	if (blockIndex == GL_INVALID_INDEX) {
 		log::e()("Uniform block '{}' not found.", blockName);
@@ -302,37 +302,37 @@ void Program::setUniformBlockBinding(const char* blockName, GLuint bindingPoint)
 	glUniformBlockBinding(_glID, blockIndex, bindingPoint);
 }
 
-void Program::bindTexture(const char* name,
-						  const int& target,
-						  const unsigned& slot,
-						  const unsigned& textureID,
-						  unsigned index) {
+void GLSLProgram::bindTexture(const char* name,
+							  const int& target,
+							  const unsigned& slot,
+							  const unsigned& textureID,
+							  unsigned index) {
 	
 	glActiveTexture(slot);
 	glBindTexture(target, textureID);
 	setUniform(name, (int)index);
 }
 
-unsigned Program::getAttributeLocation(const char* name) const {
+unsigned GLSLProgram::getAttributeLocation(const char* name) const {
 	
 	return glGetAttribLocation(_glID, name);
 }
 
-const string& Program::name() const {
+const string& GLSLProgram::name() const {
 	return _name;
 }
 
-gl::uint_t Program::glID() {
+gl::uint_t GLSLProgram::glID() {
 	return _glID;
 }
 
-bool Program::isLinked() const {
+bool GLSLProgram::isLinked() const {
 	return _isLinked;
 }
 
 /// Private Member Functions ///
 
-optional<string> Program::shaderSource(const string& name, const string& type) {
+optional<string> GLSLProgram::shaderSource(const string& name, const string& type) {
 
 	auto source = util::filesystem::ShaderSource(name, type);
 
@@ -355,7 +355,7 @@ optional<string> Program::shaderSource(const string& name, const string& type) {
 	return nullopt;
 }
 
-void Program::prepare() {
+void GLSLProgram::prepare() {
 	log::t();
 	
 	if (!_isLinked) {
@@ -380,7 +380,7 @@ void Program::prepare() {
 	}
 }
 
-bool Program::compile(const string& source, ShaderType type) {
+bool GLSLProgram::compile(const string& source, ShaderType type) {
 
 	log::d()("Compiling {} shader for program '{}'...",
 			 magic_enum::enum_name(type), name());
@@ -431,7 +431,7 @@ bool Program::compile(const string& source, ShaderType type) {
 	}
 }
 
-int Program::getUniformLocation(const char* name) {
+int GLSLProgram::getUniformLocation(const char* name) {
 
 	GLint location = -1;
 	// if (_uniformLocationCache.find(name) == _uniformLocationCache.end()) {
@@ -448,10 +448,10 @@ int Program::getUniformLocation(const char* name) {
 	return location;
 }
 
-void Program::glID(GLuint glID) {
+void GLSLProgram::glID(GLuint glID) {
 	_glID = glID;
 }
 
-void Program::isLinked(bool isLinked) {
+void GLSLProgram::isLinked(bool isLinked) {
 	_isLinked = isLinked;
 }

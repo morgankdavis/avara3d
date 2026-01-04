@@ -6,7 +6,7 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/physics/bullet/BulletShapeProxy.h"
+#include "a3d/physics/backend/bullet/BulletShapeProxy.h"
 
 #include <utility>
 #include <variant>
@@ -24,12 +24,11 @@
 #include "a3d/mesh/primitive/Cylinder.h"
 #include "a3d/mesh/primitive/Plane.h"
 #include "a3d/mesh/primitive/Sphere.h"
-#include "a3d/physics/ConvexDecomposer.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsShape.h"
 #include "a3d/physics/PhysicalWorld.h"
-#include "a3d/physics/bullet/BulletWorldProxy.h"
-#include "a3d/physics/bullet/BulletUtilities.h"
+#include "a3d/physics/backend/bullet/BulletWorldProxy.h"
+#include "a3d/physics/backend/bullet/BulletUtilities.h"
 #include "a3d/physics/proxy/PhysicsBodyProxy.h"
 #include "a3d/physics/shape_primitive/BoxPhysicsShape.h"
 #include "a3d/physics/shape_primitive/CapsulePhysicsShape.h"
@@ -37,6 +36,7 @@
 #include "a3d/physics/shape_primitive/CylinderPhysicsShape.h"
 #include "a3d/physics/shape_primitive/PlanePhysicsShape.h"
 #include "a3d/physics/shape_primitive/SpherePhysicsShape.h"
+#include "a3d/physics/util/ConvexDecomposer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/Types.h"
 

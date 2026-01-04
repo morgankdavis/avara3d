@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_OPENGLRENDERER_H
-#define AVARA3D_OPENGLRENDERER_H
+#ifndef AVARA3D_OGLRENDERER_H
+#define AVARA3D_OGLRENDERER_H
 
 #include <map>
 #include <string>
@@ -50,7 +50,7 @@ namespace a3d {
 
 
 
-	class OpenGLRenderer : public Renderer {
+	class OGLRenderer : public Renderer {
 
 	public:
 		/// Internal Types ///
@@ -77,12 +77,12 @@ namespace a3d {
 
 		/// Internal Lifecycle Functions ///
 
-		OpenGLRenderer();
-		OpenGLRenderer(const OpenGLRenderer& other) = delete; // copy constructor
-		OpenGLRenderer& operator=(const OpenGLRenderer& other) = delete; // copy assignment
-		OpenGLRenderer(OpenGLRenderer&& other) = delete; // move constructor
-		OpenGLRenderer& operator=(OpenGLRenderer&& other) = delete; // move assignment
-		~OpenGLRenderer() override;
+		OGLRenderer();
+		OGLRenderer(const OGLRenderer& other) = delete; // copy constructor
+		OGLRenderer& operator=(const OGLRenderer& other) = delete; // copy assignment
+		OGLRenderer(OGLRenderer&& other) = delete; // move constructor
+		OGLRenderer& operator=(OGLRenderer&& other) = delete; // move assignment
+		~OGLRenderer() override;
 
 		/// Renderer Internal Member Functions ///
 
@@ -119,8 +119,6 @@ namespace a3d {
 		/// Private Member Variables ///
 
 		bool											_isInitialized;
-//		MeshElementGLMapping 							_meshElementGLMapping; // TODO: REMOVE
-//		TextureGLMapping								_textureGLMapping;
 		unsigned										_glEnvironmentUBO;
 		ImFont*											_overlayTitleImFont;
 		ImFont*											_overlayBodyImFont;
@@ -156,7 +154,7 @@ namespace a3d {
 							const math::mat4& projMat) override;
 
 		void bindPipeline(PipelineHandle h,
-						  const RenderResourceCacheOGL& cache) override;
+						  const OGLResourceCache& cache) override;
 		void bindMaterial(const Material& material) override;
 		void bindMeshElement(const MeshElement& element) override;
 		void setPerObject(const math::mat4& model,
@@ -176,7 +174,7 @@ namespace a3d {
 		void renderPacket(DrawPacket& packet, const FrameParams& frame) override;
 
 
-		RenderResourceCacheOGL _cache;
+		OGLResourceCache _cache;
 		GLStateCache _state;
 		BoundElement _boundElement;
 		std::unique_ptr<Mesh> _skyboxMesh; // should be value?
@@ -185,4 +183,4 @@ namespace a3d {
 	};
 }
 
-#endif /* AVARA3D_OPENGLRENDERER_H */
+#endif /* AVARA3D_OGLRENDERER_H */

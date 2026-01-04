@@ -6,7 +6,7 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/physics/bullet/BulletUtilities.h"
+#include "a3d/physics/backend/bullet/BulletUtilities.h"
 
 #include <bullet/LinearMath/btQuaternion.h>
 #include <bullet/LinearMath/btTransform.h>

@@ -8,11 +8,11 @@
 
 #ifdef A3D_GL_DESKTOP
 
-#include "a3d/physics/bullet/BulletDebugDrawer.h"
+#include "a3d/physics/backend/bullet/BulletDebugDrawer.h"
 
 #include "a3d/mesh/Line.h"
 #include "a3d/log/Log.h"
-#include "a3d/physics/bullet/BulletUtilities.h"
+#include "a3d/physics/backend/bullet/BulletUtilities.h"
 #include "a3d/render/Renderer.h"
 
 using namespace a3d;

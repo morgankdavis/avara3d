@@ -1,6 +1,6 @@
 
-#ifndef AVARA3D_RENDERRESOURCECACHEOGL_H
-#define AVARA3D_RENDERRESOURCECACHEOGL_H
+#ifndef AVARA3D_OGLRESOURCECACHE_H
+#define AVARA3D_OGLRESOURCECACHE_H
 
 #include <array>
 #include <cstdint>
@@ -41,7 +41,7 @@ namespace a3d {
 		gl::uint_t id = 0;
 	};
 
-	class RenderResourceCacheOGL {
+	class OGLResourceCache {
 
 	public:
 
@@ -68,4 +68,4 @@ namespace a3d {
 	};
 }
 
-#endif //AVARA3D_RENDERRESOURCECACHEOGL_H
+#endif //AVARA3D_OGLRESOURCECACHE_H

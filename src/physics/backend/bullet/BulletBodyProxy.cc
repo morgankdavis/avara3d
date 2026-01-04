@@ -6,22 +6,22 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/physics/bullet/BulletBodyProxy.h"
+#include "a3d/physics/backend/bullet/BulletBodyProxy.h"
 
 #include <bullet/btBulletDynamicsCommon.h>
 
 #include "a3d/log/Log.h"
 #include "a3d/mesh/Mesh.h"
-#include "a3d/physics/ConvexDecomposer.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsShape.h"
 #include "a3d/physics/PhysicalWorld.h"
-#include "a3d/physics/bullet/BulletMotionState.h"
-#include "a3d/physics/bullet/BulletShapeProxy.h"
-#include "a3d/physics/bullet/BulletUtilities.h"
-#include "a3d/physics/bullet/BulletWorldProxy.h"
+#include "a3d/physics/backend/bullet/BulletMotionState.h"
+#include "a3d/physics/backend/bullet/BulletShapeProxy.h"
+#include "a3d/physics/backend/bullet/BulletUtilities.h"
+#include "a3d/physics/backend/bullet/BulletWorldProxy.h"
 #include "a3d/physics/proxy/PhysicsBodyProxy.h"
 #include "a3d/physics/proxy/PhysicsShapeProxy.h"
+#include "a3d/physics/util/ConvexDecomposer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/util/flow.h"
 

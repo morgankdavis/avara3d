@@ -18,7 +18,7 @@
 #include "a3d/log/Log.h"
 #include "a3d/input/GLFWInputManager.h"
 #include "a3d/physics/PhysicalWorld.h"
-#include "a3d/render/backend/opengl/OpenGLRenderer.h"
+#include "a3d/render/backend/opengl/OGLRenderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 #include "a3d/util/filesystem.h"
@@ -123,7 +123,7 @@ GLFWWindow::GLFWWindow(RenderingApi renderingAPI,
 			glfwMakeContextCurrent(_glfwWindow.get());
 			GLFWWindow::vSyncEnabled(false);
 
-			if (OpenGLRenderer::InitGL((GLADloadproc)glfwGetProcAddress)) {
+			if (OGLRenderer::InitGL((GLADloadproc)glfwGetProcAddress)) {
 				RenderContext::renderer()->initialize(*this);
 				ImGui_ImplGlfw_InitForOpenGL(_glfwWindow.get(), true);
 				registerGLFWCallbacks();
