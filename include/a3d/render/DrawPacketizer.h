@@ -6,8 +6,8 @@
 //  Copyright © 2025 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_DRAWPACKETIZER_H
-#define AVARA3D_DRAWPACKETIZER_H
+#ifndef AVARA3D_RENDER_DRAWPACKETIZER_H
+#define AVARA3D_RENDER_DRAWPACKETIZER_H
 
 #include <cstdint>
 
@@ -28,4 +28,4 @@ namespace a3d {
 	};
 }
 
-#endif //AVARA3D_DRAWPACKETIZER_H
+#endif //AVARA3D_RENDER_DRAWPACKETIZER_H

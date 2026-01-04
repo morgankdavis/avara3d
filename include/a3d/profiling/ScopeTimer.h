@@ -1,6 +1,13 @@
+//
+//  ScopeTimer.h
+//  avara3d
+//
+//  Created by Morgan Davis on 12/17/25.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//
 
-#ifndef AVARA3D_SCOPETIMER_H
-#define AVARA3D_SCOPETIMER_H
+#ifndef AVARA3D_PROFILING_SCOPETIMER_H
+#define AVARA3D_PROFILING_SCOPETIMER_H
 
 #include <chrono>
 
@@ -27,4 +34,4 @@ namespace a3d {
 	};
 }
 
-#endif //AVARA3D_SCOPETIMER_H
+#endif //AVARA3D_PROFILING_SCOPETIMER_H

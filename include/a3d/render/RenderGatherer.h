@@ -6,8 +6,8 @@
 //  Copyright © 2025 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_RENDERGATHERER_H
-#define AVARA3D_RENDERGATHERER_H
+#ifndef AVARA3D_RENDER_RENDERGATHERER_H
+#define AVARA3D_RENDER_RENDERGATHERER_H
 
 #include "a3d/Math.h"
 #include "a3d/Types.h"
@@ -32,4 +32,4 @@ namespace a3d {
 	};
 }
 
-#endif //AVARA3D_RENDERGATHERER_H
+#endif //AVARA3D_RENDER_RENDERGATHERER_H

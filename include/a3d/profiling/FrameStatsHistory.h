@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_FRAMESTATSHISTORY_H
-#define AVARA3D_FRAMESTATSHISTORY_H
+#ifndef AVARA3D_PROFILING_FRAMESTATSHISTORY_H
+#define AVARA3D_PROFILING_FRAMESTATSHISTORY_H
 
 #include <deque>
 #include <tuple>
@@ -50,4 +50,4 @@ namespace a3d {
 	};
 }
 
-#endif //AVARA3D_FRAMESTATSHISTORY_H
+#endif //AVARA3D_PROFILING_FRAMESTATSHISTORY_H

@@ -13,7 +13,7 @@
 #include <utility>
 #include <vector>
 
-#include "a3d/render/backend/opengl/gl.h" // MOVE?
+#include "a3d/render/backend/opengl/gl.h" // needs to be before imgui_impl_opengl3.h ?
 
 //#ifdef A3D_GL_DESKTOP
 #include <imgui/imgui.h>
@@ -36,7 +36,6 @@
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/mesh/primitive/Box.h"
 #include "a3d/render/DrawPacket.h"
-#include "a3d/render/DrawPacketizer.h"
 #include "a3d/render/backend/opengl/OGLResourceCache.h"
 #include "a3d/render/backend/opengl/GLSLProgram.h"
 #include "a3d/render/context/RenderContext.h"
@@ -66,8 +65,6 @@
 using namespace a3d;
 using namespace a3d::math;
 using namespace std;
-
-//#define DISABLE_RESOURCE_MANAGEMENT
 
 ///  Private Constants ///
 
@@ -161,8 +158,6 @@ static_assert(offsetof(EnvironmentBlock, useDefaultLighting) == 0);
 static_assert(offsetof(EnvironmentBlock, numAmbientLights)   == 16);
 static_assert(offsetof(EnvironmentBlock, ambientLights)      == 32);
 
-
-
 struct FBORestore {
 	GLint drawFbo = 0, readFbo = 0;
 	FBORestore() {
@@ -175,90 +170,71 @@ struct FBORestore {
 	}
 };
 
-
-
-
-
-
 /// Private Static Non-Member Prototypes ///
 
-static void 		SendMaterialUniforms(const Material& material,
-										GLSLProgram& program,
-										const std::array<GLuint, 4>& glTextureHandles,
-										GLStateCache& state);
-static void 		SendMaterialPropertyUniforms(const MaterialProperty& property,
-												MaterialPropertyType type,
-												GLuint glTextureHandle,
-												GLSLProgram& program,
-												GLStateCache& state);
-static void 		SendEnvironmentUniforms(GLuint glEnvironmentUBO,
-											const Scene& scene,
-											const vector<Node*>& lightNodes,
-											FrameStats& stats);
-static vector<Node*>SortedLights(map<Node*, float> lights);
-static void 		DrawOverlay(const RenderContext& context,
-							   const Scene& scene,
-							   FrameStats& stats,
-							   const FrameStatsHistory& statsHistory,
-							   DebugOptions debugOptions,
-							   ImFont& titleFont,
-							   ImFont& bodyFont);
-static void 		DrawStats(FrameStats& stats,
-							 const FrameStatsHistory& statsHistory,
-							 const RenderContext& context,
-							 ImFont& titleFont,
-							 ImFont& bodyFont);
-static void 		DrawDebugOptions(Scene& scene,
-									const RenderContext& context,
-									ImFont& titleFont,
-									ImFont& bodyFont);
-static void			ImguiInit(const RenderContext& context,
-								 ImFont*& titleFont,
-								 ImFont*& bodyFont);
-static void 		ImguiUpdateScale(const RenderContext& context);
-static void 		ImguiAddFont(const RenderContext& context,
-								const Font& font,
-								ImFont*& imFont);
-void 				ImguiBeginOverlay(int id, bool allowsInput);
-void 				ImguiEndOverlay();
-void 				ImguiDrawText(float x,
+static void 	LogGLInfo();
+static void 	SendMaterialUniforms(const Material& material,
+									GLSLProgram& program,
+									const std::array<GLuint, 4>& glTextureHandles,
+									OGLRenderer::GLStateCache& state);
+static void 	SendMaterialPropertyUniforms(const MaterialProperty& property,
+											MaterialPropertyType type,
+											GLuint glTextureHandle,
+											GLSLProgram& program,
+											OGLRenderer::GLStateCache& state);
+static void		SendEnvironmentUniforms(GLuint glEnvironmentUBO,
+										   const Scene& scene,
+										   const vector<Node*>& lightNodes,
+										   FrameStats& stats);
+static void		ApplyBlendFunction(BlendFunction func);
+static GLenum	GLDepthFuncFromDepthFunc(DepthFunc func);
+static GLenum	GLFilterModeForFilterMode(FilterMode mode);
+static GLenum	GLWrapModeForWrapMode(WrapMode mode);
+static void 	DrawOverlay(const RenderContext& context,
+						   const Scene& scene,
+						   FrameStats& stats,
+						   const FrameStatsHistory& statsHistory,
+						   DebugOptions debugOptions,
+						   ImFont& titleFont,
+						   ImFont& bodyFont);
+static void 	DrawStats(FrameStats& stats,
+						 const FrameStatsHistory& statsHistory,
+						 const RenderContext& context,
+						 ImFont& titleFont,
+						 ImFont& bodyFont);
+static void 	DrawDebugOptions(Scene& scene,
+								ImFont& bodyFont);
+static void		ImguiInit(const RenderContext& context,
+							 ImFont*& titleFont,
+							 ImFont*& bodyFont);
+static void 	ImguiUpdateScale(const RenderContext& context);
+static void 	ImguiAddFont(const RenderContext& context,
+							const Font& font,
+							ImFont*& imFont);
+void 			ImguiBeginOverlay(int id, bool allowsInput);
+void 			ImguiEndOverlay();
+void 			ImguiDrawText(float x,
+							  float y,
+							  const char* text,
+							  ImFont& font,
+							  float size);
+void 			ImguiDrawPlot(float x, float y, float w, float h,
+							  const float* values,
+							  int valuesCount,
+							  int valuesOffset,
+							  const char* overlayText,
+							  float scaleMin,
+							  float scaleMax,
+							  int stride,
+							  bool outlined,
+							  int id);
+bool 			ImguiDrawCheckbox(float x,
 								  float y,
 								  const char* text,
+								  bool& checked,
 								  ImFont& font,
-								  float size);
-void 				ImguiDrawPlot(float x, float y, float w, float h,
-								  const float* values,
-								  int valuesCount,
-								  int valuesOffset,
-								  const char* overlayText,
-								  float scaleMin,
-								  float scaleMax,
-								  int stride,
-								  bool outlined,
+								  float size,
 								  int id);
-bool 				ImguiDrawCheckbox(float x,
-									  float y,
-									  const char* text,
-									  bool& checked,
-									  ImFont& font,
-									  float size,
-									  int id);
-static GLenum 		GLDepthFuncFromDepthFunc(DepthFunc f);
-static GLenum 		GLFilterModeForFilterMode(FilterMode mode);
-static GLenum 		GLWrapModeForWrapMode(WrapMode mode);
-static void 		LogGLInfo();
-
-
-
-
-
-static void ApplyBlendFunction(BlendFunction blend);
-
-
-
-
-
-
 
 /// Private Static Members ///
 
@@ -292,27 +268,18 @@ bool OGLRenderer::InitGL(GLGetProcAddress getProcAddress) {
 OGLRenderer::OGLRenderer():
 		Renderer{},
 		_isInitialized{false},
+		_resourceCache{},
+		_skyboxMesh{},
 		_glEnvironmentUBO{0},
 		_overlayTitleImFont{nullptr},
 		_overlayBodyImFont{nullptr},
-		_drawTimer{config::GL_DRAW_TIMER_BUFFER_SIZE},
-		_cache{},
-		_skyboxMesh{} {}
+		_drawTimer{config::GL_DRAW_TIMER_BUFFER_SIZE} {}
 
 OGLRenderer::~OGLRenderer() {
 	log::d()("Destroying OpenGLRenderer {:p}", static_cast<void*>(this));
 
 	glDeleteBuffers(1, &_glEnvironmentUBO);
 
-	// TODO: move?
-//	if (_dbgLinesVBO) {
-//		glDeleteBuffers(1, &_dbgLinesVBO);
-//		_dbgLinesVBO = 0;
-//	}
-//	if (_dbgLinesVAO) {
-//		glDeleteVertexArrays(1, &_dbgLinesVAO);
-//		_dbgLinesVAO = 0;
-//	}
 	_debugLines.destroy();
 
 	ImGui_ImplOpenGL3_Shutdown();
@@ -407,6 +374,100 @@ void OGLRenderer::postTraversal(const Scene& scene,
 	SendEnvironmentUniforms(_glEnvironmentUBO, scene, lightNodes, stats);
 }
 
+void OGLRenderer::clear(const ClearCommand& cmd,
+						const RenderContext& context) {
+	// If you later want target-specific clear:
+	// if (cmd.bindFramebuffer) glBindFramebuffer(GL_FRAMEBUFFER, cmd.framebuffer);
+
+	FBORestore restore;
+
+	auto fb = context.defaultFramebuffer();
+	auto fbSize = context.framebufferSize();
+	glBindFramebuffer(GL_FRAMEBUFFER, fb);
+	glViewport(0, 0, (GLsizei)fbSize.x, (GLsizei)fbSize.y);
+
+	// save state we might stomp.
+	GLboolean prevScissorEnabled = GL_FALSE;
+	GLint prevScissorBox[4] = {0,0,0,0};
+	glGetBooleanv(GL_SCISSOR_TEST, &prevScissorEnabled);
+	glGetIntegerv(GL_SCISSOR_BOX, prevScissorBox);
+
+	GLboolean prevColorMask[4] = {GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE};
+	GLboolean prevDepthMask = GL_TRUE;
+	GLint prevStencilMask = ~0;
+	glGetBooleanv(GL_COLOR_WRITEMASK, prevColorMask);
+	glGetBooleanv(GL_DEPTH_WRITEMASK, &prevDepthMask);
+	glGetIntegerv(GL_STENCIL_WRITEMASK, &prevStencilMask);
+
+	// Apply scissor if requested (partial clear).
+	if (cmd.useScissor) {
+		glEnable(GL_SCISSOR_TEST);
+		glScissor(cmd.scissorRect.x, cmd.scissorRect.y,
+				  cmd.scissorRect.w, cmd.scissorRect.h);
+	}
+	else if (prevScissorEnabled) {
+		// leave as-is
+	}
+	else {
+		glDisable(GL_SCISSOR_TEST);
+	}
+
+	// Ensure clears actually write (optional but strongly recommended).
+	if (cmd.forceWriteMasks) {
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		glDepthMask(GL_TRUE);
+		glStencilMask(0xFFFFFFFF);
+	}
+
+	// Set clear values (only when needed).
+	GLbitfield mask = 0;
+
+	if (cmd.clearColor) {
+		glClearColor(cmd.color.x, cmd.color.y, cmd.color.z, cmd.color.w);
+		mask |= GL_COLOR_BUFFER_BIT;
+	}
+
+	if (cmd.clearDepth) {
+#ifdef A3D_GL_ES
+		glClearDepthf(cmd.depth);
+#else
+		glClearDepth(cmd.depth);
+#endif
+		mask |= GL_DEPTH_BUFFER_BIT;
+	}
+
+	if (cmd.clearStencil) {
+		glClearStencil(cmd.stencil);
+		mask |= GL_STENCIL_BUFFER_BIT;
+	}
+
+	if (mask) {
+		glClear(mask);
+	}
+
+	// Restore state we modified.
+	if (cmd.forceWriteMasks) {
+		glColorMask(prevColorMask[0], prevColorMask[1], prevColorMask[2], prevColorMask[3]);
+		glDepthMask(prevDepthMask);
+		glStencilMask((GLuint)prevStencilMask);
+	}
+
+	if (cmd.useScissor) {
+		if (prevScissorEnabled) {
+			glEnable(GL_SCISSOR_TEST);
+			glScissor(prevScissorBox[0], prevScissorBox[1], prevScissorBox[2], prevScissorBox[3]);
+		}
+		else {
+			glDisable(GL_SCISSOR_TEST);
+		}
+	}
+}
+
+void OGLRenderer::renderPacket(DrawPacket& packet, const FrameParams& frame) {
+	resolvePacket(packet, frame);
+	drawPacket(packet, frame);
+}
+
 unique_ptr<Image> OGLRenderer::snapshot(const RenderContext& context) const {
 
 	auto framebufferSize = context.framebufferSize();
@@ -424,6 +485,271 @@ unique_ptr<Image> OGLRenderer::snapshot(const RenderContext& context) const {
 	return make_unique<Image>(std::move(buffer), framebufferWidth, framebufferHeight, 4);
 }
 
+/// Renderer Protected Member Functions ///
+
+void OGLRenderer::drawBackground(const BackgroundPass& backgroundPass,
+								 const math::mat4& viewMat,
+								 const math::mat4& projMat) {
+
+	if (!backgroundPass.material) return;
+
+	// TODO: check equality?
+	// TODO: stop using shared_ptr???????
+
+	if (_skyboxMesh->materials().empty()) {
+		_skyboxMesh->addMaterial(backgroundPass.material);
+	}
+	else {
+		_skyboxMesh->replaceMaterial(0, backgroundPass.material);
+	}
+
+	bindPipeline(backgroundPass.pipeline, _resourceCache);
+	bindMaterial(*(_skyboxMesh->materials().front()));
+	bindMeshElement(*(_skyboxMesh->elements().front()));
+	setPerObject(mat4(1.0f), mat4(mat3(viewMat)), projMat); // strip transform off view mat
+
+	drawBound();
+}
+
+void OGLRenderer::bindPipeline(PipelineHandle pipelineHandle,
+							   const OGLResourceCache& cache) {
+
+	if (_state.pipelineHandle == pipelineHandle) {
+		GLint cur = 0;
+		glGetIntegerv(GL_CURRENT_PROGRAM, &cur);
+		if ((GLuint)cur == _state.program) return; // truly already bound
+		// else: stale cache, fallthrough and rebind
+	}
+
+	const OGLPipeline& pipeline = cache.pipeline(pipelineHandle);
+	glUseProgram(pipeline.program);
+	_state.program = pipeline.program;
+	_state.material = nullptr;
+
+	if (pipeline.key.doubleSided) {
+		glDisable(GL_CULL_FACE);
+	}
+	else {
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+	}
+
+	if (pipeline.key.depthTest) {
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GLDepthFuncFromDepthFunc(pipeline.key.depthFunc));
+	}
+	else {
+		glDisable(GL_DEPTH_TEST);
+	}
+	glDepthMask(pipeline.key.depthWrite ? GL_TRUE : GL_FALSE);
+
+	ApplyBlendFunction(pipeline.key.blendFunction);
+
+#ifndef A3D_GL_ES
+	switch (pipeline.key.fillMode) {
+		case FillMode::Fill:   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);  break;
+		case FillMode::Lines:  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);  break;
+		case FillMode::Points: glPolygonMode(GL_FRONT_AND_BACK, GL_POINT); break;
+	}
+#endif
+
+#ifndef A3D_GL_ES
+	const bool lineSmooth = (pipeline.key.pass == PassKind::Lines)
+							|| (pipeline.key.pass == PassKind::Wireframe);
+	if (lineSmooth) {
+		glEnable(GL_LINE_SMOOTH);
+		glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+	}
+	else {
+		glDisable(GL_LINE_SMOOTH);
+	}
+#endif
+
+	if (pipeline.key.polygonOffset) {
+		glEnable(GL_POLYGON_OFFSET_LINE);
+		glPolygonOffset(.01, 0); // ! check !
+	}
+	else {
+		glDisable(GL_POLYGON_OFFSET_LINE);
+	}
+
+	_state.pipelineHandle = pipelineHandle;
+}
+
+void OGLRenderer::bindMaterial(const Material& material) {
+	//if (_state.material == &material) return;
+	if (_state.material == &material) {
+		_resourceCache.ensureMaterial(const_cast<Material&>(material)); // will apply sampler dirties
+		return;
+	}
+
+	// look at the currently bound pipeline
+	const OGLPipeline& pipeline = _resourceCache.pipeline(_state.pipelineHandle);
+
+// TODO: !!! THIS IS A DIRTY HACK !!!
+	GLSLProgram* program;
+	switch (pipeline.key.shaderKind) {
+		case ShaderKind::Default:
+			program = &GLSLProgram::Default();
+			break; // chill
+		case ShaderKind::Skybox:
+			program = &GLSLProgram::Skybox();
+			break; // chill
+		default:
+			_state.material = &material;
+			return; // not chill
+	}
+
+	// resolve material once (uploads textures  applies sampler states via cache)
+	const auto& mr = _resourceCache.ensureMaterial(const_cast<Material&>(material));
+	std::array<GLuint, 4> glTextureHandles = {
+			(GLuint)mr.tex[0],
+			(GLuint)mr.tex[1],
+			(GLuint)mr.tex[2],
+			(GLuint)mr.tex[3],
+	};
+
+	//Program& program = Program::Default();
+	// OK if SendMaterialUniforms still calls prog.use() because it matches the pipeline now
+
+	// TODO: !!! THIS IS A DIRTY HACK !!!
+	if (pipeline.key.shaderKind == ShaderKind::Default) {
+		SendMaterialUniforms(material, *program, glTextureHandles, _state);
+	}
+
+	_state.material = &material;
+}
+
+void OGLRenderer::bindMeshElement(const MeshElement& element) {
+
+	// use currently bound pipeline's vertexLayoutKey
+	const OGLPipeline& pipe = _resourceCache.pipeline(_state.pipelineHandle);
+	const uint32_t layoutKey = pipe.key.vertexLayoutKey;
+
+	auto* e = const_cast<MeshElement*>(&element);
+	const auto& res = _resourceCache.ensureMeshElement(*e, layoutKey);
+
+	glBindVertexArray((GLuint)res.vao);
+	_boundElement.vao = (GLuint)res.vao;
+	_boundElement.indexCount = (GLsizei)res.indexCount;
+
+	_boundElement.indexType = GL_UNSIGNED_INT;
+}
+
+void OGLRenderer::setPerObject(const mat4& model, const mat4& view, const mat4& proj) {
+
+	// TEMP: query locations from currently bound program each call (slow but fine)
+	// Later: cache these per Program.
+	GLint program = 0;
+	glGetIntegerv(GL_CURRENT_PROGRAM, &program);
+	if (!program) return;
+
+	GLint locM = glGetUniformLocation(program, "modelMat");
+	GLint locV = glGetUniformLocation(program, "viewMat");
+	GLint locP = glGetUniformLocation(program, "projMat");
+
+	if (locM >= 0) glUniformMatrix4fv(locM, 1, GL_FALSE, value_ptr(model));
+	if (locV >= 0) glUniformMatrix4fv(locV, 1, GL_FALSE, value_ptr(view));
+	if (locP >= 0) glUniformMatrix4fv(locP, 1, GL_FALSE, value_ptr(proj));
+}
+
+void OGLRenderer::drawBound() {
+	if (_boundElement.vao == 0 || _boundElement.indexCount == 0) return;
+
+	glBindVertexArray(_boundElement.vao);
+	glDrawElements(GL_TRIANGLES, _boundElement.indexCount, _boundElement.indexType, (void*)0);
+}
+
+void OGLRenderer::renderLinesPass(const LinesPass& pass,
+								  const RenderContext& context,
+								  const mat4& viewMat,
+								  const mat4& projectionMat) {
+
+	if (pass.pipeline == INVALID_PIPELINE_HANDLE) return;
+	if (pass.lines.empty()) return;
+
+	bindPipeline(pass.pipeline, _resourceCache);
+
+	_debugLines.upload(pass.lines);
+
+	setPerObject(pass.model, viewMat, projectionMat);
+
+	glBindVertexArray(_debugLines.vao);
+	glDrawArrays(GL_LINES, 0, _debugLines.vertexCount);
+	glBindVertexArray(0);
+}
+
+void OGLRenderer::resolvePacket(DrawPacket& packet, const FrameParams& frame) {
+
+	// "resolve / prepare / compile / bake"
+
+	auto resolvePipeline = [&](PipelineHandle &h, const PipelineKey &key) -> PipelineHandle {
+		if (h == INVALID_PIPELINE_HANDLE) h = _resourceCache.ensurePipeline(key);
+		return h;
+	};
+
+	// background
+	if (packet.backgroundPass.material) {
+		resolvePipeline(packet.backgroundPass.pipeline, packet.backgroundPass.key);
+	}
+
+	// main + wireframe items
+	for (auto &di: packet.mainPassItems) {
+		resolvePipeline(di.pipeline, di.key);
+	}
+	for (auto &di: packet.wireframePassItems) {
+		resolvePipeline(di.pipeline, di.key);
+	}
+
+	// lines
+	if (!packet.linesPass.lines.empty()) {
+		resolvePipeline(packet.linesPass.pipeline, packet.linesPass.key);
+	}
+	else {
+		packet.linesPass.pipeline = INVALID_PIPELINE_HANDLE;
+	}
+}
+
+void OGLRenderer::drawPacket(const DrawPacket& packet, const FrameParams& frame) {
+
+	// "render / execute / submit / draw"
+
+	clear(Renderer::ClearCommand{}, frame.context);
+
+	if (packet.backgroundPass.material) {
+		// uses _skyboxMesh internally, binds + draws
+		drawBackground(packet.backgroundPass, frame.view, frame.proj);
+	}
+
+	// NOTE: items are already sorted by pass + key hash, so this will batch nicely
+	for (const auto &di: packet.mainPassItems) {
+		if (di.pipeline == INVALID_PIPELINE_HANDLE) continue;
+		if (!di.element) continue;
+
+		bindPipeline(di.pipeline, _resourceCache);
+
+		// only bind material for shaderKinds that use it (bindMaterial() already early-outs)
+		if (di.material) bindMaterial(*di.material);
+
+		bindMeshElement(*di.element);
+		setPerObject(di.model, frame.view, frame.proj);
+		drawBound();
+	}
+
+	for (const auto &di: packet.wireframePassItems) {
+		if (di.pipeline == INVALID_PIPELINE_HANDLE) continue;
+		if (!di.element) continue;
+
+		bindPipeline(di.pipeline, _resourceCache);
+		// no bindMaterial (wire shader typically ignores it)
+		bindMeshElement(*di.element);
+		setPerObject(di.model, frame.view, frame.proj);
+		drawBound();
+	}
+
+	renderLinesPass(packet.linesPass, frame.context, frame.view, frame.proj);
+}
+
 /// Private Static Non-Member Functions ///
 
 static inline int SlotFor(MaterialPropertyType t) {
@@ -436,15 +762,23 @@ static inline int SlotFor(MaterialPropertyType t) {
 	}
 }
 
+void LogGLInfo() {
+
+	const GLubyte *vendor = glGetString(GL_VENDOR);
+	const GLubyte* renderer = glGetString(GL_RENDERER);
+	const GLubyte* version = glGetString(GL_VERSION);
+
+	log::i()("GL_VENDOR: {}", reinterpret_cast<const char*>(renderer));
+	log::i()("GL_RENDERER: {}", reinterpret_cast<const char*>(renderer));
+	log::i()("GL_VERSION: {}", reinterpret_cast<const char*>(version));
+}
+
 void SendMaterialUniforms(const Material& material,
 						  GLSLProgram& program,
 						  const std::array<GLuint, 4>& glTextureHandles,
-						  GLStateCache& state) {
+						  OGLRenderer::GLStateCache& state) {
 
 	// sends uniforms for the Material, and MaterialProperties it has
-
-//	program.use();
-//	state.program = program.glID();
 
 	program.setUniform("specularExponent", material.specularExponent());
 	program.setUniform("uvScale", material.uvScale());
@@ -461,32 +795,24 @@ void SendMaterialUniforms(const Material& material,
 
 			SendMaterialPropertyUniforms(*property,
 										 type,
-//										 glTextureHandles[type],
 										 h,
 										 program,
 										 state);
 		}
 	}
-
-	//program.unuse();
 }
 
 void SendMaterialPropertyUniforms(const MaterialProperty& property,
 								  MaterialPropertyType type,
 								  GLuint glTextureHandle,
 								  GLSLProgram& program,
-								  GLStateCache& state) {
-
-//	program.use();
-//	state.program = program.glID();
+								  OGLRenderer::GLStateCache& state) {
 
 	std::visit([&type, &program, &glTextureHandle](auto&& property) -> void {
 
 		using T = std::decay_t<decltype(property)>;
 
 		if constexpr (std::is_same_v<T, shared_ptr<Texture>>) {
-
-
 
 			std::visit([&type, &glTextureHandle, &program](auto&& contents) -> void {
 
@@ -583,8 +909,6 @@ void SendMaterialPropertyUniforms(const MaterialProperty& property,
 		}
 
 	}, property);
-	
-	//program.unuse();
 }
 
 void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
@@ -727,27 +1051,70 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(EnvironmentBlock), &environmentStruct, GL_DYNAMIC_DRAW);
 }
 
-vector<Node*> SortedLights(map<Node*, float> lights) {
-	// map: <node, distance from camera>
-	
-	// http://thispointer.com/how-to-sort-a-map-by-value-in-c/
-	
-	typedef function<bool(pair<Node*, float>, pair<Node*, float>)> Comparator;
-	
-	Comparator compFunctor = [](pair<Node*, float> elem1, pair<Node*, float> elem2) {
-		return elem1.second < elem2.second;
-	};
-
-	set<pair<Node*, float>, Comparator> lightsSorted(lights.begin(),
-													 lights.end(),
-													 compFunctor);
-	
-	auto sortedVector = vector<Node*>();
-	for (pair<Node*, float> element : lightsSorted) {
-		sortedVector.push_back(element.first);
+void ApplyBlendFunction(BlendFunction func) {
+	if (func == BlendFunction::Disabled) {
+		glDisable(GL_BLEND);
+		return;
 	}
-	
-	return sortedVector;
+
+	glEnable(GL_BLEND);
+	glBlendEquation(GL_FUNC_ADD);
+
+	switch (func) {
+		case BlendFunction::Alpha:
+			// out = src*a + dst*(1-a)
+			glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
+								GL_ONE,       GL_ONE_MINUS_SRC_ALPHA);
+			break;
+
+		case BlendFunction::PremultipliedAlpha:
+			// src already multiplied by alpha: out = src + dst*(1-a)
+			glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA,
+								GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+			break;
+
+		case BlendFunction::Additive:
+			// common additive: out = src*a + dst
+			glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE,
+								GL_ONE,       GL_ONE);
+			break;
+
+		default: break;
+	}
+}
+
+GLenum GLDepthFuncFromDepthFunc(DepthFunc func) {
+	switch (func) {
+		case DepthFunc::Less:     return GL_LESS;
+		case DepthFunc::Lequal:   return GL_LEQUAL;
+		case DepthFunc::Equal:    return GL_EQUAL;
+		case DepthFunc::Greater:  return GL_GREATER;
+		case DepthFunc::Gequal:   return GL_GEQUAL;
+		case DepthFunc::Notequal: return GL_NOTEQUAL;
+		case DepthFunc::Always:   return GL_ALWAYS;
+		case DepthFunc::Never:    return GL_NEVER;
+	}
+	return GL_LESS;
+}
+
+GLenum GLFilterModeForFilterMode(FilterMode mode) {
+	switch (mode) {
+		case FilterMode::Nearest: 				return GL_NEAREST;
+		case FilterMode::Linear: 				return GL_LINEAR;
+		case FilterMode::NearestMipmapNearest:	return GL_NEAREST_MIPMAP_NEAREST;
+		case FilterMode::LinearMipmapNearest: 	return GL_LINEAR_MIPMAP_NEAREST;
+		case FilterMode::NearestMipmapLinear: 	return GL_NEAREST_MIPMAP_LINEAR;
+		case FilterMode::LinearMipmapLinear: 	return GL_LINEAR_MIPMAP_LINEAR; }
+}
+
+GLenum GLWrapModeForWrapMode(WrapMode mode) {
+	switch (mode) {
+		case WrapMode::ClampToEdge:				return GL_CLAMP_TO_EDGE;
+//#ifdef A3D_GL_DESKTOP
+//		case WRAP_MODE::CLAMP_TO_BORDER:		return GL_CLAMP_TO_BORDER;
+//#endif
+		case WrapMode::Repeat:					return GL_REPEAT;
+		default: /* MIRRORED_REPEAT */   		return GL_MIRRORED_REPEAT; }
 }
 
 void DrawOverlay(const RenderContext& context,
@@ -758,15 +1125,13 @@ void DrawOverlay(const RenderContext& context,
 				 ImFont& titleFont,
 				 ImFont& bodyFont) {
 
-	// glBindFramebuffer(GL_FRAMEBUFFER, context.defaultFramebuffer());
-
 	ImguiUpdateScale(context);
 
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui::NewFrame();
 
 	ImguiBeginOverlay(0, true);
-	DrawDebugOptions(const_cast<Scene&>(scene), context, titleFont, bodyFont); // TODO: const_cast CHEATING
+	DrawDebugOptions(const_cast<Scene&>(scene), bodyFont); // TODO: const_cast CHEATING
 	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay)) {
 		DrawStats(stats, statsHistory, context, titleFont, bodyFont);
 	}
@@ -1003,7 +1368,7 @@ void DrawStats(FrameStats& stats,
 			 PLOT_HEIGHT_2 + PLOT_STR_Y_PAD);
 
 	auto renderCpuValue = std::format("{:.1f}ms", renderCpuMsFAvg);
-	DrawLabelValue(yPos, layout, "renderPacket sub", renderCpuValue,
+	DrawLabelValue(yPos, layout, "render sub", renderCpuValue,
 				   bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
 
 	DrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2,
@@ -1124,9 +1489,6 @@ void DrawStats(FrameStats& stats,
 	if (context.recordingGIF()) {
 		yPos += STAT_LINE_STEP;
 		DrawLabelValue(yPos, bulkLayout, "RECORDING",
-//					   std::format("{:.1f}s / {} {}", context.recordedGIFTime(),
-//								   context.recordedGIFFrames(),
-//								   context.recordedGIFFrames() == 1 ? "frame" : "frames"),
 					   std::format("{:.0f}s", context.recordedGIFTime()),
 					   bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
 	}
@@ -1161,8 +1523,7 @@ void DrawStats(FrameStats& stats,
 //	End();
 }
 
-void DrawDebugOptions(Scene& scene, const RenderContext& context,
-					  ImFont& titleFont, ImFont& bodyFont) {
+void DrawDebugOptions(Scene& scene, ImFont& bodyFont) {
 
 	using namespace ImGui;
 
@@ -1461,505 +1822,4 @@ bool ImguiDrawCheckbox(float x, float y,
 
 	PopFont();
 	return ret;
-}
-
-GLenum GLDepthFuncFromDepthFunc(DepthFunc f) {
-	switch (f) {
-		case DepthFunc::Less:     return GL_LESS;
-		case DepthFunc::Lequal:   return GL_LEQUAL;
-		case DepthFunc::Equal:    return GL_EQUAL;
-		case DepthFunc::Greater:  return GL_GREATER;
-		case DepthFunc::Gequal:   return GL_GEQUAL;
-		case DepthFunc::Notequal: return GL_NOTEQUAL;
-		case DepthFunc::Always:   return GL_ALWAYS;
-		case DepthFunc::Never:    return GL_NEVER;
-	}
-	return GL_LESS;
-}
-
-void SetTextureMinificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode) {
-
-	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
-
-	glBindTexture(texType, glTextureHandle);
-
-	switch (mode) {
-		case FilterMode::NearestMipmapNearest:
-		case FilterMode::NearestMipmapLinear:
-		case FilterMode::LinearMipmapNearest:
-		case FilterMode::LinearMipmapLinear:
-			glGenerateMipmap(texType);
-			break;
-		default:
-			break;
-	}
-
-	glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, (GLint)GLFilterModeForFilterMode(mode));
-}
-
-void SetTextureMagnificationFilter(GLuint glTextureHandle, bool cube, FilterMode mode) {
-
-	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
-
-	glBindTexture(texType, glTextureHandle);
-
-	switch (mode) {
-		case FilterMode::Nearest:
-		case FilterMode::Linear:
-			glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, (GLint)GLFilterModeForFilterMode(mode));
-			break;
-		default:
-			log::w()("Unsupported magnification filter: {}", magic_enum::enum_name(mode));
-		break;
-	}
-}
-
-void SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max) {
-#ifdef A3D_GL_DESKTOP
-	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
-	glBindTexture(texType, glTextureHandle);
-	float anisotropy = max;
-	float largest;
-	// EXT_texture_filter_anisotropic
-	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &largest);
-	if (max > largest) anisotropy = largest;
-	glTexParameterf(texType, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
-#endif
-}
-
-void SetTextureWrapS(GLuint glTextureHandle, bool cube, WrapMode mode) {
-	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
-	glBindTexture(texType, glTextureHandle);
-	glTexParameteri(texType, GL_TEXTURE_WRAP_S, (GLint)GLWrapModeForWrapMode(mode));
-}
-
-void SetTextureWrapT(GLuint glTextureHandle, bool cube, WrapMode mode) {
-	auto texType = (cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D);
-	glBindTexture(texType, glTextureHandle);
-	glTexParameteri(texType, GL_TEXTURE_WRAP_T, (GLint)GLWrapModeForWrapMode(mode));
-}
-
-void SetTextureWrapR(GLuint glTextureHandle, WrapMode mode) {
-	glBindTexture(GL_TEXTURE_CUBE_MAP, glTextureHandle);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, (GLint)GLWrapModeForWrapMode(mode));
-}
-
-GLenum GLFilterModeForFilterMode(FilterMode mode) {
-	switch (mode) {
-		case FilterMode::Nearest: 				return GL_NEAREST;
-		case FilterMode::Linear: 				return GL_LINEAR;
-		case FilterMode::NearestMipmapNearest:	return GL_NEAREST_MIPMAP_NEAREST;
-		case FilterMode::LinearMipmapNearest: 	return GL_LINEAR_MIPMAP_NEAREST;
-		case FilterMode::NearestMipmapLinear: 	return GL_NEAREST_MIPMAP_LINEAR;
-		case FilterMode::LinearMipmapLinear: 	return GL_LINEAR_MIPMAP_LINEAR; }
-}
-
-GLenum GLWrapModeForWrapMode(WrapMode mode) {
-	switch (mode) {
-		case WrapMode::ClampToEdge:				return GL_CLAMP_TO_EDGE;
-//#ifdef A3D_GL_DESKTOP
-//		case WRAP_MODE::CLAMP_TO_BORDER:		return GL_CLAMP_TO_BORDER;
-//#endif
-		case WrapMode::Repeat:					return GL_REPEAT;
-        default: /* MIRRORED_REPEAT */   		return GL_MIRRORED_REPEAT; }
-}
-
-void LogGLInfo() {
-
-	const GLubyte *vendor = glGetString(GL_VENDOR);
-	const GLubyte* renderer = glGetString(GL_RENDERER);
-	const GLubyte* version = glGetString(GL_VERSION);
-
-	log::i()("GL_VENDOR: {}", reinterpret_cast<const char*>(renderer));
-	log::i()("GL_RENDERER: {}", reinterpret_cast<const char*>(renderer));
-	log::i()("GL_VERSION: {}", reinterpret_cast<const char*>(version));
-}
-
-void ApplyBlendFunction(BlendFunction f) {
-	if (f == BlendFunction::Disabled) {
-		glDisable(GL_BLEND);
-		return;
-	}
-
-	glEnable(GL_BLEND);
-	glBlendEquation(GL_FUNC_ADD);
-
-	switch (f) {
-		case BlendFunction::Alpha:
-			// out = src*a + dst*(1-a)
-			glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
-								GL_ONE,       GL_ONE_MINUS_SRC_ALPHA);
-			break;
-
-		case BlendFunction::PremultipliedAlpha:
-			// src already multiplied by alpha: out = src + dst*(1-a)
-			glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA,
-								GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-			break;
-
-		case BlendFunction::Additive:
-			// common additive: out = src*a + dst
-			glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE,
-								GL_ONE,       GL_ONE);
-			break;
-
-		default: break;
-	}
-}
-
-void OGLRenderer::clear(const ClearCommand& cmd,
-						const RenderContext& context) {
-	// If you later want target-specific clear:
-	// if (cmd.bindFramebuffer) glBindFramebuffer(GL_FRAMEBUFFER, cmd.framebuffer);
-
-	FBORestore restore;
-
-	auto fb = context.defaultFramebuffer();
-	auto fbSize = context.framebufferSize();
-	glBindFramebuffer(GL_FRAMEBUFFER, fb);
-	glViewport(0, 0, (GLsizei)fbSize.x, (GLsizei)fbSize.y);
-
-	// save state we might stomp.
-	GLboolean prevScissorEnabled = GL_FALSE;
-	GLint prevScissorBox[4] = {0,0,0,0};
-	glGetBooleanv(GL_SCISSOR_TEST, &prevScissorEnabled);
-	glGetIntegerv(GL_SCISSOR_BOX, prevScissorBox);
-
-	GLboolean prevColorMask[4] = {GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE};
-	GLboolean prevDepthMask = GL_TRUE;
-	GLint prevStencilMask = ~0;
-	glGetBooleanv(GL_COLOR_WRITEMASK, prevColorMask);
-	glGetBooleanv(GL_DEPTH_WRITEMASK, &prevDepthMask);
-	glGetIntegerv(GL_STENCIL_WRITEMASK, &prevStencilMask);
-
-	// Apply scissor if requested (partial clear).
-	if (cmd.useScissor) {
-		glEnable(GL_SCISSOR_TEST);
-		glScissor(cmd.scissorRect.x, cmd.scissorRect.y,
-				  cmd.scissorRect.w, cmd.scissorRect.h);
-	}
-	else if (prevScissorEnabled) {
-		// leave as-is
-	}
-	else {
-		glDisable(GL_SCISSOR_TEST);
-	}
-
-	// Ensure clears actually write (optional but strongly recommended).
-	if (cmd.forceWriteMasks) {
-		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-		glDepthMask(GL_TRUE);
-		glStencilMask(0xFFFFFFFF);
-	}
-
-	// Set clear values (only when needed).
-	GLbitfield mask = 0;
-
-	if (cmd.clearColor) {
-		glClearColor(cmd.color.x, cmd.color.y, cmd.color.z, cmd.color.w);
-		mask |= GL_COLOR_BUFFER_BIT;
-	}
-
-	if (cmd.clearDepth) {
-#ifdef A3D_GL_ES
-		glClearDepthf(cmd.depth);
-#else
-		glClearDepth(cmd.depth);
-#endif
-		mask |= GL_DEPTH_BUFFER_BIT;
-	}
-
-	if (cmd.clearStencil) {
-		glClearStencil(cmd.stencil);
-		mask |= GL_STENCIL_BUFFER_BIT;
-	}
-
-	if (mask) {
-		glClear(mask);
-	}
-
-	// Restore state we modified.
-	if (cmd.forceWriteMasks) {
-		glColorMask(prevColorMask[0], prevColorMask[1], prevColorMask[2], prevColorMask[3]);
-		glDepthMask(prevDepthMask);
-		glStencilMask((GLuint)prevStencilMask);
-	}
-
-	if (cmd.useScissor) {
-		if (prevScissorEnabled) {
-			glEnable(GL_SCISSOR_TEST);
-			glScissor(prevScissorBox[0], prevScissorBox[1], prevScissorBox[2], prevScissorBox[3]);
-		}
-		else {
-			glDisable(GL_SCISSOR_TEST);
-		}
-	}
-}
-
-void OGLRenderer::resolvePacket(DrawPacket& packet, const FrameParams& frame) {
-
-	// "resolve / prepare / compile / bake"
-
-	auto resolvePipeline = [&](PipelineHandle &h, const PipelineKey &key) -> PipelineHandle {
-		if (h == INVALID_PIPELINE_HANDLE) h = _cache.ensurePipeline(key);
-		return h;
-	};
-
-	// background
-	if (packet.backgroundPass.material) {
-		resolvePipeline(packet.backgroundPass.pipeline, packet.backgroundPass.key);
-	}
-
-	// main + wireframe items
-	for (auto &di: packet.mainPassItems) {
-		resolvePipeline(di.pipeline, di.key);
-	}
-	for (auto &di: packet.wireframePassItems) {
-		resolvePipeline(di.pipeline, di.key);
-	}
-
-	// lines
-	if (!packet.linesPass.lines.empty()) {
-		resolvePipeline(packet.linesPass.pipeline, packet.linesPass.key);
-	}
-	else {
-		packet.linesPass.pipeline = INVALID_PIPELINE_HANDLE;
-	}
-}
-
-void OGLRenderer::drawPacket(const DrawPacket& packet, const FrameParams& frame) {
-
-	// "render / execute / submit / draw"
-
-	clear(Renderer::ClearCommand{}, frame.context);
-
-	if (packet.backgroundPass.material) {
-		// uses _skyboxMesh internally, binds + draws
-		drawBackground(packet.backgroundPass, frame.view, frame.proj);
-	}
-
-	// NOTE: items are already sorted by pass + key hash, so this will batch nicely
-	for (const auto &di: packet.mainPassItems) {
-		if (di.pipeline == INVALID_PIPELINE_HANDLE) continue;
-		if (!di.element) continue;
-
-		bindPipeline(di.pipeline, _cache);
-
-		// only bind material for shaderKinds that use it (bindMaterial() already early-outs)
-		if (di.material) bindMaterial(*di.material);
-
-		bindMeshElement(*di.element);
-		setPerObject(di.model, frame.view, frame.proj);
-		drawBound();
-	}
-
-	for (const auto &di: packet.wireframePassItems) {
-		if (di.pipeline == INVALID_PIPELINE_HANDLE) continue;
-		if (!di.element) continue;
-
-		bindPipeline(di.pipeline, _cache);
-		// no bindMaterial (wire shader typically ignores it)
-		bindMeshElement(*di.element);
-		setPerObject(di.model, frame.view, frame.proj);
-		drawBound();
-	}
-
-	renderLinesPass(packet.linesPass, frame.context, frame.view, frame.proj);
-}
-
-void OGLRenderer::renderPacket(DrawPacket& packet, const FrameParams& frame) {
-	resolvePacket(packet, frame);
-	drawPacket(packet, frame);
-}
-
-void OGLRenderer::drawBackground(const BackgroundPass& backgroundPass,
-								 const math::mat4& viewMat,
-								 const math::mat4& projMat) {
-
-	if (!backgroundPass.material) return;
-
-	// TODO: check equality?
-	// TODO: stop using shared_ptr???????
-
-	if (_skyboxMesh->materials().empty()) {
-		_skyboxMesh->addMaterial(backgroundPass.material);
-	}
-	else {
-		_skyboxMesh->replaceMaterial(0, backgroundPass.material);
-	}
-
-	bindPipeline(backgroundPass.pipeline, _cache);
-	bindMaterial(*(_skyboxMesh->materials().front()));
-	bindMeshElement(*(_skyboxMesh->elements().front()));
-	setPerObject(mat4(1.0f), mat4(mat3(viewMat)), projMat); // strip transform off view mat
-
-	drawBound();
-}
-
-void OGLRenderer::bindPipeline(PipelineHandle pipelineHandle,
-							   const OGLResourceCache& cache) {
-
-	if (_state.pipelineHandle == pipelineHandle) {
-		GLint cur = 0;
-		glGetIntegerv(GL_CURRENT_PROGRAM, &cur);
-		if ((GLuint)cur == _state.program) return; // truly already bound
-		// else: stale cache, fallthrough and rebind
-	}
-
-	const OGLPipeline& pipeline = cache.pipeline(pipelineHandle);
-	glUseProgram(pipeline.program);
-	_state.program = pipeline.program;
-	_state.material = nullptr;
-
-	if (pipeline.key.doubleSided) {
-		glDisable(GL_CULL_FACE);
-	}
-	else {
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-	}
-
-	if (pipeline.key.depthTest) {
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GLDepthFuncFromDepthFunc(pipeline.key.depthFunc));
-	}
-	else {
-		glDisable(GL_DEPTH_TEST);
-	}
-	glDepthMask(pipeline.key.depthWrite ? GL_TRUE : GL_FALSE);
-
-	ApplyBlendFunction(pipeline.key.blendFunction);
-
-#ifndef A3D_GL_ES
-	switch (pipeline.key.fillMode) {
-		case FillMode::Fill:   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);  break;
-		case FillMode::Lines:  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);  break;
-		case FillMode::Points: glPolygonMode(GL_FRONT_AND_BACK, GL_POINT); break;
-	}
-#endif
-
-#ifndef A3D_GL_ES
-	const bool lineSmooth = (pipeline.key.pass == PassKind::Lines)
-							|| (pipeline.key.pass == PassKind::Wireframe);
-	if (lineSmooth) {
-		glEnable(GL_LINE_SMOOTH);
-		glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-	}
-	else {
-		glDisable(GL_LINE_SMOOTH);
-	}
-#endif
-
-	if (pipeline.key.polygonOffset) {
-		glEnable(GL_POLYGON_OFFSET_LINE);
-		glPolygonOffset(.01, 0); // ! check !
-	}
-	else {
-		glDisable(GL_POLYGON_OFFSET_LINE);
-	}
-
-	_state.pipelineHandle = pipelineHandle;
-}
-
-void OGLRenderer::bindMaterial(const Material& material) {
-	//if (_state.material == &material) return;
-	if (_state.material == &material) {
-		_cache.ensureMaterial(const_cast<Material&>(material)); // will apply sampler dirties
-		return;
-	}
-
-	// look at the currently bound pipeline
-	const OGLPipeline& pipeline = _cache.pipeline(_state.pipelineHandle);
-
-// TODO: !!! THIS IS A DIRTY HACK !!!
-	GLSLProgram* program;
-	switch (pipeline.key.shaderKind) {
-		case ShaderKind::Default:
-			program = &GLSLProgram::Default();
-			break; // chill
-		case ShaderKind::Skybox:
-			program = &GLSLProgram::Skybox();
-			break; // chill
-		default:
-			_state.material = &material;
-			return; // not chill
-	}
-
-	// resolve material once (uploads textures  applies sampler states via cache)
-	const auto& mr = _cache.ensureMaterial(const_cast<Material&>(material));
-	std::array<GLuint, 4> glTextureHandles = {
-			(GLuint)mr.tex[0],
-			(GLuint)mr.tex[1],
-			(GLuint)mr.tex[2],
-			(GLuint)mr.tex[3],
-	};
-
-	//Program& program = Program::Default();
-	// OK if SendMaterialUniforms still calls prog.use() because it matches the pipeline now
-
-	// TODO: !!! THIS IS A DIRTY HACK !!!
-	if (pipeline.key.shaderKind == ShaderKind::Default) {
-		SendMaterialUniforms(material, *program, glTextureHandles, _state);
-	}
-
-	_state.material = &material;
-}
-
-void OGLRenderer::bindMeshElement(const MeshElement& element) {
-
-	// use currently bound pipeline's vertexLayoutKey
-	const OGLPipeline& pipe = _cache.pipeline(_state.pipelineHandle);
-	const uint32_t layoutKey = pipe.key.vertexLayoutKey;
-
-	auto* e = const_cast<MeshElement*>(&element);
-	const auto& res = _cache.ensureMeshElement(*e, layoutKey);
-
-	glBindVertexArray((GLuint)res.vao);
-	_boundElement.vao = (GLuint)res.vao;
-	_boundElement.indexCount = (GLsizei)res.indexCount;
-
-	_boundElement.indexType = GL_UNSIGNED_INT;
-}
-
-void OGLRenderer::setPerObject(const mat4& model, const mat4& view, const mat4& proj) {
-
-	// TEMP: query locations from currently bound program each call (slow but fine)
-	// Later: cache these per Program.
-	GLint program = 0;
-	glGetIntegerv(GL_CURRENT_PROGRAM, &program);
-	if (!program) return;
-
-	GLint locM = glGetUniformLocation(program, "modelMat");
-	GLint locV = glGetUniformLocation(program, "viewMat");
-	GLint locP = glGetUniformLocation(program, "projMat");
-
-	if (locM >= 0) glUniformMatrix4fv(locM, 1, GL_FALSE, value_ptr(model));
-	if (locV >= 0) glUniformMatrix4fv(locV, 1, GL_FALSE, value_ptr(view));
-	if (locP >= 0) glUniformMatrix4fv(locP, 1, GL_FALSE, value_ptr(proj));
-}
-
-void OGLRenderer::drawBound() {
-	if (_boundElement.vao == 0 || _boundElement.indexCount == 0) return;
-
-	glBindVertexArray(_boundElement.vao);
-	glDrawElements(GL_TRIANGLES, _boundElement.indexCount, _boundElement.indexType, (void*)0);
-}
-
-void OGLRenderer::renderLinesPass(const LinesPass& pass,
-								  const RenderContext& context,
-								  const mat4& viewMat,
-								  const mat4& projectionMat) {
-
-	if (pass.pipeline == INVALID_PIPELINE_HANDLE) return;
-	if (pass.lines.empty()) return;
-
-	bindPipeline(pass.pipeline, _cache);
-
-	_debugLines.upload(pass.lines);
-
-	setPerObject(pass.model, viewMat, projectionMat);
-
-	glBindVertexArray(_debugLines.vao);
-	glDrawArrays(GL_LINES, 0, _debugLines.vertexCount);
-	glBindVertexArray(0);
 }

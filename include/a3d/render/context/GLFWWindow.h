@@ -6,8 +6,8 @@
 //  Copyright © 2024-2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_GLFWWINDOW_H
-#define AVARA3D_GLFWWINDOW_H
+#ifndef AVARA3D_RENDER_CONTEXT_GLFWWINDOW_H
+#define AVARA3D_RENDER_CONTEXT_GLFWWINDOW_H
 
 #include <memory>
 #include <optional>
@@ -119,8 +119,8 @@ namespace a3d {
 
 		/// Private Member Functions ///
 
-		void registerGLFWCallbacks();
-		void unregisterGLFWCallbacks();
+		void 						registerGLFWCallbacks();
+		void 						unregisterGLFWCallbacks();
 
 		/// Private Types ///
 
@@ -143,4 +143,4 @@ namespace a3d {
 	};
 }
 
-#endif /* AVARA3D_GLFWWINDOW_H */
+#endif //AVARA3D_RENDER_CONTEXT_GLFWWINDOW_H

@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_PROFILER_H
-#define AVARA3D_PROFILER_H
+#ifndef AVARA3D_PROFILING_PROFILER_H
+#define AVARA3D_PROFILING_PROFILER_H
 
 #include <chrono>
 #include <map>
@@ -61,4 +61,4 @@ namespace a3d {
 	};
 }
 
-#endif //AVARA3D_PROFILER_H
+#endif //AVARA3D_PROFILING_PROFILER_H

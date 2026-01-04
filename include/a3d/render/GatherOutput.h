@@ -6,8 +6,8 @@
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_GATHEROUTPUT_H
-#define AVARA3D_GATHEROUTPUT_H
+#ifndef AVARA3D_RENDER_GATHEROUTPUT_H
+#define AVARA3D_RENDER_GATHEROUTPUT_H
 
 #include <memory>
 #include <vector>
@@ -54,4 +54,4 @@ namespace a3d {
 	};
 }
 
-#endif //AVARA3D_GATHEROUTPUT_H
+#endif //v

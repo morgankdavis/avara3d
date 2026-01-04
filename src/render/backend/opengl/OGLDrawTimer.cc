@@ -1,35 +1,42 @@
+//
+//  OpenGLDrawTimer.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 12/24/25.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//
 
-#include "a3d/profiling/OpenGLDrawTimer.h"
+#include "a3d/render/backend/opengl/OGLDrawTimer.h"
 
 #include <cassert>
 
-#include "a3d/render/backend/opengl/gl.h" // MOVE?
+#include "a3d/render/backend/opengl/gl.h"
 
 #include "a3d/Math.h"
 
 using namespace a3d;
 using namespace std;
 
-OpenGLDrawTimer::OpenGLDrawTimer(unsigned bufferedFrames):
+OGLDrawTimer::OGLDrawTimer(unsigned bufferedFrames):
 		_bufferSize(math::max(unsigned(2), bufferedFrames)),
 		_glQueries(static_cast<size_t>(_bufferSize), 0),
 		_frame{0},
 		_lastTime{chrono::nanoseconds{static_cast<chrono::nanoseconds::rep>(0)}} { }
 
-OpenGLDrawTimer::~OpenGLDrawTimer() {
+OGLDrawTimer::~OGLDrawTimer() {
 	// ! requires a current GL context !
 	if (!_glQueries.empty()) {
 		glDeleteQueries(_bufferSize, _glQueries.data());
 	}
 }
 
-void OpenGLDrawTimer::initialize() {
+void OGLDrawTimer::initialize() {
 	glGenQueries(_bufferSize, _glQueries.data());
 	_issued.assign(_bufferSize, 0);
 	_initialized = true;
 }
 
-void OpenGLDrawTimer::begin() {
+void OGLDrawTimer::begin() {
 	assert(_initialized);
 	assert(!_active);
 	const int write = _frame % _bufferSize;
@@ -37,7 +44,7 @@ void OpenGLDrawTimer::begin() {
 	_active = true;
 }
 
-chrono::nanoseconds OpenGLDrawTimer::end() {
+chrono::nanoseconds OGLDrawTimer::end() {
 	assert(_initialized && _active);
 	glEndQuery(GL_TIME_ELAPSED);
 	const int write = _frame % _bufferSize;

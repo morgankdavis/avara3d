@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_TIMER_H
-#define AVARA3D_TIMER_H
+#ifndef AVARA3D_PROFILING_TIMER_H
+#define AVARA3D_PROFILING_TIMER_H
 
 #include <chrono>
 
@@ -34,4 +34,4 @@ namespace a3d {
 	};
 }
 
-#endif //AVARA3D_TIMER_H
+#endif //AVARA3D_PROFILING_TIMER_H

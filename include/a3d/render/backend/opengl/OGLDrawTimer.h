@@ -1,5 +1,13 @@
-#ifndef AVARA3D_OPENGLDRAWTIMER_H
-#define AVARA3D_OPENGLDRAWTIMER_H
+//
+//  OpenGLDrawTimer.h
+//  avara3d
+//
+//  Created by Morgan Davis on 12/24/25.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//
+
+#ifndef AVARA3D_PROFILING_OPENGLDRAWTIMER_H
+#define AVARA3D_PROFILING_OPENGLDRAWTIMER_H
 
 #include <chrono>
 #include <cstddef>
@@ -11,16 +19,16 @@
 namespace a3d {
 
 	// double/triple/... buffer GL_TIME_ELAPSED queries
-	class OpenGLDrawTimer {
+	class OGLDrawTimer {
 
 	public:
 		//explicit OpenGLDrawTimer(int bufferedFrames = config::GL_DRAW_TIMER_BUFFER_SIZE);
-		explicit OpenGLDrawTimer(unsigned bufferedFrames);
-		~OpenGLDrawTimer();
-		OpenGLDrawTimer(const OpenGLDrawTimer&) = delete;
-		OpenGLDrawTimer& operator=(const OpenGLDrawTimer&) = delete;
-		OpenGLDrawTimer(OpenGLDrawTimer&& other) = delete;
-		OpenGLDrawTimer& operator=(OpenGLDrawTimer&& other) = delete;
+		explicit OGLDrawTimer(unsigned bufferedFrames);
+		~OGLDrawTimer();
+		OGLDrawTimer(const OGLDrawTimer&) = delete;
+		OGLDrawTimer& operator=(const OGLDrawTimer&) = delete;
+		OGLDrawTimer(OGLDrawTimer&& other) = delete;
+		OGLDrawTimer& operator=(OGLDrawTimer&& other) = delete;
 
 		void						initialize();
 		void 						begin();
@@ -37,4 +45,4 @@ namespace a3d {
 	};
 }
 
-#endif //AVARA3D_OPENGLDRAWTIMER_H
+#endif //AVARA3D_PROFILING_OPENGLDRAWTIMER_H

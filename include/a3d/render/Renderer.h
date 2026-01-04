@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_RENDERER_H
-#define AVARA3D_RENDERER_H
+#ifndef AVARA3D_RENDER_RENDERER_H
+#define AVARA3D_RENDER_RENDERER_H
 
 #include <memory>
 #include <set>
@@ -109,9 +109,9 @@ namespace a3d {
 													  const DebugOptions& debugOptions,
 													  FrameStats& stats) = 0;
 
-
 		virtual void 					clear(const ClearCommand& cmd,
 											  const RenderContext& context) = 0;
+
 		virtual void 					renderPacket(DrawPacket& packet,
 													 const FrameParams& frame) = 0;
 
@@ -145,4 +145,4 @@ namespace a3d {
 	};
 }
 
-#endif /* AVARA3D_RENDERER_H */
+#endif //AVARA3D_RENDER_RENDERER_H

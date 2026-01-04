@@ -6,8 +6,8 @@
 //  Copyright © 2025 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_DRAWPACKET_H
-#define AVARA3D_DRAWPACKET_H
+#ifndef AVARA3D_RENDER_DRAWPACKET_H
+#define AVARA3D_RENDER_DRAWPACKET_H
 
 #include "a3d/Math.h"
 #include "a3d/mesh/Line.h"
@@ -20,16 +20,16 @@ namespace a3d {
 	class Node;
 
 	struct BackgroundPass {
-		PipelineHandle 				pipeline = 		INVALID_PIPELINE_HANDLE;
-		PipelineKey					key	=			{};
-		std::shared_ptr<Material> 	material =		nullptr; // gross
+		PipelineHandle 				pipeline = 	INVALID_PIPELINE_HANDLE;
+		PipelineKey					key	=		{};
+		std::shared_ptr<Material> 	material =	nullptr; // gross
 	};
 
 	struct LinesPass {
-		PipelineHandle 		pipeline = 		INVALID_PIPELINE_HANDLE;
-		PipelineKey			key =			{};
-		math::mat4     		model =			math::mat4(1.0f); // identity for world-space lines
-		std::vector<Line> 	lines =			{};
+		PipelineHandle 		pipeline = 	INVALID_PIPELINE_HANDLE;
+		PipelineKey			key =		{};
+		math::mat4     		model =		math::mat4(1.0f); // identity for world-space lines
+		std::vector<Line> 	lines =		{};
 	};
 
 	struct DrawItem {
@@ -65,4 +65,4 @@ namespace a3d {
 	};
 }
 
-#endif //AVARA3D_DRAWPACKET_H
+#endif //AVARA3D_RENDER_DRAWPACKET_H

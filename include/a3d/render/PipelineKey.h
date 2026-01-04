@@ -6,8 +6,8 @@
 //  Copyright © 2025 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_PIPELINEKEY_H
-#define AVARA3D_PIPELINEKEY_H
+#ifndef AVARA3D_RENDER_PIPELINEKEY_H
+#define AVARA3D_RENDER_PIPELINEKEY_H
 
 #include <cstdint>
 #include <cstddef>
@@ -66,6 +66,6 @@ namespace a3d {
 		size_t operator()(const PipelineKey &k) const noexcept;
 	};
 
-} // namespace a3d
+}
 
-#endif //AVARA3D_PIPELINEKEY_H
+#endif //AVARA3D_RENDER_PIPELINEKEY_H

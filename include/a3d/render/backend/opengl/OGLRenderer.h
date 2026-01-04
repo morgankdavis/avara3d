@@ -15,10 +15,10 @@
 #include <utility>
 
 #include "a3d/Types.h"
-#include "a3d/profiling/OpenGLDrawTimer.h"
 #include "a3d/render/Renderer.h"
 #include "a3d/render/backend/opengl/GLTypes.h"
 #include "a3d/render/backend/opengl/OGLDebugLines.h"
+#include "a3d/render/backend/opengl/OGLDrawTimer.h"
 #include "a3d/render/backend/opengl/OGLResourceCache.h"
 
 class ImFont;
@@ -34,33 +34,25 @@ namespace a3d {
 	class Line;
 	class Texture;
 
-
-
-
-	struct GLStateCache {
-		PipelineHandle 		pipelineHandle = 	INVALID_PIPELINE_HANDLE;
-		a3d::gl::enum_t 	program = 			0; // currently bound GL program
-		const Material* 	material = 			nullptr; // last bound material
-		uint32_t 			indexCount = 		0;
-	};
-
-	struct BoundElement {
-		a3d::gl::uint_t 	vao = 			0;
-		a3d::gl::sizei_t 	indexCount = 	0;
-		a3d::gl::enum_t		indexType = 	a3d::gl::value::unsigned_int;
-	};
-
-
-
 	class OGLRenderer : public Renderer {
 
 	public:
 		/// Internal Types ///
 
+		struct GLStateCache {
+			PipelineHandle 		pipelineHandle = 	INVALID_PIPELINE_HANDLE;
+			a3d::gl::enum_t 	program = 			0; // currently bound GL program
+			const Material* 	material = 			nullptr; // last bound material
+			uint32_t 			indexCount = 		0;
+		};
 
+		struct BoundElement {
+			a3d::gl::uint_t 	vao = 			0;
+			a3d::gl::sizei_t 	indexCount = 	0;
+			a3d::gl::enum_t		indexType = 	a3d::gl::value::unsigned_int;
+		};
 
-
-		/// Private Static Members ///
+		/// Internal Static Members ///
 
 		using GLGetProcAddress = void* (*)(const char* name);
 		static bool InitGL(GLGetProcAddress getProcAddress);
@@ -103,25 +95,16 @@ namespace a3d {
 											  const DebugOptions& debugOptions,
 											  FrameStats& stats) override;
 
-		std::unique_ptr<Image> 	snapshot(const RenderContext& context) const override;
-
-	private:
-		/// Private Member Variables ///
-
-		bool					_isInitialized;
-		unsigned				_glEnvironmentUBO;
-		ImFont*					_overlayTitleImFont;
-		ImFont*					_overlayBodyImFont;
-		OpenGLDrawTimer			_drawTimer;
-
-
-
-
-		public:
-
-
 		void 					clear(const ClearCommand& cmd,
 									  const RenderContext& context) override;
+
+		void 					renderPacket(DrawPacket& packet, const FrameParams& frame) override;
+
+		std::unique_ptr<Image> 	snapshot(const RenderContext& context) const override;
+
+	protected:
+		/// Renderer Protected Member Functions ///
+
 		void 					drawBackground(const BackgroundPass& backgroundPass,
 											   const math::mat4& viewMat,
 											   const math::mat4& projMat) override;
@@ -135,23 +118,27 @@ namespace a3d {
 											 const math::mat4& projection) override;
 		void 					drawBound() override;
 
-
 		void 					renderLinesPass(const LinesPass& pass,
 												const RenderContext& context,
 												const math::mat4& viewMat,
 												const math::mat4& projectionMat) override;
 
-
 		void 					resolvePacket(DrawPacket& packet, const FrameParams& frame) override;
 		void 					drawPacket(const DrawPacket& packet, const FrameParams& frame) override;
-		void 					renderPacket(DrawPacket& packet, const FrameParams& frame) override;
 
+	private:
+		/// Private Member Variables ///
 
-		OGLResourceCache 		_cache;
+		bool					_isInitialized;
+		unsigned				_glEnvironmentUBO;
+		OGLResourceCache 		_resourceCache;
 		GLStateCache 			_state;
 		BoundElement 			_boundElement;
 		std::unique_ptr<Mesh> 	_skyboxMesh; // should be value?
 		OGLDebugLines 			_debugLines;
+		ImFont*					_overlayTitleImFont;
+		ImFont*					_overlayBodyImFont;
+		OGLDrawTimer			_drawTimer;
 	};
 }
 
