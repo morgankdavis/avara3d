@@ -1,9 +1,19 @@
+//
+//  DrawPacketizer.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 12/28/25.
+//  Copyright © 2025 Morgan K Davis. All rights reserved.
+//
 
-#include "a3d/render/pipeline/DrawPacketizer.h"
+#include "a3d/render/DrawPacketizer.h"
 
 #include "a3d/mesh/Line.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
+#include "a3d/render/DrawPacket.h"
+#include "a3d/render/GatherOutput.h"
+#include "a3d/render/PipelineKey.h"
 #include "a3d/scene/Scene.h"
 #include "a3d/visual/material/Material.h"
 
@@ -286,9 +296,9 @@ static void AppendOBBLinesFromLocalAABB(vector<Line>& out,
 
 // turn gathered items into backend-agnostic DrawItems + pass structs (no GL resources)
 // "build / buildDrawList / buildCommandList / record"
-DrawPacket DrawPacketizer::BuildDrawPacket(GatherOutput& gatherOutput,
-										   uint32_t vertexLayoutKey,
-										   const DebugOptions& debugOptions) {
+DrawPacket DrawPacketizer::Packetize(GatherOutput& gatherOutput,
+									 uint32_t vertexLayoutKey,
+									 const DebugOptions& debugOptions) {
 
 	DrawPacket packet{};
 

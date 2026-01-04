@@ -1,5 +1,5 @@
 //
-//  Program.cc
+//  GLSLProgram.cc
 //  avara3d
 //
 //  Created by Morgan Davis on 12/23/16.

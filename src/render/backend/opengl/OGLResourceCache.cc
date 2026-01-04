@@ -1,3 +1,10 @@
+//
+//  OGLResourceCache.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 12/31/25.
+//  Copyright © 2025 Morgan K Davis. All rights reserved.
+//
 
 #include "a3d/render/backend/opengl/OGLResourceCache.h"
 
@@ -20,7 +27,7 @@ using namespace a3d;
 using namespace std;
 
 
-static PipelineOGL BuildPipeline(const PipelineKey& key);
+static OGLPipeline BuildPipeline(const PipelineKey& key);
 
 
 // ---- Texture helpers (private to this TU) -----------------------------------
@@ -208,7 +215,7 @@ PipelineHandle OGLResourceCache::ensurePipeline(const PipelineKey& key) {
 
 	if (auto it = _pipelineMap.find(key); it != _pipelineMap.end()) return it->second;
 
-	PipelineOGL p = BuildPipeline(key);
+	OGLPipeline p = BuildPipeline(key);
 
 	const PipelineHandle h = (PipelineHandle)_pipelineList.size();
 	_pipelineList.push_back(std::move(p));
@@ -217,15 +224,15 @@ PipelineHandle OGLResourceCache::ensurePipeline(const PipelineKey& key) {
 	return h;
 }
 
-const PipelineOGL& OGLResourceCache::pipeline(PipelineHandle h) const {
+const OGLPipeline& OGLResourceCache::pipeline(PipelineHandle h) const {
 	return _pipelineList.at(h);
 }
 
-const MeshElementOGL& OGLResourceCache::ensureMeshElement(MeshElement& element,
+const OGLMeshElement& OGLResourceCache::ensureMeshElement(MeshElement& element,
 														  uint32_t vertexLayoutKey) {
 	auto it = _meshElementMap.find(&element);
 	if (it == _meshElementMap.end()) {
-		it = _meshElementMap.emplace(&element, MeshElementOGL{}).first;
+		it = _meshElementMap.emplace(&element, OGLMeshElement{}).first;
 	}
 
 	auto& res = it->second;
@@ -287,9 +294,9 @@ const MeshElementOGL& OGLResourceCache::ensureMeshElement(MeshElement& element,
 	return res;
 }
 
-const MaterialOGL& OGLResourceCache::ensureMaterial(Material& material) {
+const OGLMaterial& OGLResourceCache::ensureMaterial(Material& material) {
 	auto it = _materialMap.find(&material);
-	if (it == _materialMap.end()) it = _materialMap.emplace(&material, MaterialOGL{}).first;
+	if (it == _materialMap.end()) it = _materialMap.emplace(&material, OGLMaterial{}).first;
 	auto& res = it->second;
 
 	res.specularExponent = material.specularExponent();
@@ -310,7 +317,7 @@ const MaterialOGL& OGLResourceCache::ensureMaterial(Material& material) {
 unsigned OGLResourceCache::ensureTexture(Texture& texture) {
 	auto it = _textureMap.find(&texture);
 	if (it == _textureMap.end()) {
-		it = _textureMap.emplace(&texture, TextureOGL{}).first;
+		it = _textureMap.emplace(&texture, OGLTexture{}).first;
 	}
 
 	unsigned handle = it->second.id;
@@ -356,8 +363,8 @@ unsigned OGLResourceCache::ensureTexture(Texture& texture) {
 
 
 
-PipelineOGL BuildPipeline(const PipelineKey& key) {
-	PipelineOGL p;
+OGLPipeline BuildPipeline(const PipelineKey& key) {
+	OGLPipeline p;
 	p.key = key;
 	p.key.doubleSided = key.doubleSided;
 	p.key.fillMode = key.fillMode;

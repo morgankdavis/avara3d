@@ -1,17 +1,23 @@
+//
+//  DrawPacket.h
+//  avara3d
+//
+//  Created by Morgan Davis on 12/28/25.
+//  Copyright © 2025 Morgan K Davis. All rights reserved.
+//
 
-#ifndef AVARA3D_DRAWPACKETIZER_H
-#define AVARA3D_DRAWPACKETIZER_H
+#ifndef AVARA3D_DRAWPACKET_H
+#define AVARA3D_DRAWPACKET_H
 
+#include "a3d/Math.h"
 #include "a3d/mesh/Line.h"
-#include "a3d/render/pipeline/PipelineKey.h"
-#include "a3d/render/pipeline/RenderGatherer.h"
+#include "a3d/render/PipelineKey.h"
 
 namespace a3d {
 
 	class Material;
 	class MeshElement;
 	class Node;
-	class RenderItem;
 
 	struct BackgroundPass {
 		PipelineHandle 				pipeline = 		INVALID_PIPELINE_HANDLE;
@@ -32,7 +38,6 @@ namespace a3d {
 
 		PipelineHandle 	pipeline = 		INVALID_PIPELINE_HANDLE;
 		PipelineKey 	key =			{};
-		PipelineKey 	pipelineKey =	{}; // TODO: REMOVE
 
 		uint32_t 		elementIndex = 	0;
 		MeshElement* 	element = 		nullptr;
@@ -50,22 +55,14 @@ namespace a3d {
 	struct DrawPacket {
 
 		BackgroundPass			backgroundPass;
-		// future: mainOpaque, mainMask, mainTransparent
 		std::vector<DrawItem> 	mainPassItems;
+		// opaqueItems
+		// maskItems
+		// transparentItems
 		std::vector<DrawItem> 	wireframePassItems;
-		//std::vector<Line> 		debugLines;
 		LinesPass				linesPass;
 		std::vector<Node*> 		lightNodes;
 	};
-
-	class DrawPacketizer {
-
-	public:
-
-		static DrawPacket BuildDrawPacket(GatherOutput& gatherOutput,
-										  uint32_t vertexLayoutKey,
-										  const DebugOptions& debugOptions);
-	};
 }
 
-#endif //AVARA3D_DRAWPACKETIZER_H
+#endif //AVARA3D_DRAWPACKET_H

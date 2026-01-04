@@ -99,12 +99,6 @@ namespace a3d {
 
 		std::shared_ptr<Material>			backgroundMaterial();
 
-
-//		Mesh*								skyboxMesh() const; // TODO: move to renderer
-
-//		VisualWorldDirtyMask 				dirtyMask() const;
-//		void 								dirtyMask(VisualWorldDirtyMask mask);
-
 	private:
 		/// Private Member Functions ///
 
@@ -115,7 +109,6 @@ namespace a3d {
 
 		MaterialProperty					_background;
 		std::shared_ptr<Material>			_backgroundMaterial;
-//		std::unique_ptr<Mesh>				_skyboxMesh;
 		float								_fogStartDistance;
 		float								_fogEndDistance;
 		float								_fogDensityExponent;
@@ -127,8 +120,6 @@ namespace a3d {
 		Scene*								_scene;
 		WillRenderCallback 					_willRenderCallback;
 		DidRenderCallback 					_didRenderCallback;
-
-//		VisualWorldDirtyMask				_dirtyMask;
 	};
 }
 

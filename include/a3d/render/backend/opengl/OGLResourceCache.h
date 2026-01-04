@@ -1,14 +1,21 @@
+//
+//  OGLResourceCache.h
+//  avara3d
+//
+//  Created by Morgan Davis on 12/31/25.
+//  Copyright © 2025 Morgan K Davis. All rights reserved.
+//
 
-#ifndef AVARA3D_OGLRESOURCECACHE_H
-#define AVARA3D_OGLRESOURCECACHE_H
+#ifndef AVARA3D_RENDER_BACKEND_OPENGL_OGLRESOURCECACHE_H
+#define AVARA3D_RENDER_BACKEND_OPENGL_OGLRESOURCECACHE_H
 
 #include <array>
 #include <cstdint>
 #include <unordered_map>
 #include <vector>
 
-#include "a3d/render/pipeline/PipelineKey.h"
-#include "a3d/render/backend/opengl/gl_types.h"
+#include "a3d/render/PipelineKey.h"
+#include "a3d/render/backend/opengl/GLTypes.h"
 
 namespace a3d {
 
@@ -16,12 +23,12 @@ namespace a3d {
 	class MeshElement;
 	class Texture;
 
-	struct PipelineOGL {
+	struct OGLPipeline {
 		PipelineKey 	key =		{};
 		gl::uint_t		program = 	0;
 	};
 
-	struct MeshElementOGL {
+	struct OGLMeshElement {
 		gl::uint_t 	vao = 				0;
 		gl::uint_t 	vbo = 				0;
 		gl::uint_t 	ebo = 				0;
@@ -30,14 +37,14 @@ namespace a3d {
 	};
 
 	static constexpr size_t NUM_MATERIAL_PROPERTY_SLOTS = 4;
-	struct MaterialOGL {
-		std::array<gl::uint_t,
-				NUM_MATERIAL_PROPERTY_SLOTS> 	tex = 				{};
+	struct OGLMaterial {
+		std::array<gl::uint_t, NUM_MATERIAL_PROPERTY_SLOTS>
+		        								tex = 				{};
 		float 									specularExponent = 	75.0f;
 		float 									uvScale = 			1.0f;
 	};
 
-	struct TextureOGL {
+	struct OGLTexture {
 		gl::uint_t id = 0;
 	};
 
@@ -46,10 +53,10 @@ namespace a3d {
 	public:
 
 		PipelineHandle 						ensurePipeline(const PipelineKey& key);
-		const PipelineOGL& 					pipeline(PipelineHandle h) const;
-		const MeshElementOGL& 				ensureMeshElement(MeshElement& element,
+		const OGLPipeline& 					pipeline(PipelineHandle h) const;
+		const OGLMeshElement& 				ensureMeshElement(MeshElement& element,
 															   uint32_t vertexLayoutKey);
-		const MaterialOGL& 					ensureMaterial(Material& material);
+		const OGLMaterial& 					ensureMaterial(Material& material);
 		gl::uint_t 							ensureTexture(Texture& texture);
 
 	private:
@@ -58,14 +65,14 @@ namespace a3d {
 				PipelineKey,
 				PipelineHandle,
 				PipelineKeyHash> 			_pipelineMap;
-		std::vector<PipelineOGL> 			_pipelineList;
+		std::vector<OGLPipeline> 			_pipelineList;
 		std::unordered_map<MeshElement*,
-				MeshElementOGL> 			_meshElementMap;
+				OGLMeshElement> 			_meshElementMap;
 		std::unordered_map<Material*,
-				MaterialOGL> 				_materialMap;
+				OGLMaterial> 				_materialMap;
 		std::unordered_map<Texture*,
-				TextureOGL> 				_textureMap;
+				OGLTexture> 				_textureMap;
 	};
 }
 
-#endif //AVARA3D_OGLRESOURCECACHE_H
+#endif //AVARA3D_RENDER_BACKEND_OPENGL_OGLRESOURCECACHE_H

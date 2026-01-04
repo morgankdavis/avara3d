@@ -1202,7 +1202,7 @@
 	choosing the output on which the surface has the biggest surface
 	area.
 
-	The client may specify a method to resolve a size conflict
+	The client may specify a method to resolvePacket a size conflict
 	between the output size and the surface size - this is provided
 	through the method parameter.
 
@@ -1680,7 +1680,7 @@
 	transformation to the current one. Otherwise, the pending and current
 	values are never changed.
 
-	The purpose of this request is to allow clients to render content
+	The purpose of this request is to allow clients to renderPacket content
 	according to the output transform, thus permitting the compositor to
 	use certain optimizations even if the display is rotated. Using
 	hardware overlays and scanning out a client buffer for fullscreen
@@ -2673,7 +2673,7 @@
 	The flipped values correspond to an initial flip around a
 	vertical axis followed by rotation.
 
-	The purpose is mainly to allow clients to render accordingly and
+	The purpose is mainly to allow clients to renderPacket accordingly and
 	tell the compositor, so that for fullscreen surfaces, the
 	compositor will still be able to scan out directly from client
 	surfaces.

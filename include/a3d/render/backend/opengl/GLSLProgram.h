@@ -1,5 +1,5 @@
 //
-//  Program.h
+//  GLSLProgram.h
 //  avara3d
 //
 //  Created by Morgan Davis on 12/23/16.
@@ -8,8 +8,8 @@
 //  Based largely on code from "OpenGL 4 Shading Language Cookbook" by David Wolff
 //
 
-#ifndef AVARA3D_GLSLPROGRAM_H
-#define AVARA3D_GLSLPROGRAM_H
+#ifndef AVARA3D_RENDER_BACKEND_OPENGL_GLSLPROGRAM_H
+#define AVARA3D_RENDER_BACKEND_OPENGL_GLSLPROGRAM_H
 
 #include <map>
 #include <memory>
@@ -17,7 +17,7 @@
 #include <string>
 
 #include "a3d/Types.h"
-#include "a3d/render/backend/opengl/gl_types.h"
+#include "a3d/render/backend/opengl/GLTypes.h"
 
 namespace a3d {
 
@@ -98,4 +98,4 @@ namespace a3d {
 	};
 }
 
-#endif /* AVARA3D_GLSLPROGRAM_H */
+#endif // AVARA3D_RENDER_BACKEND_OPENGL_GLSLPROGRAM_H

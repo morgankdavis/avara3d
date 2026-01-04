@@ -1,13 +1,13 @@
 //
-//  OpenGLRenderer.h
+//  OGLRenderer.h
 //  avara3d
 //
 //  Created by Morgan Davis on 4/24/18.
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_OGLRENDERER_H
-#define AVARA3D_OGLRENDERER_H
+#ifndef AVARA3D_RENDER_BACKEND_OPENGL_OGLRENDERER_H
+#define AVARA3D_RENDER_BACKEND_OPENGL_OGLRENDERER_H
 
 #include <map>
 #include <string>
@@ -17,7 +17,9 @@
 #include "a3d/Types.h"
 #include "a3d/profiling/OpenGLDrawTimer.h"
 #include "a3d/render/Renderer.h"
-#include "a3d/render/backend/opengl/gl_types.h"
+#include "a3d/render/backend/opengl/GLTypes.h"
+#include "a3d/render/backend/opengl/OGLDebugLines.h"
+#include "a3d/render/backend/opengl/OGLResourceCache.h"
 
 class ImFont;
 
@@ -55,20 +57,8 @@ namespace a3d {
 	public:
 		/// Internal Types ///
 
-		struct MeshElementGLRes {
-			a3d::gl::uint_t vao = 0;
-			a3d::gl::uint_t vbo = 0;
-			a3d::gl::uint_t ebo = 0;
-			uint32_t indexCount = 0;
-		};
 
-		/* <a3d::MeshElement* : <gl_vbo, gl_vao, gl_ebo>> */
-//		using MeshElementGLMapping =
-//				std::map<MeshElement*, std::tuple<unsigned, unsigned, unsigned>>; // TODO: REMOVE
 
-		/* <a3d::Texture* : <gl_textureHandle> */
-//		using TextureGLMapping =
-//				std::map<Texture*, unsigned>;
 
 		/// Private Static Members ///
 
@@ -118,28 +108,11 @@ namespace a3d {
 	private:
 		/// Private Member Variables ///
 
-		bool											_isInitialized;
-		unsigned										_glEnvironmentUBO;
-		ImFont*											_overlayTitleImFont;
-		ImFont*											_overlayBodyImFont;
-		OpenGLDrawTimer									_drawTimer;
-
-
-
-
-		struct DebugLineVertex {
-			math::vec3 pos;
-			math::vec3 color;
-		};
-
-		void EnsureDebugLinesBuffers();
-		unsigned _dbgLinesVBO = 0;
-		unsigned _dbgLinesVAO = 0;
-		std::vector<DebugLineVertex> _dbgLineVerts;
-
-
-
-
+		bool					_isInitialized;
+		unsigned				_glEnvironmentUBO;
+		ImFont*					_overlayTitleImFont;
+		ImFont*					_overlayBodyImFont;
+		OpenGLDrawTimer			_drawTimer;
 
 
 
@@ -147,40 +120,39 @@ namespace a3d {
 		public:
 
 
-		void clear(const ClearCommand& cmd,
-				   const RenderContext& context) override;
-		void drawBackground(const BackgroundPass& backgroundPass,
-							const math::mat4& viewMat,
-							const math::mat4& projMat) override;
+		void 					clear(const ClearCommand& cmd,
+									  const RenderContext& context) override;
+		void 					drawBackground(const BackgroundPass& backgroundPass,
+											   const math::mat4& viewMat,
+											   const math::mat4& projMat) override;
 
-		void bindPipeline(PipelineHandle h,
-						  const OGLResourceCache& cache) override;
-		void bindMaterial(const Material& material) override;
-		void bindMeshElement(const MeshElement& element) override;
-		void setPerObject(const math::mat4& model,
-						  const math::mat4& view,
-						  const math::mat4& projection) override;
-		void drawBound() override;
-
-
-		void renderLinesPass(const LinesPass& pass,
-							 const RenderContext& context,
-							 const math::mat4& viewMat,
-							 const math::mat4& projectionMat) override;
+		void 					bindPipeline(PipelineHandle h,
+											 const OGLResourceCache& cache) override;
+		void 					bindMaterial(const Material& material) override;
+		void 					bindMeshElement(const MeshElement& element) override;
+		void 					setPerObject(const math::mat4& model,
+											 const math::mat4& view,
+											 const math::mat4& projection) override;
+		void 					drawBound() override;
 
 
-		void resolvePacket(DrawPacket& packet, const FrameParams& frame) override;
-		void drawPacket(const DrawPacket& packet, const FrameParams& frame) override;
-		void renderPacket(DrawPacket& packet, const FrameParams& frame) override;
+		void 					renderLinesPass(const LinesPass& pass,
+												const RenderContext& context,
+												const math::mat4& viewMat,
+												const math::mat4& projectionMat) override;
 
 
-		OGLResourceCache _cache;
-		GLStateCache _state;
-		BoundElement _boundElement;
-		std::unique_ptr<Mesh> _skyboxMesh; // should be value?
+		void 					resolvePacket(DrawPacket& packet, const FrameParams& frame) override;
+		void 					drawPacket(const DrawPacket& packet, const FrameParams& frame) override;
+		void 					renderPacket(DrawPacket& packet, const FrameParams& frame) override;
 
-		std::unordered_map<MeshElement*, MeshElementGLRes> _meshElementGL;
+
+		OGLResourceCache 		_cache;
+		GLStateCache 			_state;
+		BoundElement 			_boundElement;
+		std::unique_ptr<Mesh> 	_skyboxMesh; // should be value?
+		OGLDebugLines 			_debugLines;
 	};
 }
 
-#endif /* AVARA3D_OGLRENDERER_H */
+#endif // AVARA3D_RENDER_BACKEND_OPENGL_OGLRENDERER_H

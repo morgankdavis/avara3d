@@ -1,9 +1,13 @@
 //
-// Created by mkd on 12/31/25.
+//  gl.h
+//  avara3d
+//
+//  Created by Morgan Davis on 12/31/25.
+//  Copyright © 2025 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_GL_H
-#define AVARA3D_GL_H
+#ifndef AVARA3D_RENDER_BACKEND_OPENGL_GL_H
+#define AVARA3D_RENDER_BACKEND_OPENGL_GL_H
 
 // include this ONLY from .cc/.mm files that make GL calls
 // do NOT include this from public headers (OpenGLRenderer.h etc)
@@ -18,4 +22,4 @@
 	#include <glad/glad.h>
 #endif
 
-#endif //AVARA3D_GL_H
+#endif //AVARA3D_RENDER_BACKEND_OPENGL_GL_H

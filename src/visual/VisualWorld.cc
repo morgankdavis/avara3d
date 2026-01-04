@@ -17,10 +17,12 @@
 #include "a3d/mesh/primitive/Plane.h"
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/profiling/Profiling.h"
-#include "a3d/render/pipeline/DrawPacketizer.h"
-#include "a3d/render/pipeline/RenderGatherer.h"
-#include "a3d/render/context/RenderContext.h"
+#include "a3d/render/DrawPacket.h"
+#include "a3d/render/DrawPacketizer.h"
+#include "a3d/render/GatherOutput.h"
+#include "a3d/render/RenderGatherer.h"
 #include "a3d/render/Renderer.h"
+#include "a3d/render/context/RenderContext.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 #include "a3d/util/flow.h"
@@ -30,24 +32,14 @@
 #include "a3d/visual/material/Texture.h"
 #include "a3d/visual/camera/PerspectiveCamera.h"
 
-#warning TEMPORARY
-#include "a3d/render/backend/opengl/OGLRenderer.h"
-
-
-
 using namespace a3d;
 using namespace a3d::math;
 using namespace std;
-
-/// Private Static Non-Member Prototypes ///
-
-//static unique_ptr<Mesh> MakeSkyboxMesh(const MaterialProperty& property);
 
 /// Public Lifecycle Functions ///
 
 VisualWorld::VisualWorld(RenderContext& context):
 		_background{},
-//		_skyboxMesh{},
 		_fogStartDistance{0.0},
 		_fogEndDistance{0.0},
 		_fogDensityExponent{0.0},
@@ -58,8 +50,7 @@ VisualWorld::VisualWorld(RenderContext& context):
 		_renderContext{&context},
 		_scene{},
 		_willRenderCallback{},
-		_didRenderCallback{}/*,
-		_dirtyMask{VisualWorldDirtyMask::All}*/,
+		_didRenderCallback{},
 		_backgroundMaterial{} {
 
 	_renderContext->attachedToVisualWorld(this);
@@ -69,7 +60,6 @@ VisualWorld::~VisualWorld() {
 	log::d()("Destroying VisualWorld {:p}", static_cast<void*>(this));
 
 	if (_renderContext) _renderContext->detachedFromVisualWorld(this);
-	//renderContext(nullptr);
 }
 
 /// Public Member Functions ///
@@ -292,9 +282,9 @@ void VisualWorld::draw(const Scene& scene,
 //
 //	prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
 
-		auto packet = DrawPacketizer::BuildDrawPacket(gatherItems,
-													  1,
-													  debugOptions);
+		auto packet = DrawPacketizer::Packetize(gatherItems,
+												1,
+												debugOptions);
 
 
 		Renderer::FrameParams params = { *_renderContext,
@@ -304,7 +294,7 @@ void VisualWorld::draw(const Scene& scene,
 										 &stats,
 										 &profiler };
 
-		static_cast<OGLRenderer*>(renderer)->renderPacket(packet, params);
+		renderer->renderPacket(packet, params);
 	});
 
 	prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
@@ -337,18 +327,6 @@ void VisualWorld::draw(const Scene& scene,
 shared_ptr<Material> VisualWorld::backgroundMaterial() {
 	return _backgroundMaterial;
 }
-
-//Mesh* VisualWorld::skyboxMesh() const {
-//	return _skyboxMesh.get();
-//}
-
-//VisualWorldDirtyMask VisualWorld::dirtyMask() const {
-//	return _dirtyMask;
-//}
-//
-//void VisualWorld::dirtyMask(VisualWorldDirtyMask mask) {
-//	_dirtyMask = mask;
-//}
 
 /// Private Member Functions ///
 
@@ -413,16 +391,3 @@ shared_ptr<Node> VisualWorld::defaultPOV() {
 
 	return cameraNode;
 }
-
-///// Private Static Member Functions ///
-//
-//unique_ptr<Mesh> MakeSkyboxMesh(const MaterialProperty& property) {
-//
-//	auto mesh = make_unique<a3d::Mesh>(make_unique<Box>(1, 1, 1), nullptr);
-//
-//	auto material = make_shared<Material>(monostate{}, monostate{}, monostate{}, property);
-//	material->doubleSided(false);
-//	mesh->addMaterial(material);
-//
-//	return mesh;
-//}

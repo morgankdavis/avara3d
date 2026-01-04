@@ -24,7 +24,7 @@
   </copyright>
 
   <description summary="Protocol for requesting fractional surface scales">
-    This protocol allows a compositor to suggest for surfaces to render at
+    This protocol allows a compositor to suggest for surfaces to renderPacket at
     fractional scales.
 
     A client can submit scaled content by utilizing wp_viewport. This is done by

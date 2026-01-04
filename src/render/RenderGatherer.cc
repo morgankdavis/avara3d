@@ -1,11 +1,19 @@
+//
+//  RenderGatherer.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 12/24/25.
+//  Copyright © 2025 Morgan K Davis. All rights reserved.
+//
 
-#include "a3d/render/pipeline/RenderGatherer.h"
+#include "a3d/render/RenderGatherer.h"
 
 #include "a3d/mesh/Line.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/physics/backend/bullet/BulletWorldProxy.h"
+#include "a3d/render/GatherOutput.h"
 #include "a3d/render/context/RenderContext.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"

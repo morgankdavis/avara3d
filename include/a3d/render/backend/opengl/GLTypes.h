@@ -1,9 +1,13 @@
 //
-// Created by mkd on 12/31/25.
+//  GLTypes.h
+//  avara3d
+//
+//  Created by Morgan Davis on 12/31/25.
+//  Copyright © 2025 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_OPENGL_TYPES_H
-#define AVARA3D_OPENGL_TYPES_H
+#ifndef AVARA3D_RENDER_BACKEND_OPENGL_GLTYPES_H
+#define AVARA3D_RENDER_BACKEND_OPENGL_GLTYPES_H
 
 #include <cstdint>
 #include <cstddef>   // std::ptrdiff_t
@@ -46,7 +50,7 @@ namespace a3d::gl {
 		u32 = value::unsigned_int,
 	};
 
-	// Helpers
+	// helpers
 	template <class E>
 	constexpr enum_t raw(E e) noexcept {
 		return static_cast<enum_t>(e);
@@ -57,7 +61,7 @@ namespace a3d::gl {
 				 : static_cast<boolean_t>(value::false_);
 	}
 
-	// Optional: strong-typed handles (zero-cost)
+	// strong-typed handles (zero-cost)
 	template <class Tag>
 	struct handle {
 		uint_t id = value::null_handle;
@@ -78,7 +82,6 @@ namespace a3d::gl {
 	using program     = handle<program_tag>;
 	using shader      = handle<shader_tag>;
 	using framebuffer = handle<framebuffer_tag>;
+}
 
-} // namespace a3d::ogl
-
-#endif // AVARA3D_OPENGL_TYPES_H
+#endif // AVARA3D_RENDER_BACKEND_OPENGL_GLTYPES_H

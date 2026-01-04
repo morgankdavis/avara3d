@@ -1,5 +1,5 @@
 //
-//  OpenGLRenderer.cc
+//  OGLRenderer.cc
 //  avara3d
 //
 //  Created by Morgan Davis on 4/24/18.
@@ -35,10 +35,11 @@
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/mesh/primitive/Box.h"
-#include "a3d/render/pipeline/DrawPacketizer.h"
+#include "a3d/render/DrawPacket.h"
+#include "a3d/render/DrawPacketizer.h"
 #include "a3d/render/backend/opengl/OGLResourceCache.h"
-#include "a3d/render/context/RenderContext.h"
 #include "a3d/render/backend/opengl/GLSLProgram.h"
+#include "a3d/render/context/RenderContext.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 #include "a3d/util/chrono.h"
@@ -181,14 +182,8 @@ struct FBORestore {
 
 /// Private Static Non-Member Prototypes ///
 
-//static void 		GetTextureGLTextureHandles(Material& material,
-//											  RenderResourceCacheOGL& cache,
-//											  map<MaterialPropertyType, GLuint>& glTextureHandles);
-//static void 		BufferTexture(const Texture &texture,
-//								 GLuint& glTextureHandle);
 static void 		SendMaterialUniforms(const Material& material,
 										GLSLProgram& program,
-//										map<MaterialPropertyType, GLuint>& glTextureHandles,
 										const std::array<GLuint, 4>& glTextureHandles,
 										GLStateCache& state);
 static void 		SendMaterialPropertyUniforms(const MaterialProperty& property,
@@ -200,10 +195,6 @@ static void 		SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 											const Scene& scene,
 											const vector<Node*>& lightNodes,
 											FrameStats& stats);
-//static void 		SetTextureSamplingOptions(Texture& texture,
-//											 GLuint glTextureHandle);
-//static void 		SetMaterialFilteringOptions(const Material& material,
-//											   map<MaterialPropertyType, GLuint>& glTextureHandles);
 static vector<Node*>SortedLights(map<Node*, float> lights);
 static void 		DrawOverlay(const RenderContext& context,
 							   const Scene& scene,
@@ -253,16 +244,6 @@ bool 				ImguiDrawCheckbox(float x,
 									  float size,
 									  int id);
 static GLenum 		GLDepthFuncFromDepthFunc(DepthFunc f);
-static void 		SetTextureMinificationFilter(GLuint glTextureHandle,
-												bool cube,
-												FilterMode mode);
-static void 		SetTextureMagnificationFilter(GLuint glTextureHandle,
-												 bool cube,
-												 FilterMode mode);
-static void 		SetTextureMaxAnisotropy(GLuint glTextureHandle, bool cube, float max);
-static void 		SetTextureWrapS(GLuint glTextureHandle, bool cube, WrapMode mode);
-static void 		SetTextureWrapT(GLuint glTextureHandle, bool cube, WrapMode mode);
-static void 		SetTextureWrapR(GLuint glTextureHandle, WrapMode mode);
 static GLenum 		GLFilterModeForFilterMode(FilterMode mode);
 static GLenum 		GLWrapModeForWrapMode(WrapMode mode);
 static void 		LogGLInfo();
@@ -316,10 +297,7 @@ OGLRenderer::OGLRenderer():
 		_overlayBodyImFont{nullptr},
 		_drawTimer{config::GL_DRAW_TIMER_BUFFER_SIZE},
 		_cache{},
-		_skyboxMesh{},
-
-
-		_meshElementGL{} {}
+		_skyboxMesh{} {}
 
 OGLRenderer::~OGLRenderer() {
 	log::d()("Destroying OpenGLRenderer {:p}", static_cast<void*>(this));
@@ -327,14 +305,15 @@ OGLRenderer::~OGLRenderer() {
 	glDeleteBuffers(1, &_glEnvironmentUBO);
 
 	// TODO: move?
-	if (_dbgLinesVBO) {
-		glDeleteBuffers(1, &_dbgLinesVBO);
-		_dbgLinesVBO = 0;
-	}
-	if (_dbgLinesVAO) {
-		glDeleteVertexArrays(1, &_dbgLinesVAO);
-		_dbgLinesVAO = 0;
-	}
+//	if (_dbgLinesVBO) {
+//		glDeleteBuffers(1, &_dbgLinesVBO);
+//		_dbgLinesVBO = 0;
+//	}
+//	if (_dbgLinesVAO) {
+//		glDeleteVertexArrays(1, &_dbgLinesVAO);
+//		_dbgLinesVAO = 0;
+//	}
+	_debugLines.destroy();
 
 	ImGui_ImplOpenGL3_Shutdown();
 //	ImPlot::DestroyContext();
@@ -426,36 +405,6 @@ void OGLRenderer::postTraversal(const Scene& scene,
 								FrameStats& stats) {
 
 	SendEnvironmentUniforms(_glEnvironmentUBO, scene, lightNodes, stats);
-	//glBindBufferBase(GL_UNIFORM_BUFFER, ENV_BINDING_POINT, _glEnvironmentUBO); // necessary? -- nope!
-}
-
-void OGLRenderer::EnsureDebugLinesBuffers() {
-	if (_dbgLinesVAO != 0 && _dbgLinesVBO != 0) return;
-
-	glGenVertexArrays(1, &_dbgLinesVAO);
-	glGenBuffers(1, &_dbgLinesVBO);
-
-	glBindVertexArray(_dbgLinesVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, _dbgLinesVBO);
-
-	// Attribute 0: position
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(
-			0, 3, GL_FLOAT, GL_FALSE,
-			sizeof(DebugLineVertex),
-			(void*)offsetof(DebugLineVertex, pos)
-	);
-
-	// Attribute 1: color
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(
-			1, 3, GL_FLOAT, GL_FALSE,
-			sizeof(DebugLineVertex),
-			(void*)offsetof(DebugLineVertex, color)
-	);
-
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 unique_ptr<Image> OGLRenderer::snapshot(const RenderContext& context) const {
@@ -476,175 +425,6 @@ unique_ptr<Image> OGLRenderer::snapshot(const RenderContext& context) const {
 }
 
 /// Private Static Non-Member Functions ///
-
-//void GetTextureGLTextureHandles(Material& material,
-//								RenderResourceCacheOGL& cache,
-//								std::map<MaterialPropertyType, GLuint>& glTextureHandles) {
-//
-//	glTextureHandles.clear();
-//
-//	for (auto& [property, type] : material.properties()) {
-//
-//		auto textureSP = std::get_if<std::shared_ptr<Texture>>(property);
-//		if (!textureSP || !(*textureSP)) continue;
-//
-//		Texture* tex = textureSP->get();
-////
-////		// Look up WITHOUT inserting
-////		GLuint handle = 0;
-////		auto it = glMapping.find(tex);
-////		if (it != glMapping.end()) handle = it->second;
-////
-////		const bool contentsDirty =
-////				A3D_MASK_CONTAINS(tex->dirtyMask(), TextureDirtyMask::Contents);
-////
-////		const bool missingOrZero = (it == glMapping.end()) || (handle == 0);
-////
-////		if (contentsDirty || missingOrZero) {
-////
-////			log::d()("Uploading texture {:p} (dirty={}, missingOrZero={})",
-////					  (void*)tex, contentsDirty, missingOrZero);
-////
-////			// If we had an old handle, delete it cleanly
-////			if (handle != 0) {
-////				glDeleteTextures(1, &handle);
-////				handle = 0;
-////			}
-////
-////			GLuint newID = 0;
-////			BufferTexture(*tex, newID);
-////
-////			if (newID == 0) {
-////				log::e()("BufferTexture failed for texture {:p}", (void*)tex);
-////				// leave handle 0; still record it so you can see the failure downstream
-////				glMapping.erase(tex);
-////			} else {
-////				handle = newID;
-////				glMapping[tex] = handle;
-////			}
-////
-////			// Clear only the Contents bit (don’t wipe other bits unless you mean to)
-////			tex->dirtyMask(A3D_MASK_REMOVE(tex->dirtyMask(), TextureDirtyMask::Contents));
-////		}
-////
-////		glTextureHandles[type] = handle;
-//
-//		const unsigned h = cache.ensureTexture(*tex);
-//		glTextureHandles[type] = (GLuint)h;
-//	}
-//}
-
-void BufferTexture(const Texture& texture,
-				   GLuint& glTextureHandle) {
-
-	auto contents = texture.contents();
-
-	std::visit([&texture, &glTextureHandle](auto&& contents) -> void {
-
-		using T = std::decay_t<decltype(contents)>;
-
-		if constexpr (std::is_same_v<T, shared_ptr<CubeImage>>) {
-
-			log::d()("Buffering cube texture {:p}...", static_cast<const void*>(&contents));
-
-			auto cubeImage = dynamic_pointer_cast<CubeImage>(contents);
-
-			Image* images[] = {
-					cubeImage->posX(),
-					cubeImage->negX(),
-					cubeImage->posY(),
-					cubeImage->negY(),
-					cubeImage->posZ(),
-					cubeImage->negZ() };
-
-			GLenum sides[] = {
-					GL_TEXTURE_CUBE_MAP_POSITIVE_X,
-					GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
-					GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
-					GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
-					GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
-					GL_TEXTURE_CUBE_MAP_NEGATIVE_Z };
-
-			glGenTextures(1, &glTextureHandle);
-			glBindTexture(GL_TEXTURE_CUBE_MAP, glTextureHandle);
-
-			for (int s=0; s<6; ++s) {
-				GLenum side = sides[s];
-				auto image = images[s];
-
-				assert(image->bytesPerPixel() == 4);
-//				unsigned bytesPerPixel = image->bytesPerPixel();
-//				GLint glInternalFormat = GL_RGBA;
-//				if (bytesPerPixel == 3) glInternalFormat = GL_RGB;
-//				else if (bytesPerPixel == 1) glInternalFormat = GL_RED;
-
-				glTexImage2D(side,
-							 0,
-							 GL_RGBA8,//glInternalFormat,//GL_RGB, //GL_SRGB_ALPHA,
-							 image->width(),
-							 image->height(),
-							 0,
-							 GL_RGBA,//(image->bytesPerPixel() == 3 ? GL_RGB : GL_RGBA),
-							 GL_UNSIGNED_BYTE,
-							 *(image->buffer()));
-			}
-
-			auto sampler = texture.sampler();
-			SetTextureMinificationFilter(glTextureHandle, true, sampler->minificationFilter());
-			SetTextureMagnificationFilter(glTextureHandle, true, sampler->magnificationFilter());
-			SetTextureMaxAnisotropy(glTextureHandle, true, sampler->maxAnisotropy());
-			SetTextureWrapS(glTextureHandle, true, sampler->wrapS());
-			SetTextureWrapT(glTextureHandle, true, sampler->wrapT());
-			SetTextureWrapR(glTextureHandle, sampler->wrapR());
-		}
-		else if constexpr (std::is_same_v<T, shared_ptr<Image>>) {
-
-			log::d()("Buffering 2D texture {:p}...", static_cast<const void*>(&contents));
-
-			auto image = dynamic_pointer_cast<Image>(contents);
-
-			glGenTextures(1, &glTextureHandle);
-			log::d()("Binding new texture handle: {}", glTextureHandle);
-			glBindTexture(GL_TEXTURE_2D, glTextureHandle);
-
-//		unsigned bytesPerPixel = image->bytesPerPixel();
-//		GLint glInternalFormat;
-//		if (bytesPerPixel == 3) glInternalFormat = GL_RGB;
-//		else if (bytesPerPixel == 1) glInternalFormat = GL_RED;
-
-			log::d()("Buffering image {:p}: width: {}, height: {}, bytesPerPixel: {}, data size: {}",
-					  static_cast<void*>(image.get()), image->width(), image->height(), image->bytesPerPixel(),
-					  image->width() * image->height() * image->bytesPerPixel());
-
-			glTexImage2D(GL_TEXTURE_2D,
-						 0,
-						 GL_RGBA8,//glInternalFormat,//GL_RGBA,//GL_SRGB_ALPHA,
-						 image->width(),
-						 image->height(),
-						 0,
-						 GL_RGBA,//(image->bytesPerPixel() == 3 ? GL_RGB : GL_RGBA),
-						 GL_UNSIGNED_BYTE,
-						 *(image->buffer()));
-
-			auto sampler = texture.sampler();
-			SetTextureMinificationFilter(glTextureHandle, false, sampler->minificationFilter());
-			SetTextureMagnificationFilter(glTextureHandle, false, sampler->magnificationFilter());
-			SetTextureMaxAnisotropy(glTextureHandle, false, sampler->maxAnisotropy());
-			SetTextureWrapS(glTextureHandle, false, sampler->wrapS());
-			SetTextureWrapT(glTextureHandle, false, sampler->wrapT());
-		}
-		else if constexpr (std::is_same_v<T, std::monostate>) {
-			log::e()("Empty texture variant.");
-		}
-
-	}, contents);
-}
-
-//void SendMaterialUniforms(const Material& material,
-//						  Program& program,
-////						  map<MaterialPropertyType, GLuint>& glTextureHandles,
-//						  const std::array<GLuint, 4>& glTextureHandles,
-//						  GLStateCache& state) {
 
 static inline int SlotFor(MaterialPropertyType t) {
 	switch (t) {
@@ -947,130 +727,6 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(EnvironmentBlock), &environmentStruct, GL_DYNAMIC_DRAW);
 }
 
-//void SetTextureSamplingOptions(Texture& texture,
-//							   GLuint glTextureHandle) {
-//
-//	auto sampler = texture.sampler();
-//	bool isCubemap = holds_alternative<shared_ptr<CubeImage>>(texture.contents());
-//
-//	if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
-//						  SamplerDirtyMask::MinificationFilter)) {
-//		SetTextureMinificationFilter(glTextureHandle, isCubemap, sampler->minificationFilter());
-//		sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
-//										   SamplerDirtyMask::MinificationFilter));
-//	}
-//
-//	if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
-//						  SamplerDirtyMask::MagnificationFilter)) {
-//		SetTextureMagnificationFilter(glTextureHandle, isCubemap, sampler->magnificationFilter());
-//		sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
-//										   SamplerDirtyMask::MagnificationFilter));
-//	}
-//
-//	if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
-//						  SamplerDirtyMask::WrapS)) {
-//		SetTextureWrapS(glTextureHandle, isCubemap, sampler->wrapS());
-//		sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
-//										   SamplerDirtyMask::WrapS));
-//	}
-//
-//	if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
-//						  SamplerDirtyMask::WrapT)) {
-//		SetTextureWrapT(glTextureHandle, isCubemap, sampler->wrapT());
-//		sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
-//										   SamplerDirtyMask::WrapT));
-//	}
-//
-//	if (isCubemap) {
-//		if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
-//							  SamplerDirtyMask::WrapR)) {
-//			SetTextureWrapR(glTextureHandle, sampler->wrapR());
-//			sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
-//											   SamplerDirtyMask::WrapR));
-//		}
-//	}
-//
-//	if (A3D_MASK_CONTAINS(sampler->dirtyMask(),
-//						  SamplerDirtyMask::MaxAnisotropy)) {
-//		SetTextureMaxAnisotropy(glTextureHandle, isCubemap, sampler->maxAnisotropy());
-//		sampler->dirtyMask(A3D_MASK_REMOVE(sampler->dirtyMask(),
-//										   SamplerDirtyMask::MaxAnisotropy));
-//	}
-//}
-
-//void SetMaterialFilteringOptions(const Material& material,
-//								 map<MaterialPropertyType, GLuint>& glTextureHandles) {
-//
-//	for (auto& [property, type] : material.properties()) {
-//
-//		if (auto texture = get_if<shared_ptr<Texture>>(property)) {
-//			SetTextureSamplingOptions(**texture, glTextureHandles[type]);
-//		}
-//
-////		if (holds_alternative<shared_ptr<Texture>>(*property)) {
-////			auto texture = get<shared_ptr<Texture>>(*property);
-////			SetTextureSamplingOptions(*texture, glTextureHandles[type]);
-////		}
-//	}
-//}
-
-void SetMaterialOpenGLState(const Material& material,
-							const DebugOptions& debugOptions) {
-
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-	glDepthMask(GL_TRUE);
-
-//	if (material.blendFunction() == BLEND_FUNCTION::THING) {
-//	https://developer.apple.com/documentation/scenekit/scnblendmode
-//	https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBlendFunc.xhtml
-//		glEnable(GL_BLEND);
-//		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // param 0 was "GL_SRC_ALPHA" (?), GL_ONE_MINUS_SRC_ALPHA
-//	}
-//	else {
-//		glDisable(GL_BLEND);
-//	}
-
-	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowPhysicsWireframes)) {
-		// can create zbuffer problems
-		// https://www.opengl.org/archives/resources/faq/technical/polygonoffset.htm
-		//glDepthRange(0.1, 1.0);
-		//		glEnable(GL_POLYGON_OFFSET_FILL);
-		//		glPolygonOffset(20.0, 0.0);
-	}
-	
-	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes)) {
-		//_program = Program::Wireframe();
-		
-#ifdef A3D_GL_DESKTOP
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glEnable(GL_LINE_SMOOTH);
-#endif
-	}
-	else {
-#ifdef A3D_GL_DESKTOP
-		if (material.fillMode() == FillMode::Lines) {
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		}
-		else if (material.fillMode() == FillMode::Points) {
-			glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-		}
-		else {
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		}
-#endif
-		
-		if (material.doubleSided()) {
-			glDisable(GL_CULL_FACE);
-		}
-		else {
-			glEnable(GL_CULL_FACE);
-			glCullFace(GL_BACK);
-		}
-	}
-}
-
-
 vector<Node*> SortedLights(map<Node*, float> lights) {
 	// map: <node, distance from camera>
 	
@@ -1347,7 +1003,7 @@ void DrawStats(FrameStats& stats,
 			 PLOT_HEIGHT_2 + PLOT_STR_Y_PAD);
 
 	auto renderCpuValue = std::format("{:.1f}ms", renderCpuMsFAvg);
-	DrawLabelValue(yPos, layout, "render sub", renderCpuValue,
+	DrawLabelValue(yPos, layout, "renderPacket sub", renderCpuValue,
 				   bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
 
 	DrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2,
@@ -1919,11 +1575,6 @@ void LogGLInfo() {
 	log::i()("GL_VERSION: {}", reinterpret_cast<const char*>(version));
 }
 
-
-
-
-
-
 void ApplyBlendFunction(BlendFunction f) {
 	if (f == BlendFunction::Disabled) {
 		glDisable(GL_BLEND);
@@ -1955,10 +1606,6 @@ void ApplyBlendFunction(BlendFunction f) {
 		default: break;
 	}
 }
-
-//RenderResourceCacheOGL& OpenGLRenderer::cache() {
-//	return _cache;
-//}
 
 void OGLRenderer::clear(const ClearCommand& cmd,
 						const RenderContext& context) {
@@ -2042,12 +1689,88 @@ void OGLRenderer::clear(const ClearCommand& cmd,
 		if (prevScissorEnabled) {
 			glEnable(GL_SCISSOR_TEST);
 			glScissor(prevScissorBox[0], prevScissorBox[1], prevScissorBox[2], prevScissorBox[3]);
-		} else {
+		}
+		else {
 			glDisable(GL_SCISSOR_TEST);
 		}
 	}
 }
 
+void OGLRenderer::resolvePacket(DrawPacket& packet, const FrameParams& frame) {
+
+	// "resolve / prepare / compile / bake"
+
+	auto resolvePipeline = [&](PipelineHandle &h, const PipelineKey &key) -> PipelineHandle {
+		if (h == INVALID_PIPELINE_HANDLE) h = _cache.ensurePipeline(key);
+		return h;
+	};
+
+	// background
+	if (packet.backgroundPass.material) {
+		resolvePipeline(packet.backgroundPass.pipeline, packet.backgroundPass.key);
+	}
+
+	// main + wireframe items
+	for (auto &di: packet.mainPassItems) {
+		resolvePipeline(di.pipeline, di.key);
+	}
+	for (auto &di: packet.wireframePassItems) {
+		resolvePipeline(di.pipeline, di.key);
+	}
+
+	// lines
+	if (!packet.linesPass.lines.empty()) {
+		resolvePipeline(packet.linesPass.pipeline, packet.linesPass.key);
+	}
+	else {
+		packet.linesPass.pipeline = INVALID_PIPELINE_HANDLE;
+	}
+}
+
+void OGLRenderer::drawPacket(const DrawPacket& packet, const FrameParams& frame) {
+
+	// "render / execute / submit / draw"
+
+	clear(Renderer::ClearCommand{}, frame.context);
+
+	if (packet.backgroundPass.material) {
+		// uses _skyboxMesh internally, binds + draws
+		drawBackground(packet.backgroundPass, frame.view, frame.proj);
+	}
+
+	// NOTE: items are already sorted by pass + key hash, so this will batch nicely
+	for (const auto &di: packet.mainPassItems) {
+		if (di.pipeline == INVALID_PIPELINE_HANDLE) continue;
+		if (!di.element) continue;
+
+		bindPipeline(di.pipeline, _cache);
+
+		// only bind material for shaderKinds that use it (bindMaterial() already early-outs)
+		if (di.material) bindMaterial(*di.material);
+
+		bindMeshElement(*di.element);
+		setPerObject(di.model, frame.view, frame.proj);
+		drawBound();
+	}
+
+	for (const auto &di: packet.wireframePassItems) {
+		if (di.pipeline == INVALID_PIPELINE_HANDLE) continue;
+		if (!di.element) continue;
+
+		bindPipeline(di.pipeline, _cache);
+		// no bindMaterial (wire shader typically ignores it)
+		bindMeshElement(*di.element);
+		setPerObject(di.model, frame.view, frame.proj);
+		drawBound();
+	}
+
+	renderLinesPass(packet.linesPass, frame.context, frame.view, frame.proj);
+}
+
+void OGLRenderer::renderPacket(DrawPacket& packet, const FrameParams& frame) {
+	resolvePacket(packet, frame);
+	drawPacket(packet, frame);
+}
 
 void OGLRenderer::drawBackground(const BackgroundPass& backgroundPass,
 								 const math::mat4& viewMat,
@@ -2083,7 +1806,7 @@ void OGLRenderer::bindPipeline(PipelineHandle pipelineHandle,
 		// else: stale cache, fallthrough and rebind
 	}
 
-	const PipelineOGL& pipeline = cache.pipeline(pipelineHandle);
+	const OGLPipeline& pipeline = cache.pipeline(pipelineHandle);
 	glUseProgram(pipeline.program);
 	_state.program = pipeline.program;
 	_state.material = nullptr;
@@ -2146,7 +1869,7 @@ void OGLRenderer::bindMaterial(const Material& material) {
 	}
 
 	// look at the currently bound pipeline
-	const PipelineOGL& pipeline = _cache.pipeline(_state.pipelineHandle);
+	const OGLPipeline& pipeline = _cache.pipeline(_state.pipelineHandle);
 
 // TODO: !!! THIS IS A DIRTY HACK !!!
 	GLSLProgram* program;
@@ -2185,7 +1908,7 @@ void OGLRenderer::bindMaterial(const Material& material) {
 void OGLRenderer::bindMeshElement(const MeshElement& element) {
 
 	// use currently bound pipeline's vertexLayoutKey
-	const PipelineOGL& pipe = _cache.pipeline(_state.pipelineHandle);
+	const OGLPipeline& pipe = _cache.pipeline(_state.pipelineHandle);
 	const uint32_t layoutKey = pipe.key.vertexLayoutKey;
 
 	auto* e = const_cast<MeshElement*>(&element);
@@ -2231,100 +1954,12 @@ void OGLRenderer::renderLinesPass(const LinesPass& pass,
 	if (pass.lines.empty()) return;
 
 	bindPipeline(pass.pipeline, _cache);
+
+	_debugLines.upload(pass.lines);
+
 	setPerObject(pass.model, viewMat, projectionMat);
 
-	EnsureDebugLinesBuffers();
-
-	_dbgLineVerts.clear();
-	_dbgLineVerts.reserve(pass.lines.size() * 2);
-
-	for (const auto& line : pass.lines) {
-		_dbgLineVerts.push_back({ line.fromLocation(), line.fromColor().rgb() });
-		_dbgLineVerts.push_back({ line.toLocation(),   line.toColor().rgb()   });
-	}
-
-	glBindVertexArray(_dbgLinesVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, _dbgLinesVBO);
-
-	glBufferData(GL_ARRAY_BUFFER,
-				 (GLsizeiptr)(_dbgLineVerts.size() * sizeof(DebugLineVertex)),
-				 _dbgLineVerts.data(),
-				 GL_STREAM_DRAW);
-
-	glDrawArrays(GL_LINES, 0, (GLsizei)_dbgLineVerts.size());
-}
-
-void OGLRenderer::resolvePacket(DrawPacket& packet, const FrameParams& frame) {
-
-	// "resolve / prepare / compile / bake"
-
-	auto resolvePipeline = [&](PipelineHandle &h, const PipelineKey &key) -> PipelineHandle {
-		if (h == INVALID_PIPELINE_HANDLE) h = _cache.ensurePipeline(key);
-		return h;
-	};
-
-	// background
-	if (packet.backgroundPass.material) {
-		resolvePipeline(packet.backgroundPass.pipeline, packet.backgroundPass.key);
-	}
-
-	// main + wireframe items
-	for (auto &di: packet.mainPassItems) {
-		resolvePipeline(di.pipeline, di.key);
-	}
-	for (auto &di: packet.wireframePassItems) {
-		resolvePipeline(di.pipeline, di.key);
-	}
-
-	// lines
-	if (!packet.linesPass.lines.empty()) {
-		resolvePipeline(packet.linesPass.pipeline, packet.linesPass.key);
-	} else {
-		packet.linesPass.pipeline = INVALID_PIPELINE_HANDLE;
-	}
-}
-
-void OGLRenderer::drawPacket(const DrawPacket& packet, const FrameParams& frame) {
-
-	// "render / execute / submit / draw"
-
-	clear(Renderer::ClearCommand{}, frame.context);
-
-	if (packet.backgroundPass.material) {
-		// uses _skyboxMesh internally, binds + draws
-		drawBackground(packet.backgroundPass, frame.view, frame.proj);
-	}
-
-	// NOTE: items are already sorted by pass + key hash, so this will batch nicely
-	for (const auto &di: packet.mainPassItems) {
-		if (di.pipeline == INVALID_PIPELINE_HANDLE) continue;
-		if (!di.element) continue;
-
-		bindPipeline(di.pipeline, _cache);
-
-		// only bind material for shaderKinds that use it (bindMaterial() already early-outs)
-		if (di.material) bindMaterial(*di.material);
-
-		bindMeshElement(*di.element);
-		setPerObject(di.model, frame.view, frame.proj);
-		drawBound();
-	}
-
-	for (const auto &di: packet.wireframePassItems) {
-		if (di.pipeline == INVALID_PIPELINE_HANDLE) continue;
-		if (!di.element) continue;
-
-		bindPipeline(di.pipeline, _cache);
-		// no bindMaterial (wire shader typically ignores it)
-		bindMeshElement(*di.element);
-		setPerObject(di.model, frame.view, frame.proj);
-		drawBound();
-	}
-
-	renderLinesPass(packet.linesPass, frame.context, frame.view, frame.proj);
-}
-
-void OGLRenderer::renderPacket(DrawPacket& packet, const FrameParams& frame) {
-	resolvePacket(packet, frame);
-	drawPacket(packet, frame);
+	glBindVertexArray(_debugLines.vao);
+	glDrawArrays(GL_LINES, 0, _debugLines.vertexCount);
+	glBindVertexArray(0);
 }
