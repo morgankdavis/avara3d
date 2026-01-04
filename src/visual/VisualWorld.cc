@@ -1,0 +1,428 @@
+//
+//  VisualWorld.cc
+//  avara3d
+//
+//  Created by Morgan Davis on 11/25/23.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//
+
+#include "a3d/visual/VisualWorld.h"
+
+#include <variant>
+
+#include "a3d/Color.h"
+#include "a3d/CubeImage.h"
+#include "a3d/log/Log.h"
+#include "a3d/mesh/Mesh.h"
+#include "a3d/mesh/primitive/Plane.h"
+#include "a3d/physics/PhysicalWorld.h"
+#include "a3d/profiling/Profiling.h"
+#include "a3d/render/pipeline/DrawPacketizer.h"
+#include "a3d/render/pipeline/RenderGatherer.h"
+#include "a3d/render/context/RenderContext.h"
+#include "a3d/render/Renderer.h"
+#include "a3d/scene/Node.h"
+#include "a3d/scene/Scene.h"
+#include "a3d/util/flow.h"
+#include "a3d/visual/light/Light.h"
+#include "a3d/visual/material/Material.h"
+#include "a3d/visual/material/Sampler.h"
+#include "a3d/visual/material/Texture.h"
+#include "a3d/visual/camera/PerspectiveCamera.h"
+
+#warning TEMPORARY
+#include "a3d/render/backend/opengl/OpenGLRenderer.h"
+
+
+
+using namespace a3d;
+using namespace a3d::math;
+using namespace std;
+
+/// Private Static Non-Member Prototypes ///
+
+//static unique_ptr<Mesh> MakeSkyboxMesh(const MaterialProperty& property);
+
+/// Public Lifecycle Functions ///
+
+VisualWorld::VisualWorld(RenderContext& context):
+		_background{},
+//		_skyboxMesh{},
+		_fogStartDistance{0.0},
+		_fogEndDistance{0.0},
+		_fogDensityExponent{0.0},
+		_fogColor{},
+		_pointOfView{},
+		_usesDefaultLighting{false},
+		_autoEnablesDefaultLighting{true},
+		_renderContext{&context},
+		_scene{},
+		_willRenderCallback{},
+		_didRenderCallback{}/*,
+		_dirtyMask{VisualWorldDirtyMask::All}*/,
+		_backgroundMaterial{} {
+
+	_renderContext->attachedToVisualWorld(this);
+}
+
+VisualWorld::~VisualWorld() {
+	log::d()("Destroying VisualWorld {:p}", static_cast<void*>(this));
+
+	if (_renderContext) _renderContext->detachedFromVisualWorld(this);
+	//renderContext(nullptr);
+}
+
+/// Public Member Functions ///
+
+const MaterialProperty& VisualWorld::background() {
+	return _background;
+}
+
+void VisualWorld::background(const MaterialProperty& background) {
+
+	// TODO: check equality?
+
+//	_dirtyMask = A3D_MASK_ADD(_dirtyMask, VisualWorldDirtyMask::Background);
+
+	if (auto texture = get_if<shared_ptr<Texture>>(&background)) {
+
+		if (auto cubeImage = get_if<shared_ptr<CubeImage>>(&((*texture)->contents()))) {
+
+			auto sampler = (*texture)->sampler();
+			sampler->wrapS(WrapMode::ClampToEdge);
+			sampler->wrapT(WrapMode::ClampToEdge);
+			sampler->wrapR(WrapMode::ClampToEdge);
+
+			_backgroundMaterial = make_unique<Material>(monostate{},
+														monostate{},
+														monostate{},
+														background);
+		}
+		else if (auto image = get_if<shared_ptr<Image>>(&((*texture)->contents()))) {
+			log::w()("Image background not supported.");
+			_backgroundMaterial = nullptr;
+		}
+	}
+	else if (auto color = get_if<shared_ptr<Color>>(&background)) {
+		_backgroundMaterial = make_unique<Material>(monostate{},
+													monostate{},
+													monostate{},
+													background);
+	}
+	else {
+		_backgroundMaterial = nullptr;
+	}
+
+	_background = background;
+}
+
+float VisualWorld::fogStartDistance() const {
+	return _fogStartDistance;
+}
+
+void VisualWorld::fogStartDistance(float distance) {
+	_fogStartDistance = distance;
+}
+
+float VisualWorld::fogEndDistance() const {
+	return _fogEndDistance;
+}
+
+void VisualWorld::fogEndDistance(float distance) {
+	_fogEndDistance = distance;
+}
+
+float VisualWorld::fogDensityExponent() const {
+	return _fogDensityExponent;
+}
+
+void VisualWorld::fogDensityExponent(float exponent) {
+	_fogDensityExponent = exponent;
+}
+
+const shared_ptr<Color>& VisualWorld::fogColor() const {
+	return _fogColor;
+}
+
+void VisualWorld::fogColor(const shared_ptr<Color>& color) {
+	_fogColor = color;
+}
+
+weak_ptr<Node>& VisualWorld::pointOfView() {
+	return _pointOfView;
+}
+
+void VisualWorld::pointOfView(const weak_ptr<Node>& cameraNode) {
+	_pointOfView = cameraNode;
+}
+
+bool VisualWorld::usesDefaultLighting() const {
+	return _usesDefaultLighting;
+}
+
+void VisualWorld::usesDefaultLighting(bool enabled) {
+	_usesDefaultLighting = enabled;
+}
+
+bool VisualWorld::autoEnablesDefaultLighting() const {
+	return _autoEnablesDefaultLighting;
+}
+
+void VisualWorld::autoEnablesDefaultLighting(bool enabled) {
+	_autoEnablesDefaultLighting = enabled;
+}
+
+RenderContext* VisualWorld::renderContext() const {
+	return _renderContext;
+}
+
+Scene* VisualWorld::scene() const {
+	return _scene;
+}
+
+VisualWorld::WillRenderCallback VisualWorld::willRenderCallback() const {
+	return _willRenderCallback;
+}
+
+void VisualWorld::willRenderCallback(WillRenderCallback function) {
+	_willRenderCallback = function;
+}
+
+VisualWorld::DidRenderCallback VisualWorld::didRenderCallback() const {
+	return _didRenderCallback;
+}
+
+void VisualWorld::didRenderCallback(DidRenderCallback function) {
+	_didRenderCallback = function;
+}
+
+/// Internal Member Functions ///
+
+void VisualWorld::attachedToScene(Scene& scene) {
+	log::t()("scene: {:p}", static_cast<void*>(&scene));
+
+	_scene = &scene;
+}
+
+void VisualWorld::detachedFromScene(Scene& scene) {
+	log::t()("scene: {:p}", static_cast<void*>(&scene));
+
+	_scene = nullptr;
+}
+
+void VisualWorld::draw(const Scene& scene,
+					   const PhysicalWorld* physicalWorld,
+					   double runT,
+					   double deltaRunT,
+					   DebugOptions debugOptions,
+					   FrameStats& stats,
+					   Profiler& profiler,
+					   const FrameStatsHistory& statsHistory) {
+
+	if (!util::flow::edge_guard(_renderContext, [&] {
+		log::e()("No RenderContext attached to VisualWorld {:p}", static_cast<void *>(this));
+	})) return;
+
+	auto renderer = _renderContext->renderer();
+	if (!util::flow::edge_guard(renderer, [&] {
+		log::e()("No Renderer attached to RenderContext {:p}", static_cast<void*>(_renderContext));
+	})) return;
+
+	util::flow::once([&] { firstDraw(); });
+
+	auto pov = pointOfView().lock();
+	if (!util::flow::edge_guard(pov, [&] {
+		log::e()("No point of view!");
+		renderer->clear(Renderer::ClearCommand{}, *_renderContext);
+		_renderContext->swapBuffers();
+	})) return;
+
+	auto povScene = pov->scene();
+	if (!util::flow::edge_guard(povScene && povScene == &scene, [&] {
+		log::e()("Point of view not in our scene!");
+		renderer->clear(Renderer::ClearCommand{}, *_renderContext);
+		_renderContext->swapBuffers();
+	})) return;
+
+	if (auto willRender = VisualWorld::willRenderCallback()) {
+		prof::profile(profiler, Profiler::Tag::Application, [&] {
+			willRender(*this, runT, deltaRunT);
+		});
+	}
+
+	prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
+		renderer->beginFrame(scene, *_renderContext, debugOptions, stats, profiler);
+	});
+
+	prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
+		// there is some "RenderCpu" type stuff bundled in here for GLFWWindow and QtViewport
+		_renderContext->beginFrame(scene);
+	});
+
+	auto [view, proj] = prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
+
+		if (auto pc = dynamic_pointer_cast<PerspectiveCamera>(pov->camera())) {
+			auto fbSize = _renderContext->framebufferSize();
+			auto aspect = float(fbSize.x) / float(fbSize.y);
+			pc->aspectRatio(aspect);
+		}
+
+		return std::tuple{ inverse(pov->worldTransform()), pov->camera()->projection() };
+	});
+
+	/*auto gatherItems = */prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
+
+		renderer->preTraversal(scene, *_renderContext, debugOptions, stats);
+
+		auto gatherItems = RenderGatherer::Gather(scene,
+												  view,
+												  physicalWorld,
+												  debugOptions,
+												  stats);
+
+		renderer->postTraversal(scene,
+								*_renderContext,
+								gatherItems.lightNodes,
+								debugOptions,
+								stats);
+
+		//return gatherItems;
+
+//	});
+//
+//	prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
+
+		auto packet = DrawPacketizer::BuildDrawPacket(gatherItems,
+													  1,
+													  debugOptions);
+
+
+		Renderer::FrameParams params = { *_renderContext,
+										 view,
+										 proj,
+										 debugOptions,
+										 &stats,
+										 &profiler };
+
+		static_cast<OpenGLRenderer*>(renderer)->renderPacket(packet, params);
+	});
+
+	prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
+		// there is some "RenderCpu" type stuff bundled in here for GLFWWindow and QtViewport
+		_renderContext->endFrame(scene);
+	});
+
+	prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
+
+		renderer->endFrame(scene, *_renderContext,
+						   debugOptions, stats, profiler, statsHistory);
+
+		_renderContext->swapBuffers();
+	});
+
+	if (auto didRender = VisualWorld::didRenderCallback()) {
+		prof::profile(profiler, Profiler::Tag::Application, [&] {
+			didRender(*this, runT, deltaRunT);
+		});
+	}
+
+	prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
+
+		if (_renderContext->recordingGIF()) {
+			_renderContext->saveGIFFrame(deltaRunT);
+		}
+	});
+}
+
+shared_ptr<Material> VisualWorld::backgroundMaterial() {
+	return _backgroundMaterial;
+}
+
+//Mesh* VisualWorld::skyboxMesh() const {
+//	return _skyboxMesh.get();
+//}
+
+//VisualWorldDirtyMask VisualWorld::dirtyMask() const {
+//	return _dirtyMask;
+//}
+//
+//void VisualWorld::dirtyMask(VisualWorldDirtyMask mask) {
+//	_dirtyMask = mask;
+//}
+
+/// Private Member Functions ///
+
+void VisualWorld::firstDraw() {
+
+	// check for or create a POV
+
+	if (!_pointOfView.lock()) {
+
+		// try to assign a POV from the scene
+		for (auto &node: _scene->rootNode()->children(true)) {
+			if (node->camera()) {
+				log::i()("Setting {:p} as POV.", static_cast<void*>(node.get()));
+				_pointOfView = node;
+				break;
+			}
+		}
+	}
+
+	if (!_pointOfView.lock()) {
+
+		// still no POV. add a default one.
+		log::i()("Adding default POV.");
+		auto pov = defaultPOV();
+		_scene->rootNode()->addChild(pov);
+		_pointOfView = pov;
+	}
+}
+
+shared_ptr<Node> VisualWorld::defaultPOV() {
+
+	if (!_scene) {
+		log::w()("Can't create default camera: scene is null.");
+		return {};
+	}
+
+	auto camera = make_shared<PerspectiveCamera>();
+	camera->name("Default Camera");
+
+	auto aabb = _scene->rootNode()->aabb();
+	vec3 center  = (aabb.min + aabb.max) * 0.5f;
+	vec3 extents = (aabb.max - aabb.min) * 0.5f;
+
+	auto fbSize = _renderContext->framebufferSize();
+	float aspect = float(fbSize.x) / float(fbSize.y);
+
+	float vFov = camera->yFov();
+	float hFov = 2.0f * math::atan(math::tan(vFov * 0.5f) * aspect);
+
+	float distH = extents.x / math::tan(hFov * 0.5f);
+	float distV = extents.y / math::tan(vFov * 0.5f);
+
+	float dist = math::max(distH, distV) + extents.z;
+
+	vec3 eye = center + vec3(0, 0, dist);
+	mat4 view = math::look_at(eye, center, vec3(0, 1, 0));
+
+	auto cameraNode = make_shared<Node>();
+	cameraNode->transform(inverse(view));
+
+	cameraNode->camera(camera);
+
+	return cameraNode;
+}
+
+///// Private Static Member Functions ///
+//
+//unique_ptr<Mesh> MakeSkyboxMesh(const MaterialProperty& property) {
+//
+//	auto mesh = make_unique<a3d::Mesh>(make_unique<Box>(1, 1, 1), nullptr);
+//
+//	auto material = make_shared<Material>(monostate{}, monostate{}, monostate{}, property);
+//	material->doubleSided(false);
+//	mesh->addMaterial(material);
+//
+//	return mesh;
+//}

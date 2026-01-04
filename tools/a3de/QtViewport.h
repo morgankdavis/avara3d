@@ -13,7 +13,7 @@
 
 #include <QOpenGLWidget>
 
-#include "a3d/rendering/context/RenderContext.h"
+#include "a3d/render/context/RenderContext.h"
 
 namespace a3d {
 	class Scene;

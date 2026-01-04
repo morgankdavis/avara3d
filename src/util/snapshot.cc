@@ -11,7 +11,7 @@
 #include <filesystem>
 
 #include "a3d/Image.h"
-#include "a3d/rendering/context/RenderContext.h"
+#include "a3d/render/context/RenderContext.h"
 #include "a3d/log/Log.h"
 #include "a3d/util/filesystem.h"
 #include "a3d/util/string.h"

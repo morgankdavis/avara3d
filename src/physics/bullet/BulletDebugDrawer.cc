@@ -13,7 +13,7 @@
 #include "a3d/mesh/Line.h"
 #include "a3d/log/Log.h"
 #include "a3d/physics/bullet/BulletUtilities.h"
-#include "a3d/rendering/renderer/Renderer.h"
+#include "a3d/render/Renderer.h"
 
 using namespace a3d;
 using namespace a3d::math;

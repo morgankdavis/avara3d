@@ -19,8 +19,8 @@
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsShape.h"
 #include "a3d/scene/Scene.h"
-#include "a3d/rendering/camera/Camera.h"
-#include "a3d/rendering/light/Light.h"
+#include "a3d/visual/camera/Camera.h"
+#include "a3d/visual/light/Light.h"
 
 using namespace a3d;
 using namespace a3d::math;

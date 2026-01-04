@@ -15,9 +15,9 @@
 #include <GLFW/glfw3.h>
 
 #include "a3d/log/Log.h"
-#include "a3d/rendering/VisualWorld.h"
-#include "a3d/rendering/context/GLFWWindow.h"
+#include "a3d/render/context/GLFWWindow.h"
 #include "a3d/scene/Scene.h"
+#include "a3d/visual/VisualWorld.h"
 
 using namespace a3d;
 using namespace std;

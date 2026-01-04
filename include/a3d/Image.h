@@ -13,7 +13,7 @@
 #include <memory>
 #include <string>
 
-//#include "a3d/rendering/material/Sampleable.h"
+//#include "a3d/render/material/Sampleable.h"
 
 namespace a3d {
 

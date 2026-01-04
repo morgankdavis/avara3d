@@ -24,14 +24,14 @@
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/profiling/Profiling.h"
-#include "a3d/rendering/VisualWorld.h"
-#include "a3d/rendering/camera/Camera.h"
-#include "a3d/rendering/context/RenderContext.h"
-#include "a3d/rendering/light/Light.h"
-#include "a3d/rendering/renderer/Renderer.h"
+#include "a3d/render/context/RenderContext.h"
+#include "a3d/render/Renderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/importer/GlTFImporter.h"
 #include "a3d/util/flow.h"
+#include "a3d/visual/VisualWorld.h"
+#include "a3d/visual/camera/Camera.h"
+#include "a3d/visual/light/Light.h"
 
 using namespace a3d;
 using namespace a3d::math;

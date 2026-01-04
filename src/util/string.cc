@@ -32,10 +32,10 @@
 //#endif
 
 #include "a3d/mesh/Mesh.h"
-#include "a3d/rendering/camera/Camera.h"
-#include "a3d/rendering/light/Light.h"
-#include "a3d/rendering/material/Material.h"
 #include "a3d/scene/Node.h"
+#include "a3d/visual/camera/Camera.h"
+#include "a3d/visual/light/Light.h"
+#include "a3d/visual/material/Material.h"
 
 using namespace a3d;
 using namespace std;
