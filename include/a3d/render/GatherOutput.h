@@ -26,6 +26,8 @@ namespace a3d {
 	class PhysicalWorld;
 	class Scene;
 
+	/// Internal Types ///
+
 	struct MeshInstance { // temporary?
 		Mesh 		*mesh =		nullptr;
 		math::mat4 	model =		math::mat4(1.0f);
@@ -34,6 +36,7 @@ namespace a3d {
 
 	struct RenderItem {
 		Mesh*			mesh = 			nullptr;
+		VertexLayout 	layout = 		VertexLayout::None;
 		uint32_t 		elementIndex = 	0;
 		MeshElement*	element = 		nullptr; // TODO: remove
 		Material*		material = 		nullptr;
@@ -50,8 +53,9 @@ namespace a3d {
 		std::shared_ptr<Material> 	backgroundMaterial =	nullptr;
 		std::vector<Node*> 			lightNodes =			{};
 		std::vector<MeshInstance> 	meshInstances =			{}; // debug AABBs
-		std::vector<Line> 			physicsDebugLines =		{};
+//		std::vector<Line> 			physicsDebugLines =		{};
+		std::vector<Line> 			debugLines =			{};
 	};
 }
 
-#endif //v
+#endif //AVARA3D_RENDER_GATHEROUTPUT_H

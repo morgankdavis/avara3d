@@ -13,8 +13,11 @@
 #include <cstddef>
 
 #include "a3d/Types.h"
+#include "a3d/mesh/VertexLayout.h"
 
 namespace a3d {
+
+	/// Internal Types ///
 
 	using PipelineHandle = uint32_t;
 	static constexpr PipelineHandle INVALID_PIPELINE_HANDLE = 0xFFFFFFFFu;
@@ -38,19 +41,19 @@ namespace a3d {
 	};
 
 	enum class PassKind : uint8_t {
-		Background,
-		MainOpaque,
-		MainMask,
-		MainTransparent,
-		Wireframe,
-		Lines
+		// note: this is RENDER ORDER
+		Background = 		0,
+		MainOpaque = 		1,
+		MainMask =			2,
+		MainTransparent =	3,
+		Wireframe =			4,
+		Lines =				5
 	};
 
 	struct PipelineKey {
-
 		PassKind 		pass = 				PassKind::MainOpaque;
 		ShaderKind 		shaderKind = 		ShaderKind::Default;
-		uint32_t 		vertexLayoutKey = 	0;
+		VertexLayout	vertexLayoutKey = 	VertexLayout::None;
 		FillMode 		fillMode = 			FillMode::Fill;
 		BlendFunction 	blendFunction = 	BlendFunction::Disabled;
 		bool 			doubleSided = 		false;
@@ -62,10 +65,11 @@ namespace a3d {
 		bool operator==(const PipelineKey &) const = default;
 	};
 
+	/// Internal Functions ///
+
 	struct PipelineKeyHash { // for unordered_map
 		size_t operator()(const PipelineKey &k) const noexcept;
 	};
-
 }
 
 #endif //AVARA3D_RENDER_PIPELINEKEY_H

@@ -8,11 +8,11 @@
 
 #include "a3d/render/RenderGatherer.h"
 
-#include "a3d/mesh/Line.h"
+#include "a3d/Color.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/physics/PhysicalWorld.h"
-#include "a3d/physics/backend/bullet/BulletWorldProxy.h"
+#include "a3d/render/DebugLinesBuilder.h"
 #include "a3d/render/GatherOutput.h"
 #include "a3d/render/context/RenderContext.h"
 #include "a3d/scene/Node.h"
@@ -24,28 +24,40 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-struct GatherEntry {
-	Node* 		node;
-	math::mat4 	parentWorld;
-};
+/// Internal Static Member Functions ///
 
-// walk the scene, compute transforms/AABBs/depth, pick logical materials/elements/styles
 // "gather / collect / cull"
 GatherOutput RenderGatherer::Gather(const Scene& scene,
-									const math::mat4 &view,
+									const math::mat4& view,
 									const PhysicalWorld* physicalWorld,
-											   //const vector<Line>& bulletDebugLines,
-											   const DebugOptions& debugOptions, // temporary
-											   FrameStats& stats) {
+									const DebugOptions& debugOptions,
+									FrameStats& stats) {
 
 	GatherOutput output{};
 	output.renderItems.reserve(1024);
 	output.lightNodes.reserve(64);
 	output.meshInstances.reserve(512);
 
+	struct GatherEntry {
+		Node* 		node;
+		math::mat4 	parentWorld;
+	};
+
 	vector<GatherEntry> stack;
 	stack.reserve(256);
 	stack.push_back({scene.rootNode().get(), mat4(1.0)});
+
+	const bool showBounds = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes);
+
+	output.backgroundMaterial = scene.visualWorld()->backgroundMaterial();
+
+	output.scene = &scene; // TODO: maybe change to AABB directly?
+
+	if (showBounds) {
+		DebugLinesBuilder::AppendAABB(output.debugLines,
+									  scene.aabb(false),
+									  *Color::Green());
+	}
 
 	while (!stack.empty()) {
 		auto [n, parentWorld] = stack.back();
@@ -76,6 +88,7 @@ GatherOutput RenderGatherer::Gather(const Scene& scene,
 
 				RenderItem item;
 				item.mesh = mesh;
+				item.layout = mesh->vertexLayout();
 				item.elementIndex = e;
 				item.element = element;
 				item.material = mat;
@@ -99,12 +112,18 @@ GatherOutput RenderGatherer::Gather(const Scene& scene,
 				stats.numPolygons += element->faces().size();
 			}
 
+			if (showBounds) {
+				DebugLinesBuilder::AppendOBBFromLocalAABB(output.debugLines,
+														  mesh->localAABB(),
+														  world,
+														  *Color::Gray());
+				DebugLinesBuilder::AppendAABB(output.debugLines,
+											  mesh->worldAABB(world, false),
+											  *Color::Red());
+			}
+
 			++stats.numMeshes;
 		}
-
-		output.scene = &scene; // TODO: maybe change to AABB directly?
-
-		output.backgroundMaterial = scene.visualWorld()->backgroundMaterial();
 
 		if (n->light()) {
 			output.lightNodes.push_back(n);
@@ -116,20 +135,9 @@ GatherOutput RenderGatherer::Gather(const Scene& scene,
 		}
 	}
 
-	output.physicsDebugLines = [&]{
-		if (physicalWorld) {
-			if (auto bwp = dynamic_cast<BulletWorldProxy*>(physicalWorld->proxy())) {
-				return bwp->debugLines(debugOptions);
-			}
-		}
-		return vector<Line>{};
-	}();
-
-//	if (physicalWorld) {
-//		if (auto bwp = dynamic_cast<BulletWorldProxy*>(physicalWorld->proxy())) {
-//			output.physicsDebugLines = &(bwp->debugLines(debugOptions));
-//		}
-//	}
+	if (physicalWorld) {
+		physicalWorld->appendDebugLines(output.debugLines, debugOptions);
+	}
 
 	return output;
 }

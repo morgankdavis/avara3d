@@ -12,6 +12,7 @@
 #include <cstdint>
 
 #include "a3d/Types.h"
+#include "a3d/mesh/VertexLayout.h"
 
 namespace a3d {
 
@@ -21,10 +22,9 @@ namespace a3d {
 	class DrawPacketizer {
 
 	public:
+		/// Internal Static Member Functions ///
 
-		static DrawPacket Packetize(GatherOutput& gatherOutput,
-									uint32_t vertexLayoutKey,
-									const DebugOptions& debugOptions);
+		static DrawPacket Packetize(GatherOutput& gatherOutput);
 	};
 }
 

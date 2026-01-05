@@ -18,6 +18,7 @@
 namespace a3d {
 
 	class HitTestResult;
+	class Line;
 	class PhysicsBody;
 	class PhysicsContact;
 	class PhysicsShape;
@@ -93,6 +94,9 @@ namespace a3d {
 												 double deltaRunT,
 												 FrameStats& stats,
 												 Profiler& profiler);
+
+		void 								appendDebugLines(std::vector<Line>& out,
+															 DebugOptions debugOptions) const;
 
 		PhysicalWorldProxy*					proxy() const;
 

@@ -9,6 +9,7 @@
 #include "a3d/physics/PhysicalWorld.h"
 
 #include "a3d/log/Log.h"
+#include "a3d/mesh/Line.h"
 #include "a3d/physics/HitTestResult.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsContact.h"
@@ -195,6 +196,13 @@ void PhysicalWorld::step(const Scene& scene,
 		prof::profile(profiler, Profiler::Tag::Application, [&] {
 			didSimulate(*this, runT, deltaRunT);
 		});
+	}
+}
+
+void PhysicalWorld::appendDebugLines(vector<Line>& out,
+									 DebugOptions debugOptions) const {
+	if (_proxy) {
+		_proxy->appendDebugLines(out, debugOptions);
 	}
 }
 

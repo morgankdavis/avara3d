@@ -229,7 +229,7 @@ const OGLPipeline& OGLResourceCache::pipeline(PipelineHandle h) const {
 }
 
 const OGLMeshElement& OGLResourceCache::ensureMeshElement(MeshElement& element,
-														  uint32_t vertexLayoutKey) {
+														  VertexLayout layoutKey) {
 	auto it = _meshElementMap.find(&element);
 	if (it == _meshElementMap.end()) {
 		it = _meshElementMap.emplace(&element, OGLMeshElement{}).first;
@@ -239,7 +239,7 @@ const OGLMeshElement& OGLResourceCache::ensureMeshElement(MeshElement& element,
 
 	const bool dirty = A3D_MASK_CONTAINS(element.dirtyMask(), MeshElementDirtyMask::VertexData);
 	const bool missing = (res.vao == 0);
-	const bool layoutChanged = (!missing && res.vertexLayoutKey != vertexLayoutKey);
+	const bool layoutChanged = (!missing && res.vertexLayoutKey != layoutKey);
 
 	if (dirty || missing || layoutChanged) {
 		if (!missing) {
@@ -249,7 +249,7 @@ const OGLMeshElement& OGLResourceCache::ensureMeshElement(MeshElement& element,
 			res = {};
 		}
 
-		res.vertexLayoutKey = vertexLayoutKey;
+		res.vertexLayoutKey = layoutKey;
 
 		glGenVertexArrays(1, (GLuint*)&res.vao);
 		glGenBuffers(1, (GLuint*)&res.vbo);

@@ -19,6 +19,8 @@ namespace a3d {
 	class MeshElement;
 	class Node;
 
+	/// Internal Types ///
+
 	struct BackgroundPass {
 		PipelineHandle 				pipeline = 	INVALID_PIPELINE_HANDLE;
 		PipelineKey					key	=		{};
@@ -33,27 +35,20 @@ namespace a3d {
 	};
 
 	struct DrawItem {
-
 		PassKind 		pass = 			PassKind::MainOpaque;
-
 		PipelineHandle 	pipeline = 		INVALID_PIPELINE_HANDLE;
 		PipelineKey 	key =			{};
-
 		uint32_t 		elementIndex = 	0;
 		MeshElement* 	element = 		nullptr;
 		Material* 		material = 		nullptr;
-
 		math::mat4 		model = 		math::mat4(1.0);
 		float 			depth =			0.0f;
-
 		uint64_t 		sortKey = 		0;
 		uint32_t		sequence =		0;
-
 		bool 			transparent = 	false;
 	};
 
 	struct DrawPacket {
-
 		BackgroundPass			backgroundPass;
 		std::vector<DrawItem> 	mainPassItems;
 		// opaqueItems

@@ -152,6 +152,10 @@ MeshId Mesh::id() const noexcept {
 	return _id;
 }
 
+VertexLayout Mesh::vertexLayout() const {
+	return VertexLayout::PNT;
+}
+
 void Mesh::burnTransform(const mat4& transform, bool normals) {
 	for (auto& element : elements()) {
 		element->burnTransform(transform, normals);

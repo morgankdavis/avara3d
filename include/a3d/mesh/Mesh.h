@@ -18,6 +18,7 @@
 
 #include "a3d/Math.h"
 #include "a3d/Types.h"
+#include "a3d/mesh/VertexLayout.h"
 
 namespace a3d {
 
@@ -34,9 +35,9 @@ namespace a3d {
 	public:
 		/// Public Static Member Functions ///
 
-		static std::shared_ptr<Mesh> 			FromFile(const std::filesystem::path& path,
-														 MeshImportOptions options =
-														 MeshImportOptions::ImportMaterials);
+		static std::shared_ptr<Mesh>	FromFile(const std::filesystem::path& path,
+												 MeshImportOptions options =
+												 MeshImportOptions::ImportMaterials);
 
 		/// Public Lifecycle Functions ///
 
@@ -72,6 +73,8 @@ namespace a3d {
 		/// Internal Member Functions ///
 
 		MeshId						id() const noexcept;
+
+		VertexLayout 				vertexLayout() const;
 
 		void 						burnTransform(const math::mat4& transform,
 												  bool normals);

@@ -47,13 +47,8 @@ namespace a3d {
 
 		virtual void 				updateCollisionPairs() = 0;
 
-//		virtual void 	drawDebug(Renderer &renderer,
-//								  const RenderContext& context,
-//								  const math::mat4 &viewMat,
-//								  const math::mat4 &projectionMat,
-//								  const DebugOptions &debugOptions) = 0;
-
-		virtual std::vector<Line> 	debugLines(const DebugOptions &debugOptions) = 0;
+		virtual void 				appendDebugLines(std::vector<Line>& out,
+													 DebugOptions debugOptions) = 0;
 	};
 }
 

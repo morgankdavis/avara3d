@@ -308,7 +308,10 @@ void BulletWorldProxy::updateCollisionPairs() {
 	_btWorld->getCollisionWorld()->computeOverlappingPairs();
 }
 
-vector<Line> BulletWorldProxy::debugLines(const DebugOptions &debugOptions) {
+void BulletWorldProxy::appendDebugLines(std::vector<Line>& out,
+										DebugOptions debugOptions) {
+
+	// TODO: this is still rather inefficient.
 
 #ifdef A3D_GL_DESKTOP
 
@@ -331,9 +334,10 @@ vector<Line> BulletWorldProxy::debugLines(const DebugOptions &debugOptions) {
 		_debugLines = std::move(_btDebugDrawer->lines());
 	});
 
-	return _debugLines;
-#else
-	return vector<Line>{};
+	for (auto& line : _debugLines) {
+		out.push_back(line);
+	}
+
 #endif
 }
 

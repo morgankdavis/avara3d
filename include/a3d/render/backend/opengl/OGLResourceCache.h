@@ -14,6 +14,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "a3d/mesh/VertexLayout.h"
 #include "a3d/render/PipelineKey.h"
 #include "a3d/render/backend/opengl/GLTypes.h"
 
@@ -29,11 +30,11 @@ namespace a3d {
 	};
 
 	struct OGLMeshElement {
-		gl::uint_t 	vao = 				0;
-		gl::uint_t 	vbo = 				0;
-		gl::uint_t 	ebo = 				0;
-		uint32_t 	indexCount = 		0;
-		uint32_t 	vertexLayoutKey = 	0;
+		gl::uint_t 		vao = 				0;
+		gl::uint_t 		vbo = 				0;
+		gl::uint_t 		ebo = 				0;
+		uint32_t 		indexCount = 		0;
+		VertexLayout 	vertexLayoutKey = 	VertexLayout::None;
 	};
 
 	static constexpr size_t NUM_MATERIAL_PROPERTY_SLOTS = 4;
@@ -55,7 +56,7 @@ namespace a3d {
 		PipelineHandle 						ensurePipeline(const PipelineKey& key);
 		const OGLPipeline& 					pipeline(PipelineHandle h) const;
 		const OGLMeshElement& 				ensureMeshElement(MeshElement& element,
-															   uint32_t vertexLayoutKey);
+															   VertexLayout layoutKey);
 		const OGLMaterial& 					ensureMaterial(Material& material);
 		gl::uint_t 							ensureTexture(Texture& texture);
 

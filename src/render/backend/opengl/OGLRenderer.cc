@@ -296,6 +296,10 @@ RenderingApi OGLRenderer::renderingApi() const {
 bool OGLRenderer::initialize(const RenderContext& context) {
 	log::i();
 
+	GLint maxSize = 0;
+	glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &maxSize);
+	/*A3D_ASSERT*/assert(sizeof(EnvironmentBlock) <= (size_t)maxSize);
+
 	glGenBuffers(1, &_glEnvironmentUBO);
 	glBindBuffer(GL_UNIFORM_BUFFER, _glEnvironmentUBO);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(EnvironmentBlock), nullptr, GL_DYNAMIC_DRAW);
@@ -488,8 +492,8 @@ unique_ptr<Image> OGLRenderer::snapshot(const RenderContext& context) const {
 /// Renderer Protected Member Functions ///
 
 void OGLRenderer::drawBackground(const BackgroundPass& backgroundPass,
-								 const math::mat4& viewMat,
-								 const math::mat4& projMat) {
+								 const math::mat4& view,
+								 const math::mat4& proj) {
 
 	if (!backgroundPass.material) return;
 
@@ -506,7 +510,7 @@ void OGLRenderer::drawBackground(const BackgroundPass& backgroundPass,
 	bindPipeline(backgroundPass.pipeline, _resourceCache);
 	bindMaterial(*(_skyboxMesh->materials().front()));
 	bindMeshElement(*(_skyboxMesh->elements().front()));
-	setPerObject(mat4(1.0f), mat4(mat3(viewMat)), projMat); // strip transform off view mat
+	setPerObject(mat4(1.0f), mat4(mat3(view)), proj); // strip transform off view mat
 
 	drawBound();
 }
@@ -624,7 +628,7 @@ void OGLRenderer::bindMeshElement(const MeshElement& element) {
 
 	// use currently bound pipeline's vertexLayoutKey
 	const OGLPipeline& pipe = _resourceCache.pipeline(_state.pipelineHandle);
-	const uint32_t layoutKey = pipe.key.vertexLayoutKey;
+	const VertexLayout layoutKey = pipe.key.vertexLayoutKey;
 
 	auto* e = const_cast<MeshElement*>(&element);
 	const auto& res = _resourceCache.ensureMeshElement(*e, layoutKey);
@@ -662,8 +666,8 @@ void OGLRenderer::drawBound() {
 
 void OGLRenderer::renderLinesPass(const LinesPass& pass,
 								  const RenderContext& context,
-								  const mat4& viewMat,
-								  const mat4& projectionMat) {
+								  const mat4& view,
+								  const mat4& proj) {
 
 	if (pass.pipeline == INVALID_PIPELINE_HANDLE) return;
 	if (pass.lines.empty()) return;
@@ -672,12 +676,14 @@ void OGLRenderer::renderLinesPass(const LinesPass& pass,
 
 	_debugLines.upload(pass.lines);
 
-	setPerObject(pass.model, viewMat, projectionMat);
+	setPerObject(pass.model, view, proj);
 
 	glBindVertexArray(_debugLines.vao);
 	glDrawArrays(GL_LINES, 0, _debugLines.vertexCount);
 	glBindVertexArray(0);
 }
+
+/// Protected Member Functions ///
 
 void OGLRenderer::resolvePacket(DrawPacket& packet, const FrameParams& frame) {
 
@@ -752,16 +758,6 @@ void OGLRenderer::drawPacket(const DrawPacket& packet, const FrameParams& frame)
 
 /// Private Static Non-Member Functions ///
 
-static inline int SlotFor(MaterialPropertyType t) {
-	switch (t) {
-		case MaterialPropertyType::Ambient:  return 0;
-		case MaterialPropertyType::Diffuse:  return 1;
-		case MaterialPropertyType::Specular: return 2;
-		case MaterialPropertyType::Emission: return 3;
-		default: return -1;
-	}
-}
-
 void LogGLInfo() {
 
 	const GLubyte *vendor = glGetString(GL_VENDOR);
@@ -790,7 +786,8 @@ void SendMaterialUniforms(const Material& material,
 
 		if (!holds_alternative<monostate>(*property)) {
 
-			const int slot = SlotFor(type);
+			const int slot = static_cast<underlying_type<MaterialPropertyType>::type>(type);
+
 			const GLuint h = (slot >= 0) ? glTextureHandles[(size_t)slot] : 0u;
 
 			SendMaterialPropertyUniforms(*property,
@@ -1047,8 +1044,15 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 
 	// send 'em
 
+//	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
+//	glBufferData(GL_UNIFORM_BUFFER, sizeof(EnvironmentBlock), nullptr, GL_DYNAMIC_DRAW); // orphan
+//	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(EnvironmentBlock), &environmentStruct);
+
 	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(EnvironmentBlock), &environmentStruct, GL_DYNAMIC_DRAW);
+	void* dst = glMapBufferRange(GL_UNIFORM_BUFFER, 0, sizeof(EnvironmentBlock),
+								 GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+	memcpy(dst, &environmentStruct, sizeof(EnvironmentBlock));
+	glUnmapBuffer(GL_UNIFORM_BUFFER);
 }
 
 void ApplyBlendFunction(BlendFunction func) {

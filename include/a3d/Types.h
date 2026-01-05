@@ -130,10 +130,10 @@ namespace a3d {
 			std::shared_ptr<CubeImage>>;
 
 	enum class MaterialPropertyType : uint8_t {
-		Ambient,
-		Diffuse,
-		Specular,
-		Emission
+		Ambient = 	0,
+		Diffuse = 	1,
+		Specular =	2,
+		Emission =	3
 	};
 
 	using MaterialPropertyList = std::vector<std::pair<const MaterialProperty*, MaterialPropertyType>>;

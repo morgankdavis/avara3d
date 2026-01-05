@@ -282,9 +282,7 @@ void VisualWorld::draw(const Scene& scene,
 //
 //	prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
 
-		auto packet = DrawPacketizer::Packetize(gatherItems,
-												1,
-												debugOptions);
+		auto packet = DrawPacketizer::Packetize(gatherItems);
 
 
 		Renderer::FrameParams params = { *_renderContext,

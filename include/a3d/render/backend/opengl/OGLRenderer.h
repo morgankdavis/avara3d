@@ -106,8 +106,8 @@ namespace a3d {
 		/// Renderer Protected Member Functions ///
 
 		void 					drawBackground(const BackgroundPass& backgroundPass,
-											   const math::mat4& viewMat,
-											   const math::mat4& projMat) override;
+											   const math::mat4& view,
+											   const math::mat4& proj) override;
 
 		void 					bindPipeline(PipelineHandle h,
 											 const OGLResourceCache& cache) override;
@@ -115,16 +115,18 @@ namespace a3d {
 		void 					bindMeshElement(const MeshElement& element) override;
 		void 					setPerObject(const math::mat4& model,
 											 const math::mat4& view,
-											 const math::mat4& projection) override;
+											 const math::mat4& proj) override;
 		void 					drawBound() override;
 
 		void 					renderLinesPass(const LinesPass& pass,
 												const RenderContext& context,
-												const math::mat4& viewMat,
-												const math::mat4& projectionMat) override;
+												const math::mat4& view,
+												const math::mat4& proj) override;
 
-		void 					resolvePacket(DrawPacket& packet, const FrameParams& frame) override;
-		void 					drawPacket(const DrawPacket& packet, const FrameParams& frame) override;
+		void 					resolvePacket(DrawPacket& packet,
+											   const FrameParams& frame) override;
+		void 					drawPacket(const DrawPacket& packet,
+											const FrameParams& frame) override;
 
 	private:
 		/// Private Member Variables ///

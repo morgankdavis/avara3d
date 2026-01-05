@@ -37,6 +37,7 @@ namespace a3d {
 	class Renderer {
 
 	public:
+		/// Internal Types ///
 
 		struct i32Rect {
 			int32_t x = 0;
@@ -69,9 +70,6 @@ namespace a3d {
 			FrameStats* 			stats = 	nullptr;
 			Profiler* 				profiler = 	nullptr;
 		};
-
-
-
 
 		/// Internal Lifecycle Functions ///
 
@@ -118,6 +116,7 @@ namespace a3d {
 		virtual std::unique_ptr<Image>	snapshot(const RenderContext& context) const = 0;
 
 	protected:
+		/// Protected Member Functions ///
 
 		virtual void 					resolvePacket(DrawPacket& packet,
 													  const FrameParams& frame) = 0;
@@ -125,8 +124,8 @@ namespace a3d {
 												   const FrameParams& frame) = 0;
 
 		virtual void 					drawBackground(const BackgroundPass& backgroundPass,
-													   const math::mat4& viewMat,
-													   const math::mat4& projMat) = 0;
+													   const math::mat4& view,
+													   const math::mat4& proj) = 0;
 
 
 		virtual void 					bindPipeline(PipelineHandle h,
@@ -135,13 +134,13 @@ namespace a3d {
 		virtual void 					bindMeshElement(const MeshElement& element) = 0;
 		virtual void 					setPerObject(const math::mat4& model,
 													 const math::mat4& view,
-													 const math::mat4& projection) = 0;
+													 const math::mat4& proj) = 0;
 		virtual void 					drawBound() = 0;
 
 		virtual void 					renderLinesPass(const LinesPass& pass,
 														const RenderContext& context,
-														const math::mat4& viewMat,
-														const math::mat4& projectionMat) = 0;
+														const math::mat4& view,
+														const math::mat4& proj) = 0;
 	};
 }
 

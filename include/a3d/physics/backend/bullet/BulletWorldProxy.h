@@ -57,7 +57,8 @@ namespace a3d {
 
 		void 				updateCollisionPairs() override;
 
-		std::vector<Line> 	debugLines(const DebugOptions &debugOptions) override;
+		void 				appendDebugLines(std::vector<Line>& out,
+											 DebugOptions debugOptions) override;
 
 		/// Internal Member Functions ///
 
