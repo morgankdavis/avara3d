@@ -23,6 +23,7 @@
 
 #include <magic_enum/magic_enum.hpp>
 
+#include "a3d/Assert.h"
 #include "a3d/Buffer.h"
 #include "a3d/BuildInfo.h"
 #include "a3d/Color.h"
@@ -298,7 +299,7 @@ bool OGLRenderer::initialize(const RenderContext& context) {
 
 	GLint maxSize = 0;
 	glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &maxSize);
-	/*A3D_ASSERT*/assert(sizeof(EnvironmentBlock) <= (size_t)maxSize);
+	A3D_ASSERT(sizeof(EnvironmentBlock) <= (size_t)maxSize);
 
 	glGenBuffers(1, &_glEnvironmentUBO);
 	glBindBuffer(GL_UNIFORM_BUFFER, _glEnvironmentUBO);
@@ -626,17 +627,23 @@ void OGLRenderer::bindMaterial(const Material& material) {
 
 void OGLRenderer::bindMeshElement(const MeshElement& element) {
 
-	// use currently bound pipeline's vertexLayoutKey
 	const OGLPipeline& pipe = _resourceCache.pipeline(_state.pipelineHandle);
-	const VertexLayout layoutKey = pipe.key.vertexLayoutKey;
+
+	const VertexLayout elemLayout = element.vertexLayout();
+	const VertexLayout pipeLayout = pipe.key.vertexLayoutKey;
+
+	// TODO: change?
+	if (A3D_UNLIKELY(elemLayout != pipeLayout)) {
+		log::e()("VertexLayout mismatch: element={}, pipeline={}", (uint32_t)elemLayout, (uint32_t)pipeLayout);
+		return; // skip draw
+	}
 
 	auto* e = const_cast<MeshElement*>(&element);
-	const auto& res = _resourceCache.ensureMeshElement(*e, layoutKey);
+	const auto& res = _resourceCache.ensureMeshElement(*e);
 
 	glBindVertexArray((GLuint)res.vao);
 	_boundElement.vao = (GLuint)res.vao;
 	_boundElement.indexCount = (GLsizei)res.indexCount;
-
 	_boundElement.indexType = GL_UNSIGNED_INT;
 }
 

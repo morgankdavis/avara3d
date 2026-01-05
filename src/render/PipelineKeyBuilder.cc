@@ -25,6 +25,7 @@ PipelineKey PipelineKeyBuilder::MakeBackgroundKey() {
 	PipelineKey k{};
 	k.pass = 			PassKind::Background;
 	k.shaderKind =		ShaderKind::Skybox;
+	k.vertexLayoutKey = VertexLayout::PNT;
 	k.fillMode =		FillMode::Fill;
 	k.doubleSided =		true; // change winding order instead??
 	k.depthTest =		true;
@@ -79,7 +80,7 @@ PipelineKey PipelineKeyBuilder::MakeLinesKey() {
 	PipelineKey k{};
 	k.pass = 			PassKind::Lines;
 	k.shaderKind = 		ShaderKind::Lines;
-	k.vertexLayoutKey = VertexLayout::Lines;
+	k.vertexLayoutKey = VertexLayout::PC;
 	k.fillMode = 		FillMode::Lines;
 	k.doubleSided = 	true;
 	k.depthWrite = 		false;

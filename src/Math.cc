@@ -9,10 +9,11 @@
 #include "a3d/Math.h"
 
 #include <algorithm>
-#include <cassert>
 #include <cmath>
 #include <format>
 #include <sstream>
+
+#include "a3d/Assert.h"
 
 namespace a3d::math {
 
@@ -43,12 +44,12 @@ namespace a3d::math {
 			x{v.x}, y{v.y} {}
 
 	f32& f32vec2::operator[](std::size_t i) {
-		assert(i < 2);
+		A3D_ASSERT(i < 2);
 		return (&x)[i];
 	}
 
 	const f32& f32vec2::operator[](std::size_t i) const {
-		assert(i < 2);
+		A3D_ASSERT(i < 2);
 		return (&x)[i];
 	}
 
@@ -71,12 +72,12 @@ namespace a3d::math {
 			x{v.x}, y{v.y}, z{v.z} {}
 
 	f32& f32vec3::operator[](std::size_t i) {
-		assert(i < 3);
+		A3D_ASSERT(i < 3);
 		return (&x)[i];
 	}
 
 	const f32& f32vec3::operator[](std::size_t i) const {
-		assert(i < 3);
+		A3D_ASSERT(i < 3);
 		return (&x)[i];
 	}
 
@@ -96,12 +97,12 @@ namespace a3d::math {
 			x{v.x}, y{v.y}, z{v.z}, w{0} {}
 
 	f32& vec4::operator[](std::size_t i) {
-		assert(i < 4);
+		A3D_ASSERT(i < 4);
 		return (&x)[i];
 	}
 
 	const f32& vec4::operator[](std::size_t i) const {
-		assert(i < 4);
+		A3D_ASSERT(i < 4);
 		return (&x)[i];
 	}
 
@@ -121,12 +122,12 @@ namespace a3d::math {
 			x{v.x}, y{v.y} {}
 
 	i32& i32vec2::operator[](std::size_t i) {
-		assert(i < 2);
+		A3D_ASSERT(i < 2);
 		return (&x)[i];
 	}
 
 	const i32& i32vec2::operator[](std::size_t i) const {
-		assert(i < 2);
+		A3D_ASSERT(i < 2);
 		return (&x)[i];
 	}
 
@@ -149,12 +150,12 @@ namespace a3d::math {
 			x{v.x}, y{v.y}, z{v.z} {}
 
 	i32& i32vec3::operator[](std::size_t i) {
-		assert(i < 3);
+		A3D_ASSERT(i < 3);
 		return (&x)[i];
 	}
 
 	const i32& i32vec3::operator[](std::size_t i) const {
-		assert(i < 3);
+		A3D_ASSERT(i < 3);
 		return (&x)[i];
 	}
 
@@ -177,12 +178,12 @@ namespace a3d::math {
 			x{v.x}, y{v.y}, z{v.z}, w{0} {}
 
 	i32& i32vec4::operator[](std::size_t i) {
-		assert(i < 4);
+		A3D_ASSERT(i < 4);
 		return (&x)[i];
 	}
 
 	const i32& i32vec4::operator[](std::size_t i) const {
-		assert(i < 4);
+		A3D_ASSERT(i < 4);
 		return (&x)[i];
 	}
 
@@ -202,12 +203,12 @@ namespace a3d::math {
 			x{v.x}, y{v.y} {}
 
 	u32& u32vec2::operator[](std::size_t i) {
-		assert(i < 2);
+		A3D_ASSERT(i < 2);
 		return (&x)[i];
 	}
 
 	const u32& u32vec2::operator[](std::size_t i) const {
-		assert(i < 2);
+		A3D_ASSERT(i < 2);
 		return (&x)[i];
 	}
 
@@ -230,12 +231,12 @@ namespace a3d::math {
 			x{v.x}, y{v.y}, z{v.z} {}
 
 	u32& u32vec3::operator[](std::size_t i) {
-		assert(i < 3);
+		A3D_ASSERT(i < 3);
 		return (&x)[i];
 	}
 
 	const u32& u32vec3::operator[](std::size_t i) const {
-		assert(i < 3);
+		A3D_ASSERT(i < 3);
 		return (&x)[i];
 	}
 
@@ -258,12 +259,12 @@ namespace a3d::math {
 			x{v.x}, y{v.y}, z{v.z}, w{0} {}
 
 	u32& u32vec4::operator[](std::size_t i) {
-		assert(i < 4);
+		A3D_ASSERT(i < 4);
 		return (&x)[i];
 	}
 
 	const u32& u32vec4::operator[](std::size_t i) const {
-		assert(i < 4);
+		A3D_ASSERT(i < 4);
 		return (&x)[i];
 	}
 
@@ -283,12 +284,12 @@ namespace a3d::math {
 			x{v.x}, y{v.y} {}
 
 	u8& u8vec2::operator[](std::size_t i) {
-		assert(i < 2);
+		A3D_ASSERT(i < 2);
 		return (&x)[i];
 	}
 
 	const u8& u8vec2::operator[](std::size_t i) const {
-		assert(i < 2);
+		A3D_ASSERT(i < 2);
 		return (&x)[i];
 	}
 
@@ -311,12 +312,12 @@ namespace a3d::math {
 			x{v.x}, y{v.y}, z{v.z} {}
 
 	u8& u8vec3::operator[](std::size_t i) {
-		assert(i < 3);
+		A3D_ASSERT(i < 3);
 		return (&x)[i];
 	}
 
 	const u8& u8vec3::operator[](std::size_t i) const {
-		assert(i < 3);
+		A3D_ASSERT(i < 3);
 		return (&x)[i];
 	}
 
@@ -339,12 +340,12 @@ namespace a3d::math {
 			x{v.x}, y{v.y}, z{v.z}, w{0} {}
 
 	u8& u8vec4::operator[](std::size_t i) {
-		assert(i < 4);
+		A3D_ASSERT(i < 4);
 		return (&x)[i];
 	}
 
 	const u8& u8vec4::operator[](std::size_t i) const {
-		assert(i < 4);
+		A3D_ASSERT(i < 4);
 		return (&x)[i];
 	}
 
@@ -359,12 +360,12 @@ namespace a3d::math {
 			c0{c0_}, c1{c1_} {}
 
 	f32vec2& f32mat2::operator[](std::size_t i) {
-		assert(i < 2);
+		A3D_ASSERT(i < 2);
 		return (&c0)[i];
 	}
 
 	const f32vec2& f32mat2::operator[](std::size_t i) const {
-		assert(i < 2);
+		A3D_ASSERT(i < 2);
 		return (&c0)[i];
 	}
 
@@ -387,12 +388,12 @@ namespace a3d::math {
 			c2{m.c2.x, m.c2.y, m.c2.z} {}
 
 	f32vec3& f32mat3::operator[](std::size_t i) {
-		assert(i < 3);
+		A3D_ASSERT(i < 3);
 		return (&c0)[i];
 	}
 
 	const f32vec3& f32mat3::operator[](std::size_t i) const {
-		assert(i < 3);
+		A3D_ASSERT(i < 3);
 		return (&c0)[i];
 	}
 
@@ -418,12 +419,12 @@ namespace a3d::math {
 			c3{0.0f, 0.0f, 0.0f, 1.0f} {}
 
 	vec4& f32mat4::operator[](std::size_t i) {
-		assert(i < 4);
+		A3D_ASSERT(i < 4);
 		return (&c0)[i];
 	}
 
 	const f32vec4& f32mat4::operator[](std::size_t i) const {
-		assert(i < 4);
+		A3D_ASSERT(i < 4);
 		return (&c0)[i];
 	}
 
@@ -437,12 +438,12 @@ namespace a3d::math {
 			w{s}, x{0.0f}, y{0.0f}, z{0.0f} {}
 
 	f32& f32quat::operator[](std::size_t i) {
-		assert(i < 4);
+		A3D_ASSERT(i < 4);
 		return (&w)[i];
 	}
 
 	const f32& f32quat::operator[](std::size_t i) const {
-		assert(i < 4);
+		A3D_ASSERT(i < 4);
 		return (&w)[i];
 	}
 
@@ -710,19 +711,19 @@ namespace a3d::math {
 
 	f32vec2 normalize(const f32vec2 &v) {
 		f32 len = length(v);
-		assert(len != 0.0f && "math::normalize called on zero-length f32vec2");
+		A3D_ASSERT(len != 0.0f && "math::normalize called on zero-length f32vec2");
 		return (len > 0.0f) ? v / len : v;
 	}
 
 	f32vec3 normalize(const f32vec3 &v) {
 		f32 len = length(v);
-		assert(len != 0.0f && "math::normalize called on zero-length f32vec3");
+		A3D_ASSERT(len != 0.0f && "math::normalize called on zero-length f32vec3");
 		return (len > 0.0f) ? v / len : v;
 	}
 
 	f32vec4 normalize(const f32vec4 &v) {
 		f32 len = length(v);
-		assert(len != 0.0f && "math::normalize called on zero-length f32vec4");
+		A3D_ASSERT(len != 0.0f && "math::normalize called on zero-length f32vec4");
 		return (len > 0.0f) ? v / len : v;
 	}
 
@@ -849,7 +850,7 @@ namespace a3d::math {
 	}
 
 	i32vec2 operator/(const i32vec2 &v, i32 s) {
-		// no zero check -- assert?
+		// no zero check -- A3D_ASSERT?
 		return i32vec2{v.x / s, v.y / s};
 	}
 
@@ -1134,7 +1135,7 @@ namespace a3d::math {
 	}
 
 	u32vec2 operator/(const u32vec2 &v, u32 s) {
-		// no zero check -- assert?
+		// no zero check -- A3D_ASSERT?
 		return u32vec2{v.x / s, v.y / s};
 	}
 
@@ -1873,7 +1874,7 @@ namespace a3d::math {
 		f32 b = m.c1.x, d = m.c1.y;
 
 		f32 det = a * d - b * c;
-		assert(det != 0.0f);
+		A3D_ASSERT(det != 0.0f);
 		f32 invDet = 1.0f / det;
 
 		f32mat2 r;
@@ -1900,7 +1901,7 @@ namespace a3d::math {
 		f32 inv22 = (m00 * m11 - m01 * m10);
 
 		f32 det = m00 * inv00 + m01 * inv10 + m02 * inv20;
-		assert(det != 0.0f);
+		A3D_ASSERT(det != 0.0f);
 		f32 invDet = 1.0f / det;
 
 		f32mat3 r;
@@ -1936,7 +1937,7 @@ namespace a3d::math {
 			}
 
 			const f32 eps = 1e-8f;
-			assert(max_abs > eps && "f32mat4 inverse: f32matrix is singular or ill-conditioned");
+			A3D_ASSERT(max_abs > eps && "f32mat4 inverse: f32matrix is singular or ill-conditioned");
 			// or return f32mat4(1.0f);
 
 			// swap rows in both 'a' and 'inv'
@@ -2440,7 +2441,7 @@ namespace a3d::math {
 	/// Projection & Camera ///
 
 	f32mat4 perspective(f32 fovy, f32 aspect, f32 zNear, f32 zFar) {
-		assert(math::abs(aspect) > std::numeric_limits<f32>::epsilon() &&
+		A3D_ASSERT(math::abs(aspect) > std::numeric_limits<f32>::epsilon() &&
 			   "aspect must be non-zero");
 		f32 const tanHalfFovy = tan(fovy / static_cast<f32>(2.0));
 		f32mat4 result(static_cast<f32>(0.0));

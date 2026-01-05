@@ -28,6 +28,7 @@ MeshElement::MeshElement(const vector<Vertex>& verticies,
 						 const vector<Face>& faces):
 		MeshElement{} {
 
+	_layout = VertexLayout::PNT;
 	_vertices = verticies;
 	_faces = faces;
 
@@ -40,6 +41,35 @@ MeshElement::~MeshElement() {
 
 /// Internal Member Functions ///
 
+VertexLayout MeshElement::vertexLayout() const {
+	return _layout;
+}
+
+void MeshElement::vertexLayout(VertexLayout l) {
+	_layout = l;
+}
+
+uint32_t MeshElement::vertexCount() const {
+	return (uint32_t)_vertices.size();
+}
+
+span<const byte> MeshElement::vertexBytes() const {
+	auto s = span<const Vertex>{ _vertices.data(), _vertices.size() };
+	return as_bytes(s);
+}
+
+uint16_t MeshElement::vertexStride() const {
+	return (uint16_t)sizeof(Vertex);
+}
+
+const vector<Vertex>& MeshElement::vertices() const {
+	return _vertices;
+}
+
+const vector<Face>& MeshElement::faces() const {
+	return _faces;
+}
+
 void MeshElement::burnTransform(const mat4& transform, bool normals) {
 
 	for (auto& vert : _vertices) {
@@ -50,16 +80,8 @@ void MeshElement::burnTransform(const mat4& transform, bool normals) {
 	}
 
 	genLocalAABB();
-	
+
 	A3D_MASK_ADD(_dirtyMask, MeshElementDirtyMask::VertexData);
-}
-
-const vector<Vertex>& MeshElement::vertices() const {
-	return _vertices;
-}
-
-const vector<Face>& MeshElement::faces() const {
-	return _faces;
 }
 
 AABB MeshElement::localAABB() const {
@@ -162,6 +184,7 @@ void MeshElement::genLocalAABB() {
 /// Protected Lifecycle ///
 
 MeshElement::MeshElement():
+		_layout{VertexLayout::PNT},
 		//_vertices{},
 		//_faces{},
 		//_aabbLines{},

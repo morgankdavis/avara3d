@@ -14,7 +14,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include "a3d/mesh/VertexLayout.h"
 #include "a3d/render/PipelineKey.h"
 #include "a3d/render/backend/opengl/GLTypes.h"
 
@@ -55,8 +54,7 @@ namespace a3d {
 
 		PipelineHandle 						ensurePipeline(const PipelineKey& key);
 		const OGLPipeline& 					pipeline(PipelineHandle h) const;
-		const OGLMeshElement& 				ensureMeshElement(MeshElement& element,
-															   VertexLayout layoutKey);
+		const OGLMeshElement& 				ensureMeshElement(MeshElement& element);
 		const OGLMaterial& 					ensureMaterial(Material& material);
 		gl::uint_t 							ensureTexture(Texture& texture);
 

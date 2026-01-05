@@ -11,12 +11,14 @@
 #include <type_traits>
 #include <variant>
 
+#include "a3d/Assert.h"
 #include "a3d/Buffer.h"
-#include "a3d/Configuration.h"
 #include "a3d/Image.h"
 #include "a3d/CubeImage.h"
 #include "a3d/log/Log.h"
 #include "a3d/mesh/MeshElement.h"
+#include "a3d/mesh/VertexLayout.h"
+#include "a3d/render/VertexLayoutDesc.h"
 #include "a3d/render/backend/opengl/gl.h"
 #include "a3d/render/backend/opengl/GLSLProgram.h"
 #include "a3d/visual/material/Material.h"
@@ -61,6 +63,14 @@ static inline bool UsesMipmaps(FilterMode mode) {
 			return true;
 		default:
 			return false;
+	}
+}
+
+static void GLAttribFor(VertexFormat f, GLint& comps, GLenum& type) {
+	switch (f) {
+		case VertexFormat::F32x2: comps = 2; type = GL_FLOAT; break;
+		case VertexFormat::F32x3: comps = 3; type = GL_FLOAT; break;
+		case VertexFormat::F32x4: comps = 4; type = GL_FLOAT; break;
 	}
 }
 
@@ -228,68 +238,95 @@ const OGLPipeline& OGLResourceCache::pipeline(PipelineHandle h) const {
 	return _pipelineList.at(h);
 }
 
-const OGLMeshElement& OGLResourceCache::ensureMeshElement(MeshElement& element,
-														  VertexLayout layoutKey) {
-	auto it = _meshElementMap.find(&element);
-	if (it == _meshElementMap.end()) {
-		it = _meshElementMap.emplace(&element, OGLMeshElement{}).first;
-	}
+const OGLMeshElement& OGLResourceCache::ensureMeshElement(MeshElement& element) {
 
+	// Find/create cache entry
+	auto [it, inserted] = _meshElementMap.try_emplace(&element, OGLMeshElement{});
 	auto& res = it->second;
 
-	const bool dirty = A3D_MASK_CONTAINS(element.dirtyMask(), MeshElementDirtyMask::VertexData);
+	const VertexLayout layout = element.vertexLayout();
+
+	const bool dirty  = A3D_MASK_CONTAINS(element.dirtyMask(), MeshElementDirtyMask::VertexData);
 	const bool missing = (res.vao == 0);
-	const bool layoutChanged = (!missing && res.vertexLayoutKey != layoutKey);
+	const bool layoutChanged = (!missing && res.vertexLayoutKey != layout);
 
-	if (dirty || missing || layoutChanged) {
-		if (!missing) {
-			glDeleteBuffers(1, (GLuint*)&res.vbo);
-			glDeleteBuffers(1, (GLuint*)&res.ebo);
-			glDeleteVertexArrays(1, (GLuint*)&res.vao);
-			res = {};
-		}
-
-		res.vertexLayoutKey = layoutKey;
-
-		glGenVertexArrays(1, (GLuint*)&res.vao);
-		glGenBuffers(1, (GLuint*)&res.vbo);
-		glGenBuffers(1, (GLuint*)&res.ebo);
-
-		glBindVertexArray((GLuint)res.vao);
-
-		glBindBuffer(GL_ARRAY_BUFFER, (GLuint)res.vbo);
-		glBufferData(GL_ARRAY_BUFFER,
-					 element.vertices().size() * sizeof(Vertex),
-					 element.vertices().data(),
-					 GL_STATIC_DRAW);
-
-		// TODO: use vertexLayoutKey to pick an attribute layout table.
-		// Current hard-coded Vertex layout:
-		// 0: position (vec3), 1: normal (vec3), 2: uv (vec2)
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)sizeof(math::vec3));
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(math::vec3) * 2));
-		glEnableVertexAttribArray(2);
-
-		std::vector<uint32_t> indices;
-		indices.reserve(element.faces().size() * 3);
-		for (auto& f : element.faces()) {
-			indices.push_back((uint32_t)f.a);
-			indices.push_back((uint32_t)f.b);
-			indices.push_back((uint32_t)f.c);
-		}
-		res.indexCount = (uint32_t)indices.size();
-
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (GLuint)res.ebo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-					 indices.size() * sizeof(uint32_t),
-					 indices.data(),
-					 GL_STATIC_DRAW);
-
-		element.dirtyMask(A3D_MASK_REMOVE(element.dirtyMask(), MeshElementDirtyMask::VertexData));
+	if (!dirty && !missing && !layoutChanged) {
+		return res;
 	}
+
+	// If rebuilding, delete old GL objects
+	if (!missing) {
+		glDeleteBuffers(1, (GLuint*)&res.vbo);
+		glDeleteBuffers(1, (GLuint*)&res.ebo);
+		glDeleteVertexArrays(1, (GLuint*)&res.vao);
+		res = {};
+	}
+
+	res.vertexLayoutKey = layout;
+
+	// Create GL objects
+	glGenVertexArrays(1, (GLuint*)&res.vao);
+	glGenBuffers(1, (GLuint*)&res.vbo);
+	glGenBuffers(1, (GLuint*)&res.ebo);
+
+	glBindVertexArray((GLuint)res.vao);
+
+	// --- Vertex buffer ---
+	const VertexLayoutDesc& desc = GetVertexLayoutDesc(layout);
+
+	const auto vb = element.vertexBytes();           // span<const std::byte>
+	const uint32_t vcount = element.vertexCount();
+	const uint16_t stride = element.vertexStride();
+
+	// Hard sanity checks (these will save your life)
+	// If you don’t have A3D_ASSERT, use assert().
+	A3D_ASSERT(desc.stride == stride);
+	A3D_ASSERT(vb.size() == size_t(vcount) * size_t(stride));
+
+	glBindBuffer(GL_ARRAY_BUFFER, (GLuint)res.vbo);
+	glBufferData(GL_ARRAY_BUFFER,
+				 (GLsizeiptr)vb.size(),
+				 (const void*)vb.data(),
+				 GL_STATIC_DRAW);
+
+	// Set up vertex attributes from the descriptor
+	for (const auto& a : desc.attribs) {
+
+		GLint comps = 0;
+		GLenum type = 0;
+		const bool isIntegerAttrib = false; // change later if you add integer formats
+
+		GLAttribFor(a.format, comps, type);
+
+		glEnableVertexAttribArray(a.location);
+
+		// If you ever add true integer formats, use glVertexAttribIPointer for those.
+		glVertexAttribPointer(a.location,
+							  comps,
+							  type,
+							  a.normalized ? GL_TRUE : GL_FALSE,
+							  stride,
+							  (const void*)(uintptr_t)a.offset);
+	}
+
+	// --- Index buffer ---
+	std::vector<uint32_t> indices;
+	indices.reserve(element.faces().size() * 3);
+	for (const auto& f : element.faces()) {
+		indices.push_back((uint32_t)f.a);
+		indices.push_back((uint32_t)f.b);
+		indices.push_back((uint32_t)f.c);
+	}
+	res.indexCount = (uint32_t)indices.size();
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (GLuint)res.ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+				 (GLsizeiptr)(indices.size() * sizeof(uint32_t)),
+				 indices.data(),
+				 GL_STATIC_DRAW);
+
+	// Clear dirty bit
+	element.dirtyMask(A3D_MASK_REMOVE(element.dirtyMask(), MeshElementDirtyMask::VertexData));
 
 	return res;
 }

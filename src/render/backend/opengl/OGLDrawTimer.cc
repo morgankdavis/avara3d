@@ -8,10 +8,9 @@
 
 #include "a3d/render/backend/opengl/OGLDrawTimer.h"
 
-#include <cassert>
-
 #include "a3d/render/backend/opengl/gl.h"
 
+#include "a3d/Assert.h"
 #include "a3d/Math.h"
 
 using namespace a3d;
@@ -37,15 +36,15 @@ void OGLDrawTimer::initialize() {
 }
 
 void OGLDrawTimer::begin() {
-	assert(_initialized);
-	assert(!_active);
+	A3D_ASSERT(_initialized);
+	A3D_ASSERT(!_active);
 	const int write = _frame % _bufferSize;
 	glBeginQuery(GL_TIME_ELAPSED, _glQueries[(size_t)write]);
 	_active = true;
 }
 
 chrono::nanoseconds OGLDrawTimer::end() {
-	assert(_initialized && _active);
+	A3D_ASSERT(_initialized && _active);
 	glEndQuery(GL_TIME_ELAPSED);
 	const int write = _frame % _bufferSize;
 	_issued[(size_t)write] = 1;

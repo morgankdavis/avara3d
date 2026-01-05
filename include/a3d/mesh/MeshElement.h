@@ -9,11 +9,15 @@
 #ifndef AVARA3D_MESHELEMENT_H
 #define AVARA3D_MESHELEMENT_H
 
+#include <cstddef>
 #include <memory>
+#include <span>
 #include <vector>
 
 #include "a3d/Types.h"
 #include "a3d/Math.h"
+
+#include "a3d/mesh/VertexLayout.h"
 
 namespace a3d {
 
@@ -36,11 +40,27 @@ namespace a3d {
 
 		/// Internal Member Functions ///
 
-		void 							burnTransform(const math::mat4& transform,
-													  bool normals);
+
+
+		VertexLayout 					vertexLayout() const;
+		void 							vertexLayout(VertexLayout layout);
+
+		uint32_t 						vertexCount() const;
+		std::span<const std::byte> 		vertexBytes() const;
+		uint16_t 						vertexStride() const;
+
+
+
+
+
+
+
 
 		const std::vector<Vertex>& 		vertices() const;
 		const std::vector<Face>&		faces() const;
+
+		void 							burnTransform(const math::mat4& transform,
+													  bool normals);
 
 		AABB							localAABB() const;
 		AABB							worldAABB(const math::mat4& worldMat,
@@ -62,6 +82,7 @@ namespace a3d {
 
 		/// Protected Member Variables ///
 
+		VertexLayout 					_layout;
 		std::vector<Vertex>				_vertices;
 		std::vector<Face>				_faces;
 		AABB							_localAABB;
