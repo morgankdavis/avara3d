@@ -14,6 +14,7 @@
 #include <span>
 #include <vector>
 
+#include "a3d/Assert.h"
 #include "a3d/Types.h"
 #include "a3d/Math.h"
 
@@ -34,8 +35,13 @@ namespace a3d {
 	public:
 		/// Public Lifecycle Functions ///
 
-		MeshElement(const std::vector<Vertex>& verticies,
-					const std::vector<Face>& faces);
+//		MeshElement(const std::vector<Vertex>& verticies,
+//					const std::vector<Face>& faces);
+		MeshElement(VertexLayout layout,
+					std::span<const std::byte> bytes,
+					uint32_t vertexCount,
+					uint16_t stride,
+					std::span<const Face> faces);
 		virtual ~MeshElement();
 
 		/// Internal Member Functions ///
@@ -72,7 +78,14 @@ namespace a3d {
 
 		/// Protected Lifecycle ///
 
+	public: // ******************** TEMPORARY *******************
 		MeshElement();
+	protected:
+//		MeshElement(VertexLayout layout,
+//					std::vector<std::byte>& vertexData,
+//					uint32_t vertexCount,
+//					uint16_t vertexStride,
+//					std::vector<Face>& faces);
 
 		/// Protected Member Variables ///
 
@@ -86,6 +99,23 @@ namespace a3d {
 
 
 
+//		// TODO: gross.
+//		template <class TVertex>
+//		void appendVertex(const TVertex& v) {
+//			static_assert(std::is_trivially_copyable_v<TVertex>);
+//			A3D_ASSERT(_vertexStride == sizeof(TVertex));
+//			const std::byte* p = reinterpret_cast<const std::byte*>(&v);
+//			_vertexData.insert(_vertexData.end(), p, p + sizeof(TVertex));
+//			++_vertexCount;
+//		}
+//
+//		void reserveVertices(uint32_t count) {
+//			_vertexData.reserve(size_t(count) * size_t(_vertexStride));
+//		}
+
+
+
+
 
 
 
@@ -93,24 +123,24 @@ namespace a3d {
 	public:
 
 		VertexLayout 					vertexLayout() const;
-		void 							vertexLayout(VertexLayout layout);
+//		void 							vertexLayout(VertexLayout layout);
 
-		void setVertexData(VertexLayout layout,
-						   std::span<const std::byte> bytes,
-						   uint32_t vertexCount,
-						   uint16_t stride);
-
-		template <class TVertex>
-		void setVertices(VertexLayout layout, const std::vector<TVertex>& verts) {
-			static_assert(std::is_trivially_copyable_v<TVertex>);
-			auto s = std::span<const TVertex>(verts.data(), verts.size());
-			setVertexData(layout,
-						  std::as_bytes(s),
-						  (uint32_t)verts.size(),
-						  (uint16_t)sizeof(TVertex));
-		}
-
-		void setFaces(std::span<const Face> faces);
+//		void setVertexData(VertexLayout layout,
+//						   std::span<const std::byte> bytes,
+//						   uint32_t vertexCount,
+//						   uint16_t stride);
+//
+//		template <class TVertex>
+//		void setVertices(VertexLayout layout, const std::vector<TVertex>& verts) {
+//			static_assert(std::is_trivially_copyable_v<TVertex>);
+//			auto s = std::span<const TVertex>(verts.data(), verts.size());
+//			setVertexData(layout,
+//						  std::as_bytes(s),
+//						  (uint32_t)verts.size(),
+//						  (uint16_t)sizeof(TVertex));
+//		}
+//
+//		void setFaces(std::span<const Face> faces);
 
 
 		uint32_t 						vertexCount() const;
@@ -124,6 +154,27 @@ namespace a3d {
 		std::vector<std::byte>			_vertexData;
 		uint32_t						_vertexCount = 0;
 		uint16_t						_vertexStride = 0;
+
+
+
+
+
+
+	protected:
+		// Call once at start of derived constructor
+		void beginBuild(VertexLayout layout,
+						uint16_t stride,
+						uint32_t reserveVerts = 0,
+						uint32_t reserveFaces = 0);
+
+		// Append exactly one vertex (stride bytes)
+		void appendVertexBytes(const void* vertexBytes);
+
+		// Append one face
+		void appendFace(const Face& f);
+
+		// Call once at end (computes AABB, marks dirty, etc.)
+		void endBuild(bool recomputeAABB = true);
 
 
 	};

@@ -45,7 +45,6 @@ namespace a3d {
 	};
 
 	const VertexLayoutDesc& GetVertexLayoutDesc(VertexLayout layout);
-
 }
 
 #endif //AVARA3D_VERTEXLAYOUTDESC_H

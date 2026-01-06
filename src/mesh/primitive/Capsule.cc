@@ -12,6 +12,7 @@
 
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
+#include "a3d/mesh/VertexFormats.h"
 #include "a3d/visual/material/Material.h"
 
 using namespace a3d;
@@ -61,42 +62,27 @@ Capsule::Capsule(float radius,
 
 	auto capsule = CapsuleMesh{radius, height/2.0, (int)slices, (int)segments, (int)rings};
 
-//	for (const MeshVertex& v : capsule.vertices()) {
-//		_vertices.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
-//							  vec3(v.normal[0], v.normal[1], v.normal[2]),
-//							  vec2(v.texCoord[0], v.texCoord[1]) });
-//	}
-//
-//	for (const Triangle& t : capsule.triangles()) {
-//		_faces.push_back({ unsigned(t.vertices[0]),
-//						   unsigned(t.vertices[1]),
-//						   unsigned(t.vertices[2]) });
-//	}
-//
-//	// this orientation is what bullet expects
-//	auto xRotation = rotate(mat4(1.0), (float)radians(-90.0), vec3(1.0, 0.0, 0.0));
-//	burnTransform(xRotation, true);
-//
-//	//genLocalAABB(); // ^^ burnTransform() calls genLocalAABB()
+	beginBuild(VertexLayout::PNT, (uint16_t)sizeof(VertexPNT));
 
-	std::vector<Vertex> verts;
-//	verts.reserve(capsule.vertices().size());
-	for (const MeshVertex& v : capsule.vertices()) {
-		verts.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
-						  vec3(v.normal[0], v.normal[1], v.normal[2]),
-						  vec2(v.texCoord[0], v.texCoord[1]) });
+	for (auto vs = capsule.vertices(); !vs.done(); vs.next()) {
+		const auto v = vs.generate();
+		VertexPNT out {
+				{ (float)v.position[0], (float)v.position[1], (float)v.position[2] },
+				{ (float)v.normal[0],   (float)v.normal[1],   (float)v.normal[2]   },
+				{ (float)v.texCoord[0], (float)v.texCoord[1] } };
+		appendVertexBytes(&out);
 	}
 
-	std::vector<Face> faces;
-//	faces.reserve(capsule.triangles().size());
-	for (const Triangle& t : capsule.triangles()) {
-		faces.push_back({ (uint32_t)t.vertices[0], (uint32_t)t.vertices[1], (uint32_t)t.vertices[2] });
+	for (auto ts = capsule.triangles(); !ts.done(); ts.next()) {
+		const auto t = ts.generate();
+		appendFace(Face{ (uint32_t)t.vertices[0],
+						 (uint32_t)t.vertices[1],
+						 (uint32_t)t.vertices[2] });
 	}
 
-	setVertices(VertexLayout::PNT, verts);
-	setFaces(faces);
+	endBuild(false);
 
-// orientation bullet expects
+	// orientation bullet expects
 	auto xRotation = rotate(mat4(1.0), (float)radians(-90.0), vec3(1.0, 0.0, 0.0));
 	burnTransform(xRotation, true);
 }

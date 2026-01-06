@@ -12,6 +12,7 @@
 
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
+#include "a3d/mesh/VertexFormats.h"
 #include "a3d/visual/material/Material.h"
 
 using namespace a3d;
@@ -86,26 +87,28 @@ Box::Box(float length,
 	auto box = BoxMesh{ { width/2.0, length/2.0, height/2.0 },
 						{ widthSegments, lengthSegments, heightSegments } };
 
-	std::vector<Vertex> verts;
-//	verts.reserve(box.vertices().size());
+	beginBuild(VertexLayout::PNT, (uint16_t)sizeof(VertexPNT));
 
-	for (const MeshVertex& v : box.vertices()) {
-		verts.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
-						  vec3(v.normal[0],   v.normal[1],   v.normal[2]),
-						  vec2(v.texCoord[0], v.texCoord[1]) });
+	for (auto vs = box.vertices(); !vs.done(); vs.next()) {
+		const auto v = vs.generate();
+		const VertexPNT out{
+				{ (float)v.position[0], (float)v.position[1], (float)v.position[2] },
+				{ (float)v.normal[0],   (float)v.normal[1],   (float)v.normal[2]   },
+				{ (float)v.texCoord[0], (float)v.texCoord[1] } };
+		appendVertexBytes(&out);
 	}
 
-	std::vector<Face> faces;
-//	faces.reserve(box.triangles().size());
-	for (const Triangle& t : box.triangles()) {
-		faces.push_back({ (uint32_t)t.vertices[0],
-						  (uint32_t)t.vertices[1],
-						  (uint32_t)t.vertices[2] });
+	for (auto ts = box.triangles(); !ts.done(); ts.next()) {
+		const auto t = ts.generate();
+		appendFace(Face{
+				(uint32_t)t.vertices[0],
+				(uint32_t)t.vertices[1],
+				(uint32_t)t.vertices[2] });
 	}
-	std::reverse(faces.begin(), faces.end());
 
-	setVertices(VertexLayout::PNT, verts);
-	setFaces(faces);
+	std::reverse(_faces.begin(), _faces.end());
+
+	endBuild(true);
 }
 
 /// Public Member Functions ///

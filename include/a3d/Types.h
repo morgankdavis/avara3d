@@ -346,11 +346,11 @@ namespace a3d {
 		Eight = 7
 	};
 
-	struct Vertex {
-		math::vec3 position;
-		math::vec3 normal;
-		math::vec2 texCoord;
-	};
+//	struct Vertex {
+//		math::vec3 position;
+//		math::vec3 normal;
+//		math::vec2 texCoord;
+//	};
 
 	struct Face {
 		uint32_t a;

@@ -28,6 +28,7 @@
 #include "a3d/log/Log.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
+#include "a3d/mesh/VertexFormats.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 #include "a3d/util/chrono.h"
@@ -45,6 +46,13 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
+/// Private Typees ///
+
+//struct ImportedMeshElement final : a3d::MeshElement {
+//	ImportedMeshElement() : a3d::MeshElement() {}
+//	void finalize() { genLocalAABB(); }
+//};
+
 /// Private Static Non-Member Prototypes ///
 
 static fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options);
@@ -53,6 +61,9 @@ static std::span<const byte> BytesFromBufferView(const fastgltf::Asset& asset, s
 static mat4 TransformFromGlTFNode(fastgltf::Node& node);
 static shared_ptr<a3d::Color> ColorFromGlTFColorArray(const fastgltf::math::nvec3& v);
 static shared_ptr<a3d::Color> ColorFromGlTFColorArray(const fastgltf::math::nvec4& v);
+static void ReadIndicesU32(const fastgltf::Asset& asset,
+						   const fastgltf::Accessor& idxAccessor,
+						   vector<uint32_t>& out);
 
 /// Internal Lifecycle Functions ///
 
@@ -306,7 +317,7 @@ std::unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(
 		return { v[0], v[1] };
 	};
 
-	vector<Vertex> verts(vertexCount);
+	vector<VertexPNT> verts(vertexCount);
 
 	// positions
 	iterateAccessorWithIndex<fastgltf::math::fvec3>(
@@ -377,16 +388,52 @@ std::unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(
 	}
 
 	// indices
+//	vector<uint32_t> indices;
+//	if (primitive.indicesAccessor) {
+//		const auto& idxAccessor = asset.accessors[*primitive.indicesAccessor];
+//		indices.resize(idxAccessor.count);
+//		iterateAccessorWithIndex<uint32_t>(
+//				asset, idxAccessor,
+//				[&](uint32_t idx, size_t i) {
+//					if (i < indices.size()) indices[i] = idx;
+//				}
+//		);
+//	}
+//	else {
+//		indices.resize(vertexCount);
+//		for (size_t i = 0; i < vertexCount; ++i)
+//			indices[i] = static_cast<uint32_t>(i);
+//	}
+//
+//	if (indices.size() < 3) {
+//		log::w()("Primitive has fewer than 3 indices; cannot form triangles.");
+//		return nullptr;
+//	}
+//	if (indices.size() % 3 != 0) {
+//		log::w()("Index count {} is not divisible by 3; truncating.", indices.size());
+//	}
+//
+//	const size_t triIndexCount = (indices.size() / 3) * 3;
+//	vector<Face> faces;
+//	faces.reserve(triIndexCount / 3);
+//
+//	for (size_t i = 0; i < triIndexCount; i += 3) {
+//		faces.push_back({ static_cast<unsigned>(indices[i + 0]),
+//						  static_cast<unsigned>(indices[i + 1]),
+//						  static_cast<unsigned>(indices[i + 2]) });
+//	}
+//
+//	return make_unique<MeshElement>(verts, faces);
+
+	// indices
 	vector<uint32_t> indices;
 	if (primitive.indicesAccessor) {
 		const auto& idxAccessor = asset.accessors[*primitive.indicesAccessor];
-		indices.resize(idxAccessor.count);
-		iterateAccessorWithIndex<uint32_t>(
-				asset, idxAccessor,
-				[&](uint32_t idx, size_t i) {
-					if (i < indices.size()) indices[i] = idx;
-				}
-		);
+		ReadIndicesU32(asset, idxAccessor, indices);
+		if (indices.empty()) {
+			log::w()("Primitive indices accessor present but unreadable: skipping primitive.");
+			return nullptr;
+		}
 	}
 	else {
 		indices.resize(vertexCount);
@@ -395,24 +442,52 @@ std::unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(
 	}
 
 	if (indices.size() < 3) {
-		log::w()("Primitive has fewer than 3 indices; cannot form triangles.");
+		log::w()("Primitive has fewer than 3 indices: cannot form triangles.");
 		return nullptr;
 	}
 	if (indices.size() % 3 != 0) {
-		log::w()("Index count {} is not divisible by 3; truncating.", indices.size());
+		log::w()("Index count {} is not divisible by 3: truncating.", indices.size());
 	}
 
 	const size_t triIndexCount = (indices.size() / 3) * 3;
+
 	vector<Face> faces;
 	faces.reserve(triIndexCount / 3);
 
 	for (size_t i = 0; i < triIndexCount; i += 3) {
-		faces.push_back({ static_cast<unsigned>(indices[i + 0]),
-						  static_cast<unsigned>(indices[i + 1]),
-						  static_cast<unsigned>(indices[i + 2]) });
+		const uint32_t a = indices[i + 0];
+		const uint32_t b = indices[i + 1];
+		const uint32_t c = indices[i + 2];
+
+		// don’t create garbage faces if a file is malformed
+		if (a >= vertexCount || b >= vertexCount || c >= vertexCount) {
+			log::w()("Triangle index out of range ({} {} {}) for vertexCount: {}. Skipping triangle.",
+					 a, b, c, vertexCount);
+			continue;
+		}
+
+		faces.push_back({ (unsigned)a, (unsigned)b, (unsigned)c });
 	}
 
-	return make_unique<MeshElement>(verts, faces);
+	if (faces.empty()) {
+		log::w()("Primitive produced 0 valid triangles after validation.");
+		return nullptr;
+	}
+
+//	// NEW PATH: fill MeshElement with packed vertex bytes + faces
+//	auto element = std::make_unique<ImportedMeshElement>();
+//	element->setVertices(VertexLayout::PNT, verts);
+//	element->setFaces(std::span<const Face>(faces.data(), faces.size()));
+//	element->finalize();
+
+	auto vb = std::as_bytes(std::span<const VertexPNT>(verts.data(), verts.size()));
+
+	return make_unique<MeshElement>(
+			VertexLayout::PNT,
+			vb,
+			(uint32_t)verts.size(),
+			(uint16_t)sizeof(VertexPNT),
+			std::span<const Face>(faces.data(), faces.size()));
 }
 
 shared_ptr<a3d::Material> GlTFImporter::materialFromGlTFPrimitive(fastgltf::Asset& asset,
@@ -826,4 +901,36 @@ shared_ptr<a3d::Color> ColorFromGlTFColorArray(const fastgltf::math::nvec3& v) {
 
 shared_ptr<a3d::Color> ColorFromGlTFColorArray(const fastgltf::math::nvec4& v) {
 	return make_shared<Color>(vec3{v[0], v[1], v[2]});
+}
+
+void ReadIndicesU32(const fastgltf::Asset& asset,
+					const fastgltf::Accessor& idxAccessor,
+					std::vector<uint32_t>& out) {
+
+	using fastgltf::ComponentType;
+
+	out.assign(idxAccessor.count, 0);
+
+	switch (idxAccessor.componentType) {
+		case ComponentType::UnsignedByte: {
+			fastgltf::iterateAccessorWithIndex<uint8_t>(asset, idxAccessor,
+														[&](uint8_t v, size_t i) { if (i < out.size()) out[i] = (uint32_t)v; });
+			break;
+		}
+		case ComponentType::UnsignedShort: {
+			fastgltf::iterateAccessorWithIndex<uint16_t>(asset, idxAccessor,
+														 [&](uint16_t v, size_t i) { if (i < out.size()) out[i] = (uint32_t)v; });
+			break;
+		}
+		case ComponentType::UnsignedInt: {
+			fastgltf::iterateAccessorWithIndex<uint32_t>(asset, idxAccessor,
+														 [&](uint32_t v, size_t i) { if (i < out.size()) out[i] = v; });
+			break;
+		}
+		default:
+			log::w()("Unsupported index componentType: {} (expected U8/U16/U32).",
+					 magic_enum::enum_name(idxAccessor.componentType));
+			out.clear();
+			break;
+	}
 }

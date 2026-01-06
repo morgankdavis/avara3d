@@ -12,6 +12,7 @@
 
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
+#include "a3d/mesh/VertexFormats.h"
 #include "a3d/visual/material/Material.h"
 
 using namespace a3d;
@@ -45,42 +46,26 @@ Sphere::Sphere(float radius,
 
 	auto icoSphere = IcoSphereMesh{radius, (int)segments};
 
-//	for (const MeshVertex& v : icoSphere.vertices()) {
-//		_vertices.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
-//							  vec3(v.normal[0], v.normal[1], v.normal[2]),
-//							  vec2(v.texCoord[0], v.texCoord[1]) });
-//	}
-//
-//	for (const Triangle& t : icoSphere.triangles()) {
-//		_faces.push_back({ unsigned(t.vertices[0]),
-//						   unsigned(t.vertices[1]),
-//						   unsigned(t.vertices[2]) });
-//	}
-//
-//	genLocalAABB();
+	beginBuild(VertexLayout::PNT, (uint16_t)sizeof(VertexPNT));
 
-
-	std::vector<Vertex> verts;
-//	verts.reserve(box.vertices().size());
-
-	for (const MeshVertex& v : icoSphere.vertices()) {
-		verts.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
-						  vec3(v.normal[0],   v.normal[1],   v.normal[2]),
-						  vec2(v.texCoord[0], v.texCoord[1]) });
+	for (auto vs = icoSphere.vertices(); !vs.done(); vs.next()) {
+		const auto v = vs.generate();
+		const VertexPNT out{
+				{ (float)v.position[0], (float)v.position[1], (float)v.position[2] },
+				{ (float)v.normal[0],   (float)v.normal[1],   (float)v.normal[2]   },
+				{ (float)v.texCoord[0], (float)v.texCoord[1] } };
+		appendVertexBytes(&out);
 	}
 
-	std::vector<Face> faces;
-//	faces.reserve(box.triangles().size());
-	for (const Triangle& t : icoSphere.triangles()) {
-		faces.push_back({ (uint32_t)t.vertices[0],
-						  (uint32_t)t.vertices[1],
-						  (uint32_t)t.vertices[2] });
+	for (auto ts = icoSphere.triangles(); !ts.done(); ts.next()) {
+		const auto t = ts.generate();
+		appendFace(Face{
+				(uint32_t)t.vertices[0],
+				(uint32_t)t.vertices[1],
+				(uint32_t)t.vertices[2] });
 	}
 
-	setVertices(VertexLayout::PNT, verts);
-	setFaces(faces);
-
-	genLocalAABB();
+	endBuild(true);
 }
 
 /// Public Member Functions ///

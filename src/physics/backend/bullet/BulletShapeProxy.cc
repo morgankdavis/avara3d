@@ -18,7 +18,8 @@
 
 #include "a3d/log/Log.h"
 #include "a3d/mesh/Mesh.h"
-#include "a3d/mesh/VertexTypes.h"
+#include "a3d/mesh/VertexAccess.h"
+#include "a3d/mesh/VertexFormats.h"
 #include "a3d/mesh/primitive/Box.h"
 #include "a3d/mesh/primitive/Capsule.h"
 #include "a3d/mesh/primitive/Cone.h"
@@ -38,6 +39,7 @@
 #include "a3d/physics/shape_primitive/PlanePhysicsShape.h"
 #include "a3d/physics/shape_primitive/SpherePhysicsShape.h"
 #include "a3d/physics/util/ConvexDecomposer.h"
+#include "a3d/render/VertexLayoutDesc.h"
 #include "a3d/scene/Node.h"
 #include "a3d/Types.h"
 
@@ -107,6 +109,8 @@ static bool GetPositionStreamForBullet(const MeshElement& element,
 									   const unsigned char*& outBase,
 									   int& outStride,
 									   int& outCount);
+
+//static const VertexAttribDesc* GetPosAttribOrDie(const MeshElement& element);
 
 /// Internal Lifecycle Functions ///
 
@@ -501,35 +505,80 @@ void AddBTShapeFromNodeRec(Node& node,
 //	return reducedShape;
 //}
 
+//unique_ptr<btConvexHullShape>
+//BTConvexHullShapeFromMeshElement(MeshElement& element) {
+//	log::i()("Creating convex hull physics shape for MeshElement {:p}...", (void*)&element);
+//
+//	// tips here: https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=11385
+//
+//	const unsigned char* base = nullptr;
+//	int stride = 0, count = 0;
+//	if (!GetPositionStreamForBullet(element, base, stride, count)) {
+//		return make_unique<btConvexHullShape>();
+//	}
+//
+//	// https://pybullet.org/Bullet/BulletFull/classbtConvexHullShape.html#a069cf26ba277f9f5f141128fee345eaf
+//	btConvexHullShape originalShape{};
+//	for (int i = 0; i < count; ++i) {
+//		const float* p = reinterpret_cast<const float*>(base + size_t(i) * size_t(stride));
+//		originalShape.addPoint(btVector3((btScalar)p[0], (btScalar)p[1], (btScalar)p[2]), false);
+//	}
+//	originalShape.recalcLocalAabb();
+//
+//	// reduce number of verticies
+//	// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/BtShapeHull_vertex_reduction_utility
+//	auto hull = btShapeHull(&originalShape);
+//	btScalar margin = originalShape.getMargin();
+//	hull.buildHull((btScalar)margin);
+//
+//	auto reducedShape = make_unique<btConvexHullShape>((btScalar*)hull.getVertexPointer(),
+//													   hull.numVertices(),
+//													   sizeof(btVector3));
+//
+//	reducedShape->optimizeConvexHull();
+//
+//	if (!reducedShape->initializePolyhedralFeatures()) {
+//		log::w()("Could not initialize polyhedral features for reduced btConvexHullShape.");
+//	}
+//
+//	return reducedShape;
+//}
+
 unique_ptr<btConvexHullShape>
 BTConvexHullShapeFromMeshElement(MeshElement& element) {
-	log::i()("Creating convex hull physics shape for MeshElement {:p}...", (void*)&element);
+	log::i()("Creating convex hull physics shape for MeshElement {:p}...", static_cast<void*>(&element));
 
 	// tips here: https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=11385
 
-	const unsigned char* base = nullptr;
-	int stride = 0, count = 0;
-	if (!GetPositionStreamForBullet(element, base, stride, count)) {
-		return make_unique<btConvexHullShape>();
+	const auto vb     = element.vertexBytes();
+	const uint16_t st = element.vertexStride();
+	const uint32_t n  = element.vertexCount();
+	if (n == 0) {
+		return make_unique<btConvexHullShape>(); // empty
 	}
+
+	const VertexAttribDesc* posA = VertexAccess::GetPosAttribOrDie(element.vertexLayout());
 
 	// https://pybullet.org/Bullet/BulletFull/classbtConvexHullShape.html#a069cf26ba277f9f5f141128fee345eaf
 	btConvexHullShape originalShape{};
-	for (int i = 0; i < count; ++i) {
-		const float* p = reinterpret_cast<const float*>(base + size_t(i) * size_t(stride));
-		originalShape.addPoint(btVector3((btScalar)p[0], (btScalar)p[1], (btScalar)p[2]), false);
+	for (uint32_t i = 0; i < n; ++i) {
+		const std::byte* base = vb.data() + size_t(i) * size_t(st);
+		const vec3 p = VertexAccess::ReadVec3(base, posA->offset);
+		originalShape.addPoint(BTVector3FromA3DVec3(p), false);
 	}
 	originalShape.recalcLocalAabb();
 
 	// reduce number of verticies
 	// http://www.bulletphysics.org/mediawiki-1.5.8/index.php/BtShapeHull_vertex_reduction_utility
-	auto hull = btShapeHull(&originalShape);
+	btShapeHull hull(&originalShape);
 	btScalar margin = originalShape.getMargin();
-	hull.buildHull((btScalar)margin);
+	hull.buildHull(margin);
 
-	auto reducedShape = make_unique<btConvexHullShape>((btScalar*)hull.getVertexPointer(),
-													   hull.numVertices(),
-													   sizeof(btVector3));
+	auto reducedShape = make_unique<btConvexHullShape>(
+			(btScalar*)hull.getVertexPointer(),
+			hull.numVertices(),
+			sizeof(btVector3)
+	);
 
 	reducedShape->optimizeConvexHull();
 
@@ -576,10 +625,51 @@ BTConvexHullShapeFromMeshElement(MeshElement& element) {
 //	return gImpactMeshShape;
 //}
 
+//unique_ptr<btGImpactMeshShape>
+//BTGImpactMeshShapeFromMeshElement(MeshElement& element,
+//								  btTriangleIndexVertexArray& indexVertexArray) {
+//	log::i()("Creating concave polyhedron physics shape for MeshElement {:p}...", (void*)&element);
+//
+//	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7997
+//	// "You can use btGImpactMeshShape (or btCompoundShapes plus HACD) for concave dynamic rigidbodies"
+//	// doesn't seem to want to collide with static shapes.
+//	// -> https://pybullet.org/Bullet/phpBB3/viewtopic.php?p=43020#p43020
+//	// "- BvhTriangleMeshShapes work well as static concave or convex shapes. But since they are meant to be static, there is no algorithm to make them collide with each other.
+//	// - ConvexTriangleMeshShapes are efficient as dynamic convex shapes.
+//	// - GImpact shapes are well optimized for when you need dynamic concave shapes.
+//	// - Convex decomposition can be used to decompose concave shapes into convex shapes. The resulting convex shapes can then be combined into a CompoundShape, which is also an efficient way to model dynamic concave shapes."
+//	// More: https://stackoverflow.com/questions/32668218/concave-collision-detection-in-bullet
+//
+//	const auto& faces = element.faces();
+//
+//	const unsigned char* vbase = nullptr;
+//	int vstride = 0, vcount = 0;
+//	if (!GetPositionStreamForBullet(element, vbase, vstride, vcount)) {
+//		return nullptr;
+//	}
+//
+//	btIndexedMesh indexedMesh{};
+//	indexedMesh.m_numTriangles = static_cast<int>(faces.size());
+//	indexedMesh.m_triangleIndexBase = reinterpret_cast<const unsigned char*>(faces.data());
+//	indexedMesh.m_triangleIndexStride = sizeof(Face);
+//
+//	indexedMesh.m_numVertices = vcount;
+//	indexedMesh.m_vertexBase = vbase;
+//	indexedMesh.m_vertexStride = vstride;
+//	indexedMesh.m_vertexType = PHY_FLOAT;
+//
+//	indexVertexArray.addIndexedMesh(indexedMesh, PHY_INTEGER);
+//
+//	auto gImpactMeshShape = make_unique<btGImpactMeshShape>(&indexVertexArray);
+//	// https://pybullet.org/Bullet/BulletFull/classbtGImpactShapeInterface.html#a7d26525396fa957d10e36c099c58480f
+//	gImpactMeshShape->updateBound();
+//	return gImpactMeshShape;
+//}
+
 unique_ptr<btGImpactMeshShape>
 BTGImpactMeshShapeFromMeshElement(MeshElement& element,
 								  btTriangleIndexVertexArray& indexVertexArray) {
-	log::i()("Creating concave polyhedron physics shape for MeshElement {:p}...", (void*)&element);
+	log::i()("Creating concave polyhedron physics shape for MeshElement {:p}...", static_cast<void*>(&element));
 
 	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7997
 	// "You can use btGImpactMeshShape (or btCompoundShapes plus HACD) for concave dynamic rigidbodies"
@@ -593,21 +683,24 @@ BTGImpactMeshShapeFromMeshElement(MeshElement& element,
 
 	const auto& faces = element.faces();
 
-	const unsigned char* vbase = nullptr;
-	int vstride = 0, vcount = 0;
-	if (!GetPositionStreamForBullet(element, vbase, vstride, vcount)) {
-		return nullptr;
+	const uint32_t vcount = element.vertexCount();
+	if (vcount == 0 || faces.empty()) {
+		return make_unique<btGImpactMeshShape>(&indexVertexArray);
 	}
 
-	btIndexedMesh indexedMesh{};
-	indexedMesh.m_numTriangles = static_cast<int>(faces.size());
-	indexedMesh.m_triangleIndexBase = reinterpret_cast<const unsigned char*>(faces.data());
-	indexedMesh.m_triangleIndexStride = sizeof(Face);
+	const auto vb     = element.vertexBytes();
+	const uint16_t st = element.vertexStride();
+	const VertexAttribDesc* posA = VertexAccess::GetPosAttribOrDie(element.vertexLayout());
 
-	indexedMesh.m_numVertices = vcount;
-	indexedMesh.m_vertexBase = vbase;
-	indexedMesh.m_vertexStride = vstride;
-	indexedMesh.m_vertexType = PHY_FLOAT;
+	btIndexedMesh indexedMesh{};
+	indexedMesh.m_numTriangles         = static_cast<int>(faces.size());
+	indexedMesh.m_triangleIndexBase    = reinterpret_cast<const unsigned char*>(faces.data());
+	indexedMesh.m_triangleIndexStride  = sizeof(Face);
+
+	indexedMesh.m_numVertices          = static_cast<int>(vcount);
+	indexedMesh.m_vertexBase           = reinterpret_cast<const unsigned char*>(vb.data() + posA->offset);
+	indexedMesh.m_vertexStride         = st;
+	indexedMesh.m_vertexType           = PHY_FLOAT;
 
 	indexVertexArray.addIndexedMesh(indexedMesh, PHY_INTEGER);
 
@@ -645,31 +738,64 @@ BTGImpactMeshShapeFromMeshElement(MeshElement& element,
 //	return make_unique<btBvhTriangleMeshShape>(&indexVertexArray, true);
 //}
 
+//unique_ptr<btBvhTriangleMeshShape>
+//BTBvhTriangleMeshShapeFromMeshElement(MeshElement& element,
+//									  btTriangleIndexVertexArray& indexVertexArray) {
+//	log::i()("Creating concave polyhedron physics shape for MeshElement {:p}...", (void*)&element);
+//
+//	// static objects ALWAYS use btBvhTriangleMeshShape
+//	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7997
+//
+//	const auto& faces = element.faces();
+//
+//	const unsigned char* vbase = nullptr;
+//	int vstride = 0, vcount = 0;
+//	if (!GetPositionStreamForBullet(element, vbase, vstride, vcount)) {
+//		return nullptr;
+//	}
+//
+//	btIndexedMesh indexedMesh{};
+//	indexedMesh.m_numTriangles = static_cast<int>(faces.size());
+//	indexedMesh.m_triangleIndexBase   = reinterpret_cast<const unsigned char*>(faces.data());
+//	indexedMesh.m_triangleIndexStride = sizeof(Face);
+//
+//	indexedMesh.m_numVertices  = vcount;
+//	indexedMesh.m_vertexBase   = vbase;
+//	indexedMesh.m_vertexStride = vstride;
+//	indexedMesh.m_vertexType   = PHY_FLOAT;
+//
+//	indexVertexArray.addIndexedMesh(indexedMesh, PHY_INTEGER);
+//
+//	return make_unique<btBvhTriangleMeshShape>(&indexVertexArray, true);
+//}
+
 unique_ptr<btBvhTriangleMeshShape>
 BTBvhTriangleMeshShapeFromMeshElement(MeshElement& element,
 									  btTriangleIndexVertexArray& indexVertexArray) {
-	log::i()("Creating concave polyhedron physics shape for MeshElement {:p}...", (void*)&element);
+	log::i()("Creating concave polyhedron physics shape for MeshElement {:p}...", static_cast<void*>(&element));
 
 	// static objects ALWAYS use btBvhTriangleMeshShape
 	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7997
 
 	const auto& faces = element.faces();
-
-	const unsigned char* vbase = nullptr;
-	int vstride = 0, vcount = 0;
-	if (!GetPositionStreamForBullet(element, vbase, vstride, vcount)) {
-		return nullptr;
+	const uint32_t vcount = element.vertexCount();
+	if (vcount == 0 || faces.empty()) {
+		return make_unique<btBvhTriangleMeshShape>(&indexVertexArray, true);
 	}
 
-	btIndexedMesh indexedMesh{};
-	indexedMesh.m_numTriangles = static_cast<int>(faces.size());
-	indexedMesh.m_triangleIndexBase   = reinterpret_cast<const unsigned char*>(faces.data());
-	indexedMesh.m_triangleIndexStride = sizeof(Face);
+	const auto vb     = element.vertexBytes();
+	const uint16_t st = element.vertexStride();
+	const VertexAttribDesc* posA = VertexAccess::GetPosAttribOrDie(element.vertexLayout());
 
-	indexedMesh.m_numVertices  = vcount;
-	indexedMesh.m_vertexBase   = vbase;
-	indexedMesh.m_vertexStride = vstride;
-	indexedMesh.m_vertexType   = PHY_FLOAT;
+	btIndexedMesh indexedMesh{};
+	indexedMesh.m_numTriangles         = static_cast<int>(faces.size());
+	indexedMesh.m_triangleIndexBase    = reinterpret_cast<const unsigned char*>(faces.data());
+	indexedMesh.m_triangleIndexStride  = sizeof(Face);
+
+	indexedMesh.m_numVertices          = static_cast<int>(vcount);
+	indexedMesh.m_vertexBase           = reinterpret_cast<const unsigned char*>(vb.data() + posA->offset);
+	indexedMesh.m_vertexStride         = st;
+	indexedMesh.m_vertexType           = PHY_FLOAT;
 
 	indexVertexArray.addIndexedMesh(indexedMesh, PHY_INTEGER);
 
@@ -716,12 +842,12 @@ bool GetPositionStreamForBullet(const MeshElement& element,
 
 	switch (element.vertexLayout()) {
 		case VertexLayout::PNT:
-			offset = offsetof(Vertex, position);
+			offset = offsetof(VertexPNT, position);
 			// optional assert: element.vertexStride() == sizeof(Vertex)
 			break;
 
 		case VertexLayout::PC:
-			offset = offsetof(VertexPC, pos);
+			offset = offsetof(VertexPC, position);
 			break;
 
 		default:
@@ -737,3 +863,10 @@ bool GetPositionStreamForBullet(const MeshElement& element,
 
 	return true;
 }
+
+//static const VertexAttribDesc* GetPosAttribOrDie(const MeshElement& element) {
+//	const VertexLayoutDesc& desc = GetVertexLayoutDesc(element.vertexLayout());
+//	const VertexAttribDesc* posA = FindAttrib(desc, VertexSemantic::Position);
+//	A3D_ASSERT(posA && posA->format == VertexFormat::F32x3);
+//	return posA;
+//}

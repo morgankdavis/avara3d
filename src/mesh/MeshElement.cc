@@ -9,7 +9,9 @@
 #include "a3d/mesh/MeshElement.h"
 
 #include <cstring>
+#include <cstring>
 #include <iostream>
+#include <stdexcept>
 
 #include "a3d/Assert.h"
 #include "a3d/Color.h"
@@ -17,6 +19,7 @@
 #include "a3d/log/Log.h"
 #include "a3d/Math.h"
 #include "a3d/mesh/Line.h"
+#include "a3d/mesh/VertexAccess.h"
 #include "a3d/scene/Node.h"
 #include "a3d/render/Renderer.h"
 #include "a3d/render/VertexLayoutDesc.h"
@@ -29,11 +32,17 @@ using namespace std;
 
 
 
-static const VertexAttribDesc* FindAttrib(const VertexLayoutDesc& d, VertexSemantic sem);
-static inline vec3 ReadVec3(const std::byte* base, uint16_t offset);
-static inline void WriteVec3(std::byte* base, uint16_t offset, const vec3& v);
-
-
+//static const VertexAttribDesc* 	FindAttrib(const VertexLayoutDesc& d, VertexSemantic sem);
+//static inline vec3 				ReadVec3(const std::byte* base, uint16_t offset);
+//static inline void 				WriteVec3(std::byte* base, uint16_t offset, const vec3& v);
+//static inline math::vec3 		ReadPositionAt0(std::span<const std::byte> vbytes,
+//												uint32_t i,
+//												uint16_t stride);
+//static inline void 				WritePositionAt0(std::span<std::byte> vbytes,
+//												   uint32_t i,
+//												   uint16_t stride,
+//												   const vec3& pos);
+//static const VertexAttribDesc* GetPosAttribOrDie(const MeshElement& element);
 
 
 
@@ -53,11 +62,52 @@ static inline void WriteVec3(std::byte* base, uint16_t offset, const vec3& v);
 //	genLocalAABB();
 //}
 
-MeshElement::MeshElement(const vector<Vertex>& vertices,
-						 const vector<Face>& faces):
-						 MeshElement{} {
-	setVertices(VertexLayout::PNT, vertices);
-	setFaces(faces);
+//MeshElement::MeshElement(const vector<Vertex>& vertices,
+//						 const vector<Face>& faces):
+//						 MeshElement{} {
+//	setVertices(VertexLayout::PNT, vertices);
+//	setFaces(faces);
+//}
+
+MeshElement::MeshElement(VertexLayout layout,
+						 std::span<const std::byte> bytes,
+						 uint32_t vertexCount,
+						 uint16_t stride,
+						 std::span<const Face> faces):
+						 _faces(faces.begin(), faces.end()),
+						 _localAABB(AABB::Invalid()),
+						 _dirtyMask(MeshElementDirtyMask::All),
+						 _layout(layout),
+						 _vertexData(),
+						 _vertexCount(vertexCount),
+						 _vertexStride(stride) {
+
+	if (vertexCount == 0) {
+		// allow empty... keep invalid AABB.
+		return;
+	}
+	if (stride < sizeof(float) * 3) {
+		throw std::runtime_error("stride < 12 bytes; need at least float3 position at offset 0");
+	}
+
+	const size_t needed = size_t(vertexCount) * size_t(stride);
+	if (bytes.size() < needed) {
+		throw std::runtime_error("Vertex byte span too small for vertexCount * stride");
+	}
+
+	_vertexData.resize(needed);
+	memcpy(_vertexData.data(), bytes.data(), needed);
+
+//	// Optional: validate that indices are in range (debug sanity; remove if you want)
+//#ifndef NDEBUG
+	for (const Face& f : _faces) {
+		A3D_ASSERT(f.a < vertexCount);
+		A3D_ASSERT(f.b < vertexCount);
+		A3D_ASSERT(f.c < vertexCount);
+	}
+//#endif
+
+	genLocalAABB();
 }
 
 MeshElement::~MeshElement() {
@@ -66,97 +116,18 @@ MeshElement::~MeshElement() {
 
 /// Internal Member Functions ///
 
-//const vector<Vertex>& MeshElement::vertices() const { // PNT-only legacy path
-//	return _vertices;
-//}
-
-//const vector<Face>& MeshElement::faces() const {
-//	return _faces;
-//}
-
-//void MeshElement::burnTransform(const mat4& transform, bool normals) {
-//
-//	for (auto& vert : _vertices) {
-//		vert.position = vec3(transform * vec4(vert.position, 1.0f));
-//		if (normals) {
-//			vert.normal = normalize(vec3(transform * vec4(vert.normal, 0.0f)));
-//		}
-//	}
-//
-//	genLocalAABB();
-//
-//	A3D_MASK_ADD(_dirtyMask, MeshElementDirtyMask::VertexData);
-//}
-
-//void MeshElement::burnTransform(const mat4& transform, bool normals) {
-//
-//	// If legacy PNT verts exist, keep your fast path
-//	if (!_vertices.empty()) {
-//		// (your existing code)
-//		for (auto& vert : _vertices) {
-//			vert.position = vec3(transform * vec4(vert.position, 1.0f));
-//			if (normals) {
-//				// slightly more correct normal handling:
-//				mat3 nmat = transpose(inverse(mat3(transform)));
-//				vert.normal = normalize(nmat * vert.normal);
-//			}
-//		}
-//		genLocalAABB();
-//		A3D_MASK_ADD(_dirtyMask, MeshElementDirtyMask::VertexData);
-//		return;
-//	}
-//
-//	// Generic packed path
-//	const uint32_t vcount = vertexCount();
-//	if (vcount == 0) return;
-//
-//	const VertexLayoutDesc& desc = GetVertexLayoutDesc(_layout);
-//	const VertexAttribDesc* posA = FindAttrib(desc, VertexSemantic::Position);
-//	A3D_ASSERT(posA && posA->format == VertexFormat::F32x3);
-//
-//	const VertexAttribDesc* nrmA = nullptr;
-//	mat3 nmat(1.0f);
-//	if (normals) {
-//		nrmA = FindAttrib(desc, VertexSemantic::Normal);
-//		if (nrmA && nrmA->format == VertexFormat::F32x3) {
-//			nmat = transpose(inverse(mat3(transform)));
-//		}
-//		else {
-//			nrmA = nullptr;
-//		}
-//	}
-//
-//	auto stride = vertexStride();
-//	for (uint32_t i = 0; i < vcount; ++i) {
-//		std::byte* base = _vertexData.data() + size_t(i) * stride;
-//
-//		vec3 p = ReadVec3(base, posA->offset);
-//		p = vec3(transform * vec4(p, 1.0f));
-//		WriteVec3(base, posA->offset, p);
-//
-//		if (nrmA) {
-//			vec3 n = ReadVec3(base, nrmA->offset);
-//			n = normalize(nmat * n);
-//			WriteVec3(base, nrmA->offset, n);
-//		}
-//	}
-//
-//	genLocalAABB();
-//	A3D_MASK_ADD(_dirtyMask, MeshElementDirtyMask::VertexData);
-//}
-
 void MeshElement::burnTransform(const mat4& transform, bool normals) {
 	if (_vertexCount == 0) return;
 
 	const VertexLayoutDesc& desc = GetVertexLayoutDesc(_layout);
 
-	const VertexAttribDesc* posA = FindAttrib(desc, VertexSemantic::Position);
+	const VertexAttribDesc* posA = VertexAccess::FindAttrib(desc, VertexSemantic::Position);
 	A3D_ASSERT(posA && posA->format == VertexFormat::F32x3);
 
 	const VertexAttribDesc* nrmA = nullptr;
 	mat3 nmat(1.0f);
 	if (normals) {
-		nrmA = FindAttrib(desc, VertexSemantic::Normal);
+		nrmA = VertexAccess::FindAttrib(desc, VertexSemantic::Normal);
 		if (nrmA && nrmA->format == VertexFormat::F32x3) {
 			nmat = transpose(inverse(mat3(transform)));
 		} else {
@@ -167,14 +138,14 @@ void MeshElement::burnTransform(const mat4& transform, bool normals) {
 	for (uint32_t i = 0; i < _vertexCount; ++i) {
 		std::byte* base = _vertexData.data() + size_t(i) * _vertexStride;
 
-		vec3 p = ReadVec3(base, posA->offset);
+		vec3 p = VertexAccess::ReadVec3(base, posA->offset);
 		p = vec3(transform * vec4(p, 1.0f));
-		WriteVec3(base, posA->offset, p);
+		VertexAccess::WriteVec3(base, posA->offset, p);
 
 		if (nrmA) {
-			vec3 n = ReadVec3(base, nrmA->offset);
+			vec3 n = VertexAccess::ReadVec3(base, nrmA->offset);
 			n = normalize(nmat * n);
-			WriteVec3(base, nrmA->offset, n);
+			VertexAccess::WriteVec3(base, nrmA->offset, n);
 		}
 	}
 
@@ -186,51 +157,6 @@ AABB MeshElement::localAABB() const {
 	return _localAABB;
 }
 
-//AABB MeshElement::worldAABB(const math::mat4& worldTransform, bool vertfit) const {
-//
-//	// TODO: consolidate (Mesh has the same function)
-//
-//	// fit over verticies - tighter - slow!
-//	if (vertfit) {
-//
-//		static const float maxFloat = math::f32_max();
-//		static const float minFloat = math::f32_lowest();
-//		AABB out = { {maxFloat, maxFloat, maxFloat},
-//					 {minFloat, minFloat, minFloat} };
-//
-//		for (const auto& v : vertices()) {
-//			vec3 p = vec3(worldTransform * vec4(v.position, 1.0f));
-//			out.min.x = math::min(out.min.x, p.x);
-//			out.max.x = math::max(out.max.x, p.x);
-//			out.min.y = math::min(out.min.y, p.y);
-//			out.max.y = math::max(out.max.y, p.y);
-//			out.min.z = math::min(out.min.z, p.z);
-//			out.max.z = math::max(out.max.z, p.z);
-//		}
-//
-//		return out;
-//	}
-//		// fit over OBB - looser - fast!
-//	else {
-//
-//		auto localAABB = MeshElement::localAABB();
-//
-//		const vec3 c = (localAABB.min + localAABB.max) / 2.0f; // local center
-//		const vec3 e = (localAABB.max - localAABB.min) / 2.0f; // local half extents
-//
-//		const vec3 C = vec3{worldTransform * vec4(c, 1.0f)}; // world center
-//
-//		// linear part (rotation/scale/shear)
-//		const mat3 L = math::mat3{worldTransform};
-//
-//		const mat3 A = math::abs(L);
-//
-//		const vec3 E = A * e; // world half extents
-//
-//		return AABB{C - E, C + E};
-//	}
-//}
-
 AABB MeshElement::worldAABB(const mat4& worldTransform, bool vertfit) const {
 
 	if (vertfit) {
@@ -241,7 +167,7 @@ AABB MeshElement::worldAABB(const mat4& worldTransform, bool vertfit) const {
 		const uint16_t stride = vertexStride();
 
 		const VertexLayoutDesc& desc = GetVertexLayoutDesc(_layout);
-		const VertexAttribDesc* posA = FindAttrib(desc, VertexSemantic::Position);
+		const VertexAttribDesc* posA = VertexAccess::FindAttrib(desc, VertexSemantic::Position);
 		A3D_ASSERT(posA && posA->format == VertexFormat::F32x3);
 
 		static const float maxFloat = math::f32_max();
@@ -251,7 +177,7 @@ AABB MeshElement::worldAABB(const mat4& worldTransform, bool vertfit) const {
 
 		for (uint32_t i = 0; i < vcount; ++i) {
 			const std::byte* base = vb.data() + size_t(i) * stride;
-			vec3 pLocal = ReadVec3(base, posA->offset);
+			vec3 pLocal = VertexAccess::ReadVec3(base, posA->offset);
 			vec3 p = vec3(worldTransform * vec4(pLocal, 1.0f));
 
 			out.min = min(out.min, p);
@@ -303,36 +229,10 @@ void MeshElement::dirtyMask(MeshElementDirtyMask mask) {
 /// Protected Member Functions ///
 
 //void MeshElement::genLocalAABB() {
-//
-//	static const float maxFloat = math::f32_max();
-//	static const float minFloat = math::f32_lowest();
-//
-//	AABB aabb = { {maxFloat, maxFloat, maxFloat},
-//				  {minFloat, minFloat, minFloat} };
-//
-//	for (const auto& v : vertices()) {
-//		vec3 p = (v.position);
-//		aabb.min.x = math::min(aabb.min.x, p.x);
-//		aabb.max.x = math::max(aabb.max.x, p.x);
-//		aabb.min.y = math::min(aabb.min.y, p.y);
-//		aabb.max.y = math::max(aabb.max.y, p.y);
-//		aabb.min.z = math::min(aabb.min.z, p.z);
-//		aabb.max.z = math::max(aabb.max.z, p.z);
-//	}
-//
-//	_localAABB = aabb;
-//}
-
-//void MeshElement::genLocalAABB() {
-//
-//	const uint32_t vcount = vertexCount();
-//	if (vcount == 0) {
+//	if (_vertexCount == 0) {
 //		_localAABB = AABB::Zero();
 //		return;
 //	}
-//
-//	const auto vb = vertexBytes();
-//	const uint16_t stride = vertexStride();
 //
 //	const VertexLayoutDesc& desc = GetVertexLayoutDesc(_layout);
 //	const VertexAttribDesc* posA = FindAttrib(desc, VertexSemantic::Position);
@@ -344,8 +244,9 @@ void MeshElement::dirtyMask(MeshElementDirtyMask mask) {
 //	AABB aabb = { {maxFloat, maxFloat, maxFloat},
 //				  {minFloat, minFloat, minFloat} };
 //
-//	for (uint32_t i = 0; i < vcount; ++i) {
-//		const std::byte* base = vb.data() + size_t(i) * stride;
+//	const auto vb = vertexBytes();
+//	for (uint32_t i = 0; i < _vertexCount; ++i) {
+//		const std::byte* base = vb.data() + size_t(i) * _vertexStride;
 //		vec3 p = ReadVec3(base, posA->offset);
 //		aabb.min = min(aabb.min, p);
 //		aabb.max = max(aabb.max, p);
@@ -354,41 +255,63 @@ void MeshElement::dirtyMask(MeshElementDirtyMask mask) {
 //	_localAABB = aabb;
 //}
 
+//void MeshElement::genLocalAABB() {
+//
+//	if (_vertexCount == 0) {
+//		_localAABB = AABB::Invalid();
+//		return;
+//	}
+//
+//	_localAABB = AABB::Invalid();
+//
+//	const auto vbytes = vertexBytes();
+//
+//	for (uint32_t i = 0; i < _vertexCount; ++i) {
+//		const vec3 pos = ReadPositionAt0(vbytes, i, _vertexStride);
+//		AABB::Expand(_localAABB, pos);
+//	}
+//}
+
+//void MeshElement::genLocalAABB() {
+//
+//	if (_vertexCount == 0) {
+//		_localAABB = AABB::Invalid();
+//		return;
+//	}
+//
+//	const VertexLayoutDesc& desc = GetVertexLayoutDesc(_layout);
+//	const VertexAttribDesc* posA = FindAttrib(desc, VertexSemantic::Position);
+//	A3D_ASSERT(posA && posA->format == VertexFormat::F32x3);
+//
+//	_localAABB = AABB::Invalid();
+//
+//	const auto vb = vertexBytes();
+//	for (uint32_t i = 0; i < _vertexCount; ++i) {
+//		const std::byte* base = vb.data() + size_t(i) * _vertexStride;
+//		vec3 p = ReadVec3(base, posA->offset);
+//		AABB::Expand(_localAABB, p);
+//	}
+//}
+
 void MeshElement::genLocalAABB() {
 	if (_vertexCount == 0) {
-		_localAABB = AABB::Zero();
+		_localAABB = AABB::Invalid();
 		return;
 	}
 
-	const VertexLayoutDesc& desc = GetVertexLayoutDesc(_layout);
-	const VertexAttribDesc* posA = FindAttrib(desc, VertexSemantic::Position);
-	A3D_ASSERT(posA && posA->format == VertexFormat::F32x3);
-
-	static const float maxFloat = math::f32_max();
-	static const float minFloat = math::f32_lowest();
-
-	AABB aabb = { {maxFloat, maxFloat, maxFloat},
-				  {minFloat, minFloat, minFloat} };
-
+	const VertexAttribDesc* posA = VertexAccess::GetPosAttribOrDie(_layout);
 	const auto vb = vertexBytes();
-	for (uint32_t i = 0; i < _vertexCount; ++i) {
-		const std::byte* base = vb.data() + size_t(i) * _vertexStride;
-		vec3 p = ReadVec3(base, posA->offset);
-		aabb.min = min(aabb.min, p);
-		aabb.max = max(aabb.max, p);
-	}
 
-	_localAABB = aabb;
+	_localAABB = AABB::Invalid();
+
+	for (uint32_t i = 0; i < _vertexCount; ++i) {
+		const std::byte* base = vb.data() + size_t(i) * size_t(_vertexStride);
+		const vec3 pos = VertexAccess::ReadVec3(base, posA->offset);
+		AABB::Expand(_localAABB, pos);
+	}
 }
 
 /// Protected Lifecycle ///
-
-//MeshElement::MeshElement():
-//		_layout{VertexLayout::PNT},
-//		//_vertices{},
-//		//_faces{},
-//		//_aabbLines{},
-//		_dirtyMask{MeshElementDirtyMask::All} { }
 
 
 MeshElement::MeshElement():
@@ -396,7 +319,26 @@ MeshElement::MeshElement():
 		_dirtyMask{MeshElementDirtyMask::All} {}
 
 
-
+//MeshElement::MeshElement(VertexLayout layout,
+//						 vector<std::byte>& vertexData,
+//						 uint32_t vertexCount,
+//						 uint16_t vertexStride,
+//						 vector<Face>& faces):
+//		_faces(std::move(faces)),
+//		_localAABB(AABB::Invalid()),
+//		_dirtyMask(MeshElementDirtyMask::All),
+//		_layout(layout),
+//		_vertexData(std::move(vertexData)),
+//		_vertexCount(vertexCount),
+//		_vertexStride(vertexStride) {
+//
+//	if (_vertexCount == 0) return;
+//
+//	A3D_ASSERT(_vertexStride >= sizeof(float)*3);
+//	A3D_ASSERT(_vertexData.size() >= size_t(_vertexCount) * size_t(_vertexStride));
+//
+//	genLocalAABB();
+//}
 
 
 
@@ -412,63 +354,32 @@ VertexLayout MeshElement::vertexLayout() const {
 	return _layout;
 }
 
-void MeshElement::vertexLayout(VertexLayout layout) {
-	_layout = layout;
-}
+//void MeshElement::vertexLayout(VertexLayout layout) {
+//	_layout = layout;
+//}
 
 
-void MeshElement::setVertexData(VertexLayout layout,
-							   span<const byte> bytes,
-							   uint32_t vertexCount,
-							   uint16_t stride) {
-	_layout = layout;
-	_vertexCount = vertexCount;
-	_vertexStride = stride;
-
-	_vertexData.assign(bytes.begin(), bytes.end());
-
-	genLocalAABB();
-	_dirtyMask |= MeshElementDirtyMask::VertexData;
-}
-
-void MeshElement::setFaces(span<const Face> faces) {
-	_faces.assign(faces.begin(), faces.end());
-	_dirtyMask |= MeshElementDirtyMask::VertexData; // triggers VAO+EBO rebuild
-}
-
-
-
-//uint32_t MeshElement::vertexCount() const {
-//	return (uint32_t)_vertices.size();
+//void MeshElement::setVertexData(VertexLayout layout,
+//							   span<const byte> bytes,
+//							   uint32_t vertexCount,
+//							   uint16_t stride) {
+//	_layout = layout;
+//	_vertexCount = vertexCount;
+//	_vertexStride = stride;
+//
+//	_vertexData.assign(bytes.begin(), bytes.end());
+//
+//	genLocalAABB();
+//	_dirtyMask |= MeshElementDirtyMask::VertexData;
 //}
 //
-//span<const byte> MeshElement::vertexBytes() const {
-//	auto s = span<const Vertex>{ _vertices.data(), _vertices.size() };
-//	return as_bytes(s);
-//}
-//
-//uint16_t MeshElement::vertexStride() const {
-//	return (uint16_t)sizeof(Vertex);
+//void MeshElement::setFaces(span<const Face> faces) {
+//	_faces.assign(faces.begin(), faces.end());
+//	_dirtyMask |= MeshElementDirtyMask::VertexData; // triggers VAO+EBO rebuild
 //}
 
-//uint32_t MeshElement::vertexCount() const {
-//	// If legacy verts exist, trust them
-//	if (!_vertices.empty()) return (uint32_t)_vertices.size();
-//	return _vertexCount;
-//}
-//
-//span<const byte> MeshElement::vertexBytes() const {
-//	if (!_vertexData.empty()) {
-//		return span<const byte>(_vertexData.data(), _vertexData.size());
-//	}
-//	auto s = span<const Vertex>{ _vertices.data(), _vertices.size() };
-//	return as_bytes(s);
-//}
-//
-//uint16_t MeshElement::vertexStride() const {
-//	if (!_vertexData.empty()) return _vertexStride;
-//	return (uint16_t)sizeof(Vertex);
-//}
+
+
 
 uint32_t MeshElement::vertexCount() const {
 	return _vertexCount;
@@ -496,18 +407,101 @@ const vector<Face>& MeshElement::faces() const {
 
 
 
-const VertexAttribDesc* FindAttrib(const VertexLayoutDesc& d, VertexSemantic sem) {
-	for (const auto& a : d.attribs) if (a.semantic == sem) return &a;
-	return nullptr;
+//const VertexAttribDesc* FindAttrib(const VertexLayoutDesc& d, VertexSemantic sem) {
+//	for (const auto& a : d.attribs) if (a.semantic == sem) return &a;
+//	return nullptr;
+//}
+//
+//vec3 ReadVec3(const std::byte* base, uint16_t offset) {
+//	float tmp[3];
+//	std::memcpy(tmp, base + offset, sizeof(tmp));
+//	return vec3(tmp[0], tmp[1], tmp[2]);
+//}
+//
+//void WriteVec3(std::byte* base, uint16_t offset, const vec3& v) {
+//	float tmp[3] = { v.x, v.y, v.z };
+//	std::memcpy(base + offset, tmp, sizeof(tmp));
+//}
+
+//vec3 ReadPositionAt0(std::span<const std::byte> vbytes,
+//											  uint32_t i,
+//											  uint16_t stride) {
+//
+//	const std::byte* p = vbytes.data() + size_t(i) * size_t(stride);
+//
+//	float xyz[3];
+//	memcpy(&xyz[0], p + 0, sizeof(float) * 3); // offset 0 == position
+//
+//	return { xyz[0], xyz[1], xyz[2] };
+//}
+//
+//void WritePositionAt0(std::span<std::byte> vbytes,
+//					  uint32_t i,
+//					  uint16_t stride,
+//					  const vec3& pos) {
+//
+//	std::byte* p = vbytes.data() + size_t(i) * size_t(stride);
+//
+//	float xyz[3] = { pos.x, pos.y, pos.z };
+//	memcpy(p + 0, &xyz[0], sizeof(float) * 3);
+//}
+
+//static const VertexAttribDesc* GetPosAttribOrDie(const MeshElement& element) {
+//	const VertexLayoutDesc& desc = GetVertexLayoutDesc(element.vertexLayout());
+//	const VertexAttribDesc* posA = FindAttrib(desc, VertexSemantic::Position);
+//	A3D_ASSERT(posA && posA->format == VertexFormat::F32x3);
+//	return posA;
+//}
+
+
+
+
+
+
+void MeshElement::beginBuild(VertexLayout layout,
+							 uint16_t stride,
+							 uint32_t reserveVerts,
+							 uint32_t reserveFaces) {
+
+	_layout = layout;
+	_vertexStride = stride;
+	_vertexCount = 0;
+	_vertexData.clear();
+	_faces.clear();
+
+	if (reserveVerts) {
+		_vertexData.reserve(size_t(reserveVerts) * size_t(stride));
+	}
+
+	if (reserveFaces) {
+		_faces.reserve(reserveFaces);
+	}
+
+	_dirtyMask |= MeshElementDirtyMask::VertexData;
+	_localAABB = AABB::Invalid();
 }
 
-vec3 ReadVec3(const std::byte* base, uint16_t offset) {
-	float tmp[3];
-	std::memcpy(tmp, base + offset, sizeof(tmp));
-	return vec3(tmp[0], tmp[1], tmp[2]);
+void MeshElement::appendVertexBytes(const void* vertexBytes) {
+
+	A3D_ASSERT(_vertexStride != 0);
+	const auto p = reinterpret_cast<const std::byte*>(vertexBytes);
+	_vertexData.insert(_vertexData.end(), p, p + _vertexStride);
+	++_vertexCount;
 }
 
-void WriteVec3(std::byte* base, uint16_t offset, const vec3& v) {
-	float tmp[3] = { v.x, v.y, v.z };
-	std::memcpy(base + offset, tmp, sizeof(tmp));
+void MeshElement::appendFace(const Face& f) {
+	_faces.push_back(f);
 }
+
+void MeshElement::endBuild(bool recomputeAABB) {
+//#ifndef NDEBUG
+	for (const Face& f : _faces) {
+		A3D_ASSERT(f.a < _vertexCount);
+		A3D_ASSERT(f.b < _vertexCount);
+		A3D_ASSERT(f.c < _vertexCount);
+	}
+//#endif
+	if (recomputeAABB) genLocalAABB();
+	_dirtyMask |= MeshElementDirtyMask::VertexData;
+}
+
