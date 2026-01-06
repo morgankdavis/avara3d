@@ -24,7 +24,15 @@ namespace a3d {
 		// I16x4N
 	};
 
+	enum class VertexSemantic : uint8_t {
+		Position,
+		Normal,
+		TexCoord0,
+		Color0,
+	};
+
 	struct VertexAttribDesc {
+		VertexSemantic 	semantic = 		VertexSemantic::Position;
 		uint8_t     	location =		0; // shader location
 		VertexFormat	format = 		VertexFormat::F32x3;
 		uint16_t    	offset = 		0; // byte offset in vertex
@@ -32,8 +40,8 @@ namespace a3d {
 	};
 
 	struct VertexLayoutDesc {
-		uint16_t stride = 0;
-		std::span<const VertexAttribDesc> attribs;
+		uint16_t 							stride = 	0;
+		std::span<const VertexAttribDesc> 	attribs =	{};
 	};
 
 	const VertexLayoutDesc& GetVertexLayoutDesc(VertexLayout layout);

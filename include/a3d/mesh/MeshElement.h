@@ -42,12 +42,6 @@ namespace a3d {
 
 
 
-		VertexLayout 					vertexLayout() const;
-		void 							vertexLayout(VertexLayout layout);
-
-		uint32_t 						vertexCount() const;
-		std::span<const std::byte> 		vertexBytes() const;
-		uint16_t 						vertexStride() const;
 
 
 
@@ -56,8 +50,8 @@ namespace a3d {
 
 
 
-		const std::vector<Vertex>& 		vertices() const;
-		const std::vector<Face>&		faces() const;
+//		const std::vector<Vertex>& 		vertices() const;
+		const std::vector<Face>&		faces() const; // PNT-only legacy path
 
 		void 							burnTransform(const math::mat4& transform,
 													  bool normals);
@@ -82,11 +76,56 @@ namespace a3d {
 
 		/// Protected Member Variables ///
 
-		VertexLayout 					_layout;
-		std::vector<Vertex>				_vertices;
+
+//		std::vector<Vertex>				_vertices;
 		std::vector<Face>				_faces;
 		AABB							_localAABB;
 		MeshElementDirtyMask			_dirtyMask;
+
+
+
+
+
+
+
+
+
+	public:
+
+		VertexLayout 					vertexLayout() const;
+		void 							vertexLayout(VertexLayout layout);
+
+		void setVertexData(VertexLayout layout,
+						   std::span<const std::byte> bytes,
+						   uint32_t vertexCount,
+						   uint16_t stride);
+
+		template <class TVertex>
+		void setVertices(VertexLayout layout, const std::vector<TVertex>& verts) {
+			static_assert(std::is_trivially_copyable_v<TVertex>);
+			auto s = std::span<const TVertex>(verts.data(), verts.size());
+			setVertexData(layout,
+						  std::as_bytes(s),
+						  (uint32_t)verts.size(),
+						  (uint16_t)sizeof(TVertex));
+		}
+
+		void setFaces(std::span<const Face> faces);
+
+
+		uint32_t 						vertexCount() const;
+		std::span<const std::byte> 		vertexBytes() const;
+		uint16_t 						vertexStride() const;
+
+
+
+		VertexLayout 					_layout;
+
+		std::vector<std::byte>			_vertexData;
+		uint32_t						_vertexCount = 0;
+		uint16_t						_vertexStride = 0;
+
+
 	};
 }
 

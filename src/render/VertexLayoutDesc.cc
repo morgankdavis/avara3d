@@ -15,20 +15,20 @@
 
 namespace a3d {
 
-	static constexpr VertexAttribDesc kPNT[] = {
-			{0, VertexFormat::F32x3, (uint16_t)offsetof(Vertex, position)},
-			{1, VertexFormat::F32x3, (uint16_t)offsetof(Vertex, normal)},
-			{2, VertexFormat::F32x2, (uint16_t)offsetof(Vertex, texCoord)},   // or uv0 / texcoord0 etc
+	static constexpr VertexAttribDesc PNT_DESC[] = {
+			{VertexSemantic::Position,  0, VertexFormat::F32x3, (uint16_t)offsetof(Vertex,   position)},
+			{VertexSemantic::Normal,    1, VertexFormat::F32x3, (uint16_t)offsetof(Vertex,   normal)},
+			{VertexSemantic::TexCoord0, 2, VertexFormat::F32x2, (uint16_t)offsetof(Vertex,   texCoord)},
 	};
 
-	static constexpr VertexAttribDesc kPC[] = {
-			{0, VertexFormat::F32x3, (uint16_t)offsetof(VertexPC, pos)},
-			{1, VertexFormat::F32x3, (uint16_t)offsetof(VertexPC, color)},
+	static constexpr VertexAttribDesc PC_DESC[] = {
+			{VertexSemantic::Position, 0, VertexFormat::F32x3, (uint16_t)offsetof(VertexPC, pos)},
+			{VertexSemantic::Color0,   1, VertexFormat::F32x3, (uint16_t)offsetof(VertexPC, color)},
 	};
 
 	const VertexLayoutDesc& GetVertexLayoutDesc(VertexLayout layout) {
-		static constexpr VertexLayoutDesc PNT { (uint16_t)sizeof(Vertex),   kPNT };
-		static constexpr VertexLayoutDesc PC  { (uint16_t)sizeof(VertexPC), kPC  };
+		static constexpr VertexLayoutDesc PNT { (uint16_t)sizeof(Vertex),   PNT_DESC };
+		static constexpr VertexLayoutDesc PC  { (uint16_t)sizeof(VertexPC), PC_DESC  };
 		static constexpr VertexLayoutDesc NONE{ 0, {} };
 
 		switch (layout) {

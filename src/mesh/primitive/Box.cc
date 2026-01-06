@@ -55,6 +55,29 @@ Box::Box(float length,
 		_widthSegments{widthSegments},
 		_heightSegments{heightSegments} {
 
+//	using namespace generator;
+//
+//	/// @param size Half of the side length in x (0), y (1) and z (2) direction.
+//	/// @param segments The number of segments in x (0), y (1) and z (2)
+//
+//	auto box = BoxMesh{ { width/2.0, length/2.0, height/2.0 },
+//						{ widthSegments, lengthSegments, heightSegments } };
+//
+//	for (const MeshVertex& v : box.vertices()) {
+//		_vertices.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
+//							  vec3(v.normal[0], v.normal[1], v.normal[2]),
+//							  vec2(v.texCoord[0], v.texCoord[1]) });
+//	}
+//
+//	for (const Triangle& t : box.triangles()) {
+//		_faces.push_back({ unsigned(t.vertices[0]),
+//						   unsigned(t.vertices[1]),
+//						   unsigned(t.vertices[2]) });
+//	}
+//	std::reverse(_faces.begin(), _faces.end());
+//
+//	genLocalAABB();
+
 	using namespace generator;
 
 	/// @param size Half of the side length in x (0), y (1) and z (2) direction.
@@ -63,20 +86,26 @@ Box::Box(float length,
 	auto box = BoxMesh{ { width/2.0, length/2.0, height/2.0 },
 						{ widthSegments, lengthSegments, heightSegments } };
 
+	std::vector<Vertex> verts;
+//	verts.reserve(box.vertices().size());
+
 	for (const MeshVertex& v : box.vertices()) {
-		_vertices.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
-							  vec3(v.normal[0], v.normal[1], v.normal[2]),
-							  vec2(v.texCoord[0], v.texCoord[1]) });
+		verts.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
+						  vec3(v.normal[0],   v.normal[1],   v.normal[2]),
+						  vec2(v.texCoord[0], v.texCoord[1]) });
 	}
 
+	std::vector<Face> faces;
+//	faces.reserve(box.triangles().size());
 	for (const Triangle& t : box.triangles()) {
-		_faces.push_back({ unsigned(t.vertices[0]),
-						   unsigned(t.vertices[1]),
-						   unsigned(t.vertices[2]) });
+		faces.push_back({ (uint32_t)t.vertices[0],
+						  (uint32_t)t.vertices[1],
+						  (uint32_t)t.vertices[2] });
 	}
-	std::reverse(_faces.begin(), _faces.end());
+	std::reverse(faces.begin(), faces.end());
 
-	genLocalAABB();
+	setVertices(VertexLayout::PNT, verts);
+	setFaces(faces);
 }
 
 /// Public Member Functions ///

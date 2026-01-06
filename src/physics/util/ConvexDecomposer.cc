@@ -13,12 +13,20 @@
 #include <magic_enum/magic_enum.hpp>
 #include <v-hacd/VHACD.h>
 
+#include "a3d/Types.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/log/Log.h"
 
 using namespace a3d;
 using namespace std;
 using namespace VHACD;
+
+/// Private Static Non-Member Prototypes ///
+
+static bool GetPNTPositionStream(const a3d::MeshElement& e,
+								 const unsigned char*& base,
+								 int& stride,
+								 int& count);
 
 /// Internal Lifecycle Functions ///
 
@@ -55,30 +63,65 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
 
 	// can probably be optimized...
 
+//	unsigned numVerts = 0;
+//	unsigned numFaces = 0;
+////	for (auto& element : _sourceElements) {
+//		numVerts += _sourceElement->vertices().size();
+//		numFaces += _sourceElement->faces().size();
+////	}
+//
+//	auto verts = vector<float>();
+//	verts.reserve((sizeof(float)*3) * numVerts);
+//	auto faces = vector<uint32_t>();
+//	faces.reserve((sizeof(uint32_t)*3) * numFaces);
+//
+////	for (auto& element : _sourceElements) {
+//		for (const auto& vert : _sourceElement->vertices()) {
+//			verts.push_back(vert.position.x);
+//			verts.push_back(vert.position.y);
+//			verts.push_back(vert.position.z);
+//		}
+//		for (const auto& face : _sourceElement->faces()) {
+//			faces.push_back((uint32_t)face.a);
+//			faces.push_back((uint32_t)face.b);
+//			faces.push_back((uint32_t)face.c);
+//		}
+////	}
+
 	unsigned numVerts = 0;
 	unsigned numFaces = 0;
-//	for (auto& element : _sourceElements) {
-		numVerts += _sourceElement->vertices().size();
-		numFaces += _sourceElement->faces().size();
-//	}
+
+	numVerts += _sourceElement->vertexCount();
+	numFaces += (unsigned)_sourceElement->faces().size();
 
 	auto verts = vector<float>();
-	verts.reserve((sizeof(float)*3) * numVerts);
-	auto faces = vector<uint32_t>();
-	faces.reserve((sizeof(uint32_t)*3) * numFaces);
+	verts.reserve(3u * numVerts);
 
-//	for (auto& element : _sourceElements) {
-		for (const auto& vert : _sourceElement->vertices()) {
-			verts.push_back(vert.position.x);
-			verts.push_back(vert.position.y);
-			verts.push_back(vert.position.z);
+	auto faces = vector<uint32_t>();
+	faces.reserve(3u * numFaces);
+
+	{ // positions
+
+		const unsigned char* base = nullptr;
+		int stride = 0, count = 0;
+		if (!GetPNTPositionStream(*_sourceElement, base, stride, count)) {
+			vhacd->Release();
+			return {};
 		}
-		for (const auto& face : _sourceElement->faces()) {
-			faces.push_back((uint32_t)face.a);
-			faces.push_back((uint32_t)face.b);
-			faces.push_back((uint32_t)face.c);
+
+		for (int i = 0; i < count; ++i) {
+			const float* p = reinterpret_cast<const float*>(base + size_t(i) * size_t(stride));
+			verts.push_back(p[0]);
+			verts.push_back(p[1]);
+			verts.push_back(p[2]);
 		}
-//	}
+	}
+
+	for (const auto& face : _sourceElement->faces()) {
+		faces.push_back((uint32_t)face.a);
+		faces.push_back((uint32_t)face.b);
+		faces.push_back((uint32_t)face.c);
+	}
 
 	vhacd->Compute(verts.data(), verts.size()/3,
 				   faces.data(), faces.size()/3,
@@ -121,4 +164,31 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
 //	_decomposedElements = decomposedElements;
 
 	return decomposedElements;
+}
+
+/// Private Static Non-Member Functions ///
+
+bool GetPNTPositionStream(const a3d::MeshElement& e,
+						  const unsigned char*& base,
+						  int& stride,
+						  int& count) {
+
+	if (e.vertexLayout() != VertexLayout::PNT) {
+		log::e()("MeshElement {:p} is not PNT (layout = {}).",
+					  (void*)&e, (uint32_t)e.vertexLayout());
+		return false;
+	}
+
+	auto vb = e.vertexBytes();
+	base   = reinterpret_cast<const unsigned char*>(vb.data()) + offsetof(a3d::Vertex, position);
+	stride = (int)e.vertexStride();
+	count  = (int)e.vertexCount();
+
+	// sanity: we expect PNT packed as a3d::Vertex
+	if ((uint16_t)stride != (uint16_t)sizeof(a3d::Vertex)) {
+		log::e()("PNT stride mismatch (stride = {} sizeof(Vertex) = {}).",
+					  stride, (int)sizeof(a3d::Vertex));
+		return false;
+	}
+	return true;
 }

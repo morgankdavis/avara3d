@@ -61,23 +61,44 @@ Capsule::Capsule(float radius,
 
 	auto capsule = CapsuleMesh{radius, height/2.0, (int)slices, (int)segments, (int)rings};
 
+//	for (const MeshVertex& v : capsule.vertices()) {
+//		_vertices.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
+//							  vec3(v.normal[0], v.normal[1], v.normal[2]),
+//							  vec2(v.texCoord[0], v.texCoord[1]) });
+//	}
+//
+//	for (const Triangle& t : capsule.triangles()) {
+//		_faces.push_back({ unsigned(t.vertices[0]),
+//						   unsigned(t.vertices[1]),
+//						   unsigned(t.vertices[2]) });
+//	}
+//
+//	// this orientation is what bullet expects
+//	auto xRotation = rotate(mat4(1.0), (float)radians(-90.0), vec3(1.0, 0.0, 0.0));
+//	burnTransform(xRotation, true);
+//
+//	//genLocalAABB(); // ^^ burnTransform() calls genLocalAABB()
+
+	std::vector<Vertex> verts;
+//	verts.reserve(capsule.vertices().size());
 	for (const MeshVertex& v : capsule.vertices()) {
-		_vertices.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
-							  vec3(v.normal[0], v.normal[1], v.normal[2]),
-							  vec2(v.texCoord[0], v.texCoord[1]) });
+		verts.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
+						  vec3(v.normal[0], v.normal[1], v.normal[2]),
+						  vec2(v.texCoord[0], v.texCoord[1]) });
 	}
 
+	std::vector<Face> faces;
+//	faces.reserve(capsule.triangles().size());
 	for (const Triangle& t : capsule.triangles()) {
-		_faces.push_back({ unsigned(t.vertices[0]),
-						   unsigned(t.vertices[1]),
-						   unsigned(t.vertices[2]) });
+		faces.push_back({ (uint32_t)t.vertices[0], (uint32_t)t.vertices[1], (uint32_t)t.vertices[2] });
 	}
 
-	// this orientation is what bullet expects
+	setVertices(VertexLayout::PNT, verts);
+	setFaces(faces);
+
+// orientation bullet expects
 	auto xRotation = rotate(mat4(1.0), (float)radians(-90.0), vec3(1.0, 0.0, 0.0));
 	burnTransform(xRotation, true);
-
-	//genLocalAABB(); // ^^ burnTransform() calls genLocalAABB()
 }
 
 /// Public Member Functions ///

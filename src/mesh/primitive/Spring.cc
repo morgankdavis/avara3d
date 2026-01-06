@@ -62,17 +62,40 @@ Spring::Spring(float minorRadius,
 
 	auto spring = SpringMesh{minorRadius, majorRadius, length/2.0, (int)slices, (int)segments};
 
+//	for (const MeshVertex& v : spring.vertices()) {
+//		_vertices.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
+//							  vec3(v.normal[0], v.normal[1], v.normal[2]),
+//							  vec2(v.texCoord[0], v.texCoord[1]) });
+//	}
+//
+//	for (const Triangle& t : spring.triangles()) {
+//		_faces.push_back({ unsigned(t.vertices[0]),
+//						   unsigned(t.vertices[1]),
+//						   unsigned(t.vertices[2]) });
+//	}
+//
+//	genLocalAABB();
+
+
+	std::vector<Vertex> verts;
+//	verts.reserve(box.vertices().size());
+
 	for (const MeshVertex& v : spring.vertices()) {
-		_vertices.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
-							  vec3(v.normal[0], v.normal[1], v.normal[2]),
-							  vec2(v.texCoord[0], v.texCoord[1]) });
+		verts.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
+						  vec3(v.normal[0],   v.normal[1],   v.normal[2]),
+						  vec2(v.texCoord[0], v.texCoord[1]) });
 	}
 
+	std::vector<Face> faces;
+//	faces.reserve(box.triangles().size());
 	for (const Triangle& t : spring.triangles()) {
-		_faces.push_back({ unsigned(t.vertices[0]),
-						   unsigned(t.vertices[1]),
-						   unsigned(t.vertices[2]) });
+		faces.push_back({ (uint32_t)t.vertices[0],
+						  (uint32_t)t.vertices[1],
+						  (uint32_t)t.vertices[2] });
 	}
+
+	setVertices(VertexLayout::PNT, verts);
+	setFaces(faces);
 
 	genLocalAABB();
 }

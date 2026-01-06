@@ -88,7 +88,7 @@ GatherOutput RenderGatherer::Gather(const Scene& scene,
 
 				RenderItem item;
 				item.mesh = mesh;
-				item.layout = mesh->vertexLayout();
+				item.layout = element->vertexLayout();
 				item.elementIndex = e;
 				item.element = element;
 				item.material = mat;

@@ -153,7 +153,8 @@ MeshId Mesh::id() const noexcept {
 }
 
 VertexLayout Mesh::vertexLayout() const {
-	return VertexLayout::PNT;
+	if (_elements.empty()) return VertexLayout::None;
+	return _elements[0]->vertexLayout();
 }
 
 void Mesh::burnTransform(const mat4& transform, bool normals) {
@@ -173,25 +174,38 @@ AABB Mesh::worldAABB(const math::mat4& worldTransform, bool vertfit) const {
 	// TODO: consolidate (MeshElement has the same function)
 
 	// fit over verticies - tighter - slow!
+//	if (vertfit) {
+//
+//		static const float maxFloat = math::f32_max();
+//		static const float minFloat = math::f32_lowest();
+//		AABB out = { {maxFloat, maxFloat, maxFloat},
+//					 {minFloat, minFloat, minFloat} };
+//
+//		for (const auto& e : _elements) {
+//			for (const auto& v : e->vertices()) {
+//				vec3 p = vec3(worldTransform * vec4(v.position, 1.0f));
+//				out.min.x = math::min(out.min.x, p.x);
+//				out.max.x = math::max(out.max.x, p.x);
+//				out.min.y = math::min(out.min.y, p.y);
+//				out.max.y = math::max(out.max.y, p.y);
+//				out.min.z = math::min(out.min.z, p.z);
+//				out.max.z = math::max(out.max.z, p.z);
+//			}
+//		}
+//
+//		return out;
+//	}
 	if (vertfit) {
-
 		static const float maxFloat = math::f32_max();
 		static const float minFloat = math::f32_lowest();
 		AABB out = { {maxFloat, maxFloat, maxFloat},
 					 {minFloat, minFloat, minFloat} };
 
 		for (const auto& e : _elements) {
-			for (const auto& v : e->vertices()) {
-				vec3 p = vec3(worldTransform * vec4(v.position, 1.0f));
-				out.min.x = math::min(out.min.x, p.x);
-				out.max.x = math::max(out.max.x, p.x);
-				out.min.y = math::min(out.min.y, p.y);
-				out.max.y = math::max(out.max.y, p.y);
-				out.min.z = math::min(out.min.z, p.z);
-				out.max.z = math::max(out.max.z, p.z);
-			}
+			AABB ea = e->worldAABB(worldTransform, true);
+			out.min = min(out.min, ea.min);
+			out.max = max(out.max, ea.max);
 		}
-
 		return out;
 	}
 	// fit over OBB - looser - fast!

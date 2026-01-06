@@ -13,11 +13,13 @@
 
 namespace a3d {
 
-	struct VertexPNT {
-		math::vec3 pos;
-		math::vec3 norm;
-		math::vec2 uv0;
-	};
+	using VertexPNT = Vertex;
+
+//	struct VertexPNT {
+//		math::vec3 pos;
+//		math::vec3 norm;
+//		math::vec2 uv0;
+//	};
 
 	struct VertexPC {
 		math::vec3 pos;
