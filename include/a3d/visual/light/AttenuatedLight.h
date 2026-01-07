@@ -22,6 +22,25 @@ namespace a3d {
 	class AttenuatedLight : public Light {
 
 	public:
+		/// Public Types ///
+
+//		struct AttenuationCutoff {
+//			// cuts off light when attenuation drops below 'attenuation'.
+//			// computed per-fragment.
+//			float attenuation;
+//		};
+//
+//		struct DistanceCutoff {
+//			// cuts lights off past 'distance'.
+//			// computed per-fragment.
+//			float distance;
+//		};
+//
+//		using Cutoff = std::variant<
+//				std::monostate,
+//				AttenuationCutoff,
+//				DistanceCutoff>;
+
 		/// Public Lifecycle Functions ///
 
 //		explicit AttenuatedLight(const std::string& name, float );
@@ -49,8 +68,8 @@ namespace a3d {
 
 		// NOT implemented.
 		// see notes in Types.h
-		LightCutoff		cutoff() const;
-		void			cutoff(LightCutoff cutoff);
+//		Cutoff			cutoff() const;
+//		void			cutoff(Cutoff cutoff);
 
 	protected:
 		/// Protected Lifecycle Functions ///

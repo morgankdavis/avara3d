@@ -52,15 +52,15 @@ void AttenuatedLight::quadraticAttenuation(float factor) {
 	_quadraticAttenuation = factor;
 }
 
-LightCutoff AttenuatedLight::cutoff() const {
-	throw NotImplementedException("AttenuatedLight cutoff is not yet implemented.");
-	//return _cutoff;
-}
-
-void AttenuatedLight::cutoff(LightCutoff cutoff) {
-	throw NotImplementedException("AttenuatedLight cutoff is not yet implemented.");
-//	_cutoff = cutoff;
-}
+//Light::Cutoff AttenuatedLight::cutoff() const {
+//	throw NotImplementedException("AttenuatedLight cutoff is not yet implemented.");
+//	//return _cutoff;
+//}
+//
+//void AttenuatedLight::cutoff(Cutoff cutoff) {
+//	throw NotImplementedException("AttenuatedLight cutoff is not yet implemented.");
+////	_cutoff = cutoff;
+//}
 
 /// Private Lifecycle Functions ///
 

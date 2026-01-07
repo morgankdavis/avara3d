@@ -117,22 +117,22 @@ namespace a3d {
 		Soft = 		2 // y = x^2
 	};
 
-	struct AttenuationLightCutoff {
-		// cuts off light when attenuation drops below 'attenuation'.
-		// computed per-fragment.
-		float attenuation;
-	};
+//	struct AttenuationLightCutoff {
+//		// cuts off light when attenuation drops below 'attenuation'.
+//		// computed per-fragment.
+//		float attenuation;
+//	};
 
-	struct DistanceLightCutoff {
-		// cuts lights off past 'distance'.
-		// computed per-fragment.
-		float distance;
-	};
+//	struct DistanceLightCutoff {
+//		// cuts lights off past 'distance'.
+//		// computed per-fragment.
+//		float distance;
+//	};
 
-	using LightCutoff = std::variant<
-			std::monostate,
-			AttenuationLightCutoff,
-			DistanceLightCutoff>;
+//	using LightCutoff = std::variant<
+//			std::monostate,
+//			AttenuationLightCutoff,
+//			DistanceLightCutoff>;
 
 	enum class AntialiasingMode : uint8_t {
 		None =		0,
