@@ -37,7 +37,7 @@ FilterMode Sampler::minificationFilter() const {
 void Sampler::minificationFilter(FilterMode mode) {
 	_minificationFilter = mode;
 
-	_dirtyMask = A3D_MASK_ADD(_dirtyMask, SamplerDirtyMask::MinificationFilter);
+	_dirtyMask = util::bitmask::add(_dirtyMask, SamplerDirtyMask::MinificationFilter);
 }
 
 FilterMode Sampler::magnificationFilter() const {
@@ -47,7 +47,7 @@ FilterMode Sampler::magnificationFilter() const {
 void Sampler::magnificationFilter(FilterMode mode) {
 	_magnificationFilter = mode;
 
-	_dirtyMask = A3D_MASK_ADD(_dirtyMask, SamplerDirtyMask::MagnificationFilter);
+	_dirtyMask = util::bitmask::add(_dirtyMask, SamplerDirtyMask::MagnificationFilter);
 }
 
 float Sampler::maxAnisotropy() const {
@@ -65,7 +65,7 @@ void Sampler::maxAnisotropy(float max) {
 
 	_maxAnisotropy = max;
 
-	_dirtyMask = A3D_MASK_ADD(_dirtyMask, SamplerDirtyMask::MaxAnisotropy);
+	_dirtyMask = util::bitmask::add(_dirtyMask, SamplerDirtyMask::MaxAnisotropy);
 }
 
 WrapMode Sampler::wrapS() const {
@@ -75,7 +75,7 @@ WrapMode Sampler::wrapS() const {
 void Sampler::wrapS(WrapMode mode) {
 	_wrapS = mode;
 
-	_dirtyMask = A3D_MASK_ADD(_dirtyMask, SamplerDirtyMask::WrapS);
+	_dirtyMask = util::bitmask::add(_dirtyMask, SamplerDirtyMask::WrapS);
 }
 
 WrapMode Sampler::wrapT() const {
@@ -85,7 +85,7 @@ WrapMode Sampler::wrapT() const {
 void Sampler::wrapT(WrapMode mode) {
 	_wrapT = mode;
 
-	_dirtyMask = A3D_MASK_ADD(_dirtyMask, SamplerDirtyMask::WrapT);
+	_dirtyMask = util::bitmask::add(_dirtyMask, SamplerDirtyMask::WrapT);
 }
 
 WrapMode Sampler::wrapR() const {
@@ -95,7 +95,7 @@ WrapMode Sampler::wrapR() const {
 void Sampler::wrapR(WrapMode mode) {
 	_wrapR = mode;
 
-	_dirtyMask = A3D_MASK_ADD(_dirtyMask, SamplerDirtyMask::WrapR);
+	_dirtyMask = util::bitmask::add(_dirtyMask, SamplerDirtyMask::WrapR);
 }
 
 /// Internal Member Functions ///

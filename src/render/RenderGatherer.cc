@@ -12,11 +12,13 @@
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/physics/PhysicalWorld.h"
+#include "a3d/profiling/FrameStats.h"
 #include "a3d/render/DebugLinesBuilder.h"
 #include "a3d/render/GatherOutput.h"
 #include "a3d/render/context/RenderContext.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
+#include "a3d/util/bitmask.h"
 #include "a3d/visual/VisualWorld.h"
 #include "a3d/visual/material/Material.h"
 
@@ -47,7 +49,7 @@ GatherOutput RenderGatherer::Gather(const Scene& scene,
 	stack.reserve(256);
 	stack.push_back({scene.rootNode().get(), mat4(1.0)});
 
-	const bool showBounds = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowBoundingBoxes);
+	const bool showBounds = util::bitmask::contains(debugOptions, DebugOptions::ShowBoundingBoxes);
 
 	output.backgroundMaterial = scene.visualWorld()->backgroundMaterial();
 
@@ -66,7 +68,7 @@ GatherOutput RenderGatherer::Gather(const Scene& scene,
 		if (n->hidden()) continue;
 
 		const mat4 world = parentWorld * n->transform();
-		const bool wireframe = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes);
+		const bool wireframe = util::bitmask::contains(debugOptions, DebugOptions::ShowWireframes);
 
 		if (auto* mesh = n->mesh().get()) {
 

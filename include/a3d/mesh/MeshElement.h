@@ -17,6 +17,7 @@
 #include "a3d/Assert.h"
 #include "a3d/Types.h"
 #include "a3d/Math.h"
+#include "a3d/mesh/AABB.h"
 
 #include "a3d/mesh/VertexLayout.h"
 

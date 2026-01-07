@@ -63,8 +63,8 @@ int main(int argc, const char* argv[]) {
 
 		auto scene = make_unique<Scene>(std::move(visualWorld), nullptr, std::move(inputManager));
 //	DebugOptions debugOptions = DebugOptions::None;
-//	debugOptions = A3D_MASK_ADD(debugOptions, DebugOptions::ShowStatsOverlay);
-//	debugOptions = A3D_MASK_ADD(debugOptions, DebugOptions::ShowBoundingBoxes);
+//	debugOptions = util::bitmask::add(debugOptions, DebugOptions::ShowStatsOverlay);
+//	debugOptions = util::bitmask::add(debugOptions, DebugOptions::ShowBoundingBoxes);
 		DebugOptions debugOptions = DebugOptions::ShowStatsOverlay
 									| DebugOptions::ShowBoundingBoxes;
 		scene->debugOptions(debugOptions);
@@ -143,32 +143,32 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	}
 
 	if (keysPressed.count(Key::F)) {
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowWireframes)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
 											  DebugOptions::ShowWireframes));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(),
 										   DebugOptions::ShowWireframes));
 		}
 	}
 	if (keysPressed.count(Key::B)) {
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
 											  DebugOptions::ShowBoundingBoxes));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(),
 										   DebugOptions::ShowBoundingBoxes));
 		}
 	}
 	if (keysPressed.count(Key::I)) {
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
 											  DebugOptions::ShowStatsOverlay));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(),
 										   DebugOptions::ShowStatsOverlay));
 		}
 	}

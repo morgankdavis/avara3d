@@ -15,6 +15,8 @@
 
 namespace a3d {
 
+	struct AABB;
+
 	class Line;
 
 	class DebugLinesBuilder {

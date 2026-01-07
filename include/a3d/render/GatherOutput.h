@@ -14,6 +14,7 @@
 
 #include "a3d/Math.h"
 #include "a3d/Types.h"
+#include "a3d/mesh/AABB.h"
 #include "a3d/mesh/Line.h"
 
 namespace a3d {

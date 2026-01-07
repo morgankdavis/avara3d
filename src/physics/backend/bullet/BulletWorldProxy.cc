@@ -31,6 +31,7 @@
 #include "a3d/physics/backend/bullet/BulletUtilities.h"
 #include "a3d/profiling/Profiling.h"
 #include "a3d/scene/Node.h"
+#include "a3d/util/bitmask.h"
 #include "a3d/util/flow.h"
 
 using namespace a3d;
@@ -359,22 +360,22 @@ int PickNumBTThreads(btITaskScheduler* sched) {
 btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const DebugOptions& options) {
 	btIDebugDraw::DebugDrawModes btModes = btIDebugDraw::DBG_NoDebug;
 
-	if (A3D_MASK_CONTAINS(options, DebugOptions::ShowPhysicsBoundingBoxes)) {
+	if (util::bitmask::contains(options, DebugOptions::ShowPhysicsBoundingBoxes)) {
 		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawAabb);
 	}
-	if (A3D_MASK_CONTAINS(options, DebugOptions::ShowPhysicsWireframes)) {
+	if (util::bitmask::contains(options, DebugOptions::ShowPhysicsWireframes)) {
 		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawWireframe);
 	}
-	if (A3D_MASK_CONTAINS(options, DebugOptions::ShowPhysicsContactPoints)) {
+	if (util::bitmask::contains(options, DebugOptions::ShowPhysicsContactPoints)) {
 		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawContactPoints);
 	}
-	if (A3D_MASK_CONTAINS(options, DebugOptions::ShowPhysicsNormals)) {
+	if (util::bitmask::contains(options, DebugOptions::ShowPhysicsNormals)) {
 		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawNormals);
 	}
-	if (A3D_MASK_CONTAINS(options, DebugOptions::ShowPhysicsConstraints)) {
+	if (util::bitmask::contains(options, DebugOptions::ShowPhysicsConstraints)) {
 		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawConstraints);
 	}
-	if (A3D_MASK_CONTAINS(options, DebugOptions::ShowPhysicsConstraintLimits)) {
+	if (util::bitmask::contains(options, DebugOptions::ShowPhysicsConstraintLimits)) {
 		btModes = (btIDebugDraw::DebugDrawModes)(btModes | btIDebugDraw::DBG_DrawConstraintLimits);
 	}
 

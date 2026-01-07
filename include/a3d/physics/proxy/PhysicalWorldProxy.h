@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "a3d/Types.h"
+#include "a3d/profiling/FrameStats.h"
 
 namespace a3d {
 

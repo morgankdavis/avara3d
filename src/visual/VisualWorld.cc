@@ -72,7 +72,7 @@ void VisualWorld::background(const MaterialProperty& background) {
 
 	// TODO: check equality?
 
-//	_dirtyMask = A3D_MASK_ADD(_dirtyMask, VisualWorldDirtyMask::Background);
+//	_dirtyMask = util::bitmask::add(_dirtyMask, VisualWorldDirtyMask::Background);
 
 	if (auto texture = get_if<shared_ptr<Texture>>(&background)) {
 

@@ -154,12 +154,12 @@ static void ApplySamplerState(Texture& texture, unsigned glTextureHandle, bool f
 
 	const auto sm = sampler->dirtyMask();
 
-	auto doMin = forceAll || A3D_MASK_CONTAINS(sm, SamplerDirtyMask::MinificationFilter);
-	auto doMag = forceAll || A3D_MASK_CONTAINS(sm, SamplerDirtyMask::MagnificationFilter);
-	auto doWS  = forceAll || A3D_MASK_CONTAINS(sm, SamplerDirtyMask::WrapS);
-	auto doWT  = forceAll || A3D_MASK_CONTAINS(sm, SamplerDirtyMask::WrapT);
-	auto doWR  = forceAll || (isCubemap && A3D_MASK_CONTAINS(sm, SamplerDirtyMask::WrapR));
-	auto doAn  = forceAll || A3D_MASK_CONTAINS(sm, SamplerDirtyMask::MaxAnisotropy);
+	auto doMin = forceAll || util::bitmask::contains(sm, SamplerDirtyMask::MinificationFilter);
+	auto doMag = forceAll || util::bitmask::contains(sm, SamplerDirtyMask::MagnificationFilter);
+	auto doWS  = forceAll || util::bitmask::contains(sm, SamplerDirtyMask::WrapS);
+	auto doWT  = forceAll || util::bitmask::contains(sm, SamplerDirtyMask::WrapT);
+	auto doWR  = forceAll || (isCubemap && util::bitmask::contains(sm, SamplerDirtyMask::WrapR));
+	auto doAn  = forceAll || util::bitmask::contains(sm, SamplerDirtyMask::MaxAnisotropy);
 
 	if (doMin) {
 		auto mode = sampler->minificationFilter();
@@ -198,12 +198,12 @@ static void ApplySamplerState(Texture& texture, unsigned glTextureHandle, bool f
 		sampler->dirtyMask((SamplerDirtyMask)0);
 	} else {
 		auto cleared = sm;
-		if (doMin) cleared = A3D_MASK_REMOVE(cleared, SamplerDirtyMask::MinificationFilter);
-		if (doMag) cleared = A3D_MASK_REMOVE(cleared, SamplerDirtyMask::MagnificationFilter);
-		if (doWS)  cleared = A3D_MASK_REMOVE(cleared, SamplerDirtyMask::WrapS);
-		if (doWT)  cleared = A3D_MASK_REMOVE(cleared, SamplerDirtyMask::WrapT);
-		if (doWR)  cleared = A3D_MASK_REMOVE(cleared, SamplerDirtyMask::WrapR);
-		if (doAn)  cleared = A3D_MASK_REMOVE(cleared, SamplerDirtyMask::MaxAnisotropy);
+		if (doMin) cleared = util::bitmask::remove(cleared, SamplerDirtyMask::MinificationFilter);
+		if (doMag) cleared = util::bitmask::remove(cleared, SamplerDirtyMask::MagnificationFilter);
+		if (doWS)  cleared = util::bitmask::remove(cleared, SamplerDirtyMask::WrapS);
+		if (doWT)  cleared = util::bitmask::remove(cleared, SamplerDirtyMask::WrapT);
+		if (doWR)  cleared = util::bitmask::remove(cleared, SamplerDirtyMask::WrapR);
+		if (doAn)  cleared = util::bitmask::remove(cleared, SamplerDirtyMask::MaxAnisotropy);
 		sampler->dirtyMask(cleared);
 	}
 }
@@ -246,7 +246,7 @@ const OGLMeshElement& OGLResourceCache::ensureMeshElement(MeshElement& element) 
 
 	const VertexLayout layout = element.vertexLayout();
 
-	const bool dirty  = A3D_MASK_CONTAINS(element.dirtyMask(), MeshElementDirtyMask::VertexData);
+	const bool dirty  = util::bitmask::contains(element.dirtyMask(), MeshElementDirtyMask::VertexData);
 	const bool missing = (res.vao == 0);
 	const bool layoutChanged = (!missing && res.vertexLayoutKey != layout);
 
@@ -326,7 +326,7 @@ const OGLMeshElement& OGLResourceCache::ensureMeshElement(MeshElement& element) 
 				 GL_STATIC_DRAW);
 
 	// Clear dirty bit
-	element.dirtyMask(A3D_MASK_REMOVE(element.dirtyMask(), MeshElementDirtyMask::VertexData));
+	element.dirtyMask(util::bitmask::remove(element.dirtyMask(), MeshElementDirtyMask::VertexData));
 
 	return res;
 }
@@ -360,7 +360,7 @@ unsigned OGLResourceCache::ensureTexture(Texture& texture) {
 	unsigned handle = it->second.id;
 
 	const bool contentsDirty =
-			A3D_MASK_CONTAINS(texture.dirtyMask(), TextureDirtyMask::Contents);
+			util::bitmask::contains(texture.dirtyMask(), TextureDirtyMask::Contents);
 	const bool missingOrZero = (handle == 0);
 	const bool forceAll = contentsDirty || missingOrZero;
 
@@ -382,7 +382,7 @@ unsigned OGLResourceCache::ensureTexture(Texture& texture) {
 		it->second.id = handle;
 
 		// Clear only Contents bit
-		texture.dirtyMask(A3D_MASK_REMOVE(texture.dirtyMask(), TextureDirtyMask::Contents));
+		texture.dirtyMask(util::bitmask::remove(texture.dirtyMask(), TextureDirtyMask::Contents));
 	}
 
 	// Apply sampler state whenever sampler says it’s dirty, and always after (re)upload

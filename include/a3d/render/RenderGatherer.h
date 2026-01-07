@@ -14,6 +14,7 @@
 
 namespace a3d {
 
+	struct FrameStats;
 	struct GatherOutput;
 
 	class PhysicalWorld;

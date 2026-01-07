@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "a3d/Types.h"
+#include "a3d/mesh/AABB.h"
 
 namespace a3d {
 

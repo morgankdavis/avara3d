@@ -9,7 +9,9 @@
 #ifndef AVARA3D_TYPES_H
 #define AVARA3D_TYPES_H
 
-#include <chrono>
+#include <cstdint>
+#include <climits>
+#include <cstdint>
 #include <memory>
 #include <set>
 #include <unordered_set>
@@ -19,6 +21,7 @@
 #include <vector>
 
 #include "a3d/Math.h"
+#include "a3d/util/bitmask.h"
 
 namespace a3d {
 
@@ -29,54 +32,7 @@ namespace a3d {
 
 	/// Public Type Utilities ///
 
-// works great in Linux, macOS, but typeof() is a GNU lanuage extension (C23)
-//
-//	#define A3D_MASK_CONTAINS(mask, bit) \
-//		(static_cast<underlying_type<typeof(mask)>::type>(mask) \
-//		& static_cast<underlying_type<typeof(mask)>::type>(bit))
-//	#define A3D_MASK_ADD(mask, bit) \
-//		(static_cast<typeof(mask)>(static_cast<underlying_type<typeof(mask)>::type>(mask) \
-//		| static_cast<underlying_type<typeof(mask)>::type>(bit)))
-//	#define A3D_MASK_REMOVE(mask, bit) \
-//		(static_cast<typeof(mask)>(static_cast<underlying_type<typeof(mask)>::type>(mask) \
-//		& ~ static_cast<underlying_type<typeof(mask)>::type>(bit)))
 
-	#define A3D_MASK_CONTAINS(mask, bits) (static_cast<unsigned>(mask & bits) != 0)
-	#define A3D_MASK_ADD(mask, bits) (mask | bits)
-	#define A3D_MASK_REMOVE(mask, bits) (mask & ~bits)
-
-	// example from fastgltf
-	// a similar approach: https://stackoverflow.com/a/12080553
-
-	template<typename T>
-	constexpr std::underlying_type_t<T> to_underlying(T t) noexcept {
-		return static_cast<std::underlying_type_t<T>>(t);
-	}
-
-	#define A3D_ENABLE_ARITHMETIC_OP(T1, T2, op) \
-		constexpr T1 operator op(const T1& a, const T2& b) noexcept { \
-			static_assert(std::is_enum_v<T1> && std::is_enum_v<T2>); \
-			return static_cast<T1>(to_underlying(a) op to_underlying(b)); \
-		}
-
-	#define A3D_ENABLE_ASSIGNMENT_OP(T1, T2, op) \
-		constexpr T1& operator op##=(T1& a, const T2& b) noexcept { \
-			static_assert(std::is_enum_v<T1> && std::is_enum_v<T2>); \
-			return a = static_cast<T1>(to_underlying(a) op to_underlying(b)), a; \
-		}
-
-	#define A3D_ENABLE_UNARY_OP(T, op) \
-		constexpr T operator op(const T& a) noexcept { \
-			static_assert(std::is_enum_v<T>); \
-			return static_cast<T>(op to_underlying(a)); \
-		}
-
-	#define A3D_ENABLE_ENUM_MASK_OPS(T) \
-		A3D_ENABLE_ARITHMETIC_OP(T, T, |) \
-		A3D_ENABLE_ARITHMETIC_OP(T, T, &) \
-		A3D_ENABLE_ASSIGNMENT_OP(T, T, |) \
-		A3D_ENABLE_ASSIGNMENT_OP(T, T, &) \
-		A3D_ENABLE_UNARY_OP(T, ~)
 
 	/// Public Types ///
 
@@ -104,14 +60,18 @@ namespace a3d {
 		ImportCameras = 		1 << 3,
 		ImportAll =				UINT16_MAX
 	};
-	A3D_ENABLE_ENUM_MASK_OPS(SceneImportOptions)
+	namespace util::bitmask {
+		template <> struct enable_ops<SceneImportOptions> : std::true_type {};
+	}
 
 	enum class MeshImportOptions : uint16_t {
 		None = 					0,
 		ImportMaterials =		1 << 1, // note maps to SceneImportOptions
 		ImportAll =				UINT16_MAX
 	};
-	A3D_ENABLE_ENUM_MASK_OPS(MeshImportOptions)
+	namespace util::bitmask {
+		template <> struct enable_ops<MeshImportOptions> : std::true_type {};
+	}
 
 	enum class FontType : uint8_t {
 		Unknown,
@@ -346,70 +306,10 @@ namespace a3d {
 		Eight = 7
 	};
 
-//	struct Vertex {
-//		math::vec3 position;
-//		math::vec3 normal;
-//		math::vec2 texCoord;
-//	};
-
 	struct Face {
 		uint32_t a;
 		uint32_t b;
 		uint32_t c;
-	};
-
-	// TODO: move?
-	struct AABB {
-		math::vec3 min;
-		math::vec3 max;
-
-		bool valid() const { return min.x <= max.x && min.y <= max.y && min.z <= max.z; }
-
-		static AABB Zero() {
-			return {{0,0,0}, {0,0,0}};
-		}
-
-		static AABB Invalid() {
-			return {{1,1,1}, {-1,-1,-1}};
-		}
-
-		static AABB Union(const AABB& a, const AABB& b) {
-			if (!a.valid()) return b;
-			if (!b.valid()) return a;
-			return { math::min(a.min, b.min),
-					 math::max(a.max, b.max) };
-		}
-
-		static void Expand(AABB& a, const math::vec3& p) {
-			a.min = math::min(a.min, p);
-			a.max = math::max(a.max, p);
-		}
-
-		static math::vec3 Center(const AABB& a) {
-			return (a.min + a.max) * 0.5f;
-		}
-	};
-
-	struct FrameStats {
-		std::chrono::nanoseconds frameTime;
-		std::chrono::nanoseconds engineCpuTime;
-		std::chrono::nanoseconds renderCpuTime;
-		std::chrono::nanoseconds renderGpuTime;
-		std::chrono::nanoseconds physicsTime;
-		std::chrono::nanoseconds applicationTime;
-
-		unsigned 	numNodes;
-		unsigned 	numMeshes;
-		unsigned 	numElements;
-		unsigned 	numPolygons;
-		unsigned 	numLights;
-		unsigned	numStaticBodies;
-		unsigned	numDynamicBodies;
-		unsigned	numKinematicBodies;
-		unsigned	numPrimitiveShapes;
-		unsigned	numBoundingBoxShapes;
-		unsigned	numConvexHullShapes;
-		unsigned	numConcavePolyhedronShapes;
 	};
 
 	enum DebugOptions : uint32_t {
@@ -427,7 +327,9 @@ namespace a3d {
 		ShowPhysicsConstraints =		1 << 10,
 		ShowPhysicsConstraintLimits	=	1 << 11
 	};
-	A3D_ENABLE_ENUM_MASK_OPS(DebugOptions)
+	namespace util::bitmask {
+		template <> struct enable_ops<DebugOptions> : std::true_type {};
+	}
 
 	/// Internal Types ///
 
@@ -458,14 +360,18 @@ namespace a3d {
 		WorldTransform =		1 << 0,
 		All = 					UINT_MAX
 	};
-	A3D_ENABLE_ENUM_MASK_OPS(NodeDirtyMask)
+	namespace util::bitmask {
+		template <> struct enable_ops<NodeDirtyMask> : std::true_type {};
+	}
 
 	enum class MeshDirtyMask : uint32_t {
 		None =					0,
 //		AABBLines	=			1 << 0,
 		All = 					UINT_MAX
 	};
-	A3D_ENABLE_ENUM_MASK_OPS(MeshDirtyMask)
+	namespace util::bitmask {
+		template <> struct enable_ops<MeshDirtyMask> : std::true_type {};
+	}
 
 	enum class MeshElementDirtyMask : uint32_t {
 		None =					0,
@@ -473,14 +379,18 @@ namespace a3d {
 //		AABBLines	=			1 << 1,
 		All = 					UINT_MAX
 	};
-	A3D_ENABLE_ENUM_MASK_OPS(MeshElementDirtyMask)
+	namespace util::bitmask {
+		template <> struct enable_ops<MeshElementDirtyMask> : std::true_type {};
+	}
 
 	enum class MaterialDirtyMask : uint32_t {
 		None =					0,
 //		MaxAnisotropy = 		1 << 1,
 		All = 					UINT_MAX
 	};
-	A3D_ENABLE_ENUM_MASK_OPS(MaterialDirtyMask)
+	namespace util::bitmask {
+		template <> struct enable_ops<MaterialDirtyMask> : std::true_type {};
+	}
 
 	enum class TextureDirtyMask : uint32_t {
 		None =					0,
@@ -488,7 +398,9 @@ namespace a3d {
 		Sampler =				1 << 1, // TODO: move to MaterialBinding dirty mask?
 		All = 					UINT_MAX
 	};
-	A3D_ENABLE_ENUM_MASK_OPS(TextureDirtyMask)
+	namespace util::bitmask {
+		template <> struct enable_ops<TextureDirtyMask> : std::true_type {};
+	}
 
 	enum class SamplerDirtyMask : uint32_t {
 		None =					0,
@@ -500,7 +412,9 @@ namespace a3d {
 		WrapR = 				1 << 5,
 		All = 					UINT_MAX
 	};
-	A3D_ENABLE_ENUM_MASK_OPS(SamplerDirtyMask)
+	namespace util::bitmask {
+		template <> struct enable_ops<SamplerDirtyMask> : std::true_type {};
+	}
 
 //	enum class VisualWorldDirtyMask : unsigned {
 //		None =					0,

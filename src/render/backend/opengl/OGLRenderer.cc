@@ -36,6 +36,7 @@
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/mesh/primitive/Box.h"
+#include "a3d/profiling/FrameStats.h"
 #include "a3d/render/DrawPacket.h"
 #include "a3d/render/backend/opengl/OGLResourceCache.h"
 #include "a3d/render/backend/opengl/GLSLProgram.h"
@@ -1143,7 +1144,7 @@ void DrawOverlay(const RenderContext& context,
 
 	ImguiBeginOverlay(0, true);
 	DrawDebugOptions(const_cast<Scene&>(scene), bodyFont); // TODO: const_cast CHEATING
-	if (A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay)) {
+	if (util::bitmask::contains(debugOptions, DebugOptions::ShowStatsOverlay)) {
 		DrawStats(stats, statsHistory, context, titleFont, bodyFont);
 	}
 
@@ -1549,52 +1550,52 @@ void DrawDebugOptions(Scene& scene, ImFont& bodyFont) {
 	auto debugOptions = scene.debugOptions();
 
 	yPos = 12.0;
-	static bool stats = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowStatsOverlay);
+	static bool stats = util::bitmask::contains(debugOptions, DebugOptions::ShowStatsOverlay);
 	if (ImguiDrawCheckbox(xPos, yPos, "stats", stats, bodyFont, STATS_BODY_FONT_SIZE, ++id)) {
-		if (stats) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowStatsOverlay));
-		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowStatsOverlay));
+		if (stats) scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowStatsOverlay));
+		else scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowStatsOverlay));
 	}
 
 	yPos += Y_PAD;
-	bool meshWF = A3D_MASK_CONTAINS(debugOptions, DebugOptions::ShowWireframes);
+	bool meshWF = util::bitmask::contains(debugOptions, DebugOptions::ShowWireframes);
 	if (ImguiDrawCheckbox(xPos, yPos, "mesh wireframes", meshWF, bodyFont, STATS_BODY_FONT_SIZE, ++id)) {
-		if (meshWF) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowWireframes));
-		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowWireframes));
+		if (meshWF) scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowWireframes));
+		else scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowWireframes));
 	}
 
 	yPos += Y_PAD;
-	bool meshAABBs = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes);
+	bool meshAABBs = util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowBoundingBoxes);
 	if (ImguiDrawCheckbox(xPos, yPos, "mesh AABBs", meshAABBs, bodyFont, STATS_BODY_FONT_SIZE, ++id)) {
-		if (meshAABBs) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowBoundingBoxes));
-		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowBoundingBoxes));
+		if (meshAABBs) scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowBoundingBoxes));
+		else scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowBoundingBoxes));
 	}
 
 	yPos += Y_PAD;
-	bool physWF = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes);
+	bool physWF = util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes);
 	if (ImguiDrawCheckbox(xPos, yPos, "physics wireframes", physWF, bodyFont, STATS_BODY_FONT_SIZE, ++id)) {
-		if (physWF) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsWireframes));
-		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsWireframes));
+		if (physWF) scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsWireframes));
+		else scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsWireframes));
 	}
 
 	yPos += Y_PAD;
-	bool physAABBs = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes);
+	bool physAABBs = util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes);
 	if (ImguiDrawCheckbox(xPos, yPos, "physics AABBs", physAABBs, bodyFont, STATS_BODY_FONT_SIZE, ++id)) {
-		if (physAABBs) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
-		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
+		if (physAABBs) scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
+		else scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
 	}
 
 	yPos += Y_PAD;
-	bool physContacts = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints);
+	bool physContacts = util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints);
 	if (ImguiDrawCheckbox(xPos, yPos, "physics contacts", physContacts, bodyFont, STATS_BODY_FONT_SIZE, ++id)) {
-		if (physContacts) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsContactPoints));
-		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsContactPoints));
+		if (physContacts) scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsContactPoints));
+		else scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsContactPoints));
 	}
 
 	yPos += Y_PAD;
-	bool physNorms = A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsNormals);
+	bool physNorms = util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsNormals);
 	if (ImguiDrawCheckbox(xPos, yPos, "physics normals", physNorms, bodyFont, STATS_BODY_FONT_SIZE, ++id)) {
-		if (physNorms) scene.debugOptions(A3D_MASK_ADD(debugOptions, DebugOptions::ShowPhysicsNormals));
-		else scene.debugOptions(A3D_MASK_REMOVE(debugOptions, DebugOptions::ShowPhysicsNormals));
+		if (physNorms) scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsNormals));
+		else scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsNormals));
 	}
 }
 

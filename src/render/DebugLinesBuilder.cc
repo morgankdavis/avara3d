@@ -8,6 +8,7 @@
 
 #include "a3d/render/DebugLinesBuilder.h"
 
+#include "a3d/mesh/AABB.h"
 #include "a3d/mesh/Line.h"
 
 using namespace a3d;

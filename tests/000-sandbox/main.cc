@@ -450,72 +450,72 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 
 	if (keysPressed.count(Key::F)) {
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowWireframes)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
 											   DebugOptions::ShowWireframes));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(),
 											DebugOptions::ShowWireframes));
 		}
 	}
 	if (keysPressed.count(Key::B)) {
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
 											   DebugOptions::ShowBoundingBoxes));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(),
 											DebugOptions::ShowBoundingBoxes));
 		}
 	}
 	if (keysPressed.count(Key::I)) {
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
 											   DebugOptions::ShowStatsOverlay));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(),
 											DebugOptions::ShowStatsOverlay));
 		}
 	}
 	if (keysPressed.count(Key::P)) {
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
 											   DebugOptions::ShowPhysicsBoundingBoxes));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(),
 											DebugOptions::ShowPhysicsBoundingBoxes));
 		}
 	}
 	if (keysPressed.count(Key::G)) {
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
 											   DebugOptions::ShowPhysicsWireframes));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(),
 											DebugOptions::ShowPhysicsWireframes));
 		}
 	}
 	if (keysPressed.count(Key::C)) {
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
 											   DebugOptions::ShowPhysicsContactPoints));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(),
 											DebugOptions::ShowPhysicsContactPoints));
 		}
 	}
 	if (keysPressed.count(Key::N)) {
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsNormals)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsNormals)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
 											   DebugOptions::ShowPhysicsNormals));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(),
 											DebugOptions::ShowPhysicsNormals));
 		}
 	}

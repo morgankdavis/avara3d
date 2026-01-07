@@ -10,6 +10,7 @@
 #define AVARA3D_ORTHOGRAPHICCAMERA_H
 
 #include "a3d/Types.h"
+#include "a3d/mesh/AABB.h"
 #include "a3d/visual/camera/Camera.h"
 
 namespace a3d {

@@ -9,10 +9,12 @@
 #ifndef AVARA3D_PROFILING_FRAMESTATSHISTORY_H
 #define AVARA3D_PROFILING_FRAMESTATSHISTORY_H
 
+#include <chrono>
 #include <deque>
 #include <tuple>
 
 #include "a3d/Types.h"
+#include "a3d/profiling/FrameStats.h"
 
 namespace a3d {
 

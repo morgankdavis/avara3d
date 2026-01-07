@@ -17,6 +17,8 @@
 
 namespace a3d {
 
+	struct FrameStats;
+
 	class HitTestResult;
 	class Line;
 	class PhysicsBody;

@@ -16,6 +16,8 @@
 
 namespace a3d {
 
+	struct FrameStats;
+
 	class Color;
 	class FrameStatsHistory;
 	class Material;

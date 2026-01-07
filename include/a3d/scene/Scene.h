@@ -23,6 +23,8 @@
 
 namespace a3d {
 
+	struct AABB;
+
 	class Color;
 	class InputManager;
 	class Mesh;

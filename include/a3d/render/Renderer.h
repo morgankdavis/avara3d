@@ -18,6 +18,7 @@
 namespace a3d {
 
 	struct BackgroundPass;
+	struct FrameStats;
 	struct LinesPass;
 
 	class FrameStatsHistory;

@@ -9,6 +9,7 @@
 #include "a3d/visual/material/Texture.h"
 
 #include "a3d/IdGenerator.h"
+#include "a3d/util/bitmask.h"
 
 using namespace a3d;
 using namespace std;
@@ -41,7 +42,7 @@ shared_ptr<Sampler> Texture::sampler() const {
 
 void Texture::sampler(const shared_ptr<Sampler>& sampler) {
 	_sampler = sampler;
-	_dirtyMask = A3D_MASK_ADD(_dirtyMask, TextureDirtyMask::Sampler);
+	_dirtyMask = util::bitmask::add(_dirtyMask, TextureDirtyMask::Sampler);
 }
 
 const Sampleable& Texture::contents() const {
@@ -50,7 +51,7 @@ const Sampleable& Texture::contents() const {
 
 void Texture::contents(const Sampleable& contents) {
 	_contents = contents;
-	_dirtyMask = A3D_MASK_ADD(_dirtyMask, TextureDirtyMask::Contents);
+	_dirtyMask = util::bitmask::add(_dirtyMask, TextureDirtyMask::Contents);
 }
 
 unsigned Texture::mappingChannel() const {

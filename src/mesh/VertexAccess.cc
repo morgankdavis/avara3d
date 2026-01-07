@@ -14,6 +14,8 @@
 #include <span>
 
 #include "a3d/Assert.h"
+#include "a3d/mesh/AABB.h"
+#include "a3d/mesh/MeshElement.h"
 #include "a3d/render/VertexLayoutDesc.h"
 
 using namespace a3d;
@@ -27,7 +29,7 @@ const VertexAttribDesc* VertexAccess::FindAttrib(const VertexLayoutDesc& desc,
 	return nullptr;
 }
 
-const VertexAttribDesc* VertexAccess::GetPosAttribOrDie(VertexLayout layout) {
+const VertexAttribDesc* VertexAccess::GetPositionAttribF32x3(VertexLayout layout) {
 	const VertexLayoutDesc& d = GetVertexLayoutDesc(layout);
 	const VertexAttribDesc* posA = FindAttrib(d, VertexSemantic::Position);
 	A3D_ASSERT(posA && posA->format == VertexFormat::F32x3);
@@ -43,4 +45,27 @@ math::vec3 VertexAccess::ReadVec3(const std::byte* base, uint16_t offset) {
 void VertexAccess::WriteVec3(std::byte* base, uint16_t offset, const math::vec3& vec) {
 	float tmp[3] = { vec.x, vec.y, vec.z };
 	memcpy(base + offset, tmp, sizeof(tmp));
+}
+
+optional<VertexStreamView> VertexAccess::GetStreamView(const MeshElement& element,
+													   VertexSemantic semantic,
+													   VertexFormat expectedFormat) {
+
+	if (element.vertexCount() == 0) return std::nullopt;
+
+	const VertexLayoutDesc& d = GetVertexLayoutDesc(element.vertexLayout());
+	const VertexAttribDesc* a = FindAttrib(d, semantic);
+	if (!a || a->format != expectedFormat) return std::nullopt;
+
+	VertexStreamView out;
+	out.base   = element.vertexBytes().data();
+	out.stride = element.vertexStride();
+	out.count  = element.vertexCount();
+	out.offset = a->offset;
+
+	return out;
+}
+
+optional<VertexStreamView> VertexAccess::GetPositionStreamView(const MeshElement& element) {
+	return GetStreamView(element, VertexSemantic::Position, VertexFormat::F32x3);
 }
