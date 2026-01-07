@@ -26,7 +26,7 @@ Buffer::Buffer(const std::filesystem::path& path):
 
 	ifstream in(path, ios::binary | ios::ate);
 	if (!in) {
-		throw runtime_error(std::format("Failed to open file: {}", string(path)));
+		throw runtime_error(std::format("Failed to open file: {}", path.string()));
 	}
 
 	const auto endPos = in.tellg();
@@ -42,7 +42,7 @@ Buffer::Buffer(const std::filesystem::path& path):
 		in.read(reinterpret_cast<char*>(_data.get()),
 				static_cast<std::streamsize>(_size));
 		if (!in) {
-			throw runtime_error(std::format("Failed to read file: {}", string(path)));
+			throw runtime_error(std::format("Failed to read file: {}", path.string()));
 		}
 	}
 }
