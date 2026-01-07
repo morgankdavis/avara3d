@@ -16,8 +16,8 @@
 #include <bullet/BulletCollision/CollisionShapes/btShapeHull.h>
 #include <magic_enum/magic_enum.hpp>
 
-#include "a3d/Types.h"
 #include "a3d/log/Log.h"
+#include "a3d/mesh/ConvexDecomposer.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/VertexAccess.h"
 #include "a3d/mesh/VertexFormats.h"
@@ -39,7 +39,6 @@
 #include "a3d/physics/shape_primitive/CylinderPhysicsShape.h"
 #include "a3d/physics/shape_primitive/PlanePhysicsShape.h"
 #include "a3d/physics/shape_primitive/SpherePhysicsShape.h"
-#include "a3d/physics/util/ConvexDecomposer.h"
 #include "a3d/render/VertexLayoutDesc.h"
 #include "a3d/scene/Node.h"
 
@@ -51,34 +50,34 @@ using namespace std;
 
 static unique_ptr<btCollisionShape>
 BTShapeFromSourceMesh(Mesh& mesh,
-					  PhysicsShapeType shapeType,
-					  PhysicsBodyType bodyType,
+					  PhysicsShape::Type shapeType,
+					  PhysicsBody::Type bodyType,
 					  vector<unique_ptr<btCollisionShape>>& btShapes,
 					  vector<unique_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
 static unique_ptr<btCollisionShape>
 BTShapeFromSourceNode(Node& node,
-					  PhysicsShapeType shapeType,
-					  PhysicsBodyType bodyType,
+					  PhysicsShape::Type shapeType,
+					  PhysicsBody::Type bodyType,
 					  vector<unique_ptr<btCollisionShape>>& btShapes,
 					  vector<unique_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
 static unique_ptr<btCollisionShape>
 BTShapeFromPrimitiveShape(PhysicsShape& shape);
 static unique_ptr<btCollisionShape>
 BTShapeFromMeshElement(MeshElement& element,
-					   PhysicsShapeType shapeType,
-					   PhysicsBodyType bodyType,
+					   PhysicsShape::Type shapeType,
+					   PhysicsBody::Type bodyType,
 					   vector<unique_ptr<btCollisionShape>>& btShapes,
 					   btTriangleIndexVertexArray& btIndexVertexArray);
 static unique_ptr<btCompoundShape>
 BTShapeFromMesh(Mesh& mesh,
-				PhysicsShapeType shapeType,
-				PhysicsBodyType bodyType,
+				PhysicsShape::Type shapeType,
+				PhysicsBody::Type bodyType,
 				vector<unique_ptr<btCollisionShape>>& btShapes,
 				vector<unique_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
 static void
 AddBTShapeFromNodeRec(Node& node,
-					  PhysicsShapeType shapeType,
-					  PhysicsBodyType bodyType,
+					  PhysicsShape::Type shapeType,
+					  PhysicsBody::Type bodyType,
 					  btCompoundShape& parentShape,
 					  vector<unique_ptr<btCollisionShape>>& btShapes,
 					  vector<unique_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays);
@@ -188,8 +187,8 @@ const vector <unique_ptr<btCollisionShape>>& BulletShapeProxy::btShapes() {
 
 static unique_ptr<btCollisionShape>
 BTShapeFromSourceMesh(Mesh& mesh,
-					  PhysicsShapeType shapeType,
-					  PhysicsBodyType bodyType,
+					  PhysicsShape::Type shapeType,
+					  PhysicsBody::Type bodyType,
 					  vector<unique_ptr<btCollisionShape>>& btShapes,
 					  vector<unique_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays) {
 
@@ -227,8 +226,8 @@ BTShapeFromSourceMesh(Mesh& mesh,
 
 static unique_ptr<btCollisionShape>
 BTShapeFromSourceNode(Node& node,
-					  PhysicsShapeType shapeType,
-					  PhysicsBodyType bodyType,
+					  PhysicsShape::Type shapeType,
+					  PhysicsBody::Type bodyType,
 					  vector<unique_ptr<btCollisionShape>>& btShapes,
 					  vector<unique_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays) {
 
@@ -305,12 +304,12 @@ BTShapeFromPrimitiveShape(PhysicsShape& shape) {
 
 unique_ptr<btCollisionShape>
 BTShapeFromMeshElement(MeshElement& element,
-					   PhysicsShapeType shapeType,
-					   PhysicsBodyType bodyType,
+					   PhysicsShape::Type shapeType,
+					   PhysicsBody::Type bodyType,
 					   vector<unique_ptr<btCollisionShape>>& btShapes,
 					   btTriangleIndexVertexArray& btIndexVertexArray) {
 
-	if (shapeType == PhysicsShapeType::BoundingBox) {
+	if (shapeType == PhysicsShape::Type::BoundingBox) {
 		log::i()("Creating box physics shape for MeshElement {:p}...",
 				 static_cast<void*>(&element));
 
@@ -367,19 +366,19 @@ BTShapeFromMeshElement(MeshElement& element,
 		return make_unique<btSphereShape>((btScalar)sphere->radius());
 	}
 		// * no Bullet primitives for Torus or Tube *
-	else if (shapeType == PhysicsShapeType::ConvexHull) {
+	else if (shapeType == PhysicsShape::Type::ConvexHull) {
 
 		return BTConvexHullShapeFromMeshElement(element);
 	}
-	else if (bodyType == PhysicsBodyType::Dynamic) {
+	else if (bodyType == PhysicsBody::Type::Dynamic) {
 
 		return BTCompoundConvexHullHACDShapeFromMeshElement(element, btShapes);
 	}
-	else if (bodyType == PhysicsBodyType::Kinematic) {
+	else if (bodyType == PhysicsBody::Type::Kinematic) {
 
 		return BTGImpactMeshShapeFromMeshElement(element, btIndexVertexArray);
 	}
-	else if (bodyType == PhysicsBodyType::Static) {
+	else if (bodyType == PhysicsBody::Type::Static) {
 
 		return BTBvhTriangleMeshShapeFromMeshElement(element, btIndexVertexArray);
 	}
@@ -389,8 +388,8 @@ BTShapeFromMeshElement(MeshElement& element,
 
 unique_ptr<btCompoundShape>
 BTShapeFromMesh(Mesh& mesh,
-				PhysicsShapeType shapeType,
-				PhysicsBodyType bodyType,
+				PhysicsShape::Type shapeType,
+				PhysicsBody::Type bodyType,
 				vector<unique_ptr<btCollisionShape>>& btShapes,
 				vector<unique_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays) {
 
@@ -417,8 +416,8 @@ BTShapeFromMesh(Mesh& mesh,
 }
 
 void AddBTShapeFromNodeRec(Node& node,
-						   PhysicsShapeType shapeType,
-						   PhysicsBodyType bodyType,
+						   PhysicsShape::Type shapeType,
+						   PhysicsBody::Type bodyType,
 						   btCompoundShape& btParentShape,
 						   vector<unique_ptr<btCollisionShape>>& btShapes,
 						   vector<unique_ptr<btTriangleIndexVertexArray>>& btIndexVertexArrays) {
@@ -504,7 +503,8 @@ BTConvexHullShapeFromMeshElement(MeshElement& element) {
 unique_ptr<btGImpactMeshShape>
 BTGImpactMeshShapeFromMeshElement(MeshElement& element,
 								  btTriangleIndexVertexArray& indexVertexArray) {
-	log::i()("Creating concave polyhedron physics shape for MeshElement {:p}...", static_cast<void*>(&element));
+	log::i()("Creating concave polyhedron physics shape for MeshElement {:p}...",
+			static_cast<void*>(&element));
 
 	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7997
 	// "You can use btGImpactMeshShape (or btCompoundShapes plus HACD) for concave dynamic rigidbodies"
@@ -521,14 +521,14 @@ BTGImpactMeshShapeFromMeshElement(MeshElement& element,
 		return make_unique<btGImpactMeshShape>(&indexVertexArray);
 	}
 
-	// This Bullet path requires indexed triangles.
+	// this Bullet path requires indexed triangles.
 	A3D_ASSERT(element.topology() == PrimitiveTopology::Triangles);
 
 	const IndexFormat ifmt = element.indexFormat();
-	const uint32_t icount  = element.indexCount(); // number of indices (NOT triangles)
+	const uint32_t icount = element.indexCount(); // number of indices (not triangles!)
 
 	if (ifmt == IndexFormat::None || icount == 0) {
-		// No indices -> nothing we can feed btTriangleIndexVertexArray.
+		// no indices -> nothing we can feed btTriangleIndexVertexArray
 		return make_unique<btGImpactMeshShape>(&indexVertexArray);
 	}
 
@@ -536,8 +536,8 @@ BTGImpactMeshShapeFromMeshElement(MeshElement& element,
 	A3D_ASSERT(indexStride == 2 || indexStride == 4);
 	A3D_ASSERT((icount % 3u) == 0u);
 
-	const auto vb     = element.vertexBytes();
-	const auto ib     = element.indexBytes();
+	const auto vb = element.vertexBytes();
+	const auto ib = element.indexBytes();
 	const uint16_t st = element.vertexStride();
 
 	const VertexAttribDesc* posA = VertexAccess::GetPositionAttribF32x3(element.vertexLayout());
@@ -548,21 +548,21 @@ BTGImpactMeshShapeFromMeshElement(MeshElement& element,
 		return make_unique<btGImpactMeshShape>(&indexVertexArray);
 	}
 
-	// Choose Bullet index scalar type based on our index format
+	// choose Bullet index scalar type based on our index format
 	const PHY_ScalarType bulletIndexType =
 			(ifmt == IndexFormat::U16) ? PHY_SHORT :
 			(ifmt == IndexFormat::U32) ? PHY_INTEGER :
 			PHY_INTEGER; // shouldn't happen due to checks above
 
 	btIndexedMesh indexedMesh{};
-	indexedMesh.m_numTriangles        = static_cast<int>(triCount);
-	indexedMesh.m_triangleIndexBase   = reinterpret_cast<const unsigned char*>(ib.data());
+	indexedMesh.m_numTriangles = static_cast<int>(triCount);
+	indexedMesh.m_triangleIndexBase = reinterpret_cast<const unsigned char*>(ib.data());
 	indexedMesh.m_triangleIndexStride = static_cast<int>(3u * uint32_t(indexStride));
 
-	indexedMesh.m_numVertices         = static_cast<int>(vcount);
-	indexedMesh.m_vertexBase          = reinterpret_cast<const unsigned char*>(vb.data() + posA->offset);
-	indexedMesh.m_vertexStride        = static_cast<int>(st);
-	indexedMesh.m_vertexType          = PHY_FLOAT;
+	indexedMesh.m_numVertices = static_cast<int>(vcount);
+	indexedMesh.m_vertexBase = reinterpret_cast<const unsigned char*>(vb.data() + posA->offset);
+	indexedMesh.m_vertexStride = static_cast<int>(st);
+	indexedMesh.m_vertexType = PHY_FLOAT;
 
 	indexVertexArray.addIndexedMesh(indexedMesh, bulletIndexType);
 
@@ -575,7 +575,8 @@ BTGImpactMeshShapeFromMeshElement(MeshElement& element,
 unique_ptr<btBvhTriangleMeshShape>
 BTBvhTriangleMeshShapeFromMeshElement(MeshElement& element,
 									  btTriangleIndexVertexArray& indexVertexArray) {
-	log::i()("Creating concave polyhedron physics shape for MeshElement {:p}...", static_cast<void*>(&element));
+	log::i()("Creating concave polyhedron physics shape for MeshElement {:p}...",
+			static_cast<void*>(&element));
 
 	// static objects ALWAYS use btBvhTriangleMeshShape
 	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7997
@@ -589,7 +590,7 @@ BTBvhTriangleMeshShapeFromMeshElement(MeshElement& element,
 	A3D_ASSERT(element.topology() == PrimitiveTopology::Triangles);
 
 	const IndexFormat ifmt = element.indexFormat();
-	const uint32_t icount  = element.indexCount(); // number of indices (NOT triangles)
+	const uint32_t icount = element.indexCount(); // number of indices (NOT triangles)
 
 	if (ifmt == IndexFormat::None || icount == 0) {
 		// No indices -> nothing we can feed btTriangleIndexVertexArray.
@@ -601,7 +602,7 @@ BTBvhTriangleMeshShapeFromMeshElement(MeshElement& element,
 	A3D_ASSERT((icount % 3u) == 0u);
 
 	const auto vb = element.vertexBytes();
-	const auto ib     = element.indexBytes();
+	const auto ib = element.indexBytes();
 	const uint16_t st = element.vertexStride();
 
 	const VertexAttribDesc* posA = VertexAccess::GetPositionAttribF32x3(element.vertexLayout());
@@ -619,20 +620,18 @@ BTBvhTriangleMeshShapeFromMeshElement(MeshElement& element,
 			PHY_INTEGER; // shouldn't happen due to checks above
 
 	btIndexedMesh indexedMesh{};
-	indexedMesh.m_numTriangles        = static_cast<int>(triCount);
-	indexedMesh.m_triangleIndexBase   = reinterpret_cast<const unsigned char*>(ib.data());
+	indexedMesh.m_numTriangles = static_cast<int>(triCount);
+	indexedMesh.m_triangleIndexBase = reinterpret_cast<const unsigned char*>(ib.data());
 	indexedMesh.m_triangleIndexStride = static_cast<int>(3u * uint32_t(indexStride));
-
-	indexedMesh.m_numVertices         = static_cast<int>(vcount);
-	indexedMesh.m_vertexBase          = reinterpret_cast<const unsigned char*>(vb.data() + posA->offset);
-	indexedMesh.m_vertexStride        = static_cast<int>(st);
-	indexedMesh.m_vertexType          = PHY_FLOAT;
+	indexedMesh.m_numVertices = static_cast<int>(vcount);
+	indexedMesh.m_vertexBase = reinterpret_cast<const unsigned char*>(vb.data() + posA->offset);
+	indexedMesh.m_vertexStride = static_cast<int>(st);
+	indexedMesh.m_vertexType = PHY_FLOAT;
 
 	indexVertexArray.addIndexedMesh(indexedMesh, bulletIndexType);
 
 	return make_unique<btBvhTriangleMeshShape>(&indexVertexArray, true);
 }
-
 
 unique_ptr<btCompoundShape>
 BTCompoundConvexHullHACDShapeFromMeshElement(MeshElement& element,

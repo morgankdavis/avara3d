@@ -9,17 +9,39 @@
 #ifndef AVARA3D_SAMPLER_H
 #define AVARA3D_SAMPLER_H
 
-#include "a3d/Types.h"
+#include <climits>
+
+#include "a3d/Id.h"
+#include "a3d/util/bitmask.h"
 
 namespace a3d {
 
 	class Color;
 	class Image;
-//	class Sampleable;
 
 	class Sampler {
 
 	public:
+		/// Public Types ///
+
+		// TODO: don't use GL constants
+		enum class FilterMode : uint16_t {
+			Nearest = 				0x2600,
+			Linear = 				0x2601,
+			NearestMipmapNearest = 	0x2700,
+			LinearMipmapNearest = 	0x2701,
+			NearestMipmapLinear = 	0x2702,
+			LinearMipmapLinear = 	0x2703
+		};
+
+		// TODO: don't use GL constants
+		enum class WrapMode : uint16_t {
+			Repeat = 			0x2901,
+			MirroredRepeat = 	0x8370,
+			ClampToEdge = 		0x812F
+		};
+
+
 		/// Public Lifecycle Functions ///
 
 		Sampler();
@@ -45,12 +67,25 @@ namespace a3d {
 		WrapMode 							wrapR() const;
 		void 								wrapR(WrapMode mode);
 
+		/// Internal Types ///
+
+		enum class DirtyMask : uint32_t {
+			None =					0,
+			MinificationFilter = 	1 << 0,
+			MagnificationFilter = 	1 << 1,
+			MaxAnisotropy = 		1 << 2,
+			WrapS = 				1 << 3,
+			WrapT = 				1 << 4,
+			WrapR = 				1 << 5,
+			All = 					UINT_MAX
+		};
+
 		/// Internal Member Functions ///
 
 		SamplerId 							id() const noexcept;
 
-		SamplerDirtyMask 					dirtyMask() const;
-		void 								dirtyMask(SamplerDirtyMask mask);
+		DirtyMask 							dirtyMask() const;
+		void 								dirtyMask(DirtyMask mask);
 
 	private:
 		/// Private Member Variables ///
@@ -63,8 +98,12 @@ namespace a3d {
 		WrapMode							_wrapT;
 		WrapMode							_wrapR;
 
-		SamplerDirtyMask					_dirtyMask;
+		DirtyMask							_dirtyMask;
 	};
+
+	namespace util::bitmask {
+		template <> struct enable_ops<Sampler::DirtyMask> : std::true_type {};
+	}
 }
 
 #endif //AVARA3D_SAMPLER_H

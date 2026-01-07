@@ -23,11 +23,11 @@ using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
-const Log::Level			APP_LOG_LEVEL			{Log::Level::Debug};
-const uvec2					WINDOW_SIZE				{1280, 768};
-const AntialiasingMode		AA_MODE					{AntialiasingMode::Msaa4X};
-const bool					CAPTURE_CURSOR			{false};
-const float					MOUSE_SENSITIVITY		{0.5};
+const Log::Level						APP_LOG_LEVEL		{Log::Level::Debug};
+const uvec2								WINDOW_SIZE			{1280, 768};
+const RenderContext::AntialiasingMode	ANTIALIAS_MODE		{RenderContext::AntialiasingMode::Msaa4X};
+const bool								CAPTURE_CURSOR		{false};
+const float								MOUSE_SENSITIVITY	{0.5};
 
 MainWindow::MainWindow(QWidget* parent):
 		QMainWindow(parent),
@@ -38,8 +38,8 @@ MainWindow::MainWindow(QWidget* parent):
 
 	resize(WINDOW_SIZE.x, WINDOW_SIZE.y);
 
-	_viewport = new a3d::head::qt::QtViewport(RenderingApi::OpenGL,
-											  AA_MODE,
+	_viewport = new a3d::head::qt::QtViewport(RenderContext::RenderingApi::OpenGL,
+											  ANTIALIAS_MODE,
 											  this);
 	initScene(*_viewport);
 	_viewport->scene(_scene.get());
@@ -72,13 +72,14 @@ void MainWindow::initScene(a3d::head::qt::QtViewport &viewport) {
 		visualWorld->didRenderCallback(bind(&MainWindow::didRenderCallback, this, _1, _2, _3));
 		visualWorld->background(make_shared<Texture>(std::move(util::filesystem::CubeImageNamed("nebula1_blue", "png"))));
 
-		_scene = util::filesystem::SceneNamed("cat_island/cat_island", SceneImportOptions::ImportMeshes
-																| SceneImportOptions::ImportMaterials
-																| SceneImportOptions::ImportCameras);
+		_scene = util::filesystem::SceneNamed("cat_island/cat_island",
+											  Scene::ImportOptions::ImportMeshes
+											  | Scene::ImportOptions::ImportMaterials
+											  | Scene::ImportOptions::ImportCameras);
 
 		_scene->visualWorld(std::move(visualWorld));
 		_scene->inputManager(std::move(inputManager));
-		_scene->debugOptions(DebugOptions::ShowStatsOverlay);
+		_scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 		_scene->updateCallback(bind(&MainWindow::updateCallback, this, _1, _2, _3));
 
 		auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.1f));
@@ -166,6 +167,9 @@ void MainWindow::updateCallback(a3d::Scene& scene, double time, double deltaTime
 	auto keysPressed = im->keysPressed();
 	auto keysDown = im->keysDown();
 
+	using Key = DesktopInputManager::Key;
+	using MouseButton = DesktopInputManager::MouseButton;
+
 	if (keysPressed.count(Key::Escape)) {
 		//window->close();
 		QCoreApplication::quit();
@@ -190,6 +194,8 @@ void MainWindow::updateCallback(a3d::Scene& scene, double time, double deltaTime
 //		else if (keysPressed.count(Key::F2)) attenuatedLight->constantAttenuation(1.0 - 0.00015);
 //		else if (keysPressed.count(Key::F3)) attenuatedLight->constantAttenuation(1.0 - 0.00005);
 //	}
+
+	using DebugOptions = Scene::DebugOptions;
 
 	if (keysPressed.count(Key::F)) {
 		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowWireframes)) {

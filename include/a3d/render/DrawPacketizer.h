@@ -11,7 +11,6 @@
 
 #include <cstdint>
 
-#include "a3d/Types.h"
 #include "a3d/mesh/VertexLayout.h"
 
 namespace a3d {

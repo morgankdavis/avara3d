@@ -19,8 +19,6 @@
 #include <utility>
 #include <vector>
 
-#include "a3d/Types.h"
-
 namespace a3d {
 
 	class LogSink;

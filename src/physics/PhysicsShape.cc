@@ -23,7 +23,7 @@ using namespace std;
 
 /// Public Lifecycle Functions ///
 
-PhysicsShape::PhysicsShape(PhysicsShapeType type, const shared_ptr<Mesh>& mesh):
+PhysicsShape::PhysicsShape(Type type, const shared_ptr<Mesh>& mesh):
 		_source{mesh},
 		_bodies{},
 		_type{type},
@@ -41,7 +41,7 @@ PhysicsShape::PhysicsShape(PhysicsShapeType type, const shared_ptr<Mesh>& mesh):
 }
 
 // construct a compound shape based on meshes under this node
-PhysicsShape::PhysicsShape(PhysicsShapeType type, const shared_ptr<Node>& node):
+PhysicsShape::PhysicsShape(Type type, const shared_ptr<Node>& node):
 		_source{node},
 		_bodies{},
 		_type{type},
@@ -73,11 +73,11 @@ PhysicsShape::Source PhysicsShape::source() const {
 	return _source;
 }
 
-PhysicsShapeType PhysicsShape::type() const {
+PhysicsShape::Type PhysicsShape::type() const {
 	return _type;
 }
 
-void PhysicsShape::type(PhysicsShapeType type) {
+void PhysicsShape::type(Type type) {
 	log::t()("type: {}", magic_enum::enum_name(type));
 
 	_type = type;

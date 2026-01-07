@@ -13,12 +13,17 @@
 
 #include "QtViewport.h"
 
+using namespace a3d;
+using namespace std;;
+
 using InputManger = a3d::head::qt::QtInputManager;
+using Key = DesktopInputManager::Key;
+using MouseButton = DesktopInputManager::MouseButton;
 
 /// Private Static Non-Member Prototypes ///
 
 //static a3d::Key A3dKeyFromQtKey(int qtKey);
-static a3d::Key A3DKeyFromQtKey(int qtKey, Qt::KeyboardModifiers mods = Qt::NoModifier);
+static Key A3DKeyFromQtKey(int qtKey, Qt::KeyboardModifiers mods = Qt::NoModifier);
 
 /// Public Lifecycle Functions ///
 
@@ -214,9 +219,9 @@ void InputManger::update() {}
 //	return K::Unknown;
 //}
 
-a3d::Key A3DKeyFromQtKey(int qtKey, Qt::KeyboardModifiers mods) {
+Key A3DKeyFromQtKey(int qtKey, Qt::KeyboardModifiers mods) {
 
-	using K = a3d::Key;
+	using K = Key;
 	const bool keypad = mods.testFlag(Qt::KeypadModifier);
 
 	// digits: distinguish top row vs keypad with KeypadModifier

@@ -13,8 +13,10 @@
 #include <optional>
 #include <string>
 #include <variant>
+#include <vector>
 
-#include "a3d/Types.h"
+#include "a3d/Id.h"
+#include "a3d/util/bitmask.h"
 
 namespace a3d {
 
@@ -36,6 +38,24 @@ namespace a3d {
 			Diffuse = 	1,
 			Specular =	2,
 			Emission =	3
+		};
+
+		enum class FillMode {
+			Fill,
+			Lines,
+			Points
+		};
+
+		enum class AlphaMode : uint8_t {
+			Opaque, // no discard, no blending
+			Mask, // uses discard/alpha threshold
+			Blend }; // real transparency
+
+		enum class BlendFunction : uint8_t {
+			Disabled,
+			Alpha,
+			Additive,
+			PremultipliedAlpha
 		};
 
 		using PropertyList = std::vector<std::pair<const Property*, PropertyType>>;
@@ -101,6 +121,13 @@ namespace a3d {
 		BlendFunction						blendFunction() const;
 		void 								blendFunction(BlendFunction function);
 
+		/// Internal Types ///
+
+		enum class DirtyMask : uint32_t {
+			None =					0,
+			All = 					UINT_MAX
+		};
+
 		/// Internal Static Member Functions ///
 
 		static std::shared_ptr<Material> 	MissingTextureMaterial();
@@ -110,8 +137,8 @@ namespace a3d {
 
 		MaterialId 							id() const noexcept;
 
-		MaterialDirtyMask 					dirtyMask() const;
-		void 								dirtyMask(MaterialDirtyMask mask);
+		DirtyMask 							dirtyMask() const;
+		void 								dirtyMask(DirtyMask mask);
 
 	private:
 		/// Private Member Variables ///
@@ -130,8 +157,12 @@ namespace a3d {
 		AlphaMode							_alphaMode;
 		float 								_alphaCutoff;
 		BlendFunction						_blendFunction;
-		MaterialDirtyMask					_dirtyMask;
+		DirtyMask							_dirtyMask;
 	};
+
+	namespace util::bitmask {
+		template <> struct enable_ops<Material::DirtyMask> : std::true_type {};
+	}
 }
 
 #endif /* AVARA3D_MATERIAL_H */

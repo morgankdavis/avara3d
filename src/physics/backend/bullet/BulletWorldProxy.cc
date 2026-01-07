@@ -48,7 +48,8 @@ static constexpr bool A3D_USE_MT_DISPATCHER = false;
 
 /// Private Static Non-Member Prototypes ///
 
-static btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const DebugOptions& options);
+static btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(
+		const Scene::DebugOptions& options);
 static int PickNumBTThreads(btITaskScheduler* sched);
 
 /// Internal Lifecycle Functions ///
@@ -180,13 +181,13 @@ void BulletWorldProxy::add(PhysicsBody& body) {
 	_btWorld->addRigidBody(btBody);
 
 	switch (body.type()) {
-		case PhysicsBodyType::Static:
+		case PhysicsBody::Type::Static:
 			++_stats.numStaticBodies;
 			break;
-		case PhysicsBodyType::Dynamic:
+		case PhysicsBody::Type::Dynamic:
 			++_stats.numDynamicBodies;
 			break;
-		case PhysicsBodyType::Kinematic:
+		case PhysicsBody::Type::Kinematic:
 			++_stats.numKinematicBodies;
 			break;
 	}
@@ -194,16 +195,16 @@ void BulletWorldProxy::add(PhysicsBody& body) {
 	auto shapePtr = body.shape().get();
 	if (shapePtr) {
 		switch (shapePtr->type()) {
-			case PhysicsShapeType::ConvexHull:
+			case PhysicsShape::Type::ConvexHull:
 					_stats.convexHullShapes.insert(shapePtr);
 				break;
-			case PhysicsShapeType::ConcavePolyhedron:
+			case PhysicsShape::Type::ConcavePolyhedron:
 					_stats.concavePolyhedronShapes.insert(shapePtr);
 				break;
-			case PhysicsShapeType::BoundingBox:
+			case PhysicsShape::Type::BoundingBox:
 					_stats.boundingBoxShapes.insert(shapePtr);
 				break;
-			case PhysicsShapeType::Primitive:
+			case PhysicsShape::Type::Primitive:
 				_stats.primitiveShapes.insert(shapePtr);
 				break;
 		}
@@ -226,29 +227,29 @@ void BulletWorldProxy::remove(PhysicsBody& body) {
 	_btWorld->removeRigidBody(btBody);
 
 	switch (body.type()) {
-		case PhysicsBodyType::Static:
+		case PhysicsBody::Type::Static:
 			--_stats.numStaticBodies;
 			break;
-		case PhysicsBodyType::Dynamic:
+		case PhysicsBody::Type::Dynamic:
 			--_stats.numDynamicBodies;
 			break;
-		case PhysicsBodyType::Kinematic:
+		case PhysicsBody::Type::Kinematic:
 			--_stats.numKinematicBodies;
 			break;
 	}
 
 	auto shapePtr = body.shape().get();
 	switch (shapePtr->type()) {
-		case PhysicsShapeType::ConvexHull:
+		case PhysicsShape::Type::ConvexHull:
 			_stats.convexHullShapes.erase(shapePtr);
 			break;
-		case PhysicsShapeType::ConcavePolyhedron:
+		case PhysicsShape::Type::ConcavePolyhedron:
 			_stats.concavePolyhedronShapes.erase(shapePtr);
 			break;
-		case PhysicsShapeType::BoundingBox:
+		case PhysicsShape::Type::BoundingBox:
 			_stats.boundingBoxShapes.erase(shapePtr);
 			break;
-		case PhysicsShapeType::Primitive:
+		case PhysicsShape::Type::Primitive:
 			_stats.primitiveShapes.erase(shapePtr);
 			break;
 	}
@@ -309,8 +310,8 @@ void BulletWorldProxy::updateCollisionPairs() {
 	_btWorld->getCollisionWorld()->computeOverlappingPairs();
 }
 
-void BulletWorldProxy::appendDebugLines(std::vector<Line>& out,
-										DebugOptions debugOptions) {
+void BulletWorldProxy::appendDebugLines(vector<Line>& out,
+										Scene::DebugOptions debugOptions) {
 
 	// TODO: this is still rather inefficient.
 
@@ -357,7 +358,11 @@ int PickNumBTThreads(btITaskScheduler* sched) {
 	return math::clamp(hw, 1, maxT);
 }
 
-btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const DebugOptions& options) {
+btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(
+		const Scene::DebugOptions& options) {
+
+	using DebugOptions = Scene::DebugOptions;
+
 	btIDebugDraw::DebugDrawModes btModes = btIDebugDraw::DBG_NoDebug;
 
 	if (util::bitmask::contains(options, DebugOptions::ShowPhysicsBoundingBoxes)) {

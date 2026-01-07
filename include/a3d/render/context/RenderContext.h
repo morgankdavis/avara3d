@@ -14,7 +14,7 @@
 #include <memory>
 #include <vector>
 
-#include "a3d/Types.h"
+#include "a3d/Math.h"
 
 struct GifWriter;
 
@@ -33,6 +33,16 @@ namespace a3d {
 	class RenderContext {
 
 	public:
+		/// Public Types ///
+
+		enum class AntialiasingMode : uint8_t {
+			None =		0,
+			Msaa2X =	2,
+			Msaa4X =	4,
+			Msaa8X =	8,
+			Msaa16X =	16
+		};
+
 		/// Public Member Functions ///
 
 		virtual bool 					vSyncEnabled() const = 0;
@@ -53,6 +63,14 @@ namespace a3d {
 		VisualWorld*					visualWorld() const;
 
 		Renderer* 						renderer() const;
+
+		/// Internal Types ///
+
+		enum class RenderingApi : uint8_t {
+			OpenGL,
+			OpenGLES,
+			Vulkan
+		};
 
 		/// Internal Lifecycle Functions ///
 

@@ -16,6 +16,7 @@
 #include "a3d/mesh/Line.h"
 #include "a3d/physics/backend/bullet/BulletStats.h"
 #include "a3d/physics/proxy/PhysicalWorldProxy.h"
+#include "a3d/scene/Scene.h"
 
 struct btDbvtBroadphase;
 
@@ -58,7 +59,7 @@ namespace a3d {
 		void 				updateCollisionPairs() override;
 
 		void 				appendDebugLines(std::vector<Line>& out,
-											 DebugOptions debugOptions) override;
+											 Scene::DebugOptions debugOptions) override;
 
 		/// Internal Member Functions ///
 

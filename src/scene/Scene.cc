@@ -46,8 +46,7 @@ static void 		GetRunTime(double time, // time since reference
 
 /// Public Static Member Functions ///
 
-unique_ptr<Scene> Scene::FromFile(const filesystem::path& path,
-								  SceneImportOptions options) {
+unique_ptr<Scene> Scene::FromFile(const filesystem::path& path, ImportOptions options) {
 	return GlTFImporter(path, options).scene();
 }
 
@@ -256,7 +255,7 @@ vec3 Scene::extent(bool vertfit) const {
 	return aabb.max - aabb.min;
 }
 
-DebugOptions Scene::debugOptions() const {
+Scene::DebugOptions Scene::debugOptions() const {
 	return _debugOptions;
 }
 

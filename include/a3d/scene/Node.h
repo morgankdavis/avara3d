@@ -17,8 +17,8 @@
 #include <string>
 #include <vector>
 
-#include "a3d/Types.h"
 #include "a3d/mesh/AABB.h"
+#include "a3d/util/bitmask.h"
 
 namespace a3d {
 
@@ -126,6 +126,13 @@ namespace a3d {
 
 		std::weak_ptr<Node>					parent() const;
 
+		/// Internal Types ///
+
+		enum class DirtyMask : uint32_t {
+			None =					0,
+			WorldTransform =		1 << 0,
+			All = 					UINT_MAX
+		};
 
 		/// Internal Member Functions ///
 
@@ -173,8 +180,8 @@ namespace a3d {
 		void 								childrenRec(const std::shared_ptr<Node>& node,
 														std::vector<std::shared_ptr<Node>>& children) const;
 
-		NodeDirtyMask 						dirtyMask() const;
-		void 								dirtyMask(NodeDirtyMask mask);
+		DirtyMask 							dirtyMask() const;
+		void 								dirtyMask(DirtyMask mask);
 
 		/// Private Member Variables ///
 
@@ -191,8 +198,12 @@ namespace a3d {
 		bool								_hidden;
 		Scene*								_scene;
 		std::weak_ptr<Node>					_parent;
-		NodeDirtyMask						_dirtyMask;
+		DirtyMask							_dirtyMask;
 	};
+
+	namespace util::bitmask {
+		template <> struct enable_ops<Node::DirtyMask> : std::true_type {};
+	}
 }
 
 #endif /* AVARA3D_NODE_H */

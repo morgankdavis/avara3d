@@ -51,10 +51,10 @@ void CapsulePhysicsShape::height(float height) {
 
 /// PhysicsShape Public Member Functions ///
 
-PhysicsShapeType CapsulePhysicsShape::type() const {
-	return PhysicsShapeType::Primitive;
+PhysicsShape::Type CapsulePhysicsShape::type() const {
+	return PhysicsShape::Type::Primitive;
 }
 
-void CapsulePhysicsShape::type(PhysicsShapeType type) {
-	throw Exception("Cannot set PhysicsShapeType for CapsulePhysicsShape.");
+void CapsulePhysicsShape::type(PhysicsShape::Type type) {
+	throw Exception("Cannot set PhysicsShape::Type for CapsulePhysicsShape.");
 }

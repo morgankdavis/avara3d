@@ -14,8 +14,6 @@
 #include <variant>
 #include <vector>
 
-#include "a3d/Types.h"
-
 namespace a3d {
 	
 	class Mesh;
@@ -30,6 +28,13 @@ namespace a3d {
 	public:
 		/// Public Types ///
 
+		enum class Type : uint8_t {
+			Primitive, // eh, do something else
+			BoundingBox,
+			ConvexHull,
+			ConcavePolyhedron
+		};
+
 		using Source = std::variant<
 				std::monostate,
 				std::weak_ptr<Mesh>,
@@ -39,14 +44,14 @@ namespace a3d {
 
 		/// Public Lifecycle Functions ///
 
-		PhysicsShape(PhysicsShapeType type, const std::shared_ptr<Mesh>& mesh);
-		PhysicsShape(PhysicsShapeType type, const std::shared_ptr<Node>& node);
+		PhysicsShape(Type type, const std::shared_ptr<Mesh>& mesh);
+		PhysicsShape(Type type, const std::shared_ptr<Node>& node);
 		~PhysicsShape();
 
 		/// Public Member Functions ///
 
-		virtual PhysicsShapeType 			type() const;
-		virtual void 						type(PhysicsShapeType type);
+		virtual Type 						type() const;
+		virtual void 						type(Type type);
 
 		Source 								source() const;
 
@@ -91,7 +96,7 @@ namespace a3d {
 
 		/// Protected Member Functions ///
 
-		PhysicsShapeType 					_type;
+		Type 								_type;
 		std::unique_ptr<PhysicsShapeProxy>	_proxy;
 
 	private:

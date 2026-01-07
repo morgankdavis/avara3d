@@ -23,15 +23,15 @@ using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
-const Log::Level			APP_LOG_LEVEL			{Log::Level::Debug};
-const uvec2					WINDOW_SIZE				{1280, 768};
-const bool					FULLSCREEN				{false};
-const bool					ENABLE_HIGH_DPI			{true};
-const AntialiasingMode		ANTIALIAS_MODE			{AntialiasingMode::Msaa4X};
-const bool					ENABLE_VSYNC			{false};
-const bool					CAPTURE_CURSOR			{false};
-const bool 					ORTHO_CAMERA			{false};
-const float					MOUSE_SENSITIVITY		{0.5};
+const Log::Level						APP_LOG_LEVEL		{Log::Level::Debug};
+const uvec2								WINDOW_SIZE			{1280, 768};
+const bool								FULLSCREEN			{false};
+const bool								ENABLE_HIGH_DPI		{true};
+const RenderContext::AntialiasingMode	ANTIALIAS_MODE		{RenderContext::AntialiasingMode::Msaa4X};
+const bool								ENABLE_VSYNC		{false};
+const bool								CAPTURE_CURSOR		{false};
+const bool 								ORTHO_CAMERA		{false};
+const float								MOUSE_SENSITIVITY	{0.5};
 
 void UpdateCallback(Scene& scene, double time, double deltaTime);
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
@@ -39,9 +39,8 @@ void DidRenderCallback(VisualWorld& world, double time, double deltaTime);
 
 void InitLog();
 void LogBuildInfo();
-void SetAllFilterModes(FilterMode mode, Scene& scene);
+void SetAllFilterModes(Sampler::FilterMode mode, Scene& scene);
 void SetAllMaxAnisotropy(float anisotropy, Scene& scene);
-void ProcessEdit(Node& node, set<Key>& keysDown, set<Key>& keysPressed);
 
 a3d::Node*						g_pointLightNode;
 double 							g_startTime;
@@ -54,7 +53,7 @@ int main(int argc, const char* argv[]) {
 		InitLog();
 		LogBuildInfo();
 
-		auto window = make_unique<GLFWWindow>(RenderingApi::OpenGL,
+		auto window = make_unique<GLFWWindow>(RenderContext::RenderingApi::OpenGL,
 											  *util::filesystem::ExecutableName(),
 											  WINDOW_SIZE,
 											  FULLSCREEN,
@@ -75,13 +74,14 @@ int main(int argc, const char* argv[]) {
 		visualWorld->didRenderCallback(bind(&DidRenderCallback, _1, _2, _3));
 		visualWorld->background(make_shared<Texture>(std::move(util::filesystem::CubeImageNamed("nebula1_blue", "png"))));
 
-		auto scene = util::filesystem::SceneNamed("cat_island/cat_island", SceneImportOptions::ImportMeshes
-																| SceneImportOptions::ImportMaterials
-																| SceneImportOptions::ImportCameras);
+		auto scene = util::filesystem::SceneNamed("cat_island/cat_island",
+												  Scene::ImportOptions::ImportMeshes
+												  | Scene::ImportOptions::ImportMaterials
+												  | Scene::ImportOptions::ImportCameras);
 
 		scene->visualWorld(std::move(visualWorld));
 		scene->inputManager(std::move(inputManager));
-		scene->debugOptions(DebugOptions::ShowStatsOverlay);
+		scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 		scene->updateCallback(bind(&UpdateCallback, _1, _2, _3));
 
 		auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.1f));
@@ -210,6 +210,9 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	auto keysPressed = im->keysPressed();
 	auto keysDown = im->keysDown();
 
+	using Key = DesktopInputManager::Key;
+	using MouseButton = DesktopInputManager::MouseButton;
+
 	if (keysPressed.count(Key::Escape)) {
 		window->close();
 	}
@@ -218,6 +221,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 		log::app::i()("TREE:\n{}", util::string::TreeString(*(scene.rootNode())));
 	}
 
+	using FilterMode = Sampler::FilterMode;
 	if 		(keysPressed.count(Key::One))	SetAllFilterModes(FilterMode::Nearest, scene);
 	else if (keysPressed.count(Key::Two))	SetAllFilterModes(FilterMode::Linear, scene);
 	else if (keysPressed.count(Key::Three))	SetAllFilterModes(FilterMode::NearestMipmapNearest, scene);
@@ -233,6 +237,8 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 //		else if (keysPressed.count(Key::F2)) attenuatedLight->constantAttenuation(1.0 - 0.00015);
 //		else if (keysPressed.count(Key::F3)) attenuatedLight->constantAttenuation(1.0 - 0.00005);
 //	}
+
+	using DebugOptions = Scene::DebugOptions;
 
 	if (keysPressed.count(Key::F)) {
 		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowWireframes)) {
@@ -418,7 +424,7 @@ void LogBuildInfo() {
 	log::app::i()("Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
 }
 
-void SetAllFilterModes(FilterMode mode, Scene& scene) {
+void SetAllFilterModes(Sampler::FilterMode mode, Scene& scene) {
 
 	log::app::i()("SetAllFilterModes: {}", (unsigned)mode);
 

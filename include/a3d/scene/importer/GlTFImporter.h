@@ -18,7 +18,6 @@
 
 #include <fastgltf/types.hpp>
 
-#include "a3d/Types.h"
 #include "a3d/scene/Scene.h"
 
 namespace a3d {
@@ -40,7 +39,7 @@ namespace a3d {
 		/// Internal Lifecycle Functions ///
 
 		explicit GlTFImporter(const std::filesystem::path& path,
-							  SceneImportOptions options = SceneImportOptions::ImportAll);
+							  Scene::ImportOptions options = Scene::ImportOptions::ImportAll);
 
 		/// Internal Member Functions ///
 
@@ -48,7 +47,7 @@ namespace a3d {
 		std::shared_ptr<Mesh>			firstMesh();
 
 		const std::filesystem::path&	path() const;
-		SceneImportOptions				options() const;
+		Scene::ImportOptions			options() const;
 
 	private:
 		/// Private Member Functions ///
@@ -83,7 +82,7 @@ namespace a3d {
 		fastgltf::Asset										_asset;
 		std::unique_ptr<Scene> 								_scene;
 		std::filesystem::path								_path;
-		SceneImportOptions									_options;
+		Scene::ImportOptions								_options;
 		std::map<std::size_t, std::shared_ptr<Camera>> 		_cameras;
 		std::map<std::size_t, std::shared_ptr<Mesh>> 		_meshes;
 		std::map<std::size_t, std::shared_ptr<Image>> 		_images;

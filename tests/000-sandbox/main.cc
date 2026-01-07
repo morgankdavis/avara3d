@@ -21,16 +21,16 @@ using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
-const Log::Level			APP_LOG_LEVEL			{Log::Level::Debug};
-const uvec2					WINDOW_SIZE				{1280, 768};
-const bool					FULLSCREEN				{false};
-const bool					ENABLE_HIGH_DPI			{true};
-const AntialiasingMode		AA_MODE					{AntialiasingMode::Msaa4X};
-const bool					ENABLE_VSYNC			{false};
-const bool					CAPTURE_CURSOR			{false};
-const float					MOUSE_SENSITIVITY		{0.5};
-const float					PHYSICS_TIMESTEP		{1.0/120.0};
-const bool					DARK					{false};
+const Log::Level						APP_LOG_LEVEL		{Log::Level::Debug};
+const uvec2								WINDOW_SIZE			{1280, 768};
+const bool								FULLSCREEN			{false};
+const bool								ENABLE_HIGH_DPI		{true};
+const RenderContext::AntialiasingMode	ANTIALIAS_MODE		{RenderContext::AntialiasingMode::Msaa4X};
+const bool								ENABLE_VSYNC		{false};
+const bool								CAPTURE_CURSOR		{false};
+const float								MOUSE_SENSITIVITY	{0.5};
+const float								PHYSICS_TIMESTEP	{1.0/120.0};
+const bool								DARK				{false};
 
 void UpdateCallback(Scene& scene, double time, double deltaTime);
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
@@ -57,12 +57,12 @@ int main(int argc, const char* argv[]) {
 		InitLog();
 		LogBuildInfo();
 
-		auto window = make_unique<GLFWWindow>(RenderingApi::OpenGL,
+		auto window = make_unique<GLFWWindow>(RenderContext::RenderingApi::OpenGL,
 											  *util::filesystem::ExecutableName(),
 											  WINDOW_SIZE,
 											  FULLSCREEN,
 											  ENABLE_HIGH_DPI,
-											  AA_MODE);
+											  ANTIALIAS_MODE);
 		window->vSyncEnabled(ENABLE_VSYNC);
 		window->cursorCaptured(CAPTURE_CURSOR);
 
@@ -89,7 +89,7 @@ int main(int argc, const char* argv[]) {
 		physicalWorld->didSimulateCallback(bind(&DidSimulatePhysicsCallback, _1, _2, _3));
 
 		auto scene = make_unique<Scene>(std::move(visualWorld), std::move(physicalWorld), std::move(inputManager));
-		scene->debugOptions(DebugOptions::ShowStatsOverlay);
+		scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 		scene->updateCallback(bind(&UpdateCallback, _1, _2, _3));
 
 	//	auto ambientColor = DARK
@@ -124,11 +124,11 @@ int main(int argc, const char* argv[]) {
 				? util::filesystem::ImageNamed("grid10")->inverted()
 				: util::filesystem::ImageNamed("grid10");
 		auto planeTexture = make_shared<Texture>(std::move(gridImage));
-		planeTexture->sampler()->wrapS(WrapMode::Repeat);
-		planeTexture->sampler()->wrapT(WrapMode::Repeat);
+		planeTexture->sampler()->wrapS(Sampler::WrapMode::Repeat);
+		planeTexture->sampler()->wrapT(Sampler::WrapMode::Repeat);
 		planeTexture->sampler()->maxAnisotropy(16);
-		planeTexture->sampler()->minificationFilter(FilterMode::LinearMipmapLinear);
-		planeTexture->sampler()->magnificationFilter(FilterMode::Linear);
+		planeTexture->sampler()->minificationFilter(Sampler::FilterMode::LinearMipmapLinear);
+		planeTexture->sampler()->magnificationFilter(Sampler::FilterMode::Linear);
 		shared_ptr<Material> planeMaterial = nullptr;
 		if (DARK) {
 			planeMaterial = make_shared<Material>(monostate{},
@@ -384,6 +384,9 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 		cursorCaptured = window->cursorCaptured();
 	}
 
+	using Key = DesktopInputManager::Key;
+	using MouseButton = DesktopInputManager::MouseButton;
+
 	if (keysPressed.count(Key::Escape)) {
 		window->close();
 	}
@@ -447,7 +450,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 		(*g_meshNode)->mesh(*g_mesh);
 	}
 
-
+	using DebugOptions = Scene::DebugOptions;
 
 	if (keysPressed.count(Key::F)) {
 		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowWireframes)) {

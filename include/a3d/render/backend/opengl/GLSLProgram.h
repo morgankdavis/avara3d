@@ -16,7 +16,7 @@
 #include <optional>
 #include <string>
 
-#include "a3d/Types.h"
+#include "a3d/Math.h"
 #include "a3d/render/backend/opengl/GLTypes.h"
 
 namespace a3d {
@@ -24,6 +24,13 @@ namespace a3d {
 	class GLSLProgram {
 
 	public:
+		/// Internal Types ///
+
+		enum class ShaderType {
+			Vertex,
+			Fragment
+		};
+
 		/// Internal Static Member Functions ///
 
 		static GLSLProgram& 		Default();

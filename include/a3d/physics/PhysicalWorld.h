@@ -13,7 +13,7 @@
 #include <memory>
 #include <optional>
 
-#include "a3d/Types.h"
+#include "a3d/scene/Scene.h"
 
 namespace a3d {
 
@@ -26,7 +26,6 @@ namespace a3d {
 	class PhysicsShape;
 	class PhysicalWorldProxy;
 	class Profiler;
-	class Scene;
 
 	class PhysicalWorld {
 
@@ -98,7 +97,7 @@ namespace a3d {
 												 Profiler& profiler);
 
 		void 								appendDebugLines(std::vector<Line>& out,
-															 DebugOptions debugOptions) const;
+															 Scene::DebugOptions debugOptions) const;
 
 		PhysicalWorldProxy*					proxy() const;
 

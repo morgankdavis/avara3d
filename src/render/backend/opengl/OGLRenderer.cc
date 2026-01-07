@@ -188,15 +188,15 @@ static void		SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 										   const Scene& scene,
 										   const vector<Node*>& lightNodes,
 										   FrameStats& stats);
-static void		ApplyBlendFunction(BlendFunction func);
+static void		ApplyBlendFunction(Material::BlendFunction func);
 static GLenum	GLDepthFuncFromDepthFunc(DepthFunc func);
-static GLenum	GLFilterModeForFilterMode(FilterMode mode);
-static GLenum	GLWrapModeForWrapMode(WrapMode mode);
+static GLenum	GLFilterModeForFilterMode(Sampler::FilterMode mode);
+static GLenum	GLWrapModeForWrapMode(Sampler::WrapMode mode);
 static void 	DrawOverlay(const RenderContext& context,
 						   const Scene& scene,
 						   FrameStats& stats,
 						   const FrameStatsHistory& statsHistory,
-						   DebugOptions debugOptions,
+						   Scene::DebugOptions debugOptions,
 						   ImFont& titleFont,
 						   ImFont& bodyFont);
 static void 	DrawStats(FrameStats& stats,
@@ -291,10 +291,6 @@ OGLRenderer::~OGLRenderer() {
 	
 /// Renderer Internal Member Functions ///
 
-RenderingApi OGLRenderer::renderingApi() const {
-	return RenderingApi::OpenGL;
-}
-
 bool OGLRenderer::initialize(const RenderContext& context) {
 	log::i();
 
@@ -335,7 +331,7 @@ bool OGLRenderer::isInitialized() const {
 
 void OGLRenderer::beginFrame(const Scene& scene,
 							 const RenderContext& context,
-							 const DebugOptions& debugOptions,
+							 const Scene::DebugOptions& debugOptions,
 							 FrameStats& stats,
 							 Profiler& profiler) {
 
@@ -351,7 +347,7 @@ void OGLRenderer::beginFrame(const Scene& scene,
 
 void OGLRenderer::endFrame(const Scene& scene,
 						   const RenderContext& context,
-						   const DebugOptions& debugOptions,
+						   const Scene::DebugOptions& debugOptions,
 						   FrameStats& stats,
 						   Profiler& profiler,
 						   const FrameStatsHistory& statsHistory) {
@@ -366,7 +362,7 @@ void OGLRenderer::endFrame(const Scene& scene,
 
 void OGLRenderer::preTraversal(const Scene& scene,
 							   const RenderContext& context,
-							   const DebugOptions& debugOptions,
+							   const Scene::DebugOptions& debugOptions,
 							   FrameStats& stats) {
 
 }
@@ -374,7 +370,7 @@ void OGLRenderer::preTraversal(const Scene& scene,
 void OGLRenderer::postTraversal(const Scene& scene,
 								const RenderContext& context,
 								const vector<Node*>& lightNodes,
-								const DebugOptions& debugOptions,
+								const Scene::DebugOptions& debugOptions,
 								FrameStats& stats) {
 
 	SendEnvironmentUniforms(_glEnvironmentUBO, scene, lightNodes, stats);
@@ -553,9 +549,9 @@ void OGLRenderer::bindPipeline(PipelineHandle pipelineHandle,
 
 #ifndef A3D_GL_ES
 	switch (pipeline.key.fillMode) {
-		case FillMode::Fill:   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);  break;
-		case FillMode::Lines:  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);  break;
-		case FillMode::Points: glPolygonMode(GL_FRONT_AND_BACK, GL_POINT); break;
+		case Material::FillMode::Fill:   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);  break;
+		case Material::FillMode::Lines:  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);  break;
+		case Material::FillMode::Points: glPolygonMode(GL_FRONT_AND_BACK, GL_POINT); break;
 	}
 #endif
 
@@ -1086,8 +1082,8 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 	glUnmapBuffer(GL_UNIFORM_BUFFER);
 }
 
-void ApplyBlendFunction(BlendFunction func) {
-	if (func == BlendFunction::Disabled) {
+void ApplyBlendFunction(Material::BlendFunction func) {
+	if (func == Material::BlendFunction::Disabled) {
 		glDisable(GL_BLEND);
 		return;
 	}
@@ -1096,19 +1092,19 @@ void ApplyBlendFunction(BlendFunction func) {
 	glBlendEquation(GL_FUNC_ADD);
 
 	switch (func) {
-		case BlendFunction::Alpha:
+		case Material::BlendFunction::Alpha:
 			// out = src*a + dst*(1-a)
 			glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
 								GL_ONE,       GL_ONE_MINUS_SRC_ALPHA);
 			break;
 
-		case BlendFunction::PremultipliedAlpha:
+		case Material::BlendFunction::PremultipliedAlpha:
 			// src already multiplied by alpha: out = src + dst*(1-a)
 			glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA,
 								GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 			break;
 
-		case BlendFunction::Additive:
+		case Material::BlendFunction::Additive:
 			// common additive: out = src*a + dst
 			glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE,
 								GL_ONE,       GL_ONE);
@@ -1132,23 +1128,23 @@ GLenum GLDepthFuncFromDepthFunc(DepthFunc func) {
 	return GL_LESS;
 }
 
-GLenum GLFilterModeForFilterMode(FilterMode mode) {
+GLenum GLFilterModeForFilterMode(Sampler::FilterMode mode) {
 	switch (mode) {
-		case FilterMode::Nearest: 				return GL_NEAREST;
-		case FilterMode::Linear: 				return GL_LINEAR;
-		case FilterMode::NearestMipmapNearest:	return GL_NEAREST_MIPMAP_NEAREST;
-		case FilterMode::LinearMipmapNearest: 	return GL_LINEAR_MIPMAP_NEAREST;
-		case FilterMode::NearestMipmapLinear: 	return GL_NEAREST_MIPMAP_LINEAR;
-		case FilterMode::LinearMipmapLinear: 	return GL_LINEAR_MIPMAP_LINEAR; }
+		case Sampler::FilterMode::Nearest: 				return GL_NEAREST;
+		case Sampler::FilterMode::Linear: 				return GL_LINEAR;
+		case Sampler::FilterMode::NearestMipmapNearest:	return GL_NEAREST_MIPMAP_NEAREST;
+		case Sampler::FilterMode::LinearMipmapNearest: 	return GL_LINEAR_MIPMAP_NEAREST;
+		case Sampler::FilterMode::NearestMipmapLinear: 	return GL_NEAREST_MIPMAP_LINEAR;
+		case Sampler::FilterMode::LinearMipmapLinear: 	return GL_LINEAR_MIPMAP_LINEAR; }
 }
 
-GLenum GLWrapModeForWrapMode(WrapMode mode) {
+GLenum GLWrapModeForWrapMode(Sampler::WrapMode mode) {
 	switch (mode) {
-		case WrapMode::ClampToEdge:				return GL_CLAMP_TO_EDGE;
+		case Sampler::WrapMode::ClampToEdge:				return GL_CLAMP_TO_EDGE;
 //#ifdef A3D_GL_DESKTOP
 //		case WRAP_MODE::CLAMP_TO_BORDER:		return GL_CLAMP_TO_BORDER;
 //#endif
-		case WrapMode::Repeat:					return GL_REPEAT;
+		case Sampler::WrapMode::Repeat:					return GL_REPEAT;
 		default: /* MIRRORED_REPEAT */   		return GL_MIRRORED_REPEAT; }
 }
 
@@ -1156,7 +1152,7 @@ void DrawOverlay(const RenderContext& context,
 				 const Scene& scene,
 				 FrameStats& stats,
 				 const FrameStatsHistory& statsHistory,
-				 DebugOptions debugOptions,
+				 Scene::DebugOptions debugOptions,
 				 ImFont& titleFont,
 				 ImFont& bodyFont) {
 
@@ -1167,7 +1163,7 @@ void DrawOverlay(const RenderContext& context,
 
 	ImguiBeginOverlay(0, true);
 	DrawDebugOptions(const_cast<Scene&>(scene), bodyFont); // TODO: const_cast CHEATING
-	if (util::bitmask::contains(debugOptions, DebugOptions::ShowStatsOverlay)) {
+	if (util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowStatsOverlay)) {
 		DrawStats(stats, statsHistory, context, titleFont, bodyFont);
 	}
 
@@ -1571,6 +1567,8 @@ void DrawDebugOptions(Scene& scene, ImFont& bodyFont) {
 	static const float Y_PAD = 24.0;
 
 	auto debugOptions = scene.debugOptions();
+
+	using DebugOptions = Scene::DebugOptions;
 
 	yPos = 12.0;
 	static bool stats = util::bitmask::contains(debugOptions, DebugOptions::ShowStatsOverlay);

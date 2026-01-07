@@ -12,8 +12,8 @@
 #include <memory>
 #include <vector>
 
-#include "a3d/Types.h"
 #include "a3d/profiling/FrameStats.h"
+#include "a3d/scene/Scene.h"
 
 namespace a3d {
 
@@ -49,7 +49,7 @@ namespace a3d {
 		virtual void 				updateCollisionPairs() = 0;
 
 		virtual void 				appendDebugLines(std::vector<Line>& out,
-													 DebugOptions debugOptions) = 0;
+													 Scene::DebugOptions debugOptions) = 0;
 	};
 }
 

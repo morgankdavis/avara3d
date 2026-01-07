@@ -19,13 +19,13 @@ using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
-const uvec2					WINDOW_SIZE			{1280, 768};
-const bool					FULLSCREEN			{false};
-const bool					ENABLE_HIGH_DPI		{true};
-const AntialiasingMode		ANTIALIAS_MODE		{AntialiasingMode::Msaa4X};
-const bool					ENABLE_VSYNC		{false};
-const bool					CAPTURE_CURSOR		{false};
-const float					MOUSE_SENSITIVITY	{0.5};
+const uvec2								WINDOW_SIZE			{1280, 768};
+const bool								FULLSCREEN			{false};
+const bool								ENABLE_HIGH_DPI		{true};
+const RenderContext::AntialiasingMode	ANTIALIAS_MODE		{RenderContext::AntialiasingMode::Msaa4X};
+const bool								ENABLE_VSYNC		{false};
+const bool								CAPTURE_CURSOR		{false};
+const float								MOUSE_SENSITIVITY	{0.5};
 
 void UpdateCallback(Scene& scene, double time, double deltaTime);
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
@@ -36,7 +36,7 @@ int main(int argc, const char* argv[]) {
 	try {
 		cout << "test003::main()\n" << endl;
 
-		auto window = make_unique<GLFWWindow>(RenderingApi::OpenGL,
+		auto window = make_unique<GLFWWindow>(RenderContext::RenderingApi::OpenGL,
 											  *util::filesystem::ExecutableName(),
 											  WINDOW_SIZE,
 											  FULLSCREEN,
@@ -83,6 +83,9 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	// get input
 
 	auto im = static_cast<DesktopInputManager*>(scene.inputManager());
+
+	using Key = DesktopInputManager::Key;
+	using MouseButton = DesktopInputManager::MouseButton;
 
 	auto keysDown = im->keysDown();
 	for (auto k : keysDown) {

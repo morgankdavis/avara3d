@@ -13,7 +13,6 @@
 #include <optional>
 #include <string>
 
-#include "a3d/Types.h"
 #include "a3d/render/context/RenderContext.h"
 
 struct GLFWwindow;

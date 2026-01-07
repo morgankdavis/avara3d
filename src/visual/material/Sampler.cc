@@ -24,30 +24,30 @@ Sampler::Sampler():
 		_wrapS{WrapMode::Repeat},
 		_wrapT{WrapMode::Repeat},
 		_wrapR{WrapMode::Repeat},
-		_dirtyMask{SamplerDirtyMask::All} {}
+		_dirtyMask{DirtyMask::All} {}
 
 Sampler::~Sampler() {}
 
 /// Public Member Functions ///
 
-FilterMode Sampler::minificationFilter() const {
+Sampler::FilterMode Sampler::minificationFilter() const {
 	return _minificationFilter;
 }
 
 void Sampler::minificationFilter(FilterMode mode) {
 	_minificationFilter = mode;
 
-	_dirtyMask = util::bitmask::add(_dirtyMask, SamplerDirtyMask::MinificationFilter);
+	_dirtyMask = util::bitmask::add(_dirtyMask, DirtyMask::MinificationFilter);
 }
 
-FilterMode Sampler::magnificationFilter() const {
+Sampler::FilterMode Sampler::magnificationFilter() const {
 	return _magnificationFilter;
 }
 
 void Sampler::magnificationFilter(FilterMode mode) {
 	_magnificationFilter = mode;
 
-	_dirtyMask = util::bitmask::add(_dirtyMask, SamplerDirtyMask::MagnificationFilter);
+	_dirtyMask = util::bitmask::add(_dirtyMask, DirtyMask::MagnificationFilter);
 }
 
 float Sampler::maxAnisotropy() const {
@@ -65,37 +65,37 @@ void Sampler::maxAnisotropy(float max) {
 
 	_maxAnisotropy = max;
 
-	_dirtyMask = util::bitmask::add(_dirtyMask, SamplerDirtyMask::MaxAnisotropy);
+	_dirtyMask = util::bitmask::add(_dirtyMask, DirtyMask::MaxAnisotropy);
 }
 
-WrapMode Sampler::wrapS() const {
+Sampler::WrapMode Sampler::wrapS() const {
 	return _wrapS;
 }
 
 void Sampler::wrapS(WrapMode mode) {
 	_wrapS = mode;
 
-	_dirtyMask = util::bitmask::add(_dirtyMask, SamplerDirtyMask::WrapS);
+	_dirtyMask = util::bitmask::add(_dirtyMask, DirtyMask::WrapS);
 }
 
-WrapMode Sampler::wrapT() const {
+Sampler::WrapMode Sampler::wrapT() const {
 	return _wrapT;
 }
 
 void Sampler::wrapT(WrapMode mode) {
 	_wrapT = mode;
 
-	_dirtyMask = util::bitmask::add(_dirtyMask, SamplerDirtyMask::WrapT);
+	_dirtyMask = util::bitmask::add(_dirtyMask, DirtyMask::WrapT);
 }
 
-WrapMode Sampler::wrapR() const {
+Sampler::WrapMode Sampler::wrapR() const {
 	return _wrapR;
 }
 
 void Sampler::wrapR(WrapMode mode) {
 	_wrapR = mode;
 
-	_dirtyMask = util::bitmask::add(_dirtyMask, SamplerDirtyMask::WrapR);
+	_dirtyMask = util::bitmask::add(_dirtyMask, DirtyMask::WrapR);
 }
 
 /// Internal Member Functions ///
@@ -104,10 +104,10 @@ SamplerId Sampler::id() const noexcept {
 	return _id;
 }
 
-SamplerDirtyMask Sampler::dirtyMask() const {
+Sampler::DirtyMask Sampler::dirtyMask() const {
 	return _dirtyMask;
 }
 
-void Sampler::dirtyMask(SamplerDirtyMask mask) {
+void Sampler::dirtyMask(DirtyMask mask) {
 	_dirtyMask = mask;
 }

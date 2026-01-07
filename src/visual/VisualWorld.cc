@@ -79,9 +79,9 @@ void VisualWorld::background(const Material::Property& background) {
 		if (auto cubeImage = get_if<shared_ptr<CubeImage>>(&((*texture)->contents()))) {
 
 			auto sampler = (*texture)->sampler();
-			sampler->wrapS(WrapMode::ClampToEdge);
-			sampler->wrapT(WrapMode::ClampToEdge);
-			sampler->wrapR(WrapMode::ClampToEdge);
+			sampler->wrapS(Sampler::WrapMode::ClampToEdge);
+			sampler->wrapT(Sampler::WrapMode::ClampToEdge);
+			sampler->wrapR(Sampler::WrapMode::ClampToEdge);
 
 			_backgroundMaterial = make_unique<Material>(monostate{},
 														monostate{},
@@ -204,7 +204,7 @@ void VisualWorld::draw(const Scene& scene,
 					   const PhysicalWorld* physicalWorld,
 					   double runT,
 					   double deltaRunT,
-					   DebugOptions debugOptions,
+					   Scene::DebugOptions debugOptions,
 					   FrameStats& stats,
 					   Profiler& profiler,
 					   const FrameStatsHistory& statsHistory) {

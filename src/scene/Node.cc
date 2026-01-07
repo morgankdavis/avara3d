@@ -59,7 +59,7 @@ Node::Node():
 		_hidden{false},
 		_scene{},
 		_parent{},
-		_dirtyMask{NodeDirtyMask::None} { }
+		_dirtyMask{DirtyMask::None} { }
 
 Node::Node(const string& name):
 		Node() {
@@ -817,10 +817,10 @@ void Node::childrenRec(const shared_ptr<Node>& node,
 	}
 }
 
-NodeDirtyMask Node::dirtyMask() const {
+Node::DirtyMask Node::dirtyMask() const {
 	return _dirtyMask;
 }
 
-void Node::dirtyMask(NodeDirtyMask mask) {
+void Node::dirtyMask(DirtyMask mask) {
 	_dirtyMask = mask;
 }

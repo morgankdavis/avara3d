@@ -16,10 +16,11 @@
 #include <string>
 #include <vector>
 
+#include "a3d/Id.h"
 #include "a3d/Math.h"
-#include "a3d/Types.h"
 #include "a3d/mesh/AABB.h"
 #include "a3d/mesh/VertexLayout.h"
+#include "a3d/util/bitmask.h"
 
 namespace a3d {
 
@@ -34,11 +35,19 @@ namespace a3d {
 	class Mesh {
 
 	public:
+		/// Public Types ///
+
+		enum class ImportOptions : uint16_t {
+			None = 					0,
+			ImportMaterials =		1 << 1, // note maps to SceneImportOptions
+			ImportAll =				UINT16_MAX
+		};
+
 		/// Public Static Member Functions ///
 
 		static std::shared_ptr<Mesh>	FromFile(const std::filesystem::path& path,
-												 MeshImportOptions options =
-												 MeshImportOptions::ImportMaterials);
+												 ImportOptions options =
+												 ImportOptions::ImportMaterials);
 
 		/// Public Lifecycle Functions ///
 
@@ -71,6 +80,14 @@ namespace a3d {
 		void 						replaceMaterial(int index,
 													const std::shared_ptr<Material>& replacement);
 
+		/// Internal Types ///
+
+		enum class DirtyMask : uint32_t {
+			None =					0,
+			// AABB?
+			All = 					UINT_MAX
+		};
+
 		/// Internal Member Functions ///
 
 		MeshId						id() const noexcept;
@@ -86,8 +103,8 @@ namespace a3d {
 		math::vec3 					localExtent() const;
 		math::vec3 					worldExtent(const math::mat4& worldTransform) const;
 
-		MeshDirtyMask 				dirtyMask() const;
-		void 						dirtyMask(MeshDirtyMask mask);
+		DirtyMask 					dirtyMask() const;
+		void 						dirtyMask(DirtyMask mask);
 
 	protected:
 		/// Protected Member Functions ///
@@ -109,8 +126,13 @@ namespace a3d {
 		MeshId 						_id;
 		std::optional<std::string>	_name;
 		AABB						_localAABB;
-		MeshDirtyMask				_dirtyMask;
+		DirtyMask					_dirtyMask;
 	};
+
+	namespace util::bitmask {
+		template <> struct enable_ops<Mesh::ImportOptions> : std::true_type {};\
+		template <> struct enable_ops<Mesh::DirtyMask> : std::true_type {};
+	}
 }
 
 #endif /* AVARA3D_MESH_H */

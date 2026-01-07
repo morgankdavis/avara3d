@@ -12,7 +12,6 @@
 #include <memory>
 #include <set>
 
-#include "a3d/Types.h"
 #include "a3d/input/DesktopInputManager.h"
 
 struct GLFWwindow;

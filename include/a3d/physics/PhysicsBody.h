@@ -11,7 +11,7 @@
 
 #include <memory>
 
-#include "a3d/Types.h"
+#include "a3d/Math.h"
 
 namespace a3d {
 
@@ -26,6 +26,14 @@ namespace a3d {
 	class PhysicsBody {
 
 	public:
+		/// Public Types ///
+
+		enum class Type : uint8_t {
+			Static,
+			Dynamic,
+			Kinematic
+		};
+
 		/// Public Static Member Functions ///
 
 		static std::unique_ptr<PhysicsBody> 	StaticBody();
@@ -34,14 +42,14 @@ namespace a3d {
 
 		/// Public Lifecycle Functions ///
 
-		explicit PhysicsBody(PhysicsBodyType type);
-		PhysicsBody(PhysicsBodyType type, const std::shared_ptr<PhysicsShape>& shape);
+		explicit PhysicsBody(Type type);
+		PhysicsBody(Type type, const std::shared_ptr<PhysicsShape>& shape);
 		~PhysicsBody();
 
 		/// Public Member Functions ///
 
-		PhysicsBodyType 					type() const;
-		void 								type(PhysicsBodyType type);
+		Type 								type() const;
+		void 								type(Type type);
 
 		const std::shared_ptr<PhysicsShape>&	shape() const;
 		void 									shape(const std::shared_ptr<PhysicsShape>& shape);

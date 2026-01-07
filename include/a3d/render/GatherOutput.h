@@ -13,7 +13,6 @@
 #include <vector>
 
 #include "a3d/Math.h"
-#include "a3d/Types.h"
 #include "a3d/mesh/AABB.h"
 #include "a3d/mesh/Line.h"
 
@@ -28,6 +27,12 @@ namespace a3d {
 	class Scene;
 
 	/// Internal Types ///
+
+	enum class RenderStyle : uint8_t {
+		Normal,
+		Wireframe,
+		WireframeOverlay
+	};
 
 	struct MeshInstance { // temporary?
 		Mesh 		*mesh =		nullptr;

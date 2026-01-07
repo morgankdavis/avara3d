@@ -22,7 +22,7 @@ SpotLight::SpotLight():
 	// see DeVries 16.5
 	_innerAngleCos = static_cast<float>(math::cos(10.0));
 	_outerAngleCos = static_cast<float>(math::cos(15.0));
-	_featherMode = SpotlightFeatheringMode::Linear;
+	_featherMode = FeatheringMode::Linear;
 }
 
 SpotLight::SpotLight(const string& name):
@@ -69,11 +69,11 @@ void SpotLight::outerAngle(float angle) {
 	_outerAngleCos = static_cast<float>(math::cos(angle));
 }
 
-SpotlightFeatheringMode SpotLight::featheringMode() const {
+SpotLight::FeatheringMode SpotLight::featheringMode() const {
 	return _featherMode;
 }
 
-void SpotLight::featheringMode(SpotlightFeatheringMode mode) {
+void SpotLight::featheringMode(FeatheringMode mode) {
 	_featherMode = mode;
 }
 

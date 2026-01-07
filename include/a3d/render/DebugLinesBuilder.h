@@ -11,12 +11,13 @@
 
 #include <vector>
 
-#include "a3d/Types.h"
+#include "a3d/Math.h"
 
 namespace a3d {
 
 	struct AABB;
 
+	class Color;
 	class Line;
 
 	class DebugLinesBuilder {

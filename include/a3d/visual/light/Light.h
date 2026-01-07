@@ -13,8 +13,6 @@
 #include <optional>
 #include <string>
 
-#include "a3d/Types.h"
-
 namespace a3d {
 
 	class AmbientLight;

@@ -31,10 +31,10 @@ void SpherePhysicsShape::radius(float radius) {
 
 /// PhysicsShape Public Member Functions ///
 
-PhysicsShapeType SpherePhysicsShape::type() const {
-	return PhysicsShapeType::Primitive;
+PhysicsShape::Type SpherePhysicsShape::type() const {
+	return PhysicsShape::Type::Primitive;
 }
 
-void SpherePhysicsShape::type(PhysicsShapeType type) {
-	throw Exception("Cannot set PhysicsShapeType for SpherePhysicsShape.");
+void SpherePhysicsShape::type(PhysicsShape::Type type) {
+	throw Exception("Cannot set PhysicsShape::Type for SpherePhysicsShape.");
 }

@@ -21,9 +21,9 @@ Texture::Texture():
 		_sampler{nullptr},
 		_contents{monostate{}},
 		_mappingChannel{0},
-		_dirtyMask{TextureDirtyMask::All} {}
+		_dirtyMask{DirtyMask::All} {}
 
-Texture::Texture(const Sampleable& contents,
+Texture::Texture(const Contents& contents,
 				 const shared_ptr<Sampler>& sampler,
 				 unsigned mappingChannel):
 		Texture() {
@@ -42,16 +42,16 @@ shared_ptr<Sampler> Texture::sampler() const {
 
 void Texture::sampler(const shared_ptr<Sampler>& sampler) {
 	_sampler = sampler;
-	_dirtyMask = util::bitmask::add(_dirtyMask, TextureDirtyMask::Sampler);
+	_dirtyMask = util::bitmask::add(_dirtyMask, DirtyMask::Sampler);
 }
 
-const Sampleable& Texture::contents() const {
+const Texture::Contents& Texture::contents() const {
 	return _contents;
 }
 
-void Texture::contents(const Sampleable& contents) {
+void Texture::contents(const Contents& contents) {
 	_contents = contents;
-	_dirtyMask = util::bitmask::add(_dirtyMask, TextureDirtyMask::Contents);
+	_dirtyMask = util::bitmask::add(_dirtyMask, DirtyMask::Contents);
 }
 
 unsigned Texture::mappingChannel() const {
@@ -68,10 +68,10 @@ TextureId Texture::id() const noexcept {
 	return _id;
 }
 
-TextureDirtyMask Texture::dirtyMask() const {
+Texture::DirtyMask Texture::dirtyMask() const {
 	return _dirtyMask;
 }
 
-void Texture::dirtyMask(TextureDirtyMask mask) {
+void Texture::dirtyMask(DirtyMask mask) {
 	_dirtyMask = mask;
 }

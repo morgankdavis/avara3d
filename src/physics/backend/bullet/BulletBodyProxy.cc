@@ -11,6 +11,7 @@
 #include <bullet/btBulletDynamicsCommon.h>
 
 #include "a3d/log/Log.h"
+#include "a3d/mesh/ConvexDecomposer.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsShape.h"
@@ -21,7 +22,6 @@
 #include "a3d/physics/backend/bullet/BulletWorldProxy.h"
 #include "a3d/physics/proxy/PhysicsBodyProxy.h"
 #include "a3d/physics/proxy/PhysicsShapeProxy.h"
-#include "a3d/physics/util/ConvexDecomposer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/util/flow.h"
 
@@ -31,7 +31,7 @@ using namespace std;
 
 /// Internal Lifecycle Functions ///
 
-BulletBodyProxy::BulletBodyProxy(PhysicsBody& body, PhysicsBodyType type):
+BulletBodyProxy::BulletBodyProxy(PhysicsBody& body, PhysicsBody::Type type):
 		PhysicsBodyProxy{body, type},
 		_btBody{},
 		/*_btMotionState(nullptr)*/
@@ -49,7 +49,7 @@ BulletBodyProxy::BulletBodyProxy(PhysicsBody& body, PhysicsBodyType type):
 	// it seems as though adding a body to the world with mass=0 forever casts it
 	// as a static body. adding it, setting it to 0, the setting it to something
 	// different seems to work fine, though.
-	btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo((/*body.type()*/type == PhysicsBodyType::Static
+	btRigidBody::btRigidBodyConstructionInfo rigidBodyInfo((/*body.type()*/type == PhysicsBody::Type::Static
 															? 0.0f
 															: 1.0f), // important!
 														   _motionState.get(),
@@ -87,16 +87,16 @@ BulletBodyProxy::~BulletBodyProxy() {
 
 /// PhysicsBodyModelProxy Internal Member Functions ///
 
-PhysicsBodyType BulletBodyProxy::type() const {
+PhysicsBody::Type BulletBodyProxy::type() const {
 
 	const int flags = _btBody->getCollisionFlags();
 
-	if (flags & btCollisionObject::CF_KINEMATIC_OBJECT) return PhysicsBodyType::Kinematic;
-	if (flags & btCollisionObject::CF_STATIC_OBJECT)    return PhysicsBodyType::Static;
-	return PhysicsBodyType::Dynamic; // default when neither static nor kinematic
+	if (flags & btCollisionObject::CF_KINEMATIC_OBJECT) return PhysicsBody::Type::Kinematic;
+	if (flags & btCollisionObject::CF_STATIC_OBJECT)    return PhysicsBody::Type::Static;
+	return PhysicsBody::Type::Dynamic; // default when neither static nor kinematic
 }
 
-void BulletBodyProxy::type(PhysicsBodyType type) {
+void BulletBodyProxy::type(PhysicsBody::Type type) {
 
 	int flags = _btBody->getCollisionFlags();
 
@@ -105,20 +105,20 @@ void BulletBodyProxy::type(PhysicsBodyType type) {
 			   btCollisionObject::CF_KINEMATIC_OBJECT);
 
 	switch (type) {
-		case PhysicsBodyType::Static:
+		case PhysicsBody::Type::Static:
 			flags |= btCollisionObject::CF_STATIC_OBJECT;
 			_btBody->setCollisionFlags(flags);
 			_btBody->setActivationState(ACTIVE_TAG); // or ISLAND_SLEEPING?
 			_btBody->setMassProps(0.0f, btVector3(0,0,0));
 			break;
 
-		case PhysicsBodyType::Dynamic:
+		case PhysicsBody::Type::Dynamic:
 			_btBody->setCollisionFlags(flags); // dynamic == no static/kinematic flag
 			_btBody->setActivationState(ACTIVE_TAG);
 			// mass/inertia handled elsewhere after shape is set
 			break;
 
-		case PhysicsBodyType::Kinematic:
+		case PhysicsBody::Type::Kinematic:
 			flags |= btCollisionObject::CF_KINEMATIC_OBJECT;
 			_btBody->setCollisionFlags(flags);
 			_btBody->setActivationState(DISABLE_DEACTIVATION);
@@ -144,17 +144,17 @@ void BulletBodyProxy::shapeProxy(PhysicsShapeProxy* proxy) {
 			_btBody->setCollisionShape(btShape);
 
 			switch (_body->type()) {
-				case PhysicsBodyType::Static:
-				case PhysicsBodyType::Kinematic:
+				case PhysicsBody::Type::Static:
+				case PhysicsBody::Type::Kinematic:
 					this->mass(0);
 					break;
-				case PhysicsBodyType::Dynamic:
+				case PhysicsBody::Type::Dynamic:
 					break;
 			}
 
 			_shapeProxy = proxy;
 
-			if (this->type() == PhysicsBodyType::Dynamic && _autocalculatesMomentOfInertia) {
+			if (this->type() == PhysicsBody::Type::Dynamic && _autocalculatesMomentOfInertia) {
 				calculateMomentOfIntertia();
 			}
 		}
@@ -180,7 +180,7 @@ void BulletBodyProxy::mass(float mass) {
 
 	_btBody->setMassProps(mass, _btBody->getLocalInertia());
 
-	if (type() == PhysicsBodyType::Dynamic && _autocalculatesMomentOfInertia) {
+	if (type() == PhysicsBody::Type::Dynamic && _autocalculatesMomentOfInertia) {
 		calculateMomentOfIntertia();
 	}
 
@@ -356,7 +356,7 @@ bool BulletBodyProxy::allowsResting() const {
 
 void BulletBodyProxy::allowsResting(bool allowsResting) {
 
-	if (type() == PhysicsBodyType::Kinematic && allowsResting) {
+	if (type() == PhysicsBody::Type::Kinematic && allowsResting) {
 		log::e()("Cannot enable resting for kinematic bodies.");
 		return;
 	}

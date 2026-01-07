@@ -22,6 +22,14 @@ namespace a3d {
 	class SpotLight : public AttenuatedLight {
 
 	public:
+		/// Public Types ///
+
+		enum class FeatheringMode : uint8_t {
+			Linear =	0,
+			Sharp = 	1, // y = x(2-x)
+			Soft = 		2 // y = x^2
+		};
+
 		/// Public Lifecycle Functions ///
 
 		SpotLight();
@@ -38,8 +46,8 @@ namespace a3d {
 		float					outerAngle() const;
 		void					outerAngle(float angle);
 
-		SpotlightFeatheringMode	featheringMode() const;
-		void					featheringMode(SpotlightFeatheringMode mode);
+		FeatheringMode			featheringMode() const;
+		void					featheringMode(FeatheringMode mode);
 
 		/// Internal Member Functions ///
 
@@ -57,7 +65,7 @@ namespace a3d {
 
 		float					_innerAngleCos;
 		float					_outerAngleCos;
-		SpotlightFeatheringMode	_featherMode;
+		FeatheringMode			_featherMode;
 	};
 }
 

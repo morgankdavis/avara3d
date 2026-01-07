@@ -12,7 +12,6 @@
 #include <stdexcept>
 
 #include "a3d/Assert.h"
-#include "a3d/Types.h"
 #include "a3d/log/Log.h"
 #include "a3d/Math.h"
 #include "a3d/mesh/VertexAccess.h"
@@ -77,7 +76,7 @@ MeshElement::MeshElement(VertexLayout layout,
 						 std::span<const std::byte> ibytes,
 						 uint32_t icount)
 		: _localAABB(AABB::Invalid()),
-		  _dirtyMask(MeshElementDirtyMask::All),
+		  _dirtyMask(DirtyMask::All),
 		  _layout(layout),
 		  _vertexData(),
 		  _vertexCount(vcount),
@@ -161,7 +160,7 @@ void MeshElement::burnTransform(const mat4& transform, bool normals) {
 	}
 
 	genLocalAABB();
-	_dirtyMask = util::bitmask::add(_dirtyMask, MeshElementDirtyMask::VertexData);
+	_dirtyMask = util::bitmask::add(_dirtyMask, DirtyMask::VertexData);
 }
 
 AABB MeshElement::localAABB() const {
@@ -231,11 +230,11 @@ vec3 MeshElement::worldExtent(const mat4& worldTransform) const {
 	return aabb.max - aabb.min;
 }
 
-MeshElementDirtyMask MeshElement::dirtyMask() const {
+MeshElement::DirtyMask MeshElement::dirtyMask() const {
 	return _dirtyMask;
 }
 
-void MeshElement::dirtyMask(MeshElementDirtyMask mask) {
+void MeshElement::dirtyMask(DirtyMask mask) {
 	_dirtyMask = mask;
 }
 
@@ -263,7 +262,7 @@ void MeshElement::genLocalAABB() {
 
 MeshElement::MeshElement():
 		_layout{VertexLayout::None},
-		_dirtyMask{MeshElementDirtyMask::All} {}
+		_dirtyMask{DirtyMask::All} {}
 
 VertexLayout MeshElement::vertexLayout() const {
 	return _layout;
@@ -380,8 +379,8 @@ void MeshElement::beginBuild(VertexLayout layout,
 		_indexData.reserve(size_t(reserveIndices) * size_t(IndexStride(indexFormat)));
 	}
 
-	_dirtyMask = util::bitmask::add(_dirtyMask, MeshElementDirtyMask::VertexData);
-	_dirtyMask = util::bitmask::add(_dirtyMask, MeshElementDirtyMask::IndexData);
+	_dirtyMask = util::bitmask::add(_dirtyMask, DirtyMask::VertexData);
+	_dirtyMask = util::bitmask::add(_dirtyMask, DirtyMask::IndexData);
 	_localAABB = AABB::Invalid();
 }
 
@@ -464,6 +463,6 @@ void MeshElement::endBuild(bool recomputeAABB) {
 
 	if (recomputeAABB) genLocalAABB();
 
-	_dirtyMask = util::bitmask::add(_dirtyMask, MeshElementDirtyMask::VertexData);
-	_dirtyMask = util::bitmask::add(_dirtyMask, MeshElementDirtyMask::IndexData);
+	_dirtyMask = util::bitmask::add(_dirtyMask, DirtyMask::VertexData);
+	_dirtyMask = util::bitmask::add(_dirtyMask, DirtyMask::IndexData);
 }

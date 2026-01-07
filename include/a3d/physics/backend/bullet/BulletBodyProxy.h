@@ -24,13 +24,13 @@ namespace a3d {
 	public:
 		/// Internal Lifecycle Functions ///
 
-		explicit BulletBodyProxy(PhysicsBody& body, PhysicsBodyType type);
+		explicit BulletBodyProxy(PhysicsBody& body, PhysicsBody::Type type);
 		~BulletBodyProxy() override;
 
 		/// PhysicsBodyModelProxy Internal Member Functions ///
 
-		PhysicsBodyType			type() const override;
-		void					type(PhysicsBodyType type) override;
+		PhysicsBody::Type		type() const override;
+		void					type(PhysicsBody::Type type) override;
 
 		PhysicsShapeProxy*		shapeProxy() const override;
 		void					shapeProxy(PhysicsShapeProxy* proxy) override;

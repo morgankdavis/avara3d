@@ -14,7 +14,6 @@
 #include <unordered_set>
 #include <utility>
 
-#include "a3d/Types.h"
 #include "a3d/render/Renderer.h"
 #include "a3d/render/backend/opengl/GLTypes.h"
 #include "a3d/render/backend/opengl/OGLDebugLines.h"
@@ -69,31 +68,29 @@ namespace a3d {
 
 		/// Renderer Internal Member Functions ///
 
-		RenderingApi 			renderingApi() const override;
-
 		bool 					initialize(const RenderContext& context) override;
 		bool					isInitialized() const override;
 
 		void 					beginFrame(const Scene& scene,
 										   const RenderContext& context,
-										   const DebugOptions& debugOptions,
+										   const Scene::DebugOptions& debugOptions,
 										   FrameStats& stats,
 										   Profiler& profiler) override;
 		void 					endFrame(const Scene& scene,
 										 const RenderContext& context,
-										 const DebugOptions& debugOptions,
+										 const Scene::DebugOptions& debugOptions,
 										 FrameStats& stats,
 										 Profiler& profiler,
 										 const FrameStatsHistory& statsHistory) override;
 
 		void 					preTraversal(const Scene& scene,
 											 const RenderContext& context,
-											 const DebugOptions& debugOptions,
+											 const Scene::DebugOptions& debugOptions,
 											 FrameStats& stats) override;
 		void 					postTraversal(const Scene& scene,
 											  const RenderContext& context,
 											  const std::vector<Node*>& lightNodes,
-											  const DebugOptions& debugOptions,
+											  const Scene::DebugOptions& debugOptions,
 											  FrameStats& stats) override;
 
 		void 					clear(const ClearCommand& cmd,

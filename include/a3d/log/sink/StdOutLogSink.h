@@ -12,7 +12,6 @@
 #include <cstdio>
 #include <string>
 
-#include "a3d/Types.h"
 #include "a3d/log/sink/LogSink.h"
 
 namespace a3d {

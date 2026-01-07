@@ -26,12 +26,12 @@ PipelineKey PipelineKeyBuilder::MakeBackgroundKey() {
 	k.pass = 			PassKind::Background;
 	k.shaderKind =		ShaderKind::Skybox;
 	k.vertexLayoutKey = VertexLayout::PNT;
-	k.fillMode =		FillMode::Fill;
+	k.fillMode =		Material::FillMode::Fill;
 	k.doubleSided =		true; // change winding order instead??
 	k.depthTest =		true;
 	k.depthWrite =		false;
 	k.depthFunc =		DepthFunc::Lequal;
-	k.blendFunction =	BlendFunction::Disabled;
+	k.blendFunction =	Material::BlendFunction::Disabled;
 	k.polygonOffset = 	false;
 	return k;
 }
@@ -68,9 +68,9 @@ PipelineKey PipelineKeyBuilder::MakeWireframeKey(VertexLayout layoutKey) {
 	k.pass = 			PassKind::Wireframe;
 	k.shaderKind = 		ShaderKind::Wireframe;
 	k.vertexLayoutKey = layoutKey;
-	k.fillMode = 		FillMode::Lines;
+	k.fillMode = 		Material::FillMode::Lines;
 	k.doubleSided = 	true;
-	k.blendFunction = 	BlendFunction::Disabled;
+	k.blendFunction = 	Material::BlendFunction::Disabled;
 	k.polygonOffset = 	true;
 	ApplyDepthPolicy(k);
 	return k;
@@ -81,10 +81,10 @@ PipelineKey PipelineKeyBuilder::MakeLinesKey() {
 	k.pass = 			PassKind::Lines;
 	k.shaderKind = 		ShaderKind::Lines;
 	k.vertexLayoutKey = VertexLayout::PC;
-	k.fillMode = 		FillMode::Lines;
+	k.fillMode = 		Material::FillMode::Lines;
 	k.doubleSided = 	true;
 	k.depthWrite = 		false;
-	k.blendFunction = 	BlendFunction::Disabled;
+	k.blendFunction = 	Material::BlendFunction::Disabled;
 	k.polygonOffset = 	false;
 	ApplyDepthPolicy(k);
 	return k;
@@ -101,13 +101,13 @@ PipelineKey MakeBaseKey(const Material& material, VertexLayout layoutKey) {
 	k.shaderKind = 		ShaderKind::Default;
 
 	switch (material.alphaMode()) {
-		case AlphaMode::Opaque:
-		case AlphaMode::Mask:
-			k.blendFunction = BlendFunction::Disabled;
+		case Material::AlphaMode::Opaque:
+		case Material::AlphaMode::Mask:
+			k.blendFunction = Material::BlendFunction::Disabled;
 			break;
-		case AlphaMode::Blend:
-			if (k.blendFunction == BlendFunction::Disabled) {
-				k.blendFunction = BlendFunction::Alpha;
+		case Material::AlphaMode::Blend:
+			if (k.blendFunction == Material::BlendFunction::Disabled) {
+				k.blendFunction = Material::BlendFunction::Alpha;
 			}
 			break;
 	}

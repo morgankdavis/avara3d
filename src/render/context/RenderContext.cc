@@ -35,7 +35,7 @@ using namespace std;
 //	_vSyncEnabled = enabled;
 //}
 
-AntialiasingMode RenderContext::antialiasingMode() const {
+RenderContext::AntialiasingMode RenderContext::antialiasingMode() const {
 	return _antialiasingMode;
 }
 

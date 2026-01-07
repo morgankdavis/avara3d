@@ -14,6 +14,9 @@ using namespace a3d;
 using namespace std;
 using namespace a3d::math;
 
+using Key = DesktopInputManager::Key;
+using MouseButton = DesktopInputManager::MouseButton;
+
 /// Public Lifecycle Functions ///
 
 DesktopInputManager::DesktopInputManager():

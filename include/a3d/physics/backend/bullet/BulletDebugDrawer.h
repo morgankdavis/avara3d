@@ -15,8 +15,6 @@
 
 #include <bullet/LinearMath/btIDebugDraw.h>
 
-#include "a3d/Types.h"
-
 namespace a3d {
 
 	class Line;

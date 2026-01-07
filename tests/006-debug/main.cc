@@ -19,14 +19,14 @@ using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
-const Log::Level			APP_LOG_LEVEL			{Log::Level::Debug};
-const uvec2					WINDOW_SIZE				{1280, 768};
-const bool					FULLSCREEN				{false};
-const bool					ENABLE_HIGH_DPI			{true};
-const AntialiasingMode		ANTIALIAS_MODE			{AntialiasingMode::None};
-const bool					ENABLE_VSYNC			{false};
-const bool					CAPTURE_CURSOR			{false};
-const float					MOUSE_SENSITIVITY		{0.5};
+const Log::Level						APP_LOG_LEVEL		{Log::Level::Debug};
+const uvec2								WINDOW_SIZE			{1280, 768};
+const bool								FULLSCREEN			{false};
+const bool								ENABLE_HIGH_DPI		{true};
+const RenderContext::AntialiasingMode	ANTIALIAS_MODE		{RenderContext::AntialiasingMode::None};
+const bool								ENABLE_VSYNC		{false};
+const bool								CAPTURE_CURSOR		{false};
+const float								MOUSE_SENSITIVITY	{0.5};
 
 void UpdateCallback(Scene& scene, double time, double deltaTime);
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
@@ -41,7 +41,7 @@ int main(int argc, const char* argv[]) {
 		InitLog();
 		LogBuildInfo();
 
-		auto window = make_unique<GLFWWindow>(RenderingApi::OpenGL,
+		auto window = make_unique<GLFWWindow>(RenderContext::RenderingApi::OpenGL,
 											  *util::filesystem::ExecutableName(),
 											  WINDOW_SIZE,
 											  FULLSCREEN,
@@ -65,8 +65,8 @@ int main(int argc, const char* argv[]) {
 //	DebugOptions debugOptions = DebugOptions::None;
 //	debugOptions = util::bitmask::add(debugOptions, DebugOptions::ShowStatsOverlay);
 //	debugOptions = util::bitmask::add(debugOptions, DebugOptions::ShowBoundingBoxes);
-		DebugOptions debugOptions = DebugOptions::ShowStatsOverlay
-									| DebugOptions::ShowBoundingBoxes;
+		auto debugOptions = Scene::DebugOptions::ShowStatsOverlay
+							| Scene::DebugOptions::ShowBoundingBoxes;
 		scene->debugOptions(debugOptions);
 		scene->updateCallback(bind(&UpdateCallback, _1, _2, _3));
 
@@ -134,6 +134,9 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 	auto keysPressed = im->keysPressed();
 
+	using Key = DesktopInputManager::Key;
+	using MouseButton = DesktopInputManager::MouseButton;
+
 	if (keysPressed.count(Key::Escape)) {
 		window->close();
 	}
@@ -141,6 +144,8 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	if (keysPressed.count(Key::Slash)) {
 		window->cursorCaptured(!(window->cursorCaptured()));
 	}
+
+	using DebugOptions = Scene::DebugOptions;
 
 	if (keysPressed.count(Key::F)) {
 		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowWireframes)) {

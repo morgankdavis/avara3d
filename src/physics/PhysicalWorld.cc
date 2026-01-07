@@ -200,7 +200,7 @@ void PhysicalWorld::step(const Scene& scene,
 }
 
 void PhysicalWorld::appendDebugLines(vector<Line>& out,
-									 DebugOptions debugOptions) const {
+									 Scene::DebugOptions debugOptions) const {
 	if (_proxy) {
 		_proxy->appendDebugLines(out, debugOptions);
 	}

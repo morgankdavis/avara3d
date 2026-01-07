@@ -13,7 +13,8 @@
 #include <optional>
 #include <vector>
 
-#include "a3d/Types.h"
+#include "a3d/mesh/Mesh.h"
+#include "a3d/scene/Scene.h"
 
 namespace a3d {
 	class CubeImage;
@@ -85,19 +86,19 @@ namespace a3d::util::filesystem {
 
 #ifndef A3D_ANDROID
 	std::unique_ptr<a3d::Scene> 	SceneNamed(const std::string& name,
-											  SceneImportOptions options =
-											  SceneImportOptions::ImportAll);
+											  Scene::ImportOptions options =
+											  Scene::ImportOptions::ImportAll);
 	std::unique_ptr<a3d::Scene> 	SceneNamed(const std::string& name,
 											  const std::string& type,
-											  SceneImportOptions options =
-											  SceneImportOptions::ImportAll);
+											  Scene::ImportOptions options =
+											  Scene::ImportOptions::ImportAll);
 	std::shared_ptr<a3d::Mesh> 		MeshNamed(const std::string &name,
-												MeshImportOptions options =
-												MeshImportOptions::ImportMaterials);
+												Mesh::ImportOptions options =
+												Mesh::ImportOptions::ImportMaterials);
 	std::shared_ptr<a3d::Mesh> 		MeshNamed(const std::string &name,
 												const std::string &type,
-												MeshImportOptions options =
-												MeshImportOptions::ImportMaterials);
+												Mesh::ImportOptions options =
+												Mesh::ImportOptions::ImportMaterials);
 #endif
 }
 

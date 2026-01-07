@@ -304,14 +304,14 @@ unique_ptr<CubeImage> a3d::util::filesystem::CubeImageNamed(const string& name,
 // *** scenes ***
 
 unique_ptr<Scene> a3d::util::filesystem::SceneNamed(const string& name,
-										 SceneImportOptions options) {
+										 Scene::ImportOptions options) {
 
 	return SceneNamed(name, "gltf", options);
 }
 
 unique_ptr<Scene> a3d::util::filesystem::SceneNamed(const string& name,
 										 const string& type,
-										 SceneImportOptions options) {
+										 Scene::ImportOptions options) {
 
 	auto path = SearchInPaths((name + "." + type), SceneSearchPaths());
 	if (path) {
@@ -322,14 +322,14 @@ unique_ptr<Scene> a3d::util::filesystem::SceneNamed(const string& name,
 }
 
 shared_ptr<Mesh> a3d::util::filesystem::MeshNamed(const string& name,
-									   MeshImportOptions options) {
+									   Mesh::ImportOptions options) {
 
 	return MeshNamed(name, "gltf", options);
 }
 
 shared_ptr<Mesh> a3d::util::filesystem::MeshNamed(const string& name,
 									   const string& type,
-									   MeshImportOptions options) {
+									   Mesh::ImportOptions options) {
 
 	auto path = SearchInPaths((name + "." + type), ModelSearchPaths());
 	if (path) {

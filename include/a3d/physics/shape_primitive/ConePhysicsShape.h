@@ -31,8 +31,8 @@ namespace a3d {
 
 		/// PhysicsShape Public Member Functions ///
 
-		PhysicsShapeType		type() const override;
-		void					type(PhysicsShapeType type) override;
+		PhysicsShape::Type		type() const override;
+		void					type(PhysicsShape::Type type) override;
 
 	private:
 		/// Private Member Variables ///

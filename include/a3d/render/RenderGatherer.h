@@ -10,7 +10,7 @@
 #define AVARA3D_RENDER_RENDERGATHERER_H
 
 #include "a3d/Math.h"
-#include "a3d/Types.h"
+#include "a3d/scene/Scene.h"
 
 namespace a3d {
 
@@ -28,7 +28,7 @@ namespace a3d {
 		static GatherOutput Gather(const Scene& scene,
 								   const math::mat4& view,
 								   const PhysicalWorld* physicalWorld,
-								   const DebugOptions& debugOptions,
+								   const Scene::DebugOptions& debugOptions,
 								   FrameStats& stats);
 
 	};

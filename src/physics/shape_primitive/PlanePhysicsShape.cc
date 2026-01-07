@@ -40,10 +40,10 @@ void PlanePhysicsShape::height(float height) {
 
 /// PhysicsShape Public Member Functions ///
 
-PhysicsShapeType PlanePhysicsShape::type() const {
-	return PhysicsShapeType::Primitive;
+PhysicsShape::Type PlanePhysicsShape::type() const {
+	return PhysicsShape::Type::Primitive;
 }
 
-void PlanePhysicsShape::type(PhysicsShapeType type) {
-	throw Exception("Cannot set PhysicsShapeType for PlanePhysicsShape.");
+void PlanePhysicsShape::type(PhysicsShape::Type type) {
+	throw Exception("Cannot set PhysicsShape::Type for PlanePhysicsShape.");
 }

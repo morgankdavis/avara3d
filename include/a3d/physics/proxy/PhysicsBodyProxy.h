@@ -9,7 +9,7 @@
 #ifndef AVARA3D_PHYSICSBODYPROXY_H
 #define AVARA3D_PHYSICSBODYPROXY_H
 
-#include "a3d/Types.h"
+#include "a3d/physics/PhysicsBody.h"
 
 namespace a3d {
 
@@ -22,13 +22,13 @@ namespace a3d {
 	public:
 		/// Internal Lifecycle Functions ///
 
-		explicit PhysicsBodyProxy(PhysicsBody& body, PhysicsBodyType type);
+		explicit PhysicsBodyProxy(PhysicsBody& body, PhysicsBody::Type type);
 		virtual ~PhysicsBodyProxy();
 
 		/// Internal Member Functions ///
 
-		virtual PhysicsBodyType			type() const = 0;
-		virtual void					type(PhysicsBodyType type) = 0;
+		virtual PhysicsBody::Type		type() const = 0;
+		virtual void					type(PhysicsBody::Type type) = 0;
 
 		virtual PhysicsShapeProxy*		shapeProxy() const = 0;
 		virtual void					shapeProxy(PhysicsShapeProxy* proxy) = 0;

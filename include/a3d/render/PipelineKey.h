@@ -12,8 +12,8 @@
 #include <cstdint>
 #include <cstddef>
 
-#include "a3d/Types.h"
 #include "a3d/mesh/VertexLayout.h"
+#include "a3d/visual/material/Material.h"
 
 namespace a3d {
 
@@ -51,16 +51,16 @@ namespace a3d {
 	};
 
 	struct PipelineKey {
-		PassKind 		pass = 				PassKind::MainOpaque;
-		ShaderKind 		shaderKind = 		ShaderKind::Default;
-		VertexLayout	vertexLayoutKey = 	VertexLayout::None;
-		FillMode 		fillMode = 			FillMode::Fill;
-		BlendFunction 	blendFunction = 	BlendFunction::Disabled;
-		bool 			doubleSided = 		false;
-		bool 			depthTest = 		true;
-		bool 			depthWrite = 		true; // Main = true, Wire = false
-		DepthFunc 		depthFunc = 		DepthFunc::Less;
-		bool 			polygonOffset = 	false; // Main = false, Wire = true
+		PassKind 				pass = 				PassKind::MainOpaque;
+		ShaderKind 				shaderKind = 		ShaderKind::Default;
+		VertexLayout			vertexLayoutKey = 	VertexLayout::None;
+		Material::FillMode 		fillMode = 			Material::FillMode::Fill;
+		Material::BlendFunction	blendFunction = 	Material::BlendFunction::Disabled;
+		bool 					doubleSided = 		false;
+		bool 					depthTest = 		true;
+		bool 					depthWrite = 		true; // Main = true, Wire = false
+		DepthFunc 				depthFunc = 		DepthFunc::Less;
+		bool 					polygonOffset = 	false; // Main = false, Wire = true
 
 		bool operator==(const PipelineKey &) const = default;
 	};

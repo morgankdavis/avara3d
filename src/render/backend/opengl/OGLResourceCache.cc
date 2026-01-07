@@ -35,32 +35,32 @@ static OGLPipeline BuildPipeline(const PipelineKey& key);
 
 // ---- Texture helpers (private to this TU) -----------------------------------
 
-static GLenum GLFilterModeForFilterMode(FilterMode mode) {
+static GLenum GLFilterModeForFilterMode(Sampler::FilterMode mode) {
 	switch (mode) {
-		case FilterMode::Nearest: 				return GL_NEAREST;
-		case FilterMode::Linear: 				return GL_LINEAR;
-		case FilterMode::NearestMipmapNearest:	return GL_NEAREST_MIPMAP_NEAREST;
-		case FilterMode::LinearMipmapNearest: 	return GL_LINEAR_MIPMAP_NEAREST;
-		case FilterMode::NearestMipmapLinear: 	return GL_NEAREST_MIPMAP_LINEAR;
-		case FilterMode::LinearMipmapLinear: 	return GL_LINEAR_MIPMAP_LINEAR;
+		case Sampler::FilterMode::Nearest: 				return GL_NEAREST;
+		case Sampler::FilterMode::Linear: 				return GL_LINEAR;
+		case Sampler::FilterMode::NearestMipmapNearest:	return GL_NEAREST_MIPMAP_NEAREST;
+		case Sampler::FilterMode::LinearMipmapNearest: 	return GL_LINEAR_MIPMAP_NEAREST;
+		case Sampler::FilterMode::NearestMipmapLinear: 	return GL_NEAREST_MIPMAP_LINEAR;
+		case Sampler::FilterMode::LinearMipmapLinear: 	return GL_LINEAR_MIPMAP_LINEAR;
 	}
 	return GL_LINEAR;
 }
 
-static GLenum GLWrapModeForWrapMode(WrapMode mode) {
+static GLenum GLWrapModeForWrapMode(Sampler::WrapMode mode) {
 	switch (mode) {
-		case WrapMode::ClampToEdge: return GL_CLAMP_TO_EDGE;
-		case WrapMode::Repeat:      return GL_REPEAT;
+		case Sampler::WrapMode::ClampToEdge: return GL_CLAMP_TO_EDGE;
+		case Sampler::WrapMode::Repeat:      return GL_REPEAT;
 		default:                    return GL_MIRRORED_REPEAT;
 	}
 }
 
-static inline bool UsesMipmaps(FilterMode mode) {
+static inline bool UsesMipmaps(Sampler::FilterMode mode) {
 	switch (mode) {
-		case FilterMode::NearestMipmapNearest:
-		case FilterMode::NearestMipmapLinear:
-		case FilterMode::LinearMipmapNearest:
-		case FilterMode::LinearMipmapLinear:
+		case Sampler::FilterMode::NearestMipmapNearest:
+		case Sampler::FilterMode::NearestMipmapLinear:
+		case Sampler::FilterMode::LinearMipmapNearest:
+		case Sampler::FilterMode::LinearMipmapLinear:
 			return true;
 		default:
 			return false;
@@ -155,12 +155,12 @@ static void ApplySamplerState(Texture& texture, unsigned glTextureHandle, bool f
 
 	const auto sm = sampler->dirtyMask();
 
-	auto doMin = forceAll || util::bitmask::contains(sm, SamplerDirtyMask::MinificationFilter);
-	auto doMag = forceAll || util::bitmask::contains(sm, SamplerDirtyMask::MagnificationFilter);
-	auto doWS  = forceAll || util::bitmask::contains(sm, SamplerDirtyMask::WrapS);
-	auto doWT  = forceAll || util::bitmask::contains(sm, SamplerDirtyMask::WrapT);
-	auto doWR  = forceAll || (isCubemap && util::bitmask::contains(sm, SamplerDirtyMask::WrapR));
-	auto doAn  = forceAll || util::bitmask::contains(sm, SamplerDirtyMask::MaxAnisotropy);
+	auto doMin = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::MinificationFilter);
+	auto doMag = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::MagnificationFilter);
+	auto doWS  = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::WrapS);
+	auto doWT  = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::WrapT);
+	auto doWR  = forceAll || (isCubemap && util::bitmask::contains(sm, Sampler::DirtyMask::WrapR));
+	auto doAn  = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::MaxAnisotropy);
 
 	if (doMin) {
 		auto mode = sampler->minificationFilter();
@@ -196,15 +196,15 @@ static void ApplySamplerState(Texture& texture, unsigned glTextureHandle, bool f
 
 	// Clear sampler dirty bits we just applied
 	if (forceAll) {
-		sampler->dirtyMask((SamplerDirtyMask)0);
+		sampler->dirtyMask((Sampler::DirtyMask)0);
 	} else {
 		auto cleared = sm;
-		if (doMin) cleared = util::bitmask::remove(cleared, SamplerDirtyMask::MinificationFilter);
-		if (doMag) cleared = util::bitmask::remove(cleared, SamplerDirtyMask::MagnificationFilter);
-		if (doWS)  cleared = util::bitmask::remove(cleared, SamplerDirtyMask::WrapS);
-		if (doWT)  cleared = util::bitmask::remove(cleared, SamplerDirtyMask::WrapT);
-		if (doWR)  cleared = util::bitmask::remove(cleared, SamplerDirtyMask::WrapR);
-		if (doAn)  cleared = util::bitmask::remove(cleared, SamplerDirtyMask::MaxAnisotropy);
+		if (doMin) cleared = util::bitmask::remove(cleared, Sampler::DirtyMask::MinificationFilter);
+		if (doMag) cleared = util::bitmask::remove(cleared, Sampler::DirtyMask::MagnificationFilter);
+		if (doWS)  cleared = util::bitmask::remove(cleared, Sampler::DirtyMask::WrapS);
+		if (doWT)  cleared = util::bitmask::remove(cleared, Sampler::DirtyMask::WrapT);
+		if (doWR)  cleared = util::bitmask::remove(cleared, Sampler::DirtyMask::WrapR);
+		if (doAn)  cleared = util::bitmask::remove(cleared, Sampler::DirtyMask::MaxAnisotropy);
 		sampler->dirtyMask(cleared);
 	}
 }
@@ -263,9 +263,8 @@ const OGLMeshElement& OGLResourceCache::ensureMeshElement(MeshElement& element) 
 
 	const VertexLayout layout = element.vertexLayout();
 
-//	const bool dirty  = util::bitmask::contains(element.dirtyMask(), MeshElementDirtyMask::VertexData);
-	const bool vDirty = util::bitmask::contains(element.dirtyMask(), MeshElementDirtyMask::VertexData);
-	const bool iDirty = util::bitmask::contains(element.dirtyMask(), MeshElementDirtyMask::IndexData);
+	const bool vDirty = util::bitmask::contains(element.dirtyMask(), MeshElement::DirtyMask::VertexData);
+	const bool iDirty = util::bitmask::contains(element.dirtyMask(), MeshElement::DirtyMask::IndexData);
 
 	const bool missing = (res.vao == 0);
 	const bool layoutChanged = (!missing && res.vertexLayoutKey != layout);
@@ -330,73 +329,7 @@ const OGLMeshElement& OGLResourceCache::ensureMeshElement(MeshElement& element) 
 							  (const void*)(uintptr_t)a.offset);
 	}
 
-
-
-
-
-
-
-
-
-	// --- Index buffer ---
-//	std::vector<uint32_t> indices;
-//	indices.reserve(element.faces().size() * 3);
-//	for (const auto& f : element.faces()) {
-//		indices.push_back((uint32_t)f.a);
-//		indices.push_back((uint32_t)f.b);
-//		indices.push_back((uint32_t)f.c);
-//	}
-//	res.indexCount = (uint32_t)indices.size();
-//
-//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (GLuint)res.ebo);
-//	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-//				 (GLsizeiptr)(indices.size() * sizeof(uint32_t)),
-//				 indices.data(),
-//				 GL_STATIC_DRAW);
-
-
-
-
-
-
-// --- Index buffer ---
-//	// New path: upload MeshElement's index buffer directly (no Face conversion)
-//	const auto ib = element.indexBytes();          // span<const std::byte>
-//	const uint32_t icount = element.indexCount(); // number of indices, not triangles
-//
-//	// If you added topology/indexFormat to MeshElement, sanity-check them here:
-//	// (remove/relax if you draw non-triangles later)
-//	A3D_ASSERT(element.topology() == PrimitiveTopology::Triangles);
-//	A3D_ASSERT(icount > 0);
-//	A3D_ASSERT((icount % 3u) == 0u);
-//
-//	const IndexFormat ifmt = element.indexFormat();
-//	A3D_ASSERT(ifmt == IndexFormat::U16 || ifmt == IndexFormat::U32);
-//
-//	const uint16_t indexStride =
-//			(ifmt == IndexFormat::U16) ? 2 :
-//			(ifmt == IndexFormat::U32) ? 4 : 0;
-//
-//	A3D_ASSERT(indexStride != 0);
-//	A3D_ASSERT(ib.size() == size_t(icount) * size_t(indexStride));
-//
-//	res.indexCount = icount;
-//	res.indexType =
-//			(ifmt == IndexFormat::U16) ? GL_UNSIGNED_SHORT :
-//			(ifmt == IndexFormat::U32) ? GL_UNSIGNED_INT :
-//			GL_NONE;
-//
-//	A3D_ASSERT(res.indexType != GL_NONE);
-//
-//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (GLuint)res.ebo);
-//	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-//				 (GLsizeiptr)ib.size(),
-//				 (const void*)ib.data(),
-//				 GL_STATIC_DRAW);
-
-
-
-// --- Index buffer (generalized model, via IndexAccess) ---
+	// --- Index buffer (generalized model, via IndexAccess) ---
 	res.vertexCount = vcount; // for drawArrays fallback
 
 	auto ivOpt = IndexAccess::GetIndexStreamView(element);
@@ -430,8 +363,9 @@ const OGLMeshElement& OGLResourceCache::ensureMeshElement(MeshElement& element) 
 					 GL_STATIC_DRAW);
 	}
 
-	// Clear dirty bit
-	element.dirtyMask(util::bitmask::remove(element.dirtyMask(), MeshElementDirtyMask::VertexData));
+	// clear dirty bit
+	element.dirtyMask(util::bitmask::remove(element.dirtyMask(), MeshElement::DirtyMask::VertexData));
+	element.dirtyMask(util::bitmask::remove(element.dirtyMask(), MeshElement::DirtyMask::IndexData));
 
 	return res;
 }
@@ -464,8 +398,7 @@ unsigned OGLResourceCache::ensureTexture(Texture& texture) {
 
 	unsigned handle = it->second.id;
 
-	const bool contentsDirty =
-			util::bitmask::contains(texture.dirtyMask(), TextureDirtyMask::Contents);
+	const bool contentsDirty = util::bitmask::contains(texture.dirtyMask(), Texture::DirtyMask::Contents);
 	const bool missingOrZero = (handle == 0);
 	const bool forceAll = contentsDirty || missingOrZero;
 
@@ -478,7 +411,7 @@ unsigned OGLResourceCache::ensureTexture(Texture& texture) {
 		handle = BufferTextureContents(texture);
 
 		if (handle == 0) {
-			log::e()("ensureTexture: BufferTextureContents failed for Texture {:p}",
+			log::e()("BufferTextureContents failed for Texture {:p}",
 					 (void*)&texture);
 			_textureMap.erase(it);
 			return 0;
@@ -486,14 +419,14 @@ unsigned OGLResourceCache::ensureTexture(Texture& texture) {
 
 		it->second.id = handle;
 
-		// Clear only Contents bit
-		texture.dirtyMask(util::bitmask::remove(texture.dirtyMask(), TextureDirtyMask::Contents));
+		// clear only Contents bit
+		texture.dirtyMask(util::bitmask::remove(texture.dirtyMask(), Texture::DirtyMask::Contents));
 	}
 
-	// Apply sampler state whenever sampler says it’s dirty, and always after (re)upload
+	// apply sampler state whenever sampler says it’s dirty, and always after (re)upload
 	if (handle != 0) {
 		const auto sampler = texture.sampler();
-		const bool samplerDirty = sampler && sampler->dirtyMask() != (SamplerDirtyMask)0;
+		const bool samplerDirty = sampler && sampler->dirtyMask() != (Sampler::DirtyMask)0;
 		if (forceAll || samplerDirty) {
 			ApplySamplerState(texture, handle, forceAll);
 		}

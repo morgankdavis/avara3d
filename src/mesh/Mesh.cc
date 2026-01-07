@@ -17,7 +17,6 @@
 #include "a3d/Image.h"
 #include "a3d/log/Log.h"
 #include "a3d/exception/UnsupportedFormatException.h"
-#include "a3d/mesh/Line.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/render/Renderer.h"
 #include "a3d/scene/Node.h"
@@ -30,11 +29,10 @@ using namespace std;
 
 /// Public Static Member Functions ///
 
-shared_ptr<Mesh> Mesh::FromFile(const filesystem::path& path,
-								MeshImportOptions options) {
+shared_ptr<Mesh> Mesh::FromFile(const filesystem::path& path, ImportOptions options) {
 
-	auto optsUnderlying = static_cast<underlying_type<MeshImportOptions>::type>(options);
-	auto sceneOpts = SceneImportOptions(optsUnderlying) | SceneImportOptions::ImportMeshes;
+	auto optsUnderlying = static_cast<underlying_type<ImportOptions>::type>(options);
+	auto sceneOpts = Scene::ImportOptions(optsUnderlying) | Scene::ImportOptions::ImportMeshes;
 	return GlTFImporter(path, sceneOpts).firstMesh();
 }
 
@@ -239,11 +237,11 @@ vec3 Mesh::worldExtent(const mat4& worldTransform) const {
 	return aabb.max - aabb.min;
 }
 
-MeshDirtyMask Mesh::dirtyMask() const {
+Mesh::DirtyMask Mesh::dirtyMask() const {
 	return _dirtyMask;
 }
 
-void Mesh::dirtyMask(MeshDirtyMask mask) {
+void Mesh::dirtyMask(DirtyMask mask) {
 	_dirtyMask = mask;
 }
 
@@ -278,4 +276,4 @@ Mesh::Mesh():
 		_name{},
 		_elements{},
 		_materials{},
-		_dirtyMask{MeshDirtyMask::All} { }
+		_dirtyMask{DirtyMask::All} { }

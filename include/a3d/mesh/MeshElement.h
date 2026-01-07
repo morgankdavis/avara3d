@@ -15,12 +15,11 @@
 #include <vector>
 
 #include "a3d/Assert.h"
-#include "a3d/Types.h"
 #include "a3d/Math.h"
 #include "a3d/mesh/AABB.h"
 #include "a3d/mesh/IndexTypes.h"
-
 #include "a3d/mesh/VertexLayout.h"
+#include "a3d/util/bitmask.h"
 
 namespace a3d {
 
@@ -55,6 +54,16 @@ namespace a3d {
 					uint32_t indexCount);
 		virtual ~MeshElement();
 
+		/// Internal Types ///
+
+		enum class DirtyMask : uint32_t {
+			None =					0,
+			VertexData =			1 << 0,
+			IndexData =				1 << 1,
+			// AABB?
+			All = 					UINT_MAX
+		};
+
 		/// Internal Member Functions ///
 
 
@@ -79,8 +88,8 @@ namespace a3d {
 		math::vec3 						localExtent() const;
 		math::vec3 						worldExtent(const math::mat4& worldTransform) const;
 
-		MeshElementDirtyMask 			dirtyMask() const;
-		void 							dirtyMask(MeshElementDirtyMask mask);
+		DirtyMask 						dirtyMask() const;
+		void 							dirtyMask(DirtyMask mask);
 
 	protected:
 		/// Protected Member Functions ///
@@ -104,7 +113,7 @@ namespace a3d {
 //		std::vector<Vertex>				_vertices;
 //		std::vector<Face>				_faces;
 		AABB							_localAABB;
-		MeshElementDirtyMask			_dirtyMask;
+		DirtyMask						_dirtyMask;
 
 
 
@@ -209,6 +218,10 @@ namespace a3d {
 
 
 	};
+
+	namespace util::bitmask {
+		template <> struct enable_ops<MeshElement::DirtyMask> : std::true_type {};
+	}
 }
 
 #endif /* AVARA3D_MESHELEMENT_H */

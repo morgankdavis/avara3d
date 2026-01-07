@@ -51,15 +51,15 @@ DrawPacket DrawPacketizer::Packetize(GatherOutput& gatherOutput) {
 			di.depth = ri.depth;
 
 			switch (ri.material->alphaMode()) {
-				case AlphaMode::Opaque: {
+				case Material::AlphaMode::Opaque: {
 					di.pass = PassKind::MainOpaque;
 					di.key = PipelineKeyBuilder::MakeOpaqueKey(*ri.material, ri.layout);
 					break; }
-				case AlphaMode::Mask: {
+				case Material::AlphaMode::Mask: {
 					di.pass = PassKind::MainMask;
 					di.key = PipelineKeyBuilder::MakeMaskKey(*ri.material, ri.layout);
 					break; }
-				case AlphaMode::Blend: {
+				case Material::AlphaMode::Blend: {
 					di.pass = PassKind::MainTransparent;
 					di.key = PipelineKeyBuilder::MakeTransparentKey(*ri.material, ri.layout);
 					break; }

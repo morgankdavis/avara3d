@@ -20,17 +20,17 @@ using namespace std;
 
 Font::Font(const filesystem::path& path):
 	_name{},
-	_type{FontType::Unknown},
+	_type{Type::Unknown},
 	_buffer{} {
 	
 		_name = path.stem().string();
 
 		auto extension = path.extension().string();
 		if (extension == ".otf") {
-			_type = FontType::OTF;
+			_type = Type::OTF;
 		}
 		else if (extension == ".ttf") {
-			_type = FontType::TTF;
+			_type = Type::TTF;
 		}
 		
 		_buffer = make_unique<Buffer>(path);
@@ -38,7 +38,7 @@ Font::Font(const filesystem::path& path):
 
 Font::Font(unique_ptr<Buffer> buffer):
 	_name{},
-	_type{FontType::Unknown},
+	_type{Type::Unknown},
 	_buffer{std::move(buffer)} {
 	
 }
@@ -53,7 +53,7 @@ const optional<string>& Font::name() const {
 	return _name;
 }
 
-FontType Font::type() const {
+Font::Type Font::type() const {
 	return _type;
 }
 

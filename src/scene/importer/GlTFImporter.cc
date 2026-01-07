@@ -23,7 +23,6 @@
 #include "a3d/Buffer.h"
 #include "a3d/Color.h"
 #include "a3d/Image.h"
-#include "a3d/Types.h"
 #include "a3d/exception/UnsupportedFormatException.h"
 #include "a3d/log/Log.h"
 #include "a3d/mesh/Mesh.h"
@@ -56,7 +55,7 @@ using namespace std;
 
 /// Private Static Non-Member Prototypes ///
 
-static fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options);
+static fastgltf::Options GlTFOptionsFromImportOptions(Scene::ImportOptions options);
 static std::span<const byte> BytesFromDataSource(const fastgltf::DataSource& src);
 static std::span<const byte> BytesFromBufferView(const fastgltf::Asset& asset, size_t bufferViewIndex);
 static mat4 TransformFromGlTFNode(fastgltf::Node& node);
@@ -69,7 +68,7 @@ static void ReadIndicesU32(const fastgltf::Asset& asset,
 /// Internal Lifecycle Functions ///
 
 GlTFImporter::GlTFImporter(const filesystem::path& path,
-						   SceneImportOptions options):
+						   Scene::ImportOptions options):
 		_parsed{false},
 		_asset{},
 		_scene{},
@@ -169,7 +168,7 @@ const filesystem::path& GlTFImporter::path() const {
 	return _path;
 }
 
-SceneImportOptions GlTFImporter::options() const {
+Scene::ImportOptions GlTFImporter::options() const {
 	return _options;
 }
 
@@ -223,16 +222,16 @@ void GlTFImporter::visitGlTFNode(fastgltf::Asset& asset,
 
 	a3dNode->transform(TransformFromGlTFNode(node));
 
-	if ((_options & SceneImportOptions::ImportMeshes) != SceneImportOptions::None) {
+	if ((_options & Scene::ImportOptions::ImportMeshes) != Scene::ImportOptions::None) {
 		a3dNode->mesh(meshFromGlTFNode(asset, node));
 	}
 
-	if ((_options & SceneImportOptions::ImportLights) != SceneImportOptions::None) {
+	if ((_options & Scene::ImportOptions::ImportLights) != Scene::ImportOptions::None) {
 		a3dNode->light(lightFromGlTFNode(asset, node));
 	}
 
 	// (during .6.1 -> .9 migration): this was disabled... why...?
-	if ((_options & SceneImportOptions::ImportCameras) != SceneImportOptions::None) {
+	if ((_options & Scene::ImportOptions::ImportCameras) != Scene::ImportOptions::None) {
 		a3dNode->camera(cameraFromGlTFNode(asset, node));
 	}
 
@@ -269,7 +268,7 @@ shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlTFMeshIndex(fastgltf::Asset& asset
 			if (element) elements.push_back(std::move(element));
 
 			// TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
-			auto material = ((_options & SceneImportOptions::ImportMaterials) != SceneImportOptions::None)
+			auto material = ((_options & Scene::ImportOptions::ImportMaterials) != Scene::ImportOptions::None)
 							? materialFromGlTFPrimitive(asset, primitive)
 							: Material::DefaultMaterial();
 //							: make_shared<Material>();
@@ -650,13 +649,13 @@ shared_ptr<a3d::Sampler> GlTFImporter::samplerFromGlTFTexture(fastgltf::Asset& a
 			auto a3dSampler = make_shared<a3d::Sampler>();
 
 			if (sampler.minFilter) {
-				a3dSampler->minificationFilter(FilterMode(*sampler.minFilter));
+				a3dSampler->minificationFilter(Sampler::FilterMode(*sampler.minFilter));
 			}
 			if (sampler.magFilter) {
-				a3dSampler->magnificationFilter(FilterMode(*sampler.magFilter));
+				a3dSampler->magnificationFilter(Sampler::FilterMode(*sampler.magFilter));
 			}
-			a3dSampler->wrapS(WrapMode(sampler.wrapS));
-			a3dSampler->wrapT(WrapMode(sampler.wrapT));
+			a3dSampler->wrapS(Sampler::WrapMode(sampler.wrapS));
+			a3dSampler->wrapT(Sampler::WrapMode(sampler.wrapT));
 
 			return a3dSampler;
 		}
@@ -822,29 +821,30 @@ shared_ptr<a3d::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
 
 /// Private Static Non-Member Functions ///
 
-fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options) {
+fastgltf::Options GlTFOptionsFromImportOptions(Scene::ImportOptions options) {
 
 	using namespace fastgltf;
+	using ImportOptions = a3d::Scene::ImportOptions;
 
 	auto gltfOptions = Options::None;
 
 	// TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
 
-	if ((options & SceneImportOptions::ImportMeshes) != SceneImportOptions::None) {
+	if ((options & ImportOptions::ImportMeshes) != ImportOptions::None) {
 		gltfOptions |= Options::LoadExternalBuffers
 					   | Options::GenerateMeshIndices;
 	}
 
-	if ((options & SceneImportOptions::ImportMaterials) != SceneImportOptions::None) {
+	if ((options & ImportOptions::ImportMaterials) != ImportOptions::None) {
 		gltfOptions |= Options::LoadExternalBuffers
 					   | Options::LoadExternalImages;
 	}
 
-	if ((options & SceneImportOptions::ImportLights) != SceneImportOptions::None) {
+	if ((options & ImportOptions::ImportLights) != ImportOptions::None) {
 
 	}
 
-	if ((options & SceneImportOptions::ImportCameras) != SceneImportOptions::None) {
+	if ((options & ImportOptions::ImportCameras) != ImportOptions::None) {
 
 	}
 

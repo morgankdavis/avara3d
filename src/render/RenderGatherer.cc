@@ -32,7 +32,7 @@ using namespace std;
 GatherOutput RenderGatherer::Gather(const Scene& scene,
 									const math::mat4& view,
 									const PhysicalWorld* physicalWorld,
-									const DebugOptions& debugOptions,
+									const Scene::DebugOptions& debugOptions,
 									FrameStats& stats) {
 
 	GatherOutput output{};
@@ -49,7 +49,7 @@ GatherOutput RenderGatherer::Gather(const Scene& scene,
 	stack.reserve(256);
 	stack.push_back({scene.rootNode().get(), mat4(1.0)});
 
-	const bool showBounds = util::bitmask::contains(debugOptions, DebugOptions::ShowBoundingBoxes);
+	const bool showBounds = util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowBoundingBoxes);
 
 	output.backgroundMaterial = scene.visualWorld()->backgroundMaterial();
 
@@ -68,7 +68,7 @@ GatherOutput RenderGatherer::Gather(const Scene& scene,
 		if (n->hidden()) continue;
 
 		const mat4 world = parentWorld * n->transform();
-		const bool wireframe = util::bitmask::contains(debugOptions, DebugOptions::ShowWireframes);
+		const bool wireframe = util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowWireframes);
 
 		if (auto* mesh = n->mesh().get()) {
 
@@ -96,7 +96,7 @@ GatherOutput RenderGatherer::Gather(const Scene& scene,
 				item.material = mat;
 				item.model = world;
 				item.aabb = element->worldAABB(world, false);
-				item.transparent = (mat->blendFunction() != BlendFunction::Disabled);
+				item.transparent = (mat->blendFunction() != Material::BlendFunction::Disabled);
 
 				// ! temnporary !
 #warning TEMPORARY

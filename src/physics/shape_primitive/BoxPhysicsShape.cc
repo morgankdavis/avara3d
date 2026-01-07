@@ -49,10 +49,10 @@ void BoxPhysicsShape::length(float length) {
 
 /// PhysicsShape Public Member Functions ///
 
-PhysicsShapeType BoxPhysicsShape::type() const {
-	return PhysicsShapeType::Primitive;
+PhysicsShape::Type BoxPhysicsShape::type() const {
+	return PhysicsShape::Type::Primitive;
 }
 
-void BoxPhysicsShape::type(PhysicsShapeType type) {
-	throw Exception("Cannot set PhysicsShapeType for BoxPhysicsShape.");
+void BoxPhysicsShape::type(PhysicsShape::Type type) {
+	throw Exception("Cannot set PhysicsShape::Type for BoxPhysicsShape.");
 }

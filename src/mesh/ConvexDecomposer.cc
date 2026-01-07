@@ -6,7 +6,7 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/physics/util/ConvexDecomposer.h"
+#include "a3d/mesh/ConvexDecomposer.h"
 
 #include <cstring>
 #include <span>
@@ -14,7 +14,6 @@
 #include <magic_enum/magic_enum.hpp>
 #include <v-hacd/VHACD.h>
 
-#include "a3d/Types.h"
 #include "a3d/mesh/IndexAccess.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/mesh/VertexAccess.h"

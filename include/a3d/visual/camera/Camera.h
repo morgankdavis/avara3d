@@ -13,7 +13,7 @@
 #include <optional>
 #include <string>
 
-#include "a3d/Types.h"
+#include "a3d/Math.h"
 
 namespace a3d {
 

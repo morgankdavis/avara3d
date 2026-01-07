@@ -12,8 +12,8 @@
 #include <memory>
 #include <set>
 
-#include "a3d/Types.h"
 #include "a3d/render/PipelineKey.h"
+#include "a3d/scene/Scene.h"
 
 namespace a3d {
 
@@ -31,7 +31,6 @@ namespace a3d {
 	class OGLResourceCache;
 	class Point;
 	class Profiler;
-	class RenderContext;
 	class DrawPacket;
 	class Scene;
 
@@ -67,7 +66,7 @@ namespace a3d {
 			const RenderContext& 	context;
 			math::mat4 				view =		math::mat4(1.0f);
 			math::mat4 				proj =		math::mat4(1.0f);
-			DebugOptions 			debug =		DebugOptions::None;
+			Scene::DebugOptions 	debug =		Scene::DebugOptions::None;
 			FrameStats* 			stats = 	nullptr;
 			Profiler* 				profiler = 	nullptr;
 		};
@@ -81,31 +80,29 @@ namespace a3d {
 
 		/// Internal Member Functions ///
 
-		virtual RenderingApi 			renderingApi() const = 0;
-
 		virtual bool 					initialize(const RenderContext& context) = 0;
 		virtual bool					isInitialized() const = 0;
 
 		virtual void 					beginFrame(const Scene& scene,
 												   const RenderContext& context,
-												   const DebugOptions& debugOptions,
+												   const Scene::DebugOptions& debugOptions,
 												   FrameStats& stats,
 												   Profiler& profiler) = 0;
 		virtual void 					endFrame(const Scene& scene,
 												 const RenderContext& context,
-												 const DebugOptions& debugOptions,
+												 const Scene::DebugOptions& debugOptions,
 												 FrameStats& stats,
 												 Profiler& profiler,
 												 const FrameStatsHistory& statsHistory) = 0;
 
 		virtual void 					preTraversal(const Scene& scene,
 													 const RenderContext& context,
-													 const DebugOptions& debugOptions,
+													 const Scene::DebugOptions& debugOptions,
 													 FrameStats& stats) = 0;
 		virtual void 					postTraversal(const Scene& scene,
 													  const RenderContext& context,
 													  const std::vector<Node*>& lightNodes,
-													  const DebugOptions& debugOptions,
+													  const Scene::DebugOptions& debugOptions,
 													  FrameStats& stats) = 0;
 
 		virtual void 					clear(const ClearCommand& cmd,

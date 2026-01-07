@@ -11,21 +11,31 @@
 
 #include <atomic>
 #include <memory>
+#include <variant>
 
-#include "a3d/Types.h"
+#include "a3d/Id.h"
+#include "a3d/util/bitmask.h"
 
 namespace a3d {
 
-//	class Sampleable;
+	class CubeImage;
+	class Image;
 	class Sampler;
 
 	class Texture {
 
 	public:
+		/// Public Types ///
+
+		using Contents = std::variant<
+				std::monostate,
+				std::shared_ptr<Image>,
+				std::shared_ptr<CubeImage>>;
+
 		/// Public Lifecycle Functions ///
 
 		Texture();
-		explicit Texture(const Sampleable& contents,
+		explicit Texture(const Contents& contents,
 						 const std::shared_ptr<Sampler>& sampler = std::make_shared<Sampler>(),
 						 unsigned mappingChannel = 0);
 		~Texture();
@@ -35,29 +45,42 @@ namespace a3d {
 		std::shared_ptr<Sampler>		sampler() const;
 		void							sampler(const std::shared_ptr<Sampler>& sampler);
 
-		const Sampleable&				contents() const;
-		void							contents(const Sampleable& contents);
+		const Contents&					contents() const;
+		void							contents(const Contents& contents);
 
 		// TODO: move to TextureBinding
 		unsigned						mappingChannel() const;
 		void							mappingChannel(unsigned channel);
 
+		/// Internal Types ///
+
+		enum class DirtyMask : uint32_t {
+			None =					0,
+			Contents = 				1 << 0,
+			Sampler =				1 << 1, // TODO: move to MaterialBinding dirty mask?
+			All = 					UINT_MAX
+		};
+
 		/// Internal Member Functions ///
 
 		TextureId	 					id() const noexcept;
 
-		TextureDirtyMask 				dirtyMask() const;
-		void 							dirtyMask(TextureDirtyMask mask);
+		DirtyMask 						dirtyMask() const;
+		void 							dirtyMask(DirtyMask mask);
 
 	private:
 		/// Private Member Variables ///
 
 		TextureId 						_id;
 		std::shared_ptr<Sampler>		_sampler;
-		Sampleable						_contents;
+		Contents						_contents;
 		unsigned						_mappingChannel;
-		TextureDirtyMask				_dirtyMask;
+		DirtyMask						_dirtyMask;
 	};
+
+	namespace util::bitmask {
+		template <> struct enable_ops<Texture::DirtyMask> : std::true_type {};
+	}
 }
 
 #endif //AVARA3D_TEXTURE_H

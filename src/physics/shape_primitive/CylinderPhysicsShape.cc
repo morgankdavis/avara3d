@@ -40,10 +40,10 @@ void CylinderPhysicsShape::height(float height) {
 
 /// PhysicsShape Public Member Functions ///
 
-PhysicsShapeType CylinderPhysicsShape::type() const {
-	return PhysicsShapeType::Primitive;
+PhysicsShape::Type CylinderPhysicsShape::type() const {
+	return PhysicsShape::Type::Primitive;
 }
 
-void CylinderPhysicsShape::type(PhysicsShapeType type) {
-	throw Exception("Cannot set PhysicsShapeType for CylinderPhysicsShape.");
+void CylinderPhysicsShape::type(PhysicsShape::Type type) {
+	throw Exception("Cannot set PhysicsShape::Type for CylinderPhysicsShape.");
 }

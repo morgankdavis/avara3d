@@ -24,47 +24,27 @@ namespace a3d {
 
 	class MeshElement;
 
-//	// You likely already have something like this:
-//	enum class IndexFormat : uint8_t {
-//		None = 0,
-//		U16  = 1,
-//		U32  = 2
-//	};
-
 	struct IndexStreamView {
 		const std::byte* base   = nullptr;
 		uint16_t         stride = 0;
-		uint32_t         count  = 0;      // number of indices
+		uint32_t         count  = 0; // number of indices
 		IndexFormat      format = IndexFormat::None;
-
-//		uint32_t stride() const;
 	};
-
-//	struct MutableIndexStreamView {
-//		std::byte*  base   = nullptr;
-//		uint32_t    count  = 0;
-//		IndexFormat format = IndexFormat::None;
-//
-//		uint32_t stride() const;
-//	};
 
 	struct IndexAccess {
 
-		// Basic views
+		// basic views
 		static std::optional<IndexStreamView> GetIndexStreamView(const MeshElement& element);
 		static std::optional<IndexStreamView> GetIndexStreamView(const MeshElement& element, IndexFormat expectedFormat);
-//		static std::optional<MutableIndexStreamView> GetMutableIndexStreamView(MeshElement& element);
 
-		// Read/write as u32 so callers don’t branch on format
+		// read/write as u32 so callers don’t branch on format
 		static uint32_t ReadIndexU32(const IndexStreamView& v, uint32_t i);
 
-//		static void WriteIndexU32(const MutableIndexStreamView& v, uint32_t i, uint32_t value);
-
-		// Convenience: expand to U32 vector (useful for libs like VHACD, meshopt, etc.)
+		// convenience: expand to U32 vector (useful for libs like VHACD, meshopt, etc.)
 		static void ExpandToU32(const IndexStreamView& v, std::vector<uint32_t>& out);
 
-		// Expand indices to U32. If mesh is non-indexed, generate 0..vertexCount-1.
-// Assumes triangles (so vertexCount must be multiple of 3 for non-indexed).
+		// expand indices to U32. If mesh is non-indexed, generate 0..vertexCount-1
+		// assumes triangles (so vertexCount must be multiple of 3 for non-indexed)
 		static void GetTrianglesU32(const MeshElement& element, std::vector<uint32_t>& out);
 
 		// Convenience: triangle iteration (assumes triangles, 3 indices per face)

@@ -54,7 +54,7 @@ Material::Material():
 		_alphaMode{AlphaMode::Opaque},
 		_alphaCutoff{0.5f},
 		_blendFunction{BlendFunction::Disabled},
-		_dirtyMask{MaterialDirtyMask::All} {
+		_dirtyMask{DirtyMask::All} {
 
 	log::d()("Creating Material {:p}", static_cast<void*>(this));
 }
@@ -160,7 +160,7 @@ void Material::doubleSided(bool flag) {
 	_doubleSided = flag;
 }
 
-FillMode Material::fillMode() const {
+Material::FillMode Material::fillMode() const {
 #ifdef A3D_GL_ES
 	return FILL_MODE::FILL;
 #else
@@ -186,7 +186,7 @@ void Material::uvScale(float scale) {
 	_uvScale = scale;
 }
 
-AlphaMode Material::alphaMode() const {
+Material::AlphaMode Material::alphaMode() const {
 	return _alphaMode;
 }
 
@@ -202,7 +202,7 @@ void Material::alphaCutoff(float cutoff) {
 	_alphaCutoff = cutoff;
 }
 
-BlendFunction Material::blendFunction() const {
+Material::BlendFunction Material::blendFunction() const {
 	return _blendFunction;
 }
 
@@ -232,10 +232,10 @@ MaterialId Material::id() const noexcept {
 	return _id;
 }
 
-MaterialDirtyMask Material::dirtyMask() const {
+Material::DirtyMask Material::dirtyMask() const {
 	return _dirtyMask;
 }
 
-void Material::dirtyMask(MaterialDirtyMask mask) {
+void Material::dirtyMask(DirtyMask mask) {
 	_dirtyMask = mask;
 }

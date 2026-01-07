@@ -12,7 +12,7 @@
 #include <functional>
 #include <memory>
 
-#include "a3d/Types.h"
+#include "a3d/scene/Scene.h"
 #include "a3d/visual/material/Material.h"
 
 namespace a3d {
@@ -95,7 +95,7 @@ namespace a3d {
 												 const PhysicalWorld* physicalWorld,
 												 double runT,
 												 double deltaRunT,
-												 DebugOptions debugOptions,
+												 Scene::DebugOptions debugOptions,
 												 FrameStats& stats,
 												 Profiler& profiler,
 												 const FrameStatsHistory& statsHistory);
