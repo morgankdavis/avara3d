@@ -33,9 +33,9 @@ using namespace std;
 /// Private Static Non-Member Prototypes ///
 
 static string TimestampString();
-static string HeaderString(const string& logName, LogLevel level,
+static string HeaderString(const string& logName, Log::Level level,
 						   const Log::SourceInfo& sourceInfo);
-static string HeaderString(const string& logName, LogLevel level);
+static string HeaderString(const string& logName, Log::Level level);
 
 /// Public Static Member Functions ///
 
@@ -60,7 +60,7 @@ Log& Log::MainLog() {
 
 /// Public Types ///
 
-Log::Entry::Entry(Log& logger, LogLevel level, SourceInfo source):
+Log::Entry::Entry(Log& logger, Log::Level level, SourceInfo source):
 		_logger(&logger),
 		_level(level),
 		_source(std::move(source)) {}
@@ -81,8 +81,8 @@ void Log::Entry::raw(string_view msg) const {
 
 Log::Log(const string& name,
 		 unique_ptr<LogSink> sink,
-		 LogLevel level,
-		 LogLevel flushLevel):
+		 Log::Level level,
+		 Log::Level flushLevel):
 		_name(name),
 		_level(level),
 		_flushLevel(flushLevel) {
@@ -91,8 +91,8 @@ Log::Log(const string& name,
 
 Log::Log(const string& name,
 		 vector<unique_ptr<LogSink>> sinks,
-		 LogLevel level,
-		 LogLevel flushLevel):
+		 Log::Level level,
+		 Log::Level flushLevel):
 		_name(name),
 		_sinks(std::move(sinks)),
 		_level(level),
@@ -115,46 +115,46 @@ const vector<unique_ptr<LogSink>>& Log::sinks() const {
 	return _sinks;
 }
 
-LogLevel Log::level() const {
+Log::Level Log::level() const {
 	return _level;
 }
-void Log::level(LogLevel level) {
+void Log::level(Log::Level level) {
 	_level = level;
 }
 
-LogLevel Log::flushLevel() const {
+Log::Level Log::flushLevel() const {
 	return _flushLevel;
 }
 
-void Log::flushLevel(LogLevel flushLevel) {
+void Log::flushLevel(Log::Level flushLevel) {
 	_flushLevel = flushLevel;
 }
 
 void Log::trace(const string& msg) {
-	log(LogLevel::Trace, msg);
+	log(Log::Level::Trace, msg);
 }
 
 void Log::debug(const string& msg) {
-	log(LogLevel::Debug, msg);
+	log(Log::Level::Debug, msg);
 }
 
 void Log::info (const string& msg) {
-	log(LogLevel::Info,  msg);
+	log(Log::Level::Info,  msg);
 }
 
 void Log::warn (const string& msg) {
-	log(LogLevel::Warn,  msg);
+	log(Log::Level::Warn,  msg);
 }
 
 void Log::error(const string& msg) {
-	log(LogLevel::Error, msg);
+	log(Log::Level::Error, msg);
 }
 
 void Log::fatal(const string& msg) {
-	log(LogLevel::Fatal, msg);
+	log(Log::Level::Fatal, msg);
 }
 
-void Log::log(LogLevel level, const SourceInfo& sourceInfo, const string& msg) {
+void Log::log(Log::Level level, const SourceInfo& sourceInfo, const string& msg) {
 	if (!enabled(level)) return;
 
 	// exactly old semantics: header + space + msg + '\n'
@@ -179,30 +179,30 @@ void Log::flush() {
 /// Internal Member Functions ///
 
 Log::Entry Log::trace(std::source_location where) {
-	return Entry{*this, LogLevel::Trace, MakeSourceInfo(where)};
+	return Entry{*this, Log::Level::Trace, MakeSourceInfo(where)};
 
 }
 Log::Entry Log::debug(std::source_location where) {
-	return Entry{*this, LogLevel::Debug, MakeSourceInfo(where)};
+	return Entry{*this, Log::Level::Debug, MakeSourceInfo(where)};
 }
 
 Log::Entry Log::info (std::source_location where) {
-	return Entry{*this, LogLevel::Info,  MakeSourceInfo(where)};
+	return Entry{*this, Log::Level::Info,  MakeSourceInfo(where)};
 }
 
 Log::Entry Log::warn (std::source_location where) {
-	return Entry{*this, LogLevel::Warn,  MakeSourceInfo(where)};
+	return Entry{*this, Log::Level::Warn,  MakeSourceInfo(where)};
 }
 
 Log::Entry Log::error(std::source_location where) {
-	return Entry{*this, LogLevel::Error, MakeSourceInfo(where)};
+	return Entry{*this, Log::Level::Error, MakeSourceInfo(where)};
 }
 
 Log::Entry Log::fatal(std::source_location where) {
-	return Entry{*this, LogLevel::Fatal, MakeSourceInfo(where)};
+	return Entry{*this, Log::Level::Fatal, MakeSourceInfo(where)};
 }
 
-void Log::write(LogLevel level, const SourceInfo& sourceInfo, string_view msg) {
+void Log::write(Log::Level level, const SourceInfo& sourceInfo, string_view msg) {
 	if (!enabled(level)) return;
 
 	auto header = HeaderString(_name, level, sourceInfo);
@@ -216,7 +216,7 @@ void Log::write(LogLevel level, const SourceInfo& sourceInfo, string_view msg) {
 	dispatch(level, out);
 }
 
-void Log::write(LogLevel level, string_view msg) {
+void Log::write(Log::Level level, string_view msg) {
 	if (!enabled(level)) return;
 
 	auto header = HeaderString(_name, level);
@@ -273,7 +273,7 @@ Log::Log(const string& name):
 
 /// Private Member Functions ///
 
-void Log::log(LogLevel level, const string& msg) {
+void Log::log(Log::Level level, const string& msg) {
 	if (!enabled(level)) return;
 
 	auto header = HeaderString(_name, level);
@@ -288,20 +288,20 @@ void Log::log(LogLevel level, const string& msg) {
 	dispatch(level, line);
 }
 
-void Log::dispatch(LogLevel level, string& output) {
+void Log::dispatch(Log::Level level, string& output) {
 	for (auto& sink : _sinks) sink->write(output, level);
 
-	if (static_cast<std::underlying_type_t<LogLevel>>(level)
-		>= static_cast<std::underlying_type_t<LogLevel>>(_flushLevel)) {
+	if (static_cast<std::underlying_type_t<Log::Level>>(level)
+		>= static_cast<std::underlying_type_t<Log::Level>>(_flushLevel)) {
 		flush();
 	}
 }
 
-bool Log::enabled(LogLevel level) const {
-	if (level == LogLevel::Off) return false;
-	if (_level == LogLevel::Off) return false;
-	return static_cast<std::underlying_type_t<LogLevel>>(level)
-		   >= static_cast<std::underlying_type_t<LogLevel>>(_level);
+bool Log::enabled(Log::Level level) const {
+	if (level == Log::Level::Off) return false;
+	if (_level == Log::Level::Off) return false;
+	return static_cast<std::underlying_type_t<Log::Level>>(level)
+		   >= static_cast<std::underlying_type_t<Log::Level>>(_level);
 }
 
 /// Private Static Non-Member Functions ///
@@ -328,7 +328,7 @@ static string TimestampString() {
 #endif
 }
 
-static string HeaderString(const string& logName, LogLevel level,
+static string HeaderString(const string& logName, Log::Level level,
 						   const Log::SourceInfo& sourceInfo) {
 	return std::format("{} [{}] [{}] [{}:{}] [{}()]",
 					   TimestampString(),
@@ -343,7 +343,7 @@ static string HeaderString(const string& logName, LogLevel level,
 
 std::optional<Log> Log::_appLog{};
 
-static string HeaderString(const string& logName, LogLevel level) {
+static string HeaderString(const string& logName, Log::Level level) {
 	return std::format("{} [{}] [{}]",
 					   TimestampString(),
 					   logName,

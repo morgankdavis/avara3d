@@ -40,7 +40,7 @@ namespace a3d {
 		/// Public LogSink Member Functions ///
 
 		void 								write(const std::string& output,
-												   LogLevel level) override;
+												  Log::Level level) override;
 		void 								flush() override;
 
 	private:

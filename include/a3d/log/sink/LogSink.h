@@ -25,7 +25,7 @@ namespace a3d {
 		
 /// Public Member Functions ///
 
-		virtual void write(const std::string& output, LogLevel level) = 0;
+		virtual void write(const std::string& output, Log::Level level) = 0;
 		virtual void flush();
 	};
 }

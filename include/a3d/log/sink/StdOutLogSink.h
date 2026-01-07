@@ -31,7 +31,7 @@ namespace a3d {
 
 	/// Public LogSink Member Functions ///
 
-		void 	write(const std::string& output, LogLevel level) override;
+		void 	write(const std::string& output, Log::Level level) override;
 	};
 }
 

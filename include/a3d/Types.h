@@ -30,21 +30,17 @@ namespace a3d {
 	class Image;
 	class Texture;
 
-	/// Public Type Utilities ///
-
-
-
 	/// Public Types ///
 
-	enum class LogLevel : uint8_t {
-		Trace =		0,
-		Debug =		1,
-		Info =		2,
-		Warn =		3,
-		Error =		4,
-		Fatal = 	5,
-		Off = 		6
-	};
+//	enum class LogLevel : uint8_t {
+//		Trace =		0,
+//		Debug =		1,
+//		Info =		2,
+//		Warn =		3,
+//		Error =		4,
+//		Fatal = 	5,
+//		Off = 		6
+//	};
 
 	enum class RenderingApi : uint8_t {
 		OpenGL,

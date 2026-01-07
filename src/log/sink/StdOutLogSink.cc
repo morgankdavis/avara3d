@@ -45,10 +45,10 @@ void StdOutLogSink::flush() {
 
 /// Internal Member Functions ///
 
-void StdOutLogSink::write(const string& output, LogLevel level) {
+void StdOutLogSink::write(const string& output, Log::Level level) {
 
-	if (static_cast<underlying_type<LogLevel>::type>(level)
-		>= static_cast<underlying_type<LogLevel>::type>(LogLevel::Error)) {
+	if (static_cast<underlying_type<Log::Level>::type>(level)
+		>= static_cast<underlying_type<Log::Level>::type>(Log::Level::Error)) {
 		cerr << output;
 	}
 	else {

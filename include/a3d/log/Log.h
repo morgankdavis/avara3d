@@ -28,6 +28,18 @@ namespace a3d {
 	class Log {
 
 	public:
+		/// Public Types ///
+
+		enum class Level : uint8_t {
+			Trace =		0,
+			Debug =		1,
+			Info =		2,
+			Warn =		3,
+			Error =		4,
+			Fatal = 	5,
+			Off = 		6
+		};
+
 		/// Internal Types ///
 
 		struct SourceInfo {
@@ -38,7 +50,7 @@ namespace a3d {
 
 		class Entry {
 		public:
-			Entry(Log& logger, LogLevel lvl, SourceInfo src);
+			Entry(Log& logger, Log::Level lvl, SourceInfo src);
 
 			void operator()(std::string_view msg) const;
 
@@ -77,7 +89,7 @@ namespace a3d {
 
 		private:
 			Log*       	_logger;
-			LogLevel   	_level;
+			Log::Level 	_level;
 			SourceInfo 	_source;
 		};
 
@@ -91,13 +103,13 @@ namespace a3d {
 
 		Log(const std::string& name,
 			std::unique_ptr<LogSink> sink,
-			LogLevel level = DEFAULT_LEVEL,
-			LogLevel flushLevel = DEFAULT_FLUSH_LEVEL);
+			Log::Level level = DEFAULT_LEVEL,
+			Log::Level flushLevel = DEFAULT_FLUSH_LEVEL);
 
 		Log(const std::string& name,
 			std::vector<std::unique_ptr<LogSink>> sinks,
-			LogLevel level = DEFAULT_LEVEL,
-			LogLevel flushLevel = DEFAULT_FLUSH_LEVEL);
+			Log::Level level = DEFAULT_LEVEL,
+			Log::Level flushLevel = DEFAULT_FLUSH_LEVEL);
 
 		Log(const Log& other) = delete;
 		Log& operator=(const Log& other) = delete;
@@ -114,11 +126,11 @@ namespace a3d {
 
 		const std::vector<std::unique_ptr<LogSink>>& sinks() const;
 
-		LogLevel level() const;
-		void level(LogLevel level);
+		Log::Level level() const;
+		void level(Log::Level level);
 
-		LogLevel flushLevel() const;
-		void flushLevel(LogLevel flushLevel);
+		Log::Level flushLevel() const;
+		void flushLevel(Log::Level flushLevel);
 
 		void trace(const std::string& msg);
 		void debug(const std::string& msg);
@@ -127,7 +139,7 @@ namespace a3d {
 		void error(const std::string& msg);
 		void fatal(const std::string& msg);
 
-		void log(LogLevel level,
+		void log(Log::Level level,
 				 const SourceInfo& sourceInfo,
 				 const std::string& msg);
 
@@ -142,8 +154,8 @@ namespace a3d {
 		Entry error(std::source_location where = std::source_location::current());
 		Entry fatal(std::source_location where = std::source_location::current());
 
-		void write(LogLevel level, const SourceInfo& sourceInfo, std::string_view msg);
-		void write(LogLevel level, std::string_view msg);
+		void write(Log::Level level, const SourceInfo& sourceInfo, std::string_view msg);
+		void write(Log::Level level, std::string_view msg);
 
 	private:
 		/// Private Static Member Functions ///
@@ -158,15 +170,15 @@ namespace a3d {
 
 		/// Private Member Functions ///
 
-		void log(LogLevel level, const std::string& msg);
-		void dispatch(LogLevel level, std::string& output);
+		void log(Log::Level level, const std::string& msg);
+		void dispatch(Log::Level level, std::string& output);
 
-		bool enabled(LogLevel lvl) const;
+		bool enabled(Log::Level lvl) const;
 
 		/// Private Constants ///
 
-		static constexpr LogLevel DEFAULT_LEVEL       = LogLevel::Debug;
-		static constexpr LogLevel DEFAULT_FLUSH_LEVEL = LogLevel::Warn;
+		static constexpr Log::Level DEFAULT_LEVEL       = Log::Level::Debug;
+		static constexpr Log::Level DEFAULT_FLUSH_LEVEL = Log::Level::Warn;
 
 		/// Private Static Member Variables ///
 
@@ -176,8 +188,8 @@ namespace a3d {
 
 		std::string								_name;
 		std::vector<std::unique_ptr<LogSink>> 	_sinks;
-		LogLevel 								_level;
-		LogLevel 								_flushLevel;
+		Log::Level 								_level;
+		Log::Level 								_flushLevel;
 	};
 
 	namespace log {
