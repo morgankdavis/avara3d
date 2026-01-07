@@ -679,12 +679,15 @@ shared_ptr<a3d::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset
 
 			log::d()("Importing image '{}'...", image.name);
 
+			// TODO: clean this up - avoid multiple cppies
 			auto a3dImage = std::visit(fastgltf::visitor{
 					[&](const fastgltf::sources::Vector& v) -> std::shared_ptr<a3d::Image> {
 						auto bytes = std::span<const std::byte>(v.bytes.data(), v.bytes.size());
-						auto a3dBuffer = std::make_unique<a3d::Buffer>(
-								const_cast<std::byte*>(bytes.data()), bytes.size()); // ideally make Buffer accept const
-						return std::make_shared<a3d::Image>(std::move(a3dBuffer), false);
+//						auto a3dBuffer = std::make_unique<a3d::Buffer>(
+//								const_cast<std::byte*>(bytes.data()), bytes.size()); // ideally make Buffer accept const
+//						return std::make_shared<a3d::Image>(std::move(a3dBuffer), false);
+						a3d::Buffer buf(bytes.data(), bytes.size());
+						return std::make_shared<a3d::Image>(buf, false, false);
 					},
 					[&](const fastgltf::sources::BufferView& bvSrc) -> std::shared_ptr<a3d::Image> {
 						auto bytes = BytesFromBufferView(asset, bvSrc.bufferViewIndex);
@@ -692,21 +695,27 @@ shared_ptr<a3d::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset
 							log::w()("Unexpected/empty BufferView image data.");
 							return nullptr;
 						}
-						auto a3dBuffer = std::make_unique<a3d::Buffer>(
-								const_cast<std::byte*>(bytes.data()), bytes.size());
-						return std::make_shared<a3d::Image>(std::move(a3dBuffer), false);
+//						auto a3dBuffer = std::make_unique<a3d::Buffer>(
+//								const_cast<std::byte*>(bytes.data()), bytes.size());
+//						return std::make_shared<a3d::Image>(std::move(a3dBuffer), false);
+						a3d::Buffer buf(bytes.data(), bytes.size());
+						return std::make_shared<a3d::Image>(buf, false, false);
 					},
 					[&](const fastgltf::sources::Array& a) -> std::shared_ptr<a3d::Image> {
 						auto bytes = std::span<const std::byte>(a.bytes.data(), a.bytes.size());
-						auto a3dBuffer = std::make_unique<a3d::Buffer>(
-								const_cast<std::byte*>(bytes.data()), bytes.size());
-						return std::make_shared<a3d::Image>(std::move(a3dBuffer), false);
+//						auto a3dBuffer = std::make_unique<a3d::Buffer>(
+//								const_cast<std::byte*>(bytes.data()), bytes.size());
+//						return std::make_shared<a3d::Image>(std::move(a3dBuffer), false);
+						a3d::Buffer buf(bytes.data(), bytes.size());
+						return std::make_shared<a3d::Image>(buf, false, false);
 					},
 					[&](const fastgltf::sources::ByteView& bv) -> std::shared_ptr<a3d::Image> {
 						auto bytes = std::span<const std::byte>(bv.bytes.data(), bv.bytes.size());
-						auto a3dBuffer = std::make_unique<a3d::Buffer>(
-								const_cast<std::byte*>(bytes.data()), bytes.size());
-						return std::make_shared<a3d::Image>(std::move(a3dBuffer), false);
+//						auto a3dBuffer = std::make_unique<a3d::Buffer>(
+//								const_cast<std::byte*>(bytes.data()), bytes.size());
+//						return std::make_shared<a3d::Image>(std::move(a3dBuffer), false);
+						a3d::Buffer buf(bytes.data(), bytes.size());
+						return std::make_shared<a3d::Image>(buf, false, false);
 					},
 					[&](const fastgltf::sources::URI&) -> std::shared_ptr<a3d::Image> {
 						// but keep this log because it indicates you didn’t load image bytes.

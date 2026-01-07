@@ -25,7 +25,7 @@ namespace a3d {
 
 		/// Public Lifecycle Functions ///
 
-		CubeImage(std::array<std::unique_ptr<Image>, 6> faces);
+		explicit CubeImage(std::array<std::unique_ptr<Image>, 6> faces);
 
 		/// Public Member Functions ///
 

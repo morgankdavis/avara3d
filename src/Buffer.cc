@@ -9,7 +9,9 @@
 #include "a3d/Buffer.h"
 
 #include <cstring>
+#include <format>
 #include <fstream>
+#include <stdexcept>
 
 #include "a3d/log/Log.h"
 
@@ -22,27 +24,44 @@ Buffer::Buffer(const std::filesystem::path& path):
 		_data{},
 		_size{0} {
 
-	// TODO: check path or exception
-	ifstream inStream(path.string(), ios::binary | ios::ate);
-	ifstream::pos_type pos = inStream.tellg();
-	_data = make_unique<byte*>(new byte[pos]);
-	inStream.seekg(0, ios::beg);
-	inStream.read((char*)&((*_data)[0]), pos);
-	_size = pos;
+	ifstream in(path, ios::binary | ios::ate);
+	if (!in) {
+		throw runtime_error(std::format("Failed to open file: {}", string(path)));
+	}
+
+	const auto endPos = in.tellg();
+	if (endPos < 0) {
+		throw runtime_error("tellg() failed");
+	}
+
+	_size = static_cast<size_t>(endPos);
+	_data = (_size > 0) ? make_unique<byte[]>(_size) : nullptr;
+
+	in.seekg(0, ios::beg);
+	if (_size > 0) {
+		in.read(reinterpret_cast<char*>(_data.get()),
+				static_cast<std::streamsize>(_size));
+		if (!in) {
+			throw runtime_error(std::format("Failed to read file: {}", string(path)));
+		}
+	}
 }
 
 Buffer::Buffer(const vector<byte>& buf):
-		Buffer(&buf[0], buf.size()) {
+		Buffer(buf.data(), buf.size()) {}
+
+Buffer::Buffer(const byte* buf, size_t size):
+		_data(size ? make_unique<byte[]>(size) : nullptr),
+		  _size(size) {
+
+	if (_size > 0 && buf) {
+		memcpy(_data.get(), buf, _size);
+	}
 }
 
-Buffer::Buffer(const byte* buf, std::size_t size):
-		_data(nullptr),
-		_size(0) {
-
-	_data = make_unique<byte*>(new byte[size]);
-	memcpy(&((*_data)[0]), buf, size);
-	_size = size;
-}
+Buffer::Buffer(size_t size):
+		_data(size ? make_unique<byte[]>(size) : nullptr),
+		  _size(size) {}
 
 Buffer::~Buffer() {
 	log::d()("Destroying Buffer {:p}", static_cast<void*>(this));
@@ -51,7 +70,7 @@ Buffer::~Buffer() {
 /// Public Member Functions ///
 
 byte* Buffer::data() const {
-	return &((*_data)[0]);
+	return _data.get();
 }
 
 size_t Buffer::size() const {
@@ -59,9 +78,9 @@ size_t Buffer::size() const {
 }
 
 byte* Buffer::operator*() const {
-	return &((*_data)[0]);
+	return _data.get();
 }
 
 byte Buffer::operator[](size_t idx) const {
-	return (*_data)[idx];
+	return _data[idx];
 }
