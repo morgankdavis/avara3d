@@ -32,16 +32,6 @@ namespace a3d {
 
 	/// Public Types ///
 
-//	enum class LogLevel : uint8_t {
-//		Trace =		0,
-//		Debug =		1,
-//		Info =		2,
-//		Warn =		3,
-//		Error =		4,
-//		Fatal = 	5,
-//		Off = 		6
-//	};
-
 	enum class RenderingApi : uint8_t {
 		OpenGL,
 		OpenGLES,
@@ -75,24 +65,24 @@ namespace a3d {
 		TTF,
 	};
 
-	using MaterialProperty = std::variant<
-			std::monostate,
-			std::shared_ptr<Texture>,
-			std::shared_ptr<Color>>;
+//	using MaterialProperty = std::variant<
+//			std::monostate,
+//			std::shared_ptr<Texture>,
+//			std::shared_ptr<Color>>;
 
 	using Sampleable = std::variant<
 			std::monostate,
 			std::shared_ptr<Image>,
 			std::shared_ptr<CubeImage>>;
 
-	enum class MaterialPropertyType : uint8_t {
-		Ambient = 	0,
-		Diffuse = 	1,
-		Specular =	2,
-		Emission =	3
-	};
+//	enum class MaterialPropertyType : uint8_t {
+//		Ambient = 	0,
+//		Diffuse = 	1,
+//		Specular =	2,
+//		Emission =	3
+//	};
 
-	using MaterialPropertyList = std::vector<std::pair<const MaterialProperty*, MaterialPropertyType>>;
+//	using MaterialPropertyList = std::vector<std::pair<const MaterialProperty*, MaterialPropertyType>>;
 
 	enum class FilterMode : uint16_t {
 		Nearest = 				0x2600,

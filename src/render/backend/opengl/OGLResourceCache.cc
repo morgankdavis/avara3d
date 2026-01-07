@@ -208,12 +208,12 @@ static void ApplySamplerState(Texture& texture, unsigned glTextureHandle, bool f
 	}
 }
 
-static inline int SlotFor(MaterialPropertyType t) {
+static inline int SlotFor(Material::PropertyType t) {
 	switch (t) {
-		case MaterialPropertyType::Ambient:  return 0;
-		case MaterialPropertyType::Diffuse:  return 1;
-		case MaterialPropertyType::Specular: return 2;
-		case MaterialPropertyType::Emission: return 3;
+		case Material::PropertyType::Ambient:  return 0;
+		case Material::PropertyType::Diffuse:  return 1;
+		case Material::PropertyType::Specular: return 2;
+		case Material::PropertyType::Emission: return 3;
 		default: return -1;
 	}
 }

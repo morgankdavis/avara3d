@@ -179,8 +179,8 @@ static void 	SendMaterialUniforms(const Material& material,
 									GLSLProgram& program,
 									const std::array<GLuint, 4>& glTextureHandles,
 									OGLRenderer::GLStateCache& state);
-static void 	SendMaterialPropertyUniforms(const MaterialProperty& property,
-											MaterialPropertyType type,
+static void 	SendMaterialPropertyUniforms(const Material::Property& property,
+											Material::PropertyType type,
 											GLuint glTextureHandle,
 											GLSLProgram& program,
 											OGLRenderer::GLStateCache& state);
@@ -794,7 +794,7 @@ void SendMaterialUniforms(const Material& material,
 
 		if (!holds_alternative<monostate>(*property)) {
 
-			const int slot = static_cast<underlying_type<MaterialPropertyType>::type>(type);
+			const int slot = static_cast<underlying_type<Material::PropertyType>::type>(type);
 
 			const GLuint h = (slot >= 0) ? glTextureHandles[(size_t)slot] : 0u;
 
@@ -807,8 +807,8 @@ void SendMaterialUniforms(const Material& material,
 	}
 }
 
-void SendMaterialPropertyUniforms(const MaterialProperty& property,
-								  MaterialPropertyType type,
+void SendMaterialPropertyUniforms(const Material::Property& property,
+								  Material::PropertyType type,
 								  GLuint glTextureHandle,
 								  GLSLProgram& program,
 								  OGLRenderer::GLStateCache& state) {
@@ -831,25 +831,25 @@ void SendMaterialPropertyUniforms(const MaterialProperty& property,
 					GLint index;
 
 					switch (type) {
-						case MaterialPropertyType::Ambient:
+						case Material::PropertyType::Ambient:
 							modeUniformName = "ambientContentsType";
 							samplerUniformName = "samplers.ambient";
 							slot = GL_TEXTURE0;
 							index = 0;
 							break;
-						case MaterialPropertyType::Diffuse:
+						case Material::PropertyType::Diffuse:
 							modeUniformName = "diffuseContentsType";
 							samplerUniformName = "samplers.diffuse";
 							slot = GL_TEXTURE1;
 							index = 1;
 							break;
-						case MaterialPropertyType::Specular:
+						case Material::PropertyType::Specular:
 							modeUniformName = "specularContentsType";
 							samplerUniformName = "samplers.specular";
 							slot = GL_TEXTURE2;
 							index = 2;
 							break;
-						case MaterialPropertyType::Emission:
+						case Material::PropertyType::Emission:
 							modeUniformName = "emissionContentsType";
 							samplerUniformName = "samplers.emission";
 							slot = GL_TEXTURE3;
@@ -857,7 +857,7 @@ void SendMaterialPropertyUniforms(const MaterialProperty& property,
 							break;
 						default:
 							log::e()("Invalid MaterialPropertyType: {}",
-									  magic_enum::enum_name<MaterialPropertyType>(type));
+									  magic_enum::enum_name<Material::PropertyType>(type));
 							return;
 					}
 
@@ -881,25 +881,25 @@ void SendMaterialPropertyUniforms(const MaterialProperty& property,
 			string colorUniformName;
 
 			switch (type) {
-				case MaterialPropertyType::Ambient:
+				case Material::PropertyType::Ambient:
 					modeUniformName = "ambientContentsType";
 					colorUniformName = "colors.ambient";
 					break;
-				case MaterialPropertyType::Diffuse:
+				case Material::PropertyType::Diffuse:
 					modeUniformName = "diffuseContentsType";
 					colorUniformName = "colors.diffuse";
 					break;
-				case MaterialPropertyType::Specular:
+				case Material::PropertyType::Specular:
 					modeUniformName = "specularContentsType";
 					colorUniformName = "colors.specular";
 					break;
-				case MaterialPropertyType::Emission:
+				case Material::PropertyType::Emission:
 					modeUniformName = "emissionContentsType";
 					colorUniformName = "colors.emission";
 					break;
 				default:
 					log::e()("Invalid MaterialPropertyType: {}",
-							  magic_enum::enum_name<MaterialPropertyType>(type));
+							  magic_enum::enum_name<Material::PropertyType>(type));
 					return;
 			}
 

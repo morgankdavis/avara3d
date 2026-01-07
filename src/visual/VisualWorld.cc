@@ -27,7 +27,7 @@
 #include "a3d/scene/Scene.h"
 #include "a3d/util/flow.h"
 #include "a3d/visual/light/Light.h"
-#include "a3d/visual/material/Material.h"
+//#include "a3d/visual/material/Material.h"
 #include "a3d/visual/material/Sampler.h"
 #include "a3d/visual/material/Texture.h"
 #include "a3d/visual/camera/PerspectiveCamera.h"
@@ -64,11 +64,11 @@ VisualWorld::~VisualWorld() {
 
 /// Public Member Functions ///
 
-const MaterialProperty& VisualWorld::background() {
+const Material::Property& VisualWorld::background() {
 	return _background;
 }
 
-void VisualWorld::background(const MaterialProperty& background) {
+void VisualWorld::background(const Material::Property& background) {
 
 	// TODO: check equality?
 

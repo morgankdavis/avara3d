@@ -140,7 +140,7 @@ int main(int argc, const char* argv[]) {
 		visualWorld->fogEndDistance(400.0);
 		visualWorld->fogDensityExponent(1.0);
 		visualWorld->fogColor(Color::DarkGray());
-		MaterialProperty background = Color::Black();
+		Material::Property background = Color::Black();
 //		MaterialProperty background = make_shared<Texture>(utils::CubeImageNamed("stormy", "png"));
 		visualWorld->background(background);
 		visualWorld->willRenderCallback(bind(&WillRenderCallback, _1, _2, _3));

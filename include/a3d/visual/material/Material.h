@@ -24,21 +24,37 @@ namespace a3d {
 	class Material {
 
 	public:
+		/// Public Types ///
+
+		using Property = std::variant<
+				std::monostate,
+				std::shared_ptr<Texture>,
+				std::shared_ptr<Color>>;
+
+		enum class PropertyType : uint8_t {
+			Ambient = 	0,
+			Diffuse = 	1,
+			Specular =	2,
+			Emission =	3
+		};
+
+		using PropertyList = std::vector<std::pair<const Property*, PropertyType>>;
+
 		/// Public Static Member Functions ///
 
 		static std::shared_ptr<Material> 	DefaultMaterial();
-		static std::shared_ptr<Material> 	EmissionMaterial(MaterialProperty property);
+		static std::shared_ptr<Material> 	EmissionMaterial(Property property);
 
 		/// Public Lifecycle Functions ///
 
 		Material();
-		Material(const MaterialProperty& ambient,
-				 const MaterialProperty& diffuse,
-				 const MaterialProperty& specular);
-		Material(const MaterialProperty& ambient,
-				 const MaterialProperty& diffuse,
-				 const MaterialProperty& specular,
-				 const MaterialProperty& emission);
+		Material(const Property& ambient,
+				 const Property& diffuse,
+				 const Property& specular);
+		Material(const Property& ambient,
+				 const Property& diffuse,
+				 const Property& specular,
+				 const Property& emission);
 		~Material();
 
 		/// Public Member Functions ///
@@ -46,19 +62,19 @@ namespace a3d {
 		const std::optional<std::string>&	name() const;
 		void 								name(const std::string& name);
 
-		const MaterialProperty& 			ambient() const;
-		void								ambient(const MaterialProperty& ambient);
+		const Property& 					ambient() const;
+		void								ambient(const Property& ambient);
 
-		const MaterialProperty& 			diffuse() const;
-		void 								diffuse(const MaterialProperty& diffuse);
+		const Property& 					diffuse() const;
+		void 								diffuse(const Property& diffuse);
 
-		const MaterialProperty&				specular() const;
-		void 								specular(const MaterialProperty& specular);
+		const Property&						specular() const;
+		void 								specular(const Property& specular);
 
-		const MaterialProperty&				emission() const;
-		void 								emission(const MaterialProperty& emission);
+		const Property&						emission() const;
+		void 								emission(const Property& emission);
 
-		MaterialPropertyList				properties() const;
+		PropertyList						properties() const;
 		
 		float 								specularExponent() const;
 		void 								specularExponent(float exponent);
@@ -88,7 +104,7 @@ namespace a3d {
 		/// Internal Static Member Functions ///
 
 		static std::shared_ptr<Material> 	MissingTextureMaterial();
-		static MaterialProperty 			MissingTextureProperty();
+		static Property 					MissingTextureProperty();
 		
 		/// Internal Member Functions ///
 
@@ -102,10 +118,10 @@ namespace a3d {
 
 		MaterialId 							_id;
 		std::optional<std::string>			_name;
-		MaterialProperty					_ambient;
-		MaterialProperty					_diffuse;
-		MaterialProperty					_specular;
-		MaterialProperty					_emission;
+		Property							_ambient;
+		Property							_diffuse;
+		Property							_specular;
+		Property							_emission;
 		float 								_specularExponent;
 		bool 								_locksAmbientWithDiffuse;
 		bool 								_doubleSided;

@@ -521,7 +521,7 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlTFPrimitive(fastgltf::Asse
 				auto baseColorFactor = pbrData.baseColorFactor;
 
 				auto a3dColor = ColorFromGlTFColorArray(baseColorFactor);
-				auto a3dProperty = MaterialProperty(a3dColor);
+				auto a3dProperty = Material::Property(a3dColor);
 				a3dMaterial = make_shared<a3d::Material>(monostate{}, a3dProperty, monostate{});
 			}
 
@@ -545,7 +545,7 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlTFPrimitive(fastgltf::Asse
 				// if it has a 'texture' map, use it (only contains alpha)
 				// if it has no map, but a 'factor' use solid white, with an intentify of the factor.
 
-				MaterialProperty a3dProperty = monostate{};
+				Material::Property a3dProperty = monostate{};
 
 				if (textureInfo) {
 
@@ -561,7 +561,7 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlTFPrimitive(fastgltf::Asse
 
 				if (holds_alternative<monostate>(a3dProperty) && (factor > 0)) {
 					auto factorColor = make_shared<Color>(factor);
-					a3dProperty = MaterialProperty(factorColor);
+					a3dProperty = Material::Property(factorColor);
 				}
 
 				if (!holds_alternative<monostate>(a3dProperty)) {

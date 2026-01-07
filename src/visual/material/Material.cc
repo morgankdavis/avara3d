@@ -33,7 +33,7 @@ shared_ptr<Material> Material::DefaultMaterial() {
 	return material;
 }
 
-shared_ptr<Material> Material::EmissionMaterial(MaterialProperty property) {
+shared_ptr<Material> Material::EmissionMaterial(Property property) {
 	return make_shared<Material>(monostate{}, monostate{}, monostate{}, property);
 }
 
@@ -59,9 +59,9 @@ Material::Material():
 	log::d()("Creating Material {:p}", static_cast<void*>(this));
 }
 
-Material::Material(const MaterialProperty& ambient,
-				   const MaterialProperty& diffuse,
-				   const MaterialProperty& specular):
+Material::Material(const Property& ambient,
+				   const Property& diffuse,
+				   const Property& specular):
 		Material() {
 
 	_ambient = ambient;
@@ -69,10 +69,10 @@ Material::Material(const MaterialProperty& ambient,
 	_specular = specular;
 }
 
-Material::Material(const MaterialProperty& ambient,
-				   const MaterialProperty& diffuse,
-				   const MaterialProperty& specular,
-				   const MaterialProperty& emission):
+Material::Material(const Property& ambient,
+				   const Property& diffuse,
+				   const Property& specular,
+				   const Property& emission):
 		Material() {
 
 	_ambient = ambient;
@@ -95,44 +95,44 @@ void Material::name(const string& name) {
 	_name = name;
 }
 
-const MaterialProperty& Material::ambient() const {
+const Material::Property& Material::ambient() const {
 	return _ambient;
 }
 
-void Material::ambient(const MaterialProperty& property) {
+void Material::ambient(const Property& property) {
 	_ambient = property;
 }
 
-const MaterialProperty& Material::diffuse() const {
+const Material::Property& Material::diffuse() const {
 	return _diffuse;
 }
 
-void Material::diffuse(const MaterialProperty& property) {
+void Material::diffuse(const Property& property) {
 	_diffuse = property;
 }
 
-const MaterialProperty& Material::specular() const {
+const Material::Property& Material::specular() const {
 	return _specular;
 }
 
-void Material::specular(const MaterialProperty& property) {
+void Material::specular(const Property& property) {
 	_specular = property;
 }
 
-const MaterialProperty& Material::emission() const {
+const Material::Property& Material::emission() const {
 	return _emission;
 }
 
-void Material::emission(const MaterialProperty& property) {
+void Material::emission(const Property& property) {
 	_emission = property;
 }
 
-MaterialPropertyList Material::properties() const {
-	return MaterialPropertyList {
-			{ &_ambient, MaterialPropertyType::Ambient },
-			{ &_diffuse, MaterialPropertyType::Diffuse },
-			{ &_specular, MaterialPropertyType::Specular },
-			{ &_emission, MaterialPropertyType::Emission }
+Material::PropertyList Material::properties() const {
+	return PropertyList {
+			{ &_ambient, PropertyType::Ambient },
+			{ &_diffuse, PropertyType::Diffuse },
+			{ &_specular, PropertyType::Specular },
+			{ &_emission, PropertyType::Emission }
 	};
 }
 
@@ -222,7 +222,7 @@ shared_ptr<Material> Material::MissingTextureMaterial() {
 	return material;
 }
 
-MaterialProperty Material::MissingTextureProperty() {
+Material::Property Material::MissingTextureProperty() {
 	return {Color::Magenta()};
 }
 

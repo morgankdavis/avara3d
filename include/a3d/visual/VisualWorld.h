@@ -13,6 +13,7 @@
 #include <memory>
 
 #include "a3d/Types.h"
+#include "a3d/visual/material/Material.h"
 
 namespace a3d {
 
@@ -49,8 +50,8 @@ namespace a3d {
 
 		/// Public Member Functions ///
 
-		const MaterialProperty&				background();
-		void 								background(const MaterialProperty& background);
+		const Material::Property&			background();
+		void 								background(const Material::Property& background);
 
 		// TODO: make Fog its own class
 		float 								fogStartDistance() const;
@@ -109,7 +110,7 @@ namespace a3d {
 
 		/// Private Member Variables ///
 
-		MaterialProperty					_background;
+		Material::Property					_background;
 		std::shared_ptr<Material>			_backgroundMaterial;
 		float								_fogStartDistance;
 		float								_fogEndDistance;
