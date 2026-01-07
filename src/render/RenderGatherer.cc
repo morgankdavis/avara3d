@@ -111,7 +111,11 @@ GatherOutput RenderGatherer::Gather(const Scene& scene,
 				output.renderItems.push_back(item);
 
 				++stats.numElements;
-				stats.numPolygons += element->faces().size();
+//				stats.numPolygons += element->faces().size();
+				if (element->indexCount() > 0)
+					stats.numPolygons += element->indexCount() / 3u;
+				else
+					stats.numPolygons += element->vertexCount() / 3u;
 			}
 
 			if (showBounds) {

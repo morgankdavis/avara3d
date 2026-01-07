@@ -516,28 +516,55 @@ BTGImpactMeshShapeFromMeshElement(MeshElement& element,
 	// - Convex decomposition can be used to decompose concave shapes into convex shapes. The resulting convex shapes can then be combined into a CompoundShape, which is also an efficient way to model dynamic concave shapes."
 	// More: https://stackoverflow.com/questions/32668218/concave-collision-detection-in-bullet
 
-	const auto& faces = element.faces();
-
 	const uint32_t vcount = element.vertexCount();
-	if (vcount == 0 || faces.empty()) {
+	if (vcount == 0) {
 		return make_unique<btGImpactMeshShape>(&indexVertexArray);
 	}
 
+	// This Bullet path requires indexed triangles.
+	A3D_ASSERT(element.topology() == PrimitiveTopology::Triangles);
+
+	const IndexFormat ifmt = element.indexFormat();
+	const uint32_t icount  = element.indexCount(); // number of indices (NOT triangles)
+
+	if (ifmt == IndexFormat::None || icount == 0) {
+		// No indices -> nothing we can feed btTriangleIndexVertexArray.
+		return make_unique<btGImpactMeshShape>(&indexVertexArray);
+	}
+
+	const uint16_t indexStride = IndexStride(ifmt);
+	A3D_ASSERT(indexStride == 2 || indexStride == 4);
+	A3D_ASSERT((icount % 3u) == 0u);
+
 	const auto vb     = element.vertexBytes();
+	const auto ib     = element.indexBytes();
 	const uint16_t st = element.vertexStride();
+
 	const VertexAttribDesc* posA = VertexAccess::GetPositionAttribF32x3(element.vertexLayout());
+	A3D_ASSERT(posA);
+
+	const uint32_t triCount = icount / 3u;
+	if (triCount == 0) {
+		return make_unique<btGImpactMeshShape>(&indexVertexArray);
+	}
+
+	// Choose Bullet index scalar type based on our index format
+	const PHY_ScalarType bulletIndexType =
+			(ifmt == IndexFormat::U16) ? PHY_SHORT :
+			(ifmt == IndexFormat::U32) ? PHY_INTEGER :
+			PHY_INTEGER; // shouldn't happen due to checks above
 
 	btIndexedMesh indexedMesh{};
-	indexedMesh.m_numTriangles         = static_cast<int>(faces.size());
-	indexedMesh.m_triangleIndexBase    = reinterpret_cast<const unsigned char*>(faces.data());
-	indexedMesh.m_triangleIndexStride  = sizeof(Face);
+	indexedMesh.m_numTriangles        = static_cast<int>(triCount);
+	indexedMesh.m_triangleIndexBase   = reinterpret_cast<const unsigned char*>(ib.data());
+	indexedMesh.m_triangleIndexStride = static_cast<int>(3u * uint32_t(indexStride));
 
-	indexedMesh.m_numVertices          = static_cast<int>(vcount);
-	indexedMesh.m_vertexBase           = reinterpret_cast<const unsigned char*>(vb.data() + posA->offset);
-	indexedMesh.m_vertexStride         = st;
-	indexedMesh.m_vertexType           = PHY_FLOAT;
+	indexedMesh.m_numVertices         = static_cast<int>(vcount);
+	indexedMesh.m_vertexBase          = reinterpret_cast<const unsigned char*>(vb.data() + posA->offset);
+	indexedMesh.m_vertexStride        = static_cast<int>(st);
+	indexedMesh.m_vertexType          = PHY_FLOAT;
 
-	indexVertexArray.addIndexedMesh(indexedMesh, PHY_INTEGER);
+	indexVertexArray.addIndexedMesh(indexedMesh, bulletIndexType);
 
 	auto gImpactMeshShape = make_unique<btGImpactMeshShape>(&indexVertexArray);
 	// https://pybullet.org/Bullet/BulletFull/classbtGImpactShapeInterface.html#a7d26525396fa957d10e36c099c58480f
@@ -553,30 +580,59 @@ BTBvhTriangleMeshShapeFromMeshElement(MeshElement& element,
 	// static objects ALWAYS use btBvhTriangleMeshShape
 	// https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=7997
 
-	const auto& faces = element.faces();
 	const uint32_t vcount = element.vertexCount();
-	if (vcount == 0 || faces.empty()) {
+	if (vcount == 0) {
 		return make_unique<btBvhTriangleMeshShape>(&indexVertexArray, true);
 	}
 
-	const auto vb     = element.vertexBytes();
+	// This Bullet path requires indexed triangles.
+	A3D_ASSERT(element.topology() == PrimitiveTopology::Triangles);
+
+	const IndexFormat ifmt = element.indexFormat();
+	const uint32_t icount  = element.indexCount(); // number of indices (NOT triangles)
+
+	if (ifmt == IndexFormat::None || icount == 0) {
+		// No indices -> nothing we can feed btTriangleIndexVertexArray.
+		return make_unique<btBvhTriangleMeshShape>(&indexVertexArray, true);
+	}
+
+	const uint16_t indexStride = IndexStride(ifmt);
+	A3D_ASSERT(indexStride == 2 || indexStride == 4);
+	A3D_ASSERT((icount % 3u) == 0u);
+
+	const auto vb = element.vertexBytes();
+	const auto ib     = element.indexBytes();
 	const uint16_t st = element.vertexStride();
+
 	const VertexAttribDesc* posA = VertexAccess::GetPositionAttribF32x3(element.vertexLayout());
+	A3D_ASSERT(posA);
+
+	const uint32_t triCount = icount / 3u;
+	if (triCount == 0) {
+		return make_unique<btBvhTriangleMeshShape>(&indexVertexArray, true);
+	}
+
+	// Choose Bullet index scalar type based on our index format
+	const PHY_ScalarType bulletIndexType =
+			(ifmt == IndexFormat::U16) ? PHY_SHORT :
+			(ifmt == IndexFormat::U32) ? PHY_INTEGER :
+			PHY_INTEGER; // shouldn't happen due to checks above
 
 	btIndexedMesh indexedMesh{};
-	indexedMesh.m_numTriangles         = static_cast<int>(faces.size());
-	indexedMesh.m_triangleIndexBase    = reinterpret_cast<const unsigned char*>(faces.data());
-	indexedMesh.m_triangleIndexStride  = sizeof(Face);
+	indexedMesh.m_numTriangles        = static_cast<int>(triCount);
+	indexedMesh.m_triangleIndexBase   = reinterpret_cast<const unsigned char*>(ib.data());
+	indexedMesh.m_triangleIndexStride = static_cast<int>(3u * uint32_t(indexStride));
 
-	indexedMesh.m_numVertices          = static_cast<int>(vcount);
-	indexedMesh.m_vertexBase           = reinterpret_cast<const unsigned char*>(vb.data() + posA->offset);
-	indexedMesh.m_vertexStride         = st;
-	indexedMesh.m_vertexType           = PHY_FLOAT;
+	indexedMesh.m_numVertices         = static_cast<int>(vcount);
+	indexedMesh.m_vertexBase          = reinterpret_cast<const unsigned char*>(vb.data() + posA->offset);
+	indexedMesh.m_vertexStride        = static_cast<int>(st);
+	indexedMesh.m_vertexType          = PHY_FLOAT;
 
-	indexVertexArray.addIndexedMesh(indexedMesh, PHY_INTEGER);
+	indexVertexArray.addIndexedMesh(indexedMesh, bulletIndexType);
 
 	return make_unique<btBvhTriangleMeshShape>(&indexVertexArray, true);
 }
+
 
 unique_ptr<btCompoundShape>
 BTCompoundConvexHullHACDShapeFromMeshElement(MeshElement& element,

@@ -15,6 +15,7 @@
 #include <v-hacd/VHACD.h>
 
 #include "a3d/Types.h"
+#include "a3d/mesh/IndexAccess.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/mesh/VertexAccess.h"
 #include "a3d/mesh/VertexFormats.h"
@@ -41,8 +42,10 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
 
 	VHACD::IVHACD* vhacd = CreateVHACD();
 
+	// --- Params -------------------------------------------------------------
+
 	int a3dFillModeUnderlying = magic_enum::enum_integer(_options.fillMode);
-	VHACD::FillMode _vhacdFillMode = magic_enum::enum_value<VHACD::FillMode>(a3dFillModeUnderlying);
+	VHACD::FillMode vhacdFillMode = magic_enum::enum_value<VHACD::FillMode>(a3dFillModeUnderlying);
 
 	VHACD::IVHACD::Parameters params = {
 			nullptr,
@@ -53,12 +56,14 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
 			_options.minVolumePercentErr,
 			_options.maxRecursionDepth,
 			_options.shrinkWrap,
-			_vhacdFillMode, //_options.fillMode,
+			vhacdFillMode,
 			_options.maxNumVerticesPerHull,
-			false,//_options.asyncACD,
+			false, // asyncACD
 			_options.minEdgeLength,
 			_options.findBestPlane
 	};
+
+	// --- Vertex positions ---------------------------------------------------
 
 	auto posOpt = VertexAccess::GetPositionStreamView(*_sourceElement);
 	if (!posOpt) {
@@ -67,20 +72,12 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
 	}
 	const VertexStreamView pos = *posOpt;
 
-	const auto& srcFaces = _sourceElement->faces();
+	if (pos.count == 0 || !pos.base) {
+		vhacd->Release();
+		return {};
+	}
 
-//	vector<float> verts;
-//	verts.reserve(3u * pos.count);
-//
-//	for (uint32_t i = 0; i < pos.count; ++i) {
-//		float xyz[3];
-//		const std::byte* p = pos.base + size_t(i) * size_t(pos.stride) + pos.offset;
-//		memcpy(xyz, p, sizeof(xyz));
-//		verts.push_back(xyz[0]);
-//		verts.push_back(xyz[1]);
-//		verts.push_back(xyz[2]);
-//	}
-
+	// Build contiguous xyz float array: [x0 y0 z0 x1 y1 z1 ...]
 	vector<float> verts;
 	verts.resize(3u * pos.count);
 
@@ -88,59 +85,110 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
 		const std::byte* p = pos.base + size_t(i) * size_t(pos.stride) + pos.offset;
 		float xyz[3];
 		memcpy(xyz, p, sizeof(xyz));
-		verts[3u*i + 0] = xyz[0];
-		verts[3u*i + 1] = xyz[1];
-		verts[3u*i + 2] = xyz[2];
+		verts[3u * i + 0] = xyz[0];
+		verts[3u * i + 1] = xyz[1];
+		verts[3u * i + 2] = xyz[2];
 	}
 
-	vector<uint32_t> indices;
-	indices.reserve(3u * (uint32_t)srcFaces.size());
-	for (const Face& f : srcFaces) {
-		indices.push_back((uint32_t)f.a);
-		indices.push_back((uint32_t)f.b);
-		indices.push_back((uint32_t)f.c);
+	// --- Triangle indices (u32) --------------------------------------------
+
+	vector<uint32_t> indicesU32;
+
+	// Prefer real index buffer if present
+	if (auto ivOpt = IndexAccess::GetIndexStreamView(*_sourceElement)) {
+		const IndexStreamView iv = *ivOpt;
+
+		// We only support triangle topology here
+		A3D_ASSERT(_sourceElement->topology() == PrimitiveTopology::Triangles);
+		A3D_ASSERT((iv.count % 3u) == 0u);
+
+		IndexAccess::ExpandToU32(iv, indicesU32);
+	}
+	else {
+		// Non-indexed fallback: treat vertices as already a triangle list
+		A3D_ASSERT(_sourceElement->topology() == PrimitiveTopology::Triangles);
+		A3D_ASSERT((pos.count % 3u) == 0u);
+
+		indicesU32.resize(pos.count);
+		for (uint32_t i = 0; i < pos.count; ++i) indicesU32[i] = i;
 	}
 
-	vhacd->Compute(verts.data(), verts.size() / 3,
-				   indices.data(), indices.size() / 3,
+	if (indicesU32.empty() || (indicesU32.size() % 3u) != 0u) {
+		log::e()("ConvexDecomposer: invalid index buffer (count={})", (uint32_t)indicesU32.size());
+		vhacd->Release();
+		return {};
+	}
+
+#ifndef NDEBUG
+	for (uint32_t idx : indicesU32) {
+		A3D_ASSERT(idx < pos.count);
+	}
+#endif
+
+	const uint32_t numPoints = pos.count;
+	const uint32_t numTris   = (uint32_t)(indicesU32.size() / 3u);
+
+	// --- Compute ------------------------------------------------------------
+
+	vhacd->Compute(verts.data(), numPoints,
+				   indicesU32.data(), numTris,
 				   params);
 
-	const auto numHulls = (int)vhacd->GetNConvexHulls();
+	const int numHulls = (int)vhacd->GetNConvexHulls();
 
 	vector<unique_ptr<MeshElement>> out;
 	out.reserve(numHulls);
+
+	// --- Output hulls -------------------------------------------------------
 
 	for (int h = 0; h < numHulls; ++h) {
 		VHACD::IVHACD::ConvexHull hull;
 		vhacd->GetConvexHull(h, hull);
 
+		// vertices
 		vector<VertexPNT> decomposedVerts;
 		decomposedVerts.reserve(hull.m_points.size());
 		for (auto& v : hull.m_points) {
 			decomposedVerts.push_back({ {(float)v.mX, (float)v.mY, (float)v.mZ}, {}, {} });
 		}
 
-		vector<Face> decomposedFaces;
-		decomposedFaces.reserve(hull.m_triangles.size());
+		// indices (u32 triangle list)
+		vector<uint32_t> decomposedIndices;
+		decomposedIndices.reserve(hull.m_triangles.size() * 3u);
 		for (auto& t : hull.m_triangles) {
-			decomposedFaces.push_back({ (uint32_t)t.mI0, (uint32_t)t.mI1, (uint32_t)t.mI2 });
+			decomposedIndices.push_back((uint32_t)t.mI0);
+			decomposedIndices.push_back((uint32_t)t.mI1);
+			decomposedIndices.push_back((uint32_t)t.mI2);
 		}
+
+#ifndef NDEBUG
+		for (uint32_t idx : decomposedIndices) {
+			A3D_ASSERT(idx < (uint32_t)decomposedVerts.size());
+		}
+#endif
 
 		auto vbSpan  = std::span<const VertexPNT>(decomposedVerts.data(), decomposedVerts.size());
 		auto vbBytes = std::as_bytes(vbSpan);
+
+		auto ibSpan  = std::span<const uint32_t>(decomposedIndices.data(), decomposedIndices.size());
+		auto ibBytes = std::as_bytes(ibSpan);
 
 		out.push_back(std::make_unique<MeshElement>(
 				VertexLayout::PNT,
 				vbBytes,
 				(uint32_t)decomposedVerts.size(),
 				(uint16_t)sizeof(VertexPNT),
-				std::span<const Face>(decomposedFaces.data(), decomposedFaces.size())
+				PrimitiveTopology::Triangles,
+				IndexFormat::U32,
+				ibBytes,
+				(uint32_t)decomposedIndices.size() // number of indices (NOT triangles)
 		));
 	}
 
-	log::d()("Decomposition done.");
+	log::d()("Decomposition done. numHulls: {}", numHulls);
 
 	vhacd->Release();
 
 	return out;
 }
+

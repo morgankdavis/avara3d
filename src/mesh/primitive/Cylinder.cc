@@ -60,9 +60,12 @@ Cylinder::Cylinder(float radius,
 	/// @param start Counterclockwise angle around the z-axis relative to the x-axis.
 	/// @param sweep Counterclockwise angle around the z-axis.
 
-	auto cylinder = CappedCylinderMesh{radius, height/2.0, (int)slices, (int)segments, (int)rings};
+	auto cylinder = CappedCylinderMesh{ radius, height / 2.0, (int)slices, (int)segments, (int)rings };
 
-	beginBuild(VertexLayout::PNT, (uint16_t)sizeof(VertexPNT));
+	beginBuild(VertexLayout::PNT,
+			   (uint16_t)sizeof(VertexPNT),
+			   PrimitiveTopology::Triangles,
+			   IndexFormat::U32);
 
 	for (auto vs = cylinder.vertices(); !vs.done(); vs.next()) {
 		const auto v = vs.generate();
@@ -75,15 +78,13 @@ Cylinder::Cylinder(float radius,
 
 	for (auto ts = cylinder.triangles(); !ts.done(); ts.next()) {
 		const auto t = ts.generate();
-		appendFace(Face{
-				(uint32_t)t.vertices[0],
-				(uint32_t)t.vertices[1],
-				(uint32_t)t.vertices[2] });
+		appendTriangle((uint32_t)t.vertices[0],
+					   (uint32_t)t.vertices[1],
+					   (uint32_t)t.vertices[2]);
 	}
 
 	endBuild(false);
 
-	// Bullet orientation
 	auto xRotation = rotate(mat4(1.0f), (float)radians(-90.0f), vec3(1.0f, 0.0f, 0.0f));
 	burnTransform(xRotation, true);
 }

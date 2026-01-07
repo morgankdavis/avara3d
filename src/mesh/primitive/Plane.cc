@@ -52,26 +52,28 @@ Plane::Plane(float width,
 	/// @param size Half of the side length in x (0) and y (1) direction.
 	/// @param segments Number of subdivisions in the x (0) and y (1) direction.
 
-	// subdivisions are good for Bullet (so they say...)
-	auto plane = PlaneMesh{ {width/2.0, height/2.0}, {widthSegements, heightSegments} };
+	auto plane = PlaneMesh{ { width / 2.0, height / 2.0 }, { widthSegements, heightSegments } };
 
-	beginBuild(VertexLayout::PNT, (uint16_t)sizeof(VertexPNT));
+	beginBuild(VertexLayout::PNT,
+			   (uint16_t)sizeof(VertexPNT),
+			   PrimitiveTopology::Triangles,
+			   IndexFormat::U32);
 
 	for (auto vs = plane.vertices(); !vs.done(); vs.next()) {
 		const auto v = vs.generate();
 		const VertexPNT out{
 				{ (float)v.position[0], (float)v.position[1], (float)v.position[2] },
 				{ (float)v.normal[0],   (float)v.normal[1],   (float)v.normal[2]   },
-				{ (float)v.texCoord[0], (float)v.texCoord[1] } };
+				{ (float)v.texCoord[0], (float)v.texCoord[1] }
+		};
 		appendVertexBytes(&out);
 	}
 
 	for (auto ts = plane.triangles(); !ts.done(); ts.next()) {
 		const auto t = ts.generate();
-		appendFace(Face{
-				(uint32_t)t.vertices[0],
-				(uint32_t)t.vertices[1],
-				(uint32_t)t.vertices[2] });
+		appendTriangle((uint32_t)t.vertices[0],
+					   (uint32_t)t.vertices[1],
+					   (uint32_t)t.vertices[2]);
 	}
 
 	endBuild(true);

@@ -352,7 +352,7 @@ namespace a3d {
 
 	enum class MeshDirtyMask : uint32_t {
 		None =					0,
-//		AABBLines	=			1 << 0,
+		// AABB?
 		All = 					UINT_MAX
 	};
 	namespace util::bitmask {
@@ -362,7 +362,8 @@ namespace a3d {
 	enum class MeshElementDirtyMask : uint32_t {
 		None =					0,
 		VertexData =			1 << 0,
-//		AABBLines	=			1 << 1,
+		IndexData =				1 << 1,
+		// AABB?
 		All = 					UINT_MAX
 	};
 	namespace util::bitmask {

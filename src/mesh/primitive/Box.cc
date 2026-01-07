@@ -56,29 +56,6 @@ Box::Box(float length,
 		_widthSegments{widthSegments},
 		_heightSegments{heightSegments} {
 
-//	using namespace generator;
-//
-//	/// @param size Half of the side length in x (0), y (1) and z (2) direction.
-//	/// @param segments The number of segments in x (0), y (1) and z (2)
-//
-//	auto box = BoxMesh{ { width/2.0, length/2.0, height/2.0 },
-//						{ widthSegments, lengthSegments, heightSegments } };
-//
-//	for (const MeshVertex& v : box.vertices()) {
-//		_vertices.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
-//							  vec3(v.normal[0], v.normal[1], v.normal[2]),
-//							  vec2(v.texCoord[0], v.texCoord[1]) });
-//	}
-//
-//	for (const Triangle& t : box.triangles()) {
-//		_faces.push_back({ unsigned(t.vertices[0]),
-//						   unsigned(t.vertices[1]),
-//						   unsigned(t.vertices[2]) });
-//	}
-//	std::reverse(_faces.begin(), _faces.end());
-//
-//	genLocalAABB();
-
 	using namespace generator;
 
 	/// @param size Half of the side length in x (0), y (1) and z (2) direction.
@@ -87,8 +64,14 @@ Box::Box(float length,
 	auto box = BoxMesh{ { width/2.0, length/2.0, height/2.0 },
 						{ widthSegments, lengthSegments, heightSegments } };
 
-	beginBuild(VertexLayout::PNT, (uint16_t)sizeof(VertexPNT));
+	// Build an indexed triangle list.
+	// U16 is safe for boxes (vertex count << 65535). If you ever generate >65535 verts, switch to U32.
+	beginBuild(VertexLayout::PNT,
+			   (uint16_t)sizeof(VertexPNT),
+			   PrimitiveTopology::Triangles,
+			   IndexFormat::U16);
 
+	// --- vertices ---
 	for (auto vs = box.vertices(); !vs.done(); vs.next()) {
 		const auto v = vs.generate();
 		const VertexPNT out{
@@ -98,15 +81,20 @@ Box::Box(float length,
 		appendVertexBytes(&out);
 	}
 
+	// --- triangles (collect, reverse order like your old _faces reverse) ---
+	std::vector<std::array<uint32_t, 3>> tris;
 	for (auto ts = box.triangles(); !ts.done(); ts.next()) {
 		const auto t = ts.generate();
-		appendFace(Face{
-				(uint32_t)t.vertices[0],
-				(uint32_t)t.vertices[1],
-				(uint32_t)t.vertices[2] });
+		tris.push_back({ (uint32_t)t.vertices[0],
+						 (uint32_t)t.vertices[1],
+						 (uint32_t)t.vertices[2] });
 	}
 
-	std::reverse(_faces.begin(), _faces.end());
+	std::reverse(tris.begin(), tris.end());
+
+	for (const auto& tri : tris) {
+		appendTriangle(tri[0], tri[1], tri[2]);
+	}
 
 	endBuild(true);
 }

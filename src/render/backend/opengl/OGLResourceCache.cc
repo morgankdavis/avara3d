@@ -16,6 +16,7 @@
 #include "a3d/Image.h"
 #include "a3d/CubeImage.h"
 #include "a3d/log/Log.h"
+#include "a3d/mesh/IndexAccess.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/mesh/VertexLayout.h"
 #include "a3d/render/VertexLayoutDesc.h"
@@ -218,6 +219,22 @@ static inline int SlotFor(Material::PropertyType t) {
 	}
 }
 
+//static gl::enum_t GLIndexTypeForIndexFormat(IndexFormat fmt) {
+//	switch (fmt) {
+//		case IndexFormat::U16: return gl::value::unsigned_short;
+//		case IndexFormat::U32: return gl::value::unsigned_int;
+//		default:               return gl::value::unsigned_int;
+//	}
+//}
+
+static gl::enum_t GLIndexTypeForIndexFormat(IndexFormat fmt) {
+	switch (fmt) {
+		case IndexFormat::U16: return GL_UNSIGNED_SHORT;
+		case IndexFormat::U32: return GL_UNSIGNED_INT;
+		default:               return GL_UNSIGNED_INT;
+	}
+}
+
 // ----------------------------------------------------------------------------
 
 
@@ -246,11 +263,15 @@ const OGLMeshElement& OGLResourceCache::ensureMeshElement(MeshElement& element) 
 
 	const VertexLayout layout = element.vertexLayout();
 
-	const bool dirty  = util::bitmask::contains(element.dirtyMask(), MeshElementDirtyMask::VertexData);
+//	const bool dirty  = util::bitmask::contains(element.dirtyMask(), MeshElementDirtyMask::VertexData);
+	const bool vDirty = util::bitmask::contains(element.dirtyMask(), MeshElementDirtyMask::VertexData);
+	const bool iDirty = util::bitmask::contains(element.dirtyMask(), MeshElementDirtyMask::IndexData);
+
 	const bool missing = (res.vao == 0);
 	const bool layoutChanged = (!missing && res.vertexLayoutKey != layout);
 
-	if (!dirty && !missing && !layoutChanged) {
+//	if (!dirty && !missing && !layoutChanged) {
+	if (!vDirty && !iDirty && !missing && !layoutChanged) {
 		return res;
 	}
 
@@ -309,21 +330,105 @@ const OGLMeshElement& OGLResourceCache::ensureMeshElement(MeshElement& element) 
 							  (const void*)(uintptr_t)a.offset);
 	}
 
-	// --- Index buffer ---
-	std::vector<uint32_t> indices;
-	indices.reserve(element.faces().size() * 3);
-	for (const auto& f : element.faces()) {
-		indices.push_back((uint32_t)f.a);
-		indices.push_back((uint32_t)f.b);
-		indices.push_back((uint32_t)f.c);
-	}
-	res.indexCount = (uint32_t)indices.size();
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (GLuint)res.ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-				 (GLsizeiptr)(indices.size() * sizeof(uint32_t)),
-				 indices.data(),
-				 GL_STATIC_DRAW);
+
+
+
+
+
+
+
+	// --- Index buffer ---
+//	std::vector<uint32_t> indices;
+//	indices.reserve(element.faces().size() * 3);
+//	for (const auto& f : element.faces()) {
+//		indices.push_back((uint32_t)f.a);
+//		indices.push_back((uint32_t)f.b);
+//		indices.push_back((uint32_t)f.c);
+//	}
+//	res.indexCount = (uint32_t)indices.size();
+//
+//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (GLuint)res.ebo);
+//	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+//				 (GLsizeiptr)(indices.size() * sizeof(uint32_t)),
+//				 indices.data(),
+//				 GL_STATIC_DRAW);
+
+
+
+
+
+
+// --- Index buffer ---
+//	// New path: upload MeshElement's index buffer directly (no Face conversion)
+//	const auto ib = element.indexBytes();          // span<const std::byte>
+//	const uint32_t icount = element.indexCount(); // number of indices, not triangles
+//
+//	// If you added topology/indexFormat to MeshElement, sanity-check them here:
+//	// (remove/relax if you draw non-triangles later)
+//	A3D_ASSERT(element.topology() == PrimitiveTopology::Triangles);
+//	A3D_ASSERT(icount > 0);
+//	A3D_ASSERT((icount % 3u) == 0u);
+//
+//	const IndexFormat ifmt = element.indexFormat();
+//	A3D_ASSERT(ifmt == IndexFormat::U16 || ifmt == IndexFormat::U32);
+//
+//	const uint16_t indexStride =
+//			(ifmt == IndexFormat::U16) ? 2 :
+//			(ifmt == IndexFormat::U32) ? 4 : 0;
+//
+//	A3D_ASSERT(indexStride != 0);
+//	A3D_ASSERT(ib.size() == size_t(icount) * size_t(indexStride));
+//
+//	res.indexCount = icount;
+//	res.indexType =
+//			(ifmt == IndexFormat::U16) ? GL_UNSIGNED_SHORT :
+//			(ifmt == IndexFormat::U32) ? GL_UNSIGNED_INT :
+//			GL_NONE;
+//
+//	A3D_ASSERT(res.indexType != GL_NONE);
+//
+//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (GLuint)res.ebo);
+//	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+//				 (GLsizeiptr)ib.size(),
+//				 (const void*)ib.data(),
+//				 GL_STATIC_DRAW);
+
+
+
+// --- Index buffer (generalized model, via IndexAccess) ---
+	res.vertexCount = vcount; // for drawArrays fallback
+
+	auto ivOpt = IndexAccess::GetIndexStreamView(element);
+	if (!ivOpt) {
+		// Non-indexed mesh (or empty indices) — keep EBO empty
+		res.indexCount = 0;
+		res.indexType  = GL_UNSIGNED_INT; // unused when indexCount==0
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (GLuint)res.ebo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW);
+	}
+	else {
+		const IndexStreamView iv = *ivOpt;
+
+		A3D_ASSERT(iv.base != nullptr);
+		A3D_ASSERT(iv.count == element.indexCount());
+		A3D_ASSERT(iv.format == element.indexFormat());
+		A3D_ASSERT(iv.stride == 2u || iv.stride == 4u);
+
+		A3D_ASSERT(element.indexBytes().data() == iv.base);
+		A3D_ASSERT(element.indexBytes().size() == size_t(iv.count) * size_t(iv.stride));
+
+		res.indexCount = iv.count;
+		res.indexType  = GLIndexTypeForIndexFormat(iv.format);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (GLuint)res.ebo);
+
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+					 (GLsizeiptr)(size_t(iv.count) * size_t(iv.stride)),
+					 (const void*)iv.base,
+					 GL_STATIC_DRAW);
+	}
 
 	// Clear dirty bit
 	element.dirtyMask(util::bitmask::remove(element.dirtyMask(), MeshElementDirtyMask::VertexData));

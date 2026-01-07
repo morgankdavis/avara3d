@@ -60,13 +60,16 @@ Capsule::Capsule(float radius,
 	/// @param start Counterclockwise angle relative to the x-axis.
 	/// @param sweep Counterclockwise angle.
 
-	auto capsule = CapsuleMesh{radius, height/2.0, (int)slices, (int)segments, (int)rings};
+	auto capsule = CapsuleMesh{ radius, height / 2.0, (int)slices, (int)segments, (int)rings };
 
-	beginBuild(VertexLayout::PNT, (uint16_t)sizeof(VertexPNT));
+	beginBuild(VertexLayout::PNT,
+			   (uint16_t)sizeof(VertexPNT),
+			   PrimitiveTopology::Triangles,
+			   IndexFormat::U32);
 
 	for (auto vs = capsule.vertices(); !vs.done(); vs.next()) {
 		const auto v = vs.generate();
-		VertexPNT out {
+		const VertexPNT out{
 				{ (float)v.position[0], (float)v.position[1], (float)v.position[2] },
 				{ (float)v.normal[0],   (float)v.normal[1],   (float)v.normal[2]   },
 				{ (float)v.texCoord[0], (float)v.texCoord[1] } };
@@ -75,15 +78,15 @@ Capsule::Capsule(float radius,
 
 	for (auto ts = capsule.triangles(); !ts.done(); ts.next()) {
 		const auto t = ts.generate();
-		appendFace(Face{ (uint32_t)t.vertices[0],
-						 (uint32_t)t.vertices[1],
-						 (uint32_t)t.vertices[2] });
+		appendTriangle((uint32_t)t.vertices[0],
+					   (uint32_t)t.vertices[1],
+					   (uint32_t)t.vertices[2]);
 	}
 
 	endBuild(false);
 
-	// orientation bullet expects
-	auto xRotation = rotate(mat4(1.0), (float)radians(-90.0), vec3(1.0, 0.0, 0.0));
+	// Bullet orientation
+	auto xRotation = rotate(mat4(1.0f), (float)radians(-90.0f), vec3(1.0f, 0.0f, 0.0f));
 	burnTransform(xRotation, true);
 }
 

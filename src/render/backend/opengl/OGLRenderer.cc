@@ -642,10 +642,23 @@ void OGLRenderer::bindMeshElement(const MeshElement& element) {
 	auto* e = const_cast<MeshElement*>(&element);
 	const auto& res = _resourceCache.ensureMeshElement(*e);
 
+//	glBindVertexArray((GLuint)res.vao);
+//	_boundElement.vao = (GLuint)res.vao;
+//	_boundElement.indexCount = (GLsizei)res.indexCount;
+//	_boundElement.indexType = GL_UNSIGNED_INT;
+
+//	glBindVertexArray((GLuint)res.vao);
+//	_boundElement.vao = (GLuint)res.vao;
+//	_boundElement.indexCount = (GLsizei)res.indexCount;
+//	_boundElement.indexType = res.indexType;
+
+
 	glBindVertexArray((GLuint)res.vao);
-	_boundElement.vao = (GLuint)res.vao;
+
+	_boundElement.vao        = (GLuint)res.vao;
 	_boundElement.indexCount = (GLsizei)res.indexCount;
-	_boundElement.indexType = GL_UNSIGNED_INT;
+	_boundElement.indexType  = (GLenum)res.indexType;     // <-- USE CACHED TYPE
+	_boundElement.vertexCount = (GLsizei)res.vertexCount; // <-- for drawArrays fallback
 }
 
 void OGLRenderer::setPerObject(const mat4& model, const mat4& view, const mat4& proj) {
@@ -666,10 +679,20 @@ void OGLRenderer::setPerObject(const mat4& model, const mat4& view, const mat4& 
 }
 
 void OGLRenderer::drawBound() {
-	if (_boundElement.vao == 0 || _boundElement.indexCount == 0) return;
+	if (_boundElement.vao == 0) return;
 
 	glBindVertexArray(_boundElement.vao);
-	glDrawElements(GL_TRIANGLES, _boundElement.indexCount, _boundElement.indexType, (void*)0);
+
+	if (_boundElement.indexCount > 0) {
+		glDrawElements(GL_TRIANGLES,
+					   _boundElement.indexCount,
+					   _boundElement.indexType,
+					   (void*)0);
+	}
+	else if (_boundElement.vertexCount > 0) {
+		// Non-indexed fallback
+		glDrawArrays(GL_TRIANGLES, 0, _boundElement.vertexCount);
+	}
 }
 
 void OGLRenderer::renderLinesPass(const LinesPass& pass,
@@ -772,7 +795,7 @@ void LogGLInfo() {
 	const GLubyte* renderer = glGetString(GL_RENDERER);
 	const GLubyte* version = glGetString(GL_VERSION);
 
-	log::i()("GL_VENDOR: {}", reinterpret_cast<const char*>(renderer));
+	log::i()("GL_VENDOR: {}", reinterpret_cast<const char*>(vendor));
 	log::i()("GL_RENDERER: {}", reinterpret_cast<const char*>(renderer));
 	log::i()("GL_VERSION: {}", reinterpret_cast<const char*>(version));
 }

@@ -44,25 +44,28 @@ Sphere::Sphere(float radius,
 	/// @param radius The radius of the containing sphere.
 	/// @param segments The number of segments per icosahedron edge. Must be >= 1.
 
-	auto icoSphere = IcoSphereMesh{radius, (int)segments};
+	auto icoSphere = IcoSphereMesh{ radius, (int)segments };
 
-	beginBuild(VertexLayout::PNT, (uint16_t)sizeof(VertexPNT));
+	beginBuild(VertexLayout::PNT,
+			   (uint16_t)sizeof(VertexPNT),
+			   PrimitiveTopology::Triangles,
+			   IndexFormat::U32);
 
 	for (auto vs = icoSphere.vertices(); !vs.done(); vs.next()) {
 		const auto v = vs.generate();
 		const VertexPNT out{
 				{ (float)v.position[0], (float)v.position[1], (float)v.position[2] },
 				{ (float)v.normal[0],   (float)v.normal[1],   (float)v.normal[2]   },
-				{ (float)v.texCoord[0], (float)v.texCoord[1] } };
+				{ (float)v.texCoord[0], (float)v.texCoord[1] }
+		};
 		appendVertexBytes(&out);
 	}
 
 	for (auto ts = icoSphere.triangles(); !ts.done(); ts.next()) {
 		const auto t = ts.generate();
-		appendFace(Face{
-				(uint32_t)t.vertices[0],
-				(uint32_t)t.vertices[1],
-				(uint32_t)t.vertices[2] });
+		appendTriangle((uint32_t)t.vertices[0],
+					   (uint32_t)t.vertices[1],
+					   (uint32_t)t.vertices[2]);
 	}
 
 	endBuild(true);

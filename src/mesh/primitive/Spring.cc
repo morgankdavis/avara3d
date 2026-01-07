@@ -39,6 +39,7 @@ shared_ptr<Mesh> Spring::Mesh(float minorRadius,
 
 /// Public Lifecycle Functions ///
 
+
 Spring::Spring(float minorRadius,
 			   float majorRadius,
 			   float length,
@@ -61,9 +62,12 @@ Spring::Spring(float minorRadius,
 	/// @param majorStart Counterclockwise angle around the z-axis relative to the x-axis.
 	/// @param majorSweep Counterclockwise angle arounf the z-axis.
 
-	auto spring = SpringMesh{minorRadius, majorRadius, length/2.0, (int)slices, (int)segments};
+	auto spring = SpringMesh{ minorRadius, majorRadius, length / 2.0, (int)slices, (int)segments };
 
-	beginBuild(VertexLayout::PNT, (uint16_t)sizeof(VertexPNT));
+	beginBuild(VertexLayout::PNT,
+			   (uint16_t)sizeof(VertexPNT),
+			   PrimitiveTopology::Triangles,
+			   IndexFormat::U32);
 
 	for (auto vs = spring.vertices(); !vs.done(); vs.next()) {
 		const auto v = vs.generate();
@@ -76,10 +80,9 @@ Spring::Spring(float minorRadius,
 
 	for (auto ts = spring.triangles(); !ts.done(); ts.next()) {
 		const auto t = ts.generate();
-		appendFace(Face{
-				(uint32_t)t.vertices[0],
-				(uint32_t)t.vertices[1],
-				(uint32_t)t.vertices[2] });
+		appendTriangle((uint32_t)t.vertices[0],
+					   (uint32_t)t.vertices[1],
+					   (uint32_t)t.vertices[2]);
 	}
 
 	endBuild(true);

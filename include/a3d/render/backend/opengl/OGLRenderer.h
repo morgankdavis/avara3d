@@ -41,15 +41,16 @@ namespace a3d {
 
 		struct GLStateCache {
 			PipelineHandle 		pipelineHandle = 	INVALID_PIPELINE_HANDLE;
-			a3d::gl::enum_t 	program = 			0; // currently bound GL program
+			gl::uint_t 			program = 			0; // currently bound GL program
 			const Material* 	material = 			nullptr; // last bound material
 			uint32_t 			indexCount = 		0;
 		};
 
 		struct BoundElement {
-			a3d::gl::uint_t 	vao = 			0;
-			a3d::gl::sizei_t 	indexCount = 	0;
-			a3d::gl::enum_t		indexType = 	a3d::gl::value::unsigned_int;
+			gl::uint_t 		vao = 			0;
+			gl::sizei_t 	indexCount = 	0;
+			gl::enum_t		indexType = 	gl::value::unsigned_int;
+			gl::sizei_t 	vertexCount =	0;
 		};
 
 		/// Internal Static Members ///

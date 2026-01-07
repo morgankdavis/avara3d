@@ -48,14 +48,15 @@ TorusKnot::TorusKnot(unsigned p,
 
 	using namespace generator;
 
-	// p & q are mysteries!
-
 	/// @param slices Number subdivisions around the circle.
 	/// @param segments Number of subdivisions around the path.
 
-	auto torusKnot = TorusKnotMesh{(int)p, (int)q, (int)slices, (int)segments};
+	auto torusKnot = TorusKnotMesh{ (int)p, (int)q, (int)slices, (int)segments };
 
-	beginBuild(VertexLayout::PNT, (uint16_t)sizeof(VertexPNT));
+	beginBuild(VertexLayout::PNT,
+			   (uint16_t)sizeof(VertexPNT),
+			   PrimitiveTopology::Triangles,
+			   IndexFormat::U32);
 
 	for (auto vs = torusKnot.vertices(); !vs.done(); vs.next()) {
 		const auto v = vs.generate();
@@ -68,10 +69,9 @@ TorusKnot::TorusKnot(unsigned p,
 
 	for (auto ts = torusKnot.triangles(); !ts.done(); ts.next()) {
 		const auto t = ts.generate();
-		appendFace(Face{
-				(uint32_t)t.vertices[0],
-				(uint32_t)t.vertices[1],
-				(uint32_t)t.vertices[2] });
+		appendTriangle((uint32_t)t.vertices[0],
+					   (uint32_t)t.vertices[1],
+					   (uint32_t)t.vertices[2]);
 	}
 
 	endBuild(true);

@@ -71,10 +71,16 @@ RoundedBox::RoundedBox(float radius,
 	/// @param segments Number of subdivisons in x (0), y (1) and z (2)
 	/// direction for the flat faces.
 
-	auto roundedBox = RoundedBoxMesh{radius, { width/2.0, length/2.0, height/2.0 },
-									 (int)slices, { widthSegments, lengthSegments, heightSegments }};
+	auto roundedBox = RoundedBoxMesh{
+			radius,
+			{ width / 2.0, length / 2.0, height / 2.0 },
+			(int)slices,
+			{ widthSegments, lengthSegments, heightSegments } };
 
-	beginBuild(VertexLayout::PNT, (uint16_t)sizeof(VertexPNT));
+	beginBuild(VertexLayout::PNT,
+			   (uint16_t)sizeof(VertexPNT),
+			   PrimitiveTopology::Triangles,
+			   IndexFormat::U32);
 
 	for (auto vs = roundedBox.vertices(); !vs.done(); vs.next()) {
 		const auto v = vs.generate();
@@ -87,15 +93,13 @@ RoundedBox::RoundedBox(float radius,
 
 	for (auto ts = roundedBox.triangles(); !ts.done(); ts.next()) {
 		const auto t = ts.generate();
-		appendFace(Face{
-				(uint32_t)t.vertices[0],
-				(uint32_t)t.vertices[1],
-				(uint32_t)t.vertices[2] });
+		appendTriangle((uint32_t)t.vertices[0],
+					   (uint32_t)t.vertices[1],
+					   (uint32_t)t.vertices[2]);
 	}
 
 	endBuild(false);
 
-	// Bullet orientation
 	auto xRotation = rotate(mat4(1.0f), (float)radians(-90.0f), vec3(1.0f, 0.0f, 0.0f));
 	burnTransform(xRotation, true);
 }

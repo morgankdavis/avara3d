@@ -58,9 +58,12 @@ Torus::Torus(float minorRadius,
 	/// @param majorStart Counterclockwise angle around the z-axis relative to the x-axis.
 	/// @param majorSweep Counterclockwise angle around the z-axis.
 
-	auto torus = TorusMesh{majorRadius-minorRadius, majorRadius, (int)slices, (int)segments};
+	auto torus = TorusMesh{ majorRadius - minorRadius, majorRadius, (int)slices, (int)segments };
 
-	beginBuild(VertexLayout::PNT, (uint16_t)sizeof(VertexPNT));
+	beginBuild(VertexLayout::PNT,
+			   (uint16_t)sizeof(VertexPNT),
+			   PrimitiveTopology::Triangles,
+			   IndexFormat::U32);
 
 	for (auto vs = torus.vertices(); !vs.done(); vs.next()) {
 		const auto v = vs.generate();
@@ -73,10 +76,9 @@ Torus::Torus(float minorRadius,
 
 	for (auto ts = torus.triangles(); !ts.done(); ts.next()) {
 		const auto t = ts.generate();
-		appendFace(Face{
-				(uint32_t)t.vertices[0],
-				(uint32_t)t.vertices[1],
-				(uint32_t)t.vertices[2] });
+		appendTriangle((uint32_t)t.vertices[0],
+					   (uint32_t)t.vertices[1],
+					   (uint32_t)t.vertices[2]);
 	}
 
 	endBuild(true);

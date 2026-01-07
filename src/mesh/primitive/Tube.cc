@@ -66,9 +66,12 @@ Tube::Tube(float innerRadius,
 	/// @param start Counterclockwise angle around the z-axis relative to the x-axis.
 	/// @param sweep Counterclockwise angle around the z-axis.
 
-	auto tube = CappedTubeMesh{outerRadius, innerRadius, height/2.0, (int)slices, (int)segments, (int)rings};
+	auto tube = CappedTubeMesh{ outerRadius, innerRadius, height / 2.0, (int)slices, (int)segments, (int)rings };
 
-	beginBuild(VertexLayout::PNT, (uint16_t)sizeof(VertexPNT));
+	beginBuild(VertexLayout::PNT,
+			   (uint16_t)sizeof(VertexPNT),
+			   PrimitiveTopology::Triangles,
+			   IndexFormat::U32);
 
 	for (auto vs = tube.vertices(); !vs.done(); vs.next()) {
 		const auto v = vs.generate();
@@ -81,10 +84,9 @@ Tube::Tube(float innerRadius,
 
 	for (auto ts = tube.triangles(); !ts.done(); ts.next()) {
 		const auto t = ts.generate();
-		appendFace(Face{
-				(uint32_t)t.vertices[0],
-				(uint32_t)t.vertices[1],
-				(uint32_t)t.vertices[2] });
+		appendTriangle((uint32_t)t.vertices[0],
+					   (uint32_t)t.vertices[1],
+					   (uint32_t)t.vertices[2]);
 	}
 
 	endBuild(true);

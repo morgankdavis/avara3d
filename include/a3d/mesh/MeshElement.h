@@ -18,6 +18,7 @@
 #include "a3d/Types.h"
 #include "a3d/Math.h"
 #include "a3d/mesh/AABB.h"
+#include "a3d/mesh/IndexTypes.h"
 
 #include "a3d/mesh/VertexLayout.h"
 
@@ -38,11 +39,20 @@ namespace a3d {
 
 //		MeshElement(const std::vector<Vertex>& verticies,
 //					const std::vector<Face>& faces);
+//// TODO: remove
+//		MeshElement(VertexLayout layout,
+//					std::span<const std::byte> bytes,
+//					uint32_t vertexCount,
+//					uint16_t stride,
+//					std::span<const Face> faces);
 		MeshElement(VertexLayout layout,
-					std::span<const std::byte> bytes,
+					std::span<const std::byte> vertexBytes,
 					uint32_t vertexCount,
-					uint16_t stride,
-					std::span<const Face> faces);
+					uint16_t vertexStride,
+					PrimitiveTopology topology,
+					IndexFormat indexFormat,
+					std::span<const std::byte> indexBytes,
+					uint32_t indexCount);
 		virtual ~MeshElement();
 
 		/// Internal Member Functions ///
@@ -58,7 +68,7 @@ namespace a3d {
 
 
 //		const std::vector<Vertex>& 		vertices() const;
-		const std::vector<Face>&		faces() const; // PNT-only legacy path
+//		const std::vector<Face>&		faces() const; // PNT-only legacy path
 
 		void 							burnTransform(const math::mat4& transform,
 													  bool normals);
@@ -92,7 +102,7 @@ namespace a3d {
 
 
 //		std::vector<Vertex>				_vertices;
-		std::vector<Face>				_faces;
+//		std::vector<Face>				_faces;
 		AABB							_localAABB;
 		MeshElementDirtyMask			_dirtyMask;
 
@@ -156,6 +166,21 @@ namespace a3d {
 		uint32_t						_vertexCount = 0;
 		uint16_t						_vertexStride = 0;
 
+		PrimitiveTopology				topology() const;
+		IndexFormat						indexFormat() const;
+		uint32_t						indexCount() const;
+		std::span<const std::byte>		indexBytes() const;
+
+
+
+
+
+
+		PrimitiveTopology				_topology = PrimitiveTopology::Triangles;
+		IndexFormat						_indexFormat = IndexFormat::None;
+		std::vector<std::byte>			_indexData;
+		uint32_t						_indexCount = 0; // number of indices (NOT triangles)
+
 
 
 
@@ -164,15 +189,20 @@ namespace a3d {
 	protected:
 		// Call once at start of derived constructor
 		void beginBuild(VertexLayout layout,
-						uint16_t stride,
+						uint16_t vertexStride,
+						PrimitiveTopology topology = PrimitiveTopology::Triangles,
+						IndexFormat indexFormat = IndexFormat::U32,
 						uint32_t reserveVerts = 0,
-						uint32_t reserveFaces = 0);
+						uint32_t reserveIndices = 0);
 
 		// Append exactly one vertex (stride bytes)
 		void appendVertexBytes(const void* vertexBytes);
 
 		// Append one face
-		void appendFace(const Face& f);
+//		void appendFace(const Face& f);
+
+		void appendIndex(uint32_t idx);
+		void appendTriangle(uint32_t a, uint32_t b, uint32_t c);
 
 		// Call once at end (computes AABB, marks dirty, etc.)
 		void endBuild(bool recomputeAABB = true);

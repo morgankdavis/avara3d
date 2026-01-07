@@ -32,7 +32,9 @@ namespace a3d {
 		gl::uint_t 		vao = 				0;
 		gl::uint_t 		vbo = 				0;
 		gl::uint_t 		ebo = 				0;
+		gl::enum_t 		indexType = 		gl::value::unsigned_int;
 		uint32_t 		indexCount = 		0;
+		uint32_t        vertexCount =		0;
 		VertexLayout 	vertexLayoutKey = 	VertexLayout::None;
 	};
 

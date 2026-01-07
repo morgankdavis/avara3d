@@ -56,9 +56,12 @@ Disk::Disk(float radius,
 	/// @param start Counterclockwise angle relative to the x-axis
 	/// @param sweep Counterclockwise angle.
 
-	auto disk = DiskMesh{radius, innerRadius, (int)slices, (int)rings};
+	auto disk = DiskMesh{ radius, innerRadius, (int)slices, (int)rings };
 
-	beginBuild(VertexLayout::PNT, (uint16_t)sizeof(VertexPNT));
+	beginBuild(VertexLayout::PNT,
+			   (uint16_t)sizeof(VertexPNT),
+			   PrimitiveTopology::Triangles,
+			   IndexFormat::U32);
 
 	for (auto vs = disk.vertices(); !vs.done(); vs.next()) {
 		const auto v = vs.generate();
@@ -71,15 +74,13 @@ Disk::Disk(float radius,
 
 	for (auto ts = disk.triangles(); !ts.done(); ts.next()) {
 		const auto t = ts.generate();
-		appendFace(Face{
-				(uint32_t)t.vertices[0],
-				(uint32_t)t.vertices[1],
-				(uint32_t)t.vertices[2] });
+		appendTriangle((uint32_t)t.vertices[0],
+					   (uint32_t)t.vertices[1],
+					   (uint32_t)t.vertices[2]);
 	}
 
 	endBuild(false);
 
-	// Bullet orientation
 	auto xRotation = rotate(mat4(1.0f), (float)radians(-90.0f), vec3(1.0f, 0.0f, 0.0f));
 	burnTransform(xRotation, true);
 }
