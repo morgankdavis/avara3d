@@ -21,7 +21,7 @@ using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
-const LogLevel				APP_LOG_LEVEL		{LogLevel::Debug};
+const Log::Level			APP_LOG_LEVEL			{Log::Level::Debug};
 const uvec2					WINDOW_SIZE				{1280, 768};
 const bool					FULLSCREEN				{false};
 const bool					ENABLE_HIGH_DPI			{true};
@@ -77,7 +77,7 @@ int main(int argc, const char* argv[]) {
 	//					  ? make_shared<MaterialProperty>(Color::Black())
 	//					          //make_shared<MaterialProperty>(CubeImageNamed("belfast_sunset", "png"))
 	//					  : make_shared<MaterialProperty>(CubeImageNamed("kloppenheim", "png"));
-		MaterialProperty background = monostate{};
+		Material::Property background = monostate{};
 		if (DARK) background = Color::Black();
 		else background = make_shared<Texture>(util::filesystem::CubeImageNamed("kloppenheim", "png"));
 		visualWorld->background(background);

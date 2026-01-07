@@ -23,7 +23,7 @@ using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
-const LogLevel				APP_LOG_LEVEL			{LogLevel::Debug};
+const Log::Level			APP_LOG_LEVEL			{Log::Level::Debug};
 const uvec2					WINDOW_SIZE				{1280, 768};
 const AntialiasingMode		AA_MODE					{AntialiasingMode::Msaa4X};
 const bool					CAPTURE_CURSOR			{false};

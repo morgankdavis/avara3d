@@ -48,7 +48,7 @@ int main(int argc, const char* argv[]) {
 	auto visualWorld = make_unique<VisualWorld>(*window);
 //	visualWorld->autoEnablesDefaultLighting(false);
 	auto backgroundColor = make_shared<Color>(u8vec3{109, 136, 164});
-	auto background = MaterialProperty(backgroundColor);
+	auto background = Material::Property(backgroundColor);
 	visualWorld->background(background); // TODO: is this copying?
 	visualWorld->willRenderCallback(bind(&WillRenderCallback, _1, _2, _3));
 	visualWorld->didRenderCallback(bind(&DidRenderCallback, _1, _2, _3));

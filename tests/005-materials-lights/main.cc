@@ -6,11 +6,9 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include <iostream>
 #include <memory>
 #include <vector>
 #include <utility>
-#include <vector>
 
 #include "a3d/a3d.h"
 #include "a3d/Math.h"
@@ -25,7 +23,7 @@ using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
-const LogLevel				APP_LOG_LEVEL		{LogLevel::Debug};
+const Log::Level			APP_LOG_LEVEL			{Log::Level::Debug};
 const uvec2					WINDOW_SIZE				{1280, 768};
 const bool					FULLSCREEN				{false};
 const bool					ENABLE_HIGH_DPI			{true};
