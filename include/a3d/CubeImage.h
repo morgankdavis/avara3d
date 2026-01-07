@@ -9,56 +9,40 @@
 #ifndef AVARA3D_CUBEIMAGE_H
 #define AVARA3D_CUBEIMAGE_H
 
-#include <filesystem>
+#include <array>
 #include <memory>
-
-//#include "a3d/render/material/Sampleable.h"
 
 namespace a3d {
 
 	class Image;
 
-	class CubeImage {//: public Sampleable {
+	class CubeImage {
 
 	public:
+		/// Public Types ///
+
+		enum class Face : uint8_t { XPos, XNeg, YPos, YNeg, ZPos, ZNeg };
+
 		/// Public Lifecycle Functions ///
 
-		CubeImage(std::unique_ptr<Image> posX,
-				  std::unique_ptr<Image> negX,
-				  std::unique_ptr<Image> posY,
-				  std::unique_ptr<Image> negY,
-				  std::unique_ptr<Image> posZ,
-				  std::unique_ptr<Image> negZ);
+		CubeImage(std::array<std::unique_ptr<Image>, 6> faces);
 
 		/// Public Member Functions ///
 
-		Image*		posX() const;
-		void 		posX(std::unique_ptr<Image> image);
-		
-		Image* 		negX() const;
-		void 		negX(std::unique_ptr<Image> image);
-		
-		Image* 		posY() const;
-		void 		posY(std::unique_ptr<Image> image);
-		
-		Image* 		negY() const;
-		void 		negY(std::unique_ptr<Image> image);
-		
-		Image* 		posZ() const;
-		void 		posZ(std::unique_ptr<Image> image);
-		
-		Image* 		negZ() const;
-		void 		negZ(std::unique_ptr<Image> image);
+		unsigned		width() const;
+		unsigned		height() const;
+		unsigned		bytesPerPixel() const;
+
+		Image* 			face(Face face) const;
 
 	private:
 		/// Private Member Variables ///
 
-		std::unique_ptr<Image>		_posX;
-		std::unique_ptr<Image>		_negX;
-		std::unique_ptr<Image>		_posY;
-		std::unique_ptr<Image>		_negY;
-		std::unique_ptr<Image>		_posZ;
-		std::unique_ptr<Image>		_negZ;
+		std::array<std::unique_ptr<Image>, 6> _faces;
+
+		unsigned 		_width;
+		unsigned 		_height;
+		unsigned 		_bytesPerPixel;
 	};
 }
 

@@ -87,10 +87,9 @@ static unsigned BufferTextureContents(const Texture& texture) {
 			if (!cubeImage) return;
 
 			Image* images[] = {
-					cubeImage->posX(), cubeImage->negX(),
-					cubeImage->posY(), cubeImage->negY(),
-					cubeImage->posZ(), cubeImage->negZ()
-			};
+					cubeImage->face(CubeImage::Face::XPos), cubeImage->face(CubeImage::Face::XNeg),
+					cubeImage->face(CubeImage::Face::YPos), cubeImage->face(CubeImage::Face::YNeg),
+					cubeImage->face(CubeImage::Face::ZPos), cubeImage->face(CubeImage::Face::ZNeg) };
 
 			GLenum sides[] = {
 					GL_TEXTURE_CUBE_MAP_POSITIVE_X,
@@ -98,8 +97,7 @@ static unsigned BufferTextureContents(const Texture& texture) {
 					GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
 					GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
 					GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
-					GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
-			};
+					GL_TEXTURE_CUBE_MAP_NEGATIVE_Z };
 
 			glGenTextures(1, (GLuint*)&glTextureHandle);
 			glBindTexture(GL_TEXTURE_CUBE_MAP, (GLuint)glTextureHandle);

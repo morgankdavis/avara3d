@@ -289,16 +289,18 @@ unique_ptr<CubeImage> a3d::util::filesystem::CubeImageNamed(const string& name) 
 }
 
 unique_ptr<CubeImage> a3d::util::filesystem::CubeImageNamed(const string& name,
-												 const string& type) {
+															const string& type) {
 
 	// panorama to cubemap: https://jaxry.github.io/panorama-to-cubemap/
 
-	return make_unique<CubeImage>(ImageNamed(name + "_posx", type, false, true),
-								  ImageNamed(name + "_negx", type, false, true),
-								  ImageNamed(name + "_posy", type, true, false),
-								  ImageNamed(name + "_negy", type, true, false),
-								  ImageNamed(name + "_posz", type, false, true),
-								  ImageNamed(name + "_negz", type, false, true));
+	return make_unique<CubeImage>(
+			std::array<unique_ptr<Image>, 6>{
+					ImageNamed(name + "_xpos", type, false, true),
+					ImageNamed(name + "_xneg", type, false, true),
+					ImageNamed(name + "_ypos", type, true,  false),
+					ImageNamed(name + "_yneg", type, true,  false),
+					ImageNamed(name + "_zpos", type, false, true),
+					ImageNamed(name + "_zneg", type, false, true) });
 }
 
 // *** scenes ***
