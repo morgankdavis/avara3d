@@ -762,8 +762,7 @@ shared_ptr<a3d::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset,
 
 				auto a3dLight = make_shared<PointLight>(string(light.name));
 				a3dLight->color(ColorFromGlTFColorArray(light.color));
-				a3dLight->attenuation(Attenuation{
-						.constant = 1.0f, .linear = 0.0f, .quadratic = 0.1f});
+				a3dLight->attenuation(Attenuation{.quadratic = 0.1f});
 				// TODO: range, intensity?
 				_lights[*lightIndex] = a3dLight;
 				return a3dLight;
@@ -772,8 +771,8 @@ shared_ptr<a3d::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset,
 
 				auto a3dLight = make_shared<SpotLight>(string(light.name));
 				a3dLight->color(ColorFromGlTFColorArray(light.color));
-				a3dLight->attenuation(Attenuation{
-					.constant = 1.0f, .linear = 0.0f, .quadratic = 0.1f});
+//				a3dLight->attenuation(Attenuation{
+//					.constant = 1.0f, .linear = 0.0f, .quadratic = 0.1f});
 				a3dLight->innerAngle(light.innerConeAngle.value());
 				a3dLight->outerAngle(light.outerConeAngle.value());
 				// TODO: range, intensity?

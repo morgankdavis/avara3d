@@ -78,8 +78,7 @@ int main(int argc, const char* argv[]) {
 
 		//auto pointLight = make_shared<Light>(LightType::Point, Color::White());
 		auto pointLight = make_shared<PointLight>(Color::White());
-		pointLight->attenuation(Attenuation{
-				.constant = 1.0f, .linear = 0.0f, .quadratic = 0.0001f});
+		pointLight->attenuation(Attenuation{.quadratic = 0.0001f});
 		auto pointLightNode = make_shared<Node>();
 		pointLightNode->light(pointLight);
 		scene->rootNode()->addChild(pointLightNode);
