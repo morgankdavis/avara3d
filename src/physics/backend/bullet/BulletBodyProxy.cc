@@ -14,7 +14,7 @@
 #include "a3d/mesh/ConvexDecomposer.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/physics/PhysicsBody.h"
-#include "a3d/physics/PhysicsShape.h"
+#include "a3d/physics/shape/PhysicsShape.h"
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/physics/backend/bullet/BulletMotionState.h"
 #include "a3d/physics/backend/bullet/BulletShapeProxy.h"

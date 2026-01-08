@@ -6,8 +6,8 @@
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_BITMASK_H
-#define AVARA3D_BITMASK_H
+#ifndef AVARA3D_UTIL_BITMASK_H
+#define AVARA3D_UTIL_BITMASK_H
 
 #include <type_traits>
 
@@ -107,4 +107,4 @@ namespace a3d {
 	constexpr E& operator^=(E& a, E b) noexcept { return a = (a ^ b); }
 }
 
-#endif //AVARA3D_BITMASK_H
+#endif //AVARA3D_UTIL_BITMASK_H

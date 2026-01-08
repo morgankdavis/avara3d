@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_BULLETMOTIONSTATE_H
-#define AVARA3D_BULLETMOTIONSTATE_H
+#ifndef AVARA3D_PHYSICS_BACKEND_BULLET_BULLETMOTIONSTATE_H
+#define AVARA3D_PHYSICS_BACKEND_BULLET_BULLETMOTIONSTATE_H
 
 #include <bullet/LinearMath/btMotionState.h>
 
@@ -39,4 +39,4 @@ namespace a3d {
 	};
 }
 
-#endif //AVARA3D_BULLETMOTIONSTATE_H
+#endif //AVARA3D_PHYSICS_BACKEND_BULLET_BULLETMOTIONSTATE_H

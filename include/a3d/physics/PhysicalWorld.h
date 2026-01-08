@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_PHYSICALWORLD_H
-#define AVARA3D_PHYSICALWORLD_H
+#ifndef AVARA3D_PHYSICS_PHYSICALWORLD_H
+#define AVARA3D_PHYSICS_PHYSICALWORLD_H
 
 #include <functional>
 #include <memory>
@@ -116,4 +116,4 @@ namespace a3d {
 	};
 }
 
-#endif /* AVARA3D_PHYSICALWORLD_H */
+#endif /* AVARA3D_PHYSICS_PHYSICALWORLD_H */

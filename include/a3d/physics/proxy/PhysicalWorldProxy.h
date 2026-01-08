@@ -6,13 +6,13 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_PHYSICALWORLDPROXY_H
-#define AVARA3D_PHYSICALWORLDPROXY_H
+#ifndef AVARA3D_PHYSICS_PROXY_PHYSICALWORLDPROXY_H
+#define AVARA3D_PHYSICS_PROXY_PHYSICALWORLDPROXY_H
 
 #include <memory>
 #include <vector>
 
-#include "a3d/profiling/FrameStats.h"
+#include "a3d/profile/FrameStats.h"
 #include "a3d/scene/Scene.h"
 
 namespace a3d {
@@ -53,4 +53,4 @@ namespace a3d {
 	};
 }
 
-#endif //AVARA3D_PHYSICALWORLDPROXY_H
+#endif //AVARA3D_PHYSICS_PROXY_PHYSICALWORLDPROXY_H

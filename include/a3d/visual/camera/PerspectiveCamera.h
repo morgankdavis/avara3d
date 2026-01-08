@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_PERSPECTIVECAMERA_H
-#define AVARA3D_PERSPECTIVECAMERA_H
+#ifndef AVARA3D_VISUAL_CAMERA_PERSPECTIVECAMERA_H
+#define AVARA3D_VISUAL_CAMERA_PERSPECTIVECAMERA_H
 
 #include "a3d/visual/camera/Camera.h"
 
@@ -56,4 +56,4 @@ namespace a3d {
 	};
 }
 
-#endif /* AVARA3D_PERSPECTIVECAMERA_H */
+#endif /* AVARA3D_VISUAL_CAMERA_PERSPECTIVECAMERA_H */

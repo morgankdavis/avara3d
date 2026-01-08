@@ -8,7 +8,7 @@
 
 #include "a3d/physics/backend/bullet/BulletStats.h"
 
-#include "a3d/physics/PhysicsShape.h"
+#include "a3d/physics/shape/PhysicsShape.h"
 
 using namespace a3d;
 using namespace std;

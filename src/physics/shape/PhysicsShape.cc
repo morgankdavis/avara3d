@@ -6,7 +6,7 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/physics/PhysicsShape.h"
+#include "a3d/physics/shape/PhysicsShape.h"
 
 #include <magic_enum/magic_enum.hpp>
 

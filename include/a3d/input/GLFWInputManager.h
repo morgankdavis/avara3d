@@ -6,8 +6,8 @@
 //  Copyright © 2024-2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_GLFWINPUTMANAGER_H
-#define AVARA3D_GLFWINPUTMANAGER_H
+#ifndef AVARA3D_INPUT_GLFWINPUTMANAGER_H
+#define AVARA3D_INPUT_GLFWINPUTMANAGER_H
 
 #include <memory>
 #include <set>
@@ -52,4 +52,4 @@ namespace a3d {
 	};
 }
 
-#endif /* AVARA3D_GLFWINPUTMANAGER_H */
+#endif /* AVARA3D_INPUT_GLFWINPUTMANAGER_H */

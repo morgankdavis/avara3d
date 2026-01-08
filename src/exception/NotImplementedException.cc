@@ -1,17 +1,17 @@
+////
+////  NotImplementedException.cc
+////  avara3d
+////
+////  Created by Morgan Davis on 5/6/25.
+////  Copyright © 2025 Morgan K Davis. All rights reserved.
+////
 //
-//  NotImplementedException.cc
-//  avara3d
+//#include "a3d/exception/NotImplementedException.h"
 //
-//  Created by Morgan Davis on 5/6/25.
-//  Copyright © 2025 Morgan K Davis. All rights reserved.
+//using namespace a3d;
+//using namespace std;
 //
-
-#include "a3d/exception/NotImplementedException.h"
-
-using namespace a3d;
-using namespace std;
-
-/// Internal Lifecycle Functions ///
-
-NotImplementedException::NotImplementedException(const string& what):
-		Exception{what} {}
+///// Internal Lifecycle Functions ///
+//
+//NotImplementedException::NotImplementedException(const string& what):
+//		Exception{what} {}

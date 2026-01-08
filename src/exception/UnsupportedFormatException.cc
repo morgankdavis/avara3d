@@ -1,17 +1,17 @@
+////
+////  UnsupportedFormatException.cc
+////  avara3d
+////
+////  Created by Morgan Davis on 1/21/24.
+////  Copyright © 2024 Morgan K Davis. All rights reserved.
+////
 //
-//  UnsupportedFormatException.cc
-//  avara3d
+//#include "a3d/exception/UnsupportedFormatException.h"
 //
-//  Created by Morgan Davis on 1/21/24.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//using namespace a3d;
+//using namespace std;
 //
-
-#include "a3d/exception/UnsupportedFormatException.h"
-
-using namespace a3d;
-using namespace std;
-
-/// Internal Lifecycle Functions ///
-
-UnsupportedFormatException::UnsupportedFormatException(const string& what):
-		Exception{what} {}
+///// Internal Lifecycle Functions ///
+//
+//UnsupportedFormatException::UnsupportedFormatException(const string& what):
+//		Exception{what} {}

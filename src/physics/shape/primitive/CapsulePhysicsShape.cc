@@ -6,7 +6,7 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/physics/shape_primitive/CapsulePhysicsShape.h"
+#include "a3d/physics/shape/primitive/CapsulePhysicsShape.h"
 
 #include "a3d/exception/Exception.h"
 #include "a3d/physics/proxy/PhysicsShapeProxy.h"

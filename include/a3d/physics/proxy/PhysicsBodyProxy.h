@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_PHYSICSBODYPROXY_H
-#define AVARA3D_PHYSICSBODYPROXY_H
+#ifndef AVARA3D_PHYSICS_PROXY_PHYSICSBODYPROXY_H
+#define AVARA3D_PHYSICS_PROXY_PHYSICSBODYPROXY_H
 
 #include "a3d/physics/PhysicsBody.h"
 
@@ -121,4 +121,4 @@ namespace a3d {
 	};
 }
 
-#endif //AVARA3D_PHYSICSBODYPROXY_H
+#endif //AVARA3D_PHYSICS_PROXY_PHYSICSBODYPROXY_H

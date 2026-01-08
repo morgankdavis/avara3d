@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_ORTHOGRAPHICCAMERA_H
-#define AVARA3D_ORTHOGRAPHICCAMERA_H
+#ifndef AVARA3D_VISUAL_CAMERA_ORTHOGRAPHICCAMERA_H
+#define AVARA3D_VISUAL_CAMERA_ORTHOGRAPHICCAMERA_H
 
 #include "a3d/mesh/AABB.h"
 #include "a3d/visual/camera/Camera.h"
@@ -45,4 +45,4 @@ namespace a3d {
 	};
 }
 
-#endif /* AVARA3D_ORTHOGRAPHICCAMERA_H */
+#endif /* AVARA3D_VISUAL_CAMERA_ORTHOGRAPHICCAMERA_H */

@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_BULLETWORLDPROXY_H
-#define AVARA3D_BULLETWORLDPROXY_H
+#ifndef AVARA3D_PHYSICS_BACKEND_BULLET_BULLETWORLDPROXY_H
+#define AVARA3D_PHYSICS_BACKEND_BULLET_BULLETWORLDPROXY_H
 
 #include <memory>
 #include <mutex>
@@ -96,4 +96,4 @@ namespace a3d {
 	};
 }
 
-#endif //AVARA3D_BULLETWORLDPROXY_H
+#endif //AVARA3D_PHYSICS_BACKEND_BULLET_BULLETWORLDPROXY_H

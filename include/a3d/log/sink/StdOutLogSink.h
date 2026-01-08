@@ -6,8 +6,8 @@
 //  Copyright © 2024-2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_STDOUTLOGSINK_H
-#define AVARA3D_STDOUTLOGSINK_H
+#ifndef AVARA3D_LOG_SINK_STDOUTLOGSINK_H
+#define AVARA3D_LOG_SINK_STDOUTLOGSINK_H
 
 #include <cstdio>
 #include <string>
@@ -34,4 +34,4 @@ namespace a3d {
 	};
 }
 
-#endif //AVARA3D_STDOUTLOGSINK_H
+#endif //AVARA3D_LOG_SINK_STDOUTLOGSINK_H

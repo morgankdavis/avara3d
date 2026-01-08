@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_SAMPLER_H
-#define AVARA3D_SAMPLER_H
+#ifndef AVARA3D_VISUAL_MATERIAL_SAMPLER_H
+#define AVARA3D_VISUAL_MATERIAL_SAMPLER_H
 
 #include <climits>
 
@@ -106,4 +106,4 @@ namespace a3d {
 	}
 }
 
-#endif //AVARA3D_SAMPLER_H
+#endif //AVARA3D_VISUAL_MATERIAL_SAMPLER_H

@@ -6,8 +6,8 @@
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_AABB_H
-#define AVARA3D_AABB_H
+#ifndef AVARA3D_MESH_AABB_H
+#define AVARA3D_MESH_AABB_H
 
 #include "a3d/Math.h"
 
@@ -46,4 +46,4 @@ namespace a3d {
 	};
 }
 
-#endif //AVARA3D_AABB_H
+#endif //AVARA3D_MESH_AABB_H

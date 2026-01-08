@@ -1,25 +1,25 @@
 //
-//  CapsulePhysicsShape.h
+//  ConePhysicsShape.h
 //  avara3d
 //
 //  Created by Morgan Davis on 11/19/23.
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_CAPSULEPHYSICSSHAPE_H
-#define AVARA3D_CAPSULEPHYSICSSHAPE_H
+#ifndef AVARA3D_PHYSICS_SHAPE_PRIMITIVE_CONEPHYSICSSHAPE_H
+#define AVARA3D_PHYSICS_SHAPE_PRIMITIVE_CONEPHYSICSSHAPE_H
 
-#include "a3d/physics/PhysicsShape.h"
+#include "a3d/physics/shape/PhysicsShape.h"
 
 namespace a3d {
 
-	class CapsulePhysicsShape : public PhysicsShape {
+	class ConePhysicsShape : public PhysicsShape {
 
 	public:
 		/// Public Lifecycle Functions ///
 
-		CapsulePhysicsShape(float radius, float height);
-		~CapsulePhysicsShape();
+		ConePhysicsShape(float radius, float height);
+		~ConePhysicsShape();
 
 		/// Public Member Functions ///
 
@@ -42,4 +42,4 @@ namespace a3d {
 	};
 }
 
-#endif //AVARA3D_CAPSULEPHYSICSSHAPE_H
+#endif //AVARA3D_PHYSICS_SHAPE_PRIMITIVE_CONEPHYSICSSHAPE_H

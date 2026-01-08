@@ -1,25 +1,25 @@
 //
-//  PlanePhysicsShape.h
+//  BoxPhysicsShape.h
 //  avara3d
 //
 //  Created by Morgan Davis on 11/19/23.
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_PLANEPHYSICSSHAPE_H
-#define AVARA3D_PLANEPHYSICSSHAPE_H
+#ifndef AVARA3D_PHYSICS_SHAPE_PRIMITIVE_BOXPHYSICSSHAPE_H
+#define AVARA3D_PHYSICS_SHAPE_PRIMITIVE_BOXPHYSICSSHAPE_H
 
-#include "a3d/physics/PhysicsShape.h"
+#include "a3d/physics/shape/PhysicsShape.h"
 
 namespace a3d {
 
-	class PlanePhysicsShape : public PhysicsShape {
+	class BoxPhysicsShape : public PhysicsShape {
 
 	public:
 		/// Public Lifecycle Functions ///
 
-		PlanePhysicsShape(float width, float height);
-		~PlanePhysicsShape();
+		BoxPhysicsShape(float width, float height, float length);
+		~BoxPhysicsShape();
 
 		/// Public Member Functions ///
 
@@ -28,6 +28,9 @@ namespace a3d {
 
 		float 					height() const;
 		void					height(float height);
+
+		float 					length() const;
+		void					length(float length);
 
 		/// PhysicsShape Public Member Functions ///
 
@@ -39,7 +42,8 @@ namespace a3d {
 
 		float 					_width;
 		float 					_height;
+		float 					_length;
 	};
 }
 
-#endif //AVARA3D_PLANEPHYSICSSHAPE_H
+#endif //AVARA3D_PHYSICS_SHAPE_PRIMITIVE_BOXPHYSICSSHAPE_H

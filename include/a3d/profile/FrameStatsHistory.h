@@ -6,14 +6,14 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_PROFILING_FRAMESTATSHISTORY_H
-#define AVARA3D_PROFILING_FRAMESTATSHISTORY_H
+#ifndef AVARA3D_PROFILE_FRAMESTATSHISTORY_H
+#define AVARA3D_PROFILE_FRAMESTATSHISTORY_H
 
 #include <chrono>
 #include <deque>
 #include <tuple>
 
-#include "a3d/profiling/FrameStats.h"
+#include "a3d/profile/FrameStats.h"
 
 namespace a3d {
 
@@ -51,4 +51,4 @@ namespace a3d {
 	};
 }
 
-#endif //AVARA3D_PROFILING_FRAMESTATSHISTORY_H
+#endif //AVARA3D_PROFILE_FRAMESTATSHISTORY_H

@@ -14,7 +14,7 @@
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsContact.h"
 #include "a3d/physics/backend/bullet/BulletWorldProxy.h"
-#include "a3d/profiling/Profiling.h"
+#include "a3d/profile/Profile.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 #include "a3d/util/flow.h"

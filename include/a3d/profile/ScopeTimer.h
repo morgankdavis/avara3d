@@ -6,12 +6,12 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_PROFILING_SCOPETIMER_H
-#define AVARA3D_PROFILING_SCOPETIMER_H
+#ifndef AVARA3D_PROFILE_SCOPETIMER_H
+#define AVARA3D_PROFILE_SCOPETIMER_H
 
 #include <chrono>
 
-#include "a3d/profiling/Profiler.h"
+#include "a3d/profile/Profiler.h"
 
 namespace a3d {
 
@@ -34,4 +34,4 @@ namespace a3d {
 	};
 }
 
-#endif //AVARA3D_PROFILING_SCOPETIMER_H
+#endif //AVARA3D_PROFILE_SCOPETIMER_H

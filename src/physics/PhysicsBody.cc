@@ -11,7 +11,7 @@
 #include <magic_enum/magic_enum.hpp>
 
 #include "a3d/log/Log.h"
-#include "a3d/physics/PhysicsShape.h"
+#include "a3d/physics/shape/PhysicsShape.h"
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/physics/backend/bullet/BulletBodyProxy.h"
 #include "a3d/physics/backend/bullet/BulletWorldProxy.h"

@@ -6,10 +6,10 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_SPHEREPHYSICSSHAPE_H
-#define AVARA3D_SPHEREPHYSICSSHAPE_H
+#ifndef AVARA3D_PHYSICS_SHAPE_PRIMITIVE_SPHEREPHYSICSSHAPE_H
+#define AVARA3D_PHYSICS_SHAPE_PRIMITIVE_SPHEREPHYSICSSHAPE_H
 
-#include "a3d/physics/PhysicsShape.h"
+#include "a3d/physics/shape/PhysicsShape.h"
 
 namespace a3d {
 
@@ -38,4 +38,4 @@ namespace a3d {
 	};
 }
 
-#endif //AVARA3D_SPHEREPHYSICSSHAPE_H
+#endif //AVARA3D_PHYSICS_SHAPE_PRIMITIVE_SPHEREPHYSICSSHAPE_H

@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_BULLETUTILITIES_H
-#define AVARA3D_BULLETUTILITIES_H
+#ifndef AVARA3D_PHYSICS_BACKEND_BULLET_BULLETUTILITIES_H
+#define AVARA3D_PHYSICS_BACKEND_BULLET_BULLETUTILITIES_H
 
 #include "a3d/Math.h"
 
@@ -29,4 +29,4 @@ namespace a3d {
 //	btTransform&	BTIdentityTransform();
 }
 
-#endif //AVARA3D_BULLETUTILITIES_H
+#endif //AVARA3D_PHYSICS_BACKEND_BULLET_BULLETUTILITIES_H

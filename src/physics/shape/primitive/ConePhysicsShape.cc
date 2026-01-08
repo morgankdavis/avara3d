@@ -6,7 +6,7 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/physics/shape_primitive/ConePhysicsShape.h"
+#include "a3d/physics/shape/primitive/ConePhysicsShape.h"
 
 #include "a3d/exception/Exception.h"
 

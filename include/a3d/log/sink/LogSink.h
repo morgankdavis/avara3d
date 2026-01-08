@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_LOGSINK_H
-#define AVARA3D_LOGSINK_H
+#ifndef AVARA3D_LOG_SINK_LOGSINK_H
+#define AVARA3D_LOG_SINK_LOGSINK_H
 
 #include <string>
 
@@ -30,4 +30,4 @@ namespace a3d {
 	};
 }
 
-#endif //AVARA3D_LOGSINK_H
+#endif //AVARA3D_LOG_SINK_LOGSINK_H

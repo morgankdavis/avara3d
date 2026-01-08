@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_SCENE_H
-#define AVARA3D_SCENE_H
+#ifndef AVARA3D_SCENE_SCENE_H
+#define AVARA3D_SCENE_SCENE_H
 
 #include <filesystem>
 #include <functional>
@@ -18,8 +18,8 @@
 #include <vector>
 
 #include "a3d/Math.h"
-#include "a3d/profiling/FrameStatsHistory.h"
-#include "a3d/profiling/Profiler.h"
+#include "a3d/profile/FrameStatsHistory.h"
+#include "a3d/profile/Profiler.h"
 #include "a3d/util/bitmask.h"
 
 namespace a3d {
@@ -141,4 +141,4 @@ namespace a3d {
 	}
 }
 
-#endif /* AVARA3D_SCENE_H */
+#endif /* AVARA3D_SCENE_SCENE_H */

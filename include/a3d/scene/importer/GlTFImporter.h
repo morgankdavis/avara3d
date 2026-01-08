@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_GLTFIMPORTER_H
-#define AVARA3D_GLTFIMPORTER_H
+#ifndef AVARA3D_SCENE_IMPORTER_GLTFIMPORTER_H
+#define AVARA3D_SCENE_IMPORTER_GLTFIMPORTER_H
 
 #include <array>
 #include <cstddef>
@@ -93,4 +93,4 @@ namespace a3d {
 	};
 }
 
-#endif //AVARA3D_GLTFIMPORTER_H
+#endif //AVARA3D_SCENE_IMPORTER_GLTFIMPORTER_H

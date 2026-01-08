@@ -6,11 +6,11 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/profiling/ScopeTimer.h"
+#include "a3d/profile/ScopeTimer.h"
 
 #include <chrono>
 
-#include "a3d/profiling/Profiler.h"
+#include "a3d/profile/Profiler.h"
 
 using namespace a3d;
 using namespace std;

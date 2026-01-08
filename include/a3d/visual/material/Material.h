@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_MATERIAL_H
-#define AVARA3D_MATERIAL_H
+#ifndef AVARA3D_VISUAL_MATERIAL_MATERIAL_H
+#define AVARA3D_VISUAL_MATERIAL_MATERIAL_H
 
 #include <memory>
 #include <optional>
@@ -165,4 +165,4 @@ namespace a3d {
 	}
 }
 
-#endif /* AVARA3D_MATERIAL_H */
+#endif /* AVARA3D_VISUAL_MATERIAL_MATERIAL_H */

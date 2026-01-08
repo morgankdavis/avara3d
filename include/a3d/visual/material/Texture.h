@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_TEXTURE_H
-#define AVARA3D_TEXTURE_H
+#ifndef AVARA3D_VISUAL_MATERIAL_TEXTURE_H
+#define AVARA3D_VISUAL_MATERIAL_TEXTURE_H
 
 #include <atomic>
 #include <memory>
@@ -83,4 +83,4 @@ namespace a3d {
 	}
 }
 
-#endif //AVARA3D_TEXTURE_H
+#endif //AVARA3D_VISUAL_MATERIAL_TEXTURE_H

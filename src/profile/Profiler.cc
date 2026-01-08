@@ -6,9 +6,9 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/profiling/Profiler.h"
+#include "a3d/profile/Profiler.h"
 
-#include "magic_enum/magic_enum.hpp"
+#include <magic_enum/magic_enum.hpp>
 
 #include "a3d/log/Log.h"
 

@@ -23,7 +23,7 @@
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicalWorld.h"
-#include "a3d/profiling/Profiling.h"
+#include "a3d/profile/Profile.h"
 #include "a3d/render/context/RenderContext.h"
 #include "a3d/render/Renderer.h"
 #include "a3d/scene/Node.h"

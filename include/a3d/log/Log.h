@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef A3D_LOG_H
-#define A3D_LOG_H
+#ifndef A3D_LOG_LOG_H
+#define A3D_LOG_LOG_H
 
 #include <format>
 #include <memory>
@@ -212,4 +212,4 @@ namespace a3d {
 
 } // namespace a3d
 
-#endif // A3D_LOG_H
+#endif // A3D_LOG_LOG_H

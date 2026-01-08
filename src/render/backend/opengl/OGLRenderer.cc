@@ -36,7 +36,7 @@
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/mesh/primitive/Box.h"
-#include "a3d/profiling/FrameStats.h"
+#include "a3d/profile/FrameStats.h"
 #include "a3d/render/DrawPacket.h"
 #include "a3d/render/backend/opengl/OGLResourceCache.h"
 #include "a3d/render/backend/opengl/GLSLProgram.h"

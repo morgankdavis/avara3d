@@ -1,30 +1,30 @@
 //
-//  CylinderPhysicsShape.h
+//  PlanePhysicsShape.h
 //  avara3d
 //
 //  Created by Morgan Davis on 11/19/23.
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_CYLINDERPHYSICSSHAPE_H
-#define AVARA3D_CYLINDERPHYSICSSHAPE_H
+#ifndef AVARA3D_PHYSICS_SHAPE_PRIMITIVE_PLANEPHYSICSSHAPE_H
+#define AVARA3D_PHYSICS_SHAPE_PRIMITIVE_PLANEPHYSICSSHAPE_H
 
-#include "a3d/physics/PhysicsShape.h"
+#include "a3d/physics/shape/PhysicsShape.h"
 
 namespace a3d {
 
-	class CylinderPhysicsShape : public PhysicsShape {
+	class PlanePhysicsShape : public PhysicsShape {
 
 	public:
 		/// Public Lifecycle Functions ///
 
-		CylinderPhysicsShape(float radius, float height);
-		~CylinderPhysicsShape();
+		PlanePhysicsShape(float width, float height);
+		~PlanePhysicsShape();
 
 		/// Public Member Functions ///
 
-		float 					radius() const;
-		void					radius(float radius);
+		float 					width() const;
+		void					width(float width);
 
 		float 					height() const;
 		void					height(float height);
@@ -37,9 +37,9 @@ namespace a3d {
 	private:
 		/// Private Member Variables ///
 
-		float 					_radius;
+		float 					_width;
 		float 					_height;
 	};
 }
 
-#endif //AVARA3D_CYLINDERPHYSICSSHAPE_H
+#endif //AVARA3D_PHYSICS_SHAPE_PRIMITIVE_PLANEPHYSICSSHAPE_H

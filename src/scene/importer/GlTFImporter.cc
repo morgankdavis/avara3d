@@ -84,7 +84,7 @@ GlTFImporter::GlTFImporter(const filesystem::path& path,
 
 	auto extension = path.extension();
 	if (!(extension == ".gltf" || extension == ".glb")) {
-		throw UnsupportedFormatException(std::format("Unsupported format: {}", extension.string()));
+		throw std::runtime_error(std::format("Unsupported format: {}", extension.string()));
 	}
 }
 

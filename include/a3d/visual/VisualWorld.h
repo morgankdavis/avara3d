@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_VISUALWORLD_H
-#define AVARA3D_VISUALWORLD_H
+#ifndef AVARA3D_VISUAL_VISUALWORLD_H
+#define AVARA3D_VISUAL_VISUALWORLD_H
 
 #include <functional>
 #include <memory>
@@ -126,4 +126,4 @@ namespace a3d {
 	};
 }
 
-#endif //AVARA3D_VISUALWORLD_H
+#endif //AVARA3D_VISUAL_VISUALWORLD_H

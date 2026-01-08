@@ -6,7 +6,7 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/profiling/FrameStatsHistory.h"
+#include "a3d/profile/FrameStatsHistory.h"
 
 using namespace a3d;
 using namespace std;

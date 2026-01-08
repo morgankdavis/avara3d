@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_NODE_H
-#define AVARA3D_NODE_H
+#ifndef AVARA3D_SCENE_NODE_H
+#define AVARA3D_SCENE_NODE_H
 
 #include <map>
 #include <memory>
@@ -206,4 +206,4 @@ namespace a3d {
 	}
 }
 
-#endif /* AVARA3D_NODE_H */
+#endif /* AVARA3D_SCENE_NODE_H */

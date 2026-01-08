@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_POINTLIGHT_H
-#define AVARA3D_POINTLIGHT_H
+#ifndef AVARA3D_VISUAL_LIGHT_POINTLIGHT_H
+#define AVARA3D_VISUAL_LIGHT_POINTLIGHT_H
 
 #include <memory>
 #include <optional>
@@ -36,4 +36,4 @@ namespace a3d {
 	};
 }
 
-#endif /* AVARA3D_POINTLIGHT_H */
+#endif /* AVARA3D_VISUAL_LIGHT_POINTLIGHT_H */

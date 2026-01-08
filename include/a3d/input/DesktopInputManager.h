@@ -6,8 +6,8 @@
 //  Copyright © 2025 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_DESKTOPINPUTMANAGER_H
-#define AVARA3D_DESKTOPINPUTMANAGER_H
+#ifndef AVARA3D_INPUT_DESKTOPINPUTMANAGER_H
+#define AVARA3D_INPUT_DESKTOPINPUTMANAGER_H
 
 #include <unordered_set>
 
@@ -204,4 +204,4 @@ namespace a3d {
 	};
 }
 
-#endif //AVARA3D_DESKTOPINPUTMANAGER_H
+#endif //AVARA3D_INPUT_DESKTOPINPUTMANAGER_H

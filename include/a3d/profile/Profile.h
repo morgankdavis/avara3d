@@ -6,15 +6,15 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_PROFILING_PROFILING_H
-#define AVARA3D_PROFILING_PROFILING_H
+#ifndef AVARA3D_PROFILE_PROFILE_H
+#define AVARA3D_PROFILE_PROFILE_H
 
 #include <functional>
 #include <type_traits>
 #include <utility>
 
-#include "a3d/profiling/Profiler.h"
-#include "a3d/profiling/ScopeTimer.h"
+#include "a3d/profile/Profile.h"
+#include "a3d/profile/ScopeTimer.h"
 
 namespace a3d::prof {
 
@@ -27,4 +27,4 @@ namespace a3d::prof {
 	}
 }
 
-#endif // AVARA3D_PROFILING_PROFILING_H
+#endif // AVARA3D_PROFILE_PROFILE_H

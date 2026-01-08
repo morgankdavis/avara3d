@@ -6,8 +6,8 @@
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_PROFILING_FRAMESTATE_H
-#define AVARA3D_PROFILING_FRAMESTATE_H
+#ifndef AVARA3D_PROFILE_FRAMESTATE_H
+#define AVARA3D_PROFILE_FRAMESTATE_H
 
 #include <chrono>
 
@@ -37,4 +37,4 @@ namespace a3d {
 	};
 }
 
-#endif //AVARA3D_PROFILING_FRAMESTATE_H
+#endif //AVARA3D_PROFILE_FRAMESTATE_H
