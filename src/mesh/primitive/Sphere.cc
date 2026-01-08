@@ -12,6 +12,7 @@
 
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
+#include "a3d/mesh/PrimitiveTopology.h"
 #include "a3d/mesh/VertexFormats.h"
 #include "a3d/visual/material/Material.h"
 

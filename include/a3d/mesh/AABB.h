@@ -1,5 +1,5 @@
 //
-//  Types.h
+//  AABB.h
 //  avara3d
 //
 //  Created by Morgan Davis on 1/6/26.
@@ -15,35 +15,23 @@ namespace a3d {
 
 	struct AABB {
 
-		math::vec3 min;
-		math::vec3 max;
+		static AABB 		Zero();
+		static AABB 		Invalid();
+		static AABB 		Union(const AABB& a, const AABB& b);
+		static void 		Expand(AABB& a, const math::vec3& p);
+		static math::vec3 	Center(const AABB& a);
 
-		bool valid() const { return min.x <= max.x && min.y <= max.y && min.z <= max.z; }
+		bool 				valid() const;
 
-		static AABB Zero() {
-			return {{0,0,0}, {0,0,0}};
-		}
+		AABB&               operator|=(const AABB& b); // union
+		AABB&               operator|=(const math::vec3& p); // expand
 
-		static AABB Invalid() {
-			return {{1,1,1}, {-1,-1,-1}};
-		}
-
-		static AABB Union(const AABB& a, const AABB& b) {
-			if (!a.valid()) return b;
-			if (!b.valid()) return a;
-			return { math::min(a.min, b.min),
-					 math::max(a.max, b.max) };
-		}
-
-		static void Expand(AABB& a, const math::vec3& p) {
-			a.min = math::min(a.min, p);
-			a.max = math::max(a.max, p);
-		}
-
-		static math::vec3 Center(const AABB& a) {
-			return (a.min + a.max) * 0.5f;
-		}
+		math::vec3 			min;
+		math::vec3 			max;
 	};
+
+	AABB operator|(AABB a, const AABB& b);
+	AABB operator|(AABB a, const math::vec3& p);
 }
 
 #endif //AVARA3D_MESH_AABB_H

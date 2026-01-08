@@ -92,16 +92,14 @@ namespace a3d {
 
 		MeshId						id() const noexcept;
 
-		VertexLayout 				vertexLayout() const;
-
-		void 						burnTransform(const math::mat4& transform,
-												  bool normals);
-
 		AABB						localAABB() const;
 		AABB						worldAABB(const math::mat4& worldMat,
 											  bool vertfit) const;
 		math::vec3 					localExtent() const;
 		math::vec3 					worldExtent(const math::mat4& worldTransform) const;
+
+		void 						burnTransform(const math::mat4& transform,
+												  bool normals);
 
 		DirtyMask 					dirtyMask() const;
 		void 						dirtyMask(DirtyMask mask);
@@ -130,7 +128,7 @@ namespace a3d {
 	};
 
 	namespace util::bitmask {
-		template <> struct enable_ops<Mesh::ImportOptions> : std::true_type {};\
+		template <> struct enable_ops<Mesh::ImportOptions> : std::true_type {};
 		template <> struct enable_ops<Mesh::DirtyMask> : std::true_type {};
 	}
 }

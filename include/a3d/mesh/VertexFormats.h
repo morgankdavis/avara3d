@@ -10,6 +10,7 @@
 #define AVARA3D_MESH_VERTEXFORMATS_H
 
 #include "a3d/Math.h"
+#include "a3d/mesh/VertexLayout.h"
 
 namespace a3d {
 
@@ -24,10 +25,13 @@ namespace a3d {
 		math::vec3 color;
 	};
 
-// struct VertexPN { vec3 position; vec3 normal; };
-// struct VertexPT { vec3 position; vec2 texCoord0; };
-// struct VertexPNTT { ... tangent ... };
-
+//	inline constexpr uint16_t VertexStride(a3d::VertexLayout layout) {
+//		switch (layout) {
+//			case a3d::VertexLayout::PNT: 	return sizeof(VertexPNT);
+//			case a3d::VertexLayout::PC:  	return sizeof(VertexPC);
+//			default:                		return 0;
+//		}
+//	}
 }
 
 #endif //AVARA3D_MESH_VERTEXFORMATS_H

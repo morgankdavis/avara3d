@@ -23,6 +23,8 @@ namespace a3d {
 	class MeshElement;
 	class Texture;
 
+	/// Internal Types ///
+
 	struct OGLPipeline {
 		PipelineKey 	key =		{};
 		gl::uint_t		program = 	0;
@@ -53,6 +55,7 @@ namespace a3d {
 	class OGLResourceCache {
 
 	public:
+		/// Internal Member Functions ///
 
 		PipelineHandle 						ensurePipeline(const PipelineKey& key);
 		const OGLPipeline& 					pipeline(PipelineHandle h) const;
@@ -61,6 +64,7 @@ namespace a3d {
 		gl::uint_t 							ensureTexture(Texture& texture);
 
 	private:
+		/// Private Member Variables ///
 
 		std::unordered_map<
 				PipelineKey,

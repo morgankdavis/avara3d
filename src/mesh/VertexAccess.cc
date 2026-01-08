@@ -32,7 +32,7 @@ const VertexAttribDesc* VertexAccess::FindAttrib(const VertexLayoutDesc& desc,
 const VertexAttribDesc* VertexAccess::GetPositionAttribF32x3(VertexLayout layout) {
 	const VertexLayoutDesc& d = GetVertexLayoutDesc(layout);
 	const VertexAttribDesc* posA = FindAttrib(d, VertexSemantic::Position);
-	A3D_ASSERT(posA && posA->format == VertexFormat::F32x3);
+	A3D_ASSERT(posA && posA->format == VertexAttribFormat::F32x3);
 	return posA;
 }
 
@@ -47,25 +47,41 @@ void VertexAccess::WriteVec3(std::byte* base, uint16_t offset, const math::vec3&
 	memcpy(base + offset, tmp, sizeof(tmp));
 }
 
-optional<VertexStreamView> VertexAccess::GetStreamView(const MeshElement& element,
-													   VertexSemantic semantic,
-													   VertexFormat expectedFormat) {
+std::optional<VertexStreamView> VertexAccess::GetStreamView(const MeshElement& element,
+															VertexSemantic semantic,
+															VertexAttribFormat expectedFormat) {
 
 	if (element.vertexCount() == 0) return std::nullopt;
 
-	const VertexLayoutDesc& d = GetVertexLayoutDesc(element.vertexLayout());
+	const auto vb = element.vertexBytes();
+	if (vb.empty()) return std::nullopt;
+
+	const VertexLayout layout = element.vertexLayout();
+	const VertexLayoutDesc& d = GetVertexLayoutDesc(layout);
+	if (d.stride == 0) return std::nullopt;
+
+	// Invariant: element stride must match the canonical layout stride
+	A3D_ASSERT(element.vertexStride() == d.stride);
+	if (element.vertexStride() != d.stride) return std::nullopt;
+
+	const std::size_t expectedSize =
+			std::size_t(element.vertexCount()) * std::size_t(d.stride);
+
+	A3D_ASSERT(vb.size() == expectedSize);
+	if (vb.size() != expectedSize) return std::nullopt;
+
 	const VertexAttribDesc* a = FindAttrib(d, semantic);
 	if (!a || a->format != expectedFormat) return std::nullopt;
 
 	VertexStreamView out;
-	out.base   = element.vertexBytes().data();
-	out.stride = element.vertexStride();
+	out.base   = vb.data();
 	out.count  = element.vertexCount();
 	out.offset = a->offset;
+	out.layout = layout;
 
 	return out;
 }
 
 optional<VertexStreamView> VertexAccess::GetPositionStreamView(const MeshElement& element) {
-	return GetStreamView(element, VertexSemantic::Position, VertexFormat::F32x3);
+	return GetStreamView(element, VertexSemantic::Position, VertexAttribFormat::F32x3);
 }

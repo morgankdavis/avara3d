@@ -13,41 +13,18 @@
 using namespace a3d;
 using namespace std;
 
-//uint32_t IndexStreamView::stride() const {
-//	switch (format) {
-//		case IndexFormat::U16: return 2;
-//		case IndexFormat::U32: return 4;
-//		default: return 0;
-//	}
-//}
-
-
-//uint32_t MutableIndexStreamView::stride() const {
-//	switch (format) {
-//		case IndexFormat::U16: return 2;
-//		case IndexFormat::U32: return 4;
-//		default: return 0;
-//	}
-//}
-
-std::optional<IndexStreamView> IndexAccess::GetIndexStreamView(const MeshElement& element) {
+optional<IndexStreamView> IndexAccess::GetIndexStreamView(const MeshElement& element) {
 	const auto ib = element.indexBytes();
 	const uint32_t count = element.indexCount();
 	const IndexFormat fmt = element.indexFormat();
 
 	if (count == 0 || ib.empty() || fmt == IndexFormat::None) return std::nullopt;
 
-	const uint16_t s =
-			(fmt == IndexFormat::U16) ? uint16_t(2) :
-			(fmt == IndexFormat::U32) ? uint16_t(4) : uint16_t(0);
-
-	if (s == 0) return std::nullopt;
-	if (ib.size() != size_t(count) * size_t(s)) return std::nullopt;
-
-	return IndexStreamView{ ib.data(), s, count, fmt };
+	return IndexStreamView{ ib.data(), count, fmt };
 }
 
-std::optional<IndexStreamView> IndexAccess::GetIndexStreamView(const MeshElement& element, IndexFormat expectedFormat) {
+optional<IndexStreamView> IndexAccess::GetIndexStreamView(const MeshElement& element,
+														  IndexFormat expectedFormat) {
 
 	auto vOpt = GetIndexStreamView(element);
 	if (!vOpt) return std::nullopt;
@@ -56,24 +33,6 @@ std::optional<IndexStreamView> IndexAccess::GetIndexStreamView(const MeshElement
 	return *vOpt;
 }
 
-//std::optional<MutableIndexStreamView> IndexAccess::GetMutableIndexStreamView(MeshElement& element) {
-//	auto ib = element.indexBytesMutable(); // whatever you call it
-//	const uint32_t count = element.indexCount();
-//	const IndexFormat fmt = element.indexFormat();
-//
-//	if (count == 0 || ib.empty() || fmt == IndexFormat::None) return std::nullopt;
-//
-//	const uint32_t stride =
-//			(fmt == IndexFormat::U16) ? 2u :
-//			(fmt == IndexFormat::U32) ? 4u : 0u;
-//
-//	if (stride == 0) return std::nullopt;
-//	if (ib.size() != size_t(count) * size_t(stride)) return std::nullopt;
-//
-//	return MutableIndexStreamView{ ib.data(), count, fmt };
-//}
-
-// Read/write as u32 so callers don’t branch on format
 uint32_t IndexAccess::ReadIndexU32(const IndexStreamView& v, uint32_t i) {
 
 	if (!v.base) return 0;
@@ -81,81 +40,87 @@ uint32_t IndexAccess::ReadIndexU32(const IndexStreamView& v, uint32_t i) {
 
 	// format/stride consistency checks
 	if (v.format == IndexFormat::U16) {
-		if (v.stride != 2) return 0;
-	} else if (v.format == IndexFormat::U32) {
-		if (v.stride != 4) return 0;
-	} else {
+		if (IndexStride(v.format) != 2) return 0;
+	}
+	else if (v.format == IndexFormat::U32) {
+		if (IndexStride(v.format) != 4) return 0;
+	}
+	else {
 		return 0;
 	}
 
-	const std::byte* p = v.base + size_t(i) * size_t(v.stride);
+	const std::byte* p = v.base + size_t(i) * size_t(IndexStride(v.format));
 
 	if (v.format == IndexFormat::U16) {
 		uint16_t x = 0;
-		std::memcpy(&x, p, sizeof(x));
+		memcpy(&x, p, sizeof(x));
 		return (uint32_t)x;
 	}
 
 	uint32_t x = 0;
-	std::memcpy(&x, p, sizeof(x));
+	memcpy(&x, p, sizeof(x));
 	return x;
 }
 
-
-//void IndexAccess::WriteIndexU32(const MutableIndexStreamView& v, uint32_t i, uint32_t value) {
-//	const uint32_t s = v.stride();
-//	if (!v.base || s == 0 || i >= v.count) return;
-//
-//	std::byte* p = v.base + size_t(i) * size_t(s);
-//
-//	if (v.format == IndexFormat::U16) {
-//		A3D_ASSERT(value <= 0xFFFFu);
-//		const uint16_t x = (uint16_t)value;
-//		std::memcpy(p, &x, sizeof(x));
-//	}
-//
-//	if (v.format == IndexFormat::U16) {
-//		const uint16_t x = (uint16_t)value; // caller must ensure range
-//		std::memcpy(p, &x, sizeof(x));
-//	} else { // U32
-//		const uint32_t x = value;
-//		std::memcpy(p, &x, sizeof(x));
-//	}
-//}
-
-// Convenience: expand to U32 vector (useful for libs like VHACD, meshopt, etc.)
 void IndexAccess::ExpandToU32(const IndexStreamView& v, std::vector<uint32_t>& out) {
 	out.clear();
+
+	if (!v.base || v.count == 0) return;
+
+	const uint16_t expectedStride = IndexStride(v.format);
+	if (expectedStride == 0) return;
+
+	// keep the view honest (GetIndexStreamView should already guarantee this)
+	A3D_ASSERT(IndexStride(v.format) == expectedStride);
+	if (IndexStride(v.format) != expectedStride) return;
+
 	out.reserve(v.count);
+
+	const std::byte* p = v.base;
 
 	if (v.format == IndexFormat::U16) {
 		for (uint32_t i = 0; i < v.count; ++i) {
-			uint16_t x;
-			std::memcpy(&x, v.base + size_t(i) * 2u, 2u);
-			out.push_back((uint32_t)x);
+			uint16_t x = 0;
+			memcpy(&x, p + size_t(i) * size_t(IndexStride(v.format)), sizeof(x));
+			out.push_back(static_cast<uint32_t>(x));
 		}
-	} else { // U32
-		for (uint32_t i = 0; i < v.count; ++i) {
-			uint32_t x;
-			std::memcpy(&x, v.base + size_t(i) * 4u, 4u);
-			out.push_back(x);
-		}
-	}
-}
-
-// Expand indices to U32. If mesh is non-indexed, generate 0..vertexCount-1.
-// Assumes triangles (so vertexCount must be multiple of 3 for non-indexed).
-void IndexAccess::GetTrianglesU32(const MeshElement& element, std::vector<uint32_t>& out) {
-	out.clear();
-
-	auto ivOpt = GetIndexStreamView(element);
-	if (ivOpt) {
-		ExpandToU32(*ivOpt, out);
 		return;
 	}
 
-	// Non-indexed fallback (drawArrays-style meshes)
+	if (v.format == IndexFormat::U32) {
+		for (uint32_t i = 0; i < v.count; ++i) {
+			uint32_t x = 0;
+			memcpy(&x, p + size_t(i) * size_t(IndexStride(v.format)), sizeof(x));
+			out.push_back(x);
+		}
+		return;
+	}
+
+	// IndexFormat::None or unknown
+}
+
+
+void IndexAccess::GetTrianglesU32(const MeshElement& element, std::vector<uint32_t>& out) {
+	out.clear();
+
+	// this helper is triangles-only by definition.
+	A3D_ASSERT(element.topology() == PrimitiveTopology::Triangles);
+	if (element.topology() != PrimitiveTopology::Triangles) return;
+
+	if (auto ivOpt = GetIndexStreamView(element)) {
+		// indexed triangles
+		const auto v = *ivOpt;
+
+		A3D_ASSERT((v.count % 3u) == 0u);
+		if ((v.count % 3u) != 0u) return;
+
+		ExpandToU32(v, out);
+		return;
+	}
+
+	// N\non-indexed fallback (drawArrays-style)
 	const uint32_t vcount = element.vertexCount();
+
 	A3D_ASSERT((vcount % 3u) == 0u);
 	if ((vcount % 3u) != 0u) return;
 

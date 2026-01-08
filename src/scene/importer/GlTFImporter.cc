@@ -25,8 +25,9 @@
 #include "a3d/Image.h"
 #include "a3d/log/Log.h"
 #include "a3d/mesh/Mesh.h"
-#include "a3d/mesh/IndexTypes.h"
+#include "a3d/mesh/IndexFormats.h"
 #include "a3d/mesh/MeshElement.h"
+#include "a3d/mesh/PrimitiveTopology.h"
 #include "a3d/mesh/VertexFormats.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
@@ -45,24 +46,18 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Private Typees ///
-
-//struct ImportedMeshElement final : a3d::MeshElement {
-//	ImportedMeshElement() : a3d::MeshElement() {}
-//	void finalize() { genLocalAABB(); }
-//};
-
 /// Private Static Non-Member Prototypes ///
 
-static fastgltf::Options GlTFOptionsFromImportOptions(Scene::ImportOptions options);
-static std::span<const byte> BytesFromDataSource(const fastgltf::DataSource& src);
-static std::span<const byte> BytesFromBufferView(const fastgltf::Asset& asset, size_t bufferViewIndex);
-static mat4 TransformFromGlTFNode(fastgltf::Node& node);
-static shared_ptr<a3d::Color> ColorFromGlTFColorArray(const fastgltf::math::nvec3& v);
-static shared_ptr<a3d::Color> ColorFromGlTFColorArray(const fastgltf::math::nvec4& v);
-static void ReadIndicesU32(const fastgltf::Asset& asset,
-						   const fastgltf::Accessor& idxAccessor,
-						   vector<uint32_t>& out);
+static fastgltf::Options 		GlTFOptionsFromImportOptions(Scene::ImportOptions options);
+static std::span<const byte> 	BytesFromDataSource(const fastgltf::DataSource& src);
+static std::span<const byte> 	BytesFromBufferView(const fastgltf::Asset& asset,
+													 size_t bufferViewIndex);
+static mat4 					TransformFromGlTFNode(fastgltf::Node& node);
+static shared_ptr<a3d::Color> 	ColorFromGlTFColorArray(const fastgltf::math::nvec3& v);
+static shared_ptr<a3d::Color> 	ColorFromGlTFColorArray(const fastgltf::math::nvec4& v);
+static void 					ReadIndicesU32(const fastgltf::Asset& asset,
+											  const fastgltf::Accessor& idxAccessor,
+											  vector<uint32_t>& out);
 
 /// Internal Lifecycle Functions ///
 
@@ -204,7 +199,8 @@ bool GlTFImporter::parse() {
 		}
 
 		_asset = std::move(asset.get());
-		_parsed = true; // <-- IMPORTANT
+		_parsed = true;
+
 		log::i()("Parsed glTF. Time: {}", util::chrono::Time() - startTime);
 	}
 
@@ -270,7 +266,6 @@ shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlTFMeshIndex(fastgltf::Asset& asset
 			auto material = ((_options & Scene::ImportOptions::ImportMaterials) != Scene::ImportOptions::None)
 							? materialFromGlTFPrimitive(asset, primitive)
 							: Material::DefaultMaterial();
-//							: make_shared<Material>();
 			if (material) materials.push_back(material);
 		}
 
@@ -682,9 +677,6 @@ shared_ptr<a3d::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset
 			auto a3dImage = std::visit(fastgltf::visitor{
 					[&](const fastgltf::sources::Vector& v) -> std::shared_ptr<a3d::Image> {
 						auto bytes = std::span<const std::byte>(v.bytes.data(), v.bytes.size());
-//						auto a3dBuffer = std::make_unique<a3d::Buffer>(
-//								const_cast<std::byte*>(bytes.data()), bytes.size()); // ideally make Buffer accept const
-//						return std::make_shared<a3d::Image>(std::move(a3dBuffer), false);
 						a3d::Buffer buf(bytes.data(), bytes.size());
 						return std::make_shared<a3d::Image>(buf, false, false);
 					},
@@ -694,30 +686,20 @@ shared_ptr<a3d::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset
 							log::w()("Unexpected/empty BufferView image data.");
 							return nullptr;
 						}
-//						auto a3dBuffer = std::make_unique<a3d::Buffer>(
-//								const_cast<std::byte*>(bytes.data()), bytes.size());
-//						return std::make_shared<a3d::Image>(std::move(a3dBuffer), false);
 						a3d::Buffer buf(bytes.data(), bytes.size());
 						return std::make_shared<a3d::Image>(buf, false, false);
 					},
 					[&](const fastgltf::sources::Array& a) -> std::shared_ptr<a3d::Image> {
 						auto bytes = std::span<const std::byte>(a.bytes.data(), a.bytes.size());
-//						auto a3dBuffer = std::make_unique<a3d::Buffer>(
-//								const_cast<std::byte*>(bytes.data()), bytes.size());
-//						return std::make_shared<a3d::Image>(std::move(a3dBuffer), false);
 						a3d::Buffer buf(bytes.data(), bytes.size());
 						return std::make_shared<a3d::Image>(buf, false, false);
 					},
 					[&](const fastgltf::sources::ByteView& bv) -> std::shared_ptr<a3d::Image> {
 						auto bytes = std::span<const std::byte>(bv.bytes.data(), bv.bytes.size());
-//						auto a3dBuffer = std::make_unique<a3d::Buffer>(
-//								const_cast<std::byte*>(bytes.data()), bytes.size());
-//						return std::make_shared<a3d::Image>(std::move(a3dBuffer), false);
 						a3d::Buffer buf(bytes.data(), bytes.size());
 						return std::make_shared<a3d::Image>(buf, false, false);
 					},
 					[&](const fastgltf::sources::URI&) -> std::shared_ptr<a3d::Image> {
-						// but keep this log because it indicates you didn’t load image bytes.
 						log::w()("Image is a URI -- is Options::LoadExternalImages enabled?");
 						return nullptr;
 					},
@@ -741,6 +723,8 @@ shared_ptr<a3d::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset
 shared_ptr<a3d::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset,
 													   fastgltf::Node& node) {
 
+	// TODO: fix this!
+
 	if (auto lightIndex = node.lightIndex) {
 
 		if (_lights.find(*lightIndex) == _lights.end()) {
@@ -754,7 +738,6 @@ shared_ptr<a3d::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset,
 
 				auto a3dLight = make_shared<DirectionalLight>(string(light.name));
 				a3dLight->color(ColorFromGlTFColorArray(light.color));
-				// TODO: range, intensity?
 				_lights[*lightIndex] = a3dLight;
 				return a3dLight;
 			}
@@ -762,8 +745,6 @@ shared_ptr<a3d::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset,
 
 				auto a3dLight = make_shared<PointLight>(string(light.name));
 				a3dLight->color(ColorFromGlTFColorArray(light.color));
-				a3dLight->attenuation(Attenuation{.quadratic = 0.1f});
-				// TODO: range, intensity?
 				_lights[*lightIndex] = a3dLight;
 				return a3dLight;
 			}
@@ -771,11 +752,8 @@ shared_ptr<a3d::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset,
 
 				auto a3dLight = make_shared<SpotLight>(string(light.name));
 				a3dLight->color(ColorFromGlTFColorArray(light.color));
-//				a3dLight->attenuation(Attenuation{
-//					.constant = 1.0f, .linear = 0.0f, .quadratic = 0.1f});
 				a3dLight->innerAngle(light.innerConeAngle.value());
 				a3dLight->outerAngle(light.outerConeAngle.value());
-				// TODO: range, intensity?
 				_lights[*lightIndex] = a3dLight;
 				return a3dLight;
 			}
@@ -869,8 +847,6 @@ static std::span<const byte> BytesFromDataSource(const fastgltf::DataSource& src
 				return { a.bytes.data(), a.bytes.size() };
 			},
 			[](const fastgltf::sources::ByteView& bv) -> std::span<const byte> {
-				// In newer fastgltf, ByteView is commonly used by mapped-file loaders.
-				// Most builds expose it as a (ptr,len) pair or span-like member; adjust field names if needed.
 				return { bv.bytes.data(), bv.bytes.size() };
 			},
 			[](const auto&) -> std::span<const byte> {
@@ -911,24 +887,27 @@ void ReadIndicesU32(const fastgltf::Asset& asset,
 					const fastgltf::Accessor& idxAccessor,
 					std::vector<uint32_t>& out) {
 
-	using fastgltf::ComponentType;
+	using namespace fastgltf;
 
 	out.assign(idxAccessor.count, 0);
 
 	switch (idxAccessor.componentType) {
 		case ComponentType::UnsignedByte: {
-			fastgltf::iterateAccessorWithIndex<uint8_t>(asset, idxAccessor,
-														[&](uint8_t v, size_t i) { if (i < out.size()) out[i] = (uint32_t)v; });
+			iterateAccessorWithIndex<uint8_t>(asset, idxAccessor,
+											  [&](uint8_t v, size_t i) {
+												  if (i < out.size()) out[i] = (uint32_t)v; });
 			break;
 		}
 		case ComponentType::UnsignedShort: {
-			fastgltf::iterateAccessorWithIndex<uint16_t>(asset, idxAccessor,
-														 [&](uint16_t v, size_t i) { if (i < out.size()) out[i] = (uint32_t)v; });
+			iterateAccessorWithIndex<uint16_t>(asset, idxAccessor,
+											   [&](uint16_t v, size_t i) {
+												   if (i < out.size()) out[i] = (uint32_t)v; });
 			break;
 		}
 		case ComponentType::UnsignedInt: {
-			fastgltf::iterateAccessorWithIndex<uint32_t>(asset, idxAccessor,
-														 [&](uint32_t v, size_t i) { if (i < out.size()) out[i] = v; });
+			iterateAccessorWithIndex<uint32_t>(asset, idxAccessor,
+											   [&](uint32_t v, size_t i) {
+												   if (i < out.size()) out[i] = v; });
 			break;
 		}
 		default:

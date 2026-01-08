@@ -16,6 +16,7 @@
 
 #include "a3d/mesh/IndexAccess.h"
 #include "a3d/mesh/MeshElement.h"
+#include "a3d/mesh/PrimitiveTopology.h"
 #include "a3d/mesh/VertexAccess.h"
 #include "a3d/mesh/VertexFormats.h"
 #include "a3d/mesh/VertexLayout.h"
@@ -41,8 +42,6 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
 
 	VHACD::IVHACD* vhacd = CreateVHACD();
 
-	// --- Params -------------------------------------------------------------
-
 	int a3dFillModeUnderlying = magic_enum::enum_integer(_options.fillMode);
 	VHACD::FillMode vhacdFillMode = magic_enum::enum_value<VHACD::FillMode>(a3dFillModeUnderlying);
 
@@ -59,10 +58,7 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
 			_options.maxNumVerticesPerHull,
 			false, // asyncACD
 			_options.minEdgeLength,
-			_options.findBestPlane
-	};
-
-	// --- Vertex positions ---------------------------------------------------
+			_options.findBestPlane };
 
 	auto posOpt = VertexAccess::GetPositionStreamView(*_sourceElement);
 	if (!posOpt) {
@@ -76,35 +72,34 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
 		return {};
 	}
 
-	// Build contiguous xyz float array: [x0 y0 z0 x1 y1 z1 ...]
 	vector<float> verts;
 	verts.resize(3u * pos.count);
 
 	for (uint32_t i = 0; i < pos.count; ++i) {
-		const std::byte* p = pos.base + size_t(i) * size_t(pos.stride) + pos.offset;
+		const std::byte* p = VertexBaseAt(pos, i) + pos.offset;
+
 		float xyz[3];
 		memcpy(xyz, p, sizeof(xyz));
+
 		verts[3u * i + 0] = xyz[0];
 		verts[3u * i + 1] = xyz[1];
 		verts[3u * i + 2] = xyz[2];
 	}
 
-	// --- Triangle indices (u32) --------------------------------------------
-
 	vector<uint32_t> indicesU32;
 
-	// Prefer real index buffer if present
+	// prefer real index buffer if present
 	if (auto ivOpt = IndexAccess::GetIndexStreamView(*_sourceElement)) {
 		const IndexStreamView iv = *ivOpt;
 
-		// We only support triangle topology here
+		// only triangles supported
 		A3D_ASSERT(_sourceElement->topology() == PrimitiveTopology::Triangles);
 		A3D_ASSERT((iv.count % 3u) == 0u);
 
 		IndexAccess::ExpandToU32(iv, indicesU32);
 	}
 	else {
-		// Non-indexed fallback: treat vertices as already a triangle list
+		// non-indexed fallback: treat vertices as already a triangle list
 		A3D_ASSERT(_sourceElement->topology() == PrimitiveTopology::Triangles);
 		A3D_ASSERT((pos.count % 3u) == 0u);
 
@@ -113,21 +108,19 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
 	}
 
 	if (indicesU32.empty() || (indicesU32.size() % 3u) != 0u) {
-		log::e()("ConvexDecomposer: invalid index buffer (count={})", (uint32_t)indicesU32.size());
+		log::e()("Invalid index buffer. count: {}", (uint32_t)indicesU32.size());
 		vhacd->Release();
 		return {};
 	}
 
-#ifndef NDEBUG
+#ifdef A3D_DEBUG
 	for (uint32_t idx : indicesU32) {
 		A3D_ASSERT(idx < pos.count);
 	}
 #endif
 
 	const uint32_t numPoints = pos.count;
-	const uint32_t numTris   = (uint32_t)(indicesU32.size() / 3u);
-
-	// --- Compute ------------------------------------------------------------
+	const uint32_t numTris = (uint32_t)(indicesU32.size() / 3u);
 
 	vhacd->Compute(verts.data(), numPoints,
 				   indicesU32.data(), numTris,
@@ -138,8 +131,6 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
 	vector<unique_ptr<MeshElement>> out;
 	out.reserve(numHulls);
 
-	// --- Output hulls -------------------------------------------------------
-
 	for (int h = 0; h < numHulls; ++h) {
 		VHACD::IVHACD::ConvexHull hull;
 		vhacd->GetConvexHull(h, hull);
@@ -148,10 +139,12 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
 		vector<VertexPNT> decomposedVerts;
 		decomposedVerts.reserve(hull.m_points.size());
 		for (auto& v : hull.m_points) {
-			decomposedVerts.push_back({ {(float)v.mX, (float)v.mY, (float)v.mZ}, {}, {} });
+			decomposedVerts.push_back({ {(float)v.mX,
+										 (float)v.mY,
+										 (float)v.mZ}, {}, {} });
 		}
 
-		// indices (u32 triangle list)
+		// indices
 		vector<uint32_t> decomposedIndices;
 		decomposedIndices.reserve(hull.m_triangles.size() * 3u);
 		for (auto& t : hull.m_triangles) {
@@ -160,16 +153,18 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
 			decomposedIndices.push_back((uint32_t)t.mI2);
 		}
 
-#ifndef NDEBUG
+#ifdef A3D_DEBUG
 		for (uint32_t idx : decomposedIndices) {
 			A3D_ASSERT(idx < (uint32_t)decomposedVerts.size());
 		}
 #endif
 
-		auto vbSpan  = std::span<const VertexPNT>(decomposedVerts.data(), decomposedVerts.size());
+		auto vbSpan = std::span<const VertexPNT>(decomposedVerts.data(),
+												 decomposedVerts.size());
 		auto vbBytes = std::as_bytes(vbSpan);
 
-		auto ibSpan  = std::span<const uint32_t>(decomposedIndices.data(), decomposedIndices.size());
+		auto ibSpan = std::span<const uint32_t>(decomposedIndices.data(),
+												decomposedIndices.size());
 		auto ibBytes = std::as_bytes(ibSpan);
 
 		out.push_back(std::make_unique<MeshElement>(
@@ -180,8 +175,7 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
 				PrimitiveTopology::Triangles,
 				IndexFormat::U32,
 				ibBytes,
-				(uint32_t)decomposedIndices.size() // number of indices (NOT triangles)
-		));
+				(uint32_t)decomposedIndices.size()));
 	}
 
 	log::d()("Decomposition done. numHulls: {}", numHulls);
@@ -190,4 +184,3 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
 
 	return out;
 }
-

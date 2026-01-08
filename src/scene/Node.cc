@@ -735,11 +735,11 @@ AABB Node::aabb(bool vertfit) const {
 	const mat4 W = worldTransform();
 
 	if (mesh()) {
-		out = AABB::Union(out, mesh()->worldAABB(W, vertfit));
+		out |= mesh()->worldAABB(W, vertfit);
 	}
 
 	for (auto& child : children()) {
-		out = AABB::Union(out, child->aabb());
+		out |= child->aabb();
 	}
 
 	return out;

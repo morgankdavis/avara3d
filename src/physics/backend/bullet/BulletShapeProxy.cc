@@ -19,6 +19,7 @@
 #include "a3d/log/Log.h"
 #include "a3d/mesh/ConvexDecomposer.h"
 #include "a3d/mesh/Mesh.h"
+#include "a3d/mesh/PrimitiveTopology.h"
 #include "a3d/mesh/VertexAccess.h"
 #include "a3d/mesh/VertexFormats.h"
 #include "a3d/mesh/VertexLayoutDesc.h"
@@ -365,7 +366,7 @@ BTShapeFromMeshElement(MeshElement& element,
 
 		return make_unique<btSphereShape>((btScalar)sphere->radius());
 	}
-		// * no Bullet primitives for Torus or Tube *
+	// * no Bullet primitives for Torus or Tube *
 	else if (shapeType == PhysicsShape::Type::ConvexHull) {
 
 		return BTConvexHullShapeFromMeshElement(element);
@@ -461,9 +462,9 @@ BTConvexHullShapeFromMeshElement(MeshElement& element) {
 
 	// tips here: https://pybullet.org/Bullet/phpBB3/viewtopic.php?t=11385
 
-	const auto vb     = element.vertexBytes();
+	const auto vb = element.vertexBytes();
 	const uint16_t st = element.vertexStride();
-	const uint32_t n  = element.vertexCount();
+	const uint32_t n = element.vertexCount();
 	if (n == 0) {
 		return make_unique<btConvexHullShape>(); // empty
 	}
@@ -521,7 +522,7 @@ BTGImpactMeshShapeFromMeshElement(MeshElement& element,
 		return make_unique<btGImpactMeshShape>(&indexVertexArray);
 	}
 
-	// this Bullet path requires indexed triangles.
+	// requires indexed triangles
 	A3D_ASSERT(element.topology() == PrimitiveTopology::Triangles);
 
 	const IndexFormat ifmt = element.indexFormat();
@@ -586,14 +587,14 @@ BTBvhTriangleMeshShapeFromMeshElement(MeshElement& element,
 		return make_unique<btBvhTriangleMeshShape>(&indexVertexArray, true);
 	}
 
-	// This Bullet path requires indexed triangles.
+	// requires indexed triangles
 	A3D_ASSERT(element.topology() == PrimitiveTopology::Triangles);
 
 	const IndexFormat ifmt = element.indexFormat();
 	const uint32_t icount = element.indexCount(); // number of indices (NOT triangles)
 
 	if (ifmt == IndexFormat::None || icount == 0) {
-		// No indices -> nothing we can feed btTriangleIndexVertexArray.
+		// no indices -> nothing we can feed btTriangleIndexVertexArray.
 		return make_unique<btBvhTriangleMeshShape>(&indexVertexArray, true);
 	}
 
@@ -613,7 +614,7 @@ BTBvhTriangleMeshShapeFromMeshElement(MeshElement& element,
 		return make_unique<btBvhTriangleMeshShape>(&indexVertexArray, true);
 	}
 
-	// Choose Bullet index scalar type based on our index format
+	// choose Bullet index scalar type based on our index format
 	const PHY_ScalarType bulletIndexType =
 			(ifmt == IndexFormat::U16) ? PHY_SHORT :
 			(ifmt == IndexFormat::U32) ? PHY_INTEGER :

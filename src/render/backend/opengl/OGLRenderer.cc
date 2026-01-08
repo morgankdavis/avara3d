@@ -378,7 +378,7 @@ void OGLRenderer::postTraversal(const Scene& scene,
 
 void OGLRenderer::clear(const ClearCommand& cmd,
 						const RenderContext& context) {
-	// If you later want target-specific clear:
+	// target-specific clear:
 	// if (cmd.bindFramebuffer) glBindFramebuffer(GL_FRAMEBUFFER, cmd.framebuffer);
 
 	FBORestore restore;
@@ -388,7 +388,7 @@ void OGLRenderer::clear(const ClearCommand& cmd,
 	glBindFramebuffer(GL_FRAMEBUFFER, fb);
 	glViewport(0, 0, (GLsizei)fbSize.x, (GLsizei)fbSize.y);
 
-	// save state we might stomp.
+	// save state we might stomp
 	GLboolean prevScissorEnabled = GL_FALSE;
 	GLint prevScissorBox[4] = {0,0,0,0};
 	glGetBooleanv(GL_SCISSOR_TEST, &prevScissorEnabled);
@@ -401,7 +401,7 @@ void OGLRenderer::clear(const ClearCommand& cmd,
 	glGetBooleanv(GL_DEPTH_WRITEMASK, &prevDepthMask);
 	glGetIntegerv(GL_STENCIL_WRITEMASK, &prevStencilMask);
 
-	// Apply scissor if requested (partial clear).
+	// apply scissor
 	if (cmd.useScissor) {
 		glEnable(GL_SCISSOR_TEST);
 		glScissor(cmd.scissorRect.x, cmd.scissorRect.y,
@@ -414,14 +414,14 @@ void OGLRenderer::clear(const ClearCommand& cmd,
 		glDisable(GL_SCISSOR_TEST);
 	}
 
-	// Ensure clears actually write (optional but strongly recommended).
+	// ensure clears actually write
 	if (cmd.forceWriteMasks) {
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 		glDepthMask(GL_TRUE);
 		glStencilMask(0xFFFFFFFF);
 	}
 
-	// Set clear values (only when needed).
+	// set clear values
 	GLbitfield mask = 0;
 
 	if (cmd.clearColor) {
@@ -447,7 +447,7 @@ void OGLRenderer::clear(const ClearCommand& cmd,
 		glClear(mask);
 	}
 
-	// Restore state we modified.
+	// restore state
 	if (cmd.forceWriteMasks) {
 		glColorMask(prevColorMask[0], prevColorMask[1], prevColorMask[2], prevColorMask[3]);
 		glDepthMask(prevDepthMask);
@@ -638,17 +638,6 @@ void OGLRenderer::bindMeshElement(const MeshElement& element) {
 	auto* e = const_cast<MeshElement*>(&element);
 	const auto& res = _resourceCache.ensureMeshElement(*e);
 
-//	glBindVertexArray((GLuint)res.vao);
-//	_boundElement.vao = (GLuint)res.vao;
-//	_boundElement.indexCount = (GLsizei)res.indexCount;
-//	_boundElement.indexType = GL_UNSIGNED_INT;
-
-//	glBindVertexArray((GLuint)res.vao);
-//	_boundElement.vao = (GLuint)res.vao;
-//	_boundElement.indexCount = (GLsizei)res.indexCount;
-//	_boundElement.indexType = res.indexType;
-
-
 	glBindVertexArray((GLuint)res.vao);
 
 	_boundElement.vao        = (GLuint)res.vao;
@@ -686,7 +675,7 @@ void OGLRenderer::drawBound() {
 					   (void*)0);
 	}
 	else if (_boundElement.vertexCount > 0) {
-		// Non-indexed fallback
+		// non-indexed fallback
 		glDrawArrays(GL_TRIANGLES, 0, _boundElement.vertexCount);
 	}
 }

@@ -57,8 +57,8 @@ Mesh::Mesh(unique_ptr<MeshElement> element,
 
 Mesh::Mesh(const string& name,
 		   vector<unique_ptr<MeshElement>>& elements,
-		   const vector<shared_ptr<Material>>& materials)
-		: Mesh{elements, materials} {
+		   const vector<shared_ptr<Material>>& materials):
+		Mesh{elements, materials} {
 
 	_name = name;
 }
@@ -149,19 +149,6 @@ MeshId Mesh::id() const noexcept {
 	return _id;
 }
 
-VertexLayout Mesh::vertexLayout() const {
-	if (_elements.empty()) return VertexLayout::None;
-	return _elements[0]->vertexLayout();
-}
-
-void Mesh::burnTransform(const mat4& transform, bool normals) {
-	for (auto& element : elements()) {
-		element->burnTransform(transform, normals);
-	}
-
-	genLocalAABB();
-}
-
 AABB Mesh::localAABB() const {
 	return _localAABB;
 }
@@ -170,28 +157,6 @@ AABB Mesh::worldAABB(const math::mat4& worldTransform, bool vertfit) const {
 
 	// TODO: consolidate (MeshElement has the same function)
 
-	// fit over verticies - tighter - slow!
-//	if (vertfit) {
-//
-//		static const float maxFloat = math::f32_max();
-//		static const float minFloat = math::f32_lowest();
-//		AABB out = { {maxFloat, maxFloat, maxFloat},
-//					 {minFloat, minFloat, minFloat} };
-//
-//		for (const auto& e : _elements) {
-//			for (const auto& v : e->vertices()) {
-//				vec3 p = vec3(worldTransform * vec4(v.position, 1.0f));
-//				out.min.x = math::min(out.min.x, p.x);
-//				out.max.x = math::max(out.max.x, p.x);
-//				out.min.y = math::min(out.min.y, p.y);
-//				out.max.y = math::max(out.max.y, p.y);
-//				out.min.z = math::min(out.min.z, p.z);
-//				out.max.z = math::max(out.max.z, p.z);
-//			}
-//		}
-//
-//		return out;
-//	}
 	if (vertfit) {
 		static const float maxFloat = math::f32_max();
 		static const float minFloat = math::f32_lowest();
@@ -236,6 +201,14 @@ vec3 Mesh::worldExtent(const mat4& worldTransform) const {
 	return aabb.max - aabb.min;
 }
 
+void Mesh::burnTransform(const mat4& transform, bool normals) {
+	for (auto& element : elements()) {
+		element->burnTransform(transform, normals);
+	}
+
+	genLocalAABB();
+}
+
 Mesh::DirtyMask Mesh::dirtyMask() const {
 	return _dirtyMask;
 }
@@ -255,12 +228,6 @@ void Mesh::genLocalAABB() {
 
 	for (const auto& element : _elements) {
 		auto elementAABB = element->localAABB();
-//		aabb.min.x = math::min(aabb.min.x, elementAABB.min.x);
-//		aabb.max.x = math::max(aabb.max.x, elementAABB.max.x);
-//		aabb.min.y = math::min(aabb.min.y, elementAABB.min.y);
-//		aabb.max.y = math::max(aabb.max.y, elementAABB.max.y);
-//		aabb.min.z = math::min(aabb.min.z, elementAABB.min.z);
-//		aabb.max.z = math::max(aabb.max.z, elementAABB.max.z);
 		aabb.min = min(aabb.min, elementAABB.min);
 		aabb.max = max(aabb.max, elementAABB.max);
 	}

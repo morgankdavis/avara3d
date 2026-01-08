@@ -16,7 +16,7 @@
 
 namespace a3d {
 
-	enum class VertexFormat : uint8_t {
+	enum class VertexAttribFormat : uint8_t {
 		F32x2,
 		F32x3,
 		F32x4,
@@ -32,11 +32,11 @@ namespace a3d {
 	};
 
 	struct VertexAttribDesc {
-		VertexSemantic 	semantic = 		VertexSemantic::Position;
-		uint8_t     	location =		0; // shader location
-		VertexFormat	format = 		VertexFormat::F32x3;
-		uint16_t    	offset = 		0; // byte offset in vertex
-		bool        	normalized = 	false;
+		VertexSemantic 		semantic = 		VertexSemantic::Position;
+		uint8_t     		location =		0; // shader location
+		VertexAttribFormat	format = 		VertexAttribFormat::F32x3;
+		uint16_t    		offset = 		0; // byte offset in vertex
+		bool        		normalized = 	false;
 	};
 
 	struct VertexLayoutDesc {

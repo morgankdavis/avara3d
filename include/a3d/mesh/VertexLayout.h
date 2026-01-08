@@ -20,7 +20,7 @@ namespace a3d {
 	enum class VertexLayout : uint32_t {
 		None = 	0,
 		PNT = 	1, // Position/Normal/UV0
-		PC = 	2  // Position/Color (debug lines)
+		PC = 	2  // Position/Color
 		// PNTT - Position/Normal/UV0/Tangent
 		// PNTC - Position/Normal/UV0/Color
 		// PNT2 - Position/Normal/UV0/UV1
