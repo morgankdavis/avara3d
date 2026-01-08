@@ -165,7 +165,8 @@ int main(int argc, const char* argv[]) {
 //				auto pointLight = make_shared<Light>(LightType::Point, Color::LightGray());
 				auto pointLight = make_shared<PointLight>(Color::LightGray());
 				//pointLight->attenuationFactor(0);
-				pointLight->constantAttenuation(1.0);
+				pointLight->attenuation(Attenuation{
+						.constant = 1.0f, .linear = 0.0f, .quadratic = 0.1f});
 				auto pointLightNode = Node::LightNode(pointLight);
 				pointLightNode->position({5, 5, 0});
 
@@ -350,7 +351,7 @@ int main(int argc, const char* argv[]) {
 			scene->update();
 		} while (window->isOpen());
 	}
-	catch (Exception& e)
+	catch (std::exception& e)
 	{
 		log::app::f()("Exception: {}", e.what());
 		return -1;

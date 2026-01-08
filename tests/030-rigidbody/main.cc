@@ -408,7 +408,8 @@ int main(int argc, const char* argv[]) {
 		auto boxesLight = Light::SpotLight(Color::LightGray());
 		boxesLight->innerAngle(radians(20.0));
 		boxesLight->outerAngle(radians(25.0));
-		boxesLight->quadraticAttenuation(0.035);
+		boxesLight->attenuation(Attenuation{
+				.constant = 1.0f, .linear = 0.0f, .quadratic = 0.035f});
 		boxesLight->featheringMode(SpotLight::FeatheringMode::Soft);
 		auto boxesLightNode = Node::LightNode(boxesLight);
 		boxesLightNode->position({-6.4, 1.2, -2.5});
@@ -456,7 +457,7 @@ wr = new WanderRotate();
 			scene->update();
 		} while (window->isOpen());
 	}
-	catch (Exception& e) {
+	catch (std::exception& e) {
 		log::app::f()("Exception: {}", e.what());
 		return -1;
 	}
@@ -618,7 +619,8 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 				flashLight->innerAngle(radians(5.0f));
 				flashLight->outerAngle(radians(7.5f));
 				flashLight->featheringMode(SpotLight::FeatheringMode::Sharp);
-				flashLight->quadraticAttenuation(.001);
+				flashLight->attenuation(Attenuation{
+						.constant = 1.0f, .linear = 0.0f, .quadratic = 0.001f});
 				cameraNode->light(flashLight);
 			}
 		}
@@ -977,7 +979,8 @@ void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
 		physicsBody->rollingFriction(0.05);
 
 		static auto light = Light::PointLight();
-		light->quadraticAttenuation(0.04);
+		light->attenuation(Attenuation{
+				.constant = 1.0f, .linear = 0.0f, .quadratic = 0.04f});
 		node->light(light);
 
 		// add random factor
@@ -1117,7 +1120,8 @@ void AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color) {
 	node->position(location);
 
 	auto light = Light::PointLight(color);
-	light->quadraticAttenuation(0.04);
+	light->attenuation(Attenuation{
+			.constant = 1.0f, .linear = 0.0f, .quadratic = 0.04f});
 	node->light(light);
 
 	auto physicsBody = PhysicsBody::DynamicBody();

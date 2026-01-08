@@ -1008,9 +1008,9 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 					PointLightGLSLStruct lightStruct{};
 					lightStruct.color = pointLight->color()->rgba();
 					lightStruct.position_world = node->worldPosition();
-					lightStruct.constantAttenuation = pointLight->constantAttenuation();
-					lightStruct.linearAttenuation = pointLight->linearAttenuation();
-					lightStruct.quadraticAttenuation = pointLight->quadraticAttenuation();
+					lightStruct.constantAttenuation = pointLight->attenuation().constant;
+					lightStruct.linearAttenuation = pointLight->attenuation().linear;
+					lightStruct.quadraticAttenuation = pointLight->attenuation().quadratic;
 					pointStructs.push_back(lightStruct);
 				}
 			}
@@ -1023,9 +1023,9 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 					lightStruct.innerAngleCos = spotLight->innerAngleCos();
 					lightStruct.outerAngleCos = spotLight->outerAngleCos();
 					lightStruct.featheringMode = magic_enum::enum_underlying(spotLight->featheringMode());
-					lightStruct.constantAttenuation = spotLight->constantAttenuation();
-					lightStruct.linearAttenuation = spotLight->linearAttenuation();
-					lightStruct.quadraticAttenuation = spotLight->quadraticAttenuation();
+					lightStruct.constantAttenuation = spotLight->attenuation().constant;
+					lightStruct.linearAttenuation = spotLight->attenuation().linear;
+					lightStruct.quadraticAttenuation = spotLight->attenuation().quadratic;
 					spotStructs.push_back(lightStruct);
 				}
 			}

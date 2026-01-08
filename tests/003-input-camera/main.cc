@@ -66,7 +66,7 @@ int main(int argc, const char* argv[]) {
 			scene->update();
 		} while (window->isOpen());
 	}
-	catch (Exception& e) {
+	catch (std::exception& e) {
 		cerr << "Exception: " << e.what() << "\n";
 		return -1;
 	}

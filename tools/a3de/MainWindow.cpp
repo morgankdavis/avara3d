@@ -89,7 +89,8 @@ void MainWindow::initScene(a3d::head::qt::QtViewport &viewport) {
 
 		auto pointLight = make_shared<PointLight>(Color::White());
 		pointLight->name("point");
-		pointLight->quadraticAttenuation(0.002);
+		pointLight->attenuation(Attenuation{
+				.constant = 1.0f, .linear = 0.0f, .quadratic = 0.002f});
 		auto pointLightNode = Node::LightNode(pointLight);
 		_pointLightNode = pointLightNode; // <- how is this not crashing?
 		auto material = make_shared<Material>();
@@ -105,7 +106,7 @@ void MainWindow::initScene(a3d::head::qt::QtViewport &viewport) {
 
 		viewport.cursorCaptured(CAPTURE_CURSOR);
 	}
-	catch (Exception& e)
+	catch (std::exception& e)
 	{
 		log::app::f()("Exception: {}", e.what());
 		//return -1;

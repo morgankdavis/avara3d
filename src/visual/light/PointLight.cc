@@ -17,7 +17,7 @@ using namespace std;
 /// Public Lifecycle Functions ///
 
 PointLight::PointLight():
-		AttenuatedLight() {}
+		Light() {}
 
 PointLight::PointLight(const string& name):
 		PointLight() {
@@ -44,3 +44,13 @@ PointLight::PointLight(const string& name, const shared_ptr<Color>& color):
 //		log::d()("Destroying Light {:p}", static_cast<void*>(this));
 //	}
 //}
+
+/// Public Member Functions ///
+
+const Attenuation& PointLight::attenuation() const {
+	return _attenuation;
+}
+
+void PointLight::attenuation(const Attenuation& attenuation) {
+	_attenuation = attenuation;
+}

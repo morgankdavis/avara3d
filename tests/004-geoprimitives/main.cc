@@ -237,7 +237,7 @@ int main(int argc, const char* argv[]) {
 			scene->update();
 		} while (window->isOpen());
 	}
-	catch (Exception& e)
+	catch (std::exception& e)
 	{
 		log::app::f()("Exception: {}", e.what());
 		return -1;

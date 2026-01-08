@@ -54,12 +54,6 @@ namespace a3d {
 		const std::shared_ptr<Color>&		color() const;
 		void 								color(const std::shared_ptr<Color>& color);
 
-		/// Protected Lifecycle Functions ///
-
-//	protected:
-//
-//		Light();
-
 	protected:
 		/// Protected Member Variables ///
 
@@ -68,4 +62,4 @@ namespace a3d {
 	};
 }
 
-#endif /* AVARA3D_VISUAL_LIGHT_LIGHT_H */
+#endif //AVARA3D_VISUAL_LIGHT_LIGHT_H */

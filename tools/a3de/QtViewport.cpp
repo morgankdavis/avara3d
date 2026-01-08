@@ -130,7 +130,7 @@ bool Viewport::vSyncEnabled() const {
 }
 
 void Viewport::vSyncEnabled(bool enabled) {
-	throw Exception("Qt forces vsync.");
+	throw std::logic_error("Qt forces vsync.");
 }
 
 /// RenderContext Internal Member Functions ///

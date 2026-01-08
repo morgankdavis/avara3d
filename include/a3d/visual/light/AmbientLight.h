@@ -10,7 +10,6 @@
 #define AVARA3D_VISUAL_LIGHT_AMBIENTLIGHT_H
 
 #include <memory>
-#include <optional>
 #include <string>
 
 #include "a3d/visual/light/Light.h"
@@ -31,4 +30,4 @@ namespace a3d {
 	};
 }
 
-#endif /* AVARA3D_VISUAL_LIGHT_AMBIENTLIGHT_H */
+#endif //AVARA3D_VISUAL_LIGHT_AMBIENTLIGHT_H */

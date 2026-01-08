@@ -66,7 +66,7 @@
 #include "a3d/visual/camera/OrthographicCamera.h"
 #include "a3d/visual/camera/PerspectiveCamera.h"
 #include "a3d/visual/light/AmbientLight.h"
-#include "a3d/visual/light/AttenuatedLight.h"
+#include "a3d/visual/light/Attenuation.h"
 #include "a3d/visual/light/DirectionalLight.h"
 #include "a3d/visual/light/Light.h"
 #include "a3d/visual/light/PointLight.h"

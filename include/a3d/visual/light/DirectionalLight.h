@@ -10,7 +10,6 @@
 #define AVARA3D_VISUAL_LIGHT_DIRECTIONALLIGHT_H
 
 #include <memory>
-#include <optional>
 #include <string>
 
 #include "a3d/visual/light/Light.h"
@@ -29,23 +28,7 @@ namespace a3d {
 		explicit DirectionalLight(const std::string& name);
 		explicit DirectionalLight(const std::shared_ptr<Color>& color);
 		DirectionalLight(const std::string& name, const std::shared_ptr<Color>& color);
-//		~DirectionalLight();
-
-		/// Public Member Functions ///
-
-//		const math::vec3&	direction() const;
-//		void				direction(const math::vec3& direction);
-
-//	protected:
-		/// Protected Lifecycle Functions ///
-//
-//		DirectionalLight();
-
-//	private:
-		/// Private Member Variables ///
-
-//		math::vec3			_direction; // TODO: INIT ME
 	};
 }
 
-#endif /* AVARA3D_VISUAL_LIGHT_DIRECTIONALLIGHT_H */
+#endif //AVARA3D_VISUAL_LIGHT_DIRECTIONALLIGHT_H */

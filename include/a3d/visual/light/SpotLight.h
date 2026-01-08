@@ -10,16 +10,16 @@
 #define AVARA3D_VISUAL_LIGHT_SPOTLIGHT_H
 
 #include <memory>
-#include <optional>
 #include <string>
 
-#include "a3d/visual/light/AttenuatedLight.h"
+#include "a3d/visual/light/Attenuation.h"
+#include "a3d/visual/light/Light.h"
 
 namespace a3d {
 
 	class Color;
 
-	class SpotLight : public AttenuatedLight {
+	class SpotLight : public Light {
 
 	public:
 		/// Public Types ///
@@ -49,16 +49,13 @@ namespace a3d {
 		FeatheringMode			featheringMode() const;
 		void					featheringMode(FeatheringMode mode);
 
+		const Attenuation&		attenuation() const;
+		void					attenuation(const Attenuation& attenuation);
+
 		/// Internal Member Functions ///
 
 		float					innerAngleCos() const;
 		float					outerAngleCos() const;
-
-		/// Private Lifecycle Functions ///
-
-//	private:
-//
-//		SpotLight();
 
 	private:
 		/// Private Member Variables ///
@@ -66,7 +63,8 @@ namespace a3d {
 		float					_innerAngleCos;
 		float					_outerAngleCos;
 		FeatheringMode			_featherMode;
+		Attenuation 			_attenuation;
 	};
 }
 
-#endif /* AVARA3D_VISUAL_LIGHT_SPOTLIGHT_H */
+#endif //AVARA3D_VISUAL_LIGHT_SPOTLIGHT_H */

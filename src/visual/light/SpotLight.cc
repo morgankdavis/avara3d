@@ -18,7 +18,7 @@ using namespace std;
 /// Public Lifecycle Functions ///
 
 SpotLight::SpotLight():
-		AttenuatedLight() {
+		Light() {
 	// see DeVries 16.5
 	_innerAngleCos = static_cast<float>(math::cos(10.0));
 	_outerAngleCos = static_cast<float>(math::cos(15.0));
@@ -75,6 +75,14 @@ SpotLight::FeatheringMode SpotLight::featheringMode() const {
 
 void SpotLight::featheringMode(FeatheringMode mode) {
 	_featherMode = mode;
+}
+
+const Attenuation& SpotLight::attenuation() const {
+	return _attenuation;
+}
+
+void SpotLight::attenuation(const Attenuation& attenuation) {
+	_attenuation = attenuation;
 }
 
 /// Internal Member Functions ///
