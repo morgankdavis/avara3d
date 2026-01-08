@@ -14,7 +14,6 @@
 
 #include <magic_enum/magic_enum.hpp>
 
-#include "a3d/exception/Exception.h"
 #include "a3d/log/Log.h"
 #include "a3d/util/filesystem.h"
 
@@ -63,7 +62,7 @@ GLSLProgram::GLSLProgram(const string& name):
 		_glID = glCreateProgram();
 
 		if (_glID == 0) {
-			throw Exception("Unable to create shader program.");
+			throw std::runtime_error("Unable to create shader program.");
 		}
 		else {
 			auto vsSource = GLSLProgram::shaderSource(name, "vert");
@@ -76,7 +75,7 @@ GLSLProgram::GLSLProgram(const string& name):
 				prepare();
 			}
 			else {
-				throw Exception("Couldn't load shader sources.");
+				throw std::runtime_error("Couldn't load shader sources.");
 			}
 		}
 }
@@ -369,13 +368,13 @@ void GLSLProgram::prepare() {
 			else {
 				//A3D_LOG_C("Failed linking '{}' program:\n{}", _name, *_logString);
 				//A3D_LOG_C("Failed linking program '{}'.", _name);
-				throw Exception(std::format("Failed linking program '{}'.", _name));
+				throw std::runtime_error(std::format("Failed linking program '{}'.", _name));
 			}
 		}
 		else {
 			//A3D_LOG_C("Failed compiling '{}' shaders:\n{}", _name, *_logString);
 			//A3D_LOG_C("Failed compiling '{}' shaders.", _name);
-			throw Exception(std::format("Failed compiling '{}' shaders.", _name));
+			throw std::runtime_error(std::format("Failed compiling '{}' shaders.", _name));
 		}
 	}
 }

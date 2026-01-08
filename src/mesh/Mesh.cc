@@ -16,7 +16,6 @@
 #include "a3d/IdGenerator.h"
 #include "a3d/Image.h"
 #include "a3d/log/Log.h"
-#include "a3d/exception/UnsupportedFormatException.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/render/Renderer.h"
 #include "a3d/scene/Node.h"

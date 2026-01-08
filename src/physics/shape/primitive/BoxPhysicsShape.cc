@@ -8,8 +8,6 @@
 
 #include "a3d/physics/shape/primitive/BoxPhysicsShape.h"
 
-#include "a3d/exception/Exception.h"
-
 using namespace a3d;
 
 /// Public Lifecycle Functions ///
@@ -54,5 +52,5 @@ PhysicsShape::Type BoxPhysicsShape::type() const {
 }
 
 void BoxPhysicsShape::type(PhysicsShape::Type type) {
-	throw Exception("Cannot set PhysicsShape::Type for BoxPhysicsShape.");
+	throw std::logic_error("Cannot set PhysicsShape::Type for BoxPhysicsShape.");
 }

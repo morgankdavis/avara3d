@@ -8,8 +8,6 @@
 
 #include "a3d/physics/shape/primitive/ConePhysicsShape.h"
 
-#include "a3d/exception/Exception.h"
-
 using namespace a3d;
 
 /// Public Lifecycle Functions ///
@@ -45,5 +43,5 @@ PhysicsShape::Type ConePhysicsShape::type() const {
 }
 
 void ConePhysicsShape::type(PhysicsShape::Type type) {
-	throw Exception("Cannot set PhysicsShape::Type for ConePhysicsShape.");
+	throw std::logic_error("Cannot set PhysicsShape::Type for ConePhysicsShape.");
 }

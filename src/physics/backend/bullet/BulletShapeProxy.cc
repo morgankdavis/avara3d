@@ -21,6 +21,7 @@
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/VertexAccess.h"
 #include "a3d/mesh/VertexFormats.h"
+#include "a3d/mesh/VertexLayoutDesc.h"
 #include "a3d/mesh/primitive/Box.h"
 #include "a3d/mesh/primitive/Capsule.h"
 #include "a3d/mesh/primitive/Cone.h"
@@ -39,7 +40,6 @@
 #include "a3d/physics/shape/primitive/CylinderPhysicsShape.h"
 #include "a3d/physics/shape/primitive/PlanePhysicsShape.h"
 #include "a3d/physics/shape/primitive/SpherePhysicsShape.h"
-#include "a3d/render/VertexLayoutDesc.h"
 #include "a3d/scene/Node.h"
 
 using namespace a3d;

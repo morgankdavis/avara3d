@@ -14,7 +14,6 @@
 #include <GLFW/glfw3.h>
 #include <imgui/backends/imgui_impl_glfw.h>
 
-#include "a3d/exception/Exception.h"
 #include "a3d/log/Log.h"
 #include "a3d/input/GLFWInputManager.h"
 #include "a3d/physics/PhysicalWorld.h"
@@ -132,18 +131,18 @@ GLFWWindow::GLFWWindow(RenderingApi renderingAPI,
 				// TODO: move
 				glfwTerminate();
 				ImGui_ImplGlfw_Shutdown();
-				throw Exception("Failed to initialize GLAD.");
+				throw std::runtime_error("Failed to initialize GLAD.");
 			}
 		}
 		else {
 			// TODO: move
 			glfwTerminate();
 			ImGui_ImplGlfw_Shutdown();
-			throw Exception("Couldn't create GLFW Window.");
+			throw std::runtime_error("Couldn't create GLFW Window.");
 		}
 	}
 	else {
-		throw Exception("Couldn't initialize GLFW.");
+		throw std::runtime_error("Couldn't initialize GLFW.");
 	}
 }
 
@@ -179,7 +178,7 @@ void GLFWWindow::open() {
 		_open = true;
 	}
 	else {
-		throw Exception("Window has no scene.");
+		throw std::runtime_error("Window has no scene.");
 	}
 }
 

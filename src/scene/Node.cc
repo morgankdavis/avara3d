@@ -12,7 +12,6 @@
 #include <format>
 #include <utility>
 
-#include "a3d/exception/Exception.h"
 #include "a3d/log/Log.h"
 #include "a3d/Math.h"
 #include "a3d/mesh/Mesh.h"
@@ -261,7 +260,7 @@ vec4 Node::worldRotation() const {
 
 vec3 Node::worldEulerAngles() const {
 
-	throw Exception("worldEulerAngles() not implemented."); // TODO: custom exception
+	throw std::logic_error("worldEulerAngles() not implemented.");
 	return {0.0, 0.0, 0.0};
 }
 
@@ -377,9 +376,9 @@ math::mat4 Node::convertTo(const math::mat4& t, const Node& to) {
 void Node::addChild(const shared_ptr<Node>& node) {
 
 	if (containsChild(node)) {
-		throw Exception(std::format("Node already exists in tree: {:p}, (\"{}\")",
-									static_cast<void*>(node.get()),
-									(node->name() ? *node->name() : "(unnamed)")));
+		throw std::runtime_error(std::format("Node already exists in tree: {:p}, (\"{}\")",
+											 static_cast<void*>(node.get()),
+											 (node->name() ? *node->name() : "(unnamed)")));
 	}
 
 	_children.push_back(node);

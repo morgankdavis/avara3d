@@ -8,7 +8,6 @@
 
 #include "a3d/physics/shape/primitive/CapsulePhysicsShape.h"
 
-#include "a3d/exception/Exception.h"
 #include "a3d/physics/proxy/PhysicsShapeProxy.h"
 
 using namespace a3d;
@@ -56,5 +55,5 @@ PhysicsShape::Type CapsulePhysicsShape::type() const {
 }
 
 void CapsulePhysicsShape::type(PhysicsShape::Type type) {
-	throw Exception("Cannot set PhysicsShape::Type for CapsulePhysicsShape.");
+	throw std::logic_error("Cannot set PhysicsShape::Type for CapsulePhysicsShape.");
 }

@@ -15,7 +15,7 @@
 
 #include "a3d/Math.h"
 #include "a3d/mesh/VertexLayout.h"
-#include "a3d/render/VertexLayoutDesc.h"
+#include "a3d/mesh/VertexLayoutDesc.h"
 
 namespace a3d {
 

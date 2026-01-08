@@ -16,8 +16,6 @@
 #include "a3d/CubeImage.h"
 #include "a3d/Font.h"
 #include "a3d/Image.h"
-#include "a3d/exception/Exception.h"
-#include "a3d/exception/UnsupportedFormatException.h"
 #include "a3d/log/Log.h"
 #include "a3d/log/sink/FileLogSink.h"
 #include "a3d/log/sink/StdOutLogSink.h"

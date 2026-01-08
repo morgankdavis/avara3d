@@ -13,7 +13,6 @@
 
 #include "a3d/Buffer.h"
 #include "a3d/Image.h"
-#include "a3d/exception/Exception.h"
 #include "a3d/log/Log.h"
 #include "a3d/render/Renderer.h"
 #include "a3d/render/backend/opengl/OGLRenderer.h"
@@ -136,11 +135,11 @@ RenderContext::RenderContext(RenderingApi renderingApi):
 			break;
 		}
 		case RenderingApi::OpenGLES: {
-			throw Exception("Unsupported rendering API: OpenGLES");
+			throw std::runtime_error("Unsupported rendering API: OpenGLES");
 			break;
 		}
 		case RenderingApi::Vulkan: {
-			throw Exception("Unsupported rendering API: Vulkan");
+			throw std::runtime_error("Unsupported rendering API: Vulkan");
 			break;
 		}
 	}

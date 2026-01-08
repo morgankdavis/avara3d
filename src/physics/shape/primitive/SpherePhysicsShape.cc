@@ -8,8 +8,6 @@
 
 #include "a3d/physics/shape/primitive/SpherePhysicsShape.h"
 
-#include "a3d/exception/Exception.h"
-
 using namespace a3d;
 
 /// Public Lifecycle Functions ///
@@ -36,5 +34,5 @@ PhysicsShape::Type SpherePhysicsShape::type() const {
 }
 
 void SpherePhysicsShape::type(PhysicsShape::Type type) {
-	throw Exception("Cannot set PhysicsShape::Type for SpherePhysicsShape.");
+	throw std::logic_error("Cannot set PhysicsShape::Type for SpherePhysicsShape.");
 }

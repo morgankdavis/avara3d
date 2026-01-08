@@ -15,7 +15,6 @@
 #include "a3d/log/Log.h"
 #include "a3d/Math.h"
 #include "a3d/mesh/VertexAccess.h"
-#include "a3d/render/VertexLayoutDesc.h"
 #include "a3d/util/bitmask.h"
 
 using namespace a3d;

@@ -14,7 +14,6 @@
 #include <stb/image_write.h>
 
 #include "a3d/Buffer.h"
-#include "a3d/exception/Exception.h"
 #include "a3d/log/Log.h"
 
 using namespace a3d;
@@ -140,7 +139,7 @@ void Image::loadBuffer(const Buffer& inBuf,
 	bytesPerPixel = 4;
 	
 	if (!imgData) {
-		throw Exception("Failed to load image data.");
+		throw std::runtime_error("Failed to load image data.");
 	}
 
 	_buffer = make_unique<Buffer>(reinterpret_cast<const std::byte*>(imgData),
@@ -192,7 +191,7 @@ void Image::flipVertical() { // "flip"
 void Image::flipHorizontal() { // "mirror"
 
 	if (_bytesPerPixel != 4) {
-		throw Exception("flipHorizontal requires 4 bytesPerPixel");
+		throw std::runtime_error("flipHorizontal requires 4 bytesPerPixel");
 	}
 
 	auto* d = reinterpret_cast<unsigned char*>(_buffer->data());

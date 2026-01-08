@@ -10,7 +10,6 @@
 
 #include "a3d/Color.h"
 #include "a3d/IdGenerator.h"
-#include "a3d/exception/Exception.h"
 #include "a3d/log/Log.h"
 
 using namespace a3d;

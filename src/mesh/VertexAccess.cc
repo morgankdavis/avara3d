@@ -16,7 +16,7 @@
 #include "a3d/Assert.h"
 #include "a3d/mesh/AABB.h"
 #include "a3d/mesh/MeshElement.h"
-#include "a3d/render/VertexLayoutDesc.h"
+#include "a3d/mesh/VertexLayoutDesc.h"
 
 using namespace a3d;
 using namespace std;

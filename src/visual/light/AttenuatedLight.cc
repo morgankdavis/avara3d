@@ -8,7 +8,6 @@
 
 #include "a3d/visual/light/AttenuatedLight.h"
 
-#include "a3d/exception/NotImplementedException.h"
 #include "a3d/log/Log.h"
 
 using namespace a3d;

@@ -6,8 +6,8 @@
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_VERTEXLAYOUTDESC_H
-#define AVARA3D_VERTEXLAYOUTDESC_H
+#ifndef AVARA3D_MESH_VERTEXLAYOUTDESC_H
+#define AVARA3D_MESH_VERTEXLAYOUTDESC_H
 
 #include <cstdint>
 #include <span>
@@ -47,4 +47,4 @@ namespace a3d {
 	const VertexLayoutDesc& GetVertexLayoutDesc(VertexLayout layout);
 }
 
-#endif //AVARA3D_VERTEXLAYOUTDESC_H
+#endif //AVARA3D_MESH_VERTEXLAYOUTDESC_H

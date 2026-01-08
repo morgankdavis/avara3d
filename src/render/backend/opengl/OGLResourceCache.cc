@@ -19,7 +19,7 @@
 #include "a3d/mesh/IndexAccess.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/mesh/VertexLayout.h"
-#include "a3d/render/VertexLayoutDesc.h"
+#include "a3d/mesh/VertexLayoutDesc.h"
 #include "a3d/render/backend/opengl/gl.h"
 #include "a3d/render/backend/opengl/GLSLProgram.h"
 #include "a3d/visual/material/Material.h"

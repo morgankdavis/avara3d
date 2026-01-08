@@ -6,7 +6,7 @@
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/render/VertexLayoutDesc.h"
+#include "a3d/mesh/VertexLayoutDesc.h"
 
 #include <cstddef>
 

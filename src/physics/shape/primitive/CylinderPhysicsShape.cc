@@ -8,8 +8,6 @@
 
 #include "a3d/physics/shape/primitive/CylinderPhysicsShape.h"
 
-#include "a3d/exception/Exception.h"
-
 using namespace a3d;
 
 /// Public Lifecycle Functions ///
@@ -45,5 +43,5 @@ PhysicsShape::Type CylinderPhysicsShape::type() const {
 }
 
 void CylinderPhysicsShape::type(PhysicsShape::Type type) {
-	throw Exception("Cannot set PhysicsShape::Type for CylinderPhysicsShape.");
+	throw std::logic_error("Cannot set PhysicsShape::Type for CylinderPhysicsShape.");
 }

@@ -11,7 +11,6 @@
 
 #include <format>
 
-#include "a3d/exception/Exception.h"
 #include "a3d/log/Log.h"
 
 using namespace a3d;
@@ -33,8 +32,8 @@ FileLogSink::FileLogSink(const filesystem::path& relPath,
 	auto code = errorCode.value();
 	if (code != 0) {
 		// TODO: esception sublass
-		throw Exception(std::format("Error creating intermediate directories for log: '{}', code: {}.",
-									_filepath.string(), to_string(code)));
+		throw std::runtime_error(std::format("Error creating intermediate directories for log: '{}', code: {}.",
+											 _filepath.string(), to_string(code)));
 	}
 
 	openStream();
@@ -149,8 +148,8 @@ void FileLogSink::rotate() {
 			auto code = errorCode.value();
 			if (code != 0) {
 				// TODO: exception subclass
-				throw Exception(std::format("Error removing log file: '{}', code: {}.",
-											path.string(), to_string(code)));
+				throw std::runtime_error(std::format("Error removing log file: '{}', code: {}.",
+													 path.string(), to_string(code)));
 			}
 		}
 		else {
