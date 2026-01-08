@@ -8,6 +8,8 @@
 
 #include "a3d/physics/shape/primitive/PlanePhysicsShape.h"
 
+#include <stdexcept>
+
 using namespace a3d;
 
 /// Public Lifecycle Functions ///

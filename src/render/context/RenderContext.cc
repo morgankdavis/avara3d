@@ -8,6 +8,8 @@
 
 #include "a3d/render/context/RenderContext.h"
 
+#include <stdexcept>
+
 #include <gif-h/gif.h>
 #include <stb/image_resize2.h>
 
@@ -17,7 +19,6 @@
 #include "a3d/render/Renderer.h"
 #include "a3d/render/backend/opengl/OGLRenderer.h"
 #include "a3d/scene/Node.h"
-#include "a3d/scene/Scene.h"
 #include "a3d/visual/camera/PerspectiveCamera.h"
 
 using namespace a3d;

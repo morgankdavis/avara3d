@@ -10,6 +10,7 @@
 #include "a3d/log/sink/FileLogSink.h"
 
 #include <format>
+#include <stdexcept>
 
 #include "a3d/log/Log.h"
 

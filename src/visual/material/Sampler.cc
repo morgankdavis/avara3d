@@ -8,6 +8,8 @@
 
 #include "a3d/visual/material/Sampler.h"
 
+#include <stdexcept>
+
 #include "a3d/IdGenerator.h"
 
 using namespace a3d;

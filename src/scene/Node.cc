@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <format>
+#include <stdexcept>
 #include <utility>
 
 #include "a3d/log/Log.h"

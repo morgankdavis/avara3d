@@ -16,7 +16,6 @@
 #include "a3d/physics/backend/bullet/BulletBodyProxy.h"
 #include "a3d/physics/backend/bullet/BulletWorldProxy.h"
 #include "a3d/scene/Node.h"
-#include "a3d/scene/Scene.h"
 
 using namespace a3d;
 using namespace a3d::math;

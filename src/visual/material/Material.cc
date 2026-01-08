@@ -8,6 +8,8 @@
 
 #include "a3d/visual/material/Material.h"
 
+#include <stdexcept>
+
 #include "a3d/Color.h"
 #include "a3d/IdGenerator.h"
 #include "a3d/log/Log.h"

@@ -8,6 +8,8 @@
 
 #include "a3d/physics/shape/primitive/CapsulePhysicsShape.h"
 
+#include <stdexcept>
+
 #include "a3d/physics/proxy/PhysicsShapeProxy.h"
 
 using namespace a3d;

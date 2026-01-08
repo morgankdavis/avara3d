@@ -8,6 +8,7 @@
 
 #include "a3d/Image.h"
 
+#include <stdexcept>
 #include <utility>
 
 #include <stb/image.h>

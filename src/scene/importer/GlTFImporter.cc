@@ -10,6 +10,7 @@
 
 #include <filesystem>
 #include <format>
+#include <stdexcept>
 #include <utility>
 #include <variant>
 

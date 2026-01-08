@@ -9,6 +9,7 @@
 #include "a3d/render/context/GLFWWindow.h"
 
 #include <iostream>
+#include <stdexcept>
 
 #include "a3d/render/backend/opengl/gl.h" // <- MUST be before GLFW
 #include <GLFW/glfw3.h>

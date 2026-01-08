@@ -9,6 +9,7 @@
 #include "a3d/render/backend/opengl/GLSLProgram.h"
 
 #include <format>
+#include <stdexcept>
 
 #include "a3d/render/backend/opengl/gl.h" // MOVE?
 

@@ -8,8 +8,8 @@
 
 #include "a3d/scene/Scene.h"
 
-#include <chrono>
 #include <filesystem>
+#include <stdexcept>
 #include <thread>
 #include <utility>
 
