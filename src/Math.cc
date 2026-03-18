@@ -1412,29 +1412,19 @@ namespace a3d::math {
 	}
 
 	u8vec2 operator*(const u8vec2& v, f32 s) {
-		// return u8vec2{
-		// 		static_cast<u8>(v.x * s),
-		// 		static_cast<u8>(v.y * s)
-		// };
-		return u8vec2{ saturate_u8(v.x * s), saturate_u8(v.y * s) };
+		return u8vec2{
+			saturate_u8(v.x * s),
+			saturate_u8(v.y * s) };
 	}
 
 	u8vec3 operator*(const u8vec3& v, f32 s) {
-		// return u8vec3{
-		// 		static_cast<u8>(v.x * s),
-		// 		static_cast<u8>(v.y * s),
-		// 		static_cast<u8>(v.z * s)
-		// };
-		return u8vec3{ saturate_u8(v.x * s), saturate_u8(v.y * s), saturate_u8(v.z * s) };
+		return u8vec3{
+			saturate_u8(v.x * s),
+			saturate_u8(v.y * s),
+			saturate_u8(v.z * s) };
 	}
 
 	u8vec4 operator*(const u8vec4& v, f32 s) {
-		// return u8vec4{
-		// 		static_cast<u8>(v.x * s),
-		// 		static_cast<u8>(v.y * s),
-		// 		static_cast<u8>(v.z * s),
-		// 		static_cast<u8>(v.w * s)
-		// };
 		return u8vec4{
 			saturate_u8(v.x * s),
 			saturate_u8(v.y * s),
@@ -1455,25 +1445,15 @@ namespace a3d::math {
 	}
 
 	u8vec2 operator/(const u8vec2& v, f32 s) {
-		// f32 inv = 1.0f / s;
-		// return u8vec2{
-		// 		static_cast<u8>(v.x * inv),
-		// 		static_cast<u8>(v.y * inv)
-		// };
 		if (s == 0.0f) return u8vec2{0};
 		f32 inv = 1.0f / s;
 		return u8vec2{
 			saturate_u8(v.x * inv),
-			saturate_u8(v.y * inv) };
+			saturate_u8(v.y * inv)
+		};
 	}
 
 	u8vec3 operator/(const u8vec3& v, f32 s) {
-		// f32 inv = 1.0f / s;
-		// return u8vec3{
-		// 		static_cast<u8>(v.x * inv),
-		// 		static_cast<u8>(v.y * inv),
-		// 		static_cast<u8>(v.z * inv)
-		// };
 		if (s == 0.0f) return u8vec3{0};
 		f32 inv = 1.0f / s;
 		return u8vec3{
@@ -1483,13 +1463,6 @@ namespace a3d::math {
 	}
 
 	u8vec4 operator/(const u8vec4& v, f32 s) {
-		// f32 inv = 1.0f / s;
-		// return u8vec4{
-		// 		static_cast<u8>(v.x * inv),
-		// 		static_cast<u8>(v.y * inv),
-		// 		static_cast<u8>(v.z * inv),
-		// 		static_cast<u8>(v.w * inv)
-		// };
 		if (s == 0.0f) return u8vec4{0};
 		f32 inv = 1.0f / s;
 		return u8vec4{
@@ -1542,58 +1515,31 @@ namespace a3d::math {
 	}
 
 	u8vec2& operator*=(u8vec2& v, f32 s) {
-		// v.x = static_cast<u8>(v.x * s);
-		// v.y = static_cast<u8>(v.y * s);
-		// return v;
 		v = v * s;
 		return v;
 	}
 
 	u8vec3& operator*=(u8vec3& v, f32 s) {
-		// v.x = static_cast<u8>(v.x * s);
-		// v.y = static_cast<u8>(v.y * s);
-		// v.z = static_cast<u8>(v.z * s);
-		// return v;
 		v = v * s;
 		return v;
 	}
 
 	u8vec4& operator*=(u8vec4& v, f32 s) {
-		// v.x = static_cast<u8>(v.x * s);
-		// v.y = static_cast<u8>(v.y * s);
-		// v.z = static_cast<u8>(v.z * s);
-		// v.w = static_cast<u8>(v.w * s);
-		// return v;
 		v = v * s;
 		return v;
 	}
 
 	u8vec2& operator/=(u8vec2& v, f32 s) {
-		// f32 inv = 1.0f / s;
-		// v.x = static_cast<u8>(v.x * inv);
-		// v.y = static_cast<u8>(v.y * inv);
-		// return v;
 		v = v / s;
 		return v;
 	}
 
 	u8vec3& operator/=(u8vec3& v, f32 s) {
-		// f32 inv = 1.0f / s;
-		// v.x = static_cast<u8>(v.x * inv);
-		// v.y = static_cast<u8>(v.y * inv);
-		// v.z = static_cast<u8>(v.z * inv);
-		// return v;
 		v = v / s;
 		return v;
 	}
 
 	u8vec4& operator/=(u8vec4& v, f32 s) {
-		// f32 inv = 1.0f / s;
-		// v.x = static_cast<u8>(v.x * inv);
-		// v.y = static_cast<u8>(v.y * inv);
-		// v.z = static_cast<u8>(v.z * inv);
-		// v.w = static_cast<u8>(v.w * inv);
-		// return v;
 		v = v / s;
 		return v;
 	}

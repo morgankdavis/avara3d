@@ -10,7 +10,6 @@
 #define AVARA3D_MATH_H
 
 #include <cstdint>
-//#include <float.h>
 #include <optional>
 #include <random>
 #include <string>
@@ -487,17 +486,17 @@ namespace a3d::math {
 	u8vec3     	operator-(const u8vec3& a, const u8vec3& b);
 	u8vec4     	operator-(const u8vec4& a, const u8vec4& b);
 
-	u8vec2     	operator*(const u8vec2& v, f32 s); // saturates to [0,255]
-	u8vec3     	operator*(const u8vec3& v, f32 s); // saturates to [0,255]
-	u8vec4     	operator*(const u8vec4& v, f32 s); // saturates to [0,255]
+	u8vec2     	operator*(const u8vec2& v, f32 s); // saturates to [0, 255]
+	u8vec3     	operator*(const u8vec3& v, f32 s); // saturates to [0, 255]
+	u8vec4     	operator*(const u8vec4& v, f32 s); // saturates to [0, 255]
 
-	u8vec2     	operator*(f32 s, const u8vec2& v); // saturates to [0,255]
-	u8vec3     	operator*(f32 s, const u8vec3& v); // saturates to [0,255]
-	u8vec4     	operator*(f32 s, const u8vec4& v); // saturates to [0,255]
+	u8vec2     	operator*(f32 s, const u8vec2& v); // saturates to [0, 255]
+	u8vec3     	operator*(f32 s, const u8vec3& v); // saturates to [0, 255]
+	u8vec4     	operator*(f32 s, const u8vec4& v); // saturates to [0, 255]
 
-	u8vec2     	operator/(const u8vec2& v, f32 s); // saturates to [0,255]
-	u8vec3     	operator/(const u8vec3& v, f32 s); // saturates to [0,255]
-	u8vec4     	operator/(const u8vec4& v, f32 s); // saturates to [0,255]
+	u8vec2     	operator/(const u8vec2& v, f32 s); // saturates to [0, 255]
+	u8vec3     	operator/(const u8vec3& v, f32 s); // saturates to [0, 255]
+	u8vec4     	operator/(const u8vec4& v, f32 s); // saturates to [0, 255]
 
 	u8vec2&    	operator+=(u8vec2& a, const u8vec2& b);
 	u8vec3&    	operator+=(u8vec3& a, const u8vec3& b);
@@ -507,13 +506,13 @@ namespace a3d::math {
 	u8vec3&    	operator-=(u8vec3& a, const u8vec3& b);
 	u8vec4&    	operator-=(u8vec4& a, const u8vec4& b);
 
-	u8vec2&    	operator*=(u8vec2& v, f32 s); // saturates to [0,255]
-	u8vec3&    	operator*=(u8vec3& v, f32 s); // saturates to [0,255]
-	u8vec4&    	operator*=(u8vec4& v, f32 s); // saturates to [0,255]
+	u8vec2&    	operator*=(u8vec2& v, f32 s); // saturates to [0, 255]
+	u8vec3&    	operator*=(u8vec3& v, f32 s); // saturates to [0, 255]
+	u8vec4&    	operator*=(u8vec4& v, f32 s); // saturates to [0, 255]
 
-	u8vec2&    	operator/=(u8vec2& v, f32 s); // saturates to [0,255]
-	u8vec3&    	operator/=(u8vec3& v, f32 s); // saturates to [0,255]
-	u8vec4&    	operator/=(u8vec4& v, f32 s); // saturates to [0,255]
+	u8vec2&    	operator/=(u8vec2& v, f32 s); // saturates to [0, 255]
+	u8vec3&    	operator/=(u8vec3& v, f32 s); // saturates to [0, 255]
+	u8vec4&    	operator/=(u8vec4& v, f32 s); // saturates to [0, 255]
 
 	bool 		operator==(const u8vec2& a, const u8vec2& b);
 	bool 		operator==(const u8vec3& a, const u8vec3& b);
@@ -659,15 +658,9 @@ namespace a3d::math {
 		const f32& operator[](std::size_t i) const;
 	};
 
-	// f32quat 	operator-(const f32quat& q); // moved private
-	//
-	// f32quat 	operator+(const f32quat& a, const f32quat& b);// moved private
-
 	f32quat 	operator*(const f32quat& a, const f32quat& b);
 	f32quat 	operator*(const f32quat& q, f32 s);
 	f32quat 	operator*(f32 s, const f32quat& q);
-
-	// f32quat& 	operator+=(f32quat& a, const f32quat& b);// moved private
 
 	f32quat& 	operator*=(f32quat& a, const f32quat& b);
 	f32quat& 	operator*=(f32quat& q, f32 s);
@@ -942,22 +935,22 @@ namespace a3d::math {
 
 	/// Constants ///
 
-	inline constexpr f32 e() 				{ return f32(2.7182818284590452354); }	// e
-	inline constexpr f32 log2e() 			{ return f32(1.4426950408889634074); }	// log_2 e
-	inline constexpr f32 log10e() 			{ return f32(0.43429448190325182765); }	// log_10 e
-	inline constexpr f32 nl2() 				{ return f32(0.69314718055994530942); }	// log_e 2
-	inline constexpr f32 nl10() 			{ return f32(2.30258509299404568402); }	// log_e 10
-	inline constexpr f32 pi() 				{ return f32(3.14159265358979323846); }	// pi
-	inline constexpr f32 two_pi() 			{ return f32(6.2831853071795864769); }	// pi*2
-	inline constexpr f32 pi_over_2()		{ return f32(1.57079632679489661923); }	// pi/2
-	inline constexpr f32 pi_over_4() 		{ return f32(0.78539816339744830962); }	// pi/4
-	inline constexpr f32 one_over_pi()		{ return f32(0.31830988618379067154); }	// 1/pi
-	inline constexpr f32 two_over_pi()		{ return f32(0.63661977236758134308); }	// 2/pi
-	inline constexpr f32 two_over_sqrt_pi()	{ return f32(1.12837916709551257390); }	// 2/sqrt(pi)
-	inline constexpr f32 sqrt2()			{ return f32(1.41421356237309504880); }	// sqrt(2)
-	inline constexpr f32 one_over_sqrt2()	{ return f32(0.70710678118654752440); }	// 1/sqrt(2)
-	inline constexpr f32 f32_lowest() 		{ return f32(std::numeric_limits<float>::lowest()); }
-	inline constexpr f32 f32_max() 			{ return f32(std::numeric_limits<float>::max()); }
+	constexpr f32 e() 					{ return f32(2.7182818284590452354); }	// e
+	constexpr f32 log2e() 				{ return f32(1.4426950408889634074); }	// log_2 e
+	constexpr f32 log10e() 				{ return f32(0.43429448190325182765); }	// log_10 e
+	constexpr f32 nl2() 				{ return f32(0.69314718055994530942); }	// log_e 2
+	constexpr f32 nl10() 				{ return f32(2.30258509299404568402); }	// log_e 10
+	constexpr f32 pi() 					{ return f32(3.14159265358979323846); }	// pi
+	constexpr f32 two_pi() 				{ return f32(6.2831853071795864769); }	// pi*2
+	constexpr f32 pi_over_2()			{ return f32(1.57079632679489661923); }	// pi/2
+	constexpr f32 pi_over_4() 			{ return f32(0.78539816339744830962); }	// pi/4
+	constexpr f32 one_over_pi()			{ return f32(0.31830988618379067154); }	// 1/pi
+	constexpr f32 two_over_pi()			{ return f32(0.63661977236758134308); }	// 2/pi
+	constexpr f32 two_over_sqrt_pi()	{ return f32(1.12837916709551257390); }	// 2/sqrt(pi)
+	constexpr f32 sqrt2()				{ return f32(1.41421356237309504880); }	// sqrt(2)
+	constexpr f32 one_over_sqrt2()		{ return f32(0.70710678118654752440); }	// 1/sqrt(2)
+	constexpr f32 f32_lowest() 			{ return f32(std::numeric_limits<float>::lowest()); }
+	constexpr f32 f32_max() 			{ return f32(std::numeric_limits<float>::max()); }
 }
 
 #endif //AVARA3D_MATH_H
