@@ -98,7 +98,7 @@ unique_ptr<a3d::Scene> GlTFImporter::scene() {
 			if (!scenes.empty()) {
 
 				if (scenes.size() > 1) {
-					log::w()("Ignoring extra scenes.");
+					log::w()("Ignoring {} extra scenes.", scenes.size()-1);
 				}
 
 				auto& scene = scenes[_asset.defaultScene ? *_asset.defaultScene : 0];

@@ -487,17 +487,17 @@ namespace a3d::math {
 	u8vec3     	operator-(const u8vec3& a, const u8vec3& b);
 	u8vec4     	operator-(const u8vec4& a, const u8vec4& b);
 
-	u8vec2     	operator*(const u8vec2& v, f32 s);
-	u8vec3     	operator*(const u8vec3& v, f32 s);
-	u8vec4     	operator*(const u8vec4& v, f32 s);
+	u8vec2     	operator*(const u8vec2& v, f32 s); // saturates to [0,255]
+	u8vec3     	operator*(const u8vec3& v, f32 s); // saturates to [0,255]
+	u8vec4     	operator*(const u8vec4& v, f32 s); // saturates to [0,255]
 
-	u8vec2     	operator*(f32 s, const u8vec2& v);
-	u8vec3     	operator*(f32 s, const u8vec3& v);
-	u8vec4     	operator*(f32 s, const u8vec4& v);
+	u8vec2     	operator*(f32 s, const u8vec2& v); // saturates to [0,255]
+	u8vec3     	operator*(f32 s, const u8vec3& v); // saturates to [0,255]
+	u8vec4     	operator*(f32 s, const u8vec4& v); // saturates to [0,255]
 
-	u8vec2     	operator/(const u8vec2& v, f32 s);
-	u8vec3     	operator/(const u8vec3& v, f32 s);
-	u8vec4     	operator/(const u8vec4& v, f32 s);
+	u8vec2     	operator/(const u8vec2& v, f32 s); // saturates to [0,255]
+	u8vec3     	operator/(const u8vec3& v, f32 s); // saturates to [0,255]
+	u8vec4     	operator/(const u8vec4& v, f32 s); // saturates to [0,255]
 
 	u8vec2&    	operator+=(u8vec2& a, const u8vec2& b);
 	u8vec3&    	operator+=(u8vec3& a, const u8vec3& b);
@@ -507,13 +507,13 @@ namespace a3d::math {
 	u8vec3&    	operator-=(u8vec3& a, const u8vec3& b);
 	u8vec4&    	operator-=(u8vec4& a, const u8vec4& b);
 
-	u8vec2&    	operator*=(u8vec2& v, f32 s);
-	u8vec3&    	operator*=(u8vec3& v, f32 s);
-	u8vec4&    	operator*=(u8vec4& v, f32 s);
+	u8vec2&    	operator*=(u8vec2& v, f32 s); // saturates to [0,255]
+	u8vec3&    	operator*=(u8vec3& v, f32 s); // saturates to [0,255]
+	u8vec4&    	operator*=(u8vec4& v, f32 s); // saturates to [0,255]
 
-	u8vec2&    	operator/=(u8vec2& v, f32 s);
-	u8vec3&    	operator/=(u8vec3& v, f32 s);
-	u8vec4&    	operator/=(u8vec4& v, f32 s);
+	u8vec2&    	operator/=(u8vec2& v, f32 s); // saturates to [0,255]
+	u8vec3&    	operator/=(u8vec3& v, f32 s); // saturates to [0,255]
+	u8vec4&    	operator/=(u8vec4& v, f32 s); // saturates to [0,255]
 
 	bool 		operator==(const u8vec2& a, const u8vec2& b);
 	bool 		operator==(const u8vec3& a, const u8vec3& b);
@@ -659,15 +659,15 @@ namespace a3d::math {
 		const f32& operator[](std::size_t i) const;
 	};
 
-	f32quat 	operator-(const f32quat& q);
-
-	f32quat 	operator+(const f32quat& a, const f32quat& b);
+	// f32quat 	operator-(const f32quat& q); // moved private
+	//
+	// f32quat 	operator+(const f32quat& a, const f32quat& b);// moved private
 
 	f32quat 	operator*(const f32quat& a, const f32quat& b);
 	f32quat 	operator*(const f32quat& q, f32 s);
 	f32quat 	operator*(f32 s, const f32quat& q);
 
-	f32quat& 	operator+=(f32quat& a, const f32quat& b);
+	// f32quat& 	operator+=(f32quat& a, const f32quat& b);// moved private
 
 	f32quat& 	operator*=(f32quat& a, const f32quat& b);
 	f32quat& 	operator*=(f32quat& q, f32 s);
@@ -770,7 +770,7 @@ namespace a3d::math {
 	f32vec4 	lerp_01(const f32vec4& a, const f32vec4& b, f32 t);
 
 	f32 		inverse_lerp(f32 a, f32 b, f32 v);       // unclamped
-	f32 		inv_lerp_01(f32 a, f32 b, f32 v);    // clamps result to [0,1]
+	f32 		inverse_lerp_01(f32 a, f32 b, f32 v);    // clamps result to [0,1]
 
 	f32 		remap(f32 inA, f32 inB, f32 outA, f32 outB, f32 v);       // unclamped
 	f32 		remap_01(f32 inA, f32 inB, f32 outA, f32 outB, f32 v);    // clamps normalized t to [0,1]

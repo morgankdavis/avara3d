@@ -19,12 +19,16 @@ namespace a3d::math {
 
 	/// Private Utility Prototypes ///
 
-	static inline std::mt19937& default_random_gen();
-	static inline std::mt19937& pick_random_gen(std::mt19937* gen);
-	static inline f32 			ease_out_bounce_impl(f32 t);
-	static inline f32 			hue2rgb(f32 p, f32 q, f32 t);
-	static inline std::string 	mat_right_fit(std::string s, int width);
-	static inline std::string 	mat_fmtf(float v, unsigned width);
+	static std::mt19937&	default_random_gen();
+	static std::mt19937&	pick_random_gen(std::mt19937* gen);
+	static f32 				ease_out_bounce_impl(f32 t);
+	static f32 				hue2rgb(f32 p, f32 q, f32 t);
+	static std::string 		mat_right_fit(std::string s, int width);
+	static std::string 		mat_fmtf(float v, unsigned width);
+	static u8				saturate_u8(f32 v);
+	f32quat 				operator-(const f32quat& q);
+	f32quat 				operator+(const f32quat& a, const f32quat& b);
+	f32quat& 				operator+=(f32quat& a, const f32quat& b);
 
 	/// Types ///
 
@@ -1408,27 +1412,34 @@ namespace a3d::math {
 	}
 
 	u8vec2 operator*(const u8vec2& v, f32 s) {
-		return u8vec2{
-				static_cast<u8>(v.x * s),
-				static_cast<u8>(v.y * s)
-		};
+		// return u8vec2{
+		// 		static_cast<u8>(v.x * s),
+		// 		static_cast<u8>(v.y * s)
+		// };
+		return u8vec2{ saturate_u8(v.x * s), saturate_u8(v.y * s) };
 	}
 
 	u8vec3 operator*(const u8vec3& v, f32 s) {
-		return u8vec3{
-				static_cast<u8>(v.x * s),
-				static_cast<u8>(v.y * s),
-				static_cast<u8>(v.z * s)
-		};
+		// return u8vec3{
+		// 		static_cast<u8>(v.x * s),
+		// 		static_cast<u8>(v.y * s),
+		// 		static_cast<u8>(v.z * s)
+		// };
+		return u8vec3{ saturate_u8(v.x * s), saturate_u8(v.y * s), saturate_u8(v.z * s) };
 	}
 
 	u8vec4 operator*(const u8vec4& v, f32 s) {
+		// return u8vec4{
+		// 		static_cast<u8>(v.x * s),
+		// 		static_cast<u8>(v.y * s),
+		// 		static_cast<u8>(v.z * s),
+		// 		static_cast<u8>(v.w * s)
+		// };
 		return u8vec4{
-				static_cast<u8>(v.x * s),
-				static_cast<u8>(v.y * s),
-				static_cast<u8>(v.z * s),
-				static_cast<u8>(v.w * s)
-		};
+			saturate_u8(v.x * s),
+			saturate_u8(v.y * s),
+			saturate_u8(v.z * s),
+			saturate_u8(v.w * s) };
 	}
 
 	u8vec2 operator*(f32 s, const u8vec2& v) {
@@ -1444,30 +1455,48 @@ namespace a3d::math {
 	}
 
 	u8vec2 operator/(const u8vec2& v, f32 s) {
+		// f32 inv = 1.0f / s;
+		// return u8vec2{
+		// 		static_cast<u8>(v.x * inv),
+		// 		static_cast<u8>(v.y * inv)
+		// };
+		if (s == 0.0f) return u8vec2{0};
 		f32 inv = 1.0f / s;
 		return u8vec2{
-				static_cast<u8>(v.x * inv),
-				static_cast<u8>(v.y * inv)
-		};
+			saturate_u8(v.x * inv),
+			saturate_u8(v.y * inv) };
 	}
 
 	u8vec3 operator/(const u8vec3& v, f32 s) {
+		// f32 inv = 1.0f / s;
+		// return u8vec3{
+		// 		static_cast<u8>(v.x * inv),
+		// 		static_cast<u8>(v.y * inv),
+		// 		static_cast<u8>(v.z * inv)
+		// };
+		if (s == 0.0f) return u8vec3{0};
 		f32 inv = 1.0f / s;
 		return u8vec3{
-				static_cast<u8>(v.x * inv),
-				static_cast<u8>(v.y * inv),
-				static_cast<u8>(v.z * inv)
-		};
+			saturate_u8(v.x * inv),
+			saturate_u8(v.y * inv),
+			saturate_u8(v.z * inv) };
 	}
 
 	u8vec4 operator/(const u8vec4& v, f32 s) {
+		// f32 inv = 1.0f / s;
+		// return u8vec4{
+		// 		static_cast<u8>(v.x * inv),
+		// 		static_cast<u8>(v.y * inv),
+		// 		static_cast<u8>(v.z * inv),
+		// 		static_cast<u8>(v.w * inv)
+		// };
+		if (s == 0.0f) return u8vec4{0};
 		f32 inv = 1.0f / s;
 		return u8vec4{
-				static_cast<u8>(v.x * inv),
-				static_cast<u8>(v.y * inv),
-				static_cast<u8>(v.z * inv),
-				static_cast<u8>(v.w * inv)
-		};
+			saturate_u8(v.x * inv),
+			saturate_u8(v.y * inv),
+			saturate_u8(v.z * inv),
+			saturate_u8(v.w * inv) };
 	}
 
 	u8vec2& operator+=(u8vec2& a, const u8vec2& b) {
@@ -1513,47 +1542,59 @@ namespace a3d::math {
 	}
 
 	u8vec2& operator*=(u8vec2& v, f32 s) {
-		v.x = static_cast<u8>(v.x * s);
-		v.y = static_cast<u8>(v.y * s);
+		// v.x = static_cast<u8>(v.x * s);
+		// v.y = static_cast<u8>(v.y * s);
+		// return v;
+		v = v * s;
 		return v;
 	}
 
 	u8vec3& operator*=(u8vec3& v, f32 s) {
-		v.x = static_cast<u8>(v.x * s);
-		v.y = static_cast<u8>(v.y * s);
-		v.z = static_cast<u8>(v.z * s);
+		// v.x = static_cast<u8>(v.x * s);
+		// v.y = static_cast<u8>(v.y * s);
+		// v.z = static_cast<u8>(v.z * s);
+		// return v;
+		v = v * s;
 		return v;
 	}
 
 	u8vec4& operator*=(u8vec4& v, f32 s) {
-		v.x = static_cast<u8>(v.x * s);
-		v.y = static_cast<u8>(v.y * s);
-		v.z = static_cast<u8>(v.z * s);
-		v.w = static_cast<u8>(v.w * s);
+		// v.x = static_cast<u8>(v.x * s);
+		// v.y = static_cast<u8>(v.y * s);
+		// v.z = static_cast<u8>(v.z * s);
+		// v.w = static_cast<u8>(v.w * s);
+		// return v;
+		v = v * s;
 		return v;
 	}
 
 	u8vec2& operator/=(u8vec2& v, f32 s) {
-		f32 inv = 1.0f / s;
-		v.x = static_cast<u8>(v.x * inv);
-		v.y = static_cast<u8>(v.y * inv);
+		// f32 inv = 1.0f / s;
+		// v.x = static_cast<u8>(v.x * inv);
+		// v.y = static_cast<u8>(v.y * inv);
+		// return v;
+		v = v / s;
 		return v;
 	}
 
 	u8vec3& operator/=(u8vec3& v, f32 s) {
-		f32 inv = 1.0f / s;
-		v.x = static_cast<u8>(v.x * inv);
-		v.y = static_cast<u8>(v.y * inv);
-		v.z = static_cast<u8>(v.z * inv);
+		// f32 inv = 1.0f / s;
+		// v.x = static_cast<u8>(v.x * inv);
+		// v.y = static_cast<u8>(v.y * inv);
+		// v.z = static_cast<u8>(v.z * inv);
+		// return v;
+		v = v / s;
 		return v;
 	}
 
 	u8vec4& operator/=(u8vec4& v, f32 s) {
-		f32 inv = 1.0f / s;
-		v.x = static_cast<u8>(v.x * inv);
-		v.y = static_cast<u8>(v.y * inv);
-		v.z = static_cast<u8>(v.z * inv);
-		v.w = static_cast<u8>(v.w * inv);
+		// f32 inv = 1.0f / s;
+		// v.x = static_cast<u8>(v.x * inv);
+		// v.y = static_cast<u8>(v.y * inv);
+		// v.z = static_cast<u8>(v.z * inv);
+		// v.w = static_cast<u8>(v.w * inv);
+		// return v;
+		v = v / s;
 		return v;
 	}
 
@@ -2135,13 +2176,13 @@ namespace a3d::math {
 
 	/// 32-bit Float Quaternion ///
 
-	f32quat operator-(const f32quat& q) {
-		return { -q.w, -q.x, -q.y, -q.z };
-	}
-
-	f32quat operator+(const f32quat &a, const f32quat &b) {
-		return f32quat{a.w + b.w, a.x + b.x, a.y + b.y, a.z + b.z};
-	}
+	// f32quat operator-(const f32quat& q) {
+	// 	return { -q.w, -q.x, -q.y, -q.z };
+	// }
+	//
+	// f32quat operator+(const f32quat &a, const f32quat &b) {
+	// 	return f32quat{a.w + b.w, a.x + b.x, a.y + b.y, a.z + b.z};
+	// }
 
 	// convention: result = a * b applies b first, then a (GLM-style)
 	f32quat operator*(const f32quat &a, const f32quat &b) {
@@ -2159,13 +2200,13 @@ namespace a3d::math {
 		return q * s;
 	}
 
-	f32quat& operator+=(f32quat& a, const f32quat& b) {
-		a.w += b.w;
-		a.x += b.x;
-		a.y += b.y;
-		a.z += b.z;
-		return a;
-	}
+	// f32quat& operator+=(f32quat& a, const f32quat& b) {
+	// 	a.w += b.w;
+	// 	a.x += b.x;
+	// 	a.y += b.y;
+	// 	a.z += b.z;
+	// 	return a;
+	// }
 
 	f32quat& operator*=(f32quat& a, const f32quat& b) {
 		a = a * b; // use Hamilton product
@@ -2487,6 +2528,20 @@ namespace a3d::math {
 
 	/// Matrix Decomposition ///
 
+	// decomposes an affine 4x4 matrix into TRS components (translation * rotation * scale).
+	//
+	// *** important note on negative / mirror scales: ***
+	// if the determinant of the upper 3x3 is negative, one axis is effectively flipped.
+	// we detect this, negate the corresponding scale component, and flip the matching
+	// basis vector before converting to quaternion. this produces a valid rotation
+	// but the extracted scale will have a negative component.
+	//
+	// this is mathematically correct, but some libraries (or artists) may expect
+	// all-positive scale + an extra 180° rotation instead. if you see unexpected
+	// 180° flips or mirrored models after decompose/recompose, this handedness fix
+	// is the most common culprit.
+	//
+	// [this blurb came from Grok while auditing]
 	bool decompose(const f32mat4& m,
 				   f32vec3& scale,
 				   f32quat& rotation,
@@ -3723,5 +3778,25 @@ namespace a3d::math {
 		}
 
 		return std::string(width, '#');
+	}
+
+	u8 saturate_u8(f32 v) {
+		return static_cast<u8>(math::clamp(v, 0.0f, 255.0f));
+	}
+
+	f32quat operator-(const f32quat& q) {
+		return { -q.w, -q.x, -q.y, -q.z };
+	}
+
+	f32quat operator+(const f32quat &a, const f32quat &b) {
+		return f32quat{a.w + b.w, a.x + b.x, a.y + b.y, a.z + b.z};
+	}
+
+	f32quat& operator+=(f32quat& a, const f32quat& b) {
+		a.w += b.w;
+		a.x += b.x;
+		a.y += b.y;
+		a.z += b.z;
+		return a;
 	}
 }
