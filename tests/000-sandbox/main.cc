@@ -93,7 +93,7 @@ int main(int argc, const char* argv[]) {
 		physicalWorld->didSimulateCallback(bind(&DidSimulatePhysicsCallback, _1, _2, _3));
 
 		//auto scene = make_unique<Scene>(std::move(visualWorld), std::move(physicalWorld), std::move(inputManager));
-		auto mapPath = util::filesystem::AuxFilePath("Icebox", "alf");
+		auto mapPath = util::filesystem::AuxiliaryFilePath("Icebox", "alf");
 		auto alfImporter = ALFImporter(*mapPath);
 		auto scene = alfImporter.scene(*visualWorld);
 

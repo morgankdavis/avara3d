@@ -198,10 +198,10 @@ vector<std::filesystem::path> a3d::util::filesystem::FontSearchPaths() {
 	return searchPaths;
 }
 
-vector<std::filesystem::path> a3d::util::filesystem::AuxSearchPaths() {
+vector<std::filesystem::path> a3d::util::filesystem::AuxiliarySearchPaths() {
 	auto searchPaths = vector<std::filesystem::path>();
 	for (auto& path : BaseSearchPaths()) {
-		searchPaths.push_back(path / "aux");
+		searchPaths.push_back(path / "auxiliary");
 	}
 	return searchPaths;
 }
@@ -349,12 +349,12 @@ shared_ptr<Mesh> a3d::util::filesystem::MeshNamed(const string& name,
 	return nullptr;
 }
 
-// *** aux ***
+// *** other ***
 
-optional<filesystem::path> a3d::util::filesystem::AuxFilePath(const string& name,
-															  const string& type) {
+optional<filesystem::path> a3d::util::filesystem::AuxiliaryFilePath(const string& name,
+																	const string& type) {
 
-	auto path = SearchInPaths((name + "." + type), AuxSearchPaths());
+	auto path = SearchInPaths((name + "." + type), AuxiliarySearchPaths());
 	 if (path) {
 		 log::t()("Found aux file at path: {}", (*path).string());
 		 return *path;

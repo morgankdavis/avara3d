@@ -117,8 +117,6 @@ unique_ptr<Scene> ALFImporter::scene(VisualWorld& visualWorld) {
 			auto color = make_shared<Color>(node.attribute("color").as_string());
 			auto color1 = make_shared<Color>(node.attribute("color.1").as_string());
 
-			// color="#3dacff" color.1="#4180ff"
-
 			log::d()("Wall: x: {}, z: {}, w: {}, d: {}, h: {}, y: {}",
 					x, z, w, d, h, y);
 
@@ -153,7 +151,7 @@ unique_ptr<Scene> ALFImporter::scene(VisualWorld& visualWorld) {
 //					shape, cx, cz, y, angle, color.u8rgb(), color1.u8rgb());
 
 			auto meshSubpath = filesystem::path(shape) / filesystem::path(shape + "");
-			auto meshPath = util::filesystem::AuxFilePath(meshSubpath, "gltf");
+			auto meshPath = util::filesystem::AuxiliaryFilePath(meshSubpath, "gltf");
 			static auto mesh = GlTFImporter(*meshPath, Scene::ImportOptions::ImportMeshes).firstMesh();
 
 			auto node = Node::MeshNode(mesh);

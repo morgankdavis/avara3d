@@ -44,7 +44,7 @@ namespace a3d::util::filesystem {
 	std::vector<std::filesystem::path> 		ModelSearchPaths();
 	std::vector<std::filesystem::path> 		ImageSearchPaths();
 	std::vector<std::filesystem::path> 		FontSearchPaths();
-	std::vector<std::filesystem::path> 		AuxSearchPaths();
+	std::vector<std::filesystem::path> 		AuxiliarySearchPaths();
 	std::optional<std::filesystem::path>	SearchInPaths(const std::string& filename,
 														  std::vector<std::filesystem::path> paths);
 #endif
@@ -103,8 +103,8 @@ namespace a3d::util::filesystem {
 
 	// *** aux ***
 
-	std::optional<std::filesystem::path>	AuxFilePath(const std::string& name,
-														const std::string& type);
+	std::optional<std::filesystem::path>	AuxiliaryFilePath(const std::string &name,
+															  const std::string &type);
 #endif
 }
 
