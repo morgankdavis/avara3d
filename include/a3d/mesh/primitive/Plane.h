@@ -23,8 +23,8 @@ namespace a3d {
 	public:
 		/// Public Static Member Functions ///
 
-		static std::shared_ptr<Mesh> Mesh(float width,
-										  float height,
+		static std::shared_ptr<Mesh> Mesh(float width, // x
+										  float height, // y
 										  unsigned widthSegements = DEFAULT_SEGMENTS,
 										  unsigned heightSegments = DEFAULT_SEGMENTS,
 										  std::shared_ptr<Material> material = nullptr);

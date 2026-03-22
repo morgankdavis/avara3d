@@ -119,7 +119,7 @@ int main(int argc, const char* argv[]) {
 		const float PLANE_WIDTH = 20.0;
 		auto planeNode = make_shared<Node>("Ground plane node");
 		//planeNode->mesh(Mesh::Box(PLANE_LENGTH, PLANE_WIDTH, 0));
-		planeNode->mesh(Box::Mesh(PLANE_LENGTH, PLANE_WIDTH, 0));
+		planeNode->mesh(Box::Mesh(PLANE_LENGTH, 0, PLANE_WIDTH));
 		auto gridImage = DARK
 				? util::filesystem::ImageNamed("grid10")->inverted()
 				: util::filesystem::ImageNamed("grid10");
@@ -146,8 +146,10 @@ int main(int argc, const char* argv[]) {
 		planeMaterial->doubleSided(false);
 		planeNode->mesh()->addMaterial(planeMaterial);
 	//	planeNode->mesh()->replaceMaterial(0, planeMaterial);
-		planeNode->rotation({1, 0, 0}, radians(3*90.0));
+		//planeNode->rotation({1, 0, 0}, radians(3*90.0));
 		planeNode->position({planeNode->position().x, 0, planeNode->position().z});
+
+
 
 	//	auto planePhysicsBody = PhysicsBody::StaticBody();
 	//	planeNode->physicsBody(planePhysicsBody);
@@ -210,6 +212,74 @@ int main(int argc, const char* argv[]) {
 	//		auto testMesh = MeshNamed("tuna_rot/tuna_rot");
 	//		auto testMesh = MeshNamed("cartoon_palm_tree/cartoon_palm_tree");
 	//		auto testMesh = MeshNamed("crocus/crocus");
+
+
+
+
+
+
+
+//		{
+//			auto mesh = Box::Mesh(1.0f, 2.0f, 3.0f);
+//			auto node = make_shared<Node>();
+//			node->name("box");
+//			node->mesh(mesh);
+//			scene->rootNode()->addChild(node);
+//			//node->position(vec3(0.0f, 1.0f, 0.0f));
+//		}
+
+
+
+		{
+			auto mesh = Wedge::Mesh(1.0f, 5.0f, 10.0f);
+			auto node = make_shared<Node>();
+			mesh->name("wedge");
+			node->mesh(mesh);
+			scene->rootNode()->addChild(node);
+			//node->rotation({-1.0f, 0.0f, 0.0f}, radians(90.0f));
+			node->position(vec3(0.0f, 5.0f, 0.0f));
+		}
+
+//		{
+//			auto mesh = Sphere::Mesh(1.0f);
+//			auto node = make_shared<Node>();
+//			mesh->name("sphere");
+//			node->mesh(mesh);
+//			scene->rootNode()->addChild(node);
+//			//node->position(vec3(5.0f, 2.5f, 0.0f));
+//		}
+
+//		{
+//			auto mesh = Dome::Mesh(5.0f,
+//								   0, math::radians(90.0),
+//								   0, math::radians(180.0));
+//			auto node = make_shared<Node>();
+//			mesh->name("dome");
+//			node->mesh(mesh);
+//			scene->rootNode()->addChild(node);
+//			node->position(vec3(5.0f, 2.5f, 0.0f));
+//		}
+
+//		{
+//			auto mesh = Disk::Mesh(2.5f, 5.0f);
+//			auto node = make_shared<Node>();
+//			node->name("disk");
+//			node->mesh(mesh);
+//			scene->rootNode()->addChild(node);
+//			node->position(vec3(0.0f, 5.0f, 0.0f));
+//		}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 		window->center();

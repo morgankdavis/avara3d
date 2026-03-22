@@ -22,47 +22,50 @@ using namespace std;
 
 /// Pubic Static Members ///
 
-shared_ptr<Mesh> Box::Mesh(float length,
-						   float width,
+shared_ptr<Mesh> Box::Mesh(float width,
 						   float height,
-						   unsigned lengthSegments,
+						   float length,
 						   unsigned widthSegments,
 						   unsigned heightSegments,
+						   unsigned lengthSegments,
 						   const shared_ptr<Material> material) {
 
 
 	return make_shared<a3d::Mesh>("Box",
-								  make_unique<Box>(length,
-												   width,
+								  make_unique<Box>(width,
 												   height,
-												   lengthSegments,
+												   length,
 												   widthSegments,
-												   heightSegments),
+												   heightSegments,
+												   lengthSegments),
 								  material);
 }
 
 /// Public Lifecycle Functions ///
 
-Box::Box(float length,
-		 float width,
+Box::Box(float width,
 		 float height,
-		 unsigned lengthSegments,
+		 float length,
 		 unsigned widthSegments,
-		 unsigned heightSegments):
+		 unsigned heightSegments,
+		 unsigned lengthSegments):
 		MeshElement{},
-		_length{length},
 		_width{width},
 		_height{height},
-		_lengthSegments{lengthSegments},
+		_length{length},
 		_widthSegments{widthSegments},
-		_heightSegments{heightSegments} {
+		_heightSegments{heightSegments},
+		_lengthSegments{lengthSegments} {
 
 	using namespace generator;
 
 	/// @param size Half of the side length in x (0), y (1) and z (2) direction.
 	/// @param segments The number of segments in x (0), y (1) and z (2)
 
-	auto box = BoxMesh{ { width/2.0, length/2.0, height/2.0 },
+//	auto box = BoxMesh{ { width/2.0, length/2.0, height/2.0 },
+//						{ widthSegments, lengthSegments, heightSegments } };
+
+	auto box = BoxMesh{ { width/2.0, height/2.0, length/2.0 },
 						{ widthSegments, lengthSegments, heightSegments } };
 
 	// Build an indexed triangle list.

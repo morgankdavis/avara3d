@@ -121,10 +121,10 @@ BulletShapeProxy::BulletShapeProxy(PhysicsShape& shape):
 
 			if (auto sourceMesh = source.lock()) {
 				return BTShapeFromSourceMesh(*sourceMesh,
-												 shape.type(),
-												 bodyType,
-												 btShapes,
-												 btIndexVertexArrays);
+											 shape.type(),
+											 bodyType,
+											 btShapes,
+											 btIndexVertexArrays);
 			}
 			else {
 				log::w()("sourceMesh is null.");
@@ -136,10 +136,10 @@ BulletShapeProxy::BulletShapeProxy(PhysicsShape& shape):
 
 			if (auto sourceNode = source.lock()) {
 				return BTShapeFromSourceNode(*sourceNode,
-												 shape.type(),
-												 bodyType,
-												 btShapes,
-												 btIndexVertexArrays);
+											 shape.type(),
+											 bodyType,
+											 btShapes,
+											 btIndexVertexArrays);
 			}
 			else {
 				log::w()("sourceNode is null.");
@@ -324,9 +324,9 @@ BTShapeFromMeshElement(MeshElement& element,
 				 "(ignoring physics shape type '{}')",
 				 static_cast<void*>(&element), magic_enum::enum_name(shapeType));
 
-		return make_unique<btBoxShape>(btVector3((btScalar)box->length()/2.0f,
-												 (btScalar)box->width()/2.0f,
-												 (btScalar)box->height()/2.0f));
+		return make_unique<btBoxShape>(btVector3((btScalar)box->width()/2.0f,
+												 (btScalar)box->height()/2.0f,
+												 (btScalar)box->length()/2.0f));
 	}
 	else if (auto capsule = dynamic_cast<Capsule*>(&element)) {
 		log::i()("Creating capsule physics shape for MeshElement {:p}... " \

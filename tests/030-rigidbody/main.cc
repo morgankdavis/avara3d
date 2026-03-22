@@ -242,14 +242,7 @@ int main(int argc, const char* argv[]) {
 		static const float PLANE_LENGTH = 50.0;
 		static const float PLANE_WIDTH = 50.0;
 		auto planeNode = Node::NamedNode("Ground plane node");
-		planeNode->mesh(Box::Mesh(PLANE_LENGTH, PLANE_WIDTH, 0));
-		//auto gridImage = DARK ? utils::ImageNamed("grid10")->inverted() : utils::ImageNamed("grid10");
-//		auto planeTexture = make_shared<Texture>(Color::White());
-//		planeTexture->sampler()->wrapS(WrapMode::Repeat);
-//		planeTexture->sampler()->wrapT(WrapMode::Repeat);
-//		planeTexture->sampler()->maxAnisotropy(16);
-//		planeTexture->sampler()->minificationFilter(FilterMode::LinearMipmapLinear);
-//		planeTexture->sampler()->magnificationFilter(FilterMode::Linear);
+		planeNode->mesh(Box::Mesh(PLANE_LENGTH, 0, PLANE_WIDTH));
 
 		shared_ptr<Material> planeMaterial = make_shared<Material>(monostate{},
 																   Color::DarkGray(),
@@ -267,7 +260,7 @@ int main(int argc, const char* argv[]) {
 		planeMaterial->uvScale(PLANE_LENGTH / 10.0);
 		planeMaterial->doubleSided(false);
 		planeNode->mesh()->addMaterial(planeMaterial);
-		planeNode->rotation({1, 0, 0}, radians(1 * 90.0));
+		//planeNode->rotation({1, 0, 0}, radians(1 * 90.0));
 		planeNode->position({planeNode->position().x, 0, planeNode->position().z});
 
 		auto planePhysicsBody = PhysicsBody::StaticBody();
@@ -278,19 +271,18 @@ int main(int argc, const char* argv[]) {
 		scene->rootNode()->addChild(planeNode);
 
 
+		{
+			// add the palm tree
 
-
-		// add the palm tree
-
-		//auto palmNode = Node::MeshNode(util::filesystem::MeshNamed("palm/palm"));
-		auto palmNode = Node::MeshNode(util::filesystem::MeshNamed("cartoon_palm_tree/cartoon_palm_tree"));
-		g_palmNode = palmNode.get();
-		auto palmPhysicsBody = PhysicsBody::StaticBody();
-		palmPhysicsBody->mass(0);
-		palmPhysicsBody->friction(1);
-		palmPhysicsBody->restitution(0.25);
-		palmNode->physicsBody(std::move(palmPhysicsBody));
-		scene->rootNode()->addChild(palmNode);
+			//auto palmNode = Node::MeshNode(util::filesystem::MeshNamed("palm/palm"));
+			auto palmNode = Node::MeshNode(util::filesystem::MeshNamed("cartoon_palm_tree/cartoon_palm_tree"));
+			g_palmNode = palmNode.get();
+			auto palmPhysicsBody = PhysicsBody::StaticBody();
+			palmPhysicsBody->mass(0);
+			palmPhysicsBody->friction(1);
+			palmPhysicsBody->restitution(0.25);
+			palmNode->physicsBody(std::move(palmPhysicsBody));
+			scene->rootNode()->addChild(palmNode);
 
 //		auto palmNode = Node::MeshNode(util::filesystem::MeshNamed("teapot/teapot"));
 //		palmNode->scale({10, 10, 10});
@@ -301,47 +293,79 @@ int main(int argc, const char* argv[]) {
 //		palmPhysicsBody->restitution(0.25);
 //		palmNode->physicsBody(std::move(palmPhysicsBody));
 //		scene->rootNode()->addChild(palmNode);
+		}
 
 
-		// add the duck
 
-		auto duckNode = Node::MeshNode(util::filesystem::MeshNamed("rubber_duck/rubber_duck"));
+
+
+
+		{
+			// add the duck
+
+			auto duckNode = Node::MeshNode(util::filesystem::MeshNamed("rubber_duck/rubber_duck"));
 //		auto duckNode = Node::MeshNode(util::filesystem::MeshNamed("siamese/siamese"));
 //		auto duckNode = Node::MeshNode(util::filesystem::MeshNamed("teapot/teapot"));
-		g_duckNode = duckNode.get();
-		duckNode->position({/*4.5*/0, 25, 0});
+			g_duckNode = duckNode.get();
+			duckNode->position({/*4.5*/0, 25, 0});
 
 
 
 
 
-	//	// #0
-	//	_duckNode->physicsBody(PhysicsBody::KinematicBody());
-	//	_duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConcavePolyhedron);
-	////	_duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConvexHull);
-	//
-	//	// #1
-	////	_duckNode->physicsBody(PhysicsBody::KinematicBody());
-	////	auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, _duckNode.get());
-	////	_duckNode->physicsBody()->shape(duckPhysicsShape);
-	//
-	//	// #2
-	////	_duckNode->physicsBody(PhysicsBody::KinematicBody());
-	////	auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, _duckNode->mesh().get());
-	////	_duckNode->physicsBody()->shape(duckPhysicsShape);
-	//
-		// #3
-		auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, duckNode);
-		duckNode->physicsBody(make_unique<PhysicsBody>(PhysicsBody::Type::Kinematic, duckPhysicsShape));
+			//	// #0
+			//	_duckNode->physicsBody(PhysicsBody::KinematicBody());
+			//	_duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConcavePolyhedron);
+			////	_duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConvexHull);
+			//
+			//	// #1
+			////	_duckNode->physicsBody(PhysicsBody::KinematicBody());
+			////	auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, _duckNode.get());
+			////	_duckNode->physicsBody()->shape(duckPhysicsShape);
+			//
+			//	// #2
+			////	_duckNode->physicsBody(PhysicsBody::KinematicBody());
+			////	auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, _duckNode->mesh().get());
+			////	_duckNode->physicsBody()->shape(duckPhysicsShape);
+			//
+			// #3
+			auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, duckNode);
+			duckNode->physicsBody(make_unique<PhysicsBody>(PhysicsBody::Type::Kinematic, duckPhysicsShape));
 
-	//	// #4
+			//	// #4
 //		auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, duckNode);
 //		duckNode->physicsBody(make_unique<PhysicsBody>(PhysicsBodyType::Kinematic, duckPhysicsShape));
 
-		auto duckSpinnerNode = Node::NamedNode("duck spinner");
+			auto duckSpinnerNode = Node::NamedNode("duck spinner");
 //		g_duckSpinnerNode = duckSpinnerNode.get();
-		duckSpinnerNode->addChild(duckNode);
-		scene->rootNode()->addChild(duckSpinnerNode);
+			duckSpinnerNode->addChild(duckNode);
+			scene->rootNode()->addChild(duckSpinnerNode);
+		}
+
+
+
+
+
+		// add some random boxes
+//		for (int i = 0; i < 10; ++i) {
+//
+//			auto boxNode = Node::MeshNode(Box::Mesh(math::uniform_linear(-5, 5),
+//													math::uniform_linear(-5, 5),
+//													math::uniform_linear(-5, 5)));
+//			boxNode->position(vec3(math::uniform_linear(-5, 5),
+//							   math::uniform_linear(-5, 5),
+//							   math::uniform_linear(-5, 5)));
+//			auto boxPhysicsBody = PhysicsBody::StaticBody();
+//			boxPhysicsBody->mass(10);
+//			boxPhysicsBody->friction(1);
+//			boxPhysicsBody->restitution(0.25);
+//			boxNode->physicsBody(std::move(boxPhysicsBody));
+//			scene->rootNode()->addChild(boxNode);
+//		}
+
+
+
+
 
 
 
@@ -447,7 +471,7 @@ int main(int argc, const char* argv[]) {
 //		cameraNode->light(flashLight);
 //		scene->visualWorld()->pointOfView(cameraNode);
 
-wr = new WanderRotate();
+		wr = new WanderRotate();
 
 		window->center();
 		window->open();

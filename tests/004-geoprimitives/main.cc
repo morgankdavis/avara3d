@@ -121,15 +121,6 @@ int main(int argc, const char* argv[]) {
 		}
 
 		{
-			auto mesh = Disk::Mesh(2.5f, 5.0f);
-			auto node = make_shared<Node>();
-			node->name("disk");
-			node->mesh(mesh);
-			scene->rootNode()->addChild(node);
-			node->position(vec3(0.0f, 5.0f, 0.0f));
-		}
-
-		{
 			auto mesh = Plane::Mesh(10.0f, 10.0f);
 			auto node = make_shared<Node>();
 			mesh->name("plane");
@@ -146,7 +137,7 @@ int main(int argc, const char* argv[]) {
 			node->mesh(mesh);
 			scene->rootNode()->addChild(node);
 			node->rotation({0.0f, 1.0f, 0.0f}, radians(70.0f));
-			node->position(vec3(-5.0f, 2.5f, 0.0f));
+			node->position(vec3(-3.0f, 2.5f, 0.0f));
 		}
 
 		{
@@ -155,7 +146,7 @@ int main(int argc, const char* argv[]) {
 			mesh->name("sphere");
 			node->mesh(mesh);
 			scene->rootNode()->addChild(node);
-			node->position(vec3(5.0f, 2.5f, 0.0f));
+			node->position(vec3(3.0f, 2.5f, 0.0f));
 		}
 
 		{
@@ -164,7 +155,7 @@ int main(int argc, const char* argv[]) {
 			mesh->name("spring");
 			node->mesh(mesh);
 			scene->rootNode()->addChild(node);
-			node->position(vec3(0.0f, 2.5f, 0.0f));
+			node->position(vec3(0.0f, 3.5f, 0.0f));
 			node->rotation({0.0f, 1.0f, 0.0f}, radians(-90.0f));
 		}
 
@@ -174,8 +165,7 @@ int main(int argc, const char* argv[]) {
 			mesh->name("torus");
 			node->mesh(mesh);
 			scene->rootNode()->addChild(node);
-			//node->rotation({0.0f, 1.0f, 0.0f}, radians(45.0f));
-			node->position(vec3(5.0f, 0.0f, 0.0f));
+			node->position(vec3(4.25f, 0.0f, 0.0f));
 		}
 
 		{
@@ -184,7 +174,7 @@ int main(int argc, const char* argv[]) {
 			mesh->name("torus knot");
 			node->mesh(mesh);
 			scene->rootNode()->addChild(node);
-			node->rotation({0.0f, 1.0f, 0.0f}, radians(45.0f));
+			node->rotation({0.0f, 1.5f, 0.0f}, radians(45.0f));
 			node->position(vec3(0.0f, 0.0f, 0.0f));
 		}
 
@@ -194,9 +184,29 @@ int main(int argc, const char* argv[]) {
 			mesh->name("tube");
 			node->mesh(mesh);
 			scene->rootNode()->addChild(node);
-//			node->rotation({1.0f, -1.0f, 0.0f}, radians(-45.0f));
-//			node->position(vec3(-1.67f, -2.5f, 0.0f));
-			node->position(vec3(-5.0f, 0.0f, 0.0f));
+			node->position(vec3(-4.25f, 0.0f, 0.0f));
+		}
+
+		{
+			auto mesh = Wedge::Mesh(2.0f, 2.0f, 1.0f);
+			auto node = make_shared<Node>();
+			mesh->name("wedge");
+			node->mesh(mesh);
+			scene->rootNode()->addChild(node);
+			node->position(vec3(2.5f, 5.0f, 0.0f));
+			node->rotation({0.0f, 1.0f, 0.0f}, radians(30.0f));
+		}
+
+		{
+			auto mesh = Dome::Mesh(1.0f,
+								   math::radians(60.0), math::radians(90.0),
+								   0, math::radians(180.0));
+			auto node = make_shared<Node>();
+			mesh->name("dome");
+			node->mesh(mesh);
+			scene->rootNode()->addChild(node);
+			node->position(vec3(-2.5f, 5.0f, 0.0f));
+			node->rotation({0.0f, 1.0f, 0.0f}, radians(-30.0f));
 		}
 
 	//	int texIndex = 0;
