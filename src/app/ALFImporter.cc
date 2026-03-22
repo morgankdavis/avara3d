@@ -160,10 +160,12 @@ unique_ptr<Scene> ALFImporter::scene(VisualWorld& visualWorld) {
 
 			node->position({cx, y, cz});
 
-			// *** in CAD (maybe DXF?) Z is usually up. it's also up in Blender.
-			// in glTF Y is usually up.
+			// ************
+			// in CAD (maybe DXF?) Z is usually up. it's also up in Blender.
+			// in glTF, Y is usually up.
 			// so in the future, first rotate +=90 degrees on X (donno on sign yet), then apply
 			// "angle" from the XML (around Y? donno!)
+			// ************
 
 			//node->rotation({0, 1, 0}, radians(angle));
 			node->rotation({1, 0, 0}, radians(90));
