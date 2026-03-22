@@ -495,6 +495,16 @@ void OGLRenderer::drawBackground(const BackgroundPass& backgroundPass,
 
 	if (!backgroundPass.material) return;
 
+	auto bgEmission = backgroundPass.material->emission();
+	if (auto color = std::get_if<std::shared_ptr<Color>>(&bgEmission)) {
+		if (*color) {
+			auto rgba = (*color)->rgba();
+			glClearColor(rgba.r, rgba.g, rgba.b, rgba.a);
+			glClear(GL_COLOR_BUFFER_BIT);
+			return;
+		}
+	}
+
 	// TODO: check equality?
 	// TODO: stop using shared_ptr???????
 

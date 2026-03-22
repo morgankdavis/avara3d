@@ -111,13 +111,11 @@ int main(int argc, const char* argv[]) {
 		scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 		scene->updateCallback(bind(&UpdateCallback, _1, _2, _3));
 
-	//	auto ambientColor = DARK
-	//						? Color::LightGray()
-	//						: make_shared<Color>(.85f);
-		//auto ambientLight = make_shared<Light>(LightType::Ambient, Color::DarkGray());
-		auto ambientLight = make_shared<AmbientLight>(Color::DarkGray());
-		auto ambientLightNode = Node::LightNode(ambientLight);
-		scene->rootNode()->addChild(ambientLightNode);
+
+//		auto ambientLight = make_shared<AmbientLight>(Color::DarkGray());
+//		auto ambientLightNode = Node::LightNode(ambientLight);
+//		scene->rootNode()->addChild(ambientLightNode);
+
 
 	//	auto pointColor = DARK
 	//					  ? Color::LightGray()

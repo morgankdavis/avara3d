@@ -24,6 +24,8 @@
 #include "a3d/scene/importer/GlTFImporter.h"
 #include "a3d/util/filesystem.h"
 #include "a3d/visual/VisualWorld.h"
+#include "a3d/visual/light/AmbientLight.h"
+#include "a3d/visual/light/DirectionalLight.h"
 #include "a3d/visual/material/Material.h"
 
 using namespace a3d;
@@ -58,6 +60,20 @@ unique_ptr<Scene> ALFImporter::scene(VisualWorld& visualWorld) {
 
 	auto scene = make_unique<Scene>();
 
+	auto ambientLight = make_shared<AmbientLight>(Color::Gray());
+	auto ambientLightNode = Node::LightNode(ambientLight);
+	scene->rootNode()->addChild(ambientLightNode);
+
+	auto directionalLight1 = make_shared<DirectionalLight>(Color::DarkGray()); // shining left->right
+	auto directionalLight1Node = Node::LightNode(directionalLight1);
+	directionalLight1Node->eulerAngles({math::radians(-30), math::radians(-90), 0});
+	scene->rootNode()->addChild(directionalLight1Node);
+
+	auto directionalLight2 = make_shared<DirectionalLight>(Color::DarkGray()); // shining right->left
+	auto directionalLight2Node = Node::LightNode(directionalLight2);
+	directionalLight2Node->eulerAngles({math::radians(-30), math::radians(90), 0});
+	scene->rootNode()->addChild(directionalLight2Node);
+
 	pugi::xml_node map = doc.child("map");
 	for (pugi::xml_node node: map.children()) {
 		std::string tag = node.name();
@@ -83,10 +99,7 @@ unique_ptr<Scene> ALFImporter::scene(VisualWorld& visualWorld) {
 			const float PLANE_WIDTH = 500.0;
 			auto planeNode = make_shared<Node>("Ground plane node");
 			planeNode->mesh(Box::Mesh(PLANE_LENGTH, 0, PLANE_WIDTH));
-			shared_ptr<Material> planeMaterial = make_shared<Material>(monostate{},
-													  monostate{},
-													  monostate{},
-													  color);
+			shared_ptr<Material> planeMaterial = Material::EmissionMaterial(color);
 
 			planeMaterial->doubleSided(false);
 			planeNode->mesh()->addMaterial(planeMaterial);
@@ -115,24 +128,11 @@ unique_ptr<Scene> ALFImporter::scene(VisualWorld& visualWorld) {
 			auto node = Node::MeshNode(Box::Mesh(w, h, d));
 			node->position({x, y + h * 0.5f, z});
 
-//			auto colorMaterial = make_shared<Material>(monostate{},
-//													   color,
-//													   monostate{});
-//			auto color1Material = make_shared<Material>(monostate{},
-//													   color1,
-//													   monostate{});
+			auto material = Material::DiffuseMaterial(color);
+			auto material1 = Material::DiffuseMaterial(color1);
 
-			auto colorMaterial = make_shared<Material>(monostate{},
-													   monostate{},
-													   monostate{},
-													   color);
-			auto color1Material = make_shared<Material>(monostate{},
-														monostate{},
-														monostate{},
-														color1);
-
-			node->mesh()->addMaterial(colorMaterial);
-			node->mesh()->addMaterial(color1Material);
+			node->mesh()->addMaterial(material);
+			node->mesh()->addMaterial(material1);
 
 			scene->rootNode()->addChild(node);
 		}
@@ -168,18 +168,12 @@ unique_ptr<Scene> ALFImporter::scene(VisualWorld& visualWorld) {
 			//node->rotation({0, 1, 0}, radians(angle));
 			node->rotation({1, 0, 0}, radians(90));
 
-			auto colorMaterial = make_shared<Material>(monostate{},
-													   monostate{},
-													   monostate{},
-													   color);
-			auto color1Material = make_shared<Material>(monostate{},
-														monostate{},
-														monostate{},
-														color1);
+			auto material = Material::DiffuseMaterial(color);
+			auto material1 = Material::DiffuseMaterial(color1);
 
 			node->mesh()->removeMaterial(0); // remove default material
-			node->mesh()->addMaterial(colorMaterial);
-			//node->mesh()->addMaterial(color1Material);
+			node->mesh()->addMaterial(material);
+			//node->mesh()->addMaterial(material1);
 
 			scene->rootNode()->addChild(node);
 		}

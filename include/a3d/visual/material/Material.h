@@ -63,6 +63,7 @@ namespace a3d {
 		/// Public Static Member Functions ///
 
 		static std::shared_ptr<Material> 	DefaultMaterial();
+		static std::shared_ptr<Material> 	DiffuseMaterial(Property property);
 		static std::shared_ptr<Material> 	EmissionMaterial(Property property);
 
 		/// Public Lifecycle Functions ///

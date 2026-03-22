@@ -34,6 +34,10 @@ shared_ptr<Material> Material::DefaultMaterial() {
 	return material;
 }
 
+shared_ptr<Material> Material::DiffuseMaterial(Property property) {
+	return make_shared<Material>(monostate{}, property, monostate{});
+}
+
 shared_ptr<Material> Material::EmissionMaterial(Property property) {
 	return make_shared<Material>(monostate{}, monostate{}, monostate{}, property);
 }

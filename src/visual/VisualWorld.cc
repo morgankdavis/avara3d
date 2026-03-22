@@ -283,7 +283,6 @@ void VisualWorld::draw(const Scene& scene,
 
 		auto packet = DrawPacketizer::Packetize(gatherItems);
 
-
 		Renderer::FrameParams params = { *_renderContext,
 										 view,
 										 proj,
