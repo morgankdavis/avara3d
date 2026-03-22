@@ -44,6 +44,7 @@ namespace a3d::util::filesystem {
 	std::vector<std::filesystem::path> 		ModelSearchPaths();
 	std::vector<std::filesystem::path> 		ImageSearchPaths();
 	std::vector<std::filesystem::path> 		FontSearchPaths();
+	std::vector<std::filesystem::path> 		AuxSearchPaths();
 	std::optional<std::filesystem::path>	SearchInPaths(const std::string& filename,
 														  std::vector<std::filesystem::path> paths);
 #endif
@@ -99,6 +100,11 @@ namespace a3d::util::filesystem {
 												const std::string &type,
 												Mesh::ImportOptions options =
 												Mesh::ImportOptions::ImportMaterials);
+
+	// *** aux ***
+
+	std::optional<std::filesystem::path>	AuxFilePath(const std::string& name,
+														const std::string& type);
 #endif
 }
 

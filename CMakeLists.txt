@@ -78,6 +78,8 @@ add_subdirectory(external/imgui-1.92.5)
 
 #add_subdirectory(external/implot-0.17)
 
+add_subdirectory(external/pugixml-1.15) # temporary
+
 add_subdirectory(external/stb)
 
 add_subdirectory(external/v-hacd-4.1.0)
@@ -162,6 +164,8 @@ target_include_directories(avara3d SYSTEM PUBLIC
 )
 #target_include_directories(avara3d PRIVATE external/implot-0.17)
 target_include_directories(avara3d PRIVATE external/magic_enum-0.9.3/include)
+a3d_external_virtual_include_dir("pugixml" "${CMAKE_SOURCE_DIR}/external/pugixml-1.15/src") # temporary
+#target_include_directories(avara3d PUBLIC external/pugixml-1.15) # temporary
 #a3d_external_virtual_include_dir("v-hacd" "${CMAKE_SOURCE_DIR}/external/v-hacd-4.1.0")
 
 ### setup clang-tidy ###
@@ -184,6 +188,7 @@ target_link_libraries(avara3d
 		fastgltf
 		generator
 		imgui
+		pugixml # temporary
 		stb
 		vhacd) # implot
 
