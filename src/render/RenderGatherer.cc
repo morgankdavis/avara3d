@@ -65,6 +65,8 @@ GatherOutput RenderGatherer::Gather(const Scene& scene,
 		auto [n, parentWorld] = stack.back();
 		stack.pop_back();
 
+		++stats.numNodes;
+
 		if (n->hidden()) continue;
 
 		const mat4 world = parentWorld * n->transform();
