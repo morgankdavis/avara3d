@@ -86,6 +86,9 @@ cmake --build . -j$(sysctl -n hw.ncpu)
 
 _Tested on Windows 11 25H2 / build 26200.7171_
 
+#### [Enable Developer Mode](https://learn.microsoft.com/en-us/windows/advanced-settings/developer-mode)
+This is necessary to enable symlinks, which are used by A3D's CMake scripts.
+
 #### Install [Visual Studio Community 18 2026](https://visualstudio.microsoft.com/downloads/)
 - Check "Desktop development with C++"
 - Click the "Individual components" tab, add the following components:
