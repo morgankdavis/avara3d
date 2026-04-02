@@ -71,6 +71,16 @@ namespace a3d {
 			Profiler* 				profiler = 	nullptr;
 		};
 
+		struct DrawCommand {
+			PipelineHandle 			pipeline;
+			const OGLResourceCache*	cache; // TODO: get rid of
+			const Material* 		material =	nullptr;		// optional; skipped if nullptr
+			const MeshElement* 		element;
+			math::mat4 				model = 	math::mat4(1.0f);
+			math::mat4 				view = 		math::mat4(1.0f);
+			math::mat4 				proj = 		math::mat4(1.0f);
+		};
+
 		/// Internal Lifecycle Functions ///
 
 		Renderer();
@@ -130,10 +140,10 @@ namespace a3d {
 													 const OGLResourceCache& cache) = 0;
 		virtual void 					bindMaterial(const Material& material) = 0;
 		virtual void 					bindMeshElement(const MeshElement& element) = 0;
-		virtual void 					setPerObject(const math::mat4& model,
-													 const math::mat4& view,
-													 const math::mat4& proj) = 0;
-		virtual void 					drawBound() = 0;
+		virtual void 					applyMVP(const math::mat4& model,
+												 const math::mat4& view,
+												 const math::mat4& proj) = 0;
+		virtual void 					drawElements() = 0;
 
 		virtual void 					renderLinesPass(const LinesPass& pass,
 														const RenderContext& context,

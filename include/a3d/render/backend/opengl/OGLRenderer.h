@@ -111,10 +111,11 @@ namespace a3d {
 											 const OGLResourceCache& cache) override;
 		void 					bindMaterial(const Material& material) override;
 		void 					bindMeshElement(const MeshElement& element) override;
-		void 					setPerObject(const math::mat4& model,
-											 const math::mat4& view,
-											 const math::mat4& proj) override;
-		void 					drawBound() override;
+		void 					applyMVP(const math::mat4& model,
+										 const math::mat4& view,
+										 const math::mat4& proj) override;
+		void 					drawElements() override;
+		void					draw(const DrawCommand& cmd);
 
 		void 					renderLinesPass(const LinesPass& pass,
 												const RenderContext& context,
@@ -124,9 +125,15 @@ namespace a3d {
 		void 					resolvePacket(DrawPacket& packet,
 											   const FrameParams& frame) override;
 		void 					drawPacket(const DrawPacket& packet,
-											const FrameParams& frame) override;
+										const FrameParams& frame) override;
 
 	private:
+		/// Private Member Functions ///
+
+		void 					drawDebugLines(const math::mat4& model,
+											  const math::mat4& view,
+											  const math::mat4& proj);
+
 		/// Private Member Variables ///
 
 		bool					_isInitialized;

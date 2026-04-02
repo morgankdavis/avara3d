@@ -518,9 +518,9 @@ void OGLRenderer::drawBackground(const BackgroundPass& backgroundPass,
 	bindPipeline(backgroundPass.pipeline, _resourceCache);
 	bindMaterial(*(_skyboxMesh->materials().front()));
 	bindMeshElement(*(_skyboxMesh->elements().front()));
-	setPerObject(mat4(1.0f), mat4(mat3(view)), proj); // strip transform off view mat
+	applyMVP(mat4(1.0f), mat4(mat3(view)), proj); // strip transform off view mat
 
-	drawBound();
+	drawElements();
 }
 
 void OGLRenderer::bindPipeline(PipelineHandle pipelineHandle,
@@ -656,7 +656,7 @@ void OGLRenderer::bindMeshElement(const MeshElement& element) {
 	_boundElement.vertexCount = (GLsizei)res.vertexCount; // <-- for drawArrays fallback
 }
 
-void OGLRenderer::setPerObject(const mat4& model, const mat4& view, const mat4& proj) {
+void OGLRenderer::applyMVP(const mat4& model, const mat4& view, const mat4& proj) {
 
 	// TEMP: query locations from currently bound program each call (slow but fine)
 	// Later: cache these per Program.
@@ -673,7 +673,7 @@ void OGLRenderer::setPerObject(const mat4& model, const mat4& view, const mat4& 
 	if (locP >= 0) glUniformMatrix4fv(locP, 1, GL_FALSE, value_ptr(proj));
 }
 
-void OGLRenderer::drawBound() {
+void OGLRenderer::drawElements() {
 	if (_boundElement.vao == 0) return;
 
 	glBindVertexArray(_boundElement.vao);
@@ -690,6 +690,31 @@ void OGLRenderer::drawBound() {
 	}
 }
 
+void OGLRenderer::draw(const DrawCommand& cmd) {
+	// wrapper over bindPipeline/bindMaterial/bindMeshElement/applyMVP/drawElements
+	bindPipeline(cmd.pipeline, *cmd.cache);
+	if (cmd.material) {
+		bindMaterial(*cmd.material);
+	}
+	if (cmd.element) {
+		bindMeshElement(*cmd.element);
+	}
+	applyMVP(cmd.model, cmd.view, cmd.proj);
+	drawElements();
+}
+
+void OGLRenderer::drawDebugLines(const math::mat4& model,
+								 const math::mat4& view,
+								 const math::mat4& proj) {
+	// helper for debug line geometry which uses a separate VAO/VBO (_debugLines)
+	// and doesn't follow the normal mesh binding pipeline.
+	applyMVP(model, view, proj);
+
+	glBindVertexArray(_debugLines.vao);
+	glDrawArrays(GL_LINES, 0, _debugLines.vertexCount);
+	glBindVertexArray(0);
+}
+
 void OGLRenderer::renderLinesPass(const LinesPass& pass,
 								  const RenderContext& context,
 								  const mat4& view,
@@ -698,15 +723,15 @@ void OGLRenderer::renderLinesPass(const LinesPass& pass,
 	if (pass.pipeline == INVALID_PIPELINE_HANDLE) return;
 	if (pass.lines.empty()) return;
 
+	// debug lines follow a different path:
+	// - they upload on-the-fly (not baked into a MeshElement)
+	// - they use their own VAO/VBO (_debugLines)
+	// - they render GL_LINES topology, not GL_TRIANGLES
+	// see drawDebugLines() for why this pattern is separate.
+
 	bindPipeline(pass.pipeline, _resourceCache);
-
 	_debugLines.upload(pass.lines);
-
-	setPerObject(pass.model, view, proj);
-
-	glBindVertexArray(_debugLines.vao);
-	glDrawArrays(GL_LINES, 0, _debugLines.vertexCount);
-	glBindVertexArray(0);
+	drawDebugLines(pass.model, view, proj);
 }
 
 /// Protected Member Functions ///
@@ -764,8 +789,8 @@ void OGLRenderer::drawPacket(const DrawPacket& packet, const FrameParams& frame)
 		if (di.material) bindMaterial(*di.material);
 
 		bindMeshElement(*di.element);
-		setPerObject(di.model, frame.view, frame.proj);
-		drawBound();
+		applyMVP(di.model, frame.view, frame.proj);
+		drawElements();
 	}
 
 	for (const auto &di: packet.wireframePassItems) {
@@ -775,8 +800,8 @@ void OGLRenderer::drawPacket(const DrawPacket& packet, const FrameParams& frame)
 		bindPipeline(di.pipeline, _resourceCache);
 		// no bindMaterial (wire shader typically ignores it)
 		bindMeshElement(*di.element);
-		setPerObject(di.model, frame.view, frame.proj);
-		drawBound();
+		applyMVP(di.model, frame.view, frame.proj);
+		drawElements();
 	}
 
 	renderLinesPass(packet.linesPass, frame.context, frame.view, frame.proj);
