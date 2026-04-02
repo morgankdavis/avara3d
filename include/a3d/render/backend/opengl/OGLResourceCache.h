@@ -61,7 +61,7 @@ namespace a3d {
 		const OGLPipeline& 					pipeline(PipelineHandle h) const;
 		const OGLMeshElement& 				ensureMeshElement(MeshElement& element);
 		const OGLMaterial& 					ensureMaterial(Material& material);
-		gl::uint_t 							ensureTexture(Texture& texture);
+		const OGLTexture& 					ensureTexture(Texture& texture);
 
 	private:
 		/// Private Member Variables ///

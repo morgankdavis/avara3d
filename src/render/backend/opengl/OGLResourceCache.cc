@@ -187,13 +187,13 @@ const OGLMaterial& OGLResourceCache::ensureMaterial(Material& material) {
 		if (slot < 0) continue;
 		auto textureSP = std::get_if<std::shared_ptr<Texture>>(property);
 		if (!textureSP || !(*textureSP)) continue;
-		res.tex[(size_t)slot] = ensureTexture(*(*textureSP));
+		res.tex[(size_t)slot] = ensureTexture(*(*textureSP)).id;
 	}
 
 	return res;
 }
 
-unsigned OGLResourceCache::ensureTexture(Texture& texture) {
+const OGLTexture& OGLResourceCache::ensureTexture(Texture& texture) {
 
 	auto it = _textureMap.find(&texture);
 	if (it == _textureMap.end()) {
@@ -216,8 +216,8 @@ unsigned OGLResourceCache::ensureTexture(Texture& texture) {
 
 		if (handle == 0) {
 			log::e()("BufferTextureContents failed for Texture {:p}", (void*)&texture);
-			_textureMap.erase(it);
-			return 0;
+			it->second.id = 0;
+			return it->second;
 		}
 
 		it->second.id = handle;
@@ -235,7 +235,7 @@ unsigned OGLResourceCache::ensureTexture(Texture& texture) {
 		}
 	}
 
-	return handle;
+	return it->second;
 }
 
 /// Private Static Non-Member Functions ///
@@ -459,4 +459,3 @@ GLenum GLIndexTypeForIndexFormat(IndexFormat format) {
 		default:               return GL_UNSIGNED_INT;
 	}
 }
-
