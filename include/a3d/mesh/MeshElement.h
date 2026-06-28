@@ -9,6 +9,7 @@
 #ifndef AVARA3D_MESH_MESHELEMENT_H
 #define AVARA3D_MESH_MESHELEMENT_H
 
+#include <climits>
 #include <cstddef>
 #include <memory>
 #include <span>

@@ -36,11 +36,11 @@ namespace a3d {
 		/// Public Types ///
 
 		using WillRenderCallback =	std::function<void(VisualWorld& world,
-														 double time,
-														 double deltaTime)>;
+		                                                 double time,
+		                                                 double deltaTime)>;
 		using DidRenderCallback =	std::function<void(VisualWorld& world,
-														double time,
-														double deltaTime)>;
+		                                                double time,
+		                                                double deltaTime)>;
 
 		/// Public Lifecycle Functions ///
 

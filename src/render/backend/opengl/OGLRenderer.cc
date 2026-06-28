@@ -338,7 +338,7 @@ void OGLRenderer::beginFrame(const Scene& scene,
 	_drawTimer.begin();
 
 	_state = {};
-	_state.pipelineHandle = INVALID_PIPELINE_HANDLE;
+	_state.pipelineId = INVALID_PIPELINE_ID;
 	_state.program = 0;
 	_state.material = nullptr;
 
@@ -515,7 +515,7 @@ void OGLRenderer::drawBackground(const BackgroundPass& backgroundPass,
 		_skyboxMesh->replaceMaterial(0, backgroundPass.material);
 	}
 
-	bindPipeline(backgroundPass.pipeline, _resourceCache);
+	bindPipeline(backgroundPass.pipelineId, _resourceCache);
 	bindMaterial(*(_skyboxMesh->materials().front()));
 	bindMeshElement(*(_skyboxMesh->elements().front()));
 	applyMVP(mat4(1.0f), mat4(mat3(view)), proj); // strip transform off view mat
@@ -523,22 +523,22 @@ void OGLRenderer::drawBackground(const BackgroundPass& backgroundPass,
 	drawElements();
 }
 
-void OGLRenderer::bindPipeline(PipelineHandle pipelineHandle,
-							   const OGLResourceCache& cache) {
+void OGLRenderer::bindPipeline(PipelineId pipelineId,
+                               const OGLResourceCache& cache) {
 
-	if (_state.pipelineHandle == pipelineHandle) {
+	if (_state.pipelineId == pipelineId) {
 		GLint cur = 0;
 		glGetIntegerv(GL_CURRENT_PROGRAM, &cur);
 		if ((GLuint)cur == _state.program) return; // truly already bound
 		// else: stale cache, fallthrough and rebind
 	}
 
-	const OGLPipeline& pipeline = cache.pipeline(pipelineHandle);
+	const OGLPipeline& pipeline = cache.pipeline(pipelineId);
 	glUseProgram(pipeline.program);
 	_state.program = pipeline.program;
 	_state.material = nullptr;
 
-	if (pipeline.key.doubleSided) {
+	if (pipeline.desc.doubleSided) {
 		glDisable(GL_CULL_FACE);
 	}
 	else {
@@ -546,19 +546,19 @@ void OGLRenderer::bindPipeline(PipelineHandle pipelineHandle,
 		glCullFace(GL_BACK);
 	}
 
-	if (pipeline.key.depthTest) {
+	if (pipeline.desc.depthTest) {
 		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GLDepthFuncFromDepthFunc(pipeline.key.depthFunc));
+		glDepthFunc(GLDepthFuncFromDepthFunc(pipeline.desc.depthFunc));
 	}
 	else {
 		glDisable(GL_DEPTH_TEST);
 	}
-	glDepthMask(pipeline.key.depthWrite ? GL_TRUE : GL_FALSE);
+	glDepthMask(pipeline.desc.depthWrite ? GL_TRUE : GL_FALSE);
 
-	ApplyBlendFunction(pipeline.key.blendFunction);
+	ApplyBlendFunction(pipeline.desc.blendFunction);
 
 #ifndef A3D_GL_ES
-	switch (pipeline.key.fillMode) {
+	switch (pipeline.desc.fillMode) {
 		case Material::FillMode::Fill:   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);  break;
 		case Material::FillMode::Lines:  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);  break;
 		case Material::FillMode::Points: glPolygonMode(GL_FRONT_AND_BACK, GL_POINT); break;
@@ -566,8 +566,8 @@ void OGLRenderer::bindPipeline(PipelineHandle pipelineHandle,
 #endif
 
 #ifndef A3D_GL_ES
-	const bool lineSmooth = (pipeline.key.pass == PassKind::Lines)
-							|| (pipeline.key.pass == PassKind::Wireframe);
+	const bool lineSmooth = (pipeline.desc.passKind == PassKind::Lines)
+							|| (pipeline.desc.passKind == PassKind::Wireframe);
 	if (lineSmooth) {
 		glEnable(GL_LINE_SMOOTH);
 		glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
@@ -577,7 +577,7 @@ void OGLRenderer::bindPipeline(PipelineHandle pipelineHandle,
 	}
 #endif
 
-	if (pipeline.key.polygonOffset) {
+	if (pipeline.desc.polygonOffset) {
 		glEnable(GL_POLYGON_OFFSET_LINE);
 		glPolygonOffset(.01, 0); // ! check !
 	}
@@ -585,7 +585,7 @@ void OGLRenderer::bindPipeline(PipelineHandle pipelineHandle,
 		glDisable(GL_POLYGON_OFFSET_LINE);
 	}
 
-	_state.pipelineHandle = pipelineHandle;
+	_state.pipelineId = pipelineId;
 }
 
 void OGLRenderer::bindMaterial(const Material& material) {
@@ -596,11 +596,11 @@ void OGLRenderer::bindMaterial(const Material& material) {
 	}
 
 	// look at the currently bound pipeline
-	const OGLPipeline& pipeline = _resourceCache.pipeline(_state.pipelineHandle);
+	const OGLPipeline& pipeline = _resourceCache.pipeline(_state.pipelineId);
 
 // TODO: !!! THIS IS A DIRTY HACK !!!
 	GLSLProgram* program;
-	switch (pipeline.key.shaderKind) {
+	switch (pipeline.desc.shaderKind) {
 		case ShaderKind::Default:
 			program = &GLSLProgram::Default();
 			break; // chill
@@ -625,7 +625,7 @@ void OGLRenderer::bindMaterial(const Material& material) {
 	// OK if SendMaterialUniforms still calls prog.use() because it matches the pipeline now
 
 	// TODO: !!! THIS IS A DIRTY HACK !!!
-	if (pipeline.key.shaderKind == ShaderKind::Default) {
+	if (pipeline.desc.shaderKind == ShaderKind::Default) {
 		SendMaterialUniforms(material, *program, glTextureHandles, _state);
 	}
 
@@ -634,10 +634,10 @@ void OGLRenderer::bindMaterial(const Material& material) {
 
 void OGLRenderer::bindMeshElement(const MeshElement& element) {
 
-	const OGLPipeline& pipe = _resourceCache.pipeline(_state.pipelineHandle);
+	const OGLPipeline& pipe = _resourceCache.pipeline(_state.pipelineId);
 
 	const VertexLayout elemLayout = element.vertexLayout();
-	const VertexLayout pipeLayout = pipe.key.vertexLayoutKey;
+	const VertexLayout pipeLayout = pipe.desc.vertexLayoutKey;
 
 	// TODO: change?
 	if (A3D_UNLIKELY(elemLayout != pipeLayout)) {
@@ -692,7 +692,7 @@ void OGLRenderer::drawElements() {
 
 void OGLRenderer::draw(const DrawCommand& cmd) {
 	// wrapper over bindPipeline/bindMaterial/bindMeshElement/applyMVP/drawElements
-	bindPipeline(cmd.pipeline, *cmd.cache);
+	bindPipeline(cmd.pipelineId, *cmd.cache);
 	if (cmd.material) {
 		bindMaterial(*cmd.material);
 	}
@@ -720,7 +720,7 @@ void OGLRenderer::renderLinesPass(const LinesPass& pass,
 								  const mat4& view,
 								  const mat4& proj) {
 
-	if (pass.pipeline == INVALID_PIPELINE_HANDLE) return;
+	if (pass.pipelineId == INVALID_PIPELINE_ID) return;
 	if (pass.lines.empty()) return;
 
 	// debug lines follow a different path:
@@ -729,7 +729,7 @@ void OGLRenderer::renderLinesPass(const LinesPass& pass,
 	// - they render GL_LINES topology, not GL_TRIANGLES
 	// see drawDebugLines() for why this pattern is separate.
 
-	bindPipeline(pass.pipeline, _resourceCache);
+	bindPipeline(pass.pipelineId, _resourceCache);
 	_debugLines.upload(pass.lines);
 	drawDebugLines(pass.model, view, proj);
 }
@@ -740,30 +740,30 @@ void OGLRenderer::resolvePacket(DrawPacket& packet, const FrameParams& frame) {
 
 	// "resolve / prepare / compile / bake"
 
-	auto resolvePipeline = [&](PipelineHandle &h, const PipelineKey &key) -> PipelineHandle {
-		if (h == INVALID_PIPELINE_HANDLE) h = _resourceCache.ensurePipeline(key);
-		return h;
+	auto resolvePipeline = [&](PipelineId &pipelineId, const PipelineDesc &desc) -> PipelineId {
+		if (pipelineId == INVALID_PIPELINE_ID) pipelineId = _resourceCache.ensurePipeline(desc);
+		return pipelineId;
 	};
 
 	// background
 	if (packet.backgroundPass.material) {
-		resolvePipeline(packet.backgroundPass.pipeline, packet.backgroundPass.key);
+		resolvePipeline(packet.backgroundPass.pipelineId, packet.backgroundPass.desc);
 	}
 
 	// main + wireframe items
 	for (auto &di: packet.mainPassItems) {
-		resolvePipeline(di.pipeline, di.key);
+		resolvePipeline(di.pipelineId, di.desc);
 	}
 	for (auto &di: packet.wireframePassItems) {
-		resolvePipeline(di.pipeline, di.key);
+		resolvePipeline(di.pipelineId, di.desc);
 	}
 
 	// lines
 	if (!packet.linesPass.lines.empty()) {
-		resolvePipeline(packet.linesPass.pipeline, packet.linesPass.key);
+		resolvePipeline(packet.linesPass.pipelineId, packet.linesPass.desc);
 	}
 	else {
-		packet.linesPass.pipeline = INVALID_PIPELINE_HANDLE;
+		packet.linesPass.pipelineId = INVALID_PIPELINE_ID;
 	}
 }
 
@@ -778,12 +778,12 @@ void OGLRenderer::drawPacket(const DrawPacket& packet, const FrameParams& frame)
 		drawBackground(packet.backgroundPass, frame.view, frame.proj);
 	}
 
-	// NOTE: items are already sorted by pass + key hash, so this will batch nicely
+	// NOTE: items are already sorted by pass + desc hash, so this will batch nicely
 	for (const auto &di: packet.mainPassItems) {
-		if (di.pipeline == INVALID_PIPELINE_HANDLE) continue;
+		if (di.pipelineId == INVALID_PIPELINE_ID) continue;
 		if (!di.element) continue;
 
-		bindPipeline(di.pipeline, _resourceCache);
+		bindPipeline(di.pipelineId, _resourceCache);
 
 		// only bind material for shaderKinds that use it (bindMaterial() already early-outs)
 		if (di.material) bindMaterial(*di.material);
@@ -794,10 +794,10 @@ void OGLRenderer::drawPacket(const DrawPacket& packet, const FrameParams& frame)
 	}
 
 	for (const auto &di: packet.wireframePassItems) {
-		if (di.pipeline == INVALID_PIPELINE_HANDLE) continue;
+		if (di.pipelineId == INVALID_PIPELINE_ID) continue;
 		if (!di.element) continue;
 
-		bindPipeline(di.pipeline, _resourceCache);
+		bindPipeline(di.pipelineId, _resourceCache);
 		// no bindMaterial (wire shader typically ignores it)
 		bindMeshElement(*di.element);
 		applyMVP(di.model, frame.view, frame.proj);

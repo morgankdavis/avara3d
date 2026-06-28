@@ -10,6 +10,7 @@
 #define AVARA3D_CUBEIMAGE_H
 
 #include <array>
+#include <cstdint>
 #include <memory>
 
 namespace a3d {

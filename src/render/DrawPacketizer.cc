@@ -14,8 +14,8 @@
 #include "a3d/render/DrawPacket.h"
 #include "a3d/render/GatherOutput.h"
 #include "a3d/render/PacketSorter.h"
-#include "a3d/render/PipelineKey.h"
-#include "a3d/render/PipelineKeyBuilder.h"
+#include "a3d/render/PipelineDesc.h"
+#include "a3d/render/PipelineDescBuilder.h"
 #include "a3d/scene/Scene.h"
 #include "a3d/visual/material/Material.h"
 
@@ -32,8 +32,8 @@ DrawPacket DrawPacketizer::Packetize(GatherOutput& gatherOutput) {
 	packet.mainPassItems.reserve(gatherOutput.renderItems.size());
 	packet.wireframePassItems.reserve(gatherOutput.renderItems.size());
 
-	packet.backgroundPass.pipeline  = INVALID_PIPELINE_HANDLE;
-	packet.backgroundPass.key       = PipelineKeyBuilder::MakeBackgroundKey();
+	packet.backgroundPass.pipelineId = INVALID_PIPELINE_ID;
+	packet.backgroundPass.desc      = PipelineDescBuilder::MakeBackgroundDesc();
 	packet.backgroundPass.material  = gatherOutput.backgroundMaterial;
 
 	for (const RenderItem& ri : gatherOutput.renderItems) {
@@ -53,20 +53,20 @@ DrawPacket DrawPacketizer::Packetize(GatherOutput& gatherOutput) {
 			switch (ri.material->alphaMode()) {
 				case Material::AlphaMode::Opaque: {
 					di.pass = PassKind::MainOpaque;
-					di.key = PipelineKeyBuilder::MakeOpaqueKey(*ri.material, ri.layout);
+					di.desc = PipelineDescBuilder::MakeOpaqueDesc(*ri.material, ri.layout);
 					break; }
 				case Material::AlphaMode::Mask: {
 					di.pass = PassKind::MainMask;
-					di.key = PipelineKeyBuilder::MakeMaskKey(*ri.material, ri.layout);
+					di.desc = PipelineDescBuilder::MakeMaskDesc(*ri.material, ri.layout);
 					break; }
 				case Material::AlphaMode::Blend: {
 					di.pass = PassKind::MainTransparent;
-					di.key = PipelineKeyBuilder::MakeTransparentKey(*ri.material, ri.layout);
+					di.desc = PipelineDescBuilder::MakeTransparentDesc(*ri.material, ri.layout);
 					break; }
 				default: /* unreachable */ break;
 			}
 
-			di.pipeline = INVALID_PIPELINE_HANDLE; // resolved later
+			di.pipelineId = INVALID_PIPELINE_ID; // resolved later
 			di.sequence = (uint32_t)packet.mainPassItems.size();
 
 			packet.mainPassItems.push_back(std::move(di));
@@ -82,8 +82,8 @@ DrawPacket DrawPacketizer::Packetize(GatherOutput& gatherOutput) {
 			di.depth = ri.depth;
 			di.pass = PassKind::Wireframe;
 
-			di.key = PipelineKeyBuilder::MakeWireframeKey(ri.layout);
-			di.pipeline = INVALID_PIPELINE_HANDLE; // resolved later
+			di.desc = PipelineDescBuilder::MakeWireframeDesc(ri.layout);
+			di.pipelineId = INVALID_PIPELINE_ID; // resolved later
 			di.sequence = (uint32_t)packet.wireframePassItems.size();
 
 			packet.wireframePassItems.push_back(std::move(di));
@@ -96,8 +96,8 @@ DrawPacket DrawPacketizer::Packetize(GatherOutput& gatherOutput) {
 	packet.linesPass.lines = std::move(gatherOutput.debugLines);
 
 	if (!packet.linesPass.lines.empty()) {
-		packet.linesPass.key = PipelineKeyBuilder::MakeLinesKey();
-		packet.linesPass.pipeline = INVALID_PIPELINE_HANDLE;
+		packet.linesPass.desc = PipelineDescBuilder::MakeLinesDesc();
+		packet.linesPass.pipelineId = INVALID_PIPELINE_ID;
 	}
 
 	PacketSorter::SortPacket(packet); // ohhh yeaahhhhhh

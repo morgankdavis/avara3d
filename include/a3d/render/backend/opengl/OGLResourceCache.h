@@ -14,7 +14,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "a3d/render/PipelineKey.h"
+#include "a3d/render/PipelineDesc.h"
 #include "a3d/render/backend/opengl/GLTypes.h"
 
 namespace a3d {
@@ -26,7 +26,7 @@ namespace a3d {
 	/// Internal Types ///
 
 	struct OGLPipeline {
-		PipelineKey 	key =		{};
+		PipelineDesc 	desc =		{};
 		gl::uint_t		program = 	0;
 	};
 
@@ -57,8 +57,8 @@ namespace a3d {
 	public:
 		/// Internal Member Functions ///
 
-		PipelineHandle 						ensurePipeline(const PipelineKey& key);
-		const OGLPipeline& 					pipeline(PipelineHandle h) const;
+		PipelineId 						ensurePipeline(const PipelineDesc& desc);
+		const OGLPipeline& 					pipeline(PipelineId pipelineId) const;
 		const OGLMeshElement& 				ensureMeshElement(MeshElement& element);
 		const OGLMaterial& 					ensureMaterial(Material& material);
 		const OGLTexture& 					ensureTexture(Texture& texture);
@@ -67,9 +67,9 @@ namespace a3d {
 		/// Private Member Variables ///
 
 		std::unordered_map<
-				PipelineKey,
-				PipelineHandle,
-				PipelineKeyHash> 			_pipelineMap;
+				PipelineDesc,
+				PipelineId,
+				PipelineDescHash> 			_pipelineMap;
 		std::vector<OGLPipeline> 			_pipelineList;
 		std::unordered_map<MeshElement*,
 				OGLMeshElement> 			_meshElementMap;

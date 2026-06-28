@@ -9,6 +9,7 @@
 #ifndef AVARA3D_VISUAL_LIGHT_SPOTLIGHT_H
 #define AVARA3D_VISUAL_LIGHT_SPOTLIGHT_H
 
+#include <cstdint>
 #include <memory>
 #include <string>
 

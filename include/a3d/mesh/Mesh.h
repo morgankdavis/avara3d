@@ -9,6 +9,7 @@
 #ifndef AVARA3D_MESH_MESH_H
 #define AVARA3D_MESH_MESH_H
 
+#include <climits>
 #include <filesystem>
 #include <map>
 #include <memory>

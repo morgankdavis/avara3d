@@ -38,7 +38,6 @@ GatherOutput RenderGatherer::Gather(const Scene& scene,
 	GatherOutput output{};
 	output.renderItems.reserve(1024);
 	output.lightNodes.reserve(64);
-	output.meshInstances.reserve(512);
 
 	struct GatherEntry {
 		Node* 		node;
@@ -73,9 +72,6 @@ GatherOutput RenderGatherer::Gather(const Scene& scene,
 		const bool wireframe = util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowWireframes);
 
 		if (auto* mesh = n->mesh().get()) {
-
-			// temporary?
-			output.meshInstances.push_back({mesh, world});
 
 			const auto& elements = mesh->elements();
 			const auto& materials = mesh->materials();

@@ -1,13 +1,13 @@
 //
-//  PipelineKey.h
+//  PipelineDesc.h
 //  avara3d
 //
 //  Created by Morgan Davis on 12/23/25.
 //  Copyright © 2025 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_RENDER_PIPELINEKEY_H
-#define AVARA3D_RENDER_PIPELINEKEY_H
+#ifndef AVARA3D_RENDER_PIPELINEDESC_H
+#define AVARA3D_RENDER_PIPELINEDESC_H
 
 #include <cstdint>
 #include <cstddef>
@@ -19,8 +19,8 @@ namespace a3d {
 
 	/// Internal Types ///
 
-	using PipelineHandle = uint32_t;
-	static constexpr PipelineHandle INVALID_PIPELINE_HANDLE = 0xFFFFFFFFu;
+	using PipelineId = uint32_t;
+	static constexpr PipelineId INVALID_PIPELINE_ID = 0xFFFFFFFFu;
 
 	enum class DepthFunc : uint8_t {
 		Less,
@@ -50,8 +50,9 @@ namespace a3d {
 		Lines =				5
 	};
 
-	struct PipelineKey {
-		PassKind 				pass = 				PassKind::MainOpaque;
+	struct PipelineDesc {
+		// *** MUST update PipelineDescHash() when this struct changes ***
+		PassKind 				passKind = 			PassKind::MainOpaque;
 		ShaderKind 				shaderKind = 		ShaderKind::Default;
 		VertexLayout			vertexLayoutKey = 	VertexLayout::None;
 		Material::FillMode 		fillMode = 			Material::FillMode::Fill;
@@ -62,14 +63,14 @@ namespace a3d {
 		DepthFunc 				depthFunc = 		DepthFunc::Less;
 		bool 					polygonOffset = 	false; // Main = false, Wire = true
 
-		bool operator==(const PipelineKey &) const = default;
+		bool operator==(const PipelineDesc &) const = default;
 	};
 
 	/// Internal Functions ///
 
-	struct PipelineKeyHash { // for unordered_map
-		size_t operator()(const PipelineKey &k) const noexcept;
+	struct PipelineDescHash { // for unordered_map
+		size_t operator()(const PipelineDesc &desc) const noexcept;
 	};
 }
 
-#endif //AVARA3D_RENDER_PIPELINEKEY_H
+#endif //AVARA3D_RENDER_PIPELINEDESC_H

@@ -9,6 +9,7 @@
 #ifndef AVARA3D_PHYSICS_SHAPE_PHYSICSSHAPE_H
 #define AVARA3D_PHYSICS_SHAPE_PHYSICSSHAPE_H
 
+#include <cstdint>
 #include <memory>
 #include <unordered_set>
 #include <variant>

@@ -12,7 +12,7 @@
 #include <memory>
 #include <set>
 
-#include "a3d/render/PipelineKey.h"
+#include "a3d/render/PipelineDesc.h"
 #include "a3d/scene/Scene.h"
 
 namespace a3d {
@@ -72,7 +72,7 @@ namespace a3d {
 		};
 
 		struct DrawCommand {
-			PipelineHandle 			pipeline;
+			PipelineId 				pipelineId;
 			const OGLResourceCache*	cache; // TODO: get rid of
 			const Material* 		material =	nullptr;		// optional; skipped if nullptr
 			const MeshElement* 		element;
@@ -136,8 +136,8 @@ namespace a3d {
 													   const math::mat4& proj) = 0;
 
 
-		virtual void 					bindPipeline(PipelineHandle h,
-													 const OGLResourceCache& cache) = 0;
+		virtual void 					bindPipeline(PipelineId pipelineId,
+		                                             const OGLResourceCache& cache) = 0;
 		virtual void 					bindMaterial(const Material& material) = 0;
 		virtual void 					bindMeshElement(const MeshElement& element) = 0;
 		virtual void 					applyMVP(const math::mat4& model,

@@ -9,6 +9,7 @@
 #ifndef AVARA3D_MESH_CONVEXDECOMPOSER_H
 #define AVARA3D_MESH_CONVEXDECOMPOSER_H
 
+#include <cstdint>
 #include <functional>
 #include <memory>
 #include <vector>

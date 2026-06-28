@@ -31,7 +31,7 @@ using namespace std;
 
 /// Private Static Non-Member Prototypes ///
 
-static OGLPipeline 	BuildPipeline(const PipelineKey& key);
+static OGLPipeline 	BuildPipeline(const PipelineDesc& desc);
 static GLenum 		GLFilterModeForFilterMode(Sampler::FilterMode mode);
 static GLenum 		GLWrapModeForWrapMode(Sampler::WrapMode mode);
 static bool 		UsesMipmaps(Sampler::FilterMode mode);
@@ -43,21 +43,21 @@ static GLenum		GLIndexTypeForIndexFormat(IndexFormat format);
 
 /// Internal Member Functions ///
 
-PipelineHandle OGLResourceCache::ensurePipeline(const PipelineKey& key) {
+PipelineId OGLResourceCache::ensurePipeline(const PipelineDesc& desc) {
 
-	if (auto it = _pipelineMap.find(key); it != _pipelineMap.end()) return it->second;
+	if (auto it = _pipelineMap.find(desc); it != _pipelineMap.end()) return it->second;
 
-	OGLPipeline p = BuildPipeline(key);
+	OGLPipeline p = BuildPipeline(desc);
 
-	const PipelineHandle h = (PipelineHandle)_pipelineList.size();
+	const PipelineId pipelineId = (PipelineId)_pipelineList.size();
 	_pipelineList.push_back(std::move(p));
-	_pipelineMap.emplace(key, h);
+	_pipelineMap.emplace(desc, pipelineId);
 
-	return h;
+	return pipelineId;
 }
 
-const OGLPipeline& OGLResourceCache::pipeline(PipelineHandle h) const {
-	return _pipelineList.at(h);
+const OGLPipeline& OGLResourceCache::pipeline(PipelineId pipelineId) const {
+	return _pipelineList.at(pipelineId);
 }
 
 const OGLMeshElement& OGLResourceCache::ensureMeshElement(MeshElement& element) {
@@ -240,19 +240,19 @@ const OGLTexture& OGLResourceCache::ensureTexture(Texture& texture) {
 
 /// Private Static Non-Member Functions ///
 
-OGLPipeline BuildPipeline(const PipelineKey& key) {
+OGLPipeline BuildPipeline(const PipelineDesc& desc) {
 	OGLPipeline p;
-	p.key = key;
-	p.key.doubleSided = key.doubleSided;
-	p.key.fillMode = key.fillMode;
-	p.key.blendFunction = key.blendFunction;
-//	p.key.depthWrite = true;
+	p.desc = desc;
+	p.desc.doubleSided = desc.doubleSided;
+	p.desc.fillMode = desc.fillMode;
+	p.desc.blendFunction = desc.blendFunction;
+//	p.desc.depthWrite = true;
 
 	// for now assume depth always for main pass
-	p.key.depthTest  = true;
+	p.desc.depthTest  = true;
 
 	// TODO: temporary?
-	switch (p.key.shaderKind) {
+	switch (p.desc.shaderKind) {
 		case ShaderKind::Skybox:
 			p.program = GLSLProgram::Skybox().glID();
 			break;

@@ -39,7 +39,7 @@ namespace a3d {
 		/// Internal Types ///
 
 		struct GLStateCache {
-			PipelineHandle 		pipelineHandle = 	INVALID_PIPELINE_HANDLE;
+			PipelineId 			pipelineId = 	INVALID_PIPELINE_ID;
 			gl::uint_t 			program = 			0; // currently bound GL program
 			const Material* 	material = 			nullptr; // last bound material
 			uint32_t 			indexCount = 		0;
@@ -107,8 +107,8 @@ namespace a3d {
 											   const math::mat4& view,
 											   const math::mat4& proj) override;
 
-		void 					bindPipeline(PipelineHandle h,
-											 const OGLResourceCache& cache) override;
+		void 					bindPipeline(PipelineId pipelineId,
+		                                     const OGLResourceCache& cache) override;
 		void 					bindMaterial(const Material& material) override;
 		void 					bindMeshElement(const MeshElement& element) override;
 		void 					applyMVP(const math::mat4& model,

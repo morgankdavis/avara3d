@@ -9,6 +9,7 @@
 #ifndef AVARA3D_SCENE_NODE_H
 #define AVARA3D_SCENE_NODE_H
 
+#include <climits>
 #include <map>
 #include <memory>
 #include <optional>

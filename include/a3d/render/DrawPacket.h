@@ -11,7 +11,7 @@
 
 #include "a3d/Math.h"
 #include "a3d/mesh/Line.h"
-#include "a3d/render/PipelineKey.h"
+#include "a3d/render/PipelineDesc.h"
 
 namespace a3d {
 
@@ -22,22 +22,22 @@ namespace a3d {
 	/// Internal Types ///
 
 	struct BackgroundPass {
-		PipelineHandle 				pipeline = 	INVALID_PIPELINE_HANDLE;
-		PipelineKey					key	=		{};
+		PipelineId 					pipelineId = INVALID_PIPELINE_ID;
+		PipelineDesc				desc =		{};
 		std::shared_ptr<Material> 	material =	nullptr; // gross
 	};
 
 	struct LinesPass {
-		PipelineHandle 		pipeline = 	INVALID_PIPELINE_HANDLE;
-		PipelineKey			key =		{};
+		PipelineId 			pipelineId = INVALID_PIPELINE_ID;
+		PipelineDesc		desc =		{};
 		math::mat4     		model =		math::mat4(1.0f); // identity for world-space lines
 		std::vector<Line> 	lines =		{};
 	};
 
 	struct DrawItem {
 		PassKind 		pass = 			PassKind::MainOpaque;
-		PipelineHandle 	pipeline = 		INVALID_PIPELINE_HANDLE;
-		PipelineKey 	key =			{};
+		PipelineId 		pipelineId = 	INVALID_PIPELINE_ID;
+		PipelineDesc 	desc =			{};
 		uint32_t 		elementIndex = 	0;
 		MeshElement* 	element = 		nullptr;
 		Material* 		material = 		nullptr;

@@ -34,14 +34,8 @@ namespace a3d {
 		WireframeOverlay
 	};
 
-	struct MeshInstance { // temporary?
-		Mesh 		*mesh =		nullptr;
-		math::mat4 	model =		math::mat4(1.0f);
-		// world AABB?
-	};
-
 	struct RenderItem {
-		Mesh*			mesh = 			nullptr;
+		Mesh*			mesh = 			nullptr; //probably remove after handle conversion
 		VertexLayout 	layout = 		VertexLayout::None;
 		uint32_t 		elementIndex = 	0;
 		MeshElement*	element = 		nullptr; // TODO: remove
@@ -58,8 +52,6 @@ namespace a3d {
 		const Scene*				scene =					nullptr; // debug AABB
 		std::shared_ptr<Material> 	backgroundMaterial =	nullptr;
 		std::vector<Node*> 			lightNodes =			{};
-		std::vector<MeshInstance> 	meshInstances =			{}; // debug AABBs
-//		std::vector<Line> 			physicsDebugLines =		{};
 		std::vector<Line> 			debugLines =			{};
 	};
 }

@@ -10,6 +10,7 @@
 #define AVARA3D_VISUAL_MATERIAL_TEXTURE_H
 
 #include <atomic>
+#include <climits>
 #include <memory>
 #include <variant>
 

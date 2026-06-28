@@ -12,7 +12,7 @@
 #include <type_traits>
 
 #include "a3d/render/DrawPacket.h"
-#include "a3d/render/PipelineKey.h"
+#include "a3d/render/PipelineDesc.h"
 
 using namespace a3d;
 using namespace std;
@@ -28,11 +28,11 @@ static void				SortItems(vector<DrawItem>& items);
 
 uint64_t PacketSorter::MakeSortKey(const DrawItem& item) {
 
-	const uint32_t hk = FoldHash32(PipelineKeyHash{}(item.key));
-	uint64_t k = (uint64_t)hk << 32;
-	k |= (uint64_t)PtrHash16(item.material) << 16;
-	k |= (uint64_t)PtrHash16(item.element);
-	return k;
+	const uint32_t descHash = FoldHash32(PipelineDescHash{}(item.desc));
+	uint64_t sortKey = (uint64_t)descHash << 32;
+	sortKey |= (uint64_t)PtrHash16(item.material) << 16;
+	sortKey |= (uint64_t)PtrHash16(item.element);
+	return sortKey;
 }
 
 void PacketSorter::SortPacket(DrawPacket& packet) {

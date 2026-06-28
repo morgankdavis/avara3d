@@ -9,6 +9,7 @@
 #ifndef AVARA3D_VISUAL_MATERIAL_MATERIAL_H
 #define AVARA3D_VISUAL_MATERIAL_MATERIAL_H
 
+#include <climits>
 #include <memory>
 #include <optional>
 #include <string>
