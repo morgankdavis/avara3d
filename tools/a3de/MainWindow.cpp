@@ -10,7 +10,9 @@
 #include "./ui_MainWindow.h"
 
 #include "a3d/a3d.h"
-#include "a3d/Utilities.h"
+#include "a3d/util/filesystem.h"
+#include "a3d/util/snapshot.h"
+#include "a3d/util/string.h"
 
 #include "QtViewport.h"
 #include "QtInputManager.h"
@@ -21,11 +23,11 @@ using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
-const LogLevel				APP_LOG_LEVEL		{LogLevel::Debug};
-const uvec2					WINDOW_SIZE				{1280, 768};
-const AntialiasingMode		AA_MODE					{AntialiasingMode::Msaa4X};
-const bool					CAPTURE_CURSOR			{false};
-const float					MOUSE_SENSITIVITY		{0.5};
+const Log::Level						APP_LOG_LEVEL		{Log::Level::Debug};
+const uvec2								WINDOW_SIZE			{1280, 768};
+const RenderContext::AntialiasingMode	ANTIALIAS_MODE		{RenderContext::AntialiasingMode::Msaa4X};
+const bool								CAPTURE_CURSOR		{false};
+const float								MOUSE_SENSITIVITY	{0.5};
 
 MainWindow::MainWindow(QWidget* parent):
 		QMainWindow(parent),
@@ -36,8 +38,8 @@ MainWindow::MainWindow(QWidget* parent):
 
 	resize(WINDOW_SIZE.x, WINDOW_SIZE.y);
 
-	_viewport = new a3d::head::qt::QtViewport(RenderingApi::OpenGL,
-											  AA_MODE,
+	_viewport = new a3d::head::qt::QtViewport(RenderContext::RenderingApi::OpenGL,
+											  ANTIALIAS_MODE,
 											  this);
 	initScene(*_viewport);
 	_viewport->scene(_scene.get());
@@ -51,7 +53,7 @@ MainWindow::~MainWindow() {
 
 void MainWindow::initScene(a3d::head::qt::QtViewport &viewport) {
 
-	using utils::MeshNamed;
+	using util::filesystem::MeshNamed;
 
 	try {
 		initLog();
@@ -68,15 +70,16 @@ void MainWindow::initScene(a3d::head::qt::QtViewport &viewport) {
 		//visualWorld->usesDefaultLighting(true);
 		visualWorld->willRenderCallback(bind(&MainWindow::willRenderCallback, this, _1, _2, _3));
 		visualWorld->didRenderCallback(bind(&MainWindow::didRenderCallback, this, _1, _2, _3));
-		visualWorld->background(make_shared<Texture>(std::move(utils::CubeImageNamed("nebula1_blue", "png"))));
+		visualWorld->background(make_shared<Texture>(std::move(util::filesystem::CubeImageNamed("nebula1_blue", "png"))));
 
-		_scene = utils::SceneNamed("cat_island/cat_island", SceneImportOptions::ImportMeshes
-																| SceneImportOptions::ImportMaterials
-																| SceneImportOptions::ImportCameras);
+		_scene = util::filesystem::SceneNamed("cat_island/cat_island",
+											  Scene::ImportOptions::ImportMeshes
+											  | Scene::ImportOptions::ImportMaterials
+											  | Scene::ImportOptions::ImportCameras);
 
 		_scene->visualWorld(std::move(visualWorld));
 		_scene->inputManager(std::move(inputManager));
-		_scene->debugOptions(DebugOptions::ShowStatsOverlay);
+		_scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 		_scene->updateCallback(bind(&MainWindow::updateCallback, this, _1, _2, _3));
 
 		auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.1f));
@@ -86,7 +89,7 @@ void MainWindow::initScene(a3d::head::qt::QtViewport &viewport) {
 
 		auto pointLight = make_shared<PointLight>(Color::White());
 		pointLight->name("point");
-		pointLight->quadraticAttenuation(0.002);
+		pointLight->attenuation(Attenuation{.quadratic = 0.002f});
 		auto pointLightNode = Node::LightNode(pointLight);
 		_pointLightNode = pointLightNode; // <- how is this not crashing?
 		auto material = make_shared<Material>();
@@ -102,19 +105,19 @@ void MainWindow::initScene(a3d::head::qt::QtViewport &viewport) {
 
 		viewport.cursorCaptured(CAPTURE_CURSOR);
 	}
-	catch (Exception& e)
+	catch (std::exception& e)
 	{
-		A3D_APP_LOG_F("Exception: {}", e.what());
+		log::app::f()("Exception: {}", e.what());
 		//return -1;
 	}
 }
 
 void MainWindow::initLog() {
 
-	string executableName = *utils::ExecutableName();
+	string executableName = *util::filesystem::ExecutableName();
 
 	auto nativeSink = make_unique<StdOutLogSink>();
-	auto fileSink = make_unique<FileLogSink>(*(utils::ExecutableDirectory())
+	auto fileSink = make_unique<FileLogSink>(*(util::filesystem::ExecutableDirectory())
 											 / (executableName + string(".log")));
 	auto sinks = vector<unique_ptr<LogSink>>();
 	sinks.push_back(std::move(nativeSink));
@@ -129,24 +132,24 @@ void MainWindow::logBuildInfo() {
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
-	A3D_APP_LOG_I("A3D version: {}.{}.{}", version.major, version.minor, version.patch);
-	A3D_APP_LOG_I("Build: {}", buildInfo.number());
-	A3D_APP_LOG_I("Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
-	A3D_APP_LOG_I("Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
+	log::app::i()("A3D version: {}.{}.{}", version.major, version.minor, version.patch);
+	log::app::i()("Build: {}", buildInfo.number());
+	log::app::i()("Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
+	log::app::i()("Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
 }
 
 
 void MainWindow::updateCallback(a3d::Scene& scene, double time, double deltaTime) {
-	A3D_APP_LOG_T("");
+	log::app::t();
 
 //	static int invocations = 0;
 //	if (invocations == 2) {
 //		double time = utils::Time() - g_startTime;
-//		A3D_APP_LOG_I("START TIME: {}", time);
+//		log::app::i()("START TIME: {}", time);
 //	}
 //	++invocations;
 //
-//	A3D_APP_LOG_T("scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
+//	log::app::t()("scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
 
 	//auto window = dynamic_cast<GlfwWindow*>(scene.visualWorld()->renderContext());
 
@@ -164,13 +167,16 @@ void MainWindow::updateCallback(a3d::Scene& scene, double time, double deltaTime
 	auto keysPressed = im->keysPressed();
 	auto keysDown = im->keysDown();
 
+	using Key = DesktopInputManager::Key;
+	using MouseButton = DesktopInputManager::MouseButton;
+
 	if (keysPressed.count(Key::Escape)) {
 		//window->close();
 		QCoreApplication::quit();
 	}
 
 	if (keysPressed.count(Key::T)) {
-		A3D_APP_LOG_I("TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
+		log::app::i()("TREE:\n{}", util::string::TreeString(*(scene.rootNode())));
 	}
 
 //	if 		(keysPressed.count(Key::One))	SetAllFilterModes(FilterMode::Nearest, scene);
@@ -189,30 +195,32 @@ void MainWindow::updateCallback(a3d::Scene& scene, double time, double deltaTime
 //		else if (keysPressed.count(Key::F3)) attenuatedLight->constantAttenuation(1.0 - 0.00005);
 //	}
 
+	using DebugOptions = Scene::DebugOptions;
+
 	if (keysPressed.count(Key::F)) {
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(), DebugOptions::ShowWireframes));
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowWireframes)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowWireframes));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(), DebugOptions::ShowWireframes));
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(), DebugOptions::ShowWireframes));
 		}
 	}
 
 	if (keysPressed.count(Key::B)) {
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
 		}
 	}
 
 	if (keysPressed.count(Key::I)) {
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(), DebugOptions::ShowStatsOverlay));
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowStatsOverlay));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(), DebugOptions::ShowStatsOverlay));
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(), DebugOptions::ShowStatsOverlay));
 		}
 	}
 
@@ -221,15 +229,15 @@ void MainWindow::updateCallback(a3d::Scene& scene, double time, double deltaTime
 //	}
 
 	if (keysPressed.count(Key::Backslash)) {
-		utils::SaveSnapshot(*viewport);
+		util::snapshot::SaveSnapshot(*viewport);
 	}
 
 	if (keysPressed.count(Key::R)) {
 		if (!viewport->recordingGIF()) {
-			utils::StartGIFRecording(*viewport, {320, 240}, 8);
+			util::snapshot::StartGIFRecording(*viewport, {320, 240}, 8);
 		}
 		else {
-			utils::StopGIFRecording(*viewport);
+			util::snapshot::StopGIFRecording(*viewport);
 		}
 	}
 
@@ -241,21 +249,21 @@ void MainWindow::updateCallback(a3d::Scene& scene, double time, double deltaTime
 
 //		auto mouseButtonsPressed = im->mouseButtonsPressed();
 //		if (mouseButtonsPressed.count(MouseButton::One)) {
-//			A3D_APP_LOG_D("one");
+//			log::app::d()("one");
 //		}
 //		if (mouseButtonsPressed.count(MouseButton::Two)) {
-//			A3D_APP_LOG_D("two");
+//			log::app::d()("two");
 //		}
 //		if (mouseButtonsPressed.count(MouseButton::Three)) {
-//			A3D_APP_LOG_D("three");
+//			log::app::d()("three");
 //		}
 //
 //		auto scrollWheelDelta = im->mouseScrollWheelDelta();
 //		if (fabs(scrollWheelDelta.x) > .0001) {
-//			A3D_APP_LOG_D("x: {}", scrollWheelDelta.x);
+//			log::app::d()("x: {}", scrollWheelDelta.x);
 //		}
 //		else if (fabs(scrollWheelDelta.y) > .0001) {
-//			A3D_APP_LOG_D("y: {}", scrollWheelDelta.y);
+//			log::app::d()("y: {}", scrollWheelDelta.y);
 //		}
 
 		vec2 mousePositionDelta = im->mousePositionDelta();
@@ -287,7 +295,7 @@ void MainWindow::updateCallback(a3d::Scene& scene, double time, double deltaTime
 			float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
 			float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
 
-			//A3D_LOG_I("delta: ({}, {})", mousePositionDelta.x, mousePositionDelta.y);
+			//log::i()("delta: ({}, {})", mousePositionDelta.x, mousePositionDelta.y);
 
 			vec3 angles = pov->eulerAngles();
 			pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
@@ -365,13 +373,13 @@ void MainWindow::updateCallback(a3d::Scene& scene, double time, double deltaTime
 }
 
 void MainWindow::willRenderCallback(a3d::VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T("");
+	log::app::t();
 }
 
 void MainWindow::didRenderCallback(a3d::VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T("");
+	log::app::t();
 }
 
 void MainWindow::didSimulatePhysicsCallback(a3d::PhysicalWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T("");
+	log::app::t();
 }

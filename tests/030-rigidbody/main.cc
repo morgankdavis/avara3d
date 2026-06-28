@@ -15,27 +15,29 @@
 #include <vector>
 
 #include "a3d/a3d.h"
-#include "a3d/Utilities.h"
+#include "a3d/util/bitmask.h"
+#include "a3d/util/filesystem.h"
+#include "a3d/util/flow.h"
+#include "a3d/util/snapshot.h"
 
 // testing
-#include "a3d/physics/ConvexDecomposer.h"
+#include "a3d/mesh/ConvexDecomposer.h"
 
 using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
-const LogLevel				APP_LOG_LEVEL 			{LogLevel::Debug};
-const uvec2					WINDOW_SIZE 			{1280, 768};
-const bool					FULLSCREEN 				{false};
-const bool					ENABLE_HIGH_DPI			{true};
-const AntialiasingMode		AA_MODE					{AntialiasingMode::Msaa16X};
-const bool					ENABLE_VSYNC			{false};
-const bool					USE_DEFAULT_LIGHTING	{false};
-const bool					CAPTURE_CURSOR			{false};
-const float					MOUSE_SENSITIVITY		{0.5};
-const float					PHYSICS_TIMESTEP		{1.0/128.0};
-const bool					DARK					{true};
+const Log::Level						APP_LOG_LEVEL 			{Log::Level::Debug};
+const uvec2								WINDOW_SIZE 			{1280, 768};
+const bool								FULLSCREEN 				{false};
+const bool								ENABLE_HIGH_DPI			{true};
+const RenderContext::AntialiasingMode	AA_MODE					{RenderContext::AntialiasingMode::Msaa16X};
+const bool								ENABLE_VSYNC			{false};
+const bool								USE_DEFAULT_LIGHTING	{false};
+const bool								CAPTURE_CURSOR			{false};
+const float								MOUSE_SENSITIVITY		{0.5};
+const float								PHYSICS_TIMESTEP		{1.0/256.0};
 
 void UpdateCallback(Scene& scene, double time, double deltaTime);
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
@@ -63,7 +65,6 @@ Node*	g_duckNode;
 
 
 
-// vector<tuple<shared_ptr<Mesh>, shared_ptr<PhysicsShape>, float>> g_duckFruit{};
 vector<tuple<shared_ptr<Mesh>, shared_ptr<PhysicsShape>, float>>* g_duckFruit{};
 
 
@@ -123,8 +124,8 @@ int main(int argc, const char* argv[]) {
 		InitLog();
 		LogBuildInfo();
 
-		auto window = make_unique<GLFWWindow>(RenderingApi::OpenGL,
-											  *utils::ExecutableName(),
+		auto window = make_unique<GLFWWindow>(RenderContext::RenderingApi::OpenGL,
+											  *util::filesystem::ExecutableName(),
 											  WINDOW_SIZE,
 											  FULLSCREEN,
 											  ENABLE_HIGH_DPI,
@@ -138,13 +139,9 @@ int main(int argc, const char* argv[]) {
 		visualWorld->fogStartDistance(50.0);
 		visualWorld->fogEndDistance(400.0);
 		visualWorld->fogDensityExponent(1.0);
-		visualWorld->fogColor(DARK ? Color::DarkGray() : Color::LightGray());
-	//	MaterialProperty background = DARK
-	//									? Color::Black()
-	//									: make_shared<Texture>(CubeImageNamed("stormy", "png"));
-		MaterialProperty background = monostate{};
-		if (DARK) background = Color::Black();
-		else background = make_shared<Texture>(utils::CubeImageNamed("stormy", "png"));
+		visualWorld->fogColor(Color::DarkGray());
+		Material::Property background = Color::Black();
+//		MaterialProperty background = make_shared<Texture>(utils::CubeImageNamed("stormy", "png"));
 		visualWorld->background(background);
 		visualWorld->willRenderCallback(bind(&WillRenderCallback, _1, _2, _3));
 		visualWorld->didRenderCallback(bind(&DidRenderCallback, _1, _2, _3));
@@ -156,40 +153,30 @@ int main(int argc, const char* argv[]) {
 		auto scene = make_unique<Scene>(std::move(visualWorld),
 										std::move(physicalWorld),
 										std::move(inputManager));
-		scene->debugOptions(DebugOptions::ShowStatsOverlay);
+		scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 		scene->updateCallback(bind(&UpdateCallback, _1, _2, _3));
 
+		//scene->visualWorld()->usesDefaultLighting(true);
 
 
 		// ambient light
 
-		auto ambientColor = DARK
-							? make_shared<Color>(.1f) // should be light gray
-							: Color::DarkGray();
-			auto ambientLight = make_shared<AmbientLight>(ambientColor);
-			auto ambientLightNode = Node::LightNode(ambientLight);
-			scene->rootNode()->addChild(ambientLightNode);
+		auto ambientColor = make_shared<Color>(.1f);
+		auto ambientLight = make_shared<AmbientLight>(ambientColor);
+		auto ambientLightNode = Node::LightNode(ambientLight);
+		scene->rootNode()->addChild(ambientLightNode);
 
 
 
 		// directional light
 
-		auto sunColor = DARK
-		        ? Color::Gray()
-				: make_shared<Color>(u8vec3{233, 218, 185});
+		auto sunColor = Color::Gray();
 		auto sunLight = make_shared<DirectionalLight>(sunColor);
 		auto sunNode = Node::LightNode(sunLight);
+		sunNode->eulerAngles({radians(0.0f),
+							  radians(45.0),
+							  radians(0.0)});
 		scene->rootNode()->addChild(sunNode);
-		if (DARK) {
-			sunNode->eulerAngles({radians(0.0f),
-								  radians(45.0),
-								  radians(0.0)});
-		}
-		else {
-			sunNode->eulerAngles({radians(-30.0f),
-								  radians(90.0 + 45.0),
-								  radians(0.0)});
-		}
 
 
 			//pointLightNode->mesh(Box::Mesh(0.5, 0.5, 0.5));
@@ -255,14 +242,7 @@ int main(int argc, const char* argv[]) {
 		static const float PLANE_LENGTH = 50.0;
 		static const float PLANE_WIDTH = 50.0;
 		auto planeNode = Node::NamedNode("Ground plane node");
-		planeNode->mesh(Box::Mesh(PLANE_LENGTH, PLANE_WIDTH, 0));
-		//auto gridImage = DARK ? utils::ImageNamed("grid10")->inverted() : utils::ImageNamed("grid10");
-//		auto planeTexture = make_shared<Texture>(Color::White());
-//		planeTexture->sampler()->wrapS(WrapMode::Repeat);
-//		planeTexture->sampler()->wrapT(WrapMode::Repeat);
-//		planeTexture->sampler()->maxAnisotropy(16);
-//		planeTexture->sampler()->minificationFilter(FilterMode::LinearMipmapLinear);
-//		planeTexture->sampler()->magnificationFilter(FilterMode::Linear);
+		planeNode->mesh(Box::Mesh(PLANE_LENGTH, 0, PLANE_WIDTH));
 
 		shared_ptr<Material> planeMaterial = make_shared<Material>(monostate{},
 																   Color::DarkGray(),
@@ -280,7 +260,7 @@ int main(int argc, const char* argv[]) {
 		planeMaterial->uvScale(PLANE_LENGTH / 10.0);
 		planeMaterial->doubleSided(false);
 		planeNode->mesh()->addMaterial(planeMaterial);
-		planeNode->rotation({1, 0, 0}, radians(1 * 90.0));
+		//planeNode->rotation({1, 0, 0}, radians(1 * 90.0));
 		planeNode->position({planeNode->position().x, 0, planeNode->position().z});
 
 		auto planePhysicsBody = PhysicsBody::StaticBody();
@@ -291,21 +271,20 @@ int main(int argc, const char* argv[]) {
 		scene->rootNode()->addChild(planeNode);
 
 
+		{
+			// add the palm tree
 
+			//auto palmNode = Node::MeshNode(util::filesystem::MeshNamed("palm/palm"));
+			auto palmNode = Node::MeshNode(util::filesystem::MeshNamed("cartoon_palm_tree/cartoon_palm_tree"));
+			g_palmNode = palmNode.get();
+			auto palmPhysicsBody = PhysicsBody::StaticBody();
+			palmPhysicsBody->mass(0);
+			palmPhysicsBody->friction(1);
+			palmPhysicsBody->restitution(0.25);
+			palmNode->physicsBody(std::move(palmPhysicsBody));
+			scene->rootNode()->addChild(palmNode);
 
-		// add the palm tree
-
-		//auto palmNode = Node::MeshNode(utils::MeshNamed("palm/palm"));
-		auto palmNode = Node::MeshNode(utils::MeshNamed("cartoon_palm_tree/cartoon_palm_tree"));
-		g_palmNode = palmNode.get();
-		auto palmPhysicsBody = PhysicsBody::StaticBody();
-		palmPhysicsBody->mass(0);
-		palmPhysicsBody->friction(1);
-		palmPhysicsBody->restitution(0.25);
-		palmNode->physicsBody(std::move(palmPhysicsBody));
-		scene->rootNode()->addChild(palmNode);
-
-//		auto palmNode = Node::MeshNode(utils::MeshNamed("teapot/teapot"));
+//		auto palmNode = Node::MeshNode(util::filesystem::MeshNamed("teapot/teapot"));
 //		palmNode->scale({10, 10, 10});
 //		g_palmNode = palmNode.get();
 //		auto palmPhysicsBody = PhysicsBody::StaticBody();
@@ -314,75 +293,107 @@ int main(int argc, const char* argv[]) {
 //		palmPhysicsBody->restitution(0.25);
 //		palmNode->physicsBody(std::move(palmPhysicsBody));
 //		scene->rootNode()->addChild(palmNode);
-
-
-		// add the duck
-
-		auto duckNode = Node::MeshNode(utils::MeshNamed("rubber_duck/rubber_duck"));
-//		auto duckNode = Node::MeshNode(utils::MeshNamed("siamese/siamese"));
-//		auto duckNode = Node::MeshNode(utils::MeshNamed("teapot/teapot"));
-		g_duckNode = duckNode.get();
-		duckNode->position({/*4.5*/0, 25, 0});
+		}
 
 
 
 
 
-	//	// #0
-	//	_duckNode->physicsBody(PhysicsBody::KinematicBody());
-	//	_duckNode->physicsBody()->shape()->type(PhysicsShapeType::ConcavePolyhedron);
-	////	_duckNode->physicsBody()->shape()->type(PhysicsShapeType::ConvexHull);
-	//
-	//	// #1
-	////	_duckNode->physicsBody(PhysicsBody::KinematicBody());
-	////	auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, _duckNode.get());
-	////	_duckNode->physicsBody()->shape(duckPhysicsShape);
-	//
-	//	// #2
-	////	_duckNode->physicsBody(PhysicsBody::KinematicBody());
-	////	auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, _duckNode->mesh().get());
-	////	_duckNode->physicsBody()->shape(duckPhysicsShape);
-	//
-		// #3
-		auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShapeType::ConcavePolyhedron, duckNode);
-		duckNode->physicsBody(make_unique<PhysicsBody>(PhysicsBodyType::Kinematic, duckPhysicsShape));
 
-	//	// #4
-	////	auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShapeType::ConcavePolyhedron, _duckNode->mesh().get());
-	//	_duckNode->physicsBody(make_shared<PhysicsBody>(PhysicsBodyType::Kinematic, duckPhysicsShape));
+		{
+			// add the duck
 
-		auto duckSpinnerNode = Node::NamedNode("duck spinner");
+			auto duckNode = Node::MeshNode(util::filesystem::MeshNamed("rubber_duck/rubber_duck"));
+//		auto duckNode = Node::MeshNode(util::filesystem::MeshNamed("siamese/siamese"));
+//		auto duckNode = Node::MeshNode(util::filesystem::MeshNamed("teapot/teapot"));
+			g_duckNode = duckNode.get();
+			duckNode->position({/*4.5*/0, 25, 0});
+
+
+
+
+
+			//	// #0
+			//	_duckNode->physicsBody(PhysicsBody::KinematicBody());
+			//	_duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConcavePolyhedron);
+			////	_duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConvexHull);
+			//
+			//	// #1
+			////	_duckNode->physicsBody(PhysicsBody::KinematicBody());
+			////	auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, _duckNode.get());
+			////	_duckNode->physicsBody()->shape(duckPhysicsShape);
+			//
+			//	// #2
+			////	_duckNode->physicsBody(PhysicsBody::KinematicBody());
+			////	auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, _duckNode->mesh().get());
+			////	_duckNode->physicsBody()->shape(duckPhysicsShape);
+			//
+			// #3
+			auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, duckNode);
+			duckNode->physicsBody(make_unique<PhysicsBody>(PhysicsBody::Type::Kinematic, duckPhysicsShape));
+
+			//	// #4
+//		auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, duckNode);
+//		duckNode->physicsBody(make_unique<PhysicsBody>(PhysicsBodyType::Kinematic, duckPhysicsShape));
+
+			auto duckSpinnerNode = Node::NamedNode("duck spinner");
 //		g_duckSpinnerNode = duckSpinnerNode.get();
-		duckSpinnerNode->addChild(duckNode);
-		scene->rootNode()->addChild(duckSpinnerNode);
+			duckSpinnerNode->addChild(duckNode);
+			scene->rootNode()->addChild(duckSpinnerNode);
+		}
+
+
+
+
+
+		// add some random boxes
+//		for (int i = 0; i < 10; ++i) {
+//
+//			auto boxNode = Node::MeshNode(Box::Mesh(math::uniform_linear(-5, 5),
+//													math::uniform_linear(-5, 5),
+//													math::uniform_linear(-5, 5)));
+//			boxNode->position(vec3(math::uniform_linear(-5, 5),
+//							   math::uniform_linear(-5, 5),
+//							   math::uniform_linear(-5, 5)));
+//			auto boxPhysicsBody = PhysicsBody::StaticBody();
+//			boxPhysicsBody->mass(10);
+//			boxPhysicsBody->friction(1);
+//			boxPhysicsBody->restitution(0.25);
+//			boxNode->physicsBody(std::move(boxPhysicsBody));
+//			scene->rootNode()->addChild(boxNode);
+//		}
+
+
+
+
 
 
 
 		vector<tuple<shared_ptr<Mesh>, shared_ptr<PhysicsShape>, float>> duckFruit{};
 
 
-		auto mesh = utils::MeshNamed("cherries_lod/cherries_lod");
-		auto shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, mesh);
+		auto mesh = util::filesystem::MeshNamed("cherries_lod/cherries_lod");
+		auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
 		duckFruit.push_back({mesh, shape, 0.05});
 
-		mesh = utils::MeshNamed("orange_lod/orange_lod");
-		shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, mesh);
+		mesh = util::filesystem::MeshNamed("orange_lod/orange_lod");
+		shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
 		duckFruit.push_back({mesh, shape, 0.185});
 
-		mesh = utils::MeshNamed("pear_lod/pear_lod");
-		shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, mesh);
+		mesh = util::filesystem::MeshNamed("pear_lod/pear_lod");
+		shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
 		duckFruit.push_back({mesh, shape, 0.24});
 
-		mesh = utils::MeshNamed("apple_lod/apple_lod");
-		shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, mesh);
+		mesh = util::filesystem::MeshNamed("apple_lod/apple_lod");
+		shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
 		duckFruit.push_back({mesh, shape, 0.225});
 
-		mesh = utils::MeshNamed("banana_lod/banana_lod");
-		shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, mesh);
+		mesh = util::filesystem::MeshNamed("banana_lod/banana_lod");
+		shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
 		duckFruit.push_back({mesh, shape, 0.14});
 
-		mesh = utils::MeshNamed("pineapple_lod/pineapple_lod");
-		shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, mesh);
+		mesh = util::filesystem::MeshNamed("pineapple_lod/pineapple_lod");
+		shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
 		duckFruit.push_back({mesh, shape, 0.9});
 
 		g_duckFruit = &duckFruit;
@@ -421,29 +432,29 @@ int main(int argc, const char* argv[]) {
 		auto boxesLight = Light::SpotLight(Color::LightGray());
 		boxesLight->innerAngle(radians(20.0));
 		boxesLight->outerAngle(radians(25.0));
-		boxesLight->quadraticAttenuation(0.035);
-		boxesLight->featheringMode(SpotlightFeatheringMode::Soft);
+		boxesLight->attenuation(Attenuation{.quadratic = 0.035f});
+		boxesLight->featheringMode(SpotLight::FeatheringMode::Soft);
 		auto boxesLightNode = Node::LightNode(boxesLight);
 		boxesLightNode->position({-6.4, 1.2, -2.5});
 		boxesLightNode->orientation({0.0999, 0.1969, -0.0202, 0.9751});
 		scene->rootNode()->addChild(boxesLightNode);
 
 
-//	A3D_APP_LOG_I("*** SCENE EXTENT: {} ***",
+//	log::app::i()("*** SCENE EXTENT: {} ***",
 //				  to_string(scene->rootNode()->extent()));
 
-	//	A3D_A3D_APP_LOG_I("Graph:\n{}", StringFromTree(*scene->rootNode()));
+	//	A3D_log::app::i()("Graph:\n{}", StringFromTree(*scene->rootNode()));
 	//	auto children = scene->rootNode()->children(true);
-	//	A3D_A3D_APP_LOG_I("CHILDREN REC:");
+	//	A3D_log::app::i()("CHILDREN REC:");
 	//	for (auto& child : children) {
 	//		if (child == scene->rootNode()){
-	//			A3D_A3D_APP_LOG_I("\troot");
+	//			A3D_log::app::i()("\troot");
 	//		}
 	//		else if (child->name()) {
-	//			A3D_A3D_APP_LOG_I("\t{}", *child->name());
+	//			A3D_log::app::i()("\t{}", *child->name());
 	//		}
 	//		else {
-	//			A3D_A3D_APP_LOG_I("\t{:p}", (void*)child.get());
+	//			A3D_log::app::i()("\t{:p}", (void*)child.get());
 	//		}
 	//	}
 
@@ -460,7 +471,7 @@ int main(int argc, const char* argv[]) {
 //		cameraNode->light(flashLight);
 //		scene->visualWorld()->pointOfView(cameraNode);
 
-wr = new WanderRotate();
+		wr = new WanderRotate();
 
 		window->center();
 		window->open();
@@ -469,8 +480,8 @@ wr = new WanderRotate();
 			scene->update();
 		} while (window->isOpen());
 	}
-	catch (Exception& e) {
-		A3D_APP_LOG_F("Exception: {}", e.what());
+	catch (std::exception& e) {
+		log::app::f()("Exception: {}", e.what());
 		return -1;
 	}
 
@@ -480,7 +491,7 @@ wr = new WanderRotate();
 /// Scene Callbacks ///
 
 void UpdateCallback(Scene& scene, double time, double deltaTime) {
-	A3D_APP_LOG_T("scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
+	log::app::t()("scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
 
 	GLFWWindow* window = nullptr;
 	if (scene.visualWorld()) {
@@ -516,19 +527,22 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 	// TEMPORARY for macOS mouse input testing
 //	if (keysPressed.count(Key::Z)) {
-//		A3D_APP_LOG_I("Trying to re-initialize mouse input.");
+//		log::app::i()("Trying to re-initialize mouse input.");
 //		auto windowInputManager = static_cast<GlfwInputManager*>(scene.inputManager());
 //		try {
 //			windowInputManager->initMouseInput();
 //		}
 //		catch (Exception) {
-//			A3D_APP_LOG_E("Nada");
+//			log::app::e()("Nada");
 //		}
 //	}
 
+	using Key = DesktopInputManager::Key;
+	using MouseButton = DesktopInputManager::MouseButton;
+
 	if (keysPressed.count(Key::Escape)) {
 		window->close();
-		A3D_APP_LOG_I("open? {}", window->isOpen() ? "ya" : "no");
+		log::app::i()("open? {}", window->isOpen() ? "ya" : "no");
 	}
 
 	if (keysPressed.count(Key::Slash)) {
@@ -536,21 +550,21 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	}
 
 	if (keysPressed.count(Key::Backslash)) {
-		utils::SaveSnapshot(*window);
+		util::snapshot::SaveSnapshot(*window);
 	}
 
 
 
 	if (keysPressed.count(Key::One)) {
-		g_duckNode->physicsBody()->shape()->type(PhysicsShapeType::BoundingBox);
+		g_duckNode->physicsBody()->shape()->type(PhysicsShape::Type::BoundingBox);
 	}
 
 	if (keysPressed.count(Key::Two)) {
-		g_duckNode->physicsBody()->shape()->type(PhysicsShapeType::ConvexHull);
+		g_duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConvexHull);
 	}
 
 	if (keysPressed.count(Key::Three)) {
-		g_duckNode->physicsBody()->shape()->type(PhysicsShapeType::ConcavePolyhedron);
+		g_duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConcavePolyhedron);
 	}
 
 
@@ -587,7 +601,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 		for (const auto& node : scene.rootNode()->children(true)) {
 			auto body = node->physicsBody();
 			if (body) {
-				if (body->type() == PhysicsBodyType::Dynamic) {
+				if (body->type() == PhysicsBody::Type::Dynamic) {
 					node->removeFromParent();
 				}
 			}
@@ -598,14 +612,14 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 		if (auto pov = scene.visualWorld()->pointOfView().lock()) {
 			auto pos = pov->worldPosition();
 			auto orient = pov->worldOrientation();
-			A3D_APP_LOG_I("\ncamera position: ({:.4f}, {:.4f}, {:.4f})\n"
+			log::app::i()("\ncamera position: ({:.4f}, {:.4f}, {:.4f})\n"
 						  "camera orientation: ({:.6f}, {:.6f}, {:.6f}, {:.6f})",
 						  pos.x, pos.y, pos.x, orient.x, orient.y, orient.z, orient.w);
 		}
 	}
 
 //		if (keysPressed.count(Key::T)) {
-//			A3D_APP_LOG_I("TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
+//			log::app::i()("TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
 //		}
 
 	// spawn duck fruit
@@ -627,8 +641,8 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 				auto flashLight = Light::SpotLight();
 				flashLight->innerAngle(radians(5.0f));
 				flashLight->outerAngle(radians(7.5f));
-				flashLight->featheringMode(SpotlightFeatheringMode::Sharp);
-				flashLight->quadraticAttenuation(.001);
+				flashLight->featheringMode(SpotLight::FeatheringMode::Sharp);
+				flashLight->attenuation(Attenuation{.quadratic = 0.001f});
 				cameraNode->light(flashLight);
 			}
 		}
@@ -680,88 +694,99 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 		}
 	}
 
+	using DebugOptions = Scene::DebugOptions;
+
 	if (keysPressed.count(Key::F)) {
 		//Log::MainLog().flush();
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowWireframes)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
 											   DebugOptions::ShowWireframes));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(),
 											DebugOptions::ShowWireframes));
 		}
 	}
 	if (keysPressed.count(Key::B)) {
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
 											   DebugOptions::ShowBoundingBoxes));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(),
 											DebugOptions::ShowBoundingBoxes));
 		}
 	}
 	if (keysPressed.count(Key::I)) {
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
 											   DebugOptions::ShowStatsOverlay));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(),
 											DebugOptions::ShowStatsOverlay));
 		}
 	}
 	if (keysPressed.count(Key::P)) {
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
 											   DebugOptions::ShowPhysicsBoundingBoxes));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(),
 											DebugOptions::ShowPhysicsBoundingBoxes));
 		}
 	}
 	if (keysPressed.count(Key::G)) {
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
 											   DebugOptions::ShowPhysicsWireframes));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(),
 											DebugOptions::ShowPhysicsWireframes));
 		}
 	}
 	if (keysPressed.count(Key::C)) {
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
 											   DebugOptions::ShowPhysicsContactPoints));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(),
 											DebugOptions::ShowPhysicsContactPoints));
 		}
 	}
 	if (keysPressed.count(Key::N)) {
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsNormals)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsNormals)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
 											   DebugOptions::ShowPhysicsNormals));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(),
 											DebugOptions::ShowPhysicsNormals));
 		}
 	}
 
 	if (keysPressed.count(Key::V)) {
+//		static auto pov = scene.visualWorld()->pointOfView();
+//		if (scene.visualWorld()->pointOfView().expired()) {
+//			log::app::d()("Adding POV...");
+//			scene.visualWorld()->pointOfView(pov);
+//		}
+//		else {
+//			log::app::d()("Removing POV...");
+//			scene.visualWorld()->pointOfView().reset();
+//		}
 		window->vSyncEnabled(!window->vSyncEnabled());
 	}
 
 	if (keysPressed.count(Key::R)) {
 		if (!window->recordingGIF()) {
-			utils::StartGIFRecording(*window, {320, 240}, 8);
+			util::snapshot::StartGIFRecording(*window, {320, 240}, 8);
 		}
 		else {
-			utils::StopGIFRecording(*window);
+			util::snapshot::StopGIFRecording(*window);
 		}
 	}
 
@@ -859,27 +884,27 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 /// VisualWorld Callbacks ///
 
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	log::app::t()("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 void DidRenderCallback(VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	log::app::t()("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 /// PhysicalWorld Callbacks ///
 
 void DidSimulatePhysicsCallback(PhysicalWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	log::app::t()("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 /// Static ///
 
 void InitLog() {
 
-	string executableName = *utils::ExecutableName();
+	string executableName = *util::filesystem::ExecutableName();
 
 	auto nativeSink = make_unique<StdOutLogSink>();
-	auto fileSink = make_unique<FileLogSink>(*(utils::ExecutableDirectory())
+	auto fileSink = make_unique<FileLogSink>(*(util::filesystem::ExecutableDirectory())
 											 / (executableName + string(".log")));
 	auto sinks = vector<unique_ptr<LogSink>>();
 	sinks.push_back(std::move(nativeSink));
@@ -894,12 +919,12 @@ void LogBuildInfo() {
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
-	A3D_APP_LOG_I("A3D version: {}.{}.{}",
+	log::app::i()("A3D version: {}.{}.{}",
 		  version.major, version.minor, version.patch);
-	A3D_APP_LOG_I("Build: {}", buildInfo.number());
-	A3D_APP_LOG_I("Type: {}",
+	log::app::i()("Build: {}", buildInfo.number());
+	log::app::i()("Type: {}",
 		  buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
-	A3D_APP_LOG_I("Origin: {}",
+	log::app::i()("Origin: {}",
 		  buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
 }
 
@@ -907,7 +932,7 @@ void SpawnDuckFruit(Scene& scene, Node& duckNode) {
 
 	static const float SPAWN_RATE = 10.0; // pieces/sec
 
-	A3D_EVERY(utils::chrono::sec_f_to_ms(1.0f/SPAWN_RATE)) {
+	util::flow::every(chrono::duration<float>(1.0f/SPAWN_RATE), [&] {
 
 		auto duckFruit = (*g_duckFruit)[uniform_linear(0, 5)];
 
@@ -919,7 +944,7 @@ void SpawnDuckFruit(Scene& scene, Node& duckNode) {
 		// then attach to root node (below)
 		node->transform(duckNode.worldTransform() * translate(mat4(1.0), vec3(0.0, 3.25, 0.2)));
 
-		auto phyBody = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, physShape);
+		auto phyBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, physShape);
 		phyBody->mass(mass);
 		phyBody->restitution(0.25);
 		phyBody->friction(1.0);
@@ -947,16 +972,17 @@ void SpawnDuckFruit(Scene& scene, Node& duckNode) {
 		node->physicsBody(std::move(phyBody));
 
 		scene.rootNode()->addChild(node);
-	}
+	});
 }
 
+// OG
 void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
 
 	const float SHOOT_RATE = 20; // cans/sec
 
-	A3D_EVERY(utils::chrono::sec_f_to_ms(1.0f/SHOOT_RATE)) {
+	util::flow::every(chrono::duration<float>(1.0f/SHOOT_RATE), [&] {
 
-		static auto mesh = utils::MeshNamed("slurm/slurm");
+		static auto mesh = util::filesystem::MeshNamed("slurm/slurm");
 		mesh->materials()[0]->emission(mesh->materials()[0]->diffuse());
 		mesh->materials()[1]->emission(mesh->materials()[1]->diffuse());
 
@@ -967,7 +993,7 @@ void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
 		//static auto extent = node->mesh()->worldExtent(node->worldTransform());
 		static auto extent = node->mesh()->localExtent();
 		static auto physicsShape = make_shared<CylinderPhysicsShape>(extent.x/2.0, extent.y);
-		auto physicsBody = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, physicsShape);
+		auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, physicsShape);
 		physicsBody->mass(.354); // 12fl oz water @ 70F
 
 		physicsBody->restitution(1.0);
@@ -975,7 +1001,7 @@ void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
 		physicsBody->rollingFriction(0.05);
 
 		static auto light = Light::PointLight();
-		light->quadraticAttenuation(0.04);
+		light->attenuation(Attenuation{.quadratic = 0.04f});
 		node->light(light);
 
 		// add random factor
@@ -997,8 +1023,115 @@ void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
 		node->physicsBody(std::move(physicsBody));
 
 		scene.rootNode()->addChild(node);
-	}
+	});
 }
+
+// this is super fudgecycle
+shared_ptr<Node> Hula(float minorRadius, float majorRadius) {
+
+	static auto ringPhysicsNode = Node::NamedNode("Ring physics shape node");
+
+	static const float CAPSULE_RADIUS = .1;
+	static const float TORUS_MID_RADIUS = majorRadius - (majorRadius - minorRadius); // ! cap len??
+	static const float CAPSULE_HEIGHT = (math::two_pi() * TORUS_MID_RADIUS) / 8.0f;
+	static const auto visualMesh = Capsule::Mesh(CAPSULE_RADIUS,
+												 CAPSULE_HEIGHT,
+												 16, 16, 16);
+
+	for (int s = 0; s < 8; ++s) {
+
+		float angle = (float)(math::two_pi() / 8.0) * (float)s;
+
+		auto partNode = Node::NamedNode("Ring capsule part node " + to_string(s + 1));
+		partNode->mesh(visualMesh);
+
+		quat rotation = quaternion(vec3(0, 0, 1), angle);
+		mat4 rotMatrix = mat4_cast(rotation);
+		mat4 translation = translate(mat4(1.0f), vec3(1.6, 0, 0)); // ! RADIUS
+		mat4 transform = rotMatrix * translation;
+		partNode->transform(transform);
+
+		//partNode->hidden(true);
+
+		ringPhysicsNode->addChild(partNode);
+	}
+
+	static const auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, ringPhysicsNode);
+
+	auto torusMesh = Torus::Mesh(minorRadius + (minorRadius / 32.0f),
+								 majorRadius+(majorRadius/32.0f), 128, 128);
+	auto ringVisualNode = Node::MeshNode(torusMesh);
+
+	auto colorProperty = Color::LightGray();
+	auto colorMaterial = make_shared<Material>(monostate{}, colorProperty, monostate{});
+	torusMesh->addMaterial(colorMaterial);
+
+	auto body = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
+	body->momentOfInertia({0, 0, 0});
+	//body->affectedByGravity(false);
+	ringVisualNode->physicsBody(std::move(body));
+
+//	ringVisualNode->position({0, 1, 0});
+
+//	scene.rootNode()->addChild(ringVisualNode);
+	return ringVisualNode;
+}
+
+
+// Hula
+//void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
+//
+//	const float SHOOT_RATE = 20; // cans/sec
+//
+//	util::flow::every(chrono::duration<float>(1.0f/SHOOT_RATE), [&] {
+//
+////		static auto mesh = util::filesystem::MeshNamed("slurm/slurm");
+////		mesh->materials()[0]->emission(mesh->materials()[0]->diffuse());
+////		mesh->materials()[1]->emission(mesh->materials()[1]->diffuse());
+////
+////		auto node = Node::MeshNode(mesh);
+////
+////		node->position(location);
+////
+////		//static auto extent = node->mesh()->worldExtent(node->worldTransform());
+////		static auto extent = node->mesh()->localExtent();
+////		static auto physicsShape = make_shared<CylinderPhysicsShape>(extent.x/2.0, extent.y);
+////		auto physicsBody = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, physicsShape);
+////		physicsBody->mass(.354); // 12fl oz water @ 70F
+////
+////		physicsBody->restitution(1.0);
+////		physicsBody->friction(0.35);
+////		physicsBody->rollingFriction(0.05);
+//
+//		auto node = Hula(1.5, 1.6);
+//
+//		node->position(location);
+//
+////		static auto light = Light::PointLight();
+////		light->quadraticAttenuation(0.04);
+////		node->light(light);
+//
+//		// add random factor
+//
+//		node->eulerAngles({ uniform_linear(0.0f, two_pi()),
+//							uniform_linear(0.0f, two_pi()),
+//							uniform_linear(0.0f, two_pi()) });
+//
+//		static const float ANGULAR_VARIANCE = radians(260.0); // deg/sec
+//		node->physicsBody()->angularVelocity({ uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+//									   uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+//									   uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE) });
+//
+//		const float VELOCITY = uniform_linear(40.0f, 60.0f);
+//		static const float DIRECTION_VARIATION = 0.01;
+//		const vec3 variedDirection = normalize(direction + uniform_ball(DIRECTION_VARIATION));
+//		node->physicsBody()->linearVelocity(variedDirection * VELOCITY);
+//
+//		//node->physicsBody(std::move(physicsBody));
+//
+//		scene.rootNode()->addChild(node);
+//	});
+//}
 
 void AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color) {
 
@@ -1008,7 +1141,7 @@ void AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color) {
 	node->position(location);
 
 	auto light = Light::PointLight(color);
-	light->quadraticAttenuation(0.04);
+	light->attenuation(Attenuation{.quadratic = 0.04f});
 	node->light(light);
 
 	auto physicsBody = PhysicsBody::DynamicBody();
@@ -1016,7 +1149,7 @@ void AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color) {
 	physicsBody->restitution(0.1);
 	physicsBody->friction(0.25);
 
-	static auto physicsShape = make_shared<PhysicsShape>(PhysicsShapeType::BoundingBox,
+	static auto physicsShape = make_shared<PhysicsShape>(PhysicsShape::Type::BoundingBox,
 														 node->mesh());
 	physicsBody->shape(physicsShape);
 
@@ -1027,7 +1160,7 @@ void AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color) {
 
 void AddCardboardBox(Scene& scene, const vec3& location, const vec3& axis, float angle) {
 
-	static auto mesh = utils::MeshNamed("cardboard_box/cardboard_box");
+	static auto mesh = util::filesystem::MeshNamed("cardboard_box/cardboard_box");
 
 	auto node = Node::MeshNode(mesh);
 
@@ -1035,7 +1168,7 @@ void AddCardboardBox(Scene& scene, const vec3& location, const vec3& axis, float
 	node->rotation(axis, angle);
 
 	auto physicsBody = PhysicsBody::DynamicBody();
-	static auto phyicsShape = make_shared<PhysicsShape>(PhysicsShapeType::BoundingBox, node->mesh());
+	static auto phyicsShape = make_shared<PhysicsShape>(PhysicsShape::Type::BoundingBox, node->mesh());
 	physicsBody->shape(phyicsShape);
 
 	physicsBody->mass(0.1);
@@ -1048,7 +1181,7 @@ void AddCardboardBox(Scene& scene, const vec3& location, const vec3& axis, float
 
 void SpawnHACDTeapot(Scene& scene) {
 
-	auto teapotNode = Node::MeshNode(utils::MeshNamed("teapot/teapot"));
+	auto teapotNode = Node::MeshNode(util::filesystem::MeshNamed("teapot/teapot"));
 
 	ConvexDecomposer::Options options;
 	options.maxConvexHulls = options.maxConvexHulls / 2;
@@ -1139,10 +1272,10 @@ void AddRing(Scene& scene) {
 
 	auto node = Node::NamedNode("Torus Node");
 	static auto mesh = Torus::Mesh(.75, 1.0, 16, 16);
-	static auto physicsShape = make_shared<PhysicsShape>(PhysicsShapeType::ConcavePolyhedron,
+	static auto physicsShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron,
 														 mesh);
 	//auto physicsBody = PhysicsBody::DynamicBody();
-	auto physicsBody = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, physicsShape);
+	auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, physicsShape);
 	node->mesh(mesh);
 	static auto materialProperty = Color::Yellow();
 	static auto material = make_shared<Material>(monostate{}, materialProperty, monostate{});
@@ -1236,8 +1369,8 @@ void SpawnRecursiveTestTree(Scene& scene) {
 	i->position({0, 0, -5});
 	j->position({0, 0, -5});
 
-	auto shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, a);
-	auto physicsBody = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
+	auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, a);
+	auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
 	a->physicsBody(std::move(physicsBody));
 
 	scene.rootNode()->addChild(a);
@@ -1248,8 +1381,8 @@ void SpawnAutogeneratedPrimitives(Scene& scene) {
 	{ // box
 		auto mesh = Box::Mesh(1, 1, 1);
 		auto node = Node::MeshNode(mesh);
-		auto shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, mesh);
-		auto body = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
+		auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
+		auto body = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
 		node->physicsBody(std::move(body));
 		node->position({5, 0, 0});
 		node->position({node->position().x, node->position().y+10, node->position().y});
@@ -1260,8 +1393,8 @@ void SpawnAutogeneratedPrimitives(Scene& scene) {
 	{ // capsule
 		auto mesh = Capsule::Mesh(.5, 2, 8, 8, 8);
 		auto node = Node::MeshNode(mesh);
-		auto shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, mesh);
-		auto body = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
+		auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
+		auto body = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
 		node->physicsBody(std::move(body));
 		node->position({0, 5, 0});
 		node->position({node->position().x, node->position().y+10, node->position().y});
@@ -1272,8 +1405,8 @@ void SpawnAutogeneratedPrimitives(Scene& scene) {
 	{ // cone
 		auto mesh = Cone::Mesh(1, 1, 8, 8);
 		auto node = Node::MeshNode(mesh);
-		auto shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, mesh);
-		auto body = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
+		auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
+		auto body = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
 		node->physicsBody(std::move(body));
 		node->position({0, 0, -5});
 		node->position({node->position().x, node->position().y+10, node->position().y});
@@ -1284,8 +1417,8 @@ void SpawnAutogeneratedPrimitives(Scene& scene) {
 	{ // cylinder
 		auto mesh = Cylinder::Mesh(.5, 1, 8, 8);
 		auto node = Node::MeshNode(mesh);
-		auto shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, mesh);
-		auto body = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
+		auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
+		auto body = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
 		node->physicsBody(std::move(body));
 		node->position({-5, 0, 0});
 		node->position({node->position().x, node->position().y+10, node->position().y});
@@ -1296,8 +1429,8 @@ void SpawnAutogeneratedPrimitives(Scene& scene) {
 	{ // plane
 		auto mesh = Plane::Mesh(1, 1);
 		auto node = Node::MeshNode(mesh);
-		auto shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, mesh);
-		auto body = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
+		auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
+		auto body = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
 		node->physicsBody(std::move(body));
 		node->position({0, -5, 0});
 		node->position({node->position().x, node->position().y+10, node->position().y});
@@ -1308,8 +1441,8 @@ void SpawnAutogeneratedPrimitives(Scene& scene) {
 	{ // sphere
 		auto mesh = Sphere::Mesh(1, 8);
 		auto node = Node::MeshNode(mesh);
-		auto shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, mesh);
-		auto body = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
+		auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
+		auto body = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
 		node->physicsBody(std::move(body));
 		node->position({0, 0, 5});
 		node->position({node->position().x, node->position().y+10, node->position().y});
@@ -1379,7 +1512,7 @@ void SpawnInvisiblePrimitives(Scene& scene) {
 	{ // sphere
 		auto node = Node::NamedNode("Sphere physics shape node");
 		auto shape = make_shared<SpherePhysicsShape>(1);
-		auto body = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
+		auto body = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
 		node->physicsBody(std::move(body));
 		node->position({0, 0, 5});
 		node->position({node->position().x, node->position().y+10, node->position().y});
@@ -1467,20 +1600,18 @@ void SpawnInvisiblePrimitives(Scene& scene) {
 
 shared_ptr<Node> ChainmailLink(float minorRadius, float majorRadius) {
 
-	static const float TWO_PI = 2 * 3.14159265358;
-
 	static auto ringPhysicsNode = Node::NamedNode("Ring physics shape node");
 
 	static const float CAPSULE_RADIUS = .1;
 	static const float TORUS_MID_RADIUS = majorRadius - (majorRadius - minorRadius);
-	static const float CAPSULE_HEIGHT = (TWO_PI * TORUS_MID_RADIUS) / 8.0f;
+	static const float CAPSULE_HEIGHT = (math::two_pi() * TORUS_MID_RADIUS) / 8.0f;
 	static const auto visualMesh = Capsule::Mesh(CAPSULE_RADIUS,
 												 CAPSULE_HEIGHT,
 												 16, 16, 16);
 
 	for (int s = 0; s < 8; ++s) {
 
-		float angle = (float)(TWO_PI / 8.0) * (float)s;
+		float angle = (float)(math::two_pi() / 8.0) * (float)s;
 
 		auto partNode = Node::NamedNode("Ring capsule part node " + to_string(s + 1));
 		partNode->mesh(visualMesh);
@@ -1496,7 +1627,7 @@ shared_ptr<Node> ChainmailLink(float minorRadius, float majorRadius) {
 		ringPhysicsNode->addChild(partNode);
 	}
 
-	static const auto shape = make_shared<PhysicsShape>(PhysicsShapeType::ConvexHull, ringPhysicsNode);
+	static const auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, ringPhysicsNode);
 
 	auto torusMesh = Torus::Mesh(minorRadius + (minorRadius / 32.0f),
 								 majorRadius+(majorRadius/32.0f), 128, 128);
@@ -1506,7 +1637,7 @@ shared_ptr<Node> ChainmailLink(float minorRadius, float majorRadius) {
 	auto colorMaterial = make_shared<Material>(monostate{}, colorProperty, monostate{});
 	torusMesh->addMaterial(colorMaterial);
 
-	auto body = make_unique<PhysicsBody>(PhysicsBodyType::Dynamic, shape);
+	auto body = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
 	//body->affectedByGravity(false);
 	ringVisualNode->physicsBody(std::move(body));
 

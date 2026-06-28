@@ -6,9 +6,10 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_NODE_H
-#define AVARA3D_NODE_H
+#ifndef AVARA3D_SCENE_NODE_H
+#define AVARA3D_SCENE_NODE_H
 
+#include <climits>
 #include <map>
 #include <memory>
 #include <optional>
@@ -17,7 +18,8 @@
 #include <string>
 #include <vector>
 
-#include "a3d/Types.h"
+#include "a3d/mesh/AABB.h"
+#include "a3d/util/bitmask.h"
 
 namespace a3d {
 
@@ -125,6 +127,13 @@ namespace a3d {
 
 		std::weak_ptr<Node>					parent() const;
 
+		/// Internal Types ///
+
+		enum class DirtyMask : uint32_t {
+			None =					0,
+			WorldTransform =		1 << 0,
+			All = 					UINT_MAX
+		};
 
 		/// Internal Member Functions ///
 
@@ -159,18 +168,6 @@ namespace a3d {
 
 		void	 							applyPhysicsTransform(const math::mat4& transform);
 
-		void 								gather(std::vector<RenderItem>& nodes,
-												   std::vector<Node*>& lightNodes,
-												   FrameStats& stats);
-
-		void 								draw(Renderer& renderer,
-												 const RenderContext& context,
-												 const math::mat4& viewMat,
-												 const math::mat4& projectionMat,
-												 const DebugOptions& debugOptions,
-												 std::vector<Node*>& lightNodes,
-												 FrameStats& stats);
-
 		void								_debugPrint();
 		void								_debugPrintRec(Node& node,
 															   unsigned level);
@@ -184,8 +181,8 @@ namespace a3d {
 		void 								childrenRec(const std::shared_ptr<Node>& node,
 														std::vector<std::shared_ptr<Node>>& children) const;
 
-		NodeDirtyMask 						dirtyMask() const;
-		void 								dirtyMask(NodeDirtyMask mask);
+		DirtyMask 							dirtyMask() const;
+		void 								dirtyMask(DirtyMask mask);
 
 		/// Private Member Variables ///
 
@@ -202,8 +199,12 @@ namespace a3d {
 		bool								_hidden;
 		Scene*								_scene;
 		std::weak_ptr<Node>					_parent;
-		NodeDirtyMask						_dirtyMask;
+		DirtyMask							_dirtyMask;
 	};
+
+	namespace util::bitmask {
+		template <> struct enable_ops<Node::DirtyMask> : std::true_type {};
+	}
 }
 
-#endif /* AVARA3D_NODE_H */
+#endif /* AVARA3D_SCENE_NODE_H */

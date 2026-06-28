@@ -14,7 +14,7 @@
 
 #include <QMainWindow>
 
-#include "a3d/diagnostic/log/Log.h"
+#include "a3d/log/Log.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {

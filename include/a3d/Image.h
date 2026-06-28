@@ -13,13 +13,11 @@
 #include <memory>
 #include <string>
 
-//#include "a3d/rendering/material/Sampleable.h"
-
 namespace a3d {
 
 	class Buffer;
 
-	class Image {// : public Sampleable {
+	class Image {
 
 	public:
 		/// Public Lifecycle Functions ///
@@ -27,7 +25,7 @@ namespace a3d {
 		explicit Image(const std::filesystem::path& path,
 					   bool flipVertical = true,
 					   bool flipHorizontal = false);
-		explicit Image(std::unique_ptr<Buffer> bufer,
+		explicit Image(const Buffer& buffer,
 					   bool flipVertical = true,
 					   bool flipHorizontal = false);
 		Image(std::unique_ptr<Buffer> buffer,
@@ -36,7 +34,7 @@ namespace a3d {
 			  unsigned bytesPerPixel,
 			  bool flipVertical = true,
 			  bool flipHorizontal = false);
-		~Image();// override;
+		~Image();
 
 		/// Public Member Functions ///
 
@@ -50,7 +48,7 @@ namespace a3d {
 	private:
 		/// Private Member Functions ///
 
-		void 						loadBuffer(Buffer& buffer,
+		void 						loadBuffer(const Buffer& buffer,
 											   bool flipVertical,
 											   bool flipHorizontal);
 		void 						flipVertical(); // "flip"

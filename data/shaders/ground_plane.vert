@@ -1,6 +1,5 @@
 #version 330
 
-
 layout (location = 0) in  vec3 vert_vertPos;
 //layout (location = 1) in  vec3 vert_near; // cheating below
 //layout (location = 2) in  vec3 vert_far; // cheating below
@@ -11,7 +10,6 @@ layout (location = 0) in  vec3 vert_vertPos;
 out vec3 frag_vertPos;
 out vec3 frag_near;
 out vec3 frag_far;
-
 
 void main() {
 

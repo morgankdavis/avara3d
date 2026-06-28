@@ -13,7 +13,6 @@
 #include <memory>
 #include <optional>
 
-#include "a3d/Types.h"
 
 namespace a3d {
 
@@ -22,6 +21,14 @@ namespace a3d {
 	class Font {
 
 	public:
+		/// Public Types ///
+
+		enum class Type : uint8_t {
+			Unknown,
+			OTF,
+			TTF,
+		};
+
 		/// Public Lifecycle Functions ///
 
 		explicit Font(const std::filesystem::path& path);
@@ -31,14 +38,14 @@ namespace a3d {
 		/// Public Member Functions ///
 
 		const std::optional<std::string>&	name() const;
-		FontType 							type() const;
+		Type 								type() const;
 		const Buffer* 						buffer() const;
 
 	private:
 		/// Private Member Variables ///
 
 		std::optional<std::string>			_name;
-		FontType							_type;
+		Type								_type;
 		std::unique_ptr<Buffer>				_buffer;
 	};
 }

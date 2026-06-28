@@ -13,7 +13,7 @@
 
 #include <QOpenGLWidget>
 
-#include "a3d/rendering/context/RenderContext.h"
+#include "a3d/render/context/RenderContext.h"
 
 namespace a3d {
 	class Scene;
@@ -30,7 +30,7 @@ namespace a3d::head::qt {
 	public:
 		/// Public Lifecycle Functions ///
 
-		explicit QtViewport(a3d::RenderingApi renderingApi,
+		explicit QtViewport(a3d::RenderContext::RenderingApi renderingApi,
 							AntialiasingMode antialiasingModeQWidget,
 							QWidget* parent = nullptr);
 		~QtViewport() = default;

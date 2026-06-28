@@ -9,21 +9,26 @@
 #include "a3d/Math.h"
 
 #include <algorithm>
-#include <cassert>
 #include <cmath>
 #include <format>
 #include <sstream>
+
+#include "a3d/Assert.h"
 
 namespace a3d::math {
 
 	/// Private Utility Prototypes ///
 
-	static inline std::mt19937& default_random_gen();
-	static inline std::mt19937& pick_random_gen(std::mt19937* gen);
-	static inline f32 			ease_out_bounce_impl(f32 t);
-	static inline f32 			hue2rgb(f32 p, f32 q, f32 t);
-	static inline std::string 	mat_right_fit(std::string s, int width);
-	static inline std::string 	mat_fmtf(float v, unsigned width);
+	static std::mt19937&	default_random_gen();
+	static std::mt19937&	pick_random_gen(std::mt19937* gen);
+	static f32 				ease_out_bounce_impl(f32 t);
+	static f32 				hue2rgb(f32 p, f32 q, f32 t);
+	static std::string 		mat_right_fit(std::string s, int width);
+	static std::string 		mat_fmtf(float v, unsigned width);
+	static u8				saturate_u8(f32 v);
+	f32quat 				operator-(const f32quat& q);
+	f32quat 				operator+(const f32quat& a, const f32quat& b);
+	f32quat& 				operator+=(f32quat& a, const f32quat& b);
 
 	/// Types ///
 
@@ -43,12 +48,12 @@ namespace a3d::math {
 			x{v.x}, y{v.y} {}
 
 	f32& f32vec2::operator[](std::size_t i) {
-		assert(i < 2);
+		A3D_ASSERT(i < 2);
 		return (&x)[i];
 	}
 
 	const f32& f32vec2::operator[](std::size_t i) const {
-		assert(i < 2);
+		A3D_ASSERT(i < 2);
 		return (&x)[i];
 	}
 
@@ -71,12 +76,12 @@ namespace a3d::math {
 			x{v.x}, y{v.y}, z{v.z} {}
 
 	f32& f32vec3::operator[](std::size_t i) {
-		assert(i < 3);
+		A3D_ASSERT(i < 3);
 		return (&x)[i];
 	}
 
 	const f32& f32vec3::operator[](std::size_t i) const {
-		assert(i < 3);
+		A3D_ASSERT(i < 3);
 		return (&x)[i];
 	}
 
@@ -96,12 +101,12 @@ namespace a3d::math {
 			x{v.x}, y{v.y}, z{v.z}, w{0} {}
 
 	f32& vec4::operator[](std::size_t i) {
-		assert(i < 4);
+		A3D_ASSERT(i < 4);
 		return (&x)[i];
 	}
 
 	const f32& vec4::operator[](std::size_t i) const {
-		assert(i < 4);
+		A3D_ASSERT(i < 4);
 		return (&x)[i];
 	}
 
@@ -121,12 +126,12 @@ namespace a3d::math {
 			x{v.x}, y{v.y} {}
 
 	i32& i32vec2::operator[](std::size_t i) {
-		assert(i < 2);
+		A3D_ASSERT(i < 2);
 		return (&x)[i];
 	}
 
 	const i32& i32vec2::operator[](std::size_t i) const {
-		assert(i < 2);
+		A3D_ASSERT(i < 2);
 		return (&x)[i];
 	}
 
@@ -149,12 +154,12 @@ namespace a3d::math {
 			x{v.x}, y{v.y}, z{v.z} {}
 
 	i32& i32vec3::operator[](std::size_t i) {
-		assert(i < 3);
+		A3D_ASSERT(i < 3);
 		return (&x)[i];
 	}
 
 	const i32& i32vec3::operator[](std::size_t i) const {
-		assert(i < 3);
+		A3D_ASSERT(i < 3);
 		return (&x)[i];
 	}
 
@@ -177,12 +182,12 @@ namespace a3d::math {
 			x{v.x}, y{v.y}, z{v.z}, w{0} {}
 
 	i32& i32vec4::operator[](std::size_t i) {
-		assert(i < 4);
+		A3D_ASSERT(i < 4);
 		return (&x)[i];
 	}
 
 	const i32& i32vec4::operator[](std::size_t i) const {
-		assert(i < 4);
+		A3D_ASSERT(i < 4);
 		return (&x)[i];
 	}
 
@@ -202,12 +207,12 @@ namespace a3d::math {
 			x{v.x}, y{v.y} {}
 
 	u32& u32vec2::operator[](std::size_t i) {
-		assert(i < 2);
+		A3D_ASSERT(i < 2);
 		return (&x)[i];
 	}
 
 	const u32& u32vec2::operator[](std::size_t i) const {
-		assert(i < 2);
+		A3D_ASSERT(i < 2);
 		return (&x)[i];
 	}
 
@@ -230,12 +235,12 @@ namespace a3d::math {
 			x{v.x}, y{v.y}, z{v.z} {}
 
 	u32& u32vec3::operator[](std::size_t i) {
-		assert(i < 3);
+		A3D_ASSERT(i < 3);
 		return (&x)[i];
 	}
 
 	const u32& u32vec3::operator[](std::size_t i) const {
-		assert(i < 3);
+		A3D_ASSERT(i < 3);
 		return (&x)[i];
 	}
 
@@ -258,12 +263,12 @@ namespace a3d::math {
 			x{v.x}, y{v.y}, z{v.z}, w{0} {}
 
 	u32& u32vec4::operator[](std::size_t i) {
-		assert(i < 4);
+		A3D_ASSERT(i < 4);
 		return (&x)[i];
 	}
 
 	const u32& u32vec4::operator[](std::size_t i) const {
-		assert(i < 4);
+		A3D_ASSERT(i < 4);
 		return (&x)[i];
 	}
 
@@ -283,12 +288,12 @@ namespace a3d::math {
 			x{v.x}, y{v.y} {}
 
 	u8& u8vec2::operator[](std::size_t i) {
-		assert(i < 2);
+		A3D_ASSERT(i < 2);
 		return (&x)[i];
 	}
 
 	const u8& u8vec2::operator[](std::size_t i) const {
-		assert(i < 2);
+		A3D_ASSERT(i < 2);
 		return (&x)[i];
 	}
 
@@ -311,12 +316,12 @@ namespace a3d::math {
 			x{v.x}, y{v.y}, z{v.z} {}
 
 	u8& u8vec3::operator[](std::size_t i) {
-		assert(i < 3);
+		A3D_ASSERT(i < 3);
 		return (&x)[i];
 	}
 
 	const u8& u8vec3::operator[](std::size_t i) const {
-		assert(i < 3);
+		A3D_ASSERT(i < 3);
 		return (&x)[i];
 	}
 
@@ -339,12 +344,12 @@ namespace a3d::math {
 			x{v.x}, y{v.y}, z{v.z}, w{0} {}
 
 	u8& u8vec4::operator[](std::size_t i) {
-		assert(i < 4);
+		A3D_ASSERT(i < 4);
 		return (&x)[i];
 	}
 
 	const u8& u8vec4::operator[](std::size_t i) const {
-		assert(i < 4);
+		A3D_ASSERT(i < 4);
 		return (&x)[i];
 	}
 
@@ -359,12 +364,12 @@ namespace a3d::math {
 			c0{c0_}, c1{c1_} {}
 
 	f32vec2& f32mat2::operator[](std::size_t i) {
-		assert(i < 2);
+		A3D_ASSERT(i < 2);
 		return (&c0)[i];
 	}
 
 	const f32vec2& f32mat2::operator[](std::size_t i) const {
-		assert(i < 2);
+		A3D_ASSERT(i < 2);
 		return (&c0)[i];
 	}
 
@@ -387,12 +392,12 @@ namespace a3d::math {
 			c2{m.c2.x, m.c2.y, m.c2.z} {}
 
 	f32vec3& f32mat3::operator[](std::size_t i) {
-		assert(i < 3);
+		A3D_ASSERT(i < 3);
 		return (&c0)[i];
 	}
 
 	const f32vec3& f32mat3::operator[](std::size_t i) const {
-		assert(i < 3);
+		A3D_ASSERT(i < 3);
 		return (&c0)[i];
 	}
 
@@ -418,12 +423,12 @@ namespace a3d::math {
 			c3{0.0f, 0.0f, 0.0f, 1.0f} {}
 
 	vec4& f32mat4::operator[](std::size_t i) {
-		assert(i < 4);
+		A3D_ASSERT(i < 4);
 		return (&c0)[i];
 	}
 
 	const f32vec4& f32mat4::operator[](std::size_t i) const {
-		assert(i < 4);
+		A3D_ASSERT(i < 4);
 		return (&c0)[i];
 	}
 
@@ -437,12 +442,12 @@ namespace a3d::math {
 			w{s}, x{0.0f}, y{0.0f}, z{0.0f} {}
 
 	f32& f32quat::operator[](std::size_t i) {
-		assert(i < 4);
+		A3D_ASSERT(i < 4);
 		return (&w)[i];
 	}
 
 	const f32& f32quat::operator[](std::size_t i) const {
-		assert(i < 4);
+		A3D_ASSERT(i < 4);
 		return (&w)[i];
 	}
 
@@ -710,19 +715,19 @@ namespace a3d::math {
 
 	f32vec2 normalize(const f32vec2 &v) {
 		f32 len = length(v);
-		assert(len != 0.0f && "math::normalize called on zero-length f32vec2");
+		A3D_ASSERT(len != 0.0f && "math::normalize called on zero-length f32vec2");
 		return (len > 0.0f) ? v / len : v;
 	}
 
 	f32vec3 normalize(const f32vec3 &v) {
 		f32 len = length(v);
-		assert(len != 0.0f && "math::normalize called on zero-length f32vec3");
+		A3D_ASSERT(len != 0.0f && "math::normalize called on zero-length f32vec3");
 		return (len > 0.0f) ? v / len : v;
 	}
 
 	f32vec4 normalize(const f32vec4 &v) {
 		f32 len = length(v);
-		assert(len != 0.0f && "math::normalize called on zero-length f32vec4");
+		A3D_ASSERT(len != 0.0f && "math::normalize called on zero-length f32vec4");
 		return (len > 0.0f) ? v / len : v;
 	}
 
@@ -849,7 +854,7 @@ namespace a3d::math {
 	}
 
 	i32vec2 operator/(const i32vec2 &v, i32 s) {
-		// no zero check -- assert?
+		// no zero check -- A3D_ASSERT?
 		return i32vec2{v.x / s, v.y / s};
 	}
 
@@ -1134,7 +1139,7 @@ namespace a3d::math {
 	}
 
 	u32vec2 operator/(const u32vec2 &v, u32 s) {
-		// no zero check -- assert?
+		// no zero check -- A3D_ASSERT?
 		return u32vec2{v.x / s, v.y / s};
 	}
 
@@ -1408,26 +1413,23 @@ namespace a3d::math {
 
 	u8vec2 operator*(const u8vec2& v, f32 s) {
 		return u8vec2{
-				static_cast<u8>(v.x * s),
-				static_cast<u8>(v.y * s)
-		};
+			saturate_u8(v.x * s),
+			saturate_u8(v.y * s) };
 	}
 
 	u8vec3 operator*(const u8vec3& v, f32 s) {
 		return u8vec3{
-				static_cast<u8>(v.x * s),
-				static_cast<u8>(v.y * s),
-				static_cast<u8>(v.z * s)
-		};
+			saturate_u8(v.x * s),
+			saturate_u8(v.y * s),
+			saturate_u8(v.z * s) };
 	}
 
 	u8vec4 operator*(const u8vec4& v, f32 s) {
 		return u8vec4{
-				static_cast<u8>(v.x * s),
-				static_cast<u8>(v.y * s),
-				static_cast<u8>(v.z * s),
-				static_cast<u8>(v.w * s)
-		};
+			saturate_u8(v.x * s),
+			saturate_u8(v.y * s),
+			saturate_u8(v.z * s),
+			saturate_u8(v.w * s) };
 	}
 
 	u8vec2 operator*(f32 s, const u8vec2& v) {
@@ -1443,30 +1445,31 @@ namespace a3d::math {
 	}
 
 	u8vec2 operator/(const u8vec2& v, f32 s) {
+		if (s == 0.0f) return u8vec2{0};
 		f32 inv = 1.0f / s;
 		return u8vec2{
-				static_cast<u8>(v.x * inv),
-				static_cast<u8>(v.y * inv)
+			saturate_u8(v.x * inv),
+			saturate_u8(v.y * inv)
 		};
 	}
 
 	u8vec3 operator/(const u8vec3& v, f32 s) {
+		if (s == 0.0f) return u8vec3{0};
 		f32 inv = 1.0f / s;
 		return u8vec3{
-				static_cast<u8>(v.x * inv),
-				static_cast<u8>(v.y * inv),
-				static_cast<u8>(v.z * inv)
-		};
+			saturate_u8(v.x * inv),
+			saturate_u8(v.y * inv),
+			saturate_u8(v.z * inv) };
 	}
 
 	u8vec4 operator/(const u8vec4& v, f32 s) {
+		if (s == 0.0f) return u8vec4{0};
 		f32 inv = 1.0f / s;
 		return u8vec4{
-				static_cast<u8>(v.x * inv),
-				static_cast<u8>(v.y * inv),
-				static_cast<u8>(v.z * inv),
-				static_cast<u8>(v.w * inv)
-		};
+			saturate_u8(v.x * inv),
+			saturate_u8(v.y * inv),
+			saturate_u8(v.z * inv),
+			saturate_u8(v.w * inv) };
 	}
 
 	u8vec2& operator+=(u8vec2& a, const u8vec2& b) {
@@ -1512,47 +1515,32 @@ namespace a3d::math {
 	}
 
 	u8vec2& operator*=(u8vec2& v, f32 s) {
-		v.x = static_cast<u8>(v.x * s);
-		v.y = static_cast<u8>(v.y * s);
+		v = v * s;
 		return v;
 	}
 
 	u8vec3& operator*=(u8vec3& v, f32 s) {
-		v.x = static_cast<u8>(v.x * s);
-		v.y = static_cast<u8>(v.y * s);
-		v.z = static_cast<u8>(v.z * s);
+		v = v * s;
 		return v;
 	}
 
 	u8vec4& operator*=(u8vec4& v, f32 s) {
-		v.x = static_cast<u8>(v.x * s);
-		v.y = static_cast<u8>(v.y * s);
-		v.z = static_cast<u8>(v.z * s);
-		v.w = static_cast<u8>(v.w * s);
+		v = v * s;
 		return v;
 	}
 
 	u8vec2& operator/=(u8vec2& v, f32 s) {
-		f32 inv = 1.0f / s;
-		v.x = static_cast<u8>(v.x * inv);
-		v.y = static_cast<u8>(v.y * inv);
+		v = v / s;
 		return v;
 	}
 
 	u8vec3& operator/=(u8vec3& v, f32 s) {
-		f32 inv = 1.0f / s;
-		v.x = static_cast<u8>(v.x * inv);
-		v.y = static_cast<u8>(v.y * inv);
-		v.z = static_cast<u8>(v.z * inv);
+		v = v / s;
 		return v;
 	}
 
 	u8vec4& operator/=(u8vec4& v, f32 s) {
-		f32 inv = 1.0f / s;
-		v.x = static_cast<u8>(v.x * inv);
-		v.y = static_cast<u8>(v.y * inv);
-		v.z = static_cast<u8>(v.z * inv);
-		v.w = static_cast<u8>(v.w * inv);
+		v = v / s;
 		return v;
 	}
 
@@ -1873,7 +1861,7 @@ namespace a3d::math {
 		f32 b = m.c1.x, d = m.c1.y;
 
 		f32 det = a * d - b * c;
-		assert(det != 0.0f);
+		A3D_ASSERT(det != 0.0f);
 		f32 invDet = 1.0f / det;
 
 		f32mat2 r;
@@ -1900,7 +1888,7 @@ namespace a3d::math {
 		f32 inv22 = (m00 * m11 - m01 * m10);
 
 		f32 det = m00 * inv00 + m01 * inv10 + m02 * inv20;
-		assert(det != 0.0f);
+		A3D_ASSERT(det != 0.0f);
 		f32 invDet = 1.0f / det;
 
 		f32mat3 r;
@@ -1936,7 +1924,7 @@ namespace a3d::math {
 			}
 
 			const f32 eps = 1e-8f;
-			assert(max_abs > eps && "f32mat4 inverse: f32matrix is singular or ill-conditioned");
+			A3D_ASSERT(max_abs > eps && "f32mat4 inverse: f32matrix is singular or ill-conditioned");
 			// or return f32mat4(1.0f);
 
 			// swap rows in both 'a' and 'inv'
@@ -2134,13 +2122,13 @@ namespace a3d::math {
 
 	/// 32-bit Float Quaternion ///
 
-	f32quat operator-(const f32quat& q) {
-		return { -q.w, -q.x, -q.y, -q.z };
-	}
-
-	f32quat operator+(const f32quat &a, const f32quat &b) {
-		return f32quat{a.w + b.w, a.x + b.x, a.y + b.y, a.z + b.z};
-	}
+	// f32quat operator-(const f32quat& q) {
+	// 	return { -q.w, -q.x, -q.y, -q.z };
+	// }
+	//
+	// f32quat operator+(const f32quat &a, const f32quat &b) {
+	// 	return f32quat{a.w + b.w, a.x + b.x, a.y + b.y, a.z + b.z};
+	// }
 
 	// convention: result = a * b applies b first, then a (GLM-style)
 	f32quat operator*(const f32quat &a, const f32quat &b) {
@@ -2158,13 +2146,13 @@ namespace a3d::math {
 		return q * s;
 	}
 
-	f32quat& operator+=(f32quat& a, const f32quat& b) {
-		a.w += b.w;
-		a.x += b.x;
-		a.y += b.y;
-		a.z += b.z;
-		return a;
-	}
+	// f32quat& operator+=(f32quat& a, const f32quat& b) {
+	// 	a.w += b.w;
+	// 	a.x += b.x;
+	// 	a.y += b.y;
+	// 	a.z += b.z;
+	// 	return a;
+	// }
 
 	f32quat& operator*=(f32quat& a, const f32quat& b) {
 		a = a * b; // use Hamilton product
@@ -2440,7 +2428,7 @@ namespace a3d::math {
 	/// Projection & Camera ///
 
 	f32mat4 perspective(f32 fovy, f32 aspect, f32 zNear, f32 zFar) {
-		assert(math::abs(aspect) > std::numeric_limits<f32>::epsilon() &&
+		A3D_ASSERT(math::abs(aspect) > std::numeric_limits<f32>::epsilon() &&
 			   "aspect must be non-zero");
 		f32 const tanHalfFovy = tan(fovy / static_cast<f32>(2.0));
 		f32mat4 result(static_cast<f32>(0.0));
@@ -2486,6 +2474,20 @@ namespace a3d::math {
 
 	/// Matrix Decomposition ///
 
+	// decomposes an affine 4x4 matrix into TRS components (translation * rotation * scale).
+	//
+	// *** important note on negative / mirror scales: ***
+	// if the determinant of the upper 3x3 is negative, one axis is effectively flipped.
+	// we detect this, negate the corresponding scale component, and flip the matching
+	// basis vector before converting to quaternion. this produces a valid rotation
+	// but the extracted scale will have a negative component.
+	//
+	// this is mathematically correct, but some libraries (or artists) may expect
+	// all-positive scale + an extra 180° rotation instead. if you see unexpected
+	// 180° flips or mirrored models after decompose/recompose, this handedness fix
+	// is the most common culprit.
+	//
+	// [this blurb came from Grok while auditing]
 	bool decompose(const f32mat4& m,
 				   f32vec3& scale,
 				   f32quat& rotation,
@@ -3722,5 +3724,25 @@ namespace a3d::math {
 		}
 
 		return std::string(width, '#');
+	}
+
+	u8 saturate_u8(f32 v) {
+		return static_cast<u8>(math::clamp(v, 0.0f, 255.0f));
+	}
+
+	f32quat operator-(const f32quat& q) {
+		return { -q.w, -q.x, -q.y, -q.z };
+	}
+
+	f32quat operator+(const f32quat &a, const f32quat &b) {
+		return f32quat{a.w + b.w, a.x + b.x, a.y + b.y, a.z + b.z};
+	}
+
+	f32quat& operator+=(f32quat& a, const f32quat& b) {
+		a.w += b.w;
+		a.x += b.x;
+		a.y += b.y;
+		a.z += b.z;
+		return a;
 	}
 }

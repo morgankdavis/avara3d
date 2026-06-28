@@ -11,21 +11,22 @@
 #include <vector>
 
 #include "a3d/a3d.h"
-#include "a3d/Utilities.h"
+#include "a3d/util/filesystem.h"
+#include "a3d/util/snapshot.h"
 
 using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
-const LogLevel				APP_LOG_LEVEL		{LogLevel::Debug};
-const uvec2					WINDOW_SIZE				{1280, 768};
-const bool					FULLSCREEN				{false};
-const bool					ENABLE_HIGH_DPI			{true};
-const AntialiasingMode		ANTIALIAS_MODE			{AntialiasingMode::None};
-const bool					ENABLE_VSYNC			{false};
-const bool					CAPTURE_CURSOR			{false};
-const float					MOUSE_SENSITIVITY		{0.5};
+const Log::Level						APP_LOG_LEVEL		{Log::Level::Debug};
+const uvec2								WINDOW_SIZE			{1280, 768};
+const bool								FULLSCREEN			{false};
+const bool								ENABLE_HIGH_DPI		{true};
+const RenderContext::AntialiasingMode	ANTIALIAS_MODE		{RenderContext::AntialiasingMode::None};
+const bool								ENABLE_VSYNC		{false};
+const bool								CAPTURE_CURSOR		{false};
+const float								MOUSE_SENSITIVITY	{0.5};
 
 void UpdateCallback(Scene& scene, double time, double deltaTime);
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
@@ -40,8 +41,8 @@ int main(int argc, const char* argv[]) {
 		InitLog();
 		LogBuildInfo();
 
-		auto window = make_unique<GLFWWindow>(RenderingApi::OpenGL,
-											  *utils::ExecutableName(),
+		auto window = make_unique<GLFWWindow>(RenderContext::RenderingApi::OpenGL,
+											  *util::filesystem::ExecutableName(),
 											  WINDOW_SIZE,
 											  FULLSCREEN,
 											  ENABLE_HIGH_DPI,
@@ -56,16 +57,16 @@ int main(int argc, const char* argv[]) {
 		visualWorld->fogEndDistance(5000.0);
 		visualWorld->fogDensityExponent(1.0);
 		visualWorld->fogColor(Color::LightGray());
-		visualWorld->background(make_shared<Texture>(utils::CubeImageNamed("sky1", "png")));
+		visualWorld->background(make_shared<Texture>(util::filesystem::CubeImageNamed("sky1", "png")));
 		visualWorld->willRenderCallback(bind(&WillRenderCallback, _1, _2, _3));
 		visualWorld->didRenderCallback(bind(&DidRenderCallback, _1, _2, _3));
 
 		auto scene = make_unique<Scene>(std::move(visualWorld), nullptr, std::move(inputManager));
 //	DebugOptions debugOptions = DebugOptions::None;
-//	debugOptions = A3D_MASK_ADD(debugOptions, DebugOptions::ShowStatsOverlay);
-//	debugOptions = A3D_MASK_ADD(debugOptions, DebugOptions::ShowBoundingBoxes);
-		DebugOptions debugOptions = DebugOptions::ShowStatsOverlay
-									| DebugOptions::ShowBoundingBoxes;
+//	debugOptions = util::bitmask::add(debugOptions, DebugOptions::ShowStatsOverlay);
+//	debugOptions = util::bitmask::add(debugOptions, DebugOptions::ShowBoundingBoxes);
+		auto debugOptions = Scene::DebugOptions::ShowStatsOverlay
+							| Scene::DebugOptions::ShowBoundingBoxes;
 		scene->debugOptions(debugOptions);
 		scene->updateCallback(bind(&UpdateCallback, _1, _2, _3));
 
@@ -77,7 +78,7 @@ int main(int argc, const char* argv[]) {
 
 		//auto pointLight = make_shared<Light>(LightType::Point, Color::White());
 		auto pointLight = make_shared<PointLight>(Color::White());
-		pointLight->quadraticAttenuation(0.0001);
+		pointLight->attenuation(Attenuation{.quadratic = 0.0001f});
 		auto pointLightNode = make_shared<Node>();
 		pointLightNode->light(pointLight);
 		scene->rootNode()->addChild(pointLightNode);
@@ -92,12 +93,12 @@ int main(int argc, const char* argv[]) {
 //	mesh->replaceMaterial(0, material); // TODO: EHHHHHHHH??????????/
 		pointLightNode->mesh(mesh);
 
-		auto teapotNode = Node::MeshNode(utils::MeshNamed("teapot/teapot"));
+		auto teapotNode = Node::MeshNode(util::filesystem::MeshNamed("teapot/teapot"));
 		teapotNode->rotation({1, 0, 0}, radians(30.0));
 		teapotNode->scale(teapotNode->scale() * 50.0f);
 		scene->rootNode()->addChild(teapotNode);
 
-		auto dragonNode = Node::MeshNode(utils::MeshNamed("dragon/dragon"));
+		auto dragonNode = Node::MeshNode(util::filesystem::MeshNamed("dragon/dragon"));
 		dragonNode->scale({2.5, 2.5, 2.5});
 		dragonNode->position({50, 0, 0});
 
@@ -113,8 +114,8 @@ int main(int argc, const char* argv[]) {
 			scene->update();
 		} while (window->isOpen());
 	}
-	catch (Exception& e) {
-		A3D_APP_LOG_F("Exception: {}", e.what());
+	catch (std::exception& e) {
+		log::app::f()("Exception: {}", e.what());
 		return -1;
 	}
 
@@ -133,6 +134,9 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 	auto keysPressed = im->keysPressed();
 
+	using Key = DesktopInputManager::Key;
+	using MouseButton = DesktopInputManager::MouseButton;
+
 	if (keysPressed.count(Key::Escape)) {
 		window->close();
 	}
@@ -141,33 +145,35 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 		window->cursorCaptured(!(window->cursorCaptured()));
 	}
 
+	using DebugOptions = Scene::DebugOptions;
+
 	if (keysPressed.count(Key::F)) {
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowWireframes)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
 											  DebugOptions::ShowWireframes));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(),
 										   DebugOptions::ShowWireframes));
 		}
 	}
 	if (keysPressed.count(Key::B)) {
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
 											  DebugOptions::ShowBoundingBoxes));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(),
 										   DebugOptions::ShowBoundingBoxes));
 		}
 	}
 	if (keysPressed.count(Key::I)) {
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
 											  DebugOptions::ShowStatsOverlay));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(),
 										   DebugOptions::ShowStatsOverlay));
 		}
 	}
@@ -177,15 +183,15 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	}
 
 	if (keysPressed.count(Key::Backslash)) {
-		utils::SaveSnapshot(*window);
+		util::snapshot::SaveSnapshot(*window);
 	}
 
 	if (keysPressed.count(Key::R)) {
 		if (!window->recordingGIF()) {
-			utils::StartGIFRecording(*window, {320, 240}, 8);
+			util::snapshot::StartGIFRecording(*window, {320, 240}, 8);
 		}
 		else {
-			utils::StopGIFRecording(*window);
+			util::snapshot::StopGIFRecording(*window);
 		}
 	}
 
@@ -257,10 +263,10 @@ void DidRenderCallback(VisualWorld& world, double time, double deltaTime) {
 
 void InitLog() {
 
-	string executableName = *utils::ExecutableName();
+	string executableName = *util::filesystem::ExecutableName();
 
 	auto nativeSink = make_unique<StdOutLogSink>();
-	auto fileSink = make_unique<FileLogSink>(*(utils::ExecutableDirectory())
+	auto fileSink = make_unique<FileLogSink>(*(util::filesystem::ExecutableDirectory())
 											 / (executableName + string(".log")));
 	auto sinks = vector<unique_ptr<LogSink>>();
 	sinks.push_back(std::move(nativeSink));
@@ -275,9 +281,9 @@ void LogBuildInfo() {
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
-	A3D_APP_LOG_I("A3D version: {}.{}.{}", version.major, version.minor, version.patch);
-	A3D_APP_LOG_I("Build: {}", buildInfo.number());
-	A3D_APP_LOG_I("Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
-	A3D_APP_LOG_I("Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
+	log::app::i()("A3D version: {}.{}.{}", version.major, version.minor, version.patch);
+	log::app::i()("Build: {}", buildInfo.number());
+	log::app::i()("Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
+	log::app::i()("Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
 }
 

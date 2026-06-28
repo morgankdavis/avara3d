@@ -8,11 +8,13 @@
 
 #include "a3d/mesh/primitive/TorusKnot.h"
 
-#include "generator/generator.hpp"
+#include <generator/generator.hpp>
 
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
-#include "a3d/rendering/material/Material.h"
+#include "a3d/mesh/PrimitiveTopology.h"
+#include "a3d/mesh/VertexFormats.h"
+#include "a3d/visual/material/Material.h"
 
 using namespace a3d;
 using namespace a3d::math;
@@ -47,26 +49,33 @@ TorusKnot::TorusKnot(unsigned p,
 
 	using namespace generator;
 
-	// p & q are mysteries!
-
 	/// @param slices Number subdivisions around the circle.
 	/// @param segments Number of subdivisions around the path.
 
-	auto torusKnot = TorusKnotMesh{(int)p, (int)q, (int)slices, (int)segments};
+	auto torusKnot = TorusKnotMesh{ (int)p, (int)q, (int)slices, (int)segments };
 
-	for (const MeshVertex& v : torusKnot.vertices()) {
-		_vertices.push_back({ vec3(v.position[0], v.position[1], v.position[2]),
-							  vec3(v.normal[0], v.normal[1], v.normal[2]),
-							  vec2(v.texCoord[0], v.texCoord[1]) });
+	beginBuild(VertexLayout::PNT,
+			   (uint16_t)sizeof(VertexPNT),
+			   PrimitiveTopology::Triangles,
+			   IndexFormat::U32);
+
+	for (auto vs = torusKnot.vertices(); !vs.done(); vs.next()) {
+		const auto v = vs.generate();
+		const VertexPNT out{
+				{ (float)v.position[0], (float)v.position[1], (float)v.position[2] },
+				{ (float)v.normal[0],   (float)v.normal[1],   (float)v.normal[2]   },
+				{ (float)v.texCoord[0], (float)v.texCoord[1] } };
+		appendVertexBytes(&out);
 	}
 
-	for (const Triangle& t : torusKnot.triangles()) {
-		_faces.push_back({ unsigned(t.vertices[0]),
-						   unsigned(t.vertices[1]),
-						   unsigned(t.vertices[2]) });
+	for (auto ts = torusKnot.triangles(); !ts.done(); ts.next()) {
+		const auto t = ts.generate();
+		appendTriangle((uint32_t)t.vertices[0],
+					   (uint32_t)t.vertices[1],
+					   (uint32_t)t.vertices[2]);
 	}
 
-	genLocalAABB();
+	endBuild(true);
 }
 
 /// Public Member Functions ///

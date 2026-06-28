@@ -8,13 +8,13 @@
 
 #include "a3d/physics/proxy/PhysicsBodyProxy.h"
 
-#include "a3d/diagnostic/log/Log.h"
+#include "a3d/log/Log.h"
 
 using namespace a3d;
 
 /// Internal Lifecycle Functions ///
 
-PhysicsBodyProxy::PhysicsBodyProxy(PhysicsBody& body, PhysicsBodyType type):
+PhysicsBodyProxy::PhysicsBodyProxy(PhysicsBody& body, PhysicsBody::Type type):
 		_body{},
 		_shapeProxy{},
 		_autocalculatesMomentOfInertia{true} {
@@ -35,13 +35,13 @@ void PhysicsBodyProxy::autocalculatesMomentOfInertia(bool autocalculate) {
 }
 
 void PhysicsBodyProxy::attachedToBody(PhysicsBody& body) {
-	A3D_LOG_T("body: {:p}", static_cast<void*>(&body));
+	log::t()("body: {:p}", static_cast<void*>(&body));
 
 	_body = &body;
 }
 
 void PhysicsBodyProxy::detachedFromBody(PhysicsBody& body) {
-	A3D_LOG_T("body: {:p}", static_cast<void*>(&body));
+	log::t()("body: {:p}", static_cast<void*>(&body));
 
 	_body = nullptr;
 }

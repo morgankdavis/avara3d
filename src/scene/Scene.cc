@@ -8,8 +8,8 @@
 
 #include "a3d/scene/Scene.h"
 
-#include <chrono>
 #include <filesystem>
+#include <stdexcept>
 #include <thread>
 #include <utility>
 
@@ -17,21 +17,21 @@
 #include "a3d/Color.h"
 #include "a3d/Configuration.h"
 #include "a3d/Image.h"
-#include "a3d/diagnostic/log/Log.h"
+#include "a3d/log/Log.h"
 #include "a3d/input/GLFWInputManager.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicalWorld.h"
-#include "a3d/profiling/Profiler.h"
-#include "a3d/profiling/Timer.h"
-#include "a3d/rendering/VisualWorld.h"
-#include "a3d/rendering/camera/Camera.h"
-#include "a3d/rendering/context/RenderContext.h"
-#include "a3d/rendering/light/Light.h"
-#include "a3d/rendering/renderer/Renderer.h"
+#include "a3d/profile/Profile.h"
+#include "a3d/render/context/RenderContext.h"
+#include "a3d/render/Renderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/importer/GlTFImporter.h"
+#include "a3d/util/flow.h"
+#include "a3d/visual/VisualWorld.h"
+#include "a3d/visual/camera/Camera.h"
+#include "a3d/visual/light/Light.h"
 
 using namespace a3d;
 using namespace a3d::math;
@@ -46,8 +46,7 @@ static void 		GetRunTime(double time, // time since reference
 
 /// Public Static Member Functions ///
 
-unique_ptr<Scene> Scene::FromFile(const filesystem::path& path,
-								  SceneImportOptions options) {
+unique_ptr<Scene> Scene::FromFile(const filesystem::path& path, ImportOptions options) {
 	return GlTFImporter(path, options).scene();
 }
 
@@ -100,10 +99,10 @@ Scene::Scene(const string& name,
 Scene::~Scene() {
 
 	if (_name != nullopt) {
-		A3D_LOG_D("Destroying Scene '{}' ({:p})", *_name, static_cast<void*>(this));
+		log::d()("Destroying Scene '{}' ({:p})", *_name, static_cast<void*>(this));
 	}
 	else {
-		A3D_LOG_D("Destroying Scene {:p}", static_cast<void*>(this));
+		log::d()("Destroying Scene {:p}", static_cast<void*>(this));
 	}
 
 	if (_rootNode) _rootNode->detachedFromScene(*this);
@@ -114,7 +113,7 @@ Scene::~Scene() {
 
 /// Public Member Functions ///
 
-const optional<std::string>& Scene::name() const {
+const optional<string>& Scene::name() const {
 	return _name;
 }
 
@@ -242,10 +241,10 @@ void Scene::inputManager(unique_ptr<InputManager> inputManager) {
 //}
 
 AABB Scene::aabb(bool vertfit) const {
-	AABB out = AABB::InvalidAABB();
+	AABB out = AABB::Invalid();
 
 	for (auto& node : rootNode()->children()) {
-		out = AABB::Union(out, node->aabb());
+		out |= node->aabb();
 	}
 
 	return out;
@@ -256,7 +255,7 @@ vec3 Scene::extent(bool vertfit) const {
 	return aabb.max - aabb.min;
 }
 
-DebugOptions Scene::debugOptions() const {
+Scene::DebugOptions Scene::debugOptions() const {
 	return _debugOptions;
 }
 
@@ -276,15 +275,17 @@ void Scene::debugOptions(DebugOptions options) {
 
 void Scene::update() {
 
+	if (!util::flow::edge_guard(_rootNode, [&] {
+		log::e()("No root node attached to Scene {:p}", static_cast<void *>(this));
+	})) return;
+
 	static FrameStats stats;
 	memset(&stats, 0, sizeof(FrameStats));
 
-	Timer frameTimer(true);
+	prof::profile(_profiler, Profiler::Tag::Frame, [&] {
 
-	if (_rootNode) {
-
-		static auto now = std::chrono::system_clock::now();
-		_startTime = std::chrono::duration<double>(now.time_since_epoch()).count();
+		static auto now = chrono::system_clock::now();
+		_startTime = chrono::duration<double>(now.time_since_epoch()).count();
 
 		static double deltaT, runT, deltaRunT; // TODO: manage these in caller
 
@@ -293,14 +294,17 @@ void Scene::update() {
 				   deltaRunT);
 
 		if (_inputManager) {
-			_inputManager->update();
+
+			prof::profile(_profiler, Profiler::Tag::EngineCpu, [&] {
+				_inputManager->update();
+			});
 		}
 
 		if (_updateCallback) {
 
-			Timer appTimer(true);
-			(_updateCallback)(*this, runT, deltaRunT);
-			_profiler.add(Profiler::Tag::Application, appTimer.stop());
+			prof::profile(_profiler, Profiler::Tag::Application, [&] {
+				(_updateCallback)(*this, runT, deltaRunT);
+			});
 		}
 
 		if (_physicalWorld) {
@@ -314,7 +318,6 @@ void Scene::update() {
 
 		if (_visualWorld) {
 
-			//Timer drawTimer(true);
 			_visualWorld->draw(*this,
 							   (_physicalWorld ? _physicalWorld.get() : nullptr),
 							   runT,
@@ -323,14 +326,8 @@ void Scene::update() {
 							   stats,
 							   _profiler,
 							   _frameStatsHistory);
-			//_profiler.add(Profiler::Tag::RenderCpu, drawTimer.stop());
 		}
-	}
-	else {
-		A3D_LOG_E("No root node attached to Scene {:p}", static_cast<void*>(this));
-	}
-
-	_profiler.add(Profiler::Tag::Frame, frameTimer.stop());
+	});
 
 	stats.frameTime = _profiler.time(Profiler::Tag::Frame);
 	stats.engineCpuTime = _profiler.time(Profiler::Tag::EngineCpu);

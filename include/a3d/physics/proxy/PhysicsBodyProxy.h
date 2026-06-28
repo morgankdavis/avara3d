@@ -6,28 +6,29 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_PHYSICSBODYPROXY_H
-#define AVARA3D_PHYSICSBODYPROXY_H
+#ifndef AVARA3D_PHYSICS_PROXY_PHYSICSBODYPROXY_H
+#define AVARA3D_PHYSICS_PROXY_PHYSICSBODYPROXY_H
 
-#include "a3d/Types.h"
+#include "a3d/physics/PhysicsBody.h"
 
 namespace a3d {
 
 	class PhysicsBody;
 	class PhysicsShapeProxy;
+//	class PhysicsWorld;
 
 	class PhysicsBodyProxy {
 
 	public:
 		/// Internal Lifecycle Functions ///
 
-		explicit PhysicsBodyProxy(PhysicsBody& body, PhysicsBodyType type);
+		explicit PhysicsBodyProxy(PhysicsBody& body, PhysicsBody::Type type);
 		virtual ~PhysicsBodyProxy();
 
 		/// Internal Member Functions ///
 
-		virtual PhysicsBodyType			type() const = 0;
-		virtual void					type(PhysicsBodyType type) = 0;
+		virtual PhysicsBody::Type		type() const = 0;
+		virtual void					type(PhysicsBody::Type type) = 0;
 
 		virtual PhysicsShapeProxy*		shapeProxy() const = 0;
 		virtual void					shapeProxy(PhysicsShapeProxy* proxy) = 0;
@@ -107,13 +108,17 @@ namespace a3d {
 		void							attachedToBody(PhysicsBody& body);
 		void							detachedFromBody(PhysicsBody& body);
 
+//		void							addedToWorld(PhysicsWorld& world);
+//		void							removedFromWorld(PhysicsWorld& world);
+
 	protected:
 		/// Protected Member Variables ///
 
 		PhysicsBody*					_body;
 		PhysicsShapeProxy*				_shapeProxy;
 		bool							_autocalculatesMomentOfInertia;
+//		PhysicsWorld*					_world;
 	};
 }
 
-#endif //AVARA3D_PHYSICSBODYPROXY_H
+#endif //AVARA3D_PHYSICS_PROXY_PHYSICSBODYPROXY_H

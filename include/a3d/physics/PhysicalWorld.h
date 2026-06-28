@@ -6,24 +6,26 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_PHYSICALWORLD_H
-#define AVARA3D_PHYSICALWORLD_H
+#ifndef AVARA3D_PHYSICS_PHYSICALWORLD_H
+#define AVARA3D_PHYSICS_PHYSICALWORLD_H
 
 #include <functional>
 #include <memory>
 #include <optional>
 
-#include "a3d/Types.h"
+#include "a3d/scene/Scene.h"
 
 namespace a3d {
 
+	struct FrameStats;
+
 	class HitTestResult;
+	class Line;
 	class PhysicsBody;
 	class PhysicsContact;
 	class PhysicsShape;
 	class PhysicalWorldProxy;
 	class Profiler;
-	class Scene;
 
 	class PhysicalWorld {
 
@@ -94,6 +96,9 @@ namespace a3d {
 												 FrameStats& stats,
 												 Profiler& profiler);
 
+		void 								appendDebugLines(std::vector<Line>& out,
+															 Scene::DebugOptions debugOptions) const;
+
 		PhysicalWorldProxy*					proxy() const;
 
 	private:
@@ -111,4 +116,4 @@ namespace a3d {
 	};
 }
 
-#endif /* AVARA3D_PHYSICALWORLD_H */
+#endif /* AVARA3D_PHYSICS_PHYSICALWORLD_H */

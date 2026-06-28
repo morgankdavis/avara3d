@@ -10,37 +10,38 @@
 
 #include <filesystem>
 #include <format>
+#include <stdexcept>
 #include <utility>
 #include <variant>
 
 #include <fastgltf/core.hpp>
-#include "fastgltf/math.hpp"
+#include <fastgltf/math.hpp>
 #include <fastgltf/tools.hpp>
 #include <fastgltf/types.hpp>
-#include "fastgltf/util.hpp"
-
-#include "magic_enum/magic_enum.hpp"
+#include <fastgltf/util.hpp>
+#include <magic_enum/magic_enum.hpp>
 
 #include "a3d/Buffer.h"
 #include "a3d/Color.h"
 #include "a3d/Image.h"
-#include "a3d/Types.h"
-#include "a3d/diagnostic/exception/UnsupportedFormatException.h"
-#include "a3d/diagnostic/log/Log.h"
+#include "a3d/log/Log.h"
 #include "a3d/mesh/Mesh.h"
+#include "a3d/mesh/IndexFormats.h"
 #include "a3d/mesh/MeshElement.h"
-#include "a3d/rendering/camera/Camera.h"
-#include "a3d/rendering/camera/PerspectiveCamera.h"
-#include "a3d/rendering/light/DirectionalLight.h"
-#include "a3d/rendering/light/Light.h"
-#include "a3d/rendering/light/PointLight.h"
-#include "a3d/rendering/light/SpotLight.h"
-#include "a3d/rendering/material/Material.h"
-#include "a3d/rendering/material/Sampler.h"
-#include "a3d/rendering/material/Texture.h"
+#include "a3d/mesh/PrimitiveTopology.h"
+#include "a3d/mesh/VertexFormats.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
-#include "a3d/Utilities.h"
+#include "a3d/util/chrono.h"
+#include "a3d/visual/camera/Camera.h"
+#include "a3d/visual/camera/PerspectiveCamera.h"
+#include "a3d/visual/light/DirectionalLight.h"
+#include "a3d/visual/light/Light.h"
+#include "a3d/visual/light/PointLight.h"
+#include "a3d/visual/light/SpotLight.h"
+#include "a3d/visual/material/Material.h"
+#include "a3d/visual/material/Sampler.h"
+#include "a3d/visual/material/Texture.h"
 
 using namespace a3d;
 using namespace a3d::math;
@@ -48,17 +49,21 @@ using namespace std;
 
 /// Private Static Non-Member Prototypes ///
 
-static fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options);
-static std::span<const byte> BytesFromDataSource(const fastgltf::DataSource& src);
-static std::span<const byte> BytesFromBufferView(const fastgltf::Asset& asset, size_t bufferViewIndex);
-static mat4 TransformFromGlTFNode(fastgltf::Node& node);
-static shared_ptr<a3d::Color> ColorFromGlTFColorArray(const fastgltf::math::nvec3& v);
-static shared_ptr<a3d::Color> ColorFromGlTFColorArray(const fastgltf::math::nvec4& v);
+static fastgltf::Options 		GlTFOptionsFromImportOptions(Scene::ImportOptions options);
+static std::span<const byte> 	BytesFromDataSource(const fastgltf::DataSource& src);
+static std::span<const byte> 	BytesFromBufferView(const fastgltf::Asset& asset,
+													 size_t bufferViewIndex);
+static mat4 					TransformFromGlTFNode(fastgltf::Node& node);
+static shared_ptr<a3d::Color> 	ColorFromGlTFColorArray(const fastgltf::math::nvec3& v);
+static shared_ptr<a3d::Color> 	ColorFromGlTFColorArray(const fastgltf::math::nvec4& v);
+static void 					ReadIndicesU32(const fastgltf::Asset& asset,
+											  const fastgltf::Accessor& idxAccessor,
+											  vector<uint32_t>& out);
 
 /// Internal Lifecycle Functions ///
 
 GlTFImporter::GlTFImporter(const filesystem::path& path,
-						   SceneImportOptions options):
+						   Scene::ImportOptions options):
 		_parsed{false},
 		_asset{},
 		_scene{},
@@ -74,7 +79,7 @@ GlTFImporter::GlTFImporter(const filesystem::path& path,
 
 	auto extension = path.extension();
 	if (!(extension == ".gltf" || extension == ".glb")) {
-		throw UnsupportedFormatException(std::format("Unsupported format: {}", extension.string()));
+		throw std::runtime_error(std::format("Unsupported format: {}", extension.string()));
 	}
 }
 
@@ -85,7 +90,7 @@ unique_ptr<a3d::Scene> GlTFImporter::scene() {
 	if (!_scene) {
 		if (parse()) {
 
-			auto startTime = utils::chrono::Time();
+			auto startTime = util::chrono::Time();
 
 			auto a3dScene = make_unique<a3d::Scene>();
 
@@ -93,7 +98,7 @@ unique_ptr<a3d::Scene> GlTFImporter::scene() {
 			if (!scenes.empty()) {
 
 				if (scenes.size() > 1) {
-					A3D_LOG_W("Ignoring extra scenes.");
+					log::w()("Ignoring {} extra scenes.", scenes.size()-1);
 				}
 
 				auto& scene = scenes[_asset.defaultScene ? *_asset.defaultScene : 0];
@@ -109,16 +114,16 @@ unique_ptr<a3d::Scene> GlTFImporter::scene() {
 
 					// TODO: throw out nodes that don't have anything attached to them, or any children?
 
-					A3D_LOG_I("Done loading scene.  Time: {}", utils::chrono::Time() - startTime);
+					log::i()("Done loading scene.  Time: {}", util::chrono::Time() - startTime);
 
 					_scene = std::move(a3dScene);
 				}
 				else {
-					A3D_LOG_E("No nodes in scene: {}", scene.name);
+					log::e()("No nodes in scene: {}", scene.name);
 				}
 			}
 			else {
-				A3D_LOG_E("File contains no scenes!");
+				log::e()("File contains no scenes!");
 			}
 		}
 	}
@@ -135,7 +140,7 @@ shared_ptr<a3d::Mesh> GlTFImporter::firstMesh() {
 
 	if (parse()) {
 
-		auto startTime = utils::chrono::Time();
+		auto startTime = util::chrono::Time();
 
 		auto& meshes = _asset.meshes;
 		if (!meshes.empty()) {
@@ -143,11 +148,11 @@ shared_ptr<a3d::Mesh> GlTFImporter::firstMesh() {
 			mesh = meshFromGlTFMeshIndex(_asset, 0);
 
 			if (mesh) {
-				A3D_LOG_I("Done loading mesh.  Time: {}", utils::chrono::Time() - startTime);
+				log::i()("Done loading mesh.  Time: {}", util::chrono::Time() - startTime);
 			}
 		}
 		else {
-			A3D_LOG_E("File contains no meshes!");
+			log::e()("File contains no meshes!");
 		}
 	}
 
@@ -158,7 +163,7 @@ const filesystem::path& GlTFImporter::path() const {
 	return _path;
 }
 
-SceneImportOptions GlTFImporter::options() const {
+Scene::ImportOptions GlTFImporter::options() const {
 	return _options;
 }
 
@@ -170,9 +175,9 @@ bool GlTFImporter::parse() {
 
 	if (!_parsed) {
 
-		auto startTime = utils::chrono::Time();
+		auto startTime = util::chrono::Time();
 
-		A3D_LOG_I("Parsing glTF: '{}'...", _path.string());
+		log::i()("Parsing glTF: '{}'...", _path.string());
 
 		auto extensions = Extensions::KHR_lights_punctual
 						  | Extensions::KHR_materials_specular
@@ -182,7 +187,7 @@ bool GlTFImporter::parse() {
 
 		auto gltfFile = MappedGltfFile::FromPath(_path);
 		if (!bool(gltfFile)) {
-			A3D_LOG_E("Failed to open glTF file: {}", getErrorMessage(gltfFile.error()));
+			log::e()("Failed to open glTF file: {}", getErrorMessage(gltfFile.error()));
 			return false;
 		}
 
@@ -190,11 +195,14 @@ bool GlTFImporter::parse() {
 		auto options = GlTFOptionsFromImportOptions(_options);
 		auto asset = parser.loadGltf(gltfFile.get(), directory, options);
 		if (asset.error() != fastgltf::Error::None) {
-			A3D_LOG_E("Failed to load glTF {}", getErrorMessage(asset.error()));
+			log::e()("Failed to load glTF {}", getErrorMessage(asset.error()));
 			return false;
 		}
 
 		_asset = std::move(asset.get());
+		_parsed = true;
+
+		log::i()("Parsed glTF. Time: {}", util::chrono::Time() - startTime);
 	}
 
 	return true;
@@ -210,16 +218,16 @@ void GlTFImporter::visitGlTFNode(fastgltf::Asset& asset,
 
 	a3dNode->transform(TransformFromGlTFNode(node));
 
-	if ((_options & SceneImportOptions::ImportMeshes) != SceneImportOptions::None) {
+	if ((_options & Scene::ImportOptions::ImportMeshes) != Scene::ImportOptions::None) {
 		a3dNode->mesh(meshFromGlTFNode(asset, node));
 	}
 
-	if ((_options & SceneImportOptions::ImportLights) != SceneImportOptions::None) {
+	if ((_options & Scene::ImportOptions::ImportLights) != Scene::ImportOptions::None) {
 		a3dNode->light(lightFromGlTFNode(asset, node));
 	}
 
 	// (during .6.1 -> .9 migration): this was disabled... why...?
-	if ((_options & SceneImportOptions::ImportCameras) != SceneImportOptions::None) {
+	if ((_options & Scene::ImportOptions::ImportCameras) != Scene::ImportOptions::None) {
 		a3dNode->camera(cameraFromGlTFNode(asset, node));
 	}
 
@@ -239,13 +247,13 @@ shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlTFNode(fastgltf::Asset& asset,
 }
 
 shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlTFMeshIndex(fastgltf::Asset& asset,
-														  std::size_t meshIndex) {
+														  size_t meshIndex) {
 
 	if (_meshes.find(meshIndex) == _meshes.end()) {
 
 		auto& mesh = asset.meshes[meshIndex];
 
-		A3D_LOG_D("Importing mesh '{}'...", mesh.name);
+		log::d()("Importing mesh '{}'...", mesh.name);
 
 		auto elements = vector<unique_ptr<MeshElement>>();
 		auto materials = vector<shared_ptr<Material>>();
@@ -256,10 +264,9 @@ shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlTFMeshIndex(fastgltf::Asset& asset
 			if (element) elements.push_back(std::move(element));
 
 			// TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
-			auto material = ((_options & SceneImportOptions::ImportMaterials) != SceneImportOptions::None)
+			auto material = ((_options & Scene::ImportOptions::ImportMaterials) != Scene::ImportOptions::None)
 							? materialFromGlTFPrimitive(asset, primitive)
 							: Material::DefaultMaterial();
-//							: make_shared<Material>();
 			if (material) materials.push_back(material);
 		}
 
@@ -270,24 +277,22 @@ shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlTFMeshIndex(fastgltf::Asset& asset
 	else {
 		return _meshes[meshIndex];
 	}
-
-	return nullptr;
 }
 
-std::unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(
+unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(
 		fastgltf::Asset& asset,
 		fastgltf::Primitive& primitive) {
 
 	using namespace fastgltf;
 
 	if (primitive.type != PrimitiveType::Triangles) {
-		A3D_LOG_W("Unsupported primitive type: {}", magic_enum::enum_name(primitive.type));
+		log::w()("Unsupported primitive type: {}", magic_enum::enum_name(primitive.type));
 		return nullptr;
 	}
 
 	auto posAttr = primitive.findAttribute("POSITION");
 	if (!posAttr) {
-		A3D_LOG_E("Primitive has no POSITION attribute.");
+		log::e()("Primitive has no POSITION attribute.");
 		return nullptr;
 	}
 
@@ -296,18 +301,15 @@ std::unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(
 
 	const size_t vertexCount = posAccessor.count;
 	if (vertexCount == 0) {
-		A3D_LOG_W("Primitive has 0 vertices.");
+		log::w()("Primitive has 0 vertices.");
 		return nullptr;
 	}
 
 	auto to_vec3 = [](const fastgltf::math::fvec3& v) -> a3d::math::vec3 {
 		return { v[0], v[1], v[2] };
 	};
-	auto to_vec2 = [](const fastgltf::math::fvec2& v) -> a3d::math::vec2 {
-		return { v[0], v[1] };
-	};
 
-	vector<Vertex> verts(vertexCount);
+	vector<VertexPNT> verts(vertexCount);
 
 	// positions
 	iterateAccessorWithIndex<fastgltf::math::fvec3>(
@@ -349,7 +351,7 @@ std::unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(
 			}
 			case AccessorType::Vec3: {
 				// non-compliant glTF...
-				A3D_LOG_W("TEXCOORD_0 is VEC3; truncating to (u,v).");
+				log::w()("TEXCOORD_0 is VEC3; truncating to (u,v).");
 				iterateAccessorWithIndex<fvec3>(asset, uvAccessor,
 												[&](fvec3 uvw, size_t i) {
 													if (i < verts.size()) {
@@ -360,7 +362,7 @@ std::unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(
 			}
 			case AccessorType::Vec4: {
 				// non-compliant glTF...
-				A3D_LOG_W("TEXCOORD_0 is VEC4; truncating to (u,v).");
+				log::w()("TEXCOORD_0 is VEC4; truncating to (u,v).");
 				iterateAccessorWithIndex<fvec4>(asset, uvAccessor,
 												[&](fvec4 uvzw, size_t i) {
 													if (i < verts.size()) {
@@ -370,50 +372,111 @@ std::unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(
 				break;
 			}
 			default: {
-				A3D_LOG_W("TEXCOORD_0 has unexpected accessor.type={} (expected VEC2). Skipping UVs.",
-						  magic_enum::enum_name(uvAccessor.type));
+				log::w()("TEXCOORD_0 has unexpected accessor.type={} (expected VEC2). Skipping UVs.",
+						 magic_enum::enum_name(uvAccessor.type));
 				break;
 			}
 		}
 	}
 
-	// indices
-	vector<uint32_t> indices;
+	// indices (read U32 then optionally down-pack to U16)
+	vector<uint32_t> rawIndices;
 	if (primitive.indicesAccessor) {
 		const auto& idxAccessor = asset.accessors[*primitive.indicesAccessor];
-		indices.resize(idxAccessor.count);
-		iterateAccessorWithIndex<uint32_t>(
-				asset, idxAccessor,
-				[&](uint32_t idx, size_t i) {
-					if (i < indices.size()) indices[i] = idx;
-				}
-		);
+		ReadIndicesU32(asset, idxAccessor, rawIndices);
+		if (rawIndices.empty()) {
+			log::w()("Primitive indices accessor present but unreadable: skipping primitive.");
+			return nullptr;
+		}
 	}
 	else {
-		indices.resize(vertexCount);
-		for (size_t i = 0; i < vertexCount; ++i)
-			indices[i] = static_cast<uint32_t>(i);
+		// glTF "non-indexed": treat as sequential indexing
+		rawIndices.resize(vertexCount);
+		for (size_t i = 0; i < vertexCount; ++i) {
+			rawIndices[i] = static_cast<uint32_t>(i);
+		}
 	}
 
-	if (indices.size() < 3) {
-		A3D_LOG_W("Primitive has fewer than 3 indices; cannot form triangles.");
+	if (rawIndices.size() < 3) {
+		log::w()("Primitive has fewer than 3 indices: cannot form triangles.");
 		return nullptr;
 	}
-	if (indices.size() % 3 != 0) {
-		A3D_LOG_W("Index count {} is not divisible by 3; truncating.", indices.size());
+	if ((rawIndices.size() % 3) != 0) {
+		log::w()("Index count {} is not divisible by 3: truncating.", rawIndices.size());
 	}
 
-	const size_t triIndexCount = (indices.size() / 3) * 3;
-	vector<Face> faces;
-	faces.reserve(triIndexCount / 3);
+	const size_t triIndexCount = (rawIndices.size() / 3) * 3;
+
+	// validate triangles and build a clean index list
+	vector<uint32_t> cleanIndices;
+	cleanIndices.reserve(triIndexCount);
 
 	for (size_t i = 0; i < triIndexCount; i += 3) {
-		faces.push_back({ static_cast<unsigned>(indices[i + 0]),
-						  static_cast<unsigned>(indices[i + 1]),
-						  static_cast<unsigned>(indices[i + 2]) });
+		const uint32_t a = rawIndices[i + 0];
+		const uint32_t b = rawIndices[i + 1];
+		const uint32_t c = rawIndices[i + 2];
+
+		// don’t create garbage faces if a file is malformed
+		if (a >= vertexCount || b >= vertexCount || c >= vertexCount) {
+			log::w()("Triangle index out of range ({} {} {}) for vertexCount: {}. Skipping triangle.",
+					 a, b, c, vertexCount);
+			continue;
+		}
+
+		cleanIndices.push_back(a);
+		cleanIndices.push_back(b);
+		cleanIndices.push_back(c);
 	}
 
-	return make_unique<MeshElement>(verts, faces);
+	if (cleanIndices.size() < 3) {
+		log::w()("Primitive produced 0 valid triangles after validation.");
+		return nullptr;
+	}
+
+	// choose smallest index format that can represent max index
+	uint32_t maxIndex = 0;
+	for (uint32_t v : cleanIndices) {
+		if (v > maxIndex) maxIndex = v;
+	}
+
+	IndexFormat indexFormat = (maxIndex <= 0xFFFFu) ? IndexFormat::U16 : IndexFormat::U32;
+
+	// vertex bytes
+	const auto vb = std::as_bytes(std::span<const VertexPNT>(verts.data(), verts.size()));
+
+	if (indexFormat == IndexFormat::U16) {
+		vector<uint16_t> idx16;
+		idx16.reserve(cleanIndices.size());
+		for (uint32_t v : cleanIndices) {
+			// guaranteed safe by maxIndex check
+			idx16.push_back(static_cast<uint16_t>(v));
+		}
+
+		const auto ib = std::as_bytes(std::span<const uint16_t>(idx16.data(), idx16.size()));
+
+		return make_unique<MeshElement>(
+				VertexLayout::PNT,
+				vb,
+				static_cast<uint32_t>(verts.size()),
+				static_cast<uint16_t>(sizeof(VertexPNT)),
+				PrimitiveTopology::Triangles,
+				IndexFormat::U16,
+				ib,
+				static_cast<uint32_t>(idx16.size()));
+	}
+	else {
+		const auto ib = std::as_bytes(std::span<const uint32_t>(cleanIndices.data(), cleanIndices.size()));
+
+		return make_unique<MeshElement>(
+				VertexLayout::PNT,
+				vb,
+				static_cast<uint32_t>(verts.size()),
+				static_cast<uint16_t>(sizeof(VertexPNT)),
+				PrimitiveTopology::Triangles,
+				IndexFormat::U32,
+				ib,
+				static_cast<uint32_t>(cleanIndices.size()));
+	}
 }
 
 shared_ptr<a3d::Material> GlTFImporter::materialFromGlTFPrimitive(fastgltf::Asset& asset,
@@ -425,7 +488,7 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlTFPrimitive(fastgltf::Asse
 
 			auto& material = asset.materials[*materialIndex];
 
-			A3D_LOG_D("Importing material '{}'...", material.name);
+			log::d()("Importing material '{}'...", material.name);
 
 			shared_ptr<a3d::Material> a3dMaterial = nullptr;
 
@@ -447,7 +510,7 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlTFPrimitive(fastgltf::Asse
 				auto baseColorFactor = pbrData.baseColorFactor;
 
 				auto a3dColor = ColorFromGlTFColorArray(baseColorFactor);
-				auto a3dProperty = MaterialProperty(a3dColor);
+				auto a3dProperty = Material::Property(a3dColor);
 				a3dMaterial = make_shared<a3d::Material>(monostate{}, a3dProperty, monostate{});
 			}
 
@@ -462,16 +525,16 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlTFPrimitive(fastgltf::Asse
 				auto colorFactor = specularMaterial->specularColorFactor;
 				auto& colorTextureInfo = specularMaterial->specularColorTexture;
 
-//				A3D_LOG_D("*** [SPECULAR] ***");
-//				A3D_LOG_D("factor: {}", factor);
-//				A3D_LOG_D("textureInfo: {}", textureInfo ? "true" : "false");
-//				A3D_LOG_D("colorFactor: ({}, {}, {})", colorFactor[0], colorFactor[1], colorFactor[2]);
-//				A3D_LOG_D("colorTextureInfo: {}", colorTextureInfo ? "true" : "false");
+//				log::d()("*** [SPECULAR] ***");
+//				log::d()("factor: {}", factor);
+//				log::d()("textureInfo: {}", textureInfo ? "true" : "false");
+//				log::d()("colorFactor: ({}, {}, {})", colorFactor[0], colorFactor[1], colorFactor[2]);
+//				log::d()("colorTextureInfo: {}", colorTextureInfo ? "true" : "false");
 
 				// if it has a 'texture' map, use it (only contains alpha)
 				// if it has no map, but a 'factor' use solid white, with an intentify of the factor.
 
-				MaterialProperty a3dProperty = monostate{};
+				Material::Property a3dProperty = monostate{};
 
 				if (textureInfo) {
 
@@ -487,7 +550,7 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlTFPrimitive(fastgltf::Asse
 
 				if (holds_alternative<monostate>(a3dProperty) && (factor > 0)) {
 					auto factorColor = make_shared<Color>(factor);
-					a3dProperty = MaterialProperty(factorColor);
+					a3dProperty = Material::Property(factorColor);
 				}
 
 				if (!holds_alternative<monostate>(a3dProperty)) {
@@ -511,7 +574,7 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlTFPrimitive(fastgltf::Asse
 					// log error to draw attention -- at time of initial glTF integration
 					// we don't have an example file with KHR_materials_anisotropy
 					auto strength = anisotropy->anisotropyStrength;
-					A3D_LOG_I("anisotropyStrength: {}", strength);
+					log::i()("anisotropyStrength: {}", strength);
 
 					for (auto [property, type] : a3dMaterial->properties()) {
 						if (holds_alternative<shared_ptr<Texture>>(*property)) {
@@ -536,7 +599,7 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlTFPrimitive(fastgltf::Asse
 		}
 	}
 	else {
-		A3D_LOG_W("Missing material.");
+		log::w()("Missing material.");
 	}
 
 	return a3d::Material::DefaultMaterial();
@@ -549,7 +612,7 @@ shared_ptr<a3d::Texture> GlTFImporter::textureFromGlTFTextureIndex(fastgltf::Ass
 
 		auto& texture = asset.textures[textureIndex];
 
-		A3D_LOG_D("Importing texture '{}'...", texture.name);
+		log::d()("Importing texture '{}'...", texture.name);
 
 		if (auto a3dImage = imageFromGlTFTexture(asset, texture) ; a3dImage) {
 
@@ -576,18 +639,18 @@ shared_ptr<a3d::Sampler> GlTFImporter::samplerFromGlTFTexture(fastgltf::Asset& a
 
 			auto& sampler = asset.samplers[*samplerIndex];
 
-			A3D_LOG_D("Importing sampler '{}'...", sampler.name);
+			log::d()("Importing sampler '{}'...", sampler.name);
 
 			auto a3dSampler = make_shared<a3d::Sampler>();
 
 			if (sampler.minFilter) {
-				a3dSampler->minificationFilter(FilterMode(*sampler.minFilter));
+				a3dSampler->minificationFilter(Sampler::FilterMode(*sampler.minFilter));
 			}
 			if (sampler.magFilter) {
-				a3dSampler->magnificationFilter(FilterMode(*sampler.magFilter));
+				a3dSampler->magnificationFilter(Sampler::FilterMode(*sampler.magFilter));
 			}
-			a3dSampler->wrapS(WrapMode(sampler.wrapS));
-			a3dSampler->wrapT(WrapMode(sampler.wrapT));
+			a3dSampler->wrapS(Sampler::WrapMode(sampler.wrapS));
+			a3dSampler->wrapT(Sampler::WrapMode(sampler.wrapT));
 
 			return a3dSampler;
 		}
@@ -609,44 +672,40 @@ shared_ptr<a3d::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset
 			auto& image = asset.images[*imageIndex];
 			auto &dataSource = image.data;
 
-			A3D_LOG_D("Importing image '{}'...", image.name);
+			log::d()("Importing image '{}'...", image.name);
 
+			// TODO: clean this up - avoid multiple cppies
 			auto a3dImage = std::visit(fastgltf::visitor{
 					[&](const fastgltf::sources::Vector& v) -> std::shared_ptr<a3d::Image> {
 						auto bytes = std::span<const std::byte>(v.bytes.data(), v.bytes.size());
-						auto a3dBuffer = std::make_unique<a3d::Buffer>(
-								const_cast<std::byte*>(bytes.data()), bytes.size()); // ideally make Buffer accept const
-						return std::make_shared<a3d::Image>(std::move(a3dBuffer), false);
+						a3d::Buffer buf(bytes.data(), bytes.size());
+						return std::make_shared<a3d::Image>(buf, false, false);
 					},
 					[&](const fastgltf::sources::BufferView& bvSrc) -> std::shared_ptr<a3d::Image> {
 						auto bytes = BytesFromBufferView(asset, bvSrc.bufferViewIndex);
 						if (bytes.empty()) {
-							A3D_LOG_W("Unexpected/empty BufferView image data.");
+							log::w()("Unexpected/empty BufferView image data.");
 							return nullptr;
 						}
-						auto a3dBuffer = std::make_unique<a3d::Buffer>(
-								const_cast<std::byte*>(bytes.data()), bytes.size());
-						return std::make_shared<a3d::Image>(std::move(a3dBuffer), false);
+						a3d::Buffer buf(bytes.data(), bytes.size());
+						return std::make_shared<a3d::Image>(buf, false, false);
 					},
 					[&](const fastgltf::sources::Array& a) -> std::shared_ptr<a3d::Image> {
 						auto bytes = std::span<const std::byte>(a.bytes.data(), a.bytes.size());
-						auto a3dBuffer = std::make_unique<a3d::Buffer>(
-								const_cast<std::byte*>(bytes.data()), bytes.size());
-						return std::make_shared<a3d::Image>(std::move(a3dBuffer), false);
+						a3d::Buffer buf(bytes.data(), bytes.size());
+						return std::make_shared<a3d::Image>(buf, false, false);
 					},
 					[&](const fastgltf::sources::ByteView& bv) -> std::shared_ptr<a3d::Image> {
 						auto bytes = std::span<const std::byte>(bv.bytes.data(), bv.bytes.size());
-						auto a3dBuffer = std::make_unique<a3d::Buffer>(
-								const_cast<std::byte*>(bytes.data()), bytes.size());
-						return std::make_shared<a3d::Image>(std::move(a3dBuffer), false);
+						a3d::Buffer buf(bytes.data(), bytes.size());
+						return std::make_shared<a3d::Image>(buf, false, false);
 					},
 					[&](const fastgltf::sources::URI&) -> std::shared_ptr<a3d::Image> {
-						// but keep this log because it indicates you didn’t load image bytes.
-						A3D_LOG_W("Image is a URI -- is Options::LoadExternalImages enabled?");
+						log::w()("Image is a URI -- is Options::LoadExternalImages enabled?");
 						return nullptr;
 					},
 					[&](const auto&) -> std::shared_ptr<a3d::Image> {
-						A3D_LOG_W("Unsupported image DataSource.");
+						log::w()("Unsupported image DataSource.");
 						return nullptr;
 					}
 			}, image.data);
@@ -665,6 +724,8 @@ shared_ptr<a3d::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset
 shared_ptr<a3d::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset,
 													   fastgltf::Node& node) {
 
+	// TODO: fix this!
+
 	if (auto lightIndex = node.lightIndex) {
 
 		if (_lights.find(*lightIndex) == _lights.end()) {
@@ -672,13 +733,12 @@ shared_ptr<a3d::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset,
 			auto& light = asset.lights[*lightIndex];
 			auto& type = light.type;
 
-			A3D_LOG_D("Importing light '{}'...", light.name);
+			log::d()("Importing light '{}'...", light.name);
 
 			if (type == fastgltf::LightType::Directional) {
 
 				auto a3dLight = make_shared<DirectionalLight>(string(light.name));
 				a3dLight->color(ColorFromGlTFColorArray(light.color));
-				// TODO: range, intensity?
 				_lights[*lightIndex] = a3dLight;
 				return a3dLight;
 			}
@@ -686,8 +746,6 @@ shared_ptr<a3d::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset,
 
 				auto a3dLight = make_shared<PointLight>(string(light.name));
 				a3dLight->color(ColorFromGlTFColorArray(light.color));
-				a3dLight->constantAttenuation(1.0); // temporary?
-				// TODO: range, intensity?
 				_lights[*lightIndex] = a3dLight;
 				return a3dLight;
 			}
@@ -695,10 +753,8 @@ shared_ptr<a3d::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset,
 
 				auto a3dLight = make_shared<SpotLight>(string(light.name));
 				a3dLight->color(ColorFromGlTFColorArray(light.color));
-				a3dLight->constantAttenuation(1.0); // temporary?
 				a3dLight->innerAngle(light.innerConeAngle.value());
 				a3dLight->outerAngle(light.outerConeAngle.value());
-				// TODO: range, intensity?
 				_lights[*lightIndex] = a3dLight;
 				return a3dLight;
 			}
@@ -721,7 +777,7 @@ shared_ptr<a3d::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
 			auto& camera = asset.cameras[*cameraIndex];
 			auto name = string(camera.name);
 
-			A3D_LOG_D("Importing camera '{}'...", name);
+			log::d()("Importing camera '{}'...", name);
 
 			if (auto persCamera = std::get_if<fastgltf::Camera::Perspective>(&camera.camera))
 			{
@@ -740,7 +796,7 @@ shared_ptr<a3d::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
 				return a3dCamera;
 			}
 			else {
-				A3D_LOG_W("Orthographic cameras are not supported.");
+				log::w()("Orthographic cameras are not supported.");
 			}
 		}
 		else {
@@ -753,29 +809,30 @@ shared_ptr<a3d::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
 
 /// Private Static Non-Member Functions ///
 
-fastgltf::Options GlTFOptionsFromImportOptions(SceneImportOptions options) {
+fastgltf::Options GlTFOptionsFromImportOptions(Scene::ImportOptions options) {
 
 	using namespace fastgltf;
+	using ImportOptions = a3d::Scene::ImportOptions;
 
 	auto gltfOptions = Options::None;
 
 	// TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
 
-	if ((options & SceneImportOptions::ImportMeshes) != SceneImportOptions::None) {
+	if ((options & ImportOptions::ImportMeshes) != ImportOptions::None) {
 		gltfOptions |= Options::LoadExternalBuffers
 					   | Options::GenerateMeshIndices;
 	}
 
-	if ((options & SceneImportOptions::ImportMaterials) != SceneImportOptions::None) {
+	if ((options & ImportOptions::ImportMaterials) != ImportOptions::None) {
 		gltfOptions |= Options::LoadExternalBuffers
 					   | Options::LoadExternalImages;
 	}
 
-	if ((options & SceneImportOptions::ImportLights) != SceneImportOptions::None) {
+	if ((options & ImportOptions::ImportLights) != ImportOptions::None) {
 
 	}
 
-	if ((options & SceneImportOptions::ImportCameras) != SceneImportOptions::None) {
+	if ((options & ImportOptions::ImportCameras) != ImportOptions::None) {
 
 	}
 
@@ -791,8 +848,6 @@ static std::span<const byte> BytesFromDataSource(const fastgltf::DataSource& src
 				return { a.bytes.data(), a.bytes.size() };
 			},
 			[](const fastgltf::sources::ByteView& bv) -> std::span<const byte> {
-				// In newer fastgltf, ByteView is commonly used by mapped-file loaders.
-				// Most builds expose it as a (ptr,len) pair or span-like member; adjust field names if needed.
 				return { bv.bytes.data(), bv.bytes.size() };
 			},
 			[](const auto&) -> std::span<const byte> {
@@ -827,4 +882,39 @@ shared_ptr<a3d::Color> ColorFromGlTFColorArray(const fastgltf::math::nvec3& v) {
 
 shared_ptr<a3d::Color> ColorFromGlTFColorArray(const fastgltf::math::nvec4& v) {
 	return make_shared<Color>(vec3{v[0], v[1], v[2]});
+}
+
+void ReadIndicesU32(const fastgltf::Asset& asset,
+					const fastgltf::Accessor& idxAccessor,
+					std::vector<uint32_t>& out) {
+
+	using namespace fastgltf;
+
+	out.assign(idxAccessor.count, 0);
+
+	switch (idxAccessor.componentType) {
+		case ComponentType::UnsignedByte: {
+			iterateAccessorWithIndex<uint8_t>(asset, idxAccessor,
+											  [&](uint8_t v, size_t i) {
+												  if (i < out.size()) out[i] = (uint32_t)v; });
+			break;
+		}
+		case ComponentType::UnsignedShort: {
+			iterateAccessorWithIndex<uint16_t>(asset, idxAccessor,
+											   [&](uint16_t v, size_t i) {
+												   if (i < out.size()) out[i] = (uint32_t)v; });
+			break;
+		}
+		case ComponentType::UnsignedInt: {
+			iterateAccessorWithIndex<uint32_t>(asset, idxAccessor,
+											   [&](uint32_t v, size_t i) {
+												   if (i < out.size()) out[i] = v; });
+			break;
+		}
+		default:
+			log::w()("Unsupported index componentType: {} (expected U8/U16/U32).",
+					 magic_enum::enum_name(idxAccessor.componentType));
+			out.clear();
+			break;
+	}
 }

@@ -8,11 +8,14 @@
 
 #include "a3d/input/DesktopInputManager.h"
 
-#include "a3d/diagnostic/log/Log.h"
+#include "a3d/log/Log.h"
 
 using namespace a3d;
 using namespace std;
 using namespace a3d::math;
+
+using Key = DesktopInputManager::Key;
+using MouseButton = DesktopInputManager::MouseButton;
 
 /// Public Lifecycle Functions ///
 
@@ -27,7 +30,7 @@ DesktopInputManager::DesktopInputManager():
 		_mouseScrollWheelDelta{0.0f, 0.0f} {}
 
 DesktopInputManager::~DesktopInputManager() {
-	A3D_LOG_D("Destroying InputManager {:p}", static_cast<void*>(this));
+	log::d()("Destroying InputManager {:p}", static_cast<void*>(this));
 }
 
 /// Public Member Functions ///

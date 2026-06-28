@@ -11,19 +11,20 @@
 #include <utility>
 
 #include "a3d/a3d.h"
-#include "a3d/Utilities.h"
+#include "a3d/util/filesystem.h"
+#include "a3d/util/snapshot.h"
 
 using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
-const uvec2					WINDOW_SIZE			{1280, 768};
-const bool					FULLSCREEN			{false};
-const bool					ENABLE_HIGH_DPI		{true};
-const AntialiasingMode		ANTIALIAS_MODE		{AntialiasingMode::Msaa4X};
-const bool					ENABLE_VSYNC		{false};
-const bool					CAPTURE_CURSOR		{false};
+const uvec2								WINDOW_SIZE		{1280, 768};
+const bool								FULLSCREEN		{false};
+const bool								ENABLE_HIGH_DPI	{true};
+const RenderContext::AntialiasingMode	ANTIALIAS_MODE	{RenderContext::AntialiasingMode::Msaa4X};
+const bool								ENABLE_VSYNC	{false};
+const bool								CAPTURE_CURSOR	{false};
 
 void UpdateCallback(Scene& scene, double time, double deltaTime);
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
@@ -35,8 +36,8 @@ int main(int argc, const char* argv[]) {
 
 	cout << "test001::main()\n" << endl;
 
-	auto window = make_unique<GLFWWindow>(RenderingApi::OpenGL,
-										  *utils::ExecutableName(),
+	auto window = make_unique<GLFWWindow>(RenderContext::RenderingApi::OpenGL,
+										  *util::filesystem::ExecutableName(),
 										  WINDOW_SIZE,
 										  FULLSCREEN,
 										  ENABLE_HIGH_DPI,
@@ -47,7 +48,7 @@ int main(int argc, const char* argv[]) {
 	auto visualWorld = make_unique<VisualWorld>(*window);
 //	visualWorld->autoEnablesDefaultLighting(false);
 	auto backgroundColor = make_shared<Color>(u8vec3{109, 136, 164});
-	auto background = MaterialProperty(backgroundColor);
+	auto background = Material::Property(backgroundColor);
 	visualWorld->background(background); // TODO: is this copying?
 	visualWorld->willRenderCallback(bind(&WillRenderCallback, _1, _2, _3));
 	visualWorld->didRenderCallback(bind(&DidRenderCallback, _1, _2, _3));
@@ -58,8 +59,8 @@ int main(int argc, const char* argv[]) {
 
 //	auto options = SceneImportOptions::ImportAll;
 //	auto options = SceneImportOptions::ImportMeshes;
-	auto options = SceneImportOptions::ImportMeshes
-				   | SceneImportOptions::ImportMaterials;
+	auto options = Scene::ImportOptions::ImportMeshes
+				   | Scene::ImportOptions::ImportMaterials;
 //	auto options = SceneImportOptions::ImportMeshes
 //				   | SceneImportOptions::ImportMaterials
 //				   | SceneImportOptions::ImportLights;
@@ -70,7 +71,7 @@ int main(int argc, const char* argv[]) {
 //	auto options = SceneImportOptions::ImportLights
 //				   | SceneImportOptions::ImportCameras;
 
-	auto testScene = utils::SceneNamed("import_test/import_test", options);
+	auto testScene = util::filesystem::SceneNamed("import_test/import_test", options);
 
 	auto testSceneNodes = testScene->rootNode()->children();
 	auto importLightsCamerasRoot = make_shared<Node>("importLightsCamerasRoot");

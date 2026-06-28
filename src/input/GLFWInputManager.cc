@@ -12,12 +12,12 @@
 #include <IOKit/hid/IOHIDLib.h> // for kIOReturnNotPermitted
 #endif
 
-#include "GLFW/glfw3.h"
+#include <GLFW/glfw3.h>
 
-#include "a3d/diagnostic/log/Log.h"
-#include "a3d/rendering/VisualWorld.h"
-#include "a3d/rendering/context/GLFWWindow.h"
+#include "a3d/log/Log.h"
+#include "a3d/render/context/GLFWWindow.h"
 #include "a3d/scene/Scene.h"
+#include "a3d/visual/VisualWorld.h"
 
 using namespace a3d;
 using namespace std;
@@ -39,7 +39,7 @@ GLFWInputManager::GLFWInputManager(GLFWWindow* window):
 }
 
 GLFWInputManager::~GLFWInputManager() {
-	A3D_LOG_D("Destroying GLFWInputManager {:p}", static_cast<void *>(this));
+	log::d()("Destroying GLFWInputManager {:p}", static_cast<void *>(this));
 
 }
 
@@ -107,7 +107,7 @@ void GLFWInputManager::glfwKeyEvent(int key, int scanCode, int action, int mods)
 
 void GLFWInputManager::initMouseInput() {
 
-	A3D_LOG_I("Using GLFW raw mouse input.");
+	log::i()("Using GLFW raw mouse input.");
 	glfwSetInputMode(_window->glfwWindow(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
 }
 

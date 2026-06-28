@@ -6,21 +6,29 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_MESHELEMENT_H
-#define AVARA3D_MESHELEMENT_H
+#ifndef AVARA3D_MESH_MESHELEMENT_H
+#define AVARA3D_MESH_MESHELEMENT_H
 
+#include <climits>
+#include <cstddef>
 #include <memory>
+#include <span>
 #include <vector>
 
-#include "a3d/Types.h"
+#include "a3d/Assert.h"
 #include "a3d/Math.h"
+#include "a3d/mesh/AABB.h"
+#include "a3d/mesh/IndexFormats.h"
+#include "a3d/mesh/PrimitiveTopology.h"
+#include "a3d/mesh/VertexLayout.h"
+#include "a3d/util/bitmask.h"
 
 namespace a3d {
 
 	class Line;
 	class Material;
 	class Node;
-	class Program;
+	class GLSLProgram;
 	class Renderer;
 	class RenderContext;
 	class RenderItem;
@@ -30,54 +38,90 @@ namespace a3d {
 	public:
 		/// Public Lifecycle Functions ///
 
-		MeshElement(const std::vector<Vertex>& verticies,
-					const std::vector<Face>& faces);
+		MeshElement(VertexLayout layout,
+					std::span<const std::byte> vertexBytes,
+					uint32_t vertexCount,
+					uint16_t vertexStride,
+					PrimitiveTopology topology,
+					IndexFormat indexFormat,
+					std::span<const std::byte> indexBytes,
+					uint32_t indexCount);
 		virtual ~MeshElement();
+
+		/// Internal Types ///
+
+		enum class DirtyMask : uint32_t {
+			None =					0,
+			VertexData =			1 << 0,
+			IndexData =				1 << 1,
+			// AABB?
+			All = 					UINT_MAX
+		};
 
 		/// Internal Member Functions ///
 
-		void 							gather(std::vector<RenderItem>& items,
-											   Material& material,
-											   math::mat4& model,
-											   FrameStats& stats);
+		PrimitiveTopology				topology() const;
 
-		void 							draw(Renderer& renderer,
-											 const RenderContext& context,
-											 Material& material,
-											 const math::mat4& modelMat,
-											 const math::mat4& viewMat,
-											 const math::mat4& projectionMat,
-											 const DebugOptions& debugOptions,
-											 FrameStats& stats);
+		VertexLayout 					vertexLayout() const;
+		uint32_t 						vertexCount() const;
+		std::span<const std::byte> 		vertexBytes() const;
+		uint16_t 						vertexStride() const;
+
+		IndexFormat						indexFormat() const;
+		uint32_t						indexCount() const;
+		std::span<const std::byte>		indexBytes() const;
+
+		AABB							localAABB() const;
+		AABB							worldAABB(const math::mat4& worldMat,
+												  bool vertfit) const;
+		math::vec3 						localExtent() const;
+		math::vec3 						worldExtent(const math::mat4& worldTransform) const;
+
+		void 							beginBuild(VertexLayout layout,
+												   uint16_t vertexStride,
+												   PrimitiveTopology topology,
+												   IndexFormat indexFormat,
+												   uint32_t reserveVerts = 0,
+												   uint32_t reserveIndices = 0);
+		void 							appendVertexBytes(const void* vertexBytes);
+		void 							appendIndex(uint32_t idx);
+		void 							appendTriangle(uint32_t a, uint32_t b, uint32_t c);
+		void 							endBuild(bool recomputeAABB = true);
 
 		void 							burnTransform(const math::mat4& transform,
 													  bool normals);
 
-		const std::vector<Vertex>& 		vertices() const;
-		const std::vector<Face>&		faces() const;
-
-		AABB							localAABB() const;
-		math::vec3 						localExtent() const;
-
-		MeshElementDirtyMask 			dirtyMask() const;
-		void 							dirtyMask(MeshElementDirtyMask mask);
+		DirtyMask 						dirtyMask() const;
+		void 							dirtyMask(DirtyMask mask);
 
 	protected:
 		/// Protected Member Functions ///
 
 		void							genLocalAABB();
 
+	protected:
 		/// Protected Lifecycle ///
 
 		MeshElement();
+	protected:
 
 		/// Protected Member Variables ///
 
-		std::vector<Vertex>				_vertices;
-		std::vector<Face>				_faces;
+		PrimitiveTopology				_topology;
+		VertexLayout 					_vertexLayout;
+		std::vector<std::byte>			_vertexData;
+		uint32_t						_vertexCount;
+		uint16_t						_vertexStride;
+		IndexFormat						_indexFormat;
+		std::vector<std::byte>			_indexData;
+		uint32_t						_indexCount;
 		AABB							_localAABB;
-		MeshElementDirtyMask			_dirtyMask;
+		DirtyMask						_dirtyMask;
 	};
+
+	namespace util::bitmask {
+		template <> struct enable_ops<MeshElement::DirtyMask> : std::true_type {};
+	}
 }
 
-#endif /* AVARA3D_MESHELEMENT_H */
+#endif /* AVARA3D_MESH_MESHELEMENT_H */

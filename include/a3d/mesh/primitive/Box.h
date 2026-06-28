@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_BOX_H
-#define AVARA3D_BOX_H
+#ifndef AVARA3D_MESH_PRIMITIVE_BOX_H
+#define AVARA3D_MESH_PRIMITIVE_BOX_H
 
 #include <memory>
 
@@ -23,12 +23,12 @@ namespace a3d {
 	public:
 		/// Pubic Static Members ///
 
-		static std::shared_ptr<Mesh> Mesh(float length,
-										  float width,
-										  float height,
-										  unsigned lengthSegments = DEFAULT_SEGMENTS,
+		static std::shared_ptr<Mesh> Mesh(float width, // x
+										  float height, // y
+										  float length, // z
 										  unsigned widthSegments = DEFAULT_SEGMENTS,
 										  unsigned heightSegments = DEFAULT_SEGMENTS,
+										  unsigned lengthSegments = DEFAULT_SEGMENTS,
 										  std::shared_ptr<Material> material = nullptr);
 
 		/// Public Lifecycle Functions ///
@@ -53,7 +53,7 @@ namespace a3d {
 	private:
 		///  Private Constants ///
 
-		static constexpr int DEFAULT_SEGMENTS = 8;
+		static constexpr int DEFAULT_SEGMENTS = 1;
 
 		/// Private Member Variables ///
 
@@ -66,4 +66,4 @@ namespace a3d {
 	};
 }
 
-#endif /* AVARA3D_BOX_H */
+#endif /* AVARA3D_MESH_PRIMITIVE_BOX_H */

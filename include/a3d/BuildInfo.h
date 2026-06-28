@@ -9,6 +9,7 @@
 #ifndef AVARA3D_BUILDINFO_H
 #define AVARA3D_BUILDINFO_H
 
+#include <ctime>
 #include <iomanip>
 
 namespace a3d {
@@ -28,7 +29,8 @@ namespace a3d {
 			Debug,
 			Release,
 			RelWithDebInfo,
-			MinSizeRel
+			MinSizeRel,
+			Unknown
 		};
 
 		enum class Origin {

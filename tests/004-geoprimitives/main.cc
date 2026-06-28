@@ -11,21 +11,21 @@
 #include <utility>
 
 #include "a3d/a3d.h"
-#include "a3d/Utilities.h"
+#include "a3d/util/filesystem.h"
 
 using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
-const LogLevel				APP_LOG_LEVEL	{LogLevel::Debug};
-const uvec2					WINDOW_SIZE			{1280, 768};
-const bool					FULLSCREEN			{false};
-const bool					ENABLE_HIGH_DPI		{true};
-const AntialiasingMode		ANTIALIAS_MODE		{AntialiasingMode::Msaa4X};
-const bool					ENABLE_VSYNC		{false};
-const bool					CAPTURE_CURSOR		{false};
-const float					MOUSE_SENSITIVITY	{0.5};
+const Log::Level						APP_LOG_LEVEL		{Log::Level::Debug};
+const uvec2								WINDOW_SIZE			{1280, 768};
+const bool								FULLSCREEN			{false};
+const bool								ENABLE_HIGH_DPI		{true};
+const RenderContext::AntialiasingMode	ANTIALIAS_MODE		{RenderContext::AntialiasingMode::Msaa4X};
+const bool								ENABLE_VSYNC		{false};
+const bool								CAPTURE_CURSOR		{false};
+const float								MOUSE_SENSITIVITY	{0.5};
 
 void UpdateCallback(Scene& scene, double time, double deltaTime);
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
@@ -43,8 +43,8 @@ int main(int argc, const char* argv[]) {
 		InitLog();
 		LogBuildInfo();
 
-		auto window = make_unique<GLFWWindow>(RenderingApi::OpenGL,
-											  *utils::ExecutableName(),
+		auto window = make_unique<GLFWWindow>(RenderContext::RenderingApi::OpenGL,
+											  *util::filesystem::ExecutableName(),
 											  WINDOW_SIZE,
 											  FULLSCREEN,
 											  ENABLE_HIGH_DPI,
@@ -61,7 +61,7 @@ int main(int argc, const char* argv[]) {
 		visualWorld->didRenderCallback(bind(&DidRenderCallback, _1, _2, _3));
 
 		auto scene = make_unique<Scene>(std::move(visualWorld), nullptr, std::move(inputManager));
-		scene->debugOptions(DebugOptions::ShowStatsOverlay);
+		scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 		scene->updateCallback(bind(&UpdateCallback, _1, _2, _3));
 
 		auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.1f));
@@ -121,15 +121,6 @@ int main(int argc, const char* argv[]) {
 		}
 
 		{
-			auto mesh = Disk::Mesh(2.5f, 5.0f);
-			auto node = make_shared<Node>();
-			node->name("disk");
-			node->mesh(mesh);
-			scene->rootNode()->addChild(node);
-			node->position(vec3(0.0f, 5.0f, 0.0f));
-		}
-
-		{
 			auto mesh = Plane::Mesh(10.0f, 10.0f);
 			auto node = make_shared<Node>();
 			mesh->name("plane");
@@ -146,7 +137,7 @@ int main(int argc, const char* argv[]) {
 			node->mesh(mesh);
 			scene->rootNode()->addChild(node);
 			node->rotation({0.0f, 1.0f, 0.0f}, radians(70.0f));
-			node->position(vec3(-5.0f, 2.5f, 0.0f));
+			node->position(vec3(-3.0f, 2.5f, 0.0f));
 		}
 
 		{
@@ -155,7 +146,7 @@ int main(int argc, const char* argv[]) {
 			mesh->name("sphere");
 			node->mesh(mesh);
 			scene->rootNode()->addChild(node);
-			node->position(vec3(5.0f, 2.5f, 0.0f));
+			node->position(vec3(3.0f, 2.5f, 0.0f));
 		}
 
 		{
@@ -164,7 +155,7 @@ int main(int argc, const char* argv[]) {
 			mesh->name("spring");
 			node->mesh(mesh);
 			scene->rootNode()->addChild(node);
-			node->position(vec3(0.0f, 2.5f, 0.0f));
+			node->position(vec3(0.0f, 3.5f, 0.0f));
 			node->rotation({0.0f, 1.0f, 0.0f}, radians(-90.0f));
 		}
 
@@ -174,8 +165,7 @@ int main(int argc, const char* argv[]) {
 			mesh->name("torus");
 			node->mesh(mesh);
 			scene->rootNode()->addChild(node);
-			//node->rotation({0.0f, 1.0f, 0.0f}, radians(45.0f));
-			node->position(vec3(5.0f, 0.0f, 0.0f));
+			node->position(vec3(4.25f, 0.0f, 0.0f));
 		}
 
 		{
@@ -184,7 +174,7 @@ int main(int argc, const char* argv[]) {
 			mesh->name("torus knot");
 			node->mesh(mesh);
 			scene->rootNode()->addChild(node);
-			node->rotation({0.0f, 1.0f, 0.0f}, radians(45.0f));
+			node->rotation({0.0f, 1.5f, 0.0f}, radians(45.0f));
 			node->position(vec3(0.0f, 0.0f, 0.0f));
 		}
 
@@ -194,9 +184,29 @@ int main(int argc, const char* argv[]) {
 			mesh->name("tube");
 			node->mesh(mesh);
 			scene->rootNode()->addChild(node);
-//			node->rotation({1.0f, -1.0f, 0.0f}, radians(-45.0f));
-//			node->position(vec3(-1.67f, -2.5f, 0.0f));
-			node->position(vec3(-5.0f, 0.0f, 0.0f));
+			node->position(vec3(-4.25f, 0.0f, 0.0f));
+		}
+
+		{
+			auto mesh = Wedge::Mesh(2.0f, 2.0f, 1.0f);
+			auto node = make_shared<Node>();
+			mesh->name("wedge");
+			node->mesh(mesh);
+			scene->rootNode()->addChild(node);
+			node->position(vec3(2.5f, 5.0f, 0.0f));
+			node->rotation({0.0f, 1.0f, 0.0f}, radians(30.0f));
+		}
+
+		{
+			auto mesh = Dome::Mesh(1.0f,
+								   math::radians(60.0), math::radians(90.0),
+								   0, math::radians(180.0));
+			auto node = make_shared<Node>();
+			mesh->name("dome");
+			node->mesh(mesh);
+			scene->rootNode()->addChild(node);
+			node->position(vec3(-2.5f, 5.0f, 0.0f));
+			node->rotation({0.0f, 1.0f, 0.0f}, radians(-30.0f));
 		}
 
 	//	int texIndex = 0;
@@ -237,9 +247,9 @@ int main(int argc, const char* argv[]) {
 			scene->update();
 		} while (window->isOpen());
 	}
-	catch (Exception& e)
+	catch (std::exception& e)
 	{
-		A3D_APP_LOG_F("Exception: {}", e.what());
+		log::app::f()("Exception: {}", e.what());
 		return -1;
 	}
 
@@ -249,7 +259,7 @@ int main(int argc, const char* argv[]) {
 /// Scene Callbacks ///
 
 void UpdateCallback(Scene& scene, double time, double deltaTime) {
-	A3D_APP_LOG_T("scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
+	log::app::t()("scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
 
 	GLFWWindow* window = nullptr;
 	if (scene.visualWorld()) {
@@ -268,6 +278,9 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 		cursorCaptured = window->cursorCaptured();
 	}
 
+	using Key = DesktopInputManager::Key;
+	using MouseButton = DesktopInputManager::MouseButton;
+
 	if (keysPressed.count(Key::Slash)) {
 		window->cursorCaptured(!(window->cursorCaptured()));
 	}
@@ -276,20 +289,22 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 		window->close();
 	}
 
+	using DebugOptions = Scene::DebugOptions;
+
 	if (keysPressed.count(Key::F)) {
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(), DebugOptions::ShowWireframes));
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowWireframes)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowWireframes));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(), DebugOptions::ShowWireframes));
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(), DebugOptions::ShowWireframes));
 		}
 	}
 	if (keysPressed.count(Key::B)) {
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
 		}
 	}
 
@@ -365,21 +380,21 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 /// VisualWorld Callbacks ///
 
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	log::app::t()("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 void DidRenderCallback(VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	log::app::t()("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 /// Static ///
 
 void InitLog() {
 
-	string executableName = *utils::ExecutableName();
+	string executableName = *util::filesystem::ExecutableName();
 
 	auto nativeSink = make_unique<StdOutLogSink>();
-	auto fileSink = make_unique<FileLogSink>(*(utils::ExecutableDirectory())
+	auto fileSink = make_unique<FileLogSink>(*(util::filesystem::ExecutableDirectory())
 											 / (executableName + string(".log")));
 	auto sinks = vector<unique_ptr<LogSink>>();
 	sinks.push_back(std::move(nativeSink));
@@ -394,8 +409,8 @@ void LogBuildInfo() {
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
-	A3D_APP_LOG_I("A3D version: {}.{}.{}", version.major, version.minor, version.patch);
-	A3D_APP_LOG_I("Build: {}", buildInfo.number());
-	A3D_APP_LOG_I("Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
-	A3D_APP_LOG_I("Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
+	log::app::i()("A3D version: {}.{}.{}", version.major, version.minor, version.patch);
+	log::app::i()("Build: {}", buildInfo.number());
+	log::app::i()("Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
+	log::app::i()("Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
 }

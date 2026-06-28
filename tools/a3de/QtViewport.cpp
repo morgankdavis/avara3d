@@ -130,7 +130,7 @@ bool Viewport::vSyncEnabled() const {
 }
 
 void Viewport::vSyncEnabled(bool enabled) {
-	throw Exception("Qt forces vsync.");
+	throw std::logic_error("Qt forces vsync.");
 }
 
 /// RenderContext Internal Member Functions ///
@@ -348,11 +348,11 @@ void Viewport::initializeGL() {
 		return reinterpret_cast<void*>(fp);
 	};
 
-	if (a3d::OpenGLRenderer::InitGL(loader)) {
+	if (a3d::OGLRenderer::InitGL(loader)) {
 		_renderer->initialize(*this);
 	}
 	else {
-		A3D_LOG_F("Failed to initialize OpenGL function loader.");
+		log::f()("Failed to initialize OpenGL function loader.");
 	}
 }
 

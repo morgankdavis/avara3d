@@ -152,7 +152,7 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
 	
 	@objc
 	func renderer(_ renderer: SCNSceneRenderer, updateAtTime time: TimeInterval) {
-		NSLog("- render -");
+		NSLog("- renderPacket -");
 		
 //		NSLog("sphereNode!.position: {\(sphereNode.position.x), \(sphereNode.position.y), \(sphereNode.position.z)}")
 //		let spherePresentation = sphereNode.presentation

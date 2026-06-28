@@ -10,17 +10,17 @@
 
 #include <algorithm>
 #include <format>
+#include <stdexcept>
 #include <utility>
 
-#include "a3d/diagnostic/exception/Exception.h"
-#include "a3d/diagnostic/log/Log.h"
+#include "a3d/log/Log.h"
 #include "a3d/Math.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/physics/PhysicsBody.h"
-#include "a3d/physics/PhysicsShape.h"
+#include "a3d/physics/shape/PhysicsShape.h"
 #include "a3d/scene/Scene.h"
-#include "a3d/rendering/camera/Camera.h"
-#include "a3d/rendering/light/Light.h"
+#include "a3d/visual/camera/Camera.h"
+#include "a3d/visual/light/Light.h"
 
 using namespace a3d;
 using namespace a3d::math;
@@ -59,7 +59,7 @@ Node::Node():
 		_hidden{false},
 		_scene{},
 		_parent{},
-		_dirtyMask{NodeDirtyMask::None} { }
+		_dirtyMask{DirtyMask::None} { }
 
 Node::Node(const string& name):
 		Node() {
@@ -84,10 +84,10 @@ Node::Node(const shared_ptr<Camera>& camera):
 Node::~Node() {
 
 	if (_name != nullopt) {
-		A3D_LOG_D("Destroying Node '{}' ({:p})", *_name, static_cast<void*>(this));
+		log::d()("Destroying Node '{}' ({:p})", *_name, static_cast<void*>(this));
 	}
 	else {
-		A3D_LOG_D("Destroying Node {:p}", static_cast<void*>(this));
+		log::d()("Destroying Node {:p}", static_cast<void*>(this));
 	}
 
 	for (auto& child : _children) child->detachedFromParent(*this);
@@ -261,7 +261,7 @@ vec4 Node::worldRotation() const {
 
 vec3 Node::worldEulerAngles() const {
 
-	throw Exception("worldEulerAngles() not implemented."); // TODO: custom exception
+	throw std::logic_error("worldEulerAngles() not implemented.");
 	return {0.0, 0.0, 0.0};
 }
 
@@ -377,9 +377,9 @@ math::mat4 Node::convertTo(const math::mat4& t, const Node& to) {
 void Node::addChild(const shared_ptr<Node>& node) {
 
 	if (containsChild(node)) {
-		throw Exception(std::format("Node already exists in tree: {:p}, (\"{}\")",
-									static_cast<void*>(node.get()),
-									(node->name() ? *node->name() : "(unnamed)")));
+		throw std::runtime_error(std::format("Node already exists in tree: {:p}, (\"{}\")",
+											 static_cast<void*>(node.get()),
+											 (node->name() ? *node->name() : "(unnamed)")));
 	}
 
 	_children.push_back(node);
@@ -415,7 +415,7 @@ void Node::addChildren(const vector<shared_ptr<Node>>& nodes) {
 //		detachedFromParent(*parent);
 //	}
 //	else {
-//		A3D_LOG_W("Parent is gone!");
+//		log::w()("Parent is gone!");
 //		// TODO: throw?
 //	}
 //}
@@ -435,11 +435,11 @@ void Node::removeFromParent() {
 			// _parent.reset(); ?
 		}
 		else {
-			A3D_LOG_W("removeFromParent: node not found in parent->_children");
+			log::w()("removeFromParent: node not found in parent->_children");
 		}
 	}
 	else {
-		A3D_LOG_W("Parent is gone!");
+		log::w()("Parent is gone!");
 		// throw?
 	}
 }
@@ -507,7 +507,7 @@ weak_ptr<Node> Node::parent() const {
 /// Internal Member Functions ///
 
 void Node::attachedToParent(Node& parent) {
-	A3D_LOG_T("parent: {:p}", static_cast<void*>(&parent));
+	log::t()("parent: {:p}", static_cast<void*>(&parent));
 
 	// _parent = parent; // moved to Node::addChild() to avoid needing to pass 'parent' as a shared_ptr
 
@@ -526,7 +526,7 @@ void Node::attachedToParent(Node& parent) {
 }
 
 void Node::detachedFromParent(Node& parent) {
-	A3D_LOG_T("parent: {:p}", static_cast<void*>(&parent));
+	log::t()("parent: {:p}", static_cast<void*>(&parent));
 
 	checkNotifyPhysicsBodyOfUnreachablePhysicalWorld();
 
@@ -542,7 +542,7 @@ void Node::detachedFromParent(Node& parent) {
 }
 
 void Node::attachedToScene(Scene& scene) {
-	A3D_LOG_T("scene: {:p}", static_cast<void*>(&scene));
+	log::t()("scene: {:p}", static_cast<void*>(&scene));
 
 //	if (_physicsBody) {
 //		_physicsBody->nodeAttachedToScene(scene);
@@ -558,7 +558,7 @@ void Node::attachedToScene(Scene& scene) {
 }
 
 void Node::detachedFromScene(Scene& scene) {
-	A3D_LOG_T("scene: {:p}", static_cast<void*>(&scene));
+	log::t()("scene: {:p}", static_cast<void*>(&scene));
 
 //	if (_physicsBody) {
 //		_physicsBody->nodeDetachedFromScene(scene);
@@ -574,7 +574,7 @@ void Node::detachedFromScene(Scene& scene) {
 }
 
 void Node::ancestorAttachedToParent(Node& ancestor, Node& parent) {
-	A3D_LOG_T("ancestor: {:p}, parent: {:p}",
+	log::t()("ancestor: {:p}, parent: {:p}",
 			  static_cast<void*>(&ancestor),
 			  static_cast<void*>(&parent));
 
@@ -590,7 +590,7 @@ void Node::ancestorAttachedToParent(Node& ancestor, Node& parent) {
 }
 
 void Node::ancestorDetachedFromParent(Node& ancestor, Node& parent) {
-	A3D_LOG_T("ancestor: {:p}, parent: {:p}",
+	log::t()("ancestor: {:p}, parent: {:p}",
 			  static_cast<void*>(&ancestor),
 			  static_cast<void*>(&parent));
 
@@ -606,7 +606,7 @@ void Node::ancestorDetachedFromParent(Node& ancestor, Node& parent) {
 }
 
 void Node::ancestorAttachedToScene(Node& ancestor, Scene& scene) {
-	A3D_LOG_T("ancestor: {:p}, scene: {:p}",
+	log::t()("ancestor: {:p}, scene: {:p}",
 			  static_cast<void*>(&ancestor),
 			  static_cast<void*>(&scene));
 
@@ -622,7 +622,7 @@ void Node::ancestorAttachedToScene(Node& ancestor, Scene& scene) {
 }
 
 void Node::ancestorDetachedFromScene(Node& ancestor, Scene& scene) {
-	A3D_LOG_T("ancestor: {:p}, scene: {:p}",
+	log::t()("ancestor: {:p}, scene: {:p}",
 			  static_cast<void*>(&ancestor),
 			  static_cast<void*>(&scene));
 
@@ -638,7 +638,7 @@ void Node::ancestorDetachedFromScene(Node& ancestor, Scene& scene) {
 }
 
 void Node::visualWorldAttachedToScene(VisualWorld& world, Scene& scene) {
-	A3D_LOG_T("world: {:p}, scene: {:p}", static_cast<void*>(&world), static_cast<void*>(&scene));
+	log::t()("world: {:p}, scene: {:p}", static_cast<void*>(&world), static_cast<void*>(&scene));
 
 	for (auto& child : _children) {
 		child->visualWorldAttachedToScene(world, scene);
@@ -646,7 +646,7 @@ void Node::visualWorldAttachedToScene(VisualWorld& world, Scene& scene) {
 }
 
 void Node::visualWorldDetachedFromScene(VisualWorld& world, Scene& scene) {
-	A3D_LOG_T("world: {:p}, scene: {:p}", static_cast<void*>(&world), static_cast<void*>(&scene));
+	log::t()("world: {:p}, scene: {:p}", static_cast<void*>(&world), static_cast<void*>(&scene));
 
 	for (auto& child : _children) {
 		child->visualWorldDetachedFromScene(world, scene);
@@ -654,7 +654,7 @@ void Node::visualWorldDetachedFromScene(VisualWorld& world, Scene& scene) {
 }
 
 void Node::physicalWorldAttachedToScene(PhysicalWorld& world, Scene& scene) {
-	A3D_LOG_T("world: {:p}, scene: {:p}", static_cast<void*>(&world), static_cast<void*>(&scene));
+	log::t()("world: {:p}, scene: {:p}", static_cast<void*>(&world), static_cast<void*>(&scene));
 
 //	if (_physicsBody) {
 //		_physicsBody->physicalWorldAttachedToScene(world, scene);
@@ -668,7 +668,7 @@ void Node::physicalWorldAttachedToScene(PhysicalWorld& world, Scene& scene) {
 }
 
 void Node::physicalWorldDetachedFromScene(PhysicalWorld& world, Scene& scene) {
-	A3D_LOG_T("world: {:p}, scene: {:p}", static_cast<void*>(&world), static_cast<void*>(&scene));
+	log::t()("world: {:p}, scene: {:p}", static_cast<void*>(&world), static_cast<void*>(&scene));
 
 //	if (_physicsBody) {
 //		_physicsBody->physicalWorldDetachedFromScene(world, scene);
@@ -731,16 +731,16 @@ bool Node::containsChild(const shared_ptr<Node>& node) {
 }
 
 AABB Node::aabb(bool vertfit) const {
-	AABB out = AABB::InvalidAABB();
+	AABB out = AABB::Invalid();
 
 	const mat4 W = worldTransform();
 
 	if (mesh()) {
-		out = AABB::Union(out, mesh()->worldAABB(W, vertfit));
+		out |= mesh()->worldAABB(W, vertfit);
 	}
 
 	for (auto& child : children()) {
-		out = AABB::Union(out, child->aabb());
+		out |= child->aabb();
 	}
 
 	return out;
@@ -761,68 +761,6 @@ void Node::applyPhysicsTransform(const mat4& transform) {
 	}
 }
 
-void Node::gather(vector<RenderItem>& items,
-				  vector<Node*>& lightNodes,
-				  FrameStats& stats) {
-
-	++stats.numNodes;
-
-	if (!_hidden) {
-
-		if (_light) {
-			lightNodes.push_back(this);
-		}
-
-		if (_mesh) {
-			auto model = worldTransform();
-			_mesh->gather(items, model, stats);
-		}
-	}
-
-	for (auto& child : _children) {
-		child->gather(items, lightNodes, stats);
-	}
-}
-
-void Node::draw(Renderer& renderer,
-				const RenderContext& context,
-				const mat4& viewMat,
-				const mat4& projectionMat,
-				const DebugOptions& debugOptions,
-				std::vector<Node*>& lightNodes,
-				FrameStats& stats) {
-
-	++stats.numNodes;
-
-	if (!_hidden) {
-
-		if (_light) {
-			lightNodes.push_back(this);
-		}
-
-		if (_mesh) {
-
-			_mesh->draw(renderer,
-						context,
-						worldTransform(),
-						viewMat,
-						projectionMat,
-						debugOptions,
-						stats);
-		}
-	}
-
-	for (auto& child : _children) {
-		child->draw(renderer,
-					context,
-					viewMat,
-					projectionMat,
-					debugOptions,
-					lightNodes,
-					stats);
-	}
-}
-
 void Node::_debugPrint() {
 
 	int level = 0;
@@ -832,7 +770,7 @@ void Node::_debugPrint() {
 void Node::_debugPrintRec(Node& node,
 						  unsigned level) {
 
-	A3D_LOG_I("[{}] {}", level, *node.name());
+	log::i()("[{}] {}", level, *node.name());
 
 	for (auto& child : node._children) {
 		_debugPrintRec(*child, level + 1);
@@ -879,10 +817,10 @@ void Node::childrenRec(const shared_ptr<Node>& node,
 	}
 }
 
-NodeDirtyMask Node::dirtyMask() const {
+Node::DirtyMask Node::dirtyMask() const {
 	return _dirtyMask;
 }
 
-void Node::dirtyMask(NodeDirtyMask mask) {
+void Node::dirtyMask(DirtyMask mask) {
 	_dirtyMask = mask;
 }

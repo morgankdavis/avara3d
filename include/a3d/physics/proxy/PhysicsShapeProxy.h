@@ -6,10 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_PHYSICSSHAPEPROXY_H
-#define AVARA3D_PHYSICSSHAPEPROXY_H
-
-#include "a3d/Types.h"
+#ifndef AVARA3D_PHYSICS_PROXY_PHYSICSSHAPEPROXY_H
+#define AVARA3D_PHYSICS_PROXY_PHYSICSSHAPEPROXY_H
 
 namespace a3d {
 
@@ -25,4 +23,4 @@ namespace a3d {
 	};
 }
 
-#endif //AVARA3D_PHYSICSSHAPEPROXY_H
+#endif //AVARA3D_PHYSICS_PROXY_PHYSICSSHAPEPROXY_H

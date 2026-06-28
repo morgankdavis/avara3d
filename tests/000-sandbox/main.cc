@@ -11,24 +11,26 @@
 #include <vector>
 
 #include "a3d/a3d.h"
-#include "a3d/Utilities.h"
-#include "a3d/physics/bullet/BulletBodyProxy.h"
+#include "a3d/physics/backend/bullet/BulletBodyProxy.h"
+#include "a3d/util/filesystem.h"
+#include "a3d/util/snapshot.h"
+#include "a3d/util/string.h"
 
 using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
-const LogLevel				APP_LOG_LEVEL		{LogLevel::Debug};
-const uvec2					WINDOW_SIZE				{1280, 768};
-const bool					FULLSCREEN				{false};
-const bool					ENABLE_HIGH_DPI			{true};
-const AntialiasingMode		AA_MODE					{AntialiasingMode::Msaa4X};
-const bool					ENABLE_VSYNC			{false};
-const bool					CAPTURE_CURSOR			{false};
-const float					MOUSE_SENSITIVITY		{0.5};
-const float					PHYSICS_TIMESTEP		{1.0/120.0};
-const bool					DARK					{false};
+const Log::Level						APP_LOG_LEVEL		{Log::Level::Debug};
+const uvec2								WINDOW_SIZE			{1280, 768};
+const bool								FULLSCREEN			{false};
+const bool								ENABLE_HIGH_DPI		{true};
+const RenderContext::AntialiasingMode	ANTIALIAS_MODE		{RenderContext::AntialiasingMode::Msaa4X};
+const bool								ENABLE_VSYNC		{false};
+const bool								CAPTURE_CURSOR		{false};
+const float								MOUSE_SENSITIVITY	{0.5};
+const float								PHYSICS_TIMESTEP	{1.0/120.0};
+const bool								DARK				{false};
 
 void UpdateCallback(Scene& scene, double time, double deltaTime);
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
@@ -49,24 +51,26 @@ shared_ptr<Mesh>*			g_mesh;
 
 int main(int argc, const char* argv[]) {
 
-	using utils::MeshNamed;
+	using util::filesystem::MeshNamed;
 
 	try {
 		InitLog();
 		LogBuildInfo();
 
-		auto window = make_unique<GLFWWindow>(RenderingApi::OpenGL,
-											  *utils::ExecutableName(),
+		auto window = make_unique<GLFWWindow>(RenderContext::RenderingApi::OpenGL,
+											  *util::filesystem::ExecutableName(),
 											  WINDOW_SIZE,
 											  FULLSCREEN,
 											  ENABLE_HIGH_DPI,
-											  AA_MODE);
+											  ANTIALIAS_MODE);
 		window->vSyncEnabled(ENABLE_VSYNC);
 		window->cursorCaptured(CAPTURE_CURSOR);
 
 		auto inputManager = make_unique<GLFWInputManager>(window.get());
 
 		auto visualWorld = make_unique<VisualWorld>(*window);
+
+
 	//	visualWorld->fogStartDistance(50.0);
 	//	visualWorld->fogEndDistance(400.0);
 	//	visualWorld->fogDensityExponent(1.0);
@@ -75,28 +79,43 @@ int main(int argc, const char* argv[]) {
 	//					  ? make_shared<MaterialProperty>(Color::Black())
 	//					          //make_shared<MaterialProperty>(CubeImageNamed("belfast_sunset", "png"))
 	//					  : make_shared<MaterialProperty>(CubeImageNamed("kloppenheim", "png"));
-		MaterialProperty background = monostate{};
-		if (DARK) background = Color::Black();
-		else background = make_shared<Texture>(utils::CubeImageNamed("kloppenheim", "png"));
-		visualWorld->background(background);
-		visualWorld->willRenderCallback(bind(&WillRenderCallback, _1, _2, _3));
-		visualWorld->didRenderCallback(bind(&DidRenderCallback, _1, _2, _3));
+
+
+//		Material::Property background = monostate{};
+//		if (DARK) background = Color::Black();
+//		else background = make_shared<Texture>(util::filesystem::CubeImageNamed("kloppenheim", "png"));
+//		visualWorld->background(background);
+//		visualWorld->willRenderCallback(bind(&WillRenderCallback, _1, _2, _3));
+//		visualWorld->didRenderCallback(bind(&DidRenderCallback, _1, _2, _3));
 
 		auto physicalWorld = make_unique<PhysicalWorld>();
 		physicalWorld->timestep(PHYSICS_TIMESTEP);
 		physicalWorld->didSimulateCallback(bind(&DidSimulatePhysicsCallback, _1, _2, _3));
 
-		auto scene = make_unique<Scene>(std::move(visualWorld), std::move(physicalWorld), std::move(inputManager));
-		scene->debugOptions(DebugOptions::ShowStatsOverlay);
+		//auto scene = make_unique<Scene>(std::move(visualWorld), std::move(physicalWorld), std::move(inputManager));
+		auto mapPath = util::filesystem::AuxiliaryFilePath("Icebox", "alf");
+		auto alfImporter = ALFImporter(*mapPath);
+		auto scene = alfImporter.scene(*visualWorld);
+
+//		Material::Property background = monostate{};
+//		if (DARK) background = Color::Black();
+//		else background = make_shared<Texture>(util::filesystem::CubeImageNamed("kloppenheim", "png"));
+//		visualWorld->background(background);
+		visualWorld->willRenderCallback(bind(&WillRenderCallback, _1, _2, _3));
+		visualWorld->didRenderCallback(bind(&DidRenderCallback, _1, _2, _3));
+
+		scene->visualWorld(std::move(visualWorld));
+		scene->physicalWorld(std::move(physicalWorld));
+		scene->inputManager(std::move(inputManager));
+
+		scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 		scene->updateCallback(bind(&UpdateCallback, _1, _2, _3));
 
-	//	auto ambientColor = DARK
-	//						? Color::LightGray()
-	//						: make_shared<Color>(.85f);
-		//auto ambientLight = make_shared<Light>(LightType::Ambient, Color::DarkGray());
-		auto ambientLight = make_shared<AmbientLight>(Color::DarkGray());
-		auto ambientLightNode = Node::LightNode(ambientLight);
-		scene->rootNode()->addChild(ambientLightNode);
+
+//		auto ambientLight = make_shared<AmbientLight>(Color::DarkGray());
+//		auto ambientLightNode = Node::LightNode(ambientLight);
+//		scene->rootNode()->addChild(ambientLightNode);
+
 
 	//	auto pointColor = DARK
 	//					  ? Color::LightGray()
@@ -113,72 +132,81 @@ int main(int argc, const char* argv[]) {
 
 		// ground plane
 
-		const float PLANE_LENGTH = 20.0;
-		const float PLANE_WIDTH = 20.0;
-		auto planeNode = make_shared<Node>("Ground plane node");
-		//planeNode->mesh(Mesh::Box(PLANE_LENGTH, PLANE_WIDTH, 0));
-		planeNode->mesh(Box::Mesh(PLANE_LENGTH, PLANE_WIDTH, 0));
-		auto gridImage = DARK ? utils::ImageNamed("grid10")->inverted() : utils::ImageNamed("grid10");
-		auto planeTexture = make_shared<Texture>(std::move(gridImage));
-		planeTexture->sampler()->wrapS(WrapMode::Repeat);
-		planeTexture->sampler()->wrapT(WrapMode::Repeat);
-		planeTexture->sampler()->maxAnisotropy(16);
-		planeTexture->sampler()->minificationFilter(FilterMode::LinearMipmapLinear);
-		planeTexture->sampler()->magnificationFilter(FilterMode::Linear);
-		shared_ptr<Material> planeMaterial = nullptr;
-		if (DARK) {
-			planeMaterial = make_shared<Material>(monostate{},
-												  monostate{},
-												  Color::White(),
-												  planeTexture);
-		}
-		else {
-			planeMaterial = make_shared<Material>(monostate{},
-												  planeTexture,
-												  monostate{});
-		}
+//		{
+//			const float PLANE_LENGTH = 20.0;
+//			const float PLANE_WIDTH = 20.0;
+//			auto planeNode = make_shared<Node>("Ground plane node");
+//			//planeNode->mesh(Mesh::Box(PLANE_LENGTH, PLANE_WIDTH, 0));
+//			planeNode->mesh(Box::Mesh(PLANE_LENGTH, 0, PLANE_WIDTH));
+//			auto gridImage = DARK
+//							 ? util::filesystem::ImageNamed("grid10")->inverted()
+//							 : util::filesystem::ImageNamed("grid10");
+//			auto planeTexture = make_shared<Texture>(std::move(gridImage));
+//			planeTexture->sampler()->wrapS(Sampler::WrapMode::Repeat);
+//			planeTexture->sampler()->wrapT(Sampler::WrapMode::Repeat);
+//			planeTexture->sampler()->maxAnisotropy(16);
+//			planeTexture->sampler()->minificationFilter(Sampler::FilterMode::LinearMipmapLinear);
+//			planeTexture->sampler()->magnificationFilter(Sampler::FilterMode::Linear);
+//			shared_ptr<Material> planeMaterial = nullptr;
+//			if (DARK) {
+//				planeMaterial = make_shared<Material>(monostate{},
+//													  monostate{},
+//													  Color::White(),
+//													  planeTexture);
+//			} else {
+//				planeMaterial = make_shared<Material>(monostate{},
+//													  planeTexture,
+//													  monostate{});
+//			}
+//
+//			planeMaterial->uvScale(PLANE_LENGTH / 10.0f);
+//			planeMaterial->doubleSided(false);
+//			planeNode->mesh()->addMaterial(planeMaterial);
+//			//	planeNode->mesh()->replaceMaterial(0, planeMaterial);
+//			//planeNode->rotation({1, 0, 0}, radians(3*90.0));
+//			planeNode->position({planeNode->position().x, 0, planeNode->position().z});
+//
+//
+//
+//			//	auto planePhysicsBody = PhysicsBody::StaticBody();
+//			//	planeNode->physicsBody(planePhysicsBody);
+//			//	planePhysicsBody->friction(1);
+//			//	planePhysicsBody->restitution(0.25);
+//
+//			scene->rootNode()->addChild(planeNode);
+//		}
 
-		planeMaterial->uvScale(PLANE_LENGTH/10.0f);
-		planeMaterial->doubleSided(false);
-		planeNode->mesh()->addMaterial(planeMaterial);
-	//	planeNode->mesh()->replaceMaterial(0, planeMaterial);
-		planeNode->rotation({1, 0, 0}, radians(3*90.0));
-		planeNode->position({planeNode->position().x, 0, planeNode->position().z});
-
-	//	auto planePhysicsBody = PhysicsBody::StaticBody();
-	//	planeNode->physicsBody(planePhysicsBody);
-	//	planePhysicsBody->friction(1);
-	//	planePhysicsBody->restitution(0.25);
-
-		scene->rootNode()->addChild(planeNode);
 
 
 
 
 
-	//	{
-			{
-//				auto pointLight = make_shared<Light>(LightType::Point, Color::LightGray());
-				auto pointLight = make_shared<PointLight>(Color::LightGray());
-				//pointLight->attenuationFactor(0);
-				pointLight->constantAttenuation(1.0);
-				auto pointLightNode = Node::LightNode(pointLight);
-				pointLightNode->position({5, 5, 0});
 
-				auto material = make_shared<Material>(monostate{},
-													  monostate{},
-													  monostate{},
-													  Color::White());
-				//auto sphere = Mesh::Sphere(0.1f, 12);
-				auto sphere = Sphere::Mesh(0.1f, 12, material);
+//			{
+////				auto pointLight = make_shared<Light>(LightType::Point, Color::LightGray());
+//				auto pointLight = make_shared<PointLight>(Color::LightGray());
+//				//pointLight->attenuationFactor(0);
+////				pointLight->attenuation(Attenuation{
+////						.constant = 1.0f, .linear = 0.0f, .quadratic = 0.1f});
+//				auto pointLightNode = Node::LightNode(pointLight);
+//				pointLightNode->position({5, 5, 0});
+//
+//				auto material = make_shared<Material>(monostate{},
+//													  monostate{},
+//													  monostate{},
+//													  Color::White());
+//				//auto sphere = Mesh::Sphere(0.1f, 12);
+//				auto sphere = Sphere::Mesh(0.1f, 12, material);
+//
+//				//sphere->addMaterial(material);
+//	//			sphere->replaceMaterial(0, material);
+//				pointLightNode->mesh(sphere);
+//
+//				scene->rootNode()->addChild(pointLightNode);
+//			}
 
-				//sphere->addMaterial(material);
-	//			sphere->replaceMaterial(0, material);
-				pointLightNode->mesh(sphere);
 
-				scene->rootNode()->addChild(pointLightNode);
-			}
-	//
+
 	//		auto testMesh = MeshNamed("rubber_duck/rubber_duck");
 	//		auto testMesh = MeshNamed("slurm/slurm");
 	//		auto testMesh = MeshNamed("cardboard_box/cardboard_box");
@@ -205,6 +233,76 @@ int main(int argc, const char* argv[]) {
 	//		auto testMesh = MeshNamed("tuna_rot/tuna_rot");
 	//		auto testMesh = MeshNamed("cartoon_palm_tree/cartoon_palm_tree");
 	//		auto testMesh = MeshNamed("crocus/crocus");
+
+
+
+
+
+
+
+//		{
+//			auto mesh = Box::Mesh(1.0f, 2.0f, 3.0f);
+//			auto node = make_shared<Node>();
+//			node->name("box");
+//			node->mesh(mesh);
+//			scene->rootNode()->addChild(node);
+//			//node->position(vec3(0.0f, 1.0f, 0.0f));
+//		}
+
+
+
+//		{
+//			auto mesh = Wedge::Mesh(1.0f, 5.0f, 10.0f);
+//			auto node = make_shared<Node>();
+//			mesh->name("wedge");
+//			node->mesh(mesh);
+//			scene->rootNode()->addChild(node);
+//			//node->rotation({-1.0f, 0.0f, 0.0f}, radians(90.0f));
+//			node->position(vec3(0.0f, 5.0f, 0.0f));
+//		}
+
+//		{
+//			auto mesh = Sphere::Mesh(1.0f);
+//			auto node = make_shared<Node>();
+//			mesh->name("sphere");
+//			node->mesh(mesh);
+//			scene->rootNode()->addChild(node);
+//			//node->position(vec3(5.0f, 2.5f, 0.0f));
+//		}
+
+//		{
+//			auto mesh = Dome::Mesh(5.0f,
+//								   0, math::radians(90.0),
+//								   0, math::radians(180.0));
+//			auto node = make_shared<Node>();
+//			mesh->name("dome");
+//			node->mesh(mesh);
+//			scene->rootNode()->addChild(node);
+//			node->position(vec3(5.0f, 2.5f, 0.0f));
+//		}
+
+//		{
+//			auto mesh = Disk::Mesh(2.5f, 5.0f);
+//			auto node = make_shared<Node>();
+//			node->name("disk");
+//			node->mesh(mesh);
+//			scene->rootNode()->addChild(node);
+//			node->position(vec3(0.0f, 5.0f, 0.0f));
+//		}
+
+
+
+
+
+
+
+//		auto mapPath = util::filesystem::AuxFilePath("Icebox", "alf");
+//		auto alfImporter = ALFImporter(*mapPath);
+//		auto alfScene = alfImporter.scene();
+//
+//
+//		scene->rootNode()->addChild(alfScene->rootNode());
+
 
 
 		window->center();
@@ -346,9 +444,9 @@ int main(int argc, const char* argv[]) {
 			scene->update();
 		} while (window->isOpen());
 	}
-	catch (Exception& e)
+	catch (std::exception& e)
 	{
-		A3D_APP_LOG_F("Exception: {}", e.what());
+		log::app::f()("Exception: {}", e.what());
 		return -1;
 	}
 
@@ -359,7 +457,7 @@ int main(int argc, const char* argv[]) {
 /// Scene Callbacks ///
 
 void UpdateCallback(Scene& scene, double time, double deltaTime) {
-	A3D_APP_LOG_T("scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
+	log::app::t()("scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
 
 	GLFWWindow* window = nullptr;
 	if (scene.visualWorld()) {
@@ -380,12 +478,15 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 		cursorCaptured = window->cursorCaptured();
 	}
 
+	using Key = DesktopInputManager::Key;
+	using MouseButton = DesktopInputManager::MouseButton;
+
 	if (keysPressed.count(Key::Escape)) {
 		window->close();
 	}
 
 	if (keysPressed.count(Key::T)) {
-		A3D_APP_LOG_I("TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
+		log::app::i()("TREE:\n{}", util::string::TreeString(*(scene.rootNode())));
 	}
 
 	if (keysPressed.count(Key::One)) {
@@ -432,86 +533,86 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	if (keysPressed.count(Key::LeftBracket)) {
 		g_mesh = &((*g_meshes)[--index]);
 		auto name = (*g_mesh)->name();
-		if (name) A3D_APP_LOG_D("name: {}", *name);
+		if (name) log::app::d()("name: {}", *name);
 		(*g_meshNode)->mesh(*g_mesh);
 	}
 	if (keysPressed.count(Key::RightBracket)) {
 		g_mesh = &((*g_meshes)[++index]);
 		auto name = (*g_mesh)->name();
-		if (name) A3D_APP_LOG_D("name: {}", *name);
+		if (name) log::app::d()("name: {}", *name);
 		//meshNode = Node::meshNode(mesh);
 		(*g_meshNode)->mesh(*g_mesh);
 	}
 
-
+	using DebugOptions = Scene::DebugOptions;
 
 	if (keysPressed.count(Key::F)) {
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowWireframes)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowWireframes)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
 											   DebugOptions::ShowWireframes));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(),
 											DebugOptions::ShowWireframes));
 		}
 	}
 	if (keysPressed.count(Key::B)) {
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
 											   DebugOptions::ShowBoundingBoxes));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(),
 											DebugOptions::ShowBoundingBoxes));
 		}
 	}
 	if (keysPressed.count(Key::I)) {
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
 											   DebugOptions::ShowStatsOverlay));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(),
 											DebugOptions::ShowStatsOverlay));
 		}
 	}
 	if (keysPressed.count(Key::P)) {
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
 											   DebugOptions::ShowPhysicsBoundingBoxes));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(),
 											DebugOptions::ShowPhysicsBoundingBoxes));
 		}
 	}
 	if (keysPressed.count(Key::G)) {
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
 											   DebugOptions::ShowPhysicsWireframes));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(),
 											DebugOptions::ShowPhysicsWireframes));
 		}
 	}
 	if (keysPressed.count(Key::C)) {
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
 											   DebugOptions::ShowPhysicsContactPoints));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(),
 											DebugOptions::ShowPhysicsContactPoints));
 		}
 	}
 	if (keysPressed.count(Key::N)) {
-		if (A3D_MASK_CONTAINS(scene.debugOptions(), DebugOptions::ShowPhysicsNormals)) {
-			scene.debugOptions(A3D_MASK_REMOVE(scene.debugOptions(),
+		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsNormals)) {
+			scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
 											   DebugOptions::ShowPhysicsNormals));
 		}
 		else {
-			scene.debugOptions(A3D_MASK_ADD(scene.debugOptions(),
+			scene.debugOptions(util::bitmask::add(scene.debugOptions(),
 											DebugOptions::ShowPhysicsNormals));
 		}
 	}
@@ -521,7 +622,7 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	}
 
 	if (keysPressed.count(Key::Backslash)) {
-		utils::SaveSnapshot(*window);
+		util::snapshot::SaveSnapshot(*window);
 	}
 
 	if (keysPressed.count(Key::Slash)) {
@@ -530,10 +631,10 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 	if (keysPressed.count(Key::R)) {
 		if (!window->recordingGIF()) {
-			utils::StartGIFRecording(*window, {320, 240}, 8);
+			util::snapshot::StartGIFRecording(*window, {320, 240}, 8);
 		}
 		else {
-			utils::StopGIFRecording(*window);
+			util::snapshot::StopGIFRecording(*window);
 		}
 	}
 
@@ -603,27 +704,27 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 /// VisualWorld Callbacks ///
 
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	log::app::t()("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 void DidRenderCallback(VisualWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	log::app::t()("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 /// PhysicalWorld Callbacks ///
 
 void DidSimulatePhysicsCallback(PhysicalWorld& world, double time, double deltaTime) {
-	A3D_APP_LOG_T("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
+	log::app::t()("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 /// Static ///
 
 void InitLog() {
 
-	string executableName = *utils::ExecutableName();
+	string executableName = *util::filesystem::ExecutableName();
 
 	auto nativeSink = make_unique<StdOutLogSink>();
-	auto fileSink = make_unique<FileLogSink>(*(utils::ExecutableDirectory())
+	auto fileSink = make_unique<FileLogSink>(*(util::filesystem::ExecutableDirectory())
 											 / (executableName + string(".log")));
 	auto sinks = vector<unique_ptr<LogSink>>();
 	sinks.push_back(std::move(nativeSink));
@@ -638,8 +739,8 @@ void LogBuildInfo() {
 
 	auto buildInfo = BuildInfo::Info();
 	auto version = buildInfo.version();
-	A3D_APP_LOG_I("A3D version: {}.{}.{}", version.major, version.minor, version.patch);
-	A3D_APP_LOG_I("Build: {}", buildInfo.number());
-	A3D_APP_LOG_I("Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
-	A3D_APP_LOG_I("Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
+	log::app::i()("A3D version: {}.{}.{}", version.major, version.minor, version.patch);
+	log::app::i()("Build: {}", buildInfo.number());
+	log::app::i()("Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
+	log::app::i()("Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
 }

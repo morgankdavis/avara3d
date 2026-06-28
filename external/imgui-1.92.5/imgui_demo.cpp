@@ -489,7 +489,7 @@ void ImGui::ShowDemoWindow(bool* p_open)
             ImGui::Checkbox("io.ConfigInputTrickleEventQueue", &io.ConfigInputTrickleEventQueue);
             ImGui::SameLine(); HelpMarker("Enable input queue trickling: some types of events submitted during the same frame (e.g. button down + up) will be spread over multiple frames, improving interactions with low framerates.");
             ImGui::Checkbox("io.MouseDrawCursor", &io.MouseDrawCursor);
-            ImGui::SameLine(); HelpMarker("Instruct Dear ImGui to render a mouse cursor itself. Note that a mouse cursor rendered via your application GPU rendering path will feel more laggy than hardware cursor, but will be more in sync with your other visuals.\n\nSome desktop applications may use both kinds of cursors (e.g. enable software cursor only when resizing/dragging something).");
+            ImGui::SameLine(); HelpMarker("Instruct Dear ImGui to renderPacket a mouse cursor itself. Note that a mouse cursor rendered via your application GPU rendering path will feel more laggy than hardware cursor, but will be more in sync with your other visuals.\n\nSome desktop applications may use both kinds of cursors (e.g. enable software cursor only when resizing/dragging something).");
 
             ImGui::SeparatorText("Keyboard/Gamepad Navigation");
             ImGui::Checkbox("io.ConfigNavSwapGamepadButtons", &io.ConfigNavSwapGamepadButtons);
@@ -902,7 +902,7 @@ static void DemoWindowWidgetsBasic()
                 "Ctrl+Z to undo, Ctrl+Y/Ctrl+Shift+Z to redo.\n"
                 "Escape to revert.\n\n"
                 "PROGRAMMER:\n"
-                "You can use the ImGuiInputTextFlags_CallbackResize facility if you need to wire InputText() "
+                "You can use the ImGuiInputTextFlags_CallbackResize facility if you need to wireframe InputText() "
                 "to a dynamic string type. See misc/cpp/imgui_stdlib.h for an example (this is not demonstrated "
                 "in imgui_demo.cpp).");
 
@@ -3714,7 +3714,7 @@ static void DemoWindowWidgetsTextInput()
                 "\tlock cmpxchg8b eax\n";
 
             static ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput;
-            HelpMarker("You can use the ImGuiInputTextFlags_CallbackResize facility if you need to wire InputTextMultiline() to a dynamic string type. See misc/cpp/imgui_stdlib.h for an example. (This is not demonstrated in imgui_demo.cpp because we don't want to include <string> in here)");
+            HelpMarker("You can use the ImGuiInputTextFlags_CallbackResize facility if you need to wireframe InputTextMultiline() to a dynamic string type. See misc/cpp/imgui_stdlib.h for an example. (This is not demonstrated in imgui_demo.cpp because we don't want to include <string> in here)");
             ImGui::CheckboxFlags("ImGuiInputTextFlags_ReadOnly", &flags, ImGuiInputTextFlags_ReadOnly);
             ImGui::CheckboxFlags("ImGuiInputTextFlags_WordWrap", &flags, ImGuiInputTextFlags_WordWrap);
             ImGui::SameLine(); HelpMarker("Feature is currently in Beta. Please read comments in imgui.h");
@@ -3837,7 +3837,7 @@ static void DemoWindowWidgetsTextInput()
             // you can use the ImGuiInputTextFlags_CallbackResize flag + create a custom ImGui::InputText() wrapper
             // using your preferred type. See misc/cpp/imgui_stdlib.h for an implementation of this using std::string.
             HelpMarker(
-                "Using ImGuiInputTextFlags_CallbackResize to wire your custom string type to InputText().\n\n"
+                "Using ImGuiInputTextFlags_CallbackResize to wireframe your custom string type to InputText().\n\n"
                 "See misc/cpp/imgui_stdlib.h for an implementation of this for std::string.");
             struct Funcs
             {
@@ -7959,7 +7959,7 @@ static void DemoWindowInputs()
 
             ImGui::Text("Hover to see mouse cursors:");
             ImGui::SameLine(); HelpMarker(
-                "Your application can render a different mouse cursor based on what ImGui::GetMouseCursor() returns. "
+                "Your application can renderPacket a different mouse cursor based on what ImGui::GetMouseCursor() returns. "
                 "If software cursor rendering (io.MouseDrawCursor) is set ImGui will draw the right cursor for you, "
                 "otherwise your backend needs to handle it.");
             for (int i = 0; i < ImGuiMouseCursor_COUNT; i++)
@@ -8568,7 +8568,7 @@ void ImGui::ShowStyleEditor(ImGuiStyle* ref)
 
             Checkbox("Anti-aliased lines use texture", &style.AntiAliasedLinesUseTex);
             SameLine();
-            HelpMarker("Faster lines using texture data. Require backend to render with bilinear filtering (not point/nearest filtering).");
+            HelpMarker("Faster lines using texture data. Require backend to renderPacket with bilinear filtering (not point/nearest filtering).");
 
             Checkbox("Anti-aliased fill", &style.AntiAliasedFill);
             PushItemWidth(GetFontSize() * 8);

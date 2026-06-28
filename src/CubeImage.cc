@@ -8,6 +8,8 @@
 
 #include "a3d/CubeImage.h"
 
+#include <stdexcept>
+#include <string>
 #include <utility>
 
 #include "a3d/Image.h"
@@ -17,65 +19,49 @@ using namespace std;
 
 /// Public Lifecycle Functions ///
 
-CubeImage::CubeImage(unique_ptr<Image> posX,
-					 unique_ptr<Image> negX,
-					 unique_ptr<Image> posY,
-					 unique_ptr<Image> negY,
-					 unique_ptr<Image> posZ,
-					 unique_ptr<Image> negZ):
-	_posX{std::move(posX)},
-	_negX{std::move(negX)},
-	_posY{std::move(posY)},
-	_negY{std::move(negY)},
-	_posZ{std::move(posZ)},
-	_negZ{std::move(negZ)} { }
+CubeImage::CubeImage(array<unique_ptr<Image>, 6> faces):
+		_faces{},
+		_width{0},
+		_height{0},
+		_bytesPerPixel{0} {
+
+	for (size_t i = 0; i < faces.size(); ++i) {
+		if (!faces[i]) {
+			throw std::invalid_argument("CubeImage: face[" + std::to_string(i) + "] is null");
+		}
+	}
+
+	const unsigned w = faces[0]->width();
+	const unsigned h = faces[0]->height();
+	const unsigned bpp = faces[0]->bytesPerPixel();
+
+	for (size_t i = 1; i < faces.size(); ++i) {
+		if (faces[i]->width() != w || faces[i]->height() != h || faces[i]->bytesPerPixel() != bpp) {
+			throw std::invalid_argument("CubeImage: all faces must have identical width/height/bytesPerPixel");
+		}
+	}
+
+	_width = w;
+	_height = h;
+	_bytesPerPixel = bpp;
+
+	_faces = std::move(faces);
+}
 
 /// Public Member Functions ///
 
-Image* CubeImage::posX() const {
-	return _posX.get();
+unsigned CubeImage::width() const {
+	return _width;
 }
 
-void CubeImage::posX(unique_ptr<Image> image) {
-	_posX = std::move(image);
+unsigned CubeImage::height() const {
+	return _height;
 }
 
-Image* CubeImage::negX() const {
-	return _negX.get();
+unsigned CubeImage::bytesPerPixel() const {
+	return _bytesPerPixel;
 }
 
-void CubeImage::negX(unique_ptr<Image> image) {
-	_negX = std::move(image);
-}
-
-Image* CubeImage::posY() const {
-	return _posY.get();
-}
-
-void CubeImage::posY(unique_ptr<Image> image) {
-	_posY = std::move(image);
-}
-
-Image* CubeImage::negY() const {
-	return _negY.get();
-}
-
-void CubeImage::negY(unique_ptr<Image> image) {
-	_negY = std::move(image);
-}
-
-Image* CubeImage::posZ() const {
-	return _posZ.get();
-}
-
-void CubeImage::posZ(unique_ptr<Image> image) {
-	_posZ = std::move(image);
-}
-
-Image* CubeImage::negZ() const {
-	return _negZ.get();
-}
-
-void CubeImage::negZ(unique_ptr<Image> image) {
-	_negZ = std::move(image);
+Image* CubeImage::face(Face face) const {
+	return _faces[(size_t)face].get();
 }

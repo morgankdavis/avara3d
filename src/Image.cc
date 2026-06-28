@@ -8,16 +8,14 @@
 
 #include "a3d/Image.h"
 
+#include <stdexcept>
 #include <utility>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
+#include <stb/image.h>
+#include <stb/image_write.h>
 
 #include "a3d/Buffer.h"
-#include "a3d/diagnostic/exception/Exception.h"
-#include "a3d/diagnostic/log/Log.h"
+#include "a3d/log/Log.h"
 
 using namespace a3d;
 using namespace std;
@@ -36,7 +34,7 @@ Image::Image(const filesystem::path& path,
 	loadBuffer(buffer, flipVertical, flipHorizontal);
 }
 
-Image::Image(unique_ptr<Buffer> buffer,
+Image::Image(const Buffer& buffer,
 			 bool flipVertical,
 			 bool flipHorizontal):
 		_buffer{},
@@ -44,7 +42,7 @@ Image::Image(unique_ptr<Buffer> buffer,
 		_height{0},
 		_bytesPerPixel{0} {
 
-	loadBuffer(*buffer, flipVertical, flipHorizontal);
+	loadBuffer(buffer, flipVertical, flipHorizontal);
 }
 
 Image::Image(unique_ptr<Buffer> buffer,
@@ -53,10 +51,10 @@ Image::Image(unique_ptr<Buffer> buffer,
 			 unsigned bytesPerPixel,
 			 bool flipVertical,
 			 bool flipHorizontal):
-		_buffer{std::move(buffer)},
 		_width{width},
 		_height{height},
-		_bytesPerPixel{bytesPerPixel} {
+		_bytesPerPixel{bytesPerPixel},
+		_buffer{std::move(buffer)}{
 
 	if (flipVertical) {
 		Image::flipVertical();
@@ -67,7 +65,7 @@ Image::Image(unique_ptr<Buffer> buffer,
 }
 
 Image::~Image() {
-	A3D_LOG_D("Destroying Image {:p}", static_cast<void*>(this));
+	log::d()("Destroying Image {:p}", static_cast<void*>(this));
 }
 
 /// Public Member Functions ///
@@ -85,28 +83,26 @@ unsigned Image::bytesPerPixel() const {
 }
 
 unique_ptr<Image> Image::inverted() const {
+	const unsigned rowBytes = _width * _bytesPerPixel;
+	const size_t size = static_cast<size_t>(rowBytes) * _height;
 
-	unsigned widthInBytes = _width * _bytesPerPixel;
-	unsigned size = widthInBytes * _height;
+	auto out = make_unique<Buffer>(size); // assuming you have a size-ctor
+	auto* dst = reinterpret_cast<unsigned char*>(out->data());
+	auto* src = reinterpret_cast<const unsigned char*>(_buffer->data());
 
-	auto buf = (unsigned char*)malloc(size);
+	const bool hasAlpha = (_bytesPerPixel == 4);
 
-	auto existing = _buffer->data();
-	for (unsigned r=0; r<_height; ++r) {
-		for (int c=0; c<widthInBytes; ++c) {
-			buf[widthInBytes*r + c] = 255 - (int)existing[widthInBytes*r + c];
+	for (size_t i = 0; i < size; ++i) {
+		if (hasAlpha && ((i % 4) == 3)) { // keep alpha
+			dst[i] = src[i];
+		} else {
+			dst[i] = static_cast<unsigned char>(255u - src[i]);
 		}
 	}
 
-	auto inverted = make_unique<Image>(make_unique<Buffer>((byte*)buf, size),
-									   _width,
-									   _height,
-									   _bytesPerPixel,
-									   false);
-	free(buf);
-
-	return inverted;
+	return std::make_unique<Image>(std::move(out), _width, _height, _bytesPerPixel, false, false);
 }
+
 
 const Buffer& Image::buffer() const {
 	return *_buffer;
@@ -124,7 +120,7 @@ bool Image::writePNG(const filesystem::path& path) const {
 
 /// Private Member Functions ///
 
-void Image::loadBuffer(Buffer& inBuf,
+void Image::loadBuffer(const Buffer& inBuf,
 					   bool flipVertical,
 					   bool flipHorizontal) {
 	
@@ -132,7 +128,7 @@ void Image::loadBuffer(Buffer& inBuf,
 	int height;
 	int bytesPerPixel;
 	
-	stbi_uc* imgData = stbi_load_from_memory((unsigned char*)*inBuf,
+	stbi_uc* imgData = stbi_load_from_memory((unsigned char*)inBuf.data(),
 											 (int)inBuf.size(),
 											 &width,
 											 &height,
@@ -144,7 +140,7 @@ void Image::loadBuffer(Buffer& inBuf,
 	bytesPerPixel = 4;
 	
 	if (!imgData) {
-		throw Exception("Failed to load image data.");
+		throw std::runtime_error("Failed to load image data.");
 	}
 
 	_buffer = make_unique<Buffer>(reinterpret_cast<const std::byte*>(imgData),
@@ -152,7 +148,7 @@ void Image::loadBuffer(Buffer& inBuf,
 
 	stbi_image_free(imgData);
 	
-	A3D_LOG_D("Loaded image data. width: {}, height: {}, bytesPerPixel: {}",
+	log::d()("Loaded image data. width: {}, height: {}, bytesPerPixel: {}",
 				  width, height, bytesPerPixel);
 	
 	_width = width;
@@ -193,30 +189,22 @@ void Image::flipVertical() { // "flip"
 	}
 }
 
-// only works for 4-bytes-per-pixel images
 void Image::flipHorizontal() { // "mirror"
 
-	unsigned widthInBytes = _width * _bytesPerPixel;
-	uint32_t* row = nullptr;
-	uint32_t* left = nullptr;
-	uint32_t* right = nullptr;
-	uint32_t temp = 0;
-	unsigned halfWidth = _width / 2;
+	if (_bytesPerPixel != 4) {
+		throw std::runtime_error("flipHorizontal requires 4 bytesPerPixel");
+	}
 
-	auto dPtr = reinterpret_cast<uint32_t*>(_buffer->data());
+	auto* d = reinterpret_cast<unsigned char*>(_buffer->data());
+	const unsigned rowBytes = _width * 4;
 
-	for (unsigned r=0; r<_height; ++r) {
-
-		row = dPtr + (_width * r);
-
-		for (unsigned c=0; c<halfWidth; ++c) {
-
-			left = row + c;
-			right = row + _width - c - 1;
-
-			temp = *left;
-			*left = *right;
-			*right = temp;
+	for (unsigned r = 0; r < _height; ++r) {
+		unsigned char* row = d + r * rowBytes;
+		for (unsigned x = 0; x < _width / 2; ++x) {
+			unsigned char* L = row + x * 4;
+			unsigned char* R = row + (_width - 1 - x) * 4;
+			for (int k = 0; k < 4; ++k) std::swap(L[k], R[k]);
 		}
 	}
 }
+

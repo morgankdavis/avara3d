@@ -12,20 +12,20 @@
 #include <utility>
 
 #include "a3d/a3d.h"
-#include "a3d/Utilities.h"
+#include "a3d/util/filesystem.h"
 
 using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
-const uvec2					WINDOW_SIZE			{1280, 768};
-const bool					FULLSCREEN			{false};
-const bool					ENABLE_HIGH_DPI		{true};
-const AntialiasingMode		ANTIALIAS_MODE		{AntialiasingMode::Msaa4X};
-const bool					ENABLE_VSYNC		{false};
-const bool					CAPTURE_CURSOR		{false};
-const float					MOUSE_SENSITIVITY	{0.5};
+const uvec2								WINDOW_SIZE			{1280, 768};
+const bool								FULLSCREEN			{false};
+const bool								ENABLE_HIGH_DPI		{true};
+const RenderContext::AntialiasingMode	ANTIALIAS_MODE		{RenderContext::AntialiasingMode::Msaa4X};
+const bool								ENABLE_VSYNC		{false};
+const bool								CAPTURE_CURSOR		{false};
+const float								MOUSE_SENSITIVITY	{0.5};
 
 void UpdateCallback(Scene& scene, double time, double deltaTime);
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
@@ -36,8 +36,8 @@ int main(int argc, const char* argv[]) {
 	try {
 		cout << "test003::main()\n" << endl;
 
-		auto window = make_unique<GLFWWindow>(RenderingApi::OpenGL,
-											  *utils::ExecutableName(),
+		auto window = make_unique<GLFWWindow>(RenderContext::RenderingApi::OpenGL,
+											  *util::filesystem::ExecutableName(),
 											  WINDOW_SIZE,
 											  FULLSCREEN,
 											  ENABLE_HIGH_DPI,
@@ -54,7 +54,7 @@ int main(int argc, const char* argv[]) {
 		visualWorld->willRenderCallback(bind(&WillRenderCallback, _1, _2, _3));
 		visualWorld->didRenderCallback(bind(&DidRenderCallback, _1, _2, _3));
 
-		auto scene = utils::SceneNamed("import_test/import_test");
+		auto scene = util::filesystem::SceneNamed("import_test/import_test");
 		scene->visualWorld(std::move(visualWorld));
 		scene->inputManager(std::move(inputManager));
 		scene->updateCallback(bind(&UpdateCallback, _1, _2, _3));
@@ -66,7 +66,7 @@ int main(int argc, const char* argv[]) {
 			scene->update();
 		} while (window->isOpen());
 	}
-	catch (Exception& e) {
+	catch (std::exception& e) {
 		cerr << "Exception: " << e.what() << "\n";
 		return -1;
 	}
@@ -83,6 +83,9 @@ void UpdateCallback(Scene& scene, double time, double deltaTime) {
 	// get input
 
 	auto im = static_cast<DesktopInputManager*>(scene.inputManager());
+
+	using Key = DesktopInputManager::Key;
+	using MouseButton = DesktopInputManager::MouseButton;
 
 	auto keysDown = im->keysDown();
 	for (auto k : keysDown) {

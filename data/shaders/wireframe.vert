@@ -1,6 +1,5 @@
 #version 330
 
-
 layout (location = 0) in vec3 vert_vertPos;
 
 uniform mat4 modelMat;

@@ -6,8 +6,8 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_HITTESTRESULT_H
-#define AVARA3D_HITTESTRESULT_H
+#ifndef AVARA3D_PHYSICS_HITTESTRESULT_H
+#define AVARA3D_PHYSICS_HITTESTRESULT_H
 
 namespace a3d {
 	
@@ -47,4 +47,4 @@ namespace a3d {
 	};
 }
 
-#endif /* AVARA3D_HITTESTRESULT_H */
+#endif /* AVARA3D_PHYSICS_HITTESTRESULT_H */

@@ -10,18 +10,17 @@
 
 #include <utility>
 
-#include "magic_enum/magic_enum.hpp"
+#include <magic_enum/magic_enum.hpp>
 
 #include "a3d/Color.h"
+#include "a3d/IdGenerator.h"
 #include "a3d/Image.h"
-#include "a3d/diagnostic/log/Log.h"
-#include "a3d/diagnostic/exception/UnsupportedFormatException.h"
-#include "a3d/mesh/Line.h"
+#include "a3d/log/Log.h"
 #include "a3d/mesh/MeshElement.h"
-#include "a3d/rendering/material/Material.h"
-#include "a3d/rendering/renderer/Renderer.h"
+#include "a3d/render/Renderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/importer/GlTFImporter.h"
+#include "a3d/visual/material/Material.h"
 
 using namespace a3d;
 using namespace a3d::math;
@@ -29,11 +28,10 @@ using namespace std;
 
 /// Public Static Member Functions ///
 
-shared_ptr<Mesh> Mesh::FromFile(const filesystem::path& path,
-								MeshImportOptions options) {
+shared_ptr<Mesh> Mesh::FromFile(const filesystem::path& path, ImportOptions options) {
 
-	auto optsUnderlying = static_cast<underlying_type<MeshImportOptions>::type>(options);
-	auto sceneOpts = SceneImportOptions(optsUnderlying) | SceneImportOptions::ImportMeshes;
+	auto optsUnderlying = static_cast<underlying_type<ImportOptions>::type>(options);
+	auto sceneOpts = Scene::ImportOptions(optsUnderlying) | Scene::ImportOptions::ImportMeshes;
 	return GlTFImporter(path, sceneOpts).firstMesh();
 }
 
@@ -59,8 +57,8 @@ Mesh::Mesh(unique_ptr<MeshElement> element,
 
 Mesh::Mesh(const string& name,
 		   vector<unique_ptr<MeshElement>>& elements,
-		   const vector<shared_ptr<Material>>& materials)
-		: Mesh{elements, materials} {
+		   const vector<shared_ptr<Material>>& materials):
+		Mesh{elements, materials} {
 
 	_name = name;
 }
@@ -82,10 +80,10 @@ Mesh::Mesh(vector<unique_ptr<MeshElement>>& elements,
 Mesh::~Mesh() {
 
 	if (_name != nullopt) {
-		A3D_LOG_D("Destroying Mesh '{}' ({:p})", *_name, static_cast<void*>(this));
+		log::d()("Destroying Mesh '{}' ({:p})", *_name, static_cast<void*>(this));
 	}
 	else {
-		A3D_LOG_D("Destroying Mesh {:p}", static_cast<void*>(this));
+		log::d()("Destroying Mesh {:p}", static_cast<void*>(this));
 	}
 }
 
@@ -147,69 +145,8 @@ void Mesh::replaceMaterial(int index, const shared_ptr<Material>& replacement) {
 
 /// Internal Member Functions ///
 
-void Mesh::burnTransform(const mat4& transform, bool normals) {
-	for (auto& element : elements()) {
-		element->burnTransform(transform, normals);
-	}
-
-	genLocalAABB();
-}
-
-void Mesh::gather(vector<RenderItem>& items, mat4& model, FrameStats& stats) {
-
-	// for (int e=0; e<_elements.size(); ++e) {
-	// 	auto& element = _elements[e];
-	//
-	// 	Material* material = nullptr;
-	// 	if (_materials.size() > e) {
-	// 		material = _materials[e].get();
-	// 	}
-	// 	else {
-	// 		material = Material::DefaultMaterial().get();
-	// 	}
-	//
-	//	// cl.exe on windows thinks this doesn't match declaration in MeshElement.h?
-	// 	element->gather(items, *material, model, stats);
-	// }
-	//
-	// ++stats.numMeshes;
-}
-
-void Mesh::draw(Renderer& renderer,
-				const RenderContext& context,
-				const mat4& modelMat,
-				const mat4& viewMat,
-				const mat4& projectionMat,
-				const DebugOptions& debugOptions,
-				FrameStats& stats) {
-
-	renderer.render(*this,
-					context,
-					modelMat, viewMat, projectionMat,
-					debugOptions, stats);
-	
-	for (int e=0; e<_elements.size(); ++e) {
-
-		auto& element = _elements[e];
-		shared_ptr<Material> material = nullptr;
-		if (_materials.size() > e) {
-			material = _materials[e];
-		}
-		else {
-			material = Material::DefaultMaterial();
-		}
-
-		element->draw(renderer,
-					  context,
-					  *material,
-					  modelMat,
-					  viewMat,
-					  projectionMat,
-					  debugOptions,
-					  stats);
-	}
-
-	++stats.numMeshes;
+MeshId Mesh::id() const noexcept {
+	return _id;
 }
 
 AABB Mesh::localAABB() const {
@@ -218,26 +155,19 @@ AABB Mesh::localAABB() const {
 
 AABB Mesh::worldAABB(const math::mat4& worldTransform, bool vertfit) const {
 
-	// fit over verticies - tighter - slow!
-	if (vertfit) {
+	// TODO: consolidate (MeshElement has the same function)
 
+	if (vertfit) {
 		static const float maxFloat = math::f32_max();
 		static const float minFloat = math::f32_lowest();
 		AABB out = { {maxFloat, maxFloat, maxFloat},
 					 {minFloat, minFloat, minFloat} };
 
 		for (const auto& e : _elements) {
-			for (const auto& v : e->vertices()) {
-				vec3 p = vec3(worldTransform * vec4(v.position, 1.0f));
-				out.min.x = math::min(out.min.x, p.x);
-				out.max.x = math::max(out.max.x, p.x);
-				out.min.y = math::min(out.min.y, p.y);
-				out.max.y = math::max(out.max.y, p.y);
-				out.min.z = math::min(out.min.z, p.z);
-				out.max.z = math::max(out.max.z, p.z);
-			}
+			AABB ea = e->worldAABB(worldTransform, true);
+			out.min = min(out.min, ea.min);
+			out.max = max(out.max, ea.max);
 		}
-
 		return out;
 	}
 	// fit over OBB - looser - fast!
@@ -271,11 +201,19 @@ vec3 Mesh::worldExtent(const mat4& worldTransform) const {
 	return aabb.max - aabb.min;
 }
 
-MeshDirtyMask Mesh::dirtyMask() const {
+void Mesh::burnTransform(const mat4& transform, bool normals) {
+	for (auto& element : elements()) {
+		element->burnTransform(transform, normals);
+	}
+
+	genLocalAABB();
+}
+
+Mesh::DirtyMask Mesh::dirtyMask() const {
 	return _dirtyMask;
 }
 
-void Mesh::dirtyMask(MeshDirtyMask mask) {
+void Mesh::dirtyMask(DirtyMask mask) {
 	_dirtyMask = mask;
 }
 
@@ -290,12 +228,6 @@ void Mesh::genLocalAABB() {
 
 	for (const auto& element : _elements) {
 		auto elementAABB = element->localAABB();
-//		aabb.min.x = math::min(aabb.min.x, elementAABB.min.x);
-//		aabb.max.x = math::max(aabb.max.x, elementAABB.max.x);
-//		aabb.min.y = math::min(aabb.min.y, elementAABB.min.y);
-//		aabb.max.y = math::max(aabb.max.y, elementAABB.max.y);
-//		aabb.min.z = math::min(aabb.min.z, elementAABB.min.z);
-//		aabb.max.z = math::max(aabb.max.z, elementAABB.max.z);
 		aabb.min = min(aabb.min, elementAABB.min);
 		aabb.max = max(aabb.max, elementAABB.max);
 	}
@@ -306,7 +238,8 @@ void Mesh::genLocalAABB() {
 /// Private Lifecycle Functions ///
 
 Mesh::Mesh():
+		_id{IdGenerator<MeshId>::next()},
 		_name{},
 		_elements{},
 		_materials{},
-		_dirtyMask{MeshDirtyMask::All} { }
+		_dirtyMask{DirtyMask::All} { }
