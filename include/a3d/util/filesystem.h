@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "a3d/mesh/Mesh.h"
+#include "a3d/render/backend/ShaderType.h"
 #include "a3d/scene/Scene.h"
 
 namespace a3d {
@@ -62,7 +63,7 @@ namespace a3d::util::filesystem {
 	// *** shaders ***
 
 	std::optional<std::string> 		ShaderSource(const std::string& name,
-												   const std::string& type);
+	                                               ShaderType type);
 
 	// *** fonts ***
 

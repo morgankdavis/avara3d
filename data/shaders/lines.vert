@@ -1,5 +1,4 @@
-#version 300 es
-//#version 330
+<#A3D_SHADER_HEADER#>
 
 //layout (location = 0) in vec3 vert_vertPos;
 //layout (location = 1) in vec3 vert_vertColor;

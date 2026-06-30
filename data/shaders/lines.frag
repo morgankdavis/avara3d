@@ -1,10 +1,4 @@
-#version 300 es
-//#version 330
-
-#ifdef GL_ES
-precision highp float;
-precision highp int;
-#endif
+<#A3D_SHADER_HEADER#>
 
 in 	vec3 frag_color;
 out	vec4 fragColor;

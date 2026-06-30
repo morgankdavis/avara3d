@@ -296,8 +296,7 @@ int main(int argc, const char* argv[]) {
 
 
 	}
-	catch (std::exception& e)
-	{
+	catch (std::exception& e) {
 		log::app::f()("Exception: {}", e.what());
 		return -1;
 	}

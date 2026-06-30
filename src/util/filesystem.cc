@@ -32,6 +32,8 @@
 #define PATH_MAX MAX_PATH
 #endif
 
+#include <magic_enum/magic_enum.hpp>
+
 #include "a3d/CubeImage.h"
 #include "a3d/Font.h"
 #include "a3d/Image.h"
@@ -259,9 +261,18 @@ std::optional<string> a3d::util::filesystem::TextFile(const std::filesystem::pat
 // *** shaders ***
 
 std::optional<std::string> a3d::util::filesystem::ShaderSource(const string& name,
-													const string& type) {
+                                                               ShaderType type) {
 	std::optional<string> rawSource = std::nullopt;
-	auto path = SearchInPaths((name + "." + type), ShaderSearchPaths());
+	auto extension = "";
+	switch (type) {
+		case ShaderType::Vertex:
+			extension = "vert";
+			break;
+		case ShaderType::Fragment:
+			extension = "frag";
+			break;
+	}
+	auto path = SearchInPaths((name + "." + extension), ShaderSearchPaths());
 	if (path) {
 		log::d()("Found shader at path: {}", (*path).string());
 		rawSource = TextFile(*path);

@@ -17,6 +17,7 @@
 #include <string>
 
 #include "a3d/Math.h"
+#include "a3d/render/backend/ShaderType.h"
 #include "a3d/render/backend/opengl/GLTypes.h"
 
 namespace a3d {
@@ -24,13 +25,6 @@ namespace a3d {
 	class GLSLProgram {
 
 	public:
-		/// Internal Types ///
-
-		enum class ShaderType {
-			Vertex,
-			Fragment
-		};
-
 		/// Internal Static Member Functions ///
 
 		static GLSLProgram& 		Default();
@@ -86,7 +80,7 @@ namespace a3d {
 		/// Private Member Functions ///
 
 		std::optional<std::string>	shaderSource(const std::string& name,
-												   const std::string& type);
+												   ShaderType type);
 		void 						prepare();
 		bool 						compile(const std::string& source,
 											ShaderType type);

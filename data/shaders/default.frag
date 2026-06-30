@@ -1,10 +1,4 @@
-#version 300 es
-//#version 330
-
-#ifdef GL_ES
-precision highp float;
-precision highp int;
-#endif
+<#A3D_SHADER_HEADER#>
 
 // donno if this works
 #define FEQ(a, b, eps) (abs(a-b) <= eps)
