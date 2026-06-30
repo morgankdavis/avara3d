@@ -111,9 +111,12 @@ vector<std::filesystem::path> a3d::util::filesystem::BaseSearchPaths() {
 	// subdirectories may live.
 	// clients will use this to append those subdirectory names to search for specific resources.
 	// clients should first check "local" locations first, then "engine" locations.
+	// edit: this is gross. do something better.
 
 	auto basePaths = vector<std::filesystem::path>();
 	auto execDir = ExecutableDirectory();
+
+#ifdef A3D_DESKTOP
 
 	if (execDir) {
 		// [local] archived
@@ -154,6 +157,11 @@ vector<std::filesystem::path> a3d::util::filesystem::BaseSearchPaths() {
 		path = (*execDir);
 		basePaths.push_back(path);
 	}
+#elif A3D_WEB
+	// emscripten
+	auto path = "/data";
+	basePaths.push_back(path);
+#endif
 
 	return basePaths;
 }
@@ -207,14 +215,22 @@ vector<std::filesystem::path> a3d::util::filesystem::AuxiliarySearchPaths() {
 }
 
 std::optional<std::filesystem::path> a3d::util::filesystem::SearchInPaths(const string& filename,
-															   vector<std::filesystem::path> paths) {
+                                                                          const vector<std::filesystem::path>& paths) {
+//	for (size_t i = 0; i < paths.size(); ++i) {
+//		log::i()("  [{}] '{}'", i, paths[i].string());
+//	}
+
 	for (auto& searchPath : paths) {
 		if (std::filesystem::is_directory(searchPath)) {
+			log::i()("Searching for '{}' in '{}'", filename, searchPath.string());
 			auto path = searchPath / filename;
 			if (std::filesystem::is_regular_file(path)) {
 				//log::d()("Found '{}' at '{}'", searchPath.string(), filename);
 				return path;
 			}
+		}
+		else {
+			log::w()("Search path is not a directory: '{}'", searchPath.string());
 		}
 	}
 	log::w()("'{}' not found.", filename);

@@ -46,7 +46,7 @@ namespace a3d::util::filesystem {
 	std::vector<std::filesystem::path> 		FontSearchPaths();
 	std::vector<std::filesystem::path> 		AuxiliarySearchPaths();
 	std::optional<std::filesystem::path>	SearchInPaths(const std::string& filename,
-														  std::vector<std::filesystem::path> paths);
+	                                                      const std::vector<std::filesystem::path>& paths);
 #endif
 
 	// *** binary and text files ***
@@ -81,7 +81,7 @@ namespace a3d::util::filesystem {
 											  bool flipVertical=false);
 	std::unique_ptr<a3d::CubeImage> CubeImageNamed(const std::string& name);
 	std::unique_ptr<a3d::CubeImage>	CubeImageNamed(const std::string& name,
-													  const std::string& type);
+	                                                  const std::string& type);
 
 	// *** scenes ***
 

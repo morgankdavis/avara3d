@@ -880,25 +880,29 @@ void SendMaterialPropertyUniforms(const Material::Property& property,
 					switch (type) {
 						case Material::PropertyType::Ambient:
 							modeUniformName = "ambientContentsType";
-							samplerUniformName = "samplers.ambient";
+							//samplerUniformName = "samplers.ambient";
+							samplerUniformName = "ambientSampler";
 							slot = GL_TEXTURE0;
 							index = 0;
 							break;
 						case Material::PropertyType::Diffuse:
 							modeUniformName = "diffuseContentsType";
-							samplerUniformName = "samplers.diffuse";
+							//samplerUniformName = "samplers.diffuse";
+							samplerUniformName = "diffuseSampler";
 							slot = GL_TEXTURE1;
 							index = 1;
 							break;
 						case Material::PropertyType::Specular:
 							modeUniformName = "specularContentsType";
-							samplerUniformName = "samplers.specular";
+							//samplerUniformName = "samplers.specular";
+							samplerUniformName = "specularSampler";
 							slot = GL_TEXTURE2;
 							index = 2;
 							break;
 						case Material::PropertyType::Emission:
 							modeUniformName = "emissionContentsType";
-							samplerUniformName = "samplers.emission";
+							//samplerUniformName = "samplers.emission";
+							samplerUniformName = "emissionSampler";
 							slot = GL_TEXTURE3;
 							index = 3;
 							break;
@@ -1103,11 +1107,32 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 //	glBufferData(GL_UNIFORM_BUFFER, sizeof(EnvironmentBlock), nullptr, GL_DYNAMIC_DRAW); // orphan
 //	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(EnvironmentBlock), &environmentStruct);
 
+//	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
+//	void* dst = glMapBufferRange(GL_UNIFORM_BUFFER, 0, sizeof(EnvironmentBlock),
+//								 GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+//	memcpy(dst, &environmentStruct, sizeof(EnvironmentBlock));
+//	glUnmapBuffer(GL_UNIFORM_BUFFER);
+
 	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
-	void* dst = glMapBufferRange(GL_UNIFORM_BUFFER, 0, sizeof(EnvironmentBlock),
-								 GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-	memcpy(dst, &environmentStruct, sizeof(EnvironmentBlock));
-	glUnmapBuffer(GL_UNIFORM_BUFFER);
+
+#ifdef A3D_GL_WEB
+	glBufferSubData(
+			GL_UNIFORM_BUFFER,
+			0,
+			sizeof(EnvironmentBlock),
+			&environmentStruct);
+#else
+	void* dst = glMapBufferRange(
+			GL_UNIFORM_BUFFER,
+			0,
+			sizeof(EnvironmentBlock),
+			GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+
+	if (dst) {
+		memcpy(dst, &environmentStruct, sizeof(EnvironmentBlock));
+		glUnmapBuffer(GL_UNIFORM_BUFFER);
+	}
+#endif
 }
 
 void ApplyBlendFunction(Material::BlendFunction func) {

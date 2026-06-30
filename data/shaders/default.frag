@@ -1,4 +1,10 @@
-#version 330
+#version 300 es
+//#version 330
+
+#ifdef GL_ES
+precision highp float;
+precision highp int;
+#endif
 
 // donno if this works
 #define FEQ(a, b, eps) (abs(a-b) <= eps)
@@ -8,9 +14,9 @@
 #define MAX_POINT_LIGHTS								128
 #define MAX_SPOT_LIGHTS									64
 
-const float GAMMA =										2.2f;
+const float GAMMA =										2.2;
 
-const float ALPHA_REJECTION_THRESHOLD =					0.5f;
+const float ALPHA_REJECTION_THRESHOLD =					0.5;
 
 const uint MATERIAL_PROPERTY_CONTENTS_TYPE_NONE =		0u;
 const uint MATERIAL_PROPERTY_CONTENTS_TYPE_COLOR =		1u;
@@ -30,12 +36,17 @@ const uint SPOTLIGHT_FEATHERING_MODE_LINEAR =			0u;
 const uint SPOTLIGHT_FEATHERING_MODE_SHARP =			1u;
 const uint SPOTLIGHT_FEATHERING_MODE_SOFT =				2u;
 
-struct Samplers {
-	sampler2D ambient;
-	sampler2D diffuse;
-	sampler2D specular;
-	sampler2D emission;
-};
+// GL ES does not like this
+//struct Samplers {
+//	sampler2D ambient;
+//	sampler2D diffuse;
+//	sampler2D specular;
+//	sampler2D emission;
+//};
+uniform sampler2D ambientSampler;
+uniform sampler2D diffuseSampler;
+uniform sampler2D specularSampler;
+uniform sampler2D emissionSampler;
 
 struct Colors {
 	vec3 ambient;
@@ -100,7 +111,7 @@ uniform 	uint 		emissionContentsType;
 uniform		float 		specularExponent;
 uniform		float 		uvScale;
 uniform		bool 		locksAmbientWithDiffuse;
-uniform 	Samplers 	samplers;
+//uniform 	Samplers 	samplers;
 uniform 	Colors 		colors;
 
 layout(std140) uniform EnvironmentBlock {
@@ -215,7 +226,7 @@ vec4 GetBaseColor(uint propertyType, uint propertyContentsType) {
 				case MATERIAL_PROPERTY_CONTENTS_TYPE_COLOR:
 					return vec4(colors.ambient, 1.0);
 				case MATERIAL_PROPERTY_CONTENTS_TYPE_SAMPLER:
-					return vec4(texture(samplers.ambient, frag_texCoord * uvScale));
+					return vec4(texture(ambientSampler, frag_texCoord * uvScale));
 				default:
 					return vec4(0.0, 0.0, 0.0, 1.0);
 			}
@@ -226,7 +237,7 @@ vec4 GetBaseColor(uint propertyType, uint propertyContentsType) {
 				case MATERIAL_PROPERTY_CONTENTS_TYPE_COLOR:
 					return vec4(colors.diffuse, 1.0);
 				case MATERIAL_PROPERTY_CONTENTS_TYPE_SAMPLER:
-					return vec4(texture(samplers.diffuse, frag_texCoord * uvScale));
+					return vec4(texture(diffuseSampler, frag_texCoord * uvScale));
 				default:
 					return vec4(0.0, 0.0, 0.0, 1.0);
 			}
@@ -237,7 +248,7 @@ vec4 GetBaseColor(uint propertyType, uint propertyContentsType) {
 				case MATERIAL_PROPERTY_CONTENTS_TYPE_COLOR:
 					return vec4(colors.specular, 1.0);
 				case MATERIAL_PROPERTY_CONTENTS_TYPE_SAMPLER:
-					return vec4(texture(samplers.specular, frag_texCoord * uvScale));
+					return vec4(texture(specularSampler, frag_texCoord * uvScale));
 				default:
 					return vec4(0.0, 0.0, 0.0, 1.0);
 			}
@@ -248,7 +259,7 @@ vec4 GetBaseColor(uint propertyType, uint propertyContentsType) {
 				case MATERIAL_PROPERTY_CONTENTS_TYPE_COLOR:
 					return vec4(colors.emission, 1.0);
 				case MATERIAL_PROPERTY_CONTENTS_TYPE_SAMPLER:
-					return vec4(texture(samplers.emission, frag_texCoord * uvScale));
+					return vec4(texture(emissionSampler, frag_texCoord * uvScale));
 				default:
 					return vec4(0.0, 0.0, 0.0, 1.0);
 			}
@@ -432,10 +443,10 @@ vec3 CalcSpotLighting(vec4 Kd, vec4 Ks) {
 
 			switch (light.featheringMode) {
 				case SPOTLIGHT_FEATHERING_MODE_SHARP:
-					easedIntensity = clamp(linearIntensity * (2-linearIntensity), 0.0, 1.0);
+					easedIntensity = clamp(linearIntensity * (2.0 - linearIntensity), 0.0, 1.0);
 					break;
 				case SPOTLIGHT_FEATHERING_MODE_SOFT:
-					easedIntensity = clamp(pow(linearIntensity, 2), 0.0, 1.0);
+					easedIntensity = clamp(pow(linearIntensity, 2.0), 0.0, 1.0);
 					break;
 				default: break;
 			}

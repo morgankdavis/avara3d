@@ -4,6 +4,7 @@ project(avara3d
 		VERSION 0.0.1
 		HOMEPAGE_URL https://avara3d.net/)
 
+include(cmake/EmscriptenHelpers.cmake)
 include(cmake/ExternalVirtualInclude.cmake)
 include(cmake/EnvironmentDetect.cmake)
 include(cmake/SetCompileDefinitions.cmake)
@@ -63,6 +64,7 @@ target_compile_definitions(BulletDynamics PUBLIC BT_THREADSAFE=1)
 target_compile_definitions(BulletCollision PUBLIC BT_THREADSAFE=1)
 target_compile_definitions(LinearMath PUBLIC BT_THREADSAFE=1)
 
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries" FORCE)
 add_subdirectory(external/fastgltf-0.9.0)
 
 add_subdirectory(external/generator)
@@ -81,7 +83,8 @@ add_subdirectory(external/imgui-1.92.5)
 
 #add_subdirectory(external/implot-0.17)
 
-add_subdirectory(external/pugixml-1.15) # temporary
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries" FORCE)
+add_subdirectory(external/pugixml-1.15) # temporary for APF import
 
 add_subdirectory(external/stb)
 
@@ -120,43 +123,6 @@ configure_file(cmake/BuildInfo.cmake.in BuildInfo.cmake.h)
 ### setup a3d environment defines ###
 
 a3d_set_compile_definitions(avara3d)
-
-#if (A3D_DESKTOP)
-#	target_compile_definitions(avara3d PUBLIC A3D_DESKTOP)
-#endif ()
-#if (A3D_GL_DESKTOP)
-#	target_compile_definitions(avara3d PUBLIC A3D_GL_DESKTOP)
-#endif()
-#if (A3D_LINUX)
-#	target_compile_definitions(avara3d PUBLIC A3D_LINUX)
-#	target_compile_definitions(avara3d PUBLIC A3D_POSIX)
-#	if (A3D_RPI)
-#		target_compile_definitions(avara3d PUBLIC A3D_RPI)
-#		target_compile_definitions(avara3d PUBLIC A3D_GL_ES)
-#	endif()
-#elseif (A3D_MACOS)
-#	target_compile_definitions(avara3d PUBLIC A3D_MACOS)
-#	target_compile_definitions(avara3d PUBLIC A3D_POSIX)
-#elseif (A3D_WINDOWS)
-#	target_compile_definitions(avara3d PUBLIC A3D_WINDOWS)
-#	target_compile_definitions(avara3d PRIVATE NOMINMAX)
-#	target_compile_definitions(avara3d PRIVATE WIN32_LEAN_AND_MEAN)
-#endif ()
-#if (A3D_EMSCRIPTEN)
-#	target_compile_definitions(avara3d PUBLIC A3D_EMSCRIPTEN)
-#	target_compile_definitions(avara3d PUBLIC A3D_WEB)
-#	target_compile_definitions(avara3d PUBLIC A3D_POSIX)
-#	target_compile_definitions(avara3d PUBLIC A3D_GL_WEB)
-#endif()
-#if (A3D_WEB)
-#	target_compile_definitions(avara3d PUBLIC A3D_WEB)
-#endif()
-#if (A3D_POSIX)
-#	target_compile_definitions(avara3d PUBLIC A3D_POSIX)
-#endif()
-#if (A3D_GL_WEB)
-#	target_compile_definitions(avara3d PUBLIC A3D_GL_WEB)
-#endif()
 
 ### add library headers ###
 
@@ -225,13 +191,6 @@ if (A3D_DESKTOP)
 
 endif()
 
-#if (A3D_EMSCRIPTEN)
-#	target_link_options(a3d_demo PRIVATE
-#			"--use-port=contrib.glfw3"
-#			"-sMIN_WEBGL_VERSION=2"
-#			"-sMAX_WEBGL_VERSION=2")
-#endif()
-
 if (A3D_LINUX)
 
 	find_package(Threads REQUIRED)
@@ -291,6 +250,8 @@ elseif (A3D_MACOS)
 	set(PLATFORM_STRING "macos")
 elseif (A3D_WINDOWS)
 	set(PLATFORM_STRING "windows")
+elseif (A3D_WEB)
+	set(PLATFORM_STRING "web")
 endif ()
 
 if(CMAKE_CONFIGURATION_TYPES)
