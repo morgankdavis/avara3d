@@ -6,6 +6,7 @@ project(avara3d
 
 include(cmake/ExternalVirtualInclude.cmake)
 include(cmake/EnvironmentDetect.cmake)
+include(cmake/SetCompileDefinitions.cmake)
 include(cmake/UtilityFunctions.cmake)
 
 option(A3D_BUILD_TESTS "Build A3D tests" ON)
@@ -68,11 +69,13 @@ add_subdirectory(external/generator)
 
 add_subdirectory(external/glad-3.3)
 
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
-add_subdirectory(external/glfw-3.4.0)
+if (A3D_DESKTOP)
+	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+	set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
+	add_subdirectory(external/glfw-3.4.0)
+endif()
 
 add_subdirectory(external/imgui-1.92.5)
 
@@ -116,27 +119,44 @@ configure_file(cmake/BuildInfo.cmake.in BuildInfo.cmake.h)
 
 ### setup a3d environment defines ###
 
-if (A3D_DESKTOP)
-	target_compile_definitions(avara3d PUBLIC A3D_DESKTOP)
-endif ()
-if (A3D_GL_DESKTOP)
-	target_compile_definitions(avara3d PUBLIC A3D_GL_DESKTOP)
-endif()
-if (A3D_LINUX)
-	target_compile_definitions(avara3d PUBLIC A3D_LINUX)
-	target_compile_definitions(avara3d PUBLIC A3D_POSIX)
-	if (A3D_RPI)
-		target_compile_definitions(avara3d PUBLIC A3D_RPI)
-		target_compile_definitions(avara3d PUBLIC A3D_GL_ES)
-	endif()
-elseif (A3D_MACOS)
-	target_compile_definitions(avara3d PUBLIC A3D_MACOS)
-	target_compile_definitions(avara3d PUBLIC A3D_POSIX)
-elseif (A3D_WINDOWS)
-	target_compile_definitions(avara3d PUBLIC A3D_WINDOWS)
-	target_compile_definitions(avara3d PRIVATE NOMINMAX)
-	target_compile_definitions(avara3d PRIVATE WIN32_LEAN_AND_MEAN)
-endif ()
+a3d_set_compile_definitions(avara3d)
+
+#if (A3D_DESKTOP)
+#	target_compile_definitions(avara3d PUBLIC A3D_DESKTOP)
+#endif ()
+#if (A3D_GL_DESKTOP)
+#	target_compile_definitions(avara3d PUBLIC A3D_GL_DESKTOP)
+#endif()
+#if (A3D_LINUX)
+#	target_compile_definitions(avara3d PUBLIC A3D_LINUX)
+#	target_compile_definitions(avara3d PUBLIC A3D_POSIX)
+#	if (A3D_RPI)
+#		target_compile_definitions(avara3d PUBLIC A3D_RPI)
+#		target_compile_definitions(avara3d PUBLIC A3D_GL_ES)
+#	endif()
+#elseif (A3D_MACOS)
+#	target_compile_definitions(avara3d PUBLIC A3D_MACOS)
+#	target_compile_definitions(avara3d PUBLIC A3D_POSIX)
+#elseif (A3D_WINDOWS)
+#	target_compile_definitions(avara3d PUBLIC A3D_WINDOWS)
+#	target_compile_definitions(avara3d PRIVATE NOMINMAX)
+#	target_compile_definitions(avara3d PRIVATE WIN32_LEAN_AND_MEAN)
+#endif ()
+#if (A3D_EMSCRIPTEN)
+#	target_compile_definitions(avara3d PUBLIC A3D_EMSCRIPTEN)
+#	target_compile_definitions(avara3d PUBLIC A3D_WEB)
+#	target_compile_definitions(avara3d PUBLIC A3D_POSIX)
+#	target_compile_definitions(avara3d PUBLIC A3D_GL_WEB)
+#endif()
+#if (A3D_WEB)
+#	target_compile_definitions(avara3d PUBLIC A3D_WEB)
+#endif()
+#if (A3D_POSIX)
+#	target_compile_definitions(avara3d PUBLIC A3D_POSIX)
+#endif()
+#if (A3D_GL_WEB)
+#	target_compile_definitions(avara3d PUBLIC A3D_GL_WEB)
+#endif()
 
 ### add library headers ###
 
@@ -155,7 +175,9 @@ a3d_external_virtual_include_dir("gif-h" "${CMAKE_SOURCE_DIR}/external/gif-h")
 if (A3D_GL_DESKTOP)
 target_include_directories(avara3d PUBLIC external/glad-3.3/include) # ! temporary PUBLIC !
 endif ()
-target_include_directories(avara3d PRIVATE external/glfw-3.4.0/include)
+#if (NOT EMSCRIPTEN) # TEMPORARY: replace with A3D_WEB or something
+	target_include_directories(avara3d PRIVATE external/glfw-3.4.0/include)
+#endif()
 a3d_external_virtual_include_dir("imgui" "${CMAKE_SOURCE_DIR}/external/imgui-1.92.5")
 # special case: imgui internal source includes
 target_include_directories(avara3d SYSTEM PUBLIC
@@ -196,12 +218,19 @@ target_link_libraries(avara3d
 
 if (A3D_DESKTOP)
 
-	target_link_libraries(avara3d
-			PUBLIC
-			glad
-			glfw)
+		target_link_libraries(avara3d
+				PUBLIC
+				glad
+				glfw)
 
 endif()
+
+#if (A3D_EMSCRIPTEN)
+#	target_link_options(a3d_demo PRIVATE
+#			"--use-port=contrib.glfw3"
+#			"-sMIN_WEBGL_VERSION=2"
+#			"-sMAX_WEBGL_VERSION=2")
+#endif()
 
 if (A3D_LINUX)
 

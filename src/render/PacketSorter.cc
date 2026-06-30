@@ -50,11 +50,26 @@ void PacketSorter::SortPacket(DrawPacket& packet) {
 
 /// Private Static Non-Member Functions ///
 
+//uint32_t PtrHash32(const void* p) {
+//	uintptr_t v = (uintptr_t)p >> 4; // drop alignment bits
+//	uint32_t lo = (uint32_t)v;
+//	uint32_t hi = (uint32_t)(v >> 32);
+//	uint32_t h  = lo ^ hi;
+//	h ^= (h >> 16);
+//	return h;
+//}
+
 uint32_t PtrHash32(const void* p) {
-	uintptr_t v = (uintptr_t)p >> 4; // drop alignment bits
-	uint32_t lo = (uint32_t)v;
-	uint32_t hi = (uint32_t)(v >> 32);
-	uint32_t h  = lo ^ hi;
+	uintptr_t v = reinterpret_cast<uintptr_t>(p) >> 4; // drop alignment bits
+
+	uint32_t lo = static_cast<uint32_t>(v);
+	uint32_t hi = 0;
+
+	if constexpr (sizeof(uintptr_t) > 4) {
+		hi = static_cast<uint32_t>(v >> 32);
+	}
+
+	uint32_t h = lo ^ hi;
 	h ^= (h >> 16);
 	return h;
 }
@@ -64,8 +79,24 @@ uint16_t PtrHash16(const void* p) {
 	return (uint16_t)(h ^ (h >> 16));
 }
 
+//uint32_t FoldHash32(uint64_t h) {
+//	uint32_t x = (uint32_t)h ^ (uint32_t)(h >> 32);
+//	// cheap mix (avalanche-ish)
+//	x ^= x >> 16;
+//	x *= 0x7feb352d;
+//	x ^= x >> 15;
+//	x *= 0x846ca68b;
+//	x ^= x >> 16;
+//	return x;
+//}
+
 uint32_t FoldHash32(size_t h) {
-	uint32_t x = (uint32_t)h ^ (uint32_t)(h >> 32);
+	uint32_t x = static_cast<uint32_t>(h);
+
+	if constexpr (sizeof(size_t) > 4) {
+		x ^= static_cast<uint32_t>(h >> 32);
+	}
+
 	// cheap mix (avalanche-ish)
 	x ^= x >> 16;
 	x *= 0x7feb352d;

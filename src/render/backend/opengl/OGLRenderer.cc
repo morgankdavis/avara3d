@@ -245,6 +245,7 @@ bool OGLRenderer::InitGL(GLGetProcAddress getProcAddress) {
 	static bool initialized = false;
 	if (initialized) return true;
 
+#ifdef A3D_GL_DESKTOP
 	if (!getProcAddress) {
 		// log error, return false
 		log::e()("getProcAddress is null.");
@@ -257,6 +258,11 @@ bool OGLRenderer::InitGL(GLGetProcAddress getProcAddress) {
 		log::e()("gladLoadGLLoader");
 		return false;
 	}
+#elif A3D_GL_WEB
+	(void)getProcAddress; // shut up!
+#else
+	#error "No OpenGL function loader defined for this platform."
+#endif
 
 	initialized = true;
 
@@ -430,10 +436,11 @@ void OGLRenderer::clear(const ClearCommand& cmd,
 	}
 
 	if (cmd.clearDepth) {
-#ifdef A3D_GL_ES
-		glClearDepthf(cmd.depth);
-#else
+#ifdef A3D_GL_DESKTOP
 		glClearDepth(cmd.depth);
+
+#else
+		glClearDepthf(cmd.depth);
 #endif
 		mask |= GL_DEPTH_BUFFER_BIT;
 	}
@@ -557,17 +564,14 @@ void OGLRenderer::bindPipeline(PipelineId pipelineId,
 
 	ApplyBlendFunction(pipeline.desc.blendFunction);
 
-#ifndef A3D_GL_ES
+#ifdef A3D_GL_DESKTOP
 	switch (pipeline.desc.fillMode) {
 		case Material::FillMode::Fill:   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);  break;
 		case Material::FillMode::Lines:  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);  break;
 		case Material::FillMode::Points: glPolygonMode(GL_FRONT_AND_BACK, GL_POINT); break;
 	}
-#endif
-
-#ifndef A3D_GL_ES
 	const bool lineSmooth = (pipeline.desc.passKind == PassKind::Lines)
-							|| (pipeline.desc.passKind == PassKind::Wireframe);
+	                        || (pipeline.desc.passKind == PassKind::Wireframe);
 	if (lineSmooth) {
 		glEnable(GL_LINE_SMOOTH);
 		glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
@@ -575,7 +579,6 @@ void OGLRenderer::bindPipeline(PipelineId pipelineId,
 	else {
 		glDisable(GL_LINE_SMOOTH);
 	}
-#endif
 
 	if (pipeline.desc.polygonOffset) {
 		glEnable(GL_POLYGON_OFFSET_LINE);
@@ -584,6 +587,7 @@ void OGLRenderer::bindPipeline(PipelineId pipelineId,
 	else {
 		glDisable(GL_POLYGON_OFFSET_LINE);
 	}
+#endif
 
 	_state.pipelineId = pipelineId;
 }
@@ -1535,7 +1539,7 @@ void DrawStats(FrameStats& stats,
 						   "bbox", std::format("{}", stats.numBoundingBoxShapes),
 						   bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
 	DrawLabelValueIndented(yPos, bulkLayout,
-						   "hull", std::format("{}", stats.numConvexHullShapes),
+						   "convex", std::format("{}", stats.numConvexHullShapes),
 						   bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
 	DrawLabelValueIndented(yPos, bulkLayout,
 						   "concave", std::format("{}", stats.numConcavePolyhedronShapes),

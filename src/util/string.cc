@@ -15,7 +15,9 @@
 #include <sstream>
 
 #ifdef A3D_POSIX
-#include <execinfo.h>
+	#ifndef A3D_EMSCRIPTEN
+	#include <execinfo.h>
+	#endif
 #include <unistd.h>
 #include <sys/time.h>
 #endif
@@ -106,9 +108,9 @@ string a3d::util::string::DateTimeString() {
 #endif
 }
 
-#ifdef A3D_POSIX
-string a3d::util::string::StackTraceString(unsigned dropFunctions) {
 
+string a3d::util::string::StackTraceString(unsigned dropFunctions) {
+#if defined(A3D_POSIX) && !defined(A3D_EMSCRIPTEN)
 	auto traceStr = std::string();
 	static const unsigned MAX_FRAMES = 64;
 
@@ -128,8 +130,10 @@ string a3d::util::string::StackTraceString(unsigned dropFunctions) {
 	}
 
 	return traceStr;
-}
+#else
+	return {};
 #endif
+}
 
 void TreeStringRec(Node& n, stringstream& ss, unsigned depth) {
 

@@ -185,7 +185,13 @@ bool GlTFImporter::parse() {
 						  | Extensions::KHR_texture_transform;
 		auto parser = Parser(extensions);
 
+//		auto gltfFile = MappedGltfFile::FromPath(_path);
+#ifdef A3D_WEB
+		auto gltfFile = GltfDataBuffer::FromPath(_path);
+#else
 		auto gltfFile = MappedGltfFile::FromPath(_path);
+#endif
+
 		if (!bool(gltfFile)) {
 			log::e()("Failed to open glTF file: {}", getErrorMessage(gltfFile.error()));
 			return false;

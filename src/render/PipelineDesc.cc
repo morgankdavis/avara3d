@@ -14,11 +14,11 @@ using namespace a3d;
 
 size_t PipelineDescHash::operator()(const PipelineDesc &desc) const noexcept {
 
-	auto h = size_t{1469598103934665603ull}; // Fowler–Noll–Vo-ish
+	uint64_t h = 1469598103934665603ull; // Fowler–Noll–Vo-ish
 
 	auto mix = [&](uint64_t v) {
 		// "golden ratio" from Boost hash_combine
-		h ^= (size_t) v + 0x9e3779b97f4a7c15ull + (h << 6) + (h >> 2);
+		h ^= (uint64_t) v + 0x9e3779b97f4a7c15ull + (h << 6) + (h >> 2);
 	};
 
 	mix((uint32_t) desc.passKind);
@@ -32,5 +32,5 @@ size_t PipelineDescHash::operator()(const PipelineDesc &desc) const noexcept {
 	mix((uint32_t) desc.depthFunc);
 	mix((uint32_t) (desc.polygonOffset ? 1u : 0u));
 
-	return h;
+	return static_cast<size_t>(h);
 }

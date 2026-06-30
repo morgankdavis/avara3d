@@ -123,7 +123,14 @@ GLFWWindow::GLFWWindow(RenderingApi renderingAPI,
 			glfwMakeContextCurrent(_glfwWindow.get());
 			GLFWWindow::vSyncEnabled(false);
 
+			//if (OGLRenderer::InitGL((GLADloadproc)glfwGetProcAddress)) {
+#ifdef A3D_GL_DESKTOP
 			if (OGLRenderer::InitGL((GLADloadproc)glfwGetProcAddress)) {
+#elif defined(A3D_GL_WEB)
+				if (OGLRenderer::InitGL(nullptr)) {
+#else
+	#error "No GL init path defined for this platform."
+#endif
 				RenderContext::renderer()->initialize(*this);
 				ImGui_ImplGlfw_InitForOpenGL(_glfwWindow.get(), true);
 				registerGLFWCallbacks();

@@ -24,26 +24,33 @@ OGLDrawTimer::OGLDrawTimer(unsigned bufferedFrames):
 
 OGLDrawTimer::~OGLDrawTimer() {
 	// ! requires a current GL context !
+#ifdef A3D_GL_DESKTOP
 	if (!_glQueries.empty()) {
 		glDeleteQueries(_bufferSize, _glQueries.data());
 	}
+#endif
 }
 
 void OGLDrawTimer::initialize() {
+#ifdef A3D_GL_DESKTOP
 	glGenQueries(_bufferSize, _glQueries.data());
 	_issued.assign(_bufferSize, 0);
 	_initialized = true;
+#endif
 }
 
 void OGLDrawTimer::begin() {
+#ifdef A3D_GL_DESKTOP
 	A3D_ASSERT(_initialized);
 	A3D_ASSERT(!_active);
 	const int write = _frame % _bufferSize;
 	glBeginQuery(GL_TIME_ELAPSED, _glQueries[(size_t)write]);
 	_active = true;
+#endif
 }
 
 chrono::nanoseconds OGLDrawTimer::end() {
+#ifdef A3D_GL_DESKTOP
 	A3D_ASSERT(_initialized && _active);
 	glEndQuery(GL_TIME_ELAPSED);
 	const int write = _frame % _bufferSize;
@@ -64,6 +71,7 @@ chrono::nanoseconds OGLDrawTimer::end() {
 	}
 
 	++_frame;
+#endif
 	return _lastTime;
 }
 
