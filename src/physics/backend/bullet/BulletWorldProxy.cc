@@ -56,7 +56,6 @@ static constexpr bool A3D_USE_MT_DISPATCHER = false;
 #   endif
 #endif
 
-
 /// Private Static Non-Member Prototypes ///
 
 static btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(
@@ -334,17 +333,6 @@ void BulletWorldProxy::step(double deltaT,
 	auto result = prof::profile(profiler, Profiler::Tag::Physics, [&] {
 
 		std::scoped_lock lock(_btMutex);
-
-//		// (optional debug check)
-//		const auto& arr = _btWorld->getCollisionObjectArray();
-//		for (int i = 0; i < arr.size(); ++i) {
-//			const btCollisionObject* obj = arr[i];
-//			if (!btRigidBody::upcast(obj)) {
-//				log::e()("Non-rigid collision object in dynamics world! idx={} ptr={:p} flags=0x{:x}",
-//						 i, (void*)obj, obj->getCollisionFlags());
-//				btAssert(false);
-//			}
-//		}
 
 		return _btWorld->stepSimulation(btScalar(deltaT * speed),
 										config::MAX_PHYSICS_SUBSTEPS,

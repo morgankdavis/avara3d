@@ -460,9 +460,8 @@ void InitLog() {
 void LogBuildInfo() {
 
 	auto buildInfo = BuildInfo::Info();
-	auto version = buildInfo.version();
-	log::app::i()("A3D version: {}.{}.{}", version.major, version.minor, version.patch);
+	log::app::i()("A3D version: {}", BuildInfo::VersionString(buildInfo.version()));
 	log::app::i()("Build: {}", buildInfo.number());
-	log::app::i()("Type: {}", buildInfo.type() == BuildInfo::Type::Debug ? "Debug" : "Release");
-	log::app::i()("Origin: {}", buildInfo.origin() == BuildInfo::Origin::CI ? "CI" : "AdHoc");
+	log::app::i()("Type: {}", BuildInfo::TypeString(buildInfo.type()));
+	log::app::i()("Origin: {}", BuildInfo::OriginString(buildInfo.origin()));
 }

@@ -46,6 +46,7 @@
 #include "a3d/util/chrono.h"
 #include "a3d/util/filesystem.h"
 #include "a3d/util/flow.h"
+#include "a3d/util/string.h"
 #include "a3d/visual/VisualWorld.h"
 #include "a3d/visual/camera/Camera.h"
 #include "a3d/visual/light/AmbientLight.h"
@@ -236,6 +237,7 @@ bool 			ImguiDrawCheckbox(float x,
 								  bool& checked,
 								  ImFont& font,
 								  float size,
+								  bool disabled,
 								  int id);
 
 /// Private Static Members ///
@@ -1352,7 +1354,7 @@ void DrawStats(FrameStats& stats,
              "{}\n"
 			"\n" ,
 			version.major, version.minor, version.patch, buildInfo.number(),
-			buildInfo.type() == BuildInfo::Type::Debug ? "debug" : "release");
+			util::string::Lowercase(BuildInfo::TypeString(buildInfo.type())));
 	yPos += 25;
 	ImguiDrawText(X_POS, yPos, buildStr.c_str(), bodyFont, STATS_BODY_FONT_SIZE);
 
@@ -1623,53 +1625,59 @@ void DrawDebugOptions(Scene& scene, ImFont& bodyFont) {
 
 	using DebugOptions = Scene::DebugOptions;
 
+#if defined(A3D_GL_DESKTOP)
+	static constexpr bool kSupportsPolygonModeWireframes = true;
+#else
+	static constexpr bool kSupportsPolygonModeWireframes = false;
+#endif
+
 	yPos = 12.0;
 	static bool stats = util::bitmask::contains(debugOptions, DebugOptions::ShowStatsOverlay);
-	if (ImguiDrawCheckbox(xPos, yPos, "stats", stats, bodyFont, STATS_BODY_FONT_SIZE, ++id)) {
+	if (ImguiDrawCheckbox(xPos, yPos, "stats", stats, bodyFont, STATS_BODY_FONT_SIZE, false, ++id)) {
 		if (stats) scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowStatsOverlay));
 		else scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowStatsOverlay));
 	}
 
-#ifdef A3D_GL_DESKTOP
 	yPos += Y_PAD;
 	bool meshWF = util::bitmask::contains(debugOptions, DebugOptions::ShowWireframes);
-	if (ImguiDrawCheckbox(xPos, yPos, "mesh wireframes", meshWF, bodyFont, STATS_BODY_FONT_SIZE, ++id)) {
+	if (ImguiDrawCheckbox(xPos, yPos, "mesh wireframes",
+						  meshWF, bodyFont, STATS_BODY_FONT_SIZE, !kSupportsPolygonModeWireframes, ++id)) {
 		if (meshWF) scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowWireframes));
 		else scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowWireframes));
 	}
-#endif
 
 	yPos += Y_PAD;
 	bool meshAABBs = util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowBoundingBoxes);
-	if (ImguiDrawCheckbox(xPos, yPos, "mesh AABBs", meshAABBs, bodyFont, STATS_BODY_FONT_SIZE, ++id)) {
+	if (ImguiDrawCheckbox(xPos, yPos, "mesh AABBs",
+						  meshAABBs, bodyFont, STATS_BODY_FONT_SIZE, false, ++id)) {
 		if (meshAABBs) scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowBoundingBoxes));
 		else scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowBoundingBoxes));
 	}
 
 	yPos += Y_PAD;
 	bool physWF = util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes);
-	if (ImguiDrawCheckbox(xPos, yPos, "physics wireframes", physWF, bodyFont, STATS_BODY_FONT_SIZE, ++id)) {
+	if (ImguiDrawCheckbox(xPos, yPos, "physics wireframes", physWF, bodyFont, STATS_BODY_FONT_SIZE, false, ++id)) {
 		if (physWF) scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsWireframes));
 		else scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsWireframes));
 	}
 
 	yPos += Y_PAD;
 	bool physAABBs = util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes);
-	if (ImguiDrawCheckbox(xPos, yPos, "physics AABBs", physAABBs, bodyFont, STATS_BODY_FONT_SIZE, ++id)) {
+	if (ImguiDrawCheckbox(xPos, yPos, "physics AABBs", physAABBs, bodyFont, STATS_BODY_FONT_SIZE, false, ++id)) {
 		if (physAABBs) scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
 		else scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
 	}
 
 	yPos += Y_PAD;
 	bool physContacts = util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints);
-	if (ImguiDrawCheckbox(xPos, yPos, "physics contacts", physContacts, bodyFont, STATS_BODY_FONT_SIZE, ++id)) {
+	if (ImguiDrawCheckbox(xPos, yPos, "physics contacts", physContacts, bodyFont, STATS_BODY_FONT_SIZE, false, ++id)) {
 		if (physContacts) scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsContactPoints));
 		else scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsContactPoints));
 	}
 
 	yPos += Y_PAD;
 	bool physNorms = util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsNormals);
-	if (ImguiDrawCheckbox(xPos, yPos, "physics normals", physNorms, bodyFont, STATS_BODY_FONT_SIZE, ++id)) {
+	if (ImguiDrawCheckbox(xPos, yPos, "physics normals", physNorms, bodyFont, STATS_BODY_FONT_SIZE, false, ++id)) {
 		if (physNorms) scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsNormals));
 		else scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsNormals));
 	}
@@ -1838,6 +1846,7 @@ bool ImguiDrawCheckbox(float x, float y,
 					   bool& checked,
 					   ImFont& font,
 					   float size,
+					   bool disabled,
 					   int id) {
 
 	using namespace ImGui;
@@ -1878,19 +1887,23 @@ bool ImguiDrawCheckbox(float x, float y,
 
 	PushID(id);
 	SetCursorScreenPos(ImVec2(x, y));
+	if (disabled) BeginDisabled(true);
+
+	auto primaryColor = disabled ? ImVec4(0.65,0.65,0.65,1) : ImVec4(1,1,1,1);
 
 	PushStyleVar(ImGuiStyleVar_FrameBorderSize, border_thickness);
 	PushStyleColor(ImGuiCol_FrameBg,        	transparent);
 	PushStyleColor(ImGuiCol_FrameBgHovered, 	transparent);
 	PushStyleColor(ImGuiCol_FrameBgActive,  	transparent);
-	PushStyleColor(ImGuiCol_Border,         	ImVec4(1,1,1,1));
+	PushStyleColor(ImGuiCol_Border,         	primaryColor);
 	PushStyleColor(ImGuiCol_BorderShadow,   	transparent);
-	PushStyleColor(ImGuiCol_CheckMark,      	ImVec4(1,1,1,1));
+	PushStyleColor(ImGuiCol_CheckMark,      	primaryColor);
 
 	ret = Checkbox("##real", &checked);
 
 	PopStyleColor(6);
 	PopStyleVar();
+	if (disabled) EndDisabled();
 	PopID();
 
 	// raw label ourselves (true solid shadow, like DigDrawText)
@@ -1905,9 +1918,10 @@ bool ImguiDrawCheckbox(float x, float y,
 				IM_COL32(0,0,0,255),
 				text);
 	dl->AddText(label_pos,
-				IM_COL32(255,255,255,255),
+	            disabled ? IM_COL32(166,166,166,255) : IM_COL32(255,255,255,255),
 				text);
 
 	PopFont();
+
 	return ret;
 }

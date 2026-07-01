@@ -11,6 +11,7 @@
 
 #include <ctime>
 #include <iomanip>
+#include <string>
 
 namespace a3d {
 
@@ -41,6 +42,9 @@ namespace a3d {
 		/// Public Static Member Functions ///
 
 		static BuildInfo& Info();
+		static std::string VersionString(const Version& version);
+		static std::string TypeString(Type type);
+		static std::string OriginString(Origin origin);
 
 		/// Public Member Functions ///
 

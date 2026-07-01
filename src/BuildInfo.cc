@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <cstdio>
+#include <format>
 
 #include <magic_enum/magic_enum.hpp>
 
@@ -24,6 +25,27 @@ BuildInfo& BuildInfo::Info() {
 
 	static BuildInfo instance;
 	return instance;
+}
+
+string BuildInfo::VersionString(const Version& version) {
+	return std::format("{}.{}.{}", version.major, version.minor, version.patch);
+}
+
+string BuildInfo::TypeString(Type type) {
+	switch (type) {
+		case Type::Debug: return "Debug";
+		case Type::Release: return "Release";
+		case Type::RelWithDebInfo: return "RelWithDebInfo";
+		case Type::MinSizeRel: return "MinSizeRel";
+		case Type::Unknown: return "Unknown";
+	}
+}
+
+string BuildInfo::OriginString(Origin origin) {
+	switch (origin) {
+		case Origin::CI: return "CI";
+		case Origin::AdHoc: return "AdHoc";
+	}
 }
 
 /// Public Member Functions ///

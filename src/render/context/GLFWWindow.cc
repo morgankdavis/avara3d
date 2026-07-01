@@ -25,6 +25,10 @@
 #include "a3d/visual/VisualWorld.h"
 #include "a3d/visual/camera/Camera.h"
 
+#if defined(A3D_GL_DESKTOP) + defined(A3D_GL_ES) + defined(A3D_GL_WEB) != 1
+	#error Exactly one of A3D_GL_DESKTOP, A3D_GL_ES, or A3D_GL_WEB must be defined.
+#endif
+
 using namespace a3d;
 using namespace a3d::math;
 using namespace std;
@@ -68,8 +72,19 @@ GLFWWindow::GLFWWindow(RenderingApi renderingAPI,
 	_antialiasingMode = antialiasingMode; // see above (?)
 
 	if (InitGLFW()) {
-#ifdef A3D_GL_DESKTOP
+#if defined(A3D_GL_WEB)
+		// Emscripten GLFW expects the WebGL version, not the GLES version
+		// WebGL 2 corresponds to GLES 3.0 / GLSL ES 300-style shaders
+		glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+#elif defined(A3D_GL_ES)
+		glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+#elif defined(A3D_GL_DESKTOP)
 		// TODO: move these version numbers
+		glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE); // needed for macOS
@@ -77,25 +92,24 @@ GLFWWindow::GLFWWindow(RenderingApi renderingAPI,
 		glfwWindowHint(GLFW_SAMPLES, static_cast<int>(antialiasingMode));
 		glfwWindowHint(GLFW_SCALE_TO_MONITOR, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-	#ifdef A3D_LINUX
-		// check if X or Wayland...?
-		// TODO: change these
-		glfwWindowHintString(GLFW_WAYLAND_APP_ID, "avara3d");
-		glfwWindowHintString(GLFW_X11_CLASS_NAME, "avara3d");
-		auto execName = util::filesystem::ExecutableName();
-		if (execName != nullopt) {
-			glfwWindowHintString(GLFW_X11_INSTANCE_NAME, (*execName).c_str());
-		}
+	#if defined(A3D_LINUX)
+			// check if X or Wayland...?
+			// TODO: change these
+			glfwWindowHintString(GLFW_WAYLAND_APP_ID, "avara3d");
+			glfwWindowHintString(GLFW_X11_CLASS_NAME, "avara3d");
+
+			auto execName = util::filesystem::ExecutableName();
+			if (execName != nullopt) {
+				glfwWindowHintString(GLFW_X11_INSTANCE_NAME, (*execName).c_str());
+			}
 	#endif
-	#ifdef A3D_MACOS
-		// the documentation says this has the same affect as GLFW_SCALE_TO_MONITOR, but if you don't also
-		// set GLFW_COCOA_RETINA_FRAMEBUFFER to GLFW_FALSE, retina framebuffer isn't actually disabled.
-		glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
+	#if defined(A3D_MACOS)
+			// the documentation says this has the same effect as GLFW_SCALE_TO_MONITOR, but if you don't also
+			// set GLFW_COCOA_RETINA_FRAMEBUFFER to GLFW_FALSE, retina framebuffer isn't actually disabled.
+			glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, (enableHighDPI ? GLFW_TRUE : GLFW_FALSE));
 	#endif
-#else // OpenGL ES
-		glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+#else
+	#error No A3D OpenGL backend selected.
 #endif
 
 		if (fullScreen) {

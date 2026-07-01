@@ -8,6 +8,8 @@
 
 #include "a3d/util/string.h"
 
+#include <algorithm>
+#include <cctype>
 #include <cstring>
 #include <ctime>
 #include <format>
@@ -71,6 +73,14 @@ vector<string> a3d::util::string::Split(const std::string& s, std::string delim)
 	return res;
 }
 
+string a3d::util::string::Lowercase(const std::string& s) {
+	std::string result = s;
+	std::transform(result.begin(), result.end(), result.begin(),
+				   [](unsigned char c) {
+					   return static_cast<char>(std::tolower(c));
+				   });
+	return result;
+}
 
 string a3d::util::string::TreeString(const Node& root) {
 

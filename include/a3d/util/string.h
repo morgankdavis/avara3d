@@ -23,6 +23,7 @@ namespace a3d::util::string {
 										const std::string& newStr);
 	std::vector<std::string>	Split(const std::string& s,
 									  std::string delim);
+	std::string 				Lowercase(const std::string& s);
 
 	// put somewhere else?
 
