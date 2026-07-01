@@ -6,8 +6,6 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifdef A3D_GL_DESKTOP
-
 #include "a3d/physics/backend/bullet/BulletDebugDrawer.h"
 
 #include "a3d/mesh/Line.h"
@@ -214,5 +212,3 @@ void BulletDebugDrawer::setDebugMode(int debugMode) {
 int BulletDebugDrawer::getDebugMode() const {
 	return _debugMode;
 }
-
-#endif // A3D_GL_DESKTOP

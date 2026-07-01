@@ -82,10 +82,8 @@ namespace a3d {
 		std::unique_ptr<btConstraintSolverPoolMt> 				_btSolverPool;
 		std::unique_ptr<btSequentialImpulseConstraintSolverMt> 	_btSolverMt;
 
-#ifdef A3D_GL_DESKTOP
 		std::unique_ptr<BulletDebugDrawer> 						_btDebugDrawer;
 		std::vector<Line> 										_debugLines;
-#endif
 
 		BulletStats 											_stats;
 

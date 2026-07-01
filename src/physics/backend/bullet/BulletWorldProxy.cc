@@ -170,11 +170,9 @@ BulletWorldProxy::BulletWorldProxy(PhysicalWorld& world):
 			_btCollisionConfiguration.get()
 	);
 
-#ifdef A3D_GL_DESKTOP
 	_btDebugDrawer = std::make_unique<BulletDebugDrawer>();
 	_btWorld->setDebugDrawer(_btDebugDrawer.get());
 	_debugLines.clear();
-#endif
 }
 
 BulletWorldProxy::~BulletWorldProxy() {
@@ -377,7 +375,7 @@ void BulletWorldProxy::appendDebugLines(vector<Line>& out,
 
 	// TODO: this is still rather inefficient.
 
-#ifdef A3D_GL_DESKTOP
+//#ifdef A3D_GL_DESKTOP
 
 	static const float UPDATE_RATE = 30.0; // frames/sec
 
@@ -402,7 +400,7 @@ void BulletWorldProxy::appendDebugLines(vector<Line>& out,
 		out.push_back(line);
 	}
 
-#endif
+//#endif
 }
 
 /// Internal Member Functions ///
