@@ -160,8 +160,12 @@ vector<std::filesystem::path> a3d::util::filesystem::BaseSearchPaths() {
 		basePaths.push_back(path);
 	}
 #elif A3D_WEB
-	// emscripten
+	// emscripten engine
 	auto path = "/data";
+	basePaths.push_back(path);
+
+	// emscripten tests
+	path = "/tests/data";
 	basePaths.push_back(path);
 #endif
 

@@ -4,10 +4,10 @@ project(avara3d
 		VERSION 0.0.1
 		HOMEPAGE_URL https://avara3d.net/)
 
+include(cmake/CompileDefinitions.cmake)
 include(cmake/EmscriptenHelpers.cmake)
-include(cmake/ExternalVirtualInclude.cmake)
 include(cmake/EnvironmentDetect.cmake)
-include(cmake/SetCompileDefinitions.cmake)
+include(cmake/ExternalVirtualInclude.cmake)
 include(cmake/UtilityFunctions.cmake)
 
 option(A3D_BUILD_TESTS "Build A3D tests" ON)

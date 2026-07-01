@@ -1630,12 +1630,14 @@ void DrawDebugOptions(Scene& scene, ImFont& bodyFont) {
 		else scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowStatsOverlay));
 	}
 
+#ifdef A3D_GL_DESKTOP
 	yPos += Y_PAD;
 	bool meshWF = util::bitmask::contains(debugOptions, DebugOptions::ShowWireframes);
 	if (ImguiDrawCheckbox(xPos, yPos, "mesh wireframes", meshWF, bodyFont, STATS_BODY_FONT_SIZE, ++id)) {
 		if (meshWF) scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowWireframes));
 		else scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowWireframes));
 	}
+#endif
 
 	yPos += Y_PAD;
 	bool meshAABBs = util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowBoundingBoxes);

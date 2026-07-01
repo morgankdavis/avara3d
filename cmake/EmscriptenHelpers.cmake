@@ -23,7 +23,8 @@ function(a3d_set_emscripten_link_options target)
 				"-sEXIT_RUNTIME=0"
 				"-fexceptions"
 				"-sDISABLE_EXCEPTION_CATCHING=0"
-				"--preload-file=${CMAKE_SOURCE_DIR}/data@/data") # host path @ virtual path
+				"--preload-file=${CMAKE_SOURCE_DIR}/data@/data" # host path @ virtual path
+				"--preload-file=${CMAKE_SOURCE_DIR}/tests/data@/tests/data") # ! temporary (like 250mb...)
 
 		set_target_properties(${target} PROPERTIES
 				SUFFIX ".html")

@@ -42,9 +42,20 @@ using namespace std;
 static constexpr bool A3D_USE_MT_DISPATCHER = false;
 
 // make sure bullet is built with MT enabled
-#if !defined(BT_THREADSAFE) || (BT_THREADSAFE != 1)
-#   error "Bullet requires building with BT_THREADSAFE=1"
+//#if !defined(BT_THREADSAFE) || (BT_THREADSAFE != 1)
+//#   error "Bullet requires building with BT_THREADSAFE=1"
+//#endif
+
+// native builds use bullet's multithreaded world/solver path, so require
+// bullet to be compiled with thread-safe support. normal browser/wasm builds
+// currently force bullet's sequential scheduler instead; they should not require
+// bullet worker-thread support unless/until we ship a separate pthread wasm build
+#if !(defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__))
+#   if !defined(BT_THREADSAFE) || (BT_THREADSAFE != 1)
+#       error "Native threaded Bullet requires building with BT_THREADSAFE=1"
+#   endif
 #endif
+
 
 /// Private Static Non-Member Prototypes ///
 
@@ -61,19 +72,70 @@ BulletWorldProxy::BulletWorldProxy(PhysicalWorld& world):
 
 	log::i()("Bullet Physics version: {}", btGetVersion());
 
-	_btScheduler = btGetOpenMPTaskScheduler();
-	if (!_btScheduler) _btScheduler = btGetTBBTaskScheduler();
-	if (!_btScheduler) _btScheduler = btGetPPLTaskScheduler();
-	if (!_btScheduler) {
-		_ownedScheduler.reset(btCreateDefaultTaskScheduler());
-		_btScheduler = _ownedScheduler.get();
-	}
+
+
+
+
+
+//	_btScheduler = btGetOpenMPTaskScheduler();
+//	if (!_btScheduler) _btScheduler = btGetTBBTaskScheduler();
+//	if (!_btScheduler) _btScheduler = btGetPPLTaskScheduler();
+//	if (!_btScheduler) {
+//		_ownedScheduler.reset(btCreateDefaultTaskScheduler());
+//		_btScheduler = _ownedScheduler.get();
+//	}
+//
+//	_prevScheduler = btGetTaskScheduler();
+//	btSetTaskScheduler(_btScheduler);
+//
+//	const int numThreads = PickNumBTThreads(_btScheduler);
+//	_btScheduler->setNumThreads(numThreads);
+
 
 	_prevScheduler = btGetTaskScheduler();
+
+#if defined(__EMSCRIPTEN__) && !defined(__EMSCRIPTEN_PTHREADS__)
+
+	// Normal browser/WASM build:
+	// no pthreads, no Bullet worker pool.
+	//
+	// Keep Bullet behind the same C++ backend, but force Bullet's
+	// non-threaded scheduler so btParallelFor work executes serially.
+	_btScheduler = btGetSequentialTaskScheduler();
 	btSetTaskScheduler(_btScheduler);
 
-	const int numThreads = PickNumBTThreads(_btScheduler);
-	_btScheduler->setNumThreads(numThreads);
+#else
+
+	_btScheduler = btGetOpenMPTaskScheduler();
+    if (!_btScheduler) _btScheduler = btGetTBBTaskScheduler();
+    if (!_btScheduler) _btScheduler = btGetPPLTaskScheduler();
+    if (!_btScheduler) {
+        _ownedScheduler.reset(btCreateDefaultTaskScheduler());
+        _btScheduler = _ownedScheduler.get();
+    }
+
+    if (!_btScheduler) {
+        _btScheduler = btGetSequentialTaskScheduler();
+    }
+
+    btSetTaskScheduler(_btScheduler);
+
+    if (_btScheduler != btGetSequentialTaskScheduler()) {
+        const int numThreads = PickNumBTThreads(_btScheduler);
+        _btScheduler->setNumThreads(numThreads);
+    }
+
+#endif
+
+	log::i()("Bullet task scheduler: {} (threads: {}/{})",
+	         _btScheduler->getName(),
+	         _btScheduler->getNumThreads(),
+	         _btScheduler->getMaxNumThreads());
+
+
+
+
+
 
 	log::i()("Bullet task scheduler: {} (threads: {}/{})",
 			 _btScheduler->getName(),
