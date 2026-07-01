@@ -106,9 +106,15 @@ void GLFWInputManager::glfwKeyEvent(int key, int scanCode, int action, int mods)
 /// Private Member Functions ///
 
 void GLFWInputManager::initMouseInput() {
-
-	log::i()("Using GLFW raw mouse input.");
-	glfwSetInputMode(_window->glfwWindow(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+#if defined(A3D_DESKTOP) && !defined(A3D_WEB)
+	if (glfwRawMouseMotionSupported()) {
+		log::i()("Using GLFW raw mouse input.");
+		glfwSetInputMode(_window->glfwWindow(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+	}
+	else {
+		log::w()("GLFW raw mouse input is not supported on this platform.");
+	}
+#endif
 }
 
 /// Private Static Functions ///

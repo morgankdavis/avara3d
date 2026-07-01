@@ -189,7 +189,9 @@ void GLFWWindow::open() {
 		glfwMakeContextCurrent(_glfwWindow.get());
 		
 		glfwSetWindowSizeCallback(_glfwWindow.get(), GLFWWindowSizeCallback);
+#if defined(A3D_GL_DESKTOP)
 		glfwSetWindowCloseCallback(_glfwWindow.get(), GLFWWindowCloseCallback);
+#endif
 		glfwSetFramebufferSizeCallback(_glfwWindow.get(), GLFWFramebufferSizeCallback);
 		glfwSetWindowContentScaleCallback(_glfwWindow.get(), GLFWContentScaleCallback);
 
@@ -264,6 +266,7 @@ void GLFWWindow::position(const uvec2& pos) {
 }
 
 void GLFWWindow::center() {
+#if defined(A3D_GL_DESKTOP)
 	// as of GLFW 3.3, there is no "get the monitor this window is on" function.
 	// glfwGetWindowMonitor() only applies to full-screen windows.
 
@@ -282,6 +285,9 @@ void GLFWWindow::center() {
 	else {
 		log::e()("Can't get window monitor.");
 	}
+#else
+	log::w()("Window centering is not supported on this platform.");
+#endif
 }
 
 bool GLFWWindow::hidden() const {
@@ -354,14 +360,19 @@ bool GLFWWindow::vSyncEnabled() const {
 }
 
 void GLFWWindow::vSyncEnabled(bool enabled) {
-
-	if (enabled) {
-		glfwSwapInterval(1);
-	}
-	else {
-		glfwSwapInterval(0);
-	}
+#if defined(A3D_GL_DESKTOP) || defined(A3D_GL_ES)
+	glfwSwapInterval(enabled ? 1 : 0);
 	_vSyncEnabled = enabled;
+#elif defined(A3D_GL_WEB)
+	// browser presentation timing is controlled by requestAnimationFrame /
+	// the Emscripten main loop, not by glfwSwapInterval()
+	if (!enabled) {
+		log::w()("Disabling vsync is not supported on web.");
+	}
+	_vSyncEnabled = true;
+#else
+	log::w()("Swap interval / vsync is not supported on this platform.");
+#endif
 }
 
 /// RenderContext Internal Member Functions ///
@@ -374,7 +385,9 @@ void GLFWWindow::beginFrame(const Scene& scene) {
 void GLFWWindow::endFrame(const Scene& scene) { }
 
 void GLFWWindow::swapBuffers() {
+#if defined(A3D_GL_DESKTOP) || defined(A3D_GL_ES)
 	glfwSwapBuffers(_glfwWindow.get());
+#endif
 }
 
 uvec2 GLFWWindow::viewportLogicalSize() const {
