@@ -111,6 +111,17 @@ namespace a3d {
 		math::vec3							totalForce() const;
 		math::vec3 							totalTorque() const;
 
+		void 								clearForces();
+
+		void								ccdEnabled(bool enabled);
+		bool								ccdEnabled() const;
+
+		void								ccdMotionThreshold(float distance);
+		float								ccdMotionThreshold() const;
+
+		void								ccdSweptSphereRadius(float radius);
+		float								ccdSweptSphereRadius() const;
+
 		bool 								affectedByGravity() const;
 		void 								affectedByGravity(bool affectedByGravity);
 
@@ -119,8 +130,6 @@ namespace a3d {
 
 		bool 								resting() const;
 		void								resting(bool resting);
-
-		void 								clearForces();
 
 		bool								autocalculatesMomentOfInertia() const;
 		void								autocalculatesMomentOfInertia(bool autocalculate);

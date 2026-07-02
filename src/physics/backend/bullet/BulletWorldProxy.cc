@@ -216,21 +216,25 @@ void BulletWorldProxy::add(PhysicsBody& body) {
 	auto bodyProxy = static_cast<BulletBodyProxy*>(body.proxy());
 	auto btBody = bodyProxy->btBody();
 
-	if (btBody->isInWorld()) { // ! NOTE:  not necessarily THIS world
+	if (btBody->isInWorld()) { // ! NOTE: not necessarily THIS world
 		log::w()("btRigidBody already in world.");
 		return;
 	}
 
-	// since at the time of creation, the PhysicsBody isn't attached to a Node,
-	// we use an empty motion state in BulletBodyProxy::BulletBodyProxy(),
-	// so the btBody's transform is the identity matrix.
-	// now that the body has a Node, set its initial transform here.
+	// keep motion state, rigid body transform, interpolation transform,
+	// and broadphase AABB synchronized before the first simulation step
 	if (auto node = body.node().lock()) {
 		auto nodeTransform = node->worldTransform();
 		auto btTransform = BTTransformFromA3DMat4(nodeTransform);
+
+		if (auto* ms = btBody->getMotionState()) {
+			ms->setWorldTransform(btTransform);
+		}
+
 		btBody->setWorldTransform(btTransform);
-		// without proceedToTransform(), objects still spawn at the origin for 1st step (?)
+		btBody->setInterpolationWorldTransform(btTransform);
 		btBody->proceedToTransform(btTransform);
+		btBody->activate(true);
 	}
 	else {
 		log::w()("Adding PhysicsBody without a Node??");
@@ -238,6 +242,10 @@ void BulletWorldProxy::add(PhysicsBody& body) {
 	}
 
 	_btWorld->addRigidBody(btBody);
+
+	if (btBody->isInWorld() && btBody->getBroadphaseHandle()) {
+		_btWorld->updateSingleAabb(btBody);
+	}
 
 	switch (body.type()) {
 		case PhysicsBody::Type::Static:

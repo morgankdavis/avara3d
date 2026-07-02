@@ -89,6 +89,15 @@ namespace a3d {
 		virtual math::vec3 				totalForce() const = 0;
 		virtual math::vec3 				totalTorque() const = 0;
 
+		virtual void					ccdEnabled(bool enabled) = 0;
+		virtual	bool					ccdEnabled() const = 0;
+
+		virtual	void					ccdMotionThreshold(float distance) = 0;
+		virtual	float					ccdMotionThreshold() const = 0;
+
+		virtual	void					ccdSweptSphereRadius(float radius) = 0;
+		virtual	float					ccdSweptSphereRadius() const = 0;
+
 		virtual bool					affectedByGravity() const = 0;
 		virtual void					affectedByGravity(bool affectedByGravity) = 0;
 

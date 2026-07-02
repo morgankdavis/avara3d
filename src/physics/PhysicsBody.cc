@@ -207,30 +207,6 @@ void PhysicsBody::angularSleepingThreshold(float threshold) {
 	_proxy->angularSleepingThreshold(threshold);
 }
 
-bool PhysicsBody::affectedByGravity() const {
-	return _proxy->affectedByGravity();
-}
-
-void PhysicsBody::affectedByGravity(bool affectedByGravity) {
-	_proxy->affectedByGravity(affectedByGravity);
-}
-
-bool PhysicsBody::allowsResting() const {
-	return _proxy->allowsResting();
-}
-
-void PhysicsBody::allowsResting(bool allowsResting) {
-	_proxy->allowsResting(allowsResting);
-}
-
-bool PhysicsBody::resting() const {
-	return _proxy->resting();
-}
-
-void PhysicsBody::resting(bool resting) {
-	_proxy->resting(resting);
-}
-
 void PhysicsBody::applyForce(const vec3& force, bool impulse) {
 
 	if (impulse) {
@@ -271,6 +247,54 @@ vec3 PhysicsBody::totalTorque() const {
 
 void PhysicsBody::clearForces() {
 	_proxy->clearForces();
+}
+
+void PhysicsBody::ccdEnabled(bool enabled) {
+	_proxy->ccdEnabled(enabled);
+}
+
+bool PhysicsBody::ccdEnabled() const {
+	return _proxy->ccdEnabled();
+}
+
+void PhysicsBody::ccdMotionThreshold(float distance) {
+	_proxy->ccdMotionThreshold(distance);
+}
+
+float PhysicsBody::ccdMotionThreshold() const {
+	return _proxy->ccdMotionThreshold();
+}
+
+void PhysicsBody::ccdSweptSphereRadius(float radius) {
+	_proxy->ccdSweptSphereRadius(radius);
+}
+
+float PhysicsBody::ccdSweptSphereRadius() const {
+	return _proxy->ccdSweptSphereRadius();
+}
+
+bool PhysicsBody::affectedByGravity() const {
+	return _proxy->affectedByGravity();
+}
+
+void PhysicsBody::affectedByGravity(bool affectedByGravity) {
+	_proxy->affectedByGravity(affectedByGravity);
+}
+
+bool PhysicsBody::allowsResting() const {
+	return _proxy->allowsResting();
+}
+
+void PhysicsBody::allowsResting(bool allowsResting) {
+	_proxy->allowsResting(allowsResting);
+}
+
+bool PhysicsBody::resting() const {
+	return _proxy->resting();
+}
+
+void PhysicsBody::resting(bool resting) {
+	_proxy->resting(resting);
 }
 
 bool PhysicsBody::autocalculatesMomentOfInertia() const {

@@ -367,7 +367,7 @@ void GLFWWindow::vSyncEnabled(bool enabled) {
 	// browser presentation timing is controlled by requestAnimationFrame /
 	// the Emscripten main loop, not by glfwSwapInterval()
 	if (!enabled) {
-		log::w()("Disabling vsync is not supported on web.");
+		log::w()("Vsync is not supported on web.");
 	}
 	_vSyncEnabled = true;
 #else

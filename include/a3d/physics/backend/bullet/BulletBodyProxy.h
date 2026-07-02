@@ -88,6 +88,15 @@ namespace a3d {
 		math::vec3 				totalForce() const override;
 		math::vec3 				totalTorque() const override;
 
+		void					ccdEnabled(bool enabled) override;
+		bool					ccdEnabled() const override;
+
+		void					ccdMotionThreshold(float distance) override;
+		float					ccdMotionThreshold() const override;
+
+		void					ccdSweptSphereRadius(float radius) override;
+		float					ccdSweptSphereRadius() const override;
+
 		bool					affectedByGravity() const override;
 		void					affectedByGravity(bool affectedByGravity) override;
 
@@ -112,11 +121,15 @@ namespace a3d {
 		///  Private Member Functions ///
 
 		void					calculateMomentOfIntertia();
+		void					syncCcdSettings();
 
 		/// Private Member Variables ///
 
 		std::unique_ptr<btRigidBody>		_btBody;
 		std::unique_ptr<BulletMotionState>	_motionState;
+		bool								_ccdEnabled;
+		float								_ccdMotionThreshold;
+		float								_ccdSweptSphereRadius;
 	};
 }
 

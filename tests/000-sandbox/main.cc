@@ -136,8 +136,8 @@ int main(int argc, const char* argv[]) {
 //			const float PLANE_LENGTH = 20.0;
 //			const float PLANE_WIDTH = 20.0;
 //			auto planeNode = make_shared<Node>("Ground plane node");
-//			//planeNode->mesh(Mesh::Box(PLANE_LENGTH, PLANE_WIDTH, 0));
-//			planeNode->mesh(Box::Mesh(PLANE_LENGTH, 0, PLANE_WIDTH));
+//			//planeNode->mesh(Mesh::Box(PLANE_LENGTH, PLANE_WIDTH, .1f));
+//			planeNode->mesh(Box::Mesh(PLANE_LENGTH, .1f, PLANE_WIDTH));
 //			auto gridImage = DARK
 //							 ? util::filesystem::ImageNamed("grid10")->inverted()
 //							 : util::filesystem::ImageNamed("grid10");

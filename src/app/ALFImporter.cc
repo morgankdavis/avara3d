@@ -98,7 +98,7 @@ unique_ptr<Scene> ALFImporter::scene(VisualWorld& visualWorld) {
 			const float PLANE_LENGTH = 500.0;
 			const float PLANE_WIDTH = 500.0;
 			auto planeNode = make_shared<Node>("Ground plane node");
-			planeNode->mesh(Box::Mesh(PLANE_LENGTH, 0, PLANE_WIDTH));
+			planeNode->mesh(Box::Mesh(PLANE_LENGTH, .1f, PLANE_WIDTH));
 			shared_ptr<Material> planeMaterial = Material::EmissionMaterial(color);
 
 			planeMaterial->doubleSided(false);

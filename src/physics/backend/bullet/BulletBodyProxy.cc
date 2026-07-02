@@ -29,13 +29,60 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
+namespace {
+
+int CollisionFlagsForBodyType(int flags, PhysicsBody::Type type) {
+	flags &= ~(btCollisionObject::CF_STATIC_OBJECT |
+			   btCollisionObject::CF_KINEMATIC_OBJECT);
+
+	switch (type) {
+		case PhysicsBody::Type::Static:
+			return flags | btCollisionObject::CF_STATIC_OBJECT;
+
+		case PhysicsBody::Type::Kinematic:
+			return flags | btCollisionObject::CF_KINEMATIC_OBJECT;
+
+		case PhysicsBody::Type::Dynamic:
+			return flags;
+	}
+
+	return flags;
+}
+
+void SetMassPropsPreservingType(btRigidBody& body,
+								PhysicsBody::Type type,
+								btScalar mass,
+								const btVector3& inertia) {
+	body.setMassProps(mass, inertia);
+	body.setCollisionFlags(CollisionFlagsForBodyType(body.getCollisionFlags(), type));
+	body.updateInertiaTensor();
+}
+
+void ForceActivationForBodyType(btRigidBody& body, PhysicsBody::Type type) {
+	switch (type) {
+		case PhysicsBody::Type::Static:
+		case PhysicsBody::Type::Dynamic:
+			body.forceActivationState(ACTIVE_TAG);
+			break;
+
+		case PhysicsBody::Type::Kinematic:
+			body.forceActivationState(DISABLE_DEACTIVATION);
+			break;
+	}
+}
+
+} // namespace
+
 /// Internal Lifecycle Functions ///
 
 BulletBodyProxy::BulletBodyProxy(PhysicsBody& body, PhysicsBody::Type type):
 		PhysicsBodyProxy{body, type},
 		_btBody{},
 		/*_btMotionState(nullptr)*/
-		_motionState{} {
+		_motionState{},
+		_ccdEnabled{false},
+		_ccdMotionThreshold{0.0f},
+		_ccdSweptSphereRadius{0.0f} {
 
 	log::d()("body: {:p}", static_cast<void*>(&body));
 
@@ -98,35 +145,22 @@ PhysicsBody::Type BulletBodyProxy::type() const {
 
 void BulletBodyProxy::type(PhysicsBody::Type type) {
 
-	int flags = _btBody->getCollisionFlags();
-
-	// clear mutually-exclusive type bits first
-	flags &= ~(btCollisionObject::CF_STATIC_OBJECT |
-			   btCollisionObject::CF_KINEMATIC_OBJECT);
-
 	switch (type) {
 		case PhysicsBody::Type::Static:
-			flags |= btCollisionObject::CF_STATIC_OBJECT;
-			_btBody->setCollisionFlags(flags);
-			_btBody->setActivationState(ACTIVE_TAG); // or ISLAND_SLEEPING?
-			_btBody->setMassProps(0.0f, btVector3(0,0,0));
+			SetMassPropsPreservingType(*_btBody, type, 0.0f, btVector3(0, 0, 0));
 			break;
 
 		case PhysicsBody::Type::Dynamic:
-			_btBody->setCollisionFlags(flags); // dynamic == no static/kinematic flag
-			_btBody->setActivationState(ACTIVE_TAG);
+			_btBody->setCollisionFlags(CollisionFlagsForBodyType(_btBody->getCollisionFlags(), type));
 			// mass/inertia handled elsewhere after shape is set
 			break;
 
 		case PhysicsBody::Type::Kinematic:
-			flags |= btCollisionObject::CF_KINEMATIC_OBJECT;
-			_btBody->setCollisionFlags(flags);
-			_btBody->setActivationState(DISABLE_DEACTIVATION);
-			_btBody->setMassProps(0.0f, btVector3(0,0,0));
+			SetMassPropsPreservingType(*_btBody, type, 0.0f, btVector3(0, 0, 0));
 			break;
 	}
 
-	_btBody->activate(true);
+	ForceActivationForBodyType(*_btBody, type);
 }
 
 PhysicsShapeProxy* BulletBodyProxy::shapeProxy() const {
@@ -143,10 +177,12 @@ void BulletBodyProxy::shapeProxy(PhysicsShapeProxy* proxy) {
 
 			_btBody->setCollisionShape(btShape);
 
-			switch (_body->type()) {
+			const auto bodyType = _body->type();
+			switch (bodyType) {
 				case PhysicsBody::Type::Static:
 				case PhysicsBody::Type::Kinematic:
-					this->mass(0);
+					SetMassPropsPreservingType(*_btBody, bodyType, 0.0f, btVector3(0, 0, 0));
+					ForceActivationForBodyType(*_btBody, bodyType);
 					break;
 				case PhysicsBody::Type::Dynamic:
 					break;
@@ -178,13 +214,25 @@ float BulletBodyProxy::mass() const {
 
 void BulletBodyProxy::mass(float mass) {
 
-	_btBody->setMassProps(mass, _btBody->getLocalInertia());
+	const auto bodyType = type();
+	btVector3 inertia(0, 0, 0);
 
-	if (type() == PhysicsBody::Type::Dynamic && _autocalculatesMomentOfInertia) {
-		calculateMomentOfIntertia();
+	if (bodyType == PhysicsBody::Type::Dynamic && mass > 0.0f && _autocalculatesMomentOfInertia) {
+		if (auto* shape = _btBody->getCollisionShape()) {
+			shape->calculateLocalInertia(mass, inertia);
+		}
+	}
+	else {
+		inertia = _btBody->getLocalInertia();
 	}
 
-	_btBody->setActivationState(ACTIVE_TAG);
+	SetMassPropsPreservingType(*_btBody, bodyType, mass, inertia);
+	if (bodyType == PhysicsBody::Type::Kinematic) {
+		ForceActivationForBodyType(*_btBody, bodyType);
+	}
+	else {
+		_btBody->activate(true);
+	}
 }
 
 vec3 BulletBodyProxy::momentOfInertia() const {
@@ -194,9 +242,14 @@ vec3 BulletBodyProxy::momentOfInertia() const {
 void BulletBodyProxy::momentOfInertia(const vec3& moment) {
 
 	if (!_autocalculatesMomentOfInertia) {
-		_btBody->setMassProps(mass(),
-							  BTVector3FromA3DVec3(moment));
-		_btBody->updateInertiaTensor();
+		const auto bodyType = type();
+		SetMassPropsPreservingType(*_btBody,
+								   bodyType,
+								   mass(),
+								   BTVector3FromA3DVec3(moment));
+		if (bodyType == PhysicsBody::Type::Kinematic) {
+			ForceActivationForBodyType(*_btBody, bodyType);
+		}
 	}
 	else {
 		log::w()("Ignoring moment of inertia: autocalculatesMomentOfInertia to to true.");
@@ -326,6 +379,47 @@ void BulletBodyProxy::applyTorqueImpulse(const vec3& torque) {
 	_btBody->applyTorqueImpulse(BTVector3FromA3DVec3(torque));
 }
 
+void BulletBodyProxy::ccdEnabled(bool enabled) {
+
+	_ccdEnabled = enabled;
+	syncCcdSettings();
+}
+
+bool BulletBodyProxy::ccdEnabled() const {
+
+	return _ccdEnabled;
+}
+
+void BulletBodyProxy::ccdMotionThreshold(float distance) {
+
+	if (distance < 0.0f) {
+		distance = 0.0f;
+	}
+
+	_ccdMotionThreshold = distance;
+	syncCcdSettings();
+}
+
+float BulletBodyProxy::ccdMotionThreshold() const {
+
+	return _ccdMotionThreshold;
+}
+
+void BulletBodyProxy::ccdSweptSphereRadius(float radius) {
+
+	if (radius < 0.0f) {
+		radius = 0.0f;
+	}
+
+	_ccdSweptSphereRadius = radius;
+	syncCcdSettings();
+}
+
+float BulletBodyProxy::ccdSweptSphereRadius() const {
+
+	return _ccdSweptSphereRadius;
+}
+
 bool BulletBodyProxy::affectedByGravity() const {
 	// *** test this ***
 	auto gravity = _btBody->getGravity();
@@ -402,7 +496,9 @@ void BulletBodyProxy::worldTransform(const mat4& transform) {
 			auto btWorld = btWorldProxy->btWorld();
 			// !!! THIS NEEDS TO LOCK _btMutex IN BulletWorldProxy !!!
 			// AND: if (_btBody->isInWorld() && _btBody->getBroadphaseHandle()) {
-			btWorld->updateSingleAabb(_btBody.get());
+			if (_btBody->isInWorld() && _btBody->getBroadphaseHandle()) {
+				btWorld->updateSingleAabb(_btBody.get());
+			}
 
 			// OPTIONAL but recommended if you "teleport" large distances:
 			// clears stale overlapping pairs that can persist after big jumps.
@@ -453,8 +549,7 @@ void BulletBodyProxy::calculateMomentOfIntertia() {
 			btVector3 localInertia;
 			auto mass = _body->mass();
 			btShape->calculateLocalInertia(mass, localInertia);
-			_btBody->setMassProps(mass, localInertia);
-			_btBody->updateInertiaTensor();
+			SetMassPropsPreservingType(*_btBody, type(), mass, localInertia);
 		}
 		else {
 			log::w()("Missing btCollisionShape.");
@@ -463,4 +558,20 @@ void BulletBodyProxy::calculateMomentOfIntertia() {
 //	else {
 //		log::w()("Missing PhysicsShapeModelProxy.");
 //	}
+}
+
+void BulletBodyProxy::syncCcdSettings() {
+
+	if (!_btBody) {
+		return;
+	}
+
+	if (_ccdEnabled) {
+		_btBody->setCcdMotionThreshold(static_cast<btScalar>(_ccdMotionThreshold));
+		_btBody->setCcdSweptSphereRadius(static_cast<btScalar>(_ccdSweptSphereRadius));
+	}
+	else {
+		_btBody->setCcdMotionThreshold(btScalar(0.0));
+		_btBody->setCcdSweptSphereRadius(btScalar(0.0));
+	}
 }

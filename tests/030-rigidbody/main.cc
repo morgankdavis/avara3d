@@ -44,7 +44,11 @@ const bool								ENABLE_VSYNC			{false};
 const bool								USE_DEFAULT_LIGHTING	{false};
 const bool								CAPTURE_CURSOR			{false};
 const float								MOUSE_SENSITIVITY		{0.5};
-const float								PHYSICS_TIMESTEP		{1.0/60.0};
+#if defined(A3D_WEB)
+const float								PHYSICS_TIMESTEP		{1.0/30.0};
+#else
+const float								PHYSICS_TIMESTEP		{1.0/120.0};
+#endif
 
 void UpdateCallback(Scene& scene, double time, double deltaTime);
 void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
@@ -53,7 +57,7 @@ void DidSimulatePhysicsCallback(PhysicalWorld& world, double time, double deltaT
 
 void InitLog();
 void LogBuildInfo();
-void SpawnDuckFruit(Scene& scene, Node& duckNode);
+void SpawnDuckFruit(Scene& scene, const Node& duckNode);
 void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction);
 void AddCardboardBox(Scene& scene, const vec3& location, const vec3& axis, float angle);
 void SpawnHACDTeapot(Scene& scene);
@@ -72,7 +76,10 @@ Node*	g_duckNode;
 
 
 
-vector<tuple<shared_ptr<Mesh>, shared_ptr<PhysicsShape>, float>>* g_duckFruit{};
+// vector<tuple<shared_ptr<Mesh>, shared_ptr<PhysicsShape>, float>>* g_duckFruit{};
+
+using DuckFruitDef = tuple<shared_ptr<Mesh>, shared_ptr<PhysicsShape>, float>;
+static vector<DuckFruitDef> g_duckFruit;
 
 
 
@@ -249,7 +256,7 @@ int main(int argc, const char* argv[]) {
 		static const float PLANE_LENGTH = 50.0;
 		static const float PLANE_WIDTH = 50.0;
 		auto planeNode = Node::NamedNode("Ground plane node");
-		planeNode->mesh(Box::Mesh(PLANE_LENGTH, 0, PLANE_WIDTH));
+		planeNode->mesh(Box::Mesh(PLANE_LENGTH, .1f, PLANE_WIDTH));
 
 		shared_ptr<Material> planeMaterial = make_shared<Material>(monostate{},
 																   Color::DarkGray(),
@@ -376,34 +383,34 @@ int main(int argc, const char* argv[]) {
 
 
 
-		vector<tuple<shared_ptr<Mesh>, shared_ptr<PhysicsShape>, float>> duckFruit{};
+		//vector<tuple<shared_ptr<Mesh>, shared_ptr<PhysicsShape>, float>> duckFruit{};
 
 
 		auto mesh = util::filesystem::MeshNamed("cherries_lod/cherries_lod");
 		auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
-		duckFruit.push_back({mesh, shape, 0.05});
+		g_duckFruit.push_back({mesh, shape, 0.05});
 
 		mesh = util::filesystem::MeshNamed("orange_lod/orange_lod");
 		shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
-		duckFruit.push_back({mesh, shape, 0.185});
+		g_duckFruit.push_back({mesh, shape, 0.185});
 
 		mesh = util::filesystem::MeshNamed("pear_lod/pear_lod");
 		shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
-		duckFruit.push_back({mesh, shape, 0.24});
+		g_duckFruit.push_back({mesh, shape, 0.24});
 
 		mesh = util::filesystem::MeshNamed("apple_lod/apple_lod");
 		shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
-		duckFruit.push_back({mesh, shape, 0.225});
+		g_duckFruit.push_back({mesh, shape, 0.225});
 
 		mesh = util::filesystem::MeshNamed("banana_lod/banana_lod");
 		shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
-		duckFruit.push_back({mesh, shape, 0.14});
+		g_duckFruit.push_back({mesh, shape, 0.14});
 
 		mesh = util::filesystem::MeshNamed("pineapple_lod/pineapple_lod");
 		shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
-		duckFruit.push_back({mesh, shape, 0.9});
+		g_duckFruit.push_back({mesh, shape, 0.9});
 
-		g_duckFruit = &duckFruit;
+		// g_duckFruit = duckFruit;
 
 
 	////	// add the paddle
@@ -530,6 +537,7 @@ int main(int argc, const char* argv[]) {
 
 #endif
 
+		g_duckFruit.clear();
 
 	}
 	catch (std::exception& e) {
@@ -980,26 +988,33 @@ void LogBuildInfo() {
 	log::app::i()("Origin: {}", BuildInfo::OriginString(buildInfo.origin()));
 }
 
-void SpawnDuckFruit(Scene& scene, Node& duckNode) {
+void SpawnDuckFruit(Scene& scene, const Node& duckNode) {
 
 	static const float SPAWN_RATE = 10.0; // pieces/sec
 
 	util::flow::every(chrono::duration<float>(1.0f/SPAWN_RATE), [&] {
 
-		auto duckFruit = (*g_duckFruit)[uniform_linear(0, 5)];
+		auto duckFruit = g_duckFruit[uniform_linear(0, 5)];
 
 		shared_ptr<Node> node = Node::MeshNode(get<0>(duckFruit));
-		shared_ptr<PhysicsShape> physShape = get<1>(duckFruit);
+		shared_ptr<PhysicsShape> physicsShape = get<1>(duckFruit);
 		float mass = get<2>(duckFruit);
 
 		// add local offset to duck, then convert that position to world space,
 		// then attach to root node (below)
 		node->transform(duckNode.worldTransform() * translate(mat4(1.0), vec3(0.0, 3.25, 0.2)));
 
-		auto phyBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, physShape);
-		phyBody->mass(mass);
-		phyBody->restitution(0.25);
-		phyBody->friction(1.0);
+		auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, physicsShape);
+		physicsBody->mass(mass);
+		physicsBody->restitution(0.25);
+		physicsBody->friction(1.0);
+
+		auto extent = node->mesh()->localExtent();
+		const float minExtent = std::min({extent.x, extent.y, extent.z});
+		const float ccdRadius = minExtent * 0.5f;
+		physicsBody->ccdMotionThreshold(ccdRadius * 0.1f);
+		physicsBody->ccdSweptSphereRadius(ccdRadius);
+		physicsBody->ccdEnabled(true);
 
 		// fruit starting orientation
 		float heading = uniform_linear(0.0f, two_pi());
@@ -1013,26 +1028,86 @@ void SpawnDuckFruit(Scene& scene, Node& duckNode) {
 		float lvY = uniform_linear(1.0f, 10.0f);
 		float lvZ = uniform_n11() * 2.0f;
 		auto direction = duckNode.worldOrientation() * vec3{lvX, lvY, lvZ};
-		phyBody->linearVelocity(direction);
+		physicsBody->linearVelocity(direction);
 
 		// fruit spin
 		const float ANGULAR_VARIANCE = radians(60.0); // deg/sec
-		phyBody->angularVelocity({ uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+		physicsBody->angularVelocity({ uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
 								   uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
 								   uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE) });
 
-		node->physicsBody(std::move(phyBody));
+		node->physicsBody(std::move(physicsBody));
 
 		scene.rootNode()->addChild(node);
 	});
 }
 
-// OG
-void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
+// works, simple collider
+// void SpawnDuckFruit(Scene& scene, const Node& duckNode) {
+//
+// 	static const float SPAWN_RATE = 10.0f; // pieces/sec
+//
+// 	util::flow::every(chrono::duration<float>(1.0f / SPAWN_RATE), [&] {
+//
+// 		log::d()("Spawning duck fruit.");
+//
+// 		auto duckFruit = g_duckFruit[uniform_linear(0, 5)];
+//
+// 		shared_ptr<Node> node = Node::MeshNode(get<0>(duckFruit));
+//
+// 		// TEST: shared primitive shape reused by all spawned fruit.
+// 		// If this works, shared PhysicsShape reuse is probably fine, and the
+// 		// fruit ConvexHull shape path is the problem.
+// 		static auto sharedSphereShape = make_shared<SpherePhysicsShape>(0.25f);
+// 		shared_ptr<PhysicsShape> physicsShape = sharedSphereShape;
+//
+// 		float mass = get<2>(duckFruit);
+//
+// 		// add local offset to duck, then convert that position to world space,
+// 		// then attach to root node (below)
+// 		node->transform(duckNode.worldTransform() * translate(mat4(1.0f), vec3(0.0f, 3.25f, 0.2f)));
+//
+// 		auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, physicsShape);
+// 		physicsBody->mass(mass);
+// 		physicsBody->restitution(0.25f);
+// 		physicsBody->friction(1.0f);
+//
+// 		// Fixed CCD values for this test. Do not derive from the visual mesh here.
+// 		physicsBody->ccdMotionThreshold(0.001f);
+// 		physicsBody->ccdSweptSphereRadius(0.20f);
+// 		physicsBody->ccdEnabled(true);
+//
+// 		// fruit starting orientation
+// 		float heading = uniform_linear(0.0f, two_pi());
+// 		float pitch = uniform_linear(0.0f, two_pi());
+// 		float roll = uniform_linear(0.0f, two_pi());
+// 		node->eulerAngles({heading, pitch, roll});
+//
+// 		// fruit linear velocity
+// 		float lvX = uniform_n11() * 2.0f;
+// 		float lvY = uniform_linear(1.0f, 10.0f);
+// 		float lvZ = uniform_n11() * 2.0f;
+// 		auto direction = duckNode.worldOrientation() * vec3{lvX, lvY, lvZ};
+// 		physicsBody->linearVelocity(direction);
+//
+// 		// fruit spin
+// 		const float ANGULAR_VARIANCE = radians(60.0f); // deg/sec
+// 		physicsBody->angularVelocity({
+// 			uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+// 			uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+// 			uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE)
+// 		});
+//
+// 		node->physicsBody(std::move(physicsBody));
+//
+// 		scene.rootNode()->addChild(node);
+// 	});
+// }
 
+void ShootSlurm(Scene& scene, const vec3 &location, const vec3 &direction) {
 	const float SHOOT_RATE = 20; // cans/sec
 
-	util::flow::every(chrono::duration<float>(1.0f/SHOOT_RATE), [&] {
+	util::flow::every(chrono::duration<float>(1.0f / SHOOT_RATE), [&scene, location, direction = normalize(direction)] {
 
 		static auto mesh = util::filesystem::MeshNamed("slurm/slurm");
 		mesh->materials()[0]->emission(mesh->materials()[0]->diffuse());
@@ -1044,13 +1119,17 @@ void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
 
 		//static auto extent = node->mesh()->worldExtent(node->worldTransform());
 		static auto extent = node->mesh()->localExtent();
-		static auto physicsShape = make_shared<CylinderPhysicsShape>(extent.x/2.0, extent.y);
+		static auto physicsShape = make_shared<CylinderPhysicsShape>(extent.x / 2.0, extent.y);
 		auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, physicsShape);
 		physicsBody->mass(.354); // 12fl oz water @ 70F
-
 		physicsBody->restitution(1.0);
 		physicsBody->friction(0.35);
 		physicsBody->rollingFriction(0.05);
+
+		const float radius = extent.x * 0.5f;
+		physicsBody->ccdMotionThreshold(radius * 0.25f);
+		physicsBody->ccdSweptSphereRadius(radius * 0.8f);
+		physicsBody->ccdEnabled(true);
 
 		static auto light = Light::PointLight();
 		light->attenuation(Attenuation{.quadratic = 0.04f});
@@ -1058,18 +1137,23 @@ void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
 
 		// add random factor
 
-		node->eulerAngles({ uniform_linear(0.0f, two_pi()),
-							uniform_linear(0.0f, two_pi()),
-							uniform_linear(0.0f, two_pi()) });
+		node->eulerAngles({
+			uniform_linear(0.0f, two_pi()),
+			uniform_linear(0.0f, two_pi()),
+			uniform_linear(0.0f, two_pi())
+		});
 
 		static const float ANGULAR_VARIANCE = radians(260.0); // deg/sec
-		physicsBody->angularVelocity({ uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
-									   uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
-									   uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE) });
+		physicsBody->angularVelocity({
+			uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+			uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+			uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE)
+		});
 
 		const float VELOCITY = uniform_linear(40.0f, 60.0f);
 		static const float DIRECTION_VARIATION = 0.01;
-		const vec3 variedDirection = normalize(direction + uniform_ball(DIRECTION_VARIATION));
+		const vec3 variedDirection = normalize(
+			direction + uniform_ball(DIRECTION_VARIATION));
 		physicsBody->linearVelocity(variedDirection * VELOCITY);
 
 		node->physicsBody(std::move(physicsBody));
