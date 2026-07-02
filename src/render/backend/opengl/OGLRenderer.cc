@@ -1548,16 +1548,13 @@ void DrawStats(FrameStats &stats,
 	                    bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
 	ImguiDrawLabelValueIndented(yPos, bulkLayout,
 	                            "static", std::format("{}", stats.numStaticBodies),
-	                            bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP,
-	                            false);
+	                            bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
 	ImguiDrawLabelValueIndented(yPos, bulkLayout,
 	                            "dynamic", std::format("{}", stats.numDynamicBodies),
-	                            bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP,
-	                            false);
+	                            bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
 	ImguiDrawLabelValueIndented(yPos, bulkLayout,
 	                            "kinematic", std::format("{}", stats.numKinematicBodies),
-	                            bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP,
-	                            false);
+	                            bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
 
 	yPos += STAT_LINE_STEP;
 
