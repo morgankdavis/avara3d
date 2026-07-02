@@ -20,6 +20,9 @@ add_executable(${TEST_NAME} ${HEADERS} ${SOURCES})
 
 target_link_libraries(${TEST_NAME} avara3d)
 
+a3d_set_emscripten_compile_options(${TEST_NAME})
+a3d_set_emscripten_link_options(${TEST_NAME})
+
 if (NOT ANDROID)
 	install(TARGETS ${TEST_NAME}
 			DESTINATION "${INSTALL_TESTS_EXEC_DIR}")

@@ -16,6 +16,11 @@
 #include "a3d/util/snapshot.h"
 #include "a3d/util/string.h"
 
+// !!! TEMPORARY
+#ifdef A3D_WEB
+#include <emscripten.h>
+#endif
+
 using namespace a3d;
 using namespace a3d::math;
 using namespace std;
@@ -308,9 +313,46 @@ int main(int argc, const char* argv[]) {
 		window->center();
 		window->open();
 
+		// do {
+		// 	scene->update();
+		// } while (window->isOpen());
+
+#ifdef A3D_WEB
+
+		struct WebLoopState {
+			decltype(scene) scene;
+			decltype(window) window;
+		};
+
+		auto* webState = new WebLoopState{
+			std::move(scene),
+			std::move(window)
+	};
+
+		emscripten_set_main_loop_arg(
+				[](void* arg) {
+					auto* state = static_cast<WebLoopState*>(arg);
+
+					state->scene->update();
+
+					if (!state->window->isOpen()) {
+						emscripten_cancel_main_loop();
+						delete state;
+					}
+				},
+				webState,
+				0,
+				false);
+
+		return 0;
+
+#else
+
 		do {
 			scene->update();
 		} while (window->isOpen());
+
+#endif
 
 		return 0;
 
@@ -723,12 +765,16 @@ void InitLog() {
 
 	string executableName = *util::filesystem::ExecutableName();
 
+	auto sinks = vector<unique_ptr<LogSink>>();
+
 	auto nativeSink = make_unique<StdOutLogSink>();
+	sinks.push_back(std::move(nativeSink));
+
+#ifndef A3D_WEB
 	auto fileSink = make_unique<FileLogSink>(*(util::filesystem::ExecutableDirectory())
 											 / (executableName + string(".log")));
-	auto sinks = vector<unique_ptr<LogSink>>();
-	sinks.push_back(std::move(nativeSink));
 	sinks.push_back(std::move(fileSink));
+#endif
 
 	Log appLog{executableName, std::move(sinks)};
 	appLog.level(APP_LOG_LEVEL);

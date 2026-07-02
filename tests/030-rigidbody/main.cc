@@ -1009,6 +1009,8 @@ void SpawnDuckFruit(Scene& scene, const Node& duckNode) {
 		physicsBody->restitution(0.25);
 		physicsBody->friction(1.0);
 
+		// ! NOTE ! convex hulls do not work well for CCD, at least not as smalls scales.
+		// TODO: switch to primitive colliders for fruit.
 		auto extent = node->mesh()->localExtent();
 		const float minExtent = std::min({extent.x, extent.y, extent.z});
 		const float ccdRadius = minExtent * 0.5f;
