@@ -145,6 +145,7 @@ namespace a3d {
 		OGLDebugLines 			_debugLines;
 		ImFont*					_overlayTitleImFont;
 		ImFont*					_overlayBodyImFont;
+		ImFont*					_overlayAltImFont;
 		OGLDrawTimer			_drawTimer;
 	};
 }

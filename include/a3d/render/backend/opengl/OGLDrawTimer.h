@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "a3d/Configuration.h"
+#include "a3d/render/backend/opengl/GLTypes.h"
 
 namespace a3d {
 
@@ -22,6 +23,7 @@ namespace a3d {
 	class OGLDrawTimer {
 
 	public:
+
 		//explicit OpenGLDrawTimer(int bufferedFrames = config::GL_DRAW_TIMER_BUFFER_SIZE);
 		explicit OGLDrawTimer(unsigned bufferedFrames);
 		~OGLDrawTimer();
@@ -31,10 +33,25 @@ namespace a3d {
 		OGLDrawTimer& operator=(OGLDrawTimer&& other) = delete;
 
 		void						initialize();
+		bool						isAvailable() const; // always returns false before calling initialize()
 		void 						begin();
 		std::chrono::nanoseconds	end();
 
 	private:
+
+		enum class Mode {
+			Disabled,
+			DesktopTimeElapsed,
+			WebDisjointTimerQuery,
+			WebDisjointTimerQueryExt
+		};
+
+		bool						resolveQuery(size_t index);
+		void						resolveIssuedQueries(size_t skipIndex);
+
+		bool						_isAvailable;
+		Mode						_mode;
+		gl::enum_t					_queryTarget;
 		unsigned					_bufferSize;
 		std::vector<unsigned> 		_glQueries;
 		size_t 						_frame;
