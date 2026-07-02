@@ -1466,7 +1466,7 @@ void DrawStats(FrameStats &stats,
 	const ImU32 drawColor = gpuTimingAvailable
 		                        ? IM_COL32(255, 255, 255, 255)
 		                        : IM_COL32(128, 128, 128, 255);
-	auto renderGpuValue = gpuTimingAvailable ? std::format("{:.1f}ms", renderGpuMsFAvg) : "-";
+	auto renderGpuValue = gpuTimingAvailable ? std::format("{:.1f}ms", renderGpuMsFAvg) : "";
 	ImguiDrawLabelValue(yPos, layout, "draw", renderGpuValue,
 	                    bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD,
 	                    drawColor);
@@ -1824,11 +1824,13 @@ void ImguiDrawPlot(float x, float y, float w, float h,
 
 	PushStyleColor(ImGuiCol_FrameBg, ImVec4(0, 0, 0, 0));
 
+	const int plotStride = stride > 0 ? stride : sizeof(float);
+
 	// shadow pass
 	SetCursorScreenPos(ImVec2(x + 1, y + 1));
 	PushStyleColor(ImGuiCol_PlotLines, ImVec4(0, 0, 0, 1));
 	PlotLines(("##plot_s" + std::to_string(id)).c_str(),
-	          values, valuesCount, valuesOffset, nullptr, scaleMin, scaleMax, ImVec2(w, h), stride);
+	          values, valuesCount, valuesOffset, nullptr, scaleMin, scaleMax, ImVec2(w, h), plotStride);
 	PopStyleColor();
 
 	// main pass
@@ -1839,7 +1841,7 @@ void ImguiDrawPlot(float x, float y, float w, float h,
 		PushStyleColor(ImGuiCol_Border, ImVec4(1, 1, 1, 0.5f));
 	}
 	PlotLines(("##plot" + std::to_string(id)).c_str(),
-	          values, valuesCount, valuesOffset, nullptr, scaleMin, scaleMax, ImVec2(w, h), stride);
+	          values, valuesCount, valuesOffset, nullptr, scaleMin, scaleMax, ImVec2(w, h), plotStride);
 
 	// overlay text
 	if (overlayText != nullptr && overlayText[0] != '\0') {
