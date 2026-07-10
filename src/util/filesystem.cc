@@ -235,9 +235,9 @@ std::optional<std::filesystem::path> a3d::util::filesystem::SearchInPaths(const 
 				return path;
 			}
 		}
-		else {
-			log::w()("Search path is not a directory: '{}'", searchPath.string());
-		}
+		// else {
+		// 	log::w()("Search path is not a directory: '{}'", searchPath.string());
+		// }
 	}
 	log::w()("'{}' not found.", filename);
 	return std::nullopt;

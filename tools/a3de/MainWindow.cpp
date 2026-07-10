@@ -157,7 +157,7 @@ void MainWindow::updateCallback(a3d::Scene& scene, double time, double deltaTime
 
 
 
-	auto viewport = dynamic_cast<a3d::head::qt::QtViewport*>(scene.visualWorld()->renderContext());
+	//auto viewport = dynamic_cast<a3d::head::qt::QtViewport*>(scene.visualWorld()->renderContext());
 
 
 
@@ -228,23 +228,23 @@ void MainWindow::updateCallback(a3d::Scene& scene, double time, double deltaTime
 //	}
 
 	if (keysPressed.count(Key::Backslash)) {
-		util::snapshot::SaveSnapshot(*viewport);
+		util::snapshot::SaveSnapshot(*_viewport);
 	}
 
 	if (keysPressed.count(Key::R)) {
-		if (!viewport->recordingGIF()) {
-			util::snapshot::StartGIFRecording(*viewport, {320, 240}, 8);
+		if (!_viewport->recordingGIF()) {
+			util::snapshot::StartGIFRecording(*_viewport, {320, 240}, 8);
 		}
 		else {
-			util::snapshot::StopGIFRecording(*viewport);
+			util::snapshot::StopGIFRecording(*_viewport);
 		}
 	}
 
 	if (keysPressed.count(Key::Slash)) {
-		viewport->cursorCaptured(!(viewport->cursorCaptured()));
+		_viewport->cursorCaptured(!(_viewport->cursorCaptured()));
 	}
 
-	if (viewport->cursorCaptured()) {
+	if (_viewport->cursorCaptured()) {
 
 //		auto mouseButtonsPressed = im->mouseButtonsPressed();
 //		if (mouseButtonsPressed.count(MouseButton::One)) {
