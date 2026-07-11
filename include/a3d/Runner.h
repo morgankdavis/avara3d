@@ -76,7 +76,6 @@ namespace a3d {
 	private:
 		/// Private Member Functions ///
 
-		void						begin();
 		void						end();
 
 		/// Private Member Variables ///

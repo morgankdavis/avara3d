@@ -31,7 +31,7 @@ int Runner::Run(Runner&& runner) {
     // so the Runner must outlive the stack frame that called Run().
     auto* webRunner = new Runner(std::move(runner));
 
-    webRunner->begin();
+    webRunner->start();
     emscripten_set_main_loop_arg(
         [](void* arg) {
             auto* runner = static_cast<a3d::Runner*>(arg);
@@ -52,7 +52,7 @@ int Runner::Run(Runner&& runner) {
 
 int Runner::Run(Runner&& runner) {
 
-    runner.begin();
+    runner.start();
     while (runner.update());
     runner.end();
 
@@ -113,7 +113,10 @@ Runner& Runner::operator=(Runner&& other) {
 /// Public Member Functions ///
 
 void Runner::start() {
-    begin();
+
+    if (_state == State::Idle) {
+        _state = State::Running;
+    }
 }
 
 bool Runner::update() {
@@ -169,13 +172,6 @@ void Runner::shutdownCallback(ShutdownCallback function) {
 }
 
 /// Private Member Functions ///
-
-void Runner::begin() {
-
-    if (_state == State::Idle) {
-        _state = State::Running;
-    }
-}
 
 void Runner::end() {
 

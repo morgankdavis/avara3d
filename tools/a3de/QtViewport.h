@@ -23,7 +23,7 @@ namespace a3d::head::qt {
 
 	class QtInputManager;
 
-	class QtViewport : public QOpenGLWidget, public a3d::RenderContext {
+	class QtViewport : public QOpenGLWidget, public RenderContext {
 
 	Q_OBJECT
 
@@ -43,7 +43,6 @@ namespace a3d::head::qt {
 		bool 					cursorCaptured() const;
 		void 					cursorCaptured(bool captured);
 
-	public:
 		/// RenderContext Public Member Functions ///
 
 		bool 					vSyncEnabled() const override;

@@ -45,6 +45,7 @@ MainWindow::MainWindow(QWidget* parent):
 }
 
 MainWindow::~MainWindow() {
+	_runner.reset();
 	delete _ui;
 }
 

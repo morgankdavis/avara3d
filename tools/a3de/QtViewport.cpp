@@ -364,11 +364,9 @@ void Viewport::paintGL() {
 	double dt = double(nowNs - lastNs) / 1e9;
 	lastNs = nowNs;
 
-	if (_runner) {
-		_runner->update();
+	if (_runner && _runner->update()) {
+		update();
 	}
-
-	update();
 }
 
 /// Private Member Functions ///
