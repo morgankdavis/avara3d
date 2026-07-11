@@ -25,9 +25,9 @@
 
 
 // !!! TEMPORARY
-#ifdef A3D_WEB
-#include <emscripten.h>
-#endif
+// #ifdef A3D_WEB
+// #include <emscripten.h>
+// #endif
 
 
 using namespace a3d;
@@ -500,44 +500,83 @@ int main(int argc, const char* argv[]) {
 
 		// !!! TEMPORARY
 
-#ifdef A3D_WEB
 
-		struct WebLoopState {
-			decltype(scene) scene;
+
+
+
+
+// #ifdef A3D_WEB
+//
+// 		struct WebLoopState {
+// 			decltype(scene) scene;
+// 			decltype(window) window;
+// 		};
+//
+// 		auto* webState = new WebLoopState{
+// 				std::move(scene),
+// 				std::move(window)
+// 		};
+//
+// 		emscripten_set_main_loop_arg(
+// 				[](void* arg) {
+// 					auto* state = static_cast<WebLoopState*>(arg);
+//
+// 					state->scene->update();
+//
+// 					if (!state->window->isOpen()) {
+// 						emscripten_cancel_main_loop();
+// 						delete state;
+// 					}
+// 				},
+// 				webState,
+// 				0,
+// 				false);
+//
+// 		return 0;
+//
+// #else
+//
+// 		do {
+// 			scene->update();
+// 		} while (window->isOpen());
+//
+// #endif
+
+
+		struct Context {
 			decltype(window) window;
 		};
 
-		auto* webState = new WebLoopState{
-				std::move(scene),
-				std::move(window)
+		auto* context = new Context{
+			std::move(window)
 		};
 
-		emscripten_set_main_loop_arg(
-				[](void* arg) {
-					auto* state = static_cast<WebLoopState*>(arg);
+		Runner runner(std::move(scene));
 
-					state->scene->update();
+		runner.context(context);
 
-					if (!state->window->isOpen()) {
-						emscripten_cancel_main_loop();
-						delete state;
-					}
-				},
-				webState,
-				0,
-				false);
+		runner.continueCallback([](
+				Runner& runner,
+				Scene& scene,
+				void* context) {
 
-		return 0;
+			auto* c = static_cast<Context*>(context);
+			return c->window->isOpen();
+		});
 
-#else
+		runner.shutdownCallback([](
+				Runner& runner,
+				void* context) {
 
-		do {
-			scene->update();
-		} while (window->isOpen());
+			log::d();
 
-#endif
+			g_duckFruit.clear();
 
-		g_duckFruit.clear();
+			auto* c = static_cast<Context*>(context);
+			delete c;
+		});
+
+		return Runner::Run(std::move(runner));
 
 	}
 	catch (std::exception& e) {

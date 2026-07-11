@@ -25,6 +25,7 @@
 #include "a3d/input/InputManager.h"
 #include "a3d/input/GLFWInputManager.h"
 #include "a3d/Math.h"
+#include "a3d/Runner.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/mesh/Line.h"
