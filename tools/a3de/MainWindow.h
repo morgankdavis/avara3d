@@ -25,6 +25,7 @@ QT_END_NAMESPACE
 namespace a3d {
 	class Mesh;
 	class Node;
+	class Runner;
 	class Scene;
 	class PhysicalWorld;
 	class VisualWorld;
@@ -55,10 +56,10 @@ namespace a3de {
 		void didRenderCallback(a3d::VisualWorld& world, double time, double deltaTime);
 		void didSimulatePhysicsCallback(a3d::PhysicalWorld& world, double time, double deltaTime);
 
-		Ui::MainWindow*				_ui;
-		a3d::head::qt::QtViewport*	_viewport;
-		std::unique_ptr<a3d::Scene> _scene;
-		std::shared_ptr<a3d::Node>	_pointLightNode;
+		Ui::MainWindow*					_ui;
+		a3d::head::qt::QtViewport*		_viewport;
+		std::unique_ptr<a3d::Runner>	_runner;
+		std::shared_ptr<a3d::Node>		_pointLightNode;
 	};
 }
 

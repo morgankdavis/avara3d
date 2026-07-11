@@ -24,7 +24,7 @@
 using namespace a3d;
 using namespace a3d::math;
 using namespace std;
-using Viewport = a3d::head::qt::QtViewport;
+using Viewport = head::qt::QtViewport;
 
 /// Private Static Non-Member Prototypes ///
 
@@ -37,7 +37,7 @@ Viewport::QtViewport(RenderingApi renderingApi,
 					 QWidget* parent):
 		RenderContext(renderingApi),
 		QOpenGLWidget(parent),
-		_scene{},
+		_runner{nullptr},
 		_cursorCaptured{false},
 		_lastCursorPosition{},
 		_lastCapturedCursorPosition{},
@@ -47,8 +47,6 @@ Viewport::QtViewport(RenderingApi renderingApi,
 	setMinimumSize(320, 240);
 
 	QSurfaceFormat fmt;
-//	fmt.setDepthBufferSize(24);
-//	fmt.setStencilBufferSize(8);
 	fmt.setVersion(3, 3);
 	fmt.setProfile(QSurfaceFormat::CoreProfile);
 	fmt.setSamples(static_cast<underlying_type<AntialiasingMode>::type>(antialiasingMode));
@@ -67,12 +65,12 @@ Viewport::QtViewport(RenderingApi renderingApi,
 
 /// Public Member Functions ///
 
-Scene* Viewport::scene() const {
-	return _scene;
+Runner* Viewport::runner() const {
+	return _runner;
 }
 
-void Viewport::scene(Scene* scene) {
-	_scene = scene;
+void Viewport::runner(Runner* runner) {
+	_runner = runner;
 }
 
 bool Viewport::cursorCaptured() const {
@@ -366,15 +364,9 @@ void Viewport::paintGL() {
 	double dt = double(nowNs - lastNs) / 1e9;
 	lastNs = nowNs;
 
-//	ImGuiIO& io = ImGui::GetIO();
-//	const auto w  = float(width());
-//	const auto h  = float(height());
-//	const auto dpr = float(devicePixelRatioF());
-//	io.DisplaySize = ImVec2(w, h);
-//	io.DisplayFramebufferScale = ImVec2(dpr, dpr);
-//	io.DeltaTime = (dt > 0.0) ? float(dt) : 1.0f/60.0f;
-
-	_scene->update();
+	if (_runner) {
+		_runner->update();
+	}
 
 	update();
 }
@@ -382,7 +374,7 @@ void Viewport::paintGL() {
 /// Private Member Functions ///
 
 void Viewport::centerCursor() {
-//	QCursor::setPos(round(width()/2.0), round(height()/2.0));
+
 	QPoint center(width() / 2, height() / 2);
 	QCursor::setPos(mapToGlobal(center));
 }

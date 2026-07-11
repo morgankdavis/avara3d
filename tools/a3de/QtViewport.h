@@ -16,7 +16,7 @@
 #include "a3d/render/context/RenderContext.h"
 
 namespace a3d {
-	class Scene;
+	class Runner;
 }
 
 namespace a3d::head::qt {
@@ -30,15 +30,15 @@ namespace a3d::head::qt {
 	public:
 		/// Public Lifecycle Functions ///
 
-		explicit QtViewport(a3d::RenderContext::RenderingApi renderingApi,
+		explicit QtViewport(RenderingApi renderingApi,
 							AntialiasingMode antialiasingModeQWidget,
 							QWidget* parent = nullptr);
 		~QtViewport() = default;
 
 		/// Public Member Functions ///
 
-		a3d::Scene*				scene() const;
-		void 					scene(a3d::Scene* scene);
+		Runner*					runner() const;
+		void 					runner(Runner* runner);
 
 		bool 					cursorCaptured() const;
 		void 					cursorCaptured(bool captured);
@@ -51,8 +51,8 @@ namespace a3d::head::qt {
 
 		/// RenderContext Internal Member Functions ///
 
-		void 					beginFrame(const a3d::Scene& scene) override;
-		void 					endFrame(const a3d::Scene& scene) override;
+		void 					beginFrame(const Scene& scene) override;
+		void 					endFrame(const Scene& scene) override;
 
 		void 					swapBuffers() override;
 
@@ -86,7 +86,7 @@ namespace a3d::head::qt {
 
 		/// Private Member Variables ///
 
-		a3d::Scene* 			_scene;
+		Runner*					_runner;
 		bool					_cursorCaptured;
 		std::optional<QPointF>	_lastCursorPosition;
 		std::optional<QPointF> 	_lastCapturedCursorPosition;

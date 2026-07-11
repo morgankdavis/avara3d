@@ -65,6 +65,7 @@ int Runner::Run(Runner&& runner) {
 
 Runner::Runner(std::unique_ptr<Scene> scene):
     _scene(std::move(scene)),
+    _context{nullptr},
     _state{State::Idle},
     _continueCallback{},
     _shutdownCallback{} {
@@ -110,6 +111,10 @@ Runner& Runner::operator=(Runner&& other) {
 }
 
 /// Public Member Functions ///
+
+void Runner::start() {
+    begin();
+}
 
 bool Runner::update() {
 

@@ -56,6 +56,7 @@ namespace a3d {
 
 		/// Public Member Functions ///
 
+		void						start();
 		bool						update();
 		void						stop();
 
@@ -81,7 +82,7 @@ namespace a3d {
 		/// Private Member Variables ///
 
 		std::unique_ptr<Scene>		_scene;
-		void*						_context = nullptr;
+		void*						_context;
 		State						_state;
 		ContinueCallback			_continueCallback;
 		ShutdownCallback			_shutdownCallback;
