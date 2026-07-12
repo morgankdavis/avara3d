@@ -67,8 +67,8 @@ Runner::Runner(std::unique_ptr<Scene> scene):
     _scene(std::move(scene)),
     _context{nullptr},
     _state{State::Idle},
-    _continueCallback{},
-    _shutdownCallback{} {
+    _shouldContinuePredicate{},
+    _didShutdownCallback{} {
 
     if (!_scene) {
         throw std::invalid_argument("a3d::Runner requires a non-null Scene.");
@@ -83,8 +83,8 @@ Runner::Runner(Runner&& other):
     _scene(std::move(other._scene)),
     _context(other._context),
     _state(other._state),
-    _continueCallback(std::move(other._continueCallback)),
-    _shutdownCallback(std::move(other._shutdownCallback)) {
+    _shouldContinuePredicate(std::move(other._shouldContinuePredicate)),
+    _didShutdownCallback(std::move(other._didShutdownCallback)) {
 
     other._context = nullptr;
     other._state = State::Stopped;
@@ -101,8 +101,8 @@ Runner& Runner::operator=(Runner&& other) {
     _scene = std::move(other._scene);
     _context = other._context;
     _state = other._state;
-    _continueCallback = std::move(other._continueCallback);
-    _shutdownCallback = std::move(other._shutdownCallback);
+    _shouldContinuePredicate = std::move(other._shouldContinuePredicate);
+    _didShutdownCallback = std::move(other._didShutdownCallback);
 
     other._context = nullptr;
     other._state = State::Stopped;
@@ -127,8 +127,8 @@ bool Runner::update() {
 
     _scene->update();
 
-    if (_continueCallback &&
-        !_continueCallback(*this, *_scene, _context)) {
+    if (_shouldContinuePredicate &&
+        !_shouldContinuePredicate(*this, *_scene, _context)) {
         stop();
     }
 
@@ -155,20 +155,20 @@ void Runner::context(void* context) {
     _context = context;
 }
 
-Runner::ContinueCallback Runner::continueCallback() const {
-    return _continueCallback;
+Runner::ShouldContinuePredicate Runner::shouldContinuePredicate() const {
+    return _shouldContinuePredicate;
 }
 
-void Runner::continueCallback(ContinueCallback function) {
-    _continueCallback = std::move(function);
+void Runner::shouldContinuePredicate(ShouldContinuePredicate function) {
+    _shouldContinuePredicate = std::move(function);
 }
 
-Runner::ShutdownCallback Runner::shutdownCallback() const {
-    return _shutdownCallback;
+Runner::DidShutdownCallback Runner::didShutdownCallback() const {
+    return _didShutdownCallback;
 }
 
-void Runner::shutdownCallback(ShutdownCallback function) {
-    _shutdownCallback = std::move(function);
+void Runner::didShutdownCallback(DidShutdownCallback function) {
+    _didShutdownCallback = std::move(function);
 }
 
 /// Private Member Functions ///
@@ -184,9 +184,9 @@ void Runner::end() {
     // destroy the Scene while the external context/window still exists
     _scene.reset();
 
-    if (_shutdownCallback) {
+    if (_didShutdownCallback) {
         try {
-            _shutdownCallback(*this, _context);
+            _didShutdownCallback(*this, _context);
         }
         catch (...) {
             // destructors / teardown paths must not throw

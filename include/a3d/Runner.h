@@ -28,12 +28,12 @@ namespace a3d {
 			Stopped
 		};
 
-		using ContinueCallback =	std::function<bool(
+		using ShouldContinuePredicate =	std::function<bool(
 				Runner& runner,
 				Scene& scene,
 				void* context)>;
 
-		using ShutdownCallback =	std::function<void(
+		using DidShutdownCallback =	std::function<void(
 				Runner& runner,
 				void* context)>;
 
@@ -67,11 +67,11 @@ namespace a3d {
 		void*						context() const;
 		void						context(void* context);
 
-		ContinueCallback			continueCallback() const;
-		void						continueCallback(ContinueCallback function);
+		ShouldContinuePredicate		shouldContinuePredicate() const;
+		void						shouldContinuePredicate(ShouldContinuePredicate function);
 
-		ShutdownCallback			shutdownCallback() const;
-		void						shutdownCallback(ShutdownCallback function);
+		DidShutdownCallback			didShutdownCallback() const;
+		void						didShutdownCallback(DidShutdownCallback function);
 
 	private:
 		/// Private Member Functions ///
@@ -83,8 +83,8 @@ namespace a3d {
 		std::unique_ptr<Scene>		_scene;
 		void*						_context;
 		State						_state;
-		ContinueCallback			_continueCallback;
-		ShutdownCallback			_shutdownCallback;
+		ShouldContinuePredicate		_shouldContinuePredicate;
+		DidShutdownCallback			_didShutdownCallback;
 	};
 }
 

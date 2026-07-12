@@ -6,46 +6,48 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
+#include <string>
+#include <utility>
 #include <vector>
 
 #include "a3d/a3d.h"
 
 #include "App.h"
 
-int main(int argc, const char* argv[]) {
+using namespace a3d;
+using namespace std;
+
+using test::rigidbody::App;
+
+int main(int argc, char* argv[]) {
 
 	struct Context {
-		test::rigidbody::App app;
+		App app;
 	};
 
 	auto* context = new Context{
-		test::rigidbody::App(std::vector<std::string>(argv + 1, argv + argc))
+		App(vector<string>(argv + 1, argv + argc))
 	};
 
-	a3d::Runner runner(context->app.init());
+	Runner runner(context->app.initialize());
 
 	runner.context(context);
 
-	runner.continueCallback([](
-			a3d::Runner& runner,
-			a3d::Scene& scene,
+	runner.shouldContinuePredicate([](
+			Runner& runner,
+			Scene& scene,
 			void* context) {
-
 			auto *c = static_cast<Context *>(context);
-			return c->app.shouldContinue(scene);
+			return c->app.runnerShouldContinue(scene);
 	});
 
-	runner.shutdownCallback([](
-			a3d::Runner& runner,
+	runner.didShutdownCallback([](
+			Runner& runner,
 			void* context) {
-
-		a3d::log::d();
-
 		auto *c = static_cast<Context *>(context);
-		c->app.shutdown();
-
+		c->app.runnerDidShutdown();
 		delete c;
 	});
 
-	return a3d::Runner::Run(std::move(runner));
+	return Runner::Run(std::move(runner));
 }

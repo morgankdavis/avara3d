@@ -96,11 +96,6 @@ const float								PHYSICS_TIMESTEP		{1.0/30.0};
 const float								PHYSICS_TIMESTEP		{1.0/120.0};
 #endif
 
-void UpdateCallback(Scene& scene, double time, double deltaTime);
-void WillRenderCallback(VisualWorld& world, double time, double deltaTime);
-void DidRenderCallback(VisualWorld& world, double time, double deltaTime);
-void DidSimulatePhysicsCallback(PhysicalWorld& world, double time, double deltaTime);
-
 void InitLog();
 void LogBuildInfo();
 void SpawnDuckFruit(Scene& scene, const Node& duckNode, vector<App::DuckFruitDef>& duckFruit);
@@ -121,7 +116,7 @@ App::App(std::vector<std::string> args) {}
 
 App::~App() {}
 
-std::unique_ptr<Scene> App::init() {
+std::unique_ptr<Scene> App::initialize() {
 
 	try {
 
@@ -147,18 +142,18 @@ std::unique_ptr<Scene> App::init() {
 		Material::Property background = Color::Black();
 //		MaterialProperty background = make_shared<Texture>(utils::CubeImageNamed("stormy", "png"));
 		visualWorld->background(background);
-		visualWorld->willRenderCallback(bind(&App::WillRenderCallback, this, _1, _2, _3));
-		visualWorld->didRenderCallback(bind(&App::DidRenderCallback, this, _1, _2, _3));
+		visualWorld->willRenderCallback(bind(&App::visualWorldWillRender, this, _1, _2, _3));
+		visualWorld->didRenderCallback(bind(&App::visualWorldDidRender, this, _1, _2, _3));
 
 		auto physicalWorld = make_unique<PhysicalWorld>();
 		physicalWorld->timestep(PHYSICS_TIMESTEP);
-		physicalWorld->didSimulateCallback(bind(&App::DidSimulatePhysicsCallback, this, _1, _2, _3));
+		physicalWorld->didSimulateCallback(bind(&App::physicalWorldDidSimulate, this, _1, _2, _3));
 
 		auto scene = make_unique<Scene>(std::move(visualWorld),
 										std::move(physicalWorld),
 										std::move(inputManager));
 		scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
-		scene->updateCallback(bind(&App::UpdateCallback, this, _1, _2, _3));
+		scene->updateCallback(bind(&App::sceneUpdate, this, _1, _2, _3));
 
 		//scene->visualWorld()->usesDefaultLighting(true);
 
@@ -488,17 +483,17 @@ std::unique_ptr<Scene> App::init() {
 	}
 }
 
-bool App::shouldContinue(const Scene& scene) {
+bool App::runnerShouldContinue(const Scene& scene) {
 	return _window->isOpen();
 }
 
-void App::shutdown() {
+void App::runnerDidShutdown() {
 
 }
 
 /// Scene Callbacks ///
 
-void App::UpdateCallback(Scene& scene, double time, double deltaTime) {
+void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 	log::app::t()("scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
 
 	// GLFWWindow* window = nullptr;
@@ -888,17 +883,17 @@ void App::UpdateCallback(Scene& scene, double time, double deltaTime) {
 
 /// VisualWorld Callbacks ///
 
-void App::WillRenderCallback(VisualWorld& world, double time, double deltaTime) {
+void App::visualWorldWillRender(VisualWorld& world, double time, double deltaTime) {
 	log::app::t()("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
-void App::DidRenderCallback(VisualWorld& world, double time, double deltaTime) {
+void App::visualWorldDidRender(VisualWorld& world, double time, double deltaTime) {
 	log::app::t()("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
 /// PhysicalWorld Callbacks ///
 
-void App::DidSimulatePhysicsCallback(PhysicalWorld& world, double time, double deltaTime) {
+void App::physicalWorldDidSimulate(PhysicalWorld& world, double time, double deltaTime) {
 	log::app::t()("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
 }
 
