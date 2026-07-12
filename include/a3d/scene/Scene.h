@@ -113,12 +113,14 @@ namespace a3d {
 		DebugOptions 						debugOptions() const;
 		void 								debugOptions(DebugOptions options);
 
-		void 								update();
-
 		double 								time() const;
 
 		UpdateCallback 						updateCallback() const;
 		void 								updateCallback(UpdateCallback function);
+
+		/// Internal Member Functions ///
+
+		void 								update();
 
 	private:
 		/// Private Member Variables ///

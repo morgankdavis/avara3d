@@ -273,6 +273,28 @@ void Scene::debugOptions(DebugOptions options) {
 	_debugOptions = options;
 }
 
+double Scene::time() const {
+
+	// https://randomascii.wordpress.com/2012/02/13/dont-store-that-in-a-float/
+
+	if (_startTime != 0) {
+		auto now = chrono::steady_clock::now();
+		auto nowSinceEpoch = chrono::duration<double>(now.time_since_epoch()).count();
+		return nowSinceEpoch - _startTime;
+	}
+	return 0;
+}
+
+Scene::UpdateCallback Scene::updateCallback() const {
+	return _updateCallback;
+}
+
+void Scene::updateCallback(UpdateCallback function) {
+	_updateCallback = function;
+}
+
+/// Internal Member Functions ///
+
 void Scene::update() {
 
 	if (!util::flow::edge_guard(_rootNode, [&] {
@@ -339,26 +361,6 @@ void Scene::update() {
 	_frameStatsHistory.add(stats);
 
 	_profiler.reset();
-}
-
-double Scene::time() const {
-
-	// https://randomascii.wordpress.com/2012/02/13/dont-store-that-in-a-float/
-
-	if (_startTime != 0) {
-		auto now = chrono::steady_clock::now();
-		auto nowSinceEpoch = chrono::duration<double>(now.time_since_epoch()).count();
-		return nowSinceEpoch - _startTime;
-	}
-	return 0;
-}
-
-Scene::UpdateCallback Scene::updateCallback() const {
-	return _updateCallback;
-}
-
-void Scene::updateCallback(UpdateCallback function) {
-	_updateCallback = function;
 }
 
 /// Private Static ///
