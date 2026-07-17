@@ -38,16 +38,17 @@ namespace a3d::head::qt {
 namespace a3de {
 
 	class MainWindow : public QMainWindow {
-	Q_OBJECT
+		Q_OBJECT
 
-	public:
+		public:
 
 		explicit MainWindow(QWidget* parent = nullptr);
-		~MainWindow();
+		~MainWindow() override;
 
 	private:
 
-		void initScene(a3d::head::qt::QtViewport &viewport);
+		void initA3D();
+		void updateA3D();
 		void initLog();
 		void logBuildInfo();
 
@@ -58,7 +59,8 @@ namespace a3de {
 
 		Ui::MainWindow*					_ui;
 		a3d::head::qt::QtViewport*		_viewport;
-		std::unique_ptr<a3d::Runner>	_runner;
+		std::unique_ptr<a3d::Scene>		_scene;
+		std::unique_ptr<a3d::Runner>		_runner; // Runner must be destroyed before Scene
 		std::shared_ptr<a3d::Node>		_pointLightNode;
 	};
 }

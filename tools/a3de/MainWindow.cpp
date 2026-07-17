@@ -27,29 +27,73 @@ const RenderContext::AntialiasingMode	ANTIALIAS_MODE		{RenderContext::Antialiasi
 const bool								CAPTURE_CURSOR		{false};
 const float								MOUSE_SENSITIVITY	{0.5};
 
+// MainWindow::MainWindow(QWidget* parent):
+// 		QMainWindow(parent),
+// 		_ui(new Ui::MainWindow) {
+//
+// 	_ui->setupUi(this);
+// 	statusBar()->hide();
+//
+// 	resize(WINDOW_SIZE.x, WINDOW_SIZE.y);
+//
+// 	_viewport = new head::qt::QtViewport(RenderContext::RenderingApi::OpenGL,
+// 	                                     ANTIALIAS_MODE,
+// 	                                     this);
+// 	initScene(*_viewport);
+//
+// 	setCentralWidget(_viewport);
+// }
+
 MainWindow::MainWindow(QWidget* parent):
 		QMainWindow(parent),
-		_ui(new Ui::MainWindow) {
+		_ui(new Ui::MainWindow),
+		_viewport(new head::qt::QtViewport(
+			RenderContext::RenderingApi::OpenGL,
+			ANTIALIAS_MODE,
+			this)),
+		_scene{},
+		_runner{} {
 
 	_ui->setupUi(this);
 	statusBar()->hide();
 
 	resize(WINDOW_SIZE.x, WINDOW_SIZE.y);
 
-	_viewport = new head::qt::QtViewport(RenderContext::RenderingApi::OpenGL,
-											  ANTIALIAS_MODE,
-											  this);
-	initScene(*_viewport);
-
 	setCentralWidget(_viewport);
+
+	connect(
+		_viewport,
+		&head::qt::QtViewport::initialized,
+		this,
+		&MainWindow::initA3D
+	);
+
+	connect(
+		_viewport,
+		&head::qt::QtViewport::renderFrame,
+		this,
+		&MainWindow::updateA3D
+	);
 }
 
 MainWindow::~MainWindow() {
-	_runner.reset();
+
+	if (_runner) {
+		_runner->stop();
+		_runner.reset();
+	}
+
+	// Scene dies before QMainWindow destroys QtViewport
+	_scene.reset();
+
 	delete _ui;
 }
 
-void MainWindow::initScene(head::qt::QtViewport &viewport) {
+void MainWindow::initA3D() {
+
+	if (_scene) {
+		return;
+	}
 
 	using util::filesystem::MeshNamed;
 
@@ -59,29 +103,47 @@ void MainWindow::initScene(head::qt::QtViewport &viewport) {
 
 		auto inputManager = make_unique<head::qt::QtInputManager>(*_viewport);
 
-		auto visualWorld = make_unique<VisualWorld>(viewport);
+		auto visualWorld = make_unique<VisualWorld>(*_viewport);
 		auto backgroundColor = make_shared<Color>(u8vec3{109, 136, 164});
 		visualWorld->background(backgroundColor);
 		visualWorld->willRenderCallback(bind(&MainWindow::willRenderCallback, this, _1, _2, _3));
 		visualWorld->didRenderCallback(bind(&MainWindow::didRenderCallback, this, _1, _2, _3));
 
-		auto scene = make_unique<Scene>();
-		scene->visualWorld(std::move(visualWorld));
-		scene->inputManager(std::move(inputManager));
-		scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
-		scene->updateCallback(bind(&MainWindow::updateCallback, this, _1, _2, _3));
+		_scene = make_unique<Scene>();
+		_scene->visualWorld(std::move(visualWorld));
+		_scene->inputManager(std::move(inputManager));
+		_scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
+		_scene->updateCallback(bind(&MainWindow::updateCallback, this, _1, _2, _3));
 
-		viewport.cursorCaptured(CAPTURE_CURSOR);
+		_viewport->cursorCaptured(CAPTURE_CURSOR);
 
-		_runner = std::make_unique<Runner>(std::move(scene));
+		// _runner = std::make_unique<Runner>(std::move(scene));
+		// _runner->start();
+		//
+		// _viewport->runner(_runner.get());
+
+		_runner = make_unique<Runner>(*_scene);
 		_runner->start();
-
-		_viewport->runner(_runner.get());
 	}
 	catch (std::exception& e)
 	{
 		log::app::f()("Exception: {}", e.what());
 		//return -1;
+	}
+}
+
+void MainWindow::updateA3D() {
+
+	if (!_runner) {
+		return;
+	}
+
+	if (_runner->update()) {
+		_viewport->update();
+	}
+	else {
+		_runner.reset();
+		_scene.reset();
 	}
 }
 

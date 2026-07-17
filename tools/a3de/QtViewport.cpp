@@ -8,7 +8,6 @@
 
 #include "QtViewport.h"
 
-#include <QDateTime>
 #include <QEvent>
 #include <QMouseEvent>
 #include <QOpenGLFunctions_3_3_Core>
@@ -37,7 +36,6 @@ Viewport::QtViewport(RenderingApi renderingApi,
 					 QWidget* parent):
 		RenderContext(renderingApi),
 		QOpenGLWidget(parent),
-		_runner{nullptr},
 		_cursorCaptured{false},
 		_lastCursorPosition{},
 		_lastCapturedCursorPosition{},
@@ -64,14 +62,6 @@ Viewport::QtViewport(RenderingApi renderingApi,
 //}
 
 /// Public Member Functions ///
-
-Runner* Viewport::runner() const {
-	return _runner;
-}
-
-void Viewport::runner(Runner* runner) {
-	_runner = runner;
-}
 
 bool Viewport::cursorCaptured() const {
 	return _cursorCaptured;
@@ -348,6 +338,7 @@ void Viewport::initializeGL() {
 
 	if (a3d::OGLRenderer::InitGL(loader)) {
 		_renderer->initialize(*this);
+		emit initialized();
 	}
 	else {
 		log::f()("Failed to initialize OpenGL function loader.");
@@ -357,16 +348,7 @@ void Viewport::initializeGL() {
 void Viewport::resizeGL(int w, int h) {}
 
 void Viewport::paintGL() {
-
-	static qint64 lastNs = 0;
-	qint64 nowNs = QDateTime::currentMSecsSinceEpoch() * 1000000ll;
-	if (lastNs == 0) lastNs = nowNs;
-	double dt = double(nowNs - lastNs) / 1e9;
-	lastNs = nowNs;
-
-	if (_runner && _runner->update()) {
-		update();
-	}
+	emit renderFrame();
 }
 
 /// Private Member Functions ///

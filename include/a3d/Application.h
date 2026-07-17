@@ -78,7 +78,7 @@ namespace a3d {
 
 		std::vector<std::string>	_args;
 		std::unique_ptr<Scene>		_scene;
-		std::unique_ptr<Runner>		_runner; // Runner must be destroyed before Scene!
+		std::unique_ptr<Runner>		_runner; // Runner must be destroyed before Scene
 		bool						_didShutdown;;
 	};
 }

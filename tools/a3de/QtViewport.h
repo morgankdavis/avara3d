@@ -9,15 +9,11 @@
 #ifndef A3DVIEWPORT_H
 #define A3DVIEWPORT_H
 
-#include <memory>
+#include <optional>
 
 #include <QOpenGLWidget>
 
 #include "a3d/render/context/RenderContext.h"
-
-namespace a3d {
-	class Runner;
-}
 
 namespace a3d::head::qt {
 
@@ -27,18 +23,19 @@ namespace a3d::head::qt {
 
 	Q_OBJECT
 
+	signals:
+		void					initialized();
+		void					renderFrame();
+
 	public:
 		/// Public Lifecycle Functions ///
 
 		explicit QtViewport(RenderingApi renderingApi,
-							AntialiasingMode antialiasingModeQWidget,
+							AntialiasingMode antialiasingMode,
 							QWidget* parent = nullptr);
 		~QtViewport() = default;
 
 		/// Public Member Functions ///
-
-		Runner*					runner() const;
-		void 					runner(Runner* runner);
 
 		bool 					cursorCaptured() const;
 		void 					cursorCaptured(bool captured);
@@ -85,7 +82,6 @@ namespace a3d::head::qt {
 
 		/// Private Member Variables ///
 
-		Runner*					_runner;
 		bool					_cursorCaptured;
 		std::optional<QPointF>	_lastCursorPosition;
 		std::optional<QPointF> 	_lastCapturedCursorPosition;
