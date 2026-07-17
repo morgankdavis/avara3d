@@ -2,17 +2,23 @@
 //  App.h
 //  avara3d
 //
-//  Created by Morgan Davis on 7/11/26.
-//  Copyright © 2026 Morgan K Davis. All rights reserved.
-//
 
 #ifndef AVARA3D_TEST_RIGIDBODY_APP_H
 #define AVARA3D_TEST_RIGIDBODY_APP_H
 
 #include <memory>
 #include <string>
-#include <tuple>
 #include <vector>
+
+#include "a3d/Application.h"
+
+// namespace a3d {
+//
+// 	class GLFWWindow;
+// 	class PhysicalWorld;
+// 	class Scene;
+// 	class VisualWorld;
+// }
 
 namespace a3d {
 	class GLFWWindow;
@@ -26,52 +32,169 @@ namespace a3d {
 
 namespace test::rigidbody {
 
-	struct WanderRotate;
-
-	class App {
+	class App : public a3d::Application {
 
 	public:
-
 		using DuckFruitDef = std::tuple<
 			std::shared_ptr<a3d::Mesh>,
 			std::shared_ptr<a3d::PhysicsShape>,
 			float>;
 
 
-		App(std::vector<std::string> args);
 
-		~App();
 
-		App(const App &) = delete;
+		/// Public Lifecycle Functions ///
 
-		App &operator=(const App &) = delete;
+		App(int argc, char* argv[]);
+		~App() override;
 
-		App(App &&) = delete;
+		App(const App&) = delete;
+		App& operator=(const App&) = delete;
 
-		App &operator=(App &&) = delete;
+		App(App&&) = delete;
+		App& operator=(App&&) = delete;
 
-		std::unique_ptr<a3d::Scene> initialize();
+	protected:
 
-		bool runnerShouldContinue(const a3d::Scene &scene);
-		void runnerDidShutdown();
+
+
+
+
+		/// Protected Member Functions ///
+
+		std::unique_ptr<a3d::Scene> initialize() override;
+
+		bool shouldContinue(
+			const a3d::Scene& scene) override;
+
+		void didShutdown() override;
+
+		/// Scene Callbacks ///
+
+		void sceneUpdate(
+			a3d::Scene& scene,
+			double time,
+			double deltaTime) override;
+
+		/// VisualWorld Callbacks ///
+
+		void visualWorldDidRender(
+			a3d::VisualWorld &world,
+			double time,
+			double deltaTime) override;
+
+		void visualWorldWillRender(
+			a3d::VisualWorld& world,
+			double time,
+			double deltaTime) override;
+
+		/// PhysicalWorld Callbacks ///
+
+		void physicalWorldDidSimulate(
+			a3d::PhysicalWorld& world,
+			double time,
+			double deltaTime) override;
 
 	private:
+		/// Private Member Variables ///
 
-		void sceneUpdate(a3d::Scene &scene, double time, double deltaTime);
-		void visualWorldWillRender(a3d::VisualWorld &world, double time, double deltaTime);
-		void visualWorldDidRender(a3d::VisualWorld &world, double time, double deltaTime);
-		void physicalWorldDidSimulate(a3d::PhysicalWorld &world, double time, double deltaTime);
-
-		a3d::Node *g_palmNode;
-		a3d::Node *g_duckNode;
-
-		std::unique_ptr<a3d::GLFWWindow> _window;
-
-		std::vector<DuckFruitDef> g_duckFruit;
+		std::unique_ptr<a3d::GLFWWindow>	_window;
 
 
-		WanderRotate *wr;
+
+		a3d::Node *_palmNode;
+		a3d::Node *_duckNode;
+
+		std::vector<DuckFruitDef> _duckFruit;
+
+
+		// WanderRotate *wr;
 	};
 }
 
-#endif //AVARA3D_TEST_RIGIDBODY_APP_H
+#endif // AVARA3D_TEST_RIGIDBODY_APP_H
+
+
+
+
+
+
+
+
+// //
+// //  App.h
+// //  avara3d
+// //
+// //  Created by Morgan Davis on 7/11/26.
+// //  Copyright © 2026 Morgan K Davis. All rights reserved.
+// //
+//
+// #ifndef AVARA3D_TEST_RIGIDBODY_APP_H
+// #define AVARA3D_TEST_RIGIDBODY_APP_H
+//
+// #include <memory>
+// #include <string>
+// #include <tuple>
+// #include <vector>
+//
+// namespace a3d {
+// 	class GLFWWindow;
+// 	class Mesh;
+// 	class Node;
+// 	class PhysicsShape;
+// 	class PhysicalWorld;
+// 	class Scene;
+// 	class VisualWorld;
+// }
+//
+// namespace test::rigidbody {
+//
+// 	struct WanderRotate;
+//
+// 	class App {
+//
+// 	public:
+//
+// 		using DuckFruitDef = std::tuple<
+// 			std::shared_ptr<a3d::Mesh>,
+// 			std::shared_ptr<a3d::PhysicsShape>,
+// 			float>;
+//
+//
+// 		App(std::vector<std::string> args);
+//
+// 		~App();
+//
+// 		App(const App &) = delete;
+//
+// 		App &operator=(const App &) = delete;
+//
+// 		App(App &&) = delete;
+//
+// 		App &operator=(App &&) = delete;
+//
+// 		std::unique_ptr<a3d::Scene> initialize();
+//
+// 		bool runnerShouldContinue(const a3d::Scene &scene);
+// 		void runnerDidShutdown();
+//
+// 	private:
+//
+// 		void sceneUpdate(a3d::Scene &scene, double time, double deltaTime);
+// 		void visualWorldWillRender(a3d::VisualWorld &world, double time, double deltaTime);
+// 		void visualWorldDidRender(a3d::VisualWorld &world, double time, double deltaTime);
+// 		void physicalWorldDidSimulate(a3d::PhysicalWorld &world, double time, double deltaTime);
+//
+// 		a3d::Node *g_palmNode;
+// 		a3d::Node *g_duckNode;
+//
+// 		std::unique_ptr<a3d::GLFWWindow> _window;
+//
+// 		std::vector<DuckFruitDef> g_duckFruit;
+//
+//
+// 		WanderRotate *wr;
+// 	};
+// }
+//
+// #endif //AVARA3D_TEST_RIGIDBODY_APP_H

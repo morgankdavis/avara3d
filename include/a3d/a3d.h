@@ -12,6 +12,7 @@
 // TEMPORARY
 #include "a3d/app/ALFImporter.h"
 
+#include "a3d/Application.h"
 #include "a3d/Buffer.h"
 #include "a3d/BuildInfo.h"
 #include "a3d/Color.h"

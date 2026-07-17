@@ -2,9 +2,6 @@
 //  App.cc
 //  avara3d
 //
-//  Created by Morgan Davis on 7/11/26.
-//  Copyright © 2026 Morgan K Davis. All rights reserved.
-//
 
 #include "App.h"
 
@@ -16,7 +13,7 @@
 #include <utility>
 #include <vector>
 
-#include "a3d/a3d.h"
+// #include "a3d/a3d.h"
 #include "a3d/util/bitmask.h"
 #include "a3d/util/filesystem.h"
 #include "a3d/util/flow.h"
@@ -25,56 +22,63 @@
 // testing
 #include "a3d/mesh/ConvexDecomposer.h"
 
+
+#include "a3d/a3d.h"
+
 using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 using namespace test::rigidbody;
 
+using test::rigidbody::App;
 
 
 
-struct test::rigidbody::WanderRotate {
-	// tunables
-	float minInterval = 0.8f; // seconds
-	float maxInterval = 2.5f; // seconds
-	float minSpeed  = 0.5f; // rad/s
-	float maxSpeed  = 1.0f; // rad/s
-	float smoothing = 1.0f; // bigger = snappier
 
-	// state
-	float timer = 0.0f;
-	float nextChange = 1.0f;
 
-	vec3 angularVelocity = {0, 0, 0}; // current rad/s (axis * speed)
-	vec3 targetAngularVelocity = {0, 0, 0}; // desired rad/s
 
-	void chooseNewTarget() {
-		vec3 axis = uniform_spherical(1.0);
-		float speed = uniform_linear(minSpeed, maxSpeed);
-		targetAngularVelocity = axis * speed;
-		nextChange = uniform_linear(minInterval, maxInterval);
-		timer = 0.0f;
-	}
-
-	void update(Node& n, float dt) {
-		timer += dt;
-		if (timer >= nextChange) chooseNewTarget();
-
-		// exponential smoothing toward target
-		// alpha = 1 - exp(-smoothing * dt)  (frame-rate independent)
-		float alpha = 1.0f - math::exp(-smoothing * dt);
-		angularVelocity = angularVelocity + (targetAngularVelocity - angularVelocity) * alpha;
-
-		// integrate into orientation
-		float angle = length(angularVelocity) * dt;
-		if (angle > 1e-6f) {
-			vec3 axis = normalize(angularVelocity);
-			quat dq = math::quaternion(axis, angle); // implement or use yours
-			n.orientation(normalize(dq * n.orientation())); // or n.rotation *= dq depending on convention
-		}
-	}
-};
+// struct test::rigidbody::WanderRotate {
+// 	// tunables
+// 	float minInterval = 0.8f; // seconds
+// 	float maxInterval = 2.5f; // seconds
+// 	float minSpeed  = 0.5f; // rad/s
+// 	float maxSpeed  = 1.0f; // rad/s
+// 	float smoothing = 1.0f; // bigger = snappier
+//
+// 	// state
+// 	float timer = 0.0f;
+// 	float nextChange = 1.0f;
+//
+// 	vec3 angularVelocity = {0, 0, 0}; // current rad/s (axis * speed)
+// 	vec3 targetAngularVelocity = {0, 0, 0}; // desired rad/s
+//
+// 	void chooseNewTarget() {
+// 		vec3 axis = uniform_spherical(1.0);
+// 		float speed = uniform_linear(minSpeed, maxSpeed);
+// 		targetAngularVelocity = axis * speed;
+// 		nextChange = uniform_linear(minInterval, maxInterval);
+// 		timer = 0.0f;
+// 	}
+//
+// 	void update(Node& n, float dt) {
+// 		timer += dt;
+// 		if (timer >= nextChange) chooseNewTarget();
+//
+// 		// exponential smoothing toward target
+// 		// alpha = 1 - exp(-smoothing * dt)  (frame-rate independent)
+// 		float alpha = 1.0f - math::exp(-smoothing * dt);
+// 		angularVelocity = angularVelocity + (targetAngularVelocity - angularVelocity) * alpha;
+//
+// 		// integrate into orientation
+// 		float angle = length(angularVelocity) * dt;
+// 		if (angle > 1e-6f) {
+// 			vec3 axis = normalize(angularVelocity);
+// 			quat dq = math::quaternion(axis, angle); // implement or use yours
+// 			n.orientation(normalize(dq * n.orientation())); // or n.rotation *= dq depending on convention
+// 		}
+// 	}
+// };
 
 
 
@@ -112,11 +116,23 @@ void SpawnInvisiblePrimitives(Scene& scene);
 shared_ptr<Node> ChainmailLink(float minorRadius, float majorRadius);
 void SpawnChainMail(Scene& scene);
 
-App::App(std::vector<std::string> args) {}
 
-App::~App() {}
 
-std::unique_ptr<Scene> App::initialize() {
+
+
+
+
+
+
+
+App::App(int argc, char* argv[]) :
+	Application(argc, argv),
+	_window{} {
+}
+
+App::~App() = default;
+
+unique_ptr<Scene> App::initialize() {
 
 	try {
 
@@ -275,7 +291,7 @@ std::unique_ptr<Scene> App::initialize() {
 
 			//auto palmNode = Node::MeshNode(util::filesystem::MeshNamed("palm/palm"));
 			auto palmNode = Node::MeshNode(util::filesystem::MeshNamed("cartoon_palm_tree/cartoon_palm_tree"));
-			g_palmNode = palmNode.get();
+			_palmNode = palmNode.get();
 			auto palmPhysicsBody = PhysicsBody::StaticBody();
 			palmPhysicsBody->mass(0);
 			palmPhysicsBody->friction(1);
@@ -305,7 +321,7 @@ std::unique_ptr<Scene> App::initialize() {
 			auto duckNode = Node::MeshNode(util::filesystem::MeshNamed("rubber_duck/rubber_duck"));
 //		auto duckNode = Node::MeshNode(util::filesystem::MeshNamed("siamese/siamese"));
 //		auto duckNode = Node::MeshNode(util::filesystem::MeshNamed("teapot/teapot"));
-			g_duckNode = duckNode.get();
+			_duckNode = duckNode.get();
 			duckNode->position({/*4.5*/0, 25, 0});
 
 
@@ -373,29 +389,29 @@ std::unique_ptr<Scene> App::initialize() {
 
 		auto mesh = util::filesystem::MeshNamed("cherries_lod/cherries_lod");
 		auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
-		g_duckFruit.push_back({mesh, shape, 0.05});
+		_duckFruit.push_back({mesh, shape, 0.05});
 
 		mesh = util::filesystem::MeshNamed("orange_lod/orange_lod");
 		shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
-		g_duckFruit.push_back({mesh, shape, 0.185});
+		_duckFruit.push_back({mesh, shape, 0.185});
 
 		mesh = util::filesystem::MeshNamed("pear_lod/pear_lod");
 		shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
-		g_duckFruit.push_back({mesh, shape, 0.24});
+		_duckFruit.push_back({mesh, shape, 0.24});
 
 		mesh = util::filesystem::MeshNamed("apple_lod/apple_lod");
 		shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
-		g_duckFruit.push_back({mesh, shape, 0.225});
+		_duckFruit.push_back({mesh, shape, 0.225});
 
 		mesh = util::filesystem::MeshNamed("banana_lod/banana_lod");
 		shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
-		g_duckFruit.push_back({mesh, shape, 0.14});
+		_duckFruit.push_back({mesh, shape, 0.14});
 
 		mesh = util::filesystem::MeshNamed("pineapple_lod/pineapple_lod");
 		shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
-		g_duckFruit.push_back({mesh, shape, 0.9});
+		_duckFruit.push_back({mesh, shape, 0.9});
 
-		// g_duckFruit = duckFruit;
+		// _duckFruit = duckFruit;
 
 
 	////	// add the paddle
@@ -470,7 +486,7 @@ std::unique_ptr<Scene> App::initialize() {
 //		cameraNode->light(flashLight);
 //		scene->visualWorld()->pointOfView(cameraNode);
 
-		wr = new WanderRotate();
+		//wr = new WanderRotate();
 
 		_window->center();
 		_window->open();
@@ -483,18 +499,543 @@ std::unique_ptr<Scene> App::initialize() {
 	}
 }
 
-bool App::runnerShouldContinue(const Scene& scene) {
+bool App::shouldContinue(const Scene&) {
 	return _window->isOpen();
 }
 
-void App::runnerDidShutdown() {
-
+void App::didShutdown() {
+	// Scene has already been destroyed.
+	// Clean up only App-owned state here.
 }
+
+// void App::sceneUpdate(
+// 		Scene& scene,
+// 		double time,
+// 		double deltaTime) {
+//
+// 	// Optional per-frame application work.
+// }
+//
+// void App::visualWorldWillRender(
+// 		VisualWorld& world,
+// 		double time,
+// 		double deltaTime) {
+//
+// 	// Optional.
+// }
+//
+// void App::physicalWorldDidSimulate(
+// 		PhysicalWorld& world,
+// 		double time,
+// 		double deltaTime) {
+//
+// 	// Optional.
+// }
+
+
+// //
+// //  App.cc
+// //  avara3d
+// //
+// //  Created by Morgan Davis on 7/11/26.
+// //  Copyright © 2026 Morgan K Davis. All rights reserved.
+// //
+//
+// #include "App.h"
+//
+// #include <functional>
+// #include <memory>
+// #include <string>
+// #include <thread>
+// #include <tuple>
+// #include <utility>
+// #include <vector>
+//
+// #include "a3d/a3d.h"
+// #include "a3d/util/bitmask.h"
+// #include "a3d/util/filesystem.h"
+// #include "a3d/util/flow.h"
+// #include "a3d/util/snapshot.h"
+//
+// // testing
+// #include "a3d/mesh/ConvexDecomposer.h"
+//
+// using namespace a3d;
+// using namespace a3d::math;
+// using namespace std;
+// using namespace std::placeholders;
+// using namespace test::rigidbody;
+//
+//
+//
+//
+// struct test::rigidbody::WanderRotate {
+// 	// tunables
+// 	float minInterval = 0.8f; // seconds
+// 	float maxInterval = 2.5f; // seconds
+// 	float minSpeed  = 0.5f; // rad/s
+// 	float maxSpeed  = 1.0f; // rad/s
+// 	float smoothing = 1.0f; // bigger = snappier
+//
+// 	// state
+// 	float timer = 0.0f;
+// 	float nextChange = 1.0f;
+//
+// 	vec3 angularVelocity = {0, 0, 0}; // current rad/s (axis * speed)
+// 	vec3 targetAngularVelocity = {0, 0, 0}; // desired rad/s
+//
+// 	void chooseNewTarget() {
+// 		vec3 axis = uniform_spherical(1.0);
+// 		float speed = uniform_linear(minSpeed, maxSpeed);
+// 		targetAngularVelocity = axis * speed;
+// 		nextChange = uniform_linear(minInterval, maxInterval);
+// 		timer = 0.0f;
+// 	}
+//
+// 	void update(Node& n, float dt) {
+// 		timer += dt;
+// 		if (timer >= nextChange) chooseNewTarget();
+//
+// 		// exponential smoothing toward target
+// 		// alpha = 1 - exp(-smoothing * dt)  (frame-rate independent)
+// 		float alpha = 1.0f - math::exp(-smoothing * dt);
+// 		angularVelocity = angularVelocity + (targetAngularVelocity - angularVelocity) * alpha;
+//
+// 		// integrate into orientation
+// 		float angle = length(angularVelocity) * dt;
+// 		if (angle > 1e-6f) {
+// 			vec3 axis = normalize(angularVelocity);
+// 			quat dq = math::quaternion(axis, angle); // implement or use yours
+// 			n.orientation(normalize(dq * n.orientation())); // or n.rotation *= dq depending on convention
+// 		}
+// 	}
+// };
+//
+//
+//
+//
+//
+//
+// const Log::Level						APP_LOG_LEVEL 			{Log::Level::Debug};
+// const uvec2								WINDOW_SIZE 			{1280, 768};
+// const bool								FULLSCREEN 				{false};
+// const bool								ENABLE_HIGH_DPI			{true};
+// const RenderContext::AntialiasingMode	AA_MODE					{RenderContext::AntialiasingMode::Msaa16X};
+// const bool								ENABLE_VSYNC			{false};
+// const bool								USE_DEFAULT_LIGHTING	{false};
+// const bool								CAPTURE_CURSOR			{false};
+// const float								MOUSE_SENSITIVITY		{0.5};
+// #if defined(A3D_WEB)
+// const float								PHYSICS_TIMESTEP		{1.0/30.0};
+// #else
+// const float								PHYSICS_TIMESTEP		{1.0/120.0};
+// #endif
+//
+// void InitLog();
+// void LogBuildInfo();
+// void SpawnDuckFruit(Scene& scene, const Node& duckNode, vector<App::DuckFruitDef>& duckFruit);
+// void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction);
+// void AddCardboardBox(Scene& scene, const vec3& location, const vec3& axis, float angle);
+// void SpawnHACDTeapot(Scene& scene);
+// void AddBoxes(Scene& scene);
+// void AddCardboardBoxes(Scene& scene);
+// void AddRing(Scene& scene);
+// shared_ptr<Node> ColoredSphereNode(shared_ptr<Color> color, string name);
+// void SpawnRecursiveTestTree(Scene& scene);
+// void SpawnAutogeneratedPrimitives(Scene& scene);
+// void SpawnInvisiblePrimitives(Scene& scene);
+// shared_ptr<Node> ChainmailLink(float minorRadius, float majorRadius);
+// void SpawnChainMail(Scene& scene);
+//
+// App::App(std::vector<std::string> args) {}
+//
+// App::~App() {}
+//
+// std::unique_ptr<Scene> App::initialize() {
+//
+// 	try {
+//
+// 		InitLog();
+// 		LogBuildInfo();
+//
+// 		_window = make_unique<GLFWWindow>(RenderContext::RenderingApi::OpenGL,
+// 											  *util::filesystem::ExecutableName(),
+// 											  WINDOW_SIZE,
+// 											  FULLSCREEN,
+// 											  ENABLE_HIGH_DPI,
+// 											  AA_MODE);
+// 		_window->vSyncEnabled(ENABLE_VSYNC);
+// 		_window->cursorCaptured(CAPTURE_CURSOR);
+//
+// 		auto inputManager = make_unique<GLFWInputManager>(_window.get());
+//
+// 		auto visualWorld = make_unique<VisualWorld>(*_window);
+// 		visualWorld->fogStartDistance(50.0);
+// 		visualWorld->fogEndDistance(400.0);
+// 		visualWorld->fogDensityExponent(1.0);
+// 		visualWorld->fogColor(Color::DarkGray());
+// 		Material::Property background = Color::Black();
+// //		MaterialProperty background = make_shared<Texture>(utils::CubeImageNamed("stormy", "png"));
+// 		visualWorld->background(background);
+// 		visualWorld->willRenderCallback(bind(&App::visualWorldWillRender, this, _1, _2, _3));
+// 		visualWorld->didRenderCallback(bind(&App::visualWorldDidRender, this, _1, _2, _3));
+//
+// 		auto physicalWorld = make_unique<PhysicalWorld>();
+// 		physicalWorld->timestep(PHYSICS_TIMESTEP);
+// 		physicalWorld->didSimulateCallback(bind(&App::physicalWorldDidSimulate, this, _1, _2, _3));
+//
+// 		auto scene = make_unique<Scene>(std::move(visualWorld),
+// 										std::move(physicalWorld),
+// 										std::move(inputManager));
+// 		scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
+// 		scene->updateCallback(bind(&App::sceneUpdate, this, _1, _2, _3));
+//
+// 		//scene->visualWorld()->usesDefaultLighting(true);
+//
+//
+// 		// ambient light
+//
+// 		auto ambientColor = make_shared<Color>(.1f);
+// 		auto ambientLight = make_shared<AmbientLight>(ambientColor);
+// 		auto ambientLightNode = Node::LightNode(ambientLight);
+// 		scene->rootNode()->addChild(ambientLightNode);
+//
+//
+//
+// 		// directional light
+//
+// 		auto sunColor = Color::Gray();
+// 		auto sunLight = make_shared<DirectionalLight>(sunColor);
+// 		auto sunNode = Node::LightNode(sunLight);
+// 		sunNode->eulerAngles({radians(0.0f),
+// 							  radians(45.0),
+// 							  radians(0.0)});
+// 		scene->rootNode()->addChild(sunNode);
+//
+//
+// 			//pointLightNode->mesh(Box::Mesh(0.5, 0.5, 0.5));
+// 		//}
+//
+// 		// box
+// 	//	const float BOX_DIM = 10.0;
+// 	//	auto boxNode = make_shared<Node>("Box node");
+// 	//	boxNode->mesh(make_shared<Box>(BOX_DIM, BOX_DIM, BOX_DIM));
+// 	//	auto boxImage = ImageNamed("grid10");
+// 	//	//auto gridImage = ImageNamed("grid10_512");
+// 	//	auto boxMaterialProperty = make_shared<MaterialProperty>(boxImage);
+// 	//	boxMaterialProperty->wrapS(WRAP_MODE::REPEAT);
+// 	//	boxMaterialProperty->wrapT(WRAP_MODE::REPEAT);
+// 	//	boxMaterialProperty->maxAnisotropy(16);
+// 	//	boxMaterialProperty->minificationFilter(FILTER_MODE::LINEAR_MIPMAP_LINEAR);
+// 	//	boxMaterialProperty->magnificationFilter(FILTER_MODE::LINEAR);
+// 	//	auto boxMaterial = make_shared<Material>(nullptr, boxMaterialProperty, nullptr);
+// 	//	boxMaterial->uvScale(BOX_DIM/10.0);
+// 	//	boxMaterial->doubleSided(true);
+// 	//	boxNode->mesh()->addMaterial(boxMaterial);
+// 	//	boxNode->position({-20, 0, 20});
+// 	//
+// 	//	auto boxPhysicsBody = PhysicsBody::StaticBody();
+// 	//	boxPhysicsBody->mass(0);
+// 	//	boxPhysicsBody->friction(1);
+// 	//	boxPhysicsBody->restitution(0.25);
+// 	//	boxNode->physicsBody(boxPhysicsBody);
+// 	//
+// 	//	scene->rootNode()->addChild(boxNode);
+//
+//
+//
+//
+// 		// ground plane
+//
+// //		const float PLANE_LENGTH = 50.0;
+// //		const float PLANE_WIDTH = 50.0;
+// //		auto planeNode = Node::NamedNode("Ground plane node");
+// //		planeNode->mesh(Box::Mesh(PLANE_LENGTH, PLANE_WIDTH, 1));
+// //		auto gridImage = DARK ? utils::ImageNamed("grid10")->inverted() : utils::ImageNamed("grid10");
+// //		auto planeTexture = make_shared<Texture>(std::move(gridImage));
+// //		planeTexture->sampler()->wrapS(WrapMode::Repeat);
+// //		planeTexture->sampler()->wrapT(WrapMode::Repeat);
+// //		planeTexture->sampler()->maxAnisotropy(16);
+// //		planeTexture->sampler()->minificationFilter(FilterMode::LinearMipmapLinear);
+// //		planeTexture->sampler()->magnificationFilter(FilterMode::Linear);
+// //		shared_ptr<Material> planeMaterial = nullptr;
+// //		if (DARK) {
+// //			planeMaterial = make_shared<Material>(monostate{},
+// //												  monostate{},
+// //												  monostate{},
+// //												  planeTexture);
+// //		}
+// //		else {
+// //			planeMaterial = make_shared<Material>(monostate{},
+// //												  planeTexture,
+// //												  Color::Gray());
+// //		}
+//
+//
+//
+// 		static const float PLANE_LENGTH = 50.0;
+// 		static const float PLANE_WIDTH = 50.0;
+// 		auto planeNode = Node::NamedNode("Ground plane node");
+// 		planeNode->mesh(Box::Mesh(PLANE_LENGTH, .1f, PLANE_WIDTH));
+//
+// 		shared_ptr<Material> planeMaterial = make_shared<Material>(monostate{},
+// 																   Color::DarkGray(),
+// 																   Color::LightGray());
+// 		planeMaterial->locksAmbientWithDiffuse(false);
+// //		}
+// //		else {
+// //			planeMaterial = make_shared<Material>(monostate{},
+// //												  planeTexture,
+// //												  Color::Gray());
+// //		}
+//
+//
+//
+// 		planeMaterial->uvScale(PLANE_LENGTH / 10.0);
+// 		planeMaterial->doubleSided(false);
+// 		planeNode->mesh()->addMaterial(planeMaterial);
+// 		//planeNode->rotation({1, 0, 0}, radians(1 * 90.0));
+// 		planeNode->position({planeNode->position().x, 0, planeNode->position().z});
+//
+// 		auto planePhysicsBody = PhysicsBody::StaticBody();
+// 		planePhysicsBody->friction(1);
+// 		planePhysicsBody->restitution(0.25);
+// 		planeNode->physicsBody(std::move(planePhysicsBody));
+//
+// 		scene->rootNode()->addChild(planeNode);
+//
+//
+// 		{
+// 			// add the palm tree
+//
+// 			//auto palmNode = Node::MeshNode(util::filesystem::MeshNamed("palm/palm"));
+// 			auto palmNode = Node::MeshNode(util::filesystem::MeshNamed("cartoon_palm_tree/cartoon_palm_tree"));
+// 			g_palmNode = palmNode.get();
+// 			auto palmPhysicsBody = PhysicsBody::StaticBody();
+// 			palmPhysicsBody->mass(0);
+// 			palmPhysicsBody->friction(1);
+// 			palmPhysicsBody->restitution(0.25);
+// 			palmNode->physicsBody(std::move(palmPhysicsBody));
+// 			scene->rootNode()->addChild(palmNode);
+//
+// //		auto palmNode = Node::MeshNode(util::filesystem::MeshNamed("teapot/teapot"));
+// //		palmNode->scale({10, 10, 10});
+// //		g_palmNode = palmNode.get();
+// //		auto palmPhysicsBody = PhysicsBody::StaticBody();
+// //		palmPhysicsBody->mass(0);
+// //		palmPhysicsBody->friction(1);
+// //		palmPhysicsBody->restitution(0.25);
+// //		palmNode->physicsBody(std::move(palmPhysicsBody));
+// //		scene->rootNode()->addChild(palmNode);
+// 		}
+//
+//
+//
+//
+//
+//
+// 		{
+// 			// add the duck
+//
+// 			auto duckNode = Node::MeshNode(util::filesystem::MeshNamed("rubber_duck/rubber_duck"));
+// //		auto duckNode = Node::MeshNode(util::filesystem::MeshNamed("siamese/siamese"));
+// //		auto duckNode = Node::MeshNode(util::filesystem::MeshNamed("teapot/teapot"));
+// 			_duckNode = duckNode.get();
+// 			duckNode->position({/*4.5*/0, 25, 0});
+//
+//
+//
+//
+//
+// 			//	// #0
+// 			//	_duckNode->physicsBody(PhysicsBody::KinematicBody());
+// 			//	_duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConcavePolyhedron);
+// 			////	_duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConvexHull);
+// 			//
+// 			//	// #1
+// 			////	_duckNode->physicsBody(PhysicsBody::KinematicBody());
+// 			////	auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, _duckNode.get());
+// 			////	_duckNode->physicsBody()->shape(duckPhysicsShape);
+// 			//
+// 			//	// #2
+// 			////	_duckNode->physicsBody(PhysicsBody::KinematicBody());
+// 			////	auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, _duckNode->mesh().get());
+// 			////	_duckNode->physicsBody()->shape(duckPhysicsShape);
+// 			//
+// 			// #3
+// 			auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, duckNode);
+// 			duckNode->physicsBody(make_unique<PhysicsBody>(PhysicsBody::Type::Kinematic, duckPhysicsShape));
+//
+// 			//	// #4
+// //		auto duckPhysicsShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, duckNode);
+// //		duckNode->physicsBody(make_unique<PhysicsBody>(PhysicsBodyType::Kinematic, duckPhysicsShape));
+//
+// 			auto duckSpinnerNode = Node::NamedNode("duck spinner");
+// //		g_duckSpinnerNode = duckSpinnerNode.get();
+// 			duckSpinnerNode->addChild(duckNode);
+// 			scene->rootNode()->addChild(duckSpinnerNode);
+// 		}
+//
+//
+//
+//
+//
+// 		// add some random boxes
+// //		for (int i = 0; i < 10; ++i) {
+// //
+// //			auto boxNode = Node::MeshNode(Box::Mesh(math::uniform_linear(-5, 5),
+// //													math::uniform_linear(-5, 5),
+// //													math::uniform_linear(-5, 5)));
+// //			boxNode->position(vec3(math::uniform_linear(-5, 5),
+// //							   math::uniform_linear(-5, 5),
+// //							   math::uniform_linear(-5, 5)));
+// //			auto boxPhysicsBody = PhysicsBody::StaticBody();
+// //			boxPhysicsBody->mass(10);
+// //			boxPhysicsBody->friction(1);
+// //			boxPhysicsBody->restitution(0.25);
+// //			boxNode->physicsBody(std::move(boxPhysicsBody));
+// //			scene->rootNode()->addChild(boxNode);
+// //		}
+//
+//
+//
+//
+//
+//
+//
+// 		//vector<tuple<shared_ptr<Mesh>, shared_ptr<PhysicsShape>, float>> duckFruit{};
+//
+//
+// 		auto mesh = util::filesystem::MeshNamed("cherries_lod/cherries_lod");
+// 		auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
+// 		_duckFruit.push_back({mesh, shape, 0.05});
+//
+// 		mesh = util::filesystem::MeshNamed("orange_lod/orange_lod");
+// 		shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
+// 		_duckFruit.push_back({mesh, shape, 0.185});
+//
+// 		mesh = util::filesystem::MeshNamed("pear_lod/pear_lod");
+// 		shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
+// 		_duckFruit.push_back({mesh, shape, 0.24});
+//
+// 		mesh = util::filesystem::MeshNamed("apple_lod/apple_lod");
+// 		shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
+// 		_duckFruit.push_back({mesh, shape, 0.225});
+//
+// 		mesh = util::filesystem::MeshNamed("banana_lod/banana_lod");
+// 		shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
+// 		_duckFruit.push_back({mesh, shape, 0.14});
+//
+// 		mesh = util::filesystem::MeshNamed("pineapple_lod/pineapple_lod");
+// 		shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
+// 		_duckFruit.push_back({mesh, shape, 0.9});
+//
+// 		// _duckFruit = duckFruit;
+//
+//
+// 	////	// add the paddle
+// 	////
+// 	////	_paddleNode = Node::MeshNode(make_shared<Box>(.5, 5, 20));
+// 	////	auto paddleProperty = make_shared<MaterialProperty>(Color::Red());
+// 	////	auto paddleMaterial = make_shared<Material>(nullptr, paddleProperty, nullptr);
+// 	////	_paddleNode->mesh()->addMaterial(paddleMaterial);
+// 	////	_paddleNode->position({15 - .25, 2.5, 0});
+// 	////	auto paddlePhysicsBody = PhysicsBody::KinematicBody();
+// 	//////	paddlePhysicsBody->friction(100);
+// 	////	paddlePhysicsBody->restitution(0.25);
+// 	////	_paddleNode->physicsBody(paddlePhysicsBody);
+// 	////	scene->rootNode()->addChild(_paddleNode);
+// 	//
+// 	//
+// 		// add cardboard boxes
+//
+// 		AddCardboardBoxes(*scene);
+//
+//
+// 	// box spotlight
+// //	auto boxesLight = Light::SpotLight();
+// //	boxesLight->innerAngle(glm::radians(2.5));
+// //	boxesLight->outerAngle(glm::radians(10.0));
+// //	boxesLight->featheringMode(SpotlightFeatheringMode::Soft);
+// //	auto boxesLightNode = Node::LightNode(boxesLight);
+// //	boxesLightNode->position({-8.5, 18, -8.5});
+// //	boxesLightNode->eulerAngles({-1.2527435, 0.47099817, 0});
+// //	scene->rootNode()->addChild(boxesLightNode);
+//
+//
+// 		auto boxesLight = Light::SpotLight(Color::LightGray());
+// 		boxesLight->innerAngle(radians(20.0));
+// 		boxesLight->outerAngle(radians(25.0));
+// 		boxesLight->attenuation(Attenuation{.quadratic = 0.035f});
+// 		boxesLight->featheringMode(SpotLight::FeatheringMode::Soft);
+// 		auto boxesLightNode = Node::LightNode(boxesLight);
+// 		boxesLightNode->position({-6.4, 1.2, -2.5});
+// 		boxesLightNode->orientation({0.0999, 0.1969, -0.0202, 0.9751});
+// 		scene->rootNode()->addChild(boxesLightNode);
+//
+//
+// //	log::app::i()("*** SCENE EXTENT: {} ***",
+// //				  to_string(scene->rootNode()->extent()));
+//
+// 	//	A3D_log::app::i()("Graph:\n{}", StringFromTree(*scene->rootNode()));
+// 	//	auto children = scene->rootNode()->children(true);
+// 	//	A3D_log::app::i()("CHILDREN REC:");
+// 	//	for (auto& child : children) {
+// 	//		if (child == scene->rootNode()){
+// 	//			A3D_log::app::i()("\troot");
+// 	//		}
+// 	//		else if (child->name()) {
+// 	//			A3D_log::app::i()("\t{}", *child->name());
+// 	//		}
+// 	//		else {
+// 	//			A3D_log::app::i()("\t{:p}", (void*)child.get());
+// 	//		}
+// 	//	}
+//
+//
+//
+// //		auto camera = make_shared<PerspectiveCamera>();
+// //		auto cameraNode = Node::CameraNode(camera);
+// //		cameraNode->position(vec3{0, 30, 60});
+// //		cameraNode->eulerAngles(vec3{glm::radians(-20.f), 0, 0});
+// //		auto flashLight = Light::SpotLight();
+// //		flashLight->innerAngle(glm::radians(2.5f));
+// //		flashLight->outerAngle(glm::radians(12.5f));
+// //		flashLight->featheringMode(SpotlightFeatheringMode::Sharp);
+// //		cameraNode->light(flashLight);
+// //		scene->visualWorld()->pointOfView(cameraNode);
+//
+// 		wr = new WanderRotate();
+//
+// 		_window->center();
+// 		_window->open();
+//
+// 		return scene;
+// 	}
+// 	catch (std::exception& e) {
+// 		log::app::f()("Exception: {}", e.what());
+// 		return nullptr;
+// 	}
+// }
+//
+// bool App::runnerShouldContinue(const Scene& scene) {
+// 	return _window->isOpen();
+// }
+//
+// void App::runnerDidShutdown() {
+//
+// }
+
+
+
+
+
+
+
 
 /// Scene Callbacks ///
 
 void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
-	log::app::t()("scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
 
 	// GLFWWindow* window = nullptr;
 	// if (scene.visualWorld()) {
@@ -504,15 +1045,15 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 	// rotate the duck
 	auto rotationDeg = deltaTime * radians(30.0); // 30deg/sec
 
-//	if (g_duckNode) {
-//		auto duckEuler = g_duckNode->eulerAngles();
-//		g_duckNode->eulerAngles({0, duckEuler.yaw - (float)rotationDeg, 0});
-////		g_duckNode->eulerAngles({duckEuler.pitch - (float)rotationDeg, 0, 0});
-////		g_duckNode->eulerAngles({0, 0, duckEuler.roll - (float)rotationDeg});
+//	if (_duckNode) {
+//		auto duckEuler = _duckNode->eulerAngles();
+//		_duckNode->eulerAngles({0, duckEuler.yaw - (float)rotationDeg, 0});
+////		_duckNode->eulerAngles({duckEuler.pitch - (float)rotationDeg, 0, 0});
+////		_duckNode->eulerAngles({0, 0, duckEuler.roll - (float)rotationDeg});
 //	}
 
-	if (g_duckNode) {
-		wr->update(*g_duckNode, deltaTime);
+	if (_duckNode) {
+		//wr->update(*_duckNode, deltaTime);
 	}
 
 	// get input
@@ -556,29 +1097,29 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 
 
 	if (keysPressed.count(Key::One)) {
-		g_duckNode->physicsBody()->shape()->type(PhysicsShape::Type::BoundingBox);
+		_duckNode->physicsBody()->shape()->type(PhysicsShape::Type::BoundingBox);
 	}
 
 	if (keysPressed.count(Key::Two)) {
-		g_duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConvexHull);
+		_duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConvexHull);
 	}
 
 	if (keysPressed.count(Key::Three)) {
-		g_duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConcavePolyhedron);
+		_duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConcavePolyhedron);
 	}
 
 
 
 	if (keysPressed.count(Key::Five)) {
-		g_duckNode->physicsBody()->mass(0);
+		_duckNode->physicsBody()->mass(0);
 	}
 
 	if (keysPressed.count(Key::Six)) {
-		g_duckNode->physicsBody()->mass(10);
+		_duckNode->physicsBody()->mass(10);
 	}
 
 	if (keysPressed.count(Key::Seven)) {
-		g_duckNode->physicsBody()->mass(100);
+		_duckNode->physicsBody()->mass(100);
 	}
 
 
@@ -629,7 +1170,7 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 	}
 
 	if (keysDown.count(Key::Tab)) {
-		SpawnDuckFruit(scene, *g_duckNode, g_duckFruit);
+		SpawnDuckFruit(scene, *_duckNode, _duckFruit);
 	}
 
 	if (keysPressed.count(Key::L)) {
@@ -883,19 +1424,14 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 
 /// VisualWorld Callbacks ///
 
-void App::visualWorldWillRender(VisualWorld& world, double time, double deltaTime) {
-	log::app::t()("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
-}
+void App::visualWorldWillRender(VisualWorld& world, double time, double deltaTime) {}
 
-void App::visualWorldDidRender(VisualWorld& world, double time, double deltaTime) {
-	log::app::t()("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
-}
+void App::visualWorldDidRender(VisualWorld& world, double time, double deltaTime) {}
 
 /// PhysicalWorld Callbacks ///
 
-void App::physicalWorldDidSimulate(PhysicalWorld& world, double time, double deltaTime) {
-	log::app::t()("world: {:p}, time: {}, deltaTime: {}", (void*)&world, time, deltaTime);
-}
+void App::physicalWorldDidSimulate(PhysicalWorld& world, double time, double deltaTime) {}
+
 
 /// Static ///
 
@@ -993,7 +1529,7 @@ void SpawnDuckFruit(Scene& scene, const Node& duckNode, vector<App::DuckFruitDef
 //
 // 		log::d()("Spawning duck fruit.");
 //
-// 		auto duckFruit = g_duckFruit[uniform_linear(0, 5)];
+// 		auto duckFruit = _duckFruit[uniform_linear(0, 5)];
 //
 // 		shared_ptr<Node> node = Node::MeshNode(get<0>(duckFruit));
 //
