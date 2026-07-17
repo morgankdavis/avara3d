@@ -44,8 +44,6 @@ namespace a3d {
 
 		/// Protected Member Functions ///
 
-		// Initializes the concrete Application and returns its Scene.
-		// Application assumes ownership of the returned Scene.
 		virtual std::unique_ptr<Scene> initialize() = 0;
 
 		virtual bool shouldContinue(const Scene& scene);
@@ -53,31 +51,19 @@ namespace a3d {
 
 		const std::vector<std::string>& args() const;
 
-		/// Scene Callbacks ///
+		/// Scene Callback Templates ///
 
-		virtual void sceneUpdate(
-			Scene& scene,
-			double time,
-			double deltaTime);
+		virtual void sceneUpdate(Scene& scene, double time, double deltaTime);
 
-		/// VisualWorld Callbacks ///
+		/// VisualWorld Callback Templates ///
 
-		virtual void visualWorldWillRender(
-			VisualWorld& world,
-			double time,
-			double deltaTime);
+		virtual void visualWorldWillRender(VisualWorld& world, double time, double deltaTime);
 
-		virtual void visualWorldDidRender(
-			VisualWorld& world,
-			double time,
-			double deltaTime);
+		virtual void visualWorldDidRender(VisualWorld& world, double time, double deltaTime);
 
-		/// PhysicalWorld Callbacks ///
+		/// PhysicalWorld Callback Templates ///
 
-		virtual void physicalWorldDidSimulate(
-			PhysicalWorld& world,
-			double time,
-			double deltaTime);
+		virtual void physicalWorldDidSimulate(PhysicalWorld& world, double time, double deltaTime);
 
 	private:
 		/// Private Member Functions ///
@@ -90,13 +76,10 @@ namespace a3d {
 
 		/// Private Member Variables ///
 
-		std::vector<std::string> _args;
-
-		// Declaration order is intentional: Runner is destroyed first.
-		std::unique_ptr<Scene>	_scene;
-		std::unique_ptr<Runner>	_runner;
-
-		bool _didShutdown;
+		std::vector<std::string>	_args;
+		std::unique_ptr<Scene>		_scene;
+		std::unique_ptr<Runner>		_runner; // Runner must be destroyed before Scene!
+		bool						_didShutdown;;
 	};
 }
 

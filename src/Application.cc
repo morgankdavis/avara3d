@@ -9,19 +9,19 @@
 #include "a3d/Application.h"
 
 #include <stdexcept>
-#include <utility>
+
+#ifdef A3D_WEB
+	#include <emscripten/emscripten.h>
+#endif
 
 #include "a3d/Runner.h"
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/scene/Scene.h"
 #include "a3d/visual/VisualWorld.h"
 
-#ifdef A3D_WEB
-	#include <emscripten/emscripten.h>
-#endif
-
 using namespace a3d;
 using namespace std;
+using namespace std::placeholders;
 
 Application::Application():
 	_scene{},
@@ -42,8 +42,7 @@ int Application::Run(
 		unique_ptr<Application> application) {
 
 	if (!application) {
-		throw invalid_argument(
-			"Application::Run requires a non-null Application.");
+		throw invalid_argument("Application::Run() requires a non-null Application.");
 	}
 
 	application->prepare();
@@ -74,8 +73,7 @@ int Application::Run(
 
 #else
 
-	while (application->update()) {
-	}
+	while (application->update());
 
 	application->shutdown();
 
@@ -89,8 +87,7 @@ void Application::prepare() {
 	_scene = initialize();
 
 	if (!_scene) {
-		throw runtime_error(
-			"Application::initialize returned a null Scene.");
+		throw runtime_error("Application::initialize() returned a null Scene.");
 	}
 
 	registerCallbacks();
@@ -126,8 +123,7 @@ void Application::shutdown() noexcept {
 		_runner.reset();
 	}
 
-	// Destroy Scene while the concrete Application's RenderContext
-	// and window still exist.
+	// destroy Scene while the concrete Application's RenderContext & window still exist!
 	_scene.reset();
 
 	try {
@@ -140,92 +136,26 @@ void Application::shutdown() noexcept {
 
 void Application::registerCallbacks() {
 
-	_scene->updateCallback(
-		[this](
-				Scene& scene,
-				double time,
-				double deltaTime) {
-
-			sceneUpdate(scene, time, deltaTime);
-		}
-	);
+	_scene->updateCallback(bind(&Application::sceneUpdate, this, _1, _2, _3));
 
 	if (auto* world = _scene->visualWorld()) {
-
-		world->willRenderCallback(
-			[this](
-					VisualWorld& world,
-					double time,
-					double deltaTime) {
-
-				visualWorldWillRender(
-					world,
-					time,
-					deltaTime
-				);
-			}
-		);
-
-		world->didRenderCallback(
-			[this](
-					VisualWorld& world,
-					double time,
-					double deltaTime) {
-
-				visualWorldDidRender(
-					world,
-					time,
-					deltaTime
-				);
-			}
-		);
+		world->willRenderCallback(bind(&Application::visualWorldWillRender, this, _1, _2, _3));
+		world->didRenderCallback(bind(&Application::visualWorldDidRender, this, _1, _2, _3));
 	}
 
 	if (auto* world = _scene->physicalWorld()) {
-
-		world->didSimulateCallback(
-			[this](
-					PhysicalWorld& world,
-					double time,
-					double deltaTime) {
-
-				physicalWorldDidSimulate(
-					world,
-					time,
-					deltaTime
-				);
-			}
-		);
+		world->didSimulateCallback(bind(&Application::physicalWorldDidSimulate, this, _1, _2, _3));
 	}
 }
 
-bool Application::shouldContinue(const Scene&) {
-	return true;
-}
+bool Application::shouldContinue(const Scene&) { return true; }
 
-void Application::didShutdown() {
-}
+void Application::didShutdown() {}
 
-void Application::sceneUpdate(
-		Scene&,
-		double,
-		double) {
-}
+void Application::sceneUpdate(Scene& scene, double time, double deltaTime) {}
 
-void Application::visualWorldWillRender(
-		VisualWorld&,
-		double,
-		double) {
-}
+void Application::visualWorldWillRender(VisualWorld& world, double time, double deltaTime) {}
 
-void Application::visualWorldDidRender(
-		VisualWorld&,
-		double,
-		double) {
-}
+void Application::visualWorldDidRender(VisualWorld& world, double time, double deltaTime) {}
 
-void Application::physicalWorldDidSimulate(
-		PhysicalWorld&,
-		double,
-		double) {
-}
+void Application::physicalWorldDidSimulate(PhysicalWorld& world, double time, double deltaTime) {}
