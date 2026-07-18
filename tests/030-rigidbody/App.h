@@ -1,5 +1,5 @@
 //
-//  Application.h
+//  App.h
 //  030-rigidbody
 //
 //  Created by Morgan Davis on 7/17/26.
@@ -50,24 +50,23 @@ namespace test::rigidbody {
 			float>;
 
 	protected:
-
 		/// Protected Member Functions ///
 
-		std::unique_ptr<a3d::Scene> initialize() override;
+		std::unique_ptr<a3d::Scene> init() override;
 
 		bool shouldContinue(
 			const a3d::Scene& scene) override;
 
 		void didShutdown() override;
 
-		/// Scene Callback Templates ///
+		/// Scene Callback Overrides ///
 
 		void sceneUpdate(
 			a3d::Scene& scene,
 			double time,
 			double deltaTime) override;
 
-		/// VisualWorld Callback Templates ///
+		/// VisualWorld Callback Overrides ///
 
 		void visualWorldDidRender(
 			a3d::VisualWorld &world,
@@ -79,7 +78,7 @@ namespace test::rigidbody {
 			double time,
 			double deltaTime) override;
 
-		/// PhysicalWorld Callback Templates ///
+		/// PhysicalWorld Callback Overrides ///
 
 		void physicalWorldDidSimulate(
 			a3d::PhysicalWorld& world,

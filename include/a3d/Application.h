@@ -12,6 +12,8 @@
 #include <memory>
 #include <vector>
 
+#include "log/Log.h"
+
 namespace a3d {
 
 	class PhysicalWorld;
@@ -28,7 +30,7 @@ namespace a3d {
 
 		/// Public Lifecycle Functions ///
 
-		Application(int argc, char* argv[]);
+		Application(int argc, char* argv[], Log::Level logLevel = Log::Level::Info);
 		virtual ~Application();
 
 		Application(const Application&) = delete;
@@ -40,34 +42,35 @@ namespace a3d {
 	protected:
 		/// Protected Lifecycle Functions ///
 
-		Application();
+		// Application(Log::Level logLevel);
 
 		/// Protected Member Functions ///
 
-		virtual std::unique_ptr<Scene> initialize() = 0;
+		virtual std::unique_ptr<Scene> init() = 0;
 
 		virtual bool shouldContinue(const Scene& scene);
 		virtual void didShutdown();
 
 		const std::vector<std::string>& args() const;
 
-		/// Scene Callback Templates ///
+		/// Scene Callback Overrides ///
 
 		virtual void sceneUpdate(Scene& scene, double time, double deltaTime);
 
-		/// VisualWorld Callback Templates ///
+		/// VisualWorld Callback Overrides ///
 
 		virtual void visualWorldWillRender(VisualWorld& world, double time, double deltaTime);
 
 		virtual void visualWorldDidRender(VisualWorld& world, double time, double deltaTime);
 
-		/// PhysicalWorld Callback Templates ///
+		/// PhysicalWorld Callback Overrides ///
 
 		virtual void physicalWorldDidSimulate(PhysicalWorld& world, double time, double deltaTime);
 
 	private:
 		/// Private Member Functions ///
 
+		void initLog(Log::Level level);
 		void prepare();
 		bool update();
 		void shutdown() noexcept;

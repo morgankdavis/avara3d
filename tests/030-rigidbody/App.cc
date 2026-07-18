@@ -1,5 +1,5 @@
 //
-//  Application.cc
+//  App.cc
 //  030-rigidbody
 //
 //  Created by Morgan Davis on 7/17/26.
@@ -22,7 +22,7 @@
 #include "a3d/util/flow.h"
 #include "a3d/util/snapshot.h"
 
-// testing
+// ! TEMPORARY ! testing
 #include "a3d/mesh/ConvexDecomposer.h"
 
 using namespace a3d;
@@ -30,12 +30,7 @@ using namespace a3d::math;
 using namespace std;
 using namespace test::rigidbody;
 
-// using test::rigidbody::App;
-
-
-
-
-
+// TODO: move to a3d::extensions
 
 struct test::rigidbody::WanderRotator {
 	// tunables
@@ -83,6 +78,7 @@ struct test::rigidbody::WanderRotator {
 
 
 
+/// Private Constants ///
 
 const Log::Level						APP_LOG_LEVEL 			{Log::Level::Debug};
 const uvec2								WINDOW_SIZE 			{1280, 768};
@@ -99,10 +95,8 @@ const float								PHYSICS_TIMESTEP		{1.0/30.0};
 const float								PHYSICS_TIMESTEP		{1.0/120.0};
 #endif
 
+/// Private Static Non-Member Prototypes ///
 
-
-void InitLog();
-void LogBuildInfo();
 void SpawnDuckFruit(Scene& scene, const Node& duckNode, vector<App::DuckFruitDef>& duckFruit);
 void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction);
 void AddCardboardBox(Scene& scene, const vec3& location, const vec3& axis, float angle);
@@ -117,20 +111,20 @@ void SpawnInvisiblePrimitives(Scene& scene);
 shared_ptr<Node> ChainmailLink(float minorRadius, float majorRadius);
 void SpawnChainMail(Scene& scene);
 
+/// Public Lifecycle Functions ///
 
-
-
-
-App::App(int argc, char* argv[]): Application(argc, argv) {}
+App::App(int argc, char* argv[]): Application(argc, argv, APP_LOG_LEVEL) {}
 
 App::~App() = default;
 
-unique_ptr<Scene> App::initialize() {
+/// Public Member Functions ///
+
+unique_ptr<Scene> App::init() {
 
 	try {
 
-		InitLog();
-		LogBuildInfo();
+		// InitLog();
+		// LogBuildInfo();
 
 		_window = make_unique<GLFWWindow>(RenderContext::RenderingApi::OpenGL,
 											  *util::filesystem::ExecutableName(),
@@ -497,7 +491,7 @@ void App::didShutdown() {
 	// Clean up only App-owned state here.
 }
 
-/// Scene Callbacks ///
+/// Scene Callback Overrides ///
 
 void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 
@@ -886,47 +880,18 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 	}
 }
 
-/// VisualWorld Callbacks ///
+/// VisualWorld Callback Overrides ///
 
 void App::visualWorldWillRender(VisualWorld& world, double time, double deltaTime) {}
 
 void App::visualWorldDidRender(VisualWorld& world, double time, double deltaTime) {}
 
-/// PhysicalWorld Callbacks ///
+/// PhysicalWorld Callback Overrides ///
 
 void App::physicalWorldDidSimulate(PhysicalWorld& world, double time, double deltaTime) {}
 
 
-/// Static ///
-
-void InitLog() {
-
-	string executableName = *util::filesystem::ExecutableName();
-
-	auto sinks = vector<unique_ptr<LogSink>>();
-
-	auto nativeSink = make_unique<StdOutLogSink>();
-	sinks.push_back(std::move(nativeSink));
-
-#ifndef A3D_WEB
-	auto fileSink = make_unique<FileLogSink>(*(util::filesystem::ExecutableDirectory())
-											 / (executableName + string(".log")));
-	sinks.push_back(std::move(fileSink));
-#endif
-
-	Log appLog{executableName, std::move(sinks)};
-	appLog.level(APP_LOG_LEVEL);
-	Log::AppLog(std::move(appLog));
-}
-
-void LogBuildInfo() {
-
-	auto buildInfo = BuildInfo::Info();
-	log::app::i()("A3D version: {}", BuildInfo::VersionString(buildInfo.version()));
-	log::app::i()("Build: {}", buildInfo.number());
-	log::app::i()("Type: {}", BuildInfo::TypeString(buildInfo.type()));
-	log::app::i()("Origin: {}", BuildInfo::OriginString(buildInfo.origin()));
-}
+/// Private Static Non-Member Functions ///
 
 void SpawnDuckFruit(Scene& scene, const Node& duckNode, vector<App::DuckFruitDef>& duckFruit) {
 

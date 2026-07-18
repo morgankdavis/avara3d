@@ -1,3 +1,11 @@
+//
+//  main.cpp
+//  030-rigidbody
+//
+//  Created by Morgan Davis on 7/17/26.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
+//
+
 #include <memory>
 #include "a3d/Application.h"
 #include "App.h"

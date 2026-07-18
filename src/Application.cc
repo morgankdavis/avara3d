@@ -14,26 +14,26 @@
 	#include <emscripten/emscripten.h>
 #endif
 
+#include "a3d/BuildInfo.h"
 #include "a3d/Runner.h"
+#include "a3d/log/Log.h"
+#include "a3d/log/sink/FileLogSink.h"
+#include "a3d/log/sink/StdOutLogSink.h"
 #include "a3d/physics/PhysicalWorld.h"
 #include "a3d/scene/Scene.h"
+#include "a3d/util/filesystem.h"
 #include "a3d/visual/VisualWorld.h"
 
 using namespace a3d;
 using namespace std;
 using namespace std::placeholders;
 
-Application::Application():
-	_scene{},
-	_runner{},
-	_didShutdown{false} {
-}
-
-Application::Application(int argc, char *argv[]):
+Application::Application(int argc, char *argv[], Log::Level logLevel):
 	_args(argv + 1, argv + argc),
 	_scene{},
 	_runner{},
 	_didShutdown{false} {
+	initLog(logLevel);
 }
 
 Application::~Application() = default;
@@ -82,9 +82,56 @@ int Application::Run(
 #endif
 }
 
+
+
+/// Protected Lifecycle Functions ///
+
+/*Application(Log::Level logLevel);
+
+Application::Application(Log::Level logLevel):`
+	_scene{},
+	_runner{},
+	_didShutdown{false} {
+
+	InitLog(logLevel);
+}*/
+
+
+
+
+/// Protected Static Member Functions ///
+
+void Application::initLog(Log::Level level) {
+
+	Log::MainLog().level(level);
+
+	string executableName = *util::filesystem::ExecutableName();
+
+	auto sinks = vector<unique_ptr<LogSink>>();
+
+	auto nativeSink = make_unique<StdOutLogSink>();
+	sinks.push_back(std::move(nativeSink));
+
+#ifndef A3D_WEB
+	auto fileSink = make_unique<FileLogSink>(*(util::filesystem::ExecutableDirectory())
+											 / (executableName + string(".log")));
+	sinks.push_back(std::move(fileSink));
+#endif
+
+	Log appLog{executableName, std::move(sinks)};
+	appLog.level(level);
+	Log::AppLog(std::move(appLog));
+
+	auto buildInfo = BuildInfo::Info();
+	log::app::i()("A3D version: {}", BuildInfo::VersionString(buildInfo.version()));
+	log::app::i()("Build: {}", buildInfo.number());
+	log::app::i()("Type: {}", BuildInfo::TypeString(buildInfo.type()));
+	log::app::i()("Origin: {}", BuildInfo::OriginString(buildInfo.origin()));
+}
+
 void Application::prepare() {
 
-	_scene = initialize();
+	_scene = init();
 
 	if (!_scene) {
 		throw runtime_error("Application::initialize() returned a null Scene.");

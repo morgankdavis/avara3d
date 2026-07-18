@@ -9,8 +9,7 @@
 #ifndef AVARA3D_A3D_H
 #define AVARA3D_A3D_H
 
-// TEMPORARY
-#include "a3d/app/ALFImporter.h"
+#include "a3d/app/ALFImporter.h" // TEMPORARY
 
 #include "a3d/Application.h"
 #include "a3d/Buffer.h"
