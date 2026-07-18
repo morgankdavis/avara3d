@@ -16,7 +16,7 @@
 using namespace a3d;
 using namespace std;;
 
-using InputManger = a3d::head::qt::QtInputManager;
+using InputManger = qt::QtInputManager;
 using Key = DesktopInputManager::Key;
 using MouseButton = DesktopInputManager::MouseButton;
 

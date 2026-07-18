@@ -10,7 +10,6 @@
 #define MAINWINDOW_H
 
 #include <memory>
-#include <vector>
 
 #include <QMainWindow>
 
@@ -31,7 +30,7 @@ namespace a3d {
 	class VisualWorld;
 }
 
-namespace a3d::head::qt {
+namespace a3d::qt {
 	class QtViewport;
 }
 
@@ -49,8 +48,7 @@ namespace a3de {
 
 		void initA3D();
 		void updateA3D();
-		void initLog();
-		void logBuildInfo();
+		void initLog(a3d::Log::Level level);
 
 		void updateCallback(a3d::Scene& scene, double time, double deltaTime);
 		void willRenderCallback(a3d::VisualWorld& world, double time, double deltaTime);
@@ -58,9 +56,9 @@ namespace a3de {
 		void didSimulatePhysicsCallback(a3d::PhysicalWorld& world, double time, double deltaTime);
 
 		Ui::MainWindow*					_ui;
-		a3d::head::qt::QtViewport*		_viewport;
+		a3d::qt::QtViewport*			_viewport;
 		std::unique_ptr<a3d::Scene>		_scene;
-		std::unique_ptr<a3d::Runner>		_runner; // Runner must be destroyed before Scene
+		std::unique_ptr<a3d::Runner>	_runner; // Runner must be destroyed before Scene
 		std::shared_ptr<a3d::Node>		_pointLightNode;
 	};
 }

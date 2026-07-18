@@ -40,10 +40,6 @@ namespace a3d {
 		Application& operator=(Application&&) = delete;
 
 	protected:
-		/// Protected Lifecycle Functions ///
-
-		// Application(Log::Level logLevel);
-
 		/// Protected Member Functions ///
 
 		virtual std::unique_ptr<Scene> init() = 0;

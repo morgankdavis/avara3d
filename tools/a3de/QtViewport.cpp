@@ -23,7 +23,7 @@
 using namespace a3d;
 using namespace a3d::math;
 using namespace std;
-using Viewport = head::qt::QtViewport;
+using Viewport = qt::QtViewport;
 
 /// Private Static Non-Member Prototypes ///
 

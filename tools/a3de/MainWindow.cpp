@@ -27,27 +27,10 @@ const RenderContext::AntialiasingMode	ANTIALIAS_MODE		{RenderContext::Antialiasi
 const bool								CAPTURE_CURSOR		{false};
 const float								MOUSE_SENSITIVITY	{0.5};
 
-// MainWindow::MainWindow(QWidget* parent):
-// 		QMainWindow(parent),
-// 		_ui(new Ui::MainWindow) {
-//
-// 	_ui->setupUi(this);
-// 	statusBar()->hide();
-//
-// 	resize(WINDOW_SIZE.x, WINDOW_SIZE.y);
-//
-// 	_viewport = new head::qt::QtViewport(RenderContext::RenderingApi::OpenGL,
-// 	                                     ANTIALIAS_MODE,
-// 	                                     this);
-// 	initScene(*_viewport);
-//
-// 	setCentralWidget(_viewport);
-// }
-
 MainWindow::MainWindow(QWidget* parent):
 		QMainWindow(parent),
 		_ui(new Ui::MainWindow),
-		_viewport(new head::qt::QtViewport(
+		_viewport(new qt::QtViewport(
 			RenderContext::RenderingApi::OpenGL,
 			ANTIALIAS_MODE,
 			this)),
@@ -63,14 +46,14 @@ MainWindow::MainWindow(QWidget* parent):
 
 	connect(
 		_viewport,
-		&head::qt::QtViewport::initialized,
+		&qt::QtViewport::initialized,
 		this,
 		&MainWindow::initA3D
 	);
 
 	connect(
 		_viewport,
-		&head::qt::QtViewport::renderFrame,
+		&qt::QtViewport::renderFrame,
 		this,
 		&MainWindow::updateA3D
 	);
@@ -98,10 +81,9 @@ void MainWindow::initA3D() {
 	using util::filesystem::MeshNamed;
 
 	try {
-		initLog();
-		logBuildInfo();
+		initLog(APP_LOG_LEVEL);
 
-		auto inputManager = make_unique<head::qt::QtInputManager>(*_viewport);
+		auto inputManager = make_unique<qt::QtInputManager>(*_viewport);
 
 		auto visualWorld = make_unique<VisualWorld>(*_viewport);
 		auto backgroundColor = make_shared<Color>(u8vec3{109, 136, 164});
@@ -116,11 +98,6 @@ void MainWindow::initA3D() {
 		_scene->updateCallback(bind(&MainWindow::updateCallback, this, _1, _2, _3));
 
 		_viewport->cursorCaptured(CAPTURE_CURSOR);
-
-		// _runner = std::make_unique<Runner>(std::move(scene));
-		// _runner->start();
-		//
-		// _viewport->runner(_runner.get());
 
 		_runner = make_unique<Runner>(*_scene);
 		_runner->start();
@@ -147,7 +124,9 @@ void MainWindow::updateA3D() {
 	}
 }
 
-void MainWindow::initLog() {
+void MainWindow::initLog(Log::Level level) {
+
+	Log::MainLog().level(level);
 
 	string executableName = *util::filesystem::ExecutableName();
 
@@ -159,11 +138,9 @@ void MainWindow::initLog() {
 	sinks.push_back(std::move(fileSink));
 
 	Log appLog{executableName, std::move(sinks)};
-	appLog.level(APP_LOG_LEVEL);
+	appLog.level(level);
 	Log::AppLog(std::move(appLog));
-}
 
-void MainWindow::logBuildInfo() {
 	auto buildInfo = BuildInfo::Info();
 	log::app::i()("A3D version: {}", BuildInfo::VersionString(buildInfo.version()));
 	log::app::i()("Build: {}", buildInfo.number());

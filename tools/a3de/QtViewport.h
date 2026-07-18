@@ -15,7 +15,7 @@
 
 #include "a3d/render/context/RenderContext.h"
 
-namespace a3d::head::qt {
+namespace a3d::qt {
 
 	class QtInputManager;
 

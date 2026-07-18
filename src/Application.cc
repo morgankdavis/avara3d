@@ -82,23 +82,6 @@ int Application::Run(
 #endif
 }
 
-
-
-/// Protected Lifecycle Functions ///
-
-/*Application(Log::Level logLevel);
-
-Application::Application(Log::Level logLevel):`
-	_scene{},
-	_runner{},
-	_didShutdown{false} {
-
-	InitLog(logLevel);
-}*/
-
-
-
-
 /// Protected Static Member Functions ///
 
 void Application::initLog(Log::Level level) {

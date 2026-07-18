@@ -11,11 +11,11 @@
 
 #include "a3d/input/DesktopInputManager.h"
 
-namespace a3d::head::qt {
+namespace a3d::qt {
 
 	class QtViewport;
 
-	class QtInputManager : public a3d::DesktopInputManager {
+	class QtInputManager : public DesktopInputManager {
 
 	public:
 		/// Public Lifecycle Functions ///
