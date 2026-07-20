@@ -369,6 +369,7 @@ OPTION(BUILD_CLSOCKET "Set when you want to build apps with enet TCP networking 
 # not sure where it's being turned back on between there and here...
 # update: apparently Windows/ClandCL likes this off...
 if (NOT WIN32)
+	# mkd: nope
 	SET(BUILD_SHARED_LIBS ON CACHE BOOL "Shared Libs" FORCE)
 endif ()
 
@@ -397,7 +398,8 @@ IF(BUILD_PYBULLET)
 	IF(WIN32)
 		SET(BUILD_SHARED_LIBS OFF CACHE BOOL "Shared Libs" FORCE)
 	ELSE(WIN32)
-		SET(BUILD_SHARED_LIBS ON CACHE BOOL "Shared Libs" FORCE)
+		# mkd: nope
+		#SET(BUILD_SHARED_LIBS ON CACHE BOOL "Shared Libs" FORCE)
 	ENDIF(WIN32)
 
 	IF(APPLE)

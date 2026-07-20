@@ -7,5 +7,12 @@ a3d_add_program(${TARGET_NAME}
 		App.cc
 		App.h
 		main.cc
+
+		DATA_DIRECTORY
+		"${CMAKE_CURRENT_SOURCE_DIR}/data"
+
+		DATA_DESTINATION
+		"/demos/data"
+
 		INSTALL_DESTINATION
-		"${INSTALL_DEMOS_EXEC_DIR}")
+		"${INSTALL_TESTS_EXEC_DIR}")

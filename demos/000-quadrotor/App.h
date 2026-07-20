@@ -14,6 +14,7 @@
 #include "a3d/Application.h"
 
 namespace a3d {
+	class Node;
 	class PhysicsWorld;
 	class Scene;
 	class VisualWorld;
@@ -75,7 +76,8 @@ namespace test::quadrotor {
 	private:
 		/// Private Member Variables ///
 
-		std::unique_ptr<a3d::Window>			_window;
+		std::unique_ptr<a3d::Window>	_window;
+		std::shared_ptr<a3d::Node>		_bananaNode;
 	};
 }
 

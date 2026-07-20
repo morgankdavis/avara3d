@@ -99,12 +99,13 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 	}
 
 	auto keysPressed = im->keysPressed();
+
 	if (keysPressed.count(Key::Slash)) {
 		window->cursorCaptured(!(window->cursorCaptured()));
 	}
 
 	if (keysPressed.count(Key::Escape)) {
-		exit(0);
+		_window->close();
 	}
 
 	for (auto mb : im->mouseButtonsDown()) {

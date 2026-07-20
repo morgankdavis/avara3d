@@ -20,6 +20,9 @@ set(BUILD_BULLET3_OPENCL OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(bullet-3.17)
 
+# bullet changes this. turn it back off.
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries" FORCE)
+
 target_compile_definitions(BulletDynamics PUBLIC BT_THREADSAFE=1)
 target_compile_definitions(BulletCollision PUBLIC BT_THREADSAFE=1)
 target_compile_definitions(LinearMath PUBLIC BT_THREADSAFE=1)
@@ -49,7 +52,8 @@ add_subdirectory(fastgltf-0.9.0)
 add_library(a3d_external_fastgltf INTERFACE)
 add_library(a3d::fastgltf ALIAS a3d_external_fastgltf)
 
-target_link_libraries(a3d_external_fastgltf INTERFACE fastgltf)
+target_link_libraries(a3d_external_fastgltf INTERFACE
+		fastgltf::fastgltf)
 
 ### generator ###
 
@@ -137,6 +141,8 @@ target_include_directories(a3d_external_magic_enum SYSTEM INTERFACE
 
 ### pugixml - TEMPORARY ###
 
+set(PUGIXML_BUILD_SHARED_AND_STATIC_LIBS OFF CACHE BOOL "" FORCE)
+
 add_subdirectory(pugixml-1.15)
 
 a3d_external_virtual_include_dir(
@@ -146,7 +152,8 @@ a3d_external_virtual_include_dir(
 add_library(a3d_external_pugixml INTERFACE)
 add_library(a3d::pugixml ALIAS a3d_external_pugixml)
 
-target_link_libraries(a3d_external_pugixml INTERFACE pugixml)
+target_link_libraries(a3d_external_pugixml INTERFACE
+		pugixml::static)
 
 target_include_directories(a3d_external_pugixml SYSTEM INTERFACE
 		"$<BUILD_INTERFACE:${A3D_EXTERNAL_VINCLUDE_ROOT}>"

@@ -153,9 +153,17 @@ void MainWindow::initLog(Log::Level level) {
 void MainWindow::updateCallback(Scene &scene, double time, double deltaTime) {
 	//log::app::t();
 
-	if (_bananaNode) {
+	auto im = static_cast<DesktopInputManager*>(scene.inputManager());
+	using Key = DesktopInputManager::Key;
+	using MouseButton = DesktopInputManager::MouseButton;
 
-		// rotate the bananas
+	auto keysPressed = im->keysPressed();
+	if (keysPressed.count(Key::Escape)) {
+		QCoreApplication::quit();
+	}
+
+	if (_bananaNode) {
+		// rotate the banana
 		auto rotationDeg = deltaTime * radians(-30.0); // 10deg/sec
 
 		auto rotY = math::quaternion({0.0f, 1.0f, 0.0f}, rotationDeg);
