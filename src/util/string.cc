@@ -118,9 +118,8 @@ string a3d::util::string::DateTimeString() {
 #endif
 }
 
-
 string a3d::util::string::StackTraceString(unsigned dropFunctions) {
-#if defined(A3D_POSIX) && !defined(A3D_EMSCRIPTEN)
+#if defined(A3D_POSIX) && !defined(A3D_WEB)
 	auto traceStr = std::string();
 	static const unsigned MAX_FRAMES = 64;
 
