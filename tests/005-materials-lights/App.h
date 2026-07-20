@@ -14,9 +14,7 @@
 #include "a3d/Application.h"
 
 namespace a3d {
-	class Mesh;
 	class Node;
-	class PhysicsShape;
 	class PhysicsWorld;
 	class Scene;
 	class VisualWorld;
@@ -79,8 +77,8 @@ namespace test::materialslights {
 		/// Private Member Variables ///
 
 		std::unique_ptr<a3d::Window>	_window;
-		a3d::Node*							_pointLightNode;
-		double 								_startTime;
+		a3d::Node*						_pointLightNode;
+		double 							_startTime;
 	};
 }
 

@@ -14,8 +14,6 @@
 #include "a3d/Application.h"
 
 namespace a3d {
-	class Mesh;
-	class Node;
 	class PhysicsShape;
 	class PhysicsWorld;
 	class Scene;

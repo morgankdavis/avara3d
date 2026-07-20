@@ -26,7 +26,7 @@ namespace a3d {
 
 namespace test::rigidbody {
 
-	struct WanderRotator;
+	struct WanderRotator; // TODO: Move
 
 	class App : public a3d::Application {
 
@@ -89,10 +89,10 @@ namespace test::rigidbody {
 		/// Private Member Variables ///
 
 		std::unique_ptr<a3d::Window>	_window;
-		a3d::Node*							_palmNode;
-		a3d::Node*							_duckNode;
-		std::vector<DuckFruitDef>			_duckFruit;
-		std::unique_ptr<WanderRotator>		_duckRotator;
+		a3d::Node*						_palmNode;
+		a3d::Node*						_duckNode;
+		std::vector<DuckFruitDef>		_duckFruit;
+		std::unique_ptr<WanderRotator>	_duckRotator;
 	};
 }
 

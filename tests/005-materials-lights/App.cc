@@ -87,26 +87,8 @@ std::unique_ptr<Scene> App::init() {
 		pointLightNode->mesh(geometry);
 		scene->rootNode()->addChild(pointLightNode);
 
-
-		// test emissive property
-	//	for (auto& node : scene->rootNode()->children(true)) {
-	//		if (node->mesh()) {
-	//			for (auto& material : node->mesh()->materials()) {
-	//				if (!holds_alternative<std::monostate>(material->diffuse())) {
-	//					material->emission(material->diffuse());
-	//				}
-	//			}
-	//		}
-	//	}
-
-
 		if (ORTHO_CAMERA) {
-//			AABB frustum = {{-100, -100, .01},
-//							{100, 100, 1000}};
-//			AABB frustum = {{0, 0, .01},
-//							{100, 100, 1000}};
-//			AABB frustum = {{-50, -50, .01},
-//							{50, 50, 1000}};
+
 			auto frustum = scene->rootNode()->aabb();
 			frustum.min.z = 0.01;
 			frustum.max.z = 10000;
@@ -126,40 +108,6 @@ std::unique_ptr<Scene> App::init() {
 				}
 			}
 		}
-
-	//	auto siameseNode = scene->rootNode()->childNamed("Siamese");
-	//	siameseNode->mesh()->firstMaterial()->fillMode(FillMode::Lines); // works
-
-		// random lights
-
-//		{
-//			const int NUM_RANDOM_LIGHTS = 64;
-//			for (int l = 0; l < NUM_RANDOM_LIGHTS; ++l) {
-//				auto light = make_shared<Light>(LightType::Point);
-//				light->attenuationFactor(0.0001);
-//				static const float yOffset = 30;
-//				static const int range = 75;
-//				auto lightNode = Node::LightNode(light);
-//				int randX = utils::Uniform(-range, range);
-//				int randY = utils::Uniform(-range, range);
-//				int randZ = utils::Uniform(-range, range);
-//				lightNode->position(vec3(randX, randY + yOffset, randZ));
-//				auto color = Color::Random();
-//				light->color(color);
-//
-//				auto geometry = make_shared<Sphere>(1.5, 16);
-//
-////				auto materialProperty = make_shared<MaterialProperty>(color);
-////				auto material = make_shared<Material>();
-////				material->emissive(materialProperty);
-////				geometry->addMaterial(material);
-////				lightNode->geometry(geometry);
-//
-//				scene->rootNode()->addChild(lightNode);
-//			}
-//		}
-
-		//auto extent = scene->rootNode()->extent();
 
 		_window->center();
 		_window->open();
@@ -220,12 +168,6 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 
 	if 		(keysPressed.count(Key::LeftBracket))	SetAllMaxAnisotropy(1, scene);
 	else if (keysPressed.count(Key::RightBracket))	SetAllMaxAnisotropy(16, scene);
-
-//	if (auto attenuatedLight = dynamic_cast<AttenuatedLight*>(g_pointLightNode->light().get())) {
-//		if (keysPressed.count(Key::F1)) attenuatedLight->constantAttenuation(1.0 - 0.0005);
-//		else if (keysPressed.count(Key::F2)) attenuatedLight->constantAttenuation(1.0 - 0.00015);
-//		else if (keysPressed.count(Key::F3)) attenuatedLight->constantAttenuation(1.0 - 0.00005);
-//	}
 
 	using DebugOptions = Scene::DebugOptions;
 
@@ -411,13 +353,6 @@ void SetAllFilterModes(Sampler::FilterMode mode, Scene& scene) {
 						sampler->minificationFilter(mode);
 						sampler->magnificationFilter(mode);
 					}
-
-					//					if (holds_alternative<shared_ptr<Texture>>(*property)) {
-					//						auto texture = get<shared_ptr<Texture>>(*property);
-					//						auto sampler = texture->sampler();
-					//						sampler->minificationFilter(mode);
-					//						sampler->magnificationFilter(mode);
-					//					}
 				}
 			}
 		}
@@ -441,12 +376,6 @@ void SetAllMaxAnisotropy(float anisotropy, Scene& scene) {
 						auto sampler = (*texture)->sampler();
 						sampler->maxAnisotropy(anisotropy);
 					}
-
-					//					if (holds_alternative<shared_ptr<Texture>>(*property)) {
-					//						auto texture = get<shared_ptr<Texture>>(*property);
-					//						auto sampler = texture->sampler();
-					//						sampler->maxAnisotropy(anisotropy);
-					//					}
 				}
 			}
 		}

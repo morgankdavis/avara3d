@@ -15,10 +15,6 @@ using namespace a3d::math;
 using namespace test::debug;
 using namespace std;
 
-/// Private Static Non-Member Prototypes ///
-
-// nada
-
 /// Private Constants ///
 
 const Log::Level						APP_LOG_LEVEL		{Log::Level::Debug};
@@ -59,20 +55,15 @@ std::unique_ptr<Scene> App::init() {
 		auto scene = make_unique<Scene>(std::move(visualWorld),
 		                                nullptr,
 		                                Window::InputManager());
-//	DebugOptions debugOptions = DebugOptions::None;
-//	debugOptions = util::bitmask::add(debugOptions, DebugOptions::ShowStatsOverlay);
-//	debugOptions = util::bitmask::add(debugOptions, DebugOptions::ShowBoundingBoxes);
 		auto debugOptions = Scene::DebugOptions::ShowStatsOverlay
 							| Scene::DebugOptions::ShowBoundingBoxes;
 		scene->debugOptions(debugOptions);
 
-		//auto ambientLight = make_shared<Light>(LightType::Ambient, make_shared<Color>(0.25f, 0.25, 0.25, 1.0));
 		auto ambientLight = make_shared<AmbientLight>(Color::Gray());
 		auto ambientLightNode = make_shared<Node>("Ambient light");
 		ambientLightNode->light(ambientLight);
 		scene->rootNode()->addChild(ambientLightNode);
 
-		//auto pointLight = make_shared<Light>(LightType::Point, Color::White());
 		auto pointLight = make_shared<PointLight>(Color::White());
 		pointLight->attenuation(Attenuation{.quadratic = 0.0001f});
 		auto pointLightNode = make_shared<Node>();
@@ -85,8 +76,6 @@ std::unique_ptr<Scene> App::init() {
 		material->name("LIGHT material");
 		material->emission(materialProperty);
 		auto mesh = shared_ptr(Sphere::Mesh(3.5, 4, material));
-//	mesh->addMaterial(material);
-//	mesh->replaceMaterial(0, material); // TODO: EHHHHHHHH??????????/
 		pointLightNode->mesh(mesh);
 
 		auto teapotNode = Node::MeshNode(util::filesystem::MeshNamed("teapot/teapot"));
@@ -264,7 +253,3 @@ void App::visualWorldDidRender(VisualWorld& world, double time, double deltaTime
 void App::physicalWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {
 
 }
-
-/// Private Static Non-Member Functions ///
-
-// nada

@@ -21,10 +21,6 @@ using namespace a3d::math;
 using namespace test::inputcamera;
 using namespace std;
 
-/// Private Static Non-Member Prototypes ///
-
-// nada
-
 /// Private Constants ///
 
 const Log::Level						APP_LOG_LEVEL		{Log::Level::Debug};
@@ -143,35 +139,31 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 		float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
 
 		vec3 angles = pov->eulerAngles();
-		// weird angles
-		//_cameraNode->eulerAngles(vec3(angles.x + -deltaRotX, 0, angles.z + deltaRotY));
-		// pitch, yaw, roll
 		pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
-
 
 		// move
 
 		static float MOVE_SPEED = math::max(scene.rootNode()->extent());
 
-		if(keysDown.count(Key::W)) {
+		if (keysDown.count(Key::W)) {
 			vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camForward;
 			pov->position(pov->position() + positionDelta);
 		}
-		else if(keysDown.count(Key::S)) {
+		else if (keysDown.count(Key::S)) {
 			vec3 positionDelta = (float)deltaTime * MOVE_SPEED * -camForward;
 			pov->position(pov->position() + positionDelta);
 		}
 
-		if(keysDown.count(Key::A)) {
+		if (keysDown.count(Key::A)) {
 			vec3 positionDelta = (float)deltaTime * MOVE_SPEED * -camRight;
 			pov->position(pov->position() + positionDelta);
 		}
-		else if(keysDown.count(Key::D)) {
+		else if (keysDown.count(Key::D)) {
 			vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camRight;
 			pov->position(pov->position() + positionDelta);
 		}
 
-		if(keysDown.count(Key::Space)) {
+		if (keysDown.count(Key::Space)) {
 			vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camUp;
 			pov->position(pov->position() + positionDelta);
 		}
@@ -193,7 +185,3 @@ void App::visualWorldDidRender(VisualWorld& world, double time, double deltaTime
 void App::physicalWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {
 
 }
-
-/// Private Static Non-Member Functions ///
-
-// nada

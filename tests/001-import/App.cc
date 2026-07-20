@@ -14,16 +14,11 @@
 
 #include "a3d/a3d.h"
 #include "a3d/util/filesystem.h"
-#include "a3d/util/snapshot.h"
 
 using namespace a3d;
 using namespace a3d::math;
 using namespace test::import;
 using namespace std;
-
-/// Private Static Non-Member Prototypes ///
-
-// nada
 
 /// Private Constants ///
 
@@ -63,20 +58,9 @@ std::unique_ptr<Scene> App::init() {
 		auto scene = make_unique<Scene>();
 		scene->visualWorld(std::move(visualWorld));
 		scene->inputManager(Window::InputManager());
-		//	auto options = SceneImportOptions::ImportAll;
-		//	auto options = SceneImportOptions::ImportMeshes;
+
 		auto options = Scene::ImportOptions::ImportMeshes
 					   | Scene::ImportOptions::ImportMaterials;
-		//	auto options = SceneImportOptions::ImportMeshes
-		//				   | SceneImportOptions::ImportMaterials
-		//				   | SceneImportOptions::ImportLights;
-		//	auto options = SceneImportOptions::ImportMeshes
-		//				   | SceneImportOptions::ImportMaterials
-		//				   | SceneImportOptions::ImportLights
-		//				   | SceneImportOptions::ImportCameras;
-		//	auto options = SceneImportOptions::ImportLights
-		//				   | SceneImportOptions::ImportCameras;
-
 		auto testScene = util::filesystem::SceneNamed("import_test/import_test", options);
 		auto testSceneNodes = testScene->rootNode()->children();
 		auto importLightsCamerasRoot = make_shared<Node>("importLightsCamerasRoot");
@@ -92,9 +76,6 @@ std::unique_ptr<Scene> App::init() {
 				importMeshRoot->addChild(node);
 			}
 		}
-
-
-		//	importMeshRoot = testScene->rootNode();
 
 		scene->rootNode()->addChild(importLightsCamerasRoot);
 		scene->rootNode()->addChild(importMeshRoot);
@@ -145,7 +126,3 @@ void App::visualWorldDidRender(VisualWorld& world, double time, double deltaTime
 void App::physicalWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {
 
 }
-
-/// Private Static Non-Member Functions ///
-
-// nada

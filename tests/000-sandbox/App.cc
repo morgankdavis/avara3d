@@ -15,10 +15,6 @@ using namespace a3d::math;
 using namespace test::sandbox;
 using namespace std;
 
-/// Private Static Non-Member Prototypes ///
-
-// nada
-
 /// Private Constants ///
 
 const Log::Level						APP_LOG_LEVEL		{Log::Level::Debug};
@@ -53,34 +49,13 @@ std::unique_ptr<Scene> App::init() {
 
 		auto visualWorld = make_unique<VisualWorld>(*_window);
 
-
-	//	visualWorld->fogStartDistance(50.0);
-	//	visualWorld->fogEndDistance(400.0);
-	//	visualWorld->fogDensityExponent(1.0);
-	//	visualWorld->fogColor(DARK ? Color::DarkGray() : Color::LightGray());
-	//	auto background = DARK
-	//					  ? make_shared<MaterialProperty>(Color::Black())
-	//					          //make_shared<MaterialProperty>(CubeImageNamed("belfast_sunset", "png"))
-	//					  : make_shared<MaterialProperty>(CubeImageNamed("kloppenheim", "png"));
-
-
-//		Material::Property background = monostate{};
-//		if (DARK) background = Color::Black();
-//		else background = make_shared<Texture>(util::filesystem::CubeImageNamed("kloppenheim", "png"));
-//		visualWorld->background(background);
-//		visualWorld->willRenderCallback(bind(&WillRenderCallback, _1, _2, _3));
-//		visualWorld->didRenderCallback(bind(&DidRenderCallback, _1, _2, _3));
-
 		auto physicalWorld = make_unique<PhysicsWorld>();
 		physicalWorld->timestep(PHYSICS_TIMESTEP);
 
-		//auto scene = make_unique<Scene>(std::move(visualWorld), std::move(physicalWorld), std::move(inputManager));
 		auto mapPath = util::filesystem::AuxiliaryFilePath("Icebox", "alf");
 		auto alfImporter = ALFImporter(*mapPath);
 		auto scene = alfImporter.scene(*visualWorld);
 
-//		Material::Property background = monostate{};
-//		if (DARK) background = Color::Black();
 //		else background = make_shared<Texture>(util::filesystem::CubeImageNamed("kloppenheim", "png"));
 //		visualWorld->background(background);
 
@@ -90,332 +65,8 @@ std::unique_ptr<Scene> App::init() {
 
 		scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 
-
-//		auto ambientLight = make_shared<AmbientLight>(Color::DarkGray());
-//		auto ambientLightNode = Node::LightNode(ambientLight);
-//		scene->rootNode()->addChild(ambientLightNode);
-
-
-	//	auto pointColor = DARK
-	//					  ? Color::LightGray()
-	//					  : Color::Gray();
-	//	auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, pointColor);
-	//	pointLight->attenuationFactor(0);
-	//	auto pointLightNode = Node::LightNode(pointLight);
-	//	pointLightNode->position(vec3(35, 20, (DARK ? -1.0 : -1.0 ) * 52) * vec3(2.5, 2.5, 2.5));
-	//	scene->rootNode()->addChild(pointLightNode);
-
-
-
-
-
-		// ground plane
-
-//		{
-//			const float PLANE_LENGTH = 20.0;
-//			const float PLANE_WIDTH = 20.0;
-//			auto planeNode = make_shared<Node>("Ground plane node");
-//			//planeNode->mesh(Mesh::Box(PLANE_LENGTH, PLANE_WIDTH, .1f));
-//			planeNode->mesh(Box::Mesh(PLANE_LENGTH, .1f, PLANE_WIDTH));
-//			auto gridImage = DARK
-//							 ? util::filesystem::ImageNamed("grid10")->inverted()
-//							 : util::filesystem::ImageNamed("grid10");
-//			auto planeTexture = make_shared<Texture>(std::move(gridImage));
-//			planeTexture->sampler()->wrapS(Sampler::WrapMode::Repeat);
-//			planeTexture->sampler()->wrapT(Sampler::WrapMode::Repeat);
-//			planeTexture->sampler()->maxAnisotropy(16);
-//			planeTexture->sampler()->minificationFilter(Sampler::FilterMode::LinearMipmapLinear);
-//			planeTexture->sampler()->magnificationFilter(Sampler::FilterMode::Linear);
-//			shared_ptr<Material> planeMaterial = nullptr;
-//			if (DARK) {
-//				planeMaterial = make_shared<Material>(monostate{},
-//													  monostate{},
-//													  Color::White(),
-//													  planeTexture);
-//			} else {
-//				planeMaterial = make_shared<Material>(monostate{},
-//													  planeTexture,
-//													  monostate{});
-//			}
-//
-//			planeMaterial->uvScale(PLANE_LENGTH / 10.0f);
-//			planeMaterial->doubleSided(false);
-//			planeNode->mesh()->addMaterial(planeMaterial);
-//			//	planeNode->mesh()->replaceMaterial(0, planeMaterial);
-//			//planeNode->rotation({1, 0, 0}, radians(3*90.0));
-//			planeNode->position({planeNode->position().x, 0, planeNode->position().z});
-//
-//
-//
-//			//	auto planePhysicsBody = PhysicsBody::StaticBody();
-//			//	planeNode->physicsBody(planePhysicsBody);
-//			//	planePhysicsBody->friction(1);
-//			//	planePhysicsBody->restitution(0.25);
-//
-//			scene->rootNode()->addChild(planeNode);
-//		}
-
-
-
-
-
-
-
-//			{
-////				auto pointLight = make_shared<Light>(LightType::Point, Color::LightGray());
-//				auto pointLight = make_shared<PointLight>(Color::LightGray());
-//				//pointLight->attenuationFactor(0);
-////				pointLight->attenuation(Attenuation{
-////						.constant = 1.0f, .linear = 0.0f, .quadratic = 0.1f});
-//				auto pointLightNode = Node::LightNode(pointLight);
-//				pointLightNode->position({5, 5, 0});
-//
-//				auto material = make_shared<Material>(monostate{},
-//													  monostate{},
-//													  monostate{},
-//													  Color::White());
-//				//auto sphere = Mesh::Sphere(0.1f, 12);
-//				auto sphere = Sphere::Mesh(0.1f, 12, material);
-//
-//				//sphere->addMaterial(material);
-//	//			sphere->replaceMaterial(0, material);
-//				pointLightNode->mesh(sphere);
-//
-//				scene->rootNode()->addChild(pointLightNode);
-//			}
-
-
-
-	//		auto testMesh = MeshNamed("rubber_duck/rubber_duck");
-	//		auto testMesh = MeshNamed("slurm/slurm");
-	//		auto testMesh = MeshNamed("cardboard_box/cardboard_box");
-	//		auto testMesh = MeshNamed("palm/palm");
-	//		auto testMesh = MeshNamed("palms/palms");
-	//		auto testMesh = MeshNamed("island/island");
-	//		auto testMesh = MeshNamed("teapot");
-	//		auto testMesh = MeshNamed("apple_lod/apple_lod");
-	//		auto testMesh = MeshNamed("banana_lod/banana_lod");
-	//		auto testMesh = MeshNamed("cherries_lod/cherries_lod");
-	// 		REVISIT ME
-	//			- no normals
-	//			- normals
-	//			- no groupings (1 element?)
-	//			- groupings (multiple elements?)
-	//			- textures
-	//		auto testMesh = MeshNamed("convalia_bouquet");
-	//		auto testMesh = MeshNamed("dragon");
-	//		auto testMesh = MeshNamed("orange_lod/orange_lod");
-	//		auto testMesh = MeshNamed("pear_lod/pear_lod");
-	//		auto testMesh = MeshNamed("pineapple_lod/pineapple_lod");
-	//		auto testMesh = MeshNamed("pallet/pallet");
-	//		auto testMesh = MeshNamed("siamese/siamese");
-	//		auto testMesh = MeshNamed("tuna_rot/tuna_rot");
-	//		auto testMesh = MeshNamed("cartoon_palm_tree/cartoon_palm_tree");
-	//		auto testMesh = MeshNamed("crocus/crocus");
-
-
-
-
-
-
-
-//		{
-//			auto mesh = Box::Mesh(1.0f, 2.0f, 3.0f);
-//			auto node = make_shared<Node>();
-//			node->name("box");
-//			node->mesh(mesh);
-//			scene->rootNode()->addChild(node);
-//			//node->position(vec3(0.0f, 1.0f, 0.0f));
-//		}
-
-
-
-//		{
-//			auto mesh = Wedge::Mesh(1.0f, 5.0f, 10.0f);
-//			auto node = make_shared<Node>();
-//			mesh->name("wedge");
-//			node->mesh(mesh);
-//			scene->rootNode()->addChild(node);
-//			//node->rotation({-1.0f, 0.0f, 0.0f}, radians(90.0f));
-//			node->position(vec3(0.0f, 5.0f, 0.0f));
-//		}
-
-//		{
-//			auto mesh = Sphere::Mesh(1.0f);
-//			auto node = make_shared<Node>();
-//			mesh->name("sphere");
-//			node->mesh(mesh);
-//			scene->rootNode()->addChild(node);
-//			//node->position(vec3(5.0f, 2.5f, 0.0f));
-//		}
-
-//		{
-//			auto mesh = Dome::Mesh(5.0f,
-//								   0, math::radians(90.0),
-//								   0, math::radians(180.0));
-//			auto node = make_shared<Node>();
-//			mesh->name("dome");
-//			node->mesh(mesh);
-//			scene->rootNode()->addChild(node);
-//			node->position(vec3(5.0f, 2.5f, 0.0f));
-//		}
-
-//		{
-//			auto mesh = Disk::Mesh(2.5f, 5.0f);
-//			auto node = make_shared<Node>();
-//			node->name("disk");
-//			node->mesh(mesh);
-//			scene->rootNode()->addChild(node);
-//			node->position(vec3(0.0f, 5.0f, 0.0f));
-//		}
-
-
-
-
-
-
-
-//		auto mapPath = util::filesystem::AuxFilePath("Icebox", "alf");
-//		auto alfImporter = ALFImporter(*mapPath);
-//		auto alfScene = alfImporter.scene();
-//
-//
-//		scene->rootNode()->addChild(alfScene->rootNode());
-
-
-
 		_window->center();
 		_window->open();
-
-
-
-		// const vector<string> meshNames = {
-		// 		"apple_lod/apple_lod",
-		// 		"banana_lod/banana_lod",
-		// 		"cardboard_box/cardboard_box",
-		// 		"cartoon_palm_tree/cartoon_palm_tree",
-		// 		"cherries_lod/cherries_lod",
-		// 		"crocus/crocus",
-		// 		"dragon/dragon",
-		// 		"island/island",
-		// 		"orange_lod/orange_lod",
-		// 		"pallet/pallet",
-		// 		"palm/palm",
-		// 		"palms/palms",
-		// 		"pear_lod/pear_lod",
-		// 		"pineapple_lod/pineapple_lod",
-		// 		"rubber_duck/rubber_duck",
-		// 		"siamese/siamese",
-		// 		"slurm/slurm",
-		// 		"teapot/teapot",
-		// 		"tuna/tuna"
-		// };
-		//
-		// vector<shared_ptr<Mesh>> meshes;
-		// meshes.reserve(meshNames.size());
-		// for (const auto& meshName: meshNames) {
-		// 	meshes.push_back(MeshNamed(meshName));
-		// }
-		//
-		// g_meshes = &meshes;
-		//
-	//	g_meshes = vector<Mesh*>();
-	//	g_meshes.reserve(meshes.size());
-	//	for (auto& m : meshes) {
-	//		g_meshes.push_back(m.get());
-	//	}
-
-	//	auto testMesh = MeshNamed("apple_lod/apple_lod");
-	//	auto testMesh = MeshNamed("banana_lod/banana_lod");
-	//	auto testMesh = MeshNamed("cardboard_box/cardboard_box");
-	//	auto testMesh = MeshNamed("cartoon_palm_tree/cartoon_palm_tree");
-	//	auto testMesh = MeshNamed("cherries_lod/cherries_lod");
-	//	auto testMesh = MeshNamed("crocus/crocus");
-	//	auto testMesh = MeshNamed("dragon/dragon");
-	//	auto testMesh = MeshNamed("island/island");
-	//	auto testMesh = MeshNamed("orange_lod/orange_lod");
-	//	auto testMesh = MeshNamed("pallet/pallet");
-	//	auto testMesh = MeshNamed("palm/palm");
-	//	auto testMesh = MeshNamed("palms/palms");
-	//	auto testMesh = MeshNamed("pear_lod/pear_lod");
-	//	auto testMesh = MeshNamed("pineapple_lod/pineapple_lod");
-	//	auto testMesh = MeshNamed("rubber_duck/rubber_duck");
-	//	auto testMesh = MeshNamed("siamese/siamese");
-	//	auto testMesh = MeshNamed("slurm/slurm");
-	//	auto testMesh = MeshNamed("teapot/teapot");
-	//	auto testMesh = MeshNamed("tuna/tuna");
-		// -> 19
-
-	//
-	// 	auto mesh = meshes[0];
-	// 	auto meshNode = shared_ptr(Node::MeshNode(mesh));
-	// 	meshNode->position({0, 5, 0});
-	//
-	// 	g_meshNode = &meshNode;
-	// 	scene->rootNode()->addChild(meshNode);
-	// //	g_meshNode = meshNode.get();
-	//
-	//
-	// //		for (auto &m: testMesh->materials()) {
-	// //			m->doubleSided(true);
-	// //		}
-	// //		auto testNode = Node::meshNode(testMesh);
-	// ////		testNode->position({0, 5, 0});
-	// //		scene->rootNode()->addChild(testNode);
-	// ////	}
-	//
-	//
-	//
-	// ////	{
-	// //		auto testScene = SceneNamed("import_test/import_test");
-	// ////		auto testScene = SceneNamed("rubber_duck_gltf/rubber_duck",
-	// ////									SCENE_IMPORT_OPTIONS::IMPORT_MESHES
-	// ////									| SCENE_IMPORT_OPTIONS::IMPORT_MATERIALS
-	// ////									| SCENE_IMPORT_OPTIONS::FIRST_MESH_ONLY);
-	// ////		auto testScene = SceneNamed("import_test", "glb");
-	// ////		auto testScene = SceneNamed("khr_gltf2_samples/ABeautifulGame/glTF/ABeautifulGame");
-	// ////		auto testScene = SceneNamed("khr_gltf2_samples/BarramundiFish/glTF/BarramundiFish");
-	// ////		auto testScene = SceneNamed("khr_gltf2_samples/Duck/glTF/Duck"); // STRIDE
-	// //
-	// //		auto importRoot = testScene->rootNode();
-	// //		auto rootPos = importRoot->position();
-	// //		importRoot->position({rootPos.x, rootPos.y+2, rootPos.z});
-	// //		scene->rootNode()->addChild(importRoot);
-	// ////	}
-	//
-	// //
-	// ////		{
-	// ////			auto pointLight = make_shared<Light>(LIGHT_TYPE::POINT, Color::LightGray());
-	// ////			pointLight->attenuationFactor(0);
-	// ////			auto pointLightNode = Node::LightNode(pointLight);
-	// ////			pointLightNode->position({5, 5, 0});
-	// ////			scene->rootNode()->addChild(pointLightNode);
-	// ////
-	// ////			auto sphere = make_shared<Sphere>(0.1f, 12);
-	// ////			auto property = make_shared<MaterialProperty>(pointLight->color());
-	// ////			auto material = make_shared<Material>(nullptr, nullptr, nullptr, property);
-	// ////			sphere->addMaterial(material);
-	// ////			pointLightNode->mesh(sphere);
-	// ////		}
-	// //
-	// //		for (auto& node : scene->rootNode()->children(true)) {
-	// //			auto light = node->light();
-	// //			if (light) {
-	// //				if (light->type() == LIGHT_TYPE::POINT) {
-	// //					auto sphere = make_shared<Sphere>(0.1f, 12);
-	// //					auto property = make_shared<MaterialProperty>(light->color());
-	// //					auto material = make_shared<Material>(nullptr, nullptr, nullptr, property);
-	// //					sphere->addMaterial(material);
-	// //					node->mesh(sphere);
-	// //				}
-	// //			}
-	// //		}
-	// //	}
-	//
-	// 	window->center();
-	// 	window->open();
-	//
-	//
 
 		return scene;
 	}
@@ -505,21 +156,6 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 
 		scene.visualWorld()->pointOfView(cameraNodes[2]);
 	}
-
-	// static int index = 0;
-	// if (keysPressed.count(Key::LeftBracket)) {
-	// 	_mesh = &((*_meshes)[--index]);
-	// 	auto name = (*_mesh)->name();
-	// 	if (name) log::app::d()("name: {}", *name);
-	// 	(*_meshNode)->mesh(*_mesh);
-	// }
-	// if (keysPressed.count(Key::RightBracket)) {
-	// 	_mesh = &((*_meshes)[++index]);
-	// 	auto name = (*_mesh)->name();
-	// 	if (name) log::app::d()("name: {}", *name);
-	// 	//meshNode = Node::meshNode(mesh);
-	// 	(*_meshNode)->mesh(*_mesh);
-	// }
 
 	using DebugOptions = Scene::DebugOptions;
 
@@ -693,7 +329,3 @@ void App::visualWorldDidRender(VisualWorld& world, double time, double deltaTime
 void App::physicalWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {
 
 }
-
-/// Private Static Non-Member Functions ///
-
-// nada

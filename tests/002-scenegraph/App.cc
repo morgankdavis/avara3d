@@ -15,10 +15,6 @@ using namespace a3d::math;
 using namespace test::scenegraph;
 using namespace std;
 
-/// Private Static Non-Member Prototypes ///
-
-// nada
-
 /// Private Constants ///
 
 const Log::Level						APP_LOG_LEVEL		{Log::Level::Debug};
@@ -106,7 +102,3 @@ void App::visualWorldDidRender(VisualWorld& world, double time, double deltaTime
 void App::physicalWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {
 
 }
-
-/// Private Static Non-Member Functions ///
-
-// nada

@@ -14,7 +14,6 @@
 #include "a3d/Application.h"
 
 namespace a3d {
-	class Mesh;
 	class Node;
 	class PhysicsShape;
 	class PhysicsWorld;
@@ -79,7 +78,7 @@ namespace test::geoprimitives {
 		/// Private Member Variables ///
 
 		std::unique_ptr<a3d::Window>	_window;
-		a3d::Node*							_pointLightPivotNode;
+		a3d::Node*						_pointLightPivotNode;
 	};
 }
 

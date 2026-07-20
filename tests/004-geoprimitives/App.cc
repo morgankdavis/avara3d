@@ -15,10 +15,6 @@ using namespace a3d::math;
 using namespace test::geoprimitives;
 using namespace std;
 
-/// Private Static Non-Member Prototypes ///
-
-// nada
-
 /// Private Constants ///
 
 const Log::Level						APP_LOG_LEVEL		{Log::Level::Debug};
@@ -205,37 +201,6 @@ std::unique_ptr<Scene> App::init() {
 			node->rotation({0.0f, 1.0f, 0.0f}, radians(-30.0f));
 		}
 
-	//	int texIndex = 0;
-	//	vector<shared_ptr<Image>> textures = { utils::ImageNamed("test_textures/blue", "png"),
-	//										   utils::ImageNamed("test_textures/cyan", "png"),
-	//										   utils::ImageNamed("test_textures/green", "png"),
-	//										   utils::ImageNamed("test_textures/magenta", "png"),
-	//										   utils::ImageNamed("test_textures/orange", "png"),
-	//										   utils::ImageNamed("test_textures/purple", "png"),
-	//										   utils::ImageNamed("test_textures/red", "png"),
-	//										   utils::ImageNamed("test_textures/yellow", "png"),
-	//										   utils::ImageNamed("test_textures/blue", "png"),
-	//										   utils::ImageNamed("test_textures/cyan", "png") };
-	//
-	//	for (auto& node : scene->rootNode()->children(true)) {
-	//		if (auto mesh = node->mesh(); mesh) {
-	//
-	//			auto elements = mesh->elements();
-	//			for (int e=0; e<elements.size(); ++e) {
-	//
-	//				auto material = make_shared<Material>();
-	//				MaterialProperty property = make_shared<Texture>(textures[texIndex++]);
-	//				material->diffuse(property);
-	//				material->doubleSided(true);
-	//				//mesh->addMaterial(material);
-	//				mesh->replaceMaterial(0, material);
-	//				if (texIndex >= textures.size()) {
-	//					texIndex = 0;
-	//				}
-	//			}
-	//		}
-	//	}
-
 		_window->center();
 		_window->open();
 
@@ -389,7 +354,3 @@ void App::visualWorldDidRender(VisualWorld& world, double time, double deltaTime
 void App::physicalWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {
 
 }
-
-/// Private Static Non-Member Functions ///
-
-// nada
