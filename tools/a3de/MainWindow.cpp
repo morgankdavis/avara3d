@@ -78,12 +78,8 @@ void MainWindow::initA3D() {
 		return;
 	}
 
-	using util::filesystem::MeshNamed;
-
 	try {
 		initLog(APP_LOG_LEVEL);
-
-		auto inputManager = make_unique<qt::QtInputManager>(*_viewport);
 
 		auto visualWorld = make_unique<VisualWorld>(*_viewport);
 		auto backgroundColor = make_shared<Color>(u8vec3{109, 136, 164});
@@ -91,13 +87,19 @@ void MainWindow::initA3D() {
 		visualWorld->willRenderCallback(bind(&MainWindow::willRenderCallback, this, _1, _2, _3));
 		visualWorld->didRenderCallback(bind(&MainWindow::didRenderCallback, this, _1, _2, _3));
 
-		_scene = make_unique<Scene>();
-		_scene->visualWorld(std::move(visualWorld));
-		_scene->inputManager(std::move(inputManager));
+		_scene = make_unique<Scene>(std::move(visualWorld),
+									nullptr,
+									qt::QtViewport::InputManager());
 		_scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 		_scene->updateCallback(bind(&MainWindow::updateCallback, this, _1, _2, _3));
 
 		_viewport->cursorCaptured(CAPTURE_CURSOR);
+
+		_bananaNode = Node::MeshNode(util::filesystem::MeshNamed("banana_lod/banana_lod"));
+		auto rot90X = math::quaternion({1.0f, 0.0f, 0.0f}, radians(90.0f));
+		auto rot90Y = math::quaternion({0.0f, 1.0f, 0.0f}, radians(90.0f));
+		_bananaNode->orientation(rot90X * rot90Y);
+		_scene->rootNode()->addChild(_bananaNode);
 
 		_runner = make_unique<Runner>(*_scene);
 		_runner->start();
@@ -150,6 +152,15 @@ void MainWindow::initLog(Log::Level level) {
 
 void MainWindow::updateCallback(Scene &scene, double time, double deltaTime) {
 	//log::app::t();
+
+	if (_bananaNode) {
+
+		// rotate the bananas
+		auto rotationDeg = deltaTime * radians(-30.0); // 10deg/sec
+
+		auto rotY = math::quaternion({0.0f, 1.0f, 0.0f}, rotationDeg);
+		_bananaNode->orientation(rotY * _bananaNode->orientation());
+	}
 }
 
 void MainWindow::willRenderCallback(VisualWorld &world, double time, double deltaTime) {

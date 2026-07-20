@@ -9,29 +9,19 @@
 #include "a3d/scene/Scene.h"
 
 #include <filesystem>
-#include <stdexcept>
-#include <thread>
 #include <utility>
 
 #include "a3d/Buffer.h"
 #include "a3d/Color.h"
 #include "a3d/Configuration.h"
-#include "a3d/Image.h"
 #include "a3d/log/Log.h"
 #include "a3d/input/GLFWInputManager.h"
-#include "a3d/mesh/Mesh.h"
-#include "a3d/mesh/MeshElement.h"
-#include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsWorld.h"
 #include "a3d/profile/Profile.h"
-#include "a3d/render/context/RenderContext.h"
-#include "a3d/render/Renderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/importer/GlTFImporter.h"
 #include "a3d/util/flow.h"
 #include "a3d/visual/VisualWorld.h"
-#include "a3d/visual/camera/Camera.h"
-#include "a3d/visual/light/Light.h"
 
 using namespace a3d;
 using namespace a3d::math;

@@ -335,7 +335,6 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 			// pitch, yaw, roll
 			pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
 
-
 			// move
 
 			static float MOVE_SPEED = math::max(scene.rootNode()->extent());

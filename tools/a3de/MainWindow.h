@@ -60,6 +60,7 @@ namespace a3de {
 		std::unique_ptr<a3d::Scene>		_scene;
 		std::unique_ptr<a3d::Runner>	_runner; // Runner must be destroyed before Scene
 		std::shared_ptr<a3d::Node>		_pointLightNode;
+		std::shared_ptr<a3d::Node>		_bananaNode;
 	};
 }
 

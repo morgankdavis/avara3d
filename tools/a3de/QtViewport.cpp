@@ -25,6 +25,12 @@ using namespace a3d::math;
 using namespace std;
 using Viewport = qt::QtViewport;
 
+/// Public Static Member Functions ///
+
+unique_ptr<qt::QtInputManager> Viewport::InputManager() {
+	return std::make_unique<QtInputManager>();
+}
+
 /// Private Static Non-Member Prototypes ///
 
 static ImGuiKey ImGuiKeyFromQtKey(int qtKey);

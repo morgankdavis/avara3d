@@ -15,6 +15,10 @@
 
 #include "a3d/render/context/RenderContext.h"
 
+// namespace a3d {
+// 	class DesktopInputManager;
+// }
+
 namespace a3d::qt {
 
 	class QtInputManager;
@@ -28,6 +32,10 @@ namespace a3d::qt {
 		void					renderFrame();
 
 	public:
+		/// Public Static Member Functions ///
+
+		static std::unique_ptr<QtInputManager> InputManager();
+
 		/// Public Lifecycle Functions ///
 
 		explicit QtViewport(RenderingApi renderingApi,
