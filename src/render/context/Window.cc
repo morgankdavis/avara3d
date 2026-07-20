@@ -191,6 +191,10 @@ Window::~Window() {
 void Window::open() {
 	log::i();
 
+// #if defined(A3D_WEB)
+// 	log::w()("Window::open() has no effect on web.");
+// 	return;
+// #else
 	if (_visualWorld && _visualWorld->scene()) {
 		glfwMakeContextCurrent(_glfwWindow.get());
 
@@ -210,6 +214,7 @@ void Window::open() {
 	else {
 		throw std::runtime_error("Window has no scene.");
 	}
+// #endif //A3D_WEB
 }
 
 void Window::close() {
@@ -218,13 +223,10 @@ void Window::close() {
 		stopGIFRecording();
 	}
 
-//	if (_visualWorld && _visualWorld->scene()) {
-//		auto scene = _visualWorld->scene();
-//		if (scene->running()) {
-//			scene->stop();
-//		}
-//	}
-
+// #if defined(A3D_WEB)
+// 	log::w()("Window::close() has no effect on web.");
+// 	return;
+// #else
 	glfwSetWindowSizeCallback(_glfwWindow.get(), nullptr);
 	glfwSetWindowCloseCallback(_glfwWindow.get(), nullptr);
 	glfwSetFramebufferSizeCallback(_glfwWindow.get(), nullptr);
@@ -235,6 +237,7 @@ void Window::close() {
 	glfwSetWindowShouldClose(_glfwWindow.get(), true);
 
 	_open = false;
+// #endif //A3D_WEB
 }
 
 bool Window::isOpen() const {
