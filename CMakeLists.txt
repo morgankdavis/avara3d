@@ -11,6 +11,7 @@ include(cmake/ExternalVirtualInclude.cmake)
 include(cmake/UtilityFunctions.cmake)
 
 option(A3D_BUILD_TESTS "Build A3D tests" ON)
+option(A3D_BUILD_DEMOS "Build A3D demos" ON)
 option(A3D_BUILD_EDITOR "Build A3D editor" ON)
 
 # set a default build type only for single-config generators (Ninja/Makefiles)
@@ -24,71 +25,9 @@ else()
 	message(STATUS "[BUILD TYPE: ${CMAKE_BUILD_TYPE}]")
 endif()
 
-### force C++20 for all targets ###
-
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-add_library(avara3d_build_options INTERFACE)
-
-# require C++20 for anything that links this
-target_compile_features(avara3d_build_options INTERFACE cxx_std_20)
-
-# make __cplusplus reflect reality
-if (MSVC)
-	target_compile_options(avara3d_build_options INTERFACE /std:c++20 /Zc:__cplusplus)
-endif()
-
 ### add external libraries ###
 
-set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
-set(USE_SOFT_BODY_MULTI_BODY_DYNAMICS_WORLD OFF CACHE BOOL "" FORCE)
-set(BUILD_PYBULLET OFF CACHE BOOL "" FORCE)
-set(BUILD_OPENGL3_DEMOS OFF CACHE BOOL "" FORCE)
-set(BUILD_BULLET2_DEMOS OFF CACHE BOOL "" FORCE)
-set(BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
-set(INSTALL_LIBS OFF CACHE BOOL "" FORCE)
-set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
-set(INSTALL_CMAKE_FILES OFF CACHE BOOL "" FORCE)
-set(BUILD_BULLET3 OFF CACHE BOOL "" FORCE)
-set(BUILD_OPENCL OFF CACHE BOOL "" FORCE)
-set(BUILD_BULLET3_OPENCL OFF CACHE BOOL "" FORCE)
-add_subdirectory(external/bullet-3.17)
-set(BULLET_LIBRARIES
-		LinearMath
-		Bullet3Common
-		BulletInverseDynamics
-		BulletCollision
-		BulletDynamics)
-target_compile_definitions(BulletDynamics PUBLIC BT_THREADSAFE=1)
-target_compile_definitions(BulletCollision PUBLIC BT_THREADSAFE=1)
-target_compile_definitions(LinearMath PUBLIC BT_THREADSAFE=1)
-
-set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries" FORCE)
-add_subdirectory(external/fastgltf-0.9.0)
-
-add_subdirectory(external/generator)
-
-add_subdirectory(external/glad-3.3)
-
-if (A3D_DESKTOP)
-	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-	set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
-	add_subdirectory(external/glfw-3.4.0)
-endif()
-
-add_subdirectory(external/imgui-1.92.5)
-
-#add_subdirectory(external/implot-0.17)
-
-set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries" FORCE)
-add_subdirectory(external/pugixml-1.15) # temporary for APF import
-
-add_subdirectory(external/stb)
-
-add_subdirectory(external/v-hacd-4.1.0)
+add_subdirectory(external)
 
 ### add a3d ###
 
@@ -98,6 +37,14 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.c*")
 add_library(avara3d STATIC
 		${HEADERS}
 		${SOURCES})
+
+add_library(a3d::avara3d ALIAS avara3d)
+
+target_compile_features(avara3d PUBLIC cxx_std_20)
+
+if (MSVC)
+	target_compile_options(avara3d PUBLIC /Zc:__cplusplus)
+endif()
 
 ### create BuildInfo.cmake.h ###
 
@@ -126,68 +73,45 @@ a3d_set_compile_definitions(avara3d)
 
 ### add library headers ###
 
-# expose the virtual include root to your library/app targets
-a3d_use_external_virtual_includes(avara3d)
+target_include_directories(avara3d
+		PUBLIC
+		"${PROJECT_SOURCE_DIR}/include"
 
-target_include_directories(avara3d PUBLIC include)
-target_include_directories(avara3d PRIVATE "${PROJECT_BINARY_DIR}") # BuildInfo.cmake.h
-a3d_external_virtual_include_dir("bullet" "${CMAKE_SOURCE_DIR}/external/bullet-3.17/src")
-# special case: bullet internal source includes
-target_include_directories(avara3d SYSTEM PUBLIC
-		"$<BUILD_INTERFACE:${A3D_EXTERNAL_VINCLUDE_ROOT}/bullet>"
-)
-target_include_directories(avara3d PRIVATE external/generator/include)
-a3d_external_virtual_include_dir("gif-h" "${CMAKE_SOURCE_DIR}/external/gif-h")
-if (A3D_GL_DESKTOP)
-target_include_directories(avara3d PUBLIC external/glad-3.3/include) # ! temporary PUBLIC !
-endif ()
-#if (NOT EMSCRIPTEN) # TEMPORARY: replace with A3D_WEB or something
-	target_include_directories(avara3d PRIVATE external/glfw-3.4.0/include)
-#endif()
-a3d_external_virtual_include_dir("imgui" "${CMAKE_SOURCE_DIR}/external/imgui-1.92.5")
-# special case: imgui internal source includes
-target_include_directories(avara3d SYSTEM PUBLIC
-		"$<BUILD_INTERFACE:${A3D_EXTERNAL_VINCLUDE_ROOT}/imgui>"
-		"$<BUILD_INTERFACE:${A3D_EXTERNAL_VINCLUDE_ROOT}/imgui/backends>"
-)
-#target_include_directories(avara3d PRIVATE external/implot-0.17)
-target_include_directories(avara3d PRIVATE external/magic_enum-0.9.3/include)
-a3d_external_virtual_include_dir("pugixml" "${CMAKE_SOURCE_DIR}/external/pugixml-1.15/src") # temporary
-#target_include_directories(avara3d PUBLIC external/pugixml-1.15) # temporary
-#a3d_external_virtual_include_dir("v-hacd" "${CMAKE_SOURCE_DIR}/external/v-hacd-4.1.0")
+		PRIVATE
+		"${PROJECT_BINARY_DIR}") # BuildInfo.cmake.h
 
 ### setup clang-tidy ###
 # TODO: use clang-style?
 
-#find_program(CLANG_TIDY_EXE NAMES clang-tidy)
-#if (CLANG_TIDY_EXE)
-#	message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
-#	set_target_properties(avara3d PROPERTIES
-#			CXX_CLANG_TIDY "${CLANG_TIDY_EXE};--format-style=file")
-#endif ()
-
-### link a3d to common libraries ###
-
 target_link_libraries(avara3d
 		PRIVATE
-		avara3d_build_options
+		a3d::generator
+		a3d::gif_h
+		a3d::imgui
+		a3d::magic_enum
+		a3d::pugixml
+		a3d::stb
+		a3d::vhacd
+
 		PUBLIC
-		${BULLET_LIBRARIES}
-		fastgltf
-		generator
-		imgui
-		pugixml # temporary
-		stb
-		vhacd) # implot
+		a3d::bullet
+		a3d::fastgltf)
 
 ### link a3d to platform-specific libraries ###
 
+if (A3D_GL_DESKTOP)
+
+	target_link_libraries(avara3d
+			PUBLIC
+			a3d::glad)
+
+endif()
+
 if (A3D_DESKTOP)
 
-		target_link_libraries(avara3d
-				PUBLIC
-				glad
-				glfw)
+	target_link_libraries(avara3d
+			PRIVATE
+			a3d::glfw)
 
 endif()
 
@@ -267,11 +191,17 @@ if (A3D_BUILD_EDITOR)
 	add_subdirectory(tools/a3de)
 endif ()
 
-### add tests ###
+### add tests and demos ###
+
+include(cmake/Program.cmake)
 
 if (A3D_BUILD_TESTS)
 	add_subdirectory(tests)
 endif ()
+
+if (A3D_BUILD_DEMOS)
+	add_subdirectory(demos)
+endif()
 
 ### install ###
 

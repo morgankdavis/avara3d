@@ -113,7 +113,7 @@ vector<std::filesystem::path> a3d::util::filesystem::BaseSearchPaths() {
 	// subdirectories may live.
 	// clients will use this to append those subdirectory names to search for specific resources.
 	// clients should first check "local" locations first, then "engine" locations.
-	// edit: this is gross. do something better.
+	// edit: this is gross. do something else.
 
 	auto basePaths = vector<std::filesystem::path>();
 	auto execDir = ExecutableDirectory();
