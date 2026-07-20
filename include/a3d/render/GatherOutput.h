@@ -23,7 +23,7 @@ namespace a3d {
 	class Mesh;
 	class MeshElement;
 	class Node;
-	class PhysicalWorld;
+	class PhysicsWorld;
 	class Scene;
 
 	/// Internal Types ///

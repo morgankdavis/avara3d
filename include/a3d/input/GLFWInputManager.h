@@ -18,14 +18,15 @@ struct GLFWwindow;
 
 namespace a3d {
 
-	class GLFWWindow;
+	class Window;
 	
 	class GLFWInputManager : public DesktopInputManager {
 
 	public:
 		/// Public Lifecycle Functions ///
 
-		explicit GLFWInputManager(GLFWWindow* window);
+		// explicit GLFWInputManager(Window* window);
+		GLFWInputManager();
 		GLFWInputManager(const InputManager& other) = delete; // copy constructor
 		GLFWInputManager& operator=(const InputManager& other) = delete; // copy assignment
 		~GLFWInputManager() override;
@@ -33,6 +34,8 @@ namespace a3d {
 		/// InputManager Internal Member Functions ///
 
 		void			update() override;
+		void			attachedToScene(Scene& scene) override;
+		void			visualWorldAttachedToScene(Scene& scene) override;
 
 		/// Internal Member Functions ///
 
@@ -44,11 +47,14 @@ namespace a3d {
 	private:
 		/// Private Member Functions ///
 
+		void			window(Window* window);
+		Window*			window() const;
+
 		void			initMouseInput();
 
 		/// Private Member Variables ///
 
-		GLFWWindow*		_window;
+		Window*			_window;
 	};
 }
 

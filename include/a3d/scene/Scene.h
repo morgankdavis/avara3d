@@ -30,7 +30,7 @@ namespace a3d {
 	class InputManager;
 	class Mesh;
 	class Node;
-	class PhysicalWorld;
+	class PhysicsWorld;
 	class Renderer;
 	class RenderContext;
 	class VisualWorld;
@@ -82,11 +82,11 @@ namespace a3d {
 		Scene();
 		explicit Scene(const std::string& name);
 		Scene(std::unique_ptr<VisualWorld> visualWorld,
-			  std::unique_ptr<PhysicalWorld> physicsWorld,
+			  std::unique_ptr<PhysicsWorld> physicsWorld,
 			  std::unique_ptr<InputManager> inputManager);
 		Scene(const std::string& name,
 			  std::unique_ptr<VisualWorld> visualWorld,
-			  std::unique_ptr<PhysicalWorld> physicsWorld,
+			  std::unique_ptr<PhysicsWorld> physicsWorld,
 			  std::unique_ptr<InputManager> inputManager);
 		~Scene();
 
@@ -101,8 +101,8 @@ namespace a3d {
 		VisualWorld* 						visualWorld() const;
 		void 								visualWorld(std::unique_ptr<VisualWorld> world);
 		
-		PhysicalWorld* 						physicalWorld() const;
-		void 								physicalWorld(std::unique_ptr<PhysicalWorld> world);
+		PhysicsWorld* 						physicalWorld() const;
+		void 								physicalWorld(std::unique_ptr<PhysicsWorld> world);
 
 		InputManager* 						inputManager() const;
 		void 								inputManager(std::unique_ptr<InputManager> manager);
@@ -128,7 +128,7 @@ namespace a3d {
 		std::optional<std::string>			_name;
 		std::shared_ptr<Node>				_rootNode;
 		std::unique_ptr<VisualWorld> 		_visualWorld;
-		std::unique_ptr<PhysicalWorld> 		_physicalWorld;
+		std::unique_ptr<PhysicsWorld> 		_physicalWorld;
 		std::unique_ptr<InputManager>		_inputManager;
 		DebugOptions						_debugOptions;
 		double 								_startTime;

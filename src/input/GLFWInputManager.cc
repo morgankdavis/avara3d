@@ -15,7 +15,7 @@
 #include <GLFW/glfw3.h>
 
 #include "a3d/log/Log.h"
-#include "a3d/render/context/GLFWWindow.h"
+#include "a3d/render/context/Window.h"
 #include "a3d/scene/Scene.h"
 #include "a3d/visual/VisualWorld.h"
 
@@ -29,18 +29,22 @@ static GLFWInputManager* InputManagerFromGLFWWindow(GLFWwindow* glfwWindow);
 
 /// Public Lifecycle Functions ///
 
-GLFWInputManager::GLFWInputManager(GLFWWindow* window):
-    DesktopInputManager{},
-    _window{window}/*,
-    _usingManyMouse{false}*/ {
+// GLFWInputManager::GLFWInputManager(Window* window):
+//     DesktopInputManager{},
+//     _window{window}/*,
+//     _usingManyMouse{false}*/ {
+//
+//      window->inputManager(this);
+//      initMouseInput();
+// }
 
-    window->inputManager(this);
-    initMouseInput();
-}
+GLFWInputManager::GLFWInputManager():
+	DesktopInputManager{},
+	_window{nullptr}/*,
+	_usingManyMouse{false}*/ {}
 
 GLFWInputManager::~GLFWInputManager() {
 	log::d()("Destroying GLFWInputManager {:p}", static_cast<void *>(this));
-
 }
 
 /// InputManager Internal Member Functions ///
@@ -52,6 +56,22 @@ void GLFWInputManager::update() {
 	// consistent and use callback for everything GLFW...
 
 	_window->pollInput();
+}
+
+/// DesktopInputManager Internal Member Functions ///
+
+void GLFWInputManager::attachedToScene(Scene& scene) {
+
+	if (auto visualWorld = scene.visualWorld()) {
+		window(static_cast<Window*>(visualWorld->renderContext()));
+	}
+}
+
+void GLFWInputManager::visualWorldAttachedToScene(Scene& scene) {
+
+	if (auto visualWorld = scene.visualWorld()) {
+		window(static_cast<Window*>(visualWorld->renderContext()));
+	}
 }
 
 /// Internal Member Functions ///
@@ -105,6 +125,16 @@ void GLFWInputManager::glfwKeyEvent(int key, int scanCode, int action, int mods)
 
 /// Private Member Functions ///
 
+void GLFWInputManager::window(Window* window) {
+	_window = window;
+	window->inputManager(this);
+	initMouseInput();
+}
+
+Window*	GLFWInputManager::window() const {
+	return _window;
+}
+
 void GLFWInputManager::initMouseInput() {
 #if defined(A3D_DESKTOP) && !defined(A3D_WEB)
 	if (glfwRawMouseMotionSupported()) {
@@ -121,6 +151,6 @@ void GLFWInputManager::initMouseInput() {
 
 GLFWInputManager* InputManagerFromGLFWWindow(GLFWwindow* glfwWindow) {
 
-    auto window = (GLFWWindow*)glfwGetWindowUserPointer(glfwWindow);
+    auto window = (Window*)glfwGetWindowUserPointer(glfwWindow);
     return dynamic_cast<GLFWInputManager*>(window->visualWorld()->scene()->inputManager());
 }

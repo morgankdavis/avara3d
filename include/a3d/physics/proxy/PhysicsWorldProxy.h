@@ -1,13 +1,13 @@
 //
-//  PhysicalWorldProxy.h
+//  PhysicsWorldProxy.h
 //  avara3d
 //
 //  Created by Morgan Davis on 12/8/23.
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_PHYSICS_PROXY_PHYSICALWORLDPROXY_H
-#define AVARA3D_PHYSICS_PROXY_PHYSICALWORLDPROXY_H
+#ifndef AVARA3D_PHYSICS_PROXY_PHYSICSWORLDPROXY_H
+#define AVARA3D_PHYSICS_PROXY_PHYSICSWORLDPROXY_H
 
 #include <memory>
 #include <vector>
@@ -18,19 +18,19 @@
 namespace a3d {
 
 	class Line;
-	class PhysicalWorld;
+	class PhysicsWorld;
 	class PhysicsBody;
 	class Profiler;
 	class Renderer;
 	class RenderContext;
 
-	class PhysicalWorldProxy {
+	class PhysicsWorldProxy {
 
 	public:
 		/// Internal Lifecycle Functions ///
 
-		explicit PhysicalWorldProxy(PhysicalWorld& world);
-		virtual ~PhysicalWorldProxy();
+		explicit PhysicsWorldProxy(PhysicsWorld& world);
+		virtual ~PhysicsWorldProxy();
 
 		/// Internal Member Functions ///
 
@@ -53,4 +53,4 @@ namespace a3d {
 	};
 }
 
-#endif //AVARA3D_PHYSICS_PROXY_PHYSICALWORLDPROXY_H
+#endif //AVARA3D_PHYSICS_PROXY_PHYSICSWORLDPROXY_H

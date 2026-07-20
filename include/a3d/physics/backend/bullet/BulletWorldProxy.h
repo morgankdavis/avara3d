@@ -15,7 +15,7 @@
 
 #include "a3d/mesh/Line.h"
 #include "a3d/physics/backend/bullet/BulletStats.h"
-#include "a3d/physics/proxy/PhysicalWorldProxy.h"
+#include "a3d/physics/proxy/PhysicsWorldProxy.h"
 #include "a3d/scene/Scene.h"
 
 struct btDbvtBroadphase;
@@ -34,15 +34,15 @@ namespace a3d {
 	class BulletDebugDrawer;
 	class RenderContext;
 
-	class BulletWorldProxy : public PhysicalWorldProxy {
+	class BulletWorldProxy : public PhysicsWorldProxy {
 
 	public:
 		/// Internal Lifecycle Functions ///
 
-		explicit BulletWorldProxy(PhysicalWorld& world);
+		explicit BulletWorldProxy(PhysicsWorld& world);
 		~BulletWorldProxy() override;
 
-		/// PhysicalWorldModelProxy Internal Member Functions ///
+		/// PhysicsWorldModelProxy Internal Member Functions ///
 
 		void 				add(PhysicsBody& body) override;
 		void 				remove(PhysicsBody& body) override;

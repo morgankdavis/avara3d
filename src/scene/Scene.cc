@@ -22,7 +22,7 @@
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/physics/PhysicsBody.h"
-#include "a3d/physics/PhysicalWorld.h"
+#include "a3d/physics/PhysicsWorld.h"
 #include "a3d/profile/Profile.h"
 #include "a3d/render/context/RenderContext.h"
 #include "a3d/render/Renderer.h"
@@ -74,7 +74,7 @@ Scene::Scene(const string& name):
 }
 
 Scene::Scene(unique_ptr<VisualWorld> visualWorld,
-			 unique_ptr<PhysicalWorld> physicsWorld,
+			 unique_ptr<PhysicsWorld> physicsWorld,
 			 unique_ptr<InputManager> inputManager):
 		Scene() {
 
@@ -84,12 +84,12 @@ Scene::Scene(unique_ptr<VisualWorld> visualWorld,
 
 	if (_visualWorld) _visualWorld->attachedToScene(*this);
 	if (_physicalWorld) _physicalWorld->attachedToScene(*this);
-//	if (_inputManager) _inputManager->attachedToScene(*this);
+	if (_inputManager) _inputManager->attachedToScene(*this);
 }
 
 Scene::Scene(const string& name,
 			 unique_ptr<VisualWorld> visualWorld,
-			 unique_ptr<PhysicalWorld> physicsWorld,
+			 unique_ptr<PhysicsWorld> physicsWorld,
 			 unique_ptr<InputManager> inputManager):
 		Scene(std::move(visualWorld), std::move(physicsWorld), std::move(inputManager)) {
 
@@ -184,15 +184,19 @@ void Scene::visualWorld(unique_ptr<VisualWorld> world) {
 			if (_rootNode) {
 				_rootNode->visualWorldAttachedToScene(*_visualWorld, *this);
 			}
+
+			if (_inputManager) {
+				_inputManager->visualWorldAttachedToScene(*this);
+			}
 		}
 //	}
 }
 
-PhysicalWorld* Scene::physicalWorld() const {
+PhysicsWorld* Scene::physicalWorld() const {
 	return _physicalWorld.get();
 }
 
-void Scene::physicalWorld(unique_ptr<PhysicalWorld> world) {
+void Scene::physicalWorld(unique_ptr<PhysicsWorld> world) {
 
 	if (_physicalWorld) {
 
@@ -228,7 +232,7 @@ void Scene::inputManager(unique_ptr<InputManager> inputManager) {
 	_inputManager = std::move(inputManager);
 
 	if (_inputManager) {
-//		_inputManager->attachedToScene(*this);
+		_inputManager->attachedToScene(*this);
 	}
 }
 

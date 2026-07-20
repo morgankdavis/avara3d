@@ -20,7 +20,7 @@ namespace a3d {
 	class Mesh;
 	class Node;
 	class PhysicsBody;
-	class PhysicalWorld;
+	class PhysicsWorld;
 	class PhysicsShapeProxy;
 	class Scene;
 
@@ -61,8 +61,8 @@ namespace a3d {
 		void 								attachedToBody(PhysicsBody& body);
 		void 								detachedFromBody(PhysicsBody& body);
 
-		void								physicalWorldReachable(PhysicalWorld& world);
-		void								physicalWorldUnreachable(PhysicalWorld& world);
+		void								physicalWorldReachable(PhysicsWorld& world);
+		void								physicalWorldUnreachable(PhysicsWorld& world);
 
 //		void 								bodyAttachedToNode(Node* node); // body's owning node
 //		void 								bodyDetachedFromNode(Node* node);
@@ -77,9 +77,9 @@ namespace a3d {
 //		void								ancestorDetachedFromScene(Node* node,
 //																	  Scene* scene);
 //
-//		void								physicalWorldAttachedToScene(PhysicalWorld* world,
+//		void								physicalWorldAttachedToScene(PhysicsWorld* world,
 //																		 Scene* scene);
-//		void								physicalWorldDetachedFromScene(PhysicalWorld* world,
+//		void								physicalWorldDetachedFromScene(PhysicsWorld* world,
 //																		   Scene* scene);
 
 		void 								source(const Source& sourceObject);

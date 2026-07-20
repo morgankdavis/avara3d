@@ -15,7 +15,7 @@
 #include "a3d/log/Log.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/primitive/Plane.h"
-#include "a3d/physics/PhysicalWorld.h"
+#include "a3d/physics/PhysicsWorld.h"
 #include "a3d/profile/Profile.h"
 #include "a3d/render/DrawPacket.h"
 #include "a3d/render/DrawPacketizer.h"
@@ -200,7 +200,7 @@ void VisualWorld::detachedFromScene(Scene& scene) {
 }
 
 void VisualWorld::draw(const Scene& scene,
-					   const PhysicalWorld* physicalWorld,
+					   const PhysicsWorld* physicalWorld,
 					   double runT,
 					   double deltaRunT,
 					   Scene::DebugOptions debugOptions,

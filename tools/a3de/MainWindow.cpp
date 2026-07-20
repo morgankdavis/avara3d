@@ -160,6 +160,6 @@ void MainWindow::didRenderCallback(VisualWorld &world, double time, double delta
 	//log::app::t();
 }
 
-void MainWindow::didSimulatePhysicsCallback(PhysicalWorld &world, double time, double deltaTime) {
+void MainWindow::didSimulatePhysicsCallback(PhysicsWorld &world, double time, double deltaTime) {
 	//log::app::t();
 }

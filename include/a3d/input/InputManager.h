@@ -30,6 +30,8 @@ namespace a3d {
 		/// Internal Member Functions ///
 
 		virtual void	update() = 0;
+		virtual void	attachedToScene(Scene& scene) = 0;
+		virtual void	visualWorldAttachedToScene(Scene& scene) = 0;
 	};
 }
 

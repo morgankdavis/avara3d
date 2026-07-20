@@ -12,7 +12,7 @@
 
 #include "a3d/log/Log.h"
 #include "a3d/physics/shape/PhysicsShape.h"
-#include "a3d/physics/PhysicalWorld.h"
+#include "a3d/physics/PhysicsWorld.h"
 #include "a3d/physics/backend/bullet/BulletBodyProxy.h"
 #include "a3d/physics/backend/bullet/BulletWorldProxy.h"
 #include "a3d/scene/Node.h"
@@ -320,7 +320,7 @@ void PhysicsBody::attachedToNode(const shared_ptr<Node>& node) {
 void PhysicsBody::detachedFromNode(const std::shared_ptr<Node>& node) {
 	log::t()("node: {:p}", static_cast<void*>(node.get()));
 
-	// PhysicalWorld::remove() handled in physicalWorldUnreachable()
+	// PhysicsWorld::remove() handled in physicalWorldUnreachable()
 
 	_node = {}; // ^^ physicalWorld() relies on old _node
 }
@@ -335,7 +335,7 @@ void PhysicsBody::meshDetachedFromNode(const shared_ptr<Mesh>& mesh) {
 	log::t()("mesh: {:p}", static_cast<void*>(mesh.get()));
 }
 
-void PhysicsBody::physicalWorldReachable(PhysicalWorld& world) {
+void PhysicsBody::physicalWorldReachable(PhysicsWorld& world) {
 	log::t()("world: {:p}", static_cast<void*>(&world));
 
 	if (_shape) {
@@ -345,7 +345,7 @@ void PhysicsBody::physicalWorldReachable(PhysicalWorld& world) {
 	checkAddToWorld();
 }
 
-void PhysicsBody::physicalWorldUnreachable(PhysicalWorld& world) {
+void PhysicsBody::physicalWorldUnreachable(PhysicsWorld& world) {
 	log::t()("world: {:p}", static_cast<void*>(&world));
 
 	if (_shape) {
@@ -358,7 +358,7 @@ void PhysicsBody::physicalWorldUnreachable(PhysicalWorld& world) {
 	}
 }
 
-void PhysicsBody::addedToWorld(PhysicalWorld& world) {
+void PhysicsBody::addedToWorld(PhysicsWorld& world) {
 	log::d()("world: {}", static_cast<void*>(&world));
 
 	_world = &world;
@@ -373,7 +373,7 @@ void PhysicsBody::addedToWorld(PhysicalWorld& world) {
 	}
 }
 
-void PhysicsBody::removedFromWorld(PhysicalWorld& world) {
+void PhysicsBody::removedFromWorld(PhysicsWorld& world) {
 	log::d()("world: {}", static_cast<void*>(&world));
 
 	_world = nullptr;
@@ -398,7 +398,7 @@ weak_ptr<Node> PhysicsBody::node() const {
 	return _node;
 }
 
-PhysicalWorld* PhysicsBody::physicalWorld() const {
+PhysicsWorld* PhysicsBody::physicalWorld() const {
 
 	if (auto node = _node.lock()) {
 		if (auto scene = node->scene()) {

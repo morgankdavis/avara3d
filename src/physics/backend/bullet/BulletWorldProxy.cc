@@ -64,8 +64,8 @@ static int PickNumBTThreads(btITaskScheduler* sched);
 
 /// Internal Lifecycle Functions ///
 
-BulletWorldProxy::BulletWorldProxy(PhysicalWorld& world):
-		PhysicalWorldProxy{world},
+BulletWorldProxy::BulletWorldProxy(PhysicsWorld& world):
+		PhysicsWorldProxy{world},
 		_stats{}/*,
 		_debugLines{}*/ {
 
@@ -206,7 +206,7 @@ BulletWorldProxy::~BulletWorldProxy() {
 	}
 }
 
-/// PhysicalWorldModelProxy Internal Member Functions ///
+/// PhysicsWorldModelProxy Internal Member Functions ///
 
 void BulletWorldProxy::add(PhysicsBody& body) {
 	std::scoped_lock lock(_btMutex);

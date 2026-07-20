@@ -17,7 +17,7 @@ namespace a3d {
 	struct FrameStats;
 	struct GatherOutput;
 
-	class PhysicalWorld;
+	class PhysicsWorld;
 	class Scene;
 
 	class RenderGatherer {
@@ -27,7 +27,7 @@ namespace a3d {
 
 		static GatherOutput Gather(const Scene& scene,
 								   const math::mat4& view,
-								   const PhysicalWorld* physicalWorld,
+								   const PhysicsWorld* physicalWorld,
 								   const Scene::DebugOptions& debugOptions,
 								   FrameStats& stats);
 

@@ -17,7 +17,7 @@ namespace a3d {
 
 	class Mesh;
 	class Node;
-	class PhysicalWorld;
+	class PhysicsWorld;
 	class PhysicsBodyProxy;
 	class PhysicsShapeProxy;
 	class PhysicsShape;
@@ -150,8 +150,8 @@ namespace a3d {
 		void 								meshAttachedToNode(const std::shared_ptr<Mesh>& mesh); // owning node's mesh
 		void 								meshDetachedFromNode(const std::shared_ptr<Mesh>& mesh);
 
-		void								physicalWorldReachable(PhysicalWorld& world);
-		void								physicalWorldUnreachable(PhysicalWorld& world);
+		void								physicalWorldReachable(PhysicsWorld& world);
+		void								physicalWorldUnreachable(PhysicsWorld& world);
 
 //		void 								ancestorAttachedToParent(Node* ancestor,
 //																	 Node* parent);
@@ -163,20 +163,20 @@ namespace a3d {
 //		void								ancestorDetachedFromScene(Node* ancestor,
 //																	  Scene* scene);
 //
-//		void								physicalWorldAttachedToScene(PhysicalWorld* world,
+//		void								physicalWorldAttachedToScene(PhysicsWorld* world,
 //																		 Scene* scene);
-//		void								physicalWorldDetachedFromScene(PhysicalWorld* world,
+//		void								physicalWorldDetachedFromScene(PhysicsWorld* world,
 //																		   Scene* scene);
 
-		void 								addedToWorld(PhysicalWorld& world);
-		void 								removedFromWorld(PhysicalWorld& world);
+		void 								addedToWorld(PhysicsWorld& world);
+		void 								removedFromWorld(PhysicsWorld& world);
 
 		void 								shapeUpdated();
 
 		std::weak_ptr<Node>					node() const;
 
 		// the scene's world, if it exists.  not the same as _world.
-		PhysicalWorld*						physicalWorld() const;
+		PhysicsWorld*						physicalWorld() const;
 
 		PhysicsBodyProxy*					proxy() const;
 
@@ -194,7 +194,7 @@ namespace a3d {
 		std::unique_ptr<PhysicsBodyProxy>	_proxy;
 		std::weak_ptr<Node>					_node;
 		// either a pointer to the world we are currently in or null.
-		PhysicalWorld*						_world;
+		PhysicsWorld*						_world;
 	};
 }
 

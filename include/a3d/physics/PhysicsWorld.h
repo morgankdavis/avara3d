@@ -1,13 +1,13 @@
 //
-//  PhysicalWorld.h
+//  PhysicsWorld.h
 //  avara3d
 //
 //  Created by Morgan Davis on 1/26/18.
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_PHYSICS_PHYSICALWORLD_H
-#define AVARA3D_PHYSICS_PHYSICALWORLD_H
+#ifndef AVARA3D_PHYSICS_PHYSICSWORLD_H
+#define AVARA3D_PHYSICS_PHYSICSWORLD_H
 
 #include <functional>
 #include <memory>
@@ -24,25 +24,25 @@ namespace a3d {
 	class PhysicsBody;
 	class PhysicsContact;
 	class PhysicsShape;
-	class PhysicalWorldProxy;
+	class PhysicsWorldProxy;
 	class Profiler;
 
-	class PhysicalWorld {
+	class PhysicsWorld {
 
 	public:
 		/// Public Types ///
 
-		using DidSimulateCallback = 	std::function<void(PhysicalWorld& world, double time, double deltaTime)>;
-		using BeginContactCallback = 	std::function<void(PhysicalWorld& world, PhysicsContact& contact)>;
-		using ContinueContactCallback =	std::function<void(PhysicalWorld& world, PhysicsContact& contact)>;
-		using EndContactCallback = 		std::function<void(PhysicalWorld& world, PhysicsContact& contact)>;
+		using DidSimulateCallback = 	std::function<void(PhysicsWorld& world, double time, double deltaTime)>;
+		using BeginContactCallback = 	std::function<void(PhysicsWorld& world, PhysicsContact& contact)>;
+		using ContinueContactCallback =	std::function<void(PhysicsWorld& world, PhysicsContact& contact)>;
+		using EndContactCallback = 		std::function<void(PhysicsWorld& world, PhysicsContact& contact)>;
 
 		/// Public Lifecycle Functions ///
 
-		PhysicalWorld();
-		PhysicalWorld(const PhysicalWorld& other) = delete; // copy constructor
-		PhysicalWorld& operator=(const PhysicalWorld& other) = delete; // copy assignment
-		~PhysicalWorld();
+		PhysicsWorld();
+		PhysicsWorld(const PhysicsWorld& other) = delete; // copy constructor
+		PhysicsWorld& operator=(const PhysicsWorld& other) = delete; // copy assignment
+		~PhysicsWorld();
 
 		/// Public Member Functions ///
 
@@ -74,13 +74,13 @@ namespace a3d {
 		void								didSimulateCallback(DidSimulateCallback function);
 
 		BeginContactCallback 				beginContactCallback() const;
-		void 								beginContactCallback(PhysicalWorld::BeginContactCallback function);
+		void 								beginContactCallback(PhysicsWorld::BeginContactCallback function);
 
 		ContinueContactCallback				continueContactCallback() const;
-		void 								continueContactCallback(PhysicalWorld::ContinueContactCallback function);
+		void 								continueContactCallback(PhysicsWorld::ContinueContactCallback function);
 
 		EndContactCallback 					endContactCallback() const;
-		void 								endContactCallback(PhysicalWorld::EndContactCallback function);
+		void 								endContactCallback(PhysicsWorld::EndContactCallback function);
 
 		/// Internal Member Functions ///
 
@@ -99,7 +99,7 @@ namespace a3d {
 		void 								appendDebugLines(std::vector<Line>& out,
 															 Scene::DebugOptions debugOptions) const;
 
-		PhysicalWorldProxy*					proxy() const;
+		PhysicsWorldProxy*					proxy() const;
 
 	private:
 		/// Private Member Variables ///
@@ -107,7 +107,7 @@ namespace a3d {
 		math::vec3 								_gravity;
 		float 									_speed;
 		float 									_timestep;
-		std::unique_ptr<PhysicalWorldProxy>		_proxy;
+		std::unique_ptr<PhysicsWorldProxy>		_proxy;
 		Scene*									_scene;
 		DidSimulateCallback						_didSimulateCallback;
 		BeginContactCallback					_beginContactCallback;
@@ -116,4 +116,4 @@ namespace a3d {
 	};
 }
 
-#endif /* AVARA3D_PHYSICS_PHYSICALWORLD_H */
+#endif /* AVARA3D_PHYSICS_PHYSICSWORLD_H */

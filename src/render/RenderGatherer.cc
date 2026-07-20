@@ -11,7 +11,7 @@
 #include "a3d/Color.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
-#include "a3d/physics/PhysicalWorld.h"
+#include "a3d/physics/PhysicsWorld.h"
 #include "a3d/profile/FrameStats.h"
 #include "a3d/render/DebugLinesBuilder.h"
 #include "a3d/render/GatherOutput.h"
@@ -31,7 +31,7 @@ using namespace std;
 // "gather / collect / cull"
 GatherOutput RenderGatherer::Gather(const Scene& scene,
 									const math::mat4& view,
-									const PhysicalWorld* physicalWorld,
+									const PhysicsWorld* physicalWorld,
 									const Scene::DebugOptions& debugOptions,
 									FrameStats& stats) {
 

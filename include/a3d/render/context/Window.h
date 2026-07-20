@@ -21,26 +21,30 @@ namespace a3d {
 
 	class Camera;
 	class Color;
-	class GLFWInputManager;
+	class DesktopInputManager;
 	class Image;
 	class Node;
 	class Renderer;
 	class Scene;
 	
-	class GLFWWindow : public RenderContext {
+	class Window : public RenderContext {
 
 	public:
+		/// Public Static Member Functions ///
+
+		static std::unique_ptr<DesktopInputManager> InputManager();
+
 		/// Public Lifecycle Functions ///
 
-		GLFWWindow(RenderingApi renderingAPI,
+		Window(RenderingApi renderingAPI,
 				   const std::string& title,
 				   const math::uvec2& size,
 				   bool fullScreen,
 				   bool enableHighDPI = true,
 				   AntialiasingMode antialiasingMode = AntialiasingMode::None);
-		GLFWWindow(const GLFWWindow& other) = delete; // copy constructor
-		GLFWWindow& operator=(const GLFWWindow& other) = delete; // copy assignment
-		~GLFWWindow() override;
+		Window(const Window& other) = delete; // copy constructor
+		Window& operator=(const Window& other) = delete; // copy assignment
+		~Window() override;
 
 		/// Public Member Functions ///
 
@@ -87,7 +91,7 @@ namespace a3d {
 
 		/// Internal Member Functions ///
 
-		void				inputManager(GLFWInputManager* manager);
+		void				inputManager(DesktopInputManager* manager);
 		void 				pollInput(); // remove?
 		GLFWwindow* 		glfwWindow() const; // remove?
 
@@ -113,8 +117,8 @@ namespace a3d {
 												   int scanCode,
 												   int action,
 												   int mods);
-		static GLFWWindow*			WindowFromGLFWwindow(GLFWwindow* glfwWindow);
-		static GLFWInputManager* 	InputManagerFromGLFwWindow(GLFWwindow* glfwWindow);
+		static Window*				WindowFromGLFWwindow(GLFWwindow* glfwWindow);
+		static DesktopInputManager* InputManagerFromGLFwWindow(GLFWwindow* glfwWindow);
 
 		/// Private Member Functions ///
 
@@ -125,7 +129,7 @@ namespace a3d {
 
 		struct DestroyGLFWWindow {
 			void operator()(GLFWwindow* window){
-				GLFWWindow::Destroy(window);
+				Window::Destroy(window);
 			}
 		};
 
@@ -138,7 +142,7 @@ namespace a3d {
 		bool						_open;
 		bool						_hidden;
 		bool						_highDPIEnabled;
-		GLFWInputManager*			_inputManager;
+		DesktopInputManager*		_inputManager;
 	};
 }
 

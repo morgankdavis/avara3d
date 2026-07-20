@@ -77,7 +77,6 @@ struct test::rigidbody::WanderRotator {
 
 
 
-
 /// Private Constants ///
 
 const Log::Level						APP_LOG_LEVEL 			{Log::Level::Debug};
@@ -120,13 +119,8 @@ App::~App() = default;
 /// Public Member Functions ///
 
 unique_ptr<Scene> App::init() {
-
 	try {
-
-		// InitLog();
-		// LogBuildInfo();
-
-		_window = make_unique<GLFWWindow>(RenderContext::RenderingApi::OpenGL,
+		_window = make_unique<Window>(RenderContext::RenderingApi::OpenGL,
 											  *util::filesystem::ExecutableName(),
 											  WINDOW_SIZE,
 											  FULLSCREEN,
@@ -134,8 +128,6 @@ unique_ptr<Scene> App::init() {
 											  AA_MODE);
 		_window->vSyncEnabled(ENABLE_VSYNC);
 		_window->cursorCaptured(CAPTURE_CURSOR);
-
-		auto inputManager = make_unique<GLFWInputManager>(_window.get());
 
 		auto visualWorld = make_unique<VisualWorld>(*_window);
 		visualWorld->fogStartDistance(50.0);
@@ -146,16 +138,14 @@ unique_ptr<Scene> App::init() {
 //		MaterialProperty background = make_shared<Texture>(utils::CubeImageNamed("stormy", "png"));
 		visualWorld->background(background);
 
-		auto physicalWorld = make_unique<PhysicalWorld>();
+		auto physicalWorld = make_unique<PhysicsWorld>();
 		physicalWorld->timestep(PHYSICS_TIMESTEP);
 
 		auto scene = make_unique<Scene>(std::move(visualWorld),
-										std::move(physicalWorld),
-										std::move(inputManager));
+		                                std::move(physicalWorld),
+		                                Window::InputManager());
 		scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
-
 		//scene->visualWorld()->usesDefaultLighting(true);
-
 
 		// ambient light
 
@@ -163,8 +153,6 @@ unique_ptr<Scene> App::init() {
 		auto ambientLight = make_shared<AmbientLight>(ambientColor);
 		auto ambientLightNode = Node::LightNode(ambientLight);
 		scene->rootNode()->addChild(ambientLightNode);
-
-
 
 		// directional light
 
@@ -886,9 +874,9 @@ void App::visualWorldWillRender(VisualWorld& world, double time, double deltaTim
 
 void App::visualWorldDidRender(VisualWorld& world, double time, double deltaTime) {}
 
-/// PhysicalWorld Callback Overrides ///
+/// PhysicsWorld Callback Overrides ///
 
-void App::physicalWorldDidSimulate(PhysicalWorld& world, double time, double deltaTime) {}
+void App::physicalWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {}
 
 
 /// Private Static Non-Member Functions ///

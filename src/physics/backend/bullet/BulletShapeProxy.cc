@@ -31,7 +31,7 @@
 #include "a3d/mesh/primitive/Sphere.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/shape/PhysicsShape.h"
-#include "a3d/physics/PhysicalWorld.h"
+#include "a3d/physics/PhysicsWorld.h"
 #include "a3d/physics/backend/bullet/BulletWorldProxy.h"
 #include "a3d/physics/backend/bullet/BulletUtilities.h"
 #include "a3d/physics/proxy/PhysicsBodyProxy.h"

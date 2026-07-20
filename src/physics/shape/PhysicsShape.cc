@@ -14,7 +14,7 @@
 #include "a3d/log/Log.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/proxy/PhysicsShapeProxy.h"
-#include "a3d/physics/PhysicalWorld.h"
+#include "a3d/physics/PhysicsWorld.h"
 #include "a3d/physics/backend/bullet/BulletShapeProxy.h"
 #include "a3d/scene/Node.h"
 
@@ -104,13 +104,13 @@ void PhysicsShape::detachedFromBody(PhysicsBody& body) {
 	_bodies.erase(&body);
 }
 
-void PhysicsShape::physicalWorldReachable(PhysicalWorld& world) {
+void PhysicsShape::physicalWorldReachable(PhysicsWorld& world) {
 	log::t()("world: {:p}", static_cast<void*>(&world));
 
 	checkCreateProxy();
 }
 
-void PhysicsShape::physicalWorldUnreachable(PhysicalWorld& world) {
+void PhysicsShape::physicalWorldUnreachable(PhysicsWorld& world) {
 	log::t()("world: {:p}", static_cast<void*>(&world));
 }
 

@@ -16,7 +16,7 @@
 
 namespace a3d {
 
-	class PhysicalWorld;
+	class PhysicsWorld;
 	class Runner;
 	class Scene;
 	class VisualWorld;
@@ -56,12 +56,11 @@ namespace a3d {
 		/// VisualWorld Callback Overrides ///
 
 		virtual void visualWorldWillRender(VisualWorld& world, double time, double deltaTime);
-
 		virtual void visualWorldDidRender(VisualWorld& world, double time, double deltaTime);
 
-		/// PhysicalWorld Callback Overrides ///
+		/// PhysicsWorld Callback Overrides ///
 
-		virtual void physicalWorldDidSimulate(PhysicalWorld& world, double time, double deltaTime);
+		virtual void physicalWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime);
 
 	private:
 		/// Private Member Functions ///

@@ -30,7 +30,7 @@ namespace a3d {
 	class RenderContext;
 	class RenderItem;
 	class Scene;
-	class PhysicalWorld;
+	class PhysicsWorld;
 	class PhysicsBody;
 	class VisualWorld;
 
@@ -152,14 +152,14 @@ namespace a3d {
 		void								visualWorldAttachedToScene(VisualWorld& world, Scene& scene);
 		void								visualWorldDetachedFromScene(VisualWorld& world, Scene& scene);
 
-		void								physicalWorldAttachedToScene(PhysicalWorld& world, Scene& scene);
-		void								physicalWorldDetachedFromScene(PhysicalWorld& world, Scene& scene);
+		void								physicalWorldAttachedToScene(PhysicsWorld& world, Scene& scene);
+		void								physicalWorldDetachedFromScene(PhysicsWorld& world, Scene& scene);
 
 		VisualWorld*						visualWorld() const;
-		PhysicalWorld*						physicalWorld() const;
+		PhysicsWorld*						physicalWorld() const;
 
-		void								checkNotifyPhysicsBodyOfReachablePhysicalWorld() const;
-		void								checkNotifyPhysicsBodyOfUnreachablePhysicalWorld() const;
+		void								checkNotifyPhysicsBodyOfReachablePhysicsWorld() const;
+		void								checkNotifyPhysicsBodyOfUnreachablePhysicsWorld() const;
 
 		bool 								containsChild(const std::shared_ptr<Node>& node);
 

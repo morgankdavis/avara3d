@@ -19,7 +19,7 @@
 #include "a3d/log/Log.h"
 #include "a3d/log/sink/FileLogSink.h"
 #include "a3d/log/sink/StdOutLogSink.h"
-#include "a3d/physics/PhysicalWorld.h"
+#include "a3d/physics/PhysicsWorld.h"
 #include "a3d/scene/Scene.h"
 #include "a3d/util/filesystem.h"
 #include "a3d/visual/VisualWorld.h"
@@ -188,4 +188,4 @@ void Application::visualWorldWillRender(VisualWorld& world, double time, double 
 
 void Application::visualWorldDidRender(VisualWorld& world, double time, double deltaTime) {}
 
-void Application::physicalWorldDidSimulate(PhysicalWorld& world, double time, double deltaTime) {}
+void Application::physicalWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {}

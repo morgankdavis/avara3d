@@ -6,7 +6,7 @@
 //  Copyright © 2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/render/context/GLFWWindow.h"
+#include "a3d/render/context/Window.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -17,7 +17,7 @@
 
 #include "a3d/log/Log.h"
 #include "a3d/input/GLFWInputManager.h"
-#include "a3d/physics/PhysicalWorld.h"
+#include "a3d/physics/PhysicsWorld.h"
 #include "a3d/render/backend/opengl/OGLRenderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
@@ -51,9 +51,15 @@ static void 	GLFWErrorCallback(int error,
 static bool 	GetGLFWWindowMonitor(GLFWmonitor** monitor, GLFWwindow* window);
 static bool 	GetGLFWMouseMonitor(GLFWmonitor** monitor, GLFWwindow* window);
 
+/// Public Static Member Functions ///
+
+unique_ptr<DesktopInputManager> Window::InputManager() {
+	return std::make_unique<GLFWInputManager>();
+}
+
 /// Public Lifescycle ///
 
-GLFWWindow::GLFWWindow(RenderingApi renderingAPI,
+Window::Window(RenderingApi renderingAPI,
 					   const string& title,
 					   const uvec2& size,
 					   bool fullScreen,
@@ -135,7 +141,7 @@ GLFWWindow::GLFWWindow(RenderingApi renderingAPI,
 			glfwSetWindowUserPointer(_glfwWindow.get(), static_cast<void*>(this));
 
 			glfwMakeContextCurrent(_glfwWindow.get());
-			GLFWWindow::vSyncEnabled(false);
+			Window::vSyncEnabled(false);
 
 			//if (OGLRenderer::InitGL((GLADloadproc)glfwGetProcAddress)) {
 #ifdef A3D_GL_DESKTOP
@@ -168,8 +174,8 @@ GLFWWindow::GLFWWindow(RenderingApi renderingAPI,
 	}
 }
 
-GLFWWindow::~GLFWWindow() {
-	log::d()("Destroying GLFWWindow {:p}", static_cast<void*>(this));
+Window::~Window() {
+	log::d()("Destroying Window {:p}", static_cast<void*>(this));
 
 	close(); // meh?
 
@@ -182,12 +188,12 @@ GLFWWindow::~GLFWWindow() {
 
 /// Public Member Functions ///
 
-void GLFWWindow::open() {
+void Window::open() {
 	log::i();
 
 	if (_visualWorld && _visualWorld->scene()) {
 		glfwMakeContextCurrent(_glfwWindow.get());
-		
+
 		glfwSetWindowSizeCallback(_glfwWindow.get(), GLFWWindowSizeCallback);
 #if defined(A3D_GL_DESKTOP)
 		glfwSetWindowCloseCallback(_glfwWindow.get(), GLFWWindowCloseCallback);
@@ -206,7 +212,7 @@ void GLFWWindow::open() {
 	}
 }
 
-void GLFWWindow::close() {
+void Window::close() {
 
 	if (_recordingGIF) {
 		stopGIFRecording();
@@ -231,41 +237,41 @@ void GLFWWindow::close() {
 	_open = false;
 }
 
-bool GLFWWindow::isOpen() const {
+bool Window::isOpen() const {
 	// GLFW_VISIBLE is still true after the window is closed... ?
 	// return glfwGetWindowAttrib(_glfwWindow.get(), GLFW_VISIBLE) == GLFW_TRUE;
 	return _open;
 }
 
-string GLFWWindow::title() const {
+string Window::title() const {
 	return glfwGetWindowTitle(_glfwWindow.get());
 }
 
-void GLFWWindow::title(const string& title) {
+void Window::title(const string& title) {
 	glfwSetWindowTitle(_glfwWindow.get(), title.c_str());
 }
 
-uvec2 GLFWWindow::size() const {
+uvec2 Window::size() const {
 	ivec2 size;
 	glfwGetWindowSize(_glfwWindow.get(), &size.x, &size.y);
 	return uvec2(size.x, size.y);
 }
 
-void GLFWWindow::size(const uvec2& size) {
+void Window::size(const uvec2& size) {
 	glfwSetWindowSize(_glfwWindow.get(), (int)size.x, (int)size.y);
 }
 
-uvec2 GLFWWindow::position() const {
+uvec2 Window::position() const {
 	ivec2 pos;
 	glfwGetWindowPos(_glfwWindow.get(), &pos.x, &pos.y);
 	return uvec2(pos.x, pos.y);
 }
 
-void GLFWWindow::position(const uvec2& pos) {
+void Window::position(const uvec2& pos) {
 	glfwSetWindowPos(_glfwWindow.get(), (int)pos.x, (int)pos.y);
 }
 
-void GLFWWindow::center() {
+void Window::center() {
 #if defined(A3D_GL_DESKTOP)
 	// as of GLFW 3.3, there is no "get the monitor this window is on" function.
 	// glfwGetWindowMonitor() only applies to full-screen windows.
@@ -290,13 +296,13 @@ void GLFWWindow::center() {
 #endif
 }
 
-bool GLFWWindow::hidden() const {
+bool Window::hidden() const {
 	// GLFW_VISIBLE seems yp have a mind of its own..
 	// return glfwGetWindowAttrib(_glfwWindow.get(), GLFW_VISIBLE) == GLFW_TRUE;
 	return _hidden;
 }
 
-void GLFWWindow::hidden(bool hidden) {
+void Window::hidden(bool hidden) {
 
 	if (hidden) {
 		glfwHideWindow(_glfwWindow.get());
@@ -307,7 +313,7 @@ void GLFWWindow::hidden(bool hidden) {
 	_hidden = hidden;
 }
 
-bool GLFWWindow::cursorCaptured() const {
+bool Window::cursorCaptured() const {
 	return _cursorCaptured;
 }
 
@@ -324,7 +330,7 @@ static GLFWcursor* getInvisibleCursor()
 }
 
 
-void GLFWWindow::cursorCaptured(bool captured) {
+void Window::cursorCaptured(bool captured) {
 
 	_cursorCaptured = captured;
 
@@ -349,17 +355,17 @@ void GLFWWindow::cursorCaptured(bool captured) {
 	}
 }
 
-bool GLFWWindow::highDPIEnabled() const {
+bool Window::highDPIEnabled() const {
 	return _highDPIEnabled;
 }
 
 /// RenderContext Public Member Functions ///
 
-bool GLFWWindow::vSyncEnabled() const {
+bool Window::vSyncEnabled() const {
 	return _vSyncEnabled;
 }
 
-void GLFWWindow::vSyncEnabled(bool enabled) {
+void Window::vSyncEnabled(bool enabled) {
 #if defined(A3D_GL_DESKTOP) || defined(A3D_GL_ES)
 	glfwSwapInterval(enabled ? 1 : 0);
 	_vSyncEnabled = enabled;
@@ -377,20 +383,20 @@ void GLFWWindow::vSyncEnabled(bool enabled) {
 
 /// RenderContext Internal Member Functions ///
 
-void GLFWWindow::beginFrame(const Scene& scene) {
+void Window::beginFrame(const Scene& scene) {
 	pollInput();
 	ImGui_ImplGlfw_NewFrame();
 }
 
-void GLFWWindow::endFrame(const Scene& scene) { }
+void Window::endFrame(const Scene& scene) { }
 
-void GLFWWindow::swapBuffers() {
+void Window::swapBuffers() {
 #if defined(A3D_GL_DESKTOP) || defined(A3D_GL_ES)
 	glfwSwapBuffers(_glfwWindow.get());
 #endif
 }
 
-uvec2 GLFWWindow::viewportLogicalSize() const {
+uvec2 Window::viewportLogicalSize() const {
 	// glfwGetWindowSize (what size() uses) return the logical size on Linux and macOS.
 	// on Windows and X11 it returns the pixel size (screen coords <-> pixels 1:1)
 	// Windows and X11, glfwGetWindowContentScale() will report something other than 1,
@@ -399,41 +405,41 @@ uvec2 GLFWWindow::viewportLogicalSize() const {
 	return size();
 }
 
-math::uvec2 GLFWWindow::framebufferSize() const {
+math::uvec2 Window::framebufferSize() const {
 	ivec2 size;
 	glfwGetFramebufferSize(_glfwWindow.get(), &size.x, &size.y);
 	return uvec2(size.x, size.y);
 }
 
-unsigned GLFWWindow::defaultFramebuffer() const {
+unsigned Window::defaultFramebuffer() const {
 	return 0;
 }
 
 /// Internal Member Functions ///
 
-void GLFWWindow::inputManager(GLFWInputManager* manager) {
+void Window::inputManager(DesktopInputManager* manager) {
 	_inputManager = manager;
 }
 
-void GLFWWindow::pollInput() {
+void Window::pollInput() {
 	glfwPollEvents();
 }
 
-GLFWwindow* GLFWWindow::glfwWindow() const {
+GLFWwindow* Window::glfwWindow() const {
 	return _glfwWindow.get();
 }
 
 /// Private Member Functions ///
 
-void GLFWWindow::registerGLFWCallbacks() {
+void Window::registerGLFWCallbacks() {
 
-	glfwSetMouseButtonCallback(_glfwWindow.get(), GLFWWindow::GLFWMouseButtonCallback);
-	glfwSetCursorPosCallback(_glfwWindow.get(), GLFWWindow::GLFWCursorPositionCallback);
-	glfwSetScrollCallback(_glfwWindow.get(), GLFWWindow::GLFWScrollWheelCallback);
-	glfwSetKeyCallback(_glfwWindow.get(), GLFWWindow::GLFWKeyCallback);
+	glfwSetMouseButtonCallback(_glfwWindow.get(), Window::GLFWMouseButtonCallback);
+	glfwSetCursorPosCallback(_glfwWindow.get(), Window::GLFWCursorPositionCallback);
+	glfwSetScrollCallback(_glfwWindow.get(), Window::GLFWScrollWheelCallback);
+	glfwSetKeyCallback(_glfwWindow.get(), Window::GLFWKeyCallback);
 }
 
-void GLFWWindow::unregisterGLFWCallbacks() {
+void Window::unregisterGLFWCallbacks() {
 
 	glfwSetMouseButtonCallback(_glfwWindow.get(), nullptr);
 	glfwSetCursorPosCallback(_glfwWindow.get(), nullptr);
@@ -443,20 +449,20 @@ void GLFWWindow::unregisterGLFWCallbacks() {
 
 /// Internal Static Member Functions ///
 
-void GLFWWindow::Destroy(GLFWwindow* window) {
+void Window::Destroy(GLFWwindow* window) {
 	glfwDestroyWindow(window);
 }
 
 /// Private Static member Functions ///
 
-void GLFWWindow::GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
+void Window::GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
 											double xPos,
 											double yPos) {
 	static double lastXPos = xPos;
 	static double lastYPos = yPos;
 
 	auto window = WindowFromGLFWwindow(glfwWindow);
-	auto inputManager = window->_inputManager;
+	auto inputManager = static_cast<GLFWInputManager*>(window->_inputManager);
 
 	if (window->cursorCaptured() && inputManager) {
 		inputManager->glfwMouseDeltaEvent(-(lastXPos - xPos), (lastYPos - yPos));
@@ -472,13 +478,13 @@ void GLFWWindow::GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
 	lastYPos = yPos;
 }
 
-void GLFWWindow::GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
+void Window::GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
 										 int button,
 										 int action,
 										 int mods) {
 
 	auto window = WindowFromGLFWwindow(glfwWindow);
-	auto inputManager = window->_inputManager;
+	auto inputManager = static_cast<GLFWInputManager*>(window->_inputManager);
 
 	if (window->cursorCaptured() && inputManager) {
 		inputManager->glfwMouseButtonEvent(button, action, mods);
@@ -491,12 +497,12 @@ void GLFWWindow::GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
 	}
 }
 
-void GLFWWindow::GLFWScrollWheelCallback(GLFWwindow* glfwWindow,
+void Window::GLFWScrollWheelCallback(GLFWwindow* glfwWindow,
 										 double xOffset,
 										 double yOffset) {
 
 	auto window = WindowFromGLFWwindow(glfwWindow);
-	auto inputManager = window->_inputManager;
+	auto inputManager = static_cast<GLFWInputManager*>(window->_inputManager);
 
 	if (window->cursorCaptured() && inputManager) {
 		inputManager->glfwScrollEvent(xOffset, yOffset);
@@ -509,14 +515,14 @@ void GLFWWindow::GLFWScrollWheelCallback(GLFWwindow* glfwWindow,
 	}
 }
 
-void GLFWWindow::GLFWKeyCallback(GLFWwindow* glfwWindow,
+void Window::GLFWKeyCallback(GLFWwindow* glfwWindow,
 								 int key,
 								 int scanCode,
 								 int action,
 								 int mods) {
 
 	auto window = WindowFromGLFWwindow(glfwWindow);
-	auto inputManager = window->_inputManager;
+	auto inputManager = static_cast<GLFWInputManager*>(window->_inputManager);
 
 	if (!ImGui::GetIO().WantCaptureKeyboard && inputManager) {
 		inputManager->glfwKeyEvent(key, scanCode, action, mods);
@@ -529,29 +535,29 @@ void GLFWWindow::GLFWKeyCallback(GLFWwindow* glfwWindow,
 	}
 }
 
-GLFWWindow* GLFWWindow::WindowFromGLFWwindow(GLFWwindow* glfwWindow) {
-	return (GLFWWindow*)glfwGetWindowUserPointer(glfwWindow);
+Window* Window::WindowFromGLFWwindow(GLFWwindow* glfwWindow) {
+	return (Window*)glfwGetWindowUserPointer(glfwWindow);
 }
 
-GLFWInputManager* GLFWWindow::InputManagerFromGLFwWindow(GLFWwindow* glfwWindow) {
+DesktopInputManager* Window::InputManagerFromGLFwWindow(GLFWwindow* glfwWindow) {
 	return WindowFromGLFWwindow(glfwWindow)->_inputManager;
 }
 
 /// Private Static Non-Member Functions ///
 
 static bool InitGLFW() {
-	
+
 	static bool initialized = false;
 	if (!initialized) {
 		log::i();
-		
+
 		int glfwMajVers, glfwMinVers, glfwRev;
 		glfwGetVersion(&glfwMajVers, &glfwMinVers, &glfwRev);
 		log::i()("Starting GLFW version {}.{}.{}...", glfwMajVers, glfwMinVers, glfwRev);
 
 		// TODO: must modify to support multiple windows
 		glfwSetErrorCallback(GLFWErrorCallback);
-		
+
 		if (glfwInit()) {
 			log::i()("GLFW Initialized.");
 		}
@@ -559,9 +565,9 @@ static bool InitGLFW() {
 			log::f()("Error initializing GLFW.");
 			return false;
 		}
-		
+
 		srand(time(nullptr)); // where else can we put this?
-		
+
 		initialized = true;
 	}
 	return true;
@@ -571,14 +577,14 @@ void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
 //	log::d()("glfwWindow: {:p}, width: {}, height: {}",
 //			  static_cast<void*>(glfwWindow), width, height);
 
-	auto window = (GLFWWindow*)glfwGetWindowUserPointer(glfwWindow);
+	auto window = (Window*)glfwGetWindowUserPointer(glfwWindow);
 	window->size(uvec2(width, height));
 }
 
 void GLFWWindowCloseCallback(GLFWwindow* glfwWindow) {
 	log::i()("glfwWindow: {:p}", static_cast<void*>(glfwWindow));
 
-	auto window = (GLFWWindow*)glfwGetWindowUserPointer(glfwWindow);
+	auto window = (Window*)glfwGetWindowUserPointer(glfwWindow);
 	window->close();
 }
 

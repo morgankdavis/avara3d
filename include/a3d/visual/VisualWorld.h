@@ -24,7 +24,7 @@ namespace a3d {
 	class Material;
 	class Mesh;
 	class Node;
-	class PhysicalWorld;
+	class PhysicsWorld;
 	class Profiler;
 	class Renderer;
 	class RenderContext;
@@ -92,7 +92,7 @@ namespace a3d {
 		void								detachedFromScene(Scene& scene);
 
 		void								draw(const Scene& scene,
-												 const PhysicalWorld* physicalWorld,
+												 const PhysicsWorld* physicalWorld,
 												 double runT,
 												 double deltaRunT,
 												 Scene::DebugOptions debugOptions,
