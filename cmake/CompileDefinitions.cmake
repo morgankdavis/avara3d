@@ -1,3 +1,4 @@
+
 function(a3d_set_compile_definitions target)
 
 	if (A3D_WINDOWS)

@@ -1,16 +1,18 @@
+get_filename_component(TARGET_NAME
+		"${CMAKE_CURRENT_SOURCE_DIR}"
+		NAME)
 
-set(UNIT_NUMBER "005")
-set(UNIT_DESCRIPTION "materials-lights")
-set(TEST_NAME "${UNIT_NUMBER}-${UNIT_DESCRIPTION}")
+a3d_add_program(${TARGET_NAME}
+		SOURCES
+		App.cc
+		App.h
+		main.cc
 
-file(GLOB HEADERS *.h*)
-file(GLOB SOURCES *.c*)
-add_executable(${TEST_NAME} ${HEADERS} ${SOURCES})
+		DATA_DIRECTORY
+		"${CMAKE_CURRENT_SOURCE_DIR}/data"
 
-target_link_libraries(${TEST_NAME} avara3d)
+		DATA_DESTINATION
+		"/tests/data"
 
-a3d_set_emscripten_compile_options(${TEST_NAME})
-a3d_set_emscripten_link_options(${TEST_NAME})
-
-install(TARGETS ${TEST_NAME}
-		DESTINATION "${INSTALL_TESTS_EXEC_DIR}")
+		INSTALL_DESTINATION
+		"${INSTALL_TESTS_EXEC_DIR}")

@@ -113,7 +113,7 @@ vector<std::filesystem::path> a3d::util::filesystem::BaseSearchPaths() {
 	// subdirectories may live.
 	// clients will use this to append those subdirectory names to search for specific resources.
 	// clients should first check "local" locations first, then "engine" locations.
-	// edit: this is gross. do something else.
+	// EDIT: this is GROSS. do something else.
 
 	auto basePaths = vector<std::filesystem::path>();
 	auto execDir = ExecutableDirectory();
@@ -134,6 +134,14 @@ vector<std::filesystem::path> a3d::util::filesystem::BaseSearchPaths() {
 		path = (*execDir).parent_path().parent_path().parent_path() / "tests" / "data";
 		basePaths.push_back(path);
 
+		// demos
+		path = (*execDir).parent_path().parent_path().parent_path().parent_path() / "demos" / "data";
+		basePaths.push_back(path);
+
+		// demos
+		path = (*execDir).parent_path().parent_path().parent_path() / "demos" / "data";
+		basePaths.push_back(path);
+
 		// [engine] archived
 		path = (*execDir).parent_path() / "data";
 		basePaths.push_back(path);
@@ -151,6 +159,10 @@ vector<std::filesystem::path> a3d::util::filesystem::BaseSearchPaths() {
 		path = (*execDir).parent_path().parent_path().parent_path().parent_path().parent_path().parent_path() / "tests" / "data";
 		basePaths.push_back(path);
 
+		// demos
+		path = (*execDir).parent_path().parent_path().parent_path().parent_path().parent_path().parent_path() / "demos" / "data";
+		basePaths.push_back(path);
+
 		// engine
 		path = (*execDir).parent_path().parent_path().parent_path().parent_path().parent_path().parent_path() / "data";
 		basePaths.push_back(path);
@@ -166,6 +178,10 @@ vector<std::filesystem::path> a3d::util::filesystem::BaseSearchPaths() {
 
 	// emscripten tests
 	path = "/tests/data";
+	basePaths.push_back(path);
+
+	// emscripten demos
+	path = "/demos/data";
 	basePaths.push_back(path);
 #endif
 

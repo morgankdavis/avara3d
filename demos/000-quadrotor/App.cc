@@ -48,14 +48,22 @@ std::unique_ptr<Scene> App::init() {
 		_window->cursorCaptured(CAPTURE_CURSOR);
 
 		auto visualWorld = make_unique<VisualWorld>(*_window);
+		auto backgroundColor = make_shared<Color>(u8vec3{109, 136, 164});
+		visualWorld->background(backgroundColor);
 
 		auto physicalWorld = make_unique<PhysicsWorld>();
 		physicalWorld->timestep(PHYSICS_TIMESTEP);
 
 		auto scene = make_unique<Scene>(std::move(visualWorld),
 										std::move(physicalWorld),
-										nullptr);
+										Window::InputManager());
 		scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
+
+		_bananaNode = Node::MeshNode(util::filesystem::MeshNamed("banana_lod/banana_lod"));
+		auto rot90X = math::quaternion({1.0f, 0.0f, 0.0f}, radians(90.0f));
+		auto rot90Y = math::quaternion({0.0f, 1.0f, 0.0f}, radians(90.0f));
+		_bananaNode->orientation(rot90X * rot90Y);
+		scene->rootNode()->addChild(_bananaNode);
 
 		_window->center();
 		_window->open();
@@ -80,6 +88,18 @@ void App::didShutdown() {
 
 void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 
+	if (static_cast<DesktopInputManager*>(
+	scene.inputManager())->keysPressed().count(DesktopInputManager::Key::Escape)) {
+		_window->close();
+	}
+
+	if (_bananaNode) {
+		// rotate the banana
+		auto rotationDeg = deltaTime * radians(-30.0); // 10deg/sec
+
+		auto rotY = math::quaternion({0.0f, 1.0f, 0.0f}, rotationDeg);
+		_bananaNode->orientation(rotY * _bananaNode->orientation());
+	}
 }
 
 /// VisualWorld Callback Overrides ///

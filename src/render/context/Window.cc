@@ -247,7 +247,13 @@ bool Window::isOpen() const {
 }
 
 string Window::title() const {
-	return glfwGetWindowTitle(_glfwWindow.get());
+	// return glfwGetWindowTitle(_glfwWindow.get());
+
+#if defined(A3D_WEB)
+	return "";
+#else
+	return glfwGetWindowTitle (_glfwWindow.get());
+#endif
 }
 
 void Window::title(const string& title) {
