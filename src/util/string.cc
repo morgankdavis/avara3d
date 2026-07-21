@@ -17,7 +17,7 @@
 #include <sstream>
 
 #ifdef A3D_POSIX
-	#ifndef A3D_EMSCRIPTEN
+	#ifndef A3D_WEB
 	#include <execinfo.h>
 	#endif
 #include <unistd.h>

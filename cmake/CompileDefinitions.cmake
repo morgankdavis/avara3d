@@ -30,10 +30,6 @@ function(a3d_set_compile_definitions target)
 		target_compile_definitions(${target} PUBLIC A3D_ANDROID)
 	endif()
 
-	if (A3D_EMSCRIPTEN)
-		target_compile_definitions(${target} PUBLIC A3D_EMSCRIPTEN)
-	endif()
-
 	if (A3D_DESKTOP)
 		target_compile_definitions(${target} PUBLIC A3D_DESKTOP)
 	endif()

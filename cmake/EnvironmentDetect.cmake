@@ -9,7 +9,6 @@ set(A3D_LINUX   FALSE)
 set(A3D_MACOS   FALSE)
 set(A3D_IOS     FALSE)
 set(A3D_ANDROID FALSE)
-set(A3D_EMSCRIPTEN FALSE)
 
 set(A3D_DESKTOP FALSE)
 set(A3D_MOBILE  FALSE)
@@ -24,7 +23,6 @@ set(A3D_GL_WEB     FALSE)
 # emscripten: defines EMSCRIPTEN and sets CMAKE_SYSTEM_NAME to "Emscripten"
 if (DEFINED EMSCRIPTEN OR CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
 	message("[EMSCRIPTEN]")
-	set(A3D_EMSCRIPTEN TRUE)
 	set(A3D_WEB TRUE)
 	set(A3D_POSIX TRUE) # emscripten behaves POSIX-ish enough for most uses
 	set(A3D_GL_WEB TRUE)

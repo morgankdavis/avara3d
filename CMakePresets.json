@@ -1,0 +1,86 @@
+{
+  "version": 2,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 20,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "debug",
+      "displayName": "Debug",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/cmake-build-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      },
+      "vendor": {
+        "jetbrains.com/clion": {
+          "toolchain": "Default"
+        }
+      }
+    },
+    {
+      "name": "release",
+      "displayName": "Release",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/cmake-build-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      },
+      "vendor": {
+        "jetbrains.com/clion": {
+          "toolchain": "Default"
+        }
+      }
+    },
+    {
+      "name": "emscripten-debug",
+      "displayName": "Emscripten Debug",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/cmake-build-emscripten-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_TOOLCHAIN_FILE": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake"
+      },
+      "vendor": {
+        "jetbrains.com/clion": {
+          "toolchain": "Emscripten"
+        }
+      }
+    },
+    {
+      "name": "emscripten-release",
+      "displayName": "Emscripten Release",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/cmake-build-emscripten-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_TOOLCHAIN_FILE": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake"
+      },
+      "vendor": {
+        "jetbrains.com/clion": {
+          "toolchain": "Emscripten"
+        }
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "debug",
+      "configurePreset": "debug"
+    },
+    {
+      "name": "release",
+      "configurePreset": "release"
+    },
+    {
+      "name": "emscripten-debug",
+      "configurePreset": "emscripten-debug"
+    },
+    {
+      "name": "emscripten-release",
+      "configurePreset": "emscripten-release"
+    }
+  ]
+}

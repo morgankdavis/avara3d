@@ -117,6 +117,7 @@ vector<std::filesystem::path> a3d::util::filesystem::BaseSearchPaths() {
 
 	auto basePaths = vector<std::filesystem::path>();
 	auto execDir = ExecutableDirectory();
+	auto execName = ExecutableName();
 
 #ifdef A3D_DESKTOP
 
@@ -165,6 +166,12 @@ vector<std::filesystem::path> a3d::util::filesystem::BaseSearchPaths() {
 
 		// engine
 		path = (*execDir).parent_path().parent_path().parent_path().parent_path().parent_path().parent_path() / "data";
+		basePaths.push_back(path);
+
+		path = (*execDir).parent_path().parent_path().parent_path() / "tests" / (*execName) / "data";
+		basePaths.push_back(path);
+
+		path = (*execDir).parent_path().parent_path().parent_path() / "demos" / (*execName) / "data";
 		basePaths.push_back(path);
 
 		// fallback

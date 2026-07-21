@@ -1,7 +1,7 @@
 
 function(a3d_set_emscripten_compile_options target)
 
-	if (A3D_EMSCRIPTEN)
+	if (A3D_WEB)
 		target_compile_options(${target}
 				PRIVATE
 				"-fexceptions"
@@ -15,7 +15,7 @@ function(a3d_emscripten_preload_directory
 		source_directory
 		virtual_directory)
 
-	if (NOT A3D_EMSCRIPTEN)
+	if (NOT A3D_WEB)
 		return()
 	endif()
 
@@ -48,7 +48,7 @@ endfunction()
 
 function(a3d_set_emscripten_link_options target)
 
-	if (A3D_EMSCRIPTEN)
+	if (A3D_WEB)
 		target_link_options(${target}
 				PRIVATE
 				"--use-port=contrib.glfw3"

@@ -127,16 +127,6 @@ BulletWorldProxy::BulletWorldProxy(PhysicsWorld& world):
 #endif
 
 	log::i()("Bullet task scheduler: {} (threads: {}/{})",
-	         _btScheduler->getName(),
-	         _btScheduler->getNumThreads(),
-	         _btScheduler->getMaxNumThreads());
-
-
-
-
-
-
-	log::i()("Bullet task scheduler: {} (threads: {}/{})",
 			 _btScheduler->getName(),
 			 _btScheduler->getNumThreads(),
 			 _btScheduler->getMaxNumThreads());
