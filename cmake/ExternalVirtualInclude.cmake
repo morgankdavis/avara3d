@@ -1,4 +1,3 @@
-# cmake/ExternalVirtualInclude.cmake
 
 set(A3D_EXTERNAL_VINCLUDE_ROOT
 		"${CMAKE_BINARY_DIR}/_external_virtual_include"

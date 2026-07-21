@@ -1,3 +1,4 @@
+
 function(a3d_add_program TARGET_NAME)
 
 	cmake_parse_arguments(
@@ -34,13 +35,13 @@ function(a3d_add_program TARGET_NAME)
 	a3d_set_emscripten_compile_options(${TARGET_NAME})
 	a3d_set_emscripten_link_options(${TARGET_NAME})
 
-	# Shared engine assets: shaders, fonts, etc.
+	# shared engine assets
 	a3d_emscripten_preload_directory(
 			${TARGET_NAME}
 			"${PROJECT_SOURCE_DIR}/data"
 			"/data")
 
-	# Assets belonging only to this test or demo.
+	# assets for only this test or demo
 	if (ARG_DATA_DIRECTORY)
 		a3d_emscripten_preload_directory(
 				${TARGET_NAME}
@@ -49,8 +50,16 @@ function(a3d_add_program TARGET_NAME)
 	endif()
 
 	if (ARG_INSTALL_DESTINATION)
+
 		install(TARGETS ${TARGET_NAME}
 				DESTINATION "${ARG_INSTALL_DESTINATION}")
+
+		if (ARG_DATA_DIRECTORY)
+			install(DIRECTORY "${ARG_DATA_DIRECTORY}/"
+					DESTINATION "${ARG_INSTALL_DESTINATION}/data"
+					OPTIONAL)
+		endif()
+
 	endif()
 
 endfunction()

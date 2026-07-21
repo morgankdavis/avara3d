@@ -1,3 +1,4 @@
+
 function(a3d_set_emscripten_compile_options target)
 
 	if (A3D_EMSCRIPTEN)
@@ -8,7 +9,6 @@ function(a3d_set_emscripten_compile_options target)
 	endif()
 
 endfunction()
-
 
 function(a3d_emscripten_preload_directory
 		target
@@ -45,7 +45,6 @@ function(a3d_emscripten_preload_directory
 			"--preload-file=${source_directory}@${virtual_directory}")
 
 endfunction()
-
 
 function(a3d_set_emscripten_link_options target)
 
