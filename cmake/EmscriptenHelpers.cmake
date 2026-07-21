@@ -48,21 +48,58 @@ endfunction()
 
 function(a3d_set_emscripten_link_options target)
 
-	if (A3D_WEB)
-		target_link_options(${target}
-				PRIVATE
-				"--use-port=contrib.glfw3"
-				"-sMIN_WEBGL_VERSION=2"
-				"-sMAX_WEBGL_VERSION=2"
-				"-sFULL_ES3=1"
-				"-sASSERTIONS=1"
-				"-sALLOW_MEMORY_GROWTH=1"
-				"-sEXIT_RUNTIME=0"
-				"-fexceptions"
-				"-sDISABLE_EXCEPTION_CATCHING=0")
+	if (NOT A3D_WEB)
+		return()
+	endif()
 
-		set_target_properties(${target} PROPERTIES
-				SUFFIX ".html")
+	target_link_options(${target}
+			PRIVATE
+			"--use-port=contrib.glfw3"
+			"-sMIN_WEBGL_VERSION=2"
+			"-sMAX_WEBGL_VERSION=2"
+			"-sFULL_ES3=1"
+			"-sASSERTIONS=1"
+			"-sALLOW_MEMORY_GROWTH=1"
+			"-sEXIT_RUNTIME=0"
+			"-fexceptions"
+			"-sDISABLE_EXCEPTION_CATCHING=0")
+
+	if (A3D_WEB_GENERATE_HTML)
+		set_target_properties(${target} PROPERTIES SUFFIX ".html")
+	else()
+		set_target_properties(${target} PROPERTIES SUFFIX ".js")
+	endif()
+
+endfunction()
+
+function(a3d_install_emscripten_outputs
+		target
+		destination)
+
+	if (NOT A3D_WEB)
+		return()
+	endif()
+
+	set(output_base
+			"$<TARGET_FILE_DIR:${target}>/$<TARGET_FILE_BASE_NAME:${target}>")
+
+	# WebAssembly binary.
+	install(FILES
+			"${output_base}.wasm"
+			DESTINATION "${destination}")
+
+	# Packed preload assets. This may not exist if nothing was preloaded.
+	install(FILES
+			"${output_base}.data"
+			DESTINATION "${destination}"
+			OPTIONAL)
+
+	# When HTML is the primary target, JavaScript is a sidecar.
+	# In non-HTML builds, install(TARGETS) already installs the .js file.
+	if (A3D_WEB_GENERATE_HTML)
+		install(FILES
+				"${output_base}.js"
+				DESTINATION "${destination}")
 	endif()
 
 endfunction()

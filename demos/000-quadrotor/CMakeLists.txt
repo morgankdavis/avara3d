@@ -15,4 +15,4 @@ a3d_add_program(${TARGET_NAME}
 		"/demos/data"
 
 		INSTALL_DESTINATION
-		"${INSTALL_TESTS_EXEC_DIR}")
+		"${INSTALL_DEMOS_EXEC_DIR}")

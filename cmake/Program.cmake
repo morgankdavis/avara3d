@@ -51,10 +51,18 @@ function(a3d_add_program TARGET_NAME)
 
 	if (ARG_INSTALL_DESTINATION)
 
+		# Installs the primary output:
+		#   Debug web:   target.html
+		#   Release web: target.js
+		#   Native:      executable
 		install(TARGETS ${TARGET_NAME}
 				DESTINATION "${ARG_INSTALL_DESTINATION}")
 
-		if (ARG_DATA_DIRECTORY)
+		a3d_install_emscripten_outputs(
+				${TARGET_NAME}
+				"${ARG_INSTALL_DESTINATION}")
+
+		if (ARG_DATA_DIRECTORY AND NOT A3D_WEB)
 			install(DIRECTORY "${ARG_DATA_DIRECTORY}/"
 					DESTINATION "${ARG_INSTALL_DESTINATION}/data"
 					OPTIONAL)

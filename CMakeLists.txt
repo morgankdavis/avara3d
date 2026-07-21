@@ -25,6 +25,26 @@ else()
 	message(STATUS "[BUILD TYPE: ${CMAKE_BUILD_TYPE}]")
 endif()
 
+### configure Emscripten output ###
+
+if (A3D_WEB)
+
+	set(A3D_WEB_GENERATE_HTML_DEFAULT OFF)
+
+	if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+		set(A3D_WEB_GENERATE_HTML_DEFAULT ON)
+	endif()
+
+	option(A3D_WEB_GENERATE_HTML
+			"Generate Emscripten launcher HTML"
+			${A3D_WEB_GENERATE_HTML_DEFAULT})
+
+	message(STATUS "[WEB GENERATE HTML: ${A3D_WEB_GENERATE_HTML}]")
+
+	unset(A3D_WEB_GENERATE_HTML_DEFAULT)
+
+endif()
+
 ### add external libraries ###
 
 add_subdirectory(external)
@@ -214,8 +234,10 @@ set(INSTALL_LIB_DIR "${INSTALL_ROOT_DIR}/lib")
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/include/"
 		DESTINATION ${INSTALL_INCLUDE_DIR})
 
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/data/"
-		DESTINATION ${INSTALL_DATA_DIR})
+if (NOT A3D_WEB)
+	install(DIRECTORY "${CMAKE_SOURCE_DIR}/data/"
+			DESTINATION ${INSTALL_DATA_DIR})
+endif()
 
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/external/generator"
 		DESTINATION ${INSTALL_LEGAL_DIR})
