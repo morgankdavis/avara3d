@@ -19,7 +19,6 @@ namespace a3d {
 		/// Public Lifecycle Functions ///
 
 		PlanePhysicsShape(float width, float height);
-		~PlanePhysicsShape();
 
 		/// Public Member Functions ///
 

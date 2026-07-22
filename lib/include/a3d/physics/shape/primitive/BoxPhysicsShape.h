@@ -19,7 +19,6 @@ namespace a3d {
 		/// Public Lifecycle Functions ///
 
 		BoxPhysicsShape(float width, float height, float length);
-		~BoxPhysicsShape();
 
 		/// Public Member Functions ///
 

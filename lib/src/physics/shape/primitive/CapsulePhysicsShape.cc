@@ -24,8 +24,6 @@ CapsulePhysicsShape::CapsulePhysicsShape(float radius, float height):
 	//checkCreateProxy();
 }
 
-CapsulePhysicsShape::~CapsulePhysicsShape() {}
-
 /// Public Member Functions ///
 
 float CapsulePhysicsShape::radius() const {

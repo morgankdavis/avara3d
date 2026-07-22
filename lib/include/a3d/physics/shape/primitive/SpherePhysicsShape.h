@@ -19,7 +19,6 @@ namespace a3d {
 		/// Public Lifecycle Functions ///
 
 		explicit SpherePhysicsShape(float radius);
-		~SpherePhysicsShape();
 
 		/// Public Member Functions ///
 

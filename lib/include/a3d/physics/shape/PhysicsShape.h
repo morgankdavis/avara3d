@@ -47,7 +47,7 @@ namespace a3d {
 
 		PhysicsShape(Type type, const std::shared_ptr<Mesh>& mesh);
 		PhysicsShape(Type type, const std::shared_ptr<Node>& node);
-		~PhysicsShape();
+		virtual ~PhysicsShape();
 
 		/// Public Member Functions ///
 

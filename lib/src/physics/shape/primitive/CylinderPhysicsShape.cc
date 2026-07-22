@@ -18,8 +18,6 @@ CylinderPhysicsShape::CylinderPhysicsShape(float radius, float height):
 		_radius{radius},
 		_height{height} {}
 
-CylinderPhysicsShape::~CylinderPhysicsShape() {}
-
 /// Public Member Functions ///
 
 float CylinderPhysicsShape::radius() const {

@@ -17,8 +17,6 @@ using namespace a3d;
 SpherePhysicsShape::SpherePhysicsShape(float radius):
 		_radius{radius} {}
 
-SpherePhysicsShape::~SpherePhysicsShape() {}
-
 /// Public Member Functions ///
 
 float SpherePhysicsShape::radius() const {

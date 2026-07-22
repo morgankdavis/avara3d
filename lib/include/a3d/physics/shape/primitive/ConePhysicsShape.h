@@ -19,7 +19,6 @@ namespace a3d {
 		/// Public Lifecycle Functions ///
 
 		ConePhysicsShape(float radius, float height);
-		~ConePhysicsShape();
 
 		/// Public Member Functions ///
 

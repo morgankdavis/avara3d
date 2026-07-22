@@ -19,7 +19,6 @@ namespace a3d {
 		/// Public Lifecycle Functions ///
 
 		CapsulePhysicsShape(float radius, float height);
-		~CapsulePhysicsShape();
 
 		/// Public Member Functions ///
 

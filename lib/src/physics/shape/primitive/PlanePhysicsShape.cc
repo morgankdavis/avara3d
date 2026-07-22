@@ -18,8 +18,6 @@ PlanePhysicsShape::PlanePhysicsShape(float width, float height):
 		_width{width},
 		_height{height} {}
 
-PlanePhysicsShape::~PlanePhysicsShape() {}
-
 /// Public Member Functions ///
 
 float PlanePhysicsShape::width() const {

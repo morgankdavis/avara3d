@@ -19,8 +19,6 @@ BoxPhysicsShape::BoxPhysicsShape(float width, float height, float length):
 	_height{height},
 	_length{length} {}
 
-BoxPhysicsShape::~BoxPhysicsShape() {}
-
 /// Public Member Functions ///
 
 float BoxPhysicsShape::width() const {

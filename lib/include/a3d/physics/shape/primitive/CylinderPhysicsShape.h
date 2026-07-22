@@ -19,7 +19,6 @@ namespace a3d {
 		/// Public Lifecycle Functions ///
 
 		CylinderPhysicsShape(float radius, float height);
-		~CylinderPhysicsShape();
 
 		/// Public Member Functions ///
 

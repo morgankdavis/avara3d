@@ -18,8 +18,6 @@ ConePhysicsShape::ConePhysicsShape(float radius, float height):
 		_radius{radius},
 		_height{height} {}
 
-ConePhysicsShape::~ConePhysicsShape() {}
-
 /// Public Member Functions ///
 
 float ConePhysicsShape::radius() const {
