@@ -171,7 +171,8 @@ namespace a3d {
 		void 								addedToWorld(PhysicsWorld& world);
 		void 								removedFromWorld(PhysicsWorld& world);
 
-		void 								shapeUpdated();
+		void 								shapeWillUpdate();
+		void 								shapeDidUpdate();
 
 		std::weak_ptr<Node>					node() const;
 

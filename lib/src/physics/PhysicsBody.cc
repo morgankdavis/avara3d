@@ -55,6 +55,10 @@ PhysicsBody::PhysicsBody(Type type, const shared_ptr<PhysicsShape>& shape):
 PhysicsBody::~PhysicsBody() {
 	log::d()("Destroying PhysicsBody {:p}", static_cast<void*>(this));
 
+	if (_world) {
+		_world->remove(*this);
+	}
+
 	if (_shape) _shape->detachedFromBody(*this);
 	if (_proxy) _proxy->detachedFromBody(*this);
 }
@@ -77,20 +81,28 @@ const shared_ptr<PhysicsShape>& PhysicsBody::shape() const {
 void PhysicsBody::shape(const shared_ptr<PhysicsShape>& shape) {
 	log::t()("shape: {:p}", static_cast<void*>(shape.get()));
 
-	if (shape != _shape) {
+	if (shape == _shape) {
+		return;
+	}
 
-		if (_shape) {
-			_shape->detachedFromBody(*this);
-		}
+	if (_world) {
+		_world->remove(*this);
+	}
 
-		_shape = shape;
+	_proxy->shapeProxy(nullptr);
 
-		if (shape) {
-			shape->attachedToBody(*this);
-			_proxy->shapeProxy(shape->proxy());
-		}
-		else {
-			_proxy->shapeProxy(nullptr);
+	if (_shape) {
+		_shape->detachedFromBody(*this);
+	}
+
+	_shape = shape;
+
+	if (_shape) {
+		_shape->attachedToBody(*this);
+		_proxy->shapeProxy(_shape->proxy());
+
+		if (!_node.expired()) {
+			checkAddToWorld();
 		}
 	}
 }
@@ -379,18 +391,42 @@ void PhysicsBody::removedFromWorld(PhysicsWorld& world) {
 	_world = nullptr;
 }
 
-void PhysicsBody::shapeUpdated() {
+void PhysicsBody::shapeWillUpdate() {
+
+	if (_world) {
+		_world->remove(*this);
+	}
 
 	if (_proxy) {
-		if (_shape) {
-				_proxy->shapeProxy(_shape->proxy());
-		}
-		else {
-			log::e()("No shape.");
-		}
+		_proxy->shapeProxy(nullptr);
 	}
-	else {
-		log::e()("No body model proxy.");
+}
+
+void PhysicsBody::shapeDidUpdate() {if (!_node.expired()) {
+	checkAddToWorld();
+}
+
+	if (!_proxy) {
+		log::e()("No body proxy.");
+		return;
+	}
+
+	if (!_shape) {
+		log::e()("No shape.");
+		_proxy->shapeProxy(nullptr);
+		return;
+	}
+
+	if (!_shape->proxy()) {
+		log::e()("PhysicsShape has no proxy.");
+		_proxy->shapeProxy(nullptr);
+		return;
+	}
+
+	_proxy->shapeProxy(_shape->proxy());
+
+	if (!_node.expired()) {
+		checkAddToWorld();
 	}
 }
 

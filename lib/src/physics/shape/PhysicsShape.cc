@@ -13,7 +13,6 @@
 #include "a3d/mesh/Mesh.h"
 #include "a3d/log/Log.h"
 #include "a3d/physics/PhysicsBody.h"
-#include "a3d/physics/proxy/PhysicsShapeProxy.h"
 #include "a3d/physics/PhysicsWorld.h"
 #include "a3d/physics/backend/bullet/BulletShapeProxy.h"
 #include "a3d/scene/Node.h"
@@ -80,10 +79,39 @@ PhysicsShape::Type PhysicsShape::type() const {
 void PhysicsShape::type(Type type) {
 	log::t()("type: {}", magic_enum::enum_name(type));
 
-	_type = type;
-	_proxy = nullptr;
+	if (_type == type) {
+		return;
+	}
 
-	checkCreateProxy();
+	for (auto* body : _bodies) {
+		body->shapeWillUpdate();
+	}
+
+	const auto previousType = _type;
+	_type = type;
+
+	try {
+		std::unique_ptr<PhysicsShapeProxy> replacementProxy;
+
+		if (!_bodies.empty()) {
+			replacementProxy = make_unique<BulletShapeProxy>(*this);
+		}
+
+		_proxy = std::move(replacementProxy);
+	}
+	catch (...) {
+		_type = previousType;
+
+		for (auto* body : _bodies) {
+			body->shapeDidUpdate();
+		}
+
+		throw;
+	}
+
+	for (auto* body : _bodies) {
+		body->shapeDidUpdate();
+	}
 }
 
 /// Internal Member Functions ///
@@ -126,7 +154,7 @@ void PhysicsShape::checkCreateProxy() {
 		_proxy = make_unique<BulletShapeProxy>(*this);
 
 		for (auto body : _bodies) {
-			body->shapeUpdated();
+			body->shapeDidUpdate();
 		}
 	}
 }

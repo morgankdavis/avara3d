@@ -196,10 +196,12 @@ void BulletBodyProxy::shapeProxy(PhysicsShapeProxy* proxy) {
 		}
 		else {
 			log::e()("Could not get shape resources.");
+			_btBody->setCollisionShape(nullptr);
 			_shapeProxy = nullptr;
 		}
 	}
 	else {
+		_btBody->setCollisionShape(nullptr);
 		_shapeProxy = nullptr;
 	}
 }

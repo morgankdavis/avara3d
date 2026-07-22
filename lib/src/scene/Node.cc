@@ -471,6 +471,7 @@ PhysicsBody* Node::physicsBody() const {
 void Node::physicsBody(unique_ptr<PhysicsBody> body) {
 
 	if (_physicsBody) {
+		checkNotifyPhysicsBodyOfUnreachablePhysicsWorld();
 		_physicsBody->detachedFromNode(shared_from_this());
 	}
 
@@ -478,6 +479,7 @@ void Node::physicsBody(unique_ptr<PhysicsBody> body) {
 
 	if (_physicsBody) {
 		_physicsBody->attachedToNode(shared_from_this());
+		checkNotifyPhysicsBodyOfUnreachablePhysicsWorld();
 	}
 }
 
