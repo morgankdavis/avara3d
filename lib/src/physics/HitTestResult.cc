@@ -7,3 +7,7 @@
 //
 
 #include "a3d/physics/HitTestResult.h"
+
+using namespace a3d;
+
+HitTestResult::HitTestResult() {}
