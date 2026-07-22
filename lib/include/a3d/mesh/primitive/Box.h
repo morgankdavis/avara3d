@@ -33,10 +33,9 @@ namespace a3d {
 
 		/// Public Lifecycle Functions ///
 
-		// z, x, y?
-		Box(float length,
-			float width,
+		Box(float width,
 			float height,
+			float length,
 			unsigned lengthSegments = DEFAULT_SEGMENTS,
 			unsigned widthSegments = DEFAULT_SEGMENTS,
 			unsigned heightSegments = DEFAULT_SEGMENTS);
