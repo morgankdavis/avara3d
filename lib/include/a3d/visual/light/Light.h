@@ -38,7 +38,8 @@ namespace a3d {
 		static std::shared_ptr<a3d::SpotLight> 			SpotLight();
 		static std::shared_ptr<a3d::SpotLight> 			SpotLight(const std::shared_ptr<Color>& color);
 
-		/// Public Lifecycle Functions ///
+	protected:
+		/// Protected Lifecycle Functions ///
 
 		Light();
 		explicit Light(const std::string& name);
@@ -46,6 +47,7 @@ namespace a3d {
 		Light(const std::string& name, const std::shared_ptr<Color>& color);
 		virtual ~Light() = 0;
 
+	public:
 		/// Public Member Functions ///
 
 		const std::optional<std::string>&	name() const;

@@ -52,7 +52,30 @@ shared_ptr<SpotLight> Light::SpotLight(const shared_ptr<Color>& color) {
 	return make_unique<a3d::SpotLight>(color);
 }
 
-/// Public Lifecycle Functions ///
+/// protected Lifecycle Functions ///
+
+Light::Light():
+	_name{nullopt},
+	_color{Color::White()} {}
+
+Light::Light(const string& name):
+		Light{} {
+
+	_name = name;
+}
+
+Light::Light(const shared_ptr<Color>& color):
+		Light{} {
+
+	_color = color;
+}
+
+Light::Light(const string &name,
+			 const shared_ptr<Color> &color) : Light{} {
+
+	_name = name;
+	_color = color;
+}
 
 Light::~Light() {
 
@@ -63,12 +86,6 @@ Light::~Light() {
 		log::d()("Destroying Light {:p}", static_cast<void*>(this));
 	}
 }
-
-/// Private Lifecycle Functions ///
-
-Light::Light():
-	_name{nullopt},
-	_color{Color::White()} {}
 
 /// Public Member Functions ///
 
