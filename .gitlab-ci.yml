@@ -3,6 +3,9 @@ stages:
   # https://hatchjs.com/gitlab-ci-artifacts-paths/
   #- archive
 
+variables:
+  EMSDK_ROOT: "/home/gitlab/.emsdk-6.0.3"
+
 linux-debug:
   stage: build
   tags:
