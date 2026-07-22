@@ -21,7 +21,6 @@
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/PrimitiveTopology.h"
 #include "a3d/mesh/VertexAccess.h"
-#include "a3d/mesh/VertexFormats.h"
 #include "a3d/mesh/VertexLayoutDesc.h"
 #include "a3d/mesh/primitive/Box.h"
 #include "a3d/mesh/primitive/Capsule.h"
@@ -31,10 +30,8 @@
 #include "a3d/mesh/primitive/Sphere.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/shape/PhysicsShape.h"
-#include "a3d/physics/PhysicsWorld.h"
 #include "a3d/physics/backend/bullet/BulletWorldProxy.h"
 #include "a3d/physics/backend/bullet/BulletUtilities.h"
-#include "a3d/physics/proxy/PhysicsBodyProxy.h"
 #include "a3d/physics/shape/primitive/BoxPhysicsShape.h"
 #include "a3d/physics/shape/primitive/CapsulePhysicsShape.h"
 #include "a3d/physics/shape/primitive/ConePhysicsShape.h"
@@ -100,15 +97,15 @@ HACDMeshElementsFromMeshElement(MeshElement& element);
 
 BulletShapeProxy::BulletShapeProxy(PhysicsShape& shape):
 		PhysicsShapeProxy{shape},
-		_btShapes{},
-		_btIndexVertexArrays{} {
+		_btIndexVertexArrays{},
+		_btShapes{} {
 
 	log::d()("shape: {:p}", static_cast<void*>(&shape));
 
 	auto bodyType = (*shape.bodies().begin())->type();
 
-	auto btShapes = vector<unique_ptr<btCollisionShape>>();
 	auto btIndexVertexArrays = vector<unique_ptr<btTriangleIndexVertexArray>>();
+	auto btShapes = vector<unique_ptr<btCollisionShape>>();
 
 	auto sourceObject = shape.source();
 

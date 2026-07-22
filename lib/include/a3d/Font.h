@@ -13,7 +13,6 @@
 #include <memory>
 #include <optional>
 
-
 namespace a3d {
 
 	class Buffer;

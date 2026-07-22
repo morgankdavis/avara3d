@@ -268,7 +268,7 @@ a3d::util::filesystem::SearchInPaths(const string &filename,
 		// }
 	}
 	log::w()("'{}' not found.", filename);
-	// return std::nullopt;
+	return std::nullopt;
 }
 
 // *** binary and text files ***

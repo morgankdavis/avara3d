@@ -10,21 +10,18 @@
 #define AVARA3D_PROFILING_OPENGLDRAWTIMER_H
 
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
 #include <vector>
 
-#include "a3d/Configuration.h"
 #include "a3d/render/backend/opengl/GLTypes.h"
 
 namespace a3d {
 
-	// double/triple/... buffer GL_TIME_ELAPSED queries
 	class OGLDrawTimer {
 
 	public:
+		/// Internal Lifecycle Functions ///
 
-		//explicit OpenGLDrawTimer(int bufferedFrames = config::GL_DRAW_TIMER_BUFFER_SIZE);
 		explicit OGLDrawTimer(unsigned bufferedFrames);
 		~OGLDrawTimer();
 		OGLDrawTimer(const OGLDrawTimer&) = delete;
@@ -32,12 +29,15 @@ namespace a3d {
 		OGLDrawTimer(OGLDrawTimer&& other) = delete;
 		OGLDrawTimer& operator=(OGLDrawTimer&& other) = delete;
 
+		/// Internal Member Functions ///
+
 		void						initialize();
 		bool						isAvailable() const; // always returns false before calling initialize()
 		void 						begin();
 		std::chrono::nanoseconds	end();
 
 	private:
+		/// Private Types ///
 
 		enum class Mode {
 			Disabled,
@@ -46,8 +46,12 @@ namespace a3d {
 			WebDisjointTimerQueryExt
 		};
 
+		/// Private Member Functions ///
+
 		bool						resolveQuery(size_t index);
 		void						resolveIssuedQueries(size_t skipIndex);
+
+		/// Private Member Variables ///
 
 		bool						_isAvailable;
 		Mode						_mode;

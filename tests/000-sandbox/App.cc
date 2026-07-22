@@ -9,6 +9,7 @@
 #include "App.h"
 
 #include "a3d/a3d.h"
+#include "a3d/extension/ALFImporter.h" // temporary
 
 using namespace a3d;
 using namespace a3d::math;
@@ -53,7 +54,7 @@ std::unique_ptr<Scene> App::init() {
 		physicalWorld->timestep(PHYSICS_TIMESTEP);
 
 		auto mapPath = util::filesystem::AuxiliaryFilePath("Icebox", "alf");
-		auto alfImporter = ALFImporter(*mapPath);
+		auto alfImporter = ext::ALFImporter(*mapPath);
 		auto scene = alfImporter.scene(*visualWorld);
 
 //		else background = make_shared<Texture>(util::filesystem::CubeImageNamed("kloppenheim", "png"));

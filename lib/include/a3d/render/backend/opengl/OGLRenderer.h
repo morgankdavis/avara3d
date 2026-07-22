@@ -9,11 +9,6 @@
 #ifndef AVARA3D_RENDER_BACKEND_OPENGL_OGLRENDERER_H
 #define AVARA3D_RENDER_BACKEND_OPENGL_OGLRENDERER_H
 
-#include <map>
-#include <string>
-#include <unordered_set>
-#include <utility>
-
 #include "a3d/render/Renderer.h"
 #include "a3d/render/backend/opengl/GLTypes.h"
 #include "a3d/render/backend/opengl/OGLDebugLines.h"

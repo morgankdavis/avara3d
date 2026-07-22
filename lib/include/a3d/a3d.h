@@ -9,8 +9,6 @@
 #ifndef AVARA3D_A3D_H
 #define AVARA3D_A3D_H
 
-#include "a3d/app/ALFImporter.h" // TEMPORARY
-
 #include "a3d/Application.h"
 #include "a3d/Buffer.h"
 #include "a3d/BuildInfo.h"
@@ -26,6 +24,8 @@
 #include "a3d/input/DesktopInputManager.h"
 #include "a3d/Math.h"
 #include "a3d/Runner.h"
+#include "a3d/extension/ALFImporter.h" // temporary
+#include "a3d/extension/WanderRotator.h" // temporary
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/MeshElement.h"
 #include "a3d/mesh/Line.h"

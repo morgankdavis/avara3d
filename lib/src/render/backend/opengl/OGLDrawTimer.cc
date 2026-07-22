@@ -20,7 +20,11 @@
 using namespace a3d;
 using namespace std;
 
+/// Private Static Non-Member Prototypes ///
+
 static unsigned MinBufferSize(unsigned bufferedFrames);
+
+/// Internal Lifecycle Functions ///
 
 OGLDrawTimer::OGLDrawTimer(unsigned bufferedFrames):
 		_isAvailable{false},
@@ -43,6 +47,8 @@ OGLDrawTimer::~OGLDrawTimer() {
 		glDeleteQueries(_bufferSize, _glQueries.data());
 	}
 }
+
+/// Internal Member Functions ///
 
 void OGLDrawTimer::initialize() {
 	if (_initialized) return;
@@ -144,6 +150,8 @@ chrono::nanoseconds OGLDrawTimer::end() {
 	return _lastTime;
 }
 
+/// Private Member Functions ///
+
 bool OGLDrawTimer::resolveQuery(size_t index) {
 	if (index >= _issued.size()) return false;
 	if (!_issued[index]) return true;
@@ -200,6 +208,8 @@ void OGLDrawTimer::resolveIssuedQueries(size_t skipIndex) {
 		resolveQuery(i);
 	}
 }
+
+/// Private Static Non-Member Functions ///
 
 unsigned MinBufferSize(unsigned bufferedFrames) {
 #if defined(A3D_GL_WEB)

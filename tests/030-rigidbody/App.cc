@@ -17,14 +17,7 @@
 #include <vector>
 
 #include "a3d/a3d.h"
-#include "a3d/util/bitmask.h"
-#include "a3d/util/filesystem.h"
-#include "a3d/util/flow.h"
-#include "a3d/util/snapshot.h"
-
-#include "a3d/mesh/ConvexDecomposer.h" // ! Temporary for testing
-
-#include "WanderRotator.h"
+#include "a3d/mesh/ConvexDecomposer.h" // temporary
 
 using namespace a3d;
 using namespace a3d::math;
@@ -181,7 +174,7 @@ unique_ptr<Scene> App::init() {
 
 		scene->rootNode()->addChild(duckNode);
 
-		_duckRotator = make_unique<WanderRotator>();
+		_duckRotator = make_unique<ext::WanderRotator>();
 
 		// preload duck fruit
 
@@ -222,6 +215,9 @@ unique_ptr<Scene> App::init() {
 		boxesLightNode->position({-6.4, 1.2, -2.5});
 		boxesLightNode->orientation({0.0999, 0.1969, -0.0202, 0.9751});
 		scene->rootNode()->addChild(boxesLightNode);
+
+		// set the camera move speed now before the scene extent grows form things falling
+		_cameraMoveSpeed = math::max(scene->extent());
 
 		_window->center();
 		_window->open();
@@ -578,28 +574,29 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 
 			// move
 
-			static float MOVE_SPEED = math::max(scene.extent());
+			//static float MOVE_SPEED = math::max(scene.extent());
 
 			float moveMultiplier = 1.0;
 			if (keysDown.count(Key::LeftControl)) {
 				moveMultiplier = 2.0;
 			}
+			float moveSpeed = _cameraMoveSpeed * moveMultiplier;
 
 			if (keysDown.count(Key::W) || mouseButtonsDown.count(MouseButton::Four)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * camForward;
+				vec3 positionDelta = (float)deltaTime * moveSpeed * camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 			else if (keysDown.count(Key::S)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * -camForward;
+				vec3 positionDelta = (float)deltaTime * moveSpeed * -camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 
 			if (keysDown.count(Key::A)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * -camRight;
+				vec3 positionDelta = (float)deltaTime * moveSpeed* -camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 			else if (keysDown.count(Key::D)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * camRight;
+				vec3 positionDelta = (float)deltaTime * moveSpeed * camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 
@@ -608,7 +605,7 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 				if (keysDown.count(Key::LeftShift)) {
 					direction = -1;
 				}
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * camUp;
+				vec3 positionDelta = (float)deltaTime * moveSpeed * camUp;
 				pov->position(pov->position() + positionDelta * direction);
 			}
 		}

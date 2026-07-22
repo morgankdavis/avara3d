@@ -55,6 +55,13 @@ add_library(a3d::fastgltf ALIAS a3d_external_fastgltf)
 target_link_libraries(a3d_external_fastgltf INTERFACE
 		fastgltf::fastgltf)
 
+if(EMSCRIPTEN)
+	target_compile_options(fastgltf PRIVATE
+			-Wno-unused-variable
+	)
+endif()
+
+
 ### generator ###
 
 add_subdirectory(generator)
@@ -130,6 +137,13 @@ target_include_directories(a3d_external_imgui SYSTEM INTERFACE
 		"$<BUILD_INTERFACE:${A3D_EXTERNAL_VINCLUDE_ROOT}>"
 		"$<BUILD_INTERFACE:${A3D_EXTERNAL_VINCLUDE_ROOT}/imgui>"
 		"$<BUILD_INTERFACE:${A3D_EXTERNAL_VINCLUDE_ROOT}/imgui/backends>")
+
+if(EMSCRIPTEN)
+	target_compile_options(imgui PRIVATE
+			-Wno-deprecated-pragma
+	)
+endif()
+
 
 ### magic_enum ###
 

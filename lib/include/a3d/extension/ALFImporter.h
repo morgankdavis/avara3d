@@ -6,19 +6,20 @@
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-// *** This class probably ultimately belongs in a tool for converting map data,
-// not in the engine. similarly, its dependency pugixml should eventually be removed. ***
+// TODO: move this to an 'extensions' library
 
-#ifndef AVARA3D_APP_ALFIMPORTER_H
-#define AVARA3D_APP_ALFIMPORTER_H
+#ifndef AVARA3D_EXTENSIONS_ALFIMPORTER_H
+#define AVARA3D_EXTENSIONS_ALFIMPORTER_H
 
 #include <filesystem>
 #include <memory>
 
 namespace a3d {
-
 	class Scene;
 	class VisualWorld;
+}
+
+namespace a3d::ext {
 
 	class ALFImporter {
 
@@ -34,8 +35,7 @@ namespace a3d {
 		/// Private Member Variables ///
 
 		std::filesystem::path 		_path;
-		//std::unique_ptr<Scene> 		_scene;
 	};
 }
 
-#endif //AVARA3D_ALFIMPORTER_H
+#endif //AVARA3D_EXTENSIONS_ALFIMPORTER_H

@@ -10,7 +10,7 @@
 #define AVARA3D_RENDER_BACKEND_OPENGL_GLTYPES_H
 
 #include <cstdint>
-#include <cstddef>   // std::ptrdiff_t
+#include <cstddef> // std::ptrdiff_t
 
 namespace a3d::gl {
 

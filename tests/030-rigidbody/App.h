@@ -24,9 +24,11 @@ namespace a3d {
 	class Window;
 }
 
-namespace test::rigidbody {
-
+namespace a3d::ext {
 	struct WanderRotator;
+}
+
+namespace test::rigidbody {
 
 	class App : public a3d::Application {
 
@@ -88,11 +90,12 @@ namespace test::rigidbody {
 	private:
 		/// Private Member Variables ///
 
-		std::unique_ptr<a3d::Window>	_window;
-		a3d::Node*						_palmNode;
-		a3d::Node*						_duckNode;
-		std::vector<DuckFruitDef>		_duckFruit;
-		std::unique_ptr<WanderRotator>	_duckRotator;
+		std::unique_ptr<a3d::Window>				_window;
+		a3d::Node*									_palmNode;
+		a3d::Node*									_duckNode;
+		std::vector<DuckFruitDef>					_duckFruit;
+		std::unique_ptr<a3d::ext::WanderRotator>	_duckRotator;
+		float										_cameraMoveSpeed;
 	};
 }
 

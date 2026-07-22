@@ -10,11 +10,8 @@
 #define AVARA3D_SCENE_NODE_H
 
 #include <climits>
-#include <map>
 #include <memory>
 #include <optional>
-#include <list>
-#include <stack>
 #include <string>
 #include <vector>
 

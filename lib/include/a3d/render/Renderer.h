@@ -10,7 +10,6 @@
 #define AVARA3D_RENDER_RENDERER_H
 
 #include <memory>
-#include <set>
 
 #include "a3d/render/PipelineDesc.h"
 #include "a3d/scene/Scene.h"

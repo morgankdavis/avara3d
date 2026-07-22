@@ -6,7 +6,7 @@
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/app/ALFImporter.h"
+#include "a3d/extension/ALFImporter.h"
 
 #include <iostream>
 #include <string>
@@ -17,7 +17,6 @@
 #include "a3d/Color.h"
 #include "a3d/log/Log.h"
 #include "a3d/mesh/Mesh.h"
-#include "a3d/mesh/MeshElement.h"
 #include "a3d/mesh/primitive/Box.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
@@ -34,12 +33,12 @@ using namespace std;
 
 /// Internal Lifecycle Functions ///
 
-ALFImporter::ALFImporter(const filesystem::path& path):
+ext::ALFImporter::ALFImporter(const filesystem::path& path):
 		_path{path} {}
 
 /// Internal Member Functions ///
 
-unique_ptr<Scene> ALFImporter::scene(VisualWorld& visualWorld) {
+unique_ptr<Scene> ext::ALFImporter::scene(VisualWorld& visualWorld) {
 
 	//auto mapPath = util::filesystem::AuxFilePath("Icebox", "alf");
 	auto mapPath = _path;

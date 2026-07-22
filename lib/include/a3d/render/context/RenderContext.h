@@ -10,9 +10,7 @@
 #define AVARA3D_RENDER_CONTEXT_RENDERCONTEXT_H
 
 #include <filesystem>
-#include <functional>
 #include <memory>
-#include <vector>
 
 #include "a3d/Math.h"
 

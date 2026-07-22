@@ -11,7 +11,6 @@
 
 #include <memory>
 #include <string>
-#include <vector>
 
 #include "a3d/Math.h"
 

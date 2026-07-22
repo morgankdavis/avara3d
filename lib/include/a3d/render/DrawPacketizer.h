@@ -9,10 +9,6 @@
 #ifndef AVARA3D_RENDER_DRAWPACKETIZER_H
 #define AVARA3D_RENDER_DRAWPACKETIZER_H
 
-#include <cstdint>
-
-#include "a3d/mesh/VertexLayout.h"
-
 namespace a3d {
 
 	struct DrawPacket;

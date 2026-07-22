@@ -9,12 +9,10 @@
 #ifndef AVARA3D_SCENE_IMPORTER_GLTFIMPORTER_H
 #define AVARA3D_SCENE_IMPORTER_GLTFIMPORTER_H
 
-#include <array>
 #include <cstddef>
 #include <filesystem>
 #include <map>
 #include <memory>
-#include <optional>
 
 #include <fastgltf/types.hpp>
 
