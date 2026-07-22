@@ -26,7 +26,7 @@ namespace a3d {
 
 namespace test::rigidbody {
 
-	struct WanderRotator; // TODO: Move
+	struct WanderRotator;
 
 	class App : public a3d::Application {
 

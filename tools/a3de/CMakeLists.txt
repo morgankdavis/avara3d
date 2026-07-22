@@ -71,7 +71,7 @@ if (Qt6_FOUND)
     #    endif()
     #endif()
 
-    target_include_directories(a3de PRIVATE ${CMAKE_SOURCE_DIR}/external/imgui-1.92.5)
+    target_include_directories(a3de PRIVATE "${CMAKE_SOURCE_DIR}/lib/external/imgui-1.92.5")
     #target_include_directories(a3de PRIVATE ${CMAKE_SOURCE_DIR}/external/magic_enum-0.9.3/include)
 
     #target_link_libraries(a3de PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::OpenGLWidgets)

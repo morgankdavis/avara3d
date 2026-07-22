@@ -38,7 +38,7 @@ function(a3d_add_program TARGET_NAME)
 	# shared engine assets
 	a3d_emscripten_preload_directory(
 			${TARGET_NAME}
-			"${PROJECT_SOURCE_DIR}/data"
+			"${PROJECT_SOURCE_DIR}/lib/data"
 			"/data")
 
 	# assets for only this test or demo
@@ -51,20 +51,23 @@ function(a3d_add_program TARGET_NAME)
 
 	if (ARG_INSTALL_DESTINATION)
 
+		set(PROGRAM_INSTALL_DESTINATION
+				"${ARG_INSTALL_DESTINATION}/${TARGET_NAME}")
+
 		# Installs the primary output:
-		#   Debug web:   target.html
-		#   Release web: target.js
-		#   Native:      executable
+		#   Debug web:   target/target.html
+		#   Release web: target/target.js
+		#   Native:      target/target executable
 		install(TARGETS ${TARGET_NAME}
-				DESTINATION "${ARG_INSTALL_DESTINATION}")
+				DESTINATION "${PROGRAM_INSTALL_DESTINATION}")
 
 		a3d_install_emscripten_outputs(
 				${TARGET_NAME}
-				"${ARG_INSTALL_DESTINATION}")
+				"${PROGRAM_INSTALL_DESTINATION}")
 
 		if (ARG_DATA_DIRECTORY AND NOT A3D_WEB)
 			install(DIRECTORY "${ARG_DATA_DIRECTORY}/"
-					DESTINATION "${ARG_INSTALL_DESTINATION}/data"
+					DESTINATION "${PROGRAM_INSTALL_DESTINATION}/data"
 					OPTIONAL)
 		endif()
 
