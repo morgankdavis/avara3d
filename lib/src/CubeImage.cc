@@ -48,6 +48,12 @@ CubeImage::CubeImage(array<unique_ptr<Image>, 6> faces):
 	_faces = std::move(faces);
 }
 
+CubeImage::CubeImage(CubeImage&&) noexcept = default;
+
+CubeImage& CubeImage::operator=(CubeImage&&) noexcept = default;
+
+CubeImage::~CubeImage() = default;
+
 /// Public Member Functions ///
 
 unsigned CubeImage::width() const {

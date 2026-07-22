@@ -28,6 +28,14 @@ namespace a3d {
 
 		explicit CubeImage(std::array<std::unique_ptr<Image>, 6> faces);
 
+		CubeImage(const CubeImage&) = delete;
+		CubeImage& operator=(const CubeImage&) = delete;
+
+		CubeImage(CubeImage&&) noexcept;
+		CubeImage& operator=(CubeImage&&) noexcept;
+
+		~CubeImage();
+
 		/// Public Member Functions ///
 
 		unsigned		width() const;
