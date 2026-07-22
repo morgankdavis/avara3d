@@ -272,13 +272,14 @@ linux-release-manual:
     - /usr/bin/cmake --build . --target install -j4
     - mv packaged/avara3d ../
     - cd ../
-    - tar -cfz avara3d-linux-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}.tgz avara3d
+    #- tar -czf avara3d-linux-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}.tgz avara3d
     - echo "Linux release build complete."
   artifacts:
-    #name: "avara3d-linux-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
+    name: "avara3d-linux-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: "linux-release"
     paths:
-      - avara3d-linux-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}.tgz
+      #- avara3d-linux-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}.tgz
+      - avara3d
     expire_in: 2 days
 
 macos-release-manual:
