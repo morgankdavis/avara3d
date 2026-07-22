@@ -55,9 +55,21 @@ namespace a3d {
 	class OGLResourceCache {
 
 	public:
+		/// Internal Lifecycle Functions ///
+
+		OGLResourceCache() = default;
+		~OGLResourceCache();
+
+		OGLResourceCache(const OGLResourceCache&) = delete;
+		OGLResourceCache& operator=(const OGLResourceCache&) = delete;
+
+		OGLResourceCache(OGLResourceCache&&) = delete;
+		OGLResourceCache& operator=(OGLResourceCache&&) = delete;
+
 		/// Internal Member Functions ///
 
-		PipelineId 						ensurePipeline(const PipelineDesc& desc);
+		PipelineId							ensurePipeline(const PipelineDesc &desc,
+									                         gl::uint_t program);
 		const OGLPipeline& 					pipeline(PipelineId pipelineId) const;
 		const OGLMeshElement& 				ensureMeshElement(MeshElement& element);
 		const OGLMaterial& 					ensureMaterial(Material& material);

@@ -21,7 +21,6 @@
 #include "a3d/mesh/VertexLayout.h"
 #include "a3d/mesh/VertexLayoutDesc.h"
 #include "a3d/render/backend/opengl/gl.h"
-#include "a3d/render/backend/opengl/GLSLProgram.h"
 #include "a3d/visual/material/Material.h"
 #include "a3d/visual/material/Sampler.h"
 #include "a3d/visual/material/Texture.h"
@@ -31,7 +30,7 @@ using namespace std;
 
 /// Private Static Non-Member Prototypes ///
 
-static OGLPipeline 	BuildPipeline(const PipelineDesc& desc);
+static OGLPipeline 	BuildPipeline(const PipelineDesc& desc, gl::uint_t program);
 static GLenum 		GLFilterModeForFilterMode(Sampler::FilterMode mode);
 static GLenum 		GLWrapModeForWrapMode(Sampler::WrapMode mode);
 static bool 		UsesMipmaps(Sampler::FilterMode mode);
@@ -41,16 +40,52 @@ static void 		ApplySamplerState(Texture& texture, unsigned glTextureHandle, bool
 static int 			SlotFor(Material::PropertyType type);
 static GLenum		GLIndexTypeForIndexFormat(IndexFormat format);
 
+/// Internal Lifecycle Functions ///
+
+OGLResourceCache::~OGLResourceCache() {
+	log::d()("Destroying OGLResourceCache {:p}", static_cast<void*>(this));
+
+	for (const auto& [element, resource] : _meshElementMap) {
+		if (resource.ebo != 0) {
+			const GLuint ebo = resource.ebo;
+			glDeleteBuffers(1, &ebo);
+		}
+
+		if (resource.vbo != 0) {
+			const GLuint vbo = resource.vbo;
+			glDeleteBuffers(1, &vbo);
+		}
+
+		if (resource.vao != 0) {
+			const GLuint vao = resource.vao;
+			glDeleteVertexArrays(1, &vao);
+		}
+	}
+
+	for (const auto& [texture, resource] : _textureMap) {
+		if (resource.id != 0) {
+			const GLuint id = resource.id;
+			glDeleteTextures(1, &id);
+		}
+	}
+}
+
 /// Internal Member Functions ///
 
-PipelineId OGLResourceCache::ensurePipeline(const PipelineDesc& desc) {
+PipelineId OGLResourceCache::ensurePipeline(const PipelineDesc& desc, gl::uint_t program) {
 
-	if (auto it = _pipelineMap.find(desc); it != _pipelineMap.end()) return it->second;
+	if (auto it = _pipelineMap.find(desc);
+		it != _pipelineMap.end()) {
 
-	OGLPipeline p = BuildPipeline(desc);
+		return it->second;
+		}
 
-	const PipelineId pipelineId = (PipelineId)_pipelineList.size();
-	_pipelineList.push_back(std::move(p));
+	OGLPipeline pipeline = BuildPipeline(desc, program);
+
+	const PipelineId pipelineId =
+			static_cast<PipelineId>(_pipelineList.size());
+
+	_pipelineList.push_back(std::move(pipeline));
 	_pipelineMap.emplace(desc, pipelineId);
 
 	return pipelineId;
@@ -240,34 +275,15 @@ const OGLTexture& OGLResourceCache::ensureTexture(Texture& texture) {
 
 /// Private Static Non-Member Functions ///
 
-OGLPipeline BuildPipeline(const PipelineDesc& desc) {
-	OGLPipeline p;
-	p.desc = desc;
-	p.desc.doubleSided = desc.doubleSided;
-	p.desc.fillMode = desc.fillMode;
-	p.desc.blendFunction = desc.blendFunction;
-//	p.desc.depthWrite = true;
+OGLPipeline BuildPipeline(const PipelineDesc& desc, gl::uint_t program) {
 
-	// for now assume depth always for main pass
-	p.desc.depthTest  = true;
+	OGLPipeline pipeline;
 
-	// TODO: temporary?
-	switch (p.desc.shaderKind) {
-		case ShaderKind::Skybox:
-			p.program = GLSLProgram::Skybox().glID();
-			break;
-		case ShaderKind::Wireframe:
-			p.program = GLSLProgram::Wireframe().glID();
-			break;
-		case ShaderKind::Lines:
-			p.program = GLSLProgram::Lines().glID();
-			break;
-		default:
-			p.program = GLSLProgram::Default().glID();
-			break;
-	}
+	pipeline.desc = desc;
+	pipeline.desc.depthTest = true;
+	pipeline.program = program;
 
-	return p;
+	return pipeline;
 }
 
 GLenum GLFilterModeForFilterMode(Sampler::FilterMode mode) {

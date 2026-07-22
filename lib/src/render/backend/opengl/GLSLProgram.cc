@@ -22,33 +22,6 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Internal Static Member Functions ///
-
-GLSLProgram& GLSLProgram::Default() {
-	static auto program = GLSLProgram("default");
-	return program;
-}
-
-GLSLProgram& GLSLProgram::Skybox() {
-	static auto program = GLSLProgram("skybox");
-	return program;
-}
-
-GLSLProgram& GLSLProgram::Wireframe() {
-	static auto program = GLSLProgram("wireframe");
-	return program;
-}
-
-GLSLProgram& GLSLProgram::Lines() {
-	static auto program = GLSLProgram("lines");
-	return program;
-}
-
-GLSLProgram& GLSLProgram::GroundPlane() {
-	static auto program = GLSLProgram("ground_plane");
-	return program;
-}
-
 /// Private Static Non-Member Prototypes ///
 
 static constexpr const char* A3DShaderHeaderToken = "<#A3D_SHADER_HEADER#>";

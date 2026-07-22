@@ -23,6 +23,7 @@ namespace a3d {
 
 	class Color;
 	class Font;
+	class GLSLProgram;
 	class Mesh;
 	class MeshElement;
 	class Line;
@@ -125,23 +126,28 @@ namespace a3d {
 	private:
 		/// Private Member Functions ///
 
+		GLSLProgram&			programForShaderKind(ShaderKind kind) const;
 		void 					drawDebugLines(const math::mat4& model,
 											  const math::mat4& view,
 											  const math::mat4& proj);
 
 		/// Private Member Variables ///
 
-		bool					_isInitialized;
-		unsigned				_glEnvironmentUBO;
-		OGLResourceCache 		_resourceCache;
-		GLStateCache 			_state;
-		BoundElement 			_boundElement;
-		std::unique_ptr<Mesh> 	_skyboxMesh; // should be value?
-		OGLDebugLines 			_debugLines;
-		ImFont*					_overlayTitleImFont;
-		ImFont*					_overlayBodyImFont;
-		ImFont*					_overlayAltImFont;
-		OGLDrawTimer			_drawTimer;
+		bool							_isInitialized;
+		unsigned						_glEnvironmentUBO;
+		std::unique_ptr<GLSLProgram>	_defaultProgram;
+		std::unique_ptr<GLSLProgram>	_skyboxProgram;
+		std::unique_ptr<GLSLProgram>	_wireframeProgram;
+		std::unique_ptr<GLSLProgram>	_linesProgram;
+		OGLResourceCache 				_resourceCache;
+		GLStateCache 					_state;
+		BoundElement 					_boundElement;
+		std::unique_ptr<Mesh> 			_skyboxMesh; // should be value?
+		OGLDebugLines 					_debugLines;
+		ImFont*							_overlayTitleImFont;
+		ImFont*							_overlayBodyImFont;
+		ImFont*							_overlayAltImFont;
+		OGLDrawTimer					_drawTimer;
 	};
 }
 

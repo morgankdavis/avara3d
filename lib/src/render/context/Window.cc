@@ -177,13 +177,20 @@ Window::Window(RenderingApi renderingAPI,
 Window::~Window() {
 	log::d()("Destroying Window {:p}", static_cast<void*>(this));
 
-	close(); // meh?
+	if (_glfwWindow) {
+		glfwMakeContextCurrent(_glfwWindow.get());
 
-	// TODO: must modify to support multiple windows
-	unregisterGLFWCallbacks();
+		close();
+
+		// TODO: must modify to support multiple windows
+		unregisterGLFWCallbacks();
+		ImGui_ImplGlfw_Shutdown();
+		_renderer.reset();
+		_glfwWindow.reset();
+	}
+
 	glfwSetErrorCallback(nullptr);
 	glfwTerminate();
-	ImGui_ImplGlfw_Shutdown();
 }
 
 /// Public Member Functions ///

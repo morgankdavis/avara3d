@@ -25,14 +25,6 @@ namespace a3d {
 	class GLSLProgram {
 
 	public:
-		/// Internal Static Member Functions ///
-
-		static GLSLProgram& 		Default();
-		static GLSLProgram& 		Skybox();
-		static GLSLProgram& 		Wireframe();
-		static GLSLProgram& 		Lines();
-		static GLSLProgram& 		GroundPlane();
-
 		/// Internal Lifecycle Functions ///
 
 		explicit GLSLProgram(const std::string& name);
