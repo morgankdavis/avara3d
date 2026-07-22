@@ -88,6 +88,39 @@ windows-debug:
       - avara3d
     expire_in: 2 days
 
+web-debug:
+    stage: build
+    tags:
+      - ubuntu-23
+    except:
+      - testing
+      - stable
+    script:
+      - echo "Starting Web debug build..."
+      - source "${EMSDK_ROOT}/emsdk_env.sh"
+      - emcc --version
+      - mkdir gitlab-build
+      - cd gitlab-build
+      - emcmake /usr/bin/cmake
+        -DCMAKE_BUILD_TYPE="Debug"
+        -DA3D_BUILD_EDITOR=OFF
+        -DA3D_BUILD_TESTS=ON
+        -DA3D_BUILD_DEMOS=ON
+        -DA3D_WEB_GENERATE_HTML=ON
+        -G"Ninja"
+        -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
+        -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+        ..
+      - /usr/bin/cmake --build . --target install -j4
+      - mv packaged/avara3d ../
+      - echo "Web debug build complete."
+    artifacts:
+      name: "avara3d-web-debug-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
+      expose_as: "web-debug"
+      paths:
+        - avara3d
+      expire_in: 2 days
+
 linux-release:
   stage: build
   tags:
@@ -181,6 +214,40 @@ windows-release:
       - avara3d
     expire_in: 1 week
 
+web-release:
+  stage: build
+  tags:
+    - ubuntu-23
+  environment: production
+  only:
+    - testing
+    - stable
+  script:
+    - echo "Starting Web release build..."
+    - source "${EMSDK_ROOT}/emsdk_env.sh"
+    - emcc --version
+    - mkdir gitlab-build
+    - cd gitlab-build
+    - emcmake /usr/bin/cmake
+      -DCMAKE_BUILD_TYPE="Release"
+      -DA3D_BUILD_EDITOR=OFF
+      -DA3D_BUILD_TESTS=ON
+      -DA3D_BUILD_DEMOS=ON
+      -DA3D_WEB_GENERATE_HTML=OFF
+      -G"Ninja"
+      -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
+      -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+      ..
+    - /usr/bin/cmake --build . --target install -j4
+    - mv packaged/avara3d ../
+    - echo "Web release build complete."
+  artifacts:
+    name: "avara3d-web-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
+    expose_as: "web-release"
+    paths:
+      - avara3d
+    expire_in: 1 week
+
 linux-release-manual:
   stage: build
   tags:
@@ -261,4 +328,39 @@ windows-release-manual:
     expose_as: "windows-release"
     paths:
       - avara3d
+    expire_in: 2 days
+
+web-release-manual:
+  stage: build
+  tags:
+    - ubuntu-23
+  environment: production
+  when: manual
+  script:
+    - echo "Starting Web release build..."
+    - source "${EMSDK_ROOT}/emsdk_env.sh"
+    - emcc --version
+    - mkdir gitlab-build
+    - cd gitlab-build
+    - emcmake /usr/bin/cmake
+      -DCMAKE_BUILD_TYPE="Release"
+      -DA3D_BUILD_EDITOR=OFF
+      -DA3D_BUILD_TESTS=ON
+      -DA3D_BUILD_DEMOS=ON
+      -DA3D_WEB_GENERATE_HTML=OFF
+      -G"Ninja"
+      -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
+      -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+      ..
+    - /usr/bin/cmake --build . --target install -j4
+    - mv packaged/avara3d ../
+    - cd ../
+    - tar -czf
+      "avara3d-web-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}.tgz"
+      avara3d
+    - echo "Web release build complete."
+  artifacts:
+    expose_as: "web-release"
+    paths:
+      - avara3d-web-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}.tgz
     expire_in: 2 days
