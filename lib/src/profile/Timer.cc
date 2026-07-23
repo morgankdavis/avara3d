@@ -13,7 +13,11 @@ using namespace std;
 
 /// Public Member Functions ///
 
-Timer::Timer(bool start) {
+Timer::Timer(bool start):
+		_start{},
+		_stop{},
+		_duration{} {
+
 	if (start) this->start();
 }
 
@@ -23,7 +27,7 @@ void Timer::start() {
 
 chrono::nanoseconds Timer::stop() {
 	_stop = chrono::steady_clock::now();
-	_duration = chrono::duration_cast<chrono::microseconds>(_stop - _start);
+	_duration = chrono::duration_cast<chrono::nanoseconds>(_stop - _start);
 	return _duration;
 }
 
