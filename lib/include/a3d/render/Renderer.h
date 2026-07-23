@@ -85,8 +85,11 @@ namespace a3d {
 		Renderer();
 		virtual ~Renderer() = 0;
 
-		Renderer(const Renderer& other) = delete;
-		Renderer& operator=(const Renderer& other) = delete;
+		Renderer(const Renderer&) = delete;
+		Renderer& operator=(const Renderer&) = delete;
+
+		Renderer(Renderer&&) = delete;
+		Renderer& operator=(Renderer&&) = delete;
 
 		/// Internal Member Functions ///
 
