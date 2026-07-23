@@ -58,9 +58,10 @@ PhysicsShape::PhysicsShape(Type type, const shared_ptr<Node>& node):
 }
 
 PhysicsShape::PhysicsShape():
+		_type{Type::Primitive},
 		_source{},
 		_bodies{},
-		_proxy{} { }
+		_proxy{} {}
 
 PhysicsShape::~PhysicsShape() {
 	log::d()("Destroying PhysicsShape {:p}", static_cast<void*>(this));
