@@ -94,11 +94,12 @@ namespace a3d {
 		/// Public Static Member Functions ///
 
 		static Log& AppLog();
-		static void AppLog(Log log);
+		static void AppLog(std::unique_ptr<Log> log);
 		static Log& MainLog();
 
 		/// Public Lifecycle Functions ///
 
+		Log();
 		Log(const std::string& name,
 			std::unique_ptr<LogSink> sink,
 			Level level = DEFAULT_LEVEL,
@@ -111,12 +112,9 @@ namespace a3d {
 
 		Log(const Log& other) = delete;
 		Log& operator=(const Log& other) = delete;
-		Log(Log&&) noexcept = default;
-		Log& operator=(Log&&) noexcept = default;
-
+		Log(Log&&) = delete;
+		Log& operator=(Log&&) = delete;
 		~Log();
-
-		Log();
 
 		/// Public Member Functions ///
 
@@ -180,7 +178,7 @@ namespace a3d {
 
 		/// Private Static Member Variables ///
 
-		static std::optional<Log> _appLog;
+		static std::unique_ptr<Log>				_appLog;
 
 		/// Private Member Variables ///
 

@@ -101,11 +101,12 @@ void Application::initLog(Log::Level level) {
 	sinks.push_back(std::move(fileSink));
 #endif
 
-	Log appLog{executableName, std::move(sinks)};
-	appLog.level(level);
-	Log::AppLog(std::move(appLog));
+	Log::AppLog(make_unique<Log>(
+		executableName,
+		std::move(sinks),
+		level));
 
-	auto buildInfo = BuildInfo::Info();
+	const auto& buildInfo = BuildInfo::Info();
 	log::app::i()("A3D version: {}", BuildInfo::VersionString(buildInfo.version()));
 	log::app::i()("Build: {}", buildInfo.number());
 	log::app::i()("Type: {}", BuildInfo::TypeString(buildInfo.type()));

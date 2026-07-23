@@ -40,11 +40,14 @@ static string HeaderString(const string& logName, Log::Level level);
 /// Public Static Member Functions ///
 
 Log& Log::AppLog() {
-	if (_appLog.has_value()) return *_appLog;
+	if (_appLog) {
+		return *_appLog;
+	}
+
 	return MainLog();
 }
 
-void Log::AppLog(Log log) {
+void Log::AppLog(unique_ptr<Log> log) {
 	_appLog = std::move(log);
 }
 
@@ -79,6 +82,11 @@ void Log::Entry::raw(string_view msg) const {
 
 /// Public Lifecycle Functions ///
 
+Log::Log():
+		_name("unnamed"),
+		_level(DEFAULT_LEVEL),
+		_flushLevel(DEFAULT_FLUSH_LEVEL) {}
+
 Log::Log(const string& name,
 		 unique_ptr<LogSink> sink,
 		 Log::Level level,
@@ -97,11 +105,6 @@ Log::Log(const string& name,
 		_sinks(std::move(sinks)),
 		_level(level),
 		_flushLevel(flushLevel) {}
-
-Log::Log():
-		_name("unnamed"),
-		_level(DEFAULT_LEVEL),
-		_flushLevel(DEFAULT_FLUSH_LEVEL) {}
 
 Log::~Log() = default;
 
@@ -341,7 +344,7 @@ static string HeaderString(const string& logName, Log::Level level,
 
 /// Private Static Member Variables ///
 
-std::optional<Log> Log::_appLog{};
+unique_ptr<Log> Log::_appLog{};
 
 static string HeaderString(const string& logName, Log::Level level) {
 	return std::format("{} [{}] [{}]",
