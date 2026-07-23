@@ -64,6 +64,12 @@ namespace a3d {
 			 const std::vector<std::shared_ptr<Material>>& materials);
 		virtual ~Mesh();
 
+		Mesh(const Mesh&) = delete;
+		Mesh& operator=(const Mesh&) = delete;
+
+		Mesh(Mesh&&) = delete;
+		Mesh& operator=(Mesh&&) = delete;
+
 		/// Public Member Functions ///
 
 		std::optional<std::string> 	name() const;
