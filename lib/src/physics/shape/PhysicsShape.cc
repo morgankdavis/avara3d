@@ -23,11 +23,10 @@ using namespace std;
 /// Public Lifecycle Functions ///
 
 PhysicsShape::PhysicsShape(Type type, const shared_ptr<Mesh>& mesh):
-		_source{mesh},
-		_bodies{},
 		_type{type},
-		_proxy{}
-		/*_model(make_unique<BulletShapeProxy>(this))*/ {
+		_proxy{},
+		_source{mesh},
+		_bodies{} {
 
 	if (auto name = mesh->name()) {
 		log::d()("Creating PhysicsShape type {} for source mesh: {}...",
@@ -41,11 +40,10 @@ PhysicsShape::PhysicsShape(Type type, const shared_ptr<Mesh>& mesh):
 
 // construct a compound shape based on meshes under this node
 PhysicsShape::PhysicsShape(Type type, const shared_ptr<Node>& node):
-		_source{node},
-		_bodies{},
 		_type{type},
-		_proxy{}
-		/*_model(make_unique<BulletShapeProxy>(this))*/ {
+		_proxy{},
+		_source{node},
+		_bodies{} {
 
 	if (auto name = node->name()) {
 		log::d()("Creating PhysicsShape type {} for source node: {}...",
@@ -59,9 +57,9 @@ PhysicsShape::PhysicsShape(Type type, const shared_ptr<Node>& node):
 
 PhysicsShape::PhysicsShape():
 		_type{Type::Primitive},
+		_proxy{},
 		_source{},
-		_bodies{},
-		_proxy{} {}
+		_bodies{} {}
 
 PhysicsShape::~PhysicsShape() {
 	log::d()("Destroying PhysicsShape {:p}", static_cast<void*>(this));
