@@ -360,5 +360,13 @@ void MeshElement::genLocalAABB() {
 /// Protected Lifecycle ///
 
 MeshElement::MeshElement():
+		_topology{PrimitiveTopology::Triangles},
 		_vertexLayout{VertexLayout::None},
+		_vertexData{},
+		_vertexCount{0},
+		_vertexStride{0},
+		_indexFormat{IndexFormat::None},
+		_indexData{},
+		_indexCount{0},
+		_localAABB{AABB::Invalid()},
 		_dirtyMask{DirtyMask::All} {}

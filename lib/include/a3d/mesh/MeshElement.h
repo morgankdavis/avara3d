@@ -99,11 +99,9 @@ namespace a3d {
 
 		void							genLocalAABB();
 
-	protected:
 		/// Protected Lifecycle ///
 
 		MeshElement();
-	protected:
 
 		/// Protected Member Variables ///
 
