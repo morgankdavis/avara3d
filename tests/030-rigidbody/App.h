@@ -91,7 +91,6 @@ namespace test::rigidbody {
 		/// Private Member Variables ///
 
 		std::unique_ptr<a3d::Window>				_window;
-		a3d::Node*									_palmNode;
 		a3d::Node*									_duckNode;
 		std::vector<DuckFruitDef>					_duckFruit;
 		std::unique_ptr<a3d::ext::WanderRotator>	_duckRotator;

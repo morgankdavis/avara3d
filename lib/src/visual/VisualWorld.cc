@@ -39,18 +39,18 @@ using namespace std;
 
 VisualWorld::VisualWorld(RenderContext& context):
 		_background{},
-		_fogStartDistance{0.0},
-		_fogEndDistance{0.0},
-		_fogDensityExponent{0.0},
+		_backgroundMaterial{},
+		_fogStartDistance{0.0f},
+		_fogEndDistance{0.0f},
+		_fogDensityExponent{0.0f},
 		_fogColor{},
-		_pointOfView{},
 		_usesDefaultLighting{false},
 		_autoEnablesDefaultLighting{true},
+		_pointOfView{},
 		_renderContext{&context},
 		_scene{},
 		_willRenderCallback{},
-		_didRenderCallback{},
-		_backgroundMaterial{} {
+		_didRenderCallback{} {
 
 	_renderContext->attachedToVisualWorld(this);
 }

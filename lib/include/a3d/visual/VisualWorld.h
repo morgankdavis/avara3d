@@ -46,6 +46,13 @@ namespace a3d {
 
 		VisualWorld() = delete;
 		explicit VisualWorld(RenderContext& context);
+
+		VisualWorld(const VisualWorld&) = delete;
+		VisualWorld& operator=(const VisualWorld&) = delete;
+
+		VisualWorld(VisualWorld&&) = delete;
+		VisualWorld& operator=(VisualWorld&&) = delete;
+
 		virtual ~VisualWorld();
 
 		/// Public Member Functions ///

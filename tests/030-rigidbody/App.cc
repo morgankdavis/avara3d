@@ -59,7 +59,10 @@ void SpawnChainMail(Scene& scene);
 
 /// Public Lifecycle Functions ///
 
-App::App(int argc, char* argv[]): Application(argc, argv, APP_LOG_LEVEL) {}
+App::App(int argc, char* argv[]):
+		Application(argc, argv, APP_LOG_LEVEL),
+		_duckNode{nullptr} {
+}
 
 App::~App() = default;
 
@@ -135,7 +138,6 @@ unique_ptr<Scene> App::init() {
 		// add the palm tree
 
 		auto palmNode = Node::MeshNode(util::filesystem::MeshNamed("cartoon_palm_tree/cartoon_palm_tree"));
-		_palmNode = palmNode.get();
 		auto palmPhysicsBody = PhysicsBody::StaticBody();
 		palmPhysicsBody->mass(0);
 		palmPhysicsBody->friction(1);
