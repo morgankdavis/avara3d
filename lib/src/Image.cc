@@ -68,6 +68,54 @@ Image::~Image() {
 	log::d()("Destroying Image {:p}", static_cast<void*>(this));
 }
 
+Image::Image(const Image& other):
+		_width{other._width},
+		_height{other._height},
+		_bytesPerPixel{other._bytesPerPixel},
+		_buffer{other._buffer
+				? make_unique<Buffer>(*other._buffer)
+				: nullptr} {
+}
+
+Image& Image::operator=(const Image& other) {
+
+	if (this == &other) {
+		return *this;
+	}
+
+	auto buffer = other._buffer
+			? make_unique<Buffer>(*other._buffer)
+			: nullptr;
+
+	_width = other._width;
+	_height = other._height;
+	_bytesPerPixel = other._bytesPerPixel;
+	_buffer = std::move(buffer);
+
+	return *this;
+}
+
+Image::Image(Image&& other) noexcept:
+		_width{std::exchange(other._width, 0)},
+		_height{std::exchange(other._height, 0)},
+		_bytesPerPixel{std::exchange(other._bytesPerPixel, 0)},
+		_buffer{std::move(other._buffer)} {
+}
+
+Image& Image::operator=(Image&& other) noexcept {
+
+	if (this == &other) {
+		return *this;
+	}
+
+	_width = std::exchange(other._width, 0);
+	_height = std::exchange(other._height, 0);
+	_bytesPerPixel = std::exchange(other._bytesPerPixel, 0);
+	_buffer = std::move(other._buffer);
+
+	return *this;
+}
+
 /// Public Member Functions ///
 
 unsigned Image::width() const {

@@ -35,6 +35,12 @@ namespace a3d {
 			  bool flipHorizontal = false);
 		~Image();
 
+		Image(const Image& other);
+		Image& operator=(const Image& other);
+
+		Image(Image&& other) noexcept;
+		Image& operator=(Image&& other) noexcept;
+
 		/// Public Member Functions ///
 
 		unsigned 					width() const;
