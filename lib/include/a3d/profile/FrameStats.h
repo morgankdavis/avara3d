@@ -15,27 +15,27 @@ namespace a3d {
 
 	struct FrameStats {
 
-		bool isRenderGpuTimeAvailable;
+		bool isRenderGpuTimeAvailable = false;
 
-		std::chrono::nanoseconds frameTime;
-		std::chrono::nanoseconds engineCpuTime;
-		std::chrono::nanoseconds renderCpuTime;
-		std::chrono::nanoseconds renderGpuTime;
-		std::chrono::nanoseconds physicsTime;
-		std::chrono::nanoseconds applicationTime;
+		std::chrono::nanoseconds frameTime{};
+		std::chrono::nanoseconds engineCpuTime{};
+		std::chrono::nanoseconds renderCpuTime{};
+		std::chrono::nanoseconds renderGpuTime{};
+		std::chrono::nanoseconds physicsTime{};
+		std::chrono::nanoseconds applicationTime{};
 
-		unsigned numNodes;
-		unsigned numMeshes;
-		unsigned numElements;
-		unsigned numPolygons;
-		unsigned numLights;
-		unsigned numStaticBodies;
-		unsigned numDynamicBodies;
-		unsigned numKinematicBodies;
-		unsigned numPrimitiveShapes;
-		unsigned numBoundingBoxShapes;
-		unsigned numConvexHullShapes;
-		unsigned numConcavePolyhedronShapes;
+		unsigned numNodes = 0;
+		unsigned numMeshes = 0;
+		unsigned numElements = 0;
+		unsigned numPolygons = 0;
+		unsigned numLights = 0;
+		unsigned numStaticBodies = 0;
+		unsigned numDynamicBodies = 0;
+		unsigned numKinematicBodies = 0;
+		unsigned numPrimitiveShapes = 0;
+		unsigned numBoundingBoxShapes = 0;
+		unsigned numConvexHullShapes = 0;
+		unsigned numConcavePolyhedronShapes = 0;
 	};
 }
 
