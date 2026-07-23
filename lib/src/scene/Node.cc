@@ -479,7 +479,7 @@ void Node::physicsBody(unique_ptr<PhysicsBody> body) {
 
 	if (_physicsBody) {
 		_physicsBody->attachedToNode(shared_from_this());
-		checkNotifyPhysicsBodyOfUnreachablePhysicsWorld();
+		checkNotifyPhysicsBodyOfReachablePhysicsWorld();
 	}
 }
 
