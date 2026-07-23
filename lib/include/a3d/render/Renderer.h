@@ -71,13 +71,13 @@ namespace a3d {
 		};
 
 		struct DrawCommand {
-			PipelineId 				pipelineId;
-			const OGLResourceCache*	cache; // TODO: get rid of
-			const Material* 		material =	nullptr;		// optional; skipped if nullptr
-			const MeshElement* 		element;
-			math::mat4 				model = 	math::mat4(1.0f);
-			math::mat4 				view = 		math::mat4(1.0f);
-			math::mat4 				proj = 		math::mat4(1.0f);
+			PipelineId 				pipelineId =	INVALID_PIPELINE_ID;
+			const OGLResourceCache*	cache =			nullptr; // TODO: get rid of
+			const Material* 		material =		nullptr; // optional; skipped if nullptr
+			const MeshElement* 		element =		nullptr;
+			math::mat4 				model = 		math::mat4(1.0f);
+			math::mat4 				view = 			math::mat4(1.0f);
+			math::mat4 				proj = 			math::mat4(1.0f);
 		};
 
 		/// Internal Lifecycle Functions ///
