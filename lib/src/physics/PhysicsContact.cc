@@ -14,7 +14,15 @@ using namespace std;
 
 /// Public Lifecycle Functions ///
 
-PhysicsContact::PhysicsContact() { }
+PhysicsContact::PhysicsContact():
+		_nodeA{},
+		_nodeB{},
+		_contactPoint{0.0f},
+		_contactNormal{0.0f},
+		_collisionImpulse{0.0f},
+		_penetrationDistance{0.0f},
+		_sweepTestFraction{0.0f} {
+}
 
 /// Public Member Functions ///
 
