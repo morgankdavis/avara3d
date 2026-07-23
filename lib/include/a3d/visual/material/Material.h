@@ -79,6 +79,12 @@ namespace a3d {
 				 const Property& emission);
 		~Material();
 
+		Material(const Material& other);
+		Material& operator=(const Material& other);
+
+		Material(Material&& other);
+		Material& operator=(Material&& other);
+
 		/// Public Member Functions ///
 
 		const std::optional<std::string>&	name() const;
