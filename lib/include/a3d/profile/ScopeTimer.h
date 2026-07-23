@@ -25,6 +25,12 @@ namespace a3d {
 		ScopeTimer(Profiler& profiler, Profiler::Tag tag);
 		~ScopeTimer();
 
+		ScopeTimer(const ScopeTimer&) = delete;
+		ScopeTimer& operator=(const ScopeTimer&) = delete;
+
+		ScopeTimer(ScopeTimer&&) = delete;
+		ScopeTimer& operator=(ScopeTimer&&) = delete;
+
 	private:
 		/// Private Member Variables ///
 
