@@ -24,6 +24,12 @@ namespace a3d {
 		StdOutLogSink();
 		~StdOutLogSink() override;
 
+		StdOutLogSink(const StdOutLogSink&) = delete;
+		FileLogSink& operator=(const StdOutLogSink&) = delete;
+
+		StdOutLogSink(StdOutLogSink&&) = delete;
+		StdOutLogSink& operator=(StdOutLogSink&&) = delete;
+
 	/// Public Member Functions ///
 
 		void 	flush() override;
