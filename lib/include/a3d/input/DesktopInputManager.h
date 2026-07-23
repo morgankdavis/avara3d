@@ -161,9 +161,10 @@ namespace a3d {
 		/// Public Lifecycle Functions ///
 
 		DesktopInputManager();
-		DesktopInputManager(const DesktopInputManager& other) = delete; // copy constructor
-		DesktopInputManager& operator=(const DesktopInputManager& other) = delete; // copy assignment
 		virtual ~DesktopInputManager() = 0;
+
+		DesktopInputManager(const DesktopInputManager& other) = delete;
+		DesktopInputManager& operator=(const DesktopInputManager& other) = delete;
 
 		/// Public Member Functions ///
 

@@ -56,11 +56,14 @@ namespace a3d {
 		/// Internal Lifecycle Functions ///
 
 		OGLRenderer();
-		OGLRenderer(const OGLRenderer& other) = delete; // copy constructor
-		OGLRenderer& operator=(const OGLRenderer& other) = delete; // copy assignment
-		OGLRenderer(OGLRenderer&& other) = delete; // move constructor
-		OGLRenderer& operator=(OGLRenderer&& other) = delete; // move assignment
 		~OGLRenderer() override;
+
+		OGLRenderer(const OGLRenderer& other) = delete;
+		OGLRenderer& operator=(const OGLRenderer& other) = delete;
+
+		OGLRenderer(OGLRenderer&& other) = delete;
+		OGLRenderer& operator=(OGLRenderer&& other) = delete;
+
 
 		/// Renderer Internal Member Functions ///
 

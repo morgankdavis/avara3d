@@ -83,9 +83,10 @@ namespace a3d {
 		/// Internal Lifecycle Functions ///
 
 		Renderer();
-		Renderer(const Renderer& other) = delete; // copy constructor
-		Renderer& operator=(const Renderer& other) = delete; // copy assignment
 		virtual ~Renderer() = 0;
+
+		Renderer(const Renderer& other) = delete;
+		Renderer& operator=(const Renderer& other) = delete;
 
 		/// Internal Member Functions ///
 

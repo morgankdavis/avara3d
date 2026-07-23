@@ -27,9 +27,11 @@ namespace a3d {
 
 		// explicit GLFWInputManager(Window* window);
 		GLFWInputManager();
-		GLFWInputManager(const InputManager& other) = delete; // copy constructor
-		GLFWInputManager& operator=(const InputManager& other) = delete; // copy assignment
 		~GLFWInputManager() override;
+
+		GLFWInputManager(const InputManager& other) = delete;
+		GLFWInputManager& operator=(const InputManager& other) = delete;
+
 
 		/// InputManager Internal Member Functions ///
 
