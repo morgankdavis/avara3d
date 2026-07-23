@@ -8,6 +8,8 @@
 
 #include "a3d/visual/material/Texture.h"
 
+#include <utility>
+
 #include "a3d/IdGenerator.h"
 #include "a3d/util/bitmask.h"
 
@@ -33,6 +35,48 @@ Texture::Texture(const Contents& contents,
 }
 
 Texture::~Texture() {}
+
+Texture::Texture(const Texture& other):
+		Texture() {
+
+	*this = other;
+}
+
+Texture& Texture::operator=(const Texture& other) {
+
+	if (this == &other) {
+		return *this;
+	}
+
+	_sampler = other._sampler;
+	_contents = other._contents;
+	_mappingChannel = other._mappingChannel;
+	_dirtyMask = DirtyMask::All;
+
+	return *this;
+}
+
+Texture::Texture(Texture&& other):
+		Texture() {
+
+	*this = std::move(other);
+}
+
+Texture& Texture::operator=(Texture&& other) {
+
+	if (this == &other) {
+		return *this;
+	}
+
+	_sampler = std::move(other._sampler);
+	_contents = std::move(other._contents);
+	_mappingChannel = other._mappingChannel;
+	_dirtyMask = DirtyMask::All;
+
+	other._dirtyMask = DirtyMask::All;
+
+	return *this;
+}
 
 /// Public Member Functions ///
 

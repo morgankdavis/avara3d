@@ -41,6 +41,12 @@ namespace a3d {
 						 unsigned mappingChannel = 0);
 		~Texture();
 
+		Texture(const Texture& other);
+		Texture& operator=(const Texture& other);
+
+		Texture(Texture&& other);
+		Texture& operator=(Texture&& other);
+
 		/// Public Member Functions ///
 
 		std::shared_ptr<Sampler>		sampler() const;

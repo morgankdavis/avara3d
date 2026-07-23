@@ -9,7 +9,6 @@
 #ifndef AVARA3D_LOG_SINK_STDOUTLOGSINK_H
 #define AVARA3D_LOG_SINK_STDOUTLOGSINK_H
 
-#include <cstdio>
 #include <string>
 
 #include "a3d/log/sink/LogSink.h"
@@ -25,7 +24,7 @@ namespace a3d {
 		~StdOutLogSink() override;
 
 		StdOutLogSink(const StdOutLogSink&) = delete;
-		FileLogSink& operator=(const StdOutLogSink&) = delete;
+		StdOutLogSink& operator=(const StdOutLogSink&) = delete;
 
 		StdOutLogSink(StdOutLogSink&&) = delete;
 		StdOutLogSink& operator=(StdOutLogSink&&) = delete;
