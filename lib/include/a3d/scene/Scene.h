@@ -88,6 +88,12 @@ namespace a3d {
 			  std::unique_ptr<InputManager> inputManager);
 		~Scene();
 
+		Scene(const Scene&) = delete;
+		Scene& operator=(const Scene&) = delete;
+
+		Scene(Scene&&) = delete;
+		Scene& operator=(Scene&&) = delete;
+
 		/// Public Member Functions ///
 
 		const std::optional<std::string>&	name() const;
