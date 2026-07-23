@@ -21,7 +21,7 @@ using namespace std;
 
 /// Public Static Member Functions ///
 
-BuildInfo& BuildInfo::Info() {
+const BuildInfo& BuildInfo::Info() {
 
 	static BuildInfo instance;
 	return instance;

@@ -143,7 +143,7 @@ void MainWindow::initLog(Log::Level level) {
 	appLog.level(level);
 	Log::AppLog(std::move(appLog));
 
-	auto buildInfo = BuildInfo::Info();
+	const auto& buildInfo = BuildInfo::Info();
 	log::app::i()("A3D version: {}", BuildInfo::VersionString(buildInfo.version()));
 	log::app::i()("Build: {}", buildInfo.number());
 	log::app::i()("Type: {}", BuildInfo::TypeString(buildInfo.type()));

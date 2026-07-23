@@ -1340,8 +1340,8 @@ void DrawHeader(ImFont &titleFont,
 	yPos += 4;
 	ImguiDrawText(X_POS, yPos, "avara3d", titleFont, STATS_TITLE_FONT_SIZE);
 
-	auto buildInfo = BuildInfo::Info();
-	auto version = buildInfo.version();
+	static const auto& buildInfo = BuildInfo::Info();
+	static auto version = buildInfo.version();
 	static auto buildStr = std::format(
 		"v{}.{}.{} build {}\n"
 		"{}\n"

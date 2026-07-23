@@ -41,7 +41,7 @@ namespace a3d {
 
 		/// Public Static Member Functions ///
 
-		static BuildInfo& Info();
+		static const BuildInfo& Info();
 		static std::string VersionString(const Version& version);
 		static std::string TypeString(Type type);
 		static std::string OriginString(Origin origin);
@@ -58,6 +58,12 @@ namespace a3d {
 		/// Private Lifecycle Functions ///
 
 		BuildInfo();
+
+		BuildInfo(const BuildInfo&) = delete;
+		BuildInfo& operator=(const BuildInfo&) = delete;
+
+		BuildInfo(BuildInfo&&) = delete;
+		BuildInfo& operator=(BuildInfo&&) = delete;
 
 		/// Private Member Variables ///
 
