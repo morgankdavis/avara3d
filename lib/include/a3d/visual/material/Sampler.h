@@ -47,6 +47,12 @@ namespace a3d {
 		Sampler();
 		~Sampler();
 
+		Sampler(const Sampler& other);
+		Sampler& operator=(const Sampler& other);
+
+		Sampler(Sampler&& other);
+		Sampler& operator=(Sampler&& other);
+
 		/// Public Member Functions ///
 
 		FilterMode 							minificationFilter() const;

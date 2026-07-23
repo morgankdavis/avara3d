@@ -8,7 +8,7 @@
 
 #include "a3d/visual/material/Sampler.h"
 
-#include <stdexcept>
+#include <utility>
 
 #include "a3d/IdGenerator.h"
 
@@ -29,6 +29,52 @@ Sampler::Sampler():
 		_dirtyMask{DirtyMask::All} {}
 
 Sampler::~Sampler() {}
+
+Sampler::Sampler(const Sampler& other):
+		Sampler() {
+
+	*this = other;
+}
+
+Sampler& Sampler::operator=(const Sampler& other) {
+
+	if (this == &other) {
+		return *this;
+	}
+
+	_minificationFilter = other._minificationFilter;
+	_magnificationFilter = other._magnificationFilter;
+	_maxAnisotropy = other._maxAnisotropy;
+	_wrapS = other._wrapS;
+	_wrapT = other._wrapT;
+	_wrapR = other._wrapR;
+	_dirtyMask = DirtyMask::All;
+
+	return *this;
+}
+
+Sampler::Sampler(Sampler&& other):
+		Sampler() {
+
+	*this = std::move(other);
+}
+
+Sampler& Sampler::operator=(Sampler&& other) {
+
+	if (this == &other) {
+		return *this;
+	}
+
+	_minificationFilter = other._minificationFilter;
+	_magnificationFilter = other._magnificationFilter;
+	_maxAnisotropy = other._maxAnisotropy;
+	_wrapS = other._wrapS;
+	_wrapT = other._wrapT;
+	_wrapR = other._wrapR;
+	_dirtyMask = DirtyMask::All;
+
+	return *this;
+}
 
 /// Public Member Functions ///
 
