@@ -26,6 +26,12 @@ namespace a3d {
 		explicit Buffer(std::size_t size);
 		~Buffer();
 
+		Buffer(const Buffer& other);
+		Buffer& operator=(const Buffer& other);
+
+		Buffer(Buffer&& other) noexcept;
+		Buffer& operator=(Buffer&& other) noexcept;
+
 		/// Public Member Functions ///
 
 		std::byte* 						data() const;

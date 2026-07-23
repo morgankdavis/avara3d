@@ -8,10 +8,12 @@
 
 #include "a3d/Buffer.h"
 
+#include <algorithm>
 #include <cstring>
 #include <format>
 #include <fstream>
 #include <stdexcept>
+#include <utility>
 
 #include "a3d/log/Log.h"
 
@@ -65,6 +67,48 @@ Buffer::Buffer(size_t size):
 
 Buffer::~Buffer() {
 	log::d()("Destroying Buffer {:p}", static_cast<void*>(this));
+}
+
+Buffer::Buffer(const Buffer& other):
+		Buffer{other._size} {
+
+	if (_size > 0) {
+		std::copy_n(
+				other._data.get(),
+				_size,
+				_data.get());
+	}
+}
+
+Buffer& Buffer::operator=(const Buffer& other) {
+
+	if (this == &other) {
+		return *this;
+	}
+
+	auto copy = Buffer{other};
+
+	_data = std::move(copy._data);
+	_size = copy._size;
+
+	return *this;
+}
+
+Buffer::Buffer(Buffer&& other) noexcept:
+		_data{std::move(other._data)},
+		_size{std::exchange(other._size, 0)} {
+}
+
+Buffer& Buffer::operator=(Buffer&& other) noexcept {
+
+	if (this == &other) {
+		return *this;
+	}
+
+	_data = std::move(other._data);
+	_size = std::exchange(other._size, 0);
+
+	return *this;
 }
 
 /// Public Member Functions ///
