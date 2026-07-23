@@ -40,9 +40,13 @@ namespace a3d {
 		/// Public Lifecycle Functions ///
 
 		PhysicsWorld();
-		PhysicsWorld(const PhysicsWorld& other) = delete; // copy constructor
-		PhysicsWorld& operator=(const PhysicsWorld& other) = delete; // copy assignment
 		~PhysicsWorld();
+
+		PhysicsWorld(const PhysicsWorld&) = delete;
+		PhysicsWorld& operator=(const PhysicsWorld&) = delete;
+
+		PhysicsWorld(PhysicsWorld&&) = delete;
+		PhysicsWorld& operator=(PhysicsWorld&&) = delete;
 
 		/// Public Member Functions ///
 
