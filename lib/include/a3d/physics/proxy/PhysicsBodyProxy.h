@@ -25,6 +25,12 @@ namespace a3d {
 		explicit PhysicsBodyProxy(PhysicsBody& body, PhysicsBody::Type type);
 		virtual ~PhysicsBodyProxy();
 
+		PhysicsBodyProxy(const PhysicsBodyProxy&) = delete;
+		PhysicsBodyProxy& operator=(const PhysicsBodyProxy&) = delete;
+
+		PhysicsBodyProxy(PhysicsBodyProxy&&) = delete;
+		PhysicsBodyProxy& operator=(PhysicsBodyProxy&&) = delete;
+
 		/// Internal Member Functions ///
 
 		virtual PhysicsBody::Type		type() const = 0;
