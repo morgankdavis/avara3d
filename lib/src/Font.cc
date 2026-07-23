@@ -47,6 +47,35 @@ Font::~Font() {
 	log::d()("Destroying Font {:p}", static_cast<void*>(this));
 }
 
+Font::Font(const Font& other):
+		_name{other._name},
+		_type{other._type},
+		_buffer{other._buffer
+				? make_unique<Buffer>(*other._buffer)
+				: nullptr} {
+}
+
+Font& Font::operator=(const Font& other) {
+
+	if (this == &other) {
+		return *this;
+	}
+
+	auto buffer = other._buffer
+			? make_unique<Buffer>(*other._buffer)
+			: nullptr;
+
+	_name = other._name;
+	_type = other._type;
+	_buffer = std::move(buffer);
+
+	return *this;
+}
+
+Font::Font(Font&& other) noexcept = default;
+
+Font& Font::operator=(Font&& other) noexcept = default;
+
 /// Public Member Functions ///
 
 const optional<string>& Font::name() const {

@@ -34,6 +34,12 @@ namespace a3d {
 		explicit Font(std::unique_ptr<Buffer> buffer);
 		~Font();
 
+		Font(const Font& other);
+		Font& operator=(const Font& other);
+
+		Font(Font&& other) noexcept;
+		Font& operator=(Font&& other) noexcept;
+
 		/// Public Member Functions ///
 
 		const std::optional<std::string>&	name() const;
