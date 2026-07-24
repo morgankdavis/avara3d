@@ -66,12 +66,18 @@ using namespace std;
 
 ///  Private Constants ///
 
-const std::string STATS_TITLE_FONT_NAME{"SourceCodePro-Bold"};
-const std::string STATS_TITLE_FONT_TYPE{"otf"};
-const float STATS_TITLE_FONT_SIZE{23.0};
+// const std::string STATS_TITLE_FONT_NAME{"SourceCodePro-Bold"};
+// const std::string STATS_TITLE_FONT_TYPE{"otf"};
+// const float STATS_TITLE_FONT_SIZE{23.0};
+
+const std::string STATS_TITLE_FONT_NAME{"Neuropol Nova"};
+const std::string STATS_TITLE_FONT_TYPE{"ttf"};
+const float STATS_TITLE_FONT_SIZE{21.0};
+
 const std::string STATS_BODY_FONT_NAME{"SourceCodePro-Semibold"};
 const std::string STATS_BODY_FONT_TYPE{"otf"};
 const float STATS_BODY_FONT_SIZE{15.0};
+
 const std::string STATS_ALT_FONT_NAME{"SourceCodePro-Regular"};
 const std::string STATS_ALT_FONT_TYPE{"otf"};
 const float STATS_ALT_FONT_SIZE{13.0};
@@ -224,6 +230,7 @@ static void DrawOverlay(const RenderContext &context,
 
 static void DrawHeader(ImFont &titleFont,
                        ImFont &bodyFont,
+                       bool active,
                        float &yPos_out,
                        int &id_out);
 
@@ -258,7 +265,8 @@ static void ImguiDrawText(float x,
                           const char *text,
                           ImFont &font,
                           float size,
-                          ImU32 color = IM_COL32(255, 255, 255, 255));
+                          ImU32 color,
+                          bool shadow);
 
 static void ImguiDrawPlot(float x, float y, float w, float h,
                           const float *values,
@@ -427,8 +435,7 @@ void OGLRenderer::beginFrame(const Scene &scene,
 	if (_drawTimer.isAvailable()) {
 		stats.isRenderGpuTimeAvailable = true;
 		_drawTimer.begin();
-	}
-	else {
+	} else {
 		stats.isRenderGpuTimeAvailable = false;
 	}
 
@@ -500,11 +507,9 @@ void OGLRenderer::clear(const ClearCommand &cmd,
 		glEnable(GL_SCISSOR_TEST);
 		glScissor(cmd.scissorRect.x, cmd.scissorRect.y,
 		          cmd.scissorRect.w, cmd.scissorRect.h);
-	}
-	else if (prevScissorEnabled) {
+	} else if (prevScissorEnabled) {
 		// leave as-is
-	}
-	else {
+	} else {
 		glDisable(GL_SCISSOR_TEST);
 	}
 
@@ -553,8 +558,7 @@ void OGLRenderer::clear(const ClearCommand &cmd,
 		if (prevScissorEnabled) {
 			glEnable(GL_SCISSOR_TEST);
 			glScissor(prevScissorBox[0], prevScissorBox[1], prevScissorBox[2], prevScissorBox[3]);
-		}
-		else {
+		} else {
 			glDisable(GL_SCISSOR_TEST);
 		}
 	}
@@ -603,8 +607,7 @@ void OGLRenderer::drawBackground(const BackgroundPass &backgroundPass,
 
 	if (_skyboxMesh->materials().empty()) {
 		_skyboxMesh->addMaterial(backgroundPass.material);
-	}
-	else {
+	} else {
 		_skyboxMesh->replaceMaterial(0, backgroundPass.material);
 	}
 
@@ -632,8 +635,7 @@ void OGLRenderer::bindPipeline(PipelineId pipelineId,
 
 	if (pipeline.desc.doubleSided) {
 		glDisable(GL_CULL_FACE);
-	}
-	else {
+	} else {
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 	}
@@ -641,8 +643,7 @@ void OGLRenderer::bindPipeline(PipelineId pipelineId,
 	if (pipeline.desc.depthTest) {
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GLDepthFuncFromDepthFunc(pipeline.desc.depthFunc));
-	}
-	else {
+	} else {
 		glDisable(GL_DEPTH_TEST);
 	}
 	glDepthMask(pipeline.desc.depthWrite ? GL_TRUE : GL_FALSE);
@@ -663,16 +664,14 @@ void OGLRenderer::bindPipeline(PipelineId pipelineId,
 	if (lineSmooth) {
 		glEnable(GL_LINE_SMOOTH);
 		glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-	}
-	else {
+	} else {
 		glDisable(GL_LINE_SMOOTH);
 	}
 
 	if (pipeline.desc.polygonOffset) {
 		glEnable(GL_POLYGON_OFFSET_LINE);
 		glPolygonOffset(.01, 0); // ! check !
-	}
-	else {
+	} else {
 		glDisable(GL_POLYGON_OFFSET_LINE);
 	}
 #endif
@@ -758,9 +757,12 @@ void OGLRenderer::applyMVP(const mat4 &model, const mat4 &view, const mat4 &proj
 	GLint locV = glGetUniformLocation(program, "viewMat");
 	GLint locP = glGetUniformLocation(program, "projMat");
 
-	if (locM >= 0) glUniformMatrix4fv(locM, 1, GL_FALSE, value_ptr(model));
-	if (locV >= 0) glUniformMatrix4fv(locV, 1, GL_FALSE, value_ptr(view));
-	if (locP >= 0) glUniformMatrix4fv(locP, 1, GL_FALSE, value_ptr(proj));
+	if (locM >= 0)
+		glUniformMatrix4fv(locM, 1, GL_FALSE, value_ptr(model));
+	if (locV >= 0)
+		glUniformMatrix4fv(locV, 1, GL_FALSE, value_ptr(view));
+	if (locP >= 0)
+		glUniformMatrix4fv(locP, 1, GL_FALSE, value_ptr(proj));
 }
 
 void OGLRenderer::drawElements() {
@@ -773,8 +775,7 @@ void OGLRenderer::drawElements() {
 		               _boundElement.indexCount,
 		               _boundElement.indexType,
 		               (void *) 0);
-	}
-	else if (_boundElement.vertexCount > 0) {
+	} else if (_boundElement.vertexCount > 0) {
 		// non-indexed fallback
 		glDrawArrays(GL_TRIANGLES, 0, _boundElement.vertexCount);
 	}
@@ -793,14 +794,14 @@ void OGLRenderer::draw(const DrawCommand &cmd) {
 	drawElements();
 }
 
-GLSLProgram& OGLRenderer::programForShaderKind(ShaderKind kind) const {
+GLSLProgram &OGLRenderer::programForShaderKind(ShaderKind kind) const {
 	switch (kind) {
-		case ShaderKind::Default:	return *_defaultProgram;
-		case ShaderKind::Skybox:	return *_skyboxProgram;
-		case ShaderKind::Wireframe:	return *_wireframeProgram;
-		case ShaderKind::Lines:		return *_linesProgram;
+		case ShaderKind::Default: return *_defaultProgram;
+		case ShaderKind::Skybox: return *_skyboxProgram;
+		case ShaderKind::Wireframe: return *_wireframeProgram;
+		case ShaderKind::Lines: return *_linesProgram;
 	}
-	throw runtime_error(std::format("Unsupported shader kind: {}", (uint32_t)kind));
+	throw runtime_error(std::format("Unsupported shader kind: {}", (uint32_t) kind));
 }
 
 void OGLRenderer::drawDebugLines(const math::mat4 &model,
@@ -839,15 +840,14 @@ void OGLRenderer::resolvePacket(DrawPacket &packet, const FrameParams &frame) {
 	// "resolve / prepare / compile / bake"
 
 	auto resolvePipeline =
-		[&](PipelineId& pipelineId,
-			const PipelineDesc& desc) -> PipelineId {
+			[&](PipelineId &pipelineId,
+			    const PipelineDesc &desc) -> PipelineId {
+		if (pipelineId == INVALID_PIPELINE_ID) {
+			auto &program = programForShaderKind(desc.shaderKind);
+			pipelineId = _resourceCache.ensurePipeline(desc, program.glID());
+		}
 
-			if (pipelineId == INVALID_PIPELINE_ID) {
-				auto& program = programForShaderKind(desc.shaderKind);
-				pipelineId = _resourceCache.ensurePipeline(desc, program.glID());
-			}
-
-			return pipelineId;
+		return pipelineId;
 	};
 
 	// background
@@ -866,8 +866,7 @@ void OGLRenderer::resolvePacket(DrawPacket &packet, const FrameParams &frame) {
 	// lines
 	if (!packet.linesPass.lines.empty()) {
 		resolvePipeline(packet.linesPass.pipelineId, packet.linesPass.desc);
-	}
-	else {
+	} else {
 		packet.linesPass.pipelineId = INVALID_PIPELINE_ID;
 	}
 }
@@ -1007,16 +1006,13 @@ void SendMaterialPropertyUniforms(const Material::Property &property,
 					                   static_cast<underlying_type<MaterialContentsType>::type>(
 						                   MaterialContentsType::Sampler));
 					program.bindTexture(samplerUniformName.c_str(), GL_TEXTURE_2D, slot, glTextureHandle, index);
-				}
-				else if constexpr (std::is_same_v<T, shared_ptr<CubeImage> >) {
+				} else if constexpr (std::is_same_v<T, shared_ptr<CubeImage> >) {
 					program.bindTexture("cubeSampler", GL_TEXTURE_CUBE_MAP, GL_TEXTURE0, glTextureHandle, 0);
-				}
-				else if constexpr (std::is_same_v<T, std::monostate>) {
+				} else if constexpr (std::is_same_v<T, std::monostate>) {
 					log::e()("Empty texture variant.");
 				}
 			}, property->contents());
-		}
-		else if constexpr (std::is_same_v<T, shared_ptr<Color> >) {
+		} else if constexpr (std::is_same_v<T, shared_ptr<Color> >) {
 			string modeUniformName;
 			string colorUniformName;
 
@@ -1047,8 +1043,7 @@ void SendMaterialPropertyUniforms(const Material::Property &property,
 			                   static_cast<underlying_type<MaterialContentsType>::type>(MaterialContentsType::Color));
 			program.setUniform(colorUniformName.c_str(),
 			                   property->r(), property->g(), property->b());
-		}
-		else if constexpr (std::is_same_v<T, std::monostate>) {
+		} else if constexpr (std::is_same_v<T, std::monostate>) {
 			log::w()("NULL material property contents.");
 		}
 	}, property);
@@ -1069,8 +1064,7 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 	if (scene.visualWorld()->usesDefaultLighting()
 	    || ((numLights == 0) && scene.visualWorld()->autoEnablesDefaultLighting())) {
 		environmentStruct.useDefaultLighting = 1u;
-	}
-	else {
+	} else {
 		environmentStruct.useDefaultLighting = 0u;
 
 		stats.numLights = numLights;
@@ -1110,16 +1104,14 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 					lightStruct.color = ambientLight->color()->rgba();
 					ambientStructs.push_back(lightStruct);
 				}
-			}
-			else if (auto directionalLight = dynamic_cast<DirectionalLight *>(light)) {
+			} else if (auto directionalLight = dynamic_cast<DirectionalLight *>(light)) {
 				if (directionalStructs.size() < config::MAX_DIRECTIONAL_LIGHTS) {
 					DirectionalLightGLSLStruct lightStruct{};
 					lightStruct.color = directionalLight->color()->rgba();
 					lightStruct.direction_world = node->worldForward();
 					directionalStructs.push_back(lightStruct);
 				}
-			}
-			else if (auto pointLight = dynamic_cast<PointLight *>(light)) {
+			} else if (auto pointLight = dynamic_cast<PointLight *>(light)) {
 				if (pointStructs.size() < config::MAX_POINT_LIGHTS) {
 					PointLightGLSLStruct lightStruct{};
 					lightStruct.color = pointLight->color()->rgba();
@@ -1129,8 +1121,7 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 					lightStruct.quadraticAttenuation = pointLight->attenuation().quadratic;
 					pointStructs.push_back(lightStruct);
 				}
-			}
-			else if (auto spotLight = dynamic_cast<SpotLight *>(light)) {
+			} else if (auto spotLight = dynamic_cast<SpotLight *>(light)) {
 				if (spotStructs.size() < config::MAX_SPOT_LIGHTS) {
 					SpotLightGLSLStruct lightStruct{};
 					lightStruct.color = spotLight->color()->rgba();
@@ -1178,8 +1169,7 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 	auto fogColor = visualWorld->fogColor();
 	if (visualWorld->fogColor()) {
 		fogStruct.color = fogColor->rgba();
-	}
-	else {
+	} else {
 		fogStruct.color = {0.0, 0.0, 0.0, 0.0};
 	}
 
@@ -1305,8 +1295,9 @@ void DrawOverlay(const RenderContext &context,
 
 	float yPos = 0;
 	int id = 0;
-	DrawHeader(titleFont, bodyFont, yPos, id);
-	if (util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowStatsOverlay)) {
+	bool showStats = util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowStatsOverlay);
+	DrawHeader(titleFont, bodyFont, showStats, yPos, id);
+	if (showStats) {
 		DrawStats(stats, statsHistory, context, bodyFont, altBodyFont, yPos, id);
 	}
 
@@ -1323,6 +1314,7 @@ void DrawOverlay(const RenderContext &context,
 
 void DrawHeader(ImFont &titleFont,
                 ImFont &bodyFont,
+                bool active,
                 float &yPos_out,
                 int &id_out) {
 	using namespace ImGui;
@@ -1337,10 +1329,14 @@ void DrawHeader(ImFont &titleFont,
 	ImGuiIO &io = GetIO();
 	auto fonts = io.Fonts->Fonts;
 
-	yPos += 4;
-	ImguiDrawText(X_POS, yPos, "avara3d", titleFont, STATS_TITLE_FONT_SIZE);
+	auto color = active
+		             ? IM_COL32(255, 255, 255, 255)
+		             : IM_COL32(255, 255, 255, (uint8_t)std::lround(.35 * 255));
 
-	static const auto& buildInfo = BuildInfo::Info();
+	yPos += 4;
+	ImguiDrawText(X_POS, yPos, "avara3d", titleFont, STATS_TITLE_FONT_SIZE, color, active);
+
+	static const auto &buildInfo = BuildInfo::Info();
 	static auto version = buildInfo.version();
 	static auto buildStr = std::format(
 		"v{}.{}.{} build {}\n"
@@ -1349,7 +1345,7 @@ void DrawHeader(ImFont &titleFont,
 		version.major, version.minor, version.patch, buildInfo.number(),
 		util::string::Lowercase(BuildInfo::TypeString(buildInfo.type())));
 	yPos += 25;
-	ImguiDrawText(X_POS, yPos, buildStr.c_str(), bodyFont, STATS_BODY_FONT_SIZE);
+	ImguiDrawText(X_POS, yPos, buildStr.c_str(), bodyFont, STATS_BODY_FONT_SIZE, color, active);
 
 	yPos_out = yPos;
 	id_out = id;
@@ -1439,7 +1435,7 @@ void DrawStats(FrameStats &stats,
 		}
 	}
 
-	ImguiStatsTextLayout layout {
+	ImguiStatsTextLayout layout{
 		.xLeft = X_POS,
 		.xRight = X_POS + COLUMN_WIDTH,
 		.gap = 12.0f
@@ -1507,19 +1503,19 @@ void DrawStats(FrameStats &stats,
 	ImguiDrawLabelValue(yPos, layout, "draw", renderGpuValue,
 	                    bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD,
 	                    drawColor);
-		ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2,
-		              renderGpuSamples.data(),
-		              static_cast<int>(renderGpuSamples.size()),
-		              0,
-		              gpuTimingAvailable ? nullptr : "unavailable",
-		              &altBodyFont,
-		              STATS_ALT_FONT_SIZE,
-		              PLOT_Y_MIN, PLOT_Y_MAX,
-		              0,
-		              PLOT_OUTLINED,
-		              ++id,
-		              PLOT_HEIGHT_2 + PLOT_STR_Y_PAD,
-		              !gpuTimingAvailable);
+	ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2,
+	              renderGpuSamples.data(),
+	              static_cast<int>(renderGpuSamples.size()),
+	              0,
+	              gpuTimingAvailable ? nullptr : "unavailable",
+	              &altBodyFont,
+	              STATS_ALT_FONT_SIZE,
+	              PLOT_Y_MIN, PLOT_Y_MAX,
+	              0,
+	              PLOT_OUTLINED,
+	              ++id,
+	              PLOT_HEIGHT_2 + PLOT_STR_Y_PAD,
+	              !gpuTimingAvailable);
 
 	auto physValue = std::format("{:.1f}ms", physicsMsFAvg);
 	ImguiDrawLabelValue(yPos, layout, "physics", physValue,
@@ -1755,16 +1751,13 @@ void ImguiInit(const RenderContext &context, ImFont *&titleFont, ImFont *&bodyFo
 				ImguiAddFont(context, *overlayAltFont, altFont);
 
 				ImGui_ImplOpenGL3_CreateDeviceObjects(); // was CreateFontsTexture()
-			}
-			else {
+			} else {
 				log::e()("Unable to load font: {}.{}", STATS_ALT_FONT_NAME, STATS_ALT_FONT_TYPE);
 			}
-		}
-		else {
+		} else {
 			log::e()("Unable to load font: {}.{}", STATS_BODY_FONT_NAME, STATS_BODY_FONT_TYPE);
 		}
-	}
-	else {
+	} else {
 		log::e()("Unable to load font: {}.{}", STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
 	}
 
@@ -1827,13 +1820,16 @@ void ImguiDrawText(float x,
                    const char *text,
                    ImFont &font,
                    float size,
-                   ImU32 color) {
+                   ImU32 color,
+                   bool shadow) {
 	using namespace ImGui;
 
 	PushFont(&font, size); // modern: choose size here :contentReference[oaicite:3]{index=3}
 	ImDrawList *dl = GetForegroundDrawList();
 
-	dl->AddText(ImVec2(x + 1, y + 1), IM_COL32(0, 0, 0, 255), text);
+	if (shadow) {
+		dl->AddText(ImVec2(x + 1, y + 1), IM_COL32(0, 0, 0, 255), text);
+	}
 	dl->AddText(ImVec2(x, y), color, text);
 
 	PopFont();
@@ -2015,7 +2011,7 @@ void ImguiDrawLabelValue(float &y,
 	};
 
 	// draw label
-	ImguiDrawText(SnapPx(layout.xLeft), y, label, font, fontSize, color);
+	ImguiDrawText(SnapPx(layout.xLeft), y, label, font, fontSize, color, true);
 
 	// measure at SAME font+size you draw with
 	const ImVec2 labelSz = TextSizeA(font, fontSize, label);
@@ -2028,7 +2024,7 @@ void ImguiDrawLabelValue(float &y,
 	// pixel snap
 	xValue = SnapPx(xValue);
 
-	ImguiDrawText(xValue, y, value.c_str(), font, fontSize, color);
+	ImguiDrawText(xValue, y, value.c_str(), font, fontSize, color, true);
 
 	y += lineStep;
 }
@@ -2063,14 +2059,14 @@ void ImguiDrawPlot(float x, float &y, float w, float h,
                    float lineStep,
                    bool disabled) {
 	ImguiDrawPlot(x, y, w, h,
-		              values,
-		              valuesCount,
-		              valuesOffset,
-		              overlayText,
-		              overlayFont,
-		              overlayFontSize,
-		              scaleMin, scaleMax,
-		              stride,
+	              values,
+	              valuesCount,
+	              valuesOffset,
+	              overlayText,
+	              overlayFont,
+	              overlayFontSize,
+	              scaleMin, scaleMax,
+	              stride,
 	              outlined,
 	              id,
 	              disabled);

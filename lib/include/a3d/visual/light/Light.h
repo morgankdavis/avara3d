@@ -26,17 +26,17 @@ namespace a3d {
 	public:
 		/// Public Static Member Functions ///
 
-		static std::shared_ptr<a3d::AmbientLight> 		AmbientLight();
-		static std::shared_ptr<a3d::AmbientLight> 		AmbientLight(const std::shared_ptr<Color>& color);
+		static std::shared_ptr<AmbientLight> 		Ambient();
+		static std::shared_ptr<AmbientLight> 		Ambient(const std::shared_ptr<Color>& color);
 
-		static std::shared_ptr<a3d::DirectionalLight>	DirectionalLight();
-		static std::shared_ptr<a3d::DirectionalLight>	DirectionalLight(const std::shared_ptr<Color>& color);
+		static std::shared_ptr<DirectionalLight>	Directional();
+		static std::shared_ptr<DirectionalLight>	Directional(const std::shared_ptr<Color>& color);
 
-		static std::shared_ptr<a3d::PointLight> 		PointLight();
-		static std::shared_ptr<a3d::PointLight> 		PointLight(const std::shared_ptr<Color>& color);
+		static std::shared_ptr<PointLight> 			Point();
+		static std::shared_ptr<PointLight> 			Point(const std::shared_ptr<Color>& color);
 
-		static std::shared_ptr<a3d::SpotLight> 			SpotLight();
-		static std::shared_ptr<a3d::SpotLight> 			SpotLight(const std::shared_ptr<Color>& color);
+		static std::shared_ptr<SpotLight> 			Spot();
+		static std::shared_ptr<SpotLight> 			Spot(const std::shared_ptr<Color>& color);
 
 	protected:
 		/// Protected Lifecycle Functions ///

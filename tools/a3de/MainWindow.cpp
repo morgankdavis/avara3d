@@ -139,9 +139,10 @@ void MainWindow::initLog(Log::Level level) {
 	sinks.push_back(std::move(nativeSink));
 	sinks.push_back(std::move(fileSink));
 
-	Log appLog{executableName, std::move(sinks)};
-	appLog.level(level);
-	Log::AppLog(std::move(appLog));
+	Log::AppLog(make_unique<Log>(
+		executableName,
+		std::move(sinks),
+		level));
 
 	const auto& buildInfo = BuildInfo::Info();
 	log::app::i()("A3D version: {}", BuildInfo::VersionString(buildInfo.version()));

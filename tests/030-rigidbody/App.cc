@@ -208,7 +208,7 @@ unique_ptr<Scene> App::init() {
 
 		AddCardboardBoxes(*scene);
 
-		auto boxesLight = Light::SpotLight(Color::LightGray());
+		auto boxesLight = Light::Spot(Color::LightGray());
 		boxesLight->innerAngle(radians(20.0));
 		boxesLight->outerAngle(radians(25.0));
 		boxesLight->attenuation(Attenuation{.quadratic = 0.035f});
@@ -371,7 +371,7 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 				cameraNode->light(nullptr);
 			}
 			else {
-				auto flashLight = Light::SpotLight();
+				auto flashLight = Light::Spot();
 				flashLight->innerAngle(radians(5.0f));
 				flashLight->outerAngle(radians(7.5f));
 				flashLight->featheringMode(SpotLight::FeatheringMode::Sharp);
@@ -773,7 +773,7 @@ void ShootSlurm(Scene& scene, const vec3 &location, const vec3 &direction) {
 		physicsBody->ccdSweptSphereRadius(radius * 0.8f);
 		physicsBody->ccdEnabled(true);
 
-		static auto light = Light::PointLight();
+		static auto light = Light::Point();
 		light->attenuation(Attenuation{.quadratic = 0.04f});
 		node->light(light);
 
@@ -859,7 +859,7 @@ void AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color) {
 	node->mesh()->addMaterial(material);
 	node->position(location);
 
-	auto light = Light::PointLight(color);
+	auto light = Light::Point(color);
 	light->attenuation(Attenuation{.quadratic = 0.04f});
 	node->light(light);
 
