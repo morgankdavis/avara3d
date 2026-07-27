@@ -1,13 +1,22 @@
 ## References
 
-- `README.md` contains the project intro and build instructions
-- [ROADMAP.txt](https://gitlab.mkd.net/a3d/avara3d/-/snippets/90/raw/master/ROADMAP.txt) contains a project plan and current priorities
+- `README.md` contains the project introduction and build instructions
+- Treat the user’s explicit request as the source of truth for immediate priorities
+- The legacy external roadmap is not authoritative
+
+## Current project direction
+
+* A3D is a cross-platform real-time engine for applied simulation
+* The current showcase project is a quadrotor simulation running natively and in the browser
+* Prioritize fixed-step simulation, physics correctness, control-system integration, telemetry, and clear visualization
+* Game-oriented features are secondary unless explicitly requested
 
 ## Working style
 
 - Before making architectural changes, inspect relevant headers, source files, and call sites
 - Preserve existing behavior unless the task explicitly says to change it
-- OpenGL work should move toward a minimal working implementation while preserving architectural seams that make a future Vulkan backend realistic
+- OpenGL work should favor a minimal, correct, and maintainable implementation
+- Do not introduce rendering-backend abstraction work unless explicitly requested
 - Do not perform broad rewrites unless explicitly asked
 - Prefer staged plans with small, reviewable diffs
 - Prefer fixing the smallest relevant scope rather than opportunistic cleanup
@@ -20,7 +29,7 @@
 
 ## Architecture preferences
 
-- Run on Linux (Wayland), macOS and Windows
+- Run on Linux, macOS, Windows, and modern web browsers through WebAssembly
 - Public API should feel RealityKit-ish: `World`, `Entity`, components, resources
 - Internals may be ECS-ish, but internal handles/registries must not leak into public API
 - Never expose internal dependencies in the public API (example: anything in `external/`)

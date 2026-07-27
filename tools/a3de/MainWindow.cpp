@@ -10,7 +10,6 @@
 #include "./ui_MainWindow.h"
 
 #include "a3d/a3d.h"
-#include "a3d/util/Filesystem.h"
 
 #include "QtViewport.h"
 #include "QtInputManager.h"

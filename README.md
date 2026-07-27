@@ -1,14 +1,19 @@
 # Avara3D
 
-Avara3D is a small RealityKit-ish game and rendering engine written in C++ using OpenGL. The name comes from Avara, the classic Mac game by Ambrosia Software.
+Avara3D is a cross-platform real-time physics and visualization engine for applied simulation.
+
+It is designed for interactive simulations of vehicles, robots, and other physical systems, with native desktop and WebAssembly targets.
+
+A3D’s current development focus is a browser-accessible quadrotor simulation intended to demonstrate fixed-step physics, feedback control, sensor modeling, telemetry, and real-time 3D visualization.
 
 ## Goals
 
-- Create a simple, easy to use library for games and 3D applications
-- Incorporate modern engine architecture techniques
-- Run on modern Linux, macOS, Windows, and web browsers
-- Create some interesting demos, and eventually a simple Avara-style multiplayer game using the library
-- Learn something
+* Support deterministic fixed-step simulation and reproducible simulation workflows
+* Provide rigid-body physics, visualization, telemetry, and debugging tools through a clean C++ API
+* Make simulated motion and system behavior easy to understand visually
+* Run on Linux, macOS, Windows, and modern web browsers
+* Remain lightweight enough for focused applications and technical demonstrations
+* Preserve a simple RealityKit-inspired public API while allowing more data-oriented internals
 
 ## Core Design Principles
 
@@ -19,19 +24,10 @@ Avara3D is a small RealityKit-ish game and rendering engine written in C++ using
     - Extracted rendering
     - Fixed-step simulation
     - Explicit frame lifetime
-- Keep rendering, physics, audio, scripting, and tools separated
+- Keep rendering, physics, scripting, and tools separated
 - Keep engine internals and third-party dependencies out of the public API
 - Keep application code out of the engine
 - When in doubt, choose simple over fast, within reason
-
-## Roadmap
-
-- Milestone 1: Core Architecture & Playable Demo
-- Milestone 2: Buildout
-- Milestone 3: Multiplayer MVP
-- Milestone 4: Vulkan Backend
-
-See [ROADMAP.txt](https://gitlab.mkd.net/a3d/avara3d/-/snippets/90/raw/master/ROADMAP.txt)
 
 ## What It Is Not
 
@@ -161,4 +157,43 @@ mkdir build
 cd build
 cmake -DCMAKE_PREFIX_PATH="C:/Qt/6.10.1/msvc2022_64" -TClangCL ..
 cmake --build . -j
+```
+
+### Web / Emscripten
+
+A3D demos can be compiled to WebAssembly and WebGL 2 using Emscripten.
+
+#### Install Emscripten
+
+Install and activate the [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html).
+
+On Linux or macOS, activate the SDK in the current shell:
+
+```sh
+source /path/to/emsdk/emsdk_env.sh
+```
+
+On Windows, activate it from Command Prompt:
+
+```bat
+C:\path\to\emsdk\emsdk_env.bat
+```
+
+#### Configure and build
+
+Run these commands from the repository root:
+
+```sh
+emcmake cmake -S . -B build-web-debug -GNinja -DCMAKE_BUILD_TYPE=Debug
+cmake --build build-web-debug --target <demo-target>
+```
+
+Replace `<demo-target>` with the demo or test target you want to build.
+
+Debug web builds generate an HTML launcher alongside the JavaScript, WebAssembly, and asset files. Release builds produce the files needed to embed the application in a custom web page.
+
+Web builds must be served over HTTP rather than opened directly with a `file://` URL. For example:
+
+```sh
+emrun build-web-debug/tests/000-sandbox/000-sandbox.html
 ```

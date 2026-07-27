@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 project(avara3d
-		VERSION 0.0.1
+		VERSION 0.1.0
 		HOMEPAGE_URL https://avara3d.net/)
 
 include(cmake/CompileDefinitions.cmake)
