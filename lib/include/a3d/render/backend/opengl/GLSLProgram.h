@@ -28,6 +28,13 @@ namespace a3d {
 		/// Internal Lifecycle Functions ///
 
 		explicit GLSLProgram(const std::string& name);
+
+		GLSLProgram(const GLSLProgram&) = delete;
+		GLSLProgram& operator=(const GLSLProgram&) = delete;
+
+		GLSLProgram(GLSLProgram&&) = delete;
+		GLSLProgram& operator=(GLSLProgram&&) = delete;
+
 		~GLSLProgram();
 
 		/// Internal Member Functions ///

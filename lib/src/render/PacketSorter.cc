@@ -19,10 +19,10 @@ using namespace std;
 
 /// Private Static Non-Member Prototypes ///
 
-static inline uint32_t 	PtrHash32(const void* p);
-static inline uint16_t 	PtrHash16(const void* p);
-static inline uint32_t 	FoldHash32(size_t h);
-static void				SortItems(vector<DrawItem>& items);
+static uint32_t 	PtrHash32(const void* p);
+static uint16_t 	PtrHash16(const void* p);
+static uint32_t 	FoldHash32(size_t h);
+static void			SortItems(vector<DrawItem>& items);
 
 /// Internal Static Member Functions ///
 

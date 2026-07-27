@@ -41,10 +41,6 @@ void OGLDebugLines::ensureBuffers() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-static inline a3d::math::vec3 ToVec3(const Color& c) {
-	return {c.r(), c.g(), c.b()};
-}
-
 void OGLDebugLines::upload(const std::vector<Line>& lines) {
 	ensureBuffers();
 

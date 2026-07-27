@@ -40,32 +40,44 @@ GLSLProgram::GLSLProgram(const string& name):
 		_isLinked{false},
 		_logString{},
 		_vertexShaderSource{},
-		_fragmentShaderSource{}
-		/*_uniformLocationCache{} */{
+		_fragmentShaderSource{} {
 
-		_glID = glCreateProgram();
+	_glID = glCreateProgram();
 
-		if (_glID == 0) {
-			throw std::runtime_error("Unable to create shader program.");
+	if (_glID == 0) {
+		throw runtime_error("Unable to create shader program.");
+	}
+
+	try {
+		auto vsSource = shaderSource(name, ShaderType::Vertex);
+		auto fsSource = shaderSource(name, ShaderType::Fragment);
+
+		if (!vsSource || !fsSource) {
+			throw runtime_error("Couldn't load shader sources.");
 		}
-		else {
-			auto vsSource = shaderSource(name, ShaderType::Vertex);
-			auto fsSource = shaderSource(name, ShaderType::Fragment);
-			
-			if (vsSource && fsSource) {
-				_vertexShaderSource = *vsSource;
-				_fragmentShaderSource = *fsSource;
-				
-				prepare();
-			}
-			else {
-				throw std::runtime_error("Couldn't load shader sources.");
-			}
+
+		_vertexShaderSource = *vsSource;
+		_fragmentShaderSource = *fsSource;
+
+		prepare();
+	}
+	catch (...) {
+
+		if (_glID != 0) {
+			glDeleteProgram(_glID);
+			_glID = 0;
 		}
+
+		throw;
+	}
 }
 
 GLSLProgram::~GLSLProgram() {
-	
+
+	if (_glID != 0) {
+		glDeleteProgram(_glID);
+		_glID = 0;
+	}
 }
 
 /// Internal Member Functions ///
@@ -103,6 +115,7 @@ bool GLSLProgram::link() {
 		}
 
 		glDeleteProgram(_glID);
+		_glID = 0;
 
 		return false;
 	}
@@ -396,6 +409,7 @@ bool GLSLProgram::compile(const string& source, ShaderType type) {
 	}
 	else {
 		glAttachShader(_glID, shaderID);
+		glDeleteShader(shaderID);
 
 		log::i()("{} shader {}' compiled.", magic_enum::enum_name(type), name());
 
