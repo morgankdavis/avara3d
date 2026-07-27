@@ -1,0 +1,83 @@
+//
+//  a3d.h
+//  avara3d
+//
+//  Created by Morgan Davis on 9/20/17.
+//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//
+
+#ifndef AVARA3D_A3D_H
+#define AVARA3D_A3D_H
+
+#include "a3d/Application.h"
+#include "a3d/Buffer.h"
+#include "a3d/BuildInfo.h"
+#include "a3d/Color.h"
+#include "a3d/Configuration.h"
+#include "a3d/CubeImage.h"
+#include "a3d/Font.h"
+#include "a3d/Image.h"
+#include "a3d/log/Log.h"
+#include "a3d/log/sink/FileLogSink.h"
+#include "a3d/log/sink/StdOutLogSink.h"
+#include "a3d/input/InputManager.h"
+#include "a3d/input/DesktopInputManager.h"
+#include "a3d/Math.h"
+#include "a3d/Runner.h"
+#include "a3d/extension/ALFImporter.h" // temporary
+#include "a3d/extension/WanderRotator.h" // temporary
+#include "a3d/mesh/Mesh.h"
+#include "a3d/mesh/MeshElement.h"
+#include "a3d/mesh/Line.h"
+#include "a3d/mesh/Point.h"
+#include "a3d/mesh/primitive/Box.h"
+#include "a3d/mesh/primitive/Capsule.h"
+#include "a3d/mesh/primitive/Cone.h"
+#include "a3d/mesh/primitive/Cylinder.h"
+#include "a3d/mesh/primitive/Dome.h"
+#include "a3d/mesh/primitive/Plane.h"
+#include "a3d/mesh/primitive/RoundedBox.h"
+#include "a3d/mesh/primitive/Sphere.h"
+#include "a3d/mesh/primitive/Spring.h"
+#include "a3d/mesh/primitive/Torus.h"
+#include "a3d/mesh/primitive/TorusKnot.h"
+#include "a3d/mesh/primitive/Tube.h"
+#include "a3d/mesh/primitive/Wedge.h"
+#include "a3d/physics/HitTestResult.h"
+#include "a3d/physics/PhysicsBody.h"
+#include "a3d/physics/PhysicsContact.h"
+#include "a3d/physics/shape/PhysicsShape.h"
+#include "a3d/physics/PhysicsWorld.h"
+#include "a3d/physics/shape/primitive/BoxPhysicsShape.h"
+#include "a3d/physics/shape/primitive/CapsulePhysicsShape.h"
+#include "a3d/physics/shape/primitive/ConePhysicsShape.h"
+#include "a3d/physics/shape/primitive/CylinderPhysicsShape.h"
+#include "a3d/physics/shape/primitive/PlanePhysicsShape.h"
+#include "a3d/physics/shape/primitive/SpherePhysicsShape.h"
+#include "a3d/render/context/RenderContext.h"
+#include "a3d/render/context/Window.h"
+#include "a3d/render/backend/opengl/OGLRenderer.h"
+#include "a3d/render/Renderer.h"
+#include "a3d/scene/Node.h"
+#include "a3d/scene/Scene.h"
+#include "a3d/util/Bitmask.h"
+#include "a3d/util/Chrono.h"
+#include "a3d/util/Filesystem.h"
+#include "a3d/util/Flow.h"
+#include "a3d/util/Snapshot.h"
+#include "a3d/util/String.h"
+#include "a3d/visual/VisualWorld.h"
+#include "a3d/visual/camera/Camera.h"
+#include "a3d/visual/camera/OrthographicCamera.h"
+#include "a3d/visual/camera/PerspectiveCamera.h"
+#include "a3d/visual/light/AmbientLight.h"
+#include "a3d/visual/light/Attenuation.h"
+#include "a3d/visual/light/DirectionalLight.h"
+#include "a3d/visual/light/Light.h"
+#include "a3d/visual/light/PointLight.h"
+#include "a3d/visual/light/SpotLight.h"
+#include "a3d/visual/material/Material.h"
+#include "a3d/visual/material/Sampler.h"
+#include "a3d/visual/material/Texture.h"
+
+#endif /* AVARA3D_A3D_H */

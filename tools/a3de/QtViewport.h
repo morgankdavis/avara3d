@@ -9,41 +9,41 @@
 #ifndef A3DVIEWPORT_H
 #define A3DVIEWPORT_H
 
-#include <memory>
+#include <optional>
 
 #include <QOpenGLWidget>
 
-#include "a3d/rendering/context/RenderContext.h"
+#include "a3d/render/context/RenderContext.h"
 
-namespace a3d {
-	class Scene;
-}
-
-namespace a3d::head::qt {
+namespace a3d::qt {
 
 	class QtInputManager;
 
-	class QtViewport : public QOpenGLWidget, public a3d::RenderContext {
+	class QtViewport : public QOpenGLWidget, public RenderContext {
 
 	Q_OBJECT
 
+	signals:
+		void					initialized();
+		void					renderFrame();
+
 	public:
+		/// Public Static Member Functions ///
+
+		static std::unique_ptr<QtInputManager> InputManager();
+
 		/// Public Lifecycle Functions ///
 
-		explicit QtViewport(a3d::RenderingApi renderingApi,
-							AntialiasingMode antialiasingModeQWidget,
+		explicit QtViewport(RenderingApi renderingApi,
+							AntialiasingMode antialiasingMode,
 							QWidget* parent = nullptr);
 		~QtViewport() = default;
 
 		/// Public Member Functions ///
 
-		a3d::Scene*				scene() const;
-		void 					scene(a3d::Scene* scene);
-
 		bool 					cursorCaptured() const;
 		void 					cursorCaptured(bool captured);
 
-	public:
 		/// RenderContext Public Member Functions ///
 
 		bool 					vSyncEnabled() const override;
@@ -51,8 +51,8 @@ namespace a3d::head::qt {
 
 		/// RenderContext Internal Member Functions ///
 
-		void 					beginFrame(const a3d::Scene& scene) override;
-		void 					endFrame(const a3d::Scene& scene) override;
+		void 					beginFrame(const Scene& scene) override;
+		void 					endFrame(const Scene& scene) override;
 
 		void 					swapBuffers() override;
 
@@ -86,7 +86,6 @@ namespace a3d::head::qt {
 
 		/// Private Member Variables ///
 
-		a3d::Scene* 			_scene;
 		bool					_cursorCaptured;
 		std::optional<QPointF>	_lastCursorPosition;
 		std::optional<QPointF> 	_lastCapturedCursorPosition;

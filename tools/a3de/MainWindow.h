@@ -10,11 +10,10 @@
 #define MAINWINDOW_H
 
 #include <memory>
-#include <vector>
 
 #include <QMainWindow>
 
-#include "a3d/diagnostic/log/Log.h"
+#include "a3d/log/Log.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -25,40 +24,43 @@ QT_END_NAMESPACE
 namespace a3d {
 	class Mesh;
 	class Node;
+	class Runner;
 	class Scene;
-	class PhysicalWorld;
+	class PhysicsWorld;
 	class VisualWorld;
 }
 
-namespace a3d::head::qt {
+namespace a3d::qt {
 	class QtViewport;
 }
 
 namespace a3de {
 
 	class MainWindow : public QMainWindow {
-	Q_OBJECT
+		Q_OBJECT
 
-	public:
+		public:
 
 		explicit MainWindow(QWidget* parent = nullptr);
-		~MainWindow();
+		~MainWindow() override;
 
 	private:
 
-		void initScene(a3d::head::qt::QtViewport &viewport);
-		void initLog();
-		void logBuildInfo();
+		void initA3D();
+		void updateA3D();
+		void initLog(a3d::Log::Level level);
 
 		void updateCallback(a3d::Scene& scene, double time, double deltaTime);
 		void willRenderCallback(a3d::VisualWorld& world, double time, double deltaTime);
 		void didRenderCallback(a3d::VisualWorld& world, double time, double deltaTime);
-		void didSimulatePhysicsCallback(a3d::PhysicalWorld& world, double time, double deltaTime);
+		void didSimulatePhysicsCallback(a3d::PhysicsWorld& world, double time, double deltaTime);
 
-		Ui::MainWindow*				_ui;
-		a3d::head::qt::QtViewport*	_viewport;
-		std::unique_ptr<a3d::Scene> _scene;
-		std::shared_ptr<a3d::Node>	_pointLightNode;
+		Ui::MainWindow*					_ui;
+		a3d::qt::QtViewport*			_viewport;
+		std::unique_ptr<a3d::Scene>		_scene;
+		std::unique_ptr<a3d::Runner>	_runner; // Runner must be destroyed before Scene
+		std::shared_ptr<a3d::Node>		_pointLightNode;
+		std::shared_ptr<a3d::Node>		_bananaNode;
 	};
 }
 

@@ -247,3 +247,7 @@ fastlane/readme.md
 .qtcreator/
 *.user
 *.pro.user
+
+
+# for build system virtal includes
+_external_virtual_include/

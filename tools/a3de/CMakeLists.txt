@@ -32,6 +32,27 @@ if (Qt6_FOUND)
             MANUAL_FINALIZATION
             ${PROJECT_SOURCES}
         )
+
+    set(A3DE_DATA_SOURCE_DIR
+            "${CMAKE_CURRENT_SOURCE_DIR}/data")
+
+    if (IS_DIRECTORY "${A3DE_DATA_SOURCE_DIR}")
+
+        add_custom_target(a3de-copy-data ALL
+                COMMAND "${CMAKE_COMMAND}" -E make_directory
+                "$<TARGET_FILE_DIR:a3de>/data"
+
+                COMMAND "${CMAKE_COMMAND}" -E copy_directory
+                "${A3DE_DATA_SOURCE_DIR}"
+                "$<TARGET_FILE_DIR:a3de>/data"
+
+                COMMENT "Copying a3de data"
+                VERBATIM)
+
+        add_dependencies(a3de a3de-copy-data)
+
+    endif()
+
     # Define target properties for Android with Qt 6 as:
     #    set_property(TARGET a3de APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
     #                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
@@ -50,7 +71,7 @@ if (Qt6_FOUND)
     #    endif()
     #endif()
 
-    target_include_directories(a3de PRIVATE ${CMAKE_SOURCE_DIR}/external/imgui-1.92.5)
+    target_include_directories(a3de PRIVATE "${CMAKE_SOURCE_DIR}/lib/external/imgui-1.92.5")
     #target_include_directories(a3de PRIVATE ${CMAKE_SOURCE_DIR}/external/magic_enum-0.9.3/include)
 
     #target_link_libraries(a3de PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::OpenGLWidgets)

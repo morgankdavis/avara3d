@@ -1,26 +1,18 @@
+get_filename_component(TARGET_NAME
+		"${CMAKE_CURRENT_SOURCE_DIR}"
+		NAME)
 
-set(UNIT_NUMBER "004")
-set(UNIT_DESCRIPTION "geoprimitives")
-set(TEST_NAME "${UNIT_NUMBER}-${UNIT_DESCRIPTION}")
+a3d_add_program(${TARGET_NAME}
+		SOURCES
+		App.cc
+		App.h
+		main.cc
 
-# causes "'magic_enum.hpp' file not found" ???
-#file(GLOB CONFIGURE_DEPENDS HEADERS *.h*)
-#file(GLOB CONFIGURE_DEPENDS SOURCES *.c*)
-file(GLOB HEADERS *.h*)
-file(GLOB SOURCES *.c*)
-add_executable(${TEST_NAME} ${HEADERS} ${SOURCES})
+		DATA_DIRECTORY
+		"${CMAKE_CURRENT_SOURCE_DIR}/data"
 
-#set_target_properties(${TEST_NAME} PROPERTIES
-#		MACOSX_BUNDLE_GUI_IDENTIFIER net.avara3d.${TEST_NAME}
-#		MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-#		MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-#		MACOSX_BUNDLE TRUE
-#		WIN32_EXECUTABLE TRUE
-#)
+		DATA_DESTINATION
+		"/tests/data"
 
-target_link_libraries(${TEST_NAME} avara3d)
-
-if (NOT ANDROID)
-	install(TARGETS ${TEST_NAME}
-			DESTINATION "${INSTALL_TESTS_EXEC_DIR}")
-endif()
+		INSTALL_DESTINATION
+		"${INSTALL_TESTS_EXEC_DIR}")

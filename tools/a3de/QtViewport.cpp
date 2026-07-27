@@ -8,14 +8,13 @@
 
 #include "QtViewport.h"
 
-#include <QDateTime>
 #include <QEvent>
 #include <QMouseEvent>
 #include <QOpenGLFunctions_3_3_Core>
 #include <QWidget>
 #include <QWindow>
 
-#include "imgui.h"
+#include "imgui.h" // gross
 
 #include "a3d/a3d.h"
 
@@ -24,7 +23,13 @@
 using namespace a3d;
 using namespace a3d::math;
 using namespace std;
-using Viewport = a3d::head::qt::QtViewport;
+using Viewport = qt::QtViewport;
+
+/// Public Static Member Functions ///
+
+unique_ptr<qt::QtInputManager> Viewport::InputManager() {
+	return std::make_unique<QtInputManager>();
+}
 
 /// Private Static Non-Member Prototypes ///
 
@@ -37,7 +42,6 @@ Viewport::QtViewport(RenderingApi renderingApi,
 					 QWidget* parent):
 		RenderContext(renderingApi),
 		QOpenGLWidget(parent),
-		_scene{},
 		_cursorCaptured{false},
 		_lastCursorPosition{},
 		_lastCapturedCursorPosition{},
@@ -47,8 +51,6 @@ Viewport::QtViewport(RenderingApi renderingApi,
 	setMinimumSize(320, 240);
 
 	QSurfaceFormat fmt;
-//	fmt.setDepthBufferSize(24);
-//	fmt.setStencilBufferSize(8);
 	fmt.setVersion(3, 3);
 	fmt.setProfile(QSurfaceFormat::CoreProfile);
 	fmt.setSamples(static_cast<underlying_type<AntialiasingMode>::type>(antialiasingMode));
@@ -66,14 +68,6 @@ Viewport::QtViewport(RenderingApi renderingApi,
 //}
 
 /// Public Member Functions ///
-
-Scene* Viewport::scene() const {
-	return _scene;
-}
-
-void Viewport::scene(Scene* scene) {
-	_scene = scene;
-}
 
 bool Viewport::cursorCaptured() const {
 	return _cursorCaptured;
@@ -130,7 +124,7 @@ bool Viewport::vSyncEnabled() const {
 }
 
 void Viewport::vSyncEnabled(bool enabled) {
-	throw Exception("Qt forces vsync.");
+	throw std::logic_error("Qt forces vsync.");
 }
 
 /// RenderContext Internal Member Functions ///
@@ -348,41 +342,25 @@ void Viewport::initializeGL() {
 		return reinterpret_cast<void*>(fp);
 	};
 
-	if (a3d::OpenGLRenderer::InitGL(loader)) {
+	if (a3d::OGLRenderer::InitGL(loader)) {
 		_renderer->initialize(*this);
+		emit initialized();
 	}
 	else {
-		A3D_LOG_F("Failed to initialize OpenGL function loader.");
+		log::f()("Failed to initialize OpenGL function loader.");
 	}
 }
 
 void Viewport::resizeGL(int w, int h) {}
 
 void Viewport::paintGL() {
-
-	static qint64 lastNs = 0;
-	qint64 nowNs = QDateTime::currentMSecsSinceEpoch() * 1000000ll;
-	if (lastNs == 0) lastNs = nowNs;
-	double dt = double(nowNs - lastNs) / 1e9;
-	lastNs = nowNs;
-
-//	ImGuiIO& io = ImGui::GetIO();
-//	const auto w  = float(width());
-//	const auto h  = float(height());
-//	const auto dpr = float(devicePixelRatioF());
-//	io.DisplaySize = ImVec2(w, h);
-//	io.DisplayFramebufferScale = ImVec2(dpr, dpr);
-//	io.DeltaTime = (dt > 0.0) ? float(dt) : 1.0f/60.0f;
-
-	_scene->update();
-
-	update();
+	emit renderFrame();
 }
 
 /// Private Member Functions ///
 
 void Viewport::centerCursor() {
-//	QCursor::setPos(round(width()/2.0), round(height()/2.0));
+
 	QPoint center(width() / 2, height() / 2);
 	QCursor::setPos(mapToGlobal(center));
 }
