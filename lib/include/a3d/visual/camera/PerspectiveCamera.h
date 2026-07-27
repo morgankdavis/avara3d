@@ -22,6 +22,12 @@ namespace a3d {
 		PerspectiveCamera(float zNear, float zFar, float yFov);
 		PerspectiveCamera(const std::string& name, float zNear, float zFar, float yFov);
 
+		PerspectiveCamera(const PerspectiveCamera&) = default;
+		PerspectiveCamera& operator=(const PerspectiveCamera&) = default;
+
+		PerspectiveCamera(PerspectiveCamera&&) noexcept = default;
+		PerspectiveCamera& operator=(PerspectiveCamera&&) noexcept = default;
+
 		~PerspectiveCamera() override;
 
 		/// Public Member Functions ///

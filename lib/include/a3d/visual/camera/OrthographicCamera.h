@@ -23,6 +23,12 @@ namespace a3d {
 		explicit OrthographicCamera(const AABB& extent);
 		OrthographicCamera(const std::string& name, const AABB& extent);
 
+		OrthographicCamera(const OrthographicCamera&) = default;
+		OrthographicCamera& operator=(const OrthographicCamera&) = default;
+
+		OrthographicCamera(OrthographicCamera&&) noexcept = default;
+		OrthographicCamera& operator=(OrthographicCamera&&) noexcept = default;
+
 		~OrthographicCamera() override;
 
 		/// Public Member Functions ///

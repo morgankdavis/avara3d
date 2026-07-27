@@ -25,12 +25,6 @@ namespace a3d {
 		Camera();
 		explicit Camera(const std::string& name);
 
-		Camera(const Camera&) = default;
-		Camera& operator=(const Camera&) = default;
-
-		Camera(Camera&&) noexcept = default;
-		Camera& operator=(Camera&&) noexcept = default;
-
 		virtual ~Camera() = 0;
 
 		/// Public Member Functions ///
@@ -43,6 +37,14 @@ namespace a3d {
 		virtual math::mat4 					projection() const = 0;
 
 	protected:
+		/// Protected Lifecycle Functions ///
+
+		Camera(const Camera&) = default;
+		Camera& operator=(const Camera&) = default;
+
+		Camera(Camera&&) noexcept = default;
+		Camera& operator=(Camera&&) noexcept = default;
+
 		/// Protected Member Functions ///
 
 //		virtual void 						constructProjectionMatrix() = 0;

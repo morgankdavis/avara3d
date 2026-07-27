@@ -179,6 +179,12 @@ struct FBORestore {
 		glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &readFbo);
 	}
 
+	FBORestore(const FBORestore&) = delete;
+	FBORestore& operator=(const FBORestore&) = delete;
+
+	FBORestore(FBORestore&&) = delete;
+	FBORestore& operator=(FBORestore&&) = delete;
+
 	~FBORestore() {
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, drawFbo);
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, readFbo);
