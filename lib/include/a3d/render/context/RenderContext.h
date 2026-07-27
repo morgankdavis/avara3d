@@ -73,13 +73,14 @@ namespace a3d {
 		/// Internal Lifecycle Functions ///
 
 		explicit RenderContext(RenderingApi renderingApi);
-		virtual ~RenderContext();
-
+		
 		RenderContext(const RenderContext&) = delete;
 		RenderContext& operator=(const RenderContext&) = delete;
 
 		RenderContext(RenderContext&&) = delete;
 		RenderContext& operator=(RenderContext&&) = delete;
+
+		virtual ~RenderContext();
 
 		/// Internal Member Functions ///
 

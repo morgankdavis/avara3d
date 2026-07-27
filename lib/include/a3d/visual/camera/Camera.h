@@ -24,13 +24,14 @@ namespace a3d {
 
 		Camera();
 		explicit Camera(const std::string& name);
-		virtual ~Camera() = 0;
 
 		Camera(const Camera&) = default;
 		Camera& operator=(const Camera&) = default;
 
 		Camera(Camera&&) noexcept = default;
 		Camera& operator=(Camera&&) noexcept = default;
+
+		virtual ~Camera() = 0;
 
 		/// Public Member Functions ///
 

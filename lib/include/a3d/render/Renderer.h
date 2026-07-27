@@ -83,13 +83,14 @@ namespace a3d {
 		/// Internal Lifecycle Functions ///
 
 		Renderer();
-		virtual ~Renderer() = 0;
 
 		Renderer(const Renderer&) = delete;
 		Renderer& operator=(const Renderer&) = delete;
 
 		Renderer(Renderer&&) = delete;
 		Renderer& operator=(Renderer&&) = delete;
+
+		virtual ~Renderer() = 0;
 
 		/// Internal Member Functions ///
 

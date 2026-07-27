@@ -48,13 +48,14 @@ namespace a3d {
 		explicit Node(const std::shared_ptr<Mesh>& mesh);
 		explicit Node(const std::shared_ptr<Light>& light);
 		explicit Node(const std::shared_ptr<Camera>& camera);
-		~Node();
 
 		Node(const Node&) = delete;
 		Node& operator=(const Node&) = delete;
 
 		Node(Node&&) = delete;
 		Node& operator=(Node&&) = delete;
+
+		~Node();
 
 		/// Public Member Functions ///
 

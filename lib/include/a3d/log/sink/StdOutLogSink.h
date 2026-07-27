@@ -21,13 +21,14 @@ namespace a3d {
 	/// Public Lifecycle Functions ///
 
 		StdOutLogSink();
-		~StdOutLogSink() override;
 
 		StdOutLogSink(const StdOutLogSink&) = delete;
 		StdOutLogSink& operator=(const StdOutLogSink&) = delete;
 
 		StdOutLogSink(StdOutLogSink&&) = delete;
 		StdOutLogSink& operator=(StdOutLogSink&&) = delete;
+
+		~StdOutLogSink() override;
 
 	/// Public Member Functions ///
 

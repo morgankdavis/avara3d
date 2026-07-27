@@ -17,13 +17,14 @@ namespace a3d {
 
 	public:
 		/// Public Lifecycle Functions ///
+		///
 		explicit Timer(bool start = false);
 
 		/// Public Member Functions ///
 
-		void start();
-		std::chrono::nanoseconds stop();
-		std::chrono::nanoseconds duration() const;
+		void						start();
+		std::chrono::nanoseconds	stop();
+		std::chrono::nanoseconds	duration() const;
 
 	private:
 		/// Private Member Variables ///

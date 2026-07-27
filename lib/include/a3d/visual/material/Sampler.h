@@ -45,13 +45,14 @@ namespace a3d {
 		/// Public Lifecycle Functions ///
 
 		Sampler();
-		~Sampler();
 
 		Sampler(const Sampler& other);
 		Sampler& operator=(const Sampler& other);
 
 		Sampler(Sampler&& other);
 		Sampler& operator=(Sampler&& other);
+
+		~Sampler();
 
 		/// Public Member Functions ///
 

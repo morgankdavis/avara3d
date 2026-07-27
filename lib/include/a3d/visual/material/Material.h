@@ -77,13 +77,14 @@ namespace a3d {
 				 const Property& diffuse,
 				 const Property& specular,
 				 const Property& emission);
-		~Material();
 
 		Material(const Material& other);
 		Material& operator=(const Material& other);
 
-		Material(Material&& other);
-		Material& operator=(Material&& other);
+		Material(Material&& other) noexcept;
+		Material& operator=(Material&& other) noexcept;
+
+		~Material();
 
 		/// Public Member Functions ///
 

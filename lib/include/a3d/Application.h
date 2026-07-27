@@ -31,13 +31,14 @@ namespace a3d {
 		/// Public Lifecycle Functions ///
 
 		Application(int argc, char* argv[], Log::Level logLevel = Log::Level::Info);
-		virtual ~Application();
 
 		Application(const Application&) = delete;
 		Application& operator=(const Application&) = delete;
 
 		Application(Application&&) = delete;
 		Application& operator=(Application&&) = delete;
+
+		virtual ~Application();
 
 	protected:
 		/// Protected Member Functions ///

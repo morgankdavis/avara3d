@@ -29,6 +29,12 @@ namespace a3d {
 		explicit PointLight(const std::shared_ptr<Color>& color);
 		PointLight(const std::string& name, const std::shared_ptr<Color>& color);
 
+		PointLight(const PointLight&) = default;
+		PointLight& operator=(const PointLight&) = default;
+
+		PointLight(PointLight&&) noexcept = default;
+		PointLight& operator=(PointLight&&) noexcept = default;
+
 		/// Public Member Functions ///
 
 		const Attenuation&		attenuation() const;

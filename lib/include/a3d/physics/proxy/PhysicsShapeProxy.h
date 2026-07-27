@@ -19,13 +19,14 @@ namespace a3d {
 		/// Internal Lifecycle Functions ///
 
 		explicit PhysicsShapeProxy(PhysicsShape& shape);
-		virtual ~PhysicsShapeProxy() = 0;
 
 		PhysicsShapeProxy(const PhysicsShapeProxy&) = delete;
 		PhysicsShapeProxy& operator=(const PhysicsShapeProxy&) = delete;
 
 		PhysicsShapeProxy(PhysicsShapeProxy&&) = delete;
 		PhysicsShapeProxy& operator=(PhysicsShapeProxy&&) = delete;
+
+		virtual ~PhysicsShapeProxy() = 0;
 	};
 }
 

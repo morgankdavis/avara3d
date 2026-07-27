@@ -13,4 +13,4 @@ using namespace a3d;
 /// Internal Lifecycle Functions ///
 
 PhysicsWorldProxy::PhysicsWorldProxy(PhysicsWorld& world) { }
-PhysicsWorldProxy::~PhysicsWorldProxy() { }
+PhysicsWorldProxy::~PhysicsWorldProxy() {}

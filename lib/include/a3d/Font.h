@@ -32,13 +32,14 @@ namespace a3d {
 
 		explicit Font(const std::filesystem::path& path);
 		explicit Font(std::unique_ptr<Buffer> buffer);
-		~Font();
 
 		Font(const Font& other);
 		Font& operator=(const Font& other);
 
 		Font(Font&& other) noexcept;
 		Font& operator=(Font&& other) noexcept;
+
+		~Font();
 
 		/// Public Member Functions ///
 

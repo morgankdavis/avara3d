@@ -39,13 +39,14 @@ namespace a3d {
 		explicit Texture(const Contents& contents,
 						 const std::shared_ptr<Sampler>& sampler = std::make_shared<Sampler>(),
 						 unsigned mappingChannel = 0);
-		~Texture();
 
 		Texture(const Texture& other);
 		Texture& operator=(const Texture& other);
 
-		Texture(Texture&& other);
-		Texture& operator=(Texture&& other);
+		Texture(Texture&& other) noexcept;
+		Texture& operator=(Texture&& other) noexcept;
+
+		~Texture();
 
 		/// Public Member Functions ///
 

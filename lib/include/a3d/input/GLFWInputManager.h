@@ -25,13 +25,11 @@ namespace a3d {
 	public:
 		/// Public Lifecycle Functions ///
 
-		// explicit GLFWInputManager(Window* window);
 		GLFWInputManager();
 		~GLFWInputManager() override;
 
 		GLFWInputManager(const InputManager& other) = delete;
 		GLFWInputManager& operator=(const InputManager& other) = delete;
-
 
 		/// InputManager Internal Member Functions ///
 

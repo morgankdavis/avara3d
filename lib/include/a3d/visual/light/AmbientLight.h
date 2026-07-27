@@ -27,6 +27,12 @@ namespace a3d {
 		explicit AmbientLight(const std::string& name);
 		explicit AmbientLight(const std::shared_ptr<Color>& color);
 		AmbientLight(const std::string& name, const std::shared_ptr<Color>& color);
+
+		AmbientLight(const AmbientLight&) = default;
+		AmbientLight& operator=(const AmbientLight&) = default;
+
+		AmbientLight(AmbientLight&&) noexcept = default;
+		AmbientLight& operator=(AmbientLight&&) noexcept = default;
 	};
 }
 

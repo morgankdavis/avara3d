@@ -42,7 +42,7 @@ namespace a3d::util::flow::detail {
 
 	// Per-(State type, TU) map keyed by callsite.
 	template<class State, class... CtorArgs>
-	inline State& state_for(std::source_location loc, CtorArgs&&... ctorArgs) {
+	State& state_for(std::source_location loc, CtorArgs&&... ctorArgs) {
 		static std::mutex m;
 		static std::unordered_map<std::size_t, std::unique_ptr<State>> states;
 
@@ -57,7 +57,7 @@ namespace a3d::util::flow::detail {
 	}
 
 	template<class Clock>
-	inline bool every_tick(typename Clock::time_point& last, typename Clock::duration interval) {
+	bool every_tick(typename Clock::time_point& last, typename Clock::duration interval) {
 		const auto now = Clock::now();
 		if (now - last >= interval) {
 			last = now; // "at most once" behavior (no catch-up)
@@ -80,14 +80,14 @@ namespace a3d::util::flow {
 	//   false -> condition failed, callback ran (every time for guard; latched for edge_guard)
 
 //	template<class Cond, class FailFn>
-//	[[nodiscard]] inline bool guard(Cond&& cond, FailFn&& on_fail_every_time) {
+//	[[nodiscard]] bool guard(Cond&& cond, FailFn&& on_fail_every_time) {
 //		const bool ok = static_cast<bool>(std::forward<Cond>(cond)); // supports shared_ptr, etc.
 //		if (!ok) std::invoke(std::forward<FailFn>(on_fail_every_time));
 //		return ok;
 //	}
 
 	template<class Cond, class FailFn>
-	[[nodiscard]] inline bool edge_guard(Cond&& cond,
+	[[nodiscard]] bool edge_guard(Cond&& cond,
 						   FailFn&& on_fail_once,
 						   std::source_location loc = std::source_location::current()) {
 		struct State { bool latched = false; };
@@ -109,7 +109,7 @@ namespace a3d::util::flow {
 	//------------------------------------------------------------------------------
 
 	template<class Fn>
-	inline decltype(auto) once(Fn&& fn,
+	decltype(auto) once(Fn&& fn,
 							   std::source_location loc = std::source_location::current()) {
 		using R = std::invoke_result_t<Fn&>;
 
@@ -130,7 +130,7 @@ namespace a3d::util::flow {
 	}
 
 	template<class ThenFn, class ElseFn>
-	inline decltype(auto) once_else(ThenFn&& then_fn,
+	decltype(auto) once_else(ThenFn&& then_fn,
 									ElseFn&& else_fn,
 									std::source_location loc = std::source_location::current()) {
 		using R1 = std::invoke_result_t<ThenFn&>;
@@ -174,7 +174,7 @@ namespace a3d::util::flow {
 	//------------------------------------------------------------------------------
 
 	template<class Fn>
-	inline decltype(auto) on(long long invocation,
+	decltype(auto) on(long long invocation,
 							 Fn&& fn,
 							 std::source_location loc = std::source_location::current()) {
 		using R = std::invoke_result_t<Fn&>;
@@ -206,7 +206,7 @@ namespace a3d::util::flow {
 	}
 
 	template<class ThenFn, class ElseFn>
-	inline decltype(auto) on_else(long long invocation,
+	decltype(auto) on_else(long long invocation,
 								  ThenFn&& then_fn,
 								  ElseFn&& else_fn,
 								  std::source_location loc = std::source_location::current()) {
@@ -248,7 +248,7 @@ namespace a3d::util::flow {
 	//------------------------------------------------------------------------------
 
 	template<class Fn>
-	inline decltype(auto) after(long long invocations,
+	decltype(auto) after(long long invocations,
 								Fn&& fn,
 								std::source_location loc = std::source_location::current()) {
 		using R = std::invoke_result_t<Fn&>;
@@ -275,7 +275,7 @@ namespace a3d::util::flow {
 	}
 
 	template<class ThenFn, class ElseFn>
-	inline decltype(auto) after_else(long long invocations,
+	decltype(auto) after_else(long long invocations,
 									 ThenFn&& then_fn,
 									 ElseFn&& else_fn,
 									 std::source_location loc = std::source_location::current()) {
@@ -318,7 +318,7 @@ namespace a3d::util::flow {
 	//   - returns true if it fired
 
 	template<class Rep, class Period, class Fn, class Clock = std::chrono::steady_clock>
-	inline bool every(std::chrono::duration<Rep, Period> interval,
+	bool every(std::chrono::duration<Rep, Period> interval,
 					  Fn&& fn,
 					  std::source_location loc = std::source_location::current()) {
 		using D = typename Clock::duration;
@@ -340,7 +340,7 @@ namespace a3d::util::flow {
 	}
 
 	template<class Rep, class Period, class ThenFn, class ElseFn, class Clock = std::chrono::steady_clock>
-	inline decltype(auto) every_else(std::chrono::duration<Rep, Period> interval,
+	decltype(auto) every_else(std::chrono::duration<Rep, Period> interval,
 									 ThenFn&& then_fn,
 									 ElseFn&& else_fn,
 									 std::source_location loc = std::source_location::current()) {
@@ -389,7 +389,7 @@ namespace a3d::util::flow {
 	// Example (n=10): fires on calls 1, 11, 21, ...
 
 	template<class Fn>
-	inline bool every(long long n,
+	bool every(long long n,
 					  Fn&& fn,
 					  std::source_location loc = std::source_location::current()) {
 		struct State {
@@ -420,7 +420,7 @@ namespace a3d::util::flow {
 	// Optional symmetry: every_else(n, then, else) and every_else(interval, n, then, else)
 
 	template<class ThenFn, class ElseFn>
-	inline decltype(auto) every_else(long long n,
+	decltype(auto) every_else(long long n,
 									 ThenFn&& then_fn,
 									 ElseFn&& else_fn,
 									 std::source_location loc = std::source_location::current()) {

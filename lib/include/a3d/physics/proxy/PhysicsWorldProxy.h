@@ -30,13 +30,14 @@ namespace a3d {
 		/// Internal Lifecycle Functions ///
 
 		explicit PhysicsWorldProxy(PhysicsWorld& world);
-		virtual ~PhysicsWorldProxy();
 
 		PhysicsWorldProxy(const PhysicsWorldProxy&) = delete;
 		PhysicsWorldProxy& operator=(const PhysicsWorldProxy&) = delete;
 
 		PhysicsWorldProxy(PhysicsWorldProxy&&) = delete;
 		PhysicsWorldProxy& operator=(PhysicsWorldProxy&&) = delete;
+
+		virtual ~PhysicsWorldProxy();
 
 		/// Internal Member Functions ///
 

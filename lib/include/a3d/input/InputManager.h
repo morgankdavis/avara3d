@@ -23,13 +23,14 @@ namespace a3d {
 		/// Public Lifecycle Functions ///
 
 		InputManager();
-		virtual ~InputManager();
 
 		InputManager(const InputManager&) = delete;
 		InputManager& operator=(const InputManager&) = delete;
 
 		InputManager(InputManager&&) = delete;
 		InputManager& operator=(InputManager&&) = delete;
+
+		virtual ~InputManager();
 
 		/// Internal Member Functions ///
 

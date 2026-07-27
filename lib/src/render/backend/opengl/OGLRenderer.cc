@@ -70,7 +70,7 @@ using namespace std;
 // const std::string STATS_TITLE_FONT_TYPE{"otf"};
 // const float STATS_TITLE_FONT_SIZE{23.0};
 
-const std::string STATS_TITLE_FONT_NAME{"Neuropol Nova"};
+const std::string STATS_TITLE_FONT_NAME{"Neuropol Nova Xp"};
 const std::string STATS_TITLE_FONT_TYPE{"ttf"};
 const float STATS_TITLE_FONT_SIZE{21.0};
 

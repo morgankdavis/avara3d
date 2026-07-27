@@ -58,13 +58,14 @@ namespace a3d {
 		/// Internal Lifecycle Functions ///
 
 		OGLResourceCache() = default;
-		~OGLResourceCache();
 
 		OGLResourceCache(const OGLResourceCache&) = delete;
 		OGLResourceCache& operator=(const OGLResourceCache&) = delete;
 
 		OGLResourceCache(OGLResourceCache&&) = delete;
 		OGLResourceCache& operator=(OGLResourceCache&&) = delete;
+
+		~OGLResourceCache();
 
 		/// Internal Member Functions ///
 

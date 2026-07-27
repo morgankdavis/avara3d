@@ -86,13 +86,14 @@ namespace a3d {
 			  std::unique_ptr<VisualWorld> visualWorld,
 			  std::unique_ptr<PhysicsWorld> physicsWorld,
 			  std::unique_ptr<InputManager> inputManager);
-		~Scene();
 
 		Scene(const Scene&) = delete;
 		Scene& operator=(const Scene&) = delete;
 
 		Scene(Scene&&) = delete;
 		Scene& operator=(Scene&&) = delete;
+
+		~Scene();
 
 		/// Public Member Functions ///
 

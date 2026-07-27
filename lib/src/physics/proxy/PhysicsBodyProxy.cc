@@ -22,7 +22,7 @@ PhysicsBodyProxy::PhysicsBodyProxy(PhysicsBody& body, PhysicsBody::Type type):
 	attachedToBody(body);
 }
 
-PhysicsBodyProxy::~PhysicsBodyProxy() { }
+PhysicsBodyProxy::~PhysicsBodyProxy() {}
 
 /// Internal Member Functions ///
 

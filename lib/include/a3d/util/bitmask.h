@@ -68,7 +68,7 @@ namespace a3d::util::bitmask {
 	struct enable_ops : std::false_type {};
 
 	template <typename E>
-	inline constexpr bool enable_ops_v = enable_ops<E>::value;
+	constexpr bool enable_ops_v = enable_ops<E>::value;
 
 	template <typename E>
 	concept MaskEnum = std::is_enum_v<E> && enable_ops_v<E>;

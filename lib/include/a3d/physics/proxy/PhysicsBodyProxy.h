@@ -23,13 +23,14 @@ namespace a3d {
 		/// Internal Lifecycle Functions ///
 
 		explicit PhysicsBodyProxy(PhysicsBody& body, PhysicsBody::Type type);
-		virtual ~PhysicsBodyProxy();
 
 		PhysicsBodyProxy(const PhysicsBodyProxy&) = delete;
 		PhysicsBodyProxy& operator=(const PhysicsBodyProxy&) = delete;
 
 		PhysicsBodyProxy(PhysicsBodyProxy&&) = delete;
 		PhysicsBodyProxy& operator=(PhysicsBodyProxy&&) = delete;
+
+		virtual ~PhysicsBodyProxy();
 
 		/// Internal Member Functions ///
 

@@ -45,6 +45,13 @@ namespace a3d {
 		explicit Light(const std::string& name);
 		explicit Light(const std::shared_ptr<Color>& color);
 		Light(const std::string& name, const std::shared_ptr<Color>& color);
+
+		Light(const Light&) = default;
+		Light& operator=(const Light&) = default;
+
+		Light(Light&&) noexcept = default;
+		Light& operator=(Light&&) noexcept = default;
+
 		virtual ~Light() = 0;
 
 	public:

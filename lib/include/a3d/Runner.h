@@ -27,13 +27,14 @@ namespace a3d {
 		/// Public Lifecycle Functions ///
 
 		explicit Runner(Scene& scene);
-		~Runner();
 
 		Runner(const Runner&) = delete;
 		Runner& operator=(const Runner&) = delete;
 
 		Runner(Runner&&) = delete;
 		Runner& operator=(Runner&&) = delete;
+
+		~Runner();
 
 		/// Public Member Functions ///
 

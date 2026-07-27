@@ -28,6 +28,12 @@ namespace a3d {
 		explicit DirectionalLight(const std::string& name);
 		explicit DirectionalLight(const std::shared_ptr<Color>& color);
 		DirectionalLight(const std::string& name, const std::shared_ptr<Color>& color);
+
+		DirectionalLight(const DirectionalLight&) = default;
+		DirectionalLight& operator=(const DirectionalLight&) = default;
+
+		DirectionalLight(DirectionalLight&&) noexcept = default;
+		DirectionalLight& operator=(DirectionalLight&&) noexcept = default;
 	};
 }
 

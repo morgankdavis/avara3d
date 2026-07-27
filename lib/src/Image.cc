@@ -64,10 +64,6 @@ Image::Image(unique_ptr<Buffer> buffer,
 	}
 }
 
-Image::~Image() {
-	log::d()("Destroying Image {:p}", static_cast<void*>(this));
-}
-
 Image::Image(const Image& other):
 		_width{other._width},
 		_height{other._height},
@@ -114,6 +110,10 @@ Image& Image::operator=(Image&& other) noexcept {
 	_buffer = std::move(other._buffer);
 
 	return *this;
+}
+
+Image::~Image() {
+	log::d()("Destroying Image {:p}", static_cast<void*>(this));
 }
 
 /// Public Member Functions ///

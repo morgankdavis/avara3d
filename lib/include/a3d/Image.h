@@ -33,13 +33,14 @@ namespace a3d {
 			  unsigned bytesPerPixel,
 			  bool flipVertical = true,
 			  bool flipHorizontal = false);
-		~Image();
 
 		Image(const Image& other);
 		Image& operator=(const Image& other);
 
 		Image(Image&& other) noexcept;
 		Image& operator=(Image&& other) noexcept;
+
+		~Image();
 
 		/// Public Member Functions ///
 

@@ -28,13 +28,14 @@ namespace a3d {
 		explicit FileLogSink(const std::filesystem::path& relPath,
 							 int maxFiles = DEFAULT_MAX_FILES,
 							 int maxFilesize = DEFAULT_MAX_FILESIZE);
-		~FileLogSink() override;
 
 		FileLogSink(const FileLogSink&) = delete;
 		FileLogSink& operator=(const FileLogSink&) = delete;
 
 		FileLogSink(FileLogSink&&) = delete;
 		FileLogSink& operator=(FileLogSink&&) = delete;
+
+		~FileLogSink() override;
 
 		/// Public Member Functions ///
 

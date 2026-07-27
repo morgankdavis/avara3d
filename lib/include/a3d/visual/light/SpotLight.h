@@ -38,6 +38,12 @@ namespace a3d {
 		explicit SpotLight(const std::shared_ptr<Color>& color);
 		SpotLight(const std::string& name, const std::shared_ptr<Color>& color);
 
+		SpotLight(const SpotLight&) = default;
+		SpotLight& operator=(const SpotLight&) = default;
+
+		SpotLight(SpotLight&&) noexcept = default;
+		SpotLight& operator=(SpotLight&&) noexcept = default;
+
 	public:
 		/// Public Member Functions ///
 

@@ -34,8 +34,6 @@ Texture::Texture(const Contents& contents,
 	_mappingChannel = mappingChannel;
 }
 
-Texture::~Texture() {}
-
 Texture::Texture(const Texture& other):
 		Texture() {
 
@@ -56,13 +54,13 @@ Texture& Texture::operator=(const Texture& other) {
 	return *this;
 }
 
-Texture::Texture(Texture&& other):
+Texture::Texture(Texture&& other) noexcept:
 		Texture() {
 
 	*this = std::move(other);
 }
 
-Texture& Texture::operator=(Texture&& other) {
+Texture& Texture::operator=(Texture&& other) noexcept {
 
 	if (this == &other) {
 		return *this;
@@ -77,6 +75,8 @@ Texture& Texture::operator=(Texture&& other) {
 
 	return *this;
 }
+
+Texture::~Texture() {}
 
 /// Public Member Functions ///
 

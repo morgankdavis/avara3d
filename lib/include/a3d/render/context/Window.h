@@ -41,8 +41,13 @@ namespace a3d {
 				   bool fullScreen,
 				   bool enableHighDPI = true,
 				   AntialiasingMode antialiasingMode = AntialiasingMode::None);
-		Window(const Window& other) = delete; // copy constructor
-		Window& operator=(const Window& other) = delete; // copy assignment
+
+		Window(const Window& other) = delete;
+		Window& operator=(const Window& other) = delete;
+
+		Window(Window&&) = delete;
+		Window& operator=(Window&&) = delete;
+
 		~Window() override;
 
 		/// Public Member Functions ///

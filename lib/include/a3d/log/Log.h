@@ -112,8 +112,10 @@ namespace a3d {
 
 		Log(const Log& other) = delete;
 		Log& operator=(const Log& other) = delete;
+
 		Log(Log&&) = delete;
 		Log& operator=(Log&&) = delete;
+
 		~Log();
 
 		/// Public Member Functions ///

@@ -56,7 +56,6 @@ namespace a3d {
 		/// Internal Lifecycle Functions ///
 
 		OGLRenderer();
-		~OGLRenderer() override;
 
 		OGLRenderer(const OGLRenderer& other) = delete;
 		OGLRenderer& operator=(const OGLRenderer& other) = delete;
@@ -64,6 +63,7 @@ namespace a3d {
 		OGLRenderer(OGLRenderer&& other) = delete;
 		OGLRenderer& operator=(OGLRenderer&& other) = delete;
 
+		~OGLRenderer() override;
 
 		/// Renderer Internal Member Functions ///
 

@@ -44,13 +44,14 @@ namespace a3d {
 
 		explicit PhysicsBody(Type type);
 		PhysicsBody(Type type, const std::shared_ptr<PhysicsShape>& shape);
-		~PhysicsBody();
 
 		PhysicsBody(const PhysicsBody&) = delete;
 		PhysicsBody& operator=(const PhysicsBody&) = delete;
 
 		PhysicsBody(PhysicsBody&&) = delete;
 		PhysicsBody& operator=(PhysicsBody&&) = delete;
+
+		~PhysicsBody();
 
 		/// Public Member Functions ///
 

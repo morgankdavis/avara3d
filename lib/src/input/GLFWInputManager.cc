@@ -29,15 +29,6 @@ static GLFWInputManager* InputManagerFromGLFWWindow(GLFWwindow* glfwWindow);
 
 /// Public Lifecycle Functions ///
 
-// GLFWInputManager::GLFWInputManager(Window* window):
-//     DesktopInputManager{},
-//     _window{window}/*,
-//     _usingManyMouse{false}*/ {
-//
-//      window->inputManager(this);
-//      initMouseInput();
-// }
-
 GLFWInputManager::GLFWInputManager():
 	DesktopInputManager{},
 	_window{nullptr}/*,

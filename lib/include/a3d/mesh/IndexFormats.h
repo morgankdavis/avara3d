@@ -19,7 +19,7 @@ namespace a3d {
 		U32
 	};
 
-	inline constexpr uint16_t IndexStride(IndexFormat format) {
+	constexpr uint16_t IndexStride(IndexFormat format) {
 		switch (format) {
 			case a3d::IndexFormat::U16: return 2;
 			case a3d::IndexFormat::U32: return 4;

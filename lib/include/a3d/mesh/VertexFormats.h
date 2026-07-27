@@ -24,14 +24,6 @@ namespace a3d {
 		math::vec3 position;
 		math::vec3 color;
 	};
-
-//	inline constexpr uint16_t VertexStride(a3d::VertexLayout layout) {
-//		switch (layout) {
-//			case a3d::VertexLayout::PNT: 	return sizeof(VertexPNT);
-//			case a3d::VertexLayout::PC:  	return sizeof(VertexPC);
-//			default:                		return 0;
-//		}
-//	}
 }
 
 #endif //AVARA3D_MESH_VERTEXFORMATS_H

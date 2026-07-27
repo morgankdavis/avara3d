@@ -23,11 +23,14 @@ namespace a3d {
 		/// Internal Lifecycle Functions ///
 
 		explicit OGLDrawTimer(unsigned bufferedFrames);
-		~OGLDrawTimer();
+
 		OGLDrawTimer(const OGLDrawTimer&) = delete;
 		OGLDrawTimer& operator=(const OGLDrawTimer&) = delete;
+
 		OGLDrawTimer(OGLDrawTimer&& other) = delete;
 		OGLDrawTimer& operator=(OGLDrawTimer&& other) = delete;
+
+		~OGLDrawTimer();
 
 		/// Internal Member Functions ///
 

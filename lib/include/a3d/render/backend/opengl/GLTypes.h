@@ -32,16 +32,16 @@ namespace a3d::gl {
 	using uint64_t   = std::uint64_t;   // GLuint64
 
 	namespace value {
-		inline constexpr enum_t false_ = 0u;
-		inline constexpr enum_t true_  = 1u;
+		constexpr enum_t false_ = 0u;
+		constexpr enum_t true_  = 1u;
 
-		inline constexpr enum_t unsigned_byte  = 0x1401u; // GL_UNSIGNED_BYTE
-		inline constexpr enum_t unsigned_short = 0x1403u; // GL_UNSIGNED_SHORT
-		inline constexpr enum_t unsigned_int   = 0x1405u; // GL_UNSIGNED_INT
-		inline constexpr enum_t float32        = 0x1406u; // GL_FLOAT
+		constexpr enum_t unsigned_byte  = 0x1401u; // GL_UNSIGNED_BYTE
+		constexpr enum_t unsigned_short = 0x1403u; // GL_UNSIGNED_SHORT
+		constexpr enum_t unsigned_int   = 0x1405u; // GL_UNSIGNED_INT
+		constexpr enum_t float32        = 0x1406u; // GL_FLOAT
 
-		inline constexpr enum_t invalid_index  = 0xFFFFFFFFu; // GL_INVALID_INDEX
-		inline constexpr uint_t null_handle    = 0u;          // “0” object name
+		constexpr enum_t invalid_index  = 0xFFFFFFFFu; // GL_INVALID_INDEX
+		constexpr uint_t null_handle    = 0u;          // “0” object name
 	}
 
 	enum class index_type : enum_t {

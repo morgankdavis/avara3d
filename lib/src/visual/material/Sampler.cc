@@ -28,8 +28,6 @@ Sampler::Sampler():
 		_wrapR{WrapMode::Repeat},
 		_dirtyMask{DirtyMask::All} {}
 
-Sampler::~Sampler() {}
-
 Sampler::Sampler(const Sampler& other):
 		Sampler() {
 
@@ -75,6 +73,8 @@ Sampler& Sampler::operator=(Sampler&& other) {
 
 	return *this;
 }
+
+Sampler::~Sampler() {}
 
 /// Public Member Functions ///
 

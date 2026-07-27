@@ -13,4 +13,4 @@ using namespace a3d;
 /// Internal Lifecycle Functions ///
 
 PhysicsShapeProxy::PhysicsShapeProxy(PhysicsShape& shape) { }
-PhysicsShapeProxy::~PhysicsShapeProxy() { }
+PhysicsShapeProxy::~PhysicsShapeProxy() {}

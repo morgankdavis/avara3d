@@ -24,13 +24,14 @@ namespace a3d {
 		explicit Buffer(const std::vector<std::byte>& buf);
 		Buffer(const std::byte* buf, std::size_t size);
 		explicit Buffer(std::size_t size);
-		~Buffer();
 
 		Buffer(const Buffer& other);
 		Buffer& operator=(const Buffer& other);
 
 		Buffer(Buffer&& other) noexcept;
 		Buffer& operator=(Buffer&& other) noexcept;
+
+		~Buffer();
 
 		/// Public Member Functions ///
 

@@ -43,10 +43,6 @@ Font::Font(unique_ptr<Buffer> buffer):
 	
 }
 
-Font::~Font() {
-	log::d()("Destroying Font {:p}", static_cast<void*>(this));
-}
-
 Font::Font(const Font& other):
 		_name{other._name},
 		_type{other._type},
@@ -75,6 +71,10 @@ Font& Font::operator=(const Font& other) {
 Font::Font(Font&& other) noexcept = default;
 
 Font& Font::operator=(Font&& other) noexcept = default;
+
+Font::~Font() {
+	log::d()("Destroying Font {:p}", static_cast<void*>(this));
+}
 
 /// Public Member Functions ///
 
