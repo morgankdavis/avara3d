@@ -22,7 +22,7 @@
 - Prefer fixing the smallest relevant scope rather than opportunistic cleanup
 - If a task reveals unrelated cleanup, note it separately instead of doing it immediately
 - Do not reformat unrelated files
-- Do not touch `external/` unless explicitly asked
+- Do not touch `data/external/` unless explicitly asked
 - Do not add new dependencies unless asked to
 - Match existing code style when making changes
 - When uncertain, state assumptions before editing
@@ -32,7 +32,7 @@
 - Run on Linux, macOS, Windows, and modern web browsers through WebAssembly
 - Public API should feel RealityKit-ish: `World`, `Entity`, components, resources
 - Internals may be ECS-ish, but internal handles/registries must not leak into public API
-- Never expose internal dependencies in the public API (example: anything in `external/`)
+- Never expose internal dependencies in the public API (example: anything in `data/external/`)
 - Rendering should consume extracted snapshots/handles, not live scene objects
 - Use as platform-agnostic C++ as possible
 - Separate simulation/update concerns from rendering/extraction concerns
@@ -43,4 +43,4 @@
 ## Build and SCM expectations
 
 - Use CMake, Ninja and clang
-- It's okay to temporarily break editor/tests/samples/demos, but they should be fixed before merging topic branches
+- It's okay to temporarily break editor/tests/demos, but they should be fixed before merging topic branches
