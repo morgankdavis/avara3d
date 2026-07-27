@@ -20,7 +20,7 @@
 #include "a3d/profile/Profile.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/importer/GlTFImporter.h"
-#include "a3d/util/flow.h"
+#include "a3d/util/Flow.h"
 #include "a3d/visual/VisualWorld.h"
 
 using namespace a3d;

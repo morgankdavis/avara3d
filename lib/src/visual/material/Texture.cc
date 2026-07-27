@@ -11,7 +11,7 @@
 #include <utility>
 
 #include "a3d/IdGenerator.h"
-#include "a3d/util/bitmask.h"
+#include "a3d/util/Bitmask.h"
 
 using namespace a3d;
 using namespace std;

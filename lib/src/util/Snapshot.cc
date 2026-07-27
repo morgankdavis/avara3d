@@ -1,20 +1,20 @@
 //
-//  snapshot.cc
+//  Snapshot.cc
 //  avara3d
 //
 //  Created by Morgan Davis on 1/1/26.
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/util/snapshot.h"
+#include "a3d/util/Snapshot.h"
 
 #include <filesystem>
 
 #include "a3d/Image.h"
 #include "a3d/render/context/RenderContext.h"
 #include "a3d/log/Log.h"
-#include "a3d/util/filesystem.h"
-#include "a3d/util/string.h"
+#include "a3d/util/Filesystem.h"
+#include "a3d/util/String.h"
 
 void a3d::util::snapshot::SaveSnapshot(RenderContext& context) {
 

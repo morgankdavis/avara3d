@@ -21,7 +21,7 @@
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 #include "a3d/scene/importer/GlTFImporter.h"
-#include "a3d/util/filesystem.h"
+#include "a3d/util/Filesystem.h"
 #include "a3d/visual/VisualWorld.h"
 #include "a3d/visual/light/AmbientLight.h"
 #include "a3d/visual/light/DirectionalLight.h"

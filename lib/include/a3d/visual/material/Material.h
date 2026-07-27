@@ -17,7 +17,7 @@
 #include <vector>
 
 #include "a3d/Id.h"
-#include "a3d/util/bitmask.h"
+#include "a3d/util/Bitmask.h"
 
 namespace a3d {
 

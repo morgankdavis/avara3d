@@ -25,7 +25,7 @@
 #include "a3d/render/context/RenderContext.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
-#include "a3d/util/flow.h"
+#include "a3d/util/Flow.h"
 #include "a3d/visual/light/Light.h"
 #include "a3d/visual/material/Sampler.h"
 #include "a3d/visual/material/Texture.h"

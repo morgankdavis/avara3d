@@ -18,7 +18,7 @@
 #include "a3d/render/context/RenderContext.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
-#include "a3d/util/bitmask.h"
+#include "a3d/util/Bitmask.h"
 #include "a3d/visual/VisualWorld.h"
 #include "a3d/visual/material/Material.h"
 
@@ -97,7 +97,6 @@ GatherOutput RenderGatherer::Gather(const Scene& scene,
 				item.transparent = (mat->blendFunction() != Material::BlendFunction::Disabled);
 
 				// ! temnporary !
-#warning TEMPORARY
 				if (wireframe) item.style = RenderStyle::Wireframe; // TODO: test WireframeOverlay
 				else item.style = RenderStyle::Normal;
 
@@ -110,10 +109,12 @@ GatherOutput RenderGatherer::Gather(const Scene& scene,
 
 				++stats.numElements;
 //				stats.numPolygons += element->faces().size();
-				if (element->indexCount() > 0)
+				if (element->indexCount() > 0) {
 					stats.numPolygons += element->indexCount() / 3u;
-				else
+				}
+				else {
 					stats.numPolygons += element->vertexCount() / 3u;
+				}
 			}
 
 			if (showBounds) {

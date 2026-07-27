@@ -1,5 +1,5 @@
 //
-//  string.h
+//  String.h
 //  avara3d
 //
 //  Created by Morgan Davis on 1/1/26.

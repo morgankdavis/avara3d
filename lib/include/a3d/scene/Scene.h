@@ -18,7 +18,7 @@
 #include "a3d/Math.h"
 #include "a3d/profile/FrameStatsHistory.h"
 #include "a3d/profile/Profiler.h"
-#include "a3d/util/bitmask.h"
+#include "a3d/util/Bitmask.h"
 
 namespace a3d {
 

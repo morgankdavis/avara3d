@@ -16,7 +16,7 @@
 #include <vector>
 
 #include "a3d/mesh/AABB.h"
-#include "a3d/util/bitmask.h"
+#include "a3d/util/Bitmask.h"
 
 namespace a3d {
 

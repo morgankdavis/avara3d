@@ -1,12 +1,12 @@
 //
-//  chrono.cc
+//  Chrono.cc
 //  avara3d
 //
 //  Created by Morgan Davis on 1/1/26.
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/util/chrono.h"
+#include "a3d/util/Chrono.h"
 
 double a3d::util::chrono::Time() {
 	auto now = std::chrono::steady_clock::now();

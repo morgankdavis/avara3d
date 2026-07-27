@@ -32,7 +32,7 @@
 #include "a3d/mesh/VertexFormats.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
-#include "a3d/util/chrono.h"
+#include "a3d/util/Chrono.h"
 #include "a3d/visual/camera/Camera.h"
 #include "a3d/visual/camera/PerspectiveCamera.h"
 #include "a3d/visual/light/DirectionalLight.h"

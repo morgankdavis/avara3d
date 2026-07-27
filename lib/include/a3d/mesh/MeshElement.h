@@ -21,7 +21,7 @@
 #include "a3d/mesh/IndexFormats.h"
 #include "a3d/mesh/PrimitiveTopology.h"
 #include "a3d/mesh/VertexLayout.h"
-#include "a3d/util/bitmask.h"
+#include "a3d/util/Bitmask.h"
 
 namespace a3d {
 

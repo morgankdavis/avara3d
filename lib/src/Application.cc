@@ -21,7 +21,7 @@
 #include "a3d/log/sink/StdOutLogSink.h"
 #include "a3d/physics/PhysicsWorld.h"
 #include "a3d/scene/Scene.h"
-#include "a3d/util/filesystem.h"
+#include "a3d/util/Filesystem.h"
 #include "a3d/visual/VisualWorld.h"
 
 using namespace a3d;

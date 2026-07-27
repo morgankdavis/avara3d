@@ -17,7 +17,7 @@
 #include "a3d/profile/Profile.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
-#include "a3d/util/flow.h"
+#include "a3d/util/Flow.h"
 
 using namespace a3d;
 using namespace a3d::math;

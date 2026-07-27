@@ -13,7 +13,7 @@
 #include <utility>
 
 #include "a3d/a3d.h"
-#include "a3d/util/filesystem.h"
+#include "a3d/util/Filesystem.h"
 
 using namespace a3d;
 using namespace a3d::math;

@@ -21,7 +21,7 @@
 #include "a3d/render/backend/opengl/OGLRenderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
-#include "a3d/util/filesystem.h"
+#include "a3d/util/Filesystem.h"
 #include "a3d/visual/VisualWorld.h"
 #include "a3d/visual/camera/Camera.h"
 

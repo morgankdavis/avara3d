@@ -1,5 +1,5 @@
 //
-//  bitmask.h
+//  Bitmask.h
 //  avara3d
 //
 //  Created by Morgan Davis on 1/6/26.

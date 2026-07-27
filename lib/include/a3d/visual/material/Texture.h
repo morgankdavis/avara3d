@@ -15,7 +15,7 @@
 #include <variant>
 
 #include "a3d/Id.h"
-#include "a3d/util/bitmask.h"
+#include "a3d/util/Bitmask.h"
 #include "a3d/visual/material/Sampler.h"
 
 namespace a3d {

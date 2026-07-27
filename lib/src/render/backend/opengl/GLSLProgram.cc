@@ -16,7 +16,7 @@
 #include <magic_enum/magic_enum.hpp>
 
 #include "a3d/log/Log.h"
-#include "a3d/util/filesystem.h"
+#include "a3d/util/Filesystem.h"
 
 using namespace a3d;
 using namespace a3d::math;

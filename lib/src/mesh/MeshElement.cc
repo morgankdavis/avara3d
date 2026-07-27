@@ -16,7 +16,7 @@
 #include "a3d/Math.h"
 #include "a3d/mesh/PrimitiveTopology.h"
 #include "a3d/mesh/VertexAccess.h"
-#include "a3d/util/bitmask.h"
+#include "a3d/util/Bitmask.h"
 
 using namespace a3d;
 using namespace a3d::math;
