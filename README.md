@@ -8,33 +8,28 @@ A3D’s current development focus is a browser-accessible quadrotor simulation i
 
 ## Goals
 
-* Support deterministic fixed-step simulation and reproducible simulation workflows
+* Support stable, reproducible real-time simulation workflows
 * Provide rigid-body physics, visualization, telemetry, and debugging tools through a clean C++ API
 * Make simulated motion and system behavior easy to understand visually
 * Run on Linux, macOS, Windows, and modern web browsers
-* Remain lightweight enough for focused applications and technical demonstrations
-* Preserve a simple RealityKit-inspired public API while allowing more data-oriented internals
+* Remain easy to integrate into focused simulation applications and technical demonstrations
 
-## Core Design Principles
+## Design Principles
 
-- RealityKit-ish object model: World, Entity, components, resources
-- ECS-ish internals with a clear API boundary
-- Use modern architecture patterns:
-    - Resource handles
-    - Extracted rendering
-    - Fixed-step simulation
-    - Explicit frame lifetime
-- Keep rendering, physics, scripting, and tools separated
+- Provide a simple, RealityKit-inspired public C++ API
 - Keep engine internals and third-party dependencies out of the public API
-- Keep application code out of the engine
-- When in doubt, choose simple over fast, within reason
+- Permit ECS-style and data-oriented implementation techniques without exposing internal handles or registries
+- Separate simulation, physics, rendering, input, and tooling concerns
+- Use fixed-step simulation to improve stability and reproducibility
+- Separate scene traversal and render-data gathering from backend drawing
+- Keep application-specific code outside the engine
+- Prefer straightforward, maintainable C++ over unnecessary abstraction or optimization
 
 ## What It Is Not
 
 - A Unity/Unreal/Godot replacement. Lol.
 - A generic ECS framework
 - A research renderer
-- Perfect
 
 ## Building
 
@@ -66,9 +61,10 @@ git clone http://gitlab.mkd.net/a3d/avara3d.git
 If building with Qt/a3de, substitute your real Qt install location & version in CMAKE_PREFIX_PATH
 
 ```
+cd avara3d
 mkdir build
 cd build
-cmake .. -DCMAKE_C_COMPILER=$(which clang) -DCMAKE_CXX_COMPILER=$(which clang++) -DCMAKE_PREFIX_PATH="~/Qt/6.10.1/gcc_64" -GNinja
+cmake .. -DCMAKE_C_COMPILER=$(which clang) -DCMAKE_CXX_COMPILER=$(which clang++) -DCMAKE_PREFIX_PATH="$HOME/Qt/6.10.1/gcc_64" -GNinja
 cmake --build . -j
 ```
 
@@ -114,7 +110,7 @@ If building with Qt/a3de, substitute your real Qt install location in CMAKE_PREF
 cd avara3d
 mkdir build
 cd build
-cmake -DCMAKE_PREFIX_PATH="~/Qt/6.10.1/macos" -GNinja ..
+cmake -DCMAKE_PREFIX_PATH="$HOME/Qt/6.10.1/macos" -GNinja ..
 cmake --build . -j$(sysctl -n hw.ncpu)
 ```
 
