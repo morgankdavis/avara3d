@@ -99,7 +99,7 @@ namespace a3d {
 		void								detachedFromScene(Scene& scene);
 
 		void								draw(const Scene& scene,
-												 const PhysicsWorld* physicalWorld,
+												 const PhysicsWorld* physicsWorld,
 												 double runT,
 												 double deltaRunT,
 												 Scene::DebugOptions debugOptions,

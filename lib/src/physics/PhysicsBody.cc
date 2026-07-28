@@ -332,9 +332,9 @@ void PhysicsBody::attachedToNode(const shared_ptr<Node>& node) {
 void PhysicsBody::detachedFromNode(const std::shared_ptr<Node>& node) {
 	log::t()("node: {:p}", static_cast<void*>(node.get()));
 
-	// PhysicsWorld::remove() handled in physicalWorldUnreachable()
+	// PhysicsWorld::remove() handled in physicsWorldUnreachable()
 
-	_node = {}; // ^^ physicalWorld() relies on old _node
+	_node = {}; // ^^ physicsWorld() relies on old _node
 }
 
 void PhysicsBody::meshAttachedToNode(const shared_ptr<Mesh>& mesh) {
@@ -347,21 +347,21 @@ void PhysicsBody::meshDetachedFromNode(const shared_ptr<Mesh>& mesh) {
 	log::t()("mesh: {:p}", static_cast<void*>(mesh.get()));
 }
 
-void PhysicsBody::physicalWorldReachable(PhysicsWorld& world) {
+void PhysicsBody::physicsWorldReachable(PhysicsWorld& world) {
 	log::t()("world: {:p}", static_cast<void*>(&world));
 
 	if (_shape) {
-		_shape->physicalWorldReachable(world);
+		_shape->physicsWorldReachable(world);
 	}
 
 	checkAddToWorld();
 }
 
-void PhysicsBody::physicalWorldUnreachable(PhysicsWorld& world) {
+void PhysicsBody::physicsWorldUnreachable(PhysicsWorld& world) {
 	log::t()("world: {:p}", static_cast<void*>(&world));
 
 	if (_shape) {
-		_shape->physicalWorldUnreachable(world);
+		_shape->physicsWorldUnreachable(world);
 	}
 
 	// if _world != nullptr it's the world we're currently in
@@ -434,12 +434,12 @@ weak_ptr<Node> PhysicsBody::node() const {
 	return _node;
 }
 
-PhysicsWorld* PhysicsBody::physicalWorld() const {
+PhysicsWorld* PhysicsBody::physicsWorld() const {
 
 	if (auto node = _node.lock()) {
 		if (auto scene = node->scene()) {
-			if (auto physicalWorld = scene->physicalWorld(); physicalWorld) {
-				return physicalWorld;
+			if (auto physicsWorld = scene->physicsWorld(); physicsWorld) {
+				return physicsWorld;
 			}
 		}
 	}
@@ -515,7 +515,7 @@ void PhysicsBody::checkAutocreateShape(const shared_ptr<Mesh>& mesh) {
 void PhysicsBody::checkAddToWorld() {
 
 	if (!_world) {
-		if (auto world = physicalWorld()) {
+		if (auto world = physicsWorld()) {
 			world->add(*this);
 		}
 	}

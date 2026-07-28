@@ -15,8 +15,6 @@
 
 - Before making architectural changes, inspect relevant headers, source files, and call sites
 - Preserve existing behavior unless the task explicitly says to change it
-- OpenGL work should favor a minimal, correct, and maintainable implementation
-- Do not introduce rendering-backend abstraction work unless explicitly requested
 - Do not perform broad rewrites unless explicitly asked
 - Prefer staged plans with small, reviewable diffs
 - Prefer fixing the smallest relevant scope rather than opportunistic cleanup
@@ -25,6 +23,9 @@
 - Do not touch `data/external/` unless explicitly asked
 - Do not add new dependencies unless asked to
 - Match existing code style when making changes
+- Organize functions, types, variables, etc. into grouping matching the existing "/// Group tile ///" pattern
+- OpenGL work should favor a minimal, correct, and maintainable implementation
+- Do not introduce rendering-backend abstraction work unless explicitly requested
 - When uncertain, state assumptions before editing
 
 ## Architecture preferences

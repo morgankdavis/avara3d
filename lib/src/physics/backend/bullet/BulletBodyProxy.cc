@@ -492,9 +492,9 @@ void BulletBodyProxy::worldTransform(const mat4& transform) {
 
 	// Broadphase update: critical for kinematic/static teleports.
 	// Without this, the AABB in the broadphase can lag, and collisions "randomly" miss.
-	if (PhysicsBodyProxy::_body && PhysicsBodyProxy::_body->physicalWorld()) {
+	if (PhysicsBodyProxy::_body && PhysicsBodyProxy::_body->physicsWorld()) {
 		if (auto btWorldProxy = dynamic_cast<BulletWorldProxy*>(
-				PhysicsBodyProxy::_body->physicalWorld()->proxy())) {
+				PhysicsBodyProxy::_body->physicsWorld()->proxy())) {
 			auto btWorld = btWorldProxy->btWorld();
 			// !!! THIS NEEDS TO LOCK _btMutex IN BulletWorldProxy !!!
 			// AND: if (_btBody->isInWorld() && _btBody->getBroadphaseHandle()) {

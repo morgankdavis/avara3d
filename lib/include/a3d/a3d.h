@@ -15,6 +15,7 @@
 #include "a3d/Color.h"
 #include "a3d/Configuration.h"
 #include "a3d/CubeImage.h"
+#include "a3d/Execution.h"
 #include "a3d/Font.h"
 #include "a3d/Image.h"
 #include "a3d/log/Log.h"

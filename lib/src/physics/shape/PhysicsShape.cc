@@ -131,13 +131,13 @@ void PhysicsShape::detachedFromBody(PhysicsBody& body) {
 	_bodies.erase(&body);
 }
 
-void PhysicsShape::physicalWorldReachable(PhysicsWorld& world) {
+void PhysicsShape::physicsWorldReachable(PhysicsWorld& world) {
 	log::t()("world: {:p}", static_cast<void*>(&world));
 
 	checkCreateProxy();
 }
 
-void PhysicsShape::physicalWorldUnreachable(PhysicsWorld& world) {
+void PhysicsShape::physicsWorldUnreachable(PhysicsWorld& world) {
 	log::t()("world: {:p}", static_cast<void*>(&world));
 }
 

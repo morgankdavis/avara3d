@@ -9,6 +9,12 @@
 #ifndef AVARA3D_RUNNER_H
 #define AVARA3D_RUNNER_H
 
+#include <chrono>
+
+#include "a3d/Execution.h"
+
+#include "a3d/TestAccessFwd.h"
+
 namespace a3d {
 
 	class Scene;
@@ -48,10 +54,27 @@ namespace a3d {
 		const Scene& scene() const;
 
 	private:
+		/// Private Types ///
+
+		using Clock = std::chrono::steady_clock;
+
+		/// Private Member Functions ///
+
+		void start(Clock::time_point now);
+		bool update(Clock::time_point now);
+
 		/// Private Member Variables ///
 
-		Scene&	_scene;
-		State	_state;
+		Scene&				_scene;
+		State				_state;
+		Clock::time_point	_startTime;
+		Clock::time_point	_previousUpdateTime;
+		HostUpdateInfo		_hostUpdateInfo;
+		bool				_hasUpdated;
+
+		/// Test Access ///
+
+		friend class testing::RunnerTestAccess;
 	};
 }
 

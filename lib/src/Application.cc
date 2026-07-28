@@ -174,8 +174,8 @@ void Application::registerCallbacks() {
 		world->didRenderCallback(bind(&Application::visualWorldDidRender, this, _1, _2, _3));
 	}
 
-	if (auto* world = _scene->physicalWorld()) {
-		world->didSimulateCallback(bind(&Application::physicalWorldDidSimulate, this, _1, _2, _3));
+	if (auto* world = _scene->physicsWorld()) {
+		world->didSimulateCallback(bind(&Application::physicsWorldDidSimulate, this, _1, _2, _3));
 	}
 }
 
@@ -189,4 +189,4 @@ void Application::visualWorldWillRender(VisualWorld& world, double time, double 
 
 void Application::visualWorldDidRender(VisualWorld& world, double time, double deltaTime) {}
 
-void Application::physicalWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {}
+void Application::physicsWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {}

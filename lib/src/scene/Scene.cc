@@ -28,12 +28,6 @@ using namespace a3d::math;
 using namespace std;
 using namespace std::filesystem;
 
-/// Private Static Non-Member Prototypes ///
-
-static void GetRunTime(double time, // time since reference
-                       double &runT, // time since reference excluding paused time
-                       double &deltaRunT); // time since last call excluding paused time
-
 /// Public Static Member Functions ///
 
 unique_ptr<Scene> Scene::FromFile(const filesystem::path& path, ImportOptions options) {
@@ -46,10 +40,9 @@ Scene::Scene():
 		_name{},
 		_rootNode{make_shared<Node>("root node")},
 		_visualWorld{},
-		_physicalWorld{},
+		_physicsWorld{},
 		_inputManager{},
 		_debugOptions{DebugOptions::None},
-		_startTime{0},
 		_updateCallback{},
 		_profiler{},
 		_frameStatsHistory{a3d::config::FRAME_STATS_HISTORY_DURATION} {
@@ -69,11 +62,11 @@ Scene::Scene(unique_ptr<VisualWorld> visualWorld,
 		Scene() {
 
 	_visualWorld = std::move(visualWorld);
-	_physicalWorld = std::move(physicsWorld);
+	_physicsWorld = std::move(physicsWorld);
 	_inputManager = std::move(inputManager);
 
 	if (_visualWorld) _visualWorld->attachedToScene(*this);
-	if (_physicalWorld) _physicalWorld->attachedToScene(*this);
+	if (_physicsWorld) _physicsWorld->attachedToScene(*this);
 	if (_inputManager) _inputManager->attachedToScene(*this);
 }
 
@@ -97,7 +90,7 @@ Scene::~Scene() {
 
 	if (_rootNode) _rootNode->detachedFromScene(*this);
 	if (_visualWorld) _visualWorld->detachedFromScene(*this);
-	if (_physicalWorld) _physicalWorld->detachedFromScene(*this);
+	if (_physicsWorld) _physicsWorld->detachedFromScene(*this);
 //	if (_inputManager) _inputManager->detachedFromScene(*this);
 }
 
@@ -182,29 +175,29 @@ void Scene::visualWorld(unique_ptr<VisualWorld> world) {
 //	}
 }
 
-PhysicsWorld* Scene::physicalWorld() const {
-	return _physicalWorld.get();
+PhysicsWorld* Scene::physicsWorld() const {
+	return _physicsWorld.get();
 }
 
-void Scene::physicalWorld(unique_ptr<PhysicsWorld> world) {
+void Scene::physicsWorld(unique_ptr<PhysicsWorld> world) {
 
-	if (_physicalWorld) {
+	if (_physicsWorld) {
 
-		_physicalWorld->detachedFromScene(*this);
+		_physicsWorld->detachedFromScene(*this);
 
 		if (_rootNode) {
-			_rootNode->physicalWorldDetachedFromScene(*_physicalWorld, *this);
+			_rootNode->physicsWorldDetachedFromScene(*_physicsWorld, *this);
 		}
 	}
 
-	_physicalWorld = std::move(world);
+	_physicsWorld = std::move(world);
 
-	if (_physicalWorld) {
+	if (_physicsWorld) {
 
-		_physicalWorld->attachedToScene(*this);
+		_physicsWorld->attachedToScene(*this);
 
 		if (_rootNode) {
-			_rootNode->physicalWorldAttachedToScene(*_physicalWorld, *this);
+			_rootNode->physicsWorldAttachedToScene(*_physicsWorld, *this);
 		}
 	}
 }
@@ -267,18 +260,6 @@ void Scene::debugOptions(DebugOptions options) {
 	_debugOptions = options;
 }
 
-double Scene::time() const {
-
-	// https://randomascii.wordpress.com/2012/02/13/dont-store-that-in-a-float/
-
-	if (_startTime != 0) {
-		auto now = chrono::steady_clock::now();
-		auto nowSinceEpoch = chrono::duration<double>(now.time_since_epoch()).count();
-		return nowSinceEpoch - _startTime;
-	}
-	return 0;
-}
-
 Scene::UpdateCallback Scene::updateCallback() const {
 	return _updateCallback;
 }
@@ -289,25 +270,15 @@ void Scene::updateCallback(UpdateCallback function) {
 
 /// Internal Member Functions ///
 
-void Scene::update() {
+void Scene::update(const HostUpdateInfo& info) {
 
 	if (!util::flow::edge_guard(_rootNode, [&] {
 		log::e()("No root node attached to Scene {:p}", static_cast<void *>(this));
 	})) return;
 
-	static FrameStats stats;
-	memset(&stats, 0, sizeof(FrameStats));
+	FrameStats stats{};
 
 	prof::profile(_profiler, Profiler::Tag::Frame, [&] {
-
-		static auto now = chrono::system_clock::now();
-		_startTime = chrono::duration<double>(now.time_since_epoch()).count();
-
-		static double deltaT, runT, deltaRunT; // TODO: manage these in caller
-
-		GetRunTime(time(),
-				   runT,
-				   deltaRunT);
 
 		if (_inputManager) {
 
@@ -319,15 +290,15 @@ void Scene::update() {
 		if (_updateCallback) {
 
 			prof::profile(_profiler, Profiler::Tag::Application, [&] {
-				(_updateCallback)(*this, runT, deltaRunT);
+				(_updateCallback)(*this, info.elapsedTime, info.deltaTime);
 			});
 		}
 
-		if (_physicalWorld) {
+		if (_physicsWorld) {
 
-			_physicalWorld->step(*this,
-								 runT,
-								 deltaRunT,
+			_physicsWorld->step(*this,
+								 info.elapsedTime,
+								 info.deltaTime,
 								 stats,
 								 _profiler);
 		}
@@ -335,9 +306,9 @@ void Scene::update() {
 		if (_visualWorld) {
 
 			_visualWorld->draw(*this,
-							   (_physicalWorld ? _physicalWorld.get() : nullptr),
-							   runT,
-							   deltaRunT,
+							   (_physicsWorld ? _physicsWorld.get() : nullptr),
+							   info.elapsedTime,
+							   info.deltaTime,
 							   _debugOptions,
 							   stats,
 							   _profiler,
@@ -355,22 +326,4 @@ void Scene::update() {
 	_frameStatsHistory.add(stats);
 
 	_profiler.reset();
-}
-
-/// Private Static Non-Member Functions ///
-
-void GetRunTime(double time, // time since reference
-				double& runT, // time since reference excluding paused time
-				double& deltaRunT) { // time since last call excluding paused time
-
-	const double t = time;
-	static double prevT = t;
-	double deltaT = t - prevT;
-	prevT = t;
-
-	runT = t;
-
-	static double prevRunT = runT;
-	deltaRunT = runT - prevRunT;
-	prevRunT = runT;
 }

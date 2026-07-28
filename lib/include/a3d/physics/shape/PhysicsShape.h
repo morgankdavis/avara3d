@@ -68,8 +68,8 @@ namespace a3d {
 		void 								attachedToBody(PhysicsBody& body);
 		void 								detachedFromBody(PhysicsBody& body);
 
-		void								physicalWorldReachable(PhysicsWorld& world);
-		void								physicalWorldUnreachable(PhysicsWorld& world);
+		void								physicsWorldReachable(PhysicsWorld& world);
+		void								physicsWorldUnreachable(PhysicsWorld& world);
 
 //		void 								bodyAttachedToNode(Node* node); // body's owning node
 //		void 								bodyDetachedFromNode(Node* node);
@@ -84,9 +84,9 @@ namespace a3d {
 //		void								ancestorDetachedFromScene(Node* node,
 //																	  Scene* scene);
 //
-//		void								physicalWorldAttachedToScene(PhysicsWorld* world,
+//		void								physicsWorldAttachedToScene(PhysicsWorld* world,
 //																		 Scene* scene);
-//		void								physicalWorldDetachedFromScene(PhysicsWorld* world,
+//		void								physicsWorldDetachedFromScene(PhysicsWorld* world,
 //																		   Scene* scene);
 
 		void 								source(const Source& sourceObject);

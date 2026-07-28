@@ -14,7 +14,11 @@ using namespace std;
 
 Runner::Runner(Scene& scene):
 	_scene(scene),
-	_state(State::Idle) {
+	_state(State::Idle),
+	_startTime{},
+	_previousUpdateTime{},
+	_hostUpdateInfo{},
+	_hasUpdated{false} {
 }
 
 Runner::~Runner() {
@@ -22,12 +26,20 @@ Runner::~Runner() {
 }
 
 void Runner::start() {
+	start(Clock::now());
+}
+
+void Runner::start(Clock::time_point now) {
 
 	if (_state != State::Idle) {
 		throw logic_error(
 			"Runner::start requires an idle Runner.");
 	}
 
+	_startTime = now;
+	_previousUpdateTime = now;
+	_hostUpdateInfo = {};
+	_hasUpdated = false;
 	_state = State::Running;
 }
 
@@ -37,7 +49,32 @@ bool Runner::update() {
 		return false;
 	}
 
-	_scene.update();
+	return update(Clock::now());
+}
+
+bool Runner::update(Clock::time_point now) {
+
+	if (_state != State::Running) {
+		return false;
+	}
+
+	const HostUpdateInfo hostUpdateInfo {
+		.updateIndex = _hasUpdated
+			? _hostUpdateInfo.updateIndex + 1
+			: 0,
+		.elapsedTime = chrono::duration<double>(
+			now - _startTime).count(),
+		.deltaTime = _hasUpdated
+			? chrono::duration<double>(
+				now - _previousUpdateTime).count()
+			: 0.0
+	};
+
+	_previousUpdateTime = now;
+	_hostUpdateInfo = hostUpdateInfo;
+	_hasUpdated = true;
+
+	_scene.update(hostUpdateInfo);
 
 	return _state == State::Running;
 }

@@ -61,7 +61,7 @@ namespace a3d {
 
 		/// PhysicsWorld Callback Overrides ///
 
-		virtual void physicalWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime);
+		virtual void physicsWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime);
 
 	private:
 		/// Private Member Functions ///

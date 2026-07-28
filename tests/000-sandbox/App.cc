@@ -50,8 +50,8 @@ std::unique_ptr<Scene> App::init() {
 
 		auto visualWorld = make_unique<VisualWorld>(*_window);
 
-		auto physicalWorld = make_unique<PhysicsWorld>();
-		physicalWorld->timestep(PHYSICS_TIMESTEP);
+		auto physicsWorld = make_unique<PhysicsWorld>();
+		physicsWorld->timestep(PHYSICS_TIMESTEP);
 
 		auto mapPath = util::filesystem::AuxiliaryFilePath("Icebox", "alf");
 		auto alfImporter = ext::ALFImporter(*mapPath);
@@ -61,7 +61,7 @@ std::unique_ptr<Scene> App::init() {
 //		visualWorld->background(background);
 
 		scene->visualWorld(std::move(visualWorld));
-		scene->physicalWorld(std::move(physicalWorld));
+		scene->physicsWorld(std::move(physicsWorld));
 		scene->inputManager(Window::InputManager());
 
 		scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
@@ -327,6 +327,6 @@ void App::visualWorldDidRender(VisualWorld& world, double time, double deltaTime
 
 /// PhysicsWorld Callback Overrides ///
 
-void App::physicalWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {
+void App::physicsWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {
 
 }

@@ -250,6 +250,6 @@ void App::visualWorldDidRender(VisualWorld& world, double time, double deltaTime
 
 /// PhysicsWorld Callback Overrides ///
 
-void App::physicalWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {
+void App::physicsWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {
 
 }

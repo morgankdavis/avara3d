@@ -200,7 +200,7 @@ void VisualWorld::detachedFromScene(Scene& scene) {
 }
 
 void VisualWorld::draw(const Scene& scene,
-					   const PhysicsWorld* physicalWorld,
+					   const PhysicsWorld* physicsWorld,
 					   double runT,
 					   double deltaRunT,
 					   Scene::DebugOptions debugOptions,
@@ -265,7 +265,7 @@ void VisualWorld::draw(const Scene& scene,
 
 		auto gatherItems = RenderGatherer::Gather(scene,
 												  view,
-												  physicalWorld,
+												  physicsWorld,
 												  debugOptions,
 												  stats);
 

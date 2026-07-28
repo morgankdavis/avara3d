@@ -31,7 +31,7 @@ using namespace std;
 // "gather / collect / cull"
 GatherOutput RenderGatherer::Gather(const Scene& scene,
 									const math::mat4& view,
-									const PhysicsWorld* physicalWorld,
+									const PhysicsWorld* physicsWorld,
 									const Scene::DebugOptions& debugOptions,
 									FrameStats& stats) {
 
@@ -140,8 +140,8 @@ GatherOutput RenderGatherer::Gather(const Scene& scene,
 		}
 	}
 
-	if (physicalWorld) {
-		physicalWorld->appendDebugLines(output.debugLines, debugOptions);
+	if (physicsWorld) {
+		physicsWorld->appendDebugLines(output.debugLines, debugOptions);
 	}
 
 	return output;

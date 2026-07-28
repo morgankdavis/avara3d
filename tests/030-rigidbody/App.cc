@@ -88,11 +88,11 @@ unique_ptr<Scene> App::init() {
 		// auto background = make_shared<Texture>(util::filesystem::CubeImageNamed("stormy", "png"));
 		visualWorld->background(background);
 
-		auto physicalWorld = make_unique<PhysicsWorld>();
-		physicalWorld->timestep(PHYSICS_TIMESTEP);
+		auto physicsWorld = make_unique<PhysicsWorld>();
+		physicsWorld->timestep(PHYSICS_TIMESTEP);
 
 		auto scene = make_unique<Scene>(std::move(visualWorld),
-		                                std::move(physicalWorld),
+		                                std::move(physicsWorld),
 		                                Window::InputManager());
 		scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 		//scene->visualWorld()->usesDefaultLighting(true);
@@ -546,9 +546,9 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 	vec2 mouseScrollWheelDelta = im->mouseScrollWheelDelta();
 	if (mouseScrollWheelDelta.y > 0) {
 
-		auto newSpeed = std::clamp(scene.physicalWorld()->speed() + mouseScrollWheelDelta.y * 0.1,
+		auto newSpeed = std::clamp(scene.physicsWorld()->speed() + mouseScrollWheelDelta.y * 0.1,
 								   0.1, 1.0);
-		scene.physicalWorld()->speed((float)newSpeed);
+		scene.physicsWorld()->speed((float)newSpeed);
 	}
 
 	if (cursorCaptured) {
@@ -622,7 +622,7 @@ void App::visualWorldDidRender(VisualWorld& world, double time, double deltaTime
 
 /// PhysicsWorld Callback Overrides ///
 
-void App::physicalWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {}
+void App::physicsWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {}
 
 
 /// Private Static Non-Member Functions ///

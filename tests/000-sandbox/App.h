@@ -67,7 +67,7 @@ namespace test::sandbox {
 
 		/// PhysicsWorld Callback Overrides ///
 
-		void physicalWorldDidSimulate(
+		void physicsWorldDidSimulate(
 			a3d::PhysicsWorld& world,
 			double time,
 			double deltaTime) override;

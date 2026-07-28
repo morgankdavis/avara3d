@@ -52,11 +52,11 @@ std::unique_ptr<Scene> App::init() {
 
 		auto visualWorld = make_unique<VisualWorld>(*_window);
 
-		auto physicalWorld = make_unique<PhysicsWorld>();
-		physicalWorld->timestep(PHYSICS_TIMESTEP);
+		auto physicsWorld = make_unique<PhysicsWorld>();
+		physicsWorld->timestep(PHYSICS_TIMESTEP);
 
 		auto scene = make_unique<Scene>(std::move(visualWorld),
-										std::move(physicalWorld),
+										std::move(physicsWorld),
 										nullptr);
 		scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 
@@ -99,6 +99,6 @@ void App::visualWorldDidRender(VisualWorld& world, double time, double deltaTime
 
 /// PhysicsWorld Callback Overrides ///
 
-void App::physicalWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {
+void App::physicsWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {
 
 }

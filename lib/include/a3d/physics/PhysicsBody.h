@@ -157,8 +157,8 @@ namespace a3d {
 		void 								meshAttachedToNode(const std::shared_ptr<Mesh>& mesh); // owning node's mesh
 		void 								meshDetachedFromNode(const std::shared_ptr<Mesh>& mesh);
 
-		void								physicalWorldReachable(PhysicsWorld& world);
-		void								physicalWorldUnreachable(PhysicsWorld& world);
+		void								physicsWorldReachable(PhysicsWorld& world);
+		void								physicsWorldUnreachable(PhysicsWorld& world);
 
 //		void 								ancestorAttachedToParent(Node* ancestor,
 //																	 Node* parent);
@@ -170,9 +170,9 @@ namespace a3d {
 //		void								ancestorDetachedFromScene(Node* ancestor,
 //																	  Scene* scene);
 //
-//		void								physicalWorldAttachedToScene(PhysicsWorld* world,
+//		void								physicsWorldAttachedToScene(PhysicsWorld* world,
 //																		 Scene* scene);
-//		void								physicalWorldDetachedFromScene(PhysicsWorld* world,
+//		void								physicsWorldDetachedFromScene(PhysicsWorld* world,
 //																		   Scene* scene);
 
 		void 								addedToWorld(PhysicsWorld& world);
@@ -184,7 +184,7 @@ namespace a3d {
 		std::weak_ptr<Node>					node() const;
 
 		// the scene's world, if it exists.  not the same as _world.
-		PhysicsWorld*						physicalWorld() const;
+		PhysicsWorld*						physicsWorld() const;
 
 		PhysicsBodyProxy*					proxy() const;
 

@@ -15,6 +15,7 @@
 #include <optional>
 #include <string>
 
+#include "a3d/Execution.h"
 #include "a3d/Math.h"
 #include "a3d/profile/FrameStatsHistory.h"
 #include "a3d/profile/Profiler.h"
@@ -31,6 +32,7 @@ namespace a3d {
 	class PhysicsWorld;
 	class Renderer;
 	class RenderContext;
+	class Runner;
 	class VisualWorld;
 
 	class Scene {
@@ -106,8 +108,8 @@ namespace a3d {
 		VisualWorld* 						visualWorld() const;
 		void 								visualWorld(std::unique_ptr<VisualWorld> world);
 		
-		PhysicsWorld* 						physicalWorld() const;
-		void 								physicalWorld(std::unique_ptr<PhysicsWorld> world);
+		PhysicsWorld* 						physicsWorld() const;
+		void 								physicsWorld(std::unique_ptr<PhysicsWorld> world);
 
 		InputManager* 						inputManager() const;
 		void 								inputManager(std::unique_ptr<InputManager> manager);
@@ -118,25 +120,24 @@ namespace a3d {
 		DebugOptions 						debugOptions() const;
 		void 								debugOptions(DebugOptions options);
 
-		double 								time() const;
-
 		UpdateCallback 						updateCallback() const;
 		void 								updateCallback(UpdateCallback function);
 
-		/// Internal Member Functions ///
-
-		void 								update();
-
 	private:
+		friend class Runner;
+
+		/// Private Member Functions ///
+
+		void 								update(const HostUpdateInfo& info);
+
 		/// Private Member Variables ///
 
 		std::optional<std::string>			_name;
 		std::shared_ptr<Node>				_rootNode;
 		std::unique_ptr<VisualWorld> 		_visualWorld;
-		std::unique_ptr<PhysicsWorld> 		_physicalWorld;
+		std::unique_ptr<PhysicsWorld> 		_physicsWorld;
 		std::unique_ptr<InputManager>		_inputManager;
 		DebugOptions						_debugOptions;
-		double 								_startTime;
 		Profiler							_profiler;
 		FrameStatsHistory					_frameStatsHistory;
 		UpdateCallback						_updateCallback;

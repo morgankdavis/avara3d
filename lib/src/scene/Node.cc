@@ -655,31 +655,31 @@ void Node::visualWorldDetachedFromScene(VisualWorld& world, Scene& scene) {
 	}
 }
 
-void Node::physicalWorldAttachedToScene(PhysicsWorld& world, Scene& scene) {
+void Node::physicsWorldAttachedToScene(PhysicsWorld& world, Scene& scene) {
 	log::t()("world: {:p}, scene: {:p}", static_cast<void*>(&world), static_cast<void*>(&scene));
 
 //	if (_physicsBody) {
-//		_physicsBody->physicalWorldAttachedToScene(world, scene);
+//		_physicsBody->physicsWorldAttachedToScene(world, scene);
 //	}
 
 	checkNotifyPhysicsBodyOfReachablePhysicsWorld();
 
 	for (auto& child : _children) {
-		child->physicalWorldAttachedToScene(world, scene);
+		child->physicsWorldAttachedToScene(world, scene);
 	}
 }
 
-void Node::physicalWorldDetachedFromScene(PhysicsWorld& world, Scene& scene) {
+void Node::physicsWorldDetachedFromScene(PhysicsWorld& world, Scene& scene) {
 	log::t()("world: {:p}, scene: {:p}", static_cast<void*>(&world), static_cast<void*>(&scene));
 
 //	if (_physicsBody) {
-//		_physicsBody->physicalWorldDetachedFromScene(world, scene);
+//		_physicsBody->physicsWorldDetachedFromScene(world, scene);
 //	}
 
 	checkNotifyPhysicsBodyOfUnreachablePhysicsWorld();
 
 	for (auto& child : _children) {
-		child->physicalWorldDetachedFromScene(world, scene);
+		child->physicsWorldDetachedFromScene(world, scene);
 	}
 }
 
@@ -693,11 +693,11 @@ VisualWorld* Node::visualWorld() const {
 	return nullptr;
 }
 
-PhysicsWorld* Node::physicalWorld() const {
+PhysicsWorld* Node::physicsWorld() const {
 
 	if (auto scene = Node::scene(); scene) {
-		if (auto physicalWorld = scene->physicalWorld(); physicalWorld) {
-			return physicalWorld;
+		if (auto physicsWorld = scene->physicsWorld(); physicsWorld) {
+			return physicsWorld;
 		}
 	}
 	return nullptr;
@@ -706,8 +706,8 @@ PhysicsWorld* Node::physicalWorld() const {
 void Node::checkNotifyPhysicsBodyOfReachablePhysicsWorld() const {
 
 	if (_physicsBody) {
-		if (auto physicalWorld = Node::physicalWorld()) {
-			_physicsBody->physicalWorldReachable(*physicalWorld);
+		if (auto physicsWorld = Node::physicsWorld()) {
+			_physicsBody->physicsWorldReachable(*physicsWorld);
 		}
 	}
 }
@@ -717,8 +717,8 @@ void Node::checkNotifyPhysicsBodyOfUnreachablePhysicsWorld() const {
 	// so if we HAVE a path to PhysicsWorld now, we won't mush longer.
 
 	if (_physicsBody) {
-		if (auto physicalWorld = Node::physicalWorld()) {
-			_physicsBody->physicalWorldUnreachable(*physicalWorld);
+		if (auto physicsWorld = Node::physicsWorld()) {
+			_physicsBody->physicsWorldUnreachable(*physicsWorld);
 		}
 	}
 }
