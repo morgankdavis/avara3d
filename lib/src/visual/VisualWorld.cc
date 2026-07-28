@@ -199,7 +199,7 @@ void VisualWorld::detachedFromScene(Scene& scene) {
 	_scene = nullptr;
 }
 
-void VisualWorld::draw(const Scene& scene,
+bool VisualWorld::draw(const Scene& scene,
 					   const PhysicsWorld* physicsWorld,
 					   double runT,
 					   double deltaRunT,
@@ -210,12 +210,12 @@ void VisualWorld::draw(const Scene& scene,
 
 	if (!util::flow::edge_guard(_renderContext, [&] {
 		log::e()("No RenderContext attached to VisualWorld {:p}", static_cast<void *>(this));
-	})) return;
+	})) return false;
 
 	auto renderer = _renderContext->renderer();
 	if (!util::flow::edge_guard(renderer, [&] {
 		log::e()("No Renderer attached to RenderContext {:p}", static_cast<void*>(_renderContext));
-	})) return;
+	})) return false;
 
 	util::flow::once([&] { firstDraw(); });
 
@@ -224,14 +224,14 @@ void VisualWorld::draw(const Scene& scene,
 		log::e()("No point of view!");
 		renderer->clear(Renderer::ClearCommand{}, *_renderContext);
 		_renderContext->swapBuffers();
-	})) return;
+	})) return false;
 
 	auto povScene = pov->scene();
 	if (!util::flow::edge_guard(povScene && povScene == &scene, [&] {
 		log::e()("Point of view not in our scene!");
 		renderer->clear(Renderer::ClearCommand{}, *_renderContext);
 		_renderContext->swapBuffers();
-	})) return;
+	})) return false;
 
 	if (auto willRender = VisualWorld::willRenderCallback()) {
 		prof::profile(profiler, Profiler::Tag::Application, [&] {
@@ -318,6 +318,8 @@ void VisualWorld::draw(const Scene& scene,
 			_renderContext->saveGIFFrame(deltaRunT);
 		}
 	});
+
+	return true;
 }
 
 shared_ptr<Material> VisualWorld::backgroundMaterial() {

@@ -15,10 +15,9 @@
 #include <optional>
 #include <string>
 
-#include "a3d/Execution.h"
+#include "a3d/Timing.h"
 #include "a3d/Math.h"
-#include "a3d/profile/FrameStatsHistory.h"
-#include "a3d/profile/Profiler.h"
+#include "a3d/physics/PhysicsInventory.h"
 #include "a3d/util/Bitmask.h"
 
 namespace a3d {
@@ -30,9 +29,9 @@ namespace a3d {
 	class Mesh;
 	class Node;
 	class PhysicsWorld;
+	class Profiler;
 	class Renderer;
 	class RenderContext;
-	class Runner;
 	class VisualWorld;
 
 	class Scene {
@@ -123,12 +122,18 @@ namespace a3d {
 		UpdateCallback 						updateCallback() const;
 		void 								updateCallback(UpdateCallback function);
 
+		/// Internal Member Functions ///
+
+		void 								updateHostEvents(Profiler& profiler);
+		void 								updateInput(Profiler& profiler);
+		void 								invokeLegacyUpdateCallback(
+												 const HostUpdateInfo& info,
+												 Profiler& profiler);
+		PhysicsInventory					updateLegacyPhysics(
+												 const HostUpdateInfo& info,
+												 Profiler& profiler);
+
 	private:
-		friend class Runner;
-
-		/// Private Member Functions ///
-
-		void 								update(const HostUpdateInfo& info);
 
 		/// Private Member Variables ///
 
@@ -138,8 +143,6 @@ namespace a3d {
 		std::unique_ptr<PhysicsWorld> 		_physicsWorld;
 		std::unique_ptr<InputManager>		_inputManager;
 		DebugOptions						_debugOptions;
-		Profiler							_profiler;
-		FrameStatsHistory					_frameStatsHistory;
 		UpdateCallback						_updateCallback;
 	};
 

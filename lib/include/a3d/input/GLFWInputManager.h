@@ -44,6 +44,8 @@ namespace a3d {
 		void 			glfwScrollEvent(double xOffset, double yOffset);
 		void 			glfwKeyEvent(int key, int scanCode, int action, int mods);
 
+		void			detachedFromWindow(Window& window);
+
 	private:
 		/// Private Member Functions ///
 

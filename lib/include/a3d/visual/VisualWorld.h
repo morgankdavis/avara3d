@@ -98,7 +98,7 @@ namespace a3d {
 		void								attachedToScene(Scene& scene);
 		void								detachedFromScene(Scene& scene);
 
-		void								draw(const Scene& scene,
+		bool								draw(const Scene& scene,
 												 const PhysicsWorld* physicsWorld,
 												 double runT,
 												 double deltaRunT,

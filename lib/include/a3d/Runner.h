@@ -11,11 +11,15 @@
 
 #include <chrono>
 
-#include "a3d/Execution.h"
+#include "a3d/Timing.h"
+#include "a3d/profile/FrameStatsHistory.h"
+#include "a3d/profile/Profiler.h"
 
 #include "a3d/TestAccessFwd.h"
 
 namespace a3d {
+
+	struct FrameStats;
 
 	class Scene;
 
@@ -62,6 +66,7 @@ namespace a3d {
 
 		void start(Clock::time_point now);
 		bool update(Clock::time_point now);
+		bool renderFrame(const HostUpdateInfo& info, FrameStats& stats);
 
 		/// Private Member Variables ///
 
@@ -71,6 +76,8 @@ namespace a3d {
 		Clock::time_point	_previousUpdateTime;
 		HostUpdateInfo		_hostUpdateInfo;
 		bool				_hasUpdated;
+		Profiler			_profiler;
+		FrameStatsHistory	_frameStatsHistory;
 
 		/// Test Access ///
 

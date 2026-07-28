@@ -180,23 +180,35 @@ void PhysicsWorld::remove(PhysicsBody& body) {
 	}
 }
 
-void PhysicsWorld::step(const Scene& scene,
-						 double runT,
-						 double deltaRunT,
-						 FrameStats& stats,
-						 Profiler& profiler) {
+PhysicsInventory PhysicsWorld::step(const Scene& scene,
+									 double runT,
+									 double deltaRunT,
+									 Profiler& profiler) {
 
 	if (!util::flow::edge_guard(_proxy, [&] {
 		log::e()("No PhysicsWorldProxy attached to PhysicsWorld {:p}.", static_cast<void*>(this));
-	})) return;
+	})) return {};
 
-	_proxy->step(deltaRunT, _speed, _timestep, stats, profiler);
+	_proxy->step(deltaRunT, _speed, _timestep, profiler);
+
+	auto inventory = prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
+		return PhysicsWorld::inventory();
+	});
 
 	if (auto didSimulate = PhysicsWorld::didSimulateCallback()) {
 		prof::profile(profiler, Profiler::Tag::Application, [&] {
 			didSimulate(*this, runT, deltaRunT);
 		});
 	}
+
+	return inventory;
+}
+
+PhysicsInventory PhysicsWorld::inventory() const {
+	if (_proxy) {
+		return _proxy->inventory();
+	}
+	return {};
 }
 
 void PhysicsWorld::appendDebugLines(vector<Line>& out,

@@ -9,18 +9,19 @@
 #include "a3d/scene/Scene.h"
 
 #include <filesystem>
+#include <stdexcept>
 #include <utility>
 
 #include "a3d/Buffer.h"
 #include "a3d/Color.h"
-#include "a3d/Configuration.h"
+#include "a3d/input/InputManager.h"
 #include "a3d/log/Log.h"
-#include "a3d/input/GLFWInputManager.h"
 #include "a3d/physics/PhysicsWorld.h"
 #include "a3d/profile/Profile.h"
+#include "a3d/profile/Profiler.h"
+#include "a3d/render/context/RenderContext.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/importer/GlTFImporter.h"
-#include "a3d/util/Flow.h"
 #include "a3d/visual/VisualWorld.h"
 
 using namespace a3d;
@@ -43,9 +44,7 @@ Scene::Scene():
 		_physicsWorld{},
 		_inputManager{},
 		_debugOptions{DebugOptions::None},
-		_updateCallback{},
-		_profiler{},
-		_frameStatsHistory{a3d::config::FRAME_STATS_HISTORY_DURATION} {
+		_updateCallback{} {
 
 	_rootNode->attachedToScene(*this);
 }
@@ -110,17 +109,17 @@ const shared_ptr<Node>& Scene::rootNode() const {
 
 void Scene::rootNode(const shared_ptr<Node>& node) {
 
-//	if () // check they are not the same
-	if (_rootNode) {
-		_rootNode->detachedFromScene(*this);
+	if (!node) {
+		throw std::invalid_argument("Scene::rootNode() requires a non-null Node.");
 	}
 
-	//_rootNode = std::move(node);
+	if (_rootNode == node) {
+		return;
+	}
+
+	_rootNode->detachedFromScene(*this);
 	_rootNode = node;
-
-	if (_rootNode) {
-		_rootNode->attachedToScene(*this);
-	}
+	_rootNode->attachedToScene(*this);
 }
 
 //Node* Scene::rootNode() const {
@@ -270,60 +269,50 @@ void Scene::updateCallback(UpdateCallback function) {
 
 /// Internal Member Functions ///
 
-void Scene::update(const HostUpdateInfo& info) {
+void Scene::updateHostEvents(Profiler& profiler) {
 
-	if (!util::flow::edge_guard(_rootNode, [&] {
-		log::e()("No root node attached to Scene {:p}", static_cast<void *>(this));
-	})) return;
-
-	FrameStats stats{};
-
-	prof::profile(_profiler, Profiler::Tag::Frame, [&] {
-
-		if (_inputManager) {
-
-			prof::profile(_profiler, Profiler::Tag::EngineCpu, [&] {
-				_inputManager->update();
+	if (_visualWorld) {
+		if (auto renderContext = _visualWorld->renderContext()) {
+			prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
+				renderContext->pollEvents();
 			});
 		}
+	}
+}
 
-		if (_updateCallback) {
+void Scene::updateInput(Profiler& profiler) {
 
-			prof::profile(_profiler, Profiler::Tag::Application, [&] {
-				(_updateCallback)(*this, info.elapsedTime, info.deltaTime);
-			});
-		}
+	if (_inputManager) {
 
-		if (_physicsWorld) {
+		prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
+			_inputManager->update();
+		});
+	}
+}
 
-			_physicsWorld->step(*this,
-								 info.elapsedTime,
-								 info.deltaTime,
-								 stats,
-								 _profiler);
-		}
+void Scene::invokeLegacyUpdateCallback(
+		const HostUpdateInfo& info,
+		Profiler& profiler) {
 
-		if (_visualWorld) {
+	if (_updateCallback) {
 
-			_visualWorld->draw(*this,
-							   (_physicsWorld ? _physicsWorld.get() : nullptr),
-							   info.elapsedTime,
-							   info.deltaTime,
-							   _debugOptions,
-							   stats,
-							   _profiler,
-							   _frameStatsHistory);
-		}
-	});
+		prof::profile(profiler, Profiler::Tag::Application, [&] {
+			(_updateCallback)(*this, info.elapsedTime, info.deltaTime);
+		});
+	}
+}
 
-	stats.frameTime = _profiler.time(Profiler::Tag::Frame);
-	stats.engineCpuTime = _profiler.time(Profiler::Tag::EngineCpu);
-	stats.renderCpuTime = _profiler.time(Profiler::Tag::RenderCpu);
-	stats.renderGpuTime = _profiler.time(Profiler::Tag::RenderGpu);
-	stats.physicsTime = _profiler.time(Profiler::Tag::Physics);
-	stats.applicationTime = _profiler.time(Profiler::Tag::Application);
+PhysicsInventory Scene::updateLegacyPhysics(
+		const HostUpdateInfo& info,
+		Profiler& profiler) {
 
-	_frameStatsHistory.add(stats);
+	if (_physicsWorld) {
 
-	_profiler.reset();
+		return _physicsWorld->step(*this,
+								   info.elapsedTime,
+								   info.deltaTime,
+								   profiler);
+	}
+
+	return {};
 }

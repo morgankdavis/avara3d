@@ -13,11 +13,10 @@
 #include <memory>
 #include <optional>
 
+#include "a3d/physics/PhysicsInventory.h"
 #include "a3d/scene/Scene.h"
 
 namespace a3d {
-
-	struct FrameStats;
 
 	class HitTestResult;
 	class Line;
@@ -95,11 +94,12 @@ namespace a3d {
 		void 								add(PhysicsBody& body);
 		void 								remove(PhysicsBody& body);
 
-		void								step(const Scene& scene,
+		PhysicsInventory					step(const Scene& scene,
 												 double runT,
 												 double deltaRunT,
-												 FrameStats& stats,
 												 Profiler& profiler);
+
+		PhysicsInventory					inventory() const;
 
 		void 								appendDebugLines(std::vector<Line>& out,
 															 Scene::DebugOptions debugOptions) const;

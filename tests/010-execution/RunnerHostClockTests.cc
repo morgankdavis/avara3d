@@ -10,14 +10,24 @@
 #include <cmath>
 #include <cstdint>
 #include <iostream>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <tuple>
 #include <utility>
 #include <vector>
 
-#include "a3d/Execution.h"
+#include "a3d/Timing.h"
 #include "a3d/Runner.h"
+#include "a3d/input/InputManager.h"
+#include "a3d/physics/PhysicsBody.h"
+#include "a3d/physics/PhysicsInventory.h"
+#include "a3d/physics/PhysicsWorld.h"
+#include "a3d/physics/shape/primitive/SpherePhysicsShape.h"
+#include "a3d/profile/FrameStats.h"
+#include "a3d/profile/FrameStatsHistory.h"
+#include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 
 namespace a3d::testing {
@@ -25,7 +35,7 @@ namespace a3d::testing {
 	class RunnerTestAccess {
 
 	public:
-		using TimePoint = std::chrono::steady_clock::time_point;
+		using TimePoint = Runner::Clock::time_point;
 
 		static void start(Runner& runner, TimePoint now) {
 			runner.start(now);
@@ -38,6 +48,10 @@ namespace a3d::testing {
 		static const HostUpdateInfo& hostUpdateInfo(const Runner& runner) {
 			return runner._hostUpdateInfo;
 		}
+
+		static const FrameStatsHistory& frameStatsHistory(const Runner& runner) {
+			return runner._frameStatsHistory;
+		}
 	};
 }
 
@@ -48,6 +62,35 @@ namespace {
 	struct CallbackTime {
 		double elapsedTime;
 		double deltaTime;
+	};
+
+	class RecordingInputManager final : public a3d::InputManager {
+
+	public:
+		explicit RecordingInputManager(
+			std::vector<std::string_view>& stages):
+				_stages{stages},
+				_updateCount{} {}
+
+		void update() override {
+			_stages.push_back("input");
+			++_updateCount;
+		}
+
+		void attachedToScene(a3d::Scene&) override {}
+		void visualWorldAttachedToScene(a3d::Scene&) override {}
+
+		std::size_t updateCount() const {
+			return _updateCount;
+		}
+
+		void reset() {
+			_updateCount = 0;
+		}
+
+	private:
+		std::vector<std::string_view>&	_stages;
+		std::size_t						_updateCount;
 	};
 
 	TimePoint AtMilliseconds(std::int64_t milliseconds) {
@@ -272,12 +315,22 @@ namespace {
 	void StopDuringUpdate() {
 
 		a3d::Scene scene;
+		scene.physicsWorld(std::make_unique<a3d::PhysicsWorld>());
+
 		a3d::Runner runner(scene);
+		std::vector<std::string_view> stages;
 		std::size_t callbackCount = 0;
+		std::size_t physicsCount = 0;
 		scene.updateCallback(
-			[&runner, &callbackCount](a3d::Scene&, double, double) {
+			[&runner, &callbackCount, &stages](a3d::Scene&, double, double) {
+				stages.push_back("application");
 				++callbackCount;
 				runner.stop();
+			});
+		scene.physicsWorld()->didSimulateCallback(
+			[&physicsCount, &stages](a3d::PhysicsWorld&, double, double) {
+				stages.push_back("physics");
+				++physicsCount;
 			});
 
 		a3d::testing::RunnerTestAccess::start(
@@ -287,6 +340,14 @@ namespace {
 				runner, AtMilliseconds(7100)),
 			"an update that stops the Runner should return false");
 		Expect(callbackCount == 1, "the stopping callback should run once");
+		Expect(
+			physicsCount == 1,
+			"stop during the legacy callback should not skip the current physics stage");
+		Expect(
+			stages.size() == 2
+				&& stages[0] == "application"
+				&& stages[1] == "physics",
+			"physics should follow the stopping legacy callback");
 		Expect(
 			runner.state() == a3d::Runner::State::Stopped,
 			"the Runner should remain stopped");
@@ -299,6 +360,332 @@ namespace {
 				runner, AtMilliseconds(7200)),
 			"a later update should remain stopped");
 		Expect(callbackCount == 1, "a stopped Runner should not invoke the callback again");
+		Expect(physicsCount == 1, "a stopped Runner should not invoke physics again");
+	}
+
+	void LegacyPipelineOrderWithPhysics() {
+
+		a3d::Scene scene;
+		std::vector<std::string_view> stages;
+		auto inputManager = std::make_unique<RecordingInputManager>(stages);
+		auto* inputManagerPtr = inputManager.get();
+		scene.inputManager(std::move(inputManager));
+		scene.physicsWorld(std::make_unique<a3d::PhysicsWorld>());
+
+		a3d::Runner runner(scene);
+		a3d::testing::RunnerTestAccess::start(
+			runner, AtMilliseconds(8000));
+
+		// Prime the Runner so the observed host update has a nonzero delta.
+		Expect(
+			a3d::testing::RunnerTestAccess::update(
+				runner, AtMilliseconds(8100)),
+			"the priming host update should continue");
+		stages.clear();
+		inputManagerPtr->reset();
+
+		std::vector<CallbackTime> applicationTimes;
+		std::vector<CallbackTime> physicsTimes;
+		scene.updateCallback(
+			[&applicationTimes, &stages](
+				a3d::Scene&,
+				double elapsedTime,
+				double deltaTime) {
+
+				stages.push_back("application");
+				applicationTimes.push_back({elapsedTime, deltaTime});
+			});
+		scene.physicsWorld()->didSimulateCallback(
+			[&physicsTimes, &stages](
+				a3d::PhysicsWorld&,
+				double elapsedTime,
+				double deltaTime) {
+
+				stages.push_back("physics");
+				physicsTimes.push_back({elapsedTime, deltaTime});
+			});
+
+		Expect(
+			a3d::testing::RunnerTestAccess::update(
+				runner, AtMilliseconds(8350)),
+			"the observed host update should continue");
+
+		Expect(
+			stages.size() == 3
+				&& stages[0] == "input"
+				&& stages[1] == "application"
+				&& stages[2] == "physics",
+			"the legacy pipeline should run input, application, then physics");
+		Expect(
+			inputManagerPtr->updateCount() == 1,
+			"input should update exactly once in the observed host update");
+		Expect(
+			applicationTimes.size() == 1,
+			"the legacy Scene callback should run exactly once");
+		Expect(
+			physicsTimes.size() == 1,
+			"the physics did-simulate callback should run exactly once");
+		ExpectNear(
+			applicationTimes[0].elapsedTime,
+			0.35,
+			"the legacy Scene callback elapsed time");
+		ExpectNear(
+			applicationTimes[0].deltaTime,
+			0.25,
+			"the legacy Scene callback delta time");
+		ExpectNear(
+			physicsTimes[0].elapsedTime,
+			0.35,
+			"the physics callback elapsed time");
+		ExpectNear(
+			physicsTimes[0].deltaTime,
+			0.25,
+			"the physics callback delta time");
+	}
+
+	void FirstZeroDeltaReachesPhysics() {
+
+		a3d::Scene scene;
+		scene.physicsWorld(std::make_unique<a3d::PhysicsWorld>());
+
+		std::vector<CallbackTime> physicsTimes;
+		scene.physicsWorld()->didSimulateCallback(
+			[&physicsTimes](
+				a3d::PhysicsWorld&,
+				double elapsedTime,
+				double deltaTime) {
+
+				physicsTimes.push_back({elapsedTime, deltaTime});
+			});
+
+		a3d::Runner runner(scene);
+		a3d::testing::RunnerTestAccess::start(
+			runner, AtMilliseconds(9000));
+		Expect(
+			a3d::testing::RunnerTestAccess::update(
+				runner, AtMilliseconds(9100)),
+			"the first host update should continue");
+
+		Expect(
+			physicsTimes.size() == 1,
+			"the first host update should reach the existing physics callback");
+		ExpectNear(
+			physicsTimes[0].elapsedTime,
+			0.1,
+			"the first physics callback elapsed time");
+		ExpectNear(
+			physicsTimes[0].deltaTime,
+			0.0,
+			"the first physics callback delta time should remain zero");
+	}
+
+	void NeitherWorldPipeline() {
+
+		a3d::Scene scene;
+		std::vector<std::string_view> stages;
+		auto inputManager = std::make_unique<RecordingInputManager>(stages);
+		auto* inputManagerPtr = inputManager.get();
+		scene.inputManager(std::move(inputManager));
+
+		std::vector<CallbackTime> applicationTimes;
+		scene.updateCallback(
+			[&applicationTimes, &stages](
+				a3d::Scene&,
+				double elapsedTime,
+				double deltaTime) {
+
+				stages.push_back("application");
+				applicationTimes.push_back({elapsedTime, deltaTime});
+			});
+
+		Expect(
+			scene.physicsWorld() == nullptr,
+			"the neither-world fixture should not have a PhysicsWorld");
+		Expect(
+			scene.visualWorld() == nullptr,
+			"the neither-world fixture should not have a VisualWorld");
+
+		a3d::Runner runner(scene);
+		a3d::testing::RunnerTestAccess::start(
+			runner, AtMilliseconds(10000));
+		Expect(
+			a3d::testing::RunnerTestAccess::update(
+				runner, AtMilliseconds(10150)),
+			"the neither-world host update should continue");
+
+		Expect(
+			stages.size() == 2
+				&& stages[0] == "input"
+				&& stages[1] == "application",
+			"input and the legacy callback should run without either world");
+		Expect(
+			inputManagerPtr->updateCount() == 1,
+			"input should update once without either world");
+		Expect(
+			applicationTimes.size() == 1,
+			"the legacy callback should run once without either world");
+		ExpectNear(
+			applicationTimes[0].elapsedTime,
+			0.15,
+			"the neither-world callback elapsed time");
+		ExpectNear(
+			applicationTimes[0].deltaTime,
+			0.0,
+			"the neither-world callback first delta time");
+	}
+
+	void SceneRootInvariant() {
+
+		a3d::Scene scene;
+		auto originalRoot = scene.rootNode();
+
+		Expect(
+			originalRoot != nullptr,
+			"Scene should start with a non-null root Node");
+		Expect(
+			originalRoot->scene() == &scene,
+			"the initial root Node should be attached to its Scene");
+
+		scene.rootNode(originalRoot);
+		Expect(
+			scene.rootNode() == originalRoot,
+			"installing the current root should be a no-op");
+
+		bool rejected = false;
+		try {
+			scene.rootNode(nullptr);
+		}
+		catch (const std::invalid_argument&) {
+			rejected = true;
+		}
+
+		Expect(rejected, "Scene should reject a null root Node");
+		Expect(
+			scene.rootNode() == originalRoot,
+			"a rejected root replacement should preserve the original root");
+		Expect(
+			originalRoot->scene() == &scene,
+			"a rejected root replacement should leave the original root attached");
+	}
+
+	void PhysicsInventorySamplingIsCurrent() {
+
+		a3d::Scene scene;
+		scene.physicsWorld(std::make_unique<a3d::PhysicsWorld>());
+
+		auto staticNode = std::make_shared<a3d::Node>("static body");
+		staticNode->physicsBody(std::make_unique<a3d::PhysicsBody>(
+			a3d::PhysicsBody::Type::Static,
+			std::make_shared<a3d::SpherePhysicsShape>(1.0f)));
+		scene.rootNode()->addChild(staticNode);
+
+		auto dynamicNode = std::make_shared<a3d::Node>("dynamic body");
+		dynamicNode->physicsBody(std::make_unique<a3d::PhysicsBody>(
+			a3d::PhysicsBody::Type::Dynamic,
+			std::make_shared<a3d::SpherePhysicsShape>(1.0f)));
+		scene.rootNode()->addChild(dynamicNode);
+
+		auto kinematicNode = std::make_shared<a3d::Node>("kinematic body");
+		kinematicNode->physicsBody(std::make_unique<a3d::PhysicsBody>(
+			a3d::PhysicsBody::Type::Kinematic,
+			std::make_shared<a3d::SpherePhysicsShape>(1.0f)));
+		scene.rootNode()->addChild(kinematicNode);
+
+		std::size_t callbackCount = 0;
+		scene.physicsWorld()->didSimulateCallback(
+			[&callbackCount](a3d::PhysicsWorld&, double, double) {
+				++callbackCount;
+			});
+
+		const auto first = scene.physicsWorld()->inventory();
+
+		Expect(first.staticBodies == 1, "current static-body inventory");
+		Expect(first.dynamicBodies == 1, "current dynamic-body inventory");
+		Expect(first.kinematicBodies == 1, "current kinematic-body inventory");
+		Expect(first.primitiveShapes == 3, "current primitive-shape inventory");
+		Expect(first.boundingBoxShapes == 0, "current bounding-box-shape inventory");
+		Expect(first.convexHullShapes == 0, "current convex-hull-shape inventory");
+		Expect(
+			first.concavePolyhedronShapes == 0,
+			"current concave-polyhedron-shape inventory");
+
+		const auto second = scene.physicsWorld()->inventory();
+
+		Expect(
+			second.staticBodies == first.staticBodies
+				&& second.dynamicBodies == first.dynamicBodies
+				&& second.kinematicBodies == first.kinematicBodies,
+			"repeated queries should not multiply body inventory");
+		Expect(
+			second.primitiveShapes == first.primitiveShapes
+				&& second.boundingBoxShapes == first.boundingBoxShapes
+				&& second.convexHullShapes == first.convexHullShapes
+				&& second.concavePolyhedronShapes == first.concavePolyhedronShapes,
+			"repeated queries should not multiply shape inventory");
+		Expect(
+			callbackCount == 0,
+			"an inventory query should not invoke the physics callback");
+	}
+
+	void PhysicsInventoryPrecedesDidSimulate() {
+
+		a3d::Scene scene;
+		scene.physicsWorld(std::make_unique<a3d::PhysicsWorld>());
+
+		auto dynamicNode = std::make_shared<a3d::Node>("dynamic body");
+		dynamicNode->physicsBody(std::make_unique<a3d::PhysicsBody>(
+			a3d::PhysicsBody::Type::Dynamic,
+			std::make_shared<a3d::SpherePhysicsShape>(1.0f)));
+		scene.rootNode()->addChild(dynamicNode);
+
+		std::size_t callbackCount = 0;
+		scene.physicsWorld()->didSimulateCallback(
+			[&callbackCount, &dynamicNode](
+				a3d::PhysicsWorld&,
+				double,
+				double deltaTime) {
+
+				++callbackCount;
+				ExpectNear(
+					deltaTime,
+					0.0,
+					"the first physics callback delta should remain zero");
+				dynamicNode->physicsBody(std::unique_ptr<a3d::PhysicsBody>{});
+			});
+
+		a3d::Runner runner(scene);
+		a3d::testing::RunnerTestAccess::start(
+			runner, AtMilliseconds(11000));
+		Expect(
+			a3d::testing::RunnerTestAccess::update(
+				runner, AtMilliseconds(11100)),
+			"the inventory-order host update should continue");
+
+		Expect(
+			callbackCount == 1,
+			"the physics callback should run exactly once");
+
+		const auto& samples =
+			a3d::testing::RunnerTestAccess::frameStatsHistory(runner).samples();
+		Expect(
+			samples.size() == 1,
+			"the host update should commit one statistics sample");
+
+		const auto& stats = std::get<1>(samples.back());
+		Expect(
+			stats.numDynamicBodies == 1,
+			"the completed-step inventory should precede callback mutation");
+		Expect(
+			stats.numPrimitiveShapes == 1,
+			"the completed-step shape inventory should precede callback mutation");
+
+		const auto current = scene.physicsWorld()->inventory();
+		Expect(
+			current.dynamicBodies == 0,
+			"the callback mutation should affect the current body inventory");
+		Expect(
+			current.primitiveShapes == 0,
+			"the callback mutation should affect the current shape inventory");
 	}
 
 	using TestFunction = void (*)();
@@ -310,7 +697,13 @@ namespace {
 		{"update-index-progression", UpdateIndexProgresses},
 		{"independent-runner-clocks", RunnerClocksAreIndependent},
 		{"stop-between-updates", StopBetweenUpdates},
-		{"stop-during-update", StopDuringUpdate}
+		{"stop-during-update", StopDuringUpdate},
+		{"legacy-pipeline-order-physics", LegacyPipelineOrderWithPhysics},
+		{"first-zero-delta-reaches-physics", FirstZeroDeltaReachesPhysics},
+		{"neither-world-pipeline", NeitherWorldPipeline},
+		{"scene-root-invariant", SceneRootInvariant},
+		{"physics-inventory-sampling", PhysicsInventorySamplingIsCurrent},
+		{"physics-inventory-before-did-simulate", PhysicsInventoryPrecedesDidSimulate}
 	};
 
 	bool RunTest(

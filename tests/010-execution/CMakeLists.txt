@@ -12,7 +12,13 @@ set(RUNNER_HOST_CLOCK_TESTS
 		update-index-progression
 		independent-runner-clocks
 		stop-between-updates
-		stop-during-update)
+		stop-during-update
+		legacy-pipeline-order-physics
+		first-zero-delta-reaches-physics
+		neither-world-pipeline
+		scene-root-invariant
+		physics-inventory-sampling
+		physics-inventory-before-did-simulate)
 
 foreach(TEST_NAME IN LISTS RUNNER_HOST_CLOCK_TESTS)
 	add_test(

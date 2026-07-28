@@ -7,7 +7,12 @@
 
 #include <stdexcept>
 
+#include "a3d/Configuration.h"
+#include "a3d/physics/PhysicsInventory.h"
+#include "a3d/profile/FrameStats.h"
+#include "a3d/profile/Profile.h"
 #include "a3d/scene/Scene.h"
+#include "a3d/visual/VisualWorld.h"
 
 using namespace a3d;
 using namespace std;
@@ -18,7 +23,9 @@ Runner::Runner(Scene& scene):
 	_startTime{},
 	_previousUpdateTime{},
 	_hostUpdateInfo{},
-	_hasUpdated{false} {
+	_hasUpdated{false},
+	_profiler{},
+	_frameStatsHistory{a3d::config::FRAME_STATS_HISTORY_DURATION} {
 }
 
 Runner::~Runner() {
@@ -74,9 +81,55 @@ bool Runner::update(Clock::time_point now) {
 	_hostUpdateInfo = hostUpdateInfo;
 	_hasUpdated = true;
 
-	_scene.update(hostUpdateInfo);
+	FrameStats stats{};
+
+	prof::profile(_profiler, Profiler::Tag::Frame, [&] {
+		_scene.updateHostEvents(_profiler);
+		_scene.updateInput(_profiler);
+		_scene.invokeLegacyUpdateCallback(hostUpdateInfo, _profiler);
+		auto inventory = _scene.updateLegacyPhysics(hostUpdateInfo, _profiler);
+		prof::profile(_profiler, Profiler::Tag::EngineCpu, [&] {
+			stats.numStaticBodies = inventory.staticBodies;
+			stats.numDynamicBodies = inventory.dynamicBodies;
+			stats.numKinematicBodies = inventory.kinematicBodies;
+			stats.numPrimitiveShapes = inventory.primitiveShapes;
+			stats.numBoundingBoxShapes = inventory.boundingBoxShapes;
+			stats.numConvexHullShapes = inventory.convexHullShapes;
+			stats.numConcavePolyhedronShapes = inventory.concavePolyhedronShapes;
+		});
+		renderFrame(hostUpdateInfo, stats);
+	});
+
+	stats.frameTime = _profiler.time(Profiler::Tag::Frame);
+	stats.engineCpuTime = _profiler.time(Profiler::Tag::EngineCpu);
+	stats.renderCpuTime = _profiler.time(Profiler::Tag::RenderCpu);
+	stats.renderGpuTime = _profiler.time(Profiler::Tag::RenderGpu);
+	stats.physicsTime = _profiler.time(Profiler::Tag::Physics);
+	stats.applicationTime = _profiler.time(Profiler::Tag::Application);
+
+	_frameStatsHistory.add(stats);
+	_profiler.reset();
 
 	return _state == State::Running;
+}
+
+bool Runner::renderFrame(
+		const HostUpdateInfo& info,
+		FrameStats& stats) {
+
+	auto visualWorld = _scene.visualWorld();
+	if (!visualWorld) {
+		return false;
+	}
+
+	return visualWorld->draw(_scene,
+							 _scene.physicsWorld(),
+							 info.elapsedTime,
+							 info.deltaTime,
+							 _scene.debugOptions(),
+							 stats,
+							 _profiler,
+							 _frameStatsHistory);
 }
 
 void Runner::stop() {

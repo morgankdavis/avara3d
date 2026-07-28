@@ -325,7 +325,6 @@ void BulletWorldProxy::gravity(float gravity) {
 void BulletWorldProxy::step(double deltaT,
 							float speed,
 							float timestep,
-							FrameStats& stats,
 							Profiler& profiler) {
 
 	auto result = prof::profile(profiler, Profiler::Tag::Physics, [&] {
@@ -341,14 +340,21 @@ void BulletWorldProxy::step(double deltaT,
 //		log::w()("Max physics simulation substeps exceeded: {}/{}",
 //				  result, config::MAX_PHYSICS_SUBSTEPS);
 //	}
+}
 
-	stats.numStaticBodies += _stats.numStaticBodies;
-	stats.numDynamicBodies += _stats.numDynamicBodies;
-	stats.numKinematicBodies += _stats.numKinematicBodies;
-	stats.numConvexHullShapes = _stats.convexHullShapes.size();
-	stats.numConcavePolyhedronShapes = _stats.concavePolyhedronShapes.size();
-	stats.numBoundingBoxShapes = _stats.boundingBoxShapes.size();
-	stats.numPrimitiveShapes = _stats.primitiveShapes.size();
+PhysicsInventory BulletWorldProxy::inventory() const {
+	std::scoped_lock lock(_btMutex);
+
+	return {
+		.staticBodies = _stats.numStaticBodies,
+		.dynamicBodies = _stats.numDynamicBodies,
+		.kinematicBodies = _stats.numKinematicBodies,
+		.primitiveShapes = static_cast<unsigned>(_stats.primitiveShapes.size()),
+		.boundingBoxShapes = static_cast<unsigned>(_stats.boundingBoxShapes.size()),
+		.convexHullShapes = static_cast<unsigned>(_stats.convexHullShapes.size()),
+		.concavePolyhedronShapes =
+			static_cast<unsigned>(_stats.concavePolyhedronShapes.size())
+	};
 }
 
 void BulletWorldProxy::updateCollisionPairs() {

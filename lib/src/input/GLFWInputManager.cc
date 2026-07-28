@@ -36,17 +36,16 @@ GLFWInputManager::GLFWInputManager():
 
 GLFWInputManager::~GLFWInputManager() {
 	log::d()("Destroying GLFWInputManager {:p}", static_cast<void *>(this));
+
+	window(nullptr);
 }
 
 /// InputManager Internal Member Functions ///
 
 void GLFWInputManager::update() {
 
-	// would be great to poll for everything GLFW, but GLFW does not have a polling
-	// function for mouse wheel scroll position/delta, so might as well keep it
-	// consistent and use callback for everything GLFW...
-
-	_window->pollInput();
+	// Window events are dispatched through RenderContext::pollEvents() before
+	// this input stage. GLFW input state is maintained by those callbacks.
 }
 
 /// DesktopInputManager Internal Member Functions ///
@@ -114,12 +113,31 @@ void GLFWInputManager::glfwKeyEvent(int key, int scanCode, int action, int mods)
     }
 }
 
+void GLFWInputManager::detachedFromWindow(Window& window) {
+
+	if (_window == &window) {
+		_window = nullptr;
+	}
+}
+
 /// Private Member Functions ///
 
 void GLFWInputManager::window(Window* window) {
+
+	if (_window == window) {
+		return;
+	}
+
+	if (_window) {
+		_window->inputManager(nullptr);
+	}
+
 	_window = window;
-	window->inputManager(this);
-	initMouseInput();
+
+	if (_window) {
+		_window->inputManager(this);
+		initMouseInput();
+	}
 }
 
 Window*	GLFWInputManager::window() const {

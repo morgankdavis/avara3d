@@ -177,6 +177,8 @@ Window::Window(RenderingApi renderingAPI,
 Window::~Window() {
 	log::d()("Destroying Window {:p}", static_cast<void*>(this));
 
+	inputManager(nullptr);
+
 	if (_glfwWindow) {
 		glfwMakeContextCurrent(_glfwWindow.get());
 
@@ -399,8 +401,11 @@ void Window::vSyncEnabled(bool enabled) {
 
 /// RenderContext Internal Member Functions ///
 
+void Window::pollEvents() {
+	glfwPollEvents();
+}
+
 void Window::beginFrame(const Scene& scene) {
-	pollInput();
 	ImGui_ImplGlfw_NewFrame();
 }
 
@@ -434,11 +439,17 @@ unsigned Window::defaultFramebuffer() const {
 /// Internal Member Functions ///
 
 void Window::inputManager(DesktopInputManager* manager) {
-	_inputManager = manager;
-}
 
-void Window::pollInput() {
-	glfwPollEvents();
+	if (_inputManager == manager) {
+		return;
+	}
+
+	auto previousManager = dynamic_cast<GLFWInputManager*>(_inputManager);
+	_inputManager = manager;
+
+	if (previousManager) {
+		previousManager->detachedFromWindow(*this);
+	}
 }
 
 GLFWwindow* Window::glfwWindow() const {
@@ -761,4 +772,3 @@ bool GetGLFWMouseMonitor(GLFWmonitor** monitor, GLFWwindow* window) {
 	// false: monitor is unmodified
 	return success;
 }
-
