@@ -156,10 +156,12 @@ RenderContext::~RenderContext() {
 
 /// Internal Member Functions ///
 
-void RenderContext::saveGIFFrame(double deltaRunT) {
+void RenderContext::pollEvents() {}
 
-	_gifRecordedTime += deltaRunT;
-	_gifRecordingCurrentFrameTimeAccum += deltaRunT;
+void RenderContext::saveGIFFrame(double hostDeltaTime) {
+
+	_gifRecordedTime += hostDeltaTime;
+	_gifRecordingCurrentFrameTimeAccum += hostDeltaTime;
 
 	float frameTimeMS = 1000.0f /* (ms/sec) */ / (float)_gifRecordingMaxFramerate /* (frames/sec) */;
 

@@ -10,6 +10,8 @@
 #define AVARA3D_RUNNER_H
 
 #include <chrono>
+#include <cstdint>
+#include <functional>
 
 #include "a3d/Timing.h"
 #include "a3d/profile/FrameStatsHistory.h"
@@ -34,6 +36,10 @@ namespace a3d {
 			Stopped
 		};
 
+		using UpdateCallback = std::function<void(
+				Runner& runner,
+				const HostUpdateInfo& info)>;
+
 		/// Public Lifecycle Functions ///
 
 		explicit Runner(Scene& scene);
@@ -51,6 +57,9 @@ namespace a3d {
 		void start();
 		bool update();
 		void stop();
+
+		UpdateCallback updateCallback() const;
+		void updateCallback(UpdateCallback callback);
 
 		State state() const;
 
@@ -76,6 +85,8 @@ namespace a3d {
 		Clock::time_point	_previousUpdateTime;
 		HostUpdateInfo		_hostUpdateInfo;
 		bool				_hasUpdated;
+		UpdateCallback		_updateCallback;
+		std::uint64_t		_completedRenderFrameCount;
 		Profiler			_profiler;
 		FrameStatsHistory	_frameStatsHistory;
 

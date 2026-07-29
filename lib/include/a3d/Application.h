@@ -12,6 +12,7 @@
 #include <memory>
 #include <vector>
 
+#include "a3d/Timing.h"
 #include "log/Log.h"
 
 namespace a3d {
@@ -50,14 +51,14 @@ namespace a3d {
 
 		const std::vector<std::string>& args() const;
 
-		/// Scene Callback Overrides ///
+		/// Runner Callback Overrides ///
 
-		virtual void sceneUpdate(Scene& scene, double time, double deltaTime);
+		virtual void runnerUpdate(Runner& runner, const HostUpdateInfo& info);
 
 		/// VisualWorld Callback Overrides ///
 
-		virtual void visualWorldWillRender(VisualWorld& world, double time, double deltaTime);
-		virtual void visualWorldDidRender(VisualWorld& world, double time, double deltaTime);
+		virtual void visualWorldWillRender(VisualWorld& world, const RenderFrameInfo& info);
+		virtual void visualWorldDidRender(VisualWorld& world, const RenderFrameInfo& info);
 
 		/// PhysicsWorld Callback Overrides ///
 

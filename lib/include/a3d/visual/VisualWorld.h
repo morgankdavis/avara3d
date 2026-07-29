@@ -12,6 +12,7 @@
 #include <functional>
 #include <memory>
 
+#include "a3d/Timing.h"
 #include "a3d/scene/Scene.h"
 #include "a3d/visual/material/Material.h"
 
@@ -35,12 +36,10 @@ namespace a3d {
 	public:
 		/// Public Types ///
 
-		using WillRenderCallback =	std::function<void(VisualWorld& world,
-		                                                 double time,
-		                                                 double deltaTime)>;
-		using DidRenderCallback =	std::function<void(VisualWorld& world,
-		                                                double time,
-		                                                double deltaTime)>;
+		using WillRenderCallback =	std::function<void(VisualWorld &world,
+			                                             const RenderFrameInfo &info)>;
+		using DidRenderCallback =	std::function<void(VisualWorld &world,
+			                                            const RenderFrameInfo &info)>;
 
 		/// Public Lifecycle Functions ///
 
@@ -100,8 +99,7 @@ namespace a3d {
 
 		bool								draw(const Scene& scene,
 												 const PhysicsWorld* physicsWorld,
-												 double runT,
-												 double deltaRunT,
+												 const RenderFrameInfo& info,
 												 Scene::DebugOptions debugOptions,
 												 FrameStats& stats,
 												 Profiler& profiler,

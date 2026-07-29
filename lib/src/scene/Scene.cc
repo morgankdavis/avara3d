@@ -43,8 +43,7 @@ Scene::Scene():
 		_visualWorld{},
 		_physicsWorld{},
 		_inputManager{},
-		_debugOptions{DebugOptions::None},
-		_updateCallback{} {
+		_debugOptions{DebugOptions::None} {
 
 	_rootNode->attachedToScene(*this);
 }
@@ -259,14 +258,6 @@ void Scene::debugOptions(DebugOptions options) {
 	_debugOptions = options;
 }
 
-Scene::UpdateCallback Scene::updateCallback() const {
-	return _updateCallback;
-}
-
-void Scene::updateCallback(UpdateCallback function) {
-	_updateCallback = function;
-}
-
 /// Internal Member Functions ///
 
 void Scene::updateHostEvents(Profiler& profiler) {
@@ -286,18 +277,6 @@ void Scene::updateInput(Profiler& profiler) {
 
 		prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
 			_inputManager->update();
-		});
-	}
-}
-
-void Scene::invokeLegacyUpdateCallback(
-		const HostUpdateInfo& info,
-		Profiler& profiler) {
-
-	if (_updateCallback) {
-
-		prof::profile(profiler, Profiler::Tag::Application, [&] {
-			(_updateCallback)(*this, info.elapsedTime, info.deltaTime);
 		});
 	}
 }

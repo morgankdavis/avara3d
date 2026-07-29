@@ -220,9 +220,11 @@ void App::didShutdown() {
 
 }
 
-/// Scene Callback Overrides ///
+/// Runner Callback Overrides ///
 
-void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
+void App::runnerUpdate(Runner& runner, const HostUpdateInfo& info) {
+
+	auto& scene = runner.scene();
 
 	Window* window = nullptr;
 	if (scene.visualWorld()) {
@@ -305,25 +307,25 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 			static float MOVE_SPEED = math::max(scene.rootNode()->extent());
 
 			if (keysDown.count(Key::W)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camForward;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 			else if (keysDown.count(Key::S)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * -camForward;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * -camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 
 			if (keysDown.count(Key::A)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * -camRight;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * -camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 			else if (keysDown.count(Key::D)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camRight;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 
 			if (keysDown.count(Key::Space)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camUp;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * camUp;
 				pov->position(pov->position() + positionDelta);
 			}
 		}
@@ -332,7 +334,7 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 	if (_pointLightPivotNode) {
 
 		// rotate the duck
-		auto rotationDeg = deltaTime * radians(-30.0); // 10deg/sec
+		auto rotationDeg = info.deltaTime * radians(-30.0); // 10deg/sec
 
 		auto duckSpinnerEuler = _pointLightPivotNode->eulerAngles();
 		_pointLightPivotNode->eulerAngles(vec3(0, duckSpinnerEuler.y - rotationDeg, 0));
@@ -341,13 +343,11 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 
 /// VisualWorld Callback Overrides ///
 
-void App::visualWorldWillRender(VisualWorld& world, double time, double deltaTime) {
+void App::visualWorldWillRender(VisualWorld& world,
+								const RenderFrameInfo& info) {}
 
-}
-
-void App::visualWorldDidRender(VisualWorld& world, double time, double deltaTime) {
-
-}
+void App::visualWorldDidRender(VisualWorld& world,
+							   const RenderFrameInfo& info) {}
 
 /// PhysicsWorld Callback Overrides ///
 

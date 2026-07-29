@@ -85,9 +85,11 @@ void App::didShutdown() {
 
 }
 
-/// Scene Callback Overrides ///
+/// Runner Callback Overrides ///
 
-void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
+void App::runnerUpdate(Runner& runner, const HostUpdateInfo& info) {
+
+	auto& scene = runner.scene();
 
 	Window* window = nullptr;
 	if (scene.visualWorld()) {
@@ -286,20 +288,20 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 			}
 
 			if (keysDown.count(Key::W) || mouseButtonsDown.count(MouseButton::Four)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * camForward;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * moveMultiplier * camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 			else if (keysDown.count(Key::S)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * -camForward;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * moveMultiplier * -camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 
 			if (keysDown.count(Key::A)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * -camRight;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * moveMultiplier * -camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 			else if (keysDown.count(Key::D)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * camRight;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * moveMultiplier * camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 
@@ -308,7 +310,7 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 				if (keysDown.count(Key::LeftShift)) {
 					direction = -1;
 				}
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * camUp;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * moveMultiplier * camUp;
 				pov->position(pov->position() + positionDelta * direction);
 			}
 		}
@@ -317,13 +319,11 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 
 /// VisualWorld Callback Overrides ///
 
-void App::visualWorldWillRender(VisualWorld& world, double time, double deltaTime) {
+void App::visualWorldWillRender(VisualWorld& world,
+								const RenderFrameInfo& info) {}
 
-}
-
-void App::visualWorldDidRender(VisualWorld& world, double time, double deltaTime) {
-
-}
+void App::visualWorldDidRender(VisualWorld& world,
+							   const RenderFrameInfo& info) {}
 
 /// PhysicsWorld Callback Overrides ///
 

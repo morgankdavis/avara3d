@@ -79,23 +79,22 @@ void App::didShutdown() {
 
 }
 
-/// Scene Callback Overrides ///
+/// Runner Callback Overrides ///
 
-void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
+void App::runnerUpdate(Runner& runner, const HostUpdateInfo&) {
 
 	log::app::i()("....and we're done.");
-	static_cast<Window*>(scene.visualWorld()->renderContext())->close();
+	static_cast<Window*>(
+		runner.scene().visualWorld()->renderContext())->close();
 }
 
 /// VisualWorld Callback Overrides ///
 
-void App::visualWorldWillRender(VisualWorld& world, double time, double deltaTime) {
+void App::visualWorldWillRender(VisualWorld& world,
+								const RenderFrameInfo& info) {}
 
-}
-
-void App::visualWorldDidRender(VisualWorld& world, double time, double deltaTime) {
-
-}
+void App::visualWorldDidRender(VisualWorld& world,
+							   const RenderFrameInfo& info) {}
 
 /// PhysicsWorld Callback Overrides ///
 

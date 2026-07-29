@@ -128,16 +128,21 @@ void App::didShutdown() {
 
 }
 
-/// Scene Callback Overrides ///
+/// Runner Callback Overrides ///
 
-void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
+void App::runnerUpdate(Runner& runner, const HostUpdateInfo& info) {
+
+	auto& scene = runner.scene();
 
 	util::flow::on(2, [&] {
 		double time = util::chrono::Time() - _startTime;
 		log::app::i()("START TIME: {}", time);
 	});
 
-	log::app::t()("scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
+	log::app::t()("scene: {:p}, time: {}, deltaTime: {}",
+		(void *) &scene,
+	              info.elapsedTime,
+	              info.deltaTime);
 
 	auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 
@@ -266,20 +271,20 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 			}
 
 			if(keysDown.count(Key::W)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camForward;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 			else if(keysDown.count(Key::S)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * -camForward;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * -camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 
 			if(keysDown.count(Key::A)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * -camRight;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * -camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 			else if(keysDown.count(Key::D)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camRight;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 
@@ -288,7 +293,7 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 				if (keysDown.count(Key::LeftShift)) {
 					direction = -1;
 				}
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * camUp;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * moveMultiplier * camUp;
 				pov->position(pov->position() + positionDelta * direction);
 			}
 		}
@@ -308,7 +313,7 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 
 		static float rotationSpeed = radians(30.0); // deg/secs
 		static float angle = 0;
-		angle += rotationSpeed * deltaTime;
+		angle += rotationSpeed * info.deltaTime;
 
 		float x = math::sin(angle) * radiusX;
 		float y = math::cos(angle) * radiusY;
@@ -319,13 +324,11 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 
 /// VisualWorld Callback Overrides ///
 
-void App::visualWorldWillRender(VisualWorld& world, double time, double deltaTime) {
+void App::visualWorldWillRender(VisualWorld& world,
+                                const RenderFrameInfo& info) {}
 
-}
-
-void App::visualWorldDidRender(VisualWorld& world, double time, double deltaTime) {
-
-}
+void App::visualWorldDidRender(VisualWorld& world,
+                               const RenderFrameInfo& info) {}
 
 /// PhysicsWorld Callback Overrides ///
 

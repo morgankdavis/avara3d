@@ -14,8 +14,11 @@
 #include "a3d/Application.h"
 
 namespace a3d {
+	struct HostUpdateInfo;
+	struct RenderFrameInfo;
 	class Node;
 	class PhysicsWorld;
+	class Runner;
 	class Scene;
 	class VisualWorld;
 	class Window;
@@ -47,29 +50,22 @@ namespace test::quadrotor {
 
 		void didShutdown() override;
 
-		/// Scene Callback Overrides ///
+		/// Runner Callback Overrides ///
 
-		void sceneUpdate(
-			a3d::Scene& scene,
-			double time,
-			double deltaTime) override;
+		void runnerUpdate(a3d::Runner &runner,
+		                  const a3d::HostUpdateInfo &info) override;
 
 		/// VisualWorld Callback Overrides ///
 
-		void visualWorldDidRender(
-			a3d::VisualWorld &world,
-			double time,
-			double deltaTime) override;
+		void visualWorldDidRender(a3d::VisualWorld &world,
+		                          const a3d::RenderFrameInfo &info) override;
 
-		void visualWorldWillRender(
-			a3d::VisualWorld& world,
-			double time,
-			double deltaTime) override;
+		void visualWorldWillRender(a3d::VisualWorld &world,
+		                           const a3d::RenderFrameInfo& info) override;
 
 		/// PhysicsWorld Callback Overrides ///
 
-		void physicsWorldDidSimulate(
-			a3d::PhysicsWorld& world,
+		void physicsWorldDidSimulate(a3d::PhysicsWorld& world,
 			double time,
 			double deltaTime) override;
 

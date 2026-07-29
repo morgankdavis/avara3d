@@ -84,6 +84,8 @@ namespace a3d {
 
 		/// Internal Member Functions ///
 
+		virtual void 					pollEvents();
+
 		virtual void 					beginFrame(const Scene& scene) = 0;
 		virtual void 					endFrame(const Scene& scene) = 0;
 
@@ -93,7 +95,7 @@ namespace a3d {
 		virtual math::uvec2				framebufferSize() const = 0;
 		math::vec2						viewportScale() const;
 
-		virtual void 					saveGIFFrame(double deltaRunT);
+		virtual void 					saveGIFFrame(double hostDeltaTime);
 
 		void							attachedToVisualWorld(VisualWorld* world);
 		void							detachedFromVisualWorld(VisualWorld* world);

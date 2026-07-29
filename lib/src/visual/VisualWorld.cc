@@ -13,8 +13,6 @@
 #include "a3d/Color.h"
 #include "a3d/CubeImage.h"
 #include "a3d/log/Log.h"
-#include "a3d/mesh/Mesh.h"
-#include "a3d/mesh/primitive/Plane.h"
 #include "a3d/physics/PhysicsWorld.h"
 #include "a3d/profile/Profile.h"
 #include "a3d/render/DrawPacket.h"
@@ -26,7 +24,6 @@
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 #include "a3d/util/Flow.h"
-#include "a3d/visual/light/Light.h"
 #include "a3d/visual/material/Sampler.h"
 #include "a3d/visual/material/Texture.h"
 #include "a3d/visual/camera/PerspectiveCamera.h"
@@ -201,8 +198,7 @@ void VisualWorld::detachedFromScene(Scene& scene) {
 
 bool VisualWorld::draw(const Scene& scene,
 					   const PhysicsWorld* physicsWorld,
-					   double runT,
-					   double deltaRunT,
+					   const RenderFrameInfo& info,
 					   Scene::DebugOptions debugOptions,
 					   FrameStats& stats,
 					   Profiler& profiler,
@@ -235,7 +231,7 @@ bool VisualWorld::draw(const Scene& scene,
 
 	if (auto willRender = VisualWorld::willRenderCallback()) {
 		prof::profile(profiler, Profiler::Tag::Application, [&] {
-			willRender(*this, runT, deltaRunT);
+			willRender(*this, info);
 		});
 	}
 
@@ -308,14 +304,14 @@ bool VisualWorld::draw(const Scene& scene,
 
 	if (auto didRender = VisualWorld::didRenderCallback()) {
 		prof::profile(profiler, Profiler::Tag::Application, [&] {
-			didRender(*this, runT, deltaRunT);
+			didRender(*this, info);
 		});
 	}
 
 	prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
 
 		if (_renderContext->recordingGIF()) {
-			_renderContext->saveGIFFrame(deltaRunT);
+			_renderContext->saveGIFFrame(info.hostDeltaTime);
 		}
 	});
 

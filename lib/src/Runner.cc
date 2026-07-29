@@ -24,6 +24,8 @@ Runner::Runner(Scene& scene):
 	_previousUpdateTime{},
 	_hostUpdateInfo{},
 	_hasUpdated{false},
+	_updateCallback{},
+	_completedRenderFrameCount{0},
 	_profiler{},
 	_frameStatsHistory{a3d::config::FRAME_STATS_HISTORY_DURATION} {
 }
@@ -47,6 +49,7 @@ void Runner::start(Clock::time_point now) {
 	_previousUpdateTime = now;
 	_hostUpdateInfo = {};
 	_hasUpdated = false;
+	_completedRenderFrameCount = 0;
 	_state = State::Running;
 }
 
@@ -86,18 +89,29 @@ bool Runner::update(Clock::time_point now) {
 	prof::profile(_profiler, Profiler::Tag::Frame, [&] {
 		_scene.updateHostEvents(_profiler);
 		_scene.updateInput(_profiler);
-		_scene.invokeLegacyUpdateCallback(hostUpdateInfo, _profiler);
-		auto inventory = _scene.updateLegacyPhysics(hostUpdateInfo, _profiler);
-		prof::profile(_profiler, Profiler::Tag::EngineCpu, [&] {
-			stats.numStaticBodies = inventory.staticBodies;
-			stats.numDynamicBodies = inventory.dynamicBodies;
-			stats.numKinematicBodies = inventory.kinematicBodies;
-			stats.numPrimitiveShapes = inventory.primitiveShapes;
-			stats.numBoundingBoxShapes = inventory.boundingBoxShapes;
-			stats.numConvexHullShapes = inventory.convexHullShapes;
-			stats.numConcavePolyhedronShapes = inventory.concavePolyhedronShapes;
-		});
-		renderFrame(hostUpdateInfo, stats);
+
+		if (auto callback = updateCallback()) {
+			prof::profile(_profiler, Profiler::Tag::Application, [&] {
+				callback(*this, _hostUpdateInfo);
+			});
+		}
+
+		if (_state == State::Running) {
+			auto inventory = _scene.updateLegacyPhysics(hostUpdateInfo, _profiler);
+			prof::profile(_profiler, Profiler::Tag::EngineCpu, [&] {
+				stats.numStaticBodies = inventory.staticBodies;
+				stats.numDynamicBodies = inventory.dynamicBodies;
+				stats.numKinematicBodies = inventory.kinematicBodies;
+				stats.numPrimitiveShapes = inventory.primitiveShapes;
+				stats.numBoundingBoxShapes = inventory.boundingBoxShapes;
+				stats.numConvexHullShapes = inventory.convexHullShapes;
+				stats.numConcavePolyhedronShapes = inventory.concavePolyhedronShapes;
+			});
+
+			if (_state == State::Running) {
+				renderFrame(hostUpdateInfo, stats);
+			}
+		}
 	});
 
 	stats.frameTime = _profiler.time(Profiler::Tag::Frame);
@@ -122,14 +136,25 @@ bool Runner::renderFrame(
 		return false;
 	}
 
-	return visualWorld->draw(_scene,
-							 _scene.physicsWorld(),
-							 info.elapsedTime,
-							 info.deltaTime,
-							 _scene.debugOptions(),
-							 stats,
-							 _profiler,
-							 _frameStatsHistory);
+	const RenderFrameInfo frameInfo {
+		.frameIndex = _completedRenderFrameCount,
+		.hostUpdateIndex = info.updateIndex,
+		.hostTime = info.elapsedTime,
+		.hostDeltaTime = info.deltaTime
+	};
+
+	if (!visualWorld->draw(_scene,
+						   _scene.physicsWorld(),
+						   frameInfo,
+						   _scene.debugOptions(),
+						   stats,
+						   _profiler,
+						   _frameStatsHistory)) {
+		return false;
+	}
+
+	++_completedRenderFrameCount;
+	return true;
 }
 
 void Runner::stop() {
@@ -139,6 +164,14 @@ void Runner::stop() {
 	}
 
 	_state = State::Stopped;
+}
+
+Runner::UpdateCallback Runner::updateCallback() const {
+	return _updateCallback;
+}
+
+void Runner::updateCallback(UpdateCallback callback) {
+	_updateCallback = callback;
 }
 
 Runner::State Runner::state() const {

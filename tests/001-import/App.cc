@@ -101,9 +101,11 @@ void App::didShutdown() {
 
 }
 
-/// Scene Callback Overrides ///
+/// Runner Callback Overrides ///
 
-void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
+void App::runnerUpdate(Runner& runner, const HostUpdateInfo& info) {
+
+	auto& scene = runner.scene();
 
 	if (static_cast<DesktopInputManager*>(
 		scene.inputManager())->keysPressed().count(DesktopInputManager::Key::Escape)) {
@@ -113,13 +115,11 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 
 /// VisualWorld Callback Overrides ///
 
-void App::visualWorldWillRender(VisualWorld& world, double time, double deltaTime) {
+void App::visualWorldWillRender(VisualWorld& world,
+								const RenderFrameInfo& info) {}
 
-}
-
-void App::visualWorldDidRender(VisualWorld& world, double time, double deltaTime) {
-
-}
+void App::visualWorldDidRender(VisualWorld& world,
+							   const RenderFrameInfo& info) {}
 
 /// PhysicsWorld Callback Overrides ///
 

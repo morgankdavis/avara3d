@@ -83,6 +83,8 @@ namespace a3d {
 
 		/// RenderContext Internal Member Functions ///
 
+		void 				pollEvents() override;
+
 		void 				beginFrame(const Scene& scene) override;
 		void 				endFrame(const Scene& scene) override;
 
@@ -96,7 +98,6 @@ namespace a3d {
 		/// Internal Member Functions ///
 
 		void				inputManager(DesktopInputManager* manager);
-		void 				pollInput(); // remove?
 		GLFWwindow* 		glfwWindow() const; // remove?
 
 		/// Internal Static Member Functions ///

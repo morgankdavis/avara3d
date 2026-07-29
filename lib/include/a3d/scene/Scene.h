@@ -10,7 +10,6 @@
 #define AVARA3D_SCENE_SCENE_H
 
 #include <filesystem>
-#include <functional>
 #include <memory>
 #include <optional>
 #include <string>
@@ -65,11 +64,6 @@ namespace a3d {
 			ShowPhysicsConstraintLimits	=	1 << 11
 		};
 
-		using UpdateCallback =				std::function<void(
-				Scene& scene,
-				double time,
-				double deltaTime)>;
-
 		/// Public Static Member Functions ///
 
 		static std::unique_ptr<Scene> 		FromFile(const std::filesystem::path& path,
@@ -119,16 +113,10 @@ namespace a3d {
 		DebugOptions 						debugOptions() const;
 		void 								debugOptions(DebugOptions options);
 
-		UpdateCallback 						updateCallback() const;
-		void 								updateCallback(UpdateCallback function);
-
 		/// Internal Member Functions ///
 
 		void 								updateHostEvents(Profiler& profiler);
 		void 								updateInput(Profiler& profiler);
-		void 								invokeLegacyUpdateCallback(
-												 const HostUpdateInfo& info,
-												 Profiler& profiler);
 		PhysicsInventory					updateLegacyPhysics(
 												 const HostUpdateInfo& info,
 												 Profiler& profiler);
@@ -143,7 +131,6 @@ namespace a3d {
 		std::unique_ptr<PhysicsWorld> 		_physicsWorld;
 		std::unique_ptr<InputManager>		_inputManager;
 		DebugOptions						_debugOptions;
-		UpdateCallback						_updateCallback;
 	};
 
 	namespace util::bitmask {

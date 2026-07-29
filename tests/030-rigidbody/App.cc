@@ -240,12 +240,14 @@ void App::didShutdown() {
 
 }
 
-/// Scene Callback Overrides ///
+/// Runner Callback Overrides ///
 
-void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
+void App::runnerUpdate(Runner& runner, const HostUpdateInfo& info) {
+
+	auto& scene = runner.scene();
 
 	if (_duckNode) {
-		_duckRotator->update(*_duckNode, deltaTime);
+		_duckRotator->update(*_duckNode, info.deltaTime);
 	}
 
 	// get input
@@ -585,20 +587,20 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 			float moveSpeed = _cameraMoveSpeed * moveMultiplier;
 
 			if (keysDown.count(Key::W) || mouseButtonsDown.count(MouseButton::Four)) {
-				vec3 positionDelta = (float)deltaTime * moveSpeed * camForward;
+				vec3 positionDelta = (float)info.deltaTime * moveSpeed * camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 			else if (keysDown.count(Key::S)) {
-				vec3 positionDelta = (float)deltaTime * moveSpeed * -camForward;
+				vec3 positionDelta = (float)info.deltaTime * moveSpeed * -camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 
 			if (keysDown.count(Key::A)) {
-				vec3 positionDelta = (float)deltaTime * moveSpeed* -camRight;
+				vec3 positionDelta = (float)info.deltaTime * moveSpeed* -camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 			else if (keysDown.count(Key::D)) {
-				vec3 positionDelta = (float)deltaTime * moveSpeed * camRight;
+				vec3 positionDelta = (float)info.deltaTime * moveSpeed * camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 
@@ -607,7 +609,7 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 				if (keysDown.count(Key::LeftShift)) {
 					direction = -1;
 				}
-				vec3 positionDelta = (float)deltaTime * moveSpeed * camUp;
+				vec3 positionDelta = (float)info.deltaTime * moveSpeed * camUp;
 				pov->position(pov->position() + positionDelta * direction);
 			}
 		}
@@ -616,9 +618,11 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 
 /// VisualWorld Callback Overrides ///
 
-void App::visualWorldWillRender(VisualWorld& world, double time, double deltaTime) {}
+void App::visualWorldWillRender(VisualWorld& world,
+                                const RenderFrameInfo& info) {}
 
-void App::visualWorldDidRender(VisualWorld& world, double time, double deltaTime) {}
+void App::visualWorldDidRender(VisualWorld &world,
+                               const RenderFrameInfo& info) {}
 
 /// PhysicsWorld Callback Overrides ///
 
@@ -746,7 +750,7 @@ void SpawnDuckFruit(Scene& scene, const Node& duckNode, vector<App::DuckFruitDef
 // 	});
 // }
 
-void ShootSlurm(Scene& scene, const vec3 &location, const vec3 &direction) {
+void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
 	const float SHOOT_RATE = 20; // cans/sec
 
 	util::flow::every(chrono::duration<float>(1.0f / SHOOT_RATE), [&scene, location, direction = normalize(direction)] {

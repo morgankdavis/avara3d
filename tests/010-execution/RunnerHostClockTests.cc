@@ -52,6 +52,10 @@ namespace a3d::testing {
 		static const FrameStatsHistory& frameStatsHistory(const Runner& runner) {
 			return runner._frameStatsHistory;
 		}
+
+		static std::uint64_t completedRenderFrameCount(const Runner& runner) {
+			return runner._completedRenderFrameCount;
+		}
 	};
 }
 
@@ -122,19 +126,19 @@ namespace {
 	void FirstUpdateHasZeroDelta() {
 
 		a3d::Scene scene;
+		a3d::Runner runner(scene);
 		std::vector<CallbackTime> times;
-		scene.updateCallback(
-			[&times](a3d::Scene&, double elapsedTime, double deltaTime) {
-				times.push_back({elapsedTime, deltaTime});
+		runner.updateCallback(
+			[&times](a3d::Runner&, const a3d::HostUpdateInfo& info) {
+				times.push_back({info.elapsedTime, info.deltaTime});
 			});
 
-		a3d::Runner runner(scene);
 		runner.start();
 
 		Expect(
 			runner.update(),
 			"the running Runner should continue");
-		Expect(times.size() == 1, "the Scene callback should run once");
+		Expect(times.size() == 1, "the Runner callback should run once");
 		Expect(
 			times[0].elapsedTime >= 0.0,
 			"the first elapsed time should use the monotonic host clock");
@@ -147,13 +151,13 @@ namespace {
 	void ElapsedTimeProgresses() {
 
 		a3d::Scene scene;
+		a3d::Runner runner(scene);
 		std::vector<CallbackTime> times;
-		scene.updateCallback(
-			[&times](a3d::Scene&, double elapsedTime, double deltaTime) {
-				times.push_back({elapsedTime, deltaTime});
+		runner.updateCallback(
+			[&times](a3d::Runner&, const a3d::HostUpdateInfo& info) {
+				times.push_back({info.elapsedTime, info.deltaTime});
 			});
 
-		a3d::Runner runner(scene);
 		a3d::testing::RunnerTestAccess::start(
 			runner, AtMilliseconds(2000));
 		a3d::testing::RunnerTestAccess::update(
@@ -163,7 +167,7 @@ namespace {
 		a3d::testing::RunnerTestAccess::update(
 			runner, AtMilliseconds(2900));
 
-		Expect(times.size() == 3, "the Scene callback should run three times");
+		Expect(times.size() == 3, "the Runner callback should run three times");
 		ExpectNear(times[0].elapsedTime, 0.1, "first elapsed time");
 		ExpectNear(times[1].elapsedTime, 0.35, "second elapsed time");
 		ExpectNear(times[2].elapsedTime, 0.9, "third elapsed time");
@@ -172,13 +176,13 @@ namespace {
 	void DeltaTimeProgresses() {
 
 		a3d::Scene scene;
+		a3d::Runner runner(scene);
 		std::vector<CallbackTime> times;
-		scene.updateCallback(
-			[&times](a3d::Scene&, double elapsedTime, double deltaTime) {
-				times.push_back({elapsedTime, deltaTime});
+		runner.updateCallback(
+			[&times](a3d::Runner&, const a3d::HostUpdateInfo& info) {
+				times.push_back({info.elapsedTime, info.deltaTime});
 			});
 
-		a3d::Runner runner(scene);
 		a3d::testing::RunnerTestAccess::start(
 			runner, AtMilliseconds(3000));
 		a3d::testing::RunnerTestAccess::update(
@@ -224,20 +228,19 @@ namespace {
 
 		a3d::Scene firstScene;
 		std::vector<CallbackTime> firstTimes;
-		firstScene.updateCallback(
-			[&firstTimes](a3d::Scene&, double elapsedTime, double deltaTime) {
-				firstTimes.push_back({elapsedTime, deltaTime});
-			});
-
 		a3d::Scene secondScene;
 		std::vector<CallbackTime> secondTimes;
-		secondScene.updateCallback(
-			[&secondTimes](a3d::Scene&, double elapsedTime, double deltaTime) {
-				secondTimes.push_back({elapsedTime, deltaTime});
-			});
-
 		a3d::Runner firstRunner(firstScene);
 		a3d::Runner secondRunner(secondScene);
+		firstRunner.updateCallback(
+			[&firstTimes](a3d::Runner&, const a3d::HostUpdateInfo& info) {
+				firstTimes.push_back({info.elapsedTime, info.deltaTime});
+			});
+		secondRunner.updateCallback(
+			[&secondTimes](a3d::Runner&, const a3d::HostUpdateInfo& info) {
+				secondTimes.push_back({info.elapsedTime, info.deltaTime});
+			});
+
 		a3d::testing::RunnerTestAccess::start(
 			firstRunner, AtMilliseconds(10000));
 		a3d::testing::RunnerTestAccess::start(
@@ -273,13 +276,13 @@ namespace {
 	void StopBetweenUpdates() {
 
 		a3d::Scene scene;
+		a3d::Runner runner(scene);
 		std::size_t callbackCount = 0;
-		scene.updateCallback(
-			[&callbackCount](a3d::Scene&, double, double) {
+		runner.updateCallback(
+			[&callbackCount](a3d::Runner&, const a3d::HostUpdateInfo&) {
 				++callbackCount;
 			});
 
-		a3d::Runner runner(scene);
 		a3d::testing::RunnerTestAccess::start(
 			runner, AtMilliseconds(6000));
 		Expect(
@@ -295,7 +298,7 @@ namespace {
 			!a3d::testing::RunnerTestAccess::update(
 				runner, AtMilliseconds(6500)),
 			"a stopped Runner should not update");
-		Expect(callbackCount == 1, "stop should prevent later Scene callbacks");
+		Expect(callbackCount == 1, "stop should prevent later Runner callbacks");
 
 		const auto& infoAfterStop =
 			a3d::testing::RunnerTestAccess::hostUpdateInfo(runner);
@@ -312,7 +315,7 @@ namespace {
 			"stop should not change delta time");
 	}
 
-	void StopDuringUpdate() {
+	void StopDuringRunnerUpdate() {
 
 		a3d::Scene scene;
 		scene.physicsWorld(std::make_unique<a3d::PhysicsWorld>());
@@ -321,9 +324,12 @@ namespace {
 		std::vector<std::string_view> stages;
 		std::size_t callbackCount = 0;
 		std::size_t physicsCount = 0;
-		scene.updateCallback(
-			[&runner, &callbackCount, &stages](a3d::Scene&, double, double) {
-				stages.push_back("application");
+		runner.updateCallback(
+			[&runner, &callbackCount, &stages](
+				a3d::Runner&,
+				const a3d::HostUpdateInfo&) {
+
+				stages.push_back("runner");
 				++callbackCount;
 				runner.stop();
 			});
@@ -341,29 +347,84 @@ namespace {
 			"an update that stops the Runner should return false");
 		Expect(callbackCount == 1, "the stopping callback should run once");
 		Expect(
-			physicsCount == 1,
-			"stop during the legacy callback should not skip the current physics stage");
+			physicsCount == 0,
+			"stop during the Runner callback should skip the current physics stage");
 		Expect(
-			stages.size() == 2
-				&& stages[0] == "application"
-				&& stages[1] == "physics",
-			"physics should follow the stopping legacy callback");
+			stages.size() == 1
+				&& stages[0] == "runner",
+			"no later stage should follow the stopping Runner callback");
 		Expect(
 			runner.state() == a3d::Runner::State::Stopped,
 			"the Runner should remain stopped");
 		Expect(
 			a3d::testing::RunnerTestAccess::hostUpdateInfo(runner).updateIndex == 0,
 			"the stopping update should retain its update index");
+		Expect(
+			a3d::testing::RunnerTestAccess::completedRenderFrameCount(runner) == 0,
+			"stop during the Runner callback should not complete a render frame");
 
 		Expect(
 			!a3d::testing::RunnerTestAccess::update(
 				runner, AtMilliseconds(7200)),
 			"a later update should remain stopped");
 		Expect(callbackCount == 1, "a stopped Runner should not invoke the callback again");
-		Expect(physicsCount == 1, "a stopped Runner should not invoke physics again");
+		Expect(physicsCount == 0, "a stopped Runner should not invoke physics");
 	}
 
-	void LegacyPipelineOrderWithPhysics() {
+	void StopDuringDidSimulate() {
+
+		a3d::Scene scene;
+		scene.physicsWorld(std::make_unique<a3d::PhysicsWorld>());
+
+		a3d::Runner runner(scene);
+		std::vector<std::string_view> stages;
+		std::size_t runnerCallbackCount = 0;
+		std::size_t physicsCallbackCount = 0;
+		runner.updateCallback(
+			[&runnerCallbackCount, &stages](
+				a3d::Runner&,
+				const a3d::HostUpdateInfo&) {
+
+				stages.push_back("runner");
+				++runnerCallbackCount;
+			});
+		scene.physicsWorld()->didSimulateCallback(
+			[&runner, &physicsCallbackCount, &stages](
+				a3d::PhysicsWorld&,
+				double,
+				double) {
+
+				stages.push_back("physics");
+				++physicsCallbackCount;
+				runner.stop();
+			});
+
+		a3d::testing::RunnerTestAccess::start(
+			runner, AtMilliseconds(7500));
+		Expect(
+			!a3d::testing::RunnerTestAccess::update(
+				runner, AtMilliseconds(7600)),
+			"an update stopped during did-simulate should return false");
+		Expect(
+			runnerCallbackCount == 1,
+			"the Runner callback should run before physics");
+		Expect(
+			physicsCallbackCount == 1,
+			"the stopping physics callback should run once");
+		Expect(
+			stages.size() == 2
+				&& stages[0] == "runner"
+				&& stages[1] == "physics",
+			"did-simulate should follow the Runner callback");
+		Expect(
+			runner.state() == a3d::Runner::State::Stopped,
+			"the Runner should remain stopped after did-simulate");
+		Expect(
+			a3d::testing::RunnerTestAccess::completedRenderFrameCount(runner) == 0,
+			"stopping during did-simulate should not complete a render frame");
+	}
+
+	void RunnerCallbackOrderWithPhysics() {
 
 		a3d::Scene scene;
 		std::vector<std::string_view> stages;
@@ -384,16 +445,19 @@ namespace {
 		stages.clear();
 		inputManagerPtr->reset();
 
-		std::vector<CallbackTime> applicationTimes;
+		a3d::Runner* callbackRunner = nullptr;
+		const a3d::HostUpdateInfo* callbackInfo = nullptr;
+		std::vector<CallbackTime> runnerTimes;
 		std::vector<CallbackTime> physicsTimes;
-		scene.updateCallback(
-			[&applicationTimes, &stages](
-				a3d::Scene&,
-				double elapsedTime,
-				double deltaTime) {
+		runner.updateCallback(
+			[&callbackRunner, &callbackInfo, &runnerTimes, &stages](
+				a3d::Runner& callbackRunnerValue,
+				const a3d::HostUpdateInfo& info) {
 
-				stages.push_back("application");
-				applicationTimes.push_back({elapsedTime, deltaTime});
+				stages.push_back("runner");
+				callbackRunner = &callbackRunnerValue;
+				callbackInfo = &info;
+				runnerTimes.push_back({info.elapsedTime, info.deltaTime});
 			});
 		scene.physicsWorld()->didSimulateCallback(
 			[&physicsTimes, &stages](
@@ -413,26 +477,39 @@ namespace {
 		Expect(
 			stages.size() == 3
 				&& stages[0] == "input"
-				&& stages[1] == "application"
+				&& stages[1] == "runner"
 				&& stages[2] == "physics",
-			"the legacy pipeline should run input, application, then physics");
+			"the pipeline should run input, Runner callback, then physics");
 		Expect(
 			inputManagerPtr->updateCount() == 1,
 			"input should update exactly once in the observed host update");
 		Expect(
-			applicationTimes.size() == 1,
-			"the legacy Scene callback should run exactly once");
+			runnerTimes.size() == 1,
+			"the Runner callback should run exactly once");
 		Expect(
 			physicsTimes.size() == 1,
 			"the physics did-simulate callback should run exactly once");
+		Expect(
+			callbackRunner == &runner,
+			"the callback should receive its owning Runner");
+		Expect(
+			&callbackRunner->scene() == &scene,
+			"the callback Runner should reference the expected Scene");
+		Expect(
+			callbackInfo
+				== &a3d::testing::RunnerTestAccess::hostUpdateInfo(runner),
+			"the callback should receive the Runner's current HostUpdateInfo");
+		Expect(
+			callbackInfo->updateIndex == 1,
+			"the observed callback should receive update index one");
 		ExpectNear(
-			applicationTimes[0].elapsedTime,
+			runnerTimes[0].elapsedTime,
 			0.35,
-			"the legacy Scene callback elapsed time");
+			"the Runner callback elapsed time");
 		ExpectNear(
-			applicationTimes[0].deltaTime,
+			runnerTimes[0].deltaTime,
 			0.25,
-			"the legacy Scene callback delta time");
+			"the Runner callback delta time");
 		ExpectNear(
 			physicsTimes[0].elapsedTime,
 			0.35,
@@ -487,17 +564,6 @@ namespace {
 		auto* inputManagerPtr = inputManager.get();
 		scene.inputManager(std::move(inputManager));
 
-		std::vector<CallbackTime> applicationTimes;
-		scene.updateCallback(
-			[&applicationTimes, &stages](
-				a3d::Scene&,
-				double elapsedTime,
-				double deltaTime) {
-
-				stages.push_back("application");
-				applicationTimes.push_back({elapsedTime, deltaTime});
-			});
-
 		Expect(
 			scene.physicsWorld() == nullptr,
 			"the neither-world fixture should not have a PhysicsWorld");
@@ -506,6 +572,16 @@ namespace {
 			"the neither-world fixture should not have a VisualWorld");
 
 		a3d::Runner runner(scene);
+		std::vector<CallbackTime> runnerTimes;
+		runner.updateCallback(
+			[&runnerTimes, &stages](
+				a3d::Runner&,
+				const a3d::HostUpdateInfo& info) {
+
+				stages.push_back("runner");
+				runnerTimes.push_back({info.elapsedTime, info.deltaTime});
+			});
+
 		a3d::testing::RunnerTestAccess::start(
 			runner, AtMilliseconds(10000));
 		Expect(
@@ -516,22 +592,50 @@ namespace {
 		Expect(
 			stages.size() == 2
 				&& stages[0] == "input"
-				&& stages[1] == "application",
-			"input and the legacy callback should run without either world");
+				&& stages[1] == "runner",
+			"input and the Runner callback should run without either world");
 		Expect(
 			inputManagerPtr->updateCount() == 1,
 			"input should update once without either world");
 		Expect(
-			applicationTimes.size() == 1,
-			"the legacy callback should run once without either world");
+			runnerTimes.size() == 1,
+			"the Runner callback should run once without either world");
 		ExpectNear(
-			applicationTimes[0].elapsedTime,
+			runnerTimes[0].elapsedTime,
 			0.15,
 			"the neither-world callback elapsed time");
 		ExpectNear(
-			applicationTimes[0].deltaTime,
+			runnerTimes[0].deltaTime,
 			0.0,
 			"the neither-world callback first delta time");
+	}
+
+	void NoVisualWorldHasZeroCompletedRenderFrames() {
+
+		a3d::Scene scene;
+		a3d::Runner runner(scene);
+
+		Expect(
+			scene.visualWorld() == nullptr,
+			"the no-visual fixture should not have a VisualWorld");
+		Expect(
+			a3d::testing::RunnerTestAccess::completedRenderFrameCount(runner) == 0,
+			"a new Runner should have no completed render frames");
+
+		a3d::testing::RunnerTestAccess::start(
+			runner, AtMilliseconds(10500));
+		Expect(
+			a3d::testing::RunnerTestAccess::update(
+				runner, AtMilliseconds(10600)),
+			"the first no-visual host update should continue");
+		Expect(
+			a3d::testing::RunnerTestAccess::update(
+				runner, AtMilliseconds(10800)),
+			"the second no-visual host update should continue");
+
+		Expect(
+			a3d::testing::RunnerTestAccess::completedRenderFrameCount(runner) == 0,
+			"host updates without a VisualWorld should not complete render frames");
 	}
 
 	void SceneRootInvariant() {
@@ -697,10 +801,12 @@ namespace {
 		{"update-index-progression", UpdateIndexProgresses},
 		{"independent-runner-clocks", RunnerClocksAreIndependent},
 		{"stop-between-updates", StopBetweenUpdates},
-		{"stop-during-update", StopDuringUpdate},
-		{"legacy-pipeline-order-physics", LegacyPipelineOrderWithPhysics},
+		{"stop-during-runner-update", StopDuringRunnerUpdate},
+		{"stop-during-did-simulate", StopDuringDidSimulate},
+		{"runner-callback-order-physics", RunnerCallbackOrderWithPhysics},
 		{"first-zero-delta-reaches-physics", FirstZeroDeltaReachesPhysics},
 		{"neither-world-pipeline", NeitherWorldPipeline},
+		{"no-visual-completed-render-count", NoVisualWorldHasZeroCompletedRenderFrames},
 		{"scene-root-invariant", SceneRootInvariant},
 		{"physics-inventory-sampling", PhysicsInventorySamplingIsCurrent},
 		{"physics-inventory-before-did-simulate", PhysicsInventoryPrecedesDidSimulate}

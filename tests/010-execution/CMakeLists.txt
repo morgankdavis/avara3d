@@ -12,10 +12,12 @@ set(RUNNER_HOST_CLOCK_TESTS
 		update-index-progression
 		independent-runner-clocks
 		stop-between-updates
-		stop-during-update
-		legacy-pipeline-order-physics
+		stop-during-runner-update
+		stop-during-did-simulate
+		runner-callback-order-physics
 		first-zero-delta-reaches-physics
 		neither-world-pipeline
+		no-visual-completed-render-count
 		scene-root-invariant
 		physics-inventory-sampling
 		physics-inventory-before-did-simulate)

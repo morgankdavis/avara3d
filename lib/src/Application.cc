@@ -121,9 +121,10 @@ void Application::prepare() {
 		throw runtime_error("Application::initialize() returned a null Scene.");
 	}
 
+	_runner = make_unique<Runner>(*_scene);
+
 	registerCallbacks();
 
-	_runner = make_unique<Runner>(*_scene);
 	_runner->start();
 }
 
@@ -167,11 +168,11 @@ void Application::shutdown() noexcept {
 
 void Application::registerCallbacks() {
 
-	_scene->updateCallback(bind(&Application::sceneUpdate, this, _1, _2, _3));
+	_runner->updateCallback(bind(&Application::runnerUpdate, this, _1, _2));
 
 	if (auto* world = _scene->visualWorld()) {
-		world->willRenderCallback(bind(&Application::visualWorldWillRender, this, _1, _2, _3));
-		world->didRenderCallback(bind(&Application::visualWorldDidRender, this, _1, _2, _3));
+		world->willRenderCallback(bind(&Application::visualWorldWillRender, this, _1, _2));
+		world->didRenderCallback(bind(&Application::visualWorldDidRender, this, _1, _2));
 	}
 
 	if (auto* world = _scene->physicsWorld()) {
@@ -183,10 +184,10 @@ bool Application::shouldContinue(const Scene&) { return true; }
 
 void Application::didShutdown() {}
 
-void Application::sceneUpdate(Scene& scene, double time, double deltaTime) {}
+void Application::runnerUpdate(Runner& runner, const HostUpdateInfo& info) {}
 
-void Application::visualWorldWillRender(VisualWorld& world, double time, double deltaTime) {}
+void Application::visualWorldWillRender(VisualWorld& world, const RenderFrameInfo& info) {}
 
-void Application::visualWorldDidRender(VisualWorld& world, double time, double deltaTime) {}
+void Application::visualWorldDidRender(VisualWorld& world, const RenderFrameInfo& info) {}
 
 void Application::physicsWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {}

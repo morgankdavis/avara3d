@@ -22,8 +22,9 @@
 - Do not reformat unrelated files
 - Do not touch `data/external/` unless explicitly asked
 - Do not add new dependencies unless asked to
-- Match existing code style when making changes
-- Organize functions, types, variables, etc. into grouping matching the existing "/// Group tile ///" pattern
+- Match existing code format/style when making changes
+- Organize declarations using the existing /// Group Title /// pattern; place public engine-internal APIs in an appropriate /// Internal ... /// group
+- Use friend only for test access. Cross-class engine access must use public methods grouped as internal
 - OpenGL work should favor a minimal, correct, and maintainable implementation
 - Do not introduce rendering-backend abstraction work unless explicitly requested
 - When uncertain, state assumptions before editing

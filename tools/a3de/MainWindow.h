@@ -22,6 +22,8 @@ namespace Ui {
 QT_END_NAMESPACE
 
 namespace a3d {
+	struct HostUpdateInfo;
+	struct RenderFrameInfo;
 	class Mesh;
 	class Node;
 	class Runner;
@@ -50,9 +52,9 @@ namespace a3de {
 		void updateA3D();
 		void initLog(a3d::Log::Level level);
 
-		void updateCallback(a3d::Scene& scene, double time, double deltaTime);
-		void willRenderCallback(a3d::VisualWorld& world, double time, double deltaTime);
-		void didRenderCallback(a3d::VisualWorld& world, double time, double deltaTime);
+		void runnerUpdate(a3d::Runner& runner, const a3d::HostUpdateInfo& info);
+		void willRenderCallback(a3d::VisualWorld& world, const a3d::RenderFrameInfo& info);
+		void didRenderCallback(a3d::VisualWorld& world, const a3d::RenderFrameInfo& info);
 		void didSimulatePhysicsCallback(a3d::PhysicsWorld& world, double time, double deltaTime);
 
 		Ui::MainWindow*					_ui;
