@@ -25,6 +25,7 @@
 - Match existing code format/style when making changes
 - Organize declarations using the existing /// Group Title /// pattern; place public engine-internal APIs in an appropriate /// Internal ... /// group
 - Use friend only for test access. Cross-class engine access must use public methods grouped as internal
+- Prefer a3d::math functions over standard library functions
 - OpenGL work should favor a minimal, correct, and maintainable implementation
 - Do not introduce rendering-backend abstraction work unless explicitly requested
 - When uncertain, state assumptions before editing

@@ -242,14 +242,8 @@ void App::runnerUpdate(Runner& runner, const HostUpdateInfo& info) {
 
 /// VisualWorld Callback Overrides ///
 
-void App::visualWorldWillRender(VisualWorld &world,
+void App::visualWorldWillRender(VisualWorld& world,
                                 const RenderFrameInfo& info) {}
 
 void App::visualWorldDidRender(VisualWorld& world,
 		const RenderFrameInfo& info) {}
-
-/// PhysicsWorld Callback Overrides ///
-
-void App::physicsWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {
-
-}

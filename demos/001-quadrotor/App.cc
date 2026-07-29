@@ -25,7 +25,7 @@ const RenderContext::AntialiasingMode	ANTIALIAS_MODE		{RenderContext::Antialiasi
 const bool								ENABLE_VSYNC		{false};
 const bool								CAPTURE_CURSOR		{false};
 const float								MOUSE_SENSITIVITY	{0.5};
-const float								PHYSICS_TIMESTEP	{1.0/120.0};
+const double							PHYSICS_TIMESTEP	{1.0 / 120.0};
 const bool								DARK				{false};
 
 /// Public Lifecycle Functions ///
@@ -52,7 +52,6 @@ std::unique_ptr<Scene> App::init() {
 		visualWorld->background(backgroundColor);
 
 		auto physicsWorld = make_unique<PhysicsWorld>();
-		physicsWorld->timestep(PHYSICS_TIMESTEP);
 
 		auto scene = make_unique<Scene>(std::move(visualWorld),
 										std::move(physicsWorld),
@@ -74,6 +73,13 @@ std::unique_ptr<Scene> App::init() {
 		log::app::f()("Exception: {}", e.what());
 		return nullptr;
 	}
+}
+
+SimulationConfiguration App::simulationConfiguration() const {
+	return {
+		.timing = SimulationTiming::FixedStep,
+		.fixedDeltaTime = PHYSICS_TIMESTEP
+	};
 }
 
 bool App::shouldContinue(const Scene& scene) {
@@ -111,9 +117,3 @@ void App::visualWorldWillRender(VisualWorld& world,
 
 void App::visualWorldDidRender(VisualWorld& world,
 							   const RenderFrameInfo& info) {}
-
-/// PhysicsWorld Callback Overrides ///
-
-void App::physicsWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {
-
-}

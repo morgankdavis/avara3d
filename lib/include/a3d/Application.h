@@ -45,6 +45,7 @@ namespace a3d {
 		/// Protected Member Functions ///
 
 		virtual std::unique_ptr<Scene> init() = 0;
+		virtual SimulationConfiguration simulationConfiguration() const;
 
 		virtual bool shouldContinue(const Scene& scene);
 		virtual void didShutdown();
@@ -53,16 +54,29 @@ namespace a3d {
 
 		/// Runner Callback Overrides ///
 
-		virtual void runnerUpdate(Runner& runner, const HostUpdateInfo& info);
+		virtual void runnerUpdate(Runner& runner,
+		                          const HostUpdateInfo& info);
+
+		/// Scene Callback Overrides ///
+
+		virtual void sceneWillSimulate(Scene& scene,
+		                               const SimulationStepInfo& info);
+		virtual void sceneDidSimulate(Scene& scene,
+		                              const SimulationStepInfo& info);
 
 		/// VisualWorld Callback Overrides ///
 
-		virtual void visualWorldWillRender(VisualWorld& world, const RenderFrameInfo& info);
-		virtual void visualWorldDidRender(VisualWorld& world, const RenderFrameInfo& info);
+		virtual void visualWorldWillRender(VisualWorld& world,
+		                                   const RenderFrameInfo& info);
+		virtual void visualWorldDidRender(VisualWorld& world,
+		                                  const RenderFrameInfo& info);
 
 		/// PhysicsWorld Callback Overrides ///
 
-		virtual void physicsWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime);
+		virtual void physicsWorldWillStep(PhysicsWorld& world,
+		                                  const SimulationStepInfo& info);
+		virtual void physicsWorldDidStep(PhysicsWorld& world,
+		                                 const SimulationStepInfo& info);
 
 	private:
 		/// Private Member Functions ///

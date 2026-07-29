@@ -18,8 +18,6 @@ namespace a3d::config {
 	// duration of sample history to keep
 	const std::chrono::milliseconds	FRAME_STATS_HISTORY_DURATION 		{3000};
 
-	const unsigned 					MAX_PHYSICS_SUBSTEPS 				{1};
-
 	// for now, just add all lights.
 	// when we start doing spacial partitioning we will be smarter about lights.
 	const unsigned 					MAX_AMBIENT_LIGHTS				{16};

@@ -10,6 +10,7 @@
 #define AVARA3D_SCENE_SCENE_H
 
 #include <filesystem>
+#include <functional>
 #include <memory>
 #include <optional>
 #include <string>
@@ -64,6 +65,11 @@ namespace a3d {
 			ShowPhysicsConstraintLimits	=	1 << 11
 		};
 
+		using WillSimulateCallback = std::function<void(Scene& scene,
+		                                                const SimulationStepInfo& info)>;
+		using DidSimulateCallback = std::function<void(Scene& scene,
+		                                               const SimulationStepInfo& info)>;
+
 		/// Public Static Member Functions ///
 
 		static std::unique_ptr<Scene> 		FromFile(const std::filesystem::path& path,
@@ -113,12 +119,17 @@ namespace a3d {
 		DebugOptions 						debugOptions() const;
 		void 								debugOptions(DebugOptions options);
 
+		WillSimulateCallback				willSimulateCallback() const;
+		void								willSimulateCallback(WillSimulateCallback callback);
+
+		DidSimulateCallback					didSimulateCallback() const;
+		void								didSimulateCallback(DidSimulateCallback callback);
+
 		/// Internal Member Functions ///
 
 		void 								updateHostEvents(Profiler& profiler);
 		void 								updateInput(Profiler& profiler);
-		PhysicsInventory					updateLegacyPhysics(
-												 const HostUpdateInfo& info,
+		PhysicsInventory					simulate(const SimulationStepInfo& info,
 												 Profiler& profiler);
 
 	private:
@@ -131,6 +142,8 @@ namespace a3d {
 		std::unique_ptr<PhysicsWorld> 		_physicsWorld;
 		std::unique_ptr<InputManager>		_inputManager;
 		DebugOptions						_debugOptions;
+		WillSimulateCallback				_willSimulateCallback;
+		DidSimulateCallback					_didSimulateCallback;
 	};
 
 	namespace util::bitmask {

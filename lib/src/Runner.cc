@@ -5,10 +5,13 @@
 
 #include "a3d/Runner.h"
 
+#include <algorithm>
+#include <cmath>
 #include <stdexcept>
 
 #include "a3d/Configuration.h"
 #include "a3d/physics/PhysicsInventory.h"
+#include "a3d/physics/PhysicsWorld.h"
 #include "a3d/profile/FrameStats.h"
 #include "a3d/profile/Profile.h"
 #include "a3d/scene/Scene.h"
@@ -17,9 +20,15 @@
 using namespace a3d;
 using namespace std;
 
-Runner::Runner(Scene& scene):
+Runner::Runner(Scene& scene,
+               SimulationConfiguration configuration):
 	_scene(scene),
 	_state(State::Idle),
+	_simulationConfiguration{configuration},
+	_timeScale{configuration.timeScale},
+	_simulationAccumulator{0.0},
+	_simulationTime{0.0},
+	_simulationTickCount{0},
 	_startTime{},
 	_previousUpdateTime{},
 	_hostUpdateInfo{},
@@ -28,6 +37,8 @@ Runner::Runner(Scene& scene):
 	_completedRenderFrameCount{0},
 	_profiler{},
 	_frameStatsHistory{a3d::config::FRAME_STATS_HISTORY_DURATION} {
+
+	validateSimulationConfiguration();
 }
 
 Runner::~Runner() {
@@ -45,6 +56,12 @@ void Runner::start(Clock::time_point now) {
 			"Runner::start requires an idle Runner.");
 	}
 
+	validateSimulationConfiguration();
+
+	_timeScale = _simulationConfiguration.timeScale;
+	_simulationAccumulator = 0.0;
+	_simulationTime = 0.0;
+	_simulationTickCount = 0;
 	_startTime = now;
 	_previousUpdateTime = now;
 	_hostUpdateInfo = {};
@@ -97,16 +114,8 @@ bool Runner::update(Clock::time_point now) {
 		}
 
 		if (_state == State::Running) {
-			auto inventory = _scene.updateLegacyPhysics(hostUpdateInfo, _profiler);
-			prof::profile(_profiler, Profiler::Tag::EngineCpu, [&] {
-				stats.numStaticBodies = inventory.staticBodies;
-				stats.numDynamicBodies = inventory.dynamicBodies;
-				stats.numKinematicBodies = inventory.kinematicBodies;
-				stats.numPrimitiveShapes = inventory.primitiveShapes;
-				stats.numBoundingBoxShapes = inventory.boundingBoxShapes;
-				stats.numConvexHullShapes = inventory.convexHullShapes;
-				stats.numConcavePolyhedronShapes = inventory.concavePolyhedronShapes;
-			});
+			const auto inventory = scheduleSimulation(hostUpdateInfo, stats);
+			copyPhysicsInventory(inventory, stats);
 
 			if (_state == State::Running) {
 				renderFrame(hostUpdateInfo, stats);
@@ -127,21 +136,180 @@ bool Runner::update(Clock::time_point now) {
 	return _state == State::Running;
 }
 
-bool Runner::renderFrame(
-		const HostUpdateInfo& info,
-		FrameStats& stats) {
+void Runner::validateSimulationConfiguration() const {
+
+	const auto& configuration = _simulationConfiguration;
+
+	if (!isfinite(configuration.fixedDeltaTime)
+		|| configuration.fixedDeltaTime <= 0.0) {
+
+		throw invalid_argument(
+			"Runner requires a finite, positive fixed simulation delta.");
+	}
+
+	if (configuration.maxCatchUpSteps == 0) {
+		throw invalid_argument(
+			"Runner requires at least one maximum catch-up step.");
+	}
+
+	if (!isfinite(configuration.timeScale)
+		|| configuration.timeScale <= 0.0) {
+
+		throw invalid_argument(
+			"Runner requires a finite, positive initial time scale.");
+	}
+
+	if (!isfinite(configuration.maxFrameDrivenDeltaTime)
+		|| configuration.maxFrameDrivenDeltaTime <= 0.0) {
+
+		throw invalid_argument(
+			"Runner requires a finite, positive maximum FrameDriven delta.");
+	}
+
+	if (auto physicsWorld = _scene.physicsWorld();
+		physicsWorld
+		&& !physicsWorld->acceptsStepDelta(configuration.fixedDeltaTime)) {
+
+		throw invalid_argument(
+			"Runner fixed simulation delta is not accepted by its PhysicsWorld backend.");
+	}
+}
+
+PhysicsInventory Runner::scheduleSimulation(const HostUpdateInfo& info,
+                                            FrameStats& stats) {
+
+	PhysicsInventory inventory{};
+
+	if (_simulationConfiguration.timing == SimulationTiming::FrameDriven) {
+
+		const double scaledDelta = info.deltaTime * _timeScale;
+		const double simulationDelta = min(
+			scaledDelta,
+			_simulationConfiguration.maxFrameDrivenDeltaTime);
+
+		if (scaledDelta > simulationDelta) {
+			stats.discardedSimulationTime =
+				scaledDelta - simulationDelta;
+		}
+
+		if (simulationDelta > 0.0) {
+			inventory = runSimulationTick(simulationDelta);
+			stats.simulationTickCount = 1;
+		}
+	}
+	else {
+		const double fixedDeltaTime = _simulationConfiguration.fixedDeltaTime;
+
+		_simulationAccumulator += info.deltaTime * _timeScale;
+
+		while (_simulationAccumulator >= fixedDeltaTime
+			&& stats.simulationTickCount < _simulationConfiguration.maxCatchUpSteps
+		       && _state == State::Running) {
+
+			inventory = runSimulationTick(fixedDeltaTime);
+
+			_simulationAccumulator -= fixedDeltaTime;
+
+			++stats.simulationTickCount;
+		}
+
+		if (_state == State::Running && _simulationAccumulator >= fixedDeltaTime) {
+			const double remainder = fmod(_simulationAccumulator,
+						fixedDeltaTime);
+
+			stats.discardedSimulationTime =
+					_simulationAccumulator - remainder;
+
+			_simulationAccumulator = remainder;
+		}
+	}
+
+	if (stats.simulationTickCount == 0) {
+		if (auto physicsWorld = _scene.physicsWorld()) {
+			inventory = prof::profile(
+				_profiler,
+				Profiler::Tag::EngineCpu,
+				[&] {
+					return physicsWorld->inventory();
+				});
+		}
+	}
+
+	return inventory;
+}
+
+PhysicsInventory Runner::runSimulationTick(double deltaTime) {
+
+	if (auto physicsWorld = _scene.physicsWorld();
+		physicsWorld
+			&& !physicsWorld->acceptsStepDelta(deltaTime)) {
+
+		throw runtime_error(
+			"Runner simulation delta is not accepted by its PhysicsWorld backend.");
+	}
+
+	SimulationStepInfo info {
+		.tickIndex = _simulationTickCount
+	};
+
+	if (_simulationConfiguration.timing == SimulationTiming::FixedStep) {
+		info.startTime =
+			static_cast<double>(info.tickIndex)
+			* _simulationConfiguration.fixedDeltaTime;
+		info.endTime =
+			static_cast<double>(info.tickIndex + 1)
+			* _simulationConfiguration.fixedDeltaTime;
+		info.deltaTime = _simulationConfiguration.fixedDeltaTime;
+	}
+	else {
+		info.startTime = _simulationTime;
+		info.endTime = info.startTime + deltaTime;
+		info.deltaTime = deltaTime;
+	}
+
+	auto inventory = _scene.simulate(info, _profiler);
+
+	_simulationTime = info.endTime;
+	++_simulationTickCount;
+
+	return inventory;
+}
+
+void Runner::copyPhysicsInventory(const PhysicsInventory& inventory,
+                                  FrameStats& stats) {
+
+	prof::profile(_profiler, Profiler::Tag::EngineCpu, [&] {
+		stats.numStaticBodies = inventory.staticBodies;
+		stats.numDynamicBodies = inventory.dynamicBodies;
+		stats.numKinematicBodies = inventory.kinematicBodies;
+		stats.numPrimitiveShapes = inventory.primitiveShapes;
+		stats.numBoundingBoxShapes = inventory.boundingBoxShapes;
+		stats.numConvexHullShapes = inventory.convexHullShapes;
+		stats.numConcavePolyhedronShapes = inventory.concavePolyhedronShapes;
+	});
+}
+
+RenderFrameInfo Runner::makeRenderFrameInfo(const HostUpdateInfo& info) const {
+
+	return {
+		.frameIndex = _completedRenderFrameCount,
+		.hostUpdateIndex = info.updateIndex,
+		.hostTime = info.elapsedTime,
+		.hostDeltaTime = info.deltaTime,
+		.simulationTime = _simulationTime,
+		.completedSimulationTicks = _simulationTickCount
+	};
+}
+
+bool Runner::renderFrame(const HostUpdateInfo& info,
+                         FrameStats& stats) {
 
 	auto visualWorld = _scene.visualWorld();
 	if (!visualWorld) {
 		return false;
 	}
 
-	const RenderFrameInfo frameInfo {
-		.frameIndex = _completedRenderFrameCount,
-		.hostUpdateIndex = info.updateIndex,
-		.hostTime = info.elapsedTime,
-		.hostDeltaTime = info.deltaTime
-	};
+	const RenderFrameInfo frameInfo = makeRenderFrameInfo(info);
 
 	if (!visualWorld->draw(_scene,
 						   _scene.physicsWorld(),
@@ -174,6 +342,32 @@ void Runner::updateCallback(UpdateCallback callback) {
 	_updateCallback = callback;
 }
 
+const SimulationConfiguration& Runner::simulationConfiguration() const {
+	return _simulationConfiguration;
+}
+
+double Runner::timeScale() const {
+	return _timeScale;
+}
+
+void Runner::timeScale(double value) {
+
+	if (!isfinite(value) || value <= 0.0) {
+		throw invalid_argument(
+			"Runner time scale must be finite and positive.");
+	}
+
+	_timeScale = value;
+}
+
+double Runner::simulationTime() const {
+	return _simulationTime;
+}
+
+uint64_t Runner::simulationTickCount() const {
+	return _simulationTickCount;
+}
+
 Runner::State Runner::state() const {
 	return _state;
 }
@@ -185,202 +379,3 @@ Scene& Runner::scene() {
 const Scene& Runner::scene() const {
 	return _scene;
 }
-
-
-// //
-// //  Runner.cc
-// //  avara3d
-// //
-// //  Created by Morgan Davis on 7/10/26.
-// //  Copyright © 2026 Morgan K Davis. All rights reserved.
-// //
-//
-// #include "a3d/Runner.h"
-//
-// #include <stdexcept>
-// #include <utility>
-//
-// #if defined(A3D_WEB)
-// #include <emscripten.h>
-// #endif
-//
-// #include "a3d/scene/Scene.h"
-//
-// using namespace a3d;
-// using namespace std;
-//
-// /// Public Static Member Functions ///
-//
-// #if defined(A3D_WEB)
-//
-// int Runner::Run(Runner&& runner) {
-//
-//     // ! NOTE !
-//     // this is intentionally heap-owned. on web, Run() returns immediately,
-//     // so the Runner must outlive the stack frame that called Run().
-//     auto* webRunner = new Runner(std::move(runner));
-//
-//     webRunner->start();
-//     emscripten_set_main_loop_arg(
-//         [](void* arg) {
-//             auto* runner = static_cast<a3d::Runner*>(arg);
-//             if (!runner->update()) {
-//                 emscripten_cancel_main_loop();
-//                 runner->end();
-//                 delete runner;
-//             }
-//         },
-//         webRunner,
-//         0,
-//         false);
-//
-//     return 0;
-// }
-//
-// #else
-//
-// int Runner::Run(Runner&& runner) {
-//
-//     runner.start();
-//     while (runner.update());
-//     runner.end();
-//
-//     return 0;
-// }
-//
-// #endif
-//
-// /// Public Lifecycle Functions ///
-//
-// Runner::Runner(std::unique_ptr<Scene> scene):
-//     _scene(std::move(scene)),
-//     _context{nullptr},
-//     _state{State::Idle},
-//     _shouldContinuePredicate{},
-//     _didShutdownCallback{} {
-//
-//     if (!_scene) {
-//         throw std::invalid_argument("a3d::Runner requires a non-null Scene.");
-//     }
-// }
-//
-// Runner::~Runner() {
-//     end();
-// }
-//
-// Runner::Runner(Runner&& other):
-//     _scene(std::move(other._scene)),
-//     _context(other._context),
-//     _state(other._state),
-//     _shouldContinuePredicate(std::move(other._shouldContinuePredicate)),
-//     _didShutdownCallback(std::move(other._didShutdownCallback)) {
-//
-//     other._context = nullptr;
-//     other._state = State::Stopped;
-// }
-//
-// Runner& Runner::operator=(Runner&& other) {
-//
-//     if (this == &other) {
-//         return *this;
-//     }
-//
-//     end();
-//
-//     _scene = std::move(other._scene);
-//     _context = other._context;
-//     _state = other._state;
-//     _shouldContinuePredicate = std::move(other._shouldContinuePredicate);
-//     _didShutdownCallback = std::move(other._didShutdownCallback);
-//
-//     other._context = nullptr;
-//     other._state = State::Stopped;
-//
-//     return *this;
-// }
-//
-// /// Public Member Functions ///
-//
-// void Runner::start() {
-//
-//     if (_state == State::Idle) {
-//         _state = State::Running;
-//     }
-// }
-//
-// bool Runner::update() {
-//
-//     if (_state != State::Running || !_scene) {
-//         return false;
-//     }
-//
-//     _scene->update();
-//
-//     if (_shouldContinuePredicate &&
-//         !_shouldContinuePredicate(*this, *_scene, _context)) {
-//         stop();
-//     }
-//
-//     return _state == State::Running;
-// }
-//
-// void Runner::stop() {
-//     _state = State::Stopping;
-// }
-//
-// Runner::State Runner::state() const {
-//     return _state;
-// }
-//
-// const Scene& Runner::scene() const {
-//     return *_scene;
-// }
-//
-// void* Runner::context() const {
-//     return _context;
-// }
-//
-// void Runner::context(void* context) {
-//     _context = context;
-// }
-//
-// Runner::ShouldContinuePredicate Runner::shouldContinuePredicate() const {
-//     return _shouldContinuePredicate;
-// }
-//
-// void Runner::shouldContinuePredicate(ShouldContinuePredicate function) {
-//     _shouldContinuePredicate = std::move(function);
-// }
-//
-// Runner::DidShutdownCallback Runner::didShutdownCallback() const {
-//     return _didShutdownCallback;
-// }
-//
-// void Runner::didShutdownCallback(DidShutdownCallback function) {
-//     _didShutdownCallback = std::move(function);
-// }
-//
-// /// Private Member Functions ///
-//
-// void Runner::end() {
-//
-//     if (_state == State::Stopped) {
-//         return;
-//     }
-//
-//     _state = State::Stopped;
-//
-//     // destroy the Scene while the external context/window still exists
-//     _scene.reset();
-//
-//     if (_didShutdownCallback) {
-//         try {
-//             _didShutdownCallback(*this, _context);
-//         }
-//         catch (...) {
-//             // destructors / teardown paths must not throw
-//         }
-//     }
-//
-//     _context = nullptr;
-// }

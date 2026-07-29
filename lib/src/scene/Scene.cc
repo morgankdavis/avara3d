@@ -43,7 +43,9 @@ Scene::Scene():
 		_visualWorld{},
 		_physicsWorld{},
 		_inputManager{},
-		_debugOptions{DebugOptions::None} {
+		_debugOptions{DebugOptions::None},
+		_willSimulateCallback{},
+		_didSimulateCallback{} {
 
 	_rootNode->attachedToScene(*this);
 }
@@ -121,56 +123,35 @@ void Scene::rootNode(const shared_ptr<Node>& node) {
 	_rootNode->attachedToScene(*this);
 }
 
-//Node* Scene::rootNode() const {
-//	return _rootNode.get();
-//}
-//
-//void Scene::rootNode(unique_ptr<Node>& node) {
-//
-//	if () // check they are not the same
-//	if (_rootNode) {
-//		_rootNode->detachedFromScene(this);
-//	}
-//
-//	_rootNode = std::move(node);
-//
-//	if (_rootNode) {
-//		_rootNode->attachedToScene(this);
-//	}
-//}
-
 VisualWorld* Scene::visualWorld() const {
 	return _visualWorld.get();
 }
 
 void Scene::visualWorld(unique_ptr<VisualWorld> world) {
 
-//	if (world != _visualWorld) {
+	if (_visualWorld) {
 
-		if (_visualWorld) {
+		_visualWorld->detachedFromScene(*this);
 
-			_visualWorld->detachedFromScene(*this);
+		if (_rootNode) {
+			_rootNode->visualWorldDetachedFromScene(*_visualWorld, *this);
+		}
+	}
 
-			if (_rootNode) {
-				_rootNode->visualWorldDetachedFromScene(*_visualWorld, *this);
-			}
+	_visualWorld = std::move(world);
+
+	if (_visualWorld) {
+
+		_visualWorld->attachedToScene(*this);
+
+		if (_rootNode) {
+			_rootNode->visualWorldAttachedToScene(*_visualWorld, *this);
 		}
 
-		_visualWorld = std::move(world);
-
-		if (_visualWorld) {
-
-			_visualWorld->attachedToScene(*this);
-
-			if (_rootNode) {
-				_rootNode->visualWorldAttachedToScene(*_visualWorld, *this);
-			}
-
-			if (_inputManager) {
-				_inputManager->visualWorldAttachedToScene(*this);
-			}
+		if (_inputManager) {
+			_inputManager->visualWorldAttachedToScene(*this);
 		}
-//	}
+	}
 }
 
 PhysicsWorld* Scene::physicsWorld() const {
@@ -217,14 +198,6 @@ void Scene::inputManager(unique_ptr<InputManager> inputManager) {
 	}
 }
 
-//AABB Scene::aabb() {
-//
-//}
-//
-//vec3 Scene::extent() {
-//
-//}
-
 AABB Scene::aabb(bool vertfit) const {
 	AABB out = AABB::Invalid();
 
@@ -258,6 +231,22 @@ void Scene::debugOptions(DebugOptions options) {
 	_debugOptions = options;
 }
 
+Scene::WillSimulateCallback Scene::willSimulateCallback() const {
+	return _willSimulateCallback;
+}
+
+void Scene::willSimulateCallback(WillSimulateCallback callback) {
+	_willSimulateCallback = callback;
+}
+
+Scene::DidSimulateCallback Scene::didSimulateCallback() const {
+	return _didSimulateCallback;
+}
+
+void Scene::didSimulateCallback(DidSimulateCallback callback) {
+	_didSimulateCallback = callback;
+}
+
 /// Internal Member Functions ///
 
 void Scene::updateHostEvents(Profiler& profiler) {
@@ -281,17 +270,25 @@ void Scene::updateInput(Profiler& profiler) {
 	}
 }
 
-PhysicsInventory Scene::updateLegacyPhysics(
-		const HostUpdateInfo& info,
-		Profiler& profiler) {
+PhysicsInventory Scene::simulate(const SimulationStepInfo& info,
+                                 Profiler& profiler) {
 
-	if (_physicsWorld) {
-
-		return _physicsWorld->step(*this,
-								   info.elapsedTime,
-								   info.deltaTime,
-								   profiler);
+	if (auto callback = willSimulateCallback()) {
+		prof::profile(profiler, Profiler::Tag::Application, [&] {
+			callback(*this, info);
+		});
 	}
 
-	return {};
+	PhysicsInventory inventory{};
+	if (_physicsWorld) {
+		inventory = _physicsWorld->step(info, profiler);
+	}
+
+	if (auto callback = didSimulateCallback()) {
+		prof::profile(profiler, Profiler::Tag::Application, [&] {
+			callback(*this, info);
+		});
+	}
+
+	return inventory;
 }

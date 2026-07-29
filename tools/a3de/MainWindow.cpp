@@ -152,9 +152,8 @@ void MainWindow::initLog(Log::Level level) {
 	log::app::i()("Origin: {}", BuildInfo::OriginString(buildInfo.origin()));
 }
 
-void MainWindow::runnerUpdate(
-		Runner& runner,
-		const HostUpdateInfo& info) {
+void MainWindow::runnerUpdate(Runner& runner,
+                              const HostUpdateInfo& info) {
 	//log::app::t();
 
 	auto& scene = runner.scene();
@@ -176,18 +175,12 @@ void MainWindow::runnerUpdate(
 	}
 }
 
-void MainWindow::willRenderCallback(
-		VisualWorld& world,
-		const RenderFrameInfo& info) {
+void MainWindow::willRenderCallback(VisualWorld& world,
+                                    const RenderFrameInfo& info) {
 	//log::app::t();
 }
 
-void MainWindow::didRenderCallback(
-		VisualWorld& world,
-		const RenderFrameInfo& info) {
-	//log::app::t();
-}
-
-void MainWindow::didSimulatePhysicsCallback(PhysicsWorld &world, double time, double deltaTime) {
+void MainWindow::didRenderCallback(VisualWorld& world,
+                                   const RenderFrameInfo& info) {
 	//log::app::t();
 }

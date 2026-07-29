@@ -9,6 +9,9 @@
 #include "a3d/physics/backend/bullet/BulletWorldProxy.h"
 
 #include <algorithm>
+#include <cmath>
+#include <limits>
+#include <stdexcept>
 #include <thread>
 
 #include <bullet/btBulletCollisionCommon.h>
@@ -22,7 +25,6 @@
 #include <bullet/LinearMath/btThreads.h>
 #include <magic_enum/magic_enum.hpp>
 
-#include "a3d/Configuration.h"
 #include "a3d/log/Log.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/shape/PhysicsShape.h"
@@ -322,24 +324,40 @@ void BulletWorldProxy::gravity(float gravity) {
 	_btWorld->setGravity({0, gravity, 0});
 }
 
-void BulletWorldProxy::step(double deltaT,
-							float speed,
-							float timestep,
+bool BulletWorldProxy::acceptsStepDelta(double deltaTime) const {
+
+	if (!std::isfinite(deltaTime)
+		|| deltaTime <= 0.0
+		|| deltaTime > static_cast<double>(
+			std::numeric_limits<btScalar>::max())) {
+		return false;
+	}
+
+	const auto btDeltaTime = btScalar(deltaTime);
+
+	return std::isfinite(btDeltaTime)
+		&& btDeltaTime > btScalar(0)
+		&& !btFuzzyZero(btDeltaTime);
+}
+
+void BulletWorldProxy::step(double deltaTime,
 							Profiler& profiler) {
+
+	if (!acceptsStepDelta(deltaTime)) {
+		throw invalid_argument(
+			"BulletWorldProxy::step requires an accepted positive, finite delta time.");
+	}
 
 	auto result = prof::profile(profiler, Profiler::Tag::Physics, [&] {
 
 		std::scoped_lock lock(_btMutex);
 
-		return _btWorld->stepSimulation(btScalar(deltaT * speed),
-										config::MAX_PHYSICS_SUBSTEPS,
-										timestep);
+		return _btWorld->stepSimulation(btScalar(deltaTime), 0);
 	});
 
-//	if (result > config::MAX_PHYSICS_SUBSTEPS) {
-//		log::w()("Max physics simulation substeps exceeded: {}/{}",
-//				  result, config::MAX_PHYSICS_SUBSTEPS);
-//	}
+	if (result != 1) {
+		throw runtime_error("BulletWorldProxy::step() expected exactly one Bullet simulation step.");
+	}
 }
 
 PhysicsInventory BulletWorldProxy::inventory() const {

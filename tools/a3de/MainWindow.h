@@ -28,7 +28,6 @@ namespace a3d {
 	class Node;
 	class Runner;
 	class Scene;
-	class PhysicsWorld;
 	class VisualWorld;
 }
 
@@ -55,7 +54,6 @@ namespace a3de {
 		void runnerUpdate(a3d::Runner& runner, const a3d::HostUpdateInfo& info);
 		void willRenderCallback(a3d::VisualWorld& world, const a3d::RenderFrameInfo& info);
 		void didRenderCallback(a3d::VisualWorld& world, const a3d::RenderFrameInfo& info);
-		void didSimulatePhysicsCallback(a3d::PhysicsWorld& world, double time, double deltaTime);
 
 		Ui::MainWindow*					_ui;
 		a3d::qt::QtViewport*			_viewport;

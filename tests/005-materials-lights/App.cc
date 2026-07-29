@@ -330,12 +330,6 @@ void App::visualWorldWillRender(VisualWorld& world,
 void App::visualWorldDidRender(VisualWorld& world,
                                const RenderFrameInfo& info) {}
 
-/// PhysicsWorld Callback Overrides ///
-
-void App::physicsWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {
-
-}
-
 /// Private Static Non-Member Functions ///
 
 void SetAllFilterModes(Sampler::FilterMode mode, Scene& scene) {

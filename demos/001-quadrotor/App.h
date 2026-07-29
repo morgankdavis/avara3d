@@ -17,7 +17,6 @@ namespace a3d {
 	struct HostUpdateInfo;
 	struct RenderFrameInfo;
 	class Node;
-	class PhysicsWorld;
 	class Runner;
 	class Scene;
 	class VisualWorld;
@@ -44,30 +43,24 @@ namespace test::quadrotor {
 		/// Protected Member Functions ///
 
 		std::unique_ptr<a3d::Scene> init() override;
+		a3d::SimulationConfiguration simulationConfiguration() const override;
 
-		bool shouldContinue(
-			const a3d::Scene& scene) override;
+		bool shouldContinue(const a3d::Scene& scene) override;
 
 		void didShutdown() override;
 
 		/// Runner Callback Overrides ///
 
-		void runnerUpdate(a3d::Runner &runner,
-		                  const a3d::HostUpdateInfo &info) override;
+		void runnerUpdate(a3d::Runner& runner,
+		                  const a3d::HostUpdateInfo& info) override;
 
 		/// VisualWorld Callback Overrides ///
 
-		void visualWorldDidRender(a3d::VisualWorld &world,
-		                          const a3d::RenderFrameInfo &info) override;
+		void visualWorldDidRender(a3d::VisualWorld& world,
+		                          const a3d::RenderFrameInfo& info) override;
 
-		void visualWorldWillRender(a3d::VisualWorld &world,
+		void visualWorldWillRender(a3d::VisualWorld& world,
 		                           const a3d::RenderFrameInfo& info) override;
-
-		/// PhysicsWorld Callback Overrides ///
-
-		void physicsWorldDidSimulate(a3d::PhysicsWorld& world,
-			double time,
-			double deltaTime) override;
 
 	private:
 		/// Private Member Variables ///

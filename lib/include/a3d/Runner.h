@@ -22,6 +22,7 @@
 namespace a3d {
 
 	struct FrameStats;
+	struct PhysicsInventory;
 
 	class Scene;
 
@@ -36,13 +37,13 @@ namespace a3d {
 			Stopped
 		};
 
-		using UpdateCallback = std::function<void(
-				Runner& runner,
-				const HostUpdateInfo& info)>;
+		using UpdateCallback = std::function<void(Runner& runner,
+		                                          const HostUpdateInfo& info)>;
 
 		/// Public Lifecycle Functions ///
 
-		explicit Runner(Scene& scene);
+		explicit Runner(Scene& scene,
+		                SimulationConfiguration configuration = {});
 
 		Runner(const Runner&) = delete;
 		Runner& operator=(const Runner&) = delete;
@@ -61,6 +62,14 @@ namespace a3d {
 		UpdateCallback updateCallback() const;
 		void updateCallback(UpdateCallback callback);
 
+		const SimulationConfiguration& simulationConfiguration() const;
+
+		double timeScale() const;
+		void timeScale(double value);
+
+		double simulationTime() const;
+		std::uint64_t simulationTickCount() const;
+
 		State state() const;
 
 		Scene& scene();
@@ -75,12 +84,27 @@ namespace a3d {
 
 		void start(Clock::time_point now);
 		bool update(Clock::time_point now);
+
+		void validateSimulationConfiguration() const;
+		PhysicsInventory scheduleSimulation(const HostUpdateInfo& info,
+		                                    FrameStats& stats);
+		PhysicsInventory runSimulationTick(double deltaTime);
+		void copyPhysicsInventory(const PhysicsInventory& inventory,
+		                          FrameStats& stats);
+
+		RenderFrameInfo makeRenderFrameInfo(const HostUpdateInfo& info) const;
 		bool renderFrame(const HostUpdateInfo& info, FrameStats& stats);
 
 		/// Private Member Variables ///
 
 		Scene&				_scene;
 		State				_state;
+		SimulationConfiguration
+							_simulationConfiguration;
+		double				_timeScale;
+		double				_simulationAccumulator;
+		double				_simulationTime;
+		std::uint64_t		_simulationTickCount;
 		Clock::time_point	_startTime;
 		Clock::time_point	_previousUpdateTime;
 		HostUpdateInfo		_hostUpdateInfo;

@@ -17,7 +17,6 @@ namespace a3d {
 	struct HostUpdateInfo;
 	struct RenderFrameInfo;
 	class Node;
-	class PhysicsWorld;
 	class Runner;
 	class Scene;
 	class VisualWorld;
@@ -45,8 +44,7 @@ namespace test::materialslights {
 
 		std::unique_ptr<a3d::Scene> init() override;
 
-		bool shouldContinue(
-			const a3d::Scene& scene) override;
+		bool shouldContinue(const a3d::Scene& scene) override;
 
 		void didShutdown() override;
 
@@ -57,17 +55,11 @@ namespace test::materialslights {
 
 		/// VisualWorld Callback Overrides ///
 
-		void visualWorldDidRender(a3d::VisualWorld &world,
-		                          const a3d::RenderFrameInfo &info) override;
+		void visualWorldDidRender(a3d::VisualWorld& world,
+		                          const a3d::RenderFrameInfo& info) override;
 
-		void visualWorldWillRender(a3d::VisualWorld &world,
+		void visualWorldWillRender(a3d::VisualWorld& world,
 		                           const a3d::RenderFrameInfo& info) override;
-
-		/// PhysicsWorld Callback Overrides ///
-
-		void physicsWorldDidSimulate(a3d::PhysicsWorld &world,
-		                             double time,
-		                             double deltaTime) override;
 
 	private:
 		/// Private Member Variables ///

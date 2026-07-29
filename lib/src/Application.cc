@@ -121,7 +121,7 @@ void Application::prepare() {
 		throw runtime_error("Application::initialize() returned a null Scene.");
 	}
 
-	_runner = make_unique<Runner>(*_scene);
+	_runner = make_unique<Runner>(*_scene, simulationConfiguration());
 
 	registerCallbacks();
 
@@ -169,25 +169,45 @@ void Application::shutdown() noexcept {
 void Application::registerCallbacks() {
 
 	_runner->updateCallback(bind(&Application::runnerUpdate, this, _1, _2));
+	_scene->willSimulateCallback(bind(&Application::sceneWillSimulate, this, _1, _2));
+	_scene->didSimulateCallback(bind(&Application::sceneDidSimulate, this, _1, _2));
+
+	if (auto* world = _scene->physicsWorld()) {
+		world->willStepCallback(bind(&Application::physicsWorldWillStep, this, _1, _2));
+		world->didStepCallback(bind(&Application::physicsWorldDidStep, this, _1, _2));
+	}
 
 	if (auto* world = _scene->visualWorld()) {
 		world->willRenderCallback(bind(&Application::visualWorldWillRender, this, _1, _2));
 		world->didRenderCallback(bind(&Application::visualWorldDidRender, this, _1, _2));
 	}
+}
 
-	if (auto* world = _scene->physicsWorld()) {
-		world->didSimulateCallback(bind(&Application::physicsWorldDidSimulate, this, _1, _2, _3));
-	}
+SimulationConfiguration Application::simulationConfiguration() const {
+	return {};
 }
 
 bool Application::shouldContinue(const Scene&) { return true; }
 
 void Application::didShutdown() {}
 
-void Application::runnerUpdate(Runner& runner, const HostUpdateInfo& info) {}
+void Application::runnerUpdate(Runner& runner,
+                               const HostUpdateInfo& info) {}
 
-void Application::visualWorldWillRender(VisualWorld& world, const RenderFrameInfo& info) {}
+void Application::sceneWillSimulate(Scene& scene,
+                                    const SimulationStepInfo& info) {}
 
-void Application::visualWorldDidRender(VisualWorld& world, const RenderFrameInfo& info) {}
+void Application::sceneDidSimulate(Scene& scene,
+                                   const SimulationStepInfo& info) {}
 
-void Application::physicsWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {}
+void Application::visualWorldWillRender(VisualWorld& world,
+                                        const RenderFrameInfo& info) {}
+
+void Application::visualWorldDidRender(VisualWorld& world,
+                                       const RenderFrameInfo& info) {}
+
+void Application::physicsWorldWillStep(PhysicsWorld& world,
+                                        const SimulationStepInfo& info) {}
+
+void Application::physicsWorldDidStep(PhysicsWorld& world,
+                                       const SimulationStepInfo& info) {}
