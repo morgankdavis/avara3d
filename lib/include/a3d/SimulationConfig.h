@@ -25,10 +25,10 @@ namespace a3d {
 		// selects automatic simulation scheduling
 		SimulationTiming timing{SimulationTiming::VariableStep};
 
-		// sonstant simulation delta
+		// constant simulation delta
 		//
 		// VariableStep: ignored
-		// FixedStep:    used
+		// FixedStep:    used for automatic and requested ticks
 		double fixedDeltaTime{1.0 / 60.0};
 
 		// maximum automatic ticks performed during one Runner::update()
@@ -37,7 +37,8 @@ namespace a3d {
 		// FixedStep:    used
 		std::uint32_t maxCatchUpSteps{8};
 
-		// initial simulation-time rate relative to monotonic update time
+		// initial automatic simulation-time rate relative to monotonic update
+		// time. requested fixed ticks ignore timeScale.
 		//
 		// VariableStep: used
 		// FixedStep:    used

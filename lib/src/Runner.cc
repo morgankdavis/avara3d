@@ -7,7 +7,9 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <stdexcept>
+#include <utility>
 
 #include "a3d/Configuration.h"
 #include "a3d/input/InputContext.h"
@@ -30,6 +32,9 @@ Runner::Runner(Scene& scene,
 	_simulationAccumulator{0.0},
 	_simulationTime{0.0},
 	_simulationTickCount{0},
+	_simulationPaused{false},
+	_pendingSimulationTicks{0},
+	_suppressNextAutomaticSimulationUpdate{false},
 	_startTime{},
 	_previousUpdateTime{},
 	_updateInfo{},
@@ -63,6 +68,9 @@ void Runner::start(Clock::time_point now) {
 	_simulationAccumulator = 0.0;
 	_simulationTime = 0.0;
 	_simulationTickCount = 0;
+	_simulationPaused = false;
+	_pendingSimulationTicks = 0;
+	_suppressNextAutomaticSimulationUpdate = false;
 	_startTime = now;
 	_previousUpdateTime = now;
 	_updateInfo = {};
@@ -119,7 +127,24 @@ bool Runner::update(Clock::time_point now) {
 		}
 
 		if (_state == State::Running) {
-			const auto inventory = scheduleSimulation(updateInfo, stats);
+			PhysicsInventory inventory{};
+
+			if (_simulationPaused) {
+				// a new paused scheduling boundary supersedes suppression
+				// from an earlier resume/pause sequence. a resume that occurs
+				// during the requested batch sets this again and interrupts
+				// the local snapshot
+				_suppressNextAutomaticSimulationUpdate = false;
+				inventory = executeRequestedSimulationTicks(stats);
+			}
+			else if (_suppressNextAutomaticSimulationUpdate) {
+				_suppressNextAutomaticSimulationUpdate = false;
+				inventory = currentPhysicsInventory();
+			}
+			else {
+				inventory = scheduleSimulation(updateInfo, stats);
+			}
+
 			copyPhysicsInventory(inventory, stats);
 
 			if (_state == State::Running) {
@@ -212,11 +237,20 @@ PhysicsInventory Runner::scheduleSimulation(const UpdateInfo& info,
 
 		while (_simulationAccumulator >= fixedDeltaTime
 			&& stats.simulationTickCount < _simulationConfig.maxCatchUpSteps
-		       && _state == State::Running) {
+			&& _state == State::Running
+			&& !_simulationPaused
+			&& !_suppressNextAutomaticSimulationUpdate) {
 
 			inventory = executeSimulationTick(fixedDeltaTime);
 
-			_simulationAccumulator -= fixedDeltaTime;
+			if (_simulationPaused
+				|| _suppressNextAutomaticSimulationUpdate) {
+
+				_simulationAccumulator = 0.0;
+			}
+			else {
+				_simulationAccumulator -= fixedDeltaTime;
+			}
 
 			++stats.simulationTickCount;
 		}
@@ -233,14 +267,37 @@ PhysicsInventory Runner::scheduleSimulation(const UpdateInfo& info,
 	}
 
 	if (stats.simulationTickCount == 0) {
-		if (auto physicsWorld = _scene.physicsWorld()) {
-			inventory = prof::profile(
-				_profiler,
-				Profiler::Tag::EngineCpu,
-				[&] {
-					return physicsWorld->inventory();
-				});
+		inventory = currentPhysicsInventory();
+	}
+
+	return inventory;
+}
+
+PhysicsInventory Runner::executeRequestedSimulationTicks(
+		FrameStats& stats) {
+
+	PhysicsInventory inventory{};
+	const auto requestedTickCount =
+		exchange(_pendingSimulationTicks, std::uint64_t{0});
+
+	for (std::uint64_t tickIndex = 0;
+		 tickIndex < requestedTickCount;
+		 ++tickIndex) {
+
+		inventory =
+			executeSimulationTick(_simulationConfig.fixedDeltaTime);
+		++stats.simulationTickCount;
+
+		if (_state != State::Running
+			|| !_simulationPaused
+			|| _suppressNextAutomaticSimulationUpdate) {
+
+			break;
 		}
+	}
+
+	if (stats.simulationTickCount == 0) {
+		inventory = currentPhysicsInventory();
 	}
 
 	return inventory;
@@ -281,6 +338,20 @@ PhysicsInventory Runner::executeSimulationTick(double deltaTime) {
 	++_simulationTickCount;
 
 	return inventory;
+}
+
+PhysicsInventory Runner::currentPhysicsInventory() {
+
+	if (auto physicsWorld = _scene.physicsWorld()) {
+		return prof::profile(
+			_profiler,
+			Profiler::Tag::EngineCpu,
+			[&] {
+				return physicsWorld->inventory();
+			});
+	}
+
+	return {};
 }
 
 void Runner::copyPhysicsInventory(const PhysicsInventory& inventory,
@@ -335,6 +406,69 @@ void Runner::stop() {
 	}
 
 	_state = State::Stopped;
+	_pendingSimulationTicks = 0;
+}
+
+bool Runner::simulationPaused() const {
+	return _simulationPaused;
+}
+
+void Runner::pauseSimulation() {
+
+	if (_state != State::Running) {
+		throw logic_error(
+			"Runner::pauseSimulation() requires a running Runner.");
+	}
+
+	if (_simulationPaused) {
+		return;
+	}
+
+	_simulationPaused = true;
+	_simulationAccumulator = 0.0;
+}
+
+void Runner::resumeSimulation() {
+
+	if (_state != State::Running) {
+		throw logic_error(
+			"Runner::resumeSimulation() requires a running Runner.");
+	}
+
+	if (!_simulationPaused) {
+		return;
+	}
+
+	_simulationPaused = false;
+	_pendingSimulationTicks = 0;
+	_suppressNextAutomaticSimulationUpdate = true;
+}
+
+void Runner::requestSimulationTick() {
+
+	if (_state != State::Running) {
+		throw logic_error(
+			"Runner::requestSimulationTick() requires a running Runner.");
+	}
+
+	if (_simulationConfig.timing != SimulationTiming::FixedStep) {
+		throw logic_error(
+			"Runner::requestSimulationTick() requires FixedStep timing.");
+	}
+
+	if (!_simulationPaused) {
+		throw logic_error(
+			"Runner::requestSimulationTick() requires paused simulation.");
+	}
+
+	if (_pendingSimulationTicks
+		== numeric_limits<std::uint64_t>::max()) {
+
+		throw overflow_error(
+			"Runner pending simulation-tick count overflow.");
+	}
+
+	++_pendingSimulationTicks;
 }
 
 Runner::UpdateCallback Runner::updateCallback() const {

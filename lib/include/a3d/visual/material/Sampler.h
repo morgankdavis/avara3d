@@ -41,7 +41,6 @@ namespace a3d {
 			ClampToEdge = 		0x812F
 		};
 
-
 		/// Public Lifecycle Functions ///
 
 		Sampler();

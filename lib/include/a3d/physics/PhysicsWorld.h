@@ -49,10 +49,10 @@ namespace a3d {
 			double deltaTime{0.0};
 		};
 
-		using WillStepCallback = 		std::function<void(PhysicsWorld &physicsWorld,
-			                                               const StepInfo& info)>;
-		using DidStepCallback = 			std::function<void(PhysicsWorld &physicsWorld,
-				                                              const StepInfo &info)>;
+		using WillStepCallback = std::function<void(PhysicsWorld &physicsWorld,
+		                                            const StepInfo& info)>;
+		using DidStepCallback = std::function<void(PhysicsWorld &physicsWorld,
+		                                           const StepInfo &info)>;
 		using BeginContactCallback = std::function<void(PhysicsWorld &physicsWorld,
 		                                                PhysicsContact &contact)>;
 		using ContinueContactCallback = std::function<void(PhysicsWorld &physicsWorld,

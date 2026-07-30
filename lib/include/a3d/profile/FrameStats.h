@@ -10,6 +10,7 @@
 #define AVARA3D_PROFILE_FRAMESTATE_H
 
 #include <chrono>
+#include <cstdint>
 
 namespace a3d {
 
@@ -25,7 +26,7 @@ namespace a3d {
 		std::chrono::nanoseconds applicationTime{};
 
 		// simulation ticks completed during this Runner update
-		unsigned simulationTickCount{0};
+		std::uint64_t simulationTickCount{0};
 
 		// scaled simulation-time demand discarded during this Runner update
 		double discardedSimulationTime{0.0};

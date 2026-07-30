@@ -52,6 +52,24 @@ namespace a3d::testing {
 			return *application._runner;
 		}
 
+		static std::size_t simulationCommandCount(
+				const Application& application) {
+
+			return application._simulationCommandQueue.size();
+		}
+
+		static std::size_t physicsCommandCount(
+				const Application& application) {
+
+			return application._physicsCommandQueue.size();
+		}
+
+		static std::size_t renderCommandCount(
+				const Application& application) {
+
+			return application._renderCommandQueue.size();
+		}
+
 		static void dispatchSimulationWillTick(
 				Application& application,
 				Scene& scene,
@@ -104,6 +122,10 @@ namespace a3d::testing {
 
 		static std::uint64_t completedRenderFrameCount(const Runner& runner) {
 			return runner._completedRenderFrameCount;
+		}
+
+		static double simulationAccumulator(const Runner& runner) {
+			return runner._simulationAccumulator;
 		}
 
 	};
@@ -581,6 +603,21 @@ namespace {
 			function();
 		}
 		catch (const std::runtime_error&) {
+			rejected = true;
+		}
+
+		Expect(rejected, message);
+	}
+
+	template <typename Function>
+	void ExpectLogicError(Function&& function,
+						  std::string_view message) {
+
+		bool rejected = false;
+		try {
+			function();
+		}
+		catch (const std::logic_error&) {
 			rejected = true;
 		}
 
@@ -2937,6 +2974,1051 @@ namespace {
 			1e-12);
 	}
 
+	void PauseSimulationPreconditionsAndModes() {
+
+		{
+			a3d::Scene scene;
+			a3d::Runner runner(scene);
+
+			Expect(
+				!runner.simulationPaused(),
+				"a new VariableStep Runner should not be paused");
+			ExpectLogicError(
+				[&] {
+					runner.pauseSimulation();
+				},
+				"pause should reject an idle Runner");
+
+			a3d::testing::RunnerTestAccess::start(
+				runner, AtMilliseconds(0));
+			runner.pauseSimulation();
+			runner.pauseSimulation();
+			Expect(
+				runner.simulationPaused(),
+				"VariableStep pause should be supported and idempotent");
+		}
+
+		{
+			a3d::Scene scene;
+			a3d::Runner runner(scene, FixedConfiguration());
+			a3d::testing::RunnerTestAccess::start(
+				runner, AtMilliseconds(0));
+			runner.pauseSimulation();
+			Expect(
+				runner.simulationPaused(),
+				"FixedStep pause should be supported");
+
+			runner.stop();
+			ExpectLogicError(
+				[&] {
+					runner.pauseSimulation();
+				},
+				"pause should reject a stopped Runner");
+		}
+	}
+
+	void PausedUpdatesKeepInputRunnerAndStatisticsActive() {
+
+		a3d::Scene scene;
+		std::vector<std::string_view> stages;
+		auto inputContext =
+			std::make_unique<RecordingInputContext>(stages);
+		auto* inputContextPtr = inputContext.get();
+		scene.inputContext(std::move(inputContext));
+		scene.physicsWorld(std::make_unique<a3d::PhysicsWorld>());
+		AddMovingDynamicBody(scene, 0.0);
+
+		a3d::Runner runner(scene, FixedConfiguration());
+		std::size_t runnerCount = 0;
+		std::size_t simulationCount = 0;
+		std::size_t physicsCount = 0;
+
+		runner.updateCallback(
+			[&](a3d::Runner&,
+			    const a3d::Runner::UpdateInfo&) {
+
+				stages.push_back("runner");
+				++runnerCount;
+			});
+		scene.didTickCallback(
+			[&](a3d::Scene&,
+			    const a3d::Scene::TickInfo&) {
+
+				++simulationCount;
+			});
+		scene.physicsWorld()->didStepCallback(
+			[&](a3d::PhysicsWorld&,
+			    const a3d::PhysicsWorld::StepInfo&) {
+
+				++physicsCount;
+			});
+
+		a3d::testing::RunnerTestAccess::start(
+			runner, AtMilliseconds(0));
+		Expect(
+			a3d::testing::RunnerTestAccess::update(
+				runner, AtMilliseconds(0)),
+			"the priming paused-pipeline update should continue");
+
+		stages.clear();
+		inputContextPtr->reset();
+		runnerCount = 0;
+		const auto sampleCount =
+			a3d::testing::RunnerTestAccess::
+				frameStatsHistory(runner).samples().size();
+		runner.pauseSimulation();
+
+		Expect(
+			a3d::testing::RunnerTestAccess::update(
+				runner, AtMilliseconds(1000)),
+			"a paused Runner update should continue");
+		Expect(
+			stages.size() == 2
+				&& stages[0] == "input"
+				&& stages[1] == "runner",
+			"paused updates should retain input-before-runner order");
+		Expect(
+			inputContextPtr->updateCount() == 1
+				&& runnerCount == 1,
+			"paused updates should execute input and runner callbacks once");
+		Expect(
+			simulationCount == 0
+				&& physicsCount == 0,
+			"paused updates should execute no automatic simulation or physics");
+		ExpectNear(
+			runner.simulationTime(),
+			0.0,
+			"paused simulation time");
+		Expect(
+			runner.simulationTickCount() == 0,
+			"paused simulation tick count");
+		Expect(
+			a3d::testing::RunnerTestAccess::updateInfo(runner).updateIndex == 1,
+			"paused updates should advance the Runner update index");
+		ExpectNear(
+			a3d::testing::RunnerTestAccess::updateInfo(runner).elapsedTime,
+			1.0,
+			"paused updates should advance elapsed update time");
+		ExpectNear(
+			a3d::testing::RunnerTestAccess::updateInfo(runner).deltaTime,
+			1.0,
+			"paused updates should retain normal update deltas");
+		Expect(
+			a3d::testing::RunnerTestAccess::
+				frameStatsHistory(runner).samples().size()
+					== sampleCount + 1,
+			"paused updates should commit one statistics sample");
+
+		const auto& stats = LatestFrameStats(runner);
+		Expect(
+			stats.simulationTickCount == 0,
+			"paused statistics should report zero ticks");
+		ExpectNear(
+			stats.discardedSimulationTime,
+			0.0,
+			"paused statistics should report no discarded time");
+		Expect(
+			stats.numDynamicBodies == 1,
+			"paused updates should sample current physics inventory");
+		Expect(
+			a3d::testing::RunnerTestAccess::
+				completedRenderFrameCount(runner) == 0,
+			"the headless paused fixture should complete no render frame");
+	}
+
+	void PauseClearsFixedAccumulatorWithoutDiscard() {
+
+		a3d::Scene scene;
+		a3d::Runner runner(scene, FixedConfiguration());
+		std::size_t tickCount = 0;
+		scene.didTickCallback(
+			[&](a3d::Scene&,
+			    const a3d::Scene::TickInfo&) {
+
+				++tickCount;
+			});
+
+		a3d::testing::RunnerTestAccess::start(
+			runner, AtMicroseconds(0));
+		Expect(
+			a3d::testing::RunnerTestAccess::update(
+				runner, AtMicroseconds(0)),
+			"the priming accumulator-pause update should continue");
+		Expect(
+			a3d::testing::RunnerTestAccess::update(
+				runner, AtMicroseconds(62500)),
+			"the fractional accumulator update should continue");
+		ExpectNear(
+			a3d::testing::RunnerTestAccess::
+				simulationAccumulator(runner),
+			0.0625,
+			"the seeded fixed accumulator");
+
+		runner.pauseSimulation();
+		ExpectNear(
+			a3d::testing::RunnerTestAccess::
+				simulationAccumulator(runner),
+			0.0,
+			"pause should clear the entire fixed accumulator");
+		Expect(
+			a3d::testing::RunnerTestAccess::update(
+				runner, AtMicroseconds(1062500)),
+			"the long paused accumulator update should continue");
+		Expect(
+			tickCount == 0,
+			"paused wall time should create no fixed tick");
+		ExpectNear(
+			a3d::testing::RunnerTestAccess::
+				simulationAccumulator(runner),
+			0.0,
+			"paused wall time should not rebuild the accumulator");
+		ExpectNear(
+			LatestFrameStats(runner).discardedSimulationTime,
+			0.0,
+			"clearing the accumulator for pause is not discarded simulation time");
+	}
+
+	void PauseDuringInputAndRunnerCallbacksSuppressesScheduling() {
+
+		{
+			a3d::Scene scene;
+			auto inputContext =
+				std::make_unique<PassiveInputContext>();
+			auto* inputContextPtr = inputContext.get();
+			scene.inputContext(std::move(inputContext));
+			a3d::Runner runner(scene, FixedConfiguration());
+			bool pauseNow = false;
+			bool resumeNow = false;
+			std::size_t runnerCount = 0;
+			std::size_t tickCount = 0;
+
+			inputContextPtr->didUpdateCallback(
+				[&](a3d::InputContext&,
+				    const a3d::InputContext::UpdateInfo&) {
+
+					if (pauseNow) {
+						runner.pauseSimulation();
+					}
+					else if (resumeNow) {
+						runner.resumeSimulation();
+					}
+				});
+			runner.updateCallback(
+				[&](a3d::Runner&,
+				    const a3d::Runner::UpdateInfo&) {
+
+					++runnerCount;
+				});
+			scene.didTickCallback(
+				[&](a3d::Scene&,
+				    const a3d::Scene::TickInfo&) {
+
+					++tickCount;
+				});
+
+			a3d::testing::RunnerTestAccess::start(
+				runner, AtMilliseconds(0));
+			Expect(
+				a3d::testing::RunnerTestAccess::update(
+					runner, AtMilliseconds(0)),
+				"the priming input-pause update should continue");
+			runnerCount = 0;
+			pauseNow = true;
+
+			Expect(
+				a3d::testing::RunnerTestAccess::update(
+					runner, AtMilliseconds(125)),
+				"pause during input should keep the Runner alive");
+			Expect(
+				runner.simulationPaused()
+					&& runnerCount == 1
+					&& tickCount == 0,
+				"input pause should retain runnerUpdate and suppress scheduling");
+
+			pauseNow = false;
+			resumeNow = true;
+			runnerCount = 0;
+			Expect(
+				a3d::testing::RunnerTestAccess::update(
+					runner, AtMilliseconds(250)),
+				"resume during input should keep the Runner alive");
+			Expect(
+				!runner.simulationPaused()
+					&& runnerCount == 1
+					&& tickCount == 0,
+				"input resume should retain runnerUpdate and suppress same-update scheduling");
+
+			resumeNow = false;
+			Expect(
+				a3d::testing::RunnerTestAccess::update(
+					runner, AtMilliseconds(375)),
+				"automatic scheduling should resume after input suppression");
+			Expect(
+				tickCount == 1,
+				"input resume should suppress exactly one automatic update");
+		}
+
+		{
+			a3d::Scene scene;
+			a3d::Runner runner(scene, FixedConfiguration());
+			bool pauseNow = false;
+			bool resumeNow = false;
+			std::size_t tickCount = 0;
+
+			runner.updateCallback(
+				[&](a3d::Runner& callbackRunner,
+				    const a3d::Runner::UpdateInfo&) {
+
+					if (pauseNow) {
+						callbackRunner.pauseSimulation();
+					}
+					else if (resumeNow) {
+						callbackRunner.resumeSimulation();
+					}
+				});
+			scene.didTickCallback(
+				[&](a3d::Scene&,
+				    const a3d::Scene::TickInfo&) {
+
+					++tickCount;
+				});
+
+			a3d::testing::RunnerTestAccess::start(
+				runner, AtMilliseconds(1000));
+			Expect(
+				a3d::testing::RunnerTestAccess::update(
+					runner, AtMilliseconds(1000)),
+				"the priming runner-pause update should continue");
+			pauseNow = true;
+
+			Expect(
+				a3d::testing::RunnerTestAccess::update(
+					runner, AtMilliseconds(1125)),
+				"pause during runnerUpdate should keep the Runner alive");
+			Expect(
+				runner.simulationPaused()
+					&& tickCount == 0,
+				"runnerUpdate pause should suppress same-update scheduling");
+
+			pauseNow = false;
+			resumeNow = true;
+			Expect(
+				a3d::testing::RunnerTestAccess::update(
+					runner, AtMilliseconds(1250)),
+				"resume during runnerUpdate should keep the Runner alive");
+			Expect(
+				!runner.simulationPaused()
+					&& tickCount == 0,
+				"runnerUpdate resume should suppress same-update scheduling");
+
+			resumeNow = false;
+			Expect(
+				a3d::testing::RunnerTestAccess::update(
+					runner, AtMilliseconds(1375)),
+				"automatic scheduling should resume after runnerUpdate suppression");
+			Expect(
+				tickCount == 1,
+				"runnerUpdate resume should suppress exactly one automatic update");
+		}
+	}
+
+	void PauseDuringCatchUpFinishesOnlyCurrentTick() {
+
+		a3d::Scene scene;
+		scene.physicsWorld(std::make_unique<a3d::PhysicsWorld>());
+		auto bodyNode = AddMovingDynamicBody(scene);
+		a3d::Runner runner(scene, FixedConfiguration());
+		std::vector<std::string_view> stages;
+
+		scene.willTickCallback(
+			[&](a3d::Scene&,
+			    const a3d::Scene::TickInfo&) {
+
+				stages.push_back("simulation-will");
+				runner.pauseSimulation();
+			});
+		scene.physicsWorld()->willStepCallback(
+			[&](a3d::PhysicsWorld&,
+			    const a3d::PhysicsWorld::StepInfo&) {
+
+				stages.push_back("physics-will");
+			});
+		scene.physicsWorld()->didStepCallback(
+			[&](a3d::PhysicsWorld&,
+			    const a3d::PhysicsWorld::StepInfo&) {
+
+				stages.push_back("physics-did");
+			});
+		scene.didTickCallback(
+			[&](a3d::Scene&,
+			    const a3d::Scene::TickInfo&) {
+
+				stages.push_back("simulation-did");
+			});
+
+		a3d::testing::RunnerTestAccess::start(
+			runner, AtMilliseconds(0));
+		Expect(
+			a3d::testing::RunnerTestAccess::update(
+				runner, AtMilliseconds(0)),
+			"the priming catch-up pause update should continue");
+		Expect(
+			a3d::testing::RunnerTestAccess::update(
+				runner, AtMilliseconds(375)),
+			"pause during catch-up should keep the Runner alive");
+
+		Expect(
+			stages.size() == 4
+				&& stages[0] == "simulation-will"
+				&& stages[1] == "physics-will"
+				&& stages[2] == "physics-did"
+				&& stages[3] == "simulation-did",
+			"pause during catch-up should finish the current tick coherently");
+		Expect(
+			runner.simulationPaused()
+				&& runner.simulationTickCount() == 1,
+			"pause during catch-up should abandon remaining ticks");
+		ExpectNear(
+			bodyNode->physicsBody()->centerOfMass().x,
+			0.125,
+			"pause during catch-up should advance Bullet once",
+			1e-5);
+		ExpectNear(
+			a3d::testing::RunnerTestAccess::
+				simulationAccumulator(runner),
+			0.0,
+			"pause during catch-up should clear all accumulated demand");
+		ExpectNear(
+			LatestFrameStats(runner).discardedSimulationTime,
+			0.0,
+			"pause-cleared catch-up demand should not count as discarded time");
+	}
+
+	void ResumeClearsRequestsAndSuppressesOneAutomaticUpdate() {
+
+		{
+			a3d::Scene scene;
+			a3d::Runner runner(scene, FixedConfiguration());
+			std::vector<RecordedStep> steps;
+			scene.didTickCallback(
+				[&](a3d::Scene&,
+				    const a3d::Scene::TickInfo& info) {
+
+					steps.push_back(RecordStep(info));
+				});
+
+			ExpectLogicError(
+				[&] {
+					runner.resumeSimulation();
+				},
+				"resume should reject an idle Runner");
+			a3d::testing::RunnerTestAccess::start(
+				runner, AtMilliseconds(0));
+			runner.resumeSimulation();
+			Expect(
+				!runner.simulationPaused(),
+				"resume should be a no-op when simulation is already running");
+			Expect(
+				a3d::testing::RunnerTestAccess::update(
+					runner, AtMilliseconds(0)),
+				"the priming resume update should continue");
+
+			runner.pauseSimulation();
+			runner.requestSimulationTick();
+			runner.requestSimulationTick();
+			runner.resumeSimulation();
+			Expect(
+				!runner.simulationPaused(),
+				"resume should clear paused state");
+			Expect(
+				a3d::testing::RunnerTestAccess::update(
+					runner, AtMilliseconds(1000)),
+				"the suppressed resume update should continue");
+			Expect(
+				steps.empty(),
+				"resume should clear requests and suppress one automatic update");
+			ExpectNear(
+				a3d::testing::RunnerTestAccess::
+					simulationAccumulator(runner),
+				0.0,
+				"the suppressed resume update should add no accumulator demand");
+
+			runner.pauseSimulation();
+			Expect(
+				a3d::testing::RunnerTestAccess::update(
+					runner, AtMilliseconds(1125)),
+				"the re-paused cleared-request update should continue");
+			Expect(
+				steps.empty(),
+				"cleared requested ticks should not execute after re-pausing");
+
+			runner.resumeSimulation();
+			Expect(
+				a3d::testing::RunnerTestAccess::update(
+					runner, AtMilliseconds(2000)),
+				"the second suppressed resume update should continue");
+			Expect(
+				a3d::testing::RunnerTestAccess::update(
+					runner, AtMilliseconds(2125)),
+				"the first post-resume automatic update should continue");
+			Expect(
+				steps.size() == 1,
+				"automatic FixedStep scheduling should resume after one suppression");
+
+			runner.stop();
+			ExpectLogicError(
+				[&] {
+					runner.resumeSimulation();
+				},
+				"resume should reject a stopped Runner");
+		}
+
+		{
+			a3d::Scene scene;
+			a3d::Runner runner(scene);
+			std::vector<RecordedStep> steps;
+			scene.didTickCallback(
+				[&](a3d::Scene&,
+				    const a3d::Scene::TickInfo& info) {
+
+					steps.push_back(RecordStep(info));
+				});
+
+			a3d::testing::RunnerTestAccess::start(
+				runner, AtMilliseconds(3000));
+			Expect(
+				a3d::testing::RunnerTestAccess::update(
+					runner, AtMilliseconds(3000)),
+				"the priming VariableStep resume update should continue");
+			runner.pauseSimulation();
+			Expect(
+				a3d::testing::RunnerTestAccess::update(
+					runner, AtMilliseconds(8000)),
+				"the long paused VariableStep update should continue");
+			runner.resumeSimulation();
+			Expect(
+				a3d::testing::RunnerTestAccess::update(
+					runner, AtMilliseconds(9000)),
+				"the suppressed VariableStep resume update should continue");
+			Expect(
+				steps.empty(),
+				"VariableStep resume should suppress paused-time contribution");
+			Expect(
+				a3d::testing::RunnerTestAccess::update(
+					runner, AtMilliseconds(9100)),
+				"the post-resume VariableStep update should continue");
+			Expect(
+				steps.size() == 1,
+				"VariableStep should resume on the next automatic update");
+			ExpectNear(
+				steps.front().deltaTime,
+				0.1,
+				"VariableStep should use only post-resume update time");
+		}
+	}
+
+	void RequestedTickPreconditions() {
+
+		{
+			a3d::Scene scene;
+			a3d::Runner runner(scene, FixedConfiguration());
+			ExpectLogicError(
+				[&] {
+					runner.requestSimulationTick();
+				},
+				"a requested tick should reject an idle Runner");
+		}
+
+		{
+			a3d::Scene scene;
+			a3d::Runner runner(scene);
+			a3d::testing::RunnerTestAccess::start(
+				runner, AtMilliseconds(0));
+			runner.pauseSimulation();
+			ExpectLogicError(
+				[&] {
+					runner.requestSimulationTick();
+				},
+				"a requested tick should reject VariableStep timing");
+		}
+
+		{
+			a3d::Scene scene;
+			a3d::Runner runner(scene, FixedConfiguration());
+			a3d::testing::RunnerTestAccess::start(
+				runner, AtMilliseconds(0));
+			ExpectLogicError(
+				[&] {
+					runner.requestSimulationTick();
+				},
+				"a requested tick should require paused simulation");
+
+			runner.pauseSimulation();
+			runner.requestSimulationTick();
+			runner.stop();
+			ExpectLogicError(
+				[&] {
+					runner.requestSimulationTick();
+				},
+				"a requested tick should reject a stopped Runner");
+		}
+	}
+
+	void RequestedTicksUseFixedDeltaAndIgnoreTimeScale() {
+
+		a3d::Scene scene;
+		scene.physicsWorld(std::make_unique<a3d::PhysicsWorld>());
+		auto bodyNode = AddMovingDynamicBody(scene);
+		a3d::Runner runner(scene, FixedConfiguration(0.125, 1));
+		std::vector<RecordedStep> simulationSteps;
+		std::vector<RecordedStep> physicsSteps;
+
+		scene.didTickCallback(
+			[&](a3d::Scene&,
+			    const a3d::Scene::TickInfo& info) {
+
+				simulationSteps.push_back(RecordStep(info));
+			});
+		scene.physicsWorld()->didStepCallback(
+			[&](a3d::PhysicsWorld&,
+			    const a3d::PhysicsWorld::StepInfo& info) {
+
+				physicsSteps.push_back(RecordStep(info));
+			});
+
+		a3d::testing::RunnerTestAccess::start(
+			runner, AtMilliseconds(0));
+		Expect(
+			a3d::testing::RunnerTestAccess::update(
+				runner, AtMilliseconds(0)),
+			"the priming requested-tick update should continue");
+		runner.timeScale(3.0);
+		runner.pauseSimulation();
+		runner.requestSimulationTick();
+		runner.requestSimulationTick();
+		runner.requestSimulationTick();
+
+		Expect(
+			a3d::testing::RunnerTestAccess::update(
+				runner, AtMilliseconds(1000)),
+			"the requested-tick update should continue");
+		Expect(
+			runner.simulationPaused(),
+			"requested ticks should leave simulation paused");
+		Expect(
+			simulationSteps.size() == 3
+				&& physicsSteps.size() == 3,
+			"three requests should execute three simulation and physics steps");
+
+		for (std::size_t index = 0;
+			 index < simulationSteps.size();
+			 ++index) {
+
+			const double startTime =
+				static_cast<double>(index) * 0.125;
+			const double endTime =
+				static_cast<double>(index + 1) * 0.125;
+			ExpectStep(
+				simulationSteps[index],
+				index,
+				startTime,
+				endTime,
+				0.125,
+				"the requested simulation tick");
+			ExpectStep(
+				physicsSteps[index],
+				index,
+				startTime,
+				endTime,
+				0.125,
+				"the requested physics step");
+		}
+
+		ExpectNear(
+			runner.simulationTime(),
+			0.375,
+			"requested-tick simulation time");
+		Expect(
+			runner.simulationTickCount() == 3,
+			"requested-tick completed count");
+		ExpectNear(
+			bodyNode->physicsBody()->centerOfMass().x,
+			0.375,
+			"requested ticks should advance Bullet exactly three times",
+			1e-5);
+		ExpectNear(
+			a3d::testing::RunnerTestAccess::
+				simulationAccumulator(runner),
+			0.0,
+			"requested ticks should not use the automatic accumulator");
+		Expect(
+			LatestFrameStats(runner).simulationTickCount == 3,
+			"requested-tick statistics should report actual completed ticks");
+		Expect(
+			LatestFrameStats(runner).numDynamicBodies == 1,
+			"requested-tick statistics should retain current inventory");
+		Expect(
+			a3d::testing::RunnerTestAccess::
+				completedRenderFrameCount(runner) == 0,
+			"the headless requested-tick update should complete no render frame");
+	}
+
+	void RequestedTicksPreserveCommandAndCallbackOrder() {
+
+		a3d::Scene scene;
+		scene.physicsWorld(std::make_unique<a3d::PhysicsWorld>());
+		RecordingApplication application;
+		std::vector<int> events;
+
+		application.enqueueSimulation(
+			[&](a3d::Scene&) {
+				events.push_back(1);
+				application.enqueueSimulation(
+					[&](a3d::Scene&) {
+						events.push_back(7);
+					});
+			});
+		application.enqueuePhysics(
+			[&](a3d::PhysicsWorld&) {
+				events.push_back(2);
+				application.enqueuePhysics(
+					[&](a3d::PhysicsWorld&) {
+						events.push_back(8);
+					});
+			});
+		application.enqueueRender(
+			[&](a3d::VisualWorld&) {
+				events.push_back(99);
+			});
+		application.simulationWillAction =
+			[&](a3d::Scene&,
+			    const a3d::Scene::TickInfo& info) {
+
+				events.push_back(
+					10 + static_cast<int>(info.tickIndex));
+				if (info.tickIndex == 0) {
+					application.enqueuePhysics(
+						[&](a3d::PhysicsWorld&) {
+							events.push_back(3);
+						});
+				}
+			};
+		application.physicsWillAction =
+			[&](a3d::PhysicsWorld&,
+			    const a3d::PhysicsWorld::StepInfo& info) {
+
+				events.push_back(
+					20 + static_cast<int>(info.tickIndex));
+			};
+
+		scene.willTickCallback(
+			[&](a3d::Scene& callbackScene,
+			    const a3d::Scene::TickInfo& info) {
+
+				a3d::testing::ApplicationTestAccess::
+					dispatchSimulationWillTick(
+						application,
+						callbackScene,
+						info);
+			});
+		scene.physicsWorld()->willStepCallback(
+			[&](a3d::PhysicsWorld& callbackWorld,
+			    const a3d::PhysicsWorld::StepInfo& info) {
+
+				a3d::testing::ApplicationTestAccess::
+					dispatchPhysicsWorldWillStep(
+						application,
+						callbackWorld,
+						info);
+			});
+		scene.physicsWorld()->didStepCallback(
+			[&](a3d::PhysicsWorld&,
+			    const a3d::PhysicsWorld::StepInfo& info) {
+
+				events.push_back(
+					30 + static_cast<int>(info.tickIndex));
+			});
+		scene.didTickCallback(
+			[&](a3d::Scene&,
+			    const a3d::Scene::TickInfo& info) {
+
+				events.push_back(
+					40 + static_cast<int>(info.tickIndex));
+			});
+
+		a3d::Runner runner(scene, FixedConfiguration());
+		a3d::testing::RunnerTestAccess::start(
+			runner, AtMilliseconds(0));
+		Expect(
+			a3d::testing::RunnerTestAccess::update(
+				runner, AtMilliseconds(0)),
+			"the priming requested-order update should continue");
+		runner.pauseSimulation();
+		runner.requestSimulationTick();
+		runner.requestSimulationTick();
+		Expect(
+			a3d::testing::RunnerTestAccess::update(
+				runner, AtMilliseconds(125)),
+			"the requested-order update should continue");
+
+		const std::vector<int> expected {
+			1,
+			10,
+			2,
+			3,
+			20,
+			30,
+			40,
+			7,
+			11,
+			8,
+			21,
+			31,
+			41
+		};
+		Expect(
+			events == expected,
+			"requested ticks should preserve command and callback boundaries");
+		Expect(
+			a3d::testing::ApplicationTestAccess::
+				simulationCommandCount(application) == 0
+				&& a3d::testing::ApplicationTestAccess::
+					physicsCommandCount(application) == 0,
+			"requested ticks should consume matching command queues");
+		Expect(
+			a3d::testing::ApplicationTestAccess::
+				renderCommandCount(application) == 1,
+			"a render command should remain queued without a valid render");
+	}
+
+	void RequestedTickSnapshotDefersCallbackRequests() {
+
+		a3d::Scene scene;
+		a3d::Runner runner(scene, FixedConfiguration());
+		std::vector<RecordedStep> steps;
+
+		scene.willTickCallback(
+			[&](a3d::Scene&,
+			    const a3d::Scene::TickInfo& info) {
+
+				if (info.tickIndex == 0) {
+					runner.requestSimulationTick();
+				}
+			});
+		scene.didTickCallback(
+			[&](a3d::Scene&,
+			    const a3d::Scene::TickInfo& info) {
+
+				steps.push_back(RecordStep(info));
+			});
+
+		a3d::testing::RunnerTestAccess::start(
+			runner, AtMilliseconds(0));
+		runner.pauseSimulation();
+		runner.requestSimulationTick();
+
+		Expect(
+			a3d::testing::RunnerTestAccess::update(
+				runner, AtMilliseconds(0)),
+			"the first snapshot-request update should continue");
+		Expect(
+			steps.size() == 1,
+			"a request created during a tick should not extend its snapshot");
+		Expect(
+			LatestFrameStats(runner).simulationTickCount == 1,
+			"the first snapshot statistics should report one tick");
+
+		Expect(
+			a3d::testing::RunnerTestAccess::update(
+				runner, AtMilliseconds(125)),
+			"the deferred requested-tick update should continue");
+		Expect(
+			steps.size() == 2,
+			"the callback-created request should execute next update");
+		ExpectStep(
+			steps.back(),
+			1,
+			0.125,
+			0.25,
+			0.125,
+			"the deferred requested tick");
+	}
+
+	void StopInterruptsRequestedTicksAfterCurrentTick() {
+
+		a3d::Scene scene;
+		scene.physicsWorld(std::make_unique<a3d::PhysicsWorld>());
+		auto bodyNode = AddMovingDynamicBody(scene);
+		a3d::Runner runner(scene, FixedConfiguration());
+		std::vector<std::string_view> stages;
+
+		scene.willTickCallback(
+			[&](a3d::Scene&,
+			    const a3d::Scene::TickInfo&) {
+
+				stages.push_back("simulation-will");
+				runner.stop();
+			});
+		scene.physicsWorld()->didStepCallback(
+			[&](a3d::PhysicsWorld&,
+			    const a3d::PhysicsWorld::StepInfo&) {
+
+				stages.push_back("physics-did");
+			});
+		scene.didTickCallback(
+			[&](a3d::Scene&,
+			    const a3d::Scene::TickInfo&) {
+
+				stages.push_back("simulation-did");
+			});
+
+		a3d::testing::RunnerTestAccess::start(
+			runner, AtMilliseconds(0));
+		runner.pauseSimulation();
+		runner.requestSimulationTick();
+		runner.requestSimulationTick();
+		runner.requestSimulationTick();
+
+		Expect(
+			!a3d::testing::RunnerTestAccess::update(
+				runner, AtMilliseconds(0)),
+			"a stop-interrupted requested update should return false");
+		Expect(
+			stages.size() == 3
+				&& stages[0] == "simulation-will"
+				&& stages[1] == "physics-did"
+				&& stages[2] == "simulation-did",
+			"stop should allow the current requested tick to finish coherently");
+		Expect(
+			runner.simulationTickCount() == 1,
+			"stop should abandon remaining requested ticks");
+		ExpectNear(
+			bodyNode->physicsBody()->centerOfMass().x,
+			0.125,
+			"stop-interrupted requests should advance Bullet once",
+			1e-5);
+		Expect(
+			LatestFrameStats(runner).simulationTickCount == 1,
+			"stop-interrupted request statistics should report one tick");
+		Expect(
+			a3d::testing::RunnerTestAccess::
+				completedRenderFrameCount(runner) == 0,
+			"stop-interrupted requested ticks should skip rendering");
+	}
+
+	void ResumeInterruptsRequestedTicksAndClearsRemainder() {
+
+		a3d::Scene scene;
+		a3d::Runner runner(scene, FixedConfiguration());
+		std::vector<RecordedStep> steps;
+
+		scene.willTickCallback(
+			[&](a3d::Scene&,
+			    const a3d::Scene::TickInfo& info) {
+
+				if (info.tickIndex == 0) {
+					runner.resumeSimulation();
+				}
+			});
+		scene.didTickCallback(
+			[&](a3d::Scene&,
+			    const a3d::Scene::TickInfo& info) {
+
+				steps.push_back(RecordStep(info));
+			});
+
+		a3d::testing::RunnerTestAccess::start(
+			runner, AtMilliseconds(0));
+		runner.pauseSimulation();
+		runner.requestSimulationTick();
+		runner.requestSimulationTick();
+		runner.requestSimulationTick();
+
+		Expect(
+			a3d::testing::RunnerTestAccess::update(
+				runner, AtMilliseconds(0)),
+			"resume during a requested tick should keep the Runner alive");
+		Expect(
+			steps.size() == 1
+				&& !runner.simulationPaused(),
+			"resume should finish one requested tick and abandon the remainder");
+		Expect(
+			LatestFrameStats(runner).simulationTickCount == 1,
+			"resume-interrupted request statistics should report one tick");
+
+		runner.pauseSimulation();
+		Expect(
+			a3d::testing::RunnerTestAccess::update(
+				runner, AtMilliseconds(125)),
+			"the re-paused remainder check should continue");
+		Expect(
+			steps.size() == 1,
+			"resume should clear the unexecuted requested snapshot remainder");
+
+		runner.resumeSimulation();
+		Expect(
+			a3d::testing::RunnerTestAccess::update(
+				runner, AtMilliseconds(250)),
+			"the suppressed post-resume update should continue");
+		Expect(
+			steps.size() == 1,
+			"resume should suppress one automatic scheduling opportunity");
+		Expect(
+			a3d::testing::RunnerTestAccess::update(
+				runner, AtMilliseconds(375)),
+			"the resumed automatic update should continue");
+		Expect(
+			steps.size() == 2,
+			"automatic scheduling should resume after one suppression");
+		ExpectStep(
+			steps.back(),
+			1,
+			0.125,
+			0.25,
+			0.125,
+			"the post-request resume automatic tick");
+
+		{
+			a3d::Scene repausedScene;
+			a3d::Runner repausedRunner(
+				repausedScene,
+				FixedConfiguration());
+			std::size_t repausedTickCount = 0;
+
+			repausedScene.willTickCallback(
+				[&](a3d::Scene&,
+				    const a3d::Scene::TickInfo&) {
+
+					repausedRunner.resumeSimulation();
+				});
+			repausedScene.didTickCallback(
+				[&](a3d::Scene&,
+				    const a3d::Scene::TickInfo&) {
+
+					++repausedTickCount;
+					repausedRunner.pauseSimulation();
+				});
+
+			a3d::testing::RunnerTestAccess::start(
+				repausedRunner,
+				AtMilliseconds(1000));
+			repausedRunner.pauseSimulation();
+			repausedRunner.requestSimulationTick();
+			repausedRunner.requestSimulationTick();
+			repausedRunner.requestSimulationTick();
+
+			Expect(
+				a3d::testing::RunnerTestAccess::update(
+					repausedRunner,
+					AtMilliseconds(1000)),
+				"resume/re-pause during a requested tick should keep the Runner alive");
+			Expect(
+				repausedTickCount == 1
+					&& repausedRunner.simulationPaused(),
+				"a resume transition should abandon the old snapshot even after re-pause");
+		}
+	}
+
 	using TestFunction = void (*)();
 
 	const std::pair<std::string_view, TestFunction> Tests[] {
@@ -2951,6 +4033,18 @@ namespace {
 		{"variable-step-scale-cap-discard", VariableStepScalesCapsAndReportsDiscard},
 		{"fixed-step-fractional-accumulator", FixedStepRetainsFractionalAccumulator},
 		{"fixed-step-catch-up-overflow", FixedStepLimitsCatchUpAndReportsDiscard},
+		{"pause-simulation-preconditions", PauseSimulationPreconditionsAndModes},
+		{"paused-update-pipeline", PausedUpdatesKeepInputRunnerAndStatisticsActive},
+		{"pause-clears-fixed-accumulator", PauseClearsFixedAccumulatorWithoutDiscard},
+		{"pause-callback-boundaries", PauseDuringInputAndRunnerCallbacksSuppressesScheduling},
+		{"pause-during-catch-up", PauseDuringCatchUpFinishesOnlyCurrentTick},
+		{"resume-boundary", ResumeClearsRequestsAndSuppressesOneAutomaticUpdate},
+		{"requested-tick-preconditions", RequestedTickPreconditions},
+		{"requested-tick-fixed-execution", RequestedTicksUseFixedDeltaAndIgnoreTimeScale},
+		{"requested-tick-command-order", RequestedTicksPreserveCommandAndCallbackOrder},
+		{"requested-tick-snapshot-deferral", RequestedTickSnapshotDefersCallbackRequests},
+		{"requested-tick-stop-interruption", StopInterruptsRequestedTicksAfterCurrentTick},
+		{"requested-tick-resume-interruption", ResumeInterruptsRequestedTicksAndClearsRemainder},
 		{"stop-between-updates", StopBetweenUpdates},
 		{"stop-during-input-update", StopDuringInputUpdate},
 		{"stop-during-runner-update", StopDuringRunnerUpdate},

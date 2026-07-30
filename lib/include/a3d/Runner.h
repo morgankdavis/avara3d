@@ -51,8 +51,8 @@ namespace a3d {
 			double deltaTime{0.0};
 		};
 
-		using UpdateCallback = std::function<void(Runner& runner,
-		                                          const UpdateInfo& info)>;
+		using UpdateCallback = std::function<void(Runner &runner,
+		                                          const UpdateInfo &info)>;
 
 		/// Public Lifecycle Functions ///
 
@@ -72,6 +72,17 @@ namespace a3d {
 		void						start();
 		bool						update();
 		void						stop();
+
+		// a stopped Runner performs no updates. pausing affects automatic
+		// VariableStep and FixedStep simulation only: Runner updates, input,
+		// runner callbacks, and rendering continue
+		bool						simulationPaused() const;
+		void						pauseSimulation();
+		void						resumeSimulation();
+
+		// queue one fixed tick for a running, paused FixedStep simulation.
+		// requested ticks use fixedDeltaTime and ignore timeScale.
+		void						requestSimulationTick();
 
 		UpdateCallback				updateCallback() const;
 		void						updateCallback(UpdateCallback callback);
@@ -102,7 +113,9 @@ namespace a3d {
 		void						validateSimulationConfig() const;
 		PhysicsInventory			scheduleSimulation(const UpdateInfo &info,
 					                                   FrameStats& stats);
+		PhysicsInventory			executeRequestedSimulationTicks(FrameStats& stats);
 		PhysicsInventory			executeSimulationTick(double deltaTime);
+		PhysicsInventory			currentPhysicsInventory();
 		void						copyPhysicsInventory(const PhysicsInventory &inventory,
 								                         FrameStats& stats);
 
@@ -110,21 +123,24 @@ namespace a3d {
 
 		/// Private Member Variables ///
 
-		Scene&				_scene;
-		State				_state;
-		SimulationConfig	_simulationConfig;
-		double				_timeScale;
-		double				_simulationAccumulator;
-		double				_simulationTime;
-		std::uint64_t		_simulationTickCount;
-		Clock::time_point	_startTime;
-		Clock::time_point	_previousUpdateTime;
-		UpdateInfo			_updateInfo;
-		bool				_hasUpdated;
-		UpdateCallback		_updateCallback;
-		std::uint64_t		_completedRenderFrameCount;
-		Profiler			_profiler;
-		FrameStatsHistory	_frameStatsHistory;
+		Scene&						_scene;
+		State						_state;
+		SimulationConfig			_simulationConfig;
+		double						_timeScale;
+		double						_simulationAccumulator;
+		double						_simulationTime;
+		std::uint64_t				_simulationTickCount;
+		bool						_simulationPaused;
+		std::uint64_t				_pendingSimulationTicks;
+		bool						_suppressNextAutomaticSimulationUpdate;
+		Clock::time_point			_startTime;
+		Clock::time_point			_previousUpdateTime;
+		UpdateInfo					_updateInfo;
+		bool						_hasUpdated;
+		UpdateCallback				_updateCallback;
+		std::uint64_t				_completedRenderFrameCount;
+		Profiler					_profiler;
+		FrameStatsHistory			_frameStatsHistory;
 
 		/// Test Access ///
 

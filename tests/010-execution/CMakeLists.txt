@@ -17,6 +17,18 @@ set(RUNNER_EXECUTION_TESTS
 		variable-step-scale-cap-discard
 		fixed-step-fractional-accumulator
 		fixed-step-catch-up-overflow
+		pause-simulation-preconditions
+		paused-update-pipeline
+		pause-clears-fixed-accumulator
+		pause-callback-boundaries
+		pause-during-catch-up
+		resume-boundary
+		requested-tick-preconditions
+		requested-tick-fixed-execution
+		requested-tick-command-order
+		requested-tick-snapshot-deferral
+		requested-tick-stop-interruption
+		requested-tick-resume-interruption
 		stop-between-updates
 		stop-during-input-update
 		stop-during-runner-update

@@ -133,8 +133,8 @@ namespace a3d {
 		/// Internal Types ///
 
 		enum class DirtyMask : uint32_t {
-			None =					0,
-			All = 					UINT_MAX
+			None =		0,
+			All = 		UINT_MAX
 		};
 
 		/// Internal Static Member Functions ///

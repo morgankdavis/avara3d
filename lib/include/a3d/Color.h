@@ -58,26 +58,26 @@ namespace a3d {
 
 		/// Public Member Functions ///
 
-		float r() const;
-		float g() const;
-		float b() const;
-		float a() const;
+		float			r() const;
+		float			g() const;
+		float			b() const;
+		float			a() const;
 
-		uint8_t u8r() const;
-		uint8_t u8g() const;
-		uint8_t u8b() const;
-		uint8_t u8a() const;
+		uint8_t			u8r() const;
+		uint8_t			u8g() const;
+		uint8_t			u8b() const;
+		uint8_t			u8a() const;
 
-		math::vec3 rgb() const;
-		math::vec4 rgba() const;
+		math::vec3		rgb() const;
+		math::vec4		rgba() const;
 
-		math::u8vec3 u8rgb() const;
-		math::u8vec4 u8rgba() const;
+		math::u8vec3	u8rgb() const;
+		math::u8vec4	u8rgba() const;
 
 	private:
 		/// Private Member Variables ///
 
-		math::vec4 _rgba;
+		math::vec4		_rgba;
 	};
 }
 
