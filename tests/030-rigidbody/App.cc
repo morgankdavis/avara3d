@@ -8,6 +8,7 @@
 
 #include "App.h"
 
+#include <algorithm>
 #include <functional>
 #include <memory>
 #include <string>
@@ -36,9 +37,9 @@ const bool								USE_DEFAULT_LIGHTING	{false};
 const bool								CAPTURE_CURSOR			{false};
 const float								MOUSE_SENSITIVITY		{0.5};
 #if defined(A3D_WEB)
-const float								PHYSICS_TIMESTEP		{1.0/30.0};
+const float								FIXED_TIMESTEP			{1.0/30.0};
 #else
-const float								PHYSICS_TIMESTEP		{1.0/120.0};
+const float								FIXED_TIMESTEP			{1.0/120.0};
 #endif
 
 /// Private Static Non-Member Prototypes ///
@@ -101,7 +102,7 @@ unique_ptr<Scene> App::init() {
 
 		auto scene = make_unique<Scene>(std::move(visualWorld),
 		                                std::move(physicsWorld),
-		                                Window::InputManager());
+		                                Window::InputContext());
 		scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 		//scene->visualWorld()->usesDefaultLighting(true);
 
@@ -240,10 +241,10 @@ unique_ptr<Scene> App::init() {
 	}
 }
 
-SimulationConfiguration App::simulationConfiguration() const {
+SimulationConfig App::simulationConfig() const {
 	return {
 		.timing = SimulationTiming::FixedStep,
-		.fixedDeltaTime = PHYSICS_TIMESTEP
+		.fixedDeltaTime = FIXED_TIMESTEP
 	};
 }
 
@@ -255,15 +256,16 @@ void App::didShutdown() {
 
 }
 
-/// Runner Callback Overrides ///
+/// Input Context Callbacks ///
 
-void App::runnerUpdate(Runner& runner, const HostUpdateInfo& info) {
+void App::inputContextDidUpdate(InputContext& inputContext,
+                                const InputContext::UpdateInfo& info) {
 
-	auto& scene = runner.scene();
+	auto& scene = *_window->visualWorld()->scene();
 
 	// get input
 
-	auto im = static_cast<DesktopInputManager*>(scene.inputManager());
+	auto im = static_cast<DesktopInputContext*>(&inputContext);
 
 	auto mouseButtonsDown = im->mouseButtonsDown();
 	auto mouseButtonsPressed = im->mouseButtonsPressed();
@@ -274,17 +276,17 @@ void App::runnerUpdate(Runner& runner, const HostUpdateInfo& info) {
 	// TEMPORARY for macOS mouse input testing
 //	if (keysPressed.count(Key::Z)) {
 //		log::app::i()("Trying to re-initialize mouse input.");
-//		auto windowInputManager = static_cast<GlfwInputManager*>(scene.inputManager());
+//		auto windowInputContext = static_cast<GLFWInputContext*>(scene.inputContext());
 //		try {
-//			windowInputManager->initMouseInput();
+//			windowInputContext->initMouseInput();
 //		}
 //		catch (Exception) {
 //			log::app::e()("Nada");
 //		}
 //	}
 
-	using Key = DesktopInputManager::Key;
-	using MouseButton = DesktopInputManager::MouseButton;
+	using Key = DesktopInputContext::Key;
+	using MouseButton = DesktopInputContext::MouseButton;
 
 	if (keysPressed.count(Key::Escape)) {
 		_window->close();
@@ -299,50 +301,62 @@ void App::runnerUpdate(Runner& runner, const HostUpdateInfo& info) {
 		util::snapshot::SaveSnapshot(*_window);
 	}
 
-
-
 	if (keysPressed.count(Key::One)) {
-		_pendingCommands.push_back(
-			Command::DuckBoundingBox);
+		queueSimulationCommand([this](Scene&) {
+			_duckNode->physicsBody()->shape()->type(PhysicsShape::Type::BoundingBox);
+		});
 	}
 
 	if (keysPressed.count(Key::Two)) {
-		_pendingCommands.push_back(
-			Command::DuckConvexHull);
+		queueSimulationCommand([this](Scene&) {
+			_duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConvexHull);
+		});
 	}
 
 	if (keysPressed.count(Key::Three)) {
-		_pendingCommands.push_back(
-			Command::DuckConcavePolyhedron);
+		queueSimulationCommand([this](Scene&) {
+			_duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConcavePolyhedron);
+		});
 	}
 
-
-
 	if (keysPressed.count(Key::Five)) {
-		_pendingCommands.push_back(
-			Command::DuckMassZero);
+		queueSimulationCommand([this](Scene&) {
+			_duckNode->physicsBody()->mass(0);
+		});
 	}
 
 	if (keysPressed.count(Key::Six)) {
-		_pendingCommands.push_back(
-			Command::DuckMassTen);
+		queueSimulationCommand([this](Scene&) {
+			_duckNode->physicsBody()->mass(10);
+		});
 	}
 
 	if (keysPressed.count(Key::Seven)) {
-		_pendingCommands.push_back(
-			Command::DuckMassOneHundred);
+		queueSimulationCommand([this](Scene&) {
+			_duckNode->physicsBody()->mass(100);
+		});
 	}
 
-
-
 	if (keysPressed.count(Key::Eight)) {
-		_pendingCommands.push_back(
-			Command::RemoveCylinderBodies);
+		queueSimulationCommand([](Scene& scene) {
+			for (const auto& node : scene.rootNode()->children(true)) {
+				auto body = node->physicsBody();
+				if (body && dynamic_pointer_cast<CylinderPhysicsShape>(body->shape())) {
+					node->removeFromParent();
+				}
+			}
+		});
 	}
 
 	if (keysPressed.count(Key::Nine)) {
-		_pendingCommands.push_back(
-			Command::RemoveDynamicBodies);
+		queueSimulationCommand([](Scene& scene) {
+			for (const auto& node : scene.rootNode()->children(true)) {
+				auto body = node->physicsBody();
+				if (body && body->type() == PhysicsBody::Type::Dynamic) {
+					node->removeFromParent();
+				}
+			}
+		});
 	}
 
 	if (keysPressed.count(Key::Apostrophe)) {
@@ -362,8 +376,9 @@ void App::runnerUpdate(Runner& runner, const HostUpdateInfo& info) {
 	// spawn duck fruit
 
 	if (keysPressed.count(Key::GraveAccent)) {
-		_pendingCommands.push_back(
-			Command::AddBoxes);
+		queueSimulationCommand([](Scene& scene) {
+			AddBoxes(scene);
+		});
 	}
 
 	const bool spawnDuckFruit = keysDown.count(Key::Tab);
@@ -389,8 +404,9 @@ void App::runnerUpdate(Runner& runner, const HostUpdateInfo& info) {
 	}
 
 	if (keysPressed.count(Key::Q)) {
-		_pendingCommands.push_back(
-			Command::SpawnAutogeneratedPrimitives);
+		queueSimulationCommand([](Scene& scene) {
+			SpawnAutogeneratedPrimitives(scene);
+		});
 	}
 
 	// if (keysPressed.count(Key::Z)) {
@@ -398,18 +414,21 @@ void App::runnerUpdate(Runner& runner, const HostUpdateInfo& info) {
 	// }
 
 	if (keysPressed.count(Key::M)) {
-		_pendingCommands.push_back(
-			Command::SpawnChainMail);
+		queueSimulationCommand([](Scene& scene) {
+			SpawnChainMail(scene);
+		});
 	}
 
 	if (keysPressed.count(Key::O)) {
-		_pendingCommands.push_back(
-			Command::SpawnRecursiveTestTree);
+		queueSimulationCommand([](Scene& scene) {
+			SpawnRecursiveTestTree(scene);
+		});
 	}
 
 	if (keysPressed.count(Key::T)) {
-		_pendingCommands.push_back(
-			Command::SpawnHacdTeapot);
+		queueSimulationCommand([](Scene& scene) {
+			SpawnHACDTeapot(scene);
+		});
 	}
 
 	if (keysPressed.count(Key::H)) {
@@ -545,18 +564,16 @@ void App::runnerUpdate(Runner& runner, const HostUpdateInfo& info) {
 	}
 
 	if (keysPressed.count(Key::U)) {
-		_pendingCommands.push_back(
-			Command::AddRing);
+		queueSimulationCommand([](Scene& scene) {
+			AddRing(scene);
+		});
 	}
 
 	vec2 mouseScrollWheelDelta = im->mouseScrollWheelDelta();
 	if (mouseScrollWheelDelta.y > 0) {
-
-		auto newTimeScale = std::clamp(
-			runner.timeScale() + mouseScrollWheelDelta.y * 0.1,
-			0.1,
-			1.0);
-		runner.timeScale(newTimeScale);
+		runner().timeScale(math::clamp(runner().timeScale() + mouseScrollWheelDelta.y * 0.1,
+		                               0.1,
+		                               1.0));
 	}
 
 	if (cursorCaptured) {
@@ -622,76 +639,10 @@ void App::runnerUpdate(Runner& runner, const HostUpdateInfo& info) {
 	}
 }
 
-/// Scene Callback Overrides ///
+/// Simulation Callbacks ///
 
-void App::sceneWillSimulate(Scene& scene,
-                            const SimulationStepInfo& info) {
-
-	for (auto command : _pendingCommands) {
-		switch (command) {
-			case Command::DuckBoundingBox:
-				_duckNode->physicsBody()->shape()->type(
-					PhysicsShape::Type::BoundingBox);
-				break;
-			case Command::DuckConvexHull:
-				_duckNode->physicsBody()->shape()->type(
-					PhysicsShape::Type::ConvexHull);
-				break;
-			case Command::DuckConcavePolyhedron:
-				_duckNode->physicsBody()->shape()->type(
-					PhysicsShape::Type::ConcavePolyhedron);
-				break;
-			case Command::DuckMassZero:
-				_duckNode->physicsBody()->mass(0);
-				break;
-			case Command::DuckMassTen:
-				_duckNode->physicsBody()->mass(10);
-				break;
-			case Command::DuckMassOneHundred:
-				_duckNode->physicsBody()->mass(100);
-				break;
-			case Command::RemoveCylinderBodies:
-				for (const auto& node : scene.rootNode()->children(true)) {
-					auto body = node->physicsBody();
-					if (body
-						&& dynamic_pointer_cast<CylinderPhysicsShape>(
-							body->shape())) {
-
-						node->removeFromParent();
-					}
-				}
-				break;
-			case Command::RemoveDynamicBodies:
-				for (const auto& node : scene.rootNode()->children(true)) {
-					auto body = node->physicsBody();
-					if (body
-						&& body->type() == PhysicsBody::Type::Dynamic) {
-
-						node->removeFromParent();
-					}
-				}
-				break;
-			case Command::AddBoxes:
-				AddBoxes(scene);
-				break;
-			case Command::SpawnAutogeneratedPrimitives:
-				SpawnAutogeneratedPrimitives(scene);
-				break;
-			case Command::SpawnChainMail:
-				SpawnChainMail(scene);
-				break;
-			case Command::SpawnRecursiveTestTree:
-				SpawnRecursiveTestTree(scene);
-				break;
-			case Command::SpawnHacdTeapot:
-				SpawnHACDTeapot(scene);
-				break;
-			case Command::AddRing:
-				AddRing(scene);
-				break;
-		}
-	}
-	_pendingCommands.clear();
+void App::simulationWillTick(Scene& scene,
+                            const Scene::TickInfo& info) {
 
 	if (_duckNode) {
 		_duckRotator->update(*_duckNode, info.deltaTime);
@@ -732,13 +683,13 @@ void App::sceneWillSimulate(Scene& scene,
 	}
 }
 
-/// VisualWorld Callback Overrides ///
+/// Visual World Callbacks ///
 
-void App::visualWorldWillRender(VisualWorld& world,
-                                const RenderFrameInfo& info) {}
+void App::visualWorldWillRender(VisualWorld& visualWorld,
+                                const VisualWorld::RenderInfo& info) {}
 
-void App::visualWorldDidRender(VisualWorld& world,
-                               const RenderFrameInfo& info) {}
+void App::visualWorldDidRender(VisualWorld& visualWorld,
+                               const VisualWorld::RenderInfo& info) {}
 
 
 /// Private Static Non-Member Functions ///

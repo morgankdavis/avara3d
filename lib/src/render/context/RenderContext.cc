@@ -158,10 +158,10 @@ RenderContext::~RenderContext() {
 
 void RenderContext::pollEvents() {}
 
-void RenderContext::saveGIFFrame(double hostDeltaTime) {
+void RenderContext::saveGIFFrame(double updateDeltaTime) {
 
-	_gifRecordedTime += hostDeltaTime;
-	_gifRecordingCurrentFrameTimeAccum += hostDeltaTime;
+	_gifRecordedTime += updateDeltaTime;
+	_gifRecordingCurrentFrameTimeAccum += updateDeltaTime;
 
 	float frameTimeMS = 1000.0f /* (ms/sec) */ / (float)_gifRecordingMaxFramerate /* (frames/sec) */;
 

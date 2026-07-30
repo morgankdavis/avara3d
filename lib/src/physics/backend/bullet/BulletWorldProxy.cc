@@ -344,8 +344,7 @@ void BulletWorldProxy::step(double deltaTime,
 							Profiler& profiler) {
 
 	if (!acceptsStepDelta(deltaTime)) {
-		throw invalid_argument(
-			"BulletWorldProxy::step requires an accepted positive, finite delta time.");
+		throw invalid_argument("BulletWorldProxy::step() requires an accepted positive, finite delta time.");
 	}
 
 	auto result = prof::profile(profiler, Profiler::Tag::Physics, [&] {

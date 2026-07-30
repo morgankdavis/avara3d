@@ -9,10 +9,10 @@
 #ifndef AVARA3D_VISUAL_VISUALWORLD_H
 #define AVARA3D_VISUAL_VISUALWORLD_H
 
+#include <cstdint>
 #include <functional>
 #include <memory>
 
-#include "a3d/Timing.h"
 #include "a3d/scene/Scene.h"
 #include "a3d/visual/material/Material.h"
 
@@ -36,10 +36,31 @@ namespace a3d {
 	public:
 		/// Public Types ///
 
-		using WillRenderCallback =	std::function<void(VisualWorld &world,
-			                                             const RenderFrameInfo &info)>;
-		using DidRenderCallback =	std::function<void(VisualWorld &world,
-			                                            const RenderFrameInfo &info)>;
+		struct RenderInfo {
+
+			// zero-based successful-render-frame index
+			std::uint64_t frameIndex{0};
+
+			// Runner update responsible for this render attempt
+			std::uint64_t updateIndex{0};
+
+			// monotonic Runner elapsed time for the containing update
+			double updateTime{0.0};
+
+			// monotonic delta for the containing Runner update
+			double updateDeltaTime{0.0};
+
+			// time reached by the most recently completed simulation tick
+			double simulationTime{0.0};
+
+			// total number of completed simulation ticks
+			std::uint64_t simulationTickCount{0};
+		};
+
+		using WillRenderCallback =	std::function<void(VisualWorld &visualWorld,
+			                                             const RenderInfo& info)>;
+		using DidRenderCallback =	std::function<void(VisualWorld& visualWorld,
+			                                            const RenderInfo& info)>;
 
 		/// Public Lifecycle Functions ///
 
@@ -99,7 +120,7 @@ namespace a3d {
 
 		bool								draw(const Scene& scene,
 												 const PhysicsWorld* physicsWorld,
-												 const RenderFrameInfo& info,
+												 const RenderInfo& info,
 												 Scene::DebugOptions debugOptions,
 												 FrameStats& stats,
 												 Profiler& profiler,

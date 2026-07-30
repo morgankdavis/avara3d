@@ -181,7 +181,7 @@ bool PhysicsWorld::acceptsStepDelta(double deltaTime) const {
 		&& _proxy->acceptsStepDelta(deltaTime);
 }
 
-PhysicsInventory PhysicsWorld::step(const SimulationStepInfo& info,
+PhysicsInventory PhysicsWorld::step(const StepInfo& info,
 									 Profiler& profiler) {
 
 	if (!util::flow::edge_guard(_proxy, [&] {

@@ -16,7 +16,7 @@
 #include <imgui/backends/imgui_impl_glfw.h>
 
 #include "a3d/log/Log.h"
-#include "a3d/input/GLFWInputManager.h"
+#include "a3d/input/GLFWInputContext.h"
 #include "a3d/physics/PhysicsWorld.h"
 #include "a3d/render/backend/opengl/OGLRenderer.h"
 #include "a3d/scene/Node.h"
@@ -53,8 +53,8 @@ static bool 	GetGLFWMouseMonitor(GLFWmonitor** monitor, GLFWwindow* window);
 
 /// Public Static Member Functions ///
 
-unique_ptr<DesktopInputManager> Window::InputManager() {
-	return std::make_unique<GLFWInputManager>();
+unique_ptr<DesktopInputContext> Window::InputContext() {
+	return std::make_unique<GLFWInputContext>();
 }
 
 /// Public Lifescycle ///
@@ -72,7 +72,7 @@ Window::Window(RenderingApi renderingAPI,
 		_open{false},
 		_hidden{false},
 		_cursorCaptured{false},
-		_inputManager{} {
+		_inputContext{} {
 	log::d();
 
 	_antialiasingMode = antialiasingMode; // see above (?)
@@ -177,7 +177,7 @@ Window::Window(RenderingApi renderingAPI,
 Window::~Window() {
 	log::d()("Destroying Window {:p}", static_cast<void*>(this));
 
-	inputManager(nullptr);
+	inputContext(nullptr);
 
 	if (_glfwWindow) {
 		glfwMakeContextCurrent(_glfwWindow.get());
@@ -438,17 +438,17 @@ unsigned Window::defaultFramebuffer() const {
 
 /// Internal Member Functions ///
 
-void Window::inputManager(DesktopInputManager* manager) {
+void Window::inputContext(DesktopInputContext* inputContext) {
 
-	if (_inputManager == manager) {
+	if (_inputContext == inputContext) {
 		return;
 	}
 
-	auto previousManager = dynamic_cast<GLFWInputManager*>(_inputManager);
-	_inputManager = manager;
+	auto previousInputContext = dynamic_cast<GLFWInputContext*>(_inputContext);
+	_inputContext = inputContext;
 
-	if (previousManager) {
-		previousManager->detachedFromWindow(*this);
+	if (previousInputContext) {
+		previousInputContext->detachedFromWindow(*this);
 	}
 }
 
@@ -489,15 +489,15 @@ void Window::GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
 	static double lastYPos = yPos;
 
 	auto window = WindowFromGLFWwindow(glfwWindow);
-	auto inputManager = static_cast<GLFWInputManager*>(window->_inputManager);
+	auto inputContext = static_cast<GLFWInputContext*>(window->_inputContext);
 
-	if (window->cursorCaptured() && inputManager) {
-		inputManager->glfwMouseDeltaEvent(-(lastXPos - xPos), (lastYPos - yPos));
+	if (window->cursorCaptured() && inputContext) {
+		inputContext->glfwMouseDeltaEvent(-(lastXPos - xPos), (lastYPos - yPos));
 	}
 	else {
 		ImGui_ImplGlfw_CursorPosCallback(glfwWindow, xPos, yPos);
-//		if (!ImGui::GetIO().WantCaptureMouse && inputManager) {
-//			inputManager->glfwMouseDeltaEvent(-(lastXPos - xPos), (lastYPos - yPos));
+//		if (!ImGui::GetIO().WantCaptureMouse && inputContext) {
+//			inputContext->glfwMouseDeltaEvent(-(lastXPos - xPos), (lastYPos - yPos));
 //		}
 	}
 
@@ -511,15 +511,15 @@ void Window::GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
 										 int mods) {
 
 	auto window = WindowFromGLFWwindow(glfwWindow);
-	auto inputManager = static_cast<GLFWInputManager*>(window->_inputManager);
+	auto inputContext = static_cast<GLFWInputContext*>(window->_inputContext);
 
-	if (window->cursorCaptured() && inputManager) {
-		inputManager->glfwMouseButtonEvent(button, action, mods);
+	if (window->cursorCaptured() && inputContext) {
+		inputContext->glfwMouseButtonEvent(button, action, mods);
 	}
 	else {
 		ImGui_ImplGlfw_MouseButtonCallback(glfwWindow, button, action, mods);
-//		if (inputManager) {
-//			inputManager->glfwMouseButtonEvent(button, action, mods);
+//		if (inputContext) {
+//			inputContext->glfwMouseButtonEvent(button, action, mods);
 //		}
 	}
 }
@@ -529,15 +529,15 @@ void Window::GLFWScrollWheelCallback(GLFWwindow* glfwWindow,
 										 double yOffset) {
 
 	auto window = WindowFromGLFWwindow(glfwWindow);
-	auto inputManager = static_cast<GLFWInputManager*>(window->_inputManager);
+	auto inputContext = static_cast<GLFWInputContext*>(window->_inputContext);
 
-	if (window->cursorCaptured() && inputManager) {
-		inputManager->glfwScrollEvent(xOffset, yOffset);
+	if (window->cursorCaptured() && inputContext) {
+		inputContext->glfwScrollEvent(xOffset, yOffset);
 	}
 	else {
 		ImGui_ImplGlfw_ScrollCallback(glfwWindow, xOffset, yOffset);
-//		if (inputManager) {
-//			inputManager->glfwScrollEvent(xOffset, yOffset);
+//		if (inputContext) {
+//			inputContext->glfwScrollEvent(xOffset, yOffset);
 //		}
 	}
 }
@@ -549,15 +549,15 @@ void Window::GLFWKeyCallback(GLFWwindow* glfwWindow,
 								 int mods) {
 
 	auto window = WindowFromGLFWwindow(glfwWindow);
-	auto inputManager = static_cast<GLFWInputManager*>(window->_inputManager);
+	auto inputContext = static_cast<GLFWInputContext*>(window->_inputContext);
 
-	if (!ImGui::GetIO().WantCaptureKeyboard && inputManager) {
-		inputManager->glfwKeyEvent(key, scanCode, action, mods);
+	if (!ImGui::GetIO().WantCaptureKeyboard && inputContext) {
+		inputContext->glfwKeyEvent(key, scanCode, action, mods);
 	}
 	else if (!window->cursorCaptured()) {
 		ImGui_ImplGlfw_KeyCallback(glfwWindow, key, scanCode, action, mods);
-//		if (!ImGui::GetIO().WantCaptureKeyboard && inputManager) {
-//			inputManager->glfwKeyEvent(key, scanCode, action, mods);
+//		if (!ImGui::GetIO().WantCaptureKeyboard && inputContext) {
+//			inputContext->glfwKeyEvent(key, scanCode, action, mods);
 //		}
 	}
 }
@@ -566,8 +566,8 @@ Window* Window::WindowFromGLFWwindow(GLFWwindow* glfwWindow) {
 	return (Window*)glfwGetWindowUserPointer(glfwWindow);
 }
 
-DesktopInputManager* Window::InputManagerFromGLFwWindow(GLFWwindow* glfwWindow) {
-	return WindowFromGLFWwindow(glfwWindow)->_inputManager;
+DesktopInputContext* Window::InputContextFromGLFWWindow(GLFWwindow* glfwWindow) {
+	return WindowFromGLFWwindow(glfwWindow)->_inputContext;
 }
 
 /// Private Static Non-Member Functions ///

@@ -9,11 +9,13 @@
 #ifndef AVARA3D_PHYSICS_PHYSICSWORLD_H
 #define AVARA3D_PHYSICS_PHYSICSWORLD_H
 
+#include <cstdint>
 #include <functional>
 #include <memory>
 #include <optional>
+#include <vector>
 
-#include "a3d/Timing.h"
+#include "a3d/Math.h"
 #include "a3d/physics/PhysicsInventory.h"
 #include "a3d/scene/Scene.h"
 
@@ -32,13 +34,31 @@ namespace a3d {
 	public:
 		/// Public Types ///
 
-		using WillStepCallback = 		std::function<void(PhysicsWorld& world,
-															 const SimulationStepInfo& info)>;
-		using DidStepCallback = 			std::function<void(PhysicsWorld& world,
-															 const SimulationStepInfo& info)>;
-		using BeginContactCallback = 	std::function<void(PhysicsWorld& world, PhysicsContact& contact)>;
-		using ContinueContactCallback =	std::function<void(PhysicsWorld& world, PhysicsContact& contact)>;
-		using EndContactCallback = 		std::function<void(PhysicsWorld& world, PhysicsContact& contact)>;
+		struct StepInfo {
+
+			// index of the simulation tick containing this physics step
+			std::uint64_t tickIndex{0};
+
+			// simulation time before the containing tick
+			double startTime{0.0};
+
+			// simulation time after the containing tick completes
+			double endTime{0.0};
+
+			// delta passed to the physics backend
+			double deltaTime{0.0};
+		};
+
+		using WillStepCallback = 		std::function<void(PhysicsWorld &physicsWorld,
+			                                               const StepInfo& info)>;
+		using DidStepCallback = 			std::function<void(PhysicsWorld &physicsWorld,
+				                                              const StepInfo &info)>;
+		using BeginContactCallback = std::function<void(PhysicsWorld &physicsWorld,
+		                                                PhysicsContact &contact)>;
+		using ContinueContactCallback = std::function<void(PhysicsWorld &physicsWorld,
+		                                                   PhysicsContact &contact)>;
+		using EndContactCallback = std::function<void(PhysicsWorld &physicsWorld,
+		                                              PhysicsContact& contact)>;
 
 		/// Public Lifecycle Functions ///
 
@@ -95,7 +115,7 @@ namespace a3d {
 
 		bool							acceptsStepDelta(double deltaTime) const;
 
-		PhysicsInventory				step(const SimulationStepInfo& info, Profiler& profiler);
+		PhysicsInventory				step(const StepInfo& info, Profiler& profiler);
 
 		PhysicsInventory				inventory() const;
 

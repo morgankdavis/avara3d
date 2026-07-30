@@ -14,8 +14,7 @@
 #include "a3d/Application.h"
 
 namespace a3d {
-	struct HostUpdateInfo;
-	struct RenderFrameInfo;
+	class InputContext;
 	class Node;
 	class Runner;
 	class Scene;
@@ -42,25 +41,27 @@ namespace test::quadrotor {
 	protected:
 		/// Protected Member Functions ///
 
-		std::unique_ptr<a3d::Scene> init() override;
-		a3d::SimulationConfiguration simulationConfiguration() const override;
+		std::unique_ptr<a3d::Scene>		init() override;
+		a3d::SimulationConfig			simulationConfig() const override;
+		bool							shouldContinue(const a3d::Scene& scene) override;
+		void							didShutdown() override;
 
-		bool shouldContinue(const a3d::Scene& scene) override;
+		/// Runner Callbacks ///
 
-		void didShutdown() override;
+		void		runnerUpdate(a3d::Runner &runner,
+				                 const a3d::Runner::UpdateInfo& info) override;
 
-		/// Runner Callback Overrides ///
+		/// Input Context Callbacks ///
 
-		void runnerUpdate(a3d::Runner& runner,
-		                  const a3d::HostUpdateInfo& info) override;
+		void		inputContextDidUpdate(a3d::InputContext &inputContext,
+				                          const a3d::InputContext::UpdateInfo &info) override;
 
-		/// VisualWorld Callback Overrides ///
+		/// Visual World Callbacks ///
 
-		void visualWorldDidRender(a3d::VisualWorld& world,
-		                          const a3d::RenderFrameInfo& info) override;
-
-		void visualWorldWillRender(a3d::VisualWorld& world,
-		                           const a3d::RenderFrameInfo& info) override;
+		void		visualWorldWillRender(a3d::VisualWorld &visualWorld,
+				                          const a3d::VisualWorld::RenderInfo& info) override;
+		void		visualWorldDidRender(a3d::VisualWorld &visualWorld,
+				                         const a3d::VisualWorld::RenderInfo &info) override;
 
 	private:
 		/// Private Member Variables ///

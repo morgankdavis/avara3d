@@ -6,8 +6,6 @@
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-// TODO: move this to an 'extensions' library
-
 #ifndef AVARA3D_EXTENSIONS_ALFIMPORTER_H
 #define AVARA3D_EXTENSIONS_ALFIMPORTER_H
 

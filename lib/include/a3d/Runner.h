@@ -13,7 +13,7 @@
 #include <cstdint>
 #include <functional>
 
-#include "a3d/Timing.h"
+#include "a3d/SimulationConfig.h"
 #include "a3d/profile/FrameStatsHistory.h"
 #include "a3d/profile/Profiler.h"
 
@@ -37,13 +37,27 @@ namespace a3d {
 			Stopped
 		};
 
+		struct UpdateInfo {
+
+			// zero-based Runner-update index
+			std::uint64_t updateIndex{0};
+
+			// monotonic seconds since Runner::start(), measured at the
+			// beginning of this Runner update
+			double elapsedTime{0.0};
+
+			// monotonic seconds since the beginning of the previous
+			// Runner update. zero on the first update.
+			double deltaTime{0.0};
+		};
+
 		using UpdateCallback = std::function<void(Runner& runner,
-		                                          const HostUpdateInfo& info)>;
+		                                          const UpdateInfo& info)>;
 
 		/// Public Lifecycle Functions ///
 
 		explicit Runner(Scene& scene,
-		                SimulationConfiguration configuration = {});
+		                SimulationConfig config = {});
 
 		Runner(const Runner&) = delete;
 		Runner& operator=(const Runner&) = delete;
@@ -55,25 +69,25 @@ namespace a3d {
 
 		/// Public Member Functions ///
 
-		void start();
-		bool update();
-		void stop();
+		void						start();
+		bool						update();
+		void						stop();
 
-		UpdateCallback updateCallback() const;
-		void updateCallback(UpdateCallback callback);
+		UpdateCallback				updateCallback() const;
+		void						updateCallback(UpdateCallback callback);
 
-		const SimulationConfiguration& simulationConfiguration() const;
+		const SimulationConfig&		simulationConfig() const;
 
-		double timeScale() const;
-		void timeScale(double value);
+		double						timeScale() const;
+		void						timeScale(double value);
 
-		double simulationTime() const;
-		std::uint64_t simulationTickCount() const;
+		double						simulationTime() const;
+		std::uint64_t				simulationTickCount() const;
 
-		State state() const;
+		State						state() const;
 
-		Scene& scene();
-		const Scene& scene() const;
+		Scene&						scene();
+		const Scene&				scene() const;
 
 	private:
 		/// Private Types ///
@@ -82,32 +96,30 @@ namespace a3d {
 
 		/// Private Member Functions ///
 
-		void start(Clock::time_point now);
-		bool update(Clock::time_point now);
+		void						start(Clock::time_point now);
+		bool						update(Clock::time_point now);
 
-		void validateSimulationConfiguration() const;
-		PhysicsInventory scheduleSimulation(const HostUpdateInfo& info,
-		                                    FrameStats& stats);
-		PhysicsInventory runSimulationTick(double deltaTime);
-		void copyPhysicsInventory(const PhysicsInventory& inventory,
-		                          FrameStats& stats);
+		void						validateSimulationConfig() const;
+		PhysicsInventory			scheduleSimulation(const UpdateInfo &info,
+					                                   FrameStats& stats);
+		PhysicsInventory			executeSimulationTick(double deltaTime);
+		void						copyPhysicsInventory(const PhysicsInventory &inventory,
+								                         FrameStats& stats);
 
-		RenderFrameInfo makeRenderFrameInfo(const HostUpdateInfo& info) const;
-		bool renderFrame(const HostUpdateInfo& info, FrameStats& stats);
+		bool						renderFrame(const UpdateInfo& info, FrameStats& stats);
 
 		/// Private Member Variables ///
 
 		Scene&				_scene;
 		State				_state;
-		SimulationConfiguration
-							_simulationConfiguration;
+		SimulationConfig	_simulationConfig;
 		double				_timeScale;
 		double				_simulationAccumulator;
 		double				_simulationTime;
 		std::uint64_t		_simulationTickCount;
 		Clock::time_point	_startTime;
 		Clock::time_point	_previousUpdateTime;
-		HostUpdateInfo		_hostUpdateInfo;
+		UpdateInfo			_updateInfo;
 		bool				_hasUpdated;
 		UpdateCallback		_updateCallback;
 		std::uint64_t		_completedRenderFrameCount;

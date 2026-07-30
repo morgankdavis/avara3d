@@ -198,7 +198,7 @@ void VisualWorld::detachedFromScene(Scene& scene) {
 
 bool VisualWorld::draw(const Scene& scene,
 					   const PhysicsWorld* physicsWorld,
-					   const RenderFrameInfo& info,
+					   const RenderInfo& info,
 					   Scene::DebugOptions debugOptions,
 					   FrameStats& stats,
 					   Profiler& profiler,
@@ -311,7 +311,7 @@ bool VisualWorld::draw(const Scene& scene,
 	prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
 
 		if (_renderContext->recordingGIF()) {
-			_renderContext->saveGIFFrame(info.hostDeltaTime);
+			_renderContext->saveGIFFrame(info.updateDeltaTime);
 		}
 	});
 

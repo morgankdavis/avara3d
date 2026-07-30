@@ -25,7 +25,7 @@ const RenderContext::AntialiasingMode	ANTIALIAS_MODE		{RenderContext::Antialiasi
 const bool								ENABLE_VSYNC		{false};
 const bool								CAPTURE_CURSOR		{false};
 const float								MOUSE_SENSITIVITY	{0.5};
-const double							PHYSICS_TIMESTEP	{1.0 / 120.0};
+const double							FIXED_TIMESTEP		{1.0 / 120.0};
 const bool								DARK				{false};
 
 /// Public Lifecycle Functions ///
@@ -70,10 +70,10 @@ std::unique_ptr<Scene> App::init() {
 	}
 }
 
-SimulationConfiguration App::simulationConfiguration() const {
+SimulationConfig App::simulationConfig() const {
 	return {
 		.timing = SimulationTiming::FixedStep,
-		.fixedDeltaTime = PHYSICS_TIMESTEP
+		.fixedDeltaTime = FIXED_TIMESTEP
 	};
 }
 
@@ -85,19 +85,18 @@ void App::didShutdown() {
 
 }
 
-/// Runner Callback Overrides ///
+/// Runner Callbacks ///
 
-void App::runnerUpdate(Runner& runner, const HostUpdateInfo&) {
+void App::runnerUpdate(Runner& runner, const Runner::UpdateInfo&) {
 
 	log::app::i()("....and we're done.");
-	static_cast<Window*>(
-		runner.scene().visualWorld()->renderContext())->close();
+	static_cast<Window*>(runner.scene().visualWorld()->renderContext())->close();
 }
 
-/// VisualWorld Callback Overrides ///
+/// Visual World Callbacks ///
 
-void App::visualWorldWillRender(VisualWorld& world,
-								const RenderFrameInfo& info) {}
+void App::visualWorldWillRender(VisualWorld& visualWorld,
+								const VisualWorld::RenderInfo& info) {}
 
-void App::visualWorldDidRender(VisualWorld& world,
-							   const RenderFrameInfo& info) {}
+void App::visualWorldDidRender(VisualWorld& visualWorld,
+							   const VisualWorld::RenderInfo& info) {}

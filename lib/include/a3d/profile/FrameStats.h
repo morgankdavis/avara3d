@@ -24,10 +24,10 @@ namespace a3d {
 		std::chrono::nanoseconds physicsTime{};
 		std::chrono::nanoseconds applicationTime{};
 
-		// Simulation ticks completed during this host update.
+		// simulation ticks completed during this Runner update
 		unsigned simulationTickCount{0};
 
-		// Scaled simulation-time demand discarded during this host update.
+		// scaled simulation-time demand discarded during this Runner update
 		double discardedSimulationTime{0.0};
 
 		unsigned numNodes = 0;

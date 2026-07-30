@@ -25,7 +25,7 @@ const RenderContext::AntialiasingMode	ANTIALIAS_MODE		{RenderContext::Antialiasi
 const bool								ENABLE_VSYNC		{false};
 const bool								CAPTURE_CURSOR		{false};
 const float								MOUSE_SENSITIVITY	{0.5};
-const double							PHYSICS_TIMESTEP	{1.0 / 120.0};
+const double							FIXED_TIMESTEP		{1.0 / 120.0};
 const bool								DARK				{false};
 
 /// Public Lifecycle Functions ///
@@ -55,7 +55,7 @@ std::unique_ptr<Scene> App::init() {
 
 		auto scene = make_unique<Scene>(std::move(visualWorld),
 										std::move(physicsWorld),
-										Window::InputManager());
+										Window::InputContext());
 		scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 
 		_bananaNode = Node::MeshNode(util::filesystem::MeshNamed("banana_lod/banana_lod"));
@@ -75,10 +75,10 @@ std::unique_ptr<Scene> App::init() {
 	}
 }
 
-SimulationConfiguration App::simulationConfiguration() const {
+SimulationConfig App::simulationConfig() const {
 	return {
 		.timing = SimulationTiming::FixedStep,
-		.fixedDeltaTime = PHYSICS_TIMESTEP
+		.fixedDeltaTime = FIXED_TIMESTEP
 	};
 }
 
@@ -90,17 +90,9 @@ void App::didShutdown() {
 
 }
 
-/// Runner Callback Overrides ///
+/// Runner Callbacks ///
 
-void App::runnerUpdate(Runner& runner, const HostUpdateInfo& info) {
-
-	auto& scene = runner.scene();
-
-	if (static_cast<DesktopInputManager*>(
-	scene.inputManager())->keysPressed().count(DesktopInputManager::Key::Escape)) {
-		_window->close();
-	}
-
+void App::runnerUpdate(Runner& runner, const Runner::UpdateInfo& info) {
 	if (_bananaNode) {
 		// rotate the banana
 		auto rotationDeg = info.deltaTime * radians(-30.0); // 10deg/sec
@@ -110,10 +102,21 @@ void App::runnerUpdate(Runner& runner, const HostUpdateInfo& info) {
 	}
 }
 
-/// VisualWorld Callback Overrides ///
+/// Input Context Callbacks ///
 
-void App::visualWorldWillRender(VisualWorld& world,
-								const RenderFrameInfo& info) {}
+void App::inputContextDidUpdate(InputContext& inputContext,
+                                const InputContext::UpdateInfo&) {
+	if (static_cast<DesktopInputContext&>(
+		inputContext).keysPressed().count(DesktopInputContext::Key::Escape)) {
 
-void App::visualWorldDidRender(VisualWorld& world,
-							   const RenderFrameInfo& info) {}
+		_window->close();
+	}
+}
+
+/// Visual World Callbacks ///
+
+void App::visualWorldWillRender(VisualWorld& visualWorld,
+								const VisualWorld::RenderInfo& info) {}
+
+void App::visualWorldDidRender(VisualWorld& visualWorld,
+							   const VisualWorld::RenderInfo& info) {}

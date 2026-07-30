@@ -16,6 +16,7 @@
 
 #include "a3d/BuildInfo.h"
 #include "a3d/Runner.h"
+#include "a3d/input/InputContext.h"
 #include "a3d/log/Log.h"
 #include "a3d/log/sink/FileLogSink.h"
 #include "a3d/log/sink/StdOutLogSink.h"
@@ -32,7 +33,10 @@ Application::Application(int argc, char *argv[], Log::Level logLevel):
 	_args(argv + 1, argv + argc),
 	_scene{},
 	_runner{},
-	_didShutdown{false} {
+	_didShutdown{false},
+	_simulationCommandQueue{},
+	_physicsCommandQueue{},
+	_renderCommandQueue{} {
 	initLog(logLevel);
 }
 
@@ -121,7 +125,7 @@ void Application::prepare() {
 		throw runtime_error("Application::initialize() returned a null Scene.");
 	}
 
-	_runner = make_unique<Runner>(*_scene, simulationConfiguration());
+	_runner = make_unique<Runner>(*_scene, simulationConfig());
 
 	registerCallbacks();
 
@@ -169,21 +173,57 @@ void Application::shutdown() noexcept {
 void Application::registerCallbacks() {
 
 	_runner->updateCallback(bind(&Application::runnerUpdate, this, _1, _2));
-	_scene->willSimulateCallback(bind(&Application::sceneWillSimulate, this, _1, _2));
-	_scene->didSimulateCallback(bind(&Application::sceneDidSimulate, this, _1, _2));
+
+	if (auto* inputContext = _scene->inputContext()) {
+		inputContext->didUpdateCallback(
+			bind(&Application::inputContextDidUpdate, this, _1, _2));
+	}
+
+	_scene->willTickCallback(
+		bind(&Application::dispatchSimulationWillTick, this, _1, _2));
+	_scene->didTickCallback(
+		bind(&Application::simulationDidTick, this, _1, _2));
 
 	if (auto* world = _scene->physicsWorld()) {
-		world->willStepCallback(bind(&Application::physicsWorldWillStep, this, _1, _2));
-		world->didStepCallback(bind(&Application::physicsWorldDidStep, this, _1, _2));
+		world->willStepCallback(
+			bind(&Application::dispatchPhysicsWorldWillStep, this, _1, _2));
+		world->didStepCallback(
+			bind(&Application::physicsWorldDidStep, this, _1, _2));
 	}
 
 	if (auto* world = _scene->visualWorld()) {
-		world->willRenderCallback(bind(&Application::visualWorldWillRender, this, _1, _2));
-		world->didRenderCallback(bind(&Application::visualWorldDidRender, this, _1, _2));
+		world->willRenderCallback(
+			bind(&Application::dispatchVisualWorldWillRender, this, _1, _2));
+		world->didRenderCallback(
+			bind(&Application::visualWorldDidRender, this, _1, _2));
 	}
 }
 
-SimulationConfiguration Application::simulationConfiguration() const {
+void Application::dispatchSimulationWillTick(
+		Scene& scene,
+		const Scene::TickInfo& info) {
+
+	executePendingCommands(_simulationCommandQueue, scene);
+	simulationWillTick(scene, info);
+}
+
+void Application::dispatchPhysicsWorldWillStep(
+		PhysicsWorld& physicsWorld,
+		const PhysicsWorld::StepInfo& info) {
+
+	executePendingCommands(_physicsCommandQueue, physicsWorld);
+	physicsWorldWillStep(physicsWorld, info);
+}
+
+void Application::dispatchVisualWorldWillRender(
+		VisualWorld& visualWorld,
+		const VisualWorld::RenderInfo& info) {
+
+	executePendingCommands(_renderCommandQueue, visualWorld);
+	visualWorldWillRender(visualWorld, info);
+}
+
+SimulationConfig Application::simulationConfig() const {
 	return {};
 }
 
@@ -191,23 +231,75 @@ bool Application::shouldContinue(const Scene&) { return true; }
 
 void Application::didShutdown() {}
 
+void Application::queueSimulationCommand(SimulationCommand command) {
+	_simulationCommandQueue.push(std::move(command));
+}
+
+void Application::queuePhysicsCommand(PhysicsCommand command) {
+	_physicsCommandQueue.push(std::move(command));
+}
+
+void Application::queueRenderCommand(RenderCommand command) {
+	_renderCommandQueue.push(std::move(command));
+}
+
+Runner& Application::runner() {
+
+	if (!_runner) {
+		throw logic_error("Application::runner() requires an initialized Runner.");
+	}
+
+	return *_runner;
+}
+
+const Runner& Application::runner() const {
+
+	if (!_runner) {
+		throw logic_error("Application::runner() requires an initialized Runner.");
+	}
+
+	return *_runner;
+}
+
+const vector<string>& Application::args() const {
+	return _args;
+}
+
+/// Runner Callbacks ///
+
 void Application::runnerUpdate(Runner& runner,
-                               const HostUpdateInfo& info) {}
+                               const Runner::UpdateInfo& info) {}
 
-void Application::sceneWillSimulate(Scene& scene,
-                                    const SimulationStepInfo& info) {}
+/// Input Context Callbacks ///
 
-void Application::sceneDidSimulate(Scene& scene,
-                                   const SimulationStepInfo& info) {}
+void Application::inputContextDidUpdate(
+		InputContext& inputContext,
+		const InputContext::UpdateInfo& info) {}
 
-void Application::visualWorldWillRender(VisualWorld& world,
-                                        const RenderFrameInfo& info) {}
+/// Simulation Callbacks ///
 
-void Application::visualWorldDidRender(VisualWorld& world,
-                                       const RenderFrameInfo& info) {}
+void Application::simulationWillTick(Scene& scene,
+                                     const Scene::TickInfo& info) {}
 
-void Application::physicsWorldWillStep(PhysicsWorld& world,
-                                        const SimulationStepInfo& info) {}
+void Application::simulationDidTick(Scene& scene,
+                                    const Scene::TickInfo& info) {}
 
-void Application::physicsWorldDidStep(PhysicsWorld& world,
-                                       const SimulationStepInfo& info) {}
+/// Physics World Callbacks ///
+
+void Application::physicsWorldWillStep(
+		PhysicsWorld& physicsWorld,
+		const PhysicsWorld::StepInfo& info) {}
+
+void Application::physicsWorldDidStep(
+		PhysicsWorld& physicsWorld,
+		const PhysicsWorld::StepInfo& info) {}
+
+/// Visual World Callbacks ///
+
+void Application::visualWorldWillRender(
+		VisualWorld& visualWorld,
+		const VisualWorld::RenderInfo& info) {}
+
+void Application::visualWorldDidRender(
+		VisualWorld& visualWorld,
+		const VisualWorld::RenderInfo& info) {}

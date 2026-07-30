@@ -57,7 +57,7 @@ std::unique_ptr<Scene> App::init() {
 
 		auto scene = make_unique<Scene>();
 		scene->visualWorld(std::move(visualWorld));
-		scene->inputManager(Window::InputManager());
+		scene->inputContext(Window::InputContext());
 
 		auto options = Scene::ImportOptions::ImportMeshes
 					   | Scene::ImportOptions::ImportMaterials;
@@ -101,22 +101,20 @@ void App::didShutdown() {
 
 }
 
-/// Runner Callback Overrides ///
+/// Input Context Callbacks ///
 
-void App::runnerUpdate(Runner& runner, const HostUpdateInfo& info) {
-
-	auto& scene = runner.scene();
-
-	if (static_cast<DesktopInputManager*>(
-		scene.inputManager())->keysPressed().count(DesktopInputManager::Key::Escape)) {
+void App::inputContextDidUpdate(InputContext& inputContext,
+                                const InputContext::UpdateInfo&) {
+	if (static_cast<DesktopInputContext*>(
+		&inputContext)->keysPressed().count(DesktopInputContext::Key::Escape)) {
 		_window->close();
 	}
 }
 
-/// VisualWorld Callback Overrides ///
+/// Visual World Callbacks ///
 
-void App::visualWorldWillRender(VisualWorld& world,
-								const RenderFrameInfo& info) {}
+void App::visualWorldWillRender(VisualWorld& visualWorld,
+								const VisualWorld::RenderInfo& info) {}
 
-void App::visualWorldDidRender(VisualWorld& world,
-							   const RenderFrameInfo& info) {}
+void App::visualWorldDidRender(VisualWorld& visualWorld,
+							   const VisualWorld::RenderInfo& info) {}

@@ -9,14 +9,15 @@
 #ifndef AVARA3D_SCENE_SCENE_H
 #define AVARA3D_SCENE_SCENE_H
 
+#include <cstdint>
 #include <filesystem>
 #include <functional>
 #include <memory>
 #include <optional>
 #include <string>
 
-#include "a3d/Timing.h"
 #include "a3d/Math.h"
+#include "a3d/input/InputContext.h"
 #include "a3d/physics/PhysicsInventory.h"
 #include "a3d/util/Bitmask.h"
 
@@ -25,7 +26,6 @@ namespace a3d {
 	struct AABB;
 
 	class Color;
-	class InputManager;
 	class Mesh;
 	class Node;
 	class PhysicsWorld;
@@ -65,10 +65,25 @@ namespace a3d {
 			ShowPhysicsConstraintLimits	=	1 << 11
 		};
 
-		using WillSimulateCallback = std::function<void(Scene& scene,
-		                                                const SimulationStepInfo& info)>;
-		using DidSimulateCallback = std::function<void(Scene& scene,
-		                                               const SimulationStepInfo& info)>;
+		struct TickInfo {
+
+			// zero-based simulation-tick index
+			std::uint64_t tickIndex{0};
+
+			// simulation time before this tick
+			double startTime{0.0};
+
+			// simulation time after this tick completes
+			double endTime{0.0};
+
+			// amount of simulation time advanced by this tick
+			double deltaTime{0.0};
+		};
+
+		using WillTickCallback = std::function<void(Scene& scene,
+		                                            const TickInfo& info)>;
+		using DidTickCallback = std::function<void(Scene& scene,
+		                                           const TickInfo& info)>;
 
 		/// Public Static Member Functions ///
 
@@ -82,11 +97,11 @@ namespace a3d {
 		explicit Scene(const std::string& name);
 		Scene(std::unique_ptr<VisualWorld> visualWorld,
 			  std::unique_ptr<PhysicsWorld> physicsWorld,
-			  std::unique_ptr<InputManager> inputManager);
+			  std::unique_ptr<InputContext> inputContext);
 		Scene(const std::string& name,
 			  std::unique_ptr<VisualWorld> visualWorld,
 			  std::unique_ptr<PhysicsWorld> physicsWorld,
-			  std::unique_ptr<InputManager> inputManager);
+			  std::unique_ptr<InputContext> inputContext);
 
 		Scene(const Scene&) = delete;
 		Scene& operator=(const Scene&) = delete;
@@ -110,8 +125,8 @@ namespace a3d {
 		PhysicsWorld* 						physicsWorld() const;
 		void 								physicsWorld(std::unique_ptr<PhysicsWorld> world);
 
-		InputManager* 						inputManager() const;
-		void 								inputManager(std::unique_ptr<InputManager> manager);
+		InputContext* 						inputContext() const;
+		void 								inputContext(std::unique_ptr<InputContext> context);
 
 		AABB 								aabb(bool vertfit = false) const;
 		math::vec3 							extent(bool vertfit = false) const;
@@ -119,18 +134,19 @@ namespace a3d {
 		DebugOptions 						debugOptions() const;
 		void 								debugOptions(DebugOptions options);
 
-		WillSimulateCallback				willSimulateCallback() const;
-		void								willSimulateCallback(WillSimulateCallback callback);
+		WillTickCallback					willTickCallback() const;
+		void								willTickCallback(WillTickCallback callback);
 
-		DidSimulateCallback					didSimulateCallback() const;
-		void								didSimulateCallback(DidSimulateCallback callback);
+		DidTickCallback						didTickCallback() const;
+		void								didTickCallback(DidTickCallback callback);
 
 		/// Internal Member Functions ///
 
-		void 								updateHostEvents(Profiler& profiler);
-		void 								updateInput(Profiler& profiler);
-		PhysicsInventory					simulate(const SimulationStepInfo& info,
-												 Profiler& profiler);
+		void 								pollEvents(Profiler& profiler);
+		void 								updateInput(const InputContext::UpdateInfo& info,
+													Profiler& profiler);
+		PhysicsInventory					tickSimulation(const TickInfo& info,
+													   Profiler& profiler);
 
 	private:
 
@@ -140,10 +156,10 @@ namespace a3d {
 		std::shared_ptr<Node>				_rootNode;
 		std::unique_ptr<VisualWorld> 		_visualWorld;
 		std::unique_ptr<PhysicsWorld> 		_physicsWorld;
-		std::unique_ptr<InputManager>		_inputManager;
+		std::unique_ptr<InputContext>		_inputContext;
 		DebugOptions						_debugOptions;
-		WillSimulateCallback				_willSimulateCallback;
-		DidSimulateCallback					_didSimulateCallback;
+		WillTickCallback					_willTickCallback;
+		DidTickCallback						_didTickCallback;
 	};
 
 	namespace util::bitmask {

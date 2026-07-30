@@ -12,7 +12,7 @@
 #include "a3d/a3d.h"
 
 #include "QtViewport.h"
-#include "QtInputManager.h"
+#include "QtInputContext.h"
 
 using namespace a3d;
 using namespace a3de;
@@ -86,7 +86,7 @@ void MainWindow::initA3D() {
 
 		_scene = make_unique<Scene>(std::move(visualWorld),
 									nullptr,
-									qt::QtViewport::InputManager());
+									qt::QtViewport::InputContext());
 		_scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 
 		_viewport->cursorCaptured(CAPTURE_CURSOR);
@@ -99,9 +99,11 @@ void MainWindow::initA3D() {
 
 		_runner = make_unique<Runner>(*_scene);
 		_runner->updateCallback(bind(&MainWindow::runnerUpdate, this, _1, _2));
-		_scene->visualWorld()->willRenderCallback(bind(&MainWindow::willRenderCallback,
+		_scene->inputContext()->didUpdateCallback(bind(&MainWindow::inputContextDidUpdate,
 		                                               this, _1, _2));
-		_scene->visualWorld()->didRenderCallback(bind(&MainWindow::didRenderCallback,
+		_scene->visualWorld()->willRenderCallback(bind(&MainWindow::visualWorldWillRender,
+		                                               this, _1, _2));
+		_scene->visualWorld()->didRenderCallback(bind(&MainWindow::visualWorldDidRender,
 		                                              this, _1, _2));
 		_runner->start();
 	}
@@ -152,19 +154,11 @@ void MainWindow::initLog(Log::Level level) {
 	log::app::i()("Origin: {}", BuildInfo::OriginString(buildInfo.origin()));
 }
 
+/// Runner Callbacks ///
+
 void MainWindow::runnerUpdate(Runner& runner,
-                              const HostUpdateInfo& info) {
+                              const Runner::UpdateInfo& info) {
 	//log::app::t();
-
-	auto& scene = runner.scene();
-	auto im = static_cast<DesktopInputManager*>(scene.inputManager());
-	using Key = DesktopInputManager::Key;
-	using MouseButton = DesktopInputManager::MouseButton;
-
-	auto keysPressed = im->keysPressed();
-	if (keysPressed.count(Key::Escape)) {
-		QCoreApplication::quit();
-	}
 
 	if (_bananaNode) {
 		// rotate the banana
@@ -175,12 +169,30 @@ void MainWindow::runnerUpdate(Runner& runner,
 	}
 }
 
-void MainWindow::willRenderCallback(VisualWorld& world,
-                                    const RenderFrameInfo& info) {
+/// Input Context Callbacks ///
+
+void MainWindow::inputContextDidUpdate(InputContext& inputContext,
+                                       const InputContext::UpdateInfo& info) {
+
+	auto& desktopInputContext =
+		static_cast<DesktopInputContext&>(inputContext);
+	using Key = DesktopInputContext::Key;
+
+	if (desktopInputContext.keysPressed().count(Key::Escape)) {
+		QCoreApplication::quit();
+	}
+}
+
+/// Visual World Callbacks ///
+
+void MainWindow::visualWorldWillRender(
+		VisualWorld& visualWorld,
+		const VisualWorld::RenderInfo& info) {
 	//log::app::t();
 }
 
-void MainWindow::didRenderCallback(VisualWorld& world,
-                                   const RenderFrameInfo& info) {
+void MainWindow::visualWorldDidRender(
+		VisualWorld& visualWorld,
+		const VisualWorld::RenderInfo& info) {
 	//log::app::t();
 }

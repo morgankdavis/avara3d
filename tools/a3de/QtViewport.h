@@ -17,7 +17,7 @@
 
 namespace a3d::qt {
 
-	class QtInputManager;
+	class QtInputContext;
 
 	class QtViewport : public QOpenGLWidget, public RenderContext {
 
@@ -30,7 +30,7 @@ namespace a3d::qt {
 	public:
 		/// Public Static Member Functions ///
 
-		static std::unique_ptr<QtInputManager> InputManager();
+		static std::unique_ptr<QtInputContext> InputContext();
 
 		/// Public Lifecycle Functions ///
 
@@ -63,7 +63,7 @@ namespace a3d::qt {
 
 		/// Internal Member Functions ///
 
-		void					inputManager(QtInputManager* manager);
+		void					inputContext(QtInputContext* inputContext);
 
 	protected:
 		/// QWidget Protected Member Functions ///
@@ -89,7 +89,7 @@ namespace a3d::qt {
 		bool					_cursorCaptured;
 		std::optional<QPointF>	_lastCursorPosition;
 		std::optional<QPointF> 	_lastCapturedCursorPosition;
-		QtInputManager*			_inputManager;
+		QtInputContext*			_inputContext;
 		bool 					_warpingCursor;
 	};
 }

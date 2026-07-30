@@ -10,6 +10,7 @@
 #include <stdexcept>
 
 #include "a3d/Configuration.h"
+#include "a3d/input/InputContext.h"
 #include "a3d/physics/PhysicsInventory.h"
 #include "a3d/physics/PhysicsWorld.h"
 #include "a3d/profile/FrameStats.h"
@@ -21,24 +22,24 @@ using namespace a3d;
 using namespace std;
 
 Runner::Runner(Scene& scene,
-               SimulationConfiguration configuration):
+               SimulationConfig config):
 	_scene(scene),
 	_state(State::Idle),
-	_simulationConfiguration{configuration},
-	_timeScale{configuration.timeScale},
+	_simulationConfig{config},
+	_timeScale{config.timeScale},
 	_simulationAccumulator{0.0},
 	_simulationTime{0.0},
 	_simulationTickCount{0},
 	_startTime{},
 	_previousUpdateTime{},
-	_hostUpdateInfo{},
+	_updateInfo{},
 	_hasUpdated{false},
 	_updateCallback{},
 	_completedRenderFrameCount{0},
 	_profiler{},
 	_frameStatsHistory{a3d::config::FRAME_STATS_HISTORY_DURATION} {
 
-	validateSimulationConfiguration();
+	validateSimulationConfig();
 }
 
 Runner::~Runner() {
@@ -56,15 +57,15 @@ void Runner::start(Clock::time_point now) {
 			"Runner::start requires an idle Runner.");
 	}
 
-	validateSimulationConfiguration();
+	validateSimulationConfig();
 
-	_timeScale = _simulationConfiguration.timeScale;
+	_timeScale = _simulationConfig.timeScale;
 	_simulationAccumulator = 0.0;
 	_simulationTime = 0.0;
 	_simulationTickCount = 0;
 	_startTime = now;
 	_previousUpdateTime = now;
-	_hostUpdateInfo = {};
+	_updateInfo = {};
 	_hasUpdated = false;
 	_completedRenderFrameCount = 0;
 	_state = State::Running;
@@ -85,40 +86,44 @@ bool Runner::update(Clock::time_point now) {
 		return false;
 	}
 
-	const HostUpdateInfo hostUpdateInfo {
+	const UpdateInfo updateInfo {
 		.updateIndex = _hasUpdated
-			? _hostUpdateInfo.updateIndex + 1
-			: 0,
-		.elapsedTime = chrono::duration<double>(
-			now - _startTime).count(),
+			? _updateInfo.updateIndex + 1 : 0,
+		.elapsedTime = chrono::duration<double>(now - _startTime).count(),
 		.deltaTime = _hasUpdated
-			? chrono::duration<double>(
-				now - _previousUpdateTime).count()
-			: 0.0
+			? chrono::duration<double>(now - _previousUpdateTime).count() : 0.0
 	};
 
 	_previousUpdateTime = now;
-	_hostUpdateInfo = hostUpdateInfo;
+	_updateInfo = updateInfo;
 	_hasUpdated = true;
+
+	const InputContext::UpdateInfo inputInfo {
+		.updateIndex = updateInfo.updateIndex,
+		.elapsedTime = updateInfo.elapsedTime,
+		.deltaTime = updateInfo.deltaTime
+	};
 
 	FrameStats stats{};
 
 	prof::profile(_profiler, Profiler::Tag::Frame, [&] {
-		_scene.updateHostEvents(_profiler);
-		_scene.updateInput(_profiler);
+		_scene.pollEvents(_profiler);
+		_scene.updateInput(inputInfo, _profiler);
 
-		if (auto callback = updateCallback()) {
-			prof::profile(_profiler, Profiler::Tag::Application, [&] {
-				callback(*this, _hostUpdateInfo);
-			});
+		if (_state == State::Running) {
+			if (auto callback = updateCallback()) {
+				prof::profile(_profiler, Profiler::Tag::Application, [&] {
+					callback(*this, _updateInfo);
+				});
+			}
 		}
 
 		if (_state == State::Running) {
-			const auto inventory = scheduleSimulation(hostUpdateInfo, stats);
+			const auto inventory = scheduleSimulation(updateInfo, stats);
 			copyPhysicsInventory(inventory, stats);
 
 			if (_state == State::Running) {
-				renderFrame(hostUpdateInfo, stats);
+				renderFrame(updateInfo, stats);
 			}
 		}
 	});
@@ -136,56 +141,59 @@ bool Runner::update(Clock::time_point now) {
 	return _state == State::Running;
 }
 
-void Runner::validateSimulationConfiguration() const {
+void Runner::validateSimulationConfig() const {
 
-	const auto& configuration = _simulationConfiguration;
+	const auto& config = _simulationConfig;
 
-	if (!isfinite(configuration.fixedDeltaTime)
-		|| configuration.fixedDeltaTime <= 0.0) {
-
-		throw invalid_argument(
-			"Runner requires a finite, positive fixed simulation delta.");
-	}
-
-	if (configuration.maxCatchUpSteps == 0) {
-		throw invalid_argument(
-			"Runner requires at least one maximum catch-up step.");
-	}
-
-	if (!isfinite(configuration.timeScale)
-		|| configuration.timeScale <= 0.0) {
+	if (!isfinite(config.timeScale)
+		|| config.timeScale <= 0.0) {
 
 		throw invalid_argument(
 			"Runner requires a finite, positive initial time scale.");
 	}
 
-	if (!isfinite(configuration.maxFrameDrivenDeltaTime)
-		|| configuration.maxFrameDrivenDeltaTime <= 0.0) {
+	if (config.timing == SimulationTiming::VariableStep) {
+		if (!isfinite(config.maxVariableStepDeltaTime)
+			|| config.maxVariableStepDeltaTime <= 0.0) {
 
-		throw invalid_argument(
-			"Runner requires a finite, positive maximum FrameDriven delta.");
+			throw invalid_argument(
+				"Runner requires a finite, positive maximum VariableStep delta.");
+		}
 	}
+	else {
+		if (!isfinite(config.fixedDeltaTime)
+			|| config.fixedDeltaTime <= 0.0) {
 
-	if (auto physicsWorld = _scene.physicsWorld();
-		physicsWorld
-		&& !physicsWorld->acceptsStepDelta(configuration.fixedDeltaTime)) {
+			throw invalid_argument(
+				"Runner requires a finite, positive fixed simulation delta.");
+		}
 
-		throw invalid_argument(
-			"Runner fixed simulation delta is not accepted by its PhysicsWorld backend.");
+		if (config.maxCatchUpSteps == 0) {
+			throw invalid_argument(
+				"Runner requires at least one maximum catch-up step.");
+		}
+
+		if (auto physicsWorld = _scene.physicsWorld();
+			physicsWorld
+			&& !physicsWorld->acceptsStepDelta(config.fixedDeltaTime)) {
+
+			throw invalid_argument(
+				"Runner fixed simulation delta is not accepted by its PhysicsWorld backend.");
+		}
 	}
 }
 
-PhysicsInventory Runner::scheduleSimulation(const HostUpdateInfo& info,
+PhysicsInventory Runner::scheduleSimulation(const UpdateInfo& info,
                                             FrameStats& stats) {
 
 	PhysicsInventory inventory{};
 
-	if (_simulationConfiguration.timing == SimulationTiming::FrameDriven) {
+	if (_simulationConfig.timing == SimulationTiming::VariableStep) {
 
 		const double scaledDelta = info.deltaTime * _timeScale;
 		const double simulationDelta = min(
 			scaledDelta,
-			_simulationConfiguration.maxFrameDrivenDeltaTime);
+			_simulationConfig.maxVariableStepDeltaTime);
 
 		if (scaledDelta > simulationDelta) {
 			stats.discardedSimulationTime =
@@ -193,20 +201,20 @@ PhysicsInventory Runner::scheduleSimulation(const HostUpdateInfo& info,
 		}
 
 		if (simulationDelta > 0.0) {
-			inventory = runSimulationTick(simulationDelta);
+			inventory = executeSimulationTick(simulationDelta);
 			stats.simulationTickCount = 1;
 		}
 	}
 	else {
-		const double fixedDeltaTime = _simulationConfiguration.fixedDeltaTime;
+		const double fixedDeltaTime = _simulationConfig.fixedDeltaTime;
 
 		_simulationAccumulator += info.deltaTime * _timeScale;
 
 		while (_simulationAccumulator >= fixedDeltaTime
-			&& stats.simulationTickCount < _simulationConfiguration.maxCatchUpSteps
+			&& stats.simulationTickCount < _simulationConfig.maxCatchUpSteps
 		       && _state == State::Running) {
 
-			inventory = runSimulationTick(fixedDeltaTime);
+			inventory = executeSimulationTick(fixedDeltaTime);
 
 			_simulationAccumulator -= fixedDeltaTime;
 
@@ -238,7 +246,7 @@ PhysicsInventory Runner::scheduleSimulation(const HostUpdateInfo& info,
 	return inventory;
 }
 
-PhysicsInventory Runner::runSimulationTick(double deltaTime) {
+PhysicsInventory Runner::executeSimulationTick(double deltaTime) {
 
 	if (auto physicsWorld = _scene.physicsWorld();
 		physicsWorld
@@ -248,18 +256,18 @@ PhysicsInventory Runner::runSimulationTick(double deltaTime) {
 			"Runner simulation delta is not accepted by its PhysicsWorld backend.");
 	}
 
-	SimulationStepInfo info {
+	Scene::TickInfo info {
 		.tickIndex = _simulationTickCount
 	};
 
-	if (_simulationConfiguration.timing == SimulationTiming::FixedStep) {
+	if (_simulationConfig.timing == SimulationTiming::FixedStep) {
 		info.startTime =
 			static_cast<double>(info.tickIndex)
-			* _simulationConfiguration.fixedDeltaTime;
+			* _simulationConfig.fixedDeltaTime;
 		info.endTime =
 			static_cast<double>(info.tickIndex + 1)
-			* _simulationConfiguration.fixedDeltaTime;
-		info.deltaTime = _simulationConfiguration.fixedDeltaTime;
+			* _simulationConfig.fixedDeltaTime;
+		info.deltaTime = _simulationConfig.fixedDeltaTime;
 	}
 	else {
 		info.startTime = _simulationTime;
@@ -267,7 +275,7 @@ PhysicsInventory Runner::runSimulationTick(double deltaTime) {
 		info.deltaTime = deltaTime;
 	}
 
-	auto inventory = _scene.simulate(info, _profiler);
+	auto inventory = _scene.tickSimulation(info, _profiler);
 
 	_simulationTime = info.endTime;
 	++_simulationTickCount;
@@ -289,19 +297,7 @@ void Runner::copyPhysicsInventory(const PhysicsInventory& inventory,
 	});
 }
 
-RenderFrameInfo Runner::makeRenderFrameInfo(const HostUpdateInfo& info) const {
-
-	return {
-		.frameIndex = _completedRenderFrameCount,
-		.hostUpdateIndex = info.updateIndex,
-		.hostTime = info.elapsedTime,
-		.hostDeltaTime = info.deltaTime,
-		.simulationTime = _simulationTime,
-		.completedSimulationTicks = _simulationTickCount
-	};
-}
-
-bool Runner::renderFrame(const HostUpdateInfo& info,
+bool Runner::renderFrame(const UpdateInfo& info,
                          FrameStats& stats) {
 
 	auto visualWorld = _scene.visualWorld();
@@ -309,11 +305,18 @@ bool Runner::renderFrame(const HostUpdateInfo& info,
 		return false;
 	}
 
-	const RenderFrameInfo frameInfo = makeRenderFrameInfo(info);
+	const VisualWorld::RenderInfo renderInfo {
+		.frameIndex = _completedRenderFrameCount,
+		.updateIndex = info.updateIndex,
+		.updateTime = info.elapsedTime,
+		.updateDeltaTime = info.deltaTime,
+		.simulationTime = _simulationTime,
+		.simulationTickCount = _simulationTickCount
+	};
 
 	if (!visualWorld->draw(_scene,
 						   _scene.physicsWorld(),
-						   frameInfo,
+						   renderInfo,
 						   _scene.debugOptions(),
 						   stats,
 						   _profiler,
@@ -342,8 +345,8 @@ void Runner::updateCallback(UpdateCallback callback) {
 	_updateCallback = callback;
 }
 
-const SimulationConfiguration& Runner::simulationConfiguration() const {
-	return _simulationConfiguration;
+const SimulationConfig& Runner::simulationConfig() const {
+	return _simulationConfig;
 }
 
 double Runner::timeScale() const {

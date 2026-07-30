@@ -9,25 +9,30 @@
 #ifndef AVARA3D_APPLICATION_H
 #define AVARA3D_APPLICATION_H
 
+#include <cstddef>
 #include <memory>
+#include <utility>
 #include <vector>
 
-#include "a3d/Timing.h"
+#include "a3d/CommandQueue.h"
+#include "a3d/Runner.h"
+#include "a3d/SimulationConfig.h"
+#include "a3d/input/InputContext.h"
+#include "a3d/physics/PhysicsWorld.h"
+#include "a3d/scene/Scene.h"
+#include "a3d/visual/VisualWorld.h"
 #include "log/Log.h"
 
-namespace a3d {
+#include "a3d/TestAccessFwd.h"
 
-	class PhysicsWorld;
-	class Runner;
-	class Scene;
-	class VisualWorld;
+namespace a3d {
 
 	class Application {
 
 	public:
 		/// Public Static Member Functions ///
 
-		static int Run(std::unique_ptr<Application> application);
+		static int						Run(std::unique_ptr<Application> application);
 
 		/// Public Lifecycle Functions ///
 
@@ -42,59 +47,105 @@ namespace a3d {
 		virtual ~Application();
 
 	protected:
+		/// Protected Types ///
+
+		using SimulationCommand =		CommandQueue<Scene>::value_type;
+		using PhysicsCommand =			CommandQueue<PhysicsWorld>::value_type;
+		using RenderCommand =			CommandQueue<VisualWorld>::value_type;
+
 		/// Protected Member Functions ///
 
-		virtual std::unique_ptr<Scene> init() = 0;
-		virtual SimulationConfiguration simulationConfiguration() const;
+		virtual std::unique_ptr<Scene>	init() = 0;
+		virtual SimulationConfig		simulationConfig() const;
+		virtual bool					shouldContinue(const Scene& scene);
+		virtual void					didShutdown();
 
-		virtual bool shouldContinue(const Scene& scene);
-		virtual void didShutdown();
+		void							queueSimulationCommand(SimulationCommand command);
+		void							queuePhysicsCommand(PhysicsCommand command);
+		void							queueRenderCommand(RenderCommand command);
 
-		const std::vector<std::string>& args() const;
+		Runner&							runner();
+		const Runner&					runner() const;
 
-		/// Runner Callback Overrides ///
+		const std::vector<std::string>&	args() const;
 
-		virtual void runnerUpdate(Runner& runner,
-		                          const HostUpdateInfo& info);
+		/// Runner Callbacks ///
 
-		/// Scene Callback Overrides ///
+		virtual void			runnerUpdate(Runner &runner,
+				                         const Runner::UpdateInfo& info);
 
-		virtual void sceneWillSimulate(Scene& scene,
-		                               const SimulationStepInfo& info);
-		virtual void sceneDidSimulate(Scene& scene,
-		                              const SimulationStepInfo& info);
+		/// Input Context Callbacks ///
 
-		/// VisualWorld Callback Overrides ///
+		virtual void			inputContextDidUpdate(InputContext &inputContext,
+					                                  const InputContext::UpdateInfo& info);
 
-		virtual void visualWorldWillRender(VisualWorld& world,
-		                                   const RenderFrameInfo& info);
-		virtual void visualWorldDidRender(VisualWorld& world,
-		                                  const RenderFrameInfo& info);
+		/// Simulation Callbacks ///
 
-		/// PhysicsWorld Callback Overrides ///
+		virtual void			simulationWillTick(Scene &scene,
+					                               const Scene::TickInfo& info);
+		virtual void			simulationDidTick(Scene &scene,
+					                              const Scene::TickInfo& info);
 
-		virtual void physicsWorldWillStep(PhysicsWorld& world,
-		                                  const SimulationStepInfo& info);
-		virtual void physicsWorldDidStep(PhysicsWorld& world,
-		                                 const SimulationStepInfo& info);
+		/// Physics World Callbacks ///
+
+		virtual void			physicsWorldWillStep(PhysicsWorld &physicsWorld,
+					                                 const PhysicsWorld::StepInfo& info);
+		virtual void			physicsWorldDidStep(PhysicsWorld &physicsWorld,
+					                                const PhysicsWorld::StepInfo& info);
+
+		/// Visual World Callbacks ///
+
+		virtual void			visualWorldWillRender(VisualWorld &visualWorld,
+					                                  const VisualWorld::RenderInfo& info);
+		virtual void			visualWorldDidRender(VisualWorld &visualWorld,
+					                                 const VisualWorld::RenderInfo& info);
 
 	private:
 		/// Private Member Functions ///
 
-		void initLog(Log::Level level);
-		void prepare();
-		bool update();
-		void shutdown() noexcept;
+		template<typename Context>
+		static void		executePendingCommands(CommandQueue<Context>& queue, Context& context);
 
-		void registerCallbacks();
+		void			initLog(Log::Level level);
+		void			prepare();
+		bool			update();
+		void			shutdown() noexcept;
+		void			registerCallbacks();
+
+		void			dispatchSimulationWillTick(Scene& scene, const Scene::TickInfo& info);
+		void			dispatchPhysicsWorldWillStep(PhysicsWorld &physicsWorld,
+					                                 const PhysicsWorld::StepInfo& info);
+		void			dispatchVisualWorldWillRender(VisualWorld &visualWorld,
+					                                  const VisualWorld::RenderInfo& info);
 
 		/// Private Member Variables ///
 
-		std::vector<std::string>	_args;
-		std::unique_ptr<Scene>		_scene;
-		std::unique_ptr<Runner>		_runner; // Runner must be destroyed before Scene
-		bool						_didShutdown;;
+		std::vector<std::string>		_args;
+		std::unique_ptr<Scene>			_scene;
+		std::unique_ptr<Runner>			_runner; // Runner must be destroyed before Scene
+		bool							_didShutdown;
+		CommandQueue<Scene>				_simulationCommandQueue;
+		CommandQueue<PhysicsWorld>		_physicsCommandQueue;
+		CommandQueue<VisualWorld>		_renderCommandQueue;
+
+		/// Test Access ///
+
+		friend class testing::ApplicationTestAccess;
 	};
+
+	template<typename Context>
+	void Application::executePendingCommands(CommandQueue<Context> &queue, Context &context) {
+
+		const auto pendingCount = queue.size();
+
+		for (std::size_t i = 0; i < pendingCount; ++i) {
+
+			auto command = std::move(queue.front());
+			queue.pop();
+
+			command(context);
+		}
+	}
 }
 
 #endif //AVARA3D_APPLICATION_H

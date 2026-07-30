@@ -58,7 +58,7 @@ std::unique_ptr<Scene> App::init() {
 
 		auto scene = util::filesystem::SceneNamed("import_test/import_test");
 		scene->visualWorld(std::move(visualWorld));
-		scene->inputManager(Window::InputManager());
+		scene->inputContext(Window::InputContext());
 		scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 
 		_window->center();
@@ -80,20 +80,21 @@ void App::didShutdown() {
 
 }
 
-/// Runner Callback Overrides ///
+/// Input Context Callbacks ///
 
-void App::runnerUpdate(Runner& runner, const HostUpdateInfo& info) {
+void App::inputContextDidUpdate(InputContext& inputContext,
+                                const InputContext::UpdateInfo& info) {
 
-	auto& scene = runner.scene();
+	auto& scene = *_window->visualWorld()->scene();
 
 	auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 
 	// get input
 
-	auto im = static_cast<DesktopInputManager*>(scene.inputManager());
+	auto im = static_cast<DesktopInputContext*>(&inputContext);
 
-	using Key = DesktopInputManager::Key;
-	using MouseButton = DesktopInputManager::MouseButton;
+	using Key = DesktopInputContext::Key;
+	using MouseButton = DesktopInputContext::MouseButton;
 
 	auto keysDown = im->keysDown();
 	for (auto k : keysDown) {
@@ -173,10 +174,10 @@ void App::runnerUpdate(Runner& runner, const HostUpdateInfo& info) {
 	}
 }
 
-/// VisualWorld Callback Overrides ///
+/// Visual World Callbacks ///
 
-void App::visualWorldWillRender(VisualWorld& world,
-								const RenderFrameInfo& info) {}
+void App::visualWorldWillRender(VisualWorld& visualWorld,
+								const VisualWorld::RenderInfo& info) {}
 
-void App::visualWorldDidRender(VisualWorld& world,
-							   const RenderFrameInfo& info) {}
+void App::visualWorldDidRender(VisualWorld& visualWorld,
+							   const VisualWorld::RenderInfo& info) {}

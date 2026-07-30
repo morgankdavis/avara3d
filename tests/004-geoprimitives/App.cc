@@ -25,7 +25,7 @@ const RenderContext::AntialiasingMode	ANTIALIAS_MODE		{RenderContext::Antialiasi
 const bool								ENABLE_VSYNC		{false};
 const bool								CAPTURE_CURSOR		{false};
 const float								MOUSE_SENSITIVITY	{0.5};
-const float								PHYSICS_TIMESTEP	{1.0/120.0};
+const float								FIXED_TIMESTEP		{1.0/120.0};
 const bool								DARK				{false};
 
 /// Public Lifecycle Functions ///
@@ -53,7 +53,7 @@ std::unique_ptr<Scene> App::init() {
 
 		auto scene = make_unique<Scene>(std::move(visualWorld),
 		                                nullptr,
-		                                Window::InputManager());
+		                                Window::InputContext());
 		scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 
 		auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.1f));
@@ -220,11 +220,28 @@ void App::didShutdown() {
 
 }
 
-/// Runner Callback Overrides ///
+/// Runner Callbacks ///
 
-void App::runnerUpdate(Runner& runner, const HostUpdateInfo& info) {
+void App::runnerUpdate(Runner& runner, const Runner::UpdateInfo& info) {
 
 	auto& scene = runner.scene();
+
+	if (_pointLightPivotNode) {
+
+		// rotate the duck
+		auto rotationDeg = info.deltaTime * radians(-30.0); // 10deg/sec
+
+		auto duckSpinnerEuler = _pointLightPivotNode->eulerAngles();
+		_pointLightPivotNode->eulerAngles(vec3(0, duckSpinnerEuler.y - rotationDeg, 0));
+	}
+}
+
+/// Input Context Callbacks ///
+
+void App::inputContextDidUpdate(InputContext& inputContext,
+                                const InputContext::UpdateInfo& info) {
+
+	auto& scene = *_window->visualWorld()->scene();
 
 	Window* window = nullptr;
 	if (scene.visualWorld()) {
@@ -233,7 +250,7 @@ void App::runnerUpdate(Runner& runner, const HostUpdateInfo& info) {
 
 	// get input
 
-	auto im = static_cast<DesktopInputManager*>(scene.inputManager());
+	auto im = static_cast<DesktopInputContext*>(&inputContext);
 
 	auto keysPressed = im->keysPressed();
 	auto keysDown = im->keysDown();
@@ -243,8 +260,8 @@ void App::runnerUpdate(Runner& runner, const HostUpdateInfo& info) {
 		cursorCaptured = window->cursorCaptured();
 	}
 
-	using Key = DesktopInputManager::Key;
-	using MouseButton = DesktopInputManager::MouseButton;
+	using Key = DesktopInputContext::Key;
+	using MouseButton = DesktopInputContext::MouseButton;
 
 	if (keysPressed.count(Key::Slash)) {
 		window->cursorCaptured(!(window->cursorCaptured()));
@@ -331,20 +348,12 @@ void App::runnerUpdate(Runner& runner, const HostUpdateInfo& info) {
 		}
 	}
 
-	if (_pointLightPivotNode) {
-
-		// rotate the duck
-		auto rotationDeg = info.deltaTime * radians(-30.0); // 10deg/sec
-
-		auto duckSpinnerEuler = _pointLightPivotNode->eulerAngles();
-		_pointLightPivotNode->eulerAngles(vec3(0, duckSpinnerEuler.y - rotationDeg, 0));
-	}
 }
 
-/// VisualWorld Callback Overrides ///
+/// Visual World Callbacks ///
 
-void App::visualWorldWillRender(VisualWorld& world,
-								const RenderFrameInfo& info) {}
+void App::visualWorldWillRender(VisualWorld& visualWorld,
+								const VisualWorld::RenderInfo& info) {}
 
-void App::visualWorldDidRender(VisualWorld& world,
-							   const RenderFrameInfo& info) {}
+void App::visualWorldDidRender(VisualWorld& visualWorld,
+							   const VisualWorld::RenderInfo& info) {}

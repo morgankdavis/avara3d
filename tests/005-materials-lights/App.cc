@@ -67,7 +67,7 @@ std::unique_ptr<Scene> App::init() {
 												  | Scene::ImportOptions::ImportCameras);
 
 		scene->visualWorld(std::move(visualWorld));
-		scene->inputManager(std::move(Window::InputManager()));
+		scene->inputContext(std::move(Window::InputContext()));
 		scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 
 		auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.1f));
@@ -128,9 +128,9 @@ void App::didShutdown() {
 
 }
 
-/// Runner Callback Overrides ///
+/// Runner Callbacks ///
 
-void App::runnerUpdate(Runner& runner, const HostUpdateInfo& info) {
+void App::runnerUpdate(Runner& runner, const Runner::UpdateInfo& info) {
 
 	auto& scene = runner.scene();
 
@@ -144,16 +144,45 @@ void App::runnerUpdate(Runner& runner, const HostUpdateInfo& info) {
 	              info.elapsedTime,
 	              info.deltaTime);
 
+	// move the light
+
+	if (_pointLightNode) {
+
+		auto center = vec3(0, 30, 0);
+
+		static auto extent = scene.rootNode()->extent();
+		//static float radius = std::max(std::max(extent.x, extent.y), extent.z) * .46;
+		static float radius = math::max(extent) * .46; // a3d::math
+		static float radiusX = radius;
+		static float radiusY = radius;
+
+		static float rotationSpeed = radians(30.0); // deg/secs
+		static float angle = 0;
+		angle += rotationSpeed * info.deltaTime;
+
+		float x = math::sin(angle) * radiusX;
+		float y = math::cos(angle) * radiusY;
+
+		_pointLightNode->position(center + vec3(x, y, -x));
+	}
+}
+
+/// Input Context Callbacks ///
+
+void App::inputContextDidUpdate(InputContext& inputContext,
+                                const InputContext::UpdateInfo& info) {
+
+	auto& scene = *_window->visualWorld()->scene();
 	auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 
 	// get input
 
-	auto im = static_cast<DesktopInputManager*>(scene.inputManager());
+	auto im = static_cast<DesktopInputContext*>(&inputContext);
 	auto keysPressed = im->keysPressed();
 	auto keysDown = im->keysDown();
 
-	using Key = DesktopInputManager::Key;
-	using MouseButton = DesktopInputManager::MouseButton;
+	using Key = DesktopInputContext::Key;
+	using MouseButton = DesktopInputContext::MouseButton;
 
 	if (keysPressed.count(Key::Escape)) {
 		window->close();
@@ -299,36 +328,15 @@ void App::runnerUpdate(Runner& runner, const HostUpdateInfo& info) {
 		}
 	}
 
-	// move the light
-
-	if (_pointLightNode) {
-
-		auto center = vec3(0, 30, 0);
-
-		static auto extent = scene.rootNode()->extent();
-		//static float radius = std::max(std::max(extent.x, extent.y), extent.z) * .46;
-		static float radius = math::max(extent) * .46; // a3d::math
-		static float radiusX = radius;
-		static float radiusY = radius;
-
-		static float rotationSpeed = radians(30.0); // deg/secs
-		static float angle = 0;
-		angle += rotationSpeed * info.deltaTime;
-
-		float x = math::sin(angle) * radiusX;
-		float y = math::cos(angle) * radiusY;
-
-		_pointLightNode->position(center + vec3(x, y, -x));
-	}
 }
 
-/// VisualWorld Callback Overrides ///
+/// Visual World Callbacks ///
 
-void App::visualWorldWillRender(VisualWorld& world,
-                                const RenderFrameInfo& info) {}
+void App::visualWorldWillRender(VisualWorld& visualWorld,
+                                const VisualWorld::RenderInfo& info) {}
 
-void App::visualWorldDidRender(VisualWorld& world,
-                               const RenderFrameInfo& info) {}
+void App::visualWorldDidRender(VisualWorld& visualWorld,
+                               const VisualWorld::RenderInfo& info) {}
 
 /// Private Static Non-Member Functions ///
 

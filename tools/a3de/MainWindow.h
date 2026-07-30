@@ -13,7 +13,10 @@
 
 #include <QMainWindow>
 
+#include "a3d/Runner.h"
+#include "a3d/input/InputContext.h"
 #include "a3d/log/Log.h"
+#include "a3d/visual/VisualWorld.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -22,13 +25,9 @@ namespace Ui {
 QT_END_NAMESPACE
 
 namespace a3d {
-	struct HostUpdateInfo;
-	struct RenderFrameInfo;
 	class Mesh;
 	class Node;
-	class Runner;
 	class Scene;
-	class VisualWorld;
 }
 
 namespace a3d::qt {
@@ -51,9 +50,22 @@ namespace a3de {
 		void updateA3D();
 		void initLog(a3d::Log::Level level);
 
-		void runnerUpdate(a3d::Runner& runner, const a3d::HostUpdateInfo& info);
-		void willRenderCallback(a3d::VisualWorld& world, const a3d::RenderFrameInfo& info);
-		void didRenderCallback(a3d::VisualWorld& world, const a3d::RenderFrameInfo& info);
+		/// Runner Callbacks ///
+
+		void runnerUpdate(a3d::Runner& runner,
+		                  const a3d::Runner::UpdateInfo& info);
+
+		/// Input Context Callbacks ///
+
+		void inputContextDidUpdate(a3d::InputContext& inputContext,
+		                           const a3d::InputContext::UpdateInfo& info);
+
+		/// Visual World Callbacks ///
+
+		void visualWorldWillRender(a3d::VisualWorld& visualWorld,
+		                           const a3d::VisualWorld::RenderInfo& info);
+		void visualWorldDidRender(a3d::VisualWorld& visualWorld,
+		                          const a3d::VisualWorld::RenderInfo& info);
 
 		Ui::MainWindow*					_ui;
 		a3d::qt::QtViewport*			_viewport;

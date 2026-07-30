@@ -26,7 +26,7 @@ const RenderContext::AntialiasingMode	ANTIALIAS_MODE		{RenderContext::Antialiasi
 const bool								ENABLE_VSYNC		{false};
 const bool								CAPTURE_CURSOR		{false};
 const float								MOUSE_SENSITIVITY	{0.5};
-const double							PHYSICS_TIMESTEP	{1.0 / 120.0};
+const double							FIXED_TIMESTEP		{1.0 / 120.0};
 const bool								DARK				{false};
 
 /// Public Lifecycle Functions ///
@@ -61,7 +61,7 @@ std::unique_ptr<Scene> App::init() {
 
 		scene->visualWorld(std::move(visualWorld));
 		scene->physicsWorld(std::move(physicsWorld));
-		scene->inputManager(Window::InputManager());
+		scene->inputContext(Window::InputContext());
 
 		scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 
@@ -76,10 +76,10 @@ std::unique_ptr<Scene> App::init() {
 	}
 }
 
-SimulationConfiguration App::simulationConfiguration() const {
+SimulationConfig App::simulationConfig() const {
 	return {
 		.timing = SimulationTiming::FixedStep,
-		.fixedDeltaTime = PHYSICS_TIMESTEP
+		.fixedDeltaTime = FIXED_TIMESTEP
 	};
 }
 
@@ -91,21 +91,21 @@ void App::didShutdown() {
 
 }
 
-/// Runner Callback Overrides ///
+/// Input Context Callbacks ///
 
-void App::runnerUpdate(Runner& runner, const HostUpdateInfo& info) {
+void App::inputContextDidUpdate(InputContext& inputContext,
+                                const InputContext::UpdateInfo& info) {
 
-	auto& scene = runner.scene();
+	auto& scene = *_window->visualWorld()->scene();
 
 	Window* window = nullptr;
 	if (scene.visualWorld()) {
 		window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 	}
 
-
 	// get input
 
-	auto im = static_cast<DesktopInputManager*>(scene.inputManager());
+	auto im = static_cast<DesktopInputContext*>(&inputContext);
 
 	auto mouseButtonsDown = im->mouseButtonsDown();
 	auto mouseButtonsPressed = im->mouseButtonsPressed();
@@ -116,8 +116,8 @@ void App::runnerUpdate(Runner& runner, const HostUpdateInfo& info) {
 		cursorCaptured = window->cursorCaptured();
 	}
 
-	using Key = DesktopInputManager::Key;
-	using MouseButton = DesktopInputManager::MouseButton;
+	using Key = DesktopInputContext::Key;
+	using MouseButton = DesktopInputContext::MouseButton;
 
 	if (keysPressed.count(Key::Escape)) {
 		window->close();
@@ -323,10 +323,10 @@ void App::runnerUpdate(Runner& runner, const HostUpdateInfo& info) {
 	}
 }
 
-/// VisualWorld Callback Overrides ///
+/// Visual World Callbacks ///
 
-void App::visualWorldWillRender(VisualWorld& world,
-								const RenderFrameInfo& info) {}
+void App::visualWorldWillRender(VisualWorld& visualWorld,
+								const VisualWorld::RenderInfo& info) {}
 
-void App::visualWorldDidRender(VisualWorld& world,
-							   const RenderFrameInfo& info) {}
+void App::visualWorldDidRender(VisualWorld& visualWorld,
+							   const VisualWorld::RenderInfo& info) {}

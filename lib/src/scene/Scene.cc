@@ -14,7 +14,7 @@
 
 #include "a3d/Buffer.h"
 #include "a3d/Color.h"
-#include "a3d/input/InputManager.h"
+#include "a3d/input/InputContext.h"
 #include "a3d/log/Log.h"
 #include "a3d/physics/PhysicsWorld.h"
 #include "a3d/profile/Profile.h"
@@ -42,10 +42,10 @@ Scene::Scene():
 		_rootNode{make_shared<Node>("root node")},
 		_visualWorld{},
 		_physicsWorld{},
-		_inputManager{},
+		_inputContext{},
 		_debugOptions{DebugOptions::None},
-		_willSimulateCallback{},
-		_didSimulateCallback{} {
+		_willTickCallback{},
+		_didTickCallback{} {
 
 	_rootNode->attachedToScene(*this);
 }
@@ -58,23 +58,23 @@ Scene::Scene(const string& name):
 
 Scene::Scene(unique_ptr<VisualWorld> visualWorld,
 			 unique_ptr<PhysicsWorld> physicsWorld,
-			 unique_ptr<InputManager> inputManager):
+			 unique_ptr<InputContext> inputContext):
 		Scene() {
 
 	_visualWorld = std::move(visualWorld);
 	_physicsWorld = std::move(physicsWorld);
-	_inputManager = std::move(inputManager);
+	_inputContext = std::move(inputContext);
 
 	if (_visualWorld) _visualWorld->attachedToScene(*this);
 	if (_physicsWorld) _physicsWorld->attachedToScene(*this);
-	if (_inputManager) _inputManager->attachedToScene(*this);
+	if (_inputContext) _inputContext->attachedToScene(*this);
 }
 
 Scene::Scene(const string& name,
 			 unique_ptr<VisualWorld> visualWorld,
 			 unique_ptr<PhysicsWorld> physicsWorld,
-			 unique_ptr<InputManager> inputManager):
-		Scene(std::move(visualWorld), std::move(physicsWorld), std::move(inputManager)) {
+			 unique_ptr<InputContext> inputContext):
+		Scene(std::move(visualWorld), std::move(physicsWorld), std::move(inputContext)) {
 
 	_name = name;
 }
@@ -91,7 +91,7 @@ Scene::~Scene() {
 	if (_rootNode) _rootNode->detachedFromScene(*this);
 	if (_visualWorld) _visualWorld->detachedFromScene(*this);
 	if (_physicsWorld) _physicsWorld->detachedFromScene(*this);
-//	if (_inputManager) _inputManager->detachedFromScene(*this);
+//	if (_inputContext) _inputContext->detachedFromScene(*this);
 }
 
 /// Public Member Functions ///
@@ -148,8 +148,8 @@ void Scene::visualWorld(unique_ptr<VisualWorld> world) {
 			_rootNode->visualWorldAttachedToScene(*_visualWorld, *this);
 		}
 
-		if (_inputManager) {
-			_inputManager->visualWorldAttachedToScene(*this);
+		if (_inputContext) {
+			_inputContext->visualWorldAttachedToScene(*this);
 		}
 	}
 }
@@ -181,20 +181,20 @@ void Scene::physicsWorld(unique_ptr<PhysicsWorld> world) {
 	}
 }
 
-InputManager* Scene::inputManager() const {
-	return _inputManager.get();
+InputContext* Scene::inputContext() const {
+	return _inputContext.get();
 }
 
-void Scene::inputManager(unique_ptr<InputManager> inputManager) {
+void Scene::inputContext(unique_ptr<InputContext> inputContext) {
 
-	if (_inputManager) {
-//		_inputManager->detachedFromScene(*this);
+	if (_inputContext) {
+//		_inputContext->detachedFromScene(*this);
 	}
 
-	_inputManager = std::move(inputManager);
+	_inputContext = std::move(inputContext);
 
-	if (_inputManager) {
-		_inputManager->attachedToScene(*this);
+	if (_inputContext) {
+		_inputContext->attachedToScene(*this);
 	}
 }
 
@@ -231,25 +231,25 @@ void Scene::debugOptions(DebugOptions options) {
 	_debugOptions = options;
 }
 
-Scene::WillSimulateCallback Scene::willSimulateCallback() const {
-	return _willSimulateCallback;
+Scene::WillTickCallback Scene::willTickCallback() const {
+	return _willTickCallback;
 }
 
-void Scene::willSimulateCallback(WillSimulateCallback callback) {
-	_willSimulateCallback = callback;
+void Scene::willTickCallback(WillTickCallback callback) {
+	_willTickCallback = callback;
 }
 
-Scene::DidSimulateCallback Scene::didSimulateCallback() const {
-	return _didSimulateCallback;
+Scene::DidTickCallback Scene::didTickCallback() const {
+	return _didTickCallback;
 }
 
-void Scene::didSimulateCallback(DidSimulateCallback callback) {
-	_didSimulateCallback = callback;
+void Scene::didTickCallback(DidTickCallback callback) {
+	_didTickCallback = callback;
 }
 
 /// Internal Member Functions ///
 
-void Scene::updateHostEvents(Profiler& profiler) {
+void Scene::pollEvents(Profiler& profiler) {
 
 	if (_visualWorld) {
 		if (auto renderContext = _visualWorld->renderContext()) {
@@ -260,20 +260,27 @@ void Scene::updateHostEvents(Profiler& profiler) {
 	}
 }
 
-void Scene::updateInput(Profiler& profiler) {
+void Scene::updateInput(const InputContext::UpdateInfo& info,
+						Profiler& profiler) {
 
-	if (_inputManager) {
+	if (_inputContext) {
 
 		prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
-			_inputManager->update();
+			_inputContext->update();
 		});
+
+		if (auto callback = _inputContext->didUpdateCallback()) {
+			prof::profile(profiler, Profiler::Tag::Application, [&] {
+				callback(*_inputContext, info);
+			});
+		}
 	}
 }
 
-PhysicsInventory Scene::simulate(const SimulationStepInfo& info,
-                                 Profiler& profiler) {
+PhysicsInventory Scene::tickSimulation(const TickInfo& info,
+									   Profiler& profiler) {
 
-	if (auto callback = willSimulateCallback()) {
+	if (auto callback = willTickCallback()) {
 		prof::profile(profiler, Profiler::Tag::Application, [&] {
 			callback(*this, info);
 		});
@@ -281,10 +288,17 @@ PhysicsInventory Scene::simulate(const SimulationStepInfo& info,
 
 	PhysicsInventory inventory{};
 	if (_physicsWorld) {
-		inventory = _physicsWorld->step(info, profiler);
+		const PhysicsWorld::StepInfo stepInfo {
+			.tickIndex = info.tickIndex,
+			.startTime = info.startTime,
+			.endTime = info.endTime,
+			.deltaTime = info.deltaTime
+		};
+
+		inventory = _physicsWorld->step(stepInfo, profiler);
 	}
 
-	if (auto callback = didSimulateCallback()) {
+	if (auto callback = didTickCallback()) {
 		prof::profile(profiler, Profiler::Tag::Application, [&] {
 			callback(*this, info);
 		});

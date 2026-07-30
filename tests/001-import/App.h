@@ -14,10 +14,8 @@
 #include "a3d/Application.h"
 
 namespace a3d {
-	struct HostUpdateInfo;
-	struct RenderFrameInfo;
+	class InputContext;
 	class Node;
-	class Runner;
 	class Scene;
 	class VisualWorld;
 	class Window;
@@ -42,24 +40,21 @@ namespace test::import {
 	protected:
 		/// Protected Member Functions ///
 
-		std::unique_ptr<a3d::Scene> init() override;
+		std::unique_ptr<a3d::Scene>		init() override;
+		bool							shouldContinue(const a3d::Scene& scene) override;
+		void							didShutdown() override;
 
-		bool shouldContinue(const a3d::Scene& scene) override;
+		/// Input Context Callbacks ///
 
-		void didShutdown() override;
+		void		inputContextDidUpdate(a3d::InputContext &inputContext,
+				                          const a3d::InputContext::UpdateInfo &info) override;
 
-		/// Runner Callback Overrides ///
+		/// Visual World Callbacks ///
 
-		void runnerUpdate(a3d::Runner& runner,
-		                  const a3d::HostUpdateInfo& info) override;
-
-		/// VisualWorld Callback Overrides ///
-
-		void visualWorldDidRender(a3d::VisualWorld& world,
-		                          const a3d::RenderFrameInfo& info) override;
-
-		void visualWorldWillRender(a3d::VisualWorld& world,
-		                           const a3d::RenderFrameInfo& info) override;
+		void		visualWorldWillRender(a3d::VisualWorld &visualWorld,
+				                          const a3d::VisualWorld::RenderInfo& info) override;
+		void		visualWorldDidRender(a3d::VisualWorld &visualWorld,
+				                         const a3d::VisualWorld::RenderInfo &info) override;
 
 	private:
 		/// Private Member Variables ///

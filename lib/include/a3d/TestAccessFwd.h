@@ -8,6 +8,7 @@
 
 namespace a3d::testing {
 
+	class ApplicationTestAccess;
 	class RunnerTestAccess;
 }
 

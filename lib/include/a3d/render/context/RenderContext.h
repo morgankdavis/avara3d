@@ -20,7 +20,6 @@ namespace a3d {
 
 	class Camera;
 	class Image;
-	class InputManager;
 	class Material;
 	class Node;
 	class Renderer;
@@ -95,7 +94,7 @@ namespace a3d {
 		virtual math::uvec2				framebufferSize() const = 0;
 		math::vec2						viewportScale() const;
 
-		virtual void 					saveGIFFrame(double hostDeltaTime);
+		virtual void 					saveGIFFrame(double updateDeltaTime);
 
 		void							attachedToVisualWorld(VisualWorld* world);
 		void							detachedFromVisualWorld(VisualWorld* world);
