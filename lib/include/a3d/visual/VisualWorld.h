@@ -50,17 +50,12 @@ namespace a3d {
 			// monotonic delta for the containing Runner update
 			double			updateDeltaTime{0.0};
 
-			// time reached by the most recently completed simulation tick
+			// time reached by the most recently completed simulation step
 			double			simulationTime{0.0};
 
-			// total number of completed simulation ticks
-			std::uint64_t	simulationTickCount{0};
+			// total number of completed simulation steps
+			std::uint64_t	simulationStepCount{0};
 		};
-
-		using WillRenderCallback = std::function<void(VisualWorld &visualWorld,
-		                                              const RenderInfo &info)>;
-		using DidRenderCallback = std::function<void(VisualWorld &visualWorld,
-		                                             const RenderInfo &info)>;
 
 		/// Public Lifecycle Functions ///
 
@@ -107,16 +102,25 @@ namespace a3d {
 
 		Scene*								scene() const;
 
-		WillRenderCallback 					willRenderCallback() const;
-		void 								willRenderCallback(WillRenderCallback function);
+		/// Internal Types ///
 
-		DidRenderCallback 					didRenderCallback() const;
-		void 								didRenderCallback(DidRenderCallback function);
+		using ProcessRenderCommandsCallback =
+			std::function<void(VisualWorld &visualWorld,
+			                   const RenderInfo &info)>;
+		using RenderFrameCallback = std::function<void(VisualWorld &visualWorld,
+		                                               const RenderInfo &info)>;
 
 		/// Internal Member Functions ///
 
 		void								attachedToScene(Scene& scene);
 		void								detachedFromScene(Scene& scene);
+
+		ProcessRenderCommandsCallback		processRenderCommandsCallback() const;
+		void								processRenderCommandsCallback(
+												 ProcessRenderCommandsCallback function);
+
+		RenderFrameCallback					renderFrameCallback() const;
+		void								renderFrameCallback(RenderFrameCallback function);
 
 		bool								draw(const Scene& scene,
 												 const PhysicsWorld* physicsWorld,
@@ -147,8 +151,8 @@ namespace a3d {
 		std::weak_ptr<Node>					_pointOfView;
 		RenderContext*						_renderContext;
 		Scene*								_scene;
-		WillRenderCallback 					_willRenderCallback;
-		DidRenderCallback 					_didRenderCallback;
+		ProcessRenderCommandsCallback		_processRenderCommandsCallback;
+		RenderFrameCallback					_renderFrameCallback;
 	};
 }
 

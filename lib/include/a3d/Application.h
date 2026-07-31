@@ -17,8 +17,6 @@
 #include "a3d/CommandQueue.h"
 #include "a3d/Runner.h"
 #include "a3d/SimulationConfig.h"
-#include "a3d/input/InputContext.h"
-#include "a3d/physics/PhysicsWorld.h"
 #include "a3d/scene/Scene.h"
 #include "a3d/visual/VisualWorld.h"
 #include "log/Log.h"
@@ -49,8 +47,7 @@ namespace a3d {
 	protected:
 		/// Protected Types ///
 
-		using SimulationCommand =		CommandQueue<Scene>::value_type;
-		using PhysicsCommand =			CommandQueue<PhysicsWorld>::value_type;
+		using SceneCommand =			CommandQueue<Scene>::value_type;
 		using RenderCommand =			CommandQueue<VisualWorld>::value_type;
 
 		/// Protected Member Functions ///
@@ -60,8 +57,7 @@ namespace a3d {
 		virtual bool					shouldContinue(const Scene& scene);
 		virtual void					didShutdown();
 
-		void							queueSimulationCommand(SimulationCommand command);
-		void							queuePhysicsCommand(PhysicsCommand command);
+		void							queueSceneCommand(SceneCommand command);
 		void							queueRenderCommand(RenderCommand command);
 
 		Runner&							runner();
@@ -71,34 +67,20 @@ namespace a3d {
 
 		/// Runner Callbacks ///
 
-		virtual void			runnerUpdate(Runner &runner,
-				                         const Runner::UpdateInfo& info);
+		virtual void					hostUpdate(Runner& runner,
+							                       const Runner::UpdateInfo& info);
 
-		/// Input Context Callbacks ///
+		/// Scene Callbacks ///
 
-		virtual void			inputContextDidUpdate(InputContext &inputContext,
-					                                  const InputContext::UpdateInfo& info);
+		virtual void					sceneWillStep(Scene& scene,
+							                          const Scene::StepInfo& info);
+		virtual void					sceneDidStep(Scene& scene,
+							                         const Scene::StepInfo& info);
 
-		/// Simulation Callbacks ///
+		/// VisualWorld Callbacks ///
 
-		virtual void			simulationWillTick(Scene &scene,
-					                               const Scene::TickInfo& info);
-		virtual void			simulationDidTick(Scene &scene,
-					                              const Scene::TickInfo& info);
-
-		/// Physics World Callbacks ///
-
-		virtual void			physicsWorldWillStep(PhysicsWorld &physicsWorld,
-					                                 const PhysicsWorld::StepInfo& info);
-		virtual void			physicsWorldDidStep(PhysicsWorld &physicsWorld,
-					                                const PhysicsWorld::StepInfo& info);
-
-		/// Visual World Callbacks ///
-
-		virtual void			visualWorldWillRender(VisualWorld &visualWorld,
-					                                  const VisualWorld::RenderInfo& info);
-		virtual void			visualWorldDidRender(VisualWorld &visualWorld,
-					                                 const VisualWorld::RenderInfo& info);
+		virtual void					renderFrame(VisualWorld& visualWorld,
+							                        const VisualWorld::RenderInfo& info);
 
 	private:
 		/// Private Member Functions ///
@@ -112,11 +94,13 @@ namespace a3d {
 		void			shutdown() noexcept;
 		void			registerCallbacks();
 
-		void			dispatchSimulationWillTick(Scene& scene, const Scene::TickInfo& info);
-		void			dispatchPhysicsWorldWillStep(PhysicsWorld &physicsWorld,
-					                                 const PhysicsWorld::StepInfo& info);
-		void			dispatchVisualWorldWillRender(VisualWorld &visualWorld,
+		void			dispatchHostUpdate(Runner& runner, const Runner::UpdateInfo& info);
+		void			dispatchSceneWillStep(Scene& scene, const Scene::StepInfo& info);
+		void			dispatchSceneDidStep(Scene& scene, const Scene::StepInfo& info);
+		void			dispatchPendingRenderCommands(VisualWorld& visualWorld,
 					                                  const VisualWorld::RenderInfo& info);
+		void			dispatchRenderFrame(VisualWorld& visualWorld,
+					                        const VisualWorld::RenderInfo& info);
 
 		/// Private Member Variables ///
 
@@ -124,8 +108,7 @@ namespace a3d {
 		std::unique_ptr<Scene>			_scene;
 		std::unique_ptr<Runner>			_runner; // Runner must be destroyed before Scene
 		bool							_didShutdown;
-		CommandQueue<Scene>				_simulationCommandQueue;
-		CommandQueue<PhysicsWorld>		_physicsCommandQueue;
+		CommandQueue<Scene>				_sceneCommandQueue;
 		CommandQueue<VisualWorld>		_renderCommandQueue;
 
 		/// Test Access ///
@@ -135,14 +118,10 @@ namespace a3d {
 
 	template<typename Context>
 	void Application::executePendingCommands(CommandQueue<Context> &queue, Context &context) {
-
 		const auto pendingCount = queue.size();
-
 		for (std::size_t i = 0; i < pendingCount; ++i) {
-
 			auto command = std::move(queue.front());
 			queue.pop();
-
 			command(context);
 		}
 	}

@@ -14,9 +14,7 @@
 #include "a3d/Application.h"
 
 namespace a3d {
-	class Runner;
 	class Scene;
-	class VisualWorld;
 	class Window;
 }
 
@@ -46,15 +44,8 @@ namespace test::scenegraph {
 
 		/// Runner Callbacks ///
 
-		void		runnerUpdate(a3d::Runner &runner,
-				                 const a3d::Runner::UpdateInfo& info) override;
-
-		/// Visual World Callbacks ///
-
-		void		visualWorldWillRender(a3d::VisualWorld &visualWorld,
-				                          const a3d::VisualWorld::RenderInfo& info) override;
-		void		visualWorldDidRender(a3d::VisualWorld &visualWorld,
-				                         const a3d::VisualWorld::RenderInfo &info) override;
+		void							hostUpdate(a3d::Runner& runner,
+									               const a3d::Runner::UpdateInfo& info) override;
 
 	private:
 		/// Private Member Variables ///

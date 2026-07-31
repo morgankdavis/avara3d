@@ -10,20 +10,19 @@
 
 #include <stdexcept>
 
+#include "a3d/visual/VisualWorld.h"
+
 #ifdef A3D_WEB
 	#include <emscripten/emscripten.h>
 #endif
 
 #include "a3d/BuildInfo.h"
 #include "a3d/Runner.h"
-#include "a3d/input/InputContext.h"
 #include "a3d/log/Log.h"
 #include "a3d/log/sink/FileLogSink.h"
 #include "a3d/log/sink/StdOutLogSink.h"
-#include "a3d/physics/PhysicsWorld.h"
 #include "a3d/scene/Scene.h"
 #include "a3d/util/Filesystem.h"
-#include "a3d/visual/VisualWorld.h"
 
 using namespace a3d;
 using namespace std;
@@ -34,8 +33,7 @@ Application::Application(int argc, char *argv[], Log::Level logLevel):
 	_scene{},
 	_runner{},
 	_didShutdown{false},
-	_simulationCommandQueue{},
-	_physicsCommandQueue{},
+	_sceneCommandQueue{},
 	_renderCommandQueue{} {
 	initLog(logLevel);
 }
@@ -172,55 +170,56 @@ void Application::shutdown() noexcept {
 
 void Application::registerCallbacks() {
 
-	_runner->updateCallback(bind(&Application::runnerUpdate, this, _1, _2));
+	_runner->updateCallback(
+		bind(&Application::dispatchHostUpdate, this, _1, _2));
 
-	if (auto* inputContext = _scene->inputContext()) {
-		inputContext->didUpdateCallback(
-			bind(&Application::inputContextDidUpdate, this, _1, _2));
-	}
-
-	_scene->willTickCallback(
-		bind(&Application::dispatchSimulationWillTick, this, _1, _2));
-	_scene->didTickCallback(
-		bind(&Application::simulationDidTick, this, _1, _2));
-
-	if (auto* world = _scene->physicsWorld()) {
-		world->willStepCallback(
-			bind(&Application::dispatchPhysicsWorldWillStep, this, _1, _2));
-		world->didStepCallback(
-			bind(&Application::physicsWorldDidStep, this, _1, _2));
-	}
+	_scene->willStepCallback(
+		bind(&Application::dispatchSceneWillStep, this, _1, _2));
+	_scene->didStepCallback(
+		bind(&Application::dispatchSceneDidStep, this, _1, _2));
 
 	if (auto* world = _scene->visualWorld()) {
-		world->willRenderCallback(
-			bind(&Application::dispatchVisualWorldWillRender, this, _1, _2));
-		world->didRenderCallback(
-			bind(&Application::visualWorldDidRender, this, _1, _2));
+		world->processRenderCommandsCallback(
+			bind(&Application::dispatchPendingRenderCommands, this, _1, _2));
+		world->renderFrameCallback(
+			bind(&Application::dispatchRenderFrame, this, _1, _2));
 	}
 }
 
-void Application::dispatchSimulationWillTick(
+void Application::dispatchHostUpdate(
+		Runner& runner,
+		const Runner::UpdateInfo& info) {
+
+	hostUpdate(runner, info);
+}
+
+void Application::dispatchSceneWillStep(
 		Scene& scene,
-		const Scene::TickInfo& info) {
+		const Scene::StepInfo& info) {
 
-	executePendingCommands(_simulationCommandQueue, scene);
-	simulationWillTick(scene, info);
+	executePendingCommands(_sceneCommandQueue, scene);
+	sceneWillStep(scene, info);
 }
 
-void Application::dispatchPhysicsWorldWillStep(
-		PhysicsWorld& physicsWorld,
-		const PhysicsWorld::StepInfo& info) {
+void Application::dispatchSceneDidStep(
+		Scene& scene,
+		const Scene::StepInfo& info) {
 
-	executePendingCommands(_physicsCommandQueue, physicsWorld);
-	physicsWorldWillStep(physicsWorld, info);
+	sceneDidStep(scene, info);
 }
 
-void Application::dispatchVisualWorldWillRender(
+void Application::dispatchPendingRenderCommands(
+		VisualWorld& visualWorld,
+		const VisualWorld::RenderInfo&) {
+
+	executePendingCommands(_renderCommandQueue, visualWorld);
+}
+
+void Application::dispatchRenderFrame(
 		VisualWorld& visualWorld,
 		const VisualWorld::RenderInfo& info) {
 
-	executePendingCommands(_renderCommandQueue, visualWorld);
-	visualWorldWillRender(visualWorld, info);
+	renderFrame(visualWorld, info);
 }
 
 SimulationConfig Application::simulationConfig() const {
@@ -231,12 +230,8 @@ bool Application::shouldContinue(const Scene&) { return true; }
 
 void Application::didShutdown() {}
 
-void Application::queueSimulationCommand(SimulationCommand command) {
-	_simulationCommandQueue.push(std::move(command));
-}
-
-void Application::queuePhysicsCommand(PhysicsCommand command) {
-	_physicsCommandQueue.push(std::move(command));
+void Application::queueSceneCommand(SceneCommand command) {
+	_sceneCommandQueue.push(std::move(command));
 }
 
 void Application::queueRenderCommand(RenderCommand command) {
@@ -267,39 +262,18 @@ const vector<string>& Application::args() const {
 
 /// Runner Callbacks ///
 
-void Application::runnerUpdate(Runner& runner,
-                               const Runner::UpdateInfo& info) {}
+void Application::hostUpdate(Runner& runner,
+                             const Runner::UpdateInfo& info) {}
 
-/// Input Context Callbacks ///
+/// Scene Callbacks ///
 
-void Application::inputContextDidUpdate(
-		InputContext& inputContext,
-		const InputContext::UpdateInfo& info) {}
+void Application::sceneWillStep(Scene& scene,
+                                const Scene::StepInfo& info) {}
 
-/// Simulation Callbacks ///
+void Application::sceneDidStep(Scene& scene,
+                               const Scene::StepInfo& info) {}
 
-void Application::simulationWillTick(Scene& scene,
-                                     const Scene::TickInfo& info) {}
+/// VisualWorld Callbacks ///
 
-void Application::simulationDidTick(Scene& scene,
-                                    const Scene::TickInfo& info) {}
-
-/// Physics World Callbacks ///
-
-void Application::physicsWorldWillStep(
-		PhysicsWorld& physicsWorld,
-		const PhysicsWorld::StepInfo& info) {}
-
-void Application::physicsWorldDidStep(
-		PhysicsWorld& physicsWorld,
-		const PhysicsWorld::StepInfo& info) {}
-
-/// Visual World Callbacks ///
-
-void Application::visualWorldWillRender(
-		VisualWorld& visualWorld,
-		const VisualWorld::RenderInfo& info) {}
-
-void Application::visualWorldDidRender(
-		VisualWorld& visualWorld,
-		const VisualWorld::RenderInfo& info) {}
+void Application::renderFrame(VisualWorld& visualWorld,
+                              const VisualWorld::RenderInfo& info) {}

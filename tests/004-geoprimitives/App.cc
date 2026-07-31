@@ -222,26 +222,11 @@ void App::didShutdown() {
 
 /// Runner Callbacks ///
 
-void App::runnerUpdate(Runner& runner, const Runner::UpdateInfo& info) {
+void App::hostUpdate(Runner& runner,
+                     const Runner::UpdateInfo& info) {
 
 	auto& scene = runner.scene();
-
-	if (_pointLightPivotNode) {
-
-		// rotate the duck
-		auto rotationDeg = info.deltaTime * radians(-30.0); // 10deg/sec
-
-		auto duckSpinnerEuler = _pointLightPivotNode->eulerAngles();
-		_pointLightPivotNode->eulerAngles(vec3(0, duckSpinnerEuler.y - rotationDeg, 0));
-	}
-}
-
-/// Input Context Callbacks ///
-
-void App::inputContextDidUpdate(InputContext& inputContext,
-                                const InputContext::UpdateInfo& info) {
-
-	auto& scene = *_window->visualWorld()->scene();
+	auto& inputContext = *scene.inputContext();
 
 	Window* window = nullptr;
 	if (scene.visualWorld()) {
@@ -348,12 +333,12 @@ void App::inputContextDidUpdate(InputContext& inputContext,
 		}
 	}
 
+	if (_pointLightPivotNode) {
+
+		// rotate the duck
+		auto rotationDeg = info.deltaTime * radians(-30.0); // 10deg/sec
+
+		auto duckSpinnerEuler = _pointLightPivotNode->eulerAngles();
+		_pointLightPivotNode->eulerAngles(vec3(0, duckSpinnerEuler.y - rotationDeg, 0));
+	}
 }
-
-/// Visual World Callbacks ///
-
-void App::visualWorldWillRender(VisualWorld& visualWorld,
-								const VisualWorld::RenderInfo& info) {}
-
-void App::visualWorldDidRender(VisualWorld& visualWorld,
-							   const VisualWorld::RenderInfo& info) {}

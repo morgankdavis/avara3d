@@ -453,6 +453,10 @@ void OGLRenderer::beginFrame(const Scene &scene,
 	_state.material = nullptr;
 
 	_boundElement = {};
+
+	ImguiUpdateScale(context);
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui::NewFrame();
 }
 
 void OGLRenderer::endFrame(const Scene &scene,
@@ -1075,7 +1079,7 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 	} else {
 		environmentStruct.useDefaultLighting = 0u;
 
-		stats.numLights = numLights;
+		stats.lights = numLights;
 
 		vector<AmbientLightGLSLStruct> ambientStructs;
 		vector<DirectionalLightGLSLStruct> directionalStructs;
@@ -1293,11 +1297,6 @@ void DrawOverlay(const RenderContext &context,
                  ImFont &titleFont,
                  ImFont &bodyFont,
                  ImFont &altBodyFont) {
-	ImguiUpdateScale(context);
-
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui::NewFrame();
-
 	ImguiBeginOverlay(0, true);
 	DrawDebugOptions(const_cast<Scene &>(scene), bodyFont); // TODO: const_cast CHEATING
 
@@ -1564,58 +1563,58 @@ void DrawStats(FrameStats &stats,
 	ImguiStatsTextLayout bulkLayout = layout;
 
 	ImguiDrawLabelValue(yPos, bulkLayout,
-	                    "nodes", std::format("{}", stats.numNodes),
+	                    "nodes", std::format("{}", stats.nodes),
 	                    bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
 	ImguiDrawLabelValue(yPos, bulkLayout,
-	                    "meshes", std::format("{}", stats.numMeshes),
+	                    "meshes", std::format("{}", stats.meshes),
 	                    bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
 	ImguiDrawLabelValue(yPos, bulkLayout,
-	                    "elements", std::format("{}", stats.numElements),
+	                    "elements", std::format("{}", stats.elements),
 	                    bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
 	ImguiDrawLabelValue(yPos, bulkLayout,
-	                    "polygons", std::format("{:.1f}k", float(stats.numPolygons) / 1000.0f),
+	                    "polygons", std::format("{:.1f}k", float(stats.polygons) / 1000.0f),
 	                    bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
 	ImguiDrawLabelValue(yPos, bulkLayout,
-	                    "lights", std::format("{}", stats.numLights),
+	                    "lights", std::format("{}", stats.lights),
 	                    bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
 
 	yPos += STAT_LINE_STEP;
 
 	ImguiDrawLabelValue(yPos, bulkLayout,
 	                    "phys bodies", std::format("{}",
-	                                               stats.numDynamicBodies
-	                                               + stats.numKinematicBodies
-	                                               + stats.numStaticBodies),
+	                                               stats.dynamicBodies
+	                                               + stats.kinematicBodies
+	                                               + stats.staticBodies),
 	                    bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
 	ImguiDrawLabelValueIndented(yPos, bulkLayout,
-	                            "static", std::format("{}", stats.numStaticBodies),
+	                            "static", std::format("{}", stats.staticBodies),
 	                            bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
 	ImguiDrawLabelValueIndented(yPos, bulkLayout,
-	                            "dynamic", std::format("{}", stats.numDynamicBodies),
+	                            "dynamic", std::format("{}", stats.dynamicBodies),
 	                            bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
 	ImguiDrawLabelValueIndented(yPos, bulkLayout,
-	                            "kinematic", std::format("{}", stats.numKinematicBodies),
+	                            "kinematic", std::format("{}", stats.kinematicBodies),
 	                            bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
 
 	yPos += STAT_LINE_STEP;
 
 	ImguiDrawLabelValue(yPos, bulkLayout,
 	                    "phys shapes", std::format("{}",
-	                                               stats.numConcavePolyhedronShapes
-	                                               + stats.numBoundingBoxShapes
-	                                               + stats.numConvexHullShapes),
+	                                               stats.concavePolyhedronShapes
+	                                               + stats.boundingBoxShapes
+	                                               + stats.convexHullShapes),
 	                    bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
 	ImguiDrawLabelValueIndented(yPos, bulkLayout,
-	                            "primitive", std::format("{}", stats.numPrimitiveShapes),
+	                            "primitive", std::format("{}", stats.primitiveShapes),
 	                            bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
 	ImguiDrawLabelValueIndented(yPos, bulkLayout,
-	                            "bbox", std::format("{}", stats.numBoundingBoxShapes),
+	                            "bbox", std::format("{}", stats.boundingBoxShapes),
 	                            bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
 	ImguiDrawLabelValueIndented(yPos, bulkLayout,
-	                            "convex", std::format("{}", stats.numConvexHullShapes),
+	                            "convex", std::format("{}", stats.convexHullShapes),
 	                            bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
 	ImguiDrawLabelValueIndented(yPos, bulkLayout,
-	                            "concave", std::format("{}", stats.numConcavePolyhedronShapes),
+	                            "concave", std::format("{}", stats.concavePolyhedronShapes),
 	                            bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
 
 	if (context.recordingGIF()) {

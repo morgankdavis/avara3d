@@ -90,12 +90,13 @@ void App::didShutdown() {
 
 }
 
-/// Input Context Callbacks ///
+/// Runner Callbacks ///
 
-void App::inputContextDidUpdate(InputContext& inputContext,
-                                const InputContext::UpdateInfo& info) {
+void App::hostUpdate(Runner& runner,
+                     const Runner::UpdateInfo& info) {
 
-	auto& scene = *_window->visualWorld()->scene();
+	auto& scene = runner.scene();
+	auto& inputContext = *scene.inputContext();
 
 	Window* window = nullptr;
 	if (scene.visualWorld()) {
@@ -321,11 +322,3 @@ void App::inputContextDidUpdate(InputContext& inputContext,
 		}
 	}
 }
-
-/// Visual World Callbacks ///
-
-void App::visualWorldWillRender(VisualWorld& visualWorld,
-								const VisualWorld::RenderInfo& info) {}
-
-void App::visualWorldDidRender(VisualWorld& visualWorld,
-							   const VisualWorld::RenderInfo& info) {}

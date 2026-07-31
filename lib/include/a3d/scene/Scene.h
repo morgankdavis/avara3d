@@ -17,7 +17,6 @@
 #include <string>
 
 #include "a3d/Math.h"
-#include "a3d/input/InputContext.h"
 #include "a3d/physics/PhysicsInventory.h"
 #include "a3d/util/Bitmask.h"
 
@@ -26,6 +25,7 @@ namespace a3d {
 	struct AABB;
 
 	class Color;
+	class InputContext;
 	class Mesh;
 	class Node;
 	class PhysicsWorld;
@@ -65,25 +65,25 @@ namespace a3d {
 			ShowPhysicsConstraintLimits	=	1 << 11
 		};
 
-		struct TickInfo {
+		struct StepInfo {
 
-			// zero-based simulation-tick index
-			std::uint64_t tickIndex{0};
+			// zero-based simulation-step index
+			std::uint64_t	stepIndex{0};
 
-			// simulation time before this tick
-			double startTime{0.0};
+			// simulation time before this step
+			double			startTime{0.0};
 
-			// simulation time after this tick completes
-			double endTime{0.0};
+			// simulation time after this step completes
+			double			endTime{0.0};
 
-			// amount of simulation time advanced by this tick
-			double deltaTime{0.0};
+			// amount of simulation time advanced by this step
+			double			deltaTime{0.0};
 		};
 
-		using WillTickCallback = std::function<void(Scene& scene,
-		                                            const TickInfo& info)>;
-		using DidTickCallback = std::function<void(Scene& scene,
-		                                           const TickInfo& info)>;
+		using WillStepCallback = std::function<void(Scene& scene,
+		                                            const StepInfo& info)>;
+		using DidStepCallback = std::function<void(Scene& scene,
+		                                           const StepInfo& info)>;
 
 		/// Public Static Member Functions ///
 
@@ -134,18 +134,17 @@ namespace a3d {
 		DebugOptions 						debugOptions() const;
 		void 								debugOptions(DebugOptions options);
 
-		WillTickCallback					willTickCallback() const;
-		void								willTickCallback(WillTickCallback callback);
+		WillStepCallback					willStepCallback() const;
+		void								willStepCallback(WillStepCallback callback);
 
-		DidTickCallback						didTickCallback() const;
-		void								didTickCallback(DidTickCallback callback);
+		DidStepCallback						didStepCallback() const;
+		void								didStepCallback(DidStepCallback callback);
 
 		/// Internal Member Functions ///
 
 		void 								pollEvents(Profiler& profiler);
-		void 								updateInput(const InputContext::UpdateInfo& info,
-													Profiler& profiler);
-		PhysicsInventory					tickSimulation(const TickInfo& info,
+		void 								updateInput(Profiler& profiler);
+		PhysicsInventory					stepSimulation(const StepInfo& info,
 													   Profiler& profiler);
 
 	private:
@@ -158,8 +157,8 @@ namespace a3d {
 		std::unique_ptr<PhysicsWorld> 		_physicsWorld;
 		std::unique_ptr<InputContext>		_inputContext;
 		DebugOptions						_debugOptions;
-		WillTickCallback					_willTickCallback;
-		DidTickCallback						_didTickCallback;
+		WillStepCallback					_willStepCallback;
+		DidStepCallback						_didStepCallback;
 	};
 
 	namespace util::bitmask {

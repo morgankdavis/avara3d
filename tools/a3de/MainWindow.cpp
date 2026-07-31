@@ -98,13 +98,7 @@ void MainWindow::initA3D() {
 		_scene->rootNode()->addChild(_bananaNode);
 
 		_runner = make_unique<Runner>(*_scene);
-		_runner->updateCallback(bind(&MainWindow::runnerUpdate, this, _1, _2));
-		_scene->inputContext()->didUpdateCallback(bind(&MainWindow::inputContextDidUpdate,
-		                                               this, _1, _2));
-		_scene->visualWorld()->willRenderCallback(bind(&MainWindow::visualWorldWillRender,
-		                                               this, _1, _2));
-		_scene->visualWorld()->didRenderCallback(bind(&MainWindow::visualWorldDidRender,
-		                                              this, _1, _2));
+		_runner->updateCallback(bind(&MainWindow::hostUpdate, this, _1, _2));
 		_runner->start();
 	}
 	catch (std::exception& e)
@@ -156,8 +150,16 @@ void MainWindow::initLog(Log::Level level) {
 
 /// Runner Callbacks ///
 
-void MainWindow::runnerUpdate(Runner& runner,
-                              const Runner::UpdateInfo& info) {
+void MainWindow::hostUpdate(Runner& runner,
+                            const Runner::UpdateInfo& info) {
+
+	auto& inputContext = static_cast<DesktopInputContext&>(*runner.scene().inputContext());
+	using Key = DesktopInputContext::Key;
+
+	if (inputContext.keysPressed().count(Key::Escape)) {
+		QCoreApplication::quit();
+	}
+
 	//log::app::t();
 
 	if (_bananaNode) {
@@ -167,32 +169,4 @@ void MainWindow::runnerUpdate(Runner& runner,
 		auto rotY = math::quaternion({0.0f, 1.0f, 0.0f}, rotationDeg);
 		_bananaNode->orientation(rotY * _bananaNode->orientation());
 	}
-}
-
-/// Input Context Callbacks ///
-
-void MainWindow::inputContextDidUpdate(InputContext& inputContext,
-                                       const InputContext::UpdateInfo& info) {
-
-	auto& desktopInputContext =
-		static_cast<DesktopInputContext&>(inputContext);
-	using Key = DesktopInputContext::Key;
-
-	if (desktopInputContext.keysPressed().count(Key::Escape)) {
-		QCoreApplication::quit();
-	}
-}
-
-/// Visual World Callbacks ///
-
-void MainWindow::visualWorldWillRender(
-		VisualWorld& visualWorld,
-		const VisualWorld::RenderInfo& info) {
-	//log::app::t();
-}
-
-void MainWindow::visualWorldDidRender(
-		VisualWorld& visualWorld,
-		const VisualWorld::RenderInfo& info) {
-	//log::app::t();
 }

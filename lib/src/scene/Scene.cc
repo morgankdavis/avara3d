@@ -44,8 +44,8 @@ Scene::Scene():
 		_physicsWorld{},
 		_inputContext{},
 		_debugOptions{DebugOptions::None},
-		_willTickCallback{},
-		_didTickCallback{} {
+		_willStepCallback{},
+		_didStepCallback{} {
 
 	_rootNode->attachedToScene(*this);
 }
@@ -231,20 +231,20 @@ void Scene::debugOptions(DebugOptions options) {
 	_debugOptions = options;
 }
 
-Scene::WillTickCallback Scene::willTickCallback() const {
-	return _willTickCallback;
+Scene::WillStepCallback Scene::willStepCallback() const {
+	return _willStepCallback;
 }
 
-void Scene::willTickCallback(WillTickCallback callback) {
-	_willTickCallback = callback;
+void Scene::willStepCallback(WillStepCallback callback) {
+	_willStepCallback = callback;
 }
 
-Scene::DidTickCallback Scene::didTickCallback() const {
-	return _didTickCallback;
+Scene::DidStepCallback Scene::didStepCallback() const {
+	return _didStepCallback;
 }
 
-void Scene::didTickCallback(DidTickCallback callback) {
-	_didTickCallback = callback;
+void Scene::didStepCallback(DidStepCallback callback) {
+	_didStepCallback = callback;
 }
 
 /// Internal Member Functions ///
@@ -260,27 +260,20 @@ void Scene::pollEvents(Profiler& profiler) {
 	}
 }
 
-void Scene::updateInput(const InputContext::UpdateInfo& info,
-						Profiler& profiler) {
+void Scene::updateInput(Profiler& profiler) {
 
 	if (_inputContext) {
 
 		prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
 			_inputContext->update();
 		});
-
-		if (auto callback = _inputContext->didUpdateCallback()) {
-			prof::profile(profiler, Profiler::Tag::Application, [&] {
-				callback(*_inputContext, info);
-			});
-		}
 	}
 }
 
-PhysicsInventory Scene::tickSimulation(const TickInfo& info,
+PhysicsInventory Scene::stepSimulation(const StepInfo& info,
 									   Profiler& profiler) {
 
-	if (auto callback = willTickCallback()) {
+	if (auto callback = willStepCallback()) {
 		prof::profile(profiler, Profiler::Tag::Application, [&] {
 			callback(*this, info);
 		});
@@ -288,17 +281,10 @@ PhysicsInventory Scene::tickSimulation(const TickInfo& info,
 
 	PhysicsInventory inventory{};
 	if (_physicsWorld) {
-		const PhysicsWorld::StepInfo stepInfo {
-			.tickIndex = info.tickIndex,
-			.startTime = info.startTime,
-			.endTime = info.endTime,
-			.deltaTime = info.deltaTime
-		};
-
-		inventory = _physicsWorld->step(stepInfo, profiler);
+		inventory = _physicsWorld->step(info.deltaTime, profiler);
 	}
 
-	if (auto callback = didTickCallback()) {
+	if (auto callback = didStepCallback()) {
 		prof::profile(profiler, Profiler::Tag::Application, [&] {
 			callback(*this, info);
 		});

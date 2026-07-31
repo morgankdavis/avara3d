@@ -15,17 +15,17 @@ namespace a3d {
 
 	struct SimulationConfig {
 
-		// constant duration of every automatic and requested simulation tick
-		double fixedDeltaTime{1.0 / 60.0};
+		// constant duration of every automatic and requested simulation step
+		double			fixedDeltaTime{1.0 / 60.0};
 
-		// maximum automatic ticks performed during one Runner::update()
-		std::uint32_t maxCatchUpSteps{8};
+		// maximum automatic steps performed during one Runner::update()
+		std::uint32_t	maxCatchUpSteps{8};
 
 		// initial automatic simulation-time rate relative to monotonic update
-		// time. requested ticks ignore timeScale.
+		// time. requested steps ignore timeScale.
 		//
 		// Runner owns the mutable runtime value.
-		double timeScale{1.0};
+		double			timeScale{1.0};
 	};
 }
 

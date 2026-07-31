@@ -86,16 +86,9 @@ void App::didShutdown() {
 
 /// Runner Callbacks ///
 
-void App::runnerUpdate(Runner& runner, const Runner::UpdateInfo&) {
+void App::hostUpdate(Runner& runner,
+                     const Runner::UpdateInfo&) {
 
 	log::app::i()("....and we're done.");
 	static_cast<Window*>(runner.scene().visualWorld()->renderContext())->close();
 }
-
-/// Visual World Callbacks ///
-
-void App::visualWorldWillRender(VisualWorld& visualWorld,
-								const VisualWorld::RenderInfo& info) {}
-
-void App::visualWorldDidRender(VisualWorld& visualWorld,
-							   const VisualWorld::RenderInfo& info) {}

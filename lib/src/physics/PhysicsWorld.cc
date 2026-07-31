@@ -31,8 +31,6 @@ using namespace std;
 PhysicsWorld::PhysicsWorld():
 		_gravity{0, -9.807, 0},
 		_scene{},
-		_willStepCallback{},
-		_didStepCallback{},
 		_beginContactCallback{},
 		_continueContactCallback{},
 		_endContactCallback{} {
@@ -91,22 +89,6 @@ void PhysicsWorld::updateCollisionPairs() {
 
 Scene* PhysicsWorld::scene() const {
 	return _scene;
-}
-
-PhysicsWorld::WillStepCallback PhysicsWorld::willStepCallback() const {
-	return _willStepCallback;
-}
-
-void PhysicsWorld::willStepCallback(WillStepCallback function) {
-	_willStepCallback = function;
-}
-
-PhysicsWorld::DidStepCallback PhysicsWorld::didStepCallback() const {
-	return _didStepCallback;
-}
-
-void PhysicsWorld::didStepCallback(DidStepCallback function) {
-	_didStepCallback = function;
 }
 
 PhysicsWorld::BeginContactCallback PhysicsWorld::beginContactCallback() const {
@@ -181,34 +163,21 @@ bool PhysicsWorld::acceptsStepDelta(double deltaTime) const {
 		&& _proxy->acceptsStepDelta(deltaTime);
 }
 
-PhysicsInventory PhysicsWorld::step(const StepInfo& info,
-									 Profiler& profiler) {
+PhysicsInventory PhysicsWorld::step(double deltaTime, Profiler& profiler) {
 
 	if (!util::flow::edge_guard(_proxy, [&] {
 		log::e()("No PhysicsWorldProxy attached to PhysicsWorld {:p}.", static_cast<void*>(this));
 	})) return {};
 
-	if (!acceptsStepDelta(info.deltaTime)) {
+	if (!acceptsStepDelta(deltaTime)) {
 		throw invalid_argument("PhysicsWorld::step() requires an accepted positive, finite delta time.");
 	}
 
-	if (auto willStep = PhysicsWorld::willStepCallback()) {
-		prof::profile(profiler, Profiler::Tag::Application, [&] {
-			willStep(*this, info);
-		});
-	}
+	_proxy->step(deltaTime, profiler);
 
-	_proxy->step(info.deltaTime, profiler);
-
-	auto inventory = prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
+	auto inventory = prof::profile(profiler, Profiler::Tag::Physics, [&] {
 		return PhysicsWorld::inventory();
 	});
-
-	if (auto didStep = PhysicsWorld::didStepCallback()) {
-		prof::profile(profiler, Profiler::Tag::Application, [&] {
-			didStep(*this, info);
-		});
-	}
 
 	return inventory;
 }

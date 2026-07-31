@@ -14,9 +14,7 @@
 #include <QMainWindow>
 
 #include "a3d/Runner.h"
-#include "a3d/input/InputContext.h"
 #include "a3d/log/Log.h"
-#include "a3d/visual/VisualWorld.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -52,20 +50,8 @@ namespace a3de {
 
 		/// Runner Callbacks ///
 
-		void runnerUpdate(a3d::Runner& runner,
-		                  const a3d::Runner::UpdateInfo& info);
-
-		/// Input Context Callbacks ///
-
-		void inputContextDidUpdate(a3d::InputContext& inputContext,
-		                           const a3d::InputContext::UpdateInfo& info);
-
-		/// Visual World Callbacks ///
-
-		void visualWorldWillRender(a3d::VisualWorld& visualWorld,
-		                           const a3d::VisualWorld::RenderInfo& info);
-		void visualWorldDidRender(a3d::VisualWorld& visualWorld,
-		                          const a3d::VisualWorld::RenderInfo& info);
+		void hostUpdate(a3d::Runner& runner,
+		                const a3d::Runner::UpdateInfo& info);
 
 		Ui::MainWindow*					_ui;
 		a3d::qt::QtViewport*			_viewport;

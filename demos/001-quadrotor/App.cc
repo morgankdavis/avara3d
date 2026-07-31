@@ -91,31 +91,20 @@ void App::didShutdown() {
 
 /// Runner Callbacks ///
 
-void App::runnerUpdate(Runner& runner, const Runner::UpdateInfo& info) {
+void App::hostUpdate(Runner& runner,
+                     const Runner::UpdateInfo& info) {
+
+	auto& inputContext = *runner.scene().inputContext();
+
+	if (static_cast<DesktopInputContext&>(
+		inputContext).keysPressed().count(DesktopInputContext::Key::Escape)) {
+		_window->close();
+	}
+
 	if (_bananaNode) {
 		// rotate the banana
 		auto rotationDeg = info.deltaTime * radians(-30.0); // 10deg/sec
-
 		auto rotY = math::quaternion({0.0f, 1.0f, 0.0f}, rotationDeg);
 		_bananaNode->orientation(rotY * _bananaNode->orientation());
 	}
 }
-
-/// Input Context Callbacks ///
-
-void App::inputContextDidUpdate(InputContext& inputContext,
-                                const InputContext::UpdateInfo&) {
-	if (static_cast<DesktopInputContext&>(
-		inputContext).keysPressed().count(DesktopInputContext::Key::Escape)) {
-
-		_window->close();
-	}
-}
-
-/// Visual World Callbacks ///
-
-void App::visualWorldWillRender(VisualWorld& visualWorld,
-								const VisualWorld::RenderInfo& info) {}
-
-void App::visualWorldDidRender(VisualWorld& visualWorld,
-							   const VisualWorld::RenderInfo& info) {}

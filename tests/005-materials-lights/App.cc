@@ -130,49 +130,11 @@ void App::didShutdown() {
 
 /// Runner Callbacks ///
 
-void App::runnerUpdate(Runner& runner, const Runner::UpdateInfo& info) {
+void App::hostUpdate(Runner& runner,
+                     const Runner::UpdateInfo& info) {
 
 	auto& scene = runner.scene();
-
-	util::flow::on(2, [&] {
-		double time = util::chrono::Time() - _startTime;
-		log::app::i()("START TIME: {}", time);
-	});
-
-	log::app::t()("scene: {:p}, time: {}, deltaTime: {}",
-		(void *) &scene,
-	              info.elapsedTime,
-	              info.deltaTime);
-
-	// move the light
-
-	if (_pointLightNode) {
-
-		auto center = vec3(0, 30, 0);
-
-		static auto extent = scene.rootNode()->extent();
-		//static float radius = std::max(std::max(extent.x, extent.y), extent.z) * .46;
-		static float radius = math::max(extent) * .46; // a3d::math
-		static float radiusX = radius;
-		static float radiusY = radius;
-
-		static float rotationSpeed = radians(30.0); // deg/secs
-		static float angle = 0;
-		angle += rotationSpeed * info.deltaTime;
-
-		float x = math::sin(angle) * radiusX;
-		float y = math::cos(angle) * radiusY;
-
-		_pointLightNode->position(center + vec3(x, y, -x));
-	}
-}
-
-/// Input Context Callbacks ///
-
-void App::inputContextDidUpdate(InputContext& inputContext,
-                                const InputContext::UpdateInfo& info) {
-
-	auto& scene = *_window->visualWorld()->scene();
+	auto& inputContext = *scene.inputContext();
 	auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 
 	// get input
@@ -328,15 +290,38 @@ void App::inputContextDidUpdate(InputContext& inputContext,
 		}
 	}
 
+	util::flow::on(2, [&] {
+		double time = util::chrono::Time() - _startTime;
+		log::app::i()("START TIME: {}", time);
+	});
+
+	log::app::t()("scene: {:p}, time: {}, deltaTime: {}",
+		(void *) &scene,
+	              info.elapsedTime,
+	              info.deltaTime);
+
+	// move the light
+
+	if (_pointLightNode) {
+
+		auto center = vec3(0, 30, 0);
+
+		static auto extent = scene.rootNode()->extent();
+		//static float radius = std::max(std::max(extent.x, extent.y), extent.z) * .46;
+		static float radius = math::max(extent) * .46; // a3d::math
+		static float radiusX = radius;
+		static float radiusY = radius;
+
+		static float rotationSpeed = radians(30.0); // deg/secs
+		static float angle = 0;
+		angle += rotationSpeed * info.deltaTime;
+
+		float x = math::sin(angle) * radiusX;
+		float y = math::cos(angle) * radiusY;
+
+		_pointLightNode->position(center + vec3(x, y, -x));
+	}
 }
-
-/// Visual World Callbacks ///
-
-void App::visualWorldWillRender(VisualWorld& visualWorld,
-                                const VisualWorld::RenderInfo& info) {}
-
-void App::visualWorldDidRender(VisualWorld& visualWorld,
-                               const VisualWorld::RenderInfo& info) {}
 
 /// Private Static Non-Member Functions ///
 

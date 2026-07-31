@@ -9,7 +9,9 @@
 #ifndef AVARA3D_TEST_RIGIDBODY_APP_H
 #define AVARA3D_TEST_RIGIDBODY_APP_H
 
+#include <cstddef>
 #include <memory>
+#include <queue>
 #include <tuple>
 #include <vector>
 
@@ -17,13 +19,10 @@
 #include "a3d/Math.h"
 
 namespace a3d {
-	class InputContext;
 	class Mesh;
 	class Node;
 	class PhysicsShape;
-	class PhysicsWorld;
 	class Scene;
-	class VisualWorld;
 	class Window;
 }
 
@@ -62,24 +61,24 @@ namespace test::rigidbody {
 		bool							shouldContinue(const a3d::Scene& scene) override;
 		void							didShutdown() override;
 
-		/// Input Context Callbacks ///
+		/// Runner Callbacks ///
 
-		void		inputContextDidUpdate(a3d::InputContext &inputContext,
-				                          const a3d::InputContext::UpdateInfo &info) override;
+		void							hostUpdate(a3d::Runner& runner,
+									               const a3d::Runner::UpdateInfo& info) override;
 
-		/// Simulation Callbacks ///
+		/// Scene Callbacks ///
 
-		void		simulationWillTick(a3d::Scene &scene,
-				                       const a3d::Scene::TickInfo& info) override;
-
-		/// Visual World Callbacks ///
-
-		void		visualWorldWillRender(a3d::VisualWorld &visualWorld,
-				                          const a3d::VisualWorld::RenderInfo& info) override;
-		void		visualWorldDidRender(a3d::VisualWorld &visualWorld,
-				                         const a3d::VisualWorld::RenderInfo &info) override;
+		void							sceneWillStep(a3d::Scene& scene,
+									                  const a3d::Scene::StepInfo& info) override;
 
 	private:
+		/// Private Types ///
+
+		struct SlurmShotRequest {
+			a3d::math::vec3	location;
+			a3d::math::vec3	direction;
+		};
+
 		/// Private Member Variables ///
 
 		std::unique_ptr<a3d::Window>				_window;
@@ -88,11 +87,11 @@ namespace test::rigidbody {
 		std::unique_ptr<a3d::ext::WanderRotator>	_duckRotator;
 		float										_cameraMoveSpeed;
 		bool										_spawnDuckFruit;
-		bool										_spawnDuckFruitPending;
+		std::size_t									_pendingDuckFruitSpawnCount;
 		double										_duckFruitSpawnAccumulator;
 		bool										_shootSlurm;
-		bool										_shootSlurmPending;
 		double										_slurmShotAccumulator;
+		std::queue<SlurmShotRequest>				_pendingSlurmShots;
 		a3d::math::vec3								_slurmLocation;
 		a3d::math::vec3								_slurmDirection;
 	};

@@ -101,20 +101,15 @@ void App::didShutdown() {
 
 }
 
-/// Input Context Callbacks ///
+/// Runner Callbacks ///
 
-void App::inputContextDidUpdate(InputContext& inputContext,
-                                const InputContext::UpdateInfo&) {
+void App::hostUpdate(Runner& runner,
+                     const Runner::UpdateInfo&) {
+
+	auto& inputContext = *runner.scene().inputContext();
+
 	if (static_cast<DesktopInputContext*>(
 		&inputContext)->keysPressed().count(DesktopInputContext::Key::Escape)) {
 		_window->close();
 	}
 }
-
-/// Visual World Callbacks ///
-
-void App::visualWorldWillRender(VisualWorld& visualWorld,
-								const VisualWorld::RenderInfo& info) {}
-
-void App::visualWorldDidRender(VisualWorld& visualWorld,
-							   const VisualWorld::RenderInfo& info) {}

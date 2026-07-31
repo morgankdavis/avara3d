@@ -11,7 +11,6 @@
 #include <utility>
 
 #include "a3d/Configuration.h"
-#include "a3d/input/InputContext.h"
 #include "a3d/physics/PhysicsInventory.h"
 #include "a3d/physics/PhysicsWorld.h"
 #include "a3d/profile/FrameStats.h"
@@ -30,9 +29,9 @@ Runner::Runner(Scene& scene,
 	_timeScale{config.timeScale},
 	_simulationAccumulator{0.0},
 	_simulationTime{0.0},
-	_simulationTickCount{0},
+	_simulationStepCount{0},
 	_simulationPaused{false},
-	_pendingSimulationTicks{0},
+	_pendingSimulationSteps{0},
 	_suppressNextAutomaticSimulationUpdate{false},
 	_startTime{},
 	_previousUpdateTime{},
@@ -66,9 +65,9 @@ void Runner::start(Clock::time_point now) {
 	_timeScale = _simulationConfig.timeScale;
 	_simulationAccumulator = 0.0;
 	_simulationTime = 0.0;
-	_simulationTickCount = 0;
+	_simulationStepCount = 0;
 	_simulationPaused = false;
-	_pendingSimulationTicks = 0;
+	_pendingSimulationSteps = 0;
 	_suppressNextAutomaticSimulationUpdate = false;
 	_startTime = now;
 	_previousUpdateTime = now;
@@ -105,17 +104,11 @@ bool Runner::update(Clock::time_point now) {
 	_updateInfo = updateInfo;
 	_hasUpdated = true;
 
-	const InputContext::UpdateInfo inputInfo {
-		.updateIndex = updateInfo.updateIndex,
-		.elapsedTime = updateInfo.elapsedTime,
-		.deltaTime = updateInfo.deltaTime
-	};
-
 	FrameStats stats{};
 
 	prof::profile(_profiler, Profiler::Tag::Frame, [&] {
 		_scene.pollEvents(_profiler);
-		_scene.updateInput(inputInfo, _profiler);
+		_scene.updateInput(_profiler);
 
 		if (_state == State::Running) {
 			if (auto callback = updateCallback()) {
@@ -134,7 +127,7 @@ bool Runner::update(Clock::time_point now) {
 				// during the requested batch sets this again and interrupts
 				// the local snapshot
 				_suppressNextAutomaticSimulationUpdate = false;
-				inventory = executeRequestedSimulationTicks(stats);
+				inventory = executeRequestedSimulationSteps(stats);
 			}
 			else if (_suppressNextAutomaticSimulationUpdate) {
 				_suppressNextAutomaticSimulationUpdate = false;
@@ -203,12 +196,12 @@ PhysicsInventory Runner::scheduleSimulation(const UpdateInfo& info,
 	_simulationAccumulator += info.deltaTime * _timeScale;
 
 	while (_simulationAccumulator >= fixedDeltaTime
-		&& stats.simulationTickCount < _simulationConfig.maxCatchUpSteps
-		&& _state == State::Running
-		&& !_simulationPaused
-		&& !_suppressNextAutomaticSimulationUpdate) {
+	       && stats.simulationStepCount < _simulationConfig.maxCatchUpSteps
+	       && _state == State::Running
+	       && !_simulationPaused
+	       && !_suppressNextAutomaticSimulationUpdate) {
 
-		inventory = executeSimulationTick();
+		inventory = executeSimulationStep();
 
 		if (_simulationPaused || _suppressNextAutomaticSimulationUpdate) {
 			_simulationAccumulator = 0.0;
@@ -217,7 +210,7 @@ PhysicsInventory Runner::scheduleSimulation(const UpdateInfo& info,
 			_simulationAccumulator -= fixedDeltaTime;
 		}
 
-		++stats.simulationTickCount;
+		++stats.simulationStepCount;
 	}
 
 	if (_state == State::Running && _simulationAccumulator >= fixedDeltaTime) {
@@ -228,26 +221,25 @@ PhysicsInventory Runner::scheduleSimulation(const UpdateInfo& info,
 		_simulationAccumulator = remainder;
 	}
 
-	if (stats.simulationTickCount == 0) {
+	if (stats.simulationStepCount == 0) {
 		inventory = currentPhysicsInventory();
 	}
 
 	return inventory;
 }
 
-PhysicsInventory Runner::executeRequestedSimulationTicks(
+PhysicsInventory Runner::executeRequestedSimulationSteps(
 		FrameStats& stats) {
 
 	PhysicsInventory inventory{};
-	const auto requestedTickCount =
-		exchange(_pendingSimulationTicks, std::uint64_t{0});
+	const auto requestedStepCount = exchange(_pendingSimulationSteps, std::uint64_t{0});
 
-	for (std::uint64_t tickIndex = 0;
-		 tickIndex < requestedTickCount;
-		 ++tickIndex) {
+	for (std::uint64_t requestedStepIndex = 0;
+		 requestedStepIndex < requestedStepCount;
+		 ++requestedStepIndex) {
 
-		inventory = executeSimulationTick();
-		++stats.simulationTickCount;
+		inventory = executeSimulationStep();
+		++stats.simulationStepCount;
 
 		if (_state != State::Running
 			|| !_simulationPaused
@@ -257,14 +249,14 @@ PhysicsInventory Runner::executeRequestedSimulationTicks(
 		}
 	}
 
-	if (stats.simulationTickCount == 0) {
+	if (stats.simulationStepCount == 0) {
 		inventory = currentPhysicsInventory();
 	}
 
 	return inventory;
 }
 
-PhysicsInventory Runner::executeSimulationTick() {
+PhysicsInventory Runner::executeSimulationStep() {
 
 	if (auto physicsWorld = _scene.physicsWorld();
 		physicsWorld && !physicsWorld->acceptsStepDelta(
@@ -274,19 +266,19 @@ PhysicsInventory Runner::executeSimulationTick() {
 			"Runner simulation delta is not accepted by its PhysicsWorld backend.");
 	}
 
-	Scene::TickInfo info {
-		.tickIndex = _simulationTickCount,
-		.startTime = static_cast<double>(_simulationTickCount)
+	Scene::StepInfo info {
+		.stepIndex = _simulationStepCount,
+		.startTime = static_cast<double>(_simulationStepCount)
 			* _simulationConfig.fixedDeltaTime,
-		.endTime = static_cast<double>(_simulationTickCount + 1)
+		.endTime = static_cast<double>(_simulationStepCount + 1)
 			* _simulationConfig.fixedDeltaTime,
 		.deltaTime = _simulationConfig.fixedDeltaTime
 	};
 
-	auto inventory = _scene.tickSimulation(info, _profiler);
+	auto inventory = _scene.stepSimulation(info, _profiler);
 
 	_simulationTime = info.endTime;
-	++_simulationTickCount;
+	++_simulationStepCount;
 
 	return inventory;
 }
@@ -308,13 +300,13 @@ void Runner::copyPhysicsInventory(const PhysicsInventory& inventory,
                                   FrameStats& stats) {
 
 	prof::profile(_profiler, Profiler::Tag::EngineCpu, [&] {
-		stats.numStaticBodies = inventory.staticBodies;
-		stats.numDynamicBodies = inventory.dynamicBodies;
-		stats.numKinematicBodies = inventory.kinematicBodies;
-		stats.numPrimitiveShapes = inventory.primitiveShapes;
-		stats.numBoundingBoxShapes = inventory.boundingBoxShapes;
-		stats.numConvexHullShapes = inventory.convexHullShapes;
-		stats.numConcavePolyhedronShapes = inventory.concavePolyhedronShapes;
+		stats.staticBodies = inventory.staticBodies;
+		stats.dynamicBodies = inventory.dynamicBodies;
+		stats.kinematicBodies = inventory.kinematicBodies;
+		stats.primitiveShapes = inventory.primitiveShapes;
+		stats.boundingBoxShapes = inventory.boundingBoxShapes;
+		stats.convexHullShapes = inventory.convexHullShapes;
+		stats.concavePolyhedronShapes = inventory.concavePolyhedronShapes;
 	});
 }
 
@@ -332,7 +324,7 @@ bool Runner::renderFrame(const UpdateInfo& info,
 		.updateTime = info.elapsedTime,
 		.updateDeltaTime = info.deltaTime,
 		.simulationTime = _simulationTime,
-		.simulationTickCount = _simulationTickCount
+		.simulationStepCount = _simulationStepCount
 	};
 
 	if (!visualWorld->draw(_scene,
@@ -356,7 +348,7 @@ void Runner::stop() {
 	}
 
 	_state = State::Stopped;
-	_pendingSimulationTicks = 0;
+	_pendingSimulationSteps = 0;
 }
 
 bool Runner::simulationPaused() const {
@@ -389,27 +381,27 @@ void Runner::resumeSimulation() {
 	}
 
 	_simulationPaused = false;
-	_pendingSimulationTicks = 0;
+	_pendingSimulationSteps = 0;
 	_suppressNextAutomaticSimulationUpdate = true;
 }
 
-void Runner::requestSimulationTick() {
+void Runner::requestSimulationStep() {
 
 	if (_state != State::Running) {
-		throw logic_error("Runner::requestSimulationTick() requires a running Runner.");
+		throw logic_error("Runner::requestSimulationStep() requires a running Runner.");
 	}
 
 	if (!_simulationPaused) {
-		throw logic_error("Runner::requestSimulationTick() requires paused simulation.");
+		throw logic_error("Runner::requestSimulationStep() requires paused simulation.");
 	}
 
-	if (_pendingSimulationTicks
+	if (_pendingSimulationSteps
 		== numeric_limits<std::uint64_t>::max()) {
 
-		throw overflow_error("Runner pending simulation-tick count overflow.");
+		throw overflow_error("Runner pending simulation-step count overflow.");
 	}
 
-	++_pendingSimulationTicks;
+	++_pendingSimulationSteps;
 }
 
 Runner::UpdateCallback Runner::updateCallback() const {
@@ -441,8 +433,8 @@ double Runner::simulationTime() const {
 	return _simulationTime;
 }
 
-uint64_t Runner::simulationTickCount() const {
-	return _simulationTickCount;
+uint64_t Runner::simulationStepCount() const {
+	return _simulationStepCount;
 }
 
 Runner::State Runner::state() const {

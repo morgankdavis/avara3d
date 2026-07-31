@@ -9,7 +9,6 @@
 #ifndef AVARA3D_PHYSICS_PHYSICSWORLD_H
 #define AVARA3D_PHYSICS_PHYSICSWORLD_H
 
-#include <cstdint>
 #include <functional>
 #include <memory>
 #include <optional>
@@ -34,25 +33,6 @@ namespace a3d {
 	public:
 		/// Public Types ///
 
-		struct StepInfo {
-
-			// index of the simulation tick containing this physics step
-			std::uint64_t tickIndex{0};
-
-			// simulation time before the containing tick
-			double startTime{0.0};
-
-			// simulation time after the containing tick completes
-			double endTime{0.0};
-
-			// delta passed to the physics backend
-			double deltaTime{0.0};
-		};
-
-		using WillStepCallback = std::function<void(PhysicsWorld &physicsWorld,
-		                                            const StepInfo& info)>;
-		using DidStepCallback = std::function<void(PhysicsWorld &physicsWorld,
-		                                           const StepInfo &info)>;
 		using BeginContactCallback = std::function<void(PhysicsWorld &physicsWorld,
 		                                                PhysicsContact &contact)>;
 		using ContinueContactCallback = std::function<void(PhysicsWorld &physicsWorld,
@@ -90,12 +70,6 @@ namespace a3d {
 
 		Scene*							scene() const;
 
-		WillStepCallback				willStepCallback() const;
-		void							willStepCallback(WillStepCallback function);
-
-		DidStepCallback					didStepCallback() const;
-		void							didStepCallback(DidStepCallback function);
-
 		BeginContactCallback 			beginContactCallback() const;
 		void 							beginContactCallback(BeginContactCallback function);
 
@@ -115,7 +89,7 @@ namespace a3d {
 
 		bool							acceptsStepDelta(double deltaTime) const;
 
-		PhysicsInventory				step(const StepInfo& info, Profiler& profiler);
+		PhysicsInventory				step(double deltaTime, Profiler& profiler);
 
 		PhysicsInventory				inventory() const;
 
@@ -130,8 +104,6 @@ namespace a3d {
 		math::vec3 							_gravity;
 		std::unique_ptr<PhysicsWorldProxy>	_proxy;
 		Scene*								_scene;
-		WillStepCallback					_willStepCallback;
-		DidStepCallback						_didStepCallback;
 		BeginContactCallback				_beginContactCallback;
 		ContinueContactCallback				_continueContactCallback;
 		EndContactCallback					_endContactCallback;

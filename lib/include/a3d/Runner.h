@@ -40,15 +40,15 @@ namespace a3d {
 		struct UpdateInfo {
 
 			// zero-based Runner-update index
-			std::uint64_t updateIndex{0};
+			std::uint64_t	updateIndex{0};
 
 			// monotonic seconds since Runner::start(), measured at the
 			// beginning of this Runner update
-			double elapsedTime{0.0};
+			double			elapsedTime{0.0};
 
 			// monotonic seconds since the beginning of the previous
 			// Runner update. zero on the first update.
-			double deltaTime{0.0};
+			double			deltaTime{0.0};
 		};
 
 		using UpdateCallback = std::function<void(Runner &runner,
@@ -74,15 +74,15 @@ namespace a3d {
 		void						stop();
 
 		// a stopped Runner performs no updates. pausing affects automatic
-		// simulation ticks only: Runner updates, input, runner callbacks,
+		// simulation steps only: Runner updates, input, host callbacks,
 		// and rendering continue
 		bool						simulationPaused() const;
 		void						pauseSimulation();
 		void						resumeSimulation();
 
-		// queue one fixed-duration tick for a running, paused simulation.
-		// requested ticks use fixedDeltaTime and ignore timeScale.
-		void						requestSimulationTick();
+		// queue one fixed-duration step for a running, paused simulation.
+		// requested steps use fixedDeltaTime and ignore timeScale.
+		void						requestSimulationStep();
 
 		UpdateCallback				updateCallback() const;
 		void						updateCallback(UpdateCallback callback);
@@ -93,7 +93,7 @@ namespace a3d {
 		void						timeScale(double value);
 
 		double						simulationTime() const;
-		std::uint64_t				simulationTickCount() const;
+		std::uint64_t				simulationStepCount() const;
 
 		State						state() const;
 
@@ -113,8 +113,8 @@ namespace a3d {
 		void						validateSimulationConfig() const;
 		PhysicsInventory			scheduleSimulation(const UpdateInfo &info,
 					                                   FrameStats& stats);
-		PhysicsInventory			executeRequestedSimulationTicks(FrameStats& stats);
-		PhysicsInventory			executeSimulationTick();
+		PhysicsInventory			executeRequestedSimulationSteps(FrameStats& stats);
+		PhysicsInventory			executeSimulationStep();
 		PhysicsInventory			currentPhysicsInventory();
 		void						copyPhysicsInventory(const PhysicsInventory &inventory,
 								                         FrameStats& stats);
@@ -129,9 +129,9 @@ namespace a3d {
 		double						_timeScale;
 		double						_simulationAccumulator;
 		double						_simulationTime;
-		std::uint64_t				_simulationTickCount;
+		std::uint64_t				_simulationStepCount;
 		bool						_simulationPaused;
-		std::uint64_t				_pendingSimulationTicks;
+		std::uint64_t				_pendingSimulationSteps;
 		bool						_suppressNextAutomaticSimulationUpdate;
 		Clock::time_point			_startTime;
 		Clock::time_point			_previousUpdateTime;

@@ -46,8 +46,8 @@ VisualWorld::VisualWorld(RenderContext& context):
 		_pointOfView{},
 		_renderContext{&context},
 		_scene{},
-		_willRenderCallback{},
-		_didRenderCallback{} {
+		_processRenderCommandsCallback{},
+		_renderFrameCallback{} {
 
 	_renderContext->attachedToVisualWorld(this);
 }
@@ -166,22 +166,6 @@ Scene* VisualWorld::scene() const {
 	return _scene;
 }
 
-VisualWorld::WillRenderCallback VisualWorld::willRenderCallback() const {
-	return _willRenderCallback;
-}
-
-void VisualWorld::willRenderCallback(WillRenderCallback function) {
-	_willRenderCallback = function;
-}
-
-VisualWorld::DidRenderCallback VisualWorld::didRenderCallback() const {
-	return _didRenderCallback;
-}
-
-void VisualWorld::didRenderCallback(DidRenderCallback function) {
-	_didRenderCallback = function;
-}
-
 /// Internal Member Functions ///
 
 void VisualWorld::attachedToScene(Scene& scene) {
@@ -194,6 +178,23 @@ void VisualWorld::detachedFromScene(Scene& scene) {
 	log::t()("scene: {:p}", static_cast<void*>(&scene));
 
 	_scene = nullptr;
+}
+
+VisualWorld::ProcessRenderCommandsCallback  VisualWorld::processRenderCommandsCallback() const {
+	return _processRenderCommandsCallback;
+}
+
+void VisualWorld::processRenderCommandsCallback(
+		ProcessRenderCommandsCallback function) {
+	_processRenderCommandsCallback = function;
+}
+
+VisualWorld::RenderFrameCallback VisualWorld::renderFrameCallback() const {
+	return _renderFrameCallback;
+}
+
+void VisualWorld::renderFrameCallback(RenderFrameCallback function) {
+	_renderFrameCallback = function;
 }
 
 bool VisualWorld::draw(const Scene& scene,
@@ -229,20 +230,27 @@ bool VisualWorld::draw(const Scene& scene,
 		_renderContext->swapBuffers();
 	})) return false;
 
-	if (auto willRender = VisualWorld::willRenderCallback()) {
+	if (auto processRenderCommands = processRenderCommandsCallback()) {
+
 		prof::profile(profiler, Profiler::Tag::Application, [&] {
-			willRender(*this, info);
+			processRenderCommands(*this, info);
 		});
 	}
-
-	prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
-		renderer->beginFrame(scene, *_renderContext, debugOptions, stats, profiler);
-	});
 
 	prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
 		// there is some "RenderCpu" type stuff bundled in here for GLFWWindow and QtViewport
 		_renderContext->beginFrame(scene);
 	});
+
+	prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
+		renderer->beginFrame(scene, *_renderContext, debugOptions, stats, profiler);
+	});
+
+	if (auto renderFrame = VisualWorld::renderFrameCallback()) {
+		prof::profile(profiler, Profiler::Tag::Application, [&] {
+			renderFrame(*this, info);
+		});
+	}
 
 	auto [view, proj] = prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
 
@@ -289,24 +297,20 @@ bool VisualWorld::draw(const Scene& scene,
 		renderer->renderPacket(packet, params);
 	});
 
+	prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
+
+		renderer->endFrame(scene, *_renderContext,
+		                   debugOptions, stats, profiler, statsHistory);
+	});
+
 	prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
 		// there is some "RenderCpu" type stuff bundled in here for GLFWWindow and QtViewport
 		_renderContext->endFrame(scene);
 	});
 
 	prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
-
-		renderer->endFrame(scene, *_renderContext,
-						   debugOptions, stats, profiler, statsHistory);
-
 		_renderContext->swapBuffers();
 	});
-
-	if (auto didRender = VisualWorld::didRenderCallback()) {
-		prof::profile(profiler, Profiler::Tag::Application, [&] {
-			didRender(*this, info);
-		});
-	}
 
 	prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
 

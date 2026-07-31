@@ -15,7 +15,6 @@
 #include "a3d/profile/FrameStats.h"
 #include "a3d/render/DebugLinesBuilder.h"
 #include "a3d/render/GatherOutput.h"
-#include "a3d/render/context/RenderContext.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 #include "a3d/util/Bitmask.h"
@@ -64,7 +63,7 @@ GatherOutput RenderGatherer::Gather(const Scene& scene,
 		auto [n, parentWorld] = stack.back();
 		stack.pop_back();
 
-		++stats.numNodes;
+		++stats.nodes;
 
 		if (n->hidden()) continue;
 
@@ -107,13 +106,13 @@ GatherOutput RenderGatherer::Gather(const Scene& scene,
 
 				output.renderItems.push_back(item);
 
-				++stats.numElements;
+				++stats.elements;
 //				stats.numPolygons += element->faces().size();
 				if (element->indexCount() > 0) {
-					stats.numPolygons += element->indexCount() / 3u;
+					stats.polygons += element->indexCount() / 3u;
 				}
 				else {
-					stats.numPolygons += element->vertexCount() / 3u;
+					stats.polygons += element->vertexCount() / 3u;
 				}
 			}
 
@@ -127,12 +126,12 @@ GatherOutput RenderGatherer::Gather(const Scene& scene,
 											  *Color::Red());
 			}
 
-			++stats.numMeshes;
+			++stats.meshes;
 		}
 
 		if (n->light()) {
 			output.lightNodes.push_back(n);
-			++stats.numLights;
+			++stats.lights;
 		}
 
 		for (const auto& c : n->children()) {
