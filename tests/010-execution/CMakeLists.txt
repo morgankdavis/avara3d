@@ -14,9 +14,8 @@ set(RUNNER_EXECUTION_TESTS
 		simulation-config-defaults
 		simulation-config-validation
 		first-update-zero-simulation-ticks
-		variable-step-scale-cap-discard
-		fixed-step-fractional-accumulator
-		fixed-step-catch-up-overflow
+		simulation-fractional-accumulator
+		simulation-catch-up-overflow
 		pause-simulation-preconditions
 		paused-update-pipeline
 		pause-clears-fixed-accumulator
@@ -49,8 +48,8 @@ set(RUNNER_EXECUTION_TESTS
 		physics-inventory-before-did-step
 		bullet-exact-step
 		bullet-invalid-step-delta
-		fixed-step-repeatability
-		fixed-step-120hz-long-run)
+		simulation-repeatability
+		simulation-120hz-long-run)
 
 foreach(TEST_NAME IN LISTS RUNNER_EXECUTION_TESTS)
 	add_test(

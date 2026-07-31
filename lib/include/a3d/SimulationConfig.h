@@ -13,47 +13,19 @@
 
 namespace a3d {
 
-	enum class SimulationTiming {
-
-		VariableStep,
-
-		FixedStep
-	};
-
 	struct SimulationConfig {
 
-		// selects automatic simulation scheduling
-		SimulationTiming timing{SimulationTiming::VariableStep};
-
-		// constant simulation delta
-		//
-		// VariableStep: ignored
-		// FixedStep:    used for automatic and requested ticks
+		// constant duration of every automatic and requested simulation tick
 		double fixedDeltaTime{1.0 / 60.0};
 
 		// maximum automatic ticks performed during one Runner::update()
-		//
-		// VariableStep: ignored
-		// FixedStep:    used
 		std::uint32_t maxCatchUpSteps{8};
 
 		// initial automatic simulation-time rate relative to monotonic update
-		// time. requested fixed ticks ignore timeScale.
-		//
-		// VariableStep: used
-		// FixedStep:    used
+		// time. requested ticks ignore timeScale.
 		//
 		// Runner owns the mutable runtime value.
 		double timeScale{1.0};
-
-		// maximum variable simulation delta.
-		//
-		// VariableStep: used
-		// FixedStep:    ignored
-		//
-		// this caps automatic simulation advancement after an update stall,
-		// suspended browser tab, debugger pause, or similar discontinuity
-		double maxVariableStepDeltaTime{0.25};
 	};
 }
 

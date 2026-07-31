@@ -28,7 +28,7 @@ namespace a3d {
 		// simulation ticks completed during this Runner update
 		std::uint64_t simulationTickCount{0};
 
-		// scaled simulation-time demand discarded during this Runner update
+		// complete fixed-tick simulation debt discarded after bounded catch-up
 		double discardedSimulationTime{0.0};
 
 		unsigned numNodes = 0;

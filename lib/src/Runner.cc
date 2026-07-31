@@ -5,7 +5,6 @@
 
 #include "a3d/Runner.h"
 
-#include <algorithm>
 #include <cmath>
 #include <limits>
 #include <stdexcept>
@@ -177,34 +176,21 @@ void Runner::validateSimulationConfig() const {
 			"Runner requires a finite, positive initial time scale.");
 	}
 
-	if (config.timing == SimulationTiming::VariableStep) {
-		if (!isfinite(config.maxVariableStepDeltaTime)
-			|| config.maxVariableStepDeltaTime <= 0.0) {
+	if (!isfinite(config.fixedDeltaTime) || config.fixedDeltaTime <= 0.0) {
 
-			throw invalid_argument(
-				"Runner requires a finite, positive maximum VariableStep delta.");
-		}
+		throw invalid_argument(
+			"Runner requires a finite, positive fixed simulation delta.");
 	}
-	else {
-		if (!isfinite(config.fixedDeltaTime)
-			|| config.fixedDeltaTime <= 0.0) {
 
-			throw invalid_argument(
-				"Runner requires a finite, positive fixed simulation delta.");
-		}
+	if (config.maxCatchUpSteps == 0) {
+		throw invalid_argument("Runner requires at least one maximum catch-up step.");
+	}
 
-		if (config.maxCatchUpSteps == 0) {
-			throw invalid_argument(
-				"Runner requires at least one maximum catch-up step.");
-		}
+	if (auto physicsWorld = _scene.physicsWorld();
+		physicsWorld && !physicsWorld->acceptsStepDelta(config.fixedDeltaTime)) {
 
-		if (auto physicsWorld = _scene.physicsWorld();
-			physicsWorld
-			&& !physicsWorld->acceptsStepDelta(config.fixedDeltaTime)) {
-
-			throw invalid_argument(
-				"Runner fixed simulation delta is not accepted by its PhysicsWorld backend.");
-		}
+		throw invalid_argument(
+			"Runner fixed simulation delta is not accepted by its PhysicsWorld backend.");
 	}
 }
 
@@ -212,58 +198,34 @@ PhysicsInventory Runner::scheduleSimulation(const UpdateInfo& info,
                                             FrameStats& stats) {
 
 	PhysicsInventory inventory{};
+	const double fixedDeltaTime = _simulationConfig.fixedDeltaTime;
 
-	if (_simulationConfig.timing == SimulationTiming::VariableStep) {
+	_simulationAccumulator += info.deltaTime * _timeScale;
 
-		const double scaledDelta = info.deltaTime * _timeScale;
-		const double simulationDelta = min(
-			scaledDelta,
-			_simulationConfig.maxVariableStepDeltaTime);
+	while (_simulationAccumulator >= fixedDeltaTime
+		&& stats.simulationTickCount < _simulationConfig.maxCatchUpSteps
+		&& _state == State::Running
+		&& !_simulationPaused
+		&& !_suppressNextAutomaticSimulationUpdate) {
 
-		if (scaledDelta > simulationDelta) {
-			stats.discardedSimulationTime =
-				scaledDelta - simulationDelta;
+		inventory = executeSimulationTick();
+
+		if (_simulationPaused || _suppressNextAutomaticSimulationUpdate) {
+			_simulationAccumulator = 0.0;
+		}
+		else {
+			_simulationAccumulator -= fixedDeltaTime;
 		}
 
-		if (simulationDelta > 0.0) {
-			inventory = executeSimulationTick(simulationDelta);
-			stats.simulationTickCount = 1;
-		}
+		++stats.simulationTickCount;
 	}
-	else {
-		const double fixedDeltaTime = _simulationConfig.fixedDeltaTime;
 
-		_simulationAccumulator += info.deltaTime * _timeScale;
+	if (_state == State::Running && _simulationAccumulator >= fixedDeltaTime) {
+		const double remainder = fmod(_simulationAccumulator, fixedDeltaTime);
 
-		while (_simulationAccumulator >= fixedDeltaTime
-			&& stats.simulationTickCount < _simulationConfig.maxCatchUpSteps
-			&& _state == State::Running
-			&& !_simulationPaused
-			&& !_suppressNextAutomaticSimulationUpdate) {
+		stats.discardedSimulationTime = _simulationAccumulator - remainder;
 
-			inventory = executeSimulationTick(fixedDeltaTime);
-
-			if (_simulationPaused
-				|| _suppressNextAutomaticSimulationUpdate) {
-
-				_simulationAccumulator = 0.0;
-			}
-			else {
-				_simulationAccumulator -= fixedDeltaTime;
-			}
-
-			++stats.simulationTickCount;
-		}
-
-		if (_state == State::Running && _simulationAccumulator >= fixedDeltaTime) {
-			const double remainder = fmod(_simulationAccumulator,
-						fixedDeltaTime);
-
-			stats.discardedSimulationTime =
-					_simulationAccumulator - remainder;
-
-			_simulationAccumulator = remainder;
-		}
+		_simulationAccumulator = remainder;
 	}
 
 	if (stats.simulationTickCount == 0) {
@@ -284,8 +246,7 @@ PhysicsInventory Runner::executeRequestedSimulationTicks(
 		 tickIndex < requestedTickCount;
 		 ++tickIndex) {
 
-		inventory =
-			executeSimulationTick(_simulationConfig.fixedDeltaTime);
+		inventory = executeSimulationTick();
 		++stats.simulationTickCount;
 
 		if (_state != State::Running
@@ -303,34 +264,24 @@ PhysicsInventory Runner::executeRequestedSimulationTicks(
 	return inventory;
 }
 
-PhysicsInventory Runner::executeSimulationTick(double deltaTime) {
+PhysicsInventory Runner::executeSimulationTick() {
 
 	if (auto physicsWorld = _scene.physicsWorld();
-		physicsWorld
-			&& !physicsWorld->acceptsStepDelta(deltaTime)) {
+		physicsWorld && !physicsWorld->acceptsStepDelta(
+				_simulationConfig.fixedDeltaTime)) {
 
 		throw runtime_error(
 			"Runner simulation delta is not accepted by its PhysicsWorld backend.");
 	}
 
 	Scene::TickInfo info {
-		.tickIndex = _simulationTickCount
+		.tickIndex = _simulationTickCount,
+		.startTime = static_cast<double>(_simulationTickCount)
+			* _simulationConfig.fixedDeltaTime,
+		.endTime = static_cast<double>(_simulationTickCount + 1)
+			* _simulationConfig.fixedDeltaTime,
+		.deltaTime = _simulationConfig.fixedDeltaTime
 	};
-
-	if (_simulationConfig.timing == SimulationTiming::FixedStep) {
-		info.startTime =
-			static_cast<double>(info.tickIndex)
-			* _simulationConfig.fixedDeltaTime;
-		info.endTime =
-			static_cast<double>(info.tickIndex + 1)
-			* _simulationConfig.fixedDeltaTime;
-		info.deltaTime = _simulationConfig.fixedDeltaTime;
-	}
-	else {
-		info.startTime = _simulationTime;
-		info.endTime = info.startTime + deltaTime;
-		info.deltaTime = deltaTime;
-	}
 
 	auto inventory = _scene.tickSimulation(info, _profiler);
 
@@ -343,12 +294,11 @@ PhysicsInventory Runner::executeSimulationTick(double deltaTime) {
 PhysicsInventory Runner::currentPhysicsInventory() {
 
 	if (auto physicsWorld = _scene.physicsWorld()) {
-		return prof::profile(
-			_profiler,
-			Profiler::Tag::EngineCpu,
-			[&] {
-				return physicsWorld->inventory();
-			});
+		return prof::profile(_profiler,
+		                     Profiler::Tag::EngineCpu,
+		                     [&] {
+			                     return physicsWorld->inventory();
+		                     });
 	}
 
 	return {};
@@ -431,8 +381,7 @@ void Runner::pauseSimulation() {
 void Runner::resumeSimulation() {
 
 	if (_state != State::Running) {
-		throw logic_error(
-			"Runner::resumeSimulation() requires a running Runner.");
+		throw logic_error("Runner::resumeSimulation() requires a running Runner.");
 	}
 
 	if (!_simulationPaused) {
@@ -447,25 +396,17 @@ void Runner::resumeSimulation() {
 void Runner::requestSimulationTick() {
 
 	if (_state != State::Running) {
-		throw logic_error(
-			"Runner::requestSimulationTick() requires a running Runner.");
-	}
-
-	if (_simulationConfig.timing != SimulationTiming::FixedStep) {
-		throw logic_error(
-			"Runner::requestSimulationTick() requires FixedStep timing.");
+		throw logic_error("Runner::requestSimulationTick() requires a running Runner.");
 	}
 
 	if (!_simulationPaused) {
-		throw logic_error(
-			"Runner::requestSimulationTick() requires paused simulation.");
+		throw logic_error("Runner::requestSimulationTick() requires paused simulation.");
 	}
 
 	if (_pendingSimulationTicks
 		== numeric_limits<std::uint64_t>::max()) {
 
-		throw overflow_error(
-			"Runner pending simulation-tick count overflow.");
+		throw overflow_error("Runner pending simulation-tick count overflow.");
 	}
 
 	++_pendingSimulationTicks;
@@ -490,8 +431,7 @@ double Runner::timeScale() const {
 void Runner::timeScale(double value) {
 
 	if (!isfinite(value) || value <= 0.0) {
-		throw invalid_argument(
-			"Runner time scale must be finite and positive.");
+		throw invalid_argument("Runner time scale must be finite and positive.");
 	}
 
 	_timeScale = value;

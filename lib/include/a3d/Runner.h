@@ -74,13 +74,13 @@ namespace a3d {
 		void						stop();
 
 		// a stopped Runner performs no updates. pausing affects automatic
-		// VariableStep and FixedStep simulation only: Runner updates, input,
-		// runner callbacks, and rendering continue
+		// simulation ticks only: Runner updates, input, runner callbacks,
+		// and rendering continue
 		bool						simulationPaused() const;
 		void						pauseSimulation();
 		void						resumeSimulation();
 
-		// queue one fixed tick for a running, paused FixedStep simulation.
+		// queue one fixed-duration tick for a running, paused simulation.
 		// requested ticks use fixedDeltaTime and ignore timeScale.
 		void						requestSimulationTick();
 
@@ -114,7 +114,7 @@ namespace a3d {
 		PhysicsInventory			scheduleSimulation(const UpdateInfo &info,
 					                                   FrameStats& stats);
 		PhysicsInventory			executeRequestedSimulationTicks(FrameStats& stats);
-		PhysicsInventory			executeSimulationTick(double deltaTime);
+		PhysicsInventory			executeSimulationTick();
 		PhysicsInventory			currentPhysicsInventory();
 		void						copyPhysicsInventory(const PhysicsInventory &inventory,
 								                         FrameStats& stats);

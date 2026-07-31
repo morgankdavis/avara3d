@@ -243,7 +243,6 @@ unique_ptr<Scene> App::init() {
 
 SimulationConfig App::simulationConfig() const {
 	return {
-		.timing = SimulationTiming::FixedStep,
 		.fixedDeltaTime = FIXED_TIMESTEP
 	};
 }

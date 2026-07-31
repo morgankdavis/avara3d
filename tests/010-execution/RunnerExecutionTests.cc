@@ -462,7 +462,6 @@ namespace {
 		a3d::SimulationConfig simulationConfig() const override {
 
 			auto config = a3d::SimulationConfig{};
-			config.timing = a3d::SimulationTiming::FixedStep;
 			config.fixedDeltaTime = 0.125;
 			return config;
 		}
@@ -553,10 +552,6 @@ namespace {
 		return TimePoint{} + std::chrono::microseconds(microseconds);
 	}
 
-	TimePoint AtNanoseconds(std::int64_t nanoseconds) {
-		return TimePoint{} + std::chrono::nanoseconds(nanoseconds);
-	}
-
 	void Expect(bool condition, std::string_view message) {
 
 		if (!condition) {
@@ -595,21 +590,6 @@ namespace {
 	}
 
 	template <typename Function>
-	void ExpectRuntimeError(Function&& function,
-							std::string_view message) {
-
-		bool rejected = false;
-		try {
-			function();
-		}
-		catch (const std::runtime_error&) {
-			rejected = true;
-		}
-
-		Expect(rejected, message);
-	}
-
-	template <typename Function>
 	void ExpectLogicError(Function&& function,
 						  std::string_view message) {
 
@@ -624,12 +604,11 @@ namespace {
 		Expect(rejected, message);
 	}
 
-	a3d::SimulationConfig FixedConfiguration(double deltaTime = 0.125,
-													 std::uint32_t maxCatchUpSteps = 8,
-													 double timeScale = 1.0) {
+	a3d::SimulationConfig MakeSimulationConfig(double deltaTime = 0.125,
+												  std::uint32_t maxCatchUpSteps = 8,
+												  double timeScale = 1.0) {
 
 		auto configuration = a3d::SimulationConfig{};
-		configuration.timing = a3d::SimulationTiming::FixedStep;
 		configuration.fixedDeltaTime = deltaTime;
 		configuration.maxCatchUpSteps = maxCatchUpSteps;
 		configuration.timeScale = timeScale;
@@ -862,9 +841,6 @@ namespace {
 
 		const a3d::SimulationConfig defaults;
 
-		Expect(
-			defaults.timing == a3d::SimulationTiming::VariableStep,
-			"simulation timing should default to VariableStep");
 		ExpectNear(
 			defaults.fixedDeltaTime,
 			1.0 / 60.0,
@@ -873,18 +849,11 @@ namespace {
 			defaults.maxCatchUpSteps == 8,
 			"the default maximum catch-up count");
 		ExpectNear(defaults.timeScale, 1.0, "the default time scale");
-		ExpectNear(
-			defaults.maxVariableStepDeltaTime,
-			0.25,
-			"the default maximum VariableStep delta");
 
 		a3d::Scene scene;
 		a3d::Runner runner(scene);
 		const auto& runnerConfiguration = runner.simulationConfig();
 
-		Expect(
-			runnerConfiguration.timing == defaults.timing,
-			"the default Runner should preserve simulation timing");
 		ExpectNear(
 			runnerConfiguration.fixedDeltaTime,
 			defaults.fixedDeltaTime,
@@ -900,10 +869,6 @@ namespace {
 			runner.timeScale(),
 			defaults.timeScale,
 			"the default Runner runtime time scale");
-		ExpectNear(
-			runnerConfiguration.maxVariableStepDeltaTime,
-			defaults.maxVariableStepDeltaTime,
-			"the default Runner maximum VariableStep delta");
 	}
 
 	void SimulationConfigValidation() {
@@ -920,117 +885,57 @@ namespace {
 					message);
 			};
 
-		{
-			auto configuration = a3d::SimulationConfig{};
-			configuration.fixedDeltaTime =
-				std::numeric_limits<double>::quiet_NaN();
-
-			a3d::Scene scene;
-			scene.physicsWorld(
-				std::make_unique<a3d::PhysicsWorld>());
-			a3d::Runner runner(scene, configuration);
-
-			Expect(
-				std::isnan(
-					runner.simulationConfig().fixedDeltaTime),
-				"VariableStep should preserve its ignored fixed delta");
-		}
-
-		{
-			auto configuration = a3d::SimulationConfig{};
-			configuration.maxCatchUpSteps = 0;
-
-			a3d::Scene scene;
-			a3d::Runner runner(scene, configuration);
-
-			Expect(
-				runner.simulationConfig().maxCatchUpSteps == 0,
-				"VariableStep should preserve its ignored catch-up limit");
-		}
-
 		auto configuration = a3d::SimulationConfig{};
-		configuration.maxVariableStepDeltaTime = 0.0;
+		configuration.fixedDeltaTime = 0.0;
 		expectConfigurationRejected(
 			configuration,
-			"VariableStep should reject a zero maximum delta");
+			"the fixed scheduler should reject a zero fixed delta");
 
 		configuration = {};
-		configuration.maxVariableStepDeltaTime =
+		configuration.fixedDeltaTime = -0.125;
+		expectConfigurationRejected(
+			configuration,
+			"the fixed scheduler should reject a negative fixed delta");
+
+		configuration = {};
+		configuration.fixedDeltaTime =
 			std::numeric_limits<double>::infinity();
 		expectConfigurationRejected(
 			configuration,
-			"VariableStep should reject an infinite maximum delta");
+			"the fixed scheduler should reject an infinite fixed delta");
 
-		{
-			configuration = FixedConfiguration();
-			configuration.maxVariableStepDeltaTime =
-				std::numeric_limits<double>::quiet_NaN();
-
-			a3d::Scene scene;
-			a3d::Runner runner(scene, configuration);
-
-			Expect(
-				std::isnan(
-					runner.simulationConfig().
-						maxVariableStepDeltaTime),
-				"FixedStep should preserve its ignored VariableStep maximum");
-		}
-
-		configuration = FixedConfiguration(0.0);
+		configuration = {};
+		configuration.fixedDeltaTime =
+			std::numeric_limits<double>::quiet_NaN();
 		expectConfigurationRejected(
 			configuration,
-			"FixedStep should reject a zero fixed delta");
+			"the fixed scheduler should reject a NaN fixed delta");
 
-		configuration = FixedConfiguration(-0.125);
+		configuration = {};
+		configuration.maxCatchUpSteps = 0;
 		expectConfigurationRejected(
 			configuration,
-			"FixedStep should reject a negative fixed delta");
-
-		configuration = FixedConfiguration(
-			std::numeric_limits<double>::infinity());
-		expectConfigurationRejected(
-			configuration,
-			"FixedStep should reject an infinite fixed delta");
-
-		configuration = FixedConfiguration(
-			std::numeric_limits<double>::quiet_NaN());
-		expectConfigurationRejected(
-			configuration,
-			"FixedStep should reject a NaN fixed delta");
-
-		configuration = FixedConfiguration(0.125, 0);
-		expectConfigurationRejected(
-			configuration,
-			"FixedStep should reject a zero maximum catch-up count");
+			"the fixed scheduler should reject a zero maximum catch-up count");
 
 		configuration = {};
 		configuration.timeScale = 0.0;
 		expectConfigurationRejected(
 			configuration,
-			"VariableStep should reject a zero configured time scale");
+			"the fixed scheduler should reject a zero configured time scale");
 
 		configuration = {};
 		configuration.timeScale =
 			std::numeric_limits<double>::quiet_NaN();
 		expectConfigurationRejected(
 			configuration,
-			"VariableStep should reject a NaN configured time scale");
+			"the fixed scheduler should reject a NaN configured time scale");
 
-		configuration = FixedConfiguration(
-			0.125,
-			8,
-			0.0);
+		configuration = {};
+		configuration.timeScale =
+			std::numeric_limits<double>::infinity();
 		expectConfigurationRejected(
 			configuration,
-			"FixedStep should reject a zero configured time scale");
-
-		configuration = FixedConfiguration(
-			0.125,
-			8,
-			std::numeric_limits<double>::infinity());
-		expectConfigurationRejected(
-			configuration,
-			"FixedStep should reject an infinite configured time scale");
+			"the fixed scheduler should reject an infinite configured time scale");
 
 		a3d::Scene scene;
 		a3d::Runner runner(scene);
@@ -1065,14 +970,14 @@ namespace {
 
 		a3d::Scene physicsScene;
 		physicsScene.physicsWorld(std::make_unique<a3d::PhysicsWorld>());
-		auto tinyFixedConfiguration = FixedConfiguration(
+		auto tinySimulationConfig = MakeSimulationConfig(
 			static_cast<double>(std::numeric_limits<float>::epsilon()) * 0.5);
 
 		ExpectInvalidArgument(
 			[&] {
 				a3d::Runner tinyRunner(
 					physicsScene,
-					tinyFixedConfiguration);
+					tinySimulationConfig);
 			},
 			"a fixed delta that is effectively zero for Bullet should be rejected");
 	}
@@ -1089,7 +994,7 @@ namespace {
 		std::size_t physicsDidCount = 0;
 		std::size_t simulationDidCount = 0;
 
-		a3d::Runner runner(scene, FixedConfiguration());
+		a3d::Runner runner(scene, MakeSimulationConfig());
 		runner.updateCallback(
 			[&runnerCallbackCount](a3d::Runner&,
 								   const a3d::Runner::UpdateInfo&) {
@@ -1166,97 +1071,10 @@ namespace {
 			"a zero-tick Runner update should still sample current shape inventory");
 	}
 
-	void VariableStepScalesCapsAndReportsDiscard() {
+	void SimulationRetainsFractionalAccumulator() {
 
 		a3d::Scene scene;
-		a3d::Runner runner(scene);
-		std::vector<RecordedStep> steps;
-		scene.didTickCallback(
-			[&steps](a3d::Scene&,
-					 const a3d::Scene::TickInfo& info) {
-
-				steps.push_back(RecordStep(info));
-			});
-
-		a3d::testing::RunnerTestAccess::start(
-			runner, AtMilliseconds(12000));
-		Expect(
-			a3d::testing::RunnerTestAccess::update(
-				runner, AtMilliseconds(12100)),
-			"the priming VariableStep update should continue");
-		Expect(
-			steps.empty(),
-			"the first VariableStep update should execute no simulation tick");
-		Expect(
-			LatestFrameStats(runner).simulationTickCount == 0,
-			"the first VariableStep update should report zero ticks");
-
-		runner.timeScale(2.0);
-		Expect(
-			a3d::testing::RunnerTestAccess::update(
-				runner, AtMilliseconds(12600)),
-			"the capped VariableStep update should continue");
-
-		Expect(steps.size() == 1, "VariableStep should execute one capped tick");
-		ExpectStep(
-			steps[0],
-			0,
-			0.0,
-			0.25,
-			0.25,
-			"the capped VariableStep tick");
-		ExpectNear(
-			runner.simulationTime(),
-			0.25,
-			"capped VariableStep simulation time");
-		Expect(
-			runner.simulationTickCount() == 1,
-			"capped VariableStep completed tick count");
-
-		const auto cappedStats = LatestFrameStats(runner);
-		Expect(
-			cappedStats.simulationTickCount == 1,
-			"the capped Runner update should report one tick");
-		ExpectNear(
-			cappedStats.discardedSimulationTime,
-			0.75,
-			"VariableStep should report scaled time above its cap");
-
-		Expect(
-			a3d::testing::RunnerTestAccess::update(
-				runner, AtMilliseconds(12700)),
-			"the uncapped VariableStep update should continue");
-
-		Expect(steps.size() == 2, "VariableStep should execute a second tick");
-		ExpectStep(
-			steps[1],
-			1,
-			0.25,
-			0.45,
-			0.2,
-			"the uncapped VariableStep tick");
-		ExpectNear(
-			runner.simulationTime(),
-			0.45,
-			"discarded VariableStep time should not advance simulation time");
-		Expect(
-			runner.simulationTickCount() == 2,
-			"VariableStep should complete two ticks");
-
-		const auto& uncappedStats = LatestFrameStats(runner);
-		Expect(
-			uncappedStats.simulationTickCount == 1,
-			"the uncapped Runner update should report one tick");
-		ExpectNear(
-			uncappedStats.discardedSimulationTime,
-			0.0,
-			"the uncapped Runner update should report no discarded time");
-	}
-
-	void FixedStepRetainsFractionalAccumulator() {
-
-		a3d::Scene scene;
-		a3d::Runner runner(scene, FixedConfiguration());
+		a3d::Runner runner(scene, MakeSimulationConfig());
 		std::vector<RecordedStep> steps;
 		scene.didTickCallback(
 			[&steps](a3d::Scene&,
@@ -1270,11 +1088,11 @@ namespace {
 		Expect(
 			a3d::testing::RunnerTestAccess::update(
 				runner, AtMicroseconds(10000)),
-			"the priming FixedStep update should continue");
+			"the priming simulation update should continue");
 		Expect(
 			a3d::testing::RunnerTestAccess::update(
 				runner, AtMicroseconds(72500)),
-			"the first fractional FixedStep update should continue");
+			"the first fractional simulation update should continue");
 		Expect(
 			steps.empty(),
 			"insufficient fixed-step time should execute no tick");
@@ -1285,7 +1103,7 @@ namespace {
 		Expect(
 			a3d::testing::RunnerTestAccess::update(
 				runner, AtMicroseconds(135000)),
-			"the second fractional FixedStep update should continue");
+			"the second fractional simulation update should continue");
 		Expect(
 			steps.size() == 1,
 			"two retained half-step contributions should execute one tick");
@@ -1295,40 +1113,40 @@ namespace {
 			0.0,
 			0.125,
 			0.125,
-			"the accumulated FixedStep tick");
+			"the accumulated simulation tick");
 		Expect(
 			LatestFrameStats(runner).simulationTickCount == 1,
 			"the accumulated Runner update should report one tick");
 		ExpectNear(
 			runner.simulationTime(),
 			0.125,
-			"the accumulated FixedStep simulation time");
+			"the accumulated simulation time");
 		Expect(
 			runner.simulationTickCount() == 1,
-			"the accumulated FixedStep completed tick count");
+			"the accumulated completed tick count");
 
 		runner.timeScale(2.0);
 		Expect(
 			a3d::testing::RunnerTestAccess::update(
 				runner, AtMicroseconds(197500)),
-			"the scaled FixedStep update should continue");
+			"the scaled simulation update should continue");
 		Expect(
 			steps.size() == 2,
-			"FixedStep time scale should change tick accrual");
+			"time scale should change simulation-tick accrual");
 		ExpectStep(
 			steps[1],
 			1,
 			0.125,
 			0.25,
 			0.125,
-			"the scaled FixedStep tick");
+			"the scaled simulation tick");
 		ExpectNear(
 			runner.simulationTime(),
 			0.25,
-			"the scaled FixedStep simulation time");
+			"the scaled simulation time");
 		Expect(
 			runner.simulationTickCount() == 2,
-			"the scaled FixedStep completed tick count");
+			"the scaled completed tick count");
 		Expect(
 			LatestFrameStats(runner).simulationTickCount == 1,
 			"the scaled Runner update should report one fixed tick");
@@ -1337,13 +1155,13 @@ namespace {
 			a3d::testing::RunnerTestAccess::frameStatsHistory(runner).samples();
 		Expect(
 			samples.size() == 4,
-			"FixedStep should commit one statistics record per Runner update");
+			"simulation scheduling should commit one statistics record per Runner update");
 	}
 
-	void FixedStepLimitsCatchUpAndReportsDiscard() {
+	void SimulationLimitsCatchUpAndReportsDiscard() {
 
 		a3d::Scene scene;
-		a3d::Runner runner(scene, FixedConfiguration(0.125, 2));
+		a3d::Runner runner(scene, MakeSimulationConfig(0.125, 2));
 		std::vector<RecordedStep> steps;
 		scene.didTickCallback(
 			[&steps](a3d::Scene&,
@@ -1554,7 +1372,7 @@ namespace {
 		a3d::Scene scene;
 		scene.physicsWorld(std::make_unique<a3d::PhysicsWorld>());
 
-		a3d::Runner runner(scene, FixedConfiguration());
+		a3d::Runner runner(scene, MakeSimulationConfig());
 		std::vector<std::string_view> stages;
 		std::size_t callbackCount = 0;
 		std::size_t simulationCount = 0;
@@ -1624,7 +1442,7 @@ namespace {
 		scene.physicsWorld(std::make_unique<a3d::PhysicsWorld>());
 		auto node = AddMovingDynamicBody(scene);
 
-		a3d::Runner runner(scene, FixedConfiguration());
+		a3d::Runner runner(scene, MakeSimulationConfig());
 		std::vector<std::string_view> stages;
 		scene.willTickCallback(
 			[&runner, &stages](a3d::Scene&,
@@ -1733,7 +1551,7 @@ namespace {
 					info);
 			});
 
-		a3d::Runner runner(scene, FixedConfiguration());
+		a3d::Runner runner(scene, MakeSimulationConfig());
 		runner.updateCallback(
 			[&](a3d::Runner& callbackRunner,
 			    const a3d::Runner::UpdateInfo& info) {
@@ -1825,7 +1643,7 @@ namespace {
 				++runnerCallbackCount;
 			};
 
-		a3d::Runner runner(scene, FixedConfiguration());
+		a3d::Runner runner(scene, MakeSimulationConfig());
 		runner.updateCallback(
 			[&](a3d::Runner& callbackRunner,
 			    const a3d::Runner::UpdateInfo& info) {
@@ -1979,7 +1797,7 @@ namespace {
 					info);
 			});
 
-		a3d::Runner runner(scene, FixedConfiguration());
+		a3d::Runner runner(scene, MakeSimulationConfig());
 		runner.updateCallback(
 			[&](a3d::Runner& callbackRunner,
 			    const a3d::Runner::UpdateInfo& info) {
@@ -2135,7 +1953,7 @@ namespace {
 				events.push_back(20 + static_cast<int>(info.tickIndex));
 			});
 
-		a3d::Runner runner(scene, FixedConfiguration());
+		a3d::Runner runner(scene, MakeSimulationConfig());
 		a3d::testing::RunnerTestAccess::start(
 			runner,
 			AtMilliseconds(5000));
@@ -2237,7 +2055,7 @@ namespace {
 		scene.inputContext(std::move(inputContext));
 		scene.physicsWorld(std::make_unique<a3d::PhysicsWorld>());
 
-		a3d::Runner runner(scene, FixedConfiguration());
+		a3d::Runner runner(scene, MakeSimulationConfig());
 		a3d::testing::RunnerTestAccess::start(
 			runner, AtMilliseconds(8000));
 
@@ -2429,7 +2247,7 @@ namespace {
 
 		Expect(
 			a3d::testing::RunnerTestAccess::update(
-				runner, AtMilliseconds(10225)),
+				runner, AtMilliseconds(10125)),
 			"the observed neither-world Runner update should continue");
 
 		Expect(
@@ -2447,18 +2265,18 @@ namespace {
 			"the Runner callback should run once without either world");
 		ExpectNear(
 			runnerTimes[0].elapsedTime,
-			0.225,
+			0.125,
 			"the neither-world callback elapsed time");
 		ExpectNear(
 			runnerTimes[0].deltaTime,
-			0.125,
+			0.025,
 			"the neither-world callback delta time");
 		Expect(
 			runner.simulationTickCount() == 1,
 			"the neither-world Scene should complete one simulation tick");
 		ExpectNear(
 			runner.simulationTime(),
-			0.125,
+			runner.simulationConfig().fixedDeltaTime,
 			"the neither-world simulation time");
 		Expect(
 			LatestFrameStats(runner).simulationTickCount == 1,
@@ -2602,7 +2420,7 @@ namespace {
 				++callbackCount;
 			});
 
-		a3d::Runner runner(scene, FixedConfiguration());
+		a3d::Runner runner(scene, MakeSimulationConfig());
 		a3d::testing::RunnerTestAccess::start(
 			runner, AtMicroseconds(0));
 		Expect(
@@ -2651,7 +2469,7 @@ namespace {
 				}
 			});
 
-		a3d::Runner runner(scene, FixedConfiguration());
+		a3d::Runner runner(scene, MakeSimulationConfig());
 		a3d::testing::RunnerTestAccess::start(
 			runner, AtMicroseconds(0));
 		Expect(
@@ -2702,7 +2520,7 @@ namespace {
 				dynamicNode->physicsBody(std::unique_ptr<a3d::PhysicsBody>{});
 			});
 
-		a3d::Runner runner(scene, FixedConfiguration());
+		a3d::Runner runner(scene, MakeSimulationConfig());
 		a3d::testing::RunnerTestAccess::start(
 			runner, AtMicroseconds(11000000));
 		Expect(
@@ -2755,7 +2573,7 @@ namespace {
 				++physicsStepCount;
 			});
 
-		a3d::Runner runner(scene, FixedConfiguration());
+		a3d::Runner runner(scene, MakeSimulationConfig());
 		a3d::testing::RunnerTestAccess::start(
 			runner, AtMicroseconds(0));
 		Expect(
@@ -2814,37 +2632,24 @@ namespace {
 				scene.physicsWorld()->step(tinyStep, profiler);
 			},
 			"PhysicsWorld should reject a delta that is effectively zero for Bullet");
-
-		a3d::Runner runner(scene);
-		a3d::testing::RunnerTestAccess::start(
-			runner, AtNanoseconds(0));
-		Expect(
-			a3d::testing::RunnerTestAccess::update(
-				runner, AtNanoseconds(1000000)),
-			"the priming tiny-delta update should continue");
-		ExpectRuntimeError(
-			[&] {
-				(void)a3d::testing::RunnerTestAccess::update(
-					runner, AtNanoseconds(1000001));
-			},
-			"VariableStep should reject a delta that is effectively zero for Bullet");
 	}
 
-	struct FixedScheduleResult {
+	struct SimulationScheduleResult {
 		std::vector<RecordedStep>	steps;
 		double						bodyPosition;
 		double						simulationTime;
 		std::uint64_t				simulationTickCount;
 	};
 
-	FixedScheduleResult RunFixedPhysicsSchedule(const std::vector<std::int64_t>& updateDeltasMicroseconds) {
+	SimulationScheduleResult RunSimulationPhysicsSchedule(
+			const std::vector<std::int64_t>& updateDeltasMicroseconds) {
 
 		a3d::Scene scene;
 		scene.physicsWorld(std::make_unique<a3d::PhysicsWorld>());
 		auto node = AddMovingDynamicBody(scene);
-		a3d::Runner runner(scene, FixedConfiguration());
+		a3d::Runner runner(scene, MakeSimulationConfig());
 
-		FixedScheduleResult result;
+		SimulationScheduleResult result;
 		scene.didTickCallback(
 			[&result](a3d::Scene&,
 					  const a3d::Scene::TickInfo& info) {
@@ -2874,10 +2679,10 @@ namespace {
 		return result;
 	}
 
-	void FixedStepPhysicsIsRepeatable() {
+	void SimulationPhysicsIsRepeatable() {
 
-		const auto catchUp = RunFixedPhysicsSchedule({375000});
-		const auto distributed = RunFixedPhysicsSchedule({
+		const auto catchUp = RunSimulationPhysicsSchedule({375000});
+		const auto distributed = RunSimulationPhysicsSchedule({
 			125000,
 			125000,
 			125000
@@ -2931,7 +2736,7 @@ namespace {
 			"repeatable schedules should complete the same tick count");
 	}
 
-	void FixedStepAtOneHundredTwentyHertzDoesNotDrift() {
+	void SimulationAtOneHundredTwentyHertzDoesNotDrift() {
 
 		constexpr double FIXED_DELTA_TIME =
 			1.0 / 120.0;
@@ -2940,7 +2745,7 @@ namespace {
 
 		a3d::Runner runner(
 			scene,
-			FixedConfiguration(FIXED_DELTA_TIME));
+			MakeSimulationConfig(FIXED_DELTA_TIME));
 
 		a3d::testing::RunnerTestAccess::start(
 			runner,
@@ -2974,47 +2779,34 @@ namespace {
 			1e-12);
 	}
 
-	void PauseSimulationPreconditionsAndModes() {
+	void PauseSimulationPreconditions() {
 
-		{
-			a3d::Scene scene;
-			a3d::Runner runner(scene);
+		a3d::Scene scene;
+		a3d::Runner runner(scene);
 
-			Expect(
-				!runner.simulationPaused(),
-				"a new VariableStep Runner should not be paused");
-			ExpectLogicError(
-				[&] {
-					runner.pauseSimulation();
-				},
-				"pause should reject an idle Runner");
+		Expect(
+			!runner.simulationPaused(),
+			"a new Runner should not be paused");
+		ExpectLogicError(
+			[&] {
+				runner.pauseSimulation();
+			},
+			"pause should reject an idle Runner");
 
-			a3d::testing::RunnerTestAccess::start(
-				runner, AtMilliseconds(0));
-			runner.pauseSimulation();
-			runner.pauseSimulation();
-			Expect(
-				runner.simulationPaused(),
-				"VariableStep pause should be supported and idempotent");
-		}
+		a3d::testing::RunnerTestAccess::start(
+			runner, AtMilliseconds(0));
+		runner.pauseSimulation();
+		runner.pauseSimulation();
+		Expect(
+			runner.simulationPaused(),
+			"pause should be supported and idempotent");
 
-		{
-			a3d::Scene scene;
-			a3d::Runner runner(scene, FixedConfiguration());
-			a3d::testing::RunnerTestAccess::start(
-				runner, AtMilliseconds(0));
-			runner.pauseSimulation();
-			Expect(
-				runner.simulationPaused(),
-				"FixedStep pause should be supported");
-
-			runner.stop();
-			ExpectLogicError(
-				[&] {
-					runner.pauseSimulation();
-				},
-				"pause should reject a stopped Runner");
-		}
+		runner.stop();
+		ExpectLogicError(
+			[&] {
+				runner.pauseSimulation();
+			},
+			"pause should reject a stopped Runner");
 	}
 
 	void PausedUpdatesKeepInputRunnerAndStatisticsActive() {
@@ -3028,7 +2820,7 @@ namespace {
 		scene.physicsWorld(std::make_unique<a3d::PhysicsWorld>());
 		AddMovingDynamicBody(scene, 0.0);
 
-		a3d::Runner runner(scene, FixedConfiguration());
+		a3d::Runner runner(scene, MakeSimulationConfig());
 		std::size_t runnerCount = 0;
 		std::size_t simulationCount = 0;
 		std::size_t physicsCount = 0;
@@ -3129,7 +2921,7 @@ namespace {
 	void PauseClearsFixedAccumulatorWithoutDiscard() {
 
 		a3d::Scene scene;
-		a3d::Runner runner(scene, FixedConfiguration());
+		a3d::Runner runner(scene, MakeSimulationConfig());
 		std::size_t tickCount = 0;
 		scene.didTickCallback(
 			[&](a3d::Scene&,
@@ -3186,7 +2978,7 @@ namespace {
 				std::make_unique<PassiveInputContext>();
 			auto* inputContextPtr = inputContext.get();
 			scene.inputContext(std::move(inputContext));
-			a3d::Runner runner(scene, FixedConfiguration());
+			a3d::Runner runner(scene, MakeSimulationConfig());
 			bool pauseNow = false;
 			bool resumeNow = false;
 			std::size_t runnerCount = 0;
@@ -3260,7 +3052,7 @@ namespace {
 
 		{
 			a3d::Scene scene;
-			a3d::Runner runner(scene, FixedConfiguration());
+			a3d::Runner runner(scene, MakeSimulationConfig());
 			bool pauseNow = false;
 			bool resumeNow = false;
 			std::size_t tickCount = 0;
@@ -3327,7 +3119,7 @@ namespace {
 		a3d::Scene scene;
 		scene.physicsWorld(std::make_unique<a3d::PhysicsWorld>());
 		auto bodyNode = AddMovingDynamicBody(scene);
-		a3d::Runner runner(scene, FixedConfiguration());
+		a3d::Runner runner(scene, MakeSimulationConfig());
 		std::vector<std::string_view> stages;
 
 		scene.willTickCallback(
@@ -3398,7 +3190,7 @@ namespace {
 
 		{
 			a3d::Scene scene;
-			a3d::Runner runner(scene, FixedConfiguration());
+			a3d::Runner runner(scene, MakeSimulationConfig());
 			std::vector<RecordedStep> steps;
 			scene.didTickCallback(
 				[&](a3d::Scene&,
@@ -3463,7 +3255,7 @@ namespace {
 				"the first post-resume automatic update should continue");
 			Expect(
 				steps.size() == 1,
-				"automatic FixedStep scheduling should resume after one suppression");
+				"automatic simulation scheduling should resume after one suppression");
 
 			runner.stop();
 			ExpectLogicError(
@@ -3473,55 +3265,13 @@ namespace {
 				"resume should reject a stopped Runner");
 		}
 
-		{
-			a3d::Scene scene;
-			a3d::Runner runner(scene);
-			std::vector<RecordedStep> steps;
-			scene.didTickCallback(
-				[&](a3d::Scene&,
-				    const a3d::Scene::TickInfo& info) {
-
-					steps.push_back(RecordStep(info));
-				});
-
-			a3d::testing::RunnerTestAccess::start(
-				runner, AtMilliseconds(3000));
-			Expect(
-				a3d::testing::RunnerTestAccess::update(
-					runner, AtMilliseconds(3000)),
-				"the priming VariableStep resume update should continue");
-			runner.pauseSimulation();
-			Expect(
-				a3d::testing::RunnerTestAccess::update(
-					runner, AtMilliseconds(8000)),
-				"the long paused VariableStep update should continue");
-			runner.resumeSimulation();
-			Expect(
-				a3d::testing::RunnerTestAccess::update(
-					runner, AtMilliseconds(9000)),
-				"the suppressed VariableStep resume update should continue");
-			Expect(
-				steps.empty(),
-				"VariableStep resume should suppress paused-time contribution");
-			Expect(
-				a3d::testing::RunnerTestAccess::update(
-					runner, AtMilliseconds(9100)),
-				"the post-resume VariableStep update should continue");
-			Expect(
-				steps.size() == 1,
-				"VariableStep should resume on the next automatic update");
-			ExpectNear(
-				steps.front().deltaTime,
-				0.1,
-				"VariableStep should use only post-resume update time");
-		}
 	}
 
 	void RequestedTickPreconditions() {
 
 		{
 			a3d::Scene scene;
-			a3d::Runner runner(scene, FixedConfiguration());
+			a3d::Runner runner(scene, MakeSimulationConfig());
 			ExpectLogicError(
 				[&] {
 					runner.requestSimulationTick();
@@ -3531,20 +3281,7 @@ namespace {
 
 		{
 			a3d::Scene scene;
-			a3d::Runner runner(scene);
-			a3d::testing::RunnerTestAccess::start(
-				runner, AtMilliseconds(0));
-			runner.pauseSimulation();
-			ExpectLogicError(
-				[&] {
-					runner.requestSimulationTick();
-				},
-				"a requested tick should reject VariableStep timing");
-		}
-
-		{
-			a3d::Scene scene;
-			a3d::Runner runner(scene, FixedConfiguration());
+			a3d::Runner runner(scene, MakeSimulationConfig());
 			a3d::testing::RunnerTestAccess::start(
 				runner, AtMilliseconds(0));
 			ExpectLogicError(
@@ -3567,12 +3304,25 @@ namespace {
 	void RequestedTicksUseFixedDeltaAndIgnoreTimeScale() {
 
 		a3d::Scene scene;
+		std::vector<std::string_view> updateStages;
+		auto inputContext =
+			std::make_unique<RecordingInputContext>(updateStages);
+		auto* inputContextPtr = inputContext.get();
+		scene.inputContext(std::move(inputContext));
 		scene.physicsWorld(std::make_unique<a3d::PhysicsWorld>());
 		auto bodyNode = AddMovingDynamicBody(scene);
-		a3d::Runner runner(scene, FixedConfiguration(0.125, 1));
+		a3d::Runner runner(scene, MakeSimulationConfig(0.125, 1));
+		std::size_t runnerUpdateCount = 0;
 		std::vector<RecordedStep> simulationSteps;
 		std::vector<RecordedStep> physicsSteps;
 
+		runner.updateCallback(
+			[&](a3d::Runner&,
+			    const a3d::Runner::UpdateInfo&) {
+
+				updateStages.push_back("runner");
+				++runnerUpdateCount;
+			});
 		scene.didTickCallback(
 			[&](a3d::Scene&,
 			    const a3d::Scene::TickInfo& info) {
@@ -3592,6 +3342,12 @@ namespace {
 			a3d::testing::RunnerTestAccess::update(
 				runner, AtMilliseconds(0)),
 			"the priming requested-tick update should continue");
+		updateStages.clear();
+		inputContextPtr->reset();
+		runnerUpdateCount = 0;
+		const auto sampleCountBeforeRequests =
+			a3d::testing::RunnerTestAccess::
+				frameStatsHistory(runner).samples().size();
 		runner.timeScale(3.0);
 		runner.pauseSimulation();
 		runner.requestSimulationTick();
@@ -3609,6 +3365,13 @@ namespace {
 			simulationSteps.size() == 3
 				&& physicsSteps.size() == 3,
 			"three requests should execute three simulation and physics steps");
+		Expect(
+			inputContextPtr->updateCount() == 1
+				&& runnerUpdateCount == 1
+				&& updateStages.size() == 2
+				&& updateStages[0] == "input"
+				&& updateStages[1] == "runner",
+			"input and runnerUpdate should remain once-per-Runner-update work");
 
 		for (std::size_t index = 0;
 			 index < simulationSteps.size();
@@ -3654,6 +3417,11 @@ namespace {
 		Expect(
 			LatestFrameStats(runner).simulationTickCount == 3,
 			"requested-tick statistics should report actual completed ticks");
+		Expect(
+			a3d::testing::RunnerTestAccess::
+				frameStatsHistory(runner).samples().size()
+					== sampleCountBeforeRequests + 1,
+			"requested ticks should share one Runner-update profiling batch");
 		Expect(
 			LatestFrameStats(runner).numDynamicBodies == 1,
 			"requested-tick statistics should retain current inventory");
@@ -3746,7 +3514,7 @@ namespace {
 					40 + static_cast<int>(info.tickIndex));
 			});
 
-		a3d::Runner runner(scene, FixedConfiguration());
+		a3d::Runner runner(scene, MakeSimulationConfig());
 		a3d::testing::RunnerTestAccess::start(
 			runner, AtMilliseconds(0));
 		Expect(
@@ -3794,7 +3562,7 @@ namespace {
 	void RequestedTickSnapshotDefersCallbackRequests() {
 
 		a3d::Scene scene;
-		a3d::Runner runner(scene, FixedConfiguration());
+		a3d::Runner runner(scene, MakeSimulationConfig());
 		std::vector<RecordedStep> steps;
 
 		scene.willTickCallback(
@@ -3849,7 +3617,7 @@ namespace {
 		a3d::Scene scene;
 		scene.physicsWorld(std::make_unique<a3d::PhysicsWorld>());
 		auto bodyNode = AddMovingDynamicBody(scene);
-		a3d::Runner runner(scene, FixedConfiguration());
+		a3d::Runner runner(scene, MakeSimulationConfig());
 		std::vector<std::string_view> stages;
 
 		scene.willTickCallback(
@@ -3909,7 +3677,7 @@ namespace {
 	void ResumeInterruptsRequestedTicksAndClearsRemainder() {
 
 		a3d::Scene scene;
-		a3d::Runner runner(scene, FixedConfiguration());
+		a3d::Runner runner(scene, MakeSimulationConfig());
 		std::vector<RecordedStep> steps;
 
 		scene.willTickCallback(
@@ -3982,7 +3750,7 @@ namespace {
 			a3d::Scene repausedScene;
 			a3d::Runner repausedRunner(
 				repausedScene,
-				FixedConfiguration());
+				MakeSimulationConfig());
 			std::size_t repausedTickCount = 0;
 
 			repausedScene.willTickCallback(
@@ -4030,10 +3798,9 @@ namespace {
 		{"simulation-config-defaults", SimulationConfigDefaults},
 		{"simulation-config-validation", SimulationConfigValidation},
 		{"first-update-zero-simulation-ticks", FirstUpdateExecutesNoSimulationTicks},
-		{"variable-step-scale-cap-discard", VariableStepScalesCapsAndReportsDiscard},
-		{"fixed-step-fractional-accumulator", FixedStepRetainsFractionalAccumulator},
-		{"fixed-step-catch-up-overflow", FixedStepLimitsCatchUpAndReportsDiscard},
-		{"pause-simulation-preconditions", PauseSimulationPreconditionsAndModes},
+		{"simulation-fractional-accumulator", SimulationRetainsFractionalAccumulator},
+		{"simulation-catch-up-overflow", SimulationLimitsCatchUpAndReportsDiscard},
+		{"pause-simulation-preconditions", PauseSimulationPreconditions},
 		{"paused-update-pipeline", PausedUpdatesKeepInputRunnerAndStatisticsActive},
 		{"pause-clears-fixed-accumulator", PauseClearsFixedAccumulatorWithoutDiscard},
 		{"pause-callback-boundaries", PauseDuringInputAndRunnerCallbacksSuppressesScheduling},
@@ -4065,8 +3832,8 @@ namespace {
 		{"physics-inventory-before-did-step", PhysicsInventoryPrecedesDidStep},
 		{"bullet-exact-step", BulletAdvancesExactlyOncePerSimulationTick},
 		{"bullet-invalid-step-delta", BulletRejectsInvalidStepDelta},
-		{"fixed-step-repeatability", FixedStepPhysicsIsRepeatable},
-		{"fixed-step-120hz-long-run", FixedStepAtOneHundredTwentyHertzDoesNotDrift}
+		{"simulation-repeatability", SimulationPhysicsIsRepeatable},
+		{"simulation-120hz-long-run", SimulationAtOneHundredTwentyHertzDoesNotDrift}
 	};
 
 	bool RunTest(
