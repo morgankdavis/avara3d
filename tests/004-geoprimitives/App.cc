@@ -239,18 +239,15 @@ void App::hostUpdate(Runner& runner,
 
 	auto keysPressed = im->keysPressed();
 	auto keysDown = im->keysDown();
-
-	auto cursorCaptured = true;
-	if (window) {
-		cursorCaptured = window->cursorCaptured();
-	}
+	auto mousePositionDelta = im->mousePositionDelta();
 
 	using Key = DesktopInputContext::Key;
-	using MouseButton = DesktopInputContext::MouseButton;
 
 	if (keysPressed.count(Key::Slash)) {
 		window->cursorCaptured(!(window->cursorCaptured()));
 	}
+
+	const auto cursorCaptured = window->cursorCaptured();
 
 	if (keysPressed.count(Key::Escape)) {
 		window->close();
@@ -294,7 +291,6 @@ void App::hostUpdate(Runner& runner,
 			static const float MOUSE_SPEED_SCALAR = .002;
 			static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
 
-			vec2 mousePositionDelta = im->mousePositionDelta();
 			float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
 			float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
 

@@ -108,13 +108,9 @@ void App::hostUpdate(Runner& runner,
 	auto im = static_cast<DesktopInputContext*>(&inputContext);
 
 	auto mouseButtonsDown = im->mouseButtonsDown();
-	auto mouseButtonsPressed = im->mouseButtonsPressed();
 	auto keysDown = im->keysDown();
 	auto keysPressed = im->keysPressed();
-	auto cursorCaptured = true;
-	if (window) {
-		cursorCaptured = window->cursorCaptured();
-	}
+	auto mousePositionDelta = im->mousePositionDelta();
 
 	using Key = DesktopInputContext::Key;
 	using MouseButton = DesktopInputContext::MouseButton;
@@ -251,6 +247,8 @@ void App::hostUpdate(Runner& runner,
 		window->cursorCaptured(!(window->cursorCaptured()));
 	}
 
+	const auto cursorCaptured = window->cursorCaptured();
+
 	if (keysPressed.count(Key::R)) {
 		if (!window->recordingGIF()) {
 			util::snapshot::StartGIFRecording(*window, {320, 240}, 8);
@@ -263,8 +261,6 @@ void App::hostUpdate(Runner& runner,
 	if (cursorCaptured) {
 
 		// mouselook
-
-		vec2 mousePositionDelta = im->mousePositionDelta();
 
 		if (auto pov = scene.visualWorld()->pointOfView().lock()) {
 

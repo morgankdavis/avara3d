@@ -64,14 +64,8 @@ App::App(int argc, char* argv[]):
 		Application(argc, argv, APP_LOG_LEVEL),
 		_duckNode{nullptr},
 		_cameraMoveSpeed{0.0f},
-		_spawnDuckFruit{false},
-		_pendingDuckFruitSpawnCount{0},
 		_duckFruitSpawnAccumulator{0.0},
-		_shootSlurm{false},
-		_slurmShotAccumulator{0.0},
-		_pendingSlurmShots{},
-		_slurmLocation{},
-		_slurmDirection{} {
+		_slurmShotAccumulator{0.0} {
 }
 
 App::~App() = default;
@@ -271,7 +265,8 @@ void App::hostUpdate(Runner& runner,
 	auto mouseButtonsPressed = im->mouseButtonsPressed();
 	auto keysDown = im->keysDown();
 	auto keysPressed = im->keysPressed();
-	auto cursorCaptured = _window->cursorCaptured();
+	auto mousePositionDelta = im->mousePositionDelta();
+	auto mouseScrollWheelDelta = im->mouseScrollWheelDelta();
 
 	// TEMPORARY for macOS mouse input testing
 //	if (keysPressed.count(Key::Z)) {
@@ -296,6 +291,8 @@ void App::hostUpdate(Runner& runner,
 	if (keysPressed.count(Key::Slash)) {
 		_window->cursorCaptured(!(_window->cursorCaptured()));
 	}
+
+	const auto cursorCaptured = _window->cursorCaptured();
 
 	if (keysPressed.count(Key::Backslash)) {
 		util::snapshot::SaveSnapshot(*_window);
@@ -373,19 +370,11 @@ void App::hostUpdate(Runner& runner,
 //			log::app::i()("TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
 //		}
 
-	// spawn duck fruit
-
 	if (keysPressed.count(Key::GraveAccent)) {
 		queueSceneCommand([](Scene& scene) {
 			AddBoxes(scene);
 		});
 	}
-
-	const bool spawnDuckFruit = keysDown.count(Key::Tab);
-	if (spawnDuckFruit && !_spawnDuckFruit) {
-		++_pendingDuckFruitSpawnCount;
-	}
-	_spawnDuckFruit = spawnDuckFruit;
 
 	if (keysPressed.count(Key::L)) {
 		if (auto cameraNode = scene.visualWorld()->pointOfView().lock()) {
@@ -435,37 +424,6 @@ void App::hostUpdate(Runner& runner,
 		// NOTE: once the window is hidden, the scene keeps running but you
 		// no longer get key events from the window!
 		_window->hidden(!_window->hidden());
-	}
-
-
-	if (scene.visualWorld() && cursorCaptured) {
-
-		if (mouseButtonsPressed.count(MouseButton::One)) {
-			if (auto pov = scene.visualWorld()->pointOfView().lock()) {
-				_pendingSlurmShots.push({
-					.location = pov->worldPosition(),
-					.direction = pov->worldForward()
-				});
-			}
-		}
-
-		const bool shootSlurm = mouseButtonsDown.count(MouseButton::Two);
-		if (shootSlurm) {
-			if (auto pov = scene.visualWorld()->pointOfView().lock()) {
-				_slurmLocation = pov->worldPosition();
-				_slurmDirection = pov->worldForward();
-				if (!_shootSlurm) {
-					_pendingSlurmShots.push({
-						.location = _slurmLocation,
-						.direction = _slurmDirection
-					});
-				}
-			}
-		}
-		_shootSlurm = shootSlurm;
-	}
-	else {
-		_shootSlurm = false;
 	}
 
 	using DebugOptions = Scene::DebugOptions;
@@ -573,7 +531,39 @@ void App::hostUpdate(Runner& runner,
 		});
 	}
 
-	vec2 mouseScrollWheelDelta = im->mouseScrollWheelDelta();
+	if (keysPressed.count(Key::Tab)) {
+		// Queue the immediate spawn; sceneWillStep() handles held repeats.
+		queueSceneCommand([this](Scene& scene) {
+			SpawnDuckFruit(scene, *_duckNode, _duckFruit);
+			_duckFruitSpawnAccumulator = 0.0;
+		});
+	}
+
+	if (cursorCaptured
+		&& (mouseButtonsPressed.count(MouseButton::One)
+		    || mouseButtonsPressed.count(MouseButton::Two))) {
+
+		if (auto visualWorld = scene.visualWorld()) {
+			if (auto pov = visualWorld->pointOfView().lock()) {
+				const auto location = pov->worldPosition();
+				const auto direction = pov->worldForward();
+
+				if (mouseButtonsPressed.count(MouseButton::One)) {
+					queueSceneCommand([location, direction](Scene& scene) {
+						ShootSlurm(scene, location, direction);
+					});
+				}
+
+				if (mouseButtonsPressed.count(MouseButton::Two)) {
+					queueSceneCommand([this, location, direction](Scene& scene) {
+						ShootSlurm(scene, location, direction);
+						_slurmShotAccumulator = 0.0;
+					});
+				}
+			}
+		}
+	}
+
 	if (mouseScrollWheelDelta.y > 0) {
 		runner.timeScale(math::clamp(runner.timeScale() + mouseScrollWheelDelta.y * 0.1,
 		                            0.1,
@@ -583,8 +573,6 @@ void App::hostUpdate(Runner& runner,
 	if (cursorCaptured) {
 
 		// mouselook
-
-		vec2 mousePositionDelta = im->mousePositionDelta();
 
 		if (auto pov = scene.visualWorld()->pointOfView().lock()) {
 
@@ -647,21 +635,17 @@ void App::hostUpdate(Runner& runner,
 
 void App::sceneWillStep(Scene& scene,
                         const Scene::StepInfo& info) {
+	auto& input = static_cast<DesktopInputContext&>(*scene.inputContext());
+
+	using Key = DesktopInputContext::Key;
+	using MouseButton = DesktopInputContext::MouseButton;
 
 	if (_duckNode) {
 		_duckRotator->update(*_duckNode, info.deltaTime);
 	}
 
 	constexpr double DUCK_FRUIT_SPAWN_INTERVAL = 1.0 / 10.0;
-	if (_pendingDuckFruitSpawnCount > 0) {
-		const auto pendingCount =
-			std::exchange(_pendingDuckFruitSpawnCount, 0);
-		for (std::size_t i = 0; i < pendingCount; ++i) {
-			SpawnDuckFruit(scene, *_duckNode, _duckFruit);
-		}
-		_duckFruitSpawnAccumulator = 0.0;
-	}
-	else if (_spawnDuckFruit) {
+	if (input.keyDown(Key::Tab)) {
 		_duckFruitSpawnAccumulator += info.deltaTime;
 		while (_duckFruitSpawnAccumulator >= DUCK_FRUIT_SPAWN_INTERVAL) {
 			SpawnDuckFruit(scene, *_duckNode, _duckFruit);
@@ -673,19 +657,21 @@ void App::sceneWillStep(Scene& scene,
 	}
 
 	constexpr double SLURM_SHOT_INTERVAL = 1.0 / 20.0;
-	if (!_pendingSlurmShots.empty()) {
-		const auto pendingCount = _pendingSlurmShots.size();
-		for (std::size_t i = 0; i < pendingCount; ++i) {
-			auto request = std::move(_pendingSlurmShots.front());
-			_pendingSlurmShots.pop();
-			ShootSlurm(scene, request.location, request.direction);
+	shared_ptr<Node> pointOfView;
+	if (input.mouseButtonDown(MouseButton::Two)
+		&& _window->cursorCaptured()) {
+
+		if (auto visualWorld = scene.visualWorld()) {
+			pointOfView = visualWorld->pointOfView().lock();
 		}
-		_slurmShotAccumulator = 0.0;
 	}
-	else if (_shootSlurm) {
+
+	if (pointOfView) {
 		_slurmShotAccumulator += info.deltaTime;
 		while (_slurmShotAccumulator >= SLURM_SHOT_INTERVAL) {
-			ShootSlurm(scene, _slurmLocation, _slurmDirection);
+			ShootSlurm(scene,
+			           pointOfView->worldPosition(),
+			           pointOfView->worldForward());
 			_slurmShotAccumulator -= SLURM_SHOT_INTERVAL;
 		}
 	}

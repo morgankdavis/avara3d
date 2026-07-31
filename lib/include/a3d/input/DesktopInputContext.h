@@ -177,13 +177,17 @@ namespace a3d {
 		std::unordered_set<Key> 			keysDown(); // keys currently down
 		std::unordered_set<MouseButton> 	mouseButtonsDown(); // mouse buttons currently down
 
+		// TODO: rework theese.
+
 		// only reports keys down for one query until they are released
 		std::unordered_set<Key> 			keysPressed();
 		// only reports mouse buttons down for one query until they are released
 		std::unordered_set<MouseButton> 	mouseButtonsPressed();
 
-		math::vec2 							mousePositionDelta(); // mouse position delta since last query
-		math::vec2 							mouseScrollWheelDelta(); // mouse wheen scroll delta since last query
+		// mouse position delta since last query
+		math::vec2 							mousePositionDelta();
+		// mouse wheen scroll delta since last query
+		math::vec2 							mouseScrollWheelDelta();
 
 	protected:
 		/// Protected Member Variables ///

@@ -126,9 +126,10 @@ void App::hostUpdate(Runner& runner,
 	auto im = static_cast<DesktopInputContext*>(&inputContext);
 
 	auto keysPressed = im->keysPressed();
+	auto keysDown = im->keysDown();
+	auto mousePositionDelta = im->mousePositionDelta();
 
 	using Key = DesktopInputContext::Key;
-	using MouseButton = DesktopInputContext::MouseButton;
 
 	if (keysPressed.count(Key::Escape)) {
 		window->close();
@@ -192,8 +193,6 @@ void App::hostUpdate(Runner& runner,
 
 		// mouselook
 
-		vec2 mousePositionDelta = im->mousePositionDelta();
-
 		auto pov = scene.visualWorld()->pointOfView().lock();
 		if (pov) {
 
@@ -215,8 +214,6 @@ void App::hostUpdate(Runner& runner,
 			// move
 
 			static float MOVE_SPEED = math::max(scene.rootNode()->extent());
-
-			auto keysDown = im->keysDown();
 
 			if (keysDown.count(Key::W)) {
 				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * camForward;

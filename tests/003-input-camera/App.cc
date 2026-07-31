@@ -98,11 +98,14 @@ void App::hostUpdate(Runner& runner,
 	using MouseButton = DesktopInputContext::MouseButton;
 
 	auto keysDown = im->keysDown();
+	auto keysPressed = im->keysPressed();
+	auto mouseButtonsDown = im->mouseButtonsDown();
+	auto mouseScrollWheelDelta = im->mouseScrollWheelDelta();
+	auto mousePositionDelta = im->mousePositionDelta();
+
 	for (auto k : keysDown) {
 		cout << "Key: " << static_cast<underlying_type<Key>::type>(k) << endl;
 	}
-
-	auto keysPressed = im->keysPressed();
 
 	if (keysPressed.count(Key::Slash)) {
 		window->cursorCaptured(!(window->cursorCaptured()));
@@ -112,11 +115,10 @@ void App::hostUpdate(Runner& runner,
 		_window->close();
 	}
 
-	for (auto mb : im->mouseButtonsDown()) {
+	for (auto mb : mouseButtonsDown) {
 		cout << "Mouse button: " << static_cast<underlying_type<MouseButton>::type>(mb) << endl;
 	}
 
-	vec2 mouseScrollWheelDelta = im->mouseScrollWheelDelta();
 	if (mouseScrollWheelDelta.x > 0 || mouseScrollWheelDelta.y > 0) {
 		cout << "Mouse scroll wheel delta: (" << mouseScrollWheelDelta.x << ", "
 			 << mouseScrollWheelDelta.y << ")" << endl;
@@ -139,7 +141,6 @@ void App::hostUpdate(Runner& runner,
 		static const float MOUSE_SPEED_SCALAR = .002;
 		static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
 
-		vec2 mousePositionDelta = im->mousePositionDelta();
 		float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
 		float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
 

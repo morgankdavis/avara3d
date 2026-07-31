@@ -142,9 +142,10 @@ void App::hostUpdate(Runner& runner,
 	auto im = static_cast<DesktopInputContext*>(&inputContext);
 	auto keysPressed = im->keysPressed();
 	auto keysDown = im->keysDown();
+	auto mousePositionDelta = im->mousePositionDelta();
+	auto mouseScrollWheelDelta = im->mouseScrollWheelDelta();
 
 	using Key = DesktopInputContext::Key;
-	using MouseButton = DesktopInputContext::MouseButton;
 
 	if (keysPressed.count(Key::Escape)) {
 		window->close();
@@ -217,13 +218,10 @@ void App::hostUpdate(Runner& runner,
 
 	if (window->cursorCaptured()) {
 
-		vec2 mousePositionDelta = im->mousePositionDelta();
-
 		// move camera
 
 		if (auto pov = scene.visualWorld()->pointOfView().lock()) {
 
-			vec2 mouseScrollWheelDelta = im->mouseScrollWheelDelta();
 			if (mouseScrollWheelDelta.y) {
 
 				static const float FOV_SPEED = 2.5; // degrees/roll
@@ -250,8 +248,6 @@ void App::hostUpdate(Runner& runner,
 			pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
 
 			// move
-
-//			auto keysDown = im->keysDown();
 
 			static float MOVE_SPEED = 0;
 			if (!MOVE_SPEED) MOVE_SPEED = math::max(scene.rootNode()->extent());
