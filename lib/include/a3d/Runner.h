@@ -51,8 +51,8 @@ namespace a3d {
 			double			deltaTime{0.0};
 		};
 
-		using UpdateCallback = std::function<void(Runner &runner,
-		                                          const UpdateInfo &info)>;
+		using UpdateCallback = std::function<void(Runner& runner,
+		                                          const UpdateInfo& info)>;
 
 		/// Public Lifecycle Functions ///
 
@@ -111,12 +111,12 @@ namespace a3d {
 		void						start(TimePoint now);
 		bool						update(TimePoint now);
 
-		PhysicsInventory			scheduleSimulation(const UpdateInfo &info,
+		PhysicsInventory			scheduleSimulation(const UpdateInfo& info,
 					                                   FrameStats& stats);
 		PhysicsInventory			executeRequestedSteps(FrameStats& stats);
 		PhysicsInventory			executeSimulationStep();
 		PhysicsInventory			currentPhysicsInventory();
-		void						copyPhysicsInventory(const PhysicsInventory &inventory,
+		void						copyPhysicsInventory(const PhysicsInventory& inventory,
 								                         FrameStats& stats);
 
 		bool						renderFrame(const UpdateInfo& info, FrameStats& stats);

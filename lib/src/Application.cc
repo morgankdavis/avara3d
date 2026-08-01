@@ -76,7 +76,7 @@ int Application::Run(
 
 /// Public Lifecycle Functions ///
 
-Application::Application(int argc, char *argv[], Log::Level logLevel):
+Application::Application(int argc, char* argv[], Log::Level logLevel):
 	_args(argv + 1, argv + argc),
 	_scene{},
 	_runner{},
@@ -154,7 +154,7 @@ void Application::sceneDidStep(Scene& scene, const Scene::StepInfo& info) {}
 
 // void Application::renderFrame(VisualWorld& visualWorld,
 // 							  const VisualWorld::RenderInfo& info) {}
-void Application::didBeginFrame(VisualWorld &visualWorld, const VisualWorld::RenderInfo& info) {}
+void Application::didBeginFrame(VisualWorld& visualWorld, const VisualWorld::RenderInfo& info) {}
 
 /// Private Member Functions ///
 
@@ -281,8 +281,8 @@ void Application::dispatchSceneDidStep(Scene& scene, const Scene::StepInfo& info
 // 	renderFrame(visualWorld, info);
 // }
 
-void Application::dispatchDidBeginFrame(VisualWorld &visualWorld,
-									  const VisualWorld::RenderInfo & info) {
+void Application::dispatchDidBeginFrame(VisualWorld& visualWorld,
+									  const VisualWorld::RenderInfo& info) {
 
 	executePendingCommands(_renderCommandQueue, visualWorld);
 	didBeginFrame(visualWorld, info);

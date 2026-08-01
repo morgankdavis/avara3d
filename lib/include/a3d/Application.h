@@ -81,7 +81,7 @@ namespace a3d {
 
 		// virtual void					renderFrame(VisualWorld& visualWorld,
 		// 					                        const VisualWorld::RenderInfo& info);
-		virtual void					didBeginFrame(VisualWorld &visualWorld,
+		virtual void					didBeginFrame(VisualWorld& visualWorld,
 							                          const VisualWorld::RenderInfo& info);
 
 	private:
@@ -103,8 +103,8 @@ namespace a3d {
 		// 			                                  const VisualWorld::RenderInfo& info);
 		// void			dispatchRenderFrame(VisualWorld& visualWorld,
 		// 			                        const VisualWorld::RenderInfo& info);
-		void			dispatchDidBeginFrame(VisualWorld &visualWorld,
-					                          const VisualWorld::RenderInfo & info);
+		void			dispatchDidBeginFrame(VisualWorld& visualWorld,
+					                          const VisualWorld::RenderInfo& info);
 
 		/// Private Member Variables ///
 
@@ -121,7 +121,7 @@ namespace a3d {
 	};
 
 	template<typename Context>
-	void Application::executePendingCommands(CommandQueue<Context> &queue, Context &context) {
+	void Application::executePendingCommands(CommandQueue<Context>& queue, Context& context) {
 		const auto pendingCount = queue.size();
 		for (std::size_t i = 0; i < pendingCount; ++i) {
 			auto command = std::move(queue.front());

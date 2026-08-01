@@ -33,11 +33,11 @@ namespace a3d {
 	public:
 		/// Public Types ///
 
-		using BeginContactCallback = std::function<void(PhysicsWorld &physicsWorld,
-		                                                PhysicsContact &contact)>;
-		using ContinueContactCallback = std::function<void(PhysicsWorld &physicsWorld,
-		                                                   PhysicsContact &contact)>;
-		using EndContactCallback = std::function<void(PhysicsWorld &physicsWorld,
+		using BeginContactCallback = std::function<void(PhysicsWorld& physicsWorld,
+		                                                PhysicsContact& contact)>;
+		using ContinueContactCallback = std::function<void(PhysicsWorld& physicsWorld,
+		                                                   PhysicsContact& contact)>;
+		using EndContactCallback = std::function<void(PhysicsWorld& physicsWorld,
 		                                              PhysicsContact& contact)>;
 
 		/// Public Lifecycle Functions ///
@@ -63,7 +63,7 @@ namespace a3d {
 		std::optional<HitTestResult> 	rayTest(const math::vec3& fromVec,
 		                                        const math::vec3& toVec);
 		std::optional<PhysicsContact> 	convexSweepTest(const PhysicsContact& contact,
-		                                                 const math::mat4 &fromMat,
+		                                                 const math::mat4& fromMat,
 		                                                 const math::mat4& toMat);
 
 		void 							updateCollisionPairs();

@@ -46,9 +46,9 @@ using namespace std;
 
 void TreeStringRec(Node& n, stringstream& ss, unsigned depth);
 
-void a3d::util::string::Replace(std::string &str,
-						 const std::string &oldStr,
-						 const std::string &newStr) {
+void a3d::util::string::Replace(std::string& str,
+						 const std::string& oldStr,
+						 const std::string& newStr) {
 	std::string::size_type pos = 0u;
 	while ((pos = str.find(oldStr, pos)) != std::string::npos) {
 		str.replace(pos, oldStr.length(), newStr);

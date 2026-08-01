@@ -39,14 +39,14 @@ namespace a3d {
 
 	struct VertexAccess {
 
-		static const VertexAttribDesc*			FindAttrib(const VertexLayoutDesc &desc,
+		static const VertexAttribDesc*			FindAttrib(const VertexLayoutDesc& desc,
 															 VertexSemantic semantic);
 		static const VertexAttribDesc*			GetPositionAttribF32x3(VertexLayout layout);
-		static math::vec3 						ReadVec3(const std::byte *base,
+		static math::vec3 						ReadVec3(const std::byte* base,
 														  uint16_t offset);
-		static void 							WriteVec3(std::byte *base,
+		static void 							WriteVec3(std::byte* base,
 														 uint16_t offset,
-														 const math::vec3 &vec);
+														 const math::vec3& vec);
 		static std::optional<VertexStreamView>  GetStreamView(const MeshElement& element,
 															  VertexSemantic semantic,
 															  VertexAttribFormat expectedFormat);

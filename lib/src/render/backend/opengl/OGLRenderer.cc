@@ -215,21 +215,21 @@ struct ImguiStatsTextLayout {
 
 static void LogGLInfo();
 
-static void SendMaterialUniforms(const Material &material,
-                                 GLSLProgram &program,
-                                 const std::array<GLuint, 4> &glTextureHandles,
-                                 OGLRenderer::GLStateCache &state);
+static void SendMaterialUniforms(const Material& material,
+                                 GLSLProgram& program,
+                                 const std::array<GLuint, 4>& glTextureHandles,
+                                 OGLRenderer::GLStateCache& state);
 
-static void SendMaterialPropertyUniforms(const Material::Property &property,
+static void SendMaterialPropertyUniforms(const Material::Property& property,
                                          Material::PropertyType type,
                                          GLuint glTextureHandle,
-                                         GLSLProgram &program,
-                                         OGLRenderer::GLStateCache &state);
+                                         GLSLProgram& program,
+                                         OGLRenderer::GLStateCache& state);
 
 static void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
-                                    const Scene &scene,
-                                    const vector<Node *> &lightNodes,
-                                    FrameStats &stats);
+                                    const Scene& scene,
+                                    const vector<Node*>& lightNodes,
+                                    FrameStats& stats);
 
 static void ApplyBlendFunction(Material::BlendFunction func);
 
@@ -239,42 +239,42 @@ static GLenum GLFilterModeForFilterMode(Sampler::FilterMode mode);
 
 static GLenum GLWrapModeForWrapMode(Sampler::WrapMode mode);
 
-static void DrawOverlay(const RenderContext &context,
-                        const Scene &scene,
-                        FrameStats &stats,
-                        const FrameStatsHistory &statsHistory,
+static void DrawOverlay(const RenderContext& context,
+                        const Scene& scene,
+                        FrameStats& stats,
+                        const FrameStatsHistory& statsHistory,
                         Scene::DebugOptions debugOptions,
-                        ImFont &titleFont,
-                        ImFont &bodyFont,
-                        ImFont &altBodyFont);
+                        ImFont& titleFont,
+                        ImFont& bodyFont,
+                        ImFont& altBodyFont);
 
-static void DrawHeader(ImFont &titleFont,
-                       ImFont &bodyFont,
+static void DrawHeader(ImFont& titleFont,
+                       ImFont& bodyFont,
                        bool active,
-                       float &yPos_out,
-                       int &id_out);
+                       float& yPos_out,
+                       int& id_out);
 
-static void DrawStats(FrameStats &stats,
-                      const FrameStatsHistory &statsHistory,
-                      const RenderContext &context,
-                      ImFont &bodyFont,
-                      ImFont &altBodyFont,
+static void DrawStats(FrameStats& stats,
+                      const FrameStatsHistory& statsHistory,
+                      const RenderContext& context,
+                      ImFont& bodyFont,
+                      ImFont& altBodyFont,
                       float yPos,
                       int id);
 
-static void DrawDebugOptions(Scene &scene,
-                             ImFont &bodyFont);
+static void DrawDebugOptions(Scene& scene,
+                             ImFont& bodyFont);
 
-static void ImguiInit(const RenderContext &context,
-                      ImFont *&titleFont,
-                      ImFont *&bodyFont,
-                      ImFont *&altFont);
+static void ImguiInit(const RenderContext& context,
+                      ImFont*& titleFont,
+                      ImFont*& bodyFont,
+                      ImFont*& altFont);
 
-static void ImguiUpdateScale(const RenderContext &context);
+static void ImguiUpdateScale(const RenderContext& context);
 
-static void ImguiAddFont(const RenderContext &context,
-                         const Font &font,
-                         ImFont *&imFont);
+static void ImguiAddFont(const RenderContext& context,
+                         const Font& font,
+                         ImFont*& imFont);
 
 static void ImguiBeginOverlay(int id, bool allowsInput);
 
@@ -282,18 +282,18 @@ static void ImguiEndOverlay();
 
 static void ImguiDrawText(float x,
                           float y,
-                          const char *text,
-                          ImFont &font,
+                          const char* text,
+                          ImFont& font,
                           float size,
                           ImU32 color,
                           bool shadow);
 
 static void ImguiDrawPlot(float x, float y, float w, float h,
-                          const float *values,
+                          const float* values,
                           int valuesCount,
                           int valuesOffset,
-                          const char *overlayText,
-                          ImFont *overlayFont,
+                          const char* overlayText,
+                          ImFont* overlayFont,
                           float overlayFontSize,
                           float scaleMin,
                           float scaleMax,
@@ -304,38 +304,38 @@ static void ImguiDrawPlot(float x, float y, float w, float h,
 
 static bool ImguiDrawCheckbox(float x,
                               float y,
-                              const char *text,
-                              bool &checked,
-                              ImFont &font,
+                              const char* text,
+                              bool& checked,
+                              ImFont& font,
                               float size,
                               bool disabled,
                               int id);
 
-static void ImguiDrawLabelValue(float &y,
-                                const ImguiStatsTextLayout &layout,
-                                const char *label,
-                                const std::string &value,
-                                ImFont &font,
+static void ImguiDrawLabelValue(float& y,
+                                const ImguiStatsTextLayout& layout,
+                                const char* label,
+                                const std::string& value,
+                                ImFont& font,
                                 float fontSize,
                                 float lineStep,
                                 ImU32 color = IM_COL32(255, 255, 255, 255));
 
-static void ImguiDrawLabelValueIndented(float &y,
-                                        const ImguiStatsTextLayout &layout,
-                                        const char *label,
-                                        const std::string &value,
-                                        ImFont &font,
+static void ImguiDrawLabelValueIndented(float& y,
+                                        const ImguiStatsTextLayout& layout,
+                                        const char* label,
+                                        const std::string& value,
+                                        ImFont& font,
                                         float fontSize,
                                         float indentPx,
                                         float lineStep,
                                         ImU32 color = IM_COL32(255, 255, 255, 255));
 
-static void ImguiDrawPlot(float x, float &y, float w, float h,
-                          const float *values,
+static void ImguiDrawPlot(float x, float& y, float w, float h,
+                          const float* values,
                           int valuesCount,
                           int valuesOffset,
-                          const char *overlayText,
-                          ImFont *overlayFont,
+                          const char* overlayText,
+                          ImFont* overlayFont,
                           float overlayFontSize,
                           float scaleMin,
                           float scaleMax,
@@ -404,7 +404,7 @@ OGLRenderer::~OGLRenderer() {
 
 /// Renderer Internal Member Functions ///
 
-bool OGLRenderer::initialize(const RenderContext &context) {
+bool OGLRenderer::initialize(const RenderContext& context) {
 	log::i();
 
 	_defaultProgram = make_unique<GLSLProgram>("default");
@@ -425,7 +425,7 @@ bool OGLRenderer::initialize(const RenderContext &context) {
 	_skyboxMesh = make_unique<a3d::Mesh>(make_unique<Box>(1, 1, 1), nullptr);
 
 	// TODO: do something better
-	auto bindBlock = [&](GLuint program, const char *blockName) {
+	auto bindBlock = [&](GLuint program, const char* blockName) {
 		GLuint idx = glGetUniformBlockIndex(program, blockName);
 		if (idx == GL_INVALID_INDEX) return; // program doesn't have the block
 		glUniformBlockBinding(program, idx, ENV_BINDING_POINT);
@@ -447,11 +447,11 @@ bool OGLRenderer::isInitialized() const {
 	return _isInitialized;
 }
 
-void OGLRenderer::beginFrame(const Scene &scene,
-                             const RenderContext &context,
-                             const Scene::DebugOptions &debugOptions,
-                             FrameStats &stats,
-                             Profiler &profiler) {
+void OGLRenderer::beginFrame(const Scene& scene,
+                             const RenderContext& context,
+                             const Scene::DebugOptions& debugOptions,
+                             FrameStats& stats,
+                             Profiler& profiler) {
 	if (_drawTimer.isAvailable()) {
 		stats.isRenderGpuTimeAvailable = true;
 		_drawTimer.begin();
@@ -471,12 +471,12 @@ void OGLRenderer::beginFrame(const Scene &scene,
 	ImGui::NewFrame();
 }
 
-void OGLRenderer::endFrame(const Scene &scene,
-                           const RenderContext &context,
-                           const Scene::DebugOptions &debugOptions,
-                           FrameStats &stats,
-                           Profiler &profiler,
-                           const FrameStatsHistory &statsHistory) {
+void OGLRenderer::endFrame(const Scene& scene,
+                           const RenderContext& context,
+                           const Scene::DebugOptions& debugOptions,
+                           FrameStats& stats,
+                           Profiler& profiler,
+                           const FrameStatsHistory& statsHistory) {
 	DrawOverlay(context, scene, stats, statsHistory, debugOptions,
 	            *_overlayTitleImFont, *_overlayBodyImFont, *_overlayAltImFont);
 
@@ -487,22 +487,22 @@ void OGLRenderer::endFrame(const Scene &scene,
 	}
 }
 
-void OGLRenderer::preTraversal(const Scene &scene,
-                               const RenderContext &context,
-                               const Scene::DebugOptions &debugOptions,
-                               FrameStats &stats) {
+void OGLRenderer::preTraversal(const Scene& scene,
+                               const RenderContext& context,
+                               const Scene::DebugOptions& debugOptions,
+                               FrameStats& stats) {
 }
 
-void OGLRenderer::postTraversal(const Scene &scene,
-                                const RenderContext &context,
-                                const vector<Node *> &lightNodes,
-                                const Scene::DebugOptions &debugOptions,
-                                FrameStats &stats) {
+void OGLRenderer::postTraversal(const Scene& scene,
+                                const RenderContext& context,
+                                const vector<Node*>& lightNodes,
+                                const Scene::DebugOptions& debugOptions,
+                                FrameStats& stats) {
 	SendEnvironmentUniforms(_glEnvironmentUBO, scene, lightNodes, stats);
 }
 
-void OGLRenderer::clear(const ClearCommand &cmd,
-                        const RenderContext &context) {
+void OGLRenderer::clear(const ClearCommand& cmd,
+                        const RenderContext& context) {
 	// target-specific clear:
 	// if (cmd.bindFramebuffer) glBindFramebuffer(GL_FRAMEBUFFER, cmd.framebuffer);
 
@@ -588,12 +588,12 @@ void OGLRenderer::clear(const ClearCommand &cmd,
 	}
 }
 
-void OGLRenderer::renderPacket(DrawPacket &packet, const FrameParams &frame) {
+void OGLRenderer::renderPacket(DrawPacket& packet, const FrameParams& frame) {
 	resolvePacket(packet, frame);
 	drawPacket(packet, frame);
 }
 
-unique_ptr<Image> OGLRenderer::snapshot(const RenderContext &context) const {
+unique_ptr<Image> OGLRenderer::snapshot(const RenderContext& context) const {
 	auto framebufferSize = context.framebufferSize();
 	auto framebufferWidth = (unsigned) round(framebufferSize.x);
 	auto framebufferHeight = (unsigned) round(framebufferSize.y);
@@ -611,9 +611,9 @@ unique_ptr<Image> OGLRenderer::snapshot(const RenderContext &context) const {
 
 /// Renderer Protected Member Functions ///
 
-void OGLRenderer::drawBackground(const BackgroundPass &backgroundPass,
-                                 const math::mat4 &view,
-                                 const math::mat4 &proj) {
+void OGLRenderer::drawBackground(const BackgroundPass& backgroundPass,
+                                 const math::mat4& view,
+                                 const math::mat4& proj) {
 	if (!backgroundPass.material) return;
 
 	auto bgEmission = backgroundPass.material->emission();
@@ -644,7 +644,7 @@ void OGLRenderer::drawBackground(const BackgroundPass &backgroundPass,
 }
 
 void OGLRenderer::bindPipeline(PipelineId pipelineId,
-                               const OGLResourceCache &cache) {
+                               const OGLResourceCache& cache) {
 	if (_state.pipelineId == pipelineId) {
 		GLint cur = 0;
 		glGetIntegerv(GL_CURRENT_PROGRAM, &cur);
@@ -703,7 +703,7 @@ void OGLRenderer::bindPipeline(PipelineId pipelineId,
 	_state.pipelineId = pipelineId;
 }
 
-void OGLRenderer::bindMaterial(const Material &material) {
+void OGLRenderer::bindMaterial(const Material& material) {
 	//if (_state.material == &material) return;
 	if (_state.material == &material) {
 		_resourceCache.ensureMaterial(const_cast<Material &>(material)); // will apply sampler dirties
@@ -747,7 +747,7 @@ void OGLRenderer::bindMaterial(const Material &material) {
 	_state.material = &material;
 }
 
-void OGLRenderer::bindMeshElement(const MeshElement &element) {
+void OGLRenderer::bindMeshElement(const MeshElement& element) {
 	const OGLPipeline &pipe = _resourceCache.pipeline(_state.pipelineId);
 
 	const VertexLayout elemLayout = element.vertexLayout();
@@ -770,7 +770,7 @@ void OGLRenderer::bindMeshElement(const MeshElement &element) {
 	_boundElement.vertexCount = (GLsizei) res.vertexCount; // <-- for drawArrays fallback
 }
 
-void OGLRenderer::applyMVP(const mat4 &model, const mat4 &view, const mat4 &proj) {
+void OGLRenderer::applyMVP(const mat4& model, const mat4& view, const mat4& proj) {
 	// TEMP: query locations from currently bound program each call (slow but fine)
 	// Later: cache these per Program.
 	GLint program = 0;
@@ -805,7 +805,7 @@ void OGLRenderer::drawElements() {
 	}
 }
 
-void OGLRenderer::draw(const DrawCommand &cmd) {
+void OGLRenderer::draw(const DrawCommand& cmd) {
 	// wrapper over bindPipeline/bindMaterial/bindMeshElement/applyMVP/drawElements
 	bindPipeline(cmd.pipelineId, *cmd.cache);
 	if (cmd.material) {
@@ -818,7 +818,7 @@ void OGLRenderer::draw(const DrawCommand &cmd) {
 	drawElements();
 }
 
-GLSLProgram &OGLRenderer::programForShaderKind(ShaderKind kind) const {
+GLSLProgram& OGLRenderer::programForShaderKind(ShaderKind kind) const {
 	switch (kind) {
 		case ShaderKind::Default: return *_defaultProgram;
 		case ShaderKind::Skybox: return *_skyboxProgram;
@@ -828,9 +828,9 @@ GLSLProgram &OGLRenderer::programForShaderKind(ShaderKind kind) const {
 	throw runtime_error(std::format("Unsupported shader kind: {}", (uint32_t) kind));
 }
 
-void OGLRenderer::drawDebugLines(const math::mat4 &model,
-                                 const math::mat4 &view,
-                                 const math::mat4 &proj) {
+void OGLRenderer::drawDebugLines(const math::mat4& model,
+                                 const math::mat4& view,
+                                 const math::mat4& proj) {
 	// helper for debug line geometry which uses a separate VAO/VBO (_debugLines)
 	// and doesn't follow the normal mesh binding pipeline.
 	applyMVP(model, view, proj);
@@ -840,10 +840,10 @@ void OGLRenderer::drawDebugLines(const math::mat4 &model,
 	glBindVertexArray(0);
 }
 
-void OGLRenderer::renderLinesPass(const LinesPass &pass,
-                                  const RenderContext &context,
-                                  const mat4 &view,
-                                  const mat4 &proj) {
+void OGLRenderer::renderLinesPass(const LinesPass& pass,
+                                  const RenderContext& context,
+                                  const mat4& view,
+                                  const mat4& proj) {
 	if (pass.pipelineId == INVALID_PIPELINE_ID) return;
 	if (pass.lines.empty()) return;
 
@@ -860,12 +860,12 @@ void OGLRenderer::renderLinesPass(const LinesPass &pass,
 
 /// Protected Member Functions ///
 
-void OGLRenderer::resolvePacket(DrawPacket &packet, const FrameParams &frame) {
+void OGLRenderer::resolvePacket(DrawPacket& packet, const FrameParams& frame) {
 	// "resolve / prepare / compile / bake"
 
 	auto resolvePipeline =
-			[&](PipelineId &pipelineId,
-			    const PipelineDesc &desc) -> PipelineId {
+			[&](PipelineId& pipelineId,
+			    const PipelineDesc& desc) -> PipelineId {
 		if (pipelineId == INVALID_PIPELINE_ID) {
 			auto &program = programForShaderKind(desc.shaderKind);
 			pipelineId = _resourceCache.ensurePipeline(desc, program.glID());
@@ -895,7 +895,7 @@ void OGLRenderer::resolvePacket(DrawPacket &packet, const FrameParams &frame) {
 	}
 }
 
-void OGLRenderer::drawPacket(const DrawPacket &packet, const FrameParams &frame) {
+void OGLRenderer::drawPacket(const DrawPacket& packet, const FrameParams& frame) {
 	// "render / execute / submit / draw"
 
 	clear(Renderer::ClearCommand{}, frame.context);
@@ -946,10 +946,10 @@ void LogGLInfo() {
 	log::i()("GL_VERSION: {}", reinterpret_cast<const char *>(version));
 }
 
-void SendMaterialUniforms(const Material &material,
-                          GLSLProgram &program,
-                          const std::array<GLuint, 4> &glTextureHandles,
-                          OGLRenderer::GLStateCache &state) {
+void SendMaterialUniforms(const Material& material,
+                          GLSLProgram& program,
+                          const std::array<GLuint, 4>& glTextureHandles,
+                          OGLRenderer::GLStateCache& state) {
 	// sends uniforms for the Material, and MaterialProperties it has
 
 	program.setUniform("specularExponent", material.specularExponent());
@@ -973,16 +973,16 @@ void SendMaterialUniforms(const Material &material,
 	}
 }
 
-void SendMaterialPropertyUniforms(const Material::Property &property,
+void SendMaterialPropertyUniforms(const Material::Property& property,
                                   Material::PropertyType type,
                                   GLuint glTextureHandle,
-                                  GLSLProgram &program,
-                                  OGLRenderer::GLStateCache &state) {
-	std::visit([&type, &program, &glTextureHandle](auto &&property) -> void {
+                                  GLSLProgram& program,
+                                  OGLRenderer::GLStateCache& state) {
+	std::visit([&type, &program, &glTextureHandle](auto&& property) -> void {
 		using T = std::decay_t<decltype(property)>;
 
 		if constexpr (std::is_same_v<T, shared_ptr<Texture> >) {
-			std::visit([&type, &glTextureHandle, &program](auto &&contents) -> void {
+			std::visit([&type, &glTextureHandle, &program](auto&& contents) -> void {
 				using T = std::decay_t<decltype(contents)>;
 
 				if constexpr (std::is_same_v<T, shared_ptr<Image> >) {
@@ -1074,9 +1074,9 @@ void SendMaterialPropertyUniforms(const Material::Property &property,
 }
 
 void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
-                             const Scene &scene,
-                             const vector<Node *> &lightNodes,
-                             FrameStats &stats) {
+                             const Scene& scene,
+                             const vector<Node*>& lightNodes,
+                             FrameStats& stats) {
 	// block
 
 	EnvironmentBlock environmentStruct{};
@@ -1301,10 +1301,10 @@ GLenum GLWrapModeForWrapMode(Sampler::WrapMode mode) {
 	}
 }
 
-void DrawOverlay(const RenderContext &context,
-                 const Scene &scene,
-                 FrameStats &stats,
-                 const FrameStatsHistory &statsHistory,
+void DrawOverlay(const RenderContext& context,
+                 const Scene& scene,
+                 FrameStats& stats,
+                 const FrameStatsHistory& statsHistory,
                  Scene::DebugOptions debugOptions,
                  ImFont& titleFont,
                  ImFont& bodyFont,
@@ -1370,7 +1370,7 @@ void DrawHeader(ImFont& titleFont,
 	id_out = id;
 }
 
-void DrawStats(FrameStats &stats,
+void DrawStats(FrameStats& stats,
                const FrameStatsHistory& statsHistory,
                const RenderContext& context,
                ImFont& bodyFont,
@@ -1739,7 +1739,7 @@ void DrawDebugOptions(Scene& scene, ImFont& bodyFont) {
 	}
 }
 
-void ImguiInit(const RenderContext &context, ImFont *&titleFont, ImFont *&bodyFont, ImFont *&altFont) {
+void ImguiInit(const RenderContext& context, ImFont*& titleFont, ImFont*& bodyFont, ImFont*& altFont) {
 	using namespace ImGui;
 
 	IMGUI_CHECKVERSION();
@@ -1783,7 +1783,7 @@ void ImguiInit(const RenderContext &context, ImFont *&titleFont, ImFont *&bodyFo
 	ImguiUpdateScale(context);
 }
 
-void ImguiUpdateScale(const RenderContext &context) {
+void ImguiUpdateScale(const RenderContext& context) {
 	using namespace ImGui;
 
 	auto vpSize = context.viewportLogicalSize();
@@ -1795,7 +1795,7 @@ void ImguiUpdateScale(const RenderContext &context) {
 	glViewport(0, 0, vpSize.x * vpScale.x, vpSize.y * vpScale.y);
 }
 
-void ImguiAddFont(const RenderContext &context, const Font &font, ImFont *&imFont) {
+void ImguiAddFont(const RenderContext& context, const Font& font, ImFont*& imFont) {
 	using namespace ImGui;
 
 	ImFontConfig fontConfig{};
@@ -1836,8 +1836,8 @@ void ImguiEndOverlay() {
 
 void ImguiDrawText(float x,
                    float y,
-                   const char *text,
-                   ImFont &font,
+                   const char* text,
+                   ImFont& font,
                    float size,
                    ImU32 color,
                    bool shadow) {
@@ -1855,11 +1855,11 @@ void ImguiDrawText(float x,
 }
 
 void ImguiDrawPlot(float x, float y, float w, float h,
-                   const float *values,
+                   const float* values,
                    int valuesCount,
                    int valuesOffset,
-                   const char *overlayText,
-                   ImFont *overlayFont,
+                   const char* overlayText,
+                   ImFont* overlayFont,
                    float overlayFontSize,
                    float scaleMin,
                    float scaleMax,
@@ -1929,9 +1929,9 @@ void ImguiDrawPlot(float x, float y, float w, float h,
 }
 
 bool ImguiDrawCheckbox(float x, float y,
-                       const char *text,
-                       bool &checked,
-                       ImFont &font,
+                       const char* text,
+                       bool& checked,
+                       ImFont& font,
                        float size,
                        bool disabled,
                        int id) {
@@ -2012,11 +2012,11 @@ bool ImguiDrawCheckbox(float x, float y,
 	return ret;
 }
 
-void ImguiDrawLabelValue(float &y,
-                         const ImguiStatsTextLayout &layout,
-                         const char *label,
-                         const std::string &value,
-                         ImFont &font,
+void ImguiDrawLabelValue(float& y,
+                         const ImguiStatsTextLayout& layout,
+                         const char* label,
+                         const std::string& value,
+                         ImFont& font,
                          float fontSize,
                          float lineStep,
                          ImU32 color) {
@@ -2024,7 +2024,7 @@ void ImguiDrawLabelValue(float &y,
 		return math::floor(x + 0.5f);
 	};
 
-	const auto TextSizeA = [](ImFont &f, float size, const char *text) -> ImVec2 {
+	const auto TextSizeA = [](ImFont& f, float size, const char* text) -> ImVec2 {
 		const float wrapWidth = 0.0f;
 		return f.CalcTextSizeA(size, math::f32_max(), wrapWidth, text);
 	};
@@ -2048,11 +2048,11 @@ void ImguiDrawLabelValue(float &y,
 	y += lineStep;
 }
 
-void ImguiDrawLabelValueIndented(float &y,
-                                 const ImguiStatsTextLayout &layout,
-                                 const char *label,
-                                 const std::string &value,
-                                 ImFont &font,
+void ImguiDrawLabelValueIndented(float& y,
+                                 const ImguiStatsTextLayout& layout,
+                                 const char* label,
+                                 const std::string& value,
+                                 ImFont& font,
                                  float fontSize,
                                  float indentPx,
                                  float lineStep,
@@ -2063,12 +2063,12 @@ void ImguiDrawLabelValueIndented(float &y,
 	y += lineStep;
 }
 
-void ImguiDrawPlot(float x, float &y, float w, float h,
-                   const float *values,
+void ImguiDrawPlot(float x, float& y, float w, float h,
+                   const float* values,
                    int valuesCount,
                    int valuesOffset,
-                   const char *overlayText,
-                   ImFont *overlayFont,
+                   const char* overlayText,
+                   ImFont* overlayFont,
                    float overlayFontSize,
                    float scaleMin,
                    float scaleMax,

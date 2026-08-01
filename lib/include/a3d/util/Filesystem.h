@@ -94,18 +94,18 @@ namespace a3d::util::filesystem {
 											  const std::string& type,
 											  Scene::ImportOptions options =
 											  Scene::ImportOptions::ImportAll);
-	std::shared_ptr<a3d::Mesh> 		MeshNamed(const std::string &name,
+	std::shared_ptr<a3d::Mesh> 		MeshNamed(const std::string& name,
 												Mesh::ImportOptions options =
 												Mesh::ImportOptions::ImportMaterials);
-	std::shared_ptr<a3d::Mesh> 		MeshNamed(const std::string &name,
-												const std::string &type,
+	std::shared_ptr<a3d::Mesh> 		MeshNamed(const std::string& name,
+												const std::string& type,
 												Mesh::ImportOptions options =
 												Mesh::ImportOptions::ImportMaterials);
 
 	// *** aux ***
 
-	std::optional<std::filesystem::path>	AuxiliaryFilePath(const std::string &name,
-															  const std::string &type);
+	std::optional<std::filesystem::path>	AuxiliaryFilePath(const std::string& name,
+															  const std::string& type);
 #endif
 }
 
