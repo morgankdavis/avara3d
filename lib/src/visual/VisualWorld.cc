@@ -207,20 +207,6 @@ bool VisualWorld::draw(const Scene& scene,
 
 	util::flow::once([&] { firstDraw(); });
 
-	// auto pov = pointOfView().lock();
-	// if (!util::flow::edge_guard(pov, [&] {
-	// 	log::e()("No point of view!");
-	// 	renderer->clear(Renderer::ClearCommand{}, *_renderContext);
-	// 	_renderContext->swapBuffers();
-	// })) return false;
-	//
-	// auto povScene = pov->scene();
-	// if (!util::flow::edge_guard(povScene && povScene == &scene, [&] {
-	// 	log::e()("Point of view not in our scene!");
-	// 	renderer->clear(Renderer::ClearCommand{}, *_renderContext);
-	// 	_renderContext->swapBuffers();
-	// })) return false;
-
 	prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
 		// there is some "RenderCpu" type stuff bundled in here for GLFWWindow and QtViewport
 		_renderContext->beginFrame(scene);
