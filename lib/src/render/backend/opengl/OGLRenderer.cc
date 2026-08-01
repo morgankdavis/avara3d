@@ -455,7 +455,8 @@ void OGLRenderer::beginFrame(const Scene& scene,
 	if (_drawTimer.isAvailable()) {
 		stats.isRenderGpuTimeAvailable = true;
 		_drawTimer.begin();
-	} else {
+	}
+	else {
 		stats.isRenderGpuTimeAvailable = false;
 	}
 
@@ -490,8 +491,7 @@ void OGLRenderer::endFrame(const Scene& scene,
 void OGLRenderer::preTraversal(const Scene& scene,
                                const RenderContext& context,
                                const Scene::DebugOptions& debugOptions,
-                               FrameStats& stats) {
-}
+                               FrameStats& stats) {}
 
 void OGLRenderer::postTraversal(const Scene& scene,
                                 const RenderContext& context,

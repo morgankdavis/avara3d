@@ -196,7 +196,6 @@ bool VisualWorld::draw(const Scene& scene,
 					   FrameStats& stats,
 					   Profiler& profiler,
 					   const FrameStatsHistory& statsHistory) {
-
 	if (!util::flow::edge_guard(_renderContext, [&] {
 		log::e()("No RenderContext attached to VisualWorld {:p}", static_cast<void *>(this));
 	})) return false;
@@ -208,19 +207,19 @@ bool VisualWorld::draw(const Scene& scene,
 
 	util::flow::once([&] { firstDraw(); });
 
-	auto pov = pointOfView().lock();
-	if (!util::flow::edge_guard(pov, [&] {
-		log::e()("No point of view!");
-		renderer->clear(Renderer::ClearCommand{}, *_renderContext);
-		_renderContext->swapBuffers();
-	})) return false;
-
-	auto povScene = pov->scene();
-	if (!util::flow::edge_guard(povScene && povScene == &scene, [&] {
-		log::e()("Point of view not in our scene!");
-		renderer->clear(Renderer::ClearCommand{}, *_renderContext);
-		_renderContext->swapBuffers();
-	})) return false;
+	// auto pov = pointOfView().lock();
+	// if (!util::flow::edge_guard(pov, [&] {
+	// 	log::e()("No point of view!");
+	// 	renderer->clear(Renderer::ClearCommand{}, *_renderContext);
+	// 	_renderContext->swapBuffers();
+	// })) return false;
+	//
+	// auto povScene = pov->scene();
+	// if (!util::flow::edge_guard(povScene && povScene == &scene, [&] {
+	// 	log::e()("Point of view not in our scene!");
+	// 	renderer->clear(Renderer::ClearCommand{}, *_renderContext);
+	// 	_renderContext->swapBuffers();
+	// })) return false;
 
 	prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
 		// there is some "RenderCpu" type stuff bundled in here for GLFWWindow and QtViewport
@@ -237,47 +236,69 @@ bool VisualWorld::draw(const Scene& scene,
 		});
 	}
 
-	auto [view, proj] = prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
+	auto pov = pointOfView().lock();
+	auto camera = pov ? pov->camera() : nullptr;
+	bool povValid = true;
 
-		if (auto pc = dynamic_pointer_cast<PerspectiveCamera>(pov->camera())) {
-			auto fbSize = _renderContext->framebufferSize();
-			auto aspect = float(fbSize.x) / float(fbSize.y);
-			pc->aspectRatio(aspect);
-		}
+	if (!pov) {
+		log::e()("No point of view!");
+		povValid = false;
+	}
+	else if (pov->scene() != &scene) {
+		log::e()("Point of view not in our scene!");
+		povValid = false;
+	}
+	else if (!camera) {
+		log::e()("Point of view has no camera!");
+		povValid = false;
+	}
 
-		return std::tuple{ inverse(pov->worldTransform()), pov->camera()->projection() };
-	});
+	if (povValid) {
+
+		auto [view, proj] = prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
+
+			if (auto pc = dynamic_pointer_cast<PerspectiveCamera>(pov->camera())) {
+				auto fbSize = _renderContext->framebufferSize();
+				auto aspect = float(fbSize.x) / float(fbSize.y);
+				pc->aspectRatio(aspect);
+			}
+
+			return std::tuple{ inverse(pov->worldTransform()), pov->camera()->projection() };
+		});
+
+		prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
+
+			renderer->preTraversal(scene, *_renderContext, debugOptions, stats);
+
+			auto gatherItems = RenderGatherer::Gather(scene,
+													  view,
+													  physicsWorld,
+													  debugOptions,
+													  stats);
+
+			renderer->postTraversal(scene,
+									*_renderContext,
+									gatherItems.lightNodes,
+									debugOptions,
+									stats);
+
+			auto packet = DrawPacketizer::Packetize(gatherItems);
+
+			Renderer::FrameParams params = { *_renderContext,
+											 view,
+											 proj,
+											 debugOptions,
+											 &stats,
+											 &profiler };
+
+			renderer->renderPacket(packet, params);
+		});
+	}
+	else {
+		renderer->clear(Renderer::ClearCommand{}, *_renderContext);
+	}
 
 	prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
-
-		renderer->preTraversal(scene, *_renderContext, debugOptions, stats);
-
-		auto gatherItems = RenderGatherer::Gather(scene,
-												  view,
-												  physicsWorld,
-												  debugOptions,
-												  stats);
-
-		renderer->postTraversal(scene,
-								*_renderContext,
-								gatherItems.lightNodes,
-								debugOptions,
-								stats);
-
-		auto packet = DrawPacketizer::Packetize(gatherItems);
-
-		Renderer::FrameParams params = { *_renderContext,
-										 view,
-										 proj,
-										 debugOptions,
-										 &stats,
-										 &profiler };
-
-		renderer->renderPacket(packet, params);
-	});
-
-	prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
-
 		renderer->endFrame(scene, *_renderContext,
 		                   debugOptions, stats, profiler, statsHistory);
 	});
@@ -292,7 +313,6 @@ bool VisualWorld::draw(const Scene& scene,
 	});
 
 	prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
-
 		if (_renderContext->recordingGIF()) {
 			_renderContext->saveGIFFrame(info.updateDeltaTime);
 		}
