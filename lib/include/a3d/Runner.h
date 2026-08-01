@@ -87,7 +87,7 @@ namespace a3d {
 		UpdateCallback				updateCallback() const;
 		void						updateCallback(UpdateCallback callback);
 
-		const SimulationConfig&		simulationConfig() const;
+		const SimulationConfig&		config() const;
 
 		double						timeScale() const;
 		void						timeScale(double value);
@@ -104,16 +104,16 @@ namespace a3d {
 		/// Private Types ///
 
 		using Clock = std::chrono::steady_clock;
+		using TimePoint = Clock::time_point;
 
 		/// Private Member Functions ///
 
-		void						start(Clock::time_point now);
-		bool						update(Clock::time_point now);
+		void						start(TimePoint now);
+		bool						update(TimePoint now);
 
-		void						validateSimulationConfig() const;
 		PhysicsInventory			scheduleSimulation(const UpdateInfo &info,
 					                                   FrameStats& stats);
-		PhysicsInventory			executeRequestedSimulationSteps(FrameStats& stats);
+		PhysicsInventory			executeRequestedSteps(FrameStats& stats);
 		PhysicsInventory			executeSimulationStep();
 		PhysicsInventory			currentPhysicsInventory();
 		void						copyPhysicsInventory(const PhysicsInventory &inventory,
@@ -125,7 +125,7 @@ namespace a3d {
 
 		Scene&						_scene;
 		State						_state;
-		SimulationConfig			_simulationConfig;
+		SimulationConfig			_config;
 		double						_timeScale;
 		double						_simulationAccumulator;
 		double						_simulationTime;
@@ -133,8 +133,8 @@ namespace a3d {
 		bool						_simulationPaused;
 		std::uint64_t				_pendingSimulationSteps;
 		bool						_suppressNextAutomaticSimulationUpdate;
-		Clock::time_point			_startTime;
-		Clock::time_point			_previousUpdateTime;
+		TimePoint					_startTime;
+		TimePoint					_previousUpdateTime;
 		UpdateInfo					_updateInfo;
 		bool						_hasUpdated;
 		UpdateCallback				_updateCallback;

@@ -771,7 +771,7 @@ namespace {
 
 		a3d::Scene scene;
 		a3d::Runner runner(scene);
-		const auto& runnerConfiguration = runner.simulationConfig();
+		const auto& runnerConfiguration = runner.config();
 
 		ExpectNear(
 			runnerConfiguration.fixedDeltaTime,
@@ -2127,7 +2127,7 @@ namespace {
 			"the neither-world Scene should complete one simulation step");
 		ExpectNear(
 			runner.simulationTime(),
-			runner.simulationConfig().fixedDeltaTime,
+			runner.config().fixedDeltaTime,
 			"the neither-world simulation time");
 		Expect(
 			LatestFrameStats(runner).simulationStepCount == 1,

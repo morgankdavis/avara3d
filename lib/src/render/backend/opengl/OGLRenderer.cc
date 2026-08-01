@@ -23,7 +23,6 @@
 #include "a3d/Buffer.h"
 #include "a3d/BuildInfo.h"
 #include "a3d/Color.h"
-#include "a3d/Configuration.h"
 #include "a3d/CubeImage.h"
 #include "a3d/log/Log.h"
 #include "a3d/Font.h"
@@ -68,23 +67,36 @@ using namespace std;
 
 ///  Private Constants ///
 
-// const std::string STATS_TITLE_FONT_NAME{"SourceCodePro-Bold"};
-// const std::string STATS_TITLE_FONT_TYPE{"otf"};
-// const float STATS_TITLE_FONT_SIZE{23.0};
+static constexpr std::size_t MAX_AMBIENT_LIGHTS     {16};
+static constexpr std::size_t MAX_DIRECTIONAL_LIGHTS	{16};
+static constexpr std::size_t MAX_POINT_LIGHTS       {128};
+static constexpr std::size_t MAX_SPOT_LIGHTS        {64};
 
-const std::string STATS_TITLE_FONT_NAME{"Neuropol Nova Xp"};
-const std::string STATS_TITLE_FONT_TYPE{"ttf"};
-const float STATS_TITLE_FONT_SIZE{21.0};
+// static const std::string STATS_TITLE_FONT_NAME		{"SourceCodePro-Bold"};
+// static const std::string STATS_TITLE_FONT_TYPE		{"otf"};
+// static const float STATS_TITLE_FONT_SIZE			{23.0};
 
-const std::string STATS_BODY_FONT_NAME{"SourceCodePro-Semibold"};
-const std::string STATS_BODY_FONT_TYPE{"otf"};
-const float STATS_BODY_FONT_SIZE{15.0};
+static const std::string STATS_TITLE_FONT_NAME		{"Neuropol Nova Xp"};
+static const std::string STATS_TITLE_FONT_TYPE		{"ttf"};
+static const float STATS_TITLE_FONT_SIZE			{21.0};
 
-const std::string STATS_ALT_FONT_NAME{"SourceCodePro-Regular"};
-const std::string STATS_ALT_FONT_TYPE{"otf"};
-const float STATS_ALT_FONT_SIZE{13.0};
+static const std::string STATS_BODY_FONT_NAME		{"SourceCodePro-Semibold"};
+static const std::string STATS_BODY_FONT_TYPE		{"otf"};
+static const float STATS_BODY_FONT_SIZE				{15.0};
 
-const GLuint ENV_BINDING_POINT{0};
+static const std::string STATS_ALT_FONT_NAME		{"SourceCodePro-Regular"};
+static const std::string STATS_ALT_FONT_TYPE		{"otf"};
+static const float STATS_ALT_FONT_SIZE				{13.0};
+
+static const GLuint ENV_BINDING_POINT				{0};
+
+// ring buffer size for GL timing queries
+static const unsigned DRAW_TIMER_BUFFER_SIZE		{4};
+
+// duration of sample history to average over
+static constexpr std::chrono::milliseconds	FRAME_STATS_AVERAGING_DURATION		{250};
+// how often to recompute the frame stats
+static constexpr std::chrono::milliseconds	FRAME_STATS_AVERAGE_UPDATE_INTERVAL	{100};
 
 /// Private Types ///
 
@@ -156,16 +168,16 @@ struct EnvironmentBlock {
 	uint32_t _pad0_[3];
 	uint32_t numAmbientLights;
 	uint32_t _pad1_[3];
-	AmbientLightGLSLStruct ambientLights[config::MAX_AMBIENT_LIGHTS];
+	AmbientLightGLSLStruct ambientLights[MAX_AMBIENT_LIGHTS];
 	uint32_t numDirectionalLights;
 	uint32_t _pad2_[3];
-	DirectionalLightGLSLStruct directionalLights[config::MAX_DIRECTIONAL_LIGHTS];
+	DirectionalLightGLSLStruct directionalLights[MAX_DIRECTIONAL_LIGHTS];
 	uint32_t numPointLights;
 	uint32_t _pad3_[3];
-	PointLightGLSLStruct pointLights[config::MAX_POINT_LIGHTS];
+	PointLightGLSLStruct pointLights[MAX_POINT_LIGHTS];
 	uint32_t numSpotLights;
 	uint32_t _pad4_[3];
-	SpotLightGLSLStruct spotLights[config::MAX_SPOT_LIGHTS];
+	SpotLightGLSLStruct spotLights[MAX_SPOT_LIGHTS];
 	FogGLSLStruct fog;
 };
 
@@ -375,7 +387,7 @@ OGLRenderer::OGLRenderer() : Renderer{},
                              _overlayTitleImFont{nullptr},
                              _overlayBodyImFont{nullptr},
                              _overlayAltImFont{nullptr},
-                             _drawTimer{config::GL_DRAW_TIMER_BUFFER_SIZE} {
+                             _drawTimer{DRAW_TIMER_BUFFER_SIZE} {
 }
 
 OGLRenderer::~OGLRenderer() {
@@ -1086,10 +1098,10 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 		vector<PointLightGLSLStruct> pointStructs;
 		vector<SpotLightGLSLStruct> spotStructs;
 
-		ambientStructs.reserve(config::MAX_AMBIENT_LIGHTS);
-		directionalStructs.reserve(config::MAX_DIRECTIONAL_LIGHTS);
-		pointStructs.reserve(config::MAX_POINT_LIGHTS);
-		spotStructs.reserve(config::MAX_SPOT_LIGHTS);
+		ambientStructs.reserve(MAX_AMBIENT_LIGHTS);
+		directionalStructs.reserve(MAX_DIRECTIONAL_LIGHTS);
+		pointStructs.reserve(MAX_POINT_LIGHTS);
+		spotStructs.reserve(MAX_SPOT_LIGHTS);
 
 		for (unsigned l = 0; l < numLights; ++l) {
 			auto node = lightNodes[l];
@@ -1111,20 +1123,20 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 			// the vertex?  sure, but maybe messy?
 
 			if (auto ambientLight = dynamic_cast<AmbientLight *>(light)) {
-				if (ambientStructs.size() < config::MAX_AMBIENT_LIGHTS) {
+				if (ambientStructs.size() < MAX_AMBIENT_LIGHTS) {
 					AmbientLightGLSLStruct lightStruct{};
 					lightStruct.color = ambientLight->color()->rgba();
 					ambientStructs.push_back(lightStruct);
 				}
 			} else if (auto directionalLight = dynamic_cast<DirectionalLight *>(light)) {
-				if (directionalStructs.size() < config::MAX_DIRECTIONAL_LIGHTS) {
+				if (directionalStructs.size() < MAX_DIRECTIONAL_LIGHTS) {
 					DirectionalLightGLSLStruct lightStruct{};
 					lightStruct.color = directionalLight->color()->rgba();
 					lightStruct.direction_world = node->worldForward();
 					directionalStructs.push_back(lightStruct);
 				}
 			} else if (auto pointLight = dynamic_cast<PointLight *>(light)) {
-				if (pointStructs.size() < config::MAX_POINT_LIGHTS) {
+				if (pointStructs.size() < MAX_POINT_LIGHTS) {
 					PointLightGLSLStruct lightStruct{};
 					lightStruct.color = pointLight->color()->rgba();
 					lightStruct.position_world = node->worldPosition();
@@ -1134,7 +1146,7 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 					pointStructs.push_back(lightStruct);
 				}
 			} else if (auto spotLight = dynamic_cast<SpotLight *>(light)) {
-				if (spotStructs.size() < config::MAX_SPOT_LIGHTS) {
+				if (spotStructs.size() < MAX_SPOT_LIGHTS) {
 					SpotLightGLSLStruct lightStruct{};
 					lightStruct.color = spotLight->color()->rgba();
 					lightStruct.position_world = node->worldPosition();
@@ -1294,11 +1306,11 @@ void DrawOverlay(const RenderContext &context,
                  FrameStats &stats,
                  const FrameStatsHistory &statsHistory,
                  Scene::DebugOptions debugOptions,
-                 ImFont &titleFont,
-                 ImFont &bodyFont,
-                 ImFont &altBodyFont) {
+                 ImFont& titleFont,
+                 ImFont& bodyFont,
+                 ImFont& altBodyFont) {
 	ImguiBeginOverlay(0, true);
-	DrawDebugOptions(const_cast<Scene &>(scene), bodyFont); // TODO: const_cast CHEATING
+	DrawDebugOptions(const_cast<Scene&>(scene), bodyFont); // TODO: const_cast CHEATING
 
 	float yPos = 0;
 	int id = 0;
@@ -1319,11 +1331,11 @@ void DrawOverlay(const RenderContext &context,
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void DrawHeader(ImFont &titleFont,
-                ImFont &bodyFont,
+void DrawHeader(ImFont& titleFont,
+                ImFont& bodyFont,
                 bool active,
-                float &yPos_out,
-                int &id_out) {
+                float& yPos_out,
+                int& id_out) {
 	using namespace ImGui;
 
 	//ShowMetricsWindow();
@@ -1359,10 +1371,10 @@ void DrawHeader(ImFont &titleFont,
 }
 
 void DrawStats(FrameStats &stats,
-               const FrameStatsHistory &statsHistory,
-               const RenderContext &context,
-               ImFont &bodyFont,
-               ImFont &altBodyFont,
+               const FrameStatsHistory& statsHistory,
+               const RenderContext& context,
+               ImFont& bodyFont,
+               ImFont& altBodyFont,
                float yPos,
                int id) {
 	using namespace ImGui;
@@ -1396,11 +1408,11 @@ void DrawStats(FrameStats &stats,
 
 	bool gpuTimingAvailable = stats.isRenderGpuTimeAvailable;
 
-	util::flow::every(config::FRAME_STATS_AVERAGE_UPDATE_INTERVAL, [&] {
+	util::flow::every(FRAME_STATS_AVERAGE_UPDATE_INTERVAL, [&] {
 		FrameStatsHistory::GetAverages(statsHistory,
 		                               frameNsAvg, engineCpuNsAvg, renderCpuNsAvg,
 		                               renderGpuNsAvg, physicsNsAvg, appCpuNsAvg,
-		                               config::FRAME_STATS_AVERAGING_DURATION);
+		                               FRAME_STATS_AVERAGING_DURATION);
 
 		// ! ~zero cost
 		frameMsFAvg = util::chrono::ns_to_ms_f(frameNsAvg);
@@ -1654,7 +1666,7 @@ void DrawStats(FrameStats &stats,
 	//	End();
 }
 
-void DrawDebugOptions(Scene &scene, ImFont &bodyFont) {
+void DrawDebugOptions(Scene& scene, ImFont& bodyFont) {
 	using namespace ImGui;
 
 	ImGuiIO &io = GetIO();

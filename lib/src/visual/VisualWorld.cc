@@ -46,8 +46,9 @@ VisualWorld::VisualWorld(RenderContext& context):
 		_pointOfView{},
 		_renderContext{&context},
 		_scene{},
-		_processRenderCommandsCallback{},
-		_renderFrameCallback{} {
+		// _processRenderCommandsCallback{},
+		// _renderFrameCallback{}
+		_didBeginFrameCallback{} {
 
 	_renderContext->attachedToVisualWorld(this);
 }
@@ -180,21 +181,12 @@ void VisualWorld::detachedFromScene(Scene& scene) {
 	_scene = nullptr;
 }
 
-VisualWorld::ProcessRenderCommandsCallback  VisualWorld::processRenderCommandsCallback() const {
-	return _processRenderCommandsCallback;
+VisualWorld::DidBeginFrameCallback VisualWorld::didBeginFrameCallback() const {
+	return _didBeginFrameCallback;
 }
 
-void VisualWorld::processRenderCommandsCallback(
-		ProcessRenderCommandsCallback function) {
-	_processRenderCommandsCallback = function;
-}
-
-VisualWorld::RenderFrameCallback VisualWorld::renderFrameCallback() const {
-	return _renderFrameCallback;
-}
-
-void VisualWorld::renderFrameCallback(RenderFrameCallback function) {
-	_renderFrameCallback = function;
+void VisualWorld::didBeginFrameCallback(DidBeginFrameCallback function) {
+	_didBeginFrameCallback = function;
 }
 
 bool VisualWorld::draw(const Scene& scene,
@@ -230,13 +222,6 @@ bool VisualWorld::draw(const Scene& scene,
 		_renderContext->swapBuffers();
 	})) return false;
 
-	if (auto processRenderCommands = processRenderCommandsCallback()) {
-
-		prof::profile(profiler, Profiler::Tag::Application, [&] {
-			processRenderCommands(*this, info);
-		});
-	}
-
 	prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
 		// there is some "RenderCpu" type stuff bundled in here for GLFWWindow and QtViewport
 		_renderContext->beginFrame(scene);
@@ -246,9 +231,9 @@ bool VisualWorld::draw(const Scene& scene,
 		renderer->beginFrame(scene, *_renderContext, debugOptions, stats, profiler);
 	});
 
-	if (auto renderFrame = VisualWorld::renderFrameCallback()) {
+	if (auto didBeginFrame = didBeginFrameCallback()) {
 		prof::profile(profiler, Profiler::Tag::Application, [&] {
-			renderFrame(*this, info);
+			didBeginFrame(*this, info);
 		});
 	}
 
@@ -263,7 +248,7 @@ bool VisualWorld::draw(const Scene& scene,
 		return std::tuple{ inverse(pov->worldTransform()), pov->camera()->projection() };
 	});
 
-	/*auto gatherItems = */prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
+	prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
 
 		renderer->preTraversal(scene, *_renderContext, debugOptions, stats);
 
@@ -278,12 +263,6 @@ bool VisualWorld::draw(const Scene& scene,
 								gatherItems.lightNodes,
 								debugOptions,
 								stats);
-
-		//return gatherItems;
-
-//	});
-//
-//	prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
 
 		auto packet = DrawPacketizer::Packetize(gatherItems);
 

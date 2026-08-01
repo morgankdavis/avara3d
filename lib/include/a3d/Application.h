@@ -79,8 +79,10 @@ namespace a3d {
 
 		/// VisualWorld Callbacks ///
 
-		virtual void					renderFrame(VisualWorld& visualWorld,
-							                        const VisualWorld::RenderInfo& info);
+		// virtual void					renderFrame(VisualWorld& visualWorld,
+		// 					                        const VisualWorld::RenderInfo& info);
+		virtual void					didBeginFrame(VisualWorld &visualWorld,
+							                          const VisualWorld::RenderInfo& info);
 
 	private:
 		/// Private Member Functions ///
@@ -97,10 +99,12 @@ namespace a3d {
 		void			dispatchHostUpdate(Runner& runner, const Runner::UpdateInfo& info);
 		void			dispatchSceneWillStep(Scene& scene, const Scene::StepInfo& info);
 		void			dispatchSceneDidStep(Scene& scene, const Scene::StepInfo& info);
-		void			dispatchPendingRenderCommands(VisualWorld& visualWorld,
-					                                  const VisualWorld::RenderInfo& info);
-		void			dispatchRenderFrame(VisualWorld& visualWorld,
-					                        const VisualWorld::RenderInfo& info);
+		// void			dispatchPendingRenderCommands(VisualWorld& visualWorld,
+		// 			                                  const VisualWorld::RenderInfo& info);
+		// void			dispatchRenderFrame(VisualWorld& visualWorld,
+		// 			                        const VisualWorld::RenderInfo& info);
+		void			dispatchDidBeginFrame(VisualWorld &visualWorld,
+					                          const VisualWorld::RenderInfo & info);
 
 		/// Private Member Variables ///
 

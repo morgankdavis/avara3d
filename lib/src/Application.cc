@@ -28,17 +28,7 @@ using namespace a3d;
 using namespace std;
 using namespace std::placeholders;
 
-Application::Application(int argc, char *argv[], Log::Level logLevel):
-	_args(argv + 1, argv + argc),
-	_scene{},
-	_runner{},
-	_didShutdown{false},
-	_sceneCommandQueue{},
-	_renderCommandQueue{} {
-	initLog(logLevel);
-}
-
-Application::~Application() = default;
+/// Public Static Member Functions ///
 
 int Application::Run(
 		unique_ptr<Application> application) {
@@ -84,7 +74,89 @@ int Application::Run(
 #endif
 }
 
-/// Protected Static Member Functions ///
+/// Public Lifecycle Functions ///
+
+Application::Application(int argc, char *argv[], Log::Level logLevel):
+	_args(argv + 1, argv + argc),
+	_scene{},
+	_runner{},
+	_didShutdown{false},
+	_sceneCommandQueue{},
+	_renderCommandQueue{} {
+	initLog(logLevel);
+}
+
+Application::~Application() = default;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SimulationConfig Application::simulationConfig() const {
+	return {};
+}
+
+bool Application::shouldContinue(const Scene&) { return true; }
+
+void Application::didShutdown() {}
+
+void Application::queueSceneCommand(SceneCommand command) {
+	_sceneCommandQueue.push(std::move(command));
+}
+
+void Application::queueRenderCommand(RenderCommand command) {
+	_renderCommandQueue.push(std::move(command));
+}
+
+Runner& Application::runner() {
+
+	if (!_runner) {
+		throw logic_error("Application::runner() requires an initialized Runner.");
+	}
+
+	return *_runner;
+}
+
+const Runner& Application::runner() const {
+
+	if (!_runner) {
+		throw logic_error("Application::runner() requires an initialized Runner.");
+	}
+
+	return *_runner;
+}
+
+const vector<string>& Application::args() const {
+	return _args;
+}
+
+/// Runner Callbacks ///
+
+void Application::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {}
+
+/// Scene Callbacks ///
+
+void Application::sceneWillStep(Scene& scene, const Scene::StepInfo& info) {}
+
+void Application::sceneDidStep(Scene& scene, const Scene::StepInfo& info) {}
+
+/// VisualWorld Callbacks ///
+
+// void Application::renderFrame(VisualWorld& visualWorld,
+// 							  const VisualWorld::RenderInfo& info) {}
+void Application::didBeginFrame(VisualWorld &visualWorld, const VisualWorld::RenderInfo& info) {}
+
+/// Private Member Functions ///
 
 void Application::initLog(Log::Level level) {
 
@@ -103,10 +175,7 @@ void Application::initLog(Log::Level level) {
 	sinks.push_back(std::move(fileSink));
 #endif
 
-	Log::AppLog(make_unique<Log>(
-		executableName,
-		std::move(sinks),
-		level));
+	Log::AppLog(make_unique<Log>(executableName, std::move(sinks), level));
 
 	const auto& buildInfo = BuildInfo::Info();
 	log::app::i()("A3D version: {}", BuildInfo::VersionString(buildInfo.version()));
@@ -170,110 +239,51 @@ void Application::shutdown() noexcept {
 
 void Application::registerCallbacks() {
 
-	_runner->updateCallback(
-		bind(&Application::dispatchHostUpdate, this, _1, _2));
-
-	_scene->willStepCallback(
-		bind(&Application::dispatchSceneWillStep, this, _1, _2));
-	_scene->didStepCallback(
-		bind(&Application::dispatchSceneDidStep, this, _1, _2));
+	_runner->updateCallback(bind(&Application::dispatchHostUpdate, this, _1, _2));
+	_scene->willStepCallback(bind(&Application::dispatchSceneWillStep, this, _1, _2));
+	_scene->didStepCallback(bind(&Application::dispatchSceneDidStep, this, _1, _2));
 
 	if (auto* world = _scene->visualWorld()) {
-		world->processRenderCommandsCallback(
-			bind(&Application::dispatchPendingRenderCommands, this, _1, _2));
-		world->renderFrameCallback(
-			bind(&Application::dispatchRenderFrame, this, _1, _2));
+		// world->processRenderCommandsCallback(
+		// 	bind(&Application::dispatchPendingRenderCommands, this, _1, _2));
+		// world->renderFrameCallback(
+		// 	bind(&Application::dispatchRenderFrame, this, _1, _2));
+		world->didBeginFrameCallback(
+			bind(&Application::dispatchDidBeginFrame, this, _1, _2));
 	}
 }
 
-void Application::dispatchHostUpdate(
-		Runner& runner,
-		const Runner::UpdateInfo& info) {
+void Application::dispatchHostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
 
 	hostUpdate(runner, info);
 }
 
-void Application::dispatchSceneWillStep(
-		Scene& scene,
-		const Scene::StepInfo& info) {
+void Application::dispatchSceneWillStep(Scene& scene, const Scene::StepInfo& info) {
 
 	executePendingCommands(_sceneCommandQueue, scene);
 	sceneWillStep(scene, info);
 }
 
-void Application::dispatchSceneDidStep(
-		Scene& scene,
-		const Scene::StepInfo& info) {
+void Application::dispatchSceneDidStep(Scene& scene, const Scene::StepInfo& info) {
 
 	sceneDidStep(scene, info);
 }
 
-void Application::dispatchPendingRenderCommands(
-		VisualWorld& visualWorld,
-		const VisualWorld::RenderInfo&) {
+// void Application::dispatchPendingRenderCommands(VisualWorld& visualWorld,
+// 	const VisualWorld::RenderInfo&) {
+//
+// 	executePendingCommands(_renderCommandQueue, visualWorld);
+// }
+//
+// void Application::dispatchRenderFrame(VisualWorld& visualWorld,
+// 		const VisualWorld::RenderInfo& info) {
+//
+// 	renderFrame(visualWorld, info);
+// }
+
+void Application::dispatchDidBeginFrame(VisualWorld &visualWorld,
+									  const VisualWorld::RenderInfo & info) {
 
 	executePendingCommands(_renderCommandQueue, visualWorld);
+	didBeginFrame(visualWorld, info);
 }
-
-void Application::dispatchRenderFrame(
-		VisualWorld& visualWorld,
-		const VisualWorld::RenderInfo& info) {
-
-	renderFrame(visualWorld, info);
-}
-
-SimulationConfig Application::simulationConfig() const {
-	return {};
-}
-
-bool Application::shouldContinue(const Scene&) { return true; }
-
-void Application::didShutdown() {}
-
-void Application::queueSceneCommand(SceneCommand command) {
-	_sceneCommandQueue.push(std::move(command));
-}
-
-void Application::queueRenderCommand(RenderCommand command) {
-	_renderCommandQueue.push(std::move(command));
-}
-
-Runner& Application::runner() {
-
-	if (!_runner) {
-		throw logic_error("Application::runner() requires an initialized Runner.");
-	}
-
-	return *_runner;
-}
-
-const Runner& Application::runner() const {
-
-	if (!_runner) {
-		throw logic_error("Application::runner() requires an initialized Runner.");
-	}
-
-	return *_runner;
-}
-
-const vector<string>& Application::args() const {
-	return _args;
-}
-
-/// Runner Callbacks ///
-
-void Application::hostUpdate(Runner& runner,
-                             const Runner::UpdateInfo& info) {}
-
-/// Scene Callbacks ///
-
-void Application::sceneWillStep(Scene& scene,
-                                const Scene::StepInfo& info) {}
-
-void Application::sceneDidStep(Scene& scene,
-                               const Scene::StepInfo& info) {}
-
-/// VisualWorld Callbacks ///
-
-void Application::renderFrame(VisualWorld& visualWorld,
-                              const VisualWorld::RenderInfo& info) {}

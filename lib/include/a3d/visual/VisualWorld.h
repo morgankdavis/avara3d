@@ -104,23 +104,16 @@ namespace a3d {
 
 		/// Internal Types ///
 
-		using ProcessRenderCommandsCallback =
-			std::function<void(VisualWorld &visualWorld,
-			                   const RenderInfo &info)>;
-		using RenderFrameCallback = std::function<void(VisualWorld &visualWorld,
-		                                               const RenderInfo &info)>;
+		using DidBeginFrameCallback = std::function<void(VisualWorld& visualWorld,
+		                                                 const RenderInfo& info)>;
 
 		/// Internal Member Functions ///
 
 		void								attachedToScene(Scene& scene);
 		void								detachedFromScene(Scene& scene);
 
-		ProcessRenderCommandsCallback		processRenderCommandsCallback() const;
-		void								processRenderCommandsCallback(
-												 ProcessRenderCommandsCallback function);
-
-		RenderFrameCallback					renderFrameCallback() const;
-		void								renderFrameCallback(RenderFrameCallback function);
+		DidBeginFrameCallback				didBeginFrameCallback() const;
+		void								didBeginFrameCallback(DidBeginFrameCallback function);
 
 		bool								draw(const Scene& scene,
 												 const PhysicsWorld* physicsWorld,
@@ -151,8 +144,7 @@ namespace a3d {
 		std::weak_ptr<Node>					_pointOfView;
 		RenderContext*						_renderContext;
 		Scene*								_scene;
-		ProcessRenderCommandsCallback		_processRenderCommandsCallback;
-		RenderFrameCallback					_renderFrameCallback;
+		DidBeginFrameCallback				_didBeginFrameCallback;
 	};
 }
 
