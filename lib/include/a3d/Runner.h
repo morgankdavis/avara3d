@@ -76,13 +76,13 @@ namespace a3d {
 		// a stopped Runner performs no updates. pausing affects automatic
 		// simulation steps only: Runner updates, input, host callbacks,
 		// and rendering continue
-		bool						simulationPaused() const;
-		void						pauseSimulation();
-		void						resumeSimulation();
+		bool						paused() const;
+		void						pause();
+		void						resume();
 
 		// queue one fixed-duration step for a running, paused simulation.
 		// requested steps use fixedDeltaTime and ignore timeScale.
-		void						requestSimulationStep();
+		void						requestStep();
 
 		UpdateCallback				updateCallback() const;
 		void						updateCallback(UpdateCallback callback);
@@ -116,8 +116,6 @@ namespace a3d {
 		PhysicsInventory			executeRequestedSteps(FrameStats& stats);
 		PhysicsInventory			executeSimulationStep();
 		PhysicsInventory			currentPhysicsInventory();
-		void						copyPhysicsInventory(const PhysicsInventory& inventory,
-								                         FrameStats& stats);
 
 		bool						renderFrame(const UpdateInfo& info, FrameStats& stats);
 
@@ -127,18 +125,18 @@ namespace a3d {
 		State						_state;
 		SimulationConfig			_config;
 		double						_timeScale;
-		double						_simulationAccumulator;
-		double						_simulationTime;
-		std::uint64_t				_simulationStepCount;
-		bool						_simulationPaused;
-		std::uint64_t				_pendingSimulationSteps;
-		bool						_suppressNextAutomaticSimulationUpdate;
+		double						_simAccum;
+		double						_simTime;
+		std::uint64_t				_simStepCount;
+		bool						_paused;
+		std::uint64_t				_pendingSteps;
+		bool						_suppressNextAutoUpdate;
 		TimePoint					_startTime;
-		TimePoint					_previousUpdateTime;
+		TimePoint					_prevUpdateTime;
 		UpdateInfo					_updateInfo;
 		bool						_hasUpdated;
 		UpdateCallback				_updateCallback;
-		std::uint64_t				_completedRenderFrameCount;
+		std::uint64_t				_renderedFrameCount;
 		Profiler					_profiler;
 		FrameStatsHistory			_frameStatsHistory;
 

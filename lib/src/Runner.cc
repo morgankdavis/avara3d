@@ -23,7 +23,7 @@ using namespace std;
 ///  Private Constants ///
 
 // duration of sample history to keep
-static constexpr std::chrono::milliseconds	FRAME_STATS_HISTORY_DURATION 		{3000};
+static constexpr std::chrono::milliseconds	FRAME_STATS_HISTORY_DURATION {3000};
 
 /// Public Lifecycle Functions ///
 
@@ -33,18 +33,18 @@ Runner::Runner(Scene& scene,
 	_state(State::Idle),
 	_config{config},
 	_timeScale{config.timeScale},
-	_simulationAccumulator{0.0},
-	_simulationTime{0.0},
-	_simulationStepCount{0},
-	_simulationPaused{false},
-	_pendingSimulationSteps{0},
-	_suppressNextAutomaticSimulationUpdate{false},
+	_simAccum{0.0},
+	_simTime{0.0},
+	_simStepCount{0},
+	_paused{false},
+	_pendingSteps{0},
+	_suppressNextAutoUpdate{false},
 	_startTime{},
-	_previousUpdateTime{},
+	_prevUpdateTime{},
 	_updateInfo{},
 	_hasUpdated{false},
 	_updateCallback{},
-	_completedRenderFrameCount{0},
+	_renderedFrameCount{0},
 	_profiler{},
 	_frameStatsHistory{FRAME_STATS_HISTORY_DURATION} {
 }
@@ -75,57 +75,57 @@ void Runner::stop() {
 	}
 
 	_state = State::Stopped;
-	_pendingSimulationSteps = 0;
+	_pendingSteps = 0;
 }
 
-bool Runner::simulationPaused() const {
-	return _simulationPaused;
+bool Runner::paused() const {
+	return _paused;
 }
 
-void Runner::pauseSimulation() {
+void Runner::pause() {
 
 	if (_state != State::Running) {
 		throw logic_error("Runner::pauseSimulation() requires a running Runner.");
 	}
 
-	if (_simulationPaused) {
+	if (_paused) {
 		return;
 	}
 
-	_simulationPaused = true;
-	_simulationAccumulator = 0.0;
+	_paused = true;
+	_simAccum = 0.0;
 }
 
-void Runner::resumeSimulation() {
+void Runner::resume() {
 
 	if (_state != State::Running) {
 		throw logic_error("Runner::resumeSimulation() requires a running Runner.");
 	}
 
-	if (!_simulationPaused) {
+	if (!_paused) {
 		return;
 	}
 
-	_simulationPaused = false;
-	_pendingSimulationSteps = 0;
-	_suppressNextAutomaticSimulationUpdate = true;
+	_paused = false;
+	_pendingSteps = 0;
+	_suppressNextAutoUpdate = true;
 }
 
-void Runner::requestSimulationStep() {
+void Runner::requestStep() {
 
 	if (_state != State::Running) {
 		throw logic_error("Runner::requestSimulationStep() requires a running Runner.");
 	}
 
-	if (!_simulationPaused) {
+	if (!_paused) {
 		throw logic_error("Runner::requestSimulationStep() requires paused simulation.");
 	}
 
-	if (_pendingSimulationSteps == numeric_limits<std::uint64_t>::max()) {
+	if (_pendingSteps == numeric_limits<std::uint64_t>::max()) {
 		throw overflow_error("Runner pending simulation-step count overflow.");
 	}
 
-	++_pendingSimulationSteps;
+	++_pendingSteps;
 }
 
 Runner::UpdateCallback Runner::updateCallback() const {
@@ -154,11 +154,11 @@ void Runner::timeScale(double value) {
 }
 
 double Runner::simulationTime() const {
-	return _simulationTime;
+	return _simTime;
 }
 
 uint64_t Runner::simulationStepCount() const {
-	return _simulationStepCount;
+	return _simStepCount;
 }
 
 Runner::State Runner::state() const {
@@ -199,17 +199,17 @@ void Runner::start(TimePoint now) {
 	}
 
 	_timeScale = _config.timeScale;
-	_simulationAccumulator = 0.0;
-	_simulationTime = 0.0;
-	_simulationStepCount = 0;
-	_simulationPaused = false;
-	_pendingSimulationSteps = 0;
-	_suppressNextAutomaticSimulationUpdate = false;
+	_simAccum = 0.0;
+	_simTime = 0.0;
+	_simStepCount = 0;
+	_paused = false;
+	_pendingSteps = 0;
+	_suppressNextAutoUpdate = false;
 	_startTime = now;
-	_previousUpdateTime = now;
+	_prevUpdateTime = now;
 	_updateInfo = {};
 	_hasUpdated = false;
-	_completedRenderFrameCount = 0;
+	_renderedFrameCount = 0;
 	_state = State::Running;
 }
 
@@ -222,10 +222,10 @@ bool Runner::update(TimePoint now) {
 	const UpdateInfo updateInfo {
 		.updateIndex = _hasUpdated ? _updateInfo.updateIndex + 1 : 0,
 		.elapsedTime = chrono::duration<double>(now - _startTime).count(),
-		.deltaTime = _hasUpdated ? chrono::duration<double>(now-_previousUpdateTime).count() : 0.0
+		.deltaTime = _hasUpdated ? chrono::duration<double>(now-_prevUpdateTime).count() : 0.0
 	};
 
-	_previousUpdateTime = now;
+	_prevUpdateTime = now;
 	_updateInfo = updateInfo;
 	_hasUpdated = true;
 
@@ -246,23 +246,31 @@ bool Runner::update(TimePoint now) {
 		if (_state == State::Running) {
 			PhysicsInventory inventory{};
 
-			if (_simulationPaused) {
+			if (_paused) {
 				// a new paused scheduling boundary supersedes suppression
 				// from an earlier resume/pause sequence. a resume that occurs
 				// during the requested batch sets this again and interrupts
 				// the local snapshot
-				_suppressNextAutomaticSimulationUpdate = false;
+				_suppressNextAutoUpdate = false;
 				inventory = executeRequestedSteps(stats);
 			}
-			else if (_suppressNextAutomaticSimulationUpdate) {
-				_suppressNextAutomaticSimulationUpdate = false;
+			else if (_suppressNextAutoUpdate) {
+				_suppressNextAutoUpdate = false;
 				inventory = currentPhysicsInventory();
 			}
 			else {
 				inventory = scheduleSimulation(updateInfo, stats);
 			}
 
-			copyPhysicsInventory(inventory, stats);
+			prof::profile(_profiler, Profiler::Tag::EngineCpu, [&] {
+				stats.staticBodies = inventory.staticBodies;
+				stats.dynamicBodies = inventory.dynamicBodies;
+				stats.kinematicBodies = inventory.kinematicBodies;
+				stats.primitiveShapes = inventory.primitiveShapes;
+				stats.boundingBoxShapes = inventory.boundingBoxShapes;
+				stats.convexHullShapes = inventory.convexHullShapes;
+				stats.concavePolyhedronShapes = inventory.concavePolyhedronShapes;
+			});
 
 			if (_state == State::Running) {
 				renderFrame(updateInfo, stats);
@@ -283,38 +291,37 @@ bool Runner::update(TimePoint now) {
 	return _state == State::Running;
 }
 
-PhysicsInventory Runner::scheduleSimulation(const UpdateInfo& info,
-                                            FrameStats& stats) {
+PhysicsInventory Runner::scheduleSimulation(const UpdateInfo& info, FrameStats& stats) {
 
 	PhysicsInventory inventory{};
 	const double fixedDeltaTime = _config.fixedDeltaTime;
 
-	_simulationAccumulator += info.deltaTime * _timeScale;
+	_simAccum += info.deltaTime * _timeScale;
 
-	while (_simulationAccumulator >= fixedDeltaTime
+	while (_simAccum >= fixedDeltaTime
 	       && stats.simulationStepCount < _config.maxCatchUpSteps
 	       && _state == State::Running
-	       && !_simulationPaused
-	       && !_suppressNextAutomaticSimulationUpdate) {
+	       && !_paused
+	       && !_suppressNextAutoUpdate) {
 
 		inventory = executeSimulationStep();
 
-		if (_simulationPaused || _suppressNextAutomaticSimulationUpdate) {
-			_simulationAccumulator = 0.0;
+		if (_paused || _suppressNextAutoUpdate) {
+			_simAccum = 0.0;
 		}
 		else {
-			_simulationAccumulator -= fixedDeltaTime;
+			_simAccum -= fixedDeltaTime;
 		}
 
 		++stats.simulationStepCount;
 	}
 
-	if (_state == State::Running && _simulationAccumulator >= fixedDeltaTime) {
-		const double remainder = fmod(_simulationAccumulator, fixedDeltaTime);
+	if (_state == State::Running && _simAccum >= fixedDeltaTime) {
+		const double remainder = fmod(_simAccum, fixedDeltaTime);
 
-		stats.discardedSimulationTime = _simulationAccumulator - remainder;
+		stats.discardedSimulationTime = _simAccum - remainder;
 
-		_simulationAccumulator = remainder;
+		_simAccum = remainder;
 	}
 
 	if (stats.simulationStepCount == 0) {
@@ -324,23 +331,17 @@ PhysicsInventory Runner::scheduleSimulation(const UpdateInfo& info,
 	return inventory;
 }
 
-PhysicsInventory Runner::executeRequestedSteps(
-		FrameStats& stats) {
+PhysicsInventory Runner::executeRequestedSteps(FrameStats& stats) {
 
 	PhysicsInventory inventory{};
-	const auto requestedStepCount = exchange(_pendingSimulationSteps, std::uint64_t{0});
+	const auto requestedStepCount = exchange(_pendingSteps, std::uint64_t{0});
 
-	for (std::uint64_t requestedStepIndex = 0;
-		 requestedStepIndex < requestedStepCount;
-		 ++requestedStepIndex) {
+	for (uint64_t i = 0; i < requestedStepCount; ++i) {
 
 		inventory = executeSimulationStep();
 		++stats.simulationStepCount;
 
-		if (_state != State::Running
-			|| !_simulationPaused
-			|| _suppressNextAutomaticSimulationUpdate) {
-
+		if (_state != State::Running || !_paused || _suppressNextAutoUpdate) {
 			break;
 		}
 	}
@@ -360,16 +361,16 @@ PhysicsInventory Runner::executeSimulationStep() {
 	}
 
 	Scene::StepInfo info {
-		.stepIndex = _simulationStepCount,
-		.startTime = static_cast<double>(_simulationStepCount) * _config.fixedDeltaTime,
-		.endTime = static_cast<double>(_simulationStepCount + 1) * _config.fixedDeltaTime,
+		.stepIndex = _simStepCount,
+		.startTime = static_cast<double>(_simStepCount) * _config.fixedDeltaTime,
+		.endTime = static_cast<double>(_simStepCount + 1) * _config.fixedDeltaTime,
 		.deltaTime = _config.fixedDeltaTime
 	};
 
 	auto inventory = _scene.stepSimulation(info, _profiler);
 
-	_simulationTime = info.endTime;
-	++_simulationStepCount;
+	_simTime = info.endTime;
+	++_simStepCount;
 
 	return inventory;
 }
@@ -387,19 +388,6 @@ PhysicsInventory Runner::currentPhysicsInventory() {
 	return {};
 }
 
-void Runner::copyPhysicsInventory(const PhysicsInventory& inventory, FrameStats& stats) {
-
-	prof::profile(_profiler, Profiler::Tag::EngineCpu, [&] {
-		stats.staticBodies = inventory.staticBodies;
-		stats.dynamicBodies = inventory.dynamicBodies;
-		stats.kinematicBodies = inventory.kinematicBodies;
-		stats.primitiveShapes = inventory.primitiveShapes;
-		stats.boundingBoxShapes = inventory.boundingBoxShapes;
-		stats.convexHullShapes = inventory.convexHullShapes;
-		stats.concavePolyhedronShapes = inventory.concavePolyhedronShapes;
-	});
-}
-
 bool Runner::renderFrame(const UpdateInfo& info, FrameStats& stats) {
 
 	auto visualWorld = _scene.visualWorld();
@@ -408,12 +396,12 @@ bool Runner::renderFrame(const UpdateInfo& info, FrameStats& stats) {
 	}
 
 	const VisualWorld::RenderInfo renderInfo {
-		.frameIndex = _completedRenderFrameCount,
+		.frameIndex = _renderedFrameCount,
 		.updateIndex = info.updateIndex,
 		.updateTime = info.elapsedTime,
 		.updateDeltaTime = info.deltaTime,
-		.simulationTime = _simulationTime,
-		.simulationStepCount = _simulationStepCount
+		.simulationTime = _simTime,
+		.simulationStepCount = _simStepCount
 	};
 
 	if (!visualWorld->draw(_scene,
@@ -426,6 +414,6 @@ bool Runner::renderFrame(const UpdateInfo& info, FrameStats& stats) {
 		return false;
 	}
 
-	++_completedRenderFrameCount;
+	++_renderedFrameCount;
 	return true;
 }

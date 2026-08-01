@@ -30,8 +30,7 @@ using namespace std::placeholders;
 
 /// Public Static Member Functions ///
 
-int Application::Run(
-		unique_ptr<Application> application) {
+int Application::Run(unique_ptr<Application> application) {
 
 	if (!application) {
 		throw invalid_argument("Application::Run() requires a non-null Application.");
@@ -88,23 +87,9 @@ Application::Application(int argc, char* argv[], Log::Level logLevel):
 
 Application::~Application() = default;
 
+/// Protected Member Functions ///
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-SimulationConfig Application::simulationConfig() const {
-	return {};
-}
+SimulationConfig Application::simulationConfig() const { return {}; }
 
 bool Application::shouldContinue(const Scene&) { return true; }
 
@@ -136,9 +121,7 @@ const Runner& Application::runner() const {
 	return *_runner;
 }
 
-const vector<string>& Application::args() const {
-	return _args;
-}
+const vector<string>& Application::args() const { return _args; }
 
 /// Runner Callbacks ///
 
@@ -152,8 +135,6 @@ void Application::sceneDidStep(Scene& scene, const Scene::StepInfo& info) {}
 
 /// VisualWorld Callbacks ///
 
-// void Application::renderFrame(VisualWorld& visualWorld,
-// 							  const VisualWorld::RenderInfo& info) {}
 void Application::didBeginFrame(VisualWorld& visualWorld, const VisualWorld::RenderInfo& info) {}
 
 /// Private Member Functions ///
@@ -244,10 +225,6 @@ void Application::registerCallbacks() {
 	_scene->didStepCallback(bind(&Application::dispatchSceneDidStep, this, _1, _2));
 
 	if (auto* world = _scene->visualWorld()) {
-		// world->processRenderCommandsCallback(
-		// 	bind(&Application::dispatchPendingRenderCommands, this, _1, _2));
-		// world->renderFrameCallback(
-		// 	bind(&Application::dispatchRenderFrame, this, _1, _2));
 		world->didBeginFrameCallback(
 			bind(&Application::dispatchDidBeginFrame, this, _1, _2));
 	}
@@ -268,18 +245,6 @@ void Application::dispatchSceneDidStep(Scene& scene, const Scene::StepInfo& info
 
 	sceneDidStep(scene, info);
 }
-
-// void Application::dispatchPendingRenderCommands(VisualWorld& visualWorld,
-// 	const VisualWorld::RenderInfo&) {
-//
-// 	executePendingCommands(_renderCommandQueue, visualWorld);
-// }
-//
-// void Application::dispatchRenderFrame(VisualWorld& visualWorld,
-// 		const VisualWorld::RenderInfo& info) {
-//
-// 	renderFrame(visualWorld, info);
-// }
 
 void Application::dispatchDidBeginFrame(VisualWorld& visualWorld,
 									  const VisualWorld::RenderInfo& info) {

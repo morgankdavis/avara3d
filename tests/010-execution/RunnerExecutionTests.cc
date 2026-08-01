@@ -124,11 +124,11 @@ namespace a3d::testing {
 		}
 
 		static std::uint64_t completedRenderFrameCount(const Runner& runner) {
-			return runner._completedRenderFrameCount;
+			return runner._renderedFrameCount;
 		}
 
 		static double simulationAccumulator(const Runner& runner) {
-			return runner._simulationAccumulator;
+			return runner._simAccum;
 		}
 
 	};
@@ -2620,26 +2620,26 @@ namespace {
 		a3d::Runner runner(scene);
 
 		Expect(
-			!runner.simulationPaused(),
+			!runner.paused(),
 			"a new Runner should not be paused");
 		ExpectLogicError(
 			[&] {
-				runner.pauseSimulation();
+				runner.pause();
 			},
 			"pause should reject an idle Runner");
 
 		a3d::testing::RunnerTestAccess::start(
 			runner, AtMilliseconds(0));
-		runner.pauseSimulation();
-		runner.pauseSimulation();
+		runner.pause();
+		runner.pause();
 		Expect(
-			runner.simulationPaused(),
+			runner.paused(),
 			"pause should be supported and idempotent");
 
 		runner.stop();
 		ExpectLogicError(
 			[&] {
-				runner.pauseSimulation();
+				runner.pause();
 			},
 			"pause should reject a stopped Runner");
 	}
@@ -2690,7 +2690,7 @@ namespace {
 		const auto sampleCount =
 			a3d::testing::RunnerTestAccess::
 				frameStatsHistory(runner).samples().size();
-		runner.pauseSimulation();
+		runner.pause();
 
 		Expect(
 			a3d::testing::RunnerTestAccess::update(
@@ -2777,7 +2777,7 @@ namespace {
 			0.0625,
 			"the seeded fixed accumulator");
 
-		runner.pauseSimulation();
+		runner.pause();
 		ExpectNear(
 			a3d::testing::RunnerTestAccess::
 				simulationAccumulator(runner),
@@ -2825,10 +2825,10 @@ namespace {
 					"hostUpdate controls should observe current input");
 				++hostUpdateCount;
 				if (pauseNow) {
-					runner.pauseSimulation();
+					runner.pause();
 				}
 				else if (resumeNow) {
-					runner.resumeSimulation();
+					runner.resume();
 				}
 			};
 		runner.updateCallback(
@@ -2857,7 +2857,7 @@ namespace {
 				runner, AtMilliseconds(125)),
 			"pause during hostUpdate should keep the Runner alive");
 		Expect(
-			runner.simulationPaused()
+			runner.paused()
 				&& hostUpdateCount == 2
 				&& stepCount == 0,
 			"hostUpdate pause should suppress same-update scheduling");
@@ -2869,7 +2869,7 @@ namespace {
 				runner, AtMilliseconds(250)),
 			"resume during hostUpdate should keep the Runner alive");
 		Expect(
-			!runner.simulationPaused()
+			!runner.paused()
 				&& hostUpdateCount == 3
 				&& stepCount == 0,
 			"hostUpdate resume should suppress same-update scheduling");
@@ -2898,7 +2898,7 @@ namespace {
 			    const a3d::Scene::StepInfo&) {
 
 				stages.push_back("simulation-will");
-				runner.pauseSimulation();
+				runner.pause();
 			});
 		scene.didStepCallback(
 			[&](a3d::Scene&,
@@ -2924,7 +2924,7 @@ namespace {
 				&& stages[1] == "simulation-did",
 			"pause during catch-up should finish the current step coherently");
 		Expect(
-			runner.simulationPaused()
+			runner.paused()
 				&& runner.simulationStepCount() == 1,
 			"pause during catch-up should abandon remaining steps");
 		ExpectNear(
@@ -2958,26 +2958,26 @@ namespace {
 
 			ExpectLogicError(
 				[&] {
-					runner.resumeSimulation();
+					runner.resume();
 				},
 				"resume should reject an idle Runner");
 			a3d::testing::RunnerTestAccess::start(
 				runner, AtMilliseconds(0));
-			runner.resumeSimulation();
+			runner.resume();
 			Expect(
-				!runner.simulationPaused(),
+				!runner.paused(),
 				"resume should be a no-op when simulation is already running");
 			Expect(
 				a3d::testing::RunnerTestAccess::update(
 					runner, AtMilliseconds(0)),
 				"the priming resume update should continue");
 
-			runner.pauseSimulation();
-			runner.requestSimulationStep();
-			runner.requestSimulationStep();
-			runner.resumeSimulation();
+			runner.pause();
+			runner.requestStep();
+			runner.requestStep();
+			runner.resume();
 			Expect(
-				!runner.simulationPaused(),
+				!runner.paused(),
 				"resume should clear paused state");
 			Expect(
 				a3d::testing::RunnerTestAccess::update(
@@ -2992,7 +2992,7 @@ namespace {
 				0.0,
 				"the suppressed resume update should add no accumulator demand");
 
-			runner.pauseSimulation();
+			runner.pause();
 			Expect(
 				a3d::testing::RunnerTestAccess::update(
 					runner, AtMilliseconds(1125)),
@@ -3001,7 +3001,7 @@ namespace {
 				steps.empty(),
 				"cleared requested steps should not execute after re-pausing");
 
-			runner.resumeSimulation();
+			runner.resume();
 			Expect(
 				a3d::testing::RunnerTestAccess::update(
 					runner, AtMilliseconds(2000)),
@@ -3017,7 +3017,7 @@ namespace {
 			runner.stop();
 			ExpectLogicError(
 				[&] {
-					runner.resumeSimulation();
+					runner.resume();
 				},
 				"resume should reject a stopped Runner");
 		}
@@ -3031,7 +3031,7 @@ namespace {
 			a3d::Runner runner(scene, MakeSimulationConfig());
 			ExpectLogicError(
 				[&] {
-					runner.requestSimulationStep();
+					runner.requestStep();
 				},
 				"a requested step should reject an idle Runner");
 		}
@@ -3043,16 +3043,16 @@ namespace {
 				runner, AtMilliseconds(0));
 			ExpectLogicError(
 				[&] {
-					runner.requestSimulationStep();
+					runner.requestStep();
 				},
 				"a requested step should require paused simulation");
 
-			runner.pauseSimulation();
-			runner.requestSimulationStep();
+			runner.pause();
+			runner.requestStep();
 			runner.stop();
 			ExpectLogicError(
 				[&] {
-					runner.requestSimulationStep();
+					runner.requestStep();
 				},
 				"a requested step should reject a stopped Runner");
 		}
@@ -3103,17 +3103,17 @@ namespace {
 			a3d::testing::RunnerTestAccess::
 				frameStatsHistory(runner).samples().size();
 		runner.timeScale(3.0);
-		runner.pauseSimulation();
-		runner.requestSimulationStep();
-		runner.requestSimulationStep();
-		runner.requestSimulationStep();
+		runner.pause();
+		runner.requestStep();
+		runner.requestStep();
+		runner.requestStep();
 
 		Expect(
 			a3d::testing::RunnerTestAccess::update(
 				runner, AtMilliseconds(1000)),
 			"the requested-step update should continue");
 		Expect(
-			runner.simulationPaused(),
+			runner.paused(),
 			"requested steps should leave simulation paused");
 		Expect(
 			simulationSteps.size() == 3,
@@ -3237,9 +3237,9 @@ namespace {
 			a3d::testing::RunnerTestAccess::update(
 				runner, AtMilliseconds(0)),
 			"the priming requested-order update should continue");
-		runner.pauseSimulation();
-		runner.requestSimulationStep();
-		runner.requestSimulationStep();
+		runner.pause();
+		runner.requestStep();
+		runner.requestStep();
 		Expect(
 			a3d::testing::RunnerTestAccess::update(
 				runner, AtMilliseconds(125)),
@@ -3282,7 +3282,7 @@ namespace {
 			    const a3d::Scene::StepInfo& info) {
 
 				if (info.stepIndex == 0) {
-					runner.requestSimulationStep();
+					runner.requestStep();
 				}
 			});
 		scene.didStepCallback(
@@ -3294,8 +3294,8 @@ namespace {
 
 		a3d::testing::RunnerTestAccess::start(
 			runner, AtMilliseconds(0));
-		runner.pauseSimulation();
-		runner.requestSimulationStep();
+		runner.pause();
+		runner.requestStep();
 
 		Expect(
 			a3d::testing::RunnerTestAccess::update(
@@ -3348,10 +3348,10 @@ namespace {
 
 		a3d::testing::RunnerTestAccess::start(
 			runner, AtMilliseconds(0));
-		runner.pauseSimulation();
-		runner.requestSimulationStep();
-		runner.requestSimulationStep();
-		runner.requestSimulationStep();
+		runner.pause();
+		runner.requestStep();
+		runner.requestStep();
+		runner.requestStep();
 
 		Expect(
 			!a3d::testing::RunnerTestAccess::update(
@@ -3390,7 +3390,7 @@ namespace {
 			    const a3d::Scene::StepInfo& info) {
 
 				if (info.stepIndex == 0) {
-					runner.resumeSimulation();
+					runner.resume();
 				}
 			});
 		scene.didStepCallback(
@@ -3402,10 +3402,10 @@ namespace {
 
 		a3d::testing::RunnerTestAccess::start(
 			runner, AtMilliseconds(0));
-		runner.pauseSimulation();
-		runner.requestSimulationStep();
-		runner.requestSimulationStep();
-		runner.requestSimulationStep();
+		runner.pause();
+		runner.requestStep();
+		runner.requestStep();
+		runner.requestStep();
 
 		Expect(
 			a3d::testing::RunnerTestAccess::update(
@@ -3413,13 +3413,13 @@ namespace {
 			"resume during a requested step should keep the Runner alive");
 		Expect(
 			steps.size() == 1
-				&& !runner.simulationPaused(),
+				&& !runner.paused(),
 			"resume should finish one requested step and abandon the remainder");
 		Expect(
 			LatestFrameStats(runner).simulationStepCount == 1,
 			"resume-interrupted request statistics should report one step");
 
-		runner.pauseSimulation();
+		runner.pause();
 		Expect(
 			a3d::testing::RunnerTestAccess::update(
 				runner, AtMilliseconds(125)),
@@ -3428,7 +3428,7 @@ namespace {
 			steps.size() == 1,
 			"resume should clear the unexecuted requested snapshot remainder");
 
-		runner.resumeSimulation();
+		runner.resume();
 		Expect(
 			a3d::testing::RunnerTestAccess::update(
 				runner, AtMilliseconds(250)),
@@ -3462,23 +3462,23 @@ namespace {
 				[&](a3d::Scene&,
 				    const a3d::Scene::StepInfo&) {
 
-					repausedRunner.resumeSimulation();
+					repausedRunner.resume();
 				});
 			repausedScene.didStepCallback(
 				[&](a3d::Scene&,
 				    const a3d::Scene::StepInfo&) {
 
 					++repausedStepCount;
-					repausedRunner.pauseSimulation();
+					repausedRunner.pause();
 				});
 
 			a3d::testing::RunnerTestAccess::start(
 				repausedRunner,
 				AtMilliseconds(1000));
-			repausedRunner.pauseSimulation();
-			repausedRunner.requestSimulationStep();
-			repausedRunner.requestSimulationStep();
-			repausedRunner.requestSimulationStep();
+			repausedRunner.pause();
+			repausedRunner.requestStep();
+			repausedRunner.requestStep();
+			repausedRunner.requestStep();
 
 			Expect(
 				a3d::testing::RunnerTestAccess::update(
@@ -3487,7 +3487,7 @@ namespace {
 				"resume/re-pause during a requested step should keep the Runner alive");
 			Expect(
 				repausedStepCount == 1
-					&& repausedRunner.simulationPaused(),
+					&& repausedRunner.paused(),
 				"a resume transition should abandon the old snapshot even after re-pause");
 		}
 	}

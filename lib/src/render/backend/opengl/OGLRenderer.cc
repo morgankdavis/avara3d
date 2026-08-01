@@ -72,8 +72,8 @@ static constexpr std::size_t MAX_DIRECTIONAL_LIGHTS	{16};
 static constexpr std::size_t MAX_POINT_LIGHTS       {128};
 static constexpr std::size_t MAX_SPOT_LIGHTS        {64};
 
-// static const std::string STATS_TITLE_FONT_NAME		{"SourceCodePro-Bold"};
-// static const std::string STATS_TITLE_FONT_TYPE		{"otf"};
+// static const std::string STATS_TITLE_FONT_NAME	{"SourceCodePro-Bold"};
+// static const std::string STATS_TITLE_FONT_TYPE	{"otf"};
 // static const float STATS_TITLE_FONT_SIZE			{23.0};
 
 static const std::string STATS_TITLE_FONT_NAME		{"Neuropol Nova Xp"};
@@ -1958,18 +1958,18 @@ bool ImguiDrawCheckbox(float x, float y,
 	ImGui::PushFont(&font, size);
 
 	const ImVec4 transparent(0, 0, 0, 0);
-	const float shadow_off = 1.0f;
-	const float border_thickness = 1.0f;
+	const float shadowOff = 1.0f;
+	const float borderThickness = 1.0f;
 
-	const float box_size = GetFrameHeight(); // checkbox square size
-	const float label_gap = GetStyle().ItemInnerSpacing.x; // spacing between box and label
+	const float boxSize = GetFrameHeight(); // checkbox square size
+	const float labelGap = GetStyle().ItemInnerSpacing.x; // spacing between box and label
 
 	// shadow checkbox (non-interactive, non-blocking)
 	PushID(id);
-	SetCursorScreenPos(ImVec2(x + shadow_off, y + shadow_off));
+	SetCursorScreenPos(ImVec2(x + shadowOff, y + shadowOff));
 	BeginDisabled(true);
 
-	PushStyleVar(ImGuiStyleVar_FrameBorderSize, border_thickness);
+	PushStyleVar(ImGuiStyleVar_FrameBorderSize, borderThickness);
 	PushStyleColor(ImGuiCol_FrameBg, transparent);
 	PushStyleColor(ImGuiCol_FrameBgHovered, transparent);
 	PushStyleColor(ImGuiCol_FrameBgActive, transparent);
@@ -1995,7 +1995,7 @@ bool ImguiDrawCheckbox(float x, float y,
 
 	auto primaryColor = disabled ? ImVec4(0.65, 0.65, 0.65, 1) : ImVec4(1, 1, 1, 1);
 
-	PushStyleVar(ImGuiStyleVar_FrameBorderSize, border_thickness);
+	PushStyleVar(ImGuiStyleVar_FrameBorderSize, borderThickness);
 	PushStyleColor(ImGuiCol_FrameBg, transparent);
 	PushStyleColor(ImGuiCol_FrameBgHovered, transparent);
 	PushStyleColor(ImGuiCol_FrameBgActive, transparent);
@@ -2014,14 +2014,14 @@ bool ImguiDrawCheckbox(float x, float y,
 	ImDrawList *dl = GetWindowDrawList(); // or GetForegroundDrawList() to match DigDrawText layer exactly
 
 	// align label vertically with checkbox frame (center-ish)
-	float text_y = y + GetStyle().FramePadding.y;
+	float textY = y + GetStyle().FramePadding.y;
 
-	ImVec2 label_pos(x + box_size + label_gap, text_y);
+	ImVec2 labelPos(x + boxSize + labelGap, textY);
 
-	dl->AddText(ImVec2(label_pos.x + shadow_off, label_pos.y + shadow_off),
+	dl->AddText(ImVec2(labelPos.x + shadowOff, labelPos.y + shadowOff),
 	            IM_COL32(0, 0, 0, 255),
 	            text);
-	dl->AddText(label_pos,
+	dl->AddText(labelPos,
 	            disabled ? IM_COL32(128, 128, 128, 255) : IM_COL32(255, 255, 255, 255),
 	            text);
 
