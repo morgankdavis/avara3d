@@ -16,7 +16,7 @@ namespace a3d {
 	struct SimulationConfig {
 
 		// constant duration of every automatic and requested simulation step
-		double			fixedDeltaTime{1.0 / 60.0};
+		double			timeStep{1.0 / 60.0};
 
 		// maximum automatic steps performed during one Runner::update()
 		std::uint32_t	maxCatchUpSteps{8};

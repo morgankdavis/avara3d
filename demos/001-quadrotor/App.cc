@@ -77,7 +77,7 @@ std::unique_ptr<Scene> App::init() {
 
 SimulationConfig App::simulationConfig() const {
 	return {
-		.fixedDeltaTime = FIXED_TIMESTEP
+		.timeStep = FIXED_TIMESTEP
 	};
 }
 

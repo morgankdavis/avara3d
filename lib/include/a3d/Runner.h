@@ -51,13 +51,11 @@ namespace a3d {
 			double			deltaTime{0.0};
 		};
 
-		using UpdateCallback = std::function<void(Runner& runner,
-		                                          const UpdateInfo& info)>;
+		using UpdateCallback = std::function<void(Runner& runner, const UpdateInfo& info)>;
 
 		/// Public Lifecycle Functions ///
 
-		explicit Runner(Scene& scene,
-		                SimulationConfig config = {});
+		explicit Runner(Scene& scene, SimulationConfig config = {});
 
 		Runner(const Runner&) = delete;
 		Runner& operator=(const Runner&) = delete;
@@ -76,13 +74,13 @@ namespace a3d {
 		// a stopped Runner performs no updates. pausing affects automatic
 		// simulation steps only: Runner updates, input, host callbacks,
 		// and rendering continue
-		bool						paused() const;
-		void						pause();
-		void						resume();
+		bool						simulationPaused() const;
+		void						pauseSimulation();
+		void						resumeSimulation();
 
 		// queue one fixed-duration step for a running, paused simulation.
-		// requested steps use fixedDeltaTime and ignore timeScale.
-		void						requestStep();
+		// requested steps use timeStep and ignore timeScale.
+		void						requestSimulationStep();
 
 		UpdateCallback				updateCallback() const;
 		void						updateCallback(UpdateCallback callback);
@@ -111,9 +109,9 @@ namespace a3d {
 		void						start(TimePoint now);
 		bool						update(TimePoint now);
 
-		PhysicsInventory			scheduleSimulation(const UpdateInfo& info,
+		PhysicsInventory			advanceSimulation(const UpdateInfo& info,
 					                                   FrameStats& stats);
-		PhysicsInventory			executeRequestedSteps(FrameStats& stats);
+		PhysicsInventory			executePendingSimulationSteps(FrameStats& stats);
 		PhysicsInventory			executeSimulationStep();
 		PhysicsInventory			currentPhysicsInventory();
 
@@ -125,16 +123,15 @@ namespace a3d {
 		State						_state;
 		SimulationConfig			_config;
 		double						_timeScale;
-		double						_simAccum;
-		double						_simTime;
-		std::uint64_t				_simStepCount;
-		bool						_paused;
-		std::uint64_t				_pendingSteps;
-		bool						_suppressNextAutoUpdate;
+		double						_simulationTimeAccumulator;
+		double						_simulationTime;
+		std::uint64_t				_simulationStepCount;
+		bool						_simulationPaused;
+		std::uint64_t				_pendingSimulationSteps;
+		bool						_skipNextUpdateDelta;
 		TimePoint					_startTime;
 		TimePoint					_prevUpdateTime;
-		UpdateInfo					_updateInfo;
-		bool						_hasUpdated;
+		std::uint64_t				_updateCount;
 		UpdateCallback				_updateCallback;
 		std::uint64_t				_renderedFrameCount;
 		Profiler					_profiler;

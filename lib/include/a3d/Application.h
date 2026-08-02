@@ -99,10 +99,6 @@ namespace a3d {
 		void			dispatchHostUpdate(Runner& runner, const Runner::UpdateInfo& info);
 		void			dispatchSceneWillStep(Scene& scene, const Scene::StepInfo& info);
 		void			dispatchSceneDidStep(Scene& scene, const Scene::StepInfo& info);
-		// void			dispatchPendingRenderCommands(VisualWorld& visualWorld,
-		// 			                                  const VisualWorld::RenderInfo& info);
-		// void			dispatchRenderFrame(VisualWorld& visualWorld,
-		// 			                        const VisualWorld::RenderInfo& info);
 		void			dispatchDidBeginFrame(VisualWorld& visualWorld,
 					                          const VisualWorld::RenderInfo& info);
 
