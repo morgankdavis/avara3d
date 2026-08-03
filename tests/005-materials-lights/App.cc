@@ -42,8 +42,6 @@ App::~App() = default;
 
 std::unique_ptr<Scene> App::init() {
 	try {
-		_startTime = util::chrono::Time();
-
 		_window = make_unique<Window>(RenderContext::RenderingApi::OpenGL,
 									  *util::filesystem::ExecutableName(),
 									  WINDOW_SIZE,
@@ -136,6 +134,15 @@ void App::hostUpdate(Runner& runner,
 	auto& scene = runner.scene();
 	auto& inputContext = *scene.inputContext();
 	auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
+
+	// util::flow::on(2, [&] {
+	// 	log::app::i()("ELAPSED TIME: {}", info.elapsedTime);
+	// });
+
+	// log::app::t()("scene: {:p}, time: {}, deltaTime: {}",
+	// 	(void *) &scene,
+	// 			  info.elapsedTime,
+	// 			  info.deltaTime);
 
 	// get input
 
@@ -285,16 +292,6 @@ void App::hostUpdate(Runner& runner,
 			}
 		}
 	}
-
-	util::flow::on(2, [&] {
-		double time = util::chrono::Time() - _startTime;
-		log::app::i()("START TIME: {}", time);
-	});
-
-	log::app::t()("scene: {:p}, time: {}, deltaTime: {}",
-		(void *) &scene,
-	              info.elapsedTime,
-	              info.deltaTime);
 
 	// move the light
 

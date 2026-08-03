@@ -17,10 +17,10 @@
 #include "a3d/Image.h"
 #include "a3d/log/Log.h"
 #include "a3d/mesh/MeshElement.h"
-#include "a3d/render/Renderer.h"
-#include "a3d/scene/Node.h"
+#include "a3d/profile/Timer.h"
 #include "a3d/scene/importer/GlTFImporter.h"
 #include "a3d/visual/material/Material.h"
+#include "a3d/util/Chrono.h"
 
 using namespace a3d;
 using namespace a3d::math;
@@ -29,10 +29,12 @@ using namespace std;
 /// Public Static Member Functions ///
 
 shared_ptr<Mesh> Mesh::FromFile(const filesystem::path& path, ImportOptions options) {
-
-	auto optsUnderlying = static_cast<underlying_type<ImportOptions>::type>(options);
-	auto sceneOpts = Scene::ImportOptions(optsUnderlying) | Scene::ImportOptions::ImportMeshes;
-	return GlTFImporter(path, sceneOpts).firstMesh();
+	// Timer timer {true};
+	auto  optsUnderlying = static_cast<underlying_type<ImportOptions>::type>(options);
+	auto  sceneOpts		 = Scene::ImportOptions(optsUnderlying) | Scene::ImportOptions::ImportMeshes;
+	auto  mesh			 = GlTFImporter(path, sceneOpts).firstMesh();
+	// log::i()("Loaded Mesh '{}'. Time: {:.3f} ms", path.string(), util::chrono::Milliseconds(timer.stop()));
+	return mesh;
 }
 
 /// Public Lifecycle Functions ///

@@ -17,6 +17,7 @@
 #include "a3d/CommandQueue.h"
 #include "a3d/Runner.h"
 #include "a3d/SimulationConfig.h"
+#include "a3d/profile/Timer.h"
 #include "a3d/scene/Scene.h"
 #include "a3d/visual/VisualWorld.h"
 #include "log/Log.h"
@@ -105,6 +106,7 @@ namespace a3d {
 		bool					  _didShutdown;
 		CommandQueue<Scene>		  _sceneCommandQueue;
 		CommandQueue<VisualWorld> _renderCommandQueue;
+		Timer					  _startupTimer;
 
 		/// Test Access ///
 

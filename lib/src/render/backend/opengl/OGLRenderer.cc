@@ -1435,17 +1435,18 @@ void DrawStats(FrameStats&				stats,
 	util::flow::every(FRAME_STATS_AVERAGE_UPDATE_INTERVAL, [&] {
 		FrameStatsHistory::GetAverages(statsHistory, frameNsAvg, engineCpuNsAvg, renderCpuNsAvg, renderGpuNsAvg,
 									   physicsNsAvg, appCpuNsAvg, FRAME_STATS_AVERAGING_DURATION);
-
 		// ! ~zero cost
-		frameMsFAvg		= util::chrono::ns_to_ms_f(frameNsAvg);
-		engineCpuMsFAvg = util::chrono::ns_to_ms_f(engineCpuNsAvg);
-		renderCpuMsFAvg = util::chrono::ns_to_ms_f(renderCpuNsAvg);
-		if (gpuTimingAvailable)
-			renderGpuMsFAvg = util::chrono::ns_to_ms_f(renderGpuNsAvg);
-		physicsMsFAvg = util::chrono::ns_to_ms_f(physicsNsAvg);
-		appCpuMsFAvg  = util::chrono::ns_to_ms_f(appCpuNsAvg);
-		if (frameMsFAvg > 0)
+		frameMsFAvg		= util::chrono::Milliseconds(frameNsAvg);
+		engineCpuMsFAvg = util::chrono::Milliseconds(engineCpuNsAvg);
+		renderCpuMsFAvg = util::chrono::Milliseconds(renderCpuNsAvg);
+		if (gpuTimingAvailable) {
+			renderGpuMsFAvg = util::chrono::Milliseconds(renderGpuNsAvg);
+		}
+		physicsMsFAvg = util::chrono::Milliseconds(physicsNsAvg);
+		appCpuMsFAvg  = util::chrono::Milliseconds(appCpuNsAvg);
+		if (frameMsFAvg > 0) {
 			fpsAvg = 1000.0f / frameMsFAvg;
+		}
 	});
 
 	static vector<float>  frameSamples;
@@ -1470,13 +1471,14 @@ void DrawStats(FrameStats&				stats,
 
 		for (size_t i = 0; i < samples.size(); ++i) {
 			auto sample			= get<1>(samples[i]);
-			frameSamples[i]		= util::chrono::ns_to_ms_f(sample.frameTime);
-			engCpuSamples[i]	= util::chrono::ns_to_ms_f(sample.engineCpuTime);
-			physSamples[i]		= util::chrono::ns_to_ms_f(sample.physicsTime);
-			renderCpuSamples[i] = util::chrono::ns_to_ms_f(sample.renderCpuTime);
-			if (gpuTimingAvailable)
-				renderGpuSamples[i] = util::chrono::ns_to_ms_f(sample.renderGpuTime);
-			appSamples[i] = util::chrono::ns_to_ms_f(sample.applicationTime);
+			frameSamples[i]		= util::chrono::Milliseconds(sample.frameTime);
+			engCpuSamples[i]	= util::chrono::Milliseconds(sample.engineCpuTime);
+			physSamples[i]		= util::chrono::Milliseconds(sample.physicsTime);
+			renderCpuSamples[i] = util::chrono::Milliseconds(sample.renderCpuTime);
+			if (gpuTimingAvailable) {
+				renderGpuSamples[i] = util::chrono::Milliseconds(sample.renderGpuTime);
+			}
+			appSamples[i] = util::chrono::Milliseconds(sample.applicationTime);
 		}
 	}
 

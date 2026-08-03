@@ -52,7 +52,6 @@ namespace test::materialslights {
 
 		std::unique_ptr<a3d::Window>	_window;
 		a3d::Node*						_pointLightNode;
-		double 							_startTime;
 	};
 }
 
