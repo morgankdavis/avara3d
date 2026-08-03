@@ -25,7 +25,6 @@
 - Match existing code format/style when making changes
 - Organize declarations using the existing /// Group Title /// pattern; place public engine-internal APIs in an appropriate /// Internal ... /// group
 - Implement functions in the same order in which their declarations appear, and under the same section/group titles
-- In function signatures, bind pointer and reference symbols to the type (Type* name, Type& name, Type&& name), not the parameter or function name
 - Use friend only for test access. Cross-class engine access must use public methods grouped as internal
 - Avoid empty or 'detail' namespaces unless there is a really good reason to use one
 - Prefer a3d::math functions over standard library functions
