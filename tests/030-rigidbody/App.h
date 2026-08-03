@@ -10,6 +10,7 @@
 #define AVARA3D_TEST_RIGIDBODY_APP_H
 
 #include <memory>
+#include <tuple>
 #include <vector>
 
 #include "a3d/Application.h"
@@ -18,9 +19,7 @@ namespace a3d {
 	class Mesh;
 	class Node;
 	class PhysicsShape;
-	class PhysicsWorld;
 	class Scene;
-	class VisualWorld;
 	class Window;
 }
 
@@ -54,38 +53,20 @@ namespace test::rigidbody {
 	protected:
 		/// Protected Member Functions ///
 
-		std::unique_ptr<a3d::Scene> init() override;
+		std::unique_ptr<a3d::Scene>		init() override;
+		a3d::SimulationConfig			simulationConfig() const override;
+		bool							shouldContinue(const a3d::Scene& scene) override;
+		void							didShutdown() override;
 
-		bool shouldContinue(
-			const a3d::Scene& scene) override;
+		/// Runner Callbacks ///
 
-		void didShutdown() override;
+		void							hostUpdate(a3d::Runner& runner,
+									               const a3d::Runner::UpdateInfo& info) override;
 
-		/// Scene Callback Overrides ///
+		/// Scene Callbacks ///
 
-		void sceneUpdate(
-			a3d::Scene& scene,
-			double time,
-			double deltaTime) override;
-
-		/// VisualWorld Callback Overrides ///
-
-		void visualWorldDidRender(
-			a3d::VisualWorld &world,
-			double time,
-			double deltaTime) override;
-
-		void visualWorldWillRender(
-			a3d::VisualWorld& world,
-			double time,
-			double deltaTime) override;
-
-		/// PhysicsWorld Callback Overrides ///
-
-		void physicalWorldDidSimulate(
-			a3d::PhysicsWorld& world,
-			double time,
-			double deltaTime) override;
+		void							sceneWillStep(a3d::Scene& scene,
+									                  const a3d::Scene::StepInfo& info) override;
 
 	private:
 		/// Private Member Variables ///
@@ -95,6 +76,8 @@ namespace test::rigidbody {
 		std::vector<DuckFruitDef>					_duckFruit;
 		std::unique_ptr<a3d::ext::WanderRotator>	_duckRotator;
 		float										_cameraMoveSpeed;
+		double										_duckFruitSpawnAccumulator;
+		double										_slurmShotAccumulator;
 	};
 }
 

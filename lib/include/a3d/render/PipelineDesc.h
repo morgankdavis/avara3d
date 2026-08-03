@@ -63,13 +63,13 @@ namespace a3d {
 		DepthFunc 				depthFunc = 		DepthFunc::Less;
 		bool 					polygonOffset = 	false; // Main = false, Wire = true
 
-		bool operator==(const PipelineDesc &) const = default;
+		bool operator==(const PipelineDesc&) const = default;
 	};
 
 	/// Internal Functions ///
 
 	struct PipelineDescHash { // for unordered_map
-		size_t operator()(const PipelineDesc &desc) const noexcept;
+		size_t operator()(const PipelineDesc& desc) const noexcept;
 	};
 }
 

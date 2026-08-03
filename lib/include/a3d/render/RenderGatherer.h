@@ -27,7 +27,7 @@ namespace a3d {
 
 		static GatherOutput Gather(const Scene& scene,
 								   const math::mat4& view,
-								   const PhysicsWorld* physicalWorld,
+								   const PhysicsWorld* physicsWorld,
 								   const Scene::DebugOptions& debugOptions,
 								   FrameStats& stats);
 

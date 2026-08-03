@@ -25,7 +25,7 @@ const RenderContext::AntialiasingMode	ANTIALIAS_MODE		{RenderContext::Antialiasi
 const bool								ENABLE_VSYNC		{false};
 const bool								CAPTURE_CURSOR		{false};
 const float								MOUSE_SENSITIVITY	{0.5};
-const float								PHYSICS_TIMESTEP	{1.0/120.0};
+const double							FIXED_TIMESTEP		{1.0 / 120.0};
 const bool								DARK				{false};
 
 /// Public Lifecycle Functions ///
@@ -51,12 +51,11 @@ std::unique_ptr<Scene> App::init() {
 		auto backgroundColor = make_shared<Color>(u8vec3{109, 136, 164});
 		visualWorld->background(backgroundColor);
 
-		auto physicalWorld = make_unique<PhysicsWorld>();
-		physicalWorld->timestep(PHYSICS_TIMESTEP);
+		auto physicsWorld = make_unique<PhysicsWorld>();
 
 		auto scene = make_unique<Scene>(std::move(visualWorld),
-										std::move(physicalWorld),
-										Window::InputManager());
+										std::move(physicsWorld),
+										Window::InputContext());
 		scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 
 		_bananaNode = Node::MeshNode(util::filesystem::MeshNamed("banana_lod/banana_lod"));
@@ -76,6 +75,12 @@ std::unique_ptr<Scene> App::init() {
 	}
 }
 
+SimulationConfig App::simulationConfig() const {
+	return {
+		.timeStep = FIXED_TIMESTEP
+	};
+}
+
 bool App::shouldContinue(const Scene& scene) {
 	return _window->isOpen();
 }
@@ -84,36 +89,22 @@ void App::didShutdown() {
 
 }
 
-/// Scene Callback Overrides ///
+/// Runner Callbacks ///
 
-void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
+void App::hostUpdate(Runner& runner,
+                     const Runner::UpdateInfo& info) {
 
-	if (static_cast<DesktopInputManager*>(
-	scene.inputManager())->keysPressed().count(DesktopInputManager::Key::Escape)) {
+	auto& inputContext = *runner.scene().inputContext();
+
+	if (static_cast<DesktopInputContext&>(
+		inputContext).keysPressed().count(DesktopInputContext::Key::Escape)) {
 		_window->close();
 	}
 
 	if (_bananaNode) {
 		// rotate the banana
-		auto rotationDeg = deltaTime * radians(-30.0); // 10deg/sec
-
+		auto rotationDeg = info.deltaTime * radians(-30.0); // 10deg/sec
 		auto rotY = math::quaternion({0.0f, 1.0f, 0.0f}, rotationDeg);
 		_bananaNode->orientation(rotY * _bananaNode->orientation());
 	}
-}
-
-/// VisualWorld Callback Overrides ///
-
-void App::visualWorldWillRender(VisualWorld& world, double time, double deltaTime) {
-
-}
-
-void App::visualWorldDidRender(VisualWorld& world, double time, double deltaTime) {
-
-}
-
-/// PhysicsWorld Callback Overrides ///
-
-void App::physicalWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {
-
 }

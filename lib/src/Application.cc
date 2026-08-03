@@ -10,6 +10,8 @@
 
 #include <stdexcept>
 
+#include "a3d/visual/VisualWorld.h"
+
 #ifdef A3D_WEB
 	#include <emscripten/emscripten.h>
 #endif
@@ -19,27 +21,15 @@
 #include "a3d/log/Log.h"
 #include "a3d/log/sink/FileLogSink.h"
 #include "a3d/log/sink/StdOutLogSink.h"
-#include "a3d/physics/PhysicsWorld.h"
 #include "a3d/scene/Scene.h"
 #include "a3d/util/Filesystem.h"
-#include "a3d/visual/VisualWorld.h"
 
 using namespace a3d;
 using namespace std;
-using namespace std::placeholders;
 
-Application::Application(int argc, char *argv[], Log::Level logLevel):
-	_args(argv + 1, argv + argc),
-	_scene{},
-	_runner{},
-	_didShutdown{false} {
-	initLog(logLevel);
-}
+/// Public Static Member Functions ///
 
-Application::~Application() = default;
-
-int Application::Run(
-		unique_ptr<Application> application) {
+int Application::Run(unique_ptr<Application> application) {
 
 	if (!application) {
 		throw invalid_argument("Application::Run() requires a non-null Application.");
@@ -53,9 +43,7 @@ int Application::Run(
 
 	emscripten_set_main_loop_arg(
 		[](void* opaque) {
-
-			auto* application =
-				static_cast<Application*>(opaque);
+			auto* application = static_cast<Application*>(opaque);
 
 			if (!application->update()) {
 				emscripten_cancel_main_loop();
@@ -64,16 +52,14 @@ int Application::Run(
 				delete application;
 			}
 		},
-		context,
-		0,
-		false
-	);
+		context, 0, false);
 
 	return 0;
 
 #else
 
-	while (application->update());
+	while (application->update())
+		;
 
 	application->shutdown();
 
@@ -82,7 +68,77 @@ int Application::Run(
 #endif
 }
 
-/// Protected Static Member Functions ///
+/// Public Lifecycle Functions ///
+
+Application::Application(int argc, char* argv[], Log::Level logLevel):
+	_args(argv + 1, argv + argc),
+	_scene{},
+	_runner{},
+	_didShutdown{false},
+	_sceneCommandQueue{},
+	_renderCommandQueue{} {
+	initLog(logLevel);
+}
+
+Application::~Application() = default;
+
+/// Protected Member Functions ///
+
+SimulationConfig Application::simulationConfig() const {
+	return {};
+}
+
+bool Application::shouldContinue(const Scene&) {
+	return true;
+}
+
+void Application::didShutdown() {}
+
+void Application::queueSceneCommand(SceneCommand command) {
+	_sceneCommandQueue.push(std::move(command));
+}
+
+void Application::queueRenderCommand(RenderCommand command) {
+	_renderCommandQueue.push(std::move(command));
+}
+
+Runner& Application::runner() {
+
+	if (!_runner) {
+		throw logic_error("Application::runner() requires an initialized Runner.");
+	}
+
+	return *_runner;
+}
+
+const Runner& Application::runner() const {
+
+	if (!_runner) {
+		throw logic_error("Application::runner() requires an initialized Runner.");
+	}
+
+	return *_runner;
+}
+
+const vector<string>& Application::args() const {
+	return _args;
+}
+
+/// Runner Callbacks ///
+
+void Application::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {}
+
+/// Scene Callbacks ///
+
+void Application::sceneWillStep(Scene& scene, const Scene::StepInfo& info) {}
+
+void Application::sceneDidStep(Scene& scene, const Scene::StepInfo& info) {}
+
+/// VisualWorld Callbacks ///
+
+void Application::didBeginFrame(VisualWorld& visualWorld, const VisualWorld::RenderInfo& info) {}
+
+/// Private Member Functions ///
 
 void Application::initLog(Log::Level level) {
 
@@ -101,10 +157,7 @@ void Application::initLog(Log::Level level) {
 	sinks.push_back(std::move(fileSink));
 #endif
 
-	Log::AppLog(make_unique<Log>(
-		executableName,
-		std::move(sinks),
-		level));
+	Log::AppLog(make_unique<Log>(executableName, std::move(sinks), level));
 
 	const auto& buildInfo = BuildInfo::Info();
 	log::app::i()("A3D version: {}", BuildInfo::VersionString(buildInfo.version()));
@@ -121,9 +174,10 @@ void Application::prepare() {
 		throw runtime_error("Application::initialize() returned a null Scene.");
 	}
 
+	_runner = make_unique<Runner>(*_scene, simulationConfig());
+
 	registerCallbacks();
 
-	_runner = make_unique<Runner>(*_scene);
 	_runner->start();
 }
 
@@ -167,26 +221,35 @@ void Application::shutdown() noexcept {
 
 void Application::registerCallbacks() {
 
-	_scene->updateCallback(bind(&Application::sceneUpdate, this, _1, _2, _3));
+	using namespace std::placeholders;
+
+	_runner->updateCallback(bind(&Application::dispatchHostUpdate, this, _1, _2));
+	_scene->willStepCallback(bind(&Application::dispatchSceneWillStep, this, _1, _2));
+	_scene->didStepCallback(bind(&Application::dispatchSceneDidStep, this, _1, _2));
 
 	if (auto* world = _scene->visualWorld()) {
-		world->willRenderCallback(bind(&Application::visualWorldWillRender, this, _1, _2, _3));
-		world->didRenderCallback(bind(&Application::visualWorldDidRender, this, _1, _2, _3));
-	}
-
-	if (auto* world = _scene->physicalWorld()) {
-		world->didSimulateCallback(bind(&Application::physicalWorldDidSimulate, this, _1, _2, _3));
+		world->didBeginFrameCallback(bind(&Application::dispatchDidBeginFrame, this, _1, _2));
 	}
 }
 
-bool Application::shouldContinue(const Scene&) { return true; }
+void Application::dispatchHostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
 
-void Application::didShutdown() {}
+	hostUpdate(runner, info);
+}
 
-void Application::sceneUpdate(Scene& scene, double time, double deltaTime) {}
+void Application::dispatchSceneWillStep(Scene& scene, const Scene::StepInfo& info) {
 
-void Application::visualWorldWillRender(VisualWorld& world, double time, double deltaTime) {}
+	executePendingCommands(_sceneCommandQueue, scene);
+	sceneWillStep(scene, info);
+}
 
-void Application::visualWorldDidRender(VisualWorld& world, double time, double deltaTime) {}
+void Application::dispatchSceneDidStep(Scene& scene, const Scene::StepInfo& info) {
 
-void Application::physicalWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {}
+	sceneDidStep(scene, info);
+}
+
+void Application::dispatchDidBeginFrame(VisualWorld& visualWorld, const VisualWorld::RenderInfo& info) {
+
+	executePendingCommands(_renderCommandQueue, visualWorld);
+	didBeginFrame(visualWorld, info);
+}

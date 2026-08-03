@@ -8,6 +8,7 @@
 
 #include "App.h"
 
+#include <algorithm>
 #include <functional>
 #include <memory>
 #include <string>
@@ -36,9 +37,9 @@ const bool								USE_DEFAULT_LIGHTING	{false};
 const bool								CAPTURE_CURSOR			{false};
 const float								MOUSE_SENSITIVITY		{0.5};
 #if defined(A3D_WEB)
-const float								PHYSICS_TIMESTEP		{1.0/30.0};
+const float								FIXED_TIMESTEP			{1.0/30.0};
 #else
-const float								PHYSICS_TIMESTEP		{1.0/120.0};
+const float								FIXED_TIMESTEP			{1.0/120.0};
 #endif
 
 /// Private Static Non-Member Prototypes ///
@@ -61,7 +62,10 @@ void SpawnChainMail(Scene& scene);
 
 App::App(int argc, char* argv[]):
 		Application(argc, argv, APP_LOG_LEVEL),
-		_duckNode{nullptr} {
+		_duckNode{nullptr},
+		_cameraMoveSpeed{0.0f},
+		_duckFruitSpawnAccumulator{0.0},
+		_slurmShotAccumulator{0.0} {
 }
 
 App::~App() = default;
@@ -88,12 +92,11 @@ unique_ptr<Scene> App::init() {
 		// auto background = make_shared<Texture>(util::filesystem::CubeImageNamed("stormy", "png"));
 		visualWorld->background(background);
 
-		auto physicalWorld = make_unique<PhysicsWorld>();
-		physicalWorld->timestep(PHYSICS_TIMESTEP);
+		auto physicsWorld = make_unique<PhysicsWorld>();
 
 		auto scene = make_unique<Scene>(std::move(visualWorld),
-		                                std::move(physicalWorld),
-		                                Window::InputManager());
+		                                std::move(physicsWorld),
+		                                Window::InputContext());
 		scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 		//scene->visualWorld()->usesDefaultLighting(true);
 
@@ -232,6 +235,12 @@ unique_ptr<Scene> App::init() {
 	}
 }
 
+SimulationConfig App::simulationConfig() const {
+	return {
+		.timeStep = FIXED_TIMESTEP
+	};
+}
+
 bool App::shouldContinue(const Scene&) {
 	return _window->isOpen();
 }
@@ -240,38 +249,39 @@ void App::didShutdown() {
 
 }
 
-/// Scene Callback Overrides ///
+/// Runner Callbacks ///
 
-void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
+void App::hostUpdate(Runner& runner,
+                     const Runner::UpdateInfo& info) {
 
-	if (_duckNode) {
-		_duckRotator->update(*_duckNode, deltaTime);
-	}
+	auto& scene = runner.scene();
+	auto& inputContext = *scene.inputContext();
 
 	// get input
 
-	auto im = static_cast<DesktopInputManager*>(scene.inputManager());
+	auto im = static_cast<DesktopInputContext*>(&inputContext);
 
 	auto mouseButtonsDown = im->mouseButtonsDown();
 	auto mouseButtonsPressed = im->mouseButtonsPressed();
 	auto keysDown = im->keysDown();
 	auto keysPressed = im->keysPressed();
-	auto cursorCaptured = _window->cursorCaptured();
+	auto mousePositionDelta = im->mousePositionDelta();
+	auto mouseScrollWheelDelta = im->mouseScrollWheelDelta();
 
 	// TEMPORARY for macOS mouse input testing
 //	if (keysPressed.count(Key::Z)) {
 //		log::app::i()("Trying to re-initialize mouse input.");
-//		auto windowInputManager = static_cast<GlfwInputManager*>(scene.inputManager());
+//		auto windowInputContext = static_cast<GLFWInputContext*>(scene.inputContext());
 //		try {
-//			windowInputManager->initMouseInput();
+//			windowInputContext->initMouseInput();
 //		}
 //		catch (Exception) {
 //			log::app::e()("Nada");
 //		}
 //	}
 
-	using Key = DesktopInputManager::Key;
-	using MouseButton = DesktopInputManager::MouseButton;
+	using Key = DesktopInputContext::Key;
+	using MouseButton = DesktopInputContext::MouseButton;
 
 	if (keysPressed.count(Key::Escape)) {
 		_window->close();
@@ -282,63 +292,68 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 		_window->cursorCaptured(!(_window->cursorCaptured()));
 	}
 
+	const auto cursorCaptured = _window->cursorCaptured();
+
 	if (keysPressed.count(Key::Backslash)) {
 		util::snapshot::SaveSnapshot(*_window);
 	}
 
-
-
 	if (keysPressed.count(Key::One)) {
-		_duckNode->physicsBody()->shape()->type(PhysicsShape::Type::BoundingBox);
+		queueSceneCommand([this](Scene&) {
+			_duckNode->physicsBody()->shape()->type(PhysicsShape::Type::BoundingBox);
+		});
 	}
 
 	if (keysPressed.count(Key::Two)) {
-		_duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConvexHull);
+		queueSceneCommand([this](Scene&) {
+			_duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConvexHull);
+		});
 	}
 
 	if (keysPressed.count(Key::Three)) {
-		_duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConcavePolyhedron);
+		queueSceneCommand([this](Scene&) {
+			_duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConcavePolyhedron);
+		});
 	}
 
-
-
 	if (keysPressed.count(Key::Five)) {
-		_duckNode->physicsBody()->mass(0);
+		queueSceneCommand([this](Scene&) {
+			_duckNode->physicsBody()->mass(0);
+		});
 	}
 
 	if (keysPressed.count(Key::Six)) {
-		_duckNode->physicsBody()->mass(10);
+		queueSceneCommand([this](Scene&) {
+			_duckNode->physicsBody()->mass(10);
+		});
 	}
 
 	if (keysPressed.count(Key::Seven)) {
-		_duckNode->physicsBody()->mass(100);
+		queueSceneCommand([this](Scene&) {
+			_duckNode->physicsBody()->mass(100);
+		});
 	}
 
-
-
 	if (keysPressed.count(Key::Eight)) {
-		// remove all CylinderPhysicsShape nodes
-		for (const auto& node : scene.rootNode()->children(true)) {
-			auto body = node->physicsBody();
-			if (body) {
-				auto cylinderShape = dynamic_pointer_cast<CylinderPhysicsShape>(body->shape());
-				if (cylinderShape) {
+		queueSceneCommand([](Scene& scene) {
+			for (const auto& node : scene.rootNode()->children(true)) {
+				auto body = node->physicsBody();
+				if (body && dynamic_pointer_cast<CylinderPhysicsShape>(body->shape())) {
 					node->removeFromParent();
 				}
 			}
-		}
+		});
 	}
 
 	if (keysPressed.count(Key::Nine)) {
-		// remove all dynamic body nodes
-		for (const auto& node : scene.rootNode()->children(true)) {
-			auto body = node->physicsBody();
-			if (body) {
-				if (body->type() == PhysicsBody::Type::Dynamic) {
+		queueSceneCommand([](Scene& scene) {
+			for (const auto& node : scene.rootNode()->children(true)) {
+				auto body = node->physicsBody();
+				if (body && body->type() == PhysicsBody::Type::Dynamic) {
 					node->removeFromParent();
 				}
 			}
-		}
+		});
 	}
 
 	if (keysPressed.count(Key::Apostrophe)) {
@@ -355,14 +370,10 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 //			log::app::i()("TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
 //		}
 
-	// spawn duck fruit
-
 	if (keysPressed.count(Key::GraveAccent)) {
-		AddBoxes(scene);
-	}
-
-	if (keysDown.count(Key::Tab)) {
-		SpawnDuckFruit(scene, *_duckNode, _duckFruit);
+		queueSceneCommand([](Scene& scene) {
+			AddBoxes(scene);
+		});
 	}
 
 	if (keysPressed.count(Key::L)) {
@@ -382,7 +393,9 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 	}
 
 	if (keysPressed.count(Key::Q)) {
-		SpawnAutogeneratedPrimitives(scene);
+		queueSceneCommand([](Scene& scene) {
+			SpawnAutogeneratedPrimitives(scene);
+		});
 	}
 
 	// if (keysPressed.count(Key::Z)) {
@@ -390,41 +403,27 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 	// }
 
 	if (keysPressed.count(Key::M)) {
-		SpawnChainMail(scene);
+		queueSceneCommand([](Scene& scene) {
+			SpawnChainMail(scene);
+		});
 	}
 
 	if (keysPressed.count(Key::O)) {
-		SpawnRecursiveTestTree(scene);
+		queueSceneCommand([](Scene& scene) {
+			SpawnRecursiveTestTree(scene);
+		});
 	}
 
 	if (keysPressed.count(Key::T)) {
-		SpawnHACDTeapot(scene);
+		queueSceneCommand([](Scene& scene) {
+			SpawnHACDTeapot(scene);
+		});
 	}
 
 	if (keysPressed.count(Key::H)) {
 		// NOTE: once the window is hidden, the scene keeps running but you
 		// no longer get key events from the window!
 		_window->hidden(!_window->hidden());
-	}
-
-
-	if (scene.visualWorld() && cursorCaptured) {
-
-		if (mouseButtonsPressed.count(MouseButton::One)) {
-			if (auto pov = scene.visualWorld()->pointOfView().lock()) {
-				ShootSlurm(scene,
-						   pov->worldPosition(),
-						   pov->worldForward());
-			}
-		}
-
-		if (mouseButtonsDown.count(MouseButton::Two)) {
-			if (auto pov = scene.visualWorld()->pointOfView().lock()) {
-				ShootSlurm(scene,
-						   pov->worldPosition(),
-						   pov->worldForward());
-			}
-		}
 	}
 
 	using DebugOptions = Scene::DebugOptions;
@@ -527,35 +526,53 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 	}
 
 	if (keysPressed.count(Key::U)) {
-//			for (auto &n: scene.rootNode()->children(true)) {
-//				auto mesh = n->mesh();
-//				if (mesh) {
-//					auto physicsBody = n->physicsBody();
-//					if (physicsBody && physicsBody->type() != PhysicsBodyType::Static) {
-//						bool coin = utils::Uniform(0, 1) == 1;
-//						if (coin) {
-//							n->removeFromParent();
-//						}
-//					}
-//				}
-//			}
-
-		AddRing(scene);
+		queueSceneCommand([](Scene& scene) {
+			AddRing(scene);
+		});
 	}
 
-	vec2 mouseScrollWheelDelta = im->mouseScrollWheelDelta();
-	if (mouseScrollWheelDelta.y > 0) {
+	if (keysPressed.count(Key::Tab)) {
+		// Queue the immediate spawn; sceneWillStep() handles held repeats.
+		queueSceneCommand([this](Scene& scene) {
+			SpawnDuckFruit(scene, *_duckNode, _duckFruit);
+			_duckFruitSpawnAccumulator = 0.0;
+		});
+	}
 
-		auto newSpeed = std::clamp(scene.physicalWorld()->speed() + mouseScrollWheelDelta.y * 0.1,
-								   0.1, 1.0);
-		scene.physicalWorld()->speed((float)newSpeed);
+	if (cursorCaptured
+		&& (mouseButtonsPressed.count(MouseButton::One)
+		    || mouseButtonsPressed.count(MouseButton::Two))) {
+
+		if (auto visualWorld = scene.visualWorld()) {
+			if (auto pov = visualWorld->pointOfView().lock()) {
+				const auto location = pov->worldPosition();
+				const auto direction = pov->worldForward();
+
+				if (mouseButtonsPressed.count(MouseButton::One)) {
+					queueSceneCommand([location, direction](Scene& scene) {
+						ShootSlurm(scene, location, direction);
+					});
+				}
+
+				if (mouseButtonsPressed.count(MouseButton::Two)) {
+					queueSceneCommand([this, location, direction](Scene& scene) {
+						ShootSlurm(scene, location, direction);
+						_slurmShotAccumulator = 0.0;
+					});
+				}
+			}
+		}
+	}
+
+	if (mouseScrollWheelDelta.y > 0) {
+		runner.timeScale(math::clamp(runner.timeScale() + mouseScrollWheelDelta.y * 0.1,
+		                            0.1,
+		                            1.0));
 	}
 
 	if (cursorCaptured) {
 
 		// mouselook
-
-		vec2 mousePositionDelta = im->mousePositionDelta();
 
 		if (auto pov = scene.visualWorld()->pointOfView().lock()) {
 
@@ -585,20 +602,20 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 			float moveSpeed = _cameraMoveSpeed * moveMultiplier;
 
 			if (keysDown.count(Key::W) || mouseButtonsDown.count(MouseButton::Four)) {
-				vec3 positionDelta = (float)deltaTime * moveSpeed * camForward;
+				vec3 positionDelta = (float)info.deltaTime * moveSpeed * camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 			else if (keysDown.count(Key::S)) {
-				vec3 positionDelta = (float)deltaTime * moveSpeed * -camForward;
+				vec3 positionDelta = (float)info.deltaTime * moveSpeed * -camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 
 			if (keysDown.count(Key::A)) {
-				vec3 positionDelta = (float)deltaTime * moveSpeed* -camRight;
+				vec3 positionDelta = (float)info.deltaTime * moveSpeed* -camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 			else if (keysDown.count(Key::D)) {
-				vec3 positionDelta = (float)deltaTime * moveSpeed * camRight;
+				vec3 positionDelta = (float)info.deltaTime * moveSpeed * camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 
@@ -607,81 +624,114 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 				if (keysDown.count(Key::LeftShift)) {
 					direction = -1;
 				}
-				vec3 positionDelta = (float)deltaTime * moveSpeed * camUp;
+				vec3 positionDelta = (float)info.deltaTime * moveSpeed * camUp;
 				pov->position(pov->position() + positionDelta * direction);
 			}
 		}
 	}
 }
 
-/// VisualWorld Callback Overrides ///
+/// Scene Callbacks ///
 
-void App::visualWorldWillRender(VisualWorld& world, double time, double deltaTime) {}
+void App::sceneWillStep(Scene& scene,
+                        const Scene::StepInfo& info) {
+	auto& input = static_cast<DesktopInputContext&>(*scene.inputContext());
 
-void App::visualWorldDidRender(VisualWorld& world, double time, double deltaTime) {}
+	using Key = DesktopInputContext::Key;
+	using MouseButton = DesktopInputContext::MouseButton;
 
-/// PhysicsWorld Callback Overrides ///
+	if (_duckNode) {
+		_duckRotator->update(*_duckNode, info.deltaTime);
+	}
 
-void App::physicalWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {}
+	constexpr double DUCK_FRUIT_SPAWN_INTERVAL = 1.0 / 10.0;
+	if (input.keyDown(Key::Tab)) {
+		_duckFruitSpawnAccumulator += info.deltaTime;
+		while (_duckFruitSpawnAccumulator >= DUCK_FRUIT_SPAWN_INTERVAL) {
+			SpawnDuckFruit(scene, *_duckNode, _duckFruit);
+			_duckFruitSpawnAccumulator -= DUCK_FRUIT_SPAWN_INTERVAL;
+		}
+	}
+	else {
+		_duckFruitSpawnAccumulator = 0.0;
+	}
 
+	constexpr double SLURM_SHOT_INTERVAL = 1.0 / 20.0;
+	shared_ptr<Node> pointOfView;
+	if (input.mouseButtonDown(MouseButton::Two)
+		&& _window->cursorCaptured()) {
+
+		if (auto visualWorld = scene.visualWorld()) {
+			pointOfView = visualWorld->pointOfView().lock();
+		}
+	}
+
+	if (pointOfView) {
+		_slurmShotAccumulator += info.deltaTime;
+		while (_slurmShotAccumulator >= SLURM_SHOT_INTERVAL) {
+			ShootSlurm(scene,
+			           pointOfView->worldPosition(),
+			           pointOfView->worldForward());
+			_slurmShotAccumulator -= SLURM_SHOT_INTERVAL;
+		}
+	}
+	else {
+		_slurmShotAccumulator = 0.0;
+	}
+}
 
 /// Private Static Non-Member Functions ///
 
 // small complex physics shapes fall through the floor easily even with aggressive CCD
 void SpawnDuckFruit(Scene& scene, const Node& duckNode, vector<App::DuckFruitDef>& duckFruit) {
 
-	static const float SPAWN_RATE = 10.0; // pieces/sec
+	auto fruit = duckFruit[uniform_linear(0, 5)];
 
-	util::flow::every(chrono::duration<float>(1.0f/SPAWN_RATE), [&] {
+	shared_ptr<Node> node = Node::MeshNode(get<0>(fruit));
+	shared_ptr<PhysicsShape> physicsShape = get<1>(fruit);
+	float mass = get<2>(fruit);
 
-		auto fruit = duckFruit[uniform_linear(0, 5)];
+	// add local offset to duck, then convert that position to world space,
+	// then attach to root node (below)
+	node->transform(duckNode.worldTransform() * translate(mat4(1.0), vec3(0.0, 3.25, 0.2)));
 
-		shared_ptr<Node> node = Node::MeshNode(get<0>(fruit));
-		shared_ptr<PhysicsShape> physicsShape = get<1>(fruit);
-		float mass = get<2>(fruit);
+	auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, physicsShape);
+	physicsBody->mass(mass);
+	physicsBody->restitution(0.25);
+	physicsBody->friction(1.0);
 
-		// add local offset to duck, then convert that position to world space,
-		// then attach to root node (below)
-		node->transform(duckNode.worldTransform() * translate(mat4(1.0), vec3(0.0, 3.25, 0.2)));
+	// ! NOTE ! convex hulls do not work well for CCD, at least not as smalls scales.
+	// TODO: switch to primitive colliders for fruit.
+	auto extent = node->mesh()->localExtent();
+	const float minExtent = std::min({extent.x, extent.y, extent.z});
+	const float ccdRadius = minExtent * 0.5f;
+	physicsBody->ccdMotionThreshold(ccdRadius * 0.1f);
+	physicsBody->ccdSweptSphereRadius(ccdRadius);
+	physicsBody->ccdEnabled(true);
 
-		auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, physicsShape);
-		physicsBody->mass(mass);
-		physicsBody->restitution(0.25);
-		physicsBody->friction(1.0);
+	// fruit starting orientation
+	float heading = uniform_linear(0.0f, two_pi());
+	float pitch = uniform_linear(0.0f, two_pi());
+	float roll = uniform_linear(0.0f, two_pi());
+	node->eulerAngles({heading, pitch, roll});
 
-		// ! NOTE ! convex hulls do not work well for CCD, at least not as smalls scales.
-		// TODO: switch to primitive colliders for fruit.
-		auto extent = node->mesh()->localExtent();
-		const float minExtent = std::min({extent.x, extent.y, extent.z});
-		const float ccdRadius = minExtent * 0.5f;
-		physicsBody->ccdMotionThreshold(ccdRadius * 0.1f);
-		physicsBody->ccdSweptSphereRadius(ccdRadius);
-		physicsBody->ccdEnabled(true);
+	// fruit linear velocity
 
-		// fruit starting orientation
-		float heading = uniform_linear(0.0f, two_pi());
-		float pitch = uniform_linear(0.0f, two_pi());
-		float roll = uniform_linear(0.0f, two_pi());
-		node->eulerAngles({heading, pitch, roll});
+	float lvX = uniform_n11() * 2.0f;
+	float lvY = uniform_linear(1.0f, 10.0f);
+	float lvZ = uniform_n11() * 2.0f;
+	auto direction = duckNode.worldOrientation() * vec3{lvX, lvY, lvZ};
+	physicsBody->linearVelocity(direction);
 
-		// fruit linear velocity
+	// fruit spin
+	const float ANGULAR_VARIANCE = radians(60.0); // deg/sec
+	physicsBody->angularVelocity({ uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+							   uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+							   uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE) });
 
-		float lvX = uniform_n11() * 2.0f;
-		float lvY = uniform_linear(1.0f, 10.0f);
-		float lvZ = uniform_n11() * 2.0f;
-		auto direction = duckNode.worldOrientation() * vec3{lvX, lvY, lvZ};
-		physicsBody->linearVelocity(direction);
+	node->physicsBody(std::move(physicsBody));
 
-		// fruit spin
-		const float ANGULAR_VARIANCE = radians(60.0); // deg/sec
-		physicsBody->angularVelocity({ uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
-								   uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
-								   uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE) });
-
-		node->physicsBody(std::move(physicsBody));
-
-		scene.rootNode()->addChild(node);
-	});
+	scene.rootNode()->addChild(node);
 }
 
 // works well, simple colliders
@@ -746,62 +796,58 @@ void SpawnDuckFruit(Scene& scene, const Node& duckNode, vector<App::DuckFruitDef
 // 	});
 // }
 
-void ShootSlurm(Scene& scene, const vec3 &location, const vec3 &direction) {
-	const float SHOOT_RATE = 20; // cans/sec
+void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
 
-	util::flow::every(chrono::duration<float>(1.0f / SHOOT_RATE), [&scene, location, direction = normalize(direction)] {
+	static auto mesh = util::filesystem::MeshNamed("slurm/slurm");
+	mesh->materials()[0]->emission(mesh->materials()[0]->diffuse());
+	mesh->materials()[1]->emission(mesh->materials()[1]->diffuse());
 
-		static auto mesh = util::filesystem::MeshNamed("slurm/slurm");
-		mesh->materials()[0]->emission(mesh->materials()[0]->diffuse());
-		mesh->materials()[1]->emission(mesh->materials()[1]->diffuse());
+	auto node = Node::MeshNode(mesh);
 
-		auto node = Node::MeshNode(mesh);
+	node->position(location);
 
-		node->position(location);
+	//static auto extent = node->mesh()->worldExtent(node->worldTransform());
+	static auto extent = node->mesh()->localExtent();
+	static auto physicsShape = make_shared<CylinderPhysicsShape>(extent.x / 2.0, extent.y);
+	auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, physicsShape);
+	physicsBody->mass(.354); // 12fl oz water @ 70F
+	physicsBody->restitution(1.0);
+	physicsBody->friction(0.35);
+	physicsBody->rollingFriction(0.05);
 
-		//static auto extent = node->mesh()->worldExtent(node->worldTransform());
-		static auto extent = node->mesh()->localExtent();
-		static auto physicsShape = make_shared<CylinderPhysicsShape>(extent.x / 2.0, extent.y);
-		auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, physicsShape);
-		physicsBody->mass(.354); // 12fl oz water @ 70F
-		physicsBody->restitution(1.0);
-		physicsBody->friction(0.35);
-		physicsBody->rollingFriction(0.05);
+	const float radius = extent.x * 0.5f;
+	physicsBody->ccdMotionThreshold(radius * 0.25f);
+	physicsBody->ccdSweptSphereRadius(radius * 0.8f);
+	physicsBody->ccdEnabled(true);
 
-		const float radius = extent.x * 0.5f;
-		physicsBody->ccdMotionThreshold(radius * 0.25f);
-		physicsBody->ccdSweptSphereRadius(radius * 0.8f);
-		physicsBody->ccdEnabled(true);
+	static auto light = Light::Point();
+	light->attenuation(Attenuation{.quadratic = 0.04f});
+	node->light(light);
 
-		static auto light = Light::Point();
-		light->attenuation(Attenuation{.quadratic = 0.04f});
-		node->light(light);
+	// add random factor
 
-		// add random factor
-
-		node->eulerAngles({
-			uniform_linear(0.0f, two_pi()),
-			uniform_linear(0.0f, two_pi()),
-			uniform_linear(0.0f, two_pi())
-		});
-
-		static const float ANGULAR_VARIANCE = radians(260.0); // deg/sec
-		physicsBody->angularVelocity({
-			uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
-			uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
-			uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE)
-		});
-
-		const float VELOCITY = uniform_linear(40.0f, 60.0f);
-		static const float DIRECTION_VARIATION = 0.01;
-		const vec3 variedDirection = normalize(
-			direction + uniform_ball(DIRECTION_VARIATION));
-		physicsBody->linearVelocity(variedDirection * VELOCITY);
-
-		node->physicsBody(std::move(physicsBody));
-
-		scene.rootNode()->addChild(node);
+	node->eulerAngles({
+		uniform_linear(0.0f, two_pi()),
+		uniform_linear(0.0f, two_pi()),
+		uniform_linear(0.0f, two_pi())
 	});
+
+	static const float ANGULAR_VARIANCE = radians(260.0); // deg/sec
+	physicsBody->angularVelocity({
+		uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+		uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+		uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE)
+	});
+
+	const float VELOCITY = uniform_linear(40.0f, 60.0f);
+	static const float DIRECTION_VARIATION = 0.01;
+	const vec3 variedDirection = normalize(
+		normalize(direction) + uniform_ball(DIRECTION_VARIATION));
+	physicsBody->linearVelocity(variedDirection * VELOCITY);
+
+	node->physicsBody(std::move(physicsBody));
+
+	scene.rootNode()->addChild(node);
 }
 
 // this is super fudgecycle

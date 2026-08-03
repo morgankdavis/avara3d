@@ -25,7 +25,7 @@ const RenderContext::AntialiasingMode	ANTIALIAS_MODE		{RenderContext::Antialiasi
 const bool								ENABLE_VSYNC		{false};
 const bool								CAPTURE_CURSOR		{false};
 const float								MOUSE_SENSITIVITY	{0.5};
-const float								PHYSICS_TIMESTEP	{1.0/120.0};
+const float								FIXED_TIMESTEP		{1.0/120.0};
 const bool								DARK				{false};
 
 /// Public Lifecycle Functions ///
@@ -53,7 +53,7 @@ std::unique_ptr<Scene> App::init() {
 
 		auto scene = make_unique<Scene>(std::move(visualWorld),
 		                                nullptr,
-		                                Window::InputManager());
+		                                Window::InputContext());
 		scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 
 		auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.1f));
@@ -220,9 +220,13 @@ void App::didShutdown() {
 
 }
 
-/// Scene Callback Overrides ///
+/// Runner Callbacks ///
 
-void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
+void App::hostUpdate(Runner& runner,
+                     const Runner::UpdateInfo& info) {
+
+	auto& scene = runner.scene();
+	auto& inputContext = *scene.inputContext();
 
 	Window* window = nullptr;
 	if (scene.visualWorld()) {
@@ -231,22 +235,19 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 
 	// get input
 
-	auto im = static_cast<DesktopInputManager*>(scene.inputManager());
+	auto im = static_cast<DesktopInputContext*>(&inputContext);
 
 	auto keysPressed = im->keysPressed();
 	auto keysDown = im->keysDown();
+	auto mousePositionDelta = im->mousePositionDelta();
 
-	auto cursorCaptured = true;
-	if (window) {
-		cursorCaptured = window->cursorCaptured();
-	}
-
-	using Key = DesktopInputManager::Key;
-	using MouseButton = DesktopInputManager::MouseButton;
+	using Key = DesktopInputContext::Key;
 
 	if (keysPressed.count(Key::Slash)) {
 		window->cursorCaptured(!(window->cursorCaptured()));
 	}
+
+	const auto cursorCaptured = window->cursorCaptured();
 
 	if (keysPressed.count(Key::Escape)) {
 		window->close();
@@ -290,7 +291,6 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 			static const float MOUSE_SPEED_SCALAR = .002;
 			static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
 
-			vec2 mousePositionDelta = im->mousePositionDelta();
 			float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
 			float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
 
@@ -305,25 +305,25 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 			static float MOVE_SPEED = math::max(scene.rootNode()->extent());
 
 			if (keysDown.count(Key::W)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camForward;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 			else if (keysDown.count(Key::S)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * -camForward;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * -camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 
 			if (keysDown.count(Key::A)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * -camRight;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * -camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 			else if (keysDown.count(Key::D)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camRight;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 
 			if (keysDown.count(Key::Space)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camUp;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * camUp;
 				pov->position(pov->position() + positionDelta);
 			}
 		}
@@ -332,25 +332,9 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 	if (_pointLightPivotNode) {
 
 		// rotate the duck
-		auto rotationDeg = deltaTime * radians(-30.0); // 10deg/sec
+		auto rotationDeg = info.deltaTime * radians(-30.0); // 10deg/sec
 
 		auto duckSpinnerEuler = _pointLightPivotNode->eulerAngles();
 		_pointLightPivotNode->eulerAngles(vec3(0, duckSpinnerEuler.y - rotationDeg, 0));
 	}
-}
-
-/// VisualWorld Callback Overrides ///
-
-void App::visualWorldWillRender(VisualWorld& world, double time, double deltaTime) {
-
-}
-
-void App::visualWorldDidRender(VisualWorld& world, double time, double deltaTime) {
-
-}
-
-/// PhysicsWorld Callback Overrides ///
-
-void App::physicalWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {
-
 }

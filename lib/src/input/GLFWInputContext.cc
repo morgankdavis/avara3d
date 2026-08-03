@@ -1,12 +1,12 @@
 //
-//  GLFWInputManager.cc
+//  GLFWInputContext.cc
 //  avara3d
 //
 //  Created by Morgan Davis on 4/17/2024.
 //  Copyright © 2024-2024 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/input/GLFWInputManager.h"
+#include "a3d/input/GLFWInputContext.h"
 
 #ifdef A3D_MACOS
 #include <IOKit/hid/IOHIDLib.h> // for kIOReturnNotPermitted
@@ -25,40 +25,39 @@ using namespace a3d::math;
 
 /// Private Static Non-Member Prototypes ///
 
-static GLFWInputManager* InputManagerFromGLFWWindow(GLFWwindow* glfwWindow);
+static GLFWInputContext* InputContextFromGLFWWindow(GLFWwindow* glfwWindow);
 
 /// Public Lifecycle Functions ///
 
-GLFWInputManager::GLFWInputManager():
-	DesktopInputManager{},
+GLFWInputContext::GLFWInputContext():
+	DesktopInputContext{},
 	_window{nullptr}/*,
 	_usingManyMouse{false}*/ {}
 
-GLFWInputManager::~GLFWInputManager() {
-	log::d()("Destroying GLFWInputManager {:p}", static_cast<void *>(this));
+GLFWInputContext::~GLFWInputContext() {
+	log::d()("Destroying GLFWInputContext {:p}", static_cast<void *>(this));
+
+	window(nullptr);
 }
 
-/// InputManager Internal Member Functions ///
+/// InputContext Internal Member Functions ///
 
-void GLFWInputManager::update() {
+void GLFWInputContext::update() {
 
-	// would be great to poll for everything GLFW, but GLFW does not have a polling
-	// function for mouse wheel scroll position/delta, so might as well keep it
-	// consistent and use callback for everything GLFW...
-
-	_window->pollInput();
+	// Window events are dispatched through RenderContext::pollEvents() before
+	// this input stage. GLFW input state is maintained by those callbacks.
 }
 
-/// DesktopInputManager Internal Member Functions ///
+/// DesktopInputContext Internal Member Functions ///
 
-void GLFWInputManager::attachedToScene(Scene& scene) {
+void GLFWInputContext::attachedToScene(Scene& scene) {
 
 	if (auto visualWorld = scene.visualWorld()) {
 		window(static_cast<Window*>(visualWorld->renderContext()));
 	}
 }
 
-void GLFWInputManager::visualWorldAttachedToScene(Scene& scene) {
+void GLFWInputContext::visualWorldAttachedToScene(Scene& scene) {
 
 	if (auto visualWorld = scene.visualWorld()) {
 		window(static_cast<Window*>(visualWorld->renderContext()));
@@ -67,13 +66,13 @@ void GLFWInputManager::visualWorldAttachedToScene(Scene& scene) {
 
 /// Internal Member Functions ///
 
-void GLFWInputManager::glfwMouseDeltaEvent(double xDelta, double yDelta) {
+void GLFWInputContext::glfwMouseDeltaEvent(double xDelta, double yDelta) {
 
 	_mousePositionDelta.x += xDelta;
 	_mousePositionDelta.y += yDelta;
 }
 
-void GLFWInputManager::glfwMouseButtonEvent(int button, int action, int mods) {
+void GLFWInputContext::glfwMouseButtonEvent(int button, int action, int mods) {
 
 	auto a3dButton = static_cast<MouseButton>(button);
 
@@ -92,13 +91,13 @@ void GLFWInputManager::glfwMouseButtonEvent(int button, int action, int mods) {
     }
 }
 
-void GLFWInputManager::glfwScrollEvent(double xOffset, double yOffset) {
+void GLFWInputContext::glfwScrollEvent(double xOffset, double yOffset) {
 
     _mouseScrollWheelDelta.x += (float)xOffset;
     _mouseScrollWheelDelta.y += (float)yOffset;
 }
 
-void GLFWInputManager::glfwKeyEvent(int key, int scanCode, int action, int mods) {
+void GLFWInputContext::glfwKeyEvent(int key, int scanCode, int action, int mods) {
 
     if (action == GLFW_PRESS) {
         _keysDown.insert(static_cast<Key>(key));
@@ -114,19 +113,38 @@ void GLFWInputManager::glfwKeyEvent(int key, int scanCode, int action, int mods)
     }
 }
 
-/// Private Member Functions ///
+void GLFWInputContext::detachedFromWindow(Window& window) {
 
-void GLFWInputManager::window(Window* window) {
-	_window = window;
-	window->inputManager(this);
-	initMouseInput();
+	if (_window == &window) {
+		_window = nullptr;
+	}
 }
 
-Window*	GLFWInputManager::window() const {
+/// Private Member Functions ///
+
+void GLFWInputContext::window(Window* window) {
+
+	if (_window == window) {
+		return;
+	}
+
+	if (_window) {
+		_window->inputContext(nullptr);
+	}
+
+	_window = window;
+
+	if (_window) {
+		_window->inputContext(this);
+		initMouseInput();
+	}
+}
+
+Window*	GLFWInputContext::window() const {
 	return _window;
 }
 
-void GLFWInputManager::initMouseInput() {
+void GLFWInputContext::initMouseInput() {
 #if defined(A3D_DESKTOP) && !defined(A3D_WEB)
 	if (glfwRawMouseMotionSupported()) {
 		log::i()("Using GLFW raw mouse input.");
@@ -140,8 +158,8 @@ void GLFWInputManager::initMouseInput() {
 
 /// Private Static Functions ///
 
-GLFWInputManager* InputManagerFromGLFWWindow(GLFWwindow* glfwWindow) {
+GLFWInputContext* InputContextFromGLFWWindow(GLFWwindow* glfwWindow) {
 
     auto window = (Window*)glfwGetWindowUserPointer(glfwWindow);
-    return dynamic_cast<GLFWInputManager*>(window->visualWorld()->scene()->inputManager());
+    return dynamic_cast<GLFWInputContext*>(window->visualWorld()->scene()->inputContext());
 }

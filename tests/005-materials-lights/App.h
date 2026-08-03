@@ -15,9 +15,7 @@
 
 namespace a3d {
 	class Node;
-	class PhysicsWorld;
 	class Scene;
-	class VisualWorld;
 	class Window;
 }
 
@@ -40,38 +38,14 @@ namespace test::materialslights {
 	protected:
 		/// Protected Member Functions ///
 
-		std::unique_ptr<a3d::Scene> init() override;
+		std::unique_ptr<a3d::Scene>		init() override;
+		bool							shouldContinue(const a3d::Scene& scene) override;
+		void							didShutdown() override;
 
-		bool shouldContinue(
-			const a3d::Scene& scene) override;
+		/// Runner Callbacks ///
 
-		void didShutdown() override;
-
-		/// Scene Callback Overrides ///
-
-		void sceneUpdate(
-			a3d::Scene& scene,
-			double time,
-			double deltaTime) override;
-
-		/// VisualWorld Callback Overrides ///
-
-		void visualWorldDidRender(
-			a3d::VisualWorld &world,
-			double time,
-			double deltaTime) override;
-
-		void visualWorldWillRender(
-			a3d::VisualWorld& world,
-			double time,
-			double deltaTime) override;
-
-		/// PhysicsWorld Callback Overrides ///
-
-		void physicalWorldDidSimulate(
-			a3d::PhysicsWorld& world,
-			double time,
-			double deltaTime) override;
+		void							hostUpdate(a3d::Runner& runner,
+									               const a3d::Runner::UpdateInfo& info) override;
 
 	private:
 		/// Private Member Variables ///

@@ -57,7 +57,7 @@ std::unique_ptr<Scene> App::init() {
 
 		auto scene = make_unique<Scene>();
 		scene->visualWorld(std::move(visualWorld));
-		scene->inputManager(Window::InputManager());
+		scene->inputContext(Window::InputContext());
 
 		auto options = Scene::ImportOptions::ImportMeshes
 					   | Scene::ImportOptions::ImportMaterials;
@@ -101,28 +101,15 @@ void App::didShutdown() {
 
 }
 
-/// Scene Callback Overrides ///
+/// Runner Callbacks ///
 
-void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
+void App::hostUpdate(Runner& runner,
+                     const Runner::UpdateInfo&) {
 
-	if (static_cast<DesktopInputManager*>(
-		scene.inputManager())->keysPressed().count(DesktopInputManager::Key::Escape)) {
+	auto& inputContext = *runner.scene().inputContext();
+
+	if (static_cast<DesktopInputContext*>(
+		&inputContext)->keysPressed().count(DesktopInputContext::Key::Escape)) {
 		_window->close();
 	}
-}
-
-/// VisualWorld Callback Overrides ///
-
-void App::visualWorldWillRender(VisualWorld& world, double time, double deltaTime) {
-
-}
-
-void App::visualWorldDidRender(VisualWorld& world, double time, double deltaTime) {
-
-}
-
-/// PhysicsWorld Callback Overrides ///
-
-void App::physicalWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {
-
 }

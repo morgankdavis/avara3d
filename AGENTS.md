@@ -15,8 +15,6 @@
 
 - Before making architectural changes, inspect relevant headers, source files, and call sites
 - Preserve existing behavior unless the task explicitly says to change it
-- OpenGL work should favor a minimal, correct, and maintainable implementation
-- Do not introduce rendering-backend abstraction work unless explicitly requested
 - Do not perform broad rewrites unless explicitly asked
 - Prefer staged plans with small, reviewable diffs
 - Prefer fixing the smallest relevant scope rather than opportunistic cleanup
@@ -24,7 +22,15 @@
 - Do not reformat unrelated files
 - Do not touch `data/external/` unless explicitly asked
 - Do not add new dependencies unless asked to
-- Match existing code style when making changes
+- Match existing code format/style when making changes
+- Organize declarations using the existing /// Group Title /// pattern; place public engine-internal APIs in an appropriate /// Internal ... /// group
+- Implement functions in the same order in which their declarations appear, and under the same section/group titles
+- In function signatures, bind pointer and reference symbols to the type (Type* name, Type& name, Type&& name), not the parameter or function name
+- Use friend only for test access. Cross-class engine access must use public methods grouped as internal
+- Avoid empty or 'detail' namespaces unless there is a really good reason to use one
+- Prefer a3d::math functions over standard library functions
+- OpenGL work should favor a minimal, correct, and maintainable implementation
+- Do not introduce rendering-backend abstraction work unless explicitly requested
 - When uncertain, state assumptions before editing
 
 ## Architecture preferences

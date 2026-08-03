@@ -12,7 +12,7 @@
 #include <memory>
 #include <vector>
 
-#include "a3d/profile/FrameStats.h"
+#include "a3d/physics/PhysicsInventory.h"
 #include "a3d/scene/Scene.h"
 
 namespace a3d {
@@ -47,11 +47,12 @@ namespace a3d {
 		virtual float				gravity() const = 0;
 		virtual void				gravity(float gravity) = 0;
 
-		virtual void				step(double deltaT,
-										 float speed,
-										 float timestep,
-										 FrameStats& stats,
+		virtual bool				acceptsStepDelta(double deltaTime) const = 0;
+
+		virtual void				step(double deltaTime,
 										 Profiler& profiler) = 0;
+
+		virtual PhysicsInventory	inventory() const = 0;
 
 		virtual void 				updateCollisionPairs() = 0;
 

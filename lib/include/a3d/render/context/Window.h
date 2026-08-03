@@ -20,7 +20,7 @@ namespace a3d {
 
 	class Camera;
 	class Color;
-	class DesktopInputManager;
+	class DesktopInputContext;
 	class Image;
 	class Node;
 	class Renderer;
@@ -31,7 +31,7 @@ namespace a3d {
 	public:
 		/// Public Static Member Functions ///
 
-		static std::unique_ptr<DesktopInputManager> InputManager();
+		static std::unique_ptr<DesktopInputContext> InputContext();
 
 		/// Public Lifecycle Functions ///
 
@@ -83,6 +83,8 @@ namespace a3d {
 
 		/// RenderContext Internal Member Functions ///
 
+		void 				pollEvents() override;
+
 		void 				beginFrame(const Scene& scene) override;
 		void 				endFrame(const Scene& scene) override;
 
@@ -95,8 +97,7 @@ namespace a3d {
 
 		/// Internal Member Functions ///
 
-		void				inputManager(DesktopInputManager* manager);
-		void 				pollInput(); // remove?
+		void				inputContext(DesktopInputContext* inputContext);
 		GLFWwindow* 		glfwWindow() const; // remove?
 
 		/// Internal Static Member Functions ///
@@ -122,7 +123,7 @@ namespace a3d {
 												   int action,
 												   int mods);
 		static Window*				WindowFromGLFWwindow(GLFWwindow* glfwWindow);
-		static DesktopInputManager* InputManagerFromGLFwWindow(GLFWwindow* glfwWindow);
+		static DesktopInputContext* InputContextFromGLFWWindow(GLFWwindow* glfwWindow);
 
 		/// Private Member Functions ///
 
@@ -133,7 +134,7 @@ namespace a3d {
 
 		struct DestroyGLFWWindow {
 			void operator()(GLFWwindow* window){
-				Window::Destroy(window);
+				Destroy(window);
 			}
 		};
 
@@ -146,7 +147,7 @@ namespace a3d {
 		bool						_open;
 		bool						_hidden;
 		bool						_highDPIEnabled;
-		DesktopInputManager*		_inputManager;
+		DesktopInputContext*		_inputContext;
 	};
 }
 

@@ -54,7 +54,7 @@ std::unique_ptr<Scene> App::init() {
 
 		auto scene = make_unique<Scene>(std::move(visualWorld),
 		                                nullptr,
-		                                Window::InputManager());
+		                                Window::InputContext());
 		auto debugOptions = Scene::DebugOptions::ShowStatsOverlay
 							| Scene::DebugOptions::ShowBoundingBoxes;
 		scene->debugOptions(debugOptions);
@@ -111,20 +111,25 @@ void App::didShutdown() {
 
 }
 
-/// Scene Callback Overrides ///
+/// Runner Callbacks ///
 
-void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
+void App::hostUpdate(Runner& runner,
+                     const Runner::UpdateInfo& info) {
+
+	auto& scene = runner.scene();
+	auto& inputContext = *scene.inputContext();
 
 	auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 
 	// get input
 
-	auto im = static_cast<DesktopInputManager*>(scene.inputManager());
+	auto im = static_cast<DesktopInputContext*>(&inputContext);
 
 	auto keysPressed = im->keysPressed();
+	auto keysDown = im->keysDown();
+	auto mousePositionDelta = im->mousePositionDelta();
 
-	using Key = DesktopInputManager::Key;
-	using MouseButton = DesktopInputManager::MouseButton;
+	using Key = DesktopInputContext::Key;
 
 	if (keysPressed.count(Key::Escape)) {
 		window->close();
@@ -188,8 +193,6 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 
 		// mouselook
 
-		vec2 mousePositionDelta = im->mousePositionDelta();
-
 		auto pov = scene.visualWorld()->pointOfView().lock();
 		if (pov) {
 
@@ -212,44 +215,26 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 
 			static float MOVE_SPEED = math::max(scene.rootNode()->extent());
 
-			auto keysDown = im->keysDown();
-
 			if (keysDown.count(Key::W)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camForward;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * camForward;
 				pov->position(pov->position() + positionDelta);
 			} else if (keysDown.count(Key::S)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * -camForward;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * -camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 
 			if (keysDown.count(Key::A)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * -camRight;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * -camRight;
 				pov->position(pov->position() + positionDelta);
 			} else if (keysDown.count(Key::D)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camRight;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 
 			if (keysDown.count(Key::Space)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camUp;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * camUp;
 				pov->position(pov->position() + positionDelta);
 			}
 		}
 	}
-}
-
-/// VisualWorld Callback Overrides ///
-
-void App::visualWorldWillRender(VisualWorld& world, double time, double deltaTime) {
-
-}
-
-void App::visualWorldDidRender(VisualWorld& world, double time, double deltaTime) {
-
-}
-
-/// PhysicsWorld Callback Overrides ///
-
-void App::physicalWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {
-
 }

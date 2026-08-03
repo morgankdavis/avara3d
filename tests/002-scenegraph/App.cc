@@ -25,7 +25,7 @@ const RenderContext::AntialiasingMode	ANTIALIAS_MODE		{RenderContext::Antialiasi
 const bool								ENABLE_VSYNC		{false};
 const bool								CAPTURE_CURSOR		{false};
 const float								MOUSE_SENSITIVITY	{0.5};
-const float								PHYSICS_TIMESTEP	{1.0/120.0};
+const double							FIXED_TIMESTEP		{1.0 / 120.0};
 const bool								DARK				{false};
 
 /// Public Lifecycle Functions ///
@@ -52,11 +52,10 @@ std::unique_ptr<Scene> App::init() {
 
 		auto visualWorld = make_unique<VisualWorld>(*_window);
 
-		auto physicalWorld = make_unique<PhysicsWorld>();
-		physicalWorld->timestep(PHYSICS_TIMESTEP);
+		auto physicsWorld = make_unique<PhysicsWorld>();
 
 		auto scene = make_unique<Scene>(std::move(visualWorld),
-										std::move(physicalWorld),
+										std::move(physicsWorld),
 										nullptr);
 		scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 
@@ -71,6 +70,12 @@ std::unique_ptr<Scene> App::init() {
 	}
 }
 
+SimulationConfig App::simulationConfig() const {
+	return {
+		.timeStep = FIXED_TIMESTEP
+	};
+}
+
 bool App::shouldContinue(const Scene& scene) {
 	return _window->isOpen();
 }
@@ -79,26 +84,11 @@ void App::didShutdown() {
 
 }
 
-/// Scene Callback Overrides ///
+/// Runner Callbacks ///
 
-void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
+void App::hostUpdate(Runner& runner,
+                     const Runner::UpdateInfo&) {
 
 	log::app::i()("....and we're done.");
-	static_cast<Window*>(scene.visualWorld()->renderContext())->close();
-}
-
-/// VisualWorld Callback Overrides ///
-
-void App::visualWorldWillRender(VisualWorld& world, double time, double deltaTime) {
-
-}
-
-void App::visualWorldDidRender(VisualWorld& world, double time, double deltaTime) {
-
-}
-
-/// PhysicsWorld Callback Overrides ///
-
-void App::physicalWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {
-
+	static_cast<Window*>(runner.scene().visualWorld()->renderContext())->close();
 }

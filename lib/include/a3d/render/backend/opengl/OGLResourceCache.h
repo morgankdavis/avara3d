@@ -69,7 +69,7 @@ namespace a3d {
 
 		/// Internal Member Functions ///
 
-		PipelineId							ensurePipeline(const PipelineDesc &desc,
+		PipelineId							ensurePipeline(const PipelineDesc& desc,
 									                         gl::uint_t program);
 		const OGLPipeline& 					pipeline(PipelineId pipelineId) const;
 		const OGLMeshElement& 				ensureMeshElement(MeshElement& element);

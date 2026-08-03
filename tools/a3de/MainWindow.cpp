@@ -12,7 +12,7 @@
 #include "a3d/a3d.h"
 
 #include "QtViewport.h"
-#include "QtInputManager.h"
+#include "QtInputContext.h"
 
 using namespace a3d;
 using namespace a3de;
@@ -83,14 +83,11 @@ void MainWindow::initA3D() {
 		auto visualWorld = make_unique<VisualWorld>(*_viewport);
 		auto backgroundColor = make_shared<Color>(u8vec3{109, 136, 164});
 		visualWorld->background(backgroundColor);
-		visualWorld->willRenderCallback(bind(&MainWindow::willRenderCallback, this, _1, _2, _3));
-		visualWorld->didRenderCallback(bind(&MainWindow::didRenderCallback, this, _1, _2, _3));
 
 		_scene = make_unique<Scene>(std::move(visualWorld),
 									nullptr,
-									qt::QtViewport::InputManager());
+									qt::QtViewport::InputContext());
 		_scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
-		_scene->updateCallback(bind(&MainWindow::updateCallback, this, _1, _2, _3));
 
 		_viewport->cursorCaptured(CAPTURE_CURSOR);
 
@@ -101,6 +98,7 @@ void MainWindow::initA3D() {
 		_scene->rootNode()->addChild(_bananaNode);
 
 		_runner = make_unique<Runner>(*_scene);
+		_runner->updateCallback(bind(&MainWindow::hostUpdate, this, _1, _2));
 		_runner->start();
 	}
 	catch (std::exception& e)
@@ -150,35 +148,25 @@ void MainWindow::initLog(Log::Level level) {
 	log::app::i()("Origin: {}", BuildInfo::OriginString(buildInfo.origin()));
 }
 
-void MainWindow::updateCallback(Scene &scene, double time, double deltaTime) {
-	//log::app::t();
+/// Runner Callbacks ///
 
-	auto im = static_cast<DesktopInputManager*>(scene.inputManager());
-	using Key = DesktopInputManager::Key;
-	using MouseButton = DesktopInputManager::MouseButton;
+void MainWindow::hostUpdate(Runner& runner,
+                            const Runner::UpdateInfo& info) {
 
-	auto keysPressed = im->keysPressed();
-	if (keysPressed.count(Key::Escape)) {
+	auto& inputContext = static_cast<DesktopInputContext&>(*runner.scene().inputContext());
+	using Key = DesktopInputContext::Key;
+
+	if (inputContext.keysPressed().count(Key::Escape)) {
 		QCoreApplication::quit();
 	}
 
+	//log::app::t();
+
 	if (_bananaNode) {
 		// rotate the banana
-		auto rotationDeg = deltaTime * radians(-30.0); // 10deg/sec
+		auto rotationDeg = info.deltaTime * radians(-30.0); // 10deg/sec
 
 		auto rotY = math::quaternion({0.0f, 1.0f, 0.0f}, rotationDeg);
 		_bananaNode->orientation(rotY * _bananaNode->orientation());
 	}
-}
-
-void MainWindow::willRenderCallback(VisualWorld &world, double time, double deltaTime) {
-	//log::app::t();
-}
-
-void MainWindow::didRenderCallback(VisualWorld &world, double time, double deltaTime) {
-	//log::app::t();
-}
-
-void MainWindow::didSimulatePhysicsCallback(PhysicsWorld &world, double time, double deltaTime) {
-	//log::app::t();
 }

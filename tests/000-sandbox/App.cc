@@ -26,7 +26,7 @@ const RenderContext::AntialiasingMode	ANTIALIAS_MODE		{RenderContext::Antialiasi
 const bool								ENABLE_VSYNC		{false};
 const bool								CAPTURE_CURSOR		{false};
 const float								MOUSE_SENSITIVITY	{0.5};
-const float								PHYSICS_TIMESTEP	{1.0/120.0};
+const double							FIXED_TIMESTEP		{1.0 / 120.0};
 const bool								DARK				{false};
 
 /// Public Lifecycle Functions ///
@@ -50,8 +50,7 @@ std::unique_ptr<Scene> App::init() {
 
 		auto visualWorld = make_unique<VisualWorld>(*_window);
 
-		auto physicalWorld = make_unique<PhysicsWorld>();
-		physicalWorld->timestep(PHYSICS_TIMESTEP);
+		auto physicsWorld = make_unique<PhysicsWorld>();
 
 		auto mapPath = util::filesystem::AuxiliaryFilePath("Icebox", "alf");
 		auto alfImporter = ext::ALFImporter(*mapPath);
@@ -61,8 +60,8 @@ std::unique_ptr<Scene> App::init() {
 //		visualWorld->background(background);
 
 		scene->visualWorld(std::move(visualWorld));
-		scene->physicalWorld(std::move(physicalWorld));
-		scene->inputManager(Window::InputManager());
+		scene->physicsWorld(std::move(physicsWorld));
+		scene->inputContext(Window::InputContext());
 
 		scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 
@@ -77,6 +76,12 @@ std::unique_ptr<Scene> App::init() {
 	}
 }
 
+SimulationConfig App::simulationConfig() const {
+	return {
+		.timeStep = FIXED_TIMESTEP
+	};
+}
+
 bool App::shouldContinue(const Scene& scene) {
 	return _window->isOpen();
 }
@@ -85,31 +90,30 @@ void App::didShutdown() {
 
 }
 
-/// Scene Callback Overrides ///
+/// Runner Callbacks ///
 
-void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
+void App::hostUpdate(Runner& runner,
+                     const Runner::UpdateInfo& info) {
+
+	auto& scene = runner.scene();
+	auto& inputContext = *scene.inputContext();
 
 	Window* window = nullptr;
 	if (scene.visualWorld()) {
 		window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 	}
 
-
 	// get input
 
-	auto im = static_cast<DesktopInputManager*>(scene.inputManager());
+	auto im = static_cast<DesktopInputContext*>(&inputContext);
 
 	auto mouseButtonsDown = im->mouseButtonsDown();
-	auto mouseButtonsPressed = im->mouseButtonsPressed();
 	auto keysDown = im->keysDown();
 	auto keysPressed = im->keysPressed();
-	auto cursorCaptured = true;
-	if (window) {
-		cursorCaptured = window->cursorCaptured();
-	}
+	auto mousePositionDelta = im->mousePositionDelta();
 
-	using Key = DesktopInputManager::Key;
-	using MouseButton = DesktopInputManager::MouseButton;
+	using Key = DesktopInputContext::Key;
+	using MouseButton = DesktopInputContext::MouseButton;
 
 	if (keysPressed.count(Key::Escape)) {
 		window->close();
@@ -243,6 +247,8 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 		window->cursorCaptured(!(window->cursorCaptured()));
 	}
 
+	const auto cursorCaptured = window->cursorCaptured();
+
 	if (keysPressed.count(Key::R)) {
 		if (!window->recordingGIF()) {
 			util::snapshot::StartGIFRecording(*window, {320, 240}, 8);
@@ -255,8 +261,6 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 	if (cursorCaptured) {
 
 		// mouselook
-
-		vec2 mousePositionDelta = im->mousePositionDelta();
 
 		if (auto pov = scene.visualWorld()->pointOfView().lock()) {
 
@@ -286,20 +290,20 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 			}
 
 			if (keysDown.count(Key::W) || mouseButtonsDown.count(MouseButton::Four)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * camForward;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * moveMultiplier * camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 			else if (keysDown.count(Key::S)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * -camForward;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * moveMultiplier * -camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 
 			if (keysDown.count(Key::A)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * -camRight;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * moveMultiplier * -camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 			else if (keysDown.count(Key::D)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * camRight;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * moveMultiplier * camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 
@@ -308,25 +312,9 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 				if (keysDown.count(Key::LeftShift)) {
 					direction = -1;
 				}
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * camUp;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * moveMultiplier * camUp;
 				pov->position(pov->position() + positionDelta * direction);
 			}
 		}
 	}
-}
-
-/// VisualWorld Callback Overrides ///
-
-void App::visualWorldWillRender(VisualWorld& world, double time, double deltaTime) {
-
-}
-
-void App::visualWorldDidRender(VisualWorld& world, double time, double deltaTime) {
-
-}
-
-/// PhysicsWorld Callback Overrides ///
-
-void App::physicalWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {
-
 }

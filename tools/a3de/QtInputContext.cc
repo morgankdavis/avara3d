@@ -1,12 +1,12 @@
 //
-//  QtInputManager.cc
+//  QtInputContext.cc
 //  avara3d
 //
 //  Created by Morgan Davis on 12/2/2025.
 //  Copyright © 2025 Morgan K Davis. All rights reserved.
 //
 
-#include "QtInputManager.h"
+#include "QtInputContext.h"
 
 #include <QEvent>
 #include <QMouseEvent>
@@ -19,9 +19,9 @@
 using namespace a3d;
 using namespace std;;
 
-using InputManger = qt::QtInputManager;
-using Key = DesktopInputManager::Key;
-using MouseButton = DesktopInputManager::MouseButton;
+using QtInput = qt::QtInputContext;
+using Key = DesktopInputContext::Key;
+using MouseButton = DesktopInputContext::MouseButton;
 
 /// Private Static Non-Member Prototypes ///
 
@@ -30,19 +30,19 @@ static Key A3DKeyFromQtKey(int qtKey, Qt::KeyboardModifiers mods = Qt::NoModifie
 
 /// Public Lifecycle Functions ///
 
-// InputManger::QtInputManager(QtViewport& viewport) {
-// 	viewport.inputManager(this);
+// QtInput::QtInputContext(QtViewport& viewport) {
+// 	viewport.inputContext(this);
 // }
 
-InputManger::QtInputManager() {}
+QtInput::QtInputContext() {}
 
 /// Internal Member Functions ///
 
-void InputManger::keyPressed(int qtKey, int modifiers) {
+void QtInput::keyPressed(int qtKey, int modifiers) {
 
 	auto a3dKey = A3DKeyFromQtKey(qtKey, static_cast<Qt::KeyboardModifier>(modifiers));
 
-	// see note at GLFWInputManager::GLFWKeyCallback()
+	// see note at GLFWInputContext::GLFWKeyCallback()
 
 	_keysDown.insert(static_cast<Key>(a3dKey));
 
@@ -51,27 +51,27 @@ void InputManger::keyPressed(int qtKey, int modifiers) {
 	}
 }
 
-void InputManger::keyReleased(int qtKey, int modifiers) {
+void QtInput::keyReleased(int qtKey, int modifiers) {
 
 	auto a3dKey = A3DKeyFromQtKey(qtKey, static_cast<Qt::KeyboardModifier>(modifiers));
 
 	_keysDown.erase(static_cast<Key>(a3dKey));
 	_keysPressedCleared.erase(static_cast<Key>(a3dKey));
 
-	// see note at GLFWInputManager::GLFWKeyCallback()
+	// see note at GLFWInputContext::GLFWKeyCallback()
 }
 
-void InputManger::mouseMoved(float x, float y) {
+void QtInput::mouseMoved(float x, float y) {
 
 	_mousePositionDelta.x += x;
 	_mousePositionDelta.y += -y;
 }
 
-void InputManger::mouseButtonPressed(int qtButton) {
+void QtInput::mouseButtonPressed(int qtButton) {
 
 	auto a3dButton = static_cast<MouseButton>(qtButton);
 
-	// see note at GLFWInputManager::GLFWMouseButtonCallback();
+	// see note at GLFWInputContext::GLFWMouseButtonCallback();
 
 	_mouseButtonsDown.insert(a3dButton);
 
@@ -80,34 +80,34 @@ void InputManger::mouseButtonPressed(int qtButton) {
 	}
 }
 
-void InputManger::mouseButtonReleased(int qtButton) {
+void QtInput::mouseButtonReleased(int qtButton) {
 
 	auto a3dButton = static_cast<MouseButton>(qtButton);
 
-	// see note at GLFWInputManager::GLFWMouseButtonCallback();
+	// see note at GLFWInputContext::GLFWMouseButtonCallback();
 
 	_mouseButtonsDown.erase(a3dButton);
 	_mouseButtonsPressedCleared.erase(a3dButton);
 }
 
-void InputManger::mouseWheelScrolled(int x, int y) {//QPoint delta) {
+void QtInput::mouseWheelScrolled(int x, int y) {//QPoint delta) {
 
 	_mouseScrollWheelDelta.x += (float)x;
 	_mouseScrollWheelDelta.y += (float)y;
 }
 
-/// InputManager Internal Member Functions ///
+/// InputContext Internal Member Functions ///
 
-void InputManger::update() {}
+void QtInput::update() {}
 
-void InputManger::attachedToScene(Scene& scene) {
+void QtInput::attachedToScene(Scene& scene) {
 
 	if (auto visualWorld = scene.visualWorld()) {
 		viewport(static_cast<QtViewport*>(visualWorld->renderContext()));
 	}
 }
 
-void InputManger::visualWorldAttachedToScene(Scene& scene) {
+void QtInput::visualWorldAttachedToScene(Scene& scene) {
 
 	if (auto visualWorld = scene.visualWorld()) {
 		viewport(static_cast<QtViewport*>(visualWorld->renderContext()));
@@ -116,12 +116,12 @@ void InputManger::visualWorldAttachedToScene(Scene& scene) {
 
 /// Private Member Functions ///
 
-void InputManger::viewport(QtViewport* viewport) {
+void QtInput::viewport(QtViewport* viewport) {
 	_viewport = viewport;
-	_viewport->inputManager(this);
+	_viewport->inputContext(this);
 }
 
-qt::QtViewport*	InputManger::viewport() const {
+qt::QtViewport*	QtInput::viewport() const {
 	return _viewport;
 }
 
@@ -240,4 +240,3 @@ Key A3DKeyFromQtKey(int qtKey, Qt::KeyboardModifiers mods) {
 
 	return K::Unknown;
 }
-

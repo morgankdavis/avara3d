@@ -12,7 +12,7 @@ using namespace a3d;
 
 /// Internal Functions ///
 
-size_t PipelineDescHash::operator()(const PipelineDesc &desc) const noexcept {
+size_t PipelineDescHash::operator()(const PipelineDesc& desc) const noexcept {
 
 	uint64_t h = 1469598103934665603ull; // Fowler–Noll–Vo-ish
 

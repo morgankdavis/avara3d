@@ -152,11 +152,11 @@ namespace a3d {
 		void								visualWorldAttachedToScene(VisualWorld& world, Scene& scene);
 		void								visualWorldDetachedFromScene(VisualWorld& world, Scene& scene);
 
-		void								physicalWorldAttachedToScene(PhysicsWorld& world, Scene& scene);
-		void								physicalWorldDetachedFromScene(PhysicsWorld& world, Scene& scene);
+		void								physicsWorldAttachedToScene(PhysicsWorld& world, Scene& scene);
+		void								physicsWorldDetachedFromScene(PhysicsWorld& world, Scene& scene);
 
 		VisualWorld*						visualWorld() const;
-		PhysicsWorld*						physicalWorld() const;
+		PhysicsWorld*						physicsWorld() const;
 
 		void								checkNotifyPhysicsBodyOfReachablePhysicsWorld() const;
 		void								checkNotifyPhysicsBodyOfUnreachablePhysicsWorld() const;

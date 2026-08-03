@@ -1,27 +1,27 @@
 //
-//  QtInputManager.h
+//  QtInputContext.h
 //  avara3d
 //
 //  Created by Morgan Davis on 12/2/2025.
 //  Copyright © 2025 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_QTINPUTMANAGER_H
-#define AVARA3D_QTINPUTMANAGER_H
+#ifndef AVARA3D_QTINPUTCONTEXT_H
+#define AVARA3D_QTINPUTCONTEXT_H
 
-#include "a3d/input/DesktopInputManager.h"
+#include "a3d/input/DesktopInputContext.h"
 
 namespace a3d::qt {
 
 	class QtViewport;
 
-	class QtInputManager : public DesktopInputManager {
+	class QtInputContext : public DesktopInputContext {
 
 	public:
 		/// Public Lifecycle Functions ///
 
-		// explicit QtInputManager(QtViewport& viewport);
-		QtInputManager();
+		// explicit QtInputContext(QtViewport& viewport);
+		QtInputContext();
 
 		/// Internal Member Functions ///
 
@@ -32,7 +32,7 @@ namespace a3d::qt {
 		void			mouseButtonReleased(int qtButton);
 		void			mouseWheelScrolled(int x, int y);
 
-		/// InputManager Internal Member Functions ///
+		/// InputContext Internal Member Functions ///
 
 		void			update() override;
 		void			attachedToScene(Scene& scene) override;
@@ -50,4 +50,4 @@ namespace a3d::qt {
 	};
 }
 
-#endif //AVARA3D_QTINPUTMANAGER_H
+#endif //AVARA3D_QTINPUTCONTEXT_H

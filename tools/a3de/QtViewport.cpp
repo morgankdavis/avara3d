@@ -18,7 +18,7 @@
 
 #include "a3d/a3d.h"
 
-#include "QtInputManager.h"
+#include "QtInputContext.h"
 
 using namespace a3d;
 using namespace a3d::math;
@@ -27,8 +27,8 @@ using Viewport = qt::QtViewport;
 
 /// Public Static Member Functions ///
 
-unique_ptr<qt::QtInputManager> Viewport::InputManager() {
-	return std::make_unique<QtInputManager>();
+unique_ptr<qt::QtInputContext> Viewport::InputContext() {
+	return std::make_unique<QtInputContext>();
 }
 
 /// Private Static Non-Member Prototypes ///
@@ -45,7 +45,7 @@ Viewport::QtViewport(RenderingApi renderingApi,
 		_cursorCaptured{false},
 		_lastCursorPosition{},
 		_lastCapturedCursorPosition{},
-		_inputManager{nullptr},
+		_inputContext{nullptr},
 		_warpingCursor{false} {
 
 	setMinimumSize(320, 240);
@@ -113,8 +113,8 @@ void Viewport::cursorCaptured(bool captured) {
 
 /// Internal Member Functions ///
 
-void Viewport::inputManager(QtInputManager* manager) {
-	_inputManager = manager;
+void Viewport::inputContext(QtInputContext* inputContext) {
+	_inputContext = inputContext;
 }
 
 /// RenderContext Public Member Functions ///
@@ -186,12 +186,12 @@ bool Viewport::event(QEvent* e) {
 					default:
 						break;
 				}
-				if (_cursorCaptured && _inputManager) {
+				if (_cursorCaptured && _inputContext) {
 					if (type == QEvent::MouseButtonPress) {
-						_inputManager->mouseButtonPressed(buttonIndex);
+						_inputContext->mouseButtonPressed(buttonIndex);
 					}
 					else {
-						_inputManager->mouseButtonReleased(buttonIndex);
+						_inputContext->mouseButtonReleased(buttonIndex);
 					}
 				}
 				else if (buttonIndex >= 0 && buttonIndex < IM_ARRAYSIZE(io.MouseDown)) {
@@ -201,8 +201,8 @@ bool Viewport::event(QEvent* e) {
 			case QEvent::Wheel: {
 				auto* ev = static_cast<QWheelEvent*>(e);
 				const QPoint numDegrees = ev->angleDelta() / 8;
-				if (_cursorCaptured && _inputManager) {
-					_inputManager->mouseWheelScrolled(numDegrees.x(), numDegrees.y());
+				if (_cursorCaptured && _inputContext) {
+					_inputContext->mouseWheelScrolled(numDegrees.x(), numDegrees.y());
 				}
 				else {
 					if (numDegrees.y() != 0) {
@@ -230,8 +230,8 @@ void Viewport::keyPressEvent(QKeyEvent* e) {
 		int key = e->key();
 		int mods = e->modifiers();
 
-		if (!ImGui::GetIO().WantCaptureKeyboard && _inputManager) {
-			_inputManager->keyPressed(key, mods);
+		if (!ImGui::GetIO().WantCaptureKeyboard && _inputContext) {
+			_inputContext->keyPressed(key, mods);
 		}
 		else if (!_cursorCaptured) {
 
@@ -263,8 +263,8 @@ void Viewport::keyReleaseEvent(QKeyEvent* e) {
 		int key = e->key();
 		int mods = e->modifiers();
 
-		if (!ImGui::GetIO().WantCaptureKeyboard && _inputManager) {
-			_inputManager->keyReleased(key, mods);
+		if (!ImGui::GetIO().WantCaptureKeyboard && _inputContext) {
+			_inputContext->keyReleased(key, mods);
 		}
 		else if (!_cursorCaptured) {
 
@@ -307,8 +307,8 @@ void Viewport::mouseMoveEvent(QMouseEvent *e) {
 
 			QPointF delta = *_lastCursorPosition - *_lastCapturedCursorPosition;
 
-			if (_cursorCaptured && _inputManager) {
-				_inputManager->mouseMoved(float(delta.x()), float(delta.y()));
+			if (_cursorCaptured && _inputContext) {
+				_inputContext->mouseMoved(float(delta.x()), float(delta.y()));
 			}
 			else {
 				// imgui handled in event()

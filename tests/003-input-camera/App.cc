@@ -58,7 +58,7 @@ std::unique_ptr<Scene> App::init() {
 
 		auto scene = util::filesystem::SceneNamed("import_test/import_test");
 		scene->visualWorld(std::move(visualWorld));
-		scene->inputManager(Window::InputManager());
+		scene->inputContext(Window::InputContext());
 		scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 
 		_window->center();
@@ -80,25 +80,32 @@ void App::didShutdown() {
 
 }
 
-/// Scene Callback Overrides ///
+/// Runner Callbacks ///
 
-void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
+void App::hostUpdate(Runner& runner,
+                     const Runner::UpdateInfo& info) {
+
+	auto& scene = runner.scene();
+	auto& inputContext = *scene.inputContext();
 
 	auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 
 	// get input
 
-	auto im = static_cast<DesktopInputManager*>(scene.inputManager());
+	auto im = static_cast<DesktopInputContext*>(&inputContext);
 
-	using Key = DesktopInputManager::Key;
-	using MouseButton = DesktopInputManager::MouseButton;
+	using Key = DesktopInputContext::Key;
+	using MouseButton = DesktopInputContext::MouseButton;
 
 	auto keysDown = im->keysDown();
+	auto keysPressed = im->keysPressed();
+	auto mouseButtonsDown = im->mouseButtonsDown();
+	auto mouseScrollWheelDelta = im->mouseScrollWheelDelta();
+	auto mousePositionDelta = im->mousePositionDelta();
+
 	for (auto k : keysDown) {
 		cout << "Key: " << static_cast<underlying_type<Key>::type>(k) << endl;
 	}
-
-	auto keysPressed = im->keysPressed();
 
 	if (keysPressed.count(Key::Slash)) {
 		window->cursorCaptured(!(window->cursorCaptured()));
@@ -108,11 +115,10 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 		_window->close();
 	}
 
-	for (auto mb : im->mouseButtonsDown()) {
+	for (auto mb : mouseButtonsDown) {
 		cout << "Mouse button: " << static_cast<underlying_type<MouseButton>::type>(mb) << endl;
 	}
 
-	vec2 mouseScrollWheelDelta = im->mouseScrollWheelDelta();
 	if (mouseScrollWheelDelta.x > 0 || mouseScrollWheelDelta.y > 0) {
 		cout << "Mouse scroll wheel delta: (" << mouseScrollWheelDelta.x << ", "
 			 << mouseScrollWheelDelta.y << ")" << endl;
@@ -135,7 +141,6 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 		static const float MOUSE_SPEED_SCALAR = .002;
 		static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
 
-		vec2 mousePositionDelta = im->mousePositionDelta();
 		float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
 		float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
 
@@ -147,42 +152,26 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 		static float MOVE_SPEED = math::max(scene.rootNode()->extent());
 
 		if (keysDown.count(Key::W)) {
-			vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camForward;
+			vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * camForward;
 			pov->position(pov->position() + positionDelta);
 		}
 		else if (keysDown.count(Key::S)) {
-			vec3 positionDelta = (float)deltaTime * MOVE_SPEED * -camForward;
+			vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * -camForward;
 			pov->position(pov->position() + positionDelta);
 		}
 
 		if (keysDown.count(Key::A)) {
-			vec3 positionDelta = (float)deltaTime * MOVE_SPEED * -camRight;
+			vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * -camRight;
 			pov->position(pov->position() + positionDelta);
 		}
 		else if (keysDown.count(Key::D)) {
-			vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camRight;
+			vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * camRight;
 			pov->position(pov->position() + positionDelta);
 		}
 
 		if (keysDown.count(Key::Space)) {
-			vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camUp;
+			vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * camUp;
 			pov->position(pov->position() + positionDelta);
 		}
 	}
-}
-
-/// VisualWorld Callback Overrides ///
-
-void App::visualWorldWillRender(VisualWorld& world, double time, double deltaTime) {
-
-}
-
-void App::visualWorldDidRender(VisualWorld& world, double time, double deltaTime) {
-
-}
-
-/// PhysicsWorld Callback Overrides ///
-
-void App::physicalWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {
-
 }

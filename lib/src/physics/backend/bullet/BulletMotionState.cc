@@ -25,7 +25,7 @@ BulletMotionState::BulletMotionState(PhysicsBody& body):
 /// btMotionState Members ///
 
 // apply node transform to kinematic physics body (only called for kinematic bodies)
-void BulletMotionState::getWorldTransform(btTransform &transform) const {
+void BulletMotionState::getWorldTransform(btTransform& transform) const {
 
 	if (auto node = _body->node().lock()) {
 		transform = BTTransformFromA3DMat4(node->worldTransform());

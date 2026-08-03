@@ -29,7 +29,7 @@ namespace a3d {
 		std::vector<DebugLineVertex> 	cpuVerts =		{};
 
 		void ensureBuffers();          // create vao/vbo once
-		void upload(const std::vector<Line> &lines); // fill cpuVerts + stream to vbo
+		void upload(const std::vector<Line>& lines); // fill cpuVerts + stream to vbo
 		void destroy();
 	};
 }

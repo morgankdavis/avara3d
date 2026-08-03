@@ -9,6 +9,7 @@
 #ifndef AVARA3D_SCENE_SCENE_H
 #define AVARA3D_SCENE_SCENE_H
 
+#include <cstdint>
 #include <filesystem>
 #include <functional>
 #include <memory>
@@ -16,8 +17,7 @@
 #include <string>
 
 #include "a3d/Math.h"
-#include "a3d/profile/FrameStatsHistory.h"
-#include "a3d/profile/Profiler.h"
+#include "a3d/physics/PhysicsInventory.h"
 #include "a3d/util/Bitmask.h"
 
 namespace a3d {
@@ -25,10 +25,11 @@ namespace a3d {
 	struct AABB;
 
 	class Color;
-	class InputManager;
+	class InputContext;
 	class Mesh;
 	class Node;
 	class PhysicsWorld;
+	class Profiler;
 	class Renderer;
 	class RenderContext;
 	class VisualWorld;
@@ -64,10 +65,25 @@ namespace a3d {
 			ShowPhysicsConstraintLimits	=	1 << 11
 		};
 
-		using UpdateCallback =				std::function<void(
-				Scene& scene,
-				double time,
-				double deltaTime)>;
+		struct StepInfo {
+
+			// zero-based simulation-step index
+			std::uint64_t	stepIndex{0};
+
+			// simulation time before this step
+			double			startTime{0.0};
+
+			// simulation time after this step completes
+			double			endTime{0.0};
+
+			// amount of simulation time advanced by this step
+			double			deltaTime{0.0};
+		};
+
+		using WillStepCallback = std::function<void(Scene& scene,
+		                                            const StepInfo& info)>;
+		using DidStepCallback = std::function<void(Scene& scene,
+		                                           const StepInfo& info)>;
 
 		/// Public Static Member Functions ///
 
@@ -81,11 +97,11 @@ namespace a3d {
 		explicit Scene(const std::string& name);
 		Scene(std::unique_ptr<VisualWorld> visualWorld,
 			  std::unique_ptr<PhysicsWorld> physicsWorld,
-			  std::unique_ptr<InputManager> inputManager);
+			  std::unique_ptr<InputContext> inputContext);
 		Scene(const std::string& name,
 			  std::unique_ptr<VisualWorld> visualWorld,
 			  std::unique_ptr<PhysicsWorld> physicsWorld,
-			  std::unique_ptr<InputManager> inputManager);
+			  std::unique_ptr<InputContext> inputContext);
 
 		Scene(const Scene&) = delete;
 		Scene& operator=(const Scene&) = delete;
@@ -106,11 +122,11 @@ namespace a3d {
 		VisualWorld* 						visualWorld() const;
 		void 								visualWorld(std::unique_ptr<VisualWorld> world);
 		
-		PhysicsWorld* 						physicalWorld() const;
-		void 								physicalWorld(std::unique_ptr<PhysicsWorld> world);
+		PhysicsWorld* 						physicsWorld() const;
+		void 								physicsWorld(std::unique_ptr<PhysicsWorld> world);
 
-		InputManager* 						inputManager() const;
-		void 								inputManager(std::unique_ptr<InputManager> manager);
+		InputContext* 						inputContext() const;
+		void 								inputContext(std::unique_ptr<InputContext> context);
 
 		AABB 								aabb(bool vertfit = false) const;
 		math::vec3 							extent(bool vertfit = false) const;
@@ -118,28 +134,31 @@ namespace a3d {
 		DebugOptions 						debugOptions() const;
 		void 								debugOptions(DebugOptions options);
 
-		double 								time() const;
+		WillStepCallback					willStepCallback() const;
+		void								willStepCallback(WillStepCallback callback);
 
-		UpdateCallback 						updateCallback() const;
-		void 								updateCallback(UpdateCallback function);
+		DidStepCallback						didStepCallback() const;
+		void								didStepCallback(DidStepCallback callback);
 
 		/// Internal Member Functions ///
 
-		void 								update();
+		void 								pollEvents(Profiler& profiler);
+		void 								updateInput(Profiler& profiler);
+		PhysicsInventory					stepSimulation(const StepInfo& info,
+													   Profiler& profiler);
 
 	private:
+
 		/// Private Member Variables ///
 
 		std::optional<std::string>			_name;
 		std::shared_ptr<Node>				_rootNode;
 		std::unique_ptr<VisualWorld> 		_visualWorld;
-		std::unique_ptr<PhysicsWorld> 		_physicalWorld;
-		std::unique_ptr<InputManager>		_inputManager;
+		std::unique_ptr<PhysicsWorld> 		_physicsWorld;
+		std::unique_ptr<InputContext>		_inputContext;
 		DebugOptions						_debugOptions;
-		double 								_startTime;
-		Profiler							_profiler;
-		FrameStatsHistory					_frameStatsHistory;
-		UpdateCallback						_updateCallback;
+		WillStepCallback					_willStepCallback;
+		DidStepCallback						_didStepCallback;
 	};
 
 	namespace util::bitmask {

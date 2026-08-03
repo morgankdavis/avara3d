@@ -67,7 +67,7 @@ std::unique_ptr<Scene> App::init() {
 												  | Scene::ImportOptions::ImportCameras);
 
 		scene->visualWorld(std::move(visualWorld));
-		scene->inputManager(std::move(Window::InputManager()));
+		scene->inputContext(std::move(Window::InputContext()));
 		scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 
 		auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.1f));
@@ -128,27 +128,24 @@ void App::didShutdown() {
 
 }
 
-/// Scene Callback Overrides ///
+/// Runner Callbacks ///
 
-void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
+void App::hostUpdate(Runner& runner,
+                     const Runner::UpdateInfo& info) {
 
-	util::flow::on(2, [&] {
-		double time = util::chrono::Time() - _startTime;
-		log::app::i()("START TIME: {}", time);
-	});
-
-	log::app::t()("scene: {:p}, time: {}, deltaTime: {}", (void*)&scene, time, deltaTime);
-
+	auto& scene = runner.scene();
+	auto& inputContext = *scene.inputContext();
 	auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 
 	// get input
 
-	auto im = static_cast<DesktopInputManager*>(scene.inputManager());
+	auto im = static_cast<DesktopInputContext*>(&inputContext);
 	auto keysPressed = im->keysPressed();
 	auto keysDown = im->keysDown();
+	auto mousePositionDelta = im->mousePositionDelta();
+	auto mouseScrollWheelDelta = im->mouseScrollWheelDelta();
 
-	using Key = DesktopInputManager::Key;
-	using MouseButton = DesktopInputManager::MouseButton;
+	using Key = DesktopInputContext::Key;
 
 	if (keysPressed.count(Key::Escape)) {
 		window->close();
@@ -221,13 +218,10 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 
 	if (window->cursorCaptured()) {
 
-		vec2 mousePositionDelta = im->mousePositionDelta();
-
 		// move camera
 
 		if (auto pov = scene.visualWorld()->pointOfView().lock()) {
 
-			vec2 mouseScrollWheelDelta = im->mouseScrollWheelDelta();
 			if (mouseScrollWheelDelta.y) {
 
 				static const float FOV_SPEED = 2.5; // degrees/roll
@@ -255,8 +249,6 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 
 			// move
 
-//			auto keysDown = im->keysDown();
-
 			static float MOVE_SPEED = 0;
 			if (!MOVE_SPEED) MOVE_SPEED = math::max(scene.rootNode()->extent());
 
@@ -266,20 +258,20 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 			}
 
 			if(keysDown.count(Key::W)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camForward;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 			else if(keysDown.count(Key::S)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * -camForward;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * -camForward;
 				pov->position(pov->position() + positionDelta);
 			}
 
 			if(keysDown.count(Key::A)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * -camRight;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * -camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 			else if(keysDown.count(Key::D)) {
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * camRight;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * camRight;
 				pov->position(pov->position() + positionDelta);
 			}
 
@@ -288,11 +280,21 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 				if (keysDown.count(Key::LeftShift)) {
 					direction = -1;
 				}
-				vec3 positionDelta = (float)deltaTime * MOVE_SPEED * moveMultiplier * camUp;
+				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * moveMultiplier * camUp;
 				pov->position(pov->position() + positionDelta * direction);
 			}
 		}
 	}
+
+	util::flow::on(2, [&] {
+		double time = util::chrono::Time() - _startTime;
+		log::app::i()("START TIME: {}", time);
+	});
+
+	log::app::t()("scene: {:p}, time: {}, deltaTime: {}",
+		(void *) &scene,
+	              info.elapsedTime,
+	              info.deltaTime);
 
 	// move the light
 
@@ -308,29 +310,13 @@ void App::sceneUpdate(Scene& scene, double time, double deltaTime) {
 
 		static float rotationSpeed = radians(30.0); // deg/secs
 		static float angle = 0;
-		angle += rotationSpeed * deltaTime;
+		angle += rotationSpeed * info.deltaTime;
 
 		float x = math::sin(angle) * radiusX;
 		float y = math::cos(angle) * radiusY;
 
 		_pointLightNode->position(center + vec3(x, y, -x));
 	}
-}
-
-/// VisualWorld Callback Overrides ///
-
-void App::visualWorldWillRender(VisualWorld& world, double time, double deltaTime) {
-
-}
-
-void App::visualWorldDidRender(VisualWorld& world, double time, double deltaTime) {
-
-}
-
-/// PhysicsWorld Callback Overrides ///
-
-void App::physicalWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime) {
-
 }
 
 /// Private Static Non-Member Functions ///

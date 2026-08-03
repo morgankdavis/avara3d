@@ -1,22 +1,22 @@
 //
-//  DesktopInputManager.h
+//  DesktopInputContext.h
 //  avara3d
 //
 //  Created by Morgan Davis on 12/2/2025.
 //  Copyright © 2025 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_INPUT_DESKTOPINPUTMANAGER_H
-#define AVARA3D_INPUT_DESKTOPINPUTMANAGER_H
+#ifndef AVARA3D_INPUT_DESKTOPINPUTCONTEXT_H
+#define AVARA3D_INPUT_DESKTOPINPUTCONTEXT_H
 
 #include <unordered_set>
 
 #include "a3d/Math.h"
-#include "a3d/input/InputManager.h"
+#include "a3d/input/InputContext.h"
 
 namespace a3d {
 
-	class DesktopInputManager : public InputManager {
+	class DesktopInputContext : public InputContext {
 
 	public:
 		/// Public Types ///
@@ -160,11 +160,11 @@ namespace a3d {
 
 		/// Public Lifecycle Functions ///
 
-		DesktopInputManager();
-		virtual ~DesktopInputManager() = 0;
+		DesktopInputContext();
+		virtual ~DesktopInputContext() = 0;
 
-		DesktopInputManager(const DesktopInputManager& other) = delete;
-		DesktopInputManager& operator=(const DesktopInputManager& other) = delete;
+		DesktopInputContext(const DesktopInputContext& other) = delete;
+		DesktopInputContext& operator=(const DesktopInputContext& other) = delete;
 
 		/// Public Member Functions ///
 
@@ -177,13 +177,17 @@ namespace a3d {
 		std::unordered_set<Key> 			keysDown(); // keys currently down
 		std::unordered_set<MouseButton> 	mouseButtonsDown(); // mouse buttons currently down
 
+		// TODO: rework theese.
+
 		// only reports keys down for one query until they are released
 		std::unordered_set<Key> 			keysPressed();
 		// only reports mouse buttons down for one query until they are released
 		std::unordered_set<MouseButton> 	mouseButtonsPressed();
 
-		math::vec2 							mousePositionDelta(); // mouse position delta since last query
-		math::vec2 							mouseScrollWheelDelta(); // mouse wheen scroll delta since last query
+		// mouse position delta since last query
+		math::vec2 							mousePositionDelta();
+		// mouse wheen scroll delta since last query
+		math::vec2 							mouseScrollWheelDelta();
 
 	protected:
 		/// Protected Member Variables ///
@@ -205,4 +209,4 @@ namespace a3d {
 	};
 }
 
-#endif //AVARA3D_INPUT_DESKTOPINPUTMANAGER_H
+#endif //AVARA3D_INPUT_DESKTOPINPUTCONTEXT_H

@@ -8,6 +8,9 @@
 
 #include "a3d/physics/PhysicsWorld.h"
 
+#include <cmath>
+#include <stdexcept>
+
 #include "a3d/log/Log.h"
 #include "a3d/mesh/Line.h"
 #include "a3d/physics/HitTestResult.h"
@@ -27,10 +30,7 @@ using namespace std;
 
 PhysicsWorld::PhysicsWorld():
 		_gravity{0, -9.807, 0},
-		_speed{1.0},
-		_timestep{1.0/60.0},
 		_scene{},
-		_didSimulateCallback{},
 		_beginContactCallback{},
 		_continueContactCallback{},
 		_endContactCallback{} {
@@ -50,22 +50,6 @@ const vec3& PhysicsWorld::gravity() const {
 
 void PhysicsWorld::gravity(const vec3& gravity) {
 	_gravity = gravity;
-}
-
-float PhysicsWorld::speed() const {
-	return _speed;
-}
-
-void PhysicsWorld::speed(float speed) {
-	_speed = speed;
-}
-
-float PhysicsWorld::timestep() const {
-	return _timestep;
-}
-
-void PhysicsWorld::timestep(float timestep) {
-	_timestep = timestep;
 }
 
 optional<PhysicsContact> PhysicsWorld::contactTest(const PhysicsBody& bodyA,
@@ -105,14 +89,6 @@ void PhysicsWorld::updateCollisionPairs() {
 
 Scene* PhysicsWorld::scene() const {
 	return _scene;
-}
-
-PhysicsWorld::DidSimulateCallback PhysicsWorld::didSimulateCallback() const {
-	return _didSimulateCallback;
-}
-
-void PhysicsWorld::didSimulateCallback(DidSimulateCallback function) {
-	_didSimulateCallback = function;
 }
 
 PhysicsWorld::BeginContactCallback PhysicsWorld::beginContactCallback() const {
@@ -180,23 +156,37 @@ void PhysicsWorld::remove(PhysicsBody& body) {
 	}
 }
 
-void PhysicsWorld::step(const Scene& scene,
-						 double runT,
-						 double deltaRunT,
-						 FrameStats& stats,
-						 Profiler& profiler) {
+bool PhysicsWorld::acceptsStepDelta(double deltaTime) const {
+	return std::isfinite(deltaTime)
+		&& deltaTime > 0.0
+		&& _proxy
+		&& _proxy->acceptsStepDelta(deltaTime);
+}
+
+PhysicsInventory PhysicsWorld::step(double deltaTime, Profiler& profiler) {
 
 	if (!util::flow::edge_guard(_proxy, [&] {
 		log::e()("No PhysicsWorldProxy attached to PhysicsWorld {:p}.", static_cast<void*>(this));
-	})) return;
+	})) return {};
 
-	_proxy->step(deltaRunT, _speed, _timestep, stats, profiler);
-
-	if (auto didSimulate = PhysicsWorld::didSimulateCallback()) {
-		prof::profile(profiler, Profiler::Tag::Application, [&] {
-			didSimulate(*this, runT, deltaRunT);
-		});
+	if (!acceptsStepDelta(deltaTime)) {
+		throw invalid_argument("PhysicsWorld::step() requires an accepted positive, finite delta time.");
 	}
+
+	_proxy->step(deltaTime, profiler);
+
+	auto inventory = prof::profile(profiler, Profiler::Tag::Physics, [&] {
+		return PhysicsWorld::inventory();
+	});
+
+	return inventory;
+}
+
+PhysicsInventory PhysicsWorld::inventory() const {
+	if (_proxy) {
+		return _proxy->inventory();
+	}
+	return {};
 }
 
 void PhysicsWorld::appendDebugLines(vector<Line>& out,

@@ -248,7 +248,7 @@ vector<std::filesystem::path> a3d::util::filesystem::AuxiliarySearchPaths() {
 }
 
 std::optional<std::filesystem::path>
-a3d::util::filesystem::SearchInPaths(const string &filename,
+a3d::util::filesystem::SearchInPaths(const string& filename,
                                      const vector<std::filesystem::path>& paths) {
 	// for (size_t i = 0; i < paths.size(); ++i) {
 	// 	log::i()("  [{}] '{}'", i, paths[i].string());

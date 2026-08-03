@@ -13,6 +13,7 @@
 
 #include <QMainWindow>
 
+#include "a3d/Runner.h"
 #include "a3d/log/Log.h"
 
 QT_BEGIN_NAMESPACE
@@ -24,10 +25,7 @@ QT_END_NAMESPACE
 namespace a3d {
 	class Mesh;
 	class Node;
-	class Runner;
 	class Scene;
-	class PhysicsWorld;
-	class VisualWorld;
 }
 
 namespace a3d::qt {
@@ -50,10 +48,10 @@ namespace a3de {
 		void updateA3D();
 		void initLog(a3d::Log::Level level);
 
-		void updateCallback(a3d::Scene& scene, double time, double deltaTime);
-		void willRenderCallback(a3d::VisualWorld& world, double time, double deltaTime);
-		void didRenderCallback(a3d::VisualWorld& world, double time, double deltaTime);
-		void didSimulatePhysicsCallback(a3d::PhysicsWorld& world, double time, double deltaTime);
+		/// Runner Callbacks ///
+
+		void hostUpdate(a3d::Runner& runner,
+		                const a3d::Runner::UpdateInfo& info);
 
 		Ui::MainWindow*					_ui;
 		a3d::qt::QtViewport*			_viewport;

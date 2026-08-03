@@ -571,7 +571,7 @@ namespace a3d::math {
 		f32mat3();
 		explicit f32mat3(f32 diag);
 		f32mat3(const f32vec3& c0_, const f32vec3& c1_, const f32vec3& c2_);
-		f32mat3(const f32mat4 &m);
+		f32mat3(const f32mat4& m);
 		f32vec3& operator[](std::size_t i);
 		const f32vec3& operator[](std::size_t i) const;
 	};

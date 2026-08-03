@@ -50,11 +50,11 @@ namespace a3d {
 		float				gravity() const override;
 		void				gravity(float gravity) override;
 
-		void				step(double deltaT,
-								 float speed,
-								 float timestep,
-								 FrameStats& stats,
-								 Profiler& profiler) override;
+		bool				acceptsStepDelta(double deltaTime) const override;
+
+		void				step(double deltaTime, Profiler& profiler) override;
+
+		PhysicsInventory	inventory() const override;
 
 		void 				updateCollisionPairs() override;
 

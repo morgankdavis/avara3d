@@ -1,37 +1,37 @@
 //
-//  GLFWInputManager.h
+//  GLFWInputContext.h
 //  avara3d
 //
 //  Created by Morgan Davis on 4/16/2024.
 //  Copyright © 2024-2024 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_INPUT_GLFWINPUTMANAGER_H
-#define AVARA3D_INPUT_GLFWINPUTMANAGER_H
+#ifndef AVARA3D_INPUT_GLFWINPUTCONTEXT_H
+#define AVARA3D_INPUT_GLFWINPUTCONTEXT_H
 
 #include <memory>
 #include <set>
 
-#include "a3d/input/DesktopInputManager.h"
+#include "a3d/input/DesktopInputContext.h"
 
 struct GLFWwindow;
 
 namespace a3d {
 
 	class Window;
-	
-	class GLFWInputManager : public DesktopInputManager {
+
+	class GLFWInputContext : public DesktopInputContext {
 
 	public:
 		/// Public Lifecycle Functions ///
 
-		GLFWInputManager();
-		~GLFWInputManager() override;
+		GLFWInputContext();
+		~GLFWInputContext() override;
 
-		GLFWInputManager(const InputManager& other) = delete;
-		GLFWInputManager& operator=(const InputManager& other) = delete;
+		GLFWInputContext(const InputContext& other) = delete;
+		GLFWInputContext& operator=(const InputContext& other) = delete;
 
-		/// InputManager Internal Member Functions ///
+		/// InputContext Internal Member Functions ///
 
 		void			update() override;
 		void			attachedToScene(Scene& scene) override;
@@ -43,6 +43,8 @@ namespace a3d {
 		void 			glfwMouseButtonEvent(int button, int action, int mods);
 		void 			glfwScrollEvent(double xOffset, double yOffset);
 		void 			glfwKeyEvent(int key, int scanCode, int action, int mods);
+
+		void			detachedFromWindow(Window& window);
 
 	private:
 		/// Private Member Functions ///
@@ -58,4 +60,4 @@ namespace a3d {
 	};
 }
 
-#endif /* AVARA3D_INPUT_GLFWINPUTMANAGER_H */
+#endif /* AVARA3D_INPUT_GLFWINPUTCONTEXT_H */

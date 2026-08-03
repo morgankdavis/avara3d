@@ -9,17 +9,21 @@
 #ifndef AVARA3D_APPLICATION_H
 #define AVARA3D_APPLICATION_H
 
+#include <cstddef>
 #include <memory>
+#include <utility>
 #include <vector>
 
+#include "a3d/CommandQueue.h"
+#include "a3d/Runner.h"
+#include "a3d/SimulationConfig.h"
+#include "a3d/scene/Scene.h"
+#include "a3d/visual/VisualWorld.h"
 #include "log/Log.h"
 
-namespace a3d {
+#include "a3d/TestAccessFwd.h"
 
-	class PhysicsWorld;
-	class Runner;
-	class Scene;
-	class VisualWorld;
+namespace a3d {
 
 	class Application {
 
@@ -32,54 +36,91 @@ namespace a3d {
 
 		Application(int argc, char* argv[], Log::Level logLevel = Log::Level::Info);
 
-		Application(const Application&) = delete;
+		Application(const Application&)			   = delete;
 		Application& operator=(const Application&) = delete;
 
-		Application(Application&&) = delete;
+		Application(Application&&)			  = delete;
 		Application& operator=(Application&&) = delete;
 
 		virtual ~Application();
 
 	protected:
+		/// Protected Types ///
+
+		using SceneCommand	= CommandQueue<Scene>::value_type;
+		using RenderCommand = CommandQueue<VisualWorld>::value_type;
+
 		/// Protected Member Functions ///
 
-		virtual std::unique_ptr<Scene> init() = 0;
+		virtual std::unique_ptr<Scene>	init() = 0;
+		virtual SimulationConfig		simulationConfig() const;
+		virtual bool					shouldContinue(const Scene& scene);
+		virtual void					didShutdown();
 
-		virtual bool shouldContinue(const Scene& scene);
-		virtual void didShutdown();
+		void							queueSceneCommand(SceneCommand command);
+		void							queueRenderCommand(RenderCommand command);
+
+		Runner&							runner();
+		const Runner&					runner() const;
 
 		const std::vector<std::string>& args() const;
 
-		/// Scene Callback Overrides ///
+		/// Runner Callbacks ///
 
-		virtual void sceneUpdate(Scene& scene, double time, double deltaTime);
+		virtual void					hostUpdate(Runner& runner, const Runner::UpdateInfo& info);
 
-		/// VisualWorld Callback Overrides ///
+		/// Scene Callbacks ///
 
-		virtual void visualWorldWillRender(VisualWorld& world, double time, double deltaTime);
-		virtual void visualWorldDidRender(VisualWorld& world, double time, double deltaTime);
+		virtual void					sceneWillStep(Scene& scene, const Scene::StepInfo& info);
+		virtual void					sceneDidStep(Scene& scene, const Scene::StepInfo& info);
 
-		/// PhysicsWorld Callback Overrides ///
+		/// VisualWorld Callbacks ///
 
-		virtual void physicalWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime);
+		// virtual void					renderFrame(VisualWorld& visualWorld,
+		// 					                        const VisualWorld::RenderInfo& info);
+		virtual void didBeginFrame(VisualWorld& visualWorld, const VisualWorld::RenderInfo& info);
 
 	private:
 		/// Private Member Functions ///
 
-		void initLog(Log::Level level);
-		void prepare();
-		bool update();
-		void shutdown() noexcept;
+		template<typename Context>
+		static void executePendingCommands(CommandQueue<Context>& queue, Context& context);
 
-		void registerCallbacks();
+		void		initLog(Log::Level level);
+		void		prepare();
+		bool		update();
+		void		shutdown() noexcept;
+		void		registerCallbacks();
+
+		void		dispatchHostUpdate(Runner& runner, const Runner::UpdateInfo& info);
+		void		dispatchSceneWillStep(Scene& scene, const Scene::StepInfo& info);
+		void		dispatchSceneDidStep(Scene& scene, const Scene::StepInfo& info);
+		void		dispatchDidBeginFrame(VisualWorld& visualWorld, const VisualWorld::RenderInfo& info);
 
 		/// Private Member Variables ///
 
-		std::vector<std::string>	_args;
-		std::unique_ptr<Scene>		_scene;
-		std::unique_ptr<Runner>		_runner; // Runner must be destroyed before Scene
-		bool						_didShutdown;;
+		std::vector<std::string>  _args;
+		std::unique_ptr<Scene>	  _scene;
+		std::unique_ptr<Runner>	  _runner; // Runner must be destroyed before Scene
+		bool					  _didShutdown;
+		CommandQueue<Scene>		  _sceneCommandQueue;
+		CommandQueue<VisualWorld> _renderCommandQueue;
+
+		/// Test Access ///
+
+		friend class testing::ApplicationTestAccess;
 	};
+
+	template<typename Context>
+	void Application::executePendingCommands(CommandQueue<Context>& queue, Context& context) {
+		const auto pendingCount = queue.size();
+		for (std::size_t i = 0; i < pendingCount; ++i) {
+			auto command = std::move(queue.front());
+			queue.pop();
+			command(context);
+		}
+	}
+
 }
 
 #endif //AVARA3D_APPLICATION_H

@@ -29,21 +29,21 @@ mat4 a3d::A3DMat4FromBTTransform(const btTransform& from) {
 	return glmMat;
 }
 
-btVector3 a3d::BTVector3FromA3DVec3(const math::vec3 &from) {
+btVector3 a3d::BTVector3FromA3DVec3(const math::vec3& from) {
 	return {from.x, from.y, from.z};
 }
 
-btVector4 a3d::BTVector4FromA3DVec4(const math::vec4 &from) {
+btVector4 a3d::BTVector4FromA3DVec4(const math::vec4& from) {
 	return {from.x, from.y, from.z, from.w};
 }
 
-btQuaternion a3d::BTQuaternionFromA3DQuat(const math::quat &from) {
+btQuaternion a3d::BTQuaternionFromA3DQuat(const math::quat& from) {
 
 	return {from.x, from.y, from.z, from.w};
 
 }
 
-btTransform a3d::BTTransformFromA3DMat4(const math::mat4 &from) {
+btTransform a3d::BTTransformFromA3DMat4(const math::mat4& from) {
 
 	// this version (probably) does not strip scale & sheer
 

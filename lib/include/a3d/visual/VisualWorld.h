@@ -9,6 +9,7 @@
 #ifndef AVARA3D_VISUAL_VISUALWORLD_H
 #define AVARA3D_VISUAL_VISUALWORLD_H
 
+#include <cstdint>
 #include <functional>
 #include <memory>
 
@@ -35,12 +36,26 @@ namespace a3d {
 	public:
 		/// Public Types ///
 
-		using WillRenderCallback =	std::function<void(VisualWorld& world,
-		                                                 double time,
-		                                                 double deltaTime)>;
-		using DidRenderCallback =	std::function<void(VisualWorld& world,
-		                                                double time,
-		                                                double deltaTime)>;
+		struct RenderInfo {
+
+			// zero-based successful-render-frame index
+			std::uint64_t	frameIndex{0};
+
+			// Runner update responsible for this render attempt
+			std::uint64_t	updateIndex{0};
+
+			// monotonic Runner elapsed time for the containing update
+			double			updateTime{0.0};
+
+			// monotonic delta for the containing Runner update
+			double			updateDeltaTime{0.0};
+
+			// time reached by the most recently completed simulation step
+			double			simulationTime{0.0};
+
+			// total number of completed simulation steps
+			std::uint64_t	simulationStepCount{0};
+		};
 
 		/// Public Lifecycle Functions ///
 
@@ -87,21 +102,22 @@ namespace a3d {
 
 		Scene*								scene() const;
 
-		WillRenderCallback 					willRenderCallback() const;
-		void 								willRenderCallback(WillRenderCallback function);
+		/// Internal Types ///
 
-		DidRenderCallback 					didRenderCallback() const;
-		void 								didRenderCallback(DidRenderCallback function);
+		using DidBeginFrameCallback = std::function<void(VisualWorld& visualWorld,
+		                                                 const RenderInfo& info)>;
 
 		/// Internal Member Functions ///
 
 		void								attachedToScene(Scene& scene);
 		void								detachedFromScene(Scene& scene);
 
-		void								draw(const Scene& scene,
-												 const PhysicsWorld* physicalWorld,
-												 double runT,
-												 double deltaRunT,
+		DidBeginFrameCallback				didBeginFrameCallback() const;
+		void								didBeginFrameCallback(DidBeginFrameCallback function);
+
+		bool								draw(const Scene& scene,
+												 const PhysicsWorld* physicsWorld,
+												 const RenderInfo& info,
 												 Scene::DebugOptions debugOptions,
 												 FrameStats& stats,
 												 Profiler& profiler,
@@ -128,8 +144,7 @@ namespace a3d {
 		std::weak_ptr<Node>					_pointOfView;
 		RenderContext*						_renderContext;
 		Scene*								_scene;
-		WillRenderCallback 					_willRenderCallback;
-		DidRenderCallback 					_didRenderCallback;
+		DidBeginFrameCallback				_didBeginFrameCallback;
 	};
 }
 

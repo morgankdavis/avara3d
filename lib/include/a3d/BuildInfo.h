@@ -41,18 +41,18 @@ namespace a3d {
 
 		/// Public Static Member Functions ///
 
-		static const BuildInfo& Info();
-		static std::string VersionString(const Version& version);
-		static std::string TypeString(Type type);
-		static std::string OriginString(Origin origin);
+		static const BuildInfo&		Info();
+		static std::string			VersionString(const Version& version);
+		static std::string			TypeString(Type type);
+		static std::string			OriginString(Origin origin);
 
 		/// Public Member Functions ///
 
-		unsigned 		number() const;
-		const Version&	version() const;
-		Type 			type() const;
-		Origin 			origin() const;
-		const std::tm&	time() const;
+		unsigned 					number() const;
+		const Version&				version() const;
+		Type 						type() const;
+		Origin 						origin() const;
+		const std::tm&				time() const;
 
 	private:
 		/// Private Lifecycle Functions ///
@@ -67,11 +67,11 @@ namespace a3d {
 
 		/// Private Member Variables ///
 
-		unsigned			_number;
-		Version 			_version;
-		Type	 			_type;
-		Origin 				_origin;
-		std::tm				_time;
+		unsigned					_number;
+		Version 					_version;
+		Type	 					_type;
+		Origin 						_origin;
+		std::tm						_time;
 	};
 }
 

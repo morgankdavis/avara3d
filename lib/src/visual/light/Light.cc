@@ -70,8 +70,8 @@ Light::Light(const shared_ptr<Color>& color):
 	_color = color;
 }
 
-Light::Light(const string &name,
-			 const shared_ptr<Color> &color) : Light{} {
+Light::Light(const string& name,
+			 const shared_ptr<Color>& color) : Light{} {
 
 	_name = name;
 	_color = color;
