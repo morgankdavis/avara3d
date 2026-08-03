@@ -30,16 +30,16 @@ namespace a3d {
 	public:
 		/// Public Static Member Functions ///
 
-		static int						Run(std::unique_ptr<Application> application);
+		static int Run(std::unique_ptr<Application> application);
 
 		/// Public Lifecycle Functions ///
 
 		Application(int argc, char* argv[], Log::Level logLevel = Log::Level::Info);
 
-		Application(const Application&) = delete;
+		Application(const Application&)			   = delete;
 		Application& operator=(const Application&) = delete;
 
-		Application(Application&&) = delete;
+		Application(Application&&)			  = delete;
 		Application& operator=(Application&&) = delete;
 
 		virtual ~Application();
@@ -47,8 +47,8 @@ namespace a3d {
 	protected:
 		/// Protected Types ///
 
-		using SceneCommand =			CommandQueue<Scene>::value_type;
-		using RenderCommand =			CommandQueue<VisualWorld>::value_type;
+		using SceneCommand	= CommandQueue<Scene>::value_type;
+		using RenderCommand = CommandQueue<VisualWorld>::value_type;
 
 		/// Protected Member Functions ///
 
@@ -63,53 +63,48 @@ namespace a3d {
 		Runner&							runner();
 		const Runner&					runner() const;
 
-		const std::vector<std::string>&	args() const;
+		const std::vector<std::string>& args() const;
 
 		/// Runner Callbacks ///
 
-		virtual void					hostUpdate(Runner& runner,
-							                       const Runner::UpdateInfo& info);
+		virtual void					hostUpdate(Runner& runner, const Runner::UpdateInfo& info);
 
 		/// Scene Callbacks ///
 
-		virtual void					sceneWillStep(Scene& scene,
-							                          const Scene::StepInfo& info);
-		virtual void					sceneDidStep(Scene& scene,
-							                         const Scene::StepInfo& info);
+		virtual void					sceneWillStep(Scene& scene, const Scene::StepInfo& info);
+		virtual void					sceneDidStep(Scene& scene, const Scene::StepInfo& info);
 
 		/// VisualWorld Callbacks ///
 
 		// virtual void					renderFrame(VisualWorld& visualWorld,
 		// 					                        const VisualWorld::RenderInfo& info);
-		virtual void					didBeginFrame(VisualWorld& visualWorld,
-							                          const VisualWorld::RenderInfo& info);
+		virtual void didBeginFrame(VisualWorld& visualWorld, const VisualWorld::RenderInfo& info);
 
 	private:
 		/// Private Member Functions ///
 
 		template<typename Context>
-		static void		executePendingCommands(CommandQueue<Context>& queue, Context& context);
+		static void executePendingCommands(CommandQueue<Context>& queue, Context& context);
 
-		void			initLog(Log::Level level);
-		void			prepare();
-		bool			update();
-		void			shutdown() noexcept;
-		void			registerCallbacks();
+		void		initLog(Log::Level level);
+		void		prepare();
+		bool		update();
+		void		shutdown() noexcept;
+		void		registerCallbacks();
 
-		void			dispatchHostUpdate(Runner& runner, const Runner::UpdateInfo& info);
-		void			dispatchSceneWillStep(Scene& scene, const Scene::StepInfo& info);
-		void			dispatchSceneDidStep(Scene& scene, const Scene::StepInfo& info);
-		void			dispatchDidBeginFrame(VisualWorld& visualWorld,
-					                          const VisualWorld::RenderInfo& info);
+		void		dispatchHostUpdate(Runner& runner, const Runner::UpdateInfo& info);
+		void		dispatchSceneWillStep(Scene& scene, const Scene::StepInfo& info);
+		void		dispatchSceneDidStep(Scene& scene, const Scene::StepInfo& info);
+		void		dispatchDidBeginFrame(VisualWorld& visualWorld, const VisualWorld::RenderInfo& info);
 
 		/// Private Member Variables ///
 
-		std::vector<std::string>		_args;
-		std::unique_ptr<Scene>			_scene;
-		std::unique_ptr<Runner>			_runner; // Runner must be destroyed before Scene
-		bool							_didShutdown;
-		CommandQueue<Scene>				_sceneCommandQueue;
-		CommandQueue<VisualWorld>		_renderCommandQueue;
+		std::vector<std::string>  _args;
+		std::unique_ptr<Scene>	  _scene;
+		std::unique_ptr<Runner>	  _runner; // Runner must be destroyed before Scene
+		bool					  _didShutdown;
+		CommandQueue<Scene>		  _sceneCommandQueue;
+		CommandQueue<VisualWorld> _renderCommandQueue;
 
 		/// Test Access ///
 
@@ -125,6 +120,7 @@ namespace a3d {
 			command(context);
 		}
 	}
+
 }
 
 #endif //AVARA3D_APPLICATION_H

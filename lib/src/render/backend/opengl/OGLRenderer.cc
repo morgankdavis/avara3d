@@ -53,13 +53,13 @@
 #include "a3d/visual/material/Sampler.h"
 #include "a3d/visual/material/Texture.h"
 
-#define A3D_GL_CHECK()									\
-    do {												\
-        GLenum err;										\
-        while ((err = glGetError()) != GL_NO_ERROR) {	\
-            log::e()("GL error 0x{:X}", err);			\
-        }												\
-    } while (0);
+#define A3D_GL_CHECK()                                                                                         \
+	do {                                                                                                       \
+		GLenum err;                                                                                            \
+		while ((err = glGetError()) != GL_NO_ERROR) {                                                          \
+			log::e()("GL error 0x{:X}", err);                                                                  \
+		}                                                                                                      \
+	} while (0);
 
 using namespace a3d;
 using namespace a3d::math;
@@ -67,42 +67,42 @@ using namespace std;
 
 ///  Private Constants ///
 
-static constexpr std::size_t MAX_AMBIENT_LIGHTS     {16};
-static constexpr std::size_t MAX_DIRECTIONAL_LIGHTS	{16};
-static constexpr std::size_t MAX_POINT_LIGHTS       {128};
-static constexpr std::size_t MAX_SPOT_LIGHTS        {64};
+static constexpr std::size_t			   MAX_AMBIENT_LIGHTS {16};
+static constexpr std::size_t			   MAX_DIRECTIONAL_LIGHTS {16};
+static constexpr std::size_t			   MAX_POINT_LIGHTS {128};
+static constexpr std::size_t			   MAX_SPOT_LIGHTS {64};
 
 // static const std::string STATS_TITLE_FONT_NAME	{"SourceCodePro-Bold"};
 // static const std::string STATS_TITLE_FONT_TYPE	{"otf"};
 // static const float STATS_TITLE_FONT_SIZE			{23.0};
 
-static const std::string STATS_TITLE_FONT_NAME		{"Neuropol Nova Xp"};
-static const std::string STATS_TITLE_FONT_TYPE		{"ttf"};
-static const float STATS_TITLE_FONT_SIZE			{21.0};
+static const std::string				   STATS_TITLE_FONT_NAME {"Neuropol Nova Xp"};
+static const std::string				   STATS_TITLE_FONT_TYPE {"ttf"};
+static const float						   STATS_TITLE_FONT_SIZE {21.0};
 
-static const std::string STATS_BODY_FONT_NAME		{"SourceCodePro-Semibold"};
-static const std::string STATS_BODY_FONT_TYPE		{"otf"};
-static const float STATS_BODY_FONT_SIZE				{15.0};
+static const std::string				   STATS_BODY_FONT_NAME {"SourceCodePro-Semibold"};
+static const std::string				   STATS_BODY_FONT_TYPE {"otf"};
+static const float						   STATS_BODY_FONT_SIZE {15.0};
 
-static const std::string STATS_ALT_FONT_NAME		{"SourceCodePro-Regular"};
-static const std::string STATS_ALT_FONT_TYPE		{"otf"};
-static const float STATS_ALT_FONT_SIZE				{13.0};
+static const std::string				   STATS_ALT_FONT_NAME {"SourceCodePro-Regular"};
+static const std::string				   STATS_ALT_FONT_TYPE {"otf"};
+static const float						   STATS_ALT_FONT_SIZE {13.0};
 
-static const GLuint ENV_BINDING_POINT				{0};
+static const GLuint						   ENV_BINDING_POINT {0};
 
 // ring buffer size for GL timing queries
-static const unsigned DRAW_TIMER_BUFFER_SIZE		{4};
+static const unsigned					   DRAW_TIMER_BUFFER_SIZE {4};
 
 // duration of sample history to average over
-static constexpr std::chrono::milliseconds	FRAME_STATS_AVERAGING_DURATION		{250};
+static constexpr std::chrono::milliseconds FRAME_STATS_AVERAGING_DURATION {250};
 // how often to recompute the frame stats
-static constexpr std::chrono::milliseconds	FRAME_STATS_AVERAGE_UPDATE_INTERVAL	{100};
+static constexpr std::chrono::milliseconds FRAME_STATS_AVERAGE_UPDATE_INTERVAL {100};
 
 /// Private Types ///
 
 enum class MaterialContentsType : unsigned {
-	None = 0,
-	Color = 1,
+	None	= 0,
+	Color	= 1,
 	Sampler = 2
 };
 
@@ -118,7 +118,7 @@ static_assert(sizeof(AmbientLightGLSLStruct) == 16);
 struct DirectionalLightGLSLStruct {
 	vec4 color;
 	vec3 direction_world;
-	f32 _pad_0_;
+	f32	 _pad_0_;
 };
 
 static_assert(sizeof(DirectionalLightGLSLStruct) == 32);
@@ -126,59 +126,59 @@ static_assert(sizeof(DirectionalLightGLSLStruct) == 32);
 struct PointLightGLSLStruct {
 	vec4 color;
 	vec3 position_world;
-	f32 _pad_0_;
-	f32 constantAttenuation;
-	f32 linearAttenuation;
-	f32 quadraticAttenuation;
-	f32 _pad_1_;
+	f32	 _pad_0_;
+	f32	 constantAttenuation;
+	f32	 linearAttenuation;
+	f32	 quadraticAttenuation;
+	f32	 _pad_1_;
 };
 
 static_assert(sizeof(PointLightGLSLStruct) == 48);
 
 struct SpotLightGLSLStruct {
-	vec4 color;
-	vec3 position_world;
-	f32 _pad_0_;
-	vec3 direction_world;
-	f32 _pad_1_;
-	f32 innerAngleCos;
-	f32 outerAngleCos;
+	vec4	 color;
+	vec3	 position_world;
+	f32		 _pad_0_;
+	vec3	 direction_world;
+	f32		 _pad_1_;
+	f32		 innerAngleCos;
+	f32		 outerAngleCos;
 	uint32_t featheringMode;
-	f32 constantAttenuation;
-	f32 linearAttenuation;
-	f32 quadraticAttenuation;
-	f32 _pad_2_;
-	f32 _pad_3_;
+	f32		 constantAttenuation;
+	f32		 linearAttenuation;
+	f32		 quadraticAttenuation;
+	f32		 _pad_2_;
+	f32		 _pad_3_;
 };
 
 static_assert(sizeof(SpotLightGLSLStruct) == 80);
 
 struct FogGLSLStruct {
 	vec4 color;
-	f32 startDistance;
-	f32 endDistance;
-	f32 densityExponent;
-	f32 _pad_0_;
+	f32	 startDistance;
+	f32	 endDistance;
+	f32	 densityExponent;
+	f32	 _pad_0_;
 };
 
 static_assert(sizeof(FogGLSLStruct) == 32);
 
 struct EnvironmentBlock {
-	uint32_t useDefaultLighting;
-	uint32_t _pad0_[3];
-	uint32_t numAmbientLights;
-	uint32_t _pad1_[3];
-	AmbientLightGLSLStruct ambientLights[MAX_AMBIENT_LIGHTS];
-	uint32_t numDirectionalLights;
-	uint32_t _pad2_[3];
+	uint32_t				   useDefaultLighting;
+	uint32_t				   _pad0_[3];
+	uint32_t				   numAmbientLights;
+	uint32_t				   _pad1_[3];
+	AmbientLightGLSLStruct	   ambientLights[MAX_AMBIENT_LIGHTS];
+	uint32_t				   numDirectionalLights;
+	uint32_t				   _pad2_[3];
 	DirectionalLightGLSLStruct directionalLights[MAX_DIRECTIONAL_LIGHTS];
-	uint32_t numPointLights;
-	uint32_t _pad3_[3];
-	PointLightGLSLStruct pointLights[MAX_POINT_LIGHTS];
-	uint32_t numSpotLights;
-	uint32_t _pad4_[3];
-	SpotLightGLSLStruct spotLights[MAX_SPOT_LIGHTS];
-	FogGLSLStruct fog;
+	uint32_t				   numPointLights;
+	uint32_t				   _pad3_[3];
+	PointLightGLSLStruct	   pointLights[MAX_POINT_LIGHTS];
+	uint32_t				   numSpotLights;
+	uint32_t				   _pad4_[3];
+	SpotLightGLSLStruct		   spotLights[MAX_SPOT_LIGHTS];
+	FogGLSLStruct			   fog;
 };
 
 static_assert(offsetof(EnvironmentBlock, useDefaultLighting) == 0);
@@ -193,10 +193,10 @@ struct FBORestore {
 		glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &readFbo);
 	}
 
-	FBORestore(const FBORestore&) = delete;
+	FBORestore(const FBORestore&)			 = delete;
 	FBORestore& operator=(const FBORestore&) = delete;
 
-	FBORestore(FBORestore&&) = delete;
+	FBORestore(FBORestore&&)			= delete;
 	FBORestore& operator=(FBORestore&&) = delete;
 
 	~FBORestore() {
@@ -213,25 +213,25 @@ struct ImguiStatsTextLayout {
 
 /// Private Static Non-Member Prototypes ///
 
-static void LogGLInfo();
+static void	  LogGLInfo();
 
-static void SendMaterialUniforms(const Material& material,
-                                 GLSLProgram& program,
-                                 const std::array<GLuint, 4>& glTextureHandles,
-                                 OGLRenderer::GLStateCache& state);
+static void	  SendMaterialUniforms(const Material&				material,
+								   GLSLProgram&					program,
+								   const std::array<GLuint, 4>& glTextureHandles,
+								   OGLRenderer::GLStateCache&	state);
 
-static void SendMaterialPropertyUniforms(const Material::Property& property,
-                                         Material::PropertyType type,
-                                         GLuint glTextureHandle,
-                                         GLSLProgram& program,
-                                         OGLRenderer::GLStateCache& state);
+static void	  SendMaterialPropertyUniforms(const Material::Property&  property,
+										   Material::PropertyType	  type,
+										   GLuint					  glTextureHandle,
+										   GLSLProgram&				  program,
+										   OGLRenderer::GLStateCache& state);
 
-static void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
-                                    const Scene& scene,
-                                    const vector<Node*>& lightNodes,
-                                    FrameStats& stats);
+static void	  SendEnvironmentUniforms(GLuint			   glEnvironmentUBO,
+									  const Scene&		   scene,
+									  const vector<Node*>& lightNodes,
+									  FrameStats&		   stats);
 
-static void ApplyBlendFunction(Material::BlendFunction func);
+static void	  ApplyBlendFunction(Material::BlendFunction func);
 
 static GLenum GLDepthFuncFromDepthFunc(DepthFunc func);
 
@@ -239,117 +239,114 @@ static GLenum GLFilterModeForFilterMode(Sampler::FilterMode mode);
 
 static GLenum GLWrapModeForWrapMode(Sampler::WrapMode mode);
 
-static void DrawOverlay(const RenderContext& context,
-                        const Scene& scene,
-                        FrameStats& stats,
-                        const FrameStatsHistory& statsHistory,
-                        Scene::DebugOptions debugOptions,
-                        ImFont& titleFont,
-                        ImFont& bodyFont,
-                        ImFont& altBodyFont);
+static void	  DrawOverlay(const RenderContext&	   context,
+						  const Scene&			   scene,
+						  FrameStats&			   stats,
+						  const FrameStatsHistory& statsHistory,
+						  Scene::DebugOptions	   debugOptions,
+						  ImFont&				   titleFont,
+						  ImFont&				   bodyFont,
+						  ImFont&				   altBodyFont);
 
-static void DrawHeader(ImFont& titleFont,
-                       ImFont& bodyFont,
-                       bool active,
-                       float& yPos_out,
-                       int& id_out);
+static void	  DrawHeader(ImFont& titleFont, ImFont& bodyFont, bool active, float& yPos_out, int& id_out);
 
-static void DrawStats(FrameStats& stats,
-                      const FrameStatsHistory& statsHistory,
-                      const RenderContext& context,
-                      ImFont& bodyFont,
-                      ImFont& altBodyFont,
-                      float yPos,
-                      int id);
+static void	  DrawStats(FrameStats&				 stats,
+						const FrameStatsHistory& statsHistory,
+						const RenderContext&	 context,
+						ImFont&					 bodyFont,
+						ImFont&					 altBodyFont,
+						float					 yPos,
+						int						 id);
 
-static void DrawDebugOptions(Scene& scene,
-                             ImFont& bodyFont);
+static void	  DrawDebugOptions(Scene& scene, ImFont& bodyFont);
 
-static void ImguiInit(const RenderContext& context,
-                      ImFont*& titleFont,
-                      ImFont*& bodyFont,
-                      ImFont*& altFont);
+static void	  ImguiInit(const RenderContext& context, ImFont*& titleFont, ImFont*& bodyFont, ImFont*& altFont);
 
-static void ImguiUpdateScale(const RenderContext& context);
+static void	  ImguiUpdateScale(const RenderContext& context);
 
-static void ImguiAddFont(const RenderContext& context,
-                         const Font& font,
-                         ImFont*& imFont);
+static void	  ImguiAddFont(const RenderContext& context, const Font& font, ImFont*& imFont);
 
-static void ImguiBeginOverlay(int id, bool allowsInput);
+static void	  ImguiBeginOverlay(int id, bool allowsInput);
 
-static void ImguiEndOverlay();
+static void	  ImguiEndOverlay();
 
-static void ImguiDrawText(float x,
-                          float y,
-                          const char* text,
-                          ImFont& font,
-                          float size,
-                          ImU32 color,
-                          bool shadow);
+static void	  ImguiDrawText(float		x,
+							float		y,
+							const char* text,
+							ImFont&		font,
+							float		size,
+							ImU32		color,
+							bool		shadow);
 
-static void ImguiDrawPlot(float x, float y, float w, float h,
-                          const float* values,
-                          int valuesCount,
-                          int valuesOffset,
-                          const char* overlayText,
-                          ImFont* overlayFont,
-                          float overlayFontSize,
-                          float scaleMin,
-                          float scaleMax,
-                          int stride,
-                          bool outlined,
-                          int id,
-                          bool disabled);
+static void	  ImguiDrawPlot(float		 x,
+							float		 y,
+							float		 w,
+							float		 h,
+							const float* values,
+							int			 valuesCount,
+							int			 valuesOffset,
+							const char*	 overlayText,
+							ImFont*		 overlayFont,
+							float		 overlayFontSize,
+							float		 scaleMin,
+							float		 scaleMax,
+							int			 stride,
+							bool		 outlined,
+							int			 id,
+							bool		 disabled);
 
-static bool ImguiDrawCheckbox(float x,
-                              float y,
-                              const char* text,
-                              bool& checked,
-                              ImFont& font,
-                              float size,
-                              bool disabled,
-                              int id);
+static bool	  ImguiDrawCheckbox(float		x,
+								float		y,
+								const char* text,
+								bool&		checked,
+								ImFont&		font,
+								float		size,
+								bool		disabled,
+								int			id);
 
-static void ImguiDrawLabelValue(float& y,
-                                const ImguiStatsTextLayout& layout,
-                                const char* label,
-                                const std::string& value,
-                                ImFont& font,
-                                float fontSize,
-                                float lineStep,
-                                ImU32 color = IM_COL32(255, 255, 255, 255));
+static void	  ImguiDrawLabelValue(float&					  y,
+								  const ImguiStatsTextLayout& layout,
+								  const char*				  label,
+								  const std::string&		  value,
+								  ImFont&					  font,
+								  float						  fontSize,
+								  float						  lineStep,
+								  ImU32						  color = IM_COL32(255, 255, 255, 255));
 
-static void ImguiDrawLabelValueIndented(float& y,
-                                        const ImguiStatsTextLayout& layout,
-                                        const char* label,
-                                        const std::string& value,
-                                        ImFont& font,
-                                        float fontSize,
-                                        float indentPx,
-                                        float lineStep,
-                                        ImU32 color = IM_COL32(255, 255, 255, 255));
+static void	  ImguiDrawLabelValueIndented(float&					  y,
+										  const ImguiStatsTextLayout& layout,
+										  const char*				  label,
+										  const std::string&		  value,
+										  ImFont&					  font,
+										  float						  fontSize,
+										  float						  indentPx,
+										  float						  lineStep,
+										  ImU32						  color = IM_COL32(255, 255, 255, 255));
 
-static void ImguiDrawPlot(float x, float& y, float w, float h,
-                          const float* values,
-                          int valuesCount,
-                          int valuesOffset,
-                          const char* overlayText,
-                          ImFont* overlayFont,
-                          float overlayFontSize,
-                          float scaleMin,
-                          float scaleMax,
-                          int stride,
-                          bool outlined,
-                          int id,
-                          float lineStep,
-                          bool disabled);
+static void	  ImguiDrawPlot(float		 x,
+							float&		 y,
+							float		 w,
+							float		 h,
+							const float* values,
+							int			 valuesCount,
+							int			 valuesOffset,
+							const char*	 overlayText,
+							ImFont*		 overlayFont,
+							float		 overlayFontSize,
+							float		 scaleMin,
+							float		 scaleMax,
+							int			 stride,
+							bool		 outlined,
+							int			 id,
+							float		 lineStep,
+							bool		 disabled);
 
 /// Private Static Members ///
 
-bool OGLRenderer::InitGL(GLGetProcAddress getProcAddress) {
+bool		  OGLRenderer::InitGL(GLGetProcAddress getProcAddress) {
 	static bool initialized = false;
-	if (initialized) return true;
+	if (initialized)
+		return true;
 
 #ifdef A3D_GL_DESKTOP
 	if (!getProcAddress) {
@@ -367,7 +364,7 @@ bool OGLRenderer::InitGL(GLGetProcAddress getProcAddress) {
 #elif A3D_GL_WEB
 	(void) getProcAddress; // shut up!
 #else
-#error "No OpenGL function loader defined for this platform."
+	#error "No OpenGL function loader defined for this platform."
 #endif
 
 	initialized = true;
@@ -379,19 +376,19 @@ bool OGLRenderer::InitGL(GLGetProcAddress getProcAddress) {
 
 /// Internal Lifecycle Functions ///
 
-OGLRenderer::OGLRenderer() : Renderer{},
-                             _isInitialized{false},
-                             _resourceCache{},
-                             _skyboxMesh{},
-                             _glEnvironmentUBO{0},
-                             _overlayTitleImFont{nullptr},
-                             _overlayBodyImFont{nullptr},
-                             _overlayAltImFont{nullptr},
-                             _drawTimer{DRAW_TIMER_BUFFER_SIZE} {
-}
+OGLRenderer::OGLRenderer():
+	Renderer {},
+	_isInitialized {false},
+	_resourceCache {},
+	_skyboxMesh {},
+	_glEnvironmentUBO {0},
+	_overlayTitleImFont {nullptr},
+	_overlayBodyImFont {nullptr},
+	_overlayAltImFont {nullptr},
+	_drawTimer {DRAW_TIMER_BUFFER_SIZE} {}
 
 OGLRenderer::~OGLRenderer() {
-	log::d()("Destroying OpenGLRenderer {:p}", static_cast<void *>(this));
+	log::d()("Destroying OpenGLRenderer {:p}", static_cast<void*>(this));
 
 	glDeleteBuffers(1, &_glEnvironmentUBO);
 
@@ -407,14 +404,14 @@ OGLRenderer::~OGLRenderer() {
 bool OGLRenderer::initialize(const RenderContext& context) {
 	log::i();
 
-	_defaultProgram = make_unique<GLSLProgram>("default");
-	_skyboxProgram = make_unique<GLSLProgram>("skybox");
+	_defaultProgram	  = make_unique<GLSLProgram>("default");
+	_skyboxProgram	  = make_unique<GLSLProgram>("skybox");
 	_wireframeProgram = make_unique<GLSLProgram>("wireframe");
-	_linesProgram = make_unique<GLSLProgram>("lines");
+	_linesProgram	  = make_unique<GLSLProgram>("lines");
 
 	GLint maxSize = 0;
 	glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &maxSize);
-	A3D_ASSERT(sizeof(EnvironmentBlock) <= (size_t)maxSize);
+	A3D_ASSERT(sizeof(EnvironmentBlock) <= (size_t) maxSize);
 
 	glGenBuffers(1, &_glEnvironmentUBO);
 	glBindBuffer(GL_UNIFORM_BUFFER, _glEnvironmentUBO);
@@ -427,7 +424,8 @@ bool OGLRenderer::initialize(const RenderContext& context) {
 	// TODO: do something better
 	auto bindBlock = [&](GLuint program, const char* blockName) {
 		GLuint idx = glGetUniformBlockIndex(program, blockName);
-		if (idx == GL_INVALID_INDEX) return; // program doesn't have the block
+		if (idx == GL_INVALID_INDEX)
+			return; // program doesn't have the block
 		glUniformBlockBinding(program, idx, ENV_BINDING_POINT);
 	};
 	bindBlock(_defaultProgram->glID(), "EnvironmentBlock");
@@ -447,11 +445,11 @@ bool OGLRenderer::isInitialized() const {
 	return _isInitialized;
 }
 
-void OGLRenderer::beginFrame(const Scene& scene,
-                             const RenderContext& context,
-                             const Scene::DebugOptions& debugOptions,
-                             FrameStats& stats,
-                             Profiler& profiler) {
+void OGLRenderer::beginFrame(const Scene&				scene,
+							 const RenderContext&		context,
+							 const Scene::DebugOptions& debugOptions,
+							 FrameStats&				stats,
+							 Profiler&					profiler) {
 	if (_drawTimer.isAvailable()) {
 		stats.isRenderGpuTimeAvailable = true;
 		_drawTimer.begin();
@@ -460,10 +458,10 @@ void OGLRenderer::beginFrame(const Scene& scene,
 		stats.isRenderGpuTimeAvailable = false;
 	}
 
-	_state = {};
+	_state			  = {};
 	_state.pipelineId = INVALID_PIPELINE_ID;
-	_state.program = 0;
-	_state.material = nullptr;
+	_state.program	  = 0;
+	_state.material	  = nullptr;
 
 	_boundElement = {};
 
@@ -472,14 +470,14 @@ void OGLRenderer::beginFrame(const Scene& scene,
 	ImGui::NewFrame();
 }
 
-void OGLRenderer::endFrame(const Scene& scene,
-                           const RenderContext& context,
-                           const Scene::DebugOptions& debugOptions,
-                           FrameStats& stats,
-                           Profiler& profiler,
-                           const FrameStatsHistory& statsHistory) {
-	DrawOverlay(context, scene, stats, statsHistory, debugOptions,
-	            *_overlayTitleImFont, *_overlayBodyImFont, *_overlayAltImFont);
+void OGLRenderer::endFrame(const Scene&				  scene,
+						   const RenderContext&		  context,
+						   const Scene::DebugOptions& debugOptions,
+						   FrameStats&				  stats,
+						   Profiler&				  profiler,
+						   const FrameStatsHistory&	  statsHistory) {
+	DrawOverlay(context, scene, stats, statsHistory, debugOptions, *_overlayTitleImFont, *_overlayBodyImFont,
+				*_overlayAltImFont);
 
 	A3D_GL_CHECK();
 
@@ -488,40 +486,39 @@ void OGLRenderer::endFrame(const Scene& scene,
 	}
 }
 
-void OGLRenderer::preTraversal(const Scene& scene,
-                               const RenderContext& context,
-                               const Scene::DebugOptions& debugOptions,
-                               FrameStats& stats) {}
+void OGLRenderer::preTraversal(const Scene&				  scene,
+							   const RenderContext&		  context,
+							   const Scene::DebugOptions& debugOptions,
+							   FrameStats&				  stats) {}
 
-void OGLRenderer::postTraversal(const Scene& scene,
-                                const RenderContext& context,
-                                const vector<Node*>& lightNodes,
-                                const Scene::DebugOptions& debugOptions,
-                                FrameStats& stats) {
+void OGLRenderer::postTraversal(const Scene&			   scene,
+								const RenderContext&	   context,
+								const vector<Node*>&	   lightNodes,
+								const Scene::DebugOptions& debugOptions,
+								FrameStats&				   stats) {
 	SendEnvironmentUniforms(_glEnvironmentUBO, scene, lightNodes, stats);
 }
 
-void OGLRenderer::clear(const ClearCommand& cmd,
-                        const RenderContext& context) {
+void OGLRenderer::clear(const ClearCommand& cmd, const RenderContext& context) {
 	// target-specific clear:
 	// if (cmd.bindFramebuffer) glBindFramebuffer(GL_FRAMEBUFFER, cmd.framebuffer);
 
 	FBORestore restore;
 
-	auto fb = context.defaultFramebuffer();
-	auto fbSize = context.framebufferSize();
+	auto	   fb	  = context.defaultFramebuffer();
+	auto	   fbSize = context.framebufferSize();
 	glBindFramebuffer(GL_FRAMEBUFFER, fb);
 	glViewport(0, 0, (GLsizei) fbSize.x, (GLsizei) fbSize.y);
 
 	// save state we might stomp
 	GLboolean prevScissorEnabled = GL_FALSE;
-	GLint prevScissorBox[4] = {0, 0, 0, 0};
+	GLint	  prevScissorBox[4]	 = {0, 0, 0, 0};
 	glGetBooleanv(GL_SCISSOR_TEST, &prevScissorEnabled);
 	glGetIntegerv(GL_SCISSOR_BOX, prevScissorBox);
 
 	GLboolean prevColorMask[4] = {GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE};
-	GLboolean prevDepthMask = GL_TRUE;
-	GLint prevStencilMask = ~0;
+	GLboolean prevDepthMask	   = GL_TRUE;
+	GLint	  prevStencilMask  = ~0;
 	glGetBooleanv(GL_COLOR_WRITEMASK, prevColorMask);
 	glGetBooleanv(GL_DEPTH_WRITEMASK, &prevDepthMask);
 	glGetIntegerv(GL_STENCIL_WRITEMASK, &prevStencilMask);
@@ -529,8 +526,7 @@ void OGLRenderer::clear(const ClearCommand& cmd,
 	// apply scissor
 	if (cmd.useScissor) {
 		glEnable(GL_SCISSOR_TEST);
-		glScissor(cmd.scissorRect.x, cmd.scissorRect.y,
-		          cmd.scissorRect.w, cmd.scissorRect.h);
+		glScissor(cmd.scissorRect.x, cmd.scissorRect.y, cmd.scissorRect.w, cmd.scissorRect.h);
 	}
 	else if (prevScissorEnabled) {
 		// leave as-is
@@ -597,30 +593,29 @@ void OGLRenderer::renderPacket(DrawPacket& packet, const FrameParams& frame) {
 }
 
 unique_ptr<Image> OGLRenderer::snapshot(const RenderContext& context) const {
-	auto framebufferSize = context.framebufferSize();
-	auto framebufferWidth = (unsigned) round(framebufferSize.x);
-	auto framebufferHeight = (unsigned) round(framebufferSize.y);
+	auto				  framebufferSize	= context.framebufferSize();
+	auto				  framebufferWidth	= (unsigned) round(framebufferSize.x);
+	auto				  framebufferHeight = (unsigned) round(framebufferSize.y);
 
 	vector<unsigned char> pixelBuf(framebufferWidth * framebufferHeight * 4);
 	// TODO: SEGV under Plasma Wayland
 	// info/solution? https://projects.blender.org/blender/blender/issues/98462#issuecomment-127388
-	glReadPixels(0, 0,
-	             (GLsizei) framebufferWidth, (GLsizei) framebufferHeight,
-	             GL_RGBA, GL_UNSIGNED_BYTE, pixelBuf.data());
-	auto buffer = make_unique<Buffer>((std::byte *) pixelBuf.data(),
-	                                  framebufferWidth * framebufferHeight * 4);
+	glReadPixels(0, 0, (GLsizei) framebufferWidth, (GLsizei) framebufferHeight, GL_RGBA, GL_UNSIGNED_BYTE,
+				 pixelBuf.data());
+	auto buffer = make_unique<Buffer>((std::byte*) pixelBuf.data(), framebufferWidth * framebufferHeight * 4);
 	return make_unique<Image>(std::move(buffer), framebufferWidth, framebufferHeight, 4);
 }
 
 /// Renderer Protected Member Functions ///
 
 void OGLRenderer::drawBackground(const BackgroundPass& backgroundPass,
-                                 const math::mat4& view,
-                                 const math::mat4& proj) {
-	if (!backgroundPass.material) return;
+								 const math::mat4&	   view,
+								 const math::mat4&	   proj) {
+	if (!backgroundPass.material)
+		return;
 
 	auto bgEmission = backgroundPass.material->emission();
-	if (auto color = std::get_if<std::shared_ptr<Color> >(&bgEmission)) {
+	if (auto color = std::get_if<std::shared_ptr<Color>>(&bgEmission)) {
 		if (*color) {
 			auto rgba = (*color)->rgba();
 			glClearColor(rgba.r, rgba.g, rgba.b, rgba.a);
@@ -647,18 +642,18 @@ void OGLRenderer::drawBackground(const BackgroundPass& backgroundPass,
 	drawElements();
 }
 
-void OGLRenderer::bindPipeline(PipelineId pipelineId,
-                               const OGLResourceCache& cache) {
+void OGLRenderer::bindPipeline(PipelineId pipelineId, const OGLResourceCache& cache) {
 	if (_state.pipelineId == pipelineId) {
 		GLint cur = 0;
 		glGetIntegerv(GL_CURRENT_PROGRAM, &cur);
-		if ((GLuint) cur == _state.program) return; // truly already bound
+		if ((GLuint) cur == _state.program)
+			return; // truly already bound
 		// else: stale cache, fallthrough and rebind
 	}
 
-	const OGLPipeline &pipeline = cache.pipeline(pipelineId);
+	const OGLPipeline& pipeline = cache.pipeline(pipelineId);
 	glUseProgram(pipeline.program);
-	_state.program = pipeline.program;
+	_state.program	= pipeline.program;
 	_state.material = nullptr;
 
 	if (pipeline.desc.doubleSided) {
@@ -682,15 +677,18 @@ void OGLRenderer::bindPipeline(PipelineId pipelineId,
 
 #ifdef A3D_GL_DESKTOP
 	switch (pipeline.desc.fillMode) {
-		case Material::FillMode::Fill: glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		case Material::FillMode::Fill:
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			break;
-		case Material::FillMode::Lines: glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		case Material::FillMode::Lines:
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			break;
-		case Material::FillMode::Points: glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+		case Material::FillMode::Points:
+			glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 			break;
 	}
-	const bool lineSmooth = (pipeline.desc.passKind == PassKind::Lines)
-	                        || (pipeline.desc.passKind == PassKind::Wireframe);
+	const bool lineSmooth =
+		(pipeline.desc.passKind == PassKind::Lines) || (pipeline.desc.passKind == PassKind::Wireframe);
 	if (lineSmooth) {
 		glEnable(GL_LINE_SMOOTH);
 		glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
@@ -714,15 +712,15 @@ void OGLRenderer::bindPipeline(PipelineId pipelineId,
 void OGLRenderer::bindMaterial(const Material& material) {
 	//if (_state.material == &material) return;
 	if (_state.material == &material) {
-		_resourceCache.ensureMaterial(const_cast<Material &>(material)); // will apply sampler dirties
+		_resourceCache.ensureMaterial(const_cast<Material&>(material)); // will apply sampler dirties
 		return;
 	}
 
 	// look at the currently bound pipeline
-	const OGLPipeline &pipeline = _resourceCache.pipeline(_state.pipelineId);
+	const OGLPipeline& pipeline = _resourceCache.pipeline(_state.pipelineId);
 
 	// TODO: !!! THIS IS A DIRTY HACK !!!
-	GLSLProgram *program;
+	GLSLProgram*	   program;
 	switch (pipeline.desc.shaderKind) {
 		case ShaderKind::Default:
 			program = _defaultProgram.get();
@@ -736,7 +734,7 @@ void OGLRenderer::bindMaterial(const Material& material) {
 	}
 
 	// resolve material once (uploads textures  applies sampler states via cache)
-	const auto &mr = _resourceCache.ensureMaterial(const_cast<Material &>(material));
+	const auto&			  mr			   = _resourceCache.ensureMaterial(const_cast<Material&>(material));
 	std::array<GLuint, 4> glTextureHandles = {
 		(GLuint) mr.tex[0],
 		(GLuint) mr.tex[1],
@@ -756,25 +754,26 @@ void OGLRenderer::bindMaterial(const Material& material) {
 }
 
 void OGLRenderer::bindMeshElement(const MeshElement& element) {
-	const OGLPipeline &pipe = _resourceCache.pipeline(_state.pipelineId);
+	const OGLPipeline& pipe = _resourceCache.pipeline(_state.pipelineId);
 
 	const VertexLayout elemLayout = element.vertexLayout();
 	const VertexLayout pipeLayout = pipe.desc.vertexLayoutKey;
 
 	// TODO: change?
 	if (A3D_UNLIKELY(elemLayout != pipeLayout)) {
-		log::e()("VertexLayout mismatch: element={}, pipeline={}", (uint32_t) elemLayout, (uint32_t) pipeLayout);
+		log::e()("VertexLayout mismatch: element={}, pipeline={}", (uint32_t) elemLayout,
+				 (uint32_t) pipeLayout);
 		return; // skip draw
 	}
 
-	auto *e = const_cast<MeshElement *>(&element);
-	const auto &res = _resourceCache.ensureMeshElement(*e);
+	auto*		e	= const_cast<MeshElement*>(&element);
+	const auto& res = _resourceCache.ensureMeshElement(*e);
 
 	glBindVertexArray((GLuint) res.vao);
 
-	_boundElement.vao = (GLuint) res.vao;
-	_boundElement.indexCount = (GLsizei) res.indexCount;
-	_boundElement.indexType = (GLenum) res.indexType; // <-- USE CACHED TYPE
+	_boundElement.vao		  = (GLuint) res.vao;
+	_boundElement.indexCount  = (GLsizei) res.indexCount;
+	_boundElement.indexType	  = (GLenum) res.indexType; // <-- USE CACHED TYPE
 	_boundElement.vertexCount = (GLsizei) res.vertexCount; // <-- for drawArrays fallback
 }
 
@@ -783,27 +782,29 @@ void OGLRenderer::applyMVP(const mat4& model, const mat4& view, const mat4& proj
 	// Later: cache these per Program.
 	GLint program = 0;
 	glGetIntegerv(GL_CURRENT_PROGRAM, &program);
-	if (!program) return;
+	if (!program)
+		return;
 
 	GLint locM = glGetUniformLocation(program, "modelMat");
 	GLint locV = glGetUniformLocation(program, "viewMat");
 	GLint locP = glGetUniformLocation(program, "projMat");
 
-	if (locM >= 0) glUniformMatrix4fv(locM, 1, GL_FALSE, value_ptr(model));
-	if (locV >= 0) glUniformMatrix4fv(locV, 1, GL_FALSE, value_ptr(view));
-	if (locP >= 0) glUniformMatrix4fv(locP, 1, GL_FALSE, value_ptr(proj));
+	if (locM >= 0)
+		glUniformMatrix4fv(locM, 1, GL_FALSE, value_ptr(model));
+	if (locV >= 0)
+		glUniformMatrix4fv(locV, 1, GL_FALSE, value_ptr(view));
+	if (locP >= 0)
+		glUniformMatrix4fv(locP, 1, GL_FALSE, value_ptr(proj));
 }
 
 void OGLRenderer::drawElements() {
-	if (_boundElement.vao == 0) return;
+	if (_boundElement.vao == 0)
+		return;
 
 	glBindVertexArray(_boundElement.vao);
 
 	if (_boundElement.indexCount > 0) {
-		glDrawElements(GL_TRIANGLES,
-		               _boundElement.indexCount,
-		               _boundElement.indexType,
-		               (void *) 0);
+		glDrawElements(GL_TRIANGLES, _boundElement.indexCount, _boundElement.indexType, (void*) 0);
 	}
 	else if (_boundElement.vertexCount > 0) {
 		// non-indexed fallback
@@ -826,17 +827,19 @@ void OGLRenderer::draw(const DrawCommand& cmd) {
 
 GLSLProgram& OGLRenderer::programForShaderKind(ShaderKind kind) const {
 	switch (kind) {
-		case ShaderKind::Default: return *_defaultProgram;
-		case ShaderKind::Skybox: return *_skyboxProgram;
-		case ShaderKind::Wireframe: return *_wireframeProgram;
-		case ShaderKind::Lines: return *_linesProgram;
+		case ShaderKind::Default:
+			return *_defaultProgram;
+		case ShaderKind::Skybox:
+			return *_skyboxProgram;
+		case ShaderKind::Wireframe:
+			return *_wireframeProgram;
+		case ShaderKind::Lines:
+			return *_linesProgram;
 	}
 	throw runtime_error(std::format("Unsupported shader kind: {}", (uint32_t) kind));
 }
 
-void OGLRenderer::drawDebugLines(const math::mat4& model,
-                                 const math::mat4& view,
-                                 const math::mat4& proj) {
+void OGLRenderer::drawDebugLines(const math::mat4& model, const math::mat4& view, const math::mat4& proj) {
 	// helper for debug line geometry which uses a separate VAO/VBO (_debugLines)
 	// and doesn't follow the normal mesh binding pipeline.
 	applyMVP(model, view, proj);
@@ -846,12 +849,14 @@ void OGLRenderer::drawDebugLines(const math::mat4& model,
 	glBindVertexArray(0);
 }
 
-void OGLRenderer::renderLinesPass(const LinesPass& pass,
-                                  const RenderContext& context,
-                                  const mat4& view,
-                                  const mat4& proj) {
-	if (pass.pipelineId == INVALID_PIPELINE_ID) return;
-	if (pass.lines.empty()) return;
+void OGLRenderer::renderLinesPass(const LinesPass&	   pass,
+								  const RenderContext& context,
+								  const mat4&		   view,
+								  const mat4&		   proj) {
+	if (pass.pipelineId == INVALID_PIPELINE_ID)
+		return;
+	if (pass.lines.empty())
+		return;
 
 	// debug lines follow a different path:
 	// - they upload on-the-fly (not baked into a MeshElement)
@@ -869,11 +874,10 @@ void OGLRenderer::renderLinesPass(const LinesPass& pass,
 void OGLRenderer::resolvePacket(DrawPacket& packet, const FrameParams& frame) {
 	// "resolve / prepare / compile / bake"
 
-	auto resolvePipeline = [&](PipelineId& pipelineId,
-	                           const PipelineDesc &desc) -> PipelineId {
+	auto resolvePipeline = [&](PipelineId& pipelineId, const PipelineDesc& desc) -> PipelineId {
 		if (pipelineId == INVALID_PIPELINE_ID) {
-			auto &program = programForShaderKind(desc.shaderKind);
-			pipelineId = _resourceCache.ensurePipeline(desc, program.glID());
+			auto& program = programForShaderKind(desc.shaderKind);
+			pipelineId	  = _resourceCache.ensurePipeline(desc, program.glID());
 		}
 
 		return pipelineId;
@@ -885,10 +889,10 @@ void OGLRenderer::resolvePacket(DrawPacket& packet, const FrameParams& frame) {
 	}
 
 	// main + wireframe items
-	for (auto &di: packet.mainPassItems) {
+	for (auto& di : packet.mainPassItems) {
 		resolvePipeline(di.pipelineId, di.desc);
 	}
-	for (auto &di: packet.wireframePassItems) {
+	for (auto& di : packet.wireframePassItems) {
 		resolvePipeline(di.pipelineId, di.desc);
 	}
 
@@ -904,7 +908,7 @@ void OGLRenderer::resolvePacket(DrawPacket& packet, const FrameParams& frame) {
 void OGLRenderer::drawPacket(const DrawPacket& packet, const FrameParams& frame) {
 	// "render / execute / submit / draw"
 
-	clear(Renderer::ClearCommand{}, frame.context);
+	clear(Renderer::ClearCommand {}, frame.context);
 
 	if (packet.backgroundPass.material) {
 		// uses _skyboxMesh internally, binds + draws
@@ -912,23 +916,28 @@ void OGLRenderer::drawPacket(const DrawPacket& packet, const FrameParams& frame)
 	}
 
 	// NOTE: items are already sorted by pass + desc hash, so this will batch nicely
-	for (const auto &di: packet.mainPassItems) {
-		if (di.pipelineId == INVALID_PIPELINE_ID) continue;
-		if (!di.element) continue;
+	for (const auto& di : packet.mainPassItems) {
+		if (di.pipelineId == INVALID_PIPELINE_ID)
+			continue;
+		if (!di.element)
+			continue;
 
 		bindPipeline(di.pipelineId, _resourceCache);
 
 		// only bind material for shaderKinds that use it (bindMaterial() already early-outs)
-		if (di.material) bindMaterial(*di.material);
+		if (di.material)
+			bindMaterial(*di.material);
 
 		bindMeshElement(*di.element);
 		applyMVP(di.model, frame.view, frame.proj);
 		drawElements();
 	}
 
-	for (const auto &di: packet.wireframePassItems) {
-		if (di.pipelineId == INVALID_PIPELINE_ID) continue;
-		if (!di.element) continue;
+	for (const auto& di : packet.wireframePassItems) {
+		if (di.pipelineId == INVALID_PIPELINE_ID)
+			continue;
+		if (!di.element)
+			continue;
 
 		bindPipeline(di.pipelineId, _resourceCache);
 		// no bindMaterial (wire shader typically ignores it)
@@ -943,19 +952,19 @@ void OGLRenderer::drawPacket(const DrawPacket& packet, const FrameParams& frame)
 /// Private Static Non-Member Functions ///
 
 void LogGLInfo() {
-	const GLubyte *vendor = glGetString(GL_VENDOR);
-	const GLubyte *renderer = glGetString(GL_RENDERER);
-	const GLubyte *version = glGetString(GL_VERSION);
+	const GLubyte* vendor	= glGetString(GL_VENDOR);
+	const GLubyte* renderer = glGetString(GL_RENDERER);
+	const GLubyte* version	= glGetString(GL_VERSION);
 
-	log::i()("GL_VENDOR: {}", reinterpret_cast<const char *>(vendor));
-	log::i()("GL_RENDERER: {}", reinterpret_cast<const char *>(renderer));
-	log::i()("GL_VERSION: {}", reinterpret_cast<const char *>(version));
+	log::i()("GL_VENDOR: {}", reinterpret_cast<const char*>(vendor));
+	log::i()("GL_RENDERER: {}", reinterpret_cast<const char*>(renderer));
+	log::i()("GL_VERSION: {}", reinterpret_cast<const char*>(version));
 }
 
-void SendMaterialUniforms(const Material& material,
-                          GLSLProgram& program,
-                          const std::array<GLuint, 4>& glTextureHandles,
-                          OGLRenderer::GLStateCache& state) {
+void SendMaterialUniforms(const Material&			   material,
+						  GLSLProgram&				   program,
+						  const std::array<GLuint, 4>& glTextureHandles,
+						  OGLRenderer::GLStateCache&   state) {
 	// sends uniforms for the Material, and MaterialProperties it has
 
 	program.setUniform("specularExponent", material.specularExponent());
@@ -964,139 +973,142 @@ void SendMaterialUniforms(const Material& material,
 	program.setUniform("emissionContentsType", (unsigned) 0); // 0 = MaterialType_None -- why is this here?
 	//program.setUniform("defaultLighting", 0);
 
-	for (auto &[property, type]: material.properties()) {
+	for (auto& [property, type] : material.properties()) {
 		if (!holds_alternative<monostate>(*property)) {
-			const int slot = static_cast<underlying_type<Material::PropertyType>::type>(type);
+			const int	 slot = static_cast<underlying_type<Material::PropertyType>::type>(type);
 
 			const GLuint h = (slot >= 0) ? glTextureHandles[(size_t) slot] : 0u;
 
-			SendMaterialPropertyUniforms(*property,
-			                             type,
-			                             h,
-			                             program,
-			                             state);
+			SendMaterialPropertyUniforms(*property, type, h, program, state);
 		}
 	}
 }
 
-void SendMaterialPropertyUniforms(const Material::Property& property,
-                                  Material::PropertyType type,
-                                  GLuint glTextureHandle,
-                                  GLSLProgram& program,
-                                  OGLRenderer::GLStateCache& state) {
-	std::visit([&type, &program, &glTextureHandle](auto&& property) -> void {
-		using T = std::decay_t<decltype(property)>;
+void SendMaterialPropertyUniforms(const Material::Property&	 property,
+								  Material::PropertyType	 type,
+								  GLuint					 glTextureHandle,
+								  GLSLProgram&				 program,
+								  OGLRenderer::GLStateCache& state) {
+	std::visit(
+		[&type, &program, &glTextureHandle](auto&& property) -> void {
+			using T = std::decay_t<decltype(property)>;
 
-		if constexpr (std::is_same_v<T, shared_ptr<Texture> >) {
-			std::visit([&type, &glTextureHandle, &program](auto&& contents) -> void {
-				using T = std::decay_t<decltype(contents)>;
+			if constexpr (std::is_same_v<T, shared_ptr<Texture>>) {
+				std::visit(
+					[&type, &glTextureHandle, &program](auto&& contents) -> void {
+						using T = std::decay_t<decltype(contents)>;
 
-				if constexpr (std::is_same_v<T, shared_ptr<Image> >) {
-					string modeUniformName;
-					string samplerUniformName;
-					GLenum slot;
-					GLint index;
+						if constexpr (std::is_same_v<T, shared_ptr<Image>>) {
+							string modeUniformName;
+							string samplerUniformName;
+							GLenum slot;
+							GLint  index;
 
-					switch (type) {
-						case Material::PropertyType::Ambient:
-							modeUniformName = "ambientContentsType";
+							switch (type) {
+								case Material::PropertyType::Ambient:
+									modeUniformName = "ambientContentsType";
 							//samplerUniformName = "samplers.ambient";
-							samplerUniformName = "ambientSampler";
-							slot = GL_TEXTURE0;
-							index = 0;
-							break;
-						case Material::PropertyType::Diffuse:
-							modeUniformName = "diffuseContentsType";
+									samplerUniformName = "ambientSampler";
+									slot			   = GL_TEXTURE0;
+									index			   = 0;
+									break;
+								case Material::PropertyType::Diffuse:
+									modeUniformName = "diffuseContentsType";
 							//samplerUniformName = "samplers.diffuse";
-							samplerUniformName = "diffuseSampler";
-							slot = GL_TEXTURE1;
-							index = 1;
-							break;
-						case Material::PropertyType::Specular:
-							modeUniformName = "specularContentsType";
+									samplerUniformName = "diffuseSampler";
+									slot			   = GL_TEXTURE1;
+									index			   = 1;
+									break;
+								case Material::PropertyType::Specular:
+									modeUniformName = "specularContentsType";
 							//samplerUniformName = "samplers.specular";
-							samplerUniformName = "specularSampler";
-							slot = GL_TEXTURE2;
-							index = 2;
-							break;
-						case Material::PropertyType::Emission:
-							modeUniformName = "emissionContentsType";
+									samplerUniformName = "specularSampler";
+									slot			   = GL_TEXTURE2;
+									index			   = 2;
+									break;
+								case Material::PropertyType::Emission:
+									modeUniformName = "emissionContentsType";
 							//samplerUniformName = "samplers.emission";
-							samplerUniformName = "emissionSampler";
-							slot = GL_TEXTURE3;
-							index = 3;
-							break;
-						default:
-							log::e()("Invalid MaterialPropertyType: {}",
-							         magic_enum::enum_name<Material::PropertyType>(type));
-							return;
-					}
+									samplerUniformName = "emissionSampler";
+									slot			   = GL_TEXTURE3;
+									index			   = 3;
+									break;
+								default:
+									log::e()("Invalid MaterialPropertyType: {}",
+											 magic_enum::enum_name<Material::PropertyType>(type));
+									return;
+							}
 
-					program.setUniform(modeUniformName.c_str(),
-					                   static_cast<underlying_type<MaterialContentsType>::type>(
-						                   MaterialContentsType::Sampler));
-					program.bindTexture(samplerUniformName.c_str(), GL_TEXTURE_2D, slot, glTextureHandle, index);
-				}
-				else if constexpr (std::is_same_v<T, shared_ptr<CubeImage> >) {
-					program.bindTexture("cubeSampler", GL_TEXTURE_CUBE_MAP, GL_TEXTURE0, glTextureHandle, 0);
-				}
-				else if constexpr (std::is_same_v<T, std::monostate>) {
-					log::e()("Empty texture variant.");
-				}
-			}, property->contents());
-		}
-		else if constexpr (std::is_same_v<T, shared_ptr<Color> >) {
-			string modeUniformName;
-			string colorUniformName;
-
-			switch (type) {
-				case Material::PropertyType::Ambient:
-					modeUniformName = "ambientContentsType";
-					colorUniformName = "colors.ambient";
-					break;
-				case Material::PropertyType::Diffuse:
-					modeUniformName = "diffuseContentsType";
-					colorUniformName = "colors.diffuse";
-					break;
-				case Material::PropertyType::Specular:
-					modeUniformName = "specularContentsType";
-					colorUniformName = "colors.specular";
-					break;
-				case Material::PropertyType::Emission:
-					modeUniformName = "emissionContentsType";
-					colorUniformName = "colors.emission";
-					break;
-				default:
-					log::e()("Invalid MaterialPropertyType: {}",
-					         magic_enum::enum_name<Material::PropertyType>(type));
-					return;
+							program.setUniform(modeUniformName.c_str(),
+											   static_cast<underlying_type<
+												   MaterialContentsType>::type>(MaterialContentsType::Sampler));
+							program.bindTexture(samplerUniformName.c_str(), GL_TEXTURE_2D, slot,
+												glTextureHandle, index);
+						}
+						else if constexpr (std::is_same_v<T, shared_ptr<CubeImage>>) {
+							program.bindTexture("cubeSampler", GL_TEXTURE_CUBE_MAP, GL_TEXTURE0,
+												glTextureHandle, 0);
+						}
+						else if constexpr (std::is_same_v<T, std::monostate>) {
+							log::e()("Empty texture variant.");
+						}
+					},
+					property->contents());
 			}
+			else if constexpr (std::is_same_v<T, shared_ptr<Color>>) {
+				string modeUniformName;
+				string colorUniformName;
 
-			program.setUniform(modeUniformName.c_str(),
-			                   static_cast<underlying_type<MaterialContentsType>::type>(MaterialContentsType::Color));
-			program.setUniform(colorUniformName.c_str(),
-			                   property->r(), property->g(), property->b());
-		}
-		else if constexpr (std::is_same_v<T, std::monostate>) {
-			log::w()("NULL material property contents.");
-		}
-	}, property);
+				switch (type) {
+					case Material::PropertyType::Ambient:
+						modeUniformName	 = "ambientContentsType";
+						colorUniformName = "colors.ambient";
+						break;
+					case Material::PropertyType::Diffuse:
+						modeUniformName	 = "diffuseContentsType";
+						colorUniformName = "colors.diffuse";
+						break;
+					case Material::PropertyType::Specular:
+						modeUniformName	 = "specularContentsType";
+						colorUniformName = "colors.specular";
+						break;
+					case Material::PropertyType::Emission:
+						modeUniformName	 = "emissionContentsType";
+						colorUniformName = "colors.emission";
+						break;
+					default:
+						log::e()("Invalid MaterialPropertyType: {}",
+								 magic_enum::enum_name<Material::PropertyType>(type));
+						return;
+				}
+
+				program
+					.setUniform(modeUniformName.c_str(),
+								static_cast<
+									underlying_type<MaterialContentsType>::type>(MaterialContentsType::Color));
+				program.setUniform(colorUniformName.c_str(), property->r(), property->g(), property->b());
+			}
+			else if constexpr (std::is_same_v<T, std::monostate>) {
+				log::w()("NULL material property contents.");
+			}
+		},
+		property);
 }
 
-void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
-                             const Scene& scene,
-                             const vector<Node*>& lightNodes,
-                             FrameStats& stats) {
+void SendEnvironmentUniforms(GLuint				  glEnvironmentUBO,
+							 const Scene&		  scene,
+							 const vector<Node*>& lightNodes,
+							 FrameStats&		  stats) {
 	// block
 
-	EnvironmentBlock environmentStruct{};
+	EnvironmentBlock environmentStruct {};
 
 	// lights
 
-	auto numLights = lightNodes.size();
+	auto			 numLights = lightNodes.size();
 
 	if (scene.visualWorld()->usesDefaultLighting()
-	    || ((numLights == 0) && scene.visualWorld()->autoEnablesDefaultLighting())) {
+		|| ((numLights == 0) && scene.visualWorld()->autoEnablesDefaultLighting())) {
 		environmentStruct.useDefaultLighting = 1u;
 	}
 	else {
@@ -1104,10 +1116,10 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 
 		stats.lights = numLights;
 
-		vector<AmbientLightGLSLStruct> ambientStructs;
+		vector<AmbientLightGLSLStruct>	   ambientStructs;
 		vector<DirectionalLightGLSLStruct> directionalStructs;
-		vector<PointLightGLSLStruct> pointStructs;
-		vector<SpotLightGLSLStruct> spotStructs;
+		vector<PointLightGLSLStruct>	   pointStructs;
+		vector<SpotLightGLSLStruct>		   spotStructs;
 
 		ambientStructs.reserve(MAX_AMBIENT_LIGHTS);
 		directionalStructs.reserve(MAX_DIRECTIONAL_LIGHTS);
@@ -1115,7 +1127,7 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 		spotStructs.reserve(MAX_SPOT_LIGHTS);
 
 		for (unsigned l = 0; l < numLights; ++l) {
-			auto node = lightNodes[l];
+			auto node  = lightNodes[l];
 			auto light = node->light().get();
 			auto color = light->color();
 
@@ -1133,43 +1145,43 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 			// the fragment?  sure, but probably slow.
 			// the vertex?  sure, but maybe messy?
 
-			if (auto ambientLight = dynamic_cast<AmbientLight *>(light)) {
+			if (auto ambientLight = dynamic_cast<AmbientLight*>(light)) {
 				if (ambientStructs.size() < MAX_AMBIENT_LIGHTS) {
-					AmbientLightGLSLStruct lightStruct{};
+					AmbientLightGLSLStruct lightStruct {};
 					lightStruct.color = ambientLight->color()->rgba();
 					ambientStructs.push_back(lightStruct);
 				}
 			}
-			else if (auto directionalLight = dynamic_cast<DirectionalLight *>(light)) {
+			else if (auto directionalLight = dynamic_cast<DirectionalLight*>(light)) {
 				if (directionalStructs.size() < MAX_DIRECTIONAL_LIGHTS) {
-					DirectionalLightGLSLStruct lightStruct{};
-					lightStruct.color = directionalLight->color()->rgba();
+					DirectionalLightGLSLStruct lightStruct {};
+					lightStruct.color			= directionalLight->color()->rgba();
 					lightStruct.direction_world = node->worldForward();
 					directionalStructs.push_back(lightStruct);
 				}
 			}
-			else if (auto pointLight = dynamic_cast<PointLight *>(light)) {
+			else if (auto pointLight = dynamic_cast<PointLight*>(light)) {
 				if (pointStructs.size() < MAX_POINT_LIGHTS) {
-					PointLightGLSLStruct lightStruct{};
-					lightStruct.color = pointLight->color()->rgba();
-					lightStruct.position_world = node->worldPosition();
-					lightStruct.constantAttenuation = pointLight->attenuation().constant;
-					lightStruct.linearAttenuation = pointLight->attenuation().linear;
+					PointLightGLSLStruct lightStruct {};
+					lightStruct.color				 = pointLight->color()->rgba();
+					lightStruct.position_world		 = node->worldPosition();
+					lightStruct.constantAttenuation	 = pointLight->attenuation().constant;
+					lightStruct.linearAttenuation	 = pointLight->attenuation().linear;
 					lightStruct.quadraticAttenuation = pointLight->attenuation().quadratic;
 					pointStructs.push_back(lightStruct);
 				}
 			}
-			else if (auto spotLight = dynamic_cast<SpotLight *>(light)) {
+			else if (auto spotLight = dynamic_cast<SpotLight*>(light)) {
 				if (spotStructs.size() < MAX_SPOT_LIGHTS) {
-					SpotLightGLSLStruct lightStruct{};
-					lightStruct.color = spotLight->color()->rgba();
-					lightStruct.position_world = node->worldPosition();
-					lightStruct.direction_world = node->worldForward();
-					lightStruct.innerAngleCos = spotLight->innerAngleCos();
-					lightStruct.outerAngleCos = spotLight->outerAngleCos();
-					lightStruct.featheringMode = magic_enum::enum_underlying(spotLight->featheringMode());
-					lightStruct.constantAttenuation = spotLight->attenuation().constant;
-					lightStruct.linearAttenuation = spotLight->attenuation().linear;
+					SpotLightGLSLStruct lightStruct {};
+					lightStruct.color				 = spotLight->color()->rgba();
+					lightStruct.position_world		 = node->worldPosition();
+					lightStruct.direction_world		 = node->worldForward();
+					lightStruct.innerAngleCos		 = spotLight->innerAngleCos();
+					lightStruct.outerAngleCos		 = spotLight->outerAngleCos();
+					lightStruct.featheringMode		 = magic_enum::enum_underlying(spotLight->featheringMode());
+					lightStruct.constantAttenuation	 = spotLight->attenuation().constant;
+					lightStruct.linearAttenuation	 = spotLight->attenuation().linear;
 					lightStruct.quadraticAttenuation = spotLight->attenuation().quadratic;
 					spotStructs.push_back(lightStruct);
 				}
@@ -1177,34 +1189,30 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 		}
 
 		environmentStruct.numAmbientLights = ambientStructs.size();
-		memcpy(&environmentStruct.ambientLights,
-		       ambientStructs.data(),
-		       sizeof(AmbientLightGLSLStruct) * ambientStructs.size());
+		memcpy(&environmentStruct.ambientLights, ambientStructs.data(),
+			   sizeof(AmbientLightGLSLStruct) * ambientStructs.size());
 
 		environmentStruct.numDirectionalLights = directionalStructs.size();
-		memcpy(&environmentStruct.directionalLights,
-		       directionalStructs.data(),
-		       sizeof(DirectionalLightGLSLStruct) * directionalStructs.size());
+		memcpy(&environmentStruct.directionalLights, directionalStructs.data(),
+			   sizeof(DirectionalLightGLSLStruct) * directionalStructs.size());
 
 		environmentStruct.numPointLights = pointStructs.size();
-		memcpy(&environmentStruct.pointLights,
-		       pointStructs.data(),
-		       sizeof(PointLightGLSLStruct) * pointStructs.size());
+		memcpy(&environmentStruct.pointLights, pointStructs.data(),
+			   sizeof(PointLightGLSLStruct) * pointStructs.size());
 
 		environmentStruct.numSpotLights = spotStructs.size();
-		memcpy(&environmentStruct.spotLights,
-		       spotStructs.data(),
-		       sizeof(SpotLightGLSLStruct) * spotStructs.size());
+		memcpy(&environmentStruct.spotLights, spotStructs.data(),
+			   sizeof(SpotLightGLSLStruct) * spotStructs.size());
 	}
 
 	// fog
 
-	auto visualWorld = scene.visualWorld();
-	FogGLSLStruct fogStruct{};
-	fogStruct.startDistance = visualWorld->fogStartDistance();
-	fogStruct.endDistance = visualWorld->fogEndDistance();
+	auto		  visualWorld = scene.visualWorld();
+	FogGLSLStruct fogStruct {};
+	fogStruct.startDistance	  = visualWorld->fogStartDistance();
+	fogStruct.endDistance	  = visualWorld->fogEndDistance();
 	fogStruct.densityExponent = visualWorld->fogDensityExponent();
-	auto fogColor = visualWorld->fogColor();
+	auto fogColor			  = visualWorld->fogColor();
 	if (visualWorld->fogColor()) {
 		fogStruct.color = fogColor->rgba();
 	}
@@ -1229,17 +1237,10 @@ void SendEnvironmentUniforms(GLuint glEnvironmentUBO,
 	glBindBuffer(GL_UNIFORM_BUFFER, glEnvironmentUBO);
 
 #ifdef A3D_GL_WEB
-	glBufferSubData(
-		GL_UNIFORM_BUFFER,
-		0,
-		sizeof(EnvironmentBlock),
-		&environmentStruct);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(EnvironmentBlock), &environmentStruct);
 #else
-	void *dst = glMapBufferRange(
-		GL_UNIFORM_BUFFER,
-		0,
-		sizeof(EnvironmentBlock),
-		GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+	void* dst = glMapBufferRange(GL_UNIFORM_BUFFER, 0, sizeof(EnvironmentBlock),
+								 GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 
 	if (dst) {
 		memcpy(dst, &environmentStruct, sizeof(EnvironmentBlock));
@@ -1260,76 +1261,91 @@ void ApplyBlendFunction(Material::BlendFunction func) {
 	switch (func) {
 		case Material::BlendFunction::Alpha:
 			// out = src*a + dst*(1-a)
-			glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
-			                    GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 			break;
 
 		case Material::BlendFunction::PremultipliedAlpha:
 			// src already multiplied by alpha: out = src + dst*(1-a)
-			glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA,
-			                    GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 			break;
 
 		case Material::BlendFunction::Additive:
 			// common additive: out = src*a + dst
-			glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE,
-			                    GL_ONE, GL_ONE);
+			glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE, GL_ONE, GL_ONE);
 			break;
 
-		default: break;
+		default:
+			break;
 	}
 }
 
 GLenum GLDepthFuncFromDepthFunc(DepthFunc func) {
 	switch (func) {
-		case DepthFunc::Less: return GL_LESS;
-		case DepthFunc::Lequal: return GL_LEQUAL;
-		case DepthFunc::Equal: return GL_EQUAL;
-		case DepthFunc::Greater: return GL_GREATER;
-		case DepthFunc::Gequal: return GL_GEQUAL;
-		case DepthFunc::Notequal: return GL_NOTEQUAL;
-		case DepthFunc::Always: return GL_ALWAYS;
-		case DepthFunc::Never: return GL_NEVER;
+		case DepthFunc::Less:
+			return GL_LESS;
+		case DepthFunc::Lequal:
+			return GL_LEQUAL;
+		case DepthFunc::Equal:
+			return GL_EQUAL;
+		case DepthFunc::Greater:
+			return GL_GREATER;
+		case DepthFunc::Gequal:
+			return GL_GEQUAL;
+		case DepthFunc::Notequal:
+			return GL_NOTEQUAL;
+		case DepthFunc::Always:
+			return GL_ALWAYS;
+		case DepthFunc::Never:
+			return GL_NEVER;
 	}
 	return GL_LESS;
 }
 
 GLenum GLFilterModeForFilterMode(Sampler::FilterMode mode) {
 	switch (mode) {
-		case Sampler::FilterMode::Nearest: return GL_NEAREST;
-		case Sampler::FilterMode::Linear: return GL_LINEAR;
-		case Sampler::FilterMode::NearestMipmapNearest: return GL_NEAREST_MIPMAP_NEAREST;
-		case Sampler::FilterMode::LinearMipmapNearest: return GL_LINEAR_MIPMAP_NEAREST;
-		case Sampler::FilterMode::NearestMipmapLinear: return GL_NEAREST_MIPMAP_LINEAR;
-		case Sampler::FilterMode::LinearMipmapLinear: return GL_LINEAR_MIPMAP_LINEAR;
+		case Sampler::FilterMode::Nearest:
+			return GL_NEAREST;
+		case Sampler::FilterMode::Linear:
+			return GL_LINEAR;
+		case Sampler::FilterMode::NearestMipmapNearest:
+			return GL_NEAREST_MIPMAP_NEAREST;
+		case Sampler::FilterMode::LinearMipmapNearest:
+			return GL_LINEAR_MIPMAP_NEAREST;
+		case Sampler::FilterMode::NearestMipmapLinear:
+			return GL_NEAREST_MIPMAP_LINEAR;
+		case Sampler::FilterMode::LinearMipmapLinear:
+			return GL_LINEAR_MIPMAP_LINEAR;
 	}
 }
 
 GLenum GLWrapModeForWrapMode(Sampler::WrapMode mode) {
 	switch (mode) {
-		case Sampler::WrapMode::ClampToEdge: return GL_CLAMP_TO_EDGE;
+		case Sampler::WrapMode::ClampToEdge:
+			return GL_CLAMP_TO_EDGE;
 		//#ifdef A3D_GL_DESKTOP
 		//		case WRAP_MODE::CLAMP_TO_BORDER:		return GL_CLAMP_TO_BORDER;
 		//#endif
-		case Sampler::WrapMode::Repeat: return GL_REPEAT;
-		default: /* MIRRORED_REPEAT */ return GL_MIRRORED_REPEAT;
+		case Sampler::WrapMode::Repeat:
+			return GL_REPEAT;
+		default: /* MIRRORED_REPEAT */
+			return GL_MIRRORED_REPEAT;
 	}
 }
 
-void DrawOverlay(const RenderContext& context,
-                 const Scene& scene,
-                 FrameStats& stats,
-                 const FrameStatsHistory& statsHistory,
-                 Scene::DebugOptions debugOptions,
-                 ImFont& titleFont,
-                 ImFont& bodyFont,
-                 ImFont& altBodyFont) {
+void DrawOverlay(const RenderContext&	  context,
+				 const Scene&			  scene,
+				 FrameStats&			  stats,
+				 const FrameStatsHistory& statsHistory,
+				 Scene::DebugOptions	  debugOptions,
+				 ImFont&				  titleFont,
+				 ImFont&				  bodyFont,
+				 ImFont&				  altBodyFont) {
 	ImguiBeginOverlay(0, true);
 	DrawDebugOptions(const_cast<Scene&>(scene), bodyFont); // TODO: const_cast CHEATING
 
-	float yPos = 0;
-	int id = 0;
-	bool showStats = util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowStatsOverlay);
+	float yPos		= 0;
+	int	  id		= 0;
+	bool  showStats = util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowStatsOverlay);
 	DrawHeader(titleFont, bodyFont, showStats, yPos, id);
 	if (showStats) {
 		DrawStats(stats, statsHistory, context, bodyFont, altBodyFont, yPos, id);
@@ -1346,309 +1362,214 @@ void DrawOverlay(const RenderContext& context,
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void DrawHeader(ImFont& titleFont,
-                ImFont& bodyFont,
-                bool active,
-                float& yPos_out,
-                int& id_out) {
+void DrawHeader(ImFont& titleFont, ImFont& bodyFont, bool active, float& yPos_out, int& id_out) {
 	using namespace ImGui;
 
 	//ShowMetricsWindow();
 
 	static const float X_POS = 12.0;
 
-	float yPos = 0;
-	int id = 0;
+	float			   yPos = 0;
+	int				   id	= 0;
 
-	ImGuiIO &io = GetIO();
-	auto fonts = io.Fonts->Fonts;
+	ImGuiIO&		   io	 = GetIO();
+	auto			   fonts = io.Fonts->Fonts;
 
-	auto color = active
-		             ? IM_COL32(255, 255, 255, 255)
-		             : IM_COL32(255, 255, 255, (uint8_t)std::lround(.35 * 255));
+	auto			   color =
+		active ? IM_COL32(255, 255, 255, 255) : IM_COL32(255, 255, 255, (uint8_t) std::lround(.35 * 255));
 
 	yPos += 4;
 	ImguiDrawText(X_POS, yPos, "avara3d", titleFont, STATS_TITLE_FONT_SIZE, color, active);
 
-	static const auto &buildInfo = BuildInfo::Info();
-	static auto version = buildInfo.version();
-	static auto buildStr = std::format(
-		"v{}.{}.{} build {}\n"
-		"{}\n"
-		"\n",
-		version.major, version.minor, version.patch, buildInfo.number(),
-		util::string::Lowercase(BuildInfo::TypeString(buildInfo.type())));
-	yPos += 25;
+	static const auto& buildInfo = BuildInfo::Info();
+	static auto		   version	 = buildInfo.version();
+	static auto		   buildStr = std::format("v{}.{}.{} build {}\n"
+											  "{}\n"
+											  "\n",
+											  version.major, version.minor, version.patch, buildInfo.number(),
+											  util::string::Lowercase(BuildInfo::TypeString(buildInfo.type())));
+	yPos					   += 25;
 	ImguiDrawText(X_POS, yPos, buildStr.c_str(), bodyFont, STATS_BODY_FONT_SIZE, color, active);
 
 	yPos_out = yPos;
-	id_out = id;
+	id_out	 = id;
 }
 
-void DrawStats(FrameStats& stats,
-               const FrameStatsHistory& statsHistory,
-               const RenderContext& context,
-               ImFont& bodyFont,
-               ImFont& altBodyFont,
-               float yPos,
-               int id) {
+void DrawStats(FrameStats&				stats,
+			   const FrameStatsHistory& statsHistory,
+			   const RenderContext&		context,
+			   ImFont&					bodyFont,
+			   ImFont&					altBodyFont,
+			   float					yPos,
+			   int						id) {
 	using namespace ImGui;
 
 	//ShowMetricsWindow();
 
-	static const float X_POS = 12.0;
-	static const float COLUMN_WIDTH = 130.0f;
-	static const bool PLOT_OUTLINED = true;
-	static const float PLOT_HEIGHT_1 = 48.0;
-	static const float PLOT_HEIGHT_2 = 24.0;
-	static const float PLOT_X_OFFSET = 0.0;
+	static const float X_POS		  = 12.0;
+	static const float COLUMN_WIDTH	  = 130.0f;
+	static const bool  PLOT_OUTLINED  = true;
+	static const float PLOT_HEIGHT_1  = 48.0;
+	static const float PLOT_HEIGHT_2  = 24.0;
+	static const float PLOT_X_OFFSET  = 0.0;
 	static const float PLOT_STR_Y_PAD = 8.0;
-	static const float PLOT_Y_PAD = 18.0;
-	static const float PLOT_Y_MIN = 0.0;
-	static const float PLOT_Y_MAX = 17.0;
-	static const int TEXT_PADDING = 15;
+	static const float PLOT_Y_PAD	  = 18.0;
+	static const float PLOT_Y_MIN	  = 0.0;
+	static const float PLOT_Y_MAX	  = 17.0;
+	static const int   TEXT_PADDING	  = 15;
 	static const float STAT_LINE_STEP = STATS_BODY_FONT_SIZE + 1.0f;
-	static const float INDENT_WIDTH = 8.0f;
+	static const float INDENT_WIDTH	  = 8.0f;
 
-	ImGuiIO &io = GetIO();
-	auto fonts = io.Fonts->Fonts;
+	ImGuiIO&		   io	 = GetIO();
+	auto			   fonts = io.Fonts->Fonts;
 
 	yPos += 4;
 
-	static chrono::nanoseconds frameNsAvg, engineCpuNsAvg, renderCpuNsAvg,
-			renderGpuNsAvg, physicsNsAvg, appCpuNsAvg;
-	static float frameMsFAvg, engineCpuMsFAvg, renderCpuMsFAvg,
-			renderGpuMsFAvg, physicsMsFAvg, appCpuMsFAvg;
+	static chrono::nanoseconds frameNsAvg, engineCpuNsAvg, renderCpuNsAvg, renderGpuNsAvg, physicsNsAvg,
+		appCpuNsAvg;
+	static float frameMsFAvg, engineCpuMsFAvg, renderCpuMsFAvg, renderGpuMsFAvg, physicsMsFAvg, appCpuMsFAvg;
 	static float fpsAvg = 0;
 
-	bool gpuTimingAvailable = stats.isRenderGpuTimeAvailable;
+	bool		 gpuTimingAvailable = stats.isRenderGpuTimeAvailable;
 
 	util::flow::every(FRAME_STATS_AVERAGE_UPDATE_INTERVAL, [&] {
-		FrameStatsHistory::GetAverages(statsHistory,
-		                               frameNsAvg, engineCpuNsAvg, renderCpuNsAvg,
-		                               renderGpuNsAvg, physicsNsAvg, appCpuNsAvg,
-		                               FRAME_STATS_AVERAGING_DURATION);
+		FrameStatsHistory::GetAverages(statsHistory, frameNsAvg, engineCpuNsAvg, renderCpuNsAvg, renderGpuNsAvg,
+									   physicsNsAvg, appCpuNsAvg, FRAME_STATS_AVERAGING_DURATION);
 
 		// ! ~zero cost
-		frameMsFAvg = util::chrono::ns_to_ms_f(frameNsAvg);
+		frameMsFAvg		= util::chrono::ns_to_ms_f(frameNsAvg);
 		engineCpuMsFAvg = util::chrono::ns_to_ms_f(engineCpuNsAvg);
 		renderCpuMsFAvg = util::chrono::ns_to_ms_f(renderCpuNsAvg);
-		if (gpuTimingAvailable) renderGpuMsFAvg = util::chrono::ns_to_ms_f(renderGpuNsAvg);
+		if (gpuTimingAvailable)
+			renderGpuMsFAvg = util::chrono::ns_to_ms_f(renderGpuNsAvg);
 		physicsMsFAvg = util::chrono::ns_to_ms_f(physicsNsAvg);
-		appCpuMsFAvg = util::chrono::ns_to_ms_f(appCpuNsAvg);
-		if (frameMsFAvg > 0) fpsAvg = 1000.0f / frameMsFAvg;
+		appCpuMsFAvg  = util::chrono::ns_to_ms_f(appCpuNsAvg);
+		if (frameMsFAvg > 0)
+			fpsAvg = 1000.0f / frameMsFAvg;
 	});
 
-	static vector<float> frameSamples;
-	static vector<float> physSamples;
-	static vector<float> engCpuSamples;
-	static vector<float> renderCpuSamples;
-	static vector<float> renderGpuSamples;
-	static vector<float> appSamples;
+	static vector<float>  frameSamples;
+	static vector<float>  physSamples;
+	static vector<float>  engCpuSamples;
+	static vector<float>  renderCpuSamples;
+	static vector<float>  renderGpuSamples;
+	static vector<float>  appSamples;
 
-	static size_t frame = 0;
+	static size_t		  frame		  = 0;
 	static const unsigned SKIP_FRAMES = 2;
 	if (!((frame++) % SKIP_FRAMES)) {
-		auto &samples = statsHistory.samples();
+		auto& samples = statsHistory.samples();
 
 		frameSamples.resize(samples.size());
 		physSamples.resize(samples.size());
 		engCpuSamples.resize(samples.size());
 		renderCpuSamples.resize(samples.size());
-		if (gpuTimingAvailable) renderGpuSamples.resize(samples.size());
+		if (gpuTimingAvailable)
+			renderGpuSamples.resize(samples.size());
 		appSamples.resize(samples.size());
 
 		for (size_t i = 0; i < samples.size(); ++i) {
-			auto sample = get<1>(samples[i]);
-			frameSamples[i] = util::chrono::ns_to_ms_f(sample.frameTime);
-			engCpuSamples[i] = util::chrono::ns_to_ms_f(sample.engineCpuTime);
-			physSamples[i] = util::chrono::ns_to_ms_f(sample.physicsTime);
+			auto sample			= get<1>(samples[i]);
+			frameSamples[i]		= util::chrono::ns_to_ms_f(sample.frameTime);
+			engCpuSamples[i]	= util::chrono::ns_to_ms_f(sample.engineCpuTime);
+			physSamples[i]		= util::chrono::ns_to_ms_f(sample.physicsTime);
 			renderCpuSamples[i] = util::chrono::ns_to_ms_f(sample.renderCpuTime);
-			if (gpuTimingAvailable) renderGpuSamples[i] = util::chrono::ns_to_ms_f(sample.renderGpuTime);
+			if (gpuTimingAvailable)
+				renderGpuSamples[i] = util::chrono::ns_to_ms_f(sample.renderGpuTime);
 			appSamples[i] = util::chrono::ns_to_ms_f(sample.applicationTime);
 		}
 	}
 
-	ImguiStatsTextLayout layout{
-		.xLeft = X_POS,
-		.xRight = X_POS + COLUMN_WIDTH,
-		.gap = 12.0f
-	};
+	ImguiStatsTextLayout layout {.xLeft = X_POS, .xRight = X_POS + COLUMN_WIDTH, .gap = 12.0f};
 
-	yPos += 48;
+	yPos		  += 48;
 	auto rateValue = std::format("{:.0f}fps", fpsAvg);
-	ImguiDrawLabelValue(yPos, layout, "", rateValue,
-	                    bodyFont, STATS_BODY_FONT_SIZE, 15);
+	ImguiDrawLabelValue(yPos, layout, "", rateValue, bodyFont, STATS_BODY_FONT_SIZE, 15);
 	auto frameValue = std::format("{:.1f}ms", frameMsFAvg);
-	ImguiDrawLabelValue(yPos, layout, "frame", frameValue,
-	                    bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
-	ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_1,
-	              frameSamples.data(),
-	              static_cast<int>(frameSamples.size()),
-	              0,
-	              nullptr,
-	              nullptr,
-	              0.0f,
-	              PLOT_Y_MIN, PLOT_Y_MAX,
-	              0,
-	              PLOT_OUTLINED,
-	              ++id,
-	              PLOT_HEIGHT_1 + PLOT_STR_Y_PAD,
-	              false);
+	ImguiDrawLabelValue(yPos, layout, "frame", frameValue, bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
+	ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_1, frameSamples.data(),
+				  static_cast<int>(frameSamples.size()), 0, nullptr, nullptr, 0.0f, PLOT_Y_MIN, PLOT_Y_MAX, 0,
+				  PLOT_OUTLINED, ++id, PLOT_HEIGHT_1 + PLOT_STR_Y_PAD, false);
 
 	auto engineCpuValue = std::format("{:.1f}ms", engineCpuMsFAvg);
-	ImguiDrawLabelValue(yPos, layout, "engine cpu", engineCpuValue,
-	                    bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
-	ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2,
-	              engCpuSamples.data(),
-	              static_cast<int>(engCpuSamples.size()),
-	              0,
-	              nullptr,
-	              nullptr,
-	              0.0f,
-	              PLOT_Y_MIN, PLOT_Y_MAX,
-	              0,
-	              PLOT_OUTLINED,
-	              ++id,
-	              PLOT_HEIGHT_2 + PLOT_STR_Y_PAD,
-	              false);
+	ImguiDrawLabelValue(yPos, layout, "engine cpu", engineCpuValue, bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
+	ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, engCpuSamples.data(),
+				  static_cast<int>(engCpuSamples.size()), 0, nullptr, nullptr, 0.0f, PLOT_Y_MIN, PLOT_Y_MAX, 0,
+				  PLOT_OUTLINED, ++id, PLOT_HEIGHT_2 + PLOT_STR_Y_PAD, false);
 
 	auto renderCpuValue = std::format("{:.1f}ms", renderCpuMsFAvg);
-	ImguiDrawLabelValue(yPos, layout, "render sub", renderCpuValue,
-	                    bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
-	ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2,
-	              renderCpuSamples.data(),
-	              static_cast<int>(renderCpuSamples.size()),
-	              0,
-	              nullptr,
-	              nullptr,
-	              0.0f,
-	              PLOT_Y_MIN, PLOT_Y_MAX,
-	              0,
-	              PLOT_OUTLINED,
-	              ++id,
-	              PLOT_HEIGHT_2 + PLOT_STR_Y_PAD,
-	              false);
+	ImguiDrawLabelValue(yPos, layout, "render sub", renderCpuValue, bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
+	ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, renderCpuSamples.data(),
+				  static_cast<int>(renderCpuSamples.size()), 0, nullptr, nullptr, 0.0f, PLOT_Y_MIN, PLOT_Y_MAX,
+				  0, PLOT_OUTLINED, ++id, PLOT_HEIGHT_2 + PLOT_STR_Y_PAD, false);
 
-	const ImU32 drawColor = gpuTimingAvailable
-		                        ? IM_COL32(255, 255, 255, 255)
-		                        : IM_COL32(128, 128, 128, 255);
-	auto renderGpuValue = gpuTimingAvailable ? std::format("{:.1f}ms", renderGpuMsFAvg) : "";
-	ImguiDrawLabelValue(yPos, layout, "draw", renderGpuValue,
-	                    bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD,
-	                    drawColor);
-	ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2,
-	              renderGpuSamples.data(),
-	              static_cast<int>(renderGpuSamples.size()),
-	              0,
-	              gpuTimingAvailable ? nullptr : "unavailable",
-	              &altBodyFont,
-	              STATS_ALT_FONT_SIZE,
-	              PLOT_Y_MIN, PLOT_Y_MAX,
-	              0,
-	              PLOT_OUTLINED,
-	              ++id,
-	              PLOT_HEIGHT_2 + PLOT_STR_Y_PAD,
-	              !gpuTimingAvailable);
+	const ImU32 drawColor = gpuTimingAvailable ? IM_COL32(255, 255, 255, 255) : IM_COL32(128, 128, 128, 255);
+	auto		renderGpuValue = gpuTimingAvailable ? std::format("{:.1f}ms", renderGpuMsFAvg) : "";
+	ImguiDrawLabelValue(yPos, layout, "draw", renderGpuValue, bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD,
+						drawColor);
+	ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, renderGpuSamples.data(),
+				  static_cast<int>(renderGpuSamples.size()), 0, gpuTimingAvailable ? nullptr : "unavailable",
+				  &altBodyFont, STATS_ALT_FONT_SIZE, PLOT_Y_MIN, PLOT_Y_MAX, 0, PLOT_OUTLINED, ++id,
+				  PLOT_HEIGHT_2 + PLOT_STR_Y_PAD, !gpuTimingAvailable);
 
 	auto physValue = std::format("{:.1f}ms", physicsMsFAvg);
-	ImguiDrawLabelValue(yPos, layout, "physics", physValue,
-	                    bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
-	ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2,
-	              physSamples.data(),
-	              static_cast<int>(physSamples.size()),
-	              0,
-	              nullptr,
-	              nullptr,
-	              0.0f,
-	              PLOT_Y_MIN, PLOT_Y_MAX,
-	              0,
-	              PLOT_OUTLINED,
-	              ++id,
-	              PLOT_HEIGHT_2 + PLOT_STR_Y_PAD,
-	              false);
+	ImguiDrawLabelValue(yPos, layout, "physics", physValue, bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
+	ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, physSamples.data(),
+				  static_cast<int>(physSamples.size()), 0, nullptr, nullptr, 0.0f, PLOT_Y_MIN, PLOT_Y_MAX, 0,
+				  PLOT_OUTLINED, ++id, PLOT_HEIGHT_2 + PLOT_STR_Y_PAD, false);
 
 	auto appValue = std::format("{:.1f}ms", appCpuMsFAvg);
-	ImguiDrawLabelValue(yPos, layout, "app", appValue,
-	                    bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
-	ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2,
-	              appSamples.data(),
-	              static_cast<int>(appSamples.size()),
-	              0,
-	              nullptr,
-	              nullptr,
-	              0.0f,
-	              PLOT_Y_MIN, PLOT_Y_MAX,
-	              0,
-	              PLOT_OUTLINED,
-	              ++id,
-	              0,
-	              false);
+	ImguiDrawLabelValue(yPos, layout, "app", appValue, bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
+	ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, appSamples.data(),
+				  static_cast<int>(appSamples.size()), 0, nullptr, nullptr, 0.0f, PLOT_Y_MIN, PLOT_Y_MAX, 0,
+				  PLOT_OUTLINED, ++id, 0, false);
 
 	yPos += 42;
 
 	ImguiStatsTextLayout bulkLayout = layout;
 
-	ImguiDrawLabelValue(yPos, bulkLayout,
-	                    "nodes", std::format("{}", stats.nodes),
-	                    bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
-	ImguiDrawLabelValue(yPos, bulkLayout,
-	                    "meshes", std::format("{}", stats.meshes),
-	                    bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
-	ImguiDrawLabelValue(yPos, bulkLayout,
-	                    "elements", std::format("{}", stats.elements),
-	                    bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
-	ImguiDrawLabelValue(yPos, bulkLayout,
-	                    "polygons", std::format("{:.1f}k", float(stats.polygons) / 1000.0f),
-	                    bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
-	ImguiDrawLabelValue(yPos, bulkLayout,
-	                    "lights", std::format("{}", stats.lights),
-	                    bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+	ImguiDrawLabelValue(yPos, bulkLayout, "nodes", std::format("{}", stats.nodes), bodyFont,
+						STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+	ImguiDrawLabelValue(yPos, bulkLayout, "meshes", std::format("{}", stats.meshes), bodyFont,
+						STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+	ImguiDrawLabelValue(yPos, bulkLayout, "elements", std::format("{}", stats.elements), bodyFont,
+						STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+	ImguiDrawLabelValue(yPos, bulkLayout, "polygons", std::format("{:.1f}k", float(stats.polygons) / 1000.0f),
+						bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+	ImguiDrawLabelValue(yPos, bulkLayout, "lights", std::format("{}", stats.lights), bodyFont,
+						STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
 
 	yPos += STAT_LINE_STEP;
 
-	ImguiDrawLabelValue(yPos, bulkLayout,
-	                    "phys bodies", std::format("{}",
-	                                               stats.dynamicBodies
-	                                               + stats.kinematicBodies
-	                                               + stats.staticBodies),
-	                    bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
-	ImguiDrawLabelValueIndented(yPos, bulkLayout,
-	                            "static", std::format("{}", stats.staticBodies),
-	                            bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
-	ImguiDrawLabelValueIndented(yPos, bulkLayout,
-	                            "dynamic", std::format("{}", stats.dynamicBodies),
-	                            bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
-	ImguiDrawLabelValueIndented(yPos, bulkLayout,
-	                            "kinematic", std::format("{}", stats.kinematicBodies),
-	                            bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
+	ImguiDrawLabelValue(yPos, bulkLayout, "phys bodies",
+						std::format("{}", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies),
+						bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+	ImguiDrawLabelValueIndented(yPos, bulkLayout, "static", std::format("{}", stats.staticBodies), bodyFont,
+								STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
+	ImguiDrawLabelValueIndented(yPos, bulkLayout, "dynamic", std::format("{}", stats.dynamicBodies), bodyFont,
+								STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
+	ImguiDrawLabelValueIndented(yPos, bulkLayout, "kinematic", std::format("{}", stats.kinematicBodies),
+								bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
 
 	yPos += STAT_LINE_STEP;
 
-	ImguiDrawLabelValue(yPos, bulkLayout,
-	                    "phys shapes", std::format("{}",
-	                                               stats.concavePolyhedronShapes
-	                                               + stats.boundingBoxShapes
-	                                               + stats.convexHullShapes),
-	                    bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
-	ImguiDrawLabelValueIndented(yPos, bulkLayout,
-	                            "primitive", std::format("{}", stats.primitiveShapes),
-	                            bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
-	ImguiDrawLabelValueIndented(yPos, bulkLayout,
-	                            "bbox", std::format("{}", stats.boundingBoxShapes),
-	                            bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
-	ImguiDrawLabelValueIndented(yPos, bulkLayout,
-	                            "convex", std::format("{}", stats.convexHullShapes),
-	                            bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
-	ImguiDrawLabelValueIndented(yPos, bulkLayout,
-	                            "concave", std::format("{}", stats.concavePolyhedronShapes),
-	                            bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
+	ImguiDrawLabelValue(yPos, bulkLayout, "phys shapes",
+						std::format("{}", stats.concavePolyhedronShapes + stats.boundingBoxShapes
+											  + stats.convexHullShapes),
+						bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+	ImguiDrawLabelValueIndented(yPos, bulkLayout, "primitive", std::format("{}", stats.primitiveShapes),
+								bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
+	ImguiDrawLabelValueIndented(yPos, bulkLayout, "bbox", std::format("{}", stats.boundingBoxShapes), bodyFont,
+								STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
+	ImguiDrawLabelValueIndented(yPos, bulkLayout, "convex", std::format("{}", stats.convexHullShapes), bodyFont,
+								STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
+	ImguiDrawLabelValueIndented(yPos, bulkLayout, "concave", std::format("{}", stats.concavePolyhedronShapes),
+								bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
 
 	if (context.recordingGIF()) {
 		yPos += STAT_LINE_STEP;
-		ImguiDrawLabelValue(yPos, bulkLayout, "RECORDING",
-		                    std::format("{:.0f}s", context.recordedGIFTime()),
-		                    bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+		ImguiDrawLabelValue(yPos, bulkLayout, "RECORDING", std::format("{:.0f}s", context.recordedGIFTime()),
+							bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
 	}
 
 	// input test
@@ -1684,15 +1605,15 @@ void DrawStats(FrameStats& stats,
 void DrawDebugOptions(Scene& scene, ImFont& bodyFont) {
 	using namespace ImGui;
 
-	ImGuiIO &io = GetIO();
+	ImGuiIO&		   io = GetIO();
 
-	const float WIN_WIDTH = 168;
-	const float xPos = io.DisplaySize.x - WIN_WIDTH;
-	float yPos = 0;
-	int id = 0;
-	static const float Y_PAD = 24.0;
+	const float		   WIN_WIDTH = 168;
+	const float		   xPos		 = io.DisplaySize.x - WIN_WIDTH;
+	float			   yPos		 = 0;
+	int				   id		 = 0;
+	static const float Y_PAD	 = 24.0;
 
-	auto debugOptions = scene.debugOptions();
+	auto			   debugOptions = scene.debugOptions();
 
 	using DebugOptions = Scene::DebugOptions;
 
@@ -1702,55 +1623,72 @@ void DrawDebugOptions(Scene& scene, ImFont& bodyFont) {
 	static constexpr bool kSupportsPolygonModeWireframes = false;
 #endif
 
-	yPos = 12.0;
+	yPos			  = 12.0;
 	static bool stats = util::bitmask::contains(debugOptions, DebugOptions::ShowStatsOverlay);
 	if (ImguiDrawCheckbox(xPos, yPos, "stats", stats, bodyFont, STATS_BODY_FONT_SIZE, false, ++id)) {
-		if (stats) scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowStatsOverlay));
-		else scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowStatsOverlay));
+		if (stats)
+			scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowStatsOverlay));
+		else
+			scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowStatsOverlay));
 	}
 
-	yPos += Y_PAD;
+	yPos	   += Y_PAD;
 	bool meshWF = util::bitmask::contains(debugOptions, DebugOptions::ShowWireframes);
-	if (ImguiDrawCheckbox(xPos, yPos, "mesh wireframes",
-	                      meshWF, bodyFont, STATS_BODY_FONT_SIZE, !kSupportsPolygonModeWireframes, ++id)) {
-		if (meshWF) scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowWireframes));
-		else scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowWireframes));
+	if (ImguiDrawCheckbox(xPos, yPos, "mesh wireframes", meshWF, bodyFont, STATS_BODY_FONT_SIZE,
+						  !kSupportsPolygonModeWireframes, ++id)) {
+		if (meshWF)
+			scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowWireframes));
+		else
+			scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowWireframes));
 	}
 
-	yPos += Y_PAD;
+	yPos		  += Y_PAD;
 	bool meshAABBs = util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowBoundingBoxes);
-	if (ImguiDrawCheckbox(xPos, yPos, "mesh AABBs",
-	                      meshAABBs, bodyFont, STATS_BODY_FONT_SIZE, false, ++id)) {
-		if (meshAABBs) scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowBoundingBoxes));
-		else scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowBoundingBoxes));
+	if (ImguiDrawCheckbox(xPos, yPos, "mesh AABBs", meshAABBs, bodyFont, STATS_BODY_FONT_SIZE, false, ++id)) {
+		if (meshAABBs)
+			scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowBoundingBoxes));
+		else
+			scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowBoundingBoxes));
 	}
 
-	yPos += Y_PAD;
+	yPos	   += Y_PAD;
 	bool physWF = util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes);
-	if (ImguiDrawCheckbox(xPos, yPos, "physics wireframes", physWF, bodyFont, STATS_BODY_FONT_SIZE, false, ++id)) {
-		if (physWF) scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsWireframes));
-		else scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsWireframes));
+	if (ImguiDrawCheckbox(xPos, yPos, "physics wireframes", physWF, bodyFont, STATS_BODY_FONT_SIZE, false,
+						  ++id)) {
+		if (physWF)
+			scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsWireframes));
+		else
+			scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsWireframes));
 	}
 
-	yPos += Y_PAD;
+	yPos		  += Y_PAD;
 	bool physAABBs = util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes);
-	if (ImguiDrawCheckbox(xPos, yPos, "physics AABBs", physAABBs, bodyFont, STATS_BODY_FONT_SIZE, false, ++id)) {
-		if (physAABBs) scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
-		else scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
+	if (ImguiDrawCheckbox(xPos, yPos, "physics AABBs", physAABBs, bodyFont, STATS_BODY_FONT_SIZE, false,
+						  ++id)) {
+		if (physAABBs)
+			scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
+		else
+			scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
 	}
 
-	yPos += Y_PAD;
+	yPos			 += Y_PAD;
 	bool physContacts = util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints);
-	if (ImguiDrawCheckbox(xPos, yPos, "physics contacts", physContacts, bodyFont, STATS_BODY_FONT_SIZE, false, ++id)) {
-		if (physContacts) scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsContactPoints));
-		else scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsContactPoints));
+	if (ImguiDrawCheckbox(xPos, yPos, "physics contacts", physContacts, bodyFont, STATS_BODY_FONT_SIZE, false,
+						  ++id)) {
+		if (physContacts)
+			scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsContactPoints));
+		else
+			scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsContactPoints));
 	}
 
-	yPos += Y_PAD;
+	yPos		  += Y_PAD;
 	bool physNorms = util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsNormals);
-	if (ImguiDrawCheckbox(xPos, yPos, "physics normals", physNorms, bodyFont, STATS_BODY_FONT_SIZE, false, ++id)) {
-		if (physNorms) scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsNormals));
-		else scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsNormals));
+	if (ImguiDrawCheckbox(xPos, yPos, "physics normals", physNorms, bodyFont, STATS_BODY_FONT_SIZE, false,
+						  ++id)) {
+		if (physNorms)
+			scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsNormals));
+		else
+			scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsNormals));
 	}
 }
 
@@ -1759,8 +1697,8 @@ void ImguiInit(const RenderContext& context, ImFont*& titleFont, ImFont*& bodyFo
 
 	IMGUI_CHECKVERSION();
 	CreateContext();
-	ImGuiIO &io = GetIO();
-	io.IniFilename = nullptr;
+	ImGuiIO& io		= GetIO();
+	io.IniFilename	= nullptr;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	ImGui_ImplOpenGL3_Init();
 
@@ -1772,10 +1710,10 @@ void ImguiInit(const RenderContext& context, ImFont*& titleFont, ImFont*& bodyFo
 			if (overlayAltFont->buffer()->size()) {
 				ImGui_ImplOpenGL3_DestroyDeviceObjects(); // was DestroyFontsTexture()
 
-				auto fbSize = context.framebufferSize();
-				auto fbScale = context.viewportScale();
-				ImGuiIO &io = GetIO();
-				io.DisplaySize = ImVec2(float(fbSize.x), float(fbSize.y));
+				auto	 fbSize			   = context.framebufferSize();
+				auto	 fbScale		   = context.viewportScale();
+				ImGuiIO& io				   = GetIO();
+				io.DisplaySize			   = ImVec2(float(fbSize.x), float(fbSize.y));
 				io.DisplayFramebufferScale = ImVec2(fbScale.x, fbScale.y);
 
 				GetIO().Fonts->Clear();
@@ -1804,10 +1742,10 @@ void ImguiInit(const RenderContext& context, ImFont*& titleFont, ImFont*& bodyFo
 void ImguiUpdateScale(const RenderContext& context) {
 	using namespace ImGui;
 
-	auto vpSize = context.viewportLogicalSize();
-	auto vpScale = context.viewportScale();
-	ImGuiIO &io = ImGui::GetIO();
-	io.DisplaySize = ImVec2(float(vpSize.x), float(vpSize.y));
+	auto	 vpSize			   = context.viewportLogicalSize();
+	auto	 vpScale		   = context.viewportScale();
+	ImGuiIO& io				   = ImGui::GetIO();
+	io.DisplaySize			   = ImVec2(float(vpSize.x), float(vpSize.y));
 	io.DisplayFramebufferScale = ImVec2(vpScale.x, vpScale.y);
 
 	glViewport(0, 0, vpSize.x * vpScale.x, vpSize.y * vpScale.y);
@@ -1816,7 +1754,7 @@ void ImguiUpdateScale(const RenderContext& context) {
 void ImguiAddFont(const RenderContext& context, const Font& font, ImFont*& imFont) {
 	using namespace ImGui;
 
-	ImFontConfig fontConfig{};
+	ImFontConfig fontConfig {};
 	fontConfig.FontDataOwnedByAtlas = false;
 
 	// ! leave oversampling automatic (0) in modern ImGui
@@ -1824,24 +1762,20 @@ void ImguiAddFont(const RenderContext& context, const Font& font, ImFont*& imFon
 	fontConfig.OversampleV = 0;
 
 	// size_pixels = 0.0f => treat as a font source; size picked via PushFont(font, size_px)
-	imFont = GetIO().Fonts->AddFontFromMemoryTTF(font.buffer()->data(),
-	                                             (int) font.buffer()->size(),
-	                                             0.0f,
-	                                             &fontConfig);
+	imFont = GetIO().Fonts->AddFontFromMemoryTTF(font.buffer()->data(), (int) font.buffer()->size(), 0.0f,
+												 &fontConfig);
 }
 
 void ImguiBeginOverlay(int id, bool allowsInput) {
 	using namespace ImGui;
 
-	ImGuiIO &io = GetIO();
-	ImGuiWindowFlags flags =
-			ImGuiWindowFlags_NoDecoration |
-			ImGuiWindowFlags_NoMove |
-			ImGuiWindowFlags_NoSavedSettings |
-			ImGuiWindowFlags_NoNav |
-			ImGuiWindowFlags_NoBackground;
+	ImGuiIO&		 io	   = GetIO();
+	ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove
+							 | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNav
+							 | ImGuiWindowFlags_NoBackground;
 
-	if (!allowsInput) flags |= ImGuiWindowFlags_NoInputs;
+	if (!allowsInput)
+		flags |= ImGuiWindowFlags_NoInputs;
 
 	SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
 	SetNextWindowSize(io.DisplaySize, ImGuiCond_Always);
@@ -1852,17 +1786,11 @@ void ImguiEndOverlay() {
 	ImGui::End();
 }
 
-void ImguiDrawText(float x,
-                   float y,
-                   const char* text,
-                   ImFont& font,
-                   float size,
-                   ImU32 color,
-                   bool shadow) {
+void ImguiDrawText(float x, float y, const char* text, ImFont& font, float size, ImU32 color, bool shadow) {
 	using namespace ImGui;
 
 	PushFont(&font, size); // modern: choose size here :contentReference[oaicite:3]{index=3}
-	ImDrawList *dl = GetForegroundDrawList();
+	ImDrawList* dl = GetForegroundDrawList();
 
 	if (shadow) {
 		dl->AddText(ImVec2(x + 1, y + 1), IM_COL32(0, 0, 0, 255), text);
@@ -1872,19 +1800,22 @@ void ImguiDrawText(float x,
 	PopFont();
 }
 
-void ImguiDrawPlot(float x, float y, float w, float h,
-                   const float* values,
-                   int valuesCount,
-                   int valuesOffset,
-                   const char* overlayText,
-                   ImFont* overlayFont,
-                   float overlayFontSize,
-                   float scaleMin,
-                   float scaleMax,
-                   int stride,
-                   bool outlined,
-                   int id,
-                   bool disabled) {
+void ImguiDrawPlot(float		x,
+				   float		y,
+				   float		w,
+				   float		h,
+				   const float* values,
+				   int			valuesCount,
+				   int			valuesOffset,
+				   const char*	overlayText,
+				   ImFont*		overlayFont,
+				   float		overlayFontSize,
+				   float		scaleMin,
+				   float		scaleMax,
+				   int			stride,
+				   bool			outlined,
+				   int			id,
+				   bool			disabled) {
 	using namespace ImGui;
 
 	BeginDisabled(disabled);
@@ -1896,8 +1827,8 @@ void ImguiDrawPlot(float x, float y, float w, float h,
 	// shadow pass
 	SetCursorScreenPos(ImVec2(x + 1, y + 1));
 	PushStyleColor(ImGuiCol_PlotLines, ImVec4(0, 0, 0, 1));
-	PlotLines(("##plot_s" + std::to_string(id)).c_str(),
-	          values, valuesCount, valuesOffset, nullptr, scaleMin, scaleMax, ImVec2(w, h), plotStride);
+	PlotLines(("##plot_s" + std::to_string(id)).c_str(), values, valuesCount, valuesOffset, nullptr, scaleMin,
+			  scaleMax, ImVec2(w, h), plotStride);
 	PopStyleColor();
 
 	// main pass
@@ -1907,32 +1838,22 @@ void ImguiDrawPlot(float x, float y, float w, float h,
 		PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.5f);
 		PushStyleColor(ImGuiCol_Border, ImVec4(1, 1, 1, 0.5f));
 	}
-	PlotLines(("##plot" + std::to_string(id)).c_str(),
-	          values, valuesCount, valuesOffset, nullptr, scaleMin, scaleMax, ImVec2(w, h), plotStride);
+	PlotLines(("##plot" + std::to_string(id)).c_str(), values, valuesCount, valuesOffset, nullptr, scaleMin,
+			  scaleMax, ImVec2(w, h), plotStride);
 
 	// overlay text
 	if (overlayText != nullptr && overlayText[0] != '\0') {
-		ImFont *font = overlayFont != nullptr ? overlayFont : GetFont();
+		ImFont*		 font = overlayFont != nullptr ? overlayFont : GetFont();
 
-		ImDrawList *drawList = GetWindowDrawList();
+		ImDrawList*	 drawList = GetWindowDrawList();
 
-		const ImVec2 textSize = font->CalcTextSizeA(
-			overlayFontSize,
-			math::f32_max(),
-			0.0f,
-			overlayText
-		);
+		const ImVec2 textSize = font->CalcTextSizeA(overlayFontSize, math::f32_max(), 0.0f, overlayText);
 
-		const float textX = x + (w - textSize.x) * 0.5f;
-		const float textY = y + (h - textSize.y) * 0.5f - 1.0f;
+		const float	 textX = x + (w - textSize.x) * 0.5f;
+		const float	 textY = y + (h - textSize.y) * 0.5f - 1.0f;
 
-		drawList->AddText(
-			font,
-			overlayFontSize,
-			ImVec2(math::floor(textX + 0.5f), math::floor(textY + 0.5f)),
-			IM_COL32(128, 128, 128, 255),
-			overlayText
-		);
+		drawList->AddText(font, overlayFontSize, ImVec2(math::floor(textX + 0.5f), math::floor(textY + 0.5f)),
+						  IM_COL32(128, 128, 128, 255), overlayText);
 	}
 
 	if (outlined) {
@@ -1946,23 +1867,24 @@ void ImguiDrawPlot(float x, float y, float w, float h,
 	EndDisabled();
 }
 
-bool ImguiDrawCheckbox(float x, float y,
-                       const char* text,
-                       bool& checked,
-                       ImFont& font,
-                       float size,
-                       bool disabled,
-                       int id) {
+bool ImguiDrawCheckbox(float	   x,
+					   float	   y,
+					   const char* text,
+					   bool&	   checked,
+					   ImFont&	   font,
+					   float	   size,
+					   bool		   disabled,
+					   int		   id) {
 	using namespace ImGui;
 
 	ImGui::PushFont(&font, size);
 
 	const ImVec4 transparent(0, 0, 0, 0);
-	const float shadowOff = 1.0f;
-	const float borderThickness = 1.0f;
+	const float	 shadowOff		 = 1.0f;
+	const float	 borderThickness = 1.0f;
 
-	const float boxSize = GetFrameHeight(); // checkbox square size
-	const float labelGap = GetStyle().ItemInnerSpacing.x; // spacing between box and label
+	const float	 boxSize  = GetFrameHeight(); // checkbox square size
+	const float	 labelGap = GetStyle().ItemInnerSpacing.x; // spacing between box and label
 
 	// shadow checkbox (non-interactive, non-blocking)
 	PushID(id);
@@ -1991,7 +1913,8 @@ bool ImguiDrawCheckbox(float x, float y,
 
 	PushID(id);
 	SetCursorScreenPos(ImVec2(x, y));
-	if (disabled) BeginDisabled(true);
+	if (disabled)
+		BeginDisabled(true);
 
 	auto primaryColor = disabled ? ImVec4(0.65, 0.65, 0.65, 1) : ImVec4(1, 1, 1, 1);
 
@@ -2007,37 +1930,34 @@ bool ImguiDrawCheckbox(float x, float y,
 
 	PopStyleColor(6);
 	PopStyleVar();
-	if (disabled) EndDisabled();
+	if (disabled)
+		EndDisabled();
 	PopID();
 
 	// raw label ourselves (true solid shadow, like DigDrawText)
-	ImDrawList *dl = GetWindowDrawList(); // or GetForegroundDrawList() to match DigDrawText layer exactly
+	ImDrawList* dl = GetWindowDrawList(); // or GetForegroundDrawList() to match DigDrawText layer exactly
 
 	// align label vertically with checkbox frame (center-ish)
-	float textY = y + GetStyle().FramePadding.y;
+	float		textY = y + GetStyle().FramePadding.y;
 
-	ImVec2 labelPos(x + boxSize + labelGap, textY);
+	ImVec2		labelPos(x + boxSize + labelGap, textY);
 
-	dl->AddText(ImVec2(labelPos.x + shadowOff, labelPos.y + shadowOff),
-	            IM_COL32(0, 0, 0, 255),
-	            text);
-	dl->AddText(labelPos,
-	            disabled ? IM_COL32(128, 128, 128, 255) : IM_COL32(255, 255, 255, 255),
-	            text);
+	dl->AddText(ImVec2(labelPos.x + shadowOff, labelPos.y + shadowOff), IM_COL32(0, 0, 0, 255), text);
+	dl->AddText(labelPos, disabled ? IM_COL32(128, 128, 128, 255) : IM_COL32(255, 255, 255, 255), text);
 
 	PopFont();
 
 	return ret;
 }
 
-void ImguiDrawLabelValue(float& y,
-                         const ImguiStatsTextLayout& layout,
-                         const char* label,
-                         const std::string& value,
-                         ImFont& font,
-                         float fontSize,
-                         float lineStep,
-                         ImU32 color) {
+void ImguiDrawLabelValue(float&						 y,
+						 const ImguiStatsTextLayout& layout,
+						 const char*				 label,
+						 const std::string&			 value,
+						 ImFont&					 font,
+						 float						 fontSize,
+						 float						 lineStep,
+						 ImU32						 color) {
 	const auto SnapPx = [](float x) -> float {
 		return math::floor(x + 0.5f);
 	};
@@ -2054,9 +1974,10 @@ void ImguiDrawLabelValue(float& y,
 	const ImVec2 labelSz = TextSizeA(font, fontSize, label);
 	const ImVec2 valueSz = TextSizeA(font, fontSize, value.c_str());
 
-	float xValue = layout.xRight - valueSz.x;
-	const float minXValue = layout.xLeft + labelSz.x + layout.gap;
-	if (xValue < minXValue) xValue = minXValue;
+	float		 xValue	   = layout.xRight - valueSz.x;
+	const float	 minXValue = layout.xLeft + labelSz.x + layout.gap;
+	if (xValue < minXValue)
+		xValue = minXValue;
 
 	// pixel snap
 	xValue = SnapPx(xValue);
@@ -2066,46 +1987,39 @@ void ImguiDrawLabelValue(float& y,
 	y += lineStep;
 }
 
-void ImguiDrawLabelValueIndented(float& y,
-                                 const ImguiStatsTextLayout& layout,
-                                 const char* label,
-                                 const std::string& value,
-                                 ImFont& font,
-                                 float fontSize,
-                                 float indentPx,
-                                 float lineStep,
-                                 ImU32 color) {
+void ImguiDrawLabelValueIndented(float&						 y,
+								 const ImguiStatsTextLayout& layout,
+								 const char*				 label,
+								 const std::string&			 value,
+								 ImFont&					 font,
+								 float						 fontSize,
+								 float						 indentPx,
+								 float						 lineStep,
+								 ImU32						 color) {
 	ImguiStatsTextLayout l = layout;
-	l.xLeft += indentPx;
+	l.xLeft				  += indentPx;
 	ImguiDrawLabelValue(y, l, label, value, font, fontSize, 0, color);
 	y += lineStep;
 }
 
-void ImguiDrawPlot(float x, float& y, float w, float h,
-                   const float* values,
-                   int valuesCount,
-                   int valuesOffset,
-                   const char* overlayText,
-                   ImFont* overlayFont,
-                   float overlayFontSize,
-                   float scaleMin,
-                   float scaleMax,
-                   int stride,
-                   bool outlined,
-                   int id,
-                   float lineStep,
-                   bool disabled) {
-	ImguiDrawPlot(x, y, w, h,
-	              values,
-	              valuesCount,
-	              valuesOffset,
-	              overlayText,
-	              overlayFont,
-	              overlayFontSize,
-	              scaleMin, scaleMax,
-	              stride,
-	              outlined,
-	              id,
-	              disabled);
+void ImguiDrawPlot(float		x,
+				   float&		y,
+				   float		w,
+				   float		h,
+				   const float* values,
+				   int			valuesCount,
+				   int			valuesOffset,
+				   const char*	overlayText,
+				   ImFont*		overlayFont,
+				   float		overlayFontSize,
+				   float		scaleMin,
+				   float		scaleMax,
+				   int			stride,
+				   bool			outlined,
+				   int			id,
+				   float		lineStep,
+				   bool			disabled) {
+	ImguiDrawPlot(x, y, w, h, values, valuesCount, valuesOffset, overlayText, overlayFont, overlayFontSize,
+				  scaleMin, scaleMax, stride, outlined, id, disabled);
 	y += lineStep;
 }

@@ -26,7 +26,6 @@
 
 using namespace a3d;
 using namespace std;
-using namespace std::placeholders;
 
 /// Public Static Member Functions ///
 
@@ -44,9 +43,7 @@ int Application::Run(unique_ptr<Application> application) {
 
 	emscripten_set_main_loop_arg(
 		[](void* opaque) {
-
-			auto* application =
-				static_cast<Application*>(opaque);
+			auto* application = static_cast<Application*>(opaque);
 
 			if (!application->update()) {
 				emscripten_cancel_main_loop();
@@ -55,16 +52,14 @@ int Application::Run(unique_ptr<Application> application) {
 				delete application;
 			}
 		},
-		context,
-		0,
-		false
-	);
+		context, 0, false);
 
 	return 0;
 
 #else
 
-	while (application->update());
+	while (application->update())
+		;
 
 	application->shutdown();
 
@@ -89,9 +84,13 @@ Application::~Application() = default;
 
 /// Protected Member Functions ///
 
-SimulationConfig Application::simulationConfig() const { return {}; }
+SimulationConfig Application::simulationConfig() const {
+	return {};
+}
 
-bool Application::shouldContinue(const Scene&) { return true; }
+bool Application::shouldContinue(const Scene&) {
+	return true;
+}
 
 void Application::didShutdown() {}
 
@@ -121,7 +120,9 @@ const Runner& Application::runner() const {
 	return *_runner;
 }
 
-const vector<string>& Application::args() const { return _args; }
+const vector<string>& Application::args() const {
+	return _args;
+}
 
 /// Runner Callbacks ///
 
@@ -220,13 +221,14 @@ void Application::shutdown() noexcept {
 
 void Application::registerCallbacks() {
 
+	using namespace std::placeholders;
+
 	_runner->updateCallback(bind(&Application::dispatchHostUpdate, this, _1, _2));
 	_scene->willStepCallback(bind(&Application::dispatchSceneWillStep, this, _1, _2));
 	_scene->didStepCallback(bind(&Application::dispatchSceneDidStep, this, _1, _2));
 
 	if (auto* world = _scene->visualWorld()) {
-		world->didBeginFrameCallback(
-			bind(&Application::dispatchDidBeginFrame, this, _1, _2));
+		world->didBeginFrameCallback(bind(&Application::dispatchDidBeginFrame, this, _1, _2));
 	}
 }
 
@@ -246,8 +248,7 @@ void Application::dispatchSceneDidStep(Scene& scene, const Scene::StepInfo& info
 	sceneDidStep(scene, info);
 }
 
-void Application::dispatchDidBeginFrame(VisualWorld& visualWorld,
-									  const VisualWorld::RenderInfo& info) {
+void Application::dispatchDidBeginFrame(VisualWorld& visualWorld, const VisualWorld::RenderInfo& info) {
 
 	executePendingCommands(_renderCommandQueue, visualWorld);
 	didBeginFrame(visualWorld, info);

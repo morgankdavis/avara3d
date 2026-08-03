@@ -38,14 +38,14 @@ unique_ptr<Scene> Scene::FromFile(const filesystem::path& path, ImportOptions op
 /// Public Lifecycle Functions ///
 
 Scene::Scene():
-		_name{},
-		_rootNode{make_shared<Node>("root node")},
-		_visualWorld{},
-		_physicsWorld{},
-		_inputContext{},
-		_debugOptions{DebugOptions::None},
-		_willStepCallback{},
-		_didStepCallback{} {
+	_name {},
+	_rootNode {make_shared<Node>("root node")},
+	_visualWorld {},
+	_physicsWorld {},
+	_inputContext {},
+	_debugOptions {DebugOptions::None},
+	_willStepCallback {},
+	_didStepCallback {} {
 
 	_rootNode->attachedToScene(*this);
 }
@@ -56,25 +56,31 @@ Scene::Scene(const string& name):
 	_name = name;
 }
 
-Scene::Scene(unique_ptr<VisualWorld> visualWorld,
+Scene::Scene(unique_ptr<VisualWorld>  visualWorld,
 			 unique_ptr<PhysicsWorld> physicsWorld,
 			 unique_ptr<InputContext> inputContext):
-		Scene() {
+	Scene() {
 
-	_visualWorld = std::move(visualWorld);
+	_visualWorld  = std::move(visualWorld);
 	_physicsWorld = std::move(physicsWorld);
 	_inputContext = std::move(inputContext);
 
-	if (_visualWorld) _visualWorld->attachedToScene(*this);
-	if (_physicsWorld) _physicsWorld->attachedToScene(*this);
-	if (_inputContext) _inputContext->attachedToScene(*this);
+	if (_visualWorld) {
+		_visualWorld->attachedToScene(*this);
+	}
+	if (_physicsWorld) {
+		_physicsWorld->attachedToScene(*this);
+	}
+	if (_inputContext) {
+		_inputContext->attachedToScene(*this);
+	}
 }
 
-Scene::Scene(const string& name,
-			 unique_ptr<VisualWorld> visualWorld,
+Scene::Scene(const string&			  name,
+			 unique_ptr<VisualWorld>  visualWorld,
 			 unique_ptr<PhysicsWorld> physicsWorld,
 			 unique_ptr<InputContext> inputContext):
-		Scene(std::move(visualWorld), std::move(physicsWorld), std::move(inputContext)) {
+	Scene(std::move(visualWorld), std::move(physicsWorld), std::move(inputContext)) {
 
 	_name = name;
 }
@@ -88,9 +94,15 @@ Scene::~Scene() {
 		log::d()("Destroying Scene {:p}", static_cast<void*>(this));
 	}
 
-	if (_rootNode) _rootNode->detachedFromScene(*this);
-	if (_visualWorld) _visualWorld->detachedFromScene(*this);
-	if (_physicsWorld) _physicsWorld->detachedFromScene(*this);
+	if (_rootNode) {
+		_rootNode->detachedFromScene(*this);
+	}
+	if (_visualWorld) {
+		_visualWorld->detachedFromScene(*this);
+	}
+	if (_physicsWorld) {
+		_physicsWorld->detachedFromScene(*this);
+	}
 //	if (_inputContext) _inputContext->detachedFromScene(*this);
 }
 
@@ -270,8 +282,7 @@ void Scene::updateInput(Profiler& profiler) {
 	}
 }
 
-PhysicsInventory Scene::stepSimulation(const StepInfo& info,
-									   Profiler& profiler) {
+PhysicsInventory Scene::stepSimulation(const StepInfo& info, Profiler& profiler) {
 
 	if (auto callback = willStepCallback()) {
 		prof::profile(profiler, Profiler::Tag::Application, [&] {
@@ -279,7 +290,7 @@ PhysicsInventory Scene::stepSimulation(const StepInfo& info,
 		});
 	}
 
-	PhysicsInventory inventory{};
+	PhysicsInventory inventory {};
 	if (_physicsWorld) {
 		inventory = _physicsWorld->step(info.deltaTime, profiler);
 	}
