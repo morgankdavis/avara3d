@@ -34,3 +34,11 @@ chrono::nanoseconds Timer::stop() {
 chrono::nanoseconds Timer::duration() const {
 	return _duration;
 }
+
+double Timer::durationSeconds() const {
+	return std::chrono::duration<double>(_duration).count();
+}
+
+std::int64_t Timer::durationMilliseconds() const {
+	return std::chrono::duration_cast<std::chrono::milliseconds>(_duration).count();
+}

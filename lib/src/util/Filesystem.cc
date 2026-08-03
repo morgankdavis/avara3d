@@ -256,7 +256,7 @@ a3d::util::filesystem::SearchInPaths(const string& filename,
 
 	for (auto& searchPath : paths) {
 		if (std::filesystem::is_directory(searchPath)) {
-			log::i()("Searching for '{}' in '{}'", filename, searchPath.string());
+			log::t()("Searching for '{}' in '{}'", filename, searchPath.string());
 			auto path = searchPath / filename;
 			if (std::filesystem::is_regular_file(path)) {
 				//log::d()("Found '{}' at '{}'", searchPath.string(), filename);
@@ -306,7 +306,7 @@ std::optional<std::string> a3d::util::filesystem::ShaderSource(const string& nam
 	}
 	auto path = SearchInPaths((name + "." + extension), ShaderSearchPaths());
 	if (path) {
-		log::d()("Found shader at path: {}", (*path).string());
+		log::t()("Found shader at path: {}", (*path).string());
 		rawSource = TextFile(*path);
 	}
 	return rawSource;
@@ -345,7 +345,7 @@ unique_ptr<Image> a3d::util::filesystem::ImageNamed(const string& name,
 										 bool flipVertical) {
 	auto path = SearchInPaths((name + "." + type), ImageSearchPaths());
 	if (path) {
-		log::d()("Found image at path: {}", (*path).string());
+		log::t()("Found image at path: {}", (*path).string());
 		return make_unique<Image>(*path, flipHorizontal, flipVertical);
 	}
 	return nullptr;

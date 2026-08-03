@@ -13,14 +13,15 @@
 
 namespace a3d::util::chrono {
 
-	double Time(); // TODO: CHANGE THIS?
+	template<class Rep, class Period>
+	constexpr double Seconds(std::chrono::duration<Rep, Period> duration) noexcept {
+		return std::chrono::duration<double>(duration).count();
+	}
 
-	std::chrono::milliseconds milliseconds(std::chrono::seconds sec);
-	std::chrono::milliseconds milliseconds(std::chrono::nanoseconds ns);
-	std::chrono::milliseconds sec_f_to_ms(float secF);
-	float ns_to_ms_f(std::chrono::nanoseconds ns);
-	int ns_to_ms_i(std::chrono::nanoseconds ns);
-
+	template<class Rep, class Period>
+	constexpr double Milliseconds(std::chrono::duration<Rep, Period> duration) noexcept {
+		return std::chrono::duration<double, std::milli>(duration).count();
+	}
 }
 
 #endif //AVARA3D_UTIL_CHRONO_H

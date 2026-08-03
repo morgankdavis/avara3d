@@ -22,9 +22,11 @@ namespace a3d {
 
 		/// Public Member Functions ///
 
-		void						start();
-		std::chrono::nanoseconds	stop();
-		std::chrono::nanoseconds	duration() const;
+		void					 start();
+		std::chrono::nanoseconds stop();
+		std::chrono::nanoseconds duration() const;
+		double					 durationSeconds() const;
+		std::int64_t			 durationMilliseconds() const;
 
 	private:
 		/// Private Member Variables ///

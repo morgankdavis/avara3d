@@ -19,9 +19,11 @@
 #include "a3d/physics/PhysicsWorld.h"
 #include "a3d/profile/Profile.h"
 #include "a3d/profile/Profiler.h"
+#include "a3d/profile/Timer.h"
 #include "a3d/render/context/RenderContext.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/importer/GlTFImporter.h"
+#include "a3d/util/Chrono.h"
 #include "a3d/visual/VisualWorld.h"
 
 using namespace a3d;
@@ -32,7 +34,11 @@ using namespace std::filesystem;
 /// Public Static Member Functions ///
 
 unique_ptr<Scene> Scene::FromFile(const filesystem::path& path, ImportOptions options) {
-	return GlTFImporter(path, options).scene();
+	// Timer		 timer {true};
+	GlTFImporter importer {path, options};
+	auto		 scene = importer.scene();
+	// log::i()("Loaded Scene '{}'. Time: {:.3f} ms", path.string(), util::chrono::Milliseconds(timer.stop()));
+	return scene;
 }
 
 /// Public Lifecycle Functions ///

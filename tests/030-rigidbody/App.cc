@@ -221,7 +221,7 @@ unique_ptr<Scene> App::init() {
 		boxesLightNode->orientation({0.0999, 0.1969, -0.0202, 0.9751});
 		scene->rootNode()->addChild(boxesLightNode);
 
-		// set the camera move speed now before the scene extent grows form things falling
+		// set the camera move speed now before the scene extent grows from things falling
 		_cameraMoveSpeed = math::max(scene->extent());
 
 		_window->center();
@@ -245,14 +245,11 @@ bool App::shouldContinue(const Scene&) {
 	return _window->isOpen();
 }
 
-void App::didShutdown() {
-
-}
+void App::didShutdown() {}
 
 /// Runner Callbacks ///
 
-void App::hostUpdate(Runner& runner,
-                     const Runner::UpdateInfo& info) {
+void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
 
 	auto& scene = runner.scene();
 	auto& inputContext = *scene.inputContext();
@@ -540,12 +537,11 @@ void App::hostUpdate(Runner& runner,
 	}
 
 	if (cursorCaptured
-		&& (mouseButtonsPressed.count(MouseButton::One)
-		    || mouseButtonsPressed.count(MouseButton::Two))) {
+		&& (mouseButtonsPressed.count(MouseButton::One) || mouseButtonsPressed.count(MouseButton::Two))) {
 
 		if (auto visualWorld = scene.visualWorld()) {
 			if (auto pov = visualWorld->pointOfView().lock()) {
-				const auto location = pov->worldPosition();
+				const auto location	 = pov->worldPosition();
 				const auto direction = pov->worldForward();
 
 				if (mouseButtonsPressed.count(MouseButton::One)) {
@@ -558,6 +554,12 @@ void App::hostUpdate(Runner& runner,
 					queueSceneCommand([this, location, direction](Scene& scene) {
 						ShootSlurm(scene, location, direction);
 						_slurmShotAccumulator = 0.0;
+					});
+				}
+
+				if (mouseButtonsDown.count(MouseButton::Two)) {
+					util::flow::every(std::chrono::milliseconds(250), [&] {
+						ShootSlurm(scene, location, direction);
 					});
 				}
 			}

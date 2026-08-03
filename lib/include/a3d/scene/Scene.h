@@ -113,42 +113,40 @@ namespace a3d {
 
 		/// Public Member Functions ///
 
-		const std::optional<std::string>&	name() const;
-		void 								name(const std::string& name);
+		const std::optional<std::string>& name() const;
+		void							  name(const std::string& name);
 
-		const std::shared_ptr<Node>&		rootNode() const;
-		void 								rootNode(const std::shared_ptr<Node>& node);
+		const std::shared_ptr<Node>&	  rootNode() const;
+		void							  rootNode(const std::shared_ptr<Node>& node);
 
-		VisualWorld* 						visualWorld() const;
-		void 								visualWorld(std::unique_ptr<VisualWorld> world);
-		
-		PhysicsWorld* 						physicsWorld() const;
-		void 								physicsWorld(std::unique_ptr<PhysicsWorld> world);
+		VisualWorld*					  visualWorld() const;
+		void							  visualWorld(std::unique_ptr<VisualWorld> world);
 
-		InputContext* 						inputContext() const;
-		void 								inputContext(std::unique_ptr<InputContext> context);
+		PhysicsWorld*					  physicsWorld() const;
+		void							  physicsWorld(std::unique_ptr<PhysicsWorld> world);
 
-		AABB 								aabb(bool vertfit = false) const;
-		math::vec3 							extent(bool vertfit = false) const;
+		InputContext*					  inputContext() const;
+		void							  inputContext(std::unique_ptr<InputContext> context);
 
-		DebugOptions 						debugOptions() const;
-		void 								debugOptions(DebugOptions options);
+		AABB							  aabb(bool vertfit = false) const;
+		math::vec3						  extent(bool vertfit = false) const;
 
-		WillStepCallback					willStepCallback() const;
-		void								willStepCallback(WillStepCallback callback);
+		DebugOptions					  debugOptions() const;
+		void							  debugOptions(DebugOptions options);
 
-		DidStepCallback						didStepCallback() const;
-		void								didStepCallback(DidStepCallback callback);
+		WillStepCallback				  willStepCallback() const;
+		void							  willStepCallback(WillStepCallback callback);
+
+		DidStepCallback					  didStepCallback() const;
+		void							  didStepCallback(DidStepCallback callback);
 
 		/// Internal Member Functions ///
 
-		void 								pollEvents(Profiler& profiler);
-		void 								updateInput(Profiler& profiler);
-		PhysicsInventory					stepSimulation(const StepInfo& info,
-													   Profiler& profiler);
+		void							  pollEvents(Profiler& profiler);
+		void							  updateInput(Profiler& profiler);
+		PhysicsInventory				  stepSimulation(const StepInfo& info, Profiler& profiler);
 
 	private:
-
 		/// Private Member Variables ///
 
 		std::optional<std::string>			_name;

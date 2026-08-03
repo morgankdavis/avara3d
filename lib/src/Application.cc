@@ -22,6 +22,7 @@
 #include "a3d/log/sink/FileLogSink.h"
 #include "a3d/log/sink/StdOutLogSink.h"
 #include "a3d/scene/Scene.h"
+#include "a3d/util/Chrono.h"
 #include "a3d/util/Filesystem.h"
 
 using namespace a3d;
@@ -76,7 +77,8 @@ Application::Application(int argc, char* argv[], Log::Level logLevel):
 	_runner{},
 	_didShutdown{false},
 	_sceneCommandQueue{},
-	_renderCommandQueue{} {
+	_renderCommandQueue{},
+	_startupTimer{true} {
 	initLog(logLevel);
 }
 
@@ -249,6 +251,10 @@ void Application::dispatchSceneDidStep(Scene& scene, const Scene::StepInfo& info
 }
 
 void Application::dispatchDidBeginFrame(VisualWorld& visualWorld, const VisualWorld::RenderInfo& info) {
+
+	if (info.frameIndex == 0) {
+		log::app::i()("Time to first frame: {:.0f}ms", util::chrono::Milliseconds(_startupTimer.stop()));
+	}
 
 	executePendingCommands(_renderCommandQueue, visualWorld);
 	didBeginFrame(visualWorld, info);
