@@ -1449,22 +1449,37 @@ void DrawStats(FrameStats&              stats,
 
     bool gpuTimingAvailable = stats.isRenderGpuTimeAvailable;
 
-    util::flow::every(FRAME_STATS_AVERAGE_UPDATE_INTERVAL, [&] {
-        FrameStatsHistory::GetAverages(statsHistory, frameNsAvg, engineCpuNsAvg, renderCpuNsAvg, renderGpuNsAvg,
-                                       physicsNsAvg, appCpuNsAvg, FRAME_STATS_AVERAGING_DURATION);
-        // ! ~zero cost
+    static auto nextAverageUpdate = chrono::steady_clock::time_point {};
+
+    const auto now = chrono::steady_clock::now();
+
+    if (now >= nextAverageUpdate) {
+        FrameStatsHistory::GetAverages(statsHistory,
+                                       frameNsAvg,
+                                       engineCpuNsAvg,
+                                       renderCpuNsAvg,
+                                       renderGpuNsAvg,
+                                       physicsNsAvg,
+                                       appCpuNsAvg,
+                                       FRAME_STATS_AVERAGING_DURATION);
+
         frameMsFAvg = util::chrono::Milliseconds(frameNsAvg);
         engineCpuMsFAvg = util::chrono::Milliseconds(engineCpuNsAvg);
         renderCpuMsFAvg = util::chrono::Milliseconds(renderCpuNsAvg);
+
         if (gpuTimingAvailable) {
             renderGpuMsFAvg = util::chrono::Milliseconds(renderGpuNsAvg);
         }
+
         physicsMsFAvg = util::chrono::Milliseconds(physicsNsAvg);
         appCpuMsFAvg = util::chrono::Milliseconds(appCpuNsAvg);
+
         if (frameMsFAvg > 0) {
             fpsAvg = 1000.0f / frameMsFAvg;
         }
-    });
+
+        nextAverageUpdate = now + FRAME_STATS_AVERAGE_UPDATE_INTERVAL;
+    }
 
     static vector<float> frameSamples;
     static vector<float> physSamples;
