@@ -1589,8 +1589,8 @@ void DrawStats(FrameStats&              stats,
     yPos += STAT_LINE_STEP;
 
     ImguiDrawLabelValue(yPos, bulkLayout, "phys shapes",
-                        std::format("{}", stats.concavePolyhedronShapes + stats.boundingBoxShapes
-                                              + stats.convexHullShapes),
+                        std::format("{}", stats.primitiveShapes + stats.concavePolyhedronShapes
+                                              + stats.boundingBoxShapes + stats.convexHullShapes),
                         bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
     ImguiDrawLabelValueIndented(yPos, bulkLayout, "primitive", std::format("{}", stats.primitiveShapes),
                                 bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
