@@ -75,12 +75,11 @@ bool App::shouldContinue(const Scene& scene) {
 
 void App::didShutdown() {}
 
-/// Runner Callbacks ///
+/// InputContext Callbacks ///
 
-void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
+void App::inputContextDidUpdate(Runner& runner, InputContext& inputContext, const Runner::UpdateInfo& info) {
 
     auto& scene = runner.scene();
-    auto& inputContext = *scene.inputContext();
 
     auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 
@@ -92,7 +91,6 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
     using MouseButton = DesktopInputContext::MouseButton;
 
     auto keysDown = im->keysDown();
-    auto keysPressed = im->keysPressed();
     auto mouseButtonsDown = im->mouseButtonsDown();
     auto mouseScrollWheelDelta = im->mouseScrollWheelDelta();
     auto mousePositionDelta = im->mousePositionDelta();
@@ -101,11 +99,11 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
         cout << "Key: " << static_cast<underlying_type<Key>::type>(k) << endl;
     }
 
-    if (keysPressed.count(Key::Slash)) {
+    if (im->keyPressed(Key::Slash)) {
         window->cursorCaptured(!(window->cursorCaptured()));
     }
 
-    if (keysPressed.count(Key::Escape)) {
+    if (im->keyPressed(Key::Escape)) {
         _window->close();
     }
 

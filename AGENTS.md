@@ -28,6 +28,7 @@
 - Use friend only for test access. Cross-class engine access must use public methods grouped as internal
 - Avoid using empty or 'detail' namespaces unless there is a good reason to do so
 - Prefer separating interface from implementation: keep declarations and unavoidable templates in headers, and move non-template function definitions to .cc files
+- Work directly in the currently selected repository checkout and active branch at HEAD; do not create, switch to, or use a separate Git worktree or branch
 - Prefer a3d::math functions over standard library functions
 - OpenGL work should favor a minimal, correct, and maintainable implementation
 - Do not introduce rendering-backend abstraction work unless explicitly requested

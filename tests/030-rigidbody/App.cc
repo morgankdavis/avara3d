@@ -10,7 +10,6 @@
 
 #include <algorithm>
 #include <chrono>
-#include <functional>
 #include <memory>
 #include <string>
 #include <thread>
@@ -239,12 +238,12 @@ bool App::shouldContinue(const Scene&) {
 
 void App::didShutdown() {}
 
-/// Runner Callbacks ///
+/// InputContext Callbacks ///
 
-void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
+void App::inputContextDidUpdate(Runner& runner, InputContext& inputContext, const Runner::UpdateInfo& info) {
 
     auto& scene = runner.scene();
-    auto& input = static_cast<DesktopInputContext&>(*scene.inputContext());
+    auto& input = static_cast<DesktopInputContext&>(inputContext);
 
     using Key = DesktopInputContext::Key;
     using MouseButton = DesktopInputContext::MouseButton;

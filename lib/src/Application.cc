@@ -126,6 +126,10 @@ const vector<string>& Application::args() const {
     return _args;
 }
 
+/// InputContext Callbacks ///
+
+void Application::inputContextDidUpdate(Runner&, InputContext&, const Runner::UpdateInfo&) {}
+
 /// Runner Callbacks ///
 
 void Application::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {}
@@ -225,7 +229,7 @@ void Application::registerCallbacks() {
 
     using namespace std::placeholders;
 
-    _runner->updateCallback(bind(&Application::dispatchHostUpdate, this, _1, _2));
+    _runner->updateCallback(bind(&Application::dispatchUpdate, this, _1, _2));
     _scene->willStepCallback(bind(&Application::dispatchSceneWillStep, this, _1, _2));
     _scene->didStepCallback(bind(&Application::dispatchSceneDidStep, this, _1, _2));
 
@@ -234,9 +238,15 @@ void Application::registerCallbacks() {
     }
 }
 
-void Application::dispatchHostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
+void Application::dispatchUpdate(Runner& runner, const Runner::UpdateInfo& info) {
 
-    hostUpdate(runner, info);
+    if (auto* inputContext = runner.scene().inputContext()) {
+        inputContextDidUpdate(runner, *inputContext, info);
+    }
+
+    if (runner.state() == Runner::State::Running) {
+        hostUpdate(runner, info);
+    }
 }
 
 void Application::dispatchSceneWillStep(Scene& scene, const Scene::StepInfo& info) {
