@@ -18,27 +18,27 @@ using namespace std;
 /// Public Lifecycle Functions ///
 
 SpotLight::SpotLight():
-		Light() {
-	// see DeVries 16.5
-	_innerAngleCos = static_cast<float>(math::cos(10.0));
-	_outerAngleCos = static_cast<float>(math::cos(15.0));
-	_featherMode = FeatheringMode::Linear;
+    Light() {
+    // see DeVries 16.5
+    _innerAngleCos = static_cast<float>(math::cos(10.0));
+    _outerAngleCos = static_cast<float>(math::cos(15.0));
+    _featherMode   = FeatheringMode::Linear;
 }
 
 SpotLight::SpotLight(const string& name):
-		SpotLight() {
-	_name = name;
+    SpotLight() {
+    _name = name;
 }
 
 SpotLight::SpotLight(const shared_ptr<Color>& color):
-		SpotLight() {
-	_color = color;
+    SpotLight() {
+    _color = color;
 }
 
 SpotLight::SpotLight(const string& name, const shared_ptr<Color>& color):
-		SpotLight() {
-	_name = name;
-	_color = color;
+    SpotLight() {
+    _name  = name;
+    _color = color;
 }
 
 //Light::~Light() {
@@ -54,45 +54,45 @@ SpotLight::SpotLight(const string& name, const shared_ptr<Color>& color):
 /// Public Member Functions ///
 
 float SpotLight::innerAngle() const {
-	return math::acos(_innerAngleCos);
+    return math::acos(_innerAngleCos);
 }
 
 void SpotLight::innerAngle(float angle) {
-	_innerAngleCos = static_cast<float>(math::cos(angle));
+    _innerAngleCos = static_cast<float>(math::cos(angle));
 }
 
 float SpotLight::outerAngle() const {
-	return math::acos(_outerAngleCos);
+    return math::acos(_outerAngleCos);
 }
 
 void SpotLight::outerAngle(float angle) {
-	_outerAngleCos = static_cast<float>(math::cos(angle));
+    _outerAngleCos = static_cast<float>(math::cos(angle));
 }
 
 SpotLight::FeatheringMode SpotLight::featheringMode() const {
-	return _featherMode;
+    return _featherMode;
 }
 
 void SpotLight::featheringMode(FeatheringMode mode) {
-	_featherMode = mode;
+    _featherMode = mode;
 }
 
 const Attenuation& SpotLight::attenuation() const {
-	return _attenuation;
+    return _attenuation;
 }
 
 void SpotLight::attenuation(const Attenuation& attenuation) {
-	_attenuation = attenuation;
+    _attenuation = attenuation;
 }
 
 /// Internal Member Functions ///
 
 float SpotLight::innerAngleCos() const {
-	return _innerAngleCos;
+    return _innerAngleCos;
 }
 
 float SpotLight::outerAngleCos() const {
-	return _outerAngleCos;
+    return _outerAngleCos;
 }
 
 /// Private Lifecycle Functions ///

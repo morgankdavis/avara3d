@@ -13,17 +13,18 @@
 
 namespace a3d {
 
-	struct DrawItem;
-	struct DrawPacket;
+    struct DrawItem;
+    struct DrawPacket;
 
-	class PacketSorter {
+    class PacketSorter {
 
-	public:
-		/// Internal Static Member Functions ///
+    public:
+        /// Internal Static Member Functions ///
 
-		static uint64_t MakeSortKey(const DrawItem& item);
-		static void 	SortPacket(DrawPacket& packet);
-	};
+        static uint64_t MakeSortKey(const DrawItem& item);
+        static void     SortPacket(DrawPacket& packet);
+    };
+
 }
 
 #endif //AVARA3D_RENDER_PACKETSORTER_H

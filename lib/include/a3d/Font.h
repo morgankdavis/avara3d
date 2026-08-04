@@ -15,45 +15,46 @@
 
 namespace a3d {
 
-	class Buffer;
-	
-	class Font {
+    class Buffer;
 
-	public:
-		/// Public Types ///
+    class Font {
 
-		enum class Type : uint8_t {
-			Unknown,
-			OTF,
-			TTF,
-		};
+    public:
+        /// Public Types ///
 
-		/// Public Lifecycle Functions ///
+        enum class Type : uint8_t {
+            Unknown,
+            OTF,
+            TTF,
+        };
 
-		explicit Font(const std::filesystem::path& path);
-		explicit Font(std::unique_ptr<Buffer> buffer);
+        /// Public Lifecycle Functions ///
 
-		Font(const Font& other);
-		Font& operator=(const Font& other);
+        explicit Font(const std::filesystem::path& path);
+        explicit Font(std::unique_ptr<Buffer> buffer);
 
-		Font(Font&& other) noexcept;
-		Font& operator=(Font&& other) noexcept;
+        Font(const Font& other);
+        Font& operator=(const Font& other);
 
-		~Font();
+        Font(Font&& other) noexcept;
+        Font& operator=(Font&& other) noexcept;
 
-		/// Public Member Functions ///
+        ~Font();
 
-		const std::optional<std::string>&	name() const;
-		Type 								type() const;
-		const Buffer* 						buffer() const;
+        /// Public Member Functions ///
 
-	private:
-		/// Private Member Variables ///
+        const std::optional<std::string>& name() const;
+        Type                              type() const;
+        const Buffer*                     buffer() const;
 
-		std::optional<std::string>			_name;
-		Type								_type;
-		std::unique_ptr<Buffer>				_buffer;
-	};
+    private:
+        /// Private Member Variables ///
+
+        std::optional<std::string> _name;
+        Type                       _type;
+        std::unique_ptr<Buffer>    _buffer;
+    };
+
 }
 
 #endif /* AVARA3D_FONT_H */

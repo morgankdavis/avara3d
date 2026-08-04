@@ -14,39 +14,40 @@
 #include <vector>
 
 namespace a3d {
-	
-	class Buffer {
 
-	public:
-		///  Public Lifecycle Functions ///
+    class Buffer {
 
-		explicit Buffer(const std::filesystem::path& path);
-		explicit Buffer(const std::vector<std::byte>& buf);
-		Buffer(const std::byte* buf, std::size_t size);
-		explicit Buffer(std::size_t size);
+    public:
+        ///  Public Lifecycle Functions ///
 
-		Buffer(const Buffer& other);
-		Buffer& operator=(const Buffer& other);
+        explicit Buffer(const std::filesystem::path& path);
+        explicit Buffer(const std::vector<std::byte>& buf);
+        Buffer(const std::byte* buf, std::size_t size);
+        explicit Buffer(std::size_t size);
 
-		Buffer(Buffer&& other) noexcept;
-		Buffer& operator=(Buffer&& other) noexcept;
+        Buffer(const Buffer& other);
+        Buffer& operator=(const Buffer& other);
 
-		~Buffer();
+        Buffer(Buffer&& other) noexcept;
+        Buffer& operator=(Buffer&& other) noexcept;
 
-		/// Public Member Functions ///
+        ~Buffer();
 
-		std::byte* 						data() const;
-		std::size_t 					size() const;
+        /// Public Member Functions ///
 
-		std::byte*						operator*() const;
-		std::byte						operator[](std::size_t idx) const;
+        std::byte*  data() const;
+        std::size_t size() const;
 
-	private:
-		/// Private Member Variables ///
+        std::byte*  operator*() const;
+        std::byte   operator[](std::size_t idx) const;
 
-		std::unique_ptr<std::byte[]>	_data;
-		std::size_t 					_size;
-	};
+    private:
+        /// Private Member Variables ///
+
+        std::unique_ptr<std::byte[]> _data;
+        std::size_t                  _size;
+    };
+
 }
 
 #endif /* AVARA3D_BUFFER_H */

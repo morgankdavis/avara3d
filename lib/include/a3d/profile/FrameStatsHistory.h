@@ -17,38 +17,39 @@
 
 namespace a3d {
 
-	class FrameStatsHistory {
+    class FrameStatsHistory {
 
-	public:
-		/// Public Types ///
+    public:
+        /// Public Types ///
 
-		using SteadyTimePoint = std::chrono::time_point<std::chrono::steady_clock>;
+        using SteadyTimePoint = std::chrono::time_point<std::chrono::steady_clock>;
 
-		/// Public Static Member Functions ///
+        /// Public Static Member Functions ///
 
-		static void GetAverages(const FrameStatsHistory& history,
-								std::chrono::nanoseconds& frame,
-								std::chrono::nanoseconds& engineCpu,
-								std::chrono::nanoseconds& renderCpu,
-								std::chrono::nanoseconds& renderGpu,
-								std::chrono::nanoseconds& physics,
-								std::chrono::nanoseconds& appCpu,
-								std::chrono::milliseconds averagingDuration);
-		/// Public Lifecycle Functions ///
+        static void GetAverages(const FrameStatsHistory&  history,
+                                std::chrono::nanoseconds& frame,
+                                std::chrono::nanoseconds& engineCpu,
+                                std::chrono::nanoseconds& renderCpu,
+                                std::chrono::nanoseconds& renderGpu,
+                                std::chrono::nanoseconds& physics,
+                                std::chrono::nanoseconds& appCpu,
+                                std::chrono::milliseconds averagingDuration);
+        /// Public Lifecycle Functions ///
 
-		explicit FrameStatsHistory(std::chrono::milliseconds historyTime);
+        explicit FrameStatsHistory(std::chrono::milliseconds historyTime);
 
-		/// Public Member Functions ///
+        /// Public Member Functions ///
 
-		void add(FrameStats stats);
-		const std::deque<std::tuple<SteadyTimePoint, FrameStats>>& samples() const;
+        void                                                       add(FrameStats stats);
+        const std::deque<std::tuple<SteadyTimePoint, FrameStats>>& samples() const;
 
-	private:
-		/// Private Member Variables ///
+    private:
+        /// Private Member Variables ///
 
-		std::chrono::milliseconds								_historyTime;
-		std::deque<std::tuple<SteadyTimePoint, FrameStats>>		_samples;
-	};
+        std::chrono::milliseconds                           _historyTime;
+        std::deque<std::tuple<SteadyTimePoint, FrameStats>> _samples;
+    };
+
 }
 
 #endif //AVARA3D_PROFILE_FRAMESTATSHISTORY_H

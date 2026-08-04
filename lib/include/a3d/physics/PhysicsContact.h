@@ -15,36 +15,37 @@
 
 namespace a3d {
 
-	class Node;
+    class Node;
 
-	class PhysicsContact {
+    class PhysicsContact {
 
-	public:
-		/// Public Lifecycle Functions ///
+    public:
+        /// Public Lifecycle Functions ///
 
-		PhysicsContact();
+        PhysicsContact();
 
-		/// Public Member Functions ///
+        /// Public Member Functions ///
 
-		std::weak_ptr<Node>				nodeA() const;
-		std::weak_ptr<Node>				nodeB() const;
-		const math::vec3& 				contactPoint() const;
-		const math::vec3& 				contactNormal() const;
-		float 							collisionImpulse() const;
-		float 							penetrationDistance() const;
-		float 							sweepTestFraction() const;
+        std::weak_ptr<Node> nodeA() const;
+        std::weak_ptr<Node> nodeB() const;
+        const math::vec3&   contactPoint() const;
+        const math::vec3&   contactNormal() const;
+        float               collisionImpulse() const;
+        float               penetrationDistance() const;
+        float               sweepTestFraction() const;
 
-	private:
-		/// Private Member Variables ///
+    private:
+        /// Private Member Variables ///
 
-		std::shared_ptr<Node> 			_nodeA;
-		std::shared_ptr<Node>			_nodeB;
-		math::vec3 						_contactPoint;
-		math::vec3 						_contactNormal;
-		float							_collisionImpulse;
-		float							_penetrationDistance;
-		float							_sweepTestFraction;
-	};
+        std::shared_ptr<Node> _nodeA;
+        std::shared_ptr<Node> _nodeB;
+        math::vec3            _contactPoint;
+        math::vec3            _contactNormal;
+        float                 _collisionImpulse;
+        float                 _penetrationDistance;
+        float                 _sweepTestFraction;
+    };
+
 }
 
 #endif /* AVARA3D_PHYSICS_PHYSICSCONTACT_H */

@@ -15,52 +15,53 @@
 
 namespace a3d {
 
-	class Mesh;
-	class Material;
+    class Mesh;
+    class Material;
 
-	class Capsule: public MeshElement {
+    class Capsule : public MeshElement {
 
-	public:
-		/// Public Static Member Functions ///
+    public:
+        /// Public Static Member Functions ///
 
-		static std::shared_ptr<Mesh> Mesh(float radius,
-										  float height,
-										  unsigned slices = DEFAULT_SLICES,
-										  unsigned segments = DEFAULT_SEGMENTS,
-										  unsigned rings = DEFAULT_RINGS,
-										  std::shared_ptr<Material> material = nullptr);
+        static std::shared_ptr<Mesh> Mesh(float                     radius,
+                                          float                     height,
+                                          unsigned                  slices   = DEFAULT_SLICES,
+                                          unsigned                  segments = DEFAULT_SEGMENTS,
+                                          unsigned                  rings    = DEFAULT_RINGS,
+                                          std::shared_ptr<Material> material = nullptr);
 
-		/// Public Lifecycle Functions ///
+        /// Public Lifecycle Functions ///
 
-		Capsule(float radius,
-				float height,
-				unsigned slices = DEFAULT_SLICES,
-				unsigned segments = DEFAULT_SEGMENTS,
-				unsigned rings = DEFAULT_RINGS);
+        Capsule(float    radius,
+                float    height,
+                unsigned slices   = DEFAULT_SLICES,
+                unsigned segments = DEFAULT_SEGMENTS,
+                unsigned rings    = DEFAULT_RINGS);
 
-		/// Public Member Functions ///
+        /// Public Member Functions ///
 
-		float 		radius() const;
-		float 		height() const;
-		unsigned 	slices() const;
-		unsigned 	segments() const;
-		unsigned 	rings() const;
+        float    radius() const;
+        float    height() const;
+        unsigned slices() const;
+        unsigned segments() const;
+        unsigned rings() const;
 
-	private:
-		/// Private Constants ///
+    private:
+        /// Private Constants ///
 
-		static constexpr unsigned DEFAULT_SLICES = 32;
-		static constexpr unsigned DEFAULT_SEGMENTS = 4;
-		static constexpr unsigned DEFAULT_RINGS = 8;
+        static constexpr unsigned DEFAULT_SLICES   = 32;
+        static constexpr unsigned DEFAULT_SEGMENTS = 4;
+        static constexpr unsigned DEFAULT_RINGS    = 8;
 
-		/// Private Member Variables ///
+        /// Private Member Variables ///
 
-		float		_radius;
-		float		_height;
-		unsigned 	_slices;
-		unsigned 	_segments;
-		unsigned 	_rings;
-	};
+        float                     _radius;
+        float                     _height;
+        unsigned                  _slices;
+        unsigned                  _segments;
+        unsigned                  _rings;
+    };
+
 }
 
 #endif /* AVARA3D_MESH_PRIMITIVE_CAPSULE_H */

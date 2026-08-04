@@ -14,9 +14,9 @@
 
 namespace a3d {
 
-	template<typename Context>
-	using CommandQueue =
-		std::queue<std::function<void(Context&)>>;
+    template<typename Context>
+    using CommandQueue = std::queue<std::function<void(Context&)>>;
+
 }
 
 #endif //AVARA3D_COMMANDQUEUE_H

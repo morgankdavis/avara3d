@@ -14,23 +14,27 @@
 
 using namespace a3d;
 
-static constexpr VertexAttribDesc PNT_DESC[] = {
-		{VertexSemantic::Position,  0, VertexAttribFormat::F32x3, (uint16_t)offsetof(VertexPNT, position)},
-		{VertexSemantic::Normal,    1, VertexAttribFormat::F32x3, (uint16_t)offsetof(VertexPNT, normal)},
-		{VertexSemantic::TexCoord0, 2, VertexAttribFormat::F32x2, (uint16_t)offsetof(VertexPNT, texCoord)} };
+static constexpr VertexAttribDesc PNT_DESC[] =
+    {{VertexSemantic::Position, 0, VertexAttribFormat::F32x3, (uint16_t) offsetof(VertexPNT, position)},
+     {VertexSemantic::Normal, 1, VertexAttribFormat::F32x3, (uint16_t) offsetof(VertexPNT, normal)},
+     {VertexSemantic::TexCoord0, 2, VertexAttribFormat::F32x2, (uint16_t) offsetof(VertexPNT, texCoord)}};
 
-static constexpr VertexAttribDesc PC_DESC[] = {
-		{VertexSemantic::Position, 0, VertexAttribFormat::F32x3, (uint16_t)offsetof(VertexPC, position)},
-		{VertexSemantic::Color0,   1, VertexAttribFormat::F32x3, (uint16_t)offsetof(VertexPC, color)} };
+static constexpr VertexAttribDesc PC_DESC[] = {{VertexSemantic::Position, 0, VertexAttribFormat::F32x3,
+                                                (uint16_t) offsetof(VertexPC, position)},
+                                               {VertexSemantic::Color0, 1, VertexAttribFormat::F32x3,
+                                                (uint16_t) offsetof(VertexPC, color)}};
 
-const VertexLayoutDesc& a3d::GetVertexLayoutDesc(VertexLayout layout) {
-	static constexpr VertexLayoutDesc PNT { (uint16_t)sizeof(VertexPNT),	PNT_DESC };
-	static constexpr VertexLayoutDesc PC  { (uint16_t)sizeof(VertexPC),		PC_DESC  };
-	static constexpr VertexLayoutDesc NONE{ 0, {} };
+const VertexLayoutDesc&           a3d::GetVertexLayoutDesc(VertexLayout layout) {
+    static constexpr VertexLayoutDesc PNT {(uint16_t) sizeof(VertexPNT), PNT_DESC};
+    static constexpr VertexLayoutDesc PC {(uint16_t) sizeof(VertexPC), PC_DESC};
+    static constexpr VertexLayoutDesc NONE {0, {}};
 
-	switch (layout) {
-		case VertexLayout::PNT: return PNT;
-		case VertexLayout::PC:  return PC;
-		default:                return NONE;
-	}
+    switch (layout) {
+        case VertexLayout::PNT:
+            return PNT;
+        case VertexLayout::PC:
+            return PC;
+        default:
+            return NONE;
+    }
 }

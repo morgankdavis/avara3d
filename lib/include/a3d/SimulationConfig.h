@@ -13,20 +13,21 @@
 
 namespace a3d {
 
-	struct SimulationConfig {
+    struct SimulationConfig {
 
-		// constant duration of every automatic and requested simulation step
-		double			timeStep{1.0 / 60.0};
+        // constant duration of every automatic and requested simulation step
+        double        timeStep {1.0 / 60.0};
 
-		// maximum automatic steps performed during one Runner::update()
-		std::uint32_t	maxCatchUpSteps{8};
+        // maximum automatic steps performed during one Runner::update()
+        std::uint32_t maxCatchUpSteps {8};
 
-		// initial automatic simulation-time rate relative to monotonic update
-		// time. requested steps ignore timeScale.
-		//
-		// Runner owns the mutable runtime value.
-		double			timeScale{1.0};
-	};
+        // initial automatic simulation-time rate relative to monotonic update
+        // time. requested steps ignore timeScale.
+        //
+        // Runner owns the mutable runtime value.
+        double        timeScale {1.0};
+    };
+
 }
 
 #endif //AVARA3D_SIMULATIONCONFIG_H

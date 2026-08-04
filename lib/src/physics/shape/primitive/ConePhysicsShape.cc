@@ -15,33 +15,33 @@ using namespace a3d;
 /// Public Lifecycle Functions ///
 
 ConePhysicsShape::ConePhysicsShape(float radius, float height):
-		_radius{radius},
-		_height{height} {}
+    _radius {radius},
+    _height {height} {}
 
 /// Public Member Functions ///
 
 float ConePhysicsShape::radius() const {
-	return _radius;
+    return _radius;
 }
 
 void ConePhysicsShape::radius(float radius) {
-	_radius = radius;
+    _radius = radius;
 }
 
 float ConePhysicsShape::height() const {
-	return _height;
+    return _height;
 }
 
 void ConePhysicsShape::height(float height) {
-	_height = height;
+    _height = height;
 }
 
 /// PhysicsShape Public Member Functions ///
 
 PhysicsShape::Type ConePhysicsShape::type() const {
-	return PhysicsShape::Type::Primitive;
+    return PhysicsShape::Type::Primitive;
 }
 
 void ConePhysicsShape::type(PhysicsShape::Type type) {
-	throw std::logic_error("Cannot set PhysicsShape::Type for ConePhysicsShape.");
+    throw std::logic_error("Cannot set PhysicsShape::Type for ConePhysicsShape.");
 }

@@ -14,42 +14,43 @@
 
 namespace a3d {
 
-	class OrthographicCamera : public Camera {
+    class OrthographicCamera : public Camera {
 
-	public:
-		/// Public Lifecycle Functions ///
+    public:
+        /// Public Lifecycle Functions ///
 
-		OrthographicCamera();
-		explicit OrthographicCamera(const AABB& extent);
-		OrthographicCamera(const std::string& name, const AABB& extent);
+        OrthographicCamera();
+        explicit OrthographicCamera(const AABB& extent);
+        OrthographicCamera(const std::string& name, const AABB& extent);
 
-		OrthographicCamera(const OrthographicCamera&) = default;
-		OrthographicCamera& operator=(const OrthographicCamera&) = default;
+        OrthographicCamera(const OrthographicCamera&)            = default;
+        OrthographicCamera& operator=(const OrthographicCamera&) = default;
 
-		OrthographicCamera(OrthographicCamera&&) noexcept = default;
-		OrthographicCamera& operator=(OrthographicCamera&&) noexcept = default;
+        OrthographicCamera(OrthographicCamera&&) noexcept            = default;
+        OrthographicCamera& operator=(OrthographicCamera&&) noexcept = default;
 
-		~OrthographicCamera() override;
+        ~OrthographicCamera() override;
 
-		/// Public Member Functions ///
+        /// Public Member Functions ///
 
-		AABB 		extent() const;
-		void	 	extent(const AABB& e);
+        AABB       extent() const;
+        void       extent(const AABB& e);
 
-		/// Camera Internal Member Functions ///
+        /// Camera Internal Member Functions ///
 
-		math::mat4 		projection() const override;
+        math::mat4 projection() const override;
 
-	protected:
-		/// Camera Protected Member Functions ///
+    protected:
+        /// Camera Protected Member Functions ///
 
 //		void 		constructProjectionMatrix() override;
 
-	private:
-		/// Private Member Variables ///
-		
-		AABB 		_extent;
-	};
+    private:
+        /// Private Member Variables ///
+
+        AABB _extent;
+    };
+
 }
 
 #endif /* AVARA3D_VISUAL_CAMERA_ORTHOGRAPHICCAMERA_H */

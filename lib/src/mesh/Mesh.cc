@@ -29,219 +29,216 @@ using namespace std;
 /// Public Static Member Functions ///
 
 shared_ptr<Mesh> Mesh::FromFile(const filesystem::path& path, ImportOptions options) {
-	// Timer timer {true};
-	auto  optsUnderlying = static_cast<underlying_type<ImportOptions>::type>(options);
-	auto  sceneOpts		 = Scene::ImportOptions(optsUnderlying) | Scene::ImportOptions::ImportMeshes;
-	auto  mesh			 = GlTFImporter(path, sceneOpts).firstMesh();
-	// log::i()("Loaded Mesh '{}'. Time: {:.3f} ms", path.string(), util::chrono::Milliseconds(timer.stop()));
-	return mesh;
+    // Timer timer {true};
+    auto optsUnderlying = static_cast<underlying_type<ImportOptions>::type>(options);
+    auto sceneOpts      = Scene::ImportOptions(optsUnderlying) | Scene::ImportOptions::ImportMeshes;
+    auto mesh           = GlTFImporter(path, sceneOpts).firstMesh();
+    // log::i()("Loaded Mesh '{}'. Time: {:.3f} ms", path.string(), util::chrono::Milliseconds(timer.stop()));
+    return mesh;
 }
 
 /// Public Lifecycle Functions ///
 
-Mesh::Mesh(const string& name,
-		   unique_ptr<MeshElement> element,
-		   const shared_ptr<Material>& material):
-		Mesh{std::move(element), material} {
+Mesh::Mesh(const string& name, unique_ptr<MeshElement> element, const shared_ptr<Material>& material):
+    Mesh {std::move(element), material} {
 
-	_name = name;
+    _name = name;
 }
 
-Mesh::Mesh(unique_ptr<MeshElement> element,
-		   const shared_ptr<Material>& material):
-		Mesh{} {
+Mesh::Mesh(unique_ptr<MeshElement> element, const shared_ptr<Material>& material):
+    Mesh {} {
 
-	if (element) _elements.push_back(std::move(element));
-	if (material) _materials.push_back(material);
+    if (element) {
+        _elements.push_back(std::move(element));
+    }
+    if (material) {
+        _materials.push_back(material);
+    }
 
-	genLocalAABB();
+    genLocalAABB();
 }
 
-Mesh::Mesh(const string& name,
-		   vector<unique_ptr<MeshElement>>& elements,
-		   const vector<shared_ptr<Material>>& materials):
-		Mesh{elements, materials} {
+Mesh::Mesh(const string&                       name,
+           vector<unique_ptr<MeshElement>>&    elements,
+           const vector<shared_ptr<Material>>& materials):
+    Mesh {elements, materials} {
 
-	_name = name;
+    _name = name;
 }
 
-Mesh::Mesh(vector<unique_ptr<MeshElement>>& elements,
-		   const vector<shared_ptr<Material>>& materials):
-		Mesh{} {
+Mesh::Mesh(vector<unique_ptr<MeshElement>>& elements, const vector<shared_ptr<Material>>& materials):
+    Mesh {} {
 
-	_elements = vector<unique_ptr<MeshElement>>();
-	_elements.reserve(elements.size());
-	_elements.insert(_elements.end(),
-					 std::make_move_iterator(elements.begin()),
-					 std::make_move_iterator(elements.end()));
-	_materials = materials;
+    _elements = vector<unique_ptr<MeshElement>>();
+    _elements.reserve(elements.size());
+    _elements.insert(_elements.end(), std::make_move_iterator(elements.begin()),
+                     std::make_move_iterator(elements.end()));
+    _materials = materials;
 
-	genLocalAABB();
+    genLocalAABB();
 }
 
 Mesh::~Mesh() {
 
-	if (_name != nullopt) {
-		log::d()("Destroying Mesh '{}' ({:p})", *_name, static_cast<void*>(this));
-	}
-	else {
-		log::d()("Destroying Mesh {:p}", static_cast<void*>(this));
-	}
+    if (_name != nullopt) {
+        log::d()("Destroying Mesh '{}' ({:p})", *_name, static_cast<void*>(this));
+    }
+    else {
+        log::d()("Destroying Mesh {:p}", static_cast<void*>(this));
+    }
 }
 
 /// Public Member Functions ///
 
 optional<string> Mesh::name() const {
-	return _name;
+    return _name;
 }
 
 void Mesh::name(const string& name) {
-	_name = name;
+    _name = name;
 }
 
 const vector<unique_ptr<MeshElement>>& Mesh::elements() {
-	return _elements;
+    return _elements;
 }
 
 const vector<shared_ptr<Material>>& Mesh::materials() {
-	return _materials;
+    return _materials;
 }
 
 shared_ptr<Material> Mesh::firstMaterial() const {
-	if (!_materials.empty()) {
-		return _materials[0];
-	}
-	return nullptr;
+    if (!_materials.empty()) {
+        return _materials[0];
+    }
+    return nullptr;
 }
 
 shared_ptr<Material> Mesh::materialNamed(const string& name) const {
-	for (auto& material : _materials) {
-		auto matName = material->name();
-		if (matName) {
-			if (!((*matName) == name)) {
-				return material;
-			}
-		}
-	}
-	return nullptr;
+    for (auto& material : _materials) {
+        auto matName = material->name();
+        if (matName) {
+            if (!((*matName) == name)) {
+                return material;
+            }
+        }
+    }
+    return nullptr;
 }
 
 void Mesh::addMaterial(const shared_ptr<Material>& material) {
-	_materials.push_back(material);
+    _materials.push_back(material);
 }
 
 void Mesh::insertMaterial(const shared_ptr<Material>& material, int index) {
-	_materials.insert(_materials.begin()+index, material);
+    _materials.insert(_materials.begin() + index, material);
 }
 
 void Mesh::removeMaterial(int index) {
-//	if (_materials.size() >= index-1) { // fails when index==0
-		_materials.erase(_materials.begin()+index);
-//	}
+    //	if (_materials.size() >= index-1) { // fails when index==0
+    _materials.erase(_materials.begin() + index);
+    //	}
 }
 
 void Mesh::replaceMaterial(int index, const shared_ptr<Material>& replacement) {
-	removeMaterial(index);
-	insertMaterial(replacement, index);
+    removeMaterial(index);
+    insertMaterial(replacement, index);
 }
 
 /// Internal Member Functions ///
 
 MeshId Mesh::id() const noexcept {
-	return _id;
+    return _id;
 }
 
 AABB Mesh::localAABB() const {
-	return _localAABB;
+    return _localAABB;
 }
 
 AABB Mesh::worldAABB(const math::mat4& worldTransform, bool vertfit) const {
 
-	// TODO: consolidate (MeshElement has the same function)
+    // TODO: consolidate (MeshElement has the same function)
 
-	if (vertfit) {
-		static const float maxFloat = math::f32_max();
-		static const float minFloat = math::f32_lowest();
-		AABB out = { {maxFloat, maxFloat, maxFloat},
-					 {minFloat, minFloat, minFloat} };
+    if (vertfit) {
+        static const float maxFloat = math::f32_max();
+        static const float minFloat = math::f32_lowest();
+        AABB               out      = {{maxFloat, maxFloat, maxFloat}, {minFloat, minFloat, minFloat}};
 
-		for (const auto& e : _elements) {
-			AABB ea = e->worldAABB(worldTransform, true);
-			out.min = min(out.min, ea.min);
-			out.max = max(out.max, ea.max);
-		}
-		return out;
-	}
-	// fit over OBB - looser - fast!
-	else {
+        for (const auto& e : _elements) {
+            AABB ea = e->worldAABB(worldTransform, true);
+            out.min = min(out.min, ea.min);
+            out.max = max(out.max, ea.max);
+        }
+        return out;
+    }
+    // fit over OBB - looser - fast!
+    else {
 
-		auto localAABB = Mesh::localAABB();
+        auto       localAABB = Mesh::localAABB();
 
-		const vec3 c = (localAABB.min + localAABB.max) / 2.0f; // local center
-		const vec3 e = (localAABB.max - localAABB.min) / 2.0f; // local half extents
+        const vec3 c = (localAABB.min + localAABB.max) / 2.0f; // local center
+        const vec3 e = (localAABB.max - localAABB.min) / 2.0f; // local half extents
 
-		const vec3 C = vec3{worldTransform * vec4(c, 1.0f)}; // world center
+        const vec3 C = vec3 {worldTransform * vec4(c, 1.0f)}; // world center
 
-		// linear part (rotation/scale/shear)
-		const mat3 L = math::mat3{worldTransform};
+        // linear part (rotation/scale/shear)
+        const mat3 L = math::mat3 {worldTransform};
 
-		const mat3 A = math::abs(L);
+        const mat3 A = math::abs(L);
 
-		const vec3 E = A * e; // world half extents
+        const vec3 E = A * e; // world half extents
 
-		return AABB{C - E, C + E};
-	}
+        return AABB {C - E, C + E};
+    }
 }
 
 vec3 Mesh::localExtent() const {
-	auto aabb = localAABB();
-	return aabb.max - aabb.min;
+    auto aabb = localAABB();
+    return aabb.max - aabb.min;
 }
 
 vec3 Mesh::worldExtent(const mat4& worldTransform) const {
-	auto aabb = worldAABB(worldTransform, true);
-	return aabb.max - aabb.min;
+    auto aabb = worldAABB(worldTransform, true);
+    return aabb.max - aabb.min;
 }
 
 void Mesh::burnTransform(const mat4& transform, bool normals) {
-	for (auto& element : elements()) {
-		element->burnTransform(transform, normals);
-	}
+    for (auto& element : elements()) {
+        element->burnTransform(transform, normals);
+    }
 
-	genLocalAABB();
+    genLocalAABB();
 }
 
 Mesh::DirtyMask Mesh::dirtyMask() const {
-	return _dirtyMask;
+    return _dirtyMask;
 }
 
 void Mesh::dirtyMask(DirtyMask mask) {
-	_dirtyMask = mask;
+    _dirtyMask = mask;
 }
 
 // Protected Member Functions ///
 
 void Mesh::genLocalAABB() {
 
-	static const float maxFloat = math::f32_max();
-	static const float minFloat = math::f32_lowest();
-	AABB aabb = { {maxFloat, maxFloat, maxFloat},
-				  {minFloat, minFloat, minFloat} };
+    static const float maxFloat = math::f32_max();
+    static const float minFloat = math::f32_lowest();
+    AABB               aabb     = {{maxFloat, maxFloat, maxFloat}, {minFloat, minFloat, minFloat}};
 
-	for (const auto& element : _elements) {
-		auto elementAABB = element->localAABB();
-		aabb.min = min(aabb.min, elementAABB.min);
-		aabb.max = max(aabb.max, elementAABB.max);
-	}
+    for (const auto& element : _elements) {
+        auto elementAABB = element->localAABB();
+        aabb.min         = min(aabb.min, elementAABB.min);
+        aabb.max         = max(aabb.max, elementAABB.max);
+    }
 
-	_localAABB = aabb;
+    _localAABB = aabb;
 }
 
 /// Private Lifecycle Functions ///
 
 Mesh::Mesh():
-		_id{IdGenerator<MeshId>::next()},
-		_name{},
-		_elements{},
-		_materials{},
-		_dirtyMask{DirtyMask::All} { }
+    _id {IdGenerator<MeshId>::next()},
+    _name {},
+    _elements {},
+    _materials {},
+    _dirtyMask {DirtyMask::All} {}

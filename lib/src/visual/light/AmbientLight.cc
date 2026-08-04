@@ -16,22 +16,22 @@ using namespace std;
 /// Public Lifecycle Functions ///
 
 AmbientLight::AmbientLight():
-	Light() {}
+    Light() {}
 
 AmbientLight::AmbientLight(const string& name):
-		AmbientLight() {
-	_name = name;
+    AmbientLight() {
+    _name = name;
 }
 
 AmbientLight::AmbientLight(const shared_ptr<Color>& color):
-		AmbientLight() {
-	_color = color;
+    AmbientLight() {
+    _color = color;
 }
 
 AmbientLight::AmbientLight(const string& name, const shared_ptr<Color>& color):
-		AmbientLight() {
-	_name = name;
-	_color = color;
+    AmbientLight() {
+    _name  = name;
+    _color = color;
 }
 
 //Light::~Light() {

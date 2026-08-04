@@ -15,60 +15,61 @@
 
 namespace a3d {
 
-	class AmbientLight;
-	class Color;
-	class DirectionalLight;
-	class PointLight;
-	class SpotLight;
-	
-	class Light {
+    class AmbientLight;
+    class Color;
+    class DirectionalLight;
+    class PointLight;
+    class SpotLight;
 
-	public:
-		/// Public Static Member Functions ///
+    class Light {
 
-		static std::shared_ptr<AmbientLight> 		Ambient();
-		static std::shared_ptr<AmbientLight> 		Ambient(const std::shared_ptr<Color>& color);
+    public:
+        /// Public Static Member Functions ///
 
-		static std::shared_ptr<DirectionalLight>	Directional();
-		static std::shared_ptr<DirectionalLight>	Directional(const std::shared_ptr<Color>& color);
+        static std::shared_ptr<AmbientLight>     Ambient();
+        static std::shared_ptr<AmbientLight>     Ambient(const std::shared_ptr<Color>& color);
 
-		static std::shared_ptr<PointLight> 			Point();
-		static std::shared_ptr<PointLight> 			Point(const std::shared_ptr<Color>& color);
+        static std::shared_ptr<DirectionalLight> Directional();
+        static std::shared_ptr<DirectionalLight> Directional(const std::shared_ptr<Color>& color);
 
-		static std::shared_ptr<SpotLight> 			Spot();
-		static std::shared_ptr<SpotLight> 			Spot(const std::shared_ptr<Color>& color);
+        static std::shared_ptr<PointLight>       Point();
+        static std::shared_ptr<PointLight>       Point(const std::shared_ptr<Color>& color);
 
-	protected:
-		/// Protected Lifecycle Functions ///
+        static std::shared_ptr<SpotLight>        Spot();
+        static std::shared_ptr<SpotLight>        Spot(const std::shared_ptr<Color>& color);
 
-		Light();
-		explicit Light(const std::string& name);
-		explicit Light(const std::shared_ptr<Color>& color);
-		Light(const std::string& name, const std::shared_ptr<Color>& color);
+    protected:
+        /// Protected Lifecycle Functions ///
 
-		Light(const Light&) = default;
-		Light& operator=(const Light&) = default;
+        Light();
+        explicit Light(const std::string& name);
+        explicit Light(const std::shared_ptr<Color>& color);
+        Light(const std::string& name, const std::shared_ptr<Color>& color);
 
-		Light(Light&&) noexcept = default;
-		Light& operator=(Light&&) noexcept = default;
+        Light(const Light&)            = default;
+        Light& operator=(const Light&) = default;
 
-		virtual ~Light() = 0;
+        Light(Light&&) noexcept            = default;
+        Light& operator=(Light&&) noexcept = default;
 
-	public:
-		/// Public Member Functions ///
+        virtual ~Light() = 0;
 
-		const std::optional<std::string>&	name() const;
-		void 								name(const std::string& name);
+    public:
+        /// Public Member Functions ///
 
-		const std::shared_ptr<Color>&		color() const;
-		void 								color(const std::shared_ptr<Color>& color);
+        const std::optional<std::string>& name() const;
+        void                              name(const std::string& name);
 
-	protected:
-		/// Protected Member Variables ///
+        const std::shared_ptr<Color>&     color() const;
+        void                              color(const std::shared_ptr<Color>& color);
 
-		std::optional<std::string>			_name;
-		std::shared_ptr<Color>				_color;
-	};
+    protected:
+        /// Protected Member Variables ///
+
+        std::optional<std::string> _name;
+        std::shared_ptr<Color>     _color;
+    };
+
 }
 
 #endif //AVARA3D_VISUAL_LIGHT_LIGHT_H */

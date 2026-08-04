@@ -21,86 +21,86 @@ using namespace std;
 /// Public Static Member Functions ///
 
 shared_ptr<AmbientLight> Light::Ambient() {
-	return make_unique<a3d::AmbientLight>();
+    return make_unique<a3d::AmbientLight>();
 }
 
 shared_ptr<AmbientLight> Light::Ambient(const shared_ptr<Color>& color) {
-	return make_unique<a3d::AmbientLight>(color);
+    return make_unique<a3d::AmbientLight>(color);
 }
 
 shared_ptr<DirectionalLight> Light::Directional() {
-	return make_unique<a3d::DirectionalLight>();
+    return make_unique<a3d::DirectionalLight>();
 }
 
 shared_ptr<DirectionalLight> Light::Directional(const shared_ptr<Color>& color) {
-	return make_unique<a3d::DirectionalLight>(color);
+    return make_unique<a3d::DirectionalLight>(color);
 }
 
 shared_ptr<PointLight> Light::Point() {
-	return make_unique<a3d::PointLight>();
+    return make_unique<a3d::PointLight>();
 }
 
 shared_ptr<PointLight> Light::Point(const shared_ptr<Color>& color) {
-	return make_unique<a3d::PointLight>(color);
+    return make_unique<a3d::PointLight>(color);
 }
 
 shared_ptr<SpotLight> Light::Spot() {
-	return make_unique<a3d::SpotLight>();
+    return make_unique<a3d::SpotLight>();
 }
 
 shared_ptr<SpotLight> Light::Spot(const shared_ptr<Color>& color) {
-	return make_unique<a3d::SpotLight>(color);
+    return make_unique<a3d::SpotLight>(color);
 }
 
 /// protected Lifecycle Functions ///
 
 Light::Light():
-	_name{nullopt},
-	_color{Color::White()} {}
+    _name {nullopt},
+    _color {Color::White()} {}
 
 Light::Light(const string& name):
-		Light{} {
+    Light {} {
 
-	_name = name;
+    _name = name;
 }
 
 Light::Light(const shared_ptr<Color>& color):
-		Light{} {
+    Light {} {
 
-	_color = color;
+    _color = color;
 }
 
-Light::Light(const string& name,
-			 const shared_ptr<Color>& color) : Light{} {
+Light::Light(const string& name, const shared_ptr<Color>& color):
+    Light {} {
 
-	_name = name;
-	_color = color;
+    _name  = name;
+    _color = color;
 }
 
 Light::~Light() {
 
-	if (_name != nullopt) {
-		log::d()("Destroying Light '{}' ({:p})", *_name, static_cast<void*>(this));
-	}
-	else {
-		log::d()("Destroying Light {:p}", static_cast<void*>(this));
-	}
+    if (_name != nullopt) {
+        log::d()("Destroying Light '{}' ({:p})", *_name, static_cast<void*>(this));
+    }
+    else {
+        log::d()("Destroying Light {:p}", static_cast<void*>(this));
+    }
 }
 
 /// Public Member Functions ///
 
 const optional<string>& Light::name() const {
-	return _name;
+    return _name;
 }
 
 void Light::name(const string& name) {
-	_name = name;
+    _name = name;
 }
 
 const shared_ptr<Color>& Light::color() const {
-	return _color;
+    return _color;
 }
 
 void Light::color(const shared_ptr<Color>& color) {
-	_color = color;
+    _color = color;
 }

@@ -20,55 +20,55 @@
 
 namespace a3d {
 
-	class FileLogSink : public LogSink {
+    class FileLogSink : public LogSink {
 
-	public:
-		/// Public Lifecycle Functions ///
+    public:
+        /// Public Lifecycle Functions ///
 
-		explicit FileLogSink(const std::filesystem::path& relPath,
-							 int maxFiles = DEFAULT_MAX_FILES,
-							 int maxFilesize = DEFAULT_MAX_FILESIZE);
+        explicit FileLogSink(const std::filesystem::path& relPath,
+                             int                          maxFiles    = DEFAULT_MAX_FILES,
+                             int                          maxFilesize = DEFAULT_MAX_FILESIZE);
 
-		FileLogSink(const FileLogSink&) = delete;
-		FileLogSink& operator=(const FileLogSink&) = delete;
+        FileLogSink(const FileLogSink&)            = delete;
+        FileLogSink& operator=(const FileLogSink&) = delete;
 
-		FileLogSink(FileLogSink&&) = delete;
-		FileLogSink& operator=(FileLogSink&&) = delete;
+        FileLogSink(FileLogSink&&)            = delete;
+        FileLogSink& operator=(FileLogSink&&) = delete;
 
-		~FileLogSink() override;
+        ~FileLogSink() override;
 
-		/// Public Member Functions ///
+        /// Public Member Functions ///
 
-		const std::filesystem::path&		filepath() const;
+        const std::filesystem::path& filepath() const;
 
-		int 								maxFiles() const;
-		int 								maxFilesize() const;
+        int                          maxFiles() const;
+        int                          maxFilesize() const;
 
-		/// Public LogSink Member Functions ///
+        /// Public LogSink Member Functions ///
 
-		void 								write(const std::string& output,
-												  Log::Level level) override;
-		void 								flush() override;
+        void                         write(const std::string& output, Log::Level level) override;
+        void                         flush() override;
 
-	private:
-		/// Private Constants ///
+    private:
+        /// Private Constants ///
 
-		static constexpr unsigned 			DEFAULT_MAX_FILES = 5;
-		static constexpr unsigned 			DEFAULT_MAX_FILESIZE = 1024 * 1024 * 1; // 1MB
+        static constexpr unsigned      DEFAULT_MAX_FILES    = 5;
+        static constexpr unsigned      DEFAULT_MAX_FILESIZE = 1024 * 1024 * 1; // 1MB
 
-		/// Private Member Functions ///
+        /// Private Member Functions ///
 
-		void 								openStream();
-		void 								checkRotate();
-		void 								rotate();
+        void                           openStream();
+        void                           checkRotate();
+        void                           rotate();
 
-		/// Private Member Variables ///
+        /// Private Member Variables ///
 
-		std::filesystem::path				_filepath;
-		int									_maxFiles;
-		int									_maxFilesize;
-		std::shared_ptr<std::ofstream>		_fileStream;
-	};
+        std::filesystem::path          _filepath;
+        int                            _maxFiles;
+        int                            _maxFilesize;
+        std::shared_ptr<std::ofstream> _fileStream;
+    };
+
 }
 
 #endif //AVARA3D_LOG_SINK_FILELOGSINK_H

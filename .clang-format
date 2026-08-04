@@ -11,7 +11,7 @@ ContinuationIndentWidth: 4
 ConstructorInitializerIndentWidth: 4
 BracedInitializerIndentWidth: 4
 TabWidth: 4
-UseTab: Always
+UseTab: Never
 
 NamespaceIndentation: All
 CompactNamespaces: false

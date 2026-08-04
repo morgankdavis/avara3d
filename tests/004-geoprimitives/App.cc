@@ -17,324 +17,310 @@ using namespace std;
 
 /// Private Constants ///
 
-const Log::Level						APP_LOG_LEVEL		{Log::Level::Debug};
-const uvec2								WINDOW_SIZE			{1280, 768};
-const bool								FULLSCREEN			{false};
-const bool								ENABLE_HIGH_DPI		{true};
-const RenderContext::AntialiasingMode	ANTIALIAS_MODE		{RenderContext::AntialiasingMode::Msaa4X};
-const bool								ENABLE_VSYNC		{false};
-const bool								CAPTURE_CURSOR		{false};
-const float								MOUSE_SENSITIVITY	{0.5};
-const float								FIXED_TIMESTEP		{1.0/120.0};
-const bool								DARK				{false};
+const Log::Level                      APP_LOG_LEVEL {Log::Level::Debug};
+const uvec2                           WINDOW_SIZE {1280, 768};
+const bool                            FULLSCREEN {false};
+const bool                            ENABLE_HIGH_DPI {true};
+const RenderContext::AntialiasingMode ANTIALIAS_MODE {RenderContext::AntialiasingMode::Msaa4X};
+const bool                            ENABLE_VSYNC {false};
+const bool                            CAPTURE_CURSOR {false};
+const float                           MOUSE_SENSITIVITY {0.5};
+const float                           FIXED_TIMESTEP {1.0 / 120.0};
+const bool                            DARK {false};
 
 /// Public Lifecycle Functions ///
 
-App::App(int argc, char* argv[]): Application(argc, argv, APP_LOG_LEVEL) {}
+App::App(int argc, char* argv[]):
+    Application(argc, argv, APP_LOG_LEVEL) {}
 
 App::~App() = default;
 
 /// Public Member Functions ///
 
 std::unique_ptr<Scene> App::init() {
-	try {
-		_window = make_unique<Window>(RenderContext::RenderingApi::OpenGL,
-									  *util::filesystem::ExecutableName(),
-									  WINDOW_SIZE,
-									  FULLSCREEN,
-									  ENABLE_HIGH_DPI,
-									  ANTIALIAS_MODE);
-		_window->vSyncEnabled(ENABLE_VSYNC);
-		_window->cursorCaptured(CAPTURE_CURSOR);
+    try {
+        _window = make_unique<Window>(RenderContext::RenderingApi::OpenGL, *util::filesystem::ExecutableName(),
+                                      WINDOW_SIZE, FULLSCREEN, ENABLE_HIGH_DPI, ANTIALIAS_MODE);
+        _window->vSyncEnabled(ENABLE_VSYNC);
+        _window->cursorCaptured(CAPTURE_CURSOR);
 
-		auto visualWorld = make_unique<VisualWorld>(*_window);
-		//auto backgroundColor = make_shared<Color>(109.0f/255.0f, 136.0f/255.0f, 164.0f/255.0f, 1.0f);
-		visualWorld->background(Color::Black());
+        auto visualWorld = make_unique<VisualWorld>(*_window);
+        //auto backgroundColor = make_shared<Color>(109.0f/255.0f, 136.0f/255.0f, 164.0f/255.0f, 1.0f);
+        visualWorld->background(Color::Black());
 
-		auto scene = make_unique<Scene>(std::move(visualWorld),
-		                                nullptr,
-		                                Window::InputContext());
-		scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
+        auto scene = make_unique<Scene>(std::move(visualWorld), nullptr, Window::InputContext());
+        scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 
-		auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.1f));
-		auto ambientLightNode = Node::LightNode(ambientLight);
-		scene->rootNode()->addChild(ambientLightNode);
+        auto ambientLight     = make_shared<AmbientLight>(make_shared<Color>(0.1f));
+        auto ambientLightNode = Node::LightNode(ambientLight);
+        scene->rootNode()->addChild(ambientLightNode);
 
-		auto pointLight = make_shared<PointLight>(Color::LightGray());
-		auto pointLightNode = Node::LightNode(pointLight);
-		pointLightNode->position({0, 0, 5});
-		auto material = make_shared<Material>(monostate{},
-											  monostate{},
-											  monostate{},
-											  Color::White());
-		auto sphere = Sphere::Mesh(0.25f, 12, material);
-		pointLightNode->mesh(sphere);
-		auto pointLightPivotNode = Node::NamedNode("point light pivot");
-		_pointLightPivotNode = pointLightPivotNode.get();
-		pointLightPivotNode->addChild(pointLightNode);
-		scene->rootNode()->addChild(pointLightPivotNode);
+        auto pointLight     = make_shared<PointLight>(Color::LightGray());
+        auto pointLightNode = Node::LightNode(pointLight);
+        pointLightNode->position({0, 0, 5});
+        auto material = make_shared<Material>(monostate {}, monostate {}, monostate {}, Color::White());
+        auto sphere   = Sphere::Mesh(0.25f, 12, material);
+        pointLightNode->mesh(sphere);
+        auto pointLightPivotNode = Node::NamedNode("point light pivot");
+        _pointLightPivotNode     = pointLightPivotNode.get();
+        pointLightPivotNode->addChild(pointLightNode);
+        scene->rootNode()->addChild(pointLightPivotNode);
 
-		{
-			auto mesh = Box::Mesh(1.5f, 1.0f, 1.5f);
-			auto node = make_shared<Node>();
-			node->name("box");
-			node->mesh(mesh);
-			scene->rootNode()->addChild(node);
-			node->rotation({0.0f, 1.0f, 0.0f}, radians(-45.0f));
-			node->position(vec3(1.67f, -2.5f, 0.0f));
-		}
+        {
+            auto mesh = Box::Mesh(1.5f, 1.0f, 1.5f);
+            auto node = make_shared<Node>();
+            node->name("box");
+            node->mesh(mesh);
+            scene->rootNode()->addChild(node);
+            node->rotation({0.0f, 1.0f, 0.0f}, radians(-45.0f));
+            node->position(vec3(1.67f, -2.5f, 0.0f));
+        }
 
-		{
-			auto mesh = Capsule::Mesh(0.5f, 1.0f);
-			auto node = make_shared<Node>();
-			node->name("capsule");
-			node->mesh(mesh);
-			scene->rootNode()->addChild(node);
-			node->position(vec3(-5.0f, -2.5f, 0.0f));
-		}
+        {
+            auto mesh = Capsule::Mesh(0.5f, 1.0f);
+            auto node = make_shared<Node>();
+            node->name("capsule");
+            node->mesh(mesh);
+            scene->rootNode()->addChild(node);
+            node->position(vec3(-5.0f, -2.5f, 0.0f));
+        }
 
-		{
-			auto mesh = Cone::Mesh(1.0f, 2.0f);
-			auto node = make_shared<Node>();
-			mesh->name("cone");
-			node->mesh(mesh);
-			scene->rootNode()->addChild(node);
-			//node->position(vec3(-5.0f, 0.0f, 0.0f));
-			node->position(vec3(-1.67f, -2.5f, 0.0f));
-		}
+        {
+            auto mesh = Cone::Mesh(1.0f, 2.0f);
+            auto node = make_shared<Node>();
+            mesh->name("cone");
+            node->mesh(mesh);
+            scene->rootNode()->addChild(node);
+            //node->position(vec3(-5.0f, 0.0f, 0.0f));
+            node->position(vec3(-1.67f, -2.5f, 0.0f));
+        }
 
-		{
-			auto mesh = Cylinder::Mesh(0.5f, 2.0f);
-			auto node = make_shared<Node>();
-			mesh->name("cylinder");
-			node->mesh(mesh);
-			scene->rootNode()->addChild(node);
-			node->position(vec3(5.0f, -2.5f, 0.0f));
-		}
+        {
+            auto mesh = Cylinder::Mesh(0.5f, 2.0f);
+            auto node = make_shared<Node>();
+            mesh->name("cylinder");
+            node->mesh(mesh);
+            scene->rootNode()->addChild(node);
+            node->position(vec3(5.0f, -2.5f, 0.0f));
+        }
 
-		{
-			auto mesh = Plane::Mesh(10.0f, 10.0f);
-			auto node = make_shared<Node>();
-			mesh->name("plane");
-			node->mesh(mesh);
-			scene->rootNode()->addChild(node);
-			node->rotation({-1.0f, 0.0f, 0.0f}, radians(90.0f));
-			node->position(vec3(0.0f, -5.0f, 0.0f));
-		}
+        {
+            auto mesh = Plane::Mesh(10.0f, 10.0f);
+            auto node = make_shared<Node>();
+            mesh->name("plane");
+            node->mesh(mesh);
+            scene->rootNode()->addChild(node);
+            node->rotation({-1.0f, 0.0f, 0.0f}, radians(90.0f));
+            node->position(vec3(0.0f, -5.0f, 0.0f));
+        }
 
-		{
-			auto mesh = RoundedBox::Mesh(0.25f, 1, 1, 1);
-			auto node = make_shared<Node>();
-			mesh->name("rounded box");
-			node->mesh(mesh);
-			scene->rootNode()->addChild(node);
-			node->rotation({0.0f, 1.0f, 0.0f}, radians(70.0f));
-			node->position(vec3(-3.0f, 2.5f, 0.0f));
-		}
+        {
+            auto mesh = RoundedBox::Mesh(0.25f, 1, 1, 1);
+            auto node = make_shared<Node>();
+            mesh->name("rounded box");
+            node->mesh(mesh);
+            scene->rootNode()->addChild(node);
+            node->rotation({0.0f, 1.0f, 0.0f}, radians(70.0f));
+            node->position(vec3(-3.0f, 2.5f, 0.0f));
+        }
 
-		{
-			auto mesh = Sphere::Mesh(1.0f);
-			auto node = make_shared<Node>();
-			mesh->name("sphere");
-			node->mesh(mesh);
-			scene->rootNode()->addChild(node);
-			node->position(vec3(3.0f, 2.5f, 0.0f));
-		}
+        {
+            auto mesh = Sphere::Mesh(1.0f);
+            auto node = make_shared<Node>();
+            mesh->name("sphere");
+            node->mesh(mesh);
+            scene->rootNode()->addChild(node);
+            node->position(vec3(3.0f, 2.5f, 0.0f));
+        }
 
-		{
-			auto mesh = Spring::Mesh(0.2f, 0.5f, 2.5f);
-			auto node = make_shared<Node>();
-			mesh->name("spring");
-			node->mesh(mesh);
-			scene->rootNode()->addChild(node);
-			node->position(vec3(0.0f, 3.5f, 0.0f));
-			node->rotation({0.0f, 1.0f, 0.0f}, radians(-90.0f));
-		}
+        {
+            auto mesh = Spring::Mesh(0.2f, 0.5f, 2.5f);
+            auto node = make_shared<Node>();
+            mesh->name("spring");
+            node->mesh(mesh);
+            scene->rootNode()->addChild(node);
+            node->position(vec3(0.0f, 3.5f, 0.0f));
+            node->rotation({0.0f, 1.0f, 0.0f}, radians(-90.0f));
+        }
 
-		{
-			auto mesh = Torus::Mesh(0.75f, 1.0f);
-			auto node = make_shared<Node>();
-			mesh->name("torus");
-			node->mesh(mesh);
-			scene->rootNode()->addChild(node);
-			node->position(vec3(4.25f, 0.0f, 0.0f));
-		}
+        {
+            auto mesh = Torus::Mesh(0.75f, 1.0f);
+            auto node = make_shared<Node>();
+            mesh->name("torus");
+            node->mesh(mesh);
+            scene->rootNode()->addChild(node);
+            node->position(vec3(4.25f, 0.0f, 0.0f));
+        }
 
-		{
-			auto mesh = TorusKnot::Mesh(2, 3);
-			auto node = make_shared<Node>();
-			mesh->name("torus knot");
-			node->mesh(mesh);
-			scene->rootNode()->addChild(node);
-			node->rotation({0.0f, 1.5f, 0.0f}, radians(45.0f));
-			node->position(vec3(0.0f, 0.0f, 0.0f));
-		}
+        {
+            auto mesh = TorusKnot::Mesh(2, 3);
+            auto node = make_shared<Node>();
+            mesh->name("torus knot");
+            node->mesh(mesh);
+            scene->rootNode()->addChild(node);
+            node->rotation({0.0f, 1.5f, 0.0f}, radians(45.0f));
+            node->position(vec3(0.0f, 0.0f, 0.0f));
+        }
 
-		{
-			auto mesh = Tube::Mesh(0.5f, 0.75f, 2.0f);
-			auto node = make_shared<Node>();
-			mesh->name("tube");
-			node->mesh(mesh);
-			scene->rootNode()->addChild(node);
-			node->position(vec3(-4.25f, 0.0f, 0.0f));
-		}
+        {
+            auto mesh = Tube::Mesh(0.5f, 0.75f, 2.0f);
+            auto node = make_shared<Node>();
+            mesh->name("tube");
+            node->mesh(mesh);
+            scene->rootNode()->addChild(node);
+            node->position(vec3(-4.25f, 0.0f, 0.0f));
+        }
 
-		{
-			auto mesh = Wedge::Mesh(2.0f, 2.0f, 1.0f);
-			auto node = make_shared<Node>();
-			mesh->name("wedge");
-			node->mesh(mesh);
-			scene->rootNode()->addChild(node);
-			node->position(vec3(2.5f, 5.0f, 0.0f));
-			node->rotation({0.0f, 1.0f, 0.0f}, radians(30.0f));
-		}
+        {
+            auto mesh = Wedge::Mesh(2.0f, 2.0f, 1.0f);
+            auto node = make_shared<Node>();
+            mesh->name("wedge");
+            node->mesh(mesh);
+            scene->rootNode()->addChild(node);
+            node->position(vec3(2.5f, 5.0f, 0.0f));
+            node->rotation({0.0f, 1.0f, 0.0f}, radians(30.0f));
+        }
 
-		{
-			auto mesh = Dome::Mesh(1.0f,
-								   math::radians(60.0), math::radians(90.0),
-								   0, math::radians(180.0));
-			auto node = make_shared<Node>();
-			mesh->name("dome");
-			node->mesh(mesh);
-			scene->rootNode()->addChild(node);
-			node->position(vec3(-2.5f, 5.0f, 0.0f));
-			node->rotation({0.0f, 1.0f, 0.0f}, radians(-30.0f));
-		}
+        {
+            auto mesh = Dome::Mesh(1.0f, math::radians(60.0), math::radians(90.0), 0, math::radians(180.0));
+            auto node = make_shared<Node>();
+            mesh->name("dome");
+            node->mesh(mesh);
+            scene->rootNode()->addChild(node);
+            node->position(vec3(-2.5f, 5.0f, 0.0f));
+            node->rotation({0.0f, 1.0f, 0.0f}, radians(-30.0f));
+        }
 
-		_window->center();
-		_window->open();
+        _window->center();
+        _window->open();
 
-		return scene;
-	}
-	catch (std::exception& e) {
-		log::app::f()("Exception: {}", e.what());
-		return nullptr;
-	}
+        return scene;
+    }
+    catch (std::exception& e) {
+        log::app::f()("Exception: {}", e.what());
+        return nullptr;
+    }
 }
 
 bool App::shouldContinue(const Scene& scene) {
-	return _window->isOpen();
+    return _window->isOpen();
 }
 
-void App::didShutdown() {
-
-}
+void App::didShutdown() {}
 
 /// Runner Callbacks ///
 
-void App::hostUpdate(Runner& runner,
-                     const Runner::UpdateInfo& info) {
+void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
 
-	auto& scene = runner.scene();
-	auto& inputContext = *scene.inputContext();
+    auto&   scene        = runner.scene();
+    auto&   inputContext = *scene.inputContext();
 
-	Window* window = nullptr;
-	if (scene.visualWorld()) {
-		window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
-	}
+    Window* window = nullptr;
+    if (scene.visualWorld()) {
+        window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
+    }
 
-	// get input
+    // get input
 
-	auto im = static_cast<DesktopInputContext*>(&inputContext);
+    auto im = static_cast<DesktopInputContext*>(&inputContext);
 
-	auto keysPressed = im->keysPressed();
-	auto keysDown = im->keysDown();
-	auto mousePositionDelta = im->mousePositionDelta();
+    auto keysPressed        = im->keysPressed();
+    auto keysDown           = im->keysDown();
+    auto mousePositionDelta = im->mousePositionDelta();
 
-	using Key = DesktopInputContext::Key;
+    using Key = DesktopInputContext::Key;
 
-	if (keysPressed.count(Key::Slash)) {
-		window->cursorCaptured(!(window->cursorCaptured()));
-	}
+    if (keysPressed.count(Key::Slash)) {
+        window->cursorCaptured(!(window->cursorCaptured()));
+    }
 
-	const auto cursorCaptured = window->cursorCaptured();
+    const auto cursorCaptured = window->cursorCaptured();
 
-	if (keysPressed.count(Key::Escape)) {
-		window->close();
-	}
+    if (keysPressed.count(Key::Escape)) {
+        window->close();
+    }
 
-	using DebugOptions = Scene::DebugOptions;
+    using DebugOptions = Scene::DebugOptions;
 
-	if (keysPressed.count(Key::F)) {
-		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowWireframes)) {
-			scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowWireframes));
-		}
-		else {
-			scene.debugOptions(util::bitmask::add(scene.debugOptions(), DebugOptions::ShowWireframes));
-		}
-	}
-	if (keysPressed.count(Key::B)) {
-		if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
-			scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
-		}
-		else {
-			scene.debugOptions(util::bitmask::add(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
-		}
-	}
+    if (keysPressed.count(Key::F)) {
+        if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowWireframes)) {
+            scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowWireframes));
+        }
+        else {
+            scene.debugOptions(util::bitmask::add(scene.debugOptions(), DebugOptions::ShowWireframes));
+        }
+    }
+    if (keysPressed.count(Key::B)) {
+        if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
+            scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
+        }
+        else {
+            scene.debugOptions(util::bitmask::add(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
+        }
+    }
 
+    if (cursorCaptured) {
 
-	if (cursorCaptured) {
+        // move camera
 
-		// move camera
+        if (auto pov = scene.visualWorld()->pointOfView().lock()) {
 
-		if (auto pov = scene.visualWorld()->pointOfView().lock()) {
+            // look
 
-			// look
+            vec3               camForward = pov->worldForward();
+            vec3               camRight   = pov->worldRight();
+            vec3               camUp      = pov->worldUp();
 
-			vec3 camForward = pov->worldForward();
-			vec3 camRight = pov->worldRight();
-			vec3 camUp = pov->worldUp();
+            // tanA = mouseDelta / distance
+            // A = atan(mouseDelta / distance)
 
-			// tanA = mouseDelta / distance
-			// A = atan(mouseDelta / distance)
+            static const float MOUSE_SPEED_SCALAR = .002;
+            static const float MOUSE_SPEED        = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
 
-			static const float MOUSE_SPEED_SCALAR = .002;
-			static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
+            float              deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
+            float              deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
 
-			float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
-			float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
+            vec3               angles = pov->eulerAngles();
+            // weird angles
+            //_cameraNode->eulerAngles(vec3(angles.x + -deltaRotX, 0, angles.z + deltaRotY));
+            // pitch, yaw, roll
+            pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
 
-			vec3 angles = pov->eulerAngles();
-			// weird angles
-			//_cameraNode->eulerAngles(vec3(angles.x + -deltaRotX, 0, angles.z + deltaRotY));
-			// pitch, yaw, roll
-			pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
+            // move
 
-			// move
+            static float MOVE_SPEED = math::max(scene.rootNode()->extent());
 
-			static float MOVE_SPEED = math::max(scene.rootNode()->extent());
+            if (keysDown.count(Key::W)) {
+                vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * camForward;
+                pov->position(pov->position() + positionDelta);
+            }
+            else if (keysDown.count(Key::S)) {
+                vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * -camForward;
+                pov->position(pov->position() + positionDelta);
+            }
 
-			if (keysDown.count(Key::W)) {
-				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * camForward;
-				pov->position(pov->position() + positionDelta);
-			}
-			else if (keysDown.count(Key::S)) {
-				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * -camForward;
-				pov->position(pov->position() + positionDelta);
-			}
+            if (keysDown.count(Key::A)) {
+                vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * -camRight;
+                pov->position(pov->position() + positionDelta);
+            }
+            else if (keysDown.count(Key::D)) {
+                vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * camRight;
+                pov->position(pov->position() + positionDelta);
+            }
 
-			if (keysDown.count(Key::A)) {
-				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * -camRight;
-				pov->position(pov->position() + positionDelta);
-			}
-			else if (keysDown.count(Key::D)) {
-				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * camRight;
-				pov->position(pov->position() + positionDelta);
-			}
+            if (keysDown.count(Key::Space)) {
+                vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * camUp;
+                pov->position(pov->position() + positionDelta);
+            }
+        }
+    }
 
-			if (keysDown.count(Key::Space)) {
-				vec3 positionDelta = (float)info.deltaTime * MOVE_SPEED * camUp;
-				pov->position(pov->position() + positionDelta);
-			}
-		}
-	}
+    if (_pointLightPivotNode) {
 
-	if (_pointLightPivotNode) {
+        // rotate the duck
+        auto rotationDeg = info.deltaTime * radians(-30.0); // 10deg/sec
 
-		// rotate the duck
-		auto rotationDeg = info.deltaTime * radians(-30.0); // 10deg/sec
-
-		auto duckSpinnerEuler = _pointLightPivotNode->eulerAngles();
-		_pointLightPivotNode->eulerAngles(vec3(0, duckSpinnerEuler.y - rotationDeg, 0));
-	}
+        auto duckSpinnerEuler = _pointLightPivotNode->eulerAngles();
+        _pointLightPivotNode->eulerAngles(vec3(0, duckSpinnerEuler.y - rotationDeg, 0));
+    }
 }

@@ -15,44 +15,52 @@
 
 namespace a3d {
 
-	class Image;
+    class Image;
 
-	class CubeImage {
+    class CubeImage {
 
-	public:
-		/// Public Types ///
+    public:
+        /// Public Types ///
 
-		enum class Face : uint8_t { XPos, XNeg, YPos, YNeg, ZPos, ZNeg };
+        enum class Face : uint8_t {
+            XPos,
+            XNeg,
+            YPos,
+            YNeg,
+            ZPos,
+            ZNeg
+        };
 
-		/// Public Lifecycle Functions ///
+        /// Public Lifecycle Functions ///
 
-		explicit CubeImage(std::array<std::unique_ptr<Image>, 6> faces);
+        explicit CubeImage(std::array<std::unique_ptr<Image>, 6> faces);
 
-		CubeImage(const CubeImage&) = delete;
-		CubeImage& operator=(const CubeImage&) = delete;
+        CubeImage(const CubeImage&)            = delete;
+        CubeImage& operator=(const CubeImage&) = delete;
 
-		CubeImage(CubeImage&&) noexcept;
-		CubeImage& operator=(CubeImage&&) noexcept;
+        CubeImage(CubeImage&&) noexcept;
+        CubeImage& operator=(CubeImage&&) noexcept;
 
-		~CubeImage();
+        ~CubeImage();
 
-		/// Public Member Functions ///
+        /// Public Member Functions ///
 
-		unsigned		width() const;
-		unsigned		height() const;
-		unsigned		bytesPerPixel() const;
+        unsigned width() const;
+        unsigned height() const;
+        unsigned bytesPerPixel() const;
 
-		Image* 			face(Face face) const;
+        Image*   face(Face face) const;
 
-	private:
-		/// Private Member Variables ///
+    private:
+        /// Private Member Variables ///
 
-		std::array<std::unique_ptr<Image>, 6> _faces;
+        std::array<std::unique_ptr<Image>, 6> _faces;
 
-		unsigned 		_width;
-		unsigned 		_height;
-		unsigned 		_bytesPerPixel;
-	};
+        unsigned                              _width;
+        unsigned                              _height;
+        unsigned                              _bytesPerPixel;
+    };
+
 }
 
 #endif /* AVARA3D_CUBEIMAGE_H */

@@ -11,31 +11,31 @@
 
 namespace a3d {
 
-	class RenderContext;
-	class Scene;
+    class RenderContext;
+    class Scene;
 
-	class InputContext {
+    class InputContext {
 
-	public:
-		/// Public Lifecycle Functions ///
+    public:
+        /// Public Lifecycle Functions ///
 
-		InputContext();
+        InputContext();
 
-		InputContext(const InputContext&) = delete;
-		InputContext& operator=(const InputContext&) = delete;
+        InputContext(const InputContext&)            = delete;
+        InputContext& operator=(const InputContext&) = delete;
 
-		InputContext(InputContext&&) = delete;
-		InputContext& operator=(InputContext&&) = delete;
+        InputContext(InputContext&&)            = delete;
+        InputContext& operator=(InputContext&&) = delete;
 
-		virtual ~InputContext();
+        virtual ~InputContext();
 
-		/// Internal Member Functions ///
+        /// Internal Member Functions ///
 
-		virtual void		update() = 0;
-		virtual void		attachedToScene(Scene& scene) = 0;
-		virtual void		visualWorldAttachedToScene(Scene& scene) = 0;
+        virtual void update()                                 = 0;
+        virtual void attachedToScene(Scene& scene)            = 0;
+        virtual void visualWorldAttachedToScene(Scene& scene) = 0;
+    };
 
-	};
 }
 
 #endif /* AVARA3D_INPUT_INPUTCONTEXT_H */

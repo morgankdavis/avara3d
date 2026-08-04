@@ -17,48 +17,47 @@
 
 namespace a3d {
 
-	class Line;
-	class PhysicsWorld;
-	class PhysicsBody;
-	class Profiler;
-	class Renderer;
-	class RenderContext;
+    class Line;
+    class PhysicsWorld;
+    class PhysicsBody;
+    class Profiler;
+    class Renderer;
+    class RenderContext;
 
-	class PhysicsWorldProxy {
+    class PhysicsWorldProxy {
 
-	public:
-		/// Internal Lifecycle Functions ///
+    public:
+        /// Internal Lifecycle Functions ///
 
-		explicit PhysicsWorldProxy(PhysicsWorld& world);
+        explicit PhysicsWorldProxy(PhysicsWorld& world);
 
-		PhysicsWorldProxy(const PhysicsWorldProxy&) = delete;
-		PhysicsWorldProxy& operator=(const PhysicsWorldProxy&) = delete;
+        PhysicsWorldProxy(const PhysicsWorldProxy&)            = delete;
+        PhysicsWorldProxy& operator=(const PhysicsWorldProxy&) = delete;
 
-		PhysicsWorldProxy(PhysicsWorldProxy&&) = delete;
-		PhysicsWorldProxy& operator=(PhysicsWorldProxy&&) = delete;
+        PhysicsWorldProxy(PhysicsWorldProxy&&)            = delete;
+        PhysicsWorldProxy& operator=(PhysicsWorldProxy&&) = delete;
 
-		virtual ~PhysicsWorldProxy();
+        virtual ~PhysicsWorldProxy();
 
-		/// Internal Member Functions ///
+        /// Internal Member Functions ///
 
-		virtual void 				add(PhysicsBody& body) = 0;
-		virtual void 				remove(PhysicsBody& body) = 0;
+        virtual void             add(PhysicsBody& body)    = 0;
+        virtual void             remove(PhysicsBody& body) = 0;
 
-		virtual float				gravity() const = 0;
-		virtual void				gravity(float gravity) = 0;
+        virtual float            gravity() const        = 0;
+        virtual void             gravity(float gravity) = 0;
 
-		virtual bool				acceptsStepDelta(double deltaTime) const = 0;
+        virtual bool             acceptsStepDelta(double deltaTime) const = 0;
 
-		virtual void				step(double deltaTime,
-										 Profiler& profiler) = 0;
+        virtual void             step(double deltaTime, Profiler& profiler) = 0;
 
-		virtual PhysicsInventory	inventory() const = 0;
+        virtual PhysicsInventory inventory() const = 0;
 
-		virtual void 				updateCollisionPairs() = 0;
+        virtual void             updateCollisionPairs() = 0;
 
-		virtual void 				appendDebugLines(std::vector<Line>& out,
-													 Scene::DebugOptions debugOptions) = 0;
-	};
+        virtual void             appendDebugLines(std::vector<Line>& out, Scene::DebugOptions debugOptions) = 0;
+    };
+
 }
 
 #endif //AVARA3D_PHYSICS_PROXY_PHYSICSWORLDPROXY_H

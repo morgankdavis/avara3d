@@ -14,31 +14,33 @@ using namespace std;
 /// Public Member Functions ///
 
 Timer::Timer(bool start):
-		_start{},
-		_stop{},
-		_duration{} {
+    _start {},
+    _stop {},
+    _duration {} {
 
-	if (start) this->start();
+    if (start) {
+        this->start();
+    }
 }
 
 void Timer::start() {
-	_start = chrono::steady_clock::now();
+    _start = chrono::steady_clock::now();
 }
 
 chrono::nanoseconds Timer::stop() {
-	_stop = chrono::steady_clock::now();
-	_duration = chrono::duration_cast<chrono::nanoseconds>(_stop - _start);
-	return _duration;
+    _stop     = chrono::steady_clock::now();
+    _duration = chrono::duration_cast<chrono::nanoseconds>(_stop - _start);
+    return _duration;
 }
 
 chrono::nanoseconds Timer::duration() const {
-	return _duration;
+    return _duration;
 }
 
 double Timer::durationSeconds() const {
-	return std::chrono::duration<double>(_duration).count();
+    return std::chrono::duration<double>(_duration).count();
 }
 
 std::int64_t Timer::durationMilliseconds() const {
-	return std::chrono::duration_cast<std::chrono::milliseconds>(_duration).count();
+    return std::chrono::duration_cast<std::chrono::milliseconds>(_duration).count();
 }

@@ -12,18 +12,22 @@ using namespace a3d;
 
 Attenuation Attenuation::FromRange(float range, float p) {
 
-	Attenuation a;
-	a.constant = 1.0f;
-	a.linear = 0.0f;
+    Attenuation a;
+    a.constant = 1.0f;
+    a.linear   = 0.0f;
 
-	if (range <= 0.0f) {
-		a.quadratic = 0.0f;
-		return a;
-	}
-	if (p <= 0.0f) p = 0.0001f;
-	if (p >= 1.0f) p = 0.9999f;
+    if (range <= 0.0f) {
+        a.quadratic = 0.0f;
+        return a;
+    }
+    if (p <= 0.0f) {
+        p = 0.0001f;
+    }
+    if (p >= 1.0f) {
+        p = 0.9999f;
+    }
 
-	a.quadratic = (1.0f / p - 1.0f) / (range * range);
+    a.quadratic = (1.0f / p - 1.0f) / (range * range);
 
-	return a;
+    return a;
 }

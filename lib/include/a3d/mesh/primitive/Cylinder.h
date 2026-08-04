@@ -15,52 +15,53 @@
 
 namespace a3d {
 
-	class Mesh;
-	class Material;
-	
-	class Cylinder: public MeshElement {
+    class Mesh;
+    class Material;
 
-	public:
-		/// Public Static Member Functions ///
+    class Cylinder : public MeshElement {
 
-		static std::shared_ptr<Mesh> Mesh(float radius,
-										  float height,
-										  unsigned slices = DEFAULT_SLICES,
-										  unsigned segments = DEFAULT_SEGMENTS,
-										  unsigned rings = DEFAULT_RINGS,
-										  std::shared_ptr<Material> material = nullptr);
+    public:
+        /// Public Static Member Functions ///
 
-		/// Public Lifecycle Functions ///
+        static std::shared_ptr<Mesh> Mesh(float                     radius,
+                                          float                     height,
+                                          unsigned                  slices   = DEFAULT_SLICES,
+                                          unsigned                  segments = DEFAULT_SEGMENTS,
+                                          unsigned                  rings    = DEFAULT_RINGS,
+                                          std::shared_ptr<Material> material = nullptr);
 
-		Cylinder(float radius,
-				 float height,
-				 unsigned slices = DEFAULT_SLICES,
-				 unsigned segments = DEFAULT_SEGMENTS,
-				 unsigned rings = DEFAULT_RINGS);
+        /// Public Lifecycle Functions ///
 
-		/// Public Member Functions ///
+        Cylinder(float    radius,
+                 float    height,
+                 unsigned slices   = DEFAULT_SLICES,
+                 unsigned segments = DEFAULT_SEGMENTS,
+                 unsigned rings    = DEFAULT_RINGS);
 
-		float 		radius() const;
-		float 		height() const;
-		unsigned 	slices() const;
-		unsigned 	segments() const;
-		unsigned 	rings() const;
+        /// Public Member Functions ///
 
-	private:
-		/// Private Constants ///
+        float    radius() const;
+        float    height() const;
+        unsigned slices() const;
+        unsigned segments() const;
+        unsigned rings() const;
 
-		static constexpr unsigned DEFAULT_SLICES = 32;
-		static constexpr unsigned DEFAULT_SEGMENTS = 8;
-		static constexpr unsigned DEFAULT_RINGS = 4;
+    private:
+        /// Private Constants ///
 
-		/// Private Member Variables ///
+        static constexpr unsigned DEFAULT_SLICES   = 32;
+        static constexpr unsigned DEFAULT_SEGMENTS = 8;
+        static constexpr unsigned DEFAULT_RINGS    = 4;
 
-		float 		_radius;
-		float 		_height;
-		unsigned 	_slices;
-		unsigned 	_segments;
-		unsigned 	_rings;
-	};
+        /// Private Member Variables ///
+
+        float                     _radius;
+        float                     _height;
+        unsigned                  _slices;
+        unsigned                  _segments;
+        unsigned                  _rings;
+    };
+
 }
 
 #endif /* AVARA3D_MESH_PRIMITIVE_CYLINDER_H */

@@ -20,19 +20,19 @@ using namespace std;
 /// Public Lifecycle Functions ///
 
 BulletDebugDrawer::BulletDebugDrawer():
-	_debugMode{btIDebugDraw::DBG_NoDebug},
-	_lines{} { }
+    _debugMode {btIDebugDraw::DBG_NoDebug},
+    _lines {} {}
 
-BulletDebugDrawer::~BulletDebugDrawer() { }
+BulletDebugDrawer::~BulletDebugDrawer() {}
 
 /// Internal Member Functions ///
 
 void BulletDebugDrawer::clear() {
-	_lines.clear();
+    _lines.clear();
 }
 
 vector<Line> BulletDebugDrawer::lines() {
-	return std::move(_lines);
+    return std::move(_lines);
 }
 
 //void BulletDebugDrawer::draw(Renderer& renderer,
@@ -56,22 +56,18 @@ vector<Line> BulletDebugDrawer::lines() {
 
 /// btIDebugDraw Members ///
 
-void BulletDebugDrawer::drawLine(const btVector3& from,
-								 const btVector3& to,
-								 const btVector3& color) {
+void BulletDebugDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3& color) {
 
-	drawLine(from, to, color, color);
+    drawLine(from, to, color, color);
 }
 
 void BulletDebugDrawer::drawLine(const btVector3& from,
-								 const btVector3& to,
-								 const btVector3& fromColor,
-								 const btVector3& toColor) {
+                                 const btVector3& to,
+                                 const btVector3& fromColor,
+                                 const btVector3& toColor) {
 
-	_lines.push_back(Line(A3DVec3FromBTVector3(from),
-						  A3DVec3FromBTVector3(to),
-						  A3DVec3FromBTVector3(fromColor),
-						  A3DVec3FromBTVector3(toColor)));
+    _lines.push_back(Line(A3DVec3FromBTVector3(from), A3DVec3FromBTVector3(to), A3DVec3FromBTVector3(fromColor),
+                          A3DVec3FromBTVector3(toColor)));
 }
 
 /*
@@ -100,23 +96,22 @@ void BulletDebugDrawer::drawTriangle(const btVector3& v0,
 // these three are pure virtual and must be implemented
 
 void BulletDebugDrawer::drawContactPoint(const btVector3& pointOnB,
-										 const btVector3& normalOnB,
-										 btScalar distance,
-										 int lifeTime,
-										 const btVector3& color) {
+                                         const btVector3& normalOnB,
+                                         btScalar         distance,
+                                         int              lifeTime,
+                                         const btVector3& color) {
 
-	const float DISTANCE_EXTENSION = 0.0;
-	btVector3 to = pointOnB + normalOnB * (distance + DISTANCE_EXTENSION);
-	drawLine(pointOnB, to, color, color);
+    const float DISTANCE_EXTENSION = 0.0;
+    btVector3   to                 = pointOnB + normalOnB * (distance + DISTANCE_EXTENSION);
+    drawLine(pointOnB, to, color, color);
 }
 
 void BulletDebugDrawer::reportErrorWarning(const char* warningString) {
-	log::w()(std::format("Bullet warning: {}", warningString));
+    log::w()(std::format("Bullet warning: {}", warningString));
 }
 
-void BulletDebugDrawer::draw3dText(const btVector3& location,
-								   const char* textString) {
-	log::w()("(Not implemented)");
+void BulletDebugDrawer::draw3dText(const btVector3& location, const char* textString) {
+    log::w()("(Not implemented)");
 }
 
 /*
@@ -206,9 +201,9 @@ void BulletDebugDrawer::drawPlane(const btVector3& planeNormal,
 */
 
 void BulletDebugDrawer::setDebugMode(int debugMode) {
-	_debugMode = debugMode;
+    _debugMode = debugMode;
 }
 
 int BulletDebugDrawer::getDebugMode() const {
-	return _debugMode;
+    return _debugMode;
 }

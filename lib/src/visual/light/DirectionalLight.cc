@@ -18,22 +18,22 @@ using namespace std;
 /// Public Lifecycle Functions ///
 
 DirectionalLight::DirectionalLight():
-		Light() {}
+    Light() {}
 
 DirectionalLight::DirectionalLight(const string& name):
-		DirectionalLight() {
-	_name = name;
+    DirectionalLight() {
+    _name = name;
 }
 
 DirectionalLight::DirectionalLight(const shared_ptr<Color>& color):
-		DirectionalLight() {
-	_color = color;
+    DirectionalLight() {
+    _color = color;
 }
 
 DirectionalLight::DirectionalLight(const string& name, const shared_ptr<Color>& color):
-		DirectionalLight() {
-	_name = name;
-	_color = color;
+    DirectionalLight() {
+    _name  = name;
+    _color = color;
 }
 
 //Light::~Light() {

@@ -13,4 +13,5 @@ using namespace a3d;
 /// Public Lifecycle Functions ///
 
 InputContext::InputContext() {}
+
 InputContext::~InputContext() {}

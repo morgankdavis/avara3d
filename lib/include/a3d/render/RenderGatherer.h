@@ -14,24 +14,24 @@
 
 namespace a3d {
 
-	struct FrameStats;
-	struct GatherOutput;
+    struct FrameStats;
+    struct GatherOutput;
 
-	class PhysicsWorld;
-	class Scene;
+    class PhysicsWorld;
+    class Scene;
 
-	class RenderGatherer {
+    class RenderGatherer {
 
-	public:
-		/// Internal Static Member Functions ///
+    public:
+        /// Internal Static Member Functions ///
 
-		static GatherOutput Gather(const Scene& scene,
-								   const math::mat4& view,
-								   const PhysicsWorld* physicsWorld,
-								   const Scene::DebugOptions& debugOptions,
-								   FrameStats& stats);
+        static GatherOutput Gather(const Scene&               scene,
+                                   const math::mat4&          view,
+                                   const PhysicsWorld*        physicsWorld,
+                                   const Scene::DebugOptions& debugOptions,
+                                   FrameStats&                stats);
+    };
 
-	};
 }
 
 #endif //AVARA3D_RENDER_RENDERGATHERER_H

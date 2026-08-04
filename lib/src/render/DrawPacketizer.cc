@@ -27,80 +27,84 @@ using namespace std;
 
 DrawPacket DrawPacketizer::Packetize(GatherOutput& gatherOutput) {
 
-	DrawPacket packet{};
+    DrawPacket packet {};
 
-	packet.mainPassItems.reserve(gatherOutput.renderItems.size());
-	packet.wireframePassItems.reserve(gatherOutput.renderItems.size());
+    packet.mainPassItems.reserve(gatherOutput.renderItems.size());
+    packet.wireframePassItems.reserve(gatherOutput.renderItems.size());
 
-	packet.backgroundPass.pipelineId = INVALID_PIPELINE_ID;
-	packet.backgroundPass.desc      = PipelineDescBuilder::MakeBackgroundDesc();
-	packet.backgroundPass.material  = gatherOutput.backgroundMaterial;
+    packet.backgroundPass.pipelineId = INVALID_PIPELINE_ID;
+    packet.backgroundPass.desc       = PipelineDescBuilder::MakeBackgroundDesc();
+    packet.backgroundPass.material   = gatherOutput.backgroundMaterial;
 
-	for (const RenderItem& ri : gatherOutput.renderItems) {
+    for (const RenderItem& ri : gatherOutput.renderItems) {
 
-		// effective style for this instance (refine later?)
-		RenderStyle style = ri.style;
+        // effective style for this instance (refine later?)
+        RenderStyle style = ri.style;
 
-		if (style == RenderStyle::Normal || style == RenderStyle::WireframeOverlay) {
+        if (style == RenderStyle::Normal || style == RenderStyle::WireframeOverlay) {
 
-			DrawItem di;
-			di.elementIndex = ri.elementIndex;
-			di.element = ri.element;
-			di.material = ri.material;
-			di.model = ri.model;
-			di.depth = ri.depth;
+            DrawItem di;
+            di.elementIndex = ri.elementIndex;
+            di.element      = ri.element;
+            di.material     = ri.material;
+            di.model        = ri.model;
+            di.depth        = ri.depth;
 
-			switch (ri.material->alphaMode()) {
-				case Material::AlphaMode::Opaque: {
-					di.pass = PassKind::MainOpaque;
-					di.desc = PipelineDescBuilder::MakeOpaqueDesc(*ri.material, ri.layout);
-					break; }
-				case Material::AlphaMode::Mask: {
-					di.pass = PassKind::MainMask;
-					di.desc = PipelineDescBuilder::MakeMaskDesc(*ri.material, ri.layout);
-					break; }
-				case Material::AlphaMode::Blend: {
-					di.pass = PassKind::MainTransparent;
-					di.desc = PipelineDescBuilder::MakeTransparentDesc(*ri.material, ri.layout);
-					break; }
-				default: /* unreachable */ break;
-			}
+            switch (ri.material->alphaMode()) {
+                case Material::AlphaMode::Opaque: {
+                    di.pass = PassKind::MainOpaque;
+                    di.desc = PipelineDescBuilder::MakeOpaqueDesc(*ri.material, ri.layout);
+                    break;
+                }
+                case Material::AlphaMode::Mask: {
+                    di.pass = PassKind::MainMask;
+                    di.desc = PipelineDescBuilder::MakeMaskDesc(*ri.material, ri.layout);
+                    break;
+                }
+                case Material::AlphaMode::Blend: {
+                    di.pass = PassKind::MainTransparent;
+                    di.desc = PipelineDescBuilder::MakeTransparentDesc(*ri.material, ri.layout);
+                    break;
+                }
+                default: /* unreachable */
+                    break;
+            }
 
-			di.pipelineId = INVALID_PIPELINE_ID; // resolved later
-			di.sequence = (uint32_t)packet.mainPassItems.size();
+            di.pipelineId = INVALID_PIPELINE_ID; // resolved later
+            di.sequence   = (uint32_t) packet.mainPassItems.size();
 
-			packet.mainPassItems.push_back(std::move(di));
-		}
+            packet.mainPassItems.push_back(std::move(di));
+        }
 
-		if (style == RenderStyle::Wireframe || style == RenderStyle::WireframeOverlay) {
+        if (style == RenderStyle::Wireframe || style == RenderStyle::WireframeOverlay) {
 
-			DrawItem di;
-			di.elementIndex = ri.elementIndex;
-			di.element = ri.element;
-			di.material = ri.material; // optional for wire, fine to keep
-			di.model = ri.model;
-			di.depth = ri.depth;
-			di.pass = PassKind::Wireframe;
+            DrawItem di;
+            di.elementIndex = ri.elementIndex;
+            di.element      = ri.element;
+            di.material     = ri.material; // optional for wire, fine to keep
+            di.model        = ri.model;
+            di.depth        = ri.depth;
+            di.pass         = PassKind::Wireframe;
 
-			di.desc = PipelineDescBuilder::MakeWireframeDesc(ri.layout);
-			di.pipelineId = INVALID_PIPELINE_ID; // resolved later
-			di.sequence = (uint32_t)packet.wireframePassItems.size();
+            di.desc       = PipelineDescBuilder::MakeWireframeDesc(ri.layout);
+            di.pipelineId = INVALID_PIPELINE_ID; // resolved later
+            di.sequence   = (uint32_t) packet.wireframePassItems.size();
 
-			packet.wireframePassItems.push_back(std::move(di));
-		}
-	}
+            packet.wireframePassItems.push_back(std::move(di));
+        }
+    }
 
-	packet.lightNodes = std::move(gatherOutput.lightNodes);
+    packet.lightNodes = std::move(gatherOutput.lightNodes);
 
-	packet.linesPass.model = mat4(1.0f);
-	packet.linesPass.lines = std::move(gatherOutput.debugLines);
+    packet.linesPass.model = mat4(1.0f);
+    packet.linesPass.lines = std::move(gatherOutput.debugLines);
 
-	if (!packet.linesPass.lines.empty()) {
-		packet.linesPass.desc = PipelineDescBuilder::MakeLinesDesc();
-		packet.linesPass.pipelineId = INVALID_PIPELINE_ID;
-	}
+    if (!packet.linesPass.lines.empty()) {
+        packet.linesPass.desc       = PipelineDescBuilder::MakeLinesDesc();
+        packet.linesPass.pipelineId = INVALID_PIPELINE_ID;
+    }
 
-	PacketSorter::SortPacket(packet); // ohhh yeaahhhhhh
+    PacketSorter::SortPacket(packet); // ohhh yeaahhhhhh
 
-	return packet;
+    return packet;
 }

@@ -14,25 +14,26 @@
 
 namespace a3d {
 
-	class PhysicsShape;
+    class PhysicsShape;
 
-	struct BulletStats {
+    struct BulletStats {
 
-	public:
-		/// Public Lifecycle Functions ///
+    public:
+        /// Public Lifecycle Functions ///
 
-		BulletStats();
+        BulletStats();
 
-		/// Internal Member Variables ///
+        /// Internal Member Variables ///
 
-		unsigned 	numStaticBodies;
-		unsigned 	numDynamicBodies;
-		unsigned 	numKinematicBodies;
-		std::unordered_set<PhysicsShape*> 	primitiveShapes;
-		std::unordered_set<PhysicsShape*> 	boundingBoxShapes;
-		std::unordered_set<PhysicsShape*> 	convexHullShapes;
-		std::unordered_set<PhysicsShape*>	concavePolyhedronShapes;
-	};
+        unsigned                          numStaticBodies;
+        unsigned                          numDynamicBodies;
+        unsigned                          numKinematicBodies;
+        std::unordered_set<PhysicsShape*> primitiveShapes;
+        std::unordered_set<PhysicsShape*> boundingBoxShapes;
+        std::unordered_set<PhysicsShape*> convexHullShapes;
+        std::unordered_set<PhysicsShape*> concavePolyhedronShapes;
+    };
+
 }
 
 #endif //AVARA3D_PHYSICS_BACKEND_BULLET_BULLETSTATS_H

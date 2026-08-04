@@ -15,54 +15,55 @@
 
 namespace a3d {
 
-	class Mesh;
-	class Material;
+    class Mesh;
+    class Material;
 
-	class Box: public MeshElement {
+    class Box : public MeshElement {
 
-	public:
-		/// Pubic Static Members ///
+    public:
+        /// Pubic Static Members ///
 
-		static std::shared_ptr<Mesh> Mesh(float width, // x
-										  float height, // y
-										  float length, // z
-										  unsigned widthSegments = DEFAULT_SEGMENTS,
-										  unsigned heightSegments = DEFAULT_SEGMENTS,
-										  unsigned lengthSegments = DEFAULT_SEGMENTS,
-										  std::shared_ptr<Material> material = nullptr);
+        static std::shared_ptr<Mesh> Mesh(float                     width, // x
+                                          float                     height, // y
+                                          float                     length, // z
+                                          unsigned                  widthSegments  = DEFAULT_SEGMENTS,
+                                          unsigned                  heightSegments = DEFAULT_SEGMENTS,
+                                          unsigned                  lengthSegments = DEFAULT_SEGMENTS,
+                                          std::shared_ptr<Material> material       = nullptr);
 
-		/// Public Lifecycle Functions ///
+        /// Public Lifecycle Functions ///
 
-		Box(float width,
-			float height,
-			float length,
-			unsigned lengthSegments = DEFAULT_SEGMENTS,
-			unsigned widthSegments = DEFAULT_SEGMENTS,
-			unsigned heightSegments = DEFAULT_SEGMENTS);
+        Box(float    width,
+            float    height,
+            float    length,
+            unsigned lengthSegments = DEFAULT_SEGMENTS,
+            unsigned widthSegments  = DEFAULT_SEGMENTS,
+            unsigned heightSegments = DEFAULT_SEGMENTS);
 
-		/// Public Member Functions ///
+        /// Public Member Functions ///
 
-		float 		length() const;
-		float 		width() const;
-		float 		height() const;
-		unsigned	lengthSegments() const;
-		unsigned	widthSegments() const;
-		unsigned	heightSegments() const;
+        float    length() const;
+        float    width() const;
+        float    height() const;
+        unsigned lengthSegments() const;
+        unsigned widthSegments() const;
+        unsigned heightSegments() const;
 
-	private:
-		///  Private Constants ///
+    private:
+        ///  Private Constants ///
 
-		static constexpr int DEFAULT_SEGMENTS = 1;
+        static constexpr int DEFAULT_SEGMENTS = 1;
 
-		/// Private Member Variables ///
+        /// Private Member Variables ///
 
-		float		_length;
-		float		_width;
-		float		_height;
-		unsigned 	_lengthSegments;
-		unsigned 	_widthSegments;
-		unsigned 	_heightSegments;
-	};
+        float                _length;
+        float                _width;
+        float                _height;
+        unsigned             _lengthSegments;
+        unsigned             _widthSegments;
+        unsigned             _heightSegments;
+    };
+
 }
 
 #endif /* AVARA3D_MESH_PRIMITIVE_BOX_H */

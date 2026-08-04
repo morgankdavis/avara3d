@@ -15,61 +15,62 @@
 
 namespace a3d {
 
-	class Mesh;
-	class Material;
+    class Mesh;
+    class Material;
 
-	class Dome: public MeshElement {
+    class Dome : public MeshElement {
 
-	public:
-		/// Pubic Static Members ///
+    public:
+        /// Pubic Static Members ///
 
-		// NOTE: this is NOT centered.
-		static std::shared_ptr<Mesh> Mesh(float radius,
-		                                  float azimuthStart,
-		                                  float azimuthSweep,
-		                                  float elevationStart,
-		                                  float elevationSweep,
-		                                  unsigned slices = DEFAULT_SLICES,
-		                                  unsigned segments = DEFAULT_SEGMENTS,
-		                                  std::shared_ptr<Material> material = nullptr);
+        // NOTE: this is NOT centered.
+        static std::shared_ptr<Mesh> Mesh(float                     radius,
+                                          float                     azimuthStart,
+                                          float                     azimuthSweep,
+                                          float                     elevationStart,
+                                          float                     elevationSweep,
+                                          unsigned                  slices   = DEFAULT_SLICES,
+                                          unsigned                  segments = DEFAULT_SEGMENTS,
+                                          std::shared_ptr<Material> material = nullptr);
 
-		/// Public Lifecycle Functions ///
+        /// Public Lifecycle Functions ///
 
-		// z, x, y?
-		Dome(float radius,
-		     float azimuthStart,
-		     float azimuthSweep,
-		     float elevationStart,
-		     float elevationSweep,
-		     unsigned slices = DEFAULT_SLICES,
-		     unsigned segments = DEFAULT_SEGMENTS);
+        // z, x, y?
+        Dome(float    radius,
+             float    azimuthStart,
+             float    azimuthSweep,
+             float    elevationStart,
+             float    elevationSweep,
+             unsigned slices   = DEFAULT_SLICES,
+             unsigned segments = DEFAULT_SEGMENTS);
 
-		/// Public Member Functions ///
+        /// Public Member Functions ///
 
-		float		radius() const;
-	    float		azimuthStart() const;
-	    float		azimuthSweep() const;
-	    float		elevationStart() const;
-		float		elevationSweep() const;
-		unsigned	slices() const;
-		unsigned	segments() const;
+        float    radius() const;
+        float    azimuthStart() const;
+        float    azimuthSweep() const;
+        float    elevationStart() const;
+        float    elevationSweep() const;
+        unsigned slices() const;
+        unsigned segments() const;
 
-	private:
-		///  Private Constants ///
+    private:
+        ///  Private Constants ///
 
-		static constexpr int DEFAULT_SLICES = 32; // around circumference (azimuth / longitude)
-		static constexpr int DEFAULT_SEGMENTS = 8; // bottom-to-top (elevation / latitude)
+        static constexpr int DEFAULT_SLICES   = 32; // around circumference (azimuth / longitude)
+        static constexpr int DEFAULT_SEGMENTS = 8; // bottom-to-top (elevation / latitude)
 
-		/// Private Member Variables ///
+        /// Private Member Variables ///
 
-		float		_radius;
-		float		_azimuthStart;
-		float		_azimuthSweep;
-		float		_elevationStart;
-		float		_elevationSweep;
-		unsigned 	_slices;
-		unsigned 	_segments;
-	};
+        float                _radius;
+        float                _azimuthStart;
+        float                _azimuthSweep;
+        float                _elevationStart;
+        float                _elevationSweep;
+        unsigned             _slices;
+        unsigned             _segments;
+    };
+
 }
 
 #endif /* AVARA3D_MESH_PRIMITIVE_DOME_H */

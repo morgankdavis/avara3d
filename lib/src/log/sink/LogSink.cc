@@ -12,8 +12,8 @@ using namespace a3d;
 
 /// Public Lifecycle Functions ///
 
-LogSink::~LogSink() { }
+LogSink::~LogSink() {}
 
 /// Public Member Functions ///
 
-void LogSink::flush() { }
+void LogSink::flush() {}

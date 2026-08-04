@@ -21,126 +21,126 @@
 
 namespace a3d {
 
-	struct FrameStats;
-	struct PhysicsInventory;
+    struct FrameStats;
+    struct PhysicsInventory;
 
-	class Scene;
+    class Scene;
 
-	class Runner {
+    class Runner {
 
-	public:
-		/// Public Types ///
+    public:
+        /// Public Types ///
 
-		enum class State {
-			Idle,
-			Running,
-			Stopped
-		};
+        enum class State {
+            Idle,
+            Running,
+            Stopped
+        };
 
-		struct UpdateInfo {
+        struct UpdateInfo {
 
-			// zero-based Runner-update index
-			std::uint64_t	updateIndex{0};
+            // zero-based Runner-update index
+            std::uint64_t updateIndex {0};
 
-			// monotonic seconds since Runner::start(), measured at the
-			// beginning of this Runner update
-			double			elapsedTime{0.0};
+            // monotonic seconds since Runner::start(), measured at the
+            // beginning of this Runner update
+            double        elapsedTime {0.0};
 
-			// monotonic seconds since the beginning of the previous
-			// Runner update. zero on the first update.
-			double			deltaTime{0.0};
-		};
+            // monotonic seconds since the beginning of the previous
+            // Runner update. zero on the first update.
+            double        deltaTime {0.0};
+        };
 
-		using UpdateCallback = std::function<void(Runner& runner, const UpdateInfo& info)>;
+        using UpdateCallback = std::function<void(Runner& runner, const UpdateInfo& info)>;
 
-		/// Public Lifecycle Functions ///
+        /// Public Lifecycle Functions ///
 
-		explicit Runner(Scene& scene, SimulationConfig config = {});
+        explicit Runner(Scene& scene, SimulationConfig config = {});
 
-		Runner(const Runner&) = delete;
-		Runner& operator=(const Runner&) = delete;
+        Runner(const Runner&)            = delete;
+        Runner& operator=(const Runner&) = delete;
 
-		Runner(Runner&&) = delete;
-		Runner& operator=(Runner&&) = delete;
+        Runner(Runner&&)            = delete;
+        Runner& operator=(Runner&&) = delete;
 
-		~Runner();
+        ~Runner();
 
-		/// Public Member Functions ///
+        /// Public Member Functions ///
 
-		void						start();
-		bool						update();
-		void						stop();
+        void                    start();
+        bool                    update();
+        void                    stop();
 
-		// a stopped Runner performs no updates. pausing affects automatic
-		// simulation steps only: Runner updates, input, host callbacks,
-		// and rendering continue
-		bool						simulationPaused() const;
-		void						pauseSimulation();
-		void						resumeSimulation();
+        // a stopped Runner performs no updates. pausing affects automatic
+        // simulation steps only: Runner updates, input, host callbacks,
+        // and rendering continue
+        bool                    simulationPaused() const;
+        void                    pauseSimulation();
+        void                    resumeSimulation();
 
-		// queue one fixed-duration step for a running, paused simulation.
-		// requested steps use timeStep and ignore timeScale.
-		void						requestSimulationStep();
+        // queue one fixed-duration step for a running, paused simulation.
+        // requested steps use timeStep and ignore timeScale.
+        void                    requestSimulationStep();
 
-		UpdateCallback				updateCallback() const;
-		void						updateCallback(UpdateCallback callback);
+        UpdateCallback          updateCallback() const;
+        void                    updateCallback(UpdateCallback callback);
 
-		const SimulationConfig&		config() const;
+        const SimulationConfig& config() const;
 
-		double						timeScale() const;
-		void						timeScale(double value);
+        double                  timeScale() const;
+        void                    timeScale(double value);
 
-		double						simulationTime() const;
-		std::uint64_t				simulationStepCount() const;
+        double                  simulationTime() const;
+        std::uint64_t           simulationStepCount() const;
 
-		State						state() const;
+        State                   state() const;
 
-		Scene&						scene();
-		const Scene&				scene() const;
+        Scene&                  scene();
+        const Scene&            scene() const;
 
-	private:
-		/// Private Types ///
+    private:
+        /// Private Types ///
 
-		using Clock = std::chrono::steady_clock;
-		using TimePoint = Clock::time_point;
+        using Clock     = std::chrono::steady_clock;
+        using TimePoint = Clock::time_point;
 
-		/// Private Member Functions ///
+        /// Private Member Functions ///
 
-		void						start(TimePoint now);
-		bool						update(TimePoint now);
+        void              start(TimePoint now);
+        bool              update(TimePoint now);
 
-		PhysicsInventory			advanceSimulation(const UpdateInfo& info,
-					                                   FrameStats& stats);
-		PhysicsInventory			executePendingSimulationSteps(FrameStats& stats);
-		PhysicsInventory			executeSimulationStep();
-		PhysicsInventory			currentPhysicsInventory();
+        PhysicsInventory  advanceSimulation(const UpdateInfo& info, FrameStats& stats);
+        PhysicsInventory  executePendingSimulationSteps(FrameStats& stats);
+        PhysicsInventory  executeSimulationStep();
+        PhysicsInventory  currentPhysicsInventory();
 
-		bool						renderFrame(const UpdateInfo& info, FrameStats& stats);
+        bool              renderFrame(const UpdateInfo& info, FrameStats& stats);
 
-		/// Private Member Variables ///
+        /// Private Member Variables ///
 
-		Scene&						_scene;
-		State						_state;
-		SimulationConfig			_config;
-		double						_timeScale;
-		double						_simulationTimeAccumulator;
-		double						_simulationTime;
-		std::uint64_t				_simulationStepCount;
-		bool						_simulationPaused;
-		std::uint64_t				_pendingSimulationSteps;
-		bool						_skipNextUpdateDelta;
-		TimePoint					_startTime;
-		TimePoint					_prevUpdateTime;
-		std::uint64_t				_updateCount;
-		UpdateCallback				_updateCallback;
-		std::uint64_t				_renderedFrameCount;
-		Profiler					_profiler;
-		FrameStatsHistory			_frameStatsHistory;
+        Scene&            _scene;
+        State             _state;
+        SimulationConfig  _config;
+        double            _timeScale;
+        double            _simulationTimeAccumulator;
+        double            _simulationTime;
+        std::uint64_t     _simulationStepCount;
+        bool              _simulationPaused;
+        std::uint64_t     _pendingSimulationSteps;
+        bool              _skipNextUpdateDelta;
+        TimePoint         _startTime;
+        TimePoint         _prevUpdateTime;
+        std::uint64_t     _updateCount;
+        UpdateCallback    _updateCallback;
+        std::uint64_t     _renderedFrameCount;
+        Profiler          _profiler;
+        FrameStatsHistory _frameStatsHistory;
 
-		/// Test Access ///
+        /// Test Access ///
 
-		friend class testing::RunnerTestAccess;
-	};
+        friend class testing::RunnerTestAccess;
+    };
+
 }
 
 #endif //AVARA3D_RUNNER_H

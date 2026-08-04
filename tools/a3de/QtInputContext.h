@@ -13,41 +13,42 @@
 
 namespace a3d::qt {
 
-	class QtViewport;
+    class QtViewport;
 
-	class QtInputContext : public DesktopInputContext {
+    class QtInputContext : public DesktopInputContext {
 
-	public:
-		/// Public Lifecycle Functions ///
+    public:
+        /// Public Lifecycle Functions ///
 
-		// explicit QtInputContext(QtViewport& viewport);
-		QtInputContext();
+        // explicit QtInputContext(QtViewport& viewport);
+        QtInputContext();
 
-		/// Internal Member Functions ///
+        /// Internal Member Functions ///
 
-		void 			keyPressed(int qtKey, int modifiers);
-		void 			keyReleased(int qtKey, int modifiers);
-		void 			mouseMoved(float x, float y);
-		void			mouseButtonPressed(int qtButton);
-		void			mouseButtonReleased(int qtButton);
-		void			mouseWheelScrolled(int x, int y);
+        void keyPressed(int qtKey, int modifiers);
+        void keyReleased(int qtKey, int modifiers);
+        void mouseMoved(float x, float y);
+        void mouseButtonPressed(int qtButton);
+        void mouseButtonReleased(int qtButton);
+        void mouseWheelScrolled(int x, int y);
 
-		/// InputContext Internal Member Functions ///
+        /// InputContext Internal Member Functions ///
 
-		void			update() override;
-		void			attachedToScene(Scene& scene) override;
-		void			visualWorldAttachedToScene(Scene& scene) override;
+        void update() override;
+        void attachedToScene(Scene& scene) override;
+        void visualWorldAttachedToScene(Scene& scene) override;
 
-	private:
-		/// Private Member Functions ///
+    private:
+        /// Private Member Functions ///
 
-		void			viewport(QtViewport* viewport);
-		QtViewport*		viewport() const;
+        void        viewport(QtViewport* viewport);
+        QtViewport* viewport() const;
 
-		/// Private Member Variables ///
+        /// Private Member Variables ///
 
-		QtViewport*		_viewport;
-	};
+        QtViewport* _viewport;
+    };
+
 }
 
 #endif //AVARA3D_QTINPUTCONTEXT_H

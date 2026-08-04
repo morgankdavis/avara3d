@@ -15,38 +15,38 @@
 
 namespace a3d {
 
-	class Mesh;
-	class Material;
+    class Mesh;
+    class Material;
 
-	class Sphere: public MeshElement {
+    class Sphere : public MeshElement {
 
-	public:
-		/// Public Static Member Functions ///
+    public:
+        /// Public Static Member Functions ///
 
-		static std::shared_ptr<Mesh> Mesh(float radius,
-										  unsigned segments = DEFAULT_SEGMENTS,
-										  std::shared_ptr<Material> material = nullptr);
+        static std::shared_ptr<Mesh> Mesh(float                     radius,
+                                          unsigned                  segments = DEFAULT_SEGMENTS,
+                                          std::shared_ptr<Material> material = nullptr);
 
-		/// Public Lifecycle Functions ///
+        /// Public Lifecycle Functions ///
 
-		explicit Sphere(float radius,
-						unsigned segments = DEFAULT_SEGMENTS);
+        explicit Sphere(float radius, unsigned segments = DEFAULT_SEGMENTS);
 
-		/// Public Member Functions ///
+        /// Public Member Functions ///
 
-		float 		radius() const;
-		unsigned 	segments() const;
+        float    radius() const;
+        unsigned segments() const;
 
-	private:
-		/// Private Constants ///
+    private:
+        /// Private Constants ///
 
-		static constexpr unsigned DEFAULT_SEGMENTS = 4;
+        static constexpr unsigned DEFAULT_SEGMENTS = 4;
 
-		/// Private Member Variables ///
+        /// Private Member Variables ///
 
-		float		_radius;
-		unsigned	_segments;
-	};
+        float                     _radius;
+        unsigned                  _segments;
+    };
+
 }
 
 #endif /* AVARA3D_MESH_PRIMITIVE_SPHERE_H */

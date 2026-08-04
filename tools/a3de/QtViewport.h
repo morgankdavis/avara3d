@@ -17,81 +17,82 @@
 
 namespace a3d::qt {
 
-	class QtInputContext;
+    class QtInputContext;
 
-	class QtViewport : public QOpenGLWidget, public RenderContext {
+    class QtViewport : public QOpenGLWidget, public RenderContext {
 
-	Q_OBJECT
+        Q_OBJECT
 
-	signals:
-		void					initialized();
-		void					renderFrame();
+    signals:
+        void initialized();
+        void renderFrame();
 
-	public:
-		/// Public Static Member Functions ///
+    public:
+        /// Public Static Member Functions ///
 
-		static std::unique_ptr<QtInputContext> InputContext();
+        static std::unique_ptr<QtInputContext> InputContext();
 
-		/// Public Lifecycle Functions ///
+        /// Public Lifecycle Functions ///
 
-		explicit QtViewport(RenderingApi renderingApi,
-							AntialiasingMode antialiasingMode,
-							QWidget* parent = nullptr);
-		~QtViewport() = default;
+        explicit QtViewport(RenderingApi     renderingApi,
+                            AntialiasingMode antialiasingMode,
+                            QWidget*         parent = nullptr);
+        ~QtViewport() = default;
 
-		/// Public Member Functions ///
+        /// Public Member Functions ///
 
-		bool 					cursorCaptured() const;
-		void 					cursorCaptured(bool captured);
+        bool        cursorCaptured() const;
+        void        cursorCaptured(bool captured);
 
-		/// RenderContext Public Member Functions ///
+        /// RenderContext Public Member Functions ///
 
-		bool 					vSyncEnabled() const override;
-		void 					vSyncEnabled(bool enabled) override;
+        bool        vSyncEnabled() const override;
+        void        vSyncEnabled(bool enabled) override;
 
-		/// RenderContext Internal Member Functions ///
+        /// RenderContext Internal Member Functions ///
 
-		void 					beginFrame(const Scene& scene) override;
-		void 					endFrame(const Scene& scene) override;
+        void        beginFrame(const Scene& scene) override;
+        void        endFrame(const Scene& scene) override;
 
-		void 					swapBuffers() override;
+        void        swapBuffers() override;
 
-		math::uvec2				viewportLogicalSize() const override;
-		math::uvec2				framebufferSize() const override;
+        math::uvec2 viewportLogicalSize() const override;
+        math::uvec2 framebufferSize() const override;
 
-		unsigned 				defaultFramebuffer() const override;
+        unsigned    defaultFramebuffer() const override;
 
-		/// Internal Member Functions ///
+        /// Internal Member Functions ///
 
-		void					inputContext(QtInputContext* inputContext);
+        void        inputContext(QtInputContext* inputContext);
 
-	protected:
-		/// QWidget Protected Member Functions ///
+    protected:
+        /// QWidget Protected Member Functions ///
 
-		bool 					event(QEvent* e) override;
-		void 					keyPressEvent(QKeyEvent* e) override;
-		void 					keyReleaseEvent(QKeyEvent* e) override;
-		void 					mouseMoveEvent(QMouseEvent *e) override;
+        bool event(QEvent* e) override;
+        void keyPressEvent(QKeyEvent* e) override;
+        void keyReleaseEvent(QKeyEvent* e) override;
+        void mouseMoveEvent(QMouseEvent* e) override;
 
-		/// QOpenGLWidget Protected Member Functions ///
+        /// QOpenGLWidget Protected Member Functions ///
 
-		void 					initializeGL() override;
-		void 					resizeGL(int w, int h) override;
-		void 					paintGL() override;
+        void initializeGL() override;
+        void resizeGL(int w, int h) override;
+        void paintGL() override;
 
-	private:
-		/// Private Member Functions ///
+    private:
+        /// Private Member Functions ///
 
-		void					centerCursor();
+        void                   centerCursor();
 
-		/// Private Member Variables ///
+        /// Private Member Variables ///
 
-		bool					_cursorCaptured;
-		std::optional<QPointF>	_lastCursorPosition;
-		std::optional<QPointF> 	_lastCapturedCursorPosition;
-		QtInputContext*			_inputContext;
-		bool 					_warpingCursor;
-	};
+        bool                   _cursorCaptured;
+        std::optional<QPointF> _lastCursorPosition;
+        std::optional<QPointF> _lastCapturedCursorPosition;
+        QtInputContext*        _inputContext;
+        bool                   _warpingCursor;
+    };
+
 }
 
 #endif // A3DVIEWPORT_H

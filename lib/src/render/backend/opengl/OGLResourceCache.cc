@@ -30,448 +30,485 @@ using namespace std;
 
 /// Private Static Non-Member Prototypes ///
 
-static OGLPipeline 	BuildPipeline(const PipelineDesc& desc, gl::uint_t program);
-static GLenum 		GLFilterModeForFilterMode(Sampler::FilterMode mode);
-static GLenum 		GLWrapModeForWrapMode(Sampler::WrapMode mode);
-static bool 		UsesMipmaps(Sampler::FilterMode mode);
-static void 		GLAttribFor(VertexAttribFormat f, GLint& comps, GLenum& type);
-static unsigned 	BufferTextureContents(const Texture& texture);
-static void 		ApplySamplerState(Texture& texture, unsigned glTextureHandle, bool forceAll);
-static int 			SlotFor(Material::PropertyType type);
-static GLenum		GLIndexTypeForIndexFormat(IndexFormat format);
+static OGLPipeline BuildPipeline(const PipelineDesc& desc, gl::uint_t program);
+static GLenum      GLFilterModeForFilterMode(Sampler::FilterMode mode);
+static GLenum      GLWrapModeForWrapMode(Sampler::WrapMode mode);
+static bool        UsesMipmaps(Sampler::FilterMode mode);
+static void        GLAttribFor(VertexAttribFormat f, GLint& comps, GLenum& type);
+static unsigned    BufferTextureContents(const Texture& texture);
+static void        ApplySamplerState(Texture& texture, unsigned glTextureHandle, bool forceAll);
+static int         SlotFor(Material::PropertyType type);
+static GLenum      GLIndexTypeForIndexFormat(IndexFormat format);
 
 /// Internal Lifecycle Functions ///
 
 OGLResourceCache::~OGLResourceCache() {
-	log::d()("Destroying OGLResourceCache {:p}", static_cast<void*>(this));
+    log::d()("Destroying OGLResourceCache {:p}", static_cast<void*>(this));
 
-	for (const auto& [element, resource] : _meshElementMap) {
-		if (resource.ebo != 0) {
-			const GLuint ebo = resource.ebo;
-			glDeleteBuffers(1, &ebo);
-		}
+    for (const auto& [element, resource] : _meshElementMap) {
+        if (resource.ebo != 0) {
+            const GLuint ebo = resource.ebo;
+            glDeleteBuffers(1, &ebo);
+        }
 
-		if (resource.vbo != 0) {
-			const GLuint vbo = resource.vbo;
-			glDeleteBuffers(1, &vbo);
-		}
+        if (resource.vbo != 0) {
+            const GLuint vbo = resource.vbo;
+            glDeleteBuffers(1, &vbo);
+        }
 
-		if (resource.vao != 0) {
-			const GLuint vao = resource.vao;
-			glDeleteVertexArrays(1, &vao);
-		}
-	}
+        if (resource.vao != 0) {
+            const GLuint vao = resource.vao;
+            glDeleteVertexArrays(1, &vao);
+        }
+    }
 
-	for (const auto& [texture, resource] : _textureMap) {
-		if (resource.id != 0) {
-			const GLuint id = resource.id;
-			glDeleteTextures(1, &id);
-		}
-	}
+    for (const auto& [texture, resource] : _textureMap) {
+        if (resource.id != 0) {
+            const GLuint id = resource.id;
+            glDeleteTextures(1, &id);
+        }
+    }
 }
 
 /// Internal Member Functions ///
 
 PipelineId OGLResourceCache::ensurePipeline(const PipelineDesc& desc, gl::uint_t program) {
 
-	if (auto it = _pipelineMap.find(desc);
-		it != _pipelineMap.end()) {
+    if (auto it = _pipelineMap.find(desc); it != _pipelineMap.end()) {
 
-		return it->second;
-		}
+        return it->second;
+    }
 
-	OGLPipeline pipeline = BuildPipeline(desc, program);
+    OGLPipeline      pipeline = BuildPipeline(desc, program);
 
-	const PipelineId pipelineId =
-			static_cast<PipelineId>(_pipelineList.size());
+    const PipelineId pipelineId = static_cast<PipelineId>(_pipelineList.size());
 
-	_pipelineList.push_back(std::move(pipeline));
-	_pipelineMap.emplace(desc, pipelineId);
+    _pipelineList.push_back(std::move(pipeline));
+    _pipelineMap.emplace(desc, pipelineId);
 
-	return pipelineId;
+    return pipelineId;
 }
 
 const OGLPipeline& OGLResourceCache::pipeline(PipelineId pipelineId) const {
-	return _pipelineList.at(pipelineId);
+    return _pipelineList.at(pipelineId);
 }
 
 const OGLMeshElement& OGLResourceCache::ensureMeshElement(MeshElement& element) {
 
-	// find/create cache entry
-	auto [it, inserted] = _meshElementMap.try_emplace(&element, OGLMeshElement{});
-	auto& res = it->second;
+    // find/create cache entry
+    auto [it, inserted]    = _meshElementMap.try_emplace(&element, OGLMeshElement {});
+    auto&              res = it->second;
 
-	const VertexLayout layout = element.vertexLayout();
+    const VertexLayout layout = element.vertexLayout();
 
-	const bool vDirty = util::bitmask::contains(element.dirtyMask(), MeshElement::DirtyMask::VertexData);
-	const bool iDirty = util::bitmask::contains(element.dirtyMask(), MeshElement::DirtyMask::IndexData);
+    const bool vDirty = util::bitmask::contains(element.dirtyMask(), MeshElement::DirtyMask::VertexData);
+    const bool iDirty = util::bitmask::contains(element.dirtyMask(), MeshElement::DirtyMask::IndexData);
 
-	const bool missing = (res.vao == 0);
-	const bool layoutChanged = (!missing && res.vertexLayoutKey != layout);
+    const bool missing       = (res.vao == 0);
+    const bool layoutChanged = (!missing && res.vertexLayoutKey != layout);
 
-	if (!vDirty && !iDirty && !missing && !layoutChanged) {
-		return res;
-	}
+    if (!vDirty && !iDirty && !missing && !layoutChanged) {
+        return res;
+    }
 
-	// if rebuilding, delete old GL objects
-	if (!missing) {
-		glDeleteBuffers(1, (GLuint*)&res.vbo);
-		glDeleteBuffers(1, (GLuint*)&res.ebo);
-		glDeleteVertexArrays(1, (GLuint*)&res.vao);
-		res = {};
-	}
+    // if rebuilding, delete old GL objects
+    if (!missing) {
+        glDeleteBuffers(1, (GLuint*) &res.vbo);
+        glDeleteBuffers(1, (GLuint*) &res.ebo);
+        glDeleteVertexArrays(1, (GLuint*) &res.vao);
+        res = {};
+    }
 
-	res.vertexLayoutKey = layout;
+    res.vertexLayoutKey = layout;
 
-	// create GL objects
-	glGenVertexArrays(1, (GLuint*)&res.vao);
-	glGenBuffers(1, (GLuint*)&res.vbo);
-	glGenBuffers(1, (GLuint*)&res.ebo);
+    // create GL objects
+    glGenVertexArrays(1, (GLuint*) &res.vao);
+    glGenBuffers(1, (GLuint*) &res.vbo);
+    glGenBuffers(1, (GLuint*) &res.ebo);
 
-	glBindVertexArray((GLuint)res.vao);
+    glBindVertexArray((GLuint) res.vao);
 
-	// vertex buffer
+    // vertex buffer
 
-	const VertexLayoutDesc& desc = GetVertexLayoutDesc(layout);
+    const VertexLayoutDesc& desc = GetVertexLayoutDesc(layout);
 
-	const auto vb = element.vertexBytes();
-	const uint32_t vcount = element.vertexCount();
-	const uint16_t stride = element.vertexStride();
+    const auto              vb     = element.vertexBytes();
+    const uint32_t          vcount = element.vertexCount();
+    const uint16_t          stride = element.vertexStride();
 
-	A3D_ASSERT(desc.stride == stride);
-	A3D_ASSERT(vb.size() == size_t(vcount) * size_t(stride));
+    A3D_ASSERT(desc.stride == stride);
+    A3D_ASSERT(vb.size() == size_t(vcount) * size_t(stride));
 
-	glBindBuffer(GL_ARRAY_BUFFER, (GLuint)res.vbo);
-	glBufferData(GL_ARRAY_BUFFER,
-				 (GLsizeiptr)vb.size(),
-				 (const void*)vb.data(),
-				 GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, (GLuint) res.vbo);
+    glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr) vb.size(), (const void*) vb.data(), GL_STATIC_DRAW);
 
-	// setup vertex attributes from the descriptor
-	for (const auto& a : desc.attribs) {
+    // setup vertex attributes from the descriptor
+    for (const auto& a : desc.attribs) {
 
-		GLint comps = 0;
-		GLenum type = 0;
-		const bool isIntegerAttrib = false;
+        GLint      comps           = 0;
+        GLenum     type            = 0;
+        const bool isIntegerAttrib = false;
 
-		GLAttribFor(a.format, comps, type);
+        GLAttribFor(a.format, comps, type);
 
-		glEnableVertexAttribArray(a.location);
+        glEnableVertexAttribArray(a.location);
 
-		glVertexAttribPointer(a.location,
-							  comps,
-							  type,
-							  a.normalized ? GL_TRUE : GL_FALSE,
-							  stride,
-							  (const void*)(uintptr_t)a.offset);
-	}
+        glVertexAttribPointer(a.location, comps, type, a.normalized ? GL_TRUE : GL_FALSE, stride,
+                              (const void*) (uintptr_t) a.offset);
+    }
 
-	// index buffer
+    // index buffer
 
-	res.vertexCount = vcount;
+    res.vertexCount = vcount;
 
-	auto ivOpt = IndexAccess::GetIndexStreamView(element);
-	if (!ivOpt) {
-		// non-indexed mesh
-		res.indexCount = 0;
-		res.indexType  = GL_UNSIGNED_INT;
+    auto ivOpt = IndexAccess::GetIndexStreamView(element);
+    if (!ivOpt) {
+        // non-indexed mesh
+        res.indexCount = 0;
+        res.indexType  = GL_UNSIGNED_INT;
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (GLuint)res.ebo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW);
-	}
-	else {
-		const IndexStreamView iv = *ivOpt;
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (GLuint) res.ebo);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW);
+    }
+    else {
+        const IndexStreamView iv = *ivOpt;
 
-		A3D_ASSERT(iv.base != nullptr);
-		A3D_ASSERT(iv.count == element.indexCount());
-		A3D_ASSERT(iv.format == element.indexFormat());
-		A3D_ASSERT(IndexStride(iv.format) == 2u || IndexStride(iv.format) == 4u);
+        A3D_ASSERT(iv.base != nullptr);
+        A3D_ASSERT(iv.count == element.indexCount());
+        A3D_ASSERT(iv.format == element.indexFormat());
+        A3D_ASSERT(IndexStride(iv.format) == 2u || IndexStride(iv.format) == 4u);
 
-		A3D_ASSERT(element.indexBytes().data() == iv.base);
-		A3D_ASSERT(element.indexBytes().size() == size_t(iv.count) * size_t(IndexStride(iv.format)));
+        A3D_ASSERT(element.indexBytes().data() == iv.base);
+        A3D_ASSERT(element.indexBytes().size() == size_t(iv.count) * size_t(IndexStride(iv.format)));
 
-		res.indexCount = iv.count;
-		res.indexType  = GLIndexTypeForIndexFormat(iv.format);
+        res.indexCount = iv.count;
+        res.indexType  = GLIndexTypeForIndexFormat(iv.format);
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (GLuint)res.ebo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (GLuint) res.ebo);
 
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-					 (GLsizeiptr)(size_t(iv.count) * size_t(IndexStride(iv.format))),
-					 (const void*)iv.base,
-					 GL_STATIC_DRAW);
-	}
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr) (size_t(iv.count) * size_t(IndexStride(iv.format))),
+                     (const void*) iv.base, GL_STATIC_DRAW);
+    }
 
-	element.dirtyMask(util::bitmask::remove(element.dirtyMask(), MeshElement::DirtyMask::VertexData));
-	element.dirtyMask(util::bitmask::remove(element.dirtyMask(), MeshElement::DirtyMask::IndexData));
+    element.dirtyMask(util::bitmask::remove(element.dirtyMask(), MeshElement::DirtyMask::VertexData));
+    element.dirtyMask(util::bitmask::remove(element.dirtyMask(), MeshElement::DirtyMask::IndexData));
 
-	return res;
+    return res;
 }
 
 const OGLMaterial& OGLResourceCache::ensureMaterial(Material& material) {
 
-	auto it = _materialMap.find(&material);
-	if (it == _materialMap.end()) it = _materialMap.emplace(&material, OGLMaterial{}).first;
-	auto& res = it->second;
+    auto it = _materialMap.find(&material);
+    if (it == _materialMap.end()) {
+        it = _materialMap.emplace(&material, OGLMaterial {}).first;
+    }
+    auto& res = it->second;
 
-	res.specularExponent = material.specularExponent();
-	res.uvScale = material.uvScale();
-	res.tex.fill(0);
+    res.specularExponent = material.specularExponent();
+    res.uvScale          = material.uvScale();
+    res.tex.fill(0);
 
-	for (auto& [property, type] : material.properties()) {
-		const int slot = SlotFor(type);
-		if (slot < 0) continue;
-		auto textureSP = std::get_if<std::shared_ptr<Texture>>(property);
-		if (!textureSP || !(*textureSP)) continue;
-		res.tex[(size_t)slot] = ensureTexture(*(*textureSP)).id;
-	}
+    for (auto& [property, type] : material.properties()) {
+        const int slot = SlotFor(type);
+        if (slot < 0) {
+            continue;
+        }
+        auto textureSP = std::get_if<std::shared_ptr<Texture>>(property);
+        if (!textureSP || !(*textureSP)) {
+            continue;
+        }
+        res.tex[(size_t) slot] = ensureTexture(*(*textureSP)).id;
+    }
 
-	return res;
+    return res;
 }
 
 const OGLTexture& OGLResourceCache::ensureTexture(Texture& texture) {
 
-	auto it = _textureMap.find(&texture);
-	if (it == _textureMap.end()) {
-		it = _textureMap.emplace(&texture, OGLTexture{}).first;
-	}
+    auto it = _textureMap.find(&texture);
+    if (it == _textureMap.end()) {
+        it = _textureMap.emplace(&texture, OGLTexture {}).first;
+    }
 
-	unsigned handle = it->second.id;
+    unsigned   handle = it->second.id;
 
-	const bool contentsDirty = util::bitmask::contains(texture.dirtyMask(), Texture::DirtyMask::Contents);
-	const bool missingOrZero = (handle == 0);
-	const bool forceAll = contentsDirty || missingOrZero;
+    const bool contentsDirty = util::bitmask::contains(texture.dirtyMask(), Texture::DirtyMask::Contents);
+    const bool missingOrZero = (handle == 0);
+    const bool forceAll      = contentsDirty || missingOrZero;
 
-	if (forceAll) {
-		if (handle != 0) {
-			glDeleteTextures(1, (GLuint*)&handle);
-			handle = 0;
-		}
+    if (forceAll) {
+        if (handle != 0) {
+            glDeleteTextures(1, (GLuint*) &handle);
+            handle = 0;
+        }
 
-		handle = BufferTextureContents(texture);
+        handle = BufferTextureContents(texture);
 
-		if (handle == 0) {
-			log::e()("BufferTextureContents failed for Texture {:p}", (void*)&texture);
-			it->second.id = 0;
-			return it->second;
-		}
+        if (handle == 0) {
+            log::e()("BufferTextureContents failed for Texture {:p}", (void*) &texture);
+            it->second.id = 0;
+            return it->second;
+        }
 
-		it->second.id = handle;
+        it->second.id = handle;
 
-		// clear only Contents bit
-		texture.dirtyMask(util::bitmask::remove(texture.dirtyMask(), Texture::DirtyMask::Contents));
-	}
+        // clear only Contents bit
+        texture.dirtyMask(util::bitmask::remove(texture.dirtyMask(), Texture::DirtyMask::Contents));
+    }
 
-	// apply sampler state whenever sampler says it’s dirty, and always after (re)upload
-	if (handle != 0) {
-		const auto sampler = texture.sampler();
-		const bool samplerDirty = sampler && sampler->dirtyMask() != (Sampler::DirtyMask)0;
-		if (forceAll || samplerDirty) {
-			ApplySamplerState(texture, handle, forceAll);
-		}
-	}
+    // apply sampler state whenever sampler says it’s dirty, and always after (re)upload
+    if (handle != 0) {
+        const auto sampler      = texture.sampler();
+        const bool samplerDirty = sampler && sampler->dirtyMask() != (Sampler::DirtyMask) 0;
+        if (forceAll || samplerDirty) {
+            ApplySamplerState(texture, handle, forceAll);
+        }
+    }
 
-	return it->second;
+    return it->second;
 }
 
 /// Private Static Non-Member Functions ///
 
 OGLPipeline BuildPipeline(const PipelineDesc& desc, gl::uint_t program) {
 
-	OGLPipeline pipeline;
+    OGLPipeline pipeline;
 
-	pipeline.desc = desc;
-	pipeline.desc.depthTest = true;
-	pipeline.program = program;
+    pipeline.desc           = desc;
+    pipeline.desc.depthTest = true;
+    pipeline.program        = program;
 
-	return pipeline;
+    return pipeline;
 }
 
 GLenum GLFilterModeForFilterMode(Sampler::FilterMode mode) {
-	switch (mode) {
-		case Sampler::FilterMode::Nearest: 				return GL_NEAREST;
-		case Sampler::FilterMode::Linear: 				return GL_LINEAR;
-		case Sampler::FilterMode::NearestMipmapNearest:	return GL_NEAREST_MIPMAP_NEAREST;
-		case Sampler::FilterMode::LinearMipmapNearest: 	return GL_LINEAR_MIPMAP_NEAREST;
-		case Sampler::FilterMode::NearestMipmapLinear: 	return GL_NEAREST_MIPMAP_LINEAR;
-		case Sampler::FilterMode::LinearMipmapLinear: 	return GL_LINEAR_MIPMAP_LINEAR;
-	}
-	return GL_LINEAR;
+    switch (mode) {
+        case Sampler::FilterMode::Nearest:
+            return GL_NEAREST;
+        case Sampler::FilterMode::Linear:
+            return GL_LINEAR;
+        case Sampler::FilterMode::NearestMipmapNearest:
+            return GL_NEAREST_MIPMAP_NEAREST;
+        case Sampler::FilterMode::LinearMipmapNearest:
+            return GL_LINEAR_MIPMAP_NEAREST;
+        case Sampler::FilterMode::NearestMipmapLinear:
+            return GL_NEAREST_MIPMAP_LINEAR;
+        case Sampler::FilterMode::LinearMipmapLinear:
+            return GL_LINEAR_MIPMAP_LINEAR;
+    }
+    return GL_LINEAR;
 }
 
 GLenum GLWrapModeForWrapMode(Sampler::WrapMode mode) {
-	switch (mode) {
-		case Sampler::WrapMode::ClampToEdge: return GL_CLAMP_TO_EDGE;
-		case Sampler::WrapMode::Repeat:      return GL_REPEAT;
-		default:                    return GL_MIRRORED_REPEAT;
-	}
+    switch (mode) {
+        case Sampler::WrapMode::ClampToEdge:
+            return GL_CLAMP_TO_EDGE;
+        case Sampler::WrapMode::Repeat:
+            return GL_REPEAT;
+        default:
+            return GL_MIRRORED_REPEAT;
+    }
 }
 
 bool UsesMipmaps(Sampler::FilterMode mode) {
-	switch (mode) {
-		case Sampler::FilterMode::NearestMipmapNearest:
-		case Sampler::FilterMode::NearestMipmapLinear:
-		case Sampler::FilterMode::LinearMipmapNearest:
-		case Sampler::FilterMode::LinearMipmapLinear:
-			return true;
-		default:
-			return false;
-	}
+    switch (mode) {
+        case Sampler::FilterMode::NearestMipmapNearest:
+        case Sampler::FilterMode::NearestMipmapLinear:
+        case Sampler::FilterMode::LinearMipmapNearest:
+        case Sampler::FilterMode::LinearMipmapLinear:
+            return true;
+        default:
+            return false;
+    }
 }
 
 void GLAttribFor(VertexAttribFormat f, GLint& comps, GLenum& type) {
-	switch (f) {
-		case VertexAttribFormat::F32x2: comps = 2; type = GL_FLOAT; break;
-		case VertexAttribFormat::F32x3: comps = 3; type = GL_FLOAT; break;
-		case VertexAttribFormat::F32x4: comps = 4; type = GL_FLOAT; break;
-	}
+    switch (f) {
+        case VertexAttribFormat::F32x2:
+            comps = 2;
+            type  = GL_FLOAT;
+            break;
+        case VertexAttribFormat::F32x3:
+            comps = 3;
+            type  = GL_FLOAT;
+            break;
+        case VertexAttribFormat::F32x4:
+            comps = 4;
+            type  = GL_FLOAT;
+            break;
+    }
 }
 
 unsigned BufferTextureContents(const Texture& texture) {
-	unsigned glTextureHandle = 0;
+    unsigned glTextureHandle = 0;
 
-	auto contents = texture.contents();
-	std::visit([&](auto&& v) {
-		using T = std::decay_t<decltype(v)>;
+    auto     contents = texture.contents();
+    std::visit(
+        [&](auto&& v) {
+            using T = std::decay_t<decltype(v)>;
 
-		if constexpr (std::is_same_v<T, shared_ptr<CubeImage>>) {
-			auto cubeImage = dynamic_pointer_cast<CubeImage>(v);
-			if (!cubeImage) return;
+            if constexpr (std::is_same_v<T, shared_ptr<CubeImage>>) {
+                auto cubeImage = dynamic_pointer_cast<CubeImage>(v);
+                if (!cubeImage) {
+                    return;
+                }
 
-			Image* images[] = {
-					cubeImage->face(CubeImage::Face::XPos), cubeImage->face(CubeImage::Face::XNeg),
-					cubeImage->face(CubeImage::Face::YPos), cubeImage->face(CubeImage::Face::YNeg),
-					cubeImage->face(CubeImage::Face::ZPos), cubeImage->face(CubeImage::Face::ZNeg) };
+                Image* images[] = {cubeImage->face(CubeImage::Face::XPos),
+                                   cubeImage->face(CubeImage::Face::XNeg),
+                                   cubeImage->face(CubeImage::Face::YPos),
+                                   cubeImage->face(CubeImage::Face::YNeg),
+                                   cubeImage->face(CubeImage::Face::ZPos),
+                                   cubeImage->face(CubeImage::Face::ZNeg)};
 
-			GLenum sides[] = {
-					GL_TEXTURE_CUBE_MAP_POSITIVE_X,
-					GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
-					GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
-					GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
-					GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
-					GL_TEXTURE_CUBE_MAP_NEGATIVE_Z };
+                GLenum sides[] = {GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+                                  GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+                                  GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z};
 
-			glGenTextures(1, (GLuint*)&glTextureHandle);
-			glBindTexture(GL_TEXTURE_CUBE_MAP, (GLuint)glTextureHandle);
+                glGenTextures(1, (GLuint*) &glTextureHandle);
+                glBindTexture(GL_TEXTURE_CUBE_MAP, (GLuint) glTextureHandle);
 
-			for (int s = 0; s < 6; ++s) {
-				auto* image = images[s];
-				if (!image) continue;
-				// Your code currently assumes 4 bytes/px
-				glTexImage2D(sides[s],
-							 0,
-							 GL_RGBA8,
-							 image->width(),
-							 image->height(),
-							 0,
-							 GL_RGBA,
-							 GL_UNSIGNED_BYTE,
-							 *(image->buffer()));
-			}
-		}
-		else if constexpr (std::is_same_v<T, std::shared_ptr<Image>>) {
-			auto image = std::dynamic_pointer_cast<Image>(v);
-			if (!image) return;
+                for (int s = 0; s < 6; ++s) {
+                    auto* image = images[s];
+                    if (!image) {
+                        continue;
+                    }
+                // Your code currently assumes 4 bytes/px
+                    glTexImage2D(sides[s], 0, GL_RGBA8, image->width(), image->height(), 0, GL_RGBA,
+                                 GL_UNSIGNED_BYTE, *(image->buffer()));
+                }
+            }
+            else if constexpr (std::is_same_v<T, std::shared_ptr<Image>>) {
+                auto image = std::dynamic_pointer_cast<Image>(v);
+                if (!image) {
+                    return;
+                }
 
-			glGenTextures(1, (GLuint*)&glTextureHandle);
-			glBindTexture(GL_TEXTURE_2D, (GLuint)glTextureHandle);
+                glGenTextures(1, (GLuint*) &glTextureHandle);
+                glBindTexture(GL_TEXTURE_2D, (GLuint) glTextureHandle);
 
-			glTexImage2D(GL_TEXTURE_2D,
-						 0,
-						 GL_RGBA8,
-						 image->width(),
-						 image->height(),
-						 0,
-						 GL_RGBA,
-						 GL_UNSIGNED_BYTE,
-						 *(image->buffer()));
-		}
-		else if constexpr (std::is_same_v<T, std::monostate>) {
-			log::w()("Texture has empty contents.");
-		}
-	}, contents);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image->width(), image->height(), 0, GL_RGBA,
+                             GL_UNSIGNED_BYTE, *(image->buffer()));
+            }
+            else if constexpr (std::is_same_v<T, std::monostate>) {
+                log::w()("Texture has empty contents.");
+            }
+        },
+        contents);
 
-	return glTextureHandle;
+    return glTextureHandle;
 }
 
 void ApplySamplerState(Texture& texture, unsigned glTextureHandle, bool forceAll) {
-	auto sampler = texture.sampler();
-	if (!sampler) return;
+    auto sampler = texture.sampler();
+    if (!sampler) {
+        return;
+    }
 
-	const bool isCubemap = std::holds_alternative<std::shared_ptr<CubeImage>>(texture.contents());
-	const GLenum texType = isCubemap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D;
+    const bool   isCubemap = std::holds_alternative<std::shared_ptr<CubeImage>>(texture.contents());
+    const GLenum texType   = isCubemap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D;
 
-	glBindTexture(texType, (GLuint)glTextureHandle);
+    glBindTexture(texType, (GLuint) glTextureHandle);
 
-	const auto sm = sampler->dirtyMask();
+    const auto sm = sampler->dirtyMask();
 
-	auto doMin = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::MinificationFilter);
-	auto doMag = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::MagnificationFilter);
-	auto doWS  = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::WrapS);
-	auto doWT  = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::WrapT);
-	auto doWR  = forceAll || (isCubemap && util::bitmask::contains(sm, Sampler::DirtyMask::WrapR));
-	auto doAn  = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::MaxAnisotropy);
+    auto       doMin = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::MinificationFilter);
+    auto       doMag = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::MagnificationFilter);
+    auto       doWS  = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::WrapS);
+    auto       doWT  = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::WrapT);
+    auto       doWR  = forceAll || (isCubemap && util::bitmask::contains(sm, Sampler::DirtyMask::WrapR));
+    auto       doAn  = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::MaxAnisotropy);
 
-	if (doMin) {
-		auto mode = sampler->minificationFilter();
-		if (UsesMipmaps(mode)) {
-			glGenerateMipmap(texType);
-		}
-		glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, (GLint)GLFilterModeForFilterMode(mode));
-	}
+    if (doMin) {
+        auto mode = sampler->minificationFilter();
+        if (UsesMipmaps(mode)) {
+            glGenerateMipmap(texType);
+        }
+        glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, (GLint) GLFilterModeForFilterMode(mode));
+    }
 
-	if (doMag) {
-		auto mode = sampler->magnificationFilter();
-		// only Nearest/Linear are valid
-		glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, (GLint)GLFilterModeForFilterMode(mode));
-	}
+    if (doMag) {
+        auto mode = sampler->magnificationFilter();
+        // only Nearest/Linear are valid
+        glTexParameteri(texType, GL_TEXTURE_MAG_FILTER, (GLint) GLFilterModeForFilterMode(mode));
+    }
 
-	if (doWS) glTexParameteri(texType, GL_TEXTURE_WRAP_S, (GLint)GLWrapModeForWrapMode(sampler->wrapS()));
-	if (doWT) glTexParameteri(texType, GL_TEXTURE_WRAP_T, (GLint)GLWrapModeForWrapMode(sampler->wrapT()));
-	if (doWR) glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, (GLint)GLWrapModeForWrapMode(sampler->wrapR()));
+    if (doWS) {
+        glTexParameteri(texType, GL_TEXTURE_WRAP_S, (GLint) GLWrapModeForWrapMode(sampler->wrapS()));
+    }
+    if (doWT) {
+        glTexParameteri(texType, GL_TEXTURE_WRAP_T, (GLint) GLWrapModeForWrapMode(sampler->wrapT()));
+    }
+    if (doWR) {
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R,
+                        (GLint) GLWrapModeForWrapMode(sampler->wrapR()));
+    }
 
 #ifdef A3D_GL_DESKTOP
-	if (doAn) {
-#if defined(GL_EXT_texture_filter_anisotropic)
-		float anisotropy = sampler->maxAnisotropy();
-		float largest = 0.0f;
-		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &largest);
-		if (largest > 0.0f && anisotropy > largest) anisotropy = largest;
-		glTexParameterf(texType, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
-#else
-		(void)texType; // anisotropy extension not available
-#endif
-	}
+    if (doAn) {
+    #if defined(GL_EXT_texture_filter_anisotropic)
+        float anisotropy = sampler->maxAnisotropy();
+        float largest    = 0.0f;
+        glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &largest);
+        if (largest > 0.0f && anisotropy > largest) {
+            anisotropy = largest;
+        }
+        glTexParameterf(texType, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
+    #else
+        (void) texType; // anisotropy extension not available
+    #endif
+    }
 #endif
 
-	// clear sampler dirty bits we just applied
-	if (forceAll) {
-		sampler->dirtyMask((Sampler::DirtyMask)0);
-	} else {
-		auto cleared = sm;
-		if (doMin) 	cleared = util::bitmask::remove(cleared, Sampler::DirtyMask::MinificationFilter);
-		if (doMag) 	cleared = util::bitmask::remove(cleared, Sampler::DirtyMask::MagnificationFilter);
-		if (doWS) 	cleared = util::bitmask::remove(cleared, Sampler::DirtyMask::WrapS);
-		if (doWT) 	cleared = util::bitmask::remove(cleared, Sampler::DirtyMask::WrapT);
-		if (doWR) 	cleared = util::bitmask::remove(cleared, Sampler::DirtyMask::WrapR);
-		if (doAn) 	cleared = util::bitmask::remove(cleared, Sampler::DirtyMask::MaxAnisotropy);
-		sampler->dirtyMask(cleared);
-	}
+    // clear sampler dirty bits we just applied
+    if (forceAll) {
+        sampler->dirtyMask((Sampler::DirtyMask) 0);
+    }
+    else {
+        auto cleared = sm;
+        if (doMin) {
+            cleared = util::bitmask::remove(cleared, Sampler::DirtyMask::MinificationFilter);
+        }
+        if (doMag) {
+            cleared = util::bitmask::remove(cleared, Sampler::DirtyMask::MagnificationFilter);
+        }
+        if (doWS) {
+            cleared = util::bitmask::remove(cleared, Sampler::DirtyMask::WrapS);
+        }
+        if (doWT) {
+            cleared = util::bitmask::remove(cleared, Sampler::DirtyMask::WrapT);
+        }
+        if (doWR) {
+            cleared = util::bitmask::remove(cleared, Sampler::DirtyMask::WrapR);
+        }
+        if (doAn) {
+            cleared = util::bitmask::remove(cleared, Sampler::DirtyMask::MaxAnisotropy);
+        }
+        sampler->dirtyMask(cleared);
+    }
 }
 
 int SlotFor(Material::PropertyType type) {
-	switch (type) {
-		case Material::PropertyType::Ambient:  return 0;
-		case Material::PropertyType::Diffuse:  return 1;
-		case Material::PropertyType::Specular: return 2;
-		case Material::PropertyType::Emission: return 3;
-		default: return -1;
-	}
+    switch (type) {
+        case Material::PropertyType::Ambient:
+            return 0;
+        case Material::PropertyType::Diffuse:
+            return 1;
+        case Material::PropertyType::Specular:
+            return 2;
+        case Material::PropertyType::Emission:
+            return 3;
+        default:
+            return -1;
+    }
 }
 
 GLenum GLIndexTypeForIndexFormat(IndexFormat format) {
-	switch (format) {
-		case IndexFormat::U16: return GL_UNSIGNED_SHORT;
-		case IndexFormat::U32: return GL_UNSIGNED_INT;
-		default:               return GL_UNSIGNED_INT;
-	}
+    switch (format) {
+        case IndexFormat::U16:
+            return GL_UNSIGNED_SHORT;
+        case IndexFormat::U32:
+            return GL_UNSIGNED_INT;
+        default:
+            return GL_UNSIGNED_INT;
+    }
 }

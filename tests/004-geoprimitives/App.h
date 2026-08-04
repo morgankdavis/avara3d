@@ -14,46 +14,48 @@
 #include "a3d/Application.h"
 
 namespace a3d {
-	class Node;
-	class PhysicsShape;
-	class Scene;
-	class Window;
+
+    class Node;
+    class PhysicsShape;
+    class Scene;
+    class Window;
+
 }
 
 namespace test::geoprimitives {
 
-	class App : public a3d::Application {
+    class App : public a3d::Application {
 
-	public:
-		/// Public Lifecycle Functions ///
+    public:
+        /// Public Lifecycle Functions ///
 
-		App(int argc, char* argv[]);
-		~App() override;
+        App(int argc, char* argv[]);
+        ~App() override;
 
-		App(const App&) = delete;
-		App& operator=(const App&) = delete;
+        App(const App&)            = delete;
+        App& operator=(const App&) = delete;
 
-		App(App&&) = delete;
-		App& operator=(App&&) = delete;
+        App(App&&)            = delete;
+        App& operator=(App&&) = delete;
 
-	protected:
-		/// Protected Member Functions ///
+    protected:
+        /// Protected Member Functions ///
 
-		std::unique_ptr<a3d::Scene>		init() override;
-		bool							shouldContinue(const a3d::Scene& scene) override;
-		void							didShutdown() override;
+        std::unique_ptr<a3d::Scene> init() override;
+        bool                        shouldContinue(const a3d::Scene& scene) override;
+        void                        didShutdown() override;
 
-		/// Runner Callbacks ///
+        /// Runner Callbacks ///
 
-		void							hostUpdate(a3d::Runner& runner,
-									               const a3d::Runner::UpdateInfo& info) override;
+        void hostUpdate(a3d::Runner& runner, const a3d::Runner::UpdateInfo& info) override;
 
-	private:
-		/// Private Member Variables ///
+    private:
+        /// Private Member Variables ///
 
-		std::unique_ptr<a3d::Window>	_window;
-		a3d::Node*						_pointLightPivotNode;
-	};
+        std::unique_ptr<a3d::Window> _window;
+        a3d::Node*                   _pointLightPivotNode;
+    };
+
 }
 
 #endif // AVARA3D_TEST_GEOPRIMITIVES_APP_H

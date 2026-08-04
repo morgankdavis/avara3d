@@ -17,23 +17,23 @@
 
 namespace a3d {
 
-	class Line;
-	class Renderer;
-	class RenderContext;
-	
-	class BulletDebugDrawer : public btIDebugDraw {
+    class Line;
+    class Renderer;
+    class RenderContext;
 
-	public:
-		/// Public Lifecycle Functions ///
+    class BulletDebugDrawer : public btIDebugDraw {
 
-		BulletDebugDrawer();
-		~BulletDebugDrawer() override;
-		
-		/// Internal Member Functions ///
+    public:
+        /// Public Lifecycle Functions ///
 
-		void 	clear();
+        BulletDebugDrawer();
+        ~BulletDebugDrawer() override;
 
-		std::vector<Line> lines();
+        /// Internal Member Functions ///
+
+        void              clear();
+
+        std::vector<Line> lines();
 
 //		std::vector<Line> lines(Renderer& renderer,
 //					 const RenderContext& context,
@@ -44,18 +44,16 @@ namespace a3d {
 //					 const math::mat4& viewMat,
 //					 const math::mat4& projectionMat);
 
-		/// btIDebugDraw Members ///
+        /// btIDebugDraw Members ///
 
-		void 	drawLine(const btVector3& from,
-						 const btVector3& to,
-						 const btVector3& color) override;
+        void              drawLine(const btVector3& from, const btVector3& to, const btVector3& color) override;
 
-		void 	drawLine(const btVector3& from,
-						 const btVector3& to,
-						 const btVector3& fromColor,
-						 const btVector3& toColor) override;
+        void              drawLine(const btVector3& from,
+                                   const btVector3& to,
+                                   const btVector3& fromColor,
+                                   const btVector3& toColor) override;
 
-		/*
+        /*
 		void 	drawSphere(btScalar radius,
 						   const btTransform& transform,
 						   const btVector3& color) override;
@@ -72,20 +70,19 @@ namespace a3d {
 
 		 */
 
-		// these three are pure virtual and must be implemented
+        // these three are pure virtual and must be implemented
 
-		void drawContactPoint(const btVector3& PointOnB,
-							  const btVector3& normalOnB,
-							  btScalar distance,
-							  int lifeTime,
-							  const btVector3& color) override;
+        void              drawContactPoint(const btVector3& PointOnB,
+                                           const btVector3& normalOnB,
+                                           btScalar         distance,
+                                           int              lifeTime,
+                                           const btVector3& color) override;
 
-		void	reportErrorWarning(const char* warningString) override;
+        void              reportErrorWarning(const char* warningString) override;
 
-		void	draw3dText(const btVector3& location,
-						   const char* textString) override;
+        void              draw3dText(const btVector3& location, const char* textString) override;
 
-		/*
+        /*
 		void 	drawAabb(const btVector3& from,
 						 const btVector3& to,
 						 const btVector3& color) override;
@@ -149,15 +146,16 @@ namespace a3d {
 						  const btVector3& color) override;
 		*/
 
-		void 	setDebugMode(int debugMode) override;
-		int 	getDebugMode() const override;
+        void              setDebugMode(int debugMode) override;
+        int               getDebugMode() const override;
 
-	private:
-		/// Private Member Variables ///
+    private:
+        /// Private Member Variables ///
 
-		int							_debugMode;
-		std::vector<Line>			_lines;
-	};
+        int               _debugMode;
+        std::vector<Line> _lines;
+    };
+
 }
 
 #endif /* AVARA3D_PHYSICS_BACKEND_BULLET_BULLETDEBUGDRAWER_H */

@@ -16,25 +16,26 @@
 
 namespace a3d {
 
-	class Color;
-	class Node;
-	
-	class DirectionalLight : public Light {
+    class Color;
+    class Node;
 
-	public:
-		/// Public Lifecycle Functions ///
+    class DirectionalLight : public Light {
 
-		DirectionalLight();
-		explicit DirectionalLight(const std::string& name);
-		explicit DirectionalLight(const std::shared_ptr<Color>& color);
-		DirectionalLight(const std::string& name, const std::shared_ptr<Color>& color);
+    public:
+        /// Public Lifecycle Functions ///
 
-		DirectionalLight(const DirectionalLight&) = default;
-		DirectionalLight& operator=(const DirectionalLight&) = default;
+        DirectionalLight();
+        explicit DirectionalLight(const std::string& name);
+        explicit DirectionalLight(const std::shared_ptr<Color>& color);
+        DirectionalLight(const std::string& name, const std::shared_ptr<Color>& color);
 
-		DirectionalLight(DirectionalLight&&) noexcept = default;
-		DirectionalLight& operator=(DirectionalLight&&) noexcept = default;
-	};
+        DirectionalLight(const DirectionalLight&)            = default;
+        DirectionalLight& operator=(const DirectionalLight&) = default;
+
+        DirectionalLight(DirectionalLight&&) noexcept            = default;
+        DirectionalLight& operator=(DirectionalLight&&) noexcept = default;
+    };
+
 }
 
 #endif //AVARA3D_VISUAL_LIGHT_DIRECTIONALLIGHT_H */
