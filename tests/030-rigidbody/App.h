@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "a3d/Application.h"
+#include "a3d/util/PeriodicTrigger.h"
 
 namespace a3d {
 
@@ -75,8 +76,8 @@ namespace test::rigidbody {
         std::vector<DuckFruitDef>                _duckFruit;
         std::unique_ptr<a3d::ext::WanderRotator> _duckRotator;
         float                                    _cameraMoveSpeed;
-        double                                   _duckFruitSpawnAccumulator;
-        double                                   _slurmShotAccumulator;
+        a3d::util::PeriodicTrigger               _duckFruitTrigger;
+        a3d::util::PeriodicTrigger               _slurmTrigger;
     };
 
 }

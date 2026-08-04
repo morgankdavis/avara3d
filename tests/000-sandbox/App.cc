@@ -26,7 +26,7 @@ const RenderContext::AntialiasingMode ANTIALIAS_MODE {RenderContext::Antialiasin
 const bool                            ENABLE_VSYNC {false};
 const bool                            CAPTURE_CURSOR {false};
 const float                           MOUSE_SENSITIVITY {0.5};
-const double                          FIXED_TIMESTEP {1.0 / 120.0};
+const double                          TIMESTEP {1.0 / 120.0};
 const bool                            DARK {false};
 
 /// Public Lifecycle Functions ///
@@ -74,7 +74,7 @@ std::unique_ptr<Scene> App::init() {
 }
 
 SimulationConfig App::simulationConfig() const {
-    return {.timeStep = FIXED_TIMESTEP};
+    return {.timeStep = TIMESTEP};
 }
 
 bool App::shouldContinue(const Scene& scene) {

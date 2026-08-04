@@ -25,7 +25,7 @@ const RenderContext::AntialiasingMode ANTIALIAS_MODE {RenderContext::Antialiasin
 const bool                            ENABLE_VSYNC {false};
 const bool                            CAPTURE_CURSOR {false};
 const float                           MOUSE_SENSITIVITY {0.5};
-const float                           FIXED_TIMESTEP {1.0 / 120.0};
+const float                           TIMESTEP {1.0 / 120.0};
 const bool                            DARK {false};
 
 /// Public Lifecycle Functions ///
