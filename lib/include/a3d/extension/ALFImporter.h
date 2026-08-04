@@ -13,27 +13,30 @@
 #include <memory>
 
 namespace a3d {
-	class Scene;
-	class VisualWorld;
+
+    class Scene;
+    class VisualWorld;
+
 }
 
 namespace a3d::ext {
 
-	class ALFImporter {
+    class ALFImporter {
 
-	public:
-		/// Internal Lifecycle Functions ///
+    public:
+        /// Internal Lifecycle Functions ///
 
-		explicit ALFImporter(const std::filesystem::path& path);
+        explicit ALFImporter(const std::filesystem::path& path);
 
-		/// Internal Member Functions ///
+        /// Internal Member Functions ///
 
-		std::unique_ptr<Scene> 		scene(VisualWorld& visualWorld);
+        std::unique_ptr<Scene> scene(VisualWorld& visualWorld);
 
-		/// Private Member Variables ///
+        /// Private Member Variables ///
 
-		std::filesystem::path 		_path;
-	};
+        std::filesystem::path  _path;
+    };
+
 }
 
 #endif //AVARA3D_EXTENSIONS_ALFIMPORTER_H

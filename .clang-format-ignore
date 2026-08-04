@@ -1,10 +1,10 @@
-# Build output
 **/build/**
 **/cmake-build-*/**
 **/out/**
 
-# Vendored or generated code
 **/external/**
 **/third_party/**
 **/vendor/**
 **/generated/**
+
+extras/**

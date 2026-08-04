@@ -20,87 +20,87 @@ using MouseButton = DesktopInputContext::MouseButton;
 /// Public Lifecycle Functions ///
 
 DesktopInputContext::DesktopInputContext():
-		_keysDown{},
-		_mouseButtonsDown{},
-		_keysPressed{},
-		_keysPressedCleared{},
-		_mouseButtonsPressed{},
-		_mouseButtonsPressedCleared{},
-		_mousePositionDelta{0.0f, 0.0f},
-		_mouseScrollWheelDelta{0.0f, 0.0f} {}
+    _keysDown {},
+    _mouseButtonsDown {},
+    _keysPressed {},
+    _keysPressedCleared {},
+    _mouseButtonsPressed {},
+    _mouseButtonsPressedCleared {},
+    _mousePositionDelta {0.0f, 0.0f},
+    _mouseScrollWheelDelta {0.0f, 0.0f} {}
 
 DesktopInputContext::~DesktopInputContext() {
-	log::d()("Destroying InputContext {:p}", static_cast<void*>(this));
+    log::d()("Destroying InputContext {:p}", static_cast<void*>(this));
 }
 
 /// Public Member Functions ///
 
 bool DesktopInputContext::keyDown(Key key) {
-	return _keysDown.count(key);
+    return _keysDown.count(key);
 }
 
 bool DesktopInputContext::mouseButtonDown(MouseButton button) {
-	return _mouseButtonsDown.count(button);
+    return _mouseButtonsDown.count(button);
 }
 
 bool DesktopInputContext::keyPressed(Key key) {
-	bool pressed = _keysPressed.count(key);
-	if (pressed) {
-		_keysPressed.erase(key);
-		_keysPressedCleared.insert(key);
-	}
-	return pressed;
+    bool pressed = _keysPressed.count(key);
+    if (pressed) {
+        _keysPressed.erase(key);
+        _keysPressedCleared.insert(key);
+    }
+    return pressed;
 }
 
 bool DesktopInputContext::mouseButtonPressed(MouseButton button) {
-	bool pressed = _mouseButtonsPressed.count(button);
-	if (pressed) {
-		_mouseButtonsPressed.erase(button);
-		_mouseButtonsPressedCleared.insert(button);
-	}
-	return pressed;
+    bool pressed = _mouseButtonsPressed.count(button);
+    if (pressed) {
+        _mouseButtonsPressed.erase(button);
+        _mouseButtonsPressedCleared.insert(button);
+    }
+    return pressed;
 }
 
 unordered_set<Key> DesktopInputContext::keysDown() {
-	auto keysDownCopy = _keysDown;
-	return keysDownCopy;
+    auto keysDownCopy = _keysDown;
+    return keysDownCopy;
 }
 
 unordered_set<MouseButton> DesktopInputContext::mouseButtonsDown() {
-	auto mouseButtonsDownCopy = _mouseButtonsDown;
-	return mouseButtonsDownCopy;
+    auto mouseButtonsDownCopy = _mouseButtonsDown;
+    return mouseButtonsDownCopy;
 }
 
 unordered_set<Key> DesktopInputContext::keysPressed() {
-	auto keysPressedCopy = _keysPressed;
-	_keysPressed.clear();
-	return keysPressedCopy;
+    auto keysPressedCopy = _keysPressed;
+    _keysPressed.clear();
+    return keysPressedCopy;
 }
 
 unordered_set<MouseButton> DesktopInputContext::mouseButtonsPressed() {
-	auto mouseButtonsPressedCopy = _mouseButtonsPressed;
-	_mouseButtonsPressed.clear();
-	return mouseButtonsPressedCopy;
+    auto mouseButtonsPressedCopy = _mouseButtonsPressed;
+    _mouseButtonsPressed.clear();
+    return mouseButtonsPressedCopy;
 }
 
 vec2 DesktopInputContext::mousePositionDelta() {
-	auto mouseMoveDeltaCopy = _mousePositionDelta;
-	clearMousePositionDelta();
-	return mouseMoveDeltaCopy;
+    auto mouseMoveDeltaCopy = _mousePositionDelta;
+    clearMousePositionDelta();
+    return mouseMoveDeltaCopy;
 }
 
 vec2 DesktopInputContext::mouseScrollWheelDelta() {
-	auto mouseScrollWheelDeltaCopy = _mouseScrollWheelDelta;
-	clearMouseScrollWheelDelta();
-	return mouseScrollWheelDeltaCopy;
+    auto mouseScrollWheelDeltaCopy = _mouseScrollWheelDelta;
+    clearMouseScrollWheelDelta();
+    return mouseScrollWheelDeltaCopy;
 }
 
 void DesktopInputContext::clearMousePositionDelta() {
-	_mousePositionDelta.x = 0.0f;
-	_mousePositionDelta.y = 0.0f;
+    _mousePositionDelta.x = 0.0f;
+    _mousePositionDelta.y = 0.0f;
 }
 
 void DesktopInputContext::clearMouseScrollWheelDelta() {
-	_mouseScrollWheelDelta.x = 0.0f;
-	_mouseScrollWheelDelta.y = 0.0f;
+    _mouseScrollWheelDelta.x = 0.0f;
+    _mouseScrollWheelDelta.y = 0.0f;
 }

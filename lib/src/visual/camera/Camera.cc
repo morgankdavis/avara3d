@@ -19,29 +19,29 @@ using namespace a3d::math;
 /// Public Lifecycle Functions ///
 
 Camera::Camera():
-		_name{} {}
+    _name {} {}
 
 Camera::Camera(const string& name):
-		_name{name} {}
+    _name {name} {}
 
 Camera::~Camera() {
 
-	if (_name != nullopt) {
-		log::d()("Destroying Camera '{}' ({:p})", *_name, static_cast<void*>(this));
-	}
-	else {
-		log::d()("Destroying Camera {:p}", static_cast<void*>(this));
-	}
+    if (_name != nullopt) {
+        log::d()("Destroying Camera '{}' ({:p})", *_name, static_cast<void*>(this));
+    }
+    else {
+        log::d()("Destroying Camera {:p}", static_cast<void*>(this));
+    }
 }
 
 /// Public Member Functions ///
 
 const optional<string>& Camera::name() const {
-	return _name;
+    return _name;
 }
 
 void Camera::name(const string& name) {
-	_name = name;
+    _name = name;
 }
 
 /// Internal Member Functions ///

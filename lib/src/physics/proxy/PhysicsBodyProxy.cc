@@ -15,11 +15,11 @@ using namespace a3d;
 /// Internal Lifecycle Functions ///
 
 PhysicsBodyProxy::PhysicsBodyProxy(PhysicsBody& body, PhysicsBody::Type type):
-		_body{},
-		_shapeProxy{},
-		_autocalculatesMomentOfInertia{true} {
+    _body {},
+    _shapeProxy {},
+    _autocalculatesMomentOfInertia {true} {
 
-	attachedToBody(body);
+    attachedToBody(body);
 }
 
 PhysicsBodyProxy::~PhysicsBodyProxy() {}
@@ -27,21 +27,21 @@ PhysicsBodyProxy::~PhysicsBodyProxy() {}
 /// Internal Member Functions ///
 
 bool PhysicsBodyProxy::autocalculatesMomentOfInertia() const {
-	return _autocalculatesMomentOfInertia;
+    return _autocalculatesMomentOfInertia;
 }
 
 void PhysicsBodyProxy::autocalculatesMomentOfInertia(bool autocalculate) {
-	_autocalculatesMomentOfInertia = autocalculate;
+    _autocalculatesMomentOfInertia = autocalculate;
 }
 
 void PhysicsBodyProxy::attachedToBody(PhysicsBody& body) {
-	log::t()("body: {:p}", static_cast<void*>(&body));
+    log::t()("body: {:p}", static_cast<void*>(&body));
 
-	_body = &body;
+    _body = &body;
 }
 
 void PhysicsBodyProxy::detachedFromBody(PhysicsBody& body) {
-	log::t()("body: {:p}", static_cast<void*>(&body));
+    log::t()("body: {:p}", static_cast<void*>(&body));
 
-	_body = nullptr;
+    _body = nullptr;
 }

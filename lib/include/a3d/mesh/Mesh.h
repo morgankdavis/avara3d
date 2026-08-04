@@ -25,119 +25,118 @@
 
 namespace a3d {
 
-	class Line;
-	class Material;
-	class MeshElement;
-	class Node;
-	class Renderer;
-	class RenderContext;
-	class RenderItem;
+    class Line;
+    class Material;
+    class MeshElement;
+    class Node;
+    class Renderer;
+    class RenderContext;
+    class RenderItem;
 
-	class Mesh {
+    class Mesh {
 
-	public:
-		/// Public Types ///
+    public:
+        /// Public Types ///
 
-		enum class ImportOptions : uint16_t {
-			None = 					0,
-			ImportMaterials =		1 << 1, // note maps to SceneImportOptions
-			ImportAll =				UINT16_MAX
-		};
+        enum class ImportOptions : uint16_t {
+            None            = 0,
+            ImportMaterials = 1 << 1, // note maps to SceneImportOptions
+            ImportAll       = UINT16_MAX
+        };
 
-		/// Public Static Member Functions ///
+        /// Public Static Member Functions ///
 
-		static std::shared_ptr<Mesh>	FromFile(const std::filesystem::path& path,
-												 ImportOptions options =
-												 ImportOptions::ImportMaterials);
+        static std::shared_ptr<Mesh> FromFile(const std::filesystem::path& path,
+                                              ImportOptions options = ImportOptions::ImportMaterials);
 
-		/// Public Lifecycle Functions ///
+        /// Public Lifecycle Functions ///
 
-		Mesh(const std::string& name,
-			 std::unique_ptr<MeshElement> element,
-			 const std::shared_ptr<Material>& material);
-		Mesh(std::unique_ptr<MeshElement> element,
-			 const std::shared_ptr<Material>& material);
-		Mesh(const std::string& name,
-			 std::vector<std::unique_ptr<MeshElement>>& elements,
-			 const std::vector<std::shared_ptr<Material>>& materials);
-		Mesh(std::vector<std::unique_ptr<MeshElement>>& elements,
-			 const std::vector<std::shared_ptr<Material>>& materials);
-		virtual ~Mesh();
+        Mesh(const std::string&               name,
+             std::unique_ptr<MeshElement>     element,
+             const std::shared_ptr<Material>& material);
+        Mesh(std::unique_ptr<MeshElement> element, const std::shared_ptr<Material>& material);
+        Mesh(const std::string&                            name,
+             std::vector<std::unique_ptr<MeshElement>>&    elements,
+             const std::vector<std::shared_ptr<Material>>& materials);
+        Mesh(std::vector<std::unique_ptr<MeshElement>>&    elements,
+             const std::vector<std::shared_ptr<Material>>& materials);
+        virtual ~Mesh();
 
-		Mesh(const Mesh&) = delete;
-		Mesh& operator=(const Mesh&) = delete;
+        Mesh(const Mesh&)            = delete;
+        Mesh& operator=(const Mesh&) = delete;
 
-		Mesh(Mesh&&) = delete;
-		Mesh& operator=(Mesh&&) = delete;
+        Mesh(Mesh&&)                                                       = delete;
+        Mesh&                                            operator=(Mesh&&) = delete;
 
-		/// Public Member Functions ///
+        /// Public Member Functions ///
 
-		std::optional<std::string> 	name() const;
-		void 						name(const std::string& name);
+        std::optional<std::string>                       name() const;
+        void                                             name(const std::string& name);
 
-		const std::vector<std::unique_ptr<MeshElement>>&	elements();
-		const std::vector<std::shared_ptr<Material>>& 		materials();
+        const std::vector<std::unique_ptr<MeshElement>>& elements();
+        const std::vector<std::shared_ptr<Material>>&    materials();
 
-		std::shared_ptr<Material> 	firstMaterial() const;
-		std::shared_ptr<Material> 	materialNamed(const std::string& name) const;
-		void 						addMaterial(const std::shared_ptr<Material>& material);
-		void 						insertMaterial(const std::shared_ptr<Material>& material,
-												   int index);
-		void 						removeMaterial(int index);
-		void 						replaceMaterial(int index,
-													const std::shared_ptr<Material>& replacement);
+        std::shared_ptr<Material>                        firstMaterial() const;
+        std::shared_ptr<Material>                        materialNamed(const std::string& name) const;
+        void                                             addMaterial(const std::shared_ptr<Material>& material);
+        void insertMaterial(const std::shared_ptr<Material>& material, int index);
+        void removeMaterial(int index);
+        void replaceMaterial(int index, const std::shared_ptr<Material>& replacement);
 
-		/// Internal Types ///
+        /// Internal Types ///
 
-		enum class DirtyMask : uint32_t {
-			None =					0,
-			// AABB?
-			All = 					UINT_MAX
-		};
+        enum class DirtyMask : uint32_t {
+            None = 0,
+            // AABB?
+            All = UINT_MAX
+        };
 
-		/// Internal Member Functions ///
+        /// Internal Member Functions ///
 
-		MeshId						id() const noexcept;
+        MeshId     id() const noexcept;
 
-		AABB						localAABB() const;
-		AABB						worldAABB(const math::mat4& worldMat,
-											  bool vertfit) const;
-		math::vec3 					localExtent() const;
-		math::vec3 					worldExtent(const math::mat4& worldTransform) const;
+        AABB       localAABB() const;
+        AABB       worldAABB(const math::mat4& worldMat, bool vertfit) const;
+        math::vec3 localExtent() const;
+        math::vec3 worldExtent(const math::mat4& worldTransform) const;
 
-		void 						burnTransform(const math::mat4& transform,
-												  bool normals);
+        void       burnTransform(const math::mat4& transform, bool normals);
 
-		DirtyMask 					dirtyMask() const;
-		void 						dirtyMask(DirtyMask mask);
+        DirtyMask  dirtyMask() const;
+        void       dirtyMask(DirtyMask mask);
 
-	protected:
-		/// Protected Member Functions ///
+    protected:
+        /// Protected Member Functions ///
 
-		void						genLocalAABB();
+        void                                      genLocalAABB();
 
-		/// Protected Member Variables ///
+        /// Protected Member Variables ///
 
-		std::vector<std::unique_ptr<MeshElement>>	_elements;
-		std::vector<std::shared_ptr<Material>>		_materials;
+        std::vector<std::unique_ptr<MeshElement>> _elements;
+        std::vector<std::shared_ptr<Material>>    _materials;
 
-	private:
-		/// Private Lifecycle Functions ///
+    private:
+        /// Private Lifecycle Functions ///
 
-		Mesh();
+        Mesh();
 
-		/// Private Member Variables ///
+        /// Private Member Variables ///
 
-		MeshId 						_id;
-		std::optional<std::string>	_name;
-		AABB						_localAABB;
-		DirtyMask					_dirtyMask;
-	};
+        MeshId                     _id;
+        std::optional<std::string> _name;
+        AABB                       _localAABB;
+        DirtyMask                  _dirtyMask;
+    };
 
-	namespace util::bitmask {
-		template <> struct enable_ops<Mesh::ImportOptions> : std::true_type {};
-		template <> struct enable_ops<Mesh::DirtyMask> : std::true_type {};
-	}
+    namespace util::bitmask {
+
+        template<>
+        struct enable_ops<Mesh::ImportOptions> : std::true_type {};
+
+        template<>
+        struct enable_ops<Mesh::DirtyMask> : std::true_type {};
+
+    }
 }
 
 #endif /* AVARA3D_MESH_MESH_H */

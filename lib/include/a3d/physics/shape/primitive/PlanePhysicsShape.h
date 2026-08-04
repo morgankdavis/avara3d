@@ -13,32 +13,33 @@
 
 namespace a3d {
 
-	class PlanePhysicsShape : public PhysicsShape {
+    class PlanePhysicsShape : public PhysicsShape {
 
-	public:
-		/// Public Lifecycle Functions ///
+    public:
+        /// Public Lifecycle Functions ///
 
-		PlanePhysicsShape(float width, float height);
+        PlanePhysicsShape(float width, float height);
 
-		/// Public Member Functions ///
+        /// Public Member Functions ///
 
-		float 					width() const;
-		void					width(float width);
+        float width() const;
+        void  width(float width);
 
-		float 					height() const;
-		void					height(float height);
+        float height() const;
+        void  height(float height);
 
-		/// PhysicsShape Public Member Functions ///
+        /// PhysicsShape Public Member Functions ///
 
-		Type					type() const override;
-		void					type(Type type) override;
+        Type  type() const override;
+        void  type(Type type) override;
 
-	private:
-		/// Private Member Variables ///
+    private:
+        /// Private Member Variables ///
 
-		float 					_width;
-		float 					_height;
-	};
+        float _width;
+        float _height;
+    };
+
 }
 
 #endif //AVARA3D_PHYSICS_SHAPE_PRIMITIVE_PLANEPHYSICSSHAPE_H

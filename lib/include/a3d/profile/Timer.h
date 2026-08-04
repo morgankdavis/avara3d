@@ -13,26 +13,29 @@
 
 namespace a3d {
 
-	class Timer {
+    class Timer {
 
-	public:
-		/// Public Lifecycle Functions ///
-		///
-		explicit Timer(bool start = false);
+    public:
+        /// Public Lifecycle Functions ///
+        ///
+        explicit Timer(bool start = false);
 
-		/// Public Member Functions ///
+        /// Public Member Functions ///
 
-		void						start();
-		std::chrono::nanoseconds	stop();
-		std::chrono::nanoseconds	duration() const;
+        void                     start();
+        std::chrono::nanoseconds stop();
+        std::chrono::nanoseconds duration() const;
+        double                   durationSeconds() const;
+        std::int64_t             durationMilliseconds() const;
 
-	private:
-		/// Private Member Variables ///
+    private:
+        /// Private Member Variables ///
 
-		std::chrono::time_point<std::chrono::steady_clock> 	_start;
-		std::chrono::time_point<std::chrono::steady_clock> 	_stop;
-		std::chrono::nanoseconds 							_duration;
-	};
+        std::chrono::time_point<std::chrono::steady_clock> _start;
+        std::chrono::time_point<std::chrono::steady_clock> _stop;
+        std::chrono::nanoseconds                           _duration;
+    };
+
 }
 
 #endif //AVARA3D_PROFILE_TIMER_H

@@ -13,25 +13,26 @@
 
 namespace a3d {
 
-	struct AABB {
+    struct AABB {
 
-		static AABB 		Zero();
-		static AABB 		Invalid();
-		static AABB 		Union(const AABB& a, const AABB& b);
-		static void 		Expand(AABB& a, const math::vec3& p);
-		static math::vec3 	Center(const AABB& a);
+        static AABB       Zero();
+        static AABB       Invalid();
+        static AABB       Union(const AABB& a, const AABB& b);
+        static void       Expand(AABB& a, const math::vec3& p);
+        static math::vec3 Center(const AABB& a);
 
-		bool 				valid() const;
+        bool              valid() const;
 
-		AABB&               operator|=(const AABB& b); // union
-		AABB&               operator|=(const math::vec3& p); // expand
+        AABB&             operator|=(const AABB& b); // union
+        AABB&             operator|=(const math::vec3& p); // expand
 
-		math::vec3 			min;
-		math::vec3 			max;
-	};
+        math::vec3        min;
+        math::vec3        max;
+    };
 
-	AABB operator|(AABB a, const AABB& b);
-	AABB operator|(AABB a, const math::vec3& p);
+    AABB operator|(AABB a, const AABB& b);
+    AABB operator|(AABB a, const math::vec3& p);
+
 }
 
 #endif //AVARA3D_MESH_AABB_H

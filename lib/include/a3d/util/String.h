@@ -13,24 +13,24 @@
 #include <vector>
 
 namespace a3d {
-	class Node;
+
+    class Node;
+
 }
 
 namespace a3d::util::string {
 
-	void 						Replace(std::string& str,
-										const std::string& oldStr,
-										const std::string& newStr);
-	std::vector<std::string>	Split(const std::string& s,
-									  std::string delim);
-	std::string 				Lowercase(const std::string& s);
+    void                     Replace(std::string& str, const std::string& oldStr, const std::string& newStr);
+    std::vector<std::string> Split(const std::string& s, std::string delim);
+    std::string              Lowercase(const std::string& s);
 
-	// put somewhere else?
+    // put somewhere else?
 
-	std::string TreeString(const Node& root);
-	std::string DateTimeString();
+    std::string              TreeString(const Node& root);
+    std::string              DateTimeString();
 
-	std::string StackTraceString(unsigned dropFunctions = 0);
+    std::string              StackTraceString(unsigned dropFunctions = 0);
+
 }
 
 #endif //AVARA3D_UTIL_STRING_H

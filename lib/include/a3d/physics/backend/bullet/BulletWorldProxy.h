@@ -31,67 +31,67 @@ class btDefaultCollisionConfiguration;
 
 namespace a3d {
 
-	class BulletDebugDrawer;
-	class RenderContext;
+    class BulletDebugDrawer;
+    class RenderContext;
 
-	class BulletWorldProxy : public PhysicsWorldProxy {
+    class BulletWorldProxy : public PhysicsWorldProxy {
 
-	public:
-		/// Internal Lifecycle Functions ///
+    public:
+        /// Internal Lifecycle Functions ///
 
-		explicit BulletWorldProxy(PhysicsWorld& world);
-		~BulletWorldProxy() override;
+        explicit BulletWorldProxy(PhysicsWorld& world);
+        ~BulletWorldProxy() override;
 
-		/// PhysicsWorldModelProxy Internal Member Functions ///
+        /// PhysicsWorldModelProxy Internal Member Functions ///
 
-		void 				add(PhysicsBody& body) override;
-		void 				remove(PhysicsBody& body) override;
+        void             add(PhysicsBody& body) override;
+        void             remove(PhysicsBody& body) override;
 
-		float				gravity() const override;
-		void				gravity(float gravity) override;
+        float            gravity() const override;
+        void             gravity(float gravity) override;
 
-		bool				acceptsStepDelta(double deltaTime) const override;
+        bool             acceptsStepDelta(double deltaTime) const override;
 
-		void				step(double deltaTime, Profiler& profiler) override;
+        void             step(double deltaTime, Profiler& profiler) override;
 
-		PhysicsInventory	inventory() const override;
+        PhysicsInventory inventory() const override;
 
-		void 				updateCollisionPairs() override;
+        void             updateCollisionPairs() override;
 
-		void 				appendDebugLines(std::vector<Line>& out,
-											 Scene::DebugOptions debugOptions) override;
+        void             appendDebugLines(std::vector<Line>& out, Scene::DebugOptions debugOptions) override;
 
-		/// Internal Member Functions ///
+        /// Internal Member Functions ///
 
-		btDiscreteDynamicsWorld* 								btWorld();
+        btDiscreteDynamicsWorld* btWorld();
 
-	private:
-		///  Private Member Variables ///
+    private:
+        ///  Private Member Variables ///
 
-		// scheduler
-		btITaskScheduler* 										_btScheduler = nullptr;
-		std::unique_ptr<btITaskScheduler> 						_ownedScheduler;
-		btITaskScheduler* 										_prevScheduler = nullptr; // non-owning
+        // scheduler
+        btITaskScheduler*                                      _btScheduler = nullptr;
+        std::unique_ptr<btITaskScheduler>                      _ownedScheduler;
+        btITaskScheduler*                                      _prevScheduler = nullptr; // non-owning
 
-		// config/dispatcher/broadphase
-		std::unique_ptr<btDefaultCollisionConfiguration> 		_btCollisionConfiguration;
-		std::unique_ptr<btCollisionDispatcher> 					_btCollisionDispatcher;
-		std::unique_ptr<btDbvtBroadphase> 						_btBroadphase;
+        // config/dispatcher/broadphase
+        std::unique_ptr<btDefaultCollisionConfiguration>       _btCollisionConfiguration;
+        std::unique_ptr<btCollisionDispatcher>                 _btCollisionDispatcher;
+        std::unique_ptr<btDbvtBroadphase>                      _btBroadphase;
 
-		// solvers
-		std::unique_ptr<btConstraintSolverPoolMt> 				_btSolverPool;
-		std::unique_ptr<btSequentialImpulseConstraintSolverMt> 	_btSolverMt;
+        // solvers
+        std::unique_ptr<btConstraintSolverPoolMt>              _btSolverPool;
+        std::unique_ptr<btSequentialImpulseConstraintSolverMt> _btSolverMt;
 
-		std::unique_ptr<BulletDebugDrawer> 						_btDebugDrawer;
-		std::vector<Line> 										_debugLines;
+        std::unique_ptr<BulletDebugDrawer>                     _btDebugDrawer;
+        std::vector<Line>                                      _debugLines;
 
-		BulletStats 											_stats;
+        BulletStats                                            _stats;
 
-		mutable std::mutex 										_btMutex;
+        mutable std::mutex                                     _btMutex;
 
-		// MUST be last so destroyed first
-		std::unique_ptr<btDiscreteDynamicsWorld> 				_btWorld;
-	};
+        // MUST be last so destroyed first
+        std::unique_ptr<btDiscreteDynamicsWorld>               _btWorld;
+    };
+
 }
 
 #endif //AVARA3D_PHYSICS_BACKEND_BULLET_BULLETWORLDPROXY_H

@@ -15,42 +15,42 @@ using namespace a3d;
 /// Public Lifecycle Functions ///
 
 BoxPhysicsShape::BoxPhysicsShape(float width, float height, float length):
-	_width{width},
-	_height{height},
-	_length{length} {}
+    _width {width},
+    _height {height},
+    _length {length} {}
 
 /// Public Member Functions ///
 
 float BoxPhysicsShape::width() const {
-	return _width;
+    return _width;
 }
 
 void BoxPhysicsShape::width(float width) {
-	_width = width;
+    _width = width;
 }
 
 float BoxPhysicsShape::height() const {
-	return _height;
+    return _height;
 }
 
 void BoxPhysicsShape::height(float height) {
-	_height = height;
+    _height = height;
 }
 
 float BoxPhysicsShape::length() const {
-	return _length;
+    return _length;
 }
 
 void BoxPhysicsShape::length(float length) {
-	_length = length;
+    _length = length;
 }
 
 /// PhysicsShape Public Member Functions ///
 
 PhysicsShape::Type BoxPhysicsShape::type() const {
-	return PhysicsShape::Type::Primitive;
+    return PhysicsShape::Type::Primitive;
 }
 
 void BoxPhysicsShape::type(PhysicsShape::Type type) {
-	throw std::logic_error("Cannot set PhysicsShape::Type for BoxPhysicsShape.");
+    throw std::logic_error("Cannot set PhysicsShape::Type for BoxPhysicsShape.");
 }

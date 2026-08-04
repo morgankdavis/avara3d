@@ -13,30 +13,31 @@
 
 namespace a3d {
 
-	class PhysicsBody;
+    class PhysicsBody;
 
-	class BulletMotionState : public btMotionState {
+    class BulletMotionState : public btMotionState {
 
-	public:
-		/// Internal Lifecycle Functions ///
+    public:
+        /// Internal Lifecycle Functions ///
 
-		explicit BulletMotionState(PhysicsBody& body);
+        explicit BulletMotionState(PhysicsBody& body);
 
-		/// btMotionState Members ///
+        /// btMotionState Members ///
 
-		void getWorldTransform(btTransform& transform) const override;
-		void setWorldTransform(const btTransform& transform) override;
+        void         getWorldTransform(btTransform& transform) const override;
+        void         setWorldTransform(const btTransform& transform) override;
 
-		/// Internal Member Functions ///
+        /// Internal Member Functions ///
 
-		PhysicsBody*		body() const;
+        PhysicsBody* body() const;
 
-	private:
-		/// Private Member Variables ///
+    private:
+        /// Private Member Variables ///
 
 //		btTransform 		_visualWorldTransform;
-		PhysicsBody* 		_body;
-	};
+        PhysicsBody* _body;
+    };
+
 }
 
 #endif //AVARA3D_PHYSICS_BACKEND_BULLET_BULLETMOTIONSTATE_H

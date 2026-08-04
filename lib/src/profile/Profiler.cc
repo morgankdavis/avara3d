@@ -18,21 +18,21 @@ using namespace std;
 /// Public Member Functions ///
 
 void Profiler::add(Tag tag, chrono::nanoseconds ns) noexcept {
-	if (_taggedSamples.contains(tag)) {
-		_taggedSamples[tag] = _taggedSamples[tag] + ns;
-	}
-	else {
-		_taggedSamples[tag] = ns;
-	}
+    if (_taggedSamples.contains(tag)) {
+        _taggedSamples[tag] = _taggedSamples[tag] + ns;
+    }
+    else {
+        _taggedSamples[tag] = ns;
+    }
 }
 
 void Profiler::add(const string& key, chrono::nanoseconds ns) noexcept {
-	if (_keyedSamples.contains(key)) {
-		_keyedSamples[key] = _keyedSamples[key] + ns;
-	}
-	else {
-		_keyedSamples[key] = ns;
-	}
+    if (_keyedSamples.contains(key)) {
+        _keyedSamples[key] = _keyedSamples[key] + ns;
+    }
+    else {
+        _keyedSamples[key] = ns;
+    }
 }
 
 //void Profiler::subtract(Tag tag, std::chrono::nanoseconds ns) {
@@ -59,20 +59,20 @@ void Profiler::add(const string& key, chrono::nanoseconds ns) noexcept {
 //}
 
 chrono::nanoseconds Profiler::time(Tag tag) {
-	if (_taggedSamples.contains(tag)) {
-		return _taggedSamples[tag];
-	}
-	return chrono::nanoseconds(0);
+    if (_taggedSamples.contains(tag)) {
+        return _taggedSamples[tag];
+    }
+    return chrono::nanoseconds(0);
 }
 
 chrono::nanoseconds Profiler::time(const string& key) {
-	if (_keyedSamples.contains(key)) {
-		return _keyedSamples[key];
-	}
-	return chrono::nanoseconds(0);
+    if (_keyedSamples.contains(key)) {
+        return _keyedSamples[key];
+    }
+    return chrono::nanoseconds(0);
 }
 
 void Profiler::reset() {
-	_taggedSamples.clear();
-	_keyedSamples.clear();
+    _taggedSamples.clear();
+    _keyedSamples.clear();
 }

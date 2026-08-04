@@ -11,5 +11,5 @@
 #include "App.h"
 
 int main(int argc, char* argv[]) {
-	return a3d::Application::Run(std::make_unique<test::materialslights::App>(argc, argv));
+    return a3d::Application::Run(std::make_unique<test::materialslights::App>(argc, argv));
 }

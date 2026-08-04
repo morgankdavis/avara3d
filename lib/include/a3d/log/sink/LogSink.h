@@ -15,19 +15,19 @@
 
 namespace a3d {
 
-	class LogSink {
+    class LogSink {
 
 /// Public Lifecycle Functions ///
 
-	public:
+    public:
+        virtual ~LogSink() = 0;
 
-		virtual ~LogSink() = 0;
-		
 /// Public Member Functions ///
 
-		virtual void write(const std::string& output, Log::Level level) = 0;
-		virtual void flush();
-	};
+        virtual void write(const std::string& output, Log::Level level) = 0;
+        virtual void flush();
+    };
+
 }
 
 #endif //AVARA3D_LOG_SINK_LOGSINK_H

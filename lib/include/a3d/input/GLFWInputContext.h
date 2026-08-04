@@ -18,46 +18,47 @@ struct GLFWwindow;
 
 namespace a3d {
 
-	class Window;
+    class Window;
 
-	class GLFWInputContext : public DesktopInputContext {
+    class GLFWInputContext : public DesktopInputContext {
 
-	public:
-		/// Public Lifecycle Functions ///
+    public:
+        /// Public Lifecycle Functions ///
 
-		GLFWInputContext();
-		~GLFWInputContext() override;
+        GLFWInputContext();
+        ~GLFWInputContext() override;
 
-		GLFWInputContext(const InputContext& other) = delete;
-		GLFWInputContext& operator=(const InputContext& other) = delete;
+        GLFWInputContext(const InputContext& other)            = delete;
+        GLFWInputContext& operator=(const InputContext& other) = delete;
 
-		/// InputContext Internal Member Functions ///
+        /// InputContext Internal Member Functions ///
 
-		void			update() override;
-		void			attachedToScene(Scene& scene) override;
-		void			visualWorldAttachedToScene(Scene& scene) override;
+        void              update() override;
+        void              attachedToScene(Scene& scene) override;
+        void              visualWorldAttachedToScene(Scene& scene) override;
 
-		/// Internal Member Functions ///
+        /// Internal Member Functions ///
 
-		void 			glfwMouseDeltaEvent(double xDelta, double yDelta);
-		void 			glfwMouseButtonEvent(int button, int action, int mods);
-		void 			glfwScrollEvent(double xOffset, double yOffset);
-		void 			glfwKeyEvent(int key, int scanCode, int action, int mods);
+        void              glfwMouseDeltaEvent(double xDelta, double yDelta);
+        void              glfwMouseButtonEvent(int button, int action, int mods);
+        void              glfwScrollEvent(double xOffset, double yOffset);
+        void              glfwKeyEvent(int key, int scanCode, int action, int mods);
 
-		void			detachedFromWindow(Window& window);
+        void              detachedFromWindow(Window& window);
 
-	private:
-		/// Private Member Functions ///
+    private:
+        /// Private Member Functions ///
 
-		void			window(Window* window);
-		Window*			window() const;
+        void    window(Window* window);
+        Window* window() const;
 
-		void			initMouseInput();
+        void    initMouseInput();
 
-		/// Private Member Variables ///
+        /// Private Member Variables ///
 
-		Window*			_window;
-	};
+        Window* _window;
+    };
+
 }
 
 #endif /* AVARA3D_INPUT_GLFWINPUTCONTEXT_H */

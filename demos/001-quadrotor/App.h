@@ -14,46 +14,48 @@
 #include "a3d/Application.h"
 
 namespace a3d {
-	class Node;
-	class Scene;
-	class Window;
+
+    class Node;
+    class Scene;
+    class Window;
+
 }
 
 namespace test::quadrotor {
 
-	class App : public a3d::Application {
+    class App : public a3d::Application {
 
-	public:
-		/// Public Lifecycle Functions ///
+    public:
+        /// Public Lifecycle Functions ///
 
-		App(int argc, char* argv[]);
-		~App() override;
+        App(int argc, char* argv[]);
+        ~App() override;
 
-		App(const App&) = delete;
-		App& operator=(const App&) = delete;
+        App(const App&) = delete;
+        App& operator=(const App&) = delete;
 
-		App(App&&) = delete;
-		App& operator=(App&&) = delete;
+        App(App&&) = delete;
+        App& operator=(App&&) = delete;
 
-	protected:
-		/// Protected Member Functions ///
+    protected:
+        /// Protected Member Functions ///
 
-		std::unique_ptr<a3d::Scene>		init() override;
-		a3d::SimulationConfig			simulationConfig() const override;
-		bool							shouldContinue(const a3d::Scene& scene) override;
-		void							didShutdown() override;
+        std::unique_ptr<a3d::Scene> init() override;
+        a3d::SimulationConfig       simulationConfig() const override;
+        bool                        shouldContinue(const a3d::Scene& scene) override;
+        void                        didShutdown() override;
 
-		/// Runner Callbacks ///
+        /// Runner Callbacks ///
 
-		void							hostUpdate(a3d::Runner& runner,
-									               const a3d::Runner::UpdateInfo& info) override;
+        void hostUpdate(a3d::Runner& runner, const a3d::Runner::UpdateInfo& info) override;
 
-	private:
-		/// Private Member Variables ///
+    private:
+        /// Private Member Variables ///
 
-		std::unique_ptr<a3d::Window>	_window;
-		std::shared_ptr<a3d::Node>		_bananaNode;
-	};
+        std::unique_ptr<a3d::Window> _window;
+        std::shared_ptr<a3d::Node>   _bananaNode;
+    };
+
 }
 
 #endif // AVARA3D_DEMO_QUADROTOR_APP_H

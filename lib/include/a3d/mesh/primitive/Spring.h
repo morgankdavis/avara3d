@@ -15,51 +15,52 @@
 
 namespace a3d {
 
-	class Mesh;
-	class Material;
+    class Mesh;
+    class Material;
 
-	class Spring: public MeshElement {
+    class Spring : public MeshElement {
 
-	public:
-		/// Public Static Member Functions ///
+    public:
+        /// Public Static Member Functions ///
 
-		static std::shared_ptr<Mesh> Mesh(float minorRadius,
-										  float majorRadius,
-										  float length,
-										  unsigned slices = DEFAULT_SLICES,
-										  unsigned segments = DEFAULT_SEGMENTS,
-										  std::shared_ptr<Material> material = nullptr);
+        static std::shared_ptr<Mesh> Mesh(float                     minorRadius,
+                                          float                     majorRadius,
+                                          float                     length,
+                                          unsigned                  slices   = DEFAULT_SLICES,
+                                          unsigned                  segments = DEFAULT_SEGMENTS,
+                                          std::shared_ptr<Material> material = nullptr);
 
-		/// Public Lifecycle Functions ///
+        /// Public Lifecycle Functions ///
 
-		Spring(float minorRadius,
-			   float majorRadius,
-			   float length,
-			   unsigned slices = DEFAULT_SLICES,
-			   unsigned segments = DEFAULT_SEGMENTS);
+        Spring(float    minorRadius,
+               float    majorRadius,
+               float    length,
+               unsigned slices   = DEFAULT_SLICES,
+               unsigned segments = DEFAULT_SEGMENTS);
 
-		/// Public Member Functions ///
+        /// Public Member Functions ///
 
-		float 		minorRadius() const;
-		float 		majorRadius() const;
-		float 		length() const;
-		unsigned 	slices() const;
-		unsigned 	segments() const;
+        float    minorRadius() const;
+        float    majorRadius() const;
+        float    length() const;
+        unsigned slices() const;
+        unsigned segments() const;
 
-	private:
-		/// Private Constants ///
+    private:
+        /// Private Constants ///
 
-		static constexpr unsigned DEFAULT_SLICES = 8;
-		static constexpr unsigned DEFAULT_SEGMENTS = 32;
+        static constexpr unsigned DEFAULT_SLICES   = 8;
+        static constexpr unsigned DEFAULT_SEGMENTS = 32;
 
-		/// Private Member Variables ///
+        /// Private Member Variables ///
 
-		float 		_minorRadius;
-		float 		_majorRadius;
-		float 		_length;
-		unsigned 	_slices;
-		unsigned 	_segments;
-	};
+        float                     _minorRadius;
+        float                     _majorRadius;
+        float                     _length;
+        unsigned                  _slices;
+        unsigned                  _segments;
+    };
+
 }
 
 #endif //AVARA3D_MESH_PRIMITIVE_SPRING_H

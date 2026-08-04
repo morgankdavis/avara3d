@@ -18,137 +18,126 @@ struct GLFWwindow;
 
 namespace a3d {
 
-	class Camera;
-	class Color;
-	class DesktopInputContext;
-	class Image;
-	class Node;
-	class Renderer;
-	class Scene;
-	
-	class Window : public RenderContext {
+    class Camera;
+    class Color;
+    class DesktopInputContext;
+    class Image;
+    class Node;
+    class Renderer;
+    class Scene;
 
-	public:
-		/// Public Static Member Functions ///
+    class Window : public RenderContext {
 
-		static std::unique_ptr<DesktopInputContext> InputContext();
+    public:
+        /// Public Static Member Functions ///
 
-		/// Public Lifecycle Functions ///
+        static std::unique_ptr<DesktopInputContext> InputContext();
 
-		Window(RenderingApi renderingAPI,
-				   const std::string& title,
-				   const math::uvec2& size,
-				   bool fullScreen,
-				   bool enableHighDPI = true,
-				   AntialiasingMode antialiasingMode = AntialiasingMode::None);
+        /// Public Lifecycle Functions ///
 
-		Window(const Window& other) = delete;
-		Window& operator=(const Window& other) = delete;
+        Window(RenderingApi       renderingAPI,
+               const std::string& title,
+               const math::uvec2& size,
+               bool               fullScreen,
+               bool               enableHighDPI    = true,
+               AntialiasingMode   antialiasingMode = AntialiasingMode::None);
 
-		Window(Window&&) = delete;
-		Window& operator=(Window&&) = delete;
+        Window(const Window& other)            = delete;
+        Window& operator=(const Window& other) = delete;
 
-		~Window() override;
+        Window(Window&&)            = delete;
+        Window& operator=(Window&&) = delete;
 
-		/// Public Member Functions ///
+        ~Window() override;
 
-		void 				open();
-		void				close();
+        /// Public Member Functions ///
 
-		bool 				isOpen() const;
+        void        open();
+        void        close();
 
-		std::string			title() const;
-		void				title(const std::string& title);
+        bool        isOpen() const;
 
-		math::uvec2			size() const;
-		void				size(const math::uvec2& size);
+        std::string title() const;
+        void        title(const std::string& title);
 
-		math::uvec2			position() const;
-		void				position(const math::uvec2& pos);
+        math::uvec2 size() const;
+        void        size(const math::uvec2& size);
 
-		void				center();
+        math::uvec2 position() const;
+        void        position(const math::uvec2& pos);
 
-		bool 				hidden() const;
-		void				hidden(bool hidden);
+        void        center();
 
-		bool 				cursorCaptured() const;
-		void 				cursorCaptured(bool captured);
+        bool        hidden() const;
+        void        hidden(bool hidden);
 
-		bool				highDPIEnabled() const;
+        bool        cursorCaptured() const;
+        void        cursorCaptured(bool captured);
 
-		/// RenderContext Public Member Functions ///
+        bool        highDPIEnabled() const;
 
-		bool 				vSyncEnabled() const override;
-		void 				vSyncEnabled(bool enabled) override;
+        /// RenderContext Public Member Functions ///
 
-		/// RenderContext Internal Member Functions ///
+        bool        vSyncEnabled() const override;
+        void        vSyncEnabled(bool enabled) override;
 
-		void 				pollEvents() override;
+        /// RenderContext Internal Member Functions ///
 
-		void 				beginFrame(const Scene& scene) override;
-		void 				endFrame(const Scene& scene) override;
+        void        pollEvents() override;
 
-		void 				swapBuffers() override;
+        void        beginFrame(const Scene& scene) override;
+        void        endFrame(const Scene& scene) override;
 
-		math::uvec2			viewportLogicalSize() const override;
-		math::uvec2			framebufferSize() const override;
+        void        swapBuffers() override;
 
-		unsigned 			defaultFramebuffer() const override;
+        math::uvec2 viewportLogicalSize() const override;
+        math::uvec2 framebufferSize() const override;
 
-		/// Internal Member Functions ///
+        unsigned    defaultFramebuffer() const override;
 
-		void				inputContext(DesktopInputContext* inputContext);
-		GLFWwindow* 		glfwWindow() const; // remove?
+        /// Internal Member Functions ///
 
-		/// Internal Static Member Functions ///
+        void        inputContext(DesktopInputContext* inputContext);
+        GLFWwindow* glfwWindow() const; // remove?
 
-		static void			Destroy(GLFWwindow* window);
+        /// Internal Static Member Functions ///
 
-	private:
-		/// Private Static Member Functions ///
+        static void Destroy(GLFWwindow* window);
 
-		static void 				GLFWCursorPositionCallback(GLFWwindow* glfwWindow,
-															  double xPos,
-															  double yPos);
-		static void 				GLFWMouseButtonCallback(GLFWwindow* glfwWindow,
-														   int button,
-														   int action,
-														   int mods);
-		static void 				GLFWScrollWheelCallback(GLFWwindow* glfwWindow,
-														   double xOffset,
-														   double yOffset);
-		static void 				GLFWKeyCallback(GLFWwindow* glfwWindow,
-												   int key,
-												   int scanCode,
-												   int action,
-												   int mods);
-		static Window*				WindowFromGLFWwindow(GLFWwindow* glfwWindow);
-		static DesktopInputContext* InputContextFromGLFWWindow(GLFWwindow* glfwWindow);
+    private:
+        /// Private Static Member Functions ///
 
-		/// Private Member Functions ///
+        static void    GLFWCursorPositionCallback(GLFWwindow* glfwWindow, double xPos, double yPos);
+        static void    GLFWMouseButtonCallback(GLFWwindow* glfwWindow, int button, int action, int mods);
+        static void    GLFWScrollWheelCallback(GLFWwindow* glfwWindow, double xOffset, double yOffset);
+        static void    GLFWKeyCallback(GLFWwindow* glfwWindow, int key, int scanCode, int action, int mods);
+        static Window* WindowFromGLFWwindow(GLFWwindow* glfwWindow);
+        static DesktopInputContext* InputContextFromGLFWWindow(GLFWwindow* glfwWindow);
 
-		void 						registerGLFWCallbacks();
-		void 						unregisterGLFWCallbacks();
+        /// Private Member Functions ///
 
-		/// Private Types ///
+        void                        registerGLFWCallbacks();
+        void                        unregisterGLFWCallbacks();
 
-		struct DestroyGLFWWindow {
-			void operator()(GLFWwindow* window){
-				Destroy(window);
-			}
-		};
+        /// Private Types ///
 
-		/// Private Member Variables ///
+        struct DestroyGLFWWindow {
+            void operator()(GLFWwindow* window) {
+                Destroy(window);
+            }
+        };
 
-		std::unique_ptr<GLFWwindow,
-				DestroyGLFWWindow>	_glfwWindow;
-		bool						_vSyncEnabled;
-		bool						_cursorCaptured;
-		bool						_open;
-		bool						_hidden;
-		bool						_highDPIEnabled;
-		DesktopInputContext*		_inputContext;
-	};
+        /// Private Member Variables ///
+
+        std::unique_ptr<GLFWwindow, DestroyGLFWWindow> _glfwWindow;
+        bool                                           _vSyncEnabled;
+        bool                                           _cursorCaptured;
+        bool                                           _open;
+        bool                                           _hidden;
+        bool                                           _highDPIEnabled;
+        DesktopInputContext*                           _inputContext;
+    };
+
 }
 
 #endif //AVARA3D_RENDER_CONTEXT_GLFWWINDOW_H

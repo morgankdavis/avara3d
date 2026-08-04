@@ -17,43 +17,44 @@
 
 namespace a3d {
 
-	class Camera {
+    class Camera {
 
-	public:
-		/// Public Lifecycle Functions ///
+    public:
+        /// Public Lifecycle Functions ///
 
-		Camera();
-		explicit Camera(const std::string& name);
+        Camera();
+        explicit Camera(const std::string& name);
 
-		virtual ~Camera() = 0;
+        virtual ~Camera() = 0;
 
-		/// Public Member Functions ///
+        /// Public Member Functions ///
 
-		const std::optional<std::string>&	name() const;
-		void 								name(const std::string& name);
+        const std::optional<std::string>& name() const;
+        void                              name(const std::string& name);
 
-		/// Internal Member Functions ///
+        /// Internal Member Functions ///
 
-		virtual math::mat4 					projection() const = 0;
+        virtual math::mat4                projection() const = 0;
 
-	protected:
-		/// Protected Lifecycle Functions ///
+    protected:
+        /// Protected Lifecycle Functions ///
 
-		Camera(const Camera&) = default;
-		Camera& operator=(const Camera&) = default;
+        Camera(const Camera&)            = default;
+        Camera& operator=(const Camera&) = default;
 
-		Camera(Camera&&) noexcept = default;
-		Camera& operator=(Camera&&) noexcept = default;
+        Camera(Camera&&) noexcept                               = default;
+        Camera&                    operator=(Camera&&) noexcept = default;
 
-		/// Protected Member Functions ///
+        /// Protected Member Functions ///
 
 //		virtual void 						constructProjectionMatrix() = 0;
 
-		/// Protected Member Variables ///
+        /// Protected Member Variables ///
 
-		std::optional<std::string>			_name;
+        std::optional<std::string> _name;
 //		math::mat4							_projection;
-	};
+    };
+
 }
 
 #endif /* AVARA3D_VISUAL_CAMERA_CAMERA_H */

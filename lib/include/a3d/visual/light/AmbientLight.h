@@ -16,24 +16,25 @@
 
 namespace a3d {
 
-	class Color;
+    class Color;
 
-	class AmbientLight : public Light {
+    class AmbientLight : public Light {
 
-	public:
-		/// Public Lifecycle Functions ///
+    public:
+        /// Public Lifecycle Functions ///
 
-		AmbientLight();
-		explicit AmbientLight(const std::string& name);
-		explicit AmbientLight(const std::shared_ptr<Color>& color);
-		AmbientLight(const std::string& name, const std::shared_ptr<Color>& color);
+        AmbientLight();
+        explicit AmbientLight(const std::string& name);
+        explicit AmbientLight(const std::shared_ptr<Color>& color);
+        AmbientLight(const std::string& name, const std::shared_ptr<Color>& color);
 
-		AmbientLight(const AmbientLight&) = default;
-		AmbientLight& operator=(const AmbientLight&) = default;
+        AmbientLight(const AmbientLight&)            = default;
+        AmbientLight& operator=(const AmbientLight&) = default;
 
-		AmbientLight(AmbientLight&&) noexcept = default;
-		AmbientLight& operator=(AmbientLight&&) noexcept = default;
-	};
+        AmbientLight(AmbientLight&&) noexcept            = default;
+        AmbientLight& operator=(AmbientLight&&) noexcept = default;
+    };
+
 }
 
 #endif //AVARA3D_VISUAL_LIGHT_AMBIENTLIGHT_H */

@@ -22,93 +22,78 @@ using namespace std;
 
 /// Pubic Static Members ///
 
-shared_ptr<Mesh> Capsule::Mesh(float radius,
-							   float height,
-							   unsigned slices,
-							   unsigned segments,
-							   unsigned rings,
-							   const shared_ptr<Material> material) {
+shared_ptr<Mesh> Capsule::Mesh(float                      radius,
+                               float                      height,
+                               unsigned                   slices,
+                               unsigned                   segments,
+                               unsigned                   rings,
+                               const shared_ptr<Material> material) {
 
-	return make_shared<a3d::Mesh>("Capsule",
-								  make_unique<Capsule>(radius,
-													   height,
-													   slices,
-													   segments,
-													   rings),
-								  material);
+    return make_shared<a3d::Mesh>("Capsule", make_unique<Capsule>(radius, height, slices, segments, rings),
+                                  material);
 }
 
 /// Public Lifecycle Functions ///
 
-Capsule::Capsule(float radius,
-				 float height,
-				 unsigned slices,
-				 unsigned segments,
-				 unsigned rings):
-		MeshElement{},
-		_radius{radius},
-		_height{height},
-		_slices{slices},
-		_segments{segments},
-		_rings{rings} {
+Capsule::Capsule(float radius, float height, unsigned slices, unsigned segments, unsigned rings):
+    MeshElement {},
+    _radius {radius},
+    _height {height},
+    _slices {slices},
+    _segments {segments},
+    _rings {rings} {
 
-	using namespace generator;
+    using namespace generator;
 
-	/// @param radius Radius of the capsule on the xy-plane.
-	/// @param size Half of the length between centers of the caps along the z-axis.
-	/// @param slices Number of subdivisions around the z-axis.
-	/// @param rings Number of radial subdivisions in the caps.
-	/// @param start Counterclockwise angle relative to the x-axis.
-	/// @param sweep Counterclockwise angle.
+    /// @param radius Radius of the capsule on the xy-plane.
+    /// @param size Half of the length between centers of the caps along the z-axis.
+    /// @param slices Number of subdivisions around the z-axis.
+    /// @param rings Number of radial subdivisions in the caps.
+    /// @param start Counterclockwise angle relative to the x-axis.
+    /// @param sweep Counterclockwise angle.
 
-	auto capsule = CapsuleMesh{ radius, height / 2.0, (int)slices, (int)segments, (int)rings };
+    auto capsule = CapsuleMesh {radius, height / 2.0, (int) slices, (int) segments, (int) rings};
 
-	beginBuild(VertexLayout::PNT,
-			   (uint16_t)sizeof(VertexPNT),
-			   PrimitiveTopology::Triangles,
-			   IndexFormat::U32);
+    beginBuild(VertexLayout::PNT, (uint16_t) sizeof(VertexPNT), PrimitiveTopology::Triangles, IndexFormat::U32);
 
-	for (auto vs = capsule.vertices(); !vs.done(); vs.next()) {
-		const auto v = vs.generate();
-		const VertexPNT out{
-				{ (float)v.position[0], (float)v.position[1], (float)v.position[2] },
-				{ (float)v.normal[0],   (float)v.normal[1],   (float)v.normal[2]   },
-				{ (float)v.texCoord[0], (float)v.texCoord[1] } };
-		appendVertexBytes(&out);
-	}
+    for (auto vs = capsule.vertices(); !vs.done(); vs.next()) {
+        const auto      v = vs.generate();
+        const VertexPNT out {{(float) v.position[0], (float) v.position[1], (float) v.position[2]},
+                             {(float) v.normal[0], (float) v.normal[1], (float) v.normal[2]},
+                             {(float) v.texCoord[0], (float) v.texCoord[1]}};
+        appendVertexBytes(&out);
+    }
 
-	for (auto ts = capsule.triangles(); !ts.done(); ts.next()) {
-		const auto t = ts.generate();
-		appendTriangle((uint32_t)t.vertices[0],
-					   (uint32_t)t.vertices[1],
-					   (uint32_t)t.vertices[2]);
-	}
+    for (auto ts = capsule.triangles(); !ts.done(); ts.next()) {
+        const auto t = ts.generate();
+        appendTriangle((uint32_t) t.vertices[0], (uint32_t) t.vertices[1], (uint32_t) t.vertices[2]);
+    }
 
-	endBuild(false);
+    endBuild(false);
 
-	// Bullet orientation
-	auto xRotation = rotate(mat4(1.0f), (float)radians(-90.0f), vec3(1.0f, 0.0f, 0.0f));
-	burnTransform(xRotation, true);
+    // Bullet orientation
+    auto xRotation = rotate(mat4(1.0f), (float) radians(-90.0f), vec3(1.0f, 0.0f, 0.0f));
+    burnTransform(xRotation, true);
 }
 
 /// Public Member Functions ///
 
 float Capsule::radius() const {
-	return _radius;
+    return _radius;
 }
 
 float Capsule::height() const {
-	return _height;
+    return _height;
 }
 
 unsigned Capsule::slices() const {
-	return _slices;
+    return _slices;
 }
 
 unsigned Capsule::segments() const {
-	return _segments;
+    return _segments;
 }
 
 unsigned Capsule::rings() const {
-	return _rings;
+    return _rings;
 }

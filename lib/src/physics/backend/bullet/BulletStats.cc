@@ -16,10 +16,10 @@ using namespace std;
 /// Public Lifecycle Functions ///
 
 BulletStats::BulletStats():
-		numStaticBodies{0},
-		numDynamicBodies{0},
-		numKinematicBodies{0},
-		primitiveShapes{},
-		boundingBoxShapes{},
-		convexHullShapes{},
-		concavePolyhedronShapes{} {}
+    numStaticBodies {0},
+    numDynamicBodies {0},
+    numKinematicBodies {0},
+    primitiveShapes {},
+    boundingBoxShapes {},
+    convexHullShapes {},
+    concavePolyhedronShapes {} {}

@@ -23,5 +23,5 @@ using namespace std;
 Renderer::Renderer() {}
 
 Renderer::~Renderer() {
-	log::d()("Destroying Renderer {:p}", static_cast<void*>(this));
+    log::d()("Destroying Renderer {:p}", static_cast<void*>(this));
 }

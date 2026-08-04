@@ -15,33 +15,33 @@ using namespace a3d;
 /// Public Lifecycle Functions ///
 
 PlanePhysicsShape::PlanePhysicsShape(float width, float height):
-		_width{width},
-		_height{height} {}
+    _width {width},
+    _height {height} {}
 
 /// Public Member Functions ///
 
 float PlanePhysicsShape::width() const {
-	return _width;
+    return _width;
 }
 
 void PlanePhysicsShape::width(float width) {
-	_width = width;
+    _width = width;
 }
 
 float PlanePhysicsShape::height() const {
-	return _height;
+    return _height;
 }
 
 void PlanePhysicsShape::height(float height) {
-	_height = height;
+    _height = height;
 }
 
 /// PhysicsShape Public Member Functions ///
 
 PhysicsShape::Type PlanePhysicsShape::type() const {
-	return PhysicsShape::Type::Primitive;
+    return PhysicsShape::Type::Primitive;
 }
 
 void PlanePhysicsShape::type(PhysicsShape::Type type) {
-	throw std::logic_error("Cannot set PhysicsShape::Type for PlanePhysicsShape.");
+    throw std::logic_error("Cannot set PhysicsShape::Type for PlanePhysicsShape.");
 }
