@@ -81,20 +81,31 @@ bool App::shouldContinue(const Scene& scene) {
 
 void App::didShutdown() {}
 
-/// Runner Callbacks ///
+/// InputContext Callbacks ///
 
-void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
+void App::inputContextDidUpdate(Runner&, InputContext& inputContext, const Runner::UpdateInfo&) {
 
-    auto& inputContext = *runner.scene().inputContext();
+    auto& input = static_cast<DesktopInputContext&>(inputContext);
 
-    if (static_cast<DesktopInputContext&>(inputContext).keysPressed().count(DesktopInputContext::Key::Escape)) {
+    using Key = DesktopInputContext::Key;
+
+    if (input.keyPressed(Key::Escape)) {
         _window->close();
     }
+}
 
-    if (_bananaNode) {
-        // rotate the banana
-        auto rotationDeg = info.deltaTime * radians(-30.0); // 10deg/sec
-        auto rotY = math::quaternion({0.0f, 1.0f, 0.0f}, rotationDeg);
-        _bananaNode->orientation(rotY * _bananaNode->orientation());
+/// Scene Callbacks ///
+
+void App::sceneWillStep(Scene&, const Scene::StepInfo& info) {
+
+    if (!_bananaNode) {
+        return;
     }
+
+    // Rotate the banana at 30 degrees per second.
+    const float rotation = static_cast<float>(info.deltaTime) * radians(-30.0f);
+
+    const auto rotationY = math::quaternion({0.0f, 1.0f, 0.0f}, rotation);
+
+    _bananaNode->orientation(rotationY * _bananaNode->orientation());
 }

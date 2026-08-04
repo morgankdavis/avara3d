@@ -66,6 +66,7 @@
 #include "a3d/util/Chrono.h"
 #include "a3d/util/Filesystem.h"
 #include "a3d/util/Flow.h"
+#include "a3d/util/PeriodicTrigger.h"
 #include "a3d/util/Snapshot.h"
 #include "a3d/util/String.h"
 #include "a3d/visual/VisualWorld.h"

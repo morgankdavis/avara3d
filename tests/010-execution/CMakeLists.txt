@@ -30,10 +30,13 @@ set(RUNNER_EXECUTION_TESTS
 		requested-step-resume-interruption
 		stop-between-updates
 		stop-during-host-update
+		stop-during-input-callback
 		stop-during-runner-callback
 		stop-during-simulation-step
-		input-before-host-update
+		input-callback-order
+		input-callback-once-per-update
 		no-input-context
+		input-callback-arguments
 		application-runner-access
 		simulation-callback-order-physics
 		scene-command-boundaries

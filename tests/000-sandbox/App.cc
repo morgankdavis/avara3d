@@ -83,12 +83,11 @@ bool App::shouldContinue(const Scene& scene) {
 
 void App::didShutdown() {}
 
-/// Runner Callbacks ///
+/// InputContext Callbacks ///
 
-void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
+void App::inputContextDidUpdate(Runner& runner, InputContext& inputContext, const Runner::UpdateInfo& info) {
 
     auto& scene = runner.scene();
-    auto& inputContext = *scene.inputContext();
 
     Window* window = nullptr;
     if (scene.visualWorld()) {
@@ -97,25 +96,22 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
 
     // get input
 
-    auto im = static_cast<DesktopInputContext*>(&inputContext);
+    auto& input = static_cast<DesktopInputContext&>(inputContext);
 
-    auto mouseButtonsDown = im->mouseButtonsDown();
-    auto keysDown = im->keysDown();
-    auto keysPressed = im->keysPressed();
-    auto mousePositionDelta = im->mousePositionDelta();
+    auto mousePositionDelta = input.mousePositionDelta();
 
     using Key = DesktopInputContext::Key;
     using MouseButton = DesktopInputContext::MouseButton;
 
-    if (keysPressed.count(Key::Escape)) {
+    if (input.keyPressed(Key::Escape)) {
         window->close();
     }
 
-    if (keysPressed.count(Key::T)) {
+    if (input.keyPressed(Key::T)) {
         log::app::i()("TREE:\n{}", util::string::TreeString(*(scene.rootNode())));
     }
 
-    if (keysPressed.count(Key::One)) {
+    if (input.keyPressed(Key::One)) {
 
         //auto cameraNodes = vector<Node*>();
         auto cameraNodes = vector<std::shared_ptr<Node>>();
@@ -128,7 +124,7 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
 
         scene.visualWorld()->pointOfView(cameraNodes[0]);
     }
-    if (keysPressed.count(Key::Two)) {
+    if (input.keyPressed(Key::Two)) {
 
         auto cameraNodes = vector<std::shared_ptr<Node>>();
         for (auto& node : scene.rootNode()->children(true)) {
@@ -141,7 +137,7 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
         scene.visualWorld()->pointOfView(cameraNodes[1]);
     }
 
-    if (keysPressed.count(Key::Three)) {
+    if (input.keyPressed(Key::Three)) {
 
         auto cameraNodes = vector<std::shared_ptr<Node>>();
         for (auto& node : scene.rootNode()->children(true)) {
@@ -156,7 +152,7 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
 
     using DebugOptions = Scene::DebugOptions;
 
-    if (keysPressed.count(Key::F)) {
+    if (input.keyPressed(Key::F)) {
         if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowWireframes)) {
             scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowWireframes));
         }
@@ -164,7 +160,7 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
             scene.debugOptions(util::bitmask::add(scene.debugOptions(), DebugOptions::ShowWireframes));
         }
     }
-    if (keysPressed.count(Key::B)) {
+    if (input.keyPressed(Key::B)) {
         if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
             scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
         }
@@ -172,7 +168,7 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
             scene.debugOptions(util::bitmask::add(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
         }
     }
-    if (keysPressed.count(Key::I)) {
+    if (input.keyPressed(Key::I)) {
         if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
             scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowStatsOverlay));
         }
@@ -180,7 +176,7 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
             scene.debugOptions(util::bitmask::add(scene.debugOptions(), DebugOptions::ShowStatsOverlay));
         }
     }
-    if (keysPressed.count(Key::P)) {
+    if (input.keyPressed(Key::P)) {
         if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes)) {
             scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
                                                      DebugOptions::ShowPhysicsBoundingBoxes));
@@ -190,7 +186,7 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
                                                   DebugOptions::ShowPhysicsBoundingBoxes));
         }
     }
-    if (keysPressed.count(Key::G)) {
+    if (input.keyPressed(Key::G)) {
         if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes)) {
             scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
                                                      DebugOptions::ShowPhysicsWireframes));
@@ -199,7 +195,7 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
             scene.debugOptions(util::bitmask::add(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes));
         }
     }
-    if (keysPressed.count(Key::C)) {
+    if (input.keyPressed(Key::C)) {
         if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints)) {
             scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
                                                      DebugOptions::ShowPhysicsContactPoints));
@@ -209,7 +205,7 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
                                                   DebugOptions::ShowPhysicsContactPoints));
         }
     }
-    if (keysPressed.count(Key::N)) {
+    if (input.keyPressed(Key::N)) {
         if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsNormals)) {
             scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowPhysicsNormals));
         }
@@ -218,21 +214,21 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
         }
     }
 
-    if (keysPressed.count(Key::V)) {
+    if (input.keyPressed(Key::V)) {
         window->vSyncEnabled(!window->vSyncEnabled());
     }
 
-    if (keysPressed.count(Key::Backslash)) {
+    if (input.keyPressed(Key::Backslash)) {
         util::snapshot::SaveSnapshot(*window);
     }
 
-    if (keysPressed.count(Key::Slash)) {
+    if (input.keyPressed(Key::Slash)) {
         window->cursorCaptured(!(window->cursorCaptured()));
     }
 
     const auto cursorCaptured = window->cursorCaptured();
 
-    if (keysPressed.count(Key::R)) {
+    if (input.keyPressed(Key::R)) {
         if (!window->recordingGIF()) {
             util::snapshot::StartGIFRecording(*window, {320, 240}, 8);
         }
@@ -270,31 +266,31 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
             }
 
             float moveMultiplier = 1.0;
-            if (keysDown.count(Key::LeftControl)) {
+            if (input.keyDown(Key::LeftControl)) {
                 moveMultiplier = 2.0;
             }
 
-            if (keysDown.count(Key::W) || mouseButtonsDown.count(MouseButton::Four)) {
+            if (input.keyDown(Key::W) || input.mouseButtonDown(MouseButton::Four)) {
                 vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * moveMultiplier * camForward;
                 pov->position(pov->position() + positionDelta);
             }
-            else if (keysDown.count(Key::S)) {
+            else if (input.keyDown(Key::S)) {
                 vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * moveMultiplier * -camForward;
                 pov->position(pov->position() + positionDelta);
             }
 
-            if (keysDown.count(Key::A)) {
+            if (input.keyDown(Key::A)) {
                 vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * moveMultiplier * -camRight;
                 pov->position(pov->position() + positionDelta);
             }
-            else if (keysDown.count(Key::D)) {
+            else if (input.keyDown(Key::D)) {
                 vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * moveMultiplier * camRight;
                 pov->position(pov->position() + positionDelta);
             }
 
-            if (keysDown.count(Key::Space)) {
+            if (input.keyDown(Key::Space)) {
                 float direction = 1;
-                if (keysDown.count(Key::LeftShift)) {
+                if (input.keyDown(Key::LeftShift)) {
                     direction = -1;
                 }
                 vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * moveMultiplier * camUp;

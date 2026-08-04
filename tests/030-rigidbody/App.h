@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "a3d/Application.h"
+#include "a3d/util/PeriodicTrigger.h"
 
 namespace a3d {
 
@@ -59,9 +60,11 @@ namespace test::rigidbody {
         bool                        shouldContinue(const a3d::Scene& scene) override;
         void                        didShutdown() override;
 
-        /// Runner Callbacks ///
+        /// InputContext Callbacks ///
 
-        void hostUpdate(a3d::Runner& runner, const a3d::Runner::UpdateInfo& info) override;
+        void inputContextDidUpdate(a3d::Runner&                   runner,
+                                   a3d::InputContext&             inputContext,
+                                   const a3d::Runner::UpdateInfo& info) override;
 
         /// Scene Callbacks ///
 
@@ -75,8 +78,8 @@ namespace test::rigidbody {
         std::vector<DuckFruitDef>                _duckFruit;
         std::unique_ptr<a3d::ext::WanderRotator> _duckRotator;
         float                                    _cameraMoveSpeed;
-        double                                   _duckFruitSpawnAccumulator;
-        double                                   _slurmShotAccumulator;
+        a3d::util::PeriodicTrigger               _duckFruitTrigger;
+        a3d::util::PeriodicTrigger               _slurmTrigger;
     };
 
 }

@@ -44,9 +44,11 @@ namespace test::inputcamera {
         bool                        shouldContinue(const a3d::Scene& scene) override;
         void                        didShutdown() override;
 
-        /// Runner Callbacks ///
+        /// InputContext Callbacks ///
 
-        void hostUpdate(a3d::Runner& runner, const a3d::Runner::UpdateInfo& info) override;
+        void inputContextDidUpdate(a3d::Runner&                   runner,
+                                   a3d::InputContext&             inputContext,
+                                   const a3d::Runner::UpdateInfo& info) override;
 
     private:
         /// Private Member Variables ///

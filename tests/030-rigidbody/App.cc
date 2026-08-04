@@ -9,6 +9,7 @@
 #include "App.h"
 
 #include <algorithm>
+#include <chrono>
 #include <functional>
 #include <memory>
 #include <string>
@@ -37,10 +38,12 @@ const bool                            USE_DEFAULT_LIGHTING {false};
 const bool                            CAPTURE_CURSOR {false};
 const float                           MOUSE_SENSITIVITY {0.5};
 #if defined(A3D_WEB)
-const float FIXED_TIMESTEP {1.0 / 30.0};
+const float TIMESTEP {1.0 / 30.0};
 #else
-const float FIXED_TIMESTEP {1.0 / 120.0};
+const float TIMESTEP {1.0 / 120.0};
 #endif
+const chrono::milliseconds DUCK_FRUIT_SPAWN_INTERVAL {100};
+const chrono::milliseconds SLURM_SHOT_INTERVAL {50};
 
 /// Private Static Non-Member Prototypes ///
 
@@ -64,8 +67,8 @@ App::App(int argc, char* argv[]):
     Application(argc, argv, APP_LOG_LEVEL),
     _duckNode {nullptr},
     _cameraMoveSpeed {0.0f},
-    _duckFruitSpawnAccumulator {0.0},
-    _slurmShotAccumulator {0.0} {}
+    _duckFruitTrigger {DUCK_FRUIT_SPAWN_INTERVAL},
+    _slurmTrigger {SLURM_SHOT_INTERVAL} {}
 
 App::~App() = default;
 
@@ -227,7 +230,7 @@ unique_ptr<Scene> App::init() {
 }
 
 SimulationConfig App::simulationConfig() const {
-    return {.timeStep = FIXED_TIMESTEP};
+    return {.timeStep = TIMESTEP};
 }
 
 bool App::shouldContinue(const Scene&) {
@@ -236,134 +239,75 @@ bool App::shouldContinue(const Scene&) {
 
 void App::didShutdown() {}
 
-/// Runner Callbacks ///
+/// InputContext Callbacks ///
 
-void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
+void App::inputContextDidUpdate(Runner& runner, InputContext& inputContext, const Runner::UpdateInfo& info) {
 
     auto& scene = runner.scene();
-    auto& inputContext = *scene.inputContext();
-
-    // get input
-
-    auto im = static_cast<DesktopInputContext*>(&inputContext);
-
-    auto mouseButtonsDown = im->mouseButtonsDown();
-    auto mouseButtonsPressed = im->mouseButtonsPressed();
-    auto keysDown = im->keysDown();
-    auto keysPressed = im->keysPressed();
-    auto mousePositionDelta = im->mousePositionDelta();
-    auto mouseScrollWheelDelta = im->mouseScrollWheelDelta();
-
-    // TEMPORARY for macOS mouse input testing
-    //	if (keysPressed.count(Key::Z)) {
-    //		log::app::i()("Trying to re-initialize mouse input.");
-    //		auto windowInputContext = static_cast<GLFWInputContext*>(scene.inputContext());
-    //		try {
-    //			windowInputContext->initMouseInput();
-    //		}
-    //		catch (Exception) {
-    //			log::app::e()("Nada");
-    //		}
-    //	}
+    auto& input = static_cast<DesktopInputContext&>(inputContext);
 
     using Key = DesktopInputContext::Key;
     using MouseButton = DesktopInputContext::MouseButton;
+    using DebugOptions = Scene::DebugOptions;
 
-    if (keysPressed.count(Key::Escape)) {
+    // Consume frame-relative input exactly once per host update.
+
+    const auto mousePositionDelta = input.mousePositionDelta();
+    const auto mouseScrollWheelDelta = input.mouseScrollWheelDelta();
+
+    // Window and application controls.
+
+    if (input.keyPressed(Key::Escape)) {
         _window->close();
         log::app::i()("open? {}", _window->isOpen() ? "ya" : "no");
     }
 
-    if (keysPressed.count(Key::Slash)) {
-        _window->cursorCaptured(!(_window->cursorCaptured()));
+    if (input.keyPressed(Key::Slash)) {
+        _window->cursorCaptured(!_window->cursorCaptured());
     }
 
-    const auto cursorCaptured = _window->cursorCaptured();
+    const bool cursorCaptured = _window->cursorCaptured();
+    auto       visualWorld = scene.visualWorld();
 
-    if (keysPressed.count(Key::Backslash)) {
+    if (input.keyPressed(Key::Backslash)) {
         util::snapshot::SaveSnapshot(*_window);
     }
 
-    if (keysPressed.count(Key::One)) {
-        queueSceneCommand([this](Scene&) {
-            _duckNode->physicsBody()->shape()->type(PhysicsShape::Type::BoundingBox);
-        });
+    if (input.keyPressed(Key::H)) {
+        // NOTE: once the window is hidden, the scene keeps running but you
+        // no longer get key events from the window!
+        _window->hidden(!_window->hidden());
     }
 
-    if (keysPressed.count(Key::Two)) {
-        queueSceneCommand([this](Scene&) {
-            _duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConvexHull);
-        });
+    if (input.keyPressed(Key::V)) {
+        _window->vSyncEnabled(!_window->vSyncEnabled());
     }
 
-    if (keysPressed.count(Key::Three)) {
-        queueSceneCommand([this](Scene&) {
-            _duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConcavePolyhedron);
-        });
-    }
-
-    if (keysPressed.count(Key::Five)) {
-        queueSceneCommand([this](Scene&) {
-            _duckNode->physicsBody()->mass(0);
-        });
-    }
-
-    if (keysPressed.count(Key::Six)) {
-        queueSceneCommand([this](Scene&) {
-            _duckNode->physicsBody()->mass(10);
-        });
-    }
-
-    if (keysPressed.count(Key::Seven)) {
-        queueSceneCommand([this](Scene&) {
-            _duckNode->physicsBody()->mass(100);
-        });
-    }
-
-    if (keysPressed.count(Key::Eight)) {
-        queueSceneCommand([](Scene& scene) {
-            for (const auto& node : scene.rootNode()->children(true)) {
-                auto body = node->physicsBody();
-                if (body && dynamic_pointer_cast<CylinderPhysicsShape>(body->shape())) {
-                    node->removeFromParent();
-                }
-            }
-        });
-    }
-
-    if (keysPressed.count(Key::Nine)) {
-        queueSceneCommand([](Scene& scene) {
-            for (const auto& node : scene.rootNode()->children(true)) {
-                auto body = node->physicsBody();
-                if (body && body->type() == PhysicsBody::Type::Dynamic) {
-                    node->removeFromParent();
-                }
-            }
-        });
-    }
-
-    if (keysPressed.count(Key::Apostrophe)) {
-        if (auto pov = scene.visualWorld()->pointOfView().lock()) {
-            auto pos = pov->worldPosition();
-            auto orient = pov->worldOrientation();
-            log::app::i()("\ncamera position: ({:.4f}, {:.4f}, {:.4f})\n"
-                          "camera orientation: ({:.6f}, {:.6f}, {:.6f}, {:.6f})",
-                          pos.x, pos.y, pos.x, orient.x, orient.y, orient.z, orient.w);
+    if (input.keyPressed(Key::R)) {
+        if (!_window->recordingGIF()) {
+            util::snapshot::StartGIFRecording(*_window, {320, 240}, 8);
+        }
+        else {
+            util::snapshot::StopGIFRecording(*_window);
         }
     }
 
-    //		if (keysPressed.count(Key::T)) {
-    //			log::app::i()("TREE:\n{}", utils::StringFromTree(*(scene.rootNode())));
-    //		}
+    // View controls.
 
-    if (keysPressed.count(Key::GraveAccent)) {
-        queueSceneCommand([](Scene& scene) {
-            AddBoxes(scene);
-        });
+    if (input.keyPressed(Key::Apostrophe) && visualWorld) {
+        if (auto pov = visualWorld->pointOfView().lock()) {
+            const auto position = pov->worldPosition();
+            const auto orientation = pov->worldOrientation();
+
+            log::app::i()("\ncamera position: ({:.4f}, {:.4f}, {:.4f})\n"
+                          "camera orientation: ({:.6f}, {:.6f}, {:.6f}, {:.6f})",
+                          position.x, position.y, position.z, orientation.x, orientation.y, orientation.z,
+                          orientation.w);
+        }
     }
 
-    if (keysPressed.count(Key::L)) {
-        if (auto cameraNode = scene.visualWorld()->pointOfView().lock()) {
+    if (input.keyPressed(Key::L) && visualWorld) {
+        if (auto cameraNode = visualWorld->pointOfView().lock()) {
             if (cameraNode->light()) {
                 cameraNode->light(nullptr);
             }
@@ -378,281 +322,276 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
         }
     }
 
-    if (keysPressed.count(Key::Q)) {
-        queueSceneCommand([](Scene& scene) {
-            SpawnAutogeneratedPrimitives(scene);
-        });
-    }
+    // Rendering/debug controls.
 
-    // if (keysPressed.count(Key::Z)) {
-    // 	SpawnInvisiblePrimitives(scene);
-    // }
+    const auto toggleDebugOption = [&scene](DebugOptions option) {
+        const auto options = scene.debugOptions();
 
-    if (keysPressed.count(Key::M)) {
-        queueSceneCommand([](Scene& scene) {
-            SpawnChainMail(scene);
-        });
-    }
-
-    if (keysPressed.count(Key::O)) {
-        queueSceneCommand([](Scene& scene) {
-            SpawnRecursiveTestTree(scene);
-        });
-    }
-
-    if (keysPressed.count(Key::T)) {
-        queueSceneCommand([](Scene& scene) {
-            SpawnHACDTeapot(scene);
-        });
-    }
-
-    if (keysPressed.count(Key::H)) {
-        // NOTE: once the window is hidden, the scene keeps running but you
-        // no longer get key events from the window!
-        _window->hidden(!_window->hidden());
-    }
-
-    using DebugOptions = Scene::DebugOptions;
-
-    if (keysPressed.count(Key::F)) {
-        if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowWireframes)) {
-            scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowWireframes));
+        if (util::bitmask::contains(options, option)) {
+            scene.debugOptions(util::bitmask::remove(options, option));
         }
         else {
-            scene.debugOptions(util::bitmask::add(scene.debugOptions(), DebugOptions::ShowWireframes));
+            scene.debugOptions(util::bitmask::add(options, option));
         }
-    }
-    if (keysPressed.count(Key::B)) {
-        if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
-            scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
-        }
-        else {
-            scene.debugOptions(util::bitmask::add(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
-        }
-    }
-    if (keysPressed.count(Key::I)) {
-        if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
-            scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowStatsOverlay));
-        }
-        else {
-            scene.debugOptions(util::bitmask::add(scene.debugOptions(), DebugOptions::ShowStatsOverlay));
-        }
-    }
-    if (keysPressed.count(Key::P)) {
-        if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes)) {
-            scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
-                                                     DebugOptions::ShowPhysicsBoundingBoxes));
-        }
-        else {
-            scene.debugOptions(util::bitmask::add(scene.debugOptions(),
-                                                  DebugOptions::ShowPhysicsBoundingBoxes));
-        }
-    }
-    if (keysPressed.count(Key::G)) {
-        if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes)) {
-            scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
-                                                     DebugOptions::ShowPhysicsWireframes));
-        }
-        else {
-            scene.debugOptions(util::bitmask::add(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes));
-        }
-    }
-    if (keysPressed.count(Key::C)) {
-        if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints)) {
-            scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
-                                                     DebugOptions::ShowPhysicsContactPoints));
-        }
-        else {
-            scene.debugOptions(util::bitmask::add(scene.debugOptions(),
-                                                  DebugOptions::ShowPhysicsContactPoints));
-        }
-    }
-    if (keysPressed.count(Key::N)) {
-        if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsNormals)) {
-            scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowPhysicsNormals));
-        }
-        else {
-            scene.debugOptions(util::bitmask::add(scene.debugOptions(), DebugOptions::ShowPhysicsNormals));
-        }
+    };
+
+    if (input.keyPressed(Key::F)) {
+        toggleDebugOption(DebugOptions::ShowWireframes);
     }
 
-    if (keysPressed.count(Key::V)) {
-        //		static auto pov = scene.visualWorld()->pointOfView();
-        //		if (scene.visualWorld()->pointOfView().expired()) {
-        //			log::app::d()("Adding POV...");
-        //			scene.visualWorld()->pointOfView(pov);
-        //		}
-        //		else {
-        //			log::app::d()("Removing POV...");
-        //			scene.visualWorld()->pointOfView().reset();
-        //		}
-        _window->vSyncEnabled(!_window->vSyncEnabled());
+    if (input.keyPressed(Key::B)) {
+        toggleDebugOption(DebugOptions::ShowBoundingBoxes);
     }
 
-    if (keysPressed.count(Key::R)) {
-        if (!_window->recordingGIF()) {
-            util::snapshot::StartGIFRecording(*_window, {320, 240}, 8);
-        }
-        else {
-            util::snapshot::StopGIFRecording(*_window);
-        }
+    if (input.keyPressed(Key::I)) {
+        toggleDebugOption(DebugOptions::ShowStatsOverlay);
     }
 
-    if (keysDown.count(Key::Z)) {
-        this_thread::sleep_for(std::chrono::milliseconds(8));
+    if (input.keyPressed(Key::P)) {
+        toggleDebugOption(DebugOptions::ShowPhysicsBoundingBoxes);
     }
 
-    if (keysPressed.count(Key::U)) {
-        queueSceneCommand([](Scene& scene) {
-            AddRing(scene);
-        });
+    if (input.keyPressed(Key::G)) {
+        toggleDebugOption(DebugOptions::ShowPhysicsWireframes);
     }
 
-    if (keysPressed.count(Key::Tab)) {
-        // Queue the immediate spawn; sceneWillStep() handles held repeats.
-        queueSceneCommand([this](Scene& scene) {
-            SpawnDuckFruit(scene, *_duckNode, _duckFruit);
-            _duckFruitSpawnAccumulator = 0.0;
-        });
+    if (input.keyPressed(Key::C)) {
+        toggleDebugOption(DebugOptions::ShowPhysicsContactPoints);
     }
 
-    if (cursorCaptured
-        && (mouseButtonsPressed.count(MouseButton::One) || mouseButtonsPressed.count(MouseButton::Two))) {
-
-        if (auto visualWorld = scene.visualWorld()) {
-            if (auto pov = visualWorld->pointOfView().lock()) {
-                const auto location = pov->worldPosition();
-                const auto direction = pov->worldForward();
-
-                if (mouseButtonsPressed.count(MouseButton::One)) {
-                    queueSceneCommand([location, direction](Scene& scene) {
-                        ShootSlurm(scene, location, direction);
-                    });
-                }
-
-                if (mouseButtonsPressed.count(MouseButton::Two)) {
-                    queueSceneCommand([this, location, direction](Scene& scene) {
-                        ShootSlurm(scene, location, direction);
-                        _slurmShotAccumulator = 0.0;
-                    });
-                }
-
-                if (mouseButtonsDown.count(MouseButton::Two)) {
-                    util::flow::every(std::chrono::milliseconds(250), [&] {
-                        ShootSlurm(scene, location, direction);
-                    });
-                }
-            }
-        }
+    if (input.keyPressed(Key::N)) {
+        toggleDebugOption(DebugOptions::ShowPhysicsNormals);
     }
 
-    if (mouseScrollWheelDelta.y > 0) {
+    // Host load testing.
+
+    if (input.keyDown(Key::Z)) {
+        this_thread::sleep_for(chrono::milliseconds {8});
+    }
+
+    // Runner controls.
+
+    if (mouseScrollWheelDelta.y > 0.0f) {
         runner.timeScale(math::clamp(runner.timeScale() + mouseScrollWheelDelta.y * 0.1, 0.1, 1.0));
     }
 
-    if (cursorCaptured) {
+    // Free camera.
 
-        // mouselook
+    if (!cursorCaptured || !visualWorld) {
+        return;
+    }
 
-        if (auto pov = scene.visualWorld()->pointOfView().lock()) {
+    auto pov = visualWorld->pointOfView().lock();
 
-            // look
+    if (!pov) {
+        return;
+    }
 
-            vec3 camForward = pov->worldForward();
-            vec3 camRight = pov->worldRight();
-            vec3 camUp = pov->worldUp();
+    // Preserve the existing behavior in which movement vectors are sampled
+    // before this host update's mouse-look rotation is applied.
 
-            static const float MOUSE_SPEED_SCALAR = .002;
-            static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
+    const vec3 camForward = pov->worldForward();
+    const vec3 camRight = pov->worldRight();
+    const vec3 camUp = pov->worldUp();
 
-            float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
-            float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
+    static const float MOUSE_SPEED_SCALAR = 0.002f;
+    static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
 
-            vec3 angles = pov->eulerAngles();
-            pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
+    const float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
+    const float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
 
-            // move
+    const vec3 angles = pov->eulerAngles();
 
-            //static float MOVE_SPEED = math::max(scene.extent());
+    pov->eulerAngles({angles.x + deltaRotY, angles.y - deltaRotX, 0.0f});
 
-            float moveMultiplier = 1.0;
-            if (keysDown.count(Key::LeftControl)) {
-                moveMultiplier = 2.0;
-            }
-            float moveSpeed = _cameraMoveSpeed * moveMultiplier;
+    const float moveMultiplier = input.keyDown(Key::LeftControl) ? 2.0f : 1.0f;
 
-            if (keysDown.count(Key::W) || mouseButtonsDown.count(MouseButton::Four)) {
-                vec3 positionDelta = (float) info.deltaTime * moveSpeed * camForward;
-                pov->position(pov->position() + positionDelta);
-            }
-            else if (keysDown.count(Key::S)) {
-                vec3 positionDelta = (float) info.deltaTime * moveSpeed * -camForward;
-                pov->position(pov->position() + positionDelta);
-            }
+    const float moveSpeed = _cameraMoveSpeed * moveMultiplier;
+    const float deltaTime = static_cast<float>(info.deltaTime);
 
-            if (keysDown.count(Key::A)) {
-                vec3 positionDelta = (float) info.deltaTime * moveSpeed * -camRight;
-                pov->position(pov->position() + positionDelta);
-            }
-            else if (keysDown.count(Key::D)) {
-                vec3 positionDelta = (float) info.deltaTime * moveSpeed * camRight;
-                pov->position(pov->position() + positionDelta);
-            }
+    if (input.keyDown(Key::W) || input.mouseButtonDown(MouseButton::Four)) {
 
-            if (keysDown.count(Key::Space)) {
-                float direction = 1;
-                if (keysDown.count(Key::LeftShift)) {
-                    direction = -1;
-                }
-                vec3 positionDelta = (float) info.deltaTime * moveSpeed * camUp;
-                pov->position(pov->position() + positionDelta * direction);
-            }
-        }
+        const vec3 positionDelta = deltaTime * moveSpeed * camForward;
+
+        pov->position(pov->position() + positionDelta);
+    }
+    else if (input.keyDown(Key::S)) {
+        const vec3 positionDelta = deltaTime * moveSpeed * -camForward;
+
+        pov->position(pov->position() + positionDelta);
+    }
+
+    if (input.keyDown(Key::A)) {
+        const vec3 positionDelta = deltaTime * moveSpeed * -camRight;
+
+        pov->position(pov->position() + positionDelta);
+    }
+    else if (input.keyDown(Key::D)) {
+        const vec3 positionDelta = deltaTime * moveSpeed * camRight;
+
+        pov->position(pov->position() + positionDelta);
+    }
+
+    if (input.keyDown(Key::Space)) {
+        const float direction = input.keyDown(Key::LeftShift) ? -1.0f : 1.0f;
+
+        const vec3 positionDelta = deltaTime * moveSpeed * camUp * direction;
+
+        pov->position(pov->position() + positionDelta);
     }
 }
 
 /// Scene Callbacks ///
 
 void App::sceneWillStep(Scene& scene, const Scene::StepInfo& info) {
+
     auto& input = static_cast<DesktopInputContext&>(*scene.inputContext());
 
     using Key = DesktopInputContext::Key;
     using MouseButton = DesktopInputContext::MouseButton;
 
+    // Continuous simulation logic.
+
     if (_duckNode) {
         _duckRotator->update(*_duckNode, info.deltaTime);
     }
 
-    constexpr double DUCK_FRUIT_SPAWN_INTERVAL = 1.0 / 10.0;
-    if (input.keyDown(Key::Tab)) {
-        _duckFruitSpawnAccumulator += info.deltaTime;
-        while (_duckFruitSpawnAccumulator >= DUCK_FRUIT_SPAWN_INTERVAL) {
-            SpawnDuckFruit(scene, *_duckNode, _duckFruit);
-            _duckFruitSpawnAccumulator -= DUCK_FRUIT_SPAWN_INTERVAL;
-        }
-    }
-    else {
-        _duckFruitSpawnAccumulator = 0.0;
+    // Duck physics-body configuration.
+
+    if (input.keyPressed(Key::One)) {
+        _duckNode->physicsBody()->shape()->type(PhysicsShape::Type::BoundingBox);
     }
 
-    constexpr double SLURM_SHOT_INTERVAL = 1.0 / 20.0;
+    if (input.keyPressed(Key::Two)) {
+        _duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConvexHull);
+    }
+
+    if (input.keyPressed(Key::Three)) {
+        _duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConcavePolyhedron);
+    }
+
+    if (input.keyPressed(Key::Five)) {
+        _duckNode->physicsBody()->mass(0.0f);
+    }
+
+    if (input.keyPressed(Key::Six)) {
+        _duckNode->physicsBody()->mass(10.0f);
+    }
+
+    if (input.keyPressed(Key::Seven)) {
+        _duckNode->physicsBody()->mass(100.0f);
+    }
+
+    // Remove test objects.
+
+    if (input.keyPressed(Key::Eight)) {
+        for (const auto& node : scene.rootNode()->children(true)) {
+            auto body = node->physicsBody();
+
+            if (body && dynamic_pointer_cast<CylinderPhysicsShape>(body->shape())) {
+
+                node->removeFromParent();
+            }
+        }
+    }
+
+    if (input.keyPressed(Key::Nine)) {
+        for (const auto& node : scene.rootNode()->children(true)) {
+            auto body = node->physicsBody();
+
+            if (body && body->type() == PhysicsBody::Type::Dynamic) {
+
+                node->removeFromParent();
+            }
+        }
+    }
+
+    // Add test objects.
+
+    if (input.keyPressed(Key::GraveAccent)) {
+        AddBoxes(scene);
+    }
+
+    if (input.keyPressed(Key::Q)) {
+        SpawnAutogeneratedPrimitives(scene);
+    }
+
+    if (input.keyPressed(Key::M)) {
+        SpawnChainMail(scene);
+    }
+
+    if (input.keyPressed(Key::O)) {
+        SpawnRecursiveTestTree(scene);
+    }
+
+    if (input.keyPressed(Key::T)) {
+        SpawnHACDTeapot(scene);
+    }
+
+    if (input.keyPressed(Key::U)) {
+        AddRing(scene);
+    }
+
+    // Spawn duck fruit at 10 pieces per simulated second.
+    //
+    // Treat a newly pressed key as active even if it was released before
+    // the next simulation step. Resetting on the press also rearms the
+    // immediate first fire when release and re-press occur between steps.
+
+    const bool duckFruitPressed = input.keyPressed(Key::Tab);
+
+    const bool duckFruitActive = duckFruitPressed || input.keyDown(Key::Tab);
+
+    if (duckFruitPressed) {
+        _duckFruitTrigger.reset();
+    }
+
+    if (_duckNode && duckFruitActive) {
+        _duckFruitTrigger.update(info.startTime, [&] {
+            SpawnDuckFruit(scene, *_duckNode, _duckFruit);
+        });
+    }
+    else {
+        _duckFruitTrigger.reset();
+    }
+
+    // Shoot one Slurm can with Mouse One.
+
+    const bool singleShotRequested = input.mouseButtonPressed(MouseButton::One);
+
+    // Shoot Slurm at 20 cans per simulated second with Mouse Two.
+    //
+    // As with Tab, a press counts as active for this step even if the
+    // button was released before the simulation step occurred.
+
+    const bool continuousShotPressed = input.mouseButtonPressed(MouseButton::Two);
+
+    const bool continuousShotActive = continuousShotPressed || input.mouseButtonDown(MouseButton::Two);
+
+    if (continuousShotPressed) {
+        _slurmTrigger.reset();
+    }
+
     shared_ptr<Node> pointOfView;
-    if (input.mouseButtonDown(MouseButton::Two) && _window->cursorCaptured()) {
+
+    if (_window->cursorCaptured() && (singleShotRequested || continuousShotActive)) {
 
         if (auto visualWorld = scene.visualWorld()) {
             pointOfView = visualWorld->pointOfView().lock();
         }
     }
 
-    if (pointOfView) {
-        _slurmShotAccumulator += info.deltaTime;
-        while (_slurmShotAccumulator >= SLURM_SHOT_INTERVAL) {
+    if (singleShotRequested && pointOfView) {
+        ShootSlurm(scene, pointOfView->worldPosition(), pointOfView->worldForward());
+    }
+
+    if (continuousShotActive && pointOfView) {
+        _slurmTrigger.update(info.startTime, [&] {
             ShootSlurm(scene, pointOfView->worldPosition(), pointOfView->worldForward());
-            _slurmShotAccumulator -= SLURM_SHOT_INTERVAL;
-        }
+        });
     }
     else {
-        _slurmShotAccumulator = 0.0;
+        _slurmTrigger.reset();
     }
 }
 

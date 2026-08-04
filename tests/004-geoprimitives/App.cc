@@ -202,18 +202,21 @@ std::unique_ptr<Scene> App::init() {
     }
 }
 
+SimulationConfig App::simulationConfig() const {
+    return {.timeStep = FIXED_TIMESTEP};
+}
+
 bool App::shouldContinue(const Scene& scene) {
     return _window->isOpen();
 }
 
 void App::didShutdown() {}
 
-/// Runner Callbacks ///
+/// InputContext Callbacks ///
 
-void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
+void App::inputContextDidUpdate(Runner& runner, InputContext& inputContext, const Runner::UpdateInfo& info) {
 
     auto& scene = runner.scene();
-    auto& inputContext = *scene.inputContext();
 
     Window* window = nullptr;
     if (scene.visualWorld()) {
@@ -224,25 +227,24 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
 
     auto im = static_cast<DesktopInputContext*>(&inputContext);
 
-    auto keysPressed = im->keysPressed();
     auto keysDown = im->keysDown();
     auto mousePositionDelta = im->mousePositionDelta();
 
     using Key = DesktopInputContext::Key;
 
-    if (keysPressed.count(Key::Slash)) {
+    if (im->keyPressed(Key::Slash)) {
         window->cursorCaptured(!(window->cursorCaptured()));
     }
 
     const auto cursorCaptured = window->cursorCaptured();
 
-    if (keysPressed.count(Key::Escape)) {
+    if (im->keyPressed(Key::Escape)) {
         window->close();
     }
 
     using DebugOptions = Scene::DebugOptions;
 
-    if (keysPressed.count(Key::F)) {
+    if (im->keyPressed(Key::F)) {
         if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowWireframes)) {
             scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowWireframes));
         }
@@ -250,7 +252,7 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
             scene.debugOptions(util::bitmask::add(scene.debugOptions(), DebugOptions::ShowWireframes));
         }
     }
-    if (keysPressed.count(Key::B)) {
+    if (im->keyPressed(Key::B)) {
         if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
             scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
         }
@@ -314,13 +316,19 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
             }
         }
     }
+}
 
-    if (_pointLightPivotNode) {
+/// Scene Callbacks ///
 
-        // rotate the duck
-        auto rotationDeg = info.deltaTime * radians(-30.0); // 10deg/sec
+void App::sceneWillStep(Scene&, const Scene::StepInfo& info) {
 
-        auto duckSpinnerEuler = _pointLightPivotNode->eulerAngles();
-        _pointLightPivotNode->eulerAngles(vec3(0, duckSpinnerEuler.y - rotationDeg, 0));
+    if (!_pointLightPivotNode) {
+        return;
     }
+
+    const float rotation = static_cast<float>(info.deltaTime) * radians(-30.0f);
+
+    const auto angles = _pointLightPivotNode->eulerAngles();
+
+    _pointLightPivotNode->eulerAngles({0.0f, angles.y - rotation, 0.0f});
 }

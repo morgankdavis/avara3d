@@ -26,6 +26,8 @@
 
 namespace a3d {
 
+    class InputContext;
+
     class Application {
 
     public:
@@ -66,8 +68,19 @@ namespace a3d {
 
         const std::vector<std::string>& args() const;
 
+        /// InputContext Callbacks ///
+
+        // Called once after the attached InputContext updates and before
+        // hostUpdate() and simulation scheduling. Skipped when no InputContext
+        // is attached; intended for input-driven host, view, and Runner behavior.
+        virtual void                    inputContextDidUpdate(Runner&                   runner,
+                                                              InputContext&             inputContext,
+                                                              const Runner::UpdateInfo& info);
+
         /// Runner Callbacks ///
 
+        // General once-per-host-cycle callback, independent of InputContext
+        // presence, for non-input host orchestration before simulation scheduling.
         virtual void                    hostUpdate(Runner& runner, const Runner::UpdateInfo& info);
 
         /// Scene Callbacks ///
@@ -93,7 +106,7 @@ namespace a3d {
         void        shutdown() noexcept;
         void        registerCallbacks();
 
-        void        dispatchHostUpdate(Runner& runner, const Runner::UpdateInfo& info);
+        void        dispatchUpdate(Runner& runner, const Runner::UpdateInfo& info);
         void        dispatchSceneWillStep(Scene& scene, const Scene::StepInfo& info);
         void        dispatchSceneDidStep(Scene& scene, const Scene::StepInfo& info);
         void        dispatchDidBeginFrame(VisualWorld& visualWorld, const VisualWorld::RenderInfo& info);
