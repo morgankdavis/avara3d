@@ -31,8 +31,8 @@ using namespace std;
 shared_ptr<Mesh> Mesh::FromFile(const filesystem::path& path, ImportOptions options) {
     // Timer timer {true};
     auto optsUnderlying = static_cast<underlying_type<ImportOptions>::type>(options);
-    auto sceneOpts      = Scene::ImportOptions(optsUnderlying) | Scene::ImportOptions::ImportMeshes;
-    auto mesh           = GlTFImporter(path, sceneOpts).firstMesh();
+    auto sceneOpts = Scene::ImportOptions(optsUnderlying) | Scene::ImportOptions::ImportMeshes;
+    auto mesh = GlTFImporter(path, sceneOpts).firstMesh();
     // log::i()("Loaded Mesh '{}'. Time: {:.3f} ms", path.string(), util::chrono::Milliseconds(timer.stop()));
     return mesh;
 }
@@ -161,7 +161,7 @@ AABB Mesh::worldAABB(const math::mat4& worldTransform, bool vertfit) const {
     if (vertfit) {
         static const float maxFloat = math::f32_max();
         static const float minFloat = math::f32_lowest();
-        AABB               out      = {{maxFloat, maxFloat, maxFloat}, {minFloat, minFloat, minFloat}};
+        AABB               out = {{maxFloat, maxFloat, maxFloat}, {minFloat, minFloat, minFloat}};
 
         for (const auto& e : _elements) {
             AABB ea = e->worldAABB(worldTransform, true);
@@ -173,7 +173,7 @@ AABB Mesh::worldAABB(const math::mat4& worldTransform, bool vertfit) const {
     // fit over OBB - looser - fast!
     else {
 
-        auto       localAABB = Mesh::localAABB();
+        auto localAABB = Mesh::localAABB();
 
         const vec3 c = (localAABB.min + localAABB.max) / 2.0f; // local center
         const vec3 e = (localAABB.max - localAABB.min) / 2.0f; // local half extents
@@ -223,12 +223,12 @@ void Mesh::genLocalAABB() {
 
     static const float maxFloat = math::f32_max();
     static const float minFloat = math::f32_lowest();
-    AABB               aabb     = {{maxFloat, maxFloat, maxFloat}, {minFloat, minFloat, minFloat}};
+    AABB               aabb = {{maxFloat, maxFloat, maxFloat}, {minFloat, minFloat, minFloat}};
 
     for (const auto& element : _elements) {
         auto elementAABB = element->localAABB();
-        aabb.min         = min(aabb.min, elementAABB.min);
-        aabb.max         = max(aabb.max, elementAABB.max);
+        aabb.min = min(aabb.min, elementAABB.min);
+        aabb.max = max(aabb.max, elementAABB.max);
     }
 
     _localAABB = aabb;

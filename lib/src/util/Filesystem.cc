@@ -118,7 +118,7 @@ vector<std::filesystem::path> a3d::util::filesystem::BaseSearchPaths() {
     static optional<std::filesystem::path> execDir {};
     static optional<string>                execName = {};
 
-    static bool                            initd = false;
+    static bool initd = false;
     if (!initd) {
         basePaths = vector<std::filesystem::path>();
 

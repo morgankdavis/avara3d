@@ -79,23 +79,23 @@ void App::didShutdown() {}
 
 void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
 
-    auto& scene        = runner.scene();
+    auto& scene = runner.scene();
     auto& inputContext = *scene.inputContext();
 
-    auto  window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
+    auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 
     // get input
 
-    auto  im = static_cast<DesktopInputContext*>(&inputContext);
+    auto im = static_cast<DesktopInputContext*>(&inputContext);
 
-    using Key         = DesktopInputContext::Key;
+    using Key = DesktopInputContext::Key;
     using MouseButton = DesktopInputContext::MouseButton;
 
-    auto keysDown              = im->keysDown();
-    auto keysPressed           = im->keysPressed();
-    auto mouseButtonsDown      = im->mouseButtonsDown();
+    auto keysDown = im->keysDown();
+    auto keysPressed = im->keysPressed();
+    auto mouseButtonsDown = im->mouseButtonsDown();
     auto mouseScrollWheelDelta = im->mouseScrollWheelDelta();
-    auto mousePositionDelta    = im->mousePositionDelta();
+    auto mousePositionDelta = im->mousePositionDelta();
 
     for (auto k : keysDown) {
         cout << "Key: " << static_cast<underlying_type<Key>::type>(k) << endl;
@@ -124,21 +124,21 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
 
         // look
 
-        vec3               camForward = pov->worldForward();
-        vec3               camRight   = pov->worldRight();
-        vec3               camUp      = pov->worldUp();
+        vec3 camForward = pov->worldForward();
+        vec3 camRight = pov->worldRight();
+        vec3 camUp = pov->worldUp();
 
         // tanA = y/x
         // tanA = mouseDelta / distance
         // A = atan(mouseDelta / distance)
 
         static const float MOUSE_SPEED_SCALAR = .002;
-        static const float MOUSE_SPEED        = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
+        static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
 
-        float              deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
-        float              deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
+        float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
+        float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
 
-        vec3               angles = pov->eulerAngles();
+        vec3 angles = pov->eulerAngles();
         pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
 
         // move

@@ -28,7 +28,7 @@ void Timer::start() {
 }
 
 chrono::nanoseconds Timer::stop() {
-    _stop     = chrono::steady_clock::now();
+    _stop = chrono::steady_clock::now();
     _duration = chrono::duration_cast<chrono::nanoseconds>(_stop - _start);
     return _duration;
 }

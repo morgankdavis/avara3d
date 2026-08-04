@@ -49,11 +49,11 @@ std::unique_ptr<Scene> App::init() {
         visualWorld->fogColor(Color::LightGray());
         visualWorld->background(make_shared<Texture>(util::filesystem::CubeImageNamed("sky1", "png")));
 
-        auto scene        = make_unique<Scene>(std::move(visualWorld), nullptr, Window::InputContext());
+        auto scene = make_unique<Scene>(std::move(visualWorld), nullptr, Window::InputContext());
         auto debugOptions = Scene::DebugOptions::ShowStatsOverlay | Scene::DebugOptions::ShowBoundingBoxes;
         scene->debugOptions(debugOptions);
 
-        auto ambientLight     = make_shared<AmbientLight>(Color::Gray());
+        auto ambientLight = make_shared<AmbientLight>(Color::Gray());
         auto ambientLightNode = make_shared<Node>("Ambient light");
         ambientLightNode->light(ambientLight);
         scene->rootNode()->addChild(ambientLightNode);
@@ -66,7 +66,7 @@ std::unique_ptr<Scene> App::init() {
         pointLightNode->position({100.0, 20.0, 20.0});
 
         auto materialProperty = pointLight->color();
-        auto material         = make_shared<Material>();
+        auto material = make_shared<Material>();
         material->name("LIGHT material");
         material->emission(materialProperty);
         auto mesh = shared_ptr(Sphere::Mesh(3.5, 4, material));
@@ -107,18 +107,18 @@ void App::didShutdown() {}
 
 void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
 
-    auto& scene        = runner.scene();
+    auto& scene = runner.scene();
     auto& inputContext = *scene.inputContext();
 
-    auto  window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
+    auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 
     // get input
 
-    auto  im = static_cast<DesktopInputContext*>(&inputContext);
+    auto im = static_cast<DesktopInputContext*>(&inputContext);
 
-    auto  keysPressed        = im->keysPressed();
-    auto  keysDown           = im->keysDown();
-    auto  mousePositionDelta = im->mousePositionDelta();
+    auto keysPressed = im->keysPressed();
+    auto keysDown = im->keysDown();
+    auto mousePositionDelta = im->mousePositionDelta();
 
     using Key = DesktopInputContext::Key;
 
@@ -183,17 +183,17 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
 
             // look
 
-            vec3               camForward = pov->worldForward();
-            vec3               camRight   = pov->worldRight();
-            vec3               camUp      = pov->worldUp();
+            vec3 camForward = pov->worldForward();
+            vec3 camRight = pov->worldRight();
+            vec3 camUp = pov->worldUp();
 
             static const float MOUSE_SPEED_SCALAR = .002;
-            static const float MOUSE_SPEED        = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
+            static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
 
-            float              deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
-            float              deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
+            float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
+            float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
 
-            vec3               angles = pov->eulerAngles();
+            vec3 angles = pov->eulerAngles();
             pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
 
             // move

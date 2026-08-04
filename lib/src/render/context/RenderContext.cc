@@ -55,15 +55,15 @@ void RenderContext::startGIFRecording(const filesystem::path& path, uvec2 fitIns
     if (!_recordingGIF) {
         log::i()("Starting GIF recording...");
 
-        _gifRecordingMaxFramerate          = maxFramerate;
+        _gifRecordingMaxFramerate = maxFramerate;
         _gifRecordingCurrentFrameTimeAccum = 0;
-        _gifRecordedTime                   = 0;
-        _gifRecordedFrames                 = 0;
+        _gifRecordedTime = 0;
+        _gifRecordedFrames = 0;
 
         // nice! https://math.stackexchange.com/questions/1169409/formula-to-best-fit-a-rectangle-inside-another-by-scaling
         auto fbSize = framebufferSize();
-        auto scale  = std::min(float(fitInside.x) / float(fbSize.x), float(fitInside.y) / float(fbSize.y));
-        _gifRecordingWidth  = (unsigned) math::round(float(fbSize.x) * scale);
+        auto scale = std::min(float(fitInside.x) / float(fbSize.x), float(fitInside.y) / float(fbSize.y));
+        _gifRecordingWidth = (unsigned) math::round(float(fbSize.x) * scale);
         _gifRecordingHeight = (unsigned) math::round(float(fbSize.y) * scale);
 
         unsigned frameTimeMS = 1000 /* (ms/sec) */ / _gifRecordingMaxFramerate /* (frames/sec) */;
@@ -154,7 +154,7 @@ void RenderContext::pollEvents() {}
 
 void RenderContext::saveGIFFrame(double updateDeltaTime) {
 
-    _gifRecordedTime                   += updateDeltaTime;
+    _gifRecordedTime += updateDeltaTime;
     _gifRecordingCurrentFrameTimeAccum += updateDeltaTime;
 
     float frameTimeMS = 1000.0f /* (ms/sec) */ / (float) _gifRecordingMaxFramerate /* (frames/sec) */;
@@ -181,7 +181,7 @@ void RenderContext::saveGIFFrame(double updateDeltaTime) {
 vec2 RenderContext::viewportScale() const {
     // see note in GLFWWindow::viewportLogicalSize().
     // on Windows and X11, DPI/glfwGetWindowContentScale() is mostly a "UI" scaling hint.
-    uvec2 fbSize        = framebufferSize();
+    uvec2 fbSize = framebufferSize();
     uvec2 vpLogicalSize = viewportLogicalSize();
     return vec2(float(fbSize.x) / float(vpLogicalSize.x), float(fbSize.y) / float(vpLogicalSize.y));
 }

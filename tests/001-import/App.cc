@@ -49,19 +49,19 @@ std::unique_ptr<Scene> App::init() {
         auto visualWorld = make_unique<VisualWorld>(*_window);
         //	visualWorld->autoEnablesDefaultLighting(false);
         auto backgroundColor = make_shared<Color>(u8vec3 {109, 136, 164});
-        auto background      = Material::Property(backgroundColor);
+        auto background = Material::Property(backgroundColor);
         visualWorld->background(background); // TODO: is this copying?
 
         auto scene = make_unique<Scene>();
         scene->visualWorld(std::move(visualWorld));
         scene->inputContext(Window::InputContext());
 
-        auto options        = Scene::ImportOptions::ImportMeshes | Scene::ImportOptions::ImportMaterials;
-        auto testScene      = util::filesystem::SceneNamed("import_test/import_test", options);
+        auto options = Scene::ImportOptions::ImportMeshes | Scene::ImportOptions::ImportMaterials;
+        auto testScene = util::filesystem::SceneNamed("import_test/import_test", options);
         auto testSceneNodes = testScene->rootNode()->children();
         auto importLightsCamerasRoot = make_shared<Node>("importLightsCamerasRoot");
-        auto importMeshRoot          = make_shared<Node>("importMeshRoot");
-        _importMeshRoot              = importMeshRoot.get();
+        auto importMeshRoot = make_shared<Node>("importMeshRoot");
+        _importMeshRoot = importMeshRoot.get();
 
         for (auto& node : testSceneNodes) {
 

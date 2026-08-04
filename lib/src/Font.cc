@@ -54,8 +54,8 @@ Font& Font::operator=(const Font& other) {
 
     auto buffer = other._buffer ? make_unique<Buffer>(*other._buffer) : nullptr;
 
-    _name   = other._name;
-    _type   = other._type;
+    _name = other._name;
+    _type = other._type;
     _buffer = std::move(buffer);
 
     return *this;

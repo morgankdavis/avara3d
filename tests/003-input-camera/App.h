@@ -31,10 +31,10 @@ namespace test::inputcamera {
         App(int argc, char* argv[]);
         ~App() override;
 
-        App(const App&)            = delete;
+        App(const App&) = delete;
         App& operator=(const App&) = delete;
 
-        App(App&&)            = delete;
+        App(App&&) = delete;
         App& operator=(App&&) = delete;
 
     protected:

@@ -40,13 +40,13 @@ Sampler& Sampler::operator=(const Sampler& other) {
         return *this;
     }
 
-    _minificationFilter  = other._minificationFilter;
+    _minificationFilter = other._minificationFilter;
     _magnificationFilter = other._magnificationFilter;
-    _maxAnisotropy       = other._maxAnisotropy;
-    _wrapS               = other._wrapS;
-    _wrapT               = other._wrapT;
-    _wrapR               = other._wrapR;
-    _dirtyMask           = DirtyMask::All;
+    _maxAnisotropy = other._maxAnisotropy;
+    _wrapS = other._wrapS;
+    _wrapT = other._wrapT;
+    _wrapR = other._wrapR;
+    _dirtyMask = DirtyMask::All;
 
     return *this;
 }
@@ -63,13 +63,13 @@ Sampler& Sampler::operator=(Sampler&& other) {
         return *this;
     }
 
-    _minificationFilter  = other._minificationFilter;
+    _minificationFilter = other._minificationFilter;
     _magnificationFilter = other._magnificationFilter;
-    _maxAnisotropy       = other._maxAnisotropy;
-    _wrapS               = other._wrapS;
-    _wrapT               = other._wrapT;
-    _wrapR               = other._wrapR;
-    _dirtyMask           = DirtyMask::All;
+    _maxAnisotropy = other._maxAnisotropy;
+    _wrapS = other._wrapS;
+    _wrapT = other._wrapT;
+    _wrapR = other._wrapR;
+    _dirtyMask = DirtyMask::All;
 
     return *this;
 }

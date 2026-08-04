@@ -49,9 +49,9 @@ std::unique_ptr<Scene> App::init() {
 
         auto physicsWorld = make_unique<PhysicsWorld>();
 
-        auto mapPath     = util::filesystem::AuxiliaryFilePath("Icebox", "alf");
+        auto mapPath = util::filesystem::AuxiliaryFilePath("Icebox", "alf");
         auto alfImporter = ext::ALFImporter(*mapPath);
-        auto scene       = alfImporter.scene(*visualWorld);
+        auto scene = alfImporter.scene(*visualWorld);
 
 //		else background = make_shared<Texture>(util::filesystem::CubeImageNamed("kloppenheim", "png"));
 //		visualWorld->background(background);
@@ -87,8 +87,8 @@ void App::didShutdown() {}
 
 void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
 
-    auto&   scene        = runner.scene();
-    auto&   inputContext = *scene.inputContext();
+    auto& scene = runner.scene();
+    auto& inputContext = *scene.inputContext();
 
     Window* window = nullptr;
     if (scene.visualWorld()) {
@@ -99,12 +99,12 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
 
     auto im = static_cast<DesktopInputContext*>(&inputContext);
 
-    auto mouseButtonsDown   = im->mouseButtonsDown();
-    auto keysDown           = im->keysDown();
-    auto keysPressed        = im->keysPressed();
+    auto mouseButtonsDown = im->mouseButtonsDown();
+    auto keysDown = im->keysDown();
+    auto keysPressed = im->keysPressed();
     auto mousePositionDelta = im->mousePositionDelta();
 
-    using Key         = DesktopInputContext::Key;
+    using Key = DesktopInputContext::Key;
     using MouseButton = DesktopInputContext::MouseButton;
 
     if (keysPressed.count(Key::Escape)) {
@@ -249,17 +249,17 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
 
             // look
 
-            vec3               camForward = pov->worldForward();
-            vec3               camRight   = pov->worldRight();
-            vec3               camUp      = pov->worldUp();
+            vec3 camForward = pov->worldForward();
+            vec3 camRight = pov->worldRight();
+            vec3 camUp = pov->worldUp();
 
             static const float MOUSE_SPEED_SCALAR = .002;
-            static const float MOUSE_SPEED        = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
+            static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
 
-            float              deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
-            float              deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
+            float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
+            float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
 
-            vec3               angles = pov->eulerAngles();
+            vec3 angles = pov->eulerAngles();
             pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
 
             // move

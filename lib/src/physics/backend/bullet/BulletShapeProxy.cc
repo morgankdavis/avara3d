@@ -101,7 +101,7 @@ BulletShapeProxy::BulletShapeProxy(PhysicsShape& shape):
     auto bodyType = (*shape.bodies().begin())->type();
 
     auto btIndexVertexArrays = vector<unique_ptr<btTriangleIndexVertexArray>>();
-    auto btShapes            = vector<unique_ptr<btCollisionShape>>();
+    auto btShapes = vector<unique_ptr<btCollisionShape>>();
 
     auto sourceObject = shape.source();
 
@@ -215,7 +215,7 @@ static unique_ptr<btCollisionShape> BTShapeFromSourceNode(Node&                 
     // btBvhTriangleMeshShape, btGImpact*Shape, btStaticPlaneShape and a bunch more."
     // https://pybullet.org/Bullet/phpBB3/viewtopic.php?p=17718#p17718
 
-    auto  rootShape = make_unique<btCompoundShape>(true); // added to btShapes by caller
+    auto rootShape = make_unique<btCompoundShape>(true); // added to btShapes by caller
 
     // add the root mesh
     auto& mesh = node.mesh();
@@ -405,7 +405,7 @@ unique_ptr<btConvexHullShape> BTConvexHullShapeFromMeshElement(MeshElement& elem
 
     const auto     vb = element.vertexBytes();
     const uint16_t st = element.vertexStride();
-    const uint32_t n  = element.vertexCount();
+    const uint32_t n = element.vertexCount();
     if (n == 0) {
         return make_unique<btConvexHullShape>(); // empty
     }
@@ -413,10 +413,10 @@ unique_ptr<btConvexHullShape> BTConvexHullShapeFromMeshElement(MeshElement& elem
     const VertexAttribDesc* posA = VertexAccess::GetPositionAttribF32x3(element.vertexLayout());
 
     // https://pybullet.org/Bullet/BulletFull/classbtConvexHullShape.html#a069cf26ba277f9f5f141128fee345eaf
-    btConvexHullShape       originalShape {};
+    btConvexHullShape originalShape {};
     for (uint32_t i = 0; i < n; ++i) {
         const std::byte* base = vb.data() + size_t(i) * size_t(st);
-        const vec3       p    = VertexAccess::ReadVec3(base, posA->offset);
+        const vec3       p = VertexAccess::ReadVec3(base, posA->offset);
         originalShape.addPoint(BTVector3FromA3DVec3(p), false);
     }
     originalShape.recalcLocalAabb();
@@ -461,7 +461,7 @@ unique_ptr<btGImpactMeshShape> BTGImpactMeshShapeFromMeshElement(MeshElement&   
     // requires indexed triangles
     A3D_ASSERT(element.topology() == PrimitiveTopology::Triangles);
 
-    const IndexFormat ifmt   = element.indexFormat();
+    const IndexFormat ifmt = element.indexFormat();
     const uint32_t    icount = element.indexCount(); // number of indices (not triangles!)
 
     if (ifmt == IndexFormat::None || icount == 0) {
@@ -473,9 +473,9 @@ unique_ptr<btGImpactMeshShape> BTGImpactMeshShapeFromMeshElement(MeshElement&   
     A3D_ASSERT(indexStride == 2 || indexStride == 4);
     A3D_ASSERT((icount % 3u) == 0u);
 
-    const auto              vb = element.vertexBytes();
-    const auto              ib = element.indexBytes();
-    const uint16_t          st = element.vertexStride();
+    const auto     vb = element.vertexBytes();
+    const auto     ib = element.indexBytes();
+    const uint16_t st = element.vertexStride();
 
     const VertexAttribDesc* posA = VertexAccess::GetPositionAttribF32x3(element.vertexLayout());
     A3D_ASSERT(posA);
@@ -491,15 +491,15 @@ unique_ptr<btGImpactMeshShape> BTGImpactMeshShapeFromMeshElement(MeshElement&   
                                                ? PHY_INTEGER
                                                : PHY_INTEGER; // shouldn't happen due to checks above
 
-    btIndexedMesh        indexedMesh {};
-    indexedMesh.m_numTriangles        = static_cast<int>(triCount);
-    indexedMesh.m_triangleIndexBase   = reinterpret_cast<const unsigned char*>(ib.data());
+    btIndexedMesh indexedMesh {};
+    indexedMesh.m_numTriangles = static_cast<int>(triCount);
+    indexedMesh.m_triangleIndexBase = reinterpret_cast<const unsigned char*>(ib.data());
     indexedMesh.m_triangleIndexStride = static_cast<int>(3u * uint32_t(indexStride));
 
-    indexedMesh.m_numVertices  = static_cast<int>(vcount);
-    indexedMesh.m_vertexBase   = reinterpret_cast<const unsigned char*>(vb.data() + posA->offset);
+    indexedMesh.m_numVertices = static_cast<int>(vcount);
+    indexedMesh.m_vertexBase = reinterpret_cast<const unsigned char*>(vb.data() + posA->offset);
     indexedMesh.m_vertexStride = static_cast<int>(st);
-    indexedMesh.m_vertexType   = PHY_FLOAT;
+    indexedMesh.m_vertexType = PHY_FLOAT;
 
     indexVertexArray.addIndexedMesh(indexedMesh, bulletIndexType);
 
@@ -525,7 +525,7 @@ unique_ptr<btBvhTriangleMeshShape> BTBvhTriangleMeshShapeFromMeshElement(MeshEle
     // requires indexed triangles
     A3D_ASSERT(element.topology() == PrimitiveTopology::Triangles);
 
-    const IndexFormat ifmt   = element.indexFormat();
+    const IndexFormat ifmt = element.indexFormat();
     const uint32_t    icount = element.indexCount(); // number of indices (NOT triangles)
 
     if (ifmt == IndexFormat::None || icount == 0) {
@@ -537,9 +537,9 @@ unique_ptr<btBvhTriangleMeshShape> BTBvhTriangleMeshShapeFromMeshElement(MeshEle
     A3D_ASSERT(indexStride == 2 || indexStride == 4);
     A3D_ASSERT((icount % 3u) == 0u);
 
-    const auto              vb = element.vertexBytes();
-    const auto              ib = element.indexBytes();
-    const uint16_t          st = element.vertexStride();
+    const auto     vb = element.vertexBytes();
+    const auto     ib = element.indexBytes();
+    const uint16_t st = element.vertexStride();
 
     const VertexAttribDesc* posA = VertexAccess::GetPositionAttribF32x3(element.vertexLayout());
     A3D_ASSERT(posA);
@@ -555,14 +555,14 @@ unique_ptr<btBvhTriangleMeshShape> BTBvhTriangleMeshShapeFromMeshElement(MeshEle
                                                ? PHY_INTEGER
                                                : PHY_INTEGER; // shouldn't happen due to checks above
 
-    btIndexedMesh        indexedMesh {};
-    indexedMesh.m_numTriangles        = static_cast<int>(triCount);
-    indexedMesh.m_triangleIndexBase   = reinterpret_cast<const unsigned char*>(ib.data());
+    btIndexedMesh indexedMesh {};
+    indexedMesh.m_numTriangles = static_cast<int>(triCount);
+    indexedMesh.m_triangleIndexBase = reinterpret_cast<const unsigned char*>(ib.data());
     indexedMesh.m_triangleIndexStride = static_cast<int>(3u * uint32_t(indexStride));
-    indexedMesh.m_numVertices         = static_cast<int>(vcount);
-    indexedMesh.m_vertexBase          = reinterpret_cast<const unsigned char*>(vb.data() + posA->offset);
-    indexedMesh.m_vertexStride        = static_cast<int>(st);
-    indexedMesh.m_vertexType          = PHY_FLOAT;
+    indexedMesh.m_numVertices = static_cast<int>(vcount);
+    indexedMesh.m_vertexBase = reinterpret_cast<const unsigned char*>(vb.data() + posA->offset);
+    indexedMesh.m_vertexStride = static_cast<int>(st);
+    indexedMesh.m_vertexType = PHY_FLOAT;
 
     indexVertexArray.addIndexedMesh(indexedMesh, bulletIndexType);
 
@@ -591,9 +591,9 @@ vector<unique_ptr<MeshElement>> HACDMeshElementsFromMeshElement(MeshElement& ele
     log::i()("Creating HACD MeshElement for MeshElement {:p}...", static_cast<void*>(&element));
 
     ConvexDecomposer::Options options;
-    options.maxConvexHulls        = options.maxConvexHulls / 8;
-    options.resolution            = options.resolution / 8;
-    options.maxRecursionDepth     = options.maxRecursionDepth / 4;
+    options.maxConvexHulls = options.maxConvexHulls / 8;
+    options.resolution = options.resolution / 8;
+    options.maxRecursionDepth = options.maxRecursionDepth / 4;
     options.maxNumVerticesPerHull = options.maxNumVerticesPerHull / 2;
 
     auto decomposer = ConvexDecomposer(element, options);

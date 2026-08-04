@@ -79,7 +79,7 @@ PipelineId OGLResourceCache::ensurePipeline(const PipelineDesc& desc, gl::uint_t
         return it->second;
     }
 
-    OGLPipeline      pipeline = BuildPipeline(desc, program);
+    OGLPipeline pipeline = BuildPipeline(desc, program);
 
     const PipelineId pipelineId = static_cast<PipelineId>(_pipelineList.size());
 
@@ -96,15 +96,15 @@ const OGLPipeline& OGLResourceCache::pipeline(PipelineId pipelineId) const {
 const OGLMeshElement& OGLResourceCache::ensureMeshElement(MeshElement& element) {
 
     // find/create cache entry
-    auto [it, inserted]    = _meshElementMap.try_emplace(&element, OGLMeshElement {});
-    auto&              res = it->second;
+    auto [it, inserted] = _meshElementMap.try_emplace(&element, OGLMeshElement {});
+    auto& res = it->second;
 
     const VertexLayout layout = element.vertexLayout();
 
     const bool vDirty = util::bitmask::contains(element.dirtyMask(), MeshElement::DirtyMask::VertexData);
     const bool iDirty = util::bitmask::contains(element.dirtyMask(), MeshElement::DirtyMask::IndexData);
 
-    const bool missing       = (res.vao == 0);
+    const bool missing = (res.vao == 0);
     const bool layoutChanged = (!missing && res.vertexLayoutKey != layout);
 
     if (!vDirty && !iDirty && !missing && !layoutChanged) {
@@ -132,9 +132,9 @@ const OGLMeshElement& OGLResourceCache::ensureMeshElement(MeshElement& element) 
 
     const VertexLayoutDesc& desc = GetVertexLayoutDesc(layout);
 
-    const auto              vb     = element.vertexBytes();
-    const uint32_t          vcount = element.vertexCount();
-    const uint16_t          stride = element.vertexStride();
+    const auto     vb = element.vertexBytes();
+    const uint32_t vcount = element.vertexCount();
+    const uint16_t stride = element.vertexStride();
 
     A3D_ASSERT(desc.stride == stride);
     A3D_ASSERT(vb.size() == size_t(vcount) * size_t(stride));
@@ -145,8 +145,8 @@ const OGLMeshElement& OGLResourceCache::ensureMeshElement(MeshElement& element) 
     // setup vertex attributes from the descriptor
     for (const auto& a : desc.attribs) {
 
-        GLint      comps           = 0;
-        GLenum     type            = 0;
+        GLint      comps = 0;
+        GLenum     type = 0;
         const bool isIntegerAttrib = false;
 
         GLAttribFor(a.format, comps, type);
@@ -165,7 +165,7 @@ const OGLMeshElement& OGLResourceCache::ensureMeshElement(MeshElement& element) 
     if (!ivOpt) {
         // non-indexed mesh
         res.indexCount = 0;
-        res.indexType  = GL_UNSIGNED_INT;
+        res.indexType = GL_UNSIGNED_INT;
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (GLuint) res.ebo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW);
@@ -182,7 +182,7 @@ const OGLMeshElement& OGLResourceCache::ensureMeshElement(MeshElement& element) 
         A3D_ASSERT(element.indexBytes().size() == size_t(iv.count) * size_t(IndexStride(iv.format)));
 
         res.indexCount = iv.count;
-        res.indexType  = GLIndexTypeForIndexFormat(iv.format);
+        res.indexType = GLIndexTypeForIndexFormat(iv.format);
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (GLuint) res.ebo);
 
@@ -205,7 +205,7 @@ const OGLMaterial& OGLResourceCache::ensureMaterial(Material& material) {
     auto& res = it->second;
 
     res.specularExponent = material.specularExponent();
-    res.uvScale          = material.uvScale();
+    res.uvScale = material.uvScale();
     res.tex.fill(0);
 
     for (auto& [property, type] : material.properties()) {
@@ -230,11 +230,11 @@ const OGLTexture& OGLResourceCache::ensureTexture(Texture& texture) {
         it = _textureMap.emplace(&texture, OGLTexture {}).first;
     }
 
-    unsigned   handle = it->second.id;
+    unsigned handle = it->second.id;
 
     const bool contentsDirty = util::bitmask::contains(texture.dirtyMask(), Texture::DirtyMask::Contents);
     const bool missingOrZero = (handle == 0);
-    const bool forceAll      = contentsDirty || missingOrZero;
+    const bool forceAll = contentsDirty || missingOrZero;
 
     if (forceAll) {
         if (handle != 0) {
@@ -258,7 +258,7 @@ const OGLTexture& OGLResourceCache::ensureTexture(Texture& texture) {
 
     // apply sampler state whenever sampler says it’s dirty, and always after (re)upload
     if (handle != 0) {
-        const auto sampler      = texture.sampler();
+        const auto sampler = texture.sampler();
         const bool samplerDirty = sampler && sampler->dirtyMask() != (Sampler::DirtyMask) 0;
         if (forceAll || samplerDirty) {
             ApplySamplerState(texture, handle, forceAll);
@@ -274,9 +274,9 @@ OGLPipeline BuildPipeline(const PipelineDesc& desc, gl::uint_t program) {
 
     OGLPipeline pipeline;
 
-    pipeline.desc           = desc;
+    pipeline.desc = desc;
     pipeline.desc.depthTest = true;
-    pipeline.program        = program;
+    pipeline.program = program;
 
     return pipeline;
 }
@@ -326,15 +326,15 @@ void GLAttribFor(VertexAttribFormat f, GLint& comps, GLenum& type) {
     switch (f) {
         case VertexAttribFormat::F32x2:
             comps = 2;
-            type  = GL_FLOAT;
+            type = GL_FLOAT;
             break;
         case VertexAttribFormat::F32x3:
             comps = 3;
-            type  = GL_FLOAT;
+            type = GL_FLOAT;
             break;
         case VertexAttribFormat::F32x4:
             comps = 4;
-            type  = GL_FLOAT;
+            type = GL_FLOAT;
             break;
     }
 }
@@ -342,7 +342,7 @@ void GLAttribFor(VertexAttribFormat f, GLint& comps, GLenum& type) {
 unsigned BufferTextureContents(const Texture& texture) {
     unsigned glTextureHandle = 0;
 
-    auto     contents = texture.contents();
+    auto contents = texture.contents();
     std::visit(
         [&](auto&& v) {
             using T = std::decay_t<decltype(v)>;
@@ -405,18 +405,18 @@ void ApplySamplerState(Texture& texture, unsigned glTextureHandle, bool forceAll
     }
 
     const bool   isCubemap = std::holds_alternative<std::shared_ptr<CubeImage>>(texture.contents());
-    const GLenum texType   = isCubemap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D;
+    const GLenum texType = isCubemap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D;
 
     glBindTexture(texType, (GLuint) glTextureHandle);
 
     const auto sm = sampler->dirtyMask();
 
-    auto       doMin = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::MinificationFilter);
-    auto       doMag = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::MagnificationFilter);
-    auto       doWS  = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::WrapS);
-    auto       doWT  = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::WrapT);
-    auto       doWR  = forceAll || (isCubemap && util::bitmask::contains(sm, Sampler::DirtyMask::WrapR));
-    auto       doAn  = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::MaxAnisotropy);
+    auto doMin = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::MinificationFilter);
+    auto doMag = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::MagnificationFilter);
+    auto doWS = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::WrapS);
+    auto doWT = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::WrapT);
+    auto doWR = forceAll || (isCubemap && util::bitmask::contains(sm, Sampler::DirtyMask::WrapR));
+    auto doAn = forceAll || util::bitmask::contains(sm, Sampler::DirtyMask::MaxAnisotropy);
 
     if (doMin) {
         auto mode = sampler->minificationFilter();
@@ -447,7 +447,7 @@ void ApplySamplerState(Texture& texture, unsigned glTextureHandle, bool forceAll
     if (doAn) {
     #if defined(GL_EXT_texture_filter_anisotropic)
         float anisotropy = sampler->maxAnisotropy();
-        float largest    = 0.0f;
+        float largest = 0.0f;
         glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &largest);
         if (largest > 0.0f && anisotropy > largest) {
             anisotropy = largest;

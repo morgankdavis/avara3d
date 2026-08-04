@@ -41,29 +41,29 @@ namespace a3d::qt {
 
         /// Public Member Functions ///
 
-        bool        cursorCaptured() const;
-        void        cursorCaptured(bool captured);
+        bool cursorCaptured() const;
+        void cursorCaptured(bool captured);
 
         /// RenderContext Public Member Functions ///
 
-        bool        vSyncEnabled() const override;
-        void        vSyncEnabled(bool enabled) override;
+        bool vSyncEnabled() const override;
+        void vSyncEnabled(bool enabled) override;
 
         /// RenderContext Internal Member Functions ///
 
-        void        beginFrame(const Scene& scene) override;
-        void        endFrame(const Scene& scene) override;
+        void beginFrame(const Scene& scene) override;
+        void endFrame(const Scene& scene) override;
 
-        void        swapBuffers() override;
+        void swapBuffers() override;
 
         math::uvec2 viewportLogicalSize() const override;
         math::uvec2 framebufferSize() const override;
 
-        unsigned    defaultFramebuffer() const override;
+        unsigned defaultFramebuffer() const override;
 
         /// Internal Member Functions ///
 
-        void        inputContext(QtInputContext* inputContext);
+        void inputContext(QtInputContext* inputContext);
 
     protected:
         /// QWidget Protected Member Functions ///
@@ -82,7 +82,7 @@ namespace a3d::qt {
     private:
         /// Private Member Functions ///
 
-        void                   centerCursor();
+        void centerCursor();
 
         /// Private Member Variables ///
 

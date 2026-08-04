@@ -241,8 +241,8 @@ void Node::transform(const mat4& transform) {
 
     decompose(transform, scale, orientation, translation);
 
-    _position    = translation;
-    _scale       = scale;
+    _position = translation;
+    _scale = scale;
     _orientation = orientation;
 
     _eulerAngles = std::nullopt;
@@ -327,12 +327,12 @@ vec3 Node::convertFrom(const vec3& pos, const Node& from) {
         return pos;
     }
 
-    const mat4 fromWorld   = from.worldTransform(); // from-local -> world
-    const mat4 thisWorld   = this->worldTransform(); // this-local -> world
+    const mat4 fromWorld = from.worldTransform(); // from-local -> world
+    const mat4 thisWorld = this->worldTransform(); // this-local -> world
     const mat4 worldToThis = math::inverse(thisWorld);
 
     const vec4 worldPos = fromWorld * math::vec4 {pos.x, pos.y, pos.z, 1.0f};
-    const vec4 thisPos  = worldToThis * worldPos;
+    const vec4 thisPos = worldToThis * worldPos;
 
     return vec3(thisPos);
 }
@@ -343,11 +343,11 @@ vec3 Node::convertTo(const vec3& pos, const Node& to) {
     }
 
     const mat4 thisWorld = this->worldTransform(); // this-local -> world
-    const mat4 toWorld   = to.worldTransform(); // to-local -> world
+    const mat4 toWorld = to.worldTransform(); // to-local -> world
     const mat4 worldToTo = math::inverse(toWorld);
 
     const vec4 worldPos = thisWorld * vec4 {pos.x, pos.y, pos.z, 1.0f};
-    const vec4 toPos    = worldToTo * worldPos;
+    const vec4 toPos = worldToTo * worldPos;
 
     return vec3(toPos);
 }
@@ -357,8 +357,8 @@ mat4 Node::convertFrom(const mat4& t, const Node& from) {
         return t;
     }
 
-    const mat4 fromWorld   = from.worldTransform(); // from-local -> world
-    const mat4 thisWorld   = this->worldTransform(); // this-local -> world
+    const mat4 fromWorld = from.worldTransform(); // from-local -> world
+    const mat4 thisWorld = this->worldTransform(); // this-local -> world
     const mat4 worldToThis = math::inverse(thisWorld);
 
     // interpret `t` as a transform in `from`'s local space (from-local -> from-local)
@@ -372,7 +372,7 @@ math::mat4 Node::convertTo(const math::mat4& t, const Node& to) {
     }
 
     const mat4 thisWorld = this->worldTransform(); // this-local -> world
-    const mat4 toWorld   = to.worldTransform(); // to-local -> world
+    const mat4 toWorld = to.worldTransform(); // to-local -> world
     const mat4 worldToTo = math::inverse(toWorld);
 
     // interpret `t` as a transform in *this* local space - convert into `to` local space
@@ -430,7 +430,7 @@ void Node::removeFromParent() {
     auto parent = _parent.lock();
     if (parent) {
         auto&      children = parent->_children;
-        const auto removed  = erase_if(children, [this](const shared_ptr<Node>& c) {
+        const auto removed = erase_if(children, [this](const shared_ptr<Node>& c) {
             return c.get() == this;
         });
 
@@ -729,7 +729,7 @@ bool Node::containsChild(const shared_ptr<Node>& node) {
 }
 
 AABB Node::aabb(bool vertfit) const {
-    AABB       out = AABB::Invalid();
+    AABB out = AABB::Invalid();
 
     const mat4 W = worldTransform();
 
@@ -780,12 +780,12 @@ void Node::getAABBRec(AABB& aabb) {
 
     if (_mesh) {
         auto geoAABB = _mesh->localAABB();
-        aabb.min.x   = math::min(aabb.min.x, geoAABB.min.x);
-        aabb.max.x   = math::max(aabb.max.x, geoAABB.max.x);
-        aabb.min.y   = math::min(aabb.min.y, geoAABB.min.y);
-        aabb.max.y   = math::max(aabb.max.y, geoAABB.max.y);
-        aabb.min.z   = math::min(aabb.min.z, geoAABB.min.z);
-        aabb.max.z   = math::max(aabb.max.z, geoAABB.max.z);
+        aabb.min.x = math::min(aabb.min.x, geoAABB.min.x);
+        aabb.max.x = math::max(aabb.max.x, geoAABB.max.x);
+        aabb.min.y = math::min(aabb.min.y, geoAABB.min.y);
+        aabb.max.y = math::max(aabb.max.y, geoAABB.max.y);
+        aabb.min.z = math::min(aabb.min.z, geoAABB.min.z);
+        aabb.max.z = math::max(aabb.max.z, geoAABB.max.z);
     }
 
     for (auto& child : _children) {

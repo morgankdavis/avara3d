@@ -83,27 +83,27 @@ BinPackArguments: true
 AllowAllArgumentsOnNextLine: false
 PenaltyBreakBeforeFirstCallParameter: 1000
 
-AlignConsecutiveDeclarations:
-  Enabled: true
-  AcrossEmptyLines: true
-  AcrossComments: true
-  AlignFunctionDeclarations: true
-  AlignFunctionPointers: true
 #AlignConsecutiveDeclarations:
 #  Enabled: true
-#  AcrossEmptyLines: false
-#  AcrossComments: false
+#  AcrossEmptyLines: true
+#  AcrossComments: true
 #  AlignFunctionDeclarations: true
 #  AlignFunctionPointers: true
-#AlignConsecutiveDeclarations: None
-
-AlignConsecutiveAssignments:
+AlignConsecutiveDeclarations:
   Enabled: true
   AcrossEmptyLines: false
   AcrossComments: false
-  AlignCompound: true
-  PadOperators: false
-#AlignConsecutiveAssignments: None
+  AlignFunctionDeclarations: true
+  AlignFunctionPointers: true
+#AlignConsecutiveDeclarations: None
+
+#AlignConsecutiveAssignments:
+#  Enabled: true
+#  AcrossEmptyLines: false
+#  AcrossComments: false
+#  AlignCompound: true
+#  PadOperators: false
+AlignConsecutiveAssignments: None
 
 AlignConsecutiveMacros:
   Enabled: true

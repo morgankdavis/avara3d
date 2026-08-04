@@ -127,11 +127,11 @@ void Viewport::vSyncEnabled(bool enabled) {
 
 /// RenderContext Internal Member Functions ///
 
-void  Viewport::beginFrame(const a3d::Scene& scene) {}
+void Viewport::beginFrame(const a3d::Scene& scene) {}
 
-void  Viewport::endFrame(const a3d::Scene& scene) {}
+void Viewport::endFrame(const a3d::Scene& scene) {}
 
-void  Viewport::swapBuffers() {}
+void Viewport::swapBuffers() {}
 
 uvec2 Viewport::viewportLogicalSize() const {
     // see notes in GLFWWindow::viewportLogicalSize() and RenderContext::viewportScale()
@@ -156,20 +156,20 @@ bool Viewport::event(QEvent* e) {
 
         ImGuiIO& io = ImGui::GetIO();
 
-        auto     type = e->type();
+        auto type = e->type();
         switch (type) {
             case QEvent::MouseMove: {
                 if (!_cursorCaptured) {
                     auto*         ev = static_cast<QMouseEvent*>(e);
-                    const QPointF p  = ev->position();
-                    io.MousePos      = ImVec2(float(p.x()), float(p.y()));
+                    const QPointF p = ev->position();
+                    io.MousePos = ImVec2(float(p.x()), float(p.y()));
                 }
                 break;
             }
             case QEvent::MouseButtonPress:
             case QEvent::MouseButtonRelease: {
-                auto*      ev          = static_cast<QMouseEvent*>(e);
-                const bool down        = (e->type() == QEvent::MouseButtonPress);
+                auto*      ev = static_cast<QMouseEvent*>(e);
+                const bool down = (e->type() == QEvent::MouseButtonPress);
                 int        buttonIndex = 0;
                 switch (ev->button()) {
                     case Qt::LeftButton:
@@ -198,7 +198,7 @@ bool Viewport::event(QEvent* e) {
                 break;
             }
             case QEvent::Wheel: {
-                auto*        ev         = static_cast<QWheelEvent*>(e);
+                auto*        ev = static_cast<QWheelEvent*>(e);
                 const QPoint numDegrees = ev->angleDelta() / 8;
                 if (_cursorCaptured && _inputContext) {
                     _inputContext->mouseWheelScrolled(numDegrees.x(), numDegrees.y());
@@ -227,7 +227,7 @@ void Viewport::keyPressEvent(QKeyEvent* e) {
 
     if (_renderer->isInitialized()) {
 
-        int key  = e->key();
+        int key = e->key();
         int mods = e->modifiers();
 
         if (!ImGui::GetIO().WantCaptureKeyboard && _inputContext) {
@@ -235,7 +235,7 @@ void Viewport::keyPressEvent(QKeyEvent* e) {
         }
         else if (!_cursorCaptured) {
 
-            ImGuiIO&      io   = ImGui::GetIO();
+            ImGuiIO&      io = ImGui::GetIO();
             const QString text = e->text();
 
             if (!text.isEmpty()) {
@@ -260,7 +260,7 @@ void Viewport::keyReleaseEvent(QKeyEvent* e) {
 
     if (_renderer->isInitialized()) {
 
-        int key  = e->key();
+        int key = e->key();
         int mods = e->modifiers();
 
         if (!ImGui::GetIO().WantCaptureKeyboard && _inputContext) {
@@ -296,7 +296,7 @@ void Viewport::mouseMoveEvent(QMouseEvent* e) {
             QPointF center(width() / 2.0, height() / 2.0);
 
             if (_warpingCursor) {
-                _warpingCursor              = false;
+                _warpingCursor = false;
                 _lastCapturedCursorPosition = center;
                 return;
             }

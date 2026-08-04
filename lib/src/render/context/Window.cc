@@ -35,14 +35,14 @@ using namespace std;
 
 /// Private Static Non-Member Prototypes ///
 
-static bool                     InitGLFW();
-static void                     GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height);
-static void                     GLFWWindowCloseCallback(GLFWwindow* glfwWindow);
-static void                     GLFWFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height);
-static void                     GLFWContentScaleCallback(GLFWwindow* glfwWindow, float xScale, float yScale);
-static void                     GLFWErrorCallback(int error, const char* description);
-static bool                     GetGLFWWindowMonitor(GLFWmonitor** monitor, GLFWwindow* window);
-static bool                     GetGLFWMouseMonitor(GLFWmonitor** monitor, GLFWwindow* window);
+static bool InitGLFW();
+static void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height);
+static void GLFWWindowCloseCallback(GLFWwindow* glfwWindow);
+static void GLFWFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height);
+static void GLFWContentScaleCallback(GLFWwindow* glfwWindow, float xScale, float yScale);
+static void GLFWErrorCallback(int error, const char* description);
+static bool GetGLFWWindowMonitor(GLFWmonitor** monitor, GLFWwindow* window);
+static bool GetGLFWMouseMonitor(GLFWmonitor** monitor, GLFWwindow* window);
 
 /// Public Static Member Functions ///
 
@@ -113,7 +113,7 @@ Window::Window(RenderingApi     renderingAPI,
 
         if (fullScreen) {
             GLFWmonitor*       monitor = glfwGetPrimaryMonitor();
-            const GLFWvidmode* vmode   = glfwGetVideoMode(monitor);
+            const GLFWvidmode* vmode = glfwGetVideoMode(monitor);
             _glfwWindow =
                 unique_ptr<GLFWwindow, DestroyGLFWWindow>(glfwCreateWindow(vmode->width, vmode->height,
                                                                            title.c_str(), monitor, nullptr));
@@ -434,7 +434,7 @@ void Window::inputContext(DesktopInputContext* inputContext) {
     }
 
     auto previousInputContext = dynamic_cast<GLFWInputContext*>(_inputContext);
-    _inputContext             = inputContext;
+    _inputContext = inputContext;
 
     if (previousInputContext) {
         previousInputContext->detachedFromWindow(*this);
@@ -475,8 +475,8 @@ void Window::GLFWCursorPositionCallback(GLFWwindow* glfwWindow, double xPos, dou
     static double lastXPos = xPos;
     static double lastYPos = yPos;
 
-    auto          window       = WindowFromGLFWwindow(glfwWindow);
-    auto          inputContext = static_cast<GLFWInputContext*>(window->_inputContext);
+    auto window = WindowFromGLFWwindow(glfwWindow);
+    auto inputContext = static_cast<GLFWInputContext*>(window->_inputContext);
 
     if (window->cursorCaptured() && inputContext) {
         inputContext->glfwMouseDeltaEvent(-(lastXPos - xPos), (lastYPos - yPos));
@@ -494,7 +494,7 @@ void Window::GLFWCursorPositionCallback(GLFWwindow* glfwWindow, double xPos, dou
 
 void Window::GLFWMouseButtonCallback(GLFWwindow* glfwWindow, int button, int action, int mods) {
 
-    auto window       = WindowFromGLFWwindow(glfwWindow);
+    auto window = WindowFromGLFWwindow(glfwWindow);
     auto inputContext = static_cast<GLFWInputContext*>(window->_inputContext);
 
     if (window->cursorCaptured() && inputContext) {
@@ -510,7 +510,7 @@ void Window::GLFWMouseButtonCallback(GLFWwindow* glfwWindow, int button, int act
 
 void Window::GLFWScrollWheelCallback(GLFWwindow* glfwWindow, double xOffset, double yOffset) {
 
-    auto window       = WindowFromGLFWwindow(glfwWindow);
+    auto window = WindowFromGLFWwindow(glfwWindow);
     auto inputContext = static_cast<GLFWInputContext*>(window->_inputContext);
 
     if (window->cursorCaptured() && inputContext) {
@@ -526,7 +526,7 @@ void Window::GLFWScrollWheelCallback(GLFWwindow* glfwWindow, double xOffset, dou
 
 void Window::GLFWKeyCallback(GLFWwindow* glfwWindow, int key, int scanCode, int action, int mods) {
 
-    auto window       = WindowFromGLFWwindow(glfwWindow);
+    auto window = WindowFromGLFWwindow(glfwWindow);
     auto inputContext = static_cast<GLFWInputContext*>(window->_inputContext);
 
     if (!ImGui::GetIO().WantCaptureKeyboard && inputContext) {
@@ -614,15 +614,15 @@ bool GetGLFWWindowMonitor(GLFWmonitor** monitor, GLFWwindow* window) {
 
     bool success = false;
 
-    int  windowRect[4] = {0};
+    int windowRect[4] = {0};
     glfwGetWindowPos(window, &windowRect[0], &windowRect[1]);
     glfwGetWindowSize(window, &windowRect[2], &windowRect[3]);
 
     int           monitorsSize = 0;
-    GLFWmonitor** monitors     = glfwGetMonitors(&monitorsSize);
+    GLFWmonitor** monitors = glfwGetMonitors(&monitorsSize);
 
-    GLFWmonitor*  closestMonitor = NULL;
-    int           maxOverlapArea = 0;
+    GLFWmonitor* closestMonitor = NULL;
+    int          maxOverlapArea = 0;
 
     for (int i = 0; i < monitorsSize; ++i) {
 
@@ -632,7 +632,7 @@ bool GetGLFWWindowMonitor(GLFWmonitor** monitor, GLFWwindow* window) {
         const GLFWvidmode* monitorVideoMode = glfwGetVideoMode(monitors[i]);
 
         // https://github.com/glfw/glfw/issues/1699#issuecomment-1892387147
-        int                monitorRect[4] = {
+        int monitorRect[4] = {
             monitorPos[0],
             monitorPos[1],
             monitorVideoMode->width,
@@ -702,7 +702,7 @@ bool GetGLFWWindowMonitor(GLFWmonitor** monitor, GLFWwindow* window) {
 
     if (closestMonitor) {
         *monitor = closestMonitor;
-        success  = true;
+        success = true;
     }
 
     // true: monitor contains the monitor the window is most on
@@ -713,7 +713,7 @@ bool GetGLFWWindowMonitor(GLFWmonitor** monitor, GLFWwindow* window) {
 bool GetGLFWMouseMonitor(GLFWmonitor** monitor, GLFWwindow* window) {
     // https://github.com/glfw/glfw/issues/1699#issuecomment-723692566
 
-    bool   success = false;
+    bool success = false;
 
     double cursorPos[2] = {0};
     glfwGetCursorPos(window, &cursorPos[0], &cursorPos[1]);
@@ -722,7 +722,7 @@ bool GetGLFWMouseMonitor(GLFWmonitor** monitor, GLFWwindow* window) {
     glfwGetWindowPos(window, &windowPos[0], &windowPos[1]);
 
     int           monitorsSize = 0;
-    GLFWmonitor** monitors     = glfwGetMonitors(&monitorsSize);
+    GLFWmonitor** monitors = glfwGetMonitors(&monitorsSize);
 
     // convert cursor position from window coordinates to screen coordinates
     cursorPos[0] += windowPos[0];
@@ -739,7 +739,7 @@ bool GetGLFWMouseMonitor(GLFWmonitor** monitor, GLFWwindow* window) {
             || (cursorPos[1] < monitorPos[1]) || (cursorPos[1] > (monitorPos[1] + monitorVideoMode->height))) {
 
             *monitor = monitors[i];
-            success  = true;
+            success = true;
         }
     }
 

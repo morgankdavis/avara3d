@@ -38,7 +38,7 @@ static string HeaderString(const string& logName, Log::Level level);
 
 /// Public Static Member Functions ///
 
-Log&          Log::AppLog() {
+Log& Log::AppLog() {
     if (_appLog) {
         return *_appLog;
     }
@@ -154,7 +154,7 @@ void Log::log(Log::Level level, const SourceInfo& sourceInfo, const string& msg)
     }
 
     // exactly old semantics: header + space + msg + '\n'
-    auto   header = HeaderString(_name, level, sourceInfo);
+    auto header = HeaderString(_name, level, sourceInfo);
 
     string line;
     line.reserve(header.size() + 1 + msg.size() + 1);
@@ -205,7 +205,7 @@ void Log::write(Log::Level level, const SourceInfo& sourceInfo, string_view msg)
         return;
     }
 
-    auto   header = HeaderString(_name, level, sourceInfo);
+    auto header = HeaderString(_name, level, sourceInfo);
 
     string out;
     out.reserve(header.size() + 1 + msg.size());
@@ -221,7 +221,7 @@ void Log::write(Log::Level level, string_view msg) {
         return;
     }
 
-    auto   header = HeaderString(_name, level);
+    auto header = HeaderString(_name, level);
 
     string out;
     out.reserve(header.size() + 1 + msg.size());
@@ -286,7 +286,7 @@ void Log::log(Log::Level level, const string& msg) {
         return;
     }
 
-    auto   header = HeaderString(_name, level);
+    auto header = HeaderString(_name, level);
 
     string line;
     line.reserve(header.size() + 1 + msg.size() + 1);
@@ -353,6 +353,6 @@ static string HeaderString(const string& logName, Log::Level level, const Log::S
 
 unique_ptr<Log> Log::_appLog {};
 
-static string   HeaderString(const string& logName, Log::Level level) {
+static string HeaderString(const string& logName, Log::Level level) {
     return std::format("{} [{}] [{}]", TimestampString(), logName, magic_enum::enum_name(level));
 }

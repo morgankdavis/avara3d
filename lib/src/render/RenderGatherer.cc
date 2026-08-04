@@ -67,35 +67,35 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
             continue;
         }
 
-        const mat4 world     = parentWorld * n->transform();
+        const mat4 world = parentWorld * n->transform();
         const bool wireframe = util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowWireframes);
 
         if (auto* mesh = n->mesh().get()) {
 
-            const auto& elements  = mesh->elements();
+            const auto& elements = mesh->elements();
             const auto& materials = mesh->materials();
 
             for (size_t e = 0; e < elements.size(); ++e) {
-                auto*     element = elements[e].get();
+                auto* element = elements[e].get();
 
                 Material* mat = nullptr;
                 if (!materials.empty()) {
                     const size_t index = e % materials.size();
-                    mat                = materials[index].get();
+                    mat = materials[index].get();
                 }
                 if (!mat) {
                     mat = Material::DefaultMaterial().get();
                 }
 
                 RenderItem item;
-                item.mesh         = mesh;
-                item.layout       = element->vertexLayout();
+                item.mesh = mesh;
+                item.layout = element->vertexLayout();
                 item.elementIndex = e;
-                item.element      = element;
-                item.material     = mat;
-                item.model        = world;
-                item.aabb         = element->worldAABB(world, false);
-                item.transparent  = (mat->blendFunction() != Material::BlendFunction::Disabled);
+                item.element = element;
+                item.material = mat;
+                item.model = world;
+                item.aabb = element->worldAABB(world, false);
+                item.transparent = (mat->blendFunction() != Material::BlendFunction::Disabled);
 
                 // ! temnporary !
                 if (wireframe) {
@@ -107,8 +107,8 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
 
                 // depth: view-space Z of bounds center
                 const vec3 center = (item.aabb.min + item.aabb.max) / 2.0f;
-                const vec4 vpos   = view * vec4(center, 1.0f);
-                item.depth        = vpos.z;
+                const vec4 vpos = view * vec4(center, 1.0f);
+                item.depth = vpos.z;
 
                 output.renderItems.push_back(item);
 

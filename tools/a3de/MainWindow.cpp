@@ -67,7 +67,7 @@ void MainWindow::initA3D() {
     try {
         initLog(APP_LOG_LEVEL);
 
-        auto visualWorld     = make_unique<VisualWorld>(*_viewport);
+        auto visualWorld = make_unique<VisualWorld>(*_viewport);
         auto backgroundColor = make_shared<Color>(u8vec3 {109, 136, 164});
         visualWorld->background(backgroundColor);
 
@@ -113,10 +113,10 @@ void MainWindow::initLog(Log::Level level) {
 
     string executableName = *util::filesystem::ExecutableName();
 
-    auto   nativeSink = make_unique<StdOutLogSink>();
-    auto   fileSink   = make_unique<FileLogSink>(*(util::filesystem::ExecutableDirectory())
-                                                 / (executableName + string(".log")));
-    auto   sinks      = vector<unique_ptr<LogSink>>();
+    auto nativeSink = make_unique<StdOutLogSink>();
+    auto fileSink = make_unique<FileLogSink>(*(util::filesystem::ExecutableDirectory())
+                                             / (executableName + string(".log")));
+    auto sinks = vector<unique_ptr<LogSink>>();
     sinks.push_back(std::move(nativeSink));
     sinks.push_back(std::move(fileSink));
 
@@ -134,7 +134,7 @@ void MainWindow::initLog(Log::Level level) {
 void MainWindow::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
 
     auto& inputContext = static_cast<DesktopInputContext&>(*runner.scene().inputContext());
-    using Key          = DesktopInputContext::Key;
+    using Key = DesktopInputContext::Key;
 
     if (inputContext.keysPressed().count(Key::Escape)) {
         QCoreApplication::quit();

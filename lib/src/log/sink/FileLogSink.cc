@@ -101,7 +101,7 @@ void FileLogSink::rotate() {
     // find list of existing files
     // start at index 0, count down until the next isn't found
 
-    auto stem      = _filepath.stem();
+    auto stem = _filepath.stem();
     auto extension = _filepath.extension();
 
     auto existing = vector<filesystem::path>();
@@ -154,9 +154,9 @@ void FileLogSink::rotate() {
         else {
 
             auto existStem = path.stem();
-            auto newPath   = path.parent_path()
-                             / filesystem::path(existStem.string().substr(0, stem.string().length())
-                                                + to_string(index - 1) + extension.string());
+            auto newPath = path.parent_path()
+                           / filesystem::path(existStem.string().substr(0, stem.string().length())
+                                              + to_string(index - 1) + extension.string());
 
             // Linux (and maybe macOS?) will let us rename/remove a file while it's open, Windows will crash and burn.
             if (_fileStream && _fileStream->is_open()) {

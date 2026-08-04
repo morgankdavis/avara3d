@@ -99,11 +99,11 @@ BulletBodyProxy::BulletBodyProxy(PhysicsBody& body, PhysicsBody::Type type):
                                                                 ? 0.0f
                                                                 : 1.0f), // important!
                                                            _motionState.get(), nullptr);
-    rigidBodyInfo.m_friction                 = 0.5;
-    rigidBodyInfo.m_rollingFriction          = 0.05; // don't roll forever
-    rigidBodyInfo.m_spinningFriction         = 0.05; // don't spin forever
-    rigidBodyInfo.m_restitution              = 0.0;
-    rigidBodyInfo.m_linearSleepingThreshold  = 1.0;
+    rigidBodyInfo.m_friction = 0.5;
+    rigidBodyInfo.m_rollingFriction = 0.05; // don't roll forever
+    rigidBodyInfo.m_spinningFriction = 0.05; // don't spin forever
+    rigidBodyInfo.m_restitution = 0.0;
+    rigidBodyInfo.m_linearSleepingThreshold = 1.0;
     rigidBodyInfo.m_angularSleepingThreshold = 1.0;
 
     _btBody = make_unique<btRigidBody>(rigidBodyInfo);

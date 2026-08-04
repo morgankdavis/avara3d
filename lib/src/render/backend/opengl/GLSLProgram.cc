@@ -26,11 +26,11 @@ using namespace std;
 
 static constexpr const char* A3DShaderHeaderToken = "<#A3D_SHADER_HEADER#>";
 
-static size_t                SkipUtf8Bom(const std::string& source);
-static std::string           PlatformShaderHeader();
-static std::string           PatchedShaderHeader(const std::string& source,
-                                                 const std::string& programName,
-                                                 ShaderType         type);
+static size_t      SkipUtf8Bom(const std::string& source);
+static std::string PlatformShaderHeader();
+static std::string PatchedShaderHeader(const std::string& source,
+                                       const std::string& programName,
+                                       ShaderType         type);
 
 /// Internal Lifecycle Functions ///
 
@@ -56,7 +56,7 @@ GLSLProgram::GLSLProgram(const string& name):
             throw runtime_error("Couldn't load shader sources.");
         }
 
-        _vertexShaderSource   = *vsSource;
+        _vertexShaderSource = *vsSource;
         _fragmentShaderSource = *fsSource;
 
         prepare();
@@ -110,7 +110,7 @@ bool GLSLProgram::link() {
 
     if (linkSucceeded == GL_FALSE) {
         GLint logSize = 0;
-        _logString    = nullopt;
+        _logString = nullopt;
 
         glGetProgramiv(_glID, GL_INFO_LOG_LENGTH, &logSize);
         if (logSize > 0) {
@@ -145,12 +145,12 @@ bool GLSLProgram::validate() {
     if (status != GL_NO_ERROR) {
         // Store log and return false
         GLint length = 0;
-        _logString   = nullopt;
+        _logString = nullopt;
 
         glGetProgramiv(_glID, GL_INFO_LOG_LENGTH, &length);
 
         if (length > 0) {
-            auto  c_log   = (GLchar*) new char[length];
+            auto  c_log = (GLchar*) new char[length];
             GLint written = 0;
             glGetProgramInfoLog(_glID, length, &written, c_log);
             _logString = string(c_log);
@@ -399,7 +399,7 @@ bool GLSLProgram::compile(const string& source, ShaderType type) {
     glGetShaderiv(shaderID, GL_COMPILE_STATUS, &compileSucceeded); // error = 1 (GL_TRUE = 1)
     if (compileSucceeded == GL_FALSE) {
         GLint logSize = 0;
-        _logString    = nullopt;
+        _logString = nullopt;
         glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &logSize);
         if (logSize > 0) {
         // win11
@@ -479,7 +479,7 @@ std::string PlatformShaderHeader() {
 
 std::string PatchedShaderHeader(const std::string& source, const std::string& programName, ShaderType type) {
 
-    const size_t tokenLength   = std::char_traits<char>::length(A3DShaderHeaderToken);
+    const size_t tokenLength = std::char_traits<char>::length(A3DShaderHeaderToken);
     const size_t tokenPosition = SkipUtf8Bom(source);
 
     if (source.compare(tokenPosition, tokenLength, A3DShaderHeaderToken) != 0) {

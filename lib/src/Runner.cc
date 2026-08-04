@@ -71,7 +71,7 @@ void Runner::stop() {
         return;
     }
 
-    _state                  = State::Stopped;
+    _state = State::Stopped;
     _pendingSimulationSteps = 0;
 }
 
@@ -89,7 +89,7 @@ void Runner::pauseSimulation() {
         return;
     }
 
-    _simulationPaused          = true;
+    _simulationPaused = true;
     _simulationTimeAccumulator = 0.0;
 }
 
@@ -103,9 +103,9 @@ void Runner::resumeSimulation() {
         return;
     }
 
-    _simulationPaused       = false;
+    _simulationPaused = false;
     _pendingSimulationSteps = 0;
-    _skipNextUpdateDelta    = true;
+    _skipNextUpdateDelta = true;
 }
 
 void Runner::requestSimulationStep() {
@@ -195,18 +195,18 @@ void Runner::start(TimePoint now) {
         throw invalid_argument("Runner simulation time step rejected by PhysicsWorld.");
     }
 
-    _timeScale                 = _config.timeScale;
+    _timeScale = _config.timeScale;
     _simulationTimeAccumulator = 0.0;
-    _simulationTime            = 0.0;
-    _simulationStepCount       = 0;
-    _simulationPaused          = false;
-    _pendingSimulationSteps    = 0;
-    _skipNextUpdateDelta       = false;
-    _startTime                 = now;
-    _prevUpdateTime            = now;
-    _updateCount               = 0;
-    _renderedFrameCount        = 0;
-    _state                     = State::Running;
+    _simulationTime = 0.0;
+    _simulationStepCount = 0;
+    _simulationPaused = false;
+    _pendingSimulationSteps = 0;
+    _skipNextUpdateDelta = false;
+    _startTime = now;
+    _prevUpdateTime = now;
+    _updateCount = 0;
+    _renderedFrameCount = 0;
+    _state = State::Running;
 }
 
 bool Runner::update(TimePoint now) {
@@ -217,9 +217,9 @@ bool Runner::update(TimePoint now) {
 
     const UpdateInfo updateInfo {.updateIndex = _updateCount,
                                  .elapsedTime = chrono::duration<double>(now - _startTime).count(),
-                                 .deltaTime   = _updateCount != 0
-                                                    ? chrono::duration<double>(now - _prevUpdateTime).count()
-                                                    : 0.0};
+                                 .deltaTime = _updateCount != 0
+                                                  ? chrono::duration<double>(now - _prevUpdateTime).count()
+                                                  : 0.0};
 
     _prevUpdateTime = now;
     ++_updateCount;
@@ -247,23 +247,23 @@ bool Runner::update(TimePoint now) {
                 // during the requested batch sets this again and interrupts
                 // the local snapshot
                 _skipNextUpdateDelta = false;
-                inventory            = executePendingSimulationSteps(stats);
+                inventory = executePendingSimulationSteps(stats);
             }
             else if (_skipNextUpdateDelta) {
                 _skipNextUpdateDelta = false;
-                inventory            = currentPhysicsInventory();
+                inventory = currentPhysicsInventory();
             }
             else {
                 inventory = advanceSimulation(updateInfo, stats);
             }
 
             prof::profile(_profiler, Profiler::Tag::EngineCpu, [&] {
-                stats.staticBodies            = inventory.staticBodies;
-                stats.dynamicBodies           = inventory.dynamicBodies;
-                stats.kinematicBodies         = inventory.kinematicBodies;
-                stats.primitiveShapes         = inventory.primitiveShapes;
-                stats.boundingBoxShapes       = inventory.boundingBoxShapes;
-                stats.convexHullShapes        = inventory.convexHullShapes;
+                stats.staticBodies = inventory.staticBodies;
+                stats.dynamicBodies = inventory.dynamicBodies;
+                stats.kinematicBodies = inventory.kinematicBodies;
+                stats.primitiveShapes = inventory.primitiveShapes;
+                stats.boundingBoxShapes = inventory.boundingBoxShapes;
+                stats.convexHullShapes = inventory.convexHullShapes;
                 stats.concavePolyhedronShapes = inventory.concavePolyhedronShapes;
             });
 
@@ -273,11 +273,11 @@ bool Runner::update(TimePoint now) {
         }
     });
 
-    stats.frameTime       = _profiler.time(Profiler::Tag::Frame);
-    stats.engineCpuTime   = _profiler.time(Profiler::Tag::EngineCpu);
-    stats.renderCpuTime   = _profiler.time(Profiler::Tag::RenderCpu);
-    stats.renderGpuTime   = _profiler.time(Profiler::Tag::RenderGpu);
-    stats.physicsTime     = _profiler.time(Profiler::Tag::Physics);
+    stats.frameTime = _profiler.time(Profiler::Tag::Frame);
+    stats.engineCpuTime = _profiler.time(Profiler::Tag::EngineCpu);
+    stats.renderCpuTime = _profiler.time(Profiler::Tag::RenderCpu);
+    stats.renderGpuTime = _profiler.time(Profiler::Tag::RenderGpu);
+    stats.physicsTime = _profiler.time(Profiler::Tag::Physics);
     stats.applicationTime = _profiler.time(Profiler::Tag::Application);
 
     _frameStatsHistory.add(stats);
@@ -309,9 +309,9 @@ PhysicsInventory Runner::advanceSimulation(const UpdateInfo& info, FrameStats& s
     }
 
     if (_state == State::Running && _simulationTimeAccumulator >= timeStep) {
-        const double remainder        = fmod(_simulationTimeAccumulator, timeStep);
+        const double remainder = fmod(_simulationTimeAccumulator, timeStep);
         stats.discardedSimulationTime = _simulationTimeAccumulator - remainder;
-        _simulationTimeAccumulator    = remainder;
+        _simulationTimeAccumulator = remainder;
     }
 
     if (stats.simulationStepCount == 0) {
@@ -352,10 +352,10 @@ PhysicsInventory Runner::executeSimulationStep() {
 
     Scene::StepInfo info {.stepIndex = _simulationStepCount,
                           .startTime = static_cast<double>(_simulationStepCount) * _config.timeStep,
-                          .endTime   = static_cast<double>(_simulationStepCount + 1) * _config.timeStep,
+                          .endTime = static_cast<double>(_simulationStepCount + 1) * _config.timeStep,
                           .deltaTime = _config.timeStep};
 
-    auto            inventory = _scene.stepSimulation(info, _profiler);
+    auto inventory = _scene.stepSimulation(info, _profiler);
 
     _simulationTime = info.endTime;
     ++_simulationStepCount;
@@ -381,11 +381,11 @@ bool Runner::renderFrame(const UpdateInfo& info, FrameStats& stats) {
         return false;
     }
 
-    const VisualWorld::RenderInfo renderInfo {.frameIndex          = _renderedFrameCount,
-                                              .updateIndex         = info.updateIndex,
-                                              .updateTime          = info.elapsedTime,
-                                              .updateDeltaTime     = info.deltaTime,
-                                              .simulationTime      = _simulationTime,
+    const VisualWorld::RenderInfo renderInfo {.frameIndex = _renderedFrameCount,
+                                              .updateIndex = info.updateIndex,
+                                              .updateTime = info.elapsedTime,
+                                              .updateDeltaTime = info.deltaTime,
+                                              .simulationTime = _simulationTime,
                                               .simulationStepCount = _simulationStepCount};
 
     if (!visualWorld->draw(_scene, _scene.physicsWorld(), renderInfo, _scene.debugOptions(), stats, _profiler,

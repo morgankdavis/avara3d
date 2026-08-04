@@ -44,7 +44,7 @@ std::unique_ptr<Scene> App::init() {
         _window->vSyncEnabled(ENABLE_VSYNC);
         _window->cursorCaptured(CAPTURE_CURSOR);
 
-        auto visualWorld     = make_unique<VisualWorld>(*_window);
+        auto visualWorld = make_unique<VisualWorld>(*_window);
         auto backgroundColor = make_shared<Color>(u8vec3 {109, 136, 164});
         visualWorld->background(backgroundColor);
 
@@ -94,7 +94,7 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
     if (_bananaNode) {
         // rotate the banana
         auto rotationDeg = info.deltaTime * radians(-30.0); // 10deg/sec
-        auto rotY        = math::quaternion({0.0f, 1.0f, 0.0f}, rotationDeg);
+        auto rotY = math::quaternion({0.0f, 1.0f, 0.0f}, rotationDeg);
         _bananaNode->orientation(rotY * _bananaNode->orientation());
     }
 }

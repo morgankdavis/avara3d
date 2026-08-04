@@ -27,8 +27,8 @@ Texture::Texture():
 
 Texture::Texture(const Contents& contents, const shared_ptr<Sampler>& sampler, unsigned mappingChannel):
     Texture() {
-    _sampler        = sampler;
-    _contents       = contents;
+    _sampler = sampler;
+    _contents = contents;
     _mappingChannel = mappingChannel;
 }
 
@@ -44,10 +44,10 @@ Texture& Texture::operator=(const Texture& other) {
         return *this;
     }
 
-    _sampler        = other._sampler;
-    _contents       = other._contents;
+    _sampler = other._sampler;
+    _contents = other._contents;
     _mappingChannel = other._mappingChannel;
-    _dirtyMask      = DirtyMask::All;
+    _dirtyMask = DirtyMask::All;
 
     return *this;
 }
@@ -64,10 +64,10 @@ Texture& Texture::operator=(Texture&& other) noexcept {
         return *this;
     }
 
-    _sampler        = std::move(other._sampler);
-    _contents       = std::move(other._contents);
+    _sampler = std::move(other._sampler);
+    _contents = std::move(other._contents);
     _mappingChannel = other._mappingChannel;
-    _dirtyMask      = DirtyMask::All;
+    _dirtyMask = DirtyMask::All;
 
     other._dirtyMask = DirtyMask::All;
 
@@ -83,7 +83,7 @@ shared_ptr<Sampler> Texture::sampler() const {
 }
 
 void Texture::sampler(const shared_ptr<Sampler>& sampler) {
-    _sampler   = sampler;
+    _sampler = sampler;
     _dirtyMask = util::bitmask::add(_dirtyMask, DirtyMask::Sampler);
 }
 
@@ -92,7 +92,7 @@ const Texture::Contents& Texture::contents() const {
 }
 
 void Texture::contents(const Contents& contents) {
-    _contents  = contents;
+    _contents = contents;
     _dirtyMask = util::bitmask::add(_dirtyMask, DirtyMask::Contents);
 }
 

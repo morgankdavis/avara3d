@@ -50,13 +50,13 @@ namespace a3de {
         ~MainWindow() override;
 
     private:
-        void                         initA3D();
-        void                         updateA3D();
-        void                         initLog(a3d::Log::Level level);
+        void initA3D();
+        void updateA3D();
+        void initLog(a3d::Log::Level level);
 
         /// Runner Callbacks ///
 
-        void                         hostUpdate(a3d::Runner& runner, const a3d::Runner::UpdateInfo& info);
+        void hostUpdate(a3d::Runner& runner, const a3d::Runner::UpdateInfo& info);
 
         Ui::MainWindow*              _ui;
         a3d::qt::QtViewport*         _viewport;

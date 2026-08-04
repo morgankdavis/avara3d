@@ -38,10 +38,10 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
 
     log::d()("Performing convex decomposition...");
 
-    VHACD::IVHACD*            vhacd = CreateVHACD();
+    VHACD::IVHACD* vhacd = CreateVHACD();
 
-    int                       a3dFillModeUnderlying = magic_enum::enum_integer(_options.fillMode);
-    VHACD::FillMode           vhacdFillMode = magic_enum::enum_value<VHACD::FillMode>(a3dFillModeUnderlying);
+    int             a3dFillModeUnderlying = magic_enum::enum_integer(_options.fillMode);
+    VHACD::FillMode vhacdFillMode = magic_enum::enum_value<VHACD::FillMode>(a3dFillModeUnderlying);
 
     VHACD::IVHACD::Parameters params = {nullptr,
                                         nullptr,
@@ -57,7 +57,7 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
                                         _options.minEdgeLength,
                                         _options.findBestPlane};
 
-    auto                      posOpt = VertexAccess::GetPositionStreamView(*_sourceElement);
+    auto posOpt = VertexAccess::GetPositionStreamView(*_sourceElement);
     if (!posOpt) {
         vhacd->Release();
         return {};
@@ -75,7 +75,7 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
     for (uint32_t i = 0; i < pos.count; ++i) {
         const std::byte* p = VertexBaseAt(pos, i) + pos.offset;
 
-        float            xyz[3];
+        float xyz[3];
         memcpy(xyz, p, sizeof(xyz));
 
         verts[3u * i + 0] = xyz[0];
@@ -119,11 +119,11 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
 #endif
 
     const uint32_t numPoints = pos.count;
-    const uint32_t numTris   = (uint32_t) (indicesU32.size() / 3u);
+    const uint32_t numTris = (uint32_t) (indicesU32.size() / 3u);
 
     vhacd->Compute(verts.data(), numPoints, indicesU32.data(), numTris, params);
 
-    const int                       numHulls = (int) vhacd->GetNConvexHulls();
+    const int numHulls = (int) vhacd->GetNConvexHulls();
 
     vector<unique_ptr<MeshElement>> out;
     out.reserve(numHulls);
@@ -154,10 +154,10 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
         }
 #endif
 
-        auto vbSpan  = std::span<const VertexPNT>(decomposedVerts.data(), decomposedVerts.size());
+        auto vbSpan = std::span<const VertexPNT>(decomposedVerts.data(), decomposedVerts.size());
         auto vbBytes = std::as_bytes(vbSpan);
 
-        auto ibSpan  = std::span<const uint32_t>(decomposedIndices.data(), decomposedIndices.size());
+        auto ibSpan = std::span<const uint32_t>(decomposedIndices.data(), decomposedIndices.size());
         auto ibBytes = std::as_bytes(ibSpan);
 
         out.push_back(std::make_unique<MeshElement>(VertexLayout::PNT, vbBytes,

@@ -21,25 +21,25 @@ void FrameStatsHistory::GetAverages(const FrameStatsHistory& history,
                                     chrono::nanoseconds&     physics,
                                     chrono::nanoseconds&     appCpu,
                                     chrono::milliseconds     averagingDuration) {
-    frame     = chrono::nanoseconds(0);
+    frame = chrono::nanoseconds(0);
     engineCpu = chrono::nanoseconds(0);
     renderCpu = chrono::nanoseconds(0);
     renderGpu = chrono::nanoseconds(0);
-    physics   = chrono::nanoseconds(0);
-    appCpu    = chrono::nanoseconds(0);
+    physics = chrono::nanoseconds(0);
+    appCpu = chrono::nanoseconds(0);
 
     const SteadyTimePoint now = std::chrono::steady_clock::now();
 
-    unsigned              count = 0;
+    unsigned count = 0;
     for (auto it = history._samples.rbegin(); it != history._samples.rend(); ++it) {
         auto sample = get<1>(*it);
         if ((now - get<0>(*it)) < averagingDuration) {
-            frame     += sample.frameTime;
+            frame += sample.frameTime;
             engineCpu += sample.engineCpuTime;
             renderCpu += sample.renderCpuTime;
             renderGpu += sample.renderGpuTime;
-            physics   += sample.physicsTime;
-            appCpu    += sample.applicationTime;
+            physics += sample.physicsTime;
+            appCpu += sample.applicationTime;
             ++count;
         }
         else {
@@ -48,12 +48,12 @@ void FrameStatsHistory::GetAverages(const FrameStatsHistory& history,
     }
 
     if (count > 0) {
-        frame     /= count;
+        frame /= count;
         engineCpu /= count;
         renderCpu /= count;
         renderGpu /= count;
-        physics   /= count;
-        appCpu    /= count;
+        physics /= count;
+        appCpu /= count;
     }
 }
 

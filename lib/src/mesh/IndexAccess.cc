@@ -14,9 +14,9 @@ using namespace a3d;
 using namespace std;
 
 optional<IndexStreamView> IndexAccess::GetIndexStreamView(const MeshElement& element) {
-    const auto        ib    = element.indexBytes();
+    const auto        ib = element.indexBytes();
     const uint32_t    count = element.indexCount();
-    const IndexFormat fmt   = element.indexFormat();
+    const IndexFormat fmt = element.indexFormat();
 
     if (count == 0 || ib.empty() || fmt == IndexFormat::None) {
         return std::nullopt;

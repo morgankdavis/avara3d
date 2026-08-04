@@ -31,7 +31,7 @@ PointLight::PointLight(const shared_ptr<Color>& color):
 
 PointLight::PointLight(const string& name, const shared_ptr<Color>& color):
     PointLight() {
-    _name  = name;
+    _name = name;
     _color = color;
 }
 

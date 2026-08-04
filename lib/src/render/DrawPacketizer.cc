@@ -33,8 +33,8 @@ DrawPacket DrawPacketizer::Packetize(GatherOutput& gatherOutput) {
     packet.wireframePassItems.reserve(gatherOutput.renderItems.size());
 
     packet.backgroundPass.pipelineId = INVALID_PIPELINE_ID;
-    packet.backgroundPass.desc       = PipelineDescBuilder::MakeBackgroundDesc();
-    packet.backgroundPass.material   = gatherOutput.backgroundMaterial;
+    packet.backgroundPass.desc = PipelineDescBuilder::MakeBackgroundDesc();
+    packet.backgroundPass.material = gatherOutput.backgroundMaterial;
 
     for (const RenderItem& ri : gatherOutput.renderItems) {
 
@@ -45,10 +45,10 @@ DrawPacket DrawPacketizer::Packetize(GatherOutput& gatherOutput) {
 
             DrawItem di;
             di.elementIndex = ri.elementIndex;
-            di.element      = ri.element;
-            di.material     = ri.material;
-            di.model        = ri.model;
-            di.depth        = ri.depth;
+            di.element = ri.element;
+            di.material = ri.material;
+            di.model = ri.model;
+            di.depth = ri.depth;
 
             switch (ri.material->alphaMode()) {
                 case Material::AlphaMode::Opaque: {
@@ -71,7 +71,7 @@ DrawPacket DrawPacketizer::Packetize(GatherOutput& gatherOutput) {
             }
 
             di.pipelineId = INVALID_PIPELINE_ID; // resolved later
-            di.sequence   = (uint32_t) packet.mainPassItems.size();
+            di.sequence = (uint32_t) packet.mainPassItems.size();
 
             packet.mainPassItems.push_back(std::move(di));
         }
@@ -80,15 +80,15 @@ DrawPacket DrawPacketizer::Packetize(GatherOutput& gatherOutput) {
 
             DrawItem di;
             di.elementIndex = ri.elementIndex;
-            di.element      = ri.element;
-            di.material     = ri.material; // optional for wire, fine to keep
-            di.model        = ri.model;
-            di.depth        = ri.depth;
-            di.pass         = PassKind::Wireframe;
+            di.element = ri.element;
+            di.material = ri.material; // optional for wire, fine to keep
+            di.model = ri.model;
+            di.depth = ri.depth;
+            di.pass = PassKind::Wireframe;
 
-            di.desc       = PipelineDescBuilder::MakeWireframeDesc(ri.layout);
+            di.desc = PipelineDescBuilder::MakeWireframeDesc(ri.layout);
             di.pipelineId = INVALID_PIPELINE_ID; // resolved later
-            di.sequence   = (uint32_t) packet.wireframePassItems.size();
+            di.sequence = (uint32_t) packet.wireframePassItems.size();
 
             packet.wireframePassItems.push_back(std::move(di));
         }
@@ -100,7 +100,7 @@ DrawPacket DrawPacketizer::Packetize(GatherOutput& gatherOutput) {
     packet.linesPass.lines = std::move(gatherOutput.debugLines);
 
     if (!packet.linesPass.lines.empty()) {
-        packet.linesPass.desc       = PipelineDescBuilder::MakeLinesDesc();
+        packet.linesPass.desc = PipelineDescBuilder::MakeLinesDesc();
         packet.linesPass.pipelineId = INVALID_PIPELINE_ID;
     }
 

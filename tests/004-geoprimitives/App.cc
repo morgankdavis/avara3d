@@ -51,18 +51,18 @@ std::unique_ptr<Scene> App::init() {
         auto scene = make_unique<Scene>(std::move(visualWorld), nullptr, Window::InputContext());
         scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 
-        auto ambientLight     = make_shared<AmbientLight>(make_shared<Color>(0.1f));
+        auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.1f));
         auto ambientLightNode = Node::LightNode(ambientLight);
         scene->rootNode()->addChild(ambientLightNode);
 
-        auto pointLight     = make_shared<PointLight>(Color::LightGray());
+        auto pointLight = make_shared<PointLight>(Color::LightGray());
         auto pointLightNode = Node::LightNode(pointLight);
         pointLightNode->position({0, 0, 5});
         auto material = make_shared<Material>(monostate {}, monostate {}, monostate {}, Color::White());
-        auto sphere   = Sphere::Mesh(0.25f, 12, material);
+        auto sphere = Sphere::Mesh(0.25f, 12, material);
         pointLightNode->mesh(sphere);
         auto pointLightPivotNode = Node::NamedNode("point light pivot");
-        _pointLightPivotNode     = pointLightPivotNode.get();
+        _pointLightPivotNode = pointLightPivotNode.get();
         pointLightPivotNode->addChild(pointLightNode);
         scene->rootNode()->addChild(pointLightPivotNode);
 
@@ -212,8 +212,8 @@ void App::didShutdown() {}
 
 void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
 
-    auto&   scene        = runner.scene();
-    auto&   inputContext = *scene.inputContext();
+    auto& scene = runner.scene();
+    auto& inputContext = *scene.inputContext();
 
     Window* window = nullptr;
     if (scene.visualWorld()) {
@@ -224,8 +224,8 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
 
     auto im = static_cast<DesktopInputContext*>(&inputContext);
 
-    auto keysPressed        = im->keysPressed();
-    auto keysDown           = im->keysDown();
+    auto keysPressed = im->keysPressed();
+    auto keysDown = im->keysDown();
     auto mousePositionDelta = im->mousePositionDelta();
 
     using Key = DesktopInputContext::Key;
@@ -267,20 +267,20 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
 
             // look
 
-            vec3               camForward = pov->worldForward();
-            vec3               camRight   = pov->worldRight();
-            vec3               camUp      = pov->worldUp();
+            vec3 camForward = pov->worldForward();
+            vec3 camRight = pov->worldRight();
+            vec3 camUp = pov->worldUp();
 
             // tanA = mouseDelta / distance
             // A = atan(mouseDelta / distance)
 
             static const float MOUSE_SPEED_SCALAR = .002;
-            static const float MOUSE_SPEED        = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
+            static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
 
-            float              deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
-            float              deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
+            float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
+            float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
 
-            vec3               angles = pov->eulerAngles();
+            vec3 angles = pov->eulerAngles();
             // weird angles
             //_cameraNode->eulerAngles(vec3(angles.x + -deltaRotX, 0, angles.z + deltaRotY));
             // pitch, yaw, roll

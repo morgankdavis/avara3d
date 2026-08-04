@@ -81,22 +81,22 @@ const std::tm& BuildInfo::time() const {
 
 BuildInfo::BuildInfo() {
 
-    _number        = A3D_BUILD_NUMBER;
-    _version       = {A3D_VERSION_MAJOR, A3D_VERSION_MINOR, A3D_VERSION_PATCH};
-    auto typeOpt   = magic_enum::enum_cast<BuildInfo::Type>(A3D_BUILD_TYPE_STR);
-    _type          = typeOpt.value_or(BuildInfo::Type::Unknown);
+    _number = A3D_BUILD_NUMBER;
+    _version = {A3D_VERSION_MAJOR, A3D_VERSION_MINOR, A3D_VERSION_PATCH};
+    auto typeOpt = magic_enum::enum_cast<BuildInfo::Type>(A3D_BUILD_TYPE_STR);
+    _type = typeOpt.value_or(BuildInfo::Type::Unknown);
     auto originOpt = magic_enum::enum_cast<BuildInfo::Origin>(A3D_BUILD_ORIGIN);
-    _origin        = originOpt.value_or(BuildInfo::Origin::AdHoc);
+    _origin = originOpt.value_or(BuildInfo::Origin::AdHoc);
 
     // ISO 8601
     // https://stackoverflow.com/questions/26895428/how-do-i-parse-an-iso-8601-date-with-optional-milliseconds-to-a-struct-tm-in-c
     int y, M, d, h, m, s;
     sscanf(A3D_BUILD_TIME, "%d-%d-%dT%d:%d:%dZ", &y, &M, &d, &h, &m, &s);
-    _time         = {};
+    _time = {};
     _time.tm_year = y - 1900;
-    _time.tm_mon  = std::max(0, M - 1);
+    _time.tm_mon = std::max(0, M - 1);
     _time.tm_mday = d;
     _time.tm_hour = h;
-    _time.tm_min  = m;
-    _time.tm_sec  = s;
+    _time.tm_min = m;
+    _time.tm_sec = s;
 }

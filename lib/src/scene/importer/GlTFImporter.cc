@@ -91,7 +91,7 @@ unique_ptr<a3d::Scene> GlTFImporter::scene() {
 
             Timer timer {true};
 
-            auto  a3dScene = make_unique<a3d::Scene>();
+            auto a3dScene = make_unique<a3d::Scene>();
 
             auto& scenes = _asset.scenes;
             if (!scenes.empty()) {
@@ -178,9 +178,9 @@ bool GlTFImporter::parse() {
 
         //log::i()("Parsing glTF: '{}'...", _path.string());
 
-        auto  extensions = Extensions::KHR_lights_punctual | Extensions::KHR_materials_specular
-                           | Extensions::KHR_materials_anisotropy | Extensions::KHR_texture_transform;
-        auto  parser     = Parser(extensions);
+        auto extensions = Extensions::KHR_lights_punctual | Extensions::KHR_materials_specular
+                          | Extensions::KHR_materials_anisotropy | Extensions::KHR_texture_transform;
+        auto parser = Parser(extensions);
 
 //		auto gltfFile = MappedGltfFile::FromPath(_path);
 #ifdef A3D_WEB
@@ -195,14 +195,14 @@ bool GlTFImporter::parse() {
         }
 
         auto directory = _path.parent_path();
-        auto options   = GlTFOptionsFromImportOptions(_options);
-        auto asset     = parser.loadGltf(gltfFile.get(), directory, options);
+        auto options = GlTFOptionsFromImportOptions(_options);
+        auto asset = parser.loadGltf(gltfFile.get(), directory, options);
         if (asset.error() != fastgltf::Error::None) {
             log::e()("Failed to load glTF {}", getErrorMessage(asset.error()));
             return false;
         }
 
-        _asset  = std::move(asset.get());
+        _asset = std::move(asset.get());
         _parsed = true;
 
         //log::i()("Parsed glTF. Time: {:.3f}ms", util::chrono::Milliseconds(timer.stop()));
@@ -254,7 +254,7 @@ shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlTFMeshIndex(fastgltf::Asset& asset
 
         log::d()("Importing mesh '{}'...", mesh.name);
 
-        auto elements  = vector<unique_ptr<MeshElement>>();
+        auto elements = vector<unique_ptr<MeshElement>>();
         auto materials = vector<shared_ptr<Material>>();
 
         for (auto& primitive : mesh.primitives) {
@@ -273,7 +273,7 @@ shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlTFMeshIndex(fastgltf::Asset& asset
             }
         }
 
-        auto a3dMesh       = make_shared<a3d::Mesh>(string(mesh.name), elements, materials);
+        auto a3dMesh = make_shared<a3d::Mesh>(string(mesh.name), elements, materials);
         _meshes[meshIndex] = a3dMesh;
         return a3dMesh;
     }
@@ -299,7 +299,7 @@ unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(fastgltf
     }
 
     const size_t posAccessorIndex = posAttr->accessorIndex;
-    const auto&  posAccessor      = asset.accessors[posAccessorIndex];
+    const auto&  posAccessor = asset.accessors[posAccessorIndex];
 
     const size_t vertexCount = posAccessor.count;
     if (vertexCount == 0) {
@@ -403,7 +403,7 @@ unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(fastgltf
         log::w()("Index count {} is not divisible by 3: truncating.", rawIndices.size());
     }
 
-    const size_t     triIndexCount = (rawIndices.size() / 3) * 3;
+    const size_t triIndexCount = (rawIndices.size() / 3) * 3;
 
     // validate triangles and build a clean index list
     vector<uint32_t> cleanIndices;
@@ -442,7 +442,7 @@ unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(fastgltf
     IndexFormat indexFormat = (maxIndex <= 0xFFFFu) ? IndexFormat::U16 : IndexFormat::U32;
 
     // vertex bytes
-    const auto  vb = std::as_bytes(std::span<const VertexPNT>(verts.data(), verts.size()));
+    const auto vb = std::as_bytes(std::span<const VertexPNT>(verts.data(), verts.size()));
 
     if (indexFormat == IndexFormat::U16) {
         vector<uint16_t> idx16;
@@ -496,9 +496,9 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlTFPrimitive(fastgltf::Asse
 
                 auto baseColorFactor = pbrData.baseColorFactor;
 
-                auto a3dColor    = ColorFromGlTFColorArray(baseColorFactor);
+                auto a3dColor = ColorFromGlTFColorArray(baseColorFactor);
                 auto a3dProperty = Material::Property(a3dColor);
-                a3dMaterial      = make_shared<a3d::Material>(monostate {}, a3dProperty, monostate {});
+                a3dMaterial = make_shared<a3d::Material>(monostate {}, a3dProperty, monostate {});
             }
 
             // specular
@@ -507,10 +507,10 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlTFPrimitive(fastgltf::Asse
 
                 // TODO: this needs work.  and more testing.
 
-                auto               factor           = specularMaterial->specularFactor;
-                auto&              textureInfo      = specularMaterial->specularTexture;
-                auto               colorFactor      = specularMaterial->specularColorFactor;
-                auto&              colorTextureInfo = specularMaterial->specularColorTexture;
+                auto  factor = specularMaterial->specularFactor;
+                auto& textureInfo = specularMaterial->specularTexture;
+                auto  colorFactor = specularMaterial->specularColorFactor;
+                auto& colorTextureInfo = specularMaterial->specularColorTexture;
 
                 //				log::d()("*** [SPECULAR] ***");
                 //				log::d()("factor: {}", factor);
@@ -537,7 +537,7 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlTFPrimitive(fastgltf::Asse
 
                 if (holds_alternative<monostate>(a3dProperty) && (factor > 0)) {
                     auto factorColor = make_shared<Color>(factor);
-                    a3dProperty      = Material::Property(factorColor);
+                    a3dProperty = Material::Property(factorColor);
                 }
 
                 if (!holds_alternative<monostate>(a3dProperty)) {
@@ -605,7 +605,7 @@ shared_ptr<a3d::Texture> GlTFImporter::textureFromGlTFTextureIndex(fastgltf::Ass
 
             auto a3dSampler = samplerFromGlTFTexture(asset, texture);
 
-            auto a3dTexture         = make_shared<a3d::Texture>(a3dImage, make_shared<a3d::Sampler>());
+            auto a3dTexture = make_shared<a3d::Texture>(a3dImage, make_shared<a3d::Sampler>());
             _textures[textureIndex] = a3dTexture;
             return a3dTexture;
         }
@@ -655,7 +655,7 @@ shared_ptr<a3d::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset
 
         if (_images.find(*imageIndex) == _images.end()) {
 
-            auto& image      = asset.images[*imageIndex];
+            auto& image = asset.images[*imageIndex];
             auto& dataSource = image.data;
 
             log::d()("Importing image '{}'...", image.name);
@@ -719,7 +719,7 @@ shared_ptr<a3d::Light> GlTFImporter::lightFromGlTFNode(fastgltf::Asset& asset, f
         if (_lights.find(*lightIndex) == _lights.end()) {
 
             auto& light = asset.lights[*lightIndex];
-            auto& type  = light.type;
+            auto& type = light.type;
 
             log::d()("Importing light '{}'...", light.name);
 
@@ -762,7 +762,7 @@ shared_ptr<a3d::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
         if (_cameras.find(*cameraIndex) == _cameras.end()) {
 
             auto& camera = asset.cameras[*cameraIndex];
-            auto  name   = string(camera.name);
+            auto  name = string(camera.name);
 
             log::d()("Importing camera '{}'...", name);
 
@@ -836,16 +836,16 @@ static std::span<const byte> BytesFromDataSource(const fastgltf::DataSource& src
 }
 
 static std::span<const byte> BytesFromBufferView(const fastgltf::Asset& asset, size_t bufferViewIndex) {
-    const auto& bv  = asset.bufferViews[bufferViewIndex];
+    const auto& bv = asset.bufferViews[bufferViewIndex];
     const auto& buf = asset.buffers[bv.bufferIndex];
 
-    auto        base = BytesFromDataSource(buf.data);
+    auto base = BytesFromDataSource(buf.data);
     if (base.empty()) {
         return {};
     }
 
     const std::size_t begin = bv.byteOffset;
-    const std::size_t len   = bv.byteLength;
+    const std::size_t len = bv.byteLength;
 
     if (begin + len > base.size()) {
         return {};

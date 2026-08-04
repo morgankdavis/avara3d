@@ -57,7 +57,7 @@ void OGLDrawTimer::initialize() {
 
 #if defined(A3D_GL_DESKTOP)
     // TODO: check context?
-    _mode        = Mode::DesktopTimeElapsed;
+    _mode = Mode::DesktopTimeElapsed;
     _queryTarget = GL_TIME_ELAPSED;
     _isAvailable = true;
 #elif defined(A3D_GL_WEB)
@@ -66,14 +66,14 @@ void OGLDrawTimer::initialize() {
     if (ctx) {
         bool queryAvailable = emscripten_webgl_enable_extension(ctx, "EXT_disjoint_timer_query_webgl2");
         if (queryAvailable) {
-            _mode        = Mode::WebDisjointTimerQuery;
+            _mode = Mode::WebDisjointTimerQuery;
             _queryTarget = GL_TIME_ELAPSED_EXT;
             _isAvailable = true;
         }
         else {
             queryAvailable = emscripten_webgl_enable_extension(ctx, "EXT_disjoint_timer_query");
             if (queryAvailable) {
-                _mode        = Mode::WebDisjointTimerQueryExt;
+                _mode = Mode::WebDisjointTimerQueryExt;
                 _queryTarget = GL_TIME_ELAPSED_EXT;
                 _isAvailable = true;
             }
@@ -147,7 +147,7 @@ chrono::nanoseconds OGLDrawTimer::end() {
 #endif
             glEndQuery(_queryTarget);
         _issued[write] = 1;
-        _active        = false;
+        _active = false;
         resolveIssuedQueries(write);
     }
     else {
@@ -210,7 +210,7 @@ bool OGLDrawTimer::resolveQuery(size_t index) {
     }
 #endif
 
-    _lastTime      = chrono::nanoseconds {(chrono::nanoseconds::rep) ns};
+    _lastTime = chrono::nanoseconds {(chrono::nanoseconds::rep) ns};
     _issued[index] = 0;
 
     return true;

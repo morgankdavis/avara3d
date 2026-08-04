@@ -148,9 +148,9 @@ void Application::initLog(Log::Level level) {
 
     string executableName = *util::filesystem::ExecutableName();
 
-    auto   sinks = vector<unique_ptr<LogSink>>();
+    auto sinks = vector<unique_ptr<LogSink>>();
 
-    auto   nativeSink = make_unique<StdOutLogSink>();
+    auto nativeSink = make_unique<StdOutLogSink>();
     sinks.push_back(std::move(nativeSink));
 
 #ifndef A3D_WEB

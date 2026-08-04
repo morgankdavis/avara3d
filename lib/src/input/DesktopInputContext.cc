@@ -14,7 +14,7 @@ using namespace a3d;
 using namespace std;
 using namespace a3d::math;
 
-using Key         = DesktopInputContext::Key;
+using Key = DesktopInputContext::Key;
 using MouseButton = DesktopInputContext::MouseButton;
 
 /// Public Lifecycle Functions ///

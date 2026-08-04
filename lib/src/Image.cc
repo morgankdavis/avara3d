@@ -74,10 +74,10 @@ Image& Image::operator=(const Image& other) {
 
     auto buffer = other._buffer ? make_unique<Buffer>(*other._buffer) : nullptr;
 
-    _width         = other._width;
-    _height        = other._height;
+    _width = other._width;
+    _height = other._height;
     _bytesPerPixel = other._bytesPerPixel;
-    _buffer        = std::move(buffer);
+    _buffer = std::move(buffer);
 
     return *this;
 }
@@ -94,10 +94,10 @@ Image& Image::operator=(Image&& other) noexcept {
         return *this;
     }
 
-    _width         = std::exchange(other._width, 0);
-    _height        = std::exchange(other._height, 0);
+    _width = std::exchange(other._width, 0);
+    _height = std::exchange(other._height, 0);
     _bytesPerPixel = std::exchange(other._bytesPerPixel, 0);
-    _buffer        = std::move(other._buffer);
+    _buffer = std::move(other._buffer);
 
     return *this;
 }
@@ -122,13 +122,13 @@ unsigned Image::bytesPerPixel() const {
 
 unique_ptr<Image> Image::inverted() const {
     const unsigned rowBytes = _width * _bytesPerPixel;
-    const size_t   size     = static_cast<size_t>(rowBytes) * _height;
+    const size_t   size = static_cast<size_t>(rowBytes) * _height;
 
-    auto           out = make_unique<Buffer>(size); // assuming you have a size-ctor
-    auto*          dst = reinterpret_cast<unsigned char*>(out->data());
-    auto*          src = reinterpret_cast<const unsigned char*>(_buffer->data());
+    auto  out = make_unique<Buffer>(size); // assuming you have a size-ctor
+    auto* dst = reinterpret_cast<unsigned char*>(out->data());
+    auto* src = reinterpret_cast<const unsigned char*>(_buffer->data());
 
-    const bool     hasAlpha = (_bytesPerPixel == 4);
+    const bool hasAlpha = (_bytesPerPixel == 4);
 
     for (size_t i = 0; i < size; ++i) {
         if (hasAlpha && ((i % 4) == 3)) { // keep alpha
@@ -156,9 +156,9 @@ bool Image::writePNG(const filesystem::path& path) const {
 
 void Image::loadBuffer(const Buffer& inBuf, bool flipVertical, bool flipHorizontal) {
 
-    int      width;
-    int      height;
-    int      bytesPerPixel;
+    int width;
+    int height;
+    int bytesPerPixel;
 
     stbi_uc* imgData = stbi_load_from_memory((unsigned char*) inBuf.data(), (int) inBuf.size(), &width, &height,
                                              &bytesPerPixel, STBI_rgb_alpha);
@@ -178,8 +178,8 @@ void Image::loadBuffer(const Buffer& inBuf, bool flipVertical, bool flipHorizont
 
     log::d()("Loaded image data. width: {}, height: {}, bytesPerPixel: {}", width, height, bytesPerPixel);
 
-    _width         = width;
-    _height        = height;
+    _width = width;
+    _height = height;
     _bytesPerPixel = bytesPerPixel;
 
     if (flipVertical) {
@@ -193,22 +193,22 @@ void Image::loadBuffer(const Buffer& inBuf, bool flipVertical, bool flipHorizont
 void Image::flipVertical() { // "flip"
 
     unsigned       widthInBytes = _width * _bytesPerPixel;
-    unsigned char* top          = nullptr;
-    unsigned char* bottom       = nullptr;
-    unsigned char  temp         = 0;
-    unsigned       halfHeight   = _height / 2;
+    unsigned char* top = nullptr;
+    unsigned char* bottom = nullptr;
+    unsigned char  temp = 0;
+    unsigned       halfHeight = _height / 2;
 
-    auto           dPtr = reinterpret_cast<unsigned char*>(_buffer->data());
+    auto dPtr = reinterpret_cast<unsigned char*>(_buffer->data());
 
     for (unsigned r = 0; r < halfHeight; ++r) {
 
-        top    = dPtr + r * widthInBytes;
+        top = dPtr + r * widthInBytes;
         bottom = dPtr + (_height - r - 1) * widthInBytes;
 
         for (unsigned c = 0; c < widthInBytes; ++c) {
 
-            temp    = *top;
-            *top    = *bottom;
+            temp = *top;
+            *top = *bottom;
             *bottom = temp;
             ++top;
             ++bottom;
@@ -222,7 +222,7 @@ void Image::flipHorizontal() { // "mirror"
         throw std::runtime_error("flipHorizontal requires 4 bytesPerPixel");
     }
 
-    auto*          d        = reinterpret_cast<unsigned char*>(_buffer->data());
+    auto*          d = reinterpret_cast<unsigned char*>(_buffer->data());
     const unsigned rowBytes = _width * 4;
 
     for (unsigned r = 0; r < _height; ++r) {

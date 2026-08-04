@@ -17,8 +17,8 @@ using namespace std;
 
 /// Private Static Non-Member Prototypes ///
 
-void                                  SetAllFilterModes(Sampler::FilterMode mode, Scene& scene);
-void                                  SetAllMaxAnisotropy(float anisotropy, Scene& scene);
+void SetAllFilterModes(Sampler::FilterMode mode, Scene& scene);
+void SetAllMaxAnisotropy(float anisotropy, Scene& scene);
 
 /// Private Constants ///
 
@@ -75,8 +75,8 @@ std::unique_ptr<Scene> App::init() {
         pointLight->name("point");
         pointLight->attenuation(Attenuation {.quadratic = 0.002f});
         auto pointLightNode = Node::LightNode(pointLight);
-        _pointLightNode     = pointLightNode.get(); // <- how is this not crashing?
-        auto material       = make_shared<Material>();
+        _pointLightNode = pointLightNode.get(); // <- how is this not crashing?
+        auto material = make_shared<Material>();
         material->name("LIGHT material");
         material->emission(Color::White());
         auto geometry = Sphere::Mesh(1.5, 4, material);
@@ -85,9 +85,9 @@ std::unique_ptr<Scene> App::init() {
 
         if (ORTHO_CAMERA) {
 
-            auto frustum         = scene->rootNode()->aabb();
-            frustum.min.z        = 0.01;
-            frustum.max.z        = 10000;
+            auto frustum = scene->rootNode()->aabb();
+            frustum.min.z = 0.01;
+            frustum.max.z = 10000;
             auto orthoCameraNode = Node::CameraNode(make_shared<OrthographicCamera>("Ortho camera", frustum));
 
             scene->rootNode()->addChild(orthoCameraNode);
@@ -97,7 +97,7 @@ std::unique_ptr<Scene> App::init() {
                 if (node->camera()) {
                     orthoCameraNode->transform(node->worldTransform());
                     auto pos = orthoCameraNode->position();
-                    pos.y    = 0;
+                    pos.y = 0;
                     orthoCameraNode->position(pos);
                     scene->visualWorld()->pointOfView(orthoCameraNode);
                     break;
@@ -126,9 +126,9 @@ void App::didShutdown() {}
 
 void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
 
-    auto& scene        = runner.scene();
+    auto& scene = runner.scene();
     auto& inputContext = *scene.inputContext();
-    auto  window       = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
+    auto  window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 
     // util::flow::on(2, [&] {
     // 	log::app::i()("ELAPSED TIME: {}", info.elapsedTime);
@@ -141,11 +141,11 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
 
     // get input
 
-    auto  im                    = static_cast<DesktopInputContext*>(&inputContext);
-    auto  keysPressed           = im->keysPressed();
-    auto  keysDown              = im->keysDown();
-    auto  mousePositionDelta    = im->mousePositionDelta();
-    auto  mouseScrollWheelDelta = im->mouseScrollWheelDelta();
+    auto im = static_cast<DesktopInputContext*>(&inputContext);
+    auto keysPressed = im->keysPressed();
+    auto keysDown = im->keysDown();
+    auto mousePositionDelta = im->mousePositionDelta();
+    auto mouseScrollWheelDelta = im->mouseScrollWheelDelta();
 
     using Key = DesktopInputContext::Key;
 
@@ -244,25 +244,25 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
 
                 static const float FOV_SPEED = 2.5; // degrees/roll
 
-                auto               camera = dynamic_pointer_cast<PerspectiveCamera>(pov->camera());
-                auto               fov    = camera->yFov();
-                fov                      += mouseScrollWheelDelta.y * -radians(FOV_SPEED);
+                auto camera = dynamic_pointer_cast<PerspectiveCamera>(pov->camera());
+                auto fov = camera->yFov();
+                fov += mouseScrollWheelDelta.y * -radians(FOV_SPEED);
                 camera->yFov(fov);
             }
 
             // look
 
-            vec3               camForward = pov->worldForward();
-            vec3               camRight   = pov->worldRight();
-            vec3               camUp      = pov->worldUp();
+            vec3 camForward = pov->worldForward();
+            vec3 camRight = pov->worldRight();
+            vec3 camUp = pov->worldUp();
 
             static const float MOUSE_SPEED_SCALAR = .002;
-            static const float MOUSE_SPEED        = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
+            static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
 
-            float              deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
-            float              deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
+            float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
+            float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
 
-            vec3               angles = pov->eulerAngles();
+            vec3 angles = pov->eulerAngles();
             pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
 
             // move
@@ -310,17 +310,17 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
 
     if (_pointLightNode) {
 
-        auto         center = vec3(0, 30, 0);
+        auto center = vec3(0, 30, 0);
 
-        static auto  extent = scene.rootNode()->extent();
+        static auto extent = scene.rootNode()->extent();
         //static float radius = std::max(std::max(extent.x, extent.y), extent.z) * .46;
-        static float radius  = math::max(extent) * .46; // a3d::math
+        static float radius = math::max(extent) * .46; // a3d::math
         static float radiusX = radius;
         static float radiusY = radius;
 
         static float rotationSpeed = radians(30.0); // deg/secs
-        static float angle         = 0;
-        angle                     += rotationSpeed * info.deltaTime;
+        static float angle = 0;
+        angle += rotationSpeed * info.deltaTime;
 
         float x = math::sin(angle) * radiusX;
         float y = math::cos(angle) * radiusY;

@@ -96,8 +96,8 @@ shared_ptr<Color> Color::Random() {
 
 /// Private Static Non-Member Prototypes ///
 
-static bool        ParseHexRgb(const char* s, u8vec3& rgb);   // "RRGGBB" or "#RRGGBB"
-static bool        ParseHexRgba(const char* s, u8vec4& rgba);  // "RRGGBBAA" or "#RRGGBBAA"
+static bool ParseHexRgb(const char* s, u8vec3& rgb);   // "RRGGBB" or "#RRGGBB"
+static bool ParseHexRgba(const char* s, u8vec4& rgba);  // "RRGGBBAA" or "#RRGGBBAA"
 //static u32 ParseHexRgb(const char* s);   // "RRGGBB" or "#RRGGBB"
 //static u32 ParseHexRgba(const char* s);  // "RRGGBBAA" or "#RRGGBBAA"
 static int         HexNibble(char c);

@@ -16,7 +16,7 @@ size_t PipelineDescHash::operator()(const PipelineDesc& desc) const noexcept {
 
     uint64_t h = 1469598103934665603ull; // Fowler–Noll–Vo-ish
 
-    auto     mix = [&](uint64_t v) {
+    auto mix = [&](uint64_t v) {
         // "golden ratio" from Boost hash_combine
         h ^= (uint64_t) v + 0x9e3779b97f4a7c15ull + (h << 6) + (h >> 2);
     };

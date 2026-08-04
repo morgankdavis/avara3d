@@ -31,8 +31,8 @@ CubeImage::CubeImage(array<unique_ptr<Image>, 6> faces):
         }
     }
 
-    const unsigned w   = faces[0]->width();
-    const unsigned h   = faces[0]->height();
+    const unsigned w = faces[0]->width();
+    const unsigned h = faces[0]->height();
     const unsigned bpp = faces[0]->bytesPerPixel();
 
     for (size_t i = 1; i < faces.size(); ++i) {
@@ -41,8 +41,8 @@ CubeImage::CubeImage(array<unique_ptr<Image>, 6> faces):
         }
     }
 
-    _width         = w;
-    _height        = h;
+    _width = w;
+    _height = h;
     _bytesPerPixel = bpp;
 
     _faces = std::move(faces);

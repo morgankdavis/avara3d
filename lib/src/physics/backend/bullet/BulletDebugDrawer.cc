@@ -102,7 +102,7 @@ void BulletDebugDrawer::drawContactPoint(const btVector3& pointOnB,
                                          const btVector3& color) {
 
     const float DISTANCE_EXTENSION = 0.0;
-    btVector3   to                 = pointOnB + normalOnB * (distance + DISTANCE_EXTENSION);
+    btVector3   to = pointOnB + normalOnB * (distance + DISTANCE_EXTENSION);
     drawLine(pointOnB, to, color, color);
 }
 

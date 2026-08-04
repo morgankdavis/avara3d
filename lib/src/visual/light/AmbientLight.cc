@@ -30,7 +30,7 @@ AmbientLight::AmbientLight(const shared_ptr<Color>& color):
 
 AmbientLight::AmbientLight(const string& name, const shared_ptr<Color>& color):
     AmbientLight() {
-    _name  = name;
+    _name = name;
     _color = color;
 }
 

@@ -22,7 +22,7 @@ void a3d::util::snapshot::SaveSnapshot(RenderContext& context) {
     if (execDir) {
         auto filename = std::format("Snapshot_{}.png", a3d::util::string::DateTimeString());
         log::i()("Saving snapshot to '{}'", (*execDir / std::filesystem::path(filename)).string());
-        auto image    = context.snapshot();
+        auto image = context.snapshot();
         auto fullPath = *execDir / filename;
         image->writePNG(fullPath);
     }

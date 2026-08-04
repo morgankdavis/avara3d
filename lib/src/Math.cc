@@ -746,25 +746,25 @@ namespace a3d::math {
 
     f32vec2& operator/=(f32vec2& v, f32 s) {
         f32 inv = 1.0f / s;
-        v.x    *= inv;
-        v.y    *= inv;
+        v.x *= inv;
+        v.y *= inv;
         return v;
     }
 
     f32vec3& operator/=(f32vec3& v, f32 s) {
         f32 inv = 1.0f / s;
-        v.x    *= inv;
-        v.y    *= inv;
-        v.z    *= inv;
+        v.x *= inv;
+        v.y *= inv;
+        v.z *= inv;
         return v;
     }
 
     f32vec4& operator/=(f32vec4& v, f32 s) {
         f32 inv = 1.0f / s;
-        v.x    *= inv;
-        v.y    *= inv;
-        v.z    *= inv;
-        v.w    *= inv;
+        v.x *= inv;
+        v.y *= inv;
+        v.z *= inv;
+        v.w *= inv;
         return v;
     }
 
@@ -1949,12 +1949,12 @@ namespace a3d::math {
     }
 
     f32 determinant(const f32mat4& m) {
-        f32  subFactor00 = m[2][2] * m[3][3] - m[3][2] * m[2][3];
-        f32  subFactor01 = m[2][1] * m[3][3] - m[3][1] * m[2][3];
-        f32  subFactor02 = m[2][1] * m[3][2] - m[3][1] * m[2][2];
-        f32  subFactor03 = m[2][0] * m[3][3] - m[3][0] * m[2][3];
-        f32  subFactor04 = m[2][0] * m[3][2] - m[3][0] * m[2][2];
-        f32  subFactor05 = m[2][0] * m[3][1] - m[3][0] * m[2][1];
+        f32 subFactor00 = m[2][2] * m[3][3] - m[3][2] * m[2][3];
+        f32 subFactor01 = m[2][1] * m[3][3] - m[3][1] * m[2][3];
+        f32 subFactor02 = m[2][1] * m[3][2] - m[3][1] * m[2][2];
+        f32 subFactor03 = m[2][0] * m[3][3] - m[3][0] * m[2][3];
+        f32 subFactor04 = m[2][0] * m[3][2] - m[3][0] * m[2][2];
+        f32 subFactor05 = m[2][0] * m[3][1] - m[3][0] * m[2][1];
 
         vec4 detCof(+(m[1][1] * subFactor00 - m[1][2] * subFactor01 + m[1][3] * subFactor02),
                     -(m[1][0] * subFactor00 - m[1][2] * subFactor03 + m[1][3] * subFactor04),
@@ -1970,7 +1970,7 @@ namespace a3d::math {
 
         f32 det = a * d - b * c;
         A3D_ASSERT(det != 0.0f);
-        f32     invDet = 1.0f / det;
+        f32 invDet = 1.0f / det;
 
         f32mat2 r;
         r.c0 = f32vec2 {d * invDet, -c * invDet};
@@ -1997,7 +1997,7 @@ namespace a3d::math {
 
         f32 det = m00 * inv00 + m01 * inv10 + m02 * inv20;
         A3D_ASSERT(det != 0.0f);
-        f32     invDet = 1.0f / det;
+        f32 invDet = 1.0f / det;
 
         f32mat3 r;
         r.c0 = f32vec3 {inv00 * invDet, inv10 * invDet, inv20 * invDet};
@@ -2022,11 +2022,11 @@ namespace a3d::math {
         for (int col = 0; col < 4; ++col) {
             // find pivot row
             int pivot_row = col;
-            f32 max_abs   = math::abs(a[col][col]);
+            f32 max_abs = math::abs(a[col][col]);
             for (int r = col + 1; r < 4; ++r) {
                 f32 val = math::abs(a[r][col]);
                 if (val > max_abs) {
-                    max_abs   = val;
+                    max_abs = val;
                     pivot_row = r;
                 }
             }
@@ -2042,10 +2042,10 @@ namespace a3d::math {
             }
 
             // normalize pivot row
-            const f32 pivot     = a[col][col];
+            const f32 pivot = a[col][col];
             const f32 inv_pivot = 1.0f / pivot;
             for (int j = 0; j < 4; ++j) {
-                a[col][j]   *= inv_pivot;
+                a[col][j] *= inv_pivot;
                 inv[col][j] *= inv_pivot;
             }
 
@@ -2055,12 +2055,12 @@ namespace a3d::math {
                     continue;
                 }
                 const f32 factor = a[r][col];
-                const f32 eps    = 1e-12f; // can be smaller here
+                const f32 eps = 1e-12f; // can be smaller here
                 if (math::abs(factor) < eps) {
                     continue;
                 }
                 for (int j = 0; j < 4; ++j) {
-                    a[r][j]   -= factor * a[col][j];
+                    a[r][j] -= factor * a[col][j];
                     inv[r][j] -= factor * inv[col][j];
                 }
             }
@@ -2086,10 +2086,10 @@ namespace a3d::math {
         const f32 c = cos(a);
         const f32 s = sin(a);
 
-        f32vec3   axis(normalize(v));
-        f32vec3   temp((f32(1) - c) * axis);
+        f32vec3 axis(normalize(v));
+        f32vec3 temp((f32(1) - c) * axis);
 
-        f32mat4   rotate;
+        f32mat4 rotate;
         rotate[0][0] = c + temp[0] * axis[0];
         rotate[0][1] = temp[0] * axis[1] + s * axis[2];
         rotate[0][2] = temp[0] * axis[2] - s * axis[1];
@@ -2295,8 +2295,8 @@ namespace a3d::math {
         vec3 u {q.x, q.y, q.z};
         f32  s = q.w;
 
-        f32  dot_uv = u.x * v.x + u.y * v.y + u.z * v.z; // dot(u, v)
-        f32  dot_uu = u.x * u.x + u.y * u.y + u.z * u.z; // dot(u, u)
+        f32 dot_uv = u.x * v.x + u.y * v.y + u.z * v.z; // dot(u, v)
+        f32 dot_uu = u.x * u.x + u.y * u.y + u.z * u.z; // dot(u, u)
 
         vec3 cross_uv {u.y * v.z - u.z * v.y, u.z * v.x - u.x * v.z, u.x * v.y - u.y * v.x};
 
@@ -2341,14 +2341,14 @@ namespace a3d::math {
     }
 
     f32quat inverse(const f32quat& q) {
-        f32       n2  = dot(q, q);
+        f32       n2 = dot(q, q);
         const f32 eps = 1e-6f;
         if (n2 < eps) {
             // effectively zero-length f32quat, can't invert sensibly
             return quat(1.0f);
         }
         f32     inv_n2 = 1.0f / n2;
-        f32quat c      = conjugate(q);
+        f32quat c = conjugate(q);
         return f32quat {c.w * inv_n2, c.x * inv_n2, c.y * inv_n2, c.z * inv_n2};
     }
 
@@ -2359,10 +2359,10 @@ namespace a3d::math {
         if (len < eps) {
             return quat(1.0f);
         }
-        f32  inv_len = 1.0f / len;
-        f32  half    = 0.5f * angle;
-        f32  s       = math::sin(half);
-        f32  c       = math::cos(half);
+        f32 inv_len = 1.0f / len;
+        f32 half = 0.5f * angle;
+        f32 s = math::sin(half);
+        f32 c = math::cos(half);
 
         vec3 n {axis.x * inv_len, axis.y * inv_len, axis.z * inv_len};
 
@@ -2370,15 +2370,15 @@ namespace a3d::math {
     }
 
     vec4 axis_angle(const f32quat& q_) {
-        f32quat   q = normalize(q_);
+        f32quat q = normalize(q_);
 
         const f32 eps = 1e-6f;
 
-        f32       angle = 2.0f * math::acos(math::clamp(q.w, -1.0f, 1.0f));
-        f32       s2    = 1.0f - q.w * q.w;
-        f32       s     = s2 > eps ? math::sqrt(s2) : 0.0f;
+        f32 angle = 2.0f * math::acos(math::clamp(q.w, -1.0f, 1.0f));
+        f32 s2 = 1.0f - q.w * q.w;
+        f32 s = s2 > eps ? math::sqrt(s2) : 0.0f;
 
-        f32vec3   axis;
+        f32vec3 axis;
         if (s < eps) {
             // axis is undefined; pick something stable
             axis = f32vec3 {1.0f, 0.0f, 0.0f};
@@ -2402,8 +2402,8 @@ namespace a3d::math {
         f32vec3 axisZ {0.0f, 0.0f, 1.0f};
 
         f32quat qPitch = quaternion(axisX, eulerAngles.pitch);
-        f32quat qYaw   = quaternion(axisY, eulerAngles.yaw);
-        f32quat qRoll  = quaternion(axisZ, eulerAngles.roll);
+        f32quat qYaw = quaternion(axisY, eulerAngles.yaw);
+        f32quat qRoll = quaternion(axisZ, eulerAngles.roll);
 
         // rpply roll, then pitch, then yaw:
         // R = Ry * Rx * Rz  => q = qYaw * qPitch * qRoll
@@ -2413,7 +2413,7 @@ namespace a3d::math {
 
     f32vec3 euler_angles(const f32quat& q) {
 
-        f32mat3   m = mat3_cast(q);
+        f32mat3 m = mat3_cast(q);
 
         // row-major aliases from column-major storage
         const f32 r02 = m.c2.x; // row 0, col 2
@@ -2423,10 +2423,10 @@ namespace a3d::math {
         const f32 r10 = m.c0.y; // row 1, col 0
         const f32 r11 = m.c1.y; // row 1, col 1
 
-        f32vec3   angles;
+        f32vec3 angles;
 
         // pitch: asin(-r12)
-        f32       sinp = -r12;
+        f32 sinp = -r12;
         if (sinp <= -1.0f) {
             angles.pitch = -math::pi_over_2(); // -π/2
         }
@@ -2439,7 +2439,7 @@ namespace a3d::math {
 
         // yaw and roll from atan2; this is undefined at exact +/- 90° pitch,
         // but numerically you'll still get a consistent choice.
-        angles.yaw  = math::atan2(r02, r22);
+        angles.yaw = math::atan2(r02, r22);
         angles.roll = math::atan2(r10, r11);
 
         return angles;
@@ -2457,11 +2457,11 @@ namespace a3d::math {
         f32quat q1 = normalize(a);
         f32quat q2 = normalize(b);
 
-        f32     cosTheta = dot(q1, q2);
+        f32 cosTheta = dot(q1, q2);
 
         // use shortest path
         if (cosTheta < 0.0f) {
-            q2       = f32quat {-q2.w, -q2.x, -q2.y, -q2.z};
+            q2 = f32quat {-q2.w, -q2.x, -q2.y, -q2.z};
             cosTheta = -cosTheta;
         }
 
@@ -2472,26 +2472,26 @@ namespace a3d::math {
             return normalize(result);
         }
 
-        f32     theta    = math::acos(cosTheta);
-        f32     sinTheta = math::sin(theta);
+        f32 theta = math::acos(cosTheta);
+        f32 sinTheta = math::sin(theta);
 
-        f32     w1 = math::sin((1.0f - t) * theta) / sinTheta;
-        f32     w2 = math::sin(t * theta) / sinTheta;
+        f32 w1 = math::sin((1.0f - t) * theta) / sinTheta;
+        f32 w2 = math::sin(t * theta) / sinTheta;
 
         f32quat result = q1 * w1 + q2 * w2;
         return normalize(result);
     }
 
     f32mat3 mat3_cast(f32quat const& q) {
-        f32     qxx(q.x * q.x);
-        f32     qyy(q.y * q.y);
-        f32     qzz(q.z * q.z);
-        f32     qxz(q.x * q.z);
-        f32     qxy(q.x * q.y);
-        f32     qyz(q.y * q.z);
-        f32     qwx(q.w * q.x);
-        f32     qwy(q.w * q.y);
-        f32     qwz(q.w * q.z);
+        f32 qxx(q.x * q.x);
+        f32 qyy(q.y * q.y);
+        f32 qzz(q.z * q.z);
+        f32 qxz(q.x * q.z);
+        f32 qxy(q.x * q.y);
+        f32 qyz(q.y * q.z);
+        f32 qwx(q.w * q.x);
+        f32 qwy(q.w * q.y);
+        f32 qwz(q.w * q.z);
 
         f32mat3 r(1.0);
         r[0][0] = f32(1) - f32(2) * (qyy + qzz);
@@ -2558,7 +2558,7 @@ namespace a3d::math {
         f32vec3 const s(normalize(cross(f, up)));
         f32vec3 const u(cross(s, f));
 
-        f32mat4       result(1.0f);
+        f32mat4 result(1.0f);
         result[0][0] = s.x;
         result[1][0] = s.y;
         result[2][0] = s.z;
@@ -2596,19 +2596,19 @@ namespace a3d::math {
         translation = f32vec3 {m.c3.x, m.c3.y, m.c3.z};
 
         // 2. extract basis vectors from upper 3x3 (columns 0..2)
-        f32vec3   col0 {m.c0.x, m.c0.y, m.c0.z};
-        f32vec3   col1 {m.c1.x, m.c1.y, m.c1.z};
-        f32vec3   col2 {m.c2.x, m.c2.y, m.c2.z};
+        f32vec3 col0 {m.c0.x, m.c0.y, m.c0.z};
+        f32vec3 col1 {m.c1.x, m.c1.y, m.c1.z};
+        f32vec3 col2 {m.c2.x, m.c2.y, m.c2.z};
 
         // 3. scale is the length of each basis vector
-        f32       sx = length(col0);
-        f32       sy = length(col1);
-        f32       sz = length(col2);
+        f32 sx = length(col0);
+        f32 sy = length(col1);
+        f32 sz = length(col2);
 
         const f32 eps = 1e-6f;
         if (sx < eps || sy < eps || sz < eps) {
             // degenerate scale, can't get a stable rotation
-            scale    = f32vec3 {sx, sy, sz};
+            scale = f32vec3 {sx, sy, sz};
             rotation = f32quat(1.0f);
             return false;
         }
@@ -2631,9 +2631,9 @@ namespace a3d::math {
 
         if (det < 0.0f) {
             // flip one axis (X here) to make it a proper rotation
-            sx      = -sx;
+            sx = -sx;
             scale.x = sx;
-            col0    = -col0;
+            col0 = -col0;
 
             // rebuild rows with flipped X axis
             r00 = col0.x;
@@ -2647,36 +2647,36 @@ namespace a3d::math {
 
         if (trace > 0.0f) {
             f32 root = math::sqrt(trace + 1.0f);  // 4 * qw
-            q.w      = 0.5f * root;
-            root     = 0.5f / root;
-            q.x      = (r21 - r12) * root;
-            q.y      = (r02 - r20) * root;
-            q.z      = (r10 - r01) * root;
+            q.w = 0.5f * root;
+            root = 0.5f / root;
+            q.x = (r21 - r12) * root;
+            q.y = (r02 - r20) * root;
+            q.z = (r10 - r01) * root;
         }
         else {
             if (r00 >= r11 && r00 >= r22) {
                 f32 root = math::sqrt(1.0f + r00 - r11 - r22);
-                f32 inv  = 0.5f / root;
-                q.x      = 0.5f * root;
-                q.y      = (r01 + r10) * inv;
-                q.z      = (r02 + r20) * inv;
-                q.w      = (r21 - r12) * inv;
+                f32 inv = 0.5f / root;
+                q.x = 0.5f * root;
+                q.y = (r01 + r10) * inv;
+                q.z = (r02 + r20) * inv;
+                q.w = (r21 - r12) * inv;
             }
             else if (r11 > r22) {
                 f32 root = math::sqrt(1.0f + r11 - r00 - r22);
-                f32 inv  = 0.5f / root;
-                q.y      = 0.5f * root;
-                q.x      = (r01 + r10) * inv;
-                q.z      = (r12 + r21) * inv;
-                q.w      = (r02 - r20) * inv;
+                f32 inv = 0.5f / root;
+                q.y = 0.5f * root;
+                q.x = (r01 + r10) * inv;
+                q.z = (r12 + r21) * inv;
+                q.w = (r02 - r20) * inv;
             }
             else {
                 f32 root = math::sqrt(1.0f + r22 - r00 - r11);
-                f32 inv  = 0.5f / root;
-                q.z      = 0.5f * root;
-                q.x      = (r02 + r20) * inv;
-                q.y      = (r12 + r21) * inv;
-                q.w      = (r10 - r01) * inv;
+                f32 inv = 0.5f / root;
+                q.z = 0.5f * root;
+                q.x = (r02 + r20) * inv;
+                q.y = (r12 + r21) * inv;
+                q.w = (r10 - r01) * inv;
             }
         }
 
@@ -2751,7 +2751,7 @@ namespace a3d::math {
 
     f32vec2 uniform_circular(std::mt19937* gen, f32 radius) {
         auto& g = pick_random_gen(gen);
-        radius  = math::abs(radius);
+        radius = math::abs(radius);
 
         const f32 theta = two_pi() * uniform_01(&g);
         return f32vec2 {radius * math::cos(theta), radius * math::sin(theta)};
@@ -2763,16 +2763,16 @@ namespace a3d::math {
 
     f32vec3 uniform_spherical(std::mt19937* gen, f32 radius) {
         auto& g = pick_random_gen(gen);
-        radius  = math::abs(radius);
+        radius = math::abs(radius);
 
         // uniform on sphere surface:
         // z ~ U[-1,1), phi ~ U[0,2pi)
-        const f32 z   = uniform_n11(&g);
+        const f32 z = uniform_n11(&g);
         const f32 phi = two_pi() * uniform_01(&g);
 
         const f32 r_xy = math::sqrt(math::max(f32(0), f32(1) - z * z));
-        const f32 x    = r_xy * math::cos(phi);
-        const f32 y    = r_xy * math::sin(phi);
+        const f32 x = r_xy * math::cos(phi);
+        const f32 y = r_xy * math::sin(phi);
 
         return f32vec3 {radius * x, radius * y, radius * z};
     }
@@ -2783,12 +2783,12 @@ namespace a3d::math {
 
     f32vec2 uniform_disk(std::mt19937* gen, f32 radius) {
         auto& g = pick_random_gen(gen);
-        radius  = math::abs(radius);
+        radius = math::abs(radius);
 
         // uniform in disk area:
         // r = R*sqrt(u), theta uniform
         const f32 theta = two_pi() * uniform_01(&g);
-        const f32 r     = radius * math::sqrt(uniform_01(&g));
+        const f32 r = radius * math::sqrt(uniform_01(&g));
 
         return f32vec2 {r * math::cos(theta), r * math::sin(theta)};
     }
@@ -2799,17 +2799,17 @@ namespace a3d::math {
 
     f32vec3 uniform_ball(std::mt19937* gen, f32 radius) {
         auto& g = pick_random_gen(gen);
-        radius  = math::abs(radius);
+        radius = math::abs(radius);
 
         // uniform in ball volume:
         // direction uniform on sphere, radius scaled by cbrt(u)
-        const f32 z   = uniform_n11(&g);
+        const f32 z = uniform_n11(&g);
         const f32 phi = two_pi() * uniform_01(&g);
 
         const f32 r_xy = math::sqrt(math::max(f32(0), f32(1) - z * z));
-        const f32 dx   = r_xy * math::cos(phi);
-        const f32 dy   = r_xy * math::sin(phi);
-        const f32 dz   = z;
+        const f32 dx = r_xy * math::cos(phi);
+        const f32 dy = r_xy * math::sin(phi);
+        const f32 dz = z;
 
         const f32 r = radius * math::cbrt(uniform_01(&g));
 
@@ -3019,7 +3019,7 @@ namespace a3d::math {
     f32 ease_out_quadratic(f32 t) {
         // f(t) = 1 - (1 - t)^2
 
-        t     = clamp_01(t);
+        t = clamp_01(t);
         f32 u = f32(1) - t;
         return f32(1) - u * u;
     }
@@ -3046,7 +3046,7 @@ namespace a3d::math {
     f32 ease_out_cubic(f32 t) {
         // f(t) = 1 - (1 - t)^3
 
-        t     = clamp_01(t);
+        t = clamp_01(t);
         f32 u = f32(1) - t;
         return f32(1) - u * u * u;
     }
@@ -3066,7 +3066,7 @@ namespace a3d::math {
     f32 ease_in_quartic(f32 t) {
         // f(t) = t^4
 
-        t      = clamp_01(t);
+        t = clamp_01(t);
         f32 t2 = t * t;
         return t2 * t2;
     }
@@ -3074,8 +3074,8 @@ namespace a3d::math {
     f32 ease_out_quartic(f32 t) {
         // f(t) = 1 - (1 - t)^4
 
-        t      = clamp_01(t);
-        f32 u  = f32(1) - t;
+        t = clamp_01(t);
+        f32 u = f32(1) - t;
         f32 u2 = u * u;
         return f32(1) - (u2 * u2);
     }
@@ -3089,7 +3089,7 @@ namespace a3d::math {
             f32 t2 = t * t;
             return f32(8) * t2 * t2;
         }
-        f32 u  = f32(-2) * t + f32(2);
+        f32 u = f32(-2) * t + f32(2);
         f32 u2 = u * u;
         return f32(1) - (u2 * u2) / f32(2);
     }
@@ -3097,7 +3097,7 @@ namespace a3d::math {
     f32 ease_in_quintic(f32 t) {
         // f(t) = t^5
 
-        t      = clamp_01(t);
+        t = clamp_01(t);
         f32 t2 = t * t;
         return t2 * t2 * t;
     }
@@ -3105,8 +3105,8 @@ namespace a3d::math {
     f32 ease_out_quintic(f32 t) {
         // f(t) = 1 - (1 - t)^5
 
-        t      = clamp_01(t);
-        f32 u  = f32(1) - t;
+        t = clamp_01(t);
+        f32 u = f32(1) - t;
         f32 u2 = u * u;
         return f32(1) - (u2 * u2 * u);
     }
@@ -3120,7 +3120,7 @@ namespace a3d::math {
             f32 t2 = t * t;
             return f32(16) * t2 * t2 * t;
         }
-        f32 u  = f32(-2) * t + f32(2);
+        f32 u = f32(-2) * t + f32(2);
         f32 u2 = u * u;
         return f32(1) - (u2 * u2 * u) / f32(2);
     }
@@ -3155,7 +3155,7 @@ namespace a3d::math {
     f32 ease_out_circular(f32 t) {
         // f(t) = sqrt(1 - (t - 1)^2)
 
-        t     = clamp_01(t);
+        t = clamp_01(t);
         f32 u = t - f32(1);
         return math::sqrt(math::max(f32(0), f32(1) - u * u));
     }
@@ -3219,7 +3219,7 @@ namespace a3d::math {
         // c1 = overshoot, c3 = c1 + 1
         // f(t) = c3*t^3 - c1*t^2
 
-        t            = clamp_01(t);
+        t = clamp_01(t);
         const f32 c1 = overshoot;
         const f32 c3 = c1 + f32(1);
         return c3 * t * t * t - c1 * t * t;
@@ -3228,10 +3228,10 @@ namespace a3d::math {
     f32 ease_out_back(f32 t, f32 overshoot) {
         // f(t) = 1 + c3*(t-1)^3 + c1*(t-1)^2
 
-        t            = clamp_01(t);
+        t = clamp_01(t);
         const f32 c1 = overshoot;
         const f32 c3 = c1 + f32(1);
-        f32       u  = t - f32(1);
+        f32       u = t - f32(1);
         return f32(1) + c3 * u * u * u + c1 * u * u;
     }
 
@@ -3240,7 +3240,7 @@ namespace a3d::math {
         // f(t) = { ( (2t)^2 * ((c2+1)*2t - c2) ) / 2            	| t < 1/2
         //        { ( (2t-2)^2 * ((c2+1)*(2t-2) + c2) + 2 ) / 2 	| otherwise
 
-        t            = clamp_01(t);
+        t = clamp_01(t);
         const f32 c2 = overshoot * f32(1.525);
 
         if (t < f32(0.5)) {
@@ -3339,7 +3339,7 @@ namespace a3d::math {
         f32quat b = b_in;
 
         // shortest path: if dot < 0, flip b (since q and -q are same rotation)
-        f32     d = dot(a, b);
+        f32 d = dot(a, b);
         if (shortest_path && d < f32(0)) {
             b = -b;
             d = -d;
@@ -3362,7 +3362,7 @@ namespace a3d::math {
         f32quat a = normalize(a_in);
         f32quat b = normalize(b_in);
 
-        f32     d = dot(a, b);
+        f32 d = dot(a, b);
 
         // shortest path: flip b if needed
         if (shortest_path && d < f32(0)) {
@@ -3379,7 +3379,7 @@ namespace a3d::math {
             return nlerp(a, b, t, false);
         }
 
-        const f32 omega     = math::acos(d);          // Ω
+        const f32 omega = math::acos(d);          // Ω
         const f32 sin_omega = math::sin(omega);   // sin(Ω)
 
         const f32 s0 = math::sin((f32(1) - t) * omega) / sin_omega;
@@ -3477,7 +3477,7 @@ namespace a3d::math {
         const f32 r = rgb.r, g = rgb.g, b = rgb.b;
         const f32 mx = math::max(r, math::max(g, b));
         const f32 mn = math::min(r, math::min(g, b));
-        const f32 d  = mx - mn;
+        const f32 d = mx - mn;
 
         // v = max channel
         const f32 v = mx;
@@ -3486,7 +3486,7 @@ namespace a3d::math {
         const f32 s = (mx > f32(0)) ? (d / mx) : f32(0);
 
         // hue in [0,1)
-        f32       h = f32(0);
+        f32 h = f32(0);
         if (d > f32(0)) {
             if (mx == r) {
                 h = (g - b) / d;
@@ -3519,12 +3519,12 @@ namespace a3d::math {
         // hp = h*6
         // x = c*(1 - |(hp mod 2) - 1|)
         // m = v - c
-        const f32 c  = v * s;
+        const f32 c = v * s;
         const f32 hp = h * f32(6);
-        const f32 x  = c * (f32(1) - math::abs(math::mod(hp, f32(2)) - f32(1)));
-        const f32 m  = v - c;
+        const f32 x = c * (f32(1) - math::abs(math::mod(hp, f32(2)) - f32(1)));
+        const f32 m = v - c;
 
-        f32       rp = 0, gp = 0, bp = 0;
+        f32 rp = 0, gp = 0, bp = 0;
         if (hp < f32(1)) {
             rp = c;
             gp = x;
@@ -3563,16 +3563,16 @@ namespace a3d::math {
         const f32 r = rgb.r, g = rgb.g, b = rgb.b;
         const f32 mx = math::max(r, math::max(g, b));
         const f32 mn = math::min(r, math::min(g, b));
-        const f32 d  = mx - mn;
+        const f32 d = mx - mn;
 
         // l = (mx + mn)/2
         const f32 l = (mx + mn) / f32(2);
 
         // s = d / (1 - |2l - 1|) (or 0 if d==0)
-        f32       s = f32(0);
+        f32 s = f32(0);
         if (d > f32(0)) {
             const f32 denom = f32(1) - math::abs(f32(2) * l - f32(1));
-            s               = (denom > f32(0)) ? (d / denom) : f32(0);
+            s = (denom > f32(0)) ? (d / denom) : f32(0);
         }
 
         // hue in [0,1)
@@ -3884,17 +3884,17 @@ namespace a3d::math {
         }
 
         const bool  neg = math::sign_bit(v);
-        const float a   = math::abs(v);
+        const float a = math::abs(v);
 
         // count integer digits of |v|
-        int         int_digits = 1;
+        int int_digits = 1;
         if (a >= 1.0f) {
             int_digits = static_cast<int>(math::floor(math::log10(a))) + 1;
         }
 
         // decimals that can fit if we include '.' (when decimals > 0)
         int max_dec = width - (neg ? 1 : 0) - int_digits - 1;
-        max_dec     = math::clamp(max_dec, 0, (int) width);
+        max_dec = math::clamp(max_dec, 0, (int) width);
 
         // try fixed, reducing decimals until it fits
         for (int dec = max_dec; dec >= 0; --dec) {

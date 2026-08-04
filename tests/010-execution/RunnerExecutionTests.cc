@@ -152,9 +152,9 @@ namespace {
             ++_updateCount;
         }
 
-        void        attachedToScene(a3d::Scene&) override {}
+        void attachedToScene(a3d::Scene&) override {}
 
-        void        visualWorldAttachedToScene(a3d::Scene&) override {}
+        void visualWorldAttachedToScene(a3d::Scene&) override {}
 
         std::size_t updateCount() const {
             return _updateCount;
@@ -194,13 +194,13 @@ namespace {
             return false;
         }
 
-        void             vSyncEnabled(bool) override {}
+        void vSyncEnabled(bool) override {}
 
-        void             beginFrame(const a3d::Scene&) override {}
+        void beginFrame(const a3d::Scene&) override {}
 
-        void             endFrame(const a3d::Scene&) override {}
+        void endFrame(const a3d::Scene&) override {}
 
-        void             swapBuffers() override {}
+        void swapBuffers() override {}
 
         a3d::math::uvec2 viewportLogicalSize() const override {
             return {1, 1};
@@ -218,9 +218,9 @@ namespace {
     class RecordingApplication final : public a3d::Application {
 
     public:
-        using HostAction       = std::function<void(a3d::Runner&, const a3d::Runner::UpdateInfo&)>;
+        using HostAction = std::function<void(a3d::Runner&, const a3d::Runner::UpdateInfo&)>;
         using SimulationAction = std::function<void(a3d::Scene&, const a3d::Scene::StepInfo&)>;
-        using RenderAction     = std::function<void(a3d::VisualWorld&, const a3d::VisualWorld::RenderInfo&)>;
+        using RenderAction = std::function<void(a3d::VisualWorld&, const a3d::VisualWorld::RenderInfo&)>;
 
         RecordingApplication():
             Application(1, Arguments()),
@@ -290,7 +290,7 @@ namespace {
         static char** Arguments() {
 
             static char  executableName[] = "a3d-runner-execution-tests";
-            static char* arguments[]      = {executableName};
+            static char* arguments[] = {executableName};
 
             return arguments;
         }
@@ -329,10 +329,10 @@ namespace {
 
             ++_result.hostUpdateCount;
 
-            const auto& constApplication       = *this;
+            const auto& constApplication = *this;
             _result.constAndMutableAccessMatch = &constApplication.runner() == &runner();
-            _result.callbackAndAccessMatch     = &callbackRunner == &runner();
-            _result.initialTimeScale           = constApplication.runner().timeScale();
+            _result.callbackAndAccessMatch = &callbackRunner == &runner();
+            _result.initialTimeScale = constApplication.runner().timeScale();
 
             callbackRunner.timeScale(0.5);
             _result.hostUpdateTimeScale = callbackRunner.timeScale();
@@ -343,7 +343,7 @@ namespace {
         static char** Arguments() {
 
             static char  executableName[] = "a3d-runner-execution-tests";
-            static char* arguments[]      = {executableName};
+            static char* arguments[] = {executableName};
 
             return arguments;
         }
@@ -381,7 +381,7 @@ namespace {
 
         a3d::SimulationConfig simulationConfig() const override {
 
-            auto config     = a3d::SimulationConfig {};
+            auto config = a3d::SimulationConfig {};
             config.timeStep = 0.125;
             return config;
         }
@@ -412,7 +412,7 @@ namespace {
         static char** Arguments() {
 
             static char  executableName[] = "a3d-runner-execution-tests";
-            static char* arguments[]      = {executableName};
+            static char* arguments[] = {executableName};
 
             return arguments;
         }
@@ -472,21 +472,21 @@ namespace {
         Expect(rejected, message);
     }
 
-    a3d::SimulationConfig MakeSimulationConfig(double        deltaTime       = 0.125,
+    a3d::SimulationConfig MakeSimulationConfig(double        deltaTime = 0.125,
                                                std::uint32_t maxCatchUpSteps = 8,
-                                               double        timeScale       = 1.0) {
+                                               double        timeScale = 1.0) {
 
-        auto configuration            = a3d::SimulationConfig {};
-        configuration.timeStep        = deltaTime;
+        auto configuration = a3d::SimulationConfig {};
+        configuration.timeStep = deltaTime;
         configuration.maxCatchUpSteps = maxCatchUpSteps;
-        configuration.timeScale       = timeScale;
+        configuration.timeScale = timeScale;
         return configuration;
     }
 
     RecordedStep RecordStep(const a3d::Scene::StepInfo& info) {
         return {.stepIndex = info.stepIndex,
                 .startTime = info.startTime,
-                .endTime   = info.endTime,
+                .endTime = info.endTime,
                 .deltaTime = info.deltaTime};
     }
 
@@ -672,38 +672,38 @@ namespace {
                 message);
         };
 
-        auto configuration     = a3d::SimulationConfig {};
+        auto configuration = a3d::SimulationConfig {};
         configuration.timeStep = 0.0;
         expectConfigurationRejected(configuration, "the fixed scheduler should reject a zero fixed delta");
 
-        configuration          = {};
+        configuration = {};
         configuration.timeStep = -0.125;
         expectConfigurationRejected(configuration, "the fixed scheduler should reject a negative fixed delta");
 
-        configuration          = {};
+        configuration = {};
         configuration.timeStep = std::numeric_limits<double>::infinity();
         expectConfigurationRejected(configuration, "the fixed scheduler should reject an infinite fixed delta");
 
-        configuration          = {};
+        configuration = {};
         configuration.timeStep = std::numeric_limits<double>::quiet_NaN();
         expectConfigurationRejected(configuration, "the fixed scheduler should reject a NaN fixed delta");
 
-        configuration                 = {};
+        configuration = {};
         configuration.maxCatchUpSteps = 0;
         expectConfigurationRejected(configuration,
                                     "the fixed scheduler should reject a zero maximum catch-up count");
 
-        configuration           = {};
+        configuration = {};
         configuration.timeScale = 0.0;
         expectConfigurationRejected(configuration,
                                     "the fixed scheduler should reject a zero configured time scale");
 
-        configuration           = {};
+        configuration = {};
         configuration.timeScale = std::numeric_limits<double>::quiet_NaN();
         expectConfigurationRejected(configuration,
                                     "the fixed scheduler should reject a NaN configured time scale");
 
-        configuration           = {};
+        configuration = {};
         configuration.timeScale = std::numeric_limits<double>::infinity();
         expectConfigurationRejected(configuration,
                                     "the fixed scheduler should reject an infinite configured time scale");
@@ -750,11 +750,11 @@ namespace {
 
         a3d::Scene scene;
         scene.physicsWorld(std::make_unique<a3d::PhysicsWorld>());
-        auto        node = AddMovingDynamicBody(scene);
+        auto node = AddMovingDynamicBody(scene);
 
         std::size_t runnerCallbackCount = 0;
         std::size_t simulationWillCount = 0;
-        std::size_t simulationDidCount  = 0;
+        std::size_t simulationDidCount = 0;
 
         a3d::Runner runner(scene, MakeSimulationConfig());
         runner.updateCallback([&runnerCallbackCount](a3d::Runner&, const a3d::Runner::UpdateInfo&) {
@@ -909,7 +909,7 @@ namespace {
 
         a3d::testing::ApplicationTestAccess::prepare(*application);
 
-        auto&      runner    = a3d::testing::ApplicationTestAccess::runner(*application);
+        auto&      runner = a3d::testing::ApplicationTestAccess::runner(*application);
         const auto startTime = a3d::testing::RunnerTestAccess::startTime(runner);
 
         Expect(a3d::testing::RunnerTestAccess::update(runner, startTime),
@@ -952,7 +952,7 @@ namespace {
 
         a3d::Runner                   runner(scene, MakeSimulationConfig());
         std::vector<std::string_view> stages;
-        std::size_t                   callbackCount   = 0;
+        std::size_t                   callbackCount = 0;
         std::size_t                   simulationCount = 0;
 
         a3d::testing::RunnerTestAccess::start(runner, AtMicroseconds(7000000));
@@ -995,7 +995,7 @@ namespace {
 
         a3d::Scene scene;
         scene.physicsWorld(std::make_unique<a3d::PhysicsWorld>());
-        auto                          node = AddMovingDynamicBody(scene);
+        auto node = AddMovingDynamicBody(scene);
 
         a3d::Runner                   runner(scene, MakeSimulationConfig());
         std::vector<std::string_view> stages;
@@ -1032,7 +1032,7 @@ namespace {
 
         a3d::Scene                    scene;
         std::vector<std::string_view> stages;
-        auto                          inputContext    = std::make_unique<RecordingInputContext>(stages);
+        auto                          inputContext = std::make_unique<RecordingInputContext>(stages);
         auto*                         inputContextPtr = inputContext.get();
         scene.inputContext(std::move(inputContext));
 
@@ -1085,7 +1085,7 @@ namespace {
         Expect(scene.inputContext() == nullptr, "the no-input fixture should not have an InputContext");
 
         RecordingApplication application;
-        std::size_t          hostUpdateCount     = 0;
+        std::size_t          hostUpdateCount = 0;
         std::size_t          simulationStepCount = 0;
 
         application.hostAction = [&](a3d::Runner&, const a3d::Runner::UpdateInfo&) {
@@ -1114,9 +1114,9 @@ namespace {
 
         ApplicationRunnerAccessResult result {};
 
-        auto                          application = std::make_unique<RunnerAccessApplication>(result);
+        auto application = std::make_unique<RunnerAccessApplication>(result);
 
-        bool                          uninitializedAccessRejected = false;
+        bool uninitializedAccessRejected = false;
         try {
             (void) application->runnerBeforeInitialization();
         }
@@ -1141,7 +1141,7 @@ namespace {
 
         a3d::Scene                    scene;
         std::vector<std::string_view> inputStages;
-        auto                          inputContext    = std::make_unique<RecordingInputContext>(inputStages);
+        auto                          inputContext = std::make_unique<RecordingInputContext>(inputStages);
         auto*                         inputContextPtr = inputContext.get();
         scene.inputContext(std::move(inputContext));
 
@@ -1220,7 +1220,7 @@ namespace {
 
         RecordingApplication application;
         std::size_t          commandExecutionCount = 0;
-        std::size_t          renderFrameCount      = 0;
+        std::size_t          renderFrameCount = 0;
         application.enqueueRender([&](a3d::VisualWorld&) {
             ++commandExecutionCount;
         });
@@ -1291,14 +1291,14 @@ namespace {
 
         a3d::Scene                    scene;
         std::vector<std::string_view> stages;
-        auto                          inputContext    = std::make_unique<RecordingInputContext>(stages);
+        auto                          inputContext = std::make_unique<RecordingInputContext>(stages);
         auto*                         inputContextPtr = inputContext.get();
         scene.inputContext(std::move(inputContext));
         scene.physicsWorld(std::make_unique<a3d::PhysicsWorld>());
         auto                 bodyNode = AddMovingDynamicBody(scene);
         RecordingApplication application;
 
-        a3d::Runner          runner(scene, MakeSimulationConfig());
+        a3d::Runner runner(scene, MakeSimulationConfig());
         a3d::testing::RunnerTestAccess::start(runner, AtMilliseconds(8000));
 
         // Prime the Runner so the observed Runner update has a nonzero delta.
@@ -1310,7 +1310,7 @@ namespace {
         std::vector<CallbackTime> hostUpdateTimes;
         std::vector<RecordedStep> simulationSteps;
         double                    positionBeforePhysics = -1.0;
-        double                    positionAfterPhysics  = -1.0;
+        double                    positionAfterPhysics = -1.0;
         application.hostAction = [&](a3d::Runner& callbackRunner, const a3d::Runner::UpdateInfo& info) {
             Expect(&callbackRunner == &runner, "hostUpdate should receive the Runner executing the update");
             stages.push_back("host");
@@ -1369,7 +1369,7 @@ namespace {
 
         a3d::Scene                    scene;
         std::vector<std::string_view> stages;
-        auto                          inputContext    = std::make_unique<RecordingInputContext>(stages);
+        auto                          inputContext = std::make_unique<RecordingInputContext>(stages);
         auto*                         inputContextPtr = inputContext.get();
         scene.inputContext(std::move(inputContext));
         RecordingApplication application;
@@ -1610,7 +1610,7 @@ namespace {
 
         a3d::Scene scene;
         scene.physicsWorld(std::make_unique<a3d::PhysicsWorld>());
-        auto        node = AddMovingDynamicBody(scene);
+        auto node = AddMovingDynamicBody(scene);
 
         std::size_t completedStepCount = 0;
         scene.didStepCallback([&completedStepCount](a3d::Scene&, const a3d::Scene::StepInfo&) {
@@ -1665,8 +1665,8 @@ namespace {
 
         a3d::Scene scene;
         scene.physicsWorld(std::make_unique<a3d::PhysicsWorld>());
-        auto                     node = AddMovingDynamicBody(scene);
-        a3d::Runner              runner(scene, MakeSimulationConfig());
+        auto        node = AddMovingDynamicBody(scene);
+        a3d::Runner runner(scene, MakeSimulationConfig());
 
         SimulationScheduleResult result;
         scene.didStepCallback([&result](a3d::Scene&, const a3d::Scene::StepInfo& info) {
@@ -1684,15 +1684,15 @@ namespace {
                    "the repeatability scheduled update should continue");
         }
 
-        result.bodyPosition        = node->physicsBody()->centerOfMass().x;
-        result.simulationTime      = runner.simulationTime();
+        result.bodyPosition = node->physicsBody()->centerOfMass().x;
+        result.simulationTime = runner.simulationTime();
         result.simulationStepCount = runner.simulationStepCount();
         return result;
     }
 
     void SimulationPhysicsIsRepeatable() {
 
-        const auto catchUp     = RunSimulationPhysicsSchedule({375000});
+        const auto catchUp = RunSimulationPhysicsSchedule({375000});
         const auto distributed = RunSimulationPhysicsSchedule({125000, 125000, 125000});
 
         Expect(catchUp.steps.size() == 3, "the catch-up schedule should execute three steps");
@@ -1700,7 +1700,7 @@ namespace {
 
         for (std::size_t index = 0; index < catchUp.steps.size(); ++index) {
             const double startTime = static_cast<double>(index) * 0.125;
-            const double endTime   = static_cast<double>(index + 1) * 0.125;
+            const double endTime = static_cast<double>(index + 1) * 0.125;
 
             ExpectStep(catchUp.steps[index], index, startTime, endTime, 0.125,
                        "the catch-up repeatability step");
@@ -1723,9 +1723,9 @@ namespace {
 
         constexpr double FIXED_DELTA_TIME = 1.0 / 120.0;
 
-        a3d::Scene       scene;
+        a3d::Scene scene;
 
-        a3d::Runner      runner(scene, MakeSimulationConfig(FIXED_DELTA_TIME));
+        a3d::Runner runner(scene, MakeSimulationConfig(FIXED_DELTA_TIME));
 
         a3d::testing::RunnerTestAccess::start(runner, AtMicroseconds(0));
 
@@ -1772,7 +1772,7 @@ namespace {
 
         a3d::Scene                    scene;
         std::vector<std::string_view> stages;
-        auto                          inputContext    = std::make_unique<RecordingInputContext>(stages);
+        auto                          inputContext = std::make_unique<RecordingInputContext>(stages);
         auto*                         inputContextPtr = inputContext.get();
         scene.inputContext(std::move(inputContext));
         scene.physicsWorld(std::make_unique<a3d::PhysicsWorld>());
@@ -1799,7 +1799,7 @@ namespace {
 
         stages.clear();
         inputContextPtr->reset();
-        hostUpdateCount        = 0;
+        hostUpdateCount = 0;
         const auto sampleCount = a3d::testing::RunnerTestAccess::frameStatsHistory(runner).samples().size();
         runner.pauseSimulation();
 
@@ -1862,15 +1862,15 @@ namespace {
 
         a3d::Scene                    scene;
         std::vector<std::string_view> stages;
-        auto                          inputContext    = std::make_unique<RecordingInputContext>(stages);
+        auto                          inputContext = std::make_unique<RecordingInputContext>(stages);
         auto*                         inputContextPtr = inputContext.get();
         scene.inputContext(std::move(inputContext));
         RecordingApplication application;
         a3d::Runner          runner(scene, MakeSimulationConfig());
-        bool                 pauseNow        = false;
-        bool                 resumeNow       = false;
+        bool                 pauseNow = false;
+        bool                 resumeNow = false;
         std::size_t          hostUpdateCount = 0;
-        std::size_t          stepCount       = 0;
+        std::size_t          stepCount = 0;
 
         application.hostAction = [&](a3d::Runner&, const a3d::Runner::UpdateInfo&) {
             Expect(inputContextPtr->updateCount() == hostUpdateCount + 1,
@@ -1900,7 +1900,7 @@ namespace {
         Expect(runner.simulationPaused() && hostUpdateCount == 2 && stepCount == 0,
                "hostUpdate pause should suppress same-update scheduling");
 
-        pauseNow  = false;
+        pauseNow = false;
         resumeNow = true;
         Expect(a3d::testing::RunnerTestAccess::update(runner, AtMilliseconds(250)),
                "resume during hostUpdate should keep the Runner alive");
@@ -2038,7 +2038,7 @@ namespace {
 
         a3d::Scene                    scene;
         std::vector<std::string_view> updateStages;
-        auto                          inputContext    = std::make_unique<RecordingInputContext>(updateStages);
+        auto                          inputContext = std::make_unique<RecordingInputContext>(updateStages);
         auto*                         inputContextPtr = inputContext.get();
         scene.inputContext(std::move(inputContext));
         scene.physicsWorld(std::make_unique<a3d::PhysicsWorld>());
@@ -2083,7 +2083,7 @@ namespace {
         for (std::size_t index = 0; index < simulationSteps.size(); ++index) {
 
             const double startTime = static_cast<double>(index) * 0.125;
-            const double endTime   = static_cast<double>(index + 1) * 0.125;
+            const double endTime = static_cast<double>(index + 1) * 0.125;
             ExpectStep(simulationSteps[index], index, startTime, endTime, 0.125,
                        "the requested simulation step");
         }
@@ -2293,50 +2293,50 @@ namespace {
     using TestFunction = void (*)();
 
     const std::pair<std::string_view, TestFunction>
-         Tests[] {{"first-update-zero-delta", FirstUpdateHasZeroDelta},
-                  {"elapsed-time-progression", ElapsedTimeProgresses},
-                  {"delta-time-progression", DeltaTimeProgresses},
-                  {"update-index-progression", UpdateIndexProgresses},
-                  {"independent-runner-clocks", RunnerClocksAreIndependent},
-                  {"simulation-config-defaults", SimulationConfigDefaults},
-                  {"simulation-config-validation", SimulationConfigValidation},
-                  {"first-update-zero-simulation-steps", FirstUpdateExecutesNoSimulationSteps},
-                  {"simulation-fractional-accumulator", SimulationRetainsFractionalAccumulator},
-                  {"simulation-catch-up-overflow", SimulationLimitsCatchUpAndReportsDiscard},
-                  {"pause-simulation-preconditions", PauseSimulationPreconditions},
-                  {"paused-update-pipeline", PausedUpdatesKeepInputHostAndStatisticsActive},
-                  {"pause-clears-fixed-accumulator", PauseClearsFixedAccumulatorWithoutDiscard},
-                  {"pause-host-update-boundary", PauseDuringHostUpdateSuppressesScheduling},
-                  {"pause-during-catch-up", PauseDuringCatchUpFinishesOnlyCurrentStep},
-                  {"resume-boundary", ResumeClearsRequestsAndSuppressesOneAutomaticUpdate},
-                  {"requested-step-preconditions", RequestedStepPreconditions},
-                  {"requested-step-fixed-execution", RequestedStepsUseFixedDeltaAndIgnoreTimeScale},
-                  {"requested-step-command-order", RequestedStepsPreserveCommandAndCallbackOrder},
-                  {"requested-step-snapshot-deferral", RequestedStepSnapshotDefersCallbackRequests},
-                  {"requested-step-stop-interruption", StopInterruptsRequestedStepsAfterCurrentStep},
-                  {"requested-step-resume-interruption", ResumeInterruptsRequestedStepsAndClearsRemainder},
-                  {"stop-between-updates", StopBetweenUpdates},
-                  {"stop-during-host-update", StopDuringHostUpdate},
-                  {"stop-during-runner-callback", StopDuringRunnerCallback},
-                  {"stop-during-simulation-step", StopDuringSimulationStep},
-                  {"input-before-host-update", InputUpdatesBeforeHostUpdateAndSimulation},
-                  {"no-input-context", NoInputContextStillRunsHostUpdate},
-                  {"application-runner-access", ApplicationRunnerAccessUsesPreparedRunner},
-                  {"simulation-callback-order-physics", SimulationCallbacksRunInOrderWithPhysics},
-                  {"scene-command-boundaries", SceneCommandsRespectStepBoundaries},
-                  {"render-command-no-valid-render", RenderCommandsWaitWithoutAValidRender},
-                  {"render-command-adapter-order", RenderCommandsPrecedeRenderFrameAtAdapterBoundary},
-                  {"neither-world-pipeline", NeitherWorldPipeline},
-                  {"no-visual-completed-render-count", NoVisualWorldHasZeroCompletedRenderFrames},
-                  {"scene-root-invariant", SceneRootInvariant},
-                  {"physics-inventory-sampling", PhysicsInventorySamplingIsCurrent},
-                  {"physics-inventory-multiple-steps", PhysicsInventoryAcrossMultipleSteps},
-                  {"physics-inventory-latest-step", PhysicsInventoryUsesLatestStep},
-                  {"physics-inventory-before-did-step", PhysicsInventoryPrecedesDidStep},
-                  {"bullet-exact-step", BulletAdvancesExactlyOncePerSimulationStep},
-                  {"bullet-invalid-step-delta", BulletRejectsInvalidStepDelta},
-                  {"simulation-repeatability", SimulationPhysicsIsRepeatable},
-                  {"simulation-120hz-long-run", SimulationAtOneHundredTwentyHertzDoesNotDrift}};
+        Tests[] {{"first-update-zero-delta", FirstUpdateHasZeroDelta},
+                 {"elapsed-time-progression", ElapsedTimeProgresses},
+                 {"delta-time-progression", DeltaTimeProgresses},
+                 {"update-index-progression", UpdateIndexProgresses},
+                 {"independent-runner-clocks", RunnerClocksAreIndependent},
+                 {"simulation-config-defaults", SimulationConfigDefaults},
+                 {"simulation-config-validation", SimulationConfigValidation},
+                 {"first-update-zero-simulation-steps", FirstUpdateExecutesNoSimulationSteps},
+                 {"simulation-fractional-accumulator", SimulationRetainsFractionalAccumulator},
+                 {"simulation-catch-up-overflow", SimulationLimitsCatchUpAndReportsDiscard},
+                 {"pause-simulation-preconditions", PauseSimulationPreconditions},
+                 {"paused-update-pipeline", PausedUpdatesKeepInputHostAndStatisticsActive},
+                 {"pause-clears-fixed-accumulator", PauseClearsFixedAccumulatorWithoutDiscard},
+                 {"pause-host-update-boundary", PauseDuringHostUpdateSuppressesScheduling},
+                 {"pause-during-catch-up", PauseDuringCatchUpFinishesOnlyCurrentStep},
+                 {"resume-boundary", ResumeClearsRequestsAndSuppressesOneAutomaticUpdate},
+                 {"requested-step-preconditions", RequestedStepPreconditions},
+                 {"requested-step-fixed-execution", RequestedStepsUseFixedDeltaAndIgnoreTimeScale},
+                 {"requested-step-command-order", RequestedStepsPreserveCommandAndCallbackOrder},
+                 {"requested-step-snapshot-deferral", RequestedStepSnapshotDefersCallbackRequests},
+                 {"requested-step-stop-interruption", StopInterruptsRequestedStepsAfterCurrentStep},
+                 {"requested-step-resume-interruption", ResumeInterruptsRequestedStepsAndClearsRemainder},
+                 {"stop-between-updates", StopBetweenUpdates},
+                 {"stop-during-host-update", StopDuringHostUpdate},
+                 {"stop-during-runner-callback", StopDuringRunnerCallback},
+                 {"stop-during-simulation-step", StopDuringSimulationStep},
+                 {"input-before-host-update", InputUpdatesBeforeHostUpdateAndSimulation},
+                 {"no-input-context", NoInputContextStillRunsHostUpdate},
+                 {"application-runner-access", ApplicationRunnerAccessUsesPreparedRunner},
+                 {"simulation-callback-order-physics", SimulationCallbacksRunInOrderWithPhysics},
+                 {"scene-command-boundaries", SceneCommandsRespectStepBoundaries},
+                 {"render-command-no-valid-render", RenderCommandsWaitWithoutAValidRender},
+                 {"render-command-adapter-order", RenderCommandsPrecedeRenderFrameAtAdapterBoundary},
+                 {"neither-world-pipeline", NeitherWorldPipeline},
+                 {"no-visual-completed-render-count", NoVisualWorldHasZeroCompletedRenderFrames},
+                 {"scene-root-invariant", SceneRootInvariant},
+                 {"physics-inventory-sampling", PhysicsInventorySamplingIsCurrent},
+                 {"physics-inventory-multiple-steps", PhysicsInventoryAcrossMultipleSteps},
+                 {"physics-inventory-latest-step", PhysicsInventoryUsesLatestStep},
+                 {"physics-inventory-before-did-step", PhysicsInventoryPrecedesDidStep},
+                 {"bullet-exact-step", BulletAdvancesExactlyOncePerSimulationStep},
+                 {"bullet-invalid-step-delta", BulletRejectsInvalidStepDelta},
+                 {"simulation-repeatability", SimulationPhysicsIsRepeatable},
+                 {"simulation-120hz-long-run", SimulationAtOneHundredTwentyHertzDoesNotDrift}};
 
     bool RunTest(std::string_view name, TestFunction function) {
 

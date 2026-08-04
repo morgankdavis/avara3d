@@ -23,10 +23,10 @@ using namespace std;
 shared_ptr<Material> Material::DefaultMaterial() {
     static shared_ptr<Material> material = nullptr;
     if (!material) {
-        auto ambient  = make_shared<Color>(0.75f);
-        auto diffuse  = make_shared<Color>(0.75f);
+        auto ambient = make_shared<Color>(0.75f);
+        auto diffuse = make_shared<Color>(0.75f);
         auto specular = make_shared<Color>(0.85f);
-        material      = make_shared<Material>(ambient, diffuse, specular);
+        material = make_shared<Material>(ambient, diffuse, specular);
         material->name("Default material");
         material->doubleSided(true);
         material->specularExponent(75);
@@ -67,8 +67,8 @@ Material::Material():
 Material::Material(const Property& ambient, const Property& diffuse, const Property& specular):
     Material() {
 
-    _ambient  = ambient;
-    _diffuse  = diffuse;
+    _ambient = ambient;
+    _diffuse = diffuse;
     _specular = specular;
 }
 
@@ -78,8 +78,8 @@ Material::Material(const Property& ambient,
                    const Property& emission):
     Material() {
 
-    _ambient  = ambient;
-    _diffuse  = diffuse;
+    _ambient = ambient;
+    _diffuse = diffuse;
     _specular = specular;
     _emission = emission;
 }
@@ -97,20 +97,20 @@ Material& Material::operator=(const Material& other) {
     }
 
     // preserve existing ID
-    _name                    = other._name;
-    _ambient                 = other._ambient;
-    _diffuse                 = other._diffuse;
-    _specular                = other._specular;
-    _emission                = other._emission;
-    _specularExponent        = other._specularExponent;
+    _name = other._name;
+    _ambient = other._ambient;
+    _diffuse = other._diffuse;
+    _specular = other._specular;
+    _emission = other._emission;
+    _specularExponent = other._specularExponent;
     _locksAmbientWithDiffuse = other._locksAmbientWithDiffuse;
-    _doubleSided             = other._doubleSided;
-    _fillMode                = other._fillMode;
-    _uvScale                 = other._uvScale;
-    _alphaMode               = other._alphaMode;
-    _alphaCutoff             = other._alphaCutoff;
-    _blendFunction           = other._blendFunction;
-    _dirtyMask               = DirtyMask::All;
+    _doubleSided = other._doubleSided;
+    _fillMode = other._fillMode;
+    _uvScale = other._uvScale;
+    _alphaMode = other._alphaMode;
+    _alphaCutoff = other._alphaCutoff;
+    _blendFunction = other._blendFunction;
+    _dirtyMask = DirtyMask::All;
 
     return *this;
 }
@@ -128,20 +128,20 @@ Material& Material::operator=(Material&& other) noexcept {
     }
 
     // preserve existing ID
-    _name                    = std::move(other._name);
-    _ambient                 = std::move(other._ambient);
-    _diffuse                 = std::move(other._diffuse);
-    _specular                = std::move(other._specular);
-    _emission                = std::move(other._emission);
-    _specularExponent        = other._specularExponent;
+    _name = std::move(other._name);
+    _ambient = std::move(other._ambient);
+    _diffuse = std::move(other._diffuse);
+    _specular = std::move(other._specular);
+    _emission = std::move(other._emission);
+    _specularExponent = other._specularExponent;
     _locksAmbientWithDiffuse = other._locksAmbientWithDiffuse;
-    _doubleSided             = other._doubleSided;
-    _fillMode                = other._fillMode;
-    _uvScale                 = other._uvScale;
-    _alphaMode               = other._alphaMode;
-    _alphaCutoff             = other._alphaCutoff;
-    _blendFunction           = other._blendFunction;
-    _dirtyMask               = DirtyMask::All;
+    _doubleSided = other._doubleSided;
+    _fillMode = other._fillMode;
+    _uvScale = other._uvScale;
+    _alphaMode = other._alphaMode;
+    _alphaCutoff = other._alphaCutoff;
+    _blendFunction = other._blendFunction;
+    _dirtyMask = DirtyMask::All;
 
     // moving properties changes the source too
     other._dirtyMask = DirtyMask::All;

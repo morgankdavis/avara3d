@@ -22,7 +22,7 @@ SpotLight::SpotLight():
     // see DeVries 16.5
     _innerAngleCos = static_cast<float>(math::cos(10.0));
     _outerAngleCos = static_cast<float>(math::cos(15.0));
-    _featherMode   = FeatheringMode::Linear;
+    _featherMode = FeatheringMode::Linear;
 }
 
 SpotLight::SpotLight(const string& name):
@@ -37,7 +37,7 @@ SpotLight::SpotLight(const shared_ptr<Color>& color):
 
 SpotLight::SpotLight(const string& name, const shared_ptr<Color>& color):
     SpotLight() {
-    _name  = name;
+    _name = name;
     _color = color;
 }
 

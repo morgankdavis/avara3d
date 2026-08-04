@@ -14,7 +14,7 @@ Attenuation Attenuation::FromRange(float range, float p) {
 
     Attenuation a;
     a.constant = 1.0f;
-    a.linear   = 0.0f;
+    a.linear = 0.0f;
 
     if (range <= 0.0f) {
         a.quadratic = 0.0f;

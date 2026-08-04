@@ -224,8 +224,8 @@ bool VisualWorld::draw(const Scene&             scene,
         });
     }
 
-    auto pov      = pointOfView().lock();
-    auto camera   = pov ? pov->camera() : nullptr;
+    auto pov = pointOfView().lock();
+    auto camera = pov ? pov->camera() : nullptr;
     bool povValid = true;
 
     if (!pov) {
@@ -260,7 +260,7 @@ bool VisualWorld::draw(const Scene&             scene,
 
             renderer->postTraversal(scene, *_renderContext, gatherItems.lightNodes, debugOptions, stats);
 
-            auto                  packet = DrawPacketizer::Packetize(gatherItems);
+            auto packet = DrawPacketizer::Packetize(gatherItems);
 
             Renderer::FrameParams params = {*_renderContext, view, proj, debugOptions, &stats, &profiler};
 
@@ -335,9 +335,9 @@ shared_ptr<Node> VisualWorld::defaultPOV() {
     auto camera = make_shared<PerspectiveCamera>();
     camera->name("Default Camera");
 
-    auto  aabb    = _scene->rootNode()->aabb();
-    vec3  center  = (aabb.min + aabb.max) * 0.5f;
-    vec3  extents = (aabb.max - aabb.min) * 0.5f;
+    auto aabb = _scene->rootNode()->aabb();
+    vec3 center = (aabb.min + aabb.max) * 0.5f;
+    vec3 extents = (aabb.max - aabb.min) * 0.5f;
 
     auto  fbSize = _renderContext->framebufferSize();
     float aspect = float(fbSize.x) / float(fbSize.y);
@@ -350,10 +350,10 @@ shared_ptr<Node> VisualWorld::defaultPOV() {
 
     float dist = math::max(distH, distV) + extents.z;
 
-    vec3  eye  = center + vec3(0, 0, dist);
-    mat4  view = math::look_at(eye, center, vec3(0, 1, 0));
+    vec3 eye = center + vec3(0, 0, dist);
+    mat4 view = math::look_at(eye, center, vec3(0, 1, 0));
 
-    auto  cameraNode = make_shared<Node>();
+    auto cameraNode = make_shared<Node>();
     cameraNode->transform(inverse(view));
 
     cameraNode->camera(camera);

@@ -61,7 +61,7 @@ MeshElement::MeshElement(VertexLayout               layout,
         _indexData.clear();
     }
     else {
-        const uint16_t is      = IndexStride(_indexFormat);
+        const uint16_t is = IndexStride(_indexFormat);
         const size_t   ineeded = size_t(_indexCount) * size_t(is);
         if (ibytes.size() < ineeded) {
             throw std::runtime_error("Index byte span too small for indexCount * indexStride");
@@ -124,8 +124,8 @@ AABB MeshElement::worldAABB(const mat4& worldTransform, bool vertfit) const {
             return AABB::Zero();
         }
 
-        const auto              vb     = vertexBytes();
-        const uint16_t          stride = vertexStride();
+        const auto     vb = vertexBytes();
+        const uint16_t stride = vertexStride();
 
         const VertexLayoutDesc& desc = GetVertexLayoutDesc(_vertexLayout);
         const VertexAttribDesc* posA = VertexAccess::FindAttrib(desc, VertexSemantic::Position);
@@ -133,12 +133,12 @@ AABB MeshElement::worldAABB(const mat4& worldTransform, bool vertfit) const {
 
         static const float maxFloat = math::f32_max();
         static const float minFloat = math::f32_lowest();
-        AABB               out      = {{maxFloat, maxFloat, maxFloat}, {minFloat, minFloat, minFloat}};
+        AABB               out = {{maxFloat, maxFloat, maxFloat}, {minFloat, minFloat, minFloat}};
 
         for (uint32_t i = 0; i < vcount; ++i) {
-            const std::byte* base   = vb.data() + size_t(i) * stride;
+            const std::byte* base = vb.data() + size_t(i) * stride;
             vec3             pLocal = VertexAccess::ReadVec3(base, posA->offset);
-            vec3             p      = vec3(worldTransform * vec4(pLocal, 1.0f));
+            vec3             p = vec3(worldTransform * vec4(pLocal, 1.0f));
 
             out.min = min(out.min, p);
             out.max = max(out.max, p);
@@ -148,7 +148,7 @@ AABB MeshElement::worldAABB(const mat4& worldTransform, bool vertfit) const {
     }
     else {
 
-        auto       localAABB = MeshElement::localAABB();
+        auto localAABB = MeshElement::localAABB();
 
         const vec3 c = (localAABB.min + localAABB.max) / 2.0f;
         const vec3 e = (localAABB.max - localAABB.min) / 2.0f;
@@ -181,12 +181,12 @@ void MeshElement::beginBuild(VertexLayout      layout,
 
     _vertexLayout = layout;
     _vertexStride = vertexStride;
-    _vertexCount  = 0;
+    _vertexCount = 0;
     _vertexData.clear();
 
-    _topology    = topology;
+    _topology = topology;
     _indexFormat = indexFormat;
-    _indexCount  = 0;
+    _indexCount = 0;
     _indexData.clear();
 
 //	_faces.clear(); // legacy bridge (remove in Phase B)
@@ -315,13 +315,13 @@ void MeshElement::burnTransform(const mat4& transform, bool normals) {
     for (uint32_t i = 0; i < _vertexCount; ++i) {
         std::byte* base = _vertexData.data() + size_t(i) * _vertexStride;
 
-        vec3       p = VertexAccess::ReadVec3(base, posA->offset);
-        p            = vec3(transform * vec4(p, 1.0f));
+        vec3 p = VertexAccess::ReadVec3(base, posA->offset);
+        p = vec3(transform * vec4(p, 1.0f));
         VertexAccess::WriteVec3(base, posA->offset, p);
 
         if (nrmA) {
             vec3 n = VertexAccess::ReadVec3(base, nrmA->offset);
-            n      = normalize(nmat * n);
+            n = normalize(nmat * n);
             VertexAccess::WriteVec3(base, nrmA->offset, n);
         }
     }
@@ -347,14 +347,14 @@ void MeshElement::genLocalAABB() {
     }
 
     const VertexAttribDesc* posA = VertexAccess::GetPositionAttribF32x3(_vertexLayout);
-    const auto              vb   = vertexBytes();
+    const auto              vb = vertexBytes();
 
     _localAABB = AABB::Invalid();
 
     for (uint32_t i = 0; i < _vertexCount; ++i) {
         const std::byte* base = vb.data() + size_t(i) * size_t(_vertexStride);
-        const vec3       pos  = VertexAccess::ReadVec3(base, posA->offset);
-        _localAABB           |= pos;
+        const vec3       pos = VertexAccess::ReadVec3(base, posA->offset);
+        _localAABB |= pos;
     }
 }
 

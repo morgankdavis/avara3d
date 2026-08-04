@@ -85,7 +85,7 @@ void PhysicsShape::type(Type type) {
     }
 
     const auto previousType = _type;
-    _type                   = type;
+    _type = type;
 
     try {
         std::unique_ptr<PhysicsShapeProxy> replacementProxy;

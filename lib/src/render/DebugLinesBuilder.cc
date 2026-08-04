@@ -21,7 +21,7 @@ static void AppendBoxLinesFromCorners(vector<Line>& out, const vec3 c[8], const 
 
 /// Internal Static Member Functions ///
 
-void        DebugLinesBuilder::AppendAABB(std::vector<Line>& out, const AABB& aabb, const Color& color) {
+void DebugLinesBuilder::AppendAABB(std::vector<Line>& out, const AABB& aabb, const Color& color) {
 
     vec3 c[8] = {
         {aabb.min.x, aabb.max.y, aabb.min.z}, // 0
@@ -50,7 +50,7 @@ void DebugLinesBuilder::AppendOBBFromLocalAABB(std::vector<Line>& out,
     vec3 wc[8];
     for (int i = 0; i < 8; ++i) {
         auto h = model * vec4(lc[i], 1.0f);
-        wc[i]  = vec3(h.x, h.y, h.z); // assuming affine; otherwise divide by h.w
+        wc[i] = vec3(h.x, h.y, h.z); // assuming affine; otherwise divide by h.w
     }
 
     AppendBoxLinesFromCorners(out, wc, color);

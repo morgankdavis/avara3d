@@ -146,8 +146,8 @@ BulletWorldProxy::BulletWorldProxy(PhysicsWorld& world):
 
     // ! important: use the pool-size ctor so the pool owns its internal solvers
     const int poolSize = std::max(1, _btScheduler->getNumThreads() * 2);
-    _btSolverPool      = std::make_unique<btConstraintSolverPoolMt>(poolSize);
-    _btSolverMt        = std::make_unique<btSequentialImpulseConstraintSolverMt>();
+    _btSolverPool = std::make_unique<btConstraintSolverPoolMt>(poolSize);
+    _btSolverMt = std::make_unique<btSequentialImpulseConstraintSolverMt>();
 
     _btWorld = std::make_unique<btDiscreteDynamicsWorldMt>(_btCollisionDispatcher.get(), _btBroadphase.get(),
                                                            _btSolverPool.get(), _btSolverMt.get(),
@@ -199,7 +199,7 @@ void BulletWorldProxy::add(PhysicsBody& body) {
     log::d()("body: {:p}", static_cast<void*>(&body));
 
     auto bodyProxy = static_cast<BulletBodyProxy*>(body.proxy());
-    auto btBody    = bodyProxy->btBody();
+    auto btBody = bodyProxy->btBody();
 
     if (btBody->isInWorld()) { // ! NOTE: not necessarily THIS world
         log::w()("btRigidBody already in world.");
@@ -210,7 +210,7 @@ void BulletWorldProxy::add(PhysicsBody& body) {
     // and broadphase AABB synchronized before the first simulation step
     if (auto node = body.node().lock()) {
         auto nodeTransform = node->worldTransform();
-        auto btTransform   = BTTransformFromA3DMat4(nodeTransform);
+        auto btTransform = BTTransformFromA3DMat4(nodeTransform);
 
         if (auto* ms = btBody->getMotionState()) {
             ms->setWorldTransform(btTransform);
@@ -269,7 +269,7 @@ void BulletWorldProxy::remove(PhysicsBody& body) {
     log::d()("body: {:p}", static_cast<void*>(&body));
 
     auto bodyProxy = static_cast<BulletBodyProxy*>(body.proxy());
-    auto btBody    = bodyProxy->btBody();
+    auto btBody = bodyProxy->btBody();
 
     if (!btBody->isInWorld()) { // ! NOTE:  not necessarily THIS world
         log::w()("btRigidBody not in world.");
@@ -349,12 +349,12 @@ void BulletWorldProxy::step(double deltaTime, Profiler& profiler) {
 PhysicsInventory BulletWorldProxy::inventory() const {
     std::scoped_lock lock(_btMutex);
 
-    return {.staticBodies            = _stats.numStaticBodies,
-            .dynamicBodies           = _stats.numDynamicBodies,
-            .kinematicBodies         = _stats.numKinematicBodies,
-            .primitiveShapes         = static_cast<unsigned>(_stats.primitiveShapes.size()),
-            .boundingBoxShapes       = static_cast<unsigned>(_stats.boundingBoxShapes.size()),
-            .convexHullShapes        = static_cast<unsigned>(_stats.convexHullShapes.size()),
+    return {.staticBodies = _stats.numStaticBodies,
+            .dynamicBodies = _stats.numDynamicBodies,
+            .kinematicBodies = _stats.numKinematicBodies,
+            .primitiveShapes = static_cast<unsigned>(_stats.primitiveShapes.size()),
+            .boundingBoxShapes = static_cast<unsigned>(_stats.boundingBoxShapes.size()),
+            .convexHullShapes = static_cast<unsigned>(_stats.convexHullShapes.size()),
             .concavePolyhedronShapes = static_cast<unsigned>(_stats.concavePolyhedronShapes.size())};
 }
 
@@ -405,7 +405,7 @@ btDiscreteDynamicsWorld* BulletWorldProxy::btWorld() {
 /// Private Static Non-Member Functions ///
 
 int PickNumBTThreads(btITaskScheduler* sched) {
-    const int hw   = math::max(1u, std::thread::hardware_concurrency());
+    const int hw = math::max(1u, std::thread::hardware_concurrency());
     const int maxT = sched ? sched->getMaxNumThreads() : hw;
     // bullet MT often benefits from "not all cores", but start simple...
     return math::clamp(hw, 1, maxT);

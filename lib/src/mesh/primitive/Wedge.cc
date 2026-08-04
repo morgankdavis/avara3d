@@ -56,18 +56,18 @@ Wedge::Wedge(float    length,
 
     using namespace a3d::math;
 
-    const float    L = _length;
-    const float    W = _width;
-    const float    H = _height;
+    const float L = _length;
+    const float W = _width;
+    const float H = _height;
 
-    const float    x0 = -L * 0.5f;  // pointy side
-    const float    x1 = L * 0.5f;  // thick/tall side
-    const float    z0 = -W * 0.5f;
-    const float    z1 = W * 0.5f;
+    const float x0 = -L * 0.5f;  // pointy side
+    const float x1 = L * 0.5f;  // thick/tall side
+    const float z0 = -W * 0.5f;
+    const float z1 = W * 0.5f;
 
-    const unsigned nRun   = _runSegments;
+    const unsigned nRun = _runSegments;
     const unsigned nWidth = _widthSegments;
-    const unsigned nRise  = _riseSegments;
+    const unsigned nRise = _riseSegments;
 
     // Bottom + slope + thick face
     const uint32_t faceVerts = (nRun + 1) * (nWidth + 1) +  // bottom
@@ -82,10 +82,10 @@ Wedge::Wedge(float    length,
     // row 0 = 1 vertex (tip)
     // rows 1..nRun = (nRise + 1) vertices each
     const uint32_t capVertsPerCap = 1 + nRun * (nRise + 1);
-    const uint32_t capTrisPerCap  = nRise * (2 * nRun - 1);
+    const uint32_t capTrisPerCap = nRise * (2 * nRun - 1);
 
     const uint32_t reserveVerts = faceVerts + 2 * capVertsPerCap;
-    const uint32_t reserveTris  = faceTris + 2 * capTrisPerCap;
+    const uint32_t reserveTris = faceTris + 2 * capTrisPerCap;
 
     beginBuild(VertexLayout::PNT, static_cast<uint16_t>(sizeof(VertexPNT)), PrimitiveTopology::Triangles,
                IndexFormat::U32, reserveVerts, reserveTris * 3);
@@ -134,7 +134,7 @@ Wedge::Wedge(float    length,
     };
 
     auto addTriCap = [&](float z, const vec3& normal) {
-        const bool                         reverse = normal.z < 0.0f;
+        const bool reverse = normal.z < 0.0f;
 
         std::vector<std::vector<uint32_t>> rows;
         rows.resize(nRun + 1);
@@ -144,8 +144,8 @@ Wedge::Wedge(float    length,
 
         // Rows 1..nRun: vertical samples from bottom edge to slope edge.
         for (unsigned i = 1; i <= nRun; ++i) {
-            const float u    = static_cast<float>(i) / static_cast<float>(nRun);
-            const float x    = x0 + (x1 - x0) * u;
+            const float u = static_cast<float>(i) / static_cast<float>(nRun);
+            const float x = x0 + (x1 - x0) * u;
             const float maxY = H * u;
 
             rows[i].reserve(nRise + 1);

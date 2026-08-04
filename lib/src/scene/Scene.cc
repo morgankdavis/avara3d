@@ -67,7 +67,7 @@ Scene::Scene(unique_ptr<VisualWorld>  visualWorld,
              unique_ptr<InputContext> inputContext):
     Scene() {
 
-    _visualWorld  = std::move(visualWorld);
+    _visualWorld = std::move(visualWorld);
     _physicsWorld = std::move(physicsWorld);
     _inputContext = std::move(inputContext);
 

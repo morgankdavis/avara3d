@@ -20,8 +20,8 @@ using namespace a3d;
 using namespace std;
 ;
 
-using QtInput     = qt::QtInputContext;
-using Key         = DesktopInputContext::Key;
+using QtInput = qt::QtInputContext;
+using Key = DesktopInputContext::Key;
 using MouseButton = DesktopInputContext::MouseButton;
 
 /// Private Static Non-Member Prototypes ///
@@ -130,7 +130,7 @@ qt::QtViewport* QtInput::viewport() const {
 
 Key A3DKeyFromQtKey(int qtKey, Qt::KeyboardModifiers mods) {
 
-    using K           = Key;
+    using K = Key;
     const bool keypad = mods.testFlag(Qt::KeypadModifier);
 
     // digits: distinguish top row vs keypad with KeypadModifier

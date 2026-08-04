@@ -67,31 +67,31 @@ using namespace std;
 
 ///  Private Constants ///
 
-static constexpr std::size_t               MAX_AMBIENT_LIGHTS {16};
-static constexpr std::size_t               MAX_DIRECTIONAL_LIGHTS {16};
-static constexpr std::size_t               MAX_POINT_LIGHTS {128};
-static constexpr std::size_t               MAX_SPOT_LIGHTS {64};
+static constexpr std::size_t MAX_AMBIENT_LIGHTS {16};
+static constexpr std::size_t MAX_DIRECTIONAL_LIGHTS {16};
+static constexpr std::size_t MAX_POINT_LIGHTS {128};
+static constexpr std::size_t MAX_SPOT_LIGHTS {64};
 
 // static const std::string STATS_TITLE_FONT_NAME	{"SourceCodePro-Bold"};
 // static const std::string STATS_TITLE_FONT_TYPE	{"otf"};
 // static const float STATS_TITLE_FONT_SIZE			{23.0};
 
-static const std::string                   STATS_TITLE_FONT_NAME {"Neuropol Nova Xp"};
-static const std::string                   STATS_TITLE_FONT_TYPE {"ttf"};
-static const float                         STATS_TITLE_FONT_SIZE {21.0};
+static const std::string STATS_TITLE_FONT_NAME {"Neuropol Nova Xp"};
+static const std::string STATS_TITLE_FONT_TYPE {"ttf"};
+static const float       STATS_TITLE_FONT_SIZE {21.0};
 
-static const std::string                   STATS_BODY_FONT_NAME {"SourceCodePro-Semibold"};
-static const std::string                   STATS_BODY_FONT_TYPE {"otf"};
-static const float                         STATS_BODY_FONT_SIZE {15.0};
+static const std::string STATS_BODY_FONT_NAME {"SourceCodePro-Semibold"};
+static const std::string STATS_BODY_FONT_TYPE {"otf"};
+static const float       STATS_BODY_FONT_SIZE {15.0};
 
-static const std::string                   STATS_ALT_FONT_NAME {"SourceCodePro-Regular"};
-static const std::string                   STATS_ALT_FONT_TYPE {"otf"};
-static const float                         STATS_ALT_FONT_SIZE {13.0};
+static const std::string STATS_ALT_FONT_NAME {"SourceCodePro-Regular"};
+static const std::string STATS_ALT_FONT_TYPE {"otf"};
+static const float       STATS_ALT_FONT_SIZE {13.0};
 
-static const GLuint                        ENV_BINDING_POINT {0};
+static const GLuint ENV_BINDING_POINT {0};
 
 // ring buffer size for GL timing queries
-static const unsigned                      DRAW_TIMER_BUFFER_SIZE {4};
+static const unsigned DRAW_TIMER_BUFFER_SIZE {4};
 
 // duration of sample history to average over
 static constexpr std::chrono::milliseconds FRAME_STATS_AVERAGING_DURATION {250};
@@ -101,8 +101,8 @@ static constexpr std::chrono::milliseconds FRAME_STATS_AVERAGE_UPDATE_INTERVAL {
 /// Private Types ///
 
 enum class MaterialContentsType : unsigned {
-    None    = 0,
-    Color   = 1,
+    None = 0,
+    Color = 1,
     Sampler = 2
 };
 
@@ -193,10 +193,10 @@ struct FBORestore {
         glGetIntegerv(GL_READ_FRAMEBUFFER_BINDING, &readFbo);
     }
 
-    FBORestore(const FBORestore&)            = delete;
+    FBORestore(const FBORestore&) = delete;
     FBORestore& operator=(const FBORestore&) = delete;
 
-    FBORestore(FBORestore&&)            = delete;
+    FBORestore(FBORestore&&) = delete;
     FBORestore& operator=(FBORestore&&) = delete;
 
     ~FBORestore() {
@@ -213,25 +213,25 @@ struct ImguiStatsTextLayout {
 
 /// Private Static Non-Member Prototypes ///
 
-static void   LogGLInfo();
+static void LogGLInfo();
 
-static void   SendMaterialUniforms(const Material&              material,
-                                   GLSLProgram&                 program,
-                                   const std::array<GLuint, 4>& glTextureHandles,
-                                   OGLRenderer::GLStateCache&   state);
+static void SendMaterialUniforms(const Material&              material,
+                                 GLSLProgram&                 program,
+                                 const std::array<GLuint, 4>& glTextureHandles,
+                                 OGLRenderer::GLStateCache&   state);
 
-static void   SendMaterialPropertyUniforms(const Material::Property&  property,
-                                           Material::PropertyType     type,
-                                           GLuint                     glTextureHandle,
-                                           GLSLProgram&               program,
-                                           OGLRenderer::GLStateCache& state);
+static void SendMaterialPropertyUniforms(const Material::Property&  property,
+                                         Material::PropertyType     type,
+                                         GLuint                     glTextureHandle,
+                                         GLSLProgram&               program,
+                                         OGLRenderer::GLStateCache& state);
 
-static void   SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
-                                      const Scene&         scene,
-                                      const vector<Node*>& lightNodes,
-                                      FrameStats&          stats);
+static void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
+                                    const Scene&         scene,
+                                    const vector<Node*>& lightNodes,
+                                    FrameStats&          stats);
 
-static void   ApplyBlendFunction(Material::BlendFunction func);
+static void ApplyBlendFunction(Material::BlendFunction func);
 
 static GLenum GLDepthFuncFromDepthFunc(DepthFunc func);
 
@@ -239,111 +239,111 @@ static GLenum GLFilterModeForFilterMode(Sampler::FilterMode mode);
 
 static GLenum GLWrapModeForWrapMode(Sampler::WrapMode mode);
 
-static void   DrawOverlay(const RenderContext&     context,
-                          const Scene&             scene,
-                          FrameStats&              stats,
-                          const FrameStatsHistory& statsHistory,
-                          Scene::DebugOptions      debugOptions,
-                          ImFont&                  titleFont,
-                          ImFont&                  bodyFont,
-                          ImFont&                  altBodyFont);
-
-static void   DrawHeader(ImFont& titleFont, ImFont& bodyFont, bool active, float& yPos_out, int& id_out);
-
-static void   DrawStats(FrameStats&              stats,
+static void DrawOverlay(const RenderContext&     context,
+                        const Scene&             scene,
+                        FrameStats&              stats,
                         const FrameStatsHistory& statsHistory,
-                        const RenderContext&     context,
+                        Scene::DebugOptions      debugOptions,
+                        ImFont&                  titleFont,
                         ImFont&                  bodyFont,
-                        ImFont&                  altBodyFont,
-                        float                    yPos,
-                        int                      id);
+                        ImFont&                  altBodyFont);
 
-static void   DrawDebugOptions(Scene& scene, ImFont& bodyFont);
+static void DrawHeader(ImFont& titleFont, ImFont& bodyFont, bool active, float& yPos_out, int& id_out);
 
-static void   ImguiInit(const RenderContext& context, ImFont*& titleFont, ImFont*& bodyFont, ImFont*& altFont);
+static void DrawStats(FrameStats&              stats,
+                      const FrameStatsHistory& statsHistory,
+                      const RenderContext&     context,
+                      ImFont&                  bodyFont,
+                      ImFont&                  altBodyFont,
+                      float                    yPos,
+                      int                      id);
 
-static void   ImguiUpdateScale(const RenderContext& context);
+static void DrawDebugOptions(Scene& scene, ImFont& bodyFont);
 
-static void   ImguiAddFont(const RenderContext& context, const Font& font, ImFont*& imFont);
+static void ImguiInit(const RenderContext& context, ImFont*& titleFont, ImFont*& bodyFont, ImFont*& altFont);
 
-static void   ImguiBeginOverlay(int id, bool allowsInput);
+static void ImguiUpdateScale(const RenderContext& context);
 
-static void   ImguiEndOverlay();
+static void ImguiAddFont(const RenderContext& context, const Font& font, ImFont*& imFont);
 
-static void   ImguiDrawText(float       x,
-                            float       y,
-                            const char* text,
-                            ImFont&     font,
-                            float       size,
-                            ImU32       color,
-                            bool        shadow);
+static void ImguiBeginOverlay(int id, bool allowsInput);
 
-static void   ImguiDrawPlot(float        x,
-                            float        y,
-                            float        w,
-                            float        h,
-                            const float* values,
-                            int          valuesCount,
-                            int          valuesOffset,
-                            const char*  overlayText,
-                            ImFont*      overlayFont,
-                            float        overlayFontSize,
-                            float        scaleMin,
-                            float        scaleMax,
-                            int          stride,
-                            bool         outlined,
-                            int          id,
-                            bool         disabled);
+static void ImguiEndOverlay();
 
-static bool   ImguiDrawCheckbox(float       x,
-                                float       y,
-                                const char* text,
-                                bool&       checked,
-                                ImFont&     font,
-                                float       size,
-                                bool        disabled,
-                                int         id);
+static void ImguiDrawText(float       x,
+                          float       y,
+                          const char* text,
+                          ImFont&     font,
+                          float       size,
+                          ImU32       color,
+                          bool        shadow);
 
-static void   ImguiDrawLabelValue(float&                      y,
-                                  const ImguiStatsTextLayout& layout,
-                                  const char*                 label,
-                                  const std::string&          value,
-                                  ImFont&                     font,
-                                  float                       fontSize,
-                                  float                       lineStep,
-                                  ImU32                       color = IM_COL32(255, 255, 255, 255));
+static void ImguiDrawPlot(float        x,
+                          float        y,
+                          float        w,
+                          float        h,
+                          const float* values,
+                          int          valuesCount,
+                          int          valuesOffset,
+                          const char*  overlayText,
+                          ImFont*      overlayFont,
+                          float        overlayFontSize,
+                          float        scaleMin,
+                          float        scaleMax,
+                          int          stride,
+                          bool         outlined,
+                          int          id,
+                          bool         disabled);
 
-static void   ImguiDrawLabelValueIndented(float&                      y,
-                                          const ImguiStatsTextLayout& layout,
-                                          const char*                 label,
-                                          const std::string&          value,
-                                          ImFont&                     font,
-                                          float                       fontSize,
-                                          float                       indentPx,
-                                          float                       lineStep,
-                                          ImU32                       color = IM_COL32(255, 255, 255, 255));
+static bool ImguiDrawCheckbox(float       x,
+                              float       y,
+                              const char* text,
+                              bool&       checked,
+                              ImFont&     font,
+                              float       size,
+                              bool        disabled,
+                              int         id);
 
-static void   ImguiDrawPlot(float        x,
-                            float&       y,
-                            float        w,
-                            float        h,
-                            const float* values,
-                            int          valuesCount,
-                            int          valuesOffset,
-                            const char*  overlayText,
-                            ImFont*      overlayFont,
-                            float        overlayFontSize,
-                            float        scaleMin,
-                            float        scaleMax,
-                            int          stride,
-                            bool         outlined,
-                            int          id,
-                            float        lineStep,
-                            bool         disabled);
+static void ImguiDrawLabelValue(float&                      y,
+                                const ImguiStatsTextLayout& layout,
+                                const char*                 label,
+                                const std::string&          value,
+                                ImFont&                     font,
+                                float                       fontSize,
+                                float                       lineStep,
+                                ImU32                       color = IM_COL32(255, 255, 255, 255));
+
+static void ImguiDrawLabelValueIndented(float&                      y,
+                                        const ImguiStatsTextLayout& layout,
+                                        const char*                 label,
+                                        const std::string&          value,
+                                        ImFont&                     font,
+                                        float                       fontSize,
+                                        float                       indentPx,
+                                        float                       lineStep,
+                                        ImU32                       color = IM_COL32(255, 255, 255, 255));
+
+static void ImguiDrawPlot(float        x,
+                          float&       y,
+                          float        w,
+                          float        h,
+                          const float* values,
+                          int          valuesCount,
+                          int          valuesOffset,
+                          const char*  overlayText,
+                          ImFont*      overlayFont,
+                          float        overlayFontSize,
+                          float        scaleMin,
+                          float        scaleMax,
+                          int          stride,
+                          bool         outlined,
+                          int          id,
+                          float        lineStep,
+                          bool         disabled);
 
 /// Private Static Members ///
 
-bool          OGLRenderer::InitGL(GLGetProcAddress getProcAddress) {
+bool OGLRenderer::InitGL(GLGetProcAddress getProcAddress) {
     static bool initialized = false;
     if (initialized) {
         return true;
@@ -405,10 +405,10 @@ OGLRenderer::~OGLRenderer() {
 bool OGLRenderer::initialize(const RenderContext& context) {
     log::i();
 
-    _defaultProgram   = make_unique<GLSLProgram>("default");
-    _skyboxProgram    = make_unique<GLSLProgram>("skybox");
+    _defaultProgram = make_unique<GLSLProgram>("default");
+    _skyboxProgram = make_unique<GLSLProgram>("skybox");
     _wireframeProgram = make_unique<GLSLProgram>("wireframe");
-    _linesProgram     = make_unique<GLSLProgram>("lines");
+    _linesProgram = make_unique<GLSLProgram>("lines");
 
     GLint maxSize = 0;
     glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &maxSize);
@@ -460,10 +460,10 @@ void OGLRenderer::beginFrame(const Scene&               scene,
         stats.isRenderGpuTimeAvailable = false;
     }
 
-    _state            = {};
+    _state = {};
     _state.pipelineId = INVALID_PIPELINE_ID;
-    _state.program    = 0;
-    _state.material   = nullptr;
+    _state.program = 0;
+    _state.material = nullptr;
 
     _boundElement = {};
 
@@ -507,20 +507,20 @@ void OGLRenderer::clear(const ClearCommand& cmd, const RenderContext& context) {
 
     FBORestore restore;
 
-    auto       fb     = context.defaultFramebuffer();
-    auto       fbSize = context.framebufferSize();
+    auto fb = context.defaultFramebuffer();
+    auto fbSize = context.framebufferSize();
     glBindFramebuffer(GL_FRAMEBUFFER, fb);
     glViewport(0, 0, (GLsizei) fbSize.x, (GLsizei) fbSize.y);
 
     // save state we might stomp
     GLboolean prevScissorEnabled = GL_FALSE;
-    GLint     prevScissorBox[4]  = {0, 0, 0, 0};
+    GLint     prevScissorBox[4] = {0, 0, 0, 0};
     glGetBooleanv(GL_SCISSOR_TEST, &prevScissorEnabled);
     glGetIntegerv(GL_SCISSOR_BOX, prevScissorBox);
 
     GLboolean prevColorMask[4] = {GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE};
-    GLboolean prevDepthMask    = GL_TRUE;
-    GLint     prevStencilMask  = ~0;
+    GLboolean prevDepthMask = GL_TRUE;
+    GLint     prevStencilMask = ~0;
     glGetBooleanv(GL_COLOR_WRITEMASK, prevColorMask);
     glGetBooleanv(GL_DEPTH_WRITEMASK, &prevDepthMask);
     glGetIntegerv(GL_STENCIL_WRITEMASK, &prevStencilMask);
@@ -595,9 +595,9 @@ void OGLRenderer::renderPacket(DrawPacket& packet, const FrameParams& frame) {
 }
 
 unique_ptr<Image> OGLRenderer::snapshot(const RenderContext& context) const {
-    auto                  framebufferSize   = context.framebufferSize();
-    auto                  framebufferWidth  = (unsigned) round(framebufferSize.x);
-    auto                  framebufferHeight = (unsigned) round(framebufferSize.y);
+    auto framebufferSize = context.framebufferSize();
+    auto framebufferWidth = (unsigned) round(framebufferSize.x);
+    auto framebufferHeight = (unsigned) round(framebufferSize.y);
 
     vector<unsigned char> pixelBuf(framebufferWidth * framebufferHeight * 4);
     // TODO: SEGV under Plasma Wayland
@@ -657,7 +657,7 @@ void OGLRenderer::bindPipeline(PipelineId pipelineId, const OGLResourceCache& ca
 
     const OGLPipeline& pipeline = cache.pipeline(pipelineId);
     glUseProgram(pipeline.program);
-    _state.program  = pipeline.program;
+    _state.program = pipeline.program;
     _state.material = nullptr;
 
     if (pipeline.desc.doubleSided) {
@@ -724,7 +724,7 @@ void OGLRenderer::bindMaterial(const Material& material) {
     const OGLPipeline& pipeline = _resourceCache.pipeline(_state.pipelineId);
 
     // TODO: !!! THIS IS A DIRTY HACK !!!
-    GLSLProgram*       program;
+    GLSLProgram* program;
     switch (pipeline.desc.shaderKind) {
         case ShaderKind::Default:
             program = _defaultProgram.get();
@@ -738,7 +738,7 @@ void OGLRenderer::bindMaterial(const Material& material) {
     }
 
     // resolve material once (uploads textures  applies sampler states via cache)
-    const auto&           mr               = _resourceCache.ensureMaterial(const_cast<Material&>(material));
+    const auto&           mr = _resourceCache.ensureMaterial(const_cast<Material&>(material));
     std::array<GLuint, 4> glTextureHandles = {
         (GLuint) mr.tex[0],
         (GLuint) mr.tex[1],
@@ -770,14 +770,14 @@ void OGLRenderer::bindMeshElement(const MeshElement& element) {
         return; // skip draw
     }
 
-    auto*       e   = const_cast<MeshElement*>(&element);
+    auto*       e = const_cast<MeshElement*>(&element);
     const auto& res = _resourceCache.ensureMeshElement(*e);
 
     glBindVertexArray((GLuint) res.vao);
 
-    _boundElement.vao         = (GLuint) res.vao;
-    _boundElement.indexCount  = (GLsizei) res.indexCount;
-    _boundElement.indexType   = (GLenum) res.indexType; // <-- USE CACHED TYPE
+    _boundElement.vao = (GLuint) res.vao;
+    _boundElement.indexCount = (GLsizei) res.indexCount;
+    _boundElement.indexType = (GLenum) res.indexType; // <-- USE CACHED TYPE
     _boundElement.vertexCount = (GLsizei) res.vertexCount; // <-- for drawArrays fallback
 }
 
@@ -888,7 +888,7 @@ void OGLRenderer::resolvePacket(DrawPacket& packet, const FrameParams& frame) {
     auto resolvePipeline = [&](PipelineId& pipelineId, const PipelineDesc& desc) -> PipelineId {
         if (pipelineId == INVALID_PIPELINE_ID) {
             auto& program = programForShaderKind(desc.shaderKind);
-            pipelineId    = _resourceCache.ensurePipeline(desc, program.glID());
+            pipelineId = _resourceCache.ensurePipeline(desc, program.glID());
         }
 
         return pipelineId;
@@ -968,9 +968,9 @@ void OGLRenderer::drawPacket(const DrawPacket& packet, const FrameParams& frame)
 /// Private Static Non-Member Functions ///
 
 void LogGLInfo() {
-    const GLubyte* vendor   = glGetString(GL_VENDOR);
+    const GLubyte* vendor = glGetString(GL_VENDOR);
     const GLubyte* renderer = glGetString(GL_RENDERER);
-    const GLubyte* version  = glGetString(GL_VERSION);
+    const GLubyte* version = glGetString(GL_VERSION);
 
     log::i()("GL_VENDOR: {}", reinterpret_cast<const char*>(vendor));
     log::i()("GL_RENDERER: {}", reinterpret_cast<const char*>(renderer));
@@ -991,7 +991,7 @@ void SendMaterialUniforms(const Material&              material,
 
     for (auto& [property, type] : material.properties()) {
         if (!holds_alternative<monostate>(*property)) {
-            const int    slot = static_cast<underlying_type<Material::PropertyType>::type>(type);
+            const int slot = static_cast<underlying_type<Material::PropertyType>::type>(type);
 
             const GLuint h = (slot >= 0) ? glTextureHandles[(size_t) slot] : 0u;
 
@@ -1025,29 +1025,29 @@ void SendMaterialPropertyUniforms(const Material::Property&  property,
                                     modeUniformName = "ambientContentsType";
                             //samplerUniformName = "samplers.ambient";
                                     samplerUniformName = "ambientSampler";
-                                    slot               = GL_TEXTURE0;
-                                    index              = 0;
+                                    slot = GL_TEXTURE0;
+                                    index = 0;
                                     break;
                                 case Material::PropertyType::Diffuse:
                                     modeUniformName = "diffuseContentsType";
                             //samplerUniformName = "samplers.diffuse";
                                     samplerUniformName = "diffuseSampler";
-                                    slot               = GL_TEXTURE1;
-                                    index              = 1;
+                                    slot = GL_TEXTURE1;
+                                    index = 1;
                                     break;
                                 case Material::PropertyType::Specular:
                                     modeUniformName = "specularContentsType";
                             //samplerUniformName = "samplers.specular";
                                     samplerUniformName = "specularSampler";
-                                    slot               = GL_TEXTURE2;
-                                    index              = 2;
+                                    slot = GL_TEXTURE2;
+                                    index = 2;
                                     break;
                                 case Material::PropertyType::Emission:
                                     modeUniformName = "emissionContentsType";
                             //samplerUniformName = "samplers.emission";
                                     samplerUniformName = "emissionSampler";
-                                    slot               = GL_TEXTURE3;
-                                    index              = 3;
+                                    slot = GL_TEXTURE3;
+                                    index = 3;
                                     break;
                                 default:
                                     log::e()("Invalid MaterialPropertyType: {}",
@@ -1077,19 +1077,19 @@ void SendMaterialPropertyUniforms(const Material::Property&  property,
 
                 switch (type) {
                     case Material::PropertyType::Ambient:
-                        modeUniformName  = "ambientContentsType";
+                        modeUniformName = "ambientContentsType";
                         colorUniformName = "colors.ambient";
                         break;
                     case Material::PropertyType::Diffuse:
-                        modeUniformName  = "diffuseContentsType";
+                        modeUniformName = "diffuseContentsType";
                         colorUniformName = "colors.diffuse";
                         break;
                     case Material::PropertyType::Specular:
-                        modeUniformName  = "specularContentsType";
+                        modeUniformName = "specularContentsType";
                         colorUniformName = "colors.specular";
                         break;
                     case Material::PropertyType::Emission:
-                        modeUniformName  = "emissionContentsType";
+                        modeUniformName = "emissionContentsType";
                         colorUniformName = "colors.emission";
                         break;
                     default:
@@ -1121,7 +1121,7 @@ void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
 
     // lights
 
-    auto             numLights = lightNodes.size();
+    auto numLights = lightNodes.size();
 
     if (scene.visualWorld()->usesDefaultLighting()
         || ((numLights == 0) && scene.visualWorld()->autoEnablesDefaultLighting())) {
@@ -1143,7 +1143,7 @@ void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
         spotStructs.reserve(MAX_SPOT_LIGHTS);
 
         for (unsigned l = 0; l < numLights; ++l) {
-            auto node  = lightNodes[l];
+            auto node = lightNodes[l];
             auto light = node->light().get();
             auto color = light->color();
 
@@ -1171,7 +1171,7 @@ void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
             else if (auto directionalLight = dynamic_cast<DirectionalLight*>(light)) {
                 if (directionalStructs.size() < MAX_DIRECTIONAL_LIGHTS) {
                     DirectionalLightGLSLStruct lightStruct {};
-                    lightStruct.color           = directionalLight->color()->rgba();
+                    lightStruct.color = directionalLight->color()->rgba();
                     lightStruct.direction_world = node->worldForward();
                     directionalStructs.push_back(lightStruct);
                 }
@@ -1179,10 +1179,10 @@ void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
             else if (auto pointLight = dynamic_cast<PointLight*>(light)) {
                 if (pointStructs.size() < MAX_POINT_LIGHTS) {
                     PointLightGLSLStruct lightStruct {};
-                    lightStruct.color                = pointLight->color()->rgba();
-                    lightStruct.position_world       = node->worldPosition();
-                    lightStruct.constantAttenuation  = pointLight->attenuation().constant;
-                    lightStruct.linearAttenuation    = pointLight->attenuation().linear;
+                    lightStruct.color = pointLight->color()->rgba();
+                    lightStruct.position_world = node->worldPosition();
+                    lightStruct.constantAttenuation = pointLight->attenuation().constant;
+                    lightStruct.linearAttenuation = pointLight->attenuation().linear;
                     lightStruct.quadraticAttenuation = pointLight->attenuation().quadratic;
                     pointStructs.push_back(lightStruct);
                 }
@@ -1190,14 +1190,14 @@ void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
             else if (auto spotLight = dynamic_cast<SpotLight*>(light)) {
                 if (spotStructs.size() < MAX_SPOT_LIGHTS) {
                     SpotLightGLSLStruct lightStruct {};
-                    lightStruct.color                = spotLight->color()->rgba();
-                    lightStruct.position_world       = node->worldPosition();
-                    lightStruct.direction_world      = node->worldForward();
-                    lightStruct.innerAngleCos        = spotLight->innerAngleCos();
-                    lightStruct.outerAngleCos        = spotLight->outerAngleCos();
-                    lightStruct.featheringMode       = magic_enum::enum_underlying(spotLight->featheringMode());
-                    lightStruct.constantAttenuation  = spotLight->attenuation().constant;
-                    lightStruct.linearAttenuation    = spotLight->attenuation().linear;
+                    lightStruct.color = spotLight->color()->rgba();
+                    lightStruct.position_world = node->worldPosition();
+                    lightStruct.direction_world = node->worldForward();
+                    lightStruct.innerAngleCos = spotLight->innerAngleCos();
+                    lightStruct.outerAngleCos = spotLight->outerAngleCos();
+                    lightStruct.featheringMode = magic_enum::enum_underlying(spotLight->featheringMode());
+                    lightStruct.constantAttenuation = spotLight->attenuation().constant;
+                    lightStruct.linearAttenuation = spotLight->attenuation().linear;
                     lightStruct.quadraticAttenuation = spotLight->attenuation().quadratic;
                     spotStructs.push_back(lightStruct);
                 }
@@ -1225,10 +1225,10 @@ void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
 
     auto          visualWorld = scene.visualWorld();
     FogGLSLStruct fogStruct {};
-    fogStruct.startDistance   = visualWorld->fogStartDistance();
-    fogStruct.endDistance     = visualWorld->fogEndDistance();
+    fogStruct.startDistance = visualWorld->fogStartDistance();
+    fogStruct.endDistance = visualWorld->fogEndDistance();
     fogStruct.densityExponent = visualWorld->fogDensityExponent();
-    auto fogColor             = visualWorld->fogColor();
+    auto fogColor = visualWorld->fogColor();
     if (visualWorld->fogColor()) {
         fogStruct.color = fogColor->rgba();
     }
@@ -1359,8 +1359,8 @@ void DrawOverlay(const RenderContext&     context,
     ImguiBeginOverlay(0, true);
     DrawDebugOptions(const_cast<Scene&>(scene), bodyFont); // TODO: const_cast CHEATING
 
-    float yPos      = 0;
-    int   id        = 0;
+    float yPos = 0;
+    int   id = 0;
     bool  showStats = util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowStatsOverlay);
     DrawHeader(titleFont, bodyFont, showStats, yPos, id);
     if (showStats) {
@@ -1386,30 +1386,30 @@ void DrawHeader(ImFont& titleFont, ImFont& bodyFont, bool active, float& yPos_ou
 
     static const float X_POS = 12.0;
 
-    float              yPos = 0;
-    int                id   = 0;
+    float yPos = 0;
+    int   id = 0;
 
-    ImGuiIO&           io    = GetIO();
-    auto               fonts = io.Fonts->Fonts;
+    ImGuiIO& io = GetIO();
+    auto     fonts = io.Fonts->Fonts;
 
-    auto               color =
+    auto color =
         active ? IM_COL32(255, 255, 255, 255) : IM_COL32(255, 255, 255, (uint8_t) std::lround(.35 * 255));
 
     yPos += 4;
     ImguiDrawText(X_POS, yPos, "avara3d", titleFont, STATS_TITLE_FONT_SIZE, color, active);
 
     static const auto& buildInfo = BuildInfo::Info();
-    static auto        version   = buildInfo.version();
+    static auto        version = buildInfo.version();
     static auto        buildStr = std::format("v{}.{}.{} build {}\n"
                                               "{}\n"
                                               "\n",
                                               version.major, version.minor, version.patch, buildInfo.number(),
                                               util::string::Lowercase(BuildInfo::TypeString(buildInfo.type())));
-    yPos                       += 25;
+    yPos += 25;
     ImguiDrawText(X_POS, yPos, buildStr.c_str(), bodyFont, STATS_BODY_FONT_SIZE, color, active);
 
     yPos_out = yPos;
-    id_out   = id;
+    id_out = id;
 }
 
 void DrawStats(FrameStats&              stats,
@@ -1423,22 +1423,22 @@ void DrawStats(FrameStats&              stats,
 
     //ShowMetricsWindow();
 
-    static const float X_POS          = 12.0;
-    static const float COLUMN_WIDTH   = 130.0f;
-    static const bool  PLOT_OUTLINED  = true;
-    static const float PLOT_HEIGHT_1  = 48.0;
-    static const float PLOT_HEIGHT_2  = 24.0;
-    static const float PLOT_X_OFFSET  = 0.0;
+    static const float X_POS = 12.0;
+    static const float COLUMN_WIDTH = 130.0f;
+    static const bool  PLOT_OUTLINED = true;
+    static const float PLOT_HEIGHT_1 = 48.0;
+    static const float PLOT_HEIGHT_2 = 24.0;
+    static const float PLOT_X_OFFSET = 0.0;
     static const float PLOT_STR_Y_PAD = 8.0;
-    static const float PLOT_Y_PAD     = 18.0;
-    static const float PLOT_Y_MIN     = 0.0;
-    static const float PLOT_Y_MAX     = 17.0;
-    static const int   TEXT_PADDING   = 15;
+    static const float PLOT_Y_PAD = 18.0;
+    static const float PLOT_Y_MIN = 0.0;
+    static const float PLOT_Y_MAX = 17.0;
+    static const int   TEXT_PADDING = 15;
     static const float STAT_LINE_STEP = STATS_BODY_FONT_SIZE + 1.0f;
-    static const float INDENT_WIDTH   = 8.0f;
+    static const float INDENT_WIDTH = 8.0f;
 
-    ImGuiIO&           io    = GetIO();
-    auto               fonts = io.Fonts->Fonts;
+    ImGuiIO& io = GetIO();
+    auto     fonts = io.Fonts->Fonts;
 
     yPos += 4;
 
@@ -1447,33 +1447,33 @@ void DrawStats(FrameStats&              stats,
     static float frameMsFAvg, engineCpuMsFAvg, renderCpuMsFAvg, renderGpuMsFAvg, physicsMsFAvg, appCpuMsFAvg;
     static float fpsAvg = 0;
 
-    bool         gpuTimingAvailable = stats.isRenderGpuTimeAvailable;
+    bool gpuTimingAvailable = stats.isRenderGpuTimeAvailable;
 
     util::flow::every(FRAME_STATS_AVERAGE_UPDATE_INTERVAL, [&] {
         FrameStatsHistory::GetAverages(statsHistory, frameNsAvg, engineCpuNsAvg, renderCpuNsAvg, renderGpuNsAvg,
                                        physicsNsAvg, appCpuNsAvg, FRAME_STATS_AVERAGING_DURATION);
         // ! ~zero cost
-        frameMsFAvg     = util::chrono::Milliseconds(frameNsAvg);
+        frameMsFAvg = util::chrono::Milliseconds(frameNsAvg);
         engineCpuMsFAvg = util::chrono::Milliseconds(engineCpuNsAvg);
         renderCpuMsFAvg = util::chrono::Milliseconds(renderCpuNsAvg);
         if (gpuTimingAvailable) {
             renderGpuMsFAvg = util::chrono::Milliseconds(renderGpuNsAvg);
         }
         physicsMsFAvg = util::chrono::Milliseconds(physicsNsAvg);
-        appCpuMsFAvg  = util::chrono::Milliseconds(appCpuNsAvg);
+        appCpuMsFAvg = util::chrono::Milliseconds(appCpuNsAvg);
         if (frameMsFAvg > 0) {
             fpsAvg = 1000.0f / frameMsFAvg;
         }
     });
 
-    static vector<float>  frameSamples;
-    static vector<float>  physSamples;
-    static vector<float>  engCpuSamples;
-    static vector<float>  renderCpuSamples;
-    static vector<float>  renderGpuSamples;
-    static vector<float>  appSamples;
+    static vector<float> frameSamples;
+    static vector<float> physSamples;
+    static vector<float> engCpuSamples;
+    static vector<float> renderCpuSamples;
+    static vector<float> renderGpuSamples;
+    static vector<float> appSamples;
 
-    static size_t         frame       = 0;
+    static size_t         frame = 0;
     static const unsigned SKIP_FRAMES = 2;
     if (!((frame++) % SKIP_FRAMES)) {
         auto& samples = statsHistory.samples();
@@ -1488,10 +1488,10 @@ void DrawStats(FrameStats&              stats,
         appSamples.resize(samples.size());
 
         for (size_t i = 0; i < samples.size(); ++i) {
-            auto sample         = get<1>(samples[i]);
-            frameSamples[i]     = util::chrono::Milliseconds(sample.frameTime);
-            engCpuSamples[i]    = util::chrono::Milliseconds(sample.engineCpuTime);
-            physSamples[i]      = util::chrono::Milliseconds(sample.physicsTime);
+            auto sample = get<1>(samples[i]);
+            frameSamples[i] = util::chrono::Milliseconds(sample.frameTime);
+            engCpuSamples[i] = util::chrono::Milliseconds(sample.engineCpuTime);
+            physSamples[i] = util::chrono::Milliseconds(sample.physicsTime);
             renderCpuSamples[i] = util::chrono::Milliseconds(sample.renderCpuTime);
             if (gpuTimingAvailable) {
                 renderGpuSamples[i] = util::chrono::Milliseconds(sample.renderGpuTime);
@@ -1502,7 +1502,7 @@ void DrawStats(FrameStats&              stats,
 
     ImguiStatsTextLayout layout {.xLeft = X_POS, .xRight = X_POS + COLUMN_WIDTH, .gap = 12.0f};
 
-    yPos          += 48;
+    yPos += 48;
     auto rateValue = std::format("{:.0f}fps", fpsAvg);
     ImguiDrawLabelValue(yPos, layout, "", rateValue, bodyFont, STATS_BODY_FONT_SIZE, 15);
     auto frameValue = std::format("{:.1f}ms", frameMsFAvg);
@@ -1625,15 +1625,15 @@ void DrawStats(FrameStats&              stats,
 void DrawDebugOptions(Scene& scene, ImFont& bodyFont) {
     using namespace ImGui;
 
-    ImGuiIO&           io = GetIO();
+    ImGuiIO& io = GetIO();
 
     const float        WIN_WIDTH = 168;
-    const float        xPos      = io.DisplaySize.x - WIN_WIDTH;
-    float              yPos      = 0;
-    int                id        = 0;
-    static const float Y_PAD     = 24.0;
+    const float        xPos = io.DisplaySize.x - WIN_WIDTH;
+    float              yPos = 0;
+    int                id = 0;
+    static const float Y_PAD = 24.0;
 
-    auto               debugOptions = scene.debugOptions();
+    auto debugOptions = scene.debugOptions();
 
     using DebugOptions = Scene::DebugOptions;
 
@@ -1643,7 +1643,7 @@ void DrawDebugOptions(Scene& scene, ImFont& bodyFont) {
     static constexpr bool kSupportsPolygonModeWireframes = false;
 #endif
 
-    yPos              = 12.0;
+    yPos = 12.0;
     static bool stats = util::bitmask::contains(debugOptions, DebugOptions::ShowStatsOverlay);
     if (ImguiDrawCheckbox(xPos, yPos, "stats", stats, bodyFont, STATS_BODY_FONT_SIZE, false, ++id)) {
         if (stats) {
@@ -1654,7 +1654,7 @@ void DrawDebugOptions(Scene& scene, ImFont& bodyFont) {
         }
     }
 
-    yPos       += Y_PAD;
+    yPos += Y_PAD;
     bool meshWF = util::bitmask::contains(debugOptions, DebugOptions::ShowWireframes);
     if (ImguiDrawCheckbox(xPos, yPos, "mesh wireframes", meshWF, bodyFont, STATS_BODY_FONT_SIZE,
                           !kSupportsPolygonModeWireframes, ++id)) {
@@ -1666,7 +1666,7 @@ void DrawDebugOptions(Scene& scene, ImFont& bodyFont) {
         }
     }
 
-    yPos          += Y_PAD;
+    yPos += Y_PAD;
     bool meshAABBs = util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowBoundingBoxes);
     if (ImguiDrawCheckbox(xPos, yPos, "mesh AABBs", meshAABBs, bodyFont, STATS_BODY_FONT_SIZE, false, ++id)) {
         if (meshAABBs) {
@@ -1677,7 +1677,7 @@ void DrawDebugOptions(Scene& scene, ImFont& bodyFont) {
         }
     }
 
-    yPos       += Y_PAD;
+    yPos += Y_PAD;
     bool physWF = util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsWireframes);
     if (ImguiDrawCheckbox(xPos, yPos, "physics wireframes", physWF, bodyFont, STATS_BODY_FONT_SIZE, false,
                           ++id)) {
@@ -1689,7 +1689,7 @@ void DrawDebugOptions(Scene& scene, ImFont& bodyFont) {
         }
     }
 
-    yPos          += Y_PAD;
+    yPos += Y_PAD;
     bool physAABBs = util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes);
     if (ImguiDrawCheckbox(xPos, yPos, "physics AABBs", physAABBs, bodyFont, STATS_BODY_FONT_SIZE, false,
                           ++id)) {
@@ -1701,7 +1701,7 @@ void DrawDebugOptions(Scene& scene, ImFont& bodyFont) {
         }
     }
 
-    yPos             += Y_PAD;
+    yPos += Y_PAD;
     bool physContacts = util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsContactPoints);
     if (ImguiDrawCheckbox(xPos, yPos, "physics contacts", physContacts, bodyFont, STATS_BODY_FONT_SIZE, false,
                           ++id)) {
@@ -1713,7 +1713,7 @@ void DrawDebugOptions(Scene& scene, ImFont& bodyFont) {
         }
     }
 
-    yPos          += Y_PAD;
+    yPos += Y_PAD;
     bool physNorms = util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsNormals);
     if (ImguiDrawCheckbox(xPos, yPos, "physics normals", physNorms, bodyFont, STATS_BODY_FONT_SIZE, false,
                           ++id)) {
@@ -1731,8 +1731,8 @@ void ImguiInit(const RenderContext& context, ImFont*& titleFont, ImFont*& bodyFo
 
     IMGUI_CHECKVERSION();
     CreateContext();
-    ImGuiIO& io     = GetIO();
-    io.IniFilename  = nullptr;
+    ImGuiIO& io = GetIO();
+    io.IniFilename = nullptr;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     ImGui_ImplOpenGL3_Init();
 
@@ -1744,10 +1744,10 @@ void ImguiInit(const RenderContext& context, ImFont*& titleFont, ImFont*& bodyFo
             if (overlayAltFont->buffer()->size()) {
                 ImGui_ImplOpenGL3_DestroyDeviceObjects(); // was DestroyFontsTexture()
 
-                auto     fbSize            = context.framebufferSize();
-                auto     fbScale           = context.viewportScale();
-                ImGuiIO& io                = GetIO();
-                io.DisplaySize             = ImVec2(float(fbSize.x), float(fbSize.y));
+                auto     fbSize = context.framebufferSize();
+                auto     fbScale = context.viewportScale();
+                ImGuiIO& io = GetIO();
+                io.DisplaySize = ImVec2(float(fbSize.x), float(fbSize.y));
                 io.DisplayFramebufferScale = ImVec2(fbScale.x, fbScale.y);
 
                 GetIO().Fonts->Clear();
@@ -1776,10 +1776,10 @@ void ImguiInit(const RenderContext& context, ImFont*& titleFont, ImFont*& bodyFo
 void ImguiUpdateScale(const RenderContext& context) {
     using namespace ImGui;
 
-    auto     vpSize            = context.viewportLogicalSize();
-    auto     vpScale           = context.viewportScale();
-    ImGuiIO& io                = ImGui::GetIO();
-    io.DisplaySize             = ImVec2(float(vpSize.x), float(vpSize.y));
+    auto     vpSize = context.viewportLogicalSize();
+    auto     vpScale = context.viewportScale();
+    ImGuiIO& io = ImGui::GetIO();
+    io.DisplaySize = ImVec2(float(vpSize.x), float(vpSize.y));
     io.DisplayFramebufferScale = ImVec2(vpScale.x, vpScale.y);
 
     glViewport(0, 0, vpSize.x * vpScale.x, vpSize.y * vpScale.y);
@@ -1803,7 +1803,7 @@ void ImguiAddFont(const RenderContext& context, const Font& font, ImFont*& imFon
 void ImguiBeginOverlay(int id, bool allowsInput) {
     using namespace ImGui;
 
-    ImGuiIO&         io    = GetIO();
+    ImGuiIO&         io = GetIO();
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove
                              | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNav
                              | ImGuiWindowFlags_NoBackground;
@@ -1878,14 +1878,14 @@ void ImguiDrawPlot(float        x,
 
     // overlay text
     if (overlayText != nullptr && overlayText[0] != '\0') {
-        ImFont*      font = overlayFont != nullptr ? overlayFont : GetFont();
+        ImFont* font = overlayFont != nullptr ? overlayFont : GetFont();
 
-        ImDrawList*  drawList = GetWindowDrawList();
+        ImDrawList* drawList = GetWindowDrawList();
 
         const ImVec2 textSize = font->CalcTextSizeA(overlayFontSize, math::f32_max(), 0.0f, overlayText);
 
-        const float  textX = x + (w - textSize.x) * 0.5f;
-        const float  textY = y + (h - textSize.y) * 0.5f - 1.0f;
+        const float textX = x + (w - textSize.x) * 0.5f;
+        const float textY = y + (h - textSize.y) * 0.5f - 1.0f;
 
         drawList->AddText(font, overlayFontSize, ImVec2(math::floor(textX + 0.5f), math::floor(textY + 0.5f)),
                           IM_COL32(128, 128, 128, 255), overlayText);
@@ -1915,11 +1915,11 @@ bool ImguiDrawCheckbox(float       x,
     ImGui::PushFont(&font, size);
 
     const ImVec4 transparent(0, 0, 0, 0);
-    const float  shadowOff       = 1.0f;
+    const float  shadowOff = 1.0f;
     const float  borderThickness = 1.0f;
 
-    const float  boxSize  = GetFrameHeight(); // checkbox square size
-    const float  labelGap = GetStyle().ItemInnerSpacing.x; // spacing between box and label
+    const float boxSize = GetFrameHeight(); // checkbox square size
+    const float labelGap = GetStyle().ItemInnerSpacing.x; // spacing between box and label
 
     // shadow checkbox (non-interactive, non-blocking)
     PushID(id);
@@ -1975,9 +1975,9 @@ bool ImguiDrawCheckbox(float       x,
     ImDrawList* dl = GetWindowDrawList(); // or GetForegroundDrawList() to match DigDrawText layer exactly
 
     // align label vertically with checkbox frame (center-ish)
-    float       textY = y + GetStyle().FramePadding.y;
+    float textY = y + GetStyle().FramePadding.y;
 
-    ImVec2      labelPos(x + boxSize + labelGap, textY);
+    ImVec2 labelPos(x + boxSize + labelGap, textY);
 
     dl->AddText(ImVec2(labelPos.x + shadowOff, labelPos.y + shadowOff), IM_COL32(0, 0, 0, 255), text);
     dl->AddText(labelPos, disabled ? IM_COL32(128, 128, 128, 255) : IM_COL32(255, 255, 255, 255), text);
@@ -2011,8 +2011,8 @@ void ImguiDrawLabelValue(float&                      y,
     const ImVec2 labelSz = TextSizeA(font, fontSize, label);
     const ImVec2 valueSz = TextSizeA(font, fontSize, value.c_str());
 
-    float        xValue    = layout.xRight - valueSz.x;
-    const float  minXValue = layout.xLeft + labelSz.x + layout.gap;
+    float       xValue = layout.xRight - valueSz.x;
+    const float minXValue = layout.xLeft + labelSz.x + layout.gap;
     if (xValue < minXValue) {
         xValue = minXValue;
     }
@@ -2035,7 +2035,7 @@ void ImguiDrawLabelValueIndented(float&                      y,
                                  float                       lineStep,
                                  ImU32                       color) {
     ImguiStatsTextLayout l = layout;
-    l.xLeft               += indentPx;
+    l.xLeft += indentPx;
     ImguiDrawLabelValue(y, l, label, value, font, fontSize, 0, color);
     y += lineStep;
 }

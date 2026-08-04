@@ -26,12 +26,12 @@ static void     SortItems(vector<DrawItem>& items);
 
 /// Internal Static Member Functions ///
 
-uint64_t        PacketSorter::MakeSortKey(const DrawItem& item) {
+uint64_t PacketSorter::MakeSortKey(const DrawItem& item) {
 
     const uint32_t descHash = FoldHash32(PipelineDescHash {}(item.desc));
-    uint64_t       sortKey  = (uint64_t) descHash << 32;
-    sortKey                |= (uint64_t) PtrHash16(item.material) << 16;
-    sortKey                |= (uint64_t) PtrHash16(item.element);
+    uint64_t       sortKey = (uint64_t) descHash << 32;
+    sortKey |= (uint64_t) PtrHash16(item.material) << 16;
+    sortKey |= (uint64_t) PtrHash16(item.element);
     return sortKey;
 }
 
@@ -62,15 +62,15 @@ void PacketSorter::SortPacket(DrawPacket& packet) {
 uint32_t PtrHash32(const void* p) {
     uintptr_t v = reinterpret_cast<uintptr_t>(p) >> 4; // drop alignment bits
 
-    uint32_t  lo = static_cast<uint32_t>(v);
-    uint32_t  hi = 0;
+    uint32_t lo = static_cast<uint32_t>(v);
+    uint32_t hi = 0;
 
     if constexpr (sizeof(uintptr_t) > 4) {
         hi = static_cast<uint32_t>(v >> 32);
     }
 
     uint32_t h = lo ^ hi;
-    h         ^= (h >> 16);
+    h ^= (h >> 16);
     return h;
 }
 

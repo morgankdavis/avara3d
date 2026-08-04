@@ -62,7 +62,7 @@ vector<string> a3d::util::string::Split(const std::string& s, std::string delim)
     vector<std::string> res;
 
     while ((pos_end = s.find(delim, pos_start)) != std::string::npos) {
-        token     = s.substr(pos_start, pos_end - pos_start);
+        token = s.substr(pos_start, pos_end - pos_start);
         pos_start = pos_end + delim_len;
         res.push_back(token);
     }
@@ -117,11 +117,11 @@ string a3d::util::string::DateTimeString() {
 
 string a3d::util::string::StackTraceString(unsigned dropFunctions) {
 #if defined(A3D_POSIX) && !defined(A3D_WEB)
-    auto                  traceStr   = std::string();
+    auto                  traceStr = std::string();
     static const unsigned MAX_FRAMES = 64;
 
-    void*                 addrList[MAX_FRAMES];
-    unsigned              addrLen = backtrace(addrList, sizeof(addrList) / sizeof(void*));
+    void*    addrList[MAX_FRAMES];
+    unsigned addrLen = backtrace(addrList, sizeof(addrList) / sizeof(void*));
 
     if (addrLen != 0) {
         char** symbolList = backtrace_symbols(addrList, addrLen);

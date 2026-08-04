@@ -71,8 +71,8 @@ void OGLDebugLines::destroy() {
     if (vao) {
         glDeleteVertexArrays(1, &vao);
     }
-    vbo         = 0;
-    vao         = 0;
+    vbo = 0;
+    vao = 0;
     vertexCount = 0;
     cpuVerts.clear();
 }

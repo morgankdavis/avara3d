@@ -31,7 +31,7 @@ const VertexAttribDesc* VertexAccess::FindAttrib(const VertexLayoutDesc& desc, V
 }
 
 const VertexAttribDesc* VertexAccess::GetPositionAttribF32x3(VertexLayout layout) {
-    const VertexLayoutDesc& d    = GetVertexLayoutDesc(layout);
+    const VertexLayoutDesc& d = GetVertexLayoutDesc(layout);
     const VertexAttribDesc* posA = FindAttrib(d, VertexSemantic::Position);
     A3D_ASSERT(posA && posA->format == VertexAttribFormat::F32x3);
     return posA;
@@ -62,7 +62,7 @@ std::optional<VertexStreamView> VertexAccess::GetStreamView(const MeshElement& e
     }
 
     const VertexLayout      layout = element.vertexLayout();
-    const VertexLayoutDesc& d      = GetVertexLayoutDesc(layout);
+    const VertexLayoutDesc& d = GetVertexLayoutDesc(layout);
     if (d.stride == 0) {
         return std::nullopt;
     }
@@ -86,8 +86,8 @@ std::optional<VertexStreamView> VertexAccess::GetStreamView(const MeshElement& e
     }
 
     VertexStreamView out;
-    out.base   = vb.data();
-    out.count  = element.vertexCount();
+    out.base = vb.data();
+    out.count = element.vertexCount();
     out.offset = a->offset;
     out.layout = layout;
 
