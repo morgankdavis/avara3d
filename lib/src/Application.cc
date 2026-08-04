@@ -76,8 +76,8 @@ Application::Application(int argc, char* argv[], Log::Level logLevel):
     _scene {},
     _runner {},
     _didShutdown {false},
-    _sceneCommandQueue {},
-    _renderCommandQueue {},
+    // _sceneCommandQueue {},
+    // _renderCommandQueue {},
     _startupTimer {true} {
     initLog(logLevel);
 }
@@ -96,13 +96,13 @@ bool Application::shouldContinue(const Scene&) {
 
 void Application::didShutdown() {}
 
-void Application::queueSceneCommand(SceneCommand command) {
-    _sceneCommandQueue.push(std::move(command));
-}
-
-void Application::queueRenderCommand(RenderCommand command) {
-    _renderCommandQueue.push(std::move(command));
-}
+// void Application::queueSceneCommand(SceneCommand command) {
+//     _sceneCommandQueue.push(std::move(command));
+// }
+//
+// void Application::queueRenderCommand(RenderCommand command) {
+//     _renderCommandQueue.push(std::move(command));
+// }
 
 Runner& Application::runner() {
 
@@ -251,7 +251,7 @@ void Application::dispatchUpdate(Runner& runner, const Runner::UpdateInfo& info)
 
 void Application::dispatchSceneWillStep(Scene& scene, const Scene::StepInfo& info) {
 
-    executePendingCommands(_sceneCommandQueue, scene);
+    // executePendingCommands(_sceneCommandQueue, scene);
     sceneWillStep(scene, info);
 }
 
@@ -266,6 +266,6 @@ void Application::dispatchDidBeginFrame(VisualWorld& visualWorld, const VisualWo
         log::app::i()("Time to first frame: {:.0f}ms", util::chrono::Milliseconds(_startupTimer.stop()));
     }
 
-    executePendingCommands(_renderCommandQueue, visualWorld);
+    // executePendingCommands(_renderCommandQueue, visualWorld);
     didBeginFrame(visualWorld, info);
 }

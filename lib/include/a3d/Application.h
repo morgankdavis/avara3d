@@ -50,8 +50,8 @@ namespace a3d {
     protected:
         /// Protected Types ///
 
-        using SceneCommand  = CommandQueue<Scene>::value_type;
-        using RenderCommand = CommandQueue<VisualWorld>::value_type;
+        // using SceneCommand  = CommandQueue<Scene>::value_type;
+        // using RenderCommand = CommandQueue<VisualWorld>::value_type;
 
         /// Protected Member Functions ///
 
@@ -60,8 +60,8 @@ namespace a3d {
         virtual bool                    shouldContinue(const Scene& scene);
         virtual void                    didShutdown();
 
-        void                            queueSceneCommand(SceneCommand command);
-        void                            queueRenderCommand(RenderCommand command);
+        // void                            queueSceneCommand(SceneCommand command);
+        // void                            queueRenderCommand(RenderCommand command);
 
         Runner&                         runner();
         const Runner&                   runner() const;
@@ -97,8 +97,8 @@ namespace a3d {
     private:
         /// Private Member Functions ///
 
-        template<typename Context>
-        static void executePendingCommands(CommandQueue<Context>& queue, Context& context);
+        // template<typename Context>
+        // static void executePendingCommands(CommandQueue<Context>& queue, Context& context);
 
         void        initLog(Log::Level level);
         void        prepare();
@@ -117,8 +117,8 @@ namespace a3d {
         std::unique_ptr<Scene>    _scene;
         std::unique_ptr<Runner>   _runner; // Runner must be destroyed before Scene
         bool                      _didShutdown;
-        CommandQueue<Scene>       _sceneCommandQueue;
-        CommandQueue<VisualWorld> _renderCommandQueue;
+        // CommandQueue<Scene>       _sceneCommandQueue;
+        // CommandQueue<VisualWorld> _renderCommandQueue;
         Timer                     _startupTimer;
 
         /// Test Access ///
@@ -126,15 +126,15 @@ namespace a3d {
         friend class testing::ApplicationTestAccess;
     };
 
-    template<typename Context>
-    void Application::executePendingCommands(CommandQueue<Context>& queue, Context& context) {
-        const auto pendingCount = queue.size();
-        for (std::size_t i = 0; i < pendingCount; ++i) {
-            auto command = std::move(queue.front());
-            queue.pop();
-            command(context);
-        }
-    }
+    // template<typename Context>
+    // void Application::executePendingCommands(CommandQueue<Context>& queue, Context& context) {
+    //     const auto pendingCount = queue.size();
+    //     for (std::size_t i = 0; i < pendingCount; ++i) {
+    //         auto command = std::move(queue.front());
+    //         queue.pop();
+    //         command(context);
+    //     }
+    // }
 
 }
 

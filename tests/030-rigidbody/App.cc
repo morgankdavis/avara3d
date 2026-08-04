@@ -249,12 +249,8 @@ void App::inputContextDidUpdate(Runner& runner, InputContext& inputContext, cons
     using MouseButton = DesktopInputContext::MouseButton;
     using DebugOptions = Scene::DebugOptions;
 
-    // Consume frame-relative input exactly once per host update.
-
     const auto mousePositionDelta = input.mousePositionDelta();
     const auto mouseScrollWheelDelta = input.mouseScrollWheelDelta();
-
-    // Window and application controls.
 
     if (input.keyPressed(Key::Escape)) {
         _window->close();
@@ -291,8 +287,6 @@ void App::inputContextDidUpdate(Runner& runner, InputContext& inputContext, cons
         }
     }
 
-    // View controls.
-
     if (input.keyPressed(Key::Apostrophe) && visualWorld) {
         if (auto pov = visualWorld->pointOfView().lock()) {
             const auto position = pov->worldPosition();
@@ -320,8 +314,6 @@ void App::inputContextDidUpdate(Runner& runner, InputContext& inputContext, cons
             }
         }
     }
-
-    // Rendering/debug controls.
 
     const auto toggleDebugOption = [&scene](DebugOptions option) {
         const auto options = scene.debugOptions();
@@ -362,19 +354,13 @@ void App::inputContextDidUpdate(Runner& runner, InputContext& inputContext, cons
         toggleDebugOption(DebugOptions::ShowPhysicsNormals);
     }
 
-    // Host load testing.
-
     if (input.keyDown(Key::Z)) {
         this_thread::sleep_for(chrono::milliseconds {8});
     }
 
-    // Runner controls.
-
     if (mouseScrollWheelDelta.y > 0.0f) {
         runner.timeScale(math::clamp(runner.timeScale() + mouseScrollWheelDelta.y * 0.1, 0.1, 1.0));
     }
-
-    // Free camera.
 
     if (!cursorCaptured || !visualWorld) {
         return;
@@ -385,9 +371,6 @@ void App::inputContextDidUpdate(Runner& runner, InputContext& inputContext, cons
     if (!pov) {
         return;
     }
-
-    // Preserve the existing behavior in which movement vectors are sampled
-    // before this host update's mouse-look rotation is applied.
 
     const vec3 camForward = pov->worldForward();
     const vec3 camRight = pov->worldRight();
@@ -449,13 +432,9 @@ void App::sceneWillStep(Scene& scene, const Scene::StepInfo& info) {
     using Key = DesktopInputContext::Key;
     using MouseButton = DesktopInputContext::MouseButton;
 
-    // Continuous simulation logic.
-
     if (_duckNode) {
         _duckRotator->update(*_duckNode, info.deltaTime);
     }
-
-    // Duck physics-body configuration.
 
     if (input.keyPressed(Key::One)) {
         _duckNode->physicsBody()->shape()->type(PhysicsShape::Type::BoundingBox);
@@ -481,8 +460,6 @@ void App::sceneWillStep(Scene& scene, const Scene::StepInfo& info) {
         _duckNode->physicsBody()->mass(100.0f);
     }
 
-    // Remove test objects.
-
     if (input.keyPressed(Key::Eight)) {
         for (const auto& node : scene.rootNode()->children(true)) {
             auto body = node->physicsBody();
@@ -504,8 +481,6 @@ void App::sceneWillStep(Scene& scene, const Scene::StepInfo& info) {
             }
         }
     }
-
-    // Add test objects.
 
     if (input.keyPressed(Key::GraveAccent)) {
         AddBoxes(scene);
@@ -531,12 +506,6 @@ void App::sceneWillStep(Scene& scene, const Scene::StepInfo& info) {
         AddRing(scene);
     }
 
-    // Spawn duck fruit at 10 pieces per simulated second.
-    //
-    // Treat a newly pressed key as active even if it was released before
-    // the next simulation step. Resetting on the press also rearms the
-    // immediate first fire when release and re-press occur between steps.
-
     const bool duckFruitPressed = input.keyPressed(Key::Tab);
 
     const bool duckFruitActive = duckFruitPressed || input.keyDown(Key::Tab);
@@ -554,17 +523,8 @@ void App::sceneWillStep(Scene& scene, const Scene::StepInfo& info) {
         _duckFruitTrigger.reset();
     }
 
-    // Shoot one Slurm can with Mouse One.
-
     const bool singleShotRequested = input.mouseButtonPressed(MouseButton::One);
-
-    // Shoot Slurm at 20 cans per simulated second with Mouse Two.
-    //
-    // As with Tab, a press counts as active for this step even if the
-    // button was released before the simulation step occurred.
-
     const bool continuousShotPressed = input.mouseButtonPressed(MouseButton::Two);
-
     const bool continuousShotActive = continuousShotPressed || input.mouseButtonDown(MouseButton::Two);
 
     if (continuousShotPressed) {

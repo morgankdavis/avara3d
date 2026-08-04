@@ -133,15 +133,6 @@ void App::inputContextDidUpdate(Runner& runner, InputContext& inputContext, cons
     auto& scene = runner.scene();
     auto  window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 
-    // util::flow::on(2, [&] {
-    // 	log::app::i()("ELAPSED TIME: {}", info.elapsedTime);
-    // });
-
-    // log::app::t()("scene: {:p}, time: {}, deltaTime: {}",
-    // 	(void *) &scene,
-    // 			  info.elapsedTime,
-    // 			  info.deltaTime);
-
     // get input
 
     auto im = static_cast<DesktopInputContext*>(&inputContext);
