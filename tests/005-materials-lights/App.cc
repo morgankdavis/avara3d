@@ -35,7 +35,9 @@ const float                           MOUSE_SENSITIVITY {0.5};
 /// Public Lifecycle Functions ///
 
 App::App(int argc, char* argv[]):
-    Application(argc, argv, APP_LOG_LEVEL) {}
+    Application(argc, argv, APP_LOG_LEVEL),
+    _pointLightNode {nullptr},
+    _pointLightOrbitRadius {0.0f} {}
 
 App::~App() = default;
 
@@ -105,6 +107,8 @@ std::unique_ptr<Scene> App::init() {
             }
         }
 
+        _pointLightOrbitRadius = math::max(scene->rootNode()->extent()) * 0.46f;
+
         _window->center();
         _window->open();
 
@@ -122,71 +126,70 @@ bool App::shouldContinue(const Scene& scene) {
 
 void App::didShutdown() {}
 
-/// Runner Callbacks ///
+/// InputContext Callbacks ///
 
-void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
+void App::inputContextDidUpdate(InputContext& inputContext, const InputContext::UpdateInfo& info) {
 
-    auto& scene = runner.scene();
-    auto& inputContext = *scene.inputContext();
+    auto& scene = App::scene();
     auto  window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
-
-    // util::flow::on(2, [&] {
-    // 	log::app::i()("ELAPSED TIME: {}", info.elapsedTime);
-    // });
-
-    // log::app::t()("scene: {:p}, time: {}, deltaTime: {}",
-    // 	(void *) &scene,
-    // 			  info.elapsedTime,
-    // 			  info.deltaTime);
 
     // get input
 
     auto im = static_cast<DesktopInputContext*>(&inputContext);
-    auto keysPressed = im->keysPressed();
     auto keysDown = im->keysDown();
     auto mousePositionDelta = im->mousePositionDelta();
     auto mouseScrollWheelDelta = im->mouseScrollWheelDelta();
 
     using Key = DesktopInputContext::Key;
 
-    if (keysPressed.count(Key::Escape)) {
+    if (im->keyPressed(Key::Escape)) {
         window->close();
     }
 
-    if (keysPressed.count(Key::T)) {
+    if (im->keyPressed(Key::T)) {
         log::app::i()("TREE:\n{}", util::string::TreeString(*(scene.rootNode())));
     }
 
     using FilterMode = Sampler::FilterMode;
-    if (keysPressed.count(Key::One)) {
+    const bool nearestPressed = im->keyPressed(Key::One);
+    const bool linearPressed = im->keyPressed(Key::Two);
+    const bool nearestMipmapNearestPressed = im->keyPressed(Key::Three);
+    const bool nearestMipmapLinearPressed = im->keyPressed(Key::Four);
+    const bool linearMipmapNearestPressed = im->keyPressed(Key::Five);
+    const bool linearMipmapLinearPressed = im->keyPressed(Key::Six);
+
+    if (nearestPressed) {
         SetAllFilterModes(FilterMode::Nearest, scene);
     }
-    else if (keysPressed.count(Key::Two)) {
+    else if (linearPressed) {
         SetAllFilterModes(FilterMode::Linear, scene);
     }
-    else if (keysPressed.count(Key::Three)) {
+    else if (nearestMipmapNearestPressed) {
         SetAllFilterModes(FilterMode::NearestMipmapNearest, scene);
     }
-    else if (keysPressed.count(Key::Four)) {
+    else if (nearestMipmapLinearPressed) {
         SetAllFilterModes(FilterMode::NearestMipmapLinear, scene);
     }
-    else if (keysPressed.count(Key::Five)) {
+    else if (linearMipmapNearestPressed) {
         SetAllFilterModes(FilterMode::LinearMipmapNearest, scene);
     }
-    else if (keysPressed.count(Key::Six)) {
+    else if (linearMipmapLinearPressed) {
         SetAllFilterModes(FilterMode::LinearMipmapLinear, scene);
     }
 
-    if (keysPressed.count(Key::LeftBracket)) {
+    const bool minAnisotropyPressed = im->keyPressed(Key::LeftBracket);
+    const bool maxAnisotropyPressed = im->keyPressed(Key::RightBracket);
+
+    if (minAnisotropyPressed) {
         SetAllMaxAnisotropy(1, scene);
     }
-    else if (keysPressed.count(Key::RightBracket)) {
+    else if (maxAnisotropyPressed) {
         SetAllMaxAnisotropy(16, scene);
     }
 
     using DebugOptions = Scene::DebugOptions;
 
-    if (keysPressed.count(Key::F)) {
+    if (im->keyPressed(Key::F)) {
         if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowWireframes)) {
             scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowWireframes));
         }
@@ -195,7 +198,7 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
         }
     }
 
-    if (keysPressed.count(Key::B)) {
+    if (im->keyPressed(Key::B)) {
         if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
             scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
         }
@@ -204,7 +207,7 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
         }
     }
 
-    if (keysPressed.count(Key::I)) {
+    if (im->keyPressed(Key::I)) {
         if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
             scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowStatsOverlay));
         }
@@ -213,15 +216,15 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
         }
     }
 
-    if (keysPressed.count(Key::V)) {
+    if (im->keyPressed(Key::V)) {
         window->vSyncEnabled(!(window->vSyncEnabled()));
     }
 
-    if (keysPressed.count(Key::Backslash)) {
+    if (im->keyPressed(Key::Backslash)) {
         util::snapshot::SaveSnapshot(*window);
     }
 
-    if (keysPressed.count(Key::R)) {
+    if (im->keyPressed(Key::R)) {
         if (!window->recordingGIF()) {
             util::snapshot::StartGIFRecording(*window, {320, 240}, 8);
         }
@@ -230,7 +233,7 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
         }
     }
 
-    if (keysPressed.count(Key::Slash)) {
+    if (im->keyPressed(Key::Slash)) {
         window->cursorCaptured(!(window->cursorCaptured()));
     }
 
@@ -305,28 +308,25 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
             }
         }
     }
+}
 
-    // move the light
+/// Scene Callbacks ///
 
-    if (_pointLightNode) {
+void App::sceneWillStep(Scene&, const Scene::StepInfo& info) {
 
-        auto center = vec3(0, 30, 0);
-
-        static auto extent = scene.rootNode()->extent();
-        //static float radius = std::max(std::max(extent.x, extent.y), extent.z) * .46;
-        static float radius = math::max(extent) * .46; // a3d::math
-        static float radiusX = radius;
-        static float radiusY = radius;
-
-        static float rotationSpeed = radians(30.0); // deg/secs
-        static float angle = 0;
-        angle += rotationSpeed * info.deltaTime;
-
-        float x = math::sin(angle) * radiusX;
-        float y = math::cos(angle) * radiusY;
-
-        _pointLightNode->position(center + vec3(x, y, -x));
+    if (!_pointLightNode) {
+        return;
     }
+
+    const vec3 center {0.0f, 30.0f, 0.0f};
+
+    const float angle = radians(30.0f) * static_cast<float>(info.endTime);
+
+    const float x = math::sin(angle) * _pointLightOrbitRadius;
+
+    const float y = math::cos(angle) * _pointLightOrbitRadius;
+
+    _pointLightNode->position(center + vec3 {x, y, -x});
 }
 
 /// Private Static Non-Member Functions ///

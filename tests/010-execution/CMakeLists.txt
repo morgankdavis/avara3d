@@ -24,21 +24,21 @@ set(RUNNER_EXECUTION_TESTS
 		resume-boundary
 		requested-step-preconditions
 		requested-step-fixed-execution
-		requested-step-command-order
 		requested-step-snapshot-deferral
 		requested-step-stop-interruption
 		requested-step-resume-interruption
 		stop-between-updates
 		stop-during-host-update
+		stop-during-input-callback
 		stop-during-runner-callback
 		stop-during-simulation-step
-		input-before-host-update
+		input-callback-order
+		input-callback-once-per-update
 		no-input-context
+		input-callback-arguments
+		input-callback-profiling
 		application-runner-access
 		simulation-callback-order-physics
-		scene-command-boundaries
-		render-command-no-valid-render
-		render-command-adapter-order
 		neither-world-pipeline
 		no-visual-completed-render-count
 		scene-root-invariant

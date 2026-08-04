@@ -67,9 +67,8 @@ static int                          PickNumBTThreads(btITaskScheduler* sched);
 
 BulletWorldProxy::BulletWorldProxy(PhysicsWorld& world):
     PhysicsWorldProxy {world},
-    _stats {}/*,
-		_debugLines{}*/
-{
+    _stats {},
+    _debugDrawMode {0} {
 
     log::i()("Bullet Physics version: {}", btGetVersion());
 
@@ -365,35 +364,39 @@ void BulletWorldProxy::updateCollisionPairs() {
 
 void BulletWorldProxy::appendDebugLines(vector<Line>& out, Scene::DebugOptions debugOptions) {
 
-    // TODO: this is still rather inefficient.
+    static constexpr float DEBUG_LINE_UPDATE_RATE = 30.0f;
 
-//#ifdef A3D_GL_DESKTOP
+    static constexpr auto DEBUG_LINE_UPDATE_INTERVAL =
+        std::chrono::duration_cast<std::chrono::steady_clock::duration>(
+            std::chrono::duration<float> {1.0f / DEBUG_LINE_UPDATE_RATE});
 
-    static const float UPDATE_RATE = 30.0; // frames/sec
+    const auto debugMode = BTDebugDrawModesForA3DDebugOptions(debugOptions);
+    const auto now = chrono::steady_clock::now();
 
-    util::flow::every(chrono::duration<float>(1.0f / UPDATE_RATE), [&] {
+    const auto modeValue = static_cast<int>(debugMode);
+    const bool modeChanged = modeValue != _debugDrawMode;
+
+    if (debugMode == btIDebugDraw::DBG_NoDebug) {
         _debugLines.clear();
+        _debugDrawMode = modeValue;
+        _nextDebugLineUpdate = {};
+        return;
+    }
 
-        auto btDebugModes = BTDebugDrawModesForA3DDebugOptions(debugOptions);
-        if (btDebugModes == btIDebugDraw::DBG_NoDebug) {
-            return;
-        }
-
+    if (modeChanged || now >= _nextDebugLineUpdate) {
         std::scoped_lock lock(_btMutex);
 
-        _btDebugDrawer->setDebugMode(btDebugModes);
+        _btDebugDrawer->setDebugMode(debugMode);
         _btDebugDrawer->clear();
 
         _btWorld->debugDrawWorld();
 
         _debugLines = std::move(_btDebugDrawer->lines());
-    });
-
-    for (auto& line : _debugLines) {
-        out.push_back(line);
+        _debugDrawMode = modeValue;
+        _nextDebugLineUpdate = now + DEBUG_LINE_UPDATE_INTERVAL;
     }
 
-//#endif
+    out.insert(out.end(), _debugLines.begin(), _debugLines.end());
 }
 
 /// Internal Member Functions ///

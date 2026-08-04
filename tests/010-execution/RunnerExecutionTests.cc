@@ -16,11 +16,14 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <thread>
 #include <tuple>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
 #include "a3d/Application.h"
+#include "a3d/Image.h"
 #include "a3d/Runner.h"
 #include "a3d/SimulationConfig.h"
 #include "a3d/input/InputContext.h"
@@ -31,6 +34,7 @@
 #include "a3d/profile/FrameStats.h"
 #include "a3d/profile/FrameStatsHistory.h"
 #include "a3d/profile/Profiler.h"
+#include "a3d/render/Renderer.h"
 #include "a3d/render/context/RenderContext.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
@@ -53,14 +57,11 @@ namespace a3d::testing {
             return *application._runner;
         }
 
-        static std::size_t sceneCommandCount(const Application& application) {
+        static void dispatchHostUpdate(Application&              application,
+                                       Runner&                   runner,
+                                       const Runner::UpdateInfo& info) {
 
-            return application._sceneCommandQueue.size();
-        }
-
-        static std::size_t renderCommandCount(const Application& application) {
-
-            return application._renderCommandQueue.size();
+            application.dispatchHostUpdate(runner, info);
         }
 
         static void dispatchSceneWillStep(Application& application, Scene& scene, const Scene::StepInfo& info) {
@@ -73,18 +74,11 @@ namespace a3d::testing {
             application.dispatchSceneDidStep(scene, info);
         }
 
-        static void dispatchPendingRenderCommands(Application&                   application,
-                                                  VisualWorld&                   visualWorld,
-                                                  const VisualWorld::RenderInfo& info) {
+        static void dispatchDidBeginFrame(Application&                   application,
+                                          VisualWorld&                   visualWorld,
+                                          const VisualWorld::RenderInfo& info) {
 
-            application.dispatchPendingRenderCommands(visualWorld, info);
-        }
-
-        static void dispatchRenderFrame(Application&                   application,
-                                        VisualWorld&                   visualWorld,
-                                        const VisualWorld::RenderInfo& info) {
-
-            application.dispatchRenderFrame(visualWorld, info);
+            application.dispatchDidBeginFrame(visualWorld, info);
         }
     };
 
@@ -103,10 +97,6 @@ namespace a3d::testing {
 
         static TimePoint startTime(const Runner& runner) {
             return runner._startTime;
-        }
-
-        static const Runner::UpdateInfo& updateInfo(const Runner& runner) {
-            return runner._updateInfo;
         }
 
         static const FrameStatsHistory& frameStatsHistory(const Runner& runner) {
@@ -128,6 +118,8 @@ namespace {
 
     using TimePoint = a3d::testing::RunnerTestAccess::TimePoint;
 
+    static_assert(!std::is_same_v<a3d::InputContext::UpdateInfo, a3d::Runner::UpdateInfo>);
+
     struct CallbackTime {
         double elapsedTime;
         double deltaTime;
@@ -144,12 +136,19 @@ namespace {
 
     public:
         explicit RecordingInputContext(std::vector<std::string_view>& stages):
+            updateAction {},
             _stages {stages},
-            _updateCount {} {}
+            _updateCount {},
+            _lastUpdateInfo {} {}
 
-        void update() override {
-            _stages.push_back("input");
+        void update(const UpdateInfo& info) override {
+            _stages.push_back("input-update");
             ++_updateCount;
+            _lastUpdateInfo = info;
+
+            if (updateAction) {
+                updateAction(info);
+            }
         }
 
         void attachedToScene(a3d::Scene&) override {}
@@ -160,34 +159,111 @@ namespace {
             return _updateCount;
         }
 
+        const UpdateInfo& lastUpdateInfo() const {
+            return _lastUpdateInfo;
+        }
+
         void reset() {
             _updateCount = 0;
         }
 
+        std::function<void(const UpdateInfo&)> updateAction;
+
     private:
         std::vector<std::string_view>& _stages;
         std::size_t                    _updateCount;
+        UpdateInfo                     _lastUpdateInfo;
     };
 
     class PassiveInputContext final : public a3d::InputContext {
 
     public:
-        void update() override {}
+        void update(const UpdateInfo&) override {}
 
         void attachedToScene(a3d::Scene&) override {}
 
         void visualWorldAttachedToScene(a3d::Scene&) override {}
     };
 
+    class AdapterRenderer final : public a3d::Renderer {
+
+    public:
+        bool initialize(const a3d::RenderContext&) override {
+            return true;
+        }
+
+        bool isInitialized() const override {
+            return true;
+        }
+
+        void beginFrame(const a3d::Scene&,
+                        const a3d::RenderContext&,
+                        const a3d::Scene::DebugOptions&,
+                        a3d::FrameStats&,
+                        a3d::Profiler&) override {}
+
+        void endFrame(const a3d::Scene&,
+                      const a3d::RenderContext&,
+                      const a3d::Scene::DebugOptions&,
+                      a3d::FrameStats&,
+                      a3d::Profiler&,
+                      const a3d::FrameStatsHistory&) override {}
+
+        void preTraversal(const a3d::Scene&,
+                          const a3d::RenderContext&,
+                          const a3d::Scene::DebugOptions&,
+                          a3d::FrameStats&) override {}
+
+        void postTraversal(const a3d::Scene&,
+                           const a3d::RenderContext&,
+                           const std::vector<a3d::Node*>&,
+                           const a3d::Scene::DebugOptions&,
+                           a3d::FrameStats&) override {}
+
+        void clear(const ClearCommand&, const a3d::RenderContext&) override {}
+
+        void renderPacket(a3d::DrawPacket&, const FrameParams&) override {}
+
+        std::unique_ptr<a3d::Image> snapshot(const a3d::RenderContext&) const override {
+            return {};
+        }
+
+    protected:
+        void resolvePacket(a3d::DrawPacket&, const FrameParams&) override {}
+
+        void drawPacket(const a3d::DrawPacket&, const FrameParams&) override {}
+
+        void drawBackground(const a3d::BackgroundPass&,
+                            const a3d::math::mat4&,
+                            const a3d::math::mat4&) override {}
+
+        void bindPipeline(a3d::PipelineId, const a3d::OGLResourceCache&) override {}
+
+        void bindMaterial(const a3d::Material&) override {}
+
+        void bindMeshElement(const a3d::MeshElement&) override {}
+
+        void applyMVP(const a3d::math::mat4&, const a3d::math::mat4&, const a3d::math::mat4&) override {}
+
+        void drawElements() override {}
+
+        void renderLinesPass(const a3d::LinesPass&,
+                             const a3d::RenderContext&,
+                             const a3d::math::mat4&,
+                             const a3d::math::mat4&) override {}
+    };
+
     class AdapterRenderContext final : public a3d::RenderContext {
 
     public:
-        AdapterRenderContext():
-            RenderContext(RenderingApi::OpenGL) {
+        explicit AdapterRenderContext(std::vector<std::string_view>* stages = nullptr):
+            RenderContext(RenderingApi::OpenGL),
+            _stages {stages} {
 
             // This fixture exercises Application's callback adapters without
             // initializing or destroying an OpenGL backend.
             (void) _renderer.release();
+            _renderer = std::make_unique<AdapterRenderer>();
         }
 
         bool vSyncEnabled() const override {
@@ -195,6 +271,13 @@ namespace {
         }
 
         void vSyncEnabled(bool) override {}
+
+        void pollEvents() override {
+
+            if (_stages) {
+                _stages->push_back("poll");
+            }
+        }
 
         void beginFrame(const a3d::Scene&) override {}
 
@@ -213,35 +296,30 @@ namespace {
         unsigned defaultFramebuffer() const override {
             return 0;
         }
+
+    private:
+        std::vector<std::string_view>* _stages;
     };
 
     class RecordingApplication final : public a3d::Application {
 
     public:
+        using InputAction =
+            std::function<void(a3d::Runner&, a3d::InputContext&, const a3d::InputContext::UpdateInfo&)>;
         using HostAction = std::function<void(a3d::Runner&, const a3d::Runner::UpdateInfo&)>;
         using SimulationAction = std::function<void(a3d::Scene&, const a3d::Scene::StepInfo&)>;
         using RenderAction = std::function<void(a3d::VisualWorld&, const a3d::VisualWorld::RenderInfo&)>;
 
-        RecordingApplication():
+        explicit RecordingApplication(std::unique_ptr<a3d::InputContext> inputContext = nullptr):
             Application(1, Arguments()),
+            inputAction {},
             hostAction {},
             simulationWillAction {},
             simulationDidAction {},
-            renderAction {} {}
+            renderAction {},
+            _inputContext {std::move(inputContext)} {}
 
-        void enqueueScene(SceneCommand command) {
-            queueSceneCommand(std::move(command));
-        }
-
-        void enqueueRender(RenderCommand command) {
-            queueRenderCommand(std::move(command));
-        }
-
-        void invokeHostUpdate(a3d::Runner& runner, const a3d::Runner::UpdateInfo& info) {
-
-            hostUpdate(runner, info);
-        }
-
+        InputAction      inputAction;
         HostAction       hostAction;
         SimulationAction simulationWillAction;
         SimulationAction simulationDidAction;
@@ -249,7 +327,24 @@ namespace {
 
     protected:
         std::unique_ptr<a3d::Scene> init() override {
-            return std::make_unique<a3d::Scene>();
+
+            auto scene = std::make_unique<a3d::Scene>();
+
+            if (_inputContext) {
+                scene->inputContext(std::move(_inputContext));
+            }
+
+            return scene;
+        }
+
+        /// InputContext Callbacks ///
+
+        void inputContextDidUpdate(a3d::InputContext&                   inputContext,
+                                   const a3d::InputContext::UpdateInfo& info) override {
+
+            if (inputAction) {
+                inputAction(runner, inputContext, info);
+            }
         }
 
         /// Runner Callbacks ///
@@ -279,7 +374,7 @@ namespace {
 
         /// VisualWorld Callbacks ///
 
-        void renderFrame(a3d::VisualWorld& visualWorld, const a3d::VisualWorld::RenderInfo& info) override {
+        void didBeginFrame(a3d::VisualWorld& visualWorld, const a3d::VisualWorld::RenderInfo& info) override {
 
             if (renderAction) {
                 renderAction(visualWorld, info);
@@ -294,6 +389,8 @@ namespace {
 
             return arguments;
         }
+
+        std::unique_ptr<a3d::InputContext> _inputContext;
     };
 
     struct ApplicationRunnerAccessResult {
@@ -419,6 +516,94 @@ namespace {
 
         StopDuringHostResult& _result;
         bool                  _stopDuringHost;
+    };
+
+    struct StopDuringInputResult {
+        std::size_t inputCallbackCount;
+        std::size_t hostUpdateCount;
+        std::size_t simulationWillCount;
+        std::size_t simulationDidCount;
+        std::size_t renderCount;
+        bool        inputObservedStoppedState;
+    };
+
+    class StopDuringInputApplication final : public a3d::Application {
+
+    public:
+        explicit StopDuringInputApplication(StopDuringInputResult& result):
+            Application(1, Arguments()),
+            _renderContext {},
+            _result {result},
+            _stopDuringInput {false} {}
+
+        void stopDuringNextInputUpdate() {
+            _stopDuringInput = true;
+        }
+
+    protected:
+        std::unique_ptr<a3d::Scene> init() override {
+
+            auto scene = std::make_unique<a3d::Scene>();
+            scene->visualWorld(std::make_unique<a3d::VisualWorld>(_renderContext));
+            scene->inputContext(std::make_unique<PassiveInputContext>());
+            scene->physicsWorld(std::make_unique<a3d::PhysicsWorld>());
+            return scene;
+        }
+
+        a3d::SimulationConfig simulationConfig() const override {
+
+            auto config = a3d::SimulationConfig {};
+            config.timeStep = 0.125;
+            return config;
+        }
+
+        /// InputContext Callbacks ///
+
+        void inputContextDidUpdate(a3d::InputContext&,
+                                   const a3d::InputContext::UpdateInfo&) override {
+
+            ++_result.inputCallbackCount;
+
+            if (_stopDuringInput) {
+                callbackRunner.stop();
+                _result.inputObservedStoppedState = callbackRunner.state() == a3d::Runner::State::Stopped;
+            }
+        }
+
+        /// Runner Callbacks ///
+
+        void hostUpdate(a3d::Runner&, const a3d::Runner::UpdateInfo&) override {
+            ++_result.hostUpdateCount;
+        }
+
+        /// Scene Callbacks ///
+
+        void sceneWillStep(a3d::Scene&, const a3d::Scene::StepInfo&) override {
+            ++_result.simulationWillCount;
+        }
+
+        void sceneDidStep(a3d::Scene&, const a3d::Scene::StepInfo&) override {
+            ++_result.simulationDidCount;
+        }
+
+        /// VisualWorld Callbacks ///
+
+        void didBeginFrame(a3d::VisualWorld&, const a3d::VisualWorld::RenderInfo&) override {
+            ++_result.renderCount;
+        }
+
+    private:
+        static char** Arguments() {
+
+            static char  executableName[] = "a3d-runner-execution-tests";
+            static char* arguments[] = {executableName};
+
+            return arguments;
+        }
+
+        AdapterRenderContext   _renderContext;
+        StopDuringInputResult& _result;
+        bool                   _stopDuringInput;
     };
 
     TimePoint AtMilliseconds(std::int64_t milliseconds) {
@@ -585,36 +770,41 @@ namespace {
 
     void UpdateIndexProgresses() {
 
-        a3d::Scene  scene;
-        a3d::Runner runner(scene);
+        a3d::Scene                 scene;
+        a3d::Runner                runner(scene);
+        std::vector<std::uint64_t> updateIndices;
+        runner.updateCallback([&](a3d::Runner&, const a3d::Runner::UpdateInfo& info) {
+            updateIndices.push_back(info.updateIndex);
+        });
         a3d::testing::RunnerTestAccess::start(runner, AtMilliseconds(4000));
 
         a3d::testing::RunnerTestAccess::update(runner, AtMilliseconds(4100));
-        Expect(a3d::testing::RunnerTestAccess::updateInfo(runner).updateIndex == 0,
-               "the first update index should be zero");
+        Expect(updateIndices.back() == 0, "the first update index should be zero");
 
         a3d::testing::RunnerTestAccess::update(runner, AtMilliseconds(4200));
-        Expect(a3d::testing::RunnerTestAccess::updateInfo(runner).updateIndex == 1,
-               "the second update index should be one");
+        Expect(updateIndices.back() == 1, "the second update index should be one");
 
         a3d::testing::RunnerTestAccess::update(runner, AtMilliseconds(4300));
-        Expect(a3d::testing::RunnerTestAccess::updateInfo(runner).updateIndex == 2,
-               "the third update index should be two");
+        Expect(updateIndices.back() == 2, "the third update index should be two");
     }
 
     void RunnerClocksAreIndependent() {
 
-        a3d::Scene                firstScene;
-        std::vector<CallbackTime> firstTimes;
-        a3d::Scene                secondScene;
-        std::vector<CallbackTime> secondTimes;
-        a3d::Runner               firstRunner(firstScene);
-        a3d::Runner               secondRunner(secondScene);
-        firstRunner.updateCallback([&firstTimes](a3d::Runner&, const a3d::Runner::UpdateInfo& info) {
+        a3d::Scene                 firstScene;
+        std::vector<CallbackTime>  firstTimes;
+        std::vector<std::uint64_t> firstUpdateIndices;
+        a3d::Scene                 secondScene;
+        std::vector<CallbackTime>  secondTimes;
+        std::vector<std::uint64_t> secondUpdateIndices;
+        a3d::Runner                firstRunner(firstScene);
+        a3d::Runner                secondRunner(secondScene);
+        firstRunner.updateCallback([&](a3d::Runner&, const a3d::Runner::UpdateInfo& info) {
             firstTimes.push_back({info.elapsedTime, info.deltaTime});
+            firstUpdateIndices.push_back(info.updateIndex);
         });
-        secondRunner.updateCallback([&secondTimes](a3d::Runner&, const a3d::Runner::UpdateInfo& info) {
+        secondRunner.updateCallback([&](a3d::Runner&, const a3d::Runner::UpdateInfo& info) {
             secondTimes.push_back({info.elapsedTime, info.deltaTime});
+            secondUpdateIndices.push_back(info.updateIndex);
         });
 
         a3d::testing::RunnerTestAccess::start(firstRunner, AtMilliseconds(10000));
@@ -635,10 +825,8 @@ namespace {
         ExpectNear(secondTimes[0].deltaTime, 0.0, "second Runner first delta time");
         ExpectNear(secondTimes[1].elapsedTime, 1.6, "second Runner second elapsed time");
         ExpectNear(secondTimes[1].deltaTime, 0.9, "second Runner second delta time");
-        Expect(a3d::testing::RunnerTestAccess::updateInfo(firstRunner).updateIndex == 1,
-               "the first Runner should have its own update index");
-        Expect(a3d::testing::RunnerTestAccess::updateInfo(secondRunner).updateIndex == 1,
-               "the second Runner should have its own update index");
+        Expect(firstUpdateIndices.back() == 1, "the first Runner should have its own update index");
+        Expect(secondUpdateIndices.back() == 1, "the second Runner should have its own update index");
     }
 
     void SimulationConfigDefaults() {
@@ -668,6 +856,7 @@ namespace {
             ExpectInvalidArgument(
                 [&] {
                     a3d::Runner runner(scene, configuration);
+                    a3d::testing::RunnerTestAccess::start(runner, AtMilliseconds(0));
                 },
                 message);
         };
@@ -742,6 +931,7 @@ namespace {
         ExpectInvalidArgument(
             [&] {
                 a3d::Runner tinyRunner(physicsScene, tinySimulationConfig);
+                a3d::testing::RunnerTestAccess::start(tinyRunner, AtMilliseconds(0));
             },
             "a fixed delta that is effectively zero for Bullet should be rejected");
     }
@@ -876,25 +1066,27 @@ namespace {
 
     void StopBetweenUpdates() {
 
-        a3d::Scene  scene;
-        a3d::Runner runner(scene);
-        std::size_t callbackCount = 0;
-        runner.updateCallback([&callbackCount](a3d::Runner&, const a3d::Runner::UpdateInfo&) {
+        a3d::Scene              scene;
+        a3d::Runner             runner(scene);
+        std::size_t             callbackCount = 0;
+        a3d::Runner::UpdateInfo lastUpdateInfo {};
+        runner.updateCallback([&](a3d::Runner&, const a3d::Runner::UpdateInfo& info) {
             ++callbackCount;
+            lastUpdateInfo = info;
         });
 
         a3d::testing::RunnerTestAccess::start(runner, AtMilliseconds(6000));
         Expect(a3d::testing::RunnerTestAccess::update(runner, AtMilliseconds(6100)),
                "the Runner should continue before stop");
 
-        const auto infoBeforeStop = a3d::testing::RunnerTestAccess::updateInfo(runner);
+        const auto infoBeforeStop = lastUpdateInfo;
         runner.stop();
 
         Expect(!a3d::testing::RunnerTestAccess::update(runner, AtMilliseconds(6500)),
                "a stopped Runner should not update");
         Expect(callbackCount == 1, "stop should prevent later Runner callbacks");
 
-        const auto& infoAfterStop = a3d::testing::RunnerTestAccess::updateInfo(runner);
+        const auto& infoAfterStop = lastUpdateInfo;
         Expect(infoAfterStop.updateIndex == infoBeforeStop.updateIndex,
                "stop should not advance the update index");
         ExpectNear(infoAfterStop.elapsedTime, infoBeforeStop.elapsedTime,
@@ -945,6 +1137,52 @@ namespace {
         a3d::testing::ApplicationTestAccess::shutdown(*application);
     }
 
+    void StopDuringInputCallbackSkipsLaterStages() {
+
+        StopDuringInputResult result {};
+        auto                  application = std::make_unique<StopDuringInputApplication>(result);
+
+        a3d::testing::ApplicationTestAccess::prepare(*application);
+
+        auto&      runner = a3d::testing::ApplicationTestAccess::runner(*application);
+        const auto startTime = a3d::testing::RunnerTestAccess::startTime(runner);
+
+        Expect(a3d::testing::RunnerTestAccess::update(runner, startTime),
+               "the priming input callback update should continue");
+        Expect(result.inputCallbackCount == 1 && result.hostUpdateCount == 1 && result.renderCount == 1,
+               "the priming update should execute the input, host, and render callbacks");
+
+        const auto completedRenderFramesBeforeStop =
+            a3d::testing::RunnerTestAccess::completedRenderFrameCount(runner);
+
+        result = {};
+        application->stopDuringNextInputUpdate();
+
+        Expect(!a3d::testing::RunnerTestAccess::update(runner, startTime + std::chrono::milliseconds(125)),
+               "an update stopped from inputContextDidUpdate should return false");
+        Expect(result.inputCallbackCount == 1,
+               "the stopping inputContextDidUpdate callback should run exactly once");
+        Expect(result.inputObservedStoppedState, "inputContextDidUpdate should observe the Runner as stopped");
+        Expect(result.hostUpdateCount == 0, "stop during inputContextDidUpdate should skip hostUpdate");
+        Expect(result.simulationWillCount == 0 && result.simulationDidCount == 0,
+               "stop during inputContextDidUpdate should skip simulation");
+        Expect(result.renderCount == 0, "stop during inputContextDidUpdate should skip the render callback");
+        Expect(runner.simulationStepCount() == 0,
+               "stop during inputContextDidUpdate should complete no simulation step");
+        Expect(a3d::testing::RunnerTestAccess::completedRenderFrameCount(runner)
+                   == completedRenderFramesBeforeStop,
+               "stop during inputContextDidUpdate should complete no render frame");
+        Expect(runner.state() == a3d::Runner::State::Stopped,
+               "the Runner should remain stopped after inputContextDidUpdate");
+
+        Expect(!a3d::testing::RunnerTestAccess::update(runner, startTime + std::chrono::milliseconds(250)),
+               "a later update should remain stopped");
+        Expect(result.inputCallbackCount == 1,
+               "a stopped Runner should not invoke inputContextDidUpdate again");
+
+        a3d::testing::ApplicationTestAccess::shutdown(*application);
+    }
+
     void StopDuringRunnerCallback() {
 
         a3d::Scene scene;
@@ -954,14 +1192,16 @@ namespace {
         std::vector<std::string_view> stages;
         std::size_t                   callbackCount = 0;
         std::size_t                   simulationCount = 0;
+        std::uint64_t                 stoppingUpdateIndex = 0;
 
         a3d::testing::RunnerTestAccess::start(runner, AtMicroseconds(7000000));
         Expect(a3d::testing::RunnerTestAccess::update(runner, AtMicroseconds(7100000)),
                "the priming update should continue before the stopping callback");
 
-        runner.updateCallback([&runner, &callbackCount, &stages](a3d::Runner&, const a3d::Runner::UpdateInfo&) {
+        runner.updateCallback([&](a3d::Runner&, const a3d::Runner::UpdateInfo& info) {
             stages.push_back("runner");
             ++callbackCount;
+            stoppingUpdateIndex = info.updateIndex;
             runner.stop();
         });
         scene.didStepCallback([&simulationCount, &stages](a3d::Scene&, const a3d::Scene::StepInfo&) {
@@ -976,8 +1216,7 @@ namespace {
         Expect(stages.size() == 1 && stages[0] == "runner",
                "no later stage should follow the stopping Runner callback");
         Expect(runner.state() == a3d::Runner::State::Stopped, "the Runner should remain stopped");
-        Expect(a3d::testing::RunnerTestAccess::updateInfo(runner).updateIndex == 1,
-               "the stopping update should retain its update index");
+        Expect(stoppingUpdateIndex == 1, "the stopping callback should receive the second update index");
         Expect(LatestFrameStats(runner).simulationStepCount == 0,
                "the stopping Runner update should report zero simulation steps");
         Expect(runner.simulationStepCount() == 0,
@@ -1028,32 +1267,62 @@ namespace {
                "stopping during simulation should not complete a render frame");
     }
 
-    void InputUpdatesBeforeHostUpdateAndSimulation() {
+    void InputAndApplicationCallbacksRunInPipelineOrder() {
 
-        a3d::Scene                    scene;
         std::vector<std::string_view> stages;
-        auto                          inputContext = std::make_unique<RecordingInputContext>(stages);
-        auto*                         inputContextPtr = inputContext.get();
+        AdapterRenderContext          renderContext(&stages);
+        a3d::Scene                    scene;
+        scene.visualWorld(std::make_unique<a3d::VisualWorld>(renderContext));
+        scene.physicsWorld(std::make_unique<a3d::PhysicsWorld>());
+        auto bodyNode = AddMovingDynamicBody(scene);
+
+        auto  inputContext = std::make_unique<RecordingInputContext>(stages);
+        auto* inputContextPtr = inputContext.get();
         scene.inputContext(std::move(inputContext));
 
         RecordingApplication      application;
+        std::vector<CallbackTime> inputCallbacks;
         std::vector<CallbackTime> hostUpdates;
+        double                    positionBeforePhysics = -1.0;
+        double                    positionAfterPhysics = -1.0;
+
+        application.inputAction = [&](a3d::Runner&, a3d::InputContext& callbackInputContext,
+                                      const a3d::InputContext::UpdateInfo& info) {
+            Expect(&callbackInputContext == inputContextPtr,
+                   "inputContextDidUpdate should receive the updated InputContext");
+            Expect(inputContextPtr->updateCount() == inputCallbacks.size() + 1,
+                   "inputContextDidUpdate should observe freshly updated input");
+            Expect(inputContextPtr->lastUpdateInfo().updateIndex == info.updateIndex,
+                   "inputContextDidUpdate should receive the InputContext update's information");
+            stages.push_back("input-did-update");
+            inputCallbacks.push_back({info.elapsedTime, info.deltaTime});
+        };
         application.hostAction = [&](a3d::Runner&, const a3d::Runner::UpdateInfo& info) {
-            Expect(inputContextPtr->updateCount() == hostUpdates.size() + 1,
-                   "hostUpdate should observe current input state");
-            stages.push_back("host");
+            stages.push_back("runner-update");
             hostUpdates.push_back({info.elapsedTime, info.deltaTime});
         };
         application.simulationWillAction = [&](a3d::Scene&, const a3d::Scene::StepInfo&) {
             stages.push_back("simulation-will");
+            positionBeforePhysics = bodyNode->physicsBody()->centerOfMass().x;
         };
         application.simulationDidAction = [&](a3d::Scene&, const a3d::Scene::StepInfo&) {
+            positionAfterPhysics = bodyNode->physicsBody()->centerOfMass().x;
+            stages.push_back("physics");
             stages.push_back("simulation-did");
+        };
+        application.renderAction = [&](a3d::VisualWorld&, const a3d::VisualWorld::RenderInfo&) {
+            stages.push_back("render");
         };
 
         a3d::Runner runner(scene, MakeSimulationConfig());
+        inputContextPtr->didUpdateCallback([&](a3d::InputContext&                   callbackInputContext,
+                                               const a3d::InputContext::UpdateInfo& info) {
+            application.inputAction(runner, callbackInputContext, info);
+        });
+        Expect(static_cast<bool>(inputContextPtr->didUpdateCallback()),
+               "the InputContext should own its did-update callback");
         runner.updateCallback([&](a3d::Runner& callbackRunner, const a3d::Runner::UpdateInfo& info) {
-            application.invokeHostUpdate(callbackRunner, info);
+            application.hostAction(callbackRunner, info);
         });
         scene.willStepCallback([&](a3d::Scene& callbackScene, const a3d::Scene::StepInfo& info) {
             a3d::testing::ApplicationTestAccess::dispatchSceneWillStep(application, callbackScene, info);
@@ -1061,43 +1330,135 @@ namespace {
         scene.didStepCallback([&](a3d::Scene& callbackScene, const a3d::Scene::StepInfo& info) {
             a3d::testing::ApplicationTestAccess::dispatchSceneDidStep(application, callbackScene, info);
         });
+        scene.visualWorld()->didBeginFrameCallback([&](a3d::VisualWorld&                   visualWorld,
+                                                       const a3d::VisualWorld::RenderInfo& info) {
+            a3d::testing::ApplicationTestAccess::dispatchDidBeginFrame(application, visualWorld, info);
+        });
 
         a3d::testing::RunnerTestAccess::start(runner, AtMilliseconds(2000));
         Expect(a3d::testing::RunnerTestAccess::update(runner, AtMilliseconds(2100)),
-               "the priming host update should continue");
-        Expect(stages.size() == 2 && stages[0] == "input" && stages[1] == "host",
-               "input should update before hostUpdate");
+               "the priming update should continue");
+
+        const std::vector<std::string_view> expectedPrimingStages {"poll", "input-update", "input-did-update",
+                                                                   "runner-update", "render"};
+        Expect(stages == expectedPrimingStages,
+               "input callbacks should follow input update and precede hostUpdate and render");
 
         stages.clear();
         Expect(a3d::testing::RunnerTestAccess::update(runner, AtMilliseconds(2225)),
-               "the scheduled host update should continue");
-        Expect(stages.size() == 4 && stages[0] == "input" && stages[1] == "host"
-                   && stages[2] == "simulation-will" && stages[3] == "simulation-did",
-               "input and hostUpdate should precede simulation");
+               "the scheduled update should continue");
+
+        const std::vector<std::string_view> expectedScheduledStages {"poll",
+                                                                     "input-update",
+                                                                     "input-did-update",
+                                                                     "runner-update",
+                                                                     "simulation-will",
+                                                                     "physics",
+                                                                     "simulation-did",
+                                                                     "render"};
+        Expect(stages == expectedScheduledStages,
+               "input, Application, simulation, physics, and render stages should run in order");
+        Expect(inputCallbacks.size() == 2, "inputContextDidUpdate should run exactly once per Runner update");
         Expect(hostUpdates.size() == 2, "hostUpdate should run exactly once per Runner update");
-        ExpectNear(hostUpdates.back().elapsedTime, 0.225, "the second hostUpdate elapsed time");
-        ExpectNear(hostUpdates.back().deltaTime, 0.125, "the second hostUpdate delta time");
+        ExpectNear(inputCallbacks.back().elapsedTime, 0.225, "the second inputContextDidUpdate elapsed time");
+        ExpectNear(inputCallbacks.back().deltaTime, 0.125, "the second inputContextDidUpdate delta time");
+        ExpectNear(hostUpdates.back().elapsedTime, inputCallbacks.back().elapsedTime,
+                   "inputContextDidUpdate and hostUpdate elapsed time");
+        ExpectNear(hostUpdates.back().deltaTime, inputCallbacks.back().deltaTime,
+                   "inputContextDidUpdate and hostUpdate delta time");
+        ExpectNear(positionBeforePhysics, 0.0, "sceneWillStep should precede physics");
+        ExpectNear(positionAfterPhysics, 0.125, "sceneDidStep should follow physics", 1e-5);
+        Expect(a3d::testing::RunnerTestAccess::completedRenderFrameCount(runner) == 2,
+               "each update should complete one render frame");
     }
 
-    void NoInputContextStillRunsHostUpdate() {
+    void ApplicationUpdateCallbacksRunOnceAcrossCatchUpSteps() {
 
-        a3d::Scene scene;
-        Expect(scene.inputContext() == nullptr, "the no-input fixture should not have an InputContext");
+        a3d::Scene                    scene;
+        std::vector<std::string_view> stages;
+        auto                          inputContext = std::make_unique<RecordingInputContext>(stages);
+        auto*                         inputContextPtr = inputContext.get();
+        scene.inputContext(std::move(inputContext));
 
         RecordingApplication application;
+        std::size_t          inputCallbackCount = 0;
         std::size_t          hostUpdateCount = 0;
         std::size_t          simulationStepCount = 0;
 
+        application.inputAction = [&](a3d::Runner&, a3d::InputContext&, const a3d::InputContext::UpdateInfo&) {
+            ++inputCallbackCount;
+        };
         application.hostAction = [&](a3d::Runner&, const a3d::Runner::UpdateInfo&) {
             ++hostUpdateCount;
+        };
+        application.simulationDidAction = [&](a3d::Scene&, const a3d::Scene::StepInfo&) {
+            ++simulationStepCount;
+        };
+
+        a3d::Runner runner(scene, MakeSimulationConfig());
+        inputContextPtr->didUpdateCallback([&](a3d::InputContext&                   callbackInputContext,
+                                               const a3d::InputContext::UpdateInfo& info) {
+            application.inputAction(runner, callbackInputContext, info);
+        });
+        runner.updateCallback([&](a3d::Runner& callbackRunner, const a3d::Runner::UpdateInfo& info) {
+            application.hostAction(callbackRunner, info);
+        });
+        scene.didStepCallback([&](a3d::Scene& callbackScene, const a3d::Scene::StepInfo& info) {
+            a3d::testing::ApplicationTestAccess::dispatchSceneDidStep(application, callbackScene, info);
+        });
+
+        a3d::testing::RunnerTestAccess::start(runner, AtMilliseconds(0));
+        Expect(a3d::testing::RunnerTestAccess::update(runner, AtMilliseconds(100)),
+               "the priming catch-up callback update should continue");
+
+        inputContextPtr->reset();
+        inputCallbackCount = 0;
+        hostUpdateCount = 0;
+        simulationStepCount = 0;
+
+        Expect(a3d::testing::RunnerTestAccess::update(runner, AtMilliseconds(475)),
+               "the catch-up callback update should continue");
+        Expect(inputContextPtr->updateCount() == 1,
+               "InputContext update should remain once-per-Runner-update work");
+        Expect(inputCallbackCount == 1,
+               "inputContextDidUpdate should not repeat for catch-up simulation steps");
+        Expect(hostUpdateCount == 1, "hostUpdate should not repeat for catch-up simulation steps");
+        Expect(simulationStepCount == 3, "the fixture should execute three catch-up simulation steps");
+    }
+
+    void NoInputContextSkipsInputCallbackButRunsHostUpdate() {
+
+        AdapterRenderContext renderContext;
+        a3d::Scene           scene;
+        scene.visualWorld(std::make_unique<a3d::VisualWorld>(renderContext));
+        Expect(scene.inputContext() == nullptr, "the no-input fixture should not have an InputContext");
+
+        RecordingApplication application;
+        std::size_t          inputCallbackCount = 0;
+        std::size_t          hostUpdateCount = 0;
+        std::size_t          simulationStepCount = 0;
+        std::size_t          renderCount = 0;
+
+        application.inputAction = [&](a3d::Runner&, a3d::InputContext&, const a3d::InputContext::UpdateInfo&) {
+            ++inputCallbackCount;
+        };
+        application.hostAction = [&](a3d::Runner&, const a3d::Runner::UpdateInfo&) {
+            ++hostUpdateCount;
+        };
+        application.renderAction = [&](a3d::VisualWorld&, const a3d::VisualWorld::RenderInfo&) {
+            ++renderCount;
         };
 
         a3d::Runner runner(scene, MakeSimulationConfig());
         runner.updateCallback([&](a3d::Runner& callbackRunner, const a3d::Runner::UpdateInfo& info) {
-            application.invokeHostUpdate(callbackRunner, info);
+            a3d::testing::ApplicationTestAccess::dispatchHostUpdate(application, callbackRunner, info);
         });
         scene.didStepCallback([&](a3d::Scene&, const a3d::Scene::StepInfo&) {
             ++simulationStepCount;
+        });
+        scene.visualWorld()->didBeginFrameCallback([&](a3d::VisualWorld&                   visualWorld,
+                                                       const a3d::VisualWorld::RenderInfo& info) {
+            a3d::testing::ApplicationTestAccess::dispatchDidBeginFrame(application, visualWorld, info);
         });
 
         a3d::testing::RunnerTestAccess::start(runner, AtMilliseconds(3000));
@@ -1106,8 +1467,129 @@ namespace {
         Expect(a3d::testing::RunnerTestAccess::update(runner, AtMilliseconds(3225)),
                "the scheduled no-input update should continue");
 
+        Expect(inputCallbackCount == 0, "inputContextDidUpdate should be skipped without an InputContext");
         Expect(hostUpdateCount == 2, "hostUpdate should run without an InputContext");
         Expect(simulationStepCount == 1, "simulation should remain scheduled without an InputContext");
+        Expect(renderCount == 2, "rendering should continue without an InputContext");
+        Expect(a3d::testing::RunnerTestAccess::completedRenderFrameCount(runner) == 2,
+               "Runner render accounting should continue without an InputContext");
+    }
+
+    void InputCallbackReceivesApplicationRunnerContextAndUpdateInfo() {
+
+        std::vector<std::string_view> stages;
+        auto                          inputContext = std::make_unique<RecordingInputContext>(stages);
+        auto*                         inputContextPtr = inputContext.get();
+
+        auto application = std::make_unique<RecordingApplication>(std::move(inputContext));
+        a3d::testing::ApplicationTestAccess::prepare(*application);
+
+        auto& runner = a3d::testing::ApplicationTestAccess::runner(*application);
+
+        a3d::Runner*                  callbackRunnerPtr = nullptr;
+        a3d::InputContext*            callbackInputContextPtr = nullptr;
+        a3d::InputContext::UpdateInfo inputUpdateInfo {};
+        a3d::Runner::UpdateInfo       hostUpdateInfo {};
+
+        application->inputAction = [&](a3d::Runner& callbackRunner, a3d::InputContext& callbackInputContext,
+                                       const a3d::InputContext::UpdateInfo& info) {
+            callbackRunnerPtr = &callbackRunner;
+            callbackInputContextPtr = &callbackInputContext;
+            inputUpdateInfo = info;
+        };
+        application->hostAction = [&](a3d::Runner&, const a3d::Runner::UpdateInfo& info) {
+            hostUpdateInfo = info;
+        };
+
+        const auto startTime = a3d::testing::RunnerTestAccess::startTime(runner);
+        Expect(a3d::testing::RunnerTestAccess::update(runner, startTime + std::chrono::milliseconds(125)),
+               "the callback-argument update should continue");
+
+        Expect(callbackRunnerPtr == &runner,
+               "inputContextDidUpdate should receive the Application-owned Runner");
+        Expect(callbackInputContextPtr == inputContextPtr,
+               "inputContextDidUpdate should receive the Scene's exact InputContext");
+        Expect(static_cast<bool>(inputContextPtr->didUpdateCallback()),
+               "Application should register inputContextDidUpdate with its InputContext");
+        Expect(static_cast<bool>(runner.updateCallback()),
+               "Application should register hostUpdate with its Runner");
+        Expect(inputContextPtr->updateCount() == 1,
+               "the callback-argument InputContext should update exactly once");
+        Expect(inputContextPtr->lastUpdateInfo().updateIndex == inputUpdateInfo.updateIndex,
+               "the callback should receive the same update index as InputContext::update");
+        ExpectNear(inputContextPtr->lastUpdateInfo().elapsedTime, inputUpdateInfo.elapsedTime,
+                   "the callback should receive the same elapsed time as InputContext::update");
+        ExpectNear(inputContextPtr->lastUpdateInfo().deltaTime, inputUpdateInfo.deltaTime,
+                   "the callback should receive the same delta time as InputContext::update");
+        Expect(inputUpdateInfo.updateIndex == 0,
+               "inputContextDidUpdate should receive the enclosing update index");
+        ExpectNear(inputUpdateInfo.elapsedTime, 0.125,
+                   "inputContextDidUpdate should receive the enclosing elapsed time");
+        ExpectNear(inputUpdateInfo.deltaTime, 0.0,
+                   "inputContextDidUpdate should receive the enclosing first-update delta");
+        Expect(hostUpdateInfo.updateIndex == inputUpdateInfo.updateIndex,
+               "inputContextDidUpdate and hostUpdate should receive the same update index");
+        ExpectNear(hostUpdateInfo.elapsedTime, inputUpdateInfo.elapsedTime,
+                   "inputContextDidUpdate and hostUpdate should receive the same elapsed time");
+        ExpectNear(hostUpdateInfo.deltaTime, inputUpdateInfo.deltaTime,
+                   "inputContextDidUpdate and hostUpdate should receive the same delta time");
+
+        a3d::testing::ApplicationTestAccess::shutdown(*application);
+    }
+
+    void InputCallbacksUseSeparateProfilingRegions() {
+
+        std::vector<std::string_view> stages;
+        a3d::Profiler                 profiler;
+        a3d::Scene                    scene;
+        auto                          inputContext = std::make_unique<RecordingInputContext>(stages);
+        auto*                         inputContextPtr = inputContext.get();
+        std::chrono::nanoseconds      engineTimeAtCallback {};
+        std::chrono::nanoseconds      applicationTimeDuringCallback {};
+
+        inputContextPtr->updateAction = [&](const a3d::InputContext::UpdateInfo&) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        };
+        inputContextPtr->didUpdateCallback([&](a3d::InputContext&                   callbackInputContext,
+                                               const a3d::InputContext::UpdateInfo& info) {
+            Expect(&callbackInputContext == inputContextPtr,
+                   "Scene::updateInput should invoke the callback owned by its exact InputContext");
+            Expect(info.updateIndex == 7,
+                   "the InputContext callback should receive the supplied update information");
+            stages.push_back("input-did-update");
+            engineTimeAtCallback = profiler.time(a3d::Profiler::Tag::EngineCpu);
+            applicationTimeDuringCallback = profiler.time(a3d::Profiler::Tag::Application);
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        });
+        Expect(static_cast<bool>(inputContextPtr->didUpdateCallback()),
+               "InputContext should expose its owned did-update callback");
+        scene.inputContext(std::move(inputContext));
+
+        const a3d::InputContext::UpdateInfo inputInfo {.updateIndex = 7, .elapsedTime = 1.5, .deltaTime = 0.25};
+        scene.updateInput(inputInfo, profiler);
+
+        const std::vector<std::string_view> expectedStages {"input-update", "input-did-update"};
+        Expect(stages == expectedStages,
+               "the InputContext did-update callback should run immediately after InputContext::update");
+        Expect(engineTimeAtCallback.count() > 0,
+               "InputContext implementation work should be committed to EngineCpu before its callback");
+        Expect(profiler.time(a3d::Profiler::Tag::EngineCpu) == engineTimeAtCallback,
+               "application input work should not be included in EngineCpu profiling");
+        Expect(applicationTimeDuringCallback.count() == 0,
+               "Application profiling should remain open until the input callback completes");
+        Expect(profiler.time(a3d::Profiler::Tag::Application).count() > 0,
+               "InputContext did-update work should be attributed to Application");
+
+        a3d::Scene  hostScene;
+        a3d::Runner hostRunner(hostScene);
+        hostRunner.updateCallback([&](a3d::Runner&, const a3d::Runner::UpdateInfo&) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        });
+        a3d::testing::RunnerTestAccess::start(hostRunner, AtMilliseconds(0));
+        Expect(a3d::testing::RunnerTestAccess::update(hostRunner, AtMilliseconds(0)),
+               "the host callback profiling update should continue");
+        Expect(LatestFrameStats(hostRunner).applicationTime.count() > 0,
+               "Runner host callback work should remain attributed to Application");
     }
 
     void ApplicationRunnerAccessUsesPreparedRunner() {
@@ -1135,156 +1617,6 @@ namespace {
         ExpectNear(result.initialTimeScale, 1.0, "the Runner-access initial time scale");
         ExpectNear(result.hostUpdateTimeScale, 0.5,
                    "hostUpdate should be able to change the Runner time scale");
-    }
-
-    void SceneCommandsRespectStepBoundaries() {
-
-        a3d::Scene                    scene;
-        std::vector<std::string_view> inputStages;
-        auto                          inputContext = std::make_unique<RecordingInputContext>(inputStages);
-        auto*                         inputContextPtr = inputContext.get();
-        scene.inputContext(std::move(inputContext));
-
-        RecordingApplication application;
-        std::vector<int>     events;
-        std::size_t          commandExecutionCount = 0;
-
-        application.hostAction = [&](a3d::Runner&, const a3d::Runner::UpdateInfo& info) {
-            if (info.updateIndex == 0) {
-                application.enqueueScene([&](a3d::Scene& commandScene) {
-                    Expect(&commandScene == &scene, "a Scene command should receive the Scene");
-                    events.push_back(1);
-                    ++commandExecutionCount;
-
-                    application.enqueueScene([&](a3d::Scene& deferredScene) {
-                        Expect(&deferredScene == &scene, "a deferred Scene command should receive the Scene");
-                        events.push_back(3);
-                        ++commandExecutionCount;
-                    });
-                });
-                application.enqueueScene([&](a3d::Scene& commandScene) {
-                    Expect(&commandScene == &scene, "a queued Scene command should receive the Scene");
-                    events.push_back(2);
-                    ++commandExecutionCount;
-                });
-            }
-        };
-        application.simulationWillAction = [&](a3d::Scene&, const a3d::Scene::StepInfo& info) {
-            events.push_back(10 + static_cast<int>(info.stepIndex));
-
-            if (info.stepIndex == 0) {
-                application.enqueueScene([&](a3d::Scene& deferredScene) {
-                    Expect(&deferredScene == &scene, "a sceneWillStep Scene command should receive the Scene");
-                    events.push_back(4);
-                    ++commandExecutionCount;
-                });
-            }
-        };
-        application.simulationDidAction = [&](a3d::Scene&, const a3d::Scene::StepInfo& info) {
-            events.push_back(20 + static_cast<int>(info.stepIndex));
-        };
-
-        a3d::Runner runner(scene, MakeSimulationConfig());
-        runner.updateCallback([&](a3d::Runner& callbackRunner, const a3d::Runner::UpdateInfo& info) {
-            application.invokeHostUpdate(callbackRunner, info);
-        });
-        scene.willStepCallback([&](a3d::Scene& callbackScene, const a3d::Scene::StepInfo& info) {
-            a3d::testing::ApplicationTestAccess::dispatchSceneWillStep(application, callbackScene, info);
-        });
-        scene.didStepCallback([&](a3d::Scene& callbackScene, const a3d::Scene::StepInfo& info) {
-            a3d::testing::ApplicationTestAccess::dispatchSceneDidStep(application, callbackScene, info);
-        });
-
-        a3d::testing::RunnerTestAccess::start(runner, AtMilliseconds(4000));
-        Expect(a3d::testing::RunnerTestAccess::update(runner, AtMilliseconds(4100)),
-               "the zero-step command-queue update should continue");
-        Expect(events.empty(), "Scene commands should survive a zero-step Runner update");
-
-        Expect(a3d::testing::RunnerTestAccess::update(runner, AtMilliseconds(4350)),
-               "the catch-up command-queue update should continue");
-
-        const std::vector<int> expectedCatchUpEvents {1, 2, 10, 20, 3, 4, 11, 21};
-        Expect(events == expectedCatchUpEvents,
-               "Scene commands should be FIFO, boundary-scoped, and deferred by batch");
-        Expect(commandExecutionCount == 4, "each Scene command should execute exactly once");
-
-        Expect(a3d::testing::RunnerTestAccess::update(runner, AtMilliseconds(4475)),
-               "the command-free simulation update should continue");
-
-        const std::vector<int> expectedFinalEvents {1, 2, 10, 20, 3, 4, 11, 21, 12, 22};
-        Expect(events == expectedFinalEvents, "later steps should not repeat executed Scene commands");
-        Expect(commandExecutionCount == 4, "Scene commands should remain exactly-once after later steps");
-    }
-
-    void RenderCommandsWaitWithoutAValidRender() {
-
-        RecordingApplication application;
-        std::size_t          commandExecutionCount = 0;
-        std::size_t          renderFrameCount = 0;
-        application.enqueueRender([&](a3d::VisualWorld&) {
-            ++commandExecutionCount;
-        });
-        application.renderAction = [&](a3d::VisualWorld&, const a3d::VisualWorld::RenderInfo&) {
-            ++renderFrameCount;
-        };
-
-        a3d::Scene scene;
-        Expect(scene.visualWorld() == nullptr, "the render-command fixture should not have a VisualWorld");
-
-        a3d::Runner runner(scene);
-        a3d::testing::RunnerTestAccess::start(runner, AtMilliseconds(6000));
-        Expect(a3d::testing::RunnerTestAccess::update(runner, AtMilliseconds(6100)),
-               "the first no-render command update should continue");
-        Expect(a3d::testing::RunnerTestAccess::update(runner, AtMilliseconds(6200)),
-               "the second no-render command update should continue");
-        Expect(commandExecutionCount == 0,
-               "a render command should not execute without a valid render boundary");
-        Expect(renderFrameCount == 0, "renderFrame should not run without a valid render boundary");
-        Expect(a3d::testing::ApplicationTestAccess::renderCommandCount(application) == 1,
-               "a render command should remain pending without a valid render boundary");
-    }
-
-    void RenderCommandsPrecedeRenderFrameAtAdapterBoundary() {
-
-        AdapterRenderContext context;
-        a3d::VisualWorld     visualWorld(context);
-        RecordingApplication application;
-        std::vector<int>     events;
-
-        application.enqueueRender([&](a3d::VisualWorld& commandWorld) {
-            Expect(&commandWorld == &visualWorld, "a render command should receive the VisualWorld");
-            events.push_back(1);
-            application.enqueueRender([&](a3d::VisualWorld& deferredWorld) {
-                Expect(&deferredWorld == &visualWorld,
-                       "a deferred render command should receive the VisualWorld");
-                events.push_back(3);
-            });
-        });
-        application.enqueueRender([&](a3d::VisualWorld&) {
-            events.push_back(2);
-        });
-        application.renderAction = [&](a3d::VisualWorld& callbackVisualWorld,
-                                       const a3d::VisualWorld::RenderInfo&) {
-            Expect(&callbackVisualWorld == &visualWorld,
-                   "renderFrame should receive the VisualWorld producing the frame");
-            events.push_back(10);
-        };
-
-        const a3d::VisualWorld::RenderInfo info {};
-        a3d::testing::ApplicationTestAccess::dispatchPendingRenderCommands(application, visualWorld, info);
-        a3d::testing::ApplicationTestAccess::dispatchRenderFrame(application, visualWorld, info);
-
-        const std::vector<int> firstBoundary {1, 2, 10};
-        Expect(events == firstBoundary, "pending render commands should execute before renderFrame");
-        Expect(a3d::testing::ApplicationTestAccess::renderCommandCount(application) == 1,
-               "a render command queued while draining should wait for the next frame");
-
-        a3d::testing::ApplicationTestAccess::dispatchPendingRenderCommands(application, visualWorld, info);
-        a3d::testing::ApplicationTestAccess::dispatchRenderFrame(application, visualWorld, info);
-
-        const std::vector<int> secondBoundary {1, 2, 10, 3, 10};
-        Expect(events == secondBoundary,
-               "the deferred render command should execute once at the next boundary");
     }
 
     void SimulationCallbacksRunInOrderWithPhysics() {
@@ -1333,7 +1665,7 @@ namespace {
             Expect(runner.simulationStepCount() == 0, "Runner step count should not advance inside callbacks");
         };
         runner.updateCallback([&](a3d::Runner& callbackRunner, const a3d::Runner::UpdateInfo& info) {
-            application.invokeHostUpdate(callbackRunner, info);
+            a3d::testing::ApplicationTestAccess::dispatchHostUpdate(application, callbackRunner, info);
         });
         scene.willStepCallback([&](a3d::Scene& callbackScene, const a3d::Scene::StepInfo& info) {
             a3d::testing::ApplicationTestAccess::dispatchSceneWillStep(application, callbackScene, info);
@@ -1345,7 +1677,7 @@ namespace {
         Expect(a3d::testing::RunnerTestAccess::update(runner, AtMilliseconds(8225)),
                "the observed Runner update should continue");
 
-        Expect(stages.size() == 4 && stages[0] == "input" && stages[1] == "host"
+        Expect(stages.size() == 4 && stages[0] == "input-update" && stages[1] == "host"
                    && stages[2] == "simulation-will" && stages[3] == "simulation-did",
                "host, simulation, and internal physics should run in order");
         Expect(inputContextPtr->updateCount() == 1,
@@ -1397,7 +1729,7 @@ namespace {
             stages.push_back("simulation-did");
         };
         runner.updateCallback([&](a3d::Runner& callbackRunner, const a3d::Runner::UpdateInfo& info) {
-            application.invokeHostUpdate(callbackRunner, info);
+            a3d::testing::ApplicationTestAccess::dispatchHostUpdate(application, callbackRunner, info);
         });
         scene.willStepCallback([&](a3d::Scene& callbackScene, const a3d::Scene::StepInfo& info) {
             a3d::testing::ApplicationTestAccess::dispatchSceneWillStep(application, callbackScene, info);
@@ -1409,7 +1741,7 @@ namespace {
         Expect(a3d::testing::RunnerTestAccess::update(runner, AtMilliseconds(10125)),
                "the observed neither-world Runner update should continue");
 
-        Expect(stages.size() == 4 && stages[0] == "input" && stages[1] == "host"
+        Expect(stages.size() == 4 && stages[0] == "input-update" && stages[1] == "host"
                    && stages[2] == "simulation-will" && stages[3] == "simulation-did",
                "Scene simulation should run without either world");
         Expect(inputContextPtr->updateCount() == 1, "input should update once without either world");
@@ -1768,7 +2100,7 @@ namespace {
             "pause should reject a stopped Runner");
     }
 
-    void PausedUpdatesKeepInputHostAndStatisticsActive() {
+    void PausedUpdatesKeepInputCallbacksHostAndStatisticsActive() {
 
         a3d::Scene                    scene;
         std::vector<std::string_view> stages;
@@ -1778,17 +2110,31 @@ namespace {
         scene.physicsWorld(std::make_unique<a3d::PhysicsWorld>());
         AddMovingDynamicBody(scene, 0.0);
 
-        RecordingApplication application;
-        a3d::Runner          runner(scene, MakeSimulationConfig());
-        std::size_t          hostUpdateCount = 0;
-        std::size_t          simulationCount = 0;
+        RecordingApplication          application;
+        a3d::Runner                   runner(scene, MakeSimulationConfig());
+        std::size_t                   inputCallbackCount = 0;
+        std::size_t                   hostUpdateCount = 0;
+        std::size_t                   simulationCount = 0;
+        a3d::InputContext::UpdateInfo inputUpdateInfo {};
+        a3d::Runner::UpdateInfo       hostUpdateInfo {};
 
-        application.hostAction = [&](a3d::Runner&, const a3d::Runner::UpdateInfo&) {
-            stages.push_back("host");
-            ++hostUpdateCount;
+        application.inputAction = [&](a3d::Runner&, a3d::InputContext&,
+                                      const a3d::InputContext::UpdateInfo& info) {
+            stages.push_back("input-did-update");
+            ++inputCallbackCount;
+            inputUpdateInfo = info;
         };
+        application.hostAction = [&](a3d::Runner&, const a3d::Runner::UpdateInfo& info) {
+            stages.push_back("runner-update");
+            ++hostUpdateCount;
+            hostUpdateInfo = info;
+        };
+        inputContextPtr->didUpdateCallback([&](a3d::InputContext&                   callbackInputContext,
+                                               const a3d::InputContext::UpdateInfo& info) {
+            application.inputAction(runner, callbackInputContext, info);
+        });
         runner.updateCallback([&](a3d::Runner& callbackRunner, const a3d::Runner::UpdateInfo& info) {
-            application.invokeHostUpdate(callbackRunner, info);
+            application.hostAction(callbackRunner, info);
         });
         scene.didStepCallback([&](a3d::Scene&, const a3d::Scene::StepInfo&) {
             ++simulationCount;
@@ -1799,25 +2145,31 @@ namespace {
 
         stages.clear();
         inputContextPtr->reset();
+        inputCallbackCount = 0;
         hostUpdateCount = 0;
         const auto sampleCount = a3d::testing::RunnerTestAccess::frameStatsHistory(runner).samples().size();
         runner.pauseSimulation();
 
         Expect(a3d::testing::RunnerTestAccess::update(runner, AtMilliseconds(1000)),
                "a paused Runner update should continue");
-        Expect(stages.size() == 2 && stages[0] == "input" && stages[1] == "host",
-               "paused updates should retain input-before-host order");
-        Expect(inputContextPtr->updateCount() == 1 && hostUpdateCount == 1,
-               "paused updates should execute input and hostUpdate once");
+        Expect(stages.size() == 3 && stages[0] == "input-update" && stages[1] == "input-did-update"
+                   && stages[2] == "runner-update",
+               "paused updates should retain input callback ordering");
+        Expect(inputContextPtr->updateCount() == 1 && inputCallbackCount == 1 && hostUpdateCount == 1,
+               "paused updates should execute both Application update callbacks once");
         Expect(simulationCount == 0, "paused updates should execute no automatic simulation");
         ExpectNear(runner.simulationTime(), 0.0, "paused simulation time");
         Expect(runner.simulationStepCount() == 0, "paused simulation step count");
-        Expect(a3d::testing::RunnerTestAccess::updateInfo(runner).updateIndex == 1,
-               "paused updates should advance the Runner update index");
-        ExpectNear(a3d::testing::RunnerTestAccess::updateInfo(runner).elapsedTime, 1.0,
-                   "paused updates should advance elapsed update time");
-        ExpectNear(a3d::testing::RunnerTestAccess::updateInfo(runner).deltaTime, 1.0,
-                   "paused updates should retain normal update deltas");
+        Expect(inputUpdateInfo.updateIndex == 1 && hostUpdateInfo.updateIndex == 1,
+               "paused callbacks should receive the second update index");
+        ExpectNear(inputUpdateInfo.elapsedTime, 1.0,
+                   "paused input callbacks should receive elapsed update time");
+        ExpectNear(inputUpdateInfo.deltaTime, 1.0,
+                   "paused input callbacks should receive the normal update delta");
+        ExpectNear(hostUpdateInfo.elapsedTime, inputUpdateInfo.elapsedTime,
+                   "paused callbacks should receive the same elapsed time");
+        ExpectNear(hostUpdateInfo.deltaTime, inputUpdateInfo.deltaTime,
+                   "paused callbacks should receive the same delta time");
         Expect(a3d::testing::RunnerTestAccess::frameStatsHistory(runner).samples().size() == sampleCount + 1,
                "paused updates should commit one statistics sample");
 
@@ -1884,7 +2236,7 @@ namespace {
             }
         };
         runner.updateCallback([&](a3d::Runner& callbackRunner, const a3d::Runner::UpdateInfo& info) {
-            application.invokeHostUpdate(callbackRunner, info);
+            a3d::testing::ApplicationTestAccess::dispatchHostUpdate(application, callbackRunner, info);
         });
         scene.didStepCallback([&](a3d::Scene&, const a3d::Scene::StepInfo&) {
             ++stepCount;
@@ -2053,7 +2405,7 @@ namespace {
             ++hostUpdateCount;
         };
         runner.updateCallback([&](a3d::Runner& callbackRunner, const a3d::Runner::UpdateInfo& info) {
-            application.invokeHostUpdate(callbackRunner, info);
+            a3d::testing::ApplicationTestAccess::dispatchHostUpdate(application, callbackRunner, info);
         });
         scene.didStepCallback([&](a3d::Scene&, const a3d::Scene::StepInfo& info) {
             simulationSteps.push_back(RecordStep(info));
@@ -2077,7 +2429,7 @@ namespace {
         Expect(runner.simulationPaused(), "requested steps should leave simulation paused");
         Expect(simulationSteps.size() == 3, "three requests should execute three simulation steps");
         Expect(inputContextPtr->updateCount() == 1 && hostUpdateCount == 1 && updateStages.size() == 2
-                   && updateStages[0] == "input" && updateStages[1] == "host",
+                   && updateStages[0] == "input-update" && updateStages[1] == "host",
                "input and hostUpdate should remain once-per-Runner-update work");
 
         for (std::size_t index = 0; index < simulationSteps.size(); ++index) {
@@ -2103,57 +2455,6 @@ namespace {
                "requested-step statistics should retain current inventory");
         Expect(a3d::testing::RunnerTestAccess::completedRenderFrameCount(runner) == 0,
                "the headless requested-step update should complete no render frame");
-    }
-
-    void RequestedStepsPreserveCommandAndCallbackOrder() {
-
-        a3d::Scene scene;
-        scene.physicsWorld(std::make_unique<a3d::PhysicsWorld>());
-        auto                 bodyNode = AddMovingDynamicBody(scene);
-        RecordingApplication application;
-        std::vector<int>     events;
-
-        application.enqueueScene([&](a3d::Scene&) {
-            events.push_back(1);
-            application.enqueueScene([&](a3d::Scene&) {
-                events.push_back(7);
-            });
-        });
-        application.enqueueRender([&](a3d::VisualWorld&) {
-            events.push_back(99);
-        });
-        application.simulationWillAction = [&](a3d::Scene&, const a3d::Scene::StepInfo& info) {
-            events.push_back(10 + static_cast<int>(info.stepIndex));
-        };
-        application.simulationDidAction = [&](a3d::Scene&, const a3d::Scene::StepInfo& info) {
-            events.push_back(40 + static_cast<int>(info.stepIndex));
-        };
-
-        scene.willStepCallback([&](a3d::Scene& callbackScene, const a3d::Scene::StepInfo& info) {
-            a3d::testing::ApplicationTestAccess::dispatchSceneWillStep(application, callbackScene, info);
-        });
-        scene.didStepCallback([&](a3d::Scene& callbackScene, const a3d::Scene::StepInfo& info) {
-            a3d::testing::ApplicationTestAccess::dispatchSceneDidStep(application, callbackScene, info);
-        });
-
-        a3d::Runner runner(scene, MakeSimulationConfig());
-        a3d::testing::RunnerTestAccess::start(runner, AtMilliseconds(0));
-        Expect(a3d::testing::RunnerTestAccess::update(runner, AtMilliseconds(0)),
-               "the priming requested-order update should continue");
-        runner.pauseSimulation();
-        runner.requestSimulationStep();
-        runner.requestSimulationStep();
-        Expect(a3d::testing::RunnerTestAccess::update(runner, AtMilliseconds(125)),
-               "the requested-order update should continue");
-
-        const std::vector<int> expected {1, 10, 40, 7, 11, 41};
-        Expect(events == expected, "requested steps should preserve command and callback boundaries");
-        Expect(a3d::testing::ApplicationTestAccess::sceneCommandCount(application) == 0,
-               "requested steps should consume the Scene command queue");
-        ExpectNear(bodyNode->physicsBody()->centerOfMass().x, 0.25,
-                   "requested steps should execute internal physics between Scene callbacks", 1e-5);
-        Expect(a3d::testing::ApplicationTestAccess::renderCommandCount(application) == 1,
-               "a render command should remain queued without a valid render");
     }
 
     void RequestedStepSnapshotDefersCallbackRequests() {
@@ -2304,28 +2605,28 @@ namespace {
                  {"simulation-fractional-accumulator", SimulationRetainsFractionalAccumulator},
                  {"simulation-catch-up-overflow", SimulationLimitsCatchUpAndReportsDiscard},
                  {"pause-simulation-preconditions", PauseSimulationPreconditions},
-                 {"paused-update-pipeline", PausedUpdatesKeepInputHostAndStatisticsActive},
+                 {"paused-update-pipeline", PausedUpdatesKeepInputCallbacksHostAndStatisticsActive},
                  {"pause-clears-fixed-accumulator", PauseClearsFixedAccumulatorWithoutDiscard},
                  {"pause-host-update-boundary", PauseDuringHostUpdateSuppressesScheduling},
                  {"pause-during-catch-up", PauseDuringCatchUpFinishesOnlyCurrentStep},
                  {"resume-boundary", ResumeClearsRequestsAndSuppressesOneAutomaticUpdate},
                  {"requested-step-preconditions", RequestedStepPreconditions},
                  {"requested-step-fixed-execution", RequestedStepsUseFixedDeltaAndIgnoreTimeScale},
-                 {"requested-step-command-order", RequestedStepsPreserveCommandAndCallbackOrder},
                  {"requested-step-snapshot-deferral", RequestedStepSnapshotDefersCallbackRequests},
                  {"requested-step-stop-interruption", StopInterruptsRequestedStepsAfterCurrentStep},
                  {"requested-step-resume-interruption", ResumeInterruptsRequestedStepsAndClearsRemainder},
                  {"stop-between-updates", StopBetweenUpdates},
                  {"stop-during-host-update", StopDuringHostUpdate},
+                 {"stop-during-input-callback", StopDuringInputCallbackSkipsLaterStages},
                  {"stop-during-runner-callback", StopDuringRunnerCallback},
                  {"stop-during-simulation-step", StopDuringSimulationStep},
-                 {"input-before-host-update", InputUpdatesBeforeHostUpdateAndSimulation},
-                 {"no-input-context", NoInputContextStillRunsHostUpdate},
+                 {"input-callback-order", InputAndApplicationCallbacksRunInPipelineOrder},
+                 {"input-callback-once-per-update", ApplicationUpdateCallbacksRunOnceAcrossCatchUpSteps},
+                 {"no-input-context", NoInputContextSkipsInputCallbackButRunsHostUpdate},
+                 {"input-callback-arguments", InputCallbackReceivesApplicationRunnerContextAndUpdateInfo},
+                 {"input-callback-profiling", InputCallbacksUseSeparateProfilingRegions},
                  {"application-runner-access", ApplicationRunnerAccessUsesPreparedRunner},
                  {"simulation-callback-order-physics", SimulationCallbacksRunInOrderWithPhysics},
-                 {"scene-command-boundaries", SceneCommandsRespectStepBoundaries},
-                 {"render-command-no-valid-render", RenderCommandsWaitWithoutAValidRender},
-                 {"render-command-adapter-order", RenderCommandsPrecedeRenderFrameAtAdapterBoundary},
                  {"neither-world-pipeline", NeitherWorldPipeline},
                  {"no-visual-completed-render-count", NoVisualWorldHasZeroCompletedRenderFrames},
                  {"scene-root-invariant", SceneRootInvariant},

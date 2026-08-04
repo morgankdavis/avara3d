@@ -9,6 +9,7 @@
 #ifndef AVARA3D_PHYSICS_BACKEND_BULLET_BULLETWORLDPROXY_H
 #define AVARA3D_PHYSICS_BACKEND_BULLET_BULLETWORLDPROXY_H
 
+#include <chrono>
 #include <memory>
 #include <mutex>
 #include <vector>
@@ -68,9 +69,9 @@ namespace a3d {
         ///  Private Member Variables ///
 
         // scheduler
-        btITaskScheduler*                                      _btScheduler = nullptr;
+        btITaskScheduler*                                      _btScheduler;
         std::unique_ptr<btITaskScheduler>                      _ownedScheduler;
-        btITaskScheduler*                                      _prevScheduler = nullptr; // non-owning
+        btITaskScheduler*                                      _prevScheduler; // non-owning
 
         // config/dispatcher/broadphase
         std::unique_ptr<btDefaultCollisionConfiguration>       _btCollisionConfiguration;
@@ -90,6 +91,9 @@ namespace a3d {
 
         // MUST be last so destroyed first
         std::unique_ptr<btDiscreteDynamicsWorld>               _btWorld;
+
+        std::chrono::steady_clock::time_point                  _nextDebugLineUpdate;
+        int                                                    _debugDrawMode;
     };
 
 }

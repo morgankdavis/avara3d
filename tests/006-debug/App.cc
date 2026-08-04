@@ -103,36 +103,34 @@ bool App::shouldContinue(const Scene& scene) {
 
 void App::didShutdown() {}
 
-/// Runner Callbacks ///
+/// InputContext Callbacks ///
 
-void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
+void App::inputContextDidUpdate(InputContext&                   inputContext,
+                                const InputContext::UpdateInfo& info) {
 
-    auto& scene = runner.scene();
-    auto& inputContext = *scene.inputContext();
-
+    auto& scene = App::scene();
     auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 
     // get input
 
     auto im = static_cast<DesktopInputContext*>(&inputContext);
 
-    auto keysPressed = im->keysPressed();
     auto keysDown = im->keysDown();
     auto mousePositionDelta = im->mousePositionDelta();
 
     using Key = DesktopInputContext::Key;
 
-    if (keysPressed.count(Key::Escape)) {
+    if (im->keyPressed(Key::Escape)) {
         window->close();
     }
 
-    if (keysPressed.count(Key::Slash)) {
+    if (im->keyPressed(Key::Slash)) {
         window->cursorCaptured(!(window->cursorCaptured()));
     }
 
     using DebugOptions = Scene::DebugOptions;
 
-    if (keysPressed.count(Key::F)) {
+    if (im->keyPressed(Key::F)) {
         if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowWireframes)) {
             scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowWireframes));
         }
@@ -140,7 +138,7 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
             scene.debugOptions(util::bitmask::add(scene.debugOptions(), DebugOptions::ShowWireframes));
         }
     }
-    if (keysPressed.count(Key::B)) {
+    if (im->keyPressed(Key::B)) {
         if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
             scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
         }
@@ -148,7 +146,7 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
             scene.debugOptions(util::bitmask::add(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
         }
     }
-    if (keysPressed.count(Key::I)) {
+    if (im->keyPressed(Key::I)) {
         if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
             scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowStatsOverlay));
         }
@@ -157,15 +155,15 @@ void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
         }
     }
 
-    if (keysPressed.count(Key::V)) {
+    if (im->keyPressed(Key::V)) {
         window->vSyncEnabled(!(window->vSyncEnabled()));
     }
 
-    if (keysPressed.count(Key::Backslash)) {
+    if (im->keyPressed(Key::Backslash)) {
         util::snapshot::SaveSnapshot(*window);
     }
 
-    if (keysPressed.count(Key::R)) {
+    if (im->keyPressed(Key::R)) {
         if (!window->recordingGIF()) {
             util::snapshot::StartGIFRecording(*window, {320, 240}, 8);
         }

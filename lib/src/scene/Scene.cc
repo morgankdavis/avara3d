@@ -278,12 +278,19 @@ void Scene::pollEvents(Profiler& profiler) {
     }
 }
 
-void Scene::updateInput(Profiler& profiler) {
+void Scene::updateInput(const InputContext::UpdateInfo& info, Profiler& profiler) {
 
-    if (_inputContext) {
+    if (!_inputContext) {
+        return;
+    }
 
-        prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
-            _inputContext->update();
+    prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
+        _inputContext->update(info);
+    });
+
+    if (auto callback = _inputContext->didUpdateCallback()) {
+        prof::profile(profiler, Profiler::Tag::Application, [&] {
+            callback(*_inputContext, info);
         });
     }
 }

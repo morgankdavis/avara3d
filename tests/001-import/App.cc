@@ -95,15 +95,15 @@ bool App::shouldContinue(const Scene& scene) {
 
 void App::didShutdown() {}
 
-/// Runner Callbacks ///
+/// InputContext Callbacks ///
 
-void App::hostUpdate(Runner& runner, const Runner::UpdateInfo&) {
+void App::inputContextDidUpdate(InputContext& inputContext, const InputContext::UpdateInfo&) {
 
-    auto& inputContext = *runner.scene().inputContext();
+    auto& input = static_cast<DesktopInputContext&>(inputContext);
 
-    if (static_cast<DesktopInputContext*>(&inputContext)
-            ->keysPressed()
-            .count(DesktopInputContext::Key::Escape)) {
+    using Key = DesktopInputContext::Key;
+
+    if (input.keyPressed(Key::Escape)) {
         _window->close();
     }
 }

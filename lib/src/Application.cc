@@ -76,8 +76,8 @@ Application::Application(int argc, char* argv[], Log::Level logLevel):
     _scene {},
     _runner {},
     _didShutdown {false},
-    _sceneCommandQueue {},
-    _renderCommandQueue {},
+    // _sceneCommandQueue {},
+    // _renderCommandQueue {},
     _startupTimer {true} {
     initLog(logLevel);
 }
@@ -96,13 +96,13 @@ bool Application::shouldContinue(const Scene&) {
 
 void Application::didShutdown() {}
 
-void Application::queueSceneCommand(SceneCommand command) {
-    _sceneCommandQueue.push(std::move(command));
-}
-
-void Application::queueRenderCommand(RenderCommand command) {
-    _renderCommandQueue.push(std::move(command));
-}
+// void Application::queueSceneCommand(SceneCommand command) {
+//     _sceneCommandQueue.push(std::move(command));
+// }
+//
+// void Application::queueRenderCommand(RenderCommand command) {
+//     _renderCommandQueue.push(std::move(command));
+// }
 
 Runner& Application::runner() {
 
@@ -122,6 +122,24 @@ const Runner& Application::runner() const {
     return *_runner;
 }
 
+Scene& Application::scene() {
+
+    if (!_scene) {
+        throw logic_error("Application::scene() requires an initialized Scene.");
+    }
+
+    return *_scene;
+}
+
+const Scene& Application::scene() const {
+
+    if (!_scene) {
+        throw logic_error("Application::scene() requires an initialized Scene.");
+    }
+
+    return *_scene;
+}
+
 const vector<string>& Application::args() const {
     return _args;
 }
@@ -129,6 +147,10 @@ const vector<string>& Application::args() const {
 /// Runner Callbacks ///
 
 void Application::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {}
+
+/// InputContext Callbacks ///
+
+void Application::inputContextDidUpdate(InputContext&, const InputContext::UpdateInfo&) {}
 
 /// Scene Callbacks ///
 
@@ -226,12 +248,23 @@ void Application::registerCallbacks() {
     using namespace std::placeholders;
 
     _runner->updateCallback(bind(&Application::dispatchHostUpdate, this, _1, _2));
+
+    if (auto* inputContext = _scene->inputContext()) {
+        inputContext->didUpdateCallback(bind(&Application::dispatchInputContextDidUpdate, this, _1, _2));
+    }
+
     _scene->willStepCallback(bind(&Application::dispatchSceneWillStep, this, _1, _2));
     _scene->didStepCallback(bind(&Application::dispatchSceneDidStep, this, _1, _2));
 
     if (auto* world = _scene->visualWorld()) {
         world->didBeginFrameCallback(bind(&Application::dispatchDidBeginFrame, this, _1, _2));
     }
+}
+
+void Application::dispatchInputContextDidUpdate(InputContext&                   inputContext,
+                                                const InputContext::UpdateInfo& info) {
+
+    inputContextDidUpdate(inputContext, info);
 }
 
 void Application::dispatchHostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
@@ -241,7 +274,7 @@ void Application::dispatchHostUpdate(Runner& runner, const Runner::UpdateInfo& i
 
 void Application::dispatchSceneWillStep(Scene& scene, const Scene::StepInfo& info) {
 
-    executePendingCommands(_sceneCommandQueue, scene);
+    // executePendingCommands(_sceneCommandQueue, scene);
     sceneWillStep(scene, info);
 }
 
@@ -256,6 +289,6 @@ void Application::dispatchDidBeginFrame(VisualWorld& visualWorld, const VisualWo
         log::app::i()("Time to first frame: {:.0f}ms", util::chrono::Milliseconds(_startupTimer.stop()));
     }
 
-    executePendingCommands(_renderCommandQueue, visualWorld);
+    // executePendingCommands(_renderCommandQueue, visualWorld);
     didBeginFrame(visualWorld, info);
 }

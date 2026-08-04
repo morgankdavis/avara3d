@@ -25,7 +25,7 @@ const RenderContext::AntialiasingMode ANTIALIAS_MODE {RenderContext::Antialiasin
 const bool                            ENABLE_VSYNC {false};
 const bool                            CAPTURE_CURSOR {false};
 const float                           MOUSE_SENSITIVITY {0.5};
-const double                          FIXED_TIMESTEP {1.0 / 120.0};
+const double                          TIMESTEP {1.0 / 120.0};
 const bool                            DARK {false};
 
 /// Public Lifecycle Functions ///
@@ -72,7 +72,7 @@ std::unique_ptr<Scene> App::init() {
 }
 
 SimulationConfig App::simulationConfig() const {
-    return {.timeStep = FIXED_TIMESTEP};
+    return {.timeStep = TIMESTEP};
 }
 
 bool App::shouldContinue(const Scene& scene) {
@@ -81,20 +81,31 @@ bool App::shouldContinue(const Scene& scene) {
 
 void App::didShutdown() {}
 
-/// Runner Callbacks ///
+/// InputContext Callbacks ///
 
-void App::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
+void App::inputContextDidUpdate(InputContext& inputContext, const InputContext::UpdateInfo&) {
 
-    auto& inputContext = *runner.scene().inputContext();
+    auto& input = static_cast<DesktopInputContext&>(inputContext);
 
-    if (static_cast<DesktopInputContext&>(inputContext).keysPressed().count(DesktopInputContext::Key::Escape)) {
+    using Key = DesktopInputContext::Key;
+
+    if (input.keyPressed(Key::Escape)) {
         _window->close();
     }
+}
 
-    if (_bananaNode) {
-        // rotate the banana
-        auto rotationDeg = info.deltaTime * radians(-30.0); // 10deg/sec
-        auto rotY = math::quaternion({0.0f, 1.0f, 0.0f}, rotationDeg);
-        _bananaNode->orientation(rotY * _bananaNode->orientation());
+/// Scene Callbacks ///
+
+void App::sceneWillStep(Scene&, const Scene::StepInfo& info) {
+
+    if (!_bananaNode) {
+        return;
     }
+
+    // Rotate the banana at 30 degrees per second.
+    const float rotation = static_cast<float>(info.deltaTime) * radians(-30.0f);
+
+    const auto rotationY = math::quaternion({0.0f, 1.0f, 0.0f}, rotation);
+
+    _bananaNode->orientation(rotationY * _bananaNode->orientation());
 }

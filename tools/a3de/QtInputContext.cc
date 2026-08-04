@@ -99,7 +99,7 @@ void QtInput::mouseWheelScrolled(int x, int y) {//QPoint delta) {
 
 /// InputContext Internal Member Functions ///
 
-void QtInput::update() {}
+void QtInput::update(const InputContext::UpdateInfo&) {}
 
 void QtInput::attachedToScene(Scene& scene) {
 

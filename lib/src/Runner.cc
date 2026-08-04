@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include <utility>
 
+#include "a3d/input/InputContext.h"
 #include "a3d/physics/PhysicsInventory.h"
 #include "a3d/physics/PhysicsWorld.h"
 #include "a3d/profile/FrameStats.h"
@@ -228,7 +229,12 @@ bool Runner::update(TimePoint now) {
 
     prof::profile(_profiler, Profiler::Tag::Frame, [&] {
         _scene.pollEvents(_profiler);
-        _scene.updateInput(_profiler);
+
+        const InputContext::UpdateInfo inputInfo {.updateIndex = updateInfo.updateIndex,
+                                                  .elapsedTime = updateInfo.elapsedTime,
+                                                  .deltaTime = updateInfo.deltaTime};
+
+        _scene.updateInput(inputInfo, _profiler);
 
         if (_state == State::Running) {
             if (auto callback = updateCallback()) {
