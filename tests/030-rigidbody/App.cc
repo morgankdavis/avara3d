@@ -240,9 +240,9 @@ void App::didShutdown() {}
 
 /// InputContext Callbacks ///
 
-void App::inputContextDidUpdate(Runner& runner, InputContext& inputContext, const Runner::UpdateInfo& info) {
+void App::inputContextDidUpdate(InputContext& inputContext, const InputContext::UpdateInfo& info) {
 
-    auto& scene = runner.scene();
+    auto& scene = App::scene();
     auto& input = static_cast<DesktopInputContext&>(inputContext);
 
     using Key = DesktopInputContext::Key;
@@ -359,6 +359,7 @@ void App::inputContextDidUpdate(Runner& runner, InputContext& inputContext, cons
     }
 
     if (mouseScrollWheelDelta.y > 0.0f) {
+        auto& runner = App::runner();
         runner.timeScale(math::clamp(runner.timeScale() + mouseScrollWheelDelta.y * 0.1, 0.1, 1.0));
     }
 

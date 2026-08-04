@@ -24,7 +24,6 @@ set(RUNNER_EXECUTION_TESTS
 		resume-boundary
 		requested-step-preconditions
 		requested-step-fixed-execution
-		requested-step-command-order
 		requested-step-snapshot-deferral
 		requested-step-stop-interruption
 		requested-step-resume-interruption
@@ -37,11 +36,9 @@ set(RUNNER_EXECUTION_TESTS
 		input-callback-once-per-update
 		no-input-context
 		input-callback-arguments
+		input-callback-profiling
 		application-runner-access
 		simulation-callback-order-physics
-		scene-command-boundaries
-		render-command-no-valid-render
-		render-command-adapter-order
 		neither-world-pipeline
 		no-visual-completed-render-count
 		scene-root-invariant

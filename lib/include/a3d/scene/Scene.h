@@ -17,6 +17,7 @@
 #include <string>
 
 #include "a3d/Math.h"
+#include "a3d/input/InputContext.h"
 #include "a3d/physics/PhysicsInventory.h"
 #include "a3d/util/Bitmask.h"
 
@@ -25,7 +26,6 @@ namespace a3d {
     struct AABB;
 
     class Color;
-    class InputContext;
     class Mesh;
     class Node;
     class PhysicsWorld;
@@ -140,7 +140,7 @@ namespace a3d {
         /// Internal Member Functions ///
 
         void                              pollEvents(Profiler& profiler);
-        void                              updateInput(Profiler& profiler);
+        void                              updateInput(const InputContext::UpdateInfo& info, Profiler& profiler);
         PhysicsInventory                  stepSimulation(const StepInfo& info, Profiler& profiler);
 
     private:

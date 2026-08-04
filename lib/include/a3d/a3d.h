@@ -13,7 +13,6 @@
 #include "a3d/Buffer.h"
 #include "a3d/BuildInfo.h"
 #include "a3d/Color.h"
-#include "a3d/CommandQueue.h"
 #include "a3d/CubeImage.h"
 #include "a3d/Font.h"
 #include "a3d/Image.h"

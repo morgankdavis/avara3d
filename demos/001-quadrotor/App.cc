@@ -83,7 +83,7 @@ void App::didShutdown() {}
 
 /// InputContext Callbacks ///
 
-void App::inputContextDidUpdate(Runner&, InputContext& inputContext, const Runner::UpdateInfo&) {
+void App::inputContextDidUpdate(InputContext& inputContext, const InputContext::UpdateInfo&) {
 
     auto& input = static_cast<DesktopInputContext&>(inputContext);
 

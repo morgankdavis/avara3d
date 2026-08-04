@@ -62,9 +62,8 @@ namespace test::rigidbody {
 
         /// InputContext Callbacks ///
 
-        void inputContextDidUpdate(a3d::Runner&                   runner,
-                                   a3d::InputContext&             inputContext,
-                                   const a3d::Runner::UpdateInfo& info) override;
+        void inputContextDidUpdate(a3d::InputContext&                   inputContext,
+                                   const a3d::InputContext::UpdateInfo& info) override;
 
         /// Scene Callbacks ///
 

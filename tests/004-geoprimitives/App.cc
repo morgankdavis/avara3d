@@ -214,10 +214,10 @@ void App::didShutdown() {}
 
 /// InputContext Callbacks ///
 
-void App::inputContextDidUpdate(Runner& runner, InputContext& inputContext, const Runner::UpdateInfo& info) {
+void App::inputContextDidUpdate(InputContext&                   inputContext,
+                                const InputContext::UpdateInfo& info) {
 
-    auto& scene = runner.scene();
-
+    auto& scene = App::scene();
     Window* window = nullptr;
     if (scene.visualWorld()) {
         window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());

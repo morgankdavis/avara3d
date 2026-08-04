@@ -34,7 +34,7 @@ namespace a3d::qt {
 
         /// InputContext Internal Member Functions ///
 
-        void update() override;
+        void update(const InputContext::UpdateInfo& info) override;
         void attachedToScene(Scene& scene) override;
         void visualWorldAttachedToScene(Scene& scene) override;
 

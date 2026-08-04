@@ -43,7 +43,7 @@ GLFWInputContext::~GLFWInputContext() {
 
 /// InputContext Internal Member Functions ///
 
-void GLFWInputContext::update() {
+void GLFWInputContext::update(const InputContext::UpdateInfo&) {
 
     // Window events are dispatched through RenderContext::pollEvents() before
     // this input stage. GLFW input state is maintained by those callbacks.
