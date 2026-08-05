@@ -127,7 +127,6 @@ linux-release:
   stage: build
   tags:
     - ubuntu-23
-  environment: production
   only:
     - testing
     - stable
@@ -159,7 +158,6 @@ macos-release:
   stage: build
   tags:
     - macos-15
-  environment: production
   only:
     - testing
     - stable
@@ -190,7 +188,6 @@ windows-release:
   stage: build
   tags:
     - windows-10
-  environment: production
   only:
     - testing
     - stable
@@ -220,7 +217,6 @@ web-release:
   stage: build
   tags:
     - ubuntu-23
-  environment: production
   only:
     - testing
     - stable
@@ -254,7 +250,6 @@ linux-release-manual:
   stage: build
   tags:
     - ubuntu-23
-  environment: production
   when: manual
   script:
     - echo "Starting Linux release build..."
@@ -285,7 +280,6 @@ macos-release-manual:
   stage: build
   tags:
     - macos-15
-  environment: production
   when: manual
   script:
     - echo "Starting macOS release build..."
@@ -311,7 +305,6 @@ windows-release-manual:
   stage: build
   tags:
     - windows-10
-  environment: production
   when: manual
   script:
     - echo "Starting Windows release build..."
