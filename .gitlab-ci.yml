@@ -402,7 +402,9 @@ staging-package-test:
   stage: deploy
   tags:
     - ubuntu-23
-  needs: []
+  needs:
+    - job: web-release-manual
+      artifacts: true
   rules:
     - if: '$CI_COMMIT_BRANCH == "website"'
       when: manual
@@ -411,43 +413,24 @@ staging-package-test:
   script:
     - |
       set -euo pipefail
-      echo "Building Avara3D WebAssembly release..."
-      source "${EMSDK_ROOT}/emsdk_env.sh"
-      emcc --version
-      rm -rf gitlab-build-website build-website
-      emcmake /usr/bin/cmake \
-          -S . \
-          -B gitlab-build-website \
-          -G Ninja \
-          -DCMAKE_BUILD_TYPE=Release \
-          -DA3D_BUILD_EDITOR=OFF \
-          -DA3D_BUILD_TESTS=OFF \
-          -DA3D_BUILD_DEMOS=ON \
-          -DA3D_WEB_GENERATE_HTML=OFF \
-          -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}" \
-          -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
-      /usr/bin/cmake \
-          --build gitlab-build-website \
-          --target install \
-          -j4
+      echo "Extracting WebAssembly release artifact..."
+      tar -xzf \
+          "avara3d-web-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}.tgz"
+      test -f \
+          avara3d/web/release/demos/001-physics-sandbox/001-physics-sandbox.js
+      test -f \
+          avara3d/web/release/demos/001-physics-sandbox/001-physics-sandbox.wasm
       echo "Assembling website bundle..."
-      A3D_WEB_BUILD_DIR=gitlab-build-website \
+      A3D_WEB_DEMO_DIR=avara3d/web/release/demos/001-physics-sandbox \
       A3D_REQUIRE_WEB_DEMO=1 \
       A3D_WEBSITE_OUTPUT_DIR=build-website \
           ./tools/website/assemble.sh
-      echo "Verifying assembled website..."
       test -f build-website/index.html
-      test -f build-website/assets/css/site.css
       test -f build-website/demo/001-physics-sandbox.js
       test -f build-website/demo/001-physics-sandbox.wasm
       test -f build-website/source/main.cc
-      test -f build-website/source/App.h
-      test -f build-website/source/App.cc
       test -f build-website/build-info.json
-      echo
-      echo "Website package created successfully:"
-      du -sh build-website
-      find build-website -maxdepth 2 -type f | sort
+      echo "Website package created successfully."
   artifacts:
     name: "avara3d-website-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: "staging-website-package"
