@@ -1,7 +1,6 @@
 stages:
-  - build
-  # https://hatchjs.com/gitlab-ci-artifacts-paths/
-  #- archive
+    - build
+    - deploy
 
 variables:
   EMSDK_ROOT: "/home/gitlab/.emsdk-6.0.3"
@@ -368,3 +367,33 @@ web-release-manual:
     paths:
       - avara3d-web-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}.tgz
     expire_in: 2 days
+
+staging-publish-test:
+    stage: deploy
+
+    tags:
+        - ubuntu-23
+
+    needs: []
+
+    rules:
+        - if: '$CI_COMMIT_BRANCH == "website"'
+          when: manual
+        - when: never
+
+    allow_failure: true
+
+    script:
+        - echo "Manual Avara3D staging deployment test"
+        - echo "Branch=${CI_COMMIT_BRANCH}"
+        - echo "Commit=${CI_COMMIT_SHORT_SHA}"
+        - echo "Pipeline=${CI_PIPELINE_IID}"
+        - echo "Runner host=$(hostname)"
+        - id
+        - pwd
+        - test -d website
+        - test -x tools/website/assemble.sh
+        - command -v ssh
+        - command -v rsync
+        - echo "Manual staging job completed successfully."
+        -
