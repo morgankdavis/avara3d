@@ -76,8 +76,6 @@ Application::Application(int argc, char* argv[], Log::Level logLevel):
     _scene {},
     _runner {},
     _didShutdown {false},
-    // _sceneCommandQueue {},
-    // _renderCommandQueue {},
     _startupTimer {true} {
     initLog(logLevel);
 }
@@ -95,14 +93,6 @@ bool Application::shouldContinue(const Scene&) {
 }
 
 void Application::didShutdown() {}
-
-// void Application::queueSceneCommand(SceneCommand command) {
-//     _sceneCommandQueue.push(std::move(command));
-// }
-//
-// void Application::queueRenderCommand(RenderCommand command) {
-//     _renderCommandQueue.push(std::move(command));
-// }
 
 Runner& Application::runner() {
 
@@ -245,7 +235,7 @@ void Application::shutdown() noexcept {
         didShutdown();
     }
     catch (...) {
-        // Teardown paths must not throw.
+        // teardown paths must not throw.
     }
 }
 
