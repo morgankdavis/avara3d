@@ -21,7 +21,7 @@ namespace a3d {
 
 }
 
-namespace test::physicssandbox {
+namespace demo::physicssandbox {
 
     class App : public a3d::Application {
 

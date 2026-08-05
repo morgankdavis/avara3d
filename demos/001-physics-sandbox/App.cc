@@ -12,7 +12,7 @@
 
 using namespace a3d;
 using namespace a3d::math;
-using namespace test::physicssandbox;
+using namespace demo::physicssandbox;
 using namespace std;
 
 /// Private Constants ///
