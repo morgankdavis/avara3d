@@ -1,8 +1,8 @@
 //
 //  App.h
-//  001-quadrotor
+//  001-physics-sandbox
 //
-//  Created by Morgan Davis on 7/19/26.
+//  Created by Morgan Davis on 8/4/26.
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
@@ -21,7 +21,7 @@ namespace a3d {
 
 }
 
-namespace test::quadrotor {
+namespace test::physicssandbox {
 
     class App : public a3d::Application {
 

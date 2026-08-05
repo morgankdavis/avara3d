@@ -1,8 +1,8 @@
 //
 //  App.cc
-//  001-quadrotor
+//  001-physics-sandbox
 //
-//  Created by Morgan Davis on 7/19/26.
+//  Created by Morgan Davis on 8/4/26.
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
@@ -12,7 +12,7 @@
 
 using namespace a3d;
 using namespace a3d::math;
-using namespace test::quadrotor;
+using namespace test::physicssandbox;
 using namespace std;
 
 /// Private Constants ///
