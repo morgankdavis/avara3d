@@ -368,72 +368,114 @@ web-release-manual:
       - avara3d-web-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}.tgz
     expire_in: 2 days
 
-staging-publish-test:
-    stage: deploy
-    tags:
-        - ubuntu-23
-    needs: []
-    rules:
-        - if: '$CI_COMMIT_BRANCH == "website"'
-          when: manual
-        - when: never
-    allow_failure: true
-    script:
-        - |
-          set -euo pipefail
-          echo "Testing GitLab CI SSH connection to staging..."
-          test -f "${SSH_PRIVATE_KEY}"
-          test -f "${SSH_KNOWN_HOSTS}"
-          chmod 600 "${SSH_PRIVATE_KEY}"
-          chmod 644 "${SSH_KNOWN_HOSTS}"
-          ssh \
-              -i "${SSH_PRIVATE_KEY}" \
-              -o IdentitiesOnly=yes \
-              -o StrictHostKeyChecking=yes \
-              -o UserKnownHostsFile="${SSH_KNOWN_HOSTS}" \
-              "${A3D_DEPLOY_USER}@${A3D_DEPLOY_HOST}" \
-              "id &&
-               test -w '${A3D_DEPLOY_PATH}' &&
-               touch '${A3D_DEPLOY_PATH}/.gitlab-ci-test' &&
-               rm '${A3D_DEPLOY_PATH}/.gitlab-ci-test' &&
-               echo 'GitLab CI staging SSH test passed.'"
-
-staging-package-test:
+.website-publish:
   stage: deploy
   tags:
     - ubuntu-23
-  needs:
-    - job: web-release-manual
-      artifacts: true
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "website"'
-      when: manual
-    - when: never
-  allow_failure: true
+  # This job does not depend on the normal smoke builds and can be
+  # started immediately from the pipeline UI.
+  needs: []
+  # Never allow two website deployments to run simultaneously.
+  resource_group: avara3d-website-deployment
   script:
     - |
       set -euo pipefail
-      echo "Extracting WebAssembly release artifact..."
-      tar -xzf \
-          "avara3d-web-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}.tgz"
-      test -f \
-          avara3d/web/release/demos/001-physics-sandbox/001-physics-sandbox.js
-      test -f \
-          avara3d/web/release/demos/001-physics-sandbox/001-physics-sandbox.wasm
+      echo "Preparing website deployment..."
+      echo "Branch: ${CI_COMMIT_BRANCH}"
+      echo "Commit: ${CI_COMMIT_SHORT_SHA}"
+      echo "Environment: ${CI_ENVIRONMENT_NAME}"
+      : "${A3D_DEPLOY_HOST:?A3D_DEPLOY_HOST is not set}"
+      : "${A3D_DEPLOY_USER:?A3D_DEPLOY_USER is not set}"
+      : "${A3D_DEPLOY_PATH:?A3D_DEPLOY_PATH is not set}"
+      test -f "${SSH_PRIVATE_KEY}"
+      test -f "${SSH_KNOWN_HOSTS}"
+      chmod 600 "${SSH_PRIVATE_KEY}"
+      chmod 644 "${SSH_KNOWN_HOSTS}"
+      echo
+      echo "Building fresh WebAssembly release..."
+      source "${EMSDK_ROOT}/emsdk_env.sh"
+      emcc --version
+      rm -rf gitlab-build-website build-website
+      emcmake /usr/bin/cmake \
+          -S . \
+          -B gitlab-build-website \
+          -G Ninja \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DA3D_BUILD_EDITOR=OFF \
+          -DA3D_BUILD_TESTS=OFF \
+          -DA3D_BUILD_DEMOS=ON \
+          -DA3D_WEB_GENERATE_HTML=OFF \
+          -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}" \
+          -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+      /usr/bin/cmake \
+          --build gitlab-build-website \
+          --target install \
+          -j4
+      echo
       echo "Assembling website bundle..."
-      A3D_WEB_DEMO_DIR=avara3d/web/release/demos/001-physics-sandbox \
+      A3D_WEB_BUILD_DIR=gitlab-build-website \
       A3D_REQUIRE_WEB_DEMO=1 \
       A3D_WEBSITE_OUTPUT_DIR=build-website \
           ./tools/website/assemble.sh
+      echo
+      echo "Verifying website bundle..."
       test -f build-website/index.html
+      test -f build-website/assets/css/site.css
       test -f build-website/demo/001-physics-sandbox.js
       test -f build-website/demo/001-physics-sandbox.wasm
+      test -f build-website/demo/001-physics-sandbox.data
       test -f build-website/source/main.cc
+      test -f build-website/source/App.h
+      test -f build-website/source/App.cc
       test -f build-website/build-info.json
-      echo "Website package created successfully."
+      du -sh build-website
+      echo
+      echo "Checking deployment destination..."
+      ssh \
+          -i "${SSH_PRIVATE_KEY}" \
+          -o IdentitiesOnly=yes \
+          -o StrictHostKeyChecking=yes \
+          -o UserKnownHostsFile="${SSH_KNOWN_HOSTS}" \
+          "${A3D_DEPLOY_USER}@${A3D_DEPLOY_HOST}" \
+          "test -d '${A3D_DEPLOY_PATH}' &&
+           test -w '${A3D_DEPLOY_PATH}'"
+      echo
+      echo "Publishing website to ${CI_ENVIRONMENT_NAME}..."
+      export RSYNC_RSH="ssh -i ${SSH_PRIVATE_KEY} -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=${SSH_KNOWN_HOSTS}"
+      rsync \
+          -rltvz \
+          --delete \
+          --itemize-changes \
+          build-website/ \
+          "${A3D_DEPLOY_USER}@${A3D_DEPLOY_HOST}:${A3D_DEPLOY_PATH}/"
+      echo
+      echo "Verifying deployed files..."
+      ssh \
+          -i "${SSH_PRIVATE_KEY}" \
+          -o IdentitiesOnly=yes \
+          -o StrictHostKeyChecking=yes \
+          -o UserKnownHostsFile="${SSH_KNOWN_HOSTS}" \
+          "${A3D_DEPLOY_USER}@${A3D_DEPLOY_HOST}" \
+          "test -f '${A3D_DEPLOY_PATH}/index.html' &&
+           test -f '${A3D_DEPLOY_PATH}/demo/001-physics-sandbox.js' &&
+           test -f '${A3D_DEPLOY_PATH}/demo/001-physics-sandbox.wasm'"
+      echo
+      echo "Website deployment completed successfully."
   artifacts:
-    name: "avara3d-website-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
-    expose_as: "staging-website-package"
+    name: "avara3d-website-${CI_JOB_NAME}-${CI_PIPELINE_IID}"
+    expose_as: "assembled-website"
     paths:
       - build-website/
     expire_in: 1 week
+
+website-publish-staging:
+  extends: .website-publish
+  environment:
+    name: staging
+    url: https://staging.avara3d.net/
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "website"'
+      when: manual
+      allow_failure: true
+    - when: never
+    
