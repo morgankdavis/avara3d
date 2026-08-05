@@ -439,7 +439,6 @@ web-release-manual:
           --delete \
           --omit-dir-times \
           --exclude='.well-known/' \
-          --exclude='releases/' \
           --exclude='downloads/' \
           --itemize-changes \
           --rsync-path="umask 0002 && rsync" \
