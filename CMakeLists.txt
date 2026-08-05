@@ -61,12 +61,7 @@ else()
 	message(FATAL_ERROR "Unsupported platform.")
 endif()
 
-if(CMAKE_CONFIGURATION_TYPES)
-	set(INSTALL_ROOT_DIR "${PROJECT_BINARY_DIR}/packaged/avara3d/${PLATFORM_STRING}")
-else()
-	string(TOLOWER "${CMAKE_BUILD_TYPE}" LOWER_RELEASE_TYPE)
-	set(INSTALL_ROOT_DIR "${PROJECT_BINARY_DIR}/packaged/avara3d/${PLATFORM_STRING}/${LOWER_RELEASE_TYPE}")
-endif()
+set(INSTALL_ROOT_DIR "${PROJECT_BINARY_DIR}/packaged/avara3d/${PLATFORM_STRING}/$<LOWER_CASE:$<CONFIG>>")
 
 ### add a3d library ###
 
