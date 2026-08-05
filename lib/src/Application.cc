@@ -146,21 +146,27 @@ const vector<string>& Application::args() const {
 
 /// Runner Callbacks ///
 
-void Application::hostUpdate(Runner& runner, const Runner::UpdateInfo& info) {}
+void Application::hostUpdate(Runner& runner, Scene& scene, const Runner::UpdateInfo& info) {}
 
 /// InputContext Callbacks ///
 
-void Application::inputContextDidUpdate(InputContext&, const InputContext::UpdateInfo&) {}
+void Application::inputDidUpdate(Runner&       runner,
+                                 Scene&        scene,
+                                 InputContext& inputContext,
+                                 const InputContext::UpdateInfo&) {}
 
 /// Scene Callbacks ///
 
-void Application::sceneWillStep(Scene& scene, const Scene::StepInfo& info) {}
+void Application::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {}
 
-void Application::sceneDidStep(Scene& scene, const Scene::StepInfo& info) {}
+void Application::sceneDidStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {}
 
 /// VisualWorld Callbacks ///
 
-void Application::didBeginFrame(VisualWorld& visualWorld, const VisualWorld::RenderInfo& info) {}
+void Application::frameDidBegin(Runner&                        runner,
+                                Scene&                         scene,
+                                VisualWorld&                   visualWorld,
+                                const VisualWorld::RenderInfo& info) {}
 
 /// Private Member Functions ///
 
@@ -263,32 +269,24 @@ void Application::registerCallbacks() {
 
 void Application::dispatchInputContextDidUpdate(InputContext&                   inputContext,
                                                 const InputContext::UpdateInfo& info) {
-
-    inputContextDidUpdate(inputContext, info);
+    inputDidUpdate(*_runner, *_scene, inputContext, info);
 }
 
 void Application::dispatchHostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
-
-    hostUpdate(runner, info);
+    hostUpdate(runner, *_scene, info);
 }
 
 void Application::dispatchSceneWillStep(Scene& scene, const Scene::StepInfo& info) {
-
-    // executePendingCommands(_sceneCommandQueue, scene);
-    sceneWillStep(scene, info);
+    sceneWillStep(*_runner, scene, info);
 }
 
 void Application::dispatchSceneDidStep(Scene& scene, const Scene::StepInfo& info) {
-
-    sceneDidStep(scene, info);
+    sceneDidStep(*_runner, scene, info);
 }
 
 void Application::dispatchDidBeginFrame(VisualWorld& visualWorld, const VisualWorld::RenderInfo& info) {
-
     if (info.frameIndex == 0) {
         log::app::i()("Time to first frame: {:.0f}ms", util::chrono::Milliseconds(_startupTimer.stop()));
     }
-
-    // executePendingCommands(_renderCommandQueue, visualWorld);
-    didBeginFrame(visualWorld, info);
+    frameDidBegin(*_runner, *_scene, visualWorld, info);
 }

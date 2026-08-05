@@ -47,12 +47,14 @@ namespace test::quadrotor {
 
         /// InputContext Callbacks ///
 
-        void inputContextDidUpdate(a3d::InputContext&                   inputContext,
-                                   const a3d::InputContext::UpdateInfo& info) override;
+        void inputDidUpdate(a3d::Runner&                         runner,
+                            a3d::Scene&                          scene,
+                            a3d::InputContext&                   inputContext,
+                            const a3d::InputContext::UpdateInfo& info) override;
 
         /// Scene Callbacks ///
 
-        void sceneWillStep(a3d::Scene& scene, const a3d::Scene::StepInfo& info) override;
+        void sceneWillStep(a3d::Runner& runner, a3d::Scene& scene, const a3d::Scene::StepInfo& info) override;
 
     private:
         /// Private Member Variables ///

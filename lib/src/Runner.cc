@@ -228,14 +228,6 @@ bool Runner::update(TimePoint now) {
     FrameStats stats {};
 
     prof::profile(_profiler, Profiler::Tag::Frame, [&] {
-        _scene.pollEvents(_profiler);
-
-        const InputContext::UpdateInfo inputInfo {.updateIndex = updateInfo.updateIndex,
-                                                  .elapsedTime = updateInfo.elapsedTime,
-                                                  .deltaTime = updateInfo.deltaTime};
-
-        _scene.updateInput(inputInfo, _profiler);
-
         if (_state == State::Running) {
             if (auto callback = updateCallback()) {
                 prof::profile(_profiler, Profiler::Tag::Application, [&] {
@@ -243,6 +235,14 @@ bool Runner::update(TimePoint now) {
                 });
             }
         }
+
+        _scene.pollEvents(_profiler);
+
+        const InputContext::UpdateInfo inputInfo {.updateIndex = updateInfo.updateIndex,
+                                                  .elapsedTime = updateInfo.elapsedTime,
+                                                  .deltaTime = updateInfo.deltaTime};
+
+        _scene.updateInput(inputInfo, _profiler);
 
         if (_state == State::Running) {
             PhysicsInventory inventory {};

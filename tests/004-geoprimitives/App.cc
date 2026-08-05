@@ -214,10 +214,11 @@ void App::didShutdown() {}
 
 /// InputContext Callbacks ///
 
-void App::inputContextDidUpdate(InputContext&                   inputContext,
-                                const InputContext::UpdateInfo& info) {
+void App::inputDidUpdate(Runner&                         runner,
+                         Scene&                          scene,
+                         InputContext&                   inputContext,
+                         const InputContext::UpdateInfo& info) {
 
-    auto& scene = App::scene();
     Window* window = nullptr;
     if (scene.visualWorld()) {
         window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
@@ -320,7 +321,7 @@ void App::inputContextDidUpdate(InputContext&                   inputContext,
 
 /// Scene Callbacks ///
 
-void App::sceneWillStep(Scene&, const Scene::StepInfo& info) {
+void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
 
     if (!_pointLightPivotNode) {
         return;

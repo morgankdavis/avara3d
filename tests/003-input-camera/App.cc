@@ -77,9 +77,11 @@ void App::didShutdown() {}
 
 /// InputContext Callbacks ///
 
-void App::inputContextDidUpdate(InputContext& inputContext, const InputContext::UpdateInfo& info) {
+void App::inputDidUpdate(Runner&                         runner,
+                         Scene&                          scene,
+                         InputContext&                   inputContext,
+                         const InputContext::UpdateInfo& info) {
 
-    auto& scene = App::scene();
     auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 
     // get input

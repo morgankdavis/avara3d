@@ -61,25 +61,26 @@ namespace a3d {
 
         /// Runner Callbacks ///
 
-        // general once-per-host-cycle callback, independent of InputContext
-        // presence, for non-input host orchestration before simulation scheduling.
-        virtual void                    hostUpdate(Runner& runner, const Runner::UpdateInfo& info);
+        virtual void hostUpdate(Runner& runner, Scene& scene, const Runner::UpdateInfo& info);
 
         /// InputContext Callbacks ///
 
-        // called once after the attached InputContext updates and before
-        // hostUpdate() and simulation scheduling. skipped when no InputContext
-        // is attached; intended for input-driven host, view, and Runner behavior.
-        virtual void inputContextDidUpdate(InputContext& inputContext, const InputContext::UpdateInfo& info);
+        virtual void inputDidUpdate(Runner&       runner,
+                                    Scene&        scene,
+                                    InputContext& inputContext,
+                                    const InputContext::UpdateInfo&);
 
         /// Scene Callbacks ///
 
-        virtual void sceneWillStep(Scene& scene, const Scene::StepInfo& info);
-        virtual void sceneDidStep(Scene& scene, const Scene::StepInfo& info);
+        virtual void sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info);
+        virtual void sceneDidStep(Runner& runner, Scene& scene, const Scene::StepInfo& info);
 
         /// VisualWorld Callbacks ///
 
-        virtual void didBeginFrame(VisualWorld& visualWorld, const VisualWorld::RenderInfo& info);
+        virtual void frameDidBegin(Runner&                        runner,
+                                   Scene&                         scene,
+                                   VisualWorld&                   visualWorld,
+                                   const VisualWorld::RenderInfo& info);
 
     private:
         /// Private Member Functions ///
@@ -108,6 +109,7 @@ namespace a3d {
 
         friend class testing::ApplicationTestAccess;
     };
+
 }
 
 #endif //AVARA3D_APPLICATION_H
