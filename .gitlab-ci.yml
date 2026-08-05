@@ -370,19 +370,14 @@ web-release-manual:
 
 staging-publish-test:
     stage: deploy
-
     tags:
         - ubuntu-23
-
     needs: []
-
     rules:
         - if: '$CI_COMMIT_BRANCH == "website"'
           when: manual
         - when: never
-
     allow_failure: true
-
     script:
         - echo "Manual Avara3D staging deployment test"
         - echo "Branch=${CI_COMMIT_BRANCH}"
@@ -396,4 +391,3 @@ staging-publish-test:
         - command -v ssh
         - command -v rsync
         - echo "Manual staging job completed successfully."
-        -
