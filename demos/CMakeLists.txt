@@ -2,4 +2,4 @@
 set(INSTALL_DEMOS_ROOT_DIR "${INSTALL_ROOT_DIR}/demos")
 set(INSTALL_DEMOS_EXEC_DIR "${INSTALL_DEMOS_ROOT_DIR}")
 
-add_subdirectory(001-quadrotor)
+add_subdirectory(001-physics-sandbox)
