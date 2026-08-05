@@ -379,15 +379,25 @@ staging-publish-test:
         - when: never
     allow_failure: true
     script:
-        - echo "Manual Avara3D staging deployment test"
-        - echo "Branch=${CI_COMMIT_BRANCH}"
-        - echo "Commit=${CI_COMMIT_SHORT_SHA}"
-        - echo "Pipeline=${CI_PIPELINE_IID}"
-        - echo "Runner host=$(hostname)"
-        - id
-        - pwd
-        - test -d website
-        - test -x tools/website/assemble.sh
-        - command -v ssh
-        - command -v rsync
-        - echo "Manual staging job completed successfully."
+        - |
+          set -euo pipefail
+
+          echo "Testing GitLab CI SSH connection to staging..."
+
+          test -f "${SSH_PRIVATE_KEY}"
+          test -f "${SSH_KNOWN_HOSTS}"
+
+          chmod 600 "${SSH_PRIVATE_KEY}"
+          chmod 644 "${SSH_KNOWN_HOSTS}"
+
+          ssh \
+              -i "${SSH_PRIVATE_KEY}" \
+              -o IdentitiesOnly=yes \
+              -o StrictHostKeyChecking=yes \
+              -o UserKnownHostsFile="${SSH_KNOWN_HOSTS}" \
+              "${A3D_DEPLOY_USER}@${A3D_DEPLOY_HOST}" \
+              "id &&
+               test -w '${A3D_DEPLOY_PATH}' &&
+               touch '${A3D_DEPLOY_PATH}/.gitlab-ci-test' &&
+               rm '${A3D_DEPLOY_PATH}/.gitlab-ci-test' &&
+               echo 'GitLab CI staging SSH test passed.'"
