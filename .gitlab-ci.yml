@@ -337,7 +337,6 @@ web-release-manual:
   stage: build
   tags:
     - ubuntu-23
-  environment: production
   when: manual
   script:
     - echo "Starting Web release build..."
@@ -445,7 +444,10 @@ web-release-manual:
       rsync \
           -rltvz \
           --delete \
+          --omit-dir-times \
+          --exclude='.well-known/' \
           --itemize-changes \
+          --rsync-path="umask 0002 && rsync" \
           build-website/ \
           "${A3D_DEPLOY_USER}@${A3D_DEPLOY_HOST}:${A3D_DEPLOY_PATH}/"
       echo
@@ -470,6 +472,8 @@ web-release-manual:
 
 website-publish-staging:
   extends: .website-publish
+  variables:
+    A3D_DEPLOY_PATH: /var/www/staging.avara3d.net/html
   environment:
     name: staging
     url: https://staging.avara3d.net/
@@ -478,4 +482,16 @@ website-publish-staging:
       when: manual
       allow_failure: true
     - when: never
-    
+
+website-publish-production:
+  extends: .website-publish
+  variables:
+    A3D_DEPLOY_PATH: /var/www/avara3d.net/html
+  environment:
+    name: production
+    url: https://avara3d.net/
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "website"'
+      when: manual
+      allow_failure: true
+    - when: never
