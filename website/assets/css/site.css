@@ -1219,6 +1219,20 @@ kbd,
     font-size: 0.67rem;
 }
 
+.download-panel + .download-panel {
+    margin-top: 22px;
+}
+
+.download-status[aria-disabled="true"] {
+    pointer-events: none;
+}
+
+.download-status:not([aria-disabled="true"]) {
+    border-color: rgba(166, 140, 255, 0.38);
+    color: var(--text-soft);
+    background: rgba(105, 79, 255, 0.08);
+}
+
 .download-notes {
     display: grid;
     grid-template-columns: 1fr 1fr;
