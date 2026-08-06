@@ -77,7 +77,7 @@ void App::didShutdown() {}
 
 /// Runner Callbacks ///
 
-void App::hostUpdate(Runner& runner, const Runner::UpdateInfo&) {
+void App::hostUpdate(Runner& runner, Scene& scene, const Runner::UpdateInfo&) {
 
     log::app::i()("....and we're done.");
     static_cast<Window*>(runner.scene().visualWorld()->renderContext())->close();

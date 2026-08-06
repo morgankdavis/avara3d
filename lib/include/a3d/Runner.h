@@ -125,6 +125,7 @@ namespace a3d {
         double            _simulationTimeAccumulator;
         double            _simulationTime;
         std::uint64_t     _simulationStepCount;
+        double            _totalDiscardedSimulationTime;
         bool              _simulationPaused;
         std::uint64_t     _pendingSimulationSteps;
         bool              _skipNextUpdateDelta;

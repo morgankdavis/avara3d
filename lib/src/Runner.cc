@@ -36,6 +36,7 @@ Runner::Runner(Scene& scene, SimulationConfig config):
     _simulationTimeAccumulator {0.0},
     _simulationTime {0.0},
     _simulationStepCount {0},
+    _totalDiscardedSimulationTime {0.0},
     _simulationPaused {false},
     _pendingSimulationSteps {0},
     _skipNextUpdateDelta {false},
@@ -200,6 +201,7 @@ void Runner::start(TimePoint now) {
     _simulationTimeAccumulator = 0.0;
     _simulationTime = 0.0;
     _simulationStepCount = 0;
+    _totalDiscardedSimulationTime = 0.0;
     _simulationPaused = false;
     _pendingSimulationSteps = 0;
     _skipNextUpdateDelta = false;
@@ -226,16 +228,13 @@ bool Runner::update(TimePoint now) {
     ++_updateCount;
 
     FrameStats stats {};
+    stats.simulationTimeStep = _config.timeStep;
+    stats.maxCatchUpSteps = _config.maxCatchUpSteps;
+    stats.simulationStepCount = _simulationStepCount;
+    stats.simulationTime = _simulationTime;
+    stats.totalDiscardedSimulationTime = _totalDiscardedSimulationTime;
 
     prof::profile(_profiler, Profiler::Tag::Frame, [&] {
-        _scene.pollEvents(_profiler);
-
-        const InputContext::UpdateInfo inputInfo {.updateIndex = updateInfo.updateIndex,
-                                                  .elapsedTime = updateInfo.elapsedTime,
-                                                  .deltaTime = updateInfo.deltaTime};
-
-        _scene.updateInput(inputInfo, _profiler);
-
         if (_state == State::Running) {
             if (auto callback = updateCallback()) {
                 prof::profile(_profiler, Profiler::Tag::Application, [&] {
@@ -243,6 +242,14 @@ bool Runner::update(TimePoint now) {
                 });
             }
         }
+
+        _scene.pollEvents(_profiler);
+
+        const InputContext::UpdateInfo inputInfo {.updateIndex = updateInfo.updateIndex,
+                                                  .elapsedTime = updateInfo.elapsedTime,
+                                                  .deltaTime = updateInfo.deltaTime};
+
+        _scene.updateInput(inputInfo, _profiler);
 
         if (_state == State::Running) {
             PhysicsInventory inventory {};
@@ -273,6 +280,10 @@ bool Runner::update(TimePoint now) {
                 stats.concavePolyhedronShapes = inventory.concavePolyhedronShapes;
             });
 
+            stats.simulationStepCount = _simulationStepCount;
+            stats.simulationTime = _simulationTime;
+            stats.totalDiscardedSimulationTime = _totalDiscardedSimulationTime;
+
             if (_state == State::Running) {
                 renderFrame(updateInfo, stats);
             }
@@ -299,7 +310,7 @@ PhysicsInventory Runner::advanceSimulation(const UpdateInfo& info, FrameStats& s
 
     _simulationTimeAccumulator += info.deltaTime * _timeScale;
 
-    while (_simulationTimeAccumulator >= timeStep && stats.simulationStepCount < _config.maxCatchUpSteps
+    while (_simulationTimeAccumulator >= timeStep && stats.simulationStepsThisUpdate < _config.maxCatchUpSteps
            && _state == State::Running && !_simulationPaused && !_skipNextUpdateDelta) {
 
         inventory = executeSimulationStep();
@@ -311,16 +322,18 @@ PhysicsInventory Runner::advanceSimulation(const UpdateInfo& info, FrameStats& s
             _simulationTimeAccumulator -= timeStep;
         }
 
-        ++stats.simulationStepCount;
+        ++stats.simulationStepsThisUpdate;
     }
 
-    if (_state == State::Running && _simulationTimeAccumulator >= timeStep) {
+    if (_state == State::Running && stats.simulationStepsThisUpdate == _config.maxCatchUpSteps
+        && _simulationTimeAccumulator >= timeStep) {
         const double remainder = fmod(_simulationTimeAccumulator, timeStep);
         stats.discardedSimulationTime = _simulationTimeAccumulator - remainder;
+        _totalDiscardedSimulationTime += stats.discardedSimulationTime;
         _simulationTimeAccumulator = remainder;
     }
 
-    if (stats.simulationStepCount == 0) {
+    if (stats.simulationStepsThisUpdate == 0) {
         inventory = currentPhysicsInventory();
     }
 
@@ -335,14 +348,14 @@ PhysicsInventory Runner::executePendingSimulationSteps(FrameStats& stats) {
     for (uint64_t i = 0; i < pendingStepCount; ++i) {
 
         inventory = executeSimulationStep();
-        ++stats.simulationStepCount;
+        ++stats.simulationStepsThisUpdate;
 
         if (_state != State::Running || !_simulationPaused || _skipNextUpdateDelta) {
             break;
         }
     }
 
-    if (stats.simulationStepCount == 0) {
+    if (stats.simulationStepsThisUpdate == 0) {
         inventory = currentPhysicsInventory();
     }
 

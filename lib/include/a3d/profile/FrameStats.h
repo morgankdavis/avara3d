@@ -25,24 +25,33 @@ namespace a3d {
         std::chrono::nanoseconds physicsTime {};
         std::chrono::nanoseconds applicationTime {};
 
-        // simulation steps completed during this Runner update
+        // fixed simulation configuration
+        double                   simulationTimeStep {0.0};
+        std::uint32_t            maxCatchUpSteps {0};
+
+        // cumulative completed simulation
         std::uint64_t            simulationStepCount {0};
+        double                   simulationTime {0.0};
+
+        // simulation steps completed during this Runner update
+        std::uint64_t            simulationStepsThisUpdate {0};
 
         // complete fixed-step simulation debt discarded after bounded catch-up
         double                   discardedSimulationTime {0.0};
+        double                   totalDiscardedSimulationTime {0.0};
 
-        unsigned                 nodes                   = 0;
-        unsigned                 meshes                  = 0;
-        unsigned                 elements                = 0;
-        unsigned                 polygons                = 0;
-        unsigned                 lights                  = 0;
-        unsigned                 staticBodies            = 0;
-        unsigned                 dynamicBodies           = 0;
-        unsigned                 kinematicBodies         = 0;
-        unsigned                 primitiveShapes         = 0;
-        unsigned                 boundingBoxShapes       = 0;
-        unsigned                 convexHullShapes        = 0;
-        unsigned                 concavePolyhedronShapes = 0;
+        unsigned                 nodes {0};
+        unsigned                 meshes {0};
+        unsigned                 elements {0};
+        unsigned                 polygons {0};
+        unsigned                 lights {0};
+        unsigned                 staticBodies {0};
+        unsigned                 dynamicBodies {0};
+        unsigned                 kinematicBodies {0};
+        unsigned                 primitiveShapes {0};
+        unsigned                 boundingBoxShapes {0};
+        unsigned                 convexHullShapes {0};
+        unsigned                 concavePolyhedronShapes {0};
     };
 
 }

@@ -8,7 +8,9 @@
 
 #include "a3d/render/backend/opengl/OGLRenderer.h"
 
+#include <algorithm>
 #include <format>
+#include <locale>
 #include <utility>
 #include <vector>
 
@@ -278,6 +280,17 @@ static void ImguiDrawText(float       x,
                           ImU32       color,
                           bool        shadow);
 
+static void ImguiDrawSimulationPlot(float        x,
+                                    float&       y,
+                                    float        w,
+                                    float        h,
+                                    const float* stepValues,
+                                    const float* discardMarkers,
+                                    int          valuesCount,
+                                    float        scaleMax,
+                                    int          id,
+                                    float        lineStep);
+
 static void ImguiDrawPlot(float        x,
                           float        y,
                           float        w,
@@ -311,7 +324,8 @@ static void ImguiDrawLabelValue(float&                      y,
                                 ImFont&                     font,
                                 float                       fontSize,
                                 float                       lineStep,
-                                ImU32                       color = IM_COL32(255, 255, 255, 255));
+                                ImU32                       color = IM_COL32(255, 255, 255, 255),
+                                std::optional<ImU32>        valueColor = std::nullopt);
 
 static void ImguiDrawLabelValueIndented(float&                      y,
                                         const ImguiStatsTextLayout& layout,
@@ -1405,7 +1419,7 @@ void DrawHeader(ImFont& titleFont, ImFont& bodyFont, bool active, float& yPos_ou
                                               "\n",
                                               version.major, version.minor, version.patch, buildInfo.number(),
                                               util::string::Lowercase(BuildInfo::TypeString(buildInfo.type())));
-    yPos += 25;
+    yPos += 24;
     ImguiDrawText(X_POS, yPos, buildStr.c_str(), bodyFont, STATS_BODY_FONT_SIZE, color, active);
 
     yPos_out = yPos;
@@ -1423,10 +1437,12 @@ void DrawStats(FrameStats&              stats,
 
     //ShowMetricsWindow();
 
+    static const float TOP_PADDING = 36.0f;
     static const float X_POS = 12.0;
     static const float COLUMN_WIDTH = 130.0f;
+    static const float FIXED_STEP_TEXT_WIDTH = 300.0f;
     static const bool  PLOT_OUTLINED = true;
-    static const float PLOT_HEIGHT_1 = 48.0;
+    static const float PLOT_HEIGHT_1 = 36.0;
     static const float PLOT_HEIGHT_2 = 24.0;
     static const float PLOT_X_OFFSET = 0.0;
     static const float PLOT_STR_Y_PAD = 8.0;
@@ -1454,14 +1470,8 @@ void DrawStats(FrameStats&              stats,
     const auto now = chrono::steady_clock::now();
 
     if (now >= nextAverageUpdate) {
-        FrameStatsHistory::GetAverages(statsHistory,
-                                       frameNsAvg,
-                                       engineCpuNsAvg,
-                                       renderCpuNsAvg,
-                                       renderGpuNsAvg,
-                                       physicsNsAvg,
-                                       appCpuNsAvg,
-                                       FRAME_STATS_AVERAGING_DURATION);
+        FrameStatsHistory::GetAverages(statsHistory, frameNsAvg, engineCpuNsAvg, renderCpuNsAvg, renderGpuNsAvg,
+                                       physicsNsAvg, appCpuNsAvg, FRAME_STATS_AVERAGING_DURATION);
 
         frameMsFAvg = util::chrono::Milliseconds(frameNsAvg);
         engineCpuMsFAvg = util::chrono::Milliseconds(engineCpuNsAvg);
@@ -1487,6 +1497,8 @@ void DrawStats(FrameStats&              stats,
     static vector<float> renderCpuSamples;
     static vector<float> renderGpuSamples;
     static vector<float> appSamples;
+    static vector<float> simulationStepSamples;
+    static vector<float> simulationDiscardMarkers;
 
     static size_t         frame = 0;
     static const unsigned SKIP_FRAMES = 2;
@@ -1501,6 +1513,8 @@ void DrawStats(FrameStats&              stats,
             renderGpuSamples.resize(samples.size());
         }
         appSamples.resize(samples.size());
+        simulationStepSamples.resize(samples.size());
+        simulationDiscardMarkers.resize(samples.size());
 
         for (size_t i = 0; i < samples.size(); ++i) {
             auto sample = get<1>(samples[i]);
@@ -1512,12 +1526,14 @@ void DrawStats(FrameStats&              stats,
                 renderGpuSamples[i] = util::chrono::Milliseconds(sample.renderGpuTime);
             }
             appSamples[i] = util::chrono::Milliseconds(sample.applicationTime);
+            simulationStepSamples[i] = static_cast<float>(sample.simulationStepsThisUpdate);
+            simulationDiscardMarkers[i] = sample.discardedSimulationTime > 0.0 ? 1.0f : 0.0f;
         }
     }
 
     ImguiStatsTextLayout layout {.xLeft = X_POS, .xRight = X_POS + COLUMN_WIDTH, .gap = 12.0f};
 
-    yPos += 48;
+    yPos += TOP_PADDING;
     auto rateValue = std::format("{:.0f}fps", fpsAvg);
     ImguiDrawLabelValue(yPos, layout, "", rateValue, bodyFont, STATS_BODY_FONT_SIZE, 15);
     auto frameValue = std::format("{:.1f}ms", frameMsFAvg);
@@ -1526,40 +1542,74 @@ void DrawStats(FrameStats&              stats,
                   static_cast<int>(frameSamples.size()), 0, nullptr, nullptr, 0.0f, PLOT_Y_MIN, PLOT_Y_MAX, 0,
                   PLOT_OUTLINED, ++id, PLOT_HEIGHT_1 + PLOT_STR_Y_PAD, false);
 
-    auto engineCpuValue = std::format("{:.1f}ms", engineCpuMsFAvg);
-    ImguiDrawLabelValue(yPos, layout, "engine cpu", engineCpuValue, bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
+    const bool discardedSteps = stats.discardedSimulationTime > 0.0;
+    const auto discardedStepCount =
+        discardedSteps && stats.simulationTimeStep > 0.0
+            ? static_cast<std::uint64_t>(std::llround(stats.discardedSimulationTime / stats.simulationTimeStep))
+            : 0;
+    ImguiDrawLabelValue(yPos, layout, "steps/update",
+                        discardedSteps ? std::format("-{}", discardedStepCount)
+                                       : std::format("{}", stats.simulationStepsThisUpdate),
+                        bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD, IM_COL32(255, 255, 255, 255),
+                        discardedSteps ? IM_COL32(255, 48, 48, 255) : IM_COL32(255, 255, 255, 255));
+    ImguiDrawSimulationPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, simulationStepSamples.data(),
+                            simulationDiscardMarkers.data(), static_cast<int>(simulationStepSamples.size()),
+                            std::max(1.0f, static_cast<float>(stats.maxCatchUpSteps)), ++id,
+                            PLOT_HEIGHT_2 + PLOT_STR_Y_PAD);
+
+    const auto formatDiscardedTime = [](double seconds) {
+        return seconds >= 1.0 ? std::format("{:.2f}s", seconds) : std::format("{:.1f}ms", seconds * 1000.0);
+    };
+    ImguiDrawLabelValue(yPos, layout, "discarded", formatDiscardedTime(stats.totalDiscardedSimulationTime),
+                        bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP,
+                        IM_COL32(255, 255, 255, 255),
+                        stats.totalDiscardedSimulationTime > 0.0 ? IM_COL32(255, 48, 48, 255)
+                                                                 : IM_COL32(255, 255, 255, 255));
+
+    static const std::locale numberLocale("en_US.UTF-8");
+    ImguiDrawLabelValue(yPos, layout, "step #", std::format(numberLocale, "{:L}", stats.simulationStepCount), bodyFont,
+                        STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+
+    ImguiDrawLabelValue(yPos, layout, "sim time", std::format("{:.2f}s", stats.simulationTime), bodyFont,
+                        STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+
+    ImguiDrawLabelValue(yPos, layout, "time step", std::format("{:.0f}Hz", 1.0 / stats.simulationTimeStep),
+                    bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP + PLOT_STR_Y_PAD);
+
+    ImguiDrawLabelValue(yPos, layout, "engine cpu", std::format("{:.1f}ms", engineCpuMsFAvg), bodyFont,
+                        STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
     ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, engCpuSamples.data(),
                   static_cast<int>(engCpuSamples.size()), 0, nullptr, nullptr, 0.0f, PLOT_Y_MIN, PLOT_Y_MAX, 0,
                   PLOT_OUTLINED, ++id, PLOT_HEIGHT_2 + PLOT_STR_Y_PAD, false);
 
-    auto renderCpuValue = std::format("{:.1f}ms", renderCpuMsFAvg);
-    ImguiDrawLabelValue(yPos, layout, "render sub", renderCpuValue, bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
+    ImguiDrawLabelValue(yPos, layout, "render sub", std::format("{:.1f}ms", renderCpuMsFAvg), bodyFont,
+                        STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
     ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, renderCpuSamples.data(),
                   static_cast<int>(renderCpuSamples.size()), 0, nullptr, nullptr, 0.0f, PLOT_Y_MIN, PLOT_Y_MAX,
                   0, PLOT_OUTLINED, ++id, PLOT_HEIGHT_2 + PLOT_STR_Y_PAD, false);
 
-    const ImU32 drawColor = gpuTimingAvailable ? IM_COL32(255, 255, 255, 255) : IM_COL32(128, 128, 128, 255);
-    auto        renderGpuValue = gpuTimingAvailable ? std::format("{:.1f}ms", renderGpuMsFAvg) : "";
-    ImguiDrawLabelValue(yPos, layout, "draw", renderGpuValue, bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD,
-                        drawColor);
+    ImguiDrawLabelValue(yPos, layout, "draw",
+                        (gpuTimingAvailable ? std::format("{:.1f}ms", renderGpuMsFAvg) : ""), bodyFont,
+                        STATS_BODY_FONT_SIZE, PLOT_Y_PAD,
+                        gpuTimingAvailable ? IM_COL32(255, 255, 255, 255) : IM_COL32(128, 128, 128, 255));
     ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, renderGpuSamples.data(),
                   static_cast<int>(renderGpuSamples.size()), 0, gpuTimingAvailable ? nullptr : "unavailable",
                   &altBodyFont, STATS_ALT_FONT_SIZE, PLOT_Y_MIN, PLOT_Y_MAX, 0, PLOT_OUTLINED, ++id,
                   PLOT_HEIGHT_2 + PLOT_STR_Y_PAD, !gpuTimingAvailable);
 
-    auto physValue = std::format("{:.1f}ms", physicsMsFAvg);
-    ImguiDrawLabelValue(yPos, layout, "physics", physValue, bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
+    ImguiDrawLabelValue(yPos, layout, "physics", std::format("{:.1f}ms", physicsMsFAvg), bodyFont,
+                        STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
     ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, physSamples.data(),
                   static_cast<int>(physSamples.size()), 0, nullptr, nullptr, 0.0f, PLOT_Y_MIN, PLOT_Y_MAX, 0,
                   PLOT_OUTLINED, ++id, PLOT_HEIGHT_2 + PLOT_STR_Y_PAD, false);
 
-    auto appValue = std::format("{:.1f}ms", appCpuMsFAvg);
-    ImguiDrawLabelValue(yPos, layout, "app", appValue, bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
+    ImguiDrawLabelValue(yPos, layout, "app", std::format("{:.1f}ms", appCpuMsFAvg), bodyFont,
+                        STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
     ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, appSamples.data(),
                   static_cast<int>(appSamples.size()), 0, nullptr, nullptr, 0.0f, PLOT_Y_MIN, PLOT_Y_MAX, 0,
                   PLOT_OUTLINED, ++id, 0, false);
 
-    yPos += 42;
+    yPos += 34;
 
     ImguiStatsTextLayout bulkLayout = layout;
 
@@ -1574,7 +1624,7 @@ void DrawStats(FrameStats&              stats,
     ImguiDrawLabelValue(yPos, bulkLayout, "lights", std::format("{}", stats.lights), bodyFont,
                         STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
 
-    yPos += STAT_LINE_STEP;
+    yPos += STAT_LINE_STEP / 2.0f;
 
     ImguiDrawLabelValue(yPos, bulkLayout, "phys bodies",
                         std::format("{}", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies),
@@ -1586,7 +1636,7 @@ void DrawStats(FrameStats&              stats,
     ImguiDrawLabelValueIndented(yPos, bulkLayout, "kinematic", std::format("{}", stats.kinematicBodies),
                                 bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
 
-    yPos += STAT_LINE_STEP;
+    yPos += STAT_LINE_STEP / 2.0f;
 
     ImguiDrawLabelValue(yPos, bulkLayout, "phys shapes",
                         std::format("{}", stats.primitiveShapes + stats.concavePolyhedronShapes
@@ -1602,7 +1652,7 @@ void DrawStats(FrameStats&              stats,
                                 bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
 
     if (context.recordingGIF()) {
-        yPos += STAT_LINE_STEP;
+        yPos += STAT_LINE_STEP / 2.0f;
         ImguiDrawLabelValue(yPos, bulkLayout, "RECORDING", std::format("{:.0f}s", context.recordedGIFTime()),
                             bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
     }
@@ -1850,6 +1900,60 @@ void ImguiDrawText(float x, float y, const char* text, ImFont& font, float size,
     PopFont();
 }
 
+void ImguiDrawSimulationPlot(float        x,
+                             float&       y,
+                             float        w,
+                             float        h,
+                             const float* stepValues,
+                             const float* discardMarkers,
+                             int          valuesCount,
+                             float        scaleMax,
+                             int          id,
+                             float        lineStep) {
+    using namespace ImGui;
+
+    const ImVec4 discardColor(1, 0, 0, 0.75f);
+
+    PushStyleColor(ImGuiCol_FrameBg, ImVec4(0, 0, 0, 0));
+
+    // Black line shadow.
+    SetCursorScreenPos(ImVec2(x + 1, y + 1));
+    SetNextItemAllowOverlap();
+    PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.0f);
+    PushStyleColor(ImGuiCol_PlotLines, ImVec4(0, 0, 0, 1));
+    PushStyleColor(ImGuiCol_PlotLinesHovered, ImVec4(0, 0, 0, 1));
+    PlotLines(("##simulation_steps_shadow" + std::to_string(id)).c_str(), stepValues, valuesCount, 0, nullptr,
+              0.0f, scaleMax, ImVec2(w, h), sizeof(float));
+    PopStyleColor(2);
+    PopStyleVar();
+
+    // White step line and plot outline.
+    SetCursorScreenPos(ImVec2(x, y));
+    SetNextItemAllowOverlap();
+    PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.5f);
+    PushStyleColor(ImGuiCol_Border, ImVec4(1, 1, 1, 0.5f));
+    PushStyleColor(ImGuiCol_PlotLines, ImVec4(1, 1, 1, 1));
+    PushStyleColor(ImGuiCol_PlotLinesHovered, ImVec4(1, 1, 1, 1));
+    PlotLines(("##simulation_steps" + std::to_string(id)).c_str(), stepValues, valuesCount, 0, nullptr, 0.0f,
+              scaleMax, ImVec2(w, h), sizeof(float));
+    PopStyleColor(3);
+    PopStyleVar();
+
+    // Red discard markers, drawn last so they appear over the step line.
+    SetCursorScreenPos(ImVec2(x, y));
+    PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.0f);
+    PushStyleColor(ImGuiCol_PlotHistogram, discardColor);
+    PushStyleColor(ImGuiCol_PlotHistogramHovered, discardColor);
+    PlotHistogram(("##simulation_discard" + std::to_string(id)).c_str(), discardMarkers, valuesCount, 0,
+                  nullptr, 0.0f, 1.0f, ImVec2(w, h), sizeof(float));
+    PopStyleColor(2);
+    PopStyleVar();
+
+    PopStyleColor();
+
+    y += lineStep;
+}
+
 void ImguiDrawPlot(float        x,
                    float        y,
                    float        w,
@@ -2009,7 +2113,8 @@ void ImguiDrawLabelValue(float&                      y,
                          ImFont&                     font,
                          float                       fontSize,
                          float                       lineStep,
-                         ImU32                       color) {
+                         ImU32                       color,
+                         std::optional<ImU32>        valueColor) {
     const auto SnapPx = [](float x) -> float {
         return math::floor(x + 0.5f);
     };
@@ -2035,7 +2140,8 @@ void ImguiDrawLabelValue(float&                      y,
     // pixel snap
     xValue = SnapPx(xValue);
 
-    ImguiDrawText(xValue, y, value.c_str(), font, fontSize, color, true);
+    //ImguiDrawText(xValue, y, value.c_str(), font, fontSize, color, true);
+    ImguiDrawText(xValue, y, value.c_str(), font, fontSize, valueColor.value_or(color), true);
 
     y += lineStep;
 }

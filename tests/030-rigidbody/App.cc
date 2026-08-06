@@ -240,9 +240,8 @@ void App::didShutdown() {}
 
 /// InputContext Callbacks ///
 
-void App::inputContextDidUpdate(InputContext& inputContext, const InputContext::UpdateInfo& info) {
+void App::inputDidUpdate(Runner& runner, Scene& scene, InputContext& inputContext, const InputContext::UpdateInfo& info) {
 
-    auto& scene = App::scene();
     auto& input = static_cast<DesktopInputContext&>(inputContext);
 
     using Key = DesktopInputContext::Key;
@@ -426,7 +425,7 @@ void App::inputContextDidUpdate(InputContext& inputContext, const InputContext::
 
 /// Scene Callbacks ///
 
-void App::sceneWillStep(Scene& scene, const Scene::StepInfo& info) {
+void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
 
     auto& input = static_cast<DesktopInputContext&>(*scene.inputContext());
 

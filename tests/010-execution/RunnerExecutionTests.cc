@@ -61,24 +61,31 @@ namespace a3d::testing {
                                        Runner&                   runner,
                                        const Runner::UpdateInfo& info) {
 
-            application.dispatchHostUpdate(runner, info);
+            application.hostUpdate(runner, runner.scene(), info);
         }
 
-        static void dispatchSceneWillStep(Application& application, Scene& scene, const Scene::StepInfo& info) {
+        static void dispatchSceneWillStep(Application&           application,
+                                          Runner&                runner,
+                                          Scene&                 scene,
+                                          const Scene::StepInfo& info) {
 
-            application.dispatchSceneWillStep(scene, info);
+            application.sceneWillStep(runner, scene, info);
         }
 
-        static void dispatchSceneDidStep(Application& application, Scene& scene, const Scene::StepInfo& info) {
+        static void dispatchSceneDidStep(Application&           application,
+                                         Runner&                runner,
+                                         Scene&                 scene,
+                                         const Scene::StepInfo& info) {
 
-            application.dispatchSceneDidStep(scene, info);
+            application.sceneDidStep(runner, scene, info);
         }
 
         static void dispatchDidBeginFrame(Application&                   application,
+                                          Runner&                        runner,
                                           VisualWorld&                   visualWorld,
                                           const VisualWorld::RenderInfo& info) {
 
-            application.dispatchDidBeginFrame(visualWorld, info);
+            application.frameDidBegin(runner, runner.scene(), visualWorld, info);
         }
     };
 
@@ -188,6 +195,9 @@ namespace {
     class AdapterRenderer final : public a3d::Renderer {
 
     public:
+        explicit AdapterRenderer(std::vector<a3d::FrameStats>* beginFrameStats = nullptr):
+            _beginFrameStats {beginFrameStats} {}
+
         bool initialize(const a3d::RenderContext&) override {
             return true;
         }
@@ -199,8 +209,13 @@ namespace {
         void beginFrame(const a3d::Scene&,
                         const a3d::RenderContext&,
                         const a3d::Scene::DebugOptions&,
-                        a3d::FrameStats&,
-                        a3d::Profiler&) override {}
+                        a3d::FrameStats& stats,
+                        a3d::Profiler&) override {
+
+            if (_beginFrameStats) {
+                _beginFrameStats->push_back(stats);
+            }
+        }
 
         void endFrame(const a3d::Scene&,
                       const a3d::RenderContext&,
@@ -251,19 +266,23 @@ namespace {
                              const a3d::RenderContext&,
                              const a3d::math::mat4&,
                              const a3d::math::mat4&) override {}
+
+    private:
+        std::vector<a3d::FrameStats>* _beginFrameStats;
     };
 
     class AdapterRenderContext final : public a3d::RenderContext {
 
     public:
-        explicit AdapterRenderContext(std::vector<std::string_view>* stages = nullptr):
+        explicit AdapterRenderContext(std::vector<std::string_view>* stages = nullptr,
+                                      std::vector<a3d::FrameStats>*  beginFrameStats = nullptr):
             RenderContext(RenderingApi::OpenGL),
             _stages {stages} {
 
             // This fixture exercises Application's callback adapters without
             // initializing or destroying an OpenGL backend.
             (void) _renderer.release();
-            _renderer = std::make_unique<AdapterRenderer>();
+            _renderer = std::make_unique<AdapterRenderer>(beginFrameStats);
         }
 
         bool vSyncEnabled() const override {
@@ -339,17 +358,19 @@ namespace {
 
         /// InputContext Callbacks ///
 
-        void inputContextDidUpdate(a3d::InputContext&                   inputContext,
-                                   const a3d::InputContext::UpdateInfo& info) override {
+        void inputDidUpdate(a3d::Runner& callbackRunner,
+                            a3d::Scene&,
+                            a3d::InputContext&                   inputContext,
+                            const a3d::InputContext::UpdateInfo& info) override {
 
             if (inputAction) {
-                inputAction(runner, inputContext, info);
+                inputAction(callbackRunner, inputContext, info);
             }
         }
 
         /// Runner Callbacks ///
 
-        void hostUpdate(a3d::Runner& runner, const a3d::Runner::UpdateInfo& info) override {
+        void hostUpdate(a3d::Runner& runner, a3d::Scene&, const a3d::Runner::UpdateInfo& info) override {
 
             if (hostAction) {
                 hostAction(runner, info);
@@ -358,14 +379,14 @@ namespace {
 
         /// Scene Callbacks ///
 
-        void sceneWillStep(a3d::Scene& scene, const a3d::Scene::StepInfo& info) override {
+        void sceneWillStep(a3d::Runner&, a3d::Scene& scene, const a3d::Scene::StepInfo& info) override {
 
             if (simulationWillAction) {
                 simulationWillAction(scene, info);
             }
         }
 
-        void sceneDidStep(a3d::Scene& scene, const a3d::Scene::StepInfo& info) override {
+        void sceneDidStep(a3d::Runner&, a3d::Scene& scene, const a3d::Scene::StepInfo& info) override {
 
             if (simulationDidAction) {
                 simulationDidAction(scene, info);
@@ -374,7 +395,10 @@ namespace {
 
         /// VisualWorld Callbacks ///
 
-        void didBeginFrame(a3d::VisualWorld& visualWorld, const a3d::VisualWorld::RenderInfo& info) override {
+        void frameDidBegin(a3d::Runner&,
+                           a3d::Scene&,
+                           a3d::VisualWorld&                   visualWorld,
+                           const a3d::VisualWorld::RenderInfo& info) override {
 
             if (renderAction) {
                 renderAction(visualWorld, info);
@@ -422,7 +446,7 @@ namespace {
 
         /// Runner Callbacks ///
 
-        void hostUpdate(a3d::Runner& callbackRunner, const a3d::Runner::UpdateInfo&) override {
+        void hostUpdate(a3d::Runner& callbackRunner, a3d::Scene&, const a3d::Runner::UpdateInfo&) override {
 
             ++_result.hostUpdateCount;
 
@@ -485,7 +509,7 @@ namespace {
 
         /// Runner Callbacks ///
 
-        void hostUpdate(a3d::Runner& callbackRunner, const a3d::Runner::UpdateInfo&) override {
+        void hostUpdate(a3d::Runner& callbackRunner, a3d::Scene&, const a3d::Runner::UpdateInfo&) override {
 
             ++_result.hostUpdateCount;
 
@@ -497,11 +521,11 @@ namespace {
 
         /// Scene Callbacks ///
 
-        void sceneWillStep(a3d::Scene&, const a3d::Scene::StepInfo&) override {
+        void sceneWillStep(a3d::Runner&, a3d::Scene&, const a3d::Scene::StepInfo&) override {
             ++_result.simulationWillCount;
         }
 
-        void sceneDidStep(a3d::Scene&, const a3d::Scene::StepInfo&) override {
+        void sceneDidStep(a3d::Runner&, a3d::Scene&, const a3d::Scene::StepInfo&) override {
             ++_result.simulationDidCount;
         }
 
@@ -559,8 +583,10 @@ namespace {
 
         /// InputContext Callbacks ///
 
-        void inputContextDidUpdate(a3d::InputContext&,
-                                   const a3d::InputContext::UpdateInfo&) override {
+        void inputDidUpdate(a3d::Runner& callbackRunner,
+                            a3d::Scene&,
+                            a3d::InputContext&,
+                            const a3d::InputContext::UpdateInfo&) override {
 
             ++_result.inputCallbackCount;
 
@@ -572,23 +598,26 @@ namespace {
 
         /// Runner Callbacks ///
 
-        void hostUpdate(a3d::Runner&, const a3d::Runner::UpdateInfo&) override {
+        void hostUpdate(a3d::Runner&, a3d::Scene&, const a3d::Runner::UpdateInfo&) override {
             ++_result.hostUpdateCount;
         }
 
         /// Scene Callbacks ///
 
-        void sceneWillStep(a3d::Scene&, const a3d::Scene::StepInfo&) override {
+        void sceneWillStep(a3d::Runner&, a3d::Scene&, const a3d::Scene::StepInfo&) override {
             ++_result.simulationWillCount;
         }
 
-        void sceneDidStep(a3d::Scene&, const a3d::Scene::StepInfo&) override {
+        void sceneDidStep(a3d::Runner&, a3d::Scene&, const a3d::Scene::StepInfo&) override {
             ++_result.simulationDidCount;
         }
 
         /// VisualWorld Callbacks ///
 
-        void didBeginFrame(a3d::VisualWorld&, const a3d::VisualWorld::RenderInfo&) override {
+        void frameDidBegin(a3d::Runner&,
+                           a3d::Scene&,
+                           a3d::VisualWorld&,
+                           const a3d::VisualWorld::RenderInfo&) override {
             ++_result.renderCount;
         }
 
@@ -971,9 +1000,20 @@ namespace {
                    "the first Runner update should not advance Bullet", 1e-6);
 
         const auto& stats = LatestFrameStats(runner);
-        Expect(stats.simulationStepCount == 0, "the first update statistics sample should report zero steps");
+        ExpectNear(stats.simulationTimeStep, 0.125,
+                   "the first update statistics sample should report the configured fixed delta");
+        Expect(stats.maxCatchUpSteps == 8,
+               "the first update statistics sample should report the configured catch-up limit");
+        Expect(stats.simulationStepCount == 0,
+               "the first update statistics sample should report zero cumulative steps");
+        ExpectNear(stats.simulationTime, 0.0,
+                   "the first update statistics sample should report zero cumulative simulation time");
+        Expect(stats.simulationStepsThisUpdate == 0,
+               "the first update statistics sample should report zero steps");
         ExpectNear(stats.discardedSimulationTime, 0.0,
                    "the first update statistics sample should report no discarded time");
+        ExpectNear(stats.totalDiscardedSimulationTime, 0.0,
+                   "the first update statistics sample should report no cumulative discarded time");
         Expect(stats.dynamicBodies == 1,
                "a zero-step Runner update should still sample current body inventory");
         Expect(stats.primitiveShapes == 1,
@@ -995,14 +1035,14 @@ namespace {
         Expect(a3d::testing::RunnerTestAccess::update(runner, AtMicroseconds(72500)),
                "the first fractional simulation update should continue");
         Expect(steps.empty(), "insufficient fixed-step time should execute no step");
-        Expect(LatestFrameStats(runner).simulationStepCount == 0,
+        Expect(LatestFrameStats(runner).simulationStepsThisUpdate == 0,
                "insufficient fixed-step time should report zero steps");
 
         Expect(a3d::testing::RunnerTestAccess::update(runner, AtMicroseconds(135000)),
                "the second fractional simulation update should continue");
         Expect(steps.size() == 1, "two retained half-step contributions should execute one step");
         ExpectStep(steps[0], 0, 0.0, 0.125, 0.125, "the accumulated simulation step");
-        Expect(LatestFrameStats(runner).simulationStepCount == 1,
+        Expect(LatestFrameStats(runner).simulationStepsThisUpdate == 1,
                "the accumulated Runner update should report one step");
         ExpectNear(runner.simulationTime(), 0.125, "the accumulated simulation time");
         Expect(runner.simulationStepCount() == 1, "the accumulated completed step count");
@@ -1014,17 +1054,52 @@ namespace {
         ExpectStep(steps[1], 1, 0.125, 0.25, 0.125, "the scaled simulation step");
         ExpectNear(runner.simulationTime(), 0.25, "the scaled simulation time");
         Expect(runner.simulationStepCount() == 2, "the scaled completed step count");
-        Expect(LatestFrameStats(runner).simulationStepCount == 1,
+        Expect(LatestFrameStats(runner).simulationStepsThisUpdate == 1,
                "the scaled Runner update should report one fixed step");
 
+        Expect(a3d::testing::RunnerTestAccess::update(runner, AtMicroseconds(228750)),
+               "the post-completion fractional update should continue");
+        Expect(LatestFrameStats(runner).simulationStepsThisUpdate == 0,
+               "the post-completion fractional update should report zero steps");
+        Expect(runner.simulationStepCount() == 2,
+               "a zero-step update should retain the cumulative completed step count");
+        ExpectNear(runner.simulationTime(), 0.25,
+                   "a zero-step update should retain cumulative simulation time");
+
         const auto& samples = a3d::testing::RunnerTestAccess::frameStatsHistory(runner).samples();
-        Expect(samples.size() == 4,
+        Expect(samples.size() == 5,
                "simulation scheduling should commit one statistics record per Runner update");
+
+        for (const auto& sample : samples) {
+            const auto& stats = std::get<1>(sample);
+            ExpectNear(stats.simulationTimeStep, 0.125,
+                       "every statistics sample should retain the configured fixed delta");
+            Expect(stats.maxCatchUpSteps == 8,
+                   "every statistics sample should retain the configured catch-up limit");
+            ExpectNear(stats.simulationTime,
+                       static_cast<double>(stats.simulationStepCount) * stats.simulationTimeStep,
+                       "every statistics sample should keep cumulative simulation time consistent");
+        }
+
+        const auto& firstStepStats = std::get<1>(samples[2]);
+        Expect(firstStepStats.simulationStepCount == 1,
+               "the first completed-step sample should report one cumulative step");
+        ExpectNear(firstStepStats.simulationTime, 0.125,
+                   "the first completed-step sample should report cumulative simulation time");
+
+        const auto& zeroStepStats = std::get<1>(samples.back());
+        Expect(zeroStepStats.simulationStepCount == 2,
+               "a later zero-step sample should retain the cumulative step count");
+        ExpectNear(zeroStepStats.simulationTime, 0.25,
+                   "a later zero-step sample should retain cumulative simulation time");
     }
 
     void SimulationLimitsCatchUpAndReportsDiscard() {
 
-        a3d::Scene                scene;
+        std::vector<a3d::FrameStats> renderedStats;
+        AdapterRenderContext         renderContext(nullptr, &renderedStats);
+        a3d::Scene                   scene;
+        scene.visualWorld(std::make_unique<a3d::VisualWorld>(renderContext));
         a3d::Runner               runner(scene, MakeSimulationConfig(0.125, 2));
         std::vector<RecordedStep> steps;
         scene.didStepCallback([&steps](a3d::Scene&, const a3d::Scene::StepInfo& info) {
@@ -1045,10 +1120,38 @@ namespace {
         Expect(runner.simulationStepCount() == 2, "the bounded catch-up completed step count");
 
         const auto catchUpStats = LatestFrameStats(runner);
+        ExpectNear(catchUpStats.simulationTimeStep, 0.125,
+                   "catch-up statistics should report the configured fixed delta");
+        Expect(catchUpStats.maxCatchUpSteps == 2,
+               "catch-up statistics should report the configured catch-up limit");
         Expect(catchUpStats.simulationStepCount == 2,
+               "catch-up statistics should report the cumulative completed step count");
+        ExpectNear(catchUpStats.simulationTime, 0.25,
+                   "catch-up statistics should report cumulative simulation time");
+        Expect(catchUpStats.simulationStepsThisUpdate == 2,
                "the bounded catch-up Runner update should report two steps");
         ExpectNear(catchUpStats.discardedSimulationTime, 0.5,
                    "catch-up overflow should discard only whole-step demand");
+        ExpectNear(catchUpStats.totalDiscardedSimulationTime, 0.5,
+                   "catch-up overflow should accumulate discarded simulation time");
+
+        Expect(renderedStats.size() == 2,
+               "the bounded catch-up update should provide one statistics sample to the renderer");
+        const auto& renderedCatchUpStats = renderedStats.back();
+        ExpectNear(renderedCatchUpStats.simulationTimeStep, 0.125,
+                   "the renderer should receive the configured fixed delta during the current frame");
+        Expect(renderedCatchUpStats.maxCatchUpSteps == 2,
+               "the renderer should receive the configured catch-up limit during the current frame");
+        Expect(renderedCatchUpStats.simulationStepCount == 2,
+               "the renderer should receive the current cumulative step count");
+        ExpectNear(renderedCatchUpStats.simulationTime, 0.25,
+                   "the renderer should receive the current cumulative simulation time");
+        Expect(renderedCatchUpStats.simulationStepsThisUpdate == 2,
+               "the renderer should receive the current update's completed step count");
+        ExpectNear(renderedCatchUpStats.discardedSimulationTime, 0.5,
+                   "the renderer should receive the current update's discarded time");
+        ExpectNear(renderedCatchUpStats.totalDiscardedSimulationTime, 0.5,
+                   "the renderer should receive current cumulative discarded time");
 
         Expect(a3d::testing::RunnerTestAccess::update(runner, AtMicroseconds(885000)),
                "the retained-remainder update should continue");
@@ -1058,10 +1161,24 @@ namespace {
         Expect(runner.simulationStepCount() == 3, "the retained-remainder completed step count");
 
         const auto& remainderStats = LatestFrameStats(runner);
-        Expect(remainderStats.simulationStepCount == 1,
+        Expect(remainderStats.simulationStepCount == 3,
+               "the retained-remainder sample should report the cumulative completed step count");
+        ExpectNear(remainderStats.simulationTime, 0.375,
+                   "the retained-remainder sample should report cumulative simulation time");
+        Expect(remainderStats.simulationStepsThisUpdate == 1,
                "the retained-remainder Runner update should report one step");
         ExpectNear(remainderStats.discardedSimulationTime, 0.0,
                    "discarded time should reset for each update statistics batch");
+        ExpectNear(remainderStats.totalDiscardedSimulationTime, 0.5,
+                   "cumulative discarded time should persist after a non-discarding update");
+
+        Expect(renderedStats.size() == 3,
+               "the retained-remainder update should provide one statistics sample to the renderer");
+        const auto& renderedRemainderStats = renderedStats.back();
+        ExpectNear(renderedRemainderStats.discardedSimulationTime, 0.0,
+                   "the renderer should receive zero current discarded time on the next frame");
+        ExpectNear(renderedRemainderStats.totalDiscardedSimulationTime, 0.5,
+                   "the renderer should retain cumulative discarded time on the next frame");
     }
 
     void StopBetweenUpdates() {
@@ -1122,8 +1239,20 @@ namespace {
         Expect(runner.simulationStepCount() == 0, "stop during hostUpdate should complete no simulation step");
         Expect(a3d::testing::RunnerTestAccess::completedRenderFrameCount(runner) == 0,
                "stop during hostUpdate should complete no render frame");
-        Expect(LatestFrameStats(runner).simulationStepCount == 0,
+        const auto& stats = LatestFrameStats(runner);
+        ExpectNear(stats.simulationTimeStep, 0.125,
+                   "the stopping host update should retain the configured fixed delta");
+        Expect(stats.maxCatchUpSteps == 8,
+               "the stopping host update should retain the configured catch-up limit");
+        Expect(stats.simulationStepCount == 0, "the stopping host update should retain zero cumulative steps");
+        ExpectNear(stats.simulationTime, 0.0,
+                   "the stopping host update should retain zero cumulative simulation time");
+        Expect(stats.simulationStepsThisUpdate == 0,
                "the stopping host update should commit zero-step statistics");
+        ExpectNear(stats.discardedSimulationTime, 0.0,
+                   "the stopping host update should report no discarded simulation time");
+        ExpectNear(stats.totalDiscardedSimulationTime, 0.0,
+                   "the stopping host update should retain zero cumulative discarded time");
         Expect(a3d::testing::RunnerTestAccess::frameStatsHistory(runner).samples().size()
                    == sampleCountBeforeStop + 1,
                "the stopping host update should commit one statistics sample");
@@ -1137,7 +1266,7 @@ namespace {
         a3d::testing::ApplicationTestAccess::shutdown(*application);
     }
 
-    void StopDuringInputCallbackSkipsLaterStages() {
+    void StopDuringInputCallbackSkipsSimulationAndRender() {
 
         StopDuringInputResult result {};
         auto                  application = std::make_unique<StopDuringInputApplication>(result);
@@ -1163,7 +1292,8 @@ namespace {
         Expect(result.inputCallbackCount == 1,
                "the stopping inputContextDidUpdate callback should run exactly once");
         Expect(result.inputObservedStoppedState, "inputContextDidUpdate should observe the Runner as stopped");
-        Expect(result.hostUpdateCount == 0, "stop during inputContextDidUpdate should skip hostUpdate");
+        Expect(result.hostUpdateCount == 1,
+               "hostUpdate should already have run before the stopping inputContextDidUpdate callback");
         Expect(result.simulationWillCount == 0 && result.simulationDidCount == 0,
                "stop during inputContextDidUpdate should skip simulation");
         Expect(result.renderCount == 0, "stop during inputContextDidUpdate should skip the render callback");
@@ -1217,7 +1347,7 @@ namespace {
                "no later stage should follow the stopping Runner callback");
         Expect(runner.state() == a3d::Runner::State::Stopped, "the Runner should remain stopped");
         Expect(stoppingUpdateIndex == 1, "the stopping callback should receive the second update index");
-        Expect(LatestFrameStats(runner).simulationStepCount == 0,
+        Expect(LatestFrameStats(runner).simulationStepsThisUpdate == 0,
                "the stopping Runner update should report zero simulation steps");
         Expect(runner.simulationStepCount() == 0,
                "stop during the Runner callback should complete no simulation step");
@@ -1259,8 +1389,17 @@ namespace {
         ExpectNear(runner.simulationTime(), 0.125, "the stopped Runner should complete the current step time");
         ExpectNear(node->physicsBody()->centerOfMass().x, 0.125,
                    "Bullet should complete the current step after stop", 1e-5);
-        Expect(LatestFrameStats(runner).simulationStepCount == 1,
+        const auto& stats = LatestFrameStats(runner);
+        Expect(stats.simulationStepsThisUpdate == 1,
                "the stopped Runner update should report its completed step");
+        Expect(stats.simulationStepCount == 1,
+               "the stopped Runner update should report its cumulative completed step");
+        ExpectNear(stats.simulationTime, 0.125,
+                   "the stopped Runner update should report completed simulation time");
+        ExpectNear(stats.discardedSimulationTime, 0.0,
+                   "the stopped Runner update should report no discarded simulation time");
+        ExpectNear(stats.totalDiscardedSimulationTime, 0.0,
+                   "the stopped Runner update should report no cumulative discarded time");
         Expect(runner.state() == a3d::Runner::State::Stopped,
                "the Runner should remain stopped after the simulation step");
         Expect(a3d::testing::RunnerTestAccess::completedRenderFrameCount(runner) == 0,
@@ -1325,39 +1464,35 @@ namespace {
             application.hostAction(callbackRunner, info);
         });
         scene.willStepCallback([&](a3d::Scene& callbackScene, const a3d::Scene::StepInfo& info) {
-            a3d::testing::ApplicationTestAccess::dispatchSceneWillStep(application, callbackScene, info);
+            a3d::testing::ApplicationTestAccess::dispatchSceneWillStep(application, runner, callbackScene,
+                                                                       info);
         });
         scene.didStepCallback([&](a3d::Scene& callbackScene, const a3d::Scene::StepInfo& info) {
-            a3d::testing::ApplicationTestAccess::dispatchSceneDidStep(application, callbackScene, info);
+            a3d::testing::ApplicationTestAccess::dispatchSceneDidStep(application, runner, callbackScene, info);
         });
         scene.visualWorld()->didBeginFrameCallback([&](a3d::VisualWorld&                   visualWorld,
                                                        const a3d::VisualWorld::RenderInfo& info) {
-            a3d::testing::ApplicationTestAccess::dispatchDidBeginFrame(application, visualWorld, info);
+            a3d::testing::ApplicationTestAccess::dispatchDidBeginFrame(application, runner, visualWorld, info);
         });
 
         a3d::testing::RunnerTestAccess::start(runner, AtMilliseconds(2000));
         Expect(a3d::testing::RunnerTestAccess::update(runner, AtMilliseconds(2100)),
                "the priming update should continue");
 
-        const std::vector<std::string_view> expectedPrimingStages {"poll", "input-update", "input-did-update",
-                                                                   "runner-update", "render"};
-        Expect(stages == expectedPrimingStages,
-               "input callbacks should follow input update and precede hostUpdate and render");
+        const std::vector<std::string_view> expectedPrimingStages {"runner-update", "poll", "input-update",
+                                                                   "input-did-update", "render"};
+        Expect(stages == expectedPrimingStages, "hostUpdate should precede input callbacks and render");
 
         stages.clear();
         Expect(a3d::testing::RunnerTestAccess::update(runner, AtMilliseconds(2225)),
                "the scheduled update should continue");
 
-        const std::vector<std::string_view> expectedScheduledStages {"poll",
-                                                                     "input-update",
-                                                                     "input-did-update",
-                                                                     "runner-update",
-                                                                     "simulation-will",
-                                                                     "physics",
-                                                                     "simulation-did",
-                                                                     "render"};
+        const std::vector<std::string_view> expectedScheduledStages {"runner-update",   "poll",
+                                                                     "input-update",    "input-did-update",
+                                                                     "simulation-will", "physics",
+                                                                     "simulation-did",  "render"};
         Expect(stages == expectedScheduledStages,
-               "input, Application, simulation, physics, and render stages should run in order");
+               "Application, input, simulation, physics, and render stages should run in order");
         Expect(inputCallbacks.size() == 2, "inputContextDidUpdate should run exactly once per Runner update");
         Expect(hostUpdates.size() == 2, "hostUpdate should run exactly once per Runner update");
         ExpectNear(inputCallbacks.back().elapsedTime, 0.225, "the second inputContextDidUpdate elapsed time");
@@ -1404,7 +1539,7 @@ namespace {
             application.hostAction(callbackRunner, info);
         });
         scene.didStepCallback([&](a3d::Scene& callbackScene, const a3d::Scene::StepInfo& info) {
-            a3d::testing::ApplicationTestAccess::dispatchSceneDidStep(application, callbackScene, info);
+            a3d::testing::ApplicationTestAccess::dispatchSceneDidStep(application, runner, callbackScene, info);
         });
 
         a3d::testing::RunnerTestAccess::start(runner, AtMilliseconds(0));
@@ -1458,7 +1593,7 @@ namespace {
         });
         scene.visualWorld()->didBeginFrameCallback([&](a3d::VisualWorld&                   visualWorld,
                                                        const a3d::VisualWorld::RenderInfo& info) {
-            a3d::testing::ApplicationTestAccess::dispatchDidBeginFrame(application, visualWorld, info);
+            a3d::testing::ApplicationTestAccess::dispatchDidBeginFrame(application, runner, visualWorld, info);
         });
 
         a3d::testing::RunnerTestAccess::start(runner, AtMilliseconds(3000));
@@ -1668,16 +1803,17 @@ namespace {
             a3d::testing::ApplicationTestAccess::dispatchHostUpdate(application, callbackRunner, info);
         });
         scene.willStepCallback([&](a3d::Scene& callbackScene, const a3d::Scene::StepInfo& info) {
-            a3d::testing::ApplicationTestAccess::dispatchSceneWillStep(application, callbackScene, info);
+            a3d::testing::ApplicationTestAccess::dispatchSceneWillStep(application, runner, callbackScene,
+                                                                       info);
         });
         scene.didStepCallback([&](a3d::Scene& callbackScene, const a3d::Scene::StepInfo& info) {
-            a3d::testing::ApplicationTestAccess::dispatchSceneDidStep(application, callbackScene, info);
+            a3d::testing::ApplicationTestAccess::dispatchSceneDidStep(application, runner, callbackScene, info);
         });
 
         Expect(a3d::testing::RunnerTestAccess::update(runner, AtMilliseconds(8225)),
                "the observed Runner update should continue");
 
-        Expect(stages.size() == 4 && stages[0] == "input-update" && stages[1] == "host"
+        Expect(stages.size() == 4 && stages[0] == "host" && stages[1] == "input-update"
                    && stages[2] == "simulation-will" && stages[3] == "simulation-did",
                "host, simulation, and internal physics should run in order");
         Expect(inputContextPtr->updateCount() == 1,
@@ -1693,7 +1829,7 @@ namespace {
         }
         ExpectNear(runner.simulationTime(), 0.125, "Runner simulation time after the callback pipeline");
         Expect(runner.simulationStepCount() == 1, "Runner step count after the callback pipeline");
-        Expect(LatestFrameStats(runner).simulationStepCount == 1,
+        Expect(LatestFrameStats(runner).simulationStepsThisUpdate == 1,
                "the callback Runner update should report one step");
     }
 
@@ -1732,16 +1868,17 @@ namespace {
             a3d::testing::ApplicationTestAccess::dispatchHostUpdate(application, callbackRunner, info);
         });
         scene.willStepCallback([&](a3d::Scene& callbackScene, const a3d::Scene::StepInfo& info) {
-            a3d::testing::ApplicationTestAccess::dispatchSceneWillStep(application, callbackScene, info);
+            a3d::testing::ApplicationTestAccess::dispatchSceneWillStep(application, runner, callbackScene,
+                                                                       info);
         });
         scene.didStepCallback([&](a3d::Scene& callbackScene, const a3d::Scene::StepInfo& info) {
-            a3d::testing::ApplicationTestAccess::dispatchSceneDidStep(application, callbackScene, info);
+            a3d::testing::ApplicationTestAccess::dispatchSceneDidStep(application, runner, callbackScene, info);
         });
 
         Expect(a3d::testing::RunnerTestAccess::update(runner, AtMilliseconds(10125)),
                "the observed neither-world Runner update should continue");
 
-        Expect(stages.size() == 4 && stages[0] == "input-update" && stages[1] == "host"
+        Expect(stages.size() == 4 && stages[0] == "host" && stages[1] == "input-update"
                    && stages[2] == "simulation-will" && stages[3] == "simulation-did",
                "Scene simulation should run without either world");
         Expect(inputContextPtr->updateCount() == 1, "input should update once without either world");
@@ -1751,7 +1888,7 @@ namespace {
         Expect(runner.simulationStepCount() == 1,
                "the neither-world Scene should complete one simulation step");
         ExpectNear(runner.simulationTime(), runner.config().timeStep, "the neither-world simulation time");
-        Expect(LatestFrameStats(runner).simulationStepCount == 1,
+        Expect(LatestFrameStats(runner).simulationStepsThisUpdate == 1,
                "the neither-world Runner update should report one step");
     }
 
@@ -1865,7 +2002,7 @@ namespace {
 
         Expect(completedStepCount == 3, "the multi-step Runner update should complete three Scene steps");
         const auto& stats = LatestFrameStats(runner);
-        Expect(stats.simulationStepCount == 3, "the multi-step Runner update should report three steps");
+        Expect(stats.simulationStepsThisUpdate == 3, "the multi-step Runner update should report three steps");
         Expect(stats.dynamicBodies == 1, "multiple physics steps should not multiply body inventory");
         Expect(stats.primitiveShapes == 1, "multiple physics steps should not multiply shape inventory");
 
@@ -1893,7 +2030,7 @@ namespace {
                "the two-step latest-inventory update should continue");
 
         const auto& stats = LatestFrameStats(runner);
-        Expect(stats.simulationStepCount == 2, "the latest-inventory update should report two steps");
+        Expect(stats.simulationStepsThisUpdate == 2, "the latest-inventory update should report two steps");
         Expect(stats.dynamicBodies == 0, "update statistics should retain the latest physics inventory");
         Expect(stats.primitiveShapes == 0, "update statistics should retain the latest shape inventory");
     }
@@ -2152,9 +2289,9 @@ namespace {
 
         Expect(a3d::testing::RunnerTestAccess::update(runner, AtMilliseconds(1000)),
                "a paused Runner update should continue");
-        Expect(stages.size() == 3 && stages[0] == "input-update" && stages[1] == "input-did-update"
-                   && stages[2] == "runner-update",
-               "paused updates should retain input callback ordering");
+        Expect(stages.size() == 3 && stages[0] == "runner-update" && stages[1] == "input-update"
+                   && stages[2] == "input-did-update",
+               "paused updates should retain host and input callback ordering");
         Expect(inputContextPtr->updateCount() == 1 && inputCallbackCount == 1 && hostUpdateCount == 1,
                "paused updates should execute both Application update callbacks once");
         Expect(simulationCount == 0, "paused updates should execute no automatic simulation");
@@ -2174,8 +2311,15 @@ namespace {
                "paused updates should commit one statistics sample");
 
         const auto& stats = LatestFrameStats(runner);
-        Expect(stats.simulationStepCount == 0, "paused statistics should report zero steps");
+        ExpectNear(stats.simulationTimeStep, 0.125,
+                   "paused statistics should retain the configured fixed delta");
+        Expect(stats.maxCatchUpSteps == 8, "paused statistics should retain the configured catch-up limit");
+        Expect(stats.simulationStepCount == 0, "paused statistics should retain the cumulative step count");
+        ExpectNear(stats.simulationTime, 0.0, "paused statistics should retain cumulative simulation time");
+        Expect(stats.simulationStepsThisUpdate == 0, "paused statistics should report zero steps");
         ExpectNear(stats.discardedSimulationTime, 0.0, "paused statistics should report no discarded time");
+        ExpectNear(stats.totalDiscardedSimulationTime, 0.0,
+                   "paused statistics should report no cumulative discarded time");
         Expect(stats.dynamicBodies == 1, "paused updates should sample current physics inventory");
         Expect(a3d::testing::RunnerTestAccess::completedRenderFrameCount(runner) == 0,
                "the headless paused fixture should complete no render frame");
@@ -2184,7 +2328,7 @@ namespace {
     void PauseClearsFixedAccumulatorWithoutDiscard() {
 
         a3d::Scene  scene;
-        a3d::Runner runner(scene, MakeSimulationConfig());
+        a3d::Runner runner(scene, MakeSimulationConfig(0.125, 1));
         std::size_t stepCount = 0;
         scene.didStepCallback([&](a3d::Scene&, const a3d::Scene::StepInfo&) {
             ++stepCount;
@@ -2193,21 +2337,29 @@ namespace {
         a3d::testing::RunnerTestAccess::start(runner, AtMicroseconds(0));
         Expect(a3d::testing::RunnerTestAccess::update(runner, AtMicroseconds(0)),
                "the priming accumulator-pause update should continue");
-        Expect(a3d::testing::RunnerTestAccess::update(runner, AtMicroseconds(62500)),
-               "the fractional accumulator update should continue");
+        Expect(a3d::testing::RunnerTestAccess::update(runner, AtMicroseconds(312500)),
+               "the overflowing fractional accumulator update should continue");
         ExpectNear(a3d::testing::RunnerTestAccess::simulationAccumulator(runner), 0.0625,
                    "the seeded fixed accumulator");
+        Expect(stepCount == 1, "the overflowing update should execute one bounded catch-up step");
+
+        const auto discardTotalBeforePause = LatestFrameStats(runner).totalDiscardedSimulationTime;
+        ExpectNear(discardTotalBeforePause, 0.125,
+                   "the overflowing update should establish cumulative discarded time");
 
         runner.pauseSimulation();
         ExpectNear(a3d::testing::RunnerTestAccess::simulationAccumulator(runner), 0.0,
                    "pause should clear the entire fixed accumulator");
-        Expect(a3d::testing::RunnerTestAccess::update(runner, AtMicroseconds(1062500)),
+        Expect(a3d::testing::RunnerTestAccess::update(runner, AtMicroseconds(1312500)),
                "the long paused accumulator update should continue");
-        Expect(stepCount == 0, "paused wall time should create no fixed step");
+        Expect(stepCount == 1, "paused wall time should create no additional fixed step");
         ExpectNear(a3d::testing::RunnerTestAccess::simulationAccumulator(runner), 0.0,
                    "paused wall time should not rebuild the accumulator");
-        ExpectNear(LatestFrameStats(runner).discardedSimulationTime, 0.0,
+        const auto& stats = LatestFrameStats(runner);
+        ExpectNear(stats.discardedSimulationTime, 0.0,
                    "clearing the accumulator for pause is not discarded simulation time");
+        ExpectNear(stats.totalDiscardedSimulationTime, discardTotalBeforePause,
+                   "clearing the accumulator for pause should not increase cumulative discarded time");
     }
 
     void PauseDuringHostUpdateSuppressesScheduling() {
@@ -2225,8 +2377,8 @@ namespace {
         std::size_t          stepCount = 0;
 
         application.hostAction = [&](a3d::Runner&, const a3d::Runner::UpdateInfo&) {
-            Expect(inputContextPtr->updateCount() == hostUpdateCount + 1,
-                   "hostUpdate controls should observe current input");
+            Expect(inputContextPtr->updateCount() == hostUpdateCount,
+                   "hostUpdate controls should precede the current input update");
             ++hostUpdateCount;
             if (pauseNow) {
                 runner.pauseSimulation();
@@ -2296,8 +2448,17 @@ namespace {
                    "pause during catch-up should advance Bullet once", 1e-5);
         ExpectNear(a3d::testing::RunnerTestAccess::simulationAccumulator(runner), 0.0,
                    "pause during catch-up should clear all accumulated demand");
-        ExpectNear(LatestFrameStats(runner).discardedSimulationTime, 0.0,
+        const auto& stats = LatestFrameStats(runner);
+        Expect(stats.simulationStepsThisUpdate == 1,
+               "pause during catch-up should report the completed current step");
+        Expect(stats.simulationStepCount == 1,
+               "pause during catch-up should report one cumulative completed step");
+        ExpectNear(stats.simulationTime, 0.125,
+                   "pause during catch-up should report completed simulation time");
+        ExpectNear(stats.discardedSimulationTime, 0.0,
                    "pause-cleared catch-up demand should not count as discarded time");
+        ExpectNear(stats.totalDiscardedSimulationTime, 0.0,
+                   "pause-cleared catch-up demand should not increase cumulative discarded time");
     }
 
     void ResumeClearsRequestsAndSuppressesOneAutomaticUpdate() {
@@ -2429,7 +2590,7 @@ namespace {
         Expect(runner.simulationPaused(), "requested steps should leave simulation paused");
         Expect(simulationSteps.size() == 3, "three requests should execute three simulation steps");
         Expect(inputContextPtr->updateCount() == 1 && hostUpdateCount == 1 && updateStages.size() == 2
-                   && updateStages[0] == "input-update" && updateStages[1] == "host",
+                   && updateStages[0] == "host" && updateStages[1] == "input-update",
                "input and hostUpdate should remain once-per-Runner-update work");
 
         for (std::size_t index = 0; index < simulationSteps.size(); ++index) {
@@ -2446,8 +2607,21 @@ namespace {
                    "requested steps should advance Bullet exactly three times", 1e-5);
         ExpectNear(a3d::testing::RunnerTestAccess::simulationAccumulator(runner), 0.0,
                    "requested steps should not use the automatic accumulator");
-        Expect(LatestFrameStats(runner).simulationStepCount == 3,
+        const auto& stats = LatestFrameStats(runner);
+        ExpectNear(stats.simulationTimeStep, 0.125,
+                   "requested-step statistics should retain the configured fixed delta");
+        Expect(stats.maxCatchUpSteps == 1,
+               "requested-step statistics should retain the automatic catch-up limit");
+        Expect(stats.simulationStepsThisUpdate == 3,
                "requested-step statistics should report actual completed steps");
+        Expect(stats.simulationStepCount == 3,
+               "requested-step statistics should report cumulative completed steps");
+        ExpectNear(stats.simulationTime, 0.375,
+                   "requested-step statistics should report cumulative simulation time");
+        ExpectNear(stats.discardedSimulationTime, 0.0,
+                   "requested steps should not report automatic discarded time");
+        ExpectNear(stats.totalDiscardedSimulationTime, 0.0,
+                   "requested steps should not increase cumulative discarded time");
         Expect(a3d::testing::RunnerTestAccess::frameStatsHistory(runner).samples().size()
                    == sampleCountBeforeRequests + 1,
                "requested steps should share one Runner-update profiling batch");
@@ -2455,6 +2629,23 @@ namespace {
                "requested-step statistics should retain current inventory");
         Expect(a3d::testing::RunnerTestAccess::completedRenderFrameCount(runner) == 0,
                "the headless requested-step update should complete no render frame");
+
+        Expect(a3d::testing::RunnerTestAccess::update(runner, AtMilliseconds(1125)),
+               "the paused no-request update should continue");
+        const auto& noRequestStats = LatestFrameStats(runner);
+        Expect(noRequestStats.simulationStepsThisUpdate == 0,
+               "a paused no-request update should report zero completed steps");
+        Expect(noRequestStats.simulationStepCount == 3,
+               "a paused no-request update should retain cumulative completed steps");
+        ExpectNear(noRequestStats.simulationTime, 0.375,
+                   "a paused no-request update should retain cumulative simulation time");
+        ExpectNear(noRequestStats.discardedSimulationTime, 0.0,
+                   "a paused no-request update should report no discarded time");
+        ExpectNear(noRequestStats.totalDiscardedSimulationTime, 0.0,
+                   "a paused no-request update should retain cumulative discarded time");
+        Expect(a3d::testing::RunnerTestAccess::frameStatsHistory(runner).samples().size()
+                   == sampleCountBeforeRequests + 2,
+               "the paused no-request update should commit its own statistics sample");
     }
 
     void RequestedStepSnapshotDefersCallbackRequests() {
@@ -2479,7 +2670,7 @@ namespace {
         Expect(a3d::testing::RunnerTestAccess::update(runner, AtMilliseconds(0)),
                "the first snapshot-request update should continue");
         Expect(steps.size() == 1, "a request created during a step should not extend its snapshot");
-        Expect(LatestFrameStats(runner).simulationStepCount == 1,
+        Expect(LatestFrameStats(runner).simulationStepsThisUpdate == 1,
                "the first snapshot statistics should report one step");
 
         Expect(a3d::testing::RunnerTestAccess::update(runner, AtMilliseconds(125)),
@@ -2517,8 +2708,17 @@ namespace {
         Expect(runner.simulationStepCount() == 1, "stop should abandon remaining requested steps");
         ExpectNear(bodyNode->physicsBody()->centerOfMass().x, 0.125,
                    "stop-interrupted requests should advance Bullet once", 1e-5);
-        Expect(LatestFrameStats(runner).simulationStepCount == 1,
+        const auto& stats = LatestFrameStats(runner);
+        Expect(stats.simulationStepsThisUpdate == 1,
                "stop-interrupted request statistics should report one step");
+        Expect(stats.simulationStepCount == 1,
+               "stop-interrupted request statistics should report one cumulative step");
+        ExpectNear(stats.simulationTime, 0.125,
+                   "stop-interrupted request statistics should report completed simulation time");
+        ExpectNear(stats.discardedSimulationTime, 0.0,
+                   "stop-interrupted requests should report no discarded simulation time");
+        ExpectNear(stats.totalDiscardedSimulationTime, 0.0,
+                   "stop-interrupted requests should not report cumulative discarded time");
         Expect(a3d::testing::RunnerTestAccess::completedRenderFrameCount(runner) == 0,
                "stop-interrupted requested steps should skip rendering");
     }
@@ -2548,7 +2748,7 @@ namespace {
                "resume during a requested step should keep the Runner alive");
         Expect(steps.size() == 1 && !runner.simulationPaused(),
                "resume should finish one requested step and abandon the remainder");
-        Expect(LatestFrameStats(runner).simulationStepCount == 1,
+        Expect(LatestFrameStats(runner).simulationStepsThisUpdate == 1,
                "resume-interrupted request statistics should report one step");
 
         runner.pauseSimulation();
@@ -2617,7 +2817,7 @@ namespace {
                  {"requested-step-resume-interruption", ResumeInterruptsRequestedStepsAndClearsRemainder},
                  {"stop-between-updates", StopBetweenUpdates},
                  {"stop-during-host-update", StopDuringHostUpdate},
-                 {"stop-during-input-callback", StopDuringInputCallbackSkipsLaterStages},
+                 {"stop-during-input-callback", StopDuringInputCallbackSkipsSimulationAndRender},
                  {"stop-during-runner-callback", StopDuringRunnerCallback},
                  {"stop-during-simulation-step", StopDuringSimulationStep},
                  {"input-callback-order", InputAndApplicationCallbacksRunInPipelineOrder},

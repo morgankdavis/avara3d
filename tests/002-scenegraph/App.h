@@ -46,7 +46,9 @@ namespace test::scenegraph {
 
         /// Runner Callbacks ///
 
-        void hostUpdate(a3d::Runner& runner, const a3d::Runner::UpdateInfo& info) override;
+        void hostUpdate(a3d::Runner&                   runner,
+                        a3d::Scene&                    scene,
+                        const a3d::Runner::UpdateInfo& info) override;
 
     private:
         /// Private Member Variables ///

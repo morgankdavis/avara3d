@@ -12,7 +12,7 @@
 
 using namespace a3d;
 using namespace a3d::math;
-using namespace test::physicssandbox;
+using namespace demo::physicssandbox;
 using namespace std;
 
 /// Private Constants ///
@@ -52,7 +52,7 @@ std::unique_ptr<Scene> App::init() {
 
         auto scene =
             make_unique<Scene>(std::move(visualWorld), std::move(physicsWorld), Window::InputContext());
-        scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
+        scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay | Scene::DebugOptions::ShowBoundingBoxes);
 
         _bananaNode = Node::MeshNode(util::filesystem::MeshNamed("banana_lod/banana_lod"));
         auto rot90X = math::quaternion({1.0f, 0.0f, 0.0f}, radians(90.0f));
@@ -83,7 +83,10 @@ void App::didShutdown() {}
 
 /// InputContext Callbacks ///
 
-void App::inputContextDidUpdate(InputContext& inputContext, const InputContext::UpdateInfo&) {
+void App::inputDidUpdate(Runner&       runner,
+                         Scene&        scene,
+                         InputContext& inputContext,
+                         const InputContext::UpdateInfo&) {
 
     auto& input = static_cast<DesktopInputContext&>(inputContext);
 
@@ -96,7 +99,7 @@ void App::inputContextDidUpdate(InputContext& inputContext, const InputContext::
 
 /// Scene Callbacks ///
 
-void App::sceneWillStep(Scene&, const Scene::StepInfo& info) {
+void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
 
     if (!_bananaNode) {
         return;

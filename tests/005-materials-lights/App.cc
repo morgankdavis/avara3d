@@ -128,10 +128,12 @@ void App::didShutdown() {}
 
 /// InputContext Callbacks ///
 
-void App::inputContextDidUpdate(InputContext& inputContext, const InputContext::UpdateInfo& info) {
+void App::inputDidUpdate(Runner&                         runner,
+                         Scene&                          scene,
+                         InputContext&                   inputContext,
+                         const InputContext::UpdateInfo& info) {
 
-    auto& scene = App::scene();
-    auto  window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
+    auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 
     // get input
 
@@ -312,7 +314,7 @@ void App::inputContextDidUpdate(InputContext& inputContext, const InputContext::
 
 /// Scene Callbacks ///
 
-void App::sceneWillStep(Scene&, const Scene::StepInfo& info) {
+void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
 
     if (!_pointLightNode) {
         return;
