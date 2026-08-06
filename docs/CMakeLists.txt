@@ -1,4 +1,4 @@
-find_package(Doxygen 1.9.5 REQUIRED COMPONENTS dot)
+find_package(Doxygen 1.9.4 REQUIRED COMPONENTS dot)
 
 set(DOXYGEN_PROJECT_NAME "Avara3D")
 set(DOXYGEN_PROJECT_NUMBER "${PROJECT_VERSION}")
