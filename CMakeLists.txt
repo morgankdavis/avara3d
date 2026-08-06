@@ -13,6 +13,7 @@ include(cmake/UtilityFunctions.cmake)
 option(A3D_BUILD_TESTS "Build A3D tests" ON)
 option(A3D_BUILD_DEMOS "Build A3D demos" ON)
 option(A3D_BUILD_EDITOR "Build A3D editor" ON)
+option(A3D_BUILD_DOCUMENTATION "Build Avara3D API documentation" OFF)
 
 # set a default build type only for single-config generators (Ninja/Makefiles)
 # (VS/Xcode ignore CMAKE_BUILD_TYPE)
@@ -66,6 +67,12 @@ set(INSTALL_ROOT_DIR "${PROJECT_BINARY_DIR}/packaged/avara3d/${PLATFORM_STRING}/
 ### add a3d library ###
 
 add_subdirectory(lib)
+
+### add documentation ###
+
+if (A3D_BUILD_DOCUMENTATION)
+	add_subdirectory(docs)
+endif()
 
 ### add editor ###
 

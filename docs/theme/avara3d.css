@@ -1,0 +1,97 @@
+/* Avara3D overrides for doxygen-awesome-css. */
+html,
+html:not(.light-mode) {
+    color-scheme: dark;
+
+    --primary-color: #a68cff;
+    --primary-dark-color: #c7b9ff;
+    --primary-light-color: #6856a8;
+    --on-primary-color: #050506;
+    --link-color: #4ba7ff;
+
+    --page-background-color: #050506;
+    --page-foreground-color: #f5f5f7;
+    --page-secondary-foreground-color: #92929d;
+    --separator-color: rgba(255, 255, 255, 0.11);
+
+    --border-radius-large: 10px;
+    --border-radius-medium: 8px;
+    --border-radius-small: 5px;
+    --box-shadow: 0 16px 44px rgba(0, 0, 0, 0.32);
+    --odd-color: rgba(255, 255, 255, 0.025);
+
+    --font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-family-monospace: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    --content-maxwidth: 1180px;
+
+    --header-background: #09090b;
+    --header-foreground: #f5f5f7;
+    --side-nav-background: #09090b;
+    --side-nav-foreground: #c8c8cf;
+    --toc-background: #09090b;
+    --toc-foreground: #c8c8cf;
+    --searchbar-background: #121216;
+    --searchbar-foreground: #f5f5f7;
+    --menu-selected-background: rgba(166, 140, 255, 0.13);
+    --menu-focus-background: #a68cff;
+    --menu-focus-foreground: #050506;
+
+    --code-background: #0d0d10;
+    --code-foreground: #f5f5f7;
+    --section-code-background: rgba(255, 255, 255, 0.045);
+    --section-code-border: rgba(255, 255, 255, 0.12);
+
+    --fragment-background: #0d0d10;
+    --fragment-foreground: #e8e8ec;
+    --fragment-keyword: #d0b7ff;
+    --fragment-keywordtype: #8fc9ff;
+    --fragment-keywordflow: #ff9fbc;
+    --fragment-token: #8ce4b9;
+    --fragment-comment: #92929d;
+    --fragment-link: #72b9ff;
+    --fragment-preprocessor: #75d8d1;
+    --fragment-linenumber-color: #92929d;
+    --fragment-linenumber-background: #09090b;
+    --fragment-linenumber-border: rgba(255, 255, 255, 0.08);
+
+    --blockquote-background: #0d0d10;
+    --blockquote-foreground: #c8c8cf;
+    --tablehead-background: #121216;
+    --tablehead-foreground: #f5f5f7;
+
+    --warning-color: #2b2514;
+    --warning-color-dark: #e2b84f;
+    --warning-color-darker: #f5df9d;
+    --note-color: #142536;
+    --note-color-dark: #4ba7ff;
+    --note-color-darker: #b7dcff;
+    --todo-color: #251c3a;
+    --todo-color-dark: #a68cff;
+    --todo-color-darker: #d8ccff;
+    --deprecated-color: #202024;
+    --deprecated-color-dark: #92929d;
+    --deprecated-color-darker: #d0d0d6;
+    --bug-color: #351a22;
+    --bug-color-dark: #ff5d86;
+    --bug-color-darker: #ffc0d0;
+    --invariant-color: #173025;
+    --invariant-color-dark: #7ce2b2;
+    --invariant-color-darker: #c4f5dc;
+}
+
+body {
+    background: var(--page-background-color);
+}
+
+#projectname {
+    font-weight: 750;
+    letter-spacing: -0.025em;
+}
+
+.memtitle,
+.memitem,
+.contents table,
+.directory,
+.fieldtable {
+    border-color: var(--separator-color);
+}

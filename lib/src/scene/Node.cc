@@ -17,7 +17,6 @@
 #include "a3d/Math.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/physics/PhysicsBody.h"
-#include "a3d/physics/shape/PhysicsShape.h"
 #include "a3d/scene/Scene.h"
 #include "a3d/visual/camera/Camera.h"
 #include "a3d/visual/light/Light.h"
@@ -514,8 +513,6 @@ weak_ptr<Node> Node::parent() const {
 
 void Node::attachedToParent(Node& parent) {
     log::t()("parent: {:p}", static_cast<void*>(&parent));
-
-    // _parent = parent; // moved to Node::addChild() to avoid needing to pass 'parent' as a shared_ptr
 
     // the only Node with a direct pointer to the Scene is the root node,
     // and attachedToParent() is never called on the root node.

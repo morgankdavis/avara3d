@@ -45,6 +45,22 @@ find_demo_directory() {
     return 1
 }
 
+find_documentation_directory() {
+    local requested
+    if [[ -n "${A3D_DOCUMENTATION_DIR:-}" ]]; then
+        requested="$(absolute_from_repo "${A3D_DOCUMENTATION_DIR}")"
+    else
+        requested="${REPO_ROOT}/build-documentation/docs/html"
+    fi
+
+    if [[ -f "${requested}/index.html" ]]; then
+        (cd -- "${requested}" && pwd -P)
+        return
+    fi
+
+    return 1
+}
+
 SERVER_PID=""
 
 cleanup() {
@@ -84,6 +100,16 @@ else
     printf '         the page will remain usable and show the missing-build state\n' >&2
 fi
 
+API_DOCUMENTATION_AVAILABLE=false
+API_DOCUMENTATION_DIRECTORY=""
+if API_DOCUMENTATION_DIRECTORY="$(find_documentation_directory)"; then
+    API_DOCUMENTATION_AVAILABLE=true
+    printf 'API documentation: %s\n' "${API_DOCUMENTATION_DIRECTORY}"
+else
+    printf 'warning: generated API documentation was not found\n' >&2
+    printf '         /api/ will show the tracked placeholder page\n' >&2
+fi
+
 GIT_COMMIT="$(git -C "${REPO_ROOT}" rev-parse --short=12 HEAD 2>/dev/null || printf 'unknown')"
 GIT_BRANCH="$(git -C "${REPO_ROOT}" rev-parse --abbrev-ref HEAD 2>/dev/null || printf 'unknown')"
 
@@ -92,14 +118,15 @@ cat > "${BUILD_INFO_FILE}" <<JSON
     "branch": "${GIT_BRANCH}",
     "commit": "${GIT_COMMIT}",
     "assembledAt": "local",
-    "demo": "${DEMO_NAME}"
+    "demo": "${DEMO_NAME}",
+    "apiDocumentation": ${API_DOCUMENTATION_AVAILABLE}
 }
 JSON
 
 printf 'Serving tracked website source at http://127.0.0.1:%s/\n' "${PORT}"
 printf 'HTML/CSS/JS changes appear on normal browser refresh. Press Ctrl+C to stop.\n\n'
 
-python3 - "${SITE_DIR}" "${PORT}" <<'PY' &
+python3 - "${SITE_DIR}" "${PORT}" "${API_DOCUMENTATION_DIRECTORY}" <<'PY' &
 from __future__ import annotations
 
 import functools
@@ -107,16 +134,32 @@ import http.server
 import mimetypes
 import socketserver
 import sys
+import urllib.parse
 from pathlib import Path
 
 site_directory = Path(sys.argv[1]).resolve()
 port = int(sys.argv[2])
+documentation_directory = Path(sys.argv[3]).resolve() if sys.argv[3] else None
 
 mimetypes.add_type("application/wasm", ".wasm")
 mimetypes.add_type("text/javascript; charset=utf-8", ".js")
 mimetypes.add_type("application/octet-stream", ".data")
 
 class NoCacheHandler(http.server.SimpleHTTPRequestHandler):
+    def translate_path(self, path: str) -> str:
+        if documentation_directory is not None:
+            request_path = urllib.parse.unquote(urllib.parse.urlsplit(path).path)
+            if request_path == "/api" or request_path.startswith("/api/"):
+                relative_path = request_path[len("/api"):].lstrip("/")
+                try:
+                    candidate = (documentation_directory / relative_path).resolve()
+                    candidate.relative_to(documentation_directory)
+                except (OSError, RuntimeError, ValueError):
+                    return str(documentation_directory / ".a3d-invalid-request")
+                return str(candidate)
+
+        return super().translate_path(path)
+
     def end_headers(self) -> None:
         self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
         self.send_header("Pragma", "no-cache")

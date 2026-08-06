@@ -130,8 +130,6 @@ linux-release:
   only:
     - testing
     - stable
-  #dependencies:
-  #  - build-linux
   script:
     - echo "Starting Linux release build..."
     - mkdir gitlab-build
@@ -161,8 +159,6 @@ macos-release:
   only:
     - testing
     - stable
-  #dependencies:
-  #  - build-macos
   script:
     - echo "Starting macOS release build..."
     - mkdir gitlab-build
@@ -191,8 +187,6 @@ windows-release:
   only:
     - testing
     - stable
-  #dependencies:
-  #  - build-windows
   script:
     - echo "Starting Windows release build..."
     - mkdir gitlab-build
@@ -266,13 +260,11 @@ linux-release-manual:
     - /usr/bin/cmake --build . --target install -j4
     - mv packaged/avara3d ../
     - cd ../
-    #- tar -czf avara3d-linux-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}.tgz avara3d
     - echo "Linux release build complete."
   artifacts:
     name: "avara3d-linux-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
     expose_as: "linux-release"
     paths:
-      #- avara3d-linux-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}.tgz
       - avara3d
     expire_in: 2 days
 
@@ -360,14 +352,44 @@ web-release-manual:
       - avara3d-web-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}.tgz
     expire_in: 2 days
 
+documentation:
+    stage: build
+    tags:
+        - ubuntu-23
+    script:
+        - echo "Starting API documentation build..."
+        - rm -rf gitlab-build-documentation
+        - /usr/bin/cmake
+            -S .
+            -B gitlab-build-documentation
+            -G Ninja
+            -DCMAKE_BUILD_TYPE=Release
+            -DA3D_BUILD_DOCUMENTATION=ON
+            -DA3D_BUILD_EDITOR=OFF
+            -DA3D_BUILD_TESTS=OFF
+            -DA3D_BUILD_DEMOS=OFF
+        - /usr/bin/cmake
+            --build gitlab-build-documentation
+            --target a3d-docs
+        - test -f gitlab-build-documentation/docs/html/index.html
+        - test -f gitlab-build-documentation/docs/html/doxygen-awesome.css
+        - test -f gitlab-build-documentation/docs/html/avara3d.css
+        - echo "API documentation build complete."
+    artifacts:
+        name: "avara3d-api-documentation-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
+        expose_as: "api-documentation"
+        paths:
+            - gitlab-build-documentation/docs/html/
+        expire_in: 1 week
+
 .website-publish:
   stage: deploy
   tags:
     - ubuntu-23
-  # This job does not depend on the normal smoke builds and can be
-  # started immediately from the pipeline UI.
-  needs: []
-  # Never allow two website deployments to run simultaneously.
+  needs:
+    - job: documentation
+      artifacts: true
+  # never allow two website deployments to run simultaneously.
   resource_group: avara3d-website-deployment
   script:
     - |
@@ -407,6 +429,8 @@ web-release-manual:
       echo "Assembling website bundle..."
       A3D_WEB_BUILD_DIR=gitlab-build-website \
       A3D_REQUIRE_WEB_DEMO=1 \
+      A3D_DOCUMENTATION_DIR=gitlab-build-documentation/docs/html \
+      A3D_REQUIRE_DOCUMENTATION=1 \
       A3D_WEBSITE_OUTPUT_DIR=build-website \
           ./tools/website/assemble.sh
       echo
@@ -420,6 +444,9 @@ web-release-manual:
       test -f build-website/source/App.h
       test -f build-website/source/App.cc
       test -f build-website/build-info.json
+      test -f build-website/api/index.html
+      test -f build-website/api/doxygen-awesome.css
+      test -f build-website/api/avara3d.css
       du -sh build-website
       echo
       echo "Checking deployment destination..."
@@ -454,7 +481,8 @@ web-release-manual:
           "${A3D_DEPLOY_USER}@${A3D_DEPLOY_HOST}" \
           "test -f '${A3D_DEPLOY_PATH}/index.html' &&
            test -f '${A3D_DEPLOY_PATH}/demo/001-physics-sandbox.js' &&
-           test -f '${A3D_DEPLOY_PATH}/demo/001-physics-sandbox.wasm'"
+           test -f '${A3D_DEPLOY_PATH}/demo/001-physics-sandbox.wasm' &&
+           test -f '${A3D_DEPLOY_PATH}/api/index.html'"
       echo
       echo "Website deployment completed successfully."
   artifacts:
@@ -501,7 +529,7 @@ website-publish-production:
           artifacts: true
         - job: windows-release
           artifacts: true
-    # Serialize downloads deployments so two pipelines cannot replace
+    # serialize downloads deployments so two pipelines cannot replace
     # a channel at the same time.
     resource_group: avara3d-downloads-deployment
     script:
