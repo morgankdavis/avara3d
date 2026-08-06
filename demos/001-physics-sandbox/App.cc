@@ -52,7 +52,7 @@ std::unique_ptr<Scene> App::init() {
 
         auto scene =
             make_unique<Scene>(std::move(visualWorld), std::move(physicsWorld), Window::InputContext());
-        scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
+        scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay | Scene::DebugOptions::ShowBoundingBoxes);
 
         _bananaNode = Node::MeshNode(util::filesystem::MeshNamed("banana_lod/banana_lod"));
         auto rot90X = math::quaternion({1.0f, 0.0f, 0.0f}, radians(90.0f));
