@@ -472,7 +472,7 @@ website-publish-staging:
     name: staging
     url: https://staging.avara3d.net/
   rules:
-    - if: '$CI_COMMIT_BRANCH == "website"'
+    - if: '$CI_COMMIT_BRANCH'
       when: manual
       allow_failure: true
     - when: never
@@ -485,7 +485,7 @@ website-publish-production:
     name: production
     url: https://avara3d.net/
   rules:
-    - if: '$CI_COMMIT_BRANCH == "website"'
+    - if: '$CI_COMMIT_BRANCH == "testing" || $CI_COMMIT_BRANCH == "stable"'
       when: manual
       allow_failure: true
     - when: never
