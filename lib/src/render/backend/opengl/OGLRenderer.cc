@@ -1436,6 +1436,7 @@ void DrawStats(FrameStats&              stats,
 
     //ShowMetricsWindow();
 
+    static const float TOP_PADDING = 32.0f;
     static const float X_POS = 12.0;
     static const float COLUMN_WIDTH = 130.0f;
     static const float FIXED_STEP_TEXT_WIDTH = 300.0f;
@@ -1531,7 +1532,7 @@ void DrawStats(FrameStats&              stats,
 
     ImguiStatsTextLayout layout {.xLeft = X_POS, .xRight = X_POS + COLUMN_WIDTH, .gap = 12.0f};
 
-    yPos += 48;
+    yPos += TOP_PADDING;
     auto rateValue = std::format("{:.0f}fps", fpsAvg);
     ImguiDrawLabelValue(yPos, layout, "", rateValue, bodyFont, STATS_BODY_FONT_SIZE, 15);
     auto frameValue = std::format("{:.1f}ms", frameMsFAvg);
@@ -1540,22 +1541,8 @@ void DrawStats(FrameStats&              stats,
                   static_cast<int>(frameSamples.size()), 0, nullptr, nullptr, 0.0f, PLOT_Y_MIN, PLOT_Y_MAX, 0,
                   PLOT_OUTLINED, ++id, PLOT_HEIGHT_1 + PLOT_STR_Y_PAD, false);
 
-    // ImguiStatsTextLayout fixedStepLayout = layout;
-    // fixedStepLayout.xRight = X_POS + FIXED_STEP_TEXT_WIDTH;
-    // ImguiDrawLabelValue(yPos, fixedStepLayout, "time step",
-    //                     std::format("{:.0f}Hz / {:.1f}ms", 1.0 / stats.simulationTimeStep,
-    //                                 stats.simulationTimeStep * 1000.0),
-    //                     bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
-    // ImguiDrawLabelValue(yPos, fixedStepLayout, "timestep",
-    //                     std::format("{:.1f}ms/{:.0f}Hz", stats.simulationTimeStep * 1000.0,
-    //                                 1.0 / stats.simulationTimeStep),
-    //                     bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
     ImguiDrawLabelValue(yPos, layout, "time step", std::format("{:.0f}Hz", 1.0 / stats.simulationTimeStep),
                         bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
-
-    // auto simulationTimeValue = std::format("{}/{:.2f}s", stats.simulationStepCount, stats.simulationTime);
-    // ImguiDrawLabelValue(yPos, layout, "steps/time", simulationTimeValue, bodyFont,
-    //                     STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
 
     ImguiDrawLabelValue(yPos, layout, "step #", std::format("{}", stats.simulationStepCount), bodyFont,
                         STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
@@ -1563,9 +1550,6 @@ void DrawStats(FrameStats&              stats,
     ImguiDrawLabelValue(yPos, layout, "sim time", std::format("{:.2f}s", stats.simulationTime), bodyFont,
                         STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
 
-    auto discardedSimulationTimeValue = std::format("{:.1f}ms", stats.totalDiscardedSimulationTime * 1000.0);
-    // ImguiDrawLabelValue(yPos, layout, "discarded", discardedSimulationTimeValue, bodyFont,
-    //                     STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
     const auto discardedValueColor =
         stats.totalDiscardedSimulationTime > 0.0 ? IM_COL32(255, 48, 48, 255) : IM_COL32(255, 255, 255, 255);
 
@@ -1574,23 +1558,11 @@ void DrawStats(FrameStats&              stats,
                         STATS_BODY_FONT_SIZE, STAT_LINE_STEP, IM_COL32(255, 255, 255, 255),
                         discardedValueColor);
 
-    // auto simulationStepsValue =
-    //     std::format("{} / cap {}", stats.simulationStepsThisUpdate, stats.maxCatchUpSteps);
-    // ImguiDrawLabelValue(yPos, fixedStepLayout, "steps/update", simulationStepsValue, bodyFont,
-    //                     STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
-
-    ImguiDrawLabelValue(yPos, layout, "steps/update", "", bodyFont,
-                    STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+    ImguiDrawLabelValue(yPos, layout, "steps/update", "", bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
     ImguiDrawSimulationPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, simulationStepSamples.data(),
                             simulationDiscardMarkers.data(), static_cast<int>(simulationStepSamples.size()),
                             std::max(1.0f, static_cast<float>(stats.maxCatchUpSteps)), ++id,
                             PLOT_HEIGHT_2 + PLOT_STR_Y_PAD);
-
-    // auto discardedSimulationTimeValue =
-    //     std::format("{:.1f}ms / total {:.1f}ms", stats.discardedSimulationTime * 1000.0,
-    //                 stats.totalDiscardedSimulationTime * 1000.0);
-    // ImguiDrawLabelValue(yPos, fixedStepLayout, "discarded", discardedSimulationTimeValue, bodyFont,
-    //                     STATS_BODY_FONT_SIZE, STAT_LINE_STEP)
 
     auto engineCpuValue = std::format("{:.1f}ms", engineCpuMsFAvg);
     ImguiDrawLabelValue(yPos, layout, "engine cpu", engineCpuValue, bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
@@ -1640,7 +1612,7 @@ void DrawStats(FrameStats&              stats,
     ImguiDrawLabelValue(yPos, bulkLayout, "lights", std::format("{}", stats.lights), bodyFont,
                         STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
 
-    yPos += STAT_LINE_STEP;
+    yPos += STAT_LINE_STEP/2.0f;
 
     ImguiDrawLabelValue(yPos, bulkLayout, "phys bodies",
                         std::format("{}", stats.dynamicBodies + stats.kinematicBodies + stats.staticBodies),
@@ -1652,7 +1624,7 @@ void DrawStats(FrameStats&              stats,
     ImguiDrawLabelValueIndented(yPos, bulkLayout, "kinematic", std::format("{}", stats.kinematicBodies),
                                 bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
 
-    yPos += STAT_LINE_STEP;
+    yPos += STAT_LINE_STEP/2.0f;
 
     ImguiDrawLabelValue(yPos, bulkLayout, "phys shapes",
                         std::format("{}", stats.primitiveShapes + stats.concavePolyhedronShapes
@@ -1668,7 +1640,7 @@ void DrawStats(FrameStats&              stats,
                                 bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
 
     if (context.recordingGIF()) {
-        yPos += STAT_LINE_STEP;
+        yPos += STAT_LINE_STEP/2.0f;
         ImguiDrawLabelValue(yPos, bulkLayout, "RECORDING", std::format("{:.0f}s", context.recordedGIFTime()),
                             bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
     }
