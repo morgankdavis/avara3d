@@ -1,7 +1,6 @@
 stages:
-  - build
-  # https://hatchjs.com/gitlab-ci-artifacts-paths/
-  #- archive
+    - build
+    - deploy
 
 variables:
   EMSDK_ROOT: "/home/gitlab/.emsdk-6.0.3"
@@ -128,7 +127,6 @@ linux-release:
   stage: build
   tags:
     - ubuntu-23
-  environment: production
   only:
     - testing
     - stable
@@ -160,7 +158,6 @@ macos-release:
   stage: build
   tags:
     - macos-15
-  environment: production
   only:
     - testing
     - stable
@@ -191,7 +188,6 @@ windows-release:
   stage: build
   tags:
     - windows-10
-  environment: production
   only:
     - testing
     - stable
@@ -221,7 +217,6 @@ web-release:
   stage: build
   tags:
     - ubuntu-23
-  environment: production
   only:
     - testing
     - stable
@@ -255,7 +250,6 @@ linux-release-manual:
   stage: build
   tags:
     - ubuntu-23
-  environment: production
   when: manual
   script:
     - echo "Starting Linux release build..."
@@ -286,7 +280,6 @@ macos-release-manual:
   stage: build
   tags:
     - macos-15
-  environment: production
   when: manual
   script:
     - echo "Starting macOS release build..."
@@ -312,7 +305,6 @@ windows-release-manual:
   stage: build
   tags:
     - windows-10
-  environment: production
   when: manual
   script:
     - echo "Starting Windows release build..."
@@ -338,7 +330,6 @@ web-release-manual:
   stage: build
   tags:
     - ubuntu-23
-  environment: production
   when: manual
   script:
     - echo "Starting Web release build..."
@@ -368,3 +359,301 @@ web-release-manual:
     paths:
       - avara3d-web-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}.tgz
     expire_in: 2 days
+
+.website-publish:
+  stage: deploy
+  tags:
+    - ubuntu-23
+  # This job does not depend on the normal smoke builds and can be
+  # started immediately from the pipeline UI.
+  needs: []
+  # Never allow two website deployments to run simultaneously.
+  resource_group: avara3d-website-deployment
+  script:
+    - |
+      set -euo pipefail
+      echo "Preparing website deployment..."
+      echo "Branch: ${CI_COMMIT_BRANCH}"
+      echo "Commit: ${CI_COMMIT_SHORT_SHA}"
+      echo "Environment: ${CI_ENVIRONMENT_NAME}"
+      : "${A3D_DEPLOY_HOST:?A3D_DEPLOY_HOST is not set}"
+      : "${A3D_DEPLOY_USER:?A3D_DEPLOY_USER is not set}"
+      : "${A3D_DEPLOY_PATH:?A3D_DEPLOY_PATH is not set}"
+      test -f "${SSH_PRIVATE_KEY}"
+      test -f "${SSH_KNOWN_HOSTS}"
+      chmod 600 "${SSH_PRIVATE_KEY}"
+      chmod 644 "${SSH_KNOWN_HOSTS}"
+      echo
+      echo "Building fresh WebAssembly release..."
+      source "${EMSDK_ROOT}/emsdk_env.sh"
+      emcc --version
+      rm -rf gitlab-build-website build-website
+      emcmake /usr/bin/cmake \
+          -S . \
+          -B gitlab-build-website \
+          -G Ninja \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DA3D_BUILD_EDITOR=OFF \
+          -DA3D_BUILD_TESTS=OFF \
+          -DA3D_BUILD_DEMOS=ON \
+          -DA3D_WEB_GENERATE_HTML=OFF \
+          -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}" \
+          -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
+      /usr/bin/cmake \
+          --build gitlab-build-website \
+          --target install \
+          -j4
+      echo
+      echo "Assembling website bundle..."
+      A3D_WEB_BUILD_DIR=gitlab-build-website \
+      A3D_REQUIRE_WEB_DEMO=1 \
+      A3D_WEBSITE_OUTPUT_DIR=build-website \
+          ./tools/website/assemble.sh
+      echo
+      echo "Verifying website bundle..."
+      test -f build-website/index.html
+      test -f build-website/assets/css/site.css
+      test -f build-website/demo/001-physics-sandbox.js
+      test -f build-website/demo/001-physics-sandbox.wasm
+      test -f build-website/demo/001-physics-sandbox.data
+      test -f build-website/source/main.cc
+      test -f build-website/source/App.h
+      test -f build-website/source/App.cc
+      test -f build-website/build-info.json
+      du -sh build-website
+      echo
+      echo "Checking deployment destination..."
+      ssh \
+          -i "${SSH_PRIVATE_KEY}" \
+          -o IdentitiesOnly=yes \
+          -o StrictHostKeyChecking=yes \
+          -o UserKnownHostsFile="${SSH_KNOWN_HOSTS}" \
+          "${A3D_DEPLOY_USER}@${A3D_DEPLOY_HOST}" \
+          "test -d '${A3D_DEPLOY_PATH}' &&
+           test -w '${A3D_DEPLOY_PATH}'"
+      echo
+      echo "Publishing website to ${CI_ENVIRONMENT_NAME}..."
+      export RSYNC_RSH="ssh -i ${SSH_PRIVATE_KEY} -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=${SSH_KNOWN_HOSTS}"
+      rsync \
+          -rltvz \
+          --delete \
+          --omit-dir-times \
+          --exclude='.well-known/' \
+          --exclude='downloads/' \
+          --itemize-changes \
+          --rsync-path="umask 0002 && rsync" \
+          build-website/ \
+          "${A3D_DEPLOY_USER}@${A3D_DEPLOY_HOST}:${A3D_DEPLOY_PATH}/"
+      echo
+      echo "Verifying deployed files..."
+      ssh \
+          -i "${SSH_PRIVATE_KEY}" \
+          -o IdentitiesOnly=yes \
+          -o StrictHostKeyChecking=yes \
+          -o UserKnownHostsFile="${SSH_KNOWN_HOSTS}" \
+          "${A3D_DEPLOY_USER}@${A3D_DEPLOY_HOST}" \
+          "test -f '${A3D_DEPLOY_PATH}/index.html' &&
+           test -f '${A3D_DEPLOY_PATH}/demo/001-physics-sandbox.js' &&
+           test -f '${A3D_DEPLOY_PATH}/demo/001-physics-sandbox.wasm'"
+      echo
+      echo "Website deployment completed successfully."
+  artifacts:
+    name: "avara3d-website-${CI_JOB_NAME}-${CI_PIPELINE_IID}"
+    expose_as: "assembled-website"
+    paths:
+      - build-website/
+    expire_in: 1 week
+
+website-publish-staging:
+  extends: .website-publish
+  variables:
+    A3D_DEPLOY_PATH: /var/www/staging.avara3d.net/html
+  environment:
+    name: staging
+    url: https://staging.avara3d.net/
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "website"'
+      when: manual
+      allow_failure: true
+    - when: never
+
+website-publish-production:
+  extends: .website-publish
+  variables:
+    A3D_DEPLOY_PATH: /var/www/avara3d.net/html
+  environment:
+    name: production
+    url: https://avara3d.net/
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "website"'
+      when: manual
+      allow_failure: true
+    - when: never
+
+.website-downloads-publish:
+    stage: deploy
+    tags:
+        - ubuntu-23
+    needs:
+        - job: linux-release
+          artifacts: true
+        - job: macos-release
+          artifacts: true
+        - job: windows-release
+          artifacts: true
+    # Serialize downloads deployments so two pipelines cannot replace
+    # a channel at the same time.
+    resource_group: avara3d-downloads-deployment
+    script:
+        - |
+            set -euo pipefail
+            echo "Preparing downloads deployment..."
+            echo "Channel: ${A3D_DOWNLOAD_CHANNEL}"
+            echo "Destination: ${A3D_DOWNLOAD_DESTINATION}"
+            echo "Commit: ${CI_COMMIT_SHORT_SHA}"
+            echo "Pipeline: ${CI_PIPELINE_IID}"
+            : "${A3D_DOWNLOAD_CHANNEL:?A3D_DOWNLOAD_CHANNEL is not set}"
+            : "${A3D_DOWNLOAD_DESTINATION:?A3D_DOWNLOAD_DESTINATION is not set}"
+            : "${A3D_DEPLOY_HOST:?A3D_DEPLOY_HOST is not set}"
+            : "${A3D_DEPLOY_USER:?A3D_DEPLOY_USER is not set}"
+            : "${A3D_DEPLOY_PATH:?A3D_DEPLOY_PATH is not set}"
+            case "${A3D_DOWNLOAD_CHANNEL}" in
+                stable|testing)
+                    ;;
+                *)
+                    echo "Invalid download channel: ${A3D_DOWNLOAD_CHANNEL}" >&2
+                    exit 1
+                    ;;
+            esac
+            case "${A3D_DOWNLOAD_DESTINATION}" in
+                staging|production)
+                    ;;
+                *)
+                    echo "Invalid download destination: ${A3D_DOWNLOAD_DESTINATION}" >&2
+                    exit 1
+                    ;;
+            esac
+            test -f "${SSH_PRIVATE_KEY}"
+            test -f "${SSH_KNOWN_HOSTS}"
+            chmod 600 "${SSH_PRIVATE_KEY}"
+            chmod 644 "${SSH_KNOWN_HOSTS}"
+            echo
+            echo "Verifying downloaded build artifacts..."
+            test -d avara3d/linux/release
+            test -d avara3d/macos/release
+            test -d avara3d/windows/release
+            echo
+            echo "Assembling public downloads bundle..."
+            A3D_DOWNLOAD_OUTPUT_DIR=build-downloads \
+                ./tools/website/assemble-downloads.sh
+            linux_package="build-downloads/avara3d-linux-x86_64-${A3D_DOWNLOAD_CHANNEL}-${CI_PIPELINE_IID}.tar.gz"
+            macos_package="build-downloads/avara3d-macos-universal-${A3D_DOWNLOAD_CHANNEL}-${CI_PIPELINE_IID}.zip"
+            windows_package="build-downloads/avara3d-windows-x86_64-${A3D_DOWNLOAD_CHANNEL}-${CI_PIPELINE_IID}.zip"
+            test -f "${linux_package}"
+            test -f "${macos_package}"
+            test -f "${windows_package}"
+            test -f build-downloads/manifest.json
+            test -f build-downloads/SHA256SUMS
+            test "$(wc -l < build-downloads/SHA256SUMS)" -eq 3
+            python3 -m json.tool \
+                build-downloads/manifest.json \
+                >/dev/null
+            echo
+            echo "Downloads bundle:"
+            ls -lh build-downloads
+            remote_channel_dir="${A3D_DEPLOY_PATH}/downloads/${A3D_DOWNLOAD_CHANNEL}"
+            echo
+            echo "Checking remote channel directory..."
+            ssh \
+                -i "${SSH_PRIVATE_KEY}" \
+                -o IdentitiesOnly=yes \
+                -o StrictHostKeyChecking=yes \
+                -o UserKnownHostsFile="${SSH_KNOWN_HOSTS}" \
+                "${A3D_DEPLOY_USER}@${A3D_DEPLOY_HOST}" \
+                "test -d '${remote_channel_dir}' &&
+                 test -w '${remote_channel_dir}'"
+            echo
+            echo "Publishing ${A3D_DOWNLOAD_CHANNEL} downloads to ${A3D_DOWNLOAD_DESTINATION}..."
+            export RSYNC_RSH="ssh -i ${SSH_PRIVATE_KEY} -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=${SSH_KNOWN_HOSTS}"
+            rsync \
+                -rltvz \
+                --delete \
+                --omit-dir-times \
+                --itemize-changes \
+                --rsync-path="umask 0002 && rsync" \
+                build-downloads/ \
+                "${A3D_DEPLOY_USER}@${A3D_DEPLOY_HOST}:${remote_channel_dir}/"
+            echo
+            echo "Verifying deployed packages and checksums..."
+            ssh \
+                -i "${SSH_PRIVATE_KEY}" \
+                -o IdentitiesOnly=yes \
+                -o StrictHostKeyChecking=yes \
+                -o UserKnownHostsFile="${SSH_KNOWN_HOSTS}" \
+                "${A3D_DEPLOY_USER}@${A3D_DEPLOY_HOST}" \
+                "cd '${remote_channel_dir}' &&
+                 test -f manifest.json &&
+                 test -f SHA256SUMS &&
+                 sha256sum -c SHA256SUMS"
+            echo
+            echo "Downloads deployment completed successfully."
+
+website-downloads-publish-stable-staging:
+    extends: .website-downloads-publish
+    variables:
+        A3D_DOWNLOAD_CHANNEL: stable
+        A3D_DOWNLOAD_DESTINATION: staging
+        A3D_DEPLOY_PATH: /var/www/staging.avara3d.net/html
+    environment:
+        name: downloads/stable/staging
+        url: https://staging.avara3d.net/downloads.html
+    rules:
+        - if: '$CI_COMMIT_BRANCH == "stable"'
+          when: manual
+          allow_failure: true
+        - when: never
+
+website-downloads-publish-testing-staging:
+    extends: .website-downloads-publish
+    variables:
+        A3D_DOWNLOAD_CHANNEL: testing
+        A3D_DOWNLOAD_DESTINATION: staging
+        A3D_DEPLOY_PATH: /var/www/staging.avara3d.net/html
+    environment:
+        name: downloads/testing/staging
+        url: https://staging.avara3d.net/downloads.html
+    rules:
+        - if: '$CI_COMMIT_BRANCH == "testing"'
+          when: manual
+          allow_failure: true
+        - when: never
+
+website-downloads-publish-stable-production:
+    extends: .website-downloads-publish
+    variables:
+        A3D_DOWNLOAD_CHANNEL: stable
+        A3D_DOWNLOAD_DESTINATION: production
+        A3D_DEPLOY_PATH: /var/www/avara3d.net/html
+    environment:
+        name: downloads/stable/production
+        url: https://avara3d.net/downloads.html
+    rules:
+        - if: '$CI_COMMIT_BRANCH == "stable"'
+          when: manual
+          allow_failure: true
+        - when: never
+
+website-downloads-publish-testing-production:
+    extends: .website-downloads-publish
+    variables:
+        A3D_DOWNLOAD_CHANNEL: testing
+        A3D_DOWNLOAD_DESTINATION: production
+        A3D_DEPLOY_PATH: /var/www/avara3d.net/html
+    environment:
+        name: downloads/testing/production
+        url: https://avara3d.net/downloads.html
+    rules:
+        - if: '$CI_COMMIT_BRANCH == "testing"'
+          when: manual
+          allow_failure: true
+        - when: never
