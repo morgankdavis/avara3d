@@ -489,3 +489,141 @@ website-publish-production:
       when: manual
       allow_failure: true
     - when: never
+
+.website-downloads-publish:
+    stage: deploy
+
+    tags:
+        - ubuntu-23
+
+    needs:
+        - job: linux-release
+          artifacts: true
+
+        - job: macos-release
+          artifacts: true
+
+        - job: windows-release
+          artifacts: true
+
+    # Serialize downloads deployments so two pipelines cannot replace
+    # a channel at the same time.
+    resource_group: avara3d-downloads-deployment
+
+    script:
+        - |
+            set -euo pipefail
+
+            echo "Preparing downloads deployment..."
+            echo "Channel: ${A3D_DOWNLOAD_CHANNEL}"
+            echo "Destination: ${A3D_DOWNLOAD_DESTINATION}"
+            echo "Commit: ${CI_COMMIT_SHORT_SHA}"
+            echo "Pipeline: ${CI_PIPELINE_IID}"
+
+            : "${A3D_DOWNLOAD_CHANNEL:?A3D_DOWNLOAD_CHANNEL is not set}"
+            : "${A3D_DOWNLOAD_DESTINATION:?A3D_DOWNLOAD_DESTINATION is not set}"
+            : "${A3D_DEPLOY_HOST:?A3D_DEPLOY_HOST is not set}"
+            : "${A3D_DEPLOY_USER:?A3D_DEPLOY_USER is not set}"
+            : "${A3D_DEPLOY_PATH:?A3D_DEPLOY_PATH is not set}"
+
+            case "${A3D_DOWNLOAD_CHANNEL}" in
+                stable|testing)
+                    ;;
+                *)
+                    echo "Invalid download channel: ${A3D_DOWNLOAD_CHANNEL}" >&2
+                    exit 1
+                    ;;
+            esac
+
+            case "${A3D_DOWNLOAD_DESTINATION}" in
+                staging|production)
+                    ;;
+                *)
+                    echo "Invalid download destination: ${A3D_DOWNLOAD_DESTINATION}" >&2
+                    exit 1
+                    ;;
+            esac
+
+            test -f "${SSH_PRIVATE_KEY}"
+            test -f "${SSH_KNOWN_HOSTS}"
+
+            chmod 600 "${SSH_PRIVATE_KEY}"
+            chmod 644 "${SSH_KNOWN_HOSTS}"
+
+            echo
+            echo "Verifying downloaded build artifacts..."
+
+            test -d avara3d/linux/release
+            test -d avara3d/macos/release
+            test -d avara3d/windows/release
+
+            echo
+            echo "Assembling public downloads bundle..."
+
+            A3D_DOWNLOAD_OUTPUT_DIR=build-downloads \
+                ./tools/website/assemble-downloads.sh
+
+            linux_package="build-downloads/avara3d-linux-x86_64-${A3D_DOWNLOAD_CHANNEL}-${CI_PIPELINE_IID}.tar.gz"
+            macos_package="build-downloads/avara3d-macos-universal-${A3D_DOWNLOAD_CHANNEL}-${CI_PIPELINE_IID}.zip"
+            windows_package="build-downloads/avara3d-windows-x86_64-${A3D_DOWNLOAD_CHANNEL}-${CI_PIPELINE_IID}.zip"
+
+            test -f "${linux_package}"
+            test -f "${macos_package}"
+            test -f "${windows_package}"
+            test -f build-downloads/manifest.json
+            test -f build-downloads/SHA256SUMS
+
+            test "$(wc -l < build-downloads/SHA256SUMS)" -eq 3
+
+            python3 -m json.tool \
+                build-downloads/manifest.json \
+                >/dev/null
+
+            echo
+            echo "Downloads bundle:"
+            ls -lh build-downloads
+
+            remote_channel_dir="${A3D_DEPLOY_PATH}/downloads/${A3D_DOWNLOAD_CHANNEL}"
+
+            echo
+            echo "Checking remote channel directory..."
+
+            ssh \
+                -i "${SSH_PRIVATE_KEY}" \
+                -o IdentitiesOnly=yes \
+                -o StrictHostKeyChecking=yes \
+                -o UserKnownHostsFile="${SSH_KNOWN_HOSTS}" \
+                "${A3D_DEPLOY_USER}@${A3D_DEPLOY_HOST}" \
+                "test -d '${remote_channel_dir}' &&
+                 test -w '${remote_channel_dir}'"
+
+            echo
+            echo "Publishing ${A3D_DOWNLOAD_CHANNEL} downloads to ${A3D_DOWNLOAD_DESTINATION}..."
+
+            export RSYNC_RSH="ssh -i ${SSH_PRIVATE_KEY} -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=${SSH_KNOWN_HOSTS}"
+
+            rsync \
+                -rltvz \
+                --delete \
+                --omit-dir-times \
+                --itemize-changes \
+                --rsync-path="umask 0002 && rsync" \
+                build-downloads/ \
+                "${A3D_DEPLOY_USER}@${A3D_DEPLOY_HOST}:${remote_channel_dir}/"
+
+            echo
+            echo "Verifying deployed packages and checksums..."
+
+            ssh \
+                -i "${SSH_PRIVATE_KEY}" \
+                -o IdentitiesOnly=yes \
+                -o StrictHostKeyChecking=yes \
+                -o UserKnownHostsFile="${SSH_KNOWN_HOSTS}" \
+                "${A3D_DEPLOY_USER}@${A3D_DEPLOY_HOST}" \
+                "cd '${remote_channel_dir}' &&
+                 test -f manifest.json &&
+                 test -f SHA256SUMS &&
+                 sha256sum -c SHA256SUMS"
+
+            echo
+            echo "Downloads deployment completed successfully."
