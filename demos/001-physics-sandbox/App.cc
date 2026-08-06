@@ -82,8 +82,6 @@ bool App::shouldContinue(const Scene& scene) {
     return _window->isOpen();
 }
 
-void App::didShutdown() {}
-
 /// InputContext Callbacks ///
 
 void App::inputDidUpdate(Runner&       runner,

@@ -6,8 +6,8 @@
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_DEMO_QUADROTOR_APP_H
-#define AVARA3D_DEMO_QUADROTOR_APP_H
+#ifndef AVARA3D_DEMO_PHYSICSSANDBOX_APP_H
+#define AVARA3D_DEMO_PHYSICSSANDBOX_APP_H
 
 #include <memory>
 
@@ -43,7 +43,6 @@ namespace demo::physicssandbox {
         std::unique_ptr<a3d::Scene> init() override;
         a3d::SimulationConfig       simulationConfig() const override;
         bool                        shouldContinue(const a3d::Scene& scene) override;
-        void                        didShutdown() override;
 
         /// InputContext Callbacks ///
 
@@ -65,4 +64,4 @@ namespace demo::physicssandbox {
 
 }
 
-#endif // AVARA3D_DEMO_QUADROTOR_APP_H
+#endif // AVARA3D_DEMO_PHYSICSSANDBOX_APP_H
