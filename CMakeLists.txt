@@ -13,7 +13,7 @@ include(cmake/UtilityFunctions.cmake)
 option(A3D_BUILD_TESTS "Build A3D tests" ON)
 option(A3D_BUILD_DEMOS "Build A3D demos" ON)
 option(A3D_BUILD_EDITOR "Build A3D editor" ON)
-option(A3D_BUILD_DOCUMENTATION "Build Avara3D API documentation" OFF)
+option(A3D_BUILD_DOCUMENTATION "Build Avara3D API documentation" ON)
 
 # set a default build type only for single-config generators (Ninja/Makefiles)
 # (VS/Xcode ignore CMAKE_BUILD_TYPE)
