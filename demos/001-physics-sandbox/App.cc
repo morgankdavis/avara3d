@@ -25,8 +25,11 @@ const RenderContext::AntialiasingMode ANTIALIAS_MODE {RenderContext::Antialiasin
 const bool                            ENABLE_VSYNC {false};
 const bool                            CAPTURE_CURSOR {false};
 const float                           MOUSE_SENSITIVITY {0.5};
-const double                          TIMESTEP {1.0 / 120.0};
-const bool                            DARK {false};
+#if defined(A3D_WEB)
+const float TIMESTEP {1.0 / 60.0};
+#else
+const float TIMESTEP {1.0 / 120.0};
+#endif
 
 /// Public Lifecycle Functions ///
 
