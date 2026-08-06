@@ -13,28 +13,29 @@
 
 namespace a3d {
 
-	class SpherePhysicsShape : public PhysicsShape {
+    class SpherePhysicsShape : public PhysicsShape {
 
-	public:
-		/// Public Lifecycle Functions ///
+    public:
+        /// Public Lifecycle Functions ///
 
-		explicit SpherePhysicsShape(float radius);
+        explicit SpherePhysicsShape(float radius);
 
-		/// Public Member Functions ///
+        /// Public Member Functions ///
 
-		float 					radius() const;
-		void					radius(float radius);
+        float radius() const;
+        void  radius(float radius);
 
-		/// PhysicsShape Public Member Functions ///
+        /// PhysicsShape Public Member Functions ///
 
-		Type					type() const override;
-		void					type(Type type) override;
+        Type  type() const override;
+        void  type(Type type) override;
 
-	private:
-		/// Private Member Variables ///
+    private:
+        /// Private Member Variables ///
 
-		float 					_radius;
-	};
+        float _radius;
+    };
+
 }
 
 #endif //AVARA3D_PHYSICS_SHAPE_PRIMITIVE_SPHEREPHYSICSSHAPE_H

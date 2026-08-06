@@ -15,29 +15,30 @@
 
 namespace a3d {
 
-	class StdOutLogSink : public LogSink {
+    class StdOutLogSink : public LogSink {
 
-	public:
-	/// Public Lifecycle Functions ///
+    public:
+    /// Public Lifecycle Functions ///
 
-		StdOutLogSink();
+        StdOutLogSink();
 
-		StdOutLogSink(const StdOutLogSink&) = delete;
-		StdOutLogSink& operator=(const StdOutLogSink&) = delete;
+        StdOutLogSink(const StdOutLogSink&)            = delete;
+        StdOutLogSink& operator=(const StdOutLogSink&) = delete;
 
-		StdOutLogSink(StdOutLogSink&&) = delete;
-		StdOutLogSink& operator=(StdOutLogSink&&) = delete;
+        StdOutLogSink(StdOutLogSink&&)            = delete;
+        StdOutLogSink& operator=(StdOutLogSink&&) = delete;
 
-		~StdOutLogSink() override;
+        ~StdOutLogSink() override;
 
-	/// Public Member Functions ///
+    /// Public Member Functions ///
 
-		void 	flush() override;
+        void flush() override;
 
-	/// Public LogSink Member Functions ///
+    /// Public LogSink Member Functions ///
 
-		void 	write(const std::string& output, Log::Level level) override;
-	};
+        void write(const std::string& output, Log::Level level) override;
+    };
+
 }
 
 #endif //AVARA3D_LOG_SINK_STDOUTLOGSINK_H

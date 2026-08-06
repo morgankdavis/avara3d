@@ -18,60 +18,61 @@
 
 namespace a3d {
 
-	class Color;
+    class Color;
 
-	class SpotLight : public Light {
+    class SpotLight : public Light {
 
-	public:
-		/// Public Types ///
+    public:
+        /// Public Types ///
 
-		enum class FeatheringMode : uint8_t {
-			Linear =	0,
-			Sharp = 	1, // y = x(2-x)
-			Soft = 		2 // y = x^2
-		};
+        enum class FeatheringMode : uint8_t {
+            Linear = 0,
+            Sharp  = 1, // y = x(2-x)
+            Soft   = 2 // y = x^2
+        };
 
-		/// Public Lifecycle Functions ///
+        /// Public Lifecycle Functions ///
 
-		SpotLight();
-		explicit SpotLight(const std::string& name);
-		explicit SpotLight(const std::shared_ptr<Color>& color);
-		SpotLight(const std::string& name, const std::shared_ptr<Color>& color);
+        SpotLight();
+        explicit SpotLight(const std::string& name);
+        explicit SpotLight(const std::shared_ptr<Color>& color);
+        SpotLight(const std::string& name, const std::shared_ptr<Color>& color);
 
-		SpotLight(const SpotLight&) = default;
-		SpotLight& operator=(const SpotLight&) = default;
+        SpotLight(const SpotLight&)            = default;
+        SpotLight& operator=(const SpotLight&) = default;
 
-		SpotLight(SpotLight&&) noexcept = default;
-		SpotLight& operator=(SpotLight&&) noexcept = default;
+        SpotLight(SpotLight&&) noexcept            = default;
+        SpotLight& operator=(SpotLight&&) noexcept = default;
 
-	public:
-		/// Public Member Functions ///
+    public:
+        /// Public Member Functions ///
 
-		float					innerAngle() const;
-		void					innerAngle(float angle);
+        float              innerAngle() const;
+        void               innerAngle(float angle);
 
-		float					outerAngle() const;
-		void					outerAngle(float angle);
+        float              outerAngle() const;
+        void               outerAngle(float angle);
 
-		FeatheringMode			featheringMode() const;
-		void					featheringMode(FeatheringMode mode);
+        FeatheringMode     featheringMode() const;
+        void               featheringMode(FeatheringMode mode);
 
-		const Attenuation&		attenuation() const;
-		void					attenuation(const Attenuation& attenuation);
+        const Attenuation& attenuation() const;
+        void               attenuation(const Attenuation& attenuation);
 
-		/// Internal Member Functions ///
+        /// Internal Member Functions ///
 
-		float					innerAngleCos() const;
-		float					outerAngleCos() const;
+        float              innerAngleCos() const;
+        float              outerAngleCos() const;
 
-	private:
-		/// Private Member Variables ///
+    private:
+        /// Private Member Variables ///
 
-		float					_innerAngleCos;
-		float					_outerAngleCos;
-		FeatheringMode			_featherMode;
-		Attenuation 			_attenuation;
-	};
+        float          _innerAngleCos;
+        float          _outerAngleCos;
+        FeatheringMode _featherMode;
+        Attenuation    _attenuation;
+    };
+
 }
 
 #endif //AVARA3D_VISUAL_LIGHT_SPOTLIGHT_H */

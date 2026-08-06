@@ -18,30 +18,26 @@ using namespace std;
 /// Internal Lifecycle Functions ///
 
 Point::Point(const vec3& location):
-	Point{location, Color{1.0f}} {
-	
-}
+    Point {location, Color {1.0f}} {}
 
 Point::Point(const vec3& location, const Color& color):
-	_location{location},
-	_color{color} {
-	
-}
+    _location {location},
+    _color {color} {}
 
 /// Internal Member Functions ///
 
 const vec3& Point::location() const {
-	return _location;
+    return _location;
 }
 
 void Point::location(const vec3& point) {
-	_location = point;
+    _location = point;
 }
 
 const Color& Point::color() const {
-	return _color;
+    return _color;
 }
 
 void Point::color(const Color& color) {
-	_color = color;
+    _color = color;
 }

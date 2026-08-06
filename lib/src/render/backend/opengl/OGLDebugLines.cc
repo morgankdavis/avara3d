@@ -13,66 +13,66 @@
 using namespace a3d;
 
 void OGLDebugLines::ensureBuffers() {
-	if (vao && vbo) return;
+    if (vao && vbo) {
+        return;
+    }
 
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
 
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-	// position (location 0)
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(
-			0, 3, GL_FLOAT, GL_FALSE,
-			sizeof(DebugLineVertex),
-			(void*)offsetof(DebugLineVertex, pos)
-	);
+    // position (location 0)
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(DebugLineVertex),
+                          (void*) offsetof(DebugLineVertex, pos));
 
-	// color (location 1)
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(
-			1, 3, GL_FLOAT, GL_FALSE,
-			sizeof(DebugLineVertex),
-			(void*)offsetof(DebugLineVertex, color)
-	);
+    // color (location 1)
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(DebugLineVertex),
+                          (void*) offsetof(DebugLineVertex, color));
 
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void OGLDebugLines::upload(const std::vector<Line>& lines) {
-	ensureBuffers();
+    ensureBuffers();
 
-	cpuVerts.clear();
-	cpuVerts.reserve(lines.size() * 2);
+    cpuVerts.clear();
+    cpuVerts.reserve(lines.size() * 2);
 
-	for (const Line& l : lines) {
-		cpuVerts.push_back({l.fromLocation(), l.fromColor().rgb()});
-		cpuVerts.push_back({l.toLocation(), l.toColor().rgb()});
-	}
+    for (const Line& l : lines) {
+        cpuVerts.push_back({l.fromLocation(), l.fromColor().rgb()});
+        cpuVerts.push_back({l.toLocation(), l.toColor().rgb()});
+    }
 
-	vertexCount = (gl::sizei_t)cpuVerts.size();
+    vertexCount = (gl::sizei_t) cpuVerts.size();
 
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-	const size_t bytes = cpuVerts.size() * sizeof(DebugLineVertex);
+    const size_t bytes = cpuVerts.size() * sizeof(DebugLineVertex);
 
-	// orphan
-	glBufferData(GL_ARRAY_BUFFER, bytes, nullptr, GL_STREAM_DRAW);
-	// upload
-	if (bytes) {
-		glBufferSubData(GL_ARRAY_BUFFER, 0, bytes, cpuVerts.data());
-	}
+    // orphan
+    glBufferData(GL_ARRAY_BUFFER, bytes, nullptr, GL_STREAM_DRAW);
+    // upload
+    if (bytes) {
+        glBufferSubData(GL_ARRAY_BUFFER, 0, bytes, cpuVerts.data());
+    }
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void OGLDebugLines::destroy() {
-	if (vbo) glDeleteBuffers(1, &vbo);
-	if (vao) glDeleteVertexArrays(1, &vao);
-	vbo = 0;
-	vao = 0;
-	vertexCount = 0;
-	cpuVerts.clear();
+    if (vbo) {
+        glDeleteBuffers(1, &vbo);
+    }
+    if (vao) {
+        glDeleteVertexArrays(1, &vao);
+    }
+    vbo = 0;
+    vao = 0;
+    vertexCount = 0;
+    cpuVerts.clear();
 }

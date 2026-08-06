@@ -12,113 +12,98 @@
 #include <functional>
 #include <memory>
 #include <optional>
+#include <vector>
 
+#include "a3d/Math.h"
+#include "a3d/physics/PhysicsInventory.h"
 #include "a3d/scene/Scene.h"
 
 namespace a3d {
 
-	struct FrameStats;
+    class HitTestResult;
+    class Line;
+    class PhysicsBody;
+    class PhysicsContact;
+    class PhysicsShape;
+    class PhysicsWorldProxy;
+    class Profiler;
 
-	class HitTestResult;
-	class Line;
-	class PhysicsBody;
-	class PhysicsContact;
-	class PhysicsShape;
-	class PhysicsWorldProxy;
-	class Profiler;
+    class PhysicsWorld {
 
-	class PhysicsWorld {
+    public:
+        /// Public Types ///
 
-	public:
-		/// Public Types ///
+        using BeginContactCallback = std::function<void(PhysicsWorld& physicsWorld, PhysicsContact& contact)>;
+        using ContinueContactCallback =
+            std::function<void(PhysicsWorld& physicsWorld, PhysicsContact& contact)>;
+        using EndContactCallback = std::function<void(PhysicsWorld& physicsWorld, PhysicsContact& contact)>;
 
-		using DidSimulateCallback = 	std::function<void(PhysicsWorld& world, double time, double deltaTime)>;
-		using BeginContactCallback = 	std::function<void(PhysicsWorld& world, PhysicsContact& contact)>;
-		using ContinueContactCallback =	std::function<void(PhysicsWorld& world, PhysicsContact& contact)>;
-		using EndContactCallback = 		std::function<void(PhysicsWorld& world, PhysicsContact& contact)>;
+        /// Public Lifecycle Functions ///
 
-		/// Public Lifecycle Functions ///
+        PhysicsWorld();
 
-		PhysicsWorld();
+        PhysicsWorld(const PhysicsWorld&)            = delete;
+        PhysicsWorld& operator=(const PhysicsWorld&) = delete;
 
-		PhysicsWorld(const PhysicsWorld&) = delete;
-		PhysicsWorld& operator=(const PhysicsWorld&) = delete;
+        PhysicsWorld(PhysicsWorld&&)            = delete;
+        PhysicsWorld& operator=(PhysicsWorld&&) = delete;
 
-		PhysicsWorld(PhysicsWorld&&) = delete;
-		PhysicsWorld& operator=(PhysicsWorld&&) = delete;
+        ~PhysicsWorld();
 
-		~PhysicsWorld();
+        /// Public Member Functions ///
 
-		/// Public Member Functions ///
+        const math::vec3&             gravity() const;
+        void                          gravity(const math::vec3& gravity);
 
-		const math::vec3&					gravity() const;
-		void 								gravity(const math::vec3& gravity);
+        std::optional<PhysicsContact> contactTest(const PhysicsBody& bodyA, const PhysicsBody& bodyB);
+        std::optional<PhysicsContact> contactTest(const PhysicsBody& body);
+        std::optional<HitTestResult>  rayTest(const math::vec3& fromVec, const math::vec3& toVec);
+        std::optional<PhysicsContact> convexSweepTest(const PhysicsContact& contact,
+                                                      const math::mat4&     fromMat,
+                                                      const math::mat4&     toMat);
 
-		float								speed() const;
-		void 								speed(float speed);
+        void                          updateCollisionPairs();
 
-		float 								timestep() const;
-		void 								timestep(float timestep);
+        Scene*                        scene() const;
 
-		std::optional<PhysicsContact>		contactTest(const PhysicsBody& bodyA,
-														 const PhysicsBody& bodyB);
-		std::optional<PhysicsContact> 		contactTest(const PhysicsBody& body);
-		std::optional<HitTestResult> 		rayTest(const math::vec3& fromVec,
-													const math::vec3& toVec);
-		std::optional<PhysicsContact> 		convexSweepTest(const PhysicsContact& contact,
-															 const math::mat4& fromMat,
-															 const math::mat4& toMat);
+        BeginContactCallback          beginContactCallback() const;
+        void                          beginContactCallback(BeginContactCallback function);
 
-		void 								updateCollisionPairs();
+        ContinueContactCallback       continueContactCallback() const;
+        void                          continueContactCallback(ContinueContactCallback function);
 
-		Scene*								scene() const;
+        EndContactCallback            endContactCallback() const;
+        void                          endContactCallback(EndContactCallback function);
 
-		// TODO: willSimulateCallback ?
+        /// Internal Member Functions ///
 
-		DidSimulateCallback					didSimulateCallback() const;
-		void								didSimulateCallback(DidSimulateCallback function);
+        void                          attachedToScene(Scene& scene);
+        void                          detachedFromScene(Scene& scene);
 
-		BeginContactCallback 				beginContactCallback() const;
-		void 								beginContactCallback(PhysicsWorld::BeginContactCallback function);
+        void                          add(PhysicsBody& body);
+        void                          remove(PhysicsBody& body);
 
-		ContinueContactCallback				continueContactCallback() const;
-		void 								continueContactCallback(PhysicsWorld::ContinueContactCallback function);
+        bool                          acceptsStepDelta(double deltaTime) const;
 
-		EndContactCallback 					endContactCallback() const;
-		void 								endContactCallback(PhysicsWorld::EndContactCallback function);
+        PhysicsInventory              step(double deltaTime, Profiler& profiler);
 
-		/// Internal Member Functions ///
+        PhysicsInventory              inventory() const;
 
-		void								attachedToScene(Scene& scene);
-		void								detachedFromScene(Scene& scene);
+        void               appendDebugLines(std::vector<Line>& out, Scene::DebugOptions debugOptions) const;
 
-		void 								add(PhysicsBody& body);
-		void 								remove(PhysicsBody& body);
+        PhysicsWorldProxy* proxy() const;
 
-		void								step(const Scene& scene,
-												 double runT,
-												 double deltaRunT,
-												 FrameStats& stats,
-												 Profiler& profiler);
+    private:
+        /// Private Member Variables ///
 
-		void 								appendDebugLines(std::vector<Line>& out,
-															 Scene::DebugOptions debugOptions) const;
+        math::vec3                         _gravity;
+        std::unique_ptr<PhysicsWorldProxy> _proxy;
+        Scene*                             _scene;
+        BeginContactCallback               _beginContactCallback;
+        ContinueContactCallback            _continueContactCallback;
+        EndContactCallback                 _endContactCallback;
+    };
 
-		PhysicsWorldProxy*					proxy() const;
-
-	private:
-		/// Private Member Variables ///
-
-		math::vec3 								_gravity;
-		float 									_speed;
-		float 									_timestep;
-		std::unique_ptr<PhysicsWorldProxy>		_proxy;
-		Scene*									_scene;
-		DidSimulateCallback						_didSimulateCallback;
-		BeginContactCallback					_beginContactCallback;
-		ContinueContactCallback					_continueContactCallback;
-		EndContactCallback						_endContactCallback;
-	};
 }
 
 #endif /* AVARA3D_PHYSICS_PHYSICSWORLD_H */

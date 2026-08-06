@@ -22,7 +22,7 @@ class GameViewController: NSViewController, SCNSceneRendererDelegate {
         
         // create a new scene
         let scene = SCNScene(named: "art.scnassets/ship.scn")!
-		//scene.physicalWorld.speed = 0.25
+		//scene.physicsWorld.speed = 0.25
         
         // create and add a camera to the scene
         let cameraNode = SCNNode()

@@ -23,145 +23,143 @@ using namespace std;
 /// Public Lifecycle Functions ///
 
 PhysicsShape::PhysicsShape(Type type, const shared_ptr<Mesh>& mesh):
-		_type{type},
-		_proxy{},
-		_source{mesh},
-		_bodies{} {
+    _type {type},
+    _proxy {},
+    _source {mesh},
+    _bodies {} {
 
-	if (auto name = mesh->name()) {
-		log::d()("Creating PhysicsShape type {} for source mesh: {}...",
-				  magic_enum::enum_name(type), *name);
-	}
-	else {
-		log::d()("Creating PhysicsShape type {} for source mesh: {:p}...",
-				  magic_enum::enum_name(type), static_cast<void *>(mesh.get()));
-	}
+    if (auto name = mesh->name()) {
+        log::d()("Creating PhysicsShape type {} for source mesh: {}...", magic_enum::enum_name(type), *name);
+    }
+    else {
+        log::d()("Creating PhysicsShape type {} for source mesh: {:p}...", magic_enum::enum_name(type),
+                 static_cast<void*>(mesh.get()));
+    }
 }
 
 // construct a compound shape based on meshes under this node
 PhysicsShape::PhysicsShape(Type type, const shared_ptr<Node>& node):
-		_type{type},
-		_proxy{},
-		_source{node},
-		_bodies{} {
+    _type {type},
+    _proxy {},
+    _source {node},
+    _bodies {} {
 
-	if (auto name = node->name()) {
-		log::d()("Creating PhysicsShape type {} for source node: {}...",
-				  magic_enum::enum_name(type), *name);
-	}
-	else {
-		log::d()("Creating PhysicsShape type {} for source node: {:p}...",
-				  magic_enum::enum_name(type), static_cast<void *>(node.get()));
-	}
+    if (auto name = node->name()) {
+        log::d()("Creating PhysicsShape type {} for source node: {}...", magic_enum::enum_name(type), *name);
+    }
+    else {
+        log::d()("Creating PhysicsShape type {} for source node: {:p}...", magic_enum::enum_name(type),
+                 static_cast<void*>(node.get()));
+    }
 }
 
 PhysicsShape::PhysicsShape():
-		_type{Type::Primitive},
-		_proxy{},
-		_source{},
-		_bodies{} {}
+    _type {Type::Primitive},
+    _proxy {},
+    _source {},
+    _bodies {} {}
 
 PhysicsShape::~PhysicsShape() {
-	log::d()("Destroying PhysicsShape {:p}", static_cast<void*>(this));
+    log::d()("Destroying PhysicsShape {:p}", static_cast<void*>(this));
 }
 
 /// Public Member Functions ///
 
 PhysicsShape::Source PhysicsShape::source() const {
-	return _source;
+    return _source;
 }
 
 PhysicsShape::Type PhysicsShape::type() const {
-	return _type;
+    return _type;
 }
 
 void PhysicsShape::type(Type type) {
-	log::t()("type: {}", magic_enum::enum_name(type));
+    log::t()("type: {}", magic_enum::enum_name(type));
 
-	if (_type == type) {
-		return;
-	}
+    if (_type == type) {
+        return;
+    }
 
-	for (auto* body : _bodies) {
-		body->shapeWillUpdate();
-	}
+    for (auto* body : _bodies) {
+        body->shapeWillUpdate();
+    }
 
-	const auto previousType = _type;
-	_type = type;
+    const auto previousType = _type;
+    _type = type;
 
-	try {
-		std::unique_ptr<PhysicsShapeProxy> replacementProxy;
+    try {
+        std::unique_ptr<PhysicsShapeProxy> replacementProxy;
 
-		if (!_bodies.empty()) {
-			replacementProxy = make_unique<BulletShapeProxy>(*this);
-		}
+        if (!_bodies.empty()) {
+            replacementProxy = make_unique<BulletShapeProxy>(*this);
+        }
 
-		_proxy = std::move(replacementProxy);
-	}
-	catch (...) {
-		_type = previousType;
+        _proxy = std::move(replacementProxy);
+    }
+    catch (...) {
+        _type = previousType;
 
-		for (auto* body : _bodies) {
-			body->shapeDidUpdate();
-		}
+        for (auto* body : _bodies) {
+            body->shapeDidUpdate();
+        }
 
-		throw;
-	}
+        throw;
+    }
 
-	for (auto* body : _bodies) {
-		body->shapeDidUpdate();
-	}
+    for (auto* body : _bodies) {
+        body->shapeDidUpdate();
+    }
 }
 
 /// Internal Member Functions ///
 
 void PhysicsShape::attachedToBody(PhysicsBody& body) {
-	log::t()("body: {:p}", static_cast<void*>(&body));
+    log::t()("body: {:p}", static_cast<void*>(&body));
 
-	if (!_bodies.count(&body)) {
-		_bodies.insert(&body);
+    if (!_bodies.count(&body)) {
+        _bodies.insert(&body);
 
-		checkCreateProxy();
-	}
+        checkCreateProxy();
+    }
 }
 
 void PhysicsShape::detachedFromBody(PhysicsBody& body) {
-	log::t()("body: {:p}", static_cast<void*>(&body));
+    log::t()("body: {:p}", static_cast<void*>(&body));
 
-	_bodies.erase(&body);
+    _bodies.erase(&body);
 }
 
-void PhysicsShape::physicalWorldReachable(PhysicsWorld& world) {
-	log::t()("world: {:p}", static_cast<void*>(&world));
+void PhysicsShape::physicsWorldReachable(PhysicsWorld& world) {
+    log::t()("world: {:p}", static_cast<void*>(&world));
 
-	checkCreateProxy();
+    checkCreateProxy();
 }
 
-void PhysicsShape::physicalWorldUnreachable(PhysicsWorld& world) {
-	log::t()("world: {:p}", static_cast<void*>(&world));
+void PhysicsShape::physicsWorldUnreachable(PhysicsWorld& world) {
+    log::t()("world: {:p}", static_cast<void*>(&world));
 }
 
 void PhysicsShape::source(const Source& sourceObject) {
 
-	_source = sourceObject;
+    _source = sourceObject;
 }
 
 void PhysicsShape::checkCreateProxy() {
-	log::t();
+    log::t();
 
-	if (!_proxy) {
-		_proxy = make_unique<BulletShapeProxy>(*this);
+    if (!_proxy) {
+        _proxy = make_unique<BulletShapeProxy>(*this);
 
-		for (auto body : _bodies) {
-			body->shapeDidUpdate();
-		}
-	}
+        for (auto body : _bodies) {
+            body->shapeDidUpdate();
+        }
+    }
 }
 
 const unordered_set<PhysicsBody*>& PhysicsShape::bodies() const {
-	return _bodies;
+    return _bodies;
 }
 
 PhysicsShapeProxy* PhysicsShape::proxy() const {
-	return _proxy.get();
+    return _proxy.get();
 }

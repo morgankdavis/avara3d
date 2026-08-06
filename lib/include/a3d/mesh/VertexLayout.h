@@ -13,21 +13,22 @@
 
 namespace a3d {
 
-	/// Internal Types ///
+    /// Internal Types ///
 
-	using VertexLayoutKey = uint32_t;
+    using VertexLayoutKey = uint32_t;
 
-	enum class VertexLayout : uint32_t {
-		None = 	0,
-		PNT = 	1, // Position/Normal/UV0
-		PC = 	2  // Position/Color
-		// PNTT - Position/Normal/UV0/Tangent
-		// PNTC - Position/Normal/UV0/Color
-		// PNT2 - Position/Normal/UV0/UV1
-		// SkinnedPNT - joints + weights
-		// InstancedPNT - per-instance transform stream
-		// MorphPNT - multiple position/normal deltas
-	};
+    enum class VertexLayout : uint32_t {
+        None = 0,
+        PNT  = 1, // Position/Normal/UV0
+        PC   = 2  // Position/Color
+        // PNTT - Position/Normal/UV0/Tangent
+        // PNTC - Position/Normal/UV0/Color
+        // PNT2 - Position/Normal/UV0/UV1
+        // SkinnedPNT - joints + weights
+        // InstancedPNT - per-instance transform stream
+        // MorphPNT - multiple position/normal deltas
+    };
+
 }
 
 #endif //AVARA3D_MESH_VERTEXLAYOUT_H

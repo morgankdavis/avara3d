@@ -15,41 +15,40 @@ using namespace std;
 /// Public Lifecycle Functions ///
 
 PhysicsContact::PhysicsContact():
-		_nodeA{},
-		_nodeB{},
-		_contactPoint{0.0f},
-		_contactNormal{0.0f},
-		_collisionImpulse{0.0f},
-		_penetrationDistance{0.0f},
-		_sweepTestFraction{0.0f} {
-}
+    _nodeA {},
+    _nodeB {},
+    _contactPoint {0.0f},
+    _contactNormal {0.0f},
+    _collisionImpulse {0.0f},
+    _penetrationDistance {0.0f},
+    _sweepTestFraction {0.0f} {}
 
 /// Public Member Functions ///
 
 weak_ptr<Node> PhysicsContact::nodeA() const {
-	return _nodeA;
+    return _nodeA;
 }
 
 weak_ptr<Node> PhysicsContact::nodeB() const {
-	return _nodeB;
+    return _nodeB;
 }
 
 const vec3& PhysicsContact::contactPoint() const {
-	return _contactPoint;
+    return _contactPoint;
 }
 
 const vec3& PhysicsContact::contactNormal() const {
-	return _contactNormal;
+    return _contactNormal;
 }
 
 float PhysicsContact::collisionImpulse() const {
-	return _collisionImpulse;
+    return _collisionImpulse;
 }
 
 float PhysicsContact::penetrationDistance() const {
-	return _penetrationDistance;
+    return _penetrationDistance;
 }
 
 float PhysicsContact::sweepTestFraction() const {
-	return _sweepTestFraction;
+    return _sweepTestFraction;
 }

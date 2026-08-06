@@ -19,61 +19,59 @@ using namespace std;
 /// Public Lifecycle Functions ///
 
 Texture::Texture():
-		_id{IdGenerator<TextureId>::next()},
-		_sampler{nullptr},
-		_contents{monostate{}},
-		_mappingChannel{0},
-		_dirtyMask{DirtyMask::All} {}
+    _id {IdGenerator<TextureId>::next()},
+    _sampler {nullptr},
+    _contents {monostate {}},
+    _mappingChannel {0},
+    _dirtyMask {DirtyMask::All} {}
 
-Texture::Texture(const Contents& contents,
-				 const shared_ptr<Sampler>& sampler,
-				 unsigned mappingChannel):
-		Texture() {
-	_sampler = sampler;
-	_contents = contents;
-	_mappingChannel = mappingChannel;
+Texture::Texture(const Contents& contents, const shared_ptr<Sampler>& sampler, unsigned mappingChannel):
+    Texture() {
+    _sampler = sampler;
+    _contents = contents;
+    _mappingChannel = mappingChannel;
 }
 
 Texture::Texture(const Texture& other):
-		Texture() {
+    Texture() {
 
-	*this = other;
+    *this = other;
 }
 
 Texture& Texture::operator=(const Texture& other) {
 
-	if (this == &other) {
-		return *this;
-	}
+    if (this == &other) {
+        return *this;
+    }
 
-	_sampler = other._sampler;
-	_contents = other._contents;
-	_mappingChannel = other._mappingChannel;
-	_dirtyMask = DirtyMask::All;
+    _sampler = other._sampler;
+    _contents = other._contents;
+    _mappingChannel = other._mappingChannel;
+    _dirtyMask = DirtyMask::All;
 
-	return *this;
+    return *this;
 }
 
 Texture::Texture(Texture&& other) noexcept:
-		Texture() {
+    Texture() {
 
-	*this = std::move(other);
+    *this = std::move(other);
 }
 
 Texture& Texture::operator=(Texture&& other) noexcept {
 
-	if (this == &other) {
-		return *this;
-	}
+    if (this == &other) {
+        return *this;
+    }
 
-	_sampler = std::move(other._sampler);
-	_contents = std::move(other._contents);
-	_mappingChannel = other._mappingChannel;
-	_dirtyMask = DirtyMask::All;
+    _sampler = std::move(other._sampler);
+    _contents = std::move(other._contents);
+    _mappingChannel = other._mappingChannel;
+    _dirtyMask = DirtyMask::All;
 
-	other._dirtyMask = DirtyMask::All;
+    other._dirtyMask = DirtyMask::All;
 
-	return *this;
+    return *this;
 }
 
 Texture::~Texture() {}
@@ -81,41 +79,41 @@ Texture::~Texture() {}
 /// Public Member Functions ///
 
 shared_ptr<Sampler> Texture::sampler() const {
-	return _sampler;
+    return _sampler;
 }
 
 void Texture::sampler(const shared_ptr<Sampler>& sampler) {
-	_sampler = sampler;
-	_dirtyMask = util::bitmask::add(_dirtyMask, DirtyMask::Sampler);
+    _sampler = sampler;
+    _dirtyMask = util::bitmask::add(_dirtyMask, DirtyMask::Sampler);
 }
 
 const Texture::Contents& Texture::contents() const {
-	return _contents;
+    return _contents;
 }
 
 void Texture::contents(const Contents& contents) {
-	_contents = contents;
-	_dirtyMask = util::bitmask::add(_dirtyMask, DirtyMask::Contents);
+    _contents = contents;
+    _dirtyMask = util::bitmask::add(_dirtyMask, DirtyMask::Contents);
 }
 
 unsigned Texture::mappingChannel() const {
-	return _mappingChannel;
+    return _mappingChannel;
 }
 
 void Texture::mappingChannel(unsigned channel) {
-	_mappingChannel = channel;
+    _mappingChannel = channel;
 }
 
 /// Internal Member Functions ///
 
 TextureId Texture::id() const noexcept {
-	return _id;
+    return _id;
 }
 
 Texture::DirtyMask Texture::dirtyMask() const {
-	return _dirtyMask;
+    return _dirtyMask;
 }
 
 void Texture::dirtyMask(DirtyMask mask) {
-	_dirtyMask = mask;
+    _dirtyMask = mask;
 }

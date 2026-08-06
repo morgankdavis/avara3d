@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Native and WebAssembly Avara3D build targets.">
+    <title>Downloads — Avara3D</title>
+    <link rel="stylesheet" href="assets/css/site.css">
+    <script src="assets/js/site.js" defer></script>
+    <script src="assets/js/downloads.js" defer></script>
+</head>
+<body>
+<div class="site-shell">
+    <header class="site-header">
+        <div class="site-width header-inner">
+            <a class="site-brand" href="index.html" aria-label="Avara3D home">
+                <img class="site-logo" src="assets/images/avara3d-logo-white.svg" alt="Avara3D">
+            </a>
+            <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-navigation" data-nav-toggle>
+                <span class="sr-only">Toggle navigation</span><span></span><span></span>
+            </button>
+            <nav class="site-nav" id="site-navigation" aria-label="Primary navigation" data-nav>
+                <a href="architecture.html">Architecture</a>
+                <a href="source.html">Demo source</a>
+                <a href="api/">API</a>
+                <a href="downloads.html" aria-current="page">Downloads</a>
+                <a class="external-link" href="http://gitlab.mkd.net/a3d/avara3d">GitLab <span aria-hidden="true">↗</span></a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="site-width inner-page downloads-page">
+        <header class="page-hero">
+            <p class="eyebrow"><span></span> Build targets</p>
+            <h1>The browser demo is one target, not a separate implementation.</h1>
+            <p>Avara3D builds the same engine and application model for WebAssembly and the three primary desktop platforms.</p>
+        </header>
+
+<!--        <section class="download-panel" aria-labelledby="download-heading">-->
+<!--            <div class="download-panel-heading">-->
+<!--                <div>-->
+<!--                    <p class="section-kicker">Latest stable packages</p>-->
+<!--                    <h2 id="download-heading">Native builds</h2>-->
+<!--                </div>-->
+<!--                <p data-build-summary>Development build</p>-->
+<!--            </div>-->
+
+<!--            <div class="download-list">-->
+<!--                <article>-->
+<!--                    <div class="platform-mark">LNX</div>-->
+<!--                    <div><h3>Linux</h3><p>x86-64 · Release</p></div>-->
+<!--                    <span class="download-status">Artifact link pending</span>-->
+<!--                </article>-->
+<!--                <article>-->
+<!--                    <div class="platform-mark">MAC</div>-->
+<!--                    <div><h3>macOS</h3><p>Universal · Release</p></div>-->
+<!--                    <span class="download-status">Artifact link pending</span>-->
+<!--                </article>-->
+<!--                <article>-->
+<!--                    <div class="platform-mark">WIN</div>-->
+<!--                    <div><h3>Windows</h3><p>x86-64 · Release</p></div>-->
+<!--                    <span class="download-status">Artifact link pending</span>-->
+<!--                </article>-->
+<!--                <article>-->
+<!--                    <div class="platform-mark">WEB</div>-->
+<!--                    <div><h3>WebAssembly</h3><p>WebGL 2 · Release</p></div>-->
+<!--                    <a href="index.html#live-demo">Run in browser <span aria-hidden="true">→</span></a>-->
+<!--                </article>-->
+<!--            </div>-->
+<!--        </section>-->
+
+<!--        <section class="download-notes">-->
+<!--            <article>-->
+<!--                <p class="section-kicker">Current first-cut behavior</p>-->
+<!--                <h2>Website packaging is already separated from deployment.</h2>-->
+<!--                <p>The assembly script produces one self-contained directory containing the tracked site, WebAssembly demo output, and displayed source files. CI can expose that directory as an artifact; deployment remains a manual copy to the web server.</p>-->
+<!--            </article>-->
+<!--            <article>-->
+<!--                <p class="section-kicker">Before public launch</p>-->
+<!--                <h2>Native links need durable release assets.</h2>-->
+<!--                <p>The final page will point to non-expiring Linux, macOS, and Windows packages and identify the commit and pipeline that produced them.</p>-->
+<!--            </article>-->
+<!--        </section>-->
+        <section class="download-panel"
+                 aria-labelledby="stable-download-heading"
+                 data-download-channel="stable">
+            <div class="download-panel-heading">
+                <div>
+                    <p class="section-kicker">Stable channel</p>
+                    <h2 id="stable-download-heading">Stable native builds</h2>
+                </div>
+                <p data-download-summary>Checking published packages…</p>
+            </div>
+
+            <div class="download-list">
+                <article data-download-platform="linux">
+                    <div class="platform-mark">LNX</div>
+                    <div>
+                        <h3>Linux</h3>
+                        <p>x86-64 · Release</p>
+                    </div>
+                    <a class="download-status"
+                       data-download-link
+                       aria-disabled="true">Checking…</a>
+                </article>
+
+                <article data-download-platform="macos">
+                    <div class="platform-mark">MAC</div>
+                    <div>
+                        <h3>macOS</h3>
+                        <p>Universal · Release</p>
+                    </div>
+                    <a class="download-status"
+                       data-download-link
+                       aria-disabled="true">Checking…</a>
+                </article>
+
+                <article data-download-platform="windows">
+                    <div class="platform-mark">WIN</div>
+                    <div>
+                        <h3>Windows</h3>
+                        <p>x86-64 · Release</p>
+                    </div>
+                    <a class="download-status"
+                       data-download-link
+                       aria-disabled="true">Checking…</a>
+                </article>
+            </div>
+        </section>
+
+        <section class="download-panel"
+                 aria-labelledby="preview-download-heading"
+                 data-download-channel="testing">
+            <div class="download-panel-heading">
+                <div>
+                    <p class="section-kicker">Preview channel</p>
+                    <h2 id="preview-download-heading">Preview native builds</h2>
+                </div>
+                <p data-download-summary>Checking published packages…</p>
+            </div>
+
+            <div class="download-list">
+                <article data-download-platform="linux">
+                    <div class="platform-mark">LNX</div>
+                    <div>
+                        <h3>Linux</h3>
+                        <p>x86-64 · Release</p>
+                    </div>
+                    <a class="download-status"
+                       data-download-link
+                       aria-disabled="true">Checking…</a>
+                </article>
+
+                <article data-download-platform="macos">
+                    <div class="platform-mark">MAC</div>
+                    <div>
+                        <h3>macOS</h3>
+                        <p>Universal · Release</p>
+                    </div>
+                    <a class="download-status"
+                       data-download-link
+                       aria-disabled="true">Checking…</a>
+                </article>
+
+                <article data-download-platform="windows">
+                    <div class="platform-mark">WIN</div>
+                    <div>
+                        <h3>Windows</h3>
+                        <p>x86-64 · Release</p>
+                    </div>
+                    <a class="download-status"
+                       data-download-link
+                       aria-disabled="true">Checking…</a>
+                </article>
+            </div>
+        </section>
+
+        <section class="download-notes">
+            <article>
+                <p class="section-kicker">WebAssembly</p>
+                <h2>Run the current demo directly in the browser.</h2>
+                <p>The WebAssembly target uses the same engine and application model as the native builds.</p>
+
+                <div class="inline-links">
+                    <a href="index.html#live-demo">
+                        Run in browser <span aria-hidden="true">→</span>
+                    </a>
+                </div>
+            </article>
+
+            <article>
+                <p class="section-kicker">Package verification</p>
+                <h2>Every published package includes a SHA-256 checksum.</h2>
+                <p>The checksum files are generated from the same package bundle published to each channel.</p>
+
+                <div class="inline-links">
+                    <a href="downloads/stable/SHA256SUMS">Stable checksums</a>
+                    <a href="downloads/testing/SHA256SUMS">Preview checksums</a>
+                </div>
+            </article>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="site-width footer-inner">
+            <p>Avara3D · Cross-platform build targets.</p>
+            <p><span data-build-summary>Development build</span> · © <span data-current-year></span> Morgan Davis</p>
+        </div>
+    </footer>
+</div>
+</body>
+</html>

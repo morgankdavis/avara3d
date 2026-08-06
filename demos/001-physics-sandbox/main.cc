@@ -1,8 +1,8 @@
 //
 //  main.cpp
-//  001-quadrotor
+//  001-physics-sandbox
 //
-//  Created by Morgan Davis on 7/19/26.
+//  Created by Morgan Davis on 8/4/26.
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
@@ -11,5 +11,5 @@
 #include "App.h"
 
 int main(int argc, char* argv[]) {
-	return a3d::Application::Run(std::make_unique<test::quadrotor::App>(argc, argv));
+    return a3d::Application::Run(std::make_unique<demo::physicssandbox::App>(argc, argv));
 }

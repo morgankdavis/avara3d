@@ -13,36 +13,37 @@
 
 namespace a3d {
 
-	class BoxPhysicsShape : public PhysicsShape {
+    class BoxPhysicsShape : public PhysicsShape {
 
-	public:
-		/// Public Lifecycle Functions ///
+    public:
+        /// Public Lifecycle Functions ///
 
-		BoxPhysicsShape(float width, float height, float length);
+        BoxPhysicsShape(float width, float height, float length);
 
-		/// Public Member Functions ///
+        /// Public Member Functions ///
 
-		float 					width() const;
-		void					width(float width);
+        float width() const;
+        void  width(float width);
 
-		float 					height() const;
-		void					height(float height);
+        float height() const;
+        void  height(float height);
 
-		float 					length() const;
-		void					length(float length);
+        float length() const;
+        void  length(float length);
 
-		/// PhysicsShape Public Member Functions ///
+        /// PhysicsShape Public Member Functions ///
 
-		Type					type() const override;
-		void					type(Type type) override;
+        Type  type() const override;
+        void  type(Type type) override;
 
-	private:
-		/// Private Member Variables ///
+    private:
+        /// Private Member Variables ///
 
-		float 					_width;
-		float 					_height;
-		float 					_length;
-	};
+        float _width;
+        float _height;
+        float _length;
+    };
+
 }
 
 #endif //AVARA3D_PHYSICS_SHAPE_PRIMITIVE_BOXPHYSICSSHAPE_H

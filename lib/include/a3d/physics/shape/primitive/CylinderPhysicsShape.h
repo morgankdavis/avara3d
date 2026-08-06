@@ -13,32 +13,33 @@
 
 namespace a3d {
 
-	class CylinderPhysicsShape : public PhysicsShape {
+    class CylinderPhysicsShape : public PhysicsShape {
 
-	public:
-		/// Public Lifecycle Functions ///
+    public:
+        /// Public Lifecycle Functions ///
 
-		CylinderPhysicsShape(float radius, float height);
+        CylinderPhysicsShape(float radius, float height);
 
-		/// Public Member Functions ///
+        /// Public Member Functions ///
 
-		float 					radius() const;
-		void					radius(float radius);
+        float radius() const;
+        void  radius(float radius);
 
-		float 					height() const;
-		void					height(float height);
+        float height() const;
+        void  height(float height);
 
-		/// PhysicsShape Public Member Functions ///
+        /// PhysicsShape Public Member Functions ///
 
-		Type					type() const override;
-		void					type(Type type) override;
+        Type  type() const override;
+        void  type(Type type) override;
 
-	private:
-		/// Private Member Variables ///
+    private:
+        /// Private Member Variables ///
 
-		float 					_radius;
-		float 					_height;
-	};
+        float _radius;
+        float _height;
+    };
+
 }
 
 #endif //AVARA3D_PHYSICS_SHAPE_PRIMITIVE_CYLINDERPHYSICSSHAPE_H

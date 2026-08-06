@@ -21,157 +21,156 @@
 
 namespace a3d {
 
-	class Color;
-	class Texture;
+    class Color;
+    class Texture;
 
-	class Material {
+    class Material {
 
-	public:
-		/// Public Types ///
+    public:
+        /// Public Types ///
 
-		using Property = std::variant<
-				std::monostate,
-				std::shared_ptr<Texture>,
-				std::shared_ptr<Color>>;
+        using Property = std::variant<std::monostate, std::shared_ptr<Texture>, std::shared_ptr<Color>>;
 
-		enum class PropertyType : uint8_t {
-			Ambient = 	0,
-			Diffuse = 	1,
-			Specular =	2,
-			Emission =	3
-		};
+        enum class PropertyType : uint8_t {
+            Ambient  = 0,
+            Diffuse  = 1,
+            Specular = 2,
+            Emission = 3
+        };
 
-		enum class FillMode {
-			Fill,
-			Lines,
-			Points
-		};
+        enum class FillMode {
+            Fill,
+            Lines,
+            Points
+        };
 
-		enum class AlphaMode : uint8_t {
-			Opaque, // no discard, no blending
-			Mask, // uses discard/alpha threshold
-			Blend }; // real transparency
+        enum class AlphaMode : uint8_t {
+            Opaque, // no discard, no blending
+            Mask, // uses discard/alpha threshold
+            Blend
+        }; // real transparency
 
-		enum class BlendFunction : uint8_t {
-			Disabled,
-			Alpha,
-			Additive,
-			PremultipliedAlpha
-		};
+        enum class BlendFunction : uint8_t {
+            Disabled,
+            Alpha,
+            Additive,
+            PremultipliedAlpha
+        };
 
-		using PropertyList = std::vector<std::pair<const Property*, PropertyType>>;
+        using PropertyList = std::vector<std::pair<const Property*, PropertyType>>;
 
-		/// Public Static Member Functions ///
+        /// Public Static Member Functions ///
 
-		static std::shared_ptr<Material> 	DefaultMaterial();
-		static std::shared_ptr<Material> 	DiffuseMaterial(Property property);
-		static std::shared_ptr<Material> 	EmissionMaterial(Property property);
+        static std::shared_ptr<Material> DefaultMaterial();
+        static std::shared_ptr<Material> DiffuseMaterial(Property property);
+        static std::shared_ptr<Material> EmissionMaterial(Property property);
 
-		/// Public Lifecycle Functions ///
+        /// Public Lifecycle Functions ///
 
-		Material();
-		Material(const Property& ambient,
-				 const Property& diffuse,
-				 const Property& specular);
-		Material(const Property& ambient,
-				 const Property& diffuse,
-				 const Property& specular,
-				 const Property& emission);
+        Material();
+        Material(const Property& ambient, const Property& diffuse, const Property& specular);
+        Material(const Property& ambient,
+                 const Property& diffuse,
+                 const Property& specular,
+                 const Property& emission);
 
-		Material(const Material& other);
-		Material& operator=(const Material& other);
+        Material(const Material& other);
+        Material& operator=(const Material& other);
 
-		Material(Material&& other) noexcept;
-		Material& operator=(Material&& other) noexcept;
+        Material(Material&& other) noexcept;
+        Material& operator=(Material&& other) noexcept;
 
-		~Material();
+        ~Material();
 
-		/// Public Member Functions ///
+        /// Public Member Functions ///
 
-		const std::optional<std::string>&	name() const;
-		void 								name(const std::string& name);
+        const std::optional<std::string>& name() const;
+        void                              name(const std::string& name);
 
-		const Property& 					ambient() const;
-		void								ambient(const Property& ambient);
+        const Property&                   ambient() const;
+        void                              ambient(const Property& ambient);
 
-		const Property& 					diffuse() const;
-		void 								diffuse(const Property& diffuse);
+        const Property&                   diffuse() const;
+        void                              diffuse(const Property& diffuse);
 
-		const Property&						specular() const;
-		void 								specular(const Property& specular);
+        const Property&                   specular() const;
+        void                              specular(const Property& specular);
 
-		const Property&						emission() const;
-		void 								emission(const Property& emission);
+        const Property&                   emission() const;
+        void                              emission(const Property& emission);
 
-		PropertyList						properties() const;
-		
-		float 								specularExponent() const;
-		void 								specularExponent(float exponent);
-		
-		bool 								locksAmbientWithDiffuse() const;
-		void 								locksAmbientWithDiffuse(bool flag);
-		
-		bool 								doubleSided() const;
-		void 								doubleSided(bool flag);
+        PropertyList                      properties() const;
 
-		FillMode 							fillMode() const;
-		void 								fillMode(FillMode mode);
-		
-		float 								uvScale() const;
-		void 								uvScale(float scale);
+        float                             specularExponent() const;
+        void                              specularExponent(float exponent);
 
-		AlphaMode							alphaMode() const;
-		void 								alphaMode(AlphaMode mode);
+        bool                              locksAmbientWithDiffuse() const;
+        void                              locksAmbientWithDiffuse(bool flag);
 
-		// TODO: UNIMPLEMENTED
-		float 								alphaCutoff() const;
-		void 								alphaCutoff(float v);
+        bool                              doubleSided() const;
+        void                              doubleSided(bool flag);
 
-		BlendFunction						blendFunction() const;
-		void 								blendFunction(BlendFunction function);
+        FillMode                          fillMode() const;
+        void                              fillMode(FillMode mode);
 
-		/// Internal Types ///
+        float                             uvScale() const;
+        void                              uvScale(float scale);
 
-		enum class DirtyMask : uint32_t {
-			None =					0,
-			All = 					UINT_MAX
-		};
+        AlphaMode                         alphaMode() const;
+        void                              alphaMode(AlphaMode mode);
 
-		/// Internal Static Member Functions ///
+        // TODO: UNIMPLEMENTED
+        float                             alphaCutoff() const;
+        void                              alphaCutoff(float v);
 
-		static std::shared_ptr<Material> 	MissingTextureMaterial();
-		static Property 					MissingTextureProperty();
-		
-		/// Internal Member Functions ///
+        BlendFunction                     blendFunction() const;
+        void                              blendFunction(BlendFunction function);
 
-		MaterialId 							id() const noexcept;
+        /// Internal Types ///
 
-		DirtyMask 							dirtyMask() const;
-		void 								dirtyMask(DirtyMask mask);
+        enum class DirtyMask : uint32_t {
+            None = 0,
+            All  = UINT_MAX
+        };
 
-	private:
-		/// Private Member Variables ///
+        /// Internal Static Member Functions ///
 
-		MaterialId 							_id;
-		std::optional<std::string>			_name;
-		Property							_ambient;
-		Property							_diffuse;
-		Property							_specular;
-		Property							_emission;
-		float 								_specularExponent;
-		bool 								_locksAmbientWithDiffuse;
-		bool 								_doubleSided;
-		FillMode 							_fillMode;
-		float 								_uvScale;
-		AlphaMode							_alphaMode;
-		float 								_alphaCutoff;
-		BlendFunction						_blendFunction;
-		DirtyMask							_dirtyMask;
-	};
+        static std::shared_ptr<Material> MissingTextureMaterial();
+        static Property                  MissingTextureProperty();
 
-	namespace util::bitmask {
-		template <> struct enable_ops<Material::DirtyMask> : std::true_type {};
-	}
+        /// Internal Member Functions ///
+
+        MaterialId                       id() const noexcept;
+
+        DirtyMask                        dirtyMask() const;
+        void                             dirtyMask(DirtyMask mask);
+
+    private:
+        /// Private Member Variables ///
+
+        MaterialId                 _id;
+        std::optional<std::string> _name;
+        Property                   _ambient;
+        Property                   _diffuse;
+        Property                   _specular;
+        Property                   _emission;
+        float                      _specularExponent;
+        bool                       _locksAmbientWithDiffuse;
+        bool                       _doubleSided;
+        FillMode                   _fillMode;
+        float                      _uvScale;
+        AlphaMode                  _alphaMode;
+        float                      _alphaCutoff;
+        BlendFunction              _blendFunction;
+        DirtyMask                  _dirtyMask;
+    };
+
+    namespace util::bitmask {
+
+        template<>
+        struct enable_ops<Material::DirtyMask> : std::true_type {};
+
+    }
 }
 
 #endif /* AVARA3D_VISUAL_MATERIAL_MATERIAL_H */

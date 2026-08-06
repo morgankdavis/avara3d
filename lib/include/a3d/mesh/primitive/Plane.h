@@ -15,46 +15,47 @@
 
 namespace a3d {
 
-	class Mesh;
-	class Material;
-	
-	class Plane: public MeshElement {
+    class Mesh;
+    class Material;
 
-	public:
-		/// Public Static Member Functions ///
+    class Plane : public MeshElement {
 
-		static std::shared_ptr<Mesh> Mesh(float width, // x
-										  float height, // y
-										  unsigned widthSegements = DEFAULT_SEGMENTS,
-										  unsigned heightSegments = DEFAULT_SEGMENTS,
-										  std::shared_ptr<Material> material = nullptr);
+    public:
+        /// Public Static Member Functions ///
 
-		/// Public Lifecycle Functions ///
+        static std::shared_ptr<Mesh> Mesh(float                     width, // x
+                                          float                     height, // y
+                                          unsigned                  widthSegements = DEFAULT_SEGMENTS,
+                                          unsigned                  heightSegments = DEFAULT_SEGMENTS,
+                                          std::shared_ptr<Material> material       = nullptr);
 
-		Plane(float width,
-			  float height,
-			  unsigned widthSegements = DEFAULT_SEGMENTS,
-			  unsigned heightSegments = DEFAULT_SEGMENTS);
+        /// Public Lifecycle Functions ///
 
-		/// Public Member Functions ///
+        Plane(float    width,
+              float    height,
+              unsigned widthSegements = DEFAULT_SEGMENTS,
+              unsigned heightSegments = DEFAULT_SEGMENTS);
 
-		float 		width() const;
-		float 		height() const;
-		unsigned	widthSegements() const;
-		unsigned	heightSegments() const;
+        /// Public Member Functions ///
 
-	private:
-		/// Private Constants ///
+        float    width() const;
+        float    height() const;
+        unsigned widthSegements() const;
+        unsigned heightSegments() const;
 
-		static constexpr unsigned DEFAULT_SEGMENTS = 8;
+    private:
+        /// Private Constants ///
 
-		/// Private Member Variables ///
+        static constexpr unsigned DEFAULT_SEGMENTS = 8;
 
-		float		_width;
-		float		_height;
-		unsigned	_widthSegements;
-		unsigned	_heightSegments;
-	};
+        /// Private Member Variables ///
+
+        float                     _width;
+        float                     _height;
+        unsigned                  _widthSegements;
+        unsigned                  _heightSegments;
+    };
+
 }
 
 #endif /* AVARA3D_MESH_PRIMITIVE_PLANE_H */

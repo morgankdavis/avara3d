@@ -14,59 +14,56 @@
 
 namespace a3d {
 
-	class Buffer;
+    class Buffer;
 
-	class Image {
+    class Image {
 
-	public:
-		/// Public Lifecycle Functions ///
+    public:
+        /// Public Lifecycle Functions ///
 
-		explicit Image(const std::filesystem::path& path,
-					   bool flipVertical = true,
-					   bool flipHorizontal = false);
-		explicit Image(const Buffer& buffer,
-					   bool flipVertical = true,
-					   bool flipHorizontal = false);
-		Image(std::unique_ptr<Buffer> buffer,
-			  unsigned width,
-			  unsigned height,
-			  unsigned bytesPerPixel,
-			  bool flipVertical = true,
-			  bool flipHorizontal = false);
+        explicit Image(const std::filesystem::path& path,
+                       bool                         flipVertical   = true,
+                       bool                         flipHorizontal = false);
+        explicit Image(const Buffer& buffer, bool flipVertical = true, bool flipHorizontal = false);
+        Image(std::unique_ptr<Buffer> buffer,
+              unsigned                width,
+              unsigned                height,
+              unsigned                bytesPerPixel,
+              bool                    flipVertical   = true,
+              bool                    flipHorizontal = false);
 
-		Image(const Image& other);
-		Image& operator=(const Image& other);
+        Image(const Image& other);
+        Image& operator=(const Image& other);
 
-		Image(Image&& other) noexcept;
-		Image& operator=(Image&& other) noexcept;
+        Image(Image&& other) noexcept;
+        Image& operator=(Image&& other) noexcept;
 
-		~Image();
+        ~Image();
 
-		/// Public Member Functions ///
+        /// Public Member Functions ///
 
-		unsigned 					width() const;
-		unsigned 					height() const;
-		unsigned 					bytesPerPixel() const;
-		std::unique_ptr<Image> 		inverted() const;
-		const Buffer& 				buffer() const;
-		bool 						writePNG(const std::filesystem::path& path) const;
+        unsigned               width() const;
+        unsigned               height() const;
+        unsigned               bytesPerPixel() const;
+        std::unique_ptr<Image> inverted() const;
+        const Buffer&          buffer() const;
+        bool                   writePNG(const std::filesystem::path& path) const;
 
-	private:
-		/// Private Member Functions ///
+    private:
+        /// Private Member Functions ///
 
-		void 						loadBuffer(const Buffer& buffer,
-											   bool flipVertical,
-											   bool flipHorizontal);
-		void 						flipVertical(); // "flip"
-		void 						flipHorizontal(); // "mirror"
+        void                    loadBuffer(const Buffer& buffer, bool flipVertical, bool flipHorizontal);
+        void                    flipVertical(); // "flip"
+        void                    flipHorizontal(); // "mirror"
 
-		/// Private Member Variables ///
+        /// Private Member Variables ///
 
-		unsigned					_width;
-		unsigned					_height;
-		unsigned					_bytesPerPixel;
-		std::unique_ptr<Buffer>		_buffer;
-	};
+        unsigned                _width;
+        unsigned                _height;
+        unsigned                _bytesPerPixel;
+        std::unique_ptr<Buffer> _buffer;
+    };
+
 }
 
 #endif /* AVARA3D_IMAGE_H */

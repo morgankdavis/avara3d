@@ -12,74 +12,104 @@
 #include <memory>
 #include <vector>
 
+#include "a3d/Runner.h"
+#include "a3d/SimulationConfig.h"
+#include "a3d/input/InputContext.h"
+#include "a3d/profile/Timer.h"
+#include "a3d/scene/Scene.h"
+#include "a3d/visual/VisualWorld.h"
 #include "log/Log.h"
+
+#include "a3d/TestAccessFwd.h"
 
 namespace a3d {
 
-	class PhysicsWorld;
-	class Runner;
-	class Scene;
-	class VisualWorld;
+    class Application {
 
-	class Application {
+    public:
+        /// Public Static Member Functions ///
 
-	public:
-		/// Public Static Member Functions ///
+        static int Run(std::unique_ptr<Application> application);
 
-		static int Run(std::unique_ptr<Application> application);
+        /// Public Lifecycle Functions ///
 
-		/// Public Lifecycle Functions ///
+        Application(int argc, char* argv[], Log::Level logLevel = Log::Level::Info);
 
-		Application(int argc, char* argv[], Log::Level logLevel = Log::Level::Info);
+        Application(const Application&)            = delete;
+        Application& operator=(const Application&) = delete;
 
-		Application(const Application&) = delete;
-		Application& operator=(const Application&) = delete;
+        Application(Application&&)            = delete;
+        Application& operator=(Application&&) = delete;
 
-		Application(Application&&) = delete;
-		Application& operator=(Application&&) = delete;
+        virtual ~Application();
 
-		virtual ~Application();
+    protected:
+        /// Protected Member Functions ///
 
-	protected:
-		/// Protected Member Functions ///
+        virtual std::unique_ptr<Scene>  init() = 0;
+        virtual SimulationConfig        simulationConfig() const;
+        virtual bool                    shouldContinue(const Scene& scene);
+        virtual void                    didShutdown();
 
-		virtual std::unique_ptr<Scene> init() = 0;
+        Runner&                         runner();
+        const Runner&                   runner() const;
 
-		virtual bool shouldContinue(const Scene& scene);
-		virtual void didShutdown();
+        Scene&                          scene();
+        const Scene&                    scene() const;
 
-		const std::vector<std::string>& args() const;
+        const std::vector<std::string>& args() const;
 
-		/// Scene Callback Overrides ///
+        /// Runner Callbacks ///
 
-		virtual void sceneUpdate(Scene& scene, double time, double deltaTime);
+        virtual void hostUpdate(Runner& runner, Scene& scene, const Runner::UpdateInfo& info);
 
-		/// VisualWorld Callback Overrides ///
+        /// InputContext Callbacks ///
 
-		virtual void visualWorldWillRender(VisualWorld& world, double time, double deltaTime);
-		virtual void visualWorldDidRender(VisualWorld& world, double time, double deltaTime);
+        virtual void inputDidUpdate(Runner&       runner,
+                                    Scene&        scene,
+                                    InputContext& inputContext,
+                                    const InputContext::UpdateInfo&);
 
-		/// PhysicsWorld Callback Overrides ///
+        /// Scene Callbacks ///
 
-		virtual void physicalWorldDidSimulate(PhysicsWorld& world, double time, double deltaTime);
+        virtual void sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info);
+        virtual void sceneDidStep(Runner& runner, Scene& scene, const Scene::StepInfo& info);
 
-	private:
-		/// Private Member Functions ///
+        /// VisualWorld Callbacks ///
 
-		void initLog(Log::Level level);
-		void prepare();
-		bool update();
-		void shutdown() noexcept;
+        virtual void frameDidBegin(Runner&                        runner,
+                                   Scene&                         scene,
+                                   VisualWorld&                   visualWorld,
+                                   const VisualWorld::RenderInfo& info);
 
-		void registerCallbacks();
+    private:
+        /// Private Member Functions ///
 
-		/// Private Member Variables ///
+        void initLog(Log::Level level);
+        void prepare();
+        bool update();
+        void shutdown() noexcept;
+        void registerCallbacks();
 
-		std::vector<std::string>	_args;
-		std::unique_ptr<Scene>		_scene;
-		std::unique_ptr<Runner>		_runner; // Runner must be destroyed before Scene
-		bool						_didShutdown;;
-	};
+        void dispatchInputContextDidUpdate(InputContext& inputContext, const InputContext::UpdateInfo& info);
+        void dispatchHostUpdate(Runner& runner, const Runner::UpdateInfo& info);
+        void dispatchSceneWillStep(Scene& scene, const Scene::StepInfo& info);
+        void dispatchSceneDidStep(Scene& scene, const Scene::StepInfo& info);
+        void dispatchDidBeginFrame(VisualWorld& visualWorld, const VisualWorld::RenderInfo& info);
+
+        /// Private Member Variables ///
+
+        std::vector<std::string> _args;
+        std::unique_ptr<Scene>   _scene;
+        std::unique_ptr<Runner>  _runner; // Runner must be destroyed before Scene
+        bool                     _didShutdown;
+        Timer                    _startupTimer;
+
+        /// Test Access ///
+
+        friend class testing::ApplicationTestAccess;
+    };
+
 }
 
 #endif //AVARA3D_APPLICATION_H

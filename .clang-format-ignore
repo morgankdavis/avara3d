@@ -1,0 +1,10 @@
+**/build/**
+**/cmake-build-*/**
+**/out/**
+
+**/external/**
+**/third_party/**
+**/vendor/**
+**/generated/**
+
+extras/**

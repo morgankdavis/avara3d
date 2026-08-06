@@ -15,138 +15,134 @@
 
 namespace a3d {
 
-	class Mesh;
-	class Node;
-	class PhysicsWorld;
-	class PhysicsBodyProxy;
-	class PhysicsShapeProxy;
-	class PhysicsShape;
-	class Scene;
+    class Mesh;
+    class Node;
+    class PhysicsWorld;
+    class PhysicsBodyProxy;
+    class PhysicsShapeProxy;
+    class PhysicsShape;
+    class Scene;
 
-	class PhysicsBody {
+    class PhysicsBody {
 
-	public:
-		/// Public Types ///
+    public:
+        /// Public Types ///
 
-		enum class Type : uint8_t {
-			Static,
-			Dynamic,
-			Kinematic
-		};
+        enum class Type : uint8_t {
+            Static,
+            Dynamic,
+            Kinematic
+        };
 
-		/// Public Static Member Functions ///
+        /// Public Static Member Functions ///
 
-		static std::unique_ptr<PhysicsBody> 	StaticBody();
-		static std::unique_ptr<PhysicsBody> 	DynamicBody();
-		static std::unique_ptr<PhysicsBody> 	KinematicBody();
+        static std::unique_ptr<PhysicsBody> StaticBody();
+        static std::unique_ptr<PhysicsBody> DynamicBody();
+        static std::unique_ptr<PhysicsBody> KinematicBody();
 
-		/// Public Lifecycle Functions ///
+        /// Public Lifecycle Functions ///
 
-		explicit PhysicsBody(Type type);
-		PhysicsBody(Type type, const std::shared_ptr<PhysicsShape>& shape);
+        explicit PhysicsBody(Type type);
+        PhysicsBody(Type type, const std::shared_ptr<PhysicsShape>& shape);
 
-		PhysicsBody(const PhysicsBody&) = delete;
-		PhysicsBody& operator=(const PhysicsBody&) = delete;
+        PhysicsBody(const PhysicsBody&)            = delete;
+        PhysicsBody& operator=(const PhysicsBody&) = delete;
 
-		PhysicsBody(PhysicsBody&&) = delete;
-		PhysicsBody& operator=(PhysicsBody&&) = delete;
+        PhysicsBody(PhysicsBody&&)            = delete;
+        PhysicsBody& operator=(PhysicsBody&&) = delete;
 
-		~PhysicsBody();
+        ~PhysicsBody();
 
-		/// Public Member Functions ///
+        /// Public Member Functions ///
 
-		Type 								type() const;
-		void 								type(Type type);
+        Type                                 type() const;
+        void                                 type(Type type);
 
-		const std::shared_ptr<PhysicsShape>&	shape() const;
-		void 									shape(const std::shared_ptr<PhysicsShape>& shape);
+        const std::shared_ptr<PhysicsShape>& shape() const;
+        void                                 shape(const std::shared_ptr<PhysicsShape>& shape);
 
-		float 								mass() const;
-		void 								mass(float mass);
-		
-		math::vec3 							momentOfInertia() const;
-		void 								momentOfInertia(const math::vec3& moment);
+        float                                mass() const;
+        void                                 mass(float mass);
 
-		math::vec3							centerOfMass() const;
-		void								centerOfMass(const math::vec3& offset);
+        math::vec3                           momentOfInertia() const;
+        void                                 momentOfInertia(const math::vec3& moment);
 
-		float 								friction() const;
-		void 								friction(float friction);
-		
-		float 								rollingFriction() const;
-		void 								rollingFriction(float friction);
+        math::vec3                           centerOfMass() const;
+        void                                 centerOfMass(const math::vec3& offset);
 
-		float 								restitution() const;
-		void 								restitution(float restitution);
+        float                                friction() const;
+        void                                 friction(float friction);
 
-		math::vec3 							linearVelocity() const;
-		void 								linearVelocity(math::vec3 velocity);
+        float                                rollingFriction() const;
+        void                                 rollingFriction(float friction);
 
-		math::vec3 							angularVelocity() const;
-		void 								angularVelocity(const math::vec3& velocity);
+        float                                restitution() const;
+        void                                 restitution(float restitution);
 
-		math::vec3							linearFactor() const;
-		void 								linearFactor(const math::vec3& factor);
+        math::vec3                           linearVelocity() const;
+        void                                 linearVelocity(math::vec3 velocity);
 
-		math::vec3							angularFactor() const;
-		void 								angularFactor(const math::vec3& factor);
+        math::vec3                           angularVelocity() const;
+        void                                 angularVelocity(const math::vec3& velocity);
 
-		float								linearDamping() const;
-		void 								linearDamping(float damping);
+        math::vec3                           linearFactor() const;
+        void                                 linearFactor(const math::vec3& factor);
 
-		float								angularDamping() const;
-		void 								angularDamping(float damping);
+        math::vec3                           angularFactor() const;
+        void                                 angularFactor(const math::vec3& factor);
 
-		float								linearSleepingThreshold() const;
-		void 								linearSleepingThreshold(float threshold);
+        float                                linearDamping() const;
+        void                                 linearDamping(float damping);
 
-		float								angularSleepingThreshold() const;
-		void 								angularSleepingThreshold(float threshold);
-		
-		// categoryBitmask
-		// contactTestBitmask
-		// collisionBitmask
+        float                                angularDamping() const;
+        void                                 angularDamping(float damping);
 
-		void 								applyForce(const math::vec3& force,
-													   bool impulse);
-		void 								applyForce(const math::vec3& force,
-													   const math::vec3& location,
-													   bool impulse);
-		void 								applyTorque(const math::vec3& torque,
-														bool impulse);
+        float                                linearSleepingThreshold() const;
+        void                                 linearSleepingThreshold(float threshold);
 
-		math::vec3							totalForce() const;
-		math::vec3 							totalTorque() const;
+        float                                angularSleepingThreshold() const;
+        void                                 angularSleepingThreshold(float threshold);
 
-		void 								clearForces();
+        // categoryBitmask
+        // contactTestBitmask
+        // collisionBitmask
 
-		void								ccdEnabled(bool enabled);
-		bool								ccdEnabled() const;
+        void                                 applyForce(const math::vec3& force, bool impulse);
+        void                applyForce(const math::vec3& force, const math::vec3& location, bool impulse);
+        void                applyTorque(const math::vec3& torque, bool impulse);
 
-		void								ccdMotionThreshold(float distance);
-		float								ccdMotionThreshold() const;
+        math::vec3          totalForce() const;
+        math::vec3          totalTorque() const;
 
-		void								ccdSweptSphereRadius(float radius);
-		float								ccdSweptSphereRadius() const;
+        void                clearForces();
 
-		bool 								affectedByGravity() const;
-		void 								affectedByGravity(bool affectedByGravity);
+        void                ccdEnabled(bool enabled);
+        bool                ccdEnabled() const;
 
-		bool 								allowsResting() const;
-		void 								allowsResting(bool allowsResting);
+        void                ccdMotionThreshold(float distance);
+        float               ccdMotionThreshold() const;
 
-		bool 								resting() const;
-		void								resting(bool resting);
+        void                ccdSweptSphereRadius(float radius);
+        float               ccdSweptSphereRadius() const;
 
-		bool								autocalculatesMomentOfInertia() const;
-		void								autocalculatesMomentOfInertia(bool autocalculate);
+        bool                affectedByGravity() const;
+        void                affectedByGravity(bool affectedByGravity);
 
-		/// Internal Member Functions ///
-		
+        bool                allowsResting() const;
+        void                allowsResting(bool allowsResting);
+
+        bool                resting() const;
+        void                resting(bool resting);
+
+        bool                autocalculatesMomentOfInertia() const;
+        void                autocalculatesMomentOfInertia(bool autocalculate);
+
+        /// Internal Member Functions ///
+
 //		void 								resting(bool resting);
-		
-		void 								attachedToNode(const std::shared_ptr<Node>& node);
-		void 								detachedFromNode(const std::shared_ptr<Node>& node);
+
+        void                attachedToNode(const std::shared_ptr<Node>& node);
+        void                detachedFromNode(const std::shared_ptr<Node>& node);
 
 //		void 								nodeAttachedToParent(Node* parent); // owning node's parent
 //		void 								nodeDetachedFromParent(Node* parent);
@@ -154,11 +150,11 @@ namespace a3d {
 //		void 								nodeAttachedToScene(Scene* scene); // owning node
 //		void 								nodeDetachedFromScene(Scene* scene);
 
-		void 								meshAttachedToNode(const std::shared_ptr<Mesh>& mesh); // owning node's mesh
-		void 								meshDetachedFromNode(const std::shared_ptr<Mesh>& mesh);
+        void                meshAttachedToNode(const std::shared_ptr<Mesh>& mesh); // owning node's mesh
+        void                meshDetachedFromNode(const std::shared_ptr<Mesh>& mesh);
 
-		void								physicalWorldReachable(PhysicsWorld& world);
-		void								physicalWorldUnreachable(PhysicsWorld& world);
+        void                physicsWorldReachable(PhysicsWorld& world);
+        void                physicsWorldUnreachable(PhysicsWorld& world);
 
 //		void 								ancestorAttachedToParent(Node* ancestor,
 //																	 Node* parent);
@@ -170,40 +166,41 @@ namespace a3d {
 //		void								ancestorDetachedFromScene(Node* ancestor,
 //																	  Scene* scene);
 //
-//		void								physicalWorldAttachedToScene(PhysicsWorld* world,
+//		void								physicsWorldAttachedToScene(PhysicsWorld* world,
 //																		 Scene* scene);
-//		void								physicalWorldDetachedFromScene(PhysicsWorld* world,
+//		void								physicsWorldDetachedFromScene(PhysicsWorld* world,
 //																		   Scene* scene);
 
-		void 								addedToWorld(PhysicsWorld& world);
-		void 								removedFromWorld(PhysicsWorld& world);
+        void                addedToWorld(PhysicsWorld& world);
+        void                removedFromWorld(PhysicsWorld& world);
 
-		void 								shapeWillUpdate();
-		void 								shapeDidUpdate();
+        void                shapeWillUpdate();
+        void                shapeDidUpdate();
 
-		std::weak_ptr<Node>					node() const;
+        std::weak_ptr<Node> node() const;
 
-		// the scene's world, if it exists.  not the same as _world.
-		PhysicsWorld*						physicalWorld() const;
+        // the scene's world, if it exists.  not the same as _world.
+        PhysicsWorld*       physicsWorld() const;
 
-		PhysicsBodyProxy*					proxy() const;
+        PhysicsBodyProxy*   proxy() const;
 
-	private:
-		/// Private Member Functions ///
+    private:
+        /// Private Member Functions ///
 
-		void 								checkAutocreateShape(const std::shared_ptr<Node>& node);
-		void 								checkAutocreateShape(const std::shared_ptr<Mesh>& mesh);
+        void                              checkAutocreateShape(const std::shared_ptr<Node>& node);
+        void                              checkAutocreateShape(const std::shared_ptr<Mesh>& mesh);
 
-		void 								checkAddToWorld();
+        void                              checkAddToWorld();
 
-		/// Private Member Variables ///
+        /// Private Member Variables ///
 
-		std::shared_ptr<PhysicsShape>		_shape;
-		std::unique_ptr<PhysicsBodyProxy>	_proxy;
-		std::weak_ptr<Node>					_node;
-		// either a pointer to the world we are currently in or null.
-		PhysicsWorld*						_world;
-	};
+        std::shared_ptr<PhysicsShape>     _shape;
+        std::unique_ptr<PhysicsBodyProxy> _proxy;
+        std::weak_ptr<Node>               _node;
+        // either a pointer to the world we are currently in or null.
+        PhysicsWorld*                     _world;
+    };
+
 }
 
 #endif /* AVARA3D_PHYSICS_PHYSICSBODY_H */

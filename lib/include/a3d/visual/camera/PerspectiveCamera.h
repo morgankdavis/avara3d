@@ -13,54 +13,55 @@
 
 namespace a3d {
 
-	class PerspectiveCamera : public Camera {
+    class PerspectiveCamera : public Camera {
 
-	public:
-		/// Public Lifecycle Functions ///
+    public:
+        /// Public Lifecycle Functions ///
 
-		PerspectiveCamera();
-		PerspectiveCamera(float zNear, float zFar, float yFov);
-		PerspectiveCamera(const std::string& name, float zNear, float zFar, float yFov);
+        PerspectiveCamera();
+        PerspectiveCamera(float zNear, float zFar, float yFov);
+        PerspectiveCamera(const std::string& name, float zNear, float zFar, float yFov);
 
-		PerspectiveCamera(const PerspectiveCamera&) = default;
-		PerspectiveCamera& operator=(const PerspectiveCamera&) = default;
+        PerspectiveCamera(const PerspectiveCamera&)            = default;
+        PerspectiveCamera& operator=(const PerspectiveCamera&) = default;
 
-		PerspectiveCamera(PerspectiveCamera&&) noexcept = default;
-		PerspectiveCamera& operator=(PerspectiveCamera&&) noexcept = default;
+        PerspectiveCamera(PerspectiveCamera&&) noexcept            = default;
+        PerspectiveCamera& operator=(PerspectiveCamera&&) noexcept = default;
 
-		~PerspectiveCamera() override;
+        ~PerspectiveCamera() override;
 
-		/// Public Member Functions ///
+        /// Public Member Functions ///
 
-		float 			zNear() const;
-		void 			zNear(float zNear);
+        float      zNear() const;
+        void       zNear(float zNear);
 
-		float 			zFar() const;
-		void			zFar(float zFar);
+        float      zFar() const;
+        void       zFar(float zFar);
 
-		float 			yFov() const;
-		void	 		yFov(float fov);
+        float      yFov() const;
+        void       yFov(float fov);
 
-		float 			aspectRatio() const;
-		void 			aspectRatio(float ratio);
+        float      aspectRatio() const;
+        void       aspectRatio(float ratio);
 
-		/// Camera Internal Member Functions ///
+        /// Camera Internal Member Functions ///
 
-		math::mat4 		projection() const override;
+        math::mat4 projection() const override;
 
-	protected:
-		/// Camera Protected Member Functions ///
+    protected:
+        /// Camera Protected Member Functions ///
 
 //		void 			constructProjectionMatrix() override;
 
-	private:
-		/// Private Member Variables ///
+    private:
+        /// Private Member Variables ///
 
-		float			_zNear;
-		float			_zFar;
-		float			_yFov;
-		float			_aspectRatio;
-	};
+        float _zNear;
+        float _zFar;
+        float _yFov;
+        float _aspectRatio;
+    };
+
 }
 
 #endif /* AVARA3D_VISUAL_CAMERA_PERSPECTIVECAMERA_H */

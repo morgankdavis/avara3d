@@ -16,101 +16,103 @@
 
 namespace a3d {
 
-	class Color;
-	class Image;
+    class Color;
+    class Image;
 
-	class Sampler {
+    class Sampler {
 
-	public:
-		/// Public Types ///
+    public:
+        /// Public Types ///
 
-		// TODO: don't use GL constants
-		enum class FilterMode : uint16_t {
-			Nearest = 				0x2600,
-			Linear = 				0x2601,
-			NearestMipmapNearest = 	0x2700,
-			LinearMipmapNearest = 	0x2701,
-			NearestMipmapLinear = 	0x2702,
-			LinearMipmapLinear = 	0x2703
-		};
+        // TODO: don't use GL constants
+        enum class FilterMode : uint16_t {
+            Nearest              = 0x2600,
+            Linear               = 0x2601,
+            NearestMipmapNearest = 0x2700,
+            LinearMipmapNearest  = 0x2701,
+            NearestMipmapLinear  = 0x2702,
+            LinearMipmapLinear   = 0x2703
+        };
 
-		// TODO: don't use GL constants
-		enum class WrapMode : uint16_t {
-			Repeat = 			0x2901,
-			MirroredRepeat = 	0x8370,
-			ClampToEdge = 		0x812F
-		};
+        // TODO: don't use GL constants
+        enum class WrapMode : uint16_t {
+            Repeat         = 0x2901,
+            MirroredRepeat = 0x8370,
+            ClampToEdge    = 0x812F
+        };
 
+        /// Public Lifecycle Functions ///
 
-		/// Public Lifecycle Functions ///
+        Sampler();
 
-		Sampler();
+        Sampler(const Sampler& other);
+        Sampler& operator=(const Sampler& other);
 
-		Sampler(const Sampler& other);
-		Sampler& operator=(const Sampler& other);
+        Sampler(Sampler&& other);
+        Sampler& operator=(Sampler&& other);
 
-		Sampler(Sampler&& other);
-		Sampler& operator=(Sampler&& other);
+        ~Sampler();
 
-		~Sampler();
+        /// Public Member Functions ///
 
-		/// Public Member Functions ///
+        FilterMode minificationFilter() const;
+        void       minificationFilter(FilterMode mode);
 
-		FilterMode 							minificationFilter() const;
-		void 								minificationFilter(FilterMode mode);
+        FilterMode magnificationFilter() const;
+        void       magnificationFilter(FilterMode mode);
 
-		FilterMode 							magnificationFilter() const;
-		void 								magnificationFilter(FilterMode mode);
+        float      maxAnisotropy() const;
+        void       maxAnisotropy(float max);
 
-		float 								maxAnisotropy() const;
-		void 								maxAnisotropy(float max);
+        WrapMode   wrapS() const;
+        void       wrapS(WrapMode mode);
 
-		WrapMode 							wrapS() const;
-		void 								wrapS(WrapMode mode);
+        WrapMode   wrapT() const;
+        void       wrapT(WrapMode mode);
 
-		WrapMode 							wrapT() const;
-		void 								wrapT(WrapMode mode);
+        WrapMode   wrapR() const;
+        void       wrapR(WrapMode mode);
 
-		WrapMode 							wrapR() const;
-		void 								wrapR(WrapMode mode);
+        /// Internal Types ///
 
-		/// Internal Types ///
+        enum class DirtyMask : uint32_t {
+            None                = 0,
+            MinificationFilter  = 1 << 0,
+            MagnificationFilter = 1 << 1,
+            MaxAnisotropy       = 1 << 2,
+            WrapS               = 1 << 3,
+            WrapT               = 1 << 4,
+            WrapR               = 1 << 5,
+            All                 = UINT_MAX
+        };
 
-		enum class DirtyMask : uint32_t {
-			None =					0,
-			MinificationFilter = 	1 << 0,
-			MagnificationFilter = 	1 << 1,
-			MaxAnisotropy = 		1 << 2,
-			WrapS = 				1 << 3,
-			WrapT = 				1 << 4,
-			WrapR = 				1 << 5,
-			All = 					UINT_MAX
-		};
+        /// Internal Member Functions ///
 
-		/// Internal Member Functions ///
+        SamplerId id() const noexcept;
 
-		SamplerId 							id() const noexcept;
+        DirtyMask dirtyMask() const;
+        void      dirtyMask(DirtyMask mask);
 
-		DirtyMask 							dirtyMask() const;
-		void 								dirtyMask(DirtyMask mask);
+    private:
+        /// Private Member Variables ///
 
-	private:
-		/// Private Member Variables ///
+        SamplerId  _id;
+        FilterMode _minificationFilter;
+        FilterMode _magnificationFilter;
+        float      _maxAnisotropy;
+        WrapMode   _wrapS;
+        WrapMode   _wrapT;
+        WrapMode   _wrapR;
 
-		SamplerId 							_id;
-		FilterMode							_minificationFilter;
-		FilterMode							_magnificationFilter;
-		float								_maxAnisotropy;
-		WrapMode							_wrapS;
-		WrapMode							_wrapT;
-		WrapMode							_wrapR;
+        DirtyMask  _dirtyMask;
+    };
 
-		DirtyMask							_dirtyMask;
-	};
+    namespace util::bitmask {
 
-	namespace util::bitmask {
-		template <> struct enable_ops<Sampler::DirtyMask> : std::true_type {};
-	}
+        template<>
+        struct enable_ops<Sampler::DirtyMask> : std::true_type {};
+
+    }
 }
 
 #endif //AVARA3D_VISUAL_MATERIAL_SAMPLER_H

@@ -17,32 +17,32 @@ using namespace a3d;
 /// Public Lifecycle Functions ///
 
 CapsulePhysicsShape::CapsulePhysicsShape(float radius, float height):
-		PhysicsShape{},
-		_radius{radius},
-		_height{height} {
+    PhysicsShape {},
+    _radius {radius},
+    _height {height} {
 
-	//checkCreateProxy();
+    //checkCreateProxy();
 }
 
 /// Public Member Functions ///
 
 float CapsulePhysicsShape::radius() const {
-	return _radius;
+    return _radius;
 }
 
 void CapsulePhysicsShape::radius(float radius) {
-	_radius = radius;
+    _radius = radius;
 
 //	_proxy = nullptr;
 //	checkCreateProxy();
 }
 
 float CapsulePhysicsShape::height() const {
-	return _height;
+    return _height;
 }
 
 void CapsulePhysicsShape::height(float height) {
-	_height = height;
+    _height = height;
 
 //	_proxy = nullptr;
 //	checkCreateProxy();
@@ -51,9 +51,9 @@ void CapsulePhysicsShape::height(float height) {
 /// PhysicsShape Public Member Functions ///
 
 PhysicsShape::Type CapsulePhysicsShape::type() const {
-	return PhysicsShape::Type::Primitive;
+    return PhysicsShape::Type::Primitive;
 }
 
 void CapsulePhysicsShape::type(PhysicsShape::Type type) {
-	throw std::logic_error("Cannot set PhysicsShape::Type for CapsulePhysicsShape.");
+    throw std::logic_error("Cannot set PhysicsShape::Type for CapsulePhysicsShape.");
 }

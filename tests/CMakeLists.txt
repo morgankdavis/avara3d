@@ -9,4 +9,9 @@ add_subdirectory(003-input-camera)
 add_subdirectory(004-geoprimitives)
 add_subdirectory(005-materials-lights)
 add_subdirectory(006-debug)
+
+#if (NOT A3D_WEB)
+#	add_subdirectory(010-execution)
+#endif()
+
 add_subdirectory(030-rigidbody)

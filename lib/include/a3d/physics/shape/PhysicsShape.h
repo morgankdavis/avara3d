@@ -16,60 +16,57 @@
 #include <vector>
 
 namespace a3d {
-	
-	class Mesh;
-	class Node;
-	class PhysicsBody;
-	class PhysicsWorld;
-	class PhysicsShapeProxy;
-	class Scene;
 
-	class PhysicsShape {
+    class Mesh;
+    class Node;
+    class PhysicsBody;
+    class PhysicsWorld;
+    class PhysicsShapeProxy;
+    class Scene;
 
-	public:
-		/// Public Types ///
+    class PhysicsShape {
 
-		enum class Type : uint8_t {
-			Primitive, // eh, do something else
-			BoundingBox,
-			ConvexHull,
-			ConcavePolyhedron
-		};
+    public:
+        /// Public Types ///
 
-		using Source = std::variant<
-				std::monostate,
-				std::weak_ptr<Mesh>,
-				std::weak_ptr<Node>>;
+        enum class Type : uint8_t {
+            Primitive, // eh, do something else
+            BoundingBox,
+            ConvexHull,
+            ConcavePolyhedron
+        };
 
-		// TODO: static MeshShape(), NodeShape()
+        using Source = std::variant<std::monostate, std::weak_ptr<Mesh>, std::weak_ptr<Node>>;
 
-		/// Public Lifecycle Functions ///
+        // TODO: static MeshShape(), NodeShape()
 
-		PhysicsShape(Type type, const std::shared_ptr<Mesh>& mesh);
-		PhysicsShape(Type type, const std::shared_ptr<Node>& node);
+        /// Public Lifecycle Functions ///
 
-		PhysicsShape(const PhysicsShape&) = delete;
-		PhysicsShape& operator=(const PhysicsShape&) = delete;
+        PhysicsShape(Type type, const std::shared_ptr<Mesh>& mesh);
+        PhysicsShape(Type type, const std::shared_ptr<Node>& node);
 
-		PhysicsShape(PhysicsShape&&) = delete;
-		PhysicsShape& operator=(PhysicsShape&&) = delete;
+        PhysicsShape(const PhysicsShape&)            = delete;
+        PhysicsShape& operator=(const PhysicsShape&) = delete;
 
-		virtual ~PhysicsShape();
+        PhysicsShape(PhysicsShape&&)            = delete;
+        PhysicsShape& operator=(PhysicsShape&&) = delete;
 
-		/// Public Member Functions ///
+        virtual ~PhysicsShape();
 
-		virtual Type 						type() const;
-		virtual void 						type(Type type);
+        /// Public Member Functions ///
 
-		Source 								source() const;
+        virtual Type                            type() const;
+        virtual void                            type(Type type);
 
-		/// Internal Member Functions ///
+        Source                                  source() const;
 
-		void 								attachedToBody(PhysicsBody& body);
-		void 								detachedFromBody(PhysicsBody& body);
+        /// Internal Member Functions ///
 
-		void								physicalWorldReachable(PhysicsWorld& world);
-		void								physicalWorldUnreachable(PhysicsWorld& world);
+        void                                    attachedToBody(PhysicsBody& body);
+        void                                    detachedFromBody(PhysicsBody& body);
+
+        void                                    physicsWorldReachable(PhysicsWorld& world);
+        void                                    physicsWorldUnreachable(PhysicsWorld& world);
 
 //		void 								bodyAttachedToNode(Node* node); // body's owning node
 //		void 								bodyDetachedFromNode(Node* node);
@@ -84,35 +81,36 @@ namespace a3d {
 //		void								ancestorDetachedFromScene(Node* node,
 //																	  Scene* scene);
 //
-//		void								physicalWorldAttachedToScene(PhysicsWorld* world,
+//		void								physicsWorldAttachedToScene(PhysicsWorld* world,
 //																		 Scene* scene);
-//		void								physicalWorldDetachedFromScene(PhysicsWorld* world,
+//		void								physicsWorldDetachedFromScene(PhysicsWorld* world,
 //																		   Scene* scene);
 
-		void 								source(const Source& sourceObject);
+        void                                    source(const Source& sourceObject);
 
-		void								checkCreateProxy();
+        void                                    checkCreateProxy();
 
-		const std::unordered_set<PhysicsBody*>&	bodies() const;
+        const std::unordered_set<PhysicsBody*>& bodies() const;
 
-		PhysicsShapeProxy*					proxy() const;
+        PhysicsShapeProxy*                      proxy() const;
 
-	protected:
-		/// Protected Lifecycle ///
+    protected:
+        /// Protected Lifecycle ///
 
-		PhysicsShape();
+        PhysicsShape();
 
-		/// Protected Member Functions ///
+        /// Protected Member Functions ///
 
-		Type 								_type;
-		std::unique_ptr<PhysicsShapeProxy>	_proxy;
+        Type                               _type;
+        std::unique_ptr<PhysicsShapeProxy> _proxy;
 
-	private:
-		/// Private Member Variables ///
+    private:
+        /// Private Member Variables ///
 
-		Source 								_source;
-		std::unordered_set<PhysicsBody*>	_bodies;
-	};
+        Source                           _source;
+        std::unordered_set<PhysicsBody*> _bodies;
+    };
+
 }
 
 #endif /* AVARA3D_PHYSICS_SHAPE_PHYSICSSHAPE_H */

@@ -9,6 +9,7 @@
 #ifndef AVARA3D_VISUAL_VISUALWORLD_H
 #define AVARA3D_VISUAL_VISUALWORLD_H
 
+#include <cstdint>
 #include <functional>
 #include <memory>
 
@@ -17,120 +18,134 @@
 
 namespace a3d {
 
-	struct FrameStats;
+    struct FrameStats;
 
-	class Color;
-	class FrameStatsHistory;
-	class Material;
-	class Mesh;
-	class Node;
-	class PhysicsWorld;
-	class Profiler;
-	class Renderer;
-	class RenderContext;
-	class Scene;
+    class Color;
+    class FrameStatsHistory;
+    class Material;
+    class Mesh;
+    class Node;
+    class PhysicsWorld;
+    class Profiler;
+    class Renderer;
+    class RenderContext;
+    class Scene;
 
-	class VisualWorld {
+    class VisualWorld {
 
-	public:
-		/// Public Types ///
+    public:
+        /// Public Types ///
 
-		using WillRenderCallback =	std::function<void(VisualWorld& world,
-		                                                 double time,
-		                                                 double deltaTime)>;
-		using DidRenderCallback =	std::function<void(VisualWorld& world,
-		                                                double time,
-		                                                double deltaTime)>;
+        struct RenderInfo {
 
-		/// Public Lifecycle Functions ///
+            // zero-based successful-render-frame index
+            std::uint64_t frameIndex {0};
 
-		VisualWorld() = delete;
-		explicit VisualWorld(RenderContext& context);
+            // Runner update responsible for this render attempt
+            std::uint64_t updateIndex {0};
 
-		VisualWorld(const VisualWorld&) = delete;
-		VisualWorld& operator=(const VisualWorld&) = delete;
+            // monotonic Runner elapsed time for the containing update
+            double        updateTime {0.0};
 
-		VisualWorld(VisualWorld&&) = delete;
-		VisualWorld& operator=(VisualWorld&&) = delete;
+            // monotonic delta for the containing Runner update
+            double        updateDeltaTime {0.0};
 
-		virtual ~VisualWorld();
+            // time reached by the most recently completed simulation step
+            double        simulationTime {0.0};
 
-		/// Public Member Functions ///
+            // total number of completed simulation steps
+            std::uint64_t simulationStepCount {0};
+        };
 
-		const Material::Property&			background();
-		void 								background(const Material::Property& background);
+        /// Public Lifecycle Functions ///
 
-		// TODO: make Fog its own class
-		float 								fogStartDistance() const;
-		void 								fogStartDistance(float distance);
-		float 								fogEndDistance() const;
-		void 								fogEndDistance(float distance);
-		// 0 = constant, alpha respected
-		// 1 = linear, alpha ignored
-		// >=2 = exponential, alpha ignored
-		float 								fogDensityExponent() const;
-		void 								fogDensityExponent(float exponent);
+        VisualWorld() = delete;
+        explicit VisualWorld(RenderContext& context);
 
-		const std::shared_ptr<Color>&		fogColor() const;
-		void 								fogColor(const std::shared_ptr<Color>& color);
+        VisualWorld(const VisualWorld&)            = delete;
+        VisualWorld& operator=(const VisualWorld&) = delete;
 
-		std::weak_ptr<Node>&				pointOfView();
-		void 								pointOfView(const std::weak_ptr<Node>& cameraNode);
+        VisualWorld(VisualWorld&&)            = delete;
+        VisualWorld& operator=(VisualWorld&&) = delete;
 
-		bool								usesDefaultLighting() const;
-		void								usesDefaultLighting(bool enabled);
+        virtual ~VisualWorld();
 
-		bool								autoEnablesDefaultLighting() const;
-		void								autoEnablesDefaultLighting(bool enabled);
+        /// Public Member Functions ///
 
-		RenderContext* 						renderContext() const;
+        const Material::Property&     background();
+        void                          background(const Material::Property& background);
 
-		Scene*								scene() const;
+        // TODO: make Fog its own class
+        float                         fogStartDistance() const;
+        void                          fogStartDistance(float distance);
+        float                         fogEndDistance() const;
+        void                          fogEndDistance(float distance);
+        // 0 = constant, alpha respected
+        // 1 = linear, alpha ignored
+        // >=2 = exponential, alpha ignored
+        float                         fogDensityExponent() const;
+        void                          fogDensityExponent(float exponent);
 
-		WillRenderCallback 					willRenderCallback() const;
-		void 								willRenderCallback(WillRenderCallback function);
+        const std::shared_ptr<Color>& fogColor() const;
+        void                          fogColor(const std::shared_ptr<Color>& color);
 
-		DidRenderCallback 					didRenderCallback() const;
-		void 								didRenderCallback(DidRenderCallback function);
+        std::weak_ptr<Node>&          pointOfView();
+        void                          pointOfView(const std::weak_ptr<Node>& cameraNode);
 
-		/// Internal Member Functions ///
+        bool                          usesDefaultLighting() const;
+        void                          usesDefaultLighting(bool enabled);
 
-		void								attachedToScene(Scene& scene);
-		void								detachedFromScene(Scene& scene);
+        bool                          autoEnablesDefaultLighting() const;
+        void                          autoEnablesDefaultLighting(bool enabled);
 
-		void								draw(const Scene& scene,
-												 const PhysicsWorld* physicalWorld,
-												 double runT,
-												 double deltaRunT,
-												 Scene::DebugOptions debugOptions,
-												 FrameStats& stats,
-												 Profiler& profiler,
-												 const FrameStatsHistory& statsHistory);
+        RenderContext*                renderContext() const;
 
-		std::shared_ptr<Material>			backgroundMaterial();
+        Scene*                        scene() const;
 
-	private:
-		/// Private Member Functions ///
+        /// Internal Types ///
 
-		void								firstDraw();
-		std::shared_ptr<Node>				defaultPOV();
+        using DidBeginFrameCallback = std::function<void(VisualWorld& visualWorld, const RenderInfo& info)>;
 
-		/// Private Member Variables ///
+        /// Internal Member Functions ///
 
-		Material::Property					_background;
-		std::shared_ptr<Material>			_backgroundMaterial;
-		float								_fogStartDistance;
-		float								_fogEndDistance;
-		float								_fogDensityExponent;
-		std::shared_ptr<Color>				_fogColor;
-		bool								_usesDefaultLighting;
-		bool								_autoEnablesDefaultLighting;
-		std::weak_ptr<Node>					_pointOfView;
-		RenderContext*						_renderContext;
-		Scene*								_scene;
-		WillRenderCallback 					_willRenderCallback;
-		DidRenderCallback 					_didRenderCallback;
-	};
+        void                      attachedToScene(Scene& scene);
+        void                      detachedFromScene(Scene& scene);
+
+        DidBeginFrameCallback     didBeginFrameCallback() const;
+        void                      didBeginFrameCallback(DidBeginFrameCallback function);
+
+        bool                      draw(const Scene&             scene,
+                                       const PhysicsWorld*      physicsWorld,
+                                       const RenderInfo&        info,
+                                       Scene::DebugOptions      debugOptions,
+                                       FrameStats&              stats,
+                                       Profiler&                profiler,
+                                       const FrameStatsHistory& statsHistory);
+
+        std::shared_ptr<Material> backgroundMaterial();
+
+    private:
+        /// Private Member Functions ///
+
+        void                      firstDraw();
+        std::shared_ptr<Node>     defaultPOV();
+
+        /// Private Member Variables ///
+
+        Material::Property        _background;
+        std::shared_ptr<Material> _backgroundMaterial;
+        float                     _fogStartDistance;
+        float                     _fogEndDistance;
+        float                     _fogDensityExponent;
+        std::shared_ptr<Color>    _fogColor;
+        bool                      _usesDefaultLighting;
+        bool                      _autoEnablesDefaultLighting;
+        std::weak_ptr<Node>       _pointOfView;
+        RenderContext*            _renderContext;
+        Scene*                    _scene;
+        DidBeginFrameCallback     _didBeginFrameCallback;
+    };
+
 }
 
 #endif //AVARA3D_VISUAL_VISUALWORLD_H

@@ -19,20 +19,20 @@ using namespace a3d;
 /// Internal Lifecycle Functions ///
 
 BulletMotionState::BulletMotionState(PhysicsBody& body):
-		btMotionState{},
-		_body{&body} { }
+    btMotionState {},
+    _body {&body} {}
 
 /// btMotionState Members ///
 
 // apply node transform to kinematic physics body (only called for kinematic bodies)
-void BulletMotionState::getWorldTransform(btTransform &transform) const {
+void BulletMotionState::getWorldTransform(btTransform& transform) const {
 
-	if (auto node = _body->node().lock()) {
-		transform = BTTransformFromA3DMat4(node->worldTransform());
-	}
-	// causes warning to be printed every time a new PhysicsBody is created,
-	// since when the body is created, it's not yet attahed to a Node.
-	// see note at BulletWorldProxy::add()
+    if (auto node = _body->node().lock()) {
+        transform = BTTransformFromA3DMat4(node->worldTransform());
+    }
+    // causes warning to be printed every time a new PhysicsBody is created,
+    // since when the body is created, it's not yet attahed to a Node.
+    // see note at BulletWorldProxy::add()
 //	else {
 //		log::w()("node is null.");
 //	}
@@ -41,9 +41,9 @@ void BulletMotionState::getWorldTransform(btTransform &transform) const {
 // apply dynamic physics body transform to node (only called for dynamic bodies)
 void BulletMotionState::setWorldTransform(const btTransform& transform) {
 
-	if (auto node = _body->node().lock()) {
-		node->applyPhysicsTransform(A3DMat4FromBTTransform(transform));
-	}
+    if (auto node = _body->node().lock()) {
+        node->applyPhysicsTransform(A3DMat4FromBTTransform(transform));
+    }
 //	else {
 //		log::w()("node is null.");
 //	}
@@ -52,5 +52,5 @@ void BulletMotionState::setWorldTransform(const btTransform& transform) {
 /// Internal Member Functions ///
 
 PhysicsBody* BulletMotionState::body() const {
-	return _body;
+    return _body;
 }

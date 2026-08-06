@@ -19,78 +19,72 @@
 
 namespace a3d {
 
-	class Material;
-	class MeshElement;
-	class Texture;
+    class Material;
+    class MeshElement;
+    class Texture;
 
-	/// Internal Types ///
+    /// Internal Types ///
 
-	struct OGLPipeline {
-		PipelineDesc 	desc =		{};
-		gl::uint_t		program = 	0;
-	};
+    struct OGLPipeline {
+        PipelineDesc desc    = {};
+        gl::uint_t   program = 0;
+    };
 
-	struct OGLMeshElement {
-		gl::uint_t 		vao = 				0;
-		gl::uint_t 		vbo = 				0;
-		gl::uint_t 		ebo = 				0;
-		gl::enum_t 		indexType = 		gl::value::unsigned_int;
-		uint32_t 		indexCount = 		0;
-		uint32_t        vertexCount =		0;
-		VertexLayout 	vertexLayoutKey = 	VertexLayout::None;
-	};
+    struct OGLMeshElement {
+        gl::uint_t   vao             = 0;
+        gl::uint_t   vbo             = 0;
+        gl::uint_t   ebo             = 0;
+        gl::enum_t   indexType       = gl::value::unsigned_int;
+        uint32_t     indexCount      = 0;
+        uint32_t     vertexCount     = 0;
+        VertexLayout vertexLayoutKey = VertexLayout::None;
+    };
 
-	static constexpr size_t NUM_MATERIAL_PROPERTY_SLOTS = 4;
-	struct OGLMaterial {
-		std::array<gl::uint_t, NUM_MATERIAL_PROPERTY_SLOTS>
-		        								tex = 				{};
-		float 									specularExponent = 	75.0f;
-		float 									uvScale = 			1.0f;
-	};
+    static constexpr size_t NUM_MATERIAL_PROPERTY_SLOTS = 4;
 
-	struct OGLTexture {
-		gl::uint_t id = 0;
-	};
+    struct OGLMaterial {
+        std::array<gl::uint_t, NUM_MATERIAL_PROPERTY_SLOTS> tex              = {};
+        float                                               specularExponent = 75.0f;
+        float                                               uvScale          = 1.0f;
+    };
 
-	class OGLResourceCache {
+    struct OGLTexture {
+        gl::uint_t id = 0;
+    };
 
-	public:
-		/// Internal Lifecycle Functions ///
+    class OGLResourceCache {
 
-		OGLResourceCache() = default;
+    public:
+        /// Internal Lifecycle Functions ///
 
-		OGLResourceCache(const OGLResourceCache&) = delete;
-		OGLResourceCache& operator=(const OGLResourceCache&) = delete;
+        OGLResourceCache() = default;
 
-		OGLResourceCache(OGLResourceCache&&) = delete;
-		OGLResourceCache& operator=(OGLResourceCache&&) = delete;
+        OGLResourceCache(const OGLResourceCache&)            = delete;
+        OGLResourceCache& operator=(const OGLResourceCache&) = delete;
 
-		~OGLResourceCache();
+        OGLResourceCache(OGLResourceCache&&)            = delete;
+        OGLResourceCache& operator=(OGLResourceCache&&) = delete;
 
-		/// Internal Member Functions ///
+        ~OGLResourceCache();
 
-		PipelineId							ensurePipeline(const PipelineDesc &desc,
-									                         gl::uint_t program);
-		const OGLPipeline& 					pipeline(PipelineId pipelineId) const;
-		const OGLMeshElement& 				ensureMeshElement(MeshElement& element);
-		const OGLMaterial& 					ensureMaterial(Material& material);
-		const OGLTexture& 					ensureTexture(Texture& texture);
+        /// Internal Member Functions ///
 
-	private:
-		/// Private Member Variables ///
+        PipelineId            ensurePipeline(const PipelineDesc& desc, gl::uint_t program);
+        const OGLPipeline&    pipeline(PipelineId pipelineId) const;
+        const OGLMeshElement& ensureMeshElement(MeshElement& element);
+        const OGLMaterial&    ensureMaterial(Material& material);
+        const OGLTexture&     ensureTexture(Texture& texture);
 
-		std::unordered_map<
-				PipelineDesc,
-				PipelineId,
-				PipelineDescHash> 			_pipelineMap;
-		std::vector<OGLPipeline> 			_pipelineList;
-		std::unordered_map<MeshElement*,
-				OGLMeshElement> 			_meshElementMap;
-		std::unordered_map<Material*,
-				OGLMaterial> 				_materialMap;
-		std::unordered_map<Texture*,
-				OGLTexture> 				_textureMap;
-	};
+    private:
+        /// Private Member Variables ///
+
+        std::unordered_map<PipelineDesc, PipelineId, PipelineDescHash> _pipelineMap;
+        std::vector<OGLPipeline>                                       _pipelineList;
+        std::unordered_map<MeshElement*, OGLMeshElement>               _meshElementMap;
+        std::unordered_map<Material*, OGLMaterial>                     _materialMap;
+        std::unordered_map<Texture*, OGLTexture>                       _textureMap;
+    };
+
 }
 
 #endif //AVARA3D_RENDER_BACKEND_OPENGL_OGLRESOURCECACHE_H

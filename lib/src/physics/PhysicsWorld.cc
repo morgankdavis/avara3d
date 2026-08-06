@@ -8,6 +8,9 @@
 
 #include "a3d/physics/PhysicsWorld.h"
 
+#include <cmath>
+#include <stdexcept>
+
 #include "a3d/log/Log.h"
 #include "a3d/mesh/Line.h"
 #include "a3d/physics/HitTestResult.h"
@@ -26,186 +29,170 @@ using namespace std;
 /// Public Lifecycle Functions ///
 
 PhysicsWorld::PhysicsWorld():
-		_gravity{0, -9.807, 0},
-		_speed{1.0},
-		_timestep{1.0/60.0},
-		_scene{},
-		_didSimulateCallback{},
-		_beginContactCallback{},
-		_continueContactCallback{},
-		_endContactCallback{} {
+    _gravity {0, -9.807, 0},
+    _scene {},
+    _beginContactCallback {},
+    _continueContactCallback {},
+    _endContactCallback {} {
 
-	_proxy = make_unique<BulletWorldProxy>(*this);
+    _proxy = make_unique<BulletWorldProxy>(*this);
 }
 
 PhysicsWorld::~PhysicsWorld() {
-	log::d()("Destroying PhysicsWorld {:p}", static_cast<void*>(this));
+    log::d()("Destroying PhysicsWorld {:p}", static_cast<void*>(this));
 }
 
 /// Public Member Functions ///
 
 const vec3& PhysicsWorld::gravity() const {
-	return _gravity;
+    return _gravity;
 }
 
 void PhysicsWorld::gravity(const vec3& gravity) {
-	_gravity = gravity;
+    _gravity = gravity;
 }
 
-float PhysicsWorld::speed() const {
-	return _speed;
-}
+optional<PhysicsContact> PhysicsWorld::contactTest(const PhysicsBody& bodyA, const PhysicsBody& bodyB) {
 
-void PhysicsWorld::speed(float speed) {
-	_speed = speed;
-}
+    // contactPairTest (btCollisionObject *colObjA, btCollisionObject *colObjB, ContactResultCallback &resultCallback)
 
-float PhysicsWorld::timestep() const {
-	return _timestep;
-}
-
-void PhysicsWorld::timestep(float timestep) {
-	_timestep = timestep;
-}
-
-optional<PhysicsContact> PhysicsWorld::contactTest(const PhysicsBody& bodyA,
-													const PhysicsBody& bodyB) {
-
-	// contactPairTest (btCollisionObject *colObjA, btCollisionObject *colObjB, ContactResultCallback &resultCallback)
-	
-	return {};
+    return {};
 }
 
 optional<PhysicsContact> PhysicsWorld::contactTest(const PhysicsBody& body) {
-	
-	// contactTest (btCollisionObject *colObj, ContactResultCallback &resultCallback)
-	
-	return {};
+
+    // contactTest (btCollisionObject *colObj, ContactResultCallback &resultCallback)
+
+    return {};
 }
 
 optional<HitTestResult> PhysicsWorld::rayTest(const vec3& fromVec, const vec3& toVec) {
 
-	//rayTest (const btVector3 &rayFromWorld, const btVector3 &rayToWorld, RayResultCallback &resultCallback) const
+    //rayTest (const btVector3 &rayFromWorld, const btVector3 &rayToWorld, RayResultCallback &resultCallback) const
 
-	return {};
+    return {};
 }
 
 optional<PhysicsContact> PhysicsWorld::convexSweepTest(const PhysicsContact& contact,
-														const mat4& fromMat,
-														const mat4& toMat) {
+                                                       const mat4&           fromMat,
+                                                       const mat4&           toMat) {
 
-	// convexSweepTest (const btConvexShape *castShape, const btTransform &from, const btTransform &to, ConvexResultCallback &resultCallback, btScalar allowedCcdPenetration=btScalar(0.)) const 
+    // convexSweepTest (const btConvexShape *castShape, const btTransform &from, const btTransform &to, ConvexResultCallback &resultCallback, btScalar allowedCcdPenetration=btScalar(0.)) const
 
-	return {};
+    return {};
 }
 
 void PhysicsWorld::updateCollisionPairs() {
-	_proxy->updateCollisionPairs();
+    _proxy->updateCollisionPairs();
 }
 
 Scene* PhysicsWorld::scene() const {
-	return _scene;
-}
-
-PhysicsWorld::DidSimulateCallback PhysicsWorld::didSimulateCallback() const {
-	return _didSimulateCallback;
-}
-
-void PhysicsWorld::didSimulateCallback(DidSimulateCallback function) {
-	_didSimulateCallback = function;
+    return _scene;
 }
 
 PhysicsWorld::BeginContactCallback PhysicsWorld::beginContactCallback() const {
-	return _beginContactCallback;
+    return _beginContactCallback;
 }
 
 void PhysicsWorld::beginContactCallback(PhysicsWorld::BeginContactCallback function) {
-	_beginContactCallback = function;
+    _beginContactCallback = function;
 }
 
 PhysicsWorld::ContinueContactCallback PhysicsWorld::continueContactCallback() const {
-	return _continueContactCallback;
+    return _continueContactCallback;
 }
 
 void PhysicsWorld::continueContactCallback(PhysicsWorld::ContinueContactCallback function) {
-	_continueContactCallback = function;
+    _continueContactCallback = function;
 }
 
 PhysicsWorld::EndContactCallback PhysicsWorld::endContactCallback() const {
-	return _endContactCallback;
+    return _endContactCallback;
 }
 
 void PhysicsWorld::endContactCallback(PhysicsWorld::EndContactCallback function) {
-	_endContactCallback = function;
+    _endContactCallback = function;
 }
 
 /// Internal Member Functions ///
 
 void PhysicsWorld::attachedToScene(Scene& scene) {
-	log::t()("scene: {:p}", static_cast<void*>(&scene));
+    log::t()("scene: {:p}", static_cast<void*>(&scene));
 
-	_scene = &scene;
+    _scene = &scene;
 }
 
 void PhysicsWorld::detachedFromScene(Scene& scene) {
-	log::t()("scene: {:p}", static_cast<void*>(&scene));
+    log::t()("scene: {:p}", static_cast<void*>(&scene));
 
-	// removing bodies handled in PhysicsBody::physicsWorldUnreachable()
+    // removing bodies handled in PhysicsBody::physicsWorldUnreachable()
 
-	_scene = nullptr;
+    _scene = nullptr;
 }
 
 void PhysicsWorld::add(PhysicsBody& body) {
-	log::d()("body: {}", static_cast<void*>(&body));
+    log::d()("body: {}", static_cast<void*>(&body));
 
-	if (_proxy) {
-//		body.addedToWorld(this);
-		_proxy->add(body);
-		body.addedToWorld(*this);
-	}
-	else {
-		log::w()("_model is null.");
-	}
+    if (_proxy) {
+        //		body.addedToWorld(this);
+        _proxy->add(body);
+        body.addedToWorld(*this);
+    }
+    else {
+        log::w()("_model is null.");
+    }
 }
 
 void PhysicsWorld::remove(PhysicsBody& body) {
-	log::d()("body: {}", static_cast<void*>(&body));
+    log::d()("body: {}", static_cast<void*>(&body));
 
-	if (_proxy) {
-		_proxy->remove(body);
-		body.removedFromWorld(*this);
-	}
-	else {
-		log::w()("_model is null.");
-	}
+    if (_proxy) {
+        _proxy->remove(body);
+        body.removedFromWorld(*this);
+    }
+    else {
+        log::w()("_model is null.");
+    }
 }
 
-void PhysicsWorld::step(const Scene& scene,
-						 double runT,
-						 double deltaRunT,
-						 FrameStats& stats,
-						 Profiler& profiler) {
-
-	if (!util::flow::edge_guard(_proxy, [&] {
-		log::e()("No PhysicsWorldProxy attached to PhysicsWorld {:p}.", static_cast<void*>(this));
-	})) return;
-
-	_proxy->step(deltaRunT, _speed, _timestep, stats, profiler);
-
-	if (auto didSimulate = PhysicsWorld::didSimulateCallback()) {
-		prof::profile(profiler, Profiler::Tag::Application, [&] {
-			didSimulate(*this, runT, deltaRunT);
-		});
-	}
+bool PhysicsWorld::acceptsStepDelta(double deltaTime) const {
+    return std::isfinite(deltaTime) && deltaTime > 0.0 && _proxy && _proxy->acceptsStepDelta(deltaTime);
 }
 
-void PhysicsWorld::appendDebugLines(vector<Line>& out,
-									 Scene::DebugOptions debugOptions) const {
-	if (_proxy) {
-		_proxy->appendDebugLines(out, debugOptions);
-	}
+PhysicsInventory PhysicsWorld::step(double deltaTime, Profiler& profiler) {
+
+    if (!util::flow::edge_guard(_proxy, [&] {
+            log::e()("No PhysicsWorldProxy attached to PhysicsWorld {:p}.", static_cast<void*>(this));
+        })) {
+        return {};
+    }
+
+    if (!acceptsStepDelta(deltaTime)) {
+        throw invalid_argument("PhysicsWorld::step() requires an accepted positive, finite delta time.");
+    }
+
+    _proxy->step(deltaTime, profiler);
+
+    auto inventory = prof::profile(profiler, Profiler::Tag::Physics, [&] {
+        return PhysicsWorld::inventory();
+    });
+
+    return inventory;
+}
+
+PhysicsInventory PhysicsWorld::inventory() const {
+    if (_proxy) {
+        return _proxy->inventory();
+    }
+    return {};
+}
+
+void PhysicsWorld::appendDebugLines(vector<Line>& out, Scene::DebugOptions debugOptions) const {
+    if (_proxy) {
+        _proxy->appendDebugLines(out, debugOptions);
+    }
 }
 
 PhysicsWorldProxy* PhysicsWorld::proxy() const {
-	return  _proxy.get();
+    return _proxy.get();
 }

@@ -14,20 +14,21 @@
 
 namespace a3d {
 
-	class Material;
+    class Material;
 
-	class PipelineDescBuilder {
+    class PipelineDescBuilder {
 
-	public:
-		/// Internal Static Member Functions ///
+    public:
+        /// Internal Static Member Functions ///
 
-		static PipelineDesc MakeBackgroundDesc();
-		static PipelineDesc MakeOpaqueDesc(const Material& material, VertexLayout layout);
-		static PipelineDesc MakeMaskDesc(const Material& material, VertexLayout layout);
-		static PipelineDesc MakeTransparentDesc(const Material& material, VertexLayout layout);
-		static PipelineDesc MakeWireframeDesc(VertexLayout layout);
-		static PipelineDesc MakeLinesDesc();
-	};
+        static PipelineDesc MakeBackgroundDesc();
+        static PipelineDesc MakeOpaqueDesc(const Material& material, VertexLayout layout);
+        static PipelineDesc MakeMaskDesc(const Material& material, VertexLayout layout);
+        static PipelineDesc MakeTransparentDesc(const Material& material, VertexLayout layout);
+        static PipelineDesc MakeWireframeDesc(VertexLayout layout);
+        static PipelineDesc MakeLinesDesc();
+    };
+
 }
 
 #endif //AVARA3D_RENDER_PIPELINEDESCBUILDER_H

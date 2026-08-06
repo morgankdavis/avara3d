@@ -9,6 +9,7 @@
 #ifndef AVARA3D_PHYSICS_BACKEND_BULLET_BULLETWORLDPROXY_H
 #define AVARA3D_PHYSICS_BACKEND_BULLET_BULLETWORLDPROXY_H
 
+#include <chrono>
 #include <memory>
 #include <mutex>
 #include <vector>
@@ -31,67 +32,70 @@ class btDefaultCollisionConfiguration;
 
 namespace a3d {
 
-	class BulletDebugDrawer;
-	class RenderContext;
+    class BulletDebugDrawer;
+    class RenderContext;
 
-	class BulletWorldProxy : public PhysicsWorldProxy {
+    class BulletWorldProxy : public PhysicsWorldProxy {
 
-	public:
-		/// Internal Lifecycle Functions ///
+    public:
+        /// Internal Lifecycle Functions ///
 
-		explicit BulletWorldProxy(PhysicsWorld& world);
-		~BulletWorldProxy() override;
+        explicit BulletWorldProxy(PhysicsWorld& world);
+        ~BulletWorldProxy() override;
 
-		/// PhysicsWorldModelProxy Internal Member Functions ///
+        /// PhysicsWorldModelProxy Internal Member Functions ///
 
-		void 				add(PhysicsBody& body) override;
-		void 				remove(PhysicsBody& body) override;
+        void             add(PhysicsBody& body) override;
+        void             remove(PhysicsBody& body) override;
 
-		float				gravity() const override;
-		void				gravity(float gravity) override;
+        float            gravity() const override;
+        void             gravity(float gravity) override;
 
-		void				step(double deltaT,
-								 float speed,
-								 float timestep,
-								 FrameStats& stats,
-								 Profiler& profiler) override;
+        bool             acceptsStepDelta(double deltaTime) const override;
 
-		void 				updateCollisionPairs() override;
+        void             step(double deltaTime, Profiler& profiler) override;
 
-		void 				appendDebugLines(std::vector<Line>& out,
-											 Scene::DebugOptions debugOptions) override;
+        PhysicsInventory inventory() const override;
 
-		/// Internal Member Functions ///
+        void             updateCollisionPairs() override;
 
-		btDiscreteDynamicsWorld* 								btWorld();
+        void             appendDebugLines(std::vector<Line>& out, Scene::DebugOptions debugOptions) override;
 
-	private:
-		///  Private Member Variables ///
+        /// Internal Member Functions ///
 
-		// scheduler
-		btITaskScheduler* 										_btScheduler = nullptr;
-		std::unique_ptr<btITaskScheduler> 						_ownedScheduler;
-		btITaskScheduler* 										_prevScheduler = nullptr; // non-owning
+        btDiscreteDynamicsWorld* btWorld();
 
-		// config/dispatcher/broadphase
-		std::unique_ptr<btDefaultCollisionConfiguration> 		_btCollisionConfiguration;
-		std::unique_ptr<btCollisionDispatcher> 					_btCollisionDispatcher;
-		std::unique_ptr<btDbvtBroadphase> 						_btBroadphase;
+    private:
+        ///  Private Member Variables ///
 
-		// solvers
-		std::unique_ptr<btConstraintSolverPoolMt> 				_btSolverPool;
-		std::unique_ptr<btSequentialImpulseConstraintSolverMt> 	_btSolverMt;
+        // scheduler
+        btITaskScheduler*                                      _btScheduler;
+        std::unique_ptr<btITaskScheduler>                      _ownedScheduler;
+        btITaskScheduler*                                      _prevScheduler; // non-owning
 
-		std::unique_ptr<BulletDebugDrawer> 						_btDebugDrawer;
-		std::vector<Line> 										_debugLines;
+        // config/dispatcher/broadphase
+        std::unique_ptr<btDefaultCollisionConfiguration>       _btCollisionConfiguration;
+        std::unique_ptr<btCollisionDispatcher>                 _btCollisionDispatcher;
+        std::unique_ptr<btDbvtBroadphase>                      _btBroadphase;
 
-		BulletStats 											_stats;
+        // solvers
+        std::unique_ptr<btConstraintSolverPoolMt>              _btSolverPool;
+        std::unique_ptr<btSequentialImpulseConstraintSolverMt> _btSolverMt;
 
-		mutable std::mutex 										_btMutex;
+        std::unique_ptr<BulletDebugDrawer>                     _btDebugDrawer;
+        std::vector<Line>                                      _debugLines;
 
-		// MUST be last so destroyed first
-		std::unique_ptr<btDiscreteDynamicsWorld> 				_btWorld;
-	};
+        BulletStats                                            _stats;
+
+        mutable std::mutex                                     _btMutex;
+
+        // MUST be last so destroyed first
+        std::unique_ptr<btDiscreteDynamicsWorld>               _btWorld;
+
+        std::chrono::steady_clock::time_point                  _nextDebugLineUpdate;
+        int                                                    _debugDrawMode;
+    };
+
 }
 
 #endif //AVARA3D_PHYSICS_BACKEND_BULLET_BULLETWORLDPROXY_H

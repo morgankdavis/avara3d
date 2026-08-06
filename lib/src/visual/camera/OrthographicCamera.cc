@@ -17,53 +17,48 @@ using namespace a3d::math;
 /// Public Lifecycle Functions ///
 
 OrthographicCamera::OrthographicCamera():
-	Camera{},
-	_extent{{-1, -1, -1}, {1, 1, 1}} {
-	//constructProjectionMatrix();
+    Camera {},
+    _extent {{-1, -1, -1}, {1, 1, 1}} {
+    //constructProjectionMatrix();
 }
 
 OrthographicCamera::OrthographicCamera(const AABB& extent):
-		Camera{},
-		_extent{extent} {
-	//constructProjectionMatrix();
+    Camera {},
+    _extent {extent} {
+    //constructProjectionMatrix();
 }
 
 OrthographicCamera::OrthographicCamera(const string& name, const AABB& extent):
-	Camera{name},
-	_extent{extent} {
-	//constructProjectionMatrix();
+    Camera {name},
+    _extent {extent} {
+    //constructProjectionMatrix();
 }
 
 OrthographicCamera::~OrthographicCamera() {
 
-	if (_name != nullopt) {
-		log::d()("Destroying OrthographicCamera '{}' ({:p})", *_name, static_cast<void*>(this));
-	}
-	else {
-		log::d()("Destroying OrthographicCamera {:p}", static_cast<void*>(this));
-	}
+    if (_name != nullopt) {
+        log::d()("Destroying OrthographicCamera '{}' ({:p})", *_name, static_cast<void*>(this));
+    }
+    else {
+        log::d()("Destroying OrthographicCamera {:p}", static_cast<void*>(this));
+    }
 }
 
 /// Public Member Functions ///
 
 AABB OrthographicCamera::extent() const {
-	return _extent;
+    return _extent;
 }
 
 void OrthographicCamera::extent(const AABB& e) {
-	_extent = e;
-	//constructProjectionMatrix();
+    _extent = e;
+    //constructProjectionMatrix();
 }
 
 /// Camera Internal Member Functions ///
 
 mat4 OrthographicCamera::projection() const {
-	return ortho(_extent.min.x,
-				 _extent.max.x,
-				 _extent.min.y,
-				 _extent.max.y,
-				 _extent.min.z,
-				 _extent.max.z);
+    return ortho(_extent.min.x, _extent.max.x, _extent.min.y, _extent.max.y, _extent.min.z, _extent.max.z);
 }
 
 /// Camera Protected Member Functions ///

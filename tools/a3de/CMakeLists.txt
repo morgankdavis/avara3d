@@ -23,8 +23,8 @@ if (Qt6_FOUND)
             MainWindow.ui
             QtViewport.h
             QtViewport.cpp
-            QtInputManager.h
-            QtInputManager.cc
+            QtInputContext.h
+            QtInputContext.cc
     )
 
     #if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

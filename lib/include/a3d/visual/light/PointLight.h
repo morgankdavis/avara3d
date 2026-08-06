@@ -17,34 +17,35 @@
 
 namespace a3d {
 
-	class Color;
+    class Color;
 
-	class PointLight : public Light {
+    class PointLight : public Light {
 
-	public:
-		/// Public Lifecycle Functions ///
+    public:
+        /// Public Lifecycle Functions ///
 
-		PointLight();
-		explicit PointLight(const std::string& name);
-		explicit PointLight(const std::shared_ptr<Color>& color);
-		PointLight(const std::string& name, const std::shared_ptr<Color>& color);
+        PointLight();
+        explicit PointLight(const std::string& name);
+        explicit PointLight(const std::shared_ptr<Color>& color);
+        PointLight(const std::string& name, const std::shared_ptr<Color>& color);
 
-		PointLight(const PointLight&) = default;
-		PointLight& operator=(const PointLight&) = default;
+        PointLight(const PointLight&)            = default;
+        PointLight& operator=(const PointLight&) = default;
 
-		PointLight(PointLight&&) noexcept = default;
-		PointLight& operator=(PointLight&&) noexcept = default;
+        PointLight(PointLight&&) noexcept                   = default;
+        PointLight&        operator=(PointLight&&) noexcept = default;
 
-		/// Public Member Functions ///
+        /// Public Member Functions ///
 
-		const Attenuation&		attenuation() const;
-		void					attenuation(const Attenuation& attenuation);
+        const Attenuation& attenuation() const;
+        void               attenuation(const Attenuation& attenuation);
 
-	private:
-		/// Private Member Variables ///
+    private:
+        /// Private Member Variables ///
 
-		Attenuation 			_attenuation;
-	};
+        Attenuation _attenuation;
+    };
+
 }
 
 #endif //AVARA3D_VISUAL_LIGHT_POINTLIGHT_H */

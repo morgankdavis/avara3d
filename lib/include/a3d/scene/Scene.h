@@ -9,6 +9,7 @@
 #ifndef AVARA3D_SCENE_SCENE_H
 #define AVARA3D_SCENE_SCENE_H
 
+#include <cstdint>
 #include <filesystem>
 #include <functional>
 #include <memory>
@@ -16,136 +17,154 @@
 #include <string>
 
 #include "a3d/Math.h"
-#include "a3d/profile/FrameStatsHistory.h"
-#include "a3d/profile/Profiler.h"
+#include "a3d/input/InputContext.h"
+#include "a3d/physics/PhysicsInventory.h"
 #include "a3d/util/Bitmask.h"
 
 namespace a3d {
 
-	struct AABB;
+    struct AABB;
 
-	class Color;
-	class InputManager;
-	class Mesh;
-	class Node;
-	class PhysicsWorld;
-	class Renderer;
-	class RenderContext;
-	class VisualWorld;
+    class Color;
+    class Mesh;
+    class Node;
+    class PhysicsWorld;
+    class Profiler;
+    class Renderer;
+    class RenderContext;
+    class VisualWorld;
 
-	class Scene {
+    class Scene {
 
-	public:
-		/// Public Types ///
+    public:
+        /// Public Types ///
 
-		enum class ImportOptions : uint16_t {
-			None = 					0,
-			ImportMeshes =			1 << 0,
-			ImportMaterials =		1 << 1,
-			ImportLights =			1 << 2,
-			ImportCameras = 		1 << 3,
-			ImportAll =				UINT16_MAX
-		};
+        enum class ImportOptions : uint16_t {
+            None            = 0,
+            ImportMeshes    = 1 << 0,
+            ImportMaterials = 1 << 1,
+            ImportLights    = 1 << 2,
+            ImportCameras   = 1 << 3,
+            ImportAll       = UINT16_MAX
+        };
 
-		// TODO: move to VisualWorld?
-		enum class DebugOptions : uint32_t {
-			None =							0,
-			ShowStatsOverlay = 				1 << 0,
-			ShowBoundingBoxes = 			1 << 1,
-			ShowWireframes = 				1 << 2,
-			ShowCameras = 					1 << 3,
-			ShowLights = 					1 << 4,
-			ShowLightExtents = 				1 << 5,
-			ShowPhysicsBoundingBoxes = 		1 << 6,
-			ShowPhysicsWireframes = 		1 << 7,
-			ShowPhysicsContactPoints = 		1 << 8,
-			ShowPhysicsNormals = 			1 << 9,
-			ShowPhysicsConstraints =		1 << 10,
-			ShowPhysicsConstraintLimits	=	1 << 11
-		};
+        // TODO: move to VisualWorld?
+        enum class DebugOptions : uint32_t {
+            None                        = 0,
+            ShowStatsOverlay            = 1 << 0,
+            ShowBoundingBoxes           = 1 << 1,
+            ShowWireframes              = 1 << 2,
+            ShowCameras                 = 1 << 3,
+            ShowLights                  = 1 << 4,
+            ShowLightExtents            = 1 << 5,
+            ShowPhysicsBoundingBoxes    = 1 << 6,
+            ShowPhysicsWireframes       = 1 << 7,
+            ShowPhysicsContactPoints    = 1 << 8,
+            ShowPhysicsNormals          = 1 << 9,
+            ShowPhysicsConstraints      = 1 << 10,
+            ShowPhysicsConstraintLimits = 1 << 11
+        };
 
-		using UpdateCallback =				std::function<void(
-				Scene& scene,
-				double time,
-				double deltaTime)>;
+        struct StepInfo {
 
-		/// Public Static Member Functions ///
+            // zero-based simulation-step index
+            std::uint64_t stepIndex {0};
 
-		static std::unique_ptr<Scene> 		FromFile(const std::filesystem::path& path,
-													  ImportOptions options =
-													  ImportOptions::ImportAll);
+            // simulation time before this step
+            double        startTime {0.0};
 
-		/// Public Lifecycle Functions ///
+            // simulation time after this step completes
+            double        endTime {0.0};
 
-		Scene();
-		explicit Scene(const std::string& name);
-		Scene(std::unique_ptr<VisualWorld> visualWorld,
-			  std::unique_ptr<PhysicsWorld> physicsWorld,
-			  std::unique_ptr<InputManager> inputManager);
-		Scene(const std::string& name,
-			  std::unique_ptr<VisualWorld> visualWorld,
-			  std::unique_ptr<PhysicsWorld> physicsWorld,
-			  std::unique_ptr<InputManager> inputManager);
+            // amount of simulation time advanced by this step
+            double        deltaTime {0.0};
+        };
 
-		Scene(const Scene&) = delete;
-		Scene& operator=(const Scene&) = delete;
+        using WillStepCallback = std::function<void(Scene& scene, const StepInfo& info)>;
+        using DidStepCallback  = std::function<void(Scene& scene, const StepInfo& info)>;
 
-		Scene(Scene&&) = delete;
-		Scene& operator=(Scene&&) = delete;
+        /// Public Static Member Functions ///
 
-		~Scene();
+        static std::unique_ptr<Scene> FromFile(const std::filesystem::path& path,
+                                               ImportOptions                options = ImportOptions::ImportAll);
 
-		/// Public Member Functions ///
+        /// Public Lifecycle Functions ///
 
-		const std::optional<std::string>&	name() const;
-		void 								name(const std::string& name);
+        Scene();
+        explicit Scene(const std::string& name);
+        Scene(std::unique_ptr<VisualWorld>  visualWorld,
+              std::unique_ptr<PhysicsWorld> physicsWorld,
+              std::unique_ptr<InputContext> inputContext);
+        Scene(const std::string&            name,
+              std::unique_ptr<VisualWorld>  visualWorld,
+              std::unique_ptr<PhysicsWorld> physicsWorld,
+              std::unique_ptr<InputContext> inputContext);
 
-		const std::shared_ptr<Node>&		rootNode() const;
-		void 								rootNode(const std::shared_ptr<Node>& node);
+        Scene(const Scene&)            = delete;
+        Scene& operator=(const Scene&) = delete;
 
-		VisualWorld* 						visualWorld() const;
-		void 								visualWorld(std::unique_ptr<VisualWorld> world);
-		
-		PhysicsWorld* 						physicalWorld() const;
-		void 								physicalWorld(std::unique_ptr<PhysicsWorld> world);
+        Scene(Scene&&)            = delete;
+        Scene& operator=(Scene&&) = delete;
 
-		InputManager* 						inputManager() const;
-		void 								inputManager(std::unique_ptr<InputManager> manager);
+        ~Scene();
 
-		AABB 								aabb(bool vertfit = false) const;
-		math::vec3 							extent(bool vertfit = false) const;
+        /// Public Member Functions ///
 
-		DebugOptions 						debugOptions() const;
-		void 								debugOptions(DebugOptions options);
+        const std::optional<std::string>& name() const;
+        void                              name(const std::string& name);
 
-		double 								time() const;
+        const std::shared_ptr<Node>&      rootNode() const;
+        void                              rootNode(const std::shared_ptr<Node>& node);
 
-		UpdateCallback 						updateCallback() const;
-		void 								updateCallback(UpdateCallback function);
+        VisualWorld*                      visualWorld() const;
+        void                              visualWorld(std::unique_ptr<VisualWorld> world);
 
-		/// Internal Member Functions ///
+        PhysicsWorld*                     physicsWorld() const;
+        void                              physicsWorld(std::unique_ptr<PhysicsWorld> world);
 
-		void 								update();
+        InputContext*                     inputContext() const;
+        void                              inputContext(std::unique_ptr<InputContext> context);
 
-	private:
-		/// Private Member Variables ///
+        AABB                              aabb(bool vertfit = false) const;
+        math::vec3                        extent(bool vertfit = false) const;
 
-		std::optional<std::string>			_name;
-		std::shared_ptr<Node>				_rootNode;
-		std::unique_ptr<VisualWorld> 		_visualWorld;
-		std::unique_ptr<PhysicsWorld> 		_physicalWorld;
-		std::unique_ptr<InputManager>		_inputManager;
-		DebugOptions						_debugOptions;
-		double 								_startTime;
-		Profiler							_profiler;
-		FrameStatsHistory					_frameStatsHistory;
-		UpdateCallback						_updateCallback;
-	};
+        DebugOptions                      debugOptions() const;
+        void                              debugOptions(DebugOptions options);
 
-	namespace util::bitmask {
-		template <> struct enable_ops<Scene::ImportOptions> : std::true_type {};
-		template <> struct enable_ops<Scene::DebugOptions> : std::true_type {};
-	}
+        WillStepCallback                  willStepCallback() const;
+        void                              willStepCallback(WillStepCallback callback);
+
+        DidStepCallback                   didStepCallback() const;
+        void                              didStepCallback(DidStepCallback callback);
+
+        /// Internal Member Functions ///
+
+        void                              pollEvents(Profiler& profiler);
+        void                              updateInput(const InputContext::UpdateInfo& info, Profiler& profiler);
+        PhysicsInventory                  stepSimulation(const StepInfo& info, Profiler& profiler);
+
+    private:
+        /// Private Member Variables ///
+
+        std::optional<std::string>    _name;
+        std::shared_ptr<Node>         _rootNode;
+        std::unique_ptr<VisualWorld>  _visualWorld;
+        std::unique_ptr<PhysicsWorld> _physicsWorld;
+        std::unique_ptr<InputContext> _inputContext;
+        DebugOptions                  _debugOptions;
+        WillStepCallback              _willStepCallback;
+        DidStepCallback               _didStepCallback;
+    };
+
+    namespace util::bitmask {
+
+        template<>
+        struct enable_ops<Scene::ImportOptions> : std::true_type {};
+
+        template<>
+        struct enable_ops<Scene::DebugOptions> : std::true_type {};
+
+    }
 }
 
 #endif /* AVARA3D_SCENE_SCENE_H */
