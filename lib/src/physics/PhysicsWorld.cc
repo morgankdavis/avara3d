@@ -13,7 +13,7 @@
 
 #include "a3d/log/Log.h"
 #include "a3d/mesh/Line.h"
-#include "a3d/physics/HitTestResult.h"
+#include "../../include/a3d/scene/HitTestResult.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsContact.h"
 #include "a3d/physics/backend/bullet/BulletWorldProxy.h"
@@ -53,33 +53,30 @@ void PhysicsWorld::gravity(const vec3& gravity) {
 }
 
 optional<PhysicsContact> PhysicsWorld::contactTest(const PhysicsBody& bodyA, const PhysicsBody& bodyB) {
-
     // contactPairTest (btCollisionObject *colObjA, btCollisionObject *colObjB, ContactResultCallback &resultCallback)
-
-    return {};
+    throw runtime_error("Not implemented.");
 }
 
 optional<PhysicsContact> PhysicsWorld::contactTest(const PhysicsBody& body) {
-
     // contactTest (btCollisionObject *colObj, ContactResultCallback &resultCallback)
-
-    return {};
+    throw runtime_error("Not implemented.");
 }
 
-optional<HitTestResult> PhysicsWorld::rayTest(const vec3& fromVec, const vec3& toVec) {
+vector<HitTestResult> PhysicsWorld::rayTest(const vec3& from, const vec3& to) const {
+    return rayTest(from, to, RayTestOptions {});
+}
 
-    //rayTest (const btVector3 &rayFromWorld, const btVector3 &rayToWorld, RayResultCallback &resultCallback) const
-
-    return {};
+vector<HitTestResult> PhysicsWorld::rayTest(const vec3&           from,
+                                            const vec3&           to,
+                                            const RayTestOptions& options) const {
+    return _proxy->rayTest(from, to, options.searchMode);
 }
 
 optional<PhysicsContact> PhysicsWorld::convexSweepTest(const PhysicsContact& contact,
                                                        const mat4&           fromMat,
                                                        const mat4&           toMat) {
-
     // convexSweepTest (const btConvexShape *castShape, const btTransform &from, const btTransform &to, ConvexResultCallback &resultCallback, btScalar allowedCcdPenetration=btScalar(0.)) const
-
-    return {};
+    throw runtime_error("Not implemented.");
 }
 
 void PhysicsWorld::updateCollisionPairs() {

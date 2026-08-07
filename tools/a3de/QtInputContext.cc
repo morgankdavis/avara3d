@@ -8,7 +8,6 @@
 
 #include "QtInputContext.h"
 
-#include <QEvent>
 #include <QMouseEvent>
 
 #include "a3d/scene/Scene.h"
@@ -18,7 +17,6 @@
 
 using namespace a3d;
 using namespace std;
-;
 
 using QtInput = qt::QtInputContext;
 using Key = DesktopInputContext::Key;
@@ -26,14 +24,9 @@ using MouseButton = DesktopInputContext::MouseButton;
 
 /// Private Static Non-Member Prototypes ///
 
-//static a3d::Key A3dKeyFromQtKey(int qtKey);
 static Key A3DKeyFromQtKey(int qtKey, Qt::KeyboardModifiers mods = Qt::NoModifier);
 
 /// Public Lifecycle Functions ///
-
-// QtInput::QtInputContext(QtViewport& viewport) {
-// 	viewport.inputContext(this);
-// }
 
 QtInput::QtInputContext() {}
 
@@ -64,8 +57,8 @@ void QtInput::keyReleased(int qtKey, int modifiers) {
 
 void QtInput::mouseMoved(float x, float y) {
 
-    _mousePositionDelta.x += x;
-    _mousePositionDelta.y += -y;
+    _pendingMousePositionDelta.x += x;
+    _pendingMousePositionDelta.y += -y;
 }
 
 void QtInput::mouseButtonPressed(int qtButton) {
@@ -91,15 +84,13 @@ void QtInput::mouseButtonReleased(int qtButton) {
     _mouseButtonsPressedCleared.erase(a3dButton);
 }
 
-void QtInput::mouseWheelScrolled(int x, int y) {//QPoint delta) {
+void QtInput::mouseWheelScrolled(int x, int y) {
 
-    _mouseScrollWheelDelta.x += (float) x;
-    _mouseScrollWheelDelta.y += (float) y;
+    _pendingMouseScrollWheelDelta.x += static_cast<float>(x);
+    _pendingMouseScrollWheelDelta.y += static_cast<float>(y);
 }
 
 /// InputContext Internal Member Functions ///
-
-void QtInput::update(const InputContext::UpdateInfo&) {}
 
 void QtInput::attachedToScene(Scene& scene) {
 

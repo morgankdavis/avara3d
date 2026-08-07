@@ -20,7 +20,6 @@ namespace a3d::qt {
     public:
         /// Public Lifecycle Functions ///
 
-        // explicit QtInputContext(QtViewport& viewport);
         QtInputContext();
 
         /// Internal Member Functions ///
@@ -34,7 +33,6 @@ namespace a3d::qt {
 
         /// InputContext Internal Member Functions ///
 
-        void update(const InputContext::UpdateInfo& info) override;
         void attachedToScene(Scene& scene) override;
         void visualWorldAttachedToScene(Scene& scene) override;
 

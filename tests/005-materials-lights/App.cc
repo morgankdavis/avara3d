@@ -124,8 +124,6 @@ bool App::shouldContinue(const Scene& scene) {
     return _window->isOpen();
 }
 
-void App::didShutdown() {}
-
 /// InputContext Callbacks ///
 
 void App::inputDidUpdate(Runner&                         runner,
@@ -239,7 +237,9 @@ void App::inputDidUpdate(Runner&                         runner,
         window->cursorCaptured(!(window->cursorCaptured()));
     }
 
-    if (window->cursorCaptured()) {
+    // move camera
+
+    if (auto pov = scene.visualWorld()->pointOfView().lock(); pov && window->cursorCaptured()) {
 
         // move camera
 

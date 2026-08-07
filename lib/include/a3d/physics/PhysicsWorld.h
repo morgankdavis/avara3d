@@ -16,6 +16,7 @@
 
 #include "a3d/Math.h"
 #include "a3d/physics/PhysicsInventory.h"
+#include "a3d/scene/HitTestResult.h"
 #include "a3d/scene/Scene.h"
 
 namespace a3d {
@@ -32,6 +33,10 @@ namespace a3d {
 
     public:
         /// Public Types ///
+
+        struct RayTestOptions {
+            HitTestSearchMode searchMode {HitTestSearchMode::Closest};
+        };
 
         using BeginContactCallback = std::function<void(PhysicsWorld& physicsWorld, PhysicsContact& contact)>;
         using ContinueContactCallback =
@@ -57,7 +62,10 @@ namespace a3d {
 
         std::optional<PhysicsContact> contactTest(const PhysicsBody& bodyA, const PhysicsBody& bodyB);
         std::optional<PhysicsContact> contactTest(const PhysicsBody& body);
-        std::optional<HitTestResult>  rayTest(const math::vec3& fromVec, const math::vec3& toVec);
+        std::vector<HitTestResult>    rayTest(const math::vec3&     from,
+                                              const math::vec3&     to,
+                                              const RayTestOptions& options) const;
+        std::vector<HitTestResult>    rayTest(const math::vec3& from, const math::vec3& to) const;
         std::optional<PhysicsContact> convexSweepTest(const PhysicsContact& contact,
                                                       const math::mat4&     fromMat,
                                                       const math::mat4&     toMat);

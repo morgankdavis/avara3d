@@ -139,6 +139,91 @@ void VisualWorld::pointOfView(const weak_ptr<Node>& cameraNode) {
     _pointOfView = cameraNode;
 }
 
+vec3 VisualWorld::projectPoint(const vec3& point) const {
+
+    if (!_renderContext) {
+        throw runtime_error("VisualWorld has no RenderContext.");
+    }
+
+    auto pov = _pointOfView.lock();
+    if (!pov || !pov->camera()) {
+        throw runtime_error("VisualWorld has no valid point of view.");
+    }
+
+    auto viewportSize = _renderContext->viewportLogicalSize();
+    if (viewportSize.x == 0 || viewportSize.y == 0) {
+        throw runtime_error("VisualWorld has an invalid viewport size.");
+    }
+
+    auto camera = pov->camera();
+
+    if (auto perspectiveCamera = dynamic_pointer_cast<PerspectiveCamera>(camera)) {
+        auto framebufferSize = _renderContext->framebufferSize();
+        perspectiveCamera->aspectRatio(float(framebufferSize.x) / float(framebufferSize.y));
+    }
+
+    const mat4 view = inverse(pov->worldTransform());
+    const mat4 projection = camera->projection();
+
+    vec4 clip = projection * view * vec4(point, 1.0f);
+
+    if (math::abs(clip.w) <= F32_COMP_EPS) {
+        throw runtime_error("Cannot project point with zero clip-space W.");
+    }
+
+    vec3 ndc {clip.x / clip.w, clip.y / clip.w, clip.z / clip.w};
+
+    return {(ndc.x + 1.0f) * 0.5f * float(viewportSize.x), (1.0f - ndc.y) * 0.5f * float(viewportSize.y),
+            (ndc.z + 1.0f) * 0.5f};
+}
+
+vec3 VisualWorld::unprojectPoint(const vec3& point) const {
+
+    if (!_renderContext) {
+        throw runtime_error("VisualWorld has no RenderContext.");
+    }
+
+    auto pov = _pointOfView.lock();
+    if (!pov || !pov->camera()) {
+        throw runtime_error("VisualWorld has no valid point of view.");
+    }
+
+    auto viewportSize = _renderContext->viewportLogicalSize();
+    if (viewportSize.x == 0 || viewportSize.y == 0) {
+        throw runtime_error("VisualWorld has an invalid viewport size.");
+    }
+
+    auto camera = pov->camera();
+
+    if (auto perspectiveCamera = dynamic_pointer_cast<PerspectiveCamera>(camera)) {
+        auto framebufferSize = _renderContext->framebufferSize();
+        perspectiveCamera->aspectRatio(float(framebufferSize.x) / float(framebufferSize.y));
+    }
+
+    const mat4 view = inverse(pov->worldTransform());
+    const mat4 projection = camera->projection();
+
+    vec4 ndc {(2.0f * point.x / float(viewportSize.x)) - 1.0f, 1.0f - (2.0f * point.y / float(viewportSize.y)),
+              (2.0f * point.z) - 1.0f, 1.0f};
+
+    vec4 world = inverse(projection * view) * ndc;
+
+    if (math::abs(world.w) <= F32_COMP_EPS) {
+        throw runtime_error("Cannot unproject point with zero homogeneous W.");
+    }
+
+    return {world.x / world.w, world.y / world.w, world.z / world.w};
+}
+
+vector<HitTestResult> VisualWorld::hitTest(const vec2& point) const {
+
+    return hitTest(point, HitTestOptions {});
+}
+
+vector<HitTestResult> VisualWorld::hitTest(const vec2& point, const HitTestOptions& options) const {
+    throw runtime_error("Not implemented.");
+}
+
 bool VisualWorld::usesDefaultLighting() const {
     return _usesDefaultLighting;
 }

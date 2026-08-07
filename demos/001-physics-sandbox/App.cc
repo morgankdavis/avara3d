@@ -106,7 +106,7 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
         return;
     }
 
-    // Rotate the banana at 30 degrees per second.
+    // rotate the banana at 30 degrees per second
     const float rotation = static_cast<float>(info.deltaTime) * radians(-30.0f);
 
     const auto rotationY = math::quaternion({0.0f, 1.0f, 0.0f}, rotation);

@@ -43,7 +43,7 @@
 #include "a3d/mesh/primitive/TorusKnot.h"
 #include "a3d/mesh/primitive/Tube.h"
 #include "a3d/mesh/primitive/Wedge.h"
-#include "a3d/physics/HitTestResult.h"
+#include "scene/HitTestResult.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsContact.h"
 #include "a3d/physics/PhysicsInventory.h"

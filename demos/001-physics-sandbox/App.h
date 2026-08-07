@@ -31,12 +31,6 @@ namespace demo::physicssandbox {
         App(int argc, char* argv[]);
         ~App() override;
 
-        App(const App&) = delete;
-        App& operator=(const App&) = delete;
-
-        App(App&&) = delete;
-        App& operator=(App&&) = delete;
-
     protected:
         /// Protected Member Functions ///
 

@@ -33,18 +33,11 @@ namespace test::debug {
         App(int argc, char* argv[]);
         ~App() override;
 
-        App(const App&) = delete;
-        App& operator=(const App&) = delete;
-
-        App(App&&) = delete;
-        App& operator=(App&&) = delete;
-
     protected:
         /// Protected Member Functions ///
 
         std::unique_ptr<a3d::Scene> init() override;
         bool                        shouldContinue(const a3d::Scene& scene) override;
-        void                        didShutdown() override;
 
         /// InputContext Callbacks ///
 

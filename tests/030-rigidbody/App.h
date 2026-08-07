@@ -42,12 +42,6 @@ namespace test::rigidbody {
         App(int argc, char* argv[]);
         ~App() override;
 
-        App(const App&) = delete;
-        App& operator=(const App&) = delete;
-
-        App(App&&) = delete;
-        App& operator=(App&&) = delete;
-
         /// Internal Types ///
 
         using DuckFruitDef = std::tuple<std::shared_ptr<a3d::Mesh>, std::shared_ptr<a3d::PhysicsShape>, float>;
@@ -58,7 +52,6 @@ namespace test::rigidbody {
         std::unique_ptr<a3d::Scene> init() override;
         a3d::SimulationConfig       simulationConfig() const override;
         bool                        shouldContinue(const a3d::Scene& scene) override;
-        void                        didShutdown() override;
 
         /// InputContext Callbacks ///
 

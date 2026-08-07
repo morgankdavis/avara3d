@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "a3d/physics/PhysicsInventory.h"
+#include "a3d/scene/HitTestResult.h"
 #include "a3d/scene/Scene.h"
 
 namespace a3d {
@@ -41,21 +42,25 @@ namespace a3d {
 
         /// Internal Member Functions ///
 
-        virtual void             add(PhysicsBody& body)    = 0;
-        virtual void             remove(PhysicsBody& body) = 0;
+        virtual void                       add(PhysicsBody& body)    = 0;
+        virtual void                       remove(PhysicsBody& body) = 0;
 
-        virtual float            gravity() const        = 0;
-        virtual void             gravity(float gravity) = 0;
+        virtual float                      gravity() const        = 0;
+        virtual void                       gravity(float gravity) = 0;
 
-        virtual bool             acceptsStepDelta(double deltaTime) const = 0;
+        virtual bool                       acceptsStepDelta(double deltaTime) const = 0;
 
-        virtual void             step(double deltaTime, Profiler& profiler) = 0;
+        virtual void                       step(double deltaTime, Profiler& profiler) = 0;
 
-        virtual PhysicsInventory inventory() const = 0;
+        virtual std::vector<HitTestResult> rayTest(const math::vec3& from,
+                                                   const math::vec3& to,
+                                                   HitTestSearchMode searchMode) const = 0;
 
-        virtual void             updateCollisionPairs() = 0;
+        virtual PhysicsInventory           inventory() const = 0;
 
-        virtual void             appendDebugLines(std::vector<Line>& out, Scene::DebugOptions debugOptions) = 0;
+        virtual void                       updateCollisionPairs() = 0;
+
+        virtual void appendDebugLines(std::vector<Line>& out, Scene::DebugOptions debugOptions) = 0;
     };
 
 }

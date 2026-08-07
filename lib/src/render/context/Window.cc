@@ -19,11 +19,9 @@
 #include "a3d/input/GLFWInputContext.h"
 #include "a3d/physics/PhysicsWorld.h"
 #include "a3d/render/backend/opengl/OGLRenderer.h"
-#include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 #include "a3d/util/Filesystem.h"
 #include "a3d/visual/VisualWorld.h"
-#include "a3d/visual/camera/Camera.h"
 
 #if defined(A3D_GL_DESKTOP) + defined(A3D_GL_ES) + defined(A3D_GL_WEB) != 1
     #error Exactly one of A3D_GL_DESKTOP, A3D_GL_ES, or A3D_GL_WEB must be defined.
@@ -472,24 +470,17 @@ void Window::Destroy(GLFWwindow* window) {
 /// Private Static member Functions ///
 
 void Window::GLFWCursorPositionCallback(GLFWwindow* glfwWindow, double xPos, double yPos) {
-    static double lastXPos = xPos;
-    static double lastYPos = yPos;
 
     auto window = WindowFromGLFWwindow(glfwWindow);
-    auto inputContext = static_cast<GLFWInputContext*>(window->_inputContext);
+    auto inputContext = window->_inputContext;
 
-    if (window->cursorCaptured() && inputContext) {
-        inputContext->glfwMouseDeltaEvent(-(lastXPos - xPos), (lastYPos - yPos));
+    if (inputContext) {
+        static_cast<GLFWInputContext*>(inputContext)->glfwCursorPositionEvent(xPos, yPos);
     }
-    else {
+
+    if (!window->cursorCaptured()) {
         ImGui_ImplGlfw_CursorPosCallback(glfwWindow, xPos, yPos);
-//		if (!ImGui::GetIO().WantCaptureMouse && inputContext) {
-//			inputContext->glfwMouseDeltaEvent(-(lastXPos - xPos), (lastYPos - yPos));
-//		}
     }
-
-    lastXPos = xPos;
-    lastYPos = yPos;
 }
 
 void Window::GLFWMouseButtonCallback(GLFWwindow* glfwWindow, int button, int action, int mods) {
@@ -497,14 +488,12 @@ void Window::GLFWMouseButtonCallback(GLFWwindow* glfwWindow, int button, int act
     auto window = WindowFromGLFWwindow(glfwWindow);
     auto inputContext = static_cast<GLFWInputContext*>(window->_inputContext);
 
-    if (window->cursorCaptured() && inputContext) {
+    if (inputContext) {
         inputContext->glfwMouseButtonEvent(button, action, mods);
     }
-    else {
+
+    if (!window->cursorCaptured()) {
         ImGui_ImplGlfw_MouseButtonCallback(glfwWindow, button, action, mods);
-//		if (inputContext) {
-//			inputContext->glfwMouseButtonEvent(button, action, mods);
-//		}
     }
 }
 
@@ -513,14 +502,12 @@ void Window::GLFWScrollWheelCallback(GLFWwindow* glfwWindow, double xOffset, dou
     auto window = WindowFromGLFWwindow(glfwWindow);
     auto inputContext = static_cast<GLFWInputContext*>(window->_inputContext);
 
-    if (window->cursorCaptured() && inputContext) {
+    if (inputContext) {
         inputContext->glfwScrollEvent(xOffset, yOffset);
     }
-    else {
+
+    if (!window->cursorCaptured()) {
         ImGui_ImplGlfw_ScrollCallback(glfwWindow, xOffset, yOffset);
-//		if (inputContext) {
-//			inputContext->glfwScrollEvent(xOffset, yOffset);
-//		}
     }
 }
 

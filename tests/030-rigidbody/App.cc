@@ -134,6 +134,7 @@ unique_ptr<Scene> App::init() {
         // add the palm tree
 
         auto palmNode = Node::MeshNode(util::filesystem::MeshNamed("cartoon_palm_tree/cartoon_palm_tree"));
+        palmNode->name("Palm tree");
         auto palmPhysicsBody = PhysicsBody::StaticBody();
         palmPhysicsBody->mass(0);
         palmPhysicsBody->friction(1);
@@ -144,6 +145,7 @@ unique_ptr<Scene> App::init() {
         // add the duck
 
         auto duckNode = Node::MeshNode(util::filesystem::MeshNamed("rubber_duck/rubber_duck"));
+        duckNode->name("Quack");
         _duckNode = duckNode.get();
         duckNode->position({/*4.5*/ 0, 25, 0});
 
@@ -236,11 +238,12 @@ bool App::shouldContinue(const Scene&) {
     return _window->isOpen();
 }
 
-void App::didShutdown() {}
-
 /// InputContext Callbacks ///
 
-void App::inputDidUpdate(Runner& runner, Scene& scene, InputContext& inputContext, const InputContext::UpdateInfo& info) {
+void App::inputDidUpdate(Runner&                         runner,
+                         Scene&                          scene,
+                         InputContext&                   inputContext,
+                         const InputContext::UpdateInfo& info) {
 
     auto& input = static_cast<DesktopInputContext&>(inputContext);
 
@@ -260,8 +263,25 @@ void App::inputDidUpdate(Runner& runner, Scene& scene, InputContext& inputContex
         _window->cursorCaptured(!_window->cursorCaptured());
     }
 
-    const bool cursorCaptured = _window->cursorCaptured();
-    auto       visualWorld = scene.visualWorld();
+    auto visualWorld = scene.visualWorld();
+
+    if (!_window->cursorCaptured() && input.mouseButtonPressed(MouseButton::One)) {
+        auto mouse = input.mousePosition();
+        auto from = scene.visualWorld()->unprojectPoint({mouse.x, mouse.y, 0.0f});
+        auto to = scene.visualWorld()->unprojectPoint({mouse.x, mouse.y, 1.0f});
+        auto hits =
+            scene.physicsWorld()->rayTest(from, to,
+                                          PhysicsWorld::RayTestOptions {.searchMode = HitTestSearchMode::All});
+        if (!hits.empty()) {
+            for (auto& hit : hits) {
+                if (auto node = hit.node()) {
+                    log::app::i()("HIT node {:p} [{}] at {}, {}, {} ", static_cast<void*>(node.get()),
+                                  node->name() ? node->name()->c_str() : "(no name)", hit.worldCoordinates().x,
+                                  hit.worldCoordinates().y, hit.worldCoordinates().z);
+                }
+            }
+        }
+    }
 
     if (input.keyPressed(Key::Backslash)) {
         util::snapshot::SaveSnapshot(*_window);
@@ -362,64 +382,63 @@ void App::inputDidUpdate(Runner& runner, Scene& scene, InputContext& inputContex
         runner.timeScale(math::clamp(runner.timeScale() + mouseScrollWheelDelta.y * 0.1, 0.1, 1.0));
     }
 
-    if (!cursorCaptured || !visualWorld) {
-        return;
-    }
+    // move camera
 
-    auto pov = visualWorld->pointOfView().lock();
+    if (auto pov = scene.visualWorld()->pointOfView().lock(); pov && _window->cursorCaptured()) {
 
-    if (!pov) {
-        return;
-    }
+        // look
 
-    const vec3 camForward = pov->worldForward();
-    const vec3 camRight = pov->worldRight();
-    const vec3 camUp = pov->worldUp();
+        const vec3 camForward = pov->worldForward();
+        const vec3 camRight = pov->worldRight();
+        const vec3 camUp = pov->worldUp();
 
-    static const float MOUSE_SPEED_SCALAR = 0.002f;
-    static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
+        static const float MOUSE_SPEED_SCALAR = 0.002f;
+        static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
 
-    const float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
-    const float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
+        const float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
+        const float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
 
-    const vec3 angles = pov->eulerAngles();
+        const vec3 angles = pov->eulerAngles();
 
-    pov->eulerAngles({angles.x + deltaRotY, angles.y - deltaRotX, 0.0f});
+        pov->eulerAngles({angles.x + deltaRotY, angles.y - deltaRotX, 0.0f});
 
-    const float moveMultiplier = input.keyDown(Key::LeftControl) ? 2.0f : 1.0f;
+        const float moveMultiplier = input.keyDown(Key::LeftControl) ? 2.0f : 1.0f;
 
-    const float moveSpeed = _cameraMoveSpeed * moveMultiplier;
-    const float deltaTime = static_cast<float>(info.deltaTime);
+        // move
 
-    if (input.keyDown(Key::W) || input.mouseButtonDown(MouseButton::Four)) {
+        const float moveSpeed = _cameraMoveSpeed * moveMultiplier;
+        const float deltaTime = static_cast<float>(info.deltaTime);
 
-        const vec3 positionDelta = deltaTime * moveSpeed * camForward;
+        if (input.keyDown(Key::W) || input.mouseButtonDown(MouseButton::Four)) {
 
-        pov->position(pov->position() + positionDelta);
-    }
-    else if (input.keyDown(Key::S)) {
-        const vec3 positionDelta = deltaTime * moveSpeed * -camForward;
+            const vec3 positionDelta = deltaTime * moveSpeed * camForward;
 
-        pov->position(pov->position() + positionDelta);
-    }
+            pov->position(pov->position() + positionDelta);
+        }
+        else if (input.keyDown(Key::S)) {
+            const vec3 positionDelta = deltaTime * moveSpeed * -camForward;
 
-    if (input.keyDown(Key::A)) {
-        const vec3 positionDelta = deltaTime * moveSpeed * -camRight;
+            pov->position(pov->position() + positionDelta);
+        }
 
-        pov->position(pov->position() + positionDelta);
-    }
-    else if (input.keyDown(Key::D)) {
-        const vec3 positionDelta = deltaTime * moveSpeed * camRight;
+        if (input.keyDown(Key::A)) {
+            const vec3 positionDelta = deltaTime * moveSpeed * -camRight;
 
-        pov->position(pov->position() + positionDelta);
-    }
+            pov->position(pov->position() + positionDelta);
+        }
+        else if (input.keyDown(Key::D)) {
+            const vec3 positionDelta = deltaTime * moveSpeed * camRight;
 
-    if (input.keyDown(Key::Space)) {
-        const float direction = input.keyDown(Key::LeftShift) ? -1.0f : 1.0f;
+            pov->position(pov->position() + positionDelta);
+        }
 
-        const vec3 positionDelta = deltaTime * moveSpeed * camUp * direction;
+        if (input.keyDown(Key::Space)) {
+            const float direction = input.keyDown(Key::LeftShift) ? -1.0f : 1.0f;
 
-        pov->position(pov->position() + positionDelta);
+            const vec3 positionDelta = deltaTime * moveSpeed * camUp * direction;
+
+            pov->position(pov->position() + positionDelta);
+        }
     }
 }
 
@@ -677,6 +696,7 @@ void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
     mesh->materials()[1]->emission(mesh->materials()[1]->diffuse());
 
     auto node = Node::MeshNode(mesh);
+    node->name("Slurm");
 
     node->position(location);
 
@@ -767,6 +787,7 @@ shared_ptr<Node> Hula(float minorRadius, float majorRadius) {
 void AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color) {
 
     auto node = Node::MeshNode(Box::Mesh(1.0, 1.0, 1.0));
+    node->name("Box");
     auto material = make_shared<Material>(monostate {}, monostate {}, monostate {}, color);
     node->mesh()->addMaterial(material);
     node->position(location);
@@ -793,6 +814,7 @@ void AddCardboardBox(Scene& scene, const vec3& location, const vec3& axis, float
     static auto mesh = util::filesystem::MeshNamed("cardboard_box/cardboard_box");
 
     auto node = Node::MeshNode(mesh);
+    node->name("Cardboard Box");
 
     node->position(location);
     node->rotation(axis, angle);
@@ -839,6 +861,7 @@ void SpawnHACDTeapot(Scene& scene) {
 
     auto hacdTeapotMesh = make_shared<Mesh>(decomposedElements, decomposedTeapotMaterials);
     auto decomposedTeapotNode = Node::MeshNode(hacdTeapotMesh);
+    decomposedTeapotNode->name("A Goddamn Teapot.");
     decomposedTeapotNode->scale(decomposedTeapotNode->scale() * 20.0f);
     decomposedTeapotNode->position({0, 10, 0});
     scene.rootNode()->addChild(decomposedTeapotNode);
