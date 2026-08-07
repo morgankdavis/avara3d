@@ -64,8 +64,8 @@ void QtInput::keyReleased(int qtKey, int modifiers) {
 
 void QtInput::mouseMoved(float x, float y) {
 
-    _mousePositionDelta.x += x;
-    _mousePositionDelta.y += -y;
+    _pendingMousePositionDelta.x += x;
+    _pendingMousePositionDelta.y += -y;
 }
 
 void QtInput::mouseButtonPressed(int qtButton) {
@@ -91,15 +91,13 @@ void QtInput::mouseButtonReleased(int qtButton) {
     _mouseButtonsPressedCleared.erase(a3dButton);
 }
 
-void QtInput::mouseWheelScrolled(int x, int y) {//QPoint delta) {
+void QtInput::mouseWheelScrolled(int x, int y) {
 
-    _mouseScrollWheelDelta.x += (float) x;
-    _mouseScrollWheelDelta.y += (float) y;
+    _pendingMouseScrollWheelDelta.x += static_cast<float>(x);
+    _pendingMouseScrollWheelDelta.y += static_cast<float>(y);
 }
 
 /// InputContext Internal Member Functions ///
-
-void QtInput::update(const InputContext::UpdateInfo&) {}
 
 void QtInput::attachedToScene(Scene& scene) {
 
