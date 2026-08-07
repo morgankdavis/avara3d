@@ -13,7 +13,7 @@
 
 #include "a3d/log/Log.h"
 #include "a3d/mesh/Line.h"
-#include "a3d/physics/HitTestResult.h"
+#include "../../include/a3d/scene/HitTestResult.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsContact.h"
 #include "a3d/physics/backend/bullet/BulletWorldProxy.h"

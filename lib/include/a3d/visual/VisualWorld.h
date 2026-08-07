@@ -14,6 +14,7 @@
 #include <memory>
 
 #include "a3d/scene/Scene.h"
+#include "a3d/scene/HitTestResult.h"
 #include "a3d/visual/material/Material.h"
 
 namespace a3d {
@@ -57,6 +58,10 @@ namespace a3d {
             std::uint64_t simulationStepCount {0};
         };
 
+        struct HitTestOptions {
+            HitTestSearchMode searchMode {HitTestSearchMode::Closest};
+        };
+
         /// Public Lifecycle Functions ///
 
         VisualWorld() = delete;
@@ -91,6 +96,12 @@ namespace a3d {
 
         std::weak_ptr<Node>&          pointOfView();
         void                          pointOfView(const std::weak_ptr<Node>& cameraNode);
+
+        math::vec3                    projectPoint(const math::vec3& point) const;
+        math::vec3                    unprojectPoint(const math::vec3& point) const;
+
+        std::vector<HitTestResult>    hitTest(const math::vec2& point, const HitTestOptions& options) const;
+        std::vector<HitTestResult>    hitTest(const math::vec2& point) const;
 
         bool                          usesDefaultLighting() const;
         void                          usesDefaultLighting(bool enabled);

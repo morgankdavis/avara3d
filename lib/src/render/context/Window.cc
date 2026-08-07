@@ -472,24 +472,35 @@ void Window::Destroy(GLFWwindow* window) {
 /// Private Static member Functions ///
 
 void Window::GLFWCursorPositionCallback(GLFWwindow* glfwWindow, double xPos, double yPos) {
-    static double lastXPos = xPos;
-    static double lastYPos = yPos;
+//     static double lastXPos = xPos;
+//     static double lastYPos = yPos;
+//
+//     auto window = WindowFromGLFWwindow(glfwWindow);
+//     auto inputContext = static_cast<GLFWInputContext*>(window->_inputContext);
+//
+//     if (window->cursorCaptured() && inputContext) {
+//         inputContext->glfwMouseDeltaEvent(-(lastXPos - xPos), (lastYPos - yPos));
+//     }
+//     else {
+//         ImGui_ImplGlfw_CursorPosCallback(glfwWindow, xPos, yPos);
+// //		if (!ImGui::GetIO().WantCaptureMouse && inputContext) {
+// //			inputContext->glfwMouseDeltaEvent(-(lastXPos - xPos), (lastYPos - yPos));
+// //		}
+//     }
+//
+//     lastXPos = xPos;
+//     lastYPos = yPos;
 
     auto window = WindowFromGLFWwindow(glfwWindow);
-    auto inputContext = static_cast<GLFWInputContext*>(window->_inputContext);
+    auto inputContext = window->_inputContext;
 
-    if (window->cursorCaptured() && inputContext) {
-        inputContext->glfwMouseDeltaEvent(-(lastXPos - xPos), (lastYPos - yPos));
+    if (inputContext) {
+        static_cast<GLFWInputContext*>(inputContext)->glfwCursorPositionEvent(xPos, yPos);
     }
-    else {
+
+    if (!window->cursorCaptured()) {
         ImGui_ImplGlfw_CursorPosCallback(glfwWindow, xPos, yPos);
-//		if (!ImGui::GetIO().WantCaptureMouse && inputContext) {
-//			inputContext->glfwMouseDeltaEvent(-(lastXPos - xPos), (lastYPos - yPos));
-//		}
     }
-
-    lastXPos = xPos;
-    lastYPos = yPos;
 }
 
 void Window::GLFWMouseButtonCallback(GLFWwindow* glfwWindow, int button, int action, int mods) {

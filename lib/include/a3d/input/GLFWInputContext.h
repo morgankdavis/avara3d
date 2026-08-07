@@ -39,7 +39,7 @@ namespace a3d {
 
         /// Internal Member Functions ///
 
-        void              glfwMouseDeltaEvent(double xDelta, double yDelta);
+        void              glfwCursorPositionEvent(double xPos, double yPos);
         void              glfwMouseButtonEvent(int button, int action, int mods);
         void              glfwScrollEvent(double xOffset, double yOffset);
         void              glfwKeyEvent(int key, int scanCode, int action, int mods);

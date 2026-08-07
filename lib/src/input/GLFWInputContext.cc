@@ -67,10 +67,10 @@ void GLFWInputContext::visualWorldAttachedToScene(Scene& scene) {
 
 /// Internal Member Functions ///
 
-void GLFWInputContext::glfwMouseDeltaEvent(double xDelta, double yDelta) {
+void GLFWInputContext::glfwCursorPositionEvent(double xPos, double yPos);
 
-    _mousePositionDelta.x += xDelta;
-    _mousePositionDelta.y += yDelta;
+    _mousePosition.x = xPos;
+    _mousePosition.y = yPos;
 }
 
 void GLFWInputContext::glfwMouseButtonEvent(int button, int action, int mods) {
