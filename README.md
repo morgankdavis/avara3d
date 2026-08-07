@@ -200,9 +200,3 @@ Web debug builds must be served over HTTP rather than opened directly with a `fi
 ```sh
 emrun cmake-build-web-debug/tests/000-sandbox/000-sandbox.html
 ```
-
-#### CLion
-
-CLion automatically imports the `Debug`, `Release`, `Web Debug`, and `Web Release` CMake presets from `CMakePresets.json`.
-
-Before using the Web presets, make sure the Emscripten SDK environment is available to CLion.
