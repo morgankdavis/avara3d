@@ -18,21 +18,15 @@ using namespace a3d::math;
 
 OrthographicCamera::OrthographicCamera():
     Camera {},
-    _extent {{-1, -1, -1}, {1, 1, 1}} {
-    //constructProjectionMatrix();
-}
+    _extent {{-1, -1, -1}, {1, 1, 1}} {}
 
 OrthographicCamera::OrthographicCamera(const AABB& extent):
     Camera {},
-    _extent {extent} {
-    //constructProjectionMatrix();
-}
+    _extent {extent} {}
 
 OrthographicCamera::OrthographicCamera(const string& name, const AABB& extent):
     Camera {name},
-    _extent {extent} {
-    //constructProjectionMatrix();
-}
+    _extent {extent} {}
 
 OrthographicCamera::~OrthographicCamera() {
 
@@ -52,26 +46,16 @@ AABB OrthographicCamera::extent() const {
 
 void OrthographicCamera::extent(const AABB& e) {
     _extent = e;
-    //constructProjectionMatrix();
 }
 
 /// Camera Internal Member Functions ///
 
-mat4 OrthographicCamera::projection() const {
-    return ortho(_extent.min.x, _extent.max.x, _extent.min.y, _extent.max.y, _extent.min.z, _extent.max.z);
+mat4 OrthographicCamera::projection(const uvec2&) const {
+
+    return ortho(_extent.min.x,
+                 _extent.max.x,
+                 _extent.min.y,
+                 _extent.max.y,
+                 _extent.min.z,
+                 _extent.max.z);
 }
-
-/// Camera Protected Member Functions ///
-
-//void OrthographicCamera::constructProjectionMatrix() {
-//
-//	// left, right, bottom, top, near, far
-//	// DeVries 9.5.1
-//
-//	_projection = ortho(_extent.min.x,
-//						_extent.max.x,
-//						_extent.min.y,
-//						_extent.max.y,
-//						_extent.min.z,
-//						_extent.max.z);
-//}

@@ -9,6 +9,7 @@
 #ifndef AVARA3D_VISUAL_CAMERA_ORTHOGRAPHICCAMERA_H
 #define AVARA3D_VISUAL_CAMERA_ORTHOGRAPHICCAMERA_H
 
+#include "a3d/Math.h"
 #include "a3d/mesh/AABB.h"
 #include "a3d/visual/camera/Camera.h"
 
@@ -38,12 +39,7 @@ namespace a3d {
 
         /// Camera Internal Member Functions ///
 
-        math::mat4 projection() const override;
-
-    protected:
-        /// Camera Protected Member Functions ///
-
-//		void 		constructProjectionMatrix() override;
+        math::mat4 projection(const math::uvec2& viewportSize) const override;
 
     private:
         /// Private Member Variables ///

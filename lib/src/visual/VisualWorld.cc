@@ -32,6 +32,10 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
+/// Private Static Non-Member Prototypes ///
+///
+static void CameraMatrices(const shared_ptr<Node>& pov, const uvec2& framebufferSize, mat4& view, mat4& proj);
+
 /// Public Lifecycle Functions ///
 
 VisualWorld::VisualWorld(RenderContext& context):
@@ -155,26 +159,26 @@ vec3 VisualWorld::projectPoint(const vec3& point) const {
         throw runtime_error("VisualWorld has an invalid viewport size.");
     }
 
-    auto camera = pov->camera();
+    mat4 view, proj;
+    CameraMatrices(pov, _renderContext->framebufferSize(), view, proj);
 
-    if (auto perspectiveCamera = dynamic_pointer_cast<PerspectiveCamera>(camera)) {
-        auto framebufferSize = _renderContext->framebufferSize();
-        perspectiveCamera->aspectRatio(float(framebufferSize.x) / float(framebufferSize.y));
-    }
-
-    const mat4 view = inverse(pov->worldTransform());
-    const mat4 projection = camera->projection();
-
-    vec4 clip = projection * view * vec4(point, 1.0f);
+    vec4 clip = proj * view * vec4(point, 1.0f);
 
     if (math::abs(clip.w) <= F32_COMP_EPS) {
         throw runtime_error("Cannot project point with zero clip-space W.");
     }
 
-    vec3 ndc {clip.x / clip.w, clip.y / clip.w, clip.z / clip.w};
+    vec3 ndc {
+        clip.x / clip.w,
+        clip.y / clip.w,
+        clip.z / clip.w
+    };
 
-    return {(ndc.x + 1.0f) * 0.5f * float(viewportSize.x), (1.0f - ndc.y) * 0.5f * float(viewportSize.y),
-            (ndc.z + 1.0f) * 0.5f};
+    return {
+        (ndc.x + 1.0f) * 0.5f * float(viewportSize.x),
+        (1.0f - ndc.y) * 0.5f * float(viewportSize.y),
+        (ndc.z + 1.0f) * 0.5f
+    };
 }
 
 vec3 VisualWorld::unprojectPoint(const vec3& point) const {
@@ -193,26 +197,27 @@ vec3 VisualWorld::unprojectPoint(const vec3& point) const {
         throw runtime_error("VisualWorld has an invalid viewport size.");
     }
 
-    auto camera = pov->camera();
+    mat4 view, proj;
+    CameraMatrices(pov, _renderContext->framebufferSize(), view, proj);
 
-    if (auto perspectiveCamera = dynamic_pointer_cast<PerspectiveCamera>(camera)) {
-        auto framebufferSize = _renderContext->framebufferSize();
-        perspectiveCamera->aspectRatio(float(framebufferSize.x) / float(framebufferSize.y));
-    }
+    vec4 ndc {
+        (2.0f * point.x / float(viewportSize.x)) - 1.0f,
+        1.0f - (2.0f * point.y / float(viewportSize.y)),
+        (2.0f * point.z) - 1.0f,
+        1.0f
+    };
 
-    const mat4 view = inverse(pov->worldTransform());
-    const mat4 projection = camera->projection();
-
-    vec4 ndc {(2.0f * point.x / float(viewportSize.x)) - 1.0f, 1.0f - (2.0f * point.y / float(viewportSize.y)),
-              (2.0f * point.z) - 1.0f, 1.0f};
-
-    vec4 world = inverse(projection * view) * ndc;
+    vec4 world = inverse(proj * view) * ndc;
 
     if (math::abs(world.w) <= F32_COMP_EPS) {
         throw runtime_error("Cannot unproject point with zero homogeneous W.");
     }
 
-    return {world.x / world.w, world.y / world.w, world.z / world.w};
+    return {
+        world.x / world.w,
+        world.y / world.w,
+        world.z / world.w
+    };
 }
 
 vector<HitTestResult> VisualWorld::hitTest(const vec2& point) const {
@@ -328,14 +333,9 @@ bool VisualWorld::draw(const Scene&             scene,
 
     if (povValid) {
 
-        auto [view, proj] = prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
-            if (auto pc = dynamic_pointer_cast<PerspectiveCamera>(pov->camera())) {
-                auto fbSize = _renderContext->framebufferSize();
-                auto aspect = float(fbSize.x) / float(fbSize.y);
-                pc->aspectRatio(aspect);
-            }
-
-            return std::tuple {inverse(pov->worldTransform()), pov->camera()->projection()};
+        mat4 view, proj;
+        prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
+            CameraMatrices(pov, _renderContext->framebufferSize(), view, proj);
         });
 
         prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {
@@ -444,4 +444,22 @@ shared_ptr<Node> VisualWorld::defaultPOV() {
     cameraNode->camera(camera);
 
     return cameraNode;
+}
+
+/// Private Static Non-Member Functions ///
+
+void CameraMatrices(const shared_ptr<Node>& pov, const uvec2& framebufferSize, mat4& view, mat4& proj) {
+
+    auto camera = pov->camera();
+
+    if (!camera) {
+        throw runtime_error("Point of view has no camera.");
+    }
+
+    if (framebufferSize.x == 0 || framebufferSize.y == 0) {
+        throw runtime_error("Invalid framebuffer size.");
+    }
+
+    view = inverse(pov->worldTransform());
+    proj = camera->projection(framebufferSize);
 }
