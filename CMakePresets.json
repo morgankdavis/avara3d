@@ -36,10 +36,10 @@
             }
         },
         {
-            "name": "emscripten-debug",
-            "displayName": "Emscripten Debug",
+            "name": "web-debug",
+            "displayName": "Web Debug",
             "generator": "Ninja",
-            "binaryDir": "${sourceDir}/cmake-build-emscripten-debug",
+            "binaryDir": "${sourceDir}/cmake-build-web-debug",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "A3D_BUILD_DOCUMENTATION": "OFF",
@@ -52,10 +52,10 @@
             }
         },
         {
-            "name": "emscripten-release",
-            "displayName": "Emscripten Release",
+            "name": "web-release",
+            "displayName": "Web Release",
             "generator": "Ninja",
-            "binaryDir": "${sourceDir}/cmake-build-emscripten-release",
+            "binaryDir": "${sourceDir}/cmake-build-web-release",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "A3D_BUILD_DOCUMENTATION": "OFF",
@@ -66,24 +66,6 @@
                     "toolchain": "Emscripten"
                 }
             }
-        }
-    ],
-    "buildPresets": [
-        {
-            "name": "debug",
-            "configurePreset": "debug"
-        },
-        {
-            "name": "release",
-            "configurePreset": "release"
-        },
-        {
-            "name": "emscripten-debug",
-            "configurePreset": "emscripten-debug"
-        },
-        {
-            "name": "emscripten-release",
-            "configurePreset": "emscripten-release"
         }
     ]
 }
