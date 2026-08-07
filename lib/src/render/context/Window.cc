@@ -31,6 +31,12 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
+/// Private Constants ///
+
+#if defined(A3D_WEB)
+static constexpr const char* WEB_CANVAS_SELECTOR = "#canvas";
+#endif
+
 /// Private Static Non-Member Prototypes ///
 
 static bool InitGLFW();
@@ -481,7 +487,7 @@ void Window::GLFWCursorPositionCallback(GLFWwindow* glfwWindow, double xPos, dou
     double cssWidth;
     double cssHeight;
 
-    if (emscripten_get_element_css_size("#canvas", &cssWidth, &cssHeight) == EMSCRIPTEN_RESULT_SUCCESS
+    if (emscripten_get_element_css_size(WEB_CANVAS_SELECTOR, &cssWidth, &cssHeight) == EMSCRIPTEN_RESULT_SUCCESS
         && cssWidth > 0.0 && cssHeight > 0.0) {
         xPos *= static_cast<double>(logicalWidth) / cssWidth;
         yPos *= static_cast<double>(logicalHeight) / cssHeight;
