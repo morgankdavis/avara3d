@@ -134,6 +134,7 @@ unique_ptr<Scene> App::init() {
         // add the palm tree
 
         auto palmNode = Node::MeshNode(util::filesystem::MeshNamed("cartoon_palm_tree/cartoon_palm_tree"));
+        palmNode->name("Palm tree");
         auto palmPhysicsBody = PhysicsBody::StaticBody();
         palmPhysicsBody->mass(0);
         palmPhysicsBody->friction(1);
@@ -144,6 +145,7 @@ unique_ptr<Scene> App::init() {
         // add the duck
 
         auto duckNode = Node::MeshNode(util::filesystem::MeshNamed("rubber_duck/rubber_duck"));
+        duckNode->name("Quack");
         _duckNode = duckNode.get();
         duckNode->position({/*4.5*/ 0, 25, 0});
 
@@ -262,6 +264,24 @@ void App::inputDidUpdate(Runner&                         runner,
     }
 
     auto visualWorld = scene.visualWorld();
+
+    if (!_window->cursorCaptured() && input.mouseButtonPressed(MouseButton::One)) {
+        auto mouse = input.mousePosition();
+        auto from = scene.visualWorld()->unprojectPoint({mouse.x, mouse.y, 0.0f});
+        auto to = scene.visualWorld()->unprojectPoint({mouse.x, mouse.y, 1.0f});
+        auto hits =
+            scene.physicsWorld()->rayTest(from, to,
+                                          PhysicsWorld::RayTestOptions {.searchMode = HitTestSearchMode::All});
+        if (!hits.empty()) {
+            for (auto& hit : hits) {
+                if (auto node = hit.node()) {
+                    log::app::i()("HIT node {:p} [{}] at {}, {}, {} ", static_cast<void*>(node.get()),
+                                  node->name() ? node->name()->c_str() : "(no name)", hit.worldCoordinates().x,
+                                  hit.worldCoordinates().y, hit.worldCoordinates().z);
+                }
+            }
+        }
+    }
 
     if (input.keyPressed(Key::Backslash)) {
         util::snapshot::SaveSnapshot(*_window);
@@ -676,6 +696,7 @@ void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
     mesh->materials()[1]->emission(mesh->materials()[1]->diffuse());
 
     auto node = Node::MeshNode(mesh);
+    node->name("Slurm");
 
     node->position(location);
 
@@ -766,6 +787,7 @@ shared_ptr<Node> Hula(float minorRadius, float majorRadius) {
 void AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color) {
 
     auto node = Node::MeshNode(Box::Mesh(1.0, 1.0, 1.0));
+    node->name("Box");
     auto material = make_shared<Material>(monostate {}, monostate {}, monostate {}, color);
     node->mesh()->addMaterial(material);
     node->position(location);
@@ -792,6 +814,7 @@ void AddCardboardBox(Scene& scene, const vec3& location, const vec3& axis, float
     static auto mesh = util::filesystem::MeshNamed("cardboard_box/cardboard_box");
 
     auto node = Node::MeshNode(mesh);
+    node->name("Cardboard Box");
 
     node->position(location);
     node->rotation(axis, angle);
@@ -838,6 +861,7 @@ void SpawnHACDTeapot(Scene& scene) {
 
     auto hacdTeapotMesh = make_shared<Mesh>(decomposedElements, decomposedTeapotMaterials);
     auto decomposedTeapotNode = Node::MeshNode(hacdTeapotMesh);
+    decomposedTeapotNode->name("A Goddamn Teapot.");
     decomposedTeapotNode->scale(decomposedTeapotNode->scale() * 20.0f);
     decomposedTeapotNode->position({0, 10, 0});
     scene.rootNode()->addChild(decomposedTeapotNode);

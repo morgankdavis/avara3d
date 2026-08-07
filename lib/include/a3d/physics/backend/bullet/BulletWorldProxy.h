@@ -45,21 +45,25 @@ namespace a3d {
 
         /// PhysicsWorldModelProxy Internal Member Functions ///
 
-        void             add(PhysicsBody& body) override;
-        void             remove(PhysicsBody& body) override;
+        void                       add(PhysicsBody& body) override;
+        void                       remove(PhysicsBody& body) override;
 
-        float            gravity() const override;
-        void             gravity(float gravity) override;
+        float                      gravity() const override;
+        void                       gravity(float gravity) override;
 
-        bool             acceptsStepDelta(double deltaTime) const override;
+        bool                       acceptsStepDelta(double deltaTime) const override;
 
-        void             step(double deltaTime, Profiler& profiler) override;
+        void                       step(double deltaTime, Profiler& profiler) override;
 
-        PhysicsInventory inventory() const override;
+        std::vector<HitTestResult> rayTest(const math::vec3& from,
+                                           const math::vec3& to,
+                                           HitTestSearchMode searchMode) const override;
 
-        void             updateCollisionPairs() override;
+        PhysicsInventory           inventory() const override;
 
-        void             appendDebugLines(std::vector<Line>& out, Scene::DebugOptions debugOptions) override;
+        void                       updateCollisionPairs() override;
+
+        void appendDebugLines(std::vector<Line>& out, Scene::DebugOptions debugOptions) override;
 
         /// Internal Member Functions ///
 

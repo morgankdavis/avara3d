@@ -53,36 +53,29 @@ void PhysicsWorld::gravity(const vec3& gravity) {
 }
 
 optional<PhysicsContact> PhysicsWorld::contactTest(const PhysicsBody& bodyA, const PhysicsBody& bodyB) {
-
     // contactPairTest (btCollisionObject *colObjA, btCollisionObject *colObjB, ContactResultCallback &resultCallback)
-
     throw runtime_error("Not implemented.");
 }
 
 optional<PhysicsContact> PhysicsWorld::contactTest(const PhysicsBody& body) {
-
     // contactTest (btCollisionObject *colObj, ContactResultCallback &resultCallback)
-
     throw runtime_error("Not implemented.");
 }
 
 vector<HitTestResult> PhysicsWorld::rayTest(const vec3& from, const vec3& to) const {
-
     return rayTest(from, to, RayTestOptions {});
 }
 
 vector<HitTestResult> PhysicsWorld::rayTest(const vec3&           from,
                                             const vec3&           to,
                                             const RayTestOptions& options) const {
-    return {};
+    return _proxy->rayTest(from, to, options.searchMode);
 }
 
 optional<PhysicsContact> PhysicsWorld::convexSweepTest(const PhysicsContact& contact,
                                                        const mat4&           fromMat,
                                                        const mat4&           toMat) {
-
     // convexSweepTest (const btConvexShape *castShape, const btTransform &from, const btTransform &to, ConvexResultCallback &resultCallback, btScalar allowedCcdPenetration=btScalar(0.)) const
-
     throw runtime_error("Not implemented.");
 }
 

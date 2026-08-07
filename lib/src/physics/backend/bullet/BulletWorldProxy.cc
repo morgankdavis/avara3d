@@ -13,6 +13,7 @@
 #include <limits>
 #include <stdexcept>
 #include <thread>
+#include <unordered_set>
 
 #include <bullet/btBulletCollisionCommon.h>
 #include <bullet/btBulletDynamicsCommon.h>
@@ -345,6 +346,163 @@ void BulletWorldProxy::step(double deltaTime, Profiler& profiler) {
     }
 }
 
+vector<HitTestResult> BulletWorldProxy::rayTest(const vec3&       from,
+                                                const vec3&       to,
+                                                HitTestSearchMode searchMode) const {
+
+    scoped_lock lock(_btMutex);
+
+    const auto btFrom = BTVector3FromA3DVec3(from);
+    const auto btTo = BTVector3FromA3DVec3(to);
+
+    auto makeHitResult = [](const btCollisionObject* collisionObject, const btVector3& hitPointWorld,
+                            const btVector3& hitNormalWorld) -> optional<HitTestResult> {
+        auto body = static_cast<PhysicsBody*>(collisionObject->getUserPointer());
+        if (!body) {
+            return nullopt;
+        }
+
+        auto node = body->node().lock();
+        if (!node) {
+            return nullopt;
+        }
+
+        const vec3 worldCoordinates = A3DVec3FromBTVector3(hitPointWorld);
+        const vec3 worldNormal = normalize(A3DVec3FromBTVector3(hitNormalWorld));
+        const mat4 modelTransform = node->worldTransform();
+        const mat4 inverseModelTransform = inverse(modelTransform);
+        const vec4 localCoordinates4 = inverseModelTransform * vec4 {worldCoordinates, 1.0f};
+        const vec3 localCoordinates {localCoordinates4.x / localCoordinates4.w,
+                                     localCoordinates4.y / localCoordinates4.w,
+                                     localCoordinates4.z / localCoordinates4.w};
+        const vec4 localNormal4 = transpose(modelTransform) * vec4 {worldNormal, 0.0f};
+        const vec3 localNormal = normalize(vec3 {localNormal4});
+
+        return HitTestResult {node,        nullptr,          nullptr,
+                              nullopt,     localCoordinates, worldCoordinates,
+                              localNormal, worldNormal,      modelTransform};
+    };
+
+    switch (searchMode) {
+
+        case HitTestSearchMode::Any: {
+
+            struct AnyRayResultCallback : btCollisionWorld::RayResultCallback {
+
+                AnyRayResultCallback(const btVector3& from, const btVector3& to):
+                    rayFromWorld {from},
+                    rayToWorld {to} {}
+
+                btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult,
+                                         bool                              normalInWorldSpace) override {
+
+                    m_collisionObject = rayResult.m_collisionObject;
+
+                    if (normalInWorldSpace) {
+                        hitNormalWorld = rayResult.m_hitNormalLocal;
+                    }
+                    else {
+                        hitNormalWorld =
+                            m_collisionObject->getWorldTransform().getBasis() * rayResult.m_hitNormalLocal;
+                    }
+
+                    hitPointWorld.setInterpolate3(rayFromWorld, rayToWorld, rayResult.m_hitFraction);
+
+                    // tell Bullet that nothing farther along the ray matters.
+                    m_closestHitFraction = btScalar(0.0);
+
+                    return btScalar(0.0);
+                }
+
+                btVector3 rayFromWorld;
+                btVector3 rayToWorld;
+                btVector3 hitNormalWorld;
+                btVector3 hitPointWorld;
+            };
+
+            AnyRayResultCallback callback(btFrom, btTo);
+
+            _btWorld->rayTest(btFrom, btTo, callback);
+
+            if (!callback.hasHit()) {
+                return {};
+            }
+
+            if (auto hit = makeHitResult(callback.m_collisionObject, callback.hitPointWorld,
+                                         callback.hitNormalWorld)) {
+                return {std::move(*hit)};
+            }
+
+            return {};
+        }
+
+        case HitTestSearchMode::Closest: {
+
+            btCollisionWorld::ClosestRayResultCallback callback(btFrom, btTo);
+
+            _btWorld->rayTest(btFrom, btTo, callback);
+
+            if (!callback.hasHit()) {
+                return {};
+            }
+
+            if (auto hit = makeHitResult(callback.m_collisionObject, callback.m_hitPointWorld,
+                                         callback.m_hitNormalWorld)) {
+                return {std::move(*hit)};
+            }
+
+            return {};
+        }
+
+        case HitTestSearchMode::All: {
+
+            btCollisionWorld::AllHitsRayResultCallback callback(btFrom, btTo);
+
+            _btWorld->rayTest(btFrom, btTo, callback);
+
+            if (!callback.hasHit()) {
+                return {};
+            }
+
+            vector<int> order;
+            order.reserve(callback.m_hitFractions.size());
+
+            for (int i = 0; i < callback.m_hitFractions.size(); ++i) {
+                order.push_back(i);
+            }
+
+            sort(order.begin(), order.end(), [&](int a, int b) {
+                return callback.m_hitFractions[a] < callback.m_hitFractions[b];
+            });
+
+            vector<HitTestResult> hits;
+            hits.reserve(order.size());
+
+            unordered_set<const btCollisionObject*> seen;
+
+            for (int i : order) {
+
+                const auto* collisionObject = callback.m_collisionObjects[i];
+
+                // a body may produce multiple low-level Bullet hits
+                // (for example, entry/exit surfaces). keep only its nearest hit.
+                if (!seen.insert(collisionObject).second) {
+                    continue;
+                }
+
+                if (auto hit = makeHitResult(collisionObject, callback.m_hitPointWorld[i],
+                                             callback.m_hitNormalWorld[i])) {
+                    hits.push_back(std::move(*hit));
+                }
+            }
+
+            return hits;
+        }
+    }
+
+    return {};
+}
+
 PhysicsInventory BulletWorldProxy::inventory() const {
     std::scoped_lock lock(_btMutex);
 
@@ -367,8 +525,8 @@ void BulletWorldProxy::appendDebugLines(vector<Line>& out, Scene::DebugOptions d
     static constexpr float DEBUG_LINE_UPDATE_RATE = 30.0f;
 
     static constexpr auto DEBUG_LINE_UPDATE_INTERVAL =
-        std::chrono::duration_cast<std::chrono::steady_clock::duration>(
-            std::chrono::duration<float> {1.0f / DEBUG_LINE_UPDATE_RATE});
+        std::chrono::duration_cast<std::chrono::steady_clock::duration>(std::chrono::duration<float> {
+            1.0f / DEBUG_LINE_UPDATE_RATE});
 
     const auto debugMode = BTDebugDrawModesForA3DDebugOptions(debugOptions);
     const auto now = chrono::steady_clock::now();
