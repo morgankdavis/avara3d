@@ -81,8 +81,6 @@ bool App::shouldContinue(const Scene& scene) {
     return _window->isOpen();
 }
 
-void App::didShutdown() {}
-
 /// InputContext Callbacks ///
 
 void App::inputDidUpdate(Runner&                         runner,
@@ -227,8 +225,6 @@ void App::inputDidUpdate(Runner&                         runner,
         window->cursorCaptured(!(window->cursorCaptured()));
     }
 
-    const auto cursorCaptured = window->cursorCaptured();
-
     if (input.keyPressed(Key::R)) {
         if (!window->recordingGIF()) {
             util::snapshot::StartGIFRecording(*window, {320, 240}, 8);
@@ -238,65 +234,62 @@ void App::inputDidUpdate(Runner&                         runner,
         }
     }
 
-    if (cursorCaptured) {
+    // move camera
 
-        // mouselook
+    if (auto pov = scene.visualWorld()->pointOfView().lock(); pov && window->cursorCaptured()) {
 
-        if (auto pov = scene.visualWorld()->pointOfView().lock()) {
+        // look
 
-            // look
+        vec3 camForward = pov->worldForward();
+        vec3 camRight = pov->worldRight();
+        vec3 camUp = pov->worldUp();
 
-            vec3 camForward = pov->worldForward();
-            vec3 camRight = pov->worldRight();
-            vec3 camUp = pov->worldUp();
+        static const float MOUSE_SPEED_SCALAR = .002;
+        static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
 
-            static const float MOUSE_SPEED_SCALAR = .002;
-            static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
+        float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
+        float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
 
-            float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
-            float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
+        vec3 angles = pov->eulerAngles();
+        pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
 
-            vec3 angles = pov->eulerAngles();
-            pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
+        // move
 
-            // move
+        static float MOVE_SPEED = 0;
+        if (!MOVE_SPEED) {
+            MOVE_SPEED = math::max(scene.rootNode()->extent());
+        }
 
-            static float MOVE_SPEED = 0;
-            if (!MOVE_SPEED) {
-                MOVE_SPEED = math::max(scene.rootNode()->extent());
+        float moveMultiplier = 1.0;
+        if (input.keyDown(Key::LeftControl)) {
+            moveMultiplier = 2.0;
+        }
+
+        if (input.keyDown(Key::W) || input.mouseButtonDown(MouseButton::Four)) {
+            vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * moveMultiplier * camForward;
+            pov->position(pov->position() + positionDelta);
+        }
+        else if (input.keyDown(Key::S)) {
+            vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * moveMultiplier * -camForward;
+            pov->position(pov->position() + positionDelta);
+        }
+
+        if (input.keyDown(Key::A)) {
+            vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * moveMultiplier * -camRight;
+            pov->position(pov->position() + positionDelta);
+        }
+        else if (input.keyDown(Key::D)) {
+            vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * moveMultiplier * camRight;
+            pov->position(pov->position() + positionDelta);
+        }
+
+        if (input.keyDown(Key::Space)) {
+            float direction = 1;
+            if (input.keyDown(Key::LeftShift)) {
+                direction = -1;
             }
-
-            float moveMultiplier = 1.0;
-            if (input.keyDown(Key::LeftControl)) {
-                moveMultiplier = 2.0;
-            }
-
-            if (input.keyDown(Key::W) || input.mouseButtonDown(MouseButton::Four)) {
-                vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * moveMultiplier * camForward;
-                pov->position(pov->position() + positionDelta);
-            }
-            else if (input.keyDown(Key::S)) {
-                vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * moveMultiplier * -camForward;
-                pov->position(pov->position() + positionDelta);
-            }
-
-            if (input.keyDown(Key::A)) {
-                vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * moveMultiplier * -camRight;
-                pov->position(pov->position() + positionDelta);
-            }
-            else if (input.keyDown(Key::D)) {
-                vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * moveMultiplier * camRight;
-                pov->position(pov->position() + positionDelta);
-            }
-
-            if (input.keyDown(Key::Space)) {
-                float direction = 1;
-                if (input.keyDown(Key::LeftShift)) {
-                    direction = -1;
-                }
-                vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * moveMultiplier * camUp;
-                pov->position(pov->position() + positionDelta * direction);
-            }
+            vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * moveMultiplier * camUp;
+            pov->position(pov->position() + positionDelta * direction);
         }
     }
 }

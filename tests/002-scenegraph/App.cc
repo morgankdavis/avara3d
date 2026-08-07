@@ -73,8 +73,6 @@ bool App::shouldContinue(const Scene& scene) {
     return _window->isOpen();
 }
 
-void App::didShutdown() {}
-
 /// Runner Callbacks ///
 
 void App::hostUpdate(Runner& runner, Scene& scene, const Runner::UpdateInfo&) {

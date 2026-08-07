@@ -73,8 +73,6 @@ bool App::shouldContinue(const Scene& scene) {
     return _window->isOpen();
 }
 
-void App::didShutdown() {}
-
 /// InputContext Callbacks ///
 
 void App::inputDidUpdate(Runner&                         runner,
@@ -84,7 +82,7 @@ void App::inputDidUpdate(Runner&                         runner,
 
     auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 
-    // get input
+        // get input
 
     auto im = static_cast<DesktopInputContext*>(&inputContext);
 
@@ -96,9 +94,9 @@ void App::inputDidUpdate(Runner&                         runner,
     auto mouseScrollWheelDelta = im->mouseScrollWheelDelta();
     auto mousePositionDelta = im->mousePositionDelta();
 
-    for (auto k : keysDown) {
-        cout << "Key: " << static_cast<underlying_type<Key>::type>(k) << endl;
-    }
+    // for (auto k : keysDown) {
+    //     cout << "Key: " << static_cast<underlying_type<Key>::type>(k) << endl;
+    // }
 
     if (im->keyPressed(Key::Slash)) {
         window->cursorCaptured(!(window->cursorCaptured()));
@@ -119,13 +117,13 @@ void App::inputDidUpdate(Runner&                         runner,
 
     // move camera
 
-    if (auto pov = scene.visualWorld()->pointOfView().lock()) {
-
-        // look
+    if (auto pov = scene.visualWorld()->pointOfView().lock(); pov && window->cursorCaptured()) {
 
         vec3 camForward = pov->worldForward();
         vec3 camRight = pov->worldRight();
         vec3 camUp = pov->worldUp();
+
+        // look
 
         // tanA = y/x
         // tanA = mouseDelta / distance
@@ -140,7 +138,7 @@ void App::inputDidUpdate(Runner&                         runner,
         vec3 angles = pov->eulerAngles();
         pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
 
-        // move
+            // move
 
         static float MOVE_SPEED = math::max(scene.rootNode()->extent());
 

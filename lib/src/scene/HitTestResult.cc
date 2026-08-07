@@ -6,7 +6,7 @@
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#include "../../include/a3d/scene/HitTestResult.h"
+#include "a3d/scene/HitTestResult.h"
 
 using namespace a3d;
 using namespace std;

@@ -139,6 +139,25 @@ void VisualWorld::pointOfView(const weak_ptr<Node>& cameraNode) {
     _pointOfView = cameraNode;
 }
 
+vec3 VisualWorld::projectPoint(const vec3& point) const {
+
+    return {};
+}
+
+vec3 VisualWorld::unprojectPoint(const vec3& point) const {
+
+    return {};
+}
+
+vector<HitTestResult> VisualWorld::hitTest(const vec2& point) const {
+
+    return hitTest(point, HitTestOptions {});
+}
+
+vector<HitTestResult> VisualWorld::hitTest(const vec2& point, const HitTestOptions& options) const {
+    throw runtime_error("Not implemented.");
+}
+
 bool VisualWorld::usesDefaultLighting() const {
     return _usesDefaultLighting;
 }

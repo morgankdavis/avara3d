@@ -56,20 +56,24 @@ optional<PhysicsContact> PhysicsWorld::contactTest(const PhysicsBody& bodyA, con
 
     // contactPairTest (btCollisionObject *colObjA, btCollisionObject *colObjB, ContactResultCallback &resultCallback)
 
-    return {};
+    throw runtime_error("Not implemented.");
 }
 
 optional<PhysicsContact> PhysicsWorld::contactTest(const PhysicsBody& body) {
 
     // contactTest (btCollisionObject *colObj, ContactResultCallback &resultCallback)
 
-    return {};
+    throw runtime_error("Not implemented.");
 }
 
-optional<HitTestResult> PhysicsWorld::rayTest(const vec3& fromVec, const vec3& toVec) {
+vector<HitTestResult> PhysicsWorld::rayTest(const vec3& from, const vec3& to) const {
 
-    //rayTest (const btVector3 &rayFromWorld, const btVector3 &rayToWorld, RayResultCallback &resultCallback) const
+    return rayTest(from, to, RayTestOptions {});
+}
 
+vector<HitTestResult> PhysicsWorld::rayTest(const vec3&           from,
+                                            const vec3&           to,
+                                            const RayTestOptions& options) const {
     return {};
 }
 
@@ -79,7 +83,7 @@ optional<PhysicsContact> PhysicsWorld::convexSweepTest(const PhysicsContact& con
 
     // convexSweepTest (const btConvexShape *castShape, const btTransform &from, const btTransform &to, ConvexResultCallback &resultCallback, btScalar allowedCcdPenetration=btScalar(0.)) const
 
-    return {};
+    throw runtime_error("Not implemented.");
 }
 
 void PhysicsWorld::updateCollisionPairs() {

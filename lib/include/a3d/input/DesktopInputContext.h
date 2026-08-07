@@ -181,6 +181,7 @@ namespace a3d {
 
         // only reports keys down for one query until they are released
         std::unordered_set<Key>         keysPressed();
+
         // only reports mouse buttons down for one query until they are released
         std::unordered_set<MouseButton> mouseButtonsPressed();
 
@@ -188,13 +189,14 @@ namespace a3d {
         math::vec2                      mousePosition() const;
 
         // pointer displacement observed during the current input update
-        math::vec2                      mousePositionDelta();
+        math::vec2                      mousePositionDelta() const;
+
         // scroll displacement observed during the current input update
-        math::vec2                      mouseScrollWheelDelta();
+        math::vec2                      mouseScrollWheelDelta() const;
 
-        /// Internal Member Functions ///
+        /// InputContext Internal Member Functions ///
 
-        void                            resetMouseMotion();
+        void                            update(const InputContext::UpdateInfo& info) override;
 
     protected:
         /// Protected Member Variables ///
@@ -209,12 +211,7 @@ namespace a3d {
         math::vec2                      _mousePositionDelta;
         math::vec2                      _pendingMousePositionDelta;
         math::vec2                      _mouseScrollWheelDelta;
-
-    private:
-        /// Private Member Functions ///
-
-        void clearMousePositionDelta(); // called after mousePositionDelta()
-        void clearMouseScrollWheelDelta(); // called after mouseScrollWheelDelta()
+        math::vec2                      _pendingMouseScrollWheelDelta;
     };
 
 }

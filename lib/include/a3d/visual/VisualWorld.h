@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
+#include <vector>
 
 #include "a3d/scene/Scene.h"
 #include "a3d/scene/HitTestResult.h"

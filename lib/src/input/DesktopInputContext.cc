@@ -8,6 +8,8 @@
 
 #include "a3d/input/DesktopInputContext.h"
 
+#include <utility>
+
 #include "a3d/log/Log.h"
 
 using namespace a3d;
@@ -26,8 +28,11 @@ DesktopInputContext::DesktopInputContext():
     _keysPressedCleared {},
     _mouseButtonsPressed {},
     _mouseButtonsPressedCleared {},
+    _mousePosition {0.0f, 0.0f},
     _mousePositionDelta {0.0f, 0.0f},
-    _mouseScrollWheelDelta {0.0f, 0.0f} {}
+    _pendingMousePositionDelta {0.0f, 0.0f},
+    _mouseScrollWheelDelta {0.0f, 0.0f},
+    _pendingMouseScrollWheelDelta {0.0f, 0.0f} {}
 
 DesktopInputContext::~DesktopInputContext() {
     log::d()("Destroying InputContext {:p}", static_cast<void*>(this));
@@ -83,24 +88,28 @@ unordered_set<MouseButton> DesktopInputContext::mouseButtonsPressed() {
     return mouseButtonsPressedCopy;
 }
 
-vec2 DesktopInputContext::mousePositionDelta() {
-    auto mouseMoveDeltaCopy = _mousePositionDelta;
-    clearMousePositionDelta();
-    return mouseMoveDeltaCopy;
+vec2 DesktopInputContext::mousePosition() const {
+
+    return _mousePosition;
 }
 
-vec2 DesktopInputContext::mouseScrollWheelDelta() {
-    auto mouseScrollWheelDeltaCopy = _mouseScrollWheelDelta;
-    clearMouseScrollWheelDelta();
-    return mouseScrollWheelDeltaCopy;
+vec2 DesktopInputContext::mousePositionDelta() const {
+
+    return _mousePositionDelta;
 }
 
-void DesktopInputContext::clearMousePositionDelta() {
-    _mousePositionDelta.x = 0.0f;
-    _mousePositionDelta.y = 0.0f;
+vec2 DesktopInputContext::mouseScrollWheelDelta() const {
+
+    return _mouseScrollWheelDelta;
 }
 
-void DesktopInputContext::clearMouseScrollWheelDelta() {
-    _mouseScrollWheelDelta.x = 0.0f;
-    _mouseScrollWheelDelta.y = 0.0f;
+/// InputContext Internal Member Functions ///
+
+void DesktopInputContext::update(const InputContext::UpdateInfo&) {
+
+    _mousePositionDelta =
+        exchange(_pendingMousePositionDelta, vec2 {0.0f, 0.0f});
+
+    _mouseScrollWheelDelta =
+        exchange(_pendingMouseScrollWheelDelta, vec2 {0.0f, 0.0f});
 }

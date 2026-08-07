@@ -31,7 +31,8 @@ static GLFWInputContext* InputContextFromGLFWWindow(GLFWwindow* glfwWindow);
 
 GLFWInputContext::GLFWInputContext():
     DesktopInputContext {},
-    _window {nullptr}/*,
+    _window {nullptr},
+    _hasMousePosition {false}/*,
 	_usingManyMouse{false}*/
 {}
 
@@ -42,14 +43,6 @@ GLFWInputContext::~GLFWInputContext() {
 }
 
 /// InputContext Internal Member Functions ///
-
-void GLFWInputContext::update(const InputContext::UpdateInfo&) {
-
-    // Window events are dispatched through RenderContext::pollEvents() before
-    // this input stage. GLFW input state is maintained by those callbacks.
-}
-
-/// DesktopInputContext Internal Member Functions ///
 
 void GLFWInputContext::attachedToScene(Scene& scene) {
 
@@ -67,10 +60,23 @@ void GLFWInputContext::visualWorldAttachedToScene(Scene& scene) {
 
 /// Internal Member Functions ///
 
-void GLFWInputContext::glfwCursorPositionEvent(double xPos, double yPos);
+void GLFWInputContext::glfwCursorPositionEvent(double xPos, double yPos) {
 
-    _mousePosition.x = xPos;
-    _mousePosition.y = yPos;
+    const vec2 position {
+        static_cast<float>(xPos),
+        static_cast<float>(yPos)
+    };
+
+    if (_hasMousePosition) {
+        _pendingMousePositionDelta.x += position.x - _mousePosition.x;
+
+        // Preserve A3D's existing mouse-delta convention:
+        // positive Y means upward mouse motion.
+        _pendingMousePositionDelta.y += _mousePosition.y - position.y;
+    }
+
+    _mousePosition = position;
+    _hasMousePosition = true;
 }
 
 void GLFWInputContext::glfwMouseButtonEvent(int button, int action, int mods) {
@@ -94,8 +100,8 @@ void GLFWInputContext::glfwMouseButtonEvent(int button, int action, int mods) {
 
 void GLFWInputContext::glfwScrollEvent(double xOffset, double yOffset) {
 
-    _mouseScrollWheelDelta.x += (float) xOffset;
-    _mouseScrollWheelDelta.y += (float) yOffset;
+    _pendingMouseScrollWheelDelta.x += static_cast<float>(xOffset);
+    _pendingMouseScrollWheelDelta.y += static_cast<float>(yOffset);
 }
 
 void GLFWInputContext::glfwKeyEvent(int key, int scanCode, int action, int mods) {
