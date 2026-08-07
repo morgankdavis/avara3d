@@ -20,22 +20,19 @@ PerspectiveCamera::PerspectiveCamera():
     Camera {},
     _zNear {0.1},
     _zFar {1000.0},
-    _yFov {radians(45.0)},
-    _aspectRatio {1.0} {}
+    _yFov {radians(45.0)} {}
 
 PerspectiveCamera::PerspectiveCamera(float zNear, float zFar, float yFov):
     Camera {},
     _zNear {zNear},
     _zFar {zFar},
-    _yFov {yFov},
-    _aspectRatio {1.0} {}
+    _yFov {yFov} {}
 
 PerspectiveCamera::PerspectiveCamera(const string& name, float zNear, float zFar, float yFov):
     Camera {name},
     _zNear {zNear},
     _zFar {zFar},
-    _yFov {yFov},
-    _aspectRatio {1.0} {}
+    _yFov {yFov} {}
 
 PerspectiveCamera::~PerspectiveCamera() {
 
@@ -73,25 +70,10 @@ void PerspectiveCamera::yFov(float yFov) {
     _yFov = yFov;
 }
 
-float PerspectiveCamera::aspectRatio() const {
-    return _aspectRatio;
-}
-
-void PerspectiveCamera::aspectRatio(float ratio) {
-    if (ratio != 0) {
-        _aspectRatio = ratio;
-    }
-    else {
-        log::e()("_aspectRatio is 0.");
-    }
-}
-
 /// Camera Internal Member Functions ///
 
 mat4 PerspectiveCamera::projection(const uvec2& viewportSize) const {
 
-    const float aspect =
-        float(viewportSize.x) / float(viewportSize.y);
-
+    const float aspect = float(viewportSize.x) / float(viewportSize.y);
     return perspective(_yFov, aspect, _zNear, _zFar);
 }

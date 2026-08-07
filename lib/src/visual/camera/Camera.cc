@@ -43,9 +43,3 @@ const optional<string>& Camera::name() const {
 void Camera::name(const string& name) {
     _name = name;
 }
-
-/// Internal Member Functions ///
-
-//mat4 Camera::projection() const {
-//	return _projection;
-//}

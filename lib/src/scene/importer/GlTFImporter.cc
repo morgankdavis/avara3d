@@ -772,8 +772,8 @@ shared_ptr<a3d::Camera> GlTFImporter::cameraFromGlTFNode(fastgltf::Asset& asset,
                                                    (persCamera->zfar ? *persCamera->zfar : 1000000), // cheating
                                                    persCamera->yfov);
 
-                if (auto ratio = persCamera->aspectRatio) {
-                    a3dCamera->aspectRatio(*ratio);
+                if (persCamera->aspectRatio) {
+                    log::w()("Ignoring glTF camera aspect ratio.");
                 }
 
                 _cameras[*cameraIndex] = a3dCamera;

@@ -46,14 +46,9 @@ namespace a3d {
         Camera(Camera&&) noexcept                               = default;
         Camera&                    operator=(Camera&&) noexcept = default;
 
-        /// Protected Member Functions ///
-
-//		virtual void 						constructProjectionMatrix() = 0;
-
         /// Protected Member Variables ///
 
         std::optional<std::string> _name;
-//		math::mat4							_projection;
     };
 
 }

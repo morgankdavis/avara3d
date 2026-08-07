@@ -33,21 +33,18 @@ namespace a3d {
 
         /// Public Member Functions ///
 
-        float      zNear() const;
-        void       zNear(float zNear);
+        float                       zNear() const;
+        void                        zNear(float zNear);
 
-        float      zFar() const;
-        void       zFar(float zFar);
+        float                       zFar() const;
+        void                        zFar(float zFar);
 
-        float      yFov() const;
-        void       yFov(float fov);
-
-        float      aspectRatio() const;
-        void       aspectRatio(float ratio);
+        float                       yFov() const;
+        void                        yFov(float fov);
 
         /// Camera Internal Member Functions ///
 
-        math::mat4 projection(const math::uvec2& viewportSize) const override;
+        math::mat4                  projection(const math::uvec2& framebufferSize) const override;
 
     protected:
         /// Camera Protected Member Functions ///
@@ -57,10 +54,9 @@ namespace a3d {
     private:
         /// Private Member Variables ///
 
-        float _zNear;
-        float _zFar;
-        float _yFov;
-        float _aspectRatio;
+        float                _zNear;
+        float                _zFar;
+        float                _yFov;
     };
 
 }
