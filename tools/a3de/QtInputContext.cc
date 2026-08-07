@@ -8,7 +8,6 @@
 
 #include "QtInputContext.h"
 
-#include <QEvent>
 #include <QMouseEvent>
 
 #include "a3d/scene/Scene.h"
@@ -18,7 +17,6 @@
 
 using namespace a3d;
 using namespace std;
-;
 
 using QtInput = qt::QtInputContext;
 using Key = DesktopInputContext::Key;
@@ -26,14 +24,9 @@ using MouseButton = DesktopInputContext::MouseButton;
 
 /// Private Static Non-Member Prototypes ///
 
-//static a3d::Key A3dKeyFromQtKey(int qtKey);
 static Key A3DKeyFromQtKey(int qtKey, Qt::KeyboardModifiers mods = Qt::NoModifier);
 
 /// Public Lifecycle Functions ///
-
-// QtInput::QtInputContext(QtViewport& viewport) {
-// 	viewport.inputContext(this);
-// }
 
 QtInput::QtInputContext() {}
 

@@ -98,6 +98,7 @@ namespace a3d {
         std::weak_ptr<Node>&          pointOfView();
         void                          pointOfView(const std::weak_ptr<Node>& cameraNode);
 
+        
         math::vec3                    projectPoint(const math::vec3& point) const;
         math::vec3                    unprojectPoint(const math::vec3& point) const;
 

@@ -20,7 +20,6 @@ namespace a3d::qt {
     public:
         /// Public Lifecycle Functions ///
 
-        // explicit QtInputContext(QtViewport& viewport);
         QtInputContext();
 
         /// Internal Member Functions ///

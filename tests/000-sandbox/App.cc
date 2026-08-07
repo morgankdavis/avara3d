@@ -110,6 +110,35 @@ void App::inputDidUpdate(Runner&                         runner,
         log::app::i()("TREE:\n{}", util::string::TreeString(*(scene.rootNode())));
     }
 
+    if (input.keyPressed(Key::P)) {
+        if (auto pov = scene.visualWorld()->pointOfView().lock()) {
+            auto world = pov->worldPosition() + pov->worldForward() * 10.0f;
+            auto screen = scene.visualWorld()->projectPoint(world);
+            auto roundTrip = scene.visualWorld()->unprojectPoint(screen);
+
+            log::app::i()("world: {}, {}, {}", world.x, world.y, world.z);
+            log::app::i()("screen: {}, {}, {}", screen.x, screen.y, screen.z);
+            log::app::i()("roundTrip: {}, {}, {}", roundTrip.x, roundTrip.y, roundTrip.z);
+
+            auto visualWorld = scene.visualWorld();
+            auto viewportSize = visualWorld->renderContext()->viewportLogicalSize();
+
+            const float centerX = float(viewportSize.x) * 0.5f;
+            const float centerY = float(viewportSize.y) * 0.5f;
+
+            auto nearPoint = visualWorld->unprojectPoint({centerX, centerY, 0.0f});
+            auto farPoint = visualWorld->unprojectPoint({centerX, centerY, 1.0f});
+            auto rayDirection = normalize(farPoint - nearPoint);
+
+            if (auto pov = visualWorld->pointOfView().lock()) {
+                auto cameraForward = pov->worldForward();
+                log::app::i()("ray: {}, {}, {}", rayDirection.x, rayDirection.y, rayDirection.z);
+                log::app::i()("forward: {}, {}, {}", cameraForward.x, cameraForward.y, cameraForward.z);
+                log::app::i()("dot: {}", dot(rayDirection, cameraForward));
+            }
+        }
+    }
+
     if (input.keyPressed(Key::One)) {
 
         //auto cameraNodes = vector<Node*>();

@@ -18,6 +18,7 @@ namespace a3d {
     class Node;
     class Scene;
     class Window;
+
 }
 
 namespace demo::physicssandbox {
