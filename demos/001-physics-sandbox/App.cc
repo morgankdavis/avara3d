@@ -48,7 +48,8 @@ std::unique_ptr<Scene> App::init() {
         _window->cursorCaptured(CAPTURE_CURSOR);
 
         auto visualWorld = make_unique<VisualWorld>(*_window);
-        auto backgroundColor = make_shared<Color>(u8vec3 {109, 136, 164});
+        auto backgroundColor = make_shared<Color>("#0b0b0d");
+        // auto backgroundColor = Color::Red();
         visualWorld->background(backgroundColor);
 
         auto physicsWorld = make_unique<PhysicsWorld>();

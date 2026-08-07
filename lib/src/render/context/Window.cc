@@ -471,6 +471,23 @@ void Window::Destroy(GLFWwindow* window) {
 
 void Window::GLFWCursorPositionCallback(GLFWwindow* glfwWindow, double xPos, double yPos) {
 
+#if defined(A3D_WEB)
+    // web may css-scale the canvas without resizing the GLFW window.
+    // convert browser cursor coordinates back to GLFW logical coordinates.
+    int logicalWidth;
+    int logicalHeight;
+    glfwGetWindowSize(glfwWindow, &logicalWidth, &logicalHeight);
+
+    double cssWidth;
+    double cssHeight;
+
+    if (emscripten_get_element_css_size("#canvas", &cssWidth, &cssHeight) == EMSCRIPTEN_RESULT_SUCCESS
+        && cssWidth > 0.0 && cssHeight > 0.0) {
+        xPos *= static_cast<double>(logicalWidth) / cssWidth;
+        yPos *= static_cast<double>(logicalHeight) / cssHeight;
+    }
+#endif
+
     auto window = WindowFromGLFWwindow(glfwWindow);
     auto inputContext = window->_inputContext;
 
