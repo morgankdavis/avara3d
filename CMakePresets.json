@@ -47,7 +47,7 @@
             },
             "vendor": {
                 "jetbrains.com/clion": {
-                    "toolchain": "Emscripten"
+                    "toolchain": "Default"
                 }
             }
         },
@@ -63,7 +63,7 @@
             },
             "vendor": {
                 "jetbrains.com/clion": {
-                    "toolchain": "Emscripten"
+                    "toolchain": "Default"
                 }
             }
         }

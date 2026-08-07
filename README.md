@@ -180,16 +180,29 @@ C:\path\to\emsdk\emsdk_env.bat
 Run these commands from the repository root:
 
 ```sh
-emcmake cmake -S . -B build-web-debug -GNinja -DCMAKE_BUILD_TYPE=Debug
-cmake --build build-web-debug --target <demo-target>
+cmake --preset web-debug
+cmake --build cmake-build-web-debug --target <demo-target>
 ```
 
 Replace `<demo-target>` with the demo or test target you want to build.
 
-Debug web builds generate an HTML launcher alongside the JavaScript, WebAssembly, and asset files. Release builds produce the files needed to embed the application in a custom web page.
-
-Web builds must be served over HTTP rather than opened directly with a `file://` URL. For example:
+For an optimized web build:
 
 ```sh
-emrun build-web-debug/tests/000-sandbox/000-sandbox.html
+cmake --preset web-release
+cmake --build cmake-build-web-release --target <demo-target>
 ```
+
+Debug web builds generate an HTML launcher alongside the JavaScript, WebAssembly, and asset files. Release builds produce the files needed to embed the application in a custom web page.
+
+Web debug builds must be served over HTTP rather than opened directly with a `file://` URL. For example:
+
+```sh
+emrun cmake-build-web-debug/tests/000-sandbox/000-sandbox.html
+```
+
+#### CLion
+
+CLion automatically imports the `Debug`, `Release`, `Web Debug`, and `Web Release` CMake presets from `CMakePresets.json`.
+
+Before using the Web presets, make sure the Emscripten SDK environment is available to CLion.
