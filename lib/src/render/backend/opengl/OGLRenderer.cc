@@ -767,6 +767,15 @@ void OGLRenderer::bindMaterial(const Material& material) {
     if (pipeline.desc.shaderKind == ShaderKind::Default) {
         SendMaterialUniforms(material, *program, glTextureHandles, _state);
     }
+    else if (pipeline.desc.shaderKind == ShaderKind::Skybox) {
+        constexpr auto emissionSlot = static_cast<size_t>(Material::PropertyType::Emission);
+
+        program->bindTexture("cubeSampler",
+                             GL_TEXTURE_CUBE_MAP,
+                             GL_TEXTURE0,
+                             glTextureHandles[emissionSlot],
+                             0);
+    }
 
     _state.material = &material;
 }
