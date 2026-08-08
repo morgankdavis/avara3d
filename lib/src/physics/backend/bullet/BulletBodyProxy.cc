@@ -473,9 +473,9 @@ void BulletBodyProxy::worldTransform(const mat4& transform) {
 
     btTransform btTransform = BTTransformFromA3DMat4(transform);
 
-    if (auto* ms = _btBody->getMotionState()) {
-        ms->setWorldTransform(btTransform);
-    }
+    // if (auto* ms = _btBody->getMotionState()) {
+    //     ms->setWorldTransform(btTransform);
+    // }
 
     _btBody->proceedToTransform(btTransform);
     _btBody->activate(true);
