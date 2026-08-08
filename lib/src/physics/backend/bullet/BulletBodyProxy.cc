@@ -356,6 +356,14 @@ void BulletBodyProxy::applyTorqueImpulse(const vec3& torque) {
     _btBody->applyTorqueImpulse(BTVector3FromA3DVec3(torque));
 }
 
+vec3 BulletBodyProxy::totalForce() const {
+    return A3DVec3FromBTVector3(_btBody->getTotalForce());
+}
+
+vec3 BulletBodyProxy::totalTorque() const {
+    return A3DVec3FromBTVector3(_btBody->getTotalTorque());
+}
+
 void BulletBodyProxy::ccdEnabled(bool enabled) {
 
     _ccdEnabled = enabled;
@@ -398,23 +406,32 @@ float BulletBodyProxy::ccdSweptSphereRadius() const {
 }
 
 bool BulletBodyProxy::affectedByGravity() const {
-    // *** test this ***
-    auto gravity = _btBody->getGravity();
-    return (gravity.x() != 0) || (gravity.y() != 0) || (gravity.z() != 0);
-}
-
-vec3 BulletBodyProxy::totalForce() const {
-    return A3DVec3FromBTVector3(_btBody->getTotalForce());
-}
-
-vec3 BulletBodyProxy::totalTorque() const {
-    return A3DVec3FromBTVector3(_btBody->getTotalTorque());
+    return !(_btBody->getFlags() & BT_DISABLE_WORLD_GRAVITY);
 }
 
 void BulletBodyProxy::affectedByGravity(bool affectedByGravity) {
 
-    // *** test this ***
-    _btBody->setGravity(affectedByGravity ? btVector3 {1.0, 1.0, 1.0} : btVector3 {0, 0, 0});
+    auto flags = _btBody->getFlags();
+
+    if (affectedByGravity) {
+
+        _btBody->setFlags(flags & ~BT_DISABLE_WORLD_GRAVITY);
+
+        // if the body is already in a world, restore that world's current
+        // gravity immediately. otherwise Bullet will assign it when added.
+        if (_btBody->isInWorld()) {
+            if (auto world = _body->physicsWorld()) {
+                _btBody->setGravity(BTVector3FromA3DVec3(world->gravity()));
+            }
+        }
+
+        ActivateDynamicBody(*_btBody);
+    }
+    else {
+
+        _btBody->setFlags(flags | BT_DISABLE_WORLD_GRAVITY);
+        _btBody->setGravity(btVector3 {0, 0, 0});
+    }
 }
 
 bool BulletBodyProxy::allowsResting() const {
