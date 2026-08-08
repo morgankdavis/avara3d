@@ -62,6 +62,9 @@ std::unique_ptr<Scene> App::init() {
         visualWorld->background(make_shared<Texture>(std::move(util::fs::CubeImageNamed("nebula1_blue",
                                                                                         "png"))));
 
+        // visualWorld->background(make_shared<Texture>(std::move(util::fs::CubeImageNamed("nebula_elevated",
+        //                                                                         "png"))));
+
         auto scene = util::fs::SceneNamed("cat_island/cat_island", Scene::ImportOptions::ImportMeshes
                                                                        | Scene::ImportOptions::ImportMaterials
                                                                        | Scene::ImportOptions::ImportCameras);

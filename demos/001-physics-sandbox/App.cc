@@ -54,27 +54,8 @@ std::unique_ptr<Scene> App::init() {
         _window->cursorCaptured(CAPTURE_CURSOR);
 
         auto visualWorld = make_unique<VisualWorld>(*_window);
-
-        // auto backgroundColor = make_shared<Color>("#09090b"); // --background-elevated:
-
-        // --background-elevated: + .demo-controls
-        // A3D canvas:          #09090b
-        // Controls panel top:  #0f0f11
-        // Controls panel down: #0d0d0f
-        // Controls panel lower:#0b0b0d
-        // Controls panel bottom:#09090b
-        // -> ~0f0f11
-        //auto backgroundColor = make_shared<Color>("#09090b");
-
-        // auto backgroundColor = make_shared<Color>("#050506"); // --background:
-        // auto backgroundColor = Color::Black();
-
-        //visualWorld->background(backgroundColor);
-
-        // visualWorld->background(make_shared<Texture>(std::move(util::fs::CubeImageNamed("nebula_elevated",
-        //                                                                                 "png"))));
-        visualWorld->background(make_shared<Texture>(std::move(util::fs::CubeImageNamed("nebula1_blue",
-                                                                                        "png"))));
+        auto background = make_shared<Texture>(std::move(util::fs::CubeImageNamed("nebula", "png")));
+        visualWorld->background(background);
 
         auto physicsWorld = make_unique<PhysicsWorld>();
 
