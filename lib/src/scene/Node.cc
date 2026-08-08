@@ -146,6 +146,7 @@ vec3 Node::position() const {
 }
 
 void Node::position(const vec3& position) {
+
     _position = position;
     syncPhysicsTransforms();
 }
@@ -155,12 +156,14 @@ vec4 Node::rotation() const {
 }
 
 void Node::rotation(const vec3& axis, float angle) {
+
     _orientation = quaternion(axis, angle);
     _eulerAngles = std::nullopt;
     syncPhysicsTransforms();
 }
 
 vec3 Node::eulerAngles() const {
+
     if (!_eulerAngles) {
         _eulerAngles = euler_angles(_orientation);
     }
@@ -168,6 +171,7 @@ vec3 Node::eulerAngles() const {
 }
 
 void Node::eulerAngles(const vec3& angles) {
+
     _orientation = quaternion(angles);
     _eulerAngles = angles;
     syncPhysicsTransforms();
@@ -181,6 +185,7 @@ void Node::orientation(const quat& orientation) {
 
     _orientation = orientation;
     _eulerAngles = std::nullopt;
+    syncPhysicsTransforms();
 }
 
 vec3 Node::scale() const {
@@ -188,6 +193,7 @@ vec3 Node::scale() const {
 }
 
 void Node::scale(const vec3& scale) {
+
     _scale = scale;
     syncPhysicsTransforms();
 }
@@ -203,37 +209,20 @@ mat4 Node::transform() const {
 
 vec3 Node::forward() const {
 
-    // method 1
     vec3 localForward {0.0f, 0.0f, -1.0f}; // assuming local forward is -Z
     return normalize(rotate(_orientation, localForward));
-
-    // method 2
-    // mat4 t = transform();
-    // column 2 = +Z in world space GLM/OpenGL conventions
-    // if local forward is -Z instead of +Z, negate
-    // return normalize(-vec3{t.c2.x, t.c2.y, t.c2.z});
 }
 
 vec3 Node::up() const {
 
-    // method 1
     vec3 localForward {0.0f, 1.0f, 0.0f};
     return normalize(rotate(_orientation, localForward));
-
-    // method 2
-    // mat4 t = transform();
-    // return normalize({t.c1.x, t.c1.y, t.c1.z });
 }
 
 vec3 Node::right() const {
 
-    // method 1
     vec3 localForward {1.0f, 0.0f, 0.0f};
     return normalize(rotate(_orientation, localForward));
-
-    // method 2
-    // mat4 t = transform();
-    // return normalize(t.c0.x, t.c0.y, t.c0.z});
 }
 
 void Node::transform(const mat4& transform) {
@@ -254,12 +243,10 @@ void Node::transform(const mat4& transform) {
 }
 
 vec3 Node::worldPosition() const {
-
     return vec3 {worldTransform()[3]};
 }
 
 vec4 Node::worldRotation() const {
-
     return axis_angle(worldOrientation());
 }
 

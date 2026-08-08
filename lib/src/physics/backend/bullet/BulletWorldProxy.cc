@@ -208,26 +208,6 @@ void BulletWorldProxy::add(PhysicsBody& body) {
         return;
     }
 
-    // keep motion state, rigid body transform, interpolation transform,
-    // and broadphase AABB synchronized before the first simulation step
-    if (auto node = body.node().lock()) {
-        auto nodeTransform = node->worldTransform();
-        auto btTransform = BTTransformFromA3DMat4(nodeTransform);
-
-        if (auto* ms = btBody->getMotionState()) {
-            ms->setWorldTransform(btTransform);
-        }
-
-        btBody->setWorldTransform(btTransform);
-        btBody->setInterpolationWorldTransform(btTransform);
-        btBody->proceedToTransform(btTransform);
-        btBody->activate(true);
-    }
-    else {
-        log::w()("Adding PhysicsBody without a Node??");
-        // TODO: throw?
-    }
-
     _btWorld->addRigidBody(btBody);
 
     if (btBody->isInWorld() && btBody->getBroadphaseHandle()) {

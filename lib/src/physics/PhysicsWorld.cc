@@ -136,7 +136,8 @@ void PhysicsWorld::add(PhysicsBody& body) {
     log::d()("body: {}", static_cast<void*>(&body));
 
     if (_proxy) {
-        //		body.addedToWorld(this);
+        body.syncTransformFromNode();
+
         _proxy->add(body);
         body.addedToWorld(*this);
     }

@@ -473,16 +473,11 @@ void BulletBodyProxy::worldTransform(const mat4& transform) {
 
     btTransform btTransform = BTTransformFromA3DMat4(transform);
 
-    // Keep BOTH the rigid body and its motion state consistent.
-    // (Bullet uses these differently depending on type and interpolation.)
     if (auto* ms = _btBody->getMotionState()) {
         ms->setWorldTransform(btTransform);
     }
 
-    _btBody->setWorldTransform(btTransform);
-    _btBody->setInterpolationWorldTransform(btTransform);
-
-    // If you're externally driving this body (kinematic/static), make sure it's awake.
+    _btBody->proceedToTransform(btTransform);
     _btBody->activate(true);
 
     // Broadphase update: critical for kinematic/static teleports.

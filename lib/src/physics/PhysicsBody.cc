@@ -412,21 +412,6 @@ void PhysicsBody::addedToWorld(PhysicsWorld& world) {
     log::d()("world: {}", static_cast<void*>(&world));
 
     _world = &world;
-
-    // if (auto node = _node.lock()) {
-    //     // set initial transform
-    //     _proxy->worldTransform(node->worldTransform());
-    // }
-    // else {
-    //     log::e()("_node is gone.");
-    //     // TODO: throw?
-    // }
-    if (!_node.expired()) {
-        syncTransformFromNode();
-    }
-    else {
-        log::e()("_node is gone.");
-    }
 }
 
 void PhysicsBody::removedFromWorld(PhysicsWorld& world) {
