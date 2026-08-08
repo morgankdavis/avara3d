@@ -49,6 +49,9 @@ std::unique_ptr<Scene> App::init() {
         visualWorld->fogColor(Color::LightGray());
         visualWorld->background(make_shared<Texture>(util::fs::CubeImageNamed("sky1", "png")));
 
+    //     visualWorld->backgroundOrientation(
+    // quaternion(vec3(0.0f, 1.0f, 0.0f), radians(90.0f)));
+
         auto scene = make_unique<Scene>(std::move(visualWorld), nullptr, Window::InputContext());
         auto debugOptions = Scene::DebugOptions::ShowStatsOverlay | Scene::DebugOptions::ShowBoundingBoxes;
         scene->debugOptions(debugOptions);

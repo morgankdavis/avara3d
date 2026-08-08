@@ -653,6 +653,10 @@ void OGLRenderer::drawBackground(const BackgroundPass& backgroundPass,
 
     bindPipeline(backgroundPass.pipelineId, _resourceCache);
     bindMaterial(*(_skyboxMesh->materials().front()));
+
+    const mat3 sampleRotation = mat3_cast(inverse(backgroundPass.orientation));
+    _skyboxProgram->setUniform("backgroundSampleRotation", sampleRotation);
+
     bindMeshElement(*(_skyboxMesh->elements().front()));
     applyMVP(mat4(1.0f), mat4(mat3(view)), proj); // strip transform off view mat
 
