@@ -309,18 +309,32 @@ void BulletWorldProxy::remove(PhysicsBody& body) {
     }
 }
 
-// vec3 BulletWorldProxy::gravity() const {
-//
-//     std::scoped_lock lock(_btMutex);
-//
-//     return A3DVec3FromBTVector3(_btWorld->getGravity());
-// }
+vec3 BulletWorldProxy::gravity() const {
+
+    std::scoped_lock lock(_btMutex);
+
+    return A3DVec3FromBTVector3(_btWorld->getGravity());
+}
 
 void BulletWorldProxy::gravity(const vec3& gravity) {
 
     std::scoped_lock lock(_btMutex);
 
-    _btWorld->setGravity(BTVector3FromA3DVec3(gravity));
+    const auto btGravity = BTVector3FromA3DVec3(gravity);
+    _btWorld->setGravity(btGravity);
+
+    auto& objects = _btWorld->getCollisionObjectArray();
+    for (int i = 0; i < objects.size(); ++i) {
+        auto* body = btRigidBody::upcast(objects[i]);
+        if (!body || body->isStaticOrKinematicObject()) {
+            continue;
+        }
+        if (body->getFlags() & BT_DISABLE_WORLD_GRAVITY) {
+            continue;
+        }
+        body->setGravity(btGravity);
+        body->activate(true);
+    }
 }
 
 bool BulletWorldProxy::acceptsStepDelta(double deltaTime) const {
