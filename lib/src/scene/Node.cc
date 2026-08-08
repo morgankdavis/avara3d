@@ -227,17 +227,6 @@ vec3 Node::right() const {
 
 void Node::transform(const mat4& transform) {
 
-    // vec3 scale;
-    // quat orientation;
-    // vec3 translation;
-    //
-    // decompose(transform, scale, orientation, translation);
-    //
-    // _position = translation;
-    // _scale = scale;
-    // _orientation = orientation;
-    // _eulerAngles = std::nullopt;
-
     setTransformComponents(transform);
     syncPhysicsTransforms();
 }
@@ -274,34 +263,17 @@ vec3 Node::worldScale() const {
 
 vec3 Node::worldForward() const {
 
-    // method 1
     return normalize(rotate(worldOrientation(), {0.0f, 0.0f, -1.0f})); // local forward is -Z
-
-    // method 2
-    // mat4 w = worldTransform();
-    // column 2 = +Z in world space GLM/OpenGL conventions
-    // if local forward is -Z instead of +Z, negate
-    // return normalize(-vec3{w.c2.x, w.c2.y, w.c2.z});
 }
 
 vec3 Node::worldUp() const {
 
-    // method 1
     return normalize(rotate(worldOrientation(), {0.0f, 1.0f, 0.0f}));
-
-    // method 2
-    // mat4 w = worldTransform();
-    // return normalize({w.c1.x, w.c1.y, w.c1.z});
 }
 
 vec3 Node::worldRight() const {
 
-    // method 1
     return normalize(rotate(worldOrientation(), {1.0f, 0.0f, 0.0f}));
-
-    // method 2
-    // mat4 w = worldTransform();
-    // return normalize({w.c0.x, w.c0.y, w.c0.z});
 }
 
 mat4 Node::worldTransform() const {
