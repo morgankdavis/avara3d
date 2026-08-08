@@ -77,9 +77,10 @@ namespace a3d {
         float              angularSleepingThreshold() const override;
         void               angularSleepingThreshold(float threshold) override;
 
-        void               applyForce(const math::vec3& force, const math::vec3& location) override;
+        void               applyForce(const math::vec3& force, const math::vec3& worldPosition) override;
         void               applyCentralForce(const math::vec3& force) override;
-        void               applyImpulse(const math::vec3& impulse, const math::vec3& location) override;
+
+        void               applyImpulse(const math::vec3& impulse, const math::vec3& worldPosition) override;
         void               applyCentralImpulse(const math::vec3& impulse) override;
 
         void               applyTorque(const math::vec3& torque) override;

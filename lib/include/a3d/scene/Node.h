@@ -176,6 +176,9 @@ namespace a3d {
 
         void                               getAABBRec(AABB& aabb);
 
+        void                               setTransformComponents(const math::mat4& transform);
+        void                               syncPhysicsTransforms();
+
         std::vector<std::shared_ptr<Node>> children(const Node& root) const;
         void childrenRec(const std::shared_ptr<Node>& node, std::vector<std::shared_ptr<Node>>& children) const;
 

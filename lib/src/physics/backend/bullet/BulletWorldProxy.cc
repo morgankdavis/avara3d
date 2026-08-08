@@ -28,6 +28,7 @@
 
 #include "a3d/log/Log.h"
 #include "a3d/physics/PhysicsBody.h"
+#include "a3d/physics/PhysicsWorld.h"
 #include "a3d/physics/shape/PhysicsShape.h"
 #include "a3d/physics/backend/bullet/BulletBodyProxy.h"
 #include "a3d/physics/backend/bullet/BulletDebugDrawer.h"
@@ -152,9 +153,10 @@ BulletWorldProxy::BulletWorldProxy(PhysicsWorld& world):
     _btWorld = std::make_unique<btDiscreteDynamicsWorldMt>(_btCollisionDispatcher.get(), _btBroadphase.get(),
                                                            _btSolverPool.get(), _btSolverMt.get(),
                                                            _btCollisionConfiguration.get());
-
+    _btWorld->setGravity(BTVector3FromA3DVec3(world.gravity()));
     _btDebugDrawer = std::make_unique<BulletDebugDrawer>();
     _btWorld->setDebugDrawer(_btDebugDrawer.get());
+
     _debugLines.clear();
 }
 
@@ -206,26 +208,6 @@ void BulletWorldProxy::add(PhysicsBody& body) {
         return;
     }
 
-    // keep motion state, rigid body transform, interpolation transform,
-    // and broadphase AABB synchronized before the first simulation step
-    if (auto node = body.node().lock()) {
-        auto nodeTransform = node->worldTransform();
-        auto btTransform = BTTransformFromA3DMat4(nodeTransform);
-
-        if (auto* ms = btBody->getMotionState()) {
-            ms->setWorldTransform(btTransform);
-        }
-
-        btBody->setWorldTransform(btTransform);
-        btBody->setInterpolationWorldTransform(btTransform);
-        btBody->proceedToTransform(btTransform);
-        btBody->activate(true);
-    }
-    else {
-        log::w()("Adding PhysicsBody without a Node??");
-        // TODO: throw?
-    }
-
     _btWorld->addRigidBody(btBody);
 
     if (btBody->isInWorld() && btBody->getBroadphaseHandle()) {
@@ -248,16 +230,16 @@ void BulletWorldProxy::add(PhysicsBody& body) {
     if (shapePtr) {
         switch (shapePtr->type()) {
             case PhysicsShape::Type::ConvexHull:
-                _stats.convexHullShapes.insert(shapePtr);
+                ++_stats.convexHullShapes[shapePtr];
                 break;
             case PhysicsShape::Type::ConcavePolyhedron:
-                _stats.concavePolyhedronShapes.insert(shapePtr);
+                ++_stats.concavePolyhedronShapes[shapePtr];
                 break;
             case PhysicsShape::Type::BoundingBox:
-                _stats.boundingBoxShapes.insert(shapePtr);
+                ++_stats.boundingBoxShapes[shapePtr];
                 break;
             case PhysicsShape::Type::Primitive:
-                _stats.primitiveShapes.insert(shapePtr);
+                ++_stats.primitiveShapes[shapePtr];
                 break;
         }
     }
@@ -291,30 +273,66 @@ void BulletWorldProxy::remove(PhysicsBody& body) {
     }
 
     auto shapePtr = body.shape().get();
-    switch (shapePtr->type()) {
-        case PhysicsShape::Type::ConvexHull:
-            _stats.convexHullShapes.erase(shapePtr);
-            break;
-        case PhysicsShape::Type::ConcavePolyhedron:
-            _stats.concavePolyhedronShapes.erase(shapePtr);
-            break;
-        case PhysicsShape::Type::BoundingBox:
-            _stats.boundingBoxShapes.erase(shapePtr);
-            break;
-        case PhysicsShape::Type::Primitive:
-            _stats.primitiveShapes.erase(shapePtr);
-            break;
+    if (shapePtr) {
+        switch (shapePtr->type()) {
+            case PhysicsShape::Type::ConvexHull: {
+                auto it = _stats.convexHullShapes.find(shapePtr);
+                if (it != _stats.convexHullShapes.end() && --it->second == 0) {
+                    _stats.convexHullShapes.erase(it);
+                }
+                break;
+            }
+            case PhysicsShape::Type::ConcavePolyhedron: {
+                auto it = _stats.concavePolyhedronShapes.find(shapePtr);
+                if (it != _stats.concavePolyhedronShapes.end() && --it->second == 0) {
+                    _stats.concavePolyhedronShapes.erase(it);
+                }
+                break;
+            }
+            case PhysicsShape::Type::BoundingBox: {
+                auto it = _stats.boundingBoxShapes.find(shapePtr);
+                if (it != _stats.boundingBoxShapes.end() && --it->second == 0) {
+                    _stats.boundingBoxShapes.erase(it);
+                }
+                break;
+            }
+            case PhysicsShape::Type::Primitive: {
+                auto it = _stats.primitiveShapes.find(shapePtr);
+                if (it != _stats.primitiveShapes.end() && --it->second == 0) {
+                    _stats.primitiveShapes.erase(it);
+                }
+                break;
+            }
+        }
     }
 }
 
-float BulletWorldProxy::gravity() const {
+vec3 BulletWorldProxy::gravity() const {
+
     std::scoped_lock lock(_btMutex);
-    return _btWorld->getGravity().y();
+
+    return A3DVec3FromBTVector3(_btWorld->getGravity());
 }
 
-void BulletWorldProxy::gravity(float gravity) {
+void BulletWorldProxy::gravity(const vec3& gravity) {
+
     std::scoped_lock lock(_btMutex);
-    _btWorld->setGravity({0, gravity, 0});
+
+    const auto btGravity = BTVector3FromA3DVec3(gravity);
+    _btWorld->setGravity(btGravity);
+
+    auto& objects = _btWorld->getCollisionObjectArray();
+    for (int i = 0; i < objects.size(); ++i) {
+        auto* body = btRigidBody::upcast(objects[i]);
+        if (!body || body->isStaticOrKinematicObject()) {
+            continue;
+        }
+        if (body->getFlags() & BT_DISABLE_WORLD_GRAVITY) {
+            continue;
+        }
+        body->setGravity(btGravity);
+        body->activate(true);
+    }
 }
 
 bool BulletWorldProxy::acceptsStepDelta(double deltaTime) const {

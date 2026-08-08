@@ -8,6 +8,9 @@
 
 #include "a3d/physics/PhysicsBody.h"
 
+#include <cmath>
+#include <stdexcept>
+
 #include <magic_enum/magic_enum.hpp>
 
 #include "a3d/log/Log.h"
@@ -34,6 +37,10 @@ unique_ptr<PhysicsBody> PhysicsBody::DynamicBody() {
 unique_ptr<PhysicsBody> PhysicsBody::KinematicBody() {
     return make_unique<PhysicsBody>(Type::Kinematic);
 }
+
+// /// Private Static Non-Member Prototypes ///
+//
+// static void RequireDynamicBody(const PhysicsBody& body);
 
 /// Public Lifecycle Functions ///
 
@@ -75,7 +82,12 @@ PhysicsBody::Type PhysicsBody::type() const {
 
 void PhysicsBody::type(Type type) {
     log::d()("type: {}", magic_enum::enum_name(type));
-    _proxy->type(type);
+    //_proxy->type(type);
+
+    // ! TEMPORARY !
+    if (type != this->type()) {
+        throw logic_error("PhysicsBody type cannot be changed after creation.");
+    }
 }
 
 const shared_ptr<PhysicsShape>& PhysicsBody::shape() const {
@@ -116,6 +128,15 @@ float PhysicsBody::mass() const {
 }
 
 void PhysicsBody::mass(float mass) {
+
+    if (type() != Type::Dynamic) {
+        throw logic_error("Mass may only be changed on dynamic PhysicsBody objects.");
+    }
+
+    if (!isfinite(mass) || mass <= 0.0f) {
+        throw invalid_argument("PhysicsBody mass must be positive and finite.");
+    }
+
     _proxy->mass(mass);
 }
 
@@ -131,8 +152,9 @@ vec3 PhysicsBody::centerOfMass() const {
     return _proxy->centerOfMass();
 }
 
-void PhysicsBody::centerOfMass(const vec3& offset) {
-    _proxy->centerOfMass(offset);
+void PhysicsBody::centerOfMass(const vec3&) {
+    // ! TEMPORARY !
+    throw logic_error("PhysicsBody center of mass cannot be modified.");
 }
 
 float PhysicsBody::friction() const {
@@ -225,6 +247,10 @@ void PhysicsBody::angularSleepingThreshold(float threshold) {
 
 void PhysicsBody::applyForce(const vec3& force, bool impulse) {
 
+    if (type() != PhysicsBody::Type::Dynamic) {
+        throw logic_error("Force may only be applied to dynamic PhysicsBody objects.");
+    }
+
     if (impulse) {
         _proxy->applyCentralImpulse(force);
     }
@@ -233,17 +259,25 @@ void PhysicsBody::applyForce(const vec3& force, bool impulse) {
     }
 }
 
-void PhysicsBody::applyForce(const vec3& force, const vec3& location, bool impulse) {
+void PhysicsBody::applyForce(const vec3& force, const vec3& worldPosition, bool impulse) {
+
+    if (type() != PhysicsBody::Type::Dynamic) {
+        throw logic_error("Force may only be applied to dynamic PhysicsBody objects.");
+    }
 
     if (impulse) {
-        _proxy->applyImpulse(force, location);
+        _proxy->applyImpulse(force, worldPosition);
     }
     else {
-        _proxy->applyForce(force, location);
+        _proxy->applyForce(force, worldPosition);
     }
 }
 
 void PhysicsBody::applyTorque(const vec3& torque, bool impulse) {
+
+    if (type() != PhysicsBody::Type::Dynamic) {
+        throw logic_error("Torque may only be applied to dynamic PhysicsBody objects.");
+    }
 
     if (impulse) {
         _proxy->applyTorqueImpulse(torque);
@@ -378,15 +412,6 @@ void PhysicsBody::addedToWorld(PhysicsWorld& world) {
     log::d()("world: {}", static_cast<void*>(&world));
 
     _world = &world;
-
-    if (auto node = _node.lock()) {
-        // set initial transform
-        _proxy->worldTransform(node->worldTransform());
-    }
-    else {
-        log::e()("_node is gone.");
-        // TODO: throw?
-    }
 }
 
 void PhysicsBody::removedFromWorld(PhysicsWorld& world) {
@@ -432,6 +457,17 @@ void PhysicsBody::shapeDidUpdate() {
 
     if (!_node.expired()) {
         checkAddToWorld();
+    }
+}
+
+void PhysicsBody::syncTransformFromNode() {
+
+    if (auto node = _node.lock()) {
+
+        const mat4 worldTransform =
+            translate(mat4(1.0f), node->worldPosition()) * mat4_cast(node->worldOrientation());
+
+        _proxy->worldTransform(worldTransform);
     }
 }
 
@@ -525,3 +561,12 @@ void PhysicsBody::checkAddToWorld() {
         }
     }
 }
+
+// /// Private Static Non-Member Functions ///
+//
+// void RequireDynamicBody(const PhysicsBody& body) {
+//
+//     if (body.type() != PhysicsBody::Type::Dynamic) {
+//         throw logic_error("Force and torque may only be applied to dynamic PhysicsBody objects.");
+//     }
+// }

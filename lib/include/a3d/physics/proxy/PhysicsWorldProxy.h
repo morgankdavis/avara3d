@@ -45,8 +45,8 @@ namespace a3d {
         virtual void                       add(PhysicsBody& body)    = 0;
         virtual void                       remove(PhysicsBody& body) = 0;
 
-        virtual float                      gravity() const        = 0;
-        virtual void                       gravity(float gravity) = 0;
+        virtual math::vec3                 gravity() const                    = 0;
+        virtual void                       gravity(const math::vec3& gravity) = 0;
 
         virtual bool                       acceptsStepDelta(double deltaTime) const = 0;
 

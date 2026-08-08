@@ -10,7 +10,7 @@
 #define AVARA3D_PHYSICS_BACKEND_BULLET_BULLETSTATS_H
 
 #include <memory>
-#include <unordered_set>
+#include <unordered_map>
 
 namespace a3d {
 
@@ -25,13 +25,13 @@ namespace a3d {
 
         /// Internal Member Variables ///
 
-        unsigned                          numStaticBodies;
-        unsigned                          numDynamicBodies;
-        unsigned                          numKinematicBodies;
-        std::unordered_set<PhysicsShape*> primitiveShapes;
-        std::unordered_set<PhysicsShape*> boundingBoxShapes;
-        std::unordered_set<PhysicsShape*> convexHullShapes;
-        std::unordered_set<PhysicsShape*> concavePolyhedronShapes;
+        unsigned                                    numStaticBodies;
+        unsigned                                    numDynamicBodies;
+        unsigned                                    numKinematicBodies;
+        std::unordered_map<PhysicsShape*, unsigned> primitiveShapes;
+        std::unordered_map<PhysicsShape*, unsigned> boundingBoxShapes;
+        std::unordered_map<PhysicsShape*, unsigned> convexHullShapes;
+        std::unordered_map<PhysicsShape*, unsigned> concavePolyhedronShapes;
     };
 
 }

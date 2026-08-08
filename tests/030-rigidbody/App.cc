@@ -136,7 +136,7 @@ unique_ptr<Scene> App::init() {
         auto palmNode = Node::MeshNode(util::filesystem::MeshNamed("cartoon_palm_tree/cartoon_palm_tree"));
         palmNode->name("Palm tree");
         auto palmPhysicsBody = PhysicsBody::StaticBody();
-        palmPhysicsBody->mass(0);
+        //palmPhysicsBody->mass(0);
         palmPhysicsBody->friction(1);
         palmPhysicsBody->restitution(0.25);
         palmNode->physicsBody(std::move(palmPhysicsBody));
@@ -363,6 +363,7 @@ void App::inputDidUpdate(Runner&                         runner,
 
     if (input.keyPressed(Key::G)) {
         toggleDebugOption(DebugOptions::ShowPhysicsWireframes);
+        //scene.physicsWorld()->gravity({10.0f, 0.0f, 0.0f});
     }
 
     if (input.keyPressed(Key::C)) {
@@ -451,21 +452,43 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
     using Key = DesktopInputContext::Key;
     using MouseButton = DesktopInputContext::MouseButton;
 
-    if (_duckNode) {
-        _duckRotator->update(*_duckNode, info.deltaTime);
+    _duckRotator->update(*_duckNode, info.deltaTime);
+
+    if (!_window->cursorCaptured() && input.mouseButtonPressed(MouseButton::Two)) {
+
+        const auto mouse = input.mousePosition();
+        const auto from = scene.visualWorld()->unprojectPoint({mouse.x, mouse.y, 0.0f});
+        const auto to = scene.visualWorld()->unprojectPoint({mouse.x, mouse.y, 1.0f});
+
+        const auto hits = scene.physicsWorld()->rayTest(from, to);
+
+        if (!hits.empty()) {
+
+            const auto& hit = hits.front();
+
+            if (auto node = hit.node()) {
+                if (auto body = node->physicsBody(); body && body->type() == PhysicsBody::Type::Dynamic) {
+
+                    const vec3 direction = normalize(to - from);
+                    const float impulse = 5.0f;
+
+                    body->applyForce(direction * impulse, hit.worldCoordinates(), true);
+                }
+            }
+        }
     }
 
-    if (input.keyPressed(Key::One)) {
-        _duckNode->physicsBody()->shape()->type(PhysicsShape::Type::BoundingBox);
-    }
-
-    if (input.keyPressed(Key::Two)) {
-        _duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConvexHull);
-    }
-
-    if (input.keyPressed(Key::Three)) {
-        _duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConcavePolyhedron);
-    }
+    // if (input.keyPressed(Key::One)) {
+    //     _duckNode->physicsBody()->shape()->type(PhysicsShape::Type::BoundingBox);
+    // }
+    //
+    // if (input.keyPressed(Key::Two)) {
+    //     _duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConvexHull);
+    // }
+    //
+    // if (input.keyPressed(Key::Three)) {
+    //     _duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConcavePolyhedron);
+    // }
 
     if (input.keyPressed(Key::Five)) {
         _duckNode->physicsBody()->mass(0.0f);

@@ -177,6 +177,8 @@ namespace a3d {
         void                shapeWillUpdate();
         void                shapeDidUpdate();
 
+        void                syncTransformFromNode();
+
         std::weak_ptr<Node> node() const;
 
         // the scene's world, if it exists.  not the same as _world.

@@ -8,6 +8,8 @@
 
 #include "a3d/physics/shape/PhysicsShape.h"
 
+#include <stdexcept>
+
 #include <magic_enum/magic_enum.hpp>
 
 #include "a3d/mesh/Mesh.h"
@@ -76,39 +78,44 @@ PhysicsShape::Type PhysicsShape::type() const {
 void PhysicsShape::type(Type type) {
     log::t()("type: {}", magic_enum::enum_name(type));
 
-    if (_type == type) {
-        return;
+    // ! TEMPORARY !
+    if (type != _type) {
+        throw logic_error("PhysicsShape type cannot be changed after creation.");
     }
 
-    for (auto* body : _bodies) {
-        body->shapeWillUpdate();
-    }
-
-    const auto previousType = _type;
-    _type = type;
-
-    try {
-        std::unique_ptr<PhysicsShapeProxy> replacementProxy;
-
-        if (!_bodies.empty()) {
-            replacementProxy = make_unique<BulletShapeProxy>(*this);
-        }
-
-        _proxy = std::move(replacementProxy);
-    }
-    catch (...) {
-        _type = previousType;
-
-        for (auto* body : _bodies) {
-            body->shapeDidUpdate();
-        }
-
-        throw;
-    }
-
-    for (auto* body : _bodies) {
-        body->shapeDidUpdate();
-    }
+    // if (_type == type) {
+    //     return;
+    // }
+    //
+    // for (auto* body : _bodies) {
+    //     body->shapeWillUpdate();
+    // }
+    //
+    // const auto previousType = _type;
+    // _type = type;
+    //
+    // try {
+    //     std::unique_ptr<PhysicsShapeProxy> replacementProxy;
+    //
+    //     if (!_bodies.empty()) {
+    //         replacementProxy = make_unique<BulletShapeProxy>(*this);
+    //     }
+    //
+    //     _proxy = std::move(replacementProxy);
+    // }
+    // catch (...) {
+    //     _type = previousType;
+    //
+    //     for (auto* body : _bodies) {
+    //         body->shapeDidUpdate();
+    //     }
+    //
+    //     throw;
+    // }
+    //
+    // for (auto* body : _bodies) {
+    //     body->shapeDidUpdate();
+    // }
 }
 
 /// Internal Member Functions ///

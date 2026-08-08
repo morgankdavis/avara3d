@@ -146,7 +146,9 @@ vec3 Node::position() const {
 }
 
 void Node::position(const vec3& position) {
+
     _position = position;
+    syncPhysicsTransforms();
 }
 
 vec4 Node::rotation() const {
@@ -154,11 +156,14 @@ vec4 Node::rotation() const {
 }
 
 void Node::rotation(const vec3& axis, float angle) {
+
     _orientation = quaternion(axis, angle);
     _eulerAngles = std::nullopt;
+    syncPhysicsTransforms();
 }
 
 vec3 Node::eulerAngles() const {
+
     if (!_eulerAngles) {
         _eulerAngles = euler_angles(_orientation);
     }
@@ -166,8 +171,10 @@ vec3 Node::eulerAngles() const {
 }
 
 void Node::eulerAngles(const vec3& angles) {
+
     _orientation = quaternion(angles);
     _eulerAngles = angles;
+    syncPhysicsTransforms();
 }
 
 quat Node::orientation() const {
@@ -178,6 +185,7 @@ void Node::orientation(const quat& orientation) {
 
     _orientation = orientation;
     _eulerAngles = std::nullopt;
+    syncPhysicsTransforms();
 }
 
 vec3 Node::scale() const {
@@ -185,7 +193,9 @@ vec3 Node::scale() const {
 }
 
 void Node::scale(const vec3& scale) {
+
     _scale = scale;
+    syncPhysicsTransforms();
 }
 
 mat4 Node::transform() const {
@@ -199,61 +209,33 @@ mat4 Node::transform() const {
 
 vec3 Node::forward() const {
 
-    // method 1
     vec3 localForward {0.0f, 0.0f, -1.0f}; // assuming local forward is -Z
     return normalize(rotate(_orientation, localForward));
-
-    // method 2
-    // mat4 t = transform();
-    // column 2 = +Z in world space GLM/OpenGL conventions
-    // if local forward is -Z instead of +Z, negate
-    // return normalize(-vec3{t.c2.x, t.c2.y, t.c2.z});
 }
 
 vec3 Node::up() const {
 
-    // method 1
     vec3 localForward {0.0f, 1.0f, 0.0f};
     return normalize(rotate(_orientation, localForward));
-
-    // method 2
-    // mat4 t = transform();
-    // return normalize({t.c1.x, t.c1.y, t.c1.z });
 }
 
 vec3 Node::right() const {
 
-    // method 1
     vec3 localForward {1.0f, 0.0f, 0.0f};
     return normalize(rotate(_orientation, localForward));
-
-    // method 2
-    // mat4 t = transform();
-    // return normalize(t.c0.x, t.c0.y, t.c0.z});
 }
 
 void Node::transform(const mat4& transform) {
 
-    vec3 scale;
-    quat orientation;
-    vec3 translation;
-
-    decompose(transform, scale, orientation, translation);
-
-    _position = translation;
-    _scale = scale;
-    _orientation = orientation;
-
-    _eulerAngles = std::nullopt;
+    setTransformComponents(transform);
+    syncPhysicsTransforms();
 }
 
 vec3 Node::worldPosition() const {
-
     return vec3 {worldTransform()[3]};
 }
 
 vec4 Node::worldRotation() const {
-
     return axis_angle(worldOrientation());
 }
 
@@ -281,34 +263,17 @@ vec3 Node::worldScale() const {
 
 vec3 Node::worldForward() const {
 
-    // method 1
     return normalize(rotate(worldOrientation(), {0.0f, 0.0f, -1.0f})); // local forward is -Z
-
-    // method 2
-    // mat4 w = worldTransform();
-    // column 2 = +Z in world space GLM/OpenGL conventions
-    // if local forward is -Z instead of +Z, negate
-    // return normalize(-vec3{w.c2.x, w.c2.y, w.c2.z});
 }
 
 vec3 Node::worldUp() const {
 
-    // method 1
     return normalize(rotate(worldOrientation(), {0.0f, 1.0f, 0.0f}));
-
-    // method 2
-    // mat4 w = worldTransform();
-    // return normalize({w.c1.x, w.c1.y, w.c1.z});
 }
 
 vec3 Node::worldRight() const {
 
-    // method 1
     return normalize(rotate(worldOrientation(), {1.0f, 0.0f, 0.0f}));
-
-    // method 2
-    // mat4 w = worldTransform();
-    // return normalize({w.c0.x, w.c0.y, w.c0.z});
 }
 
 mat4 Node::worldTransform() const {
@@ -748,11 +713,18 @@ vec3 Node::extent(bool vertfit) const {
 
 void Node::applyPhysicsTransform(const mat4& transform) {
 
+    // if (auto parent = _parent.lock()) {
+    //     this->transform(inverse(parent->worldTransform()) * transform);
+    // }
+    // else {
+    //     this->transform(transform);
+    // }
+
     if (auto parent = _parent.lock()) {
-        this->transform(inverse(parent->worldTransform()) * transform);
+        setTransformComponents(inverse(parent->worldTransform()) * transform);
     }
     else {
-        this->transform(transform);
+        setTransformComponents(transform);
     }
 }
 
@@ -787,6 +759,31 @@ void Node::getAABBRec(AABB& aabb) {
 
     for (auto& child : _children) {
         child->getAABBRec(aabb);
+    }
+}
+
+void Node::setTransformComponents(const mat4& transform) {
+
+    vec3 scale;
+    quat orientation;
+    vec3 translation;
+
+    decompose(transform, scale, orientation, translation);
+
+    _position = translation;
+    _scale = scale;
+    _orientation = orientation;
+    _eulerAngles = std::nullopt;
+}
+
+void Node::syncPhysicsTransforms() {
+
+    if (_physicsBody) {
+        _physicsBody->syncTransformFromNode();
+    }
+
+    for (auto& child : _children) {
+        child->syncPhysicsTransforms();
     }
 }
 

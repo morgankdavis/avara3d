@@ -29,48 +29,15 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-namespace {
+/// Private Static Non-Member Prototypes ///
 
-    int CollisionFlagsForBodyType(int flags, PhysicsBody::Type type) {
-        flags &= ~(btCollisionObject::CF_STATIC_OBJECT | btCollisionObject::CF_KINEMATIC_OBJECT);
-
-        switch (type) {
-            case PhysicsBody::Type::Static:
-                return flags | btCollisionObject::CF_STATIC_OBJECT;
-
-            case PhysicsBody::Type::Kinematic:
-                return flags | btCollisionObject::CF_KINEMATIC_OBJECT;
-
-            case PhysicsBody::Type::Dynamic:
-                return flags;
-        }
-
-        return flags;
-    }
-
-    void SetMassPropsPreservingType(btRigidBody&      body,
-                                    PhysicsBody::Type type,
-                                    btScalar          mass,
-                                    const btVector3&  inertia) {
-        body.setMassProps(mass, inertia);
-        body.setCollisionFlags(CollisionFlagsForBodyType(body.getCollisionFlags(), type));
-        body.updateInertiaTensor();
-    }
-
-    void ForceActivationForBodyType(btRigidBody& body, PhysicsBody::Type type) {
-        switch (type) {
-            case PhysicsBody::Type::Static:
-            case PhysicsBody::Type::Dynamic:
-                body.forceActivationState(ACTIVE_TAG);
-                break;
-
-            case PhysicsBody::Type::Kinematic:
-                body.forceActivationState(DISABLE_DEACTIVATION);
-                break;
-        }
-    }
-
-} // namespace
+static int  CollisionFlagsForBodyType(int flags, PhysicsBody::Type type);
+static void SetMassPropsPreservingType(btRigidBody&      body,
+                                       PhysicsBody::Type type,
+                                       btScalar          mass,
+                                       const btVector3&  inertia);
+static void ForceActivationForBodyType(btRigidBody& body, PhysicsBody::Type type);
+static void ActivateDynamicBody(btRigidBody& body);
 
 /// Internal Lifecycle Functions ///
 
@@ -351,28 +318,50 @@ void BulletBodyProxy::angularSleepingThreshold(float threshold) {
     _btBody->setSleepingThresholds(_btBody->getLinearSleepingThreshold(), threshold);
 }
 
-void BulletBodyProxy::applyForce(const vec3& force, const vec3& location) {
-    _btBody->applyForce(BTVector3FromA3DVec3(force), BTVector3FromA3DVec3(location));
+void BulletBodyProxy::applyForce(const vec3& force, const vec3& worldPosition) {
+
+    ActivateDynamicBody(*_btBody);
+    const btVector3 relativePosition = BTVector3FromA3DVec3(worldPosition) - _btBody->getCenterOfMassPosition();
+    _btBody->applyForce(BTVector3FromA3DVec3(force), relativePosition);
 }
 
 void BulletBodyProxy::applyCentralForce(const vec3& force) {
+
+    ActivateDynamicBody(*_btBody);
     _btBody->applyCentralForce(BTVector3FromA3DVec3(force));
 }
 
-void BulletBodyProxy::applyImpulse(const vec3& impulse, const vec3& location) {
-    _btBody->applyImpulse(BTVector3FromA3DVec3(impulse), BTVector3FromA3DVec3(location));
+void BulletBodyProxy::applyImpulse(const vec3& impulse, const vec3& worldPosition) {
+
+    ActivateDynamicBody(*_btBody);
+    const btVector3 relativePosition = BTVector3FromA3DVec3(worldPosition) - _btBody->getCenterOfMassPosition();
+    _btBody->applyImpulse(BTVector3FromA3DVec3(impulse), relativePosition);
 }
 
 void BulletBodyProxy::applyCentralImpulse(const vec3& impulse) {
+
+    ActivateDynamicBody(*_btBody);
     _btBody->applyCentralImpulse(BTVector3FromA3DVec3(impulse));
 }
 
 void BulletBodyProxy::applyTorque(const vec3& torque) {
+
+    ActivateDynamicBody(*_btBody);
     _btBody->applyTorque(BTVector3FromA3DVec3(torque));
 }
 
 void BulletBodyProxy::applyTorqueImpulse(const vec3& torque) {
+
+    ActivateDynamicBody(*_btBody);
     _btBody->applyTorqueImpulse(BTVector3FromA3DVec3(torque));
+}
+
+vec3 BulletBodyProxy::totalForce() const {
+    return A3DVec3FromBTVector3(_btBody->getTotalForce());
+}
+
+vec3 BulletBodyProxy::totalTorque() const {
+    return A3DVec3FromBTVector3(_btBody->getTotalTorque());
 }
 
 void BulletBodyProxy::ccdEnabled(bool enabled) {
@@ -417,23 +406,32 @@ float BulletBodyProxy::ccdSweptSphereRadius() const {
 }
 
 bool BulletBodyProxy::affectedByGravity() const {
-    // *** test this ***
-    auto gravity = _btBody->getGravity();
-    return (gravity.x() != 0) || (gravity.y() != 0) || (gravity.z() != 0);
-}
-
-vec3 BulletBodyProxy::totalForce() const {
-    return A3DVec3FromBTVector3(_btBody->getTotalForce());
-}
-
-vec3 BulletBodyProxy::totalTorque() const {
-    return A3DVec3FromBTVector3(_btBody->getTotalTorque());
+    return !(_btBody->getFlags() & BT_DISABLE_WORLD_GRAVITY);
 }
 
 void BulletBodyProxy::affectedByGravity(bool affectedByGravity) {
 
-    // *** test this ***
-    _btBody->setGravity(affectedByGravity ? btVector3 {1.0, 1.0, 1.0} : btVector3 {0, 0, 0});
+    auto flags = _btBody->getFlags();
+
+    if (affectedByGravity) {
+
+        _btBody->setFlags(flags & ~BT_DISABLE_WORLD_GRAVITY);
+
+        // if the body is already in a world, restore that world's current
+        // gravity immediately. otherwise Bullet will assign it when added.
+        if (_btBody->isInWorld()) {
+            if (auto world = _body->physicsWorld()) {
+                _btBody->setGravity(BTVector3FromA3DVec3(world->gravity()));
+            }
+        }
+
+        ActivateDynamicBody(*_btBody);
+    }
+    else {
+
+        _btBody->setFlags(flags | BT_DISABLE_WORLD_GRAVITY);
+        _btBody->setGravity(btVector3 {0, 0, 0});
+    }
 }
 
 bool BulletBodyProxy::allowsResting() const {
@@ -447,8 +445,13 @@ void BulletBodyProxy::allowsResting(bool allowsResting) {
         return;
     }
 
-    _btBody->setActivationState(allowsResting ? ACTIVE_TAG : DISABLE_DEACTIVATION);
-    _btBody->activate(true);
+    if (allowsResting) {
+        _btBody->forceActivationState(ACTIVE_TAG);
+        _btBody->activate(true);
+    }
+    else {
+        _btBody->forceActivationState(DISABLE_DEACTIVATION);
+    }
 }
 
 bool BulletBodyProxy::resting() const {
@@ -470,16 +473,11 @@ void BulletBodyProxy::worldTransform(const mat4& transform) {
 
     btTransform btTransform = BTTransformFromA3DMat4(transform);
 
-    // Keep BOTH the rigid body and its motion state consistent.
-    // (Bullet uses these differently depending on type and interpolation.)
-    if (auto* ms = _btBody->getMotionState()) {
-        ms->setWorldTransform(btTransform);
-    }
+    // if (auto* ms = _btBody->getMotionState()) {
+    //     ms->setWorldTransform(btTransform);
+    // }
 
-    _btBody->setWorldTransform(btTransform);
-    _btBody->setInterpolationWorldTransform(btTransform);
-
-    // If you're externally driving this body (kinematic/static), make sure it's awake.
+    _btBody->proceedToTransform(btTransform);
     _btBody->activate(true);
 
     // Broadphase update: critical for kinematic/static teleports.
@@ -567,5 +565,53 @@ void BulletBodyProxy::syncCcdSettings() {
     else {
         _btBody->setCcdMotionThreshold(btScalar(0.0));
         _btBody->setCcdSweptSphereRadius(btScalar(0.0));
+    }
+}
+
+/// Private Static Non-Member Functions ///
+
+int CollisionFlagsForBodyType(int flags, PhysicsBody::Type type) {
+    flags &= ~(btCollisionObject::CF_STATIC_OBJECT | btCollisionObject::CF_KINEMATIC_OBJECT);
+
+    switch (type) {
+        case PhysicsBody::Type::Static:
+            return flags | btCollisionObject::CF_STATIC_OBJECT;
+
+        case PhysicsBody::Type::Kinematic:
+            return flags | btCollisionObject::CF_KINEMATIC_OBJECT;
+
+        case PhysicsBody::Type::Dynamic:
+            return flags;
+    }
+
+    return flags;
+}
+
+void SetMassPropsPreservingType(btRigidBody&      body,
+                                PhysicsBody::Type type,
+                                btScalar          mass,
+                                const btVector3&  inertia) {
+    body.setMassProps(mass, inertia);
+    body.setCollisionFlags(CollisionFlagsForBodyType(body.getCollisionFlags(), type));
+    body.updateInertiaTensor();
+}
+
+void ForceActivationForBodyType(btRigidBody& body, PhysicsBody::Type type) {
+    switch (type) {
+        case PhysicsBody::Type::Static:
+        case PhysicsBody::Type::Dynamic:
+            body.forceActivationState(ACTIVE_TAG);
+            break;
+
+        case PhysicsBody::Type::Kinematic:
+            body.forceActivationState(DISABLE_DEACTIVATION);
+            break;
+    }
+}
+
+void ActivateDynamicBody(btRigidBody& body) {
+
+    if (!body.isStaticOrKinematicObject()) {
+        body.activate(true);
     }
 }

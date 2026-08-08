@@ -49,7 +49,12 @@ const vec3& PhysicsWorld::gravity() const {
 }
 
 void PhysicsWorld::gravity(const vec3& gravity) {
+
     _gravity = gravity;
+
+    if (_proxy) {
+        _proxy->gravity(gravity);
+    }
 }
 
 optional<PhysicsContact> PhysicsWorld::contactTest(const PhysicsBody& bodyA, const PhysicsBody& bodyB) {
@@ -131,7 +136,8 @@ void PhysicsWorld::add(PhysicsBody& body) {
     log::d()("body: {}", static_cast<void*>(&body));
 
     if (_proxy) {
-        //		body.addedToWorld(this);
+        body.syncTransformFromNode();
+
         _proxy->add(body);
         body.addedToWorld(*this);
     }

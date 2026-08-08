@@ -86,10 +86,11 @@ namespace a3d {
         virtual float              angularSleepingThreshold() const          = 0;
         virtual void               angularSleepingThreshold(float threshold) = 0;
 
-        virtual void               applyForce(const math::vec3& force, const math::vec3& location)     = 0;
-        virtual void               applyCentralForce(const math::vec3& force)                          = 0;
-        virtual void               applyImpulse(const math::vec3& impulse, const math::vec3& location) = 0;
-        virtual void               applyCentralImpulse(const math::vec3& impulse)                      = 0;
+        virtual void               applyForce(const math::vec3& force, const math::vec3& worldPosition) = 0;
+        virtual void               applyCentralForce(const math::vec3& force)                           = 0;
+
+        virtual void               applyImpulse(const math::vec3& impulse, const math::vec3& worldPosition) = 0;
+        virtual void               applyCentralImpulse(const math::vec3& impulse)                           = 0;
 
         virtual void               applyTorque(const math::vec3& torque)        = 0;
         virtual void               applyTorqueImpulse(const math::vec3& torque) = 0;
