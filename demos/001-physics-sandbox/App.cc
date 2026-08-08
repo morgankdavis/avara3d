@@ -34,7 +34,7 @@ const float TIMESTEP {1.0 / 60.0};
 const float TIMESTEP {1.0 / 120.0};
 #endif
 
-const float BACKGROUND_ROTATION_SPEED {radians(1.0)};
+const float BACKGROUND_ROTATION_SPEED {radians(0.5f)};
 const vec3  BACKGROUND_ROTATION_AXIS {0.5f, 1.0f, 1.0f};
 
 /// Public Lifecycle Functions ///
