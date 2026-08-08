@@ -233,13 +233,13 @@ void PhysicsBody::applyForce(const vec3& force, bool impulse) {
     }
 }
 
-void PhysicsBody::applyForce(const vec3& force, const vec3& location, bool impulse) {
+void PhysicsBody::applyForce(const vec3& force, const vec3& worldPosition, bool impulse) {
 
     if (impulse) {
-        _proxy->applyImpulse(force, location);
+        _proxy->applyImpulse(force, worldPosition);
     }
     else {
-        _proxy->applyForce(force, location);
+        _proxy->applyForce(force, worldPosition);
     }
 }
 

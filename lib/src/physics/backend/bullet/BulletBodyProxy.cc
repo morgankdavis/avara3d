@@ -351,16 +351,18 @@ void BulletBodyProxy::angularSleepingThreshold(float threshold) {
     _btBody->setSleepingThresholds(_btBody->getLinearSleepingThreshold(), threshold);
 }
 
-void BulletBodyProxy::applyForce(const vec3& force, const vec3& location) {
-    _btBody->applyForce(BTVector3FromA3DVec3(force), BTVector3FromA3DVec3(location));
+void BulletBodyProxy::applyForce(const vec3& force, const vec3& worldPosition) {
+    const btVector3 relativePosition = BTVector3FromA3DVec3(worldPosition) - _btBody->getCenterOfMassPosition();
+    _btBody->applyForce(BTVector3FromA3DVec3(force), relativePosition);
 }
 
 void BulletBodyProxy::applyCentralForce(const vec3& force) {
     _btBody->applyCentralForce(BTVector3FromA3DVec3(force));
 }
 
-void BulletBodyProxy::applyImpulse(const vec3& impulse, const vec3& location) {
-    _btBody->applyImpulse(BTVector3FromA3DVec3(impulse), BTVector3FromA3DVec3(location));
+void BulletBodyProxy::applyImpulse(const vec3& impulse, const vec3& worldPosition) {
+    const btVector3 relativePosition = BTVector3FromA3DVec3(worldPosition) - _btBody->getCenterOfMassPosition();
+    _btBody->applyImpulse(BTVector3FromA3DVec3(impulse), relativePosition);
 }
 
 void BulletBodyProxy::applyCentralImpulse(const vec3& impulse) {
