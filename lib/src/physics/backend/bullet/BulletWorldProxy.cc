@@ -250,16 +250,16 @@ void BulletWorldProxy::add(PhysicsBody& body) {
     if (shapePtr) {
         switch (shapePtr->type()) {
             case PhysicsShape::Type::ConvexHull:
-                _stats.convexHullShapes.insert(shapePtr);
+                ++_stats.convexHullShapes[shapePtr];
                 break;
             case PhysicsShape::Type::ConcavePolyhedron:
-                _stats.concavePolyhedronShapes.insert(shapePtr);
+                ++_stats.concavePolyhedronShapes[shapePtr];
                 break;
             case PhysicsShape::Type::BoundingBox:
-                _stats.boundingBoxShapes.insert(shapePtr);
+                ++_stats.boundingBoxShapes[shapePtr];
                 break;
             case PhysicsShape::Type::Primitive:
-                _stats.primitiveShapes.insert(shapePtr);
+                ++_stats.primitiveShapes[shapePtr];
                 break;
         }
     }
@@ -293,19 +293,37 @@ void BulletWorldProxy::remove(PhysicsBody& body) {
     }
 
     auto shapePtr = body.shape().get();
-    switch (shapePtr->type()) {
-        case PhysicsShape::Type::ConvexHull:
-            _stats.convexHullShapes.erase(shapePtr);
-            break;
-        case PhysicsShape::Type::ConcavePolyhedron:
-            _stats.concavePolyhedronShapes.erase(shapePtr);
-            break;
-        case PhysicsShape::Type::BoundingBox:
-            _stats.boundingBoxShapes.erase(shapePtr);
-            break;
-        case PhysicsShape::Type::Primitive:
-            _stats.primitiveShapes.erase(shapePtr);
-            break;
+    if (shapePtr) {
+        switch (shapePtr->type()) {
+            case PhysicsShape::Type::ConvexHull: {
+                auto it = _stats.convexHullShapes.find(shapePtr);
+                if (it != _stats.convexHullShapes.end() && --it->second == 0) {
+                    _stats.convexHullShapes.erase(it);
+                }
+                break;
+            }
+            case PhysicsShape::Type::ConcavePolyhedron: {
+                auto it = _stats.concavePolyhedronShapes.find(shapePtr);
+                if (it != _stats.concavePolyhedronShapes.end() && --it->second == 0) {
+                    _stats.concavePolyhedronShapes.erase(it);
+                }
+                break;
+            }
+            case PhysicsShape::Type::BoundingBox: {
+                auto it = _stats.boundingBoxShapes.find(shapePtr);
+                if (it != _stats.boundingBoxShapes.end() && --it->second == 0) {
+                    _stats.boundingBoxShapes.erase(it);
+                }
+                break;
+            }
+            case PhysicsShape::Type::Primitive: {
+                auto it = _stats.primitiveShapes.find(shapePtr);
+                if (it != _stats.primitiveShapes.end() && --it->second == 0) {
+                    _stats.primitiveShapes.erase(it);
+                }
+                break;
+            }
+        }
     }
 }
 
