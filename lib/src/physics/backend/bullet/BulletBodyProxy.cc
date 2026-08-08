@@ -445,8 +445,13 @@ void BulletBodyProxy::allowsResting(bool allowsResting) {
         return;
     }
 
-    _btBody->setActivationState(allowsResting ? ACTIVE_TAG : DISABLE_DEACTIVATION);
-    _btBody->activate(true);
+    if (allowsResting) {
+        _btBody->forceActivationState(ACTIVE_TAG);
+        _btBody->activate(true);
+    }
+    else {
+        _btBody->forceActivationState(DISABLE_DEACTIVATION);
+    }
 }
 
 bool BulletBodyProxy::resting() const {
