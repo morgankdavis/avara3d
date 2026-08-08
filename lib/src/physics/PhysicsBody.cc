@@ -8,6 +8,7 @@
 
 #include "a3d/physics/PhysicsBody.h"
 
+#include <cmath>
 #include <stdexcept>
 
 #include <magic_enum/magic_enum.hpp>
@@ -127,6 +128,15 @@ float PhysicsBody::mass() const {
 }
 
 void PhysicsBody::mass(float mass) {
+
+    if (type() != Type::Dynamic) {
+        throw logic_error("Mass may only be changed on dynamic PhysicsBody objects.");
+    }
+
+    if (!isfinite(mass) || mass <= 0.0f) {
+        throw invalid_argument("PhysicsBody mass must be positive and finite.");
+    }
+
     _proxy->mass(mass);
 }
 
