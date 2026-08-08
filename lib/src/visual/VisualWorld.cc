@@ -37,6 +37,7 @@ using namespace std;
 VisualWorld::VisualWorld(RenderContext& context):
     _background {},
     _backgroundMaterial {},
+    _backgroundOrientation {1.0f},
     _fogStartDistance {0.0f},
     _fogEndDistance {0.0f},
     _fogDensityExponent {0.0f},
@@ -95,6 +96,14 @@ void VisualWorld::background(const Material::Property& background) {
     }
 
     _background = background;
+}
+
+quat VisualWorld::backgroundOrientation() const {
+    return _backgroundOrientation;
+}
+
+void VisualWorld::backgroundOrientation(const quat& orientation) {
+    _backgroundOrientation = orientation;
 }
 
 float VisualWorld::fogStartDistance() const {
@@ -312,10 +321,8 @@ bool VisualWorld::draw(const Scene&             scene,
     if (povValid) {
 
         auto [view, proj] = prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
-            return std::pair {
-                inverse(pov->worldTransform()),
-                pov->camera()->projection(_renderContext->framebufferSize())
-            };
+            return std::pair {inverse(pov->worldTransform()),
+                              pov->camera()->projection(_renderContext->framebufferSize())};
         });
 
         prof::profile(profiler, Profiler::Tag::RenderCpu, [&] {

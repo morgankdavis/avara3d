@@ -80,8 +80,10 @@ namespace a3d {
 
         const Material::Property&     background();
         void                          background(const Material::Property& background);
+        math::quat                    backgroundOrientation() const;
+        void                          backgroundOrientation(const math::quat& orientation);
 
-        // TODO: make Fog its own class
+        // TODO: make Fog its own struct
         float                         fogStartDistance() const;
         void                          fogStartDistance(float distance);
         float                         fogEndDistance() const;
@@ -98,7 +100,6 @@ namespace a3d {
         std::weak_ptr<Node>&          pointOfView();
         void                          pointOfView(const std::weak_ptr<Node>& cameraNode);
 
-        
         math::vec3                    projectPoint(const math::vec3& point) const;
         math::vec3                    unprojectPoint(const math::vec3& point) const;
 
@@ -147,6 +148,7 @@ namespace a3d {
 
         Material::Property        _background;
         std::shared_ptr<Material> _backgroundMaterial;
+        math::quat                _backgroundOrientation;
         float                     _fogStartDistance;
         float                     _fogEndDistance;
         float                     _fogDensityExponent;
