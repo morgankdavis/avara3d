@@ -81,7 +81,12 @@ PhysicsBody::Type PhysicsBody::type() const {
 
 void PhysicsBody::type(Type type) {
     log::d()("type: {}", magic_enum::enum_name(type));
-    _proxy->type(type);
+    //_proxy->type(type);
+
+    // ! TEMPORARY !
+    if (type != this->type()) {
+        throw logic_error("PhysicsBody type cannot be changed after creation.");
+    }
 }
 
 const shared_ptr<PhysicsShape>& PhysicsBody::shape() const {
