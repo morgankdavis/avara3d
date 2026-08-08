@@ -456,6 +456,32 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
 
 
 
+    if (!_window->cursorCaptured() && input.mouseButtonPressed(MouseButton::Two)) {
+
+        const auto mouse = input.mousePosition();
+        const auto from = scene.visualWorld()->unprojectPoint({mouse.x, mouse.y, 0.0f});
+        const auto to = scene.visualWorld()->unprojectPoint({mouse.x, mouse.y, 1.0f});
+
+        const auto hits = scene.physicsWorld()->rayTest(from, to);
+
+        if (!hits.empty()) {
+
+            const auto& hit = hits.front();
+
+            if (auto node = hit.node()) {
+                if (auto body = node->physicsBody(); body && body->type() == PhysicsBody::Type::Dynamic) {
+
+                    const vec3 direction = normalize(to - from);
+                    const float impulse = 5.0f;
+
+                    body->applyForce(direction * impulse, hit.worldCoordinates(), true);
+                }
+            }
+        }
+    }
+
+
+
 
     if (input.keyPressed(Key::One)) {
         _duckNode->physicsBody()->shape()->type(PhysicsShape::Type::BoundingBox);
