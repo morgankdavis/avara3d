@@ -454,9 +454,6 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
 
     _duckRotator->update(*_duckNode, info.deltaTime);
 
-
-
-
     if (!_window->cursorCaptured() && input.mouseButtonPressed(MouseButton::Two)) {
 
         const auto mouse = input.mousePosition();
@@ -480,9 +477,6 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
             }
         }
     }
-
-
-
 
     // if (input.keyPressed(Key::One)) {
     //     _duckNode->physicsBody()->shape()->type(PhysicsShape::Type::BoundingBox);

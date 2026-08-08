@@ -147,6 +147,7 @@ vec3 Node::position() const {
 
 void Node::position(const vec3& position) {
     _position = position;
+    syncPhysicsTransforms();
 }
 
 vec4 Node::rotation() const {
@@ -156,6 +157,7 @@ vec4 Node::rotation() const {
 void Node::rotation(const vec3& axis, float angle) {
     _orientation = quaternion(axis, angle);
     _eulerAngles = std::nullopt;
+    syncPhysicsTransforms();
 }
 
 vec3 Node::eulerAngles() const {
@@ -168,6 +170,7 @@ vec3 Node::eulerAngles() const {
 void Node::eulerAngles(const vec3& angles) {
     _orientation = quaternion(angles);
     _eulerAngles = angles;
+    syncPhysicsTransforms();
 }
 
 quat Node::orientation() const {
@@ -186,6 +189,7 @@ vec3 Node::scale() const {
 
 void Node::scale(const vec3& scale) {
     _scale = scale;
+    syncPhysicsTransforms();
 }
 
 mat4 Node::transform() const {
@@ -234,17 +238,19 @@ vec3 Node::right() const {
 
 void Node::transform(const mat4& transform) {
 
-    vec3 scale;
-    quat orientation;
-    vec3 translation;
+    // vec3 scale;
+    // quat orientation;
+    // vec3 translation;
+    //
+    // decompose(transform, scale, orientation, translation);
+    //
+    // _position = translation;
+    // _scale = scale;
+    // _orientation = orientation;
+    // _eulerAngles = std::nullopt;
 
-    decompose(transform, scale, orientation, translation);
-
-    _position = translation;
-    _scale = scale;
-    _orientation = orientation;
-
-    _eulerAngles = std::nullopt;
+    setTransformComponents(transform);
+    syncPhysicsTransforms();
 }
 
 vec3 Node::worldPosition() const {
@@ -748,11 +754,18 @@ vec3 Node::extent(bool vertfit) const {
 
 void Node::applyPhysicsTransform(const mat4& transform) {
 
+    // if (auto parent = _parent.lock()) {
+    //     this->transform(inverse(parent->worldTransform()) * transform);
+    // }
+    // else {
+    //     this->transform(transform);
+    // }
+
     if (auto parent = _parent.lock()) {
-        this->transform(inverse(parent->worldTransform()) * transform);
+        setTransformComponents(inverse(parent->worldTransform()) * transform);
     }
     else {
-        this->transform(transform);
+        setTransformComponents(transform);
     }
 }
 
@@ -787,6 +800,31 @@ void Node::getAABBRec(AABB& aabb) {
 
     for (auto& child : _children) {
         child->getAABBRec(aabb);
+    }
+}
+
+void Node::setTransformComponents(const mat4& transform) {
+
+    vec3 scale;
+    quat orientation;
+    vec3 translation;
+
+    decompose(transform, scale, orientation, translation);
+
+    _position = translation;
+    _scale = scale;
+    _orientation = orientation;
+    _eulerAngles = std::nullopt;
+}
+
+void Node::syncPhysicsTransforms() {
+
+    if (_physicsBody) {
+        _physicsBody->syncTransformFromNode();
+    }
+
+    for (auto& child : _children) {
+        child->syncPhysicsTransforms();
     }
 }
 

@@ -413,13 +413,19 @@ void PhysicsBody::addedToWorld(PhysicsWorld& world) {
 
     _world = &world;
 
-    if (auto node = _node.lock()) {
-        // set initial transform
-        _proxy->worldTransform(node->worldTransform());
+    // if (auto node = _node.lock()) {
+    //     // set initial transform
+    //     _proxy->worldTransform(node->worldTransform());
+    // }
+    // else {
+    //     log::e()("_node is gone.");
+    //     // TODO: throw?
+    // }
+    if (!_node.expired()) {
+        syncTransformFromNode();
     }
     else {
         log::e()("_node is gone.");
-        // TODO: throw?
     }
 }
 
@@ -466,6 +472,17 @@ void PhysicsBody::shapeDidUpdate() {
 
     if (!_node.expired()) {
         checkAddToWorld();
+    }
+}
+
+void PhysicsBody::syncTransformFromNode() {
+
+    if (auto node = _node.lock()) {
+
+        const mat4 worldTransform =
+            translate(mat4(1.0f), node->worldPosition()) * mat4_cast(node->worldOrientation());
+
+        _proxy->worldTransform(worldTransform);
     }
 }
 
