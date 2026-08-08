@@ -10,7 +10,9 @@ uniform mat3 backgroundSampleRotation;
 out vec4 fragColor;
 
 void main () {
-vec3 sampleDirection = backgroundSampleRotation * frag_texCoord;
+vec3 sampleDirection =
+backgroundSampleRotation * frag_texCoord;
+
 fragColor = texture(cubeSampler, sampleDirection);
 
 // gamma correction

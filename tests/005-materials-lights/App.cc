@@ -32,6 +32,9 @@ const bool                            CAPTURE_CURSOR {false};
 const bool                            ORTHO_CAMERA {false};
 const float                           MOUSE_SENSITIVITY {0.5};
 
+const float BACKGROUND_ROTATION_SPEED {radians(1.0)};
+const vec3  BACKGROUND_ROTATION_AXIS {0.258819f, 0.965926f, 0.0f};
+
 /// Public Lifecycle Functions ///
 
 App::App(int argc, char* argv[]):
@@ -57,12 +60,11 @@ std::unique_ptr<Scene> App::init() {
         visualWorld->fogColor(Color::LightGray());
         //visualWorld->usesDefaultLighting(true);
         visualWorld->background(make_shared<Texture>(std::move(util::fs::CubeImageNamed("nebula1_blue",
-                                                                                                "png"))));
+                                                                                        "png"))));
 
-        auto scene =
-            util::fs::SceneNamed("cat_island/cat_island", Scene::ImportOptions::ImportMeshes
-                                                                      | Scene::ImportOptions::ImportMaterials
-                                                                      | Scene::ImportOptions::ImportCameras);
+        auto scene = util::fs::SceneNamed("cat_island/cat_island", Scene::ImportOptions::ImportMeshes
+                                                                       | Scene::ImportOptions::ImportMaterials
+                                                                       | Scene::ImportOptions::ImportCameras);
 
         scene->visualWorld(std::move(visualWorld));
         scene->inputContext(std::move(Window::InputContext()));
@@ -316,15 +318,21 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
         return;
     }
 
-    const vec3 center {0.0f, 30.0f, 0.0f};
-
+    const vec3  center {0.0f, 30.0f, 0.0f};
     const float angle = radians(30.0f) * static_cast<float>(info.endTime);
-
     const float x = math::sin(angle) * _pointLightOrbitRadius;
-
     const float y = math::cos(angle) * _pointLightOrbitRadius;
-
     _pointLightNode->position(center + vec3 {x, y, -x});
+}
+
+void App::frameDidBegin(Runner&, Scene&, VisualWorld& visualWorld, const VisualWorld::RenderInfo& info) {
+
+    const float delta = static_cast<float>(info.updateDeltaTime);
+
+    static float angle = 0;
+    angle += delta * BACKGROUND_ROTATION_SPEED;
+
+    visualWorld.backgroundOrientation(quaternion(BACKGROUND_ROTATION_AXIS, angle));
 }
 
 /// Private Static Non-Member Functions ///

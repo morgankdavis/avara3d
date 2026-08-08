@@ -44,6 +44,11 @@ namespace test::materialslights {
 
         void sceneWillStep(a3d::Runner& runner, a3d::Scene& scene, const a3d::Scene::StepInfo& info) override;
 
+        void frameDidBegin(a3d::Runner&                        runner,
+                           a3d::Scene&                         scene,
+                           a3d::VisualWorld&                   visualWorld,
+                           const a3d::VisualWorld::RenderInfo& info) override;
+
     private:
         /// Private Member Variables ///
 

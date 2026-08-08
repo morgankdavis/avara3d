@@ -8,6 +8,9 @@
 
 #include "App.h"
 
+#include <algorithm>
+#include <cmath>
+
 #include "a3d/a3d.h"
 
 using namespace a3d;
@@ -21,7 +24,7 @@ const Log::Level                      APP_LOG_LEVEL {Log::Level::Debug};
 const uvec2                           WINDOW_SIZE {1280, 768};
 const bool                            FULLSCREEN {false};
 const bool                            ENABLE_HIGH_DPI {true};
-const RenderContext::AntialiasingMode ANTIALIAS_MODE {RenderContext::AntialiasingMode::Msaa4X};
+const RenderContext::AntialiasingMode ANTIALIAS_MODE {RenderContext::AntialiasingMode::Msaa2X};
 const bool                            ENABLE_VSYNC {false};
 const bool                            CAPTURE_CURSOR {false};
 const float                           MOUSE_SENSITIVITY {0.5};
@@ -30,6 +33,9 @@ const float TIMESTEP {1.0 / 60.0};
 #else
 const float TIMESTEP {1.0 / 120.0};
 #endif
+
+const float BACKGROUND_ROTATION_SPEED {radians(1.0)};
+const vec3  BACKGROUND_ROTATION_AXIS {0.5f, 1.0f, 1.0f};
 
 /// Public Lifecycle Functions ///
 
@@ -65,7 +71,9 @@ std::unique_ptr<Scene> App::init() {
 
         //visualWorld->background(backgroundColor);
 
-        visualWorld->background(make_shared<Texture>(std::move(util::fs::CubeImageNamed("nebula_elevated",
+        // visualWorld->background(make_shared<Texture>(std::move(util::fs::CubeImageNamed("nebula_elevated",
+        //                                                                                 "png"))));
+        visualWorld->background(make_shared<Texture>(std::move(util::fs::CubeImageNamed("nebula1_blue",
                                                                                         "png"))));
 
         auto physicsWorld = make_unique<PhysicsWorld>();
@@ -119,10 +127,16 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
         return;
     }
 
-    // rotate the banana at 30 degrees per second
-    const float rotation = static_cast<float>(info.deltaTime) * radians(-30.0f);
+    // // rotate the banana at 30 degrees per second
+    // const float rotation = static_cast<float>(info.deltaTime) * radians(-30.0f);
+    // const auto rotationY = math::quaternion({0.0f, 1.0f, 0.0f}, rotation);
+    // _bananaNode->orientation(rotationY * _bananaNode->orientation());
+}
 
-    const auto rotationY = math::quaternion({0.0f, 1.0f, 0.0f}, rotation);
+void App::frameDidBegin(Runner&, Scene&, VisualWorld& visualWorld, const VisualWorld::RenderInfo& info) {
 
-    _bananaNode->orientation(rotationY * _bananaNode->orientation());
+    const float  delta = static_cast<float>(info.updateDeltaTime);
+    static float angle = radians(90.0);
+    angle += delta * BACKGROUND_ROTATION_SPEED;
+    visualWorld.backgroundOrientation(quaternion(BACKGROUND_ROTATION_AXIS, angle));
 }
