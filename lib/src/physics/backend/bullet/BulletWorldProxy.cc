@@ -28,6 +28,7 @@
 
 #include "a3d/log/Log.h"
 #include "a3d/physics/PhysicsBody.h"
+#include "a3d/physics/PhysicsWorld.h"
 #include "a3d/physics/shape/PhysicsShape.h"
 #include "a3d/physics/backend/bullet/BulletBodyProxy.h"
 #include "a3d/physics/backend/bullet/BulletDebugDrawer.h"
@@ -152,9 +153,10 @@ BulletWorldProxy::BulletWorldProxy(PhysicsWorld& world):
     _btWorld = std::make_unique<btDiscreteDynamicsWorldMt>(_btCollisionDispatcher.get(), _btBroadphase.get(),
                                                            _btSolverPool.get(), _btSolverMt.get(),
                                                            _btCollisionConfiguration.get());
-
+    _btWorld->setGravity(BTVector3FromA3DVec3(world.gravity()));
     _btDebugDrawer = std::make_unique<BulletDebugDrawer>();
     _btWorld->setDebugDrawer(_btDebugDrawer.get());
+
     _debugLines.clear();
 }
 
@@ -307,14 +309,18 @@ void BulletWorldProxy::remove(PhysicsBody& body) {
     }
 }
 
-float BulletWorldProxy::gravity() const {
-    std::scoped_lock lock(_btMutex);
-    return _btWorld->getGravity().y();
-}
+// vec3 BulletWorldProxy::gravity() const {
+//
+//     std::scoped_lock lock(_btMutex);
+//
+//     return A3DVec3FromBTVector3(_btWorld->getGravity());
+// }
 
-void BulletWorldProxy::gravity(float gravity) {
+void BulletWorldProxy::gravity(const vec3& gravity) {
+
     std::scoped_lock lock(_btMutex);
-    _btWorld->setGravity({0, gravity, 0});
+
+    _btWorld->setGravity(BTVector3FromA3DVec3(gravity));
 }
 
 bool BulletWorldProxy::acceptsStepDelta(double deltaTime) const {

@@ -49,7 +49,12 @@ const vec3& PhysicsWorld::gravity() const {
 }
 
 void PhysicsWorld::gravity(const vec3& gravity) {
+
     _gravity = gravity;
+
+    if (_proxy) {
+        _proxy->gravity(gravity);
+    }
 }
 
 optional<PhysicsContact> PhysicsWorld::contactTest(const PhysicsBody& bodyA, const PhysicsBody& bodyB) {

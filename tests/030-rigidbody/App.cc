@@ -362,7 +362,8 @@ void App::inputDidUpdate(Runner&                         runner,
     }
 
     if (input.keyPressed(Key::G)) {
-        toggleDebugOption(DebugOptions::ShowPhysicsWireframes);
+        //toggleDebugOption(DebugOptions::ShowPhysicsWireframes);
+        scene.physicsWorld()->gravity({3.0f, 0.0f, 0.0f});
     }
 
     if (input.keyPressed(Key::C)) {

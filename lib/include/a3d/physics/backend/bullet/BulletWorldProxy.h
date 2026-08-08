@@ -48,8 +48,8 @@ namespace a3d {
         void                       add(PhysicsBody& body) override;
         void                       remove(PhysicsBody& body) override;
 
-        float                      gravity() const override;
-        void                       gravity(float gravity) override;
+        // math::vec3                 gravity() const override;
+        void                       gravity(const math::vec3& gravity) override;
 
         bool                       acceptsStepDelta(double deltaTime) const override;
 
