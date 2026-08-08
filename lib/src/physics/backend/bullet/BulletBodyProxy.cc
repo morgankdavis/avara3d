@@ -29,48 +29,15 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-namespace {
+/// Private Static Non-Member Prototypes ///
 
-    int CollisionFlagsForBodyType(int flags, PhysicsBody::Type type) {
-        flags &= ~(btCollisionObject::CF_STATIC_OBJECT | btCollisionObject::CF_KINEMATIC_OBJECT);
-
-        switch (type) {
-            case PhysicsBody::Type::Static:
-                return flags | btCollisionObject::CF_STATIC_OBJECT;
-
-            case PhysicsBody::Type::Kinematic:
-                return flags | btCollisionObject::CF_KINEMATIC_OBJECT;
-
-            case PhysicsBody::Type::Dynamic:
-                return flags;
-        }
-
-        return flags;
-    }
-
-    void SetMassPropsPreservingType(btRigidBody&      body,
-                                    PhysicsBody::Type type,
-                                    btScalar          mass,
-                                    const btVector3&  inertia) {
-        body.setMassProps(mass, inertia);
-        body.setCollisionFlags(CollisionFlagsForBodyType(body.getCollisionFlags(), type));
-        body.updateInertiaTensor();
-    }
-
-    void ForceActivationForBodyType(btRigidBody& body, PhysicsBody::Type type) {
-        switch (type) {
-            case PhysicsBody::Type::Static:
-            case PhysicsBody::Type::Dynamic:
-                body.forceActivationState(ACTIVE_TAG);
-                break;
-
-            case PhysicsBody::Type::Kinematic:
-                body.forceActivationState(DISABLE_DEACTIVATION);
-                break;
-        }
-    }
-
-} // namespace
+static int  CollisionFlagsForBodyType(int flags, PhysicsBody::Type type);
+static void SetMassPropsPreservingType(btRigidBody&      body,
+                                       PhysicsBody::Type type,
+                                       btScalar          mass,
+                                       const btVector3&  inertia);
+static void ForceActivationForBodyType(btRigidBody& body, PhysicsBody::Type type);
+static void ActivateDynamicBody(btRigidBody& body);
 
 /// Internal Lifecycle Functions ///
 
@@ -352,28 +319,40 @@ void BulletBodyProxy::angularSleepingThreshold(float threshold) {
 }
 
 void BulletBodyProxy::applyForce(const vec3& force, const vec3& worldPosition) {
+
+    ActivateDynamicBody(*_btBody);
     const btVector3 relativePosition = BTVector3FromA3DVec3(worldPosition) - _btBody->getCenterOfMassPosition();
     _btBody->applyForce(BTVector3FromA3DVec3(force), relativePosition);
 }
 
 void BulletBodyProxy::applyCentralForce(const vec3& force) {
+
+    ActivateDynamicBody(*_btBody);
     _btBody->applyCentralForce(BTVector3FromA3DVec3(force));
 }
 
 void BulletBodyProxy::applyImpulse(const vec3& impulse, const vec3& worldPosition) {
+
+    ActivateDynamicBody(*_btBody);
     const btVector3 relativePosition = BTVector3FromA3DVec3(worldPosition) - _btBody->getCenterOfMassPosition();
     _btBody->applyImpulse(BTVector3FromA3DVec3(impulse), relativePosition);
 }
 
 void BulletBodyProxy::applyCentralImpulse(const vec3& impulse) {
+
+    ActivateDynamicBody(*_btBody);
     _btBody->applyCentralImpulse(BTVector3FromA3DVec3(impulse));
 }
 
 void BulletBodyProxy::applyTorque(const vec3& torque) {
+
+    ActivateDynamicBody(*_btBody);
     _btBody->applyTorque(BTVector3FromA3DVec3(torque));
 }
 
 void BulletBodyProxy::applyTorqueImpulse(const vec3& torque) {
+
+    ActivateDynamicBody(*_btBody);
     _btBody->applyTorqueImpulse(BTVector3FromA3DVec3(torque));
 }
 
@@ -569,5 +548,53 @@ void BulletBodyProxy::syncCcdSettings() {
     else {
         _btBody->setCcdMotionThreshold(btScalar(0.0));
         _btBody->setCcdSweptSphereRadius(btScalar(0.0));
+    }
+}
+
+/// Private Static Non-Member Functions ///
+
+int CollisionFlagsForBodyType(int flags, PhysicsBody::Type type) {
+    flags &= ~(btCollisionObject::CF_STATIC_OBJECT | btCollisionObject::CF_KINEMATIC_OBJECT);
+
+    switch (type) {
+        case PhysicsBody::Type::Static:
+            return flags | btCollisionObject::CF_STATIC_OBJECT;
+
+        case PhysicsBody::Type::Kinematic:
+            return flags | btCollisionObject::CF_KINEMATIC_OBJECT;
+
+        case PhysicsBody::Type::Dynamic:
+            return flags;
+    }
+
+    return flags;
+}
+
+void SetMassPropsPreservingType(btRigidBody&      body,
+                                PhysicsBody::Type type,
+                                btScalar          mass,
+                                const btVector3&  inertia) {
+    body.setMassProps(mass, inertia);
+    body.setCollisionFlags(CollisionFlagsForBodyType(body.getCollisionFlags(), type));
+    body.updateInertiaTensor();
+}
+
+void ForceActivationForBodyType(btRigidBody& body, PhysicsBody::Type type) {
+    switch (type) {
+        case PhysicsBody::Type::Static:
+        case PhysicsBody::Type::Dynamic:
+            body.forceActivationState(ACTIVE_TAG);
+            break;
+
+        case PhysicsBody::Type::Kinematic:
+            body.forceActivationState(DISABLE_DEACTIVATION);
+            break;
+    }
+}
+
+void ActivateDynamicBody(btRigidBody& body) {
+
+    if (!body.isStaticOrKinematicObject()) {
+        body.activate(true);
     }
 }

@@ -451,9 +451,11 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
     using Key = DesktopInputContext::Key;
     using MouseButton = DesktopInputContext::MouseButton;
 
-    if (_duckNode) {
-        _duckRotator->update(*_duckNode, info.deltaTime);
-    }
+    _duckRotator->update(*_duckNode, info.deltaTime);
+
+
+
+
 
     if (input.keyPressed(Key::One)) {
         _duckNode->physicsBody()->shape()->type(PhysicsShape::Type::BoundingBox);
