@@ -50,6 +50,7 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
     const bool showBounds = util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowBoundingBoxes);
 
     output.backgroundMaterial = scene.visualWorld()->backgroundMaterial();
+    output.backgroundOrientation = scene.visualWorld()->backgroundOrientation();
 
     output.scene = &scene; // TODO: maybe change to AABB directly?
 

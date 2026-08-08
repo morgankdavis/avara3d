@@ -10,7 +10,6 @@
 
 #include "a3d/mesh/Line.h"
 #include "a3d/mesh/Mesh.h"
-#include "a3d/mesh/MeshElement.h"
 #include "a3d/render/DrawPacket.h"
 #include "a3d/render/GatherOutput.h"
 #include "a3d/render/PacketSorter.h"
@@ -35,6 +34,7 @@ DrawPacket DrawPacketizer::Packetize(GatherOutput& gatherOutput) {
     packet.backgroundPass.pipelineId = INVALID_PIPELINE_ID;
     packet.backgroundPass.desc = PipelineDescBuilder::MakeBackgroundDesc();
     packet.backgroundPass.material = gatherOutput.backgroundMaterial;
+    packet.backgroundPass.orientation = gatherOutput.backgroundOrientation;
 
     for (const RenderItem& ri : gatherOutput.renderItems) {
 

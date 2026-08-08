@@ -51,8 +51,9 @@ namespace a3d {
         std::vector<RenderItem>   renderItems        = {};
         const Scene*              scene              = nullptr; // debug AABB
         std::shared_ptr<Material> backgroundMaterial = nullptr;
-        std::vector<Node*>        lightNodes         = {};
-        std::vector<Line>         debugLines         = {};
+        math::quat                backgroundOrientation {1.0f};
+        std::vector<Node*>        lightNodes = {};
+        std::vector<Line>         debugLines = {};
     };
 
 }

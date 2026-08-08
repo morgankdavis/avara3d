@@ -25,6 +25,7 @@ namespace a3d {
         PipelineId                pipelineId = INVALID_PIPELINE_ID;
         PipelineDesc              desc       = {};
         std::shared_ptr<Material> material   = nullptr; // gross
+        math::quat                orientation {1.0f};
     };
 
     struct LinesPass {
