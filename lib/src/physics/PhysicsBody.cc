@@ -8,6 +8,8 @@
 
 #include "a3d/physics/PhysicsBody.h"
 
+#include <stdexcept>
+
 #include <magic_enum/magic_enum.hpp>
 
 #include "a3d/log/Log.h"
@@ -34,6 +36,10 @@ unique_ptr<PhysicsBody> PhysicsBody::DynamicBody() {
 unique_ptr<PhysicsBody> PhysicsBody::KinematicBody() {
     return make_unique<PhysicsBody>(Type::Kinematic);
 }
+
+// /// Private Static Non-Member Prototypes ///
+//
+// static void RequireDynamicBody(const PhysicsBody& body);
 
 /// Public Lifecycle Functions ///
 
@@ -225,6 +231,10 @@ void PhysicsBody::angularSleepingThreshold(float threshold) {
 
 void PhysicsBody::applyForce(const vec3& force, bool impulse) {
 
+    if (type() != PhysicsBody::Type::Dynamic) {
+        throw logic_error("Force may only be applied to dynamic PhysicsBody objects.");
+    }
+
     if (impulse) {
         _proxy->applyCentralImpulse(force);
     }
@@ -235,6 +245,10 @@ void PhysicsBody::applyForce(const vec3& force, bool impulse) {
 
 void PhysicsBody::applyForce(const vec3& force, const vec3& worldPosition, bool impulse) {
 
+    if (type() != PhysicsBody::Type::Dynamic) {
+        throw logic_error("Force may only be applied to dynamic PhysicsBody objects.");
+    }
+
     if (impulse) {
         _proxy->applyImpulse(force, worldPosition);
     }
@@ -244,6 +258,10 @@ void PhysicsBody::applyForce(const vec3& force, const vec3& worldPosition, bool 
 }
 
 void PhysicsBody::applyTorque(const vec3& torque, bool impulse) {
+
+    if (type() != PhysicsBody::Type::Dynamic) {
+        throw logic_error("Torque may only be applied to dynamic PhysicsBody objects.");
+    }
 
     if (impulse) {
         _proxy->applyTorqueImpulse(torque);
@@ -525,3 +543,12 @@ void PhysicsBody::checkAddToWorld() {
         }
     }
 }
+
+// /// Private Static Non-Member Functions ///
+//
+// void RequireDynamicBody(const PhysicsBody& body) {
+//
+//     if (body.type() != PhysicsBody::Type::Dynamic) {
+//         throw logic_error("Force and torque may only be applied to dynamic PhysicsBody objects.");
+//     }
+// }
