@@ -71,11 +71,11 @@ App::App(int argc, char* argv[]):
 
 App::~App() = default;
 
-/// Public Member Functions ///
+/// Application Protected Member Functions ///
 
 unique_ptr<Scene> App::init() {
     try {
-        _window = make_unique<Window>(RenderContext::RenderingApi::OpenGL, *util::filesystem::ExecutableName(),
+        _window = make_unique<Window>(RenderContext::RenderingApi::OpenGL, *util::fs::ExecutableName(),
                                       WINDOW_SIZE, FULLSCREEN, ENABLE_HIGH_DPI, AA_MODE);
         _window->vSyncEnabled(ENABLE_VSYNC);
         _window->cursorCaptured(CAPTURE_CURSOR);
@@ -133,7 +133,7 @@ unique_ptr<Scene> App::init() {
 
         // add the palm tree
 
-        auto palmNode = Node::MeshNode(util::filesystem::MeshNamed("cartoon_palm_tree/cartoon_palm_tree"));
+        auto palmNode = Node::MeshNode(util::fs::MeshNamed("cartoon_palm_tree/cartoon_palm_tree"));
         palmNode->name("Palm tree");
         auto palmPhysicsBody = PhysicsBody::StaticBody();
         //palmPhysicsBody->mass(0);
@@ -144,7 +144,7 @@ unique_ptr<Scene> App::init() {
 
         // add the duck
 
-        auto duckNode = Node::MeshNode(util::filesystem::MeshNamed("rubber_duck/rubber_duck"));
+        auto duckNode = Node::MeshNode(util::fs::MeshNamed("rubber_duck/rubber_duck"));
         duckNode->name("Quack");
         _duckNode = duckNode.get();
         duckNode->position({/*4.5*/ 0, 25, 0});
@@ -178,27 +178,27 @@ unique_ptr<Scene> App::init() {
 
         // preload duck fruit
 
-        auto mesh = util::filesystem::MeshNamed("cherries_lod/cherries_lod");
+        auto mesh = util::fs::MeshNamed("cherries_lod/cherries_lod");
         auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
         _duckFruit.push_back({mesh, shape, 0.05});
 
-        mesh = util::filesystem::MeshNamed("orange_lod/orange_lod");
+        mesh = util::fs::MeshNamed("orange_lod/orange_lod");
         shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
         _duckFruit.push_back({mesh, shape, 0.185});
 
-        mesh = util::filesystem::MeshNamed("pear_lod/pear_lod");
+        mesh = util::fs::MeshNamed("pear_lod/pear_lod");
         shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
         _duckFruit.push_back({mesh, shape, 0.24});
 
-        mesh = util::filesystem::MeshNamed("apple_lod/apple_lod");
+        mesh = util::fs::MeshNamed("apple_lod/apple_lod");
         shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
         _duckFruit.push_back({mesh, shape, 0.225});
 
-        mesh = util::filesystem::MeshNamed("banana_lod/banana_lod");
+        mesh = util::fs::MeshNamed("banana_lod/banana_lod");
         shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
         _duckFruit.push_back({mesh, shape, 0.14});
 
-        mesh = util::filesystem::MeshNamed("pineapple_lod/pineapple_lod");
+        mesh = util::fs::MeshNamed("pineapple_lod/pineapple_lod");
         shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
         _duckFruit.push_back({mesh, shape, 0.9});
 
@@ -237,8 +237,6 @@ SimulationConfig App::simulationConfig() const {
 bool App::shouldContinue(const Scene&) {
     return _window->isOpen();
 }
-
-/// InputContext Callbacks ///
 
 void App::inputDidUpdate(Runner&                         runner,
                          Scene&                          scene,
@@ -442,8 +440,6 @@ void App::inputDidUpdate(Runner&                         runner,
         }
     }
 }
-
-/// Scene Callbacks ///
 
 void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
 
@@ -714,7 +710,7 @@ void SpawnDuckFruit(Scene& scene, const Node& duckNode, vector<App::DuckFruitDef
 
 void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
 
-    static auto mesh = util::filesystem::MeshNamed("slurm/slurm");
+    static auto mesh = util::fs::MeshNamed("slurm/slurm");
     mesh->materials()[0]->emission(mesh->materials()[0]->diffuse());
     mesh->materials()[1]->emission(mesh->materials()[1]->diffuse());
 
@@ -834,7 +830,7 @@ void AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color) {
 
 void AddCardboardBox(Scene& scene, const vec3& location, const vec3& axis, float angle) {
 
-    static auto mesh = util::filesystem::MeshNamed("cardboard_box/cardboard_box");
+    static auto mesh = util::fs::MeshNamed("cardboard_box/cardboard_box");
 
     auto node = Node::MeshNode(mesh);
     node->name("Cardboard Box");
@@ -856,7 +852,7 @@ void AddCardboardBox(Scene& scene, const vec3& location, const vec3& axis, float
 
 void SpawnHACDTeapot(Scene& scene) {
 
-    auto teapotNode = Node::MeshNode(util::filesystem::MeshNamed("teapot/teapot"));
+    auto teapotNode = Node::MeshNode(util::fs::MeshNamed("teapot/teapot"));
 
     ConvexDecomposer::Options options;
     options.maxConvexHulls = options.maxConvexHulls / 2;

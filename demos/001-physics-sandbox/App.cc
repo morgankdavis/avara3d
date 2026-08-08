@@ -38,19 +38,35 @@ App::App(int argc, char* argv[]):
 
 App::~App() = default;
 
-/// Public Member Functions ///
+/// Application Protected Member Functions ///
 
 std::unique_ptr<Scene> App::init() {
     try {
-        _window = make_unique<Window>(RenderContext::RenderingApi::OpenGL, *util::filesystem::ExecutableName(),
+        _window = make_unique<Window>(RenderContext::RenderingApi::OpenGL, *util::fs::ExecutableName(),
                                       WINDOW_SIZE, FULLSCREEN, ENABLE_HIGH_DPI, ANTIALIAS_MODE);
         _window->vSyncEnabled(ENABLE_VSYNC);
         _window->cursorCaptured(CAPTURE_CURSOR);
 
         auto visualWorld = make_unique<VisualWorld>(*_window);
-        auto backgroundColor = make_shared<Color>("#0b0b0d");
-        // auto backgroundColor = Color::Red();
-        visualWorld->background(backgroundColor);
+
+        // auto backgroundColor = make_shared<Color>("#09090b"); // --background-elevated:
+
+        // --background-elevated: + .demo-controls
+        // A3D canvas:          #09090b
+        // Controls panel top:  #0f0f11
+        // Controls panel down: #0d0d0f
+        // Controls panel lower:#0b0b0d
+        // Controls panel bottom:#09090b
+        // -> ~0f0f11
+        //auto backgroundColor = make_shared<Color>("#09090b");
+
+        // auto backgroundColor = make_shared<Color>("#050506"); // --background:
+        // auto backgroundColor = Color::Black();
+
+        //visualWorld->background(backgroundColor);
+
+        visualWorld->background(make_shared<Texture>(std::move(util::fs::CubeImageNamed("nebula_elevated",
+                                                                                        "png"))));
 
         auto physicsWorld = make_unique<PhysicsWorld>();
 
@@ -58,7 +74,7 @@ std::unique_ptr<Scene> App::init() {
             make_unique<Scene>(std::move(visualWorld), std::move(physicsWorld), Window::InputContext());
         scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay | Scene::DebugOptions::ShowBoundingBoxes);
 
-        _bananaNode = Node::MeshNode(util::filesystem::MeshNamed("banana_lod/banana_lod"));
+        _bananaNode = Node::MeshNode(util::fs::MeshNamed("banana_lod/banana_lod"));
         auto rot90X = math::quaternion({1.0f, 0.0f, 0.0f}, radians(90.0f));
         auto rot90Y = math::quaternion({0.0f, 1.0f, 0.0f}, radians(90.0f));
         _bananaNode->orientation(rot90X * rot90Y);
@@ -83,8 +99,6 @@ bool App::shouldContinue(const Scene& scene) {
     return _window->isOpen();
 }
 
-/// InputContext Callbacks ///
-
 void App::inputDidUpdate(Runner&       runner,
                          Scene&        scene,
                          InputContext& inputContext,
@@ -98,8 +112,6 @@ void App::inputDidUpdate(Runner&       runner,
         _window->close();
     }
 }
-
-/// Scene Callbacks ///
 
 void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
 

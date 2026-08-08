@@ -41,11 +41,11 @@ App::App(int argc, char* argv[]):
 
 App::~App() = default;
 
-/// Public Member Functions ///
+/// Application Protected Member Functions ///
 
 std::unique_ptr<Scene> App::init() {
     try {
-        _window = make_unique<Window>(RenderContext::RenderingApi::OpenGL, *util::filesystem::ExecutableName(),
+        _window = make_unique<Window>(RenderContext::RenderingApi::OpenGL, *util::fs::ExecutableName(),
                                       WINDOW_SIZE, FULLSCREEN, ENABLE_HIGH_DPI, ANTIALIAS_MODE);
         _window->vSyncEnabled(ENABLE_VSYNC);
         _window->cursorCaptured(CAPTURE_CURSOR);
@@ -56,11 +56,11 @@ std::unique_ptr<Scene> App::init() {
         visualWorld->fogDensityExponent(1.0);
         visualWorld->fogColor(Color::LightGray());
         //visualWorld->usesDefaultLighting(true);
-        visualWorld->background(make_shared<Texture>(std::move(util::filesystem::CubeImageNamed("nebula1_blue",
+        visualWorld->background(make_shared<Texture>(std::move(util::fs::CubeImageNamed("nebula1_blue",
                                                                                                 "png"))));
 
         auto scene =
-            util::filesystem::SceneNamed("cat_island/cat_island", Scene::ImportOptions::ImportMeshes
+            util::fs::SceneNamed("cat_island/cat_island", Scene::ImportOptions::ImportMeshes
                                                                       | Scene::ImportOptions::ImportMaterials
                                                                       | Scene::ImportOptions::ImportCameras);
 
@@ -123,8 +123,6 @@ std::unique_ptr<Scene> App::init() {
 bool App::shouldContinue(const Scene& scene) {
     return _window->isOpen();
 }
-
-/// InputContext Callbacks ///
 
 void App::inputDidUpdate(Runner&                         runner,
                          Scene&                          scene,
@@ -311,8 +309,6 @@ void App::inputDidUpdate(Runner&                         runner,
         }
     }
 }
-
-/// Scene Callbacks ///
 
 void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
 

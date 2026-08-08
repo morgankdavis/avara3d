@@ -76,7 +76,7 @@ void MainWindow::initA3D() {
 
         _viewport->cursorCaptured(CAPTURE_CURSOR);
 
-        _bananaNode = Node::MeshNode(util::filesystem::MeshNamed("banana_lod/banana_lod"));
+        _bananaNode = Node::MeshNode(util::fs::MeshNamed("banana_lod/banana_lod"));
         auto rot90X = math::quaternion({1.0f, 0.0f, 0.0f}, radians(90.0f));
         auto rot90Y = math::quaternion({0.0f, 1.0f, 0.0f}, radians(90.0f));
         _bananaNode->orientation(rot90X * rot90Y);
@@ -111,10 +111,10 @@ void MainWindow::initLog(Log::Level level) {
 
     Log::MainLog().level(level);
 
-    string executableName = *util::filesystem::ExecutableName();
+    string executableName = *util::fs::ExecutableName();
 
     auto nativeSink = make_unique<StdOutLogSink>();
-    auto fileSink = make_unique<FileLogSink>(*(util::filesystem::ExecutableDirectory())
+    auto fileSink = make_unique<FileLogSink>(*(util::fs::ExecutableDirectory())
                                              / (executableName + string(".log")));
     auto sinks = vector<unique_ptr<LogSink>>();
     sinks.push_back(std::move(nativeSink));

@@ -369,7 +369,8 @@ kbd {
     min-width: 0;
     aspect-ratio: 5 / 3;
     overflow: hidden;
-    border-right: 1px solid var(--line);
+/*     border-right: 1px solid var(--line); */
+    border-right: none;
     background:
         radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.14), transparent 25%),
         #6d88a4;
@@ -450,6 +451,7 @@ kbd {
     justify-content: space-between;
     gap: 28px;
     padding: 25px 23px;
+    border-left: 1px solid var(--line);
     background:
         linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent 50%),
         var(--background-elevated);

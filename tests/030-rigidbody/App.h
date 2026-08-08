@@ -47,20 +47,16 @@ namespace test::rigidbody {
         using DuckFruitDef = std::tuple<std::shared_ptr<a3d::Mesh>, std::shared_ptr<a3d::PhysicsShape>, float>;
 
     protected:
-        /// Protected Member Functions ///
+        /// Application Protected Member Functions ///
 
         std::unique_ptr<a3d::Scene> init() override;
         a3d::SimulationConfig       simulationConfig() const override;
         bool                        shouldContinue(const a3d::Scene& scene) override;
 
-        /// InputContext Callbacks ///
-
         void inputDidUpdate(a3d::Runner&                         runner,
                             a3d::Scene&                          scene,
                             a3d::InputContext&                   inputContext,
                             const a3d::InputContext::UpdateInfo& info) override;
-
-        /// Scene Callbacks ///
 
         void sceneWillStep(a3d::Runner& runner, a3d::Scene& scene, const a3d::Scene::StepInfo& info) override;
 

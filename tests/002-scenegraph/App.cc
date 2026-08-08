@@ -35,14 +35,14 @@ App::App(int argc, char* argv[]):
 
 App::~App() = default;
 
-/// Public Member Functions ///
+/// Application Protected Member Functions ///
 
 std::unique_ptr<Scene> App::init() {
     try {
 
         // I used to do something cool.
 
-        _window = make_unique<Window>(RenderContext::RenderingApi::OpenGL, *util::filesystem::ExecutableName(),
+        _window = make_unique<Window>(RenderContext::RenderingApi::OpenGL, *util::fs::ExecutableName(),
                                       WINDOW_SIZE, FULLSCREEN, ENABLE_HIGH_DPI, ANTIALIAS_MODE);
         _window->vSyncEnabled(ENABLE_VSYNC);
         _window->cursorCaptured(CAPTURE_CURSOR);
@@ -72,8 +72,6 @@ SimulationConfig App::simulationConfig() const {
 bool App::shouldContinue(const Scene& scene) {
     return _window->isOpen();
 }
-
-/// Runner Callbacks ///
 
 void App::hostUpdate(Runner& runner, Scene& scene, const Runner::UpdateInfo&) {
 

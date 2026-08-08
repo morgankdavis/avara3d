@@ -27,7 +27,7 @@ namespace a3d {
 
 }
 
-namespace a3d::util::filesystem {
+namespace a3d::util::fs {
 
     // *** executable and working directories ***
 

@@ -339,7 +339,7 @@ bool GLSLProgram::isLinked() const {
 
 optional<string> GLSLProgram::shaderSource(const string& name, ShaderType type) {
 
-    auto source = util::filesystem::ShaderSource(name, type);
+    auto source = util::fs::ShaderSource(name, type);
 
     if (!source) {
         return nullopt;

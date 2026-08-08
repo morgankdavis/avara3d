@@ -32,19 +32,15 @@ namespace test::materialslights {
         ~App() override;
 
     protected:
-        /// Protected Member Functions ///
+        /// Application Protected Member Functions ///
 
         std::unique_ptr<a3d::Scene> init() override;
         bool                        shouldContinue(const a3d::Scene& scene) override;
-
-        /// InputContext Callbacks ///
 
         void inputDidUpdate(a3d::Runner&                         runner,
                             a3d::Scene&                          scene,
                             a3d::InputContext&                   inputContext,
                             const a3d::InputContext::UpdateInfo& info) override;
-
-        /// Scene Callbacks ///
 
         void sceneWillStep(a3d::Runner& runner, a3d::Scene& scene, const a3d::Scene::StepInfo& info) override;
 

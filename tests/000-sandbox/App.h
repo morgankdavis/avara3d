@@ -31,13 +31,11 @@ namespace test::sandbox {
         ~App() override;
 
     protected:
-        /// Protected Member Functions ///
+        /// Application Protected Member Functions ///
 
         std::unique_ptr<a3d::Scene> init() override;
         a3d::SimulationConfig       simulationConfig() const override;
         bool                        shouldContinue(const a3d::Scene& scene) override;
-
-        /// InputContext Callbacks ///
 
         void inputDidUpdate(a3d::Runner&                         runner,
                             a3d::Scene&                          scene,

@@ -36,11 +36,11 @@ App::App(int argc, char* argv[]):
 
 App::~App() = default;
 
-/// Public Member Functions ///
+/// Application Protected Member Functions ///
 
 std::unique_ptr<Scene> App::init() {
     try {
-        _window = make_unique<Window>(RenderContext::RenderingApi::OpenGL, *util::filesystem::ExecutableName(),
+        _window = make_unique<Window>(RenderContext::RenderingApi::OpenGL, *util::fs::ExecutableName(),
                                       WINDOW_SIZE, FULLSCREEN, ENABLE_HIGH_DPI, ANTIALIAS_MODE);
         _window->vSyncEnabled(ENABLE_VSYNC);
         _window->cursorCaptured(CAPTURE_CURSOR);
@@ -49,7 +49,7 @@ std::unique_ptr<Scene> App::init() {
 
         auto physicsWorld = make_unique<PhysicsWorld>();
 
-        auto mapPath = util::filesystem::AuxiliaryFilePath("Icebox", "alf");
+        auto mapPath = util::fs::AuxiliaryFilePath("Icebox", "alf");
         auto alfImporter = ext::ALFImporter(*mapPath);
         auto scene = alfImporter.scene(*visualWorld);
 
@@ -80,8 +80,6 @@ SimulationConfig App::simulationConfig() const {
 bool App::shouldContinue(const Scene& scene) {
     return _window->isOpen();
 }
-
-/// InputContext Callbacks ///
 
 void App::inputDidUpdate(Runner&                         runner,
                          Scene&                          scene,

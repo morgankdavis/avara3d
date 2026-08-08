@@ -1801,11 +1801,11 @@ void ImguiInit(const RenderContext& context, ImFont*& titleFont, ImFont*& bodyFo
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     ImGui_ImplOpenGL3_Init();
 
-    auto overlayTitleFont = util::filesystem::FontNamed(STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
+    auto overlayTitleFont = util::fs::FontNamed(STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
     if (overlayTitleFont->buffer()->size()) {
-        auto overlayBodyFont = util::filesystem::FontNamed(STATS_BODY_FONT_NAME, STATS_BODY_FONT_TYPE);
+        auto overlayBodyFont = util::fs::FontNamed(STATS_BODY_FONT_NAME, STATS_BODY_FONT_TYPE);
         if (overlayBodyFont->buffer()->size()) {
-            auto overlayAltFont = util::filesystem::FontNamed(STATS_ALT_FONT_NAME, STATS_ALT_FONT_TYPE);
+            auto overlayAltFont = util::fs::FontNamed(STATS_ALT_FONT_NAME, STATS_ALT_FONT_TYPE);
             if (overlayAltFont->buffer()->size()) {
                 ImGui_ImplOpenGL3_DestroyDeviceObjects(); // was DestroyFontsTexture()
 

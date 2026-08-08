@@ -101,7 +101,7 @@ Window::Window(RenderingApi     renderingAPI,
         glfwWindowHintString(GLFW_WAYLAND_APP_ID, "avara3d");
         glfwWindowHintString(GLFW_X11_CLASS_NAME, "avara3d");
 
-        auto execName = util::filesystem::ExecutableName();
+        auto execName = util::fs::ExecutableName();
         if (execName != nullopt) {
             glfwWindowHintString(GLFW_X11_INSTANCE_NAME, (*execName).c_str());
         }

@@ -46,7 +46,7 @@ using namespace std;
 
 // *** executable and working directories ***
 
-std::optional<std::filesystem::path> a3d::util::filesystem::ExecutablePath() {
+std::optional<std::filesystem::path> a3d::util::fs::ExecutablePath() {
 #if defined(A3D_MACOS)
     char     path[PATH_MAX];
     uint32_t size = sizeof(path);
@@ -70,7 +70,7 @@ std::optional<std::filesystem::path> a3d::util::filesystem::ExecutablePath() {
     return std::nullopt;
 }
 
-std::optional<std::filesystem::path> a3d::util::filesystem::ExecutableDirectory() {
+std::optional<std::filesystem::path> a3d::util::fs::ExecutableDirectory() {
     auto execPathStr = ExecutablePath();
     if (execPathStr) {
         auto execPath = std::filesystem::path(*execPathStr);
@@ -79,7 +79,7 @@ std::optional<std::filesystem::path> a3d::util::filesystem::ExecutableDirectory(
     return std::nullopt;
 }
 
-std::optional<std::string> a3d::util::filesystem::ExecutableName() {
+std::optional<std::string> a3d::util::fs::ExecutableName() {
     auto execPathStr = ExecutablePath();
     if (execPathStr) {
         auto execPath = std::filesystem::path(*execPathStr);
@@ -90,7 +90,7 @@ std::optional<std::string> a3d::util::filesystem::ExecutableName() {
     return std::nullopt;
 }
 
-std::optional<std::filesystem::path> a3d::util::filesystem::CurrentWorkingDirectory() {
+std::optional<std::filesystem::path> a3d::util::fs::CurrentWorkingDirectory() {
 #ifdef A3D_POSIX
     char cwd[PATH_MAX];
     if (getcwd(cwd, sizeof(cwd))) {
@@ -107,7 +107,7 @@ std::optional<std::filesystem::path> a3d::util::filesystem::CurrentWorkingDirect
 
 // *** search paths ***
 
-vector<std::filesystem::path> a3d::util::filesystem::BaseSearchPaths() {
+vector<std::filesystem::path> a3d::util::fs::BaseSearchPaths() {
     // build a list of common directories where "shader", "scene", "images", "fonts", etc
     // subdirectories may live.
     // clients will use this to append those subdirectory names to search for specific resources.
@@ -203,7 +203,7 @@ vector<std::filesystem::path> a3d::util::filesystem::BaseSearchPaths() {
     return basePaths;
 }
 
-vector<std::filesystem::path> a3d::util::filesystem::ShaderSearchPaths() {
+vector<std::filesystem::path> a3d::util::fs::ShaderSearchPaths() {
     auto searchPaths = vector<std::filesystem::path>();
     for (auto& path : BaseSearchPaths()) {
         searchPaths.push_back(path / "shaders");
@@ -211,7 +211,7 @@ vector<std::filesystem::path> a3d::util::filesystem::ShaderSearchPaths() {
     return searchPaths;
 }
 
-vector<std::filesystem::path> a3d::util::filesystem::SceneSearchPaths() {
+vector<std::filesystem::path> a3d::util::fs::SceneSearchPaths() {
     auto searchPaths = vector<std::filesystem::path>();
     for (auto& path : BaseSearchPaths()) {
         searchPaths.push_back(path / "scenes");
@@ -219,7 +219,7 @@ vector<std::filesystem::path> a3d::util::filesystem::SceneSearchPaths() {
     return searchPaths;
 }
 
-vector<std::filesystem::path> a3d::util::filesystem::ModelSearchPaths() {
+vector<std::filesystem::path> a3d::util::fs::ModelSearchPaths() {
     auto searchPaths = vector<std::filesystem::path>();
     for (auto& path : BaseSearchPaths()) {
         searchPaths.push_back(path / "models");
@@ -227,7 +227,7 @@ vector<std::filesystem::path> a3d::util::filesystem::ModelSearchPaths() {
     return searchPaths;
 }
 
-vector<std::filesystem::path> a3d::util::filesystem::ImageSearchPaths() {
+vector<std::filesystem::path> a3d::util::fs::ImageSearchPaths() {
     auto searchPaths = vector<std::filesystem::path>();
     for (auto& path : BaseSearchPaths()) {
         searchPaths.push_back(path / "images");
@@ -235,7 +235,7 @@ vector<std::filesystem::path> a3d::util::filesystem::ImageSearchPaths() {
     return searchPaths;
 }
 
-vector<std::filesystem::path> a3d::util::filesystem::FontSearchPaths() {
+vector<std::filesystem::path> a3d::util::fs::FontSearchPaths() {
     auto searchPaths = vector<std::filesystem::path>();
     for (auto& path : BaseSearchPaths()) {
         searchPaths.push_back(path / "fonts");
@@ -243,7 +243,7 @@ vector<std::filesystem::path> a3d::util::filesystem::FontSearchPaths() {
     return searchPaths;
 }
 
-vector<std::filesystem::path> a3d::util::filesystem::AuxiliarySearchPaths() {
+vector<std::filesystem::path> a3d::util::fs::AuxiliarySearchPaths() {
     auto searchPaths = vector<std::filesystem::path>();
     for (auto& path : BaseSearchPaths()) {
         searchPaths.push_back(path / "auxiliary");
@@ -251,7 +251,7 @@ vector<std::filesystem::path> a3d::util::filesystem::AuxiliarySearchPaths() {
     return searchPaths;
 }
 
-std::optional<std::filesystem::path> a3d::util::filesystem::SearchInPaths(const string& filename,
+std::optional<std::filesystem::path> a3d::util::fs::SearchInPaths(const string& filename,
                                                                           const vector<std::filesystem::path>&
                                                                               paths) {
     // for (size_t i = 0; i < paths.size(); ++i) {
@@ -277,7 +277,7 @@ std::optional<std::filesystem::path> a3d::util::filesystem::SearchInPaths(const 
 
 // *** binary and text files ***
 
-std::optional<string> a3d::util::filesystem::TextFile(const std::filesystem::path& path) {
+std::optional<string> a3d::util::fs::TextFile(const std::filesystem::path& path) {
     string   line;
     string   source = "";
     ifstream infile;
@@ -296,7 +296,7 @@ std::optional<string> a3d::util::filesystem::TextFile(const std::filesystem::pat
 
 // *** shaders ***
 
-std::optional<std::string> a3d::util::filesystem::ShaderSource(const string& name, ShaderType type) {
+std::optional<std::string> a3d::util::fs::ShaderSource(const string& name, ShaderType type) {
     std::optional<string> rawSource = std::nullopt;
     auto                  extension = "";
     switch (type) {
@@ -322,7 +322,7 @@ std::optional<std::string> a3d::util::filesystem::ShaderSource(const string& nam
 //	return FontNamed(path.stem(), path.extension());
 //}
 
-unique_ptr<Font> a3d::util::filesystem::FontNamed(const string& name, const string& type) {
+unique_ptr<Font> a3d::util::fs::FontNamed(const string& name, const string& type) {
     auto path = SearchInPaths((name + "." + type), FontSearchPaths());
     if (path) {
         log::t()("Found font at path: {}", (*path).string());
@@ -333,14 +333,14 @@ unique_ptr<Font> a3d::util::filesystem::FontNamed(const string& name, const stri
 
 // ***  images ***
 
-unique_ptr<Image> a3d::util::filesystem::ImageNamed(const string& name,
+unique_ptr<Image> a3d::util::fs::ImageNamed(const string& name,
                                                     bool          flipHorizontal,
                                                     bool          flipVertical) {
 
     return ImageNamed(name, "png", flipHorizontal, flipVertical);
 }
 
-unique_ptr<Image> a3d::util::filesystem::ImageNamed(const string& name,
+unique_ptr<Image> a3d::util::fs::ImageNamed(const string& name,
                                                     const string& type,
                                                     bool          flipHorizontal,
                                                     bool          flipVertical) {
@@ -352,11 +352,11 @@ unique_ptr<Image> a3d::util::filesystem::ImageNamed(const string& name,
     return nullptr;
 }
 
-unique_ptr<CubeImage> a3d::util::filesystem::CubeImageNamed(const string& name) {
+unique_ptr<CubeImage> a3d::util::fs::CubeImageNamed(const string& name) {
     return CubeImageNamed(name, "png");
 }
 
-unique_ptr<CubeImage> a3d::util::filesystem::CubeImageNamed(const string& name, const string& type) {
+unique_ptr<CubeImage> a3d::util::fs::CubeImageNamed(const string& name, const string& type) {
 
     // panorama to cubemap: https://jaxry.github.io/panorama-to-cubemap/
 
@@ -371,12 +371,12 @@ unique_ptr<CubeImage> a3d::util::filesystem::CubeImageNamed(const string& name, 
 
 // *** scenes ***
 
-unique_ptr<Scene> a3d::util::filesystem::SceneNamed(const string& name, Scene::ImportOptions options) {
+unique_ptr<Scene> a3d::util::fs::SceneNamed(const string& name, Scene::ImportOptions options) {
 
     return SceneNamed(name, "gltf", options);
 }
 
-unique_ptr<Scene> a3d::util::filesystem::SceneNamed(const string&        name,
+unique_ptr<Scene> a3d::util::fs::SceneNamed(const string&        name,
                                                     const string&        type,
                                                     Scene::ImportOptions options) {
 
@@ -388,12 +388,12 @@ unique_ptr<Scene> a3d::util::filesystem::SceneNamed(const string&        name,
     return nullptr;
 }
 
-shared_ptr<Mesh> a3d::util::filesystem::MeshNamed(const string& name, Mesh::ImportOptions options) {
+shared_ptr<Mesh> a3d::util::fs::MeshNamed(const string& name, Mesh::ImportOptions options) {
 
     return MeshNamed(name, "gltf", options);
 }
 
-shared_ptr<Mesh> a3d::util::filesystem::MeshNamed(const string&       name,
+shared_ptr<Mesh> a3d::util::fs::MeshNamed(const string&       name,
                                                   const string&       type,
                                                   Mesh::ImportOptions options) {
 
@@ -407,7 +407,7 @@ shared_ptr<Mesh> a3d::util::filesystem::MeshNamed(const string&       name,
 
 // *** other ***
 
-optional<filesystem::path> a3d::util::filesystem::AuxiliaryFilePath(const string& name, const string& type) {
+optional<filesystem::path> a3d::util::fs::AuxiliaryFilePath(const string& name, const string& type) {
 
     auto path = SearchInPaths((name + "." + type), AuxiliarySearchPaths());
     if (path) {

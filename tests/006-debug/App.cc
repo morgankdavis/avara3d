@@ -33,11 +33,11 @@ App::App(int argc, char* argv[]):
 
 App::~App() = default;
 
-/// Public Member Functions ///
+/// Application Protected Member Functions ///
 
 std::unique_ptr<Scene> App::init() {
     try {
-        _window = make_unique<Window>(RenderContext::RenderingApi::OpenGL, *util::filesystem::ExecutableName(),
+        _window = make_unique<Window>(RenderContext::RenderingApi::OpenGL, *util::fs::ExecutableName(),
                                       WINDOW_SIZE, FULLSCREEN, ENABLE_HIGH_DPI, ANTIALIAS_MODE);
         _window->vSyncEnabled(ENABLE_VSYNC);
         _window->cursorCaptured(CAPTURE_CURSOR);
@@ -47,7 +47,7 @@ std::unique_ptr<Scene> App::init() {
         visualWorld->fogEndDistance(5000.0);
         visualWorld->fogDensityExponent(1.0);
         visualWorld->fogColor(Color::LightGray());
-        visualWorld->background(make_shared<Texture>(util::filesystem::CubeImageNamed("sky1", "png")));
+        visualWorld->background(make_shared<Texture>(util::fs::CubeImageNamed("sky1", "png")));
 
         auto scene = make_unique<Scene>(std::move(visualWorld), nullptr, Window::InputContext());
         auto debugOptions = Scene::DebugOptions::ShowStatsOverlay | Scene::DebugOptions::ShowBoundingBoxes;
@@ -72,12 +72,12 @@ std::unique_ptr<Scene> App::init() {
         auto mesh = shared_ptr(Sphere::Mesh(3.5, 4, material));
         pointLightNode->mesh(mesh);
 
-        auto teapotNode = Node::MeshNode(util::filesystem::MeshNamed("teapot/teapot"));
+        auto teapotNode = Node::MeshNode(util::fs::MeshNamed("teapot/teapot"));
         teapotNode->rotation({1, 0, 0}, radians(30.0));
         teapotNode->scale(teapotNode->scale() * 50.0f);
         scene->rootNode()->addChild(teapotNode);
 
-        auto dragonNode = Node::MeshNode(util::filesystem::MeshNamed("dragon/dragon"));
+        auto dragonNode = Node::MeshNode(util::fs::MeshNamed("dragon/dragon"));
         dragonNode->scale({2.5, 2.5, 2.5});
         dragonNode->position({50, 0, 0});
 
@@ -100,8 +100,6 @@ std::unique_ptr<Scene> App::init() {
 bool App::shouldContinue(const Scene& scene) {
     return _window->isOpen();
 }
-
-/// InputContext Callbacks ///
 
 void App::inputDidUpdate(Runner&                         runner,
                          Scene&                          scene,

@@ -34,12 +34,10 @@ namespace test::debug {
         ~App() override;
 
     protected:
-        /// Protected Member Functions ///
+        /// Application Protected Member Functions ///
 
         std::unique_ptr<a3d::Scene> init() override;
         bool                        shouldContinue(const a3d::Scene& scene) override;
-
-        /// InputContext Callbacks ///
 
         void inputDidUpdate(a3d::Runner&                         runner,
                             a3d::Scene&                          scene,

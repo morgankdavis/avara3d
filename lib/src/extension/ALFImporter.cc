@@ -148,7 +148,7 @@ unique_ptr<Scene> ext::ALFImporter::scene(VisualWorld& visualWorld) {
 //					shape, cx, cz, y, angle, color.u8rgb(), color1.u8rgb());
 
             auto        meshSubpath = filesystem::path(shape) / filesystem::path(shape + "");
-            auto        meshPath = util::filesystem::AuxiliaryFilePath(meshSubpath.string(), "gltf");
+            auto        meshPath = util::fs::AuxiliaryFilePath(meshSubpath.string(), "gltf");
             static auto mesh = GlTFImporter(*meshPath, Scene::ImportOptions::ImportMeshes).firstMesh();
 
             auto node = Node::MeshNode(mesh);

@@ -35,11 +35,11 @@ App::App(int argc, char* argv[]):
 
 App::~App() = default;
 
-/// Public Member Functions ///
+/// Application Protected Member Functions ///
 
 std::unique_ptr<Scene> App::init() {
     try {
-        _window = make_unique<Window>(RenderContext::RenderingApi::OpenGL, *util::filesystem::ExecutableName(),
+        _window = make_unique<Window>(RenderContext::RenderingApi::OpenGL, *util::fs::ExecutableName(),
                                       WINDOW_SIZE, FULLSCREEN, ENABLE_HIGH_DPI, ANTIALIAS_MODE);
         _window->vSyncEnabled(ENABLE_VSYNC);
         _window->cursorCaptured(CAPTURE_CURSOR);
@@ -210,8 +210,6 @@ bool App::shouldContinue(const Scene& scene) {
     return _window->isOpen();
 }
 
-/// InputContext Callbacks ///
-
 void App::inputDidUpdate(Runner&                         runner,
                          Scene&                          scene,
                          InputContext&                   inputContext,
@@ -311,8 +309,6 @@ void App::inputDidUpdate(Runner&                         runner,
         }
     }
 }
-
-/// Scene Callbacks ///
 
 void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
 

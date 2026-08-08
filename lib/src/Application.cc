@@ -134,24 +134,16 @@ const vector<string>& Application::args() const {
     return _args;
 }
 
-/// Runner Callbacks ///
-
 void Application::hostUpdate(Runner& runner, Scene& scene, const Runner::UpdateInfo& info) {}
-
-/// InputContext Callbacks ///
 
 void Application::inputDidUpdate(Runner&       runner,
                                  Scene&        scene,
                                  InputContext& inputContext,
                                  const InputContext::UpdateInfo&) {}
 
-/// Scene Callbacks ///
-
 void Application::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {}
 
 void Application::sceneDidStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {}
-
-/// VisualWorld Callbacks ///
 
 void Application::frameDidBegin(Runner&                        runner,
                                 Scene&                         scene,
@@ -164,7 +156,7 @@ void Application::initLog(Log::Level level) {
 
     Log::MainLog().level(level);
 
-    string executableName = *util::filesystem::ExecutableName();
+    string executableName = *util::fs::ExecutableName();
 
     auto sinks = vector<unique_ptr<LogSink>>();
 
@@ -172,7 +164,7 @@ void Application::initLog(Log::Level level) {
     sinks.push_back(std::move(nativeSink));
 
 #ifndef A3D_WEB
-    auto fileSink = make_unique<FileLogSink>(*(util::filesystem::ExecutableDirectory())
+    auto fileSink = make_unique<FileLogSink>(*(util::fs::ExecutableDirectory())
                                              / (executableName + string(".log")));
     sinks.push_back(std::move(fileSink));
 #endif

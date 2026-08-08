@@ -59,23 +59,15 @@ namespace a3d {
 
         const std::vector<std::string>& args() const;
 
-        /// Runner Callbacks ///
-
         virtual void hostUpdate(Runner& runner, Scene& scene, const Runner::UpdateInfo& info);
-
-        /// InputContext Callbacks ///
 
         virtual void inputDidUpdate(Runner&       runner,
                                     Scene&        scene,
                                     InputContext& inputContext,
                                     const InputContext::UpdateInfo&);
 
-        /// Scene Callbacks ///
-
         virtual void sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info);
         virtual void sceneDidStep(Runner& runner, Scene& scene, const Scene::StepInfo& info);
-
-        /// VisualWorld Callbacks ///
 
         virtual void frameDidBegin(Runner&                        runner,
                                    Scene&                         scene,
