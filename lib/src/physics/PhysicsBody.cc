@@ -152,8 +152,9 @@ vec3 PhysicsBody::centerOfMass() const {
     return _proxy->centerOfMass();
 }
 
-void PhysicsBody::centerOfMass(const vec3& offset) {
-    _proxy->centerOfMass(offset);
+void PhysicsBody::centerOfMass(const vec3&) {
+    // ! TEMPORARY !
+    throw logic_error("PhysicsBody center of mass cannot be modified.");
 }
 
 float PhysicsBody::friction() const {

@@ -136,7 +136,7 @@ unique_ptr<Scene> App::init() {
         auto palmNode = Node::MeshNode(util::filesystem::MeshNamed("cartoon_palm_tree/cartoon_palm_tree"));
         palmNode->name("Palm tree");
         auto palmPhysicsBody = PhysicsBody::StaticBody();
-        palmPhysicsBody->mass(0);
+        //palmPhysicsBody->mass(0);
         palmPhysicsBody->friction(1);
         palmPhysicsBody->restitution(0.25);
         palmNode->physicsBody(std::move(palmPhysicsBody));
@@ -484,17 +484,17 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
 
 
 
-    if (input.keyPressed(Key::One)) {
-        _duckNode->physicsBody()->shape()->type(PhysicsShape::Type::BoundingBox);
-    }
-
-    if (input.keyPressed(Key::Two)) {
-        _duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConvexHull);
-    }
-
-    if (input.keyPressed(Key::Three)) {
-        _duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConcavePolyhedron);
-    }
+    // if (input.keyPressed(Key::One)) {
+    //     _duckNode->physicsBody()->shape()->type(PhysicsShape::Type::BoundingBox);
+    // }
+    //
+    // if (input.keyPressed(Key::Two)) {
+    //     _duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConvexHull);
+    // }
+    //
+    // if (input.keyPressed(Key::Three)) {
+    //     _duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConcavePolyhedron);
+    // }
 
     if (input.keyPressed(Key::Five)) {
         _duckNode->physicsBody()->mass(0.0f);
