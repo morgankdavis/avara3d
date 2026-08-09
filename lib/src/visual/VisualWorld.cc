@@ -163,6 +163,10 @@ void VisualWorld::infiniteGround(const optional<InfiniteGround>& ground) {
                 throw invalid_argument(
                     format("InfiniteGround {} grid line width must be finite and greater than zero.", name));
             }
+            if (!isfinite(grid.relief)) {
+                throw invalid_argument(
+                    format("InfiniteGround {} grid relief must be finite.", name));
+            }
         };
 
         if (ground->minorGrid) {
@@ -180,7 +184,6 @@ void VisualWorld::infiniteGround(const optional<InfiniteGround>& ground) {
             if (!isfinite(curvature.center.x) || !isfinite(curvature.center.y)) {
                 throw invalid_argument("InfiniteGround curvature center must be finite.");
             }
-
             if (!isfinite(curvature.radius) || curvature.radius <= 0.0f) {
                 throw invalid_argument("InfiniteGround curvature radius must be finite and greater than zero.");
             }
@@ -193,16 +196,13 @@ void VisualWorld::infiniteGround(const optional<InfiniteGround>& ground) {
             if (!fade.color) {
                 throw invalid_argument("InfiniteGround radial fade color cannot be null.");
             }
-
             if (!isfinite(fade.center.x) || !isfinite(fade.center.y)) {
                 throw invalid_argument("InfiniteGround radial fade center must be finite.");
             }
-
             if (!isfinite(fade.startDistance) || fade.startDistance < 0.0f) {
                 throw invalid_argument(
                     "InfiniteGround radial fade start distance must be finite and non-negative.");
             }
-
             if (!isfinite(fade.endDistance) || fade.endDistance <= fade.startDistance) {
                 throw invalid_argument(
                     "InfiniteGround radial fade end distance must be finite and greater than start distance.");
@@ -216,7 +216,6 @@ void VisualWorld::infiniteGround(const optional<InfiniteGround>& ground) {
             if (!haze.color) {
                 throw invalid_argument("InfiniteGround horizon haze color cannot be null.");
             }
-
             if (!isfinite(haze.angularWidthDegrees) || haze.angularWidthDegrees <= 0.0f
                 || haze.angularWidthDegrees > 90.0f) {
 

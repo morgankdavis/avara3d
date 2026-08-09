@@ -67,6 +67,7 @@ std::unique_ptr<Scene> App::init() {
                     .color = make_shared<Color>(vec4 {0.5f, 0.5f, 0.5f, 0.25f}),
                     .spacing = 1.0f,
                     .lineWidthPixels = 1.0f,
+                    .relief = 0.20f,
                 },
 
             .majorGrid =
@@ -74,6 +75,7 @@ std::unique_ptr<Scene> App::init() {
                     .color = make_shared<Color>(vec4 {0.75f, 0.75f, 0.75f, 0.25f}),
                     .spacing = 10.0f,
                     .lineWidthPixels = 1.5f,
+                    .relief = 0.50f,
                 },
 
             .curvature =

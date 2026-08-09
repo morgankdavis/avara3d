@@ -16,11 +16,13 @@ uniform bool minorGridEnabled;
 uniform vec4 minorGridColor;
 uniform float minorGridSpacing;
 uniform float minorGridLineWidthPixels;
+uniform float minorGridRelief;
 
 uniform bool majorGridEnabled;
 uniform vec4 majorGridColor;
 uniform float majorGridSpacing;
 uniform float majorGridLineWidthPixels;
+uniform float majorGridRelief;
 
 uniform bool curvatureEnabled;
 uniform vec2 curvatureCenter;
@@ -44,6 +46,11 @@ out vec4 fragColor;
 vec3 Unproject(vec2 ndc, float ndcDepth);
 float ComputeDepth(vec3 worldPosition);
 float GridCoverage(vec2 worldXZ, float spacing, float lineWidthPixels);
+vec2 GridReliefGradient(
+        vec2 worldXZ,
+        float spacing,
+        float lineWidthPixels,
+        float relief);
 bool IntersectGround(vec3 rayOrigin,
         vec3 ray,
         out vec3 worldPosition,
@@ -104,9 +111,45 @@ void main() {
         surfaceColor = mix(surfaceColor, majorGridColor.rgb, blend);
     }
 
-    vec3 surfacePositionEye = vec3(viewMat * vec4(worldPosition, 1.0));
-//    vec3 surfaceNormalEye = normalize(mat3(viewMat) * vec3(0.0, 1.0, 0.0));
-    vec3 surfaceNormalEye = normalize(mat3(viewMat) * surfaceNormalWorld);
+//    vec3 surfacePositionEye = vec3(viewMat * vec4(worldPosition, 1.0));
+//    vec3 surfaceNormalEye = normalize(mat3(viewMat) * surfaceNormalWorld);
+
+    vec2 reliefGradient = vec2(0.0);
+
+    if (minorGridEnabled && minorGridRelief != 0.0) {
+
+        reliefGradient += GridReliefGradient(
+                worldPosition.xz,
+                minorGridSpacing,
+                minorGridLineWidthPixels,
+                minorGridRelief);
+    }
+
+    if (majorGridEnabled && majorGridRelief != 0.0) {
+
+        reliefGradient += GridReliefGradient(
+                worldPosition.xz,
+                majorGridSpacing,
+                majorGridLineWidthPixels,
+                majorGridRelief);
+    }
+
+    vec3 lightingNormalWorld =
+    normalize(
+            surfaceNormalWorld
+            - vec3(
+                    reliefGradient.x,
+                    0.0,
+                    reliefGradient.y));
+
+    vec3 surfacePositionEye =
+    vec3(viewMat * vec4(worldPosition, 1.0));
+
+    vec3 surfaceNormalEye =
+    normalize(mat3(viewMat) * lightingNormalWorld);
+
+    vec3 geometricNormalEye =
+    normalize(mat3(viewMat) * surfaceNormalWorld);
 
     vec3 color;
 
@@ -166,7 +209,7 @@ void main() {
                 clamp(
                         abs(dot(
                                 eyeToSurfaceDirection,
-                                surfaceNormalEye)),
+                                geometricNormalEye)),
                         0.0,
                         1.0));
 
@@ -225,6 +268,55 @@ float GridCoverage(
     lineCoverage *= lodFade;
 
     return max(lineCoverage.x, lineCoverage.y);
+}
+
+vec2 GridReliefGradient(
+        vec2 worldXZ,
+        float spacing,
+        float lineWidthPixels,
+        float relief) {
+
+    vec2 gridCoord =
+    worldXZ / spacing;
+
+    vec2 signedDistanceToLine =
+    fract(gridCoord + 0.5) - 0.5;
+
+    vec2 derivative =
+    max(fwidth(gridCoord), vec2(0.000001));
+
+    vec2 pixelDistance =
+    signedDistanceToLine / derivative;
+
+    float radiusPixels =
+    lineWidthPixels * 0.5 + 0.5;
+
+    vec2 normalizedDistance =
+    clamp(
+            abs(pixelDistance) / radiusPixels,
+            vec2(0.0),
+            vec2(1.0));
+
+    vec2 profileSlope =
+    -4.0
+    * normalizedDistance
+    * (1.0 - normalizedDistance * normalizedDistance);
+
+    profileSlope *=
+    sign(pixelDistance);
+
+    vec2 cellSizePixels =
+    1.0 / derivative;
+
+    vec2 lodFade =
+    smoothstep(
+            vec2(2.0),
+            vec2(4.0),
+            cellSizePixels);
+
+    return profileSlope
+    * lodFade
+    * (relief / radiusPixels);
 }
 
 bool IntersectGround(

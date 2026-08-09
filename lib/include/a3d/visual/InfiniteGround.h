@@ -27,6 +27,7 @@ namespace a3d {
             std::shared_ptr<Color> color {};
             float                  spacing {1.0f};
             float                  lineWidthPixels {1.0f};
+            float                  relief {0.0f};
         };
 
         struct Curvature {

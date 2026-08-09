@@ -710,6 +710,7 @@ void OGLRenderer::drawGround(const GroundPass& groundPass, const mat4& view, con
         _groundProgram->setUniform("minorGridColor", grid.color->rgba());
         _groundProgram->setUniform("minorGridSpacing", grid.spacing);
         _groundProgram->setUniform("minorGridLineWidthPixels", grid.lineWidthPixels);
+        _groundProgram->setUniform("minorGridRelief", grid.relief);
     }
 
     const bool majorGridEnabled = ground.majorGrid.has_value();
@@ -719,6 +720,7 @@ void OGLRenderer::drawGround(const GroundPass& groundPass, const mat4& view, con
         _groundProgram->setUniform("majorGridColor", grid.color->rgba());
         _groundProgram->setUniform("majorGridSpacing", grid.spacing);
         _groundProgram->setUniform("majorGridLineWidthPixels", grid.lineWidthPixels);
+        _groundProgram->setUniform("majorGridRelief", grid.relief);
     }
 
     const bool curvatureEnabled = ground.curvature.has_value();
