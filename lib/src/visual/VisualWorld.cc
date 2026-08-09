@@ -39,7 +39,7 @@ using namespace std;
 VisualWorld::VisualWorld(RenderContext& context):
     _background {},
     _backgroundMaterial {},
-    _backgroundOrientation {1.0f},
+    // _backgroundOrientation {1.0f},
     _fog {},
     _usesDefaultLighting {false},
     _autoEnablesDefaultLighting {true},
@@ -97,13 +97,13 @@ void VisualWorld::background(const Material::Property& background) {
     _background = background;
 }
 
-quat VisualWorld::backgroundOrientation() const {
-    return _backgroundOrientation;
-}
-
-void VisualWorld::backgroundOrientation(const quat& orientation) {
-    _backgroundOrientation = orientation;
-}
+// quat VisualWorld::backgroundOrientation() const {
+//     return _backgroundOrientation;
+// }
+//
+// void VisualWorld::backgroundOrientation(const quat& orientation) {
+//     _backgroundOrientation = orientation;
+// }
 
 const optional<Fog>& VisualWorld::fog() const {
     return _fog;
