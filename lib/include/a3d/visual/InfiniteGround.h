@@ -37,16 +37,24 @@ namespace a3d {
             float                  endDistance {100.0f};
         };
 
-        std::shared_ptr<Color>    color {};
-        float                     height {0.0f};
+        struct HorizonHaze {
 
-        std::optional<Grid>       minorGrid {};
-        std::optional<Grid>       majorGrid {};
+            std::shared_ptr<Color> color {};
+            float                  angularWidthDegrees {3.0f};
+        };
 
-        std::optional<RadialFade> radialFade {};
+        std::shared_ptr<Color>     color {};
+        float                      height {0.0f};
 
-        float                     specularIntensity {0.15f};
-        float                     specularExponent {32.0f};
+        std::optional<Grid>        minorGrid {};
+        std::optional<Grid>        majorGrid {};
+
+        std::optional<RadialFade>  radialFade {};
+
+        std::optional<HorizonHaze> horizonHaze {};
+
+        float                      specularIntensity {0.15f};
+        float                      specularExponent {32.0f};
     };
 
 }

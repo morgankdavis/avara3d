@@ -196,6 +196,22 @@ void VisualWorld::infiniteGround(const optional<InfiniteGround>& ground) {
             }
         }
 
+        if (ground->horizonHaze) {
+
+            const auto& haze = *ground->horizonHaze;
+
+            if (!haze.color) {
+                throw invalid_argument("InfiniteGround horizon haze color cannot be null.");
+            }
+
+            if (!isfinite(haze.angularWidthDegrees) || haze.angularWidthDegrees <= 0.0f
+                || haze.angularWidthDegrees > 90.0f) {
+
+                throw invalid_argument(
+                    "InfiniteGround horizon haze angular width must be finite, greater than zero, and at most 90 degrees.");
+            }
+        }
+
         if (!isfinite(ground->specularIntensity) || ground->specularIntensity < 0.0f) {
             throw invalid_argument("InfiniteGround specular intensity must be finite and non-negative.");
         }

@@ -731,6 +731,14 @@ void OGLRenderer::drawGround(const GroundPass& groundPass, const mat4& view, con
         _groundProgram->setUniform("radialFadeEndDistance", fade.endDistance);
     }
 
+    const bool horizonHazeEnabled = ground.horizonHaze.has_value();
+    _groundProgram->setUniform("horizonHazeEnabled", horizonHazeEnabled);
+    if (horizonHazeEnabled) {
+        const auto& haze = *ground.horizonHaze;
+        _groundProgram->setUniform("horizonHazeColor", haze.color->rgba());
+        _groundProgram->setUniform("horizonHazeAngularWidthDegrees", haze.angularWidthDegrees);
+    }
+
     _groundProgram->setUniform("groundSpecularIntensity", ground.specularIntensity);
     _groundProgram->setUniform("groundSpecularExponent", ground.specularExponent);
 

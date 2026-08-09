@@ -12,11 +12,6 @@ uniform mat4 inverseViewProjMat;
 uniform float groundHeight;
 uniform vec3 groundColor;
 
-uniform bool radialFadeEnabled;
-uniform vec2 radialFadeCenter;
-uniform float radialFadeStartDistance;
-uniform float radialFadeEndDistance;
-
 uniform bool minorGridEnabled;
 uniform vec4 minorGridColor;
 uniform float minorGridSpacing;
@@ -27,7 +22,15 @@ uniform vec4 majorGridColor;
 uniform float majorGridSpacing;
 uniform float majorGridLineWidthPixels;
 
+uniform bool radialFadeEnabled;
+uniform vec2 radialFadeCenter;
+uniform float radialFadeStartDistance;
+uniform float radialFadeEndDistance;
 uniform vec3 radialFadeColor;
+
+uniform bool horizonHazeEnabled;
+uniform vec4 horizonHazeColor;
+uniform float horizonHazeAngularWidthDegrees;
 
 uniform float groundSpecularIntensity;
 uniform float groundSpecularExponent;
@@ -55,7 +58,6 @@ void main() {
     }
 
     vec3 worldPosition = nearWorld + ray * t;
-
     vec3 surfaceColor = groundColor;
 
     if (minorGridEnabled) {
@@ -83,7 +85,6 @@ void main() {
     }
 
     vec3 surfacePositionEye = vec3(viewMat * vec4(worldPosition, 1.0));
-
     vec3 surfaceNormalEye = normalize(mat3(viewMat) * vec3(0.0, 1.0, 0.0));
 
     vec3 color;
@@ -128,13 +129,37 @@ void main() {
     if (radialFadeEnabled) {
 
         float radialDistance = length(worldPosition.xz - radialFadeCenter);
-
         float fade = smoothstep(
                 radialFadeStartDistance,
                 radialFadeEndDistance,
                 radialDistance);
-
         color = mix(color, radialFadeColor, fade);
+    }
+
+    if (horizonHazeEnabled) {
+
+        vec3 eyeToSurfaceDirection =
+        normalize(surfacePositionEye);
+
+        float horizonAngle = asin(
+                clamp(
+                        abs(dot(
+                                eyeToSurfaceDirection,
+                                surfaceNormalEye)),
+                        0.0,
+                        1.0));
+
+        float haze = 1.0 - smoothstep(
+                0.0,
+                radians(horizonHazeAngularWidthDegrees),
+                horizonAngle);
+
+        haze *= clamp(horizonHazeColor.a, 0.0, 1.0);
+
+        color = mix(
+                color,
+                horizonHazeColor.rgb,
+                haze);
     }
 
     fragColor = vec4(color, 1.0);
@@ -145,14 +170,12 @@ void main() {
 vec3 Unproject(vec2 ndc, float ndcDepth) {
 
     vec4 world = inverseViewProjMat * vec4(ndc, ndcDepth, 1.0);
-
     return world.xyz / world.w;
 }
 
 float ComputeDepth(vec3 worldPosition) {
 
     vec4 clip = viewProjMat * vec4(worldPosition, 1.0);
-
     float ndcDepth = clip.z / clip.w;
     float depth = ndcDepth * 0.5 + 0.5;
 
@@ -165,34 +188,19 @@ float GridCoverage(
         float lineWidthPixels) {
 
     vec2 gridCoord = worldXZ / spacing;
-
-    vec2 distanceToLine =
-    abs(fract(gridCoord - 0.5) - 0.5);
-
-    vec2 derivative =
-    max(fwidth(gridCoord), vec2(0.000001));
-
-    vec2 pixelDistance =
-    distanceToLine / derivative;
-
-    float halfWidth =
-    lineWidthPixels * 0.5;
-
-    vec2 lineCoverage =
-    1.0 - smoothstep(
+    vec2 distanceToLine = abs(fract(gridCoord - 0.5) - 0.5);
+    vec2 derivative = max(fwidth(gridCoord), vec2(0.000001));
+    vec2 pixelDistance = distanceToLine / derivative;
+    float halfWidth = lineWidthPixels * 0.5;
+    vec2 lineCoverage = 1.0 - smoothstep(
             vec2(halfWidth - 0.5),
             vec2(halfWidth + 0.5),
             pixelDistance);
-
-    vec2 cellSizePixels =
-    1.0 / derivative;
-
-    vec2 lodFade =
-    smoothstep(
+    vec2 cellSizePixels = 1.0 / derivative;
+    vec2 lodFade = smoothstep(
             vec2(2.0), // 3.0
             vec2(4.0), // 6.0
             cellSizePixels);
-
     lineCoverage *= lodFade;
 
     return max(lineCoverage.x, lineCoverage.y);

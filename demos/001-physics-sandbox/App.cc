@@ -84,6 +84,13 @@ std::unique_ptr<Scene> App::init() {
             //         .endDistance = 50.0f,
             //     },
 
+            .horizonHaze =
+                InfiniteGround::HorizonHaze {
+                    //.color = make_shared<Color>(vec4 {0.12f, 0.15f, 0.18f, 0.35f}),
+                .color = make_shared<Color>(vec4 {0.15f, 0.15f, 0.15f, 0.35f}),
+                    .angularWidthDegrees = 1.5f,
+                },
+
             .specularIntensity = 0.15f,
             .specularExponent = 32.0f,
         });
