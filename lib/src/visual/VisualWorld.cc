@@ -9,6 +9,7 @@
 #include "a3d/visual/VisualWorld.h"
 
 #include <cmath>
+#include <format>
 #include <stdexcept>
 #include <variant>
 
@@ -141,19 +142,46 @@ optional<InfiniteGround>& VisualWorld::infiniteGround() {
 void VisualWorld::infiniteGround(const optional<InfiniteGround>& ground) {
 
     if (ground) {
+
         if (!ground->color) {
             throw invalid_argument("InfiniteGround color cannot be null.");
         }
+
         if (!isfinite(ground->height)) {
             throw invalid_argument("InfiniteGround height must be finite.");
         }
+
         if (!isfinite(ground->specularIntensity) || ground->specularIntensity < 0.0f) {
             throw invalid_argument("InfiniteGround specular intensity must be finite and non-negative.");
         }
+
         if (!isfinite(ground->specularExponent) || ground->specularExponent <= 0.0f) {
             throw invalid_argument("InfiniteGround specular exponent must be finite and greater than zero.");
         }
+
+        auto validateGrid = [](const InfiniteGround::Grid& grid, const char* name) {
+            if (!grid.color) {
+                throw invalid_argument(format("InfiniteGround {} grid color cannot be null.", name));
+            }
+            if (!isfinite(grid.spacing) || grid.spacing <= 0.0f) {
+                throw invalid_argument(
+                    format("InfiniteGround {} grid spacing must be finite and greater than zero.", name));
+            }
+            if (!isfinite(grid.lineWidthPixels) || grid.lineWidthPixels <= 0.0f) {
+                throw invalid_argument(
+                    format("InfiniteGround {} grid line width must be finite and greater than zero.", name));
+            }
+        };
+
+        if (ground->minorGrid) {
+            validateGrid(*ground->minorGrid, "minor");
+        }
+
+        if (ground->majorGrid) {
+            validateGrid(*ground->majorGrid, "major");
+        }
     }
+
     _infiniteGround = ground;
 }
 

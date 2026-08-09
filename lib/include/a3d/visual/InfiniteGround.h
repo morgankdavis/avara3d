@@ -17,8 +17,18 @@ namespace a3d {
 
     struct InfiniteGround {
 
+        struct Grid {
+
+            std::shared_ptr<Color> color {};
+            float                  spacing {1.0f};
+            float                  lineWidthPixels {1.0f};
+        };
+
         std::shared_ptr<Color> color {};
         float                  height {0.0f};
+
+        std::optional<Grid>    minorGrid {};
+        std::optional<Grid>    majorGrid {};
 
         float                  specularIntensity {0.15f};
         float                  specularExponent {32.0f};

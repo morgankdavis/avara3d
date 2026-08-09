@@ -702,6 +702,25 @@ void OGLRenderer::drawGround(const GroundPass& groundPass, const mat4& view, con
 
     _groundProgram->setUniform("groundHeight", ground.height);
     _groundProgram->setUniform("groundColor", ground.color->rgb());
+
+    const bool minorGridEnabled = ground.minorGrid.has_value();
+    _groundProgram->setUniform("minorGridEnabled", minorGridEnabled);
+    if (minorGridEnabled) {
+        const auto& grid = *ground.minorGrid;
+        _groundProgram->setUniform("minorGridColor", grid.color->rgba());
+        _groundProgram->setUniform("minorGridSpacing", grid.spacing);
+        _groundProgram->setUniform("minorGridLineWidthPixels", grid.lineWidthPixels);
+    }
+
+    const bool majorGridEnabled = ground.majorGrid.has_value();
+    _groundProgram->setUniform("majorGridEnabled", majorGridEnabled);
+    if (majorGridEnabled) {
+        const auto& grid = *ground.majorGrid;
+        _groundProgram->setUniform("majorGridColor", grid.color->rgba());
+        _groundProgram->setUniform("majorGridSpacing", grid.spacing);
+        _groundProgram->setUniform("majorGridLineWidthPixels", grid.lineWidthPixels);
+    }
+
     _groundProgram->setUniform("groundSpecularIntensity", ground.specularIntensity);
     _groundProgram->setUniform("groundSpecularExponent", ground.specularExponent);
 
