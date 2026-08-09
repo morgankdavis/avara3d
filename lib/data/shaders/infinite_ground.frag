@@ -12,6 +12,11 @@ uniform mat4 inverseViewProjMat;
 uniform float groundHeight;
 uniform vec3 groundColor;
 
+uniform bool radialFadeEnabled;
+uniform vec2 radialFadeCenter;
+uniform float radialFadeStartDistance;
+uniform float radialFadeEndDistance;
+
 uniform bool minorGridEnabled;
 uniform vec4 minorGridColor;
 uniform float minorGridSpacing;
@@ -21,6 +26,8 @@ uniform bool majorGridEnabled;
 uniform vec4 majorGridColor;
 uniform float majorGridSpacing;
 uniform float majorGridLineWidthPixels;
+
+uniform vec3 radialFadeColor;
 
 uniform float groundSpecularIntensity;
 uniform float groundSpecularExponent;
@@ -116,6 +123,18 @@ void main() {
                 surfaceNormalEye,
                 viewMat,
                 groundSpecularExponent);
+    }
+
+    if (radialFadeEnabled) {
+
+        float radialDistance = length(worldPosition.xz - radialFadeCenter);
+
+        float fade = smoothstep(
+                radialFadeStartDistance,
+                radialFadeEndDistance,
+                radialDistance);
+
+        color = mix(color, radialFadeColor, fade);
     }
 
     fragColor = vec4(color, 1.0);

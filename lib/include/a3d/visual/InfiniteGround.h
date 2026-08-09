@@ -9,7 +9,12 @@
 #ifndef AVARA3D_VISUAL_INFINITEGROUND_H
 #define AVARA3D_VISUAL_INFINITEGROUND_H
 
+#include "a3d/Color.h"
+
 #include <memory>
+#include <optional>
+
+#include "a3d/Math.h"
 
 namespace a3d {
 
@@ -24,14 +29,24 @@ namespace a3d {
             float                  lineWidthPixels {1.0f};
         };
 
-        std::shared_ptr<Color> color {};
-        float                  height {0.0f};
+        struct RadialFade {
 
-        std::optional<Grid>    minorGrid {};
-        std::optional<Grid>    majorGrid {};
+            std::shared_ptr<Color> color {Color::Black()};
+            math::vec2             center {0.0f, 0.0f};
+            float                  startDistance {10.0f};
+            float                  endDistance {100.0f};
+        };
 
-        float                  specularIntensity {0.15f};
-        float                  specularExponent {32.0f};
+        std::shared_ptr<Color>    color {};
+        float                     height {0.0f};
+
+        std::optional<Grid>       minorGrid {};
+        std::optional<Grid>       majorGrid {};
+
+        std::optional<RadialFade> radialFade {};
+
+        float                     specularIntensity {0.15f};
+        float                     specularExponent {32.0f};
     };
 
 }

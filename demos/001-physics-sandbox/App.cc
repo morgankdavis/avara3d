@@ -58,25 +58,6 @@ std::unique_ptr<Scene> App::init() {
         visualWorld->background(Background {
             make_shared<Texture>(std::move(util::fs::CubeImageNamed("nebula", "png")))});
 
-        // visualWorld->infiniteGround(InfiniteGround {
-        //     .color = Color::DarkGray(),
-        //     .height = 0.0f,
-        //     .specularIntensity = .15f,
-        //     .specularExponent = 32.0f,
-        // });
-
-        // visualWorld->infiniteGround(InfiniteGround {
-        //     .color = Color::DarkGray(),
-        //     .height = 0.0f,
-        //
-        //     .gridColor = make_shared<Color>(vec4 {0.5f, 0.5f, 0.5f, 0.25f}),
-        //     .gridSpacing = 1.0f,
-        //     .gridLineWidthPixels = 1.0f,
-        //
-        //     .specularIntensity = 0.15f,
-        //     .specularExponent = 32.0f,
-        // });
-
         visualWorld->infiniteGround(InfiniteGround {
             .color = Color::DarkGray(),
             .height = 0.0f,
@@ -94,6 +75,14 @@ std::unique_ptr<Scene> App::init() {
                     .spacing = 10.0f,
                     .lineWidthPixels = 1.5f,
                 },
+
+            // .radialFade =
+            InfiniteGround::RadialFade {
+                .color = Color::Black(),
+                .center = {0.0f, 0.0f},
+                .startDistance = 8.0f,
+                .endDistance = 30.0f,
+            },
 
             .specularIntensity = 0.15f,
             .specularExponent = 32.0f,

@@ -721,6 +721,16 @@ void OGLRenderer::drawGround(const GroundPass& groundPass, const mat4& view, con
         _groundProgram->setUniform("majorGridLineWidthPixels", grid.lineWidthPixels);
     }
 
+    const bool radialFadeEnabled = ground.radialFade.has_value();
+    _groundProgram->setUniform("radialFadeEnabled", radialFadeEnabled);
+    if (radialFadeEnabled) {
+        const auto& fade = *ground.radialFade;
+        _groundProgram->setUniform("radialFadeColor", fade.color->rgb());
+        _groundProgram->setUniform("radialFadeCenter", fade.center);
+        _groundProgram->setUniform("radialFadeStartDistance", fade.startDistance);
+        _groundProgram->setUniform("radialFadeEndDistance", fade.endDistance);
+    }
+
     _groundProgram->setUniform("groundSpecularIntensity", ground.specularIntensity);
     _groundProgram->setUniform("groundSpecularExponent", ground.specularExponent);
 

@@ -151,14 +151,6 @@ void VisualWorld::infiniteGround(const optional<InfiniteGround>& ground) {
             throw invalid_argument("InfiniteGround height must be finite.");
         }
 
-        if (!isfinite(ground->specularIntensity) || ground->specularIntensity < 0.0f) {
-            throw invalid_argument("InfiniteGround specular intensity must be finite and non-negative.");
-        }
-
-        if (!isfinite(ground->specularExponent) || ground->specularExponent <= 0.0f) {
-            throw invalid_argument("InfiniteGround specular exponent must be finite and greater than zero.");
-        }
-
         auto validateGrid = [](const InfiniteGround::Grid& grid, const char* name) {
             if (!grid.color) {
                 throw invalid_argument(format("InfiniteGround {} grid color cannot be null.", name));
@@ -179,6 +171,37 @@ void VisualWorld::infiniteGround(const optional<InfiniteGround>& ground) {
 
         if (ground->majorGrid) {
             validateGrid(*ground->majorGrid, "major");
+        }
+
+        if (ground->radialFade) {
+
+            const auto& fade = *ground->radialFade;
+
+            if (!fade.color) {
+                throw invalid_argument("InfiniteGround radial fade color cannot be null.");
+            }
+
+            if (!isfinite(fade.center.x) || !isfinite(fade.center.y)) {
+                throw invalid_argument("InfiniteGround radial fade center must be finite.");
+            }
+
+            if (!isfinite(fade.startDistance) || fade.startDistance < 0.0f) {
+                throw invalid_argument(
+                    "InfiniteGround radial fade start distance must be finite and non-negative.");
+            }
+
+            if (!isfinite(fade.endDistance) || fade.endDistance <= fade.startDistance) {
+                throw invalid_argument(
+                    "InfiniteGround radial fade end distance must be finite and greater than start distance.");
+            }
+        }
+
+        if (!isfinite(ground->specularIntensity) || ground->specularIntensity < 0.0f) {
+            throw invalid_argument("InfiniteGround specular intensity must be finite and non-negative.");
+        }
+
+        if (!isfinite(ground->specularExponent) || ground->specularExponent <= 0.0f) {
+            throw invalid_argument("InfiniteGround specular exponent must be finite and greater than zero.");
         }
     }
 
