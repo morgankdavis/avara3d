@@ -20,8 +20,8 @@ namespace a3d {
         std::shared_ptr<Color> color {};
         float                  height {0.0f};
 
-        // float                  specularIntensity {0.15f};
-        // float                  specularExponent {32.0f};
+        float                  specularIntensity {0.15f};
+        float                  specularExponent {32.0f};
     };
 
 }

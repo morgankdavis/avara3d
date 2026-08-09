@@ -461,6 +461,7 @@ bool OGLRenderer::initialize(const RenderContext& context) {
         glUniformBlockBinding(program, idx, ENV_BINDING_POINT);
     };
     bindBlock(_defaultProgram->glID(), "EnvironmentBlock");
+    bindBlock(_groundProgram->glID(), "EnvironmentBlock");
     bindBlock(_wireframeProgram->glID(), "EnvironmentBlock");
 
     _drawTimer.initialize();
@@ -695,10 +696,14 @@ void OGLRenderer::drawGround(const GroundPass& groundPass, const mat4& view, con
 
     const mat4 viewProj = proj * view;
 
+    _groundProgram->setUniform("viewMat", view);
     _groundProgram->setUniform("viewProjMat", viewProj);
     _groundProgram->setUniform("inverseViewProjMat", inverse(viewProj));
+
     _groundProgram->setUniform("groundHeight", ground.height);
     _groundProgram->setUniform("groundColor", ground.color->rgb());
+    _groundProgram->setUniform("groundSpecularIntensity", ground.specularIntensity);
+    _groundProgram->setUniform("groundSpecularExponent", ground.specularExponent);
 
     glBindVertexArray(_fullscreenTriangleVao);
     glDrawArrays(GL_TRIANGLES, 0, 3);

@@ -61,6 +61,8 @@ std::unique_ptr<Scene> App::init() {
         visualWorld->infiniteGround(InfiniteGround {
             .color = Color::DarkGray(),
             .height = 0.0f,
+            .specularIntensity = .15f,
+            .specularExponent = 32.0f,
         });
 
         auto physicsWorld = make_unique<PhysicsWorld>();
@@ -81,6 +83,19 @@ std::unique_ptr<Scene> App::init() {
         testBoxNode->position({0.0f, 5.0f, 0.0f});
         testBoxNode->physicsBody(PhysicsBody::DynamicBody());
         scene->rootNode()->addChild(testBoxNode);
+
+        auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.15f));
+        auto ambientLightNode = Node::LightNode(ambientLight);
+        scene->rootNode()->addChild(ambientLightNode);
+
+        auto pointLight = make_shared<PointLight>(Color::White());
+        pointLight->attenuation(Attenuation {
+            .quadratic = 0.05f,
+        });
+
+        auto pointLightNode = Node::LightNode(pointLight);
+        pointLightNode->position({0.0f, 4.0f, 0.0f});
+        scene->rootNode()->addChild(pointLightNode);
 
         _bananaNode = Node::MeshNode(util::fs::MeshNamed("banana_lod/banana_lod"));
         auto rot90X = math::quaternion({1.0f, 0.0f, 0.0f}, radians(90.0f));

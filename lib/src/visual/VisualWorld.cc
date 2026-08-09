@@ -147,14 +147,13 @@ void VisualWorld::infiniteGround(const optional<InfiniteGround>& ground) {
         if (!isfinite(ground->height)) {
             throw invalid_argument("InfiniteGround height must be finite.");
         }
-        // if (!isfinite(ground->specularIntensity) || ground->specularIntensity < 0.0f) {
-        //     throw invalid_argument("InfiniteGround specular intensity must be finite and non-negative.");
-        // }
-        // if (!isfinite(ground->specularExponent) || ground->specularExponent < 0.0f) {
-        //     throw invalid_argument("InfiniteGround specular exponent must be finite and non-negative.");
-        // }
+        if (!isfinite(ground->specularIntensity) || ground->specularIntensity < 0.0f) {
+            throw invalid_argument("InfiniteGround specular intensity must be finite and non-negative.");
+        }
+        if (!isfinite(ground->specularExponent) || ground->specularExponent <= 0.0f) {
+            throw invalid_argument("InfiniteGround specular exponent must be finite and greater than zero.");
+        }
     }
-
     _infiniteGround = ground;
 }
 
