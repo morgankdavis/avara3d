@@ -43,54 +43,54 @@ uniform sampler2D specularSampler;
 uniform sampler2D emissionSampler;
 
 struct Colors {
-	vec3 ambient;
-	vec3 diffuse;
-	vec3 specular;
-	vec3 emission;
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+    vec3 emission;
 };
 
 struct AmbientLight {
-	vec4 	color;
+    vec4 	color;
 };
 
 struct DirectionalLight {
-	vec4 	color;
-	vec3 	direction_world;
-	float	_PAD0_;
+    vec4 	color;
+    vec3 	direction_world;
+    float	_PAD0_;
 };
 
 struct PointLight {
-	vec4 	color;
-	vec3 	position_world;
-	float	_PAD0_;
-	float	constantAttenuation;
-	float	linearAttenuation;
-	float	quadraticAttenuation;
-	float	_PAD1_;
+    vec4 	color;
+    vec3 	position_world;
+    float	_PAD0_;
+    float	constantAttenuation;
+    float	linearAttenuation;
+    float	quadraticAttenuation;
+    float	_PAD1_;
 };
 
 struct SpotLight {
-	vec4 	color;
-	vec3 	position_world;
-	float	_PAD0_;
-	vec3 	direction_world;
-	float	_PAD1_;
-	float	innerAngleCos;
-	float	outerAngleCos;
-	uint	featheringMode;
-	float	constantAttenuation;
-	float	linearAttenuation;
-	float	quadraticAttenuation;
-	float	_PAD2_;
-	float	_PAD3_;
+    vec4 	color;
+    vec3 	position_world;
+    float	_PAD0_;
+    vec3 	direction_world;
+    float	_PAD1_;
+    float	innerAngleCos;
+    float	outerAngleCos;
+    uint	featheringMode;
+    float	constantAttenuation;
+    float	linearAttenuation;
+    float	quadraticAttenuation;
+    float	_PAD2_;
+    float	_PAD3_;
 };
 
 struct Fog {
-	vec4 	color;
-	float 	startDistance;
-	float 	endDistance;
-	float 	densityExponent;
-	float	_PAD0_;
+    vec4 	color;
+    float 	startDistance;
+    float 	endDistance;
+    float 	densityExponent;
+    float	_PAD0_;
 };
 
 in 			vec3 		frag_vertPos_eye;
@@ -109,36 +109,36 @@ uniform		bool 		locksAmbientWithDiffuse;
 uniform 	Colors 		colors;
 
 layout(std140) uniform EnvironmentBlock {
-	uint useDefaultLighting;
-	uint _pad0_0;
-	uint _pad0_1;
-	uint _pad0_2;
+    uint useDefaultLighting;
+    uint _pad0_0;
+    uint _pad0_1;
+    uint _pad0_2;
 
-	uint numAmbientLights;
-	uint _pad1_0;
-	uint _pad1_1;
-	uint _pad1_2;
-	AmbientLight ambientLights[MAX_AMBIENT_LIGHTS];
+    uint numAmbientLights;
+    uint _pad1_0;
+    uint _pad1_1;
+    uint _pad1_2;
+    AmbientLight ambientLights[MAX_AMBIENT_LIGHTS];
 
-	uint numDirectionalLights;
-	uint _pad2_0;
-	uint _pad2_1;
-	uint _pad2_2;
-	DirectionalLight directionalLights[MAX_DIRECTIONAL_LIGHTS];
+    uint numDirectionalLights;
+    uint _pad2_0;
+    uint _pad2_1;
+    uint _pad2_2;
+    DirectionalLight directionalLights[MAX_DIRECTIONAL_LIGHTS];
 
-	uint numPointLights;
-	uint _pad3_0;
-	uint _pad3_1;
-	uint _pad3_2;
-	PointLight pointLights[MAX_POINT_LIGHTS];
+    uint numPointLights;
+    uint _pad3_0;
+    uint _pad3_1;
+    uint _pad3_2;
+    PointLight pointLights[MAX_POINT_LIGHTS];
 
-	uint numSpotLights;
-	uint _pad4_0;
-	uint _pad4_1;
-	uint _pad4_2;
-	SpotLight spotLights[MAX_SPOT_LIGHTS];
+    uint numSpotLights;
+    uint _pad4_0;
+    uint _pad4_1;
+    uint _pad4_2;
+    SpotLight spotLights[MAX_SPOT_LIGHTS];
 
-	Fog fog;
+    Fog fog;
 } Environment;
 
 out 		vec4 		fragColor;
@@ -150,387 +150,404 @@ vec3 CalcDirectionalLighting(vec4 Kd, vec4 Ks);
 vec3 CalcPointLighting(vec4 Kd, vec4 Ks);
 vec3 CalcSpotLighting(vec4 Kd, vec4 Ks);
 float Attenuate(float Kc, float Kl, float Kq, float d);
-vec4 AppleFog(vec4 fragColor);
+vec4 ApplyFog(vec4 fragColor);
 vec3 LinearToSRGB(vec3 linear);
 vec4 ApplyGammaCorrection(vec4 fragColor);
 bool FloatsEqual(float a, float b, float eps);
 
 void main () {
 
-	fragColor = vec4(0.0);
+    fragColor = vec4(0.0);
 
-	// using default lighting?
-	if (Environment.useDefaultLighting > 0u) {
+    // using default lighting?
+    if (Environment.useDefaultLighting > 0u) {
 
-		fragColor = ApplyDefaultLighting();
-	}
-	else {
+        fragColor = ApplyDefaultLighting();
+    }
+    else {
 
-		// can skip lighting calcs?
-		if (emissionContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
+        // can skip lighting calcs?
+        if (emissionContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
 
-			fragColor = GetBaseColor(MATERIAL_PROPERTY_TYPE_EMISSION, emissionContentsType);
-		}
+            fragColor = GetBaseColor(MATERIAL_PROPERTY_TYPE_EMISSION, emissionContentsType);
+        }
 
-		// do lighting calcs...
-		else {
+        // do lighting calcs...
+        else {
 
-			// get base colors
+            // get base colors
 
-			vec4 Ka = GetBaseColor(MATERIAL_PROPERTY_TYPE_AMBIENT, ambientContentsType);
-			vec4 Kd = GetBaseColor(MATERIAL_PROPERTY_TYPE_DIFFUSE, diffuseContentsType);
-			vec4 Ks = GetBaseColor(MATERIAL_PROPERTY_TYPE_SPECULAR, specularContentsType);
+            vec4 Ka = GetBaseColor(MATERIAL_PROPERTY_TYPE_AMBIENT, ambientContentsType);
+            vec4 Kd = GetBaseColor(MATERIAL_PROPERTY_TYPE_DIFFUSE, diffuseContentsType);
+            vec4 Ks = GetBaseColor(MATERIAL_PROPERTY_TYPE_SPECULAR, specularContentsType);
 
-			// lock ambient with diffuse?
+            // lock ambient with diffuse?
 
-			if ((diffuseContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE)) {
-				Ka = Kd;
-			}
+            if ((diffuseContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE)) {
+                Ka = Kd;
+            }
 
-			// alpha rejection
+            // alpha rejection
 
-			if (Kd.a < ALPHA_REJECTION_THRESHOLD) discard;
+            if (Kd.a < ALPHA_REJECTION_THRESHOLD) discard;
 
-			// dynamic lighting
+            // dynamic lighting
 
-			fragColor.rgb = CalcAmbientLighting(Ka);
-			fragColor.rgb += CalcDirectionalLighting(Kd, Ks);
-			fragColor.rgb += CalcPointLighting(Kd, Ks);
-			fragColor.rgb += CalcSpotLighting(Kd, Ks);
+            fragColor.rgb = CalcAmbientLighting(Ka);
+            fragColor.rgb += CalcDirectionalLighting(Kd, Ks);
+            fragColor.rgb += CalcPointLighting(Kd, Ks);
+            fragColor.rgb += CalcSpotLighting(Kd, Ks);
 
-			fragColor = vec4(fragColor.rgb, Kd.a); // pointless?
-		}
+            fragColor = vec4(fragColor.rgb, Kd.a); // pointless?
+        }
 
-		// fog
+        // fog
 
-		fragColor += AppleFog(fragColor);
-	}
+        fragColor = ApplyFog(fragColor);
+    }
 
-	// gamma
+    // gamma
 
-	fragColor = ApplyGammaCorrection(fragColor);
+    fragColor = ApplyGammaCorrection(fragColor);
 }
 
 vec4 GetBaseColor(uint propertyType, uint propertyContentsType) {
 
-	switch (propertyType) {
+    switch (propertyType) {
 
-		case MATERIAL_PROPERTY_TYPE_AMBIENT:
-			switch (propertyContentsType) {
-				case MATERIAL_PROPERTY_CONTENTS_TYPE_COLOR:
-					return vec4(colors.ambient, 1.0);
-				case MATERIAL_PROPERTY_CONTENTS_TYPE_SAMPLER:
-					return vec4(texture(ambientSampler, frag_texCoord * uvScale));
-				default:
-					return vec4(0.0, 0.0, 0.0, 1.0);
-			}
-			break;
+        case MATERIAL_PROPERTY_TYPE_AMBIENT:
+            switch (propertyContentsType) {
+                case MATERIAL_PROPERTY_CONTENTS_TYPE_COLOR:
+                    return vec4(colors.ambient, 1.0);
+                case MATERIAL_PROPERTY_CONTENTS_TYPE_SAMPLER:
+                    return vec4(texture(ambientSampler, frag_texCoord * uvScale));
+                default:
+                    return vec4(0.0, 0.0, 0.0, 1.0);
+            }
+            break;
 
-		case MATERIAL_PROPERTY_TYPE_DIFFUSE:
-			switch (propertyContentsType) {
-				case MATERIAL_PROPERTY_CONTENTS_TYPE_COLOR:
-					return vec4(colors.diffuse, 1.0);
-				case MATERIAL_PROPERTY_CONTENTS_TYPE_SAMPLER:
-					return vec4(texture(diffuseSampler, frag_texCoord * uvScale));
-				default:
-					return vec4(0.0, 0.0, 0.0, 1.0);
-			}
-			break;
+        case MATERIAL_PROPERTY_TYPE_DIFFUSE:
+            switch (propertyContentsType) {
+                case MATERIAL_PROPERTY_CONTENTS_TYPE_COLOR:
+                    return vec4(colors.diffuse, 1.0);
+                case MATERIAL_PROPERTY_CONTENTS_TYPE_SAMPLER:
+                    return vec4(texture(diffuseSampler, frag_texCoord * uvScale));
+                default:
+                    return vec4(0.0, 0.0, 0.0, 1.0);
+            }
+            break;
 
-		case MATERIAL_PROPERTY_TYPE_SPECULAR:
-			switch (propertyContentsType) {
-				case MATERIAL_PROPERTY_CONTENTS_TYPE_COLOR:
-					return vec4(colors.specular, 1.0);
-				case MATERIAL_PROPERTY_CONTENTS_TYPE_SAMPLER:
-					return vec4(texture(specularSampler, frag_texCoord * uvScale));
-				default:
-					return vec4(0.0, 0.0, 0.0, 1.0);
-			}
-			break;
+        case MATERIAL_PROPERTY_TYPE_SPECULAR:
+            switch (propertyContentsType) {
+                case MATERIAL_PROPERTY_CONTENTS_TYPE_COLOR:
+                    return vec4(colors.specular, 1.0);
+                case MATERIAL_PROPERTY_CONTENTS_TYPE_SAMPLER:
+                    return vec4(texture(specularSampler, frag_texCoord * uvScale));
+                default:
+                    return vec4(0.0, 0.0, 0.0, 1.0);
+            }
+            break;
 
-		case MATERIAL_PROPERTY_TYPE_EMISSION:
-			switch (propertyContentsType) {
-				case MATERIAL_PROPERTY_CONTENTS_TYPE_COLOR:
-					return vec4(colors.emission, 1.0);
-				case MATERIAL_PROPERTY_CONTENTS_TYPE_SAMPLER:
-					return vec4(texture(emissionSampler, frag_texCoord * uvScale));
-				default:
-					return vec4(0.0, 0.0, 0.0, 1.0);
-			}
-			break;
+        case MATERIAL_PROPERTY_TYPE_EMISSION:
+            switch (propertyContentsType) {
+                case MATERIAL_PROPERTY_CONTENTS_TYPE_COLOR:
+                    return vec4(colors.emission, 1.0);
+                case MATERIAL_PROPERTY_CONTENTS_TYPE_SAMPLER:
+                    return vec4(texture(emissionSampler, frag_texCoord * uvScale));
+                default:
+                    return vec4(0.0, 0.0, 0.0, 1.0);
+            }
+            break;
 
-		default:
-			return vec4(0.0, 0.0, 0.0, 1.0);
-	}
+//        default:
+//            return vec4(0.0, 0.0, 0.0, 1.0);
+    }
+
+    return vec4(0.0, 0.0, 0.0, 1.0);
 }
 
 vec4 ApplyDefaultLighting() {
 
-	// find an emissive property in order of: emissive, diffuse, ambient
+    // find an emissive property in order of: emissive, diffuse, ambient
 
-	if (emissionContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
-		return GetBaseColor(MATERIAL_PROPERTY_TYPE_EMISSION, emissionContentsType);
-	}
-	else if (diffuseContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
-		return GetBaseColor(MATERIAL_PROPERTY_TYPE_DIFFUSE, diffuseContentsType);
-	}
-	else if (ambientContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
-		return GetBaseColor(MATERIAL_PROPERTY_TYPE_AMBIENT, ambientContentsType);
-	}
+    if (emissionContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
+        return GetBaseColor(MATERIAL_PROPERTY_TYPE_EMISSION, emissionContentsType);
+    }
+    else if (diffuseContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
+        return GetBaseColor(MATERIAL_PROPERTY_TYPE_DIFFUSE, diffuseContentsType);
+    }
+    else if (ambientContentsType != MATERIAL_PROPERTY_CONTENTS_TYPE_NONE) {
+        return GetBaseColor(MATERIAL_PROPERTY_TYPE_AMBIENT, ambientContentsType);
+    }
 
-	return vec4(1.0);
+    return vec4(1.0);
 }
 
 vec3 CalcAmbientLighting(vec4 Ka) {
 
-	vec3 color = vec3(0.0);
+    vec3 color = vec3(0.0);
 
-	for (uint l=0u; l<Environment.numAmbientLights; ++l) {
+    for (uint l=0u; l<Environment.numAmbientLights; ++l) {
 
-		AmbientLight light = Environment.ambientLights[l];
+        AmbientLight light = Environment.ambientLights[l];
 
-		vec3 L = vec3(light.color.rgb);
+        vec3 L = vec3(light.color.rgb);
 
-		vec3 Ia = L * vec3(Ka);
+        vec3 Ia = L * vec3(Ka);
 
-		color += Ia;
-	}
+        color += Ia;
+    }
 
-	return color;
+    return color;
 }
 
 vec3 CalcDirectionalLighting(vec4 Kd, vec4 Ks) {
 
-	vec3 color = vec3(0.0);
+    vec3 color = vec3(0.0);
 
-	for (uint l=0u; l<Environment.numDirectionalLights; ++l) {
+    for (uint l=0u; l<Environment.numDirectionalLights; ++l) {
 
-		DirectionalLight light = Environment.directionalLights[l];
+        DirectionalLight light = Environment.directionalLights[l];
 
-		vec3 L = vec3(light.color.rgb);
+        vec3 L = vec3(light.color.rgb);
 
-		vec3 Id = vec3(0.0, 0.0, 0.0);
-		vec3 Is = vec3(0.0, 0.0, 0.0);
+        vec3 Id = vec3(0.0, 0.0, 0.0);
+        vec3 Is = vec3(0.0, 0.0, 0.0);
 
-		// diffuse
+        // diffuse
 
-		vec3 lightDir_eye = vec3(viewMat * vec4(-light.direction_world, 0.0));
-		vec3 surfaceToLightDir_eye = normalize(lightDir_eye);
-		float dotDiffuse = max(dot(surfaceToLightDir_eye, frag_vertNorm_eye), 0.0);
+        vec3 lightDir_eye = vec3(viewMat * vec4(-light.direction_world, 0.0));
+        vec3 surfaceToLightDir_eye = normalize(lightDir_eye);
+        float dotDiffuse = max(dot(surfaceToLightDir_eye, frag_vertNorm_eye), 0.0);
 
-		Id = L * vec3(Kd) * dotDiffuse;
+        Id = L * vec3(Kd) * dotDiffuse;
 
-		// specular
+        // specular
 
-		Is = vec3(0.0, 0.0, 0.0);
-		if (Ks.x != 0.0 || Ks.y != 0.0 || Ks.z != 0.0) {
+        Is = vec3(0.0, 0.0, 0.0);
+        if (Ks.x != 0.0 || Ks.y != 0.0 || Ks.z != 0.0) {
 
-			vec3 surfaceToCamDir = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
+            vec3 surfaceToCamDir = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
 
-			// phong
-			vec3 reflection_eye = reflect(-surfaceToLightDir_eye, frag_vertNorm_eye);
-			float dotSpecular = dot(reflection_eye, surfaceToCamDir);
-			dotSpecular = max(dotSpecular, 0.0);
-			float specularFactor = pow(dotSpecular, specularExponent);
+            // phong
+            vec3 reflection_eye = reflect(-surfaceToLightDir_eye, frag_vertNorm_eye);
+            float dotSpecular = dot(reflection_eye, surfaceToCamDir);
+            dotSpecular = max(dotSpecular, 0.0);
+            float specularFactor = pow(dotSpecular, specularExponent);
 
-			// blinn
-			// vec3 half_way_eye = normalize(surface_to_viewer_eye + direction_to_light_eye);
-			// float dot_prod_specular = max(dot(half_way_eye, vertex_normal_eye), 0.0);
-			// float specular_factor = pow(dot_prod_specular, specularExponent);
-			
-			Is = L * vec3(Ks) * specularFactor;
-		}
+            // blinn
+            // vec3 half_way_eye = normalize(surface_to_viewer_eye + direction_to_light_eye);
+            // float dot_prod_specular = max(dot(half_way_eye, vertex_normal_eye), 0.0);
+            // float specular_factor = pow(dot_prod_specular, specularExponent);
 
-		color += Id + Is;
-	}
+            Is = L * vec3(Ks) * specularFactor;
+        }
 
-	return color;
+        color += Id + Is;
+    }
+
+    return color;
 }
 
 vec3 CalcPointLighting(vec4 Kd, vec4 Ks) {
 
-	vec3 color = vec3(0.0);
+    vec3 color = vec3(0.0);
 
-	for (uint l=0u; l<Environment.numPointLights; ++l) {
+    for (uint l=0u; l<Environment.numPointLights; ++l) {
 
-		PointLight light = Environment.pointLights[l];
+        PointLight light = Environment.pointLights[l];
 
-		vec3 L = vec3(light.color.rgb);
+        vec3 L = vec3(light.color.rgb);
 
-		vec3 Id = vec3(0.0, 0.0, 0.0);
-		vec3 Is = vec3(0.0, 0.0, 0.0);
+        vec3 Id = vec3(0.0, 0.0, 0.0);
+        vec3 Is = vec3(0.0, 0.0, 0.0);
 
-		// diffuse
+        // diffuse
 
-		// raise light position to eye space
-		vec3 lightPos_eye = vec3(viewMat * vec4(light.position_world, 1.0));
-		vec3 surfaceToLightDir_eye = normalize(lightPos_eye - frag_vertPos_eye);
-		float dotDiffuse = max(dot(surfaceToLightDir_eye, frag_vertNorm_eye), 0.0);
+        // raise light position to eye space
+        vec3 lightPos_eye = vec3(viewMat * vec4(light.position_world, 1.0));
+        vec3 surfaceToLightDir_eye = normalize(lightPos_eye - frag_vertPos_eye);
+        float dotDiffuse = max(dot(surfaceToLightDir_eye, frag_vertNorm_eye), 0.0);
 
-		float surfaceToLightDist = distance(lightPos_eye, frag_vertPos_eye);
+        float surfaceToLightDist = distance(lightPos_eye, frag_vertPos_eye);
 
-		float attenuation = Attenuate(light.constantAttenuation,
-									  light.linearAttenuation,
-									  light.quadraticAttenuation,
-									  surfaceToLightDist);
+        float attenuation = Attenuate(light.constantAttenuation,
+                light.linearAttenuation,
+                light.quadraticAttenuation,
+                surfaceToLightDist);
 
-		Id = L * vec3(Kd) * dotDiffuse * attenuation;
+        Id = L * vec3(Kd) * dotDiffuse * attenuation;
 
-		// specular
+        // specular
 
-		Is = vec3(0.0, 0.0, 0.0);
-		if (Ks.x != 0.0 || Ks.y != 0.0 || Ks.z != 0.0) {
+        Is = vec3(0.0, 0.0, 0.0);
+        if (Ks.x != 0.0 || Ks.y != 0.0 || Ks.z != 0.0) {
 
-			vec3 surfaceToCamDir = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
+            vec3 surfaceToCamDir = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
 
-			// phong
-			vec3 reflection_eye = reflect(-surfaceToLightDir_eye, frag_vertNorm_eye);
-			float dotSpecular = dot(reflection_eye, surfaceToCamDir);
-			dotSpecular = max(dotSpecular, 0.0);
-			float specularFactor = pow(dotSpecular, specularExponent);
+            // phong
+            vec3 reflection_eye = reflect(-surfaceToLightDir_eye, frag_vertNorm_eye);
+            float dotSpecular = dot(reflection_eye, surfaceToCamDir);
+            dotSpecular = max(dotSpecular, 0.0);
+            float specularFactor = pow(dotSpecular, specularExponent);
 
-			// blinn
-			// vec3 half_way_eye = normalize(surface_to_viewer_eye + direction_to_light_eye);
-			// float dot_prod_specular = max(dot(half_way_eye, vertex_normal_eye), 0.0);
-			// float specular_factor = pow(dot_prod_specular, specularExponent);
+            // blinn
+            // vec3 half_way_eye = normalize(surface_to_viewer_eye + direction_to_light_eye);
+            // float dot_prod_specular = max(dot(half_way_eye, vertex_normal_eye), 0.0);
+            // float specular_factor = pow(dot_prod_specular, specularExponent);
 
-			Is = L * vec3(Ks) * specularFactor * attenuation;
-		}
+            Is = L * vec3(Ks) * specularFactor * attenuation;
+        }
 
-		color += Id + Is;
-	}
+        color += Id + Is;
+    }
 
-	return color;
+    return color;
 }
 
 vec3 CalcSpotLighting(vec4 Kd, vec4 Ks) {
 
-	vec3 color = vec3(0.0);
+    vec3 color = vec3(0.0);
 
-	for (uint l=0u; l<Environment.numSpotLights; ++l) {
+    for (uint l=0u; l<Environment.numSpotLights; ++l) {
 
-		SpotLight light = Environment.spotLights[l];
+        SpotLight light = Environment.spotLights[l];
 
-		vec3 L = vec3(light.color.rgb);
+        vec3 L = vec3(light.color.rgb);
 
-		vec3 Id = vec3(0.0, 0.0, 0.0);
-		vec3 Is = vec3(0.0, 0.0, 0.0);
+        vec3 Id = vec3(0.0, 0.0, 0.0);
+        vec3 Is = vec3(0.0, 0.0, 0.0);
 
-		vec3 lightPos_eye = vec3(viewMat * vec4(light.position_world, 1.0));
-		vec3 surfaceToLightDir_eye = normalize(lightPos_eye - frag_vertPos_eye);
-		vec3 lightDir_eye = normalize(vec3(viewMat * vec4(-light.direction_world, 0.0)));
-		vec3 surfaceToCamDir_eye = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
+        vec3 lightPos_eye = vec3(viewMat * vec4(light.position_world, 1.0));
+        vec3 surfaceToLightDir_eye = normalize(lightPos_eye - frag_vertPos_eye);
+        vec3 lightDir_eye = normalize(vec3(viewMat * vec4(-light.direction_world, 0.0)));
+        vec3 surfaceToCamDir_eye = normalize(-frag_vertPos_eye); // viewer is at 0,0,0
 
-		// cosine of angle. see DeVries 16.5
-		float theta = dot(surfaceToLightDir_eye, lightDir_eye);
+        // cosine of angle. see DeVries 16.5
+        float theta = dot(surfaceToLightDir_eye, lightDir_eye);
 
-		float epsilon = light.innerAngleCos - light.outerAngleCos;
-		float linearIntensity = clamp((theta - light.outerAngleCos) / epsilon, 0.0, 1.0);
+        float epsilon = light.innerAngleCos - light.outerAngleCos;
+        float linearIntensity = clamp((theta - light.outerAngleCos) / epsilon, 0.0, 1.0);
 
-		if (linearIntensity > 0.0) {
+        if (linearIntensity > 0.0) {
 
-			// apply some easing to the light cutoff
-			// https://www.geogebra.org/m/kvy5zksn
-			// https://learn.pandasuite.com/article/776-animations
+            // apply some easing to the light cutoff
+            // https://www.geogebra.org/m/kvy5zksn
+            // https://learn.pandasuite.com/article/776-animations
 
-			float easedIntensity = linearIntensity;
+            float easedIntensity = linearIntensity;
 
-			switch (light.featheringMode) {
-				case SPOTLIGHT_FEATHERING_MODE_SHARP:
-					easedIntensity = clamp(linearIntensity * (2.0 - linearIntensity), 0.0, 1.0);
-					break;
-				case SPOTLIGHT_FEATHERING_MODE_SOFT:
-					easedIntensity = clamp(pow(linearIntensity, 2.0), 0.0, 1.0);
-					break;
-				default: break;
-			}
+            switch (light.featheringMode) {
+                case SPOTLIGHT_FEATHERING_MODE_SHARP:
+                    easedIntensity = clamp(linearIntensity * (2.0 - linearIntensity), 0.0, 1.0);
+                    break;
+                case SPOTLIGHT_FEATHERING_MODE_SOFT:
+                    easedIntensity = clamp(pow(linearIntensity, 2.0), 0.0, 1.0);
+                    break;
+                default: break;
+            }
 
-			// diffuse
-			float dotDiffuse = max(dot(surfaceToLightDir_eye, frag_vertNorm_eye), 0.0);
-			float surfaceToLightDist = distance(lightPos_eye, frag_vertPos_eye);
-			float attenuation = Attenuate(light.constantAttenuation,
-										  light.linearAttenuation,
-										  light.quadraticAttenuation,
-										  surfaceToLightDist);
+            // diffuse
+            float dotDiffuse = max(dot(surfaceToLightDir_eye, frag_vertNorm_eye), 0.0);
+            float surfaceToLightDist = distance(lightPos_eye, frag_vertPos_eye);
+            float attenuation = Attenuate(light.constantAttenuation,
+                    light.linearAttenuation,
+                    light.quadraticAttenuation,
+                    surfaceToLightDist);
 
-			Id = L * vec3(Kd) * easedIntensity * dotDiffuse * attenuation;
+            Id = L * vec3(Kd) * easedIntensity * dotDiffuse * attenuation;
 
-			// specular
+            // specular
 
-			if (Ks.x != 0.0 || Ks.y != 0.0 || Ks.z != 0.0) {
+            if (Ks.x != 0.0 || Ks.y != 0.0 || Ks.z != 0.0) {
 
-				// phong
-				vec3 reflection_eye = reflect(-surfaceToLightDir_eye, frag_vertNorm_eye);
-				float dotSpecular = dot(reflection_eye, surfaceToCamDir_eye);
-				dotSpecular = max(dotSpecular, 0.0);
-				float specularFactor = pow(dotSpecular, specularExponent);
+                // phong
+                vec3 reflection_eye = reflect(-surfaceToLightDir_eye, frag_vertNorm_eye);
+                float dotSpecular = dot(reflection_eye, surfaceToCamDir_eye);
+                dotSpecular = max(dotSpecular, 0.0);
+                float specularFactor = pow(dotSpecular, specularExponent);
 
-				Is = L * vec3(Ks) * easedIntensity * specularFactor * attenuation;
-			}
-		}
+                Is = L * vec3(Ks) * easedIntensity * specularFactor * attenuation;
+            }
+        }
 
-		color += Id + Is;
-	}
+        color += Id + Is;
+    }
 
-	return color;
+    return color;
 }
 
 float Attenuate(float Kc, float Kl, float Kq, float d) {
 
-	// A = 1 / 1.0 + (Kc + (Kl * d) + (Kq * d^2))
+    // A = 1 / 1.0 + (Kc + (Kl * d) + (Kq * d^2))
 
-//	const float EPS = .0000001;
+    //	const float EPS = .0000001;
 
-	float attenuation = 1.0;
+    float attenuation = 1.0;
 
-//	if (!FloatsEqual(Kc, 0.0, EPS)
-//	|| !FloatsEqual(Kl, 0.0, EPS)
-//	|| !FloatsEqual(Kq, 0.0, EPS)) {
-		attenuation = 1.0 / (Kc + (Kl * d) + (Kq * d*d));
-//	}
+    //	if (!FloatsEqual(Kc, 0.0, EPS)
+    //	|| !FloatsEqual(Kl, 0.0, EPS)
+    //	|| !FloatsEqual(Kq, 0.0, EPS)) {
+    attenuation = 1.0 / (Kc + (Kl * d) + (Kq * d*d));
+    //	}
 
-	return clamp(attenuation, 0.0, 1.0);
+    return clamp(attenuation, 0.0, 1.0);
 }
 
-vec4 AppleFog(vec4 fragColor) {
+vec4 ApplyFog(vec4 fragColor) {
 
-	vec4 color = vec4(0.0);
+    // endDistance == 0 disables fog
 
-	if (!FloatsEqual(Environment.fog.endDistance, 0.0, 0.0001)) { // endDistance == 0 disables fog
-		if (FloatsEqual(Environment.fog.densityExponent, 0.0, 0.0001)) { // constant
-			fragColor = mix(fragColor, vec4(Environment.fog.color.rgb, 1.0), Environment.fog.color.a);
-		}
-		else if (FloatsEqual(Environment.fog.densityExponent, 1.0, 0.0001)) { // linear
-			float vertDist = length(frag_vertPos_eye);
-			float fogFactor = (Environment.fog.endDistance - vertDist)
-				/ (Environment.fog.endDistance - Environment.fog.startDistance);
-			fogFactor = clamp(fogFactor, 0.0, 1.0);
-			color = mix(vec4(Environment.fog.color.rgb, 1.0), fragColor, fogFactor);
-		}
-		else if (Environment.fog.densityExponent >= 2.0) { // exponential
-			// NOT IMPLEMENTED
-			// fogFactor = 1.0-clamp( exp(-fogDensity*fogCoord), 0.0, 1.0)
-			// http://www.mbsoftworks.sk/index.php?page=tutorials&series=1&tutorial=15
-			color = vec4(1, 0, 0, 1);
-		}
-	}
+    if (FloatsEqual(Environment.fog.endDistance, 0.0, 0.0001)) {
+        return fragColor;
+    }
 
-	return color;
+    // densityExponent == 0:
+    // constant fog intensity, using fog color alpha
+
+    if (FloatsEqual(Environment.fog.densityExponent, 0.0, 0.0001)) {
+        return mix(
+                fragColor,
+                vec4(Environment.fog.color.rgb, fragColor.a),
+                Environment.fog.color.a);
+    }
+
+    float fragmentDistance = length(frag_vertPos_eye);
+
+    float fogAmount = (
+    fragmentDistance - Environment.fog.startDistance
+    ) / (
+    Environment.fog.endDistance -
+    Environment.fog.startDistance
+    );
+
+    fogAmount = clamp(fogAmount, 0.0, 1.0);
+
+    // 1 = linear, 2 = quadratic, etc.
+
+    fogAmount = pow(
+            fogAmount,
+            Environment.fog.densityExponent);
+
+    return mix(
+            fragColor,
+            vec4(Environment.fog.color.rgb, fragColor.a),
+            fogAmount);
 }
 
 vec3 LinearToSRGB(vec3 linear) {
-	bvec3 cutoff = lessThanEqual(linear, vec3(0.0031308));
-	vec3 lower = linear * 12.92;
-	vec3 upper = 1.055 * pow(linear, vec3(1.0/2.4)) - 0.055;
-	return mix(upper, lower, vec3(cutoff));
+    bvec3 cutoff = lessThanEqual(linear, vec3(0.0031308));
+    vec3 lower = linear * 12.92;
+    vec3 upper = 1.055 * pow(linear, vec3(1.0/2.4)) - 0.055;
+    return mix(upper, lower, vec3(cutoff));
 }
 
 vec4 ApplyGammaCorrection(vec4 fragColor) {
 
-	//return vec4(LinearToSRGB(fragColor.rgb), fragColor.a);
-	return fragColor;
+    //return vec4(LinearToSRGB(fragColor.rgb), fragColor.a);
+    return fragColor;
 }
 
 bool FloatsEqual(float a, float b, float eps) {
-	return abs(a-b) <= eps;
+    return abs(a-b) <= eps;
 }
