@@ -108,11 +108,12 @@ std::optional<std::filesystem::path> a3d::util::fs::CurrentWorkingDirectory() {
 // *** search paths ***
 
 vector<std::filesystem::path> a3d::util::fs::BaseSearchPaths() {
+    // EDIT: this is... disgusting. do something else.
+    //
     // build a list of common directories where "shader", "scene", "images", "fonts", etc
     // subdirectories may live.
     // clients will use this to append those subdirectory names to search for specific resources.
-    // clients should first check "local" locations first, then "engine" locations.
-    // EDIT: this is GROSS. do something else.
+    // clients should first check "local" locations first, then "engine" locations..
 
     static vector<std::filesystem::path>   basePaths;
     static optional<std::filesystem::path> execDir {};
