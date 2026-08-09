@@ -72,7 +72,7 @@ std::unique_ptr<Scene> App::init() {
         scene->inputContext(std::move(Window::InputContext()));
         scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 
-        auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.15f));
+        auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.2f));
         ambientLight->name("ambient");
         auto ambientLightNode = Node::LightNode(ambientLight);
         scene->rootNode()->addChild(ambientLightNode);
@@ -334,7 +334,7 @@ void App::frameDidBegin(Runner&, Scene&, VisualWorld& visualWorld, const VisualW
     static float angle = 0;
     angle += delta * BACKGROUND_ROTATION_SPEED;
 
-    if (auto background = visualWorld.background()) {
+    if (auto& background = visualWorld.background()) {
         background->orientation(quaternion(BACKGROUND_ROTATION_AXIS, angle));
     }
 }
