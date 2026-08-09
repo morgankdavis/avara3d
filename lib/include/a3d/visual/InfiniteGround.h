@@ -52,16 +52,11 @@ namespace a3d {
 
         std::shared_ptr<Color>     color {};
         float                      height {0.0f};
-
         std::optional<Grid>        minorGrid {};
         std::optional<Grid>        majorGrid {};
-
         std::optional<Curvature>   curvature {};
-
         std::optional<RadialFade>  radialFade {};
-
         std::optional<HorizonHaze> horizonHaze {};
-
         float                      specularIntensity {0.15f};
         float                      specularExponent {32.0f};
     };

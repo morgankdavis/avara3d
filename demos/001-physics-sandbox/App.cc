@@ -24,7 +24,11 @@ const Log::Level                      APP_LOG_LEVEL {Log::Level::Debug};
 const uvec2                           WINDOW_SIZE {1280, 768};
 const bool                            FULLSCREEN {false};
 const bool                            ENABLE_HIGH_DPI {true};
+#if defined(A3D_WEB)
 const RenderContext::AntialiasingMode ANTIALIAS_MODE {RenderContext::AntialiasingMode::Msaa2X};
+#else
+const RenderContext::AntialiasingMode ANTIALIAS_MODE {RenderContext::AntialiasingMode::Msaa4X};
+#endif
 const bool                            ENABLE_VSYNC {false};
 const bool                            CAPTURE_CURSOR {false};
 const float                           MOUSE_SENSITIVITY {0.5};
@@ -67,15 +71,15 @@ std::unique_ptr<Scene> App::init() {
                     .color = make_shared<Color>(vec4 {0.5f, 0.5f, 0.5f, 0.25f}),
                     .spacing = 1.0f,
                     .lineWidthPixels = 1.0f,
-                    .relief = 0.20f,
+                    .relief = -0.15f,
                 },
 
             .majorGrid =
                 InfiniteGround::Grid {
                     .color = make_shared<Color>(vec4 {0.75f, 0.75f, 0.75f, 0.25f}),
                     .spacing = 10.0f,
-                    .lineWidthPixels = 1.5f,
-                    .relief = 0.50f,
+                    .lineWidthPixels = 1.0f,
+                    .relief = -0.15f,
                 },
 
             .curvature =
@@ -160,10 +164,10 @@ bool App::shouldContinue(const Scene& scene) {
     return _window->isOpen();
 }
 
-void App::inputDidUpdate(Runner&       runner,
-                         Scene&        scene,
-                         InputContext& inputContext,
-                         const InputContext::UpdateInfo&) {
+void App::inputDidUpdate(Runner&                         runner,
+                         Scene&                          scene,
+                         InputContext&                   inputContext,
+                         const InputContext::UpdateInfo& info) {
 
     auto& input = static_cast<DesktopInputContext&>(inputContext);
 
@@ -171,6 +175,74 @@ void App::inputDidUpdate(Runner&       runner,
 
     if (input.keyPressed(Key::Escape)) {
         _window->close();
+    }
+
+    using Key = DesktopInputContext::Key;
+    using MouseButton = DesktopInputContext::MouseButton;
+
+    if (input.keyPressed(Key::Slash)) {
+        _window->cursorCaptured(!_window->cursorCaptured());
+    }
+
+    // move camera
+
+    if (auto pov = scene.visualWorld()->pointOfView().lock(); pov && _window->cursorCaptured()) {
+
+        // look
+
+        const auto mousePositionDelta = input.mousePositionDelta();
+
+        const vec3 camForward = pov->worldForward();
+        const vec3 camRight = pov->worldRight();
+        const vec3 camUp = pov->worldUp();
+
+        static const float MOUSE_SPEED_SCALAR = 0.002f;
+        static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
+
+        const float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
+        const float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
+
+        const vec3 angles = pov->eulerAngles();
+
+        pov->eulerAngles({angles.x + deltaRotY, angles.y - deltaRotX, 0.0f});
+
+        const float moveMultiplier = input.keyDown(Key::LeftControl) ? 4.0f : 2.0f;
+
+        // move
+
+        static const float moveSpeed = math::max(scene.extent()) * moveMultiplier;
+        const float        deltaTime = static_cast<float>(info.deltaTime);
+
+        if (input.keyDown(Key::W) || input.mouseButtonDown(MouseButton::Four)) {
+
+            const vec3 positionDelta = deltaTime * moveSpeed * camForward;
+
+            pov->position(pov->position() + positionDelta);
+        }
+        else if (input.keyDown(Key::S)) {
+            const vec3 positionDelta = deltaTime * moveSpeed * -camForward;
+
+            pov->position(pov->position() + positionDelta);
+        }
+
+        if (input.keyDown(Key::A)) {
+            const vec3 positionDelta = deltaTime * moveSpeed * -camRight;
+
+            pov->position(pov->position() + positionDelta);
+        }
+        else if (input.keyDown(Key::D)) {
+            const vec3 positionDelta = deltaTime * moveSpeed * camRight;
+
+            pov->position(pov->position() + positionDelta);
+        }
+
+        if (input.keyDown(Key::Space)) {
+            const float direction = input.keyDown(Key::LeftShift) ? -1.0f : 1.0f;
+
+            const vec3 positionDelta = deltaTime * moveSpeed * camUp * direction;
+
+            pov->position(pov->position() + positionDelta);
+        }
     }
 }
 
