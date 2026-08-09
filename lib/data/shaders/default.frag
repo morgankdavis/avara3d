@@ -1,12 +1,9 @@
 #header
 
+#include "environment.glsl"
+
 // donno if this works
 #define FEQ(a, b, eps) (abs(a-b) <= eps)
-
-#define MAX_AMBIENT_LIGHTS								16
-#define MAX_DIRECTIONAL_LIGHTS							16
-#define MAX_POINT_LIGHTS								128
-#define MAX_SPOT_LIGHTS									64
 
 const float GAMMA =										2.2;
 
@@ -20,15 +17,6 @@ const uint MATERIAL_PROPERTY_TYPE_AMBIENT =				0u;
 const uint MATERIAL_PROPERTY_TYPE_DIFFUSE =				1u;
 const uint MATERIAL_PROPERTY_TYPE_SPECULAR =			2u;
 const uint MATERIAL_PROPERTY_TYPE_EMISSION =			3u;
-
-const uint LIGHT_TYPE_AMBIENT =							0u;
-const uint LIGHT_TYPE_POINT =							1u;
-const uint LIGHT_TYPE_DIRECTIONAL =						2u;
-const uint LIGHT_TYPE_SPOT =							3u;
-
-const uint SPOTLIGHT_FEATHERING_MODE_LINEAR =			0u;
-const uint SPOTLIGHT_FEATHERING_MODE_SHARP =			1u;
-const uint SPOTLIGHT_FEATHERING_MODE_SOFT =				2u;
 
 // GL ES does not like this
 //struct Samplers {
@@ -49,50 +37,6 @@ struct Colors {
     vec3 emission;
 };
 
-struct AmbientLight {
-    vec4 	color;
-};
-
-struct DirectionalLight {
-    vec4 	color;
-    vec3 	direction_world;
-    float	_PAD0_;
-};
-
-struct PointLight {
-    vec4 	color;
-    vec3 	position_world;
-    float	_PAD0_;
-    float	constantAttenuation;
-    float	linearAttenuation;
-    float	quadraticAttenuation;
-    float	_PAD1_;
-};
-
-struct SpotLight {
-    vec4 	color;
-    vec3 	position_world;
-    float	_PAD0_;
-    vec3 	direction_world;
-    float	_PAD1_;
-    float	innerAngleCos;
-    float	outerAngleCos;
-    uint	featheringMode;
-    float	constantAttenuation;
-    float	linearAttenuation;
-    float	quadraticAttenuation;
-    float	_PAD2_;
-    float	_PAD3_;
-};
-
-struct Fog {
-    vec4  color;
-    float startDistance;
-    float endDistance;
-    float transitionExponent;
-    uint  enabled;
-};
-
 in 			vec3 		frag_vertPos_eye;
 in 			vec3 		frag_vertNorm_eye;
 in 			vec2 		frag_texCoord;
@@ -107,39 +51,6 @@ uniform		float 		uvScale;
 uniform		bool 		locksAmbientWithDiffuse;
 //uniform 	Samplers 	samplers;
 uniform 	Colors 		colors;
-
-layout(std140) uniform EnvironmentBlock {
-    uint useDefaultLighting;
-    uint _pad0_0;
-    uint _pad0_1;
-    uint _pad0_2;
-
-    uint numAmbientLights;
-    uint _pad1_0;
-    uint _pad1_1;
-    uint _pad1_2;
-    AmbientLight ambientLights[MAX_AMBIENT_LIGHTS];
-
-    uint numDirectionalLights;
-    uint _pad2_0;
-    uint _pad2_1;
-    uint _pad2_2;
-    DirectionalLight directionalLights[MAX_DIRECTIONAL_LIGHTS];
-
-    uint numPointLights;
-    uint _pad3_0;
-    uint _pad3_1;
-    uint _pad3_2;
-    PointLight pointLights[MAX_POINT_LIGHTS];
-
-    uint numSpotLights;
-    uint _pad4_0;
-    uint _pad4_1;
-    uint _pad4_2;
-    SpotLight spotLights[MAX_SPOT_LIGHTS];
-
-    Fog fog;
-} Environment;
 
 out 		vec4 		fragColor;
 
