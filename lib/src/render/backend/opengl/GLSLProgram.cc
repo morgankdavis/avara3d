@@ -23,18 +23,6 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-/// Private Static Non-Member Prototypes ///
-
-static constexpr const char* A3DShaderHeaderToken = "<#A3D_SHADER_HEADER#>";
-
-// // TODO: remove
-// static size_t      SkipUtf8Bom(const std::string& source);
-// // TODO: remove
-// static std::string PlatformShaderHeader();
-// static std::string PatchedShaderHeader(const std::string& source,
-//                                        const std::string& programName,
-//                                        ShaderType         type);
-
 /// Internal Lifecycle Functions ///
 
 GLSLProgram::GLSLProgram(const string& name):
@@ -290,17 +278,6 @@ void GLSLProgram::setUniform(const char* name, float val) {
     }
 }
 
-//void Program::bindUniformBlock(const char* name, GLuint location) {
-//
-//	GLint blockIndex = glGetUniformBlockIndex(_glID, name);
-//	if (blockIndex != GL_INVALID_INDEX) {
-//		glBindBufferBase(GL_UNIFORM_BUFFER, blockIndex, location);
-//	}
-//	else {
-//		log::e()("Uniform block '{}' not found.", name);
-//	}
-//}
-
 void GLSLProgram::setUniformBlockBinding(const char* blockName, GLuint bindingPoint) {
     GLuint blockIndex = glGetUniformBlockIndex(_glID, blockName);
     if (blockIndex == GL_INVALID_INDEX) {
@@ -358,7 +335,7 @@ optional<string> GLSLProgram::shaderSource(const string& name, ShaderType type) 
             break;
     }
 
-    return GLSLPreprocessor::Process(*source, sourceName, {});
+    return GLSLPreprocessor::Process(*source, sourceName, util::fs::ShaderIncludeSource);
 }
 
 void GLSLProgram::prepare() {
@@ -461,58 +438,3 @@ void GLSLProgram::glID(GLuint glID) {
 void GLSLProgram::isLinked(bool isLinked) {
     _isLinked = isLinked;
 }
-
-/// Private Non-Member Functions ///
-
-// // TODO: remove
-// size_t SkipUtf8Bom(const std::string& source) {
-//
-//     if (source.size() >= 3 && static_cast<unsigned char>(source[0]) == 0xEF
-//         && static_cast<unsigned char>(source[1]) == 0xBB && static_cast<unsigned char>(source[2]) == 0xBF) {
-//
-//         return 3;
-//     }
-//
-//     return 0;
-// }
-//
-// // TODO: remove
-// std::string PlatformShaderHeader() {
-//
-// #if defined(A3D_GL_WEB) || defined(A3D_GL_ES)
-//     return "#version 300 es\n"
-//            "#define A3D_GLSL_ES 1\n"
-//            "precision highp float;\n"
-//            "precision highp int;\n"
-//            "#line 2\n";
-// #else
-//     return "#version 330 core\n"
-//            "#define A3D_GLSL_DESKTOP 1\n"
-//            "#line 2\n";
-// #endif
-// }
-//
-// std::string PatchedShaderHeader(const std::string& source, const std::string& programName, ShaderType type) {
-//
-//     const size_t tokenLength = std::char_traits<char>::length(A3DShaderHeaderToken);
-//     const size_t tokenPosition = SkipUtf8Bom(source);
-//
-//     if (source.compare(tokenPosition, tokenLength, A3DShaderHeaderToken) != 0) {
-//         throw std::runtime_error(std::format("Shader '{}.{}' must begin with '{}'.", programName,
-//                                              magic_enum::enum_name(type), A3DShaderHeaderToken));
-//     }
-//
-//     const size_t lineEnd = source.find('\n', tokenPosition);
-//
-//     if (lineEnd == std::string::npos) {
-//         return PlatformShaderHeader();
-//     }
-//
-//     std::string patched;
-//     patched.reserve(source.size() + 128);
-//
-//     patched += PlatformShaderHeader();
-//     patched += source.substr(lineEnd + 1);
-//
-//     return patched;
-// }

@@ -212,6 +212,14 @@ vector<std::filesystem::path> a3d::util::fs::ShaderSearchPaths() {
     return searchPaths;
 }
 
+vector<filesystem::path> a3d::util::fs::ShaderIncludeSearchPaths() {
+    auto searchPaths = vector<filesystem::path>();
+    for (const auto& path : ShaderSearchPaths()) {
+        searchPaths.push_back(path / "include");
+    }
+    return searchPaths;
+}
+
 vector<std::filesystem::path> a3d::util::fs::SceneSearchPaths() {
     auto searchPaths = vector<std::filesystem::path>();
     for (auto& path : BaseSearchPaths()) {
@@ -252,9 +260,8 @@ vector<std::filesystem::path> a3d::util::fs::AuxiliarySearchPaths() {
     return searchPaths;
 }
 
-std::optional<std::filesystem::path> a3d::util::fs::SearchInPaths(const string& filename,
-                                                                          const vector<std::filesystem::path>&
-                                                                              paths) {
+std::optional<std::filesystem::path> a3d::util::fs::SearchInPaths(const string&                        filename,
+                                                                  const vector<std::filesystem::path>& paths) {
     // for (size_t i = 0; i < paths.size(); ++i) {
     // 	log::i()("  [{}] '{}'", i, paths[i].string());
     // }
@@ -316,6 +323,24 @@ std::optional<std::string> a3d::util::fs::ShaderSource(const string& name, Shade
     return rawSource;
 }
 
+optional<string> a3d::util::fs::ShaderIncludeSource(const string& filename) {
+    const filesystem::path includePath {filename};
+    if (includePath.empty() || includePath.has_root_path()) {
+        return nullopt;
+    }
+    for (const auto& component : includePath) {
+        if (component == "..") {
+            return nullopt;
+        }
+    }
+    const auto path = SearchInPaths(filename, ShaderIncludeSearchPaths());
+    if (!path) {
+        return nullopt;
+    }
+    log::t()("Found shader include at path: {}", path->string());
+    return TextFile(*path);
+}
+
 // *** fonts ***
 
 //unique_ptr<a3d::Font> a3d::util::filesystem::FontNamed(const string& filename) {
@@ -334,17 +359,15 @@ unique_ptr<Font> a3d::util::fs::FontNamed(const string& name, const string& type
 
 // ***  images ***
 
-unique_ptr<Image> a3d::util::fs::ImageNamed(const string& name,
-                                                    bool          flipHorizontal,
-                                                    bool          flipVertical) {
+unique_ptr<Image> a3d::util::fs::ImageNamed(const string& name, bool flipHorizontal, bool flipVertical) {
 
     return ImageNamed(name, "png", flipHorizontal, flipVertical);
 }
 
 unique_ptr<Image> a3d::util::fs::ImageNamed(const string& name,
-                                                    const string& type,
-                                                    bool          flipHorizontal,
-                                                    bool          flipVertical) {
+                                            const string& type,
+                                            bool          flipHorizontal,
+                                            bool          flipVertical) {
     auto path = SearchInPaths((name + "." + type), ImageSearchPaths());
     if (path) {
         log::t()("Found image at path: {}", (*path).string());
@@ -378,8 +401,8 @@ unique_ptr<Scene> a3d::util::fs::SceneNamed(const string& name, Scene::ImportOpt
 }
 
 unique_ptr<Scene> a3d::util::fs::SceneNamed(const string&        name,
-                                                    const string&        type,
-                                                    Scene::ImportOptions options) {
+                                            const string&        type,
+                                            Scene::ImportOptions options) {
 
     auto path = SearchInPaths((name + "." + type), SceneSearchPaths());
     if (path) {
@@ -394,9 +417,7 @@ shared_ptr<Mesh> a3d::util::fs::MeshNamed(const string& name, Mesh::ImportOption
     return MeshNamed(name, "gltf", options);
 }
 
-shared_ptr<Mesh> a3d::util::fs::MeshNamed(const string&       name,
-                                                  const string&       type,
-                                                  Mesh::ImportOptions options) {
+shared_ptr<Mesh> a3d::util::fs::MeshNamed(const string& name, const string& type, Mesh::ImportOptions options) {
 
     auto path = SearchInPaths((name + "." + type), ModelSearchPaths());
     if (path) {
