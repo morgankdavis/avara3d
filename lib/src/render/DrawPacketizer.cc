@@ -36,6 +36,11 @@ DrawPacket DrawPacketizer::Packetize(GatherOutput& gatherOutput) {
     packet.backgroundPass.material = gatherOutput.backgroundMaterial;
     packet.backgroundPass.orientation = gatherOutput.backgroundOrientation;
 
+    if (gatherOutput.infiniteGround) {
+        packet.groundPass.desc = PipelineDescBuilder::MakeGroundDesc();
+        packet.groundPass.ground = std::move(gatherOutput.infiniteGround);
+    }
+
     for (const RenderItem& ri : gatherOutput.renderItems) {
 
         // effective style for this instance (refine later?)

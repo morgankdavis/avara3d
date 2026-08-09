@@ -104,6 +104,7 @@ namespace a3d {
         void drawBackground(const BackgroundPass& backgroundPass,
                             const math::mat4&     view,
                             const math::mat4&     proj) override;
+        void drawGround(const GroundPass& groundPass, const math::mat4& view, const math::mat4& proj) override;
 
         void bindPipeline(PipelineId pipelineId, const OGLResourceCache& cache) override;
         void bindMaterial(const Material& material) override;
@@ -130,14 +131,16 @@ namespace a3d {
 
         bool         _isInitialized;
         unsigned     _glEnvironmentUBO;
-        std::unique_ptr<GLSLProgram> _defaultProgram;
         std::unique_ptr<GLSLProgram> _skyboxProgram;
+        std::unique_ptr<GLSLProgram> _groundProgram;
+        std::unique_ptr<GLSLProgram> _defaultProgram;
         std::unique_ptr<GLSLProgram> _wireframeProgram;
         std::unique_ptr<GLSLProgram> _linesProgram;
         OGLResourceCache             _resourceCache;
         GLStateCache                 _state;
         BoundElement                 _boundElement;
         std::unique_ptr<Mesh>        _skyboxMesh; // should be value?
+        gl::uint_t                   _fullscreenTriangleVao;
         OGLDebugLines                _debugLines;
         ImFont*                      _overlayTitleImFont;
         ImFont*                      _overlayBodyImFont;

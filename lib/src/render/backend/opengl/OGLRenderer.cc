@@ -396,6 +396,7 @@ OGLRenderer::OGLRenderer():
     _isInitialized {false},
     _resourceCache {},
     _skyboxMesh {},
+    _fullscreenTriangleVao {},
     _glEnvironmentUBO {0},
     _overlayTitleImFont {nullptr},
     _overlayBodyImFont {nullptr},
@@ -404,6 +405,10 @@ OGLRenderer::OGLRenderer():
 
 OGLRenderer::~OGLRenderer() {
     log::d()("Destroying OpenGLRenderer {:p}", static_cast<void*>(this));
+
+    if (_fullscreenTriangleVao != 0) {
+        glDeleteVertexArrays(1, &_fullscreenTriangleVao);
+    }
 
     glDeleteBuffers(1, &_glEnvironmentUBO);
 
@@ -419,10 +424,13 @@ OGLRenderer::~OGLRenderer() {
 bool OGLRenderer::initialize(const RenderContext& context) {
     log::i();
 
-    _defaultProgram = make_unique<GLSLProgram>("default");
     _skyboxProgram = make_unique<GLSLProgram>("skybox");
+    _groundProgram = make_unique<GLSLProgram>("infinite_ground");
+    _defaultProgram = make_unique<GLSLProgram>("default");
     _wireframeProgram = make_unique<GLSLProgram>("wireframe");
     _linesProgram = make_unique<GLSLProgram>("lines");
+
+    glGenVertexArrays(1, &_fullscreenTriangleVao);
 
     GLint maxSize = 0;
     glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &maxSize);
@@ -663,6 +671,32 @@ void OGLRenderer::drawBackground(const BackgroundPass& backgroundPass,
     drawElements();
 }
 
+void OGLRenderer::drawGround(const GroundPass& groundPass, const mat4& view, const mat4& proj) {
+
+    if (!groundPass.ground) {
+        return;
+    }
+
+    if (groundPass.pipelineId == INVALID_PIPELINE_ID) {
+        return;
+    }
+
+    const auto& ground = *groundPass.ground;
+
+    bindPipeline(groundPass.pipelineId, _resourceCache);
+
+    const mat4 viewProj = proj * view;
+
+    _groundProgram->setUniform("viewProjMat", viewProj);
+    _groundProgram->setUniform("inverseViewProjMat", inverse(viewProj));
+    _groundProgram->setUniform("groundHeight", ground.height);
+    _groundProgram->setUniform("groundColor", ground.color->rgb());
+
+    glBindVertexArray(_fullscreenTriangleVao);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glBindVertexArray(0);
+}
+
 void OGLRenderer::bindPipeline(PipelineId pipelineId, const OGLResourceCache& cache) {
     if (_state.pipelineId == pipelineId) {
         GLint cur = 0;
@@ -860,10 +894,12 @@ void OGLRenderer::draw(const DrawCommand& cmd) {
 
 GLSLProgram& OGLRenderer::programForShaderKind(ShaderKind kind) const {
     switch (kind) {
-        case ShaderKind::Default:
-            return *_defaultProgram;
         case ShaderKind::Skybox:
             return *_skyboxProgram;
+        case ShaderKind::Ground:
+            return *_groundProgram;
+        case ShaderKind::Default:
+            return *_defaultProgram;
         case ShaderKind::Wireframe:
             return *_wireframeProgram;
         case ShaderKind::Lines:
@@ -918,6 +954,14 @@ void OGLRenderer::resolvePacket(DrawPacket& packet, const FrameParams& frame) {
         return pipelineId;
     };
 
+    // ground
+    if (packet.groundPass.ground) {
+        resolvePipeline(packet.groundPass.pipelineId, packet.groundPass.desc);
+    }
+    else {
+        packet.groundPass.pipelineId = INVALID_PIPELINE_ID;
+    }
+
     // background
     if (packet.backgroundPass.material) {
         resolvePipeline(packet.backgroundPass.pipelineId, packet.backgroundPass.desc);
@@ -948,6 +992,10 @@ void OGLRenderer::drawPacket(const DrawPacket& packet, const FrameParams& frame)
     if (packet.backgroundPass.material) {
         // uses _skyboxMesh internally, binds + draws
         drawBackground(packet.backgroundPass, frame.view, frame.proj);
+    }
+
+    if (packet.groundPass.ground) {
+        drawGround(packet.groundPass, frame.view, frame.proj);
     }
 
     // NOTE: items are already sorted by pass + desc hash, so this will batch nicely

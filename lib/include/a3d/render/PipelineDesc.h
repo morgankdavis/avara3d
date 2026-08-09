@@ -35,6 +35,7 @@ namespace a3d {
 
     enum class ShaderKind : uint8_t {
         Skybox,
+        Ground,
         Default,
         Wireframe,
         Lines
@@ -43,11 +44,12 @@ namespace a3d {
     enum class PassKind : uint8_t {
         // note: this is RENDER ORDER
         Background      = 0,
-        MainOpaque      = 1,
-        MainMask        = 2,
-        MainTransparent = 3,
-        Wireframe       = 4,
-        Lines           = 5
+        Ground          = 1,
+        MainOpaque      = 2,
+        MainMask        = 3,
+        MainTransparent = 4,
+        Wireframe       = 5,
+        Lines           = 6
     };
 
     struct PipelineDesc {

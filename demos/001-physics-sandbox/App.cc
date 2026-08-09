@@ -54,8 +54,14 @@ std::unique_ptr<Scene> App::init() {
         _window->cursorCaptured(CAPTURE_CURSOR);
 
         auto visualWorld = make_unique<VisualWorld>(*_window);
+
         visualWorld->background(Background {
             make_shared<Texture>(std::move(util::fs::CubeImageNamed("nebula", "png")))});
+
+        visualWorld->infiniteGround(InfiniteGround {
+            .color = Color::DarkGray(),
+            .height = 0.0f,
+        });
 
         auto physicsWorld = make_unique<PhysicsWorld>();
 

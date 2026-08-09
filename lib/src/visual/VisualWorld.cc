@@ -39,8 +39,8 @@ using namespace std;
 VisualWorld::VisualWorld(RenderContext& context):
     _background {},
     _backgroundMaterial {},
-    // _backgroundOrientation {1.0f},
     _fog {},
+    _infiniteGround {},
     _usesDefaultLighting {false},
     _autoEnablesDefaultLighting {true},
     _pointOfView {},
@@ -73,7 +73,7 @@ void VisualWorld::background(const optional<Background>& background) {
         return;
     }
 
-    const auto& contents = background->contents();
+    const auto&          contents = background->contents();
     shared_ptr<Material> backgroundMaterial;
 
     if (auto texture = get_if<shared_ptr<Texture>>(&contents)) {
@@ -132,6 +132,25 @@ void VisualWorld::fog(const optional<Fog>& fog) {
         }
     }
     _fog = fog;
+}
+
+optional<InfiniteGround>& VisualWorld::infiniteGround() {
+    return _infiniteGround;
+}
+
+void VisualWorld::infiniteGround(const optional<InfiniteGround>& ground) {
+
+    if (ground) {
+        if (!ground->color) {
+            throw invalid_argument("InfiniteGround color cannot be null.");
+        }
+
+        if (!isfinite(ground->height)) {
+            throw invalid_argument("InfiniteGround height must be finite.");
+        }
+    }
+
+    _infiniteGround = ground;
 }
 
 weak_ptr<Node>& VisualWorld::pointOfView() {
