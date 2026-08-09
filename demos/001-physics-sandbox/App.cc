@@ -77,12 +77,12 @@ std::unique_ptr<Scene> App::init() {
                 },
 
             // .radialFade =
-            InfiniteGround::RadialFade {
-                .color = Color::Black(),
-                .center = {0.0f, 0.0f},
-                .startDistance = 8.0f,
-                .endDistance = 30.0f,
-            },
+            //     InfiniteGround::RadialFade {
+            //         .color = Color::Black(),
+            //         .center = {0.0f, 0.0f},
+            //         .startDistance = 10.0f,
+            //         .endDistance = 50.0f,
+            //     },
 
             .specularIntensity = 0.15f,
             .specularExponent = 32.0f,

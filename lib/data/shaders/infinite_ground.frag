@@ -166,18 +166,34 @@ float GridCoverage(
 
     vec2 gridCoord = worldXZ / spacing;
 
-    vec2 distanceToLine = abs(fract(gridCoord - 0.5) - 0.5);
+    vec2 distanceToLine =
+    abs(fract(gridCoord - 0.5) - 0.5);
 
-    vec2 derivative = max(fwidth(gridCoord), vec2(0.000001));
+    vec2 derivative =
+    max(fwidth(gridCoord), vec2(0.000001));
 
-    vec2 pixelDistance = distanceToLine / derivative;
+    vec2 pixelDistance =
+    distanceToLine / derivative;
 
-    float halfWidth = lineWidthPixels * 0.5;
+    float halfWidth =
+    lineWidthPixels * 0.5;
 
-    vec2 lineCoverage = 1.0 - smoothstep(
+    vec2 lineCoverage =
+    1.0 - smoothstep(
             vec2(halfWidth - 0.5),
             vec2(halfWidth + 0.5),
             pixelDistance);
+
+    vec2 cellSizePixels =
+    1.0 / derivative;
+
+    vec2 lodFade =
+    smoothstep(
+            vec2(2.0), // 3.0
+            vec2(4.0), // 6.0
+            cellSizePixels);
+
+    lineCoverage *= lodFade;
 
     return max(lineCoverage.x, lineCoverage.y);
 }
