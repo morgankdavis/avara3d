@@ -26,7 +26,9 @@ using namespace std;
 
 static constexpr const char* A3DShaderHeaderToken = "<#A3D_SHADER_HEADER#>";
 
+// TODO: remove
 static size_t      SkipUtf8Bom(const std::string& source);
+// TODO: remove
 static std::string PlatformShaderHeader();
 static std::string PatchedShaderHeader(const std::string& source,
                                        const std::string& programName,
@@ -451,6 +453,7 @@ void GLSLProgram::isLinked(bool isLinked) {
 
 /// Private Non-Member Functions ///
 
+// TODO: remove
 size_t SkipUtf8Bom(const std::string& source) {
 
     if (source.size() >= 3 && static_cast<unsigned char>(source[0]) == 0xEF
@@ -462,6 +465,7 @@ size_t SkipUtf8Bom(const std::string& source) {
     return 0;
 }
 
+// TODO: remove
 std::string PlatformShaderHeader() {
 
 #if defined(A3D_GL_WEB) || defined(A3D_GL_ES)
