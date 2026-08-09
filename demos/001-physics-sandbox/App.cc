@@ -24,22 +24,13 @@ const Log::Level                      APP_LOG_LEVEL {Log::Level::Debug};
 const uvec2                           WINDOW_SIZE {1280, 768};
 const bool                            FULLSCREEN {false};
 const bool                            ENABLE_HIGH_DPI {true};
-#if defined(A3D_WEB)
-const RenderContext::AntialiasingMode ANTIALIAS_MODE {RenderContext::AntialiasingMode::Msaa2X};
-#else
 const RenderContext::AntialiasingMode ANTIALIAS_MODE {RenderContext::AntialiasingMode::Msaa4X};
-#endif
 const bool                            ENABLE_VSYNC {false};
 const bool                            CAPTURE_CURSOR {false};
 const float                           MOUSE_SENSITIVITY {0.5};
-#if defined(A3D_WEB)
-const float TIMESTEP {1.0 / 60.0};
-#else
-const float TIMESTEP {1.0 / 120.0};
-#endif
-
-const float BACKGROUND_ROTATION_SPEED {radians(0.5f)};
-const vec3  BACKGROUND_ROTATION_AXIS {0.5f, 1.0f, 1.0f};
+const float                           TIMESTEP {1.0 / 120.0};
+const float                           BACKGROUND_ROTATION_SPEED {radians(0.5f)};
+const vec3                            BACKGROUND_ROTATION_AXIS {0.5f, 1.0f, 1.0f};
 
 /// Public Lifecycle Functions ///
 
