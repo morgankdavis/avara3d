@@ -721,6 +721,14 @@ void OGLRenderer::drawGround(const GroundPass& groundPass, const mat4& view, con
         _groundProgram->setUniform("majorGridLineWidthPixels", grid.lineWidthPixels);
     }
 
+    const bool curvatureEnabled = ground.curvature.has_value();
+    _groundProgram->setUniform("curvatureEnabled", curvatureEnabled);
+    if (curvatureEnabled) {
+        const auto& curvature = *ground.curvature;
+        _groundProgram->setUniform("curvatureCenter", curvature.center);
+        _groundProgram->setUniform("curvatureRadius", curvature.radius);
+    }
+
     const bool radialFadeEnabled = ground.radialFade.has_value();
     _groundProgram->setUniform("radialFadeEnabled", radialFadeEnabled);
     if (radialFadeEnabled) {

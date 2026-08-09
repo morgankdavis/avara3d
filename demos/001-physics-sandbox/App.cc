@@ -76,6 +76,12 @@ std::unique_ptr<Scene> App::init() {
                     .lineWidthPixels = 1.5f,
                 },
 
+            .curvature =
+                InfiniteGround::Curvature {
+                    .center = {0.0f, 0.0f},
+                    .radius = 1000.0f,
+                },
+
             // .radialFade =
             //     InfiniteGround::RadialFade {
             //         .color = Color::Black(),
@@ -87,7 +93,7 @@ std::unique_ptr<Scene> App::init() {
             .horizonHaze =
                 InfiniteGround::HorizonHaze {
                     //.color = make_shared<Color>(vec4 {0.12f, 0.15f, 0.18f, 0.35f}),
-                .color = make_shared<Color>(vec4 {0.15f, 0.15f, 0.15f, 0.35f}),
+                    .color = make_shared<Color>(vec4 {0.15f, 0.15f, 0.15f, 0.35f}),
                     .angularWidthDegrees = 1.5f,
                 },
 

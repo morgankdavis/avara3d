@@ -173,6 +173,19 @@ void VisualWorld::infiniteGround(const optional<InfiniteGround>& ground) {
             validateGrid(*ground->majorGrid, "major");
         }
 
+        if (ground->curvature) {
+
+            const auto& curvature = *ground->curvature;
+
+            if (!isfinite(curvature.center.x) || !isfinite(curvature.center.y)) {
+                throw invalid_argument("InfiniteGround curvature center must be finite.");
+            }
+
+            if (!isfinite(curvature.radius) || curvature.radius <= 0.0f) {
+                throw invalid_argument("InfiniteGround curvature radius must be finite and greater than zero.");
+            }
+        }
+
         if (ground->radialFade) {
 
             const auto& fade = *ground->radialFade;

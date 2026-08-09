@@ -22,6 +22,10 @@ uniform vec4 majorGridColor;
 uniform float majorGridSpacing;
 uniform float majorGridLineWidthPixels;
 
+uniform bool curvatureEnabled;
+uniform vec2 curvatureCenter;
+uniform float curvatureRadius;
+
 uniform bool radialFadeEnabled;
 uniform vec2 radialFadeCenter;
 uniform float radialFadeStartDistance;
@@ -40,6 +44,10 @@ out vec4 fragColor;
 vec3 Unproject(vec2 ndc, float ndcDepth);
 float ComputeDepth(vec3 worldPosition);
 float GridCoverage(vec2 worldXZ, float spacing, float lineWidthPixels);
+bool IntersectGround(vec3 rayOrigin,
+        vec3 ray,
+        out vec3 worldPosition,
+        out vec3 surfaceNormalWorld);
 
 void main() {
 
@@ -47,17 +55,29 @@ void main() {
     vec3 farWorld = Unproject(fragNdc, 1.0);
     vec3 ray = farWorld - nearWorld;
 
-    if (abs(ray.y) < 0.000001) {
+//    if (abs(ray.y) < 0.000001) {
+//        discard;
+//    }
+//
+//    float t = (groundHeight - nearWorld.y) / ray.y;
+//
+//    if (t < 0.0) {
+//        discard;
+//    }
+//
+//    vec3 worldPosition = nearWorld + ray * t;
+    vec3 worldPosition;
+    vec3 surfaceNormalWorld;
+
+    if (!IntersectGround(
+            nearWorld,
+            ray,
+            worldPosition,
+            surfaceNormalWorld)) {
+
         discard;
     }
 
-    float t = (groundHeight - nearWorld.y) / ray.y;
-
-    if (t < 0.0) {
-        discard;
-    }
-
-    vec3 worldPosition = nearWorld + ray * t;
     vec3 surfaceColor = groundColor;
 
     if (minorGridEnabled) {
@@ -85,7 +105,8 @@ void main() {
     }
 
     vec3 surfacePositionEye = vec3(viewMat * vec4(worldPosition, 1.0));
-    vec3 surfaceNormalEye = normalize(mat3(viewMat) * vec3(0.0, 1.0, 0.0));
+//    vec3 surfaceNormalEye = normalize(mat3(viewMat) * vec3(0.0, 1.0, 0.0));
+    vec3 surfaceNormalEye = normalize(mat3(viewMat) * surfaceNormalWorld);
 
     vec3 color;
 
@@ -204,4 +225,91 @@ float GridCoverage(
     lineCoverage *= lodFade;
 
     return max(lineCoverage.x, lineCoverage.y);
+}
+
+bool IntersectGround(
+        vec3 rayOrigin,
+        vec3 ray,
+        out vec3 worldPosition,
+        out vec3 surfaceNormalWorld) {
+
+    if (curvatureEnabled) {
+
+        vec3 sphereCenter =
+        vec3(
+                curvatureCenter.x,
+                groundHeight - curvatureRadius,
+                curvatureCenter.y);
+
+        vec3 originFromCenter =
+        rayOrigin - sphereCenter;
+
+        float a =
+        dot(ray, ray);
+
+        float b =
+        2.0 * dot(originFromCenter, ray);
+
+        float c =
+        dot(originFromCenter, originFromCenter)
+        - curvatureRadius * curvatureRadius;
+
+        float discriminant =
+        b * b - 4.0 * a * c;
+
+        if (discriminant < 0.0) {
+            return false;
+        }
+
+        float sqrtDiscriminant =
+        sqrt(max(discriminant, 0.0));
+
+        float inverseTwoA =
+        0.5 / a;
+
+        float t0 =
+        (-b - sqrtDiscriminant) * inverseTwoA;
+
+        float t1 =
+        (-b + sqrtDiscriminant) * inverseTwoA;
+
+        float t;
+
+        if (t0 >= 0.0) {
+            t = t0;
+        }
+        else if (t1 >= 0.0) {
+            t = t1;
+        }
+        else {
+            return false;
+        }
+
+        worldPosition =
+        rayOrigin + ray * t;
+
+        surfaceNormalWorld =
+        normalize(worldPosition - sphereCenter);
+
+        return true;
+    }
+
+    if (abs(ray.y) < 0.000001) {
+        return false;
+    }
+
+    float t =
+    (groundHeight - rayOrigin.y) / ray.y;
+
+    if (t < 0.0) {
+        return false;
+    }
+
+    worldPosition =
+    rayOrigin + ray * t;
+
+    surfaceNormalWorld =
+    vec3(0.0, 1.0, 0.0);
+
+    return true;
 }

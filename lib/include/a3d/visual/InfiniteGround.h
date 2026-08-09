@@ -29,6 +29,12 @@ namespace a3d {
             float                  lineWidthPixels {1.0f};
         };
 
+        struct Curvature {
+
+            math::vec2 center {0.0f, 0.0f};
+            float      radius {500.0f};
+        };
+
         struct RadialFade {
 
             std::shared_ptr<Color> color {Color::Black()};
@@ -48,6 +54,8 @@ namespace a3d {
 
         std::optional<Grid>        minorGrid {};
         std::optional<Grid>        majorGrid {};
+
+        std::optional<Curvature>   curvature {};
 
         std::optional<RadialFade>  radialFade {};
 
