@@ -16,13 +16,13 @@ uniform bool minorGridEnabled;
 uniform vec4 minorGridColor;
 uniform float minorGridSpacing;
 uniform float minorGridLineWidthPixels;
-uniform float minorGridRelief;
+uniform float minorGridReliefStrength;
 
 uniform bool majorGridEnabled;
 uniform vec4 majorGridColor;
 uniform float majorGridSpacing;
 uniform float majorGridLineWidthPixels;
-uniform float majorGridRelief;
+uniform float majorGridReliefStrength;
 
 uniform bool curvatureEnabled;
 uniform vec2 curvatureCenter;
@@ -50,7 +50,7 @@ vec2 GridReliefGradient(
         vec2 worldXZ,
         float spacing,
         float lineWidthPixels,
-        float relief);
+        float reliefStrength);
 bool IntersectGround(vec3 rayOrigin,
         vec3 ray,
         out vec3 worldPosition,
@@ -116,22 +116,22 @@ void main() {
 
     vec2 reliefGradient = vec2(0.0);
 
-    if (minorGridEnabled && minorGridRelief != 0.0) {
+    if (minorGridEnabled && minorGridReliefStrength != 0.0) {
 
         reliefGradient += GridReliefGradient(
                 worldPosition.xz,
                 minorGridSpacing,
                 minorGridLineWidthPixels,
-                minorGridRelief);
+                minorGridReliefStrength);
     }
 
-    if (majorGridEnabled && majorGridRelief != 0.0) {
+    if (majorGridEnabled && majorGridReliefStrength != 0.0) {
 
         reliefGradient += GridReliefGradient(
                 worldPosition.xz,
                 majorGridSpacing,
                 majorGridLineWidthPixels,
-                majorGridRelief);
+                majorGridReliefStrength);
     }
 
     vec3 lightingNormalWorld =
@@ -274,7 +274,7 @@ vec2 GridReliefGradient(
         vec2 worldXZ,
         float spacing,
         float lineWidthPixels,
-        float relief) {
+        float reliefStrength) {
 
     vec2 gridCoord =
     worldXZ / spacing;
@@ -316,7 +316,7 @@ vec2 GridReliefGradient(
 
     return profileSlope
     * lodFade
-    * (relief / radiusPixels);
+    * (reliefStrength / radiusPixels);
 }
 
 bool IntersectGround(

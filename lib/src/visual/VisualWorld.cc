@@ -164,8 +164,7 @@ void VisualWorld::infiniteGround(const optional<InfiniteGround>& ground) {
                     format("InfiniteGround {} grid line width must be finite and greater than zero.", name));
             }
             if (!isfinite(grid.reliefStrength)) {
-                throw invalid_argument(
-                    format("InfiniteGround {} grid relief must be finite.", name));
+                throw invalid_argument(format("InfiniteGround {} grid relief strength must be finite.", name));
             }
         };
 
