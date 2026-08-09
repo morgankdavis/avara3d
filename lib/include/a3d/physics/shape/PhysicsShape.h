@@ -101,10 +101,6 @@ namespace a3d {
 
         PhysicsShape();
 
-        /// Protected Member Functions ///
-
-        virtual void                       validateBody(const PhysicsBody& body) const;
-
         /// Protected Member Variables ///
 
         Type                               _type;

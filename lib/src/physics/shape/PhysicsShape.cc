@@ -122,7 +122,6 @@ void PhysicsShape::attachedToBody(PhysicsBody& body) {
     log::t()("body: {:p}", static_cast<void*>(&body));
 
     if (!_bodies.count(&body)) {
-        validateBody(body);
         _bodies.insert(&body);
         checkCreateProxy();
     }
@@ -176,7 +175,3 @@ PhysicsShape::PhysicsShape():
     _proxy {},
     _source {},
     _bodies {} {}
-
-/// Protected Member Functions ///
-
-void PhysicsShape::validateBody(const PhysicsBody&) const {}

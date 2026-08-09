@@ -63,6 +63,28 @@ std::unique_ptr<Scene> App::init() {
             make_unique<Scene>(std::move(visualWorld), std::move(physicsWorld), Window::InputContext());
         scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay | Scene::DebugOptions::ShowBoundingBoxes);
 
+
+
+        auto groundNode = Node::NamedNode("Ground");
+        groundNode->orientation(
+            math::quaternion({1.0f, 0.0f, 0.0f}, radians(-90.0f)));
+        auto groundShape = make_shared<InfinitePlanePhysicsShape>();
+        auto groundBody =
+            make_unique<PhysicsBody>(PhysicsBody::Type::Static, groundShape);
+        groundNode->physicsBody(std::move(groundBody));
+        scene->rootNode()->addChild(groundNode);
+
+
+
+        auto testBoxNode = Node::MeshNode(Box::Mesh(1.0f, 1.0f, 1.0f));
+        testBoxNode->name("Ground test box");
+        testBoxNode->position({0.0f, 5.0f, 0.0f});
+        testBoxNode->physicsBody(PhysicsBody::DynamicBody());
+        scene->rootNode()->addChild(testBoxNode);
+
+
+
+
         _bananaNode = Node::MeshNode(util::fs::MeshNamed("banana_lod/banana_lod"));
         auto rot90X = math::quaternion({1.0f, 0.0f, 0.0f}, radians(90.0f));
         auto rot90Y = math::quaternion({0.0f, 1.0f, 0.0f}, radians(90.0f));
