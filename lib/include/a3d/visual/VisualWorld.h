@@ -84,20 +84,6 @@ namespace a3d {
         math::quat                 backgroundOrientation() const;
         void                       backgroundOrientation(const math::quat& orientation);
 
-        // // TODO: make Fog its own struct
-        // float                         fogStartDistance() const;
-        // void                          fogStartDistance(float distance);
-        // float                         fogEndDistance() const;
-        // void                          fogEndDistance(float distance); // end distance 0 == disabled
-        // // 0 = constant fog -- fogColor alpha controls intensity
-        // // >0 = distance-based fog between start and end distances
-        // // 1 = linear -- values above/below 1 shape the curve
-        // float                         fogDensityExponent() const;
-        // void                          fogDensityExponent(float exponent);
-        //
-        // const std::shared_ptr<Color>& fogColor() const;
-        // void                          fogColor(const std::shared_ptr<Color>& color);
-
         const std::optional<Fog>&  fog() const;
         void                       fog(const std::optional<Fog>& fog);
 
@@ -153,10 +139,6 @@ namespace a3d {
         Material::Property        _background;
         std::shared_ptr<Material> _backgroundMaterial;
         math::quat                _backgroundOrientation;
-        // float                     _fogStartDistance;
-        // float                     _fogEndDistance;
-        // float                     _fogDensityExponent;
-        // std::shared_ptr<Color>    _fogColor;
         std::optional<Fog>        _fog;
         bool                      _usesDefaultLighting;
         bool                      _autoEnablesDefaultLighting;

@@ -40,10 +40,6 @@ VisualWorld::VisualWorld(RenderContext& context):
     _background {},
     _backgroundMaterial {},
     _backgroundOrientation {1.0f},
-    // _fogStartDistance {0.0f},
-    // _fogEndDistance {0.0f},
-    // _fogDensityExponent {0.0f},
-    // _fogColor {},
     _fog {},
     _usesDefaultLighting {false},
     _autoEnablesDefaultLighting {true},
@@ -109,59 +105,27 @@ void VisualWorld::backgroundOrientation(const quat& orientation) {
     _backgroundOrientation = orientation;
 }
 
-float VisualWorld::fogStartDistance() const {
-    return _fogStartDistance;
+const optional<Fog>& VisualWorld::fog() const {
+    return _fog;
 }
 
-void VisualWorld::fogStartDistance(float distance) {
+void VisualWorld::fog(const optional<Fog>& fog) {
 
-    if (!std::isfinite(distance) || distance < 0.0f) {
-        throw std::invalid_argument("Fog start distance must be finite and non-negative.");
+    if (fog) {
+        if (!fog->color) {
+            throw invalid_argument("Fog color cannot be null.");
+        }
+        if (!isfinite(fog->startDistance) || fog->startDistance < 0.0f) {
+            throw invalid_argument("Fog start distance must be finite and non-negative.");
+        }
+        if (!isfinite(fog->endDistance) || fog->endDistance <= fog->startDistance) {
+            throw invalid_argument("Fog end distance must be finite and greater than fog start distance.");
+        }
+        if (!isfinite(fog->transitionExponent) || fog->transitionExponent < 0.0f) {
+            throw invalid_argument("Fog transition exponent must be finite and non-negative.");
+        }
     }
-
-    if (_fogEndDistance != 0.0f && distance >= _fogEndDistance) {
-        throw std::invalid_argument("Fog start distance must be less than fog end distance.");
-    }
-
-    _fogStartDistance = distance;
-}
-
-float VisualWorld::fogEndDistance() const {
-    return _fogEndDistance;
-}
-
-void VisualWorld::fogEndDistance(float distance) {
-
-    if (!std::isfinite(distance) || distance < 0.0f) {
-        throw std::invalid_argument("Fog end distance must be finite and non-negative.");
-    }
-
-    if (distance != 0.0f && distance <= _fogStartDistance) {
-        throw std::invalid_argument("Fog end distance must be greater than fog start distance.");
-    }
-
-    _fogEndDistance = distance;
-}
-
-float VisualWorld::fogDensityExponent() const {
-    return _fogDensityExponent;
-}
-
-void VisualWorld::fogDensityExponent(float exponent) {
-
-    if (!std::isfinite(exponent) || exponent < 0.0f) {
-        throw std::invalid_argument("Fog density exponent must be finite and non-negative.");
-    }
-
-    _fogDensityExponent = exponent;
-}
-
-const shared_ptr<Color>& VisualWorld::fogColor() const {
-    return _fogColor;
-}
-
-void VisualWorld::fogColor(const shared_ptr<Color>& color) {
-    _fogColor = color;
+    _fog = fog;
 }
 
 weak_ptr<Node>& VisualWorld::pointOfView() {

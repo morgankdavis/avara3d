@@ -506,10 +506,10 @@ vec4 ApplyFog(vec4 fragColor) {
 //        return fragColor;
 //    }
 
-    // densityExponent == 0:
+    // transitionExponent == 0:
     // constant fog intensity, using fog color alpha
 
-    if (FloatsEqual(Environment.fog.densityExponent, 0.0, 0.0001)) {
+    if (FloatsEqual(Environment.fog.transitionExponent, 0.0, 0.0001)) {
         return mix(
                 fragColor,
                 vec4(Environment.fog.color.rgb, fragColor.a),
@@ -531,7 +531,7 @@ vec4 ApplyFog(vec4 fragColor) {
 
     fogAmount = pow(
             fogAmount,
-            Environment.fog.densityExponent);
+            Environment.fog.transitionExponent);
 
     return mix(
             fragColor,

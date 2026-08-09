@@ -1247,17 +1247,29 @@ void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
 
     // fog
 
-    auto          visualWorld = scene.visualWorld();
+    // auto          visualWorld = scene.visualWorld();
+    // FogGLSLStruct fogStruct {};
+    // fogStruct.startDistance = visualWorld->fogStartDistance();
+    // fogStruct.endDistance = visualWorld->fogEndDistance();
+    // fogStruct.densityExponent = visualWorld->fogDensityExponent();
+    // auto fogColor = visualWorld->fogColor();
+    // if (visualWorld->fogColor()) {
+    //     fogStruct.color = fogColor->rgba();
+    // }
+    // else {
+    //     fogStruct.color = {0.0, 0.0, 0.0, 0.0};
+    // }
+    //
+    // memcpy(&environmentStruct.fog, &fogStruct, sizeof(fogStruct));
+
     FogGLSLStruct fogStruct {};
-    fogStruct.startDistance = visualWorld->fogStartDistance();
-    fogStruct.endDistance = visualWorld->fogEndDistance();
-    fogStruct.densityExponent = visualWorld->fogDensityExponent();
-    auto fogColor = visualWorld->fogColor();
-    if (visualWorld->fogColor()) {
-        fogStruct.color = fogColor->rgba();
-    }
-    else {
-        fogStruct.color = {0.0, 0.0, 0.0, 0.0};
+
+    if (const auto& fog = scene.visualWorld()->fog()) {
+        fogStruct.color = fog->color->rgba();
+        fogStruct.startDistance = fog->startDistance;
+        fogStruct.endDistance = fog->endDistance;
+        fogStruct.transitionExponent = fog->transitionExponent;
+        fogStruct.enabled = 1u;
     }
 
     memcpy(&environmentStruct.fog, &fogStruct, sizeof(fogStruct));

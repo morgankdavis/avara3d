@@ -54,16 +54,15 @@ std::unique_ptr<Scene> App::init() {
         _window->cursorCaptured(CAPTURE_CURSOR);
 
         auto visualWorld = make_unique<VisualWorld>(*_window);
-        visualWorld->fogStartDistance(500.0);
-        visualWorld->fogEndDistance(5000.0);
-        visualWorld->fogDensityExponent(1.0);
-        visualWorld->fogColor(Color::LightGray());
+        visualWorld->fog(Fog {
+            .color = Color::LightGray(),
+            .startDistance = 500.0f,
+            .endDistance = 5000.0f,
+            .transitionExponent = 1.0f,
+        });
         //visualWorld->usesDefaultLighting(true);
         visualWorld->background(make_shared<Texture>(std::move(util::fs::CubeImageNamed("nebula1_blue",
                                                                                         "png"))));
-
-        // visualWorld->background(make_shared<Texture>(std::move(util::fs::CubeImageNamed("nebula_elevated",
-        //                                                                         "png"))));
 
         auto scene = util::fs::SceneNamed("cat_island/cat_island", Scene::ImportOptions::ImportMeshes
                                                                        | Scene::ImportOptions::ImportMaterials
@@ -73,7 +72,7 @@ std::unique_ptr<Scene> App::init() {
         scene->inputContext(std::move(Window::InputContext()));
         scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 
-        auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.1f));
+        auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.15f));
         ambientLight->name("ambient");
         auto ambientLightNode = Node::LightNode(ambientLight);
         scene->rootNode()->addChild(ambientLightNode);
