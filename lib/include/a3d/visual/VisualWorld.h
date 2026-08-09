@@ -16,6 +16,7 @@
 
 #include "a3d/scene/Scene.h"
 #include "a3d/scene/HitTestResult.h"
+#include "a3d/visual/Fog.h"
 #include "a3d/visual/material/Material.h"
 
 namespace a3d {
@@ -78,43 +79,46 @@ namespace a3d {
 
         /// Public Member Functions ///
 
-        const Material::Property&     background();
-        void                          background(const Material::Property& background);
-        math::quat                    backgroundOrientation() const;
-        void                          backgroundOrientation(const math::quat& orientation);
+        const Material::Property&  background();
+        void                       background(const Material::Property& background);
+        math::quat                 backgroundOrientation() const;
+        void                       backgroundOrientation(const math::quat& orientation);
 
-        // TODO: make Fog its own struct
-        float                         fogStartDistance() const;
-        void                          fogStartDistance(float distance);
-        float                         fogEndDistance() const;
-        void                          fogEndDistance(float distance);
-        // 0 = constant, alpha respected
-        // 1 = linear, alpha ignored
-        // >=2 = exponential, alpha ignored
-        float                         fogDensityExponent() const;
-        void                          fogDensityExponent(float exponent);
+        // // TODO: make Fog its own struct
+        // float                         fogStartDistance() const;
+        // void                          fogStartDistance(float distance);
+        // float                         fogEndDistance() const;
+        // void                          fogEndDistance(float distance); // end distance 0 == disabled
+        // // 0 = constant fog -- fogColor alpha controls intensity
+        // // >0 = distance-based fog between start and end distances
+        // // 1 = linear -- values above/below 1 shape the curve
+        // float                         fogDensityExponent() const;
+        // void                          fogDensityExponent(float exponent);
+        //
+        // const std::shared_ptr<Color>& fogColor() const;
+        // void                          fogColor(const std::shared_ptr<Color>& color);
 
-        const std::shared_ptr<Color>& fogColor() const;
-        void                          fogColor(const std::shared_ptr<Color>& color);
+        const std::optional<Fog>&  fog() const;
+        void                       fog(const std::optional<Fog>& fog);
 
-        std::weak_ptr<Node>&          pointOfView();
-        void                          pointOfView(const std::weak_ptr<Node>& cameraNode);
+        std::weak_ptr<Node>&       pointOfView();
+        void                       pointOfView(const std::weak_ptr<Node>& cameraNode);
 
-        math::vec3                    projectPoint(const math::vec3& point) const;
-        math::vec3                    unprojectPoint(const math::vec3& point) const;
+        math::vec3                 projectPoint(const math::vec3& point) const;
+        math::vec3                 unprojectPoint(const math::vec3& point) const;
 
-        std::vector<HitTestResult>    hitTest(const math::vec2& point, const HitTestOptions& options) const;
-        std::vector<HitTestResult>    hitTest(const math::vec2& point) const;
+        std::vector<HitTestResult> hitTest(const math::vec2& point, const HitTestOptions& options) const;
+        std::vector<HitTestResult> hitTest(const math::vec2& point) const;
 
-        bool                          usesDefaultLighting() const;
-        void                          usesDefaultLighting(bool enabled);
+        bool                       usesDefaultLighting() const;
+        void                       usesDefaultLighting(bool enabled);
 
-        bool                          autoEnablesDefaultLighting() const;
-        void                          autoEnablesDefaultLighting(bool enabled);
+        bool                       autoEnablesDefaultLighting() const;
+        void                       autoEnablesDefaultLighting(bool enabled);
 
-        RenderContext*                renderContext() const;
+        RenderContext*             renderContext() const;
 
-        Scene*                        scene() const;
+        Scene*                     scene() const;
 
         /// Internal Types ///
 
@@ -149,10 +153,11 @@ namespace a3d {
         Material::Property        _background;
         std::shared_ptr<Material> _backgroundMaterial;
         math::quat                _backgroundOrientation;
-        float                     _fogStartDistance;
-        float                     _fogEndDistance;
-        float                     _fogDensityExponent;
-        std::shared_ptr<Color>    _fogColor;
+        // float                     _fogStartDistance;
+        // float                     _fogEndDistance;
+        // float                     _fogDensityExponent;
+        // std::shared_ptr<Color>    _fogColor;
+        std::optional<Fog>        _fog;
         bool                      _usesDefaultLighting;
         bool                      _autoEnablesDefaultLighting;
         std::weak_ptr<Node>       _pointOfView;

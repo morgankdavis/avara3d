@@ -86,11 +86,11 @@ struct SpotLight {
 };
 
 struct Fog {
-    vec4 	color;
-    float 	startDistance;
-    float 	endDistance;
-    float 	densityExponent;
-    float	_PAD0_;
+    vec4  color;
+    float startDistance;
+    float endDistance;
+    float transitionExponent;
+    uint  enabled;
 };
 
 in 			vec3 		frag_vertPos_eye;
@@ -496,11 +496,15 @@ float Attenuate(float Kc, float Kl, float Kq, float d) {
 
 vec4 ApplyFog(vec4 fragColor) {
 
-    // endDistance == 0 disables fog
-
-    if (FloatsEqual(Environment.fog.endDistance, 0.0, 0.0001)) {
+    if (Environment.fog.enabled == 0u) {
         return fragColor;
     }
+
+    // endDistance == 0 disables fog
+
+//    if (FloatsEqual(Environment.fog.endDistance, 0.0, 0.0001)) {
+//        return fragColor;
+//    }
 
     // densityExponent == 0:
     // constant fog intensity, using fog color alpha

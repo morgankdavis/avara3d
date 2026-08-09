@@ -156,11 +156,11 @@ struct SpotLightGLSLStruct {
 static_assert(sizeof(SpotLightGLSLStruct) == 80);
 
 struct FogGLSLStruct {
-    vec4 color;
-    f32  startDistance;
-    f32  endDistance;
-    f32  densityExponent;
-    f32  _pad_0_;
+    vec4     color;
+    f32      startDistance;
+    f32      endDistance;
+    f32      transitionExponent;
+    uint32_t enabled;
 };
 
 static_assert(sizeof(FogGLSLStruct) == 32);
@@ -774,10 +774,7 @@ void OGLRenderer::bindMaterial(const Material& material) {
     else if (pipeline.desc.shaderKind == ShaderKind::Skybox) {
         constexpr auto emissionSlot = static_cast<size_t>(Material::PropertyType::Emission);
 
-        program->bindTexture("cubeSampler",
-                             GL_TEXTURE_CUBE_MAP,
-                             GL_TEXTURE0,
-                             glTextureHandles[emissionSlot],
+        program->bindTexture("cubeSampler", GL_TEXTURE_CUBE_MAP, GL_TEXTURE0, glTextureHandles[emissionSlot],
                              0);
     }
 
@@ -1574,20 +1571,19 @@ void DrawStats(FrameStats&              stats,
         return seconds >= 1.0 ? std::format("{:.2f}s", seconds) : std::format("{:.1f}ms", seconds * 1000.0);
     };
     ImguiDrawLabelValue(yPos, layout, "discarded", formatDiscardedTime(stats.totalDiscardedSimulationTime),
-                        bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP,
-                        IM_COL32(255, 255, 255, 255),
+                        bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP, IM_COL32(255, 255, 255, 255),
                         stats.totalDiscardedSimulationTime > 0.0 ? IM_COL32(255, 48, 48, 255)
                                                                  : IM_COL32(255, 255, 255, 255));
 
     static const std::locale numberLocale("en_US.UTF-8");
-    ImguiDrawLabelValue(yPos, layout, "step #", std::format(numberLocale, "{:L}", stats.simulationStepCount), bodyFont,
-                        STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+    ImguiDrawLabelValue(yPos, layout, "step #", std::format(numberLocale, "{:L}", stats.simulationStepCount),
+                        bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
 
     ImguiDrawLabelValue(yPos, layout, "sim time", std::format("{:.2f}s", stats.simulationTime), bodyFont,
                         STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
 
     ImguiDrawLabelValue(yPos, layout, "time step", std::format("{:.0f}Hz", 1.0 / stats.simulationTimeStep),
-                    bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP + PLOT_STR_Y_PAD);
+                        bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP + PLOT_STR_Y_PAD);
 
     ImguiDrawLabelValue(yPos, layout, "engine cpu", std::format("{:.1f}ms", engineCpuMsFAvg), bodyFont,
                         STATS_BODY_FONT_SIZE, PLOT_Y_PAD);

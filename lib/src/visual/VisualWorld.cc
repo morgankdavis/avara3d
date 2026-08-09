@@ -8,6 +8,8 @@
 
 #include "a3d/visual/VisualWorld.h"
 
+#include <cmath>
+#include <stdexcept>
 #include <variant>
 
 #include "a3d/Color.h"
@@ -38,10 +40,11 @@ VisualWorld::VisualWorld(RenderContext& context):
     _background {},
     _backgroundMaterial {},
     _backgroundOrientation {1.0f},
-    _fogStartDistance {0.0f},
-    _fogEndDistance {0.0f},
-    _fogDensityExponent {0.0f},
-    _fogColor {},
+    // _fogStartDistance {0.0f},
+    // _fogEndDistance {0.0f},
+    // _fogDensityExponent {0.0f},
+    // _fogColor {},
+    _fog {},
     _usesDefaultLighting {false},
     _autoEnablesDefaultLighting {true},
     _pointOfView {},
@@ -111,6 +114,15 @@ float VisualWorld::fogStartDistance() const {
 }
 
 void VisualWorld::fogStartDistance(float distance) {
+
+    if (!std::isfinite(distance) || distance < 0.0f) {
+        throw std::invalid_argument("Fog start distance must be finite and non-negative.");
+    }
+
+    if (_fogEndDistance != 0.0f && distance >= _fogEndDistance) {
+        throw std::invalid_argument("Fog start distance must be less than fog end distance.");
+    }
+
     _fogStartDistance = distance;
 }
 
@@ -119,6 +131,15 @@ float VisualWorld::fogEndDistance() const {
 }
 
 void VisualWorld::fogEndDistance(float distance) {
+
+    if (!std::isfinite(distance) || distance < 0.0f) {
+        throw std::invalid_argument("Fog end distance must be finite and non-negative.");
+    }
+
+    if (distance != 0.0f && distance <= _fogStartDistance) {
+        throw std::invalid_argument("Fog end distance must be greater than fog start distance.");
+    }
+
     _fogEndDistance = distance;
 }
 
@@ -127,6 +148,11 @@ float VisualWorld::fogDensityExponent() const {
 }
 
 void VisualWorld::fogDensityExponent(float exponent) {
+
+    if (!std::isfinite(exponent) || exponent < 0.0f) {
+        throw std::invalid_argument("Fog density exponent must be finite and non-negative.");
+    }
+
     _fogDensityExponent = exponent;
 }
 
