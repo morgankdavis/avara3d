@@ -13,13 +13,13 @@
 #include <memory>
 #include <unordered_set>
 #include <variant>
-#include <vector>
+
+#include "a3d/physics/PhysicsBody.h"
 
 namespace a3d {
 
     class Mesh;
     class Node;
-    class PhysicsBody;
     class PhysicsWorld;
     class PhysicsShapeProxy;
     class Scene;
@@ -62,6 +62,8 @@ namespace a3d {
 
         /// Internal Member Functions ///
 
+        virtual bool                            supportsBodyType(PhysicsBody::Type type) const;
+
         void                                    attachedToBody(PhysicsBody& body);
         void                                    detachedFromBody(PhysicsBody& body);
 
@@ -100,6 +102,10 @@ namespace a3d {
         PhysicsShape();
 
         /// Protected Member Functions ///
+
+        virtual void                       validateBody(const PhysicsBody& body) const;
+
+        /// Protected Member Variables ///
 
         Type                               _type;
         std::unique_ptr<PhysicsShapeProxy> _proxy;

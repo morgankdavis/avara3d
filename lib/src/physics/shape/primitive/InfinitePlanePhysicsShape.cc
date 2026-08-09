@@ -10,6 +10,8 @@
 
 #include <stdexcept>
 
+#include "a3d/physics/PhysicsBody.h"
+
 using namespace a3d;
 
 /// Public Lifecycle Functions ///
@@ -24,4 +26,10 @@ PhysicsShape::Type InfinitePlanePhysicsShape::type() const {
 
 void InfinitePlanePhysicsShape::type(PhysicsShape::Type type) {
     throw std::logic_error("Cannot set PhysicsShape::Type for InfinitePlanePhysicsShape.");
+}
+
+/// PhysicsShape Internal Member Functions ///
+
+bool InfinitePlanePhysicsShape::supportsBodyType(PhysicsBody::Type type) const {
+    return type == PhysicsBody::Type::Static;
 }

@@ -24,6 +24,10 @@ namespace a3d {
 
         Type type() const override;
         void type(Type type) override;
+
+        /// PhysicsShape Internal Member Functions ///
+
+        bool supportsBodyType(PhysicsBody::Type type) const override;
     };
 
 }

@@ -101,6 +101,10 @@ void PhysicsBody::shape(const shared_ptr<PhysicsShape>& shape) {
         return;
     }
 
+    if (shape && !shape->supportsBodyType(type())) {
+        throw logic_error("PhysicsShape is incompatible with this PhysicsBody type.");
+    }
+
     if (_world) {
         _world->remove(*this);
     }

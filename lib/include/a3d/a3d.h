@@ -53,6 +53,7 @@
 #include "a3d/physics/shape/primitive/CapsulePhysicsShape.h"
 #include "a3d/physics/shape/primitive/ConePhysicsShape.h"
 #include "a3d/physics/shape/primitive/CylinderPhysicsShape.h"
+#include "a3d/physics/shape/primitive/InfinitePlanePhysicsShape.h"
 #include "a3d/physics/shape/primitive/PlanePhysicsShape.h"
 #include "a3d/physics/shape/primitive/SpherePhysicsShape.h"
 #include "a3d/render/context/RenderContext.h"
