@@ -50,8 +50,7 @@ std::unique_ptr<Scene> App::init() {
 
         auto visualWorld = make_unique<VisualWorld>(*_window);
         //visualWorld->usesDefaultLighting(true);
-        auto backgroundColor = make_shared<Color>(u8vec3 {109, 136, 164});
-        visualWorld->background(backgroundColor);
+        visualWorld->background(Background {make_shared<Color>(u8vec3 {109, 136, 164})});
 
         auto scene = util::fs::SceneNamed("import_test/import_test");
         scene->visualWorld(std::move(visualWorld));

@@ -54,8 +54,8 @@ std::unique_ptr<Scene> App::init() {
         _window->cursorCaptured(CAPTURE_CURSOR);
 
         auto visualWorld = make_unique<VisualWorld>(*_window);
-        auto background = make_shared<Texture>(std::move(util::fs::CubeImageNamed("nebula", "png")));
-        visualWorld->background(background);
+        visualWorld->background(Background {
+            make_shared<Texture>(std::move(util::fs::CubeImageNamed("nebula", "png")))});
 
         auto physicsWorld = make_unique<PhysicsWorld>();
 
@@ -63,27 +63,18 @@ std::unique_ptr<Scene> App::init() {
             make_unique<Scene>(std::move(visualWorld), std::move(physicsWorld), Window::InputContext());
         scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay | Scene::DebugOptions::ShowBoundingBoxes);
 
-
-
         auto groundNode = Node::NamedNode("Ground");
-        groundNode->orientation(
-            math::quaternion({1.0f, 0.0f, 0.0f}, radians(-90.0f)));
+        groundNode->orientation(math::quaternion({1.0f, 0.0f, 0.0f}, radians(-90.0f)));
         auto groundShape = make_shared<InfinitePlanePhysicsShape>();
-        auto groundBody =
-            make_unique<PhysicsBody>(PhysicsBody::Type::Static, groundShape);
+        auto groundBody = make_unique<PhysicsBody>(PhysicsBody::Type::Static, groundShape);
         groundNode->physicsBody(std::move(groundBody));
         scene->rootNode()->addChild(groundNode);
-
-
 
         auto testBoxNode = Node::MeshNode(Box::Mesh(1.0f, 1.0f, 1.0f));
         testBoxNode->name("Ground test box");
         testBoxNode->position({0.0f, 5.0f, 0.0f});
         testBoxNode->physicsBody(PhysicsBody::DynamicBody());
         scene->rootNode()->addChild(testBoxNode);
-
-
-
 
         _bananaNode = Node::MeshNode(util::fs::MeshNamed("banana_lod/banana_lod"));
         auto rot90X = math::quaternion({1.0f, 0.0f, 0.0f}, radians(90.0f));
@@ -141,5 +132,7 @@ void App::frameDidBegin(Runner&, Scene&, VisualWorld& visualWorld, const VisualW
     const float  delta = static_cast<float>(info.updateDeltaTime);
     static float angle = radians(90.0);
     angle += delta * BACKGROUND_ROTATION_SPEED;
-    visualWorld.backgroundOrientation(quaternion(BACKGROUND_ROTATION_AXIS, angle));
+    if (auto& background = visualWorld.background()) {
+        background->orientation(quaternion(BACKGROUND_ROTATION_AXIS, angle));
+    }
 }

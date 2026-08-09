@@ -68,8 +68,7 @@ void MainWindow::initA3D() {
         initLog(APP_LOG_LEVEL);
 
         auto visualWorld = make_unique<VisualWorld>(*_viewport);
-        auto backgroundColor = make_shared<Color>(u8vec3 {109, 136, 164});
-        visualWorld->background(backgroundColor);
+        visualWorld->background(Background {make_shared<Color>(u8vec3 {109, 136, 164})});
 
         _scene = make_unique<Scene>(std::move(visualWorld), nullptr, qt::QtViewport::InputContext());
         _scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);

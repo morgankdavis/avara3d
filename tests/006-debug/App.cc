@@ -49,7 +49,8 @@ std::unique_ptr<Scene> App::init() {
             .endDistance = 5000.0f,
             .transitionExponent = 1.0f,
         });
-        visualWorld->background(make_shared<Texture>(util::fs::CubeImageNamed("sky1", "png")));
+        visualWorld->background(Background {
+            make_shared<Texture>(std::move(util::fs::CubeImageNamed("sky1", "png")))});
 
     //     visualWorld->backgroundOrientation(
     // quaternion(vec3(0.0f, 1.0f, 0.0f), radians(90.0f)));

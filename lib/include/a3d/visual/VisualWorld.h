@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <vector>
 
 #include "a3d/scene/Scene.h"
@@ -80,13 +81,8 @@ namespace a3d {
 
         /// Public Member Functions ///
 
-        // const Material::Property&  background();
-        // void                       background(const Material::Property& background);
-        // math::quat                 backgroundOrientation() const;
-        // void                       backgroundOrientation(const math::quat& orientation);
-
-        const std::optional<Background>& background() const;
-        void background(const std::optional<Background>& background);
+        std::optional<Background>& background();
+        void                       background(const std::optional<Background>& background);
 
         const std::optional<Fog>&  fog() const;
         void                       fog(const std::optional<Fog>& fog);
@@ -141,9 +137,7 @@ namespace a3d {
         /// Private Member Variables ///
 
         std::optional<Background> _background;
-        // Material::Property        _background;
         std::shared_ptr<Material> _backgroundMaterial;
-        // math::quat                _backgroundOrientation;
         std::optional<Fog>        _fog;
         bool                      _usesDefaultLighting;
         bool                      _autoEnablesDefaultLighting;

@@ -61,8 +61,8 @@ std::unique_ptr<Scene> App::init() {
             .transitionExponent = 1.0f,
         });
         //visualWorld->usesDefaultLighting(true);
-        visualWorld->background(make_shared<Texture>(std::move(util::fs::CubeImageNamed("nebula1_blue",
-                                                                                        "png"))));
+        visualWorld->background(Background {
+            make_shared<Texture>(std::move(util::fs::CubeImageNamed("nebula1_blue", "png")))});
 
         auto scene = util::fs::SceneNamed("cat_island/cat_island", Scene::ImportOptions::ImportMeshes
                                                                        | Scene::ImportOptions::ImportMaterials
@@ -334,7 +334,9 @@ void App::frameDidBegin(Runner&, Scene&, VisualWorld& visualWorld, const VisualW
     static float angle = 0;
     angle += delta * BACKGROUND_ROTATION_SPEED;
 
-    visualWorld.backgroundOrientation(quaternion(BACKGROUND_ROTATION_AXIS, angle));
+    if (auto background = visualWorld.background()) {
+        background->orientation(quaternion(BACKGROUND_ROTATION_AXIS, angle));
+    }
 }
 
 /// Private Static Non-Member Functions ///

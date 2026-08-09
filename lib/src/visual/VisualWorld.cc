@@ -61,49 +61,55 @@ VisualWorld::~VisualWorld() {
 
 /// Public Member Functions ///
 
-const Material::Property& VisualWorld::background() {
+optional<Background>& VisualWorld::background() {
     return _background;
 }
 
-void VisualWorld::background(const Material::Property& background) {
+void VisualWorld::background(const optional<Background>& background) {
 
-    // TODO: check equality?
-
-//	_dirtyMask = util::bitmask::add(_dirtyMask, VisualWorldDirtyMask::Background);
-
-    if (auto texture = get_if<shared_ptr<Texture>>(&background)) {
-
-        if (auto cubeImage = get_if<shared_ptr<CubeImage>>(&((*texture)->contents()))) {
-
-            auto sampler = (*texture)->sampler();
-            sampler->wrapS(Sampler::WrapMode::ClampToEdge);
-            sampler->wrapT(Sampler::WrapMode::ClampToEdge);
-            sampler->wrapR(Sampler::WrapMode::ClampToEdge);
-
-            _backgroundMaterial = make_unique<Material>(monostate {}, monostate {}, monostate {}, background);
-        }
-        else if (auto image = get_if<shared_ptr<Image>>(&((*texture)->contents()))) {
-            log::w()("Image background not supported.");
-            _backgroundMaterial = nullptr;
-        }
+    if (!background) {
+        _background = nullopt;
+        _backgroundMaterial = nullptr;
+        return;
     }
-    else if (auto color = get_if<shared_ptr<Color>>(&background)) {
-        _backgroundMaterial = make_unique<Material>(monostate {}, monostate {}, monostate {}, background);
+
+    const auto& contents = background->contents();
+    shared_ptr<Material> backgroundMaterial;
+
+    if (auto texture = get_if<shared_ptr<Texture>>(&contents)) {
+
+        if (!*texture) {
+            throw invalid_argument("Background texture cannot be null.");
+        }
+
+        auto cubeImage = get_if<shared_ptr<CubeImage>>(&((*texture)->contents()));
+
+        if (!cubeImage || !*cubeImage) {
+            throw invalid_argument("Background texture must contain a CubeImage.");
+        }
+
+        auto sampler = (*texture)->sampler();
+        sampler->wrapS(Sampler::WrapMode::ClampToEdge);
+        sampler->wrapT(Sampler::WrapMode::ClampToEdge);
+        sampler->wrapR(Sampler::WrapMode::ClampToEdge);
+
+        backgroundMaterial = Material::EmissionMaterial(contents);
+    }
+    else if (auto color = get_if<shared_ptr<Color>>(&contents)) {
+
+        if (!*color) {
+            throw invalid_argument("Background color cannot be null.");
+        }
+
+        backgroundMaterial = Material::EmissionMaterial(contents);
     }
     else {
-        _backgroundMaterial = nullptr;
+        throw invalid_argument("Background contents must be a Color or cubemap Texture.");
     }
 
     _background = background;
+    _backgroundMaterial = std::move(backgroundMaterial);
 }
-
-// quat VisualWorld::backgroundOrientation() const {
-//     return _backgroundOrientation;
-// }
-//
-// void VisualWorld::backgroundOrientation(const quat& orientation) {
-//     _backgroundOrientation = orientation;
-// }
 
 const optional<Fog>& VisualWorld::fog() const {
     return _fog;
