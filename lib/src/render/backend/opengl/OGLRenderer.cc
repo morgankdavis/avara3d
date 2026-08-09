@@ -394,10 +394,18 @@ bool OGLRenderer::InitGL(GLGetProcAddress getProcAddress) {
 OGLRenderer::OGLRenderer():
     Renderer {},
     _isInitialized {false},
+    _glEnvironmentUBO {0},
+    _skyboxProgram {nullptr},
+    _groundProgram {nullptr},
+    _defaultProgram {nullptr},
+    _wireframeProgram {nullptr},
+    _linesProgram {nullptr},
     _resourceCache {},
+    _state {},
+    _boundElement {},
     _skyboxMesh {},
     _fullscreenTriangleVao {},
-    _glEnvironmentUBO {0},
+    _debugLines {},
     _overlayTitleImFont {nullptr},
     _overlayBodyImFont {nullptr},
     _overlayAltImFont {nullptr},
@@ -954,17 +962,17 @@ void OGLRenderer::resolvePacket(DrawPacket& packet, const FrameParams& frame) {
         return pipelineId;
     };
 
+    // background
+    if (packet.backgroundPass.material) {
+        resolvePipeline(packet.backgroundPass.pipelineId, packet.backgroundPass.desc);
+    }
+
     // ground
     if (packet.groundPass.ground) {
         resolvePipeline(packet.groundPass.pipelineId, packet.groundPass.desc);
     }
     else {
         packet.groundPass.pipelineId = INVALID_PIPELINE_ID;
-    }
-
-    // background
-    if (packet.backgroundPass.material) {
-        resolvePipeline(packet.backgroundPass.pipelineId, packet.backgroundPass.desc);
     }
 
     // main + wireframe items
