@@ -1,4 +1,4 @@
-<#A3D_SHADER_HEADER#>
+#header
 
 // donno if this works
 #define FEQ(a, b, eps) (abs(a-b) <= eps)

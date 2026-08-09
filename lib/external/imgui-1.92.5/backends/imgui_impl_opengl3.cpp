@@ -412,7 +412,7 @@ bool    ImGui_ImplOpenGL3_Init(const char* glsl_version)
         if (extension != nullptr && strcmp(extension, "GL_ARB_clip_control") == 0)
             bd->HasClipOrigin = true;
     }
-#endif
+// #endif
 
     return true;
 }

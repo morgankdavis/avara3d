@@ -1,4 +1,4 @@
-<#A3D_SHADER_HEADER#>
+#header
 
 out vec2 fragNdc;
 
