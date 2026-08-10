@@ -49,11 +49,13 @@ void QtInput::keyReleased(int qtKey, int modifiers) {
 
     const auto a3dKey = A3DKeyFromQtKey(qtKey, static_cast<Qt::KeyboardModifier>(modifiers));
 
-    _keysDown.erase(a3dKey);
-    _keysPressedCleared.erase(a3dKey);
-    _keysReleased.insert(a3dKey);
+    const bool wasDown = _keysDown.erase(a3dKey) != 0;
 
-    // see note at GLFWInputContext::GLFWKeyCallback()
+    _keysPressedCleared.erase(a3dKey);
+
+    if (wasDown) {
+        _keysReleased.insert(a3dKey);
+    }
 }
 
 void QtInput::mouseMoved(float x, float y) {

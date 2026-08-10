@@ -160,27 +160,23 @@ bool App::shouldContinue(const Scene& scene) {
     return _window->isOpen();
 }
 
-void App::inputDidUpdate(Runner&                         runner,
-                         Scene&                          scene,
-                         InputContext&                   inputContext,
-                         const InputContext::UpdateInfo& info) {
+void App::inputDidUpdate(Runner&, Scene&, InputContext& inputContext, const InputContext::UpdateInfo&) {
 
     auto& input = static_cast<DesktopInputContext&>(inputContext);
 
     using Key = DesktopInputContext::Key;
-    using MouseButton = DesktopInputContext::MouseButton;
 
     if (input.keyPressed(Key::Escape)) {
         _window->close();
     }
 
-    // if (input.keyPressed(Key::Slash)) {
-    //     _window->cursorCaptured(!_window->cursorCaptured());
-    // }
-    //
-    // if (auto pov = scene.visualWorld()->pointOfView().lock(); pov && _window->cursorCaptured()) {
-    //     _cameraController.update(*pov, input, info.deltaTime);
-    // }
+    if (!_cameraNode) {
+        return;
+    }
+
+    const auto camera = static_pointer_cast<PerspectiveCamera>(_cameraNode->camera());
+    const auto viewportSize = _window->viewportLogicalSize();
+    _cameraController.updateInput(input, camera->yFov(), static_cast<float>(viewportSize.y));
 }
 
 void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
