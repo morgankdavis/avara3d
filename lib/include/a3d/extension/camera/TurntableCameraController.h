@@ -50,7 +50,7 @@ namespace a3d::ext {
             float maxPitch {math::radians(85.0f)};
 
             float minDistance {0.01f};
-            float maxDistance {std::numeric_limits<float>::max()};
+            float maxDistance {math::F32_MAX};
         };
 
         /// Public Lifecycle Functions ///
