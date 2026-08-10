@@ -79,8 +79,8 @@ void TurntableCameraController::view(const View& view) {
 
     View nextView = view;
 
-    nextView.pitch = std::clamp(nextView.pitch, _config.minPitch, _config.maxPitch);
-    nextView.distance = std::clamp(nextView.distance, _config.minDistance, _config.maxDistance);
+    nextView.pitch = math::clamp(nextView.pitch, _config.minPitch, _config.maxPitch);
+    nextView.distance = math::clamp(nextView.distance, _config.minDistance, _config.maxDistance);
 
     vec3 nextResolvedTarget {0.0f};
 

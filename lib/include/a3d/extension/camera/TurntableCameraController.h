@@ -9,7 +9,6 @@
 #ifndef AVARA3D_EXTENSION_CAMERA_TURNTABLECAMERACONTROLLER_H
 #define AVARA3D_EXTENSION_CAMERA_TURNTABLECAMERACONTROLLER_H
 
-#include <limits>
 #include <memory>
 #include <variant>
 

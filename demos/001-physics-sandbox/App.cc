@@ -121,9 +121,18 @@ std::unique_ptr<Scene> App::init() {
         _bananaNode->orientation(rx * ry);
         scene->rootNode()->addChild(_bananaNode);
 
-        auto cameraConfig = _cameraController.config();
-        cameraConfig.moveSpeed = math::max(scene->extent());
-        _cameraController.config(cameraConfig);
+        auto camera = make_shared<PerspectiveCamera>(0.1f, 1000.0f, radians(45.0f));
+        _cameraNode = Node::CameraNode(camera);
+        _cameraNode->name("Turntable camera");
+        scene->rootNode()->addChild(_cameraNode);
+        scene->visualWorld()->pointOfView(_cameraNode);
+
+        _cameraController.view({
+            .target = vec3 {0.0f, 1.0f, 0.0f},
+            .yaw = radians(35.0f),
+            .pitch = radians(20.0f),
+            .distance = 20.0f,
+        });
 
         _window->center();
         _window->open();
@@ -158,13 +167,13 @@ void App::inputDidUpdate(Runner&                         runner,
         _window->close();
     }
 
-    if (input.keyPressed(Key::Slash)) {
-        _window->cursorCaptured(!_window->cursorCaptured());
-    }
-
-    if (auto pov = scene.visualWorld()->pointOfView().lock(); pov && _window->cursorCaptured()) {
-        _cameraController.update(*pov, input, info.deltaTime);
-    }
+    // if (input.keyPressed(Key::Slash)) {
+    //     _window->cursorCaptured(!_window->cursorCaptured());
+    // }
+    //
+    // if (auto pov = scene.visualWorld()->pointOfView().lock(); pov && _window->cursorCaptured()) {
+    //     _cameraController.update(*pov, input, info.deltaTime);
+    // }
 }
 
 void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
@@ -179,7 +188,11 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
 
 void App::frameDidBegin(Runner&, Scene&, VisualWorld& visualWorld, const VisualWorld::RenderInfo& info) {
 
-    const float delta = static_cast<float>(info.updateDeltaTime);
+    if (_cameraNode) {
+        _cameraController.apply(*_cameraNode);
+    }
+
+    const float  delta = static_cast<float>(info.updateDeltaTime);
     static float angle = radians(120.0);
     angle += delta * BACKGROUND_ROTATION_SPEED;
     if (auto& background = visualWorld.background()) {
