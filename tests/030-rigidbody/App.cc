@@ -35,7 +35,6 @@ const RenderContext::AntialiasingMode AA_MODE {RenderContext::AntialiasingMode::
 const bool                            ENABLE_VSYNC {false};
 const bool                            USE_DEFAULT_LIGHTING {false};
 const bool                            CAPTURE_CURSOR {false};
-const float                           MOUSE_SENSITIVITY {0.5};
 #if defined(A3D_WEB)
 const float TIMESTEP {1.0 / 30.0};
 #else
@@ -65,7 +64,6 @@ void             SpawnChainMail(Scene& scene);
 App::App(int argc, char* argv[]):
     Application(argc, argv, APP_LOG_LEVEL),
     _duckNode {nullptr},
-    _cameraMoveSpeed {0.0f},
     _duckFruitTrigger {DUCK_FRUIT_SPAWN_INTERVAL},
     _slurmTrigger {SLURM_SHOT_INTERVAL} {}
 
@@ -218,8 +216,9 @@ unique_ptr<Scene> App::init() {
         boxesLightNode->orientation({0.0999, 0.1969, -0.0202, 0.9751});
         scene->rootNode()->addChild(boxesLightNode);
 
-        // set the camera move speed now before the scene extent grows from things falling
-        _cameraMoveSpeed = math::max(scene->extent());
+        auto cameraConfig = _cameraController.config();
+        cameraConfig.moveSpeed = math::max(scene->extent());
+        _cameraController.config(cameraConfig);
 
         _window->center();
         _window->open();
@@ -251,7 +250,6 @@ void App::inputDidUpdate(Runner&                         runner,
     using MouseButton = DesktopInputContext::MouseButton;
     using DebugOptions = Scene::DebugOptions;
 
-    const auto mousePositionDelta = input.mousePositionDelta();
     const auto mouseScrollWheelDelta = input.mouseScrollWheelDelta();
 
     if (input.keyPressed(Key::Escape)) {
@@ -383,63 +381,8 @@ void App::inputDidUpdate(Runner&                         runner,
         runner.timeScale(math::clamp(runner.timeScale() + mouseScrollWheelDelta.y * 0.1, 0.1, 1.0));
     }
 
-    // move camera
-
     if (auto pov = scene.visualWorld()->pointOfView().lock(); pov && _window->cursorCaptured()) {
-
-        // look
-
-        const vec3 camForward = pov->worldForward();
-        const vec3 camRight = pov->worldRight();
-        const vec3 camUp = pov->worldUp();
-
-        static const float MOUSE_SPEED_SCALAR = 0.002f;
-        static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
-
-        const float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
-        const float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
-
-        const vec3 angles = pov->eulerAngles();
-
-        pov->eulerAngles({angles.x + deltaRotY, angles.y - deltaRotX, 0.0f});
-
-        const float moveMultiplier = input.keyDown(Key::LeftControl) ? 2.0f : 1.0f;
-
-        // move
-
-        const float moveSpeed = _cameraMoveSpeed * moveMultiplier;
-        const float deltaTime = static_cast<float>(info.deltaTime);
-
-        if (input.keyDown(Key::W) || input.mouseButtonDown(MouseButton::Four)) {
-
-            const vec3 positionDelta = deltaTime * moveSpeed * camForward;
-
-            pov->position(pov->position() + positionDelta);
-        }
-        else if (input.keyDown(Key::S)) {
-            const vec3 positionDelta = deltaTime * moveSpeed * -camForward;
-
-            pov->position(pov->position() + positionDelta);
-        }
-
-        if (input.keyDown(Key::A)) {
-            const vec3 positionDelta = deltaTime * moveSpeed * -camRight;
-
-            pov->position(pov->position() + positionDelta);
-        }
-        else if (input.keyDown(Key::D)) {
-            const vec3 positionDelta = deltaTime * moveSpeed * camRight;
-
-            pov->position(pov->position() + positionDelta);
-        }
-
-        if (input.keyDown(Key::Space)) {
-            const float direction = input.keyDown(Key::LeftShift) ? -1.0f : 1.0f;
-
-            const vec3 positionDelta = deltaTime * moveSpeed * camUp * direction;
-
-            pov->position(pov->position() + positionDelta);
-        }
+        _cameraController.update(*pov, input, info.deltaTime);
     }
 }
 

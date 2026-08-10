@@ -65,10 +65,11 @@ Window::Window(RenderingApi     renderingAPI,
     RenderContext {renderingAPI},
     _glfwWindow {},
     _vSyncEnabled {false},
+    _cursorCaptured {false},
+    _cursorHidden {false},
     _highDPIEnabled {enableHighDPI},
     _open {false},
     _hidden {false},
-    _cursorCaptured {false},
     _inputContext {} {
     log::d();
 
@@ -343,27 +344,51 @@ static GLFWcursor* getInvisibleCursor() {
 
 void Window::cursorCaptured(bool captured) {
 
+    // when input ownership moves away from ImGui, discard any queued events
+    // and release its current input state so keys/buttons cannot remain stuck
+    if (captured && !_cursorCaptured && ImGui::GetCurrentContext()) {
+        auto& io = ImGui::GetIO();
+
+        io.ClearEventsQueue();
+        io.ClearInputKeys();
+        io.ClearInputMouse();
+    }
+
     _cursorCaptured = captured;
 
     auto window = _glfwWindow.get();
 
     if (captured) {
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        // hack.
-        // GLFW_CURSOR_DISABLED is supposed to:
-        // "hide the cursor and lock it to the specified window"
-        // [www.glfw.org/docs/latest/input_guide.html]
-        // but at least on Wayland + Kwin, it doesn't actually hide, it just freezes.
+
+        // GLFW_CURSOR_DISABLED is supposed to hide and lock the cursor,
+        // but on at least Wayland + KWin it can remain visible
         static const int     w = 16, h = 16;
         static unsigned char pixels[w * h * 4] = {};
         static GLFWimage     img {w, h, pixels};
         static auto          invCursor = glfwCreateCursor(&img, 0, 0);
+
         glfwSetCursor(window, invCursor);
     }
     else {
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        glfwSetInputMode(window, GLFW_CURSOR, _cursorHidden ? GLFW_CURSOR_HIDDEN : GLFW_CURSOR_NORMAL);
         glfwSetCursor(window, nullptr);
     }
+}
+
+bool Window::cursorHidden() const {
+    return _cursorHidden;
+}
+
+void Window::cursorHidden(bool hidden) {
+
+    _cursorHidden = hidden;
+
+    if (_cursorCaptured) {
+        return;
+    }
+
+    glfwSetInputMode(_glfwWindow.get(), GLFW_CURSOR, hidden ? GLFW_CURSOR_HIDDEN : GLFW_CURSOR_NORMAL);
 }
 
 bool Window::highDPIEnabled() const {
@@ -399,7 +424,15 @@ void Window::pollEvents() {
 }
 
 void Window::beginFrame(const Scene& scene) {
+
     ImGui_ImplGlfw_NewFrame();
+
+    // imgui's GLFW backend manages the native cursor during NewFrame and may
+    // restore GLFW_CURSOR_NORMAL. reassert application-requested hiding after
+    // imgui has updated its cursor state
+    if (_cursorHidden && !_cursorCaptured) {
+        glfwSetInputMode(_glfwWindow.get(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    }
 }
 
 void Window::endFrame(const Scene& scene) {}
@@ -511,12 +544,34 @@ void Window::GLFWMouseButtonCallback(GLFWwindow* glfwWindow, int button, int act
     auto window = WindowFromGLFWwindow(glfwWindow);
     auto inputContext = static_cast<GLFWInputContext*>(window->_inputContext);
 
-    if (inputContext) {
-        inputContext->glfwMouseButtonEvent(button, action, mods);
-    }
-
     if (!window->cursorCaptured()) {
         ImGui_ImplGlfw_MouseButtonCallback(glfwWindow, button, action, mods);
+    }
+
+    if (!inputContext) {
+        return;
+    }
+
+    if (window->cursorCaptured()) {
+        inputContext->glfwMouseButtonEvent(button, action, mods);
+        return;
+    }
+
+    const auto a3dButton = static_cast<DesktopInputContext::MouseButton>(button);
+
+    if (action == GLFW_PRESS) {
+
+        if (!ImGui::GetIO().WantCaptureMouse) {
+            inputContext->glfwMouseButtonEvent(button, action, mods);
+        }
+    }
+    else if (action == GLFW_RELEASE) {
+
+        // if A3D saw the press, it must also see the release even if
+        // ImGui has captured the mouse in the meantime
+        if (inputContext->mouseButtonDown(a3dButton)) {
+            inputContext->glfwMouseButtonEvent(button, action, mods);
+        }
     }
 }
 
@@ -525,12 +580,16 @@ void Window::GLFWScrollWheelCallback(GLFWwindow* glfwWindow, double xOffset, dou
     auto window = WindowFromGLFWwindow(glfwWindow);
     auto inputContext = static_cast<GLFWInputContext*>(window->_inputContext);
 
-    if (inputContext) {
-        inputContext->glfwScrollEvent(xOffset, yOffset);
-    }
-
     if (!window->cursorCaptured()) {
         ImGui_ImplGlfw_ScrollCallback(glfwWindow, xOffset, yOffset);
+    }
+
+    if (!inputContext) {
+        return;
+    }
+
+    if (window->cursorCaptured() || !ImGui::GetIO().WantCaptureMouse) {
+        inputContext->glfwScrollEvent(xOffset, yOffset);
     }
 }
 
@@ -539,14 +598,34 @@ void Window::GLFWKeyCallback(GLFWwindow* glfwWindow, int key, int scanCode, int 
     auto window = WindowFromGLFWwindow(glfwWindow);
     auto inputContext = static_cast<GLFWInputContext*>(window->_inputContext);
 
-    if (!ImGui::GetIO().WantCaptureKeyboard && inputContext) {
-        inputContext->glfwKeyEvent(key, scanCode, action, mods);
-    }
-    else if (!window->cursorCaptured()) {
+    if (!window->cursorCaptured()) {
         ImGui_ImplGlfw_KeyCallback(glfwWindow, key, scanCode, action, mods);
-//		if (!ImGui::GetIO().WantCaptureKeyboard && inputContext) {
-//			inputContext->glfwKeyEvent(key, scanCode, action, mods);
-//		}
+    }
+
+    if (!inputContext) {
+        return;
+    }
+
+    if (window->cursorCaptured()) {
+        inputContext->glfwKeyEvent(key, scanCode, action, mods);
+        return;
+    }
+
+    const auto a3dKey = static_cast<DesktopInputContext::Key>(key);
+
+    if (action == GLFW_PRESS) {
+
+        if (!ImGui::GetIO().WantCaptureKeyboard) {
+            inputContext->glfwKeyEvent(key, scanCode, action, mods);
+        }
+    }
+    else if (action == GLFW_RELEASE) {
+
+        // if A3D saw the press, it must also see the release even if
+        // ImGui has captured the keyboard in the meantime
+        if (inputContext->keyDown(a3dKey)) {
+            inputContext->glfwKeyEvent(key, scanCode, action, mods);
+        }
     }
 }
 

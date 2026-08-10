@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "a3d/Application.h"
+#include "a3d/extension/camera/FlyCameraController.h"
 #include "a3d/util/PeriodicTrigger.h"
 
 namespace a3d {
@@ -64,10 +65,10 @@ namespace test::rigidbody {
         /// Private Member Variables ///
 
         std::unique_ptr<a3d::Window>             _window;
+        a3d::ext::FlyCameraController            _cameraController;
         a3d::Node*                               _duckNode;
         std::vector<DuckFruitDef>                _duckFruit;
         std::unique_ptr<a3d::ext::WanderRotator> _duckRotator;
-        float                                    _cameraMoveSpeed;
         a3d::util::PeriodicTrigger               _duckFruitTrigger;
         a3d::util::PeriodicTrigger               _slurmTrigger;
     };

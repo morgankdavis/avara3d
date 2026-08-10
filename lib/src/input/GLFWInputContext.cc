@@ -62,10 +62,7 @@ void GLFWInputContext::visualWorldAttachedToScene(Scene& scene) {
 
 void GLFWInputContext::glfwCursorPositionEvent(double xPos, double yPos) {
 
-    const vec2 position {
-        static_cast<float>(xPos),
-        static_cast<float>(yPos)
-    };
+    const vec2 position {static_cast<float>(xPos), static_cast<float>(yPos)};
 
     if (_hasMousePosition) {
         _pendingMousePositionDelta.x += position.x - _mousePosition.x;
@@ -81,9 +78,10 @@ void GLFWInputContext::glfwCursorPositionEvent(double xPos, double yPos) {
 
 void GLFWInputContext::glfwMouseButtonEvent(int button, int action, int mods) {
 
-    auto a3dButton = static_cast<MouseButton>(button);
+    const auto a3dButton = static_cast<MouseButton>(button);
 
     if (action == GLFW_PRESS) {
+
         _mouseButtonsDown.insert(a3dButton);
 
         // if button is in "cleared" it means the client already read it, so don't add it again until
@@ -93,8 +91,14 @@ void GLFWInputContext::glfwMouseButtonEvent(int button, int action, int mods) {
         }
     }
     else if (action == GLFW_RELEASE) {
-        _mouseButtonsDown.erase(a3dButton);
+
+        const bool wasDown = _mouseButtonsDown.erase(a3dButton) != 0;
+
         _mouseButtonsPressedCleared.erase(a3dButton);
+
+        if (wasDown) {
+            _mouseButtonsReleased.insert(a3dButton);
+        }
     }
 }
 
@@ -106,18 +110,27 @@ void GLFWInputContext::glfwScrollEvent(double xOffset, double yOffset) {
 
 void GLFWInputContext::glfwKeyEvent(int key, int scanCode, int action, int mods) {
 
+    const auto a3dKey = static_cast<Key>(key);
+
     if (action == GLFW_PRESS) {
-        _keysDown.insert(static_cast<Key>(key));
+
+        _keysDown.insert(a3dKey);
 
         // if key is in "cleared" it means the client already read it, so don't add it again until
         // we get key up, and then back down again
-        if (_keysPressedCleared.count(static_cast<Key>(key)) == 0) {
-            _keysPressed.insert(static_cast<Key>(key));
+        if (_keysPressedCleared.count(a3dKey) == 0) {
+            _keysPressed.insert(a3dKey);
         }
     }
     else if (action == GLFW_RELEASE) {
-        _keysDown.erase(static_cast<Key>(key));
-        _keysPressedCleared.erase(static_cast<Key>(key));
+
+        const bool wasDown = _keysDown.erase(a3dKey) != 0;
+
+        _keysPressedCleared.erase(a3dKey);
+
+        if (wasDown) {
+            _keysReleased.insert(a3dKey);
+        }
     }
 }
 

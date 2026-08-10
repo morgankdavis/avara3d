@@ -61,7 +61,6 @@ if(EMSCRIPTEN)
 	)
 endif()
 
-
 ### generator ###
 
 add_subdirectory(generator)
@@ -144,7 +143,6 @@ if(EMSCRIPTEN)
 	)
 endif()
 
-
 ### magic_enum ###
 
 add_library(a3d_external_magic_enum INTERFACE)
@@ -152,26 +150,6 @@ add_library(a3d::magic_enum ALIAS a3d_external_magic_enum)
 
 target_include_directories(a3d_external_magic_enum SYSTEM INTERFACE
 		"$<BUILD_INTERFACE:${A3D_EXTERNAL_ROOT}/magic_enum-0.9.3/include>")
-
-### pugixml - TEMPORARY ###
-
-set(PUGIXML_BUILD_SHARED_AND_STATIC_LIBS OFF CACHE BOOL "" FORCE)
-
-add_subdirectory(pugixml-1.15)
-
-a3d_external_virtual_include_dir(
-		pugixml
-		"${A3D_EXTERNAL_ROOT}/pugixml-1.15/src")
-
-add_library(a3d_external_pugixml INTERFACE)
-add_library(a3d::pugixml ALIAS a3d_external_pugixml)
-
-target_link_libraries(a3d_external_pugixml INTERFACE
-		pugixml::static)
-
-target_include_directories(a3d_external_pugixml SYSTEM INTERFACE
-		"$<BUILD_INTERFACE:${A3D_EXTERNAL_VINCLUDE_ROOT}>"
-		"$<BUILD_INTERFACE:${A3D_EXTERNAL_VINCLUDE_ROOT}/pugixml>")
 
 ### stb ###
 

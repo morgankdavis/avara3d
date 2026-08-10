@@ -1662,9 +1662,10 @@ void DrawStats(FrameStats&              stats,
     }
 
     ImguiStatsTextLayout layout {.xLeft = X_POS, .xRight = X_POS + COLUMN_WIDTH, .gap = 12.0f};
+    static const std::locale numberLocale("en_US.UTF-8");
 
     yPos += TOP_PADDING;
-    auto rateValue = std::format("{:.0f}fps", fpsAvg);
+    auto rateValue = std::format(numberLocale, "{:.0Lf}fps", fpsAvg);
     ImguiDrawLabelValue(yPos, layout, "", rateValue, bodyFont, STATS_BODY_FONT_SIZE, 15);
     auto frameValue = std::format("{:.1f}ms", frameMsFAvg);
     ImguiDrawLabelValue(yPos, layout, "frame", frameValue, bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
@@ -1695,7 +1696,6 @@ void DrawStats(FrameStats&              stats,
                         stats.totalDiscardedSimulationTime > 0.0 ? IM_COL32(255, 48, 48, 255)
                                                                  : IM_COL32(255, 255, 255, 255));
 
-    static const std::locale numberLocale("en_US.UTF-8");
     ImguiDrawLabelValue(yPos, layout, "step #", std::format(numberLocale, "{:L}", stats.simulationStepCount),
                         bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
 

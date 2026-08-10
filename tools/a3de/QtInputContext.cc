@@ -34,25 +34,28 @@ QtInput::QtInputContext() {}
 
 void QtInput::keyPressed(int qtKey, int modifiers) {
 
-    auto a3dKey = A3DKeyFromQtKey(qtKey, static_cast<Qt::KeyboardModifier>(modifiers));
+    const auto a3dKey = A3DKeyFromQtKey(qtKey, static_cast<Qt::KeyboardModifier>(modifiers));
 
     // see note at GLFWInputContext::GLFWKeyCallback()
 
-    _keysDown.insert(static_cast<Key>(a3dKey));
+    _keysDown.insert(a3dKey);
 
-    if (_keysPressedCleared.count(static_cast<Key>(a3dKey)) == 0) {
-        _keysPressed.insert(static_cast<Key>(a3dKey));
+    if (_keysPressedCleared.count(a3dKey) == 0) {
+        _keysPressed.insert(a3dKey);
     }
 }
 
 void QtInput::keyReleased(int qtKey, int modifiers) {
 
-    auto a3dKey = A3DKeyFromQtKey(qtKey, static_cast<Qt::KeyboardModifier>(modifiers));
+    const auto a3dKey = A3DKeyFromQtKey(qtKey, static_cast<Qt::KeyboardModifier>(modifiers));
 
-    _keysDown.erase(static_cast<Key>(a3dKey));
-    _keysPressedCleared.erase(static_cast<Key>(a3dKey));
+    const bool wasDown = _keysDown.erase(a3dKey) != 0;
 
-    // see note at GLFWInputContext::GLFWKeyCallback()
+    _keysPressedCleared.erase(a3dKey);
+
+    if (wasDown) {
+        _keysReleased.insert(a3dKey);
+    }
 }
 
 void QtInput::mouseMoved(float x, float y) {
@@ -63,9 +66,7 @@ void QtInput::mouseMoved(float x, float y) {
 
 void QtInput::mouseButtonPressed(int qtButton) {
 
-    auto a3dButton = static_cast<MouseButton>(qtButton);
-
-    // see note at GLFWInputContext::GLFWMouseButtonCallback();
+    const auto a3dButton = static_cast<MouseButton>(qtButton);
 
     _mouseButtonsDown.insert(a3dButton);
 
@@ -76,12 +77,15 @@ void QtInput::mouseButtonPressed(int qtButton) {
 
 void QtInput::mouseButtonReleased(int qtButton) {
 
-    auto a3dButton = static_cast<MouseButton>(qtButton);
+    const auto a3dButton = static_cast<MouseButton>(qtButton);
 
-    // see note at GLFWInputContext::GLFWMouseButtonCallback();
+    const bool wasDown = _mouseButtonsDown.erase(a3dButton) != 0;
 
-    _mouseButtonsDown.erase(a3dButton);
     _mouseButtonsPressedCleared.erase(a3dButton);
+
+    if (wasDown) {
+        _mouseButtonsReleased.insert(a3dButton);
+    }
 }
 
 void QtInput::mouseWheelScrolled(int x, int y) {

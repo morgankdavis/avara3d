@@ -59,7 +59,6 @@ target_link_libraries(avara3d
 		a3d::gif_h
 		a3d::imgui
 		a3d::magic_enum
-		a3d::pugixml
 		a3d::stb
 		a3d::vhacd)
 

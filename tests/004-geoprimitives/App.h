@@ -12,6 +12,7 @@
 #include <memory>
 
 #include "a3d/Application.h"
+#include "a3d/extension/camera/FlyCameraController.h"
 
 namespace a3d {
 
@@ -49,8 +50,9 @@ namespace test::geoprimitives {
     private:
         /// Private Member Variables ///
 
-        std::unique_ptr<a3d::Window> _window;
-        a3d::Node*                   _pointLightPivotNode;
+        std::unique_ptr<a3d::Window>  _window;
+        a3d::ext::FlyCameraController _cameraController;
+        a3d::Node*                    _pointLightPivotNode;
     };
 
 }

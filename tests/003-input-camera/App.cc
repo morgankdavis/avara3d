@@ -30,7 +30,6 @@ const bool                            ENABLE_HIGH_DPI {true};
 const RenderContext::AntialiasingMode ANTIALIAS_MODE {RenderContext::AntialiasingMode::Msaa4X};
 const bool                            ENABLE_VSYNC {false};
 const bool                            CAPTURE_CURSOR {false};
-const float                           MOUSE_SENSITIVITY {0.5};
 
 /// Public Lifecycle Functions ///
 
@@ -57,6 +56,10 @@ std::unique_ptr<Scene> App::init() {
         scene->inputContext(Window::InputContext());
         scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 
+        auto cameraConfig = _cameraController.config();
+        cameraConfig.moveSpeed = math::max(scene->extent());
+        _cameraController.config(cameraConfig);
+
         _window->center();
         _window->open();
 
@@ -79,87 +82,21 @@ void App::inputDidUpdate(Runner&                         runner,
 
     auto window = dynamic_cast<Window*>(scene.visualWorld()->renderContext());
 
-        // get input
+    // get input
 
-    auto im = static_cast<DesktopInputContext*>(&inputContext);
+    auto input = static_cast<DesktopInputContext*>(&inputContext);
 
     using Key = DesktopInputContext::Key;
-    using MouseButton = DesktopInputContext::MouseButton;
 
-    auto keysDown = im->keysDown();
-    auto mouseButtonsDown = im->mouseButtonsDown();
-    auto mouseScrollWheelDelta = im->mouseScrollWheelDelta();
-    auto mousePositionDelta = im->mousePositionDelta();
-
-    // for (auto k : keysDown) {
-    //     cout << "Key: " << static_cast<underlying_type<Key>::type>(k) << endl;
-    // }
-
-    if (im->keyPressed(Key::Slash)) {
+    if (input->keyPressed(Key::Slash)) {
         window->cursorCaptured(!(window->cursorCaptured()));
     }
 
-    if (im->keyPressed(Key::Escape)) {
+    if (input->keyPressed(Key::Escape)) {
         _window->close();
     }
 
-    for (auto mb : mouseButtonsDown) {
-        cout << "Mouse button: " << static_cast<underlying_type<MouseButton>::type>(mb) << endl;
-    }
-
-    if (mouseScrollWheelDelta.x > 0 || mouseScrollWheelDelta.y > 0) {
-        cout << "Mouse scroll wheel delta: (" << mouseScrollWheelDelta.x << ", " << mouseScrollWheelDelta.y
-             << ")" << endl;
-    }
-
-    // move camera
-
     if (auto pov = scene.visualWorld()->pointOfView().lock(); pov && window->cursorCaptured()) {
-
-        vec3 camForward = pov->worldForward();
-        vec3 camRight = pov->worldRight();
-        vec3 camUp = pov->worldUp();
-
-        // look
-
-        // tanA = y/x
-        // tanA = mouseDelta / distance
-        // A = atan(mouseDelta / distance)
-
-        static const float MOUSE_SPEED_SCALAR = .002;
-        static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
-
-        float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
-        float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
-
-        vec3 angles = pov->eulerAngles();
-        pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
-
-            // move
-
-        static float MOVE_SPEED = math::max(scene.rootNode()->extent());
-
-        if (keysDown.count(Key::W)) {
-            vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * camForward;
-            pov->position(pov->position() + positionDelta);
-        }
-        else if (keysDown.count(Key::S)) {
-            vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * -camForward;
-            pov->position(pov->position() + positionDelta);
-        }
-
-        if (keysDown.count(Key::A)) {
-            vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * -camRight;
-            pov->position(pov->position() + positionDelta);
-        }
-        else if (keysDown.count(Key::D)) {
-            vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * camRight;
-            pov->position(pov->position() + positionDelta);
-        }
-
-        if (keysDown.count(Key::Space)) {
-            vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * camUp;
-            pov->position(pov->position() + positionDelta);
-        }
+        _cameraController.update(*pov, *input, info.deltaTime);
     }
 }

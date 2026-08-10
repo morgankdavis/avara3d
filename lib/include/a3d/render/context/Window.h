@@ -74,6 +74,9 @@ namespace a3d {
         bool        cursorCaptured() const;
         void        cursorCaptured(bool captured);
 
+        bool        cursorHidden() const;
+        void        cursorHidden(bool hidden);
+
         bool        highDPIEnabled() const;
 
         /// RenderContext Public Member Functions ///
@@ -132,6 +135,7 @@ namespace a3d {
         std::unique_ptr<GLFWwindow, DestroyGLFWWindow> _glfwWindow;
         bool                                           _vSyncEnabled;
         bool                                           _cursorCaptured;
+        bool                                           _cursorHidden;
         bool                                           _open;
         bool                                           _hidden;
         bool                                           _highDPIEnabled;

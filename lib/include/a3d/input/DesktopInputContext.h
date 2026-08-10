@@ -174,6 +174,9 @@ namespace a3d {
         bool                            keyPressed(Key key);
         bool                            mouseButtonPressed(MouseButton button);
 
+        bool                            keyReleased(Key key);
+        bool                            mouseButtonReleased(MouseButton button);
+
         std::unordered_set<Key>         keysDown(); // keys currently down
         std::unordered_set<MouseButton> mouseButtonsDown(); // mouse buttons currently down
 
@@ -196,7 +199,7 @@ namespace a3d {
 
         /// InputContext Internal Member Functions ///
 
-        void                            update(const InputContext::UpdateInfo& info) override;
+        void                            update(const UpdateInfo& info) override;
 
     protected:
         /// Protected Member Variables ///
@@ -207,6 +210,8 @@ namespace a3d {
         std::unordered_set<Key>         _keysPressedCleared;
         std::unordered_set<MouseButton> _mouseButtonsPressed;
         std::unordered_set<MouseButton> _mouseButtonsPressedCleared;
+        std::unordered_set<Key>         _keysReleased;
+        std::unordered_set<MouseButton> _mouseButtonsReleased;
         math::vec2                      _mousePosition;
         math::vec2                      _mousePositionDelta;
         math::vec2                      _pendingMousePositionDelta;

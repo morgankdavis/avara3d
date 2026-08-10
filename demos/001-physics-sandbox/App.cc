@@ -27,9 +27,8 @@ const bool                            ENABLE_HIGH_DPI {true};
 const RenderContext::AntialiasingMode ANTIALIAS_MODE {RenderContext::AntialiasingMode::Msaa4X};
 const bool                            ENABLE_VSYNC {false};
 const bool                            CAPTURE_CURSOR {false};
-const float                           MOUSE_SENSITIVITY {0.5};
 const float                           TIMESTEP {1.0 / 120.0};
-const float                           BACKGROUND_ROTATION_SPEED {radians(0.5f)};
+const float                           BACKGROUND_ROTATION_SPEED {radians(1.0f)};
 const vec3                            BACKGROUND_ROTATION_AXIS {0.5f, 1.0f, 1.0f};
 
 /// Public Lifecycle Functions ///
@@ -75,10 +74,17 @@ std::unique_ptr<Scene> App::init() {
                     .center = {0.0f, 0.0f},
                     .radius = 5000.0f,
                 },
+            .radialFade =
+                InfiniteGround::RadialFade {
+                    .color = make_shared<Color>(vec4 {0.01f, 0.01f, 0.01f, 1.0f}),
+                    .center = {0.0f, 0.0f},
+                    .startDistance = 10.0f,
+                    .endDistance = 100.0f,
+                },
             .horizonHaze =
                 InfiniteGround::HorizonHaze {
-                    .color = make_shared<Color>(vec4 {0.1f, 0.1f, 0.1f, 0.45f}),
-                    .angularWidthDegrees = 2.5f,
+                    .color = make_shared<Color>(vec4 {0.1f, 0.1f, 0.1f, 0.75f}),
+                    .angularWidthDegrees = 3.0f,
                 },
             .specularIntensity = 0.15f,
             .specularExponent = 32.0f,
@@ -117,10 +123,27 @@ std::unique_ptr<Scene> App::init() {
         scene->rootNode()->addChild(pointLightNode);
 
         _bananaNode = Node::MeshNode(util::fs::MeshNamed("banana_lod/banana_lod"));
-        auto rot90X = math::quaternion({1.0f, 0.0f, 0.0f}, radians(90.0f));
-        auto rot90Y = math::quaternion({0.0f, 1.0f, 0.0f}, radians(90.0f));
-        _bananaNode->orientation(rot90X * rot90Y);
+        auto rx = math::quaternion({1.0f, 0.0f, 0.0f}, radians(90.0f));
+        auto ry = math::quaternion({0.0f, 1.0f, 0.0f}, radians(90.0f));
+        _bananaNode->orientation(rx * ry);
         scene->rootNode()->addChild(_bananaNode);
+
+        auto camera = make_shared<PerspectiveCamera>(0.1f, 1000.0f, radians(45.0f));
+        _cameraNode = Node::CameraNode(camera);
+        _cameraNode->name("Turntable camera");
+        scene->rootNode()->addChild(_cameraNode);
+        scene->visualWorld()->pointOfView(_cameraNode);
+
+        auto cameraConfig = _cameraController.config();
+        cameraConfig.invertPitch = true;
+        _cameraController.config(cameraConfig);
+
+        _cameraController.view({
+            .target = vec3 {0.0f, 1.0f, 0.0f},
+            .yaw = radians(35.0f),
+            .pitch = radians(20.0f),
+            .distance = 20.0f,
+        });
 
         _window->center();
         _window->open();
@@ -141,10 +164,7 @@ bool App::shouldContinue(const Scene& scene) {
     return _window->isOpen();
 }
 
-void App::inputDidUpdate(Runner&                         runner,
-                         Scene&                          scene,
-                         InputContext&                   inputContext,
-                         const InputContext::UpdateInfo& info) {
+void App::inputDidUpdate(Runner&, Scene&, InputContext& inputContext, const InputContext::UpdateInfo&) {
 
     auto& input = static_cast<DesktopInputContext&>(inputContext);
 
@@ -154,93 +174,39 @@ void App::inputDidUpdate(Runner&                         runner,
         _window->close();
     }
 
-    using Key = DesktopInputContext::Key;
-    using MouseButton = DesktopInputContext::MouseButton;
-
-    if (input.keyPressed(Key::Slash)) {
-        _window->cursorCaptured(!_window->cursorCaptured());
+    if (!_cameraNode) {
+        _window->cursorHidden(false);
+        return;
     }
 
-    // move camera
+    const auto camera = static_pointer_cast<PerspectiveCamera>(_cameraNode->camera());
+    const auto viewportSize = _window->viewportLogicalSize();
+    const auto result =
+        _cameraController.updateInput(input, camera->yFov(), static_cast<float>(viewportSize.y));
 
-    if (auto pov = scene.visualWorld()->pointOfView().lock(); pov && _window->cursorCaptured()) {
-
-        // look
-
-        const auto mousePositionDelta = input.mousePositionDelta();
-
-        const vec3 camForward = pov->worldForward();
-        const vec3 camRight = pov->worldRight();
-        const vec3 camUp = pov->worldUp();
-
-        static const float MOUSE_SPEED_SCALAR = 0.002f;
-        static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
-
-        const float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
-        const float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
-
-        const vec3 angles = pov->eulerAngles();
-
-        pov->eulerAngles({angles.x + deltaRotY, angles.y - deltaRotX, 0.0f});
-
-        const float moveMultiplier = input.keyDown(Key::LeftControl) ? 4.0f : 2.0f;
-
-        // move
-
-        static const float moveSpeed = math::max(scene.extent()) * moveMultiplier;
-        const float        deltaTime = static_cast<float>(info.deltaTime);
-
-        if (input.keyDown(Key::W) || input.mouseButtonDown(MouseButton::Four)) {
-
-            const vec3 positionDelta = deltaTime * moveSpeed * camForward;
-
-            pov->position(pov->position() + positionDelta);
-        }
-        else if (input.keyDown(Key::S)) {
-            const vec3 positionDelta = deltaTime * moveSpeed * -camForward;
-
-            pov->position(pov->position() + positionDelta);
-        }
-
-        if (input.keyDown(Key::A)) {
-            const vec3 positionDelta = deltaTime * moveSpeed * -camRight;
-
-            pov->position(pov->position() + positionDelta);
-        }
-        else if (input.keyDown(Key::D)) {
-            const vec3 positionDelta = deltaTime * moveSpeed * camRight;
-
-            pov->position(pov->position() + positionDelta);
-        }
-
-        if (input.keyDown(Key::Space)) {
-            const float direction = input.keyDown(Key::LeftShift) ? -1.0f : 1.0f;
-
-            const vec3 positionDelta = deltaTime * moveSpeed * camUp * direction;
-
-            pov->position(pov->position() + positionDelta);
-        }
-    }
+    _window->cursorHidden(result.pointerDragging);
 }
 
 void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
 
-    if (!_bananaNode) {
-        return;
-    }
-
-    // // rotate the banana at 30 degrees per second
-    // const float rotation = static_cast<float>(info.deltaTime) * radians(-30.0f);
-    // const auto rotationY = math::quaternion({0.0f, 1.0f, 0.0f}, rotation);
-    // _bananaNode->orientation(rotationY * _bananaNode->orientation());
+    // if (_bananaNode) {
+    //     // rotate the banana at 30 degrees per second
+    //     const float rotation = static_cast<float>(info.deltaTime) * radians(-30.0f);
+    //     const auto rotationY = math::quaternion({0.0f, 1.0f, 0.0f}, rotation);
+    //     _bananaNode->orientation(rotationY * _bananaNode->orientation());
+    // }
 }
 
 void App::frameDidBegin(Runner&, Scene&, VisualWorld& visualWorld, const VisualWorld::RenderInfo& info) {
 
     const float  delta = static_cast<float>(info.updateDeltaTime);
-    static float angle = radians(90.0);
+    static float angle = radians(120.0);
     angle += delta * BACKGROUND_ROTATION_SPEED;
     if (auto& background = visualWorld.background()) {
         background->orientation(quaternion(BACKGROUND_ROTATION_AXIS, angle));
+    }
+
+    if (_cameraNode) {
+        _cameraController.apply(*_cameraNode);
     }
 }

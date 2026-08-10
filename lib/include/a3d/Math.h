@@ -10,7 +10,7 @@
 #define AVARA3D_MATH_H
 
 #include <cstdint>
-#include <optional>
+#include <limits>
 #include <random>
 #include <string>
 
@@ -60,7 +60,13 @@ namespace a3d::math {
 
     /// Constants ///
 
-    const f32 F32_COMP_EPS = 1e-6f;
+    inline constexpr f32 F32_COMP_EPS   = 1e-6f;
+    inline constexpr f32 F32_LOWEST     = std::numeric_limits<f32>::lowest();
+    inline constexpr f32 F32_MAX        = std::numeric_limits<f32>::max();
+    inline constexpr f32 F32_MIN_NORMAL = std::numeric_limits<f32>::min();
+    inline constexpr f32 F32_EPSILON    = std::numeric_limits<f32>::epsilon();
+    inline constexpr f32 F32_INFINITY   = std::numeric_limits<f32>::infinity();
+    inline constexpr f32 F32_QUIET_NAN  = std::numeric_limits<f32>::quiet_NaN();
 
     /// 32-bit Float Vector ///
 
