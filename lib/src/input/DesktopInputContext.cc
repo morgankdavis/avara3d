@@ -28,6 +28,10 @@ DesktopInputContext::DesktopInputContext():
     _keysPressedCleared {},
     _mouseButtonsPressed {},
     _mouseButtonsPressedCleared {},
+    _keysReleased {},
+    _keysReleasedCleared {},
+    _mouseButtonsReleased {},
+    _mouseButtonsReleasedCleared {},
     _mousePosition {0.0f, 0.0f},
     _mousePositionDelta {0.0f, 0.0f},
     _pendingMousePositionDelta {0.0f, 0.0f},
@@ -64,6 +68,24 @@ bool DesktopInputContext::mouseButtonPressed(MouseButton button) {
         _mouseButtonsPressedCleared.insert(button);
     }
     return pressed;
+}
+
+bool DesktopInputContext::keyReleased(Key key) {
+    const bool released = _keysReleased.count(key);
+    if (released) {
+        _keysReleased.erase(key);
+        _keysReleasedCleared.insert(key);
+    }
+    return released;
+}
+
+bool DesktopInputContext::mouseButtonReleased(MouseButton button) {
+    bool released = _mouseButtonsReleased.count(button);
+    if (released) {
+        _mouseButtonsReleased.erase(button);
+        _mouseButtonsReleasedCleared.insert(button);
+    }
+    return released;
 }
 
 unordered_set<Key> DesktopInputContext::keysDown() {
@@ -107,9 +129,7 @@ vec2 DesktopInputContext::mouseScrollWheelDelta() const {
 
 void DesktopInputContext::update(const InputContext::UpdateInfo&) {
 
-    _mousePositionDelta =
-        exchange(_pendingMousePositionDelta, vec2 {0.0f, 0.0f});
+    _mousePositionDelta = exchange(_pendingMousePositionDelta, vec2 {0.0f, 0.0f});
 
-    _mouseScrollWheelDelta =
-        exchange(_pendingMouseScrollWheelDelta, vec2 {0.0f, 0.0f});
+    _mouseScrollWheelDelta = exchange(_pendingMouseScrollWheelDelta, vec2 {0.0f, 0.0f});
 }

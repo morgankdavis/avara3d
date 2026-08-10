@@ -60,7 +60,7 @@ namespace a3d::math {
 
     /// Constants ///
 
-    const f32            F32_COMP_EPS   = 1e-6f;
+    inline constexpr f32 F32_COMP_EPS   = 1e-6f;
     inline constexpr f32 F32_LOWEST     = std::numeric_limits<f32>::lowest();
     inline constexpr f32 F32_MAX        = std::numeric_limits<f32>::max();
     inline constexpr f32 F32_MIN_NORMAL = std::numeric_limits<f32>::min();

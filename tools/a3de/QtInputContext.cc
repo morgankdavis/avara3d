@@ -34,25 +34,34 @@ QtInput::QtInputContext() {}
 
 void QtInput::keyPressed(int qtKey, int modifiers) {
 
-    auto a3dKey = A3DKeyFromQtKey(qtKey, static_cast<Qt::KeyboardModifier>(modifiers));
+    const auto a3dKey = A3DKeyFromQtKey(qtKey, static_cast<Qt::KeyboardModifier>(modifiers));
 
-    // see note at GLFWInputContext::GLFWKeyCallback()
+    // a new press starts a new press/release cycle
+    _keysReleasedCleared.erase(a3dKey);
 
-    _keysDown.insert(static_cast<Key>(a3dKey));
+    _keysDown.insert(a3dKey);
 
-    if (_keysPressedCleared.count(static_cast<Key>(a3dKey)) == 0) {
-        _keysPressed.insert(static_cast<Key>(a3dKey));
+    // if the client already consumed this press, don't report it again
+    // until the key has been released and pressed again
+    if (_keysPressedCleared.count(a3dKey) == 0) {
+        _keysPressed.insert(a3dKey);
     }
 }
 
 void QtInput::keyReleased(int qtKey, int modifiers) {
 
-    auto a3dKey = A3DKeyFromQtKey(qtKey, static_cast<Qt::KeyboardModifier>(modifiers));
+    const auto a3dKey = A3DKeyFromQtKey(qtKey, static_cast<Qt::KeyboardModifier>(modifiers));
 
-    _keysDown.erase(static_cast<Key>(a3dKey));
-    _keysPressedCleared.erase(static_cast<Key>(a3dKey));
+    _keysDown.erase(a3dKey);
 
-    // see note at GLFWInputContext::GLFWKeyCallback()
+    // allow the next press to generate a new pressed edge
+    _keysPressedCleared.erase(a3dKey);
+
+    // if the client already consumed this release, don't report it again
+    // until the key has been pressed and released again
+    if (_keysReleasedCleared.count(a3dKey) == 0) {
+        _keysReleased.insert(a3dKey);
+    }
 }
 
 void QtInput::mouseMoved(float x, float y) {
