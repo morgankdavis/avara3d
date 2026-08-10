@@ -226,8 +226,6 @@ void App::inputDidUpdate(Runner&                         runner,
 
     auto input = static_cast<DesktopInputContext*>(&inputContext);
 
-    auto keysDown = input->keysDown();
-
     using Key = DesktopInputContext::Key;
 
     if (input->keyPressed(Key::Slash)) {

@@ -152,13 +152,11 @@ void App::inputDidUpdate(Runner&                         runner,
     auto& input = static_cast<DesktopInputContext&>(inputContext);
 
     using Key = DesktopInputContext::Key;
+    using MouseButton = DesktopInputContext::MouseButton;
 
     if (input.keyPressed(Key::Escape)) {
         _window->close();
     }
-
-    using Key = DesktopInputContext::Key;
-    using MouseButton = DesktopInputContext::MouseButton;
 
     if (input.keyPressed(Key::Slash)) {
         _window->cursorCaptured(!_window->cursorCaptured());
@@ -181,7 +179,7 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
 
 void App::frameDidBegin(Runner&, Scene&, VisualWorld& visualWorld, const VisualWorld::RenderInfo& info) {
 
-    const float  delta = static_cast<float>(info.updateDeltaTime);
+    const float delta = static_cast<float>(info.updateDeltaTime);
     static float angle = radians(120.0);
     angle += delta * BACKGROUND_ROTATION_SPEED;
     if (auto& background = visualWorld.background()) {

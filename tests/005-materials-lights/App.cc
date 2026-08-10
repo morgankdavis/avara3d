@@ -141,7 +141,7 @@ void App::inputDidUpdate(Runner&                         runner,
     // get input
 
     auto input = static_cast<DesktopInputContext*>(&inputContext);
-    auto keysDown = input->keysDown();
+
     auto mouseScrollWheelDelta = input->mouseScrollWheelDelta();
 
     using Key = DesktopInputContext::Key;

@@ -23,8 +23,6 @@ const bool                            FULLSCREEN {false};
 const bool                            ENABLE_HIGH_DPI {true};
 const RenderContext::AntialiasingMode ANTIALIAS_MODE {RenderContext::AntialiasingMode::None};
 const bool                            ENABLE_VSYNC {false};
-const bool                            CAPTURE_CURSOR {false};
-const float                           MOUSE_SENSITIVITY {0.5};
 
 /// Public Lifecycle Functions ///
 
@@ -40,7 +38,7 @@ std::unique_ptr<Scene> App::init() {
         _window = make_unique<Window>(RenderContext::RenderingApi::OpenGL, *util::fs::ExecutableName(),
                                       WINDOW_SIZE, FULLSCREEN, ENABLE_HIGH_DPI, ANTIALIAS_MODE);
         _window->vSyncEnabled(ENABLE_VSYNC);
-        _window->cursorCaptured(CAPTURE_CURSOR);
+        _window->cursorCaptured(false);
 
         auto visualWorld = make_unique<VisualWorld>(*_window);
         visualWorld->fog(Fog {
@@ -127,10 +125,6 @@ void App::inputDidUpdate(Runner&                         runner,
         window->close();
     }
 
-    if (im->keyPressed(Key::Slash)) {
-        window->cursorCaptured(!(window->cursorCaptured()));
-    }
-
     using DebugOptions = Scene::DebugOptions;
 
     if (im->keyPressed(Key::F)) {
@@ -172,53 +166,6 @@ void App::inputDidUpdate(Runner&                         runner,
         }
         else {
             util::snapshot::StopGIFRecording(*window);
-        }
-    }
-
-    // move camera
-
-    if (auto pov = scene.visualWorld()->pointOfView().lock(); pov && window->cursorCaptured()) {
-
-        // look
-
-        vec3 camForward = pov->worldForward();
-        vec3 camRight = pov->worldRight();
-        vec3 camUp = pov->worldUp();
-
-        static const float MOUSE_SPEED_SCALAR = .002;
-        static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
-
-        float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
-        float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
-
-        vec3 angles = pov->eulerAngles();
-        pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
-
-        // move
-
-        static float MOVE_SPEED = math::max(scene.rootNode()->extent());
-
-        if (keysDown.count(Key::W)) {
-            vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * camForward;
-            pov->position(pov->position() + positionDelta);
-        }
-        else if (keysDown.count(Key::S)) {
-            vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * -camForward;
-            pov->position(pov->position() + positionDelta);
-        }
-
-        if (keysDown.count(Key::A)) {
-            vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * -camRight;
-            pov->position(pov->position() + positionDelta);
-        }
-        else if (keysDown.count(Key::D)) {
-            vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * camRight;
-            pov->position(pov->position() + positionDelta);
-        }
-
-        if (keysDown.count(Key::Space)) {
-            vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * camUp;
-            pov->position(pov->position() + positionDelta);
         }
     }
 }

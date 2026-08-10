@@ -25,7 +25,6 @@ const bool                            ENABLE_HIGH_DPI {true};
 const RenderContext::AntialiasingMode ANTIALIAS_MODE {RenderContext::AntialiasingMode::Msaa4X};
 const bool                            ENABLE_VSYNC {false};
 const bool                            CAPTURE_CURSOR {false};
-const float                           MOUSE_SENSITIVITY {0.5};
 const double                          TIMESTEP {1.0 / 120.0};
 const bool                            DARK {false};
 
@@ -150,8 +149,6 @@ void App::inputDidUpdate(Runner&                         runner,
     // get input
 
     auto& input = static_cast<DesktopInputContext&>(inputContext);
-
-    auto mousePositionDelta = input.mousePositionDelta();
 
     using Key = DesktopInputContext::Key;
     using MouseButton = DesktopInputContext::MouseButton;

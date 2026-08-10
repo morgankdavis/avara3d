@@ -24,7 +24,6 @@ const Log::Level                      APP_LOG_LEVEL {Log::Level::Debug};
 const uvec2                           WINDOW_SIZE {1280, 768};
 const RenderContext::AntialiasingMode ANTIALIAS_MODE {RenderContext::AntialiasingMode::Msaa4X};
 const bool                            CAPTURE_CURSOR {false};
-const float                           MOUSE_SENSITIVITY {0.5};
 
 MainWindow::MainWindow(QWidget* parent):
     QMainWindow(parent),
