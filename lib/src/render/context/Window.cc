@@ -65,10 +65,11 @@ Window::Window(RenderingApi     renderingAPI,
     RenderContext {renderingAPI},
     _glfwWindow {},
     _vSyncEnabled {false},
+    _cursorCaptured {false},
+    _cursorHidden {false},
     _highDPIEnabled {enableHighDPI},
     _open {false},
     _hidden {false},
-    _cursorCaptured {false},
     _inputContext {} {
     log::d();
 
@@ -370,9 +371,24 @@ void Window::cursorCaptured(bool captured) {
         glfwSetCursor(window, invCursor);
     }
     else {
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        glfwSetInputMode(window, GLFW_CURSOR, _cursorHidden ? GLFW_CURSOR_HIDDEN : GLFW_CURSOR_NORMAL);
         glfwSetCursor(window, nullptr);
     }
+}
+
+bool Window::cursorHidden() const {
+    return _cursorHidden;
+}
+
+void Window::cursorHidden(bool hidden) {
+
+    _cursorHidden = hidden;
+
+    if (_cursorCaptured) {
+        return;
+    }
+
+    glfwSetInputMode(_glfwWindow.get(), GLFW_CURSOR, hidden ? GLFW_CURSOR_HIDDEN : GLFW_CURSOR_NORMAL);
 }
 
 bool Window::highDPIEnabled() const {
@@ -408,7 +424,15 @@ void Window::pollEvents() {
 }
 
 void Window::beginFrame(const Scene& scene) {
+
     ImGui_ImplGlfw_NewFrame();
+
+    // imgui's GLFW backend manages the native cursor during NewFrame and may
+    // restore GLFW_CURSOR_NORMAL. reassert application-requested hiding after
+    // imgui has updated its cursor state
+    if (_cursorHidden && !_cursorCaptured) {
+        glfwSetInputMode(_glfwWindow.get(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    }
 }
 
 void Window::endFrame(const Scene& scene) {}

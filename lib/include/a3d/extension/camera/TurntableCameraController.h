@@ -70,6 +70,7 @@ namespace a3d::ext {
             float    dollySensitivity {0.01f};
             float    scrollDollySensitivity {0.15f};
             float    dragThreshold {4.0f};
+            bool     invertPitch {false};
 
             Controls controls;
         };
@@ -77,6 +78,7 @@ namespace a3d::ext {
         struct UpdateResult {
 
             bool                        cameraChanged {false};
+            bool                        pointerDragging {false};
             std::optional<PointerClick> primaryClick;
         };
 

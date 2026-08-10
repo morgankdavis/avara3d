@@ -180,8 +180,9 @@ TurntableCameraController::UpdateResult TurntableCameraController::updateInput(D
 
         _view.yaw -= delta.x * _config.orbitSensitivity;
 
-        _view.pitch =
-            math::clamp(_view.pitch - delta.y * _config.orbitSensitivity, _config.minPitch, _config.maxPitch);
+        const float pitchDirection = _config.invertPitch ? 1.0f : -1.0f;
+        _view.pitch = math::clamp(_view.pitch + delta.y * _config.orbitSensitivity * pitchDirection,
+                                  _config.minPitch, _config.maxPitch);
 
         if (_view.yaw != previousYaw || _view.pitch != previousPitch) {
             result.cameraChanged = true;
@@ -205,11 +206,8 @@ TurntableCameraController::UpdateResult TurntableCameraController::updateInput(D
         };
 
         const vec3 forward = -targetToEye;
-
         const vec3 right = math::normalize(math::cross(forward, vec3 {0.0f, 1.0f, 0.0f}));
-
         const vec3 up = math::normalize(math::cross(right, forward));
-
         const vec3 translation = (-right * delta.x + up * delta.y) * worldUnitsPerPixel;
 
         translateTarget(translation);
@@ -225,7 +223,6 @@ TurntableCameraController::UpdateResult TurntableCameraController::updateInput(D
         const float previousDistance = _view.distance;
 
         _view.distance *= math::exp(delta * _config.dollySensitivity);
-
         _view.distance = math::clamp(_view.distance, _config.minDistance, _config.maxDistance);
 
         if (_view.distance != previousDistance) {
@@ -347,6 +344,8 @@ TurntableCameraController::UpdateResult TurntableCameraController::updateInput(D
             result.cameraChanged = true;
         }
     }
+
+    result.pointerDragging = _primaryDragging || _panButtonDragging;
 
     return result;
 }

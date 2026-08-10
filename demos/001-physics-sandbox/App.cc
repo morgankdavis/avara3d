@@ -134,6 +134,10 @@ std::unique_ptr<Scene> App::init() {
         scene->rootNode()->addChild(_cameraNode);
         scene->visualWorld()->pointOfView(_cameraNode);
 
+        auto cameraConfig = _cameraController.config();
+        cameraConfig.invertPitch = true;
+        _cameraController.config(cameraConfig);
+
         _cameraController.view({
             .target = vec3 {0.0f, 1.0f, 0.0f},
             .yaw = radians(35.0f),
@@ -171,12 +175,16 @@ void App::inputDidUpdate(Runner&, Scene&, InputContext& inputContext, const Inpu
     }
 
     if (!_cameraNode) {
+        _window->cursorHidden(false);
         return;
     }
 
     const auto camera = static_pointer_cast<PerspectiveCamera>(_cameraNode->camera());
     const auto viewportSize = _window->viewportLogicalSize();
-    _cameraController.updateInput(input, camera->yFov(), static_cast<float>(viewportSize.y));
+    const auto result =
+        _cameraController.updateInput(input, camera->yFov(), static_cast<float>(viewportSize.y));
+
+    _window->cursorHidden(result.pointerDragging);
 }
 
 void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
@@ -191,14 +199,14 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
 
 void App::frameDidBegin(Runner&, Scene&, VisualWorld& visualWorld, const VisualWorld::RenderInfo& info) {
 
-    if (_cameraNode) {
-        _cameraController.apply(*_cameraNode);
-    }
-
     const float  delta = static_cast<float>(info.updateDeltaTime);
     static float angle = radians(120.0);
     angle += delta * BACKGROUND_ROTATION_SPEED;
     if (auto& background = visualWorld.background()) {
         background->orientation(quaternion(BACKGROUND_ROTATION_AXIS, angle));
+    }
+
+    if (_cameraNode) {
+        _cameraController.apply(*_cameraNode);
     }
 }
