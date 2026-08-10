@@ -511,12 +511,34 @@ void Window::GLFWMouseButtonCallback(GLFWwindow* glfwWindow, int button, int act
     auto window = WindowFromGLFWwindow(glfwWindow);
     auto inputContext = static_cast<GLFWInputContext*>(window->_inputContext);
 
-    if (inputContext) {
-        inputContext->glfwMouseButtonEvent(button, action, mods);
-    }
-
     if (!window->cursorCaptured()) {
         ImGui_ImplGlfw_MouseButtonCallback(glfwWindow, button, action, mods);
+    }
+
+    if (!inputContext) {
+        return;
+    }
+
+    if (window->cursorCaptured()) {
+        inputContext->glfwMouseButtonEvent(button, action, mods);
+        return;
+    }
+
+    const auto a3dButton = static_cast<DesktopInputContext::MouseButton>(button);
+
+    if (action == GLFW_PRESS) {
+
+        if (!ImGui::GetIO().WantCaptureMouse) {
+            inputContext->glfwMouseButtonEvent(button, action, mods);
+        }
+    }
+    else if (action == GLFW_RELEASE) {
+
+        // if A3D saw the press, it must also see the release even if
+        // ImGui has captured the mouse in the meantime
+        if (inputContext->mouseButtonDown(a3dButton)) {
+            inputContext->glfwMouseButtonEvent(button, action, mods);
+        }
     }
 }
 
@@ -525,12 +547,16 @@ void Window::GLFWScrollWheelCallback(GLFWwindow* glfwWindow, double xOffset, dou
     auto window = WindowFromGLFWwindow(glfwWindow);
     auto inputContext = static_cast<GLFWInputContext*>(window->_inputContext);
 
-    if (inputContext) {
-        inputContext->glfwScrollEvent(xOffset, yOffset);
-    }
-
     if (!window->cursorCaptured()) {
         ImGui_ImplGlfw_ScrollCallback(glfwWindow, xOffset, yOffset);
+    }
+
+    if (!inputContext) {
+        return;
+    }
+
+    if (window->cursorCaptured() || !ImGui::GetIO().WantCaptureMouse) {
+        inputContext->glfwScrollEvent(xOffset, yOffset);
     }
 }
 
@@ -539,14 +565,34 @@ void Window::GLFWKeyCallback(GLFWwindow* glfwWindow, int key, int scanCode, int 
     auto window = WindowFromGLFWwindow(glfwWindow);
     auto inputContext = static_cast<GLFWInputContext*>(window->_inputContext);
 
-    if (!ImGui::GetIO().WantCaptureKeyboard && inputContext) {
-        inputContext->glfwKeyEvent(key, scanCode, action, mods);
-    }
-    else if (!window->cursorCaptured()) {
+    if (!window->cursorCaptured()) {
         ImGui_ImplGlfw_KeyCallback(glfwWindow, key, scanCode, action, mods);
-//		if (!ImGui::GetIO().WantCaptureKeyboard && inputContext) {
-//			inputContext->glfwKeyEvent(key, scanCode, action, mods);
-//		}
+    }
+
+    if (!inputContext) {
+        return;
+    }
+
+    if (window->cursorCaptured()) {
+        inputContext->glfwKeyEvent(key, scanCode, action, mods);
+        return;
+    }
+
+    const auto a3dKey = static_cast<DesktopInputContext::Key>(key);
+
+    if (action == GLFW_PRESS) {
+
+        if (!ImGui::GetIO().WantCaptureKeyboard) {
+            inputContext->glfwKeyEvent(key, scanCode, action, mods);
+        }
+    }
+    else if (action == GLFW_RELEASE) {
+
+        // if A3D saw the press, it must also see the release even if
+        // ImGui has captured the keyboard in the meantime
+        if (inputContext->keyDown(a3dKey)) {
+            inputContext->glfwKeyEvent(key, scanCode, action, mods);
+        }
     }
 }
 
