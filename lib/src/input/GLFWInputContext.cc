@@ -92,9 +92,13 @@ void GLFWInputContext::glfwMouseButtonEvent(int button, int action, int mods) {
     }
     else if (action == GLFW_RELEASE) {
 
-        _mouseButtonsDown.erase(a3dButton);
+        const bool wasDown = _mouseButtonsDown.erase(a3dButton) != 0;
+
         _mouseButtonsPressedCleared.erase(a3dButton);
-        _mouseButtonsReleased.insert(a3dButton);
+
+        if (wasDown) {
+            _mouseButtonsReleased.insert(a3dButton);
+        }
     }
 }
 
@@ -103,7 +107,6 @@ void GLFWInputContext::glfwScrollEvent(double xOffset, double yOffset) {
     _pendingMouseScrollWheelDelta.x += static_cast<float>(xOffset);
     _pendingMouseScrollWheelDelta.y += static_cast<float>(yOffset);
 }
-
 
 void GLFWInputContext::glfwKeyEvent(int key, int scanCode, int action, int mods) {
 
@@ -121,9 +124,13 @@ void GLFWInputContext::glfwKeyEvent(int key, int scanCode, int action, int mods)
     }
     else if (action == GLFW_RELEASE) {
 
-        _keysDown.erase(a3dKey);
+        const bool wasDown = _keysDown.erase(a3dKey) != 0;
+
         _keysPressedCleared.erase(a3dKey);
-        _keysReleased.insert(a3dKey);
+
+        if (wasDown) {
+            _keysReleased.insert(a3dKey);
+        }
     }
 }
 

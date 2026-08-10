@@ -66,8 +66,6 @@ void QtInput::mouseButtonPressed(int qtButton) {
 
     const auto a3dButton = static_cast<MouseButton>(qtButton);
 
-    // see note at GLFWInputContext::GLFWMouseButtonCallback();
-
     _mouseButtonsDown.insert(a3dButton);
 
     if (_mouseButtonsPressedCleared.count(a3dButton) == 0) {
@@ -79,11 +77,13 @@ void QtInput::mouseButtonReleased(int qtButton) {
 
     const auto a3dButton = static_cast<MouseButton>(qtButton);
 
-    // see note at GLFWInputContext::GLFWMouseButtonCallback();
+    const bool wasDown = _mouseButtonsDown.erase(a3dButton) != 0;
 
-    _mouseButtonsDown.erase(a3dButton);
     _mouseButtonsPressedCleared.erase(a3dButton);
-    _mouseButtonsReleased.insert(a3dButton);
+
+    if (wasDown) {
+        _mouseButtonsReleased.insert(a3dButton);
+    }
 }
 
 void QtInput::mouseWheelScrolled(int x, int y) {
