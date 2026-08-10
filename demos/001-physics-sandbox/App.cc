@@ -29,7 +29,7 @@ const bool                            ENABLE_VSYNC {false};
 const bool                            CAPTURE_CURSOR {false};
 const float                           MOUSE_SENSITIVITY {0.5};
 const float                           TIMESTEP {1.0 / 120.0};
-const float                           BACKGROUND_ROTATION_SPEED {radians(0.5f)};
+const float                           BACKGROUND_ROTATION_SPEED {radians(1.0f)};
 const vec3                            BACKGROUND_ROTATION_AXIS {0.5f, 1.0f, 1.0f};
 
 /// Public Lifecycle Functions ///
@@ -78,7 +78,7 @@ std::unique_ptr<Scene> App::init() {
             .horizonHaze =
                 InfiniteGround::HorizonHaze {
                     .color = make_shared<Color>(vec4 {0.1f, 0.1f, 0.1f, 0.45f}),
-                    .angularWidthDegrees = 2.5f,
+                    .angularWidthDegrees = 3.5f,
                 },
             .specularIntensity = 0.15f,
             .specularExponent = 32.0f,
@@ -117,9 +117,9 @@ std::unique_ptr<Scene> App::init() {
         scene->rootNode()->addChild(pointLightNode);
 
         _bananaNode = Node::MeshNode(util::fs::MeshNamed("banana_lod/banana_lod"));
-        auto rot90X = math::quaternion({1.0f, 0.0f, 0.0f}, radians(90.0f));
-        auto rot90Y = math::quaternion({0.0f, 1.0f, 0.0f}, radians(90.0f));
-        _bananaNode->orientation(rot90X * rot90Y);
+        auto rx = math::quaternion({1.0f, 0.0f, 0.0f}, radians(90.0f));
+        auto ry = math::quaternion({0.0f, 1.0f, 0.0f}, radians(90.0f));
+        _bananaNode->orientation(rx * ry);
         scene->rootNode()->addChild(_bananaNode);
 
         _window->center();
@@ -238,7 +238,7 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
 void App::frameDidBegin(Runner&, Scene&, VisualWorld& visualWorld, const VisualWorld::RenderInfo& info) {
 
     const float  delta = static_cast<float>(info.updateDeltaTime);
-    static float angle = radians(90.0);
+    static float angle = radians(120.0);
     angle += delta * BACKGROUND_ROTATION_SPEED;
     if (auto& background = visualWorld.background()) {
         background->orientation(quaternion(BACKGROUND_ROTATION_AXIS, angle));
