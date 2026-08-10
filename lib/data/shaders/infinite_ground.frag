@@ -32,7 +32,7 @@ uniform bool radialFadeEnabled;
 uniform vec2 radialFadeCenter;
 uniform float radialFadeStartDistance;
 uniform float radialFadeEndDistance;
-uniform vec3 radialFadeColor;
+uniform vec4 radialFadeColor;
 
 uniform bool horizonHazeEnabled;
 uniform vec4 horizonHazeColor;
@@ -193,11 +193,19 @@ void main() {
     if (radialFadeEnabled) {
 
         float radialDistance = length(worldPosition.xz - radialFadeCenter);
+
         float fade = smoothstep(
                 radialFadeStartDistance,
                 radialFadeEndDistance,
                 radialDistance);
-        color = mix(color, radialFadeColor, fade);
+
+        float blend =
+        fade * clamp(radialFadeColor.a, 0.0, 1.0);
+
+        color = mix(
+                color,
+                radialFadeColor.rgb,
+                blend);
     }
 
     if (horizonHazeEnabled) {

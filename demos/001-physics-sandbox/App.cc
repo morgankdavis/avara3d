@@ -76,15 +76,18 @@ std::unique_ptr<Scene> App::init() {
                 },
             .radialFade =
                 InfiniteGround::RadialFade {
-                    .color = make_shared<Color>(vec4 {0.01f, 0.01f, 0.01f, 1.0f}),
+                    //.color = make_shared<Color>(vec4 {0.015f, 0.015f, 0.015f, 1.0f}),
+                    .color = make_shared<Color>(vec4 {0.02f, 0.02f, 0.02f, 1.0f}),
                     .center = {0.0f, 0.0f},
                     .startDistance = 10.0f,
                     .endDistance = 100.0f,
                 },
             .horizonHaze =
                 InfiniteGround::HorizonHaze {
-                    .color = make_shared<Color>(vec4 {0.1f, 0.1f, 0.1f, 0.75f}),
-                    .angularWidthDegrees = 3.0f,
+                    // .color = make_shared<Color>(vec4 {0.1f, 0.1f, 0.1f, 0.75f}),
+                    // .angularWidthDegrees = 3.0f,
+                    .color = make_shared<Color>(vec4 {0.075f, 0.075f, 0.075f, 0.55f}),
+                    .angularWidthDegrees = 4.0f,
                 },
             .specularIntensity = 0.15f,
             .specularExponent = 32.0f,
