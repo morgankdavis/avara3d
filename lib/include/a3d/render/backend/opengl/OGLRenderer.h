@@ -15,15 +15,13 @@
 #include "a3d/render/backend/opengl/OGLDebugLines.h"
 #include "a3d/render/backend/opengl/OGLDrawTimer.h"
 #include "a3d/render/backend/opengl/OGLResourceCache.h"
-
-class ImFont;
+#include "a3d/render/backend/opengl/StatsOverlay.h"
 
 namespace a3d {
 
     struct LinesPass;
 
     class Color;
-    class Font;
     class GLSLProgram;
     class Mesh;
     class MeshElement;
@@ -144,9 +142,7 @@ namespace a3d {
         gl::uint_t                   _fullscreenTriangleVao;
         OGLDebugLines                _debugLines;
         ImguiContext                 _imguiContext;
-        ImFont*                      _overlayTitleImFont;
-        ImFont*                      _overlayBodyImFont;
-        ImFont*                      _overlayAltImFont;
+        StatsOverlay                 _statsOverlay;
         OGLDrawTimer                 _drawTimer;
     };
 
