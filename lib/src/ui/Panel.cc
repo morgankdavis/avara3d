@@ -73,12 +73,8 @@ Panel::Panel(string_view id, const PanelOptions& options):
 
     ImFont* panelFont = io.FontDefault;
 
-    if (!panelFont && io.Fonts->Fonts.Size > 0) {
-        panelFont = io.Fonts->Fonts[0];
-    }
-
     if (!panelFont) {
-        throw logic_error("Cannot create a Panel without an available UI font.");
+        throw logic_error("Cannot create a Panel without the default A3D UI font.");
     }
 
     ImGui::PushFont(panelFont, PANEL_FONT_SIZE);
@@ -259,32 +255,12 @@ void Panel::row(unsigned itemCount) {
 
 bool Panel::button(string_view label) {
 
-    if (label.empty()) {
-        throw invalid_argument("Panel button label cannot be empty.");
-    }
+    return drawButton(label, false);
+}
 
-    const float width = beginItem();
+bool Panel::option(string_view label, bool selected) {
 
-    if (!_visible) {
-        endItem();
-        return false;
-    }
-
-    const string buttonLabel {label};
-    const ImVec2 position = ImGui::GetCursorScreenPos();
-    const float  height = ImGui::GetFrameHeight();
-    const float  rounding = ImGui::GetStyle().FrameRounding;
-
-    ImDrawList* drawList = ImGui::GetWindowDrawList();
-    drawList->AddRectFilled(ImVec2(position.x + SHADOW_OFFSET, position.y + SHADOW_OFFSET),
-                            ImVec2(position.x + width + SHADOW_OFFSET, position.y + height + SHADOW_OFFSET),
-                            IM_COL32(0, 0, 0, 255), rounding);
-
-    const bool pressed = ImGui::Button(buttonLabel.c_str(), ImVec2(width, height));
-
-    endItem();
-
-    return pressed;
+    return drawButton(label, selected);
 }
 
 bool Panel::toggle(string_view label, bool& value) {
@@ -409,6 +385,47 @@ void Panel::endItem() {
 
     _rowItemWidth = 0.0f;
     _rowSpacing = 0.0f;
+}
+
+bool Panel::drawButton(string_view label, bool selected) {
+
+    if (label.empty()) {
+        throw invalid_argument("Panel button label cannot be empty.");
+    }
+
+    const float width = beginItem();
+
+    if (!_visible) {
+        endItem();
+        return false;
+    }
+
+    const string buttonLabel {label};
+    const ImVec2 position = ImGui::GetCursorScreenPos();
+    const float  height = ImGui::GetFrameHeight();
+    const float  rounding = ImGui::GetStyle().FrameRounding;
+
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+    drawList->AddRectFilled(ImVec2(position.x + SHADOW_OFFSET, position.y + SHADOW_OFFSET),
+                            ImVec2(position.x + width + SHADOW_OFFSET, position.y + height + SHADOW_OFFSET),
+                            IM_COL32(0, 0, 0, 255), rounding);
+
+    if (selected) {
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.24f, 0.24f, 0.24f, 0.94f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.32f, 0.32f, 0.32f, 0.98f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.40f, 0.40f, 0.40f, 1.0f));
+        ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+    }
+
+    const bool pressed = ImGui::Button(buttonLabel.c_str(), ImVec2(width, height));
+
+    if (selected) {
+        ImGui::PopStyleColor(4);
+    }
+
+    endItem();
+
+    return pressed;
 }
 
 /// Private Static Non-Member Functions ///

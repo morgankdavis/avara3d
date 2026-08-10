@@ -65,6 +65,14 @@ namespace a3d::ui {
         /** Draws a button and returns true once when it is activated. */
         bool button(std::string_view label);
 
+        /**
+         * Draws a selectable option button and returns true once when activated.
+         *
+         * selected is supplied by the application each frame and controls only
+         * the persistent selected appearance. It is not retained by Panel.
+         */
+        bool option(std::string_view label, bool selected);
+
         /** Draws a boolean toggle and returns true when value changed. */
         bool toggle(std::string_view label, bool& value);
 
@@ -73,6 +81,7 @@ namespace a3d::ui {
 
         float       beginItem() const;
         void        endItem();
+        bool        drawButton(std::string_view label, bool selected);
 
         /// Private Member Variables ///
 

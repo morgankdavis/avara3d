@@ -293,17 +293,34 @@ void App::frameDidBegin(Runner&                        runner,
 
         panel.value("gravity", std::format("{:.2f}, {:.2f}, {:.2f}", gravity.x, gravity.y, gravity.z));
 
+        // panel.row(3);
+        //
+        // if (panel.button("Earth")) {
+        //     physicsWorld->gravity({0.0f, -9.81f, 0.0f});
+        // }
+        //
+        // if (panel.button("Moon")) {
+        //     physicsWorld->gravity({0.0f, -1.62f, 0.0f});
+        // }
+        //
+        // if (panel.button("Zero")) {
+        //     physicsWorld->gravity({0.0f, 0.0f, 0.0f});
+        // }
+
         panel.row(3);
 
-        if (panel.button("Earth")) {
+        if (panel.option("Earth", gravityPreset == GravityPreset::Earth)) {
+            gravityPreset = GravityPreset::Earth;
             physicsWorld->gravity({0.0f, -9.81f, 0.0f});
         }
 
-        if (panel.button("Moon")) {
+        if (panel.option("Moon", gravityPreset == GravityPreset::Moon)) {
+            gravityPreset = GravityPreset::Moon;
             physicsWorld->gravity({0.0f, -1.62f, 0.0f});
         }
 
-        if (panel.button("Zero")) {
+        if (panel.option("Zero", gravityPreset == GravityPreset::Zero)) {
+            gravityPreset = GravityPreset::Zero;
             physicsWorld->gravity({0.0f, 0.0f, 0.0f});
         }
     }
