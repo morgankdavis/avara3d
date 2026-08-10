@@ -78,7 +78,7 @@ void GLFWInputContext::glfwCursorPositionEvent(double xPos, double yPos) {
 
 void GLFWInputContext::glfwMouseButtonEvent(int button, int action, int mods) {
 
-    auto a3dButton = static_cast<MouseButton>(button);
+    const auto a3dButton = static_cast<MouseButton>(button);
 
     if (action == GLFW_PRESS) {
 
@@ -89,17 +89,12 @@ void GLFWInputContext::glfwMouseButtonEvent(int button, int action, int mods) {
         if (_mouseButtonsPressedCleared.count(a3dButton) == 0) {
             _mouseButtonsPressed.insert(a3dButton);
         }
-
-        _mouseButtonsReleasedCleared.erase(a3dButton);
     }
     else if (action == GLFW_RELEASE) {
 
         _mouseButtonsDown.erase(a3dButton);
         _mouseButtonsPressedCleared.erase(a3dButton);
-
-        if (_mouseButtonsReleasedCleared.count(a3dButton) == 0) {
-            _mouseButtonsReleased.insert(a3dButton);
-        }
+        _mouseButtonsReleased.insert(a3dButton);
     }
 }
 
@@ -109,6 +104,7 @@ void GLFWInputContext::glfwScrollEvent(double xOffset, double yOffset) {
     _pendingMouseScrollWheelDelta.y += static_cast<float>(yOffset);
 }
 
+
 void GLFWInputContext::glfwKeyEvent(int key, int scanCode, int action, int mods) {
 
     const auto a3dKey = static_cast<Key>(key);
@@ -117,11 +113,8 @@ void GLFWInputContext::glfwKeyEvent(int key, int scanCode, int action, int mods)
 
         _keysDown.insert(a3dKey);
 
-        // a new press starts a new press/release cycle
-        _keysReleasedCleared.erase(a3dKey);
-
-        // if the client already consumed this press, don't report it again
-        // until the key has been released and pressed again
+        // if key is in "cleared" it means the client already read it, so don't add it again until
+        // we get key up, and then back down again
         if (_keysPressedCleared.count(a3dKey) == 0) {
             _keysPressed.insert(a3dKey);
         }
@@ -129,15 +122,8 @@ void GLFWInputContext::glfwKeyEvent(int key, int scanCode, int action, int mods)
     else if (action == GLFW_RELEASE) {
 
         _keysDown.erase(a3dKey);
-
-        // allow the next press to generate a new pressed edge
         _keysPressedCleared.erase(a3dKey);
-
-        // if the client already consumed this release, don't report it again
-        // until the key has been pressed and released again
-        if (_keysReleasedCleared.count(a3dKey) == 0) {
-            _keysReleased.insert(a3dKey);
-        }
+        _keysReleased.insert(a3dKey);
     }
 }
 

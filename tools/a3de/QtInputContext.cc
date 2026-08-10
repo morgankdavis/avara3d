@@ -36,13 +36,10 @@ void QtInput::keyPressed(int qtKey, int modifiers) {
 
     const auto a3dKey = A3DKeyFromQtKey(qtKey, static_cast<Qt::KeyboardModifier>(modifiers));
 
-    // a new press starts a new press/release cycle
-    _keysReleasedCleared.erase(a3dKey);
+    // see note at GLFWInputContext::GLFWKeyCallback()
 
     _keysDown.insert(a3dKey);
 
-    // if the client already consumed this press, don't report it again
-    // until the key has been released and pressed again
     if (_keysPressedCleared.count(a3dKey) == 0) {
         _keysPressed.insert(a3dKey);
     }
@@ -53,15 +50,10 @@ void QtInput::keyReleased(int qtKey, int modifiers) {
     const auto a3dKey = A3DKeyFromQtKey(qtKey, static_cast<Qt::KeyboardModifier>(modifiers));
 
     _keysDown.erase(a3dKey);
-
-    // allow the next press to generate a new pressed edge
     _keysPressedCleared.erase(a3dKey);
+    _keysReleased.insert(a3dKey);
 
-    // if the client already consumed this release, don't report it again
-    // until the key has been pressed and released again
-    if (_keysReleasedCleared.count(a3dKey) == 0) {
-        _keysReleased.insert(a3dKey);
-    }
+    // see note at GLFWInputContext::GLFWKeyCallback()
 }
 
 void QtInput::mouseMoved(float x, float y) {
@@ -72,7 +64,7 @@ void QtInput::mouseMoved(float x, float y) {
 
 void QtInput::mouseButtonPressed(int qtButton) {
 
-    auto a3dButton = static_cast<MouseButton>(qtButton);
+    const auto a3dButton = static_cast<MouseButton>(qtButton);
 
     // see note at GLFWInputContext::GLFWMouseButtonCallback();
 
@@ -85,12 +77,13 @@ void QtInput::mouseButtonPressed(int qtButton) {
 
 void QtInput::mouseButtonReleased(int qtButton) {
 
-    auto a3dButton = static_cast<MouseButton>(qtButton);
+    const auto a3dButton = static_cast<MouseButton>(qtButton);
 
     // see note at GLFWInputContext::GLFWMouseButtonCallback();
 
     _mouseButtonsDown.erase(a3dButton);
     _mouseButtonsPressedCleared.erase(a3dButton);
+    _mouseButtonsReleased.insert(a3dButton);
 }
 
 void QtInput::mouseWheelScrolled(int x, int y) {

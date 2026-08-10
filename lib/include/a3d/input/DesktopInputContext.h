@@ -199,7 +199,7 @@ namespace a3d {
 
         /// InputContext Internal Member Functions ///
 
-        void                            update(const InputContext::UpdateInfo& info) override;
+        void                            update(const UpdateInfo& info) override;
 
     protected:
         /// Protected Member Variables ///
@@ -211,9 +211,7 @@ namespace a3d {
         std::unordered_set<MouseButton> _mouseButtonsPressed;
         std::unordered_set<MouseButton> _mouseButtonsPressedCleared;
         std::unordered_set<Key>         _keysReleased;
-        std::unordered_set<Key>         _keysReleasedCleared;
         std::unordered_set<MouseButton> _mouseButtonsReleased;
-        std::unordered_set<MouseButton> _mouseButtonsReleasedCleared;
         math::vec2                      _mousePosition;
         math::vec2                      _mousePositionDelta;
         math::vec2                      _pendingMousePositionDelta;

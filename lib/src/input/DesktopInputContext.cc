@@ -29,9 +29,7 @@ DesktopInputContext::DesktopInputContext():
     _mouseButtonsPressed {},
     _mouseButtonsPressedCleared {},
     _keysReleased {},
-    _keysReleasedCleared {},
     _mouseButtonsReleased {},
-    _mouseButtonsReleasedCleared {},
     _mousePosition {0.0f, 0.0f},
     _mousePositionDelta {0.0f, 0.0f},
     _pendingMousePositionDelta {0.0f, 0.0f},
@@ -74,16 +72,14 @@ bool DesktopInputContext::keyReleased(Key key) {
     const bool released = _keysReleased.count(key);
     if (released) {
         _keysReleased.erase(key);
-        _keysReleasedCleared.insert(key);
     }
     return released;
 }
 
 bool DesktopInputContext::mouseButtonReleased(MouseButton button) {
-    bool released = _mouseButtonsReleased.count(button);
+    const bool released = _mouseButtonsReleased.count(button);
     if (released) {
         _mouseButtonsReleased.erase(button);
-        _mouseButtonsReleasedCleared.insert(button);
     }
     return released;
 }
