@@ -14,10 +14,9 @@
 #include <utility>
 #include <vector>
 
-#include "a3d/render/backend/opengl/gl.h" // needs to be before imgui_impl_opengl3.h ?
+#include "a3d/render/backend/opengl/gl.h"
 
-#include <imgui/imgui.h>
-#include <imgui/backends/imgui_impl_opengl3.h>
+#include <imgui/imgui.h> // ! TEMPORARY !
 
 #include <magic_enum/magic_enum.hpp>
 
@@ -262,12 +261,6 @@ static void DrawStats(FrameStats&              stats,
 
 static void DrawDebugOptions(Scene& scene, ImFont& bodyFont);
 
-static void ImguiInit(const RenderContext& context, ImFont*& titleFont, ImFont*& bodyFont, ImFont*& altFont);
-
-static void ImguiUpdateScale(const RenderContext& context);
-
-static void ImguiAddFont(const RenderContext& context, const Font& font, ImFont*& imFont);
-
 static void ImguiBeginOverlay(int id, bool allowsInput);
 
 static void ImguiEndOverlay();
@@ -406,6 +399,7 @@ OGLRenderer::OGLRenderer():
     _skyboxMesh {},
     _fullscreenTriangleVao {},
     _debugLines {},
+    _imguiContext {},
     _overlayTitleImFont {nullptr},
     _overlayBodyImFont {nullptr},
     _overlayAltImFont {nullptr},
@@ -422,9 +416,7 @@ OGLRenderer::~OGLRenderer() {
 
     _debugLines.destroy();
 
-    ImGui_ImplOpenGL3_Shutdown();
-    //	ImPlot::DestroyContext();
-    ImGui::DestroyContext();
+    _imguiContext.shutdown();
 }
 
 /// Renderer Internal Member Functions ///
@@ -467,7 +459,34 @@ bool OGLRenderer::initialize(const RenderContext& context) {
     _drawTimer.initialize();
 
     // TODO: make failable?
-    ImguiInit(context, _overlayTitleImFont, _overlayBodyImFont, _overlayAltImFont);
+    _imguiContext.startup(context);
+
+    auto overlayTitleFont = util::fs::FontNamed(STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
+
+    if (overlayTitleFont && overlayTitleFont->buffer() && overlayTitleFont->buffer()->size()) {
+        _overlayTitleImFont = _imguiContext.addFont(std::move(overlayTitleFont));
+
+        auto overlayBodyFont = util::fs::FontNamed(STATS_BODY_FONT_NAME, STATS_BODY_FONT_TYPE);
+
+        if (overlayBodyFont && overlayBodyFont->buffer() && overlayBodyFont->buffer()->size()) {
+            _overlayBodyImFont = _imguiContext.addFont(std::move(overlayBodyFont));
+
+            auto overlayAltFont = util::fs::FontNamed(STATS_ALT_FONT_NAME, STATS_ALT_FONT_TYPE);
+
+            if (overlayAltFont && overlayAltFont->buffer() && overlayAltFont->buffer()->size()) {
+                _overlayAltImFont = _imguiContext.addFont(std::move(overlayAltFont));
+            }
+            else {
+                log::e()("Unable to load font: {}.{}", STATS_ALT_FONT_NAME, STATS_ALT_FONT_TYPE);
+            }
+        }
+        else {
+            log::e()("Unable to load font: {}.{}", STATS_BODY_FONT_NAME, STATS_BODY_FONT_TYPE);
+        }
+    }
+    else {
+        log::e()("Unable to load font: {}.{}", STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
+    }
 
     _isInitialized = true;
 
@@ -498,9 +517,13 @@ void OGLRenderer::beginFrame(const Scene&               scene,
 
     _boundElement = {};
 
-    ImguiUpdateScale(context);
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui::NewFrame();
+    const auto viewportSize = context.viewportLogicalSize();
+    const auto viewportScale = context.viewportScale();
+
+    glViewport(0, 0, static_cast<GLsizei>(viewportSize.x * viewportScale.x),
+               static_cast<GLsizei>(viewportSize.y * viewportScale.y));
+
+    _imguiContext.beginFrame(context);
 }
 
 void OGLRenderer::endFrame(const Scene&               scene,
@@ -511,6 +534,8 @@ void OGLRenderer::endFrame(const Scene&               scene,
                            const FrameStatsHistory&   statsHistory) {
     DrawOverlay(context, scene, stats, statsHistory, debugOptions, *_overlayTitleImFont, *_overlayBodyImFont,
                 *_overlayAltImFont);
+
+    _imguiContext.endFrame();
 
     A3D_GL_CHECK();
 
@@ -1512,15 +1537,6 @@ void DrawOverlay(const RenderContext&     context,
     }
 
     ImguiEndOverlay();
-
-    // pass input through Imgui window
-    if (!(ImGui::IsAnyItemHovered() || ImGui::IsAnyItemActive())) {
-        ImGui::GetIO().WantCaptureMouse = false;
-    }
-
-    ImGui::Render();
-
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void DrawHeader(ImFont& titleFont, ImFont& bodyFont, bool active, float& yPos_out, int& id_out) {
@@ -1661,7 +1677,7 @@ void DrawStats(FrameStats&              stats,
         }
     }
 
-    ImguiStatsTextLayout layout {.xLeft = X_POS, .xRight = X_POS + COLUMN_WIDTH, .gap = 12.0f};
+    ImguiStatsTextLayout     layout {.xLeft = X_POS, .xRight = X_POS + COLUMN_WIDTH, .gap = 12.0f};
     static const std::locale numberLocale("en_US.UTF-8");
 
     yPos += TOP_PADDING;
@@ -1918,80 +1934,6 @@ void DrawDebugOptions(Scene& scene, ImFont& bodyFont) {
             scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsNormals));
         }
     }
-}
-
-void ImguiInit(const RenderContext& context, ImFont*& titleFont, ImFont*& bodyFont, ImFont*& altFont) {
-    using namespace ImGui;
-
-    IMGUI_CHECKVERSION();
-    CreateContext();
-    ImGuiIO& io = GetIO();
-    io.IniFilename = nullptr;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    ImGui_ImplOpenGL3_Init();
-
-    auto overlayTitleFont = util::fs::FontNamed(STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
-    if (overlayTitleFont->buffer()->size()) {
-        auto overlayBodyFont = util::fs::FontNamed(STATS_BODY_FONT_NAME, STATS_BODY_FONT_TYPE);
-        if (overlayBodyFont->buffer()->size()) {
-            auto overlayAltFont = util::fs::FontNamed(STATS_ALT_FONT_NAME, STATS_ALT_FONT_TYPE);
-            if (overlayAltFont->buffer()->size()) {
-                ImGui_ImplOpenGL3_DestroyDeviceObjects(); // was DestroyFontsTexture()
-
-                auto     fbSize = context.framebufferSize();
-                auto     fbScale = context.viewportScale();
-                ImGuiIO& io = GetIO();
-                io.DisplaySize = ImVec2(float(fbSize.x), float(fbSize.y));
-                io.DisplayFramebufferScale = ImVec2(fbScale.x, fbScale.y);
-
-                GetIO().Fonts->Clear();
-
-                ImguiAddFont(context, *overlayTitleFont, titleFont);
-                ImguiAddFont(context, *overlayBodyFont, bodyFont);
-                ImguiAddFont(context, *overlayAltFont, altFont);
-
-                ImGui_ImplOpenGL3_CreateDeviceObjects(); // was CreateFontsTexture()
-            }
-            else {
-                log::e()("Unable to load font: {}.{}", STATS_ALT_FONT_NAME, STATS_ALT_FONT_TYPE);
-            }
-        }
-        else {
-            log::e()("Unable to load font: {}.{}", STATS_BODY_FONT_NAME, STATS_BODY_FONT_TYPE);
-        }
-    }
-    else {
-        log::e()("Unable to load font: {}.{}", STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
-    }
-
-    ImguiUpdateScale(context);
-}
-
-void ImguiUpdateScale(const RenderContext& context) {
-    using namespace ImGui;
-
-    auto     vpSize = context.viewportLogicalSize();
-    auto     vpScale = context.viewportScale();
-    ImGuiIO& io = ImGui::GetIO();
-    io.DisplaySize = ImVec2(float(vpSize.x), float(vpSize.y));
-    io.DisplayFramebufferScale = ImVec2(vpScale.x, vpScale.y);
-
-    glViewport(0, 0, vpSize.x * vpScale.x, vpSize.y * vpScale.y);
-}
-
-void ImguiAddFont(const RenderContext& context, const Font& font, ImFont*& imFont) {
-    using namespace ImGui;
-
-    ImFontConfig fontConfig {};
-    fontConfig.FontDataOwnedByAtlas = false;
-
-    // ! leave oversampling automatic (0) in modern ImGui
-    fontConfig.OversampleH = 0;
-    fontConfig.OversampleV = 0;
-
-    // size_pixels = 0.0f => treat as a font source; size picked via PushFont(font, size_px)
-    imFont = GetIO().Fonts->AddFontFromMemoryTTF(font.buffer()->data(), (int) font.buffer()->size(), 0.0f,
-                                                 &fontConfig);
 }
 
 void ImguiBeginOverlay(int id, bool allowsInput) {

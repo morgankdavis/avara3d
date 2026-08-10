@@ -11,6 +11,7 @@
 
 #include "a3d/render/Renderer.h"
 #include "a3d/render/backend/opengl/GLTypes.h"
+#include "a3d/render/backend/opengl/ImguiContext.h"
 #include "a3d/render/backend/opengl/OGLDebugLines.h"
 #include "a3d/render/backend/opengl/OGLDrawTimer.h"
 #include "a3d/render/backend/opengl/OGLResourceCache.h"
@@ -142,6 +143,7 @@ namespace a3d {
         std::unique_ptr<Mesh>        _skyboxMesh; // should be value?
         gl::uint_t                   _fullscreenTriangleVao;
         OGLDebugLines                _debugLines;
+        ImguiContext                 _imguiContext;
         ImFont*                      _overlayTitleImFont;
         ImFont*                      _overlayBodyImFont;
         ImFont*                      _overlayAltImFont;
