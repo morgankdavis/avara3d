@@ -24,7 +24,6 @@
 #include "a3d/log/sink/StdOutLogSink.h"
 #include "a3d/input/InputContext.h"
 #include "a3d/input/DesktopInputContext.h"
-#include "a3d/extension/ALFImporter.h" // temporary
 #include "a3d/extension/WanderRotator.h"
 #include "a3d/extension/camera/FlyCameraController.h"
 #include "a3d/mesh/Mesh.h"

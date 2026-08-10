@@ -171,14 +171,12 @@ void App::inputDidUpdate(Runner&                         runner,
 
 void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
 
-    if (!_bananaNode) {
-        return;
-    }
-
-    // // rotate the banana at 30 degrees per second
-    // const float rotation = static_cast<float>(info.deltaTime) * radians(-30.0f);
-    // const auto rotationY = math::quaternion({0.0f, 1.0f, 0.0f}, rotation);
-    // _bananaNode->orientation(rotationY * _bananaNode->orientation());
+    // if (_bananaNode) {
+    //     // rotate the banana at 30 degrees per second
+    //     const float rotation = static_cast<float>(info.deltaTime) * radians(-30.0f);
+    //     const auto rotationY = math::quaternion({0.0f, 1.0f, 0.0f}, rotation);
+    //     _bananaNode->orientation(rotationY * _bananaNode->orientation());
+    // }
 }
 
 void App::frameDidBegin(Runner&, Scene&, VisualWorld& visualWorld, const VisualWorld::RenderInfo& info) {

@@ -9,7 +9,7 @@
 #include "App.h"
 
 #include "a3d/a3d.h"
-#include "a3d/extension/ALFImporter.h" // temporary
+#include "../../extras/rug/alf/ALFImporter.h"
 
 using namespace a3d;
 using namespace a3d::math;
@@ -47,20 +47,72 @@ std::unique_ptr<Scene> App::init() {
 
         auto visualWorld = make_unique<VisualWorld>(*_window);
 
+        visualWorld->background(Background {make_shared<Color>(u8vec3 {109, 136, 164})});
+
+        visualWorld->infiniteGround(InfiniteGround {
+            .color = Color::DarkGray(),
+            .height = 0.0f,
+            .minorGrid =
+                InfiniteGround::Grid {
+                    .color = make_shared<Color>(vec4 {0.5f, 0.5f, 0.5f, 0.25f}),
+                    .spacing = 1.0f,
+                    .lineWidthPixels = 1.0f,
+                    .reliefStrength = -0.15f,
+                },
+            .majorGrid =
+                InfiniteGround::Grid {
+                    .color = make_shared<Color>(vec4 {0.75f, 0.75f, 0.75f, 0.25f}),
+                    .spacing = 10.0f,
+                    .lineWidthPixels = 1.0f,
+                    .reliefStrength = -0.15f,
+                },
+            .curvature =
+                InfiniteGround::Curvature {
+                    .center = {0.0f, 0.0f},
+                    .radius = 5000.0f,
+                },
+            .horizonHaze =
+                InfiniteGround::HorizonHaze {
+                    .color = make_shared<Color>(vec4 {0.1f, 0.1f, 0.1f, 0.5f}),
+                    .angularWidthDegrees = 2.5f,
+                },
+            .specularIntensity = 0.15f,
+            .specularExponent = 32.0f,
+        });
+
         auto physicsWorld = make_unique<PhysicsWorld>();
 
-        auto mapPath = util::fs::AuxiliaryFilePath("Icebox", "alf");
-        auto alfImporter = ext::ALFImporter(*mapPath);
-        auto scene = alfImporter.scene(*visualWorld);
+        auto scene =
+            make_unique<Scene>(std::move(visualWorld), std::move(physicsWorld), Window::InputContext());
+        scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay | Scene::DebugOptions::ShowBoundingBoxes);
 
-//		else background = make_shared<Texture>(util::filesystem::CubeImageNamed("kloppenheim", "png"));
-//		visualWorld->background(background);
+        auto groundNode = Node::NamedNode("Ground");
+        groundNode->orientation(math::quaternion({1.0f, 0.0f, 0.0f}, radians(-90.0f)));
+        auto groundShape = make_shared<InfinitePlanePhysicsShape>();
+        auto groundBody = make_unique<PhysicsBody>(PhysicsBody::Type::Static, groundShape);
+        groundNode->physicsBody(std::move(groundBody));
+        scene->rootNode()->addChild(groundNode);
 
-        scene->visualWorld(std::move(visualWorld));
-        scene->physicsWorld(std::move(physicsWorld));
-        scene->inputContext(Window::InputContext());
+        _teapotNode = Node::MeshNode(util::fs::MeshNamed("teapot/teapot"));
+        _teapotNode->scale(_teapotNode->scale() * 10.0f);
+        scene->rootNode()->addChild(_teapotNode);
 
-        scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
+        auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.15f));
+        auto ambientLightNode = Node::LightNode(ambientLight);
+        scene->rootNode()->addChild(ambientLightNode);
+
+        auto pointLight = make_shared<PointLight>(Color::White());
+        pointLight->attenuation(Attenuation {
+            .quadratic = 0.05f,
+        });
+
+        auto pointLightNode = Node::LightNode(pointLight);
+        pointLightNode->position({5.0f, 5.0f, 5.0f});
+        scene->rootNode()->addChild(pointLightNode);
+        // auto pointLightMaterial = make_shared<Material>();
+        // pointLightMaterial->emission(Color::White());
+        // auto geometry = Sphere::Mesh(0.1, 4, pointLightMaterial);
+        // pointLightNode->mesh(geometry);
 
         auto cameraConfig = _cameraController.config();
         cameraConfig.moveSpeed = math::max(scene->extent());
@@ -154,6 +206,7 @@ void App::inputDidUpdate(Runner&                         runner,
 
         scene.visualWorld()->pointOfView(cameraNodes[0]);
     }
+
     if (input.keyPressed(Key::Two)) {
 
         auto cameraNodes = vector<std::shared_ptr<Node>>();
@@ -267,5 +320,15 @@ void App::inputDidUpdate(Runner&                         runner,
 
     if (auto pov = scene.visualWorld()->pointOfView().lock(); pov && _window->cursorCaptured()) {
         _cameraController.update(*pov, input, info.deltaTime);
+    }
+}
+
+void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
+
+    if (_teapotNode) {
+        // rotate the teapot at 30 degrees per second
+        const float rotation = static_cast<float>(info.deltaTime) * radians(-30.0f);
+        const auto  rotationY = math::quaternion({0.0f, 1.0f, 0.0f}, rotation);
+        _teapotNode->orientation(rotationY * _teapotNode->orientation());
     }
 }

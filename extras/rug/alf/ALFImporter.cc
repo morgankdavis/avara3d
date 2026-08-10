@@ -6,7 +6,7 @@
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#include "a3d/extension/ALFImporter.h"
+#include "ALFImporter.h"
 
 #include <iostream>
 #include <string>

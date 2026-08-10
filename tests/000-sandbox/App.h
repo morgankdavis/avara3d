@@ -16,6 +16,7 @@
 
 namespace a3d {
 
+    class Node;
     class Scene;
     class Window;
 
@@ -43,11 +44,14 @@ namespace test::sandbox {
                             a3d::InputContext&                   inputContext,
                             const a3d::InputContext::UpdateInfo& info) override;
 
+        void sceneWillStep(a3d::Runner& runner, a3d::Scene& scene, const a3d::Scene::StepInfo& info) override;
+
     private:
         /// Private Member Variables ///
 
         std::unique_ptr<a3d::Window>  _window;
         a3d::ext::FlyCameraController _cameraController;
+        std::shared_ptr<a3d::Node>    _teapotNode;
     };
 
 }
