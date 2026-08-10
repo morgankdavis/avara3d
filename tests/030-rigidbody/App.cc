@@ -81,13 +81,15 @@ unique_ptr<Scene> App::init() {
         _window->cursorCaptured(CAPTURE_CURSOR);
 
         auto visualWorld = make_unique<VisualWorld>(*_window);
-        visualWorld->fogStartDistance(50.0);
-        visualWorld->fogEndDistance(400.0);
-        visualWorld->fogDensityExponent(1.0);
-        visualWorld->fogColor(Color::DarkGray());
+        visualWorld->fog(Fog {
+            .color = Color::DarkGray(),
+            .startDistance = 50.0f,
+            .endDistance = 400.0f,
+            .transitionExponent = 1.0f,
+        });
         Material::Property background = Color::Black();
         // auto background = make_shared<Texture>(util::filesystem::CubeImageNamed("stormy", "png"));
-        visualWorld->background(background);
+        visualWorld->background(Background {Color::Black()});
 
         auto physicsWorld = make_unique<PhysicsWorld>();
 
@@ -98,14 +100,14 @@ unique_ptr<Scene> App::init() {
 
         // ambient light
 
-        auto ambientColor = make_shared<Color>(.1f);
+        auto ambientColor = make_shared<Color>(.25f);
         auto ambientLight = make_shared<AmbientLight>(ambientColor);
         auto ambientLightNode = Node::LightNode(ambientLight);
         scene->rootNode()->addChild(ambientLightNode);
 
         // directional light
 
-        auto sunColor = Color::Gray();
+        auto sunColor = Color::LightGray();
         auto sunLight = make_shared<DirectionalLight>(sunColor);
         auto sunNode = Node::LightNode(sunLight);
         sunNode->eulerAngles({radians(0.0f), radians(45.0), radians(0.0)});
@@ -465,7 +467,7 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
             if (auto node = hit.node()) {
                 if (auto body = node->physicsBody(); body && body->type() == PhysicsBody::Type::Dynamic) {
 
-                    const vec3 direction = normalize(to - from);
+                    const vec3  direction = normalize(to - from);
                     const float impulse = 5.0f;
 
                     body->applyForce(direction * impulse, hit.worldCoordinates(), true);

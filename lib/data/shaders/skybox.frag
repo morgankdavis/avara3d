@@ -1,4 +1,4 @@
-<#A3D_SHADER_HEADER#>
+#header
 
 #define GAMMA		2.2
 

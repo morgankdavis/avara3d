@@ -36,6 +36,7 @@
 #include "a3d/physics/shape/primitive/CapsulePhysicsShape.h"
 #include "a3d/physics/shape/primitive/ConePhysicsShape.h"
 #include "a3d/physics/shape/primitive/CylinderPhysicsShape.h"
+#include "a3d/physics/shape/primitive/InfinitePlanePhysicsShape.h"
 #include "a3d/physics/shape/primitive/PlanePhysicsShape.h"
 #include "a3d/physics/shape/primitive/SpherePhysicsShape.h"
 #include "a3d/scene/Node.h"
@@ -252,6 +253,9 @@ static unique_ptr<btCollisionShape> BTShapeFromPrimitiveShape(PhysicsShape& shap
         return make_unique<btCylinderShape>(btVector3((btScalar) cylinderShape->radius(),
                                                       (btScalar) cylinderShape->height() / 2.0f,
                                                       (btScalar) cylinderShape->radius()));
+    }
+    else if (dynamic_cast<InfinitePlanePhysicsShape*>(&shape)) {
+        return make_unique<btStaticPlaneShape>(btVector3(0.0f, 0.0f, 1.0f), (btScalar) 0);
     }
     else if (auto planeShape = dynamic_cast<PlanePhysicsShape*>(&shape)) {
         return make_unique<btBoxShape>(btVector3((btScalar) planeShape->width() / 2.0f,

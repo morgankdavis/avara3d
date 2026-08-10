@@ -45,8 +45,7 @@ std::unique_ptr<Scene> App::init() {
         _window->cursorCaptured(CAPTURE_CURSOR);
 
         auto visualWorld = make_unique<VisualWorld>(*_window);
-        //auto backgroundColor = make_shared<Color>(109.0f/255.0f, 136.0f/255.0f, 164.0f/255.0f, 1.0f);
-        visualWorld->background(Color::Black());
+        visualWorld->background(Background {Color::Black()});
 
         auto scene = make_unique<Scene>(std::move(visualWorld), nullptr, Window::InputContext());
         scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);

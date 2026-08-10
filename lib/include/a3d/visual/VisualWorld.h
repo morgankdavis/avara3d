@@ -12,10 +12,14 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <vector>
 
 #include "a3d/scene/Scene.h"
 #include "a3d/scene/HitTestResult.h"
+#include "a3d/visual/Background.h"
+#include "a3d/visual/Fog.h"
+#include "a3d/visual/InfiniteGround.h"
 #include "a3d/visual/material/Material.h"
 
 namespace a3d {
@@ -78,43 +82,33 @@ namespace a3d {
 
         /// Public Member Functions ///
 
-        const Material::Property&     background();
-        void                          background(const Material::Property& background);
-        math::quat                    backgroundOrientation() const;
-        void                          backgroundOrientation(const math::quat& orientation);
+        std::optional<Background>&     background();
+        void                           background(const std::optional<Background>& background);
 
-        // TODO: make Fog its own struct
-        float                         fogStartDistance() const;
-        void                          fogStartDistance(float distance);
-        float                         fogEndDistance() const;
-        void                          fogEndDistance(float distance);
-        // 0 = constant, alpha respected
-        // 1 = linear, alpha ignored
-        // >=2 = exponential, alpha ignored
-        float                         fogDensityExponent() const;
-        void                          fogDensityExponent(float exponent);
+        const std::optional<Fog>&      fog() const;
+        void                           fog(const std::optional<Fog>& fog);
 
-        const std::shared_ptr<Color>& fogColor() const;
-        void                          fogColor(const std::shared_ptr<Color>& color);
+        std::optional<InfiniteGround>& infiniteGround();
+        void                           infiniteGround(const std::optional<InfiniteGround>& ground);
 
-        std::weak_ptr<Node>&          pointOfView();
-        void                          pointOfView(const std::weak_ptr<Node>& cameraNode);
+        std::weak_ptr<Node>&           pointOfView();
+        void                           pointOfView(const std::weak_ptr<Node>& cameraNode);
 
-        math::vec3                    projectPoint(const math::vec3& point) const;
-        math::vec3                    unprojectPoint(const math::vec3& point) const;
+        math::vec3                     projectPoint(const math::vec3& point) const;
+        math::vec3                     unprojectPoint(const math::vec3& point) const;
 
-        std::vector<HitTestResult>    hitTest(const math::vec2& point, const HitTestOptions& options) const;
-        std::vector<HitTestResult>    hitTest(const math::vec2& point) const;
+        std::vector<HitTestResult>     hitTest(const math::vec2& point, const HitTestOptions& options) const;
+        std::vector<HitTestResult>     hitTest(const math::vec2& point) const;
 
-        bool                          usesDefaultLighting() const;
-        void                          usesDefaultLighting(bool enabled);
+        bool                           usesDefaultLighting() const;
+        void                           usesDefaultLighting(bool enabled);
 
-        bool                          autoEnablesDefaultLighting() const;
-        void                          autoEnablesDefaultLighting(bool enabled);
+        bool                           autoEnablesDefaultLighting() const;
+        void                           autoEnablesDefaultLighting(bool enabled);
 
-        RenderContext*                renderContext() const;
+        RenderContext*                 renderContext() const;
 
-        Scene*                        scene() const;
+        Scene*                         scene() const;
 
         /// Internal Types ///
 
@@ -141,24 +135,21 @@ namespace a3d {
     private:
         /// Private Member Functions ///
 
-        void                      firstDraw();
-        std::shared_ptr<Node>     defaultPOV();
+        void                          firstDraw();
+        std::shared_ptr<Node>         defaultPOV();
 
         /// Private Member Variables ///
 
-        Material::Property        _background;
-        std::shared_ptr<Material> _backgroundMaterial;
-        math::quat                _backgroundOrientation;
-        float                     _fogStartDistance;
-        float                     _fogEndDistance;
-        float                     _fogDensityExponent;
-        std::shared_ptr<Color>    _fogColor;
-        bool                      _usesDefaultLighting;
-        bool                      _autoEnablesDefaultLighting;
-        std::weak_ptr<Node>       _pointOfView;
-        RenderContext*            _renderContext;
-        Scene*                    _scene;
-        DidBeginFrameCallback     _didBeginFrameCallback;
+        std::optional<Background>     _background;
+        std::shared_ptr<Material>     _backgroundMaterial;
+        std::optional<Fog>            _fog;
+        std::optional<InfiniteGround> _infiniteGround;
+        bool                          _usesDefaultLighting;
+        bool                          _autoEnablesDefaultLighting;
+        std::weak_ptr<Node>           _pointOfView;
+        RenderContext*                _renderContext;
+        Scene*                        _scene;
+        DidBeginFrameCallback         _didBeginFrameCallback;
     };
 
 }

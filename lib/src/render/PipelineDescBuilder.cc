@@ -36,6 +36,21 @@ PipelineDesc PipelineDescBuilder::MakeBackgroundDesc() {
     return desc;
 }
 
+PipelineDesc PipelineDescBuilder::MakeGroundDesc() {
+    PipelineDesc desc {};
+    desc.passKind = PassKind::Ground;
+    desc.shaderKind = ShaderKind::Ground;
+    desc.vertexLayoutKey = VertexLayout::None;
+    desc.fillMode = Material::FillMode::Fill;
+    desc.doubleSided = true;
+    desc.depthTest = true;
+    desc.depthWrite = true;
+    desc.depthFunc = DepthFunc::Lequal;
+    desc.blendFunction = Material::BlendFunction::Disabled;
+    desc.polygonOffset = false;
+    return desc;
+}
+
 PipelineDesc PipelineDescBuilder::MakeOpaqueDesc(const Material& material, VertexLayout layout) {
     PipelineDesc desc = MakeBaseDesc(material, layout);
     desc.passKind = PassKind::MainOpaque;

@@ -43,6 +43,7 @@ namespace a3d::util::fs {
 #ifndef A3D_ANDROID
     std::vector<std::filesystem::path>   BaseSearchPaths();
     std::vector<std::filesystem::path>   ShaderSearchPaths();
+    std::vector<std::filesystem::path>   ShaderIncludeSearchPaths();
     std::vector<std::filesystem::path>   SceneSearchPaths();
     std::vector<std::filesystem::path>   ModelSearchPaths();
     std::vector<std::filesystem::path>   ImageSearchPaths();
@@ -65,6 +66,7 @@ namespace a3d::util::fs {
     // *** shaders ***
 
     std::optional<std::string>      ShaderSource(const std::string& name, ShaderType type);
+    std::optional<std::string>      ShaderIncludeSource(const std::string& filename);
 
     // *** fonts ***
 

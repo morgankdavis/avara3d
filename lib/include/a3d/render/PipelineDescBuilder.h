@@ -22,6 +22,7 @@ namespace a3d {
         /// Internal Static Member Functions ///
 
         static PipelineDesc MakeBackgroundDesc();
+        static PipelineDesc MakeGroundDesc();
         static PipelineDesc MakeOpaqueDesc(const Material& material, VertexLayout layout);
         static PipelineDesc MakeMaskDesc(const Material& material, VertexLayout layout);
         static PipelineDesc MakeTransparentDesc(const Material& material, VertexLayout layout);

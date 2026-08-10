@@ -8,6 +8,9 @@
 
 #include "a3d/visual/VisualWorld.h"
 
+#include <cmath>
+#include <format>
+#include <stdexcept>
 #include <variant>
 
 #include "a3d/Color.h"
@@ -37,11 +40,8 @@ using namespace std;
 VisualWorld::VisualWorld(RenderContext& context):
     _background {},
     _backgroundMaterial {},
-    _backgroundOrientation {1.0f},
-    _fogStartDistance {0.0f},
-    _fogEndDistance {0.0f},
-    _fogDensityExponent {0.0f},
-    _fogColor {},
+    _fog {},
+    _infiniteGround {},
     _usesDefaultLighting {false},
     _autoEnablesDefaultLighting {true},
     _pointOfView {},
@@ -62,80 +62,177 @@ VisualWorld::~VisualWorld() {
 
 /// Public Member Functions ///
 
-const Material::Property& VisualWorld::background() {
+optional<Background>& VisualWorld::background() {
     return _background;
 }
 
-void VisualWorld::background(const Material::Property& background) {
+void VisualWorld::background(const optional<Background>& background) {
 
-    // TODO: check equality?
-
-//	_dirtyMask = util::bitmask::add(_dirtyMask, VisualWorldDirtyMask::Background);
-
-    if (auto texture = get_if<shared_ptr<Texture>>(&background)) {
-
-        if (auto cubeImage = get_if<shared_ptr<CubeImage>>(&((*texture)->contents()))) {
-
-            auto sampler = (*texture)->sampler();
-            sampler->wrapS(Sampler::WrapMode::ClampToEdge);
-            sampler->wrapT(Sampler::WrapMode::ClampToEdge);
-            sampler->wrapR(Sampler::WrapMode::ClampToEdge);
-
-            _backgroundMaterial = make_unique<Material>(monostate {}, monostate {}, monostate {}, background);
-        }
-        else if (auto image = get_if<shared_ptr<Image>>(&((*texture)->contents()))) {
-            log::w()("Image background not supported.");
-            _backgroundMaterial = nullptr;
-        }
+    if (!background) {
+        _background = nullopt;
+        _backgroundMaterial = nullptr;
+        return;
     }
-    else if (auto color = get_if<shared_ptr<Color>>(&background)) {
-        _backgroundMaterial = make_unique<Material>(monostate {}, monostate {}, monostate {}, background);
+
+    const auto&          contents = background->contents();
+    shared_ptr<Material> backgroundMaterial;
+
+    if (auto texture = get_if<shared_ptr<Texture>>(&contents)) {
+
+        if (!*texture) {
+            throw invalid_argument("Background texture cannot be null.");
+        }
+
+        auto cubeImage = get_if<shared_ptr<CubeImage>>(&((*texture)->contents()));
+
+        if (!cubeImage || !*cubeImage) {
+            throw invalid_argument("Background texture must contain a CubeImage.");
+        }
+
+        auto sampler = (*texture)->sampler();
+        sampler->wrapS(Sampler::WrapMode::ClampToEdge);
+        sampler->wrapT(Sampler::WrapMode::ClampToEdge);
+        sampler->wrapR(Sampler::WrapMode::ClampToEdge);
+
+        backgroundMaterial = Material::EmissionMaterial(contents);
+    }
+    else if (auto color = get_if<shared_ptr<Color>>(&contents)) {
+
+        if (!*color) {
+            throw invalid_argument("Background color cannot be null.");
+        }
+
+        backgroundMaterial = Material::EmissionMaterial(contents);
     }
     else {
-        _backgroundMaterial = nullptr;
+        throw invalid_argument("Background contents must be a Color or cubemap Texture.");
     }
 
     _background = background;
+    _backgroundMaterial = std::move(backgroundMaterial);
 }
 
-quat VisualWorld::backgroundOrientation() const {
-    return _backgroundOrientation;
+const optional<Fog>& VisualWorld::fog() const {
+    return _fog;
 }
 
-void VisualWorld::backgroundOrientation(const quat& orientation) {
-    _backgroundOrientation = orientation;
+void VisualWorld::fog(const optional<Fog>& fog) {
+
+    if (fog) {
+        if (!fog->color) {
+            throw invalid_argument("Fog color cannot be null.");
+        }
+        if (!isfinite(fog->startDistance) || fog->startDistance < 0.0f) {
+            throw invalid_argument("Fog start distance must be finite and non-negative.");
+        }
+        if (!isfinite(fog->endDistance) || fog->endDistance <= fog->startDistance) {
+            throw invalid_argument("Fog end distance must be finite and greater than fog start distance.");
+        }
+        if (!isfinite(fog->transitionExponent) || fog->transitionExponent < 0.0f) {
+            throw invalid_argument("Fog transition exponent must be finite and non-negative.");
+        }
+    }
+    _fog = fog;
 }
 
-float VisualWorld::fogStartDistance() const {
-    return _fogStartDistance;
+optional<InfiniteGround>& VisualWorld::infiniteGround() {
+    return _infiniteGround;
 }
 
-void VisualWorld::fogStartDistance(float distance) {
-    _fogStartDistance = distance;
-}
+void VisualWorld::infiniteGround(const optional<InfiniteGround>& ground) {
 
-float VisualWorld::fogEndDistance() const {
-    return _fogEndDistance;
-}
+    if (ground) {
 
-void VisualWorld::fogEndDistance(float distance) {
-    _fogEndDistance = distance;
-}
+        if (!ground->color) {
+            throw invalid_argument("InfiniteGround color cannot be null.");
+        }
 
-float VisualWorld::fogDensityExponent() const {
-    return _fogDensityExponent;
-}
+        if (!isfinite(ground->height)) {
+            throw invalid_argument("InfiniteGround height must be finite.");
+        }
 
-void VisualWorld::fogDensityExponent(float exponent) {
-    _fogDensityExponent = exponent;
-}
+        auto validateGrid = [](const InfiniteGround::Grid& grid, const char* name) {
+            if (!grid.color) {
+                throw invalid_argument(format("InfiniteGround {} grid color cannot be null.", name));
+            }
+            if (!isfinite(grid.spacing) || grid.spacing <= 0.0f) {
+                throw invalid_argument(
+                    format("InfiniteGround {} grid spacing must be finite and greater than zero.", name));
+            }
+            if (!isfinite(grid.lineWidthPixels) || grid.lineWidthPixels <= 0.0f) {
+                throw invalid_argument(
+                    format("InfiniteGround {} grid line width must be finite and greater than zero.", name));
+            }
+            if (!isfinite(grid.reliefStrength)) {
+                throw invalid_argument(format("InfiniteGround {} grid relief strength must be finite.", name));
+            }
+        };
 
-const shared_ptr<Color>& VisualWorld::fogColor() const {
-    return _fogColor;
-}
+        if (ground->minorGrid) {
+            validateGrid(*ground->minorGrid, "minor");
+        }
 
-void VisualWorld::fogColor(const shared_ptr<Color>& color) {
-    _fogColor = color;
+        if (ground->majorGrid) {
+            validateGrid(*ground->majorGrid, "major");
+        }
+
+        if (ground->curvature) {
+
+            const auto& curvature = *ground->curvature;
+
+            if (!isfinite(curvature.center.x) || !isfinite(curvature.center.y)) {
+                throw invalid_argument("InfiniteGround curvature center must be finite.");
+            }
+            if (!isfinite(curvature.radius) || curvature.radius <= 0.0f) {
+                throw invalid_argument("InfiniteGround curvature radius must be finite and greater than zero.");
+            }
+        }
+
+        if (ground->radialFade) {
+
+            const auto& fade = *ground->radialFade;
+
+            if (!fade.color) {
+                throw invalid_argument("InfiniteGround radial fade color cannot be null.");
+            }
+            if (!isfinite(fade.center.x) || !isfinite(fade.center.y)) {
+                throw invalid_argument("InfiniteGround radial fade center must be finite.");
+            }
+            if (!isfinite(fade.startDistance) || fade.startDistance < 0.0f) {
+                throw invalid_argument(
+                    "InfiniteGround radial fade start distance must be finite and non-negative.");
+            }
+            if (!isfinite(fade.endDistance) || fade.endDistance <= fade.startDistance) {
+                throw invalid_argument(
+                    "InfiniteGround radial fade end distance must be finite and greater than start distance.");
+            }
+        }
+
+        if (ground->horizonHaze) {
+
+            const auto& haze = *ground->horizonHaze;
+
+            if (!haze.color) {
+                throw invalid_argument("InfiniteGround horizon haze color cannot be null.");
+            }
+            if (!isfinite(haze.angularWidthDegrees) || haze.angularWidthDegrees <= 0.0f
+                || haze.angularWidthDegrees > 90.0f) {
+
+                throw invalid_argument(
+                    "InfiniteGround horizon haze angular width must be finite, greater than zero, and at most 90 degrees.");
+            }
+        }
+
+        if (!isfinite(ground->specularIntensity) || ground->specularIntensity < 0.0f) {
+            throw invalid_argument("InfiniteGround specular intensity must be finite and non-negative.");
+        }
+
+        if (!isfinite(ground->specularExponent) || ground->specularExponent <= 0.0f) {
+            throw invalid_argument("InfiniteGround specular exponent must be finite and greater than zero.");
+        }
+    }
+
+    _infiniteGround = ground;
 }
 
 weak_ptr<Node>& VisualWorld::pointOfView() {

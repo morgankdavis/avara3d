@@ -43,11 +43,14 @@ std::unique_ptr<Scene> App::init() {
         _window->cursorCaptured(CAPTURE_CURSOR);
 
         auto visualWorld = make_unique<VisualWorld>(*_window);
-        visualWorld->fogStartDistance(500.0);
-        visualWorld->fogEndDistance(5000.0);
-        visualWorld->fogDensityExponent(1.0);
-        visualWorld->fogColor(Color::LightGray());
-        visualWorld->background(make_shared<Texture>(util::fs::CubeImageNamed("sky1", "png")));
+        visualWorld->fog(Fog {
+            .color = Color::LightGray(),
+            .startDistance = 500.0f,
+            .endDistance = 5000.0f,
+            .transitionExponent = 1.0f,
+        });
+        visualWorld->background(Background {
+            make_shared<Texture>(std::move(util::fs::CubeImageNamed("sky1", "png")))});
 
     //     visualWorld->backgroundOrientation(
     // quaternion(vec3(0.0f, 1.0f, 0.0f), radians(90.0f)));

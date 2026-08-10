@@ -89,7 +89,7 @@ unique_ptr<Scene> ext::ALFImporter::scene(VisualWorld& visualWorld) {
             auto color = make_shared<Color>(node.attribute("color").as_string());
             auto color1 = make_shared<Color>(node.attribute("color.1").as_string());
 
-            visualWorld.background(color);
+            visualWorld.background(Background {color});
         }
         else if (tag == "GroundColor") {
             auto color = make_shared<Color>(node.attribute("color").as_string());

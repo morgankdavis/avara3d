@@ -18,6 +18,7 @@ namespace a3d {
 
     struct BackgroundPass;
     struct FrameStats;
+    struct GroundPass;
     struct LinesPass;
 
     class FrameStatsHistory;
@@ -134,6 +135,9 @@ namespace a3d {
         virtual void drawBackground(const BackgroundPass& backgroundPass,
                                     const math::mat4&     view,
                                     const math::mat4&     proj) = 0;
+        virtual void drawGround(const GroundPass& groundPass,
+                                const math::mat4& view,
+                                const math::mat4& proj)         = 0;
 
         virtual void bindPipeline(PipelineId pipelineId, const OGLResourceCache& cache)                = 0;
         virtual void bindMaterial(const Material& material)                                            = 0;

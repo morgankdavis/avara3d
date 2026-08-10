@@ -10,11 +10,13 @@
 #define AVARA3D_RENDER_GATHEROUTPUT_H
 
 #include <memory>
+#include <optional>
 #include <vector>
 
 #include "a3d/Math.h"
 #include "a3d/mesh/AABB.h"
 #include "a3d/mesh/Line.h"
+#include "a3d/visual/InfiniteGround.h"
 
 namespace a3d {
 
@@ -48,12 +50,13 @@ namespace a3d {
     };
 
     struct GatherOutput {
-        std::vector<RenderItem>   renderItems        = {};
-        const Scene*              scene              = nullptr; // debug AABB
-        std::shared_ptr<Material> backgroundMaterial = nullptr;
-        math::quat                backgroundOrientation {1.0f};
-        std::vector<Node*>        lightNodes = {};
-        std::vector<Line>         debugLines = {};
+        std::vector<RenderItem>       renderItems        = {};
+        const Scene*                  scene              = nullptr; // debug AABB
+        std::shared_ptr<Material>     backgroundMaterial = nullptr;
+        math::quat                    backgroundOrientation {1.0f};
+        std::optional<InfiniteGround> infiniteGround = std::nullopt;
+        std::vector<Node*>            lightNodes     = {};
+        std::vector<Line>             debugLines     = {};
     };
 
 }

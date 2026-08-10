@@ -55,12 +55,6 @@ PhysicsShape::PhysicsShape(Type type, const shared_ptr<Node>& node):
     }
 }
 
-PhysicsShape::PhysicsShape():
-    _type {Type::Primitive},
-    _proxy {},
-    _source {},
-    _bodies {} {}
-
 PhysicsShape::~PhysicsShape() {
     log::d()("Destroying PhysicsShape {:p}", static_cast<void*>(this));
 }
@@ -120,12 +114,15 @@ void PhysicsShape::type(Type type) {
 
 /// Internal Member Functions ///
 
+bool PhysicsShape::supportsBodyType(PhysicsBody::Type) const {
+    return true;
+}
+
 void PhysicsShape::attachedToBody(PhysicsBody& body) {
     log::t()("body: {:p}", static_cast<void*>(&body));
 
     if (!_bodies.count(&body)) {
         _bodies.insert(&body);
-
         checkCreateProxy();
     }
 }
@@ -170,3 +167,11 @@ const unordered_set<PhysicsBody*>& PhysicsShape::bodies() const {
 PhysicsShapeProxy* PhysicsShape::proxy() const {
     return _proxy.get();
 }
+
+/// Protected Lifecycle ///
+
+PhysicsShape::PhysicsShape():
+    _type {Type::Primitive},
+    _proxy {},
+    _source {},
+    _bodies {} {}

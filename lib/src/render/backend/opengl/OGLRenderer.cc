@@ -156,11 +156,11 @@ struct SpotLightGLSLStruct {
 static_assert(sizeof(SpotLightGLSLStruct) == 80);
 
 struct FogGLSLStruct {
-    vec4 color;
-    f32  startDistance;
-    f32  endDistance;
-    f32  densityExponent;
-    f32  _pad_0_;
+    vec4     color;
+    f32      startDistance;
+    f32      endDistance;
+    f32      transitionExponent;
+    uint32_t enabled;
 };
 
 static_assert(sizeof(FogGLSLStruct) == 32);
@@ -394,9 +394,18 @@ bool OGLRenderer::InitGL(GLGetProcAddress getProcAddress) {
 OGLRenderer::OGLRenderer():
     Renderer {},
     _isInitialized {false},
-    _resourceCache {},
-    _skyboxMesh {},
     _glEnvironmentUBO {0},
+    _skyboxProgram {nullptr},
+    _groundProgram {nullptr},
+    _defaultProgram {nullptr},
+    _wireframeProgram {nullptr},
+    _linesProgram {nullptr},
+    _resourceCache {},
+    _state {},
+    _boundElement {},
+    _skyboxMesh {},
+    _fullscreenTriangleVao {},
+    _debugLines {},
     _overlayTitleImFont {nullptr},
     _overlayBodyImFont {nullptr},
     _overlayAltImFont {nullptr},
@@ -404,6 +413,10 @@ OGLRenderer::OGLRenderer():
 
 OGLRenderer::~OGLRenderer() {
     log::d()("Destroying OpenGLRenderer {:p}", static_cast<void*>(this));
+
+    if (_fullscreenTriangleVao != 0) {
+        glDeleteVertexArrays(1, &_fullscreenTriangleVao);
+    }
 
     glDeleteBuffers(1, &_glEnvironmentUBO);
 
@@ -419,10 +432,13 @@ OGLRenderer::~OGLRenderer() {
 bool OGLRenderer::initialize(const RenderContext& context) {
     log::i();
 
-    _defaultProgram = make_unique<GLSLProgram>("default");
     _skyboxProgram = make_unique<GLSLProgram>("skybox");
+    _groundProgram = make_unique<GLSLProgram>("infinite_ground");
+    _defaultProgram = make_unique<GLSLProgram>("default");
     _wireframeProgram = make_unique<GLSLProgram>("wireframe");
     _linesProgram = make_unique<GLSLProgram>("lines");
+
+    glGenVertexArrays(1, &_fullscreenTriangleVao);
 
     GLint maxSize = 0;
     glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &maxSize);
@@ -445,6 +461,7 @@ bool OGLRenderer::initialize(const RenderContext& context) {
         glUniformBlockBinding(program, idx, ENV_BINDING_POINT);
     };
     bindBlock(_defaultProgram->glID(), "EnvironmentBlock");
+    bindBlock(_groundProgram->glID(), "EnvironmentBlock");
     bindBlock(_wireframeProgram->glID(), "EnvironmentBlock");
 
     _drawTimer.initialize();
@@ -663,6 +680,83 @@ void OGLRenderer::drawBackground(const BackgroundPass& backgroundPass,
     drawElements();
 }
 
+void OGLRenderer::drawGround(const GroundPass& groundPass, const mat4& view, const mat4& proj) {
+
+    if (!groundPass.ground) {
+        return;
+    }
+
+    if (groundPass.pipelineId == INVALID_PIPELINE_ID) {
+        return;
+    }
+
+    const auto& ground = *groundPass.ground;
+
+    bindPipeline(groundPass.pipelineId, _resourceCache);
+
+    const mat4 viewProj = proj * view;
+
+    _groundProgram->setUniform("viewMat", view);
+    _groundProgram->setUniform("viewProjMat", viewProj);
+    _groundProgram->setUniform("inverseViewProjMat", inverse(viewProj));
+
+    _groundProgram->setUniform("groundHeight", ground.height);
+    _groundProgram->setUniform("groundColor", ground.color->rgb());
+
+    const bool minorGridEnabled = ground.minorGrid.has_value();
+    _groundProgram->setUniform("minorGridEnabled", minorGridEnabled);
+    if (minorGridEnabled) {
+        const auto& grid = *ground.minorGrid;
+        _groundProgram->setUniform("minorGridColor", grid.color->rgba());
+        _groundProgram->setUniform("minorGridSpacing", grid.spacing);
+        _groundProgram->setUniform("minorGridLineWidthPixels", grid.lineWidthPixels);
+        _groundProgram->setUniform("minorGridReliefStrength", grid.reliefStrength);
+    }
+
+    const bool majorGridEnabled = ground.majorGrid.has_value();
+    _groundProgram->setUniform("majorGridEnabled", majorGridEnabled);
+    if (majorGridEnabled) {
+        const auto& grid = *ground.majorGrid;
+        _groundProgram->setUniform("majorGridColor", grid.color->rgba());
+        _groundProgram->setUniform("majorGridSpacing", grid.spacing);
+        _groundProgram->setUniform("majorGridLineWidthPixels", grid.lineWidthPixels);
+        _groundProgram->setUniform("majorGridReliefStrength", grid.reliefStrength);
+    }
+
+    const bool curvatureEnabled = ground.curvature.has_value();
+    _groundProgram->setUniform("curvatureEnabled", curvatureEnabled);
+    if (curvatureEnabled) {
+        const auto& curvature = *ground.curvature;
+        _groundProgram->setUniform("curvatureCenter", curvature.center);
+        _groundProgram->setUniform("curvatureRadius", curvature.radius);
+    }
+
+    const bool radialFadeEnabled = ground.radialFade.has_value();
+    _groundProgram->setUniform("radialFadeEnabled", radialFadeEnabled);
+    if (radialFadeEnabled) {
+        const auto& fade = *ground.radialFade;
+        _groundProgram->setUniform("radialFadeColor", fade.color->rgb());
+        _groundProgram->setUniform("radialFadeCenter", fade.center);
+        _groundProgram->setUniform("radialFadeStartDistance", fade.startDistance);
+        _groundProgram->setUniform("radialFadeEndDistance", fade.endDistance);
+    }
+
+    const bool horizonHazeEnabled = ground.horizonHaze.has_value();
+    _groundProgram->setUniform("horizonHazeEnabled", horizonHazeEnabled);
+    if (horizonHazeEnabled) {
+        const auto& haze = *ground.horizonHaze;
+        _groundProgram->setUniform("horizonHazeColor", haze.color->rgba());
+        _groundProgram->setUniform("horizonHazeAngularWidthDegrees", haze.angularWidthDegrees);
+    }
+
+    _groundProgram->setUniform("groundSpecularIntensity", ground.specularIntensity);
+    _groundProgram->setUniform("groundSpecularExponent", ground.specularExponent);
+
+    glBindVertexArray(_fullscreenTriangleVao);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glBindVertexArray(0);
+}
+
 void OGLRenderer::bindPipeline(PipelineId pipelineId, const OGLResourceCache& cache) {
     if (_state.pipelineId == pipelineId) {
         GLint cur = 0;
@@ -774,10 +868,7 @@ void OGLRenderer::bindMaterial(const Material& material) {
     else if (pipeline.desc.shaderKind == ShaderKind::Skybox) {
         constexpr auto emissionSlot = static_cast<size_t>(Material::PropertyType::Emission);
 
-        program->bindTexture("cubeSampler",
-                             GL_TEXTURE_CUBE_MAP,
-                             GL_TEXTURE0,
-                             glTextureHandles[emissionSlot],
+        program->bindTexture("cubeSampler", GL_TEXTURE_CUBE_MAP, GL_TEXTURE0, glTextureHandles[emissionSlot],
                              0);
     }
 
@@ -863,10 +954,12 @@ void OGLRenderer::draw(const DrawCommand& cmd) {
 
 GLSLProgram& OGLRenderer::programForShaderKind(ShaderKind kind) const {
     switch (kind) {
-        case ShaderKind::Default:
-            return *_defaultProgram;
         case ShaderKind::Skybox:
             return *_skyboxProgram;
+        case ShaderKind::Ground:
+            return *_groundProgram;
+        case ShaderKind::Default:
+            return *_defaultProgram;
         case ShaderKind::Wireframe:
             return *_wireframeProgram;
         case ShaderKind::Lines:
@@ -926,6 +1019,14 @@ void OGLRenderer::resolvePacket(DrawPacket& packet, const FrameParams& frame) {
         resolvePipeline(packet.backgroundPass.pipelineId, packet.backgroundPass.desc);
     }
 
+    // ground
+    if (packet.groundPass.ground) {
+        resolvePipeline(packet.groundPass.pipelineId, packet.groundPass.desc);
+    }
+    else {
+        packet.groundPass.pipelineId = INVALID_PIPELINE_ID;
+    }
+
     // main + wireframe items
     for (auto& di : packet.mainPassItems) {
         resolvePipeline(di.pipelineId, di.desc);
@@ -951,6 +1052,10 @@ void OGLRenderer::drawPacket(const DrawPacket& packet, const FrameParams& frame)
     if (packet.backgroundPass.material) {
         // uses _skyboxMesh internally, binds + draws
         drawBackground(packet.backgroundPass, frame.view, frame.proj);
+    }
+
+    if (packet.groundPass.ground) {
+        drawGround(packet.groundPass, frame.view, frame.proj);
     }
 
     // NOTE: items are already sorted by pass + desc hash, so this will batch nicely
@@ -1250,17 +1355,29 @@ void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
 
     // fog
 
-    auto          visualWorld = scene.visualWorld();
+    // auto          visualWorld = scene.visualWorld();
+    // FogGLSLStruct fogStruct {};
+    // fogStruct.startDistance = visualWorld->fogStartDistance();
+    // fogStruct.endDistance = visualWorld->fogEndDistance();
+    // fogStruct.densityExponent = visualWorld->fogDensityExponent();
+    // auto fogColor = visualWorld->fogColor();
+    // if (visualWorld->fogColor()) {
+    //     fogStruct.color = fogColor->rgba();
+    // }
+    // else {
+    //     fogStruct.color = {0.0, 0.0, 0.0, 0.0};
+    // }
+    //
+    // memcpy(&environmentStruct.fog, &fogStruct, sizeof(fogStruct));
+
     FogGLSLStruct fogStruct {};
-    fogStruct.startDistance = visualWorld->fogStartDistance();
-    fogStruct.endDistance = visualWorld->fogEndDistance();
-    fogStruct.densityExponent = visualWorld->fogDensityExponent();
-    auto fogColor = visualWorld->fogColor();
-    if (visualWorld->fogColor()) {
-        fogStruct.color = fogColor->rgba();
-    }
-    else {
-        fogStruct.color = {0.0, 0.0, 0.0, 0.0};
+
+    if (const auto& fog = scene.visualWorld()->fog()) {
+        fogStruct.color = fog->color->rgba();
+        fogStruct.startDistance = fog->startDistance;
+        fogStruct.endDistance = fog->endDistance;
+        fogStruct.transitionExponent = fog->transitionExponent;
+        fogStruct.enabled = 1u;
     }
 
     memcpy(&environmentStruct.fog, &fogStruct, sizeof(fogStruct));
@@ -1574,20 +1691,19 @@ void DrawStats(FrameStats&              stats,
         return seconds >= 1.0 ? std::format("{:.2f}s", seconds) : std::format("{:.1f}ms", seconds * 1000.0);
     };
     ImguiDrawLabelValue(yPos, layout, "discarded", formatDiscardedTime(stats.totalDiscardedSimulationTime),
-                        bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP,
-                        IM_COL32(255, 255, 255, 255),
+                        bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP, IM_COL32(255, 255, 255, 255),
                         stats.totalDiscardedSimulationTime > 0.0 ? IM_COL32(255, 48, 48, 255)
                                                                  : IM_COL32(255, 255, 255, 255));
 
     static const std::locale numberLocale("en_US.UTF-8");
-    ImguiDrawLabelValue(yPos, layout, "step #", std::format(numberLocale, "{:L}", stats.simulationStepCount), bodyFont,
-                        STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+    ImguiDrawLabelValue(yPos, layout, "step #", std::format(numberLocale, "{:L}", stats.simulationStepCount),
+                        bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
 
     ImguiDrawLabelValue(yPos, layout, "sim time", std::format("{:.2f}s", stats.simulationTime), bodyFont,
                         STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
 
     ImguiDrawLabelValue(yPos, layout, "time step", std::format("{:.0f}Hz", 1.0 / stats.simulationTimeStep),
-                    bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP + PLOT_STR_Y_PAD);
+                        bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP + PLOT_STR_Y_PAD);
 
     ImguiDrawLabelValue(yPos, layout, "engine cpu", std::format("{:.1f}ms", engineCpuMsFAvg), bodyFont,
                         STATS_BODY_FONT_SIZE, PLOT_Y_PAD);

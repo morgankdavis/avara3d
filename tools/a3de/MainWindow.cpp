@@ -68,8 +68,7 @@ void MainWindow::initA3D() {
         initLog(APP_LOG_LEVEL);
 
         auto visualWorld = make_unique<VisualWorld>(*_viewport);
-        auto backgroundColor = make_shared<Color>(u8vec3 {109, 136, 164});
-        visualWorld->background(backgroundColor);
+        visualWorld->background(Background {make_shared<Color>(u8vec3 {109, 136, 164})});
 
         _scene = make_unique<Scene>(std::move(visualWorld), nullptr, qt::QtViewport::InputContext());
         _scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
@@ -77,9 +76,9 @@ void MainWindow::initA3D() {
         _viewport->cursorCaptured(CAPTURE_CURSOR);
 
         _bananaNode = Node::MeshNode(util::fs::MeshNamed("banana_lod/banana_lod"));
-        auto rot90X = math::quaternion({1.0f, 0.0f, 0.0f}, radians(90.0f));
-        auto rot90Y = math::quaternion({0.0f, 1.0f, 0.0f}, radians(90.0f));
-        _bananaNode->orientation(rot90X * rot90Y);
+        auto rx = math::quaternion({1.0f, 0.0f, 0.0f}, radians(90.0f));
+        auto ry = math::quaternion({0.0f, 1.0f, 0.0f}, radians(90.0f));
+        _bananaNode->orientation(rx * ry);
         _scene->rootNode()->addChild(_bananaNode);
 
         _runner = make_unique<Runner>(*_scene);

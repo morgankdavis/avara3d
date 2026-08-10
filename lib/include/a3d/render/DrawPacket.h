@@ -9,9 +9,12 @@
 #ifndef AVARA3D_RENDER_DRAWPACKET_H
 #define AVARA3D_RENDER_DRAWPACKET_H
 
+#include <optional>
+
 #include "a3d/Math.h"
 #include "a3d/mesh/Line.h"
 #include "a3d/render/PipelineDesc.h"
+#include "a3d/visual/InfiniteGround.h"
 
 namespace a3d {
 
@@ -26,6 +29,12 @@ namespace a3d {
         PipelineDesc              desc       = {};
         std::shared_ptr<Material> material   = nullptr; // gross
         math::quat                orientation {1.0f};
+    };
+
+    struct GroundPass {
+        PipelineId                    pipelineId = INVALID_PIPELINE_ID;
+        PipelineDesc                  desc       = {};
+        std::optional<InfiniteGround> ground     = std::nullopt;
     };
 
     struct LinesPass {
@@ -51,6 +60,7 @@ namespace a3d {
 
     struct DrawPacket {
         BackgroundPass        backgroundPass;
+        GroundPass            groundPass;
         std::vector<DrawItem> mainPassItems;
         // opaqueItems
         // maskItems
