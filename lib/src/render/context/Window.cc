@@ -328,20 +328,6 @@ bool Window::cursorCaptured() const {
     return _cursorCaptured;
 }
 
-static GLFWcursor* invisible = nullptr;
-
-static GLFWcursor* getInvisibleCursor() {
-    if (invisible) {
-        return invisible;
-    }
-
-    const int            w = 16, h = 16;
-    static unsigned char pixels[w * h * 4] = {}; // all zero = transparent RGBA
-    GLFWimage            img {w, h, pixels};
-    invisible = glfwCreateCursor(&img, 0, 0);
-    return invisible;
-}
-
 void Window::cursorCaptured(bool captured) {
 
     // when input ownership moves away from ImGui, discard any queued events
