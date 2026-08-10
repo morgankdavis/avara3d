@@ -30,6 +30,9 @@ const bool                            CAPTURE_CURSOR {false};
 const float                           TIMESTEP {1.0 / 120.0};
 const float                           BACKGROUND_ROTATION_SPEED {radians(0.5f)};
 const vec3                            BACKGROUND_ROTATION_AXIS {0.5f, 1.0f, 1.0f};
+const vec3                            GRAVITY_EARTH {0.0f, -9.807f, 0.0f};
+const vec3                            GRAVITY_MOON {0.0f, -1.62f, 0.0f};
+const vec3                            GRAVITY_ZERO {0.0f, 0.0f, 0.0f};
 
 /// Public Lifecycle Functions ///
 
@@ -263,19 +266,24 @@ void App::frameDidBegin(Runner&                        runner,
 
     panel.section("simulation");
 
-    panel.value("state", runner.simulationPaused() ? "paused" : "running");
+    const bool paused = runner.simulationPaused();
+
+    panel.value("state", paused ? "paused" : "running");
     panel.value("time scale", std::format("{:.2f}x", runner.timeScale()));
 
-    panel.row(3);
+    panel.row(paused ? 3 : 2);
 
-    if (panel.button("Pause")) {
-        if (!runner.simulationPaused()) {
+    if (panel.button(paused ? "Resume" : "Pause")) {
+        if (paused) {
+            runner.resumeSimulation();
+        }
+        else {
             runner.pauseSimulation();
         }
     }
 
-    if (panel.button("Step")) {
-        if (runner.simulationPaused()) {
+    if (paused) {
+        if (panel.button("Step")) {
             runner.requestSimulationStep();
         }
     }
@@ -293,35 +301,22 @@ void App::frameDidBegin(Runner&                        runner,
 
         panel.value("gravity", std::format("{:.2f}, {:.2f}, {:.2f}", gravity.x, gravity.y, gravity.z));
 
-        // panel.row(3);
-        //
-        // if (panel.button("Earth")) {
-        //     physicsWorld->gravity({0.0f, -9.81f, 0.0f});
-        // }
-        //
-        // if (panel.button("Moon")) {
-        //     physicsWorld->gravity({0.0f, -1.62f, 0.0f});
-        // }
-        //
-        // if (panel.button("Zero")) {
-        //     physicsWorld->gravity({0.0f, 0.0f, 0.0f});
-        // }
+        const auto isGravity = [&gravity](const vec3& value) {
+            return length(gravity - value) < 0.001f;
+        };
 
         panel.row(3);
 
-        if (panel.option("Earth", gravityPreset == GravityPreset::Earth)) {
-            gravityPreset = GravityPreset::Earth;
-            physicsWorld->gravity({0.0f, -9.81f, 0.0f});
+        if (panel.option("Earth", isGravity(GRAVITY_EARTH))) {
+            physicsWorld->gravity(GRAVITY_EARTH);
         }
 
-        if (panel.option("Moon", gravityPreset == GravityPreset::Moon)) {
-            gravityPreset = GravityPreset::Moon;
-            physicsWorld->gravity({0.0f, -1.62f, 0.0f});
+        if (panel.option("Moon", isGravity(GRAVITY_MOON))) {
+            physicsWorld->gravity(GRAVITY_MOON);
         }
 
-        if (panel.option("Zero", gravityPreset == GravityPreset::Zero)) {
-            gravityPreset = GravityPreset::Zero;
-            physicsWorld->gravity({0.0f, 0.0f, 0.0f});
+        if (panel.option("Zero", isGravity(GRAVITY_ZERO))) {
+            physicsWorld->gravity(GRAVITY_ZERO);
         }
     }
 

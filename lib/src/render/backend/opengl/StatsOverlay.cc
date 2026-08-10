@@ -42,21 +42,10 @@ using namespace std;
 
 /// Private Constants ///
 
-// static const std::string STATS_TITLE_FONT_NAME {"SourceCodePro-Bold"};
-// static const std::string STATS_TITLE_FONT_TYPE {"otf"};
-// static const float       STATS_TITLE_FONT_SIZE {23.0};
-
 static const std::string STATS_TITLE_FONT_NAME {"Neuropol Nova Xp"};
 static const std::string STATS_TITLE_FONT_TYPE {"ttf"};
 static const float       STATS_TITLE_FONT_SIZE {21.0};
-
-static const std::string STATS_BODY_FONT_NAME {"SourceCodePro-Semibold"};
-static const std::string STATS_BODY_FONT_TYPE {"otf"};
 static const float       STATS_BODY_FONT_SIZE {15.0};
-
-static const std::string STATS_ALT_FONT_NAME {"SourceCodePro-Regular"};
-static const std::string STATS_ALT_FONT_TYPE {"otf"};
-static const float       STATS_ALT_FONT_SIZE {13.0};
 
 // duration of sample history to average over
 static constexpr std::chrono::milliseconds FRAME_STATS_AVERAGING_DURATION {250};
@@ -80,8 +69,7 @@ static void DrawOverlay(const RenderContext&     context,
                         const FrameStatsHistory& statsHistory,
                         Scene::DebugOptions      debugOptions,
                         ImFont&                  titleFont,
-                        ImFont&                  bodyFont,
-                        ImFont&                  altBodyFont);
+                        ImFont&                  bodyFont);
 
 static void DrawHeader(ImFont& titleFont, ImFont& bodyFont, bool active, float& yPos_out, int& id_out);
 
@@ -89,7 +77,6 @@ static void DrawStats(FrameStats&              stats,
                       const FrameStatsHistory& statsHistory,
                       const RenderContext&     context,
                       ImFont&                  bodyFont,
-                      ImFont&                  altBodyFont,
                       float                    yPos,
                       int                      id);
 
@@ -186,8 +173,7 @@ static void ImguiDrawPlot(float        x,
 
 StatsOverlay::StatsOverlay():
     _titleImFont {nullptr},
-    _bodyImFont {nullptr},
-    _altBodyImFont {nullptr} {}
+    _bodyImFont {nullptr} {}
 
 StatsOverlay::~StatsOverlay() = default;
 
@@ -209,15 +195,6 @@ void StatsOverlay::initialize(ImguiContext& context) {
     else {
         log::e()("Unable to load font: {}.{}", STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
     }
-
-    auto overlayAltFont = util::fs::FontNamed(STATS_ALT_FONT_NAME, STATS_ALT_FONT_TYPE);
-
-    if (overlayAltFont && overlayAltFont->buffer() && overlayAltFont->buffer()->size()) {
-        _altBodyImFont = context.addFont(std::move(overlayAltFont));
-    }
-    else {
-        log::e()("Unable to load font: {}.{}", STATS_ALT_FONT_NAME, STATS_ALT_FONT_TYPE);
-    }
 }
 
 void StatsOverlay::draw(const RenderContext&     context,
@@ -226,8 +203,7 @@ void StatsOverlay::draw(const RenderContext&     context,
                         const FrameStatsHistory& statsHistory,
                         Scene::DebugOptions      debugOptions) {
 
-    DrawOverlay(context, scene, stats, statsHistory, debugOptions, *_titleImFont, *_bodyImFont,
-                *_altBodyImFont);
+    DrawOverlay(context, scene, stats, statsHistory, debugOptions, *_titleImFont, *_bodyImFont);
 }
 
 /// Private Static Non-Member Functions ///
@@ -238,8 +214,7 @@ void DrawOverlay(const RenderContext&     context,
                  const FrameStatsHistory& statsHistory,
                  Scene::DebugOptions      debugOptions,
                  ImFont&                  titleFont,
-                 ImFont&                  bodyFont,
-                 ImFont&                  altBodyFont) {
+                 ImFont&                  bodyFont) {
 
     ImguiBeginOverlay(0, false);
     //DrawDebugOptions(const_cast<Scene&>(scene), bodyFont); // TODO: const_cast CHEATING
@@ -251,7 +226,7 @@ void DrawOverlay(const RenderContext&     context,
     DrawHeader(titleFont, bodyFont, showStats, yPos, id);
 
     if (showStats) {
-        DrawStats(stats, statsHistory, context, bodyFont, altBodyFont, yPos, id);
+        DrawStats(stats, statsHistory, context, bodyFont, yPos, id);
     }
 
     ImguiEndOverlay();
@@ -294,7 +269,6 @@ void DrawStats(FrameStats&              stats,
                const FrameStatsHistory& statsHistory,
                const RenderContext&     context,
                ImFont&                  bodyFont,
-               ImFont&                  altBodyFont,
                float                    yPos,
                int                      id) {
     using namespace ImGui;
@@ -457,7 +431,7 @@ void DrawStats(FrameStats&              stats,
                         gpuTimingAvailable ? IM_COL32(255, 255, 255, 255) : IM_COL32(128, 128, 128, 255));
     ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, renderGpuSamples.data(),
                   static_cast<int>(renderGpuSamples.size()), 0, gpuTimingAvailable ? nullptr : "unavailable",
-                  &altBodyFont, STATS_ALT_FONT_SIZE, PLOT_Y_MIN, PLOT_Y_MAX, 0, PLOT_OUTLINED, ++id,
+                  &bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_MIN, PLOT_Y_MAX, 0, PLOT_OUTLINED, ++id,
                   PLOT_HEIGHT_2 + PLOT_STR_Y_PAD, !gpuTimingAvailable);
 
     ImguiDrawLabelValue(yPos, layout, "physics", std::format("{:.1f}ms", physicsMsFAvg), bodyFont,

@@ -57,7 +57,6 @@ namespace a3d {
 
         ImFont* _titleImFont;
         ImFont* _bodyImFont;
-        ImFont* _altBodyImFont;
     };
 
 }
