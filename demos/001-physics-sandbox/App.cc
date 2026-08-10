@@ -90,6 +90,8 @@ std::unique_ptr<Scene> App::init() {
             .specularExponent = 32.0f,
         });
 
+        visualWorld->fog(Fog {.color = Color::Black(), .startDistance = 30.0f, .endDistance = 150.0f});
+
         auto physicsWorld = make_unique<PhysicsWorld>();
 
         auto scene =
@@ -107,20 +109,33 @@ std::unique_ptr<Scene> App::init() {
         testBoxNode->name("Ground test box");
         testBoxNode->position({0.0f, 5.0f, 0.0f});
         testBoxNode->physicsBody(PhysicsBody::DynamicBody());
+        {
+            auto testBoxMaterial = make_shared<Material>();
+            testBoxMaterial->emission(Color::White());
+            testBoxNode->mesh()->addMaterial(testBoxMaterial);
+        }
         scene->rootNode()->addChild(testBoxNode);
-
-        auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.15f));
-        auto ambientLightNode = Node::LightNode(ambientLight);
-        scene->rootNode()->addChild(ambientLightNode);
 
         auto pointLight = make_shared<PointLight>(Color::White());
         pointLight->attenuation(Attenuation {
             .quadratic = 0.05f,
         });
-
         auto pointLightNode = Node::LightNode(pointLight);
-        pointLightNode->position({0.0f, 4.0f, 0.0f});
-        scene->rootNode()->addChild(pointLightNode);
+        pointLightNode->position({0.0f, 5.0f, 0.0f});
+        //scene->rootNode()->addChild(pointLightNode);
+        testBoxNode->addChild(pointLightNode);
+
+        auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.15f));
+        auto ambientLightNode = Node::LightNode(ambientLight);
+        scene->rootNode()->addChild(ambientLightNode);
+
+        // auto pointLight = make_shared<PointLight>(Color::White());
+        // pointLight->attenuation(Attenuation {
+        //     .quadratic = 0.05f,
+        // });
+        // auto pointLightNode = Node::LightNode(pointLight);
+        // pointLightNode->position({0.0f, 4.0f, 0.0f});
+        // scene->rootNode()->addChild(pointLightNode);
 
         _bananaNode = Node::MeshNode(util::fs::MeshNamed("banana_lod/banana_lod"));
         auto rx = math::quaternion({1.0f, 0.0f, 0.0f}, radians(90.0f));
@@ -135,6 +150,7 @@ std::unique_ptr<Scene> App::init() {
         scene->visualWorld()->pointOfView(_cameraNode);
 
         auto cameraConfig = _cameraController.config();
+        cameraConfig.controls.primaryButton = DesktopInputContext::MouseButton::Two;
         cameraConfig.invertPitch = true;
         _cameraController.config(cameraConfig);
 
@@ -181,13 +197,14 @@ void App::inputDidUpdate(Runner&, Scene&, InputContext& inputContext, const Inpu
 
     const auto camera = static_pointer_cast<PerspectiveCamera>(_cameraNode->camera());
     const auto viewportSize = _window->viewportLogicalSize();
-    const auto result =
-        _cameraController.update(input, camera->yFov(), static_cast<float>(viewportSize.y));
+    const auto result = _cameraController.update(input, camera->yFov(), static_cast<float>(viewportSize.y));
 
     _window->cursorHidden(result.pointerDragging);
 }
 
 void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
+
+    auto& input = static_cast<DesktopInputContext&>(*scene.inputContext());
 
     // if (_bananaNode) {
     //     // rotate the banana at 30 degrees per second
@@ -195,6 +212,32 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
     //     const auto rotationY = math::quaternion({0.0f, 1.0f, 0.0f}, rotation);
     //     _bananaNode->orientation(rotationY * _bananaNode->orientation());
     // }
+
+    using MouseButton = DesktopInputContext::MouseButton;
+
+    if (input.mouseButtonPressed(MouseButton::One)) {
+
+        const auto mouse = input.mousePosition();
+        const auto from = scene.visualWorld()->unprojectPoint({mouse.x, mouse.y, 0.0f});
+        const auto to = scene.visualWorld()->unprojectPoint({mouse.x, mouse.y, 1.0f});
+
+        const auto hits = scene.physicsWorld()->rayTest(from, to);
+
+        if (!hits.empty()) {
+
+            const auto& hit = hits.front();
+
+            if (auto node = hit.node()) {
+                if (auto body = node->physicsBody(); body && body->type() == PhysicsBody::Type::Dynamic) {
+
+                    const vec3  direction = normalize(to - from);
+                    const float impulse = 5.0f;
+
+                    body->applyForce(direction * impulse, hit.worldCoordinates(), true);
+                }
+            }
+        }
+    }
 }
 
 void App::frameDidBegin(Runner&, Scene&, VisualWorld& visualWorld, const VisualWorld::RenderInfo& info) {

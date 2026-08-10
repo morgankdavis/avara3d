@@ -11,18 +11,17 @@
 
 #include "a3d/render/Renderer.h"
 #include "a3d/render/backend/opengl/GLTypes.h"
+#include "a3d/render/backend/opengl/ImguiContext.h"
 #include "a3d/render/backend/opengl/OGLDebugLines.h"
 #include "a3d/render/backend/opengl/OGLDrawTimer.h"
 #include "a3d/render/backend/opengl/OGLResourceCache.h"
-
-class ImFont;
+#include "a3d/render/backend/opengl/StatsOverlay.h"
 
 namespace a3d {
 
     struct LinesPass;
 
     class Color;
-    class Font;
     class GLSLProgram;
     class Mesh;
     class MeshElement;
@@ -142,9 +141,8 @@ namespace a3d {
         std::unique_ptr<Mesh>        _skyboxMesh; // should be value?
         gl::uint_t                   _fullscreenTriangleVao;
         OGLDebugLines                _debugLines;
-        ImFont*                      _overlayTitleImFont;
-        ImFont*                      _overlayBodyImFont;
-        ImFont*                      _overlayAltImFont;
+        ImguiContext                 _imguiContext;
+        StatsOverlay                 _statsOverlay;
         OGLDrawTimer                 _drawTimer;
     };
 
