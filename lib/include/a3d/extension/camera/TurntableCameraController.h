@@ -99,8 +99,7 @@ namespace a3d::ext {
         void          target(const std::shared_ptr<Node>& node);
         void          target(const std::shared_ptr<Node>& node, const math::vec3& localPosition);
 
-        UpdateResult  updateInput(DesktopInputContext& input, float verticalFieldOfView, float viewportHeight);
-
+        UpdateResult  update(DesktopInputContext& input, float vFov, float viewportHeight);
         void          apply(Node& pov);
 
     private:

@@ -1678,9 +1678,9 @@ void DrawStats(FrameStats&              stats,
         discardedSteps && stats.simulationTimeStep > 0.0
             ? static_cast<std::uint64_t>(std::llround(stats.discardedSimulationTime / stats.simulationTimeStep))
             : 0;
-    ImguiDrawLabelValue(yPos, layout, "steps/update",
-                        discardedSteps ? std::format("-{}", discardedStepCount)
-                                       : std::format("{}", stats.simulationStepsThisUpdate),
+    ImguiDrawLabelValue(yPos, layout, "simulation",
+                        discardedSteps ? std::format("-{} steps", discardedStepCount)
+                                       : std::format("{} steps", stats.simulationStepsThisUpdate),
                         bodyFont, STATS_BODY_FONT_SIZE, PLOT_Y_PAD, IM_COL32(255, 255, 255, 255),
                         discardedSteps ? IM_COL32(255, 48, 48, 255) : IM_COL32(255, 255, 255, 255));
     ImguiDrawSimulationPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, simulationStepSamples.data(),

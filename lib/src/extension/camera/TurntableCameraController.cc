@@ -151,12 +151,11 @@ void TurntableCameraController::target(const shared_ptr<Node>& node, const vec3&
     _resolvedTarget = resolvedTarget;
 }
 
-TurntableCameraController::UpdateResult TurntableCameraController::updateInput(DesktopInputContext& input,
-                                                                               float verticalFieldOfView,
-                                                                               float viewportHeight) {
+TurntableCameraController::UpdateResult TurntableCameraController::update(DesktopInputContext& input,
+                                                                          float                vFov,
+                                                                          float                viewportHeight) {
 
-    if (!std::isfinite(verticalFieldOfView) || verticalFieldOfView <= 0.0f
-        || verticalFieldOfView >= math::pi()) {
+    if (!std::isfinite(vFov) || vFov <= 0.0f || vFov >= math::pi()) {
 
         throw invalid_argument(
             "TurntableCameraController vertical field of view must be finite and between 0 and 180 degrees.");
@@ -194,8 +193,7 @@ TurntableCameraController::UpdateResult TurntableCameraController::updateInput(D
             return;
         }
 
-        const float worldUnitsPerPixel =
-            2.0f * _view.distance * math::tan(verticalFieldOfView * 0.5f) / viewportHeight;
+        const float worldUnitsPerPixel = 2.0f * _view.distance * math::tan(vFov * 0.5f) / viewportHeight;
 
         const float cosPitch = math::cos(_view.pitch);
 

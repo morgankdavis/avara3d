@@ -28,7 +28,7 @@ const RenderContext::AntialiasingMode ANTIALIAS_MODE {RenderContext::Antialiasin
 const bool                            ENABLE_VSYNC {false};
 const bool                            CAPTURE_CURSOR {false};
 const float                           TIMESTEP {1.0 / 120.0};
-const float                           BACKGROUND_ROTATION_SPEED {radians(1.0f)};
+const float                           BACKGROUND_ROTATION_SPEED {radians(0.5f)};
 const vec3                            BACKGROUND_ROTATION_AXIS {0.5f, 1.0f, 1.0f};
 
 /// Public Lifecycle Functions ///
@@ -76,7 +76,6 @@ std::unique_ptr<Scene> App::init() {
                 },
             .radialFade =
                 InfiniteGround::RadialFade {
-                    //.color = make_shared<Color>(vec4 {0.015f, 0.015f, 0.015f, 1.0f}),
                     .color = make_shared<Color>(vec4 {0.02f, 0.02f, 0.02f, 1.0f}),
                     .center = {0.0f, 0.0f},
                     .startDistance = 10.0f,
@@ -84,8 +83,6 @@ std::unique_ptr<Scene> App::init() {
                 },
             .horizonHaze =
                 InfiniteGround::HorizonHaze {
-                    // .color = make_shared<Color>(vec4 {0.1f, 0.1f, 0.1f, 0.75f}),
-                    // .angularWidthDegrees = 3.0f,
                     .color = make_shared<Color>(vec4 {0.075f, 0.075f, 0.075f, 0.55f}),
                     .angularWidthDegrees = 4.0f,
                 },
@@ -185,7 +182,7 @@ void App::inputDidUpdate(Runner&, Scene&, InputContext& inputContext, const Inpu
     const auto camera = static_pointer_cast<PerspectiveCamera>(_cameraNode->camera());
     const auto viewportSize = _window->viewportLogicalSize();
     const auto result =
-        _cameraController.updateInput(input, camera->yFov(), static_cast<float>(viewportSize.y));
+        _cameraController.update(input, camera->yFov(), static_cast<float>(viewportSize.y));
 
     _window->cursorHidden(result.pointerDragging);
 }
@@ -203,7 +200,7 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
 void App::frameDidBegin(Runner&, Scene&, VisualWorld& visualWorld, const VisualWorld::RenderInfo& info) {
 
     const float  delta = static_cast<float>(info.updateDeltaTime);
-    static float angle = radians(120.0);
+    static float angle = radians(180.0);
     angle += delta * BACKGROUND_ROTATION_SPEED;
     if (auto& background = visualWorld.background()) {
         background->orientation(quaternion(BACKGROUND_ROTATION_AXIS, angle));
