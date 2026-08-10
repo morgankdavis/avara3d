@@ -8,8 +8,6 @@
 
 #include "a3d/extension/camera/FlyCameraController.h"
 
-#include <cmath>
-
 #include "a3d/Math.h"
 #include "a3d/scene/Node.h"
 
@@ -71,8 +69,7 @@ bool FlyCameraController::update(Node& pov, DesktopInputContext& input, double d
 
     vec3 movement {0.0f};
 
-    if (input.keyDown(_config.controls.forward)
-        || (_config.controls.alternateForward && input.mouseButtonDown(*_config.controls.alternateForward))) {
+    if (input.keyDown(_config.controls.forward)) {
         movement += pov.forward();
     }
     else if (input.keyDown(_config.controls.back)) {

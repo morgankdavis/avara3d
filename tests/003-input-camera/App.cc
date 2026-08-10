@@ -56,9 +56,9 @@ std::unique_ptr<Scene> App::init() {
         scene->inputContext(Window::InputContext());
         scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 
-        auto config = _cameraController.config();
-        config.moveSpeed = math::max(scene->extent());
-        _cameraController.config(config);
+        auto cameraConfig = _cameraController.config();
+        cameraConfig.moveSpeed = math::max(scene->extent());
+        _cameraController.config(cameraConfig);
 
         _window->center();
         _window->open();
@@ -87,15 +87,6 @@ void App::inputDidUpdate(Runner&                         runner,
     auto input = static_cast<DesktopInputContext*>(&inputContext);
 
     using Key = DesktopInputContext::Key;
-    using MouseButton = DesktopInputContext::MouseButton;
-
-    auto keysDown = input->keysDown();
-    auto mouseButtonsDown = input->mouseButtonsDown();
-    auto mouseScrollWheelDelta = input->mouseScrollWheelDelta();
-
-    // for (auto k : keysDown) {
-    //     cout << "Key: " << static_cast<underlying_type<Key>::type>(k) << endl;
-    // }
 
     if (input->keyPressed(Key::Slash)) {
         window->cursorCaptured(!(window->cursorCaptured()));
@@ -103,15 +94,6 @@ void App::inputDidUpdate(Runner&                         runner,
 
     if (input->keyPressed(Key::Escape)) {
         _window->close();
-    }
-
-    for (auto mb : mouseButtonsDown) {
-        cout << "Mouse button: " << static_cast<underlying_type<MouseButton>::type>(mb) << endl;
-    }
-
-    if (mouseScrollWheelDelta.x > 0 || mouseScrollWheelDelta.y > 0) {
-        cout << "Mouse scroll wheel delta: (" << mouseScrollWheelDelta.x << ", " << mouseScrollWheelDelta.y
-             << ")" << endl;
     }
 
     if (auto pov = scene.visualWorld()->pointOfView().lock(); pov && window->cursorCaptured()) {

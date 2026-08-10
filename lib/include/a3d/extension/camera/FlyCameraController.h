@@ -9,8 +9,6 @@
 #ifndef AVARA3D_EXTENSION_CAMERA_FLYCAMERACONTROLLER_H
 #define AVARA3D_EXTENSION_CAMERA_FLYCAMERACONTROLLER_H
 
-#include <optional>
-
 #include "a3d/input/DesktopInputContext.h"
 
 namespace a3d {
@@ -35,8 +33,6 @@ namespace a3d::ext {
             DesktopInputContext::Key up {DesktopInputContext::Key::Space};
             DesktopInputContext::Key descendModifier {DesktopInputContext::Key::LeftShift};
             DesktopInputContext::Key fastModifier {DesktopInputContext::Key::LeftControl};
-
-            std::optional<DesktopInputContext::MouseButton> alternateForward;
         };
 
         struct Config {
