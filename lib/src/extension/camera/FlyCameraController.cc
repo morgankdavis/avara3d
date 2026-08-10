@@ -9,7 +9,6 @@
 #include "a3d/extension/camera/FlyCameraController.h"
 
 #include <cmath>
-#include <stdexcept>
 
 #include "a3d/Math.h"
 #include "a3d/scene/Node.h"
@@ -37,7 +36,7 @@ void FlyCameraController::config(const Config& config) {
     _config = config;
 }
 
-bool FlyCameraController::update(Node& cameraNode, DesktopInputContext& input, double deltaTime) {
+bool FlyCameraController::update(Node& pov, DesktopInputContext& input, double deltaTime) {
 
     bool changed = false;
 
@@ -49,9 +48,9 @@ bool FlyCameraController::update(Node& cameraNode, DesktopInputContext& input, d
 
         const float deltaYaw = math::atan(_config.lookSensitivity * mouseDelta.x);
         const float deltaPitch = math::atan(_config.lookSensitivity * mouseDelta.y);
-        const vec3  angles = cameraNode.eulerAngles();
+        const vec3  angles = pov.eulerAngles();
 
-        cameraNode.eulerAngles({
+        pov.eulerAngles({
             angles.x + deltaPitch,
             angles.y - deltaYaw,
             0.0f,
@@ -74,26 +73,26 @@ bool FlyCameraController::update(Node& cameraNode, DesktopInputContext& input, d
 
     if (input.keyDown(_config.controls.forward)
         || (_config.controls.alternateForward && input.mouseButtonDown(*_config.controls.alternateForward))) {
-        movement += cameraNode.forward();
+        movement += pov.forward();
     }
     else if (input.keyDown(_config.controls.back)) {
-        movement -= cameraNode.forward();
+        movement -= pov.forward();
     }
 
     if (input.keyDown(_config.controls.left)) {
-        movement -= cameraNode.right();
+        movement -= pov.right();
     }
     else if (input.keyDown(_config.controls.right)) {
-        movement += cameraNode.right();
+        movement += pov.right();
     }
 
     if (input.keyDown(_config.controls.up)) {
         const float direction = input.keyDown(_config.controls.descendModifier) ? -1.0f : 1.0f;
-        movement += cameraNode.up() * direction;
+        movement += pov.up() * direction;
     }
 
     if (math::length(movement) > 0.0f) {
-        cameraNode.position(cameraNode.position() + movement * distance);
+        pov.position(pov.position() + movement * distance);
         changed = true;
     }
 
