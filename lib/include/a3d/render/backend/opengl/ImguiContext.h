@@ -77,6 +77,8 @@ namespace a3d {
          */
         ImFont* addFont(std::unique_ptr<Font> font);
 
+        ImFont* defaultFont() const;
+
         /**
          * Updates Dear ImGui's display metrics and begins a new frame.
          *
@@ -107,6 +109,7 @@ namespace a3d {
 
         ImGuiContext*                      _context;
         std::vector<std::unique_ptr<Font>> _fontSources;
+        ImFont*                            _defaultFont;
         bool                               _fontAtlasDirty;
         bool                               _frameActive;
         bool                               _started;

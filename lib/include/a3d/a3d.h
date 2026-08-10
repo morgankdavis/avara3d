@@ -63,6 +63,7 @@
 #include "a3d/render/Renderer.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
+#include "a3d/ui/Panel.h"
 #include "a3d/util/Bitmask.h"
 #include "a3d/util/Chrono.h"
 #include "a3d/util/Filesystem.h"

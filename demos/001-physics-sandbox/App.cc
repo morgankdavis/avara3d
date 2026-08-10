@@ -240,7 +240,10 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
     }
 }
 
-void App::frameDidBegin(Runner&, Scene&, VisualWorld& visualWorld, const VisualWorld::RenderInfo& info) {
+void App::frameDidBegin(Runner&                        runner,
+                        Scene&                         scene,
+                        VisualWorld&                   visualWorld,
+                        const VisualWorld::RenderInfo& info) {
 
     const float  delta = static_cast<float>(info.updateDeltaTime);
     static float angle = radians(180.0);
@@ -251,5 +254,72 @@ void App::frameDidBegin(Runner&, Scene&, VisualWorld& visualWorld, const VisualW
 
     if (_cameraNode) {
         _cameraController.apply(*_cameraNode);
+    }
+
+    ui::Panel panel("controls", {
+                                    .width = 260.0f,
+                                    .margin = 12.0f,
+                                });
+
+    panel.section("simulation");
+
+    panel.value("state", runner.simulationPaused() ? "paused" : "running");
+    panel.value("time scale", std::format("{:.2f}x", runner.timeScale()));
+
+    panel.row(3);
+
+    if (panel.button("Pause")) {
+        if (!runner.simulationPaused()) {
+            runner.pauseSimulation();
+        }
+    }
+
+    if (panel.button("Step")) {
+        if (runner.simulationPaused()) {
+            runner.requestSimulationStep();
+        }
+    }
+
+    if (panel.button("Reset")) {
+        // resetSimulation();
+    }
+
+    panel.spacer(12.0f);
+
+    panel.section("environment");
+
+    if (auto physicsWorld = scene.physicsWorld()) {
+        const auto gravity = physicsWorld->gravity();
+
+        panel.value("gravity", std::format("{:.2f}, {:.2f}, {:.2f}", gravity.x, gravity.y, gravity.z));
+
+        panel.row(3);
+
+        if (panel.button("Earth")) {
+            physicsWorld->gravity({0.0f, -9.81f, 0.0f});
+        }
+
+        if (panel.button("Moon")) {
+            physicsWorld->gravity({0.0f, -1.62f, 0.0f});
+        }
+
+        if (panel.button("Zero")) {
+            physicsWorld->gravity({0.0f, 0.0f, 0.0f});
+        }
+    }
+
+    panel.spacer(12.0f);
+
+    panel.section("debug");
+
+    auto debugOptions = scene.debugOptions();
+
+    bool meshBounds = util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowBoundingBoxes);
+
+    if (panel.toggle("mesh bounds", meshBounds)) {
+        debugOptions = meshBounds ? util::bitmask::add(debugOptions, Scene::DebugOptions::ShowBoundingBoxes)
+                                  : util::bitmask::remove(debugOptions, Scene::DebugOptions::ShowBoundingBoxes);
+
+        scene.debugOptions(debugOptions);
     }
 }

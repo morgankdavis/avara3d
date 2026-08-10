@@ -10,6 +10,7 @@
 
 #include <limits>
 #include <stdexcept>
+#include <string>
 #include <utility>
 
 #include "a3d/render/backend/opengl/gl.h" // must precede imgui_impl_opengl3.h
@@ -20,15 +21,22 @@
 #include "a3d/Buffer.h"
 #include "a3d/Font.h"
 #include "a3d/render/context/RenderContext.h"
+#include "a3d/util/Filesystem.h"
 
 using namespace a3d;
 using namespace std;
+
+/// Private Constants ///
+
+static const std::string DEFAULT_UI_FONT_NAME {"SourceCodePro-Semibold"};
+static const std::string DEFAULT_UI_FONT_TYPE {"otf"};
 
 /// Internal Lifecycle Functions ///
 
 ImguiContext::ImguiContext():
     _context {nullptr},
     _fontSources {},
+    _defaultFont {nullptr},
     _fontAtlasDirty {false},
     _frameActive {false},
     _started {false} {}
@@ -82,6 +90,16 @@ void ImguiContext::startup(const RenderContext& context) {
     _frameActive = false;
     _started = true;
 
+    auto defaultFont = util::fs::FontNamed(DEFAULT_UI_FONT_NAME, DEFAULT_UI_FONT_TYPE);
+
+    if (!defaultFont || !defaultFont->buffer() || defaultFont->buffer()->size() == 0) {
+        shutdown();
+        throw runtime_error("Unable to load the default A3D UI font.");
+    }
+
+    _defaultFont = addFont(std::move(defaultFont));
+    ImGui::GetIO().FontDefault = _defaultFont;
+
     updateDisplayMetrics(context);
 }
 
@@ -109,6 +127,7 @@ void ImguiContext::shutdown() {
 
     _context = nullptr;
     _fontAtlasDirty = false;
+    _defaultFont = nullptr;
     _started = false;
 }
 
@@ -163,6 +182,17 @@ ImFont* ImguiContext::addFont(unique_ptr<Font> font) {
     _fontAtlasDirty = true;
 
     return imguiFont;
+}
+
+ImFont* ImguiContext::defaultFont() const {
+
+    if (!_started) {
+        return nullptr;
+    }
+
+    makeCurrent();
+
+    return _defaultFont;
 }
 
 void ImguiContext::beginFrame(const RenderContext& context) {

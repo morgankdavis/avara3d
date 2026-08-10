@@ -93,7 +93,7 @@ static void DrawStats(FrameStats&              stats,
                       float                    yPos,
                       int                      id);
 
-static void DrawDebugOptions(Scene& scene, ImFont& bodyFont);
+static void DrawDebugOptions(Scene& scene, ImFont& bodyFont); // TODO: remove?
 
 static void ImguiBeginOverlay(int id, bool allowsInput);
 
@@ -195,31 +195,28 @@ StatsOverlay::~StatsOverlay() = default;
 
 void StatsOverlay::initialize(ImguiContext& context) {
 
+    _bodyImFont = context.defaultFont();
+
+    if (!_bodyImFont) {
+        throw runtime_error("ImguiContext has no default UI font.");
+    }
+
     auto overlayTitleFont = util::fs::FontNamed(STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
 
     if (overlayTitleFont && overlayTitleFont->buffer() && overlayTitleFont->buffer()->size()) {
         _titleImFont = context.addFont(std::move(overlayTitleFont));
-
-        auto overlayBodyFont = util::fs::FontNamed(STATS_BODY_FONT_NAME, STATS_BODY_FONT_TYPE);
-
-        if (overlayBodyFont && overlayBodyFont->buffer() && overlayBodyFont->buffer()->size()) {
-            _bodyImFont = context.addFont(std::move(overlayBodyFont));
-
-            auto overlayAltFont = util::fs::FontNamed(STATS_ALT_FONT_NAME, STATS_ALT_FONT_TYPE);
-
-            if (overlayAltFont && overlayAltFont->buffer() && overlayAltFont->buffer()->size()) {
-                _altBodyImFont = context.addFont(std::move(overlayAltFont));
-            }
-            else {
-                log::e()("Unable to load font: {}.{}", STATS_ALT_FONT_NAME, STATS_ALT_FONT_TYPE);
-            }
-        }
-        else {
-            log::e()("Unable to load font: {}.{}", STATS_BODY_FONT_NAME, STATS_BODY_FONT_TYPE);
-        }
     }
     else {
         log::e()("Unable to load font: {}.{}", STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
+    }
+
+    auto overlayAltFont = util::fs::FontNamed(STATS_ALT_FONT_NAME, STATS_ALT_FONT_TYPE);
+
+    if (overlayAltFont && overlayAltFont->buffer() && overlayAltFont->buffer()->size()) {
+        _altBodyImFont = context.addFont(std::move(overlayAltFont));
+    }
+    else {
+        log::e()("Unable to load font: {}.{}", STATS_ALT_FONT_NAME, STATS_ALT_FONT_TYPE);
     }
 }
 
@@ -244,8 +241,8 @@ void DrawOverlay(const RenderContext&     context,
                  ImFont&                  bodyFont,
                  ImFont&                  altBodyFont) {
 
-    ImguiBeginOverlay(0, true);
-    DrawDebugOptions(const_cast<Scene&>(scene), bodyFont); // TODO: const_cast CHEATING
+    ImguiBeginOverlay(0, false);
+    //DrawDebugOptions(const_cast<Scene&>(scene), bodyFont); // TODO: const_cast CHEATING
 
     float yPos = 0;
     int   id = 0;
