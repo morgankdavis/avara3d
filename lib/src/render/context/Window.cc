@@ -343,21 +343,30 @@ static GLFWcursor* getInvisibleCursor() {
 
 void Window::cursorCaptured(bool captured) {
 
+    // when input ownership moves away from ImGui, discard any queued events
+    // and release its current input state so keys/buttons cannot remain stuck
+    if (captured && !_cursorCaptured && ImGui::GetCurrentContext()) {
+        auto& io = ImGui::GetIO();
+
+        io.ClearEventsQueue();
+        io.ClearInputKeys();
+        io.ClearInputMouse();
+    }
+
     _cursorCaptured = captured;
 
     auto window = _glfwWindow.get();
 
     if (captured) {
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        // hack.
-        // GLFW_CURSOR_DISABLED is supposed to:
-        // "hide the cursor and lock it to the specified window"
-        // [www.glfw.org/docs/latest/input_guide.html]
-        // but at least on Wayland + Kwin, it doesn't actually hide, it just freezes.
+
+        // GLFW_CURSOR_DISABLED is supposed to hide and lock the cursor,
+        // but on at least Wayland + KWin it can remain visible
         static const int     w = 16, h = 16;
         static unsigned char pixels[w * h * 4] = {};
         static GLFWimage     img {w, h, pixels};
         static auto          invCursor = glfwCreateCursor(&img, 0, 0);
+
         glfwSetCursor(window, invCursor);
     }
     else {

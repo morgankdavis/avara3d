@@ -22,9 +22,7 @@ using namespace std;
 /// Private Static Non-Member Prototypes ///
 
 static bool IsFinite(const vec3& value);
-
 static void ValidateConfig(const TurntableCameraController::Config& config);
-
 static bool TryResolveNodeTarget(const TurntableCameraController::NodeTarget& target, vec3& worldPosition);
 
 /// Public Lifecycle Functions ///
@@ -35,7 +33,14 @@ TurntableCameraController::TurntableCameraController():
 TurntableCameraController::TurntableCameraController(const Config& config):
     _config {},
     _view {},
-    _resolvedTarget {0.0f} {
+    _resolvedTarget {0.0f},
+    _primaryActive {false},
+    _primaryDragging {false},
+    _primaryDragMode {DragMode::Orbit},
+    _primaryPressPosition {0.0f},
+    _primaryPreviousPosition {0.0f},
+    _panButtonDragging {false},
+    _panButtonPreviousPosition {0.0f} {
 
     this->config(config);
     resolveTarget();
@@ -44,7 +49,6 @@ TurntableCameraController::TurntableCameraController(const Config& config):
 /// Public Member Functions ///
 
 const TurntableCameraController::Config& TurntableCameraController::config() const {
-
     return _config;
 }
 
@@ -59,7 +63,6 @@ void TurntableCameraController::config(const Config& config) {
 }
 
 const TurntableCameraController::View& TurntableCameraController::view() const {
-
     return _view;
 }
 
@@ -120,7 +123,6 @@ void TurntableCameraController::target(const vec3& worldPosition) {
 }
 
 void TurntableCameraController::target(const shared_ptr<Node>& node) {
-
     target(node, vec3 {0.0f});
 }
 
@@ -147,6 +149,206 @@ void TurntableCameraController::target(const shared_ptr<Node>& node, const vec3&
 
     _view.target = nodeTarget;
     _resolvedTarget = resolvedTarget;
+}
+
+TurntableCameraController::UpdateResult TurntableCameraController::updateInput(DesktopInputContext& input,
+                                                                               float verticalFieldOfView,
+                                                                               float viewportHeight) {
+
+    if (!std::isfinite(verticalFieldOfView) || verticalFieldOfView <= 0.0f
+        || verticalFieldOfView >= math::pi()) {
+
+        throw invalid_argument(
+            "TurntableCameraController vertical field of view must be finite and between 0 and 180 degrees.");
+    }
+
+    if (!std::isfinite(viewportHeight) || viewportHeight <= 0.0f) {
+        throw invalid_argument("TurntableCameraController viewport height must be positive and finite.");
+    }
+
+    UpdateResult result {};
+
+    const vec2 position = input.mousePosition();
+
+    auto orbit = [&](const vec2& delta) {
+        if (delta.x == 0.0f && delta.y == 0.0f) {
+            return;
+        }
+
+        const float previousYaw = _view.yaw;
+        const float previousPitch = _view.pitch;
+
+        _view.yaw -= delta.x * _config.orbitSensitivity;
+
+        _view.pitch =
+            math::clamp(_view.pitch - delta.y * _config.orbitSensitivity, _config.minPitch, _config.maxPitch);
+
+        if (_view.yaw != previousYaw || _view.pitch != previousPitch) {
+            result.cameraChanged = true;
+        }
+    };
+
+    auto pan = [&](const vec2& delta) {
+        if (delta.x == 0.0f && delta.y == 0.0f) {
+            return;
+        }
+
+        const float worldUnitsPerPixel =
+            2.0f * _view.distance * math::tan(verticalFieldOfView * 0.5f) / viewportHeight;
+
+        const float cosPitch = math::cos(_view.pitch);
+
+        const vec3 targetToEye {
+            math::sin(_view.yaw) * cosPitch,
+            math::sin(_view.pitch),
+            math::cos(_view.yaw) * cosPitch,
+        };
+
+        const vec3 forward = -targetToEye;
+
+        const vec3 right = math::normalize(math::cross(forward, vec3 {0.0f, 1.0f, 0.0f}));
+
+        const vec3 up = math::normalize(math::cross(right, forward));
+
+        const vec3 translation = (-right * delta.x + up * delta.y) * worldUnitsPerPixel;
+
+        translateTarget(translation);
+
+        result.cameraChanged = true;
+    };
+
+    auto dolly = [&](float delta) {
+        if (delta == 0.0f) {
+            return;
+        }
+
+        const float previousDistance = _view.distance;
+
+        _view.distance *= math::exp(delta * _config.dollySensitivity);
+
+        _view.distance = math::clamp(_view.distance, _config.minDistance, _config.maxDistance);
+
+        if (_view.distance != previousDistance) {
+            result.cameraChanged = true;
+        }
+    };
+
+    auto applyDrag = [&](DragMode mode, const vec2& delta) {
+        switch (mode) {
+            case DragMode::Orbit:
+                orbit(delta);
+                break;
+
+            case DragMode::Pan:
+                pan(delta);
+                break;
+
+            case DragMode::Dolly:
+                dolly(delta.y);
+                break;
+        }
+    };
+
+    // primary button: click candidate / orbit / modified drag
+
+    if (input.mouseButtonPressed(_config.controls.primaryButton)) {
+
+        _primaryActive = true;
+        _primaryDragging = false;
+
+        _primaryPressPosition = position;
+        _primaryPreviousPosition = position;
+
+        if (input.keyDown(_config.controls.dollyModifier)) {
+            _primaryDragMode = DragMode::Dolly;
+        }
+        else if (input.keyDown(_config.controls.panModifier)) {
+            _primaryDragMode = DragMode::Pan;
+        }
+        else {
+            _primaryDragMode = DragMode::Orbit;
+        }
+    }
+
+    if (_primaryActive && input.mouseButtonDown(_config.controls.primaryButton)) {
+
+        if (!_primaryDragging) {
+
+            const vec2  totalDelta = position - _primaryPressPosition;
+            const float dragDistance = math::length(totalDelta);
+
+            if (dragDistance > 0.0f && dragDistance >= _config.dragThreshold) {
+
+                _primaryDragging = true;
+
+                // apply the entire displacement from the original press so
+                // crossing the threshold doesn't discard the first few pixels
+                applyDrag(_primaryDragMode, totalDelta);
+
+                _primaryPreviousPosition = position;
+            }
+        }
+        else {
+
+            const vec2 delta = position - _primaryPreviousPosition;
+
+            applyDrag(_primaryDragMode, delta);
+
+            _primaryPreviousPosition = position;
+        }
+    }
+
+    if (input.mouseButtonReleased(_config.controls.primaryButton)) {
+
+        if (_primaryActive && !_primaryDragging) {
+            result.primaryClick = PointerClick {
+                .position = position,
+            };
+        }
+
+        _primaryActive = false;
+        _primaryDragging = false;
+    }
+
+    // dedicated pan button
+
+    if (input.mouseButtonPressed(_config.controls.panButton)) {
+
+        _panButtonDragging = true;
+        _panButtonPreviousPosition = position;
+    }
+
+    if (_panButtonDragging && input.mouseButtonDown(_config.controls.panButton)) {
+
+        const vec2 delta = position - _panButtonPreviousPosition;
+
+        pan(delta);
+
+        _panButtonPreviousPosition = position;
+    }
+
+    if (input.mouseButtonReleased(_config.controls.panButton)) {
+        _panButtonDragging = false;
+    }
+
+    // wheel / trackpad dolly
+
+    const float scroll = input.mouseScrollWheelDelta().y;
+
+    if (scroll != 0.0f) {
+
+        const float previousDistance = _view.distance;
+
+        _view.distance *= math::exp(-scroll * _config.scrollDollySensitivity);
+
+        _view.distance = math::clamp(_view.distance, _config.minDistance, _config.maxDistance);
+
+        if (_view.distance != previousDistance) {
+            result.cameraChanged = true;
+        }
+    }
+
+    return result;
 }
 
 void TurntableCameraController::apply(Node& pov) {
@@ -200,10 +402,55 @@ vec3 TurntableCameraController::resolveTarget() {
     return _resolvedTarget;
 }
 
+void TurntableCameraController::translateTarget(const vec3& worldTranslation) {
+
+    if (!IsFinite(worldTranslation)) {
+        throw runtime_error("TurntableCameraController target translation must be finite.");
+    }
+
+    // refresh the cached world position first. this matters when the target
+    // is attached to a Node that may have moved since the previous frame
+    resolveTarget();
+
+    if (auto* worldPosition = std::get_if<vec3>(&_view.target)) {
+
+        *worldPosition += worldTranslation;
+        _resolvedTarget = *worldPosition;
+        return;
+    }
+
+    auto& nodeTarget = std::get<NodeTarget>(_view.target);
+
+    if (auto node = nodeTarget.node.lock()) {
+
+        // translation is a direction/vector, not a position, so W must be zero.
+        // this removes translation from the inverse transform while correctly
+        // accounting for the Node's rotation and scale
+        const vec4 localTranslation4 = math::inverse(node->worldTransform()) * vec4 {worldTranslation, 0.0f};
+
+        const vec3 localTranslation {localTranslation4};
+
+        if (!IsFinite(localTranslation)) {
+            throw runtime_error("TurntableCameraController resolved local target translation is not finite.");
+        }
+
+        nodeTarget.localPosition += localTranslation;
+
+        resolveTarget();
+    }
+    else {
+
+        // the Node has disappeared. preserve the controller's existing
+        // freeze-at-last-world-position behavior, but convert it to a
+        // world-space target now that the user is explicitly moving it
+        _resolvedTarget += worldTranslation;
+        _view.target = _resolvedTarget;
+    }
+}
+
 /// Private Static Non-Member Functions ///
 
 bool IsFinite(const vec3& value) {
-
     return std::isfinite(value.x) && std::isfinite(value.y) && std::isfinite(value.z);
 }
 
@@ -235,6 +482,24 @@ void ValidateConfig(const TurntableCameraController::Config& config) {
     if (config.maxDistance < config.minDistance) {
         throw invalid_argument(
             "TurntableCameraController maximum distance must not be less than minimum distance.");
+    }
+
+    if (!std::isfinite(config.orbitSensitivity) || config.orbitSensitivity < 0.0f) {
+        throw invalid_argument("TurntableCameraController orbit sensitivity must be finite and non-negative.");
+    }
+
+    if (!std::isfinite(config.dollySensitivity) || config.dollySensitivity < 0.0f) {
+        throw invalid_argument("TurntableCameraController dolly sensitivity must be finite and non-negative.");
+    }
+
+    if (!std::isfinite(config.scrollDollySensitivity) || config.scrollDollySensitivity < 0.0f) {
+
+        throw invalid_argument(
+            "TurntableCameraController scroll dolly sensitivity must be finite and non-negative.");
+    }
+
+    if (!std::isfinite(config.dragThreshold) || config.dragThreshold < 0.0f) {
+        throw invalid_argument("TurntableCameraController drag threshold must be finite and non-negative.");
     }
 }
 

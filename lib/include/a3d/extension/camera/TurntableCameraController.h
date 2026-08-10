@@ -10,9 +10,11 @@
 #define AVARA3D_EXTENSION_CAMERA_TURNTABLECAMERACONTROLLER_H
 
 #include <memory>
+#include <optional>
 #include <variant>
 
 #include "a3d/Math.h"
+#include "a3d/input/DesktopInputContext.h"
 
 namespace a3d {
 
@@ -43,13 +45,39 @@ namespace a3d::ext {
             float  distance {10.0f};
         };
 
+        struct Controls {
+
+            DesktopInputContext::MouseButton primaryButton {DesktopInputContext::MouseButton::One};
+            DesktopInputContext::MouseButton panButton {DesktopInputContext::MouseButton::Three};
+            DesktopInputContext::Key         panModifier {DesktopInputContext::Key::LeftShift};
+            DesktopInputContext::Key         dollyModifier {DesktopInputContext::Key::LeftControl};
+        };
+
+        struct PointerClick {
+
+            math::vec2 position;
+        };
+
         struct Config {
 
-            float minPitch {-math::radians(85.0f)};
-            float maxPitch {math::radians(85.0f)};
+            float    minPitch {-math::radians(85.0f)};
+            float    maxPitch {math::radians(85.0f)};
 
-            float minDistance {0.01f};
-            float maxDistance {math::F32_MAX};
+            float    minDistance {0.01f};
+            float    maxDistance {math::F32_MAX};
+
+            float    orbitSensitivity {0.004f};
+            float    dollySensitivity {0.01f};
+            float    scrollDollySensitivity {0.15f};
+            float    dragThreshold {4.0f};
+
+            Controls controls;
+        };
+
+        struct UpdateResult {
+
+            bool                        cameraChanged {false};
+            std::optional<PointerClick> primaryClick;
         };
 
         /// Public Lifecycle Functions ///
@@ -69,18 +97,38 @@ namespace a3d::ext {
         void          target(const std::shared_ptr<Node>& node);
         void          target(const std::shared_ptr<Node>& node, const math::vec3& localPosition);
 
+        UpdateResult  updateInput(DesktopInputContext& input, float verticalFieldOfView, float viewportHeight);
+
         void          apply(Node& pov);
 
     private:
+        /// Private Types ///
+
+        enum class DragMode {
+            Orbit,
+            Pan,
+            Dolly
+        };
+
         /// Private Member Functions ///
 
         math::vec3 resolveTarget();
+        void       translateTarget(const math::vec3& worldTranslation);
 
         /// Private Member Variables ///
 
         Config     _config;
         View       _view;
         math::vec3 _resolvedTarget;
+
+        bool       _primaryActive;
+        bool       _primaryDragging;
+        DragMode   _primaryDragMode;
+        math::vec2 _primaryPressPosition;
+        math::vec2 _primaryPreviousPosition;
+
+        bool       _panButtonDragging;
+        math::vec2 _panButtonPreviousPosition;
     };
 
 }
