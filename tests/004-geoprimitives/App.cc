@@ -24,7 +24,6 @@ const bool                            ENABLE_HIGH_DPI {true};
 const RenderContext::AntialiasingMode ANTIALIAS_MODE {RenderContext::AntialiasingMode::Msaa4X};
 const bool                            ENABLE_VSYNC {false};
 const bool                            CAPTURE_CURSOR {false};
-const float                           MOUSE_SENSITIVITY {0.5};
 const float                           TIMESTEP {1.0 / 120.0};
 const bool                            DARK {false};
 
@@ -190,6 +189,10 @@ std::unique_ptr<Scene> App::init() {
             node->rotation({0.0f, 1.0f, 0.0f}, radians(-30.0f));
         }
 
+        auto cameraConfig = _cameraController.config();
+        cameraConfig.moveSpeed = math::max(scene->extent());
+        _cameraController.config(cameraConfig);
+
         _window->center();
         _window->open();
 
@@ -221,24 +224,23 @@ void App::inputDidUpdate(Runner&                         runner,
 
     // get input
 
-    auto im = static_cast<DesktopInputContext*>(&inputContext);
+    auto input = static_cast<DesktopInputContext*>(&inputContext);
 
-    auto keysDown = im->keysDown();
-    auto mousePositionDelta = im->mousePositionDelta();
+    auto keysDown = input->keysDown();
 
     using Key = DesktopInputContext::Key;
 
-    if (im->keyPressed(Key::Slash)) {
+    if (input->keyPressed(Key::Slash)) {
         window->cursorCaptured(!(window->cursorCaptured()));
     }
 
-    if (im->keyPressed(Key::Escape)) {
+    if (input->keyPressed(Key::Escape)) {
         window->close();
     }
 
     using DebugOptions = Scene::DebugOptions;
 
-    if (im->keyPressed(Key::F)) {
+    if (input->keyPressed(Key::F)) {
         if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowWireframes)) {
             scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowWireframes));
         }
@@ -246,7 +248,7 @@ void App::inputDidUpdate(Runner&                         runner,
             scene.debugOptions(util::bitmask::add(scene.debugOptions(), DebugOptions::ShowWireframes));
         }
     }
-    if (im->keyPressed(Key::B)) {
+    if (input->keyPressed(Key::B)) {
         if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
             scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
         }
@@ -255,57 +257,8 @@ void App::inputDidUpdate(Runner&                         runner,
         }
     }
 
-    // move camera
-
-    if (auto pov = scene.visualWorld()->pointOfView().lock(); pov && window->cursorCaptured()) {
-
-        // look
-
-        vec3 camForward = pov->worldForward();
-        vec3 camRight = pov->worldRight();
-        vec3 camUp = pov->worldUp();
-
-        // tanA = mouseDelta / distance
-        // A = atan(mouseDelta / distance)
-
-        static const float MOUSE_SPEED_SCALAR = .002;
-        static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
-
-        float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
-        float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
-
-        vec3 angles = pov->eulerAngles();
-        // weird angles
-        //_cameraNode->eulerAngles(vec3(angles.x + -deltaRotX, 0, angles.z + deltaRotY));
-        // pitch, yaw, roll
-        pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
-
-        // move
-
-        static float MOVE_SPEED = math::max(scene.rootNode()->extent());
-
-        if (keysDown.count(Key::W)) {
-            vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * camForward;
-            pov->position(pov->position() + positionDelta);
-        }
-        else if (keysDown.count(Key::S)) {
-            vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * -camForward;
-            pov->position(pov->position() + positionDelta);
-        }
-
-        if (keysDown.count(Key::A)) {
-            vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * -camRight;
-            pov->position(pov->position() + positionDelta);
-        }
-        else if (keysDown.count(Key::D)) {
-            vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * camRight;
-            pov->position(pov->position() + positionDelta);
-        }
-
-        if (keysDown.count(Key::Space)) {
-            vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * camUp;
-            pov->position(pov->position() + positionDelta);
-        }
+    if (auto pov = scene.visualWorld()->pointOfView().lock(); pov && _window->cursorCaptured()) {
+        _cameraController.update(*pov, *input, info.deltaTime);
     }
 }
 

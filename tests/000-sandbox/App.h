@@ -12,6 +12,7 @@
 #include <memory>
 
 #include "a3d/Application.h"
+#include "a3d/extension/camera/FlyCameraController.h"
 
 namespace a3d {
 
@@ -45,7 +46,8 @@ namespace test::sandbox {
     private:
         /// Private Member Variables ///
 
-        std::unique_ptr<a3d::Window> _window;
+        std::unique_ptr<a3d::Window>  _window;
+        a3d::ext::FlyCameraController _cameraController;
     };
 
 }

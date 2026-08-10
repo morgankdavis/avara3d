@@ -62,6 +62,10 @@ std::unique_ptr<Scene> App::init() {
 
         scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 
+        auto cameraConfig = _cameraController.config();
+        cameraConfig.moveSpeed = math::max(scene->extent());
+        _cameraController.config(cameraConfig);
+
         _window->center();
         _window->open();
 
@@ -261,62 +265,7 @@ void App::inputDidUpdate(Runner&                         runner,
         }
     }
 
-    // move camera
-
-    if (auto pov = scene.visualWorld()->pointOfView().lock(); pov && window->cursorCaptured()) {
-
-        // look
-
-        vec3 camForward = pov->worldForward();
-        vec3 camRight = pov->worldRight();
-        vec3 camUp = pov->worldUp();
-
-        static const float MOUSE_SPEED_SCALAR = .002;
-        static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
-
-        float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
-        float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
-
-        vec3 angles = pov->eulerAngles();
-        pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
-
-        // move
-
-        static float MOVE_SPEED = 0;
-        if (!MOVE_SPEED) {
-            MOVE_SPEED = math::max(scene.rootNode()->extent());
-        }
-
-        float moveMultiplier = 1.0;
-        if (input.keyDown(Key::LeftControl)) {
-            moveMultiplier = 2.0;
-        }
-
-        if (input.keyDown(Key::W) || input.mouseButtonDown(MouseButton::Four)) {
-            vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * moveMultiplier * camForward;
-            pov->position(pov->position() + positionDelta);
-        }
-        else if (input.keyDown(Key::S)) {
-            vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * moveMultiplier * -camForward;
-            pov->position(pov->position() + positionDelta);
-        }
-
-        if (input.keyDown(Key::A)) {
-            vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * moveMultiplier * -camRight;
-            pov->position(pov->position() + positionDelta);
-        }
-        else if (input.keyDown(Key::D)) {
-            vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * moveMultiplier * camRight;
-            pov->position(pov->position() + positionDelta);
-        }
-
-        if (input.keyDown(Key::Space)) {
-            float direction = 1;
-            if (input.keyDown(Key::LeftShift)) {
-                direction = -1;
-            }
-            vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * moveMultiplier * camUp;
-            pov->position(pov->position() + positionDelta * direction);
-        }
+    if (auto pov = scene.visualWorld()->pointOfView().lock(); pov && _window->cursorCaptured()) {
+        _cameraController.update(*pov, input, info.deltaTime);
     }
 }

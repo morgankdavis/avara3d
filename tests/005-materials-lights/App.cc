@@ -30,7 +30,6 @@ const RenderContext::AntialiasingMode ANTIALIAS_MODE {RenderContext::Antialiasin
 const bool                            ENABLE_VSYNC {false};
 const bool                            CAPTURE_CURSOR {false};
 const bool                            ORTHO_CAMERA {false};
-const float                           MOUSE_SENSITIVITY {0.5};
 
 const float BACKGROUND_ROTATION_SPEED {radians(1.0)};
 const vec3  BACKGROUND_ROTATION_AXIS {0.258819f, 0.965926f, 0.0f};
@@ -113,6 +112,10 @@ std::unique_ptr<Scene> App::init() {
 
         _pointLightOrbitRadius = math::max(scene->rootNode()->extent()) * 0.46f;
 
+        auto cameraConfig = _cameraController.config();
+        cameraConfig.moveSpeed = math::max(scene->extent());
+        _cameraController.config(cameraConfig);
+
         _window->center();
         _window->open();
 
@@ -137,28 +140,27 @@ void App::inputDidUpdate(Runner&                         runner,
 
     // get input
 
-    auto im = static_cast<DesktopInputContext*>(&inputContext);
-    auto keysDown = im->keysDown();
-    auto mousePositionDelta = im->mousePositionDelta();
-    auto mouseScrollWheelDelta = im->mouseScrollWheelDelta();
+    auto input = static_cast<DesktopInputContext*>(&inputContext);
+    auto keysDown = input->keysDown();
+    auto mouseScrollWheelDelta = input->mouseScrollWheelDelta();
 
     using Key = DesktopInputContext::Key;
 
-    if (im->keyPressed(Key::Escape)) {
+    if (input->keyPressed(Key::Escape)) {
         window->close();
     }
 
-    if (im->keyPressed(Key::T)) {
+    if (input->keyPressed(Key::T)) {
         log::app::i()("TREE:\n{}", util::string::TreeString(*(scene.rootNode())));
     }
 
     using FilterMode = Sampler::FilterMode;
-    const bool nearestPressed = im->keyPressed(Key::One);
-    const bool linearPressed = im->keyPressed(Key::Two);
-    const bool nearestMipmapNearestPressed = im->keyPressed(Key::Three);
-    const bool nearestMipmapLinearPressed = im->keyPressed(Key::Four);
-    const bool linearMipmapNearestPressed = im->keyPressed(Key::Five);
-    const bool linearMipmapLinearPressed = im->keyPressed(Key::Six);
+    const bool nearestPressed = input->keyPressed(Key::One);
+    const bool linearPressed = input->keyPressed(Key::Two);
+    const bool nearestMipmapNearestPressed = input->keyPressed(Key::Three);
+    const bool nearestMipmapLinearPressed = input->keyPressed(Key::Four);
+    const bool linearMipmapNearestPressed = input->keyPressed(Key::Five);
+    const bool linearMipmapLinearPressed = input->keyPressed(Key::Six);
 
     if (nearestPressed) {
         SetAllFilterModes(FilterMode::Nearest, scene);
@@ -179,8 +181,8 @@ void App::inputDidUpdate(Runner&                         runner,
         SetAllFilterModes(FilterMode::LinearMipmapLinear, scene);
     }
 
-    const bool minAnisotropyPressed = im->keyPressed(Key::LeftBracket);
-    const bool maxAnisotropyPressed = im->keyPressed(Key::RightBracket);
+    const bool minAnisotropyPressed = input->keyPressed(Key::LeftBracket);
+    const bool maxAnisotropyPressed = input->keyPressed(Key::RightBracket);
 
     if (minAnisotropyPressed) {
         SetAllMaxAnisotropy(1, scene);
@@ -191,7 +193,7 @@ void App::inputDidUpdate(Runner&                         runner,
 
     using DebugOptions = Scene::DebugOptions;
 
-    if (im->keyPressed(Key::F)) {
+    if (input->keyPressed(Key::F)) {
         if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowWireframes)) {
             scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowWireframes));
         }
@@ -200,7 +202,7 @@ void App::inputDidUpdate(Runner&                         runner,
         }
     }
 
-    if (im->keyPressed(Key::B)) {
+    if (input->keyPressed(Key::B)) {
         if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
             scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
         }
@@ -209,7 +211,7 @@ void App::inputDidUpdate(Runner&                         runner,
         }
     }
 
-    if (im->keyPressed(Key::I)) {
+    if (input->keyPressed(Key::I)) {
         if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowStatsOverlay)) {
             scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowStatsOverlay));
         }
@@ -218,15 +220,15 @@ void App::inputDidUpdate(Runner&                         runner,
         }
     }
 
-    if (im->keyPressed(Key::V)) {
+    if (input->keyPressed(Key::V)) {
         window->vSyncEnabled(!(window->vSyncEnabled()));
     }
 
-    if (im->keyPressed(Key::Backslash)) {
+    if (input->keyPressed(Key::Backslash)) {
         util::snapshot::SaveSnapshot(*window);
     }
 
-    if (im->keyPressed(Key::R)) {
+    if (input->keyPressed(Key::R)) {
         if (!window->recordingGIF()) {
             util::snapshot::StartGIFRecording(*window, {320, 240}, 8);
         }
@@ -235,82 +237,23 @@ void App::inputDidUpdate(Runner&                         runner,
         }
     }
 
-    if (im->keyPressed(Key::Slash)) {
+    if (input->keyPressed(Key::Slash)) {
         window->cursorCaptured(!(window->cursorCaptured()));
     }
 
-    // move camera
+    if (auto pov = scene.visualWorld()->pointOfView().lock(); pov && _window->cursorCaptured()) {
 
-    if (auto pov = scene.visualWorld()->pointOfView().lock(); pov && window->cursorCaptured()) {
+        if (mouseScrollWheelDelta.y) {
 
-        // move camera
+            static const float FOV_SPEED = 2.5; // degrees/roll
 
-        if (auto pov = scene.visualWorld()->pointOfView().lock()) {
-
-            if (mouseScrollWheelDelta.y) {
-
-                static const float FOV_SPEED = 2.5; // degrees/roll
-
-                auto camera = dynamic_pointer_cast<PerspectiveCamera>(pov->camera());
-                auto fov = camera->yFov();
-                fov += mouseScrollWheelDelta.y * -radians(FOV_SPEED);
-                camera->yFov(fov);
-            }
-
-            // look
-
-            vec3 camForward = pov->worldForward();
-            vec3 camRight = pov->worldRight();
-            vec3 camUp = pov->worldUp();
-
-            static const float MOUSE_SPEED_SCALAR = .002;
-            static const float MOUSE_SPEED = MOUSE_SENSITIVITY * MOUSE_SPEED_SCALAR;
-
-            float deltaRotX = math::atan(MOUSE_SPEED * mousePositionDelta.x);
-            float deltaRotY = math::atan(MOUSE_SPEED * mousePositionDelta.y);
-
-            vec3 angles = pov->eulerAngles();
-            pov->eulerAngles(vec3(angles.x + deltaRotY, angles.y - deltaRotX, 0));
-
-            // move
-
-            static float MOVE_SPEED = 0;
-            if (!MOVE_SPEED) {
-                MOVE_SPEED = math::max(scene.rootNode()->extent());
-            }
-
-            float moveMultiplier = 1.0;
-            if (keysDown.count(Key::LeftControl)) {
-                moveMultiplier = 2.0;
-            }
-
-            if (keysDown.count(Key::W)) {
-                vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * camForward;
-                pov->position(pov->position() + positionDelta);
-            }
-            else if (keysDown.count(Key::S)) {
-                vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * -camForward;
-                pov->position(pov->position() + positionDelta);
-            }
-
-            if (keysDown.count(Key::A)) {
-                vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * -camRight;
-                pov->position(pov->position() + positionDelta);
-            }
-            else if (keysDown.count(Key::D)) {
-                vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * camRight;
-                pov->position(pov->position() + positionDelta);
-            }
-
-            if (keysDown.count(Key::Space)) {
-                float direction = 1;
-                if (keysDown.count(Key::LeftShift)) {
-                    direction = -1;
-                }
-                vec3 positionDelta = (float) info.deltaTime * MOVE_SPEED * moveMultiplier * camUp;
-                pov->position(pov->position() + positionDelta * direction);
-            }
+            auto camera = dynamic_pointer_cast<PerspectiveCamera>(pov->camera());
+            auto fov = camera->yFov();
+            fov += mouseScrollWheelDelta.y * -radians(FOV_SPEED);
+            camera->yFov(fov);
         }
+
+        _cameraController.update(*pov, *input, info.deltaTime);
     }
 }
 

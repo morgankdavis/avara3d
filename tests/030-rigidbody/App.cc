@@ -35,7 +35,6 @@ const RenderContext::AntialiasingMode AA_MODE {RenderContext::AntialiasingMode::
 const bool                            ENABLE_VSYNC {false};
 const bool                            USE_DEFAULT_LIGHTING {false};
 const bool                            CAPTURE_CURSOR {false};
-const float                           MOUSE_SENSITIVITY {0.5};
 #if defined(A3D_WEB)
 const float TIMESTEP {1.0 / 30.0};
 #else
@@ -251,7 +250,6 @@ void App::inputDidUpdate(Runner&                         runner,
     using MouseButton = DesktopInputContext::MouseButton;
     using DebugOptions = Scene::DebugOptions;
 
-    const auto mousePositionDelta = input.mousePositionDelta();
     const auto mouseScrollWheelDelta = input.mouseScrollWheelDelta();
 
     if (input.keyPressed(Key::Escape)) {
