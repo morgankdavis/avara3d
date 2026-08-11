@@ -30,6 +30,9 @@ const bool                            CAPTURE_CURSOR {false};
 const float                           TIMESTEP {1.0 / 120.0};
 const float                           BACKGROUND_ROTATION_SPEED {radians(0.5f)};
 const vec3                            BACKGROUND_ROTATION_AXIS {0.5f, 1.0f, 1.0f};
+const vec3                            GRAVITY_EARTH {0.0f, -9.807f, 0.0f};
+const vec3                            GRAVITY_MOON {0.0f, -1.62f, 0.0f};
+const vec3                            GRAVITY_ZERO {0.0f, 0.0f, 0.0f};
 
 /// Public Lifecycle Functions ///
 
@@ -240,7 +243,10 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
     }
 }
 
-void App::frameDidBegin(Runner&, Scene&, VisualWorld& visualWorld, const VisualWorld::RenderInfo& info) {
+void App::frameDidBegin(Runner&                        runner,
+                        Scene&                         scene,
+                        VisualWorld&                   visualWorld,
+                        const VisualWorld::RenderInfo& info) {
 
     const float  delta = static_cast<float>(info.updateDeltaTime);
     static float angle = radians(180.0);
@@ -251,5 +257,81 @@ void App::frameDidBegin(Runner&, Scene&, VisualWorld& visualWorld, const VisualW
 
     if (_cameraNode) {
         _cameraController.apply(*_cameraNode);
+    }
+
+    ui::Panel panel("controls", {
+                                    .width = 260.0f,
+                                    .margin = 12.0f,
+                                });
+
+    panel.section("simulation");
+
+    const bool paused = runner.simulationPaused();
+
+    panel.value("state", paused ? "paused" : "running");
+    panel.value("time scale", std::format("{:.2f}x", runner.timeScale()));
+
+    panel.row(paused ? 3 : 2);
+
+    if (panel.button(paused ? "Resume" : "Pause")) {
+        if (paused) {
+            runner.resumeSimulation();
+        }
+        else {
+            runner.pauseSimulation();
+        }
+    }
+
+    if (paused) {
+        if (panel.button("Step")) {
+            runner.requestSimulationStep();
+        }
+    }
+
+    if (panel.button("Reset")) {
+        // resetSimulation();
+    }
+
+    panel.spacer(12.0f);
+
+    panel.section("environment");
+
+    if (auto physicsWorld = scene.physicsWorld()) {
+        const auto gravity = physicsWorld->gravity();
+
+        panel.value("gravity", std::format("{:.2f}, {:.2f}, {:.2f}", gravity.x, gravity.y, gravity.z));
+
+        const auto isGravity = [&gravity](const vec3& value) {
+            return length(gravity - value) < 0.001f;
+        };
+
+        panel.row(3);
+
+        if (panel.option("Earth", isGravity(GRAVITY_EARTH))) {
+            physicsWorld->gravity(GRAVITY_EARTH);
+        }
+
+        if (panel.option("Moon", isGravity(GRAVITY_MOON))) {
+            physicsWorld->gravity(GRAVITY_MOON);
+        }
+
+        if (panel.option("Zero", isGravity(GRAVITY_ZERO))) {
+            physicsWorld->gravity(GRAVITY_ZERO);
+        }
+    }
+
+    panel.spacer(12.0f);
+
+    panel.section("debug");
+
+    auto debugOptions = scene.debugOptions();
+
+    bool meshBounds = util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowBoundingBoxes);
+
+    if (panel.toggle("mesh bounds", meshBounds)) {
+        debugOptions = meshBounds ? util::bitmask::add(debugOptions, Scene::DebugOptions::ShowBoundingBoxes)
+                                  : util::bitmask::remove(debugOptions, Scene::DebugOptions::ShowBoundingBoxes);
+
+        scene.debugOptions(debugOptions);
     }
 }
