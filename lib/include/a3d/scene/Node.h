@@ -10,6 +10,7 @@
 #define AVARA3D_SCENE_NODE_H
 
 #include <climits>
+#include <cstdint>
 #include <memory>
 #include <optional>
 #include <string>
@@ -34,6 +35,13 @@ namespace a3d {
     class Node : public std::enable_shared_from_this<Node> {
 
     public:
+        /// Public Types ///
+
+        enum class DebugOptions : uint32_t {
+            None             = 0,
+            ShowHighlightBox = 1 << 0
+        };
+
         /// Public Static Member Functions ///
 
         static std::shared_ptr<Node> NamedNode(const std::string& name);
@@ -123,6 +131,9 @@ namespace a3d {
         bool                               hidden() const;
         void                               hidden(bool hidden);
 
+        DebugOptions                       debugOptions() const;
+        void                               debugOptions(DebugOptions options);
+
         Scene*                             scene() const;
 
         std::weak_ptr<Node>                parent() const;
@@ -198,12 +209,16 @@ namespace a3d {
         mutable std::optional<math::vec3>  _eulerAngles;
         std::unique_ptr<PhysicsBody>       _physicsBody;
         bool                               _hidden;
+        DebugOptions                       _debugOptions;
         Scene*                             _scene;
         std::weak_ptr<Node>                _parent;
         DirtyMask                          _dirtyMask;
     };
 
     namespace util::bitmask {
+
+        template<>
+        struct enable_ops<Node::DebugOptions> : std::true_type {};
 
         template<>
         struct enable_ops<Node::DirtyMask> : std::true_type {};

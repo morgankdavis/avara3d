@@ -342,18 +342,18 @@ void App::inputDidUpdate(Runner&       runner,
 
     if (input.mouseButtonPressed(MouseButton::One)) {
         if (!result.pointerDragging) {
-            _selection = Pick(scene, input.mousePosition());
-            if (_selection) {
-                if (auto node = _selection->node.lock()) {
-                    auto name = node->name();
-                    if (name) {
-                        log::app::i()("Selection: {}", *name);
-                    }
-                    else {
-                        log::app::i()("Selection: {:P}", static_cast<void*>(node.get()));
-                    }
-                }
-            }
+            select(Pick(scene, input.mousePosition()));
+            // if (_selection) {
+            //     if (auto node = _selection->node.lock()) {
+            //         auto name = node->name();
+            //         if (name) {
+            //             log::app::i()("Selection: {}", *name);
+            //         }
+            //         else {
+            //             log::app::i()("Selection: {:P}", static_cast<void*>(node.get()));
+            //         }
+            //     }
+            // }
         }
     }
 }
@@ -586,7 +586,7 @@ void App::frameDidBegin(Runner&                        runner,
     }
     else {
         // The selected node was removed from the scene.
-        _selection.reset();
+        select(nullopt);
         panel.text("click an object to inspect");
     }
 
@@ -637,6 +637,30 @@ void App::frameDidBegin(Runner&                        runner,
     }
 }
 
+/// Private Member Functions ///
+
+void App::select(optional<PickResult> selection) {
+
+    using DebugOptions = Node::DebugOptions;
+
+    if (_selection) {
+        if (auto node = _selection->node.lock()) {
+            node->debugOptions(util::bitmask::remove(node->debugOptions(), DebugOptions::ShowHighlightBox));
+        }
+    }
+
+    _selection = std::move(selection);
+
+    if (_selection) {
+        if (auto node = _selection->node.lock()) {
+            node->debugOptions(util::bitmask::add(node->debugOptions(), DebugOptions::ShowHighlightBox));
+        }
+        else {
+            _selection.reset();
+        }
+    }
+}
+
 /// Private Static Non-Member Functions ///
 
 optional<App::PickResult> Pick(Scene& scene, const vec2& screenPosition) {
@@ -648,25 +672,30 @@ optional<App::PickResult> Pick(Scene& scene, const vec2& screenPosition) {
         return nullopt;
     }
 
+    const auto isSelectable = [](const Node& node) {
+        return node.mesh() != nullptr;
+    };
+
     const auto from = visualWorld->unprojectPoint({screenPosition.x, screenPosition.y, 0.0f});
     const auto to = visualWorld->unprojectPoint({screenPosition.x, screenPosition.y, 1.0f});
     const auto hits = physicsWorld->rayTest(from, to);
 
-    if (hits.empty()) {
-        return nullopt;
+    for (const auto& hit : hits) {
+
+        auto node = hit.node();
+
+        if (!node || !isSelectable(*node)) {
+            continue;
+        }
+
+        return App::PickResult {
+            .node = node,
+            .worldHitPosition = hit.worldCoordinates(),
+            .worldHitNormal = hit.worldNormal(),
+        };
     }
 
-    const auto& hit = hits.front();
-
-    if (!hit.node()) {
-        return nullopt;
-    }
-
-    return App::PickResult {
-        .node = hit.node(),
-        .worldHitPosition = hit.worldCoordinates(),
-        .worldHitNormal = hit.worldNormal(),
-    };
+    return nullopt;
 }
 
 void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {

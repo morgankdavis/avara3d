@@ -63,6 +63,10 @@ namespace demo::physicssandbox {
                            const a3d::VisualWorld::RenderInfo& info) override;
 
     private:
+        /// Private Member Functions ///
+
+        void select(std::optional<PickResult> selection);
+
         /// Private Member Variables ///
 
         std::unique_ptr<a3d::Window>        _window;

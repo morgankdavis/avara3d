@@ -56,6 +56,7 @@ Node::Node():
     _eulerAngles {},
     _physicsBody {},
     _hidden {false},
+    _debugOptions {DebugOptions::None},
     _scene {},
     _parent {},
     _dirtyMask {DirtyMask::None} {}
@@ -455,6 +456,14 @@ bool Node::hidden() const {
 
 void Node::hidden(bool hidden) {
     _hidden = hidden;
+}
+
+Node::DebugOptions Node::debugOptions() const {
+    return _debugOptions;
+}
+
+void Node::debugOptions(DebugOptions options) {
+    _debugOptions = options;
 }
 
 Scene* Node::scene() const {

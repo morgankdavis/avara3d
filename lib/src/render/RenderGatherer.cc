@@ -25,6 +25,13 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
+/// Private Constants ///
+
+const Color MESH_OBB_COLOR {vec4 {0.5f, 0.5f, 0.5f, 1.0f}};
+const Color MESH_AABB_COLOR {vec4 {1.0f, 0.0f, 0.0f, 1.0f}};
+const Color SCENE_AABB_COLOR {vec4 {0.0f, 0.5f, 0.0f, 1.0f}};
+const Color HIGHLIGHT_BOX_COLOR {vec4 {1.0f, 1.0f, 0.0f, 1.0f}};
+
 /// Internal Static Member Functions ///
 
 // "gather / collect / cull"
@@ -70,6 +77,8 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
 
         const mat4 world = parentWorld * n->transform();
         const bool wireframe = util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowWireframes);
+        const bool showHighlightBox =
+            util::bitmask::contains(n->debugOptions(), Node::DebugOptions::ShowHighlightBox);
 
         if (auto* mesh = n->mesh().get()) {
 
@@ -124,9 +133,18 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
             }
 
             if (showBounds) {
+
+                if (!showHighlightBox) {
+                    DebugLinesBuilder::AppendOBBFromLocalAABB(output.debugLines, mesh->localAABB(), world,
+                                                              MESH_OBB_COLOR);
+                }
+
+                DebugLinesBuilder::AppendAABB(output.debugLines, mesh->worldAABB(world, false), MESH_AABB_COLOR);
+            }
+
+            if (showHighlightBox) {
                 DebugLinesBuilder::AppendOBBFromLocalAABB(output.debugLines, mesh->localAABB(), world,
-                                                          *Color::Gray());
-                DebugLinesBuilder::AppendAABB(output.debugLines, mesh->worldAABB(world, false), *Color::Red());
+                                                          HIGHLIGHT_BOX_COLOR);
             }
 
             ++stats.meshes;
@@ -147,7 +165,7 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
     }
 
     if (showBounds) {
-        DebugLinesBuilder::AppendAABB(output.debugLines, scene.aabb(false), *Color::Green());
+        DebugLinesBuilder::AppendAABB(output.debugLines, scene.aabb(false), SCENE_AABB_COLOR);
     }
 
     return output;
