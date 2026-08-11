@@ -11,8 +11,10 @@
 
 #include <chrono>
 #include <memory>
+#include <optional>
 
 #include "a3d/Application.h"
+#include "a3d/Math.h"
 #include "a3d/extension/camera/TurntableCameraController.h"
 
 namespace a3d {
@@ -28,6 +30,14 @@ namespace demo::physicssandbox {
     class App : public a3d::Application {
 
     public:
+        /// Public Types ///
+
+        struct PickResult {
+            std::weak_ptr<a3d::Node> node;
+            a3d::math::vec3          worldHitPosition;
+            a3d::math::vec3          worldHitNormal;
+        };
+
         /// Public Lifecycle Functions ///
 
         App(int argc, char* argv[]);
@@ -58,6 +68,7 @@ namespace demo::physicssandbox {
         std::unique_ptr<a3d::Window>        _window;
         a3d::ext::TurntableCameraController _cameraController;
         std::shared_ptr<a3d::Node>          _cameraNode;
+        std::optional<PickResult>           _selection;
         std::chrono::milliseconds           _pendingHiccup {0};
     };
 

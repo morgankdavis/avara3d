@@ -37,7 +37,8 @@ const vec3                            GRAVITY_ZERO {0.0f, 0.0f, 0.0f};
 
 /// Private Static Non-Member Prototypes ///
 
-void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction);
+static optional<App::PickResult> Pick(Scene& scene, const vec2& screenPosition);
+static void                      ShootSlurm(Scene& scene, const vec3& location, const vec3& direction);
 
 /// Public Lifecycle Functions ///
 
@@ -152,7 +153,6 @@ std::unique_ptr<Scene> App::init() {
             scene->rootNode()->addChild(pointLightNode);
         }
 
-
         // janus
 
         // auto janusNode = Node::MeshNode(util::fs::MeshNamed("janus/janus"));
@@ -168,23 +168,17 @@ std::unique_ptr<Scene> App::init() {
             scene->rootNode()->addChild(janusNode);
         }
 
-
-
-
-
         // angel
 
         // auto anielNode = Node::MeshNode(util::fs::MeshNamed("aniel/aniel"));
         // scene->rootNode()->addChild(anielNode);
         // auto anielExtent = anielNode->extent();
 
-
         // constexpr float ANGEL_HEIGHT = 2.0f;
         // auto            angelNode = Node::MeshNode(util::fs::MeshNamed("aniel/aniel"));
         // angelNode->scale(angelNode->scale() * (ANGEL_HEIGHT / angelNode->extent(true).y));
         // angelNode->physicsBody(PhysicsBody::StaticBody());
         // scene->rootNode()->addChild(angelNode);
-
 
         {
             constexpr float ANGEL_HEIGHT = 2.0f;
@@ -197,7 +191,6 @@ std::unique_ptr<Scene> App::init() {
             angelNode->physicsBody(PhysicsBody::StaticBody());
             scene->rootNode()->addChild(angelNode);
         }
-
 
         // {
         //     auto topLight = Light::Spot(Color::White());
@@ -231,8 +224,6 @@ std::unique_ptr<Scene> App::init() {
         //     scene->rootNode()->addChild(bottomLightNode);
         // }
 
-
-
         // banana
 
         // _bananaNode = Node::MeshNode(util::fs::MeshNamed("banana_lod/banana_lod"));
@@ -240,7 +231,6 @@ std::unique_ptr<Scene> App::init() {
         // auto ry = math::quaternion({0.0f, 1.0f, 0.0f}, radians(90.0f));
         // _bananaNode->orientation(rx * ry);
         // scene->rootNode()->addChild(_bananaNode);
-
 
         // teapot
 
@@ -269,7 +259,6 @@ std::unique_ptr<Scene> App::init() {
 
             scene->rootNode()->addChild(teapotNode);
         }
-
 
         // camera
 
@@ -310,11 +299,15 @@ bool App::shouldContinue(const Scene& scene) {
     return _window->isOpen();
 }
 
-void App::inputDidUpdate(Runner&, Scene&, InputContext& inputContext, const InputContext::UpdateInfo&) {
+void App::inputDidUpdate(Runner&       runner,
+                         Scene&        scene,
+                         InputContext& inputContext,
+                         const InputContext::UpdateInfo&) {
 
     auto& input = static_cast<DesktopInputContext&>(inputContext);
 
     using Key = DesktopInputContext::Key;
+    using MouseButton = DesktopInputContext::MouseButton;
 
     if (input.keyPressed(Key::Escape)) {
         _window->close();
@@ -332,6 +325,23 @@ void App::inputDidUpdate(Runner&, Scene&, InputContext& inputContext, const Inpu
 
     //_window->cursorHidden(result.pointerDragging);
     _window->cursorCaptured(result.pointerDragging);
+
+    if (input.mouseButtonPressed(MouseButton::One)) {
+        if (!result.pointerDragging) {
+            _selection = Pick(scene, input.mousePosition());
+            if (_selection) {
+                if (auto node = _selection->node.lock()) {
+                    auto name = node->name();
+                    if (name) {
+                        log::app::i()("Selection: {}", *name);
+                    }
+                    else {
+                        log::app::i()("Selection: {:P}", static_cast<void*>(node.get()));
+                    }
+                }
+            }
+        }
+    }
 }
 
 void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
@@ -377,10 +387,12 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
     //     }
     // }
 
-    const auto visualWorld = scene.visualWorld();
-    if (auto pov = visualWorld->pointOfView().lock(); input.mouseButtonPressed(MouseButton::One)) {
-        ShootSlurm(scene, pov->worldPosition(), pov->worldForward());
-    }
+    // shoot slurm
+
+    // const auto visualWorld = scene.visualWorld();
+    // if (auto pov = visualWorld->pointOfView().lock(); input.mouseButtonPressed(MouseButton::One)) {
+    //     ShootSlurm(scene, pov->worldPosition(), pov->worldForward());
+    // }
 }
 
 void App::frameDidBegin(Runner&                        runner,
@@ -512,6 +524,36 @@ void App::frameDidBegin(Runner&                        runner,
 }
 
 /// Private Static Non-Member Functions ///
+
+optional<App::PickResult> Pick(Scene& scene, const vec2& screenPosition) {
+
+    auto visualWorld = scene.visualWorld();
+    auto physicsWorld = scene.physicsWorld();
+
+    if (!visualWorld || !physicsWorld) {
+        return nullopt;
+    }
+
+    const auto from = visualWorld->unprojectPoint({screenPosition.x, screenPosition.y, 0.0f});
+    const auto to = visualWorld->unprojectPoint({screenPosition.x, screenPosition.y, 1.0f});
+    const auto hits = physicsWorld->rayTest(from, to);
+
+    if (hits.empty()) {
+        return nullopt;
+    }
+
+    const auto& hit = hits.front();
+
+    if (!hit.node()) {
+        return nullopt;
+    }
+
+    return App::PickResult {
+        .node = hit.node(),
+        .worldHitPosition = hit.worldCoordinates(),
+        .worldHitNormal = hit.worldNormal(),
+    };
+}
 
 void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
 
