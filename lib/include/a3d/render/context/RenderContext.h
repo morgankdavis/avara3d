@@ -32,7 +32,7 @@ namespace a3d {
     public:
         /// Public Types ///
 
-        enum class AntialiasingMode : uint8_t {
+        enum class Antialiasing : uint8_t {
             None    = 0,
             Msaa2X  = 2,
             Msaa4X  = 4,
@@ -45,7 +45,7 @@ namespace a3d {
         virtual bool           vSyncEnabled() const       = 0;
         virtual void           vSyncEnabled(bool enabled) = 0;
 
-        AntialiasingMode       antialiasingMode() const;
+        Antialiasing           antialiasing() const;
 
         std::unique_ptr<Image> snapshot() const;
 
@@ -104,7 +104,7 @@ namespace a3d {
     protected:
         /// Protected Member Variables ///
 
-        AntialiasingMode           _antialiasingMode;
+        Antialiasing               _antialiasing;
         std::unique_ptr<GifWriter> _gifWriter;
         bool                       _recordingGIF;
         unsigned                   _gifRecordingWidth;

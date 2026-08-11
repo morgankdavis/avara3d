@@ -17,15 +17,15 @@ using namespace std;
 
 /// Private Constants ///
 
-const Log::Level                      APP_LOG_LEVEL {Log::Level::Debug};
-const uvec2                           WINDOW_SIZE {1280, 768};
-const bool                            FULLSCREEN {false};
-const bool                            ENABLE_HIGH_DPI {true};
-const RenderContext::AntialiasingMode ANTIALIAS_MODE {RenderContext::AntialiasingMode::Msaa4X};
-const bool                            ENABLE_VSYNC {false};
-const bool                            CAPTURE_CURSOR {false};
-const float                           TIMESTEP {1.0 / 120.0};
-const bool                            DARK {false};
+const Log::Level                  APP_LOG_LEVEL {Log::Level::Debug};
+const uvec2                       WINDOW_SIZE {1280, 768};
+const bool                        FULLSCREEN {false};
+const bool                        ENABLE_HIGH_DPI {true};
+const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::Msaa4X};
+const bool                        ENABLE_VSYNC {false};
+const bool                        CAPTURE_CURSOR {false};
+const float                       TIMESTEP {1.0 / 120.0};
+const bool                        DARK {false};
 
 /// Public Lifecycle Functions ///
 
@@ -39,7 +39,7 @@ App::~App() = default;
 std::unique_ptr<Scene> App::init() {
     try {
         _window = make_unique<Window>(RenderContext::RenderingApi::OpenGL, *util::fs::ExecutableName(),
-                                      WINDOW_SIZE, FULLSCREEN, ENABLE_HIGH_DPI, ANTIALIAS_MODE);
+                                      WINDOW_SIZE, FULLSCREEN, ENABLE_HIGH_DPI, ANTIALIASING);
         _window->vSyncEnabled(ENABLE_VSYNC);
         _window->cursorCaptured(CAPTURE_CURSOR);
 
@@ -264,7 +264,7 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
 
     if (auto pivot = _pointLightPivotNode.lock()) {
         const float rotation = static_cast<float>(info.deltaTime) * radians(-30.0f);
-        const auto angles = pivot->eulerAngles();
+        const auto  angles = pivot->eulerAngles();
         pivot->eulerAngles({0.0f, angles.y - rotation, 0.0f});
     }
 }

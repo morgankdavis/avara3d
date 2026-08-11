@@ -37,7 +37,7 @@ static ImGuiKey ImGuiKeyFromQtKey(int qtKey);
 
 /// Public Lifecycle Functions ///
 
-Viewport::QtViewport(RenderingApi renderingApi, AntialiasingMode antialiasingMode, QWidget* parent):
+Viewport::QtViewport(RenderingApi renderingApi, Antialiasing antialiasingMode, QWidget* parent):
     RenderContext(renderingApi),
     QOpenGLWidget(parent),
     _cursorCaptured {false},
@@ -51,9 +51,9 @@ Viewport::QtViewport(RenderingApi renderingApi, AntialiasingMode antialiasingMod
     QSurfaceFormat fmt;
     fmt.setVersion(3, 3);
     fmt.setProfile(QSurfaceFormat::CoreProfile);
-    fmt.setSamples(static_cast<underlying_type<AntialiasingMode>::type>(antialiasingMode));
+    fmt.setSamples(static_cast<underlying_type<Antialiasing>::type>(antialiasingMode));
     setFormat(fmt);
-    _antialiasingMode = antialiasingMode;
+    _antialiasing = antialiasingMode;
 
     setMouseTracking(true);
     setFocusPolicy(Qt::StrongFocus); // tab + click focus

@@ -20,15 +20,15 @@ using namespace a3d::math;
 using namespace std;
 using namespace std::placeholders;
 
-const Log::Level                      APP_LOG_LEVEL {Log::Level::Debug};
-const uvec2                           WINDOW_SIZE {1280, 768};
-const RenderContext::AntialiasingMode ANTIALIAS_MODE {RenderContext::AntialiasingMode::Msaa4X};
-const bool                            CAPTURE_CURSOR {false};
+const Log::Level                  APP_LOG_LEVEL {Log::Level::Debug};
+const uvec2                       WINDOW_SIZE {1280, 768};
+const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::Msaa4X};
+const bool                        CAPTURE_CURSOR {false};
 
 MainWindow::MainWindow(QWidget* parent):
     QMainWindow(parent),
     _ui(new Ui::MainWindow),
-    _viewport(new qt::QtViewport(RenderContext::RenderingApi::OpenGL, ANTIALIAS_MODE, this)),
+    _viewport(new qt::QtViewport(RenderContext::RenderingApi::OpenGL, ANTIALIASING, this)),
     _scene {},
     _runner {} {
 
@@ -112,8 +112,8 @@ void MainWindow::initLog(Log::Level level) {
     string executableName = *util::fs::ExecutableName();
 
     auto nativeSink = make_unique<StdOutLogSink>();
-    auto fileSink = make_unique<FileLogSink>(*(util::fs::ExecutableDirectory())
-                                             / (executableName + string(".log")));
+    auto fileSink =
+        make_unique<FileLogSink>(*(util::fs::ExecutableDirectory()) / (executableName + string(".log")));
     auto sinks = vector<unique_ptr<LogSink>>();
     sinks.push_back(std::move(nativeSink));
     sinks.push_back(std::move(fileSink));

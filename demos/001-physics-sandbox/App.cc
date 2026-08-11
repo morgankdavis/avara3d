@@ -21,20 +21,20 @@ using namespace std;
 
 /// Private Constants ///
 
-const Log::Level                      APP_LOG_LEVEL {Log::Level::Debug};
-const uvec2                           WINDOW_SIZE {1280, 768};
-const bool                            FULLSCREEN {false};
-const bool                            ENABLE_HIGH_DPI {true};
-const RenderContext::AntialiasingMode ANTIALIAS_MODE {RenderContext::AntialiasingMode::Msaa4X};
-const bool                            ENABLE_VSYNC {false};
-const bool                            CAPTURE_CURSOR {false};
-const float                           TIME_STEP {1.0 / 120.0};
-const std::uint32_t                   MAX_CATCH_UP_STEPS {2};
-const float                           BACKGROUND_ROTATION_SPEED {radians(0.5f)};
-const vec3                            BACKGROUND_ROTATION_AXIS {0.5f, 1.0f, 1.0f};
-const vec3                            GRAVITY_EARTH {0.0f, -9.807f, 0.0f};
-const vec3                            GRAVITY_MOON {0.0f, -1.62f, 0.0f};
-const vec3                            GRAVITY_ZERO {0.0f, 0.0f, 0.0f};
+const Log::Level                  APP_LOG_LEVEL {Log::Level::Debug};
+const uvec2                       WINDOW_SIZE {1280, 768};
+const bool                        FULLSCREEN {false};
+const bool                        ENABLE_HIGH_DPI {true};
+const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::Msaa4X};
+const bool                        ENABLE_VSYNC {false};
+const bool                        CAPTURE_CURSOR {false};
+const float                       TIME_STEP {1.0 / 120.0};
+const std::uint32_t               MAX_CATCH_UP_STEPS {2};
+const float                       BACKGROUND_ROTATION_SPEED {radians(0.5f)};
+const vec3                        BACKGROUND_ROTATION_AXIS {0.5f, 1.0f, 1.0f};
+const vec3                        GRAVITY_EARTH {0.0f, -9.807f, 0.0f};
+const vec3                        GRAVITY_MOON {0.0f, -1.62f, 0.0f};
+const vec3                        GRAVITY_ZERO {0.0f, 0.0f, 0.0f};
 
 /// Private Static Non-Member Prototypes ///
 
@@ -63,7 +63,7 @@ App::~App() = default;
 std::unique_ptr<Scene> App::init() {
     try {
         _window = make_unique<Window>(RenderContext::RenderingApi::OpenGL, *util::fs::ExecutableName(),
-                                      WINDOW_SIZE, FULLSCREEN, ENABLE_HIGH_DPI, ANTIALIAS_MODE);
+                                      WINDOW_SIZE, FULLSCREEN, ENABLE_HIGH_DPI, ANTIALIASING);
         _window->vSyncEnabled(ENABLE_VSYNC);
         _window->cursorCaptured(CAPTURE_CURSOR);
 

@@ -40,7 +40,7 @@ namespace a3d {
                const math::uvec2& size,
                bool               fullScreen,
                bool               enableHighDPI    = true,
-               AntialiasingMode   antialiasingMode = AntialiasingMode::None);
+               Antialiasing       antialiasingMode = Antialiasing::None);
 
         Window(const Window& other)            = delete;
         Window& operator=(const Window& other) = delete;

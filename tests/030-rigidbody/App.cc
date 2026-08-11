@@ -27,14 +27,14 @@ using namespace test::rigidbody;
 
 /// Private Constants ///
 
-const Log::Level                      APP_LOG_LEVEL {Log::Level::Debug};
-const uvec2                           WINDOW_SIZE {1280, 768};
-const bool                            FULLSCREEN {false};
-const bool                            ENABLE_HIGH_DPI {true};
-const RenderContext::AntialiasingMode AA_MODE {RenderContext::AntialiasingMode::Msaa16X};
-const bool                            ENABLE_VSYNC {false};
-const bool                            USE_DEFAULT_LIGHTING {false};
-const bool                            CAPTURE_CURSOR {false};
+const Log::Level                  APP_LOG_LEVEL {Log::Level::Debug};
+const uvec2                       WINDOW_SIZE {1280, 768};
+const bool                        FULLSCREEN {false};
+const bool                        ENABLE_HIGH_DPI {true};
+const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::Msaa16X};
+const bool                        ENABLE_VSYNC {false};
+const bool                        USE_DEFAULT_LIGHTING {false};
+const bool                        CAPTURE_CURSOR {false};
 #if defined(A3D_WEB)
 const float TIMESTEP {1.0 / 30.0};
 #else
@@ -74,7 +74,7 @@ App::~App() = default;
 unique_ptr<Scene> App::init() {
     try {
         _window = make_unique<Window>(RenderContext::RenderingApi::OpenGL, *util::fs::ExecutableName(),
-                                      WINDOW_SIZE, FULLSCREEN, ENABLE_HIGH_DPI, AA_MODE);
+                                      WINDOW_SIZE, FULLSCREEN, ENABLE_HIGH_DPI, ANTIALIASING);
         _window->vSyncEnabled(ENABLE_VSYNC);
         _window->cursorCaptured(CAPTURE_CURSOR);
 

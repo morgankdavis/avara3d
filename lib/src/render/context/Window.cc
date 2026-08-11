@@ -56,12 +56,12 @@ unique_ptr<DesktopInputContext> Window::InputContext() {
 
 /// Public Lifescycle ///
 
-Window::Window(RenderingApi     renderingAPI,
-               const string&    title,
-               const uvec2&     size,
-               bool             fullScreen,
-               bool             enableHighDPI,
-               AntialiasingMode antialiasingMode):
+Window::Window(RenderingApi  renderingAPI,
+               const string& title,
+               const uvec2&  size,
+               bool          fullScreen,
+               bool          enableHighDPI,
+               Antialiasing  antialiasingMode):
     RenderContext {renderingAPI},
     _glfwWindow {},
     _vSyncEnabled {false},
@@ -73,7 +73,7 @@ Window::Window(RenderingApi     renderingAPI,
     _inputContext {} {
     log::d();
 
-    _antialiasingMode = antialiasingMode; // see above (?)
+    _antialiasing = antialiasingMode; // see above (?)
 
     if (InitGLFW()) {
 #if defined(A3D_GL_WEB)

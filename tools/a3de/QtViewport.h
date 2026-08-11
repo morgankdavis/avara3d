@@ -34,9 +34,9 @@ namespace a3d::qt {
 
         /// Public Lifecycle Functions ///
 
-        explicit QtViewport(RenderingApi     renderingApi,
-                            AntialiasingMode antialiasingMode,
-                            QWidget*         parent = nullptr);
+        explicit QtViewport(RenderingApi renderingApi,
+                            Antialiasing antialiasingMode,
+                            QWidget*     parent = nullptr);
         ~QtViewport() = default;
 
         /// Public Member Functions ///

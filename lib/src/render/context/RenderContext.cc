@@ -35,8 +35,8 @@ using namespace std;
 //	_vSyncEnabled = enabled;
 //}
 
-RenderContext::AntialiasingMode RenderContext::antialiasingMode() const {
-    return _antialiasingMode;
+RenderContext::Antialiasing RenderContext::antialiasing() const {
+    return _antialiasing;
 }
 
 unique_ptr<Image> RenderContext::snapshot() const {
@@ -113,7 +113,7 @@ Renderer* RenderContext::renderer() const {
 
 RenderContext::RenderContext(RenderingApi renderingApi):
     //		_vSyncEnabled{false},
-    _antialiasingMode {AntialiasingMode::None},
+    _antialiasing {Antialiasing::None},
     _gifWriter {},
     _recordingGIF {false},
     _gifRecordingWidth {0},
