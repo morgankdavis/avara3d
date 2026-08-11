@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <thread>
 
 #include "a3d/a3d.h"
 
@@ -76,17 +77,17 @@ std::unique_ptr<Scene> App::init() {
                     .lineWidthPixels = 1.0f,
                     .reliefStrength = -0.1f,
                 },
-            .curvature =
-                InfiniteGround::Curvature {
-                    .center = {0.0f, 0.0f},
-                    .radius = 5000.0f,
-                },
             .radialFade =
                 InfiniteGround::RadialFade {
                     .color = make_shared<Color>(vec4 {0.02f, 0.02f, 0.02f, 1.0f}),
                     .center = {0.0f, 0.0f},
                     .startDistance = 10.0f,
                     .endDistance = 100.0f,
+                },
+            .curvature =
+                InfiniteGround::Curvature {
+                    .center = {0.0f, 0.0f},
+                    .radius = 5000.0f,
                 },
             .horizonHaze =
                 InfiniteGround::HorizonHaze {
@@ -135,6 +136,8 @@ std::unique_ptr<Scene> App::init() {
         //     testBoxNode->addChild(pointLightNode);
         // }
 
+        //scene->visualWorld()->usesDefaultLighting(true);
+
         auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.15f));
         auto ambientLightNode = Node::LightNode(ambientLight);
         scene->rootNode()->addChild(ambientLightNode);
@@ -149,9 +152,26 @@ std::unique_ptr<Scene> App::init() {
             scene->rootNode()->addChild(pointLightNode);
         }
 
+
+        // janus
+
+        // auto janusNode = Node::MeshNode(util::fs::MeshNamed("janus/janus"));
+        // scene->rootNode()->addChild(janusNode);
+
+        auto janusNode = Node::MeshNode(util::fs::MeshNamed("janus_lod/janus_lod"));
+        scene->rootNode()->addChild(janusNode);
+
+
+
+
+
+
+        // angel
+
         // auto anielNode = Node::MeshNode(util::fs::MeshNamed("aniel/aniel"));
         // scene->rootNode()->addChild(anielNode);
         // auto anielExtent = anielNode->extent();
+
 
         // constexpr float ANGEL_HEIGHT = 2.0f;
         // auto            angelNode = Node::MeshNode(util::fs::MeshNamed("aniel/aniel"));
@@ -159,15 +179,17 @@ std::unique_ptr<Scene> App::init() {
         // angelNode->physicsBody(PhysicsBody::StaticBody());
         // scene->rootNode()->addChild(angelNode);
 
-        constexpr float ANGEL_HEIGHT = 2.0f;
-        auto            angelMesh = util::fs::MeshNamed("aniel_lod/aniel_lod");
-        const float     scaleFactor = ANGEL_HEIGHT / angelMesh->localExtent().y;
-        angelMesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
-        auto angelNode = Node::MeshNode(angelMesh);
-        angelNode->name("Angel");
-        angelNode->rotation({0.0f, 1.0f, 0.0f}, radians(180.0f));
-        angelNode->physicsBody(PhysicsBody::StaticBody());
-        scene->rootNode()->addChild(angelNode);
+
+        // constexpr float ANGEL_HEIGHT = 2.0f;
+        // auto            angelMesh = util::fs::MeshNamed("aniel_lod/aniel_lod");
+        // const float     scaleFactor = ANGEL_HEIGHT / angelMesh->localExtent().y;
+        // angelMesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
+        // auto angelNode = Node::MeshNode(angelMesh);
+        // angelNode->name("Angel");
+        // angelNode->rotation({0.0f, 1.0f, 0.0f}, radians(180.0f));
+        // angelNode->physicsBody(PhysicsBody::StaticBody());
+        // scene->rootNode()->addChild(angelNode);
+
 
         // {
         //     auto topLight = Light::Spot(Color::White());
@@ -201,37 +223,47 @@ std::unique_ptr<Scene> App::init() {
         //     scene->rootNode()->addChild(bottomLightNode);
         // }
 
+
+
+        // banana
+
         // _bananaNode = Node::MeshNode(util::fs::MeshNamed("banana_lod/banana_lod"));
         // auto rx = math::quaternion({1.0f, 0.0f, 0.0f}, radians(90.0f));
         // auto ry = math::quaternion({0.0f, 1.0f, 0.0f}, radians(90.0f));
         // _bananaNode->orientation(rx * ry);
         // scene->rootNode()->addChild(_bananaNode);
 
-        {
-            constexpr float TEAPOT_HEIGHT = 0.35f;
-            auto teapotMesh = util::fs::MeshNamed("teapot/teapot");
-            const float teapotScale = TEAPOT_HEIGHT / teapotMesh->localExtent().y;
-            teapotMesh->burnTransform(math::scale(mat4(1.0f), vec3(teapotScale)), true);
-            teapotMesh->replaceMaterial(0, Material::DiffuseMaterial(Color::DarkGray()));
 
-            auto teapotNode = Node::MeshNode(teapotMesh);
-            teapotNode->name("Teapot");
+        // teapot
 
-            // put its bottom ~1 meter above the ground so it drops in
-            teapotNode->position({1.5f, 1.0f - teapotMesh->localAABB().min.y, 0.0f});
+        // {
+        //     constexpr float TEAPOT_HEIGHT = 0.35f;
+        //     auto            teapotMesh = util::fs::MeshNamed("teapot/teapot");
+        //     const float     teapotScale = TEAPOT_HEIGHT / teapotMesh->localExtent().y;
+        //     teapotMesh->burnTransform(math::scale(mat4(1.0f), vec3(teapotScale)), true);
+        //     teapotMesh->replaceMaterial(0, Material::DiffuseMaterial(Color::DarkGray()));
+        //
+        //     auto teapotNode = Node::MeshNode(teapotMesh);
+        //     teapotNode->name("Teapot");
+        //
+        //     // put its bottom ~1 meter above the ground so it drops in
+        //     teapotNode->position({1.5f, 1.0f - teapotMesh->localAABB().min.y, 0.0f});
+        //
+        //     // dynamic physics; this will auto-create a convex-hull shape
+        //     auto teapotBody = PhysicsBody::DynamicBody();
+        //     teapotBody->mass(1.5f);
+        //     teapotBody->friction(0.6f);
+        //     teapotBody->restitution(0.15f);
+        //     teapotBody->linearDamping(0.03f);
+        //     teapotBody->angularDamping(0.05f);
+        //
+        //     teapotNode->physicsBody(std::move(teapotBody));
+        //
+        //     scene->rootNode()->addChild(teapotNode);
+        // }
 
-            // dynamic physics; this will auto-create a convex-hull shape
-            auto teapotBody = PhysicsBody::DynamicBody();
-            teapotBody->mass(1.5f);
-            teapotBody->friction(0.6f);
-            teapotBody->restitution(0.15f);
-            teapotBody->linearDamping(0.03f);
-            teapotBody->angularDamping(0.05f);
 
-            teapotNode->physicsBody(std::move(teapotBody));
-
-            scene->rootNode()->addChild(teapotNode);
-        }
+        // camera
 
         auto camera = make_shared<PerspectiveCamera>(0.1f, 1000.0f, radians(45.0f));
         _cameraNode = Node::CameraNode(camera);
@@ -296,6 +328,12 @@ void App::inputDidUpdate(Runner&, Scene&, InputContext& inputContext, const Inpu
 
 void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
 
+    if (_pendingHiccup > 0ms) {
+        const auto duration = std::exchange(_pendingHiccup, 0ms);
+
+        std::this_thread::sleep_for(duration);
+    }
+
     auto& input = static_cast<DesktopInputContext&>(*scene.inputContext());
 
     // if (_bananaNode) {
@@ -356,7 +394,7 @@ void App::frameDidBegin(Runner&                        runner,
     }
 
     ui::Panel panel("controls", {
-                                    .width = 230.0f,
+                                    .width = 180.0f,
                                     .margin = 12.0f,
                                 });
 
@@ -384,8 +422,16 @@ void App::frameDidBegin(Runner&                        runner,
         }
     }
 
-    if (panel.button("Reset")) {
-        // resetSimulation();
+    if (paused) {
+        if (panel.button("Reset")) {
+            // resetSimulation();
+        }
+    }
+
+    if (!paused) {
+        if (panel.button("Hiccup")) {
+            _pendingHiccup = std::chrono::milliseconds {uniform_linear(50, 250)};
+        }
     }
 
     panel.spacer(12.0f);
@@ -420,23 +466,40 @@ void App::frameDidBegin(Runner&                        runner,
 
     panel.section("debug");
 
+    using DebugOptions = Scene::DebugOptions;
+
     auto debugOptions = scene.debugOptions();
 
-    bool meshBounds = util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowBoundingBoxes);
-    if (panel.toggle("mesh bounds", meshBounds)) {
-        debugOptions = meshBounds ? util::bitmask::add(debugOptions, Scene::DebugOptions::ShowBoundingBoxes)
-                                  : util::bitmask::remove(debugOptions, Scene::DebugOptions::ShowBoundingBoxes);
-
+    bool stats = util::bitmask::contains(debugOptions, DebugOptions::ShowStatsOverlay);
+    if (panel.toggle("stats", stats)) {
+        debugOptions = stats ? util::bitmask::add(debugOptions, DebugOptions::ShowStatsOverlay)
+                             : util::bitmask::remove(debugOptions, DebugOptions::ShowStatsOverlay);
         scene.debugOptions(debugOptions);
     }
 
-    bool physWireframes = util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowPhysicsWireframes);
-    if (panel.toggle("physics wireframes", physWireframes)) {
-        debugOptions = physWireframes
-                           ? util::bitmask::add(debugOptions, Scene::DebugOptions::ShowPhysicsWireframes)
-                           : util::bitmask::remove(debugOptions, Scene::DebugOptions::ShowPhysicsWireframes);
+    bool defaultLighting = visualWorld.usesDefaultLighting();
+    if (panel.toggle("default lighting", defaultLighting)) {
+        visualWorld.usesDefaultLighting(defaultLighting);
+    }
 
-        scene.debugOptions(debugOptions);
+    bool meshBounds = util::bitmask::contains(debugOptions, DebugOptions::ShowBoundingBoxes);
+    if (panel.toggle("mesh bounds", meshBounds)) {
+        scene.debugOptions(meshBounds ? util::bitmask::add(debugOptions, DebugOptions::ShowBoundingBoxes)
+                                      : util::bitmask::remove(debugOptions, DebugOptions::ShowBoundingBoxes));
+    }
+
+    bool physBounds = util::bitmask::contains(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes);
+    if (panel.toggle("physics bounds", physBounds)) {
+        scene.debugOptions(physBounds
+                               ? util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes)
+                               : util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
+    }
+
+    bool physWireframes = util::bitmask::contains(debugOptions, DebugOptions::ShowPhysicsWireframes);
+    if (panel.toggle("physics wireframes", physWireframes)) {
+        scene.debugOptions(physWireframes
+                               ? util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsWireframes)
+                               : util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsWireframes));
     }
 }
 
@@ -480,7 +543,7 @@ void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
                                   uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
                                   uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE)});
 
-    const float        VELOCITY = uniform_linear(40.0f, 60.0f);
+    const float VELOCITY = uniform_linear(40.0f, 60.0f);
     // const float        VELOCITY = uniform_linear(20.0f, 40.0f);
     static const float DIRECTION_VARIATION = 0.01;
     const vec3         variedDirection = normalize(normalize(direction) + uniform_ball(DIRECTION_VARIATION));

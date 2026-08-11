@@ -58,10 +58,6 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
 
     output.scene = &scene; // TODO: maybe change to AABB directly?
 
-    if (showBounds) {
-        DebugLinesBuilder::AppendAABB(output.debugLines, scene.aabb(false), *Color::Green());
-    }
-
     while (!stack.empty()) {
         auto [n, parentWorld] = stack.back();
         stack.pop_back();
@@ -148,6 +144,10 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
 
     if (physicsWorld) {
         physicsWorld->appendDebugLines(output.debugLines, debugOptions);
+    }
+
+    if (showBounds) {
+        DebugLinesBuilder::AppendAABB(output.debugLines, scene.aabb(false), *Color::Green());
     }
 
     return output;

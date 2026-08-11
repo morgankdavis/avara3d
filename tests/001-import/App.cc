@@ -59,7 +59,6 @@ std::unique_ptr<Scene> App::init() {
         auto testSceneNodes = testScene->rootNode()->children();
         auto importLightsCamerasRoot = make_shared<Node>("importLightsCamerasRoot");
         auto importMeshRoot = make_shared<Node>("importMeshRoot");
-        _importMeshRoot = importMeshRoot.get();
 
         for (auto& node : testSceneNodes) {
 

@@ -38,7 +38,7 @@ const vec3  BACKGROUND_ROTATION_AXIS {0.258819f, 0.965926f, 0.0f};
 
 App::App(int argc, char* argv[]):
     Application(argc, argv, APP_LOG_LEVEL),
-    _pointLightNode {nullptr},
+    _pointLightNode {},
     _pointLightOrbitRadius {0.0f} {}
 
 App::~App() = default;
@@ -80,13 +80,13 @@ std::unique_ptr<Scene> App::init() {
         pointLight->name("point");
         pointLight->attenuation(Attenuation {.quadratic = 0.002f});
         auto pointLightNode = Node::LightNode(pointLight);
-        _pointLightNode = pointLightNode.get(); // <- how is this not crashing?
         auto material = make_shared<Material>();
         material->name("LIGHT material");
         material->emission(Color::White());
         auto geometry = Sphere::Mesh(1.5, 4, material);
         pointLightNode->mesh(geometry);
         scene->rootNode()->addChild(pointLightNode);
+        _pointLightNode = pointLightNode;
 
         if (ORTHO_CAMERA) {
 
@@ -259,15 +259,13 @@ void App::inputDidUpdate(Runner&                         runner,
 
 void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
 
-    if (!_pointLightNode) {
-        return;
+    if (auto pointLight = _pointLightNode.lock()) {
+        const vec3  center {0.0f, 30.0f, 0.0f};
+        const float angle = radians(30.0f) * static_cast<float>(info.endTime);
+        const float x = math::sin(angle) * _pointLightOrbitRadius;
+        const float y = math::cos(angle) * _pointLightOrbitRadius;
+        pointLight->position(center + vec3 {x, y, -x});
     }
-
-    const vec3  center {0.0f, 30.0f, 0.0f};
-    const float angle = radians(30.0f) * static_cast<float>(info.endTime);
-    const float x = math::sin(angle) * _pointLightOrbitRadius;
-    const float y = math::cos(angle) * _pointLightOrbitRadius;
-    _pointLightNode->position(center + vec3 {x, y, -x});
 }
 
 void App::frameDidBegin(Runner&, Scene&, VisualWorld& visualWorld, const VisualWorld::RenderInfo& info) {

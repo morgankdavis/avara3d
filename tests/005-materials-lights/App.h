@@ -55,7 +55,7 @@ namespace test::materialslights {
 
         std::unique_ptr<a3d::Window>  _window;
         a3d::ext::FlyCameraController _cameraController;
-        a3d::Node*                    _pointLightNode;
+        std::weak_ptr<a3d::Node>      _pointLightNode;
         float                         _pointLightOrbitRadius;
     };
 

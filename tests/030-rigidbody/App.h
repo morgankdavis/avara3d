@@ -66,7 +66,7 @@ namespace test::rigidbody {
 
         std::unique_ptr<a3d::Window>             _window;
         a3d::ext::FlyCameraController            _cameraController;
-        a3d::Node*                               _duckNode;
+        std::weak_ptr<a3d::Node>                 _duckNode;
         std::vector<DuckFruitDef>                _duckFruit;
         std::unique_ptr<a3d::ext::WanderRotator> _duckRotator;
         a3d::util::PeriodicTrigger               _duckFruitTrigger;

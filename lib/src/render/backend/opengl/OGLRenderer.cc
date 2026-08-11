@@ -575,14 +575,6 @@ void OGLRenderer::drawGround(const GroundPass& groundPass, const mat4& view, con
         _groundProgram->setUniform("majorGridReliefStrength", grid.reliefStrength);
     }
 
-    const bool curvatureEnabled = ground.curvature.has_value();
-    _groundProgram->setUniform("curvatureEnabled", curvatureEnabled);
-    if (curvatureEnabled) {
-        const auto& curvature = *ground.curvature;
-        _groundProgram->setUniform("curvatureCenter", curvature.center);
-        _groundProgram->setUniform("curvatureRadius", curvature.radius);
-    }
-
     const bool radialFadeEnabled = ground.radialFade.has_value();
     _groundProgram->setUniform("radialFadeEnabled", radialFadeEnabled);
     if (radialFadeEnabled) {
@@ -591,6 +583,14 @@ void OGLRenderer::drawGround(const GroundPass& groundPass, const mat4& view, con
         _groundProgram->setUniform("radialFadeCenter", fade.center);
         _groundProgram->setUniform("radialFadeStartDistance", fade.startDistance);
         _groundProgram->setUniform("radialFadeEndDistance", fade.endDistance);
+    }
+
+    const bool curvatureEnabled = ground.curvature.has_value();
+    _groundProgram->setUniform("curvatureEnabled", curvatureEnabled);
+    if (curvatureEnabled) {
+        const auto& curvature = *ground.curvature;
+        _groundProgram->setUniform("curvatureCenter", curvature.center);
+        _groundProgram->setUniform("curvatureRadius", curvature.radius);
     }
 
     const bool horizonHazeEnabled = ground.horizonHaze.has_value();

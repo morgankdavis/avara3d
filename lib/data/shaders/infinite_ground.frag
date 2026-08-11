@@ -24,15 +24,15 @@ uniform float majorGridSpacing;
 uniform float majorGridLineWidthPixels;
 uniform float majorGridReliefStrength;
 
-uniform bool curvatureEnabled;
-uniform vec2 curvatureCenter;
-uniform float curvatureRadius;
-
 uniform bool radialFadeEnabled;
 uniform vec2 radialFadeCenter;
 uniform float radialFadeStartDistance;
 uniform float radialFadeEndDistance;
 uniform vec4 radialFadeColor;
+
+uniform bool curvatureEnabled;
+uniform vec2 curvatureCenter;
+uniform float curvatureRadius;
 
 uniform bool horizonHazeEnabled;
 uniform vec4 horizonHazeColor;

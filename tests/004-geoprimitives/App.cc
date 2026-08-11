@@ -60,9 +60,9 @@ std::unique_ptr<Scene> App::init() {
         auto sphere = Sphere::Mesh(0.25f, 12, material);
         pointLightNode->mesh(sphere);
         auto pointLightPivotNode = Node::NamedNode("point light pivot");
-        _pointLightPivotNode = pointLightPivotNode.get();
         pointLightPivotNode->addChild(pointLightNode);
         scene->rootNode()->addChild(pointLightPivotNode);
+        _pointLightPivotNode = pointLightPivotNode;
 
         {
             auto mesh = Box::Mesh(1.5f, 1.0f, 1.5f);
@@ -262,13 +262,9 @@ void App::inputDidUpdate(Runner&                         runner,
 
 void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
 
-    if (!_pointLightPivotNode) {
-        return;
+    if (auto pivot = _pointLightPivotNode.lock()) {
+        const float rotation = static_cast<float>(info.deltaTime) * radians(-30.0f);
+        const auto angles = pivot->eulerAngles();
+        pivot->eulerAngles({0.0f, angles.y - rotation, 0.0f});
     }
-
-    const float rotation = static_cast<float>(info.deltaTime) * radians(-30.0f);
-
-    const auto angles = _pointLightPivotNode->eulerAngles();
-
-    _pointLightPivotNode->eulerAngles({0.0f, angles.y - rotation, 0.0f});
 }

@@ -30,18 +30,18 @@ namespace a3d {
             float                  reliefStrength {0.0f};
         };
 
-        struct Curvature {
-
-            math::vec2 center {0.0f, 0.0f};
-            float      radius {500.0f};
-        };
-
         struct RadialFade {
 
             std::shared_ptr<Color> color {Color::Black()};
             math::vec2             center {0.0f, 0.0f};
             float                  startDistance {10.0f};
             float                  endDistance {100.0f};
+        };
+
+        struct Curvature {
+
+            math::vec2 center {0.0f, 0.0f};
+            float      radius {500.0f};
         };
 
         struct HorizonHaze {
@@ -54,8 +54,8 @@ namespace a3d {
         float                      height {0.0f};
         std::optional<Grid>        minorGrid {};
         std::optional<Grid>        majorGrid {};
-        std::optional<Curvature>   curvature {};
         std::optional<RadialFade>  radialFade {};
+        std::optional<Curvature>   curvature {};
         std::optional<HorizonHaze> horizonHaze {};
         float                      specularIntensity {0.15f};
         float                      specularExponent {32.0f};

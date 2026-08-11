@@ -63,7 +63,7 @@ void             SpawnChainMail(Scene& scene);
 
 App::App(int argc, char* argv[]):
     Application(argc, argv, APP_LOG_LEVEL),
-    _duckNode {nullptr},
+    _duckNode {},
     _duckFruitTrigger {DUCK_FRUIT_SPAWN_INTERVAL},
     _slurmTrigger {SLURM_SHOT_INTERVAL} {}
 
@@ -146,7 +146,6 @@ unique_ptr<Scene> App::init() {
 
         auto duckNode = Node::MeshNode(util::fs::MeshNamed("rubber_duck/rubber_duck"));
         duckNode->name("Quack");
-        _duckNode = duckNode.get();
         duckNode->position({/*4.5*/ 0, 25, 0});
 
         //	// #0
@@ -173,6 +172,7 @@ unique_ptr<Scene> App::init() {
         // duckNode->physicsBody(make_unique<PhysicsBody>(PhysicsBodyType::Kinematic, duckPhysicsShape));
 
         scene->rootNode()->addChild(duckNode);
+        _duckNode = duckNode;
 
         _duckRotator = make_unique<ext::WanderRotator>();
 
@@ -393,7 +393,9 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
     using Key = DesktopInputContext::Key;
     using MouseButton = DesktopInputContext::MouseButton;
 
-    _duckRotator->update(*_duckNode, info.deltaTime);
+    auto quack = _duckNode.lock();
+
+    _duckRotator->update(*quack, info.deltaTime);
 
     if (!_window->cursorCaptured() && input.mouseButtonPressed(MouseButton::Two)) {
 
@@ -430,18 +432,6 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
     // if (input.keyPressed(Key::Three)) {
     //     _duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConcavePolyhedron);
     // }
-
-    if (input.keyPressed(Key::Five)) {
-        _duckNode->physicsBody()->mass(0.0f);
-    }
-
-    if (input.keyPressed(Key::Six)) {
-        _duckNode->physicsBody()->mass(10.0f);
-    }
-
-    if (input.keyPressed(Key::Seven)) {
-        _duckNode->physicsBody()->mass(100.0f);
-    }
 
     if (input.keyPressed(Key::Eight)) {
         for (const auto& node : scene.rootNode()->children(true)) {
@@ -490,16 +480,15 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
     }
 
     const bool duckFruitPressed = input.keyPressed(Key::Tab);
-
     const bool duckFruitActive = duckFruitPressed || input.keyDown(Key::Tab);
 
     if (duckFruitPressed) {
         _duckFruitTrigger.reset();
     }
 
-    if (_duckNode && duckFruitActive) {
+    if (quack && duckFruitActive) {
         _duckFruitTrigger.update(info.startTime, [&] {
-            SpawnDuckFruit(scene, *_duckNode, _duckFruit);
+            SpawnDuckFruit(scene, *quack, _duckFruit);
         });
     }
     else {

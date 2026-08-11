@@ -9,6 +9,7 @@
 #ifndef AVARA3D_DEMO_PHYSICSSANDBOX_APP_H
 #define AVARA3D_DEMO_PHYSICSSANDBOX_APP_H
 
+#include <chrono>
 #include <memory>
 
 #include "a3d/Application.h"
@@ -57,7 +58,7 @@ namespace demo::physicssandbox {
         std::unique_ptr<a3d::Window>        _window;
         a3d::ext::TurntableCameraController _cameraController;
         std::shared_ptr<a3d::Node>          _cameraNode;
-        std::shared_ptr<a3d::Node>          _bananaNode;
+        std::chrono::milliseconds           _pendingHiccup {0};
     };
 
 }

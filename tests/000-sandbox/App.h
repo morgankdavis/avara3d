@@ -51,7 +51,7 @@ namespace test::sandbox {
 
         std::unique_ptr<a3d::Window>  _window;
         a3d::ext::FlyCameraController _cameraController;
-        std::shared_ptr<a3d::Node>    _teapotNode;
+        std::weak_ptr<a3d::Node>      _teapotNode;
     };
 
 }

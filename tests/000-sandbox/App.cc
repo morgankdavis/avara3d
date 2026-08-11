@@ -92,9 +92,10 @@ std::unique_ptr<Scene> App::init() {
         groundNode->physicsBody(std::move(groundBody));
         scene->rootNode()->addChild(groundNode);
 
-        _teapotNode = Node::MeshNode(util::fs::MeshNamed("teapot/teapot"));
-        _teapotNode->scale(_teapotNode->scale() * 10.0f);
-        scene->rootNode()->addChild(_teapotNode);
+        auto teapotNode = Node::MeshNode(util::fs::MeshNamed("teapot/teapot"));
+        teapotNode->scale(teapotNode->scale() * 10.0f);
+        scene->rootNode()->addChild(teapotNode);
+        _teapotNode = teapotNode;
 
         auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.15f));
         auto ambientLightNode = Node::LightNode(ambientLight);
@@ -322,10 +323,10 @@ void App::inputDidUpdate(Runner&                         runner,
 
 void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
 
-    if (_teapotNode) {
+    if (auto teapotNode = _teapotNode.lock()) {
         // rotate the teapot at 30 degrees per second
         const float rotation = static_cast<float>(info.deltaTime) * radians(-30.0f);
         const auto  rotationY = math::quaternion({0.0f, 1.0f, 0.0f}, rotation);
-        _teapotNode->orientation(rotationY * _teapotNode->orientation());
+        teapotNode->orientation(rotationY * teapotNode->orientation());
     }
 }

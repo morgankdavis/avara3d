@@ -46,7 +46,6 @@ namespace test::import {
         /// Private Member Variables ///
 
         std::unique_ptr<a3d::Window> _window;
-        a3d::Node*                   _importMeshRoot;
     };
 
 }
