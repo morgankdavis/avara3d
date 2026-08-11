@@ -39,6 +39,12 @@ const vec3                            GRAVITY_ZERO {0.0f, 0.0f, 0.0f};
 
 static optional<App::PickResult> Pick(Scene& scene, const vec2& screenPosition);
 static void                      ShootSlurm(Scene& scene, const vec3& location, const vec3& direction);
+static void                      DropBoxes(Scene& scene, vec3 location);
+static void                      AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color);
+static string                    FormatVec3(const vec3& value);
+static string                    FormatRotation(const vec3& eulerAngles);
+static string_view               BodyTypeName(PhysicsBody::Type type);
+static string_view               ShapeTypeName(PhysicsShape::Type type);
 
 /// Public Lifecycle Functions ///
 
@@ -361,6 +367,7 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
     //     _bananaNode->orientation(rotationY * _bananaNode->orientation());
     // }
 
+    using Key = DesktopInputContext::Key;
     using MouseButton = DesktopInputContext::MouseButton;
 
     // if (input.mouseButtonPressed(MouseButton::One)) {
@@ -393,6 +400,12 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
     // if (auto pov = visualWorld->pointOfView().lock(); input.mouseButtonPressed(MouseButton::One)) {
     //     ShootSlurm(scene, pov->worldPosition(), pov->worldForward());
     // }
+
+    // drop boxes
+
+    if (input.keyPressed(Key::GraveAccent)) {
+        DropBoxes(scene, {0.0f, 25.0f, 0.0f});
+    }
 }
 
 void App::frameDidBegin(Runner&                        runner,
@@ -400,11 +413,9 @@ void App::frameDidBegin(Runner&                        runner,
                         VisualWorld&                   visualWorld,
                         const VisualWorld::RenderInfo& info) {
 
-    const float  delta = static_cast<float>(info.updateDeltaTime);
-    static float angle = radians(180.0);
-    if (!runner.simulationPaused()) {
-        angle += delta * BACKGROUND_ROTATION_SPEED;
-    }
+    const float frameDelta = static_cast<float>(info.updateDeltaTime);
+
+    const float angle = radians(180.0f) + static_cast<float>(info.simulationTime) * BACKGROUND_ROTATION_SPEED;
     if (auto& background = visualWorld.background()) {
         background->orientation(quaternion(BACKGROUND_ROTATION_AXIS, angle));
     }
@@ -423,7 +434,13 @@ void App::frameDidBegin(Runner&                        runner,
     const bool paused = runner.simulationPaused();
 
     panel.value("state", paused ? "paused" : "running");
-    panel.value("time scale", std::format("{:.2f}x", runner.timeScale()));
+    // panel.value("time scale", std::format("{:.1f}x", runner.timeScale()));
+
+    float timeScale = static_cast<float>(runner.timeScale());
+
+    if (panel.slider("time scale", timeScale, 0.25f, 2.0f, "%.2fx")) {
+        runner.timeScale(timeScale);
+    }
 
     panel.row(paused ? 3 : 2);
 
@@ -461,7 +478,7 @@ void App::frameDidBegin(Runner&                        runner,
     if (auto physicsWorld = scene.physicsWorld()) {
         const auto gravity = physicsWorld->gravity();
 
-        panel.value("gravity", std::format("{:.2f}, {:.2f}, {:.2f}", gravity.x, gravity.y, gravity.z));
+        panel.value("gravity", std::format("{:.1f}, {:.1f}, {:.1f}", gravity.x, gravity.y, gravity.z));
 
         const auto isGravity = [&gravity](const vec3& value) {
             return length(gravity - value) < 0.001f;
@@ -480,6 +497,88 @@ void App::frameDidBegin(Runner&                        runner,
         if (panel.option("Zero", isGravity(GRAVITY_ZERO))) {
             physicsWorld->gravity(GRAVITY_ZERO);
         }
+    }
+
+    panel.spacer(12.0f);
+
+    panel.section("selected node");
+
+    if (!_selection) {
+        panel.text("click an object to inspect");
+    }
+    else if (auto node = _selection->node.lock()) {
+
+        // node
+
+        panel.value("name", node->name().value_or("(unnamed)"));
+        // panel.value("position", FormatVec3(node->worldPosition()));
+        // panel.value("rotation", FormatRotation(node->worldEulerAngles()));
+
+        // physics body
+
+        if (auto body = node->physicsBody()) {
+
+            panel.spacer(8.0f);
+
+            panel.value("body", BodyTypeName(body->type()));
+
+            if (const auto& shape = body->shape()) {
+                panel.value("shape", ShapeTypeName(shape->type()));
+            }
+            else {
+                panel.value("shape", "none");
+            }
+
+            panel.value("mass", std::format("{:.1f}", body->mass()));
+
+            panel.spacer(6.0f);
+
+            panel.value("velocity", FormatVec3(body->linearVelocity()));
+            panel.value("angular", FormatVec3(body->angularVelocity()));
+
+            // panel.spacer(6.0f);
+            //
+            // panel.value("inertia", FormatVec3(body->momentOfInertia()));
+            // panel.value("COM", FormatVec3(body->centerOfMass()));
+            //
+            // panel.value("linear damping", std::format("{:.3f}", body->linearDamping()));
+            // panel.value("angular damping", std::format("{:.3f}", body->angularDamping()));
+
+            panel.value("friction", std::format("{:.1f}", body->friction()));
+            panel.value("restitution", std::format("{:.1f}", body->restitution()));
+
+            panel.value("resting", body->resting() ? "yes" : "no");
+
+            // panel.spacer(6.0f);
+            //
+            // panel.value("force", FormatVec3(body->totalForce()));
+            // panel.value("torque", FormatVec3(body->totalTorque()));
+        }
+        else {
+            panel.spacer(8.0f);
+            panel.value("body", "none");
+        }
+
+        // mesh
+
+        if (const auto& mesh = node->mesh()) {
+
+            panel.spacer(8.0f);
+
+            panel.value("mesh", mesh->name().value_or("(unnamed)"));
+            uint64_t polygons = 0;
+            for (const auto& e : mesh->elements()) {
+                polygons += e->indexCount() / 3u;
+            }
+            panel.value("polygons", std::format("{:.1f}k", float(polygons) / 1000.0f));
+            panel.value("elements", std::format("{}", mesh->elements().size()));
+            panel.value("materials", std::format("{}", mesh->materials().size()));
+        }
+    }
+    else {
+        // The selected node was removed from the scene.
+        _selection.reset();
+        panel.text("click an object to inspect");
     }
 
     panel.spacer(12.0f);
@@ -506,6 +605,12 @@ void App::frameDidBegin(Runner&                        runner,
     if (panel.toggle("mesh bounds", meshBounds)) {
         scene.debugOptions(meshBounds ? util::bitmask::add(debugOptions, DebugOptions::ShowBoundingBoxes)
                                       : util::bitmask::remove(debugOptions, DebugOptions::ShowBoundingBoxes));
+    }
+
+    bool meshWireframes = util::bitmask::contains(debugOptions, DebugOptions::ShowWireframes);
+    if (panel.toggle("mesh wireframes", meshWireframes)) {
+        scene.debugOptions(meshWireframes ? util::bitmask::add(debugOptions, DebugOptions::ShowWireframes)
+                                          : util::bitmask::remove(debugOptions, DebugOptions::ShowWireframes));
     }
 
     bool physBounds = util::bitmask::contains(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes);
@@ -602,4 +707,96 @@ void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
     node->physicsBody(std::move(physicsBody));
 
     scene.rootNode()->addChild(node);
+}
+
+void DropBoxes(Scene& scene, vec3 location) {
+
+    // 16 items
+    static const int OBJECT_ARRAY_SIZE_X = 2;
+    static const int OBJECT_ARRAY_SIZE_Y = 4;
+    static const int OBJECT_ARRAY_SIZE_Z = 2;
+
+    int SPACING = 1.0;
+    int colorIndex = 0;
+    for (int k = 0; k < OBJECT_ARRAY_SIZE_Y; ++k) {
+        for (int i = 0; i < OBJECT_ARRAY_SIZE_X; ++i) {
+            for (int j = 0; j < OBJECT_ARRAY_SIZE_Z; ++j) {
+                vec3 offset =
+                    vec3(SPACING * i - (OBJECT_ARRAY_SIZE_X / 2.0), SPACING * k - (OBJECT_ARRAY_SIZE_Y / 2.0),
+                         SPACING * j - (OBJECT_ARRAY_SIZE_Z / 2.0));
+                AddBox(scene, location + offset, Color::Random());
+            }
+        }
+    }
+}
+
+void AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color) {
+
+    auto node = Node::MeshNode(Box::Mesh(1.0, 1.0, 1.0));
+    node->name("Box");
+    auto material = make_shared<Material>(monostate {}, monostate {}, monostate {}, color);
+    node->mesh()->addMaterial(material);
+    node->position(location);
+
+    // auto light = Light::Point(color);
+    // light->attenuation(Attenuation {.quadratic = 0.04f});
+    // node->light(light);
+
+    auto physicsBody = PhysicsBody::DynamicBody();
+    physicsBody->mass(1.0);
+    physicsBody->restitution(0.1);
+    physicsBody->friction(0.25);
+
+    static auto physicsShape = make_shared<PhysicsShape>(PhysicsShape::Type::BoundingBox, node->mesh());
+    physicsBody->shape(physicsShape);
+
+    node->physicsBody(std::move(physicsBody));
+
+    scene.rootNode()->addChild(node);
+}
+
+string FormatVec3(const vec3& value) {
+
+    return std::format("{:.1f}, {:.1f}, {:.1f}", value.x, value.y, value.z);
+}
+
+string FormatRotation(const vec3& eulerAngles) {
+
+    return std::format("{:.1f}, {:.1f}, {:.1f}", degrees(eulerAngles.x), degrees(eulerAngles.y),
+                       degrees(eulerAngles.z));
+}
+
+string_view BodyTypeName(PhysicsBody::Type type) {
+
+    switch (type) {
+        case PhysicsBody::Type::Static:
+            return "static";
+
+        case PhysicsBody::Type::Dynamic:
+            return "dynamic";
+
+        case PhysicsBody::Type::Kinematic:
+            return "kinematic";
+    }
+
+    return "unknown";
+}
+
+string_view ShapeTypeName(PhysicsShape::Type type) {
+
+    switch (type) {
+        case PhysicsShape::Type::Primitive:
+            return "primitive";
+
+        case PhysicsShape::Type::BoundingBox:
+            return "bounding box";
+
+        case PhysicsShape::Type::ConvexHull:
+            return "convex hull";
+
+        case PhysicsShape::Type::ConcavePolyhedron:
+            return "concave polyhedron";
+    }
+
+    return "unknown";
 }

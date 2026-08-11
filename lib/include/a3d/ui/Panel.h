@@ -73,6 +73,15 @@ namespace a3d::ui {
          */
         bool option(std::string_view label, bool selected);
 
+        /**
+         * Draws a floating-point slider and returns true when value changed.
+         */
+        bool slider(std::string_view label,
+                    float&           value,
+                    float            minimum,
+                    float            maximum,
+                    std::string_view format = "%.2f");
+
         /** Draws a boolean toggle and returns true when value changed. */
         bool toggle(std::string_view label, bool& value);
 

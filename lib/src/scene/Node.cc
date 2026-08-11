@@ -240,9 +240,7 @@ vec4 Node::worldRotation() const {
 }
 
 vec3 Node::worldEulerAngles() const {
-
-    throw std::logic_error("worldEulerAngles() not implemented.");
-    return {0.0, 0.0, 0.0};
+    return euler_angles(worldOrientation());
 }
 
 quat Node::worldOrientation() const {

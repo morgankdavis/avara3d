@@ -26,6 +26,7 @@ static constexpr float PANEL_FONT_SIZE {15.0f};
 static constexpr float SHADOW_OFFSET {1.0f};
 static constexpr float VALUE_GAP {12.0f};
 static constexpr float SECTION_LINE_GAP {8.0f};
+static constexpr float TOGGLE_BOX_SIZE {16.0f};
 static constexpr float TOGGLE_LABEL_GAP {8.0f};
 
 static constexpr int PANEL_STYLE_VAR_COUNT {7};
@@ -82,8 +83,8 @@ Panel::Panel(string_view id, const PanelOptions& options):
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(6.0f, 6.0f));
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8.0f, 4.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(6.0f, 2.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8.0f, 1.0f));
     ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 2.0f);
 
@@ -263,6 +264,67 @@ bool Panel::option(string_view label, bool selected) {
     return drawButton(label, selected);
 }
 
+bool Panel::slider(string_view label, float& value, float minimum, float maximum, string_view formatString) {
+
+    if (label.empty()) {
+        throw invalid_argument("Panel slider label cannot be empty.");
+    }
+
+    if (!std::isfinite(minimum) || !std::isfinite(maximum) || minimum >= maximum) {
+        throw invalid_argument("Panel slider range must be finite and increasing.");
+    }
+
+    const float width = beginItem();
+
+    if (!_visible) {
+        endItem();
+        return false;
+    }
+
+    const string labelText {label};
+    const string formatText {formatString};
+
+    const ImVec2 position = ImGui::GetCursorScreenPos();
+    const ImVec2 labelSize = ImGui::CalcTextSize(labelText.c_str());
+    const float  height = ImGui::GetFrameHeight();
+
+    const float sliderX = position.x + labelSize.x + VALUE_GAP;
+    const float sliderWidth = std::max(1.0f, position.x + width - sliderX);
+
+    const float labelY = SnapPixel(position.y + (height - labelSize.y) * 0.5f);
+
+    DrawShadowedText(ImVec2(SnapPixel(position.x), labelY), labelText, IM_COL32(255, 255, 255, 255));
+
+    ImGui::SetCursorScreenPos(ImVec2(sliderX, position.y));
+    ImGui::SetNextItemWidth(sliderWidth);
+
+    ImGui::PushID(labelText.c_str());
+
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.03f, 0.03f, 0.03f, 0.68f));
+    ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, ImVec4(0.16f, 0.16f, 0.16f, 0.88f));
+    ImGui::PushStyleColor(ImGuiCol_FrameBgActive, ImVec4(0.28f, 0.28f, 0.28f, 0.96f));
+    ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(0.75f, 0.75f, 0.75f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_SliderGrabActive, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+
+    const bool changed = ImGui::SliderFloat("##slider", &value, minimum, maximum, formatText.c_str(),
+                                            ImGuiSliderFlags_AlwaysClamp);
+
+    ImGui::PopStyleColor(5);
+    ImGui::PopID();
+
+    /*
+     * SliderFloat was positioned after our manually drawn label. Restore
+     * vertical flow to the panel's left edge when this isn't part of row().
+     */
+    if (_rowItemsRemaining == 0) {
+        ImGui::SetCursorScreenPos(ImVec2(position.x, position.y + height + ImGui::GetStyle().ItemSpacing.y));
+    }
+
+    endItem();
+
+    return changed;
+}
+
 bool Panel::toggle(string_view label, bool& value) {
 
     if (label.empty()) {
@@ -304,9 +366,18 @@ bool Panel::toggle(string_view label, bool& value) {
     const ImVec2 labelSize = ImGui::CalcTextSize(toggleLabel.c_str());
     const ImVec2 labelPosition {SnapPixel(position.x), SnapPixel(position.y + (height - labelSize.y) * 0.5f)};
 
-    const float  boxSize = height;
-    const ImVec2 boxMin {position.x + width - boxSize, position.y};
-    const ImVec2 boxMax {boxMin.x + boxSize, boxMin.y + boxSize};
+    const float boxSize = std::min(TOGGLE_BOX_SIZE, height);
+
+    const ImVec2 boxMin {
+        position.x + width - boxSize,
+        position.y + (height - boxSize) * 0.5f,
+    };
+
+    const ImVec2 boxMax {
+        boxMin.x + boxSize,
+        boxMin.y + boxSize,
+    };
+
     const ImVec2 shadowOffset {SHADOW_OFFSET, SHADOW_OFFSET};
 
     const float labelClipMaximumX = std::max(position.x, boxMin.x - TOGGLE_LABEL_GAP);
