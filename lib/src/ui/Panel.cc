@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdio>
 #include <stdexcept>
 #include <string>
 
@@ -306,8 +307,62 @@ bool Panel::slider(string_view label, float& value, float minimum, float maximum
     ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(0.75f, 0.75f, 0.75f, 1.0f));
     ImGui::PushStyleColor(ImGuiCol_SliderGrabActive, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
 
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+
     const bool changed = ImGui::SliderFloat("##slider", &value, minimum, maximum, formatText.c_str(),
                                             ImGuiSliderFlags_AlwaysClamp);
+
+    const ImVec2 sliderMin = ImGui::GetItemRectMin();
+    const ImVec2 sliderMax = ImGui::GetItemRectMax();
+
+    char valueBuffer[64];
+    std::snprintf(valueBuffer, sizeof(valueBuffer), formatText.c_str(), value);
+
+    const ImVec2 valueSize = ImGui::CalcTextSize(valueBuffer);
+
+    const ImVec2 valuePosition {
+        SnapPixel(sliderMin.x + ((sliderMax.x - sliderMin.x) - valueSize.x) * 0.5f),
+        SnapPixel(sliderMin.y + ((sliderMax.y - sliderMin.y) - valueSize.y) * 0.5f),
+    };
+
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+    // Normal white value text.
+    DrawShadowedText(valuePosition, valueBuffer, IM_COL32(255, 255, 255, 255));
+
+    constexpr float GRAB_PADDING = 2.0f;
+
+    const float sliderSize = (sliderMax.x - sliderMin.x) - GRAB_PADDING * 2.0f;
+
+    const float grabSize = std::min(ImGui::GetStyle().GrabMinSize, sliderSize);
+
+    const float usableSize = sliderSize - grabSize;
+
+    const float usableMin = sliderMin.x + GRAB_PADDING + grabSize * 0.5f;
+
+    const float usableMax = sliderMax.x - GRAB_PADDING - grabSize * 0.5f;
+
+    const float t = std::clamp((value - minimum) / (maximum - minimum), 0.0f, 1.0f);
+
+    const float grabPosition = usableMin + (usableMax - usableMin) * t;
+
+    const ImVec2 grabMin {
+        grabPosition - grabSize * 0.5f,
+        sliderMin.y + GRAB_PADDING,
+    };
+
+    const ImVec2 grabMax {
+        grabPosition + grabSize * 0.5f,
+        sliderMax.y - GRAB_PADDING,
+    };
+
+    drawList->PushClipRect(grabMin, grabMax, true);
+
+    drawList->AddText(valuePosition, IM_COL32(0, 0, 0, 255), valueBuffer);
+
+    drawList->PopClipRect();
+
+    ImGui::PopStyleColor();
 
     ImGui::PopStyleColor(5);
     ImGui::PopID();
