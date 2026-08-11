@@ -28,7 +28,8 @@ const bool                            ENABLE_HIGH_DPI {true};
 const RenderContext::AntialiasingMode ANTIALIAS_MODE {RenderContext::AntialiasingMode::Msaa4X};
 const bool                            ENABLE_VSYNC {false};
 const bool                            CAPTURE_CURSOR {false};
-const float                           TIMESTEP {1.0 / 120.0};
+const float                           TIME_STEP {1.0 / 120.0};
+const std::uint32_t                   MAX_CATCH_UP_STEPS {2};
 const float                           BACKGROUND_ROTATION_SPEED {radians(0.5f)};
 const vec3                            BACKGROUND_ROTATION_AXIS {0.5f, 1.0f, 1.0f};
 const vec3                            GRAVITY_EARTH {0.0f, -9.807f, 0.0f};
@@ -39,8 +40,12 @@ const vec3                            GRAVITY_ZERO {0.0f, 0.0f, 0.0f};
 
 static optional<App::PickResult> Pick(Scene& scene, const vec2& screenPosition);
 static void                      ShootSlurm(Scene& scene, const vec3& location, const vec3& direction);
-static void                      DropBoxes(Scene& scene, vec3 location);
-static void                      AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color);
+static void                      AddBoxStack(Scene&            scene,
+                                             const vec3&       location,
+                                             const vec3&       boxSize,
+                                             const u8vec3&     stackSize,
+                                             float             padding,
+                                             shared_ptr<Color> color);
 static string                    FormatVec3(const vec3& value);
 static string                    FormatRotation(const vec3& eulerAngles);
 static string_view               BodyTypeName(PhysicsBody::Type type);
@@ -101,8 +106,8 @@ std::unique_ptr<Scene> App::init() {
                     .color = make_shared<Color>(vec4 {0.075f, 0.075f, 0.075f, 0.65f}),
                     .angularWidthDegrees = 4.5f,
                 },
-            .specularIntensity = 0.15f,
-            .specularExponent = 32.0f,
+            .specularIntensity = 0.05f,
+            .specularExponent = 8.0f,
         });
 
         visualWorld->fog(Fog {.color = Color::Black(), .startDistance = 30.0f, .endDistance = 150.0f});
@@ -111,7 +116,7 @@ std::unique_ptr<Scene> App::init() {
 
         auto scene =
             make_unique<Scene>(std::move(visualWorld), std::move(physicsWorld), Window::InputContext());
-        scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay | Scene::DebugOptions::ShowBoundingBoxes);
+        scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 
         auto groundNode = Node::NamedNode("Ground");
         groundNode->orientation(math::quaternion({1.0f, 0.0f, 0.0f}, radians(-90.0f)));
@@ -298,7 +303,10 @@ std::unique_ptr<Scene> App::init() {
 }
 
 SimulationConfig App::simulationConfig() const {
-    return {.timeStep = TIMESTEP};
+    return {
+        .timeStep = TIME_STEP,
+        .maxCatchUpSteps = MAX_CATCH_UP_STEPS,
+    };
 }
 
 bool App::shouldContinue(const Scene& scene) {
@@ -404,7 +412,8 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
     // drop boxes
 
     if (input.keyPressed(Key::GraveAccent)) {
-        DropBoxes(scene, {0.0f, 25.0f, 0.0f});
+        //AddBoxStack(scene, {0.0f, 20.0f, 0.0f}, {0.5f, 0.5f, 0.5f}, {3, 3, 3}, 0.05f, Color::White());
+        AddBoxStack(scene, {0.0f, 10.0f, 0.0f}, {0.25f, 0.25f, 0.25f}, {3, 3, 3}, 0.025f, Color::White());
     }
 }
 
@@ -438,7 +447,7 @@ void App::frameDidBegin(Runner&                        runner,
 
     float timeScale = static_cast<float>(runner.timeScale());
 
-    if (panel.slider("time scale", timeScale, 0.25f, 2.0f, "%.2fx")) {
+    if (panel.slider("time scale", timeScale, 0.1f, 2.0f, "%.2fx")) {
         runner.timeScale(timeScale);
     }
 
@@ -709,50 +718,133 @@ void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
     scene.rootNode()->addChild(node);
 }
 
-void DropBoxes(Scene& scene, vec3 location) {
+// void DropBoxes(Scene& scene, vec3 location) {
+//
+//     // 16 items
+//     static const int OBJECT_ARRAY_SIZE_X = 2;
+//     static const int OBJECT_ARRAY_SIZE_Y = 4;
+//     static const int OBJECT_ARRAY_SIZE_Z = 2;
+//
+//     int SPACING = 1.0;
+//     int colorIndex = 0;
+//     for (int k = 0; k < OBJECT_ARRAY_SIZE_Y; ++k) {
+//         for (int i = 0; i < OBJECT_ARRAY_SIZE_X; ++i) {
+//             for (int j = 0; j < OBJECT_ARRAY_SIZE_Z; ++j) {
+//                 vec3 offset =
+//                     vec3(SPACING * i - (OBJECT_ARRAY_SIZE_X / 2.0), SPACING * k - (OBJECT_ARRAY_SIZE_Y / 2.0),
+//                          SPACING * j - (OBJECT_ARRAY_SIZE_Z / 2.0));
+//                 AddBox(scene, location + offset, Color::Random());
+//             }
+//         }
+//     }
+// }
 
-    // 16 items
-    static const int OBJECT_ARRAY_SIZE_X = 2;
-    static const int OBJECT_ARRAY_SIZE_Y = 4;
-    static const int OBJECT_ARRAY_SIZE_Z = 2;
+// void AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color) {
+//
+//     auto node = Node::MeshNode(Box::Mesh(1.0, 1.0, 1.0));
+//     node->name("Box");
+//     auto material = make_shared<Material>(monostate {}, monostate {}, monostate {}, color);
+//     node->mesh()->addMaterial(material);
+//     node->position(location);
+//
+//     // auto light = Light::Point(color);
+//     // light->attenuation(Attenuation {.quadratic = 0.04f});
+//     // node->light(light);
+//
+//     auto physicsBody = PhysicsBody::DynamicBody();
+//     physicsBody->mass(1.0);
+//     physicsBody->restitution(0.1);
+//     physicsBody->friction(0.25);
+//
+//     static auto physicsShape = make_shared<PhysicsShape>(PhysicsShape::Type::BoundingBox, node->mesh());
+//     physicsBody->shape(physicsShape);
+//
+//     node->physicsBody(std::move(physicsBody));
+//
+//     scene.rootNode()->addChild(node);
+// }
 
-    int SPACING = 1.0;
-    int colorIndex = 0;
-    for (int k = 0; k < OBJECT_ARRAY_SIZE_Y; ++k) {
-        for (int i = 0; i < OBJECT_ARRAY_SIZE_X; ++i) {
-            for (int j = 0; j < OBJECT_ARRAY_SIZE_Z; ++j) {
-                vec3 offset =
-                    vec3(SPACING * i - (OBJECT_ARRAY_SIZE_X / 2.0), SPACING * k - (OBJECT_ARRAY_SIZE_Y / 2.0),
-                         SPACING * j - (OBJECT_ARRAY_SIZE_Z / 2.0));
-                AddBox(scene, location + offset, Color::Random());
+void AddBoxStack(Scene&            scene,
+                 const vec3&       location,
+                 const vec3&       boxSize,
+                 const u8vec3&     stackSize,
+                 float             padding,
+                 shared_ptr<Color> color) {
+
+    if (!isfinite(padding) || padding < 0.0f) {
+        throw invalid_argument("Box stack padding must be finite and non-negative.");
+    }
+
+    const unsigned countX = stackSize.x;
+    const unsigned countZ = stackSize.y;
+    const unsigned countY = stackSize.z;
+
+    if (countX == 0 || countZ == 0 || countY == 0) {
+        return;
+    }
+
+    auto physicsShape = make_shared<BoxPhysicsShape>(boxSize.x, boxSize.y, boxSize.z);
+
+    shared_ptr<Mesh> sharedMesh;
+
+    if (color) {
+        sharedMesh = Box::Mesh(boxSize.x, boxSize.y, boxSize.z);
+        auto material = make_shared<Material>(monostate {}, monostate {}, monostate {}, color);
+        sharedMesh->addMaterial(material);
+    }
+
+    const float stepX = boxSize.x + padding;
+    const float stepY = boxSize.y + padding;
+    const float stepZ = boxSize.z + padding;
+
+    const float totalLength = boxSize.x * static_cast<float>(countX) + padding * static_cast<float>(countX - 1);
+    const float totalWidth = boxSize.z * static_cast<float>(countZ) + padding * static_cast<float>(countZ - 1);
+    const float startX = location.x - totalLength * 0.5f + boxSize.x * 0.5f;
+    const float startZ = location.z - totalWidth * 0.5f + boxSize.z * 0.5f;
+    const float startY = location.y + boxSize.y * 0.5f;
+
+    for (unsigned y = 0; y < countY; ++y) {
+        for (unsigned z = 0; z < countZ; ++z) {
+            for (unsigned x = 0; x < countX; ++x) {
+
+                auto boxColor = color ? color : Color::Random();
+                auto mesh = sharedMesh;
+
+                if (!mesh) {
+                    mesh = Box::Mesh(boxSize.x, boxSize.y, boxSize.z);
+
+                    auto material = make_shared<Material>(monostate {}, monostate {}, monostate {}, boxColor);
+
+                    mesh->addMaterial(material);
+                }
+
+                auto       node = Node::MeshNode(mesh);
+                static int boxNum = 0;
+                node->name(std::format("Box {}", ++boxNum));
+
+                node->position({
+                    startX + static_cast<float>(x) * stepX,
+                    startY + static_cast<float>(y) * stepY,
+                    startZ + static_cast<float>(z) * stepZ,
+                });
+
+                auto physicsBody = PhysicsBody::DynamicBody();
+                physicsBody->mass(1.0f);
+                physicsBody->restitution(0.1f);
+                physicsBody->friction(0.25f);
+                physicsBody->shape(physicsShape);
+
+                node->physicsBody(std::move(physicsBody));
+
+                auto light = Light::Point(boxColor);
+                // light->attenuation(Attenuation::FromRange(2.5f, 0.02f));
+                light->attenuation(Attenuation::FromRange(3.0f, 0.02f));
+                node->light(light);
+
+                scene.rootNode()->addChild(node);
             }
         }
     }
-}
-
-void AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color) {
-
-    auto node = Node::MeshNode(Box::Mesh(1.0, 1.0, 1.0));
-    node->name("Box");
-    auto material = make_shared<Material>(monostate {}, monostate {}, monostate {}, color);
-    node->mesh()->addMaterial(material);
-    node->position(location);
-
-    // auto light = Light::Point(color);
-    // light->attenuation(Attenuation {.quadratic = 0.04f});
-    // node->light(light);
-
-    auto physicsBody = PhysicsBody::DynamicBody();
-    physicsBody->mass(1.0);
-    physicsBody->restitution(0.1);
-    physicsBody->friction(0.25);
-
-    static auto physicsShape = make_shared<PhysicsShape>(PhysicsShape::Type::BoundingBox, node->mesh());
-    physicsBody->shape(physicsShape);
-
-    node->physicsBody(std::move(physicsBody));
-
-    scene.rootNode()->addChild(node);
 }
 
 string FormatVec3(const vec3& value) {

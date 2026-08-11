@@ -45,6 +45,11 @@ using namespace std;
 // ! btCollisionDispatcherMt is known to be buggy. leave it off.
 static constexpr bool A3D_USE_MT_DISPATCHER = false;
 
+// bullet's MT spatial-grid contact batching can assert on large/dense
+// contact islands. keep the MT world/solver infrastructure, but disable
+// contact batching until/unless we patch or replace that path
+static constexpr bool A3D_USE_MT_CONTACT_BATCHING = false;
+
 // make sure bullet is built with MT enabled
 //#if !defined(BT_THREADSAFE) || (BT_THREADSAFE != 1)
 //#   error "Bullet requires building with BT_THREADSAFE=1"
@@ -148,6 +153,12 @@ BulletWorldProxy::BulletWorldProxy(PhysicsWorld& world):
     // ! important: use the pool-size ctor so the pool owns its internal solvers
     const int poolSize = std::max(1, _btScheduler->getNumThreads() * 2);
     _btSolverPool = std::make_unique<btConstraintSolverPoolMt>(poolSize);
+
+    if constexpr (!A3D_USE_MT_CONTACT_BATCHING) {
+        btSequentialImpulseConstraintSolverMt::s_minimumContactManifoldsForBatching =
+            std::numeric_limits<int>::max();
+    }
+
     _btSolverMt = std::make_unique<btSequentialImpulseConstraintSolverMt>();
 
     _btWorld = std::make_unique<btDiscreteDynamicsWorldMt>(_btCollisionDispatcher.get(), _btBroadphase.get(),
