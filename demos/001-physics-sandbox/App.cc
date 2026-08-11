@@ -158,9 +158,15 @@ std::unique_ptr<Scene> App::init() {
         // auto janusNode = Node::MeshNode(util::fs::MeshNamed("janus/janus"));
         // scene->rootNode()->addChild(janusNode);
 
-        auto janusNode = Node::MeshNode(util::fs::MeshNamed("janus_lod/janus_lod"));
-        scene->rootNode()->addChild(janusNode);
-
+        {
+            constexpr float JANUS_HEIGHT = 1.0f;
+            auto            janusMesh = util::fs::MeshNamed("janus_lod/janus_lod");
+            const float     scaleFactor = JANUS_HEIGHT / janusMesh->localExtent().y;
+            janusMesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
+            auto janusNode = Node::MeshNode(janusMesh);
+            janusNode->position({-1.5f, 0.0f, 0.0f});
+            scene->rootNode()->addChild(janusNode);
+        }
 
 
 
@@ -180,15 +186,17 @@ std::unique_ptr<Scene> App::init() {
         // scene->rootNode()->addChild(angelNode);
 
 
-        // constexpr float ANGEL_HEIGHT = 2.0f;
-        // auto            angelMesh = util::fs::MeshNamed("aniel_lod/aniel_lod");
-        // const float     scaleFactor = ANGEL_HEIGHT / angelMesh->localExtent().y;
-        // angelMesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
-        // auto angelNode = Node::MeshNode(angelMesh);
-        // angelNode->name("Angel");
-        // angelNode->rotation({0.0f, 1.0f, 0.0f}, radians(180.0f));
-        // angelNode->physicsBody(PhysicsBody::StaticBody());
-        // scene->rootNode()->addChild(angelNode);
+        {
+            constexpr float ANGEL_HEIGHT = 2.0f;
+            auto            angelMesh = util::fs::MeshNamed("aniel_lod/aniel_lod");
+            const float     scaleFactor = ANGEL_HEIGHT / angelMesh->localExtent().y;
+            angelMesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
+            auto angelNode = Node::MeshNode(angelMesh);
+            angelNode->name("Angel");
+            angelNode->rotation({0.0f, 1.0f, 0.0f}, radians(180.0f));
+            angelNode->physicsBody(PhysicsBody::StaticBody());
+            scene->rootNode()->addChild(angelNode);
+        }
 
 
         // {
@@ -236,31 +244,31 @@ std::unique_ptr<Scene> App::init() {
 
         // teapot
 
-        // {
-        //     constexpr float TEAPOT_HEIGHT = 0.35f;
-        //     auto            teapotMesh = util::fs::MeshNamed("teapot/teapot");
-        //     const float     teapotScale = TEAPOT_HEIGHT / teapotMesh->localExtent().y;
-        //     teapotMesh->burnTransform(math::scale(mat4(1.0f), vec3(teapotScale)), true);
-        //     teapotMesh->replaceMaterial(0, Material::DiffuseMaterial(Color::DarkGray()));
-        //
-        //     auto teapotNode = Node::MeshNode(teapotMesh);
-        //     teapotNode->name("Teapot");
-        //
-        //     // put its bottom ~1 meter above the ground so it drops in
-        //     teapotNode->position({1.5f, 1.0f - teapotMesh->localAABB().min.y, 0.0f});
-        //
-        //     // dynamic physics; this will auto-create a convex-hull shape
-        //     auto teapotBody = PhysicsBody::DynamicBody();
-        //     teapotBody->mass(1.5f);
-        //     teapotBody->friction(0.6f);
-        //     teapotBody->restitution(0.15f);
-        //     teapotBody->linearDamping(0.03f);
-        //     teapotBody->angularDamping(0.05f);
-        //
-        //     teapotNode->physicsBody(std::move(teapotBody));
-        //
-        //     scene->rootNode()->addChild(teapotNode);
-        // }
+        {
+            constexpr float TEAPOT_HEIGHT = 0.35f;
+            auto            teapotMesh = util::fs::MeshNamed("teapot/teapot");
+            const float     teapotScale = TEAPOT_HEIGHT / teapotMesh->localExtent().y;
+            teapotMesh->burnTransform(math::scale(mat4(1.0f), vec3(teapotScale)), true);
+            teapotMesh->replaceMaterial(0, Material::DiffuseMaterial(Color::DarkGray()));
+
+            auto teapotNode = Node::MeshNode(teapotMesh);
+            teapotNode->name("Teapot");
+
+            // put its bottom ~1 meter above the ground so it drops in
+            teapotNode->position({1.5f, 1.0f - teapotMesh->localAABB().min.y, 0.0f});
+
+            // dynamic physics; this will auto-create a convex-hull shape
+            auto teapotBody = PhysicsBody::DynamicBody();
+            teapotBody->mass(1.5f);
+            teapotBody->friction(0.6f);
+            teapotBody->restitution(0.15f);
+            teapotBody->linearDamping(0.03f);
+            teapotBody->angularDamping(0.05f);
+
+            teapotNode->physicsBody(std::move(teapotBody));
+
+            scene->rootNode()->addChild(teapotNode);
+        }
 
 
         // camera
