@@ -34,6 +34,10 @@ const vec3                            GRAVITY_EARTH {0.0f, -9.807f, 0.0f};
 const vec3                            GRAVITY_MOON {0.0f, -1.62f, 0.0f};
 const vec3                            GRAVITY_ZERO {0.0f, 0.0f, 0.0f};
 
+/// Private Static Non-Member Prototypes ///
+
+void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction);
+
 /// Public Lifecycle Functions ///
 
 App::App(int argc, char* argv[]):
@@ -63,14 +67,14 @@ std::unique_ptr<Scene> App::init() {
                     .color = make_shared<Color>(vec4 {0.5f, 0.5f, 0.5f, 0.25f}),
                     .spacing = 1.0f,
                     .lineWidthPixels = 1.0f,
-                    .reliefStrength = -0.15f,
+                    .reliefStrength = -0.1f,
                 },
             .majorGrid =
                 InfiniteGround::Grid {
                     .color = make_shared<Color>(vec4 {0.75f, 0.75f, 0.75f, 0.25f}),
                     .spacing = 10.0f,
                     .lineWidthPixels = 1.0f,
-                    .reliefStrength = -0.15f,
+                    .reliefStrength = -0.1f,
                 },
             .curvature =
                 InfiniteGround::Curvature {
@@ -86,8 +90,8 @@ std::unique_ptr<Scene> App::init() {
                 },
             .horizonHaze =
                 InfiniteGround::HorizonHaze {
-                    .color = make_shared<Color>(vec4 {0.075f, 0.075f, 0.075f, 0.55f}),
-                    .angularWidthDegrees = 4.0f,
+                    .color = make_shared<Color>(vec4 {0.075f, 0.075f, 0.075f, 0.65f}),
+                    .angularWidthDegrees = 4.5f,
                 },
             .specularIntensity = 0.15f,
             .specularExponent = 32.0f,
@@ -108,43 +112,126 @@ std::unique_ptr<Scene> App::init() {
         groundNode->physicsBody(std::move(groundBody));
         scene->rootNode()->addChild(groundNode);
 
-        auto testBoxNode = Node::MeshNode(Box::Mesh(1.0f, 1.0f, 1.0f));
-        testBoxNode->name("Ground test box");
-        testBoxNode->position({0.0f, 5.0f, 0.0f});
-        testBoxNode->physicsBody(PhysicsBody::DynamicBody());
-        {
-            auto testBoxMaterial = make_shared<Material>();
-            testBoxMaterial->emission(Color::White());
-            testBoxNode->mesh()->addMaterial(testBoxMaterial);
-        }
-        scene->rootNode()->addChild(testBoxNode);
-
-        auto pointLight = make_shared<PointLight>(Color::White());
-        pointLight->attenuation(Attenuation {
-            .quadratic = 0.05f,
-        });
-        auto pointLightNode = Node::LightNode(pointLight);
-        pointLightNode->position({0.0f, 5.0f, 0.0f});
-        //scene->rootNode()->addChild(pointLightNode);
-        testBoxNode->addChild(pointLightNode);
+        // {
+        //     auto testBoxNode = Node::MeshNode(Box::Mesh(1.0f, 1.0f, 1.0f));
+        //     testBoxNode->name("Ground test box");
+        //     testBoxNode->position({0.0f, 5.0f, 0.0f});
+        //     testBoxNode->physicsBody(PhysicsBody::DynamicBody());
+        //     {
+        //         auto testBoxMaterial = make_shared<Material>();
+        //         testBoxMaterial->emission(Color::White());
+        //         testBoxNode->mesh()->addMaterial(testBoxMaterial);
+        //     }
+        //     scene->rootNode()->addChild(testBoxNode);
+        //
+        //
+        //     auto pointLight = make_shared<PointLight>(Color::White());
+        //     pointLight->attenuation(Attenuation {
+        //         .quadratic = 0.05f,
+        //     });
+        //     auto pointLightNode = Node::LightNode(pointLight);
+        //     pointLightNode->position({0.0f, 5.0f, 0.0f});
+        //     //scene->rootNode()->addChild(pointLightNode);
+        //     testBoxNode->addChild(pointLightNode);
+        // }
 
         auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.15f));
         auto ambientLightNode = Node::LightNode(ambientLight);
         scene->rootNode()->addChild(ambientLightNode);
 
-        // auto pointLight = make_shared<PointLight>(Color::White());
-        // pointLight->attenuation(Attenuation {
-        //     .quadratic = 0.05f,
-        // });
-        // auto pointLightNode = Node::LightNode(pointLight);
-        // pointLightNode->position({0.0f, 4.0f, 0.0f});
-        // scene->rootNode()->addChild(pointLightNode);
+        {
+            auto pointLight = make_shared<PointLight>(Color::White());
+            pointLight->attenuation(Attenuation {
+                .quadratic = 0.05f,
+            });
+            auto pointLightNode = Node::LightNode(pointLight);
+            pointLightNode->position({0.0f, 4.0f, 0.0f});
+            scene->rootNode()->addChild(pointLightNode);
+        }
 
-        _bananaNode = Node::MeshNode(util::fs::MeshNamed("banana_lod/banana_lod"));
-        auto rx = math::quaternion({1.0f, 0.0f, 0.0f}, radians(90.0f));
-        auto ry = math::quaternion({0.0f, 1.0f, 0.0f}, radians(90.0f));
-        _bananaNode->orientation(rx * ry);
-        scene->rootNode()->addChild(_bananaNode);
+        // auto anielNode = Node::MeshNode(util::fs::MeshNamed("aniel/aniel"));
+        // scene->rootNode()->addChild(anielNode);
+        // auto anielExtent = anielNode->extent();
+
+        // constexpr float ANGEL_HEIGHT = 2.0f;
+        // auto            angelNode = Node::MeshNode(util::fs::MeshNamed("aniel/aniel"));
+        // angelNode->scale(angelNode->scale() * (ANGEL_HEIGHT / angelNode->extent(true).y));
+        // angelNode->physicsBody(PhysicsBody::StaticBody());
+        // scene->rootNode()->addChild(angelNode);
+
+        constexpr float ANGEL_HEIGHT = 2.0f;
+        auto            angelMesh = util::fs::MeshNamed("aniel_lod/aniel_lod");
+        const float     scaleFactor = ANGEL_HEIGHT / angelMesh->localExtent().y;
+        angelMesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
+        auto angelNode = Node::MeshNode(angelMesh);
+        angelNode->name("Angel");
+        angelNode->rotation({0.0f, 1.0f, 0.0f}, radians(180.0f));
+        angelNode->physicsBody(PhysicsBody::StaticBody());
+        scene->rootNode()->addChild(angelNode);
+
+        // {
+        //     auto topLight = Light::Spot(Color::White());
+        //     topLight->innerAngle(radians(18.0f));
+        //     topLight->outerAngle(radians(28.0f));
+        //
+        //     auto topLightNode = Node::LightNode(topLight);
+        //     topLightNode->position({0.0f, 2.5, -0.5});
+        //     topLightNode->eulerAngles({
+        //         radians(-65.0f), // pitch: straight down
+        //         radians(0.0f),
+        //         radians(0.0f)
+        //     });
+        //
+        //     scene->rootNode()->addChild(topLightNode);
+        // }
+
+        // {
+        //     auto bottomLight = Light::Spot(Color::White());
+        //     bottomLight->innerAngle(radians(18.0f));
+        //     bottomLight->outerAngle(radians(28.0f));
+        //
+        //     auto bottomLightNode = Node::LightNode(bottomLight);
+        //     bottomLightNode->position({0.0f, 0.15f, -0.45f});
+        //     bottomLightNode->eulerAngles({
+        //         radians(65.0f), // pitch: straight up
+        //         radians(0.0f),
+        //         radians(0.0f)
+        //     });
+        //
+        //     scene->rootNode()->addChild(bottomLightNode);
+        // }
+
+        // _bananaNode = Node::MeshNode(util::fs::MeshNamed("banana_lod/banana_lod"));
+        // auto rx = math::quaternion({1.0f, 0.0f, 0.0f}, radians(90.0f));
+        // auto ry = math::quaternion({0.0f, 1.0f, 0.0f}, radians(90.0f));
+        // _bananaNode->orientation(rx * ry);
+        // scene->rootNode()->addChild(_bananaNode);
+
+        {
+            constexpr float TEAPOT_HEIGHT = 0.35f;
+            auto teapotMesh = util::fs::MeshNamed("teapot/teapot");
+            const float teapotScale = TEAPOT_HEIGHT / teapotMesh->localExtent().y;
+            teapotMesh->burnTransform(math::scale(mat4(1.0f), vec3(teapotScale)), true);
+            teapotMesh->replaceMaterial(0, Material::DiffuseMaterial(Color::DarkGray()));
+
+            auto teapotNode = Node::MeshNode(teapotMesh);
+            teapotNode->name("Teapot");
+
+            // put its bottom ~1 meter above the ground so it drops in
+            teapotNode->position({1.5f, 1.0f - teapotMesh->localAABB().min.y, 0.0f});
+
+            // dynamic physics; this will auto-create a convex-hull shape
+            auto teapotBody = PhysicsBody::DynamicBody();
+            teapotBody->mass(1.5f);
+            teapotBody->friction(0.6f);
+            teapotBody->restitution(0.15f);
+            teapotBody->linearDamping(0.03f);
+            teapotBody->angularDamping(0.05f);
+
+            teapotNode->physicsBody(std::move(teapotBody));
+
+            scene->rootNode()->addChild(teapotNode);
+        }
 
         auto camera = make_shared<PerspectiveCamera>(0.1f, 1000.0f, radians(45.0f));
         _cameraNode = Node::CameraNode(camera);
@@ -194,7 +281,8 @@ void App::inputDidUpdate(Runner&, Scene&, InputContext& inputContext, const Inpu
     }
 
     if (!_cameraNode) {
-        _window->cursorHidden(false);
+        //_window->cursorHidden(false);
+        _window->cursorCaptured(false);
         return;
     }
 
@@ -202,7 +290,8 @@ void App::inputDidUpdate(Runner&, Scene&, InputContext& inputContext, const Inpu
     const auto viewportSize = _window->viewportLogicalSize();
     const auto result = _cameraController.update(input, camera->yFov(), static_cast<float>(viewportSize.y));
 
-    _window->cursorHidden(result.pointerDragging);
+    //_window->cursorHidden(result.pointerDragging);
+    _window->cursorCaptured(result.pointerDragging);
 }
 
 void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
@@ -218,28 +307,33 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
 
     using MouseButton = DesktopInputContext::MouseButton;
 
-    if (input.mouseButtonPressed(MouseButton::One)) {
+    // if (input.mouseButtonPressed(MouseButton::One)) {
+    //
+    //     const auto mouse = input.mousePosition();
+    //     const auto from = scene.visualWorld()->unprojectPoint({mouse.x, mouse.y, 0.0f});
+    //     const auto to = scene.visualWorld()->unprojectPoint({mouse.x, mouse.y, 1.0f});
+    //
+    //     const auto hits = scene.physicsWorld()->rayTest(from, to);
+    //
+    //     if (!hits.empty()) {
+    //
+    //         const auto& hit = hits.front();
+    //
+    //         if (auto node = hit.node()) {
+    //             if (auto body = node->physicsBody(); body && body->type() == PhysicsBody::Type::Dynamic) {
+    //
+    //                 const vec3  direction = normalize(to - from);
+    //                 const float impulse = 5.0f;
+    //
+    //                 body->applyForce(direction * impulse, hit.worldCoordinates(), true);
+    //             }
+    //         }
+    //     }
+    // }
 
-        const auto mouse = input.mousePosition();
-        const auto from = scene.visualWorld()->unprojectPoint({mouse.x, mouse.y, 0.0f});
-        const auto to = scene.visualWorld()->unprojectPoint({mouse.x, mouse.y, 1.0f});
-
-        const auto hits = scene.physicsWorld()->rayTest(from, to);
-
-        if (!hits.empty()) {
-
-            const auto& hit = hits.front();
-
-            if (auto node = hit.node()) {
-                if (auto body = node->physicsBody(); body && body->type() == PhysicsBody::Type::Dynamic) {
-
-                    const vec3  direction = normalize(to - from);
-                    const float impulse = 5.0f;
-
-                    body->applyForce(direction * impulse, hit.worldCoordinates(), true);
-                }
-            }
-        }
+    const auto visualWorld = scene.visualWorld();
+    if (auto pov = visualWorld->pointOfView().lock(); input.mouseButtonPressed(MouseButton::One)) {
+        ShootSlurm(scene, pov->worldPosition(), pov->worldForward());
     }
 }
 
@@ -250,7 +344,9 @@ void App::frameDidBegin(Runner&                        runner,
 
     const float  delta = static_cast<float>(info.updateDeltaTime);
     static float angle = radians(180.0);
-    angle += delta * BACKGROUND_ROTATION_SPEED;
+    if (!runner.simulationPaused()) {
+        angle += delta * BACKGROUND_ROTATION_SPEED;
+    }
     if (auto& background = visualWorld.background()) {
         background->orientation(quaternion(BACKGROUND_ROTATION_AXIS, angle));
     }
@@ -260,7 +356,7 @@ void App::frameDidBegin(Runner&                        runner,
     }
 
     ui::Panel panel("controls", {
-                                    .width = 260.0f,
+                                    .width = 230.0f,
                                     .margin = 12.0f,
                                 });
 
@@ -327,11 +423,70 @@ void App::frameDidBegin(Runner&                        runner,
     auto debugOptions = scene.debugOptions();
 
     bool meshBounds = util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowBoundingBoxes);
-
     if (panel.toggle("mesh bounds", meshBounds)) {
         debugOptions = meshBounds ? util::bitmask::add(debugOptions, Scene::DebugOptions::ShowBoundingBoxes)
                                   : util::bitmask::remove(debugOptions, Scene::DebugOptions::ShowBoundingBoxes);
 
         scene.debugOptions(debugOptions);
     }
+
+    bool physWireframes = util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowPhysicsWireframes);
+    if (panel.toggle("physics wireframes", physWireframes)) {
+        debugOptions = physWireframes
+                           ? util::bitmask::add(debugOptions, Scene::DebugOptions::ShowPhysicsWireframes)
+                           : util::bitmask::remove(debugOptions, Scene::DebugOptions::ShowPhysicsWireframes);
+
+        scene.debugOptions(debugOptions);
+    }
+}
+
+/// Private Static Non-Member Functions ///
+
+void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
+
+    static auto mesh = util::fs::MeshNamed("slurm/slurm");
+    // mesh->materials()[0]->emission(mesh->materials()[0]->diffuse());
+    // mesh->materials()[1]->emission(mesh->materials()[1]->diffuse());
+
+    auto node = Node::MeshNode(mesh);
+    node->name("Slurm");
+
+    node->position(location);
+
+    static auto extent = node->mesh()->localExtent();
+    static auto physicsShape = make_shared<CylinderPhysicsShape>(extent.x / 2.0, extent.y);
+    auto        physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, physicsShape);
+    physicsBody->mass(.354); // 12fl oz water @ 70F
+    physicsBody->restitution(1.0);
+    physicsBody->friction(0.35);
+    physicsBody->rollingFriction(0.05);
+
+    const float radius = extent.x * 0.5f;
+    physicsBody->ccdMotionThreshold(radius * 0.25f);
+    physicsBody->ccdSweptSphereRadius(radius * 0.8f);
+    physicsBody->ccdEnabled(true);
+
+    // static auto light = Light::Point();
+    // light->attenuation(Attenuation {.quadratic = 0.04f});
+    // node->light(light);
+
+    // add random factor
+
+    node->eulerAngles({uniform_linear(0.0f, two_pi()), uniform_linear(0.0f, two_pi()),
+                       uniform_linear(0.0f, two_pi())});
+
+    static const float ANGULAR_VARIANCE = radians(260.0); // deg/sec
+    physicsBody->angularVelocity({uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+                                  uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+                                  uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE)});
+
+    const float        VELOCITY = uniform_linear(40.0f, 60.0f);
+    // const float        VELOCITY = uniform_linear(20.0f, 40.0f);
+    static const float DIRECTION_VARIATION = 0.01;
+    const vec3         variedDirection = normalize(normalize(direction) + uniform_ball(DIRECTION_VARIATION));
+    physicsBody->linearVelocity(variedDirection * VELOCITY);
+
+    node->physicsBody(std::move(physicsBody));
+
+    scene.rootNode()->addChild(node);
 }

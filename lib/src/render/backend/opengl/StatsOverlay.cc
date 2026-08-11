@@ -273,21 +273,16 @@ void DrawStats(FrameStats&              stats,
                int                      id) {
     using namespace ImGui;
 
-    //ShowMetricsWindow();
-
+    static const float COLUMN_WIDTH = 136.0f;
     static const float TOP_PADDING = 36.0f;
     static const float X_POS = 12.0;
-    static const float COLUMN_WIDTH = 130.0f;
-    static const float FIXED_STEP_TEXT_WIDTH = 300.0f;
     static const bool  PLOT_OUTLINED = true;
     static const float PLOT_HEIGHT_1 = 36.0;
     static const float PLOT_HEIGHT_2 = 24.0;
-    static const float PLOT_X_OFFSET = 0.0;
     static const float PLOT_STR_Y_PAD = 8.0;
     static const float PLOT_Y_PAD = 18.0;
     static const float PLOT_Y_MIN = 0.0;
     static const float PLOT_Y_MAX = 17.0;
-    static const int   TEXT_PADDING = 15;
     static const float STAT_LINE_STEP = STATS_BODY_FONT_SIZE + 1.0f;
     static const float INDENT_WIDTH = 8.0f;
 
