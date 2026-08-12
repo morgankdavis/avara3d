@@ -12,6 +12,9 @@
 #include <stdexcept>
 
 #include "a3d/render/backend/opengl/gl.h" // <- MUST be before GLFW
+#ifdef A3D_WEB
+    #include <emscripten/emscripten.h>
+#endif
 #include <GLFW/glfw3.h>
 #include <imgui/backends/imgui_impl_glfw.h>
 
@@ -40,6 +43,9 @@ static constexpr const char* WEB_CANVAS_SELECTOR = "#canvas";
 /// Private Static Non-Member Prototypes ///
 
 static bool InitGLFW();
+#ifdef A3D_WEB
+static void InitEmscripten();
+#endif
 static void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height);
 static void GLFWWindowCloseCallback(GLFWwindow* glfwWindow);
 static void GLFWFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height);
@@ -160,6 +166,10 @@ Window::Window(RenderingApi  renderingAPI,
             ImGui_ImplGlfw_Shutdown();
             throw std::runtime_error("Couldn't create GLFW Window.");
         }
+
+#ifdef A3D_WEB
+        InitEmscripten();
+#endif
     }
 
     else {
@@ -625,7 +635,7 @@ DesktopInputContext* Window::InputContextFromGLFWWindow(GLFWwindow* glfwWindow) 
 
 /// Private Static Non-Member Functions ///
 
-static bool InitGLFW() {
+bool InitGLFW() {
 
     static bool initialized = false;
     if (!initialized) {
@@ -648,10 +658,24 @@ static bool InitGLFW() {
 
         srand(time(nullptr)); // where else can we put this?
 
-        initialized = true;
+        initialized = true;2
     }
     return true;
 }
+
+#ifdef A3D_WEB
+void InitEmscripten() {
+    // suppress right-click in Emscripten canvas
+    auto result = emscripten_set_contextmenu_callback("#canvas", nullptr, false,
+                                                      [](int, const EmscriptenMouseEvent*, void*) -> EM_BOOL {
+                                                          return EM_TRUE;
+                                                      });
+
+    if (result != EMSCRIPTEN_RESULT_SUCCESS) {
+        log::e()("Error setting Emscripten context menu callback: {}", result);
+    }
+}
+#endif
 
 void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
 //	log::d()("glfwWindow: {:p}, width: {}, height: {}",
