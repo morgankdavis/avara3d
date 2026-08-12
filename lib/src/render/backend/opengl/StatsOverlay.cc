@@ -450,8 +450,8 @@ void DrawStats(FrameStats&              stats,
                         STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
     ImguiDrawLabelValue(yPos, bulkLayout, "meshes", std::format("{}", stats.meshes), bodyFont,
                         STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
-    ImguiDrawLabelValue(yPos, bulkLayout, "elements", std::format("{}", stats.elements), bodyFont,
-                        STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+    // ImguiDrawLabelValue(yPos, bulkLayout, "elements", std::format("{}", stats.elements), bodyFont,
+    //                     STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
     ImguiDrawLabelValue(yPos, bulkLayout, "polygons", std::format("{:.1f}k", float(stats.polygons) / 1000.0f),
                         bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
     ImguiDrawLabelValue(yPos, bulkLayout, "lights", std::format("{}", stats.lights), bodyFont,

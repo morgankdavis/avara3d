@@ -109,9 +109,6 @@ namespace a3d {
         bool                           usesDefaultLighting() const;
         void                           usesDefaultLighting(bool enabled);
 
-        bool                           autoEnablesDefaultLighting() const;
-        void                           autoEnablesDefaultLighting(bool enabled);
-
         RenderContext*                 renderContext() const;
 
         Scene*                         scene() const;
@@ -151,7 +148,6 @@ namespace a3d {
         std::optional<Fog>            _fog;
         std::optional<InfiniteGround> _infiniteGround;
         bool                          _usesDefaultLighting;
-        bool                          _autoEnablesDefaultLighting;
         std::weak_ptr<Node>           _pointOfView;
         RenderContext*                _renderContext;
         Scene*                        _scene;

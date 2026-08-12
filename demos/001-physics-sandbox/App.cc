@@ -542,7 +542,7 @@ void App::frameDidBegin(Runner&                        runner,
                 polygons += e->indexCount() / 3u;
             }
             panel.value("polygons", std::format("{:.1f}k", float(polygons) / 1000.0f));
-            panel.value("elements", std::format("{}", mesh->elements().size()));
+            // panel.value("elements", std::format("{}", mesh->elements().size()));
             panel.value("materials", std::format("{}", mesh->materials().size()));
         }
     }

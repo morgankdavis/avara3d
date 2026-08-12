@@ -43,7 +43,6 @@ VisualWorld::VisualWorld(RenderContext& context):
     _fog {},
     _infiniteGround {},
     _usesDefaultLighting {false},
-    _autoEnablesDefaultLighting {true},
     _pointOfView {},
     _renderContext {&context},
     _scene {},
@@ -332,14 +331,6 @@ bool VisualWorld::usesDefaultLighting() const {
 
 void VisualWorld::usesDefaultLighting(bool enabled) {
     _usesDefaultLighting = enabled;
-}
-
-bool VisualWorld::autoEnablesDefaultLighting() const {
-    return _autoEnablesDefaultLighting;
-}
-
-void VisualWorld::autoEnablesDefaultLighting(bool enabled) {
-    _autoEnablesDefaultLighting = enabled;
 }
 
 RenderContext* VisualWorld::renderContext() const {

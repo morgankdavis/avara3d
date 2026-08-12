@@ -1191,8 +1191,7 @@ void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
 
     auto numLights = lightNodes.size();
 
-    if (scene.visualWorld()->usesDefaultLighting()
-        || ((numLights == 0) && scene.visualWorld()->autoEnablesDefaultLighting())) {
+    if (scene.visualWorld()->usesDefaultLighting()) {
         environmentStruct.useDefaultLighting = 1u;
     }
     else {
