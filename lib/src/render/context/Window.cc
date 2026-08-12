@@ -44,7 +44,8 @@ static constexpr const char* WEB_CANVAS_SELECTOR = "#canvas";
 
 static bool InitGLFW();
 #ifdef A3D_WEB
-static void DisableWebContextMenu();
+static void InstallWebContextMenuHandler();
+static void InstallWebGLContextLostHandler();
 #endif
 static void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height);
 static void GLFWWindowCloseCallback(GLFWwindow* glfwWindow);
@@ -168,7 +169,8 @@ Window::Window(RenderingApi  renderingAPI,
         }
 
 #ifdef A3D_WEB
-        DisableWebContextMenu();
+    InstallWebContextMenuHandler();
+    InstallWebGLContextLostHandler();
 #endif
     }
 
@@ -685,9 +687,9 @@ bool InitGLFW() {
 }
 
 #ifdef A3D_WEB
-void DisableWebContextMenu() {
-    // suppress right-click in Emscripten canvas
-    auto result = emscripten_set_contextmenu_callback("#canvas", nullptr, false,
+void InstallWebContextMenuHandler() {
+    // suppressed right-click in Emscripten canvas
+    auto result = emscripten_set_contextmenu_callback(WEB_CANVAS_SELECTOR, nullptr, false,
                                                       [](int, const EmscriptenMouseEvent*, void*) -> EM_BOOL {
                                                           return EM_TRUE;
                                                       });
@@ -696,6 +698,19 @@ void DisableWebContextMenu() {
         log::e()("Error setting Emscripten context menu callback: {}", result);
     }
 }
+
+void InstallWebGLContextLostHandler() {
+    const auto result = emscripten_set_webglcontextlost_callback(WEB_CANVAS_SELECTOR, nullptr, false,
+                                                                 [](int, const void*, void*) -> EM_BOOL {
+                                                                     log::e()("WebGL context lost.");
+                                                                     return EM_FALSE;
+                                                                 });
+
+    if (result != EMSCRIPTEN_RESULT_SUCCESS) {
+        log::e()("Error registering WebGL context-lost callback: {}", result);
+    }
+}
+
 #endif
 
 void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {

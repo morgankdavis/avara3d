@@ -309,12 +309,9 @@ TurntableCameraController::UpdateResult TurntableCameraController::update(Deskto
         _panButtonDragging = true;
     }
 
-    if (_panButtonDragging
-        && input.mouseButtonDown(_config.controls.panButton)
-        && !panButtonPressed) {
-
+    if (_panButtonDragging && input.mouseButtonDown(_config.controls.panButton) && !panButtonPressed) {
         pan(dragDelta);
-        }
+    }
 
     if (input.mouseButtonReleased(_config.controls.panButton)) {
         _panButtonDragging = false;
