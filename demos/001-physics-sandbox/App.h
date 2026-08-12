@@ -77,7 +77,7 @@ namespace demo::physicssandbox {
         std::shared_ptr<a3d::Node>          _cameraNode;
         std::shared_ptr<a3d::Node>          _simulationRoot;
         std::optional<PickResult>           _selection;
-        // std::chrono::milliseconds           _pendingHiccup;
+        double                              _backgroundRotationTime {0.0};
         bool                                _resetRequested;
     };
 

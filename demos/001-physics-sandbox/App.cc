@@ -57,10 +57,11 @@ static string_view               ShapeTypeName(PhysicsShape::Type type);
 App::App(int argc, char* argv[]):
     Application(argc, argv, APP_LOG_LEVEL),
     _window {nullptr},
-    _cameraNode {nullptr},
     _cameraController {},
+    _cameraNode {nullptr},
     _simulationRoot {nullptr},
     _selection {std::nullopt},
+    _backgroundRotationTime {0.0},
     _resetRequested {false} {}
 
 App::~App() = default;
@@ -328,7 +329,19 @@ void App::frameDidBegin(Runner&                        runner,
 
     const float frameDelta = static_cast<float>(info.updateDeltaTime);
 
-    const float angle = radians(180.0f) + static_cast<float>(info.simulationTime) * BACKGROUND_ROTATION_SPEED;
+    // const float angle = radians(180.0f) + static_cast<float>(info.simulationTime) * BACKGROUND_ROTATION_SPEED;
+    // if (auto& background = visualWorld.background()) {
+    //     background->orientation(quaternion(BACKGROUND_ROTATION_AXIS, angle));
+    // }
+
+    if (!runner.simulationPaused()) {
+        _backgroundRotationTime += info.updateDeltaTime * runner.timeScale();
+    }
+
+    const float angle =
+        radians(180.0f)
+        + static_cast<float>(_backgroundRotationTime) * BACKGROUND_ROTATION_SPEED;
+
     if (auto& background = visualWorld.background()) {
         background->orientation(quaternion(BACKGROUND_ROTATION_AXIS, angle));
     }
