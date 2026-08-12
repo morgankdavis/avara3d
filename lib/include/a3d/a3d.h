@@ -72,6 +72,7 @@
 #include "a3d/util/PeriodicTrigger.h"
 #include "a3d/util/Snapshot.h"
 #include "a3d/util/String.h"
+#include "a3d/visual/AtmosphericHaze.h"
 #include "a3d/visual/Background.h"
 #include "a3d/visual/Fog.h"
 #include "a3d/visual/InfiniteGround.h"

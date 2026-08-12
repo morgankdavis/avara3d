@@ -71,7 +71,7 @@ App::~App() = default;
 
 std::unique_ptr<Scene> App::init() {
     try {
-        // create the window / render context
+        // create and configure the window
 
         _window = make_unique<Window>(RenderContext::RenderingApi::OpenGL, *util::fs::ExecutableName(),
                                       WINDOW_SIZE, FULLSCREEN, ENABLE_HIGH_DPI, ANTIALIASING);
@@ -93,14 +93,14 @@ std::unique_ptr<Scene> App::init() {
                     .color = make_shared<Color>(vec4 {0.5f, 0.5f, 0.5f, 0.25f}),
                     .spacing = 1.0f,
                     .lineWidthPixels = 1.0f,
-                    .reliefStrength = -0.1f,
+                    .reliefStrength = -0.125f,
                 },
             .majorGrid =
                 InfiniteGround::Grid {
                     .color = make_shared<Color>(vec4 {0.75f, 0.75f, 0.75f, 0.25f}),
                     .spacing = 10.0f,
                     .lineWidthPixels = 1.0f,
-                    .reliefStrength = -0.1f,
+                    .reliefStrength = -0.125f,
                 },
             .radialFade =
                 InfiniteGround::RadialFade {
@@ -128,6 +128,8 @@ std::unique_ptr<Scene> App::init() {
         // create the physics world
 
         auto physicsWorld = make_unique<PhysicsWorld>();
+
+        // create the scene
 
         auto scene =
             make_unique<Scene>(std::move(visualWorld), std::move(physicsWorld), Window::InputContext());
@@ -227,7 +229,9 @@ void App::hostUpdate(Runner& runner, Scene&, const Runner::UpdateInfo&) {
 
     if (_resetRequested) {
         _resetRequested = false;
+
         resetSimulation();
+
         if (runner.simulationPaused()) {
             runner.resumeSimulation();
         }
@@ -922,7 +926,6 @@ vector<shared_ptr<Node>> AddBoxStack(Node&             parent,
                 node->physicsBody(std::move(physicsBody));
 
                 auto light = Light::Point(boxColor);
-                // light->attenuation(Attenuation::FromRange(2.5f, 0.02f));
                 light->attenuation(Attenuation::FromRange(3.0f, 0.02f));
                 node->light(light);
 

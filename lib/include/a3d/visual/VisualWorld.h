@@ -17,6 +17,7 @@
 
 #include "a3d/scene/Scene.h"
 #include "a3d/scene/HitTestResult.h"
+#include "a3d/visual/AtmosphericHaze.h"
 #include "a3d/visual/Background.h"
 #include "a3d/visual/Fog.h"
 #include "a3d/visual/InfiniteGround.h"
@@ -82,33 +83,36 @@ namespace a3d {
 
         /// Public Member Functions ///
 
-        std::optional<Background>&     background();
-        void                           background(const std::optional<Background>& background);
+        std::optional<Background>&            background();
+        void                                  background(const std::optional<Background>& background);
 
-        const std::optional<Fog>&      fog() const;
-        void                           fog(const std::optional<Fog>& fog);
+        const std::optional<AtmosphericHaze>& atmosphericHaze() const;
+        void                                  atmosphericHaze(const std::optional<AtmosphericHaze>& haze);
 
-        std::optional<InfiniteGround>& infiniteGround();
-        void                           infiniteGround(const std::optional<InfiniteGround>& ground);
+        const std::optional<Fog>&             fog() const;
+        void                                  fog(const std::optional<Fog>& fog);
 
-        std::weak_ptr<Node>&           pointOfView();
-        void                           pointOfView(const std::weak_ptr<Node>& cameraNode);
+        std::optional<InfiniteGround>&        infiniteGround();
+        void                                  infiniteGround(const std::optional<InfiniteGround>& ground);
 
-        math::vec3                     projectPoint(const math::vec3& point) const;
-        math::vec3                     unprojectPoint(const math::vec3& point) const;
+        std::weak_ptr<Node>&                  pointOfView();
+        void                                  pointOfView(const std::weak_ptr<Node>& cameraNode);
 
-        std::vector<HitTestResult>     hitTest(const math::vec2& point, const HitTestOptions& options) const;
-        std::vector<HitTestResult>     hitTest(const math::vec2& point) const;
+        math::vec3                            projectPoint(const math::vec3& point) const;
+        math::vec3                            unprojectPoint(const math::vec3& point) const;
 
-        bool                           usesDefaultLighting() const;
-        void                           usesDefaultLighting(bool enabled);
+        std::vector<HitTestResult> hitTest(const math::vec2& point, const HitTestOptions& options) const;
+        std::vector<HitTestResult> hitTest(const math::vec2& point) const;
 
-        bool                           autoEnablesDefaultLighting() const;
-        void                           autoEnablesDefaultLighting(bool enabled);
+        bool                       usesDefaultLighting() const;
+        void                       usesDefaultLighting(bool enabled);
 
-        RenderContext*                 renderContext() const;
+        bool                       autoEnablesDefaultLighting() const;
+        void                       autoEnablesDefaultLighting(bool enabled);
 
-        Scene*                         scene() const;
+        RenderContext*             renderContext() const;
+
+        Scene*                     scene() const;
 
         /// Internal Types ///
 
@@ -135,21 +139,22 @@ namespace a3d {
     private:
         /// Private Member Functions ///
 
-        void                          firstDraw();
-        std::shared_ptr<Node>         defaultPOV();
+        void                           firstDraw();
+        std::shared_ptr<Node>          defaultPOV();
 
         /// Private Member Variables ///
 
-        std::optional<Background>     _background;
-        std::shared_ptr<Material>     _backgroundMaterial;
-        std::optional<Fog>            _fog;
-        std::optional<InfiniteGround> _infiniteGround;
-        bool                          _usesDefaultLighting;
-        bool                          _autoEnablesDefaultLighting;
-        std::weak_ptr<Node>           _pointOfView;
-        RenderContext*                _renderContext;
-        Scene*                        _scene;
-        DidBeginFrameCallback         _didBeginFrameCallback;
+        std::optional<Background>      _background;
+        std::shared_ptr<Material>      _backgroundMaterial;
+        std::optional<AtmosphericHaze> _atmosphericHaze;
+        std::optional<Fog>             _fog;
+        std::optional<InfiniteGround>  _infiniteGround;
+        bool                           _usesDefaultLighting;
+        bool                           _autoEnablesDefaultLighting;
+        std::weak_ptr<Node>            _pointOfView;
+        RenderContext*                 _renderContext;
+        Scene*                         _scene;
+        DidBeginFrameCallback          _didBeginFrameCallback;
     };
 
 }
