@@ -154,9 +154,9 @@ namespace a3d {
         /**
          * @brief Resets simulation progression to its initial state.
          *
-         * Simulation time, completed step count, accumulated time, discarded
-         * simulation time, and pending requested steps are cleared. The Runner
-         * remains running and the current pause state and time scale are preserved.
+         * Simulation time, completed step count, accumulated/discarded time,
+         * pending requested steps, and time scale are restored to their initial
+         * values. The current pause state is preserved.
          *
          * @throws std::logic_error if the Runner is not running.
          */

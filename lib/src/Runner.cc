@@ -132,6 +132,7 @@ void Runner::resetSimulation() {
         throw logic_error("Runner::resetSimulation() requires a running Runner.");
     }
 
+    _timeScale = _config.timeScale;
     _simulationTimeAccumulator = 0.0;
     _simulationTime = 0.0;
     _simulationStepCount = 0;

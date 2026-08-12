@@ -55,7 +55,13 @@ static string_view               ShapeTypeName(PhysicsShape::Type type);
 /// Public Lifecycle Functions ///
 
 App::App(int argc, char* argv[]):
-    Application(argc, argv, APP_LOG_LEVEL) {}
+    Application(argc, argv, APP_LOG_LEVEL),
+    _window {nullptr},
+    _cameraNode {nullptr},
+    _cameraController {},
+    _simulationRoot {nullptr},
+    _selection {std::nullopt},
+    _resetRequested {false} {}
 
 App::~App() = default;
 
@@ -257,11 +263,11 @@ void App::inputDidUpdate(Runner&       runner,
 
 void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
 
-    if (_pendingHiccup > 0ms) {
-        const auto duration = std::exchange(_pendingHiccup, 0ms);
-
-        std::this_thread::sleep_for(duration);
-    }
+    // if (_pendingHiccup > 0ms) {
+    //     const auto duration = std::exchange(_pendingHiccup, 0ms);
+    //
+    //     std::this_thread::sleep_for(duration);
+    // }
 
     auto& input = static_cast<DesktopInputContext&>(*scene.inputContext());
 
@@ -349,7 +355,7 @@ void App::frameDidBegin(Runner&                        runner,
         runner.timeScale(timeScale);
     }
 
-    panel.row(paused ? 3 : 2);
+    panel.row(paused ? 2 : 1);
 
     if (panel.button(paused ? "Resume" : "Pause")) {
         if (paused) {
@@ -366,17 +372,15 @@ void App::frameDidBegin(Runner&                        runner,
         }
     }
 
-    if (paused) {
-        if (panel.button("Reset")) {
-            _resetRequested = true;
-        }
+    if (panel.button("Reset")) {
+        _resetRequested = true;
     }
 
-    if (!paused) {
-        if (panel.button("Hiccup")) {
-            _pendingHiccup = std::chrono::milliseconds {uniform_linear(50, 250)};
-        }
-    }
+    // if (!paused) {
+    //     if (panel.button("Hiccup")) {
+    //         _pendingHiccup = std::chrono::milliseconds {uniform_linear(50, 250)};
+    //     }
+    // }
 
     panel.spacer(12.0f);
 
@@ -484,7 +488,7 @@ void App::frameDidBegin(Runner&                        runner,
     }
     else {
         // The selected node was removed from the scene.
-        select(nullopt);
+        select(std::nullopt);
         panel.text("click an object to inspect");
     }
 
@@ -562,9 +566,11 @@ void App::select(optional<PickResult> selection) {
 }
 
 void App::resetSimulation() {
-    select(nullopt);
+    select(std::nullopt);
 
     _simulationRoot->removeFromParent();
+
+    scene().physicsWorld()->gravity(GRAVITY_EARTH);
 
     _simulationRoot = MakeSimulationRoot();
     scene().rootNode()->addChild(_simulationRoot);
@@ -637,10 +643,12 @@ shared_ptr<Node> MakeSimulationRoot() {
         return angelMesh;
     }();
 
-    auto angelNode = Node::MeshNode(angelMesh);
+    static auto angelShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, angelMesh);
+    auto        angelNode = Node::MeshNode(angelMesh);
     angelNode->name("Angel");
     angelNode->rotation({0.0f, 1.0f, 0.0f}, radians(180.0f));
-    angelNode->physicsBody(PhysicsBody::StaticBody());
+    auto angelBody = make_unique<PhysicsBody>(PhysicsBody::Type::Static, angelShape);
+    angelNode->physicsBody(std::move(angelBody));
     root->addChild(angelNode);
 
     // {
@@ -694,10 +702,12 @@ shared_ptr<Node> MakeSimulationRoot() {
         return teapotMesh;
     }();
 
+    static auto teapotShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, teapotMesh);
+
     auto teapotNode = Node::MeshNode(teapotMesh);
     teapotNode->name("Teapot");
     teapotNode->position({1.5f, 1.0f - teapotMesh->localAABB().min.y, 0.0f});
-    auto teapotBody = PhysicsBody::DynamicBody();
+    auto teapotBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, teapotShape);
     teapotBody->mass(1.5f);
     teapotBody->friction(0.6f);
     teapotBody->restitution(0.15f);
@@ -715,7 +725,7 @@ optional<App::PickResult> Pick(Scene& scene, const vec2& screenPosition) {
     auto physicsWorld = scene.physicsWorld();
 
     if (!visualWorld || !physicsWorld) {
-        return nullopt;
+        return std::nullopt;
     }
 
     const auto isSelectable = [](const Node& node) {
@@ -741,7 +751,7 @@ optional<App::PickResult> Pick(Scene& scene, const vec2& screenPosition) {
         };
     }
 
-    return nullopt;
+    return std::nullopt;
 }
 
 void ShootSlurm(Node& parent, const vec3& location, const vec3& direction) {
