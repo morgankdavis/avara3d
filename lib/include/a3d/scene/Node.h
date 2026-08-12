@@ -38,8 +38,9 @@ namespace a3d {
         /// Public Types ///
 
         enum class DebugOptions : uint32_t {
-            None             = 0,
-            ShowHighlightBox = 1 << 0
+            None              = 0,
+            ShowHighlightBox  = 1 << 0,
+            ShowHighlightTint = 1 << 1
         };
 
         /// Public Static Member Functions ///

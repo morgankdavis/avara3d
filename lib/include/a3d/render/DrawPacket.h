@@ -51,6 +51,7 @@ namespace a3d {
         uint32_t     elementIndex = 0;
         MeshElement* element      = nullptr;
         Material*    material     = nullptr;
+        math::vec4   tint         = math::vec4(0.0f); // RGB color, a blend strength
         math::mat4   model        = math::mat4(1.0);
         float        depth        = 0.0f;
         uint64_t     sortKey      = 0;

@@ -133,6 +133,7 @@ namespace a3d::math {
         f32vec4();
         f32vec4(f32 x_, f32 y_, f32 z_, f32 w_);
         f32vec4(const f32vec3& v, f32 w_);
+        explicit f32vec4(f32 n);
         explicit f32vec4(const f32vec2& v);
         explicit f32vec4(const f32vec3& v);
         f32&       operator[](std::size_t i);

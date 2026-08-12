@@ -646,6 +646,7 @@ void App::select(optional<PickResult> selection) {
     if (_selection) {
         if (auto node = _selection->node.lock()) {
             node->debugOptions(util::bitmask::remove(node->debugOptions(), DebugOptions::ShowHighlightBox));
+            node->debugOptions(util::bitmask::remove(node->debugOptions(), DebugOptions::ShowHighlightTint));
         }
     }
 
@@ -654,6 +655,7 @@ void App::select(optional<PickResult> selection) {
     if (_selection) {
         if (auto node = _selection->node.lock()) {
             node->debugOptions(util::bitmask::add(node->debugOptions(), DebugOptions::ShowHighlightBox));
+            node->debugOptions(util::bitmask::add(node->debugOptions(), DebugOptions::ShowHighlightTint));
         }
         else {
             _selection.reset();

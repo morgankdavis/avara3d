@@ -52,6 +52,7 @@ DrawPacket DrawPacketizer::Packetize(GatherOutput& gatherOutput) {
             di.elementIndex = ri.elementIndex;
             di.element = ri.element;
             di.material = ri.material;
+            di.tint = ri.tint;
             di.model = ri.model;
             di.depth = ri.depth;
 
@@ -87,6 +88,7 @@ DrawPacket DrawPacketizer::Packetize(GatherOutput& gatherOutput) {
             di.elementIndex = ri.elementIndex;
             di.element = ri.element;
             di.material = ri.material; // optional for wire, fine to keep
+            di.tint = ri.tint;
             di.model = ri.model;
             di.depth = ri.depth;
             di.pass = PassKind::Wireframe;

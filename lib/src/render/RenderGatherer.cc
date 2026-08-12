@@ -32,6 +32,8 @@ const Color MESH_AABB_COLOR {vec4 {1.0f, 0.0f, 0.0f, 1.0f}};
 const Color SCENE_AABB_COLOR {vec4 {0.0f, 0.5f, 0.0f, 1.0f}};
 const Color HIGHLIGHT_BOX_COLOR {vec4 {1.0f, 1.0f, 0.0f, 1.0f}};
 
+const vec4 HIGHLIGHT_TINT_COLOR {1.0f, 1.0f, 0.0f, 0.5f};
+
 /// Internal Static Member Functions ///
 
 // "gather / collect / cull"
@@ -79,6 +81,8 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
         const bool wireframe = util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowWireframes);
         const bool showHighlightBox =
             util::bitmask::contains(n->debugOptions(), Node::DebugOptions::ShowHighlightBox);
+        const bool showHighlightTint =
+            util::bitmask::contains(n->debugOptions(), Node::DebugOptions::ShowHighlightTint);
 
         if (auto* mesh = n->mesh().get()) {
 
@@ -107,7 +111,11 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
                 item.aabb = element->worldAABB(world, false);
                 item.transparent = (mat->blendFunction() != Material::BlendFunction::Disabled);
 
-                // ! temnporary !
+                if (showHighlightTint) {
+                    item.tint = HIGHLIGHT_TINT_COLOR;
+                }
+
+                // ! TEMPORARY !
                 if (wireframe) {
                     item.style = RenderStyle::Wireframe; // TODO: test WireframeOverlay
                 }
@@ -123,7 +131,6 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
                 output.renderItems.push_back(item);
 
                 ++stats.elements;
-//				stats.numPolygons += element->faces().size();
                 if (element->indexCount() > 0) {
                     stats.polygons += element->indexCount() / 3u;
                 }
@@ -139,7 +146,8 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
                                                               MESH_OBB_COLOR);
                 }
 
-                DebugLinesBuilder::AppendAABB(output.debugLines, mesh->worldAABB(world, false), MESH_AABB_COLOR);
+                DebugLinesBuilder::AppendAABB(output.debugLines, mesh->worldAABB(world, false),
+                                              MESH_AABB_COLOR);
             }
 
             if (showHighlightBox) {

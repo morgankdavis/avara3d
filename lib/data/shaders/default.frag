@@ -49,6 +49,7 @@ uniform		float 		uvScale;
 uniform		bool 		locksAmbientWithDiffuse;
 //uniform 	Samplers 	samplers;
 uniform 	Colors 		colors;
+uniform     vec4        tint;
 
 out 		vec4 		fragColor;
 
@@ -122,13 +123,21 @@ void main () {
                     viewMat,
                     specularExponent);
 
-            fragColor = vec4(fragColor.rgb, Kd.a); // pointless?
+            fragColor = vec4(fragColor.rgb, Kd.a);
         }
 
         // fog
 
         fragColor = ApplyFog(fragColor);
     }
+
+    // per-draw tint
+
+    fragColor.rgb = mix(
+            fragColor.rgb,
+            tint.rgb,
+            clamp(tint.a, 0.0, 1.0)
+    );
 
     // gamma
 

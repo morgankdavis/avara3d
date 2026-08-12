@@ -120,6 +120,12 @@ namespace a3d::math {
         z {v.z},
         w {w_} {}
 
+    f32vec4::f32vec4(f32 n):
+        x {n},
+        y {n},
+        z {n},
+        w {n} {}
+
     f32vec4::f32vec4(const f32vec2& v):
         x {v.x},
         y {v.y},

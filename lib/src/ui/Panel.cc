@@ -302,9 +302,10 @@ bool Panel::slider(string_view label, float& value, float minimum, float maximum
     ImGui::PushID(labelText.c_str());
 
     ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.03f, 0.03f, 0.03f, 0.68f));
-    ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, ImVec4(0.16f, 0.16f, 0.16f, 0.88f));
-    ImGui::PushStyleColor(ImGuiCol_FrameBgActive, ImVec4(0.28f, 0.28f, 0.28f, 0.96f));
-    ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(0.75f, 0.75f, 0.75f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, ImVec4(0.03f, 0.03f, 0.03f, 0.68f));
+    ImGui::PushStyleColor(ImGuiCol_FrameBgActive, ImVec4(0.03f, 0.03f, 0.03f, 0.68f));
+
+    ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(0.65f, 0.65f, 0.65f, 0.9f));
     ImGui::PushStyleColor(ImGuiCol_SliderGrabActive, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
 
     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
@@ -330,21 +331,15 @@ bool Panel::slider(string_view label, float& value, float minimum, float maximum
     // Normal white value text.
     DrawShadowedText(valuePosition, valueBuffer, IM_COL32(255, 255, 255, 255));
 
+#ifdef INVERT_SLIDER_TEXT
     constexpr float GRAB_PADDING = 2.0f;
-
-    const float sliderSize = (sliderMax.x - sliderMin.x) - GRAB_PADDING * 2.0f;
-
-    const float grabSize = std::min(ImGui::GetStyle().GrabMinSize, sliderSize);
-
-    const float usableSize = sliderSize - grabSize;
-
-    const float usableMin = sliderMin.x + GRAB_PADDING + grabSize * 0.5f;
-
-    const float usableMax = sliderMax.x - GRAB_PADDING - grabSize * 0.5f;
-
-    const float t = std::clamp((value - minimum) / (maximum - minimum), 0.0f, 1.0f);
-
-    const float grabPosition = usableMin + (usableMax - usableMin) * t;
+    const float     sliderSize = (sliderMax.x - sliderMin.x) - GRAB_PADDING * 2.0f;
+    const float     grabSize = std::min(ImGui::GetStyle().GrabMinSize, sliderSize);
+    const float     usableSize = sliderSize - grabSize;
+    const float     usableMin = sliderMin.x + GRAB_PADDING + grabSize * 0.5f;
+    const float     usableMax = sliderMax.x - GRAB_PADDING - grabSize * 0.5f;
+    const float     t = std::clamp((value - minimum) / (maximum - minimum), 0.0f, 1.0f);
+    const float     grabPosition = usableMin + (usableMax - usableMin) * t;
 
     const ImVec2 grabMin {
         grabPosition - grabSize * 0.5f,
@@ -361,6 +356,7 @@ bool Panel::slider(string_view label, float& value, float minimum, float maximum
     drawList->AddText(valuePosition, IM_COL32(0, 0, 0, 255), valueBuffer);
 
     drawList->PopClipRect();
+#endif
 
     ImGui::PopStyleColor();
 
@@ -441,9 +437,6 @@ bool Panel::toggle(string_view label, bool& value) {
     DrawShadowedText(labelPosition, toggleLabel, IM_COL32(255, 255, 255, 255));
     drawList->PopClipRect();
 
-    drawList->AddRectFilled(ImVec2(boxMin.x + shadowOffset.x, boxMin.y + shadowOffset.y),
-                            ImVec2(boxMax.x + shadowOffset.x, boxMax.y + shadowOffset.y),
-                            IM_COL32(0, 0, 0, 255), 2.0f);
     drawList->AddRect(ImVec2(boxMin.x + shadowOffset.x, boxMin.y + shadowOffset.y),
                       ImVec2(boxMax.x + shadowOffset.x, boxMax.y + shadowOffset.y), IM_COL32(0, 0, 0, 255),
                       2.0f, 0, 1.0f);
@@ -532,9 +525,9 @@ bool Panel::drawButton(string_view label, bool selected) {
     const float  rounding = ImGui::GetStyle().FrameRounding;
 
     ImDrawList* drawList = ImGui::GetWindowDrawList();
-    drawList->AddRectFilled(ImVec2(position.x + SHADOW_OFFSET, position.y + SHADOW_OFFSET),
-                            ImVec2(position.x + width + SHADOW_OFFSET, position.y + height + SHADOW_OFFSET),
-                            IM_COL32(0, 0, 0, 255), rounding);
+    drawList->AddRect(ImVec2(position.x + SHADOW_OFFSET, position.y + SHADOW_OFFSET),
+                      ImVec2(position.x + width + SHADOW_OFFSET, position.y + height + SHADOW_OFFSET),
+                      IM_COL32(0, 0, 0, 255), rounding, 0, 1.0f);
 
     if (selected) {
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.24f, 0.24f, 0.24f, 0.94f));

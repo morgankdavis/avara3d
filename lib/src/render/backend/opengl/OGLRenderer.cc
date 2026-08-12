@@ -192,6 +192,8 @@ static void SendMaterialPropertyUniforms(const Material::Property&  property,
                                          GLSLProgram&               program,
                                          OGLRenderer::GLStateCache& state);
 
+static void SendDrawUniforms(const DrawItem& item, GLSLProgram& program);
+
 static void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
                                     const Scene&         scene,
                                     const vector<Node*>& lightNodes,
@@ -926,6 +928,10 @@ void OGLRenderer::drawPacket(const DrawPacket& packet, const FrameParams& frame)
             bindMaterial(*di.material);
         }
 
+        if (di.desc.shaderKind == ShaderKind::Default) {
+            SendDrawUniforms(di, *_defaultProgram);
+        }
+
         bindMeshElement(*di.element);
         applyMVP(di.model, frame.view, frame.proj);
         drawElements();
@@ -1093,6 +1099,11 @@ void SendMaterialPropertyUniforms(const Material::Property&  property,
             }
         },
         property);
+}
+
+static void SendDrawUniforms(const DrawItem& item, GLSLProgram& program) {
+
+    program.setUniform("tint", item.tint);
 }
 
 void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,

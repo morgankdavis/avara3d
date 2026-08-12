@@ -42,6 +42,7 @@ namespace a3d {
         uint32_t     elementIndex = 0;
         MeshElement* element      = nullptr; // TODO: remove
         Material*    material     = nullptr;
+        math::vec4   tint         = math::vec4(0.0f); // RGB color, a blend strength
         RenderStyle  style        = RenderStyle::Normal;
         math::mat4   model        = math::mat4(1.0f);
         AABB         aabb         = AABB::Zero(); // world space
