@@ -63,10 +63,14 @@ App::~App() = default;
 
 std::unique_ptr<Scene> App::init() {
     try {
+        // create the window / render context
+
         _window = make_unique<Window>(RenderContext::RenderingApi::OpenGL, *util::fs::ExecutableName(),
                                       WINDOW_SIZE, FULLSCREEN, ENABLE_HIGH_DPI, ANTIALIASING);
         _window->vSyncEnabled(ENABLE_VSYNC);
         _window->cursorCaptured(CAPTURE_CURSOR);
+
+        // create and configure the visual world
 
         auto visualWorld = make_unique<VisualWorld>(*_window);
 
@@ -113,11 +117,15 @@ std::unique_ptr<Scene> App::init() {
 
         visualWorld->fog(Fog {.color = Color::Black(), .startDistance = 30.0f, .endDistance = 150.0f});
 
+        // create the physics world
+
         auto physicsWorld = make_unique<PhysicsWorld>();
 
         auto scene =
             make_unique<Scene>(std::move(visualWorld), std::move(physicsWorld), Window::InputContext());
         scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
+
+        // create and configure the ground
 
         auto groundNode = Node::NamedNode("Ground");
         groundNode->orientation(math::quaternion({1.0f, 0.0f, 0.0f}, radians(-90.0f)));
@@ -126,30 +134,7 @@ std::unique_ptr<Scene> App::init() {
         groundNode->physicsBody(std::move(groundBody));
         scene->rootNode()->addChild(groundNode);
 
-        // {
-        //     auto testBoxNode = Node::MeshNode(Box::Mesh(1.0f, 1.0f, 1.0f));
-        //     testBoxNode->name("Ground test box");
-        //     testBoxNode->position({0.0f, 5.0f, 0.0f});
-        //     testBoxNode->physicsBody(PhysicsBody::DynamicBody());
-        //     {
-        //         auto testBoxMaterial = make_shared<Material>();
-        //         testBoxMaterial->emission(Color::White());
-        //         testBoxNode->mesh()->addMaterial(testBoxMaterial);
-        //     }
-        //     scene->rootNode()->addChild(testBoxNode);
-        //
-        //
-        //     auto pointLight = make_shared<PointLight>(Color::White());
-        //     pointLight->attenuation(Attenuation {
-        //         .quadratic = 0.05f,
-        //     });
-        //     auto pointLightNode = Node::LightNode(pointLight);
-        //     pointLightNode->position({0.0f, 5.0f, 0.0f});
-        //     //scene->rootNode()->addChild(pointLightNode);
-        //     testBoxNode->addChild(pointLightNode);
-        // }
-
-        //scene->visualWorld()->usesDefaultLighting(true);
+        // setup lighting
 
         auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.15f));
         auto ambientLightNode = Node::LightNode(ambientLight);
@@ -165,10 +150,7 @@ std::unique_ptr<Scene> App::init() {
             scene->rootNode()->addChild(pointLightNode);
         }
 
-        _simulationRoot = MakeSimulationRoot();
-        scene->rootNode()->addChild(_simulationRoot);
-
-        // camera
+        // create and configure the camer and camera controller
 
         auto camera = make_shared<PerspectiveCamera>(0.1f, 1000.0f, radians(45.0f));
         _cameraNode = Node::CameraNode(camera);
@@ -187,6 +169,13 @@ std::unique_ptr<Scene> App::init() {
             .pitch = radians(20.0f),
             .distance = 20.0f,
         });
+
+        // create the resettable simulation root node
+
+        _simulationRoot = MakeSimulationRoot();
+        scene->rootNode()->addChild(_simulationRoot);
+
+        // open the window
 
         _window->center();
         _window->open();
@@ -586,22 +575,35 @@ void App::resetSimulation() {
 /// Private Static Non-Member Functions ///
 
 shared_ptr<Node> MakeSimulationRoot() {
-    auto root = Node::NamedNode("Simulation");
+    auto root = Node::NamedNode("Simulation root");
 
     // janus
 
     // auto janusNode = Node::MeshNode(util::fs::MeshNamed("janus/janus"));
     // root->addChild(janusNode);
 
-    {
+    static auto janusMesh = [] {
         constexpr float JANUS_HEIGHT = 1.0f;
-        auto            janusMesh = util::fs::MeshNamed("janus_lod/janus_lod");
-        const float     scaleFactor = JANUS_HEIGHT / janusMesh->localExtent().y;
-        janusMesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
-        auto janusNode = Node::MeshNode(janusMesh);
-        janusNode->position({-1.5f, 0.0f, 0.0f});
-        root->addChild(janusNode);
-    }
+        auto            mesh = util::fs::MeshNamed("janus_lod/janus_lod");
+        const float     scaleFactor = JANUS_HEIGHT / mesh->localExtent().y;
+        mesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
+        return mesh;
+    }();
+
+    auto janusNode = Node::MeshNode(janusMesh);
+    janusNode->name("Janus");
+    janusNode->position({-1.5f, 0.0f, 0.0f});
+    root->addChild(janusNode);
+
+    // {
+    //     constexpr float JANUS_HEIGHT = 1.0f;
+    //     auto            janusMesh = util::fs::MeshNamed("janus_lod/janus_lod");
+    //     const float     scaleFactor = JANUS_HEIGHT / janusMesh->localExtent().y;
+    //     janusMesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
+    //     auto janusNode = Node::MeshNode(janusMesh);
+    //     janusNode->position({-1.5f, 0.0f, 0.0f});
+    //     root->addChild(janusNode);
+    // }
 
     // angel
 
@@ -615,17 +617,31 @@ shared_ptr<Node> MakeSimulationRoot() {
     // angelNode->physicsBody(PhysicsBody::StaticBody());
     // root->addChild(angelNode);
 
-    {
+    // {
+    //     constexpr float ANGEL_HEIGHT = 2.0f;
+    //     auto            angelMesh = util::fs::MeshNamed("aniel_lod/aniel_lod");
+    //     const float     scaleFactor = ANGEL_HEIGHT / angelMesh->localExtent().y;
+    //     angelMesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
+    //     auto angelNode = Node::MeshNode(angelMesh);
+    //     angelNode->name("Angel");
+    //     angelNode->rotation({0.0f, 1.0f, 0.0f}, radians(180.0f));
+    //     angelNode->physicsBody(PhysicsBody::StaticBody());
+    //     root->addChild(angelNode);
+    // }
+
+    static auto angelMesh = [] {
         constexpr float ANGEL_HEIGHT = 2.0f;
         auto            angelMesh = util::fs::MeshNamed("aniel_lod/aniel_lod");
         const float     scaleFactor = ANGEL_HEIGHT / angelMesh->localExtent().y;
         angelMesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
-        auto angelNode = Node::MeshNode(angelMesh);
-        angelNode->name("Angel");
-        angelNode->rotation({0.0f, 1.0f, 0.0f}, radians(180.0f));
-        angelNode->physicsBody(PhysicsBody::StaticBody());
-        root->addChild(angelNode);
-    }
+        return angelMesh;
+    }();
+
+    auto angelNode = Node::MeshNode(angelMesh);
+    angelNode->name("Angel");
+    angelNode->rotation({0.0f, 1.0f, 0.0f}, radians(180.0f));
+    angelNode->physicsBody(PhysicsBody::StaticBody());
+    root->addChild(angelNode);
 
     // {
     //     auto topLight = Light::Spot(Color::White());
@@ -669,31 +685,26 @@ shared_ptr<Node> MakeSimulationRoot() {
 
     // teapot
 
-    {
+    static auto teapotMesh = [] {
         constexpr float TEAPOT_HEIGHT = 0.35f;
         auto            teapotMesh = util::fs::MeshNamed("teapot/teapot");
         const float     teapotScale = TEAPOT_HEIGHT / teapotMesh->localExtent().y;
         teapotMesh->burnTransform(math::scale(mat4(1.0f), vec3(teapotScale)), true);
         teapotMesh->replaceMaterial(0, Material::DiffuseMaterial(Color::DarkGray()));
+        return teapotMesh;
+    }();
 
-        auto teapotNode = Node::MeshNode(teapotMesh);
-        teapotNode->name("Teapot");
-
-        // put its bottom ~1 meter above the ground so it drops in
-        teapotNode->position({1.5f, 1.0f - teapotMesh->localAABB().min.y, 0.0f});
-
-        // dynamic physics; this will auto-create a convex-hull shape
-        auto teapotBody = PhysicsBody::DynamicBody();
-        teapotBody->mass(1.5f);
-        teapotBody->friction(0.6f);
-        teapotBody->restitution(0.15f);
-        teapotBody->linearDamping(0.03f);
-        teapotBody->angularDamping(0.05f);
-
-        teapotNode->physicsBody(std::move(teapotBody));
-
-        root->addChild(teapotNode);
-    }
+    auto teapotNode = Node::MeshNode(teapotMesh);
+    teapotNode->name("Teapot");
+    teapotNode->position({1.5f, 1.0f - teapotMesh->localAABB().min.y, 0.0f});
+    auto teapotBody = PhysicsBody::DynamicBody();
+    teapotBody->mass(1.5f);
+    teapotBody->friction(0.6f);
+    teapotBody->restitution(0.15f);
+    teapotBody->linearDamping(0.03f);
+    teapotBody->angularDamping(0.05f);
+    teapotNode->physicsBody(std::move(teapotBody));
+    root->addChild(teapotNode);
 
     return root;
 }
