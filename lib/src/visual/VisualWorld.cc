@@ -62,6 +62,19 @@ VisualWorld::~VisualWorld() {
 
 /// Public Member Functions ///
 
+VisualWorld::Capabilities VisualWorld::capabilities() const {
+
+    Capabilities capabilities {};
+
+    if (_renderContext) {
+        if (auto renderer = _renderContext->renderer()) {
+            capabilities.wireframeRendering = renderer->capabilities().wireframeRendering;
+        }
+    }
+
+    return capabilities;
+}
+
 optional<Background>& VisualWorld::background() {
     return _background;
 }

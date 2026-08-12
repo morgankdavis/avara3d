@@ -46,6 +46,10 @@ namespace a3d {
             int32_t h = 0;
         };
 
+        struct Capabilities {
+            bool wireframeRendering {false};
+        };
+
         struct ClearCommand {
             bool       clearColor   = true;
             bool       clearDepth   = true;
@@ -97,6 +101,8 @@ namespace a3d {
 
         virtual bool                   initialize(const RenderContext& context) = 0;
         virtual bool                   isInitialized() const                    = 0;
+
+        virtual const Capabilities&    capabilities() const = 0;
 
         virtual void                   beginFrame(const Scene&               scene,
                                                   const RenderContext&       context,

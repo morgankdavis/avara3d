@@ -42,6 +42,10 @@ namespace a3d {
     public:
         /// Public Types ///
 
+        struct Capabilities {
+            bool wireframeRendering {false};
+        };
+
         struct RenderInfo {
 
             // zero-based successful-render-frame index
@@ -81,6 +85,8 @@ namespace a3d {
         virtual ~VisualWorld();
 
         /// Public Member Functions ///
+
+        Capabilities                   capabilities() const;
 
         std::optional<Background>&     background();
         void                           background(const std::optional<Background>& background);

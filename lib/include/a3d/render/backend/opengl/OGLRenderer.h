@@ -10,6 +10,7 @@
 #define AVARA3D_RENDER_BACKEND_OPENGL_OGLRENDERER_H
 
 #include "a3d/render/Renderer.h"
+#include "a3d/render/backend/opengl/GLCapabilities.h"
 #include "a3d/render/backend/opengl/GLTypes.h"
 #include "a3d/render/backend/opengl/ImguiContext.h"
 #include "a3d/render/backend/opengl/OGLDebugLines.h"
@@ -69,6 +70,8 @@ namespace a3d {
         bool                   initialize(const RenderContext& context) override;
         bool                   isInitialized() const override;
 
+        const Capabilities&    capabilities() const override;
+
         void                   beginFrame(const Scene&               scene,
                                           const RenderContext&       context,
                                           const Scene::DebugOptions& debugOptions,
@@ -123,13 +126,15 @@ namespace a3d {
     private:
         /// Private Member Functions ///
 
-        GLSLProgram& programForShaderKind(ShaderKind kind) const;
-        void         drawDebugLines(const math::mat4& model, const math::mat4& view, const math::mat4& proj);
+        GLSLProgram&   programForShaderKind(ShaderKind kind) const;
+        void           drawDebugLines(const math::mat4& model, const math::mat4& view, const math::mat4& proj);
 
         /// Private Member Variables ///
 
-        bool         _isInitialized;
-        unsigned     _glEnvironmentUBO;
+        bool           _isInitialized;
+        GLCapabilities _glCapabilities;
+        Capabilities   _capabilities;
+        unsigned       _glEnvironmentUBO;
         std::unique_ptr<GLSLProgram> _skyboxProgram;
         std::unique_ptr<GLSLProgram> _groundProgram;
         std::unique_ptr<GLSLProgram> _defaultProgram;

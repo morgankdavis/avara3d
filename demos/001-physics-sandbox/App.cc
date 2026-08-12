@@ -205,6 +205,10 @@ std::unique_ptr<Scene> App::init() {
         _window->center();
         _window->open();
 
+        // ! TEMPORARY !
+        log::app::i()("Wireframe rendering supported: {}",
+                      scene->visualWorld()->capabilities().wireframeRendering);
+
         return scene;
     }
     catch (std::exception& e) {
@@ -574,10 +578,15 @@ void App::frameDidBegin(Runner&                        runner,
                                       : util::bitmask::remove(debugOptions, DebugOptions::ShowBoundingBoxes));
     }
 
-    bool meshWireframes = util::bitmask::contains(debugOptions, DebugOptions::ShowWireframes);
-    if (panel.toggle("mesh wireframes", meshWireframes)) {
-        scene.debugOptions(meshWireframes ? util::bitmask::add(debugOptions, DebugOptions::ShowWireframes)
-                                          : util::bitmask::remove(debugOptions, DebugOptions::ShowWireframes));
+    if (visualWorld.capabilities().wireframeRendering) {
+        bool meshWireframes = util::bitmask::contains(debugOptions, DebugOptions::ShowWireframes);
+        if (panel.toggle("mesh wireframes", meshWireframes)) {
+            scene.debugOptions(meshWireframes ? util::bitmask::add(debugOptions, DebugOptions::ShowWireframes)
+                                              : util::bitmask::remove(debugOptions, DebugOptions::ShowWireframes));
+        }
+    }
+    else {
+        panel.value("mesh wireframes", "n/a", {0.0f, 1.0f, 0.0f, 0.0f});
     }
 
     bool physBounds = util::bitmask::contains(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes);
