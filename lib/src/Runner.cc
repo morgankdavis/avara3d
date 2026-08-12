@@ -127,6 +127,22 @@ void Runner::requestSimulationStep() {
     ++_pendingSimulationSteps;
 }
 
+void Runner::resetSimulation() {
+    if (_state != State::Running) {
+        throw logic_error("Runner::resetSimulation() requires a running Runner.");
+    }
+
+    _simulationTimeAccumulator = 0.0;
+    _simulationTime = 0.0;
+    _simulationStepCount = 0;
+    _totalDiscardedSimulationTime = 0.0;
+    _pendingSimulationSteps = 0;
+
+    if (!_simulationPaused) {
+        _skipNextUpdateDelta = true;
+    }
+}
+
 Runner::UpdateCallback Runner::updateCallback() const {
     return _updateCallback;
 }

@@ -151,6 +151,17 @@ namespace a3d {
          */
         void                    requestSimulationStep();
 
+        /**
+         * @brief Resets simulation progression to its initial state.
+         *
+         * Simulation time, completed step count, accumulated time, discarded
+         * simulation time, and pending requested steps are cleared. The Runner
+         * remains running and the current pause state and time scale are preserved.
+         *
+         * @throws std::logic_error if the Runner is not running.
+         */
+        void                    resetSimulation();
+
         /** @return the currently installed host update callback. */
         UpdateCallback          updateCallback() const;
 

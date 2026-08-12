@@ -50,6 +50,8 @@ namespace demo::physicssandbox {
         a3d::SimulationConfig       simulationConfig() const override;
         bool                        shouldContinue(const a3d::Scene& scene) override;
 
+        void hostUpdate(a3d::Runner& runner, a3d::Scene& scene, const a3d::Runner::UpdateInfo& info) override;
+
         void inputDidUpdate(a3d::Runner&                         runner,
                             a3d::Scene&                          scene,
                             a3d::InputContext&                   inputContext,
@@ -66,14 +68,17 @@ namespace demo::physicssandbox {
         /// Private Member Functions ///
 
         void select(std::optional<PickResult> selection);
+        void resetSimulation();
 
         /// Private Member Variables ///
 
         std::unique_ptr<a3d::Window>        _window;
         a3d::ext::TurntableCameraController _cameraController;
         std::shared_ptr<a3d::Node>          _cameraNode;
+        std::shared_ptr<a3d::Node>          _simulationRoot;
         std::optional<PickResult>           _selection;
-        std::chrono::milliseconds           _pendingHiccup {0};
+        std::chrono::milliseconds           _pendingHiccup;
+        bool                                _resetRequested;
     };
 
 }

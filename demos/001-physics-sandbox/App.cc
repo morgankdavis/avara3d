@@ -38,9 +38,10 @@ const vec3                        GRAVITY_ZERO {0.0f, 0.0f, 0.0f};
 
 /// Private Static Non-Member Prototypes ///
 
+static shared_ptr<Node>          MakeSimulationRoot();
 static optional<App::PickResult> Pick(Scene& scene, const vec2& screenPosition);
-static void                      ShootSlurm(Scene& scene, const vec3& location, const vec3& direction);
-static void                      AddBoxStack(Scene&            scene,
+static void                      ShootSlurm(Node& parent, const vec3& location, const vec3& direction);
+static void                      AddBoxStack(Node&             parent,
                                              const vec3&       location,
                                              const vec3&       boxSize,
                                              const u8vec3&     stackSize,
@@ -164,112 +165,8 @@ std::unique_ptr<Scene> App::init() {
             scene->rootNode()->addChild(pointLightNode);
         }
 
-        // janus
-
-        // auto janusNode = Node::MeshNode(util::fs::MeshNamed("janus/janus"));
-        // scene->rootNode()->addChild(janusNode);
-
-        {
-            constexpr float JANUS_HEIGHT = 1.0f;
-            auto            janusMesh = util::fs::MeshNamed("janus_lod/janus_lod");
-            const float     scaleFactor = JANUS_HEIGHT / janusMesh->localExtent().y;
-            janusMesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
-            auto janusNode = Node::MeshNode(janusMesh);
-            janusNode->position({-1.5f, 0.0f, 0.0f});
-            scene->rootNode()->addChild(janusNode);
-        }
-
-        // angel
-
-        // auto anielNode = Node::MeshNode(util::fs::MeshNamed("aniel/aniel"));
-        // scene->rootNode()->addChild(anielNode);
-        // auto anielExtent = anielNode->extent();
-
-        // constexpr float ANGEL_HEIGHT = 2.0f;
-        // auto            angelNode = Node::MeshNode(util::fs::MeshNamed("aniel/aniel"));
-        // angelNode->scale(angelNode->scale() * (ANGEL_HEIGHT / angelNode->extent(true).y));
-        // angelNode->physicsBody(PhysicsBody::StaticBody());
-        // scene->rootNode()->addChild(angelNode);
-
-        {
-            constexpr float ANGEL_HEIGHT = 2.0f;
-            auto            angelMesh = util::fs::MeshNamed("aniel_lod/aniel_lod");
-            const float     scaleFactor = ANGEL_HEIGHT / angelMesh->localExtent().y;
-            angelMesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
-            auto angelNode = Node::MeshNode(angelMesh);
-            angelNode->name("Angel");
-            angelNode->rotation({0.0f, 1.0f, 0.0f}, radians(180.0f));
-            angelNode->physicsBody(PhysicsBody::StaticBody());
-            scene->rootNode()->addChild(angelNode);
-        }
-
-        // {
-        //     auto topLight = Light::Spot(Color::White());
-        //     topLight->innerAngle(radians(18.0f));
-        //     topLight->outerAngle(radians(28.0f));
-        //
-        //     auto topLightNode = Node::LightNode(topLight);
-        //     topLightNode->position({0.0f, 2.5, -0.5});
-        //     topLightNode->eulerAngles({
-        //         radians(-65.0f), // pitch: straight down
-        //         radians(0.0f),
-        //         radians(0.0f)
-        //     });
-        //
-        //     scene->rootNode()->addChild(topLightNode);
-        // }
-
-        // {
-        //     auto bottomLight = Light::Spot(Color::White());
-        //     bottomLight->innerAngle(radians(18.0f));
-        //     bottomLight->outerAngle(radians(28.0f));
-        //
-        //     auto bottomLightNode = Node::LightNode(bottomLight);
-        //     bottomLightNode->position({0.0f, 0.15f, -0.45f});
-        //     bottomLightNode->eulerAngles({
-        //         radians(65.0f), // pitch: straight up
-        //         radians(0.0f),
-        //         radians(0.0f)
-        //     });
-        //
-        //     scene->rootNode()->addChild(bottomLightNode);
-        // }
-
-        // banana
-
-        // _bananaNode = Node::MeshNode(util::fs::MeshNamed("banana_lod/banana_lod"));
-        // auto rx = math::quaternion({1.0f, 0.0f, 0.0f}, radians(90.0f));
-        // auto ry = math::quaternion({0.0f, 1.0f, 0.0f}, radians(90.0f));
-        // _bananaNode->orientation(rx * ry);
-        // scene->rootNode()->addChild(_bananaNode);
-
-        // teapot
-
-        {
-            constexpr float TEAPOT_HEIGHT = 0.35f;
-            auto            teapotMesh = util::fs::MeshNamed("teapot/teapot");
-            const float     teapotScale = TEAPOT_HEIGHT / teapotMesh->localExtent().y;
-            teapotMesh->burnTransform(math::scale(mat4(1.0f), vec3(teapotScale)), true);
-            teapotMesh->replaceMaterial(0, Material::DiffuseMaterial(Color::DarkGray()));
-
-            auto teapotNode = Node::MeshNode(teapotMesh);
-            teapotNode->name("Teapot");
-
-            // put its bottom ~1 meter above the ground so it drops in
-            teapotNode->position({1.5f, 1.0f - teapotMesh->localAABB().min.y, 0.0f});
-
-            // dynamic physics; this will auto-create a convex-hull shape
-            auto teapotBody = PhysicsBody::DynamicBody();
-            teapotBody->mass(1.5f);
-            teapotBody->friction(0.6f);
-            teapotBody->restitution(0.15f);
-            teapotBody->linearDamping(0.03f);
-            teapotBody->angularDamping(0.05f);
-
-            teapotNode->physicsBody(std::move(teapotBody));
-
-            scene->rootNode()->addChild(teapotNode);
-        }
+        _simulationRoot = MakeSimulationRoot();
+        scene->rootNode()->addChild(_simulationRoot);
 
         // camera
 
@@ -311,6 +208,17 @@ SimulationConfig App::simulationConfig() const {
 
 bool App::shouldContinue(const Scene& scene) {
     return _window->isOpen();
+}
+
+void App::hostUpdate(Runner& runner, Scene&, const Runner::UpdateInfo&) {
+
+    if (_resetRequested) {
+        _resetRequested = false;
+        resetSimulation();
+        if (runner.simulationPaused()) {
+            runner.resumeSimulation();
+        }
+    }
 }
 
 void App::inputDidUpdate(Runner&       runner,
@@ -413,7 +321,8 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
 
     if (input.keyPressed(Key::GraveAccent)) {
         //AddBoxStack(scene, {0.0f, 20.0f, 0.0f}, {0.5f, 0.5f, 0.5f}, {3, 3, 3}, 0.05f, Color::White());
-        AddBoxStack(scene, {0.0f, 10.0f, 0.0f}, {0.25f, 0.25f, 0.25f}, {3, 3, 3}, 0.025f, Color::White());
+        AddBoxStack(*_simulationRoot, {0.0f, 10.0f, 0.0f}, {0.25f, 0.25f, 0.25f}, {3, 3, 3}, 0.025f,
+                    Color::White());
     }
 }
 
@@ -470,7 +379,7 @@ void App::frameDidBegin(Runner&                        runner,
 
     if (paused) {
         if (panel.button("Reset")) {
-            // resetSimulation();
+            _resetRequested = true;
         }
     }
 
@@ -663,7 +572,131 @@ void App::select(optional<PickResult> selection) {
     }
 }
 
+void App::resetSimulation() {
+    select(nullopt);
+
+    _simulationRoot->removeFromParent();
+
+    _simulationRoot = MakeSimulationRoot();
+    scene().rootNode()->addChild(_simulationRoot);
+
+    runner().resetSimulation();
+}
+
 /// Private Static Non-Member Functions ///
+
+shared_ptr<Node> MakeSimulationRoot() {
+    auto root = Node::NamedNode("Simulation");
+
+    // janus
+
+    // auto janusNode = Node::MeshNode(util::fs::MeshNamed("janus/janus"));
+    // root->addChild(janusNode);
+
+    {
+        constexpr float JANUS_HEIGHT = 1.0f;
+        auto            janusMesh = util::fs::MeshNamed("janus_lod/janus_lod");
+        const float     scaleFactor = JANUS_HEIGHT / janusMesh->localExtent().y;
+        janusMesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
+        auto janusNode = Node::MeshNode(janusMesh);
+        janusNode->position({-1.5f, 0.0f, 0.0f});
+        root->addChild(janusNode);
+    }
+
+    // angel
+
+    // auto anielNode = Node::MeshNode(util::fs::MeshNamed("aniel/aniel"));
+    // root->addChild(anielNode);
+    // auto anielExtent = anielNode->extent();
+
+    // constexpr float ANGEL_HEIGHT = 2.0f;
+    // auto            angelNode = Node::MeshNode(util::fs::MeshNamed("aniel/aniel"));
+    // angelNode->scale(angelNode->scale() * (ANGEL_HEIGHT / angelNode->extent(true).y));
+    // angelNode->physicsBody(PhysicsBody::StaticBody());
+    // root->addChild(angelNode);
+
+    {
+        constexpr float ANGEL_HEIGHT = 2.0f;
+        auto            angelMesh = util::fs::MeshNamed("aniel_lod/aniel_lod");
+        const float     scaleFactor = ANGEL_HEIGHT / angelMesh->localExtent().y;
+        angelMesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
+        auto angelNode = Node::MeshNode(angelMesh);
+        angelNode->name("Angel");
+        angelNode->rotation({0.0f, 1.0f, 0.0f}, radians(180.0f));
+        angelNode->physicsBody(PhysicsBody::StaticBody());
+        root->addChild(angelNode);
+    }
+
+    // {
+    //     auto topLight = Light::Spot(Color::White());
+    //     topLight->innerAngle(radians(18.0f));
+    //     topLight->outerAngle(radians(28.0f));
+    //
+    //     auto topLightNode = Node::LightNode(topLight);
+    //     topLightNode->position({0.0f, 2.5, -0.5});
+    //     topLightNode->eulerAngles({
+    //         radians(-65.0f), // pitch: straight down
+    //         radians(0.0f),
+    //         radians(0.0f)
+    //     });
+    //
+    //     root->addChild(topLightNode);
+    // }
+
+    // {
+    //     auto bottomLight = Light::Spot(Color::White());
+    //     bottomLight->innerAngle(radians(18.0f));
+    //     bottomLight->outerAngle(radians(28.0f));
+    //
+    //     auto bottomLightNode = Node::LightNode(bottomLight);
+    //     bottomLightNode->position({0.0f, 0.15f, -0.45f});
+    //     bottomLightNode->eulerAngles({
+    //         radians(65.0f), // pitch: straight up
+    //         radians(0.0f),
+    //         radians(0.0f)
+    //     });
+    //
+    //     root->addChild(bottomLightNode);
+    // }
+
+    // banana
+
+    // _bananaNode = Node::MeshNode(util::fs::MeshNamed("banana_lod/banana_lod"));
+    // auto rx = math::quaternion({1.0f, 0.0f, 0.0f}, radians(90.0f));
+    // auto ry = math::quaternion({0.0f, 1.0f, 0.0f}, radians(90.0f));
+    // _bananaNode->orientation(rx * ry);
+    // root->addChild(_bananaNode);
+
+    // teapot
+
+    {
+        constexpr float TEAPOT_HEIGHT = 0.35f;
+        auto            teapotMesh = util::fs::MeshNamed("teapot/teapot");
+        const float     teapotScale = TEAPOT_HEIGHT / teapotMesh->localExtent().y;
+        teapotMesh->burnTransform(math::scale(mat4(1.0f), vec3(teapotScale)), true);
+        teapotMesh->replaceMaterial(0, Material::DiffuseMaterial(Color::DarkGray()));
+
+        auto teapotNode = Node::MeshNode(teapotMesh);
+        teapotNode->name("Teapot");
+
+        // put its bottom ~1 meter above the ground so it drops in
+        teapotNode->position({1.5f, 1.0f - teapotMesh->localAABB().min.y, 0.0f});
+
+        // dynamic physics; this will auto-create a convex-hull shape
+        auto teapotBody = PhysicsBody::DynamicBody();
+        teapotBody->mass(1.5f);
+        teapotBody->friction(0.6f);
+        teapotBody->restitution(0.15f);
+        teapotBody->linearDamping(0.03f);
+        teapotBody->angularDamping(0.05f);
+
+        teapotNode->physicsBody(std::move(teapotBody));
+
+        root->addChild(teapotNode);
+    }
+
+    return root;
+}
 
 optional<App::PickResult> Pick(Scene& scene, const vec2& screenPosition) {
 
@@ -700,7 +733,7 @@ optional<App::PickResult> Pick(Scene& scene, const vec2& screenPosition) {
     return nullopt;
 }
 
-void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
+void ShootSlurm(Node& parent, const vec3& location, const vec3& direction) {
 
     static auto mesh = util::fs::MeshNamed("slurm/slurm");
     // mesh->materials()[0]->emission(mesh->materials()[0]->diffuse());
@@ -746,56 +779,10 @@ void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
 
     node->physicsBody(std::move(physicsBody));
 
-    scene.rootNode()->addChild(node);
+    parent.addChild(node);
 }
 
-// void DropBoxes(Scene& scene, vec3 location) {
-//
-//     // 16 items
-//     static const int OBJECT_ARRAY_SIZE_X = 2;
-//     static const int OBJECT_ARRAY_SIZE_Y = 4;
-//     static const int OBJECT_ARRAY_SIZE_Z = 2;
-//
-//     int SPACING = 1.0;
-//     int colorIndex = 0;
-//     for (int k = 0; k < OBJECT_ARRAY_SIZE_Y; ++k) {
-//         for (int i = 0; i < OBJECT_ARRAY_SIZE_X; ++i) {
-//             for (int j = 0; j < OBJECT_ARRAY_SIZE_Z; ++j) {
-//                 vec3 offset =
-//                     vec3(SPACING * i - (OBJECT_ARRAY_SIZE_X / 2.0), SPACING * k - (OBJECT_ARRAY_SIZE_Y / 2.0),
-//                          SPACING * j - (OBJECT_ARRAY_SIZE_Z / 2.0));
-//                 AddBox(scene, location + offset, Color::Random());
-//             }
-//         }
-//     }
-// }
-
-// void AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color) {
-//
-//     auto node = Node::MeshNode(Box::Mesh(1.0, 1.0, 1.0));
-//     node->name("Box");
-//     auto material = make_shared<Material>(monostate {}, monostate {}, monostate {}, color);
-//     node->mesh()->addMaterial(material);
-//     node->position(location);
-//
-//     // auto light = Light::Point(color);
-//     // light->attenuation(Attenuation {.quadratic = 0.04f});
-//     // node->light(light);
-//
-//     auto physicsBody = PhysicsBody::DynamicBody();
-//     physicsBody->mass(1.0);
-//     physicsBody->restitution(0.1);
-//     physicsBody->friction(0.25);
-//
-//     static auto physicsShape = make_shared<PhysicsShape>(PhysicsShape::Type::BoundingBox, node->mesh());
-//     physicsBody->shape(physicsShape);
-//
-//     node->physicsBody(std::move(physicsBody));
-//
-//     scene.rootNode()->addChild(node);
-// }
-
-void AddBoxStack(Scene&            scene,
+void AddBoxStack(Node&             parent,
                  const vec3&       location,
                  const vec3&       boxSize,
                  const u8vec3&     stackSize,
@@ -872,7 +859,7 @@ void AddBoxStack(Scene&            scene,
                 light->attenuation(Attenuation::FromRange(3.0f, 0.02f));
                 node->light(light);
 
-                scene.rootNode()->addChild(node);
+                parent.addChild(node);
             }
         }
     }
