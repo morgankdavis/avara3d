@@ -129,3 +129,10 @@ void DesktopInputContext::update(const InputContext::UpdateInfo&) {
 
     _mouseScrollWheelDelta = exchange(_pendingMouseScrollWheelDelta, vec2 {0.0f, 0.0f});
 }
+
+/// Internal Member Functions ///
+
+void DesktopInputContext::rebaseMouseMotion() {
+    _mousePositionDelta = {0.0f, 0.0f};
+    _pendingMousePositionDelta = {0.0f, 0.0f};
+}

@@ -29,7 +29,7 @@ const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::Msa
 const bool                        ENABLE_VSYNC {false};
 const bool                        CAPTURE_CURSOR {false};
 const float                       TIME_STEP {1.0 / 120.0};
-const std::uint32_t               MAX_CATCH_UP_STEPS {2};
+const std::uint32_t               MAX_CATCH_UP_STEPS {4};
 const float                       BACKGROUND_ROTATION_SPEED {radians(0.5f)};
 const vec3                        BACKGROUND_ROTATION_AXIS {0.5f, 1.0f, 1.0f};
 const vec3                        GRAVITY_EARTH {0.0f, -9.807f, 0.0f};

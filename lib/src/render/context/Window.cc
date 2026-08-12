@@ -340,9 +340,9 @@ bool Window::cursorCaptured() const {
 
 void Window::cursorCaptured(bool captured) {
 
-    // when input ownership moves away from ImGui, discard any queued events
-    // and release its current input state so keys/buttons cannot remain stuck
-    if (captured && !_cursorCaptured && ImGui::GetCurrentContext()) {
+    const bool captureChanged = captured != _cursorCaptured;
+
+    if (captured && captureChanged && ImGui::GetCurrentContext()) {
         auto& io = ImGui::GetIO();
 
         io.ClearEventsQueue();
@@ -369,6 +369,10 @@ void Window::cursorCaptured(bool captured) {
     else {
         glfwSetInputMode(window, GLFW_CURSOR, _cursorHidden ? GLFW_CURSOR_HIDDEN : GLFW_CURSOR_NORMAL);
         glfwSetCursor(window, nullptr);
+    }
+
+    if (captureChanged && _inputContext) {
+        _inputContext->rebaseMouseMotion();
     }
 }
 

@@ -201,6 +201,10 @@ namespace a3d {
 
         void                            update(const UpdateInfo& info) override;
 
+        /// Internal Member Functions ///
+
+        virtual void                    rebaseMouseMotion();
+
     protected:
         /// Protected Member Variables ///
 
