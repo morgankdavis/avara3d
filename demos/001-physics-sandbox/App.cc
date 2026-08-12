@@ -384,10 +384,24 @@ void App::frameDidBegin(Runner&                        runner,
     panel.value("state", paused ? "paused" : "running");
     // panel.value("time scale", std::format("{:.1f}x", runner.timeScale()));
 
-    float timeScale = static_cast<float>(runner.timeScale());
+    // float timeStep = runner.timeStep();
+    // if (panel.slider("time step", timeStep, 0.1f, 2.0f, "%.2fx")) {
+    //     runner.timeScale(timeStep);
+    // }
+
+    int stepRate = static_cast<int>(std::lround(1.0 / runner.timeStep()));
+    if (panel.slider("time step", stepRate, 30, 512, "1/%ds")) {
+        runner.timeStep(1.0 / stepRate);
+    }
+
+    int maxCatchUpSteps = runner.maxCatchUpSteps();
+    if (panel.slider("catch-up steps", maxCatchUpSteps, 1, 16, "%d")) {
+        runner.maxCatchUpSteps(maxCatchUpSteps);
+    }
 
     // panel.row(2);
 
+    float timeScale = runner.timeScale();
     if (panel.slider("time scale", timeScale, 0.1f, 2.0f, "%.2fx")) {
         runner.timeScale(timeScale);
     }
@@ -430,7 +444,8 @@ void App::frameDidBegin(Runner&                        runner,
     if (auto physicsWorld = scene.physicsWorld()) {
         const auto gravity = physicsWorld->gravity();
 
-        panel.value("gravity", std::format("{:.1f}, {:.1f}, {:.1f}", gravity.x, gravity.y, gravity.z));
+        //panel.value("gravity", std::format("{:.1f}, {:.1f}, {:.1f}", gravity.x, gravity.y, gravity.z));
+        panel.text("gravity");
 
         const auto isGravity = [&gravity](const vec3& value) {
             return length(gravity - value) < 0.001f;

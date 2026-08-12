@@ -14,17 +14,18 @@
 namespace a3d {
 
     /**
-     * @brief Immutable fixed-step scheduling parameters supplied to a Runner.
+     * @brief Initial simulation scheduling parameters supplied to a Runner.
      *
-     * Runner copies this structure at construction, validates it when start() is
-     * called, and owns the mutable runtime time-scale value thereafter.
+     * Runner copies this structure at construction. Runtime-configurable values
+     * are exposed individually by Runner rather than by exposing the copied
+     * configuration.
      *
      * @see Runner
      */
     struct SimulationConfig {
 
         /**
-         * @brief Constant duration, in seconds, of every simulation step.
+         * @brief Initial duration, in seconds, of each simulation step.
          *
          * The value must be finite and positive. It is used by both automatic
          * catch-up steps and explicitly requested paused steps.
@@ -32,7 +33,7 @@ namespace a3d {
         double        timeStep {1.0 / 60.0};
 
         /**
-         * @brief Maximum automatic simulation steps performed by one update.
+         * @brief Initial maximum automatic simulation steps performed by one update.
          *
          * The value must be at least one. Any whole accumulated steps remaining
          * after this limit is reached are discarded while the fractional
@@ -44,7 +45,7 @@ namespace a3d {
          * @brief Initial automatic simulation-time rate relative to host time.
          *
          * The value must be finite and positive. Requested paused steps ignore
-         * this scale. Runner owns the mutable runtime value after construction.
+         * this scale.
          */
         double        timeScale {1.0};
     };

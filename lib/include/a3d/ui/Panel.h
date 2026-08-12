@@ -9,6 +9,7 @@
 #ifndef AVARA3D_UI_PANEL_H
 #define AVARA3D_UI_PANEL_H
 
+#include <optional>
 #include <string>
 #include <string_view>
 
@@ -81,6 +82,15 @@ namespace a3d::ui {
                     float            minimum,
                     float            maximum,
                     std::string_view format = "%.2f");
+
+        /**
+     * Draws aa integer slider and returns true when value changed.
+     */
+        bool slider(std::string_view label,
+                    int&             value,
+                    int              minimum,
+                    int              maximum,
+                    std::string_view format = "%d");
 
         /** Draws a boolean toggle and returns true when value changed. */
         bool toggle(std::string_view label, bool& value);

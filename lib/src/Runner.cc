@@ -32,6 +32,8 @@ Runner::Runner(Scene& scene, SimulationConfig config):
     _scene(scene),
     _state(State::Idle),
     _config {config},
+    _timeStep {config.timeStep},
+    _maxCatchUpSteps {config.maxCatchUpSteps},
     _timeScale {config.timeScale},
     _simulationTimeAccumulator {0.0},
     _simulationTime {0.0},
@@ -133,7 +135,9 @@ void Runner::resetSimulation() {
         throw logic_error("Runner::resetSimulation() requires a running Runner.");
     }
 
-    _timeScale = _config.timeScale;
+    // _timeStep = _config.timeStep;
+    // _maxCatchUpSteps = _config.maxCatchUpSteps;
+    // _timeScale = _config.timeScale;
     _simulationTimeAccumulator = 0.0;
     _simulationTime = 0.0;
     _simulationStepCount = 0;
@@ -153,8 +157,34 @@ void Runner::updateCallback(UpdateCallback callback) {
     _updateCallback = callback;
 }
 
-const SimulationConfig& Runner::config() const {
-    return _config;
+double Runner::timeStep() const {
+    return _timeStep;
+}
+
+void Runner::timeStep(double value) {
+
+    if (!isfinite(value) || value <= 0.0) {
+        throw invalid_argument("Runner time step must be positive.");
+    }
+
+    if (auto physicsWorld = _scene.physicsWorld(); physicsWorld && !physicsWorld->acceptsStepDelta(value)) {
+        throw invalid_argument("Runner simulation time step rejected by PhysicsWorld.");
+    }
+
+    _timeStep = value;
+}
+
+uint32_t Runner::maxCatchUpSteps() const {
+    return _maxCatchUpSteps;
+}
+
+void Runner::maxCatchUpSteps(uint32_t value) {
+
+    if (value == 0) {
+        throw invalid_argument("Runner maximum catch-up steps must be at least one.");
+    }
+
+    _maxCatchUpSteps = value;
 }
 
 double Runner::timeScale() const {
@@ -244,6 +274,8 @@ void Runner::start(TimePoint now) {
         throw invalid_argument("Runner simulation time step rejected by PhysicsWorld.");
     }
 
+    _timeStep = _config.timeStep;
+    _maxCatchUpSteps = _config.maxCatchUpSteps;
     _timeScale = _config.timeScale;
     _simulationTimeAccumulator = 0.0;
     _simulationTime = 0.0;
@@ -276,8 +308,6 @@ bool Runner::update(TimePoint now) {
     ++_updateCount;
 
     FrameStats stats {};
-    stats.simulationTimeStep = _config.timeStep;
-    stats.maxCatchUpSteps = _config.maxCatchUpSteps;
     stats.simulationStepCount = _simulationStepCount;
     stats.simulationTime = _simulationTime;
     stats.totalDiscardedSimulationTime = _totalDiscardedSimulationTime;
@@ -298,6 +328,9 @@ bool Runner::update(TimePoint now) {
                                                   .deltaTime = updateInfo.deltaTime};
 
         _scene.updateInput(inputInfo, _profiler);
+
+        stats.simulationTimeStep = _timeStep;
+        stats.maxCatchUpSteps = _maxCatchUpSteps;
 
         if (_state == State::Running) {
             PhysicsInventory inventory {};
@@ -357,13 +390,14 @@ bool Runner::update(TimePoint now) {
 PhysicsInventory Runner::advanceSimulation(const UpdateInfo& info, FrameStats& stats) {
 
     PhysicsInventory inventory {};
-    const double     timeStep = _config.timeStep;
 
     _simulationTimeAccumulator += info.deltaTime * _timeScale;
 
-    while (_simulationTimeAccumulator >= timeStep && stats.simulationStepsThisUpdate < _config.maxCatchUpSteps
+    while (_simulationTimeAccumulator >= _timeStep && stats.simulationStepsThisUpdate < _maxCatchUpSteps
            && _state == State::Running && !_simulationPaused && !_simulationClockSuspended
            && !_skipNextUpdateDelta) {
+
+        const double timeStep = _timeStep;
 
         inventory = executeSimulationStep();
 
@@ -378,9 +412,8 @@ PhysicsInventory Runner::advanceSimulation(const UpdateInfo& info, FrameStats& s
     }
 
     if (_state == State::Running && !_simulationClockSuspended
-        && stats.simulationStepsThisUpdate == _config.maxCatchUpSteps
-        && _simulationTimeAccumulator >= timeStep) {
-        const double remainder = fmod(_simulationTimeAccumulator, timeStep);
+        && stats.simulationStepsThisUpdate >= _maxCatchUpSteps && _simulationTimeAccumulator >= _timeStep) {
+        const double remainder = fmod(_simulationTimeAccumulator, _timeStep);
         stats.discardedSimulationTime = _simulationTimeAccumulator - remainder;
         _totalDiscardedSimulationTime += stats.discardedSimulationTime;
         _simulationTimeAccumulator = remainder;
@@ -418,15 +451,16 @@ PhysicsInventory Runner::executePendingSimulationSteps(FrameStats& stats) {
 
 PhysicsInventory Runner::executeSimulationStep() {
 
-    if (auto physicsWorld = _scene.physicsWorld();
-        physicsWorld && !physicsWorld->acceptsStepDelta(_config.timeStep)) {
+    const double timeStep = _timeStep;
+
+    if (auto physicsWorld = _scene.physicsWorld(); physicsWorld && !physicsWorld->acceptsStepDelta(timeStep)) {
         throw runtime_error("Runner simulation time step rejected by PhysicsWorld.");
     }
 
     Scene::StepInfo info {.stepIndex = _simulationStepCount,
-                          .startTime = static_cast<double>(_simulationStepCount) * _config.timeStep,
-                          .endTime = static_cast<double>(_simulationStepCount + 1) * _config.timeStep,
-                          .deltaTime = _config.timeStep};
+                          .startTime = _simulationTime,
+                          .endTime = _simulationTime + timeStep,
+                          .deltaTime = timeStep};
 
     auto inventory = _scene.stepSimulation(info, _profiler);
 

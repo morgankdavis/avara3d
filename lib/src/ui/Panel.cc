@@ -30,6 +30,7 @@ static constexpr float VALUE_GAP {12.0f};
 static constexpr float SECTION_LINE_GAP {4.0f};
 static constexpr float TOGGLE_BOX_SIZE {16.0f};
 static constexpr float TOGGLE_LABEL_GAP {8.0f};
+static constexpr float SLIDER_GRAB_WIDTH {8.0f};
 
 static constexpr int PANEL_STYLE_VAR_COUNT {7};
 static constexpr int PANEL_STYLE_COLOR_COUNT {6};
@@ -132,12 +133,7 @@ void Panel::section(string_view text) {
         bool  uppercase {false};
     };
 
-    SectionConfig config = {
-        .topPadding = 0.0f,
-        .bottomPadding = 8.0f,
-        .line = true,
-        .uppercase = false
-    };
+    SectionConfig config = {.topPadding = 0.0f, .bottomPadding = 8.0f, .line = true, .uppercase = false};
 
     const float width = beginItem();
 
@@ -323,6 +319,8 @@ bool Panel::slider(string_view label, float& value, float minimum, float maximum
 
     ImGui::PushID(labelText.c_str());
 
+    ImGui::PushStyleVar(ImGuiStyleVar_GrabMinSize, SLIDER_GRAB_WIDTH);
+
     ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.03f, 0.03f, 0.03f, 0.68f));
     ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, ImVec4(0.03f, 0.03f, 0.03f, 0.68f));
     ImGui::PushStyleColor(ImGuiCol_FrameBgActive, ImVec4(0.03f, 0.03f, 0.03f, 0.68f));
@@ -356,7 +354,7 @@ bool Panel::slider(string_view label, float& value, float minimum, float maximum
 #ifdef INVERT_SLIDER_TEXT
     constexpr float GRAB_PADDING = 2.0f;
     const float     sliderSize = (sliderMax.x - sliderMin.x) - GRAB_PADDING * 2.0f;
-    const float     grabSize = std::min(ImGui::GetStyle().GrabMinSize, sliderSize);
+    const float     grabSize = std::min(SLIDER_GRAB_WIDTH, sliderSize);
     const float     usableSize = sliderSize - grabSize;
     const float     usableMin = sliderMin.x + GRAB_PADDING + grabSize * 0.5f;
     const float     usableMax = sliderMax.x - GRAB_PADDING - grabSize * 0.5f;
@@ -383,10 +381,126 @@ bool Panel::slider(string_view label, float& value, float minimum, float maximum
     ImGui::PopStyleColor();
 
     ImGui::PopStyleColor(5);
+    ImGui::PopStyleVar();
     ImGui::PopID();
 
     /*
      * SliderFloat was positioned after our manually drawn label. Restore
+     * vertical flow to the panel's left edge when this isn't part of row().
+     */
+    if (_rowItemsRemaining == 0) {
+        ImGui::SetCursorScreenPos(ImVec2(position.x, position.y + height + ImGui::GetStyle().ItemSpacing.y));
+    }
+
+    endItem();
+
+    return changed;
+}
+
+bool Panel::slider(string_view label, int& value, int minimum, int maximum, string_view formatString) {
+
+    if (label.empty()) {
+        throw invalid_argument("Panel slider label cannot be empty.");
+    }
+
+    if (minimum >= maximum) {
+        throw invalid_argument("Panel slider range must be increasing.");
+    }
+
+    const float width = beginItem();
+
+    if (!_visible) {
+        endItem();
+        return false;
+    }
+
+    const string labelText {label};
+    const string formatText {formatString};
+
+    const ImVec2 position = ImGui::GetCursorScreenPos();
+    const ImVec2 labelSize = ImGui::CalcTextSize(labelText.c_str());
+    const float  height = ImGui::GetFrameHeight();
+
+    const float sliderX = position.x + labelSize.x + VALUE_GAP;
+    const float sliderWidth = std::max(1.0f, position.x + width - sliderX);
+
+    const float labelY = SnapPixel(position.y + (height - labelSize.y) * 0.5f);
+
+    DrawShadowedText(ImVec2(SnapPixel(position.x), labelY), labelText, IM_COL32(255, 255, 255, 255));
+
+    ImGui::SetCursorScreenPos(ImVec2(sliderX, position.y));
+    ImGui::SetNextItemWidth(sliderWidth);
+
+    ImGui::PushID(labelText.c_str());
+
+    ImGui::PushStyleVar(ImGuiStyleVar_GrabMinSize, SLIDER_GRAB_WIDTH);
+
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.03f, 0.03f, 0.03f, 0.68f));
+    ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, ImVec4(0.03f, 0.03f, 0.03f, 0.68f));
+    ImGui::PushStyleColor(ImGuiCol_FrameBgActive, ImVec4(0.03f, 0.03f, 0.03f, 0.68f));
+
+    ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(0.65f, 0.65f, 0.65f, 0.9f));
+    ImGui::PushStyleColor(ImGuiCol_SliderGrabActive, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+
+    const bool changed = ImGui::SliderInt("##slider", &value, minimum, maximum, formatText.c_str(),
+                                          ImGuiSliderFlags_AlwaysClamp);
+
+    const ImVec2 sliderMin = ImGui::GetItemRectMin();
+    const ImVec2 sliderMax = ImGui::GetItemRectMax();
+
+    char valueBuffer[64];
+    std::snprintf(valueBuffer, sizeof(valueBuffer), formatText.c_str(), value);
+
+    const ImVec2 valueSize = ImGui::CalcTextSize(valueBuffer);
+
+    const ImVec2 valuePosition {
+        SnapPixel(sliderMin.x + ((sliderMax.x - sliderMin.x) - valueSize.x) * 0.5f),
+        SnapPixel(sliderMin.y + ((sliderMax.y - sliderMin.y) - valueSize.y) * 0.5f),
+    };
+
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+    // Normal white value text.
+    DrawShadowedText(valuePosition, valueBuffer, IM_COL32(255, 255, 255, 255));
+
+#ifdef INVERT_SLIDER_TEXT
+    constexpr float GRAB_PADDING = 2.0f;
+    const float     sliderSize = (sliderMax.x - sliderMin.x) - GRAB_PADDING * 2.0f;
+    const float     grabSize = std::min(SLIDER_GRAB_WIDTH, sliderSize);
+    const float     usableSize = sliderSize - grabSize;
+    const float     usableMin = sliderMin.x + GRAB_PADDING + grabSize * 0.5f;
+    const float     usableMax = sliderMax.x - GRAB_PADDING - grabSize * 0.5f;
+    const float     t =
+        std::clamp(static_cast<float>(value - minimum) / static_cast<float>(maximum - minimum), 0.0f, 1.0f);
+    const float grabPosition = usableMin + (usableMax - usableMin) * t;
+
+    const ImVec2 grabMin {
+        grabPosition - grabSize * 0.5f,
+        sliderMin.y + GRAB_PADDING,
+    };
+
+    const ImVec2 grabMax {
+        grabPosition + grabSize * 0.5f,
+        sliderMax.y - GRAB_PADDING,
+    };
+
+    drawList->PushClipRect(grabMin, grabMax, true);
+
+    drawList->AddText(valuePosition, IM_COL32(0, 0, 0, 255), valueBuffer);
+
+    drawList->PopClipRect();
+#endif
+
+    ImGui::PopStyleColor();
+
+    ImGui::PopStyleColor(5);
+    ImGui::PopStyleVar();
+    ImGui::PopID();
+
+    /*
+     * SliderInt was positioned after our manually drawn label. Restore
      * vertical flow to the panel's left edge when this isn't part of row().
      */
     if (_rowItemsRemaining == 0) {
