@@ -106,8 +106,8 @@ namespace a3d {
         std::vector<HitTestResult>     hitTest(const math::vec2& point, const HitTestOptions& options) const;
         std::vector<HitTestResult>     hitTest(const math::vec2& point) const;
 
-        bool                           usesDefaultLighting() const;
-        void                           usesDefaultLighting(bool enabled);
+        bool                           defaultLightingEnabled() const;
+        void                           defaultLightingEnabled(bool enabled);
 
         RenderContext*                 renderContext() const;
 
@@ -147,7 +147,7 @@ namespace a3d {
         std::shared_ptr<Material>     _backgroundMaterial;
         std::optional<Fog>            _fog;
         std::optional<InfiniteGround> _infiniteGround;
-        bool                          _usesDefaultLighting;
+        bool                          _defaultLightingEnabled;
         std::weak_ptr<Node>           _pointOfView;
         RenderContext*                _renderContext;
         Scene*                        _scene;

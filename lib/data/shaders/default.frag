@@ -65,7 +65,7 @@ void main () {
     fragColor = vec4(0.0);
 
     // using default lighting?
-    if (Environment.useDefaultLighting > 0u) {
+    if (Environment.defaultLightingEnabled > 0u) {
 
         fragColor = ApplyDefaultLighting();
     }

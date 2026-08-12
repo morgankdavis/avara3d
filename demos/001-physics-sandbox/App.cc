@@ -567,9 +567,9 @@ void App::frameDidBegin(Runner&                        runner,
         scene.debugOptions(debugOptions);
     }
 
-    bool defaultLighting = visualWorld.usesDefaultLighting();
+    bool defaultLighting = visualWorld.defaultLightingEnabled();
     if (panel.toggle("default lighting", defaultLighting)) {
-        visualWorld.usesDefaultLighting(defaultLighting);
+        visualWorld.defaultLightingEnabled(defaultLighting);
     }
 
     bool meshBounds = util::bitmask::contains(debugOptions, DebugOptions::ShowBoundingBoxes);

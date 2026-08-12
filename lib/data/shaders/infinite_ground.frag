@@ -153,7 +153,7 @@ void main() {
 
     vec3 color;
 
-    if (Environment.useDefaultLighting > 0u) {
+    if (Environment.defaultLightingEnabled > 0u) {
 
         color = surfaceColor;
     }

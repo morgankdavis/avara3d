@@ -140,7 +140,7 @@ struct FogGLSLStruct {
 static_assert(sizeof(FogGLSLStruct) == 32);
 
 struct EnvironmentBlock {
-    uint32_t                   useDefaultLighting;
+    uint32_t                   defaultLightingEnabled;
     uint32_t                   _pad0_[3];
     uint32_t                   numAmbientLights;
     uint32_t                   _pad1_[3];
@@ -157,7 +157,7 @@ struct EnvironmentBlock {
     FogGLSLStruct              fog;
 };
 
-static_assert(offsetof(EnvironmentBlock, useDefaultLighting) == 0);
+static_assert(offsetof(EnvironmentBlock, defaultLightingEnabled) == 0);
 static_assert(offsetof(EnvironmentBlock, numAmbientLights) == 16);
 static_assert(offsetof(EnvironmentBlock, ambientLights) == 32);
 
@@ -1191,11 +1191,11 @@ void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
 
     auto numLights = lightNodes.size();
 
-    if (scene.visualWorld()->usesDefaultLighting()) {
-        environmentStruct.useDefaultLighting = 1u;
+    if (scene.visualWorld()->defaultLightingEnabled()) {
+        environmentStruct.defaultLightingEnabled = 1u;
     }
     else {
-        environmentStruct.useDefaultLighting = 0u;
+        environmentStruct.defaultLightingEnabled = 0u;
 
         stats.lights = numLights;
 

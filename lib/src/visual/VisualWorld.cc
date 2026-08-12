@@ -42,7 +42,7 @@ VisualWorld::VisualWorld(RenderContext& context):
     _backgroundMaterial {},
     _fog {},
     _infiniteGround {},
-    _usesDefaultLighting {false},
+    _defaultLightingEnabled {false},
     _pointOfView {},
     _renderContext {&context},
     _scene {},
@@ -325,12 +325,12 @@ vector<HitTestResult> VisualWorld::hitTest(const vec2& point, const HitTestOptio
     throw runtime_error("Not implemented.");
 }
 
-bool VisualWorld::usesDefaultLighting() const {
-    return _usesDefaultLighting;
+bool VisualWorld::defaultLightingEnabled() const {
+    return _defaultLightingEnabled;
 }
 
-void VisualWorld::usesDefaultLighting(bool enabled) {
-    _usesDefaultLighting = enabled;
+void VisualWorld::defaultLightingEnabled(bool enabled) {
+    _defaultLightingEnabled = enabled;
 }
 
 RenderContext* VisualWorld::renderContext() const {
