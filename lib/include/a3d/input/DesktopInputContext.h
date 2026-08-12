@@ -204,6 +204,7 @@ namespace a3d {
         /// Internal Member Functions ///
 
         virtual void                    rebaseMouseMotion();
+        void                            releaseAllInputs();
 
     protected:
         /// Protected Member Variables ///

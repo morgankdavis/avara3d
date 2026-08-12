@@ -490,6 +490,7 @@ void Window::registerGLFWCallbacks() {
     glfwSetCursorPosCallback(_glfwWindow.get(), Window::GLFWCursorPositionCallback);
     glfwSetScrollCallback(_glfwWindow.get(), Window::GLFWScrollWheelCallback);
     glfwSetKeyCallback(_glfwWindow.get(), Window::GLFWKeyCallback);
+    glfwSetWindowFocusCallback(_glfwWindow.get(), Window::GLFWWindowFocusCallback);
 }
 
 void Window::unregisterGLFWCallbacks() {
@@ -498,6 +499,7 @@ void Window::unregisterGLFWCallbacks() {
     glfwSetCursorPosCallback(_glfwWindow.get(), nullptr);
     glfwSetScrollCallback(_glfwWindow.get(), nullptr);
     glfwSetKeyCallback(_glfwWindow.get(), nullptr);
+    glfwSetWindowFocusCallback(_glfwWindow.get(), nullptr);
 }
 
 /// Internal Static Member Functions ///
@@ -626,6 +628,21 @@ void Window::GLFWKeyCallback(GLFWwindow* glfwWindow, int key, int scanCode, int 
         if (inputContext->keyDown(a3dKey)) {
             inputContext->glfwKeyEvent(key, scanCode, action, mods);
         }
+    }
+}
+
+void Window::GLFWWindowFocusCallback(GLFWwindow* glfwWindow, int focused) {
+
+    ImGui_ImplGlfw_WindowFocusCallback(glfwWindow, focused);
+
+    if (focused == GLFW_TRUE) {
+        return;
+    }
+
+    auto window = WindowFromGLFWwindow(glfwWindow);
+
+    if (window->_inputContext) {
+        window->_inputContext->releaseAllInputs();
     }
 }
 

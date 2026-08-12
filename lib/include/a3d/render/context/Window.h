@@ -114,6 +114,7 @@ namespace a3d {
         static void    GLFWMouseButtonCallback(GLFWwindow* glfwWindow, int button, int action, int mods);
         static void    GLFWScrollWheelCallback(GLFWwindow* glfwWindow, double xOffset, double yOffset);
         static void    GLFWKeyCallback(GLFWwindow* glfwWindow, int key, int scanCode, int action, int mods);
+        static void    GLFWWindowFocusCallback(GLFWwindow* glfwWindow, int focused);
         static Window* WindowFromGLFWwindow(GLFWwindow* glfwWindow);
         static DesktopInputContext* InputContextFromGLFWWindow(GLFWwindow* glfwWindow);
 
