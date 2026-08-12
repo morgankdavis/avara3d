@@ -93,14 +93,14 @@ std::unique_ptr<Scene> App::init() {
                     .color = make_shared<Color>(vec4 {0.5f, 0.5f, 0.5f, 0.25f}),
                     .spacing = 1.0f,
                     .lineWidthPixels = 1.0f,
-                    .reliefStrength = -0.1f,
+                    .reliefStrength = -0.125f,
                 },
             .majorGrid =
                 InfiniteGround::Grid {
                     .color = make_shared<Color>(vec4 {0.75f, 0.75f, 0.75f, 0.25f}),
                     .spacing = 10.0f,
                     .lineWidthPixels = 1.0f,
-                    .reliefStrength = -0.1f,
+                    .reliefStrength = -0.125f,
                 },
             .radialFade =
                 InfiniteGround::RadialFade {
@@ -184,6 +184,7 @@ std::unique_ptr<Scene> App::init() {
 
         auto cameraConfig = _cameraController.config();
         cameraConfig.controls.primaryButton = DesktopInputContext::MouseButton::Two;
+        //cameraConfig.minPitch = math::radians(0.0f);
         cameraConfig.invertPitch = true;
         _cameraController.config(cameraConfig);
 
