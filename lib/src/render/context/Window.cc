@@ -44,7 +44,7 @@ static constexpr const char* WEB_CANVAS_SELECTOR = "#canvas";
 
 static bool InitGLFW();
 #ifdef A3D_WEB
-static void InitEmscripten();
+static void DisableWebContextMenu();
 #endif
 static void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height);
 static void GLFWWindowCloseCallback(GLFWwindow* glfwWindow);
@@ -168,7 +168,7 @@ Window::Window(RenderingApi  renderingAPI,
         }
 
 #ifdef A3D_WEB
-        InitEmscripten();
+        DisableWebContextMenu();
 #endif
     }
 
@@ -658,13 +658,13 @@ bool InitGLFW() {
 
         srand(time(nullptr)); // where else can we put this?
 
-        initialized = true;2
+        initialized = true;
     }
     return true;
 }
 
 #ifdef A3D_WEB
-void InitEmscripten() {
+void DisableWebContextMenu() {
     // suppress right-click in Emscripten canvas
     auto result = emscripten_set_contextmenu_callback("#canvas", nullptr, false,
                                                       [](int, const EmscriptenMouseEvent*, void*) -> EM_BOOL {

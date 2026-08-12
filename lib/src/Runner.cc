@@ -40,6 +40,7 @@ Runner::Runner(Scene& scene, SimulationConfig config):
     _simulationPaused {false},
     _pendingSimulationSteps {0},
     _skipNextUpdateDelta {false},
+    _simulationClockSuspended {false},
     _startTime {},
     _prevUpdateTime {},
     _updateCount {0},
@@ -189,6 +190,35 @@ const Scene& Runner::scene() const {
     return _scene;
 }
 
+// [Internal Member Functions]
+
+bool Runner::simulationClockSuspended() const {
+    return _simulationClockSuspended;
+}
+
+void Runner::suspendSimulationClock() {
+
+    if (_state != State::Running) {
+        throw logic_error("Runner::suspendSimulationClock() requires a running Runner.");
+    }
+
+    _simulationClockSuspended = true;
+}
+
+void Runner::resumeSimulationClock() {
+
+    if (_state != State::Running) {
+        throw logic_error("Runner::resumeSimulationClock() requires a running Runner.");
+    }
+
+    if (!_simulationClockSuspended) {
+        return;
+    }
+
+    _simulationClockSuspended = false;
+    _skipNextUpdateDelta = true;
+}
+
 /// Private Member Functions ///
 
 void Runner::start(TimePoint now) {
@@ -222,6 +252,7 @@ void Runner::start(TimePoint now) {
     _simulationPaused = false;
     _pendingSimulationSteps = 0;
     _skipNextUpdateDelta = false;
+    _simulationClockSuspended = false;
     _startTime = now;
     _prevUpdateTime = now;
     _updateCount = 0;
@@ -427,7 +458,7 @@ bool Runner::renderFrame(const UpdateInfo& info, FrameStats& stats) {
     if (!visualWorld->draw(_scene, _scene.physicsWorld(), renderInfo, _scene.debugOptions(), stats, _profiler,
                            _frameStatsHistory)) {
         return false;
-                           }
+    }
 
     // this is kind of hack-y, but... the first rendered frame can take some time to upload
     // GPU resources, etc, which can cause a simulation step backlog. so just don't treat

@@ -198,6 +198,12 @@ namespace a3d {
         /** @return the Scene driven by this Runner. */
         const Scene&            scene() const;
 
+        // [Internal Member Functions]
+
+        bool                    simulationClockSuspended() const;
+        void                    suspendSimulationClock();
+        void                    resumeSimulationClock();
+
     private:
         // [Private Types]
 
@@ -229,6 +235,7 @@ namespace a3d {
         bool              _simulationPaused;
         std::uint64_t     _pendingSimulationSteps;
         bool              _skipNextUpdateDelta;
+        bool              _simulationClockSuspended;
         TimePoint         _startTime;
         TimePoint         _prevUpdateTime;
         std::uint64_t     _updateCount;

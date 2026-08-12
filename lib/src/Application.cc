@@ -14,6 +14,7 @@
 
 #ifdef A3D_WEB
     #include <emscripten/emscripten.h>
+    #include <emscripten/html5.h>
 #endif
 
 #include "a3d/BuildInfo.h"
@@ -28,6 +29,14 @@
 using namespace a3d;
 using namespace std;
 
+/// Private Static Non-Member Prototypes ///
+
+static void    RegisterEmscriptenVisibilityCallbacks(Runner& runner);
+static void    UnregisterEmscriptenVisibilityCallbacks();
+static EM_BOOL EmscriptenVisibilityChangeCallback(int,
+                                                  const EmscriptenVisibilityChangeEvent* event,
+                                                  void*                                  userData);
+
 /// Public Static Member Functions ///
 
 int Application::Run(unique_ptr<Application> application) {
@@ -40,6 +49,8 @@ int Application::Run(unique_ptr<Application> application) {
 
 #ifdef A3D_WEB
 
+    RegisterEmscriptenVisibilityCallbacks(application->runner());
+
     auto* context = application.release();
 
     emscripten_set_main_loop_arg(
@@ -48,6 +59,8 @@ int Application::Run(unique_ptr<Application> application) {
 
             if (!application->update()) {
                 emscripten_cancel_main_loop();
+
+                UnregisterEmscriptenVisibilityCallbacks();
 
                 application->shutdown();
                 delete application;
@@ -164,8 +177,8 @@ void Application::initLog(Log::Level level) {
     sinks.push_back(std::move(nativeSink));
 
 #ifndef A3D_WEB
-    auto fileSink = make_unique<FileLogSink>(*(util::fs::ExecutableDirectory())
-                                             / (executableName + string(".log")));
+    auto fileSink =
+        make_unique<FileLogSink>(*(util::fs::ExecutableDirectory()) / (executableName + string(".log")));
     sinks.push_back(std::move(fileSink));
 #endif
 
@@ -272,3 +285,45 @@ void Application::dispatchDidBeginFrame(VisualWorld& visualWorld, const VisualWo
     }
     frameDidBegin(*_runner, *_scene, visualWorld, info);
 }
+
+/// Private Static Non-Member Functions ///
+
+#ifdef A3D_WEB
+
+void RegisterEmscriptenVisibilityCallbacks(Runner& runner) {
+
+    const auto result =
+        emscripten_set_visibilitychange_callback(&runner, false, EmscriptenVisibilityChangeCallback);
+
+    if (result != EMSCRIPTEN_RESULT_SUCCESS) {
+        throw runtime_error("Failed to register Emscripten visibility callback.");
+    }
+
+    // Handle the unlikely case that we started while already hidden.
+    EmscriptenVisibilityChangeEvent visibility {};
+
+    if (emscripten_get_visibility_status(&visibility) == EMSCRIPTEN_RESULT_SUCCESS && visibility.hidden) {
+        runner.suspendSimulationClock();
+    }
+}
+
+void UnregisterEmscriptenVisibilityCallbacks() {
+
+    emscripten_set_visibilitychange_callback(nullptr, false, nullptr);
+}
+
+EM_BOOL EmscriptenVisibilityChangeCallback(int, const EmscriptenVisibilityChangeEvent* event, void* userData) {
+
+    auto& runner = *static_cast<Runner*>(userData);
+
+    if (event->hidden) {
+        runner.suspendSimulationClock();
+    }
+    else {
+        runner.resumeSimulationClock();
+    }
+
+    return EM_FALSE;
+}
+
+#endif
