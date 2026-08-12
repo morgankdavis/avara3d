@@ -31,11 +31,13 @@ using namespace std;
 
 /// Private Static Non-Member Prototypes ///
 
+#ifdef A3D_WEB
 static void    RegisterEmscriptenVisibilityCallbacks(Runner& runner);
 static void    UnregisterEmscriptenVisibilityCallbacks();
 static EM_BOOL EmscriptenVisibilityChangeCallback(int,
                                                   const EmscriptenVisibilityChangeEvent* event,
                                                   void*                                  userData);
+#endif
 
 /// Public Static Member Functions ///
 

@@ -302,7 +302,10 @@ bool Runner::update(TimePoint now) {
         if (_state == State::Running) {
             PhysicsInventory inventory {};
 
-            if (_simulationPaused) {
+            if (_simulationClockSuspended) {
+                inventory = currentPhysicsInventory();
+            }
+            else if (_simulationPaused) {
                 // a new paused scheduling boundary supersedes suppression
                 // from an earlier resume/pause sequence. a resume that occurs
                 // during the requested batch sets this again and interrupts
@@ -359,7 +362,8 @@ PhysicsInventory Runner::advanceSimulation(const UpdateInfo& info, FrameStats& s
     _simulationTimeAccumulator += info.deltaTime * _timeScale;
 
     while (_simulationTimeAccumulator >= timeStep && stats.simulationStepsThisUpdate < _config.maxCatchUpSteps
-           && _state == State::Running && !_simulationPaused && !_skipNextUpdateDelta) {
+           && _state == State::Running && !_simulationPaused && !_simulationClockSuspended
+           && !_skipNextUpdateDelta) {
 
         inventory = executeSimulationStep();
 
@@ -373,7 +377,8 @@ PhysicsInventory Runner::advanceSimulation(const UpdateInfo& info, FrameStats& s
         ++stats.simulationStepsThisUpdate;
     }
 
-    if (_state == State::Running && stats.simulationStepsThisUpdate == _config.maxCatchUpSteps
+    if (_state == State::Running && !_simulationClockSuspended
+        && stats.simulationStepsThisUpdate == _config.maxCatchUpSteps
         && _simulationTimeAccumulator >= timeStep) {
         const double remainder = fmod(_simulationTimeAccumulator, timeStep);
         stats.discardedSimulationTime = _simulationTimeAccumulator - remainder;
@@ -398,7 +403,8 @@ PhysicsInventory Runner::executePendingSimulationSteps(FrameStats& stats) {
         inventory = executeSimulationStep();
         ++stats.simulationStepsThisUpdate;
 
-        if (_state != State::Running || !_simulationPaused || _skipNextUpdateDelta) {
+        if (_state != State::Running || !_simulationPaused || _simulationClockSuspended
+            || _skipNextUpdateDelta) {
             break;
         }
     }
