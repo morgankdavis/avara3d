@@ -62,7 +62,7 @@ namespace a3d {
 
         std::weak_ptr<Node>     _node;
 
-        // Keeps _meshElement alive for the lifetime of a visual hit result.
+        // keeps _meshElement alive for the lifetime of a visual hit result
         std::shared_ptr<Mesh>   _mesh;
         const MeshElement*      _meshElement;
         std::optional<uint32_t> _faceIndex;

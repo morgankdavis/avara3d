@@ -186,6 +186,7 @@ std::unique_ptr<Scene> App::init() {
 
         auto cameraConfig = _cameraController.config();
         cameraConfig.controls.primaryButton = DesktopInputContext::MouseButton::Two;
+        //cameraConfig.minPitch = math::radians(0.0f);
         cameraConfig.invertPitch = true;
         _cameraController.config(cameraConfig);
 
