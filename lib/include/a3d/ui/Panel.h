@@ -15,11 +15,6 @@
 
 namespace a3d::ui {
 
-    struct PanelOptions {
-        float width {260.0f};
-        float margin {12.0f};
-    };
-
     /**
      * A transient immediate-mode overlay panel.
      *
@@ -34,9 +29,39 @@ namespace a3d::ui {
     class Panel {
 
     public:
+        /// Public Types ///
+
+        struct Options {
+            float          width {260.0f};
+            float          margin {12.0f};
+
+            static Options Default() {
+                return {0.0f, 0.0f};
+            }
+        };
+
+        struct Padding {
+            float          top {0.0f};
+            float          bottom {0.0f};
+            float          left {0.0f};
+            float          right {0.0f};
+
+            static Padding Default() {
+                return {0.0f, 0.0f, 0.0f, 0.0f};
+            }
+        };
+
+        struct SectionConfig {
+            bool line {true};
+            bool uppercase {true};
+            static SectionConfig Default() {
+                return {true, false};
+            }
+        };
+
         /// Public Lifecycle Functions ///
 
-        explicit Panel(std::string_view id, const PanelOptions& options = {});
+        explicit Panel(std::string_view id, const Options& options = Options::Default());
 
         Panel(const Panel&)            = delete;
         Panel& operator=(const Panel&) = delete;
@@ -48,10 +73,10 @@ namespace a3d::ui {
 
         /// Public Member Functions ///
 
-        void section(std::string_view text);
+        void section(std::string_view text, SectionConfig config = SectionConfig::Default(), Padding padding = {0.0f, 8.0f, 0.0f, 0.0f});
 
-        void text(std::string_view text);
-        void value(std::string_view label, std::string_view value);
+        void text(std::string_view text, Padding padding = Padding::Default());
+        void value(std::string_view label, std::string_view value, Padding padding = Padding::Default());
 
         void spacer(float height);
 
@@ -64,7 +89,7 @@ namespace a3d::ui {
         void row(unsigned itemCount);
 
         /** Draws a button and returns true once when it is activated. */
-        bool button(std::string_view label);
+        bool button(std::string_view label, Padding padding = {2.0f, 0.0f, 0.0f, 0.0f});
 
         /**
          * Draws a selectable option button and returns true once when activated.
@@ -72,7 +97,7 @@ namespace a3d::ui {
          * selected is supplied by the application each frame and controls only
          * the persistent selected appearance. It is not retained by Panel.
          */
-        bool option(std::string_view label, bool selected);
+        bool option(std::string_view label, bool selected, Padding padding = {2.0f, 0.0f, 0.0f, 0.0f});
 
         /**
          * Draws a floating-point slider and returns true when value changed.
@@ -81,7 +106,8 @@ namespace a3d::ui {
                     float&           value,
                     float            minimum,
                     float            maximum,
-                    std::string_view format = "%.2f");
+                    std::string_view format  = "%.2f",
+                    Padding          padding = {2.0f, 0.0f, 0.0f, 0.0f});
 
         /**
      * Draws aa integer slider and returns true when value changed.
@@ -90,17 +116,18 @@ namespace a3d::ui {
                     int&             value,
                     int              minimum,
                     int              maximum,
-                    std::string_view format = "%d");
+                    std::string_view format  = "%d",
+                    Padding          padding = {2.0f, 0.0f, 0.0f, 0.0f});
 
         /** Draws a boolean toggle and returns true when value changed. */
-        bool toggle(std::string_view label, bool& value);
+        bool toggle(std::string_view label, bool& value, Padding padding = Padding::Default());
 
     private:
         /// Private Member Functions ///
 
         float       beginItem() const;
         void        endItem();
-        bool        drawButton(std::string_view label, bool selected);
+        bool        drawButton(std::string_view label, bool selected, Padding padding);
 
         /// Private Member Variables ///
 
