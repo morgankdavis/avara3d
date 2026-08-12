@@ -60,8 +60,8 @@ App::App(int argc, char* argv[]):
     _cameraController {},
     _cameraNode {nullptr},
     _simulationRoot {nullptr},
-    _selection {std::nullopt},
-    _transients {ext::TransientNodeRegistry::SweepPolicy::EveryInterval(2.0)},
+    _selection {},
+    _transients {ext::TransientNodeRegistry::SweepPolicy::EveryInterval(1.0)},
     _backgroundRotationTime {0.0},
     _resetRequested {false} {}
 
@@ -162,11 +162,17 @@ std::unique_ptr<Scene> App::init() {
 
         // _transients.policy({.maxCount = {}, .maxAge = {}, .distanceLimit = {}});
 
+        // _transients.groupPolicy("box",
+        //                         {.maxCount = 100,
+        //                          .distanceLimit =
+        //                              ext::TransientNodeRegistry::DistanceLimit {.center = {0.0f, 0.0f, 0.0f},
+        //                                                                         .radius = 50.0f}});
+
         _transients.groupPolicy("box",
-                                {.maxCount = 100,
+                                {.maxCount = {100},
                                  .distanceLimit =
                                      ext::TransientNodeRegistry::DistanceLimit {.center = {0.0f, 0.0f, 0.0f},
-                                                                                .radius = 50.0f}});
+                                                                                .radius = 25.0f}});
 
         // create and configure the camer and camera controller
 
@@ -516,7 +522,7 @@ void App::frameDidBegin(Runner&                        runner,
     }
     else {
         // The selected node was removed from the scene.
-        select(std::nullopt);
+        select({});
         panel.text("click an object to inspect");
     }
 
@@ -594,7 +600,7 @@ void App::select(optional<PickResult> selection) {
 }
 
 void App::resetSimulation() {
-    select(std::nullopt);
+    select({});
 
     _simulationRoot->removeFromParent();
 
@@ -755,7 +761,7 @@ optional<App::PickResult> Pick(Scene& scene, const vec2& screenPosition) {
     auto physicsWorld = scene.physicsWorld();
 
     if (!visualWorld || !physicsWorld) {
-        return std::nullopt;
+        return {};
     }
 
     const auto isSelectable = [](const Node& node) {
@@ -781,7 +787,7 @@ optional<App::PickResult> Pick(Scene& scene, const vec2& screenPosition) {
         };
     }
 
-    return std::nullopt;
+    return {};
 }
 
 void ShootSlurm(Node& parent, const vec3& location, const vec3& direction) {
@@ -905,6 +911,13 @@ vector<shared_ptr<Node>> AddBoxStack(Node&             parent,
                 physicsBody->restitution(0.1f);
                 physicsBody->friction(0.25f);
                 physicsBody->shape(physicsShape);
+
+                const float angularVariance = radians(90.0f);
+                physicsBody->angularVelocity({
+                    uniform_linear(-angularVariance, angularVariance),
+                    uniform_linear(-angularVariance, angularVariance),
+                    uniform_linear(-angularVariance, angularVariance),
+                });
 
                 node->physicsBody(std::move(physicsBody));
 
