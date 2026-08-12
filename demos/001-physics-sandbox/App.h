@@ -15,6 +15,7 @@
 
 #include "a3d/Application.h"
 #include "a3d/Math.h"
+#include "a3d/extension/TransientNodeRegistry.h"
 #include "a3d/extension/camera/TurntableCameraController.h"
 
 namespace a3d {
@@ -59,6 +60,8 @@ namespace demo::physicssandbox {
 
         void sceneWillStep(a3d::Runner& runner, a3d::Scene& scene, const a3d::Scene::StepInfo& info) override;
 
+        void sceneDidStep(a3d::Runner& runner, a3d::Scene& scene, const a3d::Scene::StepInfo& info) override;
+
         void frameDidBegin(a3d::Runner&                        runner,
                            a3d::Scene&                         scene,
                            a3d::VisualWorld&                   visualWorld,
@@ -77,6 +80,7 @@ namespace demo::physicssandbox {
         std::shared_ptr<a3d::Node>          _cameraNode;
         std::shared_ptr<a3d::Node>          _simulationRoot;
         std::optional<PickResult>           _selection;
+        a3d::ext::TransientNodeRegistry     _transients;
         double                              _backgroundRotationTime {0.0};
         bool                                _resetRequested;
     };

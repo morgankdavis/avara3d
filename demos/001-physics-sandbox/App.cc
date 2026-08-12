@@ -41,7 +41,7 @@ const vec3                        GRAVITY_ZERO {0.0f, 0.0f, 0.0f};
 static shared_ptr<Node>          MakeSimulationRoot();
 static optional<App::PickResult> Pick(Scene& scene, const vec2& screenPosition);
 static void                      ShootSlurm(Node& parent, const vec3& location, const vec3& direction);
-static void                      AddBoxStack(Node&             parent,
+static vector<shared_ptr<Node>>  AddBoxStack(Node&             parent,
                                              const vec3&       location,
                                              const vec3&       boxSize,
                                              const u8vec3&     stackSize,
@@ -61,6 +61,7 @@ App::App(int argc, char* argv[]):
     _cameraNode {nullptr},
     _simulationRoot {nullptr},
     _selection {std::nullopt},
+    _transients {ext::TransientNodeRegistry::SweepPolicy::EveryInterval(2.0)},
     _backgroundRotationTime {0.0},
     _resetRequested {false} {}
 
@@ -156,6 +157,16 @@ std::unique_ptr<Scene> App::init() {
             pointLightNode->position({0.0f, 4.0f, 0.0f});
             scene->rootNode()->addChild(pointLightNode);
         }
+
+        // setup transiet node groups
+
+        // _transients.policy({.maxCount = {}, .maxAge = {}, .distanceLimit = {}});
+
+        _transients.groupPolicy("box",
+                                {.maxCount = 100,
+                                 .distanceLimit =
+                                     ext::TransientNodeRegistry::DistanceLimit {.center = {0.0f, 0.0f, 0.0f},
+                                                                                .radius = 50.0f}});
 
         // create and configure the camer and camera controller
 
@@ -316,10 +327,15 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
     // drop boxes
 
     if (input.keyPressed(Key::GraveAccent)) {
-        //AddBoxStack(scene, {0.0f, 20.0f, 0.0f}, {0.5f, 0.5f, 0.5f}, {3, 3, 3}, 0.05f, Color::White());
-        AddBoxStack(*_simulationRoot, {0.0f, 10.0f, 0.0f}, {0.25f, 0.25f, 0.25f}, {3, 3, 3}, 0.025f,
-                    Color::White());
+        _transients.track(AddBoxStack(*_simulationRoot, {0.0f, 10.0f, 0.0f}, {0.25f, 0.25f, 0.25f}, {3, 3, 3},
+                                      0.025f, Color::White()),
+                          "box");
     }
+}
+
+void App::sceneDidStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
+
+    _transients.update(info);
 }
 
 void App::frameDidBegin(Runner&                        runner,
@@ -339,8 +355,7 @@ void App::frameDidBegin(Runner&                        runner,
     }
 
     const float angle =
-        radians(180.0f)
-        + static_cast<float>(_backgroundRotationTime) * BACKGROUND_ROTATION_SPEED;
+        radians(180.0f) + static_cast<float>(_backgroundRotationTime) * BACKGROUND_ROTATION_SPEED;
 
     if (auto& background = visualWorld.background()) {
         background->orientation(quaternion(BACKGROUND_ROTATION_AXIS, angle));
@@ -583,6 +598,8 @@ void App::resetSimulation() {
 
     _simulationRoot->removeFromParent();
 
+    _transients.clear();
+
     scene().physicsWorld()->gravity(GRAVITY_EARTH);
 
     _simulationRoot = MakeSimulationRoot();
@@ -816,12 +833,12 @@ void ShootSlurm(Node& parent, const vec3& location, const vec3& direction) {
     parent.addChild(node);
 }
 
-void AddBoxStack(Node&             parent,
-                 const vec3&       location,
-                 const vec3&       boxSize,
-                 const u8vec3&     stackSize,
-                 float             padding,
-                 shared_ptr<Color> color) {
+vector<shared_ptr<Node>> AddBoxStack(Node&             parent,
+                                     const vec3&       location,
+                                     const vec3&       boxSize,
+                                     const u8vec3&     stackSize,
+                                     float             padding,
+                                     shared_ptr<Color> color) {
 
     if (!isfinite(padding) || padding < 0.0f) {
         throw invalid_argument("Box stack padding must be finite and non-negative.");
@@ -832,8 +849,11 @@ void AddBoxStack(Node&             parent,
     const unsigned countY = stackSize.z;
 
     if (countX == 0 || countZ == 0 || countY == 0) {
-        return;
+        return {};
     }
+
+    vector<shared_ptr<Node>> added;
+    added.reserve(countX * countZ * countY);
 
     auto physicsShape = make_shared<BoxPhysicsShape>(boxSize.x, boxSize.y, boxSize.z);
 
@@ -893,10 +913,12 @@ void AddBoxStack(Node&             parent,
                 light->attenuation(Attenuation::FromRange(3.0f, 0.02f));
                 node->light(light);
 
+                added.push_back(node);
                 parent.addChild(node);
             }
         }
     }
+    return added;
 }
 
 string FormatVec3(const vec3& value) {
