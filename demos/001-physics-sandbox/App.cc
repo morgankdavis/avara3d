@@ -377,7 +377,7 @@ void App::frameDidBegin(Runner&                        runner,
                                     .margin = 12.0f,
                                 });
 
-    panel.section("SIMULATION");
+    panel.section("simulation");
 
     const bool paused = runner.simulationPaused();
 
@@ -425,7 +425,7 @@ void App::frameDidBegin(Runner&                        runner,
 
     panel.spacer(12.0f);
 
-    panel.section("ENVIRONMENT");
+    panel.section("environment");
 
     if (auto physicsWorld = scene.physicsWorld()) {
         const auto gravity = physicsWorld->gravity();
@@ -453,7 +453,7 @@ void App::frameDidBegin(Runner&                        runner,
 
     panel.spacer(12.0f);
 
-    panel.section("SELECTED NODE");
+    panel.section("selected node");
 
     if (!_selection) {
         panel.text("click an object to inspect");
@@ -535,7 +535,7 @@ void App::frameDidBegin(Runner&                        runner,
 
     panel.spacer(12.0f);
 
-    panel.section("DEBUG");
+    panel.section("debug");
 
     using DebugOptions = Scene::DebugOptions;
 

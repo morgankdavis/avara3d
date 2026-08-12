@@ -17,6 +17,7 @@
 #include <imgui/imgui.h>
 
 #include "a3d/Assert.h"
+#include "a3d/util/String.h"
 
 using namespace a3d::ui;
 using namespace std;
@@ -26,7 +27,7 @@ using namespace std;
 static constexpr float PANEL_FONT_SIZE {15.0f};
 static constexpr float SHADOW_OFFSET {1.0f};
 static constexpr float VALUE_GAP {12.0f};
-static constexpr float SECTION_LINE_GAP {8.0f};
+static constexpr float SECTION_LINE_GAP {4.0f};
 static constexpr float TOGGLE_BOX_SIZE {16.0f};
 static constexpr float TOGGLE_LABEL_GAP {8.0f};
 
@@ -124,6 +125,20 @@ Panel::~Panel() {
 
 void Panel::section(string_view text) {
 
+    struct SectionConfig {
+        float topPadding {0.0f};
+        float bottomPadding {0.0f};
+        bool  line {false};
+        bool  uppercase {false};
+    };
+
+    SectionConfig config = {
+        .topPadding = 0.0f,
+        .bottomPadding = 8.0f,
+        .line = true,
+        .uppercase = false
+    };
+
     const float width = beginItem();
 
     if (!_visible) {
@@ -131,23 +146,30 @@ void Panel::section(string_view text) {
         return;
     }
 
-    const string sectionText {text};
+    const string sectionText = config.uppercase ? util::string::Uppercase(text) : string {text};
     const ImVec2 position = ImGui::GetCursorScreenPos();
     const ImVec2 textSize = ImGui::CalcTextSize(sectionText.c_str());
-    const float  height = std::max(textSize.y, ImGui::GetTextLineHeight());
+
+    const float textHeight = std::max(textSize.y, ImGui::GetTextLineHeight());
+    const float lineSpace = config.line ? SECTION_LINE_GAP + 1.0f : 0.0f;
+
+    const float height = config.topPadding + textHeight + lineSpace + config.bottomPadding;
 
     ImGui::Dummy(ImVec2(width, height));
 
-    const ImVec2 textPosition {SnapPixel(position.x), SnapPixel(position.y + (height - textSize.y) * 0.5f)};
+    const ImVec2 textPosition {
+        SnapPixel(position.x),
+        SnapPixel(position.y + config.topPadding + (textHeight - textSize.y) * 0.5f),
+    };
+
     DrawShadowedText(textPosition, sectionText, IM_COL32(255, 255, 255, 255));
 
-    const float lineStartX = position.x + textSize.x + SECTION_LINE_GAP;
-    const float lineEndX = position.x + width;
+    if (config.line) {
 
-    if (lineStartX < lineEndX) {
-        const float lineY = SnapPixel(position.y + height * 0.5f);
-        DrawShadowedLine(ImVec2(lineStartX, lineY), ImVec2(lineEndX, lineY), IM_COL32(255, 255, 255, 128),
-                         1.0f);
+        const float lineY = SnapPixel(position.y + config.topPadding + textHeight + SECTION_LINE_GAP);
+
+        DrawShadowedLine(ImVec2(position.x, lineY), ImVec2(position.x + width, lineY),
+                         IM_COL32(255, 255, 255, 128), 1.0f);
     }
 
     endItem();
