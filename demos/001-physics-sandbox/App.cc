@@ -377,7 +377,7 @@ void App::frameDidBegin(Runner&                        runner,
                                     .margin = 12.0f,
                                 });
 
-    panel.section("simulation");
+    panel.section("SIMULATION");
 
     const bool paused = runner.simulationPaused();
 
@@ -386,9 +386,15 @@ void App::frameDidBegin(Runner&                        runner,
 
     float timeScale = static_cast<float>(runner.timeScale());
 
+    // panel.row(2);
+
     if (panel.slider("time scale", timeScale, 0.1f, 2.0f, "%.2fx")) {
         runner.timeScale(timeScale);
     }
+
+    // if (panel.button("1x")) {
+    //     runner.timeScale(1.0f);
+    // }
 
     panel.row(paused ? 2 : 1);
 
@@ -419,7 +425,7 @@ void App::frameDidBegin(Runner&                        runner,
 
     panel.spacer(12.0f);
 
-    panel.section("environment");
+    panel.section("ENVIRONMENT");
 
     if (auto physicsWorld = scene.physicsWorld()) {
         const auto gravity = physicsWorld->gravity();
@@ -447,7 +453,7 @@ void App::frameDidBegin(Runner&                        runner,
 
     panel.spacer(12.0f);
 
-    panel.section("selected node");
+    panel.section("SELECTED NODE");
 
     if (!_selection) {
         panel.text("click an object to inspect");
@@ -529,7 +535,7 @@ void App::frameDidBegin(Runner&                        runner,
 
     panel.spacer(12.0f);
 
-    panel.section("debug");
+    panel.section("DEBUG");
 
     using DebugOptions = Scene::DebugOptions;
 
