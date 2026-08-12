@@ -427,6 +427,13 @@ bool Runner::renderFrame(const UpdateInfo& info, FrameStats& stats) {
     if (!visualWorld->draw(_scene, _scene.physicsWorld(), renderInfo, _scene.debugOptions(), stats, _profiler,
                            _frameStatsHistory)) {
         return false;
+                           }
+
+    // this is kind of hack-y, but... the first rendered frame can take some time to upload
+    // GPU resources, etc, which can cause a simulation step backlog. so just don't treat
+    // that startup work as elapsed simulation time.
+    if (_renderedFrameCount == 0) {
+        _skipNextUpdateDelta = true;
     }
 
     ++_renderedFrameCount;
