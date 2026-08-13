@@ -84,13 +84,20 @@ std::unique_ptr<Scene> App::init() {
         visualWorld->background(Background {
             make_shared<Texture>(std::move(util::fs::CubeImageNamed("nebula", "png")))});
 
-        visualWorld->fog(Fog {.color = Color::Black(), .startDistance = 30.0f, .endDistance = 150.0f});
+        //visualWorld->fog(Fog {.color = Color::Black(), .startDistance = 30.0f, .endDistance = 150.0f});
+
+        // visualWorld->atmosphericHaze(AtmosphericHaze {
+        //     .color = make_shared<Color>(vec4 {0.35f, 0.4f, 0.45f, 1.0f}),
+        //     .baseHeight = 0.0f,
+        //     .density = 0.08f,
+        //     .heightFalloff = 0.25f,
+        // });
 
         visualWorld->atmosphericHaze(AtmosphericHaze {
-            .color = make_shared<Color>(vec4 {0.35f, 0.4f, 0.45f, 1.0f}),
+            .color = make_shared<Color>(vec4 {0.16f, 0.19f, 0.22f, 0.25f}),
             .baseHeight = 0.0f,
-            .density = 0.08f,
-            .heightFalloff = 0.25f,
+            .density = 0.018f,
+            .heightFalloff = 0.30f,
         });
 
         visualWorld->infiniteGround(InfiniteGround {
@@ -122,11 +129,11 @@ std::unique_ptr<Scene> App::init() {
                     .center = {0.0f, 0.0f},
                     .radius = 5000.0f,
                 },
-            .horizonHaze =
-                InfiniteGround::HorizonHaze {
-                    .color = make_shared<Color>(vec4 {0.075f, 0.075f, 0.075f, 0.65f}),
-                    .angularWidthDegrees = 4.5f,
-                },
+            // .horizonHaze =
+            //     InfiniteGround::HorizonHaze {
+            //         .color = make_shared<Color>(vec4 {0.075f, 0.075f, 0.075f, 0.65f}),
+            //         .angularWidthDegrees = 4.5f,
+            //     },
             .specularIntensity = 0.05f,
             .specularExponent = 8.0f,
         });

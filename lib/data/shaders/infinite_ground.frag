@@ -235,6 +235,10 @@ void main() {
                 haze);
     }
 
+    color = ApplyAtmosphericHaze(
+            color,
+            worldPosition);
+
     fragColor = vec4(color, 1.0);
 
     gl_FragDepth = ComputeDepth(worldPosition);
