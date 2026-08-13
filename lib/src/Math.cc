@@ -2909,17 +2909,17 @@ namespace a3d::math {
         return clamp_01(inverse_lerp(a, b, v));
     }
 
-    f32 remap(f32 inA, f32 inB, f32 out_a, f32 out_b, f32 v) {
+    f32 remap(f32 in_a, f32 in_b, f32 out_a, f32 out_b, f32 v) {
         // remap = lerp(outA, outB, inverse_lerp(inA, inB, v))
 
-        const f32 t = inverse_lerp(inA, inB, v);
+        const f32 t = inverse_lerp(in_a, in_b, v);
         return lerp(out_a, out_b, t);
     }
 
-    f32 remap_01(f32 inA, f32 inB, f32 out_a, f32 out_b, f32 v) {
+    f32 remap_01(f32 in_a, f32 in_b, f32 out_a, f32 out_b, f32 v) {
         // remap_01 clamps normalized t to [0,1]
 
-        const f32 t = inverse_lerp_01(inA, inB, v);
+        const f32 t = inverse_lerp_01(in_a, in_b, v);
         return lerp(out_a, out_b, t);
     }
 

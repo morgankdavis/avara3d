@@ -830,8 +830,8 @@ namespace a3d::math {
     f32         inverse_lerp(f32 a, f32 b, f32 v);       // unclamped
     f32         inverse_lerp_01(f32 a, f32 b, f32 v);    // clamps result to [0,1]
 
-    f32         remap(f32 inA, f32 inB, f32 out_a, f32 out_b, f32 v);       // unclamped
-    f32         remap_01(f32 inA, f32 inB, f32 out_a, f32 out_b, f32 v);    // clamps normalized t to [0,1]
+    f32         remap(f32 in_a, f32 in_b, f32 out_a, f32 out_b, f32 v);       // unclamped
+    f32         remap_01(f32 in_a, f32 in_b, f32 out_a, f32 out_b, f32 v);    // clamps normalized t to [0,1]
 
     f32         step(f32 edge, f32 x);               // x < edge ? 0 : 1
 
