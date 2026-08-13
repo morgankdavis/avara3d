@@ -458,9 +458,9 @@ void OGLRenderer::clear(const ClearCommand& cmd, const RenderContext& context) {
     glGetIntegerv(GL_STENCIL_WRITEMASK, &prevStencilMask);
 
     // apply scissor
-    if (cmd.useScissor) {
+    if (cmd.scissor) {
         glEnable(GL_SCISSOR_TEST);
-        glScissor(cmd.scissorRect.x, cmd.scissorRect.y, cmd.scissorRect.w, cmd.scissorRect.h);
+        glScissor((*cmd.scissor).x, (*cmd.scissor).y, (*cmd.scissor).width, (*cmd.scissor).height);
     }
     else if (prevScissorEnabled) {
         // leave as-is
@@ -510,7 +510,7 @@ void OGLRenderer::clear(const ClearCommand& cmd, const RenderContext& context) {
         glStencilMask((GLuint) prevStencilMask);
     }
 
-    if (cmd.useScissor) {
+    if (cmd.scissor) {
         if (prevScissorEnabled) {
             glEnable(GL_SCISSOR_TEST);
             glScissor(prevScissorBox[0], prevScissorBox[1], prevScissorBox[2], prevScissorBox[3]);
