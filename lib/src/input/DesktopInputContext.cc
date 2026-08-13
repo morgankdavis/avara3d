@@ -126,6 +126,32 @@ vec2 DesktopInputContext::mouseScrollWheelDelta() const {
 void DesktopInputContext::update(const InputContext::UpdateInfo&) {
 
     _mousePositionDelta = exchange(_pendingMousePositionDelta, vec2 {0.0f, 0.0f});
-
     _mouseScrollWheelDelta = exchange(_pendingMouseScrollWheelDelta, vec2 {0.0f, 0.0f});
+}
+
+/// Internal Member Functions ///
+
+void DesktopInputContext::rebaseMouseMotion() {
+    _mousePositionDelta = {0.0f, 0.0f};
+    _pendingMousePositionDelta = {0.0f, 0.0f};
+}
+
+void DesktopInputContext::releaseAllInputs() {
+
+    _keysReleased.insert(_keysDown.begin(), _keysDown.end());
+    _mouseButtonsReleased.insert(_mouseButtonsDown.begin(), _mouseButtonsDown.end());
+
+    _keysDown.clear();
+    _mouseButtonsDown.clear();
+
+    _keysPressed.clear();
+    _keysPressedCleared.clear();
+
+    _mouseButtonsPressed.clear();
+    _mouseButtonsPressedCleared.clear();
+
+    _mouseScrollWheelDelta = {0.0f, 0.0f};
+    _pendingMouseScrollWheelDelta = {0.0f, 0.0f};
+
+    rebaseMouseMotion();
 }

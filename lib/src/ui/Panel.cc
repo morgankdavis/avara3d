@@ -17,6 +17,7 @@
 #include <imgui/imgui.h>
 
 #include "a3d/Assert.h"
+#include "a3d/util/String.h"
 
 using namespace a3d::ui;
 using namespace std;
@@ -26,9 +27,10 @@ using namespace std;
 static constexpr float PANEL_FONT_SIZE {15.0f};
 static constexpr float SHADOW_OFFSET {1.0f};
 static constexpr float VALUE_GAP {12.0f};
-static constexpr float SECTION_LINE_GAP {8.0f};
+static constexpr float SECTION_LINE_GAP {4.0f};
 static constexpr float TOGGLE_BOX_SIZE {16.0f};
 static constexpr float TOGGLE_LABEL_GAP {8.0f};
+static constexpr float SLIDER_GRAB_WIDTH {8.0f};
 
 static constexpr int PANEL_STYLE_VAR_COUNT {7};
 static constexpr int PANEL_STYLE_COLOR_COUNT {6};
@@ -45,7 +47,7 @@ static void DrawShadowedLine(const ImVec2& start, const ImVec2& end, ImU32 color
 
 /// Public Lifecycle Functions ///
 
-Panel::Panel(string_view id, const PanelOptions& options):
+Panel::Panel(string_view id, const Options& options):
     _windowName {},
     _rowItemsRemaining {0},
     _rowItemWidth {0.0f},
@@ -122,7 +124,7 @@ Panel::~Panel() {
 
 /// Public Member Functions ///
 
-void Panel::section(string_view text) {
+void Panel::section(string_view text, SectionConfig config, Padding padding) {
 
     const float width = beginItem();
 
@@ -131,29 +133,41 @@ void Panel::section(string_view text) {
         return;
     }
 
-    const string sectionText {text};
+    const string sectionText = config.uppercase ? util::string::Uppercase(text) : string {text};
     const ImVec2 position = ImGui::GetCursorScreenPos();
+    const float  contentWidth = std::max(1.0f, width - padding.left - padding.right);
+    const ImVec2 contentPosition {
+        position.x + padding.left,
+        position.y + padding.top,
+    };
     const ImVec2 textSize = ImGui::CalcTextSize(sectionText.c_str());
-    const float  height = std::max(textSize.y, ImGui::GetTextLineHeight());
+
+    const float textHeight = std::max(textSize.y, ImGui::GetTextLineHeight());
+    const float lineSpace = config.line ? SECTION_LINE_GAP + 1.0f : 0.0f;
+
+    const float height = padding.top + textHeight + lineSpace + padding.bottom;
 
     ImGui::Dummy(ImVec2(width, height));
 
-    const ImVec2 textPosition {SnapPixel(position.x), SnapPixel(position.y + (height - textSize.y) * 0.5f)};
+    const ImVec2 textPosition {
+        SnapPixel(contentPosition.x),
+        SnapPixel(contentPosition.y + (textHeight - textSize.y) * 0.5f),
+    };
+
     DrawShadowedText(textPosition, sectionText, IM_COL32(255, 255, 255, 255));
 
-    const float lineStartX = position.x + textSize.x + SECTION_LINE_GAP;
-    const float lineEndX = position.x + width;
+    if (config.line) {
 
-    if (lineStartX < lineEndX) {
-        const float lineY = SnapPixel(position.y + height * 0.5f);
-        DrawShadowedLine(ImVec2(lineStartX, lineY), ImVec2(lineEndX, lineY), IM_COL32(255, 255, 255, 128),
-                         1.0f);
+        const float lineY = SnapPixel(contentPosition.y + textHeight + SECTION_LINE_GAP);
+
+        DrawShadowedLine(ImVec2(contentPosition.x, lineY), ImVec2(contentPosition.x + contentWidth, lineY),
+                         IM_COL32(255, 255, 255, 128), 1.0f);
     }
 
     endItem();
 }
 
-void Panel::text(string_view text) {
+void Panel::text(string_view text, Padding padding) {
 
     const float width = beginItem();
 
@@ -164,17 +178,23 @@ void Panel::text(string_view text) {
 
     const string bodyText {text};
     const ImVec2 position = ImGui::GetCursorScreenPos();
-    const ImVec2 textSize = ImGui::CalcTextSize(bodyText.c_str(), nullptr, false, width);
-    const float  height = textSize.y > 0.0f ? textSize.y : ImGui::GetTextLineHeight();
+    const float  contentWidth = std::max(1.0f, width - padding.left - padding.right);
+    const ImVec2 contentPosition {
+        position.x + padding.left,
+        position.y + padding.top,
+    };
+    const ImVec2 textSize = ImGui::CalcTextSize(bodyText.c_str(), nullptr, false, contentWidth);
+    const float  textHeight = textSize.y > 0.0f ? textSize.y : ImGui::GetTextLineHeight();
+    const float  height = padding.top + textHeight + padding.bottom;
 
     ImGui::Dummy(ImVec2(width, height));
-    DrawShadowedText(ImVec2(SnapPixel(position.x), SnapPixel(position.y)), bodyText,
-                     IM_COL32(255, 255, 255, 255), width);
+    DrawShadowedText(ImVec2(SnapPixel(contentPosition.x), SnapPixel(contentPosition.y)), bodyText,
+                     IM_COL32(255, 255, 255, 255), contentWidth);
 
     endItem();
 }
 
-void Panel::value(string_view label, string_view value) {
+void Panel::value(string_view label, string_view value, Padding padding) {
 
     const float width = beginItem();
 
@@ -187,19 +207,25 @@ void Panel::value(string_view label, string_view value) {
     const string valueText {value};
 
     const ImVec2 position = ImGui::GetCursorScreenPos();
+    const float  contentWidth = std::max(1.0f, width - padding.left - padding.right);
+    const ImVec2 contentPosition {
+        position.x + padding.left,
+        position.y + padding.top,
+    };
     const ImVec2 labelSize = ImGui::CalcTextSize(labelText.c_str());
     const ImVec2 valueSize = ImGui::CalcTextSize(valueText.c_str());
-    const float  height = ImGui::GetTextLineHeight();
     const float  textHeight = std::max(labelSize.y, valueSize.y);
+    const float  contentHeight = ImGui::GetTextLineHeight();
+    const float  height = padding.top + contentHeight + padding.bottom;
 
     ImGui::Dummy(ImVec2(width, height));
 
-    const float textY = SnapPixel(position.y + (height - textHeight) * 0.5f);
+    const float textY = SnapPixel(contentPosition.y + (contentHeight - textHeight) * 0.5f);
 
-    DrawShadowedText(ImVec2(SnapPixel(position.x), textY), labelText, IM_COL32(255, 255, 255, 255));
+    DrawShadowedText(ImVec2(SnapPixel(contentPosition.x), textY), labelText, IM_COL32(255, 255, 255, 255));
 
-    float       valueX = position.x + width - valueSize.x;
-    const float minimumValueX = position.x + labelSize.x + VALUE_GAP;
+    float       valueX = contentPosition.x + contentWidth - valueSize.x;
+    const float minimumValueX = contentPosition.x + labelSize.x + VALUE_GAP;
 
     if (valueX < minimumValueX) {
         valueX = minimumValueX;
@@ -255,17 +281,22 @@ void Panel::row(unsigned itemCount) {
     }
 }
 
-bool Panel::button(string_view label) {
+bool Panel::button(string_view label, Padding padding) {
 
-    return drawButton(label, false);
+    return drawButton(label, false, padding);
 }
 
-bool Panel::option(string_view label, bool selected) {
+bool Panel::option(string_view label, bool selected, Padding padding) {
 
-    return drawButton(label, selected);
+    return drawButton(label, selected, padding);
 }
 
-bool Panel::slider(string_view label, float& value, float minimum, float maximum, string_view formatString) {
+bool Panel::slider(string_view label,
+                   float&      value,
+                   float       minimum,
+                   float       maximum,
+                   string_view formatString,
+                   Padding     padding) {
 
     if (label.empty()) {
         throw invalid_argument("Panel slider label cannot be empty.");
@@ -286,20 +317,31 @@ bool Panel::slider(string_view label, float& value, float minimum, float maximum
     const string formatText {formatString};
 
     const ImVec2 position = ImGui::GetCursorScreenPos();
+    const float  contentWidth = std::max(1.0f, width - padding.left - padding.right);
+    const ImVec2 contentPosition {
+        position.x + padding.left,
+        position.y + padding.top,
+    };
     const ImVec2 labelSize = ImGui::CalcTextSize(labelText.c_str());
-    const float  height = ImGui::GetFrameHeight();
+    const float  contentHeight = ImGui::GetFrameHeight();
+    const float  height = padding.top + contentHeight + padding.bottom;
 
-    const float sliderX = position.x + labelSize.x + VALUE_GAP;
-    const float sliderWidth = std::max(1.0f, position.x + width - sliderX);
+    const float sliderX = contentPosition.x + labelSize.x + VALUE_GAP;
+    const float sliderWidth = std::max(1.0f, contentPosition.x + contentWidth - sliderX);
 
-    const float labelY = SnapPixel(position.y + (height - labelSize.y) * 0.5f);
+    const float labelY = SnapPixel(contentPosition.y + (contentHeight - labelSize.y) * 0.5f);
 
-    DrawShadowedText(ImVec2(SnapPixel(position.x), labelY), labelText, IM_COL32(255, 255, 255, 255));
+    ImGui::BeginGroup();
+    ImGui::Dummy(ImVec2(width, height));
 
-    ImGui::SetCursorScreenPos(ImVec2(sliderX, position.y));
+    DrawShadowedText(ImVec2(SnapPixel(contentPosition.x), labelY), labelText, IM_COL32(255, 255, 255, 255));
+
+    ImGui::SetCursorScreenPos(ImVec2(sliderX, contentPosition.y));
     ImGui::SetNextItemWidth(sliderWidth);
 
     ImGui::PushID(labelText.c_str());
+
+    ImGui::PushStyleVar(ImGuiStyleVar_GrabMinSize, SLIDER_GRAB_WIDTH);
 
     ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.03f, 0.03f, 0.03f, 0.68f));
     ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, ImVec4(0.03f, 0.03f, 0.03f, 0.68f));
@@ -334,7 +376,7 @@ bool Panel::slider(string_view label, float& value, float minimum, float maximum
 #ifdef INVERT_SLIDER_TEXT
     constexpr float GRAB_PADDING = 2.0f;
     const float     sliderSize = (sliderMax.x - sliderMin.x) - GRAB_PADDING * 2.0f;
-    const float     grabSize = std::min(ImGui::GetStyle().GrabMinSize, sliderSize);
+    const float     grabSize = std::min(SLIDER_GRAB_WIDTH, sliderSize);
     const float     usableSize = sliderSize - grabSize;
     const float     usableMin = sliderMin.x + GRAB_PADDING + grabSize * 0.5f;
     const float     usableMax = sliderMax.x - GRAB_PADDING - grabSize * 0.5f;
@@ -361,7 +403,10 @@ bool Panel::slider(string_view label, float& value, float minimum, float maximum
     ImGui::PopStyleColor();
 
     ImGui::PopStyleColor(5);
+    ImGui::PopStyleVar();
     ImGui::PopID();
+
+    ImGui::EndGroup();
 
     /*
      * SliderFloat was positioned after our manually drawn label. Restore
@@ -376,7 +421,138 @@ bool Panel::slider(string_view label, float& value, float minimum, float maximum
     return changed;
 }
 
-bool Panel::toggle(string_view label, bool& value) {
+bool Panel::slider(string_view label,
+                   int&        value,
+                   int         minimum,
+                   int         maximum,
+                   string_view formatString,
+                   Padding     padding) {
+
+    if (label.empty()) {
+        throw invalid_argument("Panel slider label cannot be empty.");
+    }
+
+    if (minimum >= maximum) {
+        throw invalid_argument("Panel slider range must be increasing.");
+    }
+
+    const float width = beginItem();
+
+    if (!_visible) {
+        endItem();
+        return false;
+    }
+
+    const string labelText {label};
+    const string formatText {formatString};
+
+    const ImVec2 position = ImGui::GetCursorScreenPos();
+    const float  contentWidth = std::max(1.0f, width - padding.left - padding.right);
+    const ImVec2 contentPosition {
+        position.x + padding.left,
+        position.y + padding.top,
+    };
+    const ImVec2 labelSize = ImGui::CalcTextSize(labelText.c_str());
+    const float  contentHeight = ImGui::GetFrameHeight();
+    const float  height = padding.top + contentHeight + padding.bottom;
+
+    const float sliderX = contentPosition.x + labelSize.x + VALUE_GAP;
+    const float sliderWidth = std::max(1.0f, contentPosition.x + contentWidth - sliderX);
+
+    const float labelY = SnapPixel(contentPosition.y + (contentHeight - labelSize.y) * 0.5f);
+
+    ImGui::BeginGroup();
+    ImGui::Dummy(ImVec2(width, height));
+
+    DrawShadowedText(ImVec2(SnapPixel(contentPosition.x), labelY), labelText, IM_COL32(255, 255, 255, 255));
+
+    ImGui::SetCursorScreenPos(ImVec2(sliderX, contentPosition.y));
+    ImGui::SetNextItemWidth(sliderWidth);
+
+    ImGui::PushID(labelText.c_str());
+
+    ImGui::PushStyleVar(ImGuiStyleVar_GrabMinSize, SLIDER_GRAB_WIDTH);
+
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.03f, 0.03f, 0.03f, 0.68f));
+    ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, ImVec4(0.03f, 0.03f, 0.03f, 0.68f));
+    ImGui::PushStyleColor(ImGuiCol_FrameBgActive, ImVec4(0.03f, 0.03f, 0.03f, 0.68f));
+
+    ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(0.65f, 0.65f, 0.65f, 0.9f));
+    ImGui::PushStyleColor(ImGuiCol_SliderGrabActive, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+
+    const bool changed = ImGui::SliderInt("##slider", &value, minimum, maximum, formatText.c_str(),
+                                          ImGuiSliderFlags_AlwaysClamp);
+
+    const ImVec2 sliderMin = ImGui::GetItemRectMin();
+    const ImVec2 sliderMax = ImGui::GetItemRectMax();
+
+    char valueBuffer[64];
+    std::snprintf(valueBuffer, sizeof(valueBuffer), formatText.c_str(), value);
+
+    const ImVec2 valueSize = ImGui::CalcTextSize(valueBuffer);
+
+    const ImVec2 valuePosition {
+        SnapPixel(sliderMin.x + ((sliderMax.x - sliderMin.x) - valueSize.x) * 0.5f),
+        SnapPixel(sliderMin.y + ((sliderMax.y - sliderMin.y) - valueSize.y) * 0.5f),
+    };
+
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+    // Normal white value text.
+    DrawShadowedText(valuePosition, valueBuffer, IM_COL32(255, 255, 255, 255));
+
+#ifdef INVERT_SLIDER_TEXT
+    constexpr float GRAB_PADDING = 2.0f;
+    const float     sliderSize = (sliderMax.x - sliderMin.x) - GRAB_PADDING * 2.0f;
+    const float     grabSize = std::min(SLIDER_GRAB_WIDTH, sliderSize);
+    const float     usableSize = sliderSize - grabSize;
+    const float     usableMin = sliderMin.x + GRAB_PADDING + grabSize * 0.5f;
+    const float     usableMax = sliderMax.x - GRAB_PADDING - grabSize * 0.5f;
+    const float     t =
+        std::clamp(static_cast<float>(value - minimum) / static_cast<float>(maximum - minimum), 0.0f, 1.0f);
+    const float grabPosition = usableMin + (usableMax - usableMin) * t;
+
+    const ImVec2 grabMin {
+        grabPosition - grabSize * 0.5f,
+        sliderMin.y + GRAB_PADDING,
+    };
+
+    const ImVec2 grabMax {
+        grabPosition + grabSize * 0.5f,
+        sliderMax.y - GRAB_PADDING,
+    };
+
+    drawList->PushClipRect(grabMin, grabMax, true);
+
+    drawList->AddText(valuePosition, IM_COL32(0, 0, 0, 255), valueBuffer);
+
+    drawList->PopClipRect();
+#endif
+
+    ImGui::PopStyleColor();
+
+    ImGui::PopStyleColor(5);
+    ImGui::PopStyleVar();
+    ImGui::PopID();
+
+    ImGui::EndGroup();
+
+    /*
+     * SliderInt was positioned after our manually drawn label. Restore
+     * vertical flow to the panel's left edge when this isn't part of row().
+     */
+    if (_rowItemsRemaining == 0) {
+        ImGui::SetCursorScreenPos(ImVec2(position.x, position.y + height + ImGui::GetStyle().ItemSpacing.y));
+    }
+
+    endItem();
+
+    return changed;
+}
+
+bool Panel::toggle(string_view label, bool& value, Padding padding) {
 
     if (label.empty()) {
         throw invalid_argument("Panel toggle label cannot be empty.");
@@ -391,10 +567,20 @@ bool Panel::toggle(string_view label, bool& value) {
 
     const string toggleLabel {label};
     const ImVec2 position = ImGui::GetCursorScreenPos();
-    const float  height = ImGui::GetFrameHeight();
+    const float  contentWidth = std::max(1.0f, width - padding.left - padding.right);
+    const ImVec2 contentPosition {
+        position.x + padding.left,
+        position.y + padding.top,
+    };
+    const float contentHeight = ImGui::GetFrameHeight();
+    const float height = padding.top + contentHeight + padding.bottom;
+
+    ImGui::BeginGroup();
+    ImGui::Dummy(ImVec2(width, height));
+    ImGui::SetCursorScreenPos(contentPosition);
 
     ImGui::PushID(toggleLabel.c_str());
-    const bool pressed = ImGui::InvisibleButton("##toggle", ImVec2(width, height));
+    const bool pressed = ImGui::InvisibleButton("##toggle", ImVec2(contentWidth, contentHeight));
     const bool hovered = ImGui::IsItemHovered();
     const bool active = ImGui::IsItemActive();
     ImGui::PopID();
@@ -406,22 +592,27 @@ bool Panel::toggle(string_view label, bool& value) {
     ImDrawList* drawList = ImGui::GetWindowDrawList();
 
     if (active) {
-        drawList->AddRectFilled(position, ImVec2(position.x + width, position.y + height),
+        drawList->AddRectFilled(contentPosition,
+                                ImVec2(contentPosition.x + contentWidth, contentPosition.y + contentHeight),
                                 IM_COL32(48, 48, 48, 224), 2.0f);
     }
     else if (hovered) {
-        drawList->AddRectFilled(position, ImVec2(position.x + width, position.y + height),
+        drawList->AddRectFilled(contentPosition,
+                                ImVec2(contentPosition.x + contentWidth, contentPosition.y + contentHeight),
                                 IM_COL32(24, 24, 24, 176), 2.0f);
     }
 
     const ImVec2 labelSize = ImGui::CalcTextSize(toggleLabel.c_str());
-    const ImVec2 labelPosition {SnapPixel(position.x), SnapPixel(position.y + (height - labelSize.y) * 0.5f)};
+    const ImVec2 labelPosition {
+        SnapPixel(contentPosition.x),
+        SnapPixel(contentPosition.y + (contentHeight - labelSize.y) * 0.5f),
+    };
 
-    const float boxSize = std::min(TOGGLE_BOX_SIZE, height);
+    const float boxSize = std::min(TOGGLE_BOX_SIZE, contentHeight);
 
     const ImVec2 boxMin {
-        position.x + width - boxSize,
-        position.y + (height - boxSize) * 0.5f,
+        contentPosition.x + contentWidth - boxSize,
+        contentPosition.y + (contentHeight - boxSize) * 0.5f,
     };
 
     const ImVec2 boxMax {
@@ -431,9 +622,9 @@ bool Panel::toggle(string_view label, bool& value) {
 
     const ImVec2 shadowOffset {SHADOW_OFFSET, SHADOW_OFFSET};
 
-    const float labelClipMaximumX = std::max(position.x, boxMin.x - TOGGLE_LABEL_GAP);
+    const float labelClipMaximumX = std::max(contentPosition.x, boxMin.x - TOGGLE_LABEL_GAP);
 
-    drawList->PushClipRect(position, ImVec2(labelClipMaximumX, position.y + height), true);
+    drawList->PushClipRect(contentPosition, ImVec2(labelClipMaximumX, contentPosition.y + contentHeight), true);
     DrawShadowedText(labelPosition, toggleLabel, IM_COL32(255, 255, 255, 255));
     drawList->PopClipRect();
 
@@ -463,6 +654,8 @@ bool Panel::toggle(string_view label, bool& value) {
         drawList->AddLine(p1, p2, IM_COL32(255, 255, 255, 255), 2.0f);
         drawList->AddLine(p2, p3, IM_COL32(255, 255, 255, 255), 2.0f);
     }
+
+    ImGui::EndGroup();
 
     endItem();
 
@@ -506,7 +699,7 @@ void Panel::endItem() {
     _rowSpacing = 0.0f;
 }
 
-bool Panel::drawButton(string_view label, bool selected) {
+bool Panel::drawButton(string_view label, bool selected, Padding padding) {
 
     if (label.empty()) {
         throw invalid_argument("Panel button label cannot be empty.");
@@ -521,12 +714,23 @@ bool Panel::drawButton(string_view label, bool selected) {
 
     const string buttonLabel {label};
     const ImVec2 position = ImGui::GetCursorScreenPos();
-    const float  height = ImGui::GetFrameHeight();
-    const float  rounding = ImGui::GetStyle().FrameRounding;
+    const float  contentWidth = std::max(1.0f, width - padding.left - padding.right);
+    const ImVec2 contentPosition {
+        position.x + padding.left,
+        position.y + padding.top,
+    };
+    const float contentHeight = ImGui::GetFrameHeight();
+    const float height = padding.top + contentHeight + padding.bottom;
+    const float rounding = ImGui::GetStyle().FrameRounding;
+
+    ImGui::BeginGroup();
+    ImGui::Dummy(ImVec2(width, height));
+    ImGui::SetCursorScreenPos(contentPosition);
 
     ImDrawList* drawList = ImGui::GetWindowDrawList();
-    drawList->AddRect(ImVec2(position.x + SHADOW_OFFSET, position.y + SHADOW_OFFSET),
-                      ImVec2(position.x + width + SHADOW_OFFSET, position.y + height + SHADOW_OFFSET),
+    drawList->AddRect(ImVec2(contentPosition.x + SHADOW_OFFSET, contentPosition.y + SHADOW_OFFSET),
+                      ImVec2(contentPosition.x + contentWidth + SHADOW_OFFSET,
+                             contentPosition.y + contentHeight + SHADOW_OFFSET),
                       IM_COL32(0, 0, 0, 255), rounding, 0, 1.0f);
 
     if (selected) {
@@ -536,11 +740,13 @@ bool Panel::drawButton(string_view label, bool selected) {
         ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
     }
 
-    const bool pressed = ImGui::Button(buttonLabel.c_str(), ImVec2(width, height));
+    const bool pressed = ImGui::Button(buttonLabel.c_str(), ImVec2(contentWidth, contentHeight));
 
     if (selected) {
         ImGui::PopStyleColor(4);
     }
+
+    ImGui::EndGroup();
 
     endItem();
 

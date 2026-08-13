@@ -556,9 +556,9 @@ void SpawnDuckFruit(Scene& scene, const Node& duckNode, vector<App::DuckFruitDef
     physicsBody->ccdEnabled(true);
 
     // fruit starting orientation
-    float heading = uniform_linear(0.0f, two_pi());
-    float pitch = uniform_linear(0.0f, two_pi());
-    float roll = uniform_linear(0.0f, two_pi());
+    float heading = uniform_linear(0.0f, TWO_PI);
+    float pitch = uniform_linear(0.0f, TWO_PI);
+    float roll = uniform_linear(0.0f, TWO_PI);
     node->eulerAngles({heading, pitch, roll});
 
     // fruit linear velocity
@@ -673,8 +673,8 @@ void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
 
     // add random factor
 
-    node->eulerAngles({uniform_linear(0.0f, two_pi()), uniform_linear(0.0f, two_pi()),
-                       uniform_linear(0.0f, two_pi())});
+    node->eulerAngles({uniform_linear(0.0f, TWO_PI), uniform_linear(0.0f, TWO_PI),
+                       uniform_linear(0.0f, TWO_PI)});
 
     static const float ANGULAR_VARIANCE = radians(260.0); // deg/sec
     physicsBody->angularVelocity({uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
@@ -698,12 +698,12 @@ shared_ptr<Node> Hula(float minorRadius, float majorRadius) {
 
     static const float CAPSULE_RADIUS = .1;
     static const float TORUS_MID_RADIUS = majorRadius - (majorRadius - minorRadius); // ! cap len??
-    static const float CAPSULE_HEIGHT = (math::two_pi() * TORUS_MID_RADIUS) / 8.0f;
+    static const float CAPSULE_HEIGHT = (math::TWO_PI * TORUS_MID_RADIUS) / 8.0f;
     static const auto  visualMesh = Capsule::Mesh(CAPSULE_RADIUS, CAPSULE_HEIGHT, 16, 16, 16);
 
     for (int s = 0; s < 8; ++s) {
 
-        float angle = (float) (math::two_pi() / 8.0) * (float) s;
+        float angle = (float) (math::TWO_PI / 8.0) * (float) s;
 
         auto partNode = Node::NamedNode("Ring capsule part node " + to_string(s + 1));
         partNode->mesh(visualMesh);
@@ -1132,12 +1132,12 @@ shared_ptr<Node> ChainmailLink(float minorRadius, float majorRadius) {
 
     static const float CAPSULE_RADIUS = .1;
     static const float TORUS_MID_RADIUS = majorRadius - (majorRadius - minorRadius);
-    static const float CAPSULE_HEIGHT = (math::two_pi() * TORUS_MID_RADIUS) / 8.0f;
+    static const float CAPSULE_HEIGHT = (math::TWO_PI * TORUS_MID_RADIUS) / 8.0f;
     static const auto  visualMesh = Capsule::Mesh(CAPSULE_RADIUS, CAPSULE_HEIGHT, 16, 16, 16);
 
     for (int s = 0; s < 8; ++s) {
 
-        float angle = (float) (math::two_pi() / 8.0) * (float) s;
+        float angle = (float) (math::TWO_PI / 8.0) * (float) s;
 
         auto partNode = Node::NamedNode("Ring capsule part node " + to_string(s + 1));
         partNode->mesh(visualMesh);
@@ -1210,7 +1210,7 @@ void SpawnChainMail(Scene& scene) {
         }
     }
 
-    chainmailNode->rotation({1, 0, 0}, pi_over_2());
+    chainmailNode->rotation({1, 0, 0}, PI_OVER_2);
     chainmailNode->position({-chainmailNode->extent().x / 2.0f + 1.0f, GROUND_OFFSET,
                              -chainmailNode->extent().z / 2.0f + 1.0f});
     scene.rootNode()->addChild(chainmailNode);

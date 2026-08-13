@@ -10,7 +10,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <thread>
 
 #include "a3d/a3d.h"
 
@@ -29,7 +28,7 @@ const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::Msa
 const bool                        ENABLE_VSYNC {false};
 const bool                        CAPTURE_CURSOR {false};
 const float                       TIME_STEP {1.0 / 120.0};
-const std::uint32_t               MAX_CATCH_UP_STEPS {2};
+const std::uint32_t               MAX_CATCH_UP_STEPS {4};
 const float                       BACKGROUND_ROTATION_SPEED {radians(0.5f)};
 const vec3                        BACKGROUND_ROTATION_AXIS {0.5f, 1.0f, 1.0f};
 const vec3                        GRAVITY_EARTH {0.0f, -9.807f, 0.0f};
@@ -207,6 +206,10 @@ std::unique_ptr<Scene> App::init() {
         _window->center();
         _window->open();
 
+        // ! TEMPORARY !
+        log::app::i()("Wireframe rendering supported: {}",
+                      scene->visualWorld()->capabilities().wireframeRendering);
+
         return scene;
     }
     catch (std::exception& e) {
@@ -234,7 +237,7 @@ void App::hostUpdate(Runner& runner, Scene&, const Runner::UpdateInfo&) {
         resetSimulation();
 
         if (runner.simulationPaused()) {
-            runner.resumeSimulation();
+            runner.simulationPaused(false);
         }
     }
 }
@@ -285,12 +288,6 @@ void App::inputDidUpdate(Runner&       runner,
 }
 
 void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
-
-    // if (_pendingHiccup > 0ms) {
-    //     const auto duration = std::exchange(_pendingHiccup, 0ms);
-    //
-    //     std::this_thread::sleep_for(duration);
-    // }
 
     auto& input = static_cast<DesktopInputContext&>(*scene.inputContext());
 
@@ -388,23 +385,37 @@ void App::frameDidBegin(Runner&                        runner,
     panel.value("state", paused ? "paused" : "running");
     // panel.value("time scale", std::format("{:.1f}x", runner.timeScale()));
 
-    float timeScale = static_cast<float>(runner.timeScale());
+    // float timeStep = runner.timeStep();
+    // if (panel.slider("time step", timeStep, 0.1f, 2.0f, "%.2fx")) {
+    //     runner.timeScale(timeStep);
+    // }
 
+    int stepRate = static_cast<int>(std::lround(1.0 / runner.timeStep()));
+    if (panel.slider("time step", stepRate, 30, 512, "1/%ds")) {
+        runner.timeStep(1.0 / stepRate);
+    }
+
+    int maxCatchUpSteps = runner.maxCatchUpSteps();
+    if (panel.slider("catch-up steps", maxCatchUpSteps, 1, 16, "%d")) {
+        runner.maxCatchUpSteps(maxCatchUpSteps);
+    }
+
+    // panel.row(2);
+
+    float timeScale = runner.timeScale();
     if (panel.slider("time scale", timeScale, 0.1f, 2.0f, "%.2fx")) {
         runner.timeScale(timeScale);
     }
 
+    // if (panel.button("1x")) {
+    //     runner.timeScale(1.0f);
+    // }
+
     panel.row(paused ? 2 : 1);
 
     if (panel.button(paused ? "Resume" : "Pause")) {
-        if (paused) {
-            runner.resumeSimulation();
-        }
-        else {
-            runner.pauseSimulation();
-        }
+        runner.simulationPaused(!paused);
     }
-
     if (paused) {
         if (panel.button("Step")) {
             runner.requestSimulationStep();
@@ -415,12 +426,6 @@ void App::frameDidBegin(Runner&                        runner,
         _resetRequested = true;
     }
 
-    // if (!paused) {
-    //     if (panel.button("Hiccup")) {
-    //         _pendingHiccup = std::chrono::milliseconds {uniform_linear(50, 250)};
-    //     }
-    // }
-
     panel.spacer(12.0f);
 
     panel.section("environment");
@@ -428,7 +433,8 @@ void App::frameDidBegin(Runner&                        runner,
     if (auto physicsWorld = scene.physicsWorld()) {
         const auto gravity = physicsWorld->gravity();
 
-        panel.value("gravity", std::format("{:.1f}, {:.1f}, {:.1f}", gravity.x, gravity.y, gravity.z));
+        //panel.value("gravity", std::format("{:.1f}, {:.1f}, {:.1f}", gravity.x, gravity.y, gravity.z));
+        panel.text("gravity");
 
         const auto isGravity = [&gravity](const vec3& value) {
             return length(gravity - value) < 0.001f;
@@ -521,7 +527,7 @@ void App::frameDidBegin(Runner&                        runner,
                 polygons += e->indexCount() / 3u;
             }
             panel.value("polygons", std::format("{:.1f}k", float(polygons) / 1000.0f));
-            panel.value("elements", std::format("{}", mesh->elements().size()));
+            // panel.value("elements", std::format("{}", mesh->elements().size()));
             panel.value("materials", std::format("{}", mesh->materials().size()));
         }
     }
@@ -546,9 +552,9 @@ void App::frameDidBegin(Runner&                        runner,
         scene.debugOptions(debugOptions);
     }
 
-    bool defaultLighting = visualWorld.usesDefaultLighting();
+    bool defaultLighting = visualWorld.defaultLightingEnabled();
     if (panel.toggle("default lighting", defaultLighting)) {
-        visualWorld.usesDefaultLighting(defaultLighting);
+        visualWorld.defaultLightingEnabled(defaultLighting);
     }
 
     bool meshBounds = util::bitmask::contains(debugOptions, DebugOptions::ShowBoundingBoxes);
@@ -557,10 +563,16 @@ void App::frameDidBegin(Runner&                        runner,
                                       : util::bitmask::remove(debugOptions, DebugOptions::ShowBoundingBoxes));
     }
 
-    bool meshWireframes = util::bitmask::contains(debugOptions, DebugOptions::ShowWireframes);
-    if (panel.toggle("mesh wireframes", meshWireframes)) {
-        scene.debugOptions(meshWireframes ? util::bitmask::add(debugOptions, DebugOptions::ShowWireframes)
-                                          : util::bitmask::remove(debugOptions, DebugOptions::ShowWireframes));
+    if (visualWorld.capabilities().wireframeRendering) {
+        bool meshWireframes = util::bitmask::contains(debugOptions, DebugOptions::ShowWireframes);
+        if (panel.toggle("mesh wireframes", meshWireframes)) {
+            scene.debugOptions(meshWireframes
+                                   ? util::bitmask::add(debugOptions, DebugOptions::ShowWireframes)
+                                   : util::bitmask::remove(debugOptions, DebugOptions::ShowWireframes));
+        }
+    }
+    else {
+        panel.value("mesh wireframes", "n/a", {0.0f, 1.0f, 0.0f, 0.0f});
     }
 
     bool physBounds = util::bitmask::contains(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes);
@@ -825,8 +837,8 @@ void ShootSlurm(Node& parent, const vec3& location, const vec3& direction) {
 
     // add random factor
 
-    node->eulerAngles({uniform_linear(0.0f, two_pi()), uniform_linear(0.0f, two_pi()),
-                       uniform_linear(0.0f, two_pi())});
+    node->eulerAngles({uniform_linear(0.0f, TWO_PI), uniform_linear(0.0f, TWO_PI),
+                       uniform_linear(0.0f, TWO_PI)});
 
     static const float ANGULAR_VARIANCE = radians(260.0); // deg/sec
     physicsBody->angularVelocity({uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),

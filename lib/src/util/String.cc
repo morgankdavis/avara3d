@@ -71,11 +71,23 @@ vector<string> a3d::util::string::Split(const std::string& s, std::string delim)
     return res;
 }
 
-string a3d::util::string::Lowercase(const std::string& s) {
-    std::string result = s;
+std::string a3d::util::string::Uppercase(std::string_view s) {
+    std::string result {s};
+
+    std::transform(result.begin(), result.end(), result.begin(), [](unsigned char c) {
+        return static_cast<char>(std::toupper(c));
+    });
+
+    return result;
+}
+
+std::string a3d::util::string::Lowercase(std::string_view s) {
+    std::string result {s};
+
     std::transform(result.begin(), result.end(), result.begin(), [](unsigned char c) {
         return static_cast<char>(std::tolower(c));
     });
+
     return result;
 }
 

@@ -159,8 +159,8 @@ AABB Mesh::worldAABB(const math::mat4& worldTransform, bool vertfit) const {
     // TODO: consolidate (MeshElement has the same function)
 
     if (vertfit) {
-        static const float maxFloat = math::f32_max();
-        static const float minFloat = math::f32_lowest();
+        static const float maxFloat = math::F32_MAX;
+        static const float minFloat = math::F32_LOWEST;
         AABB               out = {{maxFloat, maxFloat, maxFloat}, {minFloat, minFloat, minFloat}};
 
         for (const auto& e : _elements) {
@@ -221,8 +221,8 @@ void Mesh::dirtyMask(DirtyMask mask) {
 
 void Mesh::genLocalAABB() {
 
-    static const float maxFloat = math::f32_max();
-    static const float minFloat = math::f32_lowest();
+    static const float maxFloat = math::F32_MAX;
+    static const float minFloat = math::F32_LOWEST;
     AABB               aabb = {{maxFloat, maxFloat, maxFloat}, {minFloat, minFloat, minFloat}};
 
     for (const auto& element : _elements) {

@@ -38,9 +38,7 @@ TurntableCameraController::TurntableCameraController(const Config& config):
     _primaryDragging {false},
     _primaryDragMode {DragMode::Orbit},
     _primaryPressPosition {0.0f},
-    _primaryPreviousPosition {0.0f},
-    _panButtonDragging {false},
-    _panButtonPreviousPosition {0.0f} {
+    _panButtonDragging {false} {
 
     this->config(config);
     resolveTarget();
@@ -155,7 +153,7 @@ TurntableCameraController::UpdateResult TurntableCameraController::update(Deskto
                                                                           float                vFov,
                                                                           float                viewportHeight) {
 
-    if (!std::isfinite(vFov) || vFov <= 0.0f || vFov >= math::pi()) {
+    if (!std::isfinite(vFov) || vFov <= 0.0f || vFov >= math::PI) {
 
         throw invalid_argument(
             "TurntableCameraController vertical field of view must be finite and between 0 and 180 degrees.");
@@ -168,6 +166,12 @@ TurntableCameraController::UpdateResult TurntableCameraController::update(Deskto
     UpdateResult result {};
 
     const vec2 position = input.mousePosition();
+
+    const vec2 inputDelta = input.mousePositionDelta();
+
+    // turntable historically uses screen-coordinate deltas:
+    // +X right, +Y down. DesktopInputContext mouse delta uses +Y up.
+    const vec2 dragDelta {inputDelta.x, -inputDelta.y};
 
     auto orbit = [&](const vec2& delta) {
         if (delta.x == 0.0f && delta.y == 0.0f) {
@@ -252,7 +256,6 @@ TurntableCameraController::UpdateResult TurntableCameraController::update(Deskto
         _primaryDragging = false;
 
         _primaryPressPosition = position;
-        _primaryPreviousPosition = position;
 
         if (input.keyDown(_config.controls.dollyModifier)) {
             _primaryDragMode = DragMode::Dolly;
@@ -279,17 +282,10 @@ TurntableCameraController::UpdateResult TurntableCameraController::update(Deskto
                 // apply the entire displacement from the original press so
                 // crossing the threshold doesn't discard the first few pixels
                 applyDrag(_primaryDragMode, totalDelta);
-
-                _primaryPreviousPosition = position;
             }
         }
         else {
-
-            const vec2 delta = position - _primaryPreviousPosition;
-
-            applyDrag(_primaryDragMode, delta);
-
-            _primaryPreviousPosition = position;
+            applyDrag(_primaryDragMode, dragDelta);
         }
     }
 
@@ -307,19 +303,14 @@ TurntableCameraController::UpdateResult TurntableCameraController::update(Deskto
 
     // dedicated pan button
 
-    if (input.mouseButtonPressed(_config.controls.panButton)) {
+    const bool panButtonPressed = input.mouseButtonPressed(_config.controls.panButton);
 
+    if (panButtonPressed) {
         _panButtonDragging = true;
-        _panButtonPreviousPosition = position;
     }
 
-    if (_panButtonDragging && input.mouseButtonDown(_config.controls.panButton)) {
-
-        const vec2 delta = position - _panButtonPreviousPosition;
-
-        pan(delta);
-
-        _panButtonPreviousPosition = position;
+    if (_panButtonDragging && input.mouseButtonDown(_config.controls.panButton) && !panButtonPressed) {
+        pan(dragDelta);
     }
 
     if (input.mouseButtonReleased(_config.controls.panButton)) {

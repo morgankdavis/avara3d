@@ -36,6 +36,10 @@ namespace a3d {
         void              attachedToScene(Scene& scene) override;
         void              visualWorldAttachedToScene(Scene& scene) override;
 
+        /// DesktopInputContext Internal Member Functions ///
+
+        void              rebaseMouseMotion() override;
+
         /// Internal Member Functions ///
 
         void              glfwCursorPositionEvent(double xPos, double yPos);

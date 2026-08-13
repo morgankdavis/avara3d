@@ -96,7 +96,7 @@ PipelineDesc PipelineDescBuilder::MakeLinesDesc() {
     desc.passKind = PassKind::Lines;
     desc.shaderKind = ShaderKind::Lines;
     desc.vertexLayoutKey = VertexLayout::PC;
-    desc.fillMode = Material::FillMode::Lines;
+    desc.fillMode = Material::FillMode::Fill;
     desc.doubleSided = true;
     desc.depthWrite = false;
     desc.blendFunction = Material::BlendFunction::Disabled;

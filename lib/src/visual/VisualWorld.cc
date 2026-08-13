@@ -43,8 +43,7 @@ VisualWorld::VisualWorld(RenderContext& context):
     _atmosphericHaze {},
     _fog {},
     _infiniteGround {},
-    _usesDefaultLighting {false},
-    _autoEnablesDefaultLighting {true},
+    _defaultLightingEnabled {false},
     _pointOfView {},
     _renderContext {&context},
     _scene {},
@@ -62,6 +61,19 @@ VisualWorld::~VisualWorld() {
 }
 
 /// Public Member Functions ///
+
+VisualWorld::Capabilities VisualWorld::capabilities() const {
+
+    Capabilities capabilities {};
+
+    if (_renderContext) {
+        if (auto renderer = _renderContext->renderer()) {
+            capabilities.wireframeRendering = renderer->capabilities().wireframeRendering;
+        }
+    }
+
+    return capabilities;
+}
 
 optional<Background>& VisualWorld::background() {
     return _background;
@@ -288,7 +300,7 @@ vec3 VisualWorld::projectPoint(const vec3& point) const {
     mat4 proj = pov->camera()->projection(_renderContext->framebufferSize());
     vec4 clip = proj * view * vec4(point, 1.0f);
 
-    if (math::abs(clip.w) <= F32_COMP_EPS) {
+    if (math::abs(clip.w) <= F32_COMPARE_EPSILON) {
         throw runtime_error("Cannot project point with zero clip-space W.");
     }
 
@@ -322,7 +334,7 @@ vec3 VisualWorld::unprojectPoint(const vec3& point) const {
 
     vec4 world = inverse(proj * view) * ndc;
 
-    if (math::abs(world.w) <= F32_COMP_EPS) {
+    if (math::abs(world.w) <= F32_COMPARE_EPSILON) {
         throw runtime_error("Cannot unproject point with zero homogeneous W.");
     }
 
@@ -338,20 +350,12 @@ vector<HitTestResult> VisualWorld::hitTest(const vec2& point, const HitTestOptio
     throw runtime_error("Not implemented.");
 }
 
-bool VisualWorld::usesDefaultLighting() const {
-    return _usesDefaultLighting;
+bool VisualWorld::defaultLightingEnabled() const {
+    return _defaultLightingEnabled;
 }
 
-void VisualWorld::usesDefaultLighting(bool enabled) {
-    _usesDefaultLighting = enabled;
-}
-
-bool VisualWorld::autoEnablesDefaultLighting() const {
-    return _autoEnablesDefaultLighting;
-}
-
-void VisualWorld::autoEnablesDefaultLighting(bool enabled) {
-    _autoEnablesDefaultLighting = enabled;
+void VisualWorld::defaultLightingEnabled(bool enabled) {
+    _defaultLightingEnabled = enabled;
 }
 
 RenderContext* VisualWorld::renderContext() const {

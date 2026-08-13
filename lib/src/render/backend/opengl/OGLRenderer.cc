@@ -9,12 +9,16 @@
 #include "a3d/render/backend/opengl/OGLRenderer.h"
 
 #include <algorithm>
+#include <cstdlib>
 #include <cstring>
 #include <utility>
 #include <vector>
 
 #include "a3d/render/backend/opengl/gl.h"
 
+#ifdef A3D_GL_WEB
+    #include <emscripten/html5_webgl.h>
+#endif
 #include <magic_enum/magic_enum.hpp>
 
 #include "a3d/Assert.h"
@@ -136,7 +140,7 @@ struct FogGLSLStruct {
 static_assert(sizeof(FogGLSLStruct) == 32);
 
 struct EnvironmentBlock {
-    uint32_t                   useDefaultLighting;
+    uint32_t                   defaultLightingEnabled;
     uint32_t                   _pad0_[3];
     uint32_t                   numAmbientLights;
     uint32_t                   _pad1_[3];
@@ -153,7 +157,7 @@ struct EnvironmentBlock {
     FogGLSLStruct              fog;
 };
 
-static_assert(offsetof(EnvironmentBlock, useDefaultLighting) == 0);
+static_assert(offsetof(EnvironmentBlock, defaultLightingEnabled) == 0);
 static_assert(offsetof(EnvironmentBlock, numAmbientLights) == 16);
 static_assert(offsetof(EnvironmentBlock, ambientLights) == 32);
 
@@ -246,6 +250,8 @@ bool OGLRenderer::InitGL(GLGetProcAddress getProcAddress) {
 OGLRenderer::OGLRenderer():
     Renderer {},
     _isInitialized {false},
+    _glCapabilities {},
+    _capabilities {},
     _glEnvironmentUBO {0},
     _skyboxProgram {nullptr},
     _groundProgram {nullptr},
@@ -281,10 +287,34 @@ OGLRenderer::~OGLRenderer() {
 bool OGLRenderer::initialize(const RenderContext& context) {
     log::i();
 
+#ifdef A3D_GL_DESKTOP
+    _glCapabilities.polygonMode = true;
+#elif defined(A3D_GL_WEB)
+    const auto webGLContext = emscripten_webgl_get_current_context();
+    log::i()("WebGL context handle: {}", webGLContext);
+    if (webGLContext) {
+        char*      extensions = emscripten_webgl_get_supported_extensions();
+        const bool advertised = extensions && std::strstr(extensions, "WEBGL_polygon_mode");
+        log::i()("WEBGL_polygon_mode advertised: {}", advertised ? "yes" : "no");
+        _glCapabilities.polygonMode = emscripten_webgl_enable_WEBGL_polygon_mode(webGLContext);
+        log::i()("WEBGL_polygon_mode enabled: {}", _glCapabilities.polygonMode ? "yes" : "no");
+        std::free(extensions);
+    }
+    else {
+        _glCapabilities.polygonMode = false;
+        log::w()("No current Emscripten WebGL context.");
+    }
+#elif defined(A3D_GL_ES)
+    _glCapabilities.polygonMode = false;
+#endif
+    _capabilities.wireframeRendering = _glCapabilities.polygonMode;
+
     _skyboxProgram = make_unique<GLSLProgram>("skybox");
     _groundProgram = make_unique<GLSLProgram>("infinite_ground");
     _defaultProgram = make_unique<GLSLProgram>("default");
-    _wireframeProgram = make_unique<GLSLProgram>("wireframe");
+    if (_capabilities.wireframeRendering) {
+        _wireframeProgram = make_unique<GLSLProgram>("wireframe");
+    }
     _linesProgram = make_unique<GLSLProgram>("lines");
 
     glGenVertexArrays(1, &_fullscreenTriangleVao);
@@ -311,9 +341,12 @@ bool OGLRenderer::initialize(const RenderContext& context) {
     };
     bindBlock(_defaultProgram->glID(), "EnvironmentBlock");
     bindBlock(_groundProgram->glID(), "EnvironmentBlock");
-    bindBlock(_wireframeProgram->glID(), "EnvironmentBlock");
+    if (_wireframeProgram) {
+        bindBlock(_wireframeProgram->glID(), "EnvironmentBlock");
+    }
 
     _drawTimer.initialize();
+    _glCapabilities.drawTimer = _drawTimer.isAvailable(); // ! TEMPORARY !
 
     _imguiContext.startup(context);
     _statsOverlay.initialize(_imguiContext);
@@ -327,12 +360,16 @@ bool OGLRenderer::isInitialized() const {
     return _isInitialized;
 }
 
+const Renderer::Capabilities& OGLRenderer::capabilities() const {
+    return _capabilities;
+}
+
 void OGLRenderer::beginFrame(const Scene&               scene,
                              const RenderContext&       context,
                              const Scene::DebugOptions& debugOptions,
                              FrameStats&                stats,
                              Profiler&                  profiler) {
-    if (_drawTimer.isAvailable()) {
+    if (_glCapabilities.drawTimer) {
         stats.isRenderGpuTimeAvailable = true;
         _drawTimer.begin();
     }
@@ -364,11 +401,21 @@ void OGLRenderer::endFrame(const Scene&               scene,
                            const FrameStatsHistory&   statsHistory) {
 
     _statsOverlay.draw(context, scene, stats, statsHistory, debugOptions);
+
+    // ImGui's WebGL backend doesn't manage WEBGL_polygon_mode state.
+    // Restore normal polygon rasterization before rendering ImGui.
+#ifdef A3D_GL_WEB
+    if (_glCapabilities.polygonMode) {
+        glPolygonModeWEBGL(GL_FRONT_AND_BACK, GL_FILL_WEBGL);
+        glDisable(GL_POLYGON_OFFSET_LINE_WEBGL);
+    }
+#endif
+
     _imguiContext.endFrame();
 
     A3D_GL_CHECK();
 
-    if (_drawTimer.isAvailable()) {
+    if (_glCapabilities.drawTimer) {
         profiler.add(Profiler::Tag::RenderGpu, _drawTimer.end());
     }
 }
@@ -411,9 +458,10 @@ void OGLRenderer::clear(const ClearCommand& cmd, const RenderContext& context) {
     glGetIntegerv(GL_STENCIL_WRITEMASK, &prevStencilMask);
 
     // apply scissor
-    if (cmd.useScissor) {
+    if (cmd.scissor) {
         glEnable(GL_SCISSOR_TEST);
-        glScissor(cmd.scissorRect.x, cmd.scissorRect.y, cmd.scissorRect.w, cmd.scissorRect.h);
+        const auto& scissor = *cmd.scissor;
+        glScissor(scissor.x, scissor.y, scissor.width, scissor.height);
     }
     else if (prevScissorEnabled) {
         // leave as-is
@@ -463,7 +511,7 @@ void OGLRenderer::clear(const ClearCommand& cmd, const RenderContext& context) {
         glStencilMask((GLuint) prevStencilMask);
     }
 
-    if (cmd.useScissor) {
+    if (cmd.scissor) {
         if (prevScissorEnabled) {
             glEnable(GL_SCISSOR_TEST);
             glScissor(prevScissorBox[0], prevScissorBox[1], prevScissorBox[2], prevScissorBox[3]);
@@ -641,24 +689,30 @@ void OGLRenderer::bindPipeline(PipelineId pipelineId, const OGLResourceCache& ca
     else {
         glDisable(GL_DEPTH_TEST);
     }
+
     glDepthMask(pipeline.desc.depthWrite ? GL_TRUE : GL_FALSE);
 
     ApplyBlendFunction(pipeline.desc.blendFunction);
 
 #ifdef A3D_GL_DESKTOP
+
     switch (pipeline.desc.fillMode) {
         case Material::FillMode::Fill:
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             break;
+
         case Material::FillMode::Lines:
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             break;
+
         case Material::FillMode::Points:
             glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
             break;
     }
+
     const bool lineSmooth =
         (pipeline.desc.passKind == PassKind::Lines) || (pipeline.desc.passKind == PassKind::Wireframe);
+
     if (lineSmooth) {
         glEnable(GL_LINE_SMOOTH);
         glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
@@ -669,11 +723,41 @@ void OGLRenderer::bindPipeline(PipelineId pipelineId, const OGLResourceCache& ca
 
     if (pipeline.desc.polygonOffset) {
         glEnable(GL_POLYGON_OFFSET_LINE);
-        glPolygonOffset(.01, 0); // ! check !
+        glPolygonOffset(.01f, 0.0f); // ! check !
     }
     else {
         glDisable(GL_POLYGON_OFFSET_LINE);
     }
+
+#elif defined(A3D_GL_WEB)
+
+    if (_glCapabilities.polygonMode) {
+        switch (pipeline.desc.fillMode) {
+            case Material::FillMode::Fill:
+                glPolygonModeWEBGL(GL_FRONT_AND_BACK, GL_FILL_WEBGL);
+                break;
+
+            case Material::FillMode::Lines:
+                glPolygonModeWEBGL(GL_FRONT_AND_BACK, GL_LINE_WEBGL);
+                break;
+
+            case Material::FillMode::Points:
+                // WEBGL_polygon_mode does not support point polygon mode.
+                // Explicitly restore fill mode so a previous Lines pipeline
+                // does not leave polygon mode stuck on GL_LINE_WEBGL.
+                glPolygonModeWEBGL(GL_FRONT_AND_BACK, GL_FILL_WEBGL);
+                break;
+        }
+
+        if (pipeline.desc.polygonOffset) {
+            glEnable(GL_POLYGON_OFFSET_LINE_WEBGL);
+            glPolygonOffset(.01f, 0.0f); // ! check !
+        }
+        else {
+            glDisable(GL_POLYGON_OFFSET_LINE_WEBGL);
+        }
+    }
+
 #endif
 
     _state.pipelineId = pipelineId;
@@ -1118,12 +1202,11 @@ void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
 
     auto numLights = lightNodes.size();
 
-    if (scene.visualWorld()->usesDefaultLighting()
-        || ((numLights == 0) && scene.visualWorld()->autoEnablesDefaultLighting())) {
-        environmentStruct.useDefaultLighting = 1u;
+    if (scene.visualWorld()->defaultLightingEnabled()) {
+        environmentStruct.defaultLightingEnabled = 1u;
     }
     else {
-        environmentStruct.useDefaultLighting = 0u;
+        environmentStruct.defaultLightingEnabled = 0u;
 
         stats.lights = numLights;
 

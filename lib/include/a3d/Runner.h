@@ -84,7 +84,7 @@ namespace a3d {
          * @brief Creates an idle Runner for a Scene.
          *
          * @param scene Scene whose input, simulation, and rendering are driven.
-         * @param config Fixed-step scheduling configuration copied by the Runner.
+         * @param config Initial simulation scheduling configuration copied by the Runner.
          */
         explicit Runner(Scene& scene, SimulationConfig config = {});
 
@@ -105,7 +105,7 @@ namespace a3d {
          * @throws std::invalid_argument if the configuration is invalid or the
          *         Scene's PhysicsWorld rejects the configured time step.
          */
-        void                    start();
+        void           start();
 
         /**
          * @brief Performs one host update using the current monotonic time.
@@ -113,66 +113,80 @@ namespace a3d {
          * @return true when the Runner remains running after the update; false
          *         when it was not running or stopped during the update.
          */
-        bool                    update();
+        bool           update();
 
         /** @brief Permanently stops the Runner and clears requested steps. */
-        void                    stop();
+        void           stop();
 
         /** @return true when automatic simulation stepping is paused. */
-        bool                    simulationPaused() const;
+        bool           simulationPaused() const;
 
         /**
-         * @brief Pauses automatic simulation stepping.
+         * @brief Pauses or resumes automatic simulation stepping.
          *
-         * Host updates, input processing, callbacks, and rendering continue.
+         * Host updates, input processing, callbacks, and rendering continue
+         * while paused. Resuming discards the next host-time delta so time spent
+         * paused does not become catch-up work.
+         *
+         * @param paused true to pause automatic simulation stepping; false to resume it.
          *
          * @throws std::logic_error if the Runner is not running.
          */
-        void                    pauseSimulation();
-
-        /**
-         * @brief Resumes automatic simulation stepping.
-         *
-         * The first update after resuming discards its host-time delta so time
-         * spent paused does not become catch-up work.
-         *
-         * @throws std::logic_error if the Runner is not running.
-         */
-        void                    resumeSimulation();
+        void           simulationPaused(bool paused);
 
         /**
          * @brief Queues one fixed-duration step for a running, paused simulation.
          *
-         * Requested steps use SimulationConfig::timeStep and ignore timeScale().
+         * Requested steps use timeStep() and ignore timeScale().
          *
          * @throws std::logic_error if the Runner is not running or the simulation
          *         is not paused.
          * @throws std::overflow_error if the pending-step counter overflows.
          */
-        void                    requestSimulationStep();
+        void           requestSimulationStep();
 
         /**
          * @brief Resets simulation progression to its initial state.
          *
-         * Simulation time, completed step count, accumulated/discarded time,
-         * pending requested steps, and time scale are restored to their initial
-         * values. The current pause state is preserved.
+         * Simulation time, completed step count, accumulated/discarded time, and
+         * pending requested steps are reset. The current time step, maximum catch-up
+         * count, time scale, and pause state are preserved.
          *
          * @throws std::logic_error if the Runner is not running.
          */
-        void                    resetSimulation();
+        void           resetSimulation();
 
         /** @return the currently installed host update callback. */
-        UpdateCallback          updateCallback() const;
+        UpdateCallback updateCallback() const;
 
         /** @brief Replaces the host update callback. */
-        void                    updateCallback(UpdateCallback callback);
+        void           updateCallback(UpdateCallback callback);
 
-        /** @return the immutable scheduling configuration copied at construction. */
-        const SimulationConfig& config() const;
+        /** @return the current simulation step duration in seconds. */
+        double         timeStep() const;
+
+        /**
+         * @brief Changes the simulation step duration.
+         *
+         * Existing accumulated simulation time is preserved in seconds.
+         *
+         * @throws std::invalid_argument if value is non-finite, not positive, or
+         *         rejected by the Scene's PhysicsWorld.
+         */
+        void           timeStep(double value);
+
+        /** @return the current maximum number of automatic catch-up steps per update. */
+        std::uint32_t  maxCatchUpSteps() const;
+
+        /**
+         * @brief Changes the maximum number of automatic catch-up steps per update.
+         *
+         * @throws std::invalid_argument if value is zero.
+         */
+        void           maxCatchUpSteps(std::uint32_t value);
 
         /** @return the current automatic simulation-time scale. */
-        double                  timeScale() const;
+        double         timeScale() const;
 
         /**
          * @brief Changes the automatic simulation-time scale.
@@ -181,22 +195,27 @@ namespace a3d {
          *
          * @throws std::invalid_argument if value is non-finite or not positive.
          */
-        void                    timeScale(double value);
+        void           timeScale(double value);
 
         /** @return total simulated seconds completed by fixed steps. */
-        double                  simulationTime() const;
+        double         simulationTime() const;
 
         /** @return total number of completed fixed simulation steps. */
-        std::uint64_t           simulationStepCount() const;
+        std::uint64_t  simulationStepCount() const;
 
         /** @return the current Runner lifecycle state. */
-        State                   state() const;
+        State          state() const;
 
         /** @return the Scene driven by this Runner. */
-        Scene&                  scene();
+        Scene&         scene();
 
         /** @return the Scene driven by this Runner. */
-        const Scene&            scene() const;
+        const Scene&   scene() const;
+
+        // [Internal Member Functions]
+
+        bool           simulationClockSuspended() const;
+        void           simulationClockSuspended(bool suspended);
 
     private:
         // [Private Types]
@@ -221,6 +240,8 @@ namespace a3d {
         Scene&            _scene;
         State             _state;
         SimulationConfig  _config;
+        double            _timeStep;
+        std::uint32_t     _maxCatchUpSteps;
         double            _timeScale;
         double            _simulationTimeAccumulator;
         double            _simulationTime;
@@ -229,6 +250,7 @@ namespace a3d {
         bool              _simulationPaused;
         std::uint64_t     _pendingSimulationSteps;
         bool              _skipNextUpdateDelta;
+        bool              _simulationClockSuspended;
         TimePoint         _startTime;
         TimePoint         _prevUpdateTime;
         std::uint64_t     _updateCount;

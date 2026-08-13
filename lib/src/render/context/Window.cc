@@ -12,6 +12,9 @@
 #include <stdexcept>
 
 #include "a3d/render/backend/opengl/gl.h" // <- MUST be before GLFW
+#ifdef A3D_WEB
+    #include <emscripten/emscripten.h>
+#endif
 #include <GLFW/glfw3.h>
 #include <imgui/backends/imgui_impl_glfw.h>
 
@@ -40,6 +43,10 @@ static constexpr const char* WEB_CANVAS_SELECTOR = "#canvas";
 /// Private Static Non-Member Prototypes ///
 
 static bool InitGLFW();
+#ifdef A3D_WEB
+static void InstallWebContextMenuHandler();
+static void InstallWebGLContextLostHandler();
+#endif
 static void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height);
 static void GLFWWindowCloseCallback(GLFWwindow* glfwWindow);
 static void GLFWFramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height);
@@ -160,6 +167,11 @@ Window::Window(RenderingApi  renderingAPI,
             ImGui_ImplGlfw_Shutdown();
             throw std::runtime_error("Couldn't create GLFW Window.");
         }
+
+#ifdef A3D_WEB
+    InstallWebContextMenuHandler();
+    InstallWebGLContextLostHandler();
+#endif
     }
 
     else {
@@ -330,9 +342,9 @@ bool Window::cursorCaptured() const {
 
 void Window::cursorCaptured(bool captured) {
 
-    // when input ownership moves away from ImGui, discard any queued events
-    // and release its current input state so keys/buttons cannot remain stuck
-    if (captured && !_cursorCaptured && ImGui::GetCurrentContext()) {
+    const bool captureChanged = captured != _cursorCaptured;
+
+    if (captured && captureChanged && ImGui::GetCurrentContext()) {
         auto& io = ImGui::GetIO();
 
         io.ClearEventsQueue();
@@ -359,6 +371,10 @@ void Window::cursorCaptured(bool captured) {
     else {
         glfwSetInputMode(window, GLFW_CURSOR, _cursorHidden ? GLFW_CURSOR_HIDDEN : GLFW_CURSOR_NORMAL);
         glfwSetCursor(window, nullptr);
+    }
+
+    if (captureChanged && _inputContext) {
+        _inputContext->rebaseMouseMotion();
     }
 }
 
@@ -476,6 +492,7 @@ void Window::registerGLFWCallbacks() {
     glfwSetCursorPosCallback(_glfwWindow.get(), Window::GLFWCursorPositionCallback);
     glfwSetScrollCallback(_glfwWindow.get(), Window::GLFWScrollWheelCallback);
     glfwSetKeyCallback(_glfwWindow.get(), Window::GLFWKeyCallback);
+    glfwSetWindowFocusCallback(_glfwWindow.get(), Window::GLFWWindowFocusCallback);
 }
 
 void Window::unregisterGLFWCallbacks() {
@@ -484,6 +501,7 @@ void Window::unregisterGLFWCallbacks() {
     glfwSetCursorPosCallback(_glfwWindow.get(), nullptr);
     glfwSetScrollCallback(_glfwWindow.get(), nullptr);
     glfwSetKeyCallback(_glfwWindow.get(), nullptr);
+    glfwSetWindowFocusCallback(_glfwWindow.get(), nullptr);
 }
 
 /// Internal Static Member Functions ///
@@ -615,6 +633,21 @@ void Window::GLFWKeyCallback(GLFWwindow* glfwWindow, int key, int scanCode, int 
     }
 }
 
+void Window::GLFWWindowFocusCallback(GLFWwindow* glfwWindow, int focused) {
+
+    ImGui_ImplGlfw_WindowFocusCallback(glfwWindow, focused);
+
+    if (focused == GLFW_TRUE) {
+        return;
+    }
+
+    auto window = WindowFromGLFWwindow(glfwWindow);
+
+    if (window->_inputContext) {
+        window->_inputContext->releaseAllInputs();
+    }
+}
+
 Window* Window::WindowFromGLFWwindow(GLFWwindow* glfwWindow) {
     return (Window*) glfwGetWindowUserPointer(glfwWindow);
 }
@@ -625,7 +658,7 @@ DesktopInputContext* Window::InputContextFromGLFWWindow(GLFWwindow* glfwWindow) 
 
 /// Private Static Non-Member Functions ///
 
-static bool InitGLFW() {
+bool InitGLFW() {
 
     static bool initialized = false;
     if (!initialized) {
@@ -652,6 +685,33 @@ static bool InitGLFW() {
     }
     return true;
 }
+
+#ifdef A3D_WEB
+void InstallWebContextMenuHandler() {
+    // suppressed right-click in Emscripten canvas
+    auto result = emscripten_set_contextmenu_callback(WEB_CANVAS_SELECTOR, nullptr, false,
+                                                      [](int, const EmscriptenMouseEvent*, void*) -> EM_BOOL {
+                                                          return EM_TRUE;
+                                                      });
+
+    if (result != EMSCRIPTEN_RESULT_SUCCESS) {
+        log::e()("Error setting Emscripten context menu callback: {}", result);
+    }
+}
+
+void InstallWebGLContextLostHandler() {
+    const auto result = emscripten_set_webglcontextlost_callback(WEB_CANVAS_SELECTOR, nullptr, false,
+                                                                 [](int, const void*, void*) -> EM_BOOL {
+                                                                     log::e()("WebGL context lost.");
+                                                                     return EM_FALSE;
+                                                                 });
+
+    if (result != EMSCRIPTEN_RESULT_SUCCESS) {
+        log::e()("Error registering WebGL context-lost callback: {}", result);
+    }
+}
+
+#endif
 
 void GLFWWindowSizeCallback(GLFWwindow* glfwWindow, int width, int height) {
 //	log::d()("glfwWindow: {:p}, width: {}, height: {}",

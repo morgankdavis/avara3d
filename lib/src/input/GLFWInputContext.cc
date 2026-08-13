@@ -58,6 +58,13 @@ void GLFWInputContext::visualWorldAttachedToScene(Scene& scene) {
     }
 }
 
+/// DesktopInputContext Internal Member Functions ///
+
+void GLFWInputContext::rebaseMouseMotion() {
+    DesktopInputContext::rebaseMouseMotion();
+    _hasMousePosition = false;
+}
+
 /// Internal Member Functions ///
 
 void GLFWInputContext::glfwCursorPositionEvent(double xPos, double yPos) {

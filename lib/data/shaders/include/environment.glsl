@@ -61,7 +61,7 @@ struct Fog {
 
 layout(std140) uniform EnvironmentBlock {
 
-    uint useDefaultLighting;
+    uint defaultLightingEnabled;
     uint _pad0_0;
     uint _pad0_1;
     uint _pad0_2;

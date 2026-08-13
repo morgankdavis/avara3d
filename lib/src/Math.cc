@@ -2400,16 +2400,16 @@ namespace a3d::math {
     // pitch: rotation about +X
     // yaw:   rotation about +Y
     // roll:  rotation about +Z
-    f32quat quaternion(const f32vec3& eulerAngles) {
+    f32quat quaternion(const f32vec3& euler_angles) {
 
         // local axis unit vectors
         f32vec3 axisX {1.0f, 0.0f, 0.0f};
         f32vec3 axisY {0.0f, 1.0f, 0.0f};
         f32vec3 axisZ {0.0f, 0.0f, 1.0f};
 
-        f32quat qPitch = quaternion(axisX, eulerAngles.pitch);
-        f32quat qYaw = quaternion(axisY, eulerAngles.yaw);
-        f32quat qRoll = quaternion(axisZ, eulerAngles.roll);
+        f32quat qPitch = quaternion(axisX, euler_angles.pitch);
+        f32quat qYaw = quaternion(axisY, euler_angles.yaw);
+        f32quat qRoll = quaternion(axisZ, euler_angles.roll);
 
         // rpply roll, then pitch, then yaw:
         // R = Ry * Rx * Rz  => q = qYaw * qPitch * qRoll
@@ -2434,10 +2434,10 @@ namespace a3d::math {
         // pitch: asin(-r12)
         f32 sinp = -r12;
         if (sinp <= -1.0f) {
-            angles.pitch = -math::pi_over_2(); // -π/2
+            angles.pitch = -math::PI_OVER_2; // -π/2
         }
         else if (sinp >= 1.0f) {
-            angles.pitch = math::pi_over_2();  //  π/2
+            angles.pitch = math::PI_OVER_2;  //  π/2
         }
         else {
             angles.pitch = math::asin(sinp);
@@ -2536,26 +2536,26 @@ namespace a3d::math {
 
     /// Projection & Camera ///
 
-    f32mat4 perspective(f32 fovy, f32 aspect, f32 zNear, f32 zFar) {
+    f32mat4 perspective(f32 fovy, f32 aspect, f32 z_near, f32 z_far) {
         A3D_ASSERT(math::abs(aspect) > std::numeric_limits<f32>::epsilon() && "aspect must be non-zero");
         f32 const tanHalfFovy = tan(fovy / static_cast<f32>(2.0));
         f32mat4   result(static_cast<f32>(0.0));
         result[0][0] = static_cast<f32>(1.0) / (aspect * tanHalfFovy);
         result[1][1] = static_cast<f32>(1.0) / (tanHalfFovy);
-        result[2][2] = -(zFar + zNear) / (zFar - zNear);
+        result[2][2] = -(z_far + z_near) / (z_far - z_near);
         result[2][3] = -static_cast<f32>(1.0);
-        result[3][2] = -(static_cast<f32>(2.0) * zFar * zNear) / (zFar - zNear);
+        result[3][2] = -(static_cast<f32>(2.0) * z_far * z_near) / (z_far - z_near);
         return result;
     }
 
-    f32mat4 ortho(f32 left, f32 right, f32 bottom, f32 top, f32 zNear, f32 zFar) {
+    f32mat4 ortho(f32 left, f32 right, f32 bottom, f32 top, f32 z_near, f32 z_far) {
         f32mat4 result(1.0f);
         result[0][0] = static_cast<f32>(2.0) / (right - left);
         result[1][1] = static_cast<f32>(2.0) / (top - bottom);
-        result[2][2] = -static_cast<f32>(2.0) / (zFar - zNear);
+        result[2][2] = -static_cast<f32>(2.0) / (z_far - z_near);
         result[3][0] = -(right + left) / (right - left);
         result[3][1] = -(top + bottom) / (top - bottom);
-        result[3][2] = -(zFar + zNear) / (zFar - zNear);
+        result[3][2] = -(z_far + z_near) / (z_far - z_near);
         return result;
     }
 
@@ -2759,7 +2759,7 @@ namespace a3d::math {
         auto& g = pick_random_gen(gen);
         radius = math::abs(radius);
 
-        const f32 theta = two_pi() * uniform_01(&g);
+        const f32 theta = TWO_PI * uniform_01(&g);
         return f32vec2 {radius * math::cos(theta), radius * math::sin(theta)};
     }
 
@@ -2774,7 +2774,7 @@ namespace a3d::math {
         // uniform on sphere surface:
         // z ~ U[-1,1), phi ~ U[0,2pi)
         const f32 z = uniform_n11(&g);
-        const f32 phi = two_pi() * uniform_01(&g);
+        const f32 phi = TWO_PI * uniform_01(&g);
 
         const f32 r_xy = math::sqrt(math::max(f32(0), f32(1) - z * z));
         const f32 x = r_xy * math::cos(phi);
@@ -2793,7 +2793,7 @@ namespace a3d::math {
 
         // uniform in disk area:
         // r = R*sqrt(u), theta uniform
-        const f32 theta = two_pi() * uniform_01(&g);
+        const f32 theta = TWO_PI * uniform_01(&g);
         const f32 r = radius * math::sqrt(uniform_01(&g));
 
         return f32vec2 {r * math::cos(theta), r * math::sin(theta)};
@@ -2810,7 +2810,7 @@ namespace a3d::math {
         // uniform in ball volume:
         // direction uniform on sphere, radius scaled by cbrt(u)
         const f32 z = uniform_n11(&g);
-        const f32 phi = two_pi() * uniform_01(&g);
+        const f32 phi = TWO_PI * uniform_01(&g);
 
         const f32 r_xy = math::sqrt(math::max(f32(0), f32(1) - z * z));
         const f32 dx = r_xy * math::cos(phi);
@@ -2909,18 +2909,18 @@ namespace a3d::math {
         return clamp_01(inverse_lerp(a, b, v));
     }
 
-    f32 remap(f32 inA, f32 inB, f32 outA, f32 outB, f32 v) {
+    f32 remap(f32 in_a, f32 in_b, f32 out_a, f32 out_b, f32 v) {
         // remap = lerp(outA, outB, inverse_lerp(inA, inB, v))
 
-        const f32 t = inverse_lerp(inA, inB, v);
-        return lerp(outA, outB, t);
+        const f32 t = inverse_lerp(in_a, in_b, v);
+        return lerp(out_a, out_b, t);
     }
 
-    f32 remap_01(f32 inA, f32 inB, f32 outA, f32 outB, f32 v) {
+    f32 remap_01(f32 in_a, f32 in_b, f32 out_a, f32 out_b, f32 v) {
         // remap_01 clamps normalized t to [0,1]
 
-        const f32 t = inverse_lerp_01(inA, inB, v);
-        return lerp(outA, outB, t);
+        const f32 t = inverse_lerp_01(in_a, in_b, v);
+        return lerp(out_a, out_b, t);
     }
 
     f32 step(f32 edge, f32 x) {
@@ -3135,20 +3135,20 @@ namespace a3d::math {
         // f(t) = 1 - cos( (t*pi) / 2 )
 
         t = clamp_01(t);
-        return f32(1) - math::cos((t * pi()) / f32(2));
+        return f32(1) - math::cos((t * PI) / f32(2));
     }
 
     f32 ease_out_sine(f32 t) {
         // f(t) = sin( (t*pi) / 2 )
 
         t = clamp_01(t);
-        return math::sin((t * pi()) / f32(2));
+        return math::sin((t * PI) / f32(2));
     }
 
     f32 ease_in_out_sine(f32 t) {
         // f(t) = -(cos(pi*t) - 1) / 2
         t = clamp_01(t);
-        return (f32(1) - math::cos(pi() * t)) / f32(2);
+        return (f32(1) - math::cos(PI * t)) / f32(2);
     }
 
     f32 ease_in_circular(f32 t) {
@@ -3269,7 +3269,7 @@ namespace a3d::math {
         if (t == f32(1)) {
             return f32(1);
         }
-        const f32 c4 = two_pi() / f32(3);
+        const f32 c4 = TWO_PI / f32(3);
         return -math::pow(f32(2), f32(10) * t - f32(10)) * math::sin((f32(10) * t - f32(10.75)) * c4);
     }
 
@@ -3285,7 +3285,7 @@ namespace a3d::math {
         if (t == f32(1)) {
             return f32(1);
         }
-        const f32 c4 = two_pi() / f32(3);
+        const f32 c4 = TWO_PI / f32(3);
         return math::pow(f32(2), -f32(10) * t) * math::sin((f32(10) * t - f32(0.75)) * c4) + f32(1);
     }
 
@@ -3302,7 +3302,7 @@ namespace a3d::math {
         if (t == f32(1)) {
             return f32(1);
         }
-        const f32 c5 = two_pi() / f32(4.5);
+        const f32 c5 = TWO_PI / f32(4.5);
 
         if (t < f32(0.5)) {
             return -(math::pow(f32(2), f32(20) * t - f32(10)) * math::sin((f32(20) * t - f32(11.125)) * c5))

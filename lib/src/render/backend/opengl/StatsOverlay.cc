@@ -16,6 +16,7 @@
 #include <locale>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <tuple>
 #include <utility>
 #include <vector>
@@ -449,8 +450,8 @@ void DrawStats(FrameStats&              stats,
                         STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
     ImguiDrawLabelValue(yPos, bulkLayout, "meshes", std::format("{}", stats.meshes), bodyFont,
                         STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
-    ImguiDrawLabelValue(yPos, bulkLayout, "elements", std::format("{}", stats.elements), bodyFont,
-                        STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+    // ImguiDrawLabelValue(yPos, bulkLayout, "elements", std::format("{}", stats.elements), bodyFont,
+    //                     STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
     ImguiDrawLabelValue(yPos, bulkLayout, "polygons", std::format("{:.1f}k", float(stats.polygons) / 1000.0f),
                         bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
     ImguiDrawLabelValue(yPos, bulkLayout, "lights", std::format("{}", stats.lights), bodyFont,
@@ -760,7 +761,7 @@ void ImguiDrawPlot(float        x,
 
         ImDrawList* drawList = GetWindowDrawList();
 
-        const ImVec2 textSize = font->CalcTextSizeA(overlayFontSize, math::f32_max(), 0.0f, overlayText);
+        const ImVec2 textSize = font->CalcTextSizeA(overlayFontSize, math::F32_MAX, 0.0f, overlayText);
 
         const float textX = x + (w - textSize.x) * 0.5f;
         const float textY = y + (h - textSize.y) * 0.5f - 1.0f;
@@ -880,7 +881,7 @@ void ImguiDrawLabelValue(float&                      y,
 
     const auto TextSizeA = [](ImFont& f, float size, const char* text) -> ImVec2 {
         const float wrapWidth = 0.0f;
-        return f.CalcTextSizeA(size, math::f32_max(), wrapWidth, text);
+        return f.CalcTextSizeA(size, math::F32_MAX, wrapWidth, text);
     };
 
     // draw label

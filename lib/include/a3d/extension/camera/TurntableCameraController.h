@@ -121,15 +121,11 @@ namespace a3d::ext {
         Config     _config;
         View       _view;
         math::vec3 _resolvedTarget;
-
         bool       _primaryActive;
         bool       _primaryDragging;
         DragMode   _primaryDragMode;
         math::vec2 _primaryPressPosition;
-        math::vec2 _primaryPreviousPosition;
-
         bool       _panButtonDragging;
-        math::vec2 _panButtonPreviousPosition;
     };
 
 }

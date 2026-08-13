@@ -9,7 +9,9 @@
 #ifndef AVARA3D_RENDER_RENDERER_H
 #define AVARA3D_RENDER_RENDERER_H
 
+#include <cstdint>
 #include <memory>
+#include <optional>
 
 #include "a3d/render/PipelineDesc.h"
 #include "a3d/scene/Scene.h"
@@ -39,25 +41,29 @@ namespace a3d {
     public:
         /// Internal Types ///
 
-        struct i32Rect {
-            int32_t x = 0;
-            int32_t y = 0;
-            int32_t w = 0;
-            int32_t h = 0;
+        struct Capabilities {
+            bool wireframeRendering {false};
         };
 
         struct ClearCommand {
-            bool       clearColor   = true;
-            bool       clearDepth   = true;
-            bool       clearStencil = false;
-            math::vec4 color        = {0.f, 0.f, 0.f, 1.f};
-            float      depth        = 1.0f;
-            int        stencil      = 0;
-            bool       useScissor   = false;
-            i32Rect    scissorRect  = {};
+
+            struct Scissor {
+                std::int32_t x      = 0;
+                std::int32_t y      = 0;
+                std::int32_t width  = 0;
+                std::int32_t height = 0;
+            };
+
+            bool                   clearColor   = true;
+            bool                   clearDepth   = true;
+            bool                   clearStencil = false;
+            math::vec4             color        = {0.f, 0.f, 0.f, 1.f};
+            float                  depth        = 1.0f;
+            int                    stencil      = 0;
+            std::optional<Scissor> scissor      = {};
             // glClear obeys scissor + write masks. if a previous pass did glDepthMask(false)
             // (or colorMask off), clear can do nothing unless overridden
-            bool       forceWriteMasks = true;
+            bool                   forceWriteMasks = true;
             // GLuint 	framebuffer = 		0;
             // bool   	bindFramebuffer = 	false;
         };
@@ -97,6 +103,8 @@ namespace a3d {
 
         virtual bool                   initialize(const RenderContext& context) = 0;
         virtual bool                   isInitialized() const                    = 0;
+
+        virtual const Capabilities&    capabilities() const = 0;
 
         virtual void                   beginFrame(const Scene&               scene,
                                                   const RenderContext&       context,
