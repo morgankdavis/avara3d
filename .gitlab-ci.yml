@@ -125,6 +125,7 @@ web-debug:
     script:
       - echo "Starting Web debug build..."
       - source "${EMSDK_ROOT}/emsdk_env.sh"
+      - export EM_CACHE="/home/gitlab-runner/.cache/emscripten-6.0.3"
       - emcc --version
       - mkdir gitlab-build
       - cd gitlab-build
@@ -270,6 +271,7 @@ web-release:
   script:
     - echo "Starting Web release build..."
     - source "${EMSDK_ROOT}/emsdk_env.sh"
+    - export EM_CACHE="/home/gitlab-runner/.cache/emscripten-6.0.3"
     - emcc --version
     - mkdir gitlab-build
     - cd gitlab-build
@@ -394,6 +396,7 @@ web-release-manual:
   script:
     - echo "Starting Web release build..."
     - source "${EMSDK_ROOT}/emsdk_env.sh"
+    - export EM_CACHE="/home/gitlab-runner/.cache/emscripten-6.0.3"
     - emcc --version
     - mkdir gitlab-build
     - cd gitlab-build
@@ -479,6 +482,7 @@ documentation:
       echo
       echo "Building fresh WebAssembly release..."
       source "${EMSDK_ROOT}/emsdk_env.sh"
+      export EM_CACHE="/home/gitlab-runner/.cache/emscripten-6.0.3"
       emcc --version
       rm -rf gitlab-build-website build-website
       emcmake /usr/bin/cmake \
