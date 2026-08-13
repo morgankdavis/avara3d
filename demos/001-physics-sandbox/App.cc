@@ -10,7 +10,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <thread>
 
 #include "a3d/a3d.h"
 
@@ -286,12 +285,6 @@ void App::inputDidUpdate(Runner&       runner,
 
 void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
 
-    // if (_pendingHiccup > 0ms) {
-    //     const auto duration = std::exchange(_pendingHiccup, 0ms);
-    //
-    //     std::this_thread::sleep_for(duration);
-    // }
-
     auto& input = static_cast<DesktopInputContext&>(*scene.inputContext());
 
     // if (_bananaNode) {
@@ -428,12 +421,6 @@ void App::frameDidBegin(Runner&                        runner,
     if (panel.button("Reset")) {
         _resetRequested = true;
     }
-
-    // if (!paused) {
-    //     if (panel.button("Hiccup")) {
-    //         _pendingHiccup = std::chrono::milliseconds {uniform_linear(50, 250)};
-    //     }
-    // }
 
     panel.spacer(12.0f);
 

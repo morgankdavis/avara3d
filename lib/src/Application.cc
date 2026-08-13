@@ -301,11 +301,11 @@ void RegisterEmscriptenVisibilityCallbacks(Runner& runner) {
         throw runtime_error("Failed to register Emscripten visibility callback.");
     }
 
-    // Handle the unlikely case that we started while already hidden.
+    // handle the unlikely case that we started while already hidden.
     EmscriptenVisibilityChangeEvent visibility {};
 
     if (emscripten_get_visibility_status(&visibility) == EMSCRIPTEN_RESULT_SUCCESS && visibility.hidden) {
-        runner.suspendSimulationClock();
+        runner.simulationClockSuspended(true);
     }
 }
 
@@ -319,10 +319,10 @@ EM_BOOL EmscriptenVisibilityChangeCallback(int, const EmscriptenVisibilityChange
     auto& runner = *static_cast<Runner*>(userData);
 
     if (event->hidden) {
-        runner.suspendSimulationClock();
+        runner.simulationClockSuspended(true);
     }
     else {
-        runner.resumeSimulationClock();
+        runner.simulationClockSuspended(false);
     }
 
     return EM_FALSE;
