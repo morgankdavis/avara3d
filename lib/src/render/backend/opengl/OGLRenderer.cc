@@ -460,7 +460,8 @@ void OGLRenderer::clear(const ClearCommand& cmd, const RenderContext& context) {
     // apply scissor
     if (cmd.scissor) {
         glEnable(GL_SCISSOR_TEST);
-        glScissor((*cmd.scissor).x, (*cmd.scissor).y, (*cmd.scissor).width, (*cmd.scissor).height);
+        const auto& scissor = *cmd.scissor;
+        glScissor(scissor.x, scissor.y, scissor.width, scissor.height);
     }
     else if (prevScissorEnabled) {
         // leave as-is

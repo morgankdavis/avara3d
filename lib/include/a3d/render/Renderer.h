@@ -9,6 +9,7 @@
 #ifndef AVARA3D_RENDER_RENDERER_H
 #define AVARA3D_RENDER_RENDERER_H
 
+#include <cstdint>
 #include <memory>
 #include <optional>
 
@@ -47,10 +48,10 @@ namespace a3d {
         struct ClearCommand {
 
             struct Scissor {
-                int32_t x      = 0;
-                int32_t y      = 0;
-                int32_t width  = 0;
-                int32_t height = 0;
+                std::int32_t x      = 0;
+                std::int32_t y      = 0;
+                std::int32_t width  = 0;
+                std::int32_t height = 0;
             };
 
             bool                   clearColor   = true;
