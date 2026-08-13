@@ -16,6 +16,7 @@
 #include "a3d/Application.h"
 #include "a3d/Math.h"
 #include "a3d/extension/TransientNodeRegistry.h"
+#include "a3d/extension/Wander.h"
 #include "a3d/extension/camera/TurntableCameraController.h"
 
 namespace a3d {
@@ -83,6 +84,8 @@ namespace demo::physicssandbox {
         a3d::ext::TransientNodeRegistry     _transients;
         double                              _backgroundRotationTime {0.0};
         bool                                _resetRequested;
+
+        std::vector<std::unique_ptr<a3d::ext::Wander>> _orbWanders;
     };
 
 }

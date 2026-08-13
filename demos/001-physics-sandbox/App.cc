@@ -62,7 +62,8 @@ App::App(int argc, char* argv[]):
     _selection {},
     _transients {ext::TransientNodeRegistry::SweepPolicy::EveryInterval(1.0)},
     _backgroundRotationTime {0.0},
-    _resetRequested {false} {}
+    _resetRequested {false},
+    _orbWanders {} {}
 
 App::~App() = default;
 
@@ -102,6 +103,7 @@ std::unique_ptr<Scene> App::init() {
 
         visualWorld->infiniteGround(InfiniteGround {
             .color = Color::DarkGray(),
+                // .color = make_shared<Color>(.2f),
             .height = 0.0f,
             .minorGrid =
                 InfiniteGround::Grid {
@@ -181,7 +183,7 @@ std::unique_ptr<Scene> App::init() {
         // _transients.policy({.maxCount = {}, .maxAge = {}, .distanceLimit = {}});
 
         // _transients.groupPolicy("box",
-        //                         {.maxCount = 100,
+        //                         {.m  using Surface = std::variant<std::monostate, Plane, Sphere>;fabaxCount = 100,
         //                          .distanceLimit =
         //                              ext::TransientNodeRegistry::DistanceLimit {.center = {0.0f, 0.0f, 0.0f},
         //                                                                         .radius = 50.0f}});
@@ -219,6 +221,81 @@ std::unique_ptr<Scene> App::init() {
 
         _simulationRoot = MakeSimulationRoot();
         scene->rootNode()->addChild(_simulationRoot);
+
+
+
+
+
+
+
+
+
+        // wandering lights
+
+
+
+        {
+
+
+
+
+            const vec3 ORB_GROUP_POSITION {-8.0f, 2.5f, -6.0f};
+
+            const vec3 ORB_POSITION_MIN {-1.0f, -0.5f, -1.0f};
+            const vec3 ORB_POSITION_MAX { 1.0f,  0.5f,  1.0f};
+
+            const vec3   ORB_WANDER_EXTENTS {1.5f, 0.75f, 1.5f};
+            const size_t ORB_COUNT {4};
+
+            auto orbGroup = Node::NamedNode("Wandering orbs");
+            orbGroup->position(ORB_GROUP_POSITION);
+            scene->rootNode()->addChild(orbGroup);
+
+            auto orbMaterial = make_shared<Material>();
+            orbMaterial->emission(Color::White());
+
+            auto orbMesh = Sphere::Mesh(0.1, 3, orbMaterial);
+
+            _orbWanders.reserve(ORB_COUNT);
+
+            for (size_t i = 0; i < ORB_COUNT; ++i) {
+                auto light = make_shared<PointLight>(Color::White());
+                // light->attenuation(Attenuation {
+                //     .quadratic = 0.5f
+                // });
+                light->attenuation(Attenuation::FromRange(3.0f, 0.02f));
+
+                auto orb = Node::LightNode(light);
+                orb->name(std::format("Orb {}", i+1));
+                orb->mesh(orbMesh);
+
+                orb->position({
+                    math::uniform_linear(ORB_POSITION_MIN.x, ORB_POSITION_MAX.x),
+                    math::uniform_linear(ORB_POSITION_MIN.y, ORB_POSITION_MAX.y),
+                    math::uniform_linear(ORB_POSITION_MIN.z, ORB_POSITION_MAX.z)
+                });
+
+                orbGroup->addChild(orb);
+
+                _orbWanders.push_back(
+                    make_unique<ext::Wander>(
+                        orb,
+                        ext::Wander::Config {
+                            .halfExtents = ORB_WANDER_EXTENTS,
+                            .segmentDuration = math::uniform_linear(5.0f, 7.0f),
+                            .seed = 1000u + static_cast<uint32_t>(i)
+                        }));
+            }
+
+
+
+        }
+
+
+
+
+
+
 
         // open the window
 
@@ -303,6 +380,13 @@ void App::inputDidUpdate(Runner&       runner,
 }
 
 void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
+
+
+    for (auto& wander : _orbWanders) {
+        wander->update(info.deltaTime);
+    }
+
+
 
     auto& input = static_cast<DesktopInputContext&>(*scene.inputContext());
 
@@ -783,6 +867,12 @@ shared_ptr<Node> MakeSimulationRoot() {
     teapotBody->angularDamping(0.05f);
     teapotNode->physicsBody(std::move(teapotBody));
     root->addChild(teapotNode);
+
+
+
+
+
+
 
     return root;
 }
