@@ -200,3 +200,38 @@ Web debug builds must be served over HTTP rather than opened directly with a `fi
 ```sh
 emrun cmake-build-web-debug/tests/000-sandbox/000-sandbox.html
 ```
+
+### Automated tests
+
+A3D's automated tests use Catch2 3. Catch2 is optional and is only required to build the automated test suite. If Catch2 is not found, CMake prints a warning and skips the automated tests.
+
+Both automated and sandbox tests are enabled by default.
+
+#### Ubuntu
+
+```sh
+sudo apt install catch2
+```
+
+#### macOS
+
+```sh
+brew install catch2
+```
+
+#### Windows
+
+Install Catch2 using vcpkg or another CMake-compatible package installation.
+
+Automated and sandbox tests can be enabled or disabled independently:
+
+```sh
+-DA3D_BUILD_AUTOMATED_TESTS=ON
+-DA3D_BUILD_SANDBOX_TESTS=ON
+```
+
+Run the automated tests with:
+
+```sh
+ctest --test-dir cmake-build-debug --output-on-failure
+```

@@ -18,6 +18,8 @@ linux-debug:
     - cd gitlab-build
     - /usr/bin/cmake
       -DCMAKE_BUILD_TYPE="Debug"
+      -DA3D_BUILD_AUTOMATED_TESTS=ON
+      -DA3D_BUILD_SANDBOX_TESTS=ON
       -G"Ninja"
       -DCMAKE_C_COMPILER=/usr/bin/clang
       -DCMAKE_CXX_COMPILER=/usr/bin/clang++
@@ -25,6 +27,8 @@ linux-debug:
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     - /usr/bin/cmake --build . --target install -j4
+    - /usr/bin/cmake --build . --target a3d-tests -j4
+    - /usr/bin/ctest --output-on-failure
     - mv packaged/avara3d ../
     - echo "Linux debug build complete."
   artifacts:
@@ -47,6 +51,8 @@ macos-debug:
     - cd gitlab-build
     - /usr/local/bin/cmake
       -DCMAKE_BUILD_TYPE="Debug"
+      -DA3D_BUILD_AUTOMATED_TESTS=OFF
+      -DA3D_BUILD_SANDBOX_TESTS=ON
       -DA3D_MACOS_UNIVERSAL=ON
       -G"Ninja"
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
@@ -54,6 +60,21 @@ macos-debug:
       ..
     - /usr/local/bin/cmake --build . --target install -j4
     - mv packaged/avara3d ../
+    - cd ..
+    - mkdir gitlab-build-tests
+    - cd gitlab-build-tests
+    - /usr/local/bin/cmake
+      -DCMAKE_BUILD_TYPE="Debug"
+      -DA3D_BUILD_AUTOMATED_TESTS=ON
+      -DA3D_BUILD_SANDBOX_TESTS=OFF
+      -DA3D_BUILD_EDITOR=OFF
+      -DA3D_BUILD_DEMOS=OFF
+      -DA3D_BUILD_DOCUMENTATION=OFF
+      -G"Ninja"
+      ..
+    - /usr/local/bin/cmake --build . --target a3d-tests -j4
+    - /usr/local/bin/ctest --output-on-failure
+    - cd ..
     - echo "macOS debug build complete."
   artifacts:
     name: "avara3d-macos-debug-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
@@ -74,13 +95,17 @@ windows-debug:
     - mkdir gitlab-build
     - cd gitlab-build
     - cmake
-      -DCMAKE_PREFIX_PATH="C:/Qt/6.10.1/msvc2022_64"
+      -DCMAKE_PREFIX_PATH="C:/Qt/6.10.1/msvc2022_64;C:/Users/gitlab/vcpkg/installed/x64-windows"
       -DCMAKE_BUILD_TYPE="Debug"
+      -DA3D_BUILD_AUTOMATED_TESTS=ON
+      -DA3D_BUILD_SANDBOX_TESTS=ON
       -T"ClangCL"
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     - cmake --build . --config Debug --target install --parallel 8
+    - cmake --build . --config Debug --target a3d-tests --parallel 8
+    - ctest -C Debug --output-on-failure
     - mv packaged/avara3d ../
     - echo "Windows debug build complete."
   artifacts:
@@ -106,7 +131,8 @@ web-debug:
       - emcmake /usr/bin/cmake
         -DCMAKE_BUILD_TYPE="Debug"
         -DA3D_BUILD_EDITOR=OFF
-        -DA3D_BUILD_TESTS=ON
+        -DA3D_BUILD_AUTOMATED_TESTS=OFF
+        -DA3D_BUILD_SANDBOX_TESTS=ON
         -DA3D_BUILD_DEMOS=ON
         -DA3D_BUILD_DOCUMENTATION=OFF
         -DA3D_WEB_GENERATE_HTML=ON
@@ -137,6 +163,8 @@ linux-release:
     - cd gitlab-build
     - /usr/bin/cmake
       -DCMAKE_BUILD_TYPE="Release"
+      -DA3D_BUILD_AUTOMATED_TESTS=ON
+      -DA3D_BUILD_SANDBOX_TESTS=ON
       -G"Ninja"
       -DCMAKE_C_COMPILER=/usr/bin/clang
       -DCMAKE_CXX_COMPILER=/usr/bin/clang++
@@ -144,6 +172,8 @@ linux-release:
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     - /usr/bin/cmake --build . --target install -j4
+    - /usr/bin/cmake --build . --target a3d-tests -j4
+    - /usr/bin/ctest --output-on-failure
     - mv packaged/avara3d ../
     - echo "Linux release build complete."
   artifacts:
@@ -166,6 +196,8 @@ macos-release:
     - cd gitlab-build
     - /usr/local/bin/cmake
       -DCMAKE_BUILD_TYPE="Release"
+      -DA3D_BUILD_AUTOMATED_TESTS=OFF
+      -DA3D_BUILD_SANDBOX_TESTS=ON
       -DA3D_MACOS_UNIVERSAL=ON
       -G"Ninja"
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
@@ -173,6 +205,21 @@ macos-release:
       ..
     - /usr/local/bin/cmake --build . --target install -j4
     - mv packaged/avara3d ../
+    - cd ..
+    - mkdir gitlab-build-tests
+    - cd gitlab-build-tests
+    - /usr/local/bin/cmake
+      -DCMAKE_BUILD_TYPE="Release"
+      -DA3D_BUILD_AUTOMATED_TESTS=ON
+      -DA3D_BUILD_SANDBOX_TESTS=OFF
+      -DA3D_BUILD_EDITOR=OFF
+      -DA3D_BUILD_DEMOS=OFF
+      -DA3D_BUILD_DOCUMENTATION=OFF
+      -G"Ninja"
+      ..
+    - /usr/local/bin/cmake --build . --target a3d-tests -j4
+    - /usr/local/bin/ctest --output-on-failure
+    - cd ..
     - echo "macOS release build complete."
   artifacts:
     name: "avara3d-macos-release-${CI_COMMIT_BRANCH}-${CI_PIPELINE_IID}"
@@ -194,11 +241,16 @@ windows-release:
     - cd gitlab-build
     - cmake
       -DCMAKE_BUILD_TYPE="Release"
+      -DCMAKE_PREFIX_PATH="C:/Users/gitlab/vcpkg/installed/x64-windows"
+      -DA3D_BUILD_AUTOMATED_TESTS=ON
+      -DA3D_BUILD_SANDBOX_TESTS=ON
       -T"ClangCL"
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     - cmake --build . --config Release --target install --parallel 8
+    - cmake --build . --config Release --target a3d-tests --parallel 8
+    - ctest -C Release --output-on-failure
     - mv packaged/avara3d ../
     - echo "Windows release build complete."
   artifacts:
@@ -224,7 +276,8 @@ web-release:
     - emcmake /usr/bin/cmake
       -DCMAKE_BUILD_TYPE="Release"
       -DA3D_BUILD_EDITOR=OFF
-      -DA3D_BUILD_TESTS=ON
+      -DA3D_BUILD_AUTOMATED_TESTS=OFF
+      -DA3D_BUILD_SANDBOX_TESTS=ON
       -DA3D_BUILD_DEMOS=ON
       -DA3D_BUILD_DOCUMENTATION=OFF
       -DA3D_WEB_GENERATE_HTML=OFF
@@ -253,6 +306,8 @@ linux-release-manual:
     - cd gitlab-build
     - /usr/bin/cmake
       -DCMAKE_BUILD_TYPE="Release"
+      -DA3D_BUILD_AUTOMATED_TESTS=ON
+      -DA3D_BUILD_SANDBOX_TESTS=ON
       -G"Ninja"
       -DCMAKE_C_COMPILER=/usr/bin/clang
       -DCMAKE_CXX_COMPILER=/usr/bin/clang++
@@ -260,6 +315,8 @@ linux-release-manual:
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     - /usr/bin/cmake --build . --target install -j4
+    - /usr/bin/cmake --build . --target a3d-tests -j4
+    - /usr/bin/ctest --output-on-failure
     - mv packaged/avara3d ../
     - cd ../
     - echo "Linux release build complete."
@@ -281,11 +338,15 @@ macos-release-manual:
     - cd gitlab-build
     - /usr/local/bin/cmake
       -DCMAKE_BUILD_TYPE="Release"
+      -DA3D_BUILD_AUTOMATED_TESTS=ON
+      -DA3D_BUILD_SANDBOX_TESTS=ON
       -G"Ninja"
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     - /usr/local/bin/cmake --build . --target install -j4
+    - /usr/local/bin/cmake --build . --target a3d-tests -j4
+    - /usr/local/bin/ctest --output-on-failure
     - mv packaged/avara3d ../
     - echo "macOS release build complete."
   artifacts:
@@ -306,11 +367,16 @@ windows-release-manual:
     - cd gitlab-build
     - cmake
       -DCMAKE_BUILD_TYPE="Release"
+      -DCMAKE_PREFIX_PATH="C:/Users/gitlab/vcpkg/installed/x64-windows"
+      -DA3D_BUILD_AUTOMATED_TESTS=ON
+      -DA3D_BUILD_SANDBOX_TESTS=ON
       -T"ClangCL"
       -DGITLAB_CI_PIPELINE_CREATED_AT="${CI_PIPELINE_CREATED_AT}"
       -DGITLAB_CI_PIPELINE_IID="${CI_PIPELINE_IID}"
       ..
     - cmake --build . --config Release --target install -j8
+    - cmake --build . --config Release --target a3d-tests -j8
+    - ctest -C Release --output-on-failure
     - mv packaged/avara3d ../
     - echo "Windows release build complete."
   artifacts:
@@ -334,7 +400,8 @@ web-release-manual:
     - emcmake /usr/bin/cmake
       -DCMAKE_BUILD_TYPE="Release"
       -DA3D_BUILD_EDITOR=OFF
-      -DA3D_BUILD_TESTS=ON
+      -DA3D_BUILD_AUTOMATED_TESTS=OFF
+      -DA3D_BUILD_SANDBOX_TESTS=ON
       -DA3D_BUILD_DEMOS=ON
       -DA3D_BUILD_DOCUMENTATION=OFF
       -DA3D_WEB_GENERATE_HTML=OFF
@@ -369,7 +436,8 @@ documentation:
             -DCMAKE_BUILD_TYPE=Release
             -DA3D_BUILD_DOCUMENTATION=ON
             -DA3D_BUILD_EDITOR=OFF
-            -DA3D_BUILD_TESTS=OFF
+            -DA3D_BUILD_AUTOMATED_TESTS=OFF
+            -DA3D_BUILD_SANDBOX_TESTS=OFF
             -DA3D_BUILD_DEMOS=OFF
         - /usr/bin/cmake
             --build gitlab-build-documentation
@@ -419,7 +487,8 @@ documentation:
           -G Ninja \
           -DCMAKE_BUILD_TYPE=Release \
           -DA3D_BUILD_EDITOR=OFF \
-          -DA3D_BUILD_TESTS=OFF \
+          -DA3D_BUILD_AUTOMATED_TESTS=OFF \
+          -DA3D_BUILD_SANDBOX_TESTS=OFF \
           -DA3D_BUILD_DEMOS=ON \
           -DA3D_BUILD_DOCUMENTATION=OFF \
           -DA3D_WEB_GENERATE_HTML=OFF \
