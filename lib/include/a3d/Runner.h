@@ -122,23 +122,17 @@ namespace a3d {
         bool           simulationPaused() const;
 
         /**
-         * @brief Pauses automatic simulation stepping.
+         * @brief Pauses or resumes automatic simulation stepping.
          *
-         * Host updates, input processing, callbacks, and rendering continue.
+         * Host updates, input processing, callbacks, and rendering continue
+         * while paused. Resuming discards the next host-time delta so time spent
+         * paused does not become catch-up work.
          *
-         * @throws std::logic_error if the Runner is not running.
-         */
-        void           pauseSimulation();
-
-        /**
-         * @brief Resumes automatic simulation stepping.
-         *
-         * The first update after resuming discards its host-time delta so time
-         * spent paused does not become catch-up work.
+         * @param paused true to pause automatic simulation stepping; false to resume it.
          *
          * @throws std::logic_error if the Runner is not running.
          */
-        void           resumeSimulation();
+        void           simulationPaused(bool paused);
 
         /**
          * @brief Queues one fixed-duration step for a running, paused simulation.
@@ -160,7 +154,7 @@ namespace a3d {
          *
          * @throws std::logic_error if the Runner is not running.
          */
-        void resetSimulation();
+        void           resetSimulation();
 
         /** @return the currently installed host update callback. */
         UpdateCallback updateCallback() const;
@@ -221,8 +215,7 @@ namespace a3d {
         // [Internal Member Functions]
 
         bool           simulationClockSuspended() const;
-        void           suspendSimulationClock();
-        void           resumeSimulationClock();
+        void           simulationClockSuspended(bool suspended);
 
     private:
         // [Private Types]

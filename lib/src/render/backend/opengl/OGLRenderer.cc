@@ -401,6 +401,16 @@ void OGLRenderer::endFrame(const Scene&               scene,
                            const FrameStatsHistory&   statsHistory) {
 
     _statsOverlay.draw(context, scene, stats, statsHistory, debugOptions);
+
+    // ImGui's WebGL backend doesn't manage WEBGL_polygon_mode state.
+    // Restore normal polygon rasterization before rendering ImGui.
+#ifdef A3D_GL_WEB
+    if (_glCapabilities.polygonMode) {
+        glPolygonModeWEBGL(GL_FRONT_AND_BACK, GL_FILL_WEBGL);
+        glDisable(GL_POLYGON_OFFSET_LINE_WEBGL);
+    }
+#endif
+
     _imguiContext.endFrame();
 
     A3D_GL_CHECK();

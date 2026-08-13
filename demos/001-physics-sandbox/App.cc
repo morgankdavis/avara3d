@@ -234,7 +234,7 @@ void App::hostUpdate(Runner& runner, Scene&, const Runner::UpdateInfo&) {
         _resetRequested = false;
         resetSimulation();
         if (runner.simulationPaused()) {
-            runner.resumeSimulation();
+            runner.simulationPaused(false);
         }
     }
 }
@@ -417,14 +417,8 @@ void App::frameDidBegin(Runner&                        runner,
     panel.row(paused ? 2 : 1);
 
     if (panel.button(paused ? "Resume" : "Pause")) {
-        if (paused) {
-            runner.resumeSimulation();
-        }
-        else {
-            runner.pauseSimulation();
-        }
+        runner.simulationPaused(!paused);
     }
-
     if (paused) {
         if (panel.button("Step")) {
             runner.requestSimulationStep();
@@ -581,8 +575,9 @@ void App::frameDidBegin(Runner&                        runner,
     if (visualWorld.capabilities().wireframeRendering) {
         bool meshWireframes = util::bitmask::contains(debugOptions, DebugOptions::ShowWireframes);
         if (panel.toggle("mesh wireframes", meshWireframes)) {
-            scene.debugOptions(meshWireframes ? util::bitmask::add(debugOptions, DebugOptions::ShowWireframes)
-                                              : util::bitmask::remove(debugOptions, DebugOptions::ShowWireframes));
+            scene.debugOptions(meshWireframes
+                                   ? util::bitmask::add(debugOptions, DebugOptions::ShowWireframes)
+                                   : util::bitmask::remove(debugOptions, DebugOptions::ShowWireframes));
         }
     }
     else {

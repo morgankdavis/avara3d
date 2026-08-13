@@ -2,6 +2,9 @@
 //  Runner.cc
 //  avara3d
 //
+//  Created by Morgan Davis on 7/10/26.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
+//
 
 #include "a3d/Runner.h"
 
@@ -84,33 +87,25 @@ bool Runner::simulationPaused() const {
     return _simulationPaused;
 }
 
-void Runner::pauseSimulation() {
+void Runner::simulationPaused(bool paused) {
 
     if (_state != State::Running) {
-        throw logic_error("Runner::pauseSimulation() requires a running Runner.");
+        throw logic_error("Runner::simulationPaused() requires a running Runner.");
     }
 
-    if (_simulationPaused) {
+    if (_simulationPaused == paused) {
         return;
     }
 
-    _simulationPaused = true;
-    _simulationTimeAccumulator = 0.0;
-}
+    _simulationPaused = paused;
 
-void Runner::resumeSimulation() {
-
-    if (_state != State::Running) {
-        throw logic_error("Runner::resumeSimulation() requires a running Runner.");
+    if (paused) {
+        _simulationTimeAccumulator = 0.0;
     }
-
-    if (!_simulationPaused) {
-        return;
+    else {
+        _pendingSimulationSteps = 0;
+        _skipNextUpdateDelta = true;
     }
-
-    _simulationPaused = false;
-    _pendingSimulationSteps = 0;
-    _skipNextUpdateDelta = true;
 }
 
 void Runner::requestSimulationStep() {
@@ -226,27 +221,21 @@ bool Runner::simulationClockSuspended() const {
     return _simulationClockSuspended;
 }
 
-void Runner::suspendSimulationClock() {
+void Runner::simulationClockSuspended(bool suspended) {
 
     if (_state != State::Running) {
-        throw logic_error("Runner::suspendSimulationClock() requires a running Runner.");
+        throw logic_error("Runner::simulationClockSuspended() requires a running Runner.");
     }
 
-    _simulationClockSuspended = true;
-}
-
-void Runner::resumeSimulationClock() {
-
-    if (_state != State::Running) {
-        throw logic_error("Runner::resumeSimulationClock() requires a running Runner.");
-    }
-
-    if (!_simulationClockSuspended) {
+    if (_simulationClockSuspended == suspended) {
         return;
     }
 
-    _simulationClockSuspended = false;
-    _skipNextUpdateDelta = true;
+    _simulationClockSuspended = suspended;
+
+    if (!suspended) {
+        _skipNextUpdateDelta = true;
+    }
 }
 
 /// Private Member Functions ///
