@@ -1,13 +1,13 @@
 //
 //  App.h
-//  001-physics-sandbox
+//  janus
 //
 //  Created by Morgan Davis on 8/4/26.
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_DEMO_PHYSICSSANDBOX_APP_H
-#define AVARA3D_DEMO_PHYSICSSANDBOX_APP_H
+#ifndef AVARA3D_DEMO_JANUS_APP_H
+#define AVARA3D_DEMO_JANUS_APP_H
 
 #include <chrono>
 #include <memory>
@@ -27,7 +27,7 @@ namespace a3d {
 
 }
 
-namespace demo::physicssandbox {
+namespace demo::janus {
 
     class App : public a3d::Application {
 
@@ -90,4 +90,4 @@ namespace demo::physicssandbox {
 
 }
 
-#endif // AVARA3D_DEMO_PHYSICSSANDBOX_APP_H
+#endif // AVARA3D_DEMO_JANUS_APP_H

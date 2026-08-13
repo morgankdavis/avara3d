@@ -1,6 +1,6 @@
 //
 //  main.cpp
-//  001-physics-sandbox
+//  janus
 //
 //  Created by Morgan Davis on 8/4/26.
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
@@ -11,5 +11,5 @@
 #include "App.h"
 
 int main(int argc, char* argv[]) {
-    return a3d::Application::Run(std::make_unique<demo::physicssandbox::App>(argc, argv));
+    return a3d::Application::Run(std::make_unique<demo::janus::App>(argc, argv));
 }

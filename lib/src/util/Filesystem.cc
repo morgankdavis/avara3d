@@ -160,6 +160,9 @@ vector<std::filesystem::path> a3d::util::fs::BaseSearchPaths() {
             path = (*execDir).parent_path().parent_path().parent_path() / "lib" / "data";
             basePaths.push_back(path);
 
+            path = (*execDir).parent_path().parent_path().parent_path().parent_path() / "lib" / "data";
+            basePaths.push_back(path);
+
             path =
                 (*execDir).parent_path().parent_path().parent_path().parent_path().parent_path().parent_path()
                 / "tests" / "data";
@@ -182,6 +185,9 @@ vector<std::filesystem::path> a3d::util::fs::BaseSearchPaths() {
             basePaths.push_back(path);
 
             path = (*execDir);
+            basePaths.push_back(path);
+
+            path = (*execDir).parent_path().parent_path().parent_path().parent_path() / "tests" / "sandbox" / (*execName) / "data";
             basePaths.push_back(path);
         }
 

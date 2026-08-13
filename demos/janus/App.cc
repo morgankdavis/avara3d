@@ -1,6 +1,6 @@
 //
 //  App.cc
-//  001-physics-sandbox
+//  janus
 //
 //  Created by Morgan Davis on 8/4/26.
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
@@ -15,7 +15,7 @@
 
 using namespace a3d;
 using namespace a3d::math;
-using namespace demo::physicssandbox;
+using namespace demo::janus;
 using namespace std;
 
 /// Private Constants ///

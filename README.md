@@ -198,7 +198,7 @@ Debug web builds generate an HTML launcher alongside the JavaScript, WebAssembly
 Web debug builds must be served over HTTP rather than opened directly with a `file://` URL. For example:
 
 ```sh
-emrun cmake-build-web-debug/tests/000-sandbox/000-sandbox.html
+emrun cmake-build-web-debug/demos/001-janus/001-janus.html
 ```
 
 ### Automated tests
