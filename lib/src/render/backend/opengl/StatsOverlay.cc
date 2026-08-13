@@ -761,7 +761,7 @@ void ImguiDrawPlot(float        x,
 
         ImDrawList* drawList = GetWindowDrawList();
 
-        const ImVec2 textSize = font->CalcTextSizeA(overlayFontSize, math::f32_max(), 0.0f, overlayText);
+        const ImVec2 textSize = font->CalcTextSizeA(overlayFontSize, math::F32_MAX, 0.0f, overlayText);
 
         const float textX = x + (w - textSize.x) * 0.5f;
         const float textY = y + (h - textSize.y) * 0.5f - 1.0f;
@@ -881,7 +881,7 @@ void ImguiDrawLabelValue(float&                      y,
 
     const auto TextSizeA = [](ImFont& f, float size, const char* text) -> ImVec2 {
         const float wrapWidth = 0.0f;
-        return f.CalcTextSizeA(size, math::f32_max(), wrapWidth, text);
+        return f.CalcTextSizeA(size, math::F32_MAX, wrapWidth, text);
     };
 
     // draw label

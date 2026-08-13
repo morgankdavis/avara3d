@@ -153,7 +153,7 @@ TurntableCameraController::UpdateResult TurntableCameraController::update(Deskto
                                                                           float                vFov,
                                                                           float                viewportHeight) {
 
-    if (!std::isfinite(vFov) || vFov <= 0.0f || vFov >= math::pi()) {
+    if (!std::isfinite(vFov) || vFov <= 0.0f || vFov >= math::PI) {
 
         throw invalid_argument(
             "TurntableCameraController vertical field of view must be finite and between 0 and 180 degrees.");

@@ -131,8 +131,8 @@ AABB MeshElement::worldAABB(const mat4& worldTransform, bool vertfit) const {
         const VertexAttribDesc* posA = VertexAccess::FindAttrib(desc, VertexSemantic::Position);
         A3D_ASSERT(posA && posA->format == VertexAttribFormat::F32x3);
 
-        static const float maxFloat = math::f32_max();
-        static const float minFloat = math::f32_lowest();
+        static const float maxFloat = math::F32_MAX;
+        static const float minFloat = math::F32_LOWEST;
         AABB               out = {{maxFloat, maxFloat, maxFloat}, {minFloat, minFloat, minFloat}};
 
         for (uint32_t i = 0; i < vcount; ++i) {

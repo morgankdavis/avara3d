@@ -60,13 +60,38 @@ namespace a3d::math {
 
     /// Constants ///
 
-    inline constexpr f32 F32_COMP_EPS   = 1e-6f;
+    // floating-point limits
+
     inline constexpr f32 F32_LOWEST     = std::numeric_limits<f32>::lowest();
     inline constexpr f32 F32_MAX        = std::numeric_limits<f32>::max();
     inline constexpr f32 F32_MIN_NORMAL = std::numeric_limits<f32>::min();
+    inline constexpr f32 F32_DENORM_MIN = std::numeric_limits<f32>::denorm_min();
     inline constexpr f32 F32_EPSILON    = std::numeric_limits<f32>::epsilon();
     inline constexpr f32 F32_INFINITY   = std::numeric_limits<f32>::infinity();
     inline constexpr f32 F32_QUIET_NAN  = std::numeric_limits<f32>::quiet_NaN();
+
+    // comparison
+
+    inline constexpr f32 F32_COMPARE_EPSILON = 1e-6f;
+
+    // mathematical constants
+
+    inline constexpr f32 E       = 2.7182818284590452354f;
+    inline constexpr f32 LOG2_E  = 1.4426950408889634074f;
+    inline constexpr f32 LOG10_E = 0.43429448190325182765f;
+    inline constexpr f32 LN_2    = 0.69314718055994530942f;
+    inline constexpr f32 LN_10   = 2.30258509299404568402f;
+
+    inline constexpr f32 PI               = 3.14159265358979323846f;
+    inline constexpr f32 TWO_PI           = 6.2831853071795864769f;
+    inline constexpr f32 PI_OVER_2        = 1.57079632679489661923f;
+    inline constexpr f32 PI_OVER_4        = 0.78539816339744830962f;
+    inline constexpr f32 ONE_OVER_PI      = 0.31830988618379067154f;
+    inline constexpr f32 TWO_OVER_PI      = 0.63661977236758134308f;
+    inline constexpr f32 TWO_OVER_SQRT_PI = 1.12837916709551257390f;
+
+    inline constexpr f32 SQRT_2          = 1.41421356237309504880f;
+    inline constexpr f32 ONE_OVER_SQRT_2 = 0.70710678118654752440f;
 
     /// 32-bit Float Vector ///
 
@@ -368,7 +393,7 @@ namespace a3d::math {
         u32 x, y, z;
         u32vec3();
         u32vec3(u32 x_, u32 y_, u32 z_);
-        u32vec3(const u32vec2& c, u32 z_);
+        u32vec3(const u32vec2& v, u32 z_);
         explicit u32vec3(u32 n);
         explicit u32vec3(const u32vec2& v);
         explicit u32vec3(const u32vec4& v);
@@ -513,7 +538,7 @@ namespace a3d::math {
 
         u8vec4();
         u8vec4(u8 x_, u8 y_, u8 z_, u8 w_);
-        u8vec4(const u8vec3& z, u8 w_);
+        u8vec4(const u8vec3& v, u8 w_);
         explicit u8vec4(u8 n);
         explicit u8vec4(const u8vec2& v);
         explicit u8vec4(const u8vec3& v);
@@ -723,7 +748,7 @@ namespace a3d::math {
     f32quat     quaternion(const f32vec3& axis, f32 angle);
     f32vec4     axis_angle(const f32quat& q);
 
-    f32quat     quaternion(const f32vec3& eulerAngles); // pitch/yaw/roll to quaternion, y–x–z order
+    f32quat     quaternion(const f32vec3& euler_angles); // pitch/yaw/roll to quaternion, y–x–z order
     f32vec3     euler_angles(const f32quat& q); // pitch/yaw/roll to quaternion, y–x–z order
 
     f32quat     slerp(const f32quat& a, const f32quat& b, f32 t);
@@ -740,8 +765,8 @@ namespace a3d::math {
 
     /// Projection & Camera ///
 
-    f32mat4     perspective(f32 fovy, f32 aspect, f32 zNear, f32 zFar); // rh
-    f32mat4     ortho(f32 left, f32 right, f32 bottom, f32 top, f32 zNear, f32 zFar); // rh
+    f32mat4     perspective(f32 fovy, f32 aspect, f32 z_near, f32 z_far); // rh
+    f32mat4     ortho(f32 left, f32 right, f32 bottom, f32 top, f32 z_near, f32 z_far); // rh
     f32mat4     look_at(const f32vec3& eye, const f32vec3& center, const f32vec3& up); // rh
 
     /// Matrix Decomposition ///
@@ -805,8 +830,8 @@ namespace a3d::math {
     f32         inverse_lerp(f32 a, f32 b, f32 v);       // unclamped
     f32         inverse_lerp_01(f32 a, f32 b, f32 v);    // clamps result to [0,1]
 
-    f32         remap(f32 inA, f32 inB, f32 outA, f32 outB, f32 v);       // unclamped
-    f32         remap_01(f32 inA, f32 inB, f32 outA, f32 outB, f32 v);    // clamps normalized t to [0,1]
+    f32         remap(f32 inA, f32 inB, f32 out_a, f32 out_b, f32 v);       // unclamped
+    f32         remap_01(f32 inA, f32 inB, f32 out_a, f32 out_b, f32 v);    // clamps normalized t to [0,1]
 
     f32         step(f32 edge, f32 x);               // x < edge ? 0 : 1
 
@@ -920,7 +945,7 @@ namespace a3d::math {
 
     /// Scalar Comparison ///
 
-    bool        equal(f32 a, f32 b, f32 eps = F32_COMP_EPS);
+    bool        equal(f32 a, f32 b, f32 eps = F32_COMPARE_EPSILON);
 
     /// Scalar Rounding ///
 
@@ -984,72 +1009,6 @@ namespace a3d::math {
         for (std::size_t i = 0; i < N; ++i) {
             std::swap(a[i], b[i]);
         }
-    }
-
-    /// Constants ///
-
-    constexpr f32 e() {
-        return f32(2.7182818284590452354);
-    } // e
-
-    constexpr f32 log2e() {
-        return f32(1.4426950408889634074);
-    } // log_2 e
-
-    constexpr f32 log10e() {
-        return f32(0.43429448190325182765);
-    } // log_10 e
-
-    constexpr f32 nl2() {
-        return f32(0.69314718055994530942);
-    } // log_e 2
-
-    constexpr f32 nl10() {
-        return f32(2.30258509299404568402);
-    } // log_e 10
-
-    constexpr f32 pi() {
-        return f32(3.14159265358979323846);
-    } // pi
-
-    constexpr f32 two_pi() {
-        return f32(6.2831853071795864769);
-    } // pi*2
-
-    constexpr f32 pi_over_2() {
-        return f32(1.57079632679489661923);
-    } // pi/2
-
-    constexpr f32 pi_over_4() {
-        return f32(0.78539816339744830962);
-    } // pi/4
-
-    constexpr f32 one_over_pi() {
-        return f32(0.31830988618379067154);
-    } // 1/pi
-
-    constexpr f32 two_over_pi() {
-        return f32(0.63661977236758134308);
-    } // 2/pi
-
-    constexpr f32 two_over_sqrt_pi() {
-        return f32(1.12837916709551257390);
-    } // 2/sqrt(pi)
-
-    constexpr f32 sqrt2() {
-        return f32(1.41421356237309504880);
-    } // sqrt(2)
-
-    constexpr f32 one_over_sqrt2() {
-        return f32(0.70710678118654752440);
-    } // 1/sqrt(2)
-
-    constexpr f32 f32_lowest() {
-        return f32(std::numeric_limits<float>::lowest());
-    }
-
-    constexpr f32 f32_max() {
-        return f32(std::numeric_limits<float>::max());
     }
 
 }

@@ -833,8 +833,8 @@ void ShootSlurm(Node& parent, const vec3& location, const vec3& direction) {
 
     // add random factor
 
-    node->eulerAngles({uniform_linear(0.0f, two_pi()), uniform_linear(0.0f, two_pi()),
-                       uniform_linear(0.0f, two_pi())});
+    node->eulerAngles({uniform_linear(0.0f, TWO_PI), uniform_linear(0.0f, TWO_PI),
+                       uniform_linear(0.0f, TWO_PI)});
 
     static const float ANGULAR_VARIANCE = radians(260.0); // deg/sec
     physicsBody->angularVelocity({uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
