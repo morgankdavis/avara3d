@@ -1,5 +1,7 @@
 #header
 
+#include "environment.glsl"
+
 #define GAMMA		2.2
 
 in vec3 frag_texCoord;

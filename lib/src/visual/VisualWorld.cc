@@ -40,8 +40,9 @@ using namespace std;
 VisualWorld::VisualWorld(RenderContext& context):
     _background {},
     _backgroundMaterial {},
-    _atmosphericHaze {},
+
     _fog {},
+    _atmosphericHaze {},
     _infiniteGround {},
     _defaultLightingEnabled {false},
     _pointOfView {},
@@ -125,30 +126,6 @@ void VisualWorld::background(const optional<Background>& background) {
     _backgroundMaterial = std::move(backgroundMaterial);
 }
 
-const optional<AtmosphericHaze>& VisualWorld::atmosphericHaze() const {
-
-    return _atmosphericHaze;
-}
-
-void VisualWorld::atmosphericHaze(const optional<AtmosphericHaze>& haze) {
-
-    if (haze) {
-        if (!haze->color) {
-            throw invalid_argument("AtmosphericHaze color cannot be null.");
-        }
-        if (!isfinite(haze->baseHeight)) {
-            throw invalid_argument("AtmosphericHaze base height must be finite.");
-        }
-        if (!isfinite(haze->density) || haze->density < 0.0f) {
-            throw invalid_argument("AtmosphericHaze density must be finite and non-negative.");
-        }
-        if (!isfinite(haze->heightFalloff) || haze->heightFalloff <= 0.0f) {
-            throw invalid_argument("AtmosphericHaze height falloff must be finite and greater than zero.");
-        }
-    }
-    _atmosphericHaze = haze;
-}
-
 const optional<Fog>& VisualWorld::fog() const {
     return _fog;
 }
@@ -170,6 +147,29 @@ void VisualWorld::fog(const optional<Fog>& fog) {
         }
     }
     _fog = fog;
+}
+
+const optional<AtmosphericHaze>& VisualWorld::atmosphericHaze() const {
+    return _atmosphericHaze;
+}
+
+void VisualWorld::atmosphericHaze(const optional<AtmosphericHaze>& haze) {
+
+    if (haze) {
+        if (!haze->color) {
+            throw invalid_argument("AtmosphericHaze color cannot be null.");
+        }
+        if (!isfinite(haze->baseHeight)) {
+            throw invalid_argument("AtmosphericHaze base height must be finite.");
+        }
+        if (!isfinite(haze->density) || haze->density < 0.0f) {
+            throw invalid_argument("AtmosphericHaze density must be finite and non-negative.");
+        }
+        if (!isfinite(haze->heightFalloff) || haze->heightFalloff <= 0.0f) {
+            throw invalid_argument("AtmosphericHaze height falloff must be finite and greater than zero.");
+        }
+    }
+    _atmosphericHaze = haze;
 }
 
 optional<InfiniteGround>& VisualWorld::infiniteGround() {

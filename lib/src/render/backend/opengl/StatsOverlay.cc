@@ -406,7 +406,7 @@ void DrawStats(FrameStats&              stats,
     ImguiDrawLabelValue(yPos, layout, "sim time", std::format("{:.2f}s", stats.simulationTime), bodyFont,
                         STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
 
-    ImguiDrawLabelValue(yPos, layout, "time step", std::format("{:.0f}Hz", 1.0 / stats.simulationTimeStep),
+    ImguiDrawLabelValue(yPos, layout, "time step", std::format("1/{:.0f}s", 1.0 / stats.simulationTimeStep),
                         bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP + PLOT_STR_Y_PAD);
 
     ImguiDrawLabelValue(yPos, layout, "engine cpu", std::format("{:.1f}ms", engineCpuMsFAvg), bodyFont,

@@ -59,6 +59,14 @@ struct Fog {
     uint enabled;
 };
 
+struct AtmosphericHaze {
+    vec4 color;
+    float baseHeight;
+    float density;
+    float heightFalloff;
+    uint enabled;
+};
+
 layout(std140) uniform EnvironmentBlock {
 
     uint defaultLightingEnabled;
@@ -91,6 +99,11 @@ layout(std140) uniform EnvironmentBlock {
     SpotLight spotLights[MAX_SPOT_LIGHTS];
 
     Fog fog;
+
+    vec3 cameraPosition_world;
+    float _pad5_0;
+
+    AtmosphericHaze atmosphericHaze;
 
 } Environment;
 

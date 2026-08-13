@@ -140,6 +140,9 @@ std::unique_ptr<Scene> App::init() {
         groundNode->orientation(math::quaternion({1.0f, 0.0f, 0.0f}, radians(-90.0f)));
         auto groundShape = make_shared<InfinitePlanePhysicsShape>();
         auto groundBody = make_unique<PhysicsBody>(PhysicsBody::Type::Static, groundShape);
+        log::app::i()("groundBody friction: {}", groundBody->friction());
+        // groundBody->friction(0.8f);
+        // groundBody->rollingFriction(0.0f);
         groundNode->physicsBody(std::move(groundBody));
         scene->rootNode()->addChild(groundNode);
 
@@ -390,8 +393,8 @@ void App::frameDidBegin(Runner&                        runner,
     //     runner.timeScale(timeStep);
     // }
 
-    int stepRate = static_cast<int>(std::lround(1.0 / runner.timeStep()));
-    if (panel.slider("time step", stepRate, 30, 512, "1/%ds")) {
+    int stepRate = static_cast<int>(math::round(1.0 / runner.timeStep()));
+    if (panel.slider("time step", stepRate, 30, 480, "1/%ds")) {
         runner.timeStep(1.0 / stepRate);
     }
 
@@ -925,11 +928,11 @@ vector<shared_ptr<Node>> AddBoxStack(Node&             parent,
 
                 auto physicsBody = PhysicsBody::DynamicBody();
                 physicsBody->mass(1.0f);
-                physicsBody->restitution(0.1f);
-                physicsBody->friction(0.25f);
+                physicsBody->restitution(0.05f);
+                physicsBody->friction(0.8f);
                 physicsBody->shape(physicsShape);
 
-                const float angularVariance = radians(90.0f);
+                const float angularVariance = radians(30.0f);
                 physicsBody->angularVelocity({
                     uniform_linear(-angularVariance, angularVariance),
                     uniform_linear(-angularVariance, angularVariance),

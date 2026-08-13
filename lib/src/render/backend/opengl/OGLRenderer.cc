@@ -139,6 +139,16 @@ struct FogGLSLStruct {
 
 static_assert(sizeof(FogGLSLStruct) == 32);
 
+struct AtmosphericHazeGLSLStruct {
+    vec4     color;
+    f32      baseHeight;
+    f32      density;
+    f32      heightFalloff;
+    uint32_t enabled;
+};
+
+static_assert(sizeof(AtmosphericHazeGLSLStruct) == 32);
+
 struct EnvironmentBlock {
     uint32_t                   defaultLightingEnabled;
     uint32_t                   _pad0_[3];
@@ -155,11 +165,18 @@ struct EnvironmentBlock {
     uint32_t                   _pad4_[3];
     SpotLightGLSLStruct        spotLights[MAX_SPOT_LIGHTS];
     FogGLSLStruct              fog;
+    vec3                       cameraPosition_world;
+    f32                        _pad5_0_;
+    AtmosphericHazeGLSLStruct  atmosphericHaze;
 };
 
 static_assert(offsetof(EnvironmentBlock, defaultLightingEnabled) == 0);
 static_assert(offsetof(EnvironmentBlock, numAmbientLights) == 16);
 static_assert(offsetof(EnvironmentBlock, ambientLights) == 32);
+static_assert(offsetof(EnvironmentBlock, fog) == 12112);
+static_assert(offsetof(EnvironmentBlock, cameraPosition_world) == 12144);
+static_assert(offsetof(EnvironmentBlock, atmosphericHaze) == 12160);
+static_assert(sizeof(EnvironmentBlock) == 12192);
 
 struct FBORestore {
     GLint drawFbo = 0, readFbo = 0;
@@ -339,6 +356,7 @@ bool OGLRenderer::initialize(const RenderContext& context) {
         }
         glUniformBlockBinding(program, idx, ENV_BINDING_POINT);
     };
+    bindBlock(_skyboxProgram->glID(), "EnvironmentBlock");
     bindBlock(_defaultProgram->glID(), "EnvironmentBlock");
     bindBlock(_groundProgram->glID(), "EnvironmentBlock");
     if (_wireframeProgram) {
@@ -346,7 +364,7 @@ bool OGLRenderer::initialize(const RenderContext& context) {
     }
 
     _drawTimer.initialize();
-    _glCapabilities.drawTimer = _drawTimer.isAvailable(); // ! TEMPORARY !
+    _glCapabilities.drawTimer = _drawTimer.isAvailable(); // ! TEMPORARY ! ?
 
     _imguiContext.startup(context);
     _statsOverlay.initialize(_imguiContext);
@@ -1198,6 +1216,10 @@ void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
 
     EnvironmentBlock environmentStruct {};
 
+    if (auto pov = scene.visualWorld()->pointOfView().lock()) {
+        environmentStruct.cameraPosition_world = pov->worldPosition();
+    }
+
     // lights
 
     auto numLights = lightNodes.size();
@@ -1312,6 +1334,20 @@ void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
     }
 
     memcpy(&environmentStruct.fog, &fogStruct, sizeof(fogStruct));
+
+    // atmospheric haze
+
+    AtmosphericHazeGLSLStruct hazeStruct {};
+
+    if (const auto& haze = scene.visualWorld()->atmosphericHaze()) {
+        hazeStruct.color = haze->color->rgba();
+        hazeStruct.baseHeight = haze->baseHeight;
+        hazeStruct.density = haze->density;
+        hazeStruct.heightFalloff = haze->heightFalloff;
+        hazeStruct.enabled = 1u;
+    }
+
+    memcpy(&environmentStruct.atmosphericHaze, &hazeStruct, sizeof(hazeStruct));
 
     // send 'em
 
