@@ -456,7 +456,7 @@ bool VisualWorld::draw(const Scene&             scene,
 
             auto gatherItems = RenderGatherer::Gather(scene, view, physicsWorld, debugOptions, stats);
 
-            renderer->postTraversal(scene, *_renderContext, gatherItems.lightNodes, debugOptions, stats);
+            renderer->postTraversal(scene, *_renderContext, view, gatherItems.lightNodes, debugOptions, stats);
 
             auto packet = DrawPacketizer::Packetize(gatherItems);
 

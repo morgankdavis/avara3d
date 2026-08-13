@@ -695,6 +695,8 @@ namespace a3d::math {
     f32mat3     inverse(const f32mat3& m);
     f32mat4     inverse(const f32mat4& m);
 
+    f32vec3     translation(const f32mat4& m);
+
     f32mat4     translate(const f32mat4& m, const f32vec3& v);
     f32mat4     rotate(const f32mat4& m, f32 angle, const f32vec3& v);
     f32mat4     scale(const f32mat4& m, const f32vec3& v);

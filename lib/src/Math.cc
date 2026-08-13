@@ -2081,6 +2081,10 @@ namespace a3d::math {
         return r;
     }
 
+    f32vec3 translation(const f32mat4& m) {
+        return f32vec3(m.c3);
+    }
+
     f32mat4 translate(const f32mat4& m, const f32vec3& v) {
         f32mat4 result(m);
         result[3] = m[0] * v[0] + m[1] * v[1] + m[2] * v[2] + m[3];

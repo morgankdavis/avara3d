@@ -165,7 +165,7 @@ struct EnvironmentBlock {
     uint32_t                   _pad4_[3];
     SpotLightGLSLStruct        spotLights[MAX_SPOT_LIGHTS];
     FogGLSLStruct              fog;
-    vec3                       cameraPosition_world;
+    vec3                       viewPosition_world; // TODO: move this out to a new ViewBlock
     f32                        _pad5_0_;
     AtmosphericHazeGLSLStruct  atmosphericHaze;
 };
@@ -174,7 +174,7 @@ static_assert(offsetof(EnvironmentBlock, defaultLightingEnabled) == 0);
 static_assert(offsetof(EnvironmentBlock, numAmbientLights) == 16);
 static_assert(offsetof(EnvironmentBlock, ambientLights) == 32);
 static_assert(offsetof(EnvironmentBlock, fog) == 12112);
-static_assert(offsetof(EnvironmentBlock, cameraPosition_world) == 12144);
+static_assert(offsetof(EnvironmentBlock, viewPosition_world) == 12144);
 static_assert(offsetof(EnvironmentBlock, atmosphericHaze) == 12160);
 static_assert(sizeof(EnvironmentBlock) == 12192);
 
@@ -217,6 +217,7 @@ static void SendDrawUniforms(const DrawItem& item, GLSLProgram& program);
 
 static void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
                                     const Scene&         scene,
+                                    const math::mat4&    view,
                                     const vector<Node*>& lightNodes,
                                     FrameStats&          stats);
 
@@ -445,10 +446,11 @@ void OGLRenderer::preTraversal(const Scene&               scene,
 
 void OGLRenderer::postTraversal(const Scene&               scene,
                                 const RenderContext&       context,
+                                const math::mat4&          view,
                                 const vector<Node*>&       lightNodes,
                                 const Scene::DebugOptions& debugOptions,
                                 FrameStats&                stats) {
-    SendEnvironmentUniforms(_glEnvironmentUBO, scene, lightNodes, stats);
+    SendEnvironmentUniforms(_glEnvironmentUBO, scene, view, lightNodes, stats);
 }
 
 void OGLRenderer::clear(const ClearCommand& cmd, const RenderContext& context) {
@@ -1210,15 +1212,14 @@ static void SendDrawUniforms(const DrawItem& item, GLSLProgram& program) {
 
 void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
                              const Scene&         scene,
+                             const mat4&    view,
                              const vector<Node*>& lightNodes,
                              FrameStats&          stats) {
     // block
 
     EnvironmentBlock environmentStruct {};
 
-    if (auto pov = scene.visualWorld()->pointOfView().lock()) {
-        environmentStruct.cameraPosition_world = pov->worldPosition();
-    }
+    environmentStruct.viewPosition_world = translation(inverse(view));
 
     // lights
 

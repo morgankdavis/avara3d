@@ -100,7 +100,7 @@ layout(std140) uniform EnvironmentBlock {
 
     Fog fog;
 
-    vec3 cameraPosition_world;
+    vec3 viewPosition_world;
     float _pad5_0;
 
     AtmosphericHaze atmosphericHaze;

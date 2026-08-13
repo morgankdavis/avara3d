@@ -84,6 +84,15 @@ std::unique_ptr<Scene> App::init() {
         visualWorld->background(Background {
             make_shared<Texture>(std::move(util::fs::CubeImageNamed("nebula", "png")))});
 
+        visualWorld->fog(Fog {.color = Color::Black(), .startDistance = 30.0f, .endDistance = 150.0f});
+
+        visualWorld->atmosphericHaze(AtmosphericHaze {
+            .color = make_shared<Color>(vec4 {0.35f, 0.4f, 0.45f, 1.0f}),
+            .baseHeight = 0.0f,
+            .density = 0.08f,
+            .heightFalloff = 0.25f,
+        });
+
         visualWorld->infiniteGround(InfiniteGround {
             .color = Color::DarkGray(),
             .height = 0.0f,
@@ -121,8 +130,6 @@ std::unique_ptr<Scene> App::init() {
             .specularIntensity = 0.05f,
             .specularExponent = 8.0f,
         });
-
-        visualWorld->fog(Fog {.color = Color::Black(), .startDistance = 30.0f, .endDistance = 150.0f});
 
         // create the physics world
 

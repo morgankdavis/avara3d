@@ -1,6 +1,7 @@
 #header
 
 #include "environment.glsl"
+#include "atmospheric_haze.glsl"
 
 #define GAMMA		2.2
 

@@ -1,6 +1,7 @@
 #header
 
 #include "environment.glsl"
+#include "atmospheric_haze.glsl"
 #include "lighting.glsl"
 
 const float GAMMA =										2.2;
@@ -35,9 +36,10 @@ struct Colors {
     vec3 emission;
 };
 
-in 			vec3 		frag_vertPos_eye;
-in 			vec3 		frag_vertNorm_eye;
-in 			vec2 		frag_texCoord;
+in vec3 frag_vertPos_world;
+in vec3 frag_vertPos_eye;
+in vec3 frag_vertNorm_eye;
+in vec2 frag_texCoord;
 
 uniform 	mat4 		viewMat;
 uniform 	uint 		ambientContentsType;
@@ -138,6 +140,12 @@ void main () {
             tint.rgb,
             clamp(tint.a, 0.0, 1.0)
     );
+
+    // atmospheric haze
+
+    fragColor.rgb = ApplyAtmosphericHaze(
+            fragColor.rgb,
+            frag_vertPos_world);
 
     // gamma
 

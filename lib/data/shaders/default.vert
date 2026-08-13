@@ -18,7 +18,9 @@ out vec2 frag_texCoord;
 
 void main() {
 
-    frag_vertPos_eye = vec3(viewMat * modelMat * vec4(vert_vertPos, 1.0));
+    vec4 vertPosWorld =  modelMat * vec4(vert_vertPos, 1.0);
+    frag_vertPos_world = vertPosWorld.xyz;
+    frag_vertPos_eye = vec3(viewMat * vertPosWorld);
     frag_vertNorm_eye = normalize(vec3(viewMat * modelMat * vec4(vert_vertNorm, 0.0)));
     frag_texCoord = vert_texCoord;
     gl_Position = projMat * vec4(frag_vertPos_eye, 1.0);

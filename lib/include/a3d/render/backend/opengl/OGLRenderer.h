@@ -90,6 +90,7 @@ namespace a3d {
                                             FrameStats&                stats) override;
         void                   postTraversal(const Scene&               scene,
                                              const RenderContext&       context,
+                                             const math::mat4&          view,
                                              const std::vector<Node*>&  lightNodes,
                                              const Scene::DebugOptions& debugOptions,
                                              FrameStats&                stats) override;

@@ -1,6 +1,7 @@
 #header
 
 #include "environment.glsl"
+#include "atmospheric_haze.glsl"
 #include "lighting.glsl"
 
 in vec2 fragNdc;
