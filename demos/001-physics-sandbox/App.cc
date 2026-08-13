@@ -204,6 +204,8 @@ std::unique_ptr<Scene> App::init() {
         cameraConfig.controls.primaryButton = DesktopInputContext::MouseButton::Two;
         //cameraConfig.minPitch = math::radians(0.0f);
         cameraConfig.invertPitch = true;
+        cameraConfig.minDistance = 1.0f;
+        cameraConfig.maxDistance = 100.0f;
         _cameraController.config(cameraConfig);
 
         _cameraController.view({
@@ -222,10 +224,6 @@ std::unique_ptr<Scene> App::init() {
 
         _window->center();
         _window->open();
-
-        // ! TEMPORARY !
-        log::app::i()("Wireframe rendering supported: {}",
-                      scene->visualWorld()->capabilities().wireframeRendering);
 
         return scene;
     }
