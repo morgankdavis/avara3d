@@ -41,10 +41,10 @@ namespace demo::janus {
             a3d::math::vec3          worldHitNormal;
         };
 
-        struct ImpactInfo {
-            std::string nodes;
-            float       impulse {0.0f};
-            float       penetration {0.0f};
+        enum class Action {
+            Drop,
+            Throw,
+            Poke
         };
 
         /// Public Lifecycle Functions ///
@@ -74,33 +74,20 @@ namespace demo::janus {
                            a3d::VisualWorld&                   visualWorld,
                            const a3d::VisualWorld::RenderInfo& info) override;
 
-        // void contactDidBegin(a3d::Runner&               runner,
-        //                      a3d::Scene&                scene,
-        //                      a3d::PhysicsWorld&         physicsWorld,
-        //                      const a3d::PhysicsContact& contact) override;
-        // void contactDidContinue(a3d::Runner&               runner,
-        //                         a3d::Scene&                scene,
-        //                         a3d::PhysicsWorld&         physicsWorld,
-        //                         const a3d::PhysicsContact& contact) override;
-        // void contactDidEnd(a3d::Runner&               runner,
-        //                    a3d::Scene&                scene,
-        //                    a3d::PhysicsWorld&         physicsWorld,
-        //                    const a3d::PhysicsContact& contact) override;
-
     private:
         /// Private Types ///
 
-        enum class Action {
-            Impulse,
-            Shoot,
-            Drop
-        };
+        // enum class Action {
+        //     Drop,
+        //     Throw,
+        //     Poke
+        // };
 
         /// Private Member Functions ///
 
         void select(std::optional<PickResult> selection);
-        void useAction(a3d::Scene& scene, const a3d::math::vec2& screenPosition);
-        void resetSimulation();
+        void action(a3d::Scene& scene, const a3d::math::vec2& screenPosition);
+        void reset();
 
         /// Private Member Variables ///
 
@@ -115,9 +102,7 @@ namespace demo::janus {
         a3d::ext::TransientNodeRegistry                _transients;
         double                                         _backgroundRotationTime;
         std::vector<std::unique_ptr<a3d::ext::Wander>> _orbWanders;
-        // std::optional<ImpactInfo>                      _lastImpact;
-        // float                                          _peakImpactImpulse;
-        bool _resetRequested;
+        bool                                           _pendingReset;
     };
 
 }

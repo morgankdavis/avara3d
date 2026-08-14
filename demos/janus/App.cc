@@ -46,7 +46,12 @@ const float                       DROP_PADDING {0.025f};
 
 /// Private Static Non-Member Prototypes ///
 
-static shared_ptr<Node>          MakeSimulationRoot();
+static shared_ptr<Node> MakeSimulationRoot();
+// static void                      DrawPanel(Runner& runner);
+void                             DrawPanel(Runner&                               runner,
+                                           const std::optional<App::PickResult>& selection,
+                                           App::Action&                          action,
+                                           bool&                                 reset);
 static optional<App::PickResult> Pick(VisualWorld&               visualWorld,
                                       const vec2&                screenPosition,
                                       const vector<const Node*>& ignoredNodes = {});
@@ -76,13 +81,13 @@ App::App(int argc, char* argv[]):
     _selection {},
     _cursorMarker {nullptr},
     _actionTarget {},
-    _action {Action::Impulse},
+    _action {Action::Poke},
     _transients {ext::TransientNodeRegistry::SweepPolicy::EveryInterval(1.0)},
     _backgroundRotationTime {0.0},
     _orbWanders {},
     // _lastImpact {},
     // _peakImpactImpulse {0.0},
-    _resetRequested {false} {}
+    _pendingReset {false} {}
 
 App::~App() = default;
 
@@ -345,10 +350,10 @@ bool App::shouldContinue(const Scene& scene) {
 
 void App::hostUpdate(Runner& runner, Scene&, const Runner::UpdateInfo&) {
 
-    if (_resetRequested) {
-        _resetRequested = false;
+    if (_pendingReset) {
+        _pendingReset = false;
 
-        resetSimulation();
+        reset();
 
         if (runner.simulationPaused()) {
             runner.simulationPaused(false);
@@ -364,29 +369,28 @@ void App::inputDidUpdate(Runner&       runner,
     auto& input = static_cast<DesktopInputContext&>(inputContext);
 
     using Key = DesktopInputContext::Key;
-    using MouseButton = DesktopInputContext::MouseButton;
+    // using MouseButton = DesktopInputContext::MouseButton;
 
+    // ! TEMPORARY !
     if (input.keyPressed(Key::Escape)) {
         _window->close();
     }
 
-    if (!_cameraNode) {
-        //_window->cursorHidden(false);
-        _window->cursorCaptured(false);
-        return;
-    }
+    // if (!_cameraNode) {
+    //     _window->cursorCaptured(false);
+    //     return;
+    // }
 
     const auto camera = static_pointer_cast<PerspectiveCamera>(_cameraNode->camera());
     const auto viewportSize = _window->viewportLogicalSize();
     const auto result = _cameraController.update(input, camera->yFov(), static_cast<float>(viewportSize.y));
 
-    //_window->cursorHidden(result.pointerDragging);
     _window->cursorCaptured(result.pointerDragging);
 
     if (result.primaryClick) {
 
         if (input.keyDown(Key::LeftControl)) {
-            useAction(scene, result.primaryClick->position);
+            action(scene, result.primaryClick->position);
         }
         else {
             select(Pick(*scene.visualWorld(), result.primaryClick->position, {_cursorMarker.get()}));
@@ -394,24 +398,8 @@ void App::inputDidUpdate(Runner&       runner,
     }
 
     if (result.panButtonClick) {
-        useAction(scene, result.panButtonClick->position);
+        action(scene, result.panButtonClick->position);
     }
-
-    // if (result.panButtonClick) {
-    //
-    //     const auto target = FindActionTarget(scene, result.panButtonClick->position);
-    //
-    //     if (target) {
-    //         if (auto node = target->node.lock()) {
-    //             log::app::d()("Action target: {} at {}",
-    //                           node->name().value_or("(unnamed)"),
-    //                           FormatVec3(target->worldHitPosition));
-    //         }
-    //     }
-    //     else {
-    //         log::app::d()("Action target: none");
-    //     }
-    // }
 }
 
 void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
@@ -419,58 +407,6 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
     for (auto& wander : _orbWanders) {
         wander->update(info.deltaTime);
     }
-
-    // auto& input = static_cast<DesktopInputContext&>(*scene.inputContext());
-
-    // if (_bananaNode) {
-    //     // rotate the banana at 30 degrees per second
-    //     const float rotation = static_cast<float>(info.deltaTime) * radians(-30.0f);
-    //     const auto rotationY = math::quaternion({0.0f, 1.0f, 0.0f}, rotation);
-    //     _bananaNode->orientation(rotationY * _bananaNode->orientation());
-    // }
-
-    // using Key = DesktopInputContext::Key;
-    // using MouseButton = DesktopInputContext::MouseButton;
-
-    // if (input.mouseButtonPressed(MouseButton::One)) {
-    //
-    //     const auto mouse = input.mousePosition();
-    //     const auto from = scene.visualWorld()->unprojectPoint({mouse.x, mouse.y, 0.0f});
-    //     const auto to = scene.visualWorld()->unprojectPoint({mouse.x, mouse.y, 1.0f});
-    //
-    //     const auto hits = scene.physicsWorld()->rayTest(from, to);
-    //
-    //     if (!hits.empty()) {
-    //
-    //         const auto& hit = hits.front();
-    //
-    //         if (auto node = hit.node()) {
-    //             if (auto body = node->physicsBody(); body && body->type() == PhysicsBody::Type::Dynamic) {
-    //
-    //                 const vec3  direction = normalize(to - from);
-    //                 const float impulse = 5.0f;
-    //
-    //                 body->applyForce(direction * impulse, hit.worldCoordinates(), true);
-    //             }
-    //         }
-    //     }
-    // }
-
-    // shoot slurm
-
-    // const auto visualWorld = scene.visualWorld();
-    // if (auto pov = visualWorld->pointOfView().lock(); input.mouseButtonPressed(MouseButton::One)) {
-    //     log::app::d()("SHoot slurm");
-    //     ShootSlurm(*_simulationRoot, pov->worldPosition(), pov->worldForward());
-    // }
-
-    // drop boxes
-
-    // if (input.keyPressed(Key::GraveAccent)) {
-    //     _transients.track(AddBoxStack(*_simulationRoot, {0.0f, 10.0f, 0.0f}, {0.25f, 0.25f, 0.25f}, {3, 3, 3},
-    //                                   0.025f, Color::White()),
-    //                       "box");
-    // }
 }
 
 void App::sceneDidStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
@@ -482,13 +418,6 @@ void App::frameDidBegin(Runner&                        runner,
                         Scene&                         scene,
                         VisualWorld&                   visualWorld,
                         const VisualWorld::RenderInfo& info) {
-
-    const float frameDelta = static_cast<float>(info.updateDeltaTime);
-
-    // const float angle = radians(180.0f) + static_cast<float>(info.simulationTime) * BACKGROUND_ROTATION_SPEED;
-    // if (auto& background = visualWorld.background()) {
-    //     background->orientation(quaternion(BACKGROUND_ROTATION_AXIS, angle));
-    // }
 
     if (!runner.simulationPaused()) {
         _backgroundRotationTime += info.updateDeltaTime * runner.timeScale();
@@ -510,6 +439,7 @@ void App::frameDidBegin(Runner&                        runner,
         if (_window->cursorCaptured()) {
             _actionTarget.reset();
             _cursorMarker->hidden(true);
+            //_window->cursorHidden(false);
         }
         else {
 
@@ -520,12 +450,297 @@ void App::frameDidBegin(Runner&                        runner,
             if (_actionTarget) {
                 _cursorMarker->position(_actionTarget->worldHitPosition);
                 _cursorMarker->hidden(false);
+                //_window->cursorHidden(true);
             }
             else {
                 _cursorMarker->hidden(true);
+                //_window->cursorHidden(false);
             }
         }
     }
+
+    bool reset = false;
+    DrawPanel(runner, _selection, _action, reset);
+    if (reset) {
+        _pendingReset = true;
+    }
+}
+
+/// Private Member Functions ///
+
+void App::select(optional<PickResult> selection) {
+
+    using DebugOptions = Node::DebugOptions;
+
+    if (_selection) {
+        if (auto node = _selection->node.lock()) {
+            node->debugOptions(util::bitmask::remove(node->debugOptions(), DebugOptions::ShowHighlightBox));
+            node->debugOptions(util::bitmask::remove(node->debugOptions(), DebugOptions::ShowHighlightTint));
+        }
+    }
+
+    _selection = std::move(selection);
+
+    if (_selection) {
+        if (auto node = _selection->node.lock()) {
+            node->debugOptions(util::bitmask::add(node->debugOptions(), DebugOptions::ShowHighlightBox));
+            node->debugOptions(util::bitmask::add(node->debugOptions(), DebugOptions::ShowHighlightTint));
+        }
+        else {
+            _selection.reset();
+        }
+    }
+}
+
+void App::action(Scene& scene, const vec2& screenPosition) {
+
+    _actionTarget = FindActionTarget(scene, screenPosition, {_cursorMarker.get()});
+
+    if (!_actionTarget) {
+        if (_cursorMarker) {
+            _cursorMarker->hidden(true);
+        }
+        return;
+    }
+
+    if (_cursorMarker) {
+        _cursorMarker->position(_actionTarget->worldHitPosition);
+        _cursorMarker->hidden(false);
+    }
+
+    auto node = _actionTarget->node.lock();
+
+    if (!node) {
+        return;
+    }
+
+    switch (_action) {
+
+        case Action::Poke: {
+
+            auto body = node->physicsBody();
+
+            if (!body || body->type() != PhysicsBody::Type::Dynamic) {
+                return;
+            }
+
+            auto visualWorld = scene.visualWorld();
+
+            if (!visualWorld) {
+                return;
+            }
+
+            const vec3 from = visualWorld->unprojectPoint({
+                screenPosition.x,
+                screenPosition.y,
+                0.0f,
+            });
+
+            const vec3 to = visualWorld->unprojectPoint({
+                screenPosition.x,
+                screenPosition.y,
+                1.0f,
+            });
+
+            const vec3 direction = normalize(to - from);
+
+            constexpr float IMPULSE = 5.0f;
+
+            body->applyForce(direction * IMPULSE, _actionTarget->worldHitPosition, true);
+
+            break;
+        }
+
+        case Action::Throw: {
+
+            if (!_cameraNode) {
+                return;
+            }
+
+            auto physicsWorld = scene.physicsWorld();
+
+            if (!physicsWorld) {
+                return;
+            }
+
+            const vec3 cameraPosition = _cameraNode->worldPosition();
+            const vec3 targetPosition = _actionTarget->worldHitPosition;
+
+            const vec3  cameraToTarget = targetPosition - cameraPosition;
+            const float targetDistance = length(cameraToTarget);
+
+            if (targetDistance <= F32_COMPARE_EPSILON) {
+                return;
+            }
+
+            const vec3 aimDirection = cameraToTarget / targetDistance;
+
+            const vec3 spawnPosition =
+                cameraPosition + aimDirection * math::min(SHOOT_SPAWN_DISTANCE, targetDistance * 0.25f);
+
+            const vec3 displacement = targetPosition - spawnPosition;
+
+            const float flightTime =
+                math::clamp(length(displacement) / SHOOT_SPEED, SHOOT_MIN_FLIGHT_TIME, SHOOT_MAX_FLIGHT_TIME);
+
+            const vec3 gravity = physicsWorld->gravity();
+
+            const vec3 velocity = displacement / flightTime - 0.5f * gravity * flightTime;
+
+            auto projectile = ShootSlurm(*_simulationRoot, spawnPosition, velocity);
+
+            _transients.track(projectile, "projectile");
+
+            break;
+        }
+
+        case Action::Drop: {
+
+            const vec3 spawnLocation = _actionTarget->worldHitPosition + vec3 {0.0f, DROP_HEIGHT, 0.0f};
+
+            auto boxes = AddBoxStack(*_simulationRoot, spawnLocation, DROP_BOX_SIZE, DROP_STACK_SIZE,
+                                     DROP_PADDING, Color::White());
+
+            _transients.track(boxes, "box");
+
+            break;
+        }
+    }
+}
+
+void App::reset() {
+    select({});
+
+    _actionTarget.reset();
+
+    if (_cursorMarker) {
+        _cursorMarker->hidden(true);
+    }
+
+    _simulationRoot->removeFromParent();
+
+    _transients.clear();
+
+    scene().physicsWorld()->gravity(GRAVITY_EARTH);
+
+    _simulationRoot = MakeSimulationRoot();
+    scene().rootNode()->addChild(_simulationRoot);
+
+    runner().resetSimulation();
+}
+
+/// Private Static Non-Member Functions ///
+
+shared_ptr<Node> MakeSimulationRoot() {
+    auto root = Node::NamedNode("Simulation root");
+
+    // janus
+
+    {
+        static auto janusMesh = [] {
+            constexpr float JANUS_HEIGHT = 1.0f;
+            auto            mesh = util::fs::MeshNamed("janus_lod/janus_lod");
+            const float     scaleFactor = JANUS_HEIGHT / mesh->localExtent().y;
+            mesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
+            return mesh;
+        }();
+
+        auto janusNode = Node::MeshNode(janusMesh);
+        janusNode->name("Janus");
+        janusNode->position({-1.5f, 0.0f, 0.0f});
+        root->addChild(janusNode);
+    }
+
+    // angel
+
+    {
+        static auto angelMesh = [] {
+            constexpr float ANGEL_HEIGHT = 2.0f;
+            auto            angelMesh = util::fs::MeshNamed("aniel_lod/aniel_lod");
+            const float     scaleFactor = ANGEL_HEIGHT / angelMesh->localExtent().y;
+            angelMesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
+            return angelMesh;
+        }();
+
+        static auto angelShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, angelMesh);
+        auto        angelNode = Node::MeshNode(angelMesh);
+        angelNode->name("Angel");
+        angelNode->rotation({0.0f, 1.0f, 0.0f}, radians(180.0f));
+        auto angelBody = make_unique<PhysicsBody>(PhysicsBody::Type::Static, angelShape);
+        angelNode->physicsBody(std::move(angelBody));
+        root->addChild(angelNode);
+
+        // {
+        //     auto topLight = Light::Spot(Color::White());
+        //     topLight->innerAngle(radians(18.0f));
+        //     topLight->outerAngle(radians(28.0f));
+        //
+        //     auto topLightNode = Node::LightNode(topLight);
+        //     topLightNode->position({0.0f, 2.5, -0.5});
+        //     topLightNode->eulerAngles({
+        //         radians(-65.0f), // pitch: straight down
+        //         radians(0.0f),
+        //         radians(0.0f)
+        //     });
+        //
+        //     root->addChild(topLightNode);
+        // }
+
+        // {
+        //     auto bottomLight = Light::Spot(Color::White());
+        //     bottomLight->innerAngle(radians(18.0f));
+        //     bottomLight->outerAngle(radians(28.0f));
+        //
+        //     auto bottomLightNode = Node::LightNode(bottomLight);
+        //     bottomLightNode->position({0.0f, 0.15f, -0.45f});
+        //     bottomLightNode->eulerAngles({
+        //         radians(65.0f), // pitch: straight up
+        //         radians(0.0f),
+        //         radians(0.0f)
+        //     });
+        //
+        //     root->addChild(bottomLightNode);
+        // }
+    }
+
+    // teapot
+
+    {
+        static auto teapotMesh = [] {
+            constexpr float TEAPOT_HEIGHT = 0.35f;
+            auto            teapotMesh = util::fs::MeshNamed("teapot/teapot");
+            const float     teapotScale = TEAPOT_HEIGHT / teapotMesh->localExtent().y;
+            teapotMesh->burnTransform(math::scale(mat4(1.0f), vec3(teapotScale)), true);
+            teapotMesh->replaceMaterial(0, Material::DiffuseMaterial(Color::DarkGray()));
+            return teapotMesh;
+        }();
+
+        static auto teapotShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, teapotMesh);
+
+        auto teapotNode = Node::MeshNode(teapotMesh);
+        teapotNode->name("Teapot");
+        teapotNode->position({1.5f, 1.0f - teapotMesh->localAABB().min.y, 0.0f});
+        auto teapotBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, teapotShape);
+        teapotBody->mass(1.5f);
+        teapotBody->friction(0.6f);
+        teapotBody->restitution(0.15f);
+        teapotBody->linearDamping(0.03f);
+        teapotBody->angularDamping(0.05f);
+        teapotNode->physicsBody(std::move(teapotBody));
+        root->addChild(teapotNode);
+    }
+
+    return root;
+}
+
+void DrawPanel(Runner&                               runner,
+               const std::optional<App::PickResult>& selection,
+               App::Action&                          action,
+               bool&                                 reset) {
+
+    auto& scene = runner.scene();
+    auto& visualWorld = *scene.visualWorld();
+    auto& physicsWorld = *scene.physicsWorld();
 
     ui::Panel panel("controls", {
                                     .width = 180.0f,
@@ -537,12 +752,6 @@ void App::frameDidBegin(Runner&                        runner,
     const bool paused = runner.simulationPaused();
 
     panel.value("state", paused ? "paused" : "running");
-    // panel.value("time scale", std::format("{:.1f}x", runner.timeScale()));
-
-    // float timeStep = runner.timeStep();
-    // if (panel.slider("time step", timeStep, 0.1f, 2.0f, "%.2fx")) {
-    //     runner.timeScale(timeStep);
-    // }
 
     int stepRate = static_cast<int>(math::round(1.0 / runner.timeStep()));
     if (panel.slider("time step", stepRate, 30, 480, "1/%ds")) {
@@ -577,37 +786,38 @@ void App::frameDidBegin(Runner&                        runner,
     }
 
     if (panel.button("Reset")) {
-        _resetRequested = true;
+        // _pendingReset = true;
+        reset = true;
     }
 
     panel.spacer(12.0f);
 
     panel.section("environment");
 
-    if (auto physicsWorld = scene.physicsWorld()) {
-        const auto gravity = physicsWorld->gravity();
+    // if (auto physicsWorld = scene.physicsWorld()) {
+    const auto gravity = physicsWorld.gravity();
 
-        //panel.value("gravity", std::format("{:.1f}, {:.1f}, {:.1f}", gravity.x, gravity.y, gravity.z));
-        panel.text("gravity");
+    //panel.value("gravity", std::format("{:.1f}, {:.1f}, {:.1f}", gravity.x, gravity.y, gravity.z));
+    panel.text("gravity");
 
-        const auto isGravity = [&gravity](const vec3& value) {
-            return length(gravity - value) < 0.001f;
-        };
+    const auto isGravity = [&gravity](const vec3& value) {
+        return length(gravity - value) < 0.001f;
+    };
 
-        panel.row(3);
+    panel.row(3);
 
-        if (panel.option("Earth", isGravity(GRAVITY_EARTH))) {
-            physicsWorld->gravity(GRAVITY_EARTH);
-        }
-
-        if (panel.option("Moon", isGravity(GRAVITY_MOON))) {
-            physicsWorld->gravity(GRAVITY_MOON);
-        }
-
-        if (panel.option("Zero", isGravity(GRAVITY_ZERO))) {
-            physicsWorld->gravity(GRAVITY_ZERO);
-        }
+    if (panel.option("Earth", isGravity(GRAVITY_EARTH))) {
+        physicsWorld.gravity(GRAVITY_EARTH);
     }
+
+    if (panel.option("Moon", isGravity(GRAVITY_MOON))) {
+        physicsWorld.gravity(GRAVITY_MOON);
+    }
+
+    if (panel.option("Zero", isGravity(GRAVITY_ZERO))) {
+        physicsWorld.gravity(GRAVITY_ZERO);
+    }
+    // }
 
     panel.spacer(12.0f);
 
@@ -615,42 +825,26 @@ void App::frameDidBegin(Runner&                        runner,
 
     panel.row(3);
 
-    if (panel.option("Impulse", _action == Action::Impulse)) {
-        _action = Action::Impulse;
+    if (panel.option("Drop", action == App::Action::Drop)) {
+        action = App::Action::Drop;
     }
 
-    if (panel.option("Shoot", _action == Action::Shoot)) {
-        _action = Action::Shoot;
+    if (panel.option("Throw", action == App::Action::Throw)) {
+        action = App::Action::Throw;
     }
 
-    if (panel.option("Drop", _action == Action::Drop)) {
-        _action = Action::Drop;
+    if (panel.option("Poke", action == App::Action::Poke)) {
+        action = App::Action::Poke;
     }
 
     panel.spacer(12.0f);
 
-    // panel.section("contacts");
-    //
-    // //panel.value("active", std::format("{}", scene.physicsWorld()->inventory().activeContacts));
-    //
-    // if (_lastImpact) {
-    //     panel.value("last impact", _lastImpact->nodes);
-    //     panel.value("impulse", std::format("{:.2f} N·s", _lastImpact->impulse));
-    //     panel.value("penetration", std::format("{:.4f} m", _lastImpact->penetration));
-    //     panel.value("peak impulse", std::format("{:.2f} N·s", _peakImpactImpulse));
-    // }
-    // else {
-    //     panel.text("no impacts yet");
-    // }
-    //
-    // panel.spacer(12.0f);
-
     panel.section("selected node");
 
-    if (!_selection) {
+    if (!selection) {
         panel.text("click to select");
     }
-    else if (auto node = _selection->node.lock()) {
+    else if (auto node = selection->node.lock()) {
 
         // node
 
@@ -724,11 +918,11 @@ void App::frameDidBegin(Runner&                        runner,
             panel.value("materials", std::format("{}", mesh->materials().size()));
         }
     }
-    else {
-        // The selected node was removed from the scene.
-        select({});
-        panel.text("click an object to inspect");
-    }
+    // else {
+    //     // The selected node was removed from the scene.
+    //     select({});
+    //     panel.text("click an object to inspect");
+    // }
 
     panel.spacer(12.0f);
 
@@ -781,360 +975,6 @@ void App::frameDidBegin(Runner&                        runner,
                                ? util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsWireframes)
                                : util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsWireframes));
     }
-}
-
-// void App::contactDidBegin(Runner&               runner,
-//                           Scene&                scene,
-//                           PhysicsWorld&         physicsWorld,
-//                           const PhysicsContact& contact) {
-//
-//     constexpr float MIN_DISPLAY_IMPULSE = 0.01f;
-//
-//     if (contact.collisionImpulse() < MIN_DISPLAY_IMPULSE) {
-//         return;
-//     }
-//
-//     auto nodeA = contact.nodeA().lock();
-//     auto nodeB = contact.nodeB().lock();
-//
-//     if (!nodeA || !nodeB) {
-//         return;
-//     }
-//
-//     _lastImpact = {
-//         .nodes = std::format("{} \u2194 {}", nodeA->name().value_or("(unnamed)"),
-//                              nodeB->name().value_or("(unnamed)")),
-//         .impulse = contact.collisionImpulse(),
-//         .penetration = contact.penetrationDistance(),
-//     };
-//
-//     _peakImpactImpulse = math::max(_peakImpactImpulse, contact.collisionImpulse());
-// }
-//
-// void App::contactDidContinue(Runner&               runner,
-//                              Scene&                scene,
-//                              PhysicsWorld&         physicsWorld,
-//                              const PhysicsContact& contact) {
-//
-//     _peakImpactImpulse = math::max(_peakImpactImpulse, contact.collisionImpulse());
-// }
-
-// void App::contactDidEnd(Runner&               runner,
-//                         Scene&                scene,
-//                         PhysicsWorld&         physicsWorld,
-//                         const PhysicsContact& contact) {}
-
-/// Private Member Functions ///
-
-void App::select(optional<PickResult> selection) {
-
-    using DebugOptions = Node::DebugOptions;
-
-    if (_selection) {
-        if (auto node = _selection->node.lock()) {
-            node->debugOptions(util::bitmask::remove(node->debugOptions(), DebugOptions::ShowHighlightBox));
-            node->debugOptions(util::bitmask::remove(node->debugOptions(), DebugOptions::ShowHighlightTint));
-        }
-    }
-
-    _selection = std::move(selection);
-
-    if (_selection) {
-        if (auto node = _selection->node.lock()) {
-            node->debugOptions(util::bitmask::add(node->debugOptions(), DebugOptions::ShowHighlightBox));
-            node->debugOptions(util::bitmask::add(node->debugOptions(), DebugOptions::ShowHighlightTint));
-        }
-        else {
-            _selection.reset();
-        }
-    }
-}
-
-void App::useAction(Scene& scene, const vec2& screenPosition) {
-
-    _actionTarget = FindActionTarget(scene, screenPosition, {_cursorMarker.get()});
-
-    if (!_actionTarget) {
-        if (_cursorMarker) {
-            _cursorMarker->hidden(true);
-        }
-        return;
-    }
-
-    if (_cursorMarker) {
-        _cursorMarker->position(_actionTarget->worldHitPosition);
-        _cursorMarker->hidden(false);
-    }
-
-    auto node = _actionTarget->node.lock();
-
-    if (!node) {
-        return;
-    }
-
-    switch (_action) {
-
-        case Action::Impulse: {
-
-            auto body = node->physicsBody();
-
-            if (!body || body->type() != PhysicsBody::Type::Dynamic) {
-                return;
-            }
-
-            auto visualWorld = scene.visualWorld();
-
-            if (!visualWorld) {
-                return;
-            }
-
-            const vec3 from = visualWorld->unprojectPoint({
-                screenPosition.x,
-                screenPosition.y,
-                0.0f,
-            });
-
-            const vec3 to = visualWorld->unprojectPoint({
-                screenPosition.x,
-                screenPosition.y,
-                1.0f,
-            });
-
-            const vec3 direction = normalize(to - from);
-
-            constexpr float IMPULSE = 5.0f;
-
-            body->applyForce(direction * IMPULSE, _actionTarget->worldHitPosition, true);
-
-            break;
-        }
-
-        case Action::Shoot: {
-
-            if (!_cameraNode) {
-                return;
-            }
-
-            auto physicsWorld = scene.physicsWorld();
-
-            if (!physicsWorld) {
-                return;
-            }
-
-            const vec3 cameraPosition = _cameraNode->worldPosition();
-            const vec3 targetPosition = _actionTarget->worldHitPosition;
-
-            const vec3  cameraToTarget = targetPosition - cameraPosition;
-            const float targetDistance = length(cameraToTarget);
-
-            if (targetDistance <= F32_COMPARE_EPSILON) {
-                return;
-            }
-
-            const vec3 aimDirection = cameraToTarget / targetDistance;
-
-            const vec3 spawnPosition =
-                cameraPosition + aimDirection * math::min(SHOOT_SPAWN_DISTANCE, targetDistance * 0.25f);
-
-            const vec3 displacement = targetPosition - spawnPosition;
-
-            const float flightTime =
-                math::clamp(length(displacement) / SHOOT_SPEED, SHOOT_MIN_FLIGHT_TIME, SHOOT_MAX_FLIGHT_TIME);
-
-            const vec3 gravity = physicsWorld->gravity();
-
-            const vec3 velocity = displacement / flightTime - 0.5f * gravity * flightTime;
-
-            auto projectile = ShootSlurm(*_simulationRoot, spawnPosition, velocity);
-
-            _transients.track(projectile, "projectile");
-
-            break;
-        }
-
-        case Action::Drop: {
-
-            const vec3 spawnLocation =
-                _actionTarget->worldHitPosition + vec3 {0.0f, DROP_HEIGHT, 0.0f};
-
-            auto boxes =
-                AddBoxStack(*_simulationRoot,
-                            spawnLocation,
-                            DROP_BOX_SIZE,
-                            DROP_STACK_SIZE,
-                            DROP_PADDING,
-                            Color::White());
-
-            _transients.track(boxes, "box");
-
-            break;
-        }
-    }
-}
-
-void App::resetSimulation() {
-    select({});
-
-    _actionTarget.reset();
-
-    if (_cursorMarker) {
-        _cursorMarker->hidden(true);
-    }
-
-    _simulationRoot->removeFromParent();
-
-    _transients.clear();
-
-    // _lastImpact.reset();
-    // _peakImpactImpulse = 0.0f;
-
-    scene().physicsWorld()->gravity(GRAVITY_EARTH);
-
-    _simulationRoot = MakeSimulationRoot();
-    scene().rootNode()->addChild(_simulationRoot);
-
-    runner().resetSimulation();
-}
-
-/// Private Static Non-Member Functions ///
-
-shared_ptr<Node> MakeSimulationRoot() {
-    auto root = Node::NamedNode("Simulation root");
-
-    // janus
-
-    // auto janusNode = Node::MeshNode(util::fs::MeshNamed("janus/janus"));
-    // root->addChild(janusNode);
-
-    static auto janusMesh = [] {
-        constexpr float JANUS_HEIGHT = 1.0f;
-        auto            mesh = util::fs::MeshNamed("janus_lod/janus_lod");
-        const float     scaleFactor = JANUS_HEIGHT / mesh->localExtent().y;
-        mesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
-        return mesh;
-    }();
-
-    auto janusNode = Node::MeshNode(janusMesh);
-    janusNode->name("Janus");
-    janusNode->position({-1.5f, 0.0f, 0.0f});
-    root->addChild(janusNode);
-
-    // {
-    //     constexpr float JANUS_HEIGHT = 1.0f;
-    //     auto            janusMesh = util::fs::MeshNamed("janus_lod/janus_lod");
-    //     const float     scaleFactor = JANUS_HEIGHT / janusMesh->localExtent().y;
-    //     janusMesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
-    //     auto janusNode = Node::MeshNode(janusMesh);
-    //     janusNode->position({-1.5f, 0.0f, 0.0f});
-    //     root->addChild(janusNode);
-    // }
-
-    // angel
-
-    // auto anielNode = Node::MeshNode(util::fs::MeshNamed("aniel/aniel"));
-    // root->addChild(anielNode);
-    // auto anielExtent = anielNode->extent();
-
-    // constexpr float ANGEL_HEIGHT = 2.0f;
-    // auto            angelNode = Node::MeshNode(util::fs::MeshNamed("aniel/aniel"));
-    // angelNode->scale(angelNode->scale() * (ANGEL_HEIGHT / angelNode->extent(true).y));
-    // angelNode->physicsBody(PhysicsBody::StaticBody());
-    // root->addChild(angelNode);
-
-    // {
-    //     constexpr float ANGEL_HEIGHT = 2.0f;
-    //     auto            angelMesh = util::fs::MeshNamed("aniel_lod/aniel_lod");
-    //     const float     scaleFactor = ANGEL_HEIGHT / angelMesh->localExtent().y;
-    //     angelMesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
-    //     auto angelNode = Node::MeshNode(angelMesh);
-    //     angelNode->name("Angel");
-    //     angelNode->rotation({0.0f, 1.0f, 0.0f}, radians(180.0f));
-    //     angelNode->physicsBody(PhysicsBody::StaticBody());
-    //     root->addChild(angelNode);
-    // }
-
-    static auto angelMesh = [] {
-        constexpr float ANGEL_HEIGHT = 2.0f;
-        auto            angelMesh = util::fs::MeshNamed("aniel_lod/aniel_lod");
-        const float     scaleFactor = ANGEL_HEIGHT / angelMesh->localExtent().y;
-        angelMesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
-        return angelMesh;
-    }();
-
-    static auto angelShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, angelMesh);
-    auto        angelNode = Node::MeshNode(angelMesh);
-    angelNode->name("Angel");
-    angelNode->rotation({0.0f, 1.0f, 0.0f}, radians(180.0f));
-    auto angelBody = make_unique<PhysicsBody>(PhysicsBody::Type::Static, angelShape);
-    angelNode->physicsBody(std::move(angelBody));
-    root->addChild(angelNode);
-
-    // {
-    //     auto topLight = Light::Spot(Color::White());
-    //     topLight->innerAngle(radians(18.0f));
-    //     topLight->outerAngle(radians(28.0f));
-    //
-    //     auto topLightNode = Node::LightNode(topLight);
-    //     topLightNode->position({0.0f, 2.5, -0.5});
-    //     topLightNode->eulerAngles({
-    //         radians(-65.0f), // pitch: straight down
-    //         radians(0.0f),
-    //         radians(0.0f)
-    //     });
-    //
-    //     root->addChild(topLightNode);
-    // }
-
-    // {
-    //     auto bottomLight = Light::Spot(Color::White());
-    //     bottomLight->innerAngle(radians(18.0f));
-    //     bottomLight->outerAngle(radians(28.0f));
-    //
-    //     auto bottomLightNode = Node::LightNode(bottomLight);
-    //     bottomLightNode->position({0.0f, 0.15f, -0.45f});
-    //     bottomLightNode->eulerAngles({
-    //         radians(65.0f), // pitch: straight up
-    //         radians(0.0f),
-    //         radians(0.0f)
-    //     });
-    //
-    //     root->addChild(bottomLightNode);
-    // }
-
-    // banana
-
-    // _bananaNode = Node::MeshNode(util::fs::MeshNamed("banana_lod/banana_lod"));
-    // auto rx = math::quaternion({1.0f, 0.0f, 0.0f}, radians(90.0f));
-    // auto ry = math::quaternion({0.0f, 1.0f, 0.0f}, radians(90.0f));
-    // _bananaNode->orientation(rx * ry);
-    // root->addChild(_bananaNode);
-
-    // teapot
-
-    static auto teapotMesh = [] {
-        constexpr float TEAPOT_HEIGHT = 0.35f;
-        auto            teapotMesh = util::fs::MeshNamed("teapot/teapot");
-        const float     teapotScale = TEAPOT_HEIGHT / teapotMesh->localExtent().y;
-        teapotMesh->burnTransform(math::scale(mat4(1.0f), vec3(teapotScale)), true);
-        teapotMesh->replaceMaterial(0, Material::DiffuseMaterial(Color::DarkGray()));
-        return teapotMesh;
-    }();
-
-    static auto teapotShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, teapotMesh);
-
-    auto teapotNode = Node::MeshNode(teapotMesh);
-    teapotNode->name("Teapot");
-    teapotNode->position({1.5f, 1.0f - teapotMesh->localAABB().min.y, 0.0f});
-    auto teapotBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, teapotShape);
-    teapotBody->mass(1.5f);
-    teapotBody->friction(0.6f);
-    teapotBody->restitution(0.15f);
-    teapotBody->linearDamping(0.03f);
-    teapotBody->angularDamping(0.05f);
-    teapotNode->physicsBody(std::move(teapotBody));
-    root->addChild(teapotNode);
-
-    return root;
 }
 
 optional<App::PickResult> Pick(VisualWorld&               visualWorld,
