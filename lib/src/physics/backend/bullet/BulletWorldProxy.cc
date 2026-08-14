@@ -71,6 +71,36 @@ static constexpr bool A3D_USE_MT_CONTACT_BATCHING = false;
 static btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const Scene::DebugOptions& options);
 static int                          PickNumBTThreads(btITaskScheduler* sched);
 
+/// Internal Types ///
+
+struct RawContactResult {
+    btManifoldPoint          point;
+    const btCollisionObject* objectA;
+    const btCollisionObject* objectB;
+};
+
+struct ContactTestResultCallback : btCollisionWorld::ContactResultCallback {
+
+    btScalar addSingleResult(btManifoldPoint&                point,
+                             const btCollisionObjectWrapper* objectA,
+                             int,
+                             int,
+                             const btCollisionObjectWrapper* objectB,
+                             int,
+                             int) override {
+
+        results.push_back({
+            point,
+            objectA->getCollisionObject(),
+            objectB->getCollisionObject(),
+        });
+
+        return btScalar(0.0);
+    }
+
+    vector<RawContactResult> results;
+};
+
 /// Internal Lifecycle Functions ///
 
 BulletWorldProxy::BulletWorldProxy(PhysicsWorld& world):
@@ -382,6 +412,122 @@ const PhysicsWorldProxy::ContactEvents& BulletWorldProxy::step(double deltaTime,
     return _contactEvents;
 }
 
+optional<PhysicsContact> BulletWorldProxy::contactTest(const PhysicsBody& bodyA, const PhysicsBody& bodyB) {
+
+    if (&bodyA == &bodyB) {
+        return {};
+    }
+
+    scoped_lock lock(_btMutex);
+
+    auto* proxyA = static_cast<BulletBodyProxy*>(bodyA.proxy());
+    auto* proxyB = static_cast<BulletBodyProxy*>(bodyB.proxy());
+
+    auto* btBodyA = proxyA->btBody();
+    auto* btBodyB = proxyB->btBody();
+
+    if (!btBodyA->getCollisionShape() || !btBodyB->getCollisionShape()) {
+        return {};
+    }
+
+    ContactTestResultCallback callback;
+
+    _btWorld->contactPairTest(btBodyA, btBodyB, callback);
+
+    optional<BodyPairContact> bestContact;
+
+    for (const auto& result : callback.results) {
+
+        auto candidate = makeBodyPairContact(result.objectA, result.objectB, result.point);
+
+        if (!candidate) {
+            continue;
+        }
+
+        if (!bestContact || candidate->contact.collisionImpulse() > bestContact->contact.collisionImpulse()
+            || (candidate->contact.collisionImpulse() == bestContact->contact.collisionImpulse()
+                && candidate->contact.penetrationDistance() > bestContact->contact.penetrationDistance())) {
+
+            bestContact = std::move(candidate);
+        }
+    }
+
+    if (!bestContact) {
+        return {};
+    }
+
+    return std::move(bestContact->contact);
+}
+
+vector<PhysicsContact> BulletWorldProxy::contactTest(const PhysicsBody& body) {
+
+    scoped_lock lock(_btMutex);
+
+    auto* proxy = static_cast<BulletBodyProxy*>(body.proxy());
+    auto* btBody = proxy->btBody();
+
+    if (!btBody->getCollisionShape()) {
+        return {};
+    }
+
+    ContactTestResultCallback callback;
+
+    _btWorld->contactTest(btBody, callback);
+
+    BodyPairContacts contacts;
+    contacts.reserve(callback.results.size());
+
+    for (const auto& result : callback.results) {
+
+        if (auto contact = makeBodyPairContact(result.objectA, result.objectB, result.point)) {
+            contacts.push_back(std::move(*contact));
+        }
+    }
+
+    const auto bodyLess = std::less<PhysicsBody*> {};
+
+    sort(contacts.begin(), contacts.end(), [&](const BodyPairContact& lhs, const BodyPairContact& rhs) {
+        if (bodyLess(lhs.bodyA, rhs.bodyA)) {
+            return true;
+        }
+        if (bodyLess(rhs.bodyA, lhs.bodyA)) {
+            return false;
+        }
+
+        if (bodyLess(lhs.bodyB, rhs.bodyB)) {
+            return true;
+        }
+        if (bodyLess(rhs.bodyB, lhs.bodyB)) {
+            return false;
+        }
+
+        if (lhs.contact.collisionImpulse() > rhs.contact.collisionImpulse()) {
+            return true;
+        }
+        if (lhs.contact.collisionImpulse() < rhs.contact.collisionImpulse()) {
+            return false;
+        }
+
+        return lhs.contact.penetrationDistance() > rhs.contact.penetrationDistance();
+    });
+
+    const auto uniqueEnd =
+        unique(contacts.begin(), contacts.end(), [](const BodyPairContact& lhs, const BodyPairContact& rhs) {
+            return lhs.bodyA == rhs.bodyA && lhs.bodyB == rhs.bodyB;
+        });
+
+    contacts.erase(uniqueEnd, contacts.end());
+
+    vector<PhysicsContact> results;
+    results.reserve(contacts.size());
+
+    for (auto& contact : contacts) {
+        results.push_back(std::move(contact.contact));
+    }
+
+    return results;
+}
+
 vector<HitTestResult> BulletWorldProxy::rayTest(const vec3&       from,
                                                 const vec3&       to,
                                                 HitTestSearchMode searchMode) const {
@@ -395,12 +541,12 @@ vector<HitTestResult> BulletWorldProxy::rayTest(const vec3&       from,
                             const btVector3& hitNormalWorld) -> optional<HitTestResult> {
         auto body = static_cast<PhysicsBody*>(collisionObject->getUserPointer());
         if (!body) {
-            return nullopt;
+            return {};
         }
 
         auto node = body->node().lock();
         if (!node) {
-            return nullopt;
+            return {};
         }
 
         const vec3 worldCoordinates = A3DVec3FromBTVector3(hitPointWorld);
@@ -414,9 +560,8 @@ vector<HitTestResult> BulletWorldProxy::rayTest(const vec3&       from,
         const vec4 localNormal4 = transpose(modelTransform) * vec4 {worldNormal, 0.0f};
         const vec3 localNormal = normalize(vec3 {localNormal4});
 
-        return HitTestResult {node,        nullptr,          nullptr,
-                              nullopt,     localCoordinates, worldCoordinates,
-                              localNormal, worldNormal,      modelTransform};
+        return HitTestResult {node,        nullptr,     nullptr,       {}, localCoordinates, worldCoordinates,
+                              localNormal, worldNormal, modelTransform};
     };
 
     switch (searchMode) {
@@ -762,8 +907,8 @@ optional<BulletWorldProxy::BodyPairContact> BulletWorldProxy::
     auto rawBodyA = static_cast<PhysicsBody*>(objectA->getUserPointer());
     auto rawBodyB = static_cast<PhysicsBody*>(objectB->getUserPointer());
 
-    if (!rawBodyA || !rawBodyB) {
-        return nullopt;
+    if (!rawBodyA || !rawBodyB || rawBodyA == rawBodyB) {
+        return {};
     }
 
     const auto bodyLess = std::less<PhysicsBody*> {};
@@ -776,7 +921,7 @@ optional<BulletWorldProxy::BodyPairContact> BulletWorldProxy::
     auto nodeB = bodyB->node().lock();
 
     if (!nodeA || !nodeB) {
-        return nullopt;
+        return {};
     }
 
     const btVector3 btContactPoint =
