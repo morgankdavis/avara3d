@@ -46,7 +46,7 @@ const chrono::milliseconds SLURM_SHOT_INTERVAL {50};
 /// Private Static Non-Member Prototypes ///
 
 void             SpawnDuckFruit(Scene& scene, const Node& duckNode, vector<App::DuckFruitDef>& duckFruit);
-void             ShootSlurm(Scene& scene, const vec3& location, const vec3& direction);
+void             ThrowSlurm(Scene& scene, const vec3& location, const vec3& direction);
 void             AddCardboardBox(Scene& scene, const vec3& location, const vec3& axis, float angle);
 void             SpawnHACDTeapot(Scene& scene);
 void             AddBoxes(Scene& scene);
@@ -649,12 +649,12 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
     }
 
     if (singleShotRequested && pointOfView) {
-        ShootSlurm(scene, pointOfView->worldPosition(), pointOfView->worldForward());
+        ThrowSlurm(scene, pointOfView->worldPosition(), pointOfView->worldForward());
     }
 
     if (continuousShotActive && pointOfView) {
         _slurmTrigger.update(info.startTime, [&] {
-            ShootSlurm(scene, pointOfView->worldPosition(), pointOfView->worldForward());
+            ThrowSlurm(scene, pointOfView->worldPosition(), pointOfView->worldForward());
         });
     }
     else {
@@ -778,7 +778,7 @@ void SpawnDuckFruit(Scene& scene, const Node& duckNode, vector<App::DuckFruitDef
 // 	});
 // }
 
-void ShootSlurm(Scene& scene, const vec3& location, const vec3& direction) {
+void ThrowSlurm(Scene& scene, const vec3& location, const vec3& direction) {
 
     static auto mesh = util::fs::MeshNamed("slurm/slurm");
     mesh->materials()[0]->emission(mesh->materials()[0]->diffuse());

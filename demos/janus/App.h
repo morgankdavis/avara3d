@@ -41,12 +41,6 @@ namespace demo::janus {
             a3d::math::vec3          worldHitNormal;
         };
 
-        enum class Action {
-            Drop,
-            Throw,
-            Poke
-        };
-
         /// Public Lifecycle Functions ///
 
         App(int argc, char* argv[]);
@@ -77,14 +71,15 @@ namespace demo::janus {
     private:
         /// Private Types ///
 
-        // enum class Action {
-        //     Drop,
-        //     Throw,
-        //     Poke
-        // };
+        enum class Action {
+            Drop,
+            Throw,
+            Poke
+        };
 
         /// Private Member Functions ///
 
+        void drawPanel();
         void select(std::optional<PickResult> selection);
         void action(a3d::Scene& scene, const a3d::math::vec2& screenPosition);
         void reset();

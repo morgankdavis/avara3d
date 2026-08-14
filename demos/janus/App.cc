@@ -22,53 +22,41 @@ using namespace std;
 
 const Log::Level                  APP_LOG_LEVEL {Log::Level::Debug};
 const uvec2                       WINDOW_SIZE {1280, 768};
-const bool                        FULLSCREEN {false};
-const bool                        ENABLE_HIGH_DPI {true};
 const RenderContext::Antialiasing ANTIALIASING {RenderContext::Antialiasing::Msaa4X};
-const bool                        ENABLE_VSYNC {false};
-const bool                        CAPTURE_CURSOR {false};
 const float                       TIME_STEP {1.0 / 120.0};
-const std::uint32_t               MAX_CATCH_UP_STEPS {4};
+const std::uint32_t               MAX_CATCH_UP_STEPS {8};
 const float                       BACKGROUND_ROTATION_SPEED {radians(0.5f)};
 const vec3                        BACKGROUND_ROTATION_AXIS {0.5f, 1.0f, 1.0f};
 const vec3                        GRAVITY_EARTH {0.0f, -9.807f, 0.0f};
 const vec3                        GRAVITY_MOON {0.0f, -1.62f, 0.0f};
 const vec3                        GRAVITY_ZERO {0.0f, 0.0f, 0.0f};
 const float                       CURSOR_MARKER_RADIUS {0.1f};
-const float                       SHOOT_SPAWN_DISTANCE {0.5f};
-const float                       SHOOT_SPEED {15.0f};
-const float                       SHOOT_MIN_FLIGHT_TIME {0.25f};
-const float                       SHOOT_MAX_FLIGHT_TIME {1.5f};
 const float                       DROP_HEIGHT {5.0f};
 const vec3                        DROP_BOX_SIZE {0.25f, 0.25f, 0.25f};
 const u8vec3                      DROP_STACK_SIZE {3, 3, 3};
 const float                       DROP_PADDING {0.025f};
+const float                       THROW_SPAWN_DISTANCE {0.5f};
+const float                       THROW_SPEED {15.0f};
+const float                       THROW_MIN_FLIGHT_TIME {0.25f};
+const float                       THROW_MAX_FLIGHT_TIME {1.5f};
+constexpr float                   POKE_IMPULSE = 5.0f;
 
 /// Private Static Non-Member Prototypes ///
 
-static shared_ptr<Node> MakeSimulationRoot();
-// static void                      DrawPanel(Runner& runner);
-void                             DrawPanel(Runner&                               runner,
-                                           const std::optional<App::PickResult>& selection,
-                                           App::Action&                          action,
-                                           bool&                                 reset);
+static shared_ptr<Node>          MakeSimulationRoot();
 static optional<App::PickResult> Pick(VisualWorld&               visualWorld,
                                       const vec2&                screenPosition,
                                       const vector<const Node*>& ignoredNodes = {});
 static optional<App::PickResult> FindActionTarget(Scene&                     scene,
                                                   const vec2&                screenPosition,
                                                   const vector<const Node*>& ignoredNodes = {});
-static shared_ptr<Node>          ShootSlurm(Node& parent, const vec3& location, const vec3& velocity);
-static vector<shared_ptr<Node>>  AddBoxStack(Node&             parent,
-                                             const vec3&       location,
-                                             const vec3&       boxSize,
-                                             const u8vec3&     stackSize,
-                                             float             padding,
-                                             shared_ptr<Color> color);
-static string                    FormatVec3(const vec3& value);
-static string                    FormatRotation(const vec3& eulerAngles);
-static string_view               BodyTypeName(PhysicsBody::Type type);
-static string_view               ShapeTypeName(PhysicsShape::Type type);
+static shared_ptr<Node>          ThrowSlurm(Node& parent, const vec3& location, const vec3& velocity);
+static vector<shared_ptr<Node>>  DropBoxStack(Node&             parent,
+                                              const vec3&       location,
+                                              const vec3&       boxSize,
+                                              const u8vec3&     stackSize,
+                                              float             padding,
+                                              shared_ptr<Color> color);
 
 /// Public Lifecycle Functions ///
 
@@ -98,9 +86,7 @@ std::unique_ptr<Scene> App::init() {
         // create and configure the window
 
         _window = make_unique<Window>(RenderContext::RenderingApi::OpenGL, *util::fs::ExecutableName(),
-                                      WINDOW_SIZE, FULLSCREEN, ENABLE_HIGH_DPI, ANTIALIASING);
-        _window->vSyncEnabled(ENABLE_VSYNC);
-        _window->cursorCaptured(CAPTURE_CURSOR);
+                                      WINDOW_SIZE, false, true, ANTIALIASING);
 
         // create and configure the visual world
 
@@ -459,14 +445,283 @@ void App::frameDidBegin(Runner&                        runner,
         }
     }
 
-    bool reset = false;
-    DrawPanel(runner, _selection, _action, reset);
-    if (reset) {
-        _pendingReset = true;
-    }
+    drawPanel();
 }
 
 /// Private Member Functions ///
+
+void App::drawPanel() {
+
+    auto& runner = App::runner();
+    auto& scene = App::scene();
+    auto& visualWorld = *scene.visualWorld();
+    auto& physicsWorld = *scene.physicsWorld();
+
+    ui::Panel panel("controls", {
+                                    .width = 180.0f,
+                                    .margin = 12.0f,
+                                });
+
+    panel.section("simulation");
+
+    const bool paused = runner.simulationPaused();
+
+    panel.value("state", paused ? "paused" : "running");
+
+    int stepRate = static_cast<int>(math::round(1.0 / runner.timeStep()));
+    if (panel.slider("time step", stepRate, 30, 480, "1/%ds")) {
+        runner.timeStep(1.0 / stepRate);
+    }
+
+    int maxCatchUpSteps = runner.maxCatchUpSteps();
+    if (panel.slider("catch-up steps", maxCatchUpSteps, 1, 16, "%d")) {
+        runner.maxCatchUpSteps(maxCatchUpSteps);
+    }
+
+    // panel.row(2);
+
+    float timeScale = runner.timeScale();
+    if (panel.slider("time scale", timeScale, 0.1f, 2.0f, "%.2fx")) {
+        runner.timeScale(timeScale);
+    }
+
+    // if (panel.button("1x")) {
+    //     runner.timeScale(1.0f);
+    // }
+
+    panel.row(paused ? 2 : 1);
+
+    if (panel.button(paused ? "Resume" : "Pause")) {
+        runner.simulationPaused(!paused);
+    }
+    if (paused) {
+        if (panel.button("Step")) {
+            runner.requestSimulationStep();
+        }
+    }
+
+    if (panel.button("Reset")) {
+        _pendingReset = true;
+    }
+
+    panel.spacer(12.0f);
+
+    panel.section("environment");
+
+    // if (auto physicsWorld = scene.physicsWorld()) {
+    const auto gravity = physicsWorld.gravity();
+
+    //panel.value("gravity", std::format("{:.1f}, {:.1f}, {:.1f}", gravity.x, gravity.y, gravity.z));
+    panel.text("gravity");
+
+    const auto isGravity = [&gravity](const vec3& value) {
+        return length(gravity - value) < 0.001f;
+    };
+
+    panel.row(3);
+
+    if (panel.option("Earth", isGravity(GRAVITY_EARTH))) {
+        physicsWorld.gravity(GRAVITY_EARTH);
+    }
+
+    if (panel.option("Moon", isGravity(GRAVITY_MOON))) {
+        physicsWorld.gravity(GRAVITY_MOON);
+    }
+
+    if (panel.option("Zero", isGravity(GRAVITY_ZERO))) {
+        physicsWorld.gravity(GRAVITY_ZERO);
+    }
+    // }
+
+    panel.spacer(12.0f);
+
+    panel.section("action");
+
+    panel.row(3);
+
+    if (panel.option("Drop", _action == Action::Drop)) {
+        _action = Action::Drop;
+    }
+
+    if (panel.option("Throw", _action == Action::Throw)) {
+        _action = Action::Throw;
+    }
+
+    if (panel.option("Poke", _action == Action::Poke)) {
+        _action = Action::Poke;
+    }
+
+    panel.spacer(12.0f);
+
+    panel.section("selected node");
+
+    if (!_selection) {
+        panel.text("click to select");
+    }
+    else if (auto node = _selection->node.lock()) {
+
+        // node
+
+        panel.value("name", node->name().value_or("(unnamed)"));
+        // panel.value("position", FormatVec3(node->worldPosition()));
+        // panel.value("rotation", FormatRotation(node->worldEulerAngles()));
+
+        // physics body
+
+        if (auto body = node->physicsBody()) {
+
+            static auto formatVec3 = [](const vec3& value) {
+                return std::format("{:.1f}, {:.1f}, {:.1f}", value.x, value.y, value.z);
+            };
+
+            static auto bodyTypeName = [](PhysicsBody::Type type) -> string_view {
+                switch (type) {
+                    case PhysicsBody::Type::Static:
+                        return "static";
+                    case PhysicsBody::Type::Dynamic:
+                        return "dynamic";
+                    case PhysicsBody::Type::Kinematic:
+                        return "kinematic";
+                }
+
+                return "unknown";
+            };
+
+            static auto shapeTypeName = [](PhysicsShape::Type type) -> string_view {
+                switch (type) {
+                    case PhysicsShape::Type::Primitive:
+                        return "primitive";
+                    case PhysicsShape::Type::BoundingBox:
+                        return "bounding box";
+                    case PhysicsShape::Type::ConvexHull:
+                        return "convex";
+                    case PhysicsShape::Type::ConcavePolyhedron:
+                        return "concave";
+                }
+
+                return "unknown";
+            };
+
+            panel.spacer(8.0f);
+
+            panel.value("body", bodyTypeName(body->type()));
+
+            if (const auto& shape = body->shape()) {
+                panel.value("shape", shapeTypeName(shape->type()));
+            }
+            else {
+                panel.value("shape", "none");
+            }
+
+            if (auto physicsWorld = scene.physicsWorld()) {
+                const auto contacts = physicsWorld->contactTest(*body);
+                panel.value("contacts", std::format("{}", contacts.size()));
+            }
+
+            panel.value("mass", std::format("{:.1f}", body->mass()));
+
+            panel.spacer(6.0f);
+
+            panel.value("velocity", formatVec3(body->linearVelocity()));
+            panel.value("angular", formatVec3(body->angularVelocity()));
+
+            // panel.spacer(6.0f);
+            //
+            // panel.value("inertia", FormatVec3(body->momentOfInertia()));
+            // panel.value("COM", FormatVec3(body->centerOfMass()));
+            //
+            // panel.value("linear damping", std::format("{:.3f}", body->linearDamping()));
+            // panel.value("angular damping", std::format("{:.3f}", body->angularDamping()));
+
+            panel.value("friction", std::format("{:.1f}", body->friction()));
+            panel.value("restitution", std::format("{:.1f}", body->restitution()));
+
+            panel.value("resting", body->resting() ? "yes" : "no");
+
+            // panel.spacer(6.0f);
+            //
+            // panel.value("force", FormatVec3(body->totalForce()));
+            // panel.value("torque", FormatVec3(body->totalTorque()));
+        }
+        else {
+            panel.spacer(8.0f);
+            panel.value("body", "none");
+        }
+
+        // mesh
+
+        if (const auto& mesh = node->mesh()) {
+
+            panel.spacer(8.0f);
+
+            panel.value("mesh", mesh->name().value_or("(unnamed)"));
+            uint64_t polygons = 0;
+            for (const auto& e : mesh->elements()) {
+                polygons += e->indexCount() / 3u;
+            }
+            panel.value("polygons", std::format("{:.1f}k", float(polygons) / 1000.0f));
+            // panel.value("elements", std::format("{}", mesh->elements().size()));
+            panel.value("materials", std::format("{}", mesh->materials().size()));
+        }
+    }
+    else {
+        // the selected node was removed from the scene
+        select({});
+        panel.text("click an object to inspect");
+    }
+
+    panel.spacer(12.0f);
+
+    panel.section("debug");
+
+    using DebugOptions = Scene::DebugOptions;
+
+    auto debugOptions = scene.debugOptions();
+
+    bool stats = util::bitmask::contains(debugOptions, DebugOptions::ShowStatsOverlay);
+    if (panel.toggle("stats", stats)) {
+        debugOptions = stats ? util::bitmask::add(debugOptions, DebugOptions::ShowStatsOverlay)
+                             : util::bitmask::remove(debugOptions, DebugOptions::ShowStatsOverlay);
+        scene.debugOptions(debugOptions);
+    }
+
+    bool defaultLighting = visualWorld.defaultLightingEnabled();
+    if (panel.toggle("default lighting", defaultLighting)) {
+        visualWorld.defaultLightingEnabled(defaultLighting);
+    }
+
+    bool meshBounds = util::bitmask::contains(debugOptions, DebugOptions::ShowBoundingBoxes);
+    if (panel.toggle("mesh bounds", meshBounds)) {
+        scene.debugOptions(meshBounds ? util::bitmask::add(debugOptions, DebugOptions::ShowBoundingBoxes)
+                                      : util::bitmask::remove(debugOptions, DebugOptions::ShowBoundingBoxes));
+    }
+
+    if (visualWorld.capabilities().wireframeRendering) {
+        bool meshWireframes = util::bitmask::contains(debugOptions, DebugOptions::ShowWireframes);
+        if (panel.toggle("mesh wireframes", meshWireframes)) {
+            scene.debugOptions(meshWireframes
+                                   ? util::bitmask::add(debugOptions, DebugOptions::ShowWireframes)
+                                   : util::bitmask::remove(debugOptions, DebugOptions::ShowWireframes));
+        }
+    }
+    else {
+        panel.value("mesh wireframes", "n/a", {0.0f, 1.0f, 0.0f, 0.0f});
+    }
+
+    bool physBounds = util::bitmask::contains(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes);
+    if (panel.toggle("physics bounds", physBounds)) {
+        scene.debugOptions(physBounds
+                               ? util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes)
+                               : util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
+    }
+
+    bool physWireframes = util::bitmask::contains(debugOptions, DebugOptions::ShowPhysicsWireframes);
+    if (panel.toggle("physics wireframes", physWireframes)) {
+        scene.debugOptions(physWireframes
+                               ? util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsWireframes)
+                               : util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsWireframes));
+    }
+}
 
 void App::select(optional<PickResult> selection) {
 
@@ -516,6 +771,45 @@ void App::action(Scene& scene, const vec2& screenPosition) {
 
     switch (_action) {
 
+        case Action::Drop: {
+
+            const vec3 spawnLocation = _actionTarget->worldHitPosition + vec3 {0.0f, DROP_HEIGHT, 0.0f};
+            auto       boxes = DropBoxStack(*_simulationRoot, spawnLocation, DROP_BOX_SIZE, DROP_STACK_SIZE,
+                                            DROP_PADDING, Color::White());
+            _transients.track(boxes, "box");
+
+            break;
+        }
+
+        case Action::Throw: {
+
+            auto physicsWorld = scene.physicsWorld();
+
+            const vec3  cameraPosition = _cameraNode->worldPosition();
+            const vec3  targetPosition = _actionTarget->worldHitPosition;
+            const vec3  cameraToTarget = targetPosition - cameraPosition;
+            const float targetDistance = length(cameraToTarget);
+
+            if (targetDistance <= F32_COMPARE_EPSILON) {
+                return;
+            }
+
+            const vec3 aimDirection = cameraToTarget / targetDistance;
+            const vec3 spawnPosition =
+                cameraPosition + aimDirection * math::min(THROW_SPAWN_DISTANCE, targetDistance * 0.25f);
+            const vec3  displacement = targetPosition - spawnPosition;
+            const float flightTime =
+                math::clamp(length(displacement) / THROW_SPEED, THROW_MIN_FLIGHT_TIME, THROW_MAX_FLIGHT_TIME);
+            const vec3 gravity = physicsWorld->gravity();
+            const vec3 velocity = displacement / flightTime - 0.5f * gravity * flightTime;
+
+            auto projectile = ThrowSlurm(*_simulationRoot, spawnPosition, velocity);
+
+            _transients.track(projectile, "projectile");
+
+            break;
+        }
+
         case Action::Poke: {
 
             auto body = node->physicsBody();
@@ -526,82 +820,11 @@ void App::action(Scene& scene, const vec2& screenPosition) {
 
             auto visualWorld = scene.visualWorld();
 
-            if (!visualWorld) {
-                return;
-            }
-
-            const vec3 from = visualWorld->unprojectPoint({
-                screenPosition.x,
-                screenPosition.y,
-                0.0f,
-            });
-
-            const vec3 to = visualWorld->unprojectPoint({
-                screenPosition.x,
-                screenPosition.y,
-                1.0f,
-            });
-
+            const vec3 from = visualWorld->unprojectPoint({screenPosition.x, screenPosition.y, 0.0f});
+            const vec3 to = visualWorld->unprojectPoint({screenPosition.x, screenPosition.y, 1.0f});
             const vec3 direction = normalize(to - from);
 
-            constexpr float IMPULSE = 5.0f;
-
-            body->applyForce(direction * IMPULSE, _actionTarget->worldHitPosition, true);
-
-            break;
-        }
-
-        case Action::Throw: {
-
-            if (!_cameraNode) {
-                return;
-            }
-
-            auto physicsWorld = scene.physicsWorld();
-
-            if (!physicsWorld) {
-                return;
-            }
-
-            const vec3 cameraPosition = _cameraNode->worldPosition();
-            const vec3 targetPosition = _actionTarget->worldHitPosition;
-
-            const vec3  cameraToTarget = targetPosition - cameraPosition;
-            const float targetDistance = length(cameraToTarget);
-
-            if (targetDistance <= F32_COMPARE_EPSILON) {
-                return;
-            }
-
-            const vec3 aimDirection = cameraToTarget / targetDistance;
-
-            const vec3 spawnPosition =
-                cameraPosition + aimDirection * math::min(SHOOT_SPAWN_DISTANCE, targetDistance * 0.25f);
-
-            const vec3 displacement = targetPosition - spawnPosition;
-
-            const float flightTime =
-                math::clamp(length(displacement) / SHOOT_SPEED, SHOOT_MIN_FLIGHT_TIME, SHOOT_MAX_FLIGHT_TIME);
-
-            const vec3 gravity = physicsWorld->gravity();
-
-            const vec3 velocity = displacement / flightTime - 0.5f * gravity * flightTime;
-
-            auto projectile = ShootSlurm(*_simulationRoot, spawnPosition, velocity);
-
-            _transients.track(projectile, "projectile");
-
-            break;
-        }
-
-        case Action::Drop: {
-
-            const vec3 spawnLocation = _actionTarget->worldHitPosition + vec3 {0.0f, DROP_HEIGHT, 0.0f};
-
-            auto boxes = AddBoxStack(*_simulationRoot, spawnLocation, DROP_BOX_SIZE, DROP_STACK_SIZE,
-                                     DROP_PADDING, Color::White());
-
-            _transients.track(boxes, "box");
+            body->applyForce(direction * POKE_IMPULSE, _actionTarget->worldHitPosition, true);
 
             break;
         }
@@ -609,6 +832,7 @@ void App::action(Scene& scene, const vec2& screenPosition) {
 }
 
 void App::reset() {
+
     select({});
 
     _actionTarget.reset();
@@ -733,250 +957,6 @@ shared_ptr<Node> MakeSimulationRoot() {
     return root;
 }
 
-void DrawPanel(Runner&                               runner,
-               const std::optional<App::PickResult>& selection,
-               App::Action&                          action,
-               bool&                                 reset) {
-
-    auto& scene = runner.scene();
-    auto& visualWorld = *scene.visualWorld();
-    auto& physicsWorld = *scene.physicsWorld();
-
-    ui::Panel panel("controls", {
-                                    .width = 180.0f,
-                                    .margin = 12.0f,
-                                });
-
-    panel.section("simulation");
-
-    const bool paused = runner.simulationPaused();
-
-    panel.value("state", paused ? "paused" : "running");
-
-    int stepRate = static_cast<int>(math::round(1.0 / runner.timeStep()));
-    if (panel.slider("time step", stepRate, 30, 480, "1/%ds")) {
-        runner.timeStep(1.0 / stepRate);
-    }
-
-    int maxCatchUpSteps = runner.maxCatchUpSteps();
-    if (panel.slider("catch-up steps", maxCatchUpSteps, 1, 16, "%d")) {
-        runner.maxCatchUpSteps(maxCatchUpSteps);
-    }
-
-    // panel.row(2);
-
-    float timeScale = runner.timeScale();
-    if (panel.slider("time scale", timeScale, 0.1f, 2.0f, "%.2fx")) {
-        runner.timeScale(timeScale);
-    }
-
-    // if (panel.button("1x")) {
-    //     runner.timeScale(1.0f);
-    // }
-
-    panel.row(paused ? 2 : 1);
-
-    if (panel.button(paused ? "Resume" : "Pause")) {
-        runner.simulationPaused(!paused);
-    }
-    if (paused) {
-        if (panel.button("Step")) {
-            runner.requestSimulationStep();
-        }
-    }
-
-    if (panel.button("Reset")) {
-        // _pendingReset = true;
-        reset = true;
-    }
-
-    panel.spacer(12.0f);
-
-    panel.section("environment");
-
-    // if (auto physicsWorld = scene.physicsWorld()) {
-    const auto gravity = physicsWorld.gravity();
-
-    //panel.value("gravity", std::format("{:.1f}, {:.1f}, {:.1f}", gravity.x, gravity.y, gravity.z));
-    panel.text("gravity");
-
-    const auto isGravity = [&gravity](const vec3& value) {
-        return length(gravity - value) < 0.001f;
-    };
-
-    panel.row(3);
-
-    if (panel.option("Earth", isGravity(GRAVITY_EARTH))) {
-        physicsWorld.gravity(GRAVITY_EARTH);
-    }
-
-    if (panel.option("Moon", isGravity(GRAVITY_MOON))) {
-        physicsWorld.gravity(GRAVITY_MOON);
-    }
-
-    if (panel.option("Zero", isGravity(GRAVITY_ZERO))) {
-        physicsWorld.gravity(GRAVITY_ZERO);
-    }
-    // }
-
-    panel.spacer(12.0f);
-
-    panel.section("action");
-
-    panel.row(3);
-
-    if (panel.option("Drop", action == App::Action::Drop)) {
-        action = App::Action::Drop;
-    }
-
-    if (panel.option("Throw", action == App::Action::Throw)) {
-        action = App::Action::Throw;
-    }
-
-    if (panel.option("Poke", action == App::Action::Poke)) {
-        action = App::Action::Poke;
-    }
-
-    panel.spacer(12.0f);
-
-    panel.section("selected node");
-
-    if (!selection) {
-        panel.text("click to select");
-    }
-    else if (auto node = selection->node.lock()) {
-
-        // node
-
-        panel.value("name", node->name().value_or("(unnamed)"));
-        // panel.value("position", FormatVec3(node->worldPosition()));
-        // panel.value("rotation", FormatRotation(node->worldEulerAngles()));
-
-        // physics body
-
-        if (auto body = node->physicsBody()) {
-
-            panel.spacer(8.0f);
-
-            panel.value("body", BodyTypeName(body->type()));
-
-            if (const auto& shape = body->shape()) {
-                panel.value("shape", ShapeTypeName(shape->type()));
-            }
-            else {
-                panel.value("shape", "none");
-            }
-
-            if (auto physicsWorld = scene.physicsWorld()) {
-                const auto contacts = physicsWorld->contactTest(*body);
-                panel.value("contacts", std::format("{}", contacts.size()));
-            }
-
-            panel.value("mass", std::format("{:.1f}", body->mass()));
-
-            panel.spacer(6.0f);
-
-            panel.value("velocity", FormatVec3(body->linearVelocity()));
-            panel.value("angular", FormatVec3(body->angularVelocity()));
-
-            // panel.spacer(6.0f);
-            //
-            // panel.value("inertia", FormatVec3(body->momentOfInertia()));
-            // panel.value("COM", FormatVec3(body->centerOfMass()));
-            //
-            // panel.value("linear damping", std::format("{:.3f}", body->linearDamping()));
-            // panel.value("angular damping", std::format("{:.3f}", body->angularDamping()));
-
-            panel.value("friction", std::format("{:.1f}", body->friction()));
-            panel.value("restitution", std::format("{:.1f}", body->restitution()));
-
-            panel.value("resting", body->resting() ? "yes" : "no");
-
-            // panel.spacer(6.0f);
-            //
-            // panel.value("force", FormatVec3(body->totalForce()));
-            // panel.value("torque", FormatVec3(body->totalTorque()));
-        }
-        else {
-            panel.spacer(8.0f);
-            panel.value("body", "none");
-        }
-
-        // mesh
-
-        if (const auto& mesh = node->mesh()) {
-
-            panel.spacer(8.0f);
-
-            panel.value("mesh", mesh->name().value_or("(unnamed)"));
-            uint64_t polygons = 0;
-            for (const auto& e : mesh->elements()) {
-                polygons += e->indexCount() / 3u;
-            }
-            panel.value("polygons", std::format("{:.1f}k", float(polygons) / 1000.0f));
-            // panel.value("elements", std::format("{}", mesh->elements().size()));
-            panel.value("materials", std::format("{}", mesh->materials().size()));
-        }
-    }
-    // else {
-    //     // The selected node was removed from the scene.
-    //     select({});
-    //     panel.text("click an object to inspect");
-    // }
-
-    panel.spacer(12.0f);
-
-    panel.section("debug");
-
-    using DebugOptions = Scene::DebugOptions;
-
-    auto debugOptions = scene.debugOptions();
-
-    bool stats = util::bitmask::contains(debugOptions, DebugOptions::ShowStatsOverlay);
-    if (panel.toggle("stats", stats)) {
-        debugOptions = stats ? util::bitmask::add(debugOptions, DebugOptions::ShowStatsOverlay)
-                             : util::bitmask::remove(debugOptions, DebugOptions::ShowStatsOverlay);
-        scene.debugOptions(debugOptions);
-    }
-
-    bool defaultLighting = visualWorld.defaultLightingEnabled();
-    if (panel.toggle("default lighting", defaultLighting)) {
-        visualWorld.defaultLightingEnabled(defaultLighting);
-    }
-
-    bool meshBounds = util::bitmask::contains(debugOptions, DebugOptions::ShowBoundingBoxes);
-    if (panel.toggle("mesh bounds", meshBounds)) {
-        scene.debugOptions(meshBounds ? util::bitmask::add(debugOptions, DebugOptions::ShowBoundingBoxes)
-                                      : util::bitmask::remove(debugOptions, DebugOptions::ShowBoundingBoxes));
-    }
-
-    if (visualWorld.capabilities().wireframeRendering) {
-        bool meshWireframes = util::bitmask::contains(debugOptions, DebugOptions::ShowWireframes);
-        if (panel.toggle("mesh wireframes", meshWireframes)) {
-            scene.debugOptions(meshWireframes
-                                   ? util::bitmask::add(debugOptions, DebugOptions::ShowWireframes)
-                                   : util::bitmask::remove(debugOptions, DebugOptions::ShowWireframes));
-        }
-    }
-    else {
-        panel.value("mesh wireframes", "n/a", {0.0f, 1.0f, 0.0f, 0.0f});
-    }
-
-    bool physBounds = util::bitmask::contains(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes);
-    if (panel.toggle("physics bounds", physBounds)) {
-        scene.debugOptions(physBounds
-                               ? util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes)
-                               : util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
-    }
-
-    bool physWireframes = util::bitmask::contains(debugOptions, DebugOptions::ShowPhysicsWireframes);
-    if (panel.toggle("physics wireframes", physWireframes)) {
-        scene.debugOptions(physWireframes
-                               ? util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsWireframes)
-                               : util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsWireframes));
-    }
-}
-
 optional<App::PickResult> Pick(VisualWorld&               visualWorld,
                                const vec2&                screenPosition,
                                const vector<const Node*>& ignoredNodes) {
@@ -1058,7 +1038,7 @@ optional<App::PickResult> FindActionTarget(Scene&                     scene,
     };
 }
 
-shared_ptr<Node> ShootSlurm(Node& parent, const vec3& location, const vec3& velocity) {
+shared_ptr<Node> ThrowSlurm(Node& parent, const vec3& location, const vec3& velocity) {
 
     constexpr float SLURMHEIGHT = 0.123f;
     static auto     mesh = util::fs::MeshNamed("slurm/slurm");
@@ -1115,12 +1095,12 @@ shared_ptr<Node> ShootSlurm(Node& parent, const vec3& location, const vec3& velo
     return node;
 }
 
-vector<shared_ptr<Node>> AddBoxStack(Node&             parent,
-                                     const vec3&       location,
-                                     const vec3&       boxSize,
-                                     const u8vec3&     stackSize,
-                                     float             padding,
-                                     shared_ptr<Color> color) {
+vector<shared_ptr<Node>> DropBoxStack(Node&             parent,
+                                      const vec3&       location,
+                                      const vec3&       boxSize,
+                                      const u8vec3&     stackSize,
+                                      float             padding,
+                                      shared_ptr<Color> color) {
 
     if (!isfinite(padding) || padding < 0.0f) {
         throw invalid_argument("Box stack padding must be finite and non-negative.");
@@ -1207,50 +1187,4 @@ vector<shared_ptr<Node>> AddBoxStack(Node&             parent,
         }
     }
     return added;
-}
-
-string FormatVec3(const vec3& value) {
-
-    return std::format("{:.1f}, {:.1f}, {:.1f}", value.x, value.y, value.z);
-}
-
-string FormatRotation(const vec3& eulerAngles) {
-
-    return std::format("{:.1f}, {:.1f}, {:.1f}", degrees(eulerAngles.x), degrees(eulerAngles.y),
-                       degrees(eulerAngles.z));
-}
-
-string_view BodyTypeName(PhysicsBody::Type type) {
-
-    switch (type) {
-        case PhysicsBody::Type::Static:
-            return "static";
-
-        case PhysicsBody::Type::Dynamic:
-            return "dynamic";
-
-        case PhysicsBody::Type::Kinematic:
-            return "kinematic";
-    }
-
-    return "unknown";
-}
-
-string_view ShapeTypeName(PhysicsShape::Type type) {
-
-    switch (type) {
-        case PhysicsShape::Type::Primitive:
-            return "primitive";
-
-        case PhysicsShape::Type::BoundingBox:
-            return "bounding box";
-
-        case PhysicsShape::Type::ConvexHull:
-            return "convex";
-
-        case PhysicsShape::Type::ConcavePolyhedron:
-            return "concave";
-    }
-
-    return "unknown";
 }
