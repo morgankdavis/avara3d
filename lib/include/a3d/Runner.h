@@ -100,6 +100,7 @@ namespace a3d {
         /**
          * @brief Starts the Runner using the current monotonic time.
          *
+         * @throws std::logic_error if the Runner is not idle.
          * @throws std::invalid_argument if the configuration is invalid.
          */
         void           start();
