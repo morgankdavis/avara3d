@@ -72,8 +72,8 @@ namespace a3d {
         const math::vec3&             gravity() const;
         void                          gravity(const math::vec3& gravity);
 
-        std::optional<PhysicsContact> contactTest(const PhysicsBody& bodyA, const PhysicsBody& bodyB);
-        std::vector<PhysicsContact>   contactTest(const PhysicsBody& body);
+        std::optional<PhysicsContact> contactTest(const PhysicsBody& bodyA, const PhysicsBody& bodyB) const;
+        std::vector<PhysicsContact>   contactTest(const PhysicsBody& body) const;
         std::vector<HitTestResult>    rayTest(const math::vec3&     from,
                                               const math::vec3&     to,
                                               const RayTestOptions& options) const;

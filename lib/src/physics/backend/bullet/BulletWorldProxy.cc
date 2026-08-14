@@ -412,7 +412,8 @@ const PhysicsWorldProxy::ContactEvents& BulletWorldProxy::step(double deltaTime,
     return _contactEvents;
 }
 
-optional<PhysicsContact> BulletWorldProxy::contactTest(const PhysicsBody& bodyA, const PhysicsBody& bodyB) {
+optional<PhysicsContact> BulletWorldProxy::contactTest(const PhysicsBody& bodyA,
+                                                       const PhysicsBody& bodyB) const {
 
     if (&bodyA == &bodyB) {
         return {};
@@ -459,7 +460,7 @@ optional<PhysicsContact> BulletWorldProxy::contactTest(const PhysicsBody& bodyA,
     return std::move(bestContact->contact);
 }
 
-vector<PhysicsContact> BulletWorldProxy::contactTest(const PhysicsBody& body) {
+vector<PhysicsContact> BulletWorldProxy::contactTest(const PhysicsBody& body) const {
 
     scoped_lock lock(_btMutex);
 

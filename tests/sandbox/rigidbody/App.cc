@@ -251,6 +251,44 @@ unique_ptr<Scene> App::init() {
         boxesLightNode->orientation({0.0999, 0.1969, -0.0202, 0.9751});
         scene->rootNode()->addChild(boxesLightNode);
 
+        // add contact test boxes
+
+        auto contactTestMesh = Box::Mesh(1.0f, 1.0f, 1.0f);
+        auto contactTestShape =
+            make_shared<PhysicsShape>(PhysicsShape::Type::BoundingBox, contactTestMesh);
+
+        auto addContactTestBox =
+            [&](const string& name, const vec3& position, const shared_ptr<Color>& color) {
+
+                auto node = Node::MeshNode(contactTestMesh);
+                node->name(name);
+                node->position(position);
+
+                auto material =
+                    make_shared<Material>(monostate {}, monostate {}, monostate {}, color);
+                node->mesh()->addMaterial(material);
+
+                auto body =
+                    make_unique<PhysicsBody>(PhysicsBody::Type::Kinematic, contactTestShape);
+
+                node->physicsBody(std::move(body));
+                scene->rootNode()->addChild(node);
+
+                return node;
+        };
+
+        auto testA = addContactTestBox("Contact Test A", {15.0f, 5.0f, 10.0f}, Color::Red());
+        auto testB = addContactTestBox("Contact Test B", {15.75f, 5.0f, 10.0f}, Color::Green());
+        auto testC = addContactTestBox("Contact Test C", {15.0f, 5.0f, 10.75f}, Color::Blue());
+        auto testD = addContactTestBox("Contact Test D", {18.0f, 5.0f, 10.0f}, Color::Yellow());
+
+        _contactTestA = testA;
+        _contactTestB = testB;
+        _contactTestC = testC;
+        _contactTestD = testD;
+
+        // setup camera
+
         auto cameraConfig = _cameraController.config();
         cameraConfig.moveSpeed = math::max(scene->extent());
         _cameraController.config(cameraConfig);
@@ -513,6 +551,68 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
 
     if (input.keyPressed(Key::U)) {
         AddRing(scene);
+    }
+
+    if (input.keyPressed(Key::J)) {
+        auto nodeA = _contactTestA.lock();
+        auto nodeB = _contactTestB.lock();
+        auto nodeC = _contactTestC.lock();
+        auto nodeD = _contactTestD.lock();
+
+        if (!nodeA || !nodeB || !nodeC || !nodeD) {
+            log::app::e()("Contact-test rig is unavailable.");
+            return;
+        }
+
+        auto* bodyA = nodeA->physicsBody();
+        auto* bodyB = nodeB->physicsBody();
+        auto* bodyC = nodeC->physicsBody();
+        auto* bodyD = nodeD->physicsBody();
+
+        auto* physicsWorld = scene.physicsWorld();
+
+        const auto ab = physicsWorld->contactTest(*bodyA, *bodyB);
+
+        log::app::i()("A/B: contact={} penetration={:.4f}",
+                      ab ? "YES" : "NO",
+                      ab ? ab->penetrationDistance() : 0.0f);
+
+        const auto ad = physicsWorld->contactTest(*bodyA, *bodyD);
+
+        log::app::i()("A/D: contact={}", ad ? "YES" : "NO");
+
+        const auto aa = physicsWorld->contactTest(*bodyA);
+
+        // world overload, not pair overload!
+        const auto self = physicsWorld->contactTest(*bodyA, *bodyA);
+
+        log::app::i()("A/A: contact={}", self ? "YES" : "NO");
+        const auto contacts = physicsWorld->contactTest(*bodyA);
+
+        log::app::i()("A/world: {} contacts", contacts.size());
+
+        for (const auto& contact : contacts) {
+            auto a = contact.nodeA().lock();
+            auto b = contact.nodeB().lock();
+
+            log::app::i()("    {} <-> {}  penetration={:.4f} impulse={:.4f}",
+                          a ? a->name().value_or("(unnamed)") : "(expired)",
+                          b ? b->name().value_or("(unnamed)") : "(expired)",
+                          contact.penetrationDistance(),
+                          contact.collisionImpulse());
+        }
+
+        if (ab) {
+            auto nodeA = ab->nodeA().lock();
+            auto nodeB = ab->nodeB().lock();
+
+            if (nodeA && nodeB) {
+                const vec3 nodeBToA = nodeA->worldPosition() - nodeB->worldPosition();
+
+                log::app::i()("normal dot B->A = {:.4f}",
+                              dot(ab->contactNormal(), nodeBToA));
+            }
+        }
     }
 
     const bool duckFruitPressed = input.keyPressed(Key::Tab);

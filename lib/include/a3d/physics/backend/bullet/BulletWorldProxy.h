@@ -57,9 +57,9 @@ namespace a3d {
 
         const ContactEvents&          step(double deltaTime, Profiler& profiler) override;
 
-        std::optional<PhysicsContact> contactTest(const PhysicsBody& bodyA, const PhysicsBody& bodyB) override;
-
-        std::vector<PhysicsContact>   contactTest(const PhysicsBody& body) override;
+        std::optional<PhysicsContact> contactTest(const PhysicsBody& bodyA,
+                                                  const PhysicsBody& bodyB) const override;
+        std::vector<PhysicsContact>   contactTest(const PhysicsBody& body) const override;
         std::vector<HitTestResult>    rayTest(const math::vec3& from,
                                               const math::vec3& to,
                                               HitTestSearchMode searchMode) const override;

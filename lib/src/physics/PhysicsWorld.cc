@@ -58,11 +58,11 @@ void PhysicsWorld::gravity(const vec3& gravity) {
     }
 }
 
-optional<PhysicsContact> PhysicsWorld::contactTest(const PhysicsBody& bodyA, const PhysicsBody& bodyB) {
+optional<PhysicsContact> PhysicsWorld::contactTest(const PhysicsBody& bodyA, const PhysicsBody& bodyB) const {
     return _proxy->contactTest(bodyA, bodyB);
 }
 
-vector<PhysicsContact> PhysicsWorld::contactTest(const PhysicsBody& body) {
+vector<PhysicsContact> PhysicsWorld::contactTest(const PhysicsBody& body) const {
     return _proxy->contactTest(body);
 }
 

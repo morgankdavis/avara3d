@@ -69,9 +69,8 @@ namespace a3d {
         virtual const ContactEvents&          step(double deltaTime, Profiler& profiler) = 0;
 
         virtual std::optional<PhysicsContact> contactTest(const PhysicsBody& bodyA,
-                                                          const PhysicsBody& bodyB) = 0;
-
-        virtual std::vector<PhysicsContact>   contactTest(const PhysicsBody& body)        = 0;
+                                                          const PhysicsBody& bodyB) const = 0;
+        virtual std::vector<PhysicsContact>   contactTest(const PhysicsBody& body) const  = 0;
         virtual std::vector<HitTestResult>    rayTest(const math::vec3& from,
                                                       const math::vec3& to,
                                                       HitTestSearchMode searchMode) const = 0;
