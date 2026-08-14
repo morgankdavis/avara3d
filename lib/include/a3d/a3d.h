@@ -47,7 +47,6 @@
 #include "a3d/mesh/primitive/Wedge.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsContact.h"
-#include "a3d/physics/PhysicsInventory.h"
 #include "a3d/physics/shape/PhysicsShape.h"
 #include "a3d/physics/PhysicsWorld.h"
 #include "a3d/physics/shape/primitive/BoxPhysicsShape.h"

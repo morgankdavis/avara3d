@@ -165,20 +165,20 @@ void Application::frameDidBegin(Runner&                        runner,
                                 VisualWorld&                   visualWorld,
                                 const VisualWorld::RenderInfo& info) {}
 
-void Application::physicsWorldDidBeginContact(Runner&               runner,
-                                              Scene&                scene,
-                                              PhysicsWorld&         physicsWorld,
-                                              const PhysicsContact& contact) {}
+void Application::contactDidBegin(Runner&               runner,
+                                  Scene&                scene,
+                                  PhysicsWorld&         physicsWorld,
+                                  const PhysicsContact& contact) {}
 
-void Application::physicsWorldDidContinueContact(Runner&               runner,
-                                                 Scene&                scene,
-                                                 PhysicsWorld&         physicsWorld,
-                                                 const PhysicsContact& contact) {}
+void Application::contactDidContinue(Runner&               runner,
+                                     Scene&                scene,
+                                     PhysicsWorld&         physicsWorld,
+                                     const PhysicsContact& contact) {}
 
-void Application::physicsWorldDidEndContact(Runner&               runner,
-                                            Scene&                scene,
-                                            PhysicsWorld&         physicsWorld,
-                                            const PhysicsContact& contact) {}
+void Application::contactDidEnd(Runner&               runner,
+                                Scene&                scene,
+                                PhysicsWorld&         physicsWorld,
+                                const PhysicsContact& contact) {}
 
 /// Private Member Functions ///
 
@@ -279,12 +279,9 @@ void Application::registerCallbacks() {
     }
 
     if (auto* physicsWorld = _scene->physicsWorld()) {
-        physicsWorld->didBeginContactCallback(bind(&Application::dispatchPhysicsWorldDidBeginContact, this, _1,
-                                                   _2));
-        physicsWorld->didContinueContactCallback(bind(&Application::dispatchPhysicsWorldDidContinueContact,
-                                                      this, _1, _2));
-        physicsWorld->didEndContactCallback(bind(&Application::dispatchPhysicsWorldDidEndContact, this, _1,
-                                                 _2));
+        physicsWorld->didBeginContactCallback(bind(&Application::dispatchContactDidBegin, this, _1, _2));
+        physicsWorld->didContinueContactCallback(bind(&Application::dispatchContactDidContinue, this, _1, _2));
+        physicsWorld->didEndContactCallback(bind(&Application::dispatchContactDidEnd, this, _1, _2));
     }
 }
 
@@ -312,18 +309,16 @@ void Application::dispatchDidBeginFrame(VisualWorld& visualWorld, const VisualWo
     frameDidBegin(*_runner, *_scene, visualWorld, info);
 }
 
-void Application::dispatchPhysicsWorldDidBeginContact(PhysicsWorld&         physicsWorld,
-                                                      const PhysicsContact& contact) {
-    physicsWorldDidBeginContact(*_runner, *_scene, physicsWorld, contact);
+void Application::dispatchContactDidBegin(PhysicsWorld& physicsWorld, const PhysicsContact& contact) {
+    contactDidBegin(*_runner, *_scene, physicsWorld, contact);
 }
 
-void Application::dispatchPhysicsWorldDidContinueContact(PhysicsWorld&         physicsWorld,
-                                                         const PhysicsContact& contact) {
-    physicsWorldDidContinueContact(*_runner, *_scene, physicsWorld, contact);
+void Application::dispatchContactDidContinue(PhysicsWorld& physicsWorld, const PhysicsContact& contact) {
+    contactDidContinue(*_runner, *_scene, physicsWorld, contact);
 }
 
-void Application::dispatchPhysicsWorldDidEndContact(PhysicsWorld& physicsWorld, const PhysicsContact& contact) {
-    physicsWorldDidEndContact(*_runner, *_scene, physicsWorld, contact);
+void Application::dispatchContactDidEnd(PhysicsWorld& physicsWorld, const PhysicsContact& contact) {
+    contactDidEnd(*_runner, *_scene, physicsWorld, contact);
 }
 
 /// Private Static Non-Member Functions ///

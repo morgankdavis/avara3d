@@ -14,8 +14,6 @@
 #include <utility>
 
 #include "a3d/input/InputContext.h"
-#include "a3d/physics/PhysicsInventory.h"
-#include "a3d/physics/PhysicsWorld.h"
 #include "a3d/profile/FrameStats.h"
 #include "a3d/profile/Profile.h"
 #include "a3d/scene/Scene.h"
@@ -322,7 +320,7 @@ bool Runner::update(TimePoint now) {
         stats.maxCatchUpSteps = _maxCatchUpSteps;
 
         if (_state == State::Running) {
-            PhysicsInventory inventory {};
+            PhysicsWorld::Inventory inventory {};
 
             if (_simulationClockSuspended) {
                 inventory = currentPhysicsInventory();
@@ -376,9 +374,9 @@ bool Runner::update(TimePoint now) {
     return _state == State::Running;
 }
 
-PhysicsInventory Runner::advanceSimulation(const UpdateInfo& info, FrameStats& stats) {
+PhysicsWorld::Inventory Runner::advanceSimulation(const UpdateInfo& info, FrameStats& stats) {
 
-    PhysicsInventory inventory {};
+    PhysicsWorld::Inventory inventory {};
 
     _simulationTimeAccumulator += info.deltaTime * _timeScale;
 
@@ -415,9 +413,9 @@ PhysicsInventory Runner::advanceSimulation(const UpdateInfo& info, FrameStats& s
     return inventory;
 }
 
-PhysicsInventory Runner::executePendingSimulationSteps(FrameStats& stats) {
+PhysicsWorld::Inventory Runner::executePendingSimulationSteps(FrameStats& stats) {
 
-    PhysicsInventory inventory {};
+    PhysicsWorld::Inventory inventory {};
     const auto       pendingStepCount = std::exchange(_pendingSimulationSteps, std::uint64_t {0});
 
     for (uint64_t i = 0; i < pendingStepCount; ++i) {
@@ -438,7 +436,7 @@ PhysicsInventory Runner::executePendingSimulationSteps(FrameStats& stats) {
     return inventory;
 }
 
-PhysicsInventory Runner::executeSimulationStep() {
+PhysicsWorld::Inventory Runner::executeSimulationStep() {
 
     const double timeStep = _timeStep;
 
@@ -459,7 +457,7 @@ PhysicsInventory Runner::executeSimulationStep() {
     return inventory;
 }
 
-PhysicsInventory Runner::currentPhysicsInventory() {
+PhysicsWorld::Inventory Runner::currentPhysicsInventory() {
 
     if (auto physicsWorld = _scene.physicsWorld()) {
         return prof::profile(_profiler, Profiler::Tag::EngineCpu, [&] {

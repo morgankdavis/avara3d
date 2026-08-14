@@ -14,7 +14,6 @@
 #include <vector>
 
 #include "a3d/physics/PhysicsContact.h"
-#include "a3d/physics/PhysicsInventory.h"
 #include "a3d/scene/HitTestResult.h"
 #include "a3d/scene/Scene.h"
 
@@ -73,7 +72,7 @@ namespace a3d {
                                                    const math::vec3& to,
                                                    HitTestSearchMode searchMode) const = 0;
 
-        virtual PhysicsInventory           inventory() const = 0;
+        virtual PhysicsWorld::Inventory    inventory() const = 0;
 
         virtual void                       updateCollisionPairs() = 0;
 

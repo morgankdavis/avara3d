@@ -163,7 +163,7 @@ bool PhysicsWorld::acceptsStepDelta(double deltaTime) const {
     return std::isfinite(deltaTime) && deltaTime > 0.0 && _proxy && _proxy->acceptsStepDelta(deltaTime);
 }
 
-PhysicsInventory PhysicsWorld::step(double deltaTime, Profiler& profiler) {
+PhysicsWorld::Inventory PhysicsWorld::step(double deltaTime, Profiler& profiler) {
 
     if (!util::flow::edge_guard(_proxy, [&] {
             log::e()("No PhysicsWorldProxy attached to PhysicsWorld {:p}.", static_cast<void*>(this));
@@ -204,16 +204,16 @@ PhysicsInventory PhysicsWorld::step(double deltaTime, Profiler& profiler) {
     return inventory;
 }
 
-PhysicsInventory PhysicsWorld::inventory() const {
+PhysicsWorld::Inventory PhysicsWorld::inventory() const {
     if (_proxy) {
         return _proxy->inventory();
     }
     return {};
 }
 
-void PhysicsWorld::appendDebugLines(vector<Line>& out, Scene::DebugOptions debugOptions) const {
+void PhysicsWorld::appendDebugLines(vector<Line>& out) const {
     if (_proxy) {
-        _proxy->appendDebugLines(out, debugOptions);
+        _proxy->appendDebugLines(out, _scene->debugOptions()); // HEH
     }
 }
 

@@ -545,7 +545,7 @@ vector<HitTestResult> BulletWorldProxy::rayTest(const vec3&       from,
     return {};
 }
 
-PhysicsInventory BulletWorldProxy::inventory() const {
+PhysicsWorld::Inventory BulletWorldProxy::inventory() const {
     std::scoped_lock lock(_btMutex);
 
     return {.staticBodies = _stats.numStaticBodies,
@@ -554,7 +554,8 @@ PhysicsInventory BulletWorldProxy::inventory() const {
             .primitiveShapes = static_cast<unsigned>(_stats.primitiveShapes.size()),
             .boundingBoxShapes = static_cast<unsigned>(_stats.boundingBoxShapes.size()),
             .convexHullShapes = static_cast<unsigned>(_stats.convexHullShapes.size()),
-            .concavePolyhedronShapes = static_cast<unsigned>(_stats.concavePolyhedronShapes.size())};
+            .concavePolyhedronShapes = static_cast<unsigned>(_stats.concavePolyhedronShapes.size()),
+            .activeContacts = static_cast<unsigned>(_activeContacts.size())};
 }
 
 void BulletWorldProxy::updateCollisionPairs() {

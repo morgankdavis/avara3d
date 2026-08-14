@@ -14,6 +14,7 @@
 #include <functional>
 
 #include "a3d/SimulationConfig.h"
+#include "a3d/physics/PhysicsWorld.h"
 #include "a3d/profile/FrameStatsHistory.h"
 #include "a3d/profile/Profiler.h"
 
@@ -225,39 +226,39 @@ namespace a3d {
 
         // [Private Member Functions]
 
-        void              start(TimePoint now);
-        bool              update(TimePoint now);
+        void                    start(TimePoint now);
+        bool                    update(TimePoint now);
 
-        PhysicsInventory  advanceSimulation(const UpdateInfo& info, FrameStats& stats);
-        PhysicsInventory  executePendingSimulationSteps(FrameStats& stats);
-        PhysicsInventory  executeSimulationStep();
-        PhysicsInventory  currentPhysicsInventory();
+        PhysicsWorld::Inventory advanceSimulation(const UpdateInfo& info, FrameStats& stats);
+        PhysicsWorld::Inventory executePendingSimulationSteps(FrameStats& stats);
+        PhysicsWorld::Inventory executeSimulationStep();
+        PhysicsWorld::Inventory currentPhysicsInventory();
 
-        bool              renderFrame(const UpdateInfo& info, FrameStats& stats);
+        bool                    renderFrame(const UpdateInfo& info, FrameStats& stats);
 
         // [Private Member Variables]
 
-        Scene&            _scene;
-        State             _state;
-        SimulationConfig  _config;
-        double            _timeStep;
-        std::uint32_t     _maxCatchUpSteps;
-        double            _timeScale;
-        double            _simulationTimeAccumulator;
-        double            _simulationTime;
-        std::uint64_t     _simulationStepCount;
-        double            _totalDiscardedSimulationTime;
-        bool              _simulationPaused;
-        std::uint64_t     _pendingSimulationSteps;
-        bool              _skipNextUpdateDelta;
-        bool              _simulationClockSuspended;
-        TimePoint         _startTime;
-        TimePoint         _prevUpdateTime;
-        std::uint64_t     _updateCount;
-        UpdateCallback    _updateCallback;
-        std::uint64_t     _renderedFrameCount;
-        Profiler          _profiler;
-        FrameStatsHistory _frameStatsHistory;
+        Scene&                  _scene;
+        State                   _state;
+        SimulationConfig        _config;
+        double                  _timeStep;
+        std::uint32_t           _maxCatchUpSteps;
+        double                  _timeScale;
+        double                  _simulationTimeAccumulator;
+        double                  _simulationTime;
+        std::uint64_t           _simulationStepCount;
+        double                  _totalDiscardedSimulationTime;
+        bool                    _simulationPaused;
+        std::uint64_t           _pendingSimulationSteps;
+        bool                    _skipNextUpdateDelta;
+        bool                    _simulationClockSuspended;
+        TimePoint               _startTime;
+        TimePoint               _prevUpdateTime;
+        std::uint64_t           _updateCount;
+        UpdateCallback          _updateCallback;
+        std::uint64_t           _renderedFrameCount;
+        Profiler                _profiler;
+        FrameStatsHistory       _frameStatsHistory;
 
         // [Test Access]
 

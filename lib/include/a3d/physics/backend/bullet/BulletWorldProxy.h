@@ -59,7 +59,7 @@ namespace a3d {
                                            const math::vec3& to,
                                            HitTestSearchMode searchMode) const override;
 
-        PhysicsInventory           inventory() const override;
+        PhysicsWorld::Inventory    inventory() const override;
 
         void                       updateCollisionPairs() override;
 

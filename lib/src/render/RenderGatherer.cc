@@ -169,7 +169,7 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
     }
 
     if (physicsWorld) {
-        physicsWorld->appendDebugLines(output.debugLines, debugOptions);
+        physicsWorld->appendDebugLines(output.debugLines);
     }
 
     if (showBounds) {

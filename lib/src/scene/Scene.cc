@@ -295,7 +295,7 @@ void Scene::updateInput(const InputContext::UpdateInfo& info, Profiler& profiler
     }
 }
 
-PhysicsInventory Scene::stepSimulation(const StepInfo& info, Profiler& profiler) {
+PhysicsWorld::Inventory Scene::stepSimulation(const StepInfo& info, Profiler& profiler) {
 
     if (auto callback = willStepCallback()) {
         prof::profile(profiler, Profiler::Tag::Application, [&] {
@@ -303,7 +303,7 @@ PhysicsInventory Scene::stepSimulation(const StepInfo& info, Profiler& profiler)
         });
     }
 
-    PhysicsInventory inventory {};
+    PhysicsWorld::Inventory inventory {};
     if (_physicsWorld) {
         inventory = _physicsWorld->step(info.deltaTime, profiler);
     }

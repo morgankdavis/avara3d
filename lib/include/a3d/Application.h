@@ -76,18 +76,18 @@ namespace a3d {
                                    VisualWorld&                   visualWorld,
                                    const VisualWorld::RenderInfo& info);
 
-        virtual void physicsWorldDidBeginContact(Runner&               runner,
-                                                 Scene&                scene,
-                                                 PhysicsWorld&         physicsWorld,
-                                                 const PhysicsContact& contact);
-        virtual void physicsWorldDidContinueContact(Runner&               runner,
-                                                    Scene&                scene,
-                                                    PhysicsWorld&         physicsWorld,
-                                                    const PhysicsContact& contact);
-        virtual void physicsWorldDidEndContact(Runner&               runner,
-                                               Scene&                scene,
-                                               PhysicsWorld&         physicsWorld,
-                                               const PhysicsContact& contact);
+        virtual void contactDidBegin(Runner&               runner,
+                                     Scene&                scene,
+                                     PhysicsWorld&         physicsWorld,
+                                     const PhysicsContact& contact);
+        virtual void contactDidContinue(Runner&               runner,
+                                        Scene&                scene,
+                                        PhysicsWorld&         physicsWorld,
+                                        const PhysicsContact& contact);
+        virtual void contactDidEnd(Runner&               runner,
+                                   Scene&                scene,
+                                   PhysicsWorld&         physicsWorld,
+                                   const PhysicsContact& contact);
 
     private:
         /// Private Member Functions ///
@@ -103,9 +103,9 @@ namespace a3d {
         void dispatchSceneWillStep(Scene& scene, const Scene::StepInfo& info);
         void dispatchSceneDidStep(Scene& scene, const Scene::StepInfo& info);
         void dispatchDidBeginFrame(VisualWorld& visualWorld, const VisualWorld::RenderInfo& info);
-        void dispatchPhysicsWorldDidBeginContact(PhysicsWorld& physicsWorld, const PhysicsContact& contact);
-        void dispatchPhysicsWorldDidContinueContact(PhysicsWorld& physicsWorld, const PhysicsContact& contact);
-        void dispatchPhysicsWorldDidEndContact(PhysicsWorld& physicsWorld, const PhysicsContact& contact);
+        void dispatchContactDidBegin(PhysicsWorld& physicsWorld, const PhysicsContact& contact);
+        void dispatchContactDidContinue(PhysicsWorld& physicsWorld, const PhysicsContact& contact);
+        void dispatchContactDidEnd(PhysicsWorld& physicsWorld, const PhysicsContact& contact);
 
         /// Private Member Variables ///
 

@@ -18,7 +18,7 @@
 
 #include "a3d/Math.h"
 #include "a3d/input/InputContext.h"
-#include "a3d/physics/PhysicsInventory.h"
+#include "a3d/physics/PhysicsWorld.h"
 #include "a3d/util/Bitmask.h"
 
 namespace a3d {
@@ -141,7 +141,7 @@ namespace a3d {
 
         void                              pollEvents(Profiler& profiler);
         void                              updateInput(const InputContext::UpdateInfo& info, Profiler& profiler);
-        PhysicsInventory                  stepSimulation(const StepInfo& info, Profiler& profiler);
+        PhysicsWorld::Inventory           stepSimulation(const StepInfo& info, Profiler& profiler);
 
     private:
         /// Private Member Variables ///

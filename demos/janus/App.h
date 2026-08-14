@@ -12,6 +12,8 @@
 #include <chrono>
 #include <memory>
 #include <optional>
+#include <string>
+#include <vector>
 
 #include "a3d/Application.h"
 #include "a3d/Math.h"
@@ -22,7 +24,6 @@
 namespace a3d {
 
     class Node;
-    class Scene;
     class Window;
 
 }
@@ -38,6 +39,12 @@ namespace demo::janus {
             std::weak_ptr<a3d::Node> node;
             a3d::math::vec3          worldHitPosition;
             a3d::math::vec3          worldHitNormal;
+        };
+
+        struct ImpactInfo {
+            std::string nodes;
+            float       impulse {0.0f};
+            float       penetration {0.0f};
         };
 
         /// Public Lifecycle Functions ///
@@ -60,13 +67,21 @@ namespace demo::janus {
                             const a3d::InputContext::UpdateInfo& info) override;
 
         void sceneWillStep(a3d::Runner& runner, a3d::Scene& scene, const a3d::Scene::StepInfo& info) override;
-
         void sceneDidStep(a3d::Runner& runner, a3d::Scene& scene, const a3d::Scene::StepInfo& info) override;
 
         void frameDidBegin(a3d::Runner&                        runner,
                            a3d::Scene&                         scene,
                            a3d::VisualWorld&                   visualWorld,
                            const a3d::VisualWorld::RenderInfo& info) override;
+
+        void contactDidBegin(a3d::Runner&               runner,
+                             a3d::Scene&                scene,
+                             a3d::PhysicsWorld&         physicsWorld,
+                             const a3d::PhysicsContact& contact) override;
+        void contactDidEnd(a3d::Runner&               runner,
+                           a3d::Scene&                scene,
+                           a3d::PhysicsWorld&         physicsWorld,
+                           const a3d::PhysicsContact& contact) override;
 
     private:
         /// Private Member Functions ///
@@ -76,16 +91,17 @@ namespace demo::janus {
 
         /// Private Member Variables ///
 
-        std::unique_ptr<a3d::Window>        _window;
-        a3d::ext::TurntableCameraController _cameraController;
-        std::shared_ptr<a3d::Node>          _cameraNode;
-        std::shared_ptr<a3d::Node>          _simulationRoot;
-        std::optional<PickResult>           _selection;
-        a3d::ext::TransientNodeRegistry     _transients;
-        double                              _backgroundRotationTime {0.0};
-        bool                                _resetRequested;
-
+        std::unique_ptr<a3d::Window>                   _window;
+        std::shared_ptr<a3d::Node>                     _simulationRoot;
+        std::shared_ptr<a3d::Node>                     _cameraNode;
+        a3d::ext::TurntableCameraController            _cameraController;
+        std::optional<PickResult>                      _selection;
+        a3d::ext::TransientNodeRegistry                _transients;
+        double                                         _backgroundRotationTime;
         std::vector<std::unique_ptr<a3d::ext::Wander>> _orbWanders;
+        std::optional<ImpactInfo>                      _lastImpact;
+        float                                          _peakImpactImpulse;
+        bool                                           _resetRequested;
     };
 
 }

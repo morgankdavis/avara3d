@@ -56,14 +56,16 @@ static string_view               ShapeTypeName(PhysicsShape::Type type);
 App::App(int argc, char* argv[]):
     Application(argc, argv, APP_LOG_LEVEL),
     _window {nullptr},
-    _cameraController {},
-    _cameraNode {nullptr},
     _simulationRoot {nullptr},
+    _cameraNode {nullptr},
+    _cameraController {},
     _selection {},
     _transients {ext::TransientNodeRegistry::SweepPolicy::EveryInterval(1.0)},
     _backgroundRotationTime {0.0},
-    _resetRequested {false},
-    _orbWanders {} {}
+    _orbWanders {},
+    _lastImpact {},
+    _peakImpactImpulse {0.0},
+    _resetRequested {false} {}
 
 App::~App() = default;
 
@@ -517,6 +519,22 @@ void App::frameDidBegin(Runner&                        runner,
 
     panel.spacer(12.0f);
 
+    panel.section("contacts");
+
+    //panel.value("active", std::format("{}", scene.physicsWorld()->inventory().activeContacts));
+
+    if (_lastImpact) {
+        panel.value("last impact", _lastImpact->nodes);
+        panel.value("impulse", std::format("{:.2f} N\u00b7s", _lastImpact->impulse));
+        panel.value("penetration", std::format("{:.4f} m", _lastImpact->penetration));
+        panel.value("peak impulse", std::format("{:.2f} N\u00b7s", _peakImpactImpulse));
+    }
+    else {
+        panel.text("no impacts yet");
+    }
+
+    panel.spacer(12.0f);
+
     panel.section("selected node");
 
     if (!_selection) {
@@ -650,6 +668,42 @@ void App::frameDidBegin(Runner&                        runner,
     }
 }
 
+void App::contactDidBegin(Runner&               runner,
+                          Scene&                scene,
+                          PhysicsWorld&         physicsWorld,
+                          const PhysicsContact& contact) {
+
+    constexpr float MIN_DISPLAY_IMPULSE = 0.01f;
+
+    if (contact.collisionImpulse() < MIN_DISPLAY_IMPULSE) {
+        return;
+    }
+
+    auto nodeA = contact.nodeA().lock();
+    auto nodeB = contact.nodeB().lock();
+
+    if (!nodeA || !nodeB) {
+        return;
+    }
+
+    _lastImpact = {
+        .nodes = std::format("{} \u2194 {}", nodeA->name().value_or("(unnamed)"),
+                             nodeB->name().value_or("(unnamed)")),
+        .impulse = contact.collisionImpulse(),
+        .penetration = contact.penetrationDistance(),
+    };
+
+    _peakImpactImpulse = math::max(_peakImpactImpulse, contact.collisionImpulse());
+}
+
+void App::contactDidEnd(Runner&               runner,
+                        Scene&                scene,
+                        PhysicsWorld&         physicsWorld,
+                        const PhysicsContact& contact) {
+
+    _peakImpactImpulse = math::max(_peakImpactImpulse, contact.collisionImpulse());
+}
+
 /// Private Member Functions ///
 
 void App::select(optional<PickResult> selection) {
@@ -682,6 +736,9 @@ void App::resetSimulation() {
     _simulationRoot->removeFromParent();
 
     _transients.clear();
+
+    _lastImpact.reset();
+    _peakImpactImpulse = 0.0f;
 
     scene().physicsWorld()->gravity(GRAVITY_EARTH);
 

@@ -15,9 +15,7 @@
 #include <vector>
 
 #include "a3d/Math.h"
-#include "a3d/physics/PhysicsInventory.h"
 #include "a3d/scene/HitTestResult.h"
-#include "a3d/scene/Scene.h"
 
 namespace a3d {
 
@@ -28,6 +26,7 @@ namespace a3d {
     class PhysicsShape;
     class PhysicsWorldProxy;
     class Profiler;
+    class Scene;
 
     class PhysicsWorld {
 
@@ -92,21 +91,34 @@ namespace a3d {
         DidEndContactCallback         didEndContactCallback() const;
         void                          didEndContactCallback(DidEndContactCallback function);
 
+        /// Internal Types ///
+
+        struct Inventory {
+            unsigned staticBodies {0};
+            unsigned dynamicBodies {0};
+            unsigned kinematicBodies {0};
+            unsigned primitiveShapes {0};
+            unsigned boundingBoxShapes {0};
+            unsigned convexHullShapes {0};
+            unsigned concavePolyhedronShapes {0};
+            unsigned activeContacts {0};
+        };
+
         /// Internal Member Functions ///
 
-        void                          attachedToScene(Scene& scene);
-        void                          detachedFromScene(Scene& scene);
+        void               attachedToScene(Scene& scene);
+        void               detachedFromScene(Scene& scene);
 
-        void                          add(PhysicsBody& body);
-        void                          remove(PhysicsBody& body);
+        void               add(PhysicsBody& body);
+        void               remove(PhysicsBody& body);
 
-        bool                          acceptsStepDelta(double deltaTime) const;
+        bool               acceptsStepDelta(double deltaTime) const;
 
-        PhysicsInventory              step(double deltaTime, Profiler& profiler);
+        Inventory          step(double deltaTime, Profiler& profiler);
 
-        PhysicsInventory              inventory() const;
+        Inventory          inventory() const;
 
-        void               appendDebugLines(std::vector<Line>& out, Scene::DebugOptions debugOptions) const;
+        void               appendDebugLines(std::vector<Line>& out) const;
 
         PhysicsWorldProxy* proxy() const;
 
