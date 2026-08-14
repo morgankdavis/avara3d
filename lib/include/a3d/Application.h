@@ -22,7 +22,7 @@
 #include "a3d/visual/VisualWorld.h"
 #include "log/Log.h"
 
-#include "a3d/TestAccessFwd.h"
+// #include "a3d/TestAccessFwd.h"
 
 namespace a3d {
 
@@ -117,7 +117,7 @@ namespace a3d {
 
         /// Test Access ///
 
-        friend class testing::ApplicationTestAccess;
+        //friend class testing::ApplicationTestAccess;
     };
 
 }

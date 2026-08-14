@@ -632,17 +632,6 @@ void BulletWorldProxy::extractCurrentContacts() {
 
             const auto& point = manifold->getContactPoint(contactIndex);
 
-            for (int contactIndex = 0; contactIndex < manifold->getNumContacts(); ++contactIndex) {
-
-                const auto& point = manifold->getContactPoint(contactIndex);
-                
-                if (!bestPoint || point.m_appliedImpulse > bestPoint->m_appliedImpulse
-                    || (point.m_appliedImpulse == bestPoint->m_appliedImpulse
-                        && point.getDistance() < bestPoint->getDistance())) {
-                    bestPoint = &point;
-                }
-            }
-
             if (!bestPoint || point.m_appliedImpulse > bestPoint->m_appliedImpulse
                 || (point.m_appliedImpulse == bestPoint->m_appliedImpulse
                     && point.getDistance() < bestPoint->getDistance())) {

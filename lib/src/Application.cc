@@ -313,13 +313,17 @@ void Application::dispatchDidBeginFrame(VisualWorld& visualWorld, const VisualWo
 }
 
 void Application::dispatchPhysicsWorldDidBeginContact(PhysicsWorld&         physicsWorld,
-                                                      const PhysicsContact& contact) {}
+                                                      const PhysicsContact& contact) {
+    physicsWorldDidBeginContact(*_runner, *_scene, physicsWorld, contact);
+}
 
 void Application::dispatchPhysicsWorldDidContinueContact(PhysicsWorld&         physicsWorld,
-                                                         const PhysicsContact& contact) {}
+                                                         const PhysicsContact& contact) {
+    physicsWorldDidContinueContact(*_runner, *_scene, physicsWorld, contact);
+}
 
 void Application::dispatchPhysicsWorldDidEndContact(PhysicsWorld& physicsWorld, const PhysicsContact& contact) {
-
+    physicsWorldDidEndContact(*_runner, *_scene, physicsWorld, contact);
 }
 
 /// Private Static Non-Member Functions ///
