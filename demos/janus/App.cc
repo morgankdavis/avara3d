@@ -38,7 +38,12 @@ const vec3                        GRAVITY_ZERO {0.0f, 0.0f, 0.0f};
 /// Private Static Non-Member Prototypes ///
 
 static shared_ptr<Node>          MakeSimulationRoot();
-static optional<App::PickResult> Pick(VisualWorld& visualWorld, const vec2& screenPosition);
+static optional<App::PickResult> Pick(VisualWorld& visualWorld,
+                                      const vec2&  screenPosition,
+                                      const Node*  ignoredNode = nullptr);
+static optional<App::PickResult> FindActionTarget(Scene&      scene,
+                                                  const vec2& screenPosition,
+                                                  const Node* ignoredVisualNode = nullptr);
 static void                      ShootSlurm(Node& parent, const vec3& location, const vec3& direction);
 static vector<shared_ptr<Node>>  AddBoxStack(Node&             parent,
                                              const vec3&       location,
@@ -341,6 +346,22 @@ void App::inputDidUpdate(Runner&       runner,
     if (result.primaryClick) {
         select(Pick(*scene.visualWorld(), result.primaryClick->position));
     }
+
+    // if (result.panButtonClick) {
+    //
+    //     const auto target = FindActionTarget(scene, result.panButtonClick->position);
+    //
+    //     if (target) {
+    //         if (auto node = target->node.lock()) {
+    //             log::app::d()("Action target: {} at {}",
+    //                           node->name().value_or("(unnamed)"),
+    //                           FormatVec3(target->worldHitPosition));
+    //         }
+    //     }
+    //     else {
+    //         log::app::d()("Action target: none");
+    //     }
+    // }
 }
 
 void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
@@ -898,16 +919,73 @@ shared_ptr<Node> MakeSimulationRoot() {
     return root;
 }
 
-optional<App::PickResult> Pick(VisualWorld& visualWorld, const vec2& screenPosition) {
+optional<App::PickResult> Pick(VisualWorld& visualWorld, const vec2& screenPosition, const Node* ignoredNode) {
 
-    const auto hits = visualWorld.hitTest(screenPosition);
+    const auto hits = visualWorld.hitTest(screenPosition, {.searchMode = HitTestSearchMode::All});
+
+    for (const auto& hit : hits) {
+
+        auto node = hit.node();
+
+        if (!node) {
+            continue;
+        }
+
+        if (node.get() == ignoredNode) {
+            continue;
+        }
+
+        return App::PickResult {
+            .node = node,
+            .worldHitPosition = hit.worldCoordinates(),
+            .worldHitNormal = hit.worldNormal(),
+        };
+    }
+
+    return {};
+}
+
+optional<App::PickResult> FindActionTarget(Scene&      scene,
+                                           const vec2& screenPosition,
+                                           const Node* ignoredVisualNode) {
+
+    auto visualWorld = scene.visualWorld();
+
+    if (!visualWorld) {
+        return {};
+    }
+
+    if (auto result = Pick(*visualWorld, screenPosition, ignoredVisualNode)) {
+        return result;
+    }
+
+    auto physicsWorld = scene.physicsWorld();
+
+    if (!physicsWorld) {
+        return {};
+    }
+
+    const vec3 from = visualWorld->unprojectPoint({
+        screenPosition.x,
+        screenPosition.y,
+        0.0f,
+    });
+
+    const vec3 to = visualWorld->unprojectPoint({
+        screenPosition.x,
+        screenPosition.y,
+        1.0f,
+    });
+
+    const auto hits = physicsWorld->rayTest(from, to);
 
     if (hits.empty()) {
         return {};
     }
 
     const auto& hit = hits.front();
-    auto        node = hit.node();
+
+    auto node = hit.node();
 
     if (!node) {
         return {};
