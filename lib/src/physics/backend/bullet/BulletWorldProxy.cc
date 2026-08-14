@@ -376,14 +376,14 @@ const PhysicsWorldProxy::ContactEvents& BulletWorldProxy::step(double deltaTime,
 
         extractCurrentContacts();
 
+        buildContactEvents();
+
         return result;
     });
 
     if (result != 1) {
         throw runtime_error("BulletWorldProxy::step() expected exactly one Bullet simulation step.");
     }
-
-    buildContactEvents();
 
     return _contactEvents;
 }
