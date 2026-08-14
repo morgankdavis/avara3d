@@ -18,7 +18,6 @@
 
 #include "a3d/Math.h"
 #include "a3d/input/InputContext.h"
-#include "a3d/physics/PhysicsWorld.h"
 #include "a3d/util/Bitmask.h"
 
 namespace a3d {
@@ -28,6 +27,7 @@ namespace a3d {
     class Color;
     class Mesh;
     class Node;
+    class PhysicsWorld;
     class Profiler;
     class Renderer;
     class RenderContext;

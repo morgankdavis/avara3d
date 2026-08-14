@@ -16,9 +16,9 @@ using namespace std;
 /// Public Lifecycle Functions ///
 
 BulletStats::BulletStats():
-    numStaticBodies {0},
-    numDynamicBodies {0},
-    numKinematicBodies {0},
+    staticBodies {0},
+    dynamicBodies {0},
+    kinematicBodies {0},
     primitiveShapes {},
     boundingBoxShapes {},
     convexHullShapes {},

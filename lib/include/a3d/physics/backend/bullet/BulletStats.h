@@ -25,9 +25,9 @@ namespace a3d {
 
         /// Internal Member Variables ///
 
-        unsigned                                    numStaticBodies;
-        unsigned                                    numDynamicBodies;
-        unsigned                                    numKinematicBodies;
+        unsigned                                    staticBodies;
+        unsigned                                    dynamicBodies;
+        unsigned                                    kinematicBodies;
         std::unordered_map<PhysicsShape*, unsigned> primitiveShapes;
         std::unordered_map<PhysicsShape*, unsigned> boundingBoxShapes;
         std::unordered_map<PhysicsShape*, unsigned> convexHullShapes;

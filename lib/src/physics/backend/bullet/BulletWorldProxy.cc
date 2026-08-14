@@ -228,13 +228,13 @@ void BulletWorldProxy::add(PhysicsBody& body) {
 
     switch (body.type()) {
         case PhysicsBody::Type::Static:
-            ++_stats.numStaticBodies;
+            ++_stats.staticBodies;
             break;
         case PhysicsBody::Type::Dynamic:
-            ++_stats.numDynamicBodies;
+            ++_stats.dynamicBodies;
             break;
         case PhysicsBody::Type::Kinematic:
-            ++_stats.numKinematicBodies;
+            ++_stats.kinematicBodies;
             break;
     }
 
@@ -276,13 +276,13 @@ void BulletWorldProxy::remove(PhysicsBody& body) {
 
     switch (body.type()) {
         case PhysicsBody::Type::Static:
-            --_stats.numStaticBodies;
+            --_stats.staticBodies;
             break;
         case PhysicsBody::Type::Dynamic:
-            --_stats.numDynamicBodies;
+            --_stats.dynamicBodies;
             break;
         case PhysicsBody::Type::Kinematic:
-            --_stats.numKinematicBodies;
+            --_stats.kinematicBodies;
             break;
     }
 
@@ -351,12 +351,23 @@ void BulletWorldProxy::gravity(const vec3& gravity) {
 
 const PhysicsWorldProxy::ContactEvents& BulletWorldProxy::step(double deltaTime, Profiler& profiler) {
 
+    if (!std::isfinite(deltaTime) || deltaTime <= 0.0
+        || deltaTime > static_cast<double>(std::numeric_limits<btScalar>::max())) {
+        throw invalid_argument("BulletWorldProxy::step() requires a representable positive time step.");
+    }
+
+    const auto btDeltaTime = static_cast<btScalar>(deltaTime);
+
+    if (!std::isfinite(btDeltaTime) || btDeltaTime <= btScalar(0) || btFuzzyZero(btDeltaTime)) {
+        throw invalid_argument("BulletWorldProxy::step() requires a representable positive time step.");
+    }
+
     _contactEvents.clear();
 
     auto result = prof::profile(profiler, Profiler::Tag::Physics, [&] {
         std::scoped_lock lock(_btMutex);
 
-        const auto result = _btWorld->stepSimulation(btScalar(deltaTime), 0);
+        const auto result = _btWorld->stepSimulation(btDeltaTime, 0);
 
         extractCurrentContacts();
         buildContactEvents();
@@ -531,9 +542,9 @@ vector<HitTestResult> BulletWorldProxy::rayTest(const vec3&       from,
 PhysicsWorld::Inventory BulletWorldProxy::inventory() const {
     std::scoped_lock lock(_btMutex);
 
-    return {.staticBodies = _stats.numStaticBodies,
-            .dynamicBodies = _stats.numDynamicBodies,
-            .kinematicBodies = _stats.numKinematicBodies,
+    return {.staticBodies = _stats.staticBodies,
+            .dynamicBodies = _stats.dynamicBodies,
+            .kinematicBodies = _stats.kinematicBodies,
             .primitiveShapes = static_cast<unsigned>(_stats.primitiveShapes.size()),
             .boundingBoxShapes = static_cast<unsigned>(_stats.boundingBoxShapes.size()),
             .convexHullShapes = static_cast<unsigned>(_stats.convexHullShapes.size()),

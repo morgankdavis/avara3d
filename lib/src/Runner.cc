@@ -14,6 +14,7 @@
 #include <utility>
 
 #include "a3d/input/InputContext.h"
+#include "a3d/physics/PhysicsWorld.h"
 #include "a3d/profile/FrameStats.h"
 #include "a3d/profile/Profile.h"
 #include "a3d/scene/Scene.h"
@@ -312,22 +313,21 @@ bool Runner::update(TimePoint now) {
 
         if (_state == State::Running) {
 
-            if (_simulationClockSuspended) {
-                ; // nada
-            }
-            else if (_simulationPaused) {
-                // a new paused scheduling boundary supersedes suppression
-                // from an earlier resume/pause sequence. a resume that occurs
-                // during the requested batch sets this again and interrupts
-                // the local snapshot
-                _skipNextUpdateDelta = false;
-                executePendingSimulationSteps(stats);
-            }
-            else if (_skipNextUpdateDelta) {
-                _skipNextUpdateDelta = false;
-            }
-            else {
-                advanceSimulation(updateInfo, stats);
+            if (!_simulationClockSuspended) {
+                if (_simulationPaused) {
+                    // a new paused scheduling boundary supersedes suppression
+                    // from an earlier resume/pause sequence. a resume that occurs
+                    // during the requested batch sets this again and interrupts
+                    // the local snapshot
+                    _skipNextUpdateDelta = false;
+                    executePendingSimulationSteps(stats);
+                }
+                else if (_skipNextUpdateDelta) {
+                    _skipNextUpdateDelta = false;
+                }
+                else {
+                    advanceSimulation(updateInfo, stats);
+                }
             }
 
             prof::profile(_profiler, Profiler::Tag::EngineCpu, [&] {
@@ -368,8 +368,6 @@ bool Runner::update(TimePoint now) {
 }
 
 void Runner::advanceSimulation(const UpdateInfo& info, FrameStats& stats) {
-
-    PhysicsWorld::Inventory inventory {};
 
     _simulationTimeAccumulator += info.deltaTime * _timeScale;
 

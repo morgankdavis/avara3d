@@ -14,7 +14,6 @@
 #include <functional>
 
 #include "a3d/SimulationConfig.h"
-#include "a3d/physics/PhysicsWorld.h"
 #include "a3d/profile/FrameStatsHistory.h"
 #include "a3d/profile/Profiler.h"
 
@@ -23,7 +22,6 @@
 namespace a3d {
 
     struct FrameStats;
-    struct PhysicsInventory;
 
     class Scene;
 
@@ -102,9 +100,7 @@ namespace a3d {
         /**
          * @brief Starts the Runner using the current monotonic time.
          *
-         * @throws std::logic_error if the Runner is not idle.
-         * @throws std::invalid_argument if the configuration is invalid or the
-         *         Scene's PhysicsWorld rejects the configured time step.
+         * @throws std::invalid_argument if the configuration is invalid.
          */
         void           start();
 
@@ -171,8 +167,7 @@ namespace a3d {
          *
          * Existing accumulated simulation time is preserved in seconds.
          *
-         * @throws std::invalid_argument if value is non-finite, not positive, or
-         *         rejected by the Scene's PhysicsWorld.
+         * @throws std::invalid_argument if value is non-finite or not positive.
          */
         void           timeStep(double value);
 
