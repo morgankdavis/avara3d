@@ -563,6 +563,11 @@ void App::frameDidBegin(Runner&                        runner,
                 panel.value("shape", "none");
             }
 
+            if (auto physicsWorld = scene.physicsWorld()) {
+                const auto contacts = physicsWorld->contactTest(*body);
+                panel.value("contacts", std::format("{}", contacts.size()));
+            }
+
             panel.value("mass", std::format("{:.1f}", body->mass()));
 
             panel.spacer(6.0f);
@@ -1096,10 +1101,10 @@ string_view ShapeTypeName(PhysicsShape::Type type) {
             return "bounding box";
 
         case PhysicsShape::Type::ConvexHull:
-            return "convex hull";
+            return "convex";
 
         case PhysicsShape::Type::ConcavePolyhedron:
-            return "concave polyhedron";
+            return "concave";
     }
 
     return "unknown";
