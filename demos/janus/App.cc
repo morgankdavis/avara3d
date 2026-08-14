@@ -119,14 +119,14 @@ std::unique_ptr<Scene> App::init() {
                     .color = make_shared<Color>(vec4 {0.5f, 0.5f, 0.5f, 0.25f}),
                     .spacing = 1.0f,
                     .lineWidthPixels = 1.0f,
-                    .reliefStrength = -0.15f,
+                    .reliefStrength = -0.125f,
                 },
             .majorGrid =
                 InfiniteGround::Grid {
                     .color = make_shared<Color>(vec4 {0.75f, 0.75f, 0.75f, 0.25f}),
                     .spacing = 10.0f,
                     .lineWidthPixels = 1.0f,
-                    .reliefStrength = -0.15f,
+                    .reliefStrength = -0.125f,
                 },
             .radialFade =
                 InfiniteGround::RadialFade {
@@ -201,7 +201,8 @@ std::unique_ptr<Scene> App::init() {
         scene->visualWorld()->pointOfView(_cameraNode);
 
         auto cameraConfig = _cameraController.config();
-        cameraConfig.controls.primaryButton = DesktopInputContext::MouseButton::Two;
+        cameraConfig.controls.primaryButton = DesktopInputContext::MouseButton::One;
+        cameraConfig.controls.panButton = DesktopInputContext::MouseButton::Two;
         //cameraConfig.minPitch = math::radians(0.0f);
         cameraConfig.invertPitch = true;
         cameraConfig.minDistance = 1.0f;
@@ -248,7 +249,7 @@ std::unique_ptr<Scene> App::init() {
                 // light->attenuation(Attenuation {
                 //     .quadratic = 0.5f
                 // });
-                light->attenuation(Attenuation::FromRange(3.0f, 0.02f));
+                //light->attenuation(Attenuation::FromRange(3.0f, 0.02f));
 
                 auto orb = Node::LightNode(light);
                 orb->name(std::format("Orb {}", i + 1));
@@ -337,10 +338,8 @@ void App::inputDidUpdate(Runner&       runner,
     //_window->cursorHidden(result.pointerDragging);
     _window->cursorCaptured(result.pointerDragging);
 
-    if (input.mouseButtonPressed(MouseButton::One)) {
-        if (!result.pointerDragging) {
-            select(Pick(*scene.visualWorld(), input.mousePosition()));
-        }
+    if (result.primaryClick) {
+        select(Pick(*scene.visualWorld(), result.primaryClick->position));
     }
 }
 

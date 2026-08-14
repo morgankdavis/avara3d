@@ -38,7 +38,9 @@ TurntableCameraController::TurntableCameraController(const Config& config):
     _primaryDragging {false},
     _primaryDragMode {DragMode::Orbit},
     _primaryPressPosition {0.0f},
-    _panButtonDragging {false} {
+    _panButtonActive {false},
+    _panButtonDragging {false},
+    _panButtonPressPosition {0.0f} {
 
     this->config(config);
     resolveTarget();
@@ -154,7 +156,6 @@ TurntableCameraController::UpdateResult TurntableCameraController::update(Deskto
                                                                           float                viewportHeight) {
 
     if (!std::isfinite(vFov) || vFov <= 0.0f || vFov >= math::PI) {
-
         throw invalid_argument(
             "TurntableCameraController vertical field of view must be finite and between 0 and 180 degrees.");
     }
@@ -303,17 +304,45 @@ TurntableCameraController::UpdateResult TurntableCameraController::update(Deskto
 
     // dedicated pan button
 
-    const bool panButtonPressed = input.mouseButtonPressed(_config.controls.panButton);
+    // dedicated pan button: click candidate / pan
 
-    if (panButtonPressed) {
-        _panButtonDragging = true;
+    if (input.mouseButtonPressed(_config.controls.panButton)) {
+
+        _panButtonActive = true;
+        _panButtonDragging = false;
+        _panButtonPressPosition = position;
     }
 
-    if (_panButtonDragging && input.mouseButtonDown(_config.controls.panButton) && !panButtonPressed) {
-        pan(dragDelta);
+    if (_panButtonActive && input.mouseButtonDown(_config.controls.panButton)) {
+
+        if (!_panButtonDragging) {
+
+            const vec2  totalDelta = position - _panButtonPressPosition;
+            const float dragDistance = math::length(totalDelta);
+
+            if (dragDistance > 0.0f && dragDistance >= _config.dragThreshold) {
+
+                _panButtonDragging = true;
+
+                // apply the entire displacement from the original press so
+                // crossing the threshold doesn't discard the first few pixels
+                pan(totalDelta);
+            }
+        }
+        else {
+            pan(dragDelta);
+        }
     }
 
     if (input.mouseButtonReleased(_config.controls.panButton)) {
+
+        if (_panButtonActive && !_panButtonDragging) {
+            result.panButtonClick = PointerClick {
+                .position = position,
+            };
+        }
+
+        _panButtonActive = false;
         _panButtonDragging = false;
     }
 

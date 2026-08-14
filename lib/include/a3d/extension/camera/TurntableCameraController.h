@@ -80,6 +80,7 @@ namespace a3d::ext {
             bool                        cameraChanged {false};
             bool                        pointerDragging {false};
             std::optional<PointerClick> primaryClick;
+            std::optional<PointerClick> panButtonClick;
         };
 
         /// Public Lifecycle Functions ///
@@ -125,7 +126,9 @@ namespace a3d::ext {
         bool       _primaryDragging;
         DragMode   _primaryDragMode;
         math::vec2 _primaryPressPosition;
+        bool       _panButtonActive;
         bool       _panButtonDragging;
+        math::vec2 _panButtonPressPosition;
     };
 
 }
