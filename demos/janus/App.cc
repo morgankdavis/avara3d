@@ -35,6 +35,8 @@ const vec3                        GRAVITY_EARTH {0.0f, -9.807f, 0.0f};
 const vec3                        GRAVITY_MOON {0.0f, -1.62f, 0.0f};
 const vec3                        GRAVITY_ZERO {0.0f, 0.0f, 0.0f};
 const float                       CURSOR_MARKER_RADIUS {0.1f};
+const float                       SHOOT_SPAWN_DISTANCE {0.5f};
+const float                       SHOOT_SPEED {15.0f};
 
 /// Private Static Non-Member Prototypes ///
 
@@ -45,7 +47,7 @@ static optional<App::PickResult> Pick(VisualWorld&               visualWorld,
 static optional<App::PickResult> FindActionTarget(Scene&                     scene,
                                                   const vec2&                screenPosition,
                                                   const vector<const Node*>& ignoredNodes = {});
-static void                      ShootSlurm(Node& parent, const vec3& location, const vec3& direction);
+static shared_ptr<Node>          ShootSlurm(Node& parent, const vec3& location, const vec3& velocity);
 static vector<shared_ptr<Node>>  AddBoxStack(Node&             parent,
                                              const vec3&       location,
                                              const vec3&       boxSize,
@@ -200,6 +202,16 @@ std::unique_ptr<Scene> App::init() {
                                  .distanceLimit =
                                      ext::TransientNodeRegistry::DistanceLimit {.center = {0.0f, 0.0f, 0.0f},
                                                                                 .radius = 25.0f}});
+
+        _transients.groupPolicy("projectile", {
+                                                  .maxAge = 15.0,
+                                                  //.maxCount = {100},
+                                                  .distanceLimit =
+                                                      ext::TransientNodeRegistry::DistanceLimit {
+                                                          .center = {0.0f, 0.0f, 0.0f},
+                                                          .radius = 100.0f,
+                                                      },
+                                              });
 
         // create and configure the camer and camera controller
 
@@ -593,7 +605,6 @@ void App::frameDidBegin(Runner&                        runner,
 
     panel.spacer(12.0f);
 
-
     panel.section("action");
 
     panel.row(3);
@@ -611,7 +622,6 @@ void App::frameDidBegin(Runner&                        runner,
     }
 
     panel.spacer(12.0f);
-
 
     // panel.section("contacts");
     //
@@ -893,8 +903,79 @@ void App::useAction(Scene& scene, const vec2& screenPosition) {
             break;
         }
 
-        case Action::Shoot:
+        case Action::Shoot: {
+
+            if (!_cameraNode) {
+                return;
+            }
+
+            auto physicsWorld = scene.physicsWorld();
+
+            if (!physicsWorld) {
+                return;
+            }
+
+            const vec3 cameraPosition = _cameraNode->worldPosition();
+            const vec3 targetPosition = _actionTarget->worldHitPosition;
+
+            const vec3  toTarget = targetPosition - cameraPosition;
+            const float targetDistance = length(toTarget);
+
+            if (targetDistance <= F32_COMPARE_EPSILON) {
+                return;
+            }
+
+            const vec3 aimDirection = toTarget / targetDistance;
+
+            const vec3 spawnPosition =
+                cameraPosition + aimDirection * math::min(SHOOT_SPAWN_DISTANCE, targetDistance * 0.25f);
+
+            const vec3 displacement = targetPosition - spawnPosition;
+            const vec3 gravity = physicsWorld->gravity();
+
+            const vec3 horizontalDisplacement {
+                displacement.x,
+                0.0f,
+                displacement.z,
+            };
+
+            const float horizontalDistance = length(horizontalDisplacement);
+            const float gravityMagnitude = -gravity.y;
+
+            vec3 velocity;
+
+            if (gravityMagnitude > F32_COMPARE_EPSILON && horizontalDistance > F32_COMPARE_EPSILON) {
+
+                const float speedSquared = SHOOT_SPEED * SHOOT_SPEED;
+                const float discriminant = speedSquared * speedSquared
+                                           - gravityMagnitude
+                                                 * (gravityMagnitude * horizontalDistance * horizontalDistance
+                                                    + 2.0f * displacement.y * speedSquared);
+
+                if (discriminant >= 0.0f) {
+
+                    const float horizontalSpeed = math::sqrt((speedSquared + math::sqrt(discriminant)) * 0.5f);
+
+                    const float verticalSpeed =
+                        (displacement.y * gravityMagnitude + math::sqrt(discriminant)) / horizontalSpeed;
+
+                    velocity =
+                        normalize(horizontalDisplacement) * horizontalSpeed + vec3 {0.0f, verticalSpeed, 0.0f};
+                }
+                else {
+                    velocity = aimDirection * SHOOT_SPEED;
+                }
+            }
+            else {
+                velocity = aimDirection * SHOOT_SPEED;
+            }
+
+            auto projectile = ShootSlurm(*_simulationRoot, spawnPosition, velocity);
+
+            _transients.track(projectile, "projectile");
+
             break;
+        }
 
         case Action::Drop:
             break;
@@ -1147,9 +1228,13 @@ optional<App::PickResult> FindActionTarget(Scene&                     scene,
     };
 }
 
-void ShootSlurm(Node& parent, const vec3& location, const vec3& direction) {
+shared_ptr<Node> ShootSlurm(Node& parent, const vec3& location, const vec3& velocity) {
 
+    constexpr float SLURMHEIGHT = 0.123f;
     static auto mesh = util::fs::MeshNamed("slurm/slurm");
+    const float     scaleFactor = SLURMHEIGHT / mesh->localExtent().y;
+    mesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
+
     // mesh->materials()[0]->emission(mesh->materials()[0]->diffuse());
     // mesh->materials()[1]->emission(mesh->materials()[1]->diffuse());
 
@@ -1185,15 +1270,19 @@ void ShootSlurm(Node& parent, const vec3& location, const vec3& direction) {
                                   uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
                                   uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE)});
 
-    const float VELOCITY = uniform_linear(40.0f, 60.0f);
-    // const float        VELOCITY = uniform_linear(20.0f, 40.0f);
-    static const float DIRECTION_VARIATION = 0.01;
-    const vec3         variedDirection = normalize(normalize(direction) + uniform_ball(DIRECTION_VARIATION));
-    physicsBody->linearVelocity(variedDirection * VELOCITY);
+    // const float VELOCITY = uniform_linear(40.0f, 60.0f);
+    // // const float        VELOCITY = uniform_linear(20.0f, 40.0f);
+    // static const float DIRECTION_VARIATION = 0.01;
+    // const vec3         variedDirection = normalize(normalize(direction) + uniform_ball(DIRECTION_VARIATION));
+    // physicsBody->linearVelocity(variedDirection * VELOCITY);
+
+    physicsBody->linearVelocity(velocity);
 
     node->physicsBody(std::move(physicsBody));
 
     parent.addChild(node);
+
+    return node;
 }
 
 vector<shared_ptr<Node>> AddBoxStack(Node&             parent,
