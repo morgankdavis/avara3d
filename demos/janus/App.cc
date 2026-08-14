@@ -39,6 +39,10 @@ const float                       SHOOT_SPAWN_DISTANCE {0.5f};
 const float                       SHOOT_SPEED {15.0f};
 const float                       SHOOT_MIN_FLIGHT_TIME {0.25f};
 const float                       SHOOT_MAX_FLIGHT_TIME {1.5f};
+const float                       DROP_HEIGHT {5.0f};
+const vec3                        DROP_BOX_SIZE {0.25f, 0.25f, 0.25f};
+const u8vec3                      DROP_STACK_SIZE {3, 3, 3};
+const float                       DROP_PADDING {0.025f};
 
 /// Private Static Non-Member Prototypes ///
 
@@ -416,7 +420,7 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
         wander->update(info.deltaTime);
     }
 
-    auto& input = static_cast<DesktopInputContext&>(*scene.inputContext());
+    // auto& input = static_cast<DesktopInputContext&>(*scene.inputContext());
 
     // if (_bananaNode) {
     //     // rotate the banana at 30 degrees per second
@@ -425,8 +429,8 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
     //     _bananaNode->orientation(rotationY * _bananaNode->orientation());
     // }
 
-    using Key = DesktopInputContext::Key;
-    using MouseButton = DesktopInputContext::MouseButton;
+    // using Key = DesktopInputContext::Key;
+    // using MouseButton = DesktopInputContext::MouseButton;
 
     // if (input.mouseButtonPressed(MouseButton::One)) {
     //
@@ -462,11 +466,11 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
 
     // drop boxes
 
-    if (input.keyPressed(Key::GraveAccent)) {
-        _transients.track(AddBoxStack(*_simulationRoot, {0.0f, 10.0f, 0.0f}, {0.25f, 0.25f, 0.25f}, {3, 3, 3},
-                                      0.025f, Color::White()),
-                          "box");
-    }
+    // if (input.keyPressed(Key::GraveAccent)) {
+    //     _transients.track(AddBoxStack(*_simulationRoot, {0.0f, 10.0f, 0.0f}, {0.25f, 0.25f, 0.25f}, {3, 3, 3},
+    //                                   0.025f, Color::White()),
+    //                       "box");
+    // }
 }
 
 void App::sceneDidStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
@@ -948,8 +952,23 @@ void App::useAction(Scene& scene, const vec2& screenPosition) {
             break;
         }
 
-        case Action::Drop:
+        case Action::Drop: {
+
+            const vec3 spawnLocation =
+                _actionTarget->worldHitPosition + vec3 {0.0f, DROP_HEIGHT, 0.0f};
+
+            auto boxes =
+                AddBoxStack(*_simulationRoot,
+                            spawnLocation,
+                            DROP_BOX_SIZE,
+                            DROP_STACK_SIZE,
+                            DROP_PADDING,
+                            Color::White());
+
+            _transients.track(boxes, "box");
+
             break;
+        }
     }
 }
 
