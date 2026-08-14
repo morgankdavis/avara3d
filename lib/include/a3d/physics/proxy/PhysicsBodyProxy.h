@@ -16,8 +16,6 @@ namespace a3d {
     class PhysicsBody;
     class PhysicsShapeProxy;
 
-//	class PhysicsWorld;
-
     class PhysicsBodyProxy {
 
     public:
@@ -40,9 +38,6 @@ namespace a3d {
 
         virtual PhysicsShapeProxy* shapeProxy() const                   = 0;
         virtual void               shapeProxy(PhysicsShapeProxy* proxy) = 0;
-
-//		virtual math::mat4				worldTransform() const = 0;
-//		virtual void					worldTransform(const math::mat4& transform) = 0;
 
         virtual float              mass() const     = 0;
         virtual void               mass(float mass) = 0;

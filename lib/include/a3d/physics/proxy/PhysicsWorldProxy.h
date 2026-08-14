@@ -9,9 +9,11 @@
 #ifndef AVARA3D_PHYSICS_PROXY_PHYSICSWORLDPROXY_H
 #define AVARA3D_PHYSICS_PROXY_PHYSICSWORLDPROXY_H
 
+#include <cstdint>
 #include <memory>
 #include <vector>
 
+#include "a3d/physics/PhysicsContact.h"
 #include "a3d/physics/PhysicsInventory.h"
 #include "a3d/scene/HitTestResult.h"
 #include "a3d/scene/Scene.h"
@@ -28,6 +30,21 @@ namespace a3d {
     class PhysicsWorldProxy {
 
     public:
+        /// Internal Types ///
+
+        enum class ContactEventType : uint8_t {
+            Begin,
+            Continue,
+            End
+        };
+
+        struct ContactEvent {
+            ContactEventType type;
+            PhysicsContact   contact;
+        };
+
+        using ContactEvents = std::vector<ContactEvent>;
+
         /// Internal Lifecycle Functions ///
 
         explicit PhysicsWorldProxy(PhysicsWorld& world);
@@ -50,7 +67,7 @@ namespace a3d {
 
         virtual bool                       acceptsStepDelta(double deltaTime) const = 0;
 
-        virtual void                       step(double deltaTime, Profiler& profiler) = 0;
+        virtual const ContactEvents&       step(double deltaTime, Profiler& profiler) = 0;
 
         virtual std::vector<HitTestResult> rayTest(const math::vec3& from,
                                                    const math::vec3& to,

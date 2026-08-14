@@ -358,7 +358,7 @@ bool BulletWorldProxy::acceptsStepDelta(double deltaTime) const {
     return std::isfinite(btDeltaTime) && btDeltaTime > btScalar(0) && !btFuzzyZero(btDeltaTime);
 }
 
-void BulletWorldProxy::step(double deltaTime, Profiler& profiler) {
+const PhysicsWorldProxy::ContactEvents& BulletWorldProxy::step(double deltaTime, Profiler& profiler) {
 
     if (!acceptsStepDelta(deltaTime)) {
         throw invalid_argument("BulletWorldProxy::step() requires an accepted positive, finite delta time.");
@@ -366,7 +366,6 @@ void BulletWorldProxy::step(double deltaTime, Profiler& profiler) {
 
     auto result = prof::profile(profiler, Profiler::Tag::Physics, [&] {
         std::scoped_lock lock(_btMutex);
-
         return _btWorld->stepSimulation(btScalar(deltaTime), 0);
     });
 

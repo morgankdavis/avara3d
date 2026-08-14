@@ -38,11 +38,19 @@ namespace a3d {
             HitTestSearchMode searchMode {HitTestSearchMode::Closest};
         };
 
-        // ! NOT IMPLEMENTED !
-        using BeginContactCallback = std::function<void(PhysicsWorld& physicsWorld, PhysicsContact& contact)>;
+        // TODO: Doxygen:
+        // - Contact callbacks describe one logical contact lifecycle per pair of physics bodies.
+        // - Continue callbacks occur once per simulation step while the pair remains in contact.
+        // - Removing a physics body silently terminates its tracked contacts and does not generate
+        //   an end-contact callback.
+        // - Ordering between callbacks for unrelated body pairs is unspecified.
+
+        using BeginContactCallback =
+            std::function<void(PhysicsWorld& physicsWorld, const PhysicsContact& contact)>;
         using ContinueContactCallback =
-            std::function<void(PhysicsWorld& physicsWorld, PhysicsContact& contact)>;
-        using EndContactCallback = std::function<void(PhysicsWorld& physicsWorld, PhysicsContact& contact)>;
+            std::function<void(PhysicsWorld& physicsWorld, const PhysicsContact& contact)>;
+        using EndContactCallback =
+            std::function<void(PhysicsWorld& physicsWorld, const PhysicsContact& contact)>;
 
         /// Public Lifecycle Functions ///
 

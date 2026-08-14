@@ -53,7 +53,7 @@ namespace a3d {
 
         bool                       acceptsStepDelta(double deltaTime) const override;
 
-        void                       step(double deltaTime, Profiler& profiler) override;
+        const ContactEvents&       step(double deltaTime, Profiler& profiler) override;
 
         std::vector<HitTestResult> rayTest(const math::vec3& from,
                                            const math::vec3& to,
@@ -90,6 +90,8 @@ namespace a3d {
         std::vector<Line>                                      _debugLines;
 
         BulletStats                                            _stats;
+
+        ContactEvents                                          _contactEvents;
 
         mutable std::mutex                                     _btMutex;
 

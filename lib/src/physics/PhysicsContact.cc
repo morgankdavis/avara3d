@@ -8,20 +8,11 @@
 
 #include "a3d/physics/PhysicsContact.h"
 
+#include <utility>
+
 using namespace a3d;
 using namespace a3d::math;
 using namespace std;
-
-/// Public Lifecycle Functions ///
-
-PhysicsContact::PhysicsContact():
-    _nodeA {},
-    _nodeB {},
-    _contactPoint {0.0f},
-    _contactNormal {0.0f},
-    _collisionImpulse {0.0f},
-    _penetrationDistance {0.0f},
-    _sweepTestFraction {0.0f} {}
 
 /// Public Member Functions ///
 
@@ -52,3 +43,20 @@ float PhysicsContact::penetrationDistance() const {
 float PhysicsContact::sweepTestFraction() const {
     return _sweepTestFraction;
 }
+
+/// Internal Lifecycle Functions ///
+
+PhysicsContact::PhysicsContact(weak_ptr<Node> nodeA,
+                               weak_ptr<Node> nodeB,
+                               const vec3&    contactPoint,
+                               const vec3&    contactNormal,
+                               float          collisionImpulse,
+                               float          penetrationDistance,
+                               float          sweepTestFraction):
+    _nodeA {std::move(nodeA)},
+    _nodeB {std::move(nodeB)},
+    _contactPoint {contactPoint},
+    _contactNormal {contactNormal},
+    _collisionImpulse {collisionImpulse},
+    _penetrationDistance {penetrationDistance},
+    _sweepTestFraction {sweepTestFraction} {}

@@ -17,13 +17,16 @@ namespace a3d {
 
     class Node;
 
+    // TODO: Doxygen:
+    // - If a body pair has multiple underlying contact points, PhysicsContact represents
+    //   the point with the greatest applied impulse, using deepest penetration as a tie-breaker.
+    // - penetrationDistance() is 0 for touching and positive for penetration.
+    // - Document the orientation of contactNormal() relative to nodeA()/nodeB() after
+    //   verifying the Bullet convention.
+
     class PhysicsContact {
 
     public:
-        /// Public Lifecycle Functions ///
-
-        PhysicsContact();
-
         /// Public Member Functions ///
 
         std::weak_ptr<Node> nodeA() const;
@@ -34,16 +37,26 @@ namespace a3d {
         float               penetrationDistance() const;
         float               sweepTestFraction() const;
 
+        /// Internal Lifecycle Functions ///
+
+        PhysicsContact(std::weak_ptr<Node> nodeA,
+                       std::weak_ptr<Node> nodeB,
+                       const math::vec3&   contactPoint,
+                       const math::vec3&   contactNormal,
+                       float               collisionImpulse,
+                       float               penetrationDistance,
+                       float               sweepTestFraction);
+
     private:
         /// Private Member Variables ///
 
-        std::shared_ptr<Node> _nodeA;
-        std::shared_ptr<Node> _nodeB;
-        math::vec3            _contactPoint;
-        math::vec3            _contactNormal;
-        float                 _collisionImpulse;
-        float                 _penetrationDistance;
-        float                 _sweepTestFraction;
+        std::weak_ptr<Node> _nodeA;
+        std::weak_ptr<Node> _nodeB;
+        math::vec3          _contactPoint;
+        math::vec3          _contactNormal;
+        float               _collisionImpulse;
+        float               _penetrationDistance;
+        float               _sweepTestFraction;
     };
 
 }
