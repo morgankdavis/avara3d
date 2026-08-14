@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <functional>
 #include <limits>
 #include <stdexcept>
 #include <thread>
@@ -364,14 +365,20 @@ const PhysicsWorldProxy::ContactEvents& BulletWorldProxy::step(double deltaTime,
         throw invalid_argument("BulletWorldProxy::step() requires an accepted positive, finite delta time.");
     }
 
+    _contactEvents.clear();
+
     auto result = prof::profile(profiler, Profiler::Tag::Physics, [&] {
         std::scoped_lock lock(_btMutex);
-        return _btWorld->stepSimulation(btScalar(deltaTime), 0);
+        const auto       result = _btWorld->stepSimulation(btScalar(deltaTime), 0);
+        extractCurrentContacts();
+        return result;
     });
 
     if (result != 1) {
         throw runtime_error("BulletWorldProxy::step() expected exactly one Bullet simulation step.");
     }
+
+    return _contactEvents;
 }
 
 vector<HitTestResult> BulletWorldProxy::rayTest(const vec3&       from,
@@ -589,6 +596,106 @@ void BulletWorldProxy::appendDebugLines(vector<Line>& out, Scene::DebugOptions d
 
 btDiscreteDynamicsWorld* BulletWorldProxy::btWorld() {
     return _btWorld.get();
+}
+
+/// Private Member Functions ///
+
+void BulletWorldProxy::extractCurrentContacts() {
+
+    _currentContacts.clear();
+
+    const auto bodyLess = std::less<PhysicsBody*> {};
+
+    const int manifoldCount = _btCollisionDispatcher->getNumManifolds();
+
+    for (int manifoldIndex = 0; manifoldIndex < manifoldCount; ++manifoldIndex) {
+
+        auto manifold = _btCollisionDispatcher->getManifoldByIndexInternal(manifoldIndex);
+        if (!manifold) {
+            continue;
+        }
+
+        auto rawBodyA = static_cast<PhysicsBody*>(manifold->getBody0()->getUserPointer());
+        auto rawBodyB = static_cast<PhysicsBody*>(manifold->getBody1()->getUserPointer());
+
+        if (!rawBodyA || !rawBodyB || rawBodyA == rawBodyB) {
+            continue;
+        }
+
+        const bool swapped = bodyLess(rawBodyB, rawBodyA);
+
+        PhysicsBody* bodyA = swapped ? rawBodyB : rawBodyA;
+        PhysicsBody* bodyB = swapped ? rawBodyA : rawBodyB;
+
+        auto nodeA = bodyA->node().lock();
+        auto nodeB = bodyB->node().lock();
+
+        if (!nodeA || !nodeB) {
+            continue;
+        }
+
+        for (int contactIndex = 0; contactIndex < manifold->getNumContacts(); ++contactIndex) {
+
+            const auto& point = manifold->getContactPoint(contactIndex);
+
+            if (point.getDistance() > btScalar(0)) {
+                continue;
+            }
+
+            const btVector3 btContactPoint =
+                (point.getPositionWorldOnA() + point.getPositionWorldOnB()) * btScalar(0.5);
+
+            btVector3 btContactNormal = point.m_normalWorldOnB;
+
+            if (swapped) {
+                btContactNormal = -btContactNormal;
+            }
+
+            const vec3 contactPoint = A3DVec3FromBTVector3(btContactPoint);
+            const vec3 contactNormal = A3DVec3FromBTVector3(btContactNormal);
+
+            const float collisionImpulse = static_cast<float>(point.m_appliedImpulse);
+
+            const float penetrationDistance = math::max(0.0f, -static_cast<float>(point.getDistance()));
+
+            _currentContacts.push_back({bodyA, bodyB,
+                                        PhysicsContact {nodeA, nodeB, contactPoint, contactNormal,
+                                                        collisionImpulse, penetrationDistance, 0.0f}});
+        }
+    }
+
+    sort(_currentContacts.begin(), _currentContacts.end(),
+         [&](const BodyPairContact& lhs, const BodyPairContact& rhs) {
+             if (bodyLess(lhs.bodyA, rhs.bodyA)) {
+                 return true;
+             }
+             if (bodyLess(rhs.bodyA, lhs.bodyA)) {
+                 return false;
+             }
+
+             if (bodyLess(lhs.bodyB, rhs.bodyB)) {
+                 return true;
+             }
+             if (bodyLess(rhs.bodyB, lhs.bodyB)) {
+                 return false;
+             }
+
+             if (lhs.contact.collisionImpulse() > rhs.contact.collisionImpulse()) {
+                 return true;
+             }
+             if (lhs.contact.collisionImpulse() < rhs.contact.collisionImpulse()) {
+                 return false;
+             }
+
+             return lhs.contact.penetrationDistance() > rhs.contact.penetrationDistance();
+         });
+
+    const auto uniqueEnd = unique(_currentContacts.begin(), _currentContacts.end(),
+                                  [](const BodyPairContact& lhs, const BodyPairContact& rhs) {
+                                      return lhs.bodyA == rhs.bodyA && lhs.bodyB == rhs.bodyB;
+                                  });
+
+    _currentContacts.erase(uniqueEnd, _currentContacts.end());
 }
 
 /// Private Static Non-Member Functions ///

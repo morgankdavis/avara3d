@@ -70,6 +70,20 @@ namespace a3d {
         btDiscreteDynamicsWorld* btWorld();
 
     private:
+        /// Private Types ///
+
+        struct BodyPairContact {
+            PhysicsBody*   bodyA;
+            PhysicsBody*   bodyB;
+            PhysicsContact contact;
+        };
+
+        using BodyPairContacts = std::vector<BodyPairContact>;
+
+        /// Private Member Functions ///
+
+        void                                                   extractCurrentContacts();
+
         ///  Private Member Variables ///
 
         // scheduler
@@ -92,6 +106,7 @@ namespace a3d {
         BulletStats                                            _stats;
 
         ContactEvents                                          _contactEvents;
+        BodyPairContacts                                       _currentContacts;
 
         mutable std::mutex                                     _btMutex;
 

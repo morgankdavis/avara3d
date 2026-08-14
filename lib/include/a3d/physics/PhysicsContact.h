@@ -21,8 +21,8 @@ namespace a3d {
     // - If a body pair has multiple underlying contact points, PhysicsContact represents
     //   the point with the greatest applied impulse, using deepest penetration as a tie-breaker.
     // - penetrationDistance() is 0 for touching and positive for penetration.
-    // - Document the orientation of contactNormal() relative to nodeA()/nodeB() after
-    //   verifying the Bullet convention.
+    // - contactNormal() points from nodeB() toward nodeA().
+    // - contactPoint() is the midpoint between the two underlying body contact points.
 
     class PhysicsContact {
 
