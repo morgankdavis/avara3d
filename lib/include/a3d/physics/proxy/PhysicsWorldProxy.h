@@ -11,6 +11,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <vector>
 
 #include "a3d/physics/PhysicsContact.h"
@@ -59,21 +60,29 @@ namespace a3d {
 
         /// Internal Member Functions ///
 
-        virtual void                       add(PhysicsBody& body)    = 0;
-        virtual void                       remove(PhysicsBody& body) = 0;
+        virtual void                          add(PhysicsBody& body)    = 0;
+        virtual void                          remove(PhysicsBody& body) = 0;
 
-        virtual math::vec3                 gravity() const                    = 0;
-        virtual void                       gravity(const math::vec3& gravity) = 0;
+        virtual math::vec3                    gravity() const                    = 0;
+        virtual void                          gravity(const math::vec3& gravity) = 0;
 
-        virtual const ContactEvents&       step(double deltaTime, Profiler& profiler) = 0;
+        virtual const ContactEvents&          step(double deltaTime, Profiler& profiler) = 0;
 
-        virtual std::vector<HitTestResult> rayTest(const math::vec3& from,
-                                                   const math::vec3& to,
-                                                   HitTestSearchMode searchMode) const = 0;
+        virtual std::optional<PhysicsContact> contactTest(const PhysicsBody& bodyA,
+                                                          const PhysicsBody& bodyB) const = 0;
+        virtual std::vector<PhysicsContact>   contactTest(const PhysicsBody& body) const  = 0;
+        virtual std::vector<HitTestResult>    rayTest(const math::vec3& from,
+                                                      const math::vec3& to,
+                                                      HitTestSearchMode searchMode) const = 0;
+        // ! NOT IMPLEMENTED !
+        virtual std::vector<PhysicsContact>   convexSweepTest(const PhysicsShape& shape,
+                                                              const math::mat4&   fromMat,
+                                                              const math::mat4&   toMat,
+                                                              HitTestSearchMode   searchMode) const = 0;
 
-        virtual PhysicsWorld::Inventory    inventory() const = 0;
+        virtual PhysicsWorld::Inventory       inventory() const = 0;
 
-        virtual void                       updateCollisionPairs() = 0;
+        virtual void                          updateCollisionPairs() = 0;
 
         virtual void appendDebugLines(std::vector<Line>& out, Scene::DebugOptions debugOptions) = 0;
     };

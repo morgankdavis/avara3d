@@ -74,6 +74,10 @@ namespace test::rigidbody {
         uint64_t                                 _contactBegins;
         uint64_t                                 _contactContinues;
         uint64_t                                 _contactEnds;
+        std::weak_ptr<a3d::Node>                 _contactTestA;
+        std::weak_ptr<a3d::Node>                 _contactTestB;
+        std::weak_ptr<a3d::Node>                 _contactTestC;
+        std::weak_ptr<a3d::Node>                 _contactTestD;
     };
 
 }
