@@ -74,14 +74,14 @@ namespace demo::janus {
                            a3d::VisualWorld&                   visualWorld,
                            const a3d::VisualWorld::RenderInfo& info) override;
 
-        void contactDidBegin(a3d::Runner&               runner,
-                             a3d::Scene&                scene,
-                             a3d::PhysicsWorld&         physicsWorld,
-                             const a3d::PhysicsContact& contact) override;
-        void contactDidContinue(a3d::Runner&               runner,
-                                a3d::Scene&                scene,
-                                a3d::PhysicsWorld&         physicsWorld,
-                                const a3d::PhysicsContact& contact) override;
+        // void contactDidBegin(a3d::Runner&               runner,
+        //                      a3d::Scene&                scene,
+        //                      a3d::PhysicsWorld&         physicsWorld,
+        //                      const a3d::PhysicsContact& contact) override;
+        // void contactDidContinue(a3d::Runner&               runner,
+        //                         a3d::Scene&                scene,
+        //                         a3d::PhysicsWorld&         physicsWorld,
+        //                         const a3d::PhysicsContact& contact) override;
         // void contactDidEnd(a3d::Runner&               runner,
         //                    a3d::Scene&                scene,
         //                    a3d::PhysicsWorld&         physicsWorld,
@@ -103,8 +103,8 @@ namespace demo::janus {
         a3d::ext::TransientNodeRegistry                _transients;
         double                                         _backgroundRotationTime;
         std::vector<std::unique_ptr<a3d::ext::Wander>> _orbWanders;
-        std::optional<ImpactInfo>                      _lastImpact;
-        float                                          _peakImpactImpulse;
+        // std::optional<ImpactInfo>                      _lastImpact;
+        // float                                          _peakImpactImpulse;
         bool                                           _resetRequested;
     };
 

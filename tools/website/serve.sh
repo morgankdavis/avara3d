@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# ex: serve.sh 8000 cmake-build-web-debug
+
 set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"

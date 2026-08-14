@@ -539,6 +539,13 @@ vector<HitTestResult> BulletWorldProxy::rayTest(const vec3&       from,
     return {};
 }
 
+vector<PhysicsContact> BulletWorldProxy::convexSweepTest(const PhysicsShape& shape,
+                                                         const math::mat4&   fromMat,
+                                                         const math::mat4&   toMat,
+                                                         HitTestSearchMode   searchMode) const {
+    throw runtime_error("Not implemented.");
+}
+
 PhysicsWorld::Inventory BulletWorldProxy::inventory() const {
 
     std::scoped_lock lock(_btMutex);

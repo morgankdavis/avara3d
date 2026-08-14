@@ -47,21 +47,26 @@ namespace a3d {
 
         /// PhysicsWorldModelProxy Internal Member Functions ///
 
-        void                       add(PhysicsBody& body) override;
-        void                       remove(PhysicsBody& body) override;
+        void                        add(PhysicsBody& body) override;
+        void                        remove(PhysicsBody& body) override;
 
-        math::vec3                 gravity() const override;
-        void                       gravity(const math::vec3& gravity) override;
+        math::vec3                  gravity() const override;
+        void                        gravity(const math::vec3& gravity) override;
 
-        const ContactEvents&       step(double deltaTime, Profiler& profiler) override;
+        const ContactEvents&        step(double deltaTime, Profiler& profiler) override;
 
-        std::vector<HitTestResult> rayTest(const math::vec3& from,
-                                           const math::vec3& to,
-                                           HitTestSearchMode searchMode) const override;
+        std::vector<HitTestResult>  rayTest(const math::vec3& from,
+                                            const math::vec3& to,
+                                            HitTestSearchMode searchMode) const override;
+        // ! NOT IMPLEMENTED !
+        std::vector<PhysicsContact> convexSweepTest(const PhysicsShape& shape,
+                                                    const math::mat4&   fromMat,
+                                                    const math::mat4&   toMat,
+                                                    HitTestSearchMode   searchMode) const override;
 
-        PhysicsWorld::Inventory    inventory() const override;
+        PhysicsWorld::Inventory     inventory() const override;
 
-        void                       updateCollisionPairs() override;
+        void                        updateCollisionPairs() override;
 
         void appendDebugLines(std::vector<Line>& out, Scene::DebugOptions debugOptions) override;
 

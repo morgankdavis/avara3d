@@ -78,11 +78,19 @@ vector<HitTestResult> PhysicsWorld::rayTest(const vec3&           from,
     return _proxy->rayTest(from, to, options.searchMode);
 }
 
-optional<PhysicsContact> PhysicsWorld::convexSweepTest(const PhysicsContact& contact,
-                                                       const mat4&           fromMat,
-                                                       const mat4&           toMat) {
-    // convexSweepTest (const btConvexShape *castShape, const btTransform &from, const btTransform &to, ConvexResultCallback &resultCallback, btScalar allowedCcdPenetration=btScalar(0.)) const
+vector<PhysicsContact> PhysicsWorld::convexSweepTest(const PhysicsShape&           shape,
+                                                     const mat4&                   fromMat,
+                                                     const mat4&                   toMat,
+                                                     const ConvexSweepTestOptions& options) const {
     throw runtime_error("Not implemented.");
+    //return _proxy->convexSweepTest(shape, fromMat, toMat, options.searchMode);
+}
+
+vector<PhysicsContact> PhysicsWorld::convexSweepTest(const PhysicsShape& shape,
+                                                     const mat4&         fromMat,
+                                                     const mat4&         toMat) const {
+    throw runtime_error("Not implemented.");
+    //return convexSweepTest(shape, fromMat, toMat, ConvexSweepTestOptions {});
 }
 
 void PhysicsWorld::updateCollisionPairs() {

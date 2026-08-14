@@ -37,6 +37,10 @@ namespace a3d {
             HitTestSearchMode searchMode {HitTestSearchMode::Closest};
         };
 
+        struct ConvexSweepTestOptions {
+            HitTestSearchMode searchMode {HitTestSearchMode::Closest};
+        };
+
         // TODO: Doxygen:
         // - Contact callbacks describe one logical contact lifecycle per pair of physics bodies.
         // - Continue callbacks occur once per simulation step while the pair remains in contact.
@@ -74,9 +78,15 @@ namespace a3d {
                                               const math::vec3&     to,
                                               const RayTestOptions& options) const;
         std::vector<HitTestResult>    rayTest(const math::vec3& from, const math::vec3& to) const;
-        std::optional<PhysicsContact> convexSweepTest(const PhysicsContact& contact,
-                                                      const math::mat4&     fromMat,
-                                                      const math::mat4&     toMat);
+        // ! NOT IMPLEMENTED !
+        std::vector<PhysicsContact>   convexSweepTest(const PhysicsShape&           shape,
+                                                      const math::mat4&             fromMat,
+                                                      const math::mat4&             toMat,
+                                                      const ConvexSweepTestOptions& options) const;
+        // ! NOT IMPLEMENTED !
+        std::vector<PhysicsContact>   convexSweepTest(const PhysicsShape& shape,
+                                                      const math::mat4&   fromMat,
+                                                      const math::mat4&   toMat) const;
 
         void                          updateCollisionPairs();
 
