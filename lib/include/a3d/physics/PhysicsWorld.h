@@ -45,11 +45,11 @@ namespace a3d {
         //   an end-contact callback.
         // - Ordering between callbacks for unrelated body pairs is unspecified.
 
-        using BeginContactCallback =
+        using DidBeginContactCallback =
             std::function<void(PhysicsWorld& physicsWorld, const PhysicsContact& contact)>;
-        using ContinueContactCallback =
+        using DidContinueContactCallback =
             std::function<void(PhysicsWorld& physicsWorld, const PhysicsContact& contact)>;
-        using EndContactCallback =
+        using DidEndContactCallback =
             std::function<void(PhysicsWorld& physicsWorld, const PhysicsContact& contact)>;
 
         /// Public Lifecycle Functions ///
@@ -83,14 +83,14 @@ namespace a3d {
 
         Scene*                        scene() const;
 
-        BeginContactCallback          beginContactCallback() const;
-        void                          beginContactCallback(BeginContactCallback function);
+        DidBeginContactCallback       didBeginContactCallback() const;
+        void                          didBeginContactCallback(DidBeginContactCallback function);
 
-        ContinueContactCallback       continueContactCallback() const;
-        void                          continueContactCallback(ContinueContactCallback function);
+        DidContinueContactCallback    didContinueContactCallback() const;
+        void                          didContinueContactCallback(DidContinueContactCallback function);
 
-        EndContactCallback            endContactCallback() const;
-        void                          endContactCallback(EndContactCallback function);
+        DidEndContactCallback         didEndContactCallback() const;
+        void                          didEndContactCallback(DidEndContactCallback function);
 
         /// Internal Member Functions ///
 
@@ -116,9 +116,9 @@ namespace a3d {
         math::vec3                         _gravity;
         std::unique_ptr<PhysicsWorldProxy> _proxy;
         Scene*                             _scene;
-        BeginContactCallback               _beginContactCallback;
-        ContinueContactCallback            _continueContactCallback;
-        EndContactCallback                 _endContactCallback;
+        DidBeginContactCallback            _didBeginContactCallback;
+        DidContinueContactCallback         _didContinueContactCallback;
+        DidEndContactCallback              _didEndContactCallback;
     };
 
 }

@@ -50,6 +50,7 @@ void             ShootSlurm(Scene& scene, const vec3& location, const vec3& dire
 void             AddCardboardBox(Scene& scene, const vec3& location, const vec3& axis, float angle);
 void             SpawnHACDTeapot(Scene& scene);
 void             AddBoxes(Scene& scene);
+void             AddBox(Scene& scene, const vec3& location, shared_ptr<Color> color);
 void             AddCardboardBoxes(Scene& scene);
 void             AddRing(Scene& scene);
 shared_ptr<Node> ColoredSphereNode(shared_ptr<Color> color, string name);
@@ -65,7 +66,10 @@ App::App(int argc, char* argv[]):
     Application(argc, argv, APP_LOG_LEVEL),
     _duckNode {},
     _duckFruitTrigger {DUCK_FRUIT_SPAWN_INTERVAL},
-    _slurmTrigger {SLURM_SHOT_INTERVAL} {}
+    _slurmTrigger {SLURM_SHOT_INTERVAL},
+    _contactBegins {0},
+    _contactContinues {0},
+    _contactEnds {0} {}
 
 App::~App() = default;
 
@@ -90,6 +94,37 @@ unique_ptr<Scene> App::init() {
         visualWorld->background(Background {Color::Black()});
 
         auto physicsWorld = make_unique<PhysicsWorld>();
+
+        physicsWorld->didBeginContactCallback([this](PhysicsWorld&, const PhysicsContact& contact) {
+            ++_contactBegins;
+
+            const auto nodeA = contact.nodeA().lock();
+            const auto nodeB = contact.nodeB().lock();
+
+            const auto& p = contact.contactPoint();
+            const auto& n = contact.contactNormal();
+
+            log::app::i()("BEGIN A={:p} B={:p} "
+                          "point=({:.3f}, {:.3f}, {:.3f}) "
+                          "normal=({:.3f}, {:.3f}, {:.3f}) "
+                          "impulse={:.4f} penetration={:.5f}",
+                          static_cast<void*>(nodeA.get()), static_cast<void*>(nodeB.get()), p.x, p.y, p.z, n.x,
+                          n.y, n.z, contact.collisionImpulse(), contact.penetrationDistance());
+        });
+
+        physicsWorld->didContinueContactCallback([this](PhysicsWorld&, const PhysicsContact&) {
+            ++_contactContinues;
+        });
+
+        physicsWorld->didEndContactCallback([this](PhysicsWorld&, const PhysicsContact& contact) {
+            ++_contactEnds;
+
+            const auto nodeA = contact.nodeA().lock();
+            const auto nodeB = contact.nodeB().lock();
+
+            log::app::i()("END A={:p} B={:p}", static_cast<void*>(nodeA.get()),
+                          static_cast<void*>(nodeB.get()));
+        });
 
         auto scene =
             make_unique<Scene>(std::move(visualWorld), std::move(physicsWorld), Window::InputContext());
@@ -456,7 +491,8 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
     }
 
     if (input.keyPressed(Key::GraveAccent)) {
-        AddBoxes(scene);
+        //AddBoxes(scene);
+        AddBox(scene, {5.0, 10.0, 0.0}, Color::Random());
     }
 
     if (input.keyPressed(Key::Q)) {

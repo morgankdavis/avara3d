@@ -72,6 +72,8 @@ namespace a3d {
             HitTestSearchMode searchMode {HitTestSearchMode::Closest};
         };
 
+        using DidBeginFrameCallback = std::function<void(VisualWorld& visualWorld, const RenderInfo& info)>;
+
         /// Public Lifecycle Functions ///
 
         VisualWorld() = delete;
@@ -113,31 +115,27 @@ namespace a3d {
         bool                       defaultLightingEnabled() const;
         void                       defaultLightingEnabled(bool enabled);
 
+        DidBeginFrameCallback      didBeginFrameCallback() const;
+        void                       didBeginFrameCallback(DidBeginFrameCallback function);
+
         RenderContext*             renderContext() const;
 
         Scene*                     scene() const;
 
-        /// Internal Types ///
-
-        using DidBeginFrameCallback = std::function<void(VisualWorld& visualWorld, const RenderInfo& info)>;
-
         /// Internal Member Functions ///
 
-        void                      attachedToScene(Scene& scene);
-        void                      detachedFromScene(Scene& scene);
+        void                       attachedToScene(Scene& scene);
+        void                       detachedFromScene(Scene& scene);
 
-        DidBeginFrameCallback     didBeginFrameCallback() const;
-        void                      didBeginFrameCallback(DidBeginFrameCallback function);
+        bool                       draw(const Scene&             scene,
+                                        const PhysicsWorld*      physicsWorld,
+                                        const RenderInfo&        info,
+                                        Scene::DebugOptions      debugOptions,
+                                        FrameStats&              stats,
+                                        Profiler&                profiler,
+                                        const FrameStatsHistory& statsHistory);
 
-        bool                      draw(const Scene&             scene,
-                                       const PhysicsWorld*      physicsWorld,
-                                       const RenderInfo&        info,
-                                       Scene::DebugOptions      debugOptions,
-                                       FrameStats&              stats,
-                                       Profiler&                profiler,
-                                       const FrameStatsHistory& statsHistory);
-
-        std::shared_ptr<Material> backgroundMaterial();
+        std::shared_ptr<Material>  backgroundMaterial();
 
     private:
         /// Private Member Functions ///

@@ -165,6 +165,21 @@ void Application::frameDidBegin(Runner&                        runner,
                                 VisualWorld&                   visualWorld,
                                 const VisualWorld::RenderInfo& info) {}
 
+void Application::physicsWorldDidBeginContact(Runner&               runner,
+                                              Scene&                scene,
+                                              PhysicsWorld&         physicsWorld,
+                                              const PhysicsContact& contact) {}
+
+void Application::physicsWorldDidContinueContact(Runner&               runner,
+                                                 Scene&                scene,
+                                                 PhysicsWorld&         physicsWorld,
+                                                 const PhysicsContact& contact) {}
+
+void Application::physicsWorldDidEndContact(Runner&               runner,
+                                            Scene&                scene,
+                                            PhysicsWorld&         physicsWorld,
+                                            const PhysicsContact& contact) {}
+
 /// Private Member Functions ///
 
 void Application::initLog(Log::Level level) {
@@ -259,8 +274,17 @@ void Application::registerCallbacks() {
     _scene->willStepCallback(bind(&Application::dispatchSceneWillStep, this, _1, _2));
     _scene->didStepCallback(bind(&Application::dispatchSceneDidStep, this, _1, _2));
 
-    if (auto* world = _scene->visualWorld()) {
-        world->didBeginFrameCallback(bind(&Application::dispatchDidBeginFrame, this, _1, _2));
+    if (auto* visualWorld = _scene->visualWorld()) {
+        visualWorld->didBeginFrameCallback(bind(&Application::dispatchDidBeginFrame, this, _1, _2));
+    }
+
+    if (auto* physicsWorld = _scene->physicsWorld()) {
+        physicsWorld->didBeginContactCallback(bind(&Application::dispatchPhysicsWorldDidBeginContact, this, _1,
+                                                   _2));
+        physicsWorld->didContinueContactCallback(bind(&Application::dispatchPhysicsWorldDidContinueContact,
+                                                      this, _1, _2));
+        physicsWorld->didEndContactCallback(bind(&Application::dispatchPhysicsWorldDidEndContact, this, _1,
+                                                 _2));
     }
 }
 
@@ -286,6 +310,16 @@ void Application::dispatchDidBeginFrame(VisualWorld& visualWorld, const VisualWo
         log::app::i()("Time to first frame: {:.0f}ms", util::chrono::Milliseconds(_startupTimer.stop()));
     }
     frameDidBegin(*_runner, *_scene, visualWorld, info);
+}
+
+void Application::dispatchPhysicsWorldDidBeginContact(PhysicsWorld&         physicsWorld,
+                                                      const PhysicsContact& contact) {}
+
+void Application::dispatchPhysicsWorldDidContinueContact(PhysicsWorld&         physicsWorld,
+                                                         const PhysicsContact& contact) {}
+
+void Application::dispatchPhysicsWorldDidEndContact(PhysicsWorld& physicsWorld, const PhysicsContact& contact) {
+
 }
 
 /// Private Static Non-Member Functions ///

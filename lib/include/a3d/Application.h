@@ -15,6 +15,8 @@
 #include "a3d/Runner.h"
 #include "a3d/SimulationConfig.h"
 #include "a3d/input/InputContext.h"
+#include "a3d/physics/PhysicsWorld.h"
+#include "a3d/physics/PhysicsContact.h"
 #include "a3d/profile/Timer.h"
 #include "a3d/scene/Scene.h"
 #include "a3d/visual/VisualWorld.h"
@@ -74,6 +76,19 @@ namespace a3d {
                                    VisualWorld&                   visualWorld,
                                    const VisualWorld::RenderInfo& info);
 
+        virtual void physicsWorldDidBeginContact(Runner&               runner,
+                                                 Scene&                scene,
+                                                 PhysicsWorld&         physicsWorld,
+                                                 const PhysicsContact& contact);
+        virtual void physicsWorldDidContinueContact(Runner&               runner,
+                                                    Scene&                scene,
+                                                    PhysicsWorld&         physicsWorld,
+                                                    const PhysicsContact& contact);
+        virtual void physicsWorldDidEndContact(Runner&               runner,
+                                               Scene&                scene,
+                                               PhysicsWorld&         physicsWorld,
+                                               const PhysicsContact& contact);
+
     private:
         /// Private Member Functions ///
 
@@ -88,6 +103,9 @@ namespace a3d {
         void dispatchSceneWillStep(Scene& scene, const Scene::StepInfo& info);
         void dispatchSceneDidStep(Scene& scene, const Scene::StepInfo& info);
         void dispatchDidBeginFrame(VisualWorld& visualWorld, const VisualWorld::RenderInfo& info);
+        void dispatchPhysicsWorldDidBeginContact(PhysicsWorld& physicsWorld, const PhysicsContact& contact);
+        void dispatchPhysicsWorldDidContinueContact(PhysicsWorld& physicsWorld, const PhysicsContact& contact);
+        void dispatchPhysicsWorldDidEndContact(PhysicsWorld& physicsWorld, const PhysicsContact& contact);
 
         /// Private Member Variables ///
 

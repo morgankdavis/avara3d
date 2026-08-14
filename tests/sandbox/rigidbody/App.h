@@ -71,6 +71,9 @@ namespace test::rigidbody {
         std::unique_ptr<a3d::ext::WanderRotator> _duckRotator;
         a3d::util::PeriodicTrigger               _duckFruitTrigger;
         a3d::util::PeriodicTrigger               _slurmTrigger;
+        uint64_t                                 _contactBegins;
+        uint64_t                                 _contactContinues;
+        uint64_t                                 _contactEnds;
     };
 
 }

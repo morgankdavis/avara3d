@@ -20,7 +20,9 @@ namespace a3d {
     // TODO: Doxygen:
     // - If a body pair has multiple underlying contact points, PhysicsContact represents
     //   the point with the greatest applied impulse, using deepest penetration as a tie-breaker.
-    // - penetrationDistance() is 0 for touching and positive for penetration.
+    // - penetrationDistance() is 0 when there is no penetration and positive for penetration.
+    // - Contact lifetime follows the physics backend's persistent contact semantics, so a contact may
+    //   remain active across very small separations used to maintain stable contact persistence.
     // - contactNormal() points from nodeB() toward nodeA().
     // - contactPoint() is the midpoint between the two underlying body contact points.
 

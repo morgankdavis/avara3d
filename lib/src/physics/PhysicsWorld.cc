@@ -32,9 +32,9 @@ using namespace std;
 PhysicsWorld::PhysicsWorld():
     _gravity {0, -9.807, 0},
     _scene {},
-    _beginContactCallback {},
-    _continueContactCallback {},
-    _endContactCallback {} {
+    _didBeginContactCallback {},
+    _didContinueContactCallback {},
+    _didEndContactCallback {} {
 
     _proxy = make_unique<BulletWorldProxy>(*this);
 }
@@ -93,28 +93,28 @@ Scene* PhysicsWorld::scene() const {
     return _scene;
 }
 
-PhysicsWorld::BeginContactCallback PhysicsWorld::beginContactCallback() const {
-    return _beginContactCallback;
+PhysicsWorld::DidBeginContactCallback PhysicsWorld::didBeginContactCallback() const {
+    return _didBeginContactCallback;
 }
 
-void PhysicsWorld::beginContactCallback(PhysicsWorld::BeginContactCallback function) {
-    _beginContactCallback = function;
+void PhysicsWorld::didBeginContactCallback(PhysicsWorld::DidBeginContactCallback function) {
+    _didBeginContactCallback = function;
 }
 
-PhysicsWorld::ContinueContactCallback PhysicsWorld::continueContactCallback() const {
-    return _continueContactCallback;
+PhysicsWorld::DidContinueContactCallback PhysicsWorld::didContinueContactCallback() const {
+    return _didContinueContactCallback;
 }
 
-void PhysicsWorld::continueContactCallback(PhysicsWorld::ContinueContactCallback function) {
-    _continueContactCallback = function;
+void PhysicsWorld::didContinueContactCallback(PhysicsWorld::DidContinueContactCallback function) {
+    _didContinueContactCallback = function;
 }
 
-PhysicsWorld::EndContactCallback PhysicsWorld::endContactCallback() const {
-    return _endContactCallback;
+PhysicsWorld::DidEndContactCallback PhysicsWorld::didEndContactCallback() const {
+    return _didEndContactCallback;
 }
 
-void PhysicsWorld::endContactCallback(PhysicsWorld::EndContactCallback function) {
-    _endContactCallback = function;
+void PhysicsWorld::didEndContactCallback(PhysicsWorld::DidEndContactCallback function) {
+    _didEndContactCallback = function;
 }
 
 /// Internal Member Functions ///
@@ -180,18 +180,18 @@ PhysicsInventory PhysicsWorld::step(double deltaTime, Profiler& profiler) {
     for (const auto& event : contactEvents) {
         switch (event.type) {
             case PhysicsWorldProxy::ContactEventType::Begin:
-                if (_beginContactCallback) {
-                    _beginContactCallback(*this, event.contact);
+                if (_didBeginContactCallback) {
+                    _didBeginContactCallback(*this, event.contact);
                 }
                 break;
             case PhysicsWorldProxy::ContactEventType::Continue:
-                if (_continueContactCallback) {
-                    _continueContactCallback(*this, event.contact);
+                if (_didContinueContactCallback) {
+                    _didContinueContactCallback(*this, event.contact);
                 }
                 break;
             case PhysicsWorldProxy::ContactEventType::End:
-                if (_endContactCallback) {
-                    _endContactCallback(*this, event.contact);
+                if (_didEndContactCallback) {
+                    _didEndContactCallback(*this, event.contact);
                 }
                 break;
         }

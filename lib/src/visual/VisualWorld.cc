@@ -489,6 +489,14 @@ void VisualWorld::defaultLightingEnabled(bool enabled) {
     _defaultLightingEnabled = enabled;
 }
 
+VisualWorld::DidBeginFrameCallback VisualWorld::didBeginFrameCallback() const {
+    return _didBeginFrameCallback;
+}
+
+void VisualWorld::didBeginFrameCallback(DidBeginFrameCallback function) {
+    _didBeginFrameCallback = function;
+}
+
 RenderContext* VisualWorld::renderContext() const {
     return _renderContext;
 }
@@ -509,14 +517,6 @@ void VisualWorld::detachedFromScene(Scene& scene) {
     log::t()("scene: {:p}", static_cast<void*>(&scene));
 
     _scene = nullptr;
-}
-
-VisualWorld::DidBeginFrameCallback VisualWorld::didBeginFrameCallback() const {
-    return _didBeginFrameCallback;
-}
-
-void VisualWorld::didBeginFrameCallback(DidBeginFrameCallback function) {
-    _didBeginFrameCallback = function;
 }
 
 bool VisualWorld::draw(const Scene&             scene,
