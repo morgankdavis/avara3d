@@ -68,6 +68,7 @@ App::App(int argc, char* argv[]):
     _selection {},
     _cursorMarker {nullptr},
     _actionTarget {},
+    _action {Action::Impulse},
     _transients {ext::TransientNodeRegistry::SweepPolicy::EveryInterval(1.0)},
     _backgroundRotationTime {0.0},
     _orbWanders {},
@@ -365,7 +366,17 @@ void App::inputDidUpdate(Runner&       runner,
     _window->cursorCaptured(result.pointerDragging);
 
     if (result.primaryClick) {
-        select(Pick(*scene.visualWorld(), result.primaryClick->position, {_cursorMarker.get()}));
+
+        if (input.keyDown(Key::LeftControl)) {
+            useAction(scene, result.primaryClick->position);
+        }
+        else {
+            select(Pick(*scene.visualWorld(), result.primaryClick->position, {_cursorMarker.get()}));
+        }
+    }
+
+    if (result.panButtonClick) {
+        useAction(scene, result.panButtonClick->position);
     }
 
     // if (result.panButtonClick) {
@@ -581,6 +592,26 @@ void App::frameDidBegin(Runner&                        runner,
     }
 
     panel.spacer(12.0f);
+
+
+    panel.section("action");
+
+    panel.row(3);
+
+    if (panel.option("Impulse", _action == Action::Impulse)) {
+        _action = Action::Impulse;
+    }
+
+    if (panel.option("Shoot", _action == Action::Shoot)) {
+        _action = Action::Shoot;
+    }
+
+    if (panel.option("Drop", _action == Action::Drop)) {
+        _action = Action::Drop;
+    }
+
+    panel.spacer(12.0f);
+
 
     // panel.section("contacts");
     //
@@ -800,6 +831,73 @@ void App::select(optional<PickResult> selection) {
         else {
             _selection.reset();
         }
+    }
+}
+
+void App::useAction(Scene& scene, const vec2& screenPosition) {
+
+    _actionTarget = FindActionTarget(scene, screenPosition, {_cursorMarker.get()});
+
+    if (!_actionTarget) {
+        if (_cursorMarker) {
+            _cursorMarker->hidden(true);
+        }
+        return;
+    }
+
+    if (_cursorMarker) {
+        _cursorMarker->position(_actionTarget->worldHitPosition);
+        _cursorMarker->hidden(false);
+    }
+
+    auto node = _actionTarget->node.lock();
+
+    if (!node) {
+        return;
+    }
+
+    switch (_action) {
+
+        case Action::Impulse: {
+
+            auto body = node->physicsBody();
+
+            if (!body || body->type() != PhysicsBody::Type::Dynamic) {
+                return;
+            }
+
+            auto visualWorld = scene.visualWorld();
+
+            if (!visualWorld) {
+                return;
+            }
+
+            const vec3 from = visualWorld->unprojectPoint({
+                screenPosition.x,
+                screenPosition.y,
+                0.0f,
+            });
+
+            const vec3 to = visualWorld->unprojectPoint({
+                screenPosition.x,
+                screenPosition.y,
+                1.0f,
+            });
+
+            const vec3 direction = normalize(to - from);
+
+            constexpr float IMPULSE = 5.0f;
+
+            body->applyForce(direction * IMPULSE, _actionTarget->worldHitPosition, true);
+
+            break;
+        }
+
+        case Action::Shoot:
+            break;
+
+        case Action::Drop:
+            break;
     }
 }
 

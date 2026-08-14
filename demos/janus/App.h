@@ -88,9 +88,18 @@ namespace demo::janus {
         //                    const a3d::PhysicsContact& contact) override;
 
     private:
+        /// Private Types ///
+
+        enum class Action {
+            Impulse,
+            Shoot,
+            Drop
+        };
+
         /// Private Member Functions ///
 
         void select(std::optional<PickResult> selection);
+        void useAction(a3d::Scene& scene, const a3d::math::vec2& screenPosition);
         void resetSimulation();
 
         /// Private Member Variables ///
@@ -102,6 +111,7 @@ namespace demo::janus {
         std::optional<PickResult>                      _selection;
         std::shared_ptr<a3d::Node>                     _cursorMarker;
         std::optional<PickResult>                      _actionTarget;
+        Action                                         _action;
         a3d::ext::TransientNodeRegistry                _transients;
         double                                         _backgroundRotationTime;
         std::vector<std::unique_ptr<a3d::ext::Wander>> _orbWanders;
