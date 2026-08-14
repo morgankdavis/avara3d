@@ -10,7 +10,7 @@
         return;
     }
 
-    const scriptPath = stage.dataset.demoScript || "demo/001-physics-sandbox.js";
+    const scriptPath = stage.dataset.demoScript || "demo/janus.js";
     let runtimeReady = false;
 
     canvas.addEventListener("click", () => canvas.focus());
@@ -30,7 +30,7 @@
     const showFailure = () => {
         stage.dataset.failed = "true";
         status.classList.add("demo-status-error");
-        statusText.innerHTML = "Web build not found. Build and install <code>001-physics-sandbox</code>, then refresh.";
+        statusText.innerHTML = "Web build not found. Build and install <code>janus</code>, then refresh.";
     };
 
     window.Module = {

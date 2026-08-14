@@ -14,7 +14,7 @@ absolute_from_repo() {
     fi
 }
 SITE_SOURCE_DIR="${REPO_ROOT}/website"
-DEMO_NAME="${A3D_WEBSITE_DEMO_NAME:-001-physics-sandbox}"
+DEMO_NAME="${A3D_WEBSITE_DEMO_NAME:-janus}"
 WEB_BUILD_DIR="$(absolute_from_repo "${A3D_WEB_BUILD_DIR:-${1:-build-web-release}}")"
 OUTPUT_DIR="$(absolute_from_repo "${A3D_WEBSITE_OUTPUT_DIR:-${2:-build-website}}")"
 DEMO_SOURCE_DIR="${REPO_ROOT}/demos/${DEMO_NAME}"

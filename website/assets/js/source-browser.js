@@ -38,7 +38,7 @@
         });
 
         title.textContent = fileName;
-        pathLabel.textContent = `demos/001-physics-sandbox/${fileName}`;
+        pathLabel.textContent = `demos/janus/${fileName}`;
         codeView.innerHTML = '<div class="source-loading">Loading source…</div>';
 
         const url = new URL(`source/${fileName}`, window.location.href);

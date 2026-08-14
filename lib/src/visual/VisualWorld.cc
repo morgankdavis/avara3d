@@ -119,7 +119,7 @@ optional<Background>& VisualWorld::background() {
 void VisualWorld::background(const optional<Background>& background) {
 
     if (!background) {
-        _background = nullopt;
+        _background = {};
         _backgroundMaterial = nullptr;
         return;
     }
@@ -777,11 +777,11 @@ optional<HitTestCandidate> IntersectNodeMesh(const shared_ptr<Node>& node,
                                              const vec3&             worldOrigin,
                                              const vec3&             worldDelta) {
 
-    const mat3 linearTransform {modelTransform};
+    const mat3  linearTransform {modelTransform};
+    const float linearDeterminant = determinant(linearTransform);
 
-    // A singular transform cannot be inverted into mesh-local space.
-    if (math::abs(determinant(linearTransform)) <= F32_COMPARE_EPSILON) {
-        return nullopt;
+    if (!isfinite(linearDeterminant) || linearDeterminant == 0.0f) {
+        return {};
     }
 
     const mat4 inverseModelTransform = inverse(modelTransform);
@@ -862,7 +862,7 @@ optional<HitTestCandidate> IntersectNodeMesh(const shared_ptr<Node>& node,
     }
 
     if (!bestT || !bestElement || !bestFaceIndex) {
-        return nullopt;
+        return {};
     }
 
     const vec3 localCoordinates = localOrigin + localDelta * *bestT;
@@ -870,11 +870,8 @@ optional<HitTestCandidate> IntersectNodeMesh(const shared_ptr<Node>& node,
 
     const vec3 localNormal = normalize(cross(bestB - bestA, bestC - bestA));
 
-    const vec3 worldA = vec3 {modelTransform * vec4 {bestA, 1.0f}};
-    const vec3 worldB = vec3 {modelTransform * vec4 {bestB, 1.0f}};
-    const vec3 worldC = vec3 {modelTransform * vec4 {bestC, 1.0f}};
-
-    const vec3 worldNormal = normalize(cross(worldB - worldA, worldC - worldA));
+    const mat3 normalTransform {transpose(inverseModelTransform)};
+    const vec3 worldNormal = normalize(normalTransform * localNormal);
 
     return HitTestCandidate {
         .t = *bestT,

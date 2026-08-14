@@ -14,7 +14,7 @@ absolute_from_repo() {
     fi
 }
 SITE_DIR="${REPO_ROOT}/website"
-DEMO_NAME="${A3D_WEBSITE_DEMO_NAME:-001-physics-sandbox}"
+DEMO_NAME="${A3D_WEBSITE_DEMO_NAME:-janus}"
 PORT="${A3D_WEBSITE_PORT:-${1:-8000}}"
 WEB_BUILD_DIR="$(absolute_from_repo "${A3D_WEB_BUILD_DIR:-${2:-build-web-release}}")"
 DEMO_SOURCE_DIR="${REPO_ROOT}/demos/${DEMO_NAME}"

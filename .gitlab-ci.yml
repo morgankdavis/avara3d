@@ -514,9 +514,9 @@ documentation:
       echo "Verifying website bundle..."
       test -f build-website/index.html
       test -f build-website/assets/css/site.css
-      test -f build-website/demo/001-physics-sandbox.js
-      test -f build-website/demo/001-physics-sandbox.wasm
-      test -f build-website/demo/001-physics-sandbox.data
+      test -f build-website/demo/janus.js
+      test -f build-website/demo/janus.wasm
+      test -f build-website/demo/janus.data
       test -f build-website/source/main.cc
       test -f build-website/source/App.h
       test -f build-website/source/App.cc
@@ -557,8 +557,8 @@ documentation:
           -o UserKnownHostsFile="${SSH_KNOWN_HOSTS}" \
           "${A3D_DEPLOY_USER}@${A3D_DEPLOY_HOST}" \
           "test -f '${A3D_DEPLOY_PATH}/index.html' &&
-           test -f '${A3D_DEPLOY_PATH}/demo/001-physics-sandbox.js' &&
-           test -f '${A3D_DEPLOY_PATH}/demo/001-physics-sandbox.wasm' &&
+           test -f '${A3D_DEPLOY_PATH}/demo/janus.js' &&
+           test -f '${A3D_DEPLOY_PATH}/demo/janus.wasm' &&
            test -f '${A3D_DEPLOY_PATH}/api/index.html'"
       echo
       echo "Website deployment completed successfully."
