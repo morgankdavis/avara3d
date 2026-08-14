@@ -123,7 +123,7 @@ cat > "${BUILD_INFO_FILE}" <<JSON
 }
 JSON
 
-printf 'Serving tracked website source at http://127.0.0.1:%s/\n' "${PORT}"
+printf 'Serving tracked website source on port %s\n' "${PORT}"
 printf 'HTML/CSS/JS changes appear on normal browser refresh. Press Ctrl+C to stop.\n\n'
 
 python3 - "${SITE_DIR}" "${PORT}" "${API_DOCUMENTATION_DIRECTORY}" <<'PY' &
@@ -175,7 +175,7 @@ class ReusableThreadingServer(socketserver.ThreadingTCPServer):
 
 handler = functools.partial(NoCacheHandler, directory=str(site_directory))
 
-with ReusableThreadingServer(("127.0.0.1", port), handler) as server:
+with ReusableThreadingServer(("0.0.0.0", port), handler) as server:
     try:
         server.serve_forever()
     except KeyboardInterrupt:
