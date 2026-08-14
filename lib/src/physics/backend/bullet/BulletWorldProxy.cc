@@ -265,6 +265,8 @@ void BulletWorldProxy::remove(PhysicsBody& body) {
     auto bodyProxy = static_cast<BulletBodyProxy*>(body.proxy());
     auto btBody = bodyProxy->btBody();
 
+    removeTrackedContacts(body);
+
     if (!btBody->isInWorld()) { // ! NOTE:  not necessarily THIS world
         log::w()("btRigidBody not in world.");
         return;
@@ -369,14 +371,19 @@ const PhysicsWorldProxy::ContactEvents& BulletWorldProxy::step(double deltaTime,
 
     auto result = prof::profile(profiler, Profiler::Tag::Physics, [&] {
         std::scoped_lock lock(_btMutex);
-        const auto       result = _btWorld->stepSimulation(btScalar(deltaTime), 0);
+
+        const auto result = _btWorld->stepSimulation(btScalar(deltaTime), 0);
+
         extractCurrentContacts();
+
         return result;
     });
 
     if (result != 1) {
         throw runtime_error("BulletWorldProxy::step() expected exactly one Bullet simulation step.");
     }
+
+    buildContactEvents();
 
     return _contactEvents;
 }
@@ -600,6 +607,10 @@ btDiscreteDynamicsWorld* BulletWorldProxy::btWorld() {
 
 /// Private Member Functions ///
 
+// walks already-computed persistent manifolds -- does not rerun collision detection.
+// work is linear in the manifold/contact-point count plus O(M log M) to coalesce manifolds by
+// body pair. bullet caches at most four points per manifold, so this should be small relative
+// to the cost of collision detection and constraint solving.
 void BulletWorldProxy::extractCurrentContacts() {
 
     _currentContacts.clear();
@@ -612,6 +623,27 @@ void BulletWorldProxy::extractCurrentContacts() {
 
         auto manifold = _btCollisionDispatcher->getManifoldByIndexInternal(manifoldIndex);
         if (!manifold) {
+            continue;
+        }
+
+        const btManifoldPoint* bestPoint = nullptr;
+
+        for (int contactIndex = 0; contactIndex < manifold->getNumContacts(); ++contactIndex) {
+
+            const auto& point = manifold->getContactPoint(contactIndex);
+
+            if (point.getDistance() > btScalar(0)) {
+                continue;
+            }
+
+            if (!bestPoint || point.m_appliedImpulse > bestPoint->m_appliedImpulse
+                || (point.m_appliedImpulse == bestPoint->m_appliedImpulse
+                    && point.getDistance() < bestPoint->getDistance())) {
+                bestPoint = &point;
+            }
+        }
+
+        if (!bestPoint) {
             continue;
         }
 
@@ -634,34 +666,25 @@ void BulletWorldProxy::extractCurrentContacts() {
             continue;
         }
 
-        for (int contactIndex = 0; contactIndex < manifold->getNumContacts(); ++contactIndex) {
+        const btVector3 btContactPoint =
+            (bestPoint->getPositionWorldOnA() + bestPoint->getPositionWorldOnB()) * btScalar(0.5);
 
-            const auto& point = manifold->getContactPoint(contactIndex);
+        btVector3 btContactNormal = bestPoint->m_normalWorldOnB;
 
-            if (point.getDistance() > btScalar(0)) {
-                continue;
-            }
-
-            const btVector3 btContactPoint =
-                (point.getPositionWorldOnA() + point.getPositionWorldOnB()) * btScalar(0.5);
-
-            btVector3 btContactNormal = point.m_normalWorldOnB;
-
-            if (swapped) {
-                btContactNormal = -btContactNormal;
-            }
-
-            const vec3 contactPoint = A3DVec3FromBTVector3(btContactPoint);
-            const vec3 contactNormal = A3DVec3FromBTVector3(btContactNormal);
-
-            const float collisionImpulse = static_cast<float>(point.m_appliedImpulse);
-
-            const float penetrationDistance = math::max(0.0f, -static_cast<float>(point.getDistance()));
-
-            _currentContacts.push_back({bodyA, bodyB,
-                                        PhysicsContact {nodeA, nodeB, contactPoint, contactNormal,
-                                                        collisionImpulse, penetrationDistance, 0.0f}});
+        if (swapped) {
+            btContactNormal = -btContactNormal;
         }
+
+        const vec3 contactPoint = A3DVec3FromBTVector3(btContactPoint);
+        const vec3 contactNormal = A3DVec3FromBTVector3(btContactNormal);
+
+        const float collisionImpulse = static_cast<float>(bestPoint->m_appliedImpulse);
+
+        const float penetrationDistance = math::max(0.0f, -static_cast<float>(bestPoint->getDistance()));
+
+        _currentContacts.push_back({bodyA, bodyB,
+                                    PhysicsContact {nodeA, nodeB, contactPoint, contactNormal, collisionImpulse,
+                                                    penetrationDistance, 0.0f}});
     }
 
     sort(_currentContacts.begin(), _currentContacts.end(),
@@ -696,6 +719,73 @@ void BulletWorldProxy::extractCurrentContacts() {
                                   });
 
     _currentContacts.erase(uniqueEnd, _currentContacts.end());
+}
+
+void BulletWorldProxy::buildContactEvents() {
+
+    const auto bodyLess = std::less<PhysicsBody*> {};
+
+    const auto pairLess = [&](const BodyPairContact& lhs, const BodyPairContact& rhs) {
+        if (bodyLess(lhs.bodyA, rhs.bodyA)) {
+            return true;
+        }
+        if (bodyLess(rhs.bodyA, lhs.bodyA)) {
+            return false;
+        }
+
+        return bodyLess(lhs.bodyB, rhs.bodyB);
+    };
+
+    size_t activeIndex = 0;
+    size_t currentIndex = 0;
+
+    while (activeIndex < _activeContacts.size() || currentIndex < _currentContacts.size()) {
+
+        if (activeIndex == _activeContacts.size()) {
+            _contactEvents.push_back({ContactEventType::Begin, _currentContacts[currentIndex].contact});
+            ++currentIndex;
+            continue;
+        }
+
+        if (currentIndex == _currentContacts.size()) {
+            _contactEvents.push_back({ContactEventType::End, _activeContacts[activeIndex].contact});
+            ++activeIndex;
+            continue;
+        }
+
+        const auto& active = _activeContacts[activeIndex];
+        const auto& current = _currentContacts[currentIndex];
+
+        if (pairLess(active, current)) {
+            _contactEvents.push_back({ContactEventType::End, active.contact});
+            ++activeIndex;
+        }
+        else if (pairLess(current, active)) {
+            _contactEvents.push_back({ContactEventType::Begin, current.contact});
+            ++currentIndex;
+        }
+        else {
+            _contactEvents.push_back({ContactEventType::Continue, current.contact});
+            ++activeIndex;
+            ++currentIndex;
+        }
+    }
+
+    _activeContacts.swap(_currentContacts);
+    _currentContacts.clear();
+}
+
+void BulletWorldProxy::removeTrackedContacts(PhysicsBody& body) {
+
+    const auto involvesBody = [&body](const BodyPairContact& contact) {
+        return contact.bodyA == &body || contact.bodyB == &body;
+    };
+
+    _activeContacts.erase(remove_if(_activeContacts.begin(), _activeContacts.end(), involvesBody),
+                          _activeContacts.end());
+
+    _currentContacts.erase(remove_if(_currentContacts.begin(), _currentContacts.end(), involvesBody),
+                           _currentContacts.end());
 }
 
 /// Private Static Non-Member Functions ///

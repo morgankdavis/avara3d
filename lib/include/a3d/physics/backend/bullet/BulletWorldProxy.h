@@ -83,6 +83,8 @@ namespace a3d {
         /// Private Member Functions ///
 
         void                                                   extractCurrentContacts();
+        void                                                   buildContactEvents();
+        void                                                   removeTrackedContacts(PhysicsBody& body);
 
         ///  Private Member Variables ///
 
@@ -107,6 +109,7 @@ namespace a3d {
 
         ContactEvents                                          _contactEvents;
         BodyPairContacts                                       _currentContacts;
+        BodyPairContacts                                       _activeContacts;
 
         mutable std::mutex                                     _btMutex;
 

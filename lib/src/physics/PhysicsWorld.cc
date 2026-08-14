@@ -13,11 +13,12 @@
 
 #include "a3d/log/Log.h"
 #include "a3d/mesh/Line.h"
-#include "../../include/a3d/scene/HitTestResult.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsContact.h"
 #include "a3d/physics/backend/bullet/BulletWorldProxy.h"
+#include "a3d/physics/proxy/PhysicsWorldProxy.h"
 #include "a3d/profile/Profile.h"
+#include "a3d/scene/HitTestResult.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 #include "a3d/util/Flow.h"
@@ -174,7 +175,27 @@ PhysicsInventory PhysicsWorld::step(double deltaTime, Profiler& profiler) {
         throw invalid_argument("PhysicsWorld::step() requires an accepted positive, finite delta time.");
     }
 
-    _proxy->step(deltaTime, profiler);
+    const auto& contactEvents = _proxy->step(deltaTime, profiler);
+
+    for (const auto& event : contactEvents) {
+        switch (event.type) {
+            case PhysicsWorldProxy::ContactEventType::Begin:
+                if (_beginContactCallback) {
+                    _beginContactCallback(*this, event.contact);
+                }
+                break;
+            case PhysicsWorldProxy::ContactEventType::Continue:
+                if (_continueContactCallback) {
+                    _continueContactCallback(*this, event.contact);
+                }
+                break;
+            case PhysicsWorldProxy::ContactEventType::End:
+                if (_endContactCallback) {
+                    _endContactCallback(*this, event.contact);
+                }
+                break;
+        }
+    }
 
     auto inventory = prof::profile(profiler, Profiler::Tag::Physics, [&] {
         return PhysicsWorld::inventory();
