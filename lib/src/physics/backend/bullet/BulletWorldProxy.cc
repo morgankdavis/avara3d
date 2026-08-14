@@ -648,44 +648,9 @@ void BulletWorldProxy::extractCurrentContacts() {
             continue;
         }
 
-        auto rawBodyA = static_cast<PhysicsBody*>(manifold->getBody0()->getUserPointer());
-        auto rawBodyB = static_cast<PhysicsBody*>(manifold->getBody1()->getUserPointer());
-
-        if (!rawBodyA || !rawBodyB || rawBodyA == rawBodyB) {
-            continue;
+        if (auto contact = makeBodyPairContact(manifold->getBody0(), manifold->getBody1(), *bestPoint)) {
+            _currentContacts.push_back(std::move(*contact));
         }
-
-        const bool swapped = bodyLess(rawBodyB, rawBodyA);
-
-        PhysicsBody* bodyA = swapped ? rawBodyB : rawBodyA;
-        PhysicsBody* bodyB = swapped ? rawBodyA : rawBodyB;
-
-        auto nodeA = bodyA->node().lock();
-        auto nodeB = bodyB->node().lock();
-
-        if (!nodeA || !nodeB) {
-            continue;
-        }
-
-        const btVector3 btContactPoint =
-            (bestPoint->getPositionWorldOnA() + bestPoint->getPositionWorldOnB()) * btScalar(0.5);
-
-        btVector3 btContactNormal = bestPoint->m_normalWorldOnB;
-
-        if (swapped) {
-            btContactNormal = -btContactNormal;
-        }
-
-        const vec3 contactPoint = A3DVec3FromBTVector3(btContactPoint);
-        const vec3 contactNormal = A3DVec3FromBTVector3(btContactNormal);
-
-        const float collisionImpulse = static_cast<float>(bestPoint->m_appliedImpulse);
-
-        const float penetrationDistance = math::max(0.0f, -static_cast<float>(bestPoint->getDistance()));
-
-        _currentContacts.push_back({bodyA, bodyB,
-                                    PhysicsContact {nodeA, nodeB, contactPoint, contactNormal, collisionImpulse,
-                                                    penetrationDistance, 0.0f}});
     }
 
     sort(_currentContacts.begin(), _currentContacts.end(),
@@ -787,6 +752,62 @@ void BulletWorldProxy::removeTrackedContacts(PhysicsBody& body) {
 
     _currentContacts.erase(remove_if(_currentContacts.begin(), _currentContacts.end(), involvesBody),
                            _currentContacts.end());
+}
+
+optional<BulletWorldProxy::BodyPairContact> BulletWorldProxy::
+    makeBodyPairContact(const btCollisionObject* objectA,
+                        const btCollisionObject* objectB,
+                        const btManifoldPoint&   point) const {
+
+    auto rawBodyA = static_cast<PhysicsBody*>(objectA->getUserPointer());
+    auto rawBodyB = static_cast<PhysicsBody*>(objectB->getUserPointer());
+
+    if (!rawBodyA || !rawBodyB) {
+        return nullopt;
+    }
+
+    const auto bodyLess = std::less<PhysicsBody*> {};
+    const bool swapped = bodyLess(rawBodyB, rawBodyA);
+
+    PhysicsBody* bodyA = swapped ? rawBodyB : rawBodyA;
+    PhysicsBody* bodyB = swapped ? rawBodyA : rawBodyB;
+
+    auto nodeA = bodyA->node().lock();
+    auto nodeB = bodyB->node().lock();
+
+    if (!nodeA || !nodeB) {
+        return nullopt;
+    }
+
+    const btVector3 btContactPoint =
+        (point.getPositionWorldOnA() + point.getPositionWorldOnB()) * btScalar(0.5);
+
+    btVector3 btContactNormal = point.m_normalWorldOnB;
+
+    if (swapped) {
+        btContactNormal = -btContactNormal;
+    }
+
+    const vec3 contactPoint = A3DVec3FromBTVector3(btContactPoint);
+    const vec3 contactNormal = A3DVec3FromBTVector3(btContactNormal);
+
+    const float collisionImpulse = static_cast<float>(point.m_appliedImpulse);
+
+    const float penetrationDistance = math::max(0.0f, -static_cast<float>(point.getDistance()));
+
+    return BodyPairContact {
+        bodyA,
+        bodyB,
+        PhysicsContact {
+            nodeA,
+            nodeB,
+            contactPoint,
+            contactNormal,
+            collisionImpulse,
+            penetrationDistance,
+            0.0f,
+        },
+    };
 }
 
 /// Private Static Non-Member Functions ///

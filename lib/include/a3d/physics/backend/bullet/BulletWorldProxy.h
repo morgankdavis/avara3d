@@ -20,16 +20,18 @@
 #include "a3d/physics/proxy/PhysicsWorldProxy.h"
 #include "a3d/scene/Scene.h"
 
-struct btDbvtBroadphase;
-
 class btCollisionDispatcher;
+class btCollisionObject;
 class btConstraintSolver;
 class btConstraintSolverPoolMt;
 class btDiscreteDynamicsWorld;
 class btITaskScheduler;
+class btManifoldPoint;
 class btSequentialImpulseConstraintSolver;
 class btSequentialImpulseConstraintSolverMt;
 class btDefaultCollisionConfiguration;
+
+struct btDbvtBroadphase;
 
 namespace a3d {
 
@@ -47,26 +49,29 @@ namespace a3d {
 
         /// PhysicsWorldModelProxy Internal Member Functions ///
 
-        void                        add(PhysicsBody& body) override;
-        void                        remove(PhysicsBody& body) override;
+        void                          add(PhysicsBody& body) override;
+        void                          remove(PhysicsBody& body) override;
 
-        math::vec3                  gravity() const override;
-        void                        gravity(const math::vec3& gravity) override;
+        math::vec3                    gravity() const override;
+        void                          gravity(const math::vec3& gravity) override;
 
-        const ContactEvents&        step(double deltaTime, Profiler& profiler) override;
+        const ContactEvents&          step(double deltaTime, Profiler& profiler) override;
 
-        std::vector<HitTestResult>  rayTest(const math::vec3& from,
-                                            const math::vec3& to,
-                                            HitTestSearchMode searchMode) const override;
+        std::optional<PhysicsContact> contactTest(const PhysicsBody& bodyA, const PhysicsBody& bodyB) override;
+
+        std::vector<PhysicsContact>   contactTest(const PhysicsBody& body) override;
+        std::vector<HitTestResult>    rayTest(const math::vec3& from,
+                                              const math::vec3& to,
+                                              HitTestSearchMode searchMode) const override;
         // ! NOT IMPLEMENTED !
-        std::vector<PhysicsContact> convexSweepTest(const PhysicsShape& shape,
-                                                    const math::mat4&   fromMat,
-                                                    const math::mat4&   toMat,
-                                                    HitTestSearchMode   searchMode) const override;
+        std::vector<PhysicsContact>   convexSweepTest(const PhysicsShape& shape,
+                                                      const math::mat4&   fromMat,
+                                                      const math::mat4&   toMat,
+                                                      HitTestSearchMode   searchMode) const override;
 
-        PhysicsWorld::Inventory     inventory() const override;
+        PhysicsWorld::Inventory       inventory() const override;
 
-        void                        updateCollisionPairs() override;
+        void                          updateCollisionPairs() override;
 
         void appendDebugLines(std::vector<Line>& out, Scene::DebugOptions debugOptions) override;
 
@@ -97,16 +102,19 @@ namespace a3d {
 
         /// Private Member Functions ///
 
-        void                                                   extractCurrentContacts();
-        void                                                   buildContactEvents();
-        void                                                   removeTrackedContacts(PhysicsBody& body);
+        void                              extractCurrentContacts();
+        void                              buildContactEvents();
+        void                              removeTrackedContacts(PhysicsBody& body);
+        std::optional<BodyPairContact>    makeBodyPairContact(const btCollisionObject* objectA,
+                                                              const btCollisionObject* objectB,
+                                                              const btManifoldPoint&   point) const;
 
         ///  Private Member Variables ///
 
         // scheduler
-        btITaskScheduler*                                      _btScheduler;
-        std::unique_ptr<btITaskScheduler>                      _ownedScheduler;
-        btITaskScheduler*                                      _prevScheduler; // non-owning
+        btITaskScheduler*                 _btScheduler;
+        std::unique_ptr<btITaskScheduler> _ownedScheduler;
+        btITaskScheduler*                 _prevScheduler; // non-owning
 
         // config/dispatcher/broadphase
         std::unique_ptr<btDefaultCollisionConfiguration>       _btCollisionConfiguration;

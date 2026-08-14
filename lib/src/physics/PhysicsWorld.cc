@@ -59,13 +59,11 @@ void PhysicsWorld::gravity(const vec3& gravity) {
 }
 
 optional<PhysicsContact> PhysicsWorld::contactTest(const PhysicsBody& bodyA, const PhysicsBody& bodyB) {
-    // contactPairTest (btCollisionObject *colObjA, btCollisionObject *colObjB, ContactResultCallback &resultCallback)
-    throw runtime_error("Not implemented.");
+    return _proxy->contactTest(bodyA, bodyB);
 }
 
-optional<PhysicsContact> PhysicsWorld::contactTest(const PhysicsBody& body) {
-    // contactTest (btCollisionObject *colObj, ContactResultCallback &resultCallback)
-    throw runtime_error("Not implemented.");
+vector<PhysicsContact> PhysicsWorld::contactTest(const PhysicsBody& body) {
+    return _proxy->contactTest(body);
 }
 
 vector<HitTestResult> PhysicsWorld::rayTest(const vec3& from, const vec3& to) const {
