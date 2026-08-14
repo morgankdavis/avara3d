@@ -78,10 +78,14 @@ namespace demo::janus {
                              a3d::Scene&                scene,
                              a3d::PhysicsWorld&         physicsWorld,
                              const a3d::PhysicsContact& contact) override;
-        void contactDidEnd(a3d::Runner&               runner,
-                           a3d::Scene&                scene,
-                           a3d::PhysicsWorld&         physicsWorld,
-                           const a3d::PhysicsContact& contact) override;
+        void contactDidContinue(a3d::Runner&               runner,
+                                a3d::Scene&                scene,
+                                a3d::PhysicsWorld&         physicsWorld,
+                                const a3d::PhysicsContact& contact) override;
+        // void contactDidEnd(a3d::Runner&               runner,
+        //                    a3d::Scene&                scene,
+        //                    a3d::PhysicsWorld&         physicsWorld,
+        //                    const a3d::PhysicsContact& contact) override;
 
     private:
         /// Private Member Functions ///

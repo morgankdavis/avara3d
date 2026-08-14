@@ -112,9 +112,7 @@ namespace a3d {
         void               add(PhysicsBody& body);
         void               remove(PhysicsBody& body);
 
-        bool               acceptsStepDelta(double deltaTime) const;
-
-        Inventory          step(double deltaTime, Profiler& profiler);
+        void               step(double deltaTime, Profiler& profiler);
 
         Inventory          inventory() const;
 

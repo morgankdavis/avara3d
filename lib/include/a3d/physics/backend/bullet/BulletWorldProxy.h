@@ -51,8 +51,6 @@ namespace a3d {
         math::vec3                 gravity() const override;
         void                       gravity(const math::vec3& gravity) override;
 
-        bool                       acceptsStepDelta(double deltaTime) const override;
-
         const ContactEvents&       step(double deltaTime, Profiler& profiler) override;
 
         std::vector<HitTestResult> rayTest(const math::vec3& from,

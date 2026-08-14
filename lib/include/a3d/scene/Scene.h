@@ -28,7 +28,6 @@ namespace a3d {
     class Color;
     class Mesh;
     class Node;
-    class PhysicsWorld;
     class Profiler;
     class Renderer;
     class RenderContext;
@@ -141,7 +140,7 @@ namespace a3d {
 
         void                              pollEvents(Profiler& profiler);
         void                              updateInput(const InputContext::UpdateInfo& info, Profiler& profiler);
-        PhysicsWorld::Inventory           stepSimulation(const StepInfo& info, Profiler& profiler);
+        void                              stepSimulation(const StepInfo& info, Profiler& profiler);
 
     private:
         /// Private Member Variables ///

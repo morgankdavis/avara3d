@@ -519,21 +519,21 @@ void App::frameDidBegin(Runner&                        runner,
 
     panel.spacer(12.0f);
 
-    panel.section("contacts");
-
-    //panel.value("active", std::format("{}", scene.physicsWorld()->inventory().activeContacts));
-
-    if (_lastImpact) {
-        panel.value("last impact", _lastImpact->nodes);
-        panel.value("impulse", std::format("{:.2f} N\u00b7s", _lastImpact->impulse));
-        panel.value("penetration", std::format("{:.4f} m", _lastImpact->penetration));
-        panel.value("peak impulse", std::format("{:.2f} N\u00b7s", _peakImpactImpulse));
-    }
-    else {
-        panel.text("no impacts yet");
-    }
-
-    panel.spacer(12.0f);
+    // panel.section("contacts");
+    //
+    // //panel.value("active", std::format("{}", scene.physicsWorld()->inventory().activeContacts));
+    //
+    // if (_lastImpact) {
+    //     panel.value("last impact", _lastImpact->nodes);
+    //     panel.value("impulse", std::format("{:.2f} N\u00b7s", _lastImpact->impulse));
+    //     panel.value("penetration", std::format("{:.4f} m", _lastImpact->penetration));
+    //     panel.value("peak impulse", std::format("{:.2f} N\u00b7s", _peakImpactImpulse));
+    // }
+    // else {
+    //     panel.text("no impacts yet");
+    // }
+    //
+    // panel.spacer(12.0f);
 
     panel.section("selected node");
 
@@ -696,13 +696,18 @@ void App::contactDidBegin(Runner&               runner,
     _peakImpactImpulse = math::max(_peakImpactImpulse, contact.collisionImpulse());
 }
 
-void App::contactDidEnd(Runner&               runner,
-                        Scene&                scene,
-                        PhysicsWorld&         physicsWorld,
-                        const PhysicsContact& contact) {
+void App::contactDidContinue(Runner&               runner,
+                             Scene&                scene,
+                             PhysicsWorld&         physicsWorld,
+                             const PhysicsContact& contact) {
 
     _peakImpactImpulse = math::max(_peakImpactImpulse, contact.collisionImpulse());
 }
+
+// void App::contactDidEnd(Runner&               runner,
+//                         Scene&                scene,
+//                         PhysicsWorld&         physicsWorld,
+//                         const PhysicsContact& contact) {}
 
 /// Private Member Functions ///
 

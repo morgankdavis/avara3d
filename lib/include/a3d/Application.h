@@ -98,8 +98,8 @@ namespace a3d {
         void shutdown() noexcept;
         void registerCallbacks();
 
-        void dispatchInputContextDidUpdate(InputContext& inputContext, const InputContext::UpdateInfo& info);
         void dispatchHostUpdate(Runner& runner, const Runner::UpdateInfo& info);
+        void dispatchInputContextDidUpdate(InputContext& inputContext, const InputContext::UpdateInfo& info);
         void dispatchSceneWillStep(Scene& scene, const Scene::StepInfo& info);
         void dispatchSceneDidStep(Scene& scene, const Scene::StepInfo& info);
         void dispatchDidBeginFrame(VisualWorld& visualWorld, const VisualWorld::RenderInfo& info);

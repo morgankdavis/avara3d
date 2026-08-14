@@ -159,49 +159,39 @@ void PhysicsWorld::remove(PhysicsBody& body) {
     }
 }
 
-bool PhysicsWorld::acceptsStepDelta(double deltaTime) const {
-    return std::isfinite(deltaTime) && deltaTime > 0.0 && _proxy && _proxy->acceptsStepDelta(deltaTime);
-}
-
-PhysicsWorld::Inventory PhysicsWorld::step(double deltaTime, Profiler& profiler) {
+void PhysicsWorld::step(double deltaTime, Profiler& profiler) {
 
     if (!util::flow::edge_guard(_proxy, [&] {
             log::e()("No PhysicsWorldProxy attached to PhysicsWorld {:p}.", static_cast<void*>(this));
         })) {
-        return {};
-    }
-
-    if (!acceptsStepDelta(deltaTime)) {
-        throw invalid_argument("PhysicsWorld::step() requires an accepted positive, finite delta time.");
+        return;
     }
 
     const auto& contactEvents = _proxy->step(deltaTime, profiler);
 
-    for (const auto& event : contactEvents) {
-        switch (event.type) {
-            case PhysicsWorldProxy::ContactEventType::Begin:
-                if (_didBeginContactCallback) {
-                    _didBeginContactCallback(*this, event.contact);
+    if (!contactEvents.empty()) {
+        prof::profile(profiler, Profiler::Tag::Application, [&] {
+            for (const auto& event : contactEvents) {
+                switch (event.type) {
+                    case PhysicsWorldProxy::ContactEventType::Begin:
+                        if (_didBeginContactCallback) {
+                            _didBeginContactCallback(*this, event.contact);
+                        }
+                        break;
+                    case PhysicsWorldProxy::ContactEventType::Continue:
+                        if (_didContinueContactCallback) {
+                            _didContinueContactCallback(*this, event.contact);
+                        }
+                        break;
+                    case PhysicsWorldProxy::ContactEventType::End:
+                        if (_didEndContactCallback) {
+                            _didEndContactCallback(*this, event.contact);
+                        }
+                        break;
                 }
-                break;
-            case PhysicsWorldProxy::ContactEventType::Continue:
-                if (_didContinueContactCallback) {
-                    _didContinueContactCallback(*this, event.contact);
-                }
-                break;
-            case PhysicsWorldProxy::ContactEventType::End:
-                if (_didEndContactCallback) {
-                    _didEndContactCallback(*this, event.contact);
-                }
-                break;
-        }
+            }
+        });
     }
-
-    auto inventory = prof::profile(profiler, Profiler::Tag::Physics, [&] {
-        return PhysicsWorld::inventory();
-    });
-
-    return inventory;
 }
 
 PhysicsWorld::Inventory PhysicsWorld::inventory() const {

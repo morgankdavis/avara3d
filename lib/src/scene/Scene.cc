@@ -295,7 +295,7 @@ void Scene::updateInput(const InputContext::UpdateInfo& info, Profiler& profiler
     }
 }
 
-PhysicsWorld::Inventory Scene::stepSimulation(const StepInfo& info, Profiler& profiler) {
+void Scene::stepSimulation(const StepInfo& info, Profiler& profiler) {
 
     if (auto callback = willStepCallback()) {
         prof::profile(profiler, Profiler::Tag::Application, [&] {
@@ -303,9 +303,8 @@ PhysicsWorld::Inventory Scene::stepSimulation(const StepInfo& info, Profiler& pr
         });
     }
 
-    PhysicsWorld::Inventory inventory {};
     if (_physicsWorld) {
-        inventory = _physicsWorld->step(info.deltaTime, profiler);
+        _physicsWorld->step(info.deltaTime, profiler);
     }
 
     if (auto callback = didStepCallback()) {
@@ -313,6 +312,4 @@ PhysicsWorld::Inventory Scene::stepSimulation(const StepInfo& info, Profiler& pr
             callback(*this, info);
         });
     }
-
-    return inventory;
 }

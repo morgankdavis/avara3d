@@ -349,23 +349,7 @@ void BulletWorldProxy::gravity(const vec3& gravity) {
     }
 }
 
-bool BulletWorldProxy::acceptsStepDelta(double deltaTime) const {
-
-    if (!std::isfinite(deltaTime) || deltaTime <= 0.0
-        || deltaTime > static_cast<double>(std::numeric_limits<btScalar>::max())) {
-        return false;
-    }
-
-    const auto btDeltaTime = btScalar(deltaTime);
-
-    return std::isfinite(btDeltaTime) && btDeltaTime > btScalar(0) && !btFuzzyZero(btDeltaTime);
-}
-
 const PhysicsWorldProxy::ContactEvents& BulletWorldProxy::step(double deltaTime, Profiler& profiler) {
-
-    if (!acceptsStepDelta(deltaTime)) {
-        throw invalid_argument("BulletWorldProxy::step() requires an accepted positive, finite delta time.");
-    }
 
     _contactEvents.clear();
 
@@ -375,7 +359,6 @@ const PhysicsWorldProxy::ContactEvents& BulletWorldProxy::step(double deltaTime,
         const auto result = _btWorld->stepSimulation(btScalar(deltaTime), 0);
 
         extractCurrentContacts();
-
         buildContactEvents();
 
         return result;

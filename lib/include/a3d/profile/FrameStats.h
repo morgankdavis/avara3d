@@ -52,6 +52,7 @@ namespace a3d {
         unsigned                 boundingBoxShapes {0};
         unsigned                 convexHullShapes {0};
         unsigned                 concavePolyhedronShapes {0};
+        unsigned                 activeContacts {0};
     };
 
 }

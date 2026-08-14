@@ -160,10 +160,6 @@ void Runner::timeStep(double value) {
         throw invalid_argument("Runner time step must be positive.");
     }
 
-    if (auto physicsWorld = _scene.physicsWorld(); physicsWorld && !physicsWorld->acceptsStepDelta(value)) {
-        throw invalid_argument("Runner simulation time step rejected by PhysicsWorld.");
-    }
-
     _timeStep = value;
 }
 
@@ -256,11 +252,6 @@ void Runner::start(TimePoint now) {
         throw invalid_argument("Runner requires at least one catch-up step.");
     }
 
-    if (auto physicsWorld = _scene.physicsWorld();
-        physicsWorld && !physicsWorld->acceptsStepDelta(_config.timeStep)) {
-        throw invalid_argument("Runner simulation time step rejected by PhysicsWorld.");
-    }
-
     _timeStep = _config.timeStep;
     _maxCatchUpSteps = _config.maxCatchUpSteps;
     _timeScale = _config.timeScale;
@@ -320,10 +311,9 @@ bool Runner::update(TimePoint now) {
         stats.maxCatchUpSteps = _maxCatchUpSteps;
 
         if (_state == State::Running) {
-            PhysicsWorld::Inventory inventory {};
 
             if (_simulationClockSuspended) {
-                inventory = currentPhysicsInventory();
+                ; // nada
             }
             else if (_simulationPaused) {
                 // a new paused scheduling boundary supersedes suppression
@@ -331,24 +321,27 @@ bool Runner::update(TimePoint now) {
                 // during the requested batch sets this again and interrupts
                 // the local snapshot
                 _skipNextUpdateDelta = false;
-                inventory = executePendingSimulationSteps(stats);
+                executePendingSimulationSteps(stats);
             }
             else if (_skipNextUpdateDelta) {
                 _skipNextUpdateDelta = false;
-                inventory = currentPhysicsInventory();
             }
             else {
-                inventory = advanceSimulation(updateInfo, stats);
+                advanceSimulation(updateInfo, stats);
             }
 
             prof::profile(_profiler, Profiler::Tag::EngineCpu, [&] {
-                stats.staticBodies = inventory.staticBodies;
-                stats.dynamicBodies = inventory.dynamicBodies;
-                stats.kinematicBodies = inventory.kinematicBodies;
-                stats.primitiveShapes = inventory.primitiveShapes;
-                stats.boundingBoxShapes = inventory.boundingBoxShapes;
-                stats.convexHullShapes = inventory.convexHullShapes;
-                stats.concavePolyhedronShapes = inventory.concavePolyhedronShapes;
+                if (auto physicsWorld = _scene.physicsWorld()) {
+                    const auto inventory = physicsWorld->inventory();
+                    stats.staticBodies = inventory.staticBodies;
+                    stats.dynamicBodies = inventory.dynamicBodies;
+                    stats.kinematicBodies = inventory.kinematicBodies;
+                    stats.activeContacts = inventory.activeContacts;
+                    stats.primitiveShapes = inventory.primitiveShapes;
+                    stats.boundingBoxShapes = inventory.boundingBoxShapes;
+                    stats.convexHullShapes = inventory.convexHullShapes;
+                    stats.concavePolyhedronShapes = inventory.concavePolyhedronShapes;
+                }
             });
 
             stats.simulationStepCount = _simulationStepCount;
@@ -374,7 +367,7 @@ bool Runner::update(TimePoint now) {
     return _state == State::Running;
 }
 
-PhysicsWorld::Inventory Runner::advanceSimulation(const UpdateInfo& info, FrameStats& stats) {
+void Runner::advanceSimulation(const UpdateInfo& info, FrameStats& stats) {
 
     PhysicsWorld::Inventory inventory {};
 
@@ -386,7 +379,7 @@ PhysicsWorld::Inventory Runner::advanceSimulation(const UpdateInfo& info, FrameS
 
         const double timeStep = _timeStep;
 
-        inventory = executeSimulationStep();
+        executeSimulationStep();
 
         if (_simulationPaused || _skipNextUpdateDelta) {
             _simulationTimeAccumulator = 0.0;
@@ -405,22 +398,15 @@ PhysicsWorld::Inventory Runner::advanceSimulation(const UpdateInfo& info, FrameS
         _totalDiscardedSimulationTime += stats.discardedSimulationTime;
         _simulationTimeAccumulator = remainder;
     }
-
-    if (stats.simulationStepsThisUpdate == 0) {
-        inventory = currentPhysicsInventory();
-    }
-
-    return inventory;
 }
 
-PhysicsWorld::Inventory Runner::executePendingSimulationSteps(FrameStats& stats) {
+void Runner::executePendingSimulationSteps(FrameStats& stats) {
 
-    PhysicsWorld::Inventory inventory {};
-    const auto       pendingStepCount = std::exchange(_pendingSimulationSteps, std::uint64_t {0});
+    const auto pendingStepCount = std::exchange(_pendingSimulationSteps, std::uint64_t {0});
 
     for (uint64_t i = 0; i < pendingStepCount; ++i) {
 
-        inventory = executeSimulationStep();
+        executeSimulationStep();
         ++stats.simulationStepsThisUpdate;
 
         if (_state != State::Running || !_simulationPaused || _simulationClockSuspended
@@ -428,44 +414,21 @@ PhysicsWorld::Inventory Runner::executePendingSimulationSteps(FrameStats& stats)
             break;
         }
     }
-
-    if (stats.simulationStepsThisUpdate == 0) {
-        inventory = currentPhysicsInventory();
-    }
-
-    return inventory;
 }
 
-PhysicsWorld::Inventory Runner::executeSimulationStep() {
+void Runner::executeSimulationStep() {
 
     const double timeStep = _timeStep;
-
-    if (auto physicsWorld = _scene.physicsWorld(); physicsWorld && !physicsWorld->acceptsStepDelta(timeStep)) {
-        throw runtime_error("Runner simulation time step rejected by PhysicsWorld.");
-    }
 
     Scene::StepInfo info {.stepIndex = _simulationStepCount,
                           .startTime = _simulationTime,
                           .endTime = _simulationTime + timeStep,
                           .deltaTime = timeStep};
 
-    auto inventory = _scene.stepSimulation(info, _profiler);
+    _scene.stepSimulation(info, _profiler);
 
     _simulationTime = info.endTime;
     ++_simulationStepCount;
-
-    return inventory;
-}
-
-PhysicsWorld::Inventory Runner::currentPhysicsInventory() {
-
-    if (auto physicsWorld = _scene.physicsWorld()) {
-        return prof::profile(_profiler, Profiler::Tag::EngineCpu, [&] {
-            return physicsWorld->inventory();
-        });
-    }
-
-    return {};
 }
 
 bool Runner::renderFrame(const UpdateInfo& info, FrameStats& stats) {

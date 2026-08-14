@@ -284,7 +284,7 @@ void DrawStats(FrameStats&              stats,
     static const float PLOT_Y_PAD = 18.0;
     static const float PLOT_Y_MIN = 0.0;
     static const float PLOT_Y_MAX = 17.0;
-    static const float STAT_LINE_STEP = STATS_BODY_FONT_SIZE + 1.0f;
+    static const float STAT_LINE_STEP = STATS_BODY_FONT_SIZE + 0.5f;
     static const float INDENT_WIDTH = 8.0f;
 
     ImGuiIO& io = GetIO();
@@ -483,6 +483,11 @@ void DrawStats(FrameStats&              stats,
                                 STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
     ImguiDrawLabelValueIndented(yPos, bulkLayout, "concave", std::format("{}", stats.concavePolyhedronShapes),
                                 bodyFont, STATS_BODY_FONT_SIZE, INDENT_WIDTH, STAT_LINE_STEP);
+
+    yPos += STAT_LINE_STEP / 2.0f;
+
+    ImguiDrawLabelValue(yPos, bulkLayout, "contacts", std::format("{}", stats.activeContacts), bodyFont,
+                    STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
 
     if (context.recordingGIF()) {
         yPos += STAT_LINE_STEP / 2.0f;

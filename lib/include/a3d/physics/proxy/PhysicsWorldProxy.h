@@ -64,8 +64,6 @@ namespace a3d {
         virtual math::vec3                 gravity() const                    = 0;
         virtual void                       gravity(const math::vec3& gravity) = 0;
 
-        virtual bool                       acceptsStepDelta(double deltaTime) const = 0;
-
         virtual const ContactEvents&       step(double deltaTime, Profiler& profiler) = 0;
 
         virtual std::vector<HitTestResult> rayTest(const math::vec3& from,

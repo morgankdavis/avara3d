@@ -285,13 +285,13 @@ void Application::registerCallbacks() {
     }
 }
 
+void Application::dispatchHostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
+    hostUpdate(runner, *_scene, info);
+}
+
 void Application::dispatchInputContextDidUpdate(InputContext&                   inputContext,
                                                 const InputContext::UpdateInfo& info) {
     inputDidUpdate(*_runner, *_scene, inputContext, info);
-}
-
-void Application::dispatchHostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
-    hostUpdate(runner, *_scene, info);
 }
 
 void Application::dispatchSceneWillStep(Scene& scene, const Scene::StepInfo& info) {
