@@ -8,14 +8,22 @@
 
 #include "a3d/visual/VisualWorld.h"
 
+#include <algorithm>
 #include <cmath>
 #include <format>
 #include <stdexcept>
 #include <variant>
 
+#include "a3d/Assert.h"
 #include "a3d/Color.h"
 #include "a3d/CubeImage.h"
 #include "a3d/log/Log.h"
+#include "a3d/mesh/AABB.h"
+#include "a3d/mesh/IndexAccess.h"
+#include "a3d/mesh/Mesh.h"
+#include "a3d/mesh/MeshElement.h"
+#include "a3d/mesh/PrimitiveTopology.h"
+#include "a3d/mesh/VertexAccess.h"
 #include "a3d/physics/PhysicsWorld.h"
 #include "a3d/profile/Profile.h"
 #include "a3d/render/DrawPacket.h"
@@ -34,6 +42,34 @@
 using namespace a3d;
 using namespace a3d::math;
 using namespace std;
+
+/// Private Types ///
+
+struct HitTestCandidate {
+    float         t;
+    HitTestResult result;
+};
+
+/// Private Static Non-Member Prototypes ///
+
+// tests whether the finite near-to-far picking segment intersects an axis-aligned bounding box. returns the
+// earliest intersection position as a normalized segment parameter t in [0, 1], or nullopt if there is no hit.
+static optional<float> IntersectSegmentAABB(const vec3& origin, const vec3& delta, const AABB& aabb);
+// performs precise segment-versus-triangle test using Möller–Trumbore. deliberately two-sided and returns
+// the intersection t in [0, 1], or nullopt.
+static optional<float> IntersectSegmentTriangle(const vec3& origin,
+                                                const vec3& delta,
+                                                const vec3& a,
+                                                const vec3& b,
+                                                const vec3& c);
+// transforms world-space picking segment into a node's mesh-local space, rejects elements using their AABBs,
+// then tests their triangles. returns the nearest triangle hit anywhere in that Node's Mesh, packaged as a
+// complete HitTestResult.
+static optional<HitTestCandidate> IntersectNodeMesh(const shared_ptr<Node>& node,
+                                                    const shared_ptr<Mesh>& mesh,
+                                                    const mat4&             modelTransform,
+                                                    const vec3&             worldOrigin,
+                                                    const vec3&             worldDelta);
 
 /// Public Lifecycle Functions ///
 
@@ -347,7 +383,102 @@ vector<HitTestResult> VisualWorld::hitTest(const vec2& point) const {
 }
 
 vector<HitTestResult> VisualWorld::hitTest(const vec2& point, const HitTestOptions& options) const {
-    throw runtime_error("Not implemented.");
+
+    if (!isfinite(point.x) || !isfinite(point.y)) {
+        throw invalid_argument("Hit-test point must be finite.");
+    }
+
+    if (!_scene) {
+        throw runtime_error("VisualWorld has no Scene.");
+    }
+
+    const vec3 worldOrigin = unprojectPoint({point.x, point.y, 0.0f});
+    const vec3 worldEnd = unprojectPoint({point.x, point.y, 1.0f});
+    const vec3 worldDelta = worldEnd - worldOrigin;
+
+    if (length(worldDelta) <= F32_COMPARE_EPSILON) {
+        throw runtime_error("Hit-test segment is degenerate.");
+    }
+
+    struct TraversalEntry {
+        shared_ptr<Node> node;
+        mat4             parentWorld;
+    };
+
+    vector<TraversalEntry> stack;
+    stack.reserve(256);
+    stack.push_back({_scene->rootNode(), mat4 {1.0f}});
+
+    optional<HitTestCandidate> closest;
+    vector<HitTestCandidate>   all;
+
+    while (!stack.empty()) {
+
+        auto entry = std::move(stack.back());
+        stack.pop_back();
+
+        if (entry.node->hidden()) {
+            continue;
+        }
+
+        const mat4 modelTransform = entry.parentWorld * entry.node->transform();
+
+        if (const auto& mesh = entry.node->mesh()) {
+
+            auto candidate = IntersectNodeMesh(entry.node, mesh, modelTransform, worldOrigin, worldDelta);
+
+            if (candidate) {
+
+                switch (options.searchMode) {
+
+                    case HitTestSearchMode::Any:
+                        return {std::move(candidate->result)};
+
+                    case HitTestSearchMode::Closest:
+                        if (!closest || candidate->t < closest->t) {
+                            closest = std::move(*candidate);
+                        }
+                        break;
+
+                    case HitTestSearchMode::All:
+                        all.push_back(std::move(*candidate));
+                        break;
+                }
+            }
+        }
+
+        for (const auto& child : entry.node->children()) {
+            stack.push_back({child, modelTransform});
+        }
+    }
+
+    switch (options.searchMode) {
+
+        case HitTestSearchMode::Any:
+            return {};
+
+        case HitTestSearchMode::Closest:
+            if (closest) {
+                return {std::move(closest->result)};
+            }
+            return {};
+
+        case HitTestSearchMode::All:
+            sort(all.begin(), all.end(), [](const HitTestCandidate& a, const HitTestCandidate& b) {
+                return a.t < b.t;
+            });
+
+            vector<HitTestResult> results;
+            results.reserve(all.size());
+
+            for (auto& candidate : all) {
+                results.push_back(std::move(candidate.result));
+            }
+
+            return results;
+    }
+
+    return {};
 }
 
 bool VisualWorld::defaultLightingEnabled() const {
@@ -557,4 +688,207 @@ shared_ptr<Node> VisualWorld::defaultPOV() {
     cameraNode->camera(camera);
 
     return cameraNode;
+}
+
+/// Private Static Non-Member Functions ///
+
+optional<float> IntersectSegmentAABB(const vec3& origin, const vec3& delta, const AABB& aabb) {
+
+    if (!aabb.valid()) {
+        return {};
+    }
+
+    float tMin = 0.0f;
+    float tMax = 1.0f;
+
+    for (int axis = 0; axis < 3; ++axis) {
+
+        if (math::abs(delta[axis]) <= F32_COMPARE_EPSILON) {
+
+            if (origin[axis] < aabb.min[axis] || origin[axis] > aabb.max[axis]) {
+                return {};
+            }
+
+            continue;
+        }
+
+        const float inverseDelta = 1.0f / delta[axis];
+
+        const float t0 = (aabb.min[axis] - origin[axis]) * inverseDelta;
+        const float t1 = (aabb.max[axis] - origin[axis]) * inverseDelta;
+
+        const float tNear = math::min(t0, t1);
+        const float tFar = math::max(t0, t1);
+
+        tMin = math::max(tMin, tNear);
+        tMax = math::min(tMax, tFar);
+
+        if (tMin > tMax) {
+            return {};
+        }
+    }
+
+    return tMin;
+}
+
+optional<float> IntersectSegmentTriangle(const vec3& origin,
+                                         const vec3& delta,
+                                         const vec3& a,
+                                         const vec3& b,
+                                         const vec3& c) {
+
+    const vec3 edgeAB = b - a;
+    const vec3 edgeAC = c - a;
+
+    const vec3  p = cross(delta, edgeAC);
+    const float determinant = dot(edgeAB, p);
+
+    // Using abs() here deliberately makes the test two-sided.
+    if (math::abs(determinant) <= F32_COMPARE_EPSILON) {
+        return {};
+    }
+
+    const float inverseDeterminant = 1.0f / determinant;
+    const vec3  fromA = origin - a;
+
+    const float u = dot(fromA, p) * inverseDeterminant;
+    if (u < 0.0f || u > 1.0f) {
+        return {};
+    }
+
+    const vec3 q = cross(fromA, edgeAB);
+
+    const float v = dot(delta, q) * inverseDeterminant;
+    if (v < 0.0f || u + v > 1.0f) {
+        return {};
+    }
+
+    const float t = dot(edgeAC, q) * inverseDeterminant;
+    if (t < 0.0f || t > 1.0f) {
+        return {};
+    }
+
+    return t;
+}
+
+optional<HitTestCandidate> IntersectNodeMesh(const shared_ptr<Node>& node,
+                                             const shared_ptr<Mesh>& mesh,
+                                             const mat4&             modelTransform,
+                                             const vec3&             worldOrigin,
+                                             const vec3&             worldDelta) {
+
+    const mat3 linearTransform {modelTransform};
+
+    // A singular transform cannot be inverted into mesh-local space.
+    if (math::abs(determinant(linearTransform)) <= F32_COMPARE_EPSILON) {
+        return nullopt;
+    }
+
+    const mat4 inverseModelTransform = inverse(modelTransform);
+
+    const vec3 worldEnd = worldOrigin + worldDelta;
+
+    const vec3 localOrigin = vec3 {inverseModelTransform * vec4 {worldOrigin, 1.0f}};
+    const vec3 localEnd = vec3 {inverseModelTransform * vec4 {worldEnd, 1.0f}};
+    const vec3 localDelta = localEnd - localOrigin;
+
+    optional<float>    bestT;
+    const MeshElement* bestElement = nullptr;
+    optional<uint32_t> bestFaceIndex;
+    vec3               bestA;
+    vec3               bestB;
+    vec3               bestC;
+
+    for (const auto& elementPtr : mesh->elements()) {
+
+        const auto& element = *elementPtr;
+
+        if (element.topology() != PrimitiveTopology::Triangles) {
+            continue;
+        }
+
+        const AABB localAABB = element.localAABB();
+        if (!localAABB.valid()) {
+            continue;
+        }
+
+        const auto aabbHit = IntersectSegmentAABB(localOrigin, localDelta, localAABB);
+        if (!aabbHit) {
+            continue;
+        }
+
+        // The nearest possible hit in this element is already farther than
+        // the best triangle found so far.
+        if (bestT && *aabbHit > *bestT) {
+            continue;
+        }
+
+        const auto positions = VertexAccess::GetPositionStreamView(element);
+        if (!positions) {
+            continue;
+        }
+
+        uint32_t faceIndex = 0;
+
+        IndexAccess::ForEachTriangle(element, [&](uint32_t indexA, uint32_t indexB, uint32_t indexC) {
+            const uint32_t currentFaceIndex = faceIndex++;
+
+            const bool indicesValid =
+                indexA < positions->count && indexB < positions->count && indexC < positions->count;
+
+            A3D_ASSERT(indicesValid);
+
+            if (!indicesValid) {
+                return;
+            }
+
+            const vec3 a = VertexAccess::ReadVec3(VertexBaseAt(*positions, indexA), positions->offset);
+            const vec3 b = VertexAccess::ReadVec3(VertexBaseAt(*positions, indexB), positions->offset);
+            const vec3 c = VertexAccess::ReadVec3(VertexBaseAt(*positions, indexC), positions->offset);
+
+            const auto t = IntersectSegmentTriangle(localOrigin, localDelta, a, b, c);
+
+            if (!t || (bestT && *t >= *bestT)) {
+                return;
+            }
+
+            bestT = *t;
+            bestElement = &element;
+            bestFaceIndex = currentFaceIndex;
+            bestA = a;
+            bestB = b;
+            bestC = c;
+        });
+    }
+
+    if (!bestT || !bestElement || !bestFaceIndex) {
+        return nullopt;
+    }
+
+    const vec3 localCoordinates = localOrigin + localDelta * *bestT;
+    const vec3 worldCoordinates = worldOrigin + worldDelta * *bestT;
+
+    const vec3 localNormal = normalize(cross(bestB - bestA, bestC - bestA));
+
+    const vec3 worldA = vec3 {modelTransform * vec4 {bestA, 1.0f}};
+    const vec3 worldB = vec3 {modelTransform * vec4 {bestB, 1.0f}};
+    const vec3 worldC = vec3 {modelTransform * vec4 {bestC, 1.0f}};
+
+    const vec3 worldNormal = normalize(cross(worldB - worldA, worldC - worldA));
+
+    return HitTestCandidate {
+        .t = *bestT,
+        .result =
+            HitTestResult {
+                node,
+                mesh,
+                bestElement,
+                bestFaceIndex,
+                localCoordinates,
+                worldCoordinates,
+                localNormal,
+                worldNormal,
+                modelTransform,
+            },
+    };
 }

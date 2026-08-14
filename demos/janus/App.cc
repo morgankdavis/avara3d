@@ -834,37 +834,66 @@ shared_ptr<Node> MakeSimulationRoot() {
 
 optional<App::PickResult> Pick(Scene& scene, const vec2& screenPosition) {
 
-    auto visualWorld = scene.visualWorld();
-    auto physicsWorld = scene.physicsWorld();
+    // mesh-based raycasting:
 
-    if (!visualWorld || !physicsWorld) {
+    auto visualWorld = scene.visualWorld();
+
+    if (!visualWorld) {
         return {};
     }
 
-    const auto isSelectable = [](const Node& node) {
-        return node.mesh() != nullptr;
-    };
+    const auto hits = visualWorld->hitTest(screenPosition);
 
-    const auto from = visualWorld->unprojectPoint({screenPosition.x, screenPosition.y, 0.0f});
-    const auto to = visualWorld->unprojectPoint({screenPosition.x, screenPosition.y, 1.0f});
-    const auto hits = physicsWorld->rayTest(from, to);
-
-    for (const auto& hit : hits) {
-
-        auto node = hit.node();
-
-        if (!node || !isSelectable(*node)) {
-            continue;
-        }
-
-        return App::PickResult {
-            .node = node,
-            .worldHitPosition = hit.worldCoordinates(),
-            .worldHitNormal = hit.worldNormal(),
-        };
+    if (hits.empty()) {
+        return {};
     }
 
-    return {};
+    const auto& hit = hits.front();
+    auto        node = hit.node();
+
+    if (!node) {
+        return {};
+    }
+
+    return App::PickResult {
+        .node = node,
+        .worldHitPosition = hit.worldCoordinates(),
+        .worldHitNormal = hit.worldNormal(),
+    };
+
+    // physics-based raycasting:
+
+    // auto visualWorld = scene.visualWorld();
+    // auto physicsWorld = scene.physicsWorld();
+    //
+    // if (!visualWorld || !physicsWorld) {
+    //     return {};
+    // }
+    //
+    // const auto isSelectable = [](const Node& node) {
+    //     return node.mesh() != nullptr;
+    // };
+    //
+    // const auto from = visualWorld->unprojectPoint({screenPosition.x, screenPosition.y, 0.0f});
+    // const auto to = visualWorld->unprojectPoint({screenPosition.x, screenPosition.y, 1.0f});
+    // const auto hits = physicsWorld->rayTest(from, to);
+    //
+    // for (const auto& hit : hits) {
+    //
+    //     auto node = hit.node();
+    //
+    //     if (!node || !isSelectable(*node)) {
+    //         continue;
+    //     }
+    //
+    //     return App::PickResult {
+    //         .node = node,
+    //         .worldHitPosition = hit.worldCoordinates(),
+    //         .worldHitNormal = hit.worldNormal(),
+    //     };
+    // }
+    //
+    // return {};
 }
 
 void ShootSlurm(Node& parent, const vec3& location, const vec3& direction) {

@@ -38,6 +38,7 @@ namespace a3d {
             HitTestSearchMode searchMode {HitTestSearchMode::Closest};
         };
 
+        // ! NOT IMPLEMENTED !
         using BeginContactCallback = std::function<void(PhysicsWorld& physicsWorld, PhysicsContact& contact)>;
         using ContinueContactCallback =
             std::function<void(PhysicsWorld& physicsWorld, PhysicsContact& contact)>;
