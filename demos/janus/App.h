@@ -100,12 +100,14 @@ namespace demo::janus {
         std::shared_ptr<a3d::Node>                     _cameraNode;
         a3d::ext::TurntableCameraController            _cameraController;
         std::optional<PickResult>                      _selection;
+        std::shared_ptr<a3d::Node>                     _cursorMarker;
+        std::optional<PickResult>                      _actionTarget;
         a3d::ext::TransientNodeRegistry                _transients;
         double                                         _backgroundRotationTime;
         std::vector<std::unique_ptr<a3d::ext::Wander>> _orbWanders;
         // std::optional<ImpactInfo>                      _lastImpact;
         // float                                          _peakImpactImpulse;
-        bool                                           _resetRequested;
+        bool _resetRequested;
     };
 
 }

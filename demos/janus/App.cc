@@ -34,16 +34,17 @@ const vec3                        BACKGROUND_ROTATION_AXIS {0.5f, 1.0f, 1.0f};
 const vec3                        GRAVITY_EARTH {0.0f, -9.807f, 0.0f};
 const vec3                        GRAVITY_MOON {0.0f, -1.62f, 0.0f};
 const vec3                        GRAVITY_ZERO {0.0f, 0.0f, 0.0f};
+const float                       CURSOR_MARKER_RADIUS {0.1f};
 
 /// Private Static Non-Member Prototypes ///
 
 static shared_ptr<Node>          MakeSimulationRoot();
-static optional<App::PickResult> Pick(VisualWorld& visualWorld,
-                                      const vec2&  screenPosition,
-                                      const Node*  ignoredNode = nullptr);
-static optional<App::PickResult> FindActionTarget(Scene&      scene,
-                                                  const vec2& screenPosition,
-                                                  const Node* ignoredVisualNode = nullptr);
+static optional<App::PickResult> Pick(VisualWorld&               visualWorld,
+                                      const vec2&                screenPosition,
+                                      const vector<const Node*>& ignoredNodes = {});
+static optional<App::PickResult> FindActionTarget(Scene&                     scene,
+                                                  const vec2&                screenPosition,
+                                                  const vector<const Node*>& ignoredNodes = {});
 static void                      ShootSlurm(Node& parent, const vec3& location, const vec3& direction);
 static vector<shared_ptr<Node>>  AddBoxStack(Node&             parent,
                                              const vec3&       location,
@@ -65,6 +66,8 @@ App::App(int argc, char* argv[]):
     _cameraNode {nullptr},
     _cameraController {},
     _selection {},
+    _cursorMarker {nullptr},
+    _actionTarget {},
     _transients {ext::TransientNodeRegistry::SweepPolicy::EveryInterval(1.0)},
     _backgroundRotationTime {0.0},
     _orbWanders {},
@@ -226,6 +229,24 @@ std::unique_ptr<Scene> App::init() {
         _simulationRoot = MakeSimulationRoot();
         scene->rootNode()->addChild(_simulationRoot);
 
+        // create the action target marker
+
+        {
+            const auto color = Color::Yellow();
+
+            auto material = Material::EmissionMaterial(color);
+            auto mesh = Sphere::Mesh(CURSOR_MARKER_RADIUS, 4, material);
+
+            _cursorMarker = Node::MeshNode(mesh);
+            _cursorMarker->name("Action marker");
+            _cursorMarker->hidden(true);
+
+            auto light = make_shared<PointLight>(color);
+            _cursorMarker->light(light);
+
+            scene->rootNode()->addChild(_cursorMarker);
+        }
+
         // wandering lights
 
         {
@@ -344,7 +365,7 @@ void App::inputDidUpdate(Runner&       runner,
     _window->cursorCaptured(result.pointerDragging);
 
     if (result.primaryClick) {
-        select(Pick(*scene.visualWorld(), result.primaryClick->position));
+        select(Pick(*scene.visualWorld(), result.primaryClick->position, {_cursorMarker.get()}));
     }
 
     // if (result.panButtonClick) {
@@ -453,6 +474,28 @@ void App::frameDidBegin(Runner&                        runner,
 
     if (_cameraNode) {
         _cameraController.apply(*_cameraNode);
+    }
+
+    if (_cursorMarker) {
+
+        if (_window->cursorCaptured()) {
+            _actionTarget.reset();
+            _cursorMarker->hidden(true);
+        }
+        else {
+
+            auto& input = static_cast<DesktopInputContext&>(*scene.inputContext());
+
+            _actionTarget = FindActionTarget(scene, input.mousePosition(), {_cursorMarker.get()});
+
+            if (_actionTarget) {
+                _cursorMarker->position(_actionTarget->worldHitPosition);
+                _cursorMarker->hidden(false);
+            }
+            else {
+                _cursorMarker->hidden(true);
+            }
+        }
     }
 
     ui::Panel panel("controls", {
@@ -763,6 +806,12 @@ void App::select(optional<PickResult> selection) {
 void App::resetSimulation() {
     select({});
 
+    _actionTarget.reset();
+
+    if (_cursorMarker) {
+        _cursorMarker->hidden(true);
+    }
+
     _simulationRoot->removeFromParent();
 
     _transients.clear();
@@ -919,7 +968,9 @@ shared_ptr<Node> MakeSimulationRoot() {
     return root;
 }
 
-optional<App::PickResult> Pick(VisualWorld& visualWorld, const vec2& screenPosition, const Node* ignoredNode) {
+optional<App::PickResult> Pick(VisualWorld&               visualWorld,
+                               const vec2&                screenPosition,
+                               const vector<const Node*>& ignoredNodes) {
 
     const auto hits = visualWorld.hitTest(screenPosition, {.searchMode = HitTestSearchMode::All});
 
@@ -931,7 +982,7 @@ optional<App::PickResult> Pick(VisualWorld& visualWorld, const vec2& screenPosit
             continue;
         }
 
-        if (node.get() == ignoredNode) {
+        if (find(ignoredNodes.begin(), ignoredNodes.end(), node.get()) != ignoredNodes.end()) {
             continue;
         }
 
@@ -945,9 +996,9 @@ optional<App::PickResult> Pick(VisualWorld& visualWorld, const vec2& screenPosit
     return {};
 }
 
-optional<App::PickResult> FindActionTarget(Scene&      scene,
-                                           const vec2& screenPosition,
-                                           const Node* ignoredVisualNode) {
+optional<App::PickResult> FindActionTarget(Scene&                     scene,
+                                           const vec2&                screenPosition,
+                                           const vector<const Node*>& ignoredNodes) {
 
     auto visualWorld = scene.visualWorld();
 
@@ -955,7 +1006,7 @@ optional<App::PickResult> FindActionTarget(Scene&      scene,
         return {};
     }
 
-    if (auto result = Pick(*visualWorld, screenPosition, ignoredVisualNode)) {
+    if (auto result = Pick(*visualWorld, screenPosition, ignoredNodes)) {
         return result;
     }
 
