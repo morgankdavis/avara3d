@@ -75,7 +75,7 @@ static int                          PickNumBTThreads(btITaskScheduler* sched);
 
 BulletWorldProxy::BulletWorldProxy(PhysicsWorld& world):
     PhysicsWorldProxy {world},
-    _stats {},
+    _inventoryState {},
     _debugDrawMode {0} {
 
     log::i()("Bullet Physics version: {}", btGetVersion());
@@ -228,13 +228,13 @@ void BulletWorldProxy::add(PhysicsBody& body) {
 
     switch (body.type()) {
         case PhysicsBody::Type::Static:
-            ++_stats.staticBodies;
+            ++_inventoryState.staticBodies;
             break;
         case PhysicsBody::Type::Dynamic:
-            ++_stats.dynamicBodies;
+            ++_inventoryState.dynamicBodies;
             break;
         case PhysicsBody::Type::Kinematic:
-            ++_stats.kinematicBodies;
+            ++_inventoryState.kinematicBodies;
             break;
     }
 
@@ -242,16 +242,16 @@ void BulletWorldProxy::add(PhysicsBody& body) {
     if (shapePtr) {
         switch (shapePtr->type()) {
             case PhysicsShape::Type::ConvexHull:
-                ++_stats.convexHullShapes[shapePtr];
+                ++_inventoryState.convexHullShapeRefs[shapePtr];
                 break;
             case PhysicsShape::Type::ConcavePolyhedron:
-                ++_stats.concavePolyhedronShapes[shapePtr];
+                ++_inventoryState.concavePolyhedronShapeRefs[shapePtr];
                 break;
             case PhysicsShape::Type::BoundingBox:
-                ++_stats.boundingBoxShapes[shapePtr];
+                ++_inventoryState.boundingBoxShapeRefs[shapePtr];
                 break;
             case PhysicsShape::Type::Primitive:
-                ++_stats.primitiveShapes[shapePtr];
+                ++_inventoryState.primitiveShapeRefs[shapePtr];
                 break;
         }
     }
@@ -276,13 +276,13 @@ void BulletWorldProxy::remove(PhysicsBody& body) {
 
     switch (body.type()) {
         case PhysicsBody::Type::Static:
-            --_stats.staticBodies;
+            --_inventoryState.staticBodies;
             break;
         case PhysicsBody::Type::Dynamic:
-            --_stats.dynamicBodies;
+            --_inventoryState.dynamicBodies;
             break;
         case PhysicsBody::Type::Kinematic:
-            --_stats.kinematicBodies;
+            --_inventoryState.kinematicBodies;
             break;
     }
 
@@ -290,30 +290,30 @@ void BulletWorldProxy::remove(PhysicsBody& body) {
     if (shapePtr) {
         switch (shapePtr->type()) {
             case PhysicsShape::Type::ConvexHull: {
-                auto it = _stats.convexHullShapes.find(shapePtr);
-                if (it != _stats.convexHullShapes.end() && --it->second == 0) {
-                    _stats.convexHullShapes.erase(it);
+                auto it = _inventoryState.convexHullShapeRefs.find(shapePtr);
+                if (it != _inventoryState.convexHullShapeRefs.end() && --it->second == 0) {
+                    _inventoryState.convexHullShapeRefs.erase(it);
                 }
                 break;
             }
             case PhysicsShape::Type::ConcavePolyhedron: {
-                auto it = _stats.concavePolyhedronShapes.find(shapePtr);
-                if (it != _stats.concavePolyhedronShapes.end() && --it->second == 0) {
-                    _stats.concavePolyhedronShapes.erase(it);
+                auto it = _inventoryState.concavePolyhedronShapeRefs.find(shapePtr);
+                if (it != _inventoryState.concavePolyhedronShapeRefs.end() && --it->second == 0) {
+                    _inventoryState.concavePolyhedronShapeRefs.erase(it);
                 }
                 break;
             }
             case PhysicsShape::Type::BoundingBox: {
-                auto it = _stats.boundingBoxShapes.find(shapePtr);
-                if (it != _stats.boundingBoxShapes.end() && --it->second == 0) {
-                    _stats.boundingBoxShapes.erase(it);
+                auto it = _inventoryState.boundingBoxShapeRefs.find(shapePtr);
+                if (it != _inventoryState.boundingBoxShapeRefs.end() && --it->second == 0) {
+                    _inventoryState.boundingBoxShapeRefs.erase(it);
                 }
                 break;
             }
             case PhysicsShape::Type::Primitive: {
-                auto it = _stats.primitiveShapes.find(shapePtr);
-                if (it != _stats.primitiveShapes.end() && --it->second == 0) {
-                    _stats.primitiveShapes.erase(it);
+                auto it = _inventoryState.primitiveShapeRefs.find(shapePtr);
+                if (it != _inventoryState.primitiveShapeRefs.end() && --it->second == 0) {
+                    _inventoryState.primitiveShapeRefs.erase(it);
                 }
                 break;
             }
@@ -540,16 +540,19 @@ vector<HitTestResult> BulletWorldProxy::rayTest(const vec3&       from,
 }
 
 PhysicsWorld::Inventory BulletWorldProxy::inventory() const {
+
     std::scoped_lock lock(_btMutex);
 
-    return {.staticBodies = _stats.staticBodies,
-            .dynamicBodies = _stats.dynamicBodies,
-            .kinematicBodies = _stats.kinematicBodies,
-            .primitiveShapes = static_cast<unsigned>(_stats.primitiveShapes.size()),
-            .boundingBoxShapes = static_cast<unsigned>(_stats.boundingBoxShapes.size()),
-            .convexHullShapes = static_cast<unsigned>(_stats.convexHullShapes.size()),
-            .concavePolyhedronShapes = static_cast<unsigned>(_stats.concavePolyhedronShapes.size()),
-            .activeContacts = static_cast<unsigned>(_activeContacts.size())};
+    return {
+        .staticBodies = _inventoryState.staticBodies,
+        .dynamicBodies = _inventoryState.dynamicBodies,
+        .kinematicBodies = _inventoryState.kinematicBodies,
+        .primitiveShapes = static_cast<unsigned>(_inventoryState.primitiveShapeRefs.size()),
+        .boundingBoxShapes = static_cast<unsigned>(_inventoryState.boundingBoxShapeRefs.size()),
+        .convexHullShapes = static_cast<unsigned>(_inventoryState.convexHullShapeRefs.size()),
+        .concavePolyhedronShapes = static_cast<unsigned>(_inventoryState.concavePolyhedronShapeRefs.size()),
+        .activeContacts = static_cast<unsigned>(_activeContacts.size()),
+    };
 }
 
 void BulletWorldProxy::updateCollisionPairs() {

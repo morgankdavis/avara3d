@@ -12,10 +12,11 @@
 #include <chrono>
 #include <memory>
 #include <mutex>
+#include <unordered_map>
 #include <vector>
 
 #include "a3d/mesh/Line.h"
-#include "a3d/physics/backend/bullet/BulletStats.h"
+#include "a3d/physics/PhysicsWorld.h"
 #include "a3d/physics/proxy/PhysicsWorldProxy.h"
 #include "a3d/scene/Scene.h"
 
@@ -33,6 +34,7 @@ class btDefaultCollisionConfiguration;
 namespace a3d {
 
     class BulletDebugDrawer;
+    class PhysicsShape;
     class RenderContext;
 
     class BulletWorldProxy : public PhysicsWorldProxy {
@@ -70,6 +72,16 @@ namespace a3d {
     private:
         /// Private Types ///
 
+        struct InventoryState {
+            unsigned                                          staticBodies {0};
+            unsigned                                          dynamicBodies {0};
+            unsigned                                          kinematicBodies {0};
+            std::unordered_map<const PhysicsShape*, unsigned> primitiveShapeRefs;
+            std::unordered_map<const PhysicsShape*, unsigned> boundingBoxShapeRefs;
+            std::unordered_map<const PhysicsShape*, unsigned> convexHullShapeRefs;
+            std::unordered_map<const PhysicsShape*, unsigned> concavePolyhedronShapeRefs;
+        };
+
         struct BodyPairContact {
             PhysicsBody*   bodyA;
             PhysicsBody*   bodyB;
@@ -103,7 +115,7 @@ namespace a3d {
         std::unique_ptr<BulletDebugDrawer>                     _btDebugDrawer;
         std::vector<Line>                                      _debugLines;
 
-        BulletStats                                            _stats;
+        InventoryState                                         _inventoryState;
 
         ContactEvents                                          _contactEvents;
         BodyPairContacts                                       _currentContacts;

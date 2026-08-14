@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "a3d/physics/PhysicsContact.h"
+#include "a3d/physics/PhysicsWorld.h"
 #include "a3d/scene/HitTestResult.h"
 #include "a3d/scene/Scene.h"
 
