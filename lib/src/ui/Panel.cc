@@ -52,7 +52,8 @@ Panel::Panel(string_view id, const Options& options):
     _rowItemsRemaining {0},
     _rowItemWidth {0.0f},
     _rowSpacing {0.0f},
-    _visible {false} {
+    _visible {false},
+    _hovered {false} {
 
     if (!ImGui::GetCurrentContext()) {
         throw logic_error("Cannot create a Panel without an active UI context.");
@@ -109,6 +110,7 @@ Panel::Panel(string_view id, const Options& options):
                                        | ImGuiWindowFlags_NoFocusOnAppearing;
 
     _visible = ImGui::Begin(_windowName.c_str(), nullptr, flags);
+    _hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
 }
 
 Panel::~Panel() {
@@ -660,6 +662,10 @@ bool Panel::toggle(string_view label, bool& value, Padding padding) {
     endItem();
 
     return pressed;
+}
+
+bool Panel::hovered() const {
+    return _hovered;
 }
 
 /// Private Member Functions ///

@@ -258,9 +258,6 @@ std::unique_ptr<Scene> App::init() {
             _cursorMarker->name("Action marker");
             _cursorMarker->hidden(true);
 
-            // auto light = make_shared<PointLight>(color);
-            // _cursorMarker->light(light);
-
             scene->rootNode()->addChild(_cursorMarker);
         }
 
@@ -316,6 +313,67 @@ std::unique_ptr<Scene> App::init() {
                                                                             1000u + static_cast<uint32_t>(i)}));
             }
         }
+
+        // {
+        //     auto mesh = util::fs::MeshNamed("teapot/teapot", Mesh::ImportOptions::None);
+        //
+        //     // shared_ptr<Image> marbleImage = util::fs::ImageNamed("marble1", std::string{"jpg"});
+        //     //
+        //     //
+        //     // if (marbleImage) {
+        //     //     log::app::i()("marbleImage: {} x {}",
+        //     //                   marbleImage->width(),
+        //     //                   marbleImage->height());
+        //     // }
+        //     //
+        //     // A3D_ASSERT(marbleImage);
+        //     //
+        //     // auto sampler = make_shared<Sampler>();
+        //     // sampler->wrapS(Sampler::WrapMode::Repeat);
+        //     // sampler->wrapT(Sampler::WrapMode::Repeat);
+        //     //
+        //     // auto marbleTexture = make_shared<Texture>(marbleImage, sampler);
+        //     //
+        //     // //auto marbleMaterial = make_shared<Material>(monostate {}, marbleTexture, Color::White());
+        //     // auto marbleMaterial = Material::DiffuseMaterial(marbleTexture);
+        //     //
+        //     // marbleMaterial->specularExponent(64.0f);
+        //     // marbleMaterial->uvScale(1.0f);
+        //     // // mesh->addMaterial(marbleMaterial);
+        //     // mesh->replaceMaterial(0, marbleMaterial);
+        //     //
+        //
+        //     auto marbleMaterial2 = make_shared<Material>(monostate {}, Color::Red(), Color::White());
+        //
+        //     marbleMaterial2->specularExponent(64.0f);
+        //
+        //     mesh->replaceMaterial(0, marbleMaterial2);
+        //
+        //     auto teapotNode = Node::MeshNode(mesh);
+        //     teapotNode->position({5.0f, 5.0f, 5.0f});
+        //     scene->rootNode()->addChild(teapotNode);
+        //
+        //     auto& element = *mesh->elements().at(0);
+        //
+        //     auto bytes = element.vertexBytes();
+        //     auto verts = reinterpret_cast<const VertexPNT*>(bytes.data());
+        //
+        //     float minU = std::numeric_limits<float>::max();
+        //     float minV = std::numeric_limits<float>::max();
+        //     float maxU = std::numeric_limits<float>::lowest();
+        //     float maxV = std::numeric_limits<float>::lowest();
+        //
+        //     for (uint32_t i = 0; i < element.vertexCount(); ++i) {
+        //         const auto& uv = verts[i].texCoord;
+        //
+        //         minU = std::min(minU, uv.x);
+        //         minV = std::min(minV, uv.y);
+        //         maxU = std::max(maxU, uv.x);
+        //         maxV = std::max(maxV, uv.y);
+        //     }
+        //
+        //     log::app::i()("teapot UV range: ({}, {}) - ({}, {})", minU, minV, maxU, maxV);
+        // }
 
         // open the window
 
@@ -421,9 +479,11 @@ void App::frameDidBegin(Runner&                        runner,
         _cameraController.apply(*_cameraNode);
     }
 
+   bool hovered = drawPanel();
+
     if (_cursorMarker) {
 
-        if (_window->cursorCaptured()) {
+        if (_window->cursorCaptured() || hovered) {
 
             hover(nullptr);
 
@@ -452,12 +512,12 @@ void App::frameDidBegin(Runner&                        runner,
         }
     }
 
-    drawPanel();
+    _window->cursorHidden(!_cursorMarker->hidden());
 }
 
 /// Private Member Functions ///
 
-void App::drawPanel() {
+bool App::drawPanel() {
 
     auto& runner = App::runner();
     auto& scene = App::scene();
@@ -555,7 +615,7 @@ void App::drawPanel() {
 
     switch (_action) {
         case Action::Drop:
-            panel.row(3);
+            panel.row(2);
             if (panel.option("Blocks", _dropAction == DropAction::Blocks)) {
                 _dropAction = DropAction::Blocks;
             }
@@ -567,7 +627,7 @@ void App::drawPanel() {
             // }
             break;
         case Action::Throw:
-            panel.row(3);
+            panel.row(2);
             if (panel.option("Ring", _throwAction == ThrowAction::Ring)) {
                 _throwAction = ThrowAction::Ring;
             }
@@ -579,7 +639,7 @@ void App::drawPanel() {
             // }
             break;
         case Action::Poke:
-            panel.row(3);
+            panel.row(2);
             if (panel.option("Hard", _pokiness == Pokiness::Hard)) {
                 _pokiness = Pokiness::Hard;
             }
@@ -760,6 +820,8 @@ void App::drawPanel() {
                                ? util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsWireframes)
                                : util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsWireframes));
     }
+
+    return panel.hovered();
 }
 
 void App::hover(shared_ptr<Node> node) {

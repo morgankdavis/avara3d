@@ -902,6 +902,9 @@ void AddCardboardBox(Scene& scene, const vec3& location, const vec3& axis, float
 
     static auto mesh = util::fs::MeshNamed("cardboard_box/cardboard_box");
 
+    mesh->materials()[0]->specular({});
+    mesh->materials()[1]->specular({});
+
     auto node = Node::MeshNode(mesh);
     node->name("Cardboard Box");
 

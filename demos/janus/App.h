@@ -102,7 +102,7 @@ namespace demo::janus {
 
         /// Private Member Functions ///
 
-        void drawPanel();
+        bool drawPanel();
         void hover(std::shared_ptr<a3d::Node> node);
         void select(std::optional<PickResult> pickResult);
         void queueAction(const a3d::math::vec2& screenPosition);

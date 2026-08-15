@@ -125,6 +125,8 @@ namespace a3d::ui {
         /** Draws a boolean toggle and returns true when value changed. */
         bool toggle(std::string_view label, bool& value, Padding padding = Padding::Default());
 
+        bool hovered() const;
+
     private:
         /// Private Member Functions ///
 
@@ -139,6 +141,7 @@ namespace a3d::ui {
         float       _rowItemWidth;
         float       _rowSpacing;
         bool        _visible;
+        bool        _hovered;
     };
 
 }
