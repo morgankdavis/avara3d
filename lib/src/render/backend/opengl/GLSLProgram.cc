@@ -23,6 +23,11 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
+/// Private Static Non-Member Prototypes ///
+
+static optional<string> ShaderSourceAt(const string& name, ShaderType type);
+static optional<string> ShaderIncludeSourceAt(const filesystem::path& filename);
+
 /// Internal Lifecycle Functions ///
 
 GLSLProgram::GLSLProgram(const string& name):
@@ -319,7 +324,7 @@ bool GLSLProgram::isLinked() const {
 
 optional<string> GLSLProgram::shaderSource(const string& name, ShaderType type) {
 
-    auto source = util::fs::ShaderSource(name, type);
+    auto source = ShaderSourceAt(name, type);
 
     if (!source) {
         return nullopt;
@@ -335,7 +340,7 @@ optional<string> GLSLProgram::shaderSource(const string& name, ShaderType type) 
             break;
     }
 
-    return GLSLPreprocessor::Process(*source, sourceName, util::fs::ShaderIncludeSource);
+    return GLSLPreprocessor::Process(*source, sourceName, ShaderIncludeSourceAt);
 }
 
 void GLSLProgram::prepare() {
@@ -437,4 +442,27 @@ void GLSLProgram::glID(GLuint glID) {
 
 void GLSLProgram::isLinked(bool isLinked) {
     _isLinked = isLinked;
+}
+
+/// Private Static Non-Member Functions ///
+
+optional<string> ShaderSourceAt(const string& name, ShaderType type) {
+
+    const auto extension = type == ShaderType::Vertex ? ".vert" : ".frag";
+    return util::fs::TextAt(filesystem::path("shaders") / (name + extension));
+}
+
+optional<string> ShaderIncludeSourceAt(const filesystem::path& filename) {
+
+    if (filename.empty() || filename.has_root_path()) {
+        return nullopt;
+    }
+
+    for (const auto& component : filename) {
+        if (component == "..") {
+            return nullopt;
+        }
+    }
+
+    return util::fs::TextAt(filesystem::path("shaders") / "include" / filename);
 }

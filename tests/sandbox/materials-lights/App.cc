@@ -61,9 +61,9 @@ std::unique_ptr<Scene> App::init() {
         });
         //visualWorld->usesDefaultLighting(true);
         visualWorld->background(Background {
-            make_shared<Texture>(std::move(util::fs::CubeImageNamed("nebula1_blue")))});
+            make_shared<Texture>(std::move(util::fs::CubeImageAt("nebula1_blue.png")))});
 
-        auto scene = util::fs::SceneNamed("cat_island/cat_island", Scene::ImportOptions::ImportMeshes
+        auto scene = util::fs::SceneAt("cat_island/cat_island.gltf", Scene::ImportOptions::ImportMeshes
                                                                        | Scene::ImportOptions::ImportMaterials
                                                                        | Scene::ImportOptions::ImportCameras);
 

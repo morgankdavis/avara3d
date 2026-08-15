@@ -9,11 +9,14 @@
 #include "a3d/render/backend/opengl/GLSLPreprocessor.h"
 
 #include <algorithm>
+#include <filesystem>
 #include <format>
 #include <sstream>
 #include <stdexcept>
 #include <string_view>
 #include <vector>
+
+#include "a3d/util/Filesystem.h"
 
 using namespace a3d;
 using namespace std;
@@ -66,6 +69,21 @@ string GLSLPreprocessor::Process(const string&          source,
 }
 
 /// Private Non-Member Functions ///
+
+optional<string> ShaderIncludeSourceAt(const filesystem::path& filename) {
+
+    if (filename.empty() || filename.has_root_path()) {
+        return nullopt;
+    }
+
+    for (const auto& component : filename) {
+        if (component == "..") {
+            return nullopt;
+        }
+    }
+
+    return util::fs::TextAt(filesystem::path("shaders") / "include" / filename);
+}
 
 size_t SkipUtf8Bom(const std::string& source) {
 

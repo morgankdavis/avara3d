@@ -55,7 +55,7 @@ std::unique_ptr<Scene> App::init() {
 
         auto options = Scene::ImportOptions::ImportMeshes | Scene::ImportOptions::ImportMaterials
                        | Scene::ImportOptions::ImportLights;
-        auto testScene = util::fs::SceneNamed("import_test/import_test", options);
+        auto testScene = util::fs::SceneAt("import_test/import_test.gltf", options);
         auto testSceneNodes = testScene->rootNode()->children();
         auto importLightsCamerasRoot = make_shared<Node>("importLightsCamerasRoot");
         auto importMeshRoot = make_shared<Node>("importMeshRoot");

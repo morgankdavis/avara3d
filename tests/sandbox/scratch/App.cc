@@ -92,7 +92,7 @@ std::unique_ptr<Scene> App::init() {
         groundNode->physicsBody(std::move(groundBody));
         scene->rootNode()->addChild(groundNode);
 
-        auto teapotNode = Node::MeshNode(util::fs::MeshNamed("teapot/teapot"));
+        auto teapotNode = Node::MeshNode(util::fs::MeshAt("teapot/teapot.gltf"));
         teapotNode->scale(teapotNode->scale() * 10.0f);
         scene->rootNode()->addChild(teapotNode);
         _teapotNode = teapotNode;

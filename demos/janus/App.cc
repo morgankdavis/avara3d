@@ -101,7 +101,7 @@ std::unique_ptr<Scene> App::init() {
         auto visualWorld = make_unique<VisualWorld>(*_window);
 
         visualWorld->background(Background {
-            make_shared<Texture>(std::move(util::fs::CubeImageNamed("nebula")))});
+            make_shared<Texture>(std::move(util::fs::CubeImageAt("nebula.png")))});
 
         //visualWorld->fog(Fog {.color = Color::Black(), .startDistance = 30.0f, .endDistance = 150.0f});
 
@@ -316,67 +316,6 @@ std::unique_ptr<Scene> App::init() {
                                                                             1000u + static_cast<uint32_t>(i)}));
             }
         }
-
-        // {
-        //     auto mesh = util::fs::MeshNamed("teapot/teapot", Mesh::ImportOptions::None);
-        //
-        //     // shared_ptr<Image> marbleImage = util::fs::ImageNamed("marble1");
-        //     //
-        //     //
-        //     // if (marbleImage) {
-        //     //     log::app::i()("marbleImage: {} x {}",
-        //     //                   marbleImage->width(),
-        //     //                   marbleImage->height());
-        //     // }
-        //     //
-        //     // A3D_ASSERT(marbleImage);
-        //     //
-        //     // auto sampler = make_shared<Sampler>();
-        //     // sampler->wrapS(Sampler::WrapMode::Repeat);
-        //     // sampler->wrapT(Sampler::WrapMode::Repeat);
-        //     //
-        //     // auto marbleTexture = make_shared<Texture>(marbleImage, sampler);
-        //     //
-        //     // //auto marbleMaterial = make_shared<Material>(monostate {}, marbleTexture, Color::White());
-        //     // auto marbleMaterial = Material::DiffuseMaterial(marbleTexture);
-        //     //
-        //     // marbleMaterial->specularExponent(64.0f);
-        //     // marbleMaterial->uvScale(1.0f);
-        //     // // mesh->addMaterial(marbleMaterial);
-        //     // mesh->replaceMaterial(0, marbleMaterial);
-        //     //
-        //
-        //     auto marbleMaterial2 = make_shared<Material>(monostate {}, Color::Red(), Color::White());
-        //
-        //     marbleMaterial2->specularExponent(64.0f);
-        //
-        //     mesh->replaceMaterial(0, marbleMaterial2);
-        //
-        //     auto teapotNode = Node::MeshNode(mesh);
-        //     teapotNode->position({5.0f, 5.0f, 5.0f});
-        //     scene->rootNode()->addChild(teapotNode);
-        //
-        //     auto& element = *mesh->elements().at(0);
-        //
-        //     auto bytes = element.vertexBytes();
-        //     auto verts = reinterpret_cast<const VertexPNT*>(bytes.data());
-        //
-        //     float minU = std::numeric_limits<float>::max();
-        //     float minV = std::numeric_limits<float>::max();
-        //     float maxU = std::numeric_limits<float>::lowest();
-        //     float maxV = std::numeric_limits<float>::lowest();
-        //
-        //     for (uint32_t i = 0; i < element.vertexCount(); ++i) {
-        //         const auto& uv = verts[i].texCoord;
-        //
-        //         minU = std::min(minU, uv.x);
-        //         minV = std::min(minV, uv.y);
-        //         maxU = std::max(maxU, uv.x);
-        //         maxV = std::max(maxV, uv.y);
-        //     }
-        //
-        //     log::app::i()("teapot UV range: ({}, {}) - ({}, {})", minU, minV, maxU, maxV);
-        // }
 
         // open the window
 
@@ -1058,7 +997,7 @@ shared_ptr<Node> MakeSimulationRoot() {
     {
         static auto mesh = [] {
             constexpr float HEIGHT = 1.0f;
-            auto            mesh = util::fs::MeshNamed("janus_lod/janus_lod");
+            auto            mesh = util::fs::MeshAt("janus_lod/janus_lod.gltf");
             const float     scaleFactor = HEIGHT / mesh->localExtent().y;
             mesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
             return mesh;
@@ -1085,7 +1024,7 @@ shared_ptr<Node> MakeSimulationRoot() {
     {
         static auto mesh = [] {
             constexpr float HEIGHT = 2.0f;
-            auto            mesh = util::fs::MeshNamed("aniel_lod/aniel_lod");
+            auto            mesh = util::fs::MeshAt("aniel_lod/aniel_lod.gltf");
             const float     scaleFactor = HEIGHT / mesh->localExtent().y;
             mesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
             return mesh;
@@ -1108,7 +1047,7 @@ shared_ptr<Node> MakeSimulationRoot() {
     {
         static auto mesh = [] {
             constexpr float HEIGHT = 0.35f;
-            auto            mesh = util::fs::MeshNamed("teapot/teapot");
+            auto            mesh = util::fs::MeshAt("teapot/teapot.gltf");
             const float     teapotScale = HEIGHT / mesh->localExtent().y;
             mesh->burnTransform(math::scale(mat4(1.0f), vec3(teapotScale)), true);
             mesh->replaceMaterial(0, Material::DiffuseMaterial(Color::DarkGray()));
@@ -1273,7 +1212,7 @@ shared_ptr<Node> ThrowDuck(Node& parent, const vec3& location, const vec3& veloc
     constexpr float DUCK_HEIGHT = 0.5f;
 
     static auto mesh = [] {
-        auto mesh = util::fs::MeshNamed("rubber_duck/rubber_duck");
+        auto mesh = util::fs::MeshAt("rubber_duck/rubber_duck.gltf");
 
         const float scaleFactor = DUCK_HEIGHT / mesh->localExtent().y;
         mesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);

@@ -51,7 +51,7 @@ std::unique_ptr<Scene> App::init() {
         visualWorld->defaultLightingEnabled(true);
         visualWorld->background(Background {make_shared<Color>(u8vec3 {109, 136, 164})});
 
-        auto scene = util::fs::SceneNamed("import_test/import_test");
+        auto scene = util::fs::SceneAt("import_test/import_test.gltf");
         scene->visualWorld(std::move(visualWorld));
         scene->inputContext(Window::InputContext());
         scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);

@@ -68,13 +68,14 @@ void MainWindow::initA3D() {
 
         auto visualWorld = make_unique<VisualWorld>(*_viewport);
         visualWorld->background(Background {make_shared<Color>(u8vec3 {109, 136, 164})});
+        visualWorld->defaultLightingEnabled(true);
 
         _scene = make_unique<Scene>(std::move(visualWorld), nullptr, qt::QtViewport::InputContext());
         _scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 
         _viewport->cursorCaptured(CAPTURE_CURSOR);
 
-        _bananaNode = Node::MeshNode(util::fs::MeshNamed("banana_lod/banana_lod"));
+        _bananaNode = Node::MeshNode(util::fs::MeshAt("banana_lod/banana_lod.gltf"));
         auto rx = math::quaternion({1.0f, 0.0f, 0.0f}, radians(90.0f));
         auto ry = math::quaternion({0.0f, 1.0f, 0.0f}, radians(90.0f));
         _bananaNode->orientation(rx * ry);

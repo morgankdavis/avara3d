@@ -43,8 +43,7 @@ using namespace std;
 
 /// Private Constants ///
 
-static const std::string STATS_TITLE_FONT_NAME {"Neuropol Nova Xp"};
-static const std::string STATS_TITLE_FONT_TYPE {"ttf"};
+static const std::string STATS_TITLE_FONT {"Neuropol Nova Xp.ttf"};
 static const float       STATS_TITLE_FONT_SIZE {21.0};
 static const float       STATS_BODY_FONT_SIZE {15.0};
 
@@ -188,13 +187,13 @@ void StatsOverlay::initialize(ImguiContext& context) {
         throw runtime_error("ImguiContext has no default UI font.");
     }
 
-    auto overlayTitleFont = util::fs::FontNamed(STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
+    auto overlayTitleFont = util::fs::FontAt(STATS_TITLE_FONT);
 
     if (overlayTitleFont && overlayTitleFont->buffer() && overlayTitleFont->buffer()->size()) {
         _titleImFont = context.addFont(std::move(overlayTitleFont));
     }
     else {
-        log::e()("Unable to load font: {}.{}", STATS_TITLE_FONT_NAME, STATS_TITLE_FONT_TYPE);
+        log::e()("Unable to load font: {}", STATS_TITLE_FONT);
     }
 }
 
@@ -487,7 +486,7 @@ void DrawStats(FrameStats&              stats,
     yPos += STAT_LINE_STEP / 2.0f;
 
     ImguiDrawLabelValue(yPos, bulkLayout, "contacts", std::format("{}", stats.activeContacts), bodyFont,
-                    STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+                        STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
 
     if (context.recordingGIF()) {
         yPos += STAT_LINE_STEP / 2.0f;

@@ -11,7 +11,6 @@
 
 #include <filesystem>
 #include <optional>
-#include <vector>
 
 #include "a3d/mesh/Mesh.h"
 #include "a3d/render/backend/ShaderType.h"
@@ -36,35 +35,34 @@ namespace a3d::util::fs {
     std::optional<std::string>           ExecutableName();
     std::optional<std::filesystem::path> CurrentWorkingDirectory();
 
-    // [Shaders]
-
-    std::optional<std::string>           ShaderSource(const std::string& name, ShaderType type);
-    std::optional<std::string>           ShaderIncludeSource(const std::string& filename);
-
-    // [Fonts]
-
-    std::unique_ptr<a3d::Font>           FontNamed(const std::filesystem::path& filename);
-
     // [Images]
 
-    std::unique_ptr<a3d::Image>          ImageNamed(const std::filesystem::path& filename,
-                                                    bool                         flipVertical   = true,
-                                                    bool                         flipHorizontal = false);
-    std::unique_ptr<a3d::CubeImage>      CubeImageNamed(const std::filesystem::path& filename);
+    std::unique_ptr<Image>               ImageAt(const std::filesystem::path& resourcePath,
+                                                 bool                         flipVertical   = true,
+                                                 bool                         flipHorizontal = false);
+    std::unique_ptr<CubeImage>           CubeImageAt(const std::filesystem::path& baseFilename);
 
     // [Scenes]
 
-    std::unique_ptr<a3d::Scene> SceneNamed(const std::filesystem::path& filename,
-                                           Scene::ImportOptions options = Scene::ImportOptions::ImportAll);
+    std::unique_ptr<Scene>     SceneAt(const std::filesystem::path& resourcePath,
+                                       Scene::ImportOptions         options = Scene::ImportOptions::ImportAll);
 
     // [Meshes]
 
-    std::shared_ptr<a3d::Mesh>  MeshNamed(const std::filesystem::path& filename,
-                                          Mesh::ImportOptions options = Mesh::ImportOptions::ImportMaterials);
+    std::shared_ptr<Mesh>      MeshAt(const std::filesystem::path& resourcePath,
+                                      Mesh::ImportOptions          options = Mesh::ImportOptions::ImportMaterials);
+
+    // [Text]
+
+    std::optional<std::string> TextAt(const std::filesystem::path& resourcePath);
+
+    // [Fonts]
+
+    std::unique_ptr<Font>      FontAt(const std::filesystem::path& resourcePath);
 
     // [Auxiliary]
 
-    std::optional<std::filesystem::path> AuxiliaryFilePath(const std::filesystem::path& filename);
+    std::optional<std::filesystem::path> AuxiliaryFileAt(const std::filesystem::path& resourcePath);
 
 }
 

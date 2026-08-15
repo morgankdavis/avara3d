@@ -28,8 +28,7 @@ using namespace std;
 
 /// Private Constants ///
 
-static const std::string DEFAULT_UI_FONT_NAME {"SourceCodePro-Semibold"};
-static const std::string DEFAULT_UI_FONT_TYPE {"otf"};
+static const std::string DEFAULT_UI_FONT {"SourceCodePro-Semibold.otf"};
 
 /// Internal Lifecycle Functions ///
 
@@ -90,7 +89,7 @@ void ImguiContext::startup(const RenderContext& context) {
     _frameActive = false;
     _started = true;
 
-    auto defaultFont = util::fs::FontNamed(DEFAULT_UI_FONT_NAME, DEFAULT_UI_FONT_TYPE);
+    auto defaultFont = util::fs::FontAt(DEFAULT_UI_FONT);
 
     if (!defaultFont || !defaultFont->buffer() || defaultFont->buffer()->size() == 0) {
         shutdown();
