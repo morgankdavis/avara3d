@@ -100,6 +100,11 @@ namespace demo::janus {
             a3d::math::vec3          rayDirection;
         };
 
+        struct PickIgnore {
+            std::weak_ptr<a3d::Node> node;
+            double                   remainingTime;
+        };
+
         /// Private Member Functions ///
 
         bool drawPanel();
@@ -126,6 +131,7 @@ namespace demo::janus {
         a3d::ext::TransientNodeRegistry                _transients;
         double                                         _backgroundRotationTime;
         std::vector<std::unique_ptr<a3d::ext::Wander>> _orbWanders;
+        std::vector<PickIgnore>                        _pickIgnores;
         bool                                           _pendingReset;
     };
 

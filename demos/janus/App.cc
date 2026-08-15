@@ -42,6 +42,7 @@ const float                       THROW_SPEED {15.0f};
 const float                       THROW_MIN_FLIGHT_TIME {0.25f};
 const float                       THROW_MAX_FLIGHT_TIME {1.5f};
 constexpr float                   POKE_IMPULSE = 10.0f;
+const double                      PROJECTILE_PICK_IGNORE_DURATION {0.5};
 
 /// Private Static Non-Member Prototypes ///
 
@@ -60,6 +61,7 @@ static vector<shared_ptr<Node>>  DropBoxs(Node&             parent,
                                           const u8vec3&     stackSize,
                                           float             padding,
                                           shared_ptr<Color> color);
+static bool IsIgnored(const shared_ptr<Node>& node, const vector<const Node*>& ignoredNodes);
 
 /// Public Lifecycle Functions ///
 
@@ -80,8 +82,7 @@ App::App(int argc, char* argv[]):
     _transients {ext::TransientNodeRegistry::SweepPolicy::EveryInterval(1.0)},
     _backgroundRotationTime {0.0},
     _orbWanders {},
-    // _lastImpact {},
-    // _peakImpactImpulse {0.0},
+    _pickIgnores {},
     _pendingReset {false} {}
 
 App::~App() = default;
@@ -459,6 +460,14 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
 void App::sceneDidStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
 
     _transients.update(info);
+
+    for (auto& ignore : _pickIgnores) {
+        ignore.remainingTime -= info.deltaTime;
+    }
+
+    std::erase_if(_pickIgnores, [](const PickIgnore& ignore) {
+        return ignore.remainingTime <= 0.0 || ignore.node.expired();
+    });
 }
 
 void App::frameDidBegin(Runner&                        runner,
@@ -481,7 +490,7 @@ void App::frameDidBegin(Runner&                        runner,
         _cameraController.apply(*_cameraNode);
     }
 
-   bool hovered = drawPanel();
+    bool hovered = drawPanel();
 
     if (_cursorMarker) {
 
@@ -496,7 +505,15 @@ void App::frameDidBegin(Runner&                        runner,
 
             auto& input = static_cast<DesktopInputContext&>(*scene.inputContext());
 
-            _actionTarget = FindActionTarget(scene, input.mousePosition(), {_cursorMarker.get()});
+            vector<const Node*> ignoredNodes;
+            ignoredNodes.reserve(_pickIgnores.size() + 1);
+            ignoredNodes.push_back(_cursorMarker.get());
+            for (const auto& entry : _pickIgnores) {
+                if (auto node = entry.node.lock()) {
+                    ignoredNodes.push_back(node.get());
+                }
+            }
+            _actionTarget = FindActionTarget(scene, input.mousePosition(), ignoredNodes);
 
             if (_actionTarget) {
 
@@ -978,7 +995,10 @@ void App::performAction(const PendingAction& action) {
 
             // auto projectile = ThrowRing(*simulationRoot, spawnPosition, velocity);
             auto projectile = ThrowDuck(*simulationRoot, spawnPosition, velocity);
-
+            _pickIgnores.push_back({
+                .node = projectile,
+                .remainingTime = PROJECTILE_PICK_IGNORE_DURATION,
+            });
             _transients.track(projectile, "projectile");
 
             break;
@@ -1017,6 +1037,7 @@ void App::reset() {
 
     _simulationRoot->removeFromParent();
 
+    _pickIgnores.clear();
     _transients.clear();
 
     scene().physicsWorld()->gravity(GRAVITY_EARTH);
@@ -1127,7 +1148,7 @@ optional<App::PickResult> Pick(VisualWorld&               visualWorld,
             continue;
         }
 
-        if (find(ignoredNodes.begin(), ignoredNodes.end(), node.get()) != ignoredNodes.end()) {
+        if (IsIgnored(node, ignoredNodes)) {
             continue;
         }
 
@@ -1147,18 +1168,8 @@ optional<App::PickResult> FindActionTarget(Scene&                     scene,
 
     auto visualWorld = scene.visualWorld();
 
-    if (!visualWorld) {
-        return {};
-    }
-
     if (auto result = Pick(*visualWorld, screenPosition, ignoredNodes)) {
         return result;
-    }
-
-    auto physicsWorld = scene.physicsWorld();
-
-    if (!physicsWorld) {
-        return {};
     }
 
     const vec3 from = visualWorld->unprojectPoint({
@@ -1173,25 +1184,24 @@ optional<App::PickResult> FindActionTarget(Scene&                     scene,
         1.0f,
     });
 
-    const auto hits = physicsWorld->rayTest(from, to);
+    const auto hits = scene.physicsWorld()->rayTest(from, to);
 
-    if (hits.empty()) {
-        return {};
+    for (const auto& hit : hits) {
+
+        auto node = hit.node();
+
+        if (IsIgnored(node, ignoredNodes)) {
+            continue;
+        }
+
+        return App::PickResult {
+            .node = node,
+            .worldHitPosition = hit.worldCoordinates(),
+            .worldHitNormal = hit.worldNormal(),
+        };
     }
 
-    const auto& hit = hits.front();
-
-    auto node = hit.node();
-
-    if (!node) {
-        return {};
-    }
-
-    return App::PickResult {
-        .node = node,
-        .worldHitPosition = hit.worldCoordinates(),
-        .worldHitNormal = hit.worldNormal(),
-    };
+    return {};
 }
 
 shared_ptr<Node> ThrowRing(Node& parent, const vec3& location, const vec3& velocity) {
@@ -1399,4 +1409,8 @@ vector<shared_ptr<Node>> DropBoxs(Node&             parent,
         }
     }
     return added;
+}
+
+bool IsIgnored(const shared_ptr<Node>& node, const vector<const Node*>& ignoredNodes) {
+    return !node || find(ignoredNodes.begin(), ignoredNodes.end(), node.get()) != ignoredNodes.end();
 }
