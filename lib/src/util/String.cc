@@ -91,7 +91,7 @@ std::string a3d::util::string::Lowercase(std::string_view s) {
     return result;
 }
 
-string a3d::util::string::TreeString(const Node& root) {
+string a3d::util::string::Tree(const Node& root) {
 
     stringstream ss;
     std::string  name = (root.name() ? "\"" + *(root.name()) + "\"" : "null");
@@ -106,7 +106,7 @@ string a3d::util::string::TreeString(const Node& root) {
     return ss.str();
 }
 
-string a3d::util::string::DateTimeString() {
+string a3d::util::string::Timestamp() {
     constexpr size_t BUF_SIZE = 128;
     char             buf[BUF_SIZE];
 #ifdef A3D_WINDOWS
@@ -124,32 +124,6 @@ string a3d::util::string::DateTimeString() {
     char msBuf[std::strlen(buf) + 5];
     snprintf(msBuf, sizeof(msBuf), "%s.%03d", buf, milli);
     return std::string(msBuf);
-#endif
-}
-
-string a3d::util::string::StackTraceString(unsigned dropFunctions) {
-#if defined(A3D_POSIX) && !defined(A3D_WEB)
-    auto                  traceStr = std::string();
-    static const unsigned MAX_FRAMES = 64;
-
-    void*    addrList[MAX_FRAMES];
-    unsigned addrLen = backtrace(addrList, sizeof(addrList) / sizeof(void*));
-
-    if (addrLen != 0) {
-        char** symbolList = backtrace_symbols(addrList, addrLen);
-        for (int x = dropFunctions + 1; x < addrLen; ++x) {
-            traceStr += std::string(symbolList[x]) + "\n";
-        }
-
-        free(symbolList);
-    }
-    else {
-        traceStr = "No stack trace.\n";
-    }
-
-    return traceStr;
-#else
-    return {};
 #endif
 }
 

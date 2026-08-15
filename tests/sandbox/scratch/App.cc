@@ -159,7 +159,7 @@ void App::inputDidUpdate(Runner&                         runner,
     }
 
     if (input.keyPressed(Key::T)) {
-        log::app::i()("TREE:\n{}", util::string::TreeString(*(scene.rootNode())));
+        log::app::i()("TREE:\n{}", util::string::Tree(*(scene.rootNode())));
     }
 
     if (input.keyPressed(Key::P)) {

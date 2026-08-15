@@ -28,11 +28,8 @@ namespace a3d::util::string {
 
     // put somewhere else?
 
-    std::string              TreeString(const Node& root);
-    std::string              DateTimeString();
-
-    std::string              StackTraceString(unsigned dropFunctions = 0);
-
+    std::string              Tree(const Node& root);
+    std::string              Timestamp();
 }
 
 #endif //AVARA3D_UTIL_STRING_H

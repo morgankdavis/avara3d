@@ -20,7 +20,7 @@ void a3d::util::snapshot::SaveSnapshot(RenderContext& context) {
 
     auto execDir = a3d::util::fs::ExecutableDirectory();
     if (execDir) {
-        auto filename = std::format("Snapshot_{}.png", a3d::util::string::DateTimeString());
+        auto filename = std::format("Snapshot_{}.png", a3d::util::string::Timestamp());
         log::i()("Saving snapshot to '{}'", (*execDir / std::filesystem::path(filename)).string());
         auto image = context.snapshot();
         auto fullPath = *execDir / filename;
@@ -37,7 +37,7 @@ void a3d::util::snapshot::StartGIFRecording(RenderContext&   context,
 
     auto execDir = a3d::util::fs::ExecutableDirectory();
     if (execDir) {
-        auto filename = std::format("Recording_{}.gif", a3d::util::string::DateTimeString());
+        auto filename = std::format("Recording_{}.gif", a3d::util::string::Timestamp());
         log::i()("Starting GIF recording at '{}'", (*execDir / std::filesystem::path(filename)).string());
         auto fullPath = *execDir / filename;
         context.startGIFRecording(fullPath.string(), fitInside, maxFramerate);

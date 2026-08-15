@@ -183,7 +183,7 @@ unique_ptr<Scene> App::init() {
         duckNode->name("Quack");
         duckNode->position({/*4.5*/ 0, 25, 0});
 
-        //	// #0
+        //	// #04
         //	_duckNode->physicsBody(PhysicsBody::KinematicBody());
         //	_duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConcavePolyhedron);
         ////	_duckNode->physicsBody()->shape()->type(PhysicsShape::Type::ConvexHull);
