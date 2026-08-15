@@ -249,16 +249,14 @@ std::unique_ptr<Scene> App::init() {
         // create the action target marker
 
         {
-            const auto color = Color::Yellow();
-
-            auto material = Material::EmissionMaterial(color);
+            auto material = Material::EmissionMaterial(Color::Yellow());
             material->depthTestEnabled(false);
             material->depthWriteEnabled(false);
 
             auto mesh = Sphere::Mesh(CURSOR_MARKER_RADIUS, 8, material);
 
             _cursorMarker = Node::MeshNode(mesh);
-            _cursorMarker->name("Action marker");
+            _cursorMarker->name("Marker");
             _cursorMarker->renderOrder(100);
             _cursorMarker->hidden(true);
 

@@ -275,7 +275,6 @@ OGLPipeline BuildPipeline(const PipelineDesc& desc, gl::uint_t program) {
     OGLPipeline pipeline;
 
     pipeline.desc = desc;
-    pipeline.desc.depthTest = true;
     pipeline.program = program;
 
     return pipeline;
