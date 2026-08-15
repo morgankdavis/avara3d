@@ -14,10 +14,23 @@
 #include <magic_enum/magic_enum.hpp>
 
 #include "a3d/log/Log.h"
+#include "a3d/mesh/Mesh.h"
+#include "a3d/mesh/primitive/Box.h"
+#include "a3d/mesh/primitive/Capsule.h"
+#include "a3d/mesh/primitive/Cone.h"
+#include "a3d/mesh/primitive/Cylinder.h"
+#include "a3d/mesh/primitive/Plane.h"
+#include "a3d/mesh/primitive/Sphere.h"
 #include "a3d/physics/shape/PhysicsShape.h"
 #include "a3d/physics/PhysicsWorld.h"
 #include "a3d/physics/backend/bullet/BulletBodyProxy.h"
 #include "a3d/physics/backend/bullet/BulletWorldProxy.h"
+#include "a3d/physics/shape/primitive/BoxPhysicsShape.h"
+#include "a3d/physics/shape/primitive/CapsulePhysicsShape.h"
+#include "a3d/physics/shape/primitive/ConePhysicsShape.h"
+#include "a3d/physics/shape/primitive/CylinderPhysicsShape.h"
+#include "a3d/physics/shape/primitive/PlanePhysicsShape.h"
+#include "a3d/physics/shape/primitive/SpherePhysicsShape.h"
 #include "a3d/scene/Node.h"
 
 using namespace a3d;
@@ -38,8 +51,10 @@ unique_ptr<PhysicsBody> PhysicsBody::KinematicBody() {
     return make_unique<PhysicsBody>(Type::Kinematic);
 }
 
-// /// Private Static Non-Member Prototypes ///
-//
+/// Private Static Non-Member Prototypes ///
+
+static shared_ptr<PhysicsShape> PhysicsShapeFromPrimitiveMesh(const shared_ptr<Mesh>& mesh);
+
 // static void RequireDynamicBody(const PhysicsBody& body);
 
 /// Public Lifecycle Functions ///
@@ -533,27 +548,29 @@ void PhysicsBody::checkAutocreateShape(const shared_ptr<Node>& node) {
 
 void PhysicsBody::checkAutocreateShape(const shared_ptr<Mesh>& mesh) {
 
-    if (!_shape) {
-//		if (auto sMesh = mesh.lock()) {
-        if (type() == Type::Static) {
-            auto shapeType = PhysicsShape::Type::ConcavePolyhedron;
-            log::d()("Autocreating {} PhysicsShape for Mesh {:p}...", magic_enum::enum_name(shapeType),
-                     static_cast<void*>(mesh.get()));
-            shape(make_shared<PhysicsShape>(shapeType, mesh));
-        }
-        else {
-            auto shapeType = PhysicsShape::Type::ConvexHull;
-            log::d()("Autocreating {} PhysicsShape for Mesh {:p}...", magic_enum::enum_name(shapeType),
-                     static_cast<void*>(mesh.get()));
-            shape(make_shared<PhysicsShape>(shapeType, mesh));
-        }
-//		}
-//		else {
-//			throw std::bad_weak_ptr();
-//		}
+    if (_shape) {
+        log::i()("PhysicsBody already has a PhysicsShape.  Not auto-creating because of node mesh addition.");
+        return;
+    }
+
+    if (auto primitiveShape = PhysicsShapeFromPrimitiveMesh(mesh)) {
+        shape(std::move(primitiveShape));
+        return;
+    }
+
+    if (type() == Type::Static) {
+
+        auto shapeType = PhysicsShape::Type::ConcavePolyhedron;
+        log::d()("Autocreating {} PhysicsShape for Mesh {:p}...", magic_enum::enum_name(shapeType),
+                 static_cast<void*>(mesh.get()));
+        shape(make_shared<PhysicsShape>(shapeType, mesh));
     }
     else {
-        log::i()("PhysicsBody already has a PhysicsShape.  Not auto-creating because of node mesh addition.");
+
+        auto shapeType = PhysicsShape::Type::ConvexHull;
+        log::d()("Autocreating {} PhysicsShape for Mesh {:p}...", magic_enum::enum_name(shapeType),
+                 static_cast<void*>(mesh.get()));
+        shape(make_shared<PhysicsShape>(shapeType, mesh));
     }
 }
 
@@ -566,11 +583,45 @@ void PhysicsBody::checkAddToWorld() {
     }
 }
 
-// /// Private Static Non-Member Functions ///
-//
-// void RequireDynamicBody(const PhysicsBody& body) {
-//
-//     if (body.type() != PhysicsBody::Type::Dynamic) {
-//         throw logic_error("Force and torque may only be applied to dynamic PhysicsBody objects.");
-//     }
-// }
+/// Private Static Non-Member Functions ///
+
+static shared_ptr<PhysicsShape> PhysicsShapeFromPrimitiveMesh(const shared_ptr<Mesh>& mesh) {
+
+    if (!mesh || mesh->elements().size() != 1) {
+        return nullptr;
+    }
+
+    auto* element = mesh->elements().front().get();
+
+    if (auto box = dynamic_cast<Box*>(element)) {
+        log::d()("Creating BoxPhysicsShape based on Box MeshElement.");
+        return make_shared<BoxPhysicsShape>(box->width(), box->height(), box->length());
+    }
+
+    if (auto capsule = dynamic_cast<Capsule*>(element)) {
+        log::d()("Creating CapsulePhysicsShape based on Capsule MeshElement.");
+        return make_shared<CapsulePhysicsShape>(capsule->radius(), capsule->height());
+    }
+
+    if (auto cone = dynamic_cast<Cone*>(element)) {
+        log::d()("Creating ConePhysicsShape based on Cone MeshElement.");
+        return make_shared<ConePhysicsShape>(cone->radius(), cone->height());
+    }
+
+    if (auto cylinder = dynamic_cast<Cylinder*>(element)) {
+        log::d()("Creating CylinderPhysicsShape based on Cylinder MeshElement.");
+        return make_shared<CylinderPhysicsShape>(cylinder->radius(), cylinder->height());
+    }
+
+    if (auto plane = dynamic_cast<Plane*>(element)) {
+        log::d()("Creating PlanePhysicsShape based on Plane MeshElement.");
+        return make_shared<PlanePhysicsShape>(plane->width(), plane->height());
+    }
+
+    if (auto sphere = dynamic_cast<Sphere*>(element)) {
+        log::d()("Creating SpherePhysicsShape based on Sphere MeshElement.");
+        return make_shared<SpherePhysicsShape>(sphere->radius());
+    }
+
+    return nullptr;
+}

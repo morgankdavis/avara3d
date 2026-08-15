@@ -71,7 +71,7 @@ App::App(int argc, char* argv[]):
     _selection {},
     _cursorMarker {nullptr},
     _actionTarget {},
-    _action {Action::Poke},
+    _action {Action::Drop},
     _transients {ext::TransientNodeRegistry::SweepPolicy::EveryInterval(1.0)},
     _backgroundRotationTime {0.0},
     _orbWanders {},
@@ -198,9 +198,9 @@ std::unique_ptr<Scene> App::init() {
 
         _transients.groupPolicy("box",
                                 {.maxCount = {100},
-                                 .distanceLimit =
+                                 /*.distanceLimit =
                                      ext::TransientNodeRegistry::DistanceLimit {.center = {0.0f, 0.0f, 0.0f},
-                                                                                .radius = 25.0f}});
+                                                                                .radius = 25.0f}*/});
 
         _transients.groupPolicy("projectile", {
                                                   //.maxAge = 15.0,
@@ -271,7 +271,7 @@ std::unique_ptr<Scene> App::init() {
             const vec3   ORB_WANDER_EXTENTS {1.5f, 0.75f, 1.5f};
             const size_t ORB_COUNT {4};
 
-            auto orbGroup = Node::NamedNode("Wandering orbs");
+            auto orbGroup = Node::NamedNode("Orbs");
             orbGroup->position(ORB_GROUP_POSITION);
             scene->rootNode()->addChild(orbGroup);
 
@@ -1111,11 +1111,11 @@ optional<App::PickResult> FindActionTarget(Scene&                     scene,
 shared_ptr<Node> ThrowRing(Node& parent, const vec3& location, const vec3& velocity) {
 
     static auto mesh = [] {
-        auto silver = Color::LightGray();
+        // auto material = Material::DiffuseMaterial(olor::LightGray());
+        // material->specular(Color::White());
+        // material->specularExponent(64.0f);
 
-        auto material = Material::DiffuseMaterial(silver);
-        material->specular(Color::White());
-        material->specularExponent(64.0f);
+        auto material = Material::EmissionMaterial(Color::White());
 
         return Torus::Mesh(0.45f, 0.5f, 12, 32, material);
     }();
@@ -1250,7 +1250,7 @@ vector<shared_ptr<Node>> DropBoxStack(Node&             parent,
 
     if (color) {
         sharedMesh = Box::Mesh(boxSize.x, boxSize.y, boxSize.z);
-        //auto material = make_shared<Material>(monostate {}, monostate {}, monostate {}, color);
+        //auto material = Material::EmissionMaterial(color);
         auto material = make_shared<Material>(color, color, color);
         sharedMesh->addMaterial(material);
     }
@@ -1274,9 +1274,7 @@ vector<shared_ptr<Node>> DropBoxStack(Node&             parent,
 
                 if (!mesh) {
                     mesh = Box::Mesh(boxSize.x, boxSize.y, boxSize.z);
-
                     auto material = make_shared<Material>(monostate {}, monostate {}, monostate {}, boxColor);
-
                     mesh->addMaterial(material);
                 }
 
