@@ -54,7 +54,8 @@ namespace a3d {
         math::vec4   tint         = math::vec4(0.0f); // RGB color, a blend strength
         math::mat4   model        = math::mat4(1.0);
         float        depth        = 0.0f;
-        uint64_t     sortKey      = 0;
+        int          renderOrder  = 0;
+        uint64_t     batchKey     = 0;
         uint32_t     sequence     = 0;
         bool         transparent  = false;
     };

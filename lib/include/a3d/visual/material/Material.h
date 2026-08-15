@@ -119,12 +119,18 @@ namespace a3d {
         AlphaMode                         alphaMode() const;
         void                              alphaMode(AlphaMode mode);
 
-        // TODO: UNIMPLEMENTED
+        // ! NOT IMPLEMENTED !
         float                             alphaCutoff() const;
         void                              alphaCutoff(float v);
 
         BlendFunction                     blendFunction() const;
         void                              blendFunction(BlendFunction function);
+
+        bool                              depthTestEnabled() const;
+        void                              depthTestEnabled(bool enabled);
+
+        bool                              depthWriteEnabled() const;
+        void                              depthWriteEnabled(bool enabled);
 
         /// Internal Types ///
 
@@ -162,6 +168,8 @@ namespace a3d {
         AlphaMode                  _alphaMode;
         float                      _alphaCutoff;
         BlendFunction              _blendFunction;
+        bool                       _depthTestEnabled;
+        bool                       _depthWriteEnabled;
         DirtyMask                  _dirtyMask;
     };
 

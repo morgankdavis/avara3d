@@ -56,6 +56,7 @@ Node::Node():
     _eulerAngles {},
     _physicsBody {},
     _hidden {false},
+    _renderOrder {0},
     _debugOptions {DebugOptions::None},
     _scene {},
     _parent {},
@@ -456,6 +457,14 @@ bool Node::hidden() const {
 
 void Node::hidden(bool hidden) {
     _hidden = hidden;
+}
+
+int Node::renderOrder() const {
+    return _renderOrder;
+}
+
+void Node::renderOrder(int order) {
+    _renderOrder = order;
 }
 
 Node::DebugOptions Node::debugOptions() const {

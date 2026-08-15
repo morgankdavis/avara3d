@@ -109,6 +109,7 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
                 item.material = mat;
                 item.model = world;
                 item.aabb = element->worldAABB(world, false);
+                item.renderOrder = n->renderOrder();
                 item.transparent = (mat->blendFunction() != Material::BlendFunction::Disabled);
 
                 if (showHighlightTint) {

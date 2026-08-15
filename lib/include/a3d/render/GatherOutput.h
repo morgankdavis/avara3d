@@ -47,6 +47,7 @@ namespace a3d {
         math::mat4   model        = math::mat4(1.0f);
         AABB         aabb         = AABB::Zero(); // world space
         float        depth        = 0.0f; // view-space depth for later
+        int          renderOrder  = 0;
         bool         transparent  = false; // for later -- always false in BlendFunction
     };
 

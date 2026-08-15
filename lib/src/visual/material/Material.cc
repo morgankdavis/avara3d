@@ -59,6 +59,8 @@ Material::Material():
     _alphaMode {AlphaMode::Opaque},
     _alphaCutoff {0.5f},
     _blendFunction {BlendFunction::Disabled},
+    _depthTestEnabled {true},
+    _depthWriteEnabled {true},
     _dirtyMask {DirtyMask::All} {
 
     log::d()("Creating Material {:p}", static_cast<void*>(this));
@@ -110,6 +112,8 @@ Material& Material::operator=(const Material& other) {
     _alphaMode = other._alphaMode;
     _alphaCutoff = other._alphaCutoff;
     _blendFunction = other._blendFunction;
+    _depthTestEnabled = other._depthTestEnabled;
+    _depthWriteEnabled = other._depthWriteEnabled;
     _dirtyMask = DirtyMask::All;
 
     return *this;
@@ -141,6 +145,8 @@ Material& Material::operator=(Material&& other) noexcept {
     _alphaMode = other._alphaMode;
     _alphaCutoff = other._alphaCutoff;
     _blendFunction = other._blendFunction;
+    _depthTestEnabled = other._depthTestEnabled;
+    _depthWriteEnabled = other._depthWriteEnabled;
     _dirtyMask = DirtyMask::All;
 
     // moving properties changes the source too
@@ -274,6 +280,22 @@ Material::BlendFunction Material::blendFunction() const {
 
 void Material::blendFunction(BlendFunction function) {
     _blendFunction = function;
+}
+
+bool Material::depthTestEnabled() const {
+    return _depthTestEnabled;
+}
+
+void Material::depthTestEnabled(bool enabled) {
+    _depthTestEnabled = enabled;
+}
+
+bool Material::depthWriteEnabled() const {
+    return _depthWriteEnabled;
+}
+
+void Material::depthWriteEnabled(bool enabled) {
+    _depthWriteEnabled = enabled;
 }
 
 /// Internal Static Member Functions ///

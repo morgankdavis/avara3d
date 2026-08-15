@@ -132,6 +132,9 @@ namespace a3d {
         bool                               hidden() const;
         void                               hidden(bool hidden);
 
+        int                                renderOrder() const;
+        void                               renderOrder(int order);
+
         DebugOptions                       debugOptions() const;
         void                               debugOptions(DebugOptions options);
 
@@ -210,6 +213,7 @@ namespace a3d {
         mutable std::optional<math::vec3>  _eulerAngles;
         std::unique_ptr<PhysicsBody>       _physicsBody;
         bool                               _hidden;
+        int                                _renderOrder;
         DebugOptions                       _debugOptions;
         Scene*                             _scene;
         std::weak_ptr<Node>                _parent;

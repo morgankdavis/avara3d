@@ -55,6 +55,7 @@ DrawPacket DrawPacketizer::Packetize(GatherOutput& gatherOutput) {
             di.tint = ri.tint;
             di.model = ri.model;
             di.depth = ri.depth;
+            di.renderOrder = ri.renderOrder;
 
             switch (ri.material->alphaMode()) {
                 case Material::AlphaMode::Opaque: {
@@ -91,6 +92,7 @@ DrawPacket DrawPacketizer::Packetize(GatherOutput& gatherOutput) {
             di.tint = ri.tint;
             di.model = ri.model;
             di.depth = ri.depth;
+            di.renderOrder = ri.renderOrder;
             di.pass = PassKind::Wireframe;
 
             di.desc = PipelineDescBuilder::MakeWireframeDesc(ri.layout);

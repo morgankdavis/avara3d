@@ -26,22 +26,24 @@ static void     SortItems(vector<DrawItem>& items);
 
 /// Internal Static Member Functions ///
 
-uint64_t PacketSorter::MakeSortKey(const DrawItem& item) {
+uint64_t PacketSorter::MakeBatchKey(const DrawItem& item) {
 
     const uint32_t descHash = FoldHash32(PipelineDescHash {}(item.desc));
-    uint64_t       sortKey = (uint64_t) descHash << 32;
-    sortKey |= (uint64_t) PtrHash16(item.material) << 16;
-    sortKey |= (uint64_t) PtrHash16(item.element);
-    return sortKey;
+
+    uint64_t batchKey = (uint64_t) descHash << 32;
+    batchKey |= (uint64_t) PtrHash16(item.material) << 16;
+    batchKey |= (uint64_t) PtrHash16(item.element);
+
+    return batchKey;
 }
 
 void PacketSorter::SortPacket(DrawPacket& packet) {
 
     for (auto& item : packet.mainPassItems) {
-        item.sortKey = MakeSortKey(item);
+        item.batchKey = MakeBatchKey(item);
     }
     for (auto& item : packet.wireframePassItems) {
-        item.sortKey = MakeSortKey(item);
+        item.batchKey = MakeBatchKey(item);
     }
 
     SortItems(packet.mainPassItems);
@@ -109,14 +111,21 @@ uint32_t FoldHash32(size_t h) {
 void SortItems(vector<DrawItem>& items) {
 
     std::sort(items.begin(), items.end(), [](const DrawItem& a, const DrawItem& b) {
-        uint8_t pa = static_cast<underlying_type<PassKind>::type>(a.pass);
-        uint8_t pb = static_cast<underlying_type<PassKind>::type>(b.pass);
+        if (a.renderOrder != b.renderOrder) {
+            return a.renderOrder < b.renderOrder;
+        }
+
+        const auto pa = static_cast<underlying_type_t<PassKind>>(a.pass);
+        const auto pb = static_cast<underlying_type_t<PassKind>>(b.pass);
+
         if (pa != pb) {
             return pa < pb;
         }
-        if (a.sortKey != b.sortKey) {
-            return a.sortKey < b.sortKey;
+
+        if (a.batchKey != b.batchKey) {
+            return a.batchKey < b.batchKey;
         }
+
         return a.sequence < b.sequence;
     });
 }

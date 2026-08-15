@@ -21,7 +21,7 @@ namespace a3d {
     public:
         /// Internal Static Member Functions ///
 
-        static uint64_t MakeSortKey(const DrawItem& item);
+        static uint64_t MakeBatchKey(const DrawItem& item);
         static void     SortPacket(DrawPacket& packet);
     };
 

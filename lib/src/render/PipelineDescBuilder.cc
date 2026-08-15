@@ -17,7 +17,6 @@ using namespace std;
 /// Private Static Non-Member Prototypes ///
 
 static PipelineDesc MakeBaseDesc(const Material& material, VertexLayout layout);
-static void         ApplyDepthPolicy(PipelineDesc& desc);
 
 /// Internal Static Member Functions ///
 
@@ -54,27 +53,21 @@ PipelineDesc PipelineDescBuilder::MakeGroundDesc() {
 PipelineDesc PipelineDescBuilder::MakeOpaqueDesc(const Material& material, VertexLayout layout) {
     PipelineDesc desc = MakeBaseDesc(material, layout);
     desc.passKind = PassKind::MainOpaque;
-    desc.depthWrite = true;
     desc.polygonOffset = false;
-    ApplyDepthPolicy(desc);
     return desc;
 }
 
 PipelineDesc PipelineDescBuilder::MakeMaskDesc(const Material& material, VertexLayout layout) {
     PipelineDesc desc = MakeBaseDesc(material, layout);
     desc.passKind = PassKind::MainMask;
-    desc.depthWrite = true;
     desc.polygonOffset = false;
-    ApplyDepthPolicy(desc);
     return desc;
 }
 
 PipelineDesc PipelineDescBuilder::MakeTransparentDesc(const Material& material, VertexLayout layout) {
     PipelineDesc desc = MakeBaseDesc(material, layout);
     desc.passKind = PassKind::MainTransparent;
-    desc.depthWrite = false; // critical for blending correctness
     desc.polygonOffset = false;
-    ApplyDepthPolicy(desc);
     return desc;
 }
 
@@ -85,9 +78,11 @@ PipelineDesc PipelineDescBuilder::MakeWireframeDesc(VertexLayout layout) {
     desc.vertexLayoutKey = layout;
     desc.fillMode = Material::FillMode::Lines;
     desc.doubleSided = true;
+    desc.depthTest = true;
+    desc.depthWrite = false;
+    desc.depthFunc = DepthFunc::Lequal;
     desc.blendFunction = Material::BlendFunction::Disabled;
     desc.polygonOffset = true;
-    ApplyDepthPolicy(desc);
     return desc;
 }
 
@@ -98,10 +93,11 @@ PipelineDesc PipelineDescBuilder::MakeLinesDesc() {
     desc.vertexLayoutKey = VertexLayout::PC;
     desc.fillMode = Material::FillMode::Fill;
     desc.doubleSided = true;
+    desc.depthTest = true;
     desc.depthWrite = false;
+    desc.depthFunc = DepthFunc::Lequal;
     desc.blendFunction = Material::BlendFunction::Disabled;
     desc.polygonOffset = false;
-    ApplyDepthPolicy(desc);
     return desc;
 }
 
@@ -113,6 +109,9 @@ PipelineDesc MakeBaseDesc(const Material& material, VertexLayout layout) {
     desc.fillMode = material.fillMode();
     desc.blendFunction = material.blendFunction();
     desc.doubleSided = material.doubleSided();
+    desc.depthTest = material.depthTestEnabled();
+    desc.depthWrite = material.depthWriteEnabled();
+    desc.depthFunc = DepthFunc::Less;
     desc.shaderKind = ShaderKind::Default;
 
     switch (material.alphaMode()) {
@@ -120,25 +119,13 @@ PipelineDesc MakeBaseDesc(const Material& material, VertexLayout layout) {
         case Material::AlphaMode::Mask:
             desc.blendFunction = Material::BlendFunction::Disabled;
             break;
+
         case Material::AlphaMode::Blend:
             if (desc.blendFunction == Material::BlendFunction::Disabled) {
                 desc.blendFunction = Material::BlendFunction::Alpha;
             }
             break;
     }
+
     return desc;
-}
-
-void ApplyDepthPolicy(PipelineDesc& desc) {
-    // defaults (main pass)
-    desc.depthTest = true;
-    desc.depthWrite = true;
-    desc.depthFunc = DepthFunc::Less;
-
-    // overlays
-    if (desc.passKind == PassKind::Lines || desc.passKind == PassKind::Wireframe) {
-        desc.depthTest = true;
-        desc.depthWrite = false;
-        desc.depthFunc = DepthFunc::Lequal;
-    }
 }
