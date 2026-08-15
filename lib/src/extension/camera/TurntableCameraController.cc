@@ -34,10 +34,10 @@ TurntableCameraController::TurntableCameraController(const Config& config):
     _config {},
     _view {},
     _resolvedTarget {0.0f},
-    _primaryActive {false},
-    _primaryDragging {false},
-    _primaryDragMode {DragMode::Orbit},
-    _primaryPressPosition {0.0f},
+    _orbitButtonActive {false},
+    _orbitButtonDragging {false},
+    _orbitButtonDragMode {DragMode::Orbit},
+    _orbitButtonPressPosition {0.0f},
     _panButtonActive {false},
     _panButtonDragging {false},
     _panButtonPressPosition {0.0f} {
@@ -249,57 +249,57 @@ TurntableCameraController::UpdateResult TurntableCameraController::update(Deskto
         }
     };
 
-    // primary button: click candidate / orbit / modified drag
+    // orbit button: click candidate / orbit / modified drag
 
-    if (input.mouseButtonPressed(_config.controls.primaryButton)) {
+    if (input.mouseButtonPressed(_config.controls.orbitButton)) {
 
-        _primaryActive = true;
-        _primaryDragging = false;
+        _orbitButtonActive = true;
+        _orbitButtonDragging = false;
 
-        _primaryPressPosition = position;
+        _orbitButtonPressPosition = position;
 
         if (input.keyDown(_config.controls.dollyModifier)) {
-            _primaryDragMode = DragMode::Dolly;
+            _orbitButtonDragMode = DragMode::Dolly;
         }
         else if (input.keyDown(_config.controls.panModifier)) {
-            _primaryDragMode = DragMode::Pan;
+            _orbitButtonDragMode = DragMode::Pan;
         }
         else {
-            _primaryDragMode = DragMode::Orbit;
+            _orbitButtonDragMode = DragMode::Orbit;
         }
     }
 
-    if (_primaryActive && input.mouseButtonDown(_config.controls.primaryButton)) {
+    if (_orbitButtonActive && input.mouseButtonDown(_config.controls.orbitButton)) {
 
-        if (!_primaryDragging) {
+        if (!_orbitButtonDragging) {
 
-            const vec2  totalDelta = position - _primaryPressPosition;
+            const vec2  totalDelta = position - _orbitButtonPressPosition;
             const float dragDistance = math::length(totalDelta);
 
             if (dragDistance > 0.0f && dragDistance >= _config.dragThreshold) {
 
-                _primaryDragging = true;
+                _orbitButtonDragging = true;
 
                 // apply the entire displacement from the original press so
                 // crossing the threshold doesn't discard the first few pixels
-                applyDrag(_primaryDragMode, totalDelta);
+                applyDrag(_orbitButtonDragMode, totalDelta);
             }
         }
         else {
-            applyDrag(_primaryDragMode, dragDelta);
+            applyDrag(_orbitButtonDragMode, dragDelta);
         }
     }
 
-    if (input.mouseButtonReleased(_config.controls.primaryButton)) {
+    if (input.mouseButtonReleased(_config.controls.orbitButton)) {
 
-        if (_primaryActive && !_primaryDragging) {
-            result.primaryClick = PointerClick {
+        if (_orbitButtonActive && !_orbitButtonDragging) {
+            result.orbitButtonClick = PointerClick {
                 .position = position,
             };
         }
 
-        _primaryActive = false;
-        _primaryDragging = false;
+        _orbitButtonActive = false;
+        _orbitButtonDragging = false;
     }
 
     // dedicated pan button
@@ -363,7 +363,7 @@ TurntableCameraController::UpdateResult TurntableCameraController::update(Deskto
         }
     }
 
-    result.pointerDragging = _primaryDragging || _panButtonDragging;
+    result.pointerDragging = _orbitButtonDragging || _panButtonDragging;
 
     return result;
 }

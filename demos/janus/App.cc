@@ -212,7 +212,7 @@ std::unique_ptr<Scene> App::init() {
                                                       },
                                               });
 
-        // create and configure the camer and camera controller
+        // create and configure the camera and camera controller
 
         auto camera = make_shared<PerspectiveCamera>(0.1f, 1000.0f, radians(45.0f));
         _cameraNode = Node::CameraNode(camera);
@@ -221,7 +221,7 @@ std::unique_ptr<Scene> App::init() {
         scene->visualWorld()->pointOfView(_cameraNode);
 
         auto cameraConfig = _cameraController.config();
-        cameraConfig.controls.primaryButton = DesktopInputContext::MouseButton::One;
+        cameraConfig.controls.orbitButton = DesktopInputContext::MouseButton::One;
         cameraConfig.controls.panButton = DesktopInputContext::MouseButton::Two;
         //cameraConfig.minPitch = math::radians(0.0f);
         cameraConfig.invertPitch = true;
@@ -376,34 +376,19 @@ void App::inputDidUpdate(Runner&       runner,
     _window->cursorCaptured(result.pointerDragging);
 
     // left = select, right = action
-    if (result.primaryClick) {
+    if (result.orbitButtonClick) {
 
         if (input.keyDown(Key::LeftControl)) {
-            action(scene, result.primaryClick->position);
+            action(scene, result.orbitButtonClick->position);
         }
         else {
-            select(Pick(*scene.visualWorld(), result.primaryClick->position, {_cursorMarker.get()}));
+            select(Pick(*scene.visualWorld(), result.orbitButtonClick->position, {_cursorMarker.get()}));
         }
     }
 
     if (result.panButtonClick) {
         action(scene, result.panButtonClick->position);
     }
-
-    // left = action, right = select
-    // if (result.primaryClick) {
-    //
-    //     if (input.keyDown(Key::LeftControl)) {
-    //         select(Pick(*scene.visualWorld(), result.primaryClick->position, {_cursorMarker.get()}));
-    //     }
-    //     else {
-    //         action(scene, result.primaryClick->position);
-    //     }
-    // }
-    //
-    // if (result.panButtonClick) {
-    //     select(Pick(*scene.visualWorld(), result.panButtonClick->position, {_cursorMarker.get()}));
-    // }
 }
 
 void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {

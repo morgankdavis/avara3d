@@ -47,8 +47,8 @@ namespace a3d::ext {
 
         struct Controls {
 
-            DesktopInputContext::MouseButton primaryButton {DesktopInputContext::MouseButton::One};
-            DesktopInputContext::MouseButton panButton {DesktopInputContext::MouseButton::Three};
+            DesktopInputContext::MouseButton orbitButton {DesktopInputContext::MouseButton::One};
+            DesktopInputContext::MouseButton panButton {DesktopInputContext::MouseButton::Two};
             DesktopInputContext::Key         panModifier {DesktopInputContext::Key::LeftShift};
             DesktopInputContext::Key         dollyModifier {DesktopInputContext::Key::LeftControl};
         };
@@ -79,7 +79,7 @@ namespace a3d::ext {
 
             bool                        cameraChanged {false};
             bool                        pointerDragging {false};
-            std::optional<PointerClick> primaryClick;
+            std::optional<PointerClick> orbitButtonClick;
             std::optional<PointerClick> panButtonClick;
         };
 
@@ -122,10 +122,10 @@ namespace a3d::ext {
         Config     _config;
         View       _view;
         math::vec3 _resolvedTarget;
-        bool       _primaryActive;
-        bool       _primaryDragging;
-        DragMode   _primaryDragMode;
-        math::vec2 _primaryPressPosition;
+        bool       _orbitButtonActive;
+        bool       _orbitButtonDragging;
+        DragMode   _orbitButtonDragMode;
+        math::vec2 _orbitButtonPressPosition;
         bool       _panButtonActive;
         bool       _panButtonDragging;
         math::vec2 _panButtonPressPosition;
