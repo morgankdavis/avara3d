@@ -50,7 +50,8 @@ static optional<App::PickResult> Pick(VisualWorld&               visualWorld,
 static optional<App::PickResult> FindActionTarget(Scene&                     scene,
                                                   const vec2&                screenPosition,
                                                   const vector<const Node*>& ignoredNodes = {});
-static shared_ptr<Node>          ThrowSlurm(Node& parent, const vec3& location, const vec3& velocity);
+static shared_ptr<Node>          ThrowRing(Node& parent, const vec3& location, const vec3& velocity);
+static shared_ptr<Node>          ThrowDuck(Node& parent, const vec3& location, const vec3& velocity);
 static vector<shared_ptr<Node>>  DropBoxStack(Node&             parent,
                                               const vec3&       location,
                                               const vec3&       boxSize,
@@ -66,6 +67,7 @@ App::App(int argc, char* argv[]):
     _simulationRoot {nullptr},
     _cameraNode {nullptr},
     _cameraController {},
+    _hoveredNode {},
     _selection {},
     _cursorMarker {nullptr},
     _actionTarget {},
@@ -201,8 +203,8 @@ std::unique_ptr<Scene> App::init() {
                                                                                 .radius = 25.0f}});
 
         _transients.groupPolicy("projectile", {
-                                                  .maxAge = 15.0,
-                                                  //.maxCount = {100},
+                                                  //.maxAge = 15.0,
+                                                  .maxCount = {100},
                                                   .distanceLimit =
                                                       ext::TransientNodeRegistry::DistanceLimit {
                                                           .center = {0.0f, 0.0f, 0.0f},
@@ -373,6 +375,7 @@ void App::inputDidUpdate(Runner&       runner,
 
     _window->cursorCaptured(result.pointerDragging);
 
+    // left = select, right = action
     if (result.primaryClick) {
 
         if (input.keyDown(Key::LeftControl)) {
@@ -386,6 +389,21 @@ void App::inputDidUpdate(Runner&       runner,
     if (result.panButtonClick) {
         action(scene, result.panButtonClick->position);
     }
+
+    // left = action, right = select
+    // if (result.primaryClick) {
+    //
+    //     if (input.keyDown(Key::LeftControl)) {
+    //         select(Pick(*scene.visualWorld(), result.primaryClick->position, {_cursorMarker.get()}));
+    //     }
+    //     else {
+    //         action(scene, result.primaryClick->position);
+    //     }
+    // }
+    //
+    // if (result.panButtonClick) {
+    //     select(Pick(*scene.visualWorld(), result.panButtonClick->position, {_cursorMarker.get()}));
+    // }
 }
 
 void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
@@ -423,9 +441,11 @@ void App::frameDidBegin(Runner&                        runner,
     if (_cursorMarker) {
 
         if (_window->cursorCaptured()) {
+
+            hover(nullptr);
+
             _actionTarget.reset();
             _cursorMarker->hidden(true);
-            //_window->cursorHidden(false);
         }
         else {
 
@@ -434,13 +454,17 @@ void App::frameDidBegin(Runner&                        runner,
             _actionTarget = FindActionTarget(scene, input.mousePosition(), {_cursorMarker.get()});
 
             if (_actionTarget) {
+
+                hover(_actionTarget->node.lock());
+
                 _cursorMarker->position(_actionTarget->worldHitPosition);
                 _cursorMarker->hidden(false);
-                //_window->cursorHidden(true);
             }
             else {
+
+                hover(nullptr);
+
                 _cursorMarker->hidden(true);
-                //_window->cursorHidden(false);
             }
         }
     }
@@ -723,18 +747,43 @@ void App::drawPanel() {
     }
 }
 
-void App::select(optional<PickResult> selection) {
+void App::hover(shared_ptr<Node> node) {
+
+    using DebugOptions = Node::DebugOptions;
+
+    if (auto previous = _hoveredNode.lock()) {
+
+        const bool selected = _selection && _selection->node.lock() == previous;
+
+        if (!selected) {
+            previous->debugOptions(util::bitmask::remove(previous->debugOptions(),
+                                                         DebugOptions::ShowHighlightTint));
+        }
+    }
+
+    _hoveredNode = node;
+
+    if (node) {
+        node->debugOptions(util::bitmask::add(node->debugOptions(), DebugOptions::ShowHighlightTint));
+    }
+}
+
+void App::select(optional<PickResult> pickResult) {
 
     using DebugOptions = Node::DebugOptions;
 
     if (_selection) {
         if (auto node = _selection->node.lock()) {
             node->debugOptions(util::bitmask::remove(node->debugOptions(), DebugOptions::ShowHighlightBox));
-            node->debugOptions(util::bitmask::remove(node->debugOptions(), DebugOptions::ShowHighlightTint));
+
+            if (_hoveredNode.lock() != node) {
+                node->debugOptions(util::bitmask::remove(node->debugOptions(),
+                                                         DebugOptions::ShowHighlightTint));
+            }
         }
     }
 
-    _selection = std::move(selection);
+    _selection = std::move(pickResult);
 
     if (_selection) {
         if (auto node = _selection->node.lock()) {
@@ -803,7 +852,8 @@ void App::action(Scene& scene, const vec2& screenPosition) {
             const vec3 gravity = physicsWorld->gravity();
             const vec3 velocity = displacement / flightTime - 0.5f * gravity * flightTime;
 
-            auto projectile = ThrowSlurm(*_simulationRoot, spawnPosition, velocity);
+            auto projectile = ThrowRing(*_simulationRoot, spawnPosition, velocity);
+            //auto projectile = ThrowDuck(*_simulationRoot, spawnPosition, velocity);
 
             _transients.track(projectile, "projectile");
 
@@ -1038,53 +1088,115 @@ optional<App::PickResult> FindActionTarget(Scene&                     scene,
     };
 }
 
-shared_ptr<Node> ThrowSlurm(Node& parent, const vec3& location, const vec3& velocity) {
+shared_ptr<Node> ThrowRing(Node& parent, const vec3& location, const vec3& velocity) {
 
-    constexpr float SLURMHEIGHT = 0.123f;
-    static auto     mesh = util::fs::MeshNamed("slurm/slurm");
-    const float     scaleFactor = SLURMHEIGHT / mesh->localExtent().y;
-    mesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
+    static auto mesh = [] {
+        auto silver = Color::LightGray();
 
-    mesh->materials()[0]->emission(mesh->materials()[0]->diffuse());
-    mesh->materials()[1]->emission(mesh->materials()[1]->diffuse());
+        auto material = Material::DiffuseMaterial(silver);
+        material->specular(Color::White());
+        material->specularExponent(96.0f);
+
+        return Torus::Mesh(0.43f, 0.5f, 12, 24, material);
+    }();
+
+    static const auto extent = mesh->localExtent();
 
     auto node = Node::MeshNode(mesh);
-    node->name("Slurm");
-
+    node->name("Ring");
     node->position(location);
 
-    static auto extent = node->mesh()->localExtent();
-    static auto physicsShape = make_shared<CylinderPhysicsShape>(extent.x / 2.0, extent.y);
-    auto        physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, physicsShape);
-    physicsBody->mass(.354); // 12fl oz water @ 70F
-    physicsBody->restitution(1.0);
-    physicsBody->friction(0.35);
-    physicsBody->rollingFriction(0.05);
 
-    const float radius = extent.x * 0.5f;
-    physicsBody->ccdMotionThreshold(radius * 0.25f);
-    physicsBody->ccdSweptSphereRadius(radius * 0.8f);
+
+    const vec3 up {0.0f, 1.0f, 0.0f};
+    vec3 forward {0.0f, 0.0f, -1.0f};
+
+    const vec3 horizontalVelocity {velocity.x, 0.0f, velocity.z};
+
+    if (length(horizontalVelocity) > F32_COMPARE_EPSILON) {
+        forward = normalize(horizontalVelocity);
+    }
+
+    const vec3 right = normalize(cross(forward, up));
+
+    const float tilt = radians(uniform_linear(10.0f, 20.0f));
+    const float bank = radians(uniform_linear(-4.0f, 4.0f));
+
+    const auto flatOrientation = quaternion({1.0f, 0.0f, 0.0f}, radians(-90.0f));
+    const auto tiltOrientation = quaternion(right, tilt);
+    const auto bankOrientation = quaternion(forward, bank);
+
+    node->orientation(bankOrientation * tiltOrientation * flatOrientation);
+
+    const vec3 spinAxis = normalize(bankOrientation * tiltOrientation * up);
+
+
+
+
+    auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic);
+
+    physicsBody->mass(0.4f);
+    physicsBody->restitution(0.25f);
+    physicsBody->friction(1.0f);
+    physicsBody->rollingFriction(0.05f);
+
+    const float minExtent = math::min(extent);
+    physicsBody->ccdMotionThreshold(minExtent * 0.25f);
+    physicsBody->ccdSweptSphereRadius(minExtent * 0.20f);
     physicsBody->ccdEnabled(true);
 
-    // static auto light = Light::Point();
-    // light->attenuation(Attenuation {.quadratic = 0.04f});
-    // node->light(light);
+    const float SPIN_RATE = radians(360.0f);
 
-    // add random factor
+    physicsBody->angularVelocity(spinAxis * SPIN_RATE);
+    physicsBody->linearVelocity(velocity);
+
+    node->physicsBody(std::move(physicsBody));
+
+    parent.addChild(node);
+
+    return node;
+}
+
+shared_ptr<Node> ThrowDuck(Node& parent, const vec3& location, const vec3& velocity) {
+
+    constexpr float DUCK_HEIGHT = 0.5f;
+
+    static auto mesh = [] {
+        auto mesh = util::fs::MeshNamed("rubber_duck/rubber_duck");
+
+        const float scaleFactor = DUCK_HEIGHT / mesh->localExtent().y;
+        mesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
+
+        return mesh;
+    }();
+
+    static const auto extent = mesh->localExtent();
+
+    auto node = Node::MeshNode(mesh);
+    node->name("Quack");
+    node->position(location);
+
+    auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic);
+    physicsBody->mass(0.1f);
+    physicsBody->restitution(0.5f);
+    physicsBody->friction(2.0f);
+    physicsBody->rollingFriction(0.1f);
+
+    const float minExtent = math::min(extent);
+    physicsBody->ccdMotionThreshold(minExtent * 0.25f);
+    physicsBody->ccdSweptSphereRadius(minExtent * 0.25f);
+    physicsBody->ccdEnabled(true);
 
     node->eulerAngles({uniform_linear(0.0f, TWO_PI), uniform_linear(0.0f, TWO_PI),
                        uniform_linear(0.0f, TWO_PI)});
 
-    static const float ANGULAR_VARIANCE = radians(260.0); // deg/sec
-    physicsBody->angularVelocity({uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
-                                  uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
-                                  uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE)});
+    static const float ANGULAR_VARIANCE = radians(360.0f);
 
-    // const float VELOCITY = uniform_linear(40.0f, 60.0f);
-    // // const float        VELOCITY = uniform_linear(20.0f, 40.0f);
-    // static const float DIRECTION_VARIATION = 0.01;
-    // const vec3         variedDirection = normalize(normalize(direction) + uniform_ball(DIRECTION_VARIATION));
-    // physicsBody->linearVelocity(variedDirection * VELOCITY);
+    physicsBody->angularVelocity({
+        uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+        uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+        uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+    });
 
     physicsBody->linearVelocity(velocity);
 

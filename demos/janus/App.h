@@ -80,7 +80,8 @@ namespace demo::janus {
         /// Private Member Functions ///
 
         void drawPanel();
-        void select(std::optional<PickResult> selection);
+        void hover(std::shared_ptr<a3d::Node> node);
+        void select(std::optional<PickResult> pickResult);
         void action(a3d::Scene& scene, const a3d::math::vec2& screenPosition);
         void reset();
 
@@ -90,6 +91,7 @@ namespace demo::janus {
         std::shared_ptr<a3d::Node>                     _simulationRoot;
         std::shared_ptr<a3d::Node>                     _cameraNode;
         a3d::ext::TurntableCameraController            _cameraController;
+        std::weak_ptr<a3d::Node>                       _hoveredNode;
         std::optional<PickResult>                      _selection;
         std::shared_ptr<a3d::Node>                     _cursorMarker;
         std::optional<PickResult>                      _actionTarget;
