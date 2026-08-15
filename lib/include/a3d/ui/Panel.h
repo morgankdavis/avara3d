@@ -52,8 +52,9 @@ namespace a3d::ui {
         };
 
         struct SectionConfig {
-            bool line {true};
-            bool uppercase {true};
+            bool                 line {true};
+            bool                 uppercase {false};
+
             static SectionConfig Default() {
                 return {true, false};
             }
@@ -73,7 +74,9 @@ namespace a3d::ui {
 
         /// Public Member Functions ///
 
-        void section(std::string_view text, SectionConfig config = SectionConfig::Default(), Padding padding = {0.0f, 8.0f, 0.0f, 0.0f});
+        void section(std::string_view text,
+                     SectionConfig    config  = SectionConfig::Default(),
+                     Padding          padding = {12.0f, 4.0f, 0.0f, 0.0f});
 
         void text(std::string_view text, Padding padding = Padding::Default());
         void value(std::string_view label, std::string_view value, Padding padding = Padding::Default());

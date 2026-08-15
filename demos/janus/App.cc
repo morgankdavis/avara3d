@@ -7,6 +7,8 @@
 //
 
 #include "App.h"
+#include "App.h"
+#include "App.h"
 
 #include <algorithm>
 #include <cmath>
@@ -39,7 +41,7 @@ const float                       THROW_SPAWN_DISTANCE {0.5f};
 const float                       THROW_SPEED {15.0f};
 const float                       THROW_MIN_FLIGHT_TIME {0.25f};
 const float                       THROW_MAX_FLIGHT_TIME {1.5f};
-constexpr float                   POKE_IMPULSE = 5.0f;
+constexpr float                   POKE_IMPULSE = 10.0f;
 
 /// Private Static Non-Member Prototypes ///
 
@@ -52,12 +54,12 @@ static optional<App::PickResult> FindActionTarget(Scene&                     sce
                                                   const vector<const Node*>& ignoredNodes = {});
 static shared_ptr<Node>          ThrowRing(Node& parent, const vec3& location, const vec3& velocity);
 static shared_ptr<Node>          ThrowDuck(Node& parent, const vec3& location, const vec3& velocity);
-static vector<shared_ptr<Node>>  DropBoxStack(Node&             parent,
-                                              const vec3&       location,
-                                              const vec3&       boxSize,
-                                              const u8vec3&     stackSize,
-                                              float             padding,
-                                              shared_ptr<Color> color);
+static vector<shared_ptr<Node>>  DropBoxs(Node&             parent,
+                                          const vec3&       location,
+                                          const vec3&       boxSize,
+                                          const u8vec3&     stackSize,
+                                          float             padding,
+                                          shared_ptr<Color> color);
 
 /// Public Lifecycle Functions ///
 
@@ -72,6 +74,9 @@ App::App(int argc, char* argv[]):
     _cursorMarker {nullptr},
     _actionTarget {},
     _action {Action::Drop},
+    _dropAction {DropAction::Blocks},
+    _throwAction {ThrowAction::Ring},
+    _pokiness {Pokiness::Hard},
     _transients {ext::TransientNodeRegistry::SweepPolicy::EveryInterval(1.0)},
     _backgroundRotationTime {0.0},
     _orbWanders {},
@@ -372,7 +377,7 @@ void App::inputDidUpdate(Runner&       runner,
     if (result.orbitButtonClick) {
 
         if (input.keyDown(Key::LeftControl)) {
-            queueAction(scene, result.orbitButtonClick->position);
+            queueAction(result.orbitButtonClick->position);
         }
         else {
             select(Pick(*scene.visualWorld(), result.orbitButtonClick->position, {_cursorMarker.get()}));
@@ -380,13 +385,13 @@ void App::inputDidUpdate(Runner&       runner,
     }
 
     if (result.panButtonClick) {
-        queueAction(scene, result.panButtonClick->position);
+        queueAction(result.panButtonClick->position);
     }
 }
 
 void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
 
-    for (auto& wander : _orbWanders) {
+    for (const auto& wander : _orbWanders) {
         wander->update(info.deltaTime);
     }
 }
@@ -464,7 +469,7 @@ void App::drawPanel() {
                                     .margin = 12.0f,
                                 });
 
-    panel.section("simulation");
+    panel.section("simulation", {.line = true}, {.top = 0.0f, .bottom = 4.0f});
 
     const bool paused = runner.simulationPaused();
 
@@ -506,8 +511,7 @@ void App::drawPanel() {
         _pendingReset = true;
     }
 
-    panel.spacer(12.0f);
-
+    //panel.spacer(12.0f);
     panel.section("environment");
 
     // if (auto physicsWorld = scene.physicsWorld()) {
@@ -535,26 +539,60 @@ void App::drawPanel() {
     }
     // }
 
-    panel.spacer(12.0f);
-
+    //panel.spacer(12.0f);
     panel.section("action");
 
     panel.row(3);
-
     if (panel.option("Drop", _action == Action::Drop)) {
         _action = Action::Drop;
     }
-
     if (panel.option("Throw", _action == Action::Throw)) {
         _action = Action::Throw;
     }
-
     if (panel.option("Poke", _action == Action::Poke)) {
         _action = Action::Poke;
     }
 
-    panel.spacer(12.0f);
+    switch (_action) {
+        case Action::Drop:
+            panel.row(3);
+            if (panel.option("Blocks", _dropAction == DropAction::Blocks)) {
+                _dropAction = DropAction::Blocks;
+            }
+            if (panel.option("Balls", _dropAction == DropAction::Balls)) {
+                _dropAction = DropAction::Balls;
+            }
+            // if (panel.option("Mesh", _dropAction == DropAction::ChainMesh)) {
+            //     _dropAction = DropAction::ChainMesh;
+            // }
+            break;
+        case Action::Throw:
+            panel.row(3);
+            if (panel.option("Ring", _throwAction == ThrowAction::Ring)) {
+                _throwAction = ThrowAction::Ring;
+            }
+            if (panel.option("Duck", _throwAction == ThrowAction::Duck)) {
+                _throwAction = ThrowAction::Duck;
+            }
+            // if (panel.option("Fruit", _throwAction == ThrowAction::Fruit)) {
+            //     _throwAction = ThrowAction::Fruit;
+            // }
+            break;
+        case Action::Poke:
+            panel.row(3);
+            if (panel.option("Hard", _pokiness == Pokiness::Hard)) {
+                _pokiness = Pokiness::Hard;
+            }
+            if (panel.option("Harder", _pokiness == Pokiness::Harder)) {
+                _pokiness = Pokiness::Harder;
+            }
+            // if (panel.option("Ouch", _pokiness == Pokiness::Ouch)) {
+            //     _pokiness = Pokiness::Ouch;
+            // }
+            break;
+    }
 
+    //panel.spacer(12.0f);
     panel.section("selected node");
 
     if (!_selection) {
@@ -604,7 +642,7 @@ void App::drawPanel() {
                 return "unknown";
             };
 
-            panel.spacer(8.0f);
+            panel.spacer(6.0f);
 
             panel.value("body", bodyTypeName(body->type()));
 
@@ -646,15 +684,15 @@ void App::drawPanel() {
             // panel.value("torque", FormatVec3(body->totalTorque()));
         }
         else {
-            panel.spacer(8.0f);
-            panel.value("body", "none");
+            panel.spacer(6.0f);
+            panel.value("body", "none", {.top = 6.0f} /*{0.0f, 0.0f, 0.0f, 0.0f}*/);
         }
 
         // mesh
 
         if (const auto& mesh = node->mesh()) {
 
-            panel.spacer(8.0f);
+            panel.spacer(6.0f);
 
             panel.value("mesh", mesh->name().value_or("(unnamed)"));
             uint64_t polygons = 0;
@@ -672,8 +710,7 @@ void App::drawPanel() {
         panel.text("click an object to inspect");
     }
 
-    panel.spacer(12.0f);
-
+    //panel.spacer(12.0f);
     panel.section("debug");
 
     using DebugOptions = Scene::DebugOptions;
@@ -774,7 +811,9 @@ void App::select(optional<PickResult> pickResult) {
     }
 }
 
-void App::queueAction(Scene& scene, const vec2& screenPosition) {
+void App::queueAction(const vec2& screenPosition) {
+
+    auto& scene = App::scene();
 
     auto target = FindActionTarget(scene, screenPosition, {_cursorMarker.get()});
 
@@ -817,11 +856,13 @@ void App::queueAction(Scene& scene, const vec2& screenPosition) {
     };
 
     queueScenePreStepCommand([this, pendingAction = std::move(pendingAction)](Scene& scene) {
-        performAction(scene, pendingAction);
+        performAction(pendingAction);
     });
 }
 
-void App::performAction(Scene& scene, const PendingAction& action) {
+void App::performAction(const PendingAction& action) {
+
+    auto& scene = App::scene();
 
     auto simulationRoot = action.simulationRoot.lock();
 
@@ -837,8 +878,8 @@ void App::performAction(Scene& scene, const PendingAction& action) {
 
             const vec3 spawnLocation = action.target.worldHitPosition + vec3 {0.0f, DROP_HEIGHT, 0.0f};
 
-            auto boxes = DropBoxStack(*simulationRoot, spawnLocation, DROP_BOX_SIZE, DROP_STACK_SIZE,
-                                      DROP_PADDING, Color::White());
+            auto boxes = DropBoxs(*simulationRoot, spawnLocation, DROP_BOX_SIZE, DROP_STACK_SIZE, DROP_PADDING,
+                                  Color::White());
 
             _transients.track(boxes, "box");
 
@@ -865,14 +906,14 @@ void App::performAction(Scene& scene, const PendingAction& action) {
             const vec3 aimDirection = cameraToTarget / targetDistance;
             const vec3 spawnPosition =
                 cameraPosition + aimDirection * math::min(THROW_SPAWN_DISTANCE, targetDistance * 0.25f);
-            const vec3 displacement = targetPosition - spawnPosition;
+            const vec3  displacement = targetPosition - spawnPosition;
             const float flightTime =
                 math::clamp(length(displacement) / THROW_SPEED, THROW_MIN_FLIGHT_TIME, THROW_MAX_FLIGHT_TIME);
             const vec3 gravity = physicsWorld->gravity();
             const vec3 velocity = displacement / flightTime - 0.5f * gravity * flightTime;
 
-            auto projectile = ThrowRing(*simulationRoot, spawnPosition, velocity);
-            // auto projectile = ThrowDuck(*simulationRoot, spawnPosition, velocity);
+            // auto projectile = ThrowRing(*simulationRoot, spawnPosition, velocity);
+            auto projectile = ThrowDuck(*simulationRoot, spawnPosition, velocity);
 
             _transients.track(projectile, "projectile");
 
@@ -930,98 +971,79 @@ shared_ptr<Node> MakeSimulationRoot() {
     // janus
 
     {
-        static auto janusMesh = [] {
-            constexpr float JANUS_HEIGHT = 1.0f;
+        static auto mesh = [] {
+            constexpr float HEIGHT = 1.0f;
             auto            mesh = util::fs::MeshNamed("janus_lod/janus_lod");
-            const float     scaleFactor = JANUS_HEIGHT / mesh->localExtent().y;
+            const float     scaleFactor = HEIGHT / mesh->localExtent().y;
             mesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
             return mesh;
         }();
 
-        auto janusNode = Node::MeshNode(janusMesh);
-        janusNode->name("Janus");
-        janusNode->position({-1.5f, 0.0f, 0.0f});
-        root->addChild(janusNode);
+        auto node = Node::MeshNode(mesh);
+        node->name("Janus");
+        node->position({-1.5f, 0.0f, 0.0f});
+
+        static auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
+        auto        body = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
+        body->mass(10.0f);
+        body->friction(0.6f);
+        body->restitution(0.15f);
+        body->linearDamping(0.03f);
+        body->angularDamping(0.05f);
+        node->physicsBody(std::move(body));
+
+        root->addChild(node);
     }
 
     // angel
 
     {
-        static auto angelMesh = [] {
-            constexpr float ANGEL_HEIGHT = 2.0f;
-            auto            angelMesh = util::fs::MeshNamed("aniel_lod/aniel_lod");
-            const float     scaleFactor = ANGEL_HEIGHT / angelMesh->localExtent().y;
-            angelMesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
-            return angelMesh;
+        static auto mesh = [] {
+            constexpr float HEIGHT = 2.0f;
+            auto            mesh = util::fs::MeshNamed("aniel_lod/aniel_lod");
+            const float     scaleFactor = HEIGHT / mesh->localExtent().y;
+            mesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
+            return mesh;
         }();
 
-        static auto angelShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, angelMesh);
-        //static auto angelShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, angelMesh);
-        auto        angelNode = Node::MeshNode(angelMesh);
-        angelNode->name("Angel");
-        angelNode->rotation({0.0f, 1.0f, 0.0f}, radians(180.0f));
-        auto angelBody = make_unique<PhysicsBody>(PhysicsBody::Type::Static, angelShape);
-        angelNode->physicsBody(std::move(angelBody));
-        root->addChild(angelNode);
+        auto node = Node::MeshNode(mesh);
+        node->name("Angel");
+        node->rotation({0.0f, 1.0f, 0.0f}, radians(180.0f));
+        node->position({0.0, 0.0f, 0.0f});
 
-        // {
-        //     auto topLight = Light::Spot(Color::White());
-        //     topLight->innerAngle(radians(18.0f));
-        //     topLight->outerAngle(radians(28.0f));
-        //
-        //     auto topLightNode = Node::LightNode(topLight);
-        //     topLightNode->position({0.0f, 2.5, -0.5});
-        //     topLightNode->eulerAngles({
-        //         radians(-65.0f), // pitch: straight down
-        //         radians(0.0f),
-        //         radians(0.0f)
-        //     });
-        //
-        //     root->addChild(topLightNode);
-        // }
+        static auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, mesh);
+        auto        body = make_unique<PhysicsBody>(PhysicsBody::Type::Static, shape);
+        node->physicsBody(std::move(body));
 
-        // {
-        //     auto bottomLight = Light::Spot(Color::White());
-        //     bottomLight->innerAngle(radians(18.0f));
-        //     bottomLight->outerAngle(radians(28.0f));
-        //
-        //     auto bottomLightNode = Node::LightNode(bottomLight);
-        //     bottomLightNode->position({0.0f, 0.15f, -0.45f});
-        //     bottomLightNode->eulerAngles({
-        //         radians(65.0f), // pitch: straight up
-        //         radians(0.0f),
-        //         radians(0.0f)
-        //     });
-        //
-        //     root->addChild(bottomLightNode);
-        // }
+        root->addChild(node);
     }
 
     // teapot
 
     {
-        static auto teapotMesh = [] {
-            constexpr float TEAPOT_HEIGHT = 0.35f;
-            auto            teapotMesh = util::fs::MeshNamed("teapot/teapot");
-            const float     teapotScale = TEAPOT_HEIGHT / teapotMesh->localExtent().y;
-            teapotMesh->burnTransform(math::scale(mat4(1.0f), vec3(teapotScale)), true);
-            teapotMesh->replaceMaterial(0, Material::DiffuseMaterial(Color::DarkGray()));
-            return teapotMesh;
+        static auto mesh = [] {
+            constexpr float HEIGHT = 0.35f;
+            auto            mesh = util::fs::MeshNamed("teapot/teapot");
+            const float     teapotScale = HEIGHT / mesh->localExtent().y;
+            mesh->burnTransform(math::scale(mat4(1.0f), vec3(teapotScale)), true);
+            mesh->replaceMaterial(0, Material::DiffuseMaterial(Color::DarkGray()));
+            return mesh;
         }();
 
-        static auto teapotShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, teapotMesh);
+        auto node = Node::MeshNode(mesh);
+        node->name("Teapot");
+        node->position({1.5f, 2.5f - mesh->localAABB().min.y, 0.0f});
 
-        auto teapotNode = Node::MeshNode(teapotMesh);
-        teapotNode->name("Teapot");
-        teapotNode->position({1.5f, 1.0f - teapotMesh->localAABB().min.y, 0.0f});
-        auto teapotBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, teapotShape);
-        teapotBody->mass(1.5f);
-        teapotBody->friction(0.6f);
-        teapotBody->restitution(0.15f);
-        teapotBody->linearDamping(0.03f);
-        teapotBody->angularDamping(0.05f);
-        teapotNode->physicsBody(std::move(teapotBody));
-        root->addChild(teapotNode);
+        static auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
+        auto        body = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
+        body->mass(1.5f);
+        body->friction(0.6f);
+        body->restitution(0.15f);
+        body->linearDamping(0.03f);
+        body->angularDamping(0.05f);
+        node->physicsBody(std::move(body));
+
+        root->addChild(node);
     }
 
     return root;
@@ -1148,7 +1170,7 @@ shared_ptr<Node> ThrowRing(Node& parent, const vec3& location, const vec3& veloc
     const vec3 spinAxis = normalize(bankOrientation * tiltOrientation * up);
 
     static auto physicsShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, mesh);
-    auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, physicsShape);
+    auto        physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, physicsShape);
 
     physicsBody->mass(0.4f);
     physicsBody->restitution(0.25f);
@@ -1222,12 +1244,12 @@ shared_ptr<Node> ThrowDuck(Node& parent, const vec3& location, const vec3& veloc
     return node;
 }
 
-vector<shared_ptr<Node>> DropBoxStack(Node&             parent,
-                                      const vec3&       location,
-                                      const vec3&       boxSize,
-                                      const u8vec3&     stackSize,
-                                      float             padding,
-                                      shared_ptr<Color> color) {
+vector<shared_ptr<Node>> DropBoxs(Node&             parent,
+                                  const vec3&       location,
+                                  const vec3&       boxSize,
+                                  const u8vec3&     stackSize,
+                                  float             padding,
+                                  shared_ptr<Color> color) {
 
     if (!isfinite(padding) || padding < 0.0f) {
         throw invalid_argument("Box stack padding must be finite and non-negative.");
