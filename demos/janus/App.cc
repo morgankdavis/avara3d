@@ -369,11 +369,10 @@ void App::inputDidUpdate(Runner&       runner,
 
     _window->cursorCaptured(result.pointerDragging);
 
-    // left = select, right = action
     if (result.orbitButtonClick) {
 
         if (input.keyDown(Key::LeftControl)) {
-            performAction(scene, result.orbitButtonClick->position);
+            queueAction(scene, result.orbitButtonClick->position);
         }
         else {
             select(Pick(*scene.visualWorld(), result.orbitButtonClick->position, {_cursorMarker.get()}));
@@ -381,7 +380,7 @@ void App::inputDidUpdate(Runner&       runner,
     }
 
     if (result.panButtonClick) {
-        performAction(scene, result.panButtonClick->position);
+        queueAction(scene, result.panButtonClick->position);
     }
 }
 
@@ -775,35 +774,72 @@ void App::select(optional<PickResult> pickResult) {
     }
 }
 
-void App::performAction(Scene& scene, const vec2& screenPosition) {
+void App::queueAction(Scene& scene, const vec2& screenPosition) {
 
-    _actionTarget = FindActionTarget(scene, screenPosition, {_cursorMarker.get()});
+    auto target = FindActionTarget(scene, screenPosition, {_cursorMarker.get()});
 
-    if (!_actionTarget) {
+    _actionTarget = target;
+
+    if (!target) {
+
         if (_cursorMarker) {
             _cursorMarker->hidden(true);
         }
+
         return;
     }
 
     if (_cursorMarker) {
-        _cursorMarker->position(_actionTarget->worldHitPosition);
+        _cursorMarker->position(target->worldHitPosition);
         _cursorMarker->hidden(false);
     }
 
-    auto node = _actionTarget->node.lock();
+    auto visualWorld = scene.visualWorld();
 
-    if (!node) {
+    if (!visualWorld || !_cameraNode || !_simulationRoot) {
         return;
     }
 
-    switch (_action) {
+    const vec3 from = visualWorld->unprojectPoint({screenPosition.x, screenPosition.y, 0.0f});
+    const vec3 to = visualWorld->unprojectPoint({screenPosition.x, screenPosition.y, 1.0f});
+    const vec3 ray = to - from;
+
+    if (length(ray) <= F32_COMPARE_EPSILON) {
+        return;
+    }
+
+    PendingAction pendingAction {
+        .action = _action,
+        .target = *target,
+        .simulationRoot = _simulationRoot,
+        .cameraPosition = _cameraNode->worldPosition(),
+        .rayDirection = normalize(ray),
+    };
+
+    queueScenePreStepCommand([this, pendingAction = std::move(pendingAction)](Scene& scene) {
+        performAction(scene, pendingAction);
+    });
+}
+
+void App::performAction(Scene& scene, const PendingAction& action) {
+
+    auto simulationRoot = action.simulationRoot.lock();
+
+    // The simulation may have been reset while this action was waiting
+    // for a simulation-step boundary.
+    if (!simulationRoot || simulationRoot != _simulationRoot) {
+        return;
+    }
+
+    switch (action.action) {
 
         case Action::Drop: {
 
-            const vec3 spawnLocation = _actionTarget->worldHitPosition + vec3 {0.0f, DROP_HEIGHT, 0.0f};
-            auto       boxes = DropBoxStack(*_simulationRoot, spawnLocation, DROP_BOX_SIZE, DROP_STACK_SIZE,
-                                            DROP_PADDING, Color::White());
+            const vec3 spawnLocation = action.target.worldHitPosition + vec3 {0.0f, DROP_HEIGHT, 0.0f};
+
+            auto boxes = DropBoxStack(*simulationRoot, spawnLocation, DROP_BOX_SIZE, DROP_STACK_SIZE,
+                                      DROP_PADDING, Color::White());
+
             _transients.track(boxes, "box");
 
             break;
@@ -813,8 +849,12 @@ void App::performAction(Scene& scene, const vec2& screenPosition) {
 
             auto physicsWorld = scene.physicsWorld();
 
-            const vec3  cameraPosition = _cameraNode->worldPosition();
-            const vec3  targetPosition = _actionTarget->worldHitPosition;
+            if (!physicsWorld) {
+                return;
+            }
+
+            const vec3  cameraPosition = action.cameraPosition;
+            const vec3  targetPosition = action.target.worldHitPosition;
             const vec3  cameraToTarget = targetPosition - cameraPosition;
             const float targetDistance = length(cameraToTarget);
 
@@ -825,14 +865,14 @@ void App::performAction(Scene& scene, const vec2& screenPosition) {
             const vec3 aimDirection = cameraToTarget / targetDistance;
             const vec3 spawnPosition =
                 cameraPosition + aimDirection * math::min(THROW_SPAWN_DISTANCE, targetDistance * 0.25f);
-            const vec3  displacement = targetPosition - spawnPosition;
+            const vec3 displacement = targetPosition - spawnPosition;
             const float flightTime =
                 math::clamp(length(displacement) / THROW_SPEED, THROW_MIN_FLIGHT_TIME, THROW_MAX_FLIGHT_TIME);
             const vec3 gravity = physicsWorld->gravity();
             const vec3 velocity = displacement / flightTime - 0.5f * gravity * flightTime;
 
-            auto projectile = ThrowRing(*_simulationRoot, spawnPosition, velocity);
-            //auto projectile = ThrowDuck(*_simulationRoot, spawnPosition, velocity);
+            auto projectile = ThrowRing(*simulationRoot, spawnPosition, velocity);
+            // auto projectile = ThrowDuck(*simulationRoot, spawnPosition, velocity);
 
             _transients.track(projectile, "projectile");
 
@@ -841,19 +881,19 @@ void App::performAction(Scene& scene, const vec2& screenPosition) {
 
         case Action::Poke: {
 
+            auto node = action.target.node.lock();
+
+            if (!node) {
+                return;
+            }
+
             auto body = node->physicsBody();
 
             if (!body || body->type() != PhysicsBody::Type::Dynamic) {
                 return;
             }
 
-            auto visualWorld = scene.visualWorld();
-
-            const vec3 from = visualWorld->unprojectPoint({screenPosition.x, screenPosition.y, 0.0f});
-            const vec3 to = visualWorld->unprojectPoint({screenPosition.x, screenPosition.y, 1.0f});
-            const vec3 direction = normalize(to - from);
-
-            body->applyForce(direction * POKE_IMPULSE, _actionTarget->worldHitPosition, true);
+            body->applyForce(action.rayDirection * POKE_IMPULSE, action.target.worldHitPosition, true);
 
             break;
         }
@@ -1085,10 +1125,8 @@ shared_ptr<Node> ThrowRing(Node& parent, const vec3& location, const vec3& veloc
     node->name("Ring");
     node->position(location);
 
-
-
     const vec3 up {0.0f, 1.0f, 0.0f};
-    vec3 forward {0.0f, 0.0f, -1.0f};
+    vec3       forward {0.0f, 0.0f, -1.0f};
 
     const vec3 horizontalVelocity {velocity.x, 0.0f, velocity.z};
 
@@ -1108,9 +1146,6 @@ shared_ptr<Node> ThrowRing(Node& parent, const vec3& location, const vec3& veloc
     node->orientation(bankOrientation * tiltOrientation * flatOrientation);
 
     const vec3 spinAxis = normalize(bankOrientation * tiltOrientation * up);
-
-
-
 
     auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic);
 
@@ -1214,7 +1249,8 @@ vector<shared_ptr<Node>> DropBoxStack(Node&             parent,
 
     if (color) {
         sharedMesh = Box::Mesh(boxSize.x, boxSize.y, boxSize.z);
-        auto material = make_shared<Material>(monostate {}, monostate {}, monostate {}, color);
+        //auto material = make_shared<Material>(monostate {}, monostate {}, monostate {}, color);
+        auto material = make_shared<Material>(color, color, color);
         sharedMesh->addMaterial(material);
     }
 

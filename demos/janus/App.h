@@ -77,12 +77,21 @@ namespace demo::janus {
             Poke
         };
 
+        struct PendingAction {
+            Action                   action;
+            PickResult               target;
+            std::weak_ptr<a3d::Node> simulationRoot;
+            a3d::math::vec3          cameraPosition;
+            a3d::math::vec3          rayDirection;
+        };
+
         /// Private Member Functions ///
 
         void drawPanel();
         void hover(std::shared_ptr<a3d::Node> node);
         void select(std::optional<PickResult> pickResult);
-        void performAction(a3d::Scene& scene, const a3d::math::vec2& screenPosition);
+        void queueAction(a3d::Scene& scene, const a3d::math::vec2& screenPosition);
+        void performAction(a3d::Scene& scene, const PendingAction& action);
         void reset();
 
         /// Private Member Variables ///
