@@ -956,6 +956,7 @@ shared_ptr<Node> MakeSimulationRoot() {
         }();
 
         static auto angelShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, angelMesh);
+        //static auto angelShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, angelMesh);
         auto        angelNode = Node::MeshNode(angelMesh);
         angelNode->name("Angel");
         angelNode->rotation({0.0f, 1.0f, 0.0f}, radians(180.0f));
@@ -1116,7 +1117,7 @@ shared_ptr<Node> ThrowRing(Node& parent, const vec3& location, const vec3& veloc
         material->specular(Color::White());
         material->specularExponent(64.0f);
 
-        return Torus::Mesh(0.43f, 0.5f, 12, 24, material);
+        return Torus::Mesh(0.45f, 0.5f, 12, 32, material);
     }();
 
     static const auto extent = mesh->localExtent();
@@ -1129,7 +1130,6 @@ shared_ptr<Node> ThrowRing(Node& parent, const vec3& location, const vec3& veloc
     vec3       forward {0.0f, 0.0f, -1.0f};
 
     const vec3 horizontalVelocity {velocity.x, 0.0f, velocity.z};
-
     if (length(horizontalVelocity) > F32_COMPARE_EPSILON) {
         forward = normalize(horizontalVelocity);
     }
@@ -1147,7 +1147,8 @@ shared_ptr<Node> ThrowRing(Node& parent, const vec3& location, const vec3& veloc
 
     const vec3 spinAxis = normalize(bankOrientation * tiltOrientation * up);
 
-    auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic);
+    static auto physicsShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, mesh);
+    auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, physicsShape);
 
     physicsBody->mass(0.4f);
     physicsBody->restitution(0.25f);
