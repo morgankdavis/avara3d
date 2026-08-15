@@ -357,17 +357,11 @@ void App::inputDidUpdate(Runner&       runner,
     auto& input = static_cast<DesktopInputContext&>(inputContext);
 
     using Key = DesktopInputContext::Key;
-    // using MouseButton = DesktopInputContext::MouseButton;
 
     // ! TEMPORARY !
     if (input.keyPressed(Key::Escape)) {
         _window->close();
     }
-
-    // if (!_cameraNode) {
-    //     _window->cursorCaptured(false);
-    //     return;
-    // }
 
     const auto camera = static_pointer_cast<PerspectiveCamera>(_cameraNode->camera());
     const auto viewportSize = _window->viewportLogicalSize();
@@ -379,7 +373,7 @@ void App::inputDidUpdate(Runner&       runner,
     if (result.orbitButtonClick) {
 
         if (input.keyDown(Key::LeftControl)) {
-            action(scene, result.orbitButtonClick->position);
+            performAction(scene, result.orbitButtonClick->position);
         }
         else {
             select(Pick(*scene.visualWorld(), result.orbitButtonClick->position, {_cursorMarker.get()}));
@@ -387,7 +381,7 @@ void App::inputDidUpdate(Runner&       runner,
     }
 
     if (result.panButtonClick) {
-        action(scene, result.panButtonClick->position);
+        performAction(scene, result.panButtonClick->position);
     }
 }
 
@@ -781,7 +775,7 @@ void App::select(optional<PickResult> pickResult) {
     }
 }
 
-void App::action(Scene& scene, const vec2& screenPosition) {
+void App::performAction(Scene& scene, const vec2& screenPosition) {
 
     _actionTarget = FindActionTarget(scene, screenPosition, {_cursorMarker.get()});
 

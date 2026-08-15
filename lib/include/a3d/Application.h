@@ -9,6 +9,7 @@
 #ifndef AVARA3D_APPLICATION_H
 #define AVARA3D_APPLICATION_H
 
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -46,6 +47,10 @@ namespace a3d {
         virtual ~Application();
 
     protected:
+        /// Protected Types ///
+
+        using SceneCommand = std::function<void(Scene&)>;
+
         /// Protected Member Functions ///
 
         virtual std::unique_ptr<Scene>  init() = 0;
@@ -58,6 +63,9 @@ namespace a3d {
 
         Scene&                          scene();
         const Scene&                    scene() const;
+
+        void                            queueScenePreStepCommand(SceneCommand command);
+        void                            queueScenePostStepCommand(SceneCommand command);
 
         const std::vector<std::string>& args() const;
 
@@ -98,6 +106,8 @@ namespace a3d {
         void shutdown() noexcept;
         void registerCallbacks();
 
+        void executeSceneCommands(std::vector<SceneCommand>& queue, Scene& scene);
+
         void dispatchHostUpdate(Runner& runner, const Runner::UpdateInfo& info);
         void dispatchInputContextDidUpdate(InputContext& inputContext, const InputContext::UpdateInfo& info);
         void dispatchSceneWillStep(Scene& scene, const Scene::StepInfo& info);
@@ -109,11 +119,13 @@ namespace a3d {
 
         /// Private Member Variables ///
 
-        std::vector<std::string> _args;
-        std::unique_ptr<Scene>   _scene;
-        std::unique_ptr<Runner>  _runner; // Runner must be destroyed before Scene
-        bool                     _didShutdown;
-        Timer                    _startupTimer;
+        std::vector<std::string>  _args;
+        std::unique_ptr<Scene>    _scene;
+        std::unique_ptr<Runner>   _runner; // Runner must be destroyed before Scene
+        std::vector<SceneCommand> _scenePreStepQueue;
+        std::vector<SceneCommand> _scenePostStepQueue;
+        bool                      _didShutdown;
+        Timer                     _startupTimer;
 
         /// Test Access ///
 

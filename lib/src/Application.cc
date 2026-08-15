@@ -90,6 +90,8 @@ Application::Application(int argc, char* argv[], Log::Level logLevel):
     _args(argv + 1, argv + argc),
     _scene {},
     _runner {},
+    _scenePreStepQueue {},
+    _scenePostStepQueue {},
     _didShutdown {false},
     _startupTimer {true} {
     initLog(logLevel);
@@ -143,6 +145,24 @@ const Scene& Application::scene() const {
     }
 
     return *_scene;
+}
+
+void Application::queueScenePreStepCommand(SceneCommand command) {
+
+    if (!command) {
+        throw invalid_argument("Application pre-step Scene command must not be empty.");
+    }
+
+    _scenePreStepQueue.push_back(std::move(command));
+}
+
+void Application::queueScenePostStepCommand(SceneCommand command) {
+
+    if (!command) {
+        throw invalid_argument("Application post-step Scene command must not be empty.");
+    }
+
+    _scenePostStepQueue.push_back(std::move(command));
 }
 
 const vector<string>& Application::args() const {
@@ -250,6 +270,9 @@ void Application::shutdown() noexcept {
         _runner.reset();
     }
 
+    _scenePreStepQueue.clear();
+    _scenePostStepQueue.clear();
+
     // destroy Scene while the concrete Application's RenderContext & window still exist!
     _scene.reset();
 
@@ -285,6 +308,15 @@ void Application::registerCallbacks() {
     }
 }
 
+void Application::executeSceneCommands(vector<SceneCommand>& queue, Scene& scene) {
+
+    auto commands = exchange(queue, vector<SceneCommand> {});
+
+    for (auto& command : commands) {
+        command(scene);
+    }
+}
+
 void Application::dispatchHostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
     hostUpdate(runner, *_scene, info);
 }
@@ -295,10 +327,14 @@ void Application::dispatchInputContextDidUpdate(InputContext&                   
 }
 
 void Application::dispatchSceneWillStep(Scene& scene, const Scene::StepInfo& info) {
+
+    executeSceneCommands(_scenePreStepQueue, scene);
     sceneWillStep(*_runner, scene, info);
 }
 
 void Application::dispatchSceneDidStep(Scene& scene, const Scene::StepInfo& info) {
+
+    executeSceneCommands(_scenePostStepQueue, scene);
     sceneDidStep(*_runner, scene, info);
 }
 

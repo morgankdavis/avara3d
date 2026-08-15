@@ -82,7 +82,7 @@ namespace demo::janus {
         void drawPanel();
         void hover(std::shared_ptr<a3d::Node> node);
         void select(std::optional<PickResult> pickResult);
-        void action(a3d::Scene& scene, const a3d::math::vec2& screenPosition);
+        void performAction(a3d::Scene& scene, const a3d::math::vec2& screenPosition);
         void reset();
 
         /// Private Member Variables ///
