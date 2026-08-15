@@ -53,7 +53,8 @@ std::unique_ptr<Scene> App::init() {
         scene->visualWorld(std::move(visualWorld));
         scene->inputContext(Window::InputContext());
 
-        auto options = Scene::ImportOptions::ImportMeshes | Scene::ImportOptions::ImportMaterials;
+        auto options = Scene::ImportOptions::ImportMeshes | Scene::ImportOptions::ImportMaterials
+                       | Scene::ImportOptions::ImportLights;
         auto testScene = util::fs::SceneNamed("import_test/import_test", options);
         auto testSceneNodes = testScene->rootNode()->children();
         auto importLightsCamerasRoot = make_shared<Node>("importLightsCamerasRoot");

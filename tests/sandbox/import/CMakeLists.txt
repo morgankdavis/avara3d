@@ -12,7 +12,4 @@ a3d_add_program(${TARGET_NAME}
 		"${CMAKE_CURRENT_SOURCE_DIR}/data"
 
 		DATA_DESTINATION
-		"/tests/data"
-
-		INSTALL_DESTINATION
-		"${INSTALL_TESTS_EXEC_DIR}")
+		"/tests/data")

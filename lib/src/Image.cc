@@ -8,6 +8,7 @@
 
 #include "a3d/Image.h"
 
+#include <format>
 #include <stdexcept>
 #include <utility>
 
@@ -28,8 +29,13 @@ Image::Image(const filesystem::path& path, bool flipVertical, bool flipHorizonta
     _height {0},
     _bytesPerPixel {0} {
 
-    auto buffer = Buffer(path);
-    loadBuffer(buffer, flipVertical, flipHorizontal);
+    try {
+        auto buffer = Buffer(path);
+        loadBuffer(buffer, flipVertical, flipHorizontal);
+    }
+    catch (const runtime_error& e) {
+        throw runtime_error(format("Failed to load image '{}': {}", path.string(), e.what()));
+    }
 }
 
 Image::Image(const Buffer& buffer, bool flipVertical, bool flipHorizontal):
@@ -148,8 +154,9 @@ const Buffer& Image::buffer() const {
 
 bool Image::writePNG(const filesystem::path& path) const {
 
-    return !stbi_write_png(path.string().c_str(), (int) _width, (int) _height, (int) _bytesPerPixel,
-                           _buffer->data(), (int) (_width * _bytesPerPixel));
+    return stbi_write_png(path.string().c_str(), (int) _width, (int) _height, (int) _bytesPerPixel,
+                          _buffer->data(), (int) (_width * _bytesPerPixel))
+           != 0;
 }
 
 /// Private Member Functions ///
@@ -168,7 +175,13 @@ void Image::loadBuffer(const Buffer& inBuf, bool flipVertical, bool flipHorizont
     bytesPerPixel = 4;
 
     if (!imgData) {
-        throw std::runtime_error("Failed to load image data.");
+        const char* failureReason = stbi_failure_reason();
+
+        if (failureReason) {
+            throw runtime_error(format("Image decode failed: {}", failureReason));
+        }
+
+        throw runtime_error("Image decode failed.");
     }
 
     _buffer = make_unique<Buffer>(reinterpret_cast<const std::byte*>(imgData),

@@ -101,7 +101,7 @@ std::unique_ptr<Scene> App::init() {
         auto visualWorld = make_unique<VisualWorld>(*_window);
 
         visualWorld->background(Background {
-            make_shared<Texture>(std::move(util::fs::CubeImageNamed("nebula", "png")))});
+            make_shared<Texture>(std::move(util::fs::CubeImageNamed("nebula")))});
 
         //visualWorld->fog(Fog {.color = Color::Black(), .startDistance = 30.0f, .endDistance = 150.0f});
 
@@ -320,7 +320,7 @@ std::unique_ptr<Scene> App::init() {
         // {
         //     auto mesh = util::fs::MeshNamed("teapot/teapot", Mesh::ImportOptions::None);
         //
-        //     // shared_ptr<Image> marbleImage = util::fs::ImageNamed("marble1", std::string{"jpg"});
+        //     // shared_ptr<Image> marbleImage = util::fs::ImageNamed("marble1");
         //     //
         //     //
         //     // if (marbleImage) {

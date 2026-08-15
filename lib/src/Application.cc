@@ -270,9 +270,6 @@ void Application::shutdown() noexcept {
         _runner.reset();
     }
 
-    _scenePreStepQueue.clear();
-    _scenePostStepQueue.clear();
-
     // destroy Scene while the concrete Application's RenderContext & window still exist!
     _scene.reset();
 

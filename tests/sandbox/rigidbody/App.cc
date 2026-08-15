@@ -90,7 +90,7 @@ unique_ptr<Scene> App::init() {
             .transitionExponent = 1.0f,
         });
         Material::Property background = Color::Black();
-        // auto background = make_shared<Texture>(util::filesystem::CubeImageNamed("stormy", "png"));
+        // auto background = make_shared<Texture>(util::filesystem::CubeImageNamed("stormy"));
         visualWorld->background(Background {Color::Black()});
 
         auto physicsWorld = make_unique<PhysicsWorld>();

@@ -76,12 +76,9 @@ namespace a3d::util::fs {
     // ***  images ***
 
     std::unique_ptr<a3d::Image>     ImageNamed(const std::string& name,
-                                               bool               flipHorizontal = true,
-                                               bool               flipVertical   = false);
-    std::unique_ptr<a3d::Image>     ImageNamed(const std::string& name,
-                                               const std::string& type,
-                                               bool               flipHorizontal = true,
-                                               bool               flipVertical   = false);
+                                               const std::string& type           = "png",
+                                               bool               flipVertical   = true,
+                                               bool               flipHorizontal = false);
     std::unique_ptr<a3d::CubeImage> CubeImageNamed(const std::string& name);
     std::unique_ptr<a3d::CubeImage> CubeImageNamed(const std::string& name, const std::string& type);
 

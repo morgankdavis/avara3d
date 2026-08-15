@@ -10,8 +10,10 @@
 
 #include <format>
 #include <fstream>
+#include <initializer_list>
 #include <memory>
 #include <random>
+#include <system_error>
 
 #ifdef A3D_POSIX
     #include <unistd.h>
@@ -54,13 +56,13 @@ std::optional<std::filesystem::path> a3d::util::fs::ExecutablePath() {
         return std::filesystem::path(path);
     }
 #elif defined(A3D_LINUX)
-    // https://stackoverflow.com/questions/143174/how-do-i-get-the-directory-that-a-program-is-running-from
-    char    path[PATH_MAX];
-    ssize_t count = std::min(size_t(readlink("/proc/self/exe", path, PATH_MAX)), size_t(PATH_MAX - 1));
-    if (count >= 0) {
-        path[count] = '\0';
-        return std::filesystem::path(path);
+    char          path[PATH_MAX];
+    const ssize_t count = readlink("/proc/self/exe", path, PATH_MAX - 1);
+    if (count < 0) {
+        return std::nullopt;
     }
+    path[count] = '\0';
+    return std::filesystem::path(path);
 #elif defined(A3D_WINDOWS)
     char path[PATH_MAX];
     if (GetModuleFileName(NULL, path, PATH_MAX)) {
@@ -91,121 +93,89 @@ std::optional<std::string> a3d::util::fs::ExecutableName() {
 }
 
 std::optional<std::filesystem::path> a3d::util::fs::CurrentWorkingDirectory() {
-#ifdef A3D_POSIX
-    char cwd[PATH_MAX];
-    if (getcwd(cwd, sizeof(cwd))) {
-        return std::filesystem::path(cwd);
+
+    std::error_code error;
+    auto            path = std::filesystem::current_path(error);
+    if (error) {
+        return {};
     }
-#else
-    char path[PATH_MAX];
-    if (GetModuleFileName(NULL, path, PATH_MAX)) {
-        return std::filesystem::path(path);
-    }
-#endif
-    return std::nullopt;
+    return path;
 }
 
 // *** search paths ***
 
 vector<std::filesystem::path> a3d::util::fs::BaseSearchPaths() {
-    // EDIT: this is... disgusting. do something else.
-    //
-    // build a list of common directories where "shader", "scene", "images", "fonts", etc
-    // subdirectories may live.
-    // clients will use this to append those subdirectory names to search for specific resources.
-    // clients should first check "local" locations first, then "engine" locations..
 
-    static vector<std::filesystem::path>   basePaths;
-    static optional<std::filesystem::path> execDir {};
-    static optional<string>                execName = {};
+    // TODO: allow adding new locations at runtime
 
-    static bool initd = false;
-    if (!initd) {
-        basePaths = vector<std::filesystem::path>();
+    static const vector<std::filesystem::path> basePaths = [] {
+        vector<std::filesystem::path>   paths;
+        optional<std::filesystem::path> execDir {};
+        optional<string>                execName {};
 
 #ifdef A3D_DESKTOP
 
         execDir = ExecutableDirectory();
+        execName = ExecutableName();
 
-        if (execDir) {
-            execName = ExecutableName();
+        if (execDir && execName) {
 
-            auto path = (*execDir) / "data";
-            basePaths.push_back(path);
+            const auto ancestor = [&](unsigned depth) {
+                auto path = *execDir;
+                while (depth-- > 0) {
+                    path = path.parent_path();
+                }
+                return path;
+            };
 
-            path = (*execDir).parent_path().parent_path().parent_path().parent_path() / "tests" / "data";
-            basePaths.push_back(path);
+            const auto addAtDepths = [&](const filesystem::path&    relativePath,
+                                         initializer_list<unsigned> depths) {
+                for (const auto depth : depths) {
+                    paths.push_back(ancestor(depth) / relativePath);
+                }
+            };
 
-            path = (*execDir).parent_path().parent_path().parent_path() / "tests" / "data";
-            basePaths.push_back(path);
+            // program-local data
 
-            path = (*execDir).parent_path().parent_path().parent_path().parent_path() / "demos" / "data";
-            basePaths.push_back(path);
+            paths.push_back(*execDir / "data");
 
-            path = (*execDir).parent_path().parent_path().parent_path() / "demos" / "data";
-            basePaths.push_back(path);
+            addAtDepths(filesystem::path("tests") / "sandbox" / *execName / "data", {4});
+            addAtDepths(filesystem::path("tests") / *execName / "data", {3});
+            addAtDepths(filesystem::path("demos") / *execName / "data", {3});
 
-            path = (*execDir).parent_path() / "data";
-            basePaths.push_back(path);
+            paths.push_back(*execDir);
 
-            path = (*execDir).parent_path().parent_path().parent_path().parent_path() / "data";
-            basePaths.push_back(path);
+            // shared test/demo data
 
-            path = (*execDir).parent_path().parent_path().parent_path() / "data";
-            basePaths.push_back(path);
+            addAtDepths(filesystem::path("tests") / "data", {4, 3, 6});
+            addAtDepths(filesystem::path("demos") / "data", {4, 3, 6});
 
-            path = (*execDir).parent_path().parent_path() / "lib" / "data";
-            basePaths.push_back(path);
+            // shared project data
 
-            path = (*execDir).parent_path().parent_path().parent_path() / "lib" / "data";
-            basePaths.push_back(path);
+            addAtDepths("data", {1, 4, 3, 6});
 
-            path = (*execDir).parent_path().parent_path().parent_path().parent_path() / "lib" / "data";
-            basePaths.push_back(path);
+            // engine data -- last so applications can override engine resources
 
-            path =
-                (*execDir).parent_path().parent_path().parent_path().parent_path().parent_path().parent_path()
-                / "tests" / "data";
-            basePaths.push_back(path);
-
-            path =
-                (*execDir).parent_path().parent_path().parent_path().parent_path().parent_path().parent_path()
-                / "demos" / "data";
-            basePaths.push_back(path);
-
-            path =
-                (*execDir).parent_path().parent_path().parent_path().parent_path().parent_path().parent_path()
-                / "data";
-            basePaths.push_back(path);
-
-            path = (*execDir).parent_path().parent_path().parent_path() / "tests" / (*execName) / "data";
-            basePaths.push_back(path);
-
-            path = (*execDir).parent_path().parent_path().parent_path() / "demos" / (*execName) / "data";
-            basePaths.push_back(path);
-
-            path = (*execDir);
-            basePaths.push_back(path);
-
-            path = (*execDir).parent_path().parent_path().parent_path().parent_path() / "tests" / "sandbox" / (*execName) / "data";
-            basePaths.push_back(path);
+            addAtDepths(filesystem::path("lib") / "data", {2, 3, 4});
         }
 
 #elif A3D_WEB
 
-        auto path = "/data";
-        basePaths.push_back(path);
+        // program data takes precedence over engine data
 
-        path = "/tests/data";
-        basePaths.push_back(path);
+        auto path = "/tests/data";
+        paths.push_back(path);
 
         path = "/demos/data";
-        basePaths.push_back(path);
+        paths.push_back(path);
+
+        path = "/data";
+        paths.push_back(path);
 
 #endif
 
-        initd = true;
-    }
+        return paths;
+    }();
 
     return basePaths;
 }
@@ -365,19 +335,15 @@ unique_ptr<Font> a3d::util::fs::FontNamed(const string& name, const string& type
 
 // ***  images ***
 
-unique_ptr<Image> a3d::util::fs::ImageNamed(const string& name, bool flipHorizontal, bool flipVertical) {
-
-    return ImageNamed(name, "png", flipHorizontal, flipVertical);
-}
-
 unique_ptr<Image> a3d::util::fs::ImageNamed(const string& name,
                                             const string& type,
-                                            bool          flipHorizontal,
-                                            bool          flipVertical) {
+                                            bool          flipVertical,
+                                            bool          flipHorizontal) {
+
     auto path = SearchInPaths((name + "." + type), ImageSearchPaths());
     if (path) {
         log::t()("Found image at path: {}", (*path).string());
-        return make_unique<Image>(*path, flipHorizontal, flipVertical);
+        return make_unique<Image>(*path, flipVertical, flipHorizontal);
     }
     return nullptr;
 }
