@@ -1095,7 +1095,7 @@ shared_ptr<Node> ThrowRing(Node& parent, const vec3& location, const vec3& veloc
 
         auto material = Material::DiffuseMaterial(silver);
         material->specular(Color::White());
-        material->specularExponent(96.0f);
+        material->specularExponent(64.0f);
 
         return Torus::Mesh(0.43f, 0.5f, 12, 24, material);
     }();

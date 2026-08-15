@@ -100,12 +100,14 @@ void main () {
 
             // dynamic lighting
 
+            vec3 surfaceNormalEye = normalize(frag_vertNorm_eye);
+
             fragColor.rgb = CalcAmbientLighting(Ka.rgb);
 
             fragColor.rgb += CalcDirectionalLighting(Kd.rgb,
                     Ks.rgb,
                     frag_vertPos_eye,
-                    frag_vertNorm_eye,
+                    surfaceNormalEye,
                     viewMat,
                     specularExponent);
 
@@ -113,7 +115,7 @@ void main () {
                     Kd.rgb,
                     Ks.rgb,
                     frag_vertPos_eye,
-                    frag_vertNorm_eye,
+                    surfaceNormalEye,
                     viewMat,
                     specularExponent);
 
@@ -121,7 +123,7 @@ void main () {
                     Kd.rgb,
                     Ks.rgb,
                     frag_vertPos_eye,
-                    frag_vertNorm_eye,
+                    surfaceNormalEye,
                     viewMat,
                     specularExponent);
 
