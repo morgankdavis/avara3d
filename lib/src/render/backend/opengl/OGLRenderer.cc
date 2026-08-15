@@ -1080,15 +1080,19 @@ void SendMaterialUniforms(const Material&              material,
     program.setUniform("specularExponent", material.specularExponent());
     program.setUniform("uvScale", material.uvScale());
     //program.setUniform("locksAmbientWithDiffuse", material.locksAmbientWithDiffuse());
-    program.setUniform("emissionContentsType", (unsigned) 0); // 0 = MaterialType_None -- why is this here?
-    //program.setUniform("defaultLighting", 0);
+
+    // material uniforms persist across draws -- clear unused properties to prevent
+    // state leaking between materials.
+    const auto none = static_cast<unsigned>(MaterialContentsType::None);
+    program.setUniform("ambientContentsType", none);
+    program.setUniform("diffuseContentsType", none);
+    program.setUniform("specularContentsType", none);
+    program.setUniform("emissionContentsType", none);
 
     for (auto& [property, type] : material.properties()) {
         if (!holds_alternative<monostate>(*property)) {
             const int slot = static_cast<underlying_type<Material::PropertyType>::type>(type);
-
             const GLuint h = (slot >= 0) ? glTextureHandles[(size_t) slot] : 0u;
-
             SendMaterialPropertyUniforms(*property, type, h, program, state);
         }
     }
