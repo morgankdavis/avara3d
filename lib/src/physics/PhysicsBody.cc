@@ -554,7 +554,7 @@ void PhysicsBody::checkAutocreateShape(const shared_ptr<Mesh>& mesh) {
     }
 
     if (auto primitiveShape = PhysicsShapeFromPrimitiveMesh(mesh)) {
-        shape(std::move(primitiveShape));
+        shape(primitiveShape);
         return;
     }
 
