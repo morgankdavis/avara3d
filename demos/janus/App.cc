@@ -61,7 +61,7 @@ static vector<shared_ptr<Node>>  SpawnBoxs(Node&         parent,
                                            const vec3&   boxSize,
                                            const u8vec3& stackSize,
                                            float         padding,
-                                           Color         color);
+                                           const Color&  color);
 static bool IsIgnored(const shared_ptr<Node>& node, const vector<const Node*>& ignoredNodes);
 
 /// Public Lifecycle Functions ///
@@ -1332,7 +1332,7 @@ vector<shared_ptr<Node>> SpawnBoxs(Node&         parent,
                                    const vec3&   boxSize,
                                    const u8vec3& stackSize,
                                    float         padding,
-                                   Color         color) {
+                                   const Color&  color) {
 
     if (!isfinite(padding) || padding < 0.0f) {
         throw invalid_argument("Box stack padding must be finite and non-negative.");

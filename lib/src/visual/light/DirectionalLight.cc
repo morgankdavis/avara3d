@@ -25,12 +25,12 @@ DirectionalLight::DirectionalLight(const string& name):
     _name = name;
 }
 
-DirectionalLight::DirectionalLight(Color color):
+DirectionalLight::DirectionalLight(const Color& color):
     DirectionalLight() {
     _color = color;
 }
 
-DirectionalLight::DirectionalLight(const string& name, Color color):
+DirectionalLight::DirectionalLight(const string& name, const Color& color):
     DirectionalLight() {
     _name = name;
     _color = color;

@@ -46,6 +46,7 @@ namespace a3d {
 
         /// Public Static Member Functions ///
 
+        // imports the first mesh in the specified file, with no node transforms applied.
         static std::shared_ptr<Mesh> FromFile(const std::filesystem::path& path,
                                               ImportOptions options = ImportOptions::ImportMaterials);
 
@@ -93,17 +94,17 @@ namespace a3d {
 
         /// Internal Member Functions ///
 
-        MeshId     id() const noexcept;
+        MeshId      id() const noexcept;
 
-        AABB       localAABB() const;
-        AABB       worldAABB(const math::mat4& worldMat, bool vertfit) const;
-        math::vec3 localExtent() const;
-        math::vec3 worldExtent(const math::mat4& worldTransform) const;
+        const AABB& localAABB() const;
+        AABB        worldAABB(const math::mat4& worldMat, bool vertfit) const;
+        math::vec3  localExtent() const;
+        math::vec3  worldExtent(const math::mat4& worldTransform) const;
 
-        void       burnTransform(const math::mat4& transform, bool normals);
+        void        burnTransform(const math::mat4& transform, bool normals);
 
-        DirtyMask  dirtyMask() const;
-        void       dirtyMask(DirtyMask mask);
+        DirtyMask   dirtyMask() const;
+        void        dirtyMask(DirtyMask mask);
 
     protected:
         /// Protected Member Functions ///

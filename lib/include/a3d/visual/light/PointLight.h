@@ -24,8 +24,8 @@ namespace a3d {
 
         PointLight();
         explicit PointLight(const std::string& name);
-        explicit PointLight(Color color);
-        PointLight(const std::string& name, Color color);
+        explicit PointLight(const Color& color);
+        PointLight(const std::string& name, const Color& color);
 
         PointLight(const PointLight&)            = default;
         PointLight& operator=(const PointLight&) = default;

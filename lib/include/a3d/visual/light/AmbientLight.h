@@ -23,8 +23,8 @@ namespace a3d {
 
         AmbientLight();
         explicit AmbientLight(const std::string& name);
-        explicit AmbientLight(Color color);
-        AmbientLight(const std::string& name, Color color);
+        explicit AmbientLight(const Color& color);
+        AmbientLight(const std::string& name, const Color& color);
 
         AmbientLight(const AmbientLight&)            = default;
         AmbientLight& operator=(const AmbientLight&) = default;

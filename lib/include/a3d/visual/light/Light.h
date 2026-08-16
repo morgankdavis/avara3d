@@ -28,24 +28,24 @@ namespace a3d {
         /// Public Static Member Functions ///
 
         static std::shared_ptr<AmbientLight>     Ambient();
-        static std::shared_ptr<AmbientLight>     Ambient(Color color);
+        static std::shared_ptr<AmbientLight>     Ambient(const Color& color);
 
         static std::shared_ptr<DirectionalLight> Directional();
-        static std::shared_ptr<DirectionalLight> Directional(Color color);
+        static std::shared_ptr<DirectionalLight> Directional(const Color& color);
 
         static std::shared_ptr<PointLight>       Point();
-        static std::shared_ptr<PointLight>       Point(Color color);
+        static std::shared_ptr<PointLight>       Point(const Color& color);
 
         static std::shared_ptr<SpotLight>        Spot();
-        static std::shared_ptr<SpotLight>        Spot(Color color);
+        static std::shared_ptr<SpotLight>        Spot(const Color& color);
 
     protected:
         /// Protected Lifecycle Functions ///
 
         Light();
         explicit Light(const std::string& name);
-        explicit Light(Color color);
-        Light(const std::string& name, Color color);
+        explicit Light(const Color& color);
+        Light(const std::string& name, const Color& color);
 
         Light(const Light&)            = default;
         Light& operator=(const Light&) = default;
@@ -62,7 +62,7 @@ namespace a3d {
         void                              name(const std::string& name);
 
         const Color&                      color() const;
-        void                              color(Color color);
+        void                              color(const Color& color);
 
     protected:
         /// Protected Member Variables ///

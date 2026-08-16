@@ -80,7 +80,7 @@ namespace a3d {
         void                                 restitution(float restitution);
 
         math::vec3                           linearVelocity() const;
-        void                                 linearVelocity(math::vec3 velocity);
+        void                                 linearVelocity(const math::vec3& velocity);
 
         math::vec3                           angularVelocity() const;
         void                                 angularVelocity(const math::vec3& velocity);

@@ -25,8 +25,8 @@ namespace a3d {
 
         DirectionalLight();
         explicit DirectionalLight(const std::string& name);
-        explicit DirectionalLight(Color color);
-        DirectionalLight(const std::string& name, Color color);
+        explicit DirectionalLight(const Color& color);
+        DirectionalLight(const std::string& name, const Color& color);
 
         DirectionalLight(const DirectionalLight&)            = default;
         DirectionalLight& operator=(const DirectionalLight&) = default;

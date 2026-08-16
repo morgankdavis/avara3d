@@ -30,12 +30,12 @@ SpotLight::SpotLight(const string& name):
     _name = name;
 }
 
-SpotLight::SpotLight(Color color):
+SpotLight::SpotLight(const Color& color):
     SpotLight() {
     _color = color;
 }
 
-SpotLight::SpotLight(const string& name, Color color):
+SpotLight::SpotLight(const string& name, const Color& color):
     SpotLight() {
     _name = name;
     _color = color;

@@ -33,8 +33,8 @@ namespace a3d {
 
         SpotLight();
         explicit SpotLight(const std::string& name);
-        explicit SpotLight(Color color);
-        SpotLight(const std::string& name, Color color);
+        explicit SpotLight(const Color& color);
+        SpotLight(const std::string& name, const Color& color);
 
         SpotLight(const SpotLight&)            = default;
         SpotLight& operator=(const SpotLight&) = default;

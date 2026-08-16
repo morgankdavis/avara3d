@@ -204,7 +204,7 @@ vec3 PhysicsBody::linearVelocity() const {
     return _proxy->linearVelocity();
 }
 
-void PhysicsBody::linearVelocity(const vec3 velocity) {
+void PhysicsBody::linearVelocity(const vec3& velocity) {
     _proxy->linearVelocity(velocity);
 }
 
