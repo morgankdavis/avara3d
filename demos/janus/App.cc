@@ -43,6 +43,7 @@ const float                       THROW_MIN_FLIGHT_TIME {0.25f};
 const float                       THROW_MAX_FLIGHT_TIME {1.5f};
 constexpr float                   POKE_IMPULSE = 10.0f;
 const double                      PROJECTILE_PICK_IGNORE_DURATION {0.5};
+const bool                        ENABLE_CURSOR_MARKER {false};
 
 /// Private Static Non-Member Prototypes ///
 
@@ -55,12 +56,12 @@ static optional<App::PickResult> FindActionTarget(Scene&                     sce
                                                   const vector<const Node*>& ignoredNodes = {});
 static shared_ptr<Node>          ThrowRing(Node& parent, const vec3& location, const vec3& velocity);
 static shared_ptr<Node>          ThrowDuck(Node& parent, const vec3& location, const vec3& velocity);
-static vector<shared_ptr<Node>>  DropBoxs(Node&             parent,
-                                          const vec3&       location,
-                                          const vec3&       boxSize,
-                                          const u8vec3&     stackSize,
-                                          float             padding,
-                                          shared_ptr<Color> color);
+static vector<shared_ptr<Node>>  SpawnBoxs(Node&             parent,
+                                           const vec3&       location,
+                                           const vec3&       boxSize,
+                                           const u8vec3&     stackSize,
+                                           float             padding,
+                                           shared_ptr<Color> color);
 static bool IsIgnored(const shared_ptr<Node>& node, const vector<const Node*>& ignoredNodes);
 
 /// Public Lifecycle Functions ///
@@ -250,18 +251,20 @@ std::unique_ptr<Scene> App::init() {
         // create the action target marker
 
         {
-            auto material = Material::EmissionMaterial(Color::Yellow());
-            material->depthTestEnabled(false);
-            material->depthWriteEnabled(false);
+            if (ENABLE_CURSOR_MARKER) {
+                auto material = Material::EmissionMaterial(Color::Yellow());
+                material->depthTestEnabled(false);
+                material->depthWriteEnabled(false);
 
-            auto mesh = Sphere::Mesh(CURSOR_MARKER_RADIUS, 8, material);
+                auto mesh = Sphere::Mesh(CURSOR_MARKER_RADIUS, 8, material);
 
-            _cursorMarker = Node::MeshNode(mesh);
-            _cursorMarker->name("Marker");
-            _cursorMarker->renderOrder(100);
-            _cursorMarker->hidden(true);
+                _cursorMarker = Node::MeshNode(mesh);
+                _cursorMarker->name("Marker");
+                _cursorMarker->renderOrder(100);
+                _cursorMarker->hidden(true);
 
-            scene->rootNode()->addChild(_cursorMarker);
+                scene->rootNode()->addChild(_cursorMarker);
+            }
         }
 
         // wandering lights
@@ -431,46 +434,54 @@ void App::frameDidBegin(Runner&                        runner,
 
     bool hovered = drawPanel();
 
-    if (_cursorMarker) {
+    //if (_cursorMarker) {
 
-        if (_window->cursorCaptured() || hovered) {
+    if (_window->cursorCaptured() || hovered) {
 
-            hover(nullptr);
+        hover(nullptr);
 
-            _actionTarget.reset();
+        _actionTarget.reset();
+        if (_cursorMarker) {
             _cursorMarker->hidden(true);
         }
-        else {
+    }
+    else {
 
-            auto& input = static_cast<DesktopInputContext&>(*scene.inputContext());
+        auto& input = static_cast<DesktopInputContext&>(*scene.inputContext());
 
-            vector<const Node*> ignoredNodes;
-            ignoredNodes.reserve(_pickIgnores.size() + 1);
+        vector<const Node*> ignoredNodes;
+        ignoredNodes.reserve(_pickIgnores.size() + 1);
+        if (_cursorMarker) {
             ignoredNodes.push_back(_cursorMarker.get());
-            for (const auto& entry : _pickIgnores) {
-                if (auto node = entry.node.lock()) {
-                    ignoredNodes.push_back(node.get());
-                }
+        }
+        for (const auto& entry : _pickIgnores) {
+            if (auto node = entry.node.lock()) {
+                ignoredNodes.push_back(node.get());
             }
-            _actionTarget = FindActionTarget(scene, input.mousePosition(), ignoredNodes);
+        }
+        _actionTarget = FindActionTarget(scene, input.mousePosition(), ignoredNodes);
 
-            if (_actionTarget) {
+        if (_actionTarget) {
 
-                hover(_actionTarget->node.lock());
+            hover(_actionTarget->node.lock());
 
+            if (_cursorMarker) {
                 _cursorMarker->position(_actionTarget->worldHitPosition);
                 _cursorMarker->hidden(false);
             }
-            else {
+        }
+        else {
 
-                hover(nullptr);
+            hover(nullptr);
 
+            if (_cursorMarker) {
                 _cursorMarker->hidden(true);
             }
         }
     }
+    //}
 
-    _window->cursorHidden(!_cursorMarker->hidden());
+    //_window->cursorHidden(!_cursorMarker->hidden());
 }
 
 /// Private Member Functions ///
@@ -898,8 +909,8 @@ void App::performAction(const PendingAction& action) {
 
             const vec3 spawnLocation = action.target.worldHitPosition + vec3 {0.0f, DROP_HEIGHT, 0.0f};
 
-            auto boxes = DropBoxs(*simulationRoot, spawnLocation, DROP_BOX_SIZE, DROP_STACK_SIZE, DROP_PADDING,
-                                  Color::White());
+            auto boxes = SpawnBoxs(*simulationRoot, spawnLocation, DROP_BOX_SIZE, DROP_STACK_SIZE, DROP_PADDING,
+                                   Color::White());
 
             _transients.track(boxes, "box");
 
@@ -1257,12 +1268,12 @@ shared_ptr<Node> ThrowDuck(Node& parent, const vec3& location, const vec3& veloc
     return node;
 }
 
-vector<shared_ptr<Node>> DropBoxs(Node&             parent,
-                                  const vec3&       location,
-                                  const vec3&       boxSize,
-                                  const u8vec3&     stackSize,
-                                  float             padding,
-                                  shared_ptr<Color> color) {
+vector<shared_ptr<Node>> SpawnBoxs(Node&             parent,
+                                   const vec3&       location,
+                                   const vec3&       boxSize,
+                                   const u8vec3&     stackSize,
+                                   float             padding,
+                                   shared_ptr<Color> color) {
 
     if (!isfinite(padding) || padding < 0.0f) {
         throw invalid_argument("Box stack padding must be finite and non-negative.");
