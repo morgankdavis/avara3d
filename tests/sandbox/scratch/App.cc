@@ -46,21 +46,21 @@ std::unique_ptr<Scene> App::init() {
 
         auto visualWorld = make_unique<VisualWorld>(*_window);
 
-        visualWorld->background(Background {make_shared<Color>(u8vec3 {109, 136, 164})});
+        visualWorld->background(Background {Color(u8vec3 {109, 136, 164})});
 
         visualWorld->infiniteGround(InfiniteGround {
             .color = Color::DarkGray(),
             .height = 0.0f,
             .minorGrid =
                 InfiniteGround::Grid {
-                    .color = make_shared<Color>(vec4 {0.5f, 0.5f, 0.5f, 0.25f}),
+                    .color = Color(vec4 {0.5f, 0.5f, 0.5f, 0.25f}),
                     .spacing = 1.0f,
                     .lineWidthPixels = 1.0f,
                     .reliefStrength = -0.15f,
                 },
             .majorGrid =
                 InfiniteGround::Grid {
-                    .color = make_shared<Color>(vec4 {0.75f, 0.75f, 0.75f, 0.25f}),
+                    .color = Color(vec4 {0.75f, 0.75f, 0.75f, 0.25f}),
                     .spacing = 10.0f,
                     .lineWidthPixels = 1.0f,
                     .reliefStrength = -0.15f,
@@ -72,7 +72,7 @@ std::unique_ptr<Scene> App::init() {
                 },
             .horizonHaze =
                 InfiniteGround::HorizonHaze {
-                    .color = make_shared<Color>(vec4 {0.1f, 0.1f, 0.1f, 0.5f}),
+                    .color = Color(vec4 {0.1f, 0.1f, 0.1f, 0.5f}),
                     .angularWidthDegrees = 2.5f,
                 },
             .specularIntensity = 0.15f,
@@ -97,7 +97,7 @@ std::unique_ptr<Scene> App::init() {
         scene->rootNode()->addChild(teapotNode);
         _teapotNode = teapotNode;
 
-        auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.15f));
+        auto ambientLight = make_shared<AmbientLight>(Color(0.15f));
         auto ambientLightNode = Node::LightNode(ambientLight);
         scene->rootNode()->addChild(ambientLightNode);
 

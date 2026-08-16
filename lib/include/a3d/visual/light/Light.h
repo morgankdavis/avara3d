@@ -9,6 +9,8 @@
 #ifndef AVARA3D_VISUAL_LIGHT_LIGHT_H
 #define AVARA3D_VISUAL_LIGHT_LIGHT_H
 
+#include "a3d/Color.h"
+
 #include <memory>
 #include <optional>
 #include <string>
@@ -16,7 +18,6 @@
 namespace a3d {
 
     class AmbientLight;
-    class Color;
     class DirectionalLight;
     class PointLight;
     class SpotLight;
@@ -27,24 +28,24 @@ namespace a3d {
         /// Public Static Member Functions ///
 
         static std::shared_ptr<AmbientLight>     Ambient();
-        static std::shared_ptr<AmbientLight>     Ambient(const std::shared_ptr<Color>& color);
+        static std::shared_ptr<AmbientLight>     Ambient(Color color);
 
         static std::shared_ptr<DirectionalLight> Directional();
-        static std::shared_ptr<DirectionalLight> Directional(const std::shared_ptr<Color>& color);
+        static std::shared_ptr<DirectionalLight> Directional(Color color);
 
         static std::shared_ptr<PointLight>       Point();
-        static std::shared_ptr<PointLight>       Point(const std::shared_ptr<Color>& color);
+        static std::shared_ptr<PointLight>       Point(Color color);
 
         static std::shared_ptr<SpotLight>        Spot();
-        static std::shared_ptr<SpotLight>        Spot(const std::shared_ptr<Color>& color);
+        static std::shared_ptr<SpotLight>        Spot(Color color);
 
     protected:
         /// Protected Lifecycle Functions ///
 
         Light();
         explicit Light(const std::string& name);
-        explicit Light(const std::shared_ptr<Color>& color);
-        Light(const std::string& name, const std::shared_ptr<Color>& color);
+        explicit Light(Color color);
+        Light(const std::string& name, Color color);
 
         Light(const Light&)            = default;
         Light& operator=(const Light&) = default;
@@ -60,14 +61,14 @@ namespace a3d {
         const std::optional<std::string>& name() const;
         void                              name(const std::string& name);
 
-        const std::shared_ptr<Color>&     color() const;
-        void                              color(const std::shared_ptr<Color>& color);
+        const Color&                      color() const;
+        void                              color(Color color);
 
     protected:
         /// Protected Member Variables ///
 
         std::optional<std::string> _name;
-        std::shared_ptr<Color>     _color;
+        Color                      _color;
     };
 
 }

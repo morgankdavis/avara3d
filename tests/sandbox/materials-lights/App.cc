@@ -71,7 +71,7 @@ std::unique_ptr<Scene> App::init() {
         scene->inputContext(std::move(Window::InputContext()));
         scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 
-        auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.2f));
+        auto ambientLight = make_shared<AmbientLight>(Color(0.2f));
         ambientLight->name("ambient");
         auto ambientLightNode = Node::LightNode(ambientLight);
         scene->rootNode()->addChild(ambientLightNode);

@@ -24,7 +24,7 @@ shared_ptr<AmbientLight> Light::Ambient() {
     return make_unique<a3d::AmbientLight>();
 }
 
-shared_ptr<AmbientLight> Light::Ambient(const shared_ptr<Color>& color) {
+shared_ptr<AmbientLight> Light::Ambient(Color color) {
     return make_unique<a3d::AmbientLight>(color);
 }
 
@@ -32,7 +32,7 @@ shared_ptr<DirectionalLight> Light::Directional() {
     return make_unique<a3d::DirectionalLight>();
 }
 
-shared_ptr<DirectionalLight> Light::Directional(const shared_ptr<Color>& color) {
+shared_ptr<DirectionalLight> Light::Directional(Color color) {
     return make_unique<a3d::DirectionalLight>(color);
 }
 
@@ -40,7 +40,7 @@ shared_ptr<PointLight> Light::Point() {
     return make_unique<a3d::PointLight>();
 }
 
-shared_ptr<PointLight> Light::Point(const shared_ptr<Color>& color) {
+shared_ptr<PointLight> Light::Point(Color color) {
     return make_unique<a3d::PointLight>(color);
 }
 
@@ -48,7 +48,7 @@ shared_ptr<SpotLight> Light::Spot() {
     return make_unique<a3d::SpotLight>();
 }
 
-shared_ptr<SpotLight> Light::Spot(const shared_ptr<Color>& color) {
+shared_ptr<SpotLight> Light::Spot(Color color) {
     return make_unique<a3d::SpotLight>(color);
 }
 
@@ -64,13 +64,13 @@ Light::Light(const string& name):
     _name = name;
 }
 
-Light::Light(const shared_ptr<Color>& color):
+Light::Light(Color color):
     Light {} {
 
     _color = color;
 }
 
-Light::Light(const string& name, const shared_ptr<Color>& color):
+Light::Light(const string& name, Color color):
     Light {} {
 
     _name = name;
@@ -97,10 +97,10 @@ void Light::name(const string& name) {
     _name = name;
 }
 
-const shared_ptr<Color>& Light::color() const {
+const Color& Light::color() const {
     return _color;
 }
 
-void Light::color(const shared_ptr<Color>& color) {
+void Light::color(Color color) {
     _color = color;
 }

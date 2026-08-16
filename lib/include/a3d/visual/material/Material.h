@@ -16,12 +16,12 @@
 #include <variant>
 #include <vector>
 
+#include "a3d/Color.h"
 #include "a3d/Id.h"
 #include "a3d/util/Bitmask.h"
 
 namespace a3d {
 
-    class Color;
     class Texture;
 
     class Material {
@@ -29,7 +29,7 @@ namespace a3d {
     public:
         /// Public Types ///
 
-        using Property = std::variant<std::monostate, std::shared_ptr<Texture>, std::shared_ptr<Color>>;
+        using Property = std::variant<std::monostate, std::shared_ptr<Texture>, Color>;
 
         enum class PropertyType : uint8_t {
             Ambient  = 0,

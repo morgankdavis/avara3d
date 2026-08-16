@@ -56,12 +56,12 @@ static optional<App::PickResult> FindActionTarget(Scene&                     sce
                                                   const vector<const Node*>& ignoredNodes = {});
 static shared_ptr<Node>          ThrowRing(Node& parent, const vec3& location, const vec3& velocity);
 static shared_ptr<Node>          ThrowDuck(Node& parent, const vec3& location, const vec3& velocity);
-static vector<shared_ptr<Node>>  SpawnBoxs(Node&             parent,
-                                           const vec3&       location,
-                                           const vec3&       boxSize,
-                                           const u8vec3&     stackSize,
-                                           float             padding,
-                                           shared_ptr<Color> color);
+static vector<shared_ptr<Node>>  SpawnBoxs(Node&         parent,
+                                           const vec3&   location,
+                                           const vec3&   boxSize,
+                                           const u8vec3& stackSize,
+                                           float         padding,
+                                           Color         color);
 static bool IsIgnored(const shared_ptr<Node>& node, const vector<const Node*>& ignoredNodes);
 
 /// Public Lifecycle Functions ///
@@ -107,21 +107,21 @@ std::unique_ptr<Scene> App::init() {
         //visualWorld->fog(Fog {.color = Color::Black(), .startDistance = 30.0f, .endDistance = 150.0f});
 
         // visualWorld->atmosphericHaze(AtmosphericHaze {
-        //     .color = make_shared<Color>(vec4 {0.35f, 0.4f, 0.45f, 1.0f}),
+        //     .color = Color(vec4 {0.35f, 0.4f, 0.45f, 1.0f}),
         //     .baseHeight = 0.0f,
         //     .density = 0.08f,
         //     .heightFalloff = 0.25f,
         // });
 
         // visualWorld->atmosphericHaze(AtmosphericHaze {
-        //     .color = make_shared<Color>(vec4 {0.35f, 0.4f, 0.45f, 1.0f}),
+        //     .color = Color(vec4 {0.35f, 0.4f, 0.45f, 1.0f}),
         //     .baseHeight = 0.0f,
         //     .density = 0.01f,
         //     .heightFalloff = 0.30,
         // });
 
         visualWorld->atmosphericHaze(AtmosphericHaze {
-            .color = make_shared<Color>(vec4 {0.16f, 0.19f, 0.22f, 0.25f}),
+            .color = Color(vec4 {0.16f, 0.19f, 0.22f, 0.25f}),
             .baseHeight = 0.0f,
             .density = 0.018f,
             .heightFalloff = 0.30f,
@@ -129,25 +129,25 @@ std::unique_ptr<Scene> App::init() {
 
         visualWorld->infiniteGround(InfiniteGround {
             .color = Color::DarkGray(),
-            // .color = make_shared<Color>(.2f),
+            // .color = Color(.2f),
             .height = 0.0f,
             .minorGrid =
                 InfiniteGround::Grid {
-                    .color = make_shared<Color>(vec4 {0.5f, 0.5f, 0.5f, 0.25f}),
+                    .color = Color(vec4 {0.5f, 0.5f, 0.5f, 0.25f}),
                     .spacing = 1.0f,
                     .lineWidthPixels = 1.0f,
                     .reliefStrength = -0.125f,
                 },
             .majorGrid =
                 InfiniteGround::Grid {
-                    .color = make_shared<Color>(vec4 {0.75f, 0.75f, 0.75f, 0.25f}),
+                    .color = Color(vec4 {0.75f, 0.75f, 0.75f, 0.25f}),
                     .spacing = 10.0f,
                     .lineWidthPixels = 1.0f,
                     .reliefStrength = -0.125f,
                 },
             .radialFade =
                 InfiniteGround::RadialFade {
-                    .color = make_shared<Color>(vec4 {0.02f, 0.02f, 0.02f, 1.0f}),
+                    .color = Color(vec4 {0.02f, 0.02f, 0.02f, 1.0f}),
                     .center = {0.0f, 0.0f},
                     .startDistance = 10.0f,
                     .endDistance = 100.0f,
@@ -159,7 +159,7 @@ std::unique_ptr<Scene> App::init() {
                 },
             // .horizonHaze =
             //     InfiniteGround::HorizonHaze {
-            //         .color = make_shared<Color>(vec4 {0.075f, 0.075f, 0.075f, 0.65f}),
+            //         .color = Color(vec4 {0.075f, 0.075f, 0.075f, 0.65f}),
             //         .angularWidthDegrees = 4.5f,
             //     },
             .specularIntensity = 0.05f,
@@ -187,7 +187,7 @@ std::unique_ptr<Scene> App::init() {
 
         // setup lighting
 
-        auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.15f));
+        auto ambientLight = make_shared<AmbientLight>(Color(0.15f));
         auto ambientLightNode = Node::LightNode(ambientLight);
         scene->rootNode()->addChild(ambientLightNode);
 
@@ -1268,12 +1268,12 @@ shared_ptr<Node> ThrowDuck(Node& parent, const vec3& location, const vec3& veloc
     return node;
 }
 
-vector<shared_ptr<Node>> SpawnBoxs(Node&             parent,
-                                   const vec3&       location,
-                                   const vec3&       boxSize,
-                                   const u8vec3&     stackSize,
-                                   float             padding,
-                                   shared_ptr<Color> color) {
+vector<shared_ptr<Node>> SpawnBoxs(Node&         parent,
+                                   const vec3&   location,
+                                   const vec3&   boxSize,
+                                   const u8vec3& stackSize,
+                                   float         padding,
+                                   Color         color) {
 
     if (!isfinite(padding) || padding < 0.0f) {
         throw invalid_argument("Box stack padding must be finite and non-negative.");
@@ -1294,12 +1294,10 @@ vector<shared_ptr<Node>> SpawnBoxs(Node&             parent,
 
     shared_ptr<Mesh> sharedMesh;
 
-    if (color) {
-        sharedMesh = Box::Mesh(boxSize.x, boxSize.y, boxSize.z);
-        //auto material = Material::EmissionMaterial(color);
-        auto material = make_shared<Material>(color, color, color);
-        sharedMesh->addMaterial(material);
-    }
+    sharedMesh = Box::Mesh(boxSize.x, boxSize.y, boxSize.z);
+    //auto material = Material::EmissionMaterial(color);
+    auto material = make_shared<Material>(color, color, color);
+    sharedMesh->addMaterial(material);
 
     const float stepX = boxSize.x + padding;
     const float stepY = boxSize.y + padding;
@@ -1315,7 +1313,7 @@ vector<shared_ptr<Node>> SpawnBoxs(Node&             parent,
         for (unsigned z = 0; z < countZ; ++z) {
             for (unsigned x = 0; x < countX; ++x) {
 
-                auto boxColor = color ? color : Color::Random();
+                auto boxColor = color;
                 auto mesh = sharedMesh;
 
                 if (!mesh) {

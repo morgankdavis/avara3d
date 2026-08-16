@@ -23,9 +23,9 @@ using namespace std;
 shared_ptr<Material> Material::DefaultMaterial() {
     static shared_ptr<Material> material = nullptr;
     if (!material) {
-        auto ambient = make_shared<Color>(0.75f);
-        auto diffuse = make_shared<Color>(0.75f);
-        auto specular = make_shared<Color>(0.85f);
+        auto ambient = Color(0.75f);
+        auto diffuse = Color(0.75f);
+        auto specular = Color(0.85f);
         material = make_shared<Material>(ambient, diffuse, specular);
         material->name("Default material");
         material->doubleSided(true);

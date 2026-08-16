@@ -54,8 +54,8 @@ static fastgltf::Options      GlTFOptionsFromImportOptions(Scene::ImportOptions 
 static std::span<const byte>  BytesFromDataSource(const fastgltf::DataSource& src);
 static std::span<const byte>  BytesFromBufferView(const fastgltf::Asset& asset, size_t bufferViewIndex);
 static mat4                   TransformFromGlTFNode(fastgltf::Node& node);
-static shared_ptr<a3d::Color> ColorFromGlTFColorArray(const fastgltf::math::nvec3& v);
-static shared_ptr<a3d::Color> ColorFromGlTFColorArray(const fastgltf::math::nvec4& v);
+static Color ColorFromGlTFColorArray(const fastgltf::math::nvec3& v);
+static Color ColorFromGlTFColorArray(const fastgltf::math::nvec4& v);
 static void                   ReadIndicesU32(const fastgltf::Asset&    asset,
                                              const fastgltf::Accessor& idxAccessor,
                                              vector<uint32_t>&         out);
@@ -536,7 +536,7 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlTFPrimitive(fastgltf::Asse
                 }
 
                 if (holds_alternative<monostate>(a3dProperty) && (factor > 0)) {
-                    auto factorColor = make_shared<Color>(factor);
+                    auto factorColor = Color(factor);
                     a3dProperty = Material::Property(factorColor);
                 }
 
@@ -859,12 +859,12 @@ mat4 TransformFromGlTFNode(fastgltf::Node& node) {
     return a3d::math::make_mat4(&m[0][0]);
 }
 
-shared_ptr<a3d::Color> ColorFromGlTFColorArray(const fastgltf::math::nvec3& v) {
-    return make_shared<Color>(vec3 {v[0], v[1], v[2]});
+Color ColorFromGlTFColorArray(const fastgltf::math::nvec3& v) {
+    return Color(vec3 {v[0], v[1], v[2]});
 }
 
-shared_ptr<a3d::Color> ColorFromGlTFColorArray(const fastgltf::math::nvec4& v) {
-    return make_shared<Color>(vec3 {v[0], v[1], v[2]});
+Color ColorFromGlTFColorArray(const fastgltf::math::nvec4& v) {
+    return Color(vec3 {v[0], v[1], v[2]});
 }
 
 void ReadIndicesU32(const fastgltf::Asset&    asset,

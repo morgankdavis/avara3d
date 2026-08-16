@@ -571,13 +571,11 @@ void OGLRenderer::drawBackground(const BackgroundPass& backgroundPass,
     }
 
     auto bgEmission = backgroundPass.material->emission();
-    if (auto color = std::get_if<std::shared_ptr<Color>>(&bgEmission)) {
-        if (*color) {
-            auto rgba = (*color)->rgba();
-            glClearColor(rgba.r, rgba.g, rgba.b, rgba.a);
-            glClear(GL_COLOR_BUFFER_BIT);
-            return;
-        }
+    if (auto color = std::get_if<Color>(&bgEmission)) {
+        auto rgba = color->rgba();
+        glClearColor(rgba.r, rgba.g, rgba.b, rgba.a);
+        glClear(GL_COLOR_BUFFER_BIT);
+        return;
     }
 
     // TODO: check equality?
@@ -623,13 +621,13 @@ void OGLRenderer::drawGround(const GroundPass& groundPass, const mat4& view, con
     _groundProgram->setUniform("inverseViewProjMat", inverse(viewProj));
 
     _groundProgram->setUniform("groundHeight", ground.height);
-    _groundProgram->setUniform("groundColor", ground.color->rgb());
+    _groundProgram->setUniform("groundColor", ground.color.rgb());
 
     const bool minorGridEnabled = ground.minorGrid.has_value();
     _groundProgram->setUniform("minorGridEnabled", minorGridEnabled);
     if (minorGridEnabled) {
         const auto& grid = *ground.minorGrid;
-        _groundProgram->setUniform("minorGridColor", grid.color->rgba());
+        _groundProgram->setUniform("minorGridColor", grid.color.rgba());
         _groundProgram->setUniform("minorGridSpacing", grid.spacing);
         _groundProgram->setUniform("minorGridLineWidthPixels", grid.lineWidthPixels);
         _groundProgram->setUniform("minorGridReliefStrength", grid.reliefStrength);
@@ -639,7 +637,7 @@ void OGLRenderer::drawGround(const GroundPass& groundPass, const mat4& view, con
     _groundProgram->setUniform("majorGridEnabled", majorGridEnabled);
     if (majorGridEnabled) {
         const auto& grid = *ground.majorGrid;
-        _groundProgram->setUniform("majorGridColor", grid.color->rgba());
+        _groundProgram->setUniform("majorGridColor", grid.color.rgba());
         _groundProgram->setUniform("majorGridSpacing", grid.spacing);
         _groundProgram->setUniform("majorGridLineWidthPixels", grid.lineWidthPixels);
         _groundProgram->setUniform("majorGridReliefStrength", grid.reliefStrength);
@@ -649,7 +647,7 @@ void OGLRenderer::drawGround(const GroundPass& groundPass, const mat4& view, con
     _groundProgram->setUniform("radialFadeEnabled", radialFadeEnabled);
     if (radialFadeEnabled) {
         const auto& fade = *ground.radialFade;
-        _groundProgram->setUniform("radialFadeColor", fade.color->rgba());
+        _groundProgram->setUniform("radialFadeColor", fade.color.rgba());
         _groundProgram->setUniform("radialFadeCenter", fade.center);
         _groundProgram->setUniform("radialFadeStartDistance", fade.startDistance);
         _groundProgram->setUniform("radialFadeEndDistance", fade.endDistance);
@@ -667,7 +665,7 @@ void OGLRenderer::drawGround(const GroundPass& groundPass, const mat4& view, con
     _groundProgram->setUniform("horizonHazeEnabled", horizonHazeEnabled);
     if (horizonHazeEnabled) {
         const auto& haze = *ground.horizonHaze;
-        _groundProgram->setUniform("horizonHazeColor", haze.color->rgba());
+        _groundProgram->setUniform("horizonHazeColor", haze.color.rgba());
         _groundProgram->setUniform("horizonHazeAngularWidthDegrees", haze.angularWidthDegrees);
     }
 
@@ -1091,7 +1089,7 @@ void SendMaterialUniforms(const Material&              material,
 
     for (auto& [property, type] : material.properties()) {
         if (!holds_alternative<monostate>(*property)) {
-            const int slot = static_cast<underlying_type<Material::PropertyType>::type>(type);
+            const int    slot = static_cast<underlying_type<Material::PropertyType>::type>(type);
             const GLuint h = (slot >= 0) ? glTextureHandles[(size_t) slot] : 0u;
             SendMaterialPropertyUniforms(*property, type, h, program, state);
         }
@@ -1169,7 +1167,7 @@ void SendMaterialPropertyUniforms(const Material::Property&  property,
                     },
                     property->contents());
             }
-            else if constexpr (std::is_same_v<T, shared_ptr<Color>>) {
+            else if constexpr (std::is_same_v<T, Color>) {
                 string modeUniformName;
                 string colorUniformName;
 
@@ -1200,7 +1198,7 @@ void SendMaterialPropertyUniforms(const Material::Property&  property,
                     .setUniform(modeUniformName.c_str(),
                                 static_cast<
                                     underlying_type<MaterialContentsType>::type>(MaterialContentsType::Color));
-                program.setUniform(colorUniformName.c_str(), property->r(), property->g(), property->b());
+                program.setUniform(colorUniformName.c_str(), property.r(), property.g(), property.b());
             }
             else if constexpr (std::is_same_v<T, std::monostate>) {
                 log::w()("NULL material property contents.");
@@ -1216,7 +1214,7 @@ static void SendDrawUniforms(const DrawItem& item, GLSLProgram& program) {
 
 void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
                              const Scene&         scene,
-                             const mat4&    view,
+                             const mat4&          view,
                              const vector<Node*>& lightNodes,
                              FrameStats&          stats) {
     // block
@@ -1269,14 +1267,14 @@ void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
             if (auto ambientLight = dynamic_cast<AmbientLight*>(light)) {
                 if (ambientStructs.size() < MAX_AMBIENT_LIGHTS) {
                     AmbientLightGLSLStruct lightStruct {};
-                    lightStruct.color = ambientLight->color()->rgba();
+                    lightStruct.color = ambientLight->color().rgba();
                     ambientStructs.push_back(lightStruct);
                 }
             }
             else if (auto directionalLight = dynamic_cast<DirectionalLight*>(light)) {
                 if (directionalStructs.size() < MAX_DIRECTIONAL_LIGHTS) {
                     DirectionalLightGLSLStruct lightStruct {};
-                    lightStruct.color = directionalLight->color()->rgba();
+                    lightStruct.color = directionalLight->color().rgba();
                     lightStruct.direction_world = node->worldForward();
                     directionalStructs.push_back(lightStruct);
                 }
@@ -1284,7 +1282,7 @@ void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
             else if (auto pointLight = dynamic_cast<PointLight*>(light)) {
                 if (pointStructs.size() < MAX_POINT_LIGHTS) {
                     PointLightGLSLStruct lightStruct {};
-                    lightStruct.color = pointLight->color()->rgba();
+                    lightStruct.color = pointLight->color().rgba();
                     lightStruct.position_world = node->worldPosition();
                     lightStruct.constantAttenuation = pointLight->attenuation().constant;
                     lightStruct.linearAttenuation = pointLight->attenuation().linear;
@@ -1295,7 +1293,7 @@ void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
             else if (auto spotLight = dynamic_cast<SpotLight*>(light)) {
                 if (spotStructs.size() < MAX_SPOT_LIGHTS) {
                     SpotLightGLSLStruct lightStruct {};
-                    lightStruct.color = spotLight->color()->rgba();
+                    lightStruct.color = spotLight->color().rgba();
                     lightStruct.position_world = node->worldPosition();
                     lightStruct.direction_world = node->worldForward();
                     lightStruct.innerAngleCos = spotLight->innerAngleCos();
@@ -1331,7 +1329,7 @@ void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
     FogGLSLStruct fogStruct {};
 
     if (const auto& fog = scene.visualWorld()->fog()) {
-        fogStruct.color = fog->color->rgba();
+        fogStruct.color = fog->color.rgba();
         fogStruct.startDistance = fog->startDistance;
         fogStruct.endDistance = fog->endDistance;
         fogStruct.transitionExponent = fog->transitionExponent;
@@ -1345,7 +1343,7 @@ void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
     AtmosphericHazeGLSLStruct hazeStruct {};
 
     if (const auto& haze = scene.visualWorld()->atmosphericHaze()) {
-        hazeStruct.color = haze->color->rgba();
+        hazeStruct.color = haze->color.rgba();
         hazeStruct.baseHeight = haze->baseHeight;
         hazeStruct.density = haze->density;
         hazeStruct.heightFalloff = haze->heightFalloff;

@@ -146,11 +146,7 @@ void VisualWorld::background(const optional<Background>& background) {
 
         backgroundMaterial = Material::EmissionMaterial(contents);
     }
-    else if (auto color = get_if<shared_ptr<Color>>(&contents)) {
-
-        if (!*color) {
-            throw invalid_argument("Background color cannot be null.");
-        }
+    else if (auto color = get_if<Color>(&contents)) {
 
         backgroundMaterial = Material::EmissionMaterial(contents);
     }
@@ -169,9 +165,6 @@ const optional<Fog>& VisualWorld::fog() const {
 void VisualWorld::fog(const optional<Fog>& fog) {
 
     if (fog) {
-        if (!fog->color) {
-            throw invalid_argument("Fog color cannot be null.");
-        }
         if (!isfinite(fog->startDistance) || fog->startDistance < 0.0f) {
             throw invalid_argument("Fog start distance must be finite and non-negative.");
         }
@@ -192,9 +185,6 @@ const optional<AtmosphericHaze>& VisualWorld::atmosphericHaze() const {
 void VisualWorld::atmosphericHaze(const optional<AtmosphericHaze>& haze) {
 
     if (haze) {
-        if (!haze->color) {
-            throw invalid_argument("AtmosphericHaze color cannot be null.");
-        }
         if (!isfinite(haze->baseHeight)) {
             throw invalid_argument("AtmosphericHaze base height must be finite.");
         }
@@ -216,18 +206,11 @@ void VisualWorld::infiniteGround(const optional<InfiniteGround>& ground) {
 
     if (ground) {
 
-        if (!ground->color) {
-            throw invalid_argument("InfiniteGround color cannot be null.");
-        }
-
         if (!isfinite(ground->height)) {
             throw invalid_argument("InfiniteGround height must be finite.");
         }
 
         auto validateGrid = [](const InfiniteGround::Grid& grid, const char* name) {
-            if (!grid.color) {
-                throw invalid_argument(format("InfiniteGround {} grid color cannot be null.", name));
-            }
             if (!isfinite(grid.spacing) || grid.spacing <= 0.0f) {
                 throw invalid_argument(
                     format("InfiniteGround {} grid spacing must be finite and greater than zero.", name));
@@ -265,9 +248,6 @@ void VisualWorld::infiniteGround(const optional<InfiniteGround>& ground) {
 
             const auto& fade = *ground->radialFade;
 
-            if (!fade.color) {
-                throw invalid_argument("InfiniteGround radial fade color cannot be null.");
-            }
             if (!isfinite(fade.center.x) || !isfinite(fade.center.y)) {
                 throw invalid_argument("InfiniteGround radial fade center must be finite.");
             }
@@ -285,9 +265,6 @@ void VisualWorld::infiniteGround(const optional<InfiniteGround>& ground) {
 
             const auto& haze = *ground->horizonHaze;
 
-            if (!haze.color) {
-                throw invalid_argument("InfiniteGround horizon haze color cannot be null.");
-            }
             if (!isfinite(haze.angularWidthDegrees) || haze.angularWidthDegrees <= 0.0f
                 || haze.angularWidthDegrees > 90.0f) {
 

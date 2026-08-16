@@ -9,15 +9,13 @@
 #ifndef AVARA3D_VISUAL_LIGHT_POINTLIGHT_H
 #define AVARA3D_VISUAL_LIGHT_POINTLIGHT_H
 
-#include <memory>
 #include <string>
 
+#include "a3d/Color.h"
 #include "a3d/visual/light/Attenuation.h"
 #include "a3d/visual/light/Light.h"
 
 namespace a3d {
-
-    class Color;
 
     class PointLight : public Light {
 
@@ -26,8 +24,8 @@ namespace a3d {
 
         PointLight();
         explicit PointLight(const std::string& name);
-        explicit PointLight(const std::shared_ptr<Color>& color);
-        PointLight(const std::string& name, const std::shared_ptr<Color>& color);
+        explicit PointLight(Color color);
+        PointLight(const std::string& name, Color color);
 
         PointLight(const PointLight&)            = default;
         PointLight& operator=(const PointLight&) = default;

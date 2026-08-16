@@ -11,31 +11,28 @@
 
 #include "a3d/Color.h"
 
-#include <memory>
 #include <optional>
 
 #include "a3d/Math.h"
 
 namespace a3d {
 
-    class Color;
-
     struct InfiniteGround {
 
         struct Grid {
 
-            std::shared_ptr<Color> color {};
-            float                  spacing {1.0f};
-            float                  lineWidthPixels {1.0f};
-            float                  reliefStrength {0.0f};
+            Color color {};
+            float spacing {1.0f};
+            float lineWidthPixels {1.0f};
+            float reliefStrength {0.0f};
         };
 
         struct RadialFade {
 
-            std::shared_ptr<Color> color {Color::Black()};
-            math::vec2             center {0.0f, 0.0f};
-            float                  startDistance {10.0f};
-            float                  endDistance {100.0f};
+            Color      color {Color::Black()};
+            math::vec2 center {0.0f, 0.0f};
+            float      startDistance {10.0f};
+            float      endDistance {100.0f};
         };
 
         struct Curvature {
@@ -46,11 +43,11 @@ namespace a3d {
 
         struct HorizonHaze {
 
-            std::shared_ptr<Color> color {};
-            float                  angularWidthDegrees {3.0f};
+            Color color {};
+            float angularWidthDegrees {3.0f};
         };
 
-        std::shared_ptr<Color>     color {};
+        Color                      color {};
         float                      height {0.0f};
         std::optional<Grid>        minorGrid {};
         std::optional<Grid>        majorGrid {};

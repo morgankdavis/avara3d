@@ -9,18 +9,16 @@
 #ifndef AVARA3D_VISUAL_FOG_H
 #define AVARA3D_VISUAL_FOG_H
 
-#include <memory>
+#include "a3d/Color.h"
 
 namespace a3d {
 
-    class Color;
-
     struct Fog {
 
-        std::shared_ptr<Color> color {};
-        float                  startDistance {0.0f};
-        float                  endDistance {1000.0f};
-        float                  transitionExponent {1.0f};
+        Color color {};
+        float startDistance {0.0f};
+        float endDistance {1000.0f};
+        float transitionExponent {1.0f};
     };
 
 }

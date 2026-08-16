@@ -49,7 +49,7 @@ std::unique_ptr<Scene> App::init() {
         auto scene = make_unique<Scene>(std::move(visualWorld), nullptr, Window::InputContext());
         scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 
-        auto ambientLight = make_shared<AmbientLight>(make_shared<Color>(0.1f));
+        auto ambientLight = make_shared<AmbientLight>(Color(0.1f));
         auto ambientLightNode = Node::LightNode(ambientLight);
         scene->rootNode()->addChild(ambientLightNode);
 

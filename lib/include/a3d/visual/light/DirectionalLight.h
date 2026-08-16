@@ -9,14 +9,13 @@
 #ifndef AVARA3D_VISUAL_LIGHT_DIRECTIONALLIGHT_H
 #define AVARA3D_VISUAL_LIGHT_DIRECTIONALLIGHT_H
 
-#include <memory>
 #include <string>
 
+#include "a3d/Color.h"
 #include "a3d/visual/light/Light.h"
 
 namespace a3d {
 
-    class Color;
     class Node;
 
     class DirectionalLight : public Light {
@@ -26,8 +25,8 @@ namespace a3d {
 
         DirectionalLight();
         explicit DirectionalLight(const std::string& name);
-        explicit DirectionalLight(const std::shared_ptr<Color>& color);
-        DirectionalLight(const std::string& name, const std::shared_ptr<Color>& color);
+        explicit DirectionalLight(Color color);
+        DirectionalLight(const std::string& name, Color color);
 
         DirectionalLight(const DirectionalLight&)            = default;
         DirectionalLight& operator=(const DirectionalLight&) = default;

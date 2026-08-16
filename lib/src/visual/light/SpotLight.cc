@@ -30,12 +30,12 @@ SpotLight::SpotLight(const string& name):
     _name = name;
 }
 
-SpotLight::SpotLight(const shared_ptr<Color>& color):
+SpotLight::SpotLight(Color color):
     SpotLight() {
     _color = color;
 }
 
-SpotLight::SpotLight(const string& name, const shared_ptr<Color>& color):
+SpotLight::SpotLight(const string& name, Color color):
     SpotLight() {
     _name = name;
     _color = color;

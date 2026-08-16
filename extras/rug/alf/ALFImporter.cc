@@ -86,13 +86,13 @@ unique_ptr<Scene> ext::ALFImporter::scene(VisualWorld& visualWorld) {
             scene->name(mapName);
         }
         else if (tag == "SkyColor") {
-            auto color = make_shared<Color>(node.attribute("color").as_string());
-            auto color1 = make_shared<Color>(node.attribute("color.1").as_string());
+            auto color = Color(node.attribute("color").as_string());
+            auto color1 = Color(node.attribute("color.1").as_string());
 
             visualWorld.background(Background {color});
         }
         else if (tag == "GroundColor") {
-            auto color = make_shared<Color>(node.attribute("color").as_string());
+            auto color = Color(node.attribute("color").as_string());
 
             const float PLANE_LENGTH = 500.0;
             const float PLANE_WIDTH = 500.0;
@@ -113,8 +113,8 @@ unique_ptr<Scene> ext::ALFImporter::scene(VisualWorld& visualWorld) {
             float d = node.attribute("d").as_float();
             float h = node.attribute("h").as_float();
             float y = node.attribute("y").as_float(0.0f);
-            auto  color = make_shared<Color>(node.attribute("color").as_string());
-            auto  color1 = make_shared<Color>(node.attribute("color.1").as_string());
+            auto  color = Color(node.attribute("color").as_string());
+            auto  color1 = Color(node.attribute("color.1").as_string());
 
             log::d()("Wall: x: {}, z: {}, w: {}, d: {}, h: {}, y: {}", x, z, w, d, h, y);
 
@@ -138,8 +138,8 @@ unique_ptr<Scene> ext::ALFImporter::scene(VisualWorld& visualWorld) {
             float       cz = node.attribute("cz").as_float(); // center z?
             float       y = node.attribute("y").as_float(0.0f);
             float       angle = node.attribute("angle").as_float(0.0f); // rotation around Y in degrees?
-            auto        color = make_shared<Color>(node.attribute("color").as_string());
-            auto        color1 = make_shared<Color>(node.attribute("color.1").as_string());
+            auto        color = Color(node.attribute("color").as_string());
+            auto        color1 = Color(node.attribute("color.1").as_string());
 
             // shotPower="10" customGravity="0.2" color="#a8d6ff" color.1="#000000"
 

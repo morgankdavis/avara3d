@@ -8,90 +8,92 @@
 
 #include "a3d/Color.h"
 
+#include <cctype>
+
 using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
 /// Public Static Member Functions ///
 
-std::shared_ptr<Color> Color::Black() {
-    return make_unique<Color>(vec4 {0.0f, 0.0f, 0.0f, 1.0f});
+Color Color::Black() {
+    return Color(vec4 {0.0f, 0.0f, 0.0f, 1.0f});
 }
 
-std::shared_ptr<Color> Color::DarkGray() {
-    return make_unique<Color>(vec4 {0.25f, 0.25f, 0.25f, 1.0f});
+Color Color::DarkGray() {
+    return Color(vec4 {0.25f, 0.25f, 0.25f, 1.0f});
 }
 
-std::shared_ptr<Color> Color::Gray() {
-    return make_unique<Color>(vec4 {0.5f, 0.5, 0.5f, 1.0f});
+Color Color::Gray() {
+    return Color(vec4 {0.5f, 0.5f, 0.5f, 1.0f});
 }
 
-std::shared_ptr<Color> Color::LightGray() {
-    return make_unique<Color>(vec4 {0.75f, 0.75f, 0.75f, 1.0f});
+Color Color::LightGray() {
+    return Color(vec4 {0.75f, 0.75f, 0.75f, 1.0f});
 }
 
-std::shared_ptr<Color> Color::White() {
-    return make_unique<Color>(vec4 {1.0f, 1.0f, 1.0f, 1.0f});
+Color Color::White() {
+    return Color(vec4 {1.0f, 1.0f, 1.0f, 1.0f});
 }
 
-std::shared_ptr<Color> Color::Maroon() {
-    return make_unique<Color>(vec4 {128.0f / 255.0f, 0.0f, 0.0f, 1.0f});
+Color Color::Maroon() {
+    return Color(vec4 {128.0f / 255.0f, 0.0f, 0.0f, 1.0f});
 }
 
-std::shared_ptr<Color> Color::Red() {
-    return make_unique<Color>(vec4 {1.0f, 0.0f, 0.0f, 1.0f});
+Color Color::Red() {
+    return Color(vec4 {1.0f, 0.0f, 0.0f, 1.0f});
 }
 
-std::shared_ptr<Color> Color::Orange() {
-    return make_unique<Color>(vec4 {1.0f, 165.0f / 255.0f, 0.0f, 1.0f});
+Color Color::Orange() {
+    return Color(vec4 {1.0f, 165.0f / 255.0f, 0.0f, 1.0f});
 }
 
-std::shared_ptr<Color> Color::Yellow() {
-    return make_unique<Color>(vec4 {1.0f, 1.0f, 0.0f, 1.0f});
+Color Color::Yellow() {
+    return Color(vec4 {1.0f, 1.0f, 0.0f, 1.0f});
 }
 
-std::shared_ptr<Color> Color::Olive() {
-    return make_unique<Color>(vec4 {128.0f / 255.0f, 128.0f / 255.0f, 0.0f, 1.0f});
+Color Color::Olive() {
+    return Color(vec4 {128.0f / 255.0f, 128.0f / 255.0f, 0.0f, 1.0f});
 }
 
-std::shared_ptr<Color> Color::Lime() {
-    return make_unique<Color>(vec4 {0.0f, 1.0f, 0.0f, 1.0f});
+Color Color::Lime() {
+    return Color(vec4 {0.0f, 1.0f, 0.0f, 1.0f});
 }
 
-std::shared_ptr<Color> Color::Green() {
-    return make_unique<Color>(vec4 {0.0f, 128.0f / 255.0f, 0.0f, 1.0f});
+Color Color::Green() {
+    return Color(vec4 {0.0f, 128.0f / 255.0f, 0.0f, 1.0f});
 }
 
-std::shared_ptr<Color> Color::Cyan() {
-    return make_unique<Color>(vec4 {0.0f, 1.0f, 1.0f, 1.0f});
+Color Color::Cyan() {
+    return Color(vec4 {0.0f, 1.0f, 1.0f, 1.0f});
 }
 
-std::shared_ptr<Color> Color::Blue() {
-    return make_unique<Color>(vec4 {0.0f, 0.0f, 1.0f, 1.0f});
+Color Color::Blue() {
+    return Color(vec4 {0.0f, 0.0f, 1.0f, 1.0f});
 }
 
-std::shared_ptr<Color> Color::Navy() {
-    return make_unique<Color>(vec4 {0.0f, 0.0f, 128.0f / 255.0f, 1.0f});
+Color Color::Navy() {
+    return Color(vec4 {0.0f, 0.0f, 128.0f / 255.0f, 1.0f});
 }
 
-std::shared_ptr<Color> Color::Teal() {
-    return make_unique<Color>(vec4 {0.0f, 128.0f / 255.0f, 128.0f / 255.0f, 1.0f});
+Color Color::Teal() {
+    return Color(vec4 {0.0f, 128.0f / 255.0f, 128.0f / 255.0f, 1.0f});
 }
 
-std::shared_ptr<Color> Color::Magenta() {
-    return make_unique<Color>(vec4 {1.0f, 0.0f, 1.0f, 1.0f});
+Color Color::Magenta() {
+    return Color(vec4 {1.0f, 0.0f, 1.0f, 1.0f});
 }
 
-std::shared_ptr<Color> Color::Purple() {
-    return make_unique<Color>(vec4 {128.0f / 255.0f, 0.0f, 128.0f / 255.0f, 1.0f});
+Color Color::Purple() {
+    return Color(vec4 {128.0f / 255.0f, 0.0f, 128.0f / 255.0f, 1.0f});
 }
 
-std::shared_ptr<Color> Color::Brown() {
-    return make_unique<Color>(vec4 {153.0f / 255.0f, 102.0f / 255.0f, 51.0f / 255.0f, 1.0f});
+Color Color::Brown() {
+    return Color(vec4 {153.0f / 255.0f, 102.0f / 255.0f, 51.0f / 255.0f, 1.0f});
 }
 
-shared_ptr<Color> Color::Random() {
-    return make_unique<Color>(u8vec3(uniform_linear(0, 255), uniform_linear(0, 255), uniform_linear(0, 255)));
+Color Color::Random() {
+    return Color(u8vec3(uniform_linear(0, 255), uniform_linear(0, 255), uniform_linear(0, 255)));
 }
 
 /// Private Static Non-Member Prototypes ///

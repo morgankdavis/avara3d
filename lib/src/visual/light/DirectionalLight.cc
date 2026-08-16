@@ -25,12 +25,12 @@ DirectionalLight::DirectionalLight(const string& name):
     _name = name;
 }
 
-DirectionalLight::DirectionalLight(const shared_ptr<Color>& color):
+DirectionalLight::DirectionalLight(Color color):
     DirectionalLight() {
     _color = color;
 }
 
-DirectionalLight::DirectionalLight(const string& name, const shared_ptr<Color>& color):
+DirectionalLight::DirectionalLight(const string& name, Color color):
     DirectionalLight() {
     _name = name;
     _color = color;

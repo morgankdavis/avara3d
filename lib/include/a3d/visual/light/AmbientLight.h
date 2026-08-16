@@ -9,14 +9,12 @@
 #ifndef AVARA3D_VISUAL_LIGHT_AMBIENTLIGHT_H
 #define AVARA3D_VISUAL_LIGHT_AMBIENTLIGHT_H
 
-#include <memory>
 #include <string>
 
+#include "a3d/Color.h"
 #include "a3d/visual/light/Light.h"
 
 namespace a3d {
-
-    class Color;
 
     class AmbientLight : public Light {
 
@@ -25,8 +23,8 @@ namespace a3d {
 
         AmbientLight();
         explicit AmbientLight(const std::string& name);
-        explicit AmbientLight(const std::shared_ptr<Color>& color);
-        AmbientLight(const std::string& name, const std::shared_ptr<Color>& color);
+        explicit AmbientLight(Color color);
+        AmbientLight(const std::string& name, Color color);
 
         AmbientLight(const AmbientLight&)            = default;
         AmbientLight& operator=(const AmbientLight&) = default;

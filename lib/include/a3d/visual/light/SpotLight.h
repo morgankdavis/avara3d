@@ -10,15 +10,13 @@
 #define AVARA3D_VISUAL_LIGHT_SPOTLIGHT_H
 
 #include <cstdint>
-#include <memory>
 #include <string>
 
+#include "a3d/Color.h"
 #include "a3d/visual/light/Attenuation.h"
 #include "a3d/visual/light/Light.h"
 
 namespace a3d {
-
-    class Color;
 
     class SpotLight : public Light {
 
@@ -35,8 +33,8 @@ namespace a3d {
 
         SpotLight();
         explicit SpotLight(const std::string& name);
-        explicit SpotLight(const std::shared_ptr<Color>& color);
-        SpotLight(const std::string& name, const std::shared_ptr<Color>& color);
+        explicit SpotLight(Color color);
+        SpotLight(const std::string& name, Color color);
 
         SpotLight(const SpotLight&)            = default;
         SpotLight& operator=(const SpotLight&) = default;

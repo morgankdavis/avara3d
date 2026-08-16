@@ -9,18 +9,16 @@
 #ifndef AVARA3D_VISUAL_ATMOSPHERICHAZE_H
 #define AVARA3D_VISUAL_ATMOSPHERICHAZE_H
 
-#include <memory>
+#include "a3d/Color.h"
 
 namespace a3d {
 
-    class Color;
-
     struct AtmosphericHaze {
 
-        std::shared_ptr<Color> color {};
-        float                  baseHeight {0.0f};
-        float                  density {0.02f};
-        float                  heightFalloff {0.25f};
+        Color color {};
+        float baseHeight {0.0f};
+        float density {0.02f};
+        float heightFalloff {0.25f};
     };
 
 }
