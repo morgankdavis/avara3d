@@ -50,7 +50,7 @@ void Wander::config(const Config& config) {
     reset();
 }
 
-vec3 Wander::center() const {
+const vec3& Wander::center() const {
 
     return _center;
 }

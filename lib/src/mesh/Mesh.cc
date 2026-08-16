@@ -150,7 +150,7 @@ MeshId Mesh::id() const noexcept {
     return _id;
 }
 
-AABB Mesh::localAABB() const {
+const AABB& Mesh::localAABB() const {
     return _localAABB;
 }
 

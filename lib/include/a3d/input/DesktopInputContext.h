@@ -189,13 +189,13 @@ namespace a3d {
         std::unordered_set<MouseButton> mouseButtonsPressed();
 
         // current pointer position in logical viewport coordinates
-        math::vec2                      mousePosition() const;
+        const math::vec2&               mousePosition() const;
 
         // pointer displacement observed during the current input update
-        math::vec2                      mousePositionDelta() const;
+        const math::vec2&               mousePositionDelta() const;
 
         // scroll displacement observed during the current input update
-        math::vec2                      mouseScrollWheelDelta() const;
+        const math::vec2&               mouseScrollWheelDelta() const;
 
         /// InputContext Internal Member Functions ///
 

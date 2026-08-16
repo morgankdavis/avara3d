@@ -25,7 +25,7 @@ namespace a3d {
 
         const Material::Property& contents() const;
 
-        math::quat                orientation() const;
+        const math::quat&         orientation() const;
         void                      orientation(const math::quat& orientation);
 
     private:

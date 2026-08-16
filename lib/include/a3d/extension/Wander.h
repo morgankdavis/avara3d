@@ -43,19 +43,19 @@ namespace a3d::ext {
         explicit Wander(const std::shared_ptr<Node>& node);
         Wander(const std::shared_ptr<Node>& node, const Config& config);
 
-        const Config& config() const;
-        void          config(const Config& config);
+        const Config&     config() const;
+        void              config(const Config& config);
 
-        math::vec3    center() const;
+        const math::vec3& center() const;
 
-        void          update(double deltaTime);
+        void              update(double deltaTime);
 
         // Returns the node to its original center and restarts the same
         // deterministic path.
-        void          reset();
+        void              reset();
 
         // Makes the node's current position the new center and restarts.
-        void          recenter();
+        void              recenter();
 
     private:
         void                validateConfig(const Config& config) const;

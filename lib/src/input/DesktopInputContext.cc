@@ -106,17 +106,17 @@ unordered_set<MouseButton> DesktopInputContext::mouseButtonsPressed() {
     return mouseButtonsPressedCopy;
 }
 
-vec2 DesktopInputContext::mousePosition() const {
+const vec2& DesktopInputContext::mousePosition() const {
 
     return _mousePosition;
 }
 
-vec2 DesktopInputContext::mousePositionDelta() const {
+const vec2& DesktopInputContext::mousePositionDelta() const {
 
     return _mousePositionDelta;
 }
 
-vec2 DesktopInputContext::mouseScrollWheelDelta() const {
+const vec2& DesktopInputContext::mouseScrollWheelDelta() const {
 
     return _mouseScrollWheelDelta;
 }

@@ -143,7 +143,7 @@ void Node::mesh(const shared_ptr<Mesh>& mesh) {
     }
 }
 
-vec3 Node::position() const {
+const vec3& Node::position() const {
     return _position;
 }
 
@@ -166,6 +166,7 @@ void Node::rotation(const vec3& axis, float angle) {
 
 vec3 Node::eulerAngles() const {
 
+    // don't return const ref since backing is std::optional
     if (!_eulerAngles) {
         _eulerAngles = euler_angles(_orientation);
     }
@@ -179,7 +180,7 @@ void Node::eulerAngles(const vec3& angles) {
     syncPhysicsTransforms();
 }
 
-quat Node::orientation() const {
+const quat& Node::orientation() const {
     return _orientation;
 }
 
@@ -190,7 +191,7 @@ void Node::orientation(const quat& orientation) {
     syncPhysicsTransforms();
 }
 
-vec3 Node::scale() const {
+const vec3& Node::scale() const {
     return _scale;
 }
 

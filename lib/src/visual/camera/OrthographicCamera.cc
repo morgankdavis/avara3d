@@ -40,7 +40,7 @@ OrthographicCamera::~OrthographicCamera() {
 
 /// Public Member Functions ///
 
-AABB OrthographicCamera::extent() const {
+const AABB& OrthographicCamera::extent() const {
     return _extent;
 }
 
@@ -52,10 +52,5 @@ void OrthographicCamera::extent(const AABB& e) {
 
 mat4 OrthographicCamera::projection(const uvec2&) const {
 
-    return ortho(_extent.min.x,
-                 _extent.max.x,
-                 _extent.min.y,
-                 _extent.max.y,
-                 _extent.min.z,
-                 _extent.max.z);
+    return ortho(_extent.min.x, _extent.max.x, _extent.min.y, _extent.max.y, _extent.min.z, _extent.max.z);
 }

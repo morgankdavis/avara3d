@@ -80,7 +80,7 @@ namespace a3d {
         const std::shared_ptr<Mesh>&       mesh() const;
         void                               mesh(const std::shared_ptr<Mesh>& mesh);
 
-        math::vec3                         position() const;
+        const math::vec3&                  position() const;
         void                               position(const math::vec3& position);
 
         math::vec4                         rotation() const; // axis-angle
@@ -89,10 +89,10 @@ namespace a3d {
         math::vec3                         eulerAngles() const; // pitch, yaw, roll
         void                               eulerAngles(const math::vec3& angles);
 
-        math::quat                         orientation() const; // wxyz
+        const math::quat&                  orientation() const; // wxyz
         void                               orientation(const math::quat& orientation);
 
-        math::vec3                         scale() const;
+        const math::vec3&                  scale() const;
         void                               scale(const math::vec3& scale);
 
         math::vec3                         forward() const;

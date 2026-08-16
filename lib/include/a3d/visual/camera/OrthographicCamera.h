@@ -34,12 +34,12 @@ namespace a3d {
 
         /// Public Member Functions ///
 
-        AABB       extent() const;
-        void       extent(const AABB& e);
+        const AABB& extent() const;
+        void        extent(const AABB& e);
 
         /// Camera Internal Member Functions ///
 
-        math::mat4 projection(const math::uvec2& viewportSize) const override;
+        math::mat4  projection(const math::uvec2& viewportSize) const override;
 
     private:
         /// Private Member Variables ///

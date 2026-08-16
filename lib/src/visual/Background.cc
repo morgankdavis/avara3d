@@ -23,7 +23,7 @@ const Material::Property& Background::contents() const {
     return _contents;
 }
 
-quat Background::orientation() const {
+const quat& Background::orientation() const {
     return _orientation;
 }
 

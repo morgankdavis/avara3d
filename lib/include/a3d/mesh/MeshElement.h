@@ -71,7 +71,7 @@ namespace a3d {
         uint32_t                   indexCount() const;
         std::span<const std::byte> indexBytes() const;
 
-        AABB                       localAABB() const;
+        const AABB&                localAABB() const;
         AABB                       worldAABB(const math::mat4& worldMat, bool vertfit) const;
         math::vec3                 localExtent() const;
         math::vec3                 worldExtent(const math::mat4& worldTransform) const;

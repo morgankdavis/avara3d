@@ -111,7 +111,7 @@ std::span<const std::byte> MeshElement::indexBytes() const {
     return {_indexData.data(), _indexData.size()};
 }
 
-AABB MeshElement::localAABB() const {
+const AABB& MeshElement::localAABB() const {
     return _localAABB;
 }
 
