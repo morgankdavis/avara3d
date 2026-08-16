@@ -8,6 +8,7 @@
 
 #include "a3d/scene/importer/GlTFImporter.h"
 
+#include <algorithm>
 #include <filesystem>
 #include <format>
 #include <stdexcept>
@@ -56,6 +57,8 @@ static std::span<const byte> BytesFromBufferView(const fastgltf::Asset& asset, s
 static mat4                  TransformFromGlTFNode(fastgltf::Node& node);
 static Color                 ColorFromGlTFColorArray(const fastgltf::math::nvec3& v);
 static Color                 ColorFromGlTFColorArray(const fastgltf::math::nvec4& v);
+static float                 PhongExponentFromGlTFRoughness(float roughness);
+static Color                 PhongSpecularFromGlTFMaterial(const fastgltf::Material& material);
 static void                  ReadIndicesU32(const fastgltf::Asset&    asset,
                                             const fastgltf::Accessor& idxAccessor,
                                             vector<uint32_t>&         out);
@@ -179,8 +182,8 @@ bool GlTFImporter::parse() {
         //log::i()("Parsing glTF: '{}'...", _path.string());
 
         auto extensions = Extensions::KHR_lights_punctual | Extensions::KHR_materials_specular
-                          | Extensions::KHR_materials_anisotropy | Extensions::KHR_texture_transform
-                          | Extensions::EXT_texture_webp;
+                          | Extensions::KHR_materials_ior | Extensions::KHR_materials_anisotropy
+                          | Extensions::KHR_texture_transform | Extensions::EXT_texture_webp;
         auto parser = Parser(extensions);
 
 //		auto gltfFile = MappedGltfFile::FromPath(_path);
@@ -261,17 +264,21 @@ shared_ptr<a3d::Mesh> GlTFImporter::meshFromGlTFMeshIndex(fastgltf::Asset& asset
         for (auto& primitive : mesh.primitives) {
 
             auto element = meshElementFromGlTFPrimitive(asset, primitive);
-            if (element) {
-                elements.push_back(std::move(element));
+            if (!element) {
+                continue;
             }
 
             // TODO: macro instead of != SCENE_IMPORT_OPTIONS::NONE ?
             auto material = ((_options & Scene::ImportOptions::ImportMaterials) != Scene::ImportOptions::None)
                                 ? materialFromGlTFPrimitive(asset, primitive)
                                 : Material::DefaultMaterial();
-            if (material) {
-                materials.push_back(material);
+
+            if (!material) {
+                material = Material::DefaultMaterial();
             }
+
+            elements.push_back(std::move(element));
+            materials.push_back(material);
         }
 
         auto a3dMesh = make_shared<a3d::Mesh>(string(mesh.name), elements, materials);
@@ -504,75 +511,18 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlTFPrimitive(fastgltf::Asse
 
             // specular
 
-            if (auto& specularMaterial = material.specular; specularMaterial) {
-
-                // TODO: this needs work.  and more testing.
-
-                auto  factor = specularMaterial->specularFactor;
-                auto& textureInfo = specularMaterial->specularTexture;
-                auto  colorFactor = specularMaterial->specularColorFactor;
-                auto& colorTextureInfo = specularMaterial->specularColorTexture;
-
-                //				log::d()("*** [SPECULAR] ***");
-                //				log::d()("factor: {}", factor);
-                //				log::d()("textureInfo: {}", textureInfo ? "true" : "false");
-                //				log::d()("colorFactor: ({}, {}, {})", colorFactor[0], colorFactor[1], colorFactor[2]);
-                //				log::d()("colorTextureInfo: {}", colorTextureInfo ? "true" : "false");
-
-                // if it has a 'texture' map, use it (only contains alpha)
-                // if it has no map, but a 'factor' use solid white, with an intentify of the factor.
-
-                Material::Property a3dProperty = monostate {};
-
-                if (textureInfo) {
-
-                    auto specularTextureIndex = (*textureInfo).textureIndex;
-                    if (auto a3dTexture = textureFromGlTFTextureIndex(asset, specularTextureIndex);
-                        a3dTexture) {
-                        a3dProperty = a3dTexture;
-                    }
-                    else {
-                        a3dProperty = a3d::Material::MissingTextureProperty();
-                    }
-                }
-
-                if (holds_alternative<monostate>(a3dProperty) && (factor > 0)) {
-                    auto factorColor = Color(factor);
-                    a3dProperty = Material::Property(factorColor);
-                }
-
-                if (!holds_alternative<monostate>(a3dProperty)) {
-                    if (!a3dMaterial) {
-                        a3dMaterial = make_shared<a3d::Material>(monostate {}, monostate {}, a3dProperty);
-                    }
-                    else {
-                        a3dMaterial->specular(a3dProperty);
-                    }
-                }
-            }
-
             if (a3dMaterial) {
 
-                a3dMaterial->locksAmbientWithDiffuse(true);
-
-                a3dMaterial->doubleSided(material.doubleSided);
-
-                if (auto& anisotropy = material.anisotropy; anisotropy) {
-
-                    // log error to draw attention -- at time of initial glTF integration
-                    // we don't have an example file with KHR_materials_anisotropy
-                    auto strength = anisotropy->anisotropyStrength;
-                    log::i()("anisotropyStrength: {}", strength);
-
-                    for (auto [property, type] : a3dMaterial->properties()) {
-                        if (holds_alternative<shared_ptr<Texture>>(*property)) {
-                            auto texture = get<shared_ptr<Texture>>(*property);
-                            texture->sampler()->maxAnisotropy(strength);
-                        }
-                    }
+                if (!material.name.empty() && a3dMaterial != Material::MissingTextureMaterial()) {
+                    a3dMaterial->name(string(material.name));
                 }
 
-                // specularExponent?
+                a3dMaterial->locksAmbientWithDiffuse(true);
+                a3dMaterial->doubleSided(material.doubleSided);
+
+                a3dMaterial->specular(PhongSpecularFromGlTFMaterial(material));
+
+                a3dMaterial->specularExponent(PhongExponentFromGlTFRoughness(material.pbrData.roughnessFactor));
 
                 // transform -- scale
 
@@ -605,8 +555,11 @@ shared_ptr<a3d::Texture> GlTFImporter::textureFromGlTFTextureIndex(fastgltf::Ass
         if (auto a3dImage = imageFromGlTFTexture(asset, texture); a3dImage) {
 
             auto a3dSampler = samplerFromGlTFTexture(asset, texture);
+            if (!a3dSampler) {
+                a3dSampler = make_shared<a3d::Sampler>();
+            }
 
-            auto a3dTexture = make_shared<a3d::Texture>(a3dImage, make_shared<a3d::Sampler>());
+            auto a3dTexture = make_shared<a3d::Texture>(a3dImage, a3dSampler);
             _textures[textureIndex] = a3dTexture;
             return a3dTexture;
         }
@@ -640,6 +593,7 @@ shared_ptr<a3d::Sampler> GlTFImporter::samplerFromGlTFTexture(fastgltf::Asset&  
             a3dSampler->wrapS(Sampler::WrapMode(sampler.wrapS));
             a3dSampler->wrapT(Sampler::WrapMode(sampler.wrapT));
 
+            _samplers[*samplerIndex] = a3dSampler;
             return a3dSampler;
         }
         else {
@@ -863,7 +817,7 @@ static std::span<const byte> BytesFromBufferView(const fastgltf::Asset& asset, s
 mat4 TransformFromGlTFNode(fastgltf::Node& node) {
 
     const fastgltf::math::fmat4x4 m = fastgltf::getTransformMatrix(node);
-    return a3d::math::make_mat4(&m[0][0]);
+    return math::make_mat4(&m[0][0]);
 }
 
 Color ColorFromGlTFColorArray(const fastgltf::math::nvec3& v) {
@@ -872,6 +826,58 @@ Color ColorFromGlTFColorArray(const fastgltf::math::nvec3& v) {
 
 Color ColorFromGlTFColorArray(const fastgltf::math::nvec4& v) {
     return Color(vec3 {v[0], v[1], v[2]});
+}
+
+float PhongExponentFromGlTFRoughness(float roughness) {
+
+    // glTF uses a GGX microfacet BRDF with alpha = roughness^2.
+    // A3D uses classic Phong shading, so approximate the GGX lobe width
+    // with a corresponding Phong specular exponent.
+
+    constexpr float MIN_ROUGHNESS = 0.001f;
+    constexpr float MIN_EXPONENT = 1.0f;
+    constexpr float MAX_EXPONENT = 1000.0f;
+
+    roughness = math::clamp(roughness, MIN_ROUGHNESS, 1.0f);
+
+    const float roughnessSquared = roughness * roughness;
+    const float exponent = 2.0f / (roughnessSquared * roughnessSquared) - 2.0f;
+
+    return math::clamp(exponent, MIN_EXPONENT, MAX_EXPONENT);
+}
+
+Color PhongSpecularFromGlTFMaterial(const fastgltf::Material& material) {
+
+    // approximate glTF's dielectric Fresnel reflectance with A3D's
+    // constant Phong specular coefficient (Ks). this preserves the
+    // normal-incidence reflectance (F0), but not glTF's angle-dependent
+    // Fresnel behavior.
+    const float ior = material.ior;
+    const float ratio = (ior - 1.0f) / (ior + 1.0f);
+    const float baseF0 = ratio * ratio;
+
+    float                 specularFactor = 1.0f;
+    fastgltf::math::nvec3 specularColorFactor(1.0f);
+
+    if (material.specular) {
+
+        specularFactor = material.specular->specularFactor;
+        specularColorFactor = material.specular->specularColorFactor;
+
+        if (material.specular->specularTexture || material.specular->specularColorTexture) {
+            log::w()("Ignoring unsupported glTF specular textures.");
+        }
+    }
+
+    // KHR_materials_specular clamps IOR-derived F0 * specularColor
+    // before applying the scalar specular strength.
+    const vec3 specular {
+        std::clamp(baseF0 * specularColorFactor[0], 0.0f, 1.0f) * specularFactor,
+        std::clamp(baseF0 * specularColorFactor[1], 0.0f, 1.0f) * specularFactor,
+        std::clamp(baseF0 * specularColorFactor[2], 0.0f, 1.0f) * specularFactor,
+    };
+
+    return Color(specular);
 }
 
 void ReadIndicesU32(const fastgltf::Asset&    asset,

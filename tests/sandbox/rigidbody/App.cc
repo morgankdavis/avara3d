@@ -128,7 +128,8 @@ unique_ptr<Scene> App::init() {
 
         auto scene =
             make_unique<Scene>(std::move(visualWorld), std::move(physicsWorld), Window::InputContext());
-        scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
+        scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay | Scene::DebugOptions::ShowPhysicsNormals
+                            | Scene::DebugOptions::ShowPhysicsContactPoints);
         //scene->visualWorld()->usesDefaultLighting(true);
 
         // ambient light
@@ -254,27 +255,22 @@ unique_ptr<Scene> App::init() {
         // add contact test boxes
 
         auto contactTestMesh = Box::Mesh(1.0f, 1.0f, 1.0f);
-        auto contactTestShape =
-            make_shared<PhysicsShape>(PhysicsShape::Type::BoundingBox, contactTestMesh);
+        auto contactTestShape = make_shared<PhysicsShape>(PhysicsShape::Type::BoundingBox, contactTestMesh);
 
-        auto addContactTestBox =
-            [&](const string& name, const vec3& position, Color color) {
+        auto addContactTestBox = [&](const string& name, const vec3& position, Color color) {
+            auto node = Node::MeshNode(contactTestMesh);
+            node->name(name);
+            node->position(position);
 
-                auto node = Node::MeshNode(contactTestMesh);
-                node->name(name);
-                node->position(position);
+            auto material = make_shared<Material>(monostate {}, monostate {}, monostate {}, color);
+            node->mesh()->addMaterial(material);
 
-                auto material =
-                    make_shared<Material>(monostate {}, monostate {}, monostate {}, color);
-                node->mesh()->addMaterial(material);
+            auto body = make_unique<PhysicsBody>(PhysicsBody::Type::Kinematic, contactTestShape);
 
-                auto body =
-                    make_unique<PhysicsBody>(PhysicsBody::Type::Kinematic, contactTestShape);
+            node->physicsBody(std::move(body));
+            scene->rootNode()->addChild(node);
 
-                node->physicsBody(std::move(body));
-                scene->rootNode()->addChild(node);
-
-                return node;
+            return node;
         };
 
         auto testA = addContactTestBox("Contact Test A", {15.0f, 5.0f, 10.0f}, Color::Red());
@@ -573,8 +569,7 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
 
         const auto ab = physicsWorld->contactTest(*bodyA, *bodyB);
 
-        log::app::i()("A/B: contact={} penetration={:.4f}",
-                      ab ? "YES" : "NO",
+        log::app::i()("A/B: contact={} penetration={:.4f}", ab ? "YES" : "NO",
                       ab ? ab->penetrationDistance() : 0.0f);
 
         const auto ad = physicsWorld->contactTest(*bodyA, *bodyD);
@@ -597,8 +592,7 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
 
             log::app::i()("    {} <-> {}  penetration={:.4f} impulse={:.4f}",
                           a ? a->name().value_or("(unnamed)") : "(expired)",
-                          b ? b->name().value_or("(unnamed)") : "(expired)",
-                          contact.penetrationDistance(),
+                          b ? b->name().value_or("(unnamed)") : "(expired)", contact.penetrationDistance(),
                           contact.collisionImpulse());
         }
 
@@ -609,8 +603,7 @@ void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& inf
             if (nodeA && nodeB) {
                 const vec3 nodeBToA = nodeA->worldPosition() - nodeB->worldPosition();
 
-                log::app::i()("normal dot B->A = {:.4f}",
-                              dot(ab->contactNormal(), nodeBToA));
+                log::app::i()("normal dot B->A = {:.4f}", dot(ab->contactNormal(), nodeBToA));
             }
         }
     }
@@ -901,9 +894,6 @@ void AddBox(Scene& scene, const vec3& location, Color color) {
 void AddCardboardBox(Scene& scene, const vec3& location, const vec3& axis, float angle) {
 
     static auto mesh = util::fs::MeshAt("cardboard_box/cardboard_box.gltf");
-
-    mesh->materials()[0]->specular({});
-    mesh->materials()[1]->specular({});
 
     auto node = Node::MeshNode(mesh);
     node->name("Cardboard Box");
