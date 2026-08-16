@@ -1292,12 +1292,11 @@ vector<shared_ptr<Node>> SpawnBoxs(Node&         parent,
 
     auto physicsShape = make_shared<BoxPhysicsShape>(boxSize.x, boxSize.y, boxSize.z);
 
-    shared_ptr<Mesh> sharedMesh;
+    auto mesh = Box::Mesh(boxSize.x, boxSize.y, boxSize.z);
 
-    sharedMesh = Box::Mesh(boxSize.x, boxSize.y, boxSize.z);
     //auto material = Material::EmissionMaterial(color);
     auto material = make_shared<Material>(color, color, color);
-    sharedMesh->addMaterial(material);
+    mesh->addMaterial(material);
 
     const float stepX = boxSize.x + padding;
     const float stepY = boxSize.y + padding;
@@ -1305,6 +1304,7 @@ vector<shared_ptr<Node>> SpawnBoxs(Node&         parent,
 
     const float totalLength = boxSize.x * static_cast<float>(countX) + padding * static_cast<float>(countX - 1);
     const float totalWidth = boxSize.z * static_cast<float>(countZ) + padding * static_cast<float>(countZ - 1);
+
     const float startX = location.x - totalLength * 0.5f + boxSize.x * 0.5f;
     const float startZ = location.z - totalWidth * 0.5f + boxSize.z * 0.5f;
     const float startY = location.y + boxSize.y * 0.5f;
@@ -1313,16 +1313,8 @@ vector<shared_ptr<Node>> SpawnBoxs(Node&         parent,
         for (unsigned z = 0; z < countZ; ++z) {
             for (unsigned x = 0; x < countX; ++x) {
 
-                auto boxColor = color;
-                auto mesh = sharedMesh;
+                auto node = Node::MeshNode(mesh);
 
-                if (!mesh) {
-                    mesh = Box::Mesh(boxSize.x, boxSize.y, boxSize.z);
-                    auto material = make_shared<Material>(monostate {}, monostate {}, monostate {}, boxColor);
-                    mesh->addMaterial(material);
-                }
-
-                auto       node = Node::MeshNode(mesh);
                 static int boxNum = 0;
                 node->name(std::format("Box {}", ++boxNum));
 
@@ -1347,7 +1339,7 @@ vector<shared_ptr<Node>> SpawnBoxs(Node&         parent,
 
                 node->physicsBody(std::move(physicsBody));
 
-                auto light = Light::Point(boxColor);
+                auto light = Light::Point(color);
                 light->attenuation(Attenuation::FromRange(3.0f, 0.02f));
                 node->light(light);
 
@@ -1356,6 +1348,7 @@ vector<shared_ptr<Node>> SpawnBoxs(Node&         parent,
             }
         }
     }
+
     return added;
 }
 

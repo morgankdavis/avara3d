@@ -23,12 +23,12 @@ AmbientLight::AmbientLight(const string& name):
     _name = name;
 }
 
-AmbientLight::AmbientLight(const Color color):
+AmbientLight::AmbientLight(Color color):
     AmbientLight() {
     _color = color;
 }
 
-AmbientLight::AmbientLight(const string& name, const Color color):
+AmbientLight::AmbientLight(const string& name, Color color):
     AmbientLight() {
     _name = name;
     _color = color;

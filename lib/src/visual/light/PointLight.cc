@@ -24,12 +24,12 @@ PointLight::PointLight(const string& name):
     _name = name;
 }
 
-PointLight::PointLight(const Color color):
+PointLight::PointLight(Color color):
     PointLight() {
     _color = color;
 }
 
-PointLight::PointLight(const string& name, const Color color):
+PointLight::PointLight(const string& name, Color color):
     PointLight() {
     _name = name;
     _color = color;
