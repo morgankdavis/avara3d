@@ -245,8 +245,8 @@ void DrawHeader(ImFont& titleFont, ImFont& bodyFont, bool active, float& yPos_ou
     ImGuiIO& io = GetIO();
     auto     fonts = io.Fonts->Fonts;
 
-    auto color =
-        active ? IM_COL32(255, 255, 255, 255) : IM_COL32(255, 255, 255, (uint8_t) std::lround(.35 * 255));
+    auto color = active ? IM_COL32(255, 255, 255, 255)
+                        : IM_COL32(255, 255, 255, static_cast<uint8_t>(math::round(0.35f * 255.0f)));
 
     yPos += 4;
     ImguiDrawText(X_POS, yPos, "avara3d", titleFont, STATS_TITLE_FONT_SIZE, color, active);
@@ -388,7 +388,7 @@ void DrawStats(FrameStats&              stats,
                         discardedSteps ? IM_COL32(255, 48, 48, 255) : IM_COL32(255, 255, 255, 255));
     ImguiDrawSimulationPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, simulationStepSamples.data(),
                             simulationDiscardMarkers.data(), static_cast<int>(simulationStepSamples.size()),
-                            std::max(1.0f, static_cast<float>(stats.maxCatchUpSteps)), ++id,
+                            math::max(1.0f, static_cast<float>(stats.maxCatchUpSteps)), ++id,
                             PLOT_HEIGHT_2 + PLOT_STR_Y_PAD);
 
     const auto formatDiscardedTime = [](double seconds) {

@@ -58,8 +58,8 @@ void TurntableCameraController::config(const Config& config) {
 
     _config = config;
 
-    _view.pitch = std::clamp(_view.pitch, _config.minPitch, _config.maxPitch);
-    _view.distance = std::clamp(_view.distance, _config.minDistance, _config.maxDistance);
+    _view.pitch = math::clamp(_view.pitch, _config.minPitch, _config.maxPitch);
+    _view.distance = math::clamp(_view.distance, _config.minDistance, _config.maxDistance);
 }
 
 const TurntableCameraController::View& TurntableCameraController::view() const {
@@ -68,15 +68,15 @@ const TurntableCameraController::View& TurntableCameraController::view() const {
 
 void TurntableCameraController::view(const View& view) {
 
-    if (!std::isfinite(view.yaw)) {
+    if (!math::is_finite(view.yaw)) {
         throw invalid_argument("TurntableCameraController view yaw must be finite.");
     }
 
-    if (!std::isfinite(view.pitch)) {
+    if (!math::is_finite(view.pitch)) {
         throw invalid_argument("TurntableCameraController view pitch must be finite.");
     }
 
-    if (!std::isfinite(view.distance)) {
+    if (!math::is_finite(view.distance)) {
         throw invalid_argument("TurntableCameraController view distance must be finite.");
     }
 
@@ -155,12 +155,12 @@ TurntableCameraController::UpdateResult TurntableCameraController::update(Deskto
                                                                           float                vFov,
                                                                           float                viewportHeight) {
 
-    if (!std::isfinite(vFov) || vFov <= 0.0f || vFov >= math::PI) {
+    if (!math::is_finite(vFov) || vFov <= 0.0f || vFov >= math::PI) {
         throw invalid_argument(
             "TurntableCameraController vertical field of view must be finite and between 0 and 180 degrees.");
     }
 
-    if (!std::isfinite(viewportHeight) || viewportHeight <= 0.0f) {
+    if (!math::is_finite(viewportHeight) || viewportHeight <= 0.0f) {
         throw invalid_argument("TurntableCameraController viewport height must be positive and finite.");
     }
 
@@ -468,12 +468,12 @@ void TurntableCameraController::translateTarget(const vec3& worldTranslation) {
 /// Private Static Non-Member Functions ///
 
 bool IsFinite(const vec3& value) {
-    return std::isfinite(value.x) && std::isfinite(value.y) && std::isfinite(value.z);
+    return math::is_finite(value.x) && math::is_finite(value.y) && math::is_finite(value.z);
 }
 
 void ValidateConfig(const TurntableCameraController::Config& config) {
 
-    if (!std::isfinite(config.minPitch) || !std::isfinite(config.maxPitch)) {
+    if (!math::is_finite(config.minPitch) || !math::is_finite(config.maxPitch)) {
         throw invalid_argument("TurntableCameraController pitch limits must be finite.");
     }
 
@@ -488,11 +488,11 @@ void ValidateConfig(const TurntableCameraController::Config& config) {
         throw invalid_argument("TurntableCameraController minimum pitch must be less than maximum pitch.");
     }
 
-    if (!std::isfinite(config.minDistance) || config.minDistance <= 0.0f) {
+    if (!math::is_finite(config.minDistance) || config.minDistance <= 0.0f) {
         throw invalid_argument("TurntableCameraController minimum distance must be positive and finite.");
     }
 
-    if (!std::isfinite(config.maxDistance)) {
+    if (!math::is_finite(config.maxDistance)) {
         throw invalid_argument("TurntableCameraController maximum distance must be finite.");
     }
 
@@ -501,21 +501,21 @@ void ValidateConfig(const TurntableCameraController::Config& config) {
             "TurntableCameraController maximum distance must not be less than minimum distance.");
     }
 
-    if (!std::isfinite(config.orbitSensitivity) || config.orbitSensitivity < 0.0f) {
+    if (!math::is_finite(config.orbitSensitivity) || config.orbitSensitivity < 0.0f) {
         throw invalid_argument("TurntableCameraController orbit sensitivity must be finite and non-negative.");
     }
 
-    if (!std::isfinite(config.dollySensitivity) || config.dollySensitivity < 0.0f) {
+    if (!math::is_finite(config.dollySensitivity) || config.dollySensitivity < 0.0f) {
         throw invalid_argument("TurntableCameraController dolly sensitivity must be finite and non-negative.");
     }
 
-    if (!std::isfinite(config.scrollDollySensitivity) || config.scrollDollySensitivity < 0.0f) {
+    if (!math::is_finite(config.scrollDollySensitivity) || config.scrollDollySensitivity < 0.0f) {
 
         throw invalid_argument(
             "TurntableCameraController scroll dolly sensitivity must be finite and non-negative.");
     }
 
-    if (!std::isfinite(config.dragThreshold) || config.dragThreshold < 0.0f) {
+    if (!math::is_finite(config.dragThreshold) || config.dragThreshold < 0.0f) {
         throw invalid_argument("TurntableCameraController drag threshold must be finite and non-negative.");
     }
 }

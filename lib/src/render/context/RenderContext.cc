@@ -62,7 +62,7 @@ void RenderContext::startGIFRecording(const filesystem::path& path, uvec2 fitIns
 
         // nice! https://math.stackexchange.com/questions/1169409/formula-to-best-fit-a-rectangle-inside-another-by-scaling
         auto fbSize = framebufferSize();
-        auto scale = std::min(float(fitInside.x) / float(fbSize.x), float(fitInside.y) / float(fbSize.y));
+        auto scale = math::min(float(fitInside.x) / float(fbSize.x), float(fitInside.y) / float(fbSize.y));
         _gifRecordingWidth = (unsigned) math::round(float(fbSize.x) * scale);
         _gifRecordingHeight = (unsigned) math::round(float(fbSize.y) * scale);
 

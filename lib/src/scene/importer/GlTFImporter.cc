@@ -872,9 +872,9 @@ Color PhongSpecularFromGlTFMaterial(const fastgltf::Material& material) {
     // KHR_materials_specular clamps IOR-derived F0 * specularColor
     // before applying the scalar specular strength.
     const vec3 specular {
-        std::clamp(baseF0 * specularColorFactor[0], 0.0f, 1.0f) * specularFactor,
-        std::clamp(baseF0 * specularColorFactor[1], 0.0f, 1.0f) * specularFactor,
-        std::clamp(baseF0 * specularColorFactor[2], 0.0f, 1.0f) * specularFactor,
+        math::clamp_01(baseF0 * specularColorFactor[0]) * specularFactor,
+        math::clamp_01(baseF0 * specularColorFactor[1]) * specularFactor,
+        math::clamp_01(baseF0 * specularColorFactor[2]) * specularFactor,
     };
 
     return Color(specular);

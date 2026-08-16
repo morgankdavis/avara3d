@@ -17,6 +17,7 @@
 #include <imgui/imgui.h>
 
 #include "a3d/Assert.h"
+#include "a3d/Math.h"
 #include "a3d/util/String.h"
 
 using namespace a3d::ui;
@@ -63,11 +64,11 @@ Panel::Panel(string_view id, const Options& options):
         throw invalid_argument("Panel id cannot be empty.");
     }
 
-    if (!std::isfinite(options.width) || options.width <= 0.0f) {
+    if (!a3d::math::is_finite(options.width) || options.width <= 0.0f) {
         throw invalid_argument("Panel width must be finite and greater than zero.");
     }
 
-    if (!std::isfinite(options.margin) || options.margin < 0.0f) {
+    if (!a3d::math::is_finite(options.margin) || options.margin < 0.0f) {
         throw invalid_argument("Panel margin must be finite and non-negative.");
     }
 
@@ -137,14 +138,14 @@ void Panel::section(string_view text, SectionConfig config, Padding padding) {
 
     const string sectionText = config.uppercase ? util::string::Uppercase(text) : string {text};
     const ImVec2 position = ImGui::GetCursorScreenPos();
-    const float  contentWidth = std::max(1.0f, width - padding.left - padding.right);
+    const float  contentWidth = a3d::math::max(1.0f, width - padding.left - padding.right);
     const ImVec2 contentPosition {
         position.x + padding.left,
         position.y + padding.top,
     };
     const ImVec2 textSize = ImGui::CalcTextSize(sectionText.c_str());
 
-    const float textHeight = std::max(textSize.y, ImGui::GetTextLineHeight());
+    const float textHeight = a3d::math::max(textSize.y, ImGui::GetTextLineHeight());
     const float lineSpace = config.line ? SECTION_LINE_GAP + 1.0f : 0.0f;
 
     const float height = padding.top + textHeight + lineSpace + padding.bottom;
@@ -180,7 +181,7 @@ void Panel::text(string_view text, Padding padding) {
 
     const string bodyText {text};
     const ImVec2 position = ImGui::GetCursorScreenPos();
-    const float  contentWidth = std::max(1.0f, width - padding.left - padding.right);
+    const float  contentWidth = a3d::math::max(1.0f, width - padding.left - padding.right);
     const ImVec2 contentPosition {
         position.x + padding.left,
         position.y + padding.top,
@@ -209,14 +210,14 @@ void Panel::value(string_view label, string_view value, Padding padding) {
     const string valueText {value};
 
     const ImVec2 position = ImGui::GetCursorScreenPos();
-    const float  contentWidth = std::max(1.0f, width - padding.left - padding.right);
+    const float  contentWidth = a3d::math::max(1.0f, width - padding.left - padding.right);
     const ImVec2 contentPosition {
         position.x + padding.left,
         position.y + padding.top,
     };
     const ImVec2 labelSize = ImGui::CalcTextSize(labelText.c_str());
     const ImVec2 valueSize = ImGui::CalcTextSize(valueText.c_str());
-    const float  textHeight = std::max(labelSize.y, valueSize.y);
+    const float  textHeight = a3d::math::max(labelSize.y, valueSize.y);
     const float  contentHeight = ImGui::GetTextLineHeight();
     const float  height = padding.top + contentHeight + padding.bottom;
 
@@ -240,7 +241,7 @@ void Panel::value(string_view label, string_view value, Padding padding) {
 
 void Panel::spacer(float height) {
 
-    if (!std::isfinite(height) || height < 0.0f) {
+    if (!a3d::math::is_finite(height) || height < 0.0f) {
         throw invalid_argument("Panel spacer height must be finite and non-negative.");
     }
 
@@ -304,7 +305,7 @@ bool Panel::slider(string_view label,
         throw invalid_argument("Panel slider label cannot be empty.");
     }
 
-    if (!std::isfinite(minimum) || !std::isfinite(maximum) || minimum >= maximum) {
+    if (!a3d::math::is_finite(minimum) || !a3d::math::is_finite(maximum) || minimum >= maximum) {
         throw invalid_argument("Panel slider range must be finite and increasing.");
     }
 
@@ -319,7 +320,7 @@ bool Panel::slider(string_view label,
     const string formatText {formatString};
 
     const ImVec2 position = ImGui::GetCursorScreenPos();
-    const float  contentWidth = std::max(1.0f, width - padding.left - padding.right);
+    const float  contentWidth = a3d::math::max(1.0f, width - padding.left - padding.right);
     const ImVec2 contentPosition {
         position.x + padding.left,
         position.y + padding.top,
@@ -329,7 +330,7 @@ bool Panel::slider(string_view label,
     const float  height = padding.top + contentHeight + padding.bottom;
 
     const float sliderX = contentPosition.x + labelSize.x + VALUE_GAP;
-    const float sliderWidth = std::max(1.0f, contentPosition.x + contentWidth - sliderX);
+    const float sliderWidth = a3d::math::max(1.0f, contentPosition.x + contentWidth - sliderX);
 
     const float labelY = SnapPixel(contentPosition.y + (contentHeight - labelSize.y) * 0.5f);
 
@@ -378,11 +379,11 @@ bool Panel::slider(string_view label,
 #ifdef INVERT_SLIDER_TEXT
     constexpr float GRAB_PADDING = 2.0f;
     const float     sliderSize = (sliderMax.x - sliderMin.x) - GRAB_PADDING * 2.0f;
-    const float     grabSize = std::min(SLIDER_GRAB_WIDTH, sliderSize);
+    const float     grabSize = a3d::math::min(SLIDER_GRAB_WIDTH, sliderSize);
     const float     usableSize = sliderSize - grabSize;
     const float     usableMin = sliderMin.x + GRAB_PADDING + grabSize * 0.5f;
     const float     usableMax = sliderMax.x - GRAB_PADDING - grabSize * 0.5f;
-    const float     t = std::clamp((value - minimum) / (maximum - minimum), 0.0f, 1.0f);
+    const float     t = a3d::math::clamp_01((value - minimum) / (maximum - minimum));
     const float     grabPosition = usableMin + (usableMax - usableMin) * t;
 
     const ImVec2 grabMin {
@@ -449,7 +450,7 @@ bool Panel::slider(string_view label,
     const string formatText {formatString};
 
     const ImVec2 position = ImGui::GetCursorScreenPos();
-    const float  contentWidth = std::max(1.0f, width - padding.left - padding.right);
+    const float  contentWidth = a3d::math::max(1.0f, width - padding.left - padding.right);
     const ImVec2 contentPosition {
         position.x + padding.left,
         position.y + padding.top,
@@ -459,7 +460,7 @@ bool Panel::slider(string_view label,
     const float  height = padding.top + contentHeight + padding.bottom;
 
     const float sliderX = contentPosition.x + labelSize.x + VALUE_GAP;
-    const float sliderWidth = std::max(1.0f, contentPosition.x + contentWidth - sliderX);
+    const float sliderWidth = a3d::math::max(1.0f, contentPosition.x + contentWidth - sliderX);
 
     const float labelY = SnapPixel(contentPosition.y + (contentHeight - labelSize.y) * 0.5f);
 
@@ -508,12 +509,12 @@ bool Panel::slider(string_view label,
 #ifdef INVERT_SLIDER_TEXT
     constexpr float GRAB_PADDING = 2.0f;
     const float     sliderSize = (sliderMax.x - sliderMin.x) - GRAB_PADDING * 2.0f;
-    const float     grabSize = std::min(SLIDER_GRAB_WIDTH, sliderSize);
+    const float     grabSize = a3d::math::min(SLIDER_GRAB_WIDTH, sliderSize);
     const float     usableSize = sliderSize - grabSize;
     const float     usableMin = sliderMin.x + GRAB_PADDING + grabSize * 0.5f;
     const float     usableMax = sliderMax.x - GRAB_PADDING - grabSize * 0.5f;
-    const float     t =
-        std::clamp(static_cast<float>(value - minimum) / static_cast<float>(maximum - minimum), 0.0f, 1.0f);
+    const float t = a3d::math::clamp_01(static_cast<float>(value - minimum)
+                                        / static_cast<float>(maximum - minimum));
     const float grabPosition = usableMin + (usableMax - usableMin) * t;
 
     const ImVec2 grabMin {
@@ -569,7 +570,7 @@ bool Panel::toggle(string_view label, bool& value, Padding padding) {
 
     const string toggleLabel {label};
     const ImVec2 position = ImGui::GetCursorScreenPos();
-    const float  contentWidth = std::max(1.0f, width - padding.left - padding.right);
+    const float  contentWidth = a3d::math::max(1.0f, width - padding.left - padding.right);
     const ImVec2 contentPosition {
         position.x + padding.left,
         position.y + padding.top,
@@ -610,7 +611,7 @@ bool Panel::toggle(string_view label, bool& value, Padding padding) {
         SnapPixel(contentPosition.y + (contentHeight - labelSize.y) * 0.5f),
     };
 
-    const float boxSize = std::min(TOGGLE_BOX_SIZE, contentHeight);
+    const float boxSize = a3d::math::min(TOGGLE_BOX_SIZE, contentHeight);
 
     const ImVec2 boxMin {
         contentPosition.x + contentWidth - boxSize,
@@ -624,7 +625,7 @@ bool Panel::toggle(string_view label, bool& value, Padding padding) {
 
     const ImVec2 shadowOffset {SHADOW_OFFSET, SHADOW_OFFSET};
 
-    const float labelClipMaximumX = std::max(contentPosition.x, boxMin.x - TOGGLE_LABEL_GAP);
+    const float labelClipMaximumX = a3d::math::max(contentPosition.x, boxMin.x - TOGGLE_LABEL_GAP);
 
     drawList->PushClipRect(contentPosition, ImVec2(labelClipMaximumX, contentPosition.y + contentHeight), true);
     DrawShadowedText(labelPosition, toggleLabel, IM_COL32(255, 255, 255, 255));
@@ -720,7 +721,7 @@ bool Panel::drawButton(string_view label, bool selected, Padding padding) {
 
     const string buttonLabel {label};
     const ImVec2 position = ImGui::GetCursorScreenPos();
-    const float  contentWidth = std::max(1.0f, width - padding.left - padding.right);
+    const float  contentWidth = a3d::math::max(1.0f, width - padding.left - padding.right);
     const ImVec2 contentPosition {
         position.x + padding.left,
         position.y + padding.top,
@@ -763,7 +764,7 @@ bool Panel::drawButton(string_view label, bool selected, Padding padding) {
 
 float SnapPixel(float value) {
 
-    return std::floor(value + 0.5f);
+    return a3d::math::floor(value + 0.5f);
 }
 
 void DrawShadowedText(const ImVec2& position, const string& text, ImU32 color, float wrapWidth) {

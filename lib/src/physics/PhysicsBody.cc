@@ -152,7 +152,7 @@ void PhysicsBody::mass(float mass) {
         throw logic_error("Mass may only be changed on dynamic PhysicsBody objects.");
     }
 
-    if (!isfinite(mass) || mass <= 0.0f) {
+    if (!math::is_finite(mass) || mass <= 0.0f) {
         throw invalid_argument("PhysicsBody mass must be positive and finite.");
     }
 

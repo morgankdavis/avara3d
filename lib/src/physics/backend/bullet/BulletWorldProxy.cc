@@ -182,7 +182,7 @@ BulletWorldProxy::BulletWorldProxy(PhysicsWorld& world):
     _btBroadphase = std::make_unique<btDbvtBroadphase>();
 
     // ! important: use the pool-size ctor so the pool owns its internal solvers
-    const int poolSize = std::max(1, _btScheduler->getNumThreads() * 2);
+    const int poolSize = math::max(1, _btScheduler->getNumThreads() * 2);
     _btSolverPool = std::make_unique<btConstraintSolverPoolMt>(poolSize);
 
     if constexpr (!A3D_USE_MT_CONTACT_BATCHING) {

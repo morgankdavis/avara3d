@@ -213,7 +213,7 @@ void TransientNodeRegistry::validatePolicy(const Policy& policy) {
             throw invalid_argument("TransientNodeRegistry distance-limit center must be finite.");
         }
 
-        if (!isfinite(policy.distanceLimit->radius) || policy.distanceLimit->radius < 0.0f) {
+        if (!math::is_finite(policy.distanceLimit->radius) || policy.distanceLimit->radius < 0.0f) {
             throw invalid_argument(
                 "TransientNodeRegistry distance-limit radius must be finite and non-negative.");
         }
@@ -254,7 +254,7 @@ void TransientNodeRegistry::validateStepInfo(const Scene::StepInfo& info) {
 }
 
 bool TransientNodeRegistry::isFinite(const math::vec3& value) {
-    return isfinite(value.x) && isfinite(value.y) && isfinite(value.z);
+    return math::is_finite(value.x) && math::is_finite(value.y) && math::is_finite(value.z);
 }
 
 void TransientNodeRegistry::detachNodes(const vector<shared_ptr<Node>>& nodes) {

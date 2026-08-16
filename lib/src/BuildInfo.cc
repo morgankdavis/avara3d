@@ -15,6 +15,7 @@
 #include <magic_enum/magic_enum.hpp>
 
 #include "BuildInfo.cmake.h"
+#include "a3d/Math.h"
 
 using namespace a3d;
 using namespace std;
@@ -94,7 +95,7 @@ BuildInfo::BuildInfo() {
     sscanf(A3D_BUILD_TIME, "%d-%d-%dT%d:%d:%dZ", &y, &M, &d, &h, &m, &s);
     _time = {};
     _time.tm_year = y - 1900;
-    _time.tm_mon = std::max(0, M - 1);
+    _time.tm_mon = math::max(0, M - 1);
     _time.tm_mday = d;
     _time.tm_hour = h;
     _time.tm_min = m;

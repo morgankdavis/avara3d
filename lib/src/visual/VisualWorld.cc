@@ -165,13 +165,13 @@ const optional<Fog>& VisualWorld::fog() const {
 void VisualWorld::fog(const optional<Fog>& fog) {
 
     if (fog) {
-        if (!isfinite(fog->startDistance) || fog->startDistance < 0.0f) {
+        if (!math::is_finite(fog->startDistance) || fog->startDistance < 0.0f) {
             throw invalid_argument("Fog start distance must be finite and non-negative.");
         }
-        if (!isfinite(fog->endDistance) || fog->endDistance <= fog->startDistance) {
+        if (!math::is_finite(fog->endDistance) || fog->endDistance <= fog->startDistance) {
             throw invalid_argument("Fog end distance must be finite and greater than fog start distance.");
         }
-        if (!isfinite(fog->transitionExponent) || fog->transitionExponent < 0.0f) {
+        if (!math::is_finite(fog->transitionExponent) || fog->transitionExponent < 0.0f) {
             throw invalid_argument("Fog transition exponent must be finite and non-negative.");
         }
     }
@@ -185,13 +185,13 @@ const optional<AtmosphericHaze>& VisualWorld::atmosphericHaze() const {
 void VisualWorld::atmosphericHaze(const optional<AtmosphericHaze>& haze) {
 
     if (haze) {
-        if (!isfinite(haze->baseHeight)) {
+        if (!math::is_finite(haze->baseHeight)) {
             throw invalid_argument("AtmosphericHaze base height must be finite.");
         }
-        if (!isfinite(haze->density) || haze->density < 0.0f) {
+        if (!math::is_finite(haze->density) || haze->density < 0.0f) {
             throw invalid_argument("AtmosphericHaze density must be finite and non-negative.");
         }
-        if (!isfinite(haze->heightFalloff) || haze->heightFalloff <= 0.0f) {
+        if (!math::is_finite(haze->heightFalloff) || haze->heightFalloff <= 0.0f) {
             throw invalid_argument("AtmosphericHaze height falloff must be finite and greater than zero.");
         }
     }
@@ -206,20 +206,20 @@ void VisualWorld::infiniteGround(const optional<InfiniteGround>& ground) {
 
     if (ground) {
 
-        if (!isfinite(ground->height)) {
+        if (!math::is_finite(ground->height)) {
             throw invalid_argument("InfiniteGround height must be finite.");
         }
 
         auto validateGrid = [](const InfiniteGround::Grid& grid, const char* name) {
-            if (!isfinite(grid.spacing) || grid.spacing <= 0.0f) {
+            if (!math::is_finite(grid.spacing) || grid.spacing <= 0.0f) {
                 throw invalid_argument(
                     format("InfiniteGround {} grid spacing must be finite and greater than zero.", name));
             }
-            if (!isfinite(grid.lineWidthPixels) || grid.lineWidthPixels <= 0.0f) {
+            if (!math::is_finite(grid.lineWidthPixels) || grid.lineWidthPixels <= 0.0f) {
                 throw invalid_argument(
                     format("InfiniteGround {} grid line width must be finite and greater than zero.", name));
             }
-            if (!isfinite(grid.reliefStrength)) {
+            if (!math::is_finite(grid.reliefStrength)) {
                 throw invalid_argument(format("InfiniteGround {} grid relief strength must be finite.", name));
             }
         };
@@ -236,10 +236,10 @@ void VisualWorld::infiniteGround(const optional<InfiniteGround>& ground) {
 
             const auto& curvature = *ground->curvature;
 
-            if (!isfinite(curvature.center.x) || !isfinite(curvature.center.y)) {
+            if (!math::is_finite(curvature.center.x) || !math::is_finite(curvature.center.y)) {
                 throw invalid_argument("InfiniteGround curvature center must be finite.");
             }
-            if (!isfinite(curvature.radius) || curvature.radius <= 0.0f) {
+            if (!math::is_finite(curvature.radius) || curvature.radius <= 0.0f) {
                 throw invalid_argument("InfiniteGround curvature radius must be finite and greater than zero.");
             }
         }
@@ -248,14 +248,14 @@ void VisualWorld::infiniteGround(const optional<InfiniteGround>& ground) {
 
             const auto& fade = *ground->radialFade;
 
-            if (!isfinite(fade.center.x) || !isfinite(fade.center.y)) {
+            if (!math::is_finite(fade.center.x) || !math::is_finite(fade.center.y)) {
                 throw invalid_argument("InfiniteGround radial fade center must be finite.");
             }
-            if (!isfinite(fade.startDistance) || fade.startDistance < 0.0f) {
+            if (!math::is_finite(fade.startDistance) || fade.startDistance < 0.0f) {
                 throw invalid_argument(
                     "InfiniteGround radial fade start distance must be finite and non-negative.");
             }
-            if (!isfinite(fade.endDistance) || fade.endDistance <= fade.startDistance) {
+            if (!math::is_finite(fade.endDistance) || fade.endDistance <= fade.startDistance) {
                 throw invalid_argument(
                     "InfiniteGround radial fade end distance must be finite and greater than start distance.");
             }
@@ -265,7 +265,7 @@ void VisualWorld::infiniteGround(const optional<InfiniteGround>& ground) {
 
             const auto& haze = *ground->horizonHaze;
 
-            if (!isfinite(haze.angularWidthDegrees) || haze.angularWidthDegrees <= 0.0f
+            if (!math::is_finite(haze.angularWidthDegrees) || haze.angularWidthDegrees <= 0.0f
                 || haze.angularWidthDegrees > 90.0f) {
 
                 throw invalid_argument(
@@ -273,11 +273,11 @@ void VisualWorld::infiniteGround(const optional<InfiniteGround>& ground) {
             }
         }
 
-        if (!isfinite(ground->specularIntensity) || ground->specularIntensity < 0.0f) {
+        if (!math::is_finite(ground->specularIntensity) || ground->specularIntensity < 0.0f) {
             throw invalid_argument("InfiniteGround specular intensity must be finite and non-negative.");
         }
 
-        if (!isfinite(ground->specularExponent) || ground->specularExponent <= 0.0f) {
+        if (!math::is_finite(ground->specularExponent) || ground->specularExponent <= 0.0f) {
             throw invalid_argument("InfiniteGround specular exponent must be finite and greater than zero.");
         }
     }
@@ -361,7 +361,7 @@ vector<HitTestResult> VisualWorld::hitTest(const vec2& point) const {
 
 vector<HitTestResult> VisualWorld::hitTest(const vec2& point, const HitTestOptions& options) const {
 
-    if (!isfinite(point.x) || !isfinite(point.y)) {
+    if (!math::is_finite(point.x) || !math::is_finite(point.y)) {
         throw invalid_argument("Hit-test point must be finite.");
     }
 
@@ -757,7 +757,7 @@ optional<HitTestCandidate> IntersectNodeMesh(const shared_ptr<Node>& node,
     const mat3  linearTransform {modelTransform};
     const float linearDeterminant = determinant(linearTransform);
 
-    if (!isfinite(linearDeterminant) || linearDeterminant == 0.0f) {
+    if (!math::is_finite(linearDeterminant) || linearDeterminant == 0.0f) {
         return {};
     }
 
