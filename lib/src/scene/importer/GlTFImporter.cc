@@ -50,15 +50,15 @@ using namespace std;
 
 /// Private Static Non-Member Prototypes ///
 
-static fastgltf::Options      GlTFOptionsFromImportOptions(Scene::ImportOptions options);
-static std::span<const byte>  BytesFromDataSource(const fastgltf::DataSource& src);
-static std::span<const byte>  BytesFromBufferView(const fastgltf::Asset& asset, size_t bufferViewIndex);
-static mat4                   TransformFromGlTFNode(fastgltf::Node& node);
-static Color ColorFromGlTFColorArray(const fastgltf::math::nvec3& v);
-static Color ColorFromGlTFColorArray(const fastgltf::math::nvec4& v);
-static void                   ReadIndicesU32(const fastgltf::Asset&    asset,
-                                             const fastgltf::Accessor& idxAccessor,
-                                             vector<uint32_t>&         out);
+static fastgltf::Options     GlTFOptionsFromImportOptions(Scene::ImportOptions options);
+static std::span<const byte> BytesFromDataSource(const fastgltf::DataSource& src);
+static std::span<const byte> BytesFromBufferView(const fastgltf::Asset& asset, size_t bufferViewIndex);
+static mat4                  TransformFromGlTFNode(fastgltf::Node& node);
+static Color                 ColorFromGlTFColorArray(const fastgltf::math::nvec3& v);
+static Color                 ColorFromGlTFColorArray(const fastgltf::math::nvec4& v);
+static void                  ReadIndicesU32(const fastgltf::Asset&    asset,
+                                            const fastgltf::Accessor& idxAccessor,
+                                            vector<uint32_t>&         out);
 
 /// Internal Lifecycle Functions ///
 
@@ -179,7 +179,8 @@ bool GlTFImporter::parse() {
         //log::i()("Parsing glTF: '{}'...", _path.string());
 
         auto extensions = Extensions::KHR_lights_punctual | Extensions::KHR_materials_specular
-                          | Extensions::KHR_materials_anisotropy | Extensions::KHR_texture_transform;
+                          | Extensions::KHR_materials_anisotropy | Extensions::KHR_texture_transform
+                          | Extensions::EXT_texture_webp;
         auto parser = Parser(extensions);
 
 //		auto gltfFile = MappedGltfFile::FromPath(_path);
@@ -651,7 +652,13 @@ shared_ptr<a3d::Sampler> GlTFImporter::samplerFromGlTFTexture(fastgltf::Asset&  
 
 shared_ptr<a3d::Image> GlTFImporter::imageFromGlTFTexture(fastgltf::Asset& asset, fastgltf::Texture& texture) {
 
-    if (auto imageIndex = texture.imageIndex) {
+    auto imageIndex = texture.webpImageIndex ? texture.webpImageIndex : texture.imageIndex;
+
+    if (!imageIndex) {
+        return nullptr;
+    }
+
+    if (imageIndex) {
 
         if (_images.find(*imageIndex) == _images.end()) {
 

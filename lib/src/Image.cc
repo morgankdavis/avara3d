@@ -8,12 +8,14 @@
 
 #include "a3d/Image.h"
 
+#include <cstdint>
 #include <format>
 #include <stdexcept>
 #include <utility>
 
 #include <stb/image.h>
 #include <stb/image_write.h>
+#include <webp/decode.h>
 
 #include "a3d/Buffer.h"
 #include "a3d/log/Log.h"
@@ -163,41 +165,77 @@ bool Image::writePNG(const filesystem::path& path) const {
 
 void Image::loadBuffer(const Buffer& inBuf, bool flipVertical, bool flipHorizontal) {
 
-    int width;
-    int height;
-    int bytesPerPixel;
-
-    stbi_uc* imgData = stbi_load_from_memory((unsigned char*) inBuf.data(), (int) inBuf.size(), &width, &height,
-                                             &bytesPerPixel, STBI_rgb_alpha);
-
-    // force bytesPerPixel = 4 since we told STB to pad it
+    // force to RGBA / 4 bytes per pixel
     // (STB fills this with the ACTUAL BPP in the file, but pads to what we ask)
-    bytesPerPixel = 4;
+    constexpr unsigned BYTES_PER_PIXEL = 4;
 
-    if (!imgData) {
-        const char* failureReason = stbi_failure_reason();
+    const auto* encodedData = reinterpret_cast<const uint8_t*>(inBuf.data());
+    const auto  encodedSize = inBuf.size();
 
-        if (failureReason) {
-            throw runtime_error(format("Image decode failed: {}", failureReason));
+    int webpWidth = 0;
+    int webpHeight = 0;
+
+    if (WebPGetInfo(encodedData, encodedSize, &webpWidth, &webpHeight)) {
+
+        const size_t rowBytes = static_cast<size_t>(webpWidth) * BYTES_PER_PIXEL;
+        const size_t bufferSize = rowBytes * static_cast<size_t>(webpHeight);
+
+        auto buffer = make_unique<Buffer>(bufferSize);
+
+        auto* decodedData =
+            WebPDecodeRGBAInto(encodedData, encodedSize, reinterpret_cast<uint8_t*>(buffer->data()), bufferSize,
+                               static_cast<int>(rowBytes));
+
+        if (!decodedData) {
+            throw runtime_error("WebP decode failed.");
         }
 
-        throw runtime_error("Image decode failed.");
+        _buffer = std::move(buffer);
+        _width = static_cast<unsigned>(webpWidth);
+        _height = static_cast<unsigned>(webpHeight);
+        _bytesPerPixel = BYTES_PER_PIXEL;
+
+        log::d()("Loaded WebP image data. width: {}, height: {}, bytesPerPixel: {}", _width, _height,
+                 _bytesPerPixel);
     }
+    else {
 
-    _buffer = make_unique<Buffer>(reinterpret_cast<const std::byte*>(imgData),
-                                  static_cast<size_t>(width * height * bytesPerPixel));
+        int width;
+        int height;
+        int bytesPerPixel;
 
-    stbi_image_free(imgData);
+        stbi_uc* imgData = stbi_load_from_memory(reinterpret_cast<const stbi_uc*>(inBuf.data()),
+                                                 static_cast<int>(inBuf.size()), &width, &height,
+                                                 &bytesPerPixel, STBI_rgb_alpha);
 
-    log::d()("Loaded image data. width: {}, height: {}, bytesPerPixel: {}", width, height, bytesPerPixel);
+        if (!imgData) {
+            const char* failureReason = stbi_failure_reason();
 
-    _width = width;
-    _height = height;
-    _bytesPerPixel = bytesPerPixel;
+            if (failureReason) {
+                throw runtime_error(format("Image decode failed: {}", failureReason));
+            }
+
+            throw runtime_error("Image decode failed.");
+        }
+
+        _buffer =
+            make_unique<Buffer>(reinterpret_cast<const std::byte*>(imgData),
+                                static_cast<size_t>(width) * static_cast<size_t>(height) * BYTES_PER_PIXEL);
+
+        stbi_image_free(imgData);
+
+        _width = static_cast<unsigned>(width);
+        _height = static_cast<unsigned>(height);
+        _bytesPerPixel = BYTES_PER_PIXEL;
+
+        log::d()("Loaded image data. width: {}, height: {}, bytesPerPixel: {}", _width, _height,
+                 _bytesPerPixel);
+    }
 
     if (flipVertical) {
         Image::flipVertical();
     }
+
     if (flipHorizontal) {
         Image::flipHorizontal();
     }

@@ -143,6 +143,35 @@ if(EMSCRIPTEN)
 	)
 endif()
 
+### libwebp ###
+
+set(WEBP_BUILD_ANIM_UTILS OFF CACHE BOOL "" FORCE)
+set(WEBP_BUILD_CWEBP OFF CACHE BOOL "" FORCE)
+set(WEBP_BUILD_DWEBP OFF CACHE BOOL "" FORCE)
+set(WEBP_BUILD_GIF2WEBP OFF CACHE BOOL "" FORCE)
+set(WEBP_BUILD_IMG2WEBP OFF CACHE BOOL "" FORCE)
+set(WEBP_BUILD_VWEBP OFF CACHE BOOL "" FORCE)
+set(WEBP_BUILD_WEBPINFO OFF CACHE BOOL "" FORCE)
+set(WEBP_BUILD_LIBWEBPMUX OFF CACHE BOOL "" FORCE)
+set(WEBP_BUILD_WEBPMUX OFF CACHE BOOL "" FORCE)
+set(WEBP_BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
+set(WEBP_BUILD_WEBP_JS OFF CACHE BOOL "" FORCE)
+set(WEBP_BUILD_FUZZTEST OFF CACHE BOOL "" FORCE)
+
+# We only use simple synchronous image decoding.
+set(WEBP_USE_THREAD OFF CACHE BOOL "" FORCE)
+
+add_subdirectory(libwebp-1.6.0 EXCLUDE_FROM_ALL)
+
+add_library(a3d_external_webp INTERFACE)
+add_library(a3d::webp ALIAS a3d_external_webp)
+
+target_link_libraries(a3d_external_webp INTERFACE
+		webpdecoder)
+
+target_include_directories(a3d_external_webp SYSTEM INTERFACE
+		"$<BUILD_INTERFACE:${A3D_EXTERNAL_ROOT}/libwebp-1.6.0/src>")
+
 ### magic_enum ###
 
 add_library(a3d_external_magic_enum INTERFACE)

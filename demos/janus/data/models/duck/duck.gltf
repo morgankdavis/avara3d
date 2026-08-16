@@ -1,12 +1,16 @@
 {
-	"asset":{
-		"generator":"Khronos glTF Blender I/O v4.0.44",
-		"version":"2.0"
-	},
-	"extensionsUsed":[
-		"KHR_materials_specular",
-		"KHR_materials_ior"
-	],
+    "extensionsRequired": [
+        "EXT_texture_webp"
+    ],
+    "asset": {
+        "generator": "Khronos glTF Blender I/O v4.0.44",
+        "version": "2.0"
+    },
+    "extensionsUsed": [
+        "EXT_texture_webp",
+        "KHR_materials_specular",
+        "KHR_materials_ior"
+    ],
 	"scene":0,
 	"scenes":[
 		{
@@ -70,16 +74,20 @@
 		}
 	],
 	"textures":[
-		{
-			"sampler":0,
-			"source":0
-		}
+        {
+            "sampler": 0,
+            "extensions": {
+                "EXT_texture_webp": {
+                    "source": 0
+                }
+            }
+        }
 	],
 	"images":[
 		{
-			"mimeType":"image/png",
-			"name":"duck_diffuse",
-			"uri":"textures/duck_diffuse.png"
+			"mimeType":"image/webp",
+			"name":"diffuse",
+			"uri":"textures/diff.webp"
 		}
 	],
 	"accessors":[

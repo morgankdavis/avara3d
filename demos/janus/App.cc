@@ -102,7 +102,7 @@ std::unique_ptr<Scene> App::init() {
         auto visualWorld = make_unique<VisualWorld>(*_window);
 
         visualWorld->background(Background {
-            make_shared<Texture>(std::move(util::fs::CubeImageAt("nebula.png")))});
+            make_shared<Texture>(std::move(util::fs::CubeImageAt("nebula.webp")))});
 
         //visualWorld->fog(Fog {.color = Color::Black(), .startDistance = 30.0f, .endDistance = 150.0f});
 
@@ -1035,12 +1035,12 @@ shared_ptr<Node> MakeSimulationRoot() {
         node->name("Janus");
         node->position({-1.5f, 0.0f, 0.0f});
 
-        auto body = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
-        body->mass(10.0f);
-        body->friction(0.6f);
-        body->restitution(0.15f);
-        body->linearDamping(0.03f);
-        body->angularDamping(0.05f);
+        auto body = make_unique<PhysicsBody>(PhysicsBody::Type::Static, shape);
+        // body->mass(10.0f);
+        // body->friction(0.6f);
+        // body->restitution(0.15f);
+        // body->linearDamping(0.03f);
+        // body->angularDamping(0.05f);
         node->physicsBody(std::move(body));
 
         root->addChild(node);
@@ -1102,11 +1102,11 @@ shared_ptr<Node> MakeSimulationRoot() {
         node->rotation({0.0f, 1.0f, 0.0f}, radians(180.0f));
         node->position({0.0f, 0.0f, 0.0f});
 
-        auto body = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
-        body->mass(1000.0f);
-        body->friction(0.65f);
-        body->rollingFriction(0.02f);
-        body->restitution(0.03f);
+        auto body = make_unique<PhysicsBody>(PhysicsBody::Type::Static, shape);
+        // body->mass(1000.0f);
+        // body->friction(0.65f);
+        // body->rollingFriction(0.02f);
+        // body->restitution(0.03f);
         node->physicsBody(std::move(body));
 
         root->addChild(node);

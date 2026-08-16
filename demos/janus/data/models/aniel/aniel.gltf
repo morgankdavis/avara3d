@@ -1,4 +1,10 @@
 {
+    "extensionsUsed": [
+        "EXT_texture_webp"
+    ],
+    "extensionsRequired": [
+        "EXT_texture_webp"
+    ],
 	"asset":{
 		"generator":"Khronos glTF Blender I/O v5.1.20",
 		"version":"2.0"
@@ -107,62 +113,86 @@
 			]
 		}
 	],
-	"textures":[
-		{
-			"sampler":0,
-			"source":0
-		},
-		{
-			"sampler":0,
-			"source":1
-		},
-		{
-			"sampler":0,
-			"source":2
-		},
-		{
-			"sampler":0,
-			"source":3
-		},
-		{
-			"sampler":0,
-			"source":4
-		},
-		{
-			"sampler":0,
-			"source":5
-		}
-	],
+    "textures": [
+        {
+            "sampler": 0,
+            "extensions": {
+                "EXT_texture_webp": {
+                    "source": 0
+                }
+            }
+        },
+        {
+            "sampler": 0,
+            "extensions": {
+                "EXT_texture_webp": {
+                    "source": 1
+                }
+            }
+        },
+        {
+            "sampler": 0,
+            "extensions": {
+                "EXT_texture_webp": {
+                    "source": 2
+                }
+            }
+        },
+        {
+            "sampler": 0,
+            "extensions": {
+                "EXT_texture_webp": {
+                    "source": 3
+                }
+            }
+        },
+        {
+            "sampler": 0,
+            "extensions": {
+                "EXT_texture_webp": {
+                    "source": 4
+                }
+            }
+        },
+        {
+            "sampler": 0,
+            "extensions": {
+                "EXT_texture_webp": {
+                    "source": 5
+                }
+            }
+        }
+    ],
 	"images":[
 		{
-			"mimeType":"image/png",
+			"mimeType":"image/webp",
 			"name":"wings_norm",
-			"uri":"textures/wings_norm.png"
+			"uri":"textures/wings_norm.webp"
 		},
 		{
-			"mimeType":"image/png",
+			"mimeType":"image/webp",
 			"name":"wings_diff",
-			"uri":"textures/wings_diff.png"
+			"uri":"textures/wings_diff.webp"
 		},
 		{
-			"mimeType":"image/png",
+			"mimeType":"image/webp",
 			"name":"body_norm",
-			"uri":"textures/body_norm.png"
+			"uri":"textures/body_norm.webp"
 		},
 		{
-			"mimeType":"image/png",
+			"mimeType":"image/webp",
 			"name":"body_diff",
-			"uri":"textures/body_diff.png"
+			"uri":"textures/body_diff.webp"
 		},
 		{
-			"mimeType":"image/png",
+			"mimeType":"image/webp",
 			"name":"hair_norm",
-			"uri":"textures/hair_norm.png"
+			"uri":"textures/hair_norm.webp"
 		},
 		{
-			"mimeType":"image/png",
+			"mimeType":"image/webp",
 			"name":"hair_diff",
-			"uri":"textures/hair_diff.png"
+			"uri":"textures/hair_diff.webp"
 		}
 	],
 	"accessors":[

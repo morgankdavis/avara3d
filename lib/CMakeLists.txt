@@ -60,7 +60,8 @@ target_link_libraries(avara3d
 		a3d::imgui
 		a3d::magic_enum
 		a3d::stb
-		a3d::vhacd)
+		a3d::vhacd
+		a3d::webp)
 
 ### link a3d to platform-specific libraries ###
 
