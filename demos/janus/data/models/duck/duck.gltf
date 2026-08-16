@@ -1,8 +1,12 @@
 {
 	"asset":{
-		"generator":"Khronos glTF Blender I/O v5.1.20",
+		"generator":"Khronos glTF Blender I/O v4.0.44",
 		"version":"2.0"
 	},
+	"extensionsUsed":[
+		"KHR_materials_specular",
+		"KHR_materials_ior"
+	],
 	"scene":0,
 	"scenes":[
 		{
@@ -15,25 +19,43 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"model_0"
+			"name":"duck",
+			"rotation":[
+				0.70710688829422,
+				0,
+				0,
+				0.7071066498756409
+			]
 		}
 	],
 	"materials":[
 		{
 			"doubleSided":true,
-			"name":"Material.001",
+			"extensions":{
+				"KHR_materials_specular":{
+					"specularColorFactor":[
+						2.0,
+						2.0,
+						2.0
+					]
+				},
+				"KHR_materials_ior":{
+					"ior":1.4500000476837158
+				}
+			},
+			"name":"Material",
 			"pbrMetallicRoughness":{
 				"baseColorTexture":{
 					"index":0
 				},
 				"metallicFactor":0,
-				"roughnessFactor":0.5
+				"roughnessFactor":0.7171573042869568
 			}
 		}
 	],
 	"meshes":[
 		{
-			"name":"model_0",
+			"name":"duck",
 			"primitives":[
 				{
 					"attributes":{
@@ -55,70 +77,70 @@
 	],
 	"images":[
 		{
-			"mimeType":"image/jpeg",
-			"name":"texture",
-			"uri":"texture.jpg"
+			"mimeType":"image/png",
+			"name":"duck_diffuse",
+			"uri":"textures/duck_diffuse.png"
 		}
 	],
 	"accessors":[
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":33032,
+			"count":1938,
 			"max":[
-				2.864253520965576,
-				8.672416687011719,
-				2.969129800796509
+				1.565721035003662,
+				2.2088820934295654,
+				1.8621690273284912
 			],
 			"min":[
-				-2.8584682941436768,
-				0.0010717795230448246,
-				-2.9690675735473633
+				-1.5657180547714233,
+				-1.169042944908142,
+				-2.0973880290985107
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":33032,
+			"count":1938,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":33032,
+			"count":1938,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":154323,
+			"count":4572,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":396384,
+			"byteLength":23256,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":396384,
-			"byteOffset":396384,
+			"byteLength":23256,
+			"byteOffset":23256,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":264256,
-			"byteOffset":792768,
+			"byteLength":15504,
+			"byteOffset":46512,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":308646,
-			"byteOffset":1057024,
+			"byteLength":9144,
+			"byteOffset":62016,
 			"target":34963
 		}
 	],
@@ -130,8 +152,8 @@
 	],
 	"buffers":[
 		{
-			"byteLength":1365672,
-			"uri":"janus_lod.bin"
+			"byteLength":71160,
+			"uri":"duck.bin"
 		}
 	]
 }

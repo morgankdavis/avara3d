@@ -75,7 +75,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Untitled.005",
+			"name":"aniel",
 			"primitives":[
 				{
 					"attributes":{
@@ -136,28 +136,28 @@
 	"images":[
 		{
 			"mimeType":"image/png",
-			"name":"wings_new_1NormalsMapFlipped",
-			"uri":"textures/wings_new_1NormalsMapFlipped.png"
+			"name":"wings_norm",
+			"uri":"textures/wings_norm.png"
 		},
 		{
 			"mimeType":"image/png",
-			"name":"wing_tiff",
-			"uri":"textures/wing_tiff.png"
+			"name":"wings_diff",
+			"uri":"textures/wings_diff.png"
 		},
 		{
 			"mimeType":"image/png",
-			"name":"aniol_0NormalsMapFliped",
-			"uri":"textures/aniol_0NormalsMapFliped.png"
+			"name":"body_norm",
+			"uri":"textures/body_norm.png"
 		},
 		{
 			"mimeType":"image/png",
-			"name":"aniol_diff",
-			"uri":"textures/aniol_diff.png"
+			"name":"body_diff",
+			"uri":"textures/body_diff.png"
 		},
 		{
 			"mimeType":"image/png",
-			"name":"hair_new_0NormalsMapFlipped",
-			"uri":"textures/hair_new_0NormalsMapFlipped.png"
+			"name":"hair_norm",
+			"uri":"textures/hair_norm.png"
 		},
 		{
 			"mimeType":"image/png",
@@ -352,7 +352,7 @@
 	"buffers":[
 		{
 			"byteLength":482808,
-			"uri":"aniel_lod.bin"
+			"uri":"aniel.bin"
 		}
 	]
 }

@@ -1,12 +1,8 @@
 {
 	"asset":{
-		"generator":"Khronos glTF Blender I/O v4.0.44",
+		"generator":"Khronos glTF Blender I/O v5.1.20",
 		"version":"2.0"
 	},
-	"extensionsUsed":[
-		"KHR_materials_specular",
-		"KHR_materials_ior"
-	],
 	"scene":0,
 	"scenes":[
 		{
@@ -19,35 +15,25 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"banana_lod"
+			"name":"janus"
 		}
 	],
 	"materials":[
 		{
 			"doubleSided":true,
-			"extensions":{
-				"KHR_materials_specular":{
-					"specularTexture":{
-						"index":0
-					}
-				},
-				"KHR_materials_ior":{
-					"ior":1.4500000476837158
-				}
-			},
 			"name":"Material.001",
 			"pbrMetallicRoughness":{
 				"baseColorTexture":{
-					"index":1
+					"index":0
 				},
 				"metallicFactor":0,
-				"roughnessFactor":0.696426510810852
+				"roughnessFactor":0.5
 			}
 		}
 	],
 	"meshes":[
 		{
-			"name":"banana_lod",
+			"name":"janus",
 			"primitives":[
 				{
 					"attributes":{
@@ -65,83 +51,74 @@
 		{
 			"sampler":0,
 			"source":0
-		},
-		{
-			"sampler":0,
-			"source":1
 		}
 	],
 	"images":[
 		{
-			"mimeType":"image/png",
-			"name":"banana_spec",
-			"uri":"textures/banana_spec.png"
-		},
-		{
-			"mimeType":"image/png",
-			"name":"banana_diff",
-			"uri":"textures/banana_diff.png"
+			"mimeType":"image/jpeg",
+			"name":"texture",
+			"uri":"textures/texture.jpg"
 		}
 	],
 	"accessors":[
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":480,
+			"count":33098,
 			"max":[
-				0.5245100259780884,
-				0.10104499757289886,
-				0.22973500192165375
+				2.864253520965576,
+				8.672416687011719,
+				2.969129800796509
 			],
 			"min":[
-				-0.42954498529434204,
-				-0.07530999928712845,
-				-0.2997699975967407
+				-2.8584682941436768,
+				0.0010717795230448246,
+				-2.9690675735473633
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":480,
+			"count":33098,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":480,
+			"count":33098,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":828,
+			"count":154323,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":5760,
+			"byteLength":397176,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":5760,
-			"byteOffset":5760,
+			"byteLength":397176,
+			"byteOffset":397176,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":3840,
-			"byteOffset":11520,
+			"byteLength":264784,
+			"byteOffset":794352,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1656,
-			"byteOffset":15360,
+			"byteLength":308646,
+			"byteOffset":1059136,
 			"target":34963
 		}
 	],
@@ -153,8 +130,8 @@
 	],
 	"buffers":[
 		{
-			"byteLength":17016,
-			"uri":"banana_lod.bin"
+			"byteLength":1367784,
+			"uri":"janus.bin"
 		}
 	]
 }

@@ -1006,20 +1006,36 @@ shared_ptr<Node> MakeSimulationRoot() {
     // janus
 
     {
-        static auto mesh = [] {
+        static auto [mesh, shape] = [] {
             constexpr float HEIGHT = 1.0f;
-            auto            mesh = util::fs::MeshAt("janus_lod/janus_lod.gltf");
-            const float     scaleFactor = HEIGHT / mesh->localExtent().y;
-            mesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
-            return mesh;
+
+            auto        visMesh = util::fs::MeshAt("janus/janus.gltf");
+            static auto physMesh = util::fs::MeshAt("janus/phys.gltf", Mesh::ImportOptions::None);
+
+            const float scaleFactor = HEIGHT / visMesh->localExtent().y;
+            const auto  transform = math::scale(mat4(1.0f), vec3(scaleFactor));
+
+            visMesh->burnTransform(transform, true);
+            physMesh->burnTransform(transform, true);
+
+            auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, physMesh);
+
+            return std::pair {visMesh, shape};
         }();
+
+        // static auto mesh = [] {
+        //     constexpr float HEIGHT = 1.0f;
+        //     auto            mesh = util::fs::MeshAt("janus/janus.gltf");
+        //     const float     scaleFactor = HEIGHT / mesh->localExtent().y;
+        //     mesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
+        //     return mesh;
+        // }();
 
         auto node = Node::MeshNode(mesh);
         node->name("Janus");
         node->position({-1.5f, 0.0f, 0.0f});
 
-        static auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
-        auto        body = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
+        auto body = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
         body->mass(10.0f);
         body->friction(0.6f);
         body->restitution(0.15f);
@@ -1032,22 +1048,65 @@ shared_ptr<Node> MakeSimulationRoot() {
 
     // angel
 
+    // {
+    //     constexpr float HEIGHT = 2.0f;
+    //     static float    scaleFactor = 1.0f;
+    //     static auto     mesh = [] {
+    //         auto mesh = util::fs::MeshAt("aniel/aniel.gltf");
+    //         scaleFactor = HEIGHT / mesh->localExtent().y;
+    //         mesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
+    //         return mesh;
+    //     }();
+    //
+    //     static auto shape = [] {
+    //         auto physMesh = util::fs::MeshAt("aniel/phys.gltf", Mesh::ImportOptions::None);
+    //         physMesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
+    //         return make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, physMesh);
+    //     }();
+    //
+    //     A3D_ASSERT(shape);
+    //
+    //     auto node = Node::MeshNode(mesh);
+    //     node->name("Angel");
+    //     node->rotation({0.0f, 1.0f, 0.0f}, radians(180.0f));
+    //     node->position({0.0, 0.0f, 0.0f});
+    //
+    //     auto body = make_unique<PhysicsBody>(PhysicsBody::Type::Static, shape);
+    //     node->physicsBody(std::move(body));
+    //
+    //     root->addChild(node);
+    // }
+
+    // angel
     {
-        static auto mesh = [] {
+
+        static auto [mesh, shape] = [] {
             constexpr float HEIGHT = 2.0f;
-            auto            mesh = util::fs::MeshAt("aniel_lod/aniel_lod.gltf");
-            const float     scaleFactor = HEIGHT / mesh->localExtent().y;
-            mesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
-            return mesh;
+
+            auto        visMesh = util::fs::MeshAt("aniel/aniel.gltf");
+            static auto physMesh = util::fs::MeshAt("aniel/phys.gltf", Mesh::ImportOptions::None);
+
+            const float scaleFactor = HEIGHT / visMesh->localExtent().y;
+            const auto  transform = math::scale(mat4(1.0f), vec3(scaleFactor));
+
+            visMesh->burnTransform(transform, true);
+            physMesh->burnTransform(transform, true);
+
+            auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, physMesh);
+
+            return std::pair {visMesh, shape};
         }();
 
         auto node = Node::MeshNode(mesh);
         node->name("Angel");
         node->rotation({0.0f, 1.0f, 0.0f}, radians(180.0f));
-        node->position({0.0, 0.0f, 0.0f});
+        node->position({0.0f, 0.0f, 0.0f});
 
-        static auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, mesh);
-        auto        body = make_unique<PhysicsBody>(PhysicsBody::Type::Static, shape);
+        auto body = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
+        body->mass(1000.0f);
+        body->friction(0.65f);
+        body->rollingFriction(0.02f);
+        body->restitution(0.03f);
         node->physicsBody(std::move(body));
 
         root->addChild(node);
@@ -1223,7 +1282,7 @@ shared_ptr<Node> ThrowDuck(Node& parent, const vec3& location, const vec3& veloc
     constexpr float DUCK_HEIGHT = 0.5f;
 
     static auto mesh = [] {
-        auto mesh = util::fs::MeshAt("rubber_duck/rubber_duck.gltf");
+        auto mesh = util::fs::MeshAt("duck/duck.gltf");
 
         const float scaleFactor = DUCK_HEIGHT / mesh->localExtent().y;
         mesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
@@ -1292,7 +1351,10 @@ vector<shared_ptr<Node>> SpawnBoxs(Node&         parent,
 
     auto physicsShape = make_shared<BoxPhysicsShape>(boxSize.x, boxSize.y, boxSize.z);
 
-    auto mesh = Box::Mesh(boxSize.x, boxSize.y, boxSize.z);
+    static auto mesh = [boxSize] {
+        return Box::Mesh(boxSize.x, boxSize.y, boxSize.z);
+        ;
+    }();
 
     //auto material = Material::EmissionMaterial(color);
     auto material = make_shared<Material>(color, color, color);
