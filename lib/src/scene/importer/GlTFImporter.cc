@@ -186,7 +186,6 @@ bool GlTFImporter::parse() {
                           | Extensions::KHR_texture_transform | Extensions::EXT_texture_webp;
         auto parser = Parser(extensions);
 
-//		auto gltfFile = MappedGltfFile::FromPath(_path);
 #ifdef A3D_WEB
         auto gltfFile = GltfDataBuffer::FromPath(_path);
 #else
@@ -202,7 +201,7 @@ bool GlTFImporter::parse() {
         auto options = GlTFOptionsFromImportOptions(_options);
         auto asset = parser.loadGltf(gltfFile.get(), directory, options);
         if (asset.error() != fastgltf::Error::None) {
-            log::e()("Failed to load glTF {}", getErrorMessage(asset.error()));
+            log::e()("Failed to load glTF: {}", getErrorMessage(asset.error()));
             return false;
         }
 
