@@ -14,7 +14,7 @@
 #include "a3d/Math.h"
 #include "a3d/mesh/Line.h"
 #include "a3d/render/PipelineDesc.h"
-#include "a3d/visual/InfiniteGround.h"
+#include "a3d/visual/Ground.h"
 
 namespace a3d {
 
@@ -25,16 +25,16 @@ namespace a3d {
     /// Internal Types ///
 
     struct BackgroundPass {
-        PipelineId                pipelineId = INVALID_PIPELINE_ID;
-        PipelineDesc              desc       = {};
-        std::shared_ptr<Material> material   = nullptr; // gross
-        math::quat                orientation {1.0f};
+        PipelineId                pipelineId  = INVALID_PIPELINE_ID;
+        PipelineDesc              desc        = {};
+        std::shared_ptr<Material> material    = nullptr; // gross
+        math::quat                orientation = math::quat(1.0f);
     };
 
     struct GroundPass {
-        PipelineId                    pipelineId = INVALID_PIPELINE_ID;
-        PipelineDesc                  desc       = {};
-        std::optional<InfiniteGround> ground     = std::nullopt;
+        PipelineId            pipelineId = INVALID_PIPELINE_ID;
+        PipelineDesc          desc       = {};
+        std::optional<Ground> ground     = {};
     };
 
     struct LinesPass {
@@ -61,15 +61,15 @@ namespace a3d {
     };
 
     struct DrawPacket {
-        BackgroundPass        backgroundPass;
-        GroundPass            groundPass;
-        std::vector<DrawItem> mainPassItems;
+        BackgroundPass        backgroundPass = {};
+        GroundPass            groundPass     = {};
+        std::vector<DrawItem> mainPassItems  = {};
         // opaqueItems
         // maskItems
         // transparentItems
-        std::vector<DrawItem> wireframePassItems;
-        LinesPass             linesPass;
-        std::vector<Node*>    lightNodes;
+        std::vector<DrawItem> wireframePassItems = {};
+        LinesPass             linesPass          = {};
+        std::vector<Node*>    lightNodes         = {};
     };
 
 }

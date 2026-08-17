@@ -114,12 +114,9 @@ shared_ptr<Material> Mesh::firstMaterial() const {
 }
 
 shared_ptr<Material> Mesh::materialNamed(const string& name) const {
-    for (auto& material : _materials) {
-        auto matName = material->name();
-        if (matName) {
-            if (!((*matName) == name)) {
-                return material;
-            }
+    for (const auto& material : _materials) {
+        if (material->name() == name) {
+            return material;
         }
     }
     return nullptr;

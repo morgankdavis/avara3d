@@ -70,16 +70,17 @@ static optional<HitTestCandidate> IntersectNodeMesh(const shared_ptr<Node>& node
                                                     const mat4&             modelTransform,
                                                     const vec3&             worldOrigin,
                                                     const vec3&             worldDelta);
+static bool BackgroundContentsEqual(const Material::Property& a, const Material::Property& b);
 
 /// Public Lifecycle Functions ///
 
 VisualWorld::VisualWorld(RenderContext& context):
     _background {},
     _backgroundMaterial {},
-
     _fog {},
-    _atmosphericHaze {},
-    _infiniteGround {},
+    _atmosphere {},
+    _ground {},
+    _surface {},
     _defaultLightingEnabled {false},
     _pointOfView {},
     _renderContext {&context},
@@ -112,7 +113,7 @@ VisualWorld::Capabilities VisualWorld::capabilities() const {
     return capabilities;
 }
 
-optional<Background>& VisualWorld::background() {
+const optional<Background>& VisualWorld::background() const {
     return _background;
 }
 
@@ -124,8 +125,7 @@ void VisualWorld::background(const optional<Background>& background) {
         return;
     }
 
-    const auto&          contents = background->contents();
-    shared_ptr<Material> backgroundMaterial;
+    const auto& contents = background->contents;
 
     if (auto texture = get_if<shared_ptr<Texture>>(&contents)) {
 
@@ -143,19 +143,18 @@ void VisualWorld::background(const optional<Background>& background) {
         sampler->wrapS(Sampler::WrapMode::ClampToEdge);
         sampler->wrapT(Sampler::WrapMode::ClampToEdge);
         sampler->wrapR(Sampler::WrapMode::ClampToEdge);
-
-        backgroundMaterial = Material::EmissionMaterial(contents);
     }
-    else if (auto color = get_if<Color>(&contents)) {
-
-        backgroundMaterial = Material::EmissionMaterial(contents);
-    }
-    else {
+    else if (!holds_alternative<Color>(contents)) {
         throw invalid_argument("Background contents must be a Color or cubemap Texture.");
     }
 
+    const bool contentsChanged = !_background || !BackgroundContentsEqual(_background->contents, contents);
+
+    if (contentsChanged || !_backgroundMaterial) {
+        _backgroundMaterial = Material::EmissionMaterial(contents);
+    }
+
     _background = background;
-    _backgroundMaterial = std::move(backgroundMaterial);
 }
 
 const optional<Fog>& VisualWorld::fog() const {
@@ -178,49 +177,69 @@ void VisualWorld::fog(const optional<Fog>& fog) {
     _fog = fog;
 }
 
-const optional<AtmosphericHaze>& VisualWorld::atmosphericHaze() const {
-    return _atmosphericHaze;
+const optional<Atmosphere>& VisualWorld::atmosphere() const {
+    return _atmosphere;
 }
 
-void VisualWorld::atmosphericHaze(const optional<AtmosphericHaze>& haze) {
+void VisualWorld::atmosphere(const optional<Atmosphere>& atmosphere) {
 
-    if (haze) {
-        if (!math::is_finite(haze->baseHeight)) {
-            throw invalid_argument("AtmosphericHaze base height must be finite.");
+    if (atmosphere) {
+
+        if (!_surface) {
+            throw logic_error("Atmosphere requires a VisualWorld surface.");
         }
-        if (!math::is_finite(haze->density) || haze->density < 0.0f) {
-            throw invalid_argument("AtmosphericHaze density must be finite and non-negative.");
+
+        if (!math::is_finite(atmosphere->scaleHeight) || atmosphere->scaleHeight <= 0.0f) {
+            throw invalid_argument("Atmosphere scale height must be finite and greater than zero.");
         }
-        if (!math::is_finite(haze->heightFalloff) || haze->heightFalloff <= 0.0f) {
-            throw invalid_argument("AtmosphericHaze height falloff must be finite and greater than zero.");
+
+        if (atmosphere->haze) {
+
+            if (!math::is_finite(atmosphere->haze->density) || atmosphere->haze->density < 0.0f) {
+
+                throw invalid_argument("Atmosphere haze density must be finite and non-negative.");
+            }
+        }
+
+        if (atmosphere->limbGlow) {
+
+            if (!holds_alternative<Sphere>(*_surface)) {
+                throw logic_error("Atmosphere limb glow requires a spherical VisualWorld surface.");
+            }
+
+            if (!math::is_finite(atmosphere->limbGlow->intensity) || atmosphere->limbGlow->intensity < 0.0f) {
+
+                throw invalid_argument("Atmosphere limb glow intensity must be finite and non-negative.");
+            }
         }
     }
-    _atmosphericHaze = haze;
+
+    _atmosphere = atmosphere;
 }
 
-optional<InfiniteGround>& VisualWorld::infiniteGround() {
-    return _infiniteGround;
+const optional<Ground>& VisualWorld::ground() const {
+    return _ground;
 }
 
-void VisualWorld::infiniteGround(const optional<InfiniteGround>& ground) {
+void VisualWorld::ground(const optional<Ground>& ground) {
 
     if (ground) {
 
-        if (!math::is_finite(ground->height)) {
-            throw invalid_argument("InfiniteGround height must be finite.");
+        if (!_surface) {
+            throw logic_error("Ground requires a VisualWorld surface.");
         }
 
-        auto validateGrid = [](const InfiniteGround::Grid& grid, const char* name) {
+        auto validateGrid = [](const Ground::Grid& grid, const char* name) {
             if (!math::is_finite(grid.spacing) || grid.spacing <= 0.0f) {
-                throw invalid_argument(
-                    format("InfiniteGround {} grid spacing must be finite and greater than zero.", name));
+                throw invalid_argument(format("Ground {} grid spacing must be finite and greater than zero.",
+                                              name));
             }
             if (!math::is_finite(grid.lineWidthPixels) || grid.lineWidthPixels <= 0.0f) {
-                throw invalid_argument(
-                    format("InfiniteGround {} grid line width must be finite and greater than zero.", name));
+                throw invalid_argument(format("Ground {} grid line width must be finite and greater than zero.",
+                                              name));
             }
             if (!math::is_finite(grid.reliefStrength)) {
-                throw invalid_argument(format("InfiniteGround {} grid relief strength must be finite.", name));
+                throw invalid_argument(format("Ground {} grid relief strength must be finite.", name));
             }
         };
 
@@ -232,32 +251,19 @@ void VisualWorld::infiniteGround(const optional<InfiniteGround>& ground) {
             validateGrid(*ground->majorGrid, "major");
         }
 
-        if (ground->curvature) {
-
-            const auto& curvature = *ground->curvature;
-
-            if (!math::is_finite(curvature.center.x) || !math::is_finite(curvature.center.y)) {
-                throw invalid_argument("InfiniteGround curvature center must be finite.");
-            }
-            if (!math::is_finite(curvature.radius) || curvature.radius <= 0.0f) {
-                throw invalid_argument("InfiniteGround curvature radius must be finite and greater than zero.");
-            }
-        }
-
         if (ground->radialFade) {
 
             const auto& fade = *ground->radialFade;
 
             if (!math::is_finite(fade.center.x) || !math::is_finite(fade.center.y)) {
-                throw invalid_argument("InfiniteGround radial fade center must be finite.");
+                throw invalid_argument("Ground radial fade center must be finite.");
             }
             if (!math::is_finite(fade.startDistance) || fade.startDistance < 0.0f) {
-                throw invalid_argument(
-                    "InfiniteGround radial fade start distance must be finite and non-negative.");
+                throw invalid_argument("Ground radial fade start distance must be finite and non-negative.");
             }
             if (!math::is_finite(fade.endDistance) || fade.endDistance <= fade.startDistance) {
                 throw invalid_argument(
-                    "InfiniteGround radial fade end distance must be finite and greater than start distance.");
+                    "Ground radial fade end distance must be finite and greater than start distance.");
             }
         }
 
@@ -269,20 +275,61 @@ void VisualWorld::infiniteGround(const optional<InfiniteGround>& ground) {
                 || haze.angularWidthDegrees > 90.0f) {
 
                 throw invalid_argument(
-                    "InfiniteGround horizon haze angular width must be finite, greater than zero, and at most 90 degrees.");
+                    "Ground horizon haze angular width must be finite, greater than zero, and at most 90 degrees.");
             }
         }
 
         if (!math::is_finite(ground->specularIntensity) || ground->specularIntensity < 0.0f) {
-            throw invalid_argument("InfiniteGround specular intensity must be finite and non-negative.");
+            throw invalid_argument("Ground specular intensity must be finite and non-negative.");
         }
 
         if (!math::is_finite(ground->specularExponent) || ground->specularExponent <= 0.0f) {
-            throw invalid_argument("InfiniteGround specular exponent must be finite and greater than zero.");
+            throw invalid_argument("Ground specular exponent must be finite and greater than zero.");
         }
     }
 
-    _infiniteGround = ground;
+    _ground = ground;
+}
+
+const optional<VisualWorld::Surface>& VisualWorld::surface() const {
+
+    return _surface;
+}
+
+void VisualWorld::surface(const optional<Surface>& surface) {
+
+    if (!surface && (_ground || _atmosphere)) {
+        throw logic_error("VisualWorld surface cannot be removed while Ground or Atmosphere is enabled.");
+    }
+
+    if (surface) {
+
+        if (const auto* plane = get_if<Plane>(&*surface)) {
+
+            if (!math::is_finite(plane->height)) {
+                throw invalid_argument("VisualWorld::Plane height must be finite.");
+            }
+        }
+        else if (const auto* sphere = get_if<Sphere>(&*surface)) {
+
+            if (!math::is_finite(sphere->center.x) || !math::is_finite(sphere->center.y)
+                || !math::is_finite(sphere->center.z)) {
+
+                throw invalid_argument("VisualWorld::Sphere center must be finite.");
+            }
+
+            if (!math::is_finite(sphere->radius) || sphere->radius <= 0.0f) {
+                throw invalid_argument("VisualWorld::Sphere radius must be finite and greater than zero.");
+            }
+        }
+
+        if (surface && _atmosphere && _atmosphere->limbGlow && !holds_alternative<Sphere>(*surface)) {
+
+            throw logic_error("Atmosphere limb glow requires a spherical VisualWorld surface.");
+        }
+    }
+
+    _surface = surface;
 }
 
 weak_ptr<Node>& VisualWorld::pointOfView() {
@@ -865,4 +912,23 @@ optional<HitTestCandidate> IntersectNodeMesh(const shared_ptr<Node>& node,
                 modelTransform,
             },
     };
+}
+
+bool BackgroundContentsEqual(const Material::Property& a, const Material::Property& b) {
+
+    if (a.index() != b.index()) {
+        return false;
+    }
+
+    if (const auto* aTexture = get_if<shared_ptr<Texture>>(&a)) {
+        const auto* bTexture = get_if<shared_ptr<Texture>>(&b);
+        return bTexture && *aTexture == *bTexture;
+    }
+
+    if (const auto* aColor = get_if<Color>(&a)) {
+        const auto* bColor = get_if<Color>(&b);
+        return bColor && aColor->rgba() == bColor->rgba();
+    }
+
+    return holds_alternative<monostate>(a);
 }

@@ -104,67 +104,63 @@ std::unique_ptr<Scene> App::init() {
         visualWorld->background(Background {
             make_shared<Texture>(std::move(util::fs::CubeImageAt("nebula.webp")))});
 
-        //visualWorld->fog(Fog {.color = Color::Black(), .startDistance = 30.0f, .endDistance = 150.0f});
-
-        // visualWorld->atmosphericHaze(AtmosphericHaze {
-        //     .color = Color(vec4 {0.35f, 0.4f, 0.45f, 1.0f}),
-        //     .baseHeight = 0.0f,
-        //     .density = 0.08f,
-        //     .heightFalloff = 0.25f,
-        // });
-
-        // visualWorld->atmosphericHaze(AtmosphericHaze {
-        //     .color = Color(vec4 {0.35f, 0.4f, 0.45f, 1.0f}),
-        //     .baseHeight = 0.0f,
-        //     .density = 0.01f,
-        //     .heightFalloff = 0.30,
-        // });
-
-        visualWorld->atmosphericHaze(AtmosphericHaze {
-            .color = Color(vec4 {0.16f, 0.19f, 0.22f, 0.25f}),
-            .baseHeight = 0.0f,
-            .density = 0.018f,
-            .heightFalloff = 0.30f,
+        visualWorld->surface(VisualWorld::Sphere {
+            .center = {0.0f, -5000.0f, 0.0f},
+            .radius = 5000.0f,
         });
 
-        visualWorld->infiniteGround(InfiniteGround {
+        visualWorld->ground(Ground {
             .color = Color::DarkGray(),
             // .color = Color(.2f),
-            .height = 0.0f,
             .minorGrid =
-                InfiniteGround::Grid {
+                Ground::Grid {
                     .color = Color(vec4 {0.5f, 0.5f, 0.5f, 0.25f}),
                     .spacing = 1.0f,
                     .lineWidthPixels = 1.0f,
                     .reliefStrength = -0.125f,
                 },
             .majorGrid =
-                InfiniteGround::Grid {
+                Ground::Grid {
                     .color = Color(vec4 {0.75f, 0.75f, 0.75f, 0.25f}),
                     .spacing = 10.0f,
                     .lineWidthPixels = 1.0f,
                     .reliefStrength = -0.125f,
                 },
             .radialFade =
-                InfiniteGround::RadialFade {
+                Ground::RadialFade {
                     .color = Color(vec4 {0.02f, 0.02f, 0.02f, 1.0f}),
                     .center = {0.0f, 0.0f},
                     .startDistance = 10.0f,
                     .endDistance = 100.0f,
                 },
-            .curvature =
-                InfiniteGround::Curvature {
-                    .center = {0.0f, 0.0f},
-                    .radius = 5000.0f,
-                },
-            // .horizonHaze =
-            //     InfiniteGround::HorizonHaze {
-            //         .color = Color(vec4 {0.075f, 0.075f, 0.075f, 0.65f}),
-            //         .angularWidthDegrees = 4.5f,
-            //     },
+            // .horizonHaze = Ground::HorizonHaze {
+            //     .color = Color(vec4 {0.2f, 0.2f, 0.2f, 0.4f}),
+            //     .angularWidthDegrees = 4.0f
+            // },
             .specularIntensity = 0.05f,
             .specularExponent = 8.0f,
         });
+
+        visualWorld->atmosphere(Atmosphere {
+            .scaleHeight = 1.00f,
+            // .haze =
+            //     Atmosphere::Haze {
+            //         .color = Color(vec4 {0.2f, 0.2f, 0.25f, 0.22}),
+            //         .density = 0.5,
+            //     },
+            .limbGlow =
+                Atmosphere::LimbGlow {
+                    .color = Color(vec4 {0.30f, 0.38f, 0.48f, 0.5f}),
+                    .intensity = 0.25f,
+                },
+        });
+
+        // visualWorld->fog(Fog {
+        //     .color = Color(vec4 {0.2f, 0.2f, 0.2f, 0.25f}),
+        //     .startDistance = 10.0f,
+        //     .endDistance = 50.0f,
+        //     .transitionExponent = 1.0f,
+        // });
 
         // create the physics world
 
@@ -424,8 +420,10 @@ void App::frameDidBegin(Runner&                        runner,
     const float angle =
         radians(180.0f) + static_cast<float>(_backgroundRotationTime) * BACKGROUND_ROTATION_SPEED;
 
-    if (auto& background = visualWorld.background()) {
-        background->orientation(quaternion(BACKGROUND_ROTATION_AXIS, angle));
+    if (const auto& current = visualWorld.background()) {
+        auto background = *current;
+        background.orientation = quaternion(BACKGROUND_ROTATION_AXIS, angle);
+        visualWorld.background(background);
     }
 
     if (_cameraNode) {

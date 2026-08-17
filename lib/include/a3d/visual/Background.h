@@ -14,25 +14,12 @@
 
 namespace a3d {
 
-    class Background {
+    struct Background {
 
-    public:
-        /// Public Lifecycle Functions ///
+        explicit Background(Material::Property contents);
 
-        explicit Background(const Material::Property& contents);
-
-        /// Public Member Functions ///
-
-        const Material::Property& contents() const;
-
-        const math::quat&         orientation() const;
-        void                      orientation(const math::quat& orientation);
-
-    private:
-        /// Private Member Variables ///
-
-        Material::Property _contents;
-        math::quat         _orientation;
+        Material::Property contents {};
+        math::quat         orientation {1.0f};
     };
 
 }

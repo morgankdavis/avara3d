@@ -60,10 +60,10 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
 
     output.backgroundMaterial = scene.visualWorld()->backgroundMaterial();
     if (const auto& background = scene.visualWorld()->background()) {
-        output.backgroundOrientation = background->orientation();
+        output.backgroundOrientation = background->orientation;
     }
 
-    output.infiniteGround = scene.visualWorld()->infiniteGround();
+    output.ground = scene.visualWorld()->ground();
 
     output.scene = &scene; // TODO: maybe change to AABB directly?
 

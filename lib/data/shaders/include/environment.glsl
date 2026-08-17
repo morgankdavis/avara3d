@@ -15,17 +15,24 @@ const uint SPOTLIGHT_FEATHERING_MODE_LINEAR = 0u;
 const uint SPOTLIGHT_FEATHERING_MODE_SHARP = 1u;
 const uint SPOTLIGHT_FEATHERING_MODE_SOFT = 2u;
 
+const uint SURFACE_TYPE_NONE = 0u;
+const uint SURFACE_TYPE_PLANE = 1u;
+const uint SURFACE_TYPE_SPHERE = 2u;
+
 struct AmbientLight {
+
     vec4 color;
 };
 
 struct DirectionalLight {
+
     vec4 color;
     vec3 direction_world;
     float _PAD0_;
 };
 
 struct PointLight {
+
     vec4 color;
     vec3 position_world;
     float _PAD0_;
@@ -36,6 +43,7 @@ struct PointLight {
 };
 
 struct SpotLight {
+
     vec4 color;
     vec3 position_world;
     float _PAD0_;
@@ -51,7 +59,18 @@ struct SpotLight {
     float _PAD3_;
 };
 
+struct Surface {
+
+    uint type;
+    float planeHeight;
+    float _PAD0_;
+    float _PAD1_;
+    vec3 sphereCenter;
+    float sphereRadius;
+};
+
 struct Fog {
+
     vec4 color;
     float startDistance;
     float endDistance;
@@ -59,12 +78,32 @@ struct Fog {
     uint enabled;
 };
 
-struct AtmosphericHaze {
+struct AtmosphereHaze {
+
     vec4 color;
-    float baseHeight;
     float density;
-    float heightFalloff;
     uint enabled;
+    float _PAD0_;
+    float _PAD1_;
+};
+
+struct AtmosphereLimbGlow {
+
+    vec4 color;
+    float intensity;
+    uint enabled;
+    float _PAD0_;
+    float _PAD1_;
+};
+
+struct Atmosphere {
+
+    float scaleHeight;
+    uint enabled;
+    float _PAD0_;
+    float _PAD1_;
+    AtmosphereHaze haze;
+    AtmosphereLimbGlow limbGlow;
 };
 
 layout(std140) uniform EnvironmentBlock {
@@ -103,9 +142,10 @@ layout(std140) uniform EnvironmentBlock {
     vec3 viewPosition_world;
     float _pad5_0;
 
-    AtmosphericHaze atmosphericHaze;
+    Surface surface;
+    Atmosphere atmosphere;
 
 } Environment;
 
-#endif
+#endif // A3D_ENVIRONMENT_GLSL
 

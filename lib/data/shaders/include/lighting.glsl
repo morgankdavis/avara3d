@@ -242,4 +242,4 @@ vec3 CalcSpotLighting(
     return color;
 }
 
-#endif
+#endif // A3D_LIGHTING_GLSL

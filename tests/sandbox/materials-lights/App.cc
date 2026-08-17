@@ -275,8 +275,10 @@ void App::frameDidBegin(Runner&, Scene&, VisualWorld& visualWorld, const VisualW
     static float angle = 0;
     angle += delta * BACKGROUND_ROTATION_SPEED;
 
-    if (auto& background = visualWorld.background()) {
-        background->orientation(quaternion(BACKGROUND_ROTATION_AXIS, angle));
+    if (const auto& current = visualWorld.background()) {
+        auto background = *current;
+        background.orientation = quaternion(BACKGROUND_ROTATION_AXIS, angle);
+        visualWorld.background(background);
     }
 }
 

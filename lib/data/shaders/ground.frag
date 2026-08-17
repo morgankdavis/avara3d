@@ -1,7 +1,8 @@
 #header
 
+#include "atmosphere.glsl"
 #include "environment.glsl"
-#include "atmospheric_haze.glsl"
+#include "fog.glsl"
 #include "lighting.glsl"
 
 in vec2 fragNdc;
@@ -10,7 +11,6 @@ uniform mat4 viewMat;
 uniform mat4 viewProjMat;
 uniform mat4 inverseViewProjMat;
 
-uniform float groundHeight;
 uniform vec3 groundColor;
 
 uniform bool minorGridEnabled;
@@ -30,10 +30,6 @@ uniform vec2 radialFadeCenter;
 uniform float radialFadeStartDistance;
 uniform float radialFadeEndDistance;
 uniform vec4 radialFadeColor;
-
-uniform bool curvatureEnabled;
-uniform vec2 curvatureCenter;
-uniform float curvatureRadius;
 
 uniform bool horizonHazeEnabled;
 uniform vec4 horizonHazeColor;
@@ -63,17 +59,6 @@ void main() {
     vec3 farWorld = Unproject(fragNdc, 1.0);
     vec3 ray = farWorld - nearWorld;
 
-//    if (abs(ray.y) < 0.000001) {
-//        discard;
-//    }
-//
-//    float t = (groundHeight - nearWorld.y) / ray.y;
-//
-//    if (t < 0.0) {
-//        discard;
-//    }
-//
-//    vec3 worldPosition = nearWorld + ray * t;
     vec3 worldPosition;
     vec3 surfaceNormalWorld;
 
@@ -235,7 +220,13 @@ void main() {
                 haze);
     }
 
-    color = ApplyAtmosphericHaze(
+    color = ApplyFog(
+            vec4(
+                    color,
+                    1.0),
+            length(surfacePositionEye)).rgb;
+
+    color = ApplyAtmosphereHaze(
             color,
             worldPosition);
 
@@ -338,13 +329,13 @@ bool IntersectGround(
         out vec3 worldPosition,
         out vec3 surfaceNormalWorld) {
 
-    if (curvatureEnabled) {
+    if (Environment.surface.type == SURFACE_TYPE_SPHERE) {
 
         vec3 sphereCenter =
-        vec3(
-                curvatureCenter.x,
-                groundHeight - curvatureRadius,
-                curvatureCenter.y);
+        Environment.surface.sphereCenter;
+
+        float sphereRadius =
+        Environment.surface.sphereRadius;
 
         vec3 originFromCenter =
         rayOrigin - sphereCenter;
@@ -357,7 +348,7 @@ bool IntersectGround(
 
         float c =
         dot(originFromCenter, originFromCenter)
-        - curvatureRadius * curvatureRadius;
+        - sphereRadius * sphereRadius;
 
         float discriminant =
         b * b - 4.0 * a * c;
@@ -399,22 +390,28 @@ bool IntersectGround(
         return true;
     }
 
-    if (abs(ray.y) < 0.000001) {
-        return false;
+    if (Environment.surface.type == SURFACE_TYPE_PLANE) {
+
+        if (abs(ray.y) < 0.000001) {
+            return false;
+        }
+
+        float t =
+        (Environment.surface.planeHeight - rayOrigin.y)
+        / ray.y;
+
+        if (t < 0.0) {
+            return false;
+        }
+
+        worldPosition =
+        rayOrigin + ray * t;
+
+        surfaceNormalWorld =
+        vec3(0.0, 1.0, 0.0);
+
+        return true;
     }
 
-    float t =
-    (groundHeight - rayOrigin.y) / ray.y;
-
-    if (t < 0.0) {
-        return false;
-    }
-
-    worldPosition =
-    rayOrigin + ray * t;
-
-    surfaceNormalWorld =
-    vec3(0.0, 1.0, 0.0);
-
-    return true;
+    return false;
 }

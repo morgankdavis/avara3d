@@ -8,25 +8,10 @@
 
 #include "a3d/visual/Background.h"
 
+#include <utility>
+
 using namespace a3d;
-using namespace a3d::math;
+using namespace std;
 
-/// Public Lifecycle Functions ///
-
-Background::Background(const Material::Property& contents):
-    _contents {contents},
-    _orientation {1.0f} {}
-
-/// Public Member Functions ///
-
-const Material::Property& Background::contents() const {
-    return _contents;
-}
-
-const quat& Background::orientation() const {
-    return _orientation;
-}
-
-void Background::orientation(const quat& orientation) {
-    _orientation = orientation;
-}
+Background::Background(Material::Property contents):
+    contents {std::move(contents)} {}

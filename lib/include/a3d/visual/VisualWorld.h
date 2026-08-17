@@ -17,10 +17,11 @@
 
 #include "a3d/scene/Scene.h"
 #include "a3d/scene/HitTestResult.h"
-#include "a3d/visual/AtmosphericHaze.h"
+#include "a3d/visual/Atmosphere.h"
 #include "a3d/visual/Background.h"
 #include "a3d/visual/Fog.h"
-#include "a3d/visual/InfiniteGround.h"
+#include "a3d/visual/Ground.h"
+#include "a3d/visual/Surface.h"
 #include "a3d/visual/material/Material.h"
 
 namespace a3d {
@@ -42,6 +43,10 @@ namespace a3d {
 
     public:
         /// Public Types ///
+
+        using Plane   = surface::Plane;
+        using Sphere  = surface::Sphere;
+        using Surface = surface::Surface;
 
         struct Capabilities {
             bool wireframeRendering {false};
@@ -89,72 +94,76 @@ namespace a3d {
 
         /// Public Member Functions ///
 
-        Capabilities                          capabilities() const;
+        Capabilities                     capabilities() const;
 
-        std::optional<Background>&            background();
-        void                                  background(const std::optional<Background>& background);
+        const std::optional<Background>& background() const;
+        void                             background(const std::optional<Background>& background);
 
-        const std::optional<Fog>&             fog() const;
-        void                                  fog(const std::optional<Fog>& fog);
+        const std::optional<Fog>&        fog() const;
+        void                             fog(const std::optional<Fog>& fog);
 
-        const std::optional<AtmosphericHaze>& atmosphericHaze() const;
-        void                                  atmosphericHaze(const std::optional<AtmosphericHaze>& haze);
+        const std::optional<Atmosphere>& atmosphere() const;
+        void                             atmosphere(const std::optional<Atmosphere>& atmosphere);
 
-        std::optional<InfiniteGround>&        infiniteGround();
-        void                                  infiniteGround(const std::optional<InfiniteGround>& ground);
+        const std::optional<Ground>&     ground() const;
+        void                             ground(const std::optional<Ground>& ground);
 
-        std::weak_ptr<Node>&                  pointOfView();
-        void                                  pointOfView(const std::weak_ptr<Node>& cameraNode);
+        const std::optional<Surface>&    surface() const;
+        void                             surface(const std::optional<Surface>& surface);
 
-        math::vec3                            projectPoint(const math::vec3& point) const;
-        math::vec3                            unprojectPoint(const math::vec3& point) const;
+        std::weak_ptr<Node>&             pointOfView();
+        void                             pointOfView(const std::weak_ptr<Node>& cameraNode);
 
-        std::vector<HitTestResult> hitTest(const math::vec2& point, const HitTestOptions& options) const;
-        std::vector<HitTestResult> hitTest(const math::vec2& point) const;
+        math::vec3                       projectPoint(const math::vec3& point) const;
+        math::vec3                       unprojectPoint(const math::vec3& point) const;
 
-        bool                       defaultLightingEnabled() const;
-        void                       defaultLightingEnabled(bool enabled);
+        std::vector<HitTestResult>       hitTest(const math::vec2& point, const HitTestOptions& options) const;
+        std::vector<HitTestResult>       hitTest(const math::vec2& point) const;
 
-        DidBeginFrameCallback      didBeginFrameCallback() const;
-        void                       didBeginFrameCallback(DidBeginFrameCallback function);
+        bool                             defaultLightingEnabled() const;
+        void                             defaultLightingEnabled(bool enabled);
 
-        RenderContext*             renderContext() const;
+        DidBeginFrameCallback            didBeginFrameCallback() const;
+        void                             didBeginFrameCallback(DidBeginFrameCallback function);
 
-        Scene*                     scene() const;
+        RenderContext*                   renderContext() const;
+
+        Scene*                           scene() const;
 
         /// Internal Member Functions ///
 
-        void                       attachedToScene(Scene& scene);
-        void                       detachedFromScene(Scene& scene);
+        void                             attachedToScene(Scene& scene);
+        void                             detachedFromScene(Scene& scene);
 
-        bool                       draw(const Scene&             scene,
-                                        const PhysicsWorld*      physicsWorld,
-                                        const RenderInfo&        info,
-                                        Scene::DebugOptions      debugOptions,
-                                        FrameStats&              stats,
-                                        Profiler&                profiler,
-                                        const FrameStatsHistory& statsHistory);
+        bool                             draw(const Scene&             scene,
+                                              const PhysicsWorld*      physicsWorld,
+                                              const RenderInfo&        info,
+                                              Scene::DebugOptions      debugOptions,
+                                              FrameStats&              stats,
+                                              Profiler&                profiler,
+                                              const FrameStatsHistory& statsHistory);
 
-        std::shared_ptr<Material>  backgroundMaterial();
+        std::shared_ptr<Material>        backgroundMaterial();
 
     private:
         /// Private Member Functions ///
 
-        void                           firstDraw();
-        std::shared_ptr<Node>          defaultPOV();
+        void                      firstDraw();
+        std::shared_ptr<Node>     defaultPOV();
 
         /// Private Member Variables ///
 
-        std::optional<Background>      _background;
-        std::shared_ptr<Material>      _backgroundMaterial;
-        std::optional<Fog>             _fog;
-        std::optional<AtmosphericHaze> _atmosphericHaze;
-        std::optional<InfiniteGround>  _infiniteGround;
-        bool                           _defaultLightingEnabled;
-        std::weak_ptr<Node>            _pointOfView;
-        RenderContext*                 _renderContext;
-        Scene*                         _scene;
-        DidBeginFrameCallback          _didBeginFrameCallback;
+        std::optional<Background> _background;
+        std::shared_ptr<Material> _backgroundMaterial;
+        std::optional<Fog>        _fog;
+        std::optional<Atmosphere> _atmosphere;
+        std::optional<Ground>     _ground;
+        std::optional<Surface>    _surface;
+        bool                      _defaultLightingEnabled;
+        std::weak_ptr<Node>       _pointOfView;
+        RenderContext*            _renderContext;
+        Scene*                    _scene;
+        DidBeginFrameCallback     _didBeginFrameCallback;
     };
 
 }

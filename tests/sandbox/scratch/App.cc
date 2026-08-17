@@ -48,30 +48,29 @@ std::unique_ptr<Scene> App::init() {
 
         visualWorld->background(Background {Color(u8vec3 {109, 136, 164})});
 
-        visualWorld->infiniteGround(InfiniteGround {
+        visualWorld->surface(VisualWorld::Sphere {
+            .center = {0.0f, -5000.0f, 0.0f},
+            .radius = 5000.0f,
+        });
+
+        visualWorld->ground(Ground {
             .color = Color::DarkGray(),
-            .height = 0.0f,
             .minorGrid =
-                InfiniteGround::Grid {
+                Ground::Grid {
                     .color = Color(vec4 {0.5f, 0.5f, 0.5f, 0.25f}),
                     .spacing = 1.0f,
                     .lineWidthPixels = 1.0f,
                     .reliefStrength = -0.15f,
                 },
             .majorGrid =
-                InfiniteGround::Grid {
+                Ground::Grid {
                     .color = Color(vec4 {0.75f, 0.75f, 0.75f, 0.25f}),
                     .spacing = 10.0f,
                     .lineWidthPixels = 1.0f,
                     .reliefStrength = -0.15f,
                 },
-            .curvature =
-                InfiniteGround::Curvature {
-                    .center = {0.0f, 0.0f},
-                    .radius = 5000.0f,
-                },
             .horizonHaze =
-                InfiniteGround::HorizonHaze {
+                Ground::HorizonHaze {
                     .color = Color(vec4 {0.1f, 0.1f, 0.1f, 0.5f}),
                     .angularWidthDegrees = 2.5f,
                 },

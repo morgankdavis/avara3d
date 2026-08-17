@@ -77,6 +77,7 @@ static const unsigned DRAW_TIMER_BUFFER_SIZE {4};
 /// Private Types ///
 
 enum class MaterialContentsType : unsigned {
+
     None = 0,
     Color = 1,
     Sampler = 2
@@ -86,12 +87,14 @@ static_assert(sizeof(vec4) == 16);
 static_assert(sizeof(vec3) == 12);
 
 struct AmbientLightGLSLStruct {
+
     vec4 color;
 };
 
 static_assert(sizeof(AmbientLightGLSLStruct) == 16);
 
 struct DirectionalLightGLSLStruct {
+
     vec4 color;
     vec3 direction_world;
     f32  _pad_0_;
@@ -100,6 +103,7 @@ struct DirectionalLightGLSLStruct {
 static_assert(sizeof(DirectionalLightGLSLStruct) == 32);
 
 struct PointLightGLSLStruct {
+
     vec4 color;
     vec3 position_world;
     f32  _pad_0_;
@@ -112,6 +116,7 @@ struct PointLightGLSLStruct {
 static_assert(sizeof(PointLightGLSLStruct) == 48);
 
 struct SpotLightGLSLStruct {
+
     vec4     color;
     vec3     position_world;
     f32      _pad_0_;
@@ -129,7 +134,27 @@ struct SpotLightGLSLStruct {
 
 static_assert(sizeof(SpotLightGLSLStruct) == 80);
 
+enum class SurfaceType : uint32_t {
+
+    None = 0,
+    Plane = 1,
+    Sphere = 2
+};
+
+struct SurfaceGLSLStruct {
+
+    uint32_t type;
+    f32      planeHeight;
+    f32      _pad_0_;
+    f32      _pad_1_;
+    vec3     sphereCenter;
+    f32      sphereRadius;
+};
+
+static_assert(sizeof(SurfaceGLSLStruct) == 32);
+
 struct FogGLSLStruct {
+
     vec4     color;
     f32      startDistance;
     f32      endDistance;
@@ -139,17 +164,42 @@ struct FogGLSLStruct {
 
 static_assert(sizeof(FogGLSLStruct) == 32);
 
-struct AtmosphericHazeGLSLStruct {
+struct AtmosphereHazeGLSLStruct {
+
     vec4     color;
-    f32      baseHeight;
     f32      density;
-    f32      heightFalloff;
     uint32_t enabled;
+    f32      _pad_0_;
+    f32      _pad_1_;
 };
 
-static_assert(sizeof(AtmosphericHazeGLSLStruct) == 32);
+static_assert(sizeof(AtmosphereHazeGLSLStruct) == 32);
+
+struct AtmosphereLimbGlowGLSLStruct {
+
+    vec4     color;
+    f32      intensity;
+    uint32_t enabled;
+    f32      _pad_0_;
+    f32      _pad_1_;
+};
+
+static_assert(sizeof(AtmosphereLimbGlowGLSLStruct) == 32);
+
+struct AtmosphereGLSLStruct {
+
+    f32                          scaleHeight;
+    uint32_t                     enabled;
+    f32                          _pad_0_;
+    f32                          _pad_1_;
+    AtmosphereHazeGLSLStruct     haze;
+    AtmosphereLimbGlowGLSLStruct limbGlow;
+};
+
+static_assert(sizeof(AtmosphereGLSLStruct) == 80);
 
 struct EnvironmentBlock {
+
     uint32_t                   defaultLightingEnabled;
     uint32_t                   _pad0_[3];
     uint32_t                   numAmbientLights;
@@ -167,16 +217,15 @@ struct EnvironmentBlock {
     FogGLSLStruct              fog;
     vec3                       viewPosition_world; // TODO: move this out to a new ViewBlock
     f32                        _pad5_0_;
-    AtmosphericHazeGLSLStruct  atmosphericHaze;
+    SurfaceGLSLStruct          surface;
+    AtmosphereGLSLStruct       atmosphere;
 };
 
-static_assert(offsetof(EnvironmentBlock, defaultLightingEnabled) == 0);
-static_assert(offsetof(EnvironmentBlock, numAmbientLights) == 16);
-static_assert(offsetof(EnvironmentBlock, ambientLights) == 32);
 static_assert(offsetof(EnvironmentBlock, fog) == 12112);
 static_assert(offsetof(EnvironmentBlock, viewPosition_world) == 12144);
-static_assert(offsetof(EnvironmentBlock, atmosphericHaze) == 12160);
-static_assert(sizeof(EnvironmentBlock) == 12192);
+static_assert(offsetof(EnvironmentBlock, surface) == 12160);
+static_assert(offsetof(EnvironmentBlock, atmosphere) == 12192);
+static_assert(sizeof(EnvironmentBlock) == 12272);
 
 struct FBORestore {
     GLint drawFbo = 0, readFbo = 0;
@@ -328,7 +377,7 @@ bool OGLRenderer::initialize(const RenderContext& context) {
     _capabilities.wireframeRendering = _glCapabilities.polygonMode;
 
     _skyboxProgram = make_unique<GLSLProgram>("skybox");
-    _groundProgram = make_unique<GLSLProgram>("infinite_ground");
+    _groundProgram = make_unique<GLSLProgram>("ground");
     _defaultProgram = make_unique<GLSLProgram>("default");
     if (_capabilities.wireframeRendering) {
         _wireframeProgram = make_unique<GLSLProgram>("wireframe");
@@ -566,36 +615,42 @@ unique_ptr<Image> OGLRenderer::snapshot(const RenderContext& context) const {
 void OGLRenderer::drawBackground(const BackgroundPass& backgroundPass,
                                  const math::mat4&     view,
                                  const math::mat4&     proj) {
+
     if (!backgroundPass.material) {
         return;
     }
 
-    auto bgEmission = backgroundPass.material->emission();
-    if (auto color = std::get_if<Color>(&bgEmission)) {
-        auto rgba = color->rgba();
-        glClearColor(rgba.r, rgba.g, rgba.b, rgba.a);
-        glClear(GL_COLOR_BUFFER_BIT);
+    bindPipeline(backgroundPass.pipelineId, _resourceCache);
+
+    const auto& contents = backgroundPass.material->emission();
+
+    if (const auto* color = get_if<Color>(&contents)) {
+
+        _skyboxProgram->setUniform("backgroundUsesCubemap", false);
+        _skyboxProgram->setUniform("backgroundColor", color->rgba());
+    }
+    else if (get_if<shared_ptr<Texture>>(&contents)) {
+
+        _skyboxProgram->setUniform("backgroundUsesCubemap", true);
+
+        // the Background setter has already validated that this Texture
+        // contains a CubeImage. bindMaterial() resolves and binds cubeSampler.
+        bindMaterial(*backgroundPass.material);
+    }
+    else {
+
+        // background validation should make this unreachable.
         return;
     }
 
-    // TODO: check equality?
-    // TODO: stop using shared_ptr???????
-
-    if (_skyboxMesh->materials().empty()) {
-        _skyboxMesh->addMaterial(backgroundPass.material);
-    }
-    else {
-        _skyboxMesh->replaceMaterial(0, backgroundPass.material);
-    }
-
-    bindPipeline(backgroundPass.pipelineId, _resourceCache);
-    bindMaterial(*(_skyboxMesh->materials().front()));
-
     const mat3 sampleRotation = mat3_cast(inverse(backgroundPass.orientation));
+
     _skyboxProgram->setUniform("backgroundSampleRotation", sampleRotation);
 
     bindMeshElement(*(_skyboxMesh->elements().front()));
-    applyMVP(mat4(1.0f), mat4(mat3(view)), proj); // strip transform off view mat
+
+    // keep the background centered on the viewer.
+    applyMVP(mat4(1.0f), mat4(mat3(view)), proj);
 
     drawElements();
 }
@@ -620,7 +675,6 @@ void OGLRenderer::drawGround(const GroundPass& groundPass, const mat4& view, con
     _groundProgram->setUniform("viewProjMat", viewProj);
     _groundProgram->setUniform("inverseViewProjMat", inverse(viewProj));
 
-    _groundProgram->setUniform("groundHeight", ground.height);
     _groundProgram->setUniform("groundColor", ground.color.rgb());
 
     const bool minorGridEnabled = ground.minorGrid.has_value();
@@ -651,14 +705,6 @@ void OGLRenderer::drawGround(const GroundPass& groundPass, const mat4& view, con
         _groundProgram->setUniform("radialFadeCenter", fade.center);
         _groundProgram->setUniform("radialFadeStartDistance", fade.startDistance);
         _groundProgram->setUniform("radialFadeEndDistance", fade.endDistance);
-    }
-
-    const bool curvatureEnabled = ground.curvature.has_value();
-    _groundProgram->setUniform("curvatureEnabled", curvatureEnabled);
-    if (curvatureEnabled) {
-        const auto& curvature = *ground.curvature;
-        _groundProgram->setUniform("curvatureCenter", curvature.center);
-        _groundProgram->setUniform("curvatureRadius", curvature.radius);
     }
 
     const bool horizonHazeEnabled = ground.horizonHaze.has_value();
@@ -1223,6 +1269,27 @@ void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
 
     environmentStruct.viewPosition_world = translation(inverse(view));
 
+    // surface
+
+    SurfaceGLSLStruct surfaceStruct {};
+
+    if (const auto& surface = scene.visualWorld()->surface()) {
+
+        if (const auto* plane = get_if<VisualWorld::Plane>(&*surface)) {
+
+            surfaceStruct.type = static_cast<uint32_t>(SurfaceType::Plane);
+            surfaceStruct.planeHeight = plane->height;
+        }
+        else if (const auto* sphere = get_if<VisualWorld::Sphere>(&*surface)) {
+
+            surfaceStruct.type = static_cast<uint32_t>(SurfaceType::Sphere);
+            surfaceStruct.sphereCenter = sphere->center;
+            surfaceStruct.sphereRadius = sphere->radius;
+        }
+    }
+
+    memcpy(&environmentStruct.surface, &surfaceStruct, sizeof(surfaceStruct));
+
     // lights
 
     auto numLights = lightNodes.size();
@@ -1338,19 +1405,31 @@ void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
 
     memcpy(&environmentStruct.fog, &fogStruct, sizeof(fogStruct));
 
-    // atmospheric haze
+    // atmosphere
 
-    AtmosphericHazeGLSLStruct hazeStruct {};
+    AtmosphereGLSLStruct atmosphereStruct {};
 
-    if (const auto& haze = scene.visualWorld()->atmosphericHaze()) {
-        hazeStruct.color = haze->color.rgba();
-        hazeStruct.baseHeight = haze->baseHeight;
-        hazeStruct.density = haze->density;
-        hazeStruct.heightFalloff = haze->heightFalloff;
-        hazeStruct.enabled = 1u;
+    if (const auto& atmosphere = scene.visualWorld()->atmosphere()) {
+
+        atmosphereStruct.enabled = 1u;
+        atmosphereStruct.scaleHeight = atmosphere->scaleHeight;
+
+        if (atmosphere->haze) {
+
+            atmosphereStruct.haze.color = atmosphere->haze->color.rgba();
+            atmosphereStruct.haze.density = atmosphere->haze->density;
+            atmosphereStruct.haze.enabled = 1u;
+        }
+
+        if (atmosphere->limbGlow) {
+
+            atmosphereStruct.limbGlow.color = atmosphere->limbGlow->color.rgba();
+            atmosphereStruct.limbGlow.intensity = atmosphere->limbGlow->intensity;
+            atmosphereStruct.limbGlow.enabled = 1u;
+        }
     }
 
-    memcpy(&environmentStruct.atmosphericHaze, &hazeStruct, sizeof(hazeStruct));
+    memcpy(&environmentStruct.atmosphere, &atmosphereStruct, sizeof(atmosphereStruct));
 
     // send 'em
 
