@@ -123,7 +123,8 @@ std::unique_ptr<Scene> App::init() {
                     .color = Color(vec4 {0.75f, 0.75f, 0.75f, 0.25f}),
                     .spacing = 10.0f,
                     .lineWidthPixels = 1.0f,
-                    .reliefStrength = -0.125f,
+                    //.reliefStrength = -0.125f,
+                .reliefStrength = 0.0,
                 },
             .radialFade =
                 Ground::RadialFade {
@@ -167,7 +168,8 @@ std::unique_ptr<Scene> App::init() {
 
         auto scene =
             make_unique<Scene>(std::move(visualWorld), std::move(physicsWorld), Window::InputContext());
-        scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay | Scene::DebugOptions::ShowPhysicsContactPoints);
+        //scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay | Scene::DebugOptions::ShowPhysicsContactPoints);
+        scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 
         // create and configure the ground
 
@@ -794,6 +796,10 @@ bool App::drawPanel() {
                                : util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsWireframes));
     }
 
+    // COM
+    // normals
+    // contact points
+
     return panel.hovered();
 }
 
@@ -1013,7 +1019,7 @@ shared_ptr<Node> MakeSimulationRoot() {
         static auto [mesh, shape] = [] {
             constexpr float HEIGHT = 1.0f;
 
-            auto        visMesh = util::fs::MeshAt("janus/janus.gltf");
+            auto visMesh = util::fs::MeshAt("janus/janus.gltf");
             //static auto physMesh = util::fs::MeshAt("janus/phys.gltf", Mesh::ImportOptions::None);
 
             const float scaleFactor = HEIGHT / visMesh->localExtent().y;
