@@ -11,11 +11,15 @@
 #include "a3d/mesh/Line.h"
 #include "a3d/log/Log.h"
 #include "a3d/physics/backend/bullet/BulletUtilities.h"
-#include "a3d/render/Renderer.h"
 
 using namespace a3d;
 using namespace a3d::math;
 using namespace std;
+
+/// Private Constants ///
+
+static constexpr float CONTACT_POINT_RADIUS = 0.04f;
+static constexpr float CONTACT_NORMAL_LENGTH = 0.15f;
 
 /// Public Lifecycle Functions ///
 
@@ -97,13 +101,22 @@ void BulletDebugDrawer::drawTriangle(const btVector3& v0,
 
 void BulletDebugDrawer::drawContactPoint(const btVector3& pointOnB,
                                          const btVector3& normalOnB,
-                                         btScalar         distance,
-                                         int              lifeTime,
+                                         btScalar /*distance*/,
+                                         int /*lifeTime*/,
                                          const btVector3& color) {
 
-    const float DISTANCE_EXTENSION = 0.0;
-    btVector3   to = pointOnB + normalOnB * (distance + DISTANCE_EXTENSION);
-    drawLine(pointOnB, to, color, color);
+    const btVector3 normal = normalOnB.normalized();
+
+    btVector3 tangent;
+    btVector3 bitangent;
+    btPlaneSpace1(normal, tangent, bitangent);
+
+    // point marker, lying in the contact plane
+    drawLine(pointOnB - tangent * CONTACT_POINT_RADIUS, pointOnB + tangent * CONTACT_POINT_RADIUS, color);
+    drawLine(pointOnB - bitangent * CONTACT_POINT_RADIUS, pointOnB + bitangent * CONTACT_POINT_RADIUS, color);
+
+    // normal
+    drawLine(pointOnB, pointOnB + normal * CONTACT_NORMAL_LENGTH, color);
 }
 
 void BulletDebugDrawer::reportErrorWarning(const char* warningString) {

@@ -167,7 +167,7 @@ std::unique_ptr<Scene> App::init() {
 
         auto scene =
             make_unique<Scene>(std::move(visualWorld), std::move(physicsWorld), Window::InputContext());
-        scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
+        scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay | Scene::DebugOptions::ShowPhysicsContactPoints);
 
         // create and configure the ground
 
@@ -1014,37 +1014,30 @@ shared_ptr<Node> MakeSimulationRoot() {
             constexpr float HEIGHT = 1.0f;
 
             auto        visMesh = util::fs::MeshAt("janus/janus.gltf");
-            static auto physMesh = util::fs::MeshAt("janus/phys.gltf", Mesh::ImportOptions::None);
+            //static auto physMesh = util::fs::MeshAt("janus/phys.gltf", Mesh::ImportOptions::None);
 
             const float scaleFactor = HEIGHT / visMesh->localExtent().y;
             const auto  transform = math::scale(mat4(1.0f), vec3(scaleFactor));
 
             visMesh->burnTransform(transform, true);
-            physMesh->burnTransform(transform, true);
+            //physMesh->burnTransform(transform, true);
 
-            auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, physMesh);
+            //auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, physMesh);
+            auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, visMesh);
 
             return std::pair {visMesh, shape};
         }();
-
-        // static auto mesh = [] {
-        //     constexpr float HEIGHT = 1.0f;
-        //     auto            mesh = util::fs::MeshAt("janus/janus.gltf");
-        //     const float     scaleFactor = HEIGHT / mesh->localExtent().y;
-        //     mesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
-        //     return mesh;
-        // }();
 
         auto node = Node::MeshNode(mesh);
         node->name("Janus");
         node->position({-1.5f, 0.0f, 0.0f});
 
-        auto body = make_unique<PhysicsBody>(PhysicsBody::Type::Static, shape);
-        // body->mass(10.0f);
-        // body->friction(0.6f);
-        // body->restitution(0.15f);
-        // body->linearDamping(0.03f);
-        // body->angularDamping(0.05f);
+        auto body = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
+        body->mass(10.0f);
+        body->friction(0.6f);
+        body->restitution(0.15f);
+        body->linearDamping(0.03f);
+        body->angularDamping(0.05f);
         node->physicsBody(std::move(body));
 
         root->addChild(node);

@@ -128,8 +128,10 @@ unique_ptr<Scene> App::init() {
 
         auto scene =
             make_unique<Scene>(std::move(visualWorld), std::move(physicsWorld), Window::InputContext());
-        scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay | Scene::DebugOptions::ShowPhysicsNormals
-                            | Scene::DebugOptions::ShowPhysicsContactPoints);
+        scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay | Scene::DebugOptions::ShowPhysicsWireframes
+                    | Scene::DebugOptions::ShowPhysicsNormals);
+        // scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay | Scene::DebugOptions::ShowPhysicsWireframes
+        //                     | Scene::DebugOptions::ShowPhysicsContactPoints);
         //scene->visualWorld()->usesDefaultLighting(true);
 
         // ambient light
