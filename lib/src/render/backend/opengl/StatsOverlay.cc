@@ -557,25 +557,25 @@ void DrawDebugOptions(Scene& scene, ImFont& bodyFont) {
     }
 
     yPos += Y_PAD;
-    bool meshWF = util::bitmask::contains(debugOptions, DebugOptions::ShowWireframes);
+    bool meshWF = util::bitmask::contains(debugOptions, DebugOptions::ShowMeshWireframes);
     if (ImguiDrawCheckbox(xPos, yPos, "mesh wireframes", meshWF, bodyFont, STATS_BODY_FONT_SIZE,
                           !kSupportsPolygonModeWireframes, ++id)) {
         if (meshWF) {
-            scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowWireframes));
+            scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowMeshWireframes));
         }
         else {
-            scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowWireframes));
+            scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowMeshWireframes));
         }
     }
 
     yPos += Y_PAD;
-    bool meshAABBs = util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowBoundingBoxes);
+    bool meshAABBs = util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowMeshBounds);
     if (ImguiDrawCheckbox(xPos, yPos, "mesh AABBs", meshAABBs, bodyFont, STATS_BODY_FONT_SIZE, false, ++id)) {
         if (meshAABBs) {
-            scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowBoundingBoxes));
+            scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowMeshBounds));
         }
         else {
-            scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowBoundingBoxes));
+            scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowMeshBounds));
         }
     }
 
@@ -592,14 +592,14 @@ void DrawDebugOptions(Scene& scene, ImFont& bodyFont) {
     }
 
     yPos += Y_PAD;
-    bool physAABBs = util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes);
+    bool physAABBs = util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsBounds);
     if (ImguiDrawCheckbox(xPos, yPos, "physics AABBs", physAABBs, bodyFont, STATS_BODY_FONT_SIZE, false,
                           ++id)) {
         if (physAABBs) {
-            scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
+            scene.debugOptions(util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsBounds));
         }
         else {
-            scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
+            scene.debugOptions(util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsBounds));
         }
     }
 

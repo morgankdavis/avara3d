@@ -82,7 +82,7 @@ std::unique_ptr<Scene> App::init() {
 
         auto scene =
             make_unique<Scene>(std::move(visualWorld), std::move(physicsWorld), Window::InputContext());
-        scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay | Scene::DebugOptions::ShowBoundingBoxes);
+        scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay | Scene::DebugOptions::ShowMeshBounds);
 
         auto groundNode = Node::NamedNode("Ground");
         groundNode->orientation(math::quaternion({1.0f, 0.0f, 0.0f}, radians(-90.0f)));
@@ -233,19 +233,19 @@ void App::inputDidUpdate(Runner&                         runner,
     using DebugOptions = Scene::DebugOptions;
 
     if (input.keyPressed(Key::F)) {
-        if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowWireframes)) {
-            scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowWireframes));
+        if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowMeshWireframes)) {
+            scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowMeshWireframes));
         }
         else {
-            scene.debugOptions(util::bitmask::add(scene.debugOptions(), DebugOptions::ShowWireframes));
+            scene.debugOptions(util::bitmask::add(scene.debugOptions(), DebugOptions::ShowMeshWireframes));
         }
     }
     if (input.keyPressed(Key::B)) {
-        if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
-            scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
+        if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowMeshBounds)) {
+            scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowMeshBounds));
         }
         else {
-            scene.debugOptions(util::bitmask::add(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
+            scene.debugOptions(util::bitmask::add(scene.debugOptions(), DebugOptions::ShowMeshBounds));
         }
     }
     if (input.keyPressed(Key::I)) {
@@ -257,13 +257,13 @@ void App::inputDidUpdate(Runner&                         runner,
         }
     }
     if (input.keyPressed(Key::P)) {
-        if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsBoundingBoxes)) {
+        if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowPhysicsBounds)) {
             scene.debugOptions(util::bitmask::remove(scene.debugOptions(),
-                                                     DebugOptions::ShowPhysicsBoundingBoxes));
+                                                     DebugOptions::ShowPhysicsBounds));
         }
         else {
             scene.debugOptions(util::bitmask::add(scene.debugOptions(),
-                                                  DebugOptions::ShowPhysicsBoundingBoxes));
+                                                  DebugOptions::ShowPhysicsBounds));
         }
     }
     if (input.keyPressed(Key::G)) {

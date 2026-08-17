@@ -49,20 +49,25 @@ namespace a3d {
 
         // TODO: move to VisualWorld?
         enum class DebugOptions : uint32_t {
-            None                        = 0,
-            ShowStatsOverlay            = 1 << 0,
-            ShowBoundingBoxes           = 1 << 1,
-            ShowWireframes              = 1 << 2,
-            ShowCameras                 = 1 << 3, // not implemented
-            ShowLights                  = 1 << 4, // not implemented
-            ShowLightExtents            = 1 << 5, // not implemented
-            ShowPhysicsBoundingBoxes    = 1 << 6,
-            ShowPhysicsWireframes       = 1 << 7,
-            ShowPhysicsContactPoints    = 1 << 8,
-            ShowPhysicsNormals          = 1 << 9,
-            ShowPhysicsConstraints      = 1 << 10, // not implemented
-            ShowPhysicsConstraintLimits = 1 << 11, // not implemented
-            ShowPhysicsFrames           = 1 << 12
+            None = 0,
+
+            ShowStatsOverlay = 1 << 0,
+
+            ShowMeshBounds     = 1 << 1,
+            ShowMeshFrames     = 1 << 2,
+            ShowMeshWireframes = 1 << 3,
+
+            ShowCameras      = 1 << 4, // not implemented
+            ShowLights       = 1 << 5, // not implemented
+            ShowLightExtents = 1 << 6, // not implemented
+
+            ShowPhysicsBounds           = 1 << 7,
+            ShowPhysicsFrames           = 1 << 8,
+            ShowPhysicsWireframes       = 1 << 9,
+            ShowPhysicsContactPoints    = 1 << 10,
+            ShowPhysicsNormals          = 1 << 11,
+            ShowPhysicsConstraints      = 1 << 12, // not implemented
+            ShowPhysicsConstraintLimits = 1 << 13, // not implemented
         };
 
         struct StepInfo {

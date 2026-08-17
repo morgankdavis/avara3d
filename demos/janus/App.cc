@@ -677,17 +677,12 @@ bool App::drawPanel() {
                 panel.value("shape", "none");
             }
 
-            if (auto physicsWorld = scene.physicsWorld()) {
-                const auto contacts = physicsWorld->contactTest(*body);
-                panel.value("contacts", std::format("{}", contacts.size()));
-            }
+            panel.spacer(6.0f);
 
             panel.value("mass", std::format("{:.1f}", body->mass()));
 
-            panel.spacer(6.0f);
-
-            panel.value("velocity", formatVec3(body->linearVelocity()));
-            panel.value("angular", formatVec3(body->angularVelocity()));
+            // panel.value("velocity", formatVec3(body->linearVelocity()));
+            // panel.value("angular", formatVec3(body->angularVelocity()));
 
             // panel.spacer(6.0f);
             //
@@ -699,6 +694,9 @@ bool App::drawPanel() {
 
             panel.value("friction", std::format("{:.1f}", body->friction()));
             panel.value("restitution", std::format("{:.1f}", body->restitution()));
+
+            const auto contacts = physicsWorld.contactTest(*body);
+            panel.value("contacts", std::format("{}", contacts.size()));
 
             panel.value("resting", body->resting() ? "yes" : "no");
 
@@ -753,29 +751,34 @@ bool App::drawPanel() {
         visualWorld.defaultLightingEnabled(defaultLighting);
     }
 
-    bool meshBounds = util::bitmask::contains(debugOptions, DebugOptions::ShowBoundingBoxes);
+    bool meshBounds = util::bitmask::contains(debugOptions, DebugOptions::ShowMeshBounds);
     if (panel.toggle("mesh bounds", meshBounds)) {
-        scene.debugOptions(meshBounds ? util::bitmask::add(debugOptions, DebugOptions::ShowBoundingBoxes)
-                                      : util::bitmask::remove(debugOptions, DebugOptions::ShowBoundingBoxes));
+        scene.debugOptions(meshBounds ? util::bitmask::add(debugOptions, DebugOptions::ShowMeshBounds)
+                                      : util::bitmask::remove(debugOptions, DebugOptions::ShowMeshBounds));
+    }
+
+    bool meshFrames = util::bitmask::contains(debugOptions, DebugOptions::ShowMeshFrames);
+    if (panel.toggle("mesh frames", meshFrames)) {
+        scene.debugOptions(meshFrames ? util::bitmask::add(debugOptions, DebugOptions::ShowMeshFrames)
+                                      : util::bitmask::remove(debugOptions, DebugOptions::ShowMeshFrames));
     }
 
     if (visualWorld.capabilities().wireframeRendering) {
-        bool meshWireframes = util::bitmask::contains(debugOptions, DebugOptions::ShowWireframes);
+        bool meshWireframes = util::bitmask::contains(debugOptions, DebugOptions::ShowMeshWireframes);
         if (panel.toggle("mesh wireframes", meshWireframes)) {
             scene.debugOptions(meshWireframes
-                                   ? util::bitmask::add(debugOptions, DebugOptions::ShowWireframes)
-                                   : util::bitmask::remove(debugOptions, DebugOptions::ShowWireframes));
+                                   ? util::bitmask::add(debugOptions, DebugOptions::ShowMeshWireframes)
+                                   : util::bitmask::remove(debugOptions, DebugOptions::ShowMeshWireframes));
         }
     }
     else {
         panel.value("mesh wireframes", "n/a", {0.0f, 1.0f, 0.0f, 0.0f});
     }
 
-    bool physBounds = util::bitmask::contains(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes);
+    bool physBounds = util::bitmask::contains(debugOptions, DebugOptions::ShowPhysicsBounds);
     if (panel.toggle("physics bounds", physBounds)) {
-        scene.debugOptions(physBounds
-                               ? util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes)
-                               : util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
+        scene.debugOptions(physBounds ? util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsBounds)
+                                      : util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsBounds));
     }
 
     bool physFrames = util::bitmask::contains(debugOptions, DebugOptions::ShowPhysicsFrames);

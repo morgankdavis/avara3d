@@ -68,7 +68,7 @@ static constexpr bool A3D_USE_MT_DISPATCHER = false;
 // contact batching until/unless we patch or replace that path
 static constexpr bool A3D_USE_MT_CONTACT_BATCHING = false;
 
-static constexpr float PHYSICS_BODY_FRAME_SIZE = 0.5f;
+static constexpr float PHYSICS_DEBUG_FRAME_SIZE = 0.5f;
 
 /// Private Static Non-Member Prototypes ///
 
@@ -751,9 +751,16 @@ void BulletWorldProxy::appendDebugLines(vector<Line>& out, Scene::DebugOptions d
 
         if (showPhysicsFrames) {
             const auto& objects = _btWorld->getCollisionObjectArray();
+
             for (int i = 0; i < objects.size(); ++i) {
                 if (auto* body = btRigidBody::upcast(objects[i])) {
-                    _btDebugDrawer->drawTransform(body->getCenterOfMassTransform(), PHYSICS_BODY_FRAME_SIZE);
+
+                    if (body->getCollisionShape()
+                        && body->getCollisionShape()->getShapeType() == STATIC_PLANE_PROXYTYPE) {
+                        continue;
+                    }
+
+                    _btDebugDrawer->drawTransform(body->getCenterOfMassTransform(), PHYSICS_DEBUG_FRAME_SIZE);
                 }
             }
         }
@@ -987,7 +994,7 @@ btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const Scene::Deb
 
     btIDebugDraw::DebugDrawModes btModes = btIDebugDraw::DBG_NoDebug;
 
-    if (util::bitmask::contains(options, DebugOptions::ShowPhysicsBoundingBoxes)) {
+    if (util::bitmask::contains(options, DebugOptions::ShowPhysicsBounds)) {
         btModes = static_cast<btIDebugDraw::DebugDrawModes>(btModes | btIDebugDraw::DBG_DrawAabb);
     }
     if (util::bitmask::contains(options, DebugOptions::ShowPhysicsWireframes)) {

@@ -239,19 +239,19 @@ void App::inputDidUpdate(Runner&                         runner,
     using DebugOptions = Scene::DebugOptions;
 
     if (input->keyPressed(Key::F)) {
-        if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowWireframes)) {
-            scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowWireframes));
+        if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowMeshWireframes)) {
+            scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowMeshWireframes));
         }
         else {
-            scene.debugOptions(util::bitmask::add(scene.debugOptions(), DebugOptions::ShowWireframes));
+            scene.debugOptions(util::bitmask::add(scene.debugOptions(), DebugOptions::ShowMeshWireframes));
         }
     }
     if (input->keyPressed(Key::B)) {
-        if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowBoundingBoxes)) {
-            scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
+        if (util::bitmask::contains(scene.debugOptions(), DebugOptions::ShowMeshBounds)) {
+            scene.debugOptions(util::bitmask::remove(scene.debugOptions(), DebugOptions::ShowMeshBounds));
         }
         else {
-            scene.debugOptions(util::bitmask::add(scene.debugOptions(), DebugOptions::ShowBoundingBoxes));
+            scene.debugOptions(util::bitmask::add(scene.debugOptions(), DebugOptions::ShowMeshBounds));
         }
     }
 

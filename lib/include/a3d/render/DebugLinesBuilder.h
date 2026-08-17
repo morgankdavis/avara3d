@@ -30,6 +30,7 @@ namespace a3d {
                                            const AABB&        local,
                                            const math::mat4&  model,
                                            const Color&       color);
+        static void AppendFrame(std::vector<Line>& out, const math::mat4& transform, float size);
     };
 
 }

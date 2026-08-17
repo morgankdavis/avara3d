@@ -31,8 +31,8 @@ const Color MESH_OBB_COLOR {vec4 {0.5f, 0.5f, 0.5f, 1.0f}};
 const Color MESH_AABB_COLOR {vec4 {1.0f, 0.0f, 0.0f, 1.0f}};
 const Color SCENE_AABB_COLOR {vec4 {0.0f, 0.5f, 0.0f, 1.0f}};
 const Color HIGHLIGHT_BOX_COLOR {vec4 {1.0f, 1.0f, 0.0f, 1.0f}};
-
 const vec4 HIGHLIGHT_TINT_COLOR {1.0f, 1.0f, 0.0f, 0.5f};
+static constexpr float MESH_DEBUG_FRAME_SIZE = 0.5f;
 
 /// Internal Static Member Functions ///
 
@@ -56,7 +56,8 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
     stack.reserve(256);
     stack.push_back({scene.rootNode().get(), mat4(1.0)});
 
-    const bool showBounds = util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowBoundingBoxes);
+    const bool showMeshBounds = util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowMeshBounds);
+    const bool showMeshFrames = util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowMeshFrames);
 
     output.backgroundMaterial = scene.visualWorld()->backgroundMaterial();
     if (const auto& background = scene.visualWorld()->background()) {
@@ -78,7 +79,7 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
         }
 
         const mat4 world = parentWorld * n->transform();
-        const bool wireframe = util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowWireframes);
+        const bool wireframe = util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowMeshWireframes);
         const bool showHighlightBox =
             util::bitmask::contains(n->debugOptions(), Node::DebugOptions::ShowHighlightBox);
         const bool showHighlightTint =
@@ -140,7 +141,7 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
                 }
             }
 
-            if (showBounds) {
+            if (showMeshBounds) {
 
                 if (!showHighlightBox) {
                     DebugLinesBuilder::AppendOBBFromLocalAABB(output.debugLines, mesh->localAABB(), world,
@@ -149,6 +150,10 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
 
                 DebugLinesBuilder::AppendAABB(output.debugLines, mesh->worldAABB(world, false),
                                               MESH_AABB_COLOR);
+            }
+
+            if (showMeshFrames) {
+                DebugLinesBuilder::AppendFrame(output.debugLines, world, MESH_DEBUG_FRAME_SIZE);
             }
 
             if (showHighlightBox) {
@@ -173,7 +178,8 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
         physicsWorld->appendDebugLines(output.debugLines);
     }
 
-    if (showBounds) {
+    if (showMeshBounds) {
+        // TODO: maybe give this its own debug option
         DebugLinesBuilder::AppendAABB(output.debugLines, scene.aabb(false), SCENE_AABB_COLOR);
     }
 

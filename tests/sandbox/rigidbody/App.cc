@@ -413,11 +413,11 @@ void App::inputDidUpdate(Runner&                         runner,
     };
 
     if (input.keyPressed(Key::F)) {
-        toggleDebugOption(DebugOptions::ShowWireframes);
+        toggleDebugOption(DebugOptions::ShowMeshWireframes);
     }
 
     if (input.keyPressed(Key::B)) {
-        toggleDebugOption(DebugOptions::ShowBoundingBoxes);
+        toggleDebugOption(DebugOptions::ShowMeshBounds);
     }
 
     if (input.keyPressed(Key::I)) {
@@ -425,7 +425,7 @@ void App::inputDidUpdate(Runner&                         runner,
     }
 
     if (input.keyPressed(Key::P)) {
-        toggleDebugOption(DebugOptions::ShowPhysicsBoundingBoxes);
+        toggleDebugOption(DebugOptions::ShowPhysicsBounds);
     }
 
     if (input.keyPressed(Key::G)) {

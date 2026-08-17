@@ -8,6 +8,7 @@
 
 #include "a3d/render/DebugLinesBuilder.h"
 
+#include "a3d/Color.h"
 #include "a3d/mesh/AABB.h"
 #include "a3d/mesh/Line.h"
 
@@ -54,6 +55,19 @@ void DebugLinesBuilder::AppendOBBFromLocalAABB(std::vector<Line>& out,
     }
 
     AppendBoxLinesFromCorners(out, wc, color);
+}
+
+void DebugLinesBuilder::AppendFrame(vector<Line>& out, const mat4& transform, float size) {
+
+    const vec3 origin = vec3(transform[3]);
+
+    const vec3 xAxis = normalize(vec3(transform[0]));
+    const vec3 yAxis = normalize(vec3(transform[1]));
+    const vec3 zAxis = normalize(vec3(transform[2]));
+
+    out.emplace_back(origin, origin + xAxis * size, Color {vec3{1.0f, 0.3f, 0.3f}});
+    out.emplace_back(origin, origin + yAxis * size, Color {vec3{0.3f, 1.0f, 0.3f}});
+    out.emplace_back(origin, origin + zAxis * size, Color {vec3{0.3f, 0.3f, 1.0f}});
 }
 
 /// Internal Static Non-Member Functions ///
