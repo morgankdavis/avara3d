@@ -123,8 +123,7 @@ std::unique_ptr<Scene> App::init() {
                     .color = Color(vec4 {0.75f, 0.75f, 0.75f, 0.25f}),
                     .spacing = 10.0f,
                     .lineWidthPixels = 1.0f,
-                    //.reliefStrength = -0.125f,
-                .reliefStrength = 0.0,
+                    .reliefStrength = -0.125f,
                 },
             .radialFade =
                 Ground::RadialFade {
