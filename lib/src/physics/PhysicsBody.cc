@@ -55,8 +55,6 @@ unique_ptr<PhysicsBody> PhysicsBody::KinematicBody() {
 
 static shared_ptr<PhysicsShape> PhysicsShapeFromPrimitiveMesh(const shared_ptr<Mesh>& mesh);
 
-// static void RequireDynamicBody(const PhysicsBody& body);
-
 /// Public Lifecycle Functions ///
 
 PhysicsBody::PhysicsBody(Type type):

@@ -1,6 +1,6 @@
 #header
 
-layout (location = 0) in vec3 vert_vertPos;
+layout(location = 0) in vec3 vert_vertPos;
 
 uniform mat4 modelMat;
 uniform mat4 viewMat;

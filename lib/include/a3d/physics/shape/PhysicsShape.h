@@ -70,24 +70,6 @@ namespace a3d {
         void                                    physicsWorldReachable(PhysicsWorld& world);
         void                                    physicsWorldUnreachable(PhysicsWorld& world);
 
-//		void 								bodyAttachedToNode(Node* node); // body's owning node
-//		void 								bodyDetachedFromNode(Node* node);
-//
-//		void 								ancestorAttachedToParent(Node* ancestor,
-//																	  Node* parent);
-//		void 								ancestorDetachedFromParent(Node* node,
-//																		Node* parent);
-//
-//		void								ancestorAttachedToScene(Node* ancestor,
-//																	Scene* scene);
-//		void								ancestorDetachedFromScene(Node* node,
-//																	  Scene* scene);
-//
-//		void								physicsWorldAttachedToScene(PhysicsWorld* world,
-//																		 Scene* scene);
-//		void								physicsWorldDetachedFromScene(PhysicsWorld* world,
-//																		   Scene* scene);
-
         void                                    source(const Source& sourceObject);
 
         void                                    checkCreateProxy();

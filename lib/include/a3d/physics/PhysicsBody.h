@@ -103,10 +103,6 @@ namespace a3d {
         float                                angularSleepingThreshold() const;
         void                                 angularSleepingThreshold(float threshold);
 
-        // categoryBitmask
-        // contactTestBitmask
-        // collisionBitmask
-
         void                                 applyForce(const math::vec3& force, bool impulse);
         void                applyForce(const math::vec3& force, const math::vec3& location, bool impulse);
         void                applyTorque(const math::vec3& torque, bool impulse);
@@ -139,37 +135,14 @@ namespace a3d {
 
         /// Internal Member Functions ///
 
-//		void 								resting(bool resting);
-
         void                attachedToNode(const std::shared_ptr<Node>& node);
         void                detachedFromNode(const std::shared_ptr<Node>& node);
-
-//		void 								nodeAttachedToParent(Node* parent); // owning node's parent
-//		void 								nodeDetachedFromParent(Node* parent);
-//
-//		void 								nodeAttachedToScene(Scene* scene); // owning node
-//		void 								nodeDetachedFromScene(Scene* scene);
 
         void                meshAttachedToNode(const std::shared_ptr<Mesh>& mesh); // owning node's mesh
         void                meshDetachedFromNode(const std::shared_ptr<Mesh>& mesh);
 
         void                physicsWorldReachable(PhysicsWorld& world);
         void                physicsWorldUnreachable(PhysicsWorld& world);
-
-//		void 								ancestorAttachedToParent(Node* ancestor,
-//																	 Node* parent);
-//		void 								ancestorDetachedFromParent(Node* ancestor,
-//																	   Node* parent);
-//
-//		void								ancestorAttachedToScene(Node* ancestor,
-//																	Scene* scene);
-//		void								ancestorDetachedFromScene(Node* ancestor,
-//																	  Scene* scene);
-//
-//		void								physicsWorldAttachedToScene(PhysicsWorld* world,
-//																		 Scene* scene);
-//		void								physicsWorldDetachedFromScene(PhysicsWorld* world,
-//																		   Scene* scene);
 
         void                addedToWorld(PhysicsWorld& world);
         void                removedFromWorld(PhysicsWorld& world);

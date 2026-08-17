@@ -81,14 +81,12 @@ vector<PhysicsContact> PhysicsWorld::convexSweepTest(const PhysicsShape&        
                                                      const mat4&                   toMat,
                                                      const ConvexSweepTestOptions& options) const {
     throw runtime_error("Not implemented.");
-    //return _proxy->convexSweepTest(shape, fromMat, toMat, options.searchMode);
 }
 
 vector<PhysicsContact> PhysicsWorld::convexSweepTest(const PhysicsShape& shape,
                                                      const mat4&         fromMat,
                                                      const mat4&         toMat) const {
     throw runtime_error("Not implemented.");
-    //return convexSweepTest(shape, fromMat, toMat, ConvexSweepTestOptions {});
 }
 
 void PhysicsWorld::updateCollisionPairs() {

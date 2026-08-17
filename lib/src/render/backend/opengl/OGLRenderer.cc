@@ -77,7 +77,6 @@ static const unsigned DRAW_TIMER_BUFFER_SIZE {4};
 /// Private Types ///
 
 enum class MaterialContentsType : unsigned {
-
     None = 0,
     Color = 1,
     Sampler = 2
@@ -87,14 +86,12 @@ static_assert(sizeof(vec4) == 16);
 static_assert(sizeof(vec3) == 12);
 
 struct AmbientLightGLSLStruct {
-
     vec4 color;
 };
 
 static_assert(sizeof(AmbientLightGLSLStruct) == 16);
 
 struct DirectionalLightGLSLStruct {
-
     vec4 color;
     vec3 direction_world;
     f32  _pad_0_;
@@ -103,7 +100,6 @@ struct DirectionalLightGLSLStruct {
 static_assert(sizeof(DirectionalLightGLSLStruct) == 32);
 
 struct PointLightGLSLStruct {
-
     vec4 color;
     vec3 position_world;
     f32  _pad_0_;
@@ -116,7 +112,6 @@ struct PointLightGLSLStruct {
 static_assert(sizeof(PointLightGLSLStruct) == 48);
 
 struct SpotLightGLSLStruct {
-
     vec4     color;
     vec3     position_world;
     f32      _pad_0_;
@@ -135,14 +130,12 @@ struct SpotLightGLSLStruct {
 static_assert(sizeof(SpotLightGLSLStruct) == 80);
 
 enum class SurfaceType : uint32_t {
-
     None = 0,
     Plane = 1,
     Sphere = 2
 };
 
 struct SurfaceGLSLStruct {
-
     uint32_t type;
     f32      planeHeight;
     f32      _pad_0_;
@@ -154,7 +147,6 @@ struct SurfaceGLSLStruct {
 static_assert(sizeof(SurfaceGLSLStruct) == 32);
 
 struct FogGLSLStruct {
-
     vec4     color;
     f32      startDistance;
     f32      endDistance;
@@ -165,7 +157,6 @@ struct FogGLSLStruct {
 static_assert(sizeof(FogGLSLStruct) == 32);
 
 struct AtmosphereHazeGLSLStruct {
-
     vec4     color;
     f32      density;
     uint32_t enabled;
@@ -176,7 +167,6 @@ struct AtmosphereHazeGLSLStruct {
 static_assert(sizeof(AtmosphereHazeGLSLStruct) == 32);
 
 struct AtmosphereLimbGlowGLSLStruct {
-
     vec4     color;
     f32      intensity;
     uint32_t enabled;
@@ -187,7 +177,6 @@ struct AtmosphereLimbGlowGLSLStruct {
 static_assert(sizeof(AtmosphereLimbGlowGLSLStruct) == 32);
 
 struct AtmosphereGLSLStruct {
-
     f32                          scaleHeight;
     uint32_t                     enabled;
     f32                          _pad_0_;
@@ -199,7 +188,6 @@ struct AtmosphereGLSLStruct {
 static_assert(sizeof(AtmosphereGLSLStruct) == 80);
 
 struct EnvironmentBlock {
-
     uint32_t                   defaultLightingEnabled;
     uint32_t                   _pad0_[3];
     uint32_t                   numAmbientLights;

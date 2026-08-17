@@ -13,26 +13,26 @@ uniform mat4 inverseViewProjMat;
 
 uniform vec3 groundColor;
 
-uniform bool minorGridEnabled;
-uniform vec4 minorGridColor;
+uniform bool  minorGridEnabled;
+uniform vec4  minorGridColor;
 uniform float minorGridSpacing;
 uniform float minorGridLineWidthPixels;
 uniform float minorGridReliefStrength;
 
-uniform bool majorGridEnabled;
-uniform vec4 majorGridColor;
+uniform bool  majorGridEnabled;
+uniform vec4  majorGridColor;
 uniform float majorGridSpacing;
 uniform float majorGridLineWidthPixels;
 uniform float majorGridReliefStrength;
 
-uniform bool radialFadeEnabled;
-uniform vec2 radialFadeCenter;
+uniform bool  radialFadeEnabled;
+uniform vec2  radialFadeCenter;
 uniform float radialFadeStartDistance;
 uniform float radialFadeEndDistance;
-uniform vec4 radialFadeColor;
+uniform vec4  radialFadeColor;
 
-uniform bool horizonHazeEnabled;
-uniform vec4 horizonHazeColor;
+uniform bool  horizonHazeEnabled;
+uniform vec4  horizonHazeColor;
 uniform float horizonHazeAngularWidthDegrees;
 
 uniform float groundSpecularIntensity;
@@ -40,378 +40,221 @@ uniform float groundSpecularExponent;
 
 out vec4 fragColor;
 
-vec3 Unproject(vec2 ndc, float ndcDepth);
-float ComputeDepth(vec3 worldPosition);
-float GridCoverage(vec2 worldXZ, float spacing, float lineWidthPixels);
-vec2 GridReliefGradient(
-        vec2 worldXZ,
-        float spacing,
-        float lineWidthPixels,
-        float reliefStrength);
-bool IntersectGround(vec3 rayOrigin,
-        vec3 ray,
-        out vec3 worldPosition,
-        out vec3 surfaceNormalWorld);
+vec3    Unproject(vec2 ndc, float ndcDepth);
+float   ComputeDepth(vec3 worldPosition);
+float   GridCoverage(vec2 worldXZ, float spacing, float lineWidthPixels);
+vec2    GridReliefGradient(vec2 worldXZ, float spacing, float lineWidthPixels, float reliefStrength);
+bool    IntersectGround(vec3 rayOrigin, vec3 ray, out vec3 worldPosition, out vec3 surfaceNormalWorld);
 
 void main() {
 
-    vec3 nearWorld = Unproject(fragNdc, -1.0);
-    vec3 farWorld = Unproject(fragNdc, 1.0);
-    vec3 ray = farWorld - nearWorld;
+	vec3 nearWorld = Unproject(fragNdc, -1.0);
+	vec3 farWorld = Unproject(fragNdc, 1.0);
+	vec3 ray = farWorld - nearWorld;
 
-    vec3 worldPosition;
-    vec3 surfaceNormalWorld;
+	vec3 worldPosition;
+	vec3 surfaceNormalWorld;
 
-    if (!IntersectGround(
-            nearWorld,
-            ray,
-            worldPosition,
-            surfaceNormalWorld)) {
+	if (!IntersectGround(nearWorld, ray, worldPosition, surfaceNormalWorld)) {
+		discard;
+	}
 
-        discard;
-    }
+	vec3 surfaceColor = groundColor;
 
-    vec3 surfaceColor = groundColor;
+	if (minorGridEnabled) {
 
-    if (minorGridEnabled) {
+		float coverage = GridCoverage(worldPosition.xz, minorGridSpacing, minorGridLineWidthPixels);
+		float blend = coverage * clamp(minorGridColor.a, 0.0, 1.0);
 
-        float coverage = GridCoverage(
-                worldPosition.xz,
-                minorGridSpacing,
-                minorGridLineWidthPixels);
+		surfaceColor = mix(surfaceColor, minorGridColor.rgb, blend);
+	}
 
-        float blend = coverage * clamp(minorGridColor.a, 0.0, 1.0);
+	if (majorGridEnabled) {
 
-        surfaceColor = mix(surfaceColor, minorGridColor.rgb, blend);
-    }
+		float coverage = GridCoverage(worldPosition.xz, majorGridSpacing, majorGridLineWidthPixels);
+		float blend = coverage * clamp(majorGridColor.a, 0.0, 1.0);
 
-    if (majorGridEnabled) {
+		surfaceColor = mix(surfaceColor, majorGridColor.rgb, blend);
+	}
 
-        float coverage = GridCoverage(
-                worldPosition.xz,
-                majorGridSpacing,
-                majorGridLineWidthPixels);
+	//vec3 surfacePositionEye = vec3(viewMat * vec4(worldPosition, 1.0));
+	//vec3 surfaceNormalEye = normalize(mat3(viewMat) * surfaceNormalWorld);
 
-        float blend = coverage * clamp(majorGridColor.a, 0.0, 1.0);
+	vec2 reliefGradient = vec2(0.0);
 
-        surfaceColor = mix(surfaceColor, majorGridColor.rgb, blend);
-    }
+	if (minorGridEnabled && minorGridReliefStrength != 0.0) {
 
-//    vec3 surfacePositionEye = vec3(viewMat * vec4(worldPosition, 1.0));
-//    vec3 surfaceNormalEye = normalize(mat3(viewMat) * surfaceNormalWorld);
+		reliefGradient += GridReliefGradient(
+			worldPosition.xz, minorGridSpacing, minorGridLineWidthPixels, minorGridReliefStrength);
+	}
 
-    vec2 reliefGradient = vec2(0.0);
+	if (majorGridEnabled && majorGridReliefStrength != 0.0) {
 
-    if (minorGridEnabled && minorGridReliefStrength != 0.0) {
+		reliefGradient += GridReliefGradient(
+			worldPosition.xz, majorGridSpacing, majorGridLineWidthPixels, majorGridReliefStrength);
+	}
 
-        reliefGradient += GridReliefGradient(
-                worldPosition.xz,
-                minorGridSpacing,
-                minorGridLineWidthPixels,
-                minorGridReliefStrength);
-    }
+	vec3 lightingNormalWorld = normalize(surfaceNormalWorld - vec3(reliefGradient.x, 0.0, reliefGradient.y));
 
-    if (majorGridEnabled && majorGridReliefStrength != 0.0) {
+	vec3 surfacePositionEye = vec3(viewMat * vec4(worldPosition, 1.0));
+	vec3 surfaceNormalEye = normalize(mat3(viewMat) * lightingNormalWorld);
+	vec3 geometricNormalEye = normalize(mat3(viewMat) * surfaceNormalWorld);
 
-        reliefGradient += GridReliefGradient(
-                worldPosition.xz,
-                majorGridSpacing,
-                majorGridLineWidthPixels,
-                majorGridReliefStrength);
-    }
+	vec3 color;
 
-    vec3 lightingNormalWorld =
-    normalize(
-            surfaceNormalWorld
-            - vec3(
-                    reliefGradient.x,
-                    0.0,
-                    reliefGradient.y));
+	if (Environment.defaultLightingEnabled > 0u) {
 
-    vec3 surfacePositionEye =
-    vec3(viewMat * vec4(worldPosition, 1.0));
+		color = surfaceColor;
+	}
+	else {
 
-    vec3 surfaceNormalEye =
-    normalize(mat3(viewMat) * lightingNormalWorld);
+		vec3 Ka = surfaceColor;
+		vec3 Kd = surfaceColor;
+		vec3 Ks = vec3(groundSpecularIntensity);
 
-    vec3 geometricNormalEye =
-    normalize(mat3(viewMat) * surfaceNormalWorld);
+		color = CalcAmbientLighting(Ka);
 
-    vec3 color;
+		color += CalcDirectionalLighting(Kd, Ks, surfacePositionEye, surfaceNormalEye, viewMat, groundSpecularExponent);
+		color += CalcPointLighting(Kd, Ks, surfacePositionEye, surfaceNormalEye, viewMat, groundSpecularExponent);
+		color += CalcSpotLighting(Kd, Ks, surfacePositionEye, surfaceNormalEye, viewMat, groundSpecularExponent);
+	}
 
-    if (Environment.defaultLightingEnabled > 0u) {
+	if (radialFadeEnabled) {
 
-        color = surfaceColor;
-    }
-    else {
+		float radialDistance = length(worldPosition.xz - radialFadeCenter);
+		float fade = smoothstep(radialFadeStartDistance, radialFadeEndDistance, radialDistance);
+		float blend = fade * clamp(radialFadeColor.a, 0.0, 1.0);
 
-        vec3 Ka = surfaceColor;
-        vec3 Kd = surfaceColor;
-        vec3 Ks = vec3(groundSpecularIntensity);
+		color = mix(color, radialFadeColor.rgb, blend);
+	}
 
-        color = CalcAmbientLighting(Ka);
+	if (horizonHazeEnabled) {
 
-        color += CalcDirectionalLighting(
-                Kd,
-                Ks,
-                surfacePositionEye,
-                surfaceNormalEye,
-                viewMat,
-                groundSpecularExponent);
+		vec3 eyeToSurfaceDirection = normalize(surfacePositionEye);
+		float horizonAngle = asin(clamp(abs(dot(eyeToSurfaceDirection, geometricNormalEye)), 0.0, 1.0));
+		float haze = 1.0 - smoothstep(0.0, radians(horizonHazeAngularWidthDegrees), horizonAngle);
 
-        color += CalcPointLighting(
-                Kd,
-                Ks,
-                surfacePositionEye,
-                surfaceNormalEye,
-                viewMat,
-                groundSpecularExponent);
+		haze *= clamp(horizonHazeColor.a, 0.0, 1.0);
 
-        color += CalcSpotLighting(
-                Kd,
-                Ks,
-                surfacePositionEye,
-                surfaceNormalEye,
-                viewMat,
-                groundSpecularExponent);
-    }
+		color = mix(color, horizonHazeColor.rgb, haze);
+	}
 
-    if (radialFadeEnabled) {
+	color = ApplyFog(vec4(color, 1.0), length(surfacePositionEye)).rgb;
+	color = ApplyAtmosphereHaze(color, worldPosition);
 
-        float radialDistance = length(worldPosition.xz - radialFadeCenter);
-
-        float fade = smoothstep(
-                radialFadeStartDistance,
-                radialFadeEndDistance,
-                radialDistance);
-
-        float blend =
-        fade * clamp(radialFadeColor.a, 0.0, 1.0);
-
-        color = mix(
-                color,
-                radialFadeColor.rgb,
-                blend);
-    }
-
-    if (horizonHazeEnabled) {
-
-        vec3 eyeToSurfaceDirection =
-        normalize(surfacePositionEye);
-
-        float horizonAngle = asin(
-                clamp(
-                        abs(dot(
-                                eyeToSurfaceDirection,
-                                geometricNormalEye)),
-                        0.0,
-                        1.0));
-
-        float haze = 1.0 - smoothstep(
-                0.0,
-                radians(horizonHazeAngularWidthDegrees),
-                horizonAngle);
-
-        haze *= clamp(horizonHazeColor.a, 0.0, 1.0);
-
-        color = mix(
-                color,
-                horizonHazeColor.rgb,
-                haze);
-    }
-
-    color = ApplyFog(
-            vec4(
-                    color,
-                    1.0),
-            length(surfacePositionEye)).rgb;
-
-    color = ApplyAtmosphereHaze(
-            color,
-            worldPosition);
-
-    fragColor = vec4(color, 1.0);
-
-    gl_FragDepth = ComputeDepth(worldPosition);
+	fragColor = vec4(color, 1.0);
+	gl_FragDepth = ComputeDepth(worldPosition);
 }
 
 vec3 Unproject(vec2 ndc, float ndcDepth) {
 
-    vec4 world = inverseViewProjMat * vec4(ndc, ndcDepth, 1.0);
-    return world.xyz / world.w;
+	vec4 world = inverseViewProjMat * vec4(ndc, ndcDepth, 1.0);
+	return world.xyz / world.w;
 }
 
 float ComputeDepth(vec3 worldPosition) {
 
-    vec4 clip = viewProjMat * vec4(worldPosition, 1.0);
-    float ndcDepth = clip.z / clip.w;
-    float depth = ndcDepth * 0.5 + 0.5;
+	vec4 clip = viewProjMat * vec4(worldPosition, 1.0);
+	float ndcDepth = clip.z / clip.w;
+	float depth = ndcDepth * 0.5 + 0.5;
 
-    return clamp(depth, 0.0, 1.0);
+	return clamp(depth, 0.0, 1.0);
 }
 
-float GridCoverage(
-        vec2 worldXZ,
-        float spacing,
-        float lineWidthPixels) {
+float GridCoverage(vec2 worldXZ, float spacing, float lineWidthPixels) {
 
-    vec2 gridCoord = worldXZ / spacing;
-    vec2 distanceToLine = abs(fract(gridCoord - 0.5) - 0.5);
-    vec2 derivative = max(fwidth(gridCoord), vec2(0.000001));
-    vec2 pixelDistance = distanceToLine / derivative;
-    float halfWidth = lineWidthPixels * 0.5;
-    vec2 lineCoverage = 1.0 - smoothstep(
-            vec2(halfWidth - 0.5),
-            vec2(halfWidth + 0.5),
-            pixelDistance);
-    vec2 cellSizePixels = 1.0 / derivative;
-    vec2 lodFade = smoothstep(
-            vec2(2.0), // 3.0
-            vec2(4.0), // 6.0
-            cellSizePixels);
-    lineCoverage *= lodFade;
+	vec2 gridCoord = worldXZ / spacing;
+	vec2 distanceToLine = abs(fract(gridCoord - 0.5) - 0.5);
+	vec2 derivative = max(fwidth(gridCoord), vec2(0.000001));
+	vec2 pixelDistance = distanceToLine / derivative;
+	float halfWidth = lineWidthPixels * 0.5;
+	vec2 lineCoverage = 1.0 - smoothstep(vec2(halfWidth - 0.5), vec2(halfWidth + 0.5), pixelDistance);
+	vec2 cellSizePixels = 1.0 / derivative;
+	vec2 lodFade = smoothstep(
+		vec2(2.0), // 3.0
+		vec2(4.0), // 6.0
+		cellSizePixels);
 
-    return max(lineCoverage.x, lineCoverage.y);
+	lineCoverage *= lodFade;
+
+	return max(lineCoverage.x, lineCoverage.y);
 }
 
-vec2 GridReliefGradient(
-        vec2 worldXZ,
-        float spacing,
-        float lineWidthPixels,
-        float reliefStrength) {
+vec2 GridReliefGradient(vec2 worldXZ, float spacing, float lineWidthPixels, float reliefStrength) {
 
-    vec2 gridCoord =
-    worldXZ / spacing;
+	vec2 gridCoord = worldXZ / spacing;
+	vec2 signedDistanceToLine = fract(gridCoord + 0.5) - 0.5;
+	vec2 derivative = max(fwidth(gridCoord), vec2(0.000001));
+	vec2 pixelDistance = signedDistanceToLine / derivative;
+	float radiusPixels = lineWidthPixels * 0.5 + 0.5;
+	vec2 normalizedDistance = clamp(abs(pixelDistance) / radiusPixels, vec2(0.0), vec2(1.0));
+	vec2 profileSlope = -4.0 * normalizedDistance * (1.0 - normalizedDistance * normalizedDistance);
 
-    vec2 signedDistanceToLine =
-    fract(gridCoord + 0.5) - 0.5;
+	profileSlope *= sign(pixelDistance);
 
-    vec2 derivative =
-    max(fwidth(gridCoord), vec2(0.000001));
+	vec2 cellSizePixels = 1.0 / derivative;
+	vec2 lodFade = smoothstep(vec2(2.0), vec2(4.0), cellSizePixels);
 
-    vec2 pixelDistance =
-    signedDistanceToLine / derivative;
-
-    float radiusPixels =
-    lineWidthPixels * 0.5 + 0.5;
-
-    vec2 normalizedDistance =
-    clamp(
-            abs(pixelDistance) / radiusPixels,
-            vec2(0.0),
-            vec2(1.0));
-
-    vec2 profileSlope =
-    -4.0
-    * normalizedDistance
-    * (1.0 - normalizedDistance * normalizedDistance);
-
-    profileSlope *=
-    sign(pixelDistance);
-
-    vec2 cellSizePixels =
-    1.0 / derivative;
-
-    vec2 lodFade =
-    smoothstep(
-            vec2(2.0),
-            vec2(4.0),
-            cellSizePixels);
-
-    return profileSlope
-    * lodFade
-    * (reliefStrength / radiusPixels);
+	return profileSlope * lodFade * (reliefStrength / radiusPixels);
 }
 
-bool IntersectGround(
-        vec3 rayOrigin,
-        vec3 ray,
-        out vec3 worldPosition,
-        out vec3 surfaceNormalWorld) {
+bool IntersectGround(vec3 rayOrigin, vec3 ray, out vec3 worldPosition, out vec3 surfaceNormalWorld) {
 
-    if (Environment.surface.type == SURFACE_TYPE_SPHERE) {
+	if (Environment.surface.type == SURFACE_TYPE_SPHERE) {
 
-        vec3 sphereCenter =
-        Environment.surface.sphereCenter;
+		vec3 sphereCenter = Environment.surface.sphereCenter;
+		float sphereRadius = Environment.surface.sphereRadius;
+		vec3 originFromCenter = rayOrigin - sphereCenter;
 
-        float sphereRadius =
-        Environment.surface.sphereRadius;
+		float a = dot(ray, ray);
+		float b = 2.0 * dot(originFromCenter, ray);
+		float c = dot(originFromCenter, originFromCenter) - sphereRadius * sphereRadius;
+		float discriminant = b * b - 4.0 * a * c;
 
-        vec3 originFromCenter =
-        rayOrigin - sphereCenter;
+		if (discriminant < 0.0) {
+			return false;
+		}
 
-        float a =
-        dot(ray, ray);
+		float sqrtDiscriminant = sqrt(max(discriminant, 0.0));
+		float inverseTwoA = 0.5 / a;
+		float t0 = (-b - sqrtDiscriminant) * inverseTwoA;
+		float t1 = (-b + sqrtDiscriminant) * inverseTwoA;
 
-        float b =
-        2.0 * dot(originFromCenter, ray);
+		float t;
 
-        float c =
-        dot(originFromCenter, originFromCenter)
-        - sphereRadius * sphereRadius;
+		if (t0 >= 0.0) {
+			t = t0;
+		}
+		else if (t1 >= 0.0) {
+			t = t1;
+		}
+		else {
+			return false;
+		}
 
-        float discriminant =
-        b * b - 4.0 * a * c;
+		worldPosition = rayOrigin + ray * t;
+		surfaceNormalWorld = normalize(worldPosition - sphereCenter);
 
-        if (discriminant < 0.0) {
-            return false;
-        }
+		return true;
+	}
 
-        float sqrtDiscriminant =
-        sqrt(max(discriminant, 0.0));
+	if (Environment.surface.type == SURFACE_TYPE_PLANE) {
 
-        float inverseTwoA =
-        0.5 / a;
+		if (abs(ray.y) < 0.000001) {
+			return false;
+		}
 
-        float t0 =
-        (-b - sqrtDiscriminant) * inverseTwoA;
+		float t = (Environment.surface.planeHeight - rayOrigin.y) / ray.y;
 
-        float t1 =
-        (-b + sqrtDiscriminant) * inverseTwoA;
+		if (t < 0.0) {
+			return false;
+		}
 
-        float t;
+		worldPosition = rayOrigin + ray * t;
+		surfaceNormalWorld = vec3(0.0, 1.0, 0.0);
 
-        if (t0 >= 0.0) {
-            t = t0;
-        }
-        else if (t1 >= 0.0) {
-            t = t1;
-        }
-        else {
-            return false;
-        }
+		return true;
+	}
 
-        worldPosition =
-        rayOrigin + ray * t;
-
-        surfaceNormalWorld =
-        normalize(worldPosition - sphereCenter);
-
-        return true;
-    }
-
-    if (Environment.surface.type == SURFACE_TYPE_PLANE) {
-
-        if (abs(ray.y) < 0.000001) {
-            return false;
-        }
-
-        float t =
-        (Environment.surface.planeHeight - rayOrigin.y)
-        / ray.y;
-
-        if (t < 0.0) {
-            return false;
-        }
-
-        worldPosition =
-        rayOrigin + ray * t;
-
-        surfaceNormalWorld =
-        vec3(0.0, 1.0, 0.0);
-
-        return true;
-    }
-
-    return false;
+	return false;
 }
