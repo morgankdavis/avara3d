@@ -139,12 +139,12 @@ unique_ptr<CubeImage> a3d::util::fs::CubeImageAt(const filesystem::path& baseFil
     };
 
     return make_unique<CubeImage>(std::array<unique_ptr<Image>, 6> {
-        ImageAt(faceFilename("xpos"), false, true),
-        ImageAt(faceFilename("xneg"), false, true),
-        ImageAt(faceFilename("ypos"), true, false),
-        ImageAt(faceFilename("yneg"), true, false),
-        ImageAt(faceFilename("zpos"), false, true),
-        ImageAt(faceFilename("zneg"), false, true),
+        ImageAt(faceFilename("x_pos"), false, true),
+        ImageAt(faceFilename("x_neg"), false, true),
+        ImageAt(faceFilename("y_pos"), true, false),
+        ImageAt(faceFilename("y_neg"), true, false),
+        ImageAt(faceFilename("z_pos"), false, true),
+        ImageAt(faceFilename("z_neg"), false, true),
     });
 }
 

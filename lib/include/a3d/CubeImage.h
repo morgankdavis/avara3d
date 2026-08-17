@@ -23,12 +23,12 @@ namespace a3d {
         /// Public Types ///
 
         enum class Face : uint8_t {
-            XPos,
-            XNeg,
-            YPos,
-            YNeg,
-            ZPos,
-            ZNeg
+            X_Pos,
+            X_Neg,
+            Y_Pos,
+            Y_Neg,
+            Z_Pos,
+            Z_Neg
         };
 
         /// Public Lifecycle Functions ///

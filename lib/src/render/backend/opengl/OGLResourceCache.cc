@@ -352,12 +352,12 @@ unsigned BufferTextureContents(const Texture& texture) {
                     return;
                 }
 
-                Image* images[] = {cubeImage->face(CubeImage::Face::XPos),
-                                   cubeImage->face(CubeImage::Face::XNeg),
-                                   cubeImage->face(CubeImage::Face::YPos),
-                                   cubeImage->face(CubeImage::Face::YNeg),
-                                   cubeImage->face(CubeImage::Face::ZPos),
-                                   cubeImage->face(CubeImage::Face::ZNeg)};
+                Image* images[] = {cubeImage->face(CubeImage::Face::X_Pos),
+                                   cubeImage->face(CubeImage::Face::X_Neg),
+                                   cubeImage->face(CubeImage::Face::Y_Pos),
+                                   cubeImage->face(CubeImage::Face::Y_Neg),
+                                   cubeImage->face(CubeImage::Face::Z_Pos),
+                                   cubeImage->face(CubeImage::Face::Z_Neg)};
 
                 GLenum sides[] = {GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
                                   GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
