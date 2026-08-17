@@ -1114,10 +1114,9 @@ shared_ptr<Node> MakeSimulationRoot() {
     {
         static auto mesh = [] {
             constexpr float HEIGHT = 0.35f;
-            auto            mesh = util::fs::MeshAt("teapot/teapot.gltf");
+            auto            mesh = util::fs::MeshAt("marble_teapot/marble_teapot.gltf");
             const float     teapotScale = HEIGHT / mesh->localExtent().y;
             mesh->burnTransform(math::scale(mat4(1.0f), vec3(teapotScale)), true);
-            mesh->replaceMaterial(0, Material::DiffuseMaterial(Color::DarkGray()));
             return mesh;
         }();
 
