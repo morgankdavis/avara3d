@@ -57,8 +57,6 @@ namespace a3d {
             PremultipliedAlpha
         };
 
-        using PropertyList = std::vector<std::pair<const Property*, PropertyType>>;
-
         /// Public Static Member Functions ///
 
         static std::shared_ptr<Material> DefaultMaterial();
@@ -99,8 +97,6 @@ namespace a3d {
         const Property&                   emission() const;
         void                              emission(const Property& emission);
 
-        PropertyList                      properties() const;
-
         float                             specularExponent() const;
         void                              specularExponent(float exponent);
 
@@ -134,6 +130,8 @@ namespace a3d {
 
         /// Internal Types ///
 
+        using PropertyList = std::vector<std::pair<const Property*, PropertyType>>;
+
         enum class DirtyMask : uint32_t {
             None = 0,
             All  = UINT_MAX
@@ -145,6 +143,8 @@ namespace a3d {
         static Property                  MissingTextureProperty();
 
         /// Internal Member Functions ///
+
+        PropertyList                     properties() const;
 
         MaterialId                       id() const noexcept;
 

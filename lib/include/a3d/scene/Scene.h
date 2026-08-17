@@ -53,15 +53,16 @@ namespace a3d {
             ShowStatsOverlay            = 1 << 0,
             ShowBoundingBoxes           = 1 << 1,
             ShowWireframes              = 1 << 2,
-            ShowCameras                 = 1 << 3,
-            ShowLights                  = 1 << 4,
-            ShowLightExtents            = 1 << 5,
+            ShowCameras                 = 1 << 3, // not implemented
+            ShowLights                  = 1 << 4, // not implemented
+            ShowLightExtents            = 1 << 5, // not implemented
             ShowPhysicsBoundingBoxes    = 1 << 6,
             ShowPhysicsWireframes       = 1 << 7,
             ShowPhysicsContactPoints    = 1 << 8,
             ShowPhysicsNormals          = 1 << 9,
-            ShowPhysicsConstraints      = 1 << 10,
-            ShowPhysicsConstraintLimits = 1 << 11
+            ShowPhysicsConstraints      = 1 << 10, // not implemented
+            ShowPhysicsConstraintLimits = 1 << 11, // not implemented
+            ShowPhysicsFrames           = 1 << 12
         };
 
         struct StepInfo {

@@ -107,9 +107,10 @@ void BulletDebugDrawer::drawContactPoint(const btVector3& pointOnB,
 }
 
 void BulletDebugDrawer::reportErrorWarning(const char* warningString) {
-    log::w()(std::format("Bullet warning: {}", warningString));
+    log::w()("BULLET WARNING: {}", warningString);
 }
 
+// TODO: do this some day
 void BulletDebugDrawer::draw3dText(const btVector3& location, const char* textString) {
     log::w()("(Not implemented)");
 }

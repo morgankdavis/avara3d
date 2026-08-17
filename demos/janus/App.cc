@@ -142,7 +142,7 @@ std::unique_ptr<Scene> App::init() {
             .scaleHeight = 1.00f,
             .haze =
                 Atmosphere::Haze {
-                    .color = Color(vec4 {0.15f, 0.15f, 0.17f, 0.35}),
+                    .color = Color(vec4 {0.12f, 0.12f, 0.13f, 0.35}),
                     .density = .35,
                 },
             .limbGlow =
@@ -776,6 +776,12 @@ bool App::drawPanel() {
         scene.debugOptions(physBounds
                                ? util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes)
                                : util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsBoundingBoxes));
+    }
+
+    bool physFrames = util::bitmask::contains(debugOptions, DebugOptions::ShowPhysicsFrames);
+    if (panel.toggle("physics frames", physFrames)) {
+        scene.debugOptions(physFrames ? util::bitmask::add(debugOptions, DebugOptions::ShowPhysicsFrames)
+                                      : util::bitmask::remove(debugOptions, DebugOptions::ShowPhysicsFrames));
     }
 
     bool physWireframes = util::bitmask::contains(debugOptions, DebugOptions::ShowPhysicsWireframes);

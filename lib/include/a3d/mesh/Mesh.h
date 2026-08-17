@@ -11,7 +11,6 @@
 
 #include <climits>
 #include <filesystem>
-#include <map>
 #include <memory>
 #include <optional>
 #include <string>
@@ -20,7 +19,6 @@
 #include "a3d/Id.h"
 #include "a3d/Math.h"
 #include "a3d/mesh/AABB.h"
-#include "a3d/mesh/VertexLayout.h"
 #include "a3d/util/Bitmask.h"
 
 namespace a3d {

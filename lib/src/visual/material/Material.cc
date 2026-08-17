@@ -201,13 +201,6 @@ void Material::emission(const Property& property) {
     _emission = property;
 }
 
-Material::PropertyList Material::properties() const {
-    return PropertyList {{&_ambient, PropertyType::Ambient},
-                         {&_diffuse, PropertyType::Diffuse},
-                         {&_specular, PropertyType::Specular},
-                         {&_emission, PropertyType::Emission}};
-}
-
 float Material::specularExponent() const {
     return _specularExponent;
 }
@@ -315,6 +308,13 @@ Material::Property Material::MissingTextureProperty() {
 }
 
 /// Internal Member Functions ///
+
+Material::PropertyList Material::properties() const {
+    return PropertyList {{&_ambient, PropertyType::Ambient},
+                         {&_diffuse, PropertyType::Diffuse},
+                         {&_specular, PropertyType::Specular},
+                         {&_emission, PropertyType::Emission}};
+}
 
 MaterialId Material::id() const noexcept {
     return _id;

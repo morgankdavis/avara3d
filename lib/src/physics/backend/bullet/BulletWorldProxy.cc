@@ -43,14 +43,6 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-// ! btCollisionDispatcherMt is known to be buggy. leave it off.
-static constexpr bool A3D_USE_MT_DISPATCHER = false;
-
-// bullet's MT spatial-grid contact batching can assert on large/dense
-// contact islands. keep the MT world/solver infrastructure, but disable
-// contact batching until/unless we patch or replace that path
-static constexpr bool A3D_USE_MT_CONTACT_BATCHING = false;
-
 // make sure bullet is built with MT enabled
 //#if !defined(BT_THREADSAFE) || (BT_THREADSAFE != 1)
 //#   error "Bullet requires building with BT_THREADSAFE=1"
@@ -65,6 +57,18 @@ static constexpr bool A3D_USE_MT_CONTACT_BATCHING = false;
         #error "Native threaded Bullet requires building with BT_THREADSAFE=1"
     #endif
 #endif
+
+/// Private Constants ///
+
+// ! btCollisionDispatcherMt is known to be buggy. leave it off.
+static constexpr bool A3D_USE_MT_DISPATCHER = false;
+
+// bullet's MT spatial-grid contact batching can assert on large/dense
+// contact islands. keep the MT world/solver infrastructure, but disable
+// contact batching until/unless we patch or replace that path
+static constexpr bool A3D_USE_MT_CONTACT_BATCHING = false;
+
+static constexpr float PHYSICS_BODY_FRAME_SIZE = 0.5f;
 
 /// Private Static Non-Member Prototypes ///
 
@@ -722,12 +726,15 @@ void BulletWorldProxy::appendDebugLines(vector<Line>& out, Scene::DebugOptions d
             1.0f / DEBUG_LINE_UPDATE_RATE});
 
     const auto debugMode = BTDebugDrawModesForA3DDebugOptions(debugOptions);
+    // see note in BTDebugDrawModesForA3DDebugOptions()
+    const bool showPhysicsFrames =
+        util::bitmask::contains(debugOptions, Scene::DebugOptions::ShowPhysicsFrames);
     const auto now = chrono::steady_clock::now();
 
-    const auto modeValue = static_cast<int>(debugMode);
+    const auto modeValue = static_cast<int>(debugMode) | (showPhysicsFrames ? btIDebugDraw::DBG_DrawFrames : 0);
     const bool modeChanged = modeValue != _debugDrawMode;
 
-    if (debugMode == btIDebugDraw::DBG_NoDebug) {
+    if (debugMode == btIDebugDraw::DBG_NoDebug && !showPhysicsFrames) {
         _debugLines.clear();
         _debugDrawMode = modeValue;
         _nextDebugLineUpdate = {};
@@ -741,6 +748,15 @@ void BulletWorldProxy::appendDebugLines(vector<Line>& out, Scene::DebugOptions d
         _btDebugDrawer->clear();
 
         _btWorld->debugDrawWorld();
+
+        if (showPhysicsFrames) {
+            const auto& objects = _btWorld->getCollisionObjectArray();
+            for (int i = 0; i < objects.size(); ++i) {
+                if (auto* body = btRigidBody::upcast(objects[i])) {
+                    _btDebugDrawer->drawTransform(body->getCenterOfMassTransform(), PHYSICS_BODY_FRAME_SIZE);
+                }
+            }
+        }
 
         _debugLines = std::move(_btDebugDrawer->lines());
         _debugDrawMode = modeValue;
@@ -972,23 +988,27 @@ btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const Scene::Deb
     btIDebugDraw::DebugDrawModes btModes = btIDebugDraw::DBG_NoDebug;
 
     if (util::bitmask::contains(options, DebugOptions::ShowPhysicsBoundingBoxes)) {
-        btModes = (btIDebugDraw::DebugDrawModes) (btModes | btIDebugDraw::DBG_DrawAabb);
+        btModes = static_cast<btIDebugDraw::DebugDrawModes>(btModes | btIDebugDraw::DBG_DrawAabb);
     }
     if (util::bitmask::contains(options, DebugOptions::ShowPhysicsWireframes)) {
-        btModes = (btIDebugDraw::DebugDrawModes) (btModes | btIDebugDraw::DBG_DrawWireframe);
+        btModes = static_cast<btIDebugDraw::DebugDrawModes>(btModes | btIDebugDraw::DBG_DrawWireframe);
     }
     if (util::bitmask::contains(options, DebugOptions::ShowPhysicsContactPoints)) {
-        btModes = (btIDebugDraw::DebugDrawModes) (btModes | btIDebugDraw::DBG_DrawContactPoints);
+        btModes = static_cast<btIDebugDraw::DebugDrawModes>(btModes | btIDebugDraw::DBG_DrawContactPoints);
     }
     if (util::bitmask::contains(options, DebugOptions::ShowPhysicsNormals)) {
-        btModes = (btIDebugDraw::DebugDrawModes) (btModes | btIDebugDraw::DBG_DrawNormals);
+        btModes = static_cast<btIDebugDraw::DebugDrawModes>(btModes | btIDebugDraw::DBG_DrawNormals);
     }
     if (util::bitmask::contains(options, DebugOptions::ShowPhysicsConstraints)) {
-        btModes = (btIDebugDraw::DebugDrawModes) (btModes | btIDebugDraw::DBG_DrawConstraints);
+        btModes = static_cast<btIDebugDraw::DebugDrawModes>(btModes | btIDebugDraw::DBG_DrawConstraints);
     }
     if (util::bitmask::contains(options, DebugOptions::ShowPhysicsConstraintLimits)) {
-        btModes = (btIDebugDraw::DebugDrawModes) (btModes | btIDebugDraw::DBG_DrawConstraintLimits);
+        btModes = static_cast<btIDebugDraw::DebugDrawModes>(btModes | btIDebugDraw::DBG_DrawConstraintLimits);
     }
+    // Bullet draws TINY lines for these. instead handling manually in appendDebugLines()
+    // if (util::bitmask::contains(options, DebugOptions::ShowPhysicsFrames)) {
+    //     btModes = static_cast<btIDebugDraw::DebugDrawModes>(btModes | btIDebugDraw::DBG_DrawFrames);
+    // }
 
     /* what do these do?
 
@@ -997,9 +1017,6 @@ btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const Scene::Deb
 
 	 btModes = (btIDebugDraw::DebugDrawModes)
 	 (btModes | btIDebugDraw::DBG_DrawFeaturesText);
-
-	 btModes = (btIDebugDraw::DebugDrawModes)
-	 (btModes | btIDebugDraw::DBG_DrawFrames);
 
 	 btModes = (btIDebugDraw::DebugDrawModes)
 	 (btModes | btIDebugDraw::DBG_EnableCCD); */

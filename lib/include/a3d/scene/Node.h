@@ -37,6 +37,7 @@ namespace a3d {
     public:
         /// Public Types ///
 
+        // TODO: probably move these
         enum class DebugOptions : uint32_t {
             None              = 0,
             ShowHighlightBox  = 1 << 0,
