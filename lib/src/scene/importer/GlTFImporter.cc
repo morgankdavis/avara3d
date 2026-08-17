@@ -51,17 +51,18 @@ using namespace std;
 
 /// Private Static Non-Member Prototypes ///
 
-static fastgltf::Options     GlTFOptionsFromImportOptions(Scene::ImportOptions options);
-static std::span<const byte> BytesFromDataSource(const fastgltf::DataSource& src);
-static std::span<const byte> BytesFromBufferView(const fastgltf::Asset& asset, size_t bufferViewIndex);
-static mat4                  TransformFromGlTFNode(fastgltf::Node& node);
-static Color                 ColorFromGlTFColorArray(const fastgltf::math::nvec3& v);
-static Color                 ColorFromGlTFColorArray(const fastgltf::math::nvec4& v);
-static float                 PhongExponentFromGlTFRoughness(float roughness);
-static Color                 PhongSpecularFromGlTFMaterial(const fastgltf::Material& material);
-static void                  ReadIndicesU32(const fastgltf::Asset&    asset,
-                                            const fastgltf::Accessor& idxAccessor,
-                                            vector<uint32_t>&         out);
+static fastgltf::Options      GlTFOptionsFromImportOptions(Scene::ImportOptions options);
+static std::span<const byte>  BytesFromDataSource(const fastgltf::DataSource& src);
+static std::span<const byte>  BytesFromBufferView(const fastgltf::Asset& asset, size_t bufferViewIndex);
+static mat4                   TransformFromGlTFNode(fastgltf::Node& node);
+static Color                  ColorFromGlTFColorArray(const fastgltf::math::nvec3& v);
+static Color                  ColorFromGlTFColorArray(const fastgltf::math::nvec4& v);
+static float                  PhongExponentFromGlTFRoughness(float roughness);
+static Color                  PhongSpecularFromGlTFMaterial(const fastgltf::Material& material);
+static std::shared_ptr<Image> PhongSpecularImageFromGlTFSpecularImage(const Image& image);
+static void                   ReadIndicesU32(const fastgltf::Asset&    asset,
+                                             const fastgltf::Accessor& idxAccessor,
+                                             vector<uint32_t>&         out);
 
 /// Internal Lifecycle Functions ///
 
@@ -519,7 +520,31 @@ shared_ptr<a3d::Material> GlTFImporter::materialFromGlTFPrimitive(fastgltf::Asse
                 a3dMaterial->locksAmbientWithDiffuse(true);
                 a3dMaterial->doubleSided(material.doubleSided);
 
-                a3dMaterial->specular(PhongSpecularFromGlTFMaterial(material));
+                if (material.specular && material.specular->specularTexture) {
+
+                    const auto textureIndex = material.specular->specularTexture->textureIndex;
+                    auto&      glTFTexture = asset.textures[textureIndex];
+
+                    if (auto image = imageFromGlTFTexture(asset, glTFTexture)) {
+
+                        auto specularImage = PhongSpecularImageFromGlTFSpecularImage(*image);
+
+                        auto sampler = samplerFromGlTFTexture(asset, glTFTexture);
+                        if (!sampler) {
+                            sampler = make_shared<Sampler>();
+                        }
+
+                        auto texture = make_shared<Texture>(specularImage, sampler);
+
+                        a3dMaterial->specular(texture);
+                    }
+                    else {
+                        a3dMaterial->specular(Material::MissingTextureProperty());
+                    }
+                }
+                else {
+                    a3dMaterial->specular(PhongSpecularFromGlTFMaterial(material));
+                }
 
                 a3dMaterial->specularExponent(PhongExponentFromGlTFRoughness(material.pbrData.roughnessFactor));
 
@@ -877,6 +902,35 @@ Color PhongSpecularFromGlTFMaterial(const fastgltf::Material& material) {
     };
 
     return Color(specular);
+}
+
+shared_ptr<Image> PhongSpecularImageFromGlTFSpecularImage(const Image& image) {
+
+    // convert a glTF KHR_materials_specular specular-strength texture to A3D's
+    // Phong specular-map representation. glTF stores scalar specular strength
+    // in the alpha channel, while A3D's Phong shader expects an RGB Ks value.
+    // replicate source alpha into RGB and make the resulting texture opaque.
+    // this conversion does not apply specularFactor, specularColorFactor, or IOR.
+
+    A3D_ASSERT(image.bytesPerPixel() == 4);
+
+    const size_t pixelCount = static_cast<size_t>(image.width()) * image.height();
+    auto         buffer = make_unique<Buffer>(pixelCount * 4);
+
+    const auto* src = reinterpret_cast<const uint8_t*>(image.buffer().data());
+    auto*       dst = reinterpret_cast<uint8_t*>(buffer->data());
+
+    for (size_t i = 0; i < pixelCount; ++i) {
+
+        const uint8_t specular = src[i * 4 + 3];
+
+        dst[i * 4 + 0] = specular;
+        dst[i * 4 + 1] = specular;
+        dst[i * 4 + 2] = specular;
+        dst[i * 4 + 3] = 255;
+    }
+
+    return make_shared<Image>(std::move(buffer), image.width(), image.height(), 4, false, false);
 }
 
 void ReadIndicesU32(const fastgltf::Asset&    asset,
