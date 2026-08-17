@@ -111,7 +111,6 @@ std::unique_ptr<Scene> App::init() {
 
         visualWorld->ground(Ground {
             .color = Color::DarkGray(),
-            // .color = Color(.2f),
             .minorGrid =
                 Ground::Grid {
                     .color = Color(vec4 {0.5f, 0.5f, 0.5f, 0.25f}),
@@ -133,21 +132,19 @@ std::unique_ptr<Scene> App::init() {
                     .startDistance = 10.0f,
                     .endDistance = 100.0f,
                 },
-            // .horizonHaze = Ground::HorizonHaze {
-            //     .color = Color(vec4 {0.2f, 0.2f, 0.2f, 0.4f}),
-            //     .angularWidthDegrees = 4.0f
-            // },
+            .horizonHaze = Ground::HorizonHaze {.color = Color(vec4 {0.2f, 0.2f, 0.2f, 0.4f}),
+                                                .angularWidthDegrees = 4.0f},
             .specularIntensity = 0.05f,
             .specularExponent = 8.0f,
         });
 
         visualWorld->atmosphere(Atmosphere {
             .scaleHeight = 1.00f,
-            // .haze =
-            //     Atmosphere::Haze {
-            //         .color = Color(vec4 {0.2f, 0.2f, 0.25f, 0.22}),
-            //         .density = 0.5,
-            //     },
+            .haze =
+                Atmosphere::Haze {
+                    .color = Color(vec4 {0.15f, 0.15f, 0.17f, 0.35}),
+                    .density = .35,
+                },
             .limbGlow =
                 Atmosphere::LimbGlow {
                     .color = Color(vec4 {0.30f, 0.38f, 0.48f, 0.5f}),
