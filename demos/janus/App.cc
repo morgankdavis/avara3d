@@ -110,20 +110,28 @@ std::unique_ptr<Scene> App::init() {
         });
 
         visualWorld->ground(Ground {
-            .color = Color::DarkGray(),
-            .minorGrid =
-                Ground::Grid {
-                    .color = Color(vec4 {0.5f, 0.5f, 0.5f, 0.25f}),
-                    .spacing = 1.0f,
-                    .lineWidthPixels = 1.0f,
-                    .reliefStrength = -0.125f,
-                },
-            .majorGrid =
-                Ground::Grid {
-                    .color = Color(vec4 {0.75f, 0.75f, 0.75f, 0.25f}),
-                    .spacing = 10.0f,
-                    .lineWidthPixels = 1.0f,
-                    .reliefStrength = -0.125f,
+            .fill =
+                Ground::Procedural {
+                    .content =
+                        Ground::Procedural::Grid {
+                            .color = Color::DarkGray(),
+                            .minor =
+                                Ground::Procedural::GridComponent {
+                                    .color = Color(vec4 {0.5f, 0.5f, 0.5f, 0.25f}),
+                                    .spacing = 1.0f,
+                                    .lineWidthPixels = 1.0f,
+                                    .reliefStrength = -0.125f,
+                                },
+                            .major =
+                                Ground::Procedural::GridComponent {
+                                    .color = Color(vec4 {0.75f, 0.75f, 0.75f, 0.25f}),
+                                    .spacing = 10.0f,
+                                    .lineWidthPixels = 1.0f,
+                                    .reliefStrength = -0.125f,
+                                },
+                            .specularIntensity = 0.05f,
+                            .specularExponent = 8.0f,
+                        },
                 },
             .radialFade =
                 Ground::RadialFade {
@@ -132,10 +140,10 @@ std::unique_ptr<Scene> App::init() {
                     .startDistance = 10.0f,
                     .endDistance = 100.0f,
                 },
-            .horizonHaze = Ground::HorizonHaze {.color = Color(vec4 {0.2f, 0.2f, 0.2f, 0.4f}),
-                                                .angularWidthDegrees = 4.0f},
-            .specularIntensity = 0.05f,
-            .specularExponent = 8.0f,
+            .horizonHaze = Ground::HorizonHaze {
+                .color = Color(vec4 {0.2f, 0.2f, 0.2f, 0.4f}),
+                .angularWidthDegrees = 4.0f,
+            },
         });
 
         visualWorld->atmosphere(Atmosphere {

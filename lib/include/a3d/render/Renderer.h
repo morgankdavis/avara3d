@@ -73,7 +73,7 @@ namespace a3d {
             FrameStats*          stats    = nullptr;
             Profiler*            profiler = nullptr;
         };
-        
+
         /// Internal Lifecycle Functions ///
 
         Renderer();

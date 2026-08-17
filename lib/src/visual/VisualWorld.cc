@@ -229,26 +229,29 @@ void VisualWorld::ground(const optional<Ground>& ground) {
             throw logic_error("Ground requires a VisualWorld surface.");
         }
 
-        auto validateGrid = [](const Ground::Grid& grid, const char* name) {
-            if (!math::is_finite(grid.spacing) || grid.spacing <= 0.0f) {
+        const auto& procedural = std::get<Ground::Procedural>(ground->fill);
+        const auto& grid = std::get<Ground::Procedural::Grid>(procedural.content);
+
+        auto validateGridComponent = [](const Ground::Procedural::GridComponent& component, const char* name) {
+            if (!math::is_finite(component.spacing) || component.spacing <= 0.0f) {
                 throw invalid_argument(format("Ground {} grid spacing must be finite and greater than zero.",
                                               name));
             }
-            if (!math::is_finite(grid.lineWidthPixels) || grid.lineWidthPixels <= 0.0f) {
+            if (!math::is_finite(component.lineWidthPixels) || component.lineWidthPixels <= 0.0f) {
                 throw invalid_argument(format("Ground {} grid line width must be finite and greater than zero.",
                                               name));
             }
-            if (!math::is_finite(grid.reliefStrength)) {
+            if (!math::is_finite(component.reliefStrength)) {
                 throw invalid_argument(format("Ground {} grid relief strength must be finite.", name));
             }
         };
 
-        if (ground->minorGrid) {
-            validateGrid(*ground->minorGrid, "minor");
+        if (grid.minor) {
+            validateGridComponent(*grid.minor, "minor");
         }
 
-        if (ground->majorGrid) {
-            validateGrid(*ground->majorGrid, "major");
+        if (grid.major) {
+            validateGridComponent(*grid.major, "major");
         }
 
         if (ground->radialFade) {

@@ -54,28 +54,34 @@ std::unique_ptr<Scene> App::init() {
         });
 
         visualWorld->ground(Ground {
-            .color = Color::DarkGray(),
-            .minorGrid =
-                Ground::Grid {
-                    .color = Color(vec4 {0.5f, 0.5f, 0.5f, 0.25f}),
-                    .spacing = 1.0f,
-                    .lineWidthPixels = 1.0f,
-                    .reliefStrength = -0.15f,
-                },
-            .majorGrid =
-                Ground::Grid {
-                    .color = Color(vec4 {0.75f, 0.75f, 0.75f, 0.25f}),
-                    .spacing = 10.0f,
-                    .lineWidthPixels = 1.0f,
-                    .reliefStrength = -0.15f,
+            .fill =
+                Ground::Procedural {
+                    .content =
+                        Ground::Procedural::Grid {
+                            .color = Color::DarkGray(),
+                            .minor =
+                                Ground::Procedural::GridComponent {
+                                    .color = Color(vec4 {0.5f, 0.5f, 0.5f, 0.25f}),
+                                    .spacing = 1.0f,
+                                    .lineWidthPixels = 1.0f,
+                                    .reliefStrength = -0.15f,
+                                },
+                            .major =
+                                Ground::Procedural::GridComponent {
+                                    .color = Color(vec4 {0.75f, 0.75f, 0.75f, 0.25f}),
+                                    .spacing = 10.0f,
+                                    .lineWidthPixels = 1.0f,
+                                    .reliefStrength = -0.15f,
+                                },
+                            .specularIntensity = 0.15f,
+                            .specularExponent = 32.0f,
+                        },
                 },
             .horizonHaze =
                 Ground::HorizonHaze {
                     .color = Color(vec4 {0.1f, 0.1f, 0.1f, 0.5f}),
                     .angularWidthDegrees = 2.5f,
                 },
-            .specularIntensity = 0.15f,
-            .specularExponent = 32.0f,
         });
 
         auto physicsWorld = make_unique<PhysicsWorld>();

@@ -12,6 +12,7 @@
 #include "a3d/Color.h"
 
 #include <optional>
+#include <variant>
 
 #include "a3d/Math.h"
 
@@ -19,13 +20,31 @@ namespace a3d {
 
     struct Ground {
 
-        struct Grid {
+        struct Procedural {
 
-            Color color {};
-            float spacing {1.0f};
-            float lineWidthPixels {1.0f};
-            float reliefStrength {0.0f};
+            struct GridComponent {
+
+                Color color {};
+                float spacing {1.0f};
+                float lineWidthPixels {1.0f};
+                float reliefStrength {0.0f};
+            };
+
+            struct Grid {
+
+                Color                        color {};
+                std::optional<GridComponent> minor {};
+                std::optional<GridComponent> major {};
+                float                        specularIntensity {0.15f};
+                float                        specularExponent {32.0f};
+            };
+
+            using Content = std::variant<Grid>;
+
+            Content content {Grid {}};
         };
+
+        using Fill = std::variant<Procedural>;
 
         struct RadialFade {
 
@@ -41,13 +60,9 @@ namespace a3d {
             float angularWidthDegrees {3.0f};
         };
 
-        Color                      color {};
-        std::optional<Grid>        minorGrid {};
-        std::optional<Grid>        majorGrid {};
+        Fill                       fill {Procedural {}};
         std::optional<RadialFade>  radialFade {};
         std::optional<HorizonHaze> horizonHaze {};
-        float                      specularIntensity {0.15f};
-        float                      specularExponent {32.0f};
     };
 
 }

@@ -654,6 +654,8 @@ void OGLRenderer::drawGround(const GroundPass& groundPass, const mat4& view, con
     }
 
     const auto& ground = *groundPass.ground;
+    const auto& procedural = get<Ground::Procedural>(ground.fill);
+    const auto& grid = get<Ground::Procedural::Grid>(procedural.content);
 
     bindPipeline(groundPass.pipelineId);
 
@@ -663,26 +665,26 @@ void OGLRenderer::drawGround(const GroundPass& groundPass, const mat4& view, con
     _groundProgram->setUniform("viewProjMat", viewProj);
     _groundProgram->setUniform("inverseViewProjMat", inverse(viewProj));
 
-    _groundProgram->setUniform("groundColor", ground.color.rgb());
+    _groundProgram->setUniform("groundColor", grid.color.rgb());
 
-    const bool minorGridEnabled = ground.minorGrid.has_value();
+    const bool minorGridEnabled = grid.minor.has_value();
     _groundProgram->setUniform("minorGridEnabled", minorGridEnabled);
     if (minorGridEnabled) {
-        const auto& grid = *ground.minorGrid;
-        _groundProgram->setUniform("minorGridColor", grid.color.rgba());
-        _groundProgram->setUniform("minorGridSpacing", grid.spacing);
-        _groundProgram->setUniform("minorGridLineWidthPixels", grid.lineWidthPixels);
-        _groundProgram->setUniform("minorGridReliefStrength", grid.reliefStrength);
+        const auto& component = *grid.minor;
+        _groundProgram->setUniform("minorGridColor", component.color.rgba());
+        _groundProgram->setUniform("minorGridSpacing", component.spacing);
+        _groundProgram->setUniform("minorGridLineWidthPixels", component.lineWidthPixels);
+        _groundProgram->setUniform("minorGridReliefStrength", component.reliefStrength);
     }
 
-    const bool majorGridEnabled = ground.majorGrid.has_value();
+    const bool majorGridEnabled = grid.major.has_value();
     _groundProgram->setUniform("majorGridEnabled", majorGridEnabled);
     if (majorGridEnabled) {
-        const auto& grid = *ground.majorGrid;
-        _groundProgram->setUniform("majorGridColor", grid.color.rgba());
-        _groundProgram->setUniform("majorGridSpacing", grid.spacing);
-        _groundProgram->setUniform("majorGridLineWidthPixels", grid.lineWidthPixels);
-        _groundProgram->setUniform("majorGridReliefStrength", grid.reliefStrength);
+        const auto& component = *grid.major;
+        _groundProgram->setUniform("majorGridColor", component.color.rgba());
+        _groundProgram->setUniform("majorGridSpacing", component.spacing);
+        _groundProgram->setUniform("majorGridLineWidthPixels", component.lineWidthPixels);
+        _groundProgram->setUniform("majorGridReliefStrength", component.reliefStrength);
     }
 
     const bool radialFadeEnabled = ground.radialFade.has_value();
@@ -703,8 +705,8 @@ void OGLRenderer::drawGround(const GroundPass& groundPass, const mat4& view, con
         _groundProgram->setUniform("horizonHazeAngularWidthDegrees", haze.angularWidthDegrees);
     }
 
-    _groundProgram->setUniform("groundSpecularIntensity", ground.specularIntensity);
-    _groundProgram->setUniform("groundSpecularExponent", ground.specularExponent);
+    _groundProgram->setUniform("groundSpecularIntensity", grid.specularIntensity);
+    _groundProgram->setUniform("groundSpecularExponent", grid.specularExponent);
 
     glBindVertexArray(_fullscreenTriangleVao);
     glDrawArrays(GL_TRIANGLES, 0, 3);
