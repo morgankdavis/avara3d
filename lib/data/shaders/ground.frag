@@ -192,10 +192,10 @@ vec2 GridReliefGradient(vec2 worldXZ, float spacing, float lineWidthPixels, floa
 
 	profileSlope *= sign(pixelDistance);
 
-	vec2 cellSizePixels = 1.0 / derivative;
-	vec2 lodFade = smoothstep(vec2(2.0), vec2(4.0), cellSizePixels);
+    vec2 cellSizePixels = 1.0 / derivative;
+    vec2 reliefFade = smoothstep(vec2(2.0), vec2(8.0), cellSizePixels);
 
-	return profileSlope * lodFade * (reliefStrength / radiusPixels);
+    return profileSlope * reliefFade * (reliefStrength / radiusPixels);
 }
 
 bool IntersectGround(vec3 rayOrigin, vec3 ray, out vec3 worldPosition, out vec3 surfaceNormalWorld) {
