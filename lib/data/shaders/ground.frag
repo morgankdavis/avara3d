@@ -38,7 +38,7 @@ uniform vec4  radialFadeColor;
 
 uniform bool  horizonHazeEnabled;
 uniform vec4  horizonHazeColor;
-uniform float horizonHazeAngularWidthDegrees;
+uniform float horizonHazeAngularWidth;
 
 uniform float groundSpecularIntensity;
 uniform float groundSpecularExponent;
@@ -153,7 +153,7 @@ void main() {
 
         vec3 eyeToSurfaceDirection = normalize(surfacePositionEye);
         float horizonAngle = asin(clamp(abs(dot(eyeToSurfaceDirection, geometricNormalEye)), 0.0, 1.0));
-        float haze = 1.0 - smoothstep(0.0, radians(horizonHazeAngularWidthDegrees), horizonAngle);
+        float haze = 1.0 - smoothstep(0.0, horizonHazeAngularWidth, horizonAngle);
 
         haze *= clamp(horizonHazeColor.a, 0.0, 1.0);
 

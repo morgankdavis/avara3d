@@ -719,7 +719,7 @@ void OGLRenderer::drawGround(const GroundPass& groundPass, const mat4& view, con
     if (horizonHazeEnabled) {
         const auto& haze = *ground.horizonHaze;
         _groundProgram->setUniform("horizonHazeColor", haze.color.rgba());
-        _groundProgram->setUniform("horizonHazeAngularWidthDegrees", haze.angularWidthDegrees);
+        _groundProgram->setUniform("horizonHazeAngularWidth", haze.angularWidth);
     }
 
     glBindVertexArray(_fullscreenTriangleVao);

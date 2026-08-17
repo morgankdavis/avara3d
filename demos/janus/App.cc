@@ -152,7 +152,7 @@ std::unique_ptr<Scene> App::init() {
             .horizonHaze =
                 Ground::HorizonHaze {
                     .color = Color(vec4 {0.2f, 0.2f, 0.2f, 0.4f}),
-                    .angularWidthDegrees = 4.0f,
+                    .angularWidth = math::radians(4.0f),
                 },
         });
 

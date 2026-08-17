@@ -60,7 +60,7 @@ namespace a3d {
         struct HorizonHaze {
 
             Color color {};
-            float angularWidthDegrees {3.0f};
+            float angularWidth {3.0f};
         };
 
         Fill                       fill {Procedural {}};
