@@ -109,7 +109,16 @@ std::unique_ptr<Scene> App::init() {
             .radius = 5000.0f,
         });
 
+        //tiles_ceramic_white_diff.jpg
+
+        // auto groundImage = util::fs::ImageAt("white_ceramic_tiles_diff.webp");
+        // auto groundTexture = make_shared<Texture>(std::move(groundImage));
+        // auto groundMaterial = make_shared<Material>(std::monostate {}, groundTexture, Color::Gray());
+        // groundMaterial->specularExponent(16.0f);
+        // groundMaterial->uvScale(5.0f);
+
         visualWorld->ground(Ground {
+            // .fill = groundMaterial,
             .fill =
                 Ground::Procedural {
                     .content =
@@ -140,10 +149,11 @@ std::unique_ptr<Scene> App::init() {
                     .startDistance = 10.0f,
                     .endDistance = 100.0f,
                 },
-            .horizonHaze = Ground::HorizonHaze {
-                .color = Color(vec4 {0.2f, 0.2f, 0.2f, 0.4f}),
-                .angularWidthDegrees = 4.0f,
-            },
+            .horizonHaze =
+                Ground::HorizonHaze {
+                    .color = Color(vec4 {0.2f, 0.2f, 0.2f, 0.4f}),
+                    .angularWidthDegrees = 4.0f,
+                },
         });
 
         visualWorld->atmosphere(Atmosphere {
@@ -232,7 +242,7 @@ std::unique_ptr<Scene> App::init() {
         auto cameraConfig = _cameraController.config();
         cameraConfig.controls.orbitButton = DesktopInputContext::MouseButton::One;
         cameraConfig.controls.panButton = DesktopInputContext::MouseButton::Two;
-        //cameraConfig.minPitch = math::radians(0.0f);
+        // cameraConfig.minPitch = math::radians(-2.5f);
         cameraConfig.invertPitch = true;
         cameraConfig.minDistance = 1.0f;
         cameraConfig.maxDistance = 100.0f;
