@@ -229,29 +229,42 @@ void VisualWorld::ground(const optional<Ground>& ground) {
             throw logic_error("Ground requires a VisualWorld surface.");
         }
 
-        const auto& procedural = std::get<Ground::Procedural>(ground->fill);
-        const auto& grid = std::get<Ground::Procedural::Grid>(procedural.content);
+        if (const auto* procedural = get_if<Ground::Procedural>(&ground->fill)) {
 
-        auto validateGridComponent = [](const Ground::Procedural::GridComponent& component, const char* name) {
-            if (!math::is_finite(component.spacing) || component.spacing <= 0.0f) {
-                throw invalid_argument(format("Ground {} grid spacing must be finite and greater than zero.",
-                                              name));
-            }
-            if (!math::is_finite(component.lineWidthPixels) || component.lineWidthPixels <= 0.0f) {
-                throw invalid_argument(format("Ground {} grid line width must be finite and greater than zero.",
-                                              name));
-            }
-            if (!math::is_finite(component.reliefStrength)) {
-                throw invalid_argument(format("Ground {} grid relief strength must be finite.", name));
-            }
-        };
+            const auto& grid = get<Ground::Procedural::Grid>(procedural->content);
 
-        if (grid.minor) {
-            validateGridComponent(*grid.minor, "minor");
-        }
+            auto validateGridComponent = [](const Ground::Procedural::GridComponent& component,
+                                            const char*                              name) {
+                if (!math::is_finite(component.spacing) || component.spacing <= 0.0f) {
+                    throw invalid_argument(
+                        format("Ground {} grid spacing must be finite and greater than zero.", name));
+                }
 
-        if (grid.major) {
-            validateGridComponent(*grid.major, "major");
+                if (!math::is_finite(component.lineWidthPixels) || component.lineWidthPixels <= 0.0f) {
+                    throw invalid_argument(
+                        format("Ground {} grid line width must be finite and greater than zero.", name));
+                }
+
+                if (!math::is_finite(component.reliefStrength)) {
+                    throw invalid_argument(format("Ground {} grid relief strength must be finite.", name));
+                }
+            };
+
+            if (grid.minor) {
+                validateGridComponent(*grid.minor, "minor");
+            }
+
+            if (grid.major) {
+                validateGridComponent(*grid.major, "major");
+            }
+
+            if (!math::is_finite(grid.specularIntensity) || grid.specularIntensity < 0.0f) {
+                throw invalid_argument("Ground specular intensity must be finite and non-negative.");
+            }
+
+            if (!math::is_finite(grid.specularExponent) || grid.specularExponent <= 0.0f) {
+                throw invalid_argument("Ground specular exponent must be finite and greater than zero.");
+            }
         }
 
         if (ground->radialFade) {
@@ -261,9 +274,11 @@ void VisualWorld::ground(const optional<Ground>& ground) {
             if (!math::is_finite(fade.center.x) || !math::is_finite(fade.center.y)) {
                 throw invalid_argument("Ground radial fade center must be finite.");
             }
+
             if (!math::is_finite(fade.startDistance) || fade.startDistance < 0.0f) {
                 throw invalid_argument("Ground radial fade start distance must be finite and non-negative.");
             }
+
             if (!math::is_finite(fade.endDistance) || fade.endDistance <= fade.startDistance) {
                 throw invalid_argument(
                     "Ground radial fade end distance must be finite and greater than start distance.");
@@ -280,14 +295,6 @@ void VisualWorld::ground(const optional<Ground>& ground) {
                 throw invalid_argument(
                     "Ground horizon haze angular width must be finite, greater than zero, and at most 90 degrees.");
             }
-        }
-
-        if (!math::is_finite(ground->specularIntensity) || ground->specularIntensity < 0.0f) {
-            throw invalid_argument("Ground specular intensity must be finite and non-negative.");
-        }
-
-        if (!math::is_finite(ground->specularExponent) || ground->specularExponent <= 0.0f) {
-            throw invalid_argument("Ground specular exponent must be finite and greater than zero.");
         }
     }
 

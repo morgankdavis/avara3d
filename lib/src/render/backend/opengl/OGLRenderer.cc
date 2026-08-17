@@ -654,8 +654,6 @@ void OGLRenderer::drawGround(const GroundPass& groundPass, const mat4& view, con
     }
 
     const auto& ground = *groundPass.ground;
-    const auto& procedural = get<Ground::Procedural>(ground.fill);
-    const auto& grid = get<Ground::Procedural::Grid>(procedural.content);
 
     bindPipeline(groundPass.pipelineId);
 
@@ -665,26 +663,45 @@ void OGLRenderer::drawGround(const GroundPass& groundPass, const mat4& view, con
     _groundProgram->setUniform("viewProjMat", viewProj);
     _groundProgram->setUniform("inverseViewProjMat", inverse(viewProj));
 
-    _groundProgram->setUniform("groundColor", grid.color.rgb());
+    if (const auto* procedural = get_if<Ground::Procedural>(&ground.fill)) {
 
-    const bool minorGridEnabled = grid.minor.has_value();
-    _groundProgram->setUniform("minorGridEnabled", minorGridEnabled);
-    if (minorGridEnabled) {
-        const auto& component = *grid.minor;
-        _groundProgram->setUniform("minorGridColor", component.color.rgba());
-        _groundProgram->setUniform("minorGridSpacing", component.spacing);
-        _groundProgram->setUniform("minorGridLineWidthPixels", component.lineWidthPixels);
-        _groundProgram->setUniform("minorGridReliefStrength", component.reliefStrength);
+        _groundProgram->setUniform("groundFillType", 0u);
+
+        const auto& grid = get<Ground::Procedural::Grid>(procedural->content);
+
+        _groundProgram->setUniform("groundColor", grid.color.rgb());
+
+        const bool minorGridEnabled = grid.minor.has_value();
+        _groundProgram->setUniform("minorGridEnabled", minorGridEnabled);
+        if (minorGridEnabled) {
+            const auto& component = *grid.minor;
+            _groundProgram->setUniform("minorGridColor", component.color.rgba());
+            _groundProgram->setUniform("minorGridSpacing", component.spacing);
+            _groundProgram->setUniform("minorGridLineWidthPixels", component.lineWidthPixels);
+            _groundProgram->setUniform("minorGridReliefStrength", component.reliefStrength);
+        }
+
+        const bool majorGridEnabled = grid.major.has_value();
+        _groundProgram->setUniform("majorGridEnabled", majorGridEnabled);
+        if (majorGridEnabled) {
+            const auto& component = *grid.major;
+            _groundProgram->setUniform("majorGridColor", component.color.rgba());
+            _groundProgram->setUniform("majorGridSpacing", component.spacing);
+            _groundProgram->setUniform("majorGridLineWidthPixels", component.lineWidthPixels);
+            _groundProgram->setUniform("majorGridReliefStrength", component.reliefStrength);
+        }
+
+        _groundProgram->setUniform("groundSpecularIntensity", grid.specularIntensity);
+        _groundProgram->setUniform("groundSpecularExponent", grid.specularExponent);
     }
+    else {
 
-    const bool majorGridEnabled = grid.major.has_value();
-    _groundProgram->setUniform("majorGridEnabled", majorGridEnabled);
-    if (majorGridEnabled) {
-        const auto& component = *grid.major;
-        _groundProgram->setUniform("majorGridColor", component.color.rgba());
-        _groundProgram->setUniform("majorGridSpacing", component.spacing);
-        _groundProgram->setUniform("majorGridLineWidthPixels", component.lineWidthPixels);
-        _groundProgram->setUniform("majorGridReliefStrength", component.reliefStrength);
+        _groundProgram->setUniform("groundFillType", 1u);
+
+        const auto& configuredMaterial = get<shared_ptr<Material>>(ground.fill);
+        const auto  material = configuredMaterial ? configuredMaterial : Material::DefaultMaterial();
+
+        bindMaterial(*material);
     }
 
     const bool radialFadeEnabled = ground.radialFade.has_value();
@@ -704,9 +721,6 @@ void OGLRenderer::drawGround(const GroundPass& groundPass, const mat4& view, con
         _groundProgram->setUniform("horizonHazeColor", haze.color.rgba());
         _groundProgram->setUniform("horizonHazeAngularWidthDegrees", haze.angularWidthDegrees);
     }
-
-    _groundProgram->setUniform("groundSpecularIntensity", grid.specularIntensity);
-    _groundProgram->setUniform("groundSpecularExponent", grid.specularExponent);
 
     glBindVertexArray(_fullscreenTriangleVao);
     glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -832,13 +846,16 @@ void OGLRenderer::bindMaterial(const Material& material) {
     switch (pipeline.desc.shaderKind) {
         case ShaderKind::Default:
             program = _defaultProgram.get();
-            break; // chill
+            break;
+        case ShaderKind::Ground:
+            program = _groundProgram.get();
+            break;
         case ShaderKind::Skybox:
             program = _skyboxProgram.get();
-            break; // chill
+            break;
         default:
             _state.material = &material;
-            return; // not chill
+            return;
     }
 
     // resolve material once (uploads textures  applies sampler states via cache)
@@ -854,12 +871,13 @@ void OGLRenderer::bindMaterial(const Material& material) {
     // OK if SendMaterialUniforms still calls prog.use() because it matches the pipeline now
 
     // TODO: !!! THIS IS A DIRTY HACK !!!
-    if (pipeline.desc.shaderKind == ShaderKind::Default) {
+    if (pipeline.desc.shaderKind == ShaderKind::Default || pipeline.desc.shaderKind == ShaderKind::Ground) {
+
         SendMaterialUniforms(material, *program, glTextureHandles, _state);
     }
     else if (pipeline.desc.shaderKind == ShaderKind::Skybox) {
-        constexpr auto emissionSlot = static_cast<size_t>(Material::PropertyType::Emission);
 
+        constexpr auto emissionSlot = static_cast<size_t>(Material::PropertyType::Emission);
         program->bindTexture("cubeSampler", GL_TEXTURE_CUBE_MAP, GL_TEXTURE0, glTextureHandles[emissionSlot],
                              0);
     }
@@ -1101,7 +1119,7 @@ void SendMaterialUniforms(const Material&              material,
 
     program.setUniform("specularExponent", material.specularExponent());
     program.setUniform("uvScale", material.uvScale());
-    //program.setUniform("locksAmbientWithDiffuse", material.locksAmbientWithDiffuse());
+    program.setUniform("locksAmbientWithDiffuse", material.locksAmbientWithDiffuse());
 
     // material uniforms persist across draws -- clear unused properties to prevent
     // state leaking between materials.

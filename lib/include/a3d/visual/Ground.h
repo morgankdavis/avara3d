@@ -11,12 +11,15 @@
 
 #include "a3d/Color.h"
 
+#include <memory>
 #include <optional>
 #include <variant>
 
 #include "a3d/Math.h"
 
 namespace a3d {
+
+    class Material;
 
     struct Ground {
 
@@ -44,7 +47,7 @@ namespace a3d {
             Content content {Grid {}};
         };
 
-        using Fill = std::variant<Procedural>;
+        using Fill = std::variant<Procedural, std::shared_ptr<Material>>;
 
         struct RadialFade {
 
