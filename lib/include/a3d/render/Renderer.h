@@ -30,7 +30,6 @@ namespace a3d {
     class Material;
     class Mesh;
     class MeshElement;
-    class OGLResourceCache;
     class Point;
     class Profiler;
     class DrawPacket;
@@ -61,11 +60,9 @@ namespace a3d {
             float                  depth        = 1.0f;
             int                    stencil      = 0;
             std::optional<Scissor> scissor      = {};
-            // glClear obeys scissor + write masks. if a previous pass did glDepthMask(false)
-            // (or colorMask off), clear can do nothing unless overridden
+            // clear operations may respect the current scissor and write masks.
+            // override them when necessary to ensure the requested buffers are cleared.
             bool                   forceWriteMasks = true;
-            // GLuint 	framebuffer = 		0;
-            // bool   	bindFramebuffer = 	false;
         };
 
         struct FrameParams {
@@ -76,17 +73,7 @@ namespace a3d {
             FrameStats*          stats    = nullptr;
             Profiler*            profiler = nullptr;
         };
-
-        struct DrawCommand {
-            PipelineId              pipelineId = INVALID_PIPELINE_ID;
-            const OGLResourceCache* cache      = nullptr; // TODO: get rid of
-            const Material*         material   = nullptr; // optional; skipped if nullptr
-            const MeshElement*      element    = nullptr;
-            math::mat4              model      = math::mat4(1.0f);
-            math::mat4              view       = math::mat4(1.0f);
-            math::mat4              proj       = math::mat4(1.0f);
-        };
-
+        
         /// Internal Lifecycle Functions ///
 
         Renderer();
@@ -148,7 +135,7 @@ namespace a3d {
                                 const math::mat4& view,
                                 const math::mat4& proj)         = 0;
 
-        virtual void bindPipeline(PipelineId pipelineId, const OGLResourceCache& cache)                = 0;
+        virtual void bindPipeline(PipelineId pipelineId)                                               = 0;
         virtual void bindMaterial(const Material& material)                                            = 0;
         virtual void bindMeshElement(const MeshElement& element)                                       = 0;
         virtual void applyMVP(const math::mat4& model, const math::mat4& view, const math::mat4& proj) = 0;

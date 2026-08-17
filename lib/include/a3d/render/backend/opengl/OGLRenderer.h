@@ -109,12 +109,11 @@ namespace a3d {
                             const math::mat4&     proj) override;
         void drawGround(const GroundPass& groundPass, const math::mat4& view, const math::mat4& proj) override;
 
-        void bindPipeline(PipelineId pipelineId, const OGLResourceCache& cache) override;
+        void bindPipeline(PipelineId pipelineId) override;
         void bindMaterial(const Material& material) override;
         void bindMeshElement(const MeshElement& element) override;
         void applyMVP(const math::mat4& model, const math::mat4& view, const math::mat4& proj) override;
         void drawElements() override;
-        void draw(const DrawCommand& cmd);
 
         void renderLinesPass(const LinesPass&     pass,
                              const RenderContext& context,

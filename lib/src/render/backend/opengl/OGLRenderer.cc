@@ -608,7 +608,7 @@ void OGLRenderer::drawBackground(const BackgroundPass& backgroundPass,
         return;
     }
 
-    bindPipeline(backgroundPass.pipelineId, _resourceCache);
+    bindPipeline(backgroundPass.pipelineId);
 
     const auto& contents = backgroundPass.material->emission();
 
@@ -655,7 +655,7 @@ void OGLRenderer::drawGround(const GroundPass& groundPass, const mat4& view, con
 
     const auto& ground = *groundPass.ground;
 
-    bindPipeline(groundPass.pipelineId, _resourceCache);
+    bindPipeline(groundPass.pipelineId);
 
     const mat4 viewProj = proj * view;
 
@@ -711,7 +711,7 @@ void OGLRenderer::drawGround(const GroundPass& groundPass, const mat4& view, con
     glBindVertexArray(0);
 }
 
-void OGLRenderer::bindPipeline(PipelineId pipelineId, const OGLResourceCache& cache) {
+void OGLRenderer::bindPipeline(PipelineId pipelineId) {
     if (_state.pipelineId == pipelineId) {
         GLint cur = 0;
         glGetIntegerv(GL_CURRENT_PROGRAM, &cur);
@@ -721,7 +721,7 @@ void OGLRenderer::bindPipeline(PipelineId pipelineId, const OGLResourceCache& ca
         // else: stale cache, fallthrough and rebind
     }
 
-    const OGLPipeline& pipeline = cache.pipeline(pipelineId);
+    const OGLPipeline& pipeline = _resourceCache.pipeline(pipelineId);
     glUseProgram(pipeline.program);
     _state.program = pipeline.program;
     _state.material = nullptr;
@@ -929,19 +929,6 @@ void OGLRenderer::drawElements() {
     }
 }
 
-void OGLRenderer::draw(const DrawCommand& cmd) {
-    // wrapper over bindPipeline/bindMaterial/bindMeshElement/applyMVP/drawElements
-    bindPipeline(cmd.pipelineId, *cmd.cache);
-    if (cmd.material) {
-        bindMaterial(*cmd.material);
-    }
-    if (cmd.element) {
-        bindMeshElement(*cmd.element);
-    }
-    applyMVP(cmd.model, cmd.view, cmd.proj);
-    drawElements();
-}
-
 GLSLProgram& OGLRenderer::programForShaderKind(ShaderKind kind) const {
     switch (kind) {
         case ShaderKind::Skybox:
@@ -984,8 +971,9 @@ void OGLRenderer::renderLinesPass(const LinesPass&     pass,
     // - they use their own VAO/VBO (_debugLines)
     // - they render GL_LINES topology, not GL_TRIANGLES
     // see drawDebugLines() for why this pattern is separate.
+    // see drawDebugLines() for why this pattern is separate.
 
-    bindPipeline(pass.pipelineId, _resourceCache);
+    bindPipeline(pass.pipelineId);
     _debugLines.upload(pass.lines);
     drawDebugLines(pass.model, view, proj);
 }
@@ -1057,7 +1045,7 @@ void OGLRenderer::drawPacket(const DrawPacket& packet, const FrameParams& frame)
             continue;
         }
 
-        bindPipeline(di.pipelineId, _resourceCache);
+        bindPipeline(di.pipelineId);
 
         // only bind material for shaderKinds that use it (bindMaterial() already early-outs)
         if (di.material) {
@@ -1081,7 +1069,7 @@ void OGLRenderer::drawPacket(const DrawPacket& packet, const FrameParams& frame)
             continue;
         }
 
-        bindPipeline(di.pipelineId, _resourceCache);
+        bindPipeline(di.pipelineId);
         // no bindMaterial (wire shader typically ignores it)
         bindMeshElement(*di.element);
         applyMVP(di.model, frame.view, frame.proj);
