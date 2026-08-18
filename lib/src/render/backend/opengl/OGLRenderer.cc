@@ -1089,6 +1089,9 @@ void OGLRenderer::drawPacket(const DrawPacket& packet, const FrameParams& frame)
         }
 
         bindPipeline(di.pipelineId);
+
+        SendDrawUniforms(di, *_wireframeProgram);
+
         // no bindMaterial (wire shader typically ignores it)
         bindMeshElement(*di.element);
         applyMVP(di.model, frame.view, frame.proj);

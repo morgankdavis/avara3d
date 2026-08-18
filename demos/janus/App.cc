@@ -1067,37 +1067,6 @@ shared_ptr<Node> MakeSimulationRoot() {
     }
 
     // angel
-
-    // {
-    //     constexpr float HEIGHT = 2.0f;
-    //     static float    scaleFactor = 1.0f;
-    //     static auto     mesh = [] {
-    //         auto mesh = util::fs::MeshAt("aniel/aniel.gltf");
-    //         scaleFactor = HEIGHT / mesh->localExtent().y;
-    //         mesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
-    //         return mesh;
-    //     }();
-    //
-    //     static auto shape = [] {
-    //         auto physMesh = util::fs::MeshAt("aniel/phys.gltf", Mesh::ImportOptions::None);
-    //         physMesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
-    //         return make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, physMesh);
-    //     }();
-    //
-    //     A3D_ASSERT(shape);
-    //
-    //     auto node = Node::MeshNode(mesh);
-    //     node->name("Angel");
-    //     node->rotation({0.0f, 1.0f, 0.0f}, radians(180.0f));
-    //     node->position({0.0, 0.0f, 0.0f});
-    //
-    //     auto body = make_unique<PhysicsBody>(PhysicsBody::Type::Static, shape);
-    //     node->physicsBody(std::move(body));
-    //
-    //     root->addChild(node);
-    // }
-
-    // angel
     {
 
         static auto [mesh, shape] = [] {
