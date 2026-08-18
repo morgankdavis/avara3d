@@ -22,6 +22,7 @@ namespace a3d {
     struct FrameStats;
     struct GroundPass;
     struct LinesPass;
+    struct RenderMemoryStats;
 
     class FrameStatsHistory;
     class Image;
@@ -141,7 +142,7 @@ namespace a3d {
         virtual void applyMVP(const math::mat4& model, const math::mat4& view, const math::mat4& proj) = 0;
         virtual void drawElements()                                                                    = 0;
 
-        virtual void renderLinesPass(const LinesPass&     pass,
+        virtual void drawLines(const LinesPass&     pass,
                                      const RenderContext& context,
                                      const math::mat4&    view,
                                      const math::mat4&    proj) = 0;

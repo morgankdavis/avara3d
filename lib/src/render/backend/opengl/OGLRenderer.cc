@@ -14,7 +14,9 @@
 #include <utility>
 #include <vector>
 
-#include "a3d/render/backend/opengl/gl.h"
+#include "a3d/render/backend/opengl/gl.h" // must be before imgui_impl_opengl3.h
+
+#include <imgui/backends/imgui_impl_opengl3.h>
 
 #ifdef A3D_GL_WEB
     #include <emscripten/html5_webgl.h>
@@ -73,6 +75,10 @@ static const GLuint ENV_BINDING_POINT {0};
 
 // ring buffer size for GL timing queries
 static const unsigned DRAW_TIMER_BUFFER_SIZE {4};
+
+static constexpr gl::uint_t IMGUI_VERTEX_BUFFER_ALLOCATION_ID {1};
+static constexpr gl::uint_t IMGUI_INDEX_BUFFER_ALLOCATION_ID {2};
+static constexpr gl::uint_t IMGUI_TEXTURE_ALLOCATION_ID {3};
 
 /// Private Types ///
 
@@ -313,12 +319,12 @@ OGLRenderer::OGLRenderer():
     _defaultProgram {nullptr},
     _wireframeProgram {nullptr},
     _linesProgram {nullptr},
-    _resourceCache {},
+    _resourceCache {_memoryTracker},
     _state {},
     _boundElement {},
     _skyboxMesh {},
     _fullscreenTriangleVao {},
-    _debugLines {},
+    _debugLines {_memoryTracker},
     _imguiContext {},
     _statsOverlay {},
     _drawTimer {DRAW_TIMER_BUFFER_SIZE} {}
@@ -330,11 +336,19 @@ OGLRenderer::~OGLRenderer() {
         glDeleteVertexArrays(1, &_fullscreenTriangleVao);
     }
 
-    glDeleteBuffers(1, &_glEnvironmentUBO);
+    if (_glEnvironmentUBO != 0) {
+        _memoryTracker.removeAllocation({
+            OGLMemoryTracker::ObjectNamespace::Buffer,
+            _glEnvironmentUBO,
+        });
+
+        glDeleteBuffers(1, &_glEnvironmentUBO);
+    }
 
     _debugLines.destroy();
 
     _imguiContext.shutdown();
+    _memoryTracker.clearSource(OGLMemoryTracker::Source::ImGui);
 }
 
 /// Renderer Internal Member Functions ///
@@ -381,6 +395,14 @@ bool OGLRenderer::initialize(const RenderContext& context) {
     glGenBuffers(1, &_glEnvironmentUBO);
     glBindBuffer(GL_UNIFORM_BUFFER, _glEnvironmentUBO);
     glBufferData(GL_UNIFORM_BUFFER, sizeof(EnvironmentBlock), nullptr, GL_DYNAMIC_DRAW);
+
+    _memoryTracker.setAllocation(
+        {
+            OGLMemoryTracker::ObjectNamespace::Buffer,
+            _glEnvironmentUBO,
+        },
+        OGLMemoryTracker::Source::A3D, OGLMemoryTracker::Category::UniformBuffer, sizeof(EnvironmentBlock));
+
     glBindBufferBase(GL_UNIFORM_BUFFER, ENV_BINDING_POINT, _glEnvironmentUBO);
 
     // just do it here even if not used
@@ -456,6 +478,9 @@ void OGLRenderer::endFrame(const Scene&               scene,
                            Profiler&                  profiler,
                            const FrameStatsHistory&   statsHistory) {
 
+    // give the overlay the latest completed memory snapshot
+    stats.renderMemory = _memoryTracker.stats();
+
     _statsOverlay.draw(context, scene, stats, statsHistory, debugOptions);
 
     // ImGui's WebGL backend doesn't manage WEBGL_polygon_mode state.
@@ -468,6 +493,9 @@ void OGLRenderer::endFrame(const Scene&               scene,
 #endif
 
     _imguiContext.endFrame();
+    syncImguiMemoryStats();
+    // publish the final memory state for this completed frame
+    stats.renderMemory = _memoryTracker.stats();
 
     A3D_GL_CHECK();
 
@@ -949,36 +977,10 @@ void OGLRenderer::drawElements() {
     }
 }
 
-GLSLProgram& OGLRenderer::programForShaderKind(ShaderKind kind) const {
-    switch (kind) {
-        case ShaderKind::Skybox:
-            return *_skyboxProgram;
-        case ShaderKind::Ground:
-            return *_groundProgram;
-        case ShaderKind::Default:
-            return *_defaultProgram;
-        case ShaderKind::Wireframe:
-            return *_wireframeProgram;
-        case ShaderKind::Lines:
-            return *_linesProgram;
-    }
-    throw runtime_error(std::format("Unsupported shader kind: {}", (uint32_t) kind));
-}
-
-void OGLRenderer::drawDebugLines(const math::mat4& model, const math::mat4& view, const math::mat4& proj) {
-    // helper for debug line geometry which uses a separate VAO/VBO (_debugLines)
-    // and doesn't follow the normal mesh binding pipeline.
-    applyMVP(model, view, proj);
-
-    glBindVertexArray(_debugLines.vao);
-    glDrawArrays(GL_LINES, 0, _debugLines.vertexCount);
-    glBindVertexArray(0);
-}
-
-void OGLRenderer::renderLinesPass(const LinesPass&     pass,
-                                  const RenderContext& context,
-                                  const mat4&          view,
-                                  const mat4&          proj) {
+void OGLRenderer::drawLines(const LinesPass&     pass,
+                            const RenderContext& context,
+                            const mat4&          view,
+                            const mat4&          proj) {
     if (pass.pipelineId == INVALID_PIPELINE_ID) {
         return;
     }
@@ -1096,7 +1098,61 @@ void OGLRenderer::drawPacket(const DrawPacket& packet, const FrameParams& frame)
         drawElements();
     }
 
-    renderLinesPass(packet.linesPass, frame.context, frame.view, frame.proj);
+    drawLines(packet.linesPass, frame.context, frame.view, frame.proj);
+}
+
+/// Private Member Functions ///
+
+GLSLProgram& OGLRenderer::programForShaderKind(ShaderKind kind) const {
+    switch (kind) {
+        case ShaderKind::Skybox:
+            return *_skyboxProgram;
+        case ShaderKind::Ground:
+            return *_groundProgram;
+        case ShaderKind::Default:
+            return *_defaultProgram;
+        case ShaderKind::Wireframe:
+            return *_wireframeProgram;
+        case ShaderKind::Lines:
+            return *_linesProgram;
+    }
+    throw runtime_error(std::format("Unsupported shader kind: {}", (uint32_t) kind));
+}
+
+void OGLRenderer::drawDebugLines(const math::mat4& model, const math::mat4& view, const math::mat4& proj) {
+    // helper for debug line geometry which uses a separate VAO/VBO (_debugLines)
+    // and doesn't follow the normal mesh binding pipeline.
+    applyMVP(model, view, proj);
+
+    glBindVertexArray(_debugLines.vao);
+    glDrawArrays(GL_LINES, 0, _debugLines.vertexCount);
+    glBindVertexArray(0);
+}
+
+void OGLRenderer::syncImguiMemoryStats() {
+
+    const auto stats = ImGui_ImplOpenGL3_GetMemoryStats();
+
+    _memoryTracker.setAllocation(
+        {
+            OGLMemoryTracker::ObjectNamespace::Synthetic,
+            IMGUI_VERTEX_BUFFER_ALLOCATION_ID,
+        },
+        OGLMemoryTracker::Source::ImGui, OGLMemoryTracker::Category::VertexBuffer, stats.VertexBufferBytes);
+
+    _memoryTracker.setAllocation(
+        {
+            OGLMemoryTracker::ObjectNamespace::Synthetic,
+            IMGUI_INDEX_BUFFER_ALLOCATION_ID,
+        },
+        OGLMemoryTracker::Source::ImGui, OGLMemoryTracker::Category::IndexBuffer, stats.IndexBufferBytes);
+
+    _memoryTracker.setAllocation(
+        {
+            OGLMemoryTracker::ObjectNamespace::Synthetic,
+            IMGUI_TEXTURE_ALLOCATION_ID,
+        },
+        OGLMemoryTracker::Source::ImGui, OGLMemoryTracker::Category::Texture, stats.TextureBytes);
 }
 
 /// Private Static Non-Member Functions ///

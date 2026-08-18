@@ -9,8 +9,16 @@
 #include "a3d/render/backend/opengl/OGLDebugLines.h"
 
 #include "a3d/render/backend/opengl/gl.h"
+#include "a3d/render/backend/opengl/OGLMemoryTracker.h"
 
 using namespace a3d;
+
+/// Internal Lifecycle Functions ///
+
+OGLDebugLines::OGLDebugLines(OGLMemoryTracker& memoryTracker):
+    memoryTracker {memoryTracker} {}
+
+/// Internal Member Functions ///
 
 void OGLDebugLines::ensureBuffers() {
     if (vao && vbo) {
@@ -25,13 +33,13 @@ void OGLDebugLines::ensureBuffers() {
 
     // position (location 0)
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(DebugLineVertex),
-                          (void*) offsetof(DebugLineVertex, pos));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(OGLDebugLines::Vertex),
+                          (void*) offsetof(OGLDebugLines::Vertex, pos));
 
     // color (location 1)
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(DebugLineVertex),
-                          (void*) offsetof(DebugLineVertex, color));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(OGLDebugLines::Vertex),
+                          (void*) offsetof(OGLDebugLines::Vertex, color));
 
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -52,10 +60,18 @@ void OGLDebugLines::upload(const std::vector<Line>& lines) {
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-    const size_t bytes = cpuVerts.size() * sizeof(DebugLineVertex);
+    const size_t bytes = cpuVerts.size() * sizeof(OGLDebugLines::Vertex);
 
     // orphan
     glBufferData(GL_ARRAY_BUFFER, bytes, nullptr, GL_STREAM_DRAW);
+
+    memoryTracker.setAllocation(
+        {
+            OGLMemoryTracker::ObjectNamespace::Buffer,
+            vbo,
+        },
+        OGLMemoryTracker::Source::A3D, OGLMemoryTracker::Category::VertexBuffer, bytes);
+
     // upload
     if (bytes) {
         glBufferSubData(GL_ARRAY_BUFFER, 0, bytes, cpuVerts.data());
@@ -66,6 +82,11 @@ void OGLDebugLines::upload(const std::vector<Line>& lines) {
 
 void OGLDebugLines::destroy() {
     if (vbo) {
+        memoryTracker.removeAllocation({
+            OGLMemoryTracker::ObjectNamespace::Buffer,
+            vbo,
+        });
+
         glDeleteBuffers(1, &vbo);
     }
     if (vao) {

@@ -246,6 +246,10 @@ struct ImGui_ImplOpenGL3_Data
     unsigned int    VboHandle, ElementsHandle;
     GLsizeiptr      VertexBufferSize;
     GLsizeiptr      IndexBufferSize;
+
+    // MKD added:
+    ImU64           TextureBytes;
+
     bool            HasPolygonMode;
     bool            HasBindSampler;
     bool            HasClipOrigin;
@@ -260,6 +264,22 @@ struct ImGui_ImplOpenGL3_Data
 static ImGui_ImplOpenGL3_Data* ImGui_ImplOpenGL3_GetBackendData()
 {
     return ImGui::GetCurrentContext() ? (ImGui_ImplOpenGL3_Data*)ImGui::GetIO().BackendRendererUserData : nullptr;
+}
+
+// MKD added
+ImGui_ImplOpenGL3_MemoryStats ImGui_ImplOpenGL3_GetMemoryStats()
+{
+    ImGui_ImplOpenGL3_MemoryStats stats = {};
+    ImGui_ImplOpenGL3_Data* bd = ImGui_ImplOpenGL3_GetBackendData();
+
+    if (bd == nullptr)
+        return stats;
+
+    stats.VertexBufferBytes = bd->VertexBufferSize > 0 ? (ImU64)bd->VertexBufferSize : 0;
+    stats.IndexBufferBytes = bd->IndexBufferSize > 0 ? (ImU64)bd->IndexBufferSize : 0;
+    stats.TextureBytes = bd->TextureBytes;
+
+    return stats;
 }
 
 // OpenGL vertex attribute state (for ES 1.0 and ES 2.0 only)
@@ -627,8 +647,16 @@ void    ImGui_ImplOpenGL3_RenderDrawData(ImDrawData* draw_data)
         }
         else
         {
+            // GL_CALL(glBufferData(GL_ARRAY_BUFFER, vtx_buffer_size, (const GLvoid*)draw_list->VtxBuffer.Data, GL_STREAM_DRAW));
+            // GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, idx_buffer_size, (const GLvoid*)draw_list->IdxBuffer.Data, GL_STREAM_DRAW));
+
+            // MKD changed to
+
             GL_CALL(glBufferData(GL_ARRAY_BUFFER, vtx_buffer_size, (const GLvoid*)draw_list->VtxBuffer.Data, GL_STREAM_DRAW));
+            bd->VertexBufferSize = vtx_buffer_size;
+
             GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, idx_buffer_size, (const GLvoid*)draw_list->IdxBuffer.Data, GL_STREAM_DRAW));
+            bd->IndexBufferSize = idx_buffer_size;
         }
 
         for (int cmd_i = 0; cmd_i < draw_list->CmdBuffer.Size; cmd_i++)
@@ -713,8 +741,24 @@ void    ImGui_ImplOpenGL3_RenderDrawData(ImDrawData* draw_data)
 
 static void ImGui_ImplOpenGL3_DestroyTexture(ImTextureData* tex)
 {
+    // GLuint gl_tex_id = (GLuint)(intptr_t)tex->TexID;
+    // glDeleteTextures(1, &gl_tex_id);
+
+    // MKD changed
+    // ---------------------
+
+    ImGui_ImplOpenGL3_Data* bd = ImGui_ImplOpenGL3_GetBackendData();
+
     GLuint gl_tex_id = (GLuint)(intptr_t)tex->TexID;
     glDeleteTextures(1, &gl_tex_id);
+
+    const ImU64 texture_bytes =
+        (ImU64)tex->Width * (ImU64)tex->Height * (ImU64)tex->BytesPerPixel;
+
+    IM_ASSERT(bd->TextureBytes >= texture_bytes);
+    bd->TextureBytes -= texture_bytes;
+
+    // ---------------------
 
     // Clear identifiers and mark as destroyed (in order to allow e.g. calling InvalidateDeviceObjects while running)
     tex->SetTexID(ImTextureID_Invalid);
@@ -723,6 +767,9 @@ static void ImGui_ImplOpenGL3_DestroyTexture(ImTextureData* tex)
 
 void ImGui_ImplOpenGL3_UpdateTexture(ImTextureData* tex)
 {
+    // MKD added
+    ImGui_ImplOpenGL3_Data* bd = ImGui_ImplOpenGL3_GetBackendData();
+
     // FIXME: Consider backing up and restoring
     if (tex->Status == ImTextureStatus_WantCreate || tex->Status == ImTextureStatus_WantUpdates)
     {
@@ -755,6 +802,9 @@ void ImGui_ImplOpenGL3_UpdateTexture(ImTextureData* tex)
         GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
         GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex->Width, tex->Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels));
 
+        // MKD added
+        bd->TextureBytes += (ImU64)tex->Width * (ImU64)tex->Height * (ImU64)tex->BytesPerPixel;
+
         // Store identifiers
         tex->SetTexID((ImTextureID)(intptr_t)gl_texture_id);
         tex->SetStatus(ImTextureStatus_OK);
@@ -778,7 +828,8 @@ void ImGui_ImplOpenGL3_UpdateTexture(ImTextureData* tex)
         GL_CALL(glPixelStorei(GL_UNPACK_ROW_LENGTH, 0));
 #else
         // GL ES doesn't have GL_UNPACK_ROW_LENGTH, so we need to (A) copy to a contiguous buffer or (B) upload line by line.
-        ImGui_ImplOpenGL3_Data* bd = ImGui_ImplOpenGL3_GetBackendData();
+        // MKD disabled
+        //ImGui_ImplOpenGL3_Data* bd = ImGui_ImplOpenGL3_GetBackendData();
         for (ImTextureRect& r : tex->Updates)
         {
             const int src_pitch = r.w * tex->BytesPerPixel;
@@ -1038,7 +1089,13 @@ void    ImGui_ImplOpenGL3_DestroyDeviceObjects()
     ImGui_ImplOpenGL3_Data* bd = ImGui_ImplOpenGL3_GetBackendData();
     if (bd->VboHandle)      { glDeleteBuffers(1, &bd->VboHandle); bd->VboHandle = 0; }
     if (bd->ElementsHandle) { glDeleteBuffers(1, &bd->ElementsHandle); bd->ElementsHandle = 0; }
+
+    // MKD added
+    bd->VertexBufferSize = 0;
+    bd->IndexBufferSize = 0;
+
     if (bd->ShaderHandle)   { glDeleteProgram(bd->ShaderHandle); bd->ShaderHandle = 0; }
+
 
     // Destroy all textures
     for (ImTextureData* tex : ImGui::GetPlatformIO().Textures)

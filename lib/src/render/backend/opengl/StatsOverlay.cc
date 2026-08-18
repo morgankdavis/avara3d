@@ -169,6 +169,8 @@ static void ImguiDrawPlot(float        x,
                           float        lineStep,
                           bool         disabled);
 
+static string FormatMemorySize(uint64_t bytes);
+
 /// Internal Lifecycle Functions ///
 
 StatsOverlay::StatsOverlay():
@@ -277,9 +279,9 @@ void DrawStats(FrameStats&              stats,
     static const float TOP_PADDING = 36.0f;
     static const float X_POS = 12.0;
     static const bool  PLOT_OUTLINED = true;
-    static const float PLOT_HEIGHT_1 = 36.0;
+    static const float PLOT_HEIGHT_1 = 34.0;
     static const float PLOT_HEIGHT_2 = 24.0;
-    static const float PLOT_STR_Y_PAD = 8.0;
+    static const float PLOT_STR_Y_PAD = 6.0;
     static const float PLOT_Y_PAD = 18.0;
     static const float PLOT_Y_MIN = 0.0;
     static const float PLOT_Y_MAX = 17.0;
@@ -455,6 +457,8 @@ void DrawStats(FrameStats&              stats,
                         bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
     ImguiDrawLabelValue(yPos, bulkLayout, "lights", std::format("{}", stats.lights), bodyFont,
                         STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
+    ImguiDrawLabelValue(yPos, bulkLayout, "gpu memory", FormatMemorySize(stats.renderMemory.totalBytes()),
+                        bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
 
     yPos += STAT_LINE_STEP / 2.0f;
 
@@ -945,4 +949,23 @@ void ImguiDrawPlot(float        x,
     ImguiDrawPlot(x, y, w, h, values, valuesCount, valuesOffset, overlayText, overlayFont, overlayFontSize,
                   scaleMin, scaleMax, stride, outlined, id, disabled);
     y += lineStep;
+}
+
+string FormatMemorySize(uint64_t bytes) {
+
+    constexpr double KB = 1024.0;
+    constexpr double MB = KB * 1024.0;
+    constexpr double GB = MB * 1024.0;
+
+    if (bytes >= GB) {
+        return std::format("{:.1f}GB", static_cast<double>(bytes) / GB);
+    }
+    if (bytes >= MB) {
+        return std::format("{:.1f}MB", static_cast<double>(bytes) / MB);
+    }
+    if (bytes >= KB) {
+        return std::format("{:.1f}KB", static_cast<double>(bytes) / KB);
+    }
+
+    return std::format("{}B", bytes);
 }

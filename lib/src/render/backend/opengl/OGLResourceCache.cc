@@ -8,6 +8,7 @@
 
 #include "a3d/render/backend/opengl/OGLResourceCache.h"
 
+#include <algorithm>
 #include <type_traits>
 #include <variant>
 
@@ -21,6 +22,7 @@
 #include "a3d/mesh/VertexLayout.h"
 #include "a3d/mesh/VertexLayoutDesc.h"
 #include "a3d/render/backend/opengl/gl.h"
+#include "a3d/render/backend/opengl/OGLMemoryTracker.h"
 #include "a3d/visual/material/Material.h"
 #include "a3d/visual/material/Sampler.h"
 #include "a3d/visual/material/Texture.h"
@@ -36,22 +38,40 @@ static GLenum      GLWrapModeForWrapMode(Sampler::WrapMode mode);
 static bool        UsesMipmaps(Sampler::FilterMode mode);
 static void        GLAttribFor(VertexAttribFormat f, GLint& comps, GLenum& type);
 static unsigned    BufferTextureContents(const Texture& texture);
-static void        ApplySamplerState(Texture& texture, unsigned glTextureHandle, bool forceAll);
+static void        ApplySamplerState(Texture&          texture,
+                                     unsigned          glTextureHandle,
+                                     bool              forceAll,
+                                     OGLMemoryTracker& memoryTracker);
 static int         SlotFor(Material::PropertyType type);
 static GLenum      GLIndexTypeForIndexFormat(IndexFormat format);
+static uint64_t    ImageTextureStorageBytes(const Image& image, bool includeMipmaps);
+static uint64_t    TextureStorageBytes(const Texture& texture, bool includeMipmaps);
 
 /// Internal Lifecycle Functions ///
+
+OGLResourceCache::OGLResourceCache(OGLMemoryTracker& memoryTracker):
+    _memoryTracker {memoryTracker} {}
 
 OGLResourceCache::~OGLResourceCache() {
     log::d()("Destroying OGLResourceCache {:p}", static_cast<void*>(this));
 
     for (const auto& [element, resource] : _meshElementMap) {
         if (resource.ebo != 0) {
+            _memoryTracker.removeAllocation({
+                OGLMemoryTracker::ObjectNamespace::Buffer,
+                resource.ebo,
+            });
+
             const GLuint ebo = resource.ebo;
             glDeleteBuffers(1, &ebo);
         }
 
         if (resource.vbo != 0) {
+            _memoryTracker.removeAllocation({
+                OGLMemoryTracker::ObjectNamespace::Buffer,
+                resource.vbo,
+            });
+
             const GLuint vbo = resource.vbo;
             glDeleteBuffers(1, &vbo);
         }
@@ -64,6 +84,11 @@ OGLResourceCache::~OGLResourceCache() {
 
     for (const auto& [texture, resource] : _textureMap) {
         if (resource.id != 0) {
+            _memoryTracker.removeAllocation({
+                OGLMemoryTracker::ObjectNamespace::Texture,
+                resource.id,
+            });
+
             const GLuint id = resource.id;
             glDeleteTextures(1, &id);
         }
@@ -113,6 +138,16 @@ const OGLMeshElement& OGLResourceCache::ensureMeshElement(MeshElement& element) 
 
     // if rebuilding, delete old GL objects
     if (!missing) {
+        _memoryTracker.removeAllocation({
+            OGLMemoryTracker::ObjectNamespace::Buffer,
+            res.vbo,
+        });
+
+        _memoryTracker.removeAllocation({
+            OGLMemoryTracker::ObjectNamespace::Buffer,
+            res.ebo,
+        });
+
         glDeleteBuffers(1, (GLuint*) &res.vbo);
         glDeleteBuffers(1, (GLuint*) &res.ebo);
         glDeleteVertexArrays(1, (GLuint*) &res.vao);
@@ -142,6 +177,13 @@ const OGLMeshElement& OGLResourceCache::ensureMeshElement(MeshElement& element) 
     glBindBuffer(GL_ARRAY_BUFFER, (GLuint) res.vbo);
     glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr) vb.size(), (const void*) vb.data(), GL_STATIC_DRAW);
 
+    _memoryTracker.setAllocation(
+        {
+            OGLMemoryTracker::ObjectNamespace::Buffer,
+            res.vbo,
+        },
+        OGLMemoryTracker::Source::A3D, OGLMemoryTracker::Category::VertexBuffer, vb.size());
+
     // setup vertex attributes from the descriptor
     for (const auto& a : desc.attribs) {
 
@@ -169,6 +211,13 @@ const OGLMeshElement& OGLResourceCache::ensureMeshElement(MeshElement& element) 
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (GLuint) res.ebo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW);
+
+        _memoryTracker.setAllocation(
+            {
+                OGLMemoryTracker::ObjectNamespace::Buffer,
+                res.ebo,
+            },
+            OGLMemoryTracker::Source::A3D, OGLMemoryTracker::Category::IndexBuffer, 0);
     }
     else {
         const IndexStreamView iv = *ivOpt;
@@ -186,8 +235,17 @@ const OGLMeshElement& OGLResourceCache::ensureMeshElement(MeshElement& element) 
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (GLuint) res.ebo);
 
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr) (size_t(iv.count) * size_t(IndexStride(iv.format))),
-                     (const void*) iv.base, GL_STATIC_DRAW);
+        const size_t indexBufferSize = size_t(iv.count) * size_t(IndexStride(iv.format));
+
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr) indexBufferSize, (const void*) iv.base,
+                     GL_STATIC_DRAW);
+
+        _memoryTracker.setAllocation(
+            {
+                OGLMemoryTracker::ObjectNamespace::Buffer,
+                res.ebo,
+            },
+            OGLMemoryTracker::Source::A3D, OGLMemoryTracker::Category::IndexBuffer, indexBufferSize);
     }
 
     element.dirtyMask(util::bitmask::remove(element.dirtyMask(), MeshElement::DirtyMask::VertexData));
@@ -238,6 +296,11 @@ const OGLTexture& OGLResourceCache::ensureTexture(Texture& texture) {
 
     if (forceAll) {
         if (handle != 0) {
+            _memoryTracker.removeAllocation({
+                OGLMemoryTracker::ObjectNamespace::Texture,
+                handle,
+            });
+
             glDeleteTextures(1, (GLuint*) &handle);
             handle = 0;
         }
@@ -252,6 +315,14 @@ const OGLTexture& OGLResourceCache::ensureTexture(Texture& texture) {
 
         it->second.id = handle;
 
+        _memoryTracker.setAllocation(
+            {
+                OGLMemoryTracker::ObjectNamespace::Texture,
+                handle,
+            },
+            OGLMemoryTracker::Source::A3D, OGLMemoryTracker::Category::Texture,
+            TextureStorageBytes(texture, false));
+
         // clear only Contents bit
         texture.dirtyMask(util::bitmask::remove(texture.dirtyMask(), Texture::DirtyMask::Contents));
     }
@@ -261,7 +332,7 @@ const OGLTexture& OGLResourceCache::ensureTexture(Texture& texture) {
         const auto sampler = texture.sampler();
         const bool samplerDirty = sampler && sampler->dirtyMask() != (Sampler::DirtyMask) 0;
         if (forceAll || samplerDirty) {
-            ApplySamplerState(texture, handle, forceAll);
+            ApplySamplerState(texture, handle, forceAll, _memoryTracker);
         }
     }
 
@@ -397,7 +468,10 @@ unsigned BufferTextureContents(const Texture& texture) {
     return glTextureHandle;
 }
 
-void ApplySamplerState(Texture& texture, unsigned glTextureHandle, bool forceAll) {
+void ApplySamplerState(Texture&          texture,
+                       unsigned          glTextureHandle,
+                       bool              forceAll,
+                       OGLMemoryTracker& memoryTracker) {
     auto sampler = texture.sampler();
     if (!sampler) {
         return;
@@ -421,6 +495,14 @@ void ApplySamplerState(Texture& texture, unsigned glTextureHandle, bool forceAll
         auto mode = sampler->minificationFilter();
         if (UsesMipmaps(mode)) {
             glGenerateMipmap(texType);
+
+            memoryTracker.setAllocation(
+                {
+                    OGLMemoryTracker::ObjectNamespace::Texture,
+                    glTextureHandle,
+                },
+                OGLMemoryTracker::Source::A3D, OGLMemoryTracker::Category::Texture,
+                TextureStorageBytes(texture, true));
         }
         glTexParameteri(texType, GL_TEXTURE_MIN_FILTER, (GLint) GLFilterModeForFilterMode(mode));
     }
@@ -510,4 +592,72 @@ GLenum GLIndexTypeForIndexFormat(IndexFormat format) {
         default:
             return GL_UNSIGNED_INT;
     }
+}
+
+uint64_t ImageTextureStorageBytes(const Image& image, bool includeMipmaps) {
+
+    uint64_t width = image.width();
+    uint64_t height = image.height();
+
+    if (width == 0 || height == 0) {
+        return 0;
+    }
+
+    constexpr uint64_t BYTES_PER_PIXEL = 4;
+
+    uint64_t bytes = 0;
+
+    while (true) {
+        bytes += width * height * BYTES_PER_PIXEL;
+
+        if (!includeMipmaps || (width == 1 && height == 1)) {
+            break;
+        }
+
+        width = math::max<uint64_t>(1, width / 2);
+        height = math::max<uint64_t>(1, height / 2);
+    }
+
+    return bytes;
+}
+
+uint64_t TextureStorageBytes(const Texture& texture, bool includeMipmaps) {
+
+    return std::visit(
+        [includeMipmaps](const auto& contents) -> uint64_t {
+            using T = std::decay_t<decltype(contents)>;
+
+            if constexpr (std::is_same_v<T, std::shared_ptr<Image>>) {
+                if (!contents) {
+                    return 0;
+                }
+
+                return ImageTextureStorageBytes(*contents, includeMipmaps);
+            }
+            else if constexpr (std::is_same_v<T, shared_ptr<CubeImage>>) {
+                if (!contents) {
+                    return 0;
+                }
+
+                const Image* images[] = {
+                    contents->face(CubeImage::Face::X_Pos), contents->face(CubeImage::Face::X_Neg),
+                    contents->face(CubeImage::Face::Y_Pos), contents->face(CubeImage::Face::Y_Neg),
+                    contents->face(CubeImage::Face::Z_Pos), contents->face(CubeImage::Face::Z_Neg),
+                };
+
+                uint64_t bytes = 0;
+
+                for (const Image* image : images) {
+                    if (image) {
+                        bytes += ImageTextureStorageBytes(*image, includeMipmaps);
+                    }
+                }
+
+                return bytes;
+            }
+            else {
+                return 0;
+            }
+        },
+        texture.contents());
 }

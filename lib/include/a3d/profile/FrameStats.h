@@ -14,6 +14,46 @@
 
 namespace a3d {
 
+    struct RenderMemoryStats {
+
+        struct Usage {
+
+            std::uint64_t textureBytes {0};
+            std::uint64_t vertexBufferBytes {0};
+            std::uint64_t indexBufferBytes {0};
+            std::uint64_t uniformBufferBytes {0};
+            std::uint64_t renderTargetBytes {0};
+            std::uint64_t otherBytes {0};
+
+            std::uint64_t totalBytes() const {
+
+                return textureBytes + vertexBufferBytes + indexBufferBytes + uniformBufferBytes
+                       + renderTargetBytes + otherBytes;
+            }
+        };
+
+        Usage         a3d {};
+        Usage         imgui {};
+        std::uint64_t peakTotalBytes {0};
+
+        Usage         totalUsage() const {
+
+            return {
+                .textureBytes       = a3d.textureBytes + imgui.textureBytes,
+                .vertexBufferBytes  = a3d.vertexBufferBytes + imgui.vertexBufferBytes,
+                .indexBufferBytes   = a3d.indexBufferBytes + imgui.indexBufferBytes,
+                .uniformBufferBytes = a3d.uniformBufferBytes + imgui.uniformBufferBytes,
+                .renderTargetBytes  = a3d.renderTargetBytes + imgui.renderTargetBytes,
+                .otherBytes         = a3d.otherBytes + imgui.otherBytes,
+            };
+        }
+
+        std::uint64_t totalBytes() const {
+
+            return a3d.totalBytes() + imgui.totalBytes();
+        }
+    };
+
     struct FrameStats {
 
         bool                     isRenderGpuTimeAvailable = false;
@@ -24,6 +64,8 @@ namespace a3d {
         std::chrono::nanoseconds renderGpuTime {};
         std::chrono::nanoseconds physicsTime {};
         std::chrono::nanoseconds applicationTime {};
+
+        RenderMemoryStats        renderMemory {};
 
         // fixed simulation configuration
         double                   simulationTimeStep {0.0};

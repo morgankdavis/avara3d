@@ -15,6 +15,7 @@
 #include "a3d/render/backend/opengl/ImguiContext.h"
 #include "a3d/render/backend/opengl/OGLDebugLines.h"
 #include "a3d/render/backend/opengl/OGLDrawTimer.h"
+#include "a3d/render/backend/opengl/OGLMemoryTracker.h"
 #include "a3d/render/backend/opengl/OGLResourceCache.h"
 #include "a3d/render/backend/opengl/StatsOverlay.h"
 
@@ -108,18 +109,15 @@ namespace a3d {
                             const math::mat4&     view,
                             const math::mat4&     proj) override;
         void drawGround(const GroundPass& groundPass, const math::mat4& view, const math::mat4& proj) override;
-
         void bindPipeline(PipelineId pipelineId) override;
         void bindMaterial(const Material& material) override;
         void bindMeshElement(const MeshElement& element) override;
         void applyMVP(const math::mat4& model, const math::mat4& view, const math::mat4& proj) override;
         void drawElements() override;
-
-        void renderLinesPass(const LinesPass&     pass,
-                             const RenderContext& context,
-                             const math::mat4&    view,
-                             const math::mat4&    proj) override;
-
+        void drawLines(const LinesPass&     pass,
+                       const RenderContext& context,
+                       const math::mat4&    view,
+                       const math::mat4&    proj) override;
         void resolvePacket(DrawPacket& packet, const FrameParams& frame) override;
         void drawPacket(const DrawPacket& packet, const FrameParams& frame) override;
 
@@ -128,6 +126,7 @@ namespace a3d {
 
         GLSLProgram&   programForShaderKind(ShaderKind kind) const;
         void           drawDebugLines(const math::mat4& model, const math::mat4& view, const math::mat4& proj);
+        void           syncImguiMemoryStats();
 
         /// Private Member Variables ///
 
@@ -140,6 +139,7 @@ namespace a3d {
         std::unique_ptr<GLSLProgram> _defaultProgram;
         std::unique_ptr<GLSLProgram> _wireframeProgram;
         std::unique_ptr<GLSLProgram> _linesProgram;
+        OGLMemoryTracker             _memoryTracker;
         OGLResourceCache             _resourceCache;
         GLStateCache                 _state;
         BoundElement                 _boundElement;

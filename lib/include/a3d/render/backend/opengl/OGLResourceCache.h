@@ -21,6 +21,7 @@ namespace a3d {
 
     class Material;
     class MeshElement;
+    class OGLMemoryTracker;
     class Texture;
 
     /// Internal Types ///
@@ -57,7 +58,7 @@ namespace a3d {
     public:
         /// Internal Lifecycle Functions ///
 
-        OGLResourceCache() = default;
+        explicit OGLResourceCache(OGLMemoryTracker& memoryTracker);
 
         OGLResourceCache(const OGLResourceCache&)            = delete;
         OGLResourceCache& operator=(const OGLResourceCache&) = delete;
@@ -78,6 +79,7 @@ namespace a3d {
     private:
         /// Private Member Variables ///
 
+        OGLMemoryTracker&                                              _memoryTracker;
         std::unordered_map<PipelineDesc, PipelineId, PipelineDescHash> _pipelineMap;
         std::vector<OGLPipeline>                                       _pipelineList;
         std::unordered_map<MeshElement*, OGLMeshElement>               _meshElementMap;
