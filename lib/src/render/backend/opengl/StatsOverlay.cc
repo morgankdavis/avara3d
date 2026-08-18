@@ -441,7 +441,7 @@ void DrawStats(FrameStats&              stats,
                   static_cast<int>(physSamples.size()), 0, nullptr, nullptr, 0.0f, PLOT_Y_MIN, PLOT_Y_MAX, 0,
                   PLOT_OUTLINED, ++id, PLOT_HEIGHT_2 + PLOT_STR_Y_PAD, false);
 
-    ImguiDrawLabelValue(yPos, layout, "app", std::format("{:.1f}ms", appCpuMsFAvg), bodyFont,
+    ImguiDrawLabelValue(yPos, layout, "application", std::format("{:.1f}ms", appCpuMsFAvg), bodyFont,
                         STATS_BODY_FONT_SIZE, PLOT_Y_PAD);
     ImguiDrawPlot(X_POS, yPos, COLUMN_WIDTH, PLOT_HEIGHT_2, appSamples.data(),
                   static_cast<int>(appSamples.size()), 0, nullptr, nullptr, 0.0f, PLOT_Y_MIN, PLOT_Y_MAX, 0,

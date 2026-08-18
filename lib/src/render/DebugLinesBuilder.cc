@@ -57,10 +57,6 @@ void DebugLinesBuilder::AppendOBBFromLocalAABB(std::vector<Line>& out,
     AppendBoxLinesFromCorners(out, wc, color);
 }
 
-void DebugLinesBuilder::AppendFrame(vector<Line>& out, const mat4& transform, float size) {
-    AppendFrame(out, transform, vec3 {size});
-}
-
 void DebugLinesBuilder::AppendFrame(vector<Line>& out, const mat4& transform, const vec3& size) {
 
     const vec3 origin = vec3(transform * vec4 {0.0f, 0.0f, 0.0f, 1.0f});

@@ -1286,31 +1286,48 @@ shared_ptr<Node> ThrowDuck(Node& parent, const vec3& location, const vec3& veloc
 
     auto node = Node::MeshNode(mesh);
     node->name("Quack");
-    node->position(location);
+    // node->position(location);
+    node->position({0.0f, 3.0f, 0.0f});
 
     auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
     physicsBody->mass(0.1f);
+    // physicsBody->centerOfMass({0.0f, extent.y * 0.5f, 0.0f});
+
+    const vec3 autoCenterOfMass = physicsBody->centerOfMass();
+    physicsBody->centerOfMass(autoCenterOfMass + vec3 {0.0f, extent.y * 0.25f, 0.0f});
+
+    physicsBody->affectedByGravity(false);
+
+
     physicsBody->restitution(0.5f);
     physicsBody->friction(2.0f);
-    physicsBody->rollingFriction(0.1f);
+    // physicsBody->rollingFriction(0.1f);
 
     const float minExtent = math::min(extent);
     physicsBody->ccdMotionThreshold(minExtent * 0.25f);
     physicsBody->ccdSweptSphereRadius(minExtent * 0.25f);
     physicsBody->ccdEnabled(true);
 
-    node->eulerAngles({uniform_linear(0.0f, TWO_PI), uniform_linear(0.0f, TWO_PI),
-                       uniform_linear(0.0f, TWO_PI)});
+    // node->eulerAngles({uniform_linear(0.0f, TWO_PI), uniform_linear(0.0f, TWO_PI),
+    //                    uniform_linear(0.0f, TWO_PI)});
+    node->eulerAngles({0.0f, 0.0f, 0.0f});
 
     static const float ANGULAR_VARIANCE = radians(360.0f);
 
-    physicsBody->angularVelocity({
-        uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
-        uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
-        uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
-    });
+    // physicsBody->angularVelocity({
+    //     uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+    //     uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+    //     uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+    // });
+    //physicsBody->angularVelocity({0.0f, 0.0f, 0.0f});
+    //physicsBody->angularVelocity({0.0f, radians(45.0f), 0.0f});
+    physicsBody->angularVelocity({radians(45.0f), 0.0f, 0.0f});
 
-    physicsBody->linearVelocity(velocity);
+    // physicsBody->linearVelocity(velocity);
+    physicsBody->linearVelocity({0.0f, 0.0f, 0.0f});
+
+    physicsBody->angularDamping(0.0f);
+    physicsBody->allowsResting(false);
 
     node->physicsBody(std::move(physicsBody));
 

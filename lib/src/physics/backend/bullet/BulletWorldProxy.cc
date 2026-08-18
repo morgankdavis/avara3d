@@ -757,12 +757,10 @@ void BulletWorldProxy::appendDebugLines(vector<Line>& out, Scene::DebugOptions d
             for (int i = 0; i < objects.size(); ++i) {
                 if (auto* body = btRigidBody::upcast(objects[i])) {
 
-                    if (body->getCollisionShape()
-                        && body->getCollisionShape()->getShapeType() == STATIC_PLANE_PROXYTYPE) {
+                    auto* shape = body->getCollisionShape();
+                    if (!shape || shape->getShapeType() == STATIC_PLANE_PROXYTYPE) {
                         continue;
                     }
-
-                    auto* shape = body->getCollisionShape();
 
                     btTransform identity;
                     identity.setIdentity();
