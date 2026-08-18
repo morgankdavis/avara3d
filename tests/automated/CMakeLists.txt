@@ -23,3 +23,4 @@ target_link_libraries(a3d-tests
 
 include(Catch)
 catch_discover_tests(a3d-tests)
+``
