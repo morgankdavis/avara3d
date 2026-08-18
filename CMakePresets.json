@@ -43,7 +43,11 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "A3D_BUILD_DOCUMENTATION": "OFF",
+                "CMAKE_MESSAGE_LOG_LEVEL": "ERROR",
                 "CMAKE_TOOLCHAIN_FILE": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake"
+            },
+            "warnings": {
+                "unusedCli": false
             },
             "vendor": {
                 "jetbrains.com/clion": {
@@ -59,7 +63,11 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "A3D_BUILD_DOCUMENTATION": "OFF",
+                "CMAKE_MESSAGE_LOG_LEVEL": "ERROR",
                 "CMAKE_TOOLCHAIN_FILE": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake"
+            },
+            "warnings": {
+                "unusedCli": false
             },
             "vendor": {
                 "jetbrains.com/clion": {
