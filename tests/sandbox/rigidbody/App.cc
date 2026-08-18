@@ -366,15 +366,6 @@ void App::inputDidUpdate(Runner&                         runner,
         _window->vSyncEnabled(!_window->vSyncEnabled());
     }
 
-    if (input.keyPressed(Key::R)) {
-        if (!_window->recordingGIF()) {
-            util::snapshot::StartGIFRecording(*_window, {320, 240}, 8);
-        }
-        else {
-            util::snapshot::StopGIFRecording(*_window);
-        }
-    }
-
     if (input.keyPressed(Key::Apostrophe) && visualWorld) {
         if (auto pov = visualWorld->pointOfView().lock()) {
             const auto position = pov->worldPosition();

@@ -312,15 +312,6 @@ void App::inputDidUpdate(Runner&                         runner,
         window->cursorCaptured(!(window->cursorCaptured()));
     }
 
-    if (input.keyPressed(Key::R)) {
-        if (!window->recordingGIF()) {
-            util::snapshot::StartGIFRecording(*window, {320, 240}, 8);
-        }
-        else {
-            util::snapshot::StopGIFRecording(*window);
-        }
-    }
-
     if (auto pov = scene.visualWorld()->pointOfView().lock(); pov && _window->cursorCaptured()) {
         _cameraController.update(*pov, input, info.deltaTime);
     }

@@ -228,15 +228,6 @@ void App::inputDidUpdate(Runner&                         runner,
         util::snapshot::SaveSnapshot(*window);
     }
 
-    if (input->keyPressed(Key::R)) {
-        if (!window->recordingGIF()) {
-            util::snapshot::StartGIFRecording(*window, {320, 240}, 8);
-        }
-        else {
-            util::snapshot::StopGIFRecording(*window);
-        }
-    }
-
     if (input->keyPressed(Key::Slash)) {
         window->cursorCaptured(!(window->cursorCaptured()));
     }
