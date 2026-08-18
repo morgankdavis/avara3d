@@ -62,6 +62,11 @@ static vector<shared_ptr<Node>>  SpawnBoxs(Node&         parent,
                                            const u8vec3& stackSize,
                                            float         padding,
                                            const Color&  color);
+vector<shared_ptr<Node>>         SpawnRocks(Node&         parent,
+                                            const vec3&   location,
+                                            const vec3&   boxSize,
+                                            const u8vec3& stackSize,
+                                            float         padding);
 static bool IsIgnored(const shared_ptr<Node>& node, const vector<const Node*>& ignoredNodes);
 
 /// Public Lifecycle Functions ///
@@ -936,8 +941,11 @@ void App::performAction(const PendingAction& action) {
 
             const vec3 spawnLocation = action.target.hitPosition + vec3 {0.0f, DROP_HEIGHT, 0.0f};
 
-            auto boxes = SpawnBoxs(*simulationRoot, spawnLocation, DROP_BOX_SIZE, DROP_STACK_SIZE, DROP_PADDING,
-                                   Color::White());
+            // auto boxes = SpawnBoxs(*simulationRoot, spawnLocation, DROP_BOX_SIZE, DROP_STACK_SIZE, DROP_PADDING,
+            //                        Color::White());
+
+            auto boxes =
+                SpawnRocks(*simulationRoot, spawnLocation, DROP_BOX_SIZE, DROP_STACK_SIZE, DROP_PADDING);
 
             _transients.track(boxes, "box");
 
@@ -1392,6 +1400,55 @@ vector<shared_ptr<Node>> SpawnBoxs(Node&         parent,
                 added.push_back(node);
                 parent.addChild(node);
             }
+        }
+    }
+
+    return added;
+}
+
+vector<shared_ptr<Node>> SpawnRocks(Node&         parent,
+                                    const vec3&   location,
+                                    const vec3&   boxSize,
+                                    const u8vec3& stackSize,
+                                    float         padding) {
+
+    auto rocksConcave =
+        util::fs::SceneAt("rocks_convex/rocks_convex.gltf",
+                          Scene::ImportOptions::ImportMeshes | Scene::ImportOptions::ImportMaterials);
+
+    auto rocksConvex =
+        util::fs::SceneAt("rocks_convex/rocks_convex.gltf",
+                          Scene::ImportOptions::ImportMeshes | Scene::ImportOptions::ImportMaterials);
+
+    log::app::d()("Rocks concave: {}", rocksConcave->rootNode()->children().size());
+    log::app::d()("Rocks convex: {}", rocksConvex->rootNode()->children().size());
+
+    auto children = rocksConcave->rootNode()->children();
+
+    vector<shared_ptr<Node>> added;
+    added.reserve(children.size());
+
+    float x = 0;
+
+    for (auto& node : children) {
+        auto mesh = node->mesh();
+        if (mesh) {
+
+            const auto translate = math::translate(mat4(1.0f), {x, location.y, location.z});
+            const auto scale = math::scale(mat4(1.0f), vec3(.25f));
+
+            mesh->burnTransform(translate * scale, true);
+
+            auto newNode = Node::MeshNode(mesh); // why?
+            // auto newNode = node;
+            newNode->physicsBody(PhysicsBody::DynamicBody());
+            //newNode->position(node->position() + location);
+            // newNode->position();
+            // newNode->scale(vec3{.25f});
+            // newNode->burnTransform(node->transform(), true);
+            parent.addChild(newNode);
+            added.push_back(newNode);
+            x += .5;
         }
     }
 
