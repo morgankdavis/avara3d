@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 12/8/23.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2023-2026 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_PHYSICS_BACKEND_BULLET_BULLETWORLDPROXY_H

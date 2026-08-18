@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 12/6/25.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2025-2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/profile/Timer.h"

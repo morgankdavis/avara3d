@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 12/2/2025.
-//  Copyright © 2025 Morgan K Davis. All rights reserved.
+//  Copyright © 2025-2026 Morgan K Davis. All rights reserved.
 //
 
 #include "QtViewport.h"
@@ -17,12 +17,14 @@
 #include "imgui.h" // gross
 
 #include "a3d/a3d.h"
+#include "a3d/render/backend/opengl/OGLRenderer.h" // less gross
 
 #include "QtInputContext.h"
 
 using namespace a3d;
 using namespace a3d::math;
 using namespace std;
+
 using Viewport = qt::QtViewport;
 
 /// Public Static Member Functions ///

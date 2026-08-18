@@ -3,7 +3,7 @@
 //  avara3d
 //
 //  Created by Morgan Davis on 9/20/17.
-//  Copyright © 2024 Morgan K Davis. All rights reserved.
+//  Copyright © 2017-2026 Morgan K Davis. All rights reserved.
 //
 
 #ifndef AVARA3D_A3D_H
@@ -56,10 +56,9 @@
 #include "a3d/physics/shape/primitive/InfinitePlanePhysicsShape.h"
 #include "a3d/physics/shape/primitive/PlanePhysicsShape.h"
 #include "a3d/physics/shape/primitive/SpherePhysicsShape.h"
+#include "a3d/render/Renderer.h"
 #include "a3d/render/context/RenderContext.h"
 #include "a3d/render/context/Window.h"
-#include "a3d/render/backend/opengl/OGLRenderer.h"
-#include "a3d/render/Renderer.h"
 #include "a3d/scene/HitTestResult.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
