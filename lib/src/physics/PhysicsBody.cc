@@ -396,7 +396,25 @@ void PhysicsBody::autocalculatesCenterOfMass(bool autocalculate) {
             "Center of mass may only be automatically calculated for dynamic PhysicsBody objects.");
     }
 
-    _proxy->autocalculatesCenterOfMass(autocalculate);
+    if (_proxy->autocalculatesCenterOfMass() == autocalculate) {
+        return;
+    }
+
+    // Disabling automatic calculation does not change the current COM.
+    if (!autocalculate) {
+        _proxy->autocalculatesCenterOfMass(false);
+        return;
+    }
+
+    if (_world) {
+        _world->remove(*this);
+    }
+
+    _proxy->autocalculatesCenterOfMass(true);
+
+    if (!_node.expired()) {
+        checkAddToWorld();
+    }
 }
 
 bool PhysicsBody::autocalculatesMomentOfInertia() const {

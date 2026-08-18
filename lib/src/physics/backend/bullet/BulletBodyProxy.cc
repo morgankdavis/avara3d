@@ -235,7 +235,7 @@ void BulletBodyProxy::momentOfInertia(const vec3& moment) {
 }
 
 vec3 BulletBodyProxy::centerOfMass() const {
-    return A3DVec3FromBTVector3(_btBody->getCenterOfMassPosition());
+    return _centerOfMass;
 }
 
 void BulletBodyProxy::centerOfMass(const vec3& centerOfMass) {
@@ -611,7 +611,7 @@ void BulletBodyProxy::calculateCenterOfMass() {
 
 void BulletBodyProxy::rebuildCollisionShape() {
 
-    // the rigid body may currently point at _centerOfMassShape, so detach it
+    // the rigid body may currently point at _centerOfMassOffsetShape, so detach it
     // before destroying/replacing the wrapper.
     _btBody->setCollisionShape(nullptr);
     _centerOfMassOffsetShape.reset();

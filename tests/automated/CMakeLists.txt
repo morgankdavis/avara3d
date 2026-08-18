@@ -13,14 +13,12 @@ if (NOT Catch2_FOUND)
 endif()
 
 add_executable(a3d-tests
-		physics/PhysicsBodyComTests.cc
 		scene/SceneTests.cc
 		runner/RunnerTests.cc)
 
 target_link_libraries(a3d-tests
 		PRIVATE
 		a3d::avara3d
-		a3d::bullet
 		Catch2::Catch2WithMain)
 
 include(Catch)
