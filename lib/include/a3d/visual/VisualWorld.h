@@ -75,6 +75,7 @@ namespace a3d {
 
         struct HitTestOptions {
             HitTestSearchMode searchMode {HitTestSearchMode::Closest};
+            bool boundingBoxOnly {false};
         };
 
         using DidBeginFrameCallback = std::function<void(VisualWorld& visualWorld, const RenderInfo& info)>;

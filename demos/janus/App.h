@@ -37,8 +37,8 @@ namespace demo::janus {
 
         struct PickResult {
             std::weak_ptr<a3d::Node> node;
-            a3d::math::vec3          worldHitPosition;
-            a3d::math::vec3          worldHitNormal;
+            a3d::math::vec3          hitPosition;
+            a3d::math::vec3          hitNormal;
         };
 
         /// Public Lifecycle Functions ///

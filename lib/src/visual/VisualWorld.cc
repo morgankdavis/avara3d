@@ -50,26 +50,37 @@ struct HitTestCandidate {
     HitTestResult result;
 };
 
+struct AABBIntersection {
+    float t {0.0f};
+    vec3  normal {};
+};
+
 /// Private Static Non-Member Prototypes ///
 
 // tests whether the finite near-to-far picking segment intersects an axis-aligned bounding box. returns the
-// earliest intersection position as a normalized segment parameter t in [0, 1], or nullopt if there is no hit.
-static optional<float> IntersectSegmentAABB(const vec3& origin, const vec3& delta, const AABB& aabb);
-// performs precise segment-versus-triangle test using Möller–Trumbore. deliberately two-sided and returns
-// the intersection t in [0, 1], or nullopt.
+// earliest intersection as a normalized segment parameter t in [0, 1] and the local-space entry-face normal,
+// or nullopt if there is no hit. if the segment begins inside the box, t is 0 and the normal may be zero.
+static optional<AABBIntersection> IntersectSegmentAABB(const vec3& origin, const vec3& delta, const AABB& aabb);
+
+// performs a precise segment-versus-triangle test using Möller–Trumbore. deliberately two-sided and returns
+// the intersection t in [0, 1], or nullopt if there is no hit.
 static optional<float> IntersectSegmentTriangle(const vec3& origin,
                                                 const vec3& delta,
                                                 const vec3& a,
                                                 const vec3& b,
                                                 const vec3& c);
-// transforms world-space picking segment into a node's mesh-local space, rejects elements using their AABBs,
-// then tests their triangles. returns the nearest triangle hit anywhere in that Node's Mesh, packaged as a
-// complete HitTestResult.
+
+// transforms the world-space picking segment into a node's mesh-local space and rejects elements using their
+// AABBs. when boundingBoxOnly is true, returns the nearest element AABB hit without testing triangles;
+// otherwise performs precise triangle tests and returns the nearest geometry hit. packages either result as a
+// complete HitTestResult, with faceIndex unset for bounding-box-only hits.
 static optional<HitTestCandidate> IntersectNodeMesh(const shared_ptr<Node>& node,
                                                     const shared_ptr<Mesh>& mesh,
                                                     const mat4&             modelTransform,
                                                     const vec3&             worldOrigin,
-                                                    const vec3&             worldDelta);
+                                                    const vec3&             worldDelta,
+                                                    bool                    boundingBoxOnly);
+
 static bool BackgroundContentsEqual(const Material::Property& a, const Material::Property& b);
 
 /// Public Lifecycle Functions ///
@@ -289,8 +300,7 @@ void VisualWorld::ground(const optional<Ground>& ground) {
 
             const auto& haze = *ground->horizonHaze;
 
-            if (!math::is_finite(haze.angularWidth) || haze.angularWidth <= 0.0f
-                || haze.angularWidth > 90.0f) {
+            if (!math::is_finite(haze.angularWidth) || haze.angularWidth <= 0.0f || haze.angularWidth > 90.0f) {
 
                 throw invalid_argument(
                     "Ground horizon haze angular width must be finite, greater than zero, and at most 90 degrees.");
@@ -459,7 +469,8 @@ vector<HitTestResult> VisualWorld::hitTest(const vec2& point, const HitTestOptio
 
         if (const auto& mesh = entry.node->mesh()) {
 
-            auto candidate = IntersectNodeMesh(entry.node, mesh, modelTransform, worldOrigin, worldDelta);
+            auto candidate = IntersectNodeMesh(entry.node, mesh, modelTransform, worldOrigin, worldDelta,
+                                               options.boundingBoxOnly);
 
             if (candidate) {
 
@@ -720,7 +731,7 @@ shared_ptr<Node> VisualWorld::defaultPOV() {
 
 /// Private Static Non-Member Functions ///
 
-optional<float> IntersectSegmentAABB(const vec3& origin, const vec3& delta, const AABB& aabb) {
+optional<AABBIntersection> IntersectSegmentAABB(const vec3& origin, const vec3& delta, const AABB& aabb) {
 
     if (!aabb.valid()) {
         return {};
@@ -728,6 +739,7 @@ optional<float> IntersectSegmentAABB(const vec3& origin, const vec3& delta, cons
 
     float tMin = 0.0f;
     float tMax = 1.0f;
+    vec3  entryNormal {};
 
     for (int axis = 0; axis < 3; ++axis) {
 
@@ -745,10 +757,26 @@ optional<float> IntersectSegmentAABB(const vec3& origin, const vec3& delta, cons
         const float t0 = (aabb.min[axis] - origin[axis]) * inverseDelta;
         const float t1 = (aabb.max[axis] - origin[axis]) * inverseDelta;
 
-        const float tNear = math::min(t0, t1);
-        const float tFar = math::max(t0, t1);
+        float tNear;
+        float tFar;
+        vec3  nearNormal {};
 
-        tMin = math::max(tMin, tNear);
+        if (t0 < t1) {
+            tNear = t0;
+            tFar = t1;
+            nearNormal[axis] = -1.0f;
+        }
+        else {
+            tNear = t1;
+            tFar = t0;
+            nearNormal[axis] = 1.0f;
+        }
+
+        if (tNear > tMin) {
+            tMin = tNear;
+            entryNormal = nearNormal;
+        }
+
         tMax = math::min(tMax, tFar);
 
         if (tMin > tMax) {
@@ -756,7 +784,10 @@ optional<float> IntersectSegmentAABB(const vec3& origin, const vec3& delta, cons
         }
     }
 
-    return tMin;
+    return AABBIntersection {
+        .t = tMin,
+        .normal = entryNormal,
+    };
 }
 
 optional<float> IntersectSegmentTriangle(const vec3& origin,
@@ -803,7 +834,8 @@ optional<HitTestCandidate> IntersectNodeMesh(const shared_ptr<Node>& node,
                                              const shared_ptr<Mesh>& mesh,
                                              const mat4&             modelTransform,
                                              const vec3&             worldOrigin,
-                                             const vec3&             worldDelta) {
+                                             const vec3&             worldDelta,
+                                             bool                    boundingBoxOnly) {
 
     const mat3  linearTransform {modelTransform};
     const float linearDeterminant = determinant(linearTransform);
@@ -826,6 +858,7 @@ optional<HitTestCandidate> IntersectNodeMesh(const shared_ptr<Node>& node,
     vec3               bestA;
     vec3               bestB;
     vec3               bestC;
+    vec3               bestLocalNormal {};
 
     for (const auto& elementPtr : mesh->elements()) {
 
@@ -835,7 +868,7 @@ optional<HitTestCandidate> IntersectNodeMesh(const shared_ptr<Node>& node,
             continue;
         }
 
-        const AABB localAABB = element.localAABB();
+        const AABB& localAABB = element.localAABB();
         if (!localAABB.valid()) {
             continue;
         }
@@ -845,9 +878,19 @@ optional<HitTestCandidate> IntersectNodeMesh(const shared_ptr<Node>& node,
             continue;
         }
 
-        // The nearest possible hit in this element is already farther than
-        // the best triangle found so far.
-        if (bestT && *aabbHit > *bestT) {
+        // the nearest possible hit in this element is already farther than
+        // the best hit found so far.
+        if (bestT && aabbHit->t > *bestT) {
+            continue;
+        }
+
+        if (boundingBoxOnly) {
+
+            bestT = aabbHit->t;
+            bestElement = &element;
+            bestFaceIndex.reset();
+            bestLocalNormal = aabbHit->normal;
+
             continue;
         }
 
@@ -889,17 +932,16 @@ optional<HitTestCandidate> IntersectNodeMesh(const shared_ptr<Node>& node,
         });
     }
 
-    if (!bestT || !bestElement || !bestFaceIndex) {
+    if (!bestT || !bestElement) {
         return {};
     }
 
     const vec3 localCoordinates = localOrigin + localDelta * *bestT;
     const vec3 worldCoordinates = worldOrigin + worldDelta * *bestT;
-
-    const vec3 localNormal = normalize(cross(bestB - bestA, bestC - bestA));
-
+    const vec3 localNormal = boundingBoxOnly ? bestLocalNormal : normalize(cross(bestB - bestA, bestC - bestA));
     const mat3 normalTransform {transpose(inverseModelTransform)};
-    const vec3 worldNormal = normalize(normalTransform * localNormal);
+    const vec3 worldNormal =
+        length(localNormal) > F32_COMPARE_EPSILON ? normalize(normalTransform * localNormal) : vec3 {};
 
     return HitTestCandidate {
         .t = *bestT,

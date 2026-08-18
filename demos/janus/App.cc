@@ -480,7 +480,7 @@ void App::frameDidBegin(Runner&                        runner,
             hover(_actionTarget->node.lock());
 
             if (_cursorMarker) {
-                _cursorMarker->position(_actionTarget->worldHitPosition);
+                _cursorMarker->position(_actionTarget->hitPosition);
                 _cursorMarker->hidden(false);
             }
         }
@@ -887,7 +887,7 @@ void App::queueAction(const vec2& screenPosition) {
     }
 
     if (_cursorMarker) {
-        _cursorMarker->position(target->worldHitPosition);
+        _cursorMarker->position(target->hitPosition);
         _cursorMarker->hidden(false);
     }
 
@@ -934,7 +934,7 @@ void App::performAction(const PendingAction& action) {
 
         case Action::Drop: {
 
-            const vec3 spawnLocation = action.target.worldHitPosition + vec3 {0.0f, DROP_HEIGHT, 0.0f};
+            const vec3 spawnLocation = action.target.hitPosition + vec3 {0.0f, DROP_HEIGHT, 0.0f};
 
             auto boxes = SpawnBoxs(*simulationRoot, spawnLocation, DROP_BOX_SIZE, DROP_STACK_SIZE, DROP_PADDING,
                                    Color::White());
@@ -953,7 +953,7 @@ void App::performAction(const PendingAction& action) {
             }
 
             const vec3  cameraPosition = action.cameraPosition;
-            const vec3  targetPosition = action.target.worldHitPosition;
+            const vec3  targetPosition = action.target.hitPosition;
             const vec3  cameraToTarget = targetPosition - cameraPosition;
             const float targetDistance = length(cameraToTarget);
 
@@ -995,7 +995,7 @@ void App::performAction(const PendingAction& action) {
                 return;
             }
 
-            body->applyForce(action.rayDirection * POKE_IMPULSE, action.target.worldHitPosition, true);
+            body->applyForce(action.rayDirection * POKE_IMPULSE, action.target.hitPosition, true);
 
             break;
         }
@@ -1166,7 +1166,8 @@ optional<App::PickResult> Pick(VisualWorld&               visualWorld,
                                const vec2&                screenPosition,
                                const vector<const Node*>& ignoredNodes) {
 
-    const auto hits = visualWorld.hitTest(screenPosition, {.searchMode = HitTestSearchMode::All});
+    const auto hits =
+        visualWorld.hitTest(screenPosition, {.searchMode = HitTestSearchMode::All, .boundingBoxOnly = true});
 
     for (const auto& hit : hits) {
 
@@ -1182,8 +1183,8 @@ optional<App::PickResult> Pick(VisualWorld&               visualWorld,
 
         return App::PickResult {
             .node = node,
-            .worldHitPosition = hit.worldCoordinates(),
-            .worldHitNormal = hit.worldNormal(),
+            .hitPosition = hit.worldCoordinates(),
+            .hitNormal = hit.worldNormal(),
         };
     }
 
@@ -1224,8 +1225,8 @@ optional<App::PickResult> FindActionTarget(Scene&                     scene,
 
         return App::PickResult {
             .node = node,
-            .worldHitPosition = hit.worldCoordinates(),
-            .worldHitNormal = hit.worldNormal(),
+            .hitPosition = hit.worldCoordinates(),
+            .hitNormal = hit.worldNormal(),
         };
     }
 
