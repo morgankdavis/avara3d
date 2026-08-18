@@ -17,6 +17,8 @@ using namespace a3d;
 PhysicsBodyProxy::PhysicsBodyProxy(PhysicsBody& body, PhysicsBody::Type type):
     _body {},
     _shapeProxy {},
+    _centerOfMass {0.0f},
+    _autocalculatesCenterOfMass {type == PhysicsBody::Type::Dynamic},
     _autocalculatesMomentOfInertia {true} {
 
     attachedToBody(body);
@@ -25,6 +27,14 @@ PhysicsBodyProxy::PhysicsBodyProxy(PhysicsBody& body, PhysicsBody::Type type):
 PhysicsBodyProxy::~PhysicsBodyProxy() {}
 
 /// Internal Member Functions ///
+
+bool PhysicsBodyProxy::autocalculatesCenterOfMass() const {
+    return _autocalculatesCenterOfMass;
+}
+
+void PhysicsBodyProxy::autocalculatesCenterOfMass(bool autocalculate) {
+    _autocalculatesCenterOfMass = autocalculate;
+}
 
 bool PhysicsBodyProxy::autocalculatesMomentOfInertia() const {
     return _autocalculatesMomentOfInertia;

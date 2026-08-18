@@ -280,9 +280,25 @@ unique_ptr<btCollisionShape> BTShapeFromMeshElement(MeshElement&                
     if (shapeType == PhysicsShape::Type::BoundingBox) {
         log::i()("Creating box physics shape for MeshElement {:p}...", static_cast<void*>(&element));
 
-        auto extent = element.localExtent();
-        return make_unique<btBoxShape>(btVector3((btScalar) extent.x / 2.0f, (btScalar) extent.y / 2.0f,
-                                                 (btScalar) extent.z / 2.0f));
+        const auto aabb = element.localAABB();
+        const auto extent = aabb.max - aabb.min;
+        const auto center = AABB::Center(aabb);
+
+        auto boxShape =
+            make_unique<btBoxShape>(btVector3((btScalar) extent.x / 2.0f, (btScalar) extent.y / 2.0f,
+                                              (btScalar) extent.z / 2.0f));
+
+        auto compoundShape = make_unique<btCompoundShape>(true);
+
+        btTransform childTransform;
+        childTransform.setIdentity();
+        childTransform.setOrigin(BTVector3FromA3DVec3(center));
+
+        compoundShape->addChildShape(childTransform, boxShape.get());
+
+        btShapes.push_back(std::move(boxShape));
+
+        return compoundShape;
     }
     else if (auto box = dynamic_cast<Box*>(&element)) {
         log::i()("Creating box physics shape for MeshElement {:p}... "

@@ -13,6 +13,7 @@
 
 #include "a3d/physics/proxy/PhysicsBodyProxy.h"
 
+class btCompoundShape;
 class btRigidBody;
 
 namespace a3d {
@@ -107,10 +108,9 @@ namespace a3d {
         bool               resting() const override;
         void               resting(bool resting) override;
 
-//		math::mat4				worldTransform() const override;
-//		void					worldTransform(const math::mat4& transform) override;
-
         void               worldTransform(const math::mat4& transform) override;
+
+        void               autocalculatesCenterOfMass(bool autocalculate) override;
 
         void               clearForces() override;
 
@@ -121,13 +121,16 @@ namespace a3d {
     private:
         ///  Private Member Functions ///
 
-        void                               calculateMomentOfIntertia();
+        void                               calculateCenterOfMass();
+        void                               rebuildCollisionShape();
+        void                               calculateMomentOfInertia();
         void                               syncCcdSettings();
 
         /// Private Member Variables ///
 
-        std::unique_ptr<btRigidBody>       _btBody;
         std::unique_ptr<BulletMotionState> _motionState;
+        std::unique_ptr<btCompoundShape>   _centerOfMassOffsetShape;
+        std::unique_ptr<btRigidBody>       _btBody;
         bool                               _ccdEnabled;
         float                              _ccdMotionThreshold;
         float                              _ccdSweptSphereRadius;

@@ -11,6 +11,8 @@
 
 #include <bullet/LinearMath/btMotionState.h>
 
+#include "a3d/Math.h"
+
 namespace a3d {
 
     class PhysicsBody;
@@ -28,6 +30,9 @@ namespace a3d {
         void         setWorldTransform(const btTransform& transform) override;
 
         /// Internal Member Functions ///
+
+        btTransform  centerOfMassWorldTransform(const math::mat4& modelWorldTransform) const;
+        math::mat4   modelWorldTransform(const btTransform& centerOfMassWorldTransform) const;
 
         PhysicsBody* body() const;
 

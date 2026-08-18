@@ -43,9 +43,9 @@ static void ActivateDynamicBody(btRigidBody& body);
 
 BulletBodyProxy::BulletBodyProxy(PhysicsBody& body, PhysicsBody::Type type):
     PhysicsBodyProxy {body, type},
-    _btBody {},
-        /*_btMotionState(nullptr)*/
     _motionState {},
+    _centerOfMassOffsetShape {},
+    _btBody {},
     _ccdEnabled {false},
     _ccdMotionThreshold {0.0f},
     _ccdSweptSphereRadius {0.0f} {
@@ -140,38 +140,50 @@ void BulletBodyProxy::shapeProxy(PhysicsShapeProxy* proxy) {
     log::t()("proxy: {:p}", static_cast<void*>(proxy));
 
     if (proxy) {
-        // front is either the only btCollisionShape or a btCompound shape with child shapes at index 1+
 
-        if (auto btShape = dynamic_cast<BulletShapeProxy*>(proxy)->btShapes().front().get()) {
+        auto* bulletProxy = dynamic_cast<BulletShapeProxy*>(proxy);
 
-            _btBody->setCollisionShape(btShape);
+        if (bulletProxy && !bulletProxy->btShapes().empty()) {
+            if (auto* btShape = bulletProxy->btShapes().front().get()) {
 
-            const auto bodyType = _body->type();
-            switch (bodyType) {
-                case PhysicsBody::Type::Static:
-                case PhysicsBody::Type::Kinematic:
-                    SetMassPropsPreservingType(*_btBody, bodyType, 0.0f, btVector3(0, 0, 0));
-                    ForceActivationForBodyType(*_btBody, bodyType);
-                    break;
-                case PhysicsBody::Type::Dynamic:
-                    break;
-            }
+                const auto bodyType = _body->type();
 
-            _shapeProxy = proxy;
+                switch (bodyType) {
+                    case PhysicsBody::Type::Static:
+                    case PhysicsBody::Type::Kinematic:
+                        SetMassPropsPreservingType(*_btBody, bodyType, 0.0f, btVector3(0, 0, 0));
+                        ForceActivationForBodyType(*_btBody, bodyType);
+                        break;
 
-            if (this->type() == PhysicsBody::Type::Dynamic && _autocalculatesMomentOfInertia) {
-                calculateMomentOfIntertia();
+                    case PhysicsBody::Type::Dynamic:
+                        break;
+                }
+
+                _shapeProxy = proxy;
+
+                if (bodyType == PhysicsBody::Type::Dynamic && _autocalculatesCenterOfMass) {
+                    calculateCenterOfMass();
+                }
+
+                rebuildCollisionShape();
+
+                if (bodyType == PhysicsBody::Type::Dynamic && _autocalculatesMomentOfInertia) {
+                    calculateMomentOfInertia();
+                }
+
+                return;
             }
         }
-        else {
-            log::e()("Could not get shape resources.");
-            _btBody->setCollisionShape(nullptr);
-            _shapeProxy = nullptr;
-        }
+
+        log::e()("Could not get shape resources.");
     }
-    else {
-        _btBody->setCollisionShape(nullptr);
-        _shapeProxy = nullptr;
+
+    _btBody->setCollisionShape(nullptr);
+    _centerOfMassOffsetShape.reset();
+    _shapeProxy = nullptr;
+
+    if (_autocalculatesCenterOfMass) {
+        _centerOfMass = vec3 {0.0f};
     }
 }
 
@@ -226,8 +238,21 @@ vec3 BulletBodyProxy::centerOfMass() const {
     return A3DVec3FromBTVector3(_btBody->getCenterOfMassPosition());
 }
 
-void BulletBodyProxy::centerOfMass(const vec3& offset) {
-    _btBody->setCenterOfMassTransform(BTTransformFromA3DMat4(translate(mat4(1.0), offset)));
+void BulletBodyProxy::centerOfMass(const vec3& centerOfMass) {
+
+    if (_centerOfMass.x == centerOfMass.x && _centerOfMass.y == centerOfMass.y
+        && _centerOfMass.z == centerOfMass.z) {
+
+        return;
+    }
+
+    _centerOfMass = centerOfMass;
+
+    rebuildCollisionShape();
+
+    if (type() == PhysicsBody::Type::Dynamic && _autocalculatesMomentOfInertia) {
+        calculateMomentOfInertia();
+    }
 }
 
 float BulletBodyProxy::friction() const {
@@ -465,13 +490,9 @@ void BulletBodyProxy::resting(bool resting) {
     }
 }
 
-//void BulletBodyProxy::worldTransform(const mat4& transform) {
-//	_btBody->setWorldTransform(BTTransformFromA3DMat4(transform));
-//}
-
 void BulletBodyProxy::worldTransform(const mat4& transform) {
 
-    btTransform btTransform = BTTransformFromA3DMat4(transform);
+    btTransform btTransform = _motionState->centerOfMassWorldTransform(transform);
 
     // if (auto* ms = _btBody->getMotionState()) {
     //     ms->setWorldTransform(btTransform);
@@ -522,6 +543,26 @@ void BulletBodyProxy::worldTransform(const mat4& transform) {
     }
 }
 
+void BulletBodyProxy::autocalculatesCenterOfMass(bool autocalculate) {
+
+    if (_autocalculatesCenterOfMass == autocalculate) {
+        return;
+    }
+
+    PhysicsBodyProxy::autocalculatesCenterOfMass(autocalculate);
+
+    if (!autocalculate) {
+        return;
+    }
+
+    calculateCenterOfMass();
+    rebuildCollisionShape();
+
+    if (type() == PhysicsBody::Type::Dynamic && _autocalculatesMomentOfInertia) {
+        calculateMomentOfInertia();
+    }
+}
+
 void BulletBodyProxy::clearForces() {
     _btBody->clearForces();
 }
@@ -534,22 +575,89 @@ btRigidBody* BulletBodyProxy::btBody() {
 
 /// Private Member Functions ///
 
-void BulletBodyProxy::calculateMomentOfIntertia() {
+void BulletBodyProxy::calculateCenterOfMass() {
 
-    if (auto btShapeModel = dynamic_cast<BulletShapeProxy*>(_shapeProxy)) {
-        if (auto btShape = btShapeModel->btShapes().front().get()) {
-            btVector3 localInertia;
-            auto      mass = _body->mass();
-            btShape->calculateLocalInertia(mass, localInertia);
-            SetMassPropsPreservingType(*_btBody, type(), mass, localInertia);
-        }
-        else {
-            log::w()("Missing btCollisionShape.");
-        }
+    _centerOfMass = vec3 {0.0f};
+
+    auto* shapeProxy = dynamic_cast<BulletShapeProxy*>(_shapeProxy);
+    if (!shapeProxy || shapeProxy->btShapes().empty()) {
+        return;
     }
-    //	else {
-    //		log::w()("Missing PhysicsShapeModelProxy.");
-    //	}
+
+    auto* rootShape = shapeProxy->btShapes().front().get();
+    if (!rootShape) {
+        return;
+    }
+
+    btTransform identity;
+    identity.setIdentity();
+
+    btVector3 aabbMin;
+    btVector3 aabbMax;
+
+    rootShape->getAabb(identity, aabbMin, aabbMax);
+
+    const vec3 centerOfMass = A3DVec3FromBTVector3((aabbMin + aabbMax) * btScalar(0.5));
+
+    if (!math::is_finite(centerOfMass.x) || !math::is_finite(centerOfMass.y)
+        || !math::is_finite(centerOfMass.z)) {
+
+        log::w()("Could not automatically calculate PhysicsBody center of mass.");
+        return;
+    }
+
+    _centerOfMass = centerOfMass;
+}
+
+void BulletBodyProxy::rebuildCollisionShape() {
+
+    // the rigid body may currently point at _centerOfMassShape, so detach it
+    // before destroying/replacing the wrapper.
+    _btBody->setCollisionShape(nullptr);
+    _centerOfMassOffsetShape.reset();
+
+    auto* shapeProxy = dynamic_cast<BulletShapeProxy*>(_shapeProxy);
+    if (!shapeProxy || shapeProxy->btShapes().empty()) {
+        return;
+    }
+
+    auto* rootShape = shapeProxy->btShapes().front().get();
+    if (!rootShape) {
+        return;
+    }
+
+    const bool centered = _centerOfMass.x == 0.0f && _centerOfMass.y == 0.0f && _centerOfMass.z == 0.0f;
+
+    if (centered) {
+        _btBody->setCollisionShape(rootShape);
+        return;
+    }
+
+    _centerOfMassOffsetShape = make_unique<btCompoundShape>(false);
+
+    btTransform childTransform;
+    childTransform.setIdentity();
+    childTransform.setOrigin(-BTVector3FromA3DVec3(_centerOfMass));
+
+    _centerOfMassOffsetShape->addChildShape(childTransform, rootShape);
+
+    _btBody->setCollisionShape(_centerOfMassOffsetShape.get());
+}
+
+void BulletBodyProxy::calculateMomentOfInertia() {
+
+    auto* shape = _btBody->getCollisionShape();
+    if (!shape) {
+        log::w()("Missing btCollisionShape.");
+        return;
+    }
+
+    const auto mass = _body->mass();
+
+    btVector3 localInertia;
+    shape->calculateLocalInertia(mass, localInertia);
+
+    SetMassPropsPreservingType(*_btBody, type(), mass, localInertia);
 }
 
 void BulletBodyProxy::syncCcdSettings() {

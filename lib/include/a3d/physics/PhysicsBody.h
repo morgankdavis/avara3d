@@ -130,6 +130,9 @@ namespace a3d {
         bool                resting() const;
         void                resting(bool resting);
 
+        bool                autocalculatesCenterOfMass() const;
+        void                autocalculatesCenterOfMass(bool autocalculate);
+
         bool                autocalculatesMomentOfInertia() const;
         void                autocalculatesMomentOfInertia(bool autocalculate);
 

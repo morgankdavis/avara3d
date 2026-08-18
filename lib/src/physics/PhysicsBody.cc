@@ -131,7 +131,10 @@ void PhysicsBody::shape(const shared_ptr<PhysicsShape>& shape) {
 
     if (_shape) {
         _shape->attachedToBody(*this);
-        _proxy->shapeProxy(_shape->proxy());
+
+        if (_proxy->shapeProxy() != _shape->proxy()) {
+            _proxy->shapeProxy(_shape->proxy());
+        }
 
         if (!_node.expired()) {
             checkAddToWorld();
@@ -168,9 +171,28 @@ vec3 PhysicsBody::centerOfMass() const {
     return _proxy->centerOfMass();
 }
 
-void PhysicsBody::centerOfMass(const vec3&) {
-    // ! TEMPORARY !
-    throw logic_error("PhysicsBody center of mass cannot be modified.");
+void PhysicsBody::centerOfMass(const vec3& centerOfMass) {
+
+    if (type() != Type::Dynamic) {
+        throw logic_error("Center of mass may only be changed on dynamic PhysicsBody objects.");
+    }
+
+    if (!math::is_finite(centerOfMass.x) || !math::is_finite(centerOfMass.y)
+        || !math::is_finite(centerOfMass.z)) {
+
+        throw invalid_argument("PhysicsBody center of mass must be finite.");
+    }
+
+    if (_world) {
+        _world->remove(*this);
+    }
+
+    _proxy->autocalculatesCenterOfMass(false);
+    _proxy->centerOfMass(centerOfMass);
+
+    if (!_node.expired()) {
+        checkAddToWorld();
+    }
 }
 
 float PhysicsBody::friction() const {
@@ -363,6 +385,20 @@ void PhysicsBody::resting(bool resting) {
     _proxy->resting(resting);
 }
 
+bool PhysicsBody::autocalculatesCenterOfMass() const {
+    return _proxy->autocalculatesCenterOfMass();
+}
+
+void PhysicsBody::autocalculatesCenterOfMass(bool autocalculate) {
+
+    if (type() != Type::Dynamic && autocalculate) {
+        throw logic_error(
+            "Center of mass may only be automatically calculated for dynamic PhysicsBody objects.");
+    }
+
+    _proxy->autocalculatesCenterOfMass(autocalculate);
+}
+
 bool PhysicsBody::autocalculatesMomentOfInertia() const {
     return _proxy->autocalculatesMomentOfInertia();
 }
@@ -448,9 +484,6 @@ void PhysicsBody::shapeWillUpdate() {
 }
 
 void PhysicsBody::shapeDidUpdate() {
-    if (!_node.expired()) {
-        checkAddToWorld();
-    }
 
     if (!_proxy) {
         log::e()("No body proxy.");

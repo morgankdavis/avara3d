@@ -115,22 +115,23 @@ namespace a3d {
 
         virtual void               worldTransform(const math::mat4& worldTransform) = 0;
 
+        virtual bool               autocalculatesCenterOfMass() const;
+        virtual void               autocalculatesCenterOfMass(bool autocalculate);
+
         virtual bool               autocalculatesMomentOfInertia() const;
         virtual void               autocalculatesMomentOfInertia(bool autocalculate);
 
         void                       attachedToBody(PhysicsBody& body);
         void                       detachedFromBody(PhysicsBody& body);
 
-//		void							addedToWorld(PhysicsWorld& world);
-//		void							removedFromWorld(PhysicsWorld& world);
-
     protected:
         /// Protected Member Variables ///
 
         PhysicsBody*       _body;
         PhysicsShapeProxy* _shapeProxy;
+        math::vec3         _centerOfMass;
+        bool               _autocalculatesCenterOfMass;
         bool               _autocalculatesMomentOfInertia;
-//		PhysicsWorld*					_world;
     };
 
 }
