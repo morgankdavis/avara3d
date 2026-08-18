@@ -159,14 +159,6 @@ target_link_libraries(a3d_external_webp INTERFACE
 target_include_directories(a3d_external_webp SYSTEM INTERFACE
 		"$<BUILD_INTERFACE:${A3D_EXTERNAL_ROOT}/libwebp-1.6.0/src>")
 
-### magic_enum ###
-
-add_library(a3d_external_magic_enum INTERFACE)
-add_library(a3d::magic_enum ALIAS a3d_external_magic_enum)
-
-target_include_directories(a3d_external_magic_enum SYSTEM INTERFACE
-		"$<BUILD_INTERFACE:${A3D_EXTERNAL_ROOT}/magic_enum-0.9.3/include>")
-
 ### stb ###
 
 add_subdirectory(stb)

@@ -20,7 +20,6 @@
 #include <fastgltf/tools.hpp>
 #include <fastgltf/types.hpp>
 #include <fastgltf/util.hpp>
-#include <magic_enum/magic_enum.hpp>
 
 #include "a3d/Buffer.h"
 #include "a3d/Color.h"
@@ -35,6 +34,7 @@
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
 #include "a3d/util/Chrono.h"
+#include "a3d/util/Enum.h"
 #include "a3d/visual/camera/Camera.h"
 #include "a3d/visual/camera/PerspectiveCamera.h"
 #include "a3d/visual/light/DirectionalLight.h"
@@ -296,7 +296,7 @@ unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(fastgltf
     using namespace fastgltf;
 
     if (primitive.type != PrimitiveType::Triangles) {
-        log::w()("Unsupported primitive type: {}", magic_enum::enum_name(primitive.type));
+        log::w()("Unsupported primitive type: {}", util::enums::enum_name(primitive.type));
         return nullptr;
     }
 
@@ -379,7 +379,7 @@ unique_ptr<a3d::MeshElement> GlTFImporter::meshElementFromGlTFPrimitive(fastgltf
             }
             default: {
                 log::w()("TEXCOORD_0 has unexpected accessor.type={} (expected VEC2). Skipping UVs.",
-                         magic_enum::enum_name(uvAccessor.type));
+                         util::enums::enum_name(uvAccessor.type));
                 break;
             }
         }
@@ -968,7 +968,7 @@ void ReadIndicesU32(const fastgltf::Asset&    asset,
         }
         default:
             log::w()("Unsupported index componentType: {} (expected U8/U16/U32).",
-                     magic_enum::enum_name(idxAccessor.componentType));
+                     util::enums::enum_name(idxAccessor.componentType));
             out.clear();
             break;
     }

@@ -11,8 +11,6 @@
 #include <cmath>
 #include <stdexcept>
 
-#include <magic_enum/magic_enum.hpp>
-
 #include "a3d/log/Log.h"
 #include "a3d/mesh/Mesh.h"
 #include "a3d/mesh/primitive/Box.h"
@@ -32,6 +30,7 @@
 #include "a3d/physics/shape/primitive/PlanePhysicsShape.h"
 #include "a3d/physics/shape/primitive/SpherePhysicsShape.h"
 #include "a3d/scene/Node.h"
+#include "a3d/util/Enum.h"
 
 using namespace a3d;
 using namespace a3d::math;
@@ -94,7 +93,7 @@ PhysicsBody::Type PhysicsBody::type() const {
 }
 
 void PhysicsBody::type(Type type) {
-    log::d()("type: {}", magic_enum::enum_name(type));
+    log::d()("type: {}", util::enums::enum_name(type));
     //_proxy->type(type);
 
     // ! TEMPORARY !
@@ -526,13 +525,13 @@ void PhysicsBody::checkAutocreateShape(const shared_ptr<Node>& node) {
                 // make a shape based on the node
             auto shapeType = PhysicsShape::Type::ConcavePolyhedron;
             if (type() == Type::Static) {
-                log::d()("Autocreating {} PhysicsShape for Node {:p}...", magic_enum::enum_name(shapeType),
+                log::d()("Autocreating {} PhysicsShape for Node {:p}...", util::enums::enum_name(shapeType),
                          static_cast<void*>(node.get()));
                 shape(make_shared<PhysicsShape>(shapeType, node));
             }
             else {
                 auto shapeType = PhysicsShape::Type::ConvexHull;
-                log::d()("Autocreating {} PhysicsShape for Node {:p}...", magic_enum::enum_name(shapeType),
+                log::d()("Autocreating {} PhysicsShape for Node {:p}...", util::enums::enum_name(shapeType),
                          static_cast<void*>(node.get()));
                 shape(make_shared<PhysicsShape>(shapeType, node));
             }
@@ -559,14 +558,14 @@ void PhysicsBody::checkAutocreateShape(const shared_ptr<Mesh>& mesh) {
     if (type() == Type::Static) {
 
         auto shapeType = PhysicsShape::Type::ConcavePolyhedron;
-        log::d()("Autocreating {} PhysicsShape for Mesh {:p}...", magic_enum::enum_name(shapeType),
+        log::d()("Autocreating {} PhysicsShape for Mesh {:p}...", util::enums::enum_name(shapeType),
                  static_cast<void*>(mesh.get()));
         shape(make_shared<PhysicsShape>(shapeType, mesh));
     }
     else {
 
         auto shapeType = PhysicsShape::Type::ConvexHull;
-        log::d()("Autocreating {} PhysicsShape for Mesh {:p}...", magic_enum::enum_name(shapeType),
+        log::d()("Autocreating {} PhysicsShape for Mesh {:p}...", util::enums::enum_name(shapeType),
                  static_cast<void*>(mesh.get()));
         shape(make_shared<PhysicsShape>(shapeType, mesh));
     }

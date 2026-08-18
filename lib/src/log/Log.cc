@@ -16,10 +16,9 @@
     #include <sys/time.h>
 #endif
 
-#include <magic_enum/magic_enum.hpp>
-
 #include "a3d/log/sink/LogSink.h"
 #include "a3d/log/sink/StdOutLogSink.h"
+#include "a3d/util/Enum.h"
 
 #if defined(_MSC_VER)
 static_assert(_MSVC_LANG >= 202002L, "C++20 (/std:c++20) is required for std::source_location");
@@ -345,7 +344,7 @@ static string TimestampString() {
 }
 
 static string HeaderString(const string& logName, Log::Level level, const Log::SourceInfo& sourceInfo) {
-    return std::format("{} [{}] [{}] [{}:{}] [{}()]", TimestampString(), logName, magic_enum::enum_name(level),
+    return std::format("{} [{}] [{}] [{}:{}] [{}()]", TimestampString(), logName, util::enums::enum_name(level),
                        sourceInfo.filename, sourceInfo.line, sourceInfo.function);
 }
 
@@ -354,5 +353,5 @@ static string HeaderString(const string& logName, Log::Level level, const Log::S
 unique_ptr<Log> Log::_appLog {};
 
 static string HeaderString(const string& logName, Log::Level level) {
-    return std::format("{} [{}] [{}]", TimestampString(), logName, magic_enum::enum_name(level));
+    return std::format("{} [{}] [{}]", TimestampString(), logName, util::enums::enum_name(level));
 }

@@ -10,14 +10,13 @@
 
 #include <stdexcept>
 
-#include <magic_enum/magic_enum.hpp>
-
 #include "a3d/mesh/Mesh.h"
 #include "a3d/log/Log.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/PhysicsWorld.h"
 #include "a3d/physics/backend/bullet/BulletShapeProxy.h"
 #include "a3d/scene/Node.h"
+#include "a3d/util/Enum.h"
 
 using namespace a3d;
 using namespace std;
@@ -31,10 +30,10 @@ PhysicsShape::PhysicsShape(Type type, const shared_ptr<Mesh>& mesh):
     _bodies {} {
 
     if (auto name = mesh->name()) {
-        log::d()("Creating PhysicsShape type {} for source mesh: {}...", magic_enum::enum_name(type), *name);
+        log::d()("Creating PhysicsShape type {} for source mesh: {}...", util::enums::enum_name(type), *name);
     }
     else {
-        log::d()("Creating PhysicsShape type {} for source mesh: {:p}...", magic_enum::enum_name(type),
+        log::d()("Creating PhysicsShape type {} for source mesh: {:p}...", util::enums::enum_name(type),
                  static_cast<void*>(mesh.get()));
     }
 }
@@ -47,10 +46,10 @@ PhysicsShape::PhysicsShape(Type type, const shared_ptr<Node>& node):
     _bodies {} {
 
     if (auto name = node->name()) {
-        log::d()("Creating PhysicsShape type {} for source node: {}...", magic_enum::enum_name(type), *name);
+        log::d()("Creating PhysicsShape type {} for source node: {}...", util::enums::enum_name(type), *name);
     }
     else {
-        log::d()("Creating PhysicsShape type {} for source node: {:p}...", magic_enum::enum_name(type),
+        log::d()("Creating PhysicsShape type {} for source node: {:p}...", util::enums::enum_name(type),
                  static_cast<void*>(node.get()));
     }
 }
@@ -70,7 +69,7 @@ PhysicsShape::Type PhysicsShape::type() const {
 }
 
 void PhysicsShape::type(Type type) {
-    log::t()("type: {}", magic_enum::enum_name(type));
+    log::t()("type: {}", util::enums::enum_name(type));
 
     // ! TEMPORARY !
     if (type != _type) {

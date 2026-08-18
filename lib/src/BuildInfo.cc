@@ -12,10 +12,9 @@
 #include <cstdio>
 #include <format>
 
-#include <magic_enum/magic_enum.hpp>
-
 #include "BuildInfo.cmake.h"
 #include "a3d/Math.h"
+#include "a3d/util/Enum.h"
 
 using namespace a3d;
 using namespace std;
@@ -84,9 +83,9 @@ BuildInfo::BuildInfo() {
 
     _number = A3D_BUILD_NUMBER;
     _version = {A3D_VERSION_MAJOR, A3D_VERSION_MINOR, A3D_VERSION_PATCH};
-    auto typeOpt = magic_enum::enum_cast<BuildInfo::Type>(A3D_BUILD_TYPE_STR);
+    auto typeOpt = util::enums::enum_cast<BuildInfo::Type>(A3D_BUILD_TYPE_STR);
     _type = typeOpt.value_or(BuildInfo::Type::Unknown);
-    auto originOpt = magic_enum::enum_cast<BuildInfo::Origin>(A3D_BUILD_ORIGIN);
+    auto originOpt = util::enums::enum_cast<BuildInfo::Origin>(A3D_BUILD_ORIGIN);
     _origin = originOpt.value_or(BuildInfo::Origin::AdHoc);
 
     // ISO 8601

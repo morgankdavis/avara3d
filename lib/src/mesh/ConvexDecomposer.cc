@@ -10,8 +10,8 @@
 
 #include <cstring>
 #include <span>
+#include <stdexcept>
 
-#include <magic_enum/magic_enum.hpp>
 #include <v-hacd/VHACD.h>
 
 #include "a3d/mesh/IndexAccess.h"
@@ -25,6 +25,10 @@
 using namespace a3d;
 using namespace std;
 using namespace VHACD;
+
+/// Private Static Non-Member Prototypes ///
+
+static VHACD::FillMode VHACDFillModeFromA3DFillMode(ConvexDecomposer::FILL_MODE fillMode);
 
 /// Internal Lifecycle Functions ///
 
@@ -40,8 +44,7 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
 
     VHACD::IVHACD* vhacd = CreateVHACD();
 
-    int             a3dFillModeUnderlying = magic_enum::enum_integer(_options.fillMode);
-    VHACD::FillMode vhacdFillMode = magic_enum::enum_value<VHACD::FillMode>(a3dFillModeUnderlying);
+    VHACD::FillMode vhacdFillMode = VHACDFillModeFromA3DFillMode(_options.fillMode);
 
     VHACD::IVHACD::Parameters params = {nullptr,
                                         nullptr,
@@ -172,4 +175,22 @@ vector<unique_ptr<MeshElement>> ConvexDecomposer::decompose() {
     vhacd->Release();
 
     return out;
+}
+
+/// Private Static Non-Member Functions ///
+
+VHACD::FillMode VHACDFillModeFromA3DFillMode(ConvexDecomposer::FILL_MODE fillMode) {
+
+    using FillMode = ConvexDecomposer::FILL_MODE;
+
+    switch (fillMode) {
+        case FillMode::FLOOD_FILL:
+            return VHACD::FillMode::FLOOD_FILL;
+        case FillMode::SURFACE_ONLY:
+            return VHACD::FillMode::SURFACE_ONLY;
+        case FillMode::RAYCAST_FILL:
+            return VHACD::FillMode::RAYCAST_FILL;
+    }
+
+    throw invalid_argument("Invalid ConvexDecomposer fill mode.");
 }

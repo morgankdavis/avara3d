@@ -13,6 +13,7 @@
 #include <functional>
 #include <limits>
 #include <stdexcept>
+#include <string>
 #include <thread>
 #include <unordered_set>
 
@@ -25,7 +26,6 @@
 #include <bullet/BulletDynamics/Dynamics/btDiscreteDynamicsWorldMt.h>
 #include <bullet/LinearMath/btIDebugDraw.h>
 #include <bullet/LinearMath/btThreads.h>
-#include <magic_enum/magic_enum.hpp>
 
 #include "a3d/log/Log.h"
 #include "a3d/physics/PhysicsBody.h"
@@ -73,7 +73,8 @@ static constexpr float PHYSICS_DEBUG_FRAME_SIZE = 0.5f;
 /// Private Static Non-Member Prototypes ///
 
 static btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const Scene::DebugOptions& options);
-static int                          PickNumBTThreads(btITaskScheduler* sched);
+static string                       BTDebugDrawModesString(btIDebugDraw::DebugDrawModes modes);
+static int                          PickNumBTThreads(btITaskScheduler* scheduler);
 
 /// Internal Types ///
 
@@ -981,13 +982,6 @@ optional<BulletWorldProxy::BodyPairContact> BulletWorldProxy::
 
 /// Private Static Non-Member Functions ///
 
-int PickNumBTThreads(btITaskScheduler* sched) {
-    const int hw = math::max(1u, std::thread::hardware_concurrency());
-    const int maxT = sched ? sched->getMaxNumThreads() : hw;
-    // bullet MT often benefits from "not all cores", but start simple...
-    return math::clamp(hw, 1, maxT);
-}
-
 btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const Scene::DebugOptions& options) {
 
     using DebugOptions = Scene::DebugOptions;
@@ -1030,9 +1024,46 @@ btIDebugDraw::DebugDrawModes BTDebugDrawModesForA3DDebugOptions(const Scene::Deb
 
     static btIDebugDraw::DebugDrawModes previousModes = btIDebugDraw::DBG_NoDebug;
     if (btModes != previousModes) {
-        log::d()("Bullet debug modes: {}", magic_enum::enum_name(btModes));
+        log::d()("Bullet debug modes: {}", BTDebugDrawModesString(btModes));
     }
     previousModes = btModes;
 
     return btModes;
+}
+
+string BTDebugDrawModesString(btIDebugDraw::DebugDrawModes modes) {
+
+    if (modes == btIDebugDraw::DBG_NoDebug) {
+        return "DBG_NoDebug";
+    }
+
+    string result;
+
+    const auto append = [&](btIDebugDraw::DebugDrawModes mode, const char* name) {
+        if ((static_cast<int>(modes) & static_cast<int>(mode)) == 0) {
+            return;
+        }
+
+        if (!result.empty()) {
+            result += " | ";
+        }
+
+        result += name;
+    };
+
+    append(btIDebugDraw::DBG_DrawAabb, "DBG_DrawAabb");
+    append(btIDebugDraw::DBG_DrawWireframe, "DBG_DrawWireframe");
+    append(btIDebugDraw::DBG_DrawContactPoints, "DBG_DrawContactPoints");
+    append(btIDebugDraw::DBG_DrawNormals, "DBG_DrawNormals");
+    append(btIDebugDraw::DBG_DrawConstraints, "DBG_DrawConstraints");
+    append(btIDebugDraw::DBG_DrawConstraintLimits, "DBG_DrawConstraintLimits");
+
+    return result;
+}
+
+int PickNumBTThreads(btITaskScheduler* scheduler) {
+    const int hw = math::max(1u, std::thread::hardware_concurrency());
+    const int maxT = scheduler ? scheduler->getMaxNumThreads() : hw;
+    // bullet MT often benefits from "not all cores", but start simple...
+    return math::clamp(hw, 1, maxT);
 }

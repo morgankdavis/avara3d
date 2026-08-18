@@ -21,7 +21,6 @@
 #ifdef A3D_GL_WEB
     #include <emscripten/html5_webgl.h>
 #endif
-#include <magic_enum/magic_enum.hpp>
 
 #include "a3d/Assert.h"
 #include "a3d/Buffer.h"
@@ -42,6 +41,7 @@
 #include "a3d/render/context/RenderContext.h"
 #include "a3d/scene/Node.h"
 #include "a3d/scene/Scene.h"
+#include "a3d/util/Enum.h"
 #include "a3d/util/Flow.h"
 #include "a3d/visual/VisualWorld.h"
 #include "a3d/visual/light/AmbientLight.h"
@@ -1242,7 +1242,7 @@ void SendMaterialPropertyUniforms(const Material::Property&  property,
                                     break;
                                 default:
                                     log::e()("Invalid MaterialPropertyType: {}",
-                                             magic_enum::enum_name<Material::PropertyType>(type));
+                                             util::enums::enum_name<Material::PropertyType>(type));
                                     return;
                             }
 
@@ -1285,7 +1285,7 @@ void SendMaterialPropertyUniforms(const Material::Property&  property,
                         break;
                     default:
                         log::e()("Invalid MaterialPropertyType: {}",
-                                 magic_enum::enum_name<Material::PropertyType>(type));
+                                 util::enums::enum_name<Material::PropertyType>(type));
                         return;
                 }
 
@@ -1414,7 +1414,7 @@ void SendEnvironmentUniforms(GLuint               glEnvironmentUBO,
                     lightStruct.direction_world = node->worldForward();
                     lightStruct.innerAngleCos = spotLight->innerAngleCos();
                     lightStruct.outerAngleCos = spotLight->outerAngleCos();
-                    lightStruct.featheringMode = magic_enum::enum_underlying(spotLight->featheringMode());
+                    lightStruct.featheringMode = util::enums::to_underlying(spotLight->featheringMode());
                     lightStruct.constantAttenuation = spotLight->attenuation().constant;
                     lightStruct.linearAttenuation = spotLight->attenuation().linear;
                     lightStruct.quadraticAttenuation = spotLight->attenuation().quadratic;

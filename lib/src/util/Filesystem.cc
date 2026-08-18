@@ -35,8 +35,6 @@
     #define PATH_MAX MAX_PATH
 #endif
 
-#include <magic_enum/magic_enum.hpp>
-
 #include "a3d/CubeImage.h"
 #include "a3d/Font.h"
 #include "a3d/Image.h"

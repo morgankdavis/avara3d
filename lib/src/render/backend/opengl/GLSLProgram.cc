@@ -13,10 +13,9 @@
 
 #include "a3d/render/backend/opengl/gl.h" // MOVE?
 
-#include <magic_enum/magic_enum.hpp>
-
 #include "a3d/log/Log.h"
 #include "a3d/render/backend/opengl/GLSLPreprocessor.h"
+#include "a3d/util/Enum.h"
 #include "a3d/util/Filesystem.h"
 
 using namespace a3d;
@@ -370,7 +369,7 @@ void GLSLProgram::prepare() {
 
 bool GLSLProgram::compile(const string& source, ShaderType type) {
 
-    log::d()("Compiling {} shader for program '{}'...", magic_enum::enum_name(type), name());
+    log::d()("Compiling {} shader for program '{}'...", util::enums::enum_name(type), name());
 
     GLuint shaderID = 0;
 
@@ -401,7 +400,7 @@ bool GLSLProgram::compile(const string& source, ShaderType type) {
             vector<GLchar> c_log(logSize);
             glGetShaderInfoLog(shaderID, logSize, nullptr, c_log.data());
             _logString = string(c_log.data());
-            log::e()("Failed to compile {} shader program '{}':\n{}", magic_enum::enum_name(type), name(),
+            log::e()("Failed to compile {} shader program '{}':\n{}", util::enums::enum_name(type), name(),
                      *_logString);
         }
 
@@ -413,7 +412,7 @@ bool GLSLProgram::compile(const string& source, ShaderType type) {
         glAttachShader(_glID, shaderID);
         glDeleteShader(shaderID);
 
-        log::i()("{} shader {}' compiled.", magic_enum::enum_name(type), name());
+        log::i()("{} shader {}' compiled.", util::enums::enum_name(type), name());
 
         return true;
     }

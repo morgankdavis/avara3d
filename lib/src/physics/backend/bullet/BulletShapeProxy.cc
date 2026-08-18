@@ -14,7 +14,6 @@
 #include <bullet/btBulletCollisionCommon.h>
 #include <bullet/BulletCollision/Gimpact/btGImpactShape.h>
 #include <bullet/BulletCollision/CollisionShapes/btShapeHull.h>
-#include <magic_enum/magic_enum.hpp>
 
 #include "a3d/log/Log.h"
 #include "a3d/mesh/ConvexDecomposer.h"
@@ -40,6 +39,7 @@
 #include "a3d/physics/shape/primitive/PlanePhysicsShape.h"
 #include "a3d/physics/shape/primitive/SpherePhysicsShape.h"
 #include "a3d/scene/Node.h"
+#include "a3d/util/Enum.h"
 
 using namespace a3d;
 using namespace a3d::math;
@@ -287,7 +287,7 @@ unique_ptr<btCollisionShape> BTShapeFromMeshElement(MeshElement&                
     else if (auto box = dynamic_cast<Box*>(&element)) {
         log::i()("Creating box physics shape for MeshElement {:p}... "
                  "(ignoring physics shape type '{}')",
-                 static_cast<void*>(&element), magic_enum::enum_name(shapeType));
+                 static_cast<void*>(&element), util::enums::enum_name(shapeType));
 
         return make_unique<btBoxShape>(btVector3((btScalar) box->width() / 2.0f,
                                                  (btScalar) box->height() / 2.0f,
@@ -296,21 +296,21 @@ unique_ptr<btCollisionShape> BTShapeFromMeshElement(MeshElement&                
     else if (auto capsule = dynamic_cast<Capsule*>(&element)) {
         log::i()("Creating capsule physics shape for MeshElement {:p}... "
                  "(ignoring physics shape type '{}')",
-                 static_cast<void*>(&element), magic_enum::enum_name(shapeType));
+                 static_cast<void*>(&element), util::enums::enum_name(shapeType));
 
         return make_unique<btCapsuleShape>((btScalar) capsule->radius(), (btScalar) capsule->height());
     }
     else if (auto cone = dynamic_cast<Cone*>(&element)) {
         log::i()("Creating cone physics shape for MeshElement {:p}... "
                  "(ignoring physics shape type '{}')",
-                 static_cast<void*>(&element), magic_enum::enum_name(shapeType));
+                 static_cast<void*>(&element), util::enums::enum_name(shapeType));
 
         return make_unique<btConeShape>((btScalar) cone->radius(), (btScalar) cone->height());
     }
     else if (auto cylinder = dynamic_cast<Cylinder*>(&element)) {
         log::i()("Creating cylinder physics shape for MeshElement {:p}... "
                  "(ignoring physics shape type '{}')",
-                 static_cast<void*>(&element), magic_enum::enum_name(shapeType));
+                 static_cast<void*>(&element), util::enums::enum_name(shapeType));
 
         return make_unique<btCylinderShape>(btVector3((btScalar) cylinder->radius(),
                                                       (btScalar) cylinder->height() / 2.0f,
@@ -324,7 +324,7 @@ unique_ptr<btCollisionShape> BTShapeFromMeshElement(MeshElement&                
     else if (auto sphere = dynamic_cast<Sphere*>(&element)) {
         log::i()("Creating sphere physics shape for MeshElement {:p}... "
                  "(ignoring physics shape type '{}')",
-                 static_cast<void*>(&element), magic_enum::enum_name(shapeType));
+                 static_cast<void*>(&element), util::enums::enum_name(shapeType));
 
         return make_unique<btSphereShape>((btScalar) sphere->radius());
     }

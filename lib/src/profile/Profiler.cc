@@ -8,8 +8,6 @@
 
 #include "a3d/profile/Profiler.h"
 
-#include <magic_enum/magic_enum.hpp>
-
 #include "a3d/log/Log.h"
 
 using namespace a3d;
@@ -43,7 +41,7 @@ void Profiler::add(const string& key, chrono::nanoseconds ns) noexcept {
 //	}
 //	else {
 //		log::e()("Can't subtract {}ns for {} -- no samples exist yet for tag.",
-//				  ns, magic_enum::enum_name(tag));
+//				  ns, util::enums::enum_name(tag));
 //	}
 //}
 //void Profiler::subtract(const std::string& key, std::chrono::nanoseconds ns) {
