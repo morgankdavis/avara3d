@@ -173,29 +173,32 @@ void PhysicsWorld::step(double deltaTime, Profiler& profiler) {
 
     const auto& contactEvents = _proxy->step(deltaTime, profiler);
 
-    if (!contactEvents.empty()) {
-        prof::profile(profiler, Profiler::Tag::Application, [&] {
-            for (const auto& event : contactEvents) {
-                switch (event.type) {
-                    case PhysicsWorldProxy::ContactEventType::Begin:
-                        if (_didBeginContactCallback) {
-                            _didBeginContactCallback(*this, event.contact);
-                        }
-                        break;
-                    case PhysicsWorldProxy::ContactEventType::Continue:
-                        if (_didContinueContactCallback) {
-                            _didContinueContactCallback(*this, event.contact);
-                        }
-                        break;
-                    case PhysicsWorldProxy::ContactEventType::End:
-                        if (_didEndContactCallback) {
-                            _didEndContactCallback(*this, event.contact);
-                        }
-                        break;
-                }
-            }
-        });
+    if (contactEvents.empty()
+        || (!_didBeginContactCallback && !_didContinueContactCallback && !_didEndContactCallback)) {
+        return;
     }
+
+    prof::profile(profiler, Profiler::Tag::Application, [&] {
+        for (const auto& event : contactEvents) {
+            switch (event.type) {
+                case PhysicsWorldProxy::ContactEventType::Begin:
+                    if (_didBeginContactCallback) {
+                        _didBeginContactCallback(*this, event.contact);
+                    }
+                    break;
+                case PhysicsWorldProxy::ContactEventType::Continue:
+                    if (_didContinueContactCallback) {
+                        _didContinueContactCallback(*this, event.contact);
+                    }
+                    break;
+                case PhysicsWorldProxy::ContactEventType::End:
+                    if (_didEndContactCallback) {
+                        _didEndContactCallback(*this, event.contact);
+                    }
+                    break;
+            }
+        }
+    });
 }
 
 PhysicsWorld::Inventory PhysicsWorld::inventory() const {

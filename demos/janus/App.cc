@@ -1234,14 +1234,11 @@ optional<App::PickResult> FindActionTarget(Scene&                     scene,
 
 shared_ptr<Node> ThrowRing(Node& parent, const vec3& location, const vec3& velocity) {
 
-    static auto mesh = [] {
-        // auto material = Material::DiffuseMaterial(olor::LightGray());
-        // material->specular(Color::White());
-        // material->specularExponent(64.0f);
-
+    static auto [mesh, shape] = [] {
         auto material = Material::EmissionMaterial(Color::White());
-
-        return Torus::Mesh(0.45f, 0.5f, 12, 32, material);
+        auto mesh = Torus::Mesh(0.45f, 0.5f, 12, 32, material);
+        auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, mesh);
+        return std::pair {mesh, shape};
     }();
 
     static const auto extent = mesh->localExtent();
@@ -1271,8 +1268,8 @@ shared_ptr<Node> ThrowRing(Node& parent, const vec3& location, const vec3& veloc
 
     const vec3 spinAxis = normalize(bankOrientation * tiltOrientation * up);
 
-    static auto physicsShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, mesh);
-    auto        physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, physicsShape);
+    //static auto physicsShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, mesh);
+    auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
 
     physicsBody->mass(0.4f);
     physicsBody->restitution(0.25f);
@@ -1298,15 +1295,13 @@ shared_ptr<Node> ThrowRing(Node& parent, const vec3& location, const vec3& veloc
 
 shared_ptr<Node> ThrowDuck(Node& parent, const vec3& location, const vec3& velocity) {
 
-    constexpr float DUCK_HEIGHT = 0.5f;
-
-    static auto mesh = [] {
-        auto mesh = util::fs::MeshAt("duck/duck.gltf");
-
-        const float scaleFactor = DUCK_HEIGHT / mesh->localExtent().y;
+    static auto [mesh, shape] = [] {
+        constexpr float DUCK_HEIGHT = 0.5f;
+        auto            mesh = util::fs::MeshAt("duck/duck.gltf");
+        const float     scaleFactor = DUCK_HEIGHT / mesh->localExtent().y;
         mesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
-
-        return mesh;
+        auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
+        return std::pair {mesh, shape};
     }();
 
     static const auto extent = mesh->localExtent();
@@ -1315,7 +1310,7 @@ shared_ptr<Node> ThrowDuck(Node& parent, const vec3& location, const vec3& veloc
     node->name("Quack");
     node->position(location);
 
-    auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic);
+    auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
     physicsBody->mass(0.1f);
     physicsBody->restitution(0.5f);
     physicsBody->friction(2.0f);

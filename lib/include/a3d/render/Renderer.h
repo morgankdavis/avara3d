@@ -43,6 +43,7 @@ namespace a3d {
 
         struct Capabilities {
             bool wireframeRendering {false};
+            bool gpuTiming {false};
         };
 
         struct ClearCommand {

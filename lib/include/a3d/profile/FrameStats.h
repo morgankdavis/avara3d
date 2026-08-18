@@ -76,25 +76,28 @@ namespace a3d {
         double                   simulationTime {0.0};
 
         // simulation steps completed during this Runner update
-        std::uint64_t            simulationStepsThisUpdate {0};
+        std::uint32_t            simulationStepsThisUpdate {0};
 
         // complete fixed-step simulation debt discarded after bounded catch-up
         double                   discardedSimulationTime {0.0};
         double                   totalDiscardedSimulationTime {0.0};
 
-        unsigned                 nodes {0};
-        unsigned                 meshes {0};
-        unsigned                 elements {0};
-        unsigned                 polygons {0};
-        unsigned                 lights {0};
-        unsigned                 staticBodies {0};
-        unsigned                 dynamicBodies {0};
-        unsigned                 kinematicBodies {0};
-        unsigned                 primitiveShapes {0};
-        unsigned                 boundingBoxShapes {0};
-        unsigned                 convexHullShapes {0};
-        unsigned                 concavePolyhedronShapes {0};
-        unsigned                 activeContacts {0};
+        std::uint32_t            nodes {0};
+        std::uint32_t            meshes {0};
+        std::uint32_t            elements {0};
+        std::uint32_t            polygons {0};
+        std::uint32_t            lights {0};
+
+        std::uint32_t            staticBodies {0};
+        std::uint32_t            dynamicBodies {0};
+        std::uint32_t            kinematicBodies {0};
+
+        std::uint32_t            primitiveShapes {0};
+        std::uint32_t            boundingBoxShapes {0};
+        std::uint32_t            convexHullShapes {0};
+        std::uint32_t            concavePolyhedronShapes {0};
+
+        std::uint32_t            activeContacts {0};
     };
 
 }
