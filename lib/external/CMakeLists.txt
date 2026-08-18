@@ -73,19 +73,6 @@ target_link_libraries(a3d_external_generator INTERFACE generator)
 target_include_directories(a3d_external_generator SYSTEM INTERFACE
 		"$<BUILD_INTERFACE:${A3D_EXTERNAL_ROOT}/generator/include>")
 
-### gif-h ###
-
-a3d_external_virtual_include_dir(
-		gif-h
-		"${A3D_EXTERNAL_ROOT}/gif-h")
-
-add_library(a3d_external_gif_h INTERFACE)
-add_library(a3d::gif_h ALIAS a3d_external_gif_h)
-
-target_include_directories(a3d_external_gif_h SYSTEM INTERFACE
-		"$<BUILD_INTERFACE:${A3D_EXTERNAL_VINCLUDE_ROOT}>"
-		"$<BUILD_INTERFACE:${A3D_EXTERNAL_VINCLUDE_ROOT}/gif-h>")
-
 ### glad ###
 
 add_subdirectory(glad-3.3)

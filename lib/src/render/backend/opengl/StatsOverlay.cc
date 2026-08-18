@@ -496,12 +496,6 @@ void DrawStats(FrameStats&              stats,
     ImguiDrawLabelValue(yPos, bulkLayout, "contacts", std::format("{}", stats.activeContacts), bodyFont,
                         STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
 
-    if (context.recordingGIF()) {
-        yPos += STAT_LINE_STEP / 2.0f;
-        ImguiDrawLabelValue(yPos, bulkLayout, "RECORDING", std::format("{:.0f}s", context.recordedGIFTime()),
-                            bodyFont, STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
-    }
-
     // input test
 
     //  Begin("Input test", nullptr, 0);

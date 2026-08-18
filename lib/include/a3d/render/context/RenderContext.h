@@ -9,12 +9,9 @@
 #ifndef AVARA3D_RENDER_CONTEXT_RENDERCONTEXT_H
 #define AVARA3D_RENDER_CONTEXT_RENDERCONTEXT_H
 
-#include <filesystem>
 #include <memory>
 
 #include "a3d/Math.h"
-
-struct GifWriter;
 
 namespace a3d {
 
@@ -48,14 +45,6 @@ namespace a3d {
         Antialiasing           antialiasing() const;
 
         std::unique_ptr<Image> snapshot() const;
-
-        virtual bool           recordingGIF() const;
-        virtual void           startGIFRecording(const std::filesystem::path& path,
-                                                 math::uvec2                  fitInside,
-                                                 unsigned                     maxFramerate);
-        virtual double         recordedGIFTime() const;
-        virtual unsigned       recordedGIFFrames() const;
-        virtual void           stopGIFRecording();
 
         VisualWorld*           visualWorld() const;
 
@@ -94,8 +83,6 @@ namespace a3d {
         virtual math::uvec2 framebufferSize() const     = 0;
         math::vec2          viewportScale() const;
 
-        virtual void        saveGIFFrame(double updateDeltaTime);
-
         void                attachedToVisualWorld(VisualWorld* world);
         void                detachedFromVisualWorld(VisualWorld* world);
 
@@ -105,14 +92,6 @@ namespace a3d {
         /// Protected Member Variables ///
 
         Antialiasing               _antialiasing;
-        std::unique_ptr<GifWriter> _gifWriter;
-        bool                       _recordingGIF;
-        unsigned                   _gifRecordingWidth;
-        unsigned                   _gifRecordingHeight;
-        unsigned                   _gifRecordingMaxFramerate;
-        double                     _gifRecordingCurrentFrameTimeAccum;
-        double                     _gifRecordedTime;
-        unsigned                   _gifRecordedFrames;
         VisualWorld*               _visualWorld;
         std::unique_ptr<Renderer>  _renderer;
     };

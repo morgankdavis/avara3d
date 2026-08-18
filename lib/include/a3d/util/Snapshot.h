@@ -20,8 +20,6 @@ namespace a3d {
 namespace a3d::util::snapshot {
 
     void SaveSnapshot(RenderContext& context);
-    void StartGIFRecording(RenderContext& context, math::uvec2 fitInside, unsigned maxFramerate);
-    void StopGIFRecording(RenderContext& context);
 
 }
 

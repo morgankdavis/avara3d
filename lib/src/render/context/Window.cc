@@ -233,10 +233,6 @@ void Window::open() {
 
 void Window::close() {
 
-    if (_recordingGIF) {
-        stopGIFRecording();
-    }
-
 // #if defined(A3D_WEB)
 // 	log::w()("Window::close() has no effect on web.");
 // 	return;

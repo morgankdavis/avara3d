@@ -56,7 +56,6 @@ target_link_libraries(avara3d
 		a3d::bullet
 		a3d::fastgltf
 		a3d::generator
-		a3d::gif_h
 		a3d::imgui
 		a3d::magic_enum
 		a3d::stb

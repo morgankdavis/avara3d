@@ -647,12 +647,6 @@ bool VisualWorld::draw(const Scene&             scene,
         _renderContext->swapBuffers();
     });
 
-    prof::profile(profiler, Profiler::Tag::EngineCpu, [&] {
-        if (_renderContext->recordingGIF()) {
-            _renderContext->saveGIFFrame(info.updateDeltaTime);
-        }
-    });
-
     return true;
 }
 
