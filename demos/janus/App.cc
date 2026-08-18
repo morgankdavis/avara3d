@@ -1167,7 +1167,7 @@ optional<App::PickResult> Pick(VisualWorld&               visualWorld,
                                const vector<const Node*>& ignoredNodes) {
 
     const auto hits =
-        visualWorld.hitTest(screenPosition, {.searchMode = HitTestSearchMode::All, .boundingBoxOnly = true});
+        visualWorld.hitTest(screenPosition, {.searchMode = HitTestSearchMode::All, .elementBoundsOnly = true});
 
     for (const auto& hit : hits) {
 

@@ -71,9 +71,9 @@ static optional<float> IntersectSegmentTriangle(const vec3& origin,
                                                 const vec3& c);
 
 // transforms the world-space picking segment into a node's mesh-local space and rejects elements using their
-// AABBs. when boundingBoxOnly is true, returns the nearest element AABB hit without testing triangles;
+// AABBs. when elementBoundingBoxOnly is true, returns the nearest element AABB hit without testing triangles;
 // otherwise performs precise triangle tests and returns the nearest geometry hit. packages either result as a
-// complete HitTestResult, with faceIndex unset for bounding-box-only hits.
+// complete HitTestResult, with faceIndex unset for element-bounding-box-only hits.
 static optional<HitTestCandidate> IntersectNodeMesh(const shared_ptr<Node>& node,
                                                     const shared_ptr<Mesh>& mesh,
                                                     const mat4&             modelTransform,
@@ -470,7 +470,7 @@ vector<HitTestResult> VisualWorld::hitTest(const vec2& point, const HitTestOptio
         if (const auto& mesh = entry.node->mesh()) {
 
             auto candidate = IntersectNodeMesh(entry.node, mesh, modelTransform, worldOrigin, worldDelta,
-                                               options.boundingBoxOnly);
+                                               options.elementBoundsOnly);
 
             if (candidate) {
 
