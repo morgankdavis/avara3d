@@ -1,14 +1,14 @@
 {
-    "extensionsUsed": [
-        "EXT_texture_webp"
-    ],
-    "extensionsRequired": [
-        "EXT_texture_webp"
-    ],
 	"asset":{
 		"generator":"Khronos glTF Blender I/O v5.1.20",
 		"version":"2.0"
 	},
+	"extensionsUsed":[
+		"EXT_texture_webp"
+	],
+	"extensionsRequired":[
+		"EXT_texture_webp"
+	],
 	"scene":0,
 	"scenes":[
 		{
@@ -54,14 +54,14 @@
 		}
 	],
 	"textures":[
-        {
-            "sampler": 0,
-            "extensions": {
-                "EXT_texture_webp": {
-                    "source": 0
-                }
-            }
-        }
+		{
+			"extensions":{
+				"EXT_texture_webp":{
+					"source":0
+				}
+			},
+			"sampler":0
+		}
 	],
 	"images":[
 		{
@@ -74,61 +74,61 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":33098,
+			"count":16360,
 			"max":[
-				2.864253520965576,
+				2.864701747894287,
 				8.672416687011719,
-				2.969129800796509
+				2.969580888748169
 			],
 			"min":[
-				-2.8584682941436768,
-				0.0010717795230448246,
-				-2.9690675735473633
+				-2.86140513420105,
+				-0.0030036887619644403,
+				-2.9663400650024414
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":33098,
+			"count":16360,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":33098,
+			"count":16360,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":154323,
+			"count":60174,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":397176,
+			"byteLength":196320,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":397176,
-			"byteOffset":397176,
+			"byteLength":196320,
+			"byteOffset":196320,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":264784,
-			"byteOffset":794352,
+			"byteLength":130880,
+			"byteOffset":392640,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":308646,
-			"byteOffset":1059136,
+			"byteLength":120348,
+			"byteOffset":523520,
 			"target":34963
 		}
 	],
@@ -140,7 +140,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":1367784,
+			"byteLength":643868,
 			"uri":"janus.bin"
 		}
 	]

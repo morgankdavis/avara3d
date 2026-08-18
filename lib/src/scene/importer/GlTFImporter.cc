@@ -105,8 +105,11 @@ unique_ptr<a3d::Scene> GlTFImporter::scene() {
                 }
 
                 auto& scene = scenes[_asset.defaultScene ? *_asset.defaultScene : 0];
+                auto name = string(scene.name);
 
-                a3dScene->name(string(scene.name));
+                log::i()("Loading scene: '{}'...", name);
+
+                a3dScene->name(name);
 
                 auto nodeIndicies = scene.nodeIndices;
                 if (!nodeIndicies.empty()) {
@@ -180,7 +183,7 @@ bool GlTFImporter::parse() {
 
         Timer timer {true};
 
-        //log::i()("Parsing glTF: '{}'...", _path.string());
+        log::i()("Parsing glTF: '{}'...", _path.string());
 
         auto extensions = Extensions::KHR_lights_punctual | Extensions::KHR_materials_specular
                           | Extensions::KHR_materials_ior | Extensions::KHR_materials_anisotropy

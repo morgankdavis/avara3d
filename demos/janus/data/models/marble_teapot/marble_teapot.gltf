@@ -24,10 +24,10 @@
 			"mesh":0,
 			"name":"Utah Teapot",
 			"rotation":[
-				0.7071068286895752,
+				0.70710688829422,
 				0,
 				0,
-				0.7071068286895752
+				0.7071066498756409
 			]
 		}
 	],
@@ -101,9 +101,9 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":10676,
+			"count":5522,
 			"max":[
-				3.4450249671936035,
+				3.4450173377990723,
 				3.1500000953674316,
 				2
 			],
@@ -117,45 +117,45 @@
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":10676,
+			"count":5522,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":10676,
+			"count":5522,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":60588,
+			"count":30294,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":128112,
+			"byteLength":66264,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":128112,
-			"byteOffset":128112,
+			"byteLength":66264,
+			"byteOffset":66264,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":85408,
-			"byteOffset":256224,
+			"byteLength":44176,
+			"byteOffset":132528,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":121176,
-			"byteOffset":341632,
+			"byteLength":60588,
+			"byteOffset":176704,
 			"target":34963
 		}
 	],
@@ -167,7 +167,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":462808,
+			"byteLength":237292,
 			"uri":"marble_teapot.bin"
 		}
 	]
