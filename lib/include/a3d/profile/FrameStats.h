@@ -56,8 +56,6 @@ namespace a3d {
 
     struct FrameStats {
 
-        bool                     isRenderGpuTimeAvailable = false;
-
         std::chrono::nanoseconds frameTime {};
         std::chrono::nanoseconds engineCpuTime {};
         std::chrono::nanoseconds renderCpuTime {};

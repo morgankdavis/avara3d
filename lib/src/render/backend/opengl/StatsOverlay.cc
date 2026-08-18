@@ -68,6 +68,7 @@ static void DrawOverlay(const RenderContext&     context,
                         FrameStats&              stats,
                         const FrameStatsHistory& statsHistory,
                         Scene::DebugOptions      debugOptions,
+                        bool                     gpuTimingAvailable,
                         ImFont&                  titleFont,
                         ImFont&                  bodyFont);
 
@@ -76,6 +77,7 @@ static void DrawHeader(ImFont& titleFont, ImFont& bodyFont, bool active, float& 
 static void DrawStats(FrameStats&              stats,
                       const FrameStatsHistory& statsHistory,
                       const RenderContext&     context,
+                      bool                     gpuTimingAvailable,
                       ImFont&                  bodyFont,
                       float                    yPos,
                       int                      id);
@@ -203,9 +205,11 @@ void StatsOverlay::draw(const RenderContext&     context,
                         const Scene&             scene,
                         FrameStats&              stats,
                         const FrameStatsHistory& statsHistory,
-                        Scene::DebugOptions      debugOptions) {
+                        Scene::DebugOptions      debugOptions,
+                        bool                     gpuTimingAvailable) {
 
-    DrawOverlay(context, scene, stats, statsHistory, debugOptions, *_titleImFont, *_bodyImFont);
+    DrawOverlay(context, scene, stats, statsHistory, debugOptions, gpuTimingAvailable, *_titleImFont,
+                *_bodyImFont);
 }
 
 /// Private Static Non-Member Functions ///
@@ -215,6 +219,7 @@ void DrawOverlay(const RenderContext&     context,
                  FrameStats&              stats,
                  const FrameStatsHistory& statsHistory,
                  Scene::DebugOptions      debugOptions,
+                 bool                     gpuTimingAvailable,
                  ImFont&                  titleFont,
                  ImFont&                  bodyFont) {
 
@@ -228,7 +233,7 @@ void DrawOverlay(const RenderContext&     context,
     DrawHeader(titleFont, bodyFont, showStats, yPos, id);
 
     if (showStats) {
-        DrawStats(stats, statsHistory, context, bodyFont, yPos, id);
+        DrawStats(stats, statsHistory, context, gpuTimingAvailable, bodyFont, yPos, id);
     }
 
     ImguiEndOverlay();
@@ -270,6 +275,7 @@ void DrawHeader(ImFont& titleFont, ImFont& bodyFont, bool active, float& yPos_ou
 void DrawStats(FrameStats&              stats,
                const FrameStatsHistory& statsHistory,
                const RenderContext&     context,
+               bool                     gpuTimingAvailable,
                ImFont&                  bodyFont,
                float                    yPos,
                int                      id) {
@@ -297,8 +303,6 @@ void DrawStats(FrameStats&              stats,
         appCpuNsAvg;
     static float frameMsFAvg, engineCpuMsFAvg, renderCpuMsFAvg, renderGpuMsFAvg, physicsMsFAvg, appCpuMsFAvg;
     static float fpsAvg = 0;
-
-    bool gpuTimingAvailable = stats.isRenderGpuTimeAvailable;
 
     static auto nextAverageUpdate = chrono::steady_clock::time_point {};
 

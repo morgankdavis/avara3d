@@ -34,8 +34,7 @@ namespace a3d {
 
         /// Internal Member Functions ///
 
-        void                     initialize();
-        bool                     isAvailable() const; // always returns false before calling initialize()
+        bool                     initialize();
         void                     begin();
         std::chrono::nanoseconds end();
 
@@ -56,7 +55,6 @@ namespace a3d {
 
         /// Private Member Variables ///
 
-        bool                     _isAvailable;
         Mode                     _mode;
         gl::enum_t               _queryTarget;
         unsigned                 _bufferSize;

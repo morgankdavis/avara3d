@@ -27,7 +27,6 @@ static unsigned MinBufferSize(unsigned bufferedFrames);
 /// Internal Lifecycle Functions ///
 
 OGLDrawTimer::OGLDrawTimer(unsigned bufferedFrames):
-    _isAvailable {false},
     _mode {Mode::Disabled},
     _queryTarget {},
     _bufferSize(MinBufferSize(bufferedFrames)),
@@ -50,16 +49,15 @@ OGLDrawTimer::~OGLDrawTimer() {
 
 /// Internal Member Functions ///
 
-void OGLDrawTimer::initialize() {
+bool OGLDrawTimer::initialize() {
     if (_initialized) {
-        return;
+        return _mode != Mode::Disabled;
     }
 
 #if defined(A3D_GL_DESKTOP)
     // TODO: check context?
     _mode = Mode::DesktopTimeElapsed;
     _queryTarget = GL_TIME_ELAPSED;
-    _isAvailable = true;
 #elif defined(A3D_GL_WEB)
     // check for EXT_disjoint_timer_query_webgl2 extension
     EMSCRIPTEN_WEBGL_CONTEXT_HANDLE ctx = emscripten_webgl_get_current_context();
@@ -68,18 +66,15 @@ void OGLDrawTimer::initialize() {
         if (queryAvailable) {
             _mode = Mode::WebDisjointTimerQuery;
             _queryTarget = GL_TIME_ELAPSED_EXT;
-            _isAvailable = true;
         }
         else {
             queryAvailable = emscripten_webgl_enable_extension(ctx, "EXT_disjoint_timer_query");
             if (queryAvailable) {
                 _mode = Mode::WebDisjointTimerQueryExt;
                 _queryTarget = GL_TIME_ELAPSED_EXT;
-                _isAvailable = true;
             }
             else {
                 log::w()("WebGL timer query extensions are not available.");
-                _isAvailable = false;
             }
         }
     }
@@ -100,10 +95,8 @@ void OGLDrawTimer::initialize() {
     }
 
     _initialized = true;
-}
 
-bool OGLDrawTimer::isAvailable() const {
-    return _isAvailable;
+    return _mode != Mode::Disabled;
 }
 
 void OGLDrawTimer::begin() {

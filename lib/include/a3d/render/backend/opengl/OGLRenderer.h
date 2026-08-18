@@ -10,7 +10,6 @@
 #define AVARA3D_RENDER_BACKEND_OPENGL_OGLRENDERER_H
 
 #include "a3d/render/Renderer.h"
-#include "a3d/render/backend/opengl/GLCapabilities.h"
 #include "a3d/render/backend/opengl/GLTypes.h"
 #include "a3d/render/backend/opengl/ImguiContext.h"
 #include "a3d/render/backend/opengl/OGLDebugLines.h"
@@ -68,39 +67,39 @@ namespace a3d {
 
         /// Renderer Internal Member Functions ///
 
-        bool                   initialize(const RenderContext& context) override;
-        bool                   isInitialized() const override;
+        bool                          initialize(const RenderContext& context) override;
+        bool                          isInitialized() const override;
 
-        const Capabilities&    capabilities() const override;
+        const Renderer::Capabilities& capabilities() const override;
 
-        void                   beginFrame(const Scene&               scene,
-                                          const RenderContext&       context,
-                                          const Scene::DebugOptions& debugOptions,
-                                          FrameStats&                stats,
-                                          Profiler&                  profiler) override;
-        void                   endFrame(const Scene&               scene,
-                                        const RenderContext&       context,
-                                        const Scene::DebugOptions& debugOptions,
-                                        FrameStats&                stats,
-                                        Profiler&                  profiler,
-                                        const FrameStatsHistory&   statsHistory) override;
+        void                          beginFrame(const Scene&               scene,
+                                                 const RenderContext&       context,
+                                                 const Scene::DebugOptions& debugOptions,
+                                                 FrameStats&                stats,
+                                                 Profiler&                  profiler) override;
+        void                          endFrame(const Scene&               scene,
+                                               const RenderContext&       context,
+                                               const Scene::DebugOptions& debugOptions,
+                                               FrameStats&                stats,
+                                               Profiler&                  profiler,
+                                               const FrameStatsHistory&   statsHistory) override;
 
-        void                   preTraversal(const Scene&               scene,
-                                            const RenderContext&       context,
-                                            const Scene::DebugOptions& debugOptions,
-                                            FrameStats&                stats) override;
-        void                   postTraversal(const Scene&               scene,
-                                             const RenderContext&       context,
-                                             const math::mat4&          view,
-                                             const std::vector<Node*>&  lightNodes,
-                                             const Scene::DebugOptions& debugOptions,
-                                             FrameStats&                stats) override;
+        void                          preTraversal(const Scene&               scene,
+                                                   const RenderContext&       context,
+                                                   const Scene::DebugOptions& debugOptions,
+                                                   FrameStats&                stats) override;
+        void                          postTraversal(const Scene&               scene,
+                                                    const RenderContext&       context,
+                                                    const math::mat4&          view,
+                                                    const std::vector<Node*>&  lightNodes,
+                                                    const Scene::DebugOptions& debugOptions,
+                                                    FrameStats&                stats) override;
 
-        void                   clear(const ClearCommand& cmd, const RenderContext& context) override;
+        void                          clear(const ClearCommand& cmd, const RenderContext& context) override;
 
-        void                   renderPacket(DrawPacket& packet, const FrameParams& frame) override;
+        void                          renderPacket(DrawPacket& packet, const FrameParams& frame) override;
 
-        std::unique_ptr<Image> snapshot(const RenderContext& context) const override;
+        std::unique_ptr<Image>        snapshot(const RenderContext& context) const override;
 
     protected:
         /// Renderer Protected Member Functions ///
@@ -122,18 +121,25 @@ namespace a3d {
         void drawPacket(const DrawPacket& packet, const FrameParams& frame) override;
 
     private:
+        /// Private Types ///
+
+        struct Capabilities {
+            bool polygonMode {false};
+            bool drawTimer {false};
+        };
+
         /// Private Member Functions ///
 
-        GLSLProgram&   programForShaderKind(ShaderKind kind) const;
-        void           drawDebugLines(const math::mat4& model, const math::mat4& view, const math::mat4& proj);
-        void           syncImguiMemoryStats();
+        GLSLProgram& programForShaderKind(ShaderKind kind) const;
+        void         drawDebugLines(const math::mat4& model, const math::mat4& view, const math::mat4& proj);
+        void         syncImguiMemoryStats();
 
         /// Private Member Variables ///
 
-        bool           _isInitialized;
-        GLCapabilities _glCapabilities;
-        Capabilities   _capabilities;
-        unsigned       _glEnvironmentUBO;
+        bool         _isInitialized;
+        OGLRenderer::Capabilities    _glCapabilities;
+        Renderer::Capabilities       _capabilities;
+        unsigned                     _glEnvironmentUBO;
         std::unique_ptr<GLSLProgram> _skyboxProgram;
         std::unique_ptr<GLSLProgram> _groundProgram;
         std::unique_ptr<GLSLProgram> _defaultProgram;

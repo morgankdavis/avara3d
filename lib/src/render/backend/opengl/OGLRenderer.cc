@@ -423,8 +423,8 @@ bool OGLRenderer::initialize(const RenderContext& context) {
         bindBlock(_wireframeProgram->glID(), "EnvironmentBlock");
     }
 
-    _drawTimer.initialize();
-    _glCapabilities.drawTimer = _drawTimer.isAvailable(); // ! TEMPORARY ! ?
+    _glCapabilities.drawTimer = _drawTimer.initialize();
+    _capabilities.gpuTiming = _glCapabilities.drawTimer;
 
     _imguiContext.startup(context);
     _statsOverlay.initialize(_imguiContext);
@@ -447,12 +447,9 @@ void OGLRenderer::beginFrame(const Scene&               scene,
                              const Scene::DebugOptions& debugOptions,
                              FrameStats&                stats,
                              Profiler&                  profiler) {
+
     if (_glCapabilities.drawTimer) {
-        stats.isRenderGpuTimeAvailable = true;
         _drawTimer.begin();
-    }
-    else {
-        stats.isRenderGpuTimeAvailable = false;
     }
 
     _state = {};
@@ -481,7 +478,7 @@ void OGLRenderer::endFrame(const Scene&               scene,
     // give the overlay the latest completed memory snapshot
     stats.renderMemory = _memoryTracker.stats();
 
-    _statsOverlay.draw(context, scene, stats, statsHistory, debugOptions);
+    _statsOverlay.draw(context, scene, stats, statsHistory, debugOptions, _capabilities.gpuTiming);
 
     // ImGui's WebGL backend doesn't manage WEBGL_polygon_mode state.
     // Restore normal polygon rasterization before rendering ImGui.

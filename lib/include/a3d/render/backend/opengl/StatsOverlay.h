@@ -50,7 +50,8 @@ namespace a3d {
                   const Scene&             scene,
                   FrameStats&              stats,
                   const FrameStatsHistory& statsHistory,
-                  Scene::DebugOptions      debugOptions);
+                  Scene::DebugOptions      debugOptions,
+                  bool                     gpuTimingAvailable);
 
     private:
         /// Private Member Variables ///
