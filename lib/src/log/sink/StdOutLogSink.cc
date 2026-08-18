@@ -2,8 +2,8 @@
 //  StdOutLogSink.cc
 //  avara3d
 //
-//  Created by Morgan Davis on 111/9/23.
-//  Copyright © 2023-2026 Morgan K Davis. All rights reserved.
+//  Created by Morgan Davis on 11/9/23.
+//  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
 #include "a3d/log/sink/StdOutLogSink.h"
