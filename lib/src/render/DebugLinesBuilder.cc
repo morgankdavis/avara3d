@@ -58,16 +58,20 @@ void DebugLinesBuilder::AppendOBBFromLocalAABB(std::vector<Line>& out,
 }
 
 void DebugLinesBuilder::AppendFrame(vector<Line>& out, const mat4& transform, float size) {
+    AppendFrame(out, transform, vec3 {size});
+}
 
-    const vec3 origin = vec3(transform[3]);
+void DebugLinesBuilder::AppendFrame(vector<Line>& out, const mat4& transform, const vec3& size) {
 
-    const vec3 xAxis = normalize(vec3(transform[0]));
-    const vec3 yAxis = normalize(vec3(transform[1]));
-    const vec3 zAxis = normalize(vec3(transform[2]));
+    const vec3 origin = vec3(transform * vec4 {0.0f, 0.0f, 0.0f, 1.0f});
 
-    out.emplace_back(origin, origin + xAxis * size, Color {vec3{1.0f, 0.3f, 0.3f}});
-    out.emplace_back(origin, origin + yAxis * size, Color {vec3{0.3f, 1.0f, 0.3f}});
-    out.emplace_back(origin, origin + zAxis * size, Color {vec3{0.3f, 0.3f, 1.0f}});
+    const vec3 xEnd = vec3(transform * vec4 {size.x, 0.0f, 0.0f, 1.0f});
+    const vec3 yEnd = vec3(transform * vec4 {0.0f, size.y, 0.0f, 1.0f});
+    const vec3 zEnd = vec3(transform * vec4 {0.0f, 0.0f, size.z, 1.0f});
+
+    out.emplace_back(origin, xEnd, Color {vec3 {1.0f, 0.3f, 0.3f}});
+    out.emplace_back(origin, yEnd, Color {vec3 {0.3f, 1.0f, 0.3f}});
+    out.emplace_back(origin, zEnd, Color {vec3 {0.3f, 0.3f, 1.0f}});
 }
 
 /// Internal Static Non-Member Functions ///

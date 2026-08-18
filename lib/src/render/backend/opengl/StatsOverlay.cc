@@ -495,35 +495,6 @@ void DrawStats(FrameStats&              stats,
 
     ImguiDrawLabelValue(yPos, bulkLayout, "contacts", std::format("{}", stats.activeContacts), bodyFont,
                         STATS_BODY_FONT_SIZE, STAT_LINE_STEP);
-
-    // input test
-
-    //  Begin("Input test", nullptr, 0);
-    //  SetWindowPos({10.0f, 2.0f});
-    //  ImGuiIO& io = GetIO();
-    //  auto fonts = io.Fonts->Fonts;
-    //  PushFont(fonts[1]);
-    //  // --- Button + hover ---
-    //  if (Button("Click me")) {
-    //      log::i()("ImGui button was CLICKED");
-    //  }
-    //  if (IsItemHovered()) {
-    //      SameLine();
-    //      Text("(hovering)");
-    //  }
-    //  static bool toggled = false;
-    //  if (Checkbox("Toggle", &toggled)) {
-    //      log::i()("Toggle is now: {}", toggled ? "ON" : "OFF");
-    //  }
-    //  static char textBuf[128] = "type here";
-    //  if (InputText("Text field", textBuf, sizeof(textBuf))) {
-    //      log::i()("Text changed: '{}'", textBuf);
-    //  }
-    //  Text("MousePos: (%.1f, %.1f)", io.MousePos.x, io.MousePos.y);
-    //  Text("MouseDown[0]: %s", io.MouseDown[0] ? "true" : "false");
-    //  Text("WantCaptureMouse: %s", io.WantCaptureMouse ? "true" : "false");
-    //  PopFont();
-    //  End();
 }
 
 void DrawDebugOptions(Scene& scene, ImFont& bodyFont) {

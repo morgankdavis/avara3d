@@ -228,6 +228,10 @@ namespace a3d::math {
     f32vec3     max(const f32vec3& a, const f32vec3& b);
     f32vec4     max(const f32vec4& a, const f32vec4& b);
 
+    f32vec2     abs(const f32vec2& v);
+    f32vec3     abs(const f32vec3& v);
+    f32vec4     abs(const f32vec4& v);
+
     f32         dot(const f32vec2& a, const f32vec2& b);
     f32         dot(const f32vec3& a, const f32vec3& b);
     f32         dot(const f32vec4& a, const f32vec4& b);

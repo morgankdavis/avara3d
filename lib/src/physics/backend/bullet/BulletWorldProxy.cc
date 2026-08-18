@@ -68,7 +68,8 @@ static constexpr bool A3D_USE_MT_DISPATCHER = false;
 // contact batching until/unless we patch or replace that path
 static constexpr bool A3D_USE_MT_CONTACT_BATCHING = false;
 
-static constexpr float PHYSICS_DEBUG_FRAME_SIZE = 0.5f;
+static constexpr float PHYSICS_DEBUG_FRAME_MARGIN = 0.1f;
+static constexpr float PHYSICS_DEBUG_FRAME_TIP_MARGIN = 0.1f;
 
 /// Private Static Non-Member Prototypes ///
 
@@ -761,7 +762,26 @@ void BulletWorldProxy::appendDebugLines(vector<Line>& out, Scene::DebugOptions d
                         continue;
                     }
 
-                    _btDebugDrawer->drawTransform(body->getCenterOfMassTransform(), PHYSICS_DEBUG_FRAME_SIZE);
+                    auto* shape = body->getCollisionShape();
+
+                    btTransform identity;
+                    identity.setIdentity();
+
+                    btVector3 aabbMin;
+                    btVector3 aabbMax;
+                    shape->getAabb(identity, aabbMin, aabbMax);
+
+                    const btVector3 extent = aabbMax - aabbMin;
+                    const btVector3 margin = extent * btScalar(PHYSICS_DEBUG_FRAME_MARGIN);
+
+                    const btVector3 frameSize {
+                        btMax(btScalar(0.0), aabbMax.x()) + margin.x(),
+                        btMax(btScalar(0.0), aabbMax.y()) + margin.y(),
+                        btMax(btScalar(0.0), aabbMax.z()) + margin.z(),
+                    };
+
+                    _btDebugDrawer->drawFrame(body->getCenterOfMassTransform(), frameSize,
+                                              PHYSICS_DEBUG_FRAME_TIP_MARGIN);
                 }
             }
         }

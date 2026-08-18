@@ -31,6 +31,8 @@ namespace a3d {
 
         /// Internal Member Functions ///
 
+        void              drawFrame(const btTransform& transform, const btVector3& size, btScalar tipScale);
+
         void              clear();
 
         std::vector<Line> lines();

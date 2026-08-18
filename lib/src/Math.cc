@@ -842,6 +842,18 @@ namespace a3d::math {
         return {math::max(a.x, b.x), math::max(a.y, b.y), math::max(a.z, b.z), math::max(a.w, b.w)};
     }
 
+    f32vec2 abs(const f32vec2& v) {
+        return {math::abs(v.x), math::abs(v.y)};
+    }
+
+    f32vec3 abs(const f32vec3& v) {
+        return {math::abs(v.x), math::abs(v.y), math::abs(v.z)};
+    }
+
+    f32vec4 abs(const f32vec4& v) {
+        return {math::abs(v.x), math::abs(v.y), math::abs(v.z), math::abs(v.w)};
+    }
+
     f32 dot(const f32vec2& a, const f32vec2& b) {
         return a.x * b.x + a.y * b.y;
     }

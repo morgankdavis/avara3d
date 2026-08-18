@@ -31,6 +31,7 @@ namespace a3d {
                                            const math::mat4&  model,
                                            const Color&       color);
         static void AppendFrame(std::vector<Line>& out, const math::mat4& transform, float size);
+        static void AppendFrame(std::vector<Line>& out, const math::mat4& transform, const math::vec3& size);
     };
 
 }

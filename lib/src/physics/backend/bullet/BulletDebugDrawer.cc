@@ -31,6 +31,30 @@ BulletDebugDrawer::~BulletDebugDrawer() {}
 
 /// Internal Member Functions ///
 
+void BulletDebugDrawer::drawFrame(const btTransform& transform, const btVector3& size, btScalar tipMargin) {
+
+    const btVector3    origin = transform.getOrigin();
+    const btMatrix3x3& basis = transform.getBasis();
+
+    const btVector3 x = basis.getColumn(0);
+    const btVector3 y = basis.getColumn(1);
+    const btVector3 z = basis.getColumn(2);
+
+    const btVector3 xEnd = origin + x * size.x();
+    const btVector3 yEnd = origin + y * size.y();
+    const btVector3 zEnd = origin + z * size.z();
+
+    drawLine(origin, xEnd, btVector3 {1.0f, 0.3f, 0.3f});
+    drawLine(origin, yEnd, btVector3 {0.3f, 1.0f, 0.3f});
+    drawLine(origin, zEnd, btVector3 {0.3f, 0.3f, 1.0f});
+
+    const btVector3 yellow {1.0f, 1.0f, 0.0f};
+
+    drawLine(xEnd, xEnd + x * size.x() * tipMargin, yellow);
+    drawLine(yEnd, yEnd + y * size.y() * tipMargin, yellow);
+    drawLine(zEnd, zEnd + z * size.z() * tipMargin, yellow);
+}
+
 void BulletDebugDrawer::clear() {
     _lines.clear();
 }

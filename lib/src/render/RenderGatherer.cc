@@ -27,12 +27,12 @@ using namespace std;
 
 /// Private Constants ///
 
-const Color MESH_OBB_COLOR {vec4 {0.5f, 0.5f, 0.5f, 1.0f}};
-const Color MESH_AABB_COLOR {vec4 {1.0f, 0.0f, 0.0f, 1.0f}};
-const Color SCENE_AABB_COLOR {vec4 {0.0f, 0.5f, 0.0f, 1.0f}};
-const Color HIGHLIGHT_BOX_COLOR {vec4 {1.0f, 1.0f, 0.0f, 1.0f}};
-const vec4 HIGHLIGHT_TINT_COLOR {1.0f, 1.0f, 0.0f, 0.5f};
-static constexpr float MESH_DEBUG_FRAME_SIZE = 0.5f;
+const Color            MESH_OBB_COLOR {vec4 {0.5f, 0.5f, 0.5f, 1.0f}};
+const Color            MESH_AABB_COLOR {vec4 {1.0f, 0.0f, 0.0f, 1.0f}};
+const Color            SCENE_AABB_COLOR {vec4 {0.0f, 0.5f, 0.0f, 1.0f}};
+const Color            HIGHLIGHT_BOX_COLOR {vec4 {1.0f, 1.0f, 0.0f, 1.0f}};
+const vec4             HIGHLIGHT_TINT_COLOR {1.0f, 1.0f, 0.0f, 0.5f};
+static constexpr float MESH_DEBUG_FRAME_MARGIN = 0.1f;
 
 /// Internal Static Member Functions ///
 
@@ -153,7 +153,18 @@ GatherOutput RenderGatherer::Gather(const Scene&               scene,
             }
 
             if (showMeshFrames) {
-                DebugLinesBuilder::AppendFrame(output.debugLines, world, MESH_DEBUG_FRAME_SIZE);
+
+                const auto& aabb = mesh->localAABB();
+                const vec3  extent = aabb.max - aabb.min;
+                const vec3  margin = extent * MESH_DEBUG_FRAME_MARGIN;
+
+                const vec3 frameSize {
+                    math::max(0.0f, aabb.max.x) + margin.x,
+                    math::max(0.0f, aabb.max.y) + margin.y,
+                    math::max(0.0f, aabb.max.z) + margin.z,
+                };
+
+                DebugLinesBuilder::AppendFrame(output.debugLines, world, frameSize);
             }
 
             if (showHighlightBox) {
