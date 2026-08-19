@@ -118,20 +118,24 @@ namespace a3d {
         virtual bool               autocalculatesCenterOfMass() const;
         virtual void               autocalculatesCenterOfMass(bool autocalculate);
 
-        virtual bool               autocalculatesMomentOfInertia() const;
-        virtual void               autocalculatesMomentOfInertia(bool autocalculate);
+        virtual PhysicsBody::CenterOfMassCalculation centerOfMassCalculation() const;
+        virtual void centerOfMassCalculation(PhysicsBody::CenterOfMassCalculation calculation);
 
-        void                       attachedToBody(PhysicsBody& body);
-        void                       detachedFromBody(PhysicsBody& body);
+        virtual bool autocalculatesMomentOfInertia() const;
+        virtual void autocalculatesMomentOfInertia(bool autocalculate);
+
+        void         attachedToBody(PhysicsBody& body);
+        void         detachedFromBody(PhysicsBody& body);
 
     protected:
         /// Protected Member Variables ///
 
-        PhysicsBody*       _body;
-        PhysicsShapeProxy* _shapeProxy;
-        math::vec3         _centerOfMass;
-        bool               _autocalculatesCenterOfMass;
-        bool               _autocalculatesMomentOfInertia;
+        PhysicsBody*                         _body;
+        PhysicsShapeProxy*                   _shapeProxy;
+        math::vec3                           _centerOfMass;
+        bool                                 _autocalculatesCenterOfMass;
+        PhysicsBody::CenterOfMassCalculation _centerOfMassCalculation;
+        bool                                 _autocalculatesMomentOfInertia;
     };
 
 }

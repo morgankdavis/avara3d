@@ -112,6 +112,8 @@ namespace a3d {
 
         void               autocalculatesCenterOfMass(bool autocalculate) override;
 
+        void               centerOfMassCalculation(PhysicsBody::CenterOfMassCalculation calculation) override;
+
         void               clearForces() override;
 
         /// Internal Member Functions ///

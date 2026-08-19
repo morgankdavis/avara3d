@@ -34,6 +34,11 @@ namespace a3d {
             Kinematic
         };
 
+        enum class CenterOfMassCalculation : uint8_t {
+            BoundsCenter,
+            // VolumeCentroid
+        };
+
         /// Public Static Member Functions ///
 
         static std::unique_ptr<PhysicsBody> StaticBody();
@@ -104,63 +109,66 @@ namespace a3d {
         void                                 angularSleepingThreshold(float threshold);
 
         void                                 applyForce(const math::vec3& force, bool impulse);
-        void                applyForce(const math::vec3& force, const math::vec3& location, bool impulse);
-        void                applyTorque(const math::vec3& torque, bool impulse);
+        void                    applyForce(const math::vec3& force, const math::vec3& location, bool impulse);
+        void                    applyTorque(const math::vec3& torque, bool impulse);
 
-        math::vec3          totalForce() const;
-        math::vec3          totalTorque() const;
+        math::vec3              totalForce() const;
+        math::vec3              totalTorque() const;
 
-        void                clearForces();
+        void                    clearForces();
 
-        void                ccdEnabled(bool enabled);
-        bool                ccdEnabled() const;
+        void                    ccdEnabled(bool enabled);
+        bool                    ccdEnabled() const;
 
-        void                ccdMotionThreshold(float distance);
-        float               ccdMotionThreshold() const;
+        void                    ccdMotionThreshold(float distance);
+        float                   ccdMotionThreshold() const;
 
-        void                ccdSweptSphereRadius(float radius);
-        float               ccdSweptSphereRadius() const;
+        void                    ccdSweptSphereRadius(float radius);
+        float                   ccdSweptSphereRadius() const;
 
-        bool                affectedByGravity() const;
-        void                affectedByGravity(bool affectedByGravity);
+        bool                    affectedByGravity() const;
+        void                    affectedByGravity(bool affectedByGravity);
 
-        bool                allowsResting() const;
-        void                allowsResting(bool allowsResting);
+        bool                    allowsResting() const;
+        void                    allowsResting(bool allowsResting);
 
-        bool                resting() const;
-        void                resting(bool resting);
+        bool                    resting() const;
+        void                    resting(bool resting);
 
-        bool                autocalculatesCenterOfMass() const;
-        void                autocalculatesCenterOfMass(bool autocalculate);
+        bool                    autocalculatesCenterOfMass() const;
+        void                    autocalculatesCenterOfMass(bool autocalculate);
 
-        bool                autocalculatesMomentOfInertia() const;
-        void                autocalculatesMomentOfInertia(bool autocalculate);
+        CenterOfMassCalculation centerOfMassCalculation() const;
+        void                    centerOfMassCalculation(CenterOfMassCalculation calculation);
+
+        bool                    autocalculatesMomentOfInertia() const;
+        void                    autocalculatesMomentOfInertia(bool autocalculate);
 
         /// Internal Member Functions ///
 
-        void                attachedToNode(const std::shared_ptr<Node>& node);
-        void                detachedFromNode(const std::shared_ptr<Node>& node);
+        void                    attachedToNode(const std::shared_ptr<Node>& node);
+        void                    detachedFromNode(const std::shared_ptr<Node>& node);
 
-        void                meshAttachedToNode(const std::shared_ptr<Mesh>& mesh); // owning node's mesh
-        void                meshDetachedFromNode(const std::shared_ptr<Mesh>& mesh);
+        void                    meshAttachedToNode(const std::shared_ptr<Mesh>& mesh); // owning node's mesh
+        void                    meshDetachedFromNode(const std::shared_ptr<Mesh>& mesh);
 
-        void                physicsWorldReachable(PhysicsWorld& world);
-        void                physicsWorldUnreachable(PhysicsWorld& world);
+        void                    physicsWorldReachable(PhysicsWorld& world);
+        void                    physicsWorldUnreachable(PhysicsWorld& world);
 
-        void                addedToWorld(PhysicsWorld& world);
-        void                removedFromWorld(PhysicsWorld& world);
+        void                    addedToWorld(PhysicsWorld& world);
+        void                    removedFromWorld(PhysicsWorld& world);
 
-        void                shapeWillUpdate();
-        void                shapeDidUpdate();
+        void                    shapeWillUpdate();
+        void                    shapeDidUpdate();
 
-        void                syncTransformFromNode();
+        void                    syncTransformFromNode();
 
-        std::weak_ptr<Node> node() const;
+        std::weak_ptr<Node>     node() const;
 
         // the scene's world, if it exists.  not the same as _world.
-        PhysicsWorld*       physicsWorld() const;
+        PhysicsWorld*           physicsWorld() const;
 
-        PhysicsBodyProxy*   proxy() const;
+        PhysicsBodyProxy*       proxy() const;
 
     private:
         /// Private Member Functions ///

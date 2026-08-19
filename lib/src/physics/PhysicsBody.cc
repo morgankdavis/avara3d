@@ -417,6 +417,36 @@ void PhysicsBody::autocalculatesCenterOfMass(bool autocalculate) {
     }
 }
 
+PhysicsBody::CenterOfMassCalculation PhysicsBody::centerOfMassCalculation() const {
+    return _proxy->centerOfMassCalculation();
+}
+
+void PhysicsBody::centerOfMassCalculation(CenterOfMassCalculation calculation) {
+
+    if (type() != Type::Dynamic) {
+        throw logic_error("Center-of-mass calculation may only be changed on dynamic PhysicsBody objects.");
+    }
+
+    if (_proxy->centerOfMassCalculation() == calculation) {
+        return;
+    }
+
+    if (!_proxy->autocalculatesCenterOfMass()) {
+        _proxy->centerOfMassCalculation(calculation);
+        return;
+    }
+
+    if (_world) {
+        _world->remove(*this);
+    }
+
+    _proxy->centerOfMassCalculation(calculation);
+
+    if (!_node.expired()) {
+        checkAddToWorld();
+    }
+}
+
 bool PhysicsBody::autocalculatesMomentOfInertia() const {
     return _proxy->autocalculatesMomentOfInertia();
 }

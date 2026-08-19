@@ -563,6 +563,26 @@ void BulletBodyProxy::autocalculatesCenterOfMass(bool autocalculate) {
     }
 }
 
+void BulletBodyProxy::centerOfMassCalculation(PhysicsBody::CenterOfMassCalculation calculation) {
+
+    if (_centerOfMassCalculation == calculation) {
+        return;
+    }
+
+    PhysicsBodyProxy::centerOfMassCalculation(calculation);
+
+    if (!_autocalculatesCenterOfMass) {
+        return;
+    }
+
+    calculateCenterOfMass();
+    rebuildCollisionShape();
+
+    if (type() == PhysicsBody::Type::Dynamic && _autocalculatesMomentOfInertia) {
+        calculateMomentOfInertia();
+    }
+}
+
 void BulletBodyProxy::clearForces() {
     _btBody->clearForces();
 }
@@ -589,24 +609,31 @@ void BulletBodyProxy::calculateCenterOfMass() {
         return;
     }
 
-    btTransform identity;
-    identity.setIdentity();
+    switch (_centerOfMassCalculation) {
 
-    btVector3 aabbMin;
-    btVector3 aabbMax;
+        case PhysicsBody::CenterOfMassCalculation::BoundsCenter: {
 
-    rootShape->getAabb(identity, aabbMin, aabbMax);
+            btTransform identity;
+            identity.setIdentity();
 
-    const vec3 centerOfMass = A3DVec3FromBTVector3((aabbMin + aabbMax) * btScalar(0.5));
+            btVector3 aabbMin;
+            btVector3 aabbMax;
 
-    if (!math::is_finite(centerOfMass.x) || !math::is_finite(centerOfMass.y)
-        || !math::is_finite(centerOfMass.z)) {
+            rootShape->getAabb(identity, aabbMin, aabbMax);
 
-        log::w()("Could not automatically calculate PhysicsBody center of mass.");
-        return;
+            const vec3 centerOfMass = A3DVec3FromBTVector3((aabbMin + aabbMax) * btScalar(0.5));
+
+            if (!math::is_finite(centerOfMass.x) || !math::is_finite(centerOfMass.y)
+                || !math::is_finite(centerOfMass.z)) {
+
+                log::w()("Could not automatically calculate PhysicsBody center of mass.");
+                return;
+            }
+
+            _centerOfMass = centerOfMass;
+            break;
+        }
     }
-
-    _centerOfMass = centerOfMass;
 }
 
 void BulletBodyProxy::rebuildCollisionShape() {

@@ -19,8 +19,8 @@ PhysicsBodyProxy::PhysicsBodyProxy(PhysicsBody& body, PhysicsBody::Type type):
     _shapeProxy {},
     _centerOfMass {0.0f},
     _autocalculatesCenterOfMass {type == PhysicsBody::Type::Dynamic},
+    _centerOfMassCalculation {PhysicsBody::CenterOfMassCalculation::BoundsCenter},
     _autocalculatesMomentOfInertia {true} {
-
     attachedToBody(body);
 }
 
@@ -42,6 +42,14 @@ bool PhysicsBodyProxy::autocalculatesMomentOfInertia() const {
 
 void PhysicsBodyProxy::autocalculatesMomentOfInertia(bool autocalculate) {
     _autocalculatesMomentOfInertia = autocalculate;
+}
+
+PhysicsBody::CenterOfMassCalculation PhysicsBodyProxy::centerOfMassCalculation() const {
+    return _centerOfMassCalculation;
+}
+
+void PhysicsBodyProxy::centerOfMassCalculation(PhysicsBody::CenterOfMassCalculation calculation) {
+    _centerOfMassCalculation = calculation;
 }
 
 void PhysicsBodyProxy::attachedToBody(PhysicsBody& body) {
