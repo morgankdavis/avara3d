@@ -36,14 +36,15 @@ const float                       CURSOR_MARKER_RADIUS {0.1f};
 const float                       DROP_HEIGHT {5.0f};
 const vec3                        DROP_BOX_SIZE {0.25f, 0.25f, 0.25f};
 const u8vec3                      DROP_STACK_SIZE {3, 3, 3};
-const float                       DROP_PADDING {0.025f};
-const float                       THROW_SPAWN_DISTANCE {0.5f};
-const float                       THROW_SPEED {15.0f};
-const float                       THROW_MIN_FLIGHT_TIME {0.25f};
-const float                       THROW_MAX_FLIGHT_TIME {1.5f};
-constexpr float                   POKE_IMPULSE = 10.0f;
-const double                      PROJECTILE_PICK_IGNORE_DURATION {0.5};
-const bool                        ENABLE_CURSOR_MARKER {false};
+// const float                       DROP_PADDING {0.025f}; // boxes
+const float     DROP_PADDING {0.065f}; // rocks
+const float     THROW_SPAWN_DISTANCE {0.5f};
+const float     THROW_SPEED {15.0f};
+const float     THROW_MIN_FLIGHT_TIME {0.25f};
+const float     THROW_MAX_FLIGHT_TIME {1.5f};
+constexpr float POKE_IMPULSE = 10.0f;
+const double    PROJECTILE_PICK_IGNORE_DURATION {0.5};
+const bool      ENABLE_CURSOR_MARKER {false};
 
 /// Private Static Non-Member Prototypes ///
 
@@ -1286,18 +1287,17 @@ shared_ptr<Node> ThrowDuck(Node& parent, const vec3& location, const vec3& veloc
 
     auto node = Node::MeshNode(mesh);
     node->name("Quack");
-    // node->position(location);
-    node->position({0.0f, 3.0f, 0.0f});
+    node->position(location);
+    // node->position({0.0f, 3.0f, 0.0f});
 
     auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
     physicsBody->mass(0.1f);
-    // physicsBody->centerOfMass({0.0f, extent.y * 0.5f, 0.0f});
+    //physicsBody->centerOfMass({0.0f, extent.y * 0.45f, 0.0f});
 
-    const vec3 autoCenterOfMass = physicsBody->centerOfMass();
-    physicsBody->centerOfMass(autoCenterOfMass + vec3 {0.0f, extent.y * 0.25f, 0.0f});
+    // const vec3 autoCenterOfMass = physicsBody->centerOfMass();
+    // physicsBody->centerOfMass(autoCenterOfMass + vec3 {0.0f, extent.y * 0.25f, 0.0f});
 
-    physicsBody->affectedByGravity(false);
-
+    //physicsBody->affectedByGravity(false);
 
     physicsBody->restitution(0.5f);
     physicsBody->friction(2.0f);
@@ -1308,23 +1308,21 @@ shared_ptr<Node> ThrowDuck(Node& parent, const vec3& location, const vec3& veloc
     physicsBody->ccdSweptSphereRadius(minExtent * 0.25f);
     physicsBody->ccdEnabled(true);
 
-    // node->eulerAngles({uniform_linear(0.0f, TWO_PI), uniform_linear(0.0f, TWO_PI),
-    //                    uniform_linear(0.0f, TWO_PI)});
-    node->eulerAngles({0.0f, 0.0f, 0.0f});
+    node->eulerAngles({uniform_linear(0.0f, TWO_PI), uniform_linear(0.0f, TWO_PI),
+                       uniform_linear(0.0f, TWO_PI)});
+    // node->eulerAngles({0.0f, 0.0f, 0.0f});
 
     static const float ANGULAR_VARIANCE = radians(360.0f);
 
-    // physicsBody->angularVelocity({
-    //     uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
-    //     uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
-    //     uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
-    // });
-    //physicsBody->angularVelocity({0.0f, 0.0f, 0.0f});
-    //physicsBody->angularVelocity({0.0f, radians(45.0f), 0.0f});
-    physicsBody->angularVelocity({radians(45.0f), 0.0f, 0.0f});
+    physicsBody->angularVelocity({
+        uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+        uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+        uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+    });
+    // physicsBody->angularVelocity({radians(45.0f), 0.0f, 0.0f});
 
-    // physicsBody->linearVelocity(velocity);
-    physicsBody->linearVelocity({0.0f, 0.0f, 0.0f});
+    physicsBody->linearVelocity(velocity);
+    // physicsBody->linearVelocity({0.0f, 0.0f, 0.0f});
 
     physicsBody->angularDamping(0.0f);
     physicsBody->allowsResting(false);
@@ -1423,49 +1421,176 @@ vector<shared_ptr<Node>> SpawnBoxs(Node&         parent,
     return added;
 }
 
+// vector<shared_ptr<Node>> SpawnRocks(Node&         parent,
+//                                     const vec3&   location,
+//                                     const vec3&   boxSize,
+//                                     const u8vec3& stackSize,
+//                                     float         padding) {
+//
+//     auto rocksConcave =
+//         util::fs::SceneAt("rocks_convex/rocks_convex.gltf",
+//                           Scene::ImportOptions::ImportMeshes | Scene::ImportOptions::ImportMaterials);
+//
+//     auto rocksConvex =
+//         util::fs::SceneAt("rocks_convex/rocks_convex.gltf",
+//                           Scene::ImportOptions::ImportMeshes | Scene::ImportOptions::ImportMaterials);
+//
+//     log::app::d()("Rocks concave: {}", rocksConcave->rootNode()->children().size());
+//     log::app::d()("Rocks convex: {}", rocksConvex->rootNode()->children().size());
+//
+//     auto children = rocksConcave->rootNode()->children();
+//
+//     vector<shared_ptr<Node>> added;
+//     added.reserve(children.size());
+//
+//     float x = 0;
+//
+//     for (auto& node : children) {
+//         auto mesh = node->mesh();
+//         if (mesh) {
+//
+//             const auto translate = math::translate(mat4(1.0f), {x, location.y, location.z});
+//             const auto scale = math::scale(mat4(1.0f), vec3(.25f));
+//
+//             mesh->burnTransform(translate * scale, true);
+//
+//             //auto newNode = Node::MeshNode(mesh); // why?
+//             auto newNode = node;
+//             newNode->physicsBody(PhysicsBody::DynamicBody());
+//             //newNode->position(node->position() + location);
+//             // newNode->position();
+//             // newNode->scale(vec3{.25f});
+//             // newNode->burnTransform(node->transform(), true);
+//             parent.addChild(newNode);
+//             added.push_back(newNode);
+//             x += .5;
+//         }
+//     }
+//
+//     return added;
+// }
+
+#include "a3d/util/Geometry.h"
+
 vector<shared_ptr<Node>> SpawnRocks(Node&         parent,
                                     const vec3&   location,
                                     const vec3&   boxSize,
                                     const u8vec3& stackSize,
                                     float         padding) {
 
-    auto rocksConcave =
-        util::fs::SceneAt("rocks_convex/rocks_convex.gltf",
+    if (!isfinite(padding) || padding < 0.0f) {
+        throw invalid_argument("Rock stack padding must be finite and non-negative.");
+    }
+
+    if (!math::is_finite(boxSize.x) || !math::is_finite(boxSize.y) || !math::is_finite(boxSize.z)
+        || boxSize.x <= 0.0f || boxSize.y <= 0.0f || boxSize.z <= 0.0f) {
+
+        throw invalid_argument("Rock box size must be finite and greater than zero.");
+    }
+
+    const unsigned countX = stackSize.x;
+    const unsigned countZ = stackSize.y;
+    const unsigned countY = stackSize.z;
+
+    if (countX == 0 || countZ == 0 || countY == 0) {
+        return {};
+    }
+
+    // auto rockScene =
+    //     util::fs::SceneAt("rocks_convex/rocks_convex.gltf",
+    //                       Scene::ImportOptions::ImportMeshes | Scene::ImportOptions::ImportMaterials);
+
+    auto rockScene =
+        util::fs::SceneAt("rocks_concave/rocks_concave.gltf",
                           Scene::ImportOptions::ImportMeshes | Scene::ImportOptions::ImportMaterials);
 
-    auto rocksConvex =
-        util::fs::SceneAt("rocks_convex/rocks_convex.gltf",
-                          Scene::ImportOptions::ImportMeshes | Scene::ImportOptions::ImportMaterials);
+    struct Rock {
+        shared_ptr<Mesh>         mesh;
+        shared_ptr<PhysicsShape> physicsShape;
+    };
 
-    log::app::d()("Rocks concave: {}", rocksConcave->rootNode()->children().size());
-    log::app::d()("Rocks convex: {}", rocksConvex->rootNode()->children().size());
+    vector<Rock> rocks;
 
-    auto children = rocksConcave->rootNode()->children();
+    for (const auto& importedNode : rockScene->rootNode()->children()) {
+
+        auto mesh = importedNode->mesh();
+        if (!mesh) {
+            continue;
+        }
+
+        //
+        // The imported Node transform is deliberately ignored.
+        //
+        // Permanently normalize the mesh so that:
+        //
+        //   1. its local AABB is centered at the origin
+        //   2. it is uniformly scaled to fit inside boxSize
+        //
+        mesh->burnTransform(util::geom::fit_inside(mesh->localAABB(), boxSize), true);
+
+        auto physicsShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
+
+        rocks.push_back({
+            std::move(mesh),
+            std::move(physicsShape),
+        });
+    }
+
+    if (rocks.empty()) {
+        throw runtime_error("Rock scene contains no meshes.");
+    }
 
     vector<shared_ptr<Node>> added;
-    added.reserve(children.size());
+    added.reserve(countX * countZ * countY);
 
-    float x = 0;
+    const float stepX = boxSize.x + padding;
+    const float stepY = boxSize.y + padding;
+    const float stepZ = boxSize.z + padding;
 
-    for (auto& node : children) {
-        auto mesh = node->mesh();
-        if (mesh) {
+    const float totalLength = boxSize.x * static_cast<float>(countX) + padding * static_cast<float>(countX - 1);
+    const float totalWidth = boxSize.z * static_cast<float>(countZ) + padding * static_cast<float>(countZ - 1);
 
-            const auto translate = math::translate(mat4(1.0f), {x, location.y, location.z});
-            const auto scale = math::scale(mat4(1.0f), vec3(.25f));
+    const float startX = location.x - totalLength * 0.5f + boxSize.x * 0.5f;
+    const float startZ = location.z - totalWidth * 0.5f + boxSize.z * 0.5f;
+    const float startY = location.y + boxSize.y * 0.5f;
 
-            mesh->burnTransform(translate * scale, true);
+    size_t rockIndex = 0;
 
-            auto newNode = Node::MeshNode(mesh); // why?
-            // auto newNode = node;
-            newNode->physicsBody(PhysicsBody::DynamicBody());
-            //newNode->position(node->position() + location);
-            // newNode->position();
-            // newNode->scale(vec3{.25f});
-            // newNode->burnTransform(node->transform(), true);
-            parent.addChild(newNode);
-            added.push_back(newNode);
-            x += .5;
+    for (unsigned y = 0; y < countY; ++y) {
+        for (unsigned z = 0; z < countZ; ++z) {
+            for (unsigned x = 0; x < countX; ++x) {
+
+                const auto& rock = rocks[rockIndex++ % rocks.size()];
+
+                auto node = Node::MeshNode(rock.mesh);
+
+                static int rockNum = 0;
+                node->name(std::format("Rock {}", ++rockNum));
+
+                node->position({
+                    startX + static_cast<float>(x) * stepX,
+                    startY + static_cast<float>(y) * stepY,
+                    startZ + static_cast<float>(z) * stepZ,
+                });
+
+                auto physicsBody = PhysicsBody::DynamicBody();
+                physicsBody->mass(1.0f);
+                physicsBody->restitution(0.05f);
+                physicsBody->friction(0.8f);
+                physicsBody->shape(rock.physicsShape);
+
+                const float angularVariance = radians(30.0f);
+                physicsBody->angularVelocity({
+                    uniform_linear(-angularVariance, angularVariance),
+                    uniform_linear(-angularVariance, angularVariance),
+                    uniform_linear(-angularVariance, angularVariance),
+                });
+
+                node->physicsBody(std::move(physicsBody));
+
+                added.push_back(node);
+                parent.addChild(node);
+            }
         }
     }
 

@@ -68,6 +68,7 @@
 #include "a3d/util/Enum.h"
 #include "a3d/util/Filesystem.h"
 #include "a3d/util/Flow.h"
+#include "a3d/util/Geometry.h"
 #include "a3d/util/PeriodicTrigger.h"
 #include "a3d/util/Snapshot.h"
 #include "a3d/util/String.h"
