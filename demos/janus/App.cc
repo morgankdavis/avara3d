@@ -346,8 +346,7 @@ void App::inputDidUpdate(Runner&       runner,
 
     using Key = DesktopInputContext::Key;
 
-    // ! TEMPORARY !
-    if (input.keyPressed(Key::Escape)) {
+    if (env::is(Platform::Desktop) && input.keyPressed(Key::Escape)) {
         _window->close();
     }
 

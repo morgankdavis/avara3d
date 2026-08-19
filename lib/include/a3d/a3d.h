@@ -14,6 +14,7 @@
 #include "a3d/BuildInfo.h"
 #include "a3d/Color.h"
 #include "a3d/CubeImage.h"
+#include "a3d/Environment.h"
 #include "a3d/Font.h"
 #include "a3d/Image.h"
 #include "a3d/Math.h"
