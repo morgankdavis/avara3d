@@ -124,7 +124,7 @@ namespace a3d {
         ///  Private Member Functions ///
 
         void                               calculateCenterOfMass();
-        void                               rebuildCollisionShape();
+        void                               rebuildCenterOfMassOffsetShape();
         void                               calculateMomentOfInertia();
         void                               syncCcdSettings();
 

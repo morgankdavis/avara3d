@@ -165,7 +165,7 @@ void BulletBodyProxy::shapeProxy(PhysicsShapeProxy* proxy) {
                     calculateCenterOfMass();
                 }
 
-                rebuildCollisionShape();
+                rebuildCenterOfMassOffsetShape();
 
                 if (bodyType == PhysicsBody::Type::Dynamic && _autocalculatesMomentOfInertia) {
                     calculateMomentOfInertia();
@@ -248,7 +248,7 @@ void BulletBodyProxy::centerOfMass(const vec3& centerOfMass) {
 
     _centerOfMass = centerOfMass;
 
-    rebuildCollisionShape();
+    rebuildCenterOfMassOffsetShape();
 
     if (type() == PhysicsBody::Type::Dynamic && _autocalculatesMomentOfInertia) {
         calculateMomentOfInertia();
@@ -556,7 +556,7 @@ void BulletBodyProxy::autocalculatesCenterOfMass(bool autocalculate) {
     }
 
     calculateCenterOfMass();
-    rebuildCollisionShape();
+    rebuildCenterOfMassOffsetShape();
 
     if (type() == PhysicsBody::Type::Dynamic && _autocalculatesMomentOfInertia) {
         calculateMomentOfInertia();
@@ -576,7 +576,7 @@ void BulletBodyProxy::centerOfMassCalculation(PhysicsBody::CenterOfMassCalculati
     }
 
     calculateCenterOfMass();
-    rebuildCollisionShape();
+    rebuildCenterOfMassOffsetShape();
 
     if (type() == PhysicsBody::Type::Dynamic && _autocalculatesMomentOfInertia) {
         calculateMomentOfInertia();
@@ -636,7 +636,7 @@ void BulletBodyProxy::calculateCenterOfMass() {
     }
 }
 
-void BulletBodyProxy::rebuildCollisionShape() {
+void BulletBodyProxy::rebuildCenterOfMassOffsetShape() {
 
     // the rigid body may currently point at _centerOfMassOffsetShape, so detach it
     // before destroying/replacing the wrapper.
