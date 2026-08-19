@@ -53,7 +53,7 @@ namespace demo::janus {
         a3d::SimulationConfig       simulationConfig() const override;
         bool                        shouldContinue(const a3d::Scene& scene) override;
 
-        void hostUpdate(a3d::Runner& runner, a3d::Scene& scene, const a3d::Runner::UpdateInfo& info) override;
+        void runnerUpdate(a3d::Runner& runner, a3d::Scene& scene, const a3d::Runner::UpdateInfo& info) override;
 
         void inputDidUpdate(a3d::Runner&                         runner,
                             a3d::Scene&                          scene,
@@ -78,12 +78,12 @@ namespace demo::janus {
         };
 
         enum class DropAction {
-            Blocks,
+            Rocks,
             Balls
         };
 
         enum class ThrowAction {
-            Ring,
+            Hula,
             Duck
         };
 

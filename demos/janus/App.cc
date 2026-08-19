@@ -32,14 +32,15 @@ const vec3                        GRAVITY_MOON {0.0f, -1.62f, 0.0f};
 const vec3                        GRAVITY_ZERO {0.0f, 0.0f, 0.0f};
 const float                       CURSOR_MARKER_RADIUS {0.1f};
 const float                       DROP_HEIGHT {5.0f};
-const vec3                        DROP_BOX_SIZE {vec3 {1.0f} * 0.25f};
+const vec3                        DROP_BOX_SIZE {vec3 {1.0f} * 0.35f};
 const u8vec3                      DROP_STACK_SIZE {3, 3, 3};
 const float                       DROP_PADDING {0.065f};
 const float                       THROW_SPAWN_DISTANCE {0.5f};
 const float                       THROW_SPEED {15.0f};
 const float                       THROW_MIN_FLIGHT_TIME {0.25f};
 const float                       THROW_MAX_FLIGHT_TIME {1.5f};
-constexpr float                   POKE_IMPULSE = 10.0f;
+const float                       POKE_IMPULSE_SOFT = 5.0f;
+const float                       POKE_IMPULSE_HARD = 10.0f;
 const double                      PROJECTILE_PICK_IGNORE_DURATION {0.5};
 const bool                        ENABLE_CURSOR_MARKER {false};
 
@@ -52,13 +53,13 @@ static optional<App::PickResult> Pick(VisualWorld&               visualWorld,
 static optional<App::PickResult> FindActionTarget(Scene&                     scene,
                                                   const vec2&                screenPosition,
                                                   const vector<const Node*>& ignoredNodes = {});
-static shared_ptr<Node>          ThrowRing(Node& parent, const vec3& location, const vec3& velocity);
-static shared_ptr<Node>          ThrowDuck(Node& parent, const vec3& location, const vec3& velocity);
-vector<shared_ptr<Node>>         SpawnRocks(Node&         parent,
+static vector<shared_ptr<Node>>  SpawnRocks(Node&         parent,
                                             const vec3&   location,
                                             const vec3&   boxSize,
                                             const u8vec3& stackSize,
                                             float         padding);
+static shared_ptr<Node>          ThrowHula(Node& parent, const vec3& location, const vec3& velocity);
+static shared_ptr<Node>          ThrowDuck(Node& parent, const vec3& location, const vec3& velocity);
 static bool IsIgnored(const shared_ptr<Node>& node, const vector<const Node*>& ignoredNodes);
 
 /// Public Lifecycle Functions ///
@@ -74,8 +75,8 @@ App::App(int argc, char* argv[]):
     _cursorMarker {nullptr},
     _actionTarget {},
     _action {Action::Drop},
-    _dropAction {DropAction::Blocks},
-    _throwAction {ThrowAction::Ring},
+    _dropAction {DropAction::Rocks},
+    _throwAction {ThrowAction::Hula},
     _pokiness {Pokiness::Soft},
     _transients {ext::Transients::SweepPolicy::EveryInterval(1.0)},
     _backgroundRotationTime {0.0},
@@ -171,6 +172,8 @@ std::unique_ptr<Scene> App::init() {
         groundNode->orientation(math::quaternion({1.0f, 0.0f, 0.0f}, radians(-90.0f)));
         auto groundShape = make_shared<InfinitePlanePhysicsShape>();
         auto groundBody = make_unique<PhysicsBody>(PhysicsBody::Type::Static, groundShape);
+        groundBody->friction(1.0f);
+        groundBody->restitution(0.1f);
         groundNode->physicsBody(std::move(groundBody));
         scene->rootNode()->addChild(groundNode);
 
@@ -192,9 +195,14 @@ std::unique_ptr<Scene> App::init() {
 
         // setup transiet node groups
 
-        _transients.groupPolicy("dropped", {.maxCount = {100}});
-        _transients.groupPolicy("thrown",
-                                {.maxCount = {100},
+        _transients.groupPolicy("rock", {.maxCount = {75}});
+
+        _transients.groupPolicy("hula",
+                                {.maxCount = {10},
+                                 .distanceLimit = ext::Transients::DistanceLimit {.center = {0.0f, 0.0f, 0.0f},
+                                                                                  .radius = 100.0f}});
+        _transients.groupPolicy("duck",
+                                {.maxCount = {15},
                                  .distanceLimit = ext::Transients::DistanceLimit {.center = {0.0f, 0.0f, 0.0f},
                                                                                   .radius = 100.0f}});
 
@@ -288,7 +296,7 @@ std::unique_ptr<Scene> App::init() {
                 ext::Wander::Config config {.halfExtents = ORB_WANDER_EXTENTS,
                                             .segmentDuration = math::uniform_linear(5.0f, 7.0f),
                                             .seed = 1000u + static_cast<uint32_t>(i)};
-                _orbWanders.emplace_back(ext::Wander(orb, config));
+                _orbWanders.push_back(ext::Wander(orb, config));
             }
         }
 
@@ -316,7 +324,7 @@ bool App::shouldContinue(const Scene& scene) {
     return _window->isOpen();
 }
 
-void App::hostUpdate(Runner& runner, Scene&, const Runner::UpdateInfo&) {
+void App::runnerUpdate(Runner& runner, Scene&, const Runner::UpdateInfo&) {
 
     if (_pendingReset) {
         _pendingReset = false;
@@ -548,8 +556,8 @@ bool App::drawPanel() {
     switch (_action) {
         case Action::Drop:
             panel.row(2);
-            if (panel.option("Rocks", _dropAction == DropAction::Blocks)) {
-                _dropAction = DropAction::Blocks;
+            if (panel.option("Rocks", _dropAction == DropAction::Rocks)) {
+                _dropAction = DropAction::Rocks;
             }
             if (panel.option("Balls", _dropAction == DropAction::Balls)) {
                 _dropAction = DropAction::Balls;
@@ -560,8 +568,8 @@ bool App::drawPanel() {
             break;
         case Action::Throw:
             panel.row(2);
-            if (panel.option("Ring", _throwAction == ThrowAction::Ring)) {
-                _throwAction = ThrowAction::Ring;
+            if (panel.option("Hula", _throwAction == ThrowAction::Hula)) {
+                _throwAction = ThrowAction::Hula;
             }
             if (panel.option("Duck", _throwAction == ThrowAction::Duck)) {
                 _throwAction = ThrowAction::Duck;
@@ -880,10 +888,18 @@ void App::performAction(const PendingAction& action) {
 
             const vec3 spawnLocation = action.target.hitPosition + vec3 {0.0f, DROP_HEIGHT, 0.0f};
 
-            auto rocks =
-                SpawnRocks(*simulationRoot, spawnLocation, DROP_BOX_SIZE, DROP_STACK_SIZE, DROP_PADDING);
-
-            _transients.track(rocks, "dropped");
+            switch (_dropAction) {
+                case DropAction::Rocks: {
+                    auto rocks = SpawnRocks(*simulationRoot, spawnLocation, DROP_BOX_SIZE, DROP_STACK_SIZE,
+                                            DROP_PADDING);
+                    _transients.track(rocks, "rock");
+                    break;
+                }
+                case DropAction::Balls: {
+                    log::app::i()("BALLS");
+                    break;
+                }
+            }
 
             break;
         }
@@ -892,18 +908,10 @@ void App::performAction(const PendingAction& action) {
 
             auto physicsWorld = scene.physicsWorld();
 
-            if (!physicsWorld) {
-                return;
-            }
-
             const vec3  cameraPosition = action.cameraPosition;
             const vec3  targetPosition = action.target.hitPosition;
             const vec3  cameraToTarget = targetPosition - cameraPosition;
             const float targetDistance = length(cameraToTarget);
-
-            if (targetDistance <= F32_COMPARE_EPSILON) {
-                return;
-            }
 
             const vec3 aimDirection = cameraToTarget / targetDistance;
             const vec3 spawnPosition =
@@ -914,9 +922,22 @@ void App::performAction(const PendingAction& action) {
             const vec3 gravity = physicsWorld->gravity();
             const vec3 velocity = displacement / flightTime - 0.5f * gravity * flightTime;
 
-            auto projectile = ThrowDuck(*simulationRoot, spawnPosition, velocity);
-            _pickIgnores.push_back({.node = projectile, .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
-            _transients.track(projectile, "thrown");
+            switch (_throwAction) {
+                case ThrowAction::Hula: {
+                    auto projectile = ThrowHula(*simulationRoot, spawnPosition, velocity);
+                    _pickIgnores.push_back({.node = projectile,
+                                            .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
+                    _transients.track(projectile, "hula");
+                    break;
+                }
+                case ThrowAction::Duck: {
+                    auto projectile = ThrowDuck(*simulationRoot, spawnPosition, velocity);
+                    _pickIgnores.push_back({.node = projectile,
+                                            .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
+                    _transients.track(projectile, "duck");
+                    break;
+                }
+            }
 
             break;
         }
@@ -924,18 +945,26 @@ void App::performAction(const PendingAction& action) {
         case Action::Poke: {
 
             auto node = action.target.node.lock();
-
-            if (!node) {
-                return;
-            }
-
             auto body = node->physicsBody();
 
             if (!body || body->type() != PhysicsBody::Type::Dynamic) {
                 return;
             }
 
-            body->applyForce(action.rayDirection * POKE_IMPULSE, action.target.hitPosition, true);
+            float impulse = 0;
+
+            switch (_pokiness) {
+                case Pokiness::Soft: {
+                    impulse = POKE_IMPULSE_SOFT;
+                    break;
+                }
+                case Pokiness::Hard: {
+                    impulse = POKE_IMPULSE_HARD;
+                    break;
+                }
+            }
+
+            body->applyForce(action.rayDirection * impulse, action.target.hitPosition, true);
 
             break;
         }
@@ -1126,115 +1155,6 @@ optional<App::PickResult> FindActionTarget(Scene&                     scene,
     return {};
 }
 
-shared_ptr<Node> ThrowRing(Node& parent, const vec3& location, const vec3& velocity) {
-
-    static auto [mesh, shape] = [] {
-        auto material = Material::EmissionMaterial(Color::White());
-        auto mesh = Torus::Mesh(0.45f, 0.5f, 12, 32, material);
-        auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, mesh);
-        return std::pair {mesh, shape};
-    }();
-
-    static const auto extent = mesh->localExtent();
-
-    auto node = Node::MeshNode(mesh);
-    node->name("Ring");
-    node->position(location);
-
-    const vec3 up {0.0f, 1.0f, 0.0f};
-    vec3       forward {0.0f, 0.0f, -1.0f};
-
-    const vec3 horizontalVelocity {velocity.x, 0.0f, velocity.z};
-    if (length(horizontalVelocity) > F32_COMPARE_EPSILON) {
-        forward = normalize(horizontalVelocity);
-    }
-
-    const vec3 right = normalize(cross(forward, up));
-
-    const float tilt = radians(uniform_linear(10.0f, 20.0f));
-    const float bank = radians(uniform_linear(-4.0f, 4.0f));
-
-    const auto flatOrientation = quaternion({1.0f, 0.0f, 0.0f}, radians(-90.0f));
-    const auto tiltOrientation = quaternion(right, tilt);
-    const auto bankOrientation = quaternion(forward, bank);
-
-    node->orientation(bankOrientation * tiltOrientation * flatOrientation);
-
-    const vec3 spinAxis = normalize(bankOrientation * tiltOrientation * up);
-
-    //static auto physicsShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, mesh);
-    auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
-
-    physicsBody->mass(0.4f);
-    physicsBody->restitution(0.25f);
-    physicsBody->friction(1.0f);
-    physicsBody->rollingFriction(0.05f);
-
-    const float minExtent = math::min(extent);
-    physicsBody->ccdMotionThreshold(minExtent * 0.25f);
-    physicsBody->ccdSweptSphereRadius(minExtent * 0.20f);
-    physicsBody->ccdEnabled(true);
-
-    const float SPIN_RATE = radians(360.0f);
-
-    physicsBody->angularVelocity(spinAxis * SPIN_RATE);
-    physicsBody->linearVelocity(velocity);
-
-    node->physicsBody(std::move(physicsBody));
-
-    parent.addChild(node);
-
-    return node;
-}
-
-shared_ptr<Node> ThrowDuck(Node& parent, const vec3& location, const vec3& velocity) {
-    static auto [mesh, shape] = [] {
-        constexpr float DUCK_HEIGHT = 0.5f;
-        auto            mesh = util::fs::MeshAt("duck/duck.gltf");
-        const float     scaleFactor = DUCK_HEIGHT / mesh->localExtent().y;
-        mesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
-        auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
-        return std::pair {mesh, shape};
-    }();
-
-    auto node = Node::MeshNode(mesh);
-    node->name("Quack");
-    node->position(location);
-    // node->position({0.0f, 3.0f, 0.0f});
-
-    auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
-    physicsBody->mass(0.1f);
-    physicsBody->restitution(0.5f);
-    physicsBody->friction(2.0f);
-    static const auto extent = mesh->localExtent();
-    physicsBody->centerOfMass(physicsBody->centerOfMass() + extent * vec3 {0.0f, -0.1f, 0.0f});
-    const float minExtent = math::min(extent);
-    physicsBody->ccdMotionThreshold(minExtent * 0.25f);
-    physicsBody->ccdSweptSphereRadius(minExtent * 0.25f);
-    physicsBody->ccdEnabled(true);
-
-    node->eulerAngles({uniform_linear(0.0f, TWO_PI), uniform_linear(0.0f, TWO_PI),
-                       uniform_linear(0.0f, TWO_PI)});
-    // node->eulerAngles({0.0f, 0.0f, 0.0f});
-
-    static const float ANGULAR_VARIANCE = radians(360.0f);
-
-    physicsBody->angularVelocity({uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
-                                  uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
-                                  uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE)});
-
-    physicsBody->linearVelocity(velocity);
-
-    physicsBody->angularDamping(0.0f);
-    physicsBody->allowsResting(false);
-
-    node->physicsBody(std::move(physicsBody));
-
-    parent.addChild(node);
-
-    return node;
-}
-
 vector<shared_ptr<Node>> SpawnRocks(Node&         parent,
                                     const vec3&   location,
                                     const vec3&   boxSize,
@@ -1323,6 +1243,108 @@ vector<shared_ptr<Node>> SpawnRocks(Node&         parent,
     }
 
     return added;
+}
+
+shared_ptr<Node> ThrowHula(Node& parent, const vec3& location, const vec3& velocity) {
+
+    static auto [mesh, shape] = [] {
+        constexpr float DIAMETER = 1.25f;
+        auto            mesh = util::fs::MeshAt("hula/hula.gltf");
+        const float     scaleFactor = DIAMETER / mesh->localExtent().y;
+        mesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
+        auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConcavePolyhedron, mesh);
+        return std::pair {mesh, shape};
+    }();
+
+    auto node = Node::MeshNode(mesh);
+    node->name("Hula");
+    node->position(location);
+
+    auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
+
+    physicsBody->mass(1.0f);
+    physicsBody->restitution(0.15f);
+    physicsBody->friction(0.7f);
+
+    static const auto extent = mesh->localExtent();
+    physicsBody->centerOfMass(physicsBody->centerOfMass() + extent * vec3 {0.0f, .1f, 0.0f});
+
+    const float minExtent = math::min(extent);
+    physicsBody->ccdMotionThreshold(minExtent * 0.25f);
+    physicsBody->ccdSweptSphereRadius(minExtent * 0.20f);
+    physicsBody->ccdEnabled(true);
+
+    const vec3 up {0.0f, 1.0f, 0.0f};
+    vec3       forward {0.0f, 0.0f, -1.0f};
+    const vec3 horizontalVelocity {velocity.x, 0.0f, velocity.z};
+    if (length(horizontalVelocity) > F32_COMPARE_EPSILON) {
+        forward = normalize(horizontalVelocity);
+    }
+    const vec3  right = normalize(cross(forward, up));
+    const float tilt = radians(uniform_linear(10.0f, 20.0f));
+    const float bank = radians(uniform_linear(-5.0f, 5.0f));
+    const auto  flatOrientation = quaternion({1.0f, 0.0f, 0.0f}, radians(-90.0f));
+    const auto  tiltOrientation = quaternion(right, tilt);
+    const auto  bankOrientation = quaternion(forward, bank);
+    const auto  orientation = bankOrientation * tiltOrientation * flatOrientation;
+    node->orientation(orientation);
+
+    const vec3  spinAxis = -normalize(orientation * vec3 {0.0f, 0.0f, 1.0f});
+    const float SPIN_RATE = radians(360.0f * 1.5f);
+    physicsBody->angularVelocity(spinAxis * SPIN_RATE);
+
+    physicsBody->linearVelocity(velocity);
+
+    node->physicsBody(std::move(physicsBody));
+
+    parent.addChild(node);
+
+    return node;
+}
+
+shared_ptr<Node> ThrowDuck(Node& parent, const vec3& location, const vec3& velocity) {
+
+    static auto [mesh, shape] = [] {
+        constexpr float HEIGHT = 0.5f;
+        auto            mesh = util::fs::MeshAt("duck/duck.gltf");
+        const float     scaleFactor = HEIGHT / mesh->localExtent().y;
+        mesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
+        auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
+        return std::pair {mesh, shape};
+    }();
+
+    auto node = Node::MeshNode(mesh);
+    node->name("Quack");
+    node->position(location);
+
+    auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
+    physicsBody->mass(1.0f);
+    physicsBody->restitution(0.35f);
+    physicsBody->friction(0.8f);
+
+    static const auto extent = mesh->localExtent();
+    physicsBody->centerOfMass(physicsBody->centerOfMass() + extent * vec3 {0.0f, -0.1f, 0.0f});
+
+    const float minExtent = math::min(extent);
+    physicsBody->ccdMotionThreshold(minExtent * 0.25f);
+    physicsBody->ccdSweptSphereRadius(minExtent * 0.25f);
+    physicsBody->ccdEnabled(true);
+
+    node->eulerAngles({uniform_linear(0.0f, TWO_PI), uniform_linear(0.0f, TWO_PI),
+                       uniform_linear(0.0f, TWO_PI)});
+
+    static const float ANGULAR_VARIANCE = radians(360.0f);
+    physicsBody->angularVelocity({uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+                                  uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+                                  uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE)});
+
+    physicsBody->linearVelocity(velocity);
+
+    node->physicsBody(std::move(physicsBody));
+
+    parent.addChild(node);
+
+    return node;
 }
 
 bool IsIgnored(const shared_ptr<Node>& node, const vector<const Node*>& ignoredNodes) {

@@ -69,7 +69,7 @@ namespace a3d {
 
         const std::vector<std::string>& args() const;
 
-        virtual void hostUpdate(Runner& runner, Scene& scene, const Runner::UpdateInfo& info);
+        virtual void runnerUpdate(Runner& runner, Scene& scene, const Runner::UpdateInfo& info);
 
         virtual void inputDidUpdate(Runner&       runner,
                                     Scene&        scene,
@@ -108,7 +108,7 @@ namespace a3d {
 
         void executeSceneCommands(std::vector<SceneCommand>& queue, Scene& scene);
 
-        void dispatchHostUpdate(Runner& runner, const Runner::UpdateInfo& info);
+        void dispatchRunnerUpdate(Runner& runner, const Runner::UpdateInfo& info);
         void dispatchInputContextDidUpdate(InputContext& inputContext, const InputContext::UpdateInfo& info);
         void dispatchSceneWillStep(Scene& scene, const Scene::StepInfo& info);
         void dispatchSceneDidStep(Scene& scene, const Scene::StepInfo& info);

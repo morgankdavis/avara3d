@@ -169,7 +169,7 @@ const vector<string>& Application::args() const {
     return _args;
 }
 
-void Application::hostUpdate(Runner& runner, Scene& scene, const Runner::UpdateInfo& info) {}
+void Application::runnerUpdate(Runner& runner, Scene& scene, const Runner::UpdateInfo& info) {}
 
 void Application::inputDidUpdate(Runner&       runner,
                                  Scene&        scene,
@@ -285,7 +285,7 @@ void Application::registerCallbacks() {
 
     using namespace std::placeholders;
 
-    _runner->updateCallback(bind(&Application::dispatchHostUpdate, this, _1, _2));
+    _runner->updateCallback(bind(&Application::dispatchRunnerUpdate, this, _1, _2));
 
     if (auto* inputContext = _scene->inputContext()) {
         inputContext->didUpdateCallback(bind(&Application::dispatchInputContextDidUpdate, this, _1, _2));
@@ -314,8 +314,8 @@ void Application::executeSceneCommands(vector<SceneCommand>& queue, Scene& scene
     }
 }
 
-void Application::dispatchHostUpdate(Runner& runner, const Runner::UpdateInfo& info) {
-    hostUpdate(runner, *_scene, info);
+void Application::dispatchRunnerUpdate(Runner& runner, const Runner::UpdateInfo& info) {
+    runnerUpdate(runner, *_scene, info);
 }
 
 void Application::dispatchInputContextDidUpdate(InputContext&                   inputContext,
