@@ -88,8 +88,8 @@ namespace demo::janus {
         };
 
         enum class Pokiness {
-            Hard,
-            Harder
+            Soft,
+            Hard
         };
 
         struct PendingAction {

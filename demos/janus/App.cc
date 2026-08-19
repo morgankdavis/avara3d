@@ -7,8 +7,6 @@
 //
 
 #include "App.h"
-#include "App.h"
-#include "App.h"
 
 #include <algorithm>
 #include <cmath>
@@ -34,7 +32,7 @@ const vec3                        GRAVITY_MOON {0.0f, -1.62f, 0.0f};
 const vec3                        GRAVITY_ZERO {0.0f, 0.0f, 0.0f};
 const float                       CURSOR_MARKER_RADIUS {0.1f};
 const float                       DROP_HEIGHT {5.0f};
-const vec3                        DROP_BOX_SIZE {0.25f, 0.25f, 0.25f};
+const vec3                        DROP_BOX_SIZE {vec3 {1.0f} * 0.25f};
 const u8vec3                      DROP_STACK_SIZE {3, 3, 3};
 const float                       DROP_PADDING {0.065f};
 const float                       THROW_SPAWN_DISTANCE {0.5f};
@@ -56,12 +54,6 @@ static optional<App::PickResult> FindActionTarget(Scene&                     sce
                                                   const vector<const Node*>& ignoredNodes = {});
 static shared_ptr<Node>          ThrowRing(Node& parent, const vec3& location, const vec3& velocity);
 static shared_ptr<Node>          ThrowDuck(Node& parent, const vec3& location, const vec3& velocity);
-static vector<shared_ptr<Node>>  SpawnBoxs(Node&         parent,
-                                           const vec3&   location,
-                                           const vec3&   boxSize,
-                                           const u8vec3& stackSize,
-                                           float         padding,
-                                           const Color&  color);
 vector<shared_ptr<Node>>         SpawnRocks(Node&         parent,
                                             const vec3&   location,
                                             const vec3&   boxSize,
@@ -84,7 +76,7 @@ App::App(int argc, char* argv[]):
     _action {Action::Drop},
     _dropAction {DropAction::Blocks},
     _throwAction {ThrowAction::Ring},
-    _pokiness {Pokiness::Hard},
+    _pokiness {Pokiness::Soft},
     _transients {ext::Transients::SweepPolicy::EveryInterval(1.0)},
     _backgroundRotationTime {0.0},
     _orbWanders {},
@@ -119,34 +111,34 @@ std::unique_ptr<Scene> App::init() {
         // groundMaterial->specularExponent(16.0f);
         // groundMaterial->uvScale(5.0f);
 
-        visualWorld->ground(Ground {
-            // .fill = groundMaterial,
-            .fill =
-                Ground::Procedural {
-                    .content =
-                        Ground::Procedural::Grid {
-                            .color = Color::DarkGray(),
-                            .minor = Ground::Procedural::GridComponent {.color = Color(vec4 {0.5f, 0.5f, 0.5f,
-                                                                                             0.25f}),
-                                                                        .spacing = 1.0f,
-                                                                        .lineWidthPixels = 1.0f,
-                                                                        .reliefStrength = -0.125f},
-                            .major = Ground::Procedural::GridComponent {.color = Color(vec4 {0.75f, 0.75f,
-                                                                                             0.75f, 0.25f}),
-                                                                        .spacing = 10.0f,
-                                                                        .lineWidthPixels = 1.0f,
-                                                                        .reliefStrength = -0.125f},
-                            .specularIntensity = 0.05f,
-                            .specularExponent = 8.0f,
-                        },
-                },
-            .radialFade = Ground::RadialFade {.color = Color(vec4 {0.02f, 0.02f, 0.02f, 1.0f}),
-                                              .center = {0.0f, 0.0f},
-                                              .startDistance = 10.0f,
-                                              .endDistance = 100.0f},
-            .horizonHaze = Ground::HorizonHaze {.color = Color(vec4 {0.2f, 0.2f, 0.2f, 0.4f}),
-                                                .angularWidth = math::radians(4.0f)},
-        });
+        visualWorld->ground(Ground {.fill =
+                                        Ground::Procedural {
+                                            .content =
+                                                Ground::Procedural::
+                                                    Grid {.color = Color::DarkGray(),
+                                                          .minor = Ground::Procedural::
+                                                              GridComponent {.color = Color(vec4 {0.5f, 0.5f,
+                                                                                                  0.5f, 0.25f}),
+                                                                             .spacing = 1.0f,
+                                                                             .lineWidthPixels = 1.0f,
+                                                                             .reliefStrength = -0.125f},
+                                                          .major = Ground::Procedural::
+                                                              GridComponent {.color =
+                                                                                 Color(vec4 {0.75f,
+                                                                                             0.75f, 0.75f, 0.25f}),
+                                                                             .spacing = 10.0f,
+                                                                             .lineWidthPixels = 1.0f,
+                                                                             .reliefStrength = -0.125f},
+                                                          .specularIntensity = 0.05f,
+                                                          .specularExponent = 8.0f}},
+                                    .radialFade =
+                                        Ground::RadialFade {.color = Color(vec4 {0.02f, 0.02f, 0.02f, 1.0f}),
+                                                            .center = {0.0f, 0.0f},
+                                                            .startDistance = 10.0f,
+                                                            .endDistance = 100.0f},
+                                    .horizonHaze =
+                                        Ground::HorizonHaze {.color = Color(vec4 {0.2f, 0.2f, 0.2f, 0.4f}),
+                                                             .angularWidth = math::radians(4.0f)}});
 
         visualWorld->atmosphere(Atmosphere {
             .scaleHeight = 1.00f,
@@ -515,13 +507,10 @@ bool App::drawPanel() {
         _pendingReset = true;
     }
 
-    //panel.spacer(12.0f);
     panel.section("environment");
 
-    // if (auto physicsWorld = scene.physicsWorld()) {
     const auto gravity = physicsWorld.gravity();
 
-    //panel.value("gravity", std::format("{:.1f}, {:.1f}, {:.1f}", gravity.x, gravity.y, gravity.z));
     panel.text("gravity");
 
     const auto isGravity = [&gravity](const vec3& value) {
@@ -541,7 +530,6 @@ bool App::drawPanel() {
     if (panel.option("Zero", isGravity(GRAVITY_ZERO))) {
         physicsWorld.gravity(GRAVITY_ZERO);
     }
-    // }
 
     //panel.spacer(12.0f);
     panel.section("action");
@@ -584,11 +572,11 @@ bool App::drawPanel() {
             break;
         case Action::Poke:
             panel.row(2);
+            if (panel.option("Soft", _pokiness == Pokiness::Soft)) {
+                _pokiness = Pokiness::Soft;
+            }
             if (panel.option("Hard", _pokiness == Pokiness::Hard)) {
                 _pokiness = Pokiness::Hard;
-            }
-            if (panel.option("Harder", _pokiness == Pokiness::Harder)) {
-                _pokiness = Pokiness::Harder;
             }
             // if (panel.option("Ouch", _pokiness == Pokiness::Ouch)) {
             //     _pokiness = Pokiness::Ouch;
@@ -881,8 +869,7 @@ void App::performAction(const PendingAction& action) {
 
     auto simulationRoot = action.simulationRoot.lock();
 
-    // The simulation may have been reset while this action was waiting
-    // for a simulation-step boundary.
+    // simulation may have been reset while this action was waiting for a step boundary
     if (!simulationRoot || simulationRoot != _simulationRoot) {
         return;
     }
@@ -892,9 +879,6 @@ void App::performAction(const PendingAction& action) {
         case Action::Drop: {
 
             const vec3 spawnLocation = action.target.hitPosition + vec3 {0.0f, DROP_HEIGHT, 0.0f};
-
-            // auto boxes = SpawnBoxs(*simulationRoot, spawnLocation, DROP_BOX_SIZE, DROP_STACK_SIZE, DROP_PADDING,
-            //                        Color::White());
 
             auto rocks =
                 SpawnRocks(*simulationRoot, spawnLocation, DROP_BOX_SIZE, DROP_STACK_SIZE, DROP_PADDING);
@@ -930,7 +914,6 @@ void App::performAction(const PendingAction& action) {
             const vec3 gravity = physicsWorld->gravity();
             const vec3 velocity = displacement / flightTime - 0.5f * gravity * flightTime;
 
-            // auto projectile = ThrowRing(*simulationRoot, spawnPosition, velocity);
             auto projectile = ThrowDuck(*simulationRoot, spawnPosition, velocity);
             _pickIgnores.push_back({.node = projectile, .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
             _transients.track(projectile, "thrown");
@@ -1025,7 +1008,6 @@ shared_ptr<Node> MakeSimulationRoot() {
 
     // angel
     {
-
         static auto [mesh, shape] = [] {
             constexpr float HEIGHT = 2.0f;
 
@@ -1128,8 +1110,7 @@ optional<App::PickResult> FindActionTarget(Scene&                     scene,
     const vec3 from = visualWorld->unprojectPoint({screenPosition.x, screenPosition.y, 0.0f});
     const vec3 to = visualWorld->unprojectPoint({screenPosition.x, screenPosition.y, 1.0f});
 
-    const auto hits = scene.physicsWorld()->rayTest(from, to);
-    for (const auto& hit : hits) {
+    for (const auto hits = scene.physicsWorld()->rayTest(from, to); const auto& hit : hits) {
 
         auto node = hit.node();
 
@@ -1254,89 +1235,11 @@ shared_ptr<Node> ThrowDuck(Node& parent, const vec3& location, const vec3& veloc
     return node;
 }
 
-vector<shared_ptr<Node>> SpawnBoxs(Node&         parent,
-                                   const vec3&   location,
-                                   const vec3&   boxSize,
-                                   const u8vec3& stackSize,
-                                   float         padding,
-                                   const Color&  color) {
-
-    const unsigned sizeX = stackSize.x;
-    const unsigned sizeY = stackSize.y;
-    const unsigned sizeZ = stackSize.z;
-
-    vector<shared_ptr<Node>> added;
-    added.reserve(sizeX * sizeY * sizeZ);
-
-    auto physicsShape = make_shared<BoxPhysicsShape>(boxSize.x, boxSize.y, boxSize.z);
-
-    static auto mesh = [boxSize] {
-        return Box::Mesh(boxSize.x, boxSize.y, boxSize.z);
-    }();
-
-    //auto material = Material::EmissionMaterial(color);
-    auto material = make_shared<Material>(color, color, color);
-    mesh->addMaterial(material);
-
-    const float stepX = boxSize.x + padding;
-    const float stepY = boxSize.y + padding;
-    const float stepZ = boxSize.z + padding;
-
-    const float totalLength = boxSize.x * static_cast<float>(sizeX) + padding * static_cast<float>(sizeX - 1);
-    const float totalWidth = boxSize.z * static_cast<float>(sizeY) + padding * static_cast<float>(sizeY - 1);
-
-    const float startX = location.x - totalLength * 0.5f + boxSize.x * 0.5f;
-    const float startZ = location.z - totalWidth * 0.5f + boxSize.z * 0.5f;
-    const float startY = location.y + boxSize.y * 0.5f;
-
-    for (unsigned y = 0; y < sizeZ; ++y) {
-        for (unsigned z = 0; z < sizeY; ++z) {
-            for (unsigned x = 0; x < sizeX; ++x) {
-
-                auto node = Node::MeshNode(mesh);
-
-                static int boxNum = 0;
-                node->name(std::format("Box {}", ++boxNum));
-
-                node->position({startX + static_cast<float>(x) * stepX, startY + static_cast<float>(y) * stepY,
-                                startZ + static_cast<float>(z) * stepZ});
-
-                auto physicsBody = PhysicsBody::DynamicBody();
-                physicsBody->mass(1.0f);
-                physicsBody->restitution(0.05f);
-                physicsBody->friction(0.8f);
-                physicsBody->shape(physicsShape);
-
-                const float angularVariance = radians(30.0f);
-                physicsBody->angularVelocity({uniform_linear(-angularVariance, angularVariance),
-                                              uniform_linear(-angularVariance, angularVariance),
-                                              uniform_linear(-angularVariance, angularVariance)});
-
-                node->physicsBody(std::move(physicsBody));
-
-                auto light = Light::Point(color);
-                light->attenuation(Attenuation::FromRange(3.0f, 0.02f));
-                node->light(light);
-
-                added.push_back(node);
-                parent.addChild(node);
-            }
-        }
-    }
-
-    return added;
-}
-
 vector<shared_ptr<Node>> SpawnRocks(Node&         parent,
                                     const vec3&   location,
                                     const vec3&   boxSize,
                                     const u8vec3& stackSize,
                                     float         padding) {
-
-    const unsigned sizeX = stackSize.x;
-    const unsigned sizeY = stackSize.y;
-    const unsigned sizeZ = stackSize.z;
-
     // auto rockScene =
     //     util::fs::SceneAt("rocks_convex/rocks_convex.gltf",
     //                       Scene::ImportOptions::ImportMeshes | Scene::ImportOptions::ImportMaterials);
@@ -1352,9 +1255,9 @@ vector<shared_ptr<Node>> SpawnRocks(Node&         parent,
 
     vector<Rock> rocks;
 
-    for (const auto& importedNode : rockScene->rootNode()->children()) {
+    for (const auto& node : rockScene->rootNode()->children()) {
 
-        auto mesh = importedNode->mesh();
+        auto mesh = node->mesh();
         if (!mesh) {
             continue;
         }
@@ -1363,15 +1266,12 @@ vector<shared_ptr<Node>> SpawnRocks(Node&         parent,
 
         auto physicsShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
 
-        rocks.push_back({
-            std::move(mesh),
-            std::move(physicsShape),
-        });
+        rocks.push_back({std::move(mesh), std::move(physicsShape)});
     }
 
-    if (rocks.empty()) {
-        throw runtime_error("Rock scene contains no meshes.");
-    }
+    const unsigned sizeX = stackSize.x;
+    const unsigned sizeY = stackSize.y;
+    const unsigned sizeZ = stackSize.z;
 
     vector<shared_ptr<Node>> added;
     added.reserve(sizeX * sizeZ * sizeY);
