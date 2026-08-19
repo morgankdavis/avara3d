@@ -34,7 +34,6 @@
 #include "a3d/physics/shape/primitive/PlanePhysicsShape.h"
 #include "a3d/physics/shape/primitive/SpherePhysicsShape.h"
 #include "a3d/scene/Node.h"
-#include "a3d/util/Enum.h"
 
 using namespace a3d;
 using namespace a3d::math;
