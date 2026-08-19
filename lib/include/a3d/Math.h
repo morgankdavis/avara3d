@@ -177,12 +177,21 @@ namespace a3d::math {
     f32vec3     operator-(const f32vec3& a, const f32vec3& b);
     f32vec4     operator-(const f32vec4& a, const f32vec4& b);
 
+    f32vec2     operator*(const f32vec2& a, const f32vec2& b);
+    f32vec3     operator*(const f32vec3& a, const f32vec3& b);
+    f32vec4     operator*(const f32vec4& a, const f32vec4& b);
+
     f32vec2     operator*(const f32vec2& v, f32 s);
     f32vec3     operator*(const f32vec3& v, f32 s);
     f32vec4     operator*(const f32vec4& v, f32 s);
+
     f32vec2     operator*(f32 s, const f32vec2& v);
     f32vec3     operator*(f32 s, const f32vec3& v);
     f32vec4     operator*(f32 s, const f32vec4& v);
+
+    f32vec2     operator/(const f32vec2& a, const f32vec2& b);
+    f32vec3     operator/(const f32vec3& a, const f32vec3& b);
+    f32vec4     operator/(const f32vec4& a, const f32vec4& b);
 
     f32vec2     operator/(const f32vec2& v, f32 s);
     f32vec3     operator/(const f32vec3& v, f32 s);
@@ -196,9 +205,17 @@ namespace a3d::math {
     f32vec3&    operator-=(f32vec3& a, const f32vec3& b);
     f32vec4&    operator-=(f32vec4& a, const f32vec4& b);
 
+    f32vec2&    operator*=(f32vec2& a, const f32vec2& b);
+    f32vec3&    operator*=(f32vec3& a, const f32vec3& b);
+    f32vec4&    operator*=(f32vec4& a, const f32vec4& b);
+
     f32vec2&    operator*=(f32vec2& v, f32 s);
     f32vec3&    operator*=(f32vec3& v, f32 s);
     f32vec4&    operator*=(f32vec4& v, f32 s);
+
+    f32vec2&    operator/=(f32vec2& a, const f32vec2& b);
+    f32vec3&    operator/=(f32vec3& a, const f32vec3& b);
+    f32vec4&    operator/=(f32vec4& a, const f32vec4& b);
 
     f32vec2&    operator/=(f32vec2& v, f32 s);
     f32vec3&    operator/=(f32vec3& v, f32 s);

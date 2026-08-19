@@ -145,10 +145,16 @@ set(WEBP_BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
 set(WEBP_BUILD_WEBP_JS OFF CACHE BOOL "" FORCE)
 set(WEBP_BUILD_FUZZTEST OFF CACHE BOOL "" FORCE)
 
-# We only use simple synchronous image decoding.
+# we don't request libwebp's internal worker-thread decoding.
 set(WEBP_USE_THREAD OFF CACHE BOOL "" FORCE)
 
+set(A3D_CMAKE_REQUIRED_QUIET "${CMAKE_REQUIRED_QUIET}")
+set(CMAKE_REQUIRED_QUIET TRUE)
+
 add_subdirectory(libwebp-1.6.0 EXCLUDE_FROM_ALL)
+
+set(CMAKE_REQUIRED_QUIET "${A3D_CMAKE_REQUIRED_QUIET}")
+unset(A3D_CMAKE_REQUIRED_QUIET)
 
 add_library(a3d_external_webp INTERFACE)
 add_library(a3d::webp ALIAS a3d_external_webp)

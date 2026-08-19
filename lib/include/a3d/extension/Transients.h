@@ -1,13 +1,13 @@
 //
-//  TransientNodeRegistry.h
+//  Transients.h
 //  avara3d
 //
 //  Created by Morgan Davis on 8/11/26.
 //  Copyright © 2026 Morgan K Davis. All rights reserved.
 //
 
-#ifndef AVARA3D_EXTENSION_TRANSIENTNODEREGISTRY_H
-#define AVARA3D_EXTENSION_TRANSIENTNODEREGISTRY_H
+#ifndef AVARA3D_EXTENSION_TRANSIENTS_H
+#define AVARA3D_EXTENSION_TRANSIENTS_H
 
 #include <cstddef>
 #include <cstdint>
@@ -39,7 +39,7 @@ namespace a3d::ext {
      * Functions that may remove nodes must be called only from a point where scene mutation
      * is safe, such as after a physics simulation step has completed.
      */
-    class TransientNodeRegistry {
+    class Transients {
 
     public:
         // [Public Types]
@@ -135,16 +135,16 @@ namespace a3d::ext {
          *
          * @throws std::invalid_argument if sweepPolicy is invalid.
          */
-        explicit TransientNodeRegistry(SweepPolicy sweepPolicy = SweepPolicy::EveryUpdate());
+        explicit Transients(SweepPolicy sweepPolicy = SweepPolicy::EveryUpdate());
 
-        TransientNodeRegistry(const TransientNodeRegistry&)            = delete;
-        TransientNodeRegistry& operator=(const TransientNodeRegistry&) = delete;
+        Transients(const Transients&)            = delete;
+        Transients& operator=(const Transients&) = delete;
 
-        TransientNodeRegistry(TransientNodeRegistry&&)            = delete;
-        TransientNodeRegistry& operator=(TransientNodeRegistry&&) = delete;
+        Transients(Transients&&)            = delete;
+        Transients& operator=(Transients&&) = delete;
 
         /** @brief Destroys the registry without removing tracked nodes. */
-        ~TransientNodeRegistry() = default;
+        ~Transients() = default;
 
         // [Public Member Functions]
 
@@ -309,4 +309,4 @@ namespace a3d::ext {
 
 }
 
-#endif //AVARA3D_EXTENSION_TRANSIENTNODEREGISTRY_H
+#endif //AVARA3D_EXTENSION_TRANSIENTS_H

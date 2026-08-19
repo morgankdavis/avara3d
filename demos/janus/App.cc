@@ -36,15 +36,14 @@ const float                       CURSOR_MARKER_RADIUS {0.1f};
 const float                       DROP_HEIGHT {5.0f};
 const vec3                        DROP_BOX_SIZE {0.25f, 0.25f, 0.25f};
 const u8vec3                      DROP_STACK_SIZE {3, 3, 3};
-// const float                       DROP_PADDING {0.025f}; // boxes
-const float     DROP_PADDING {0.065f}; // rocks
-const float     THROW_SPAWN_DISTANCE {0.5f};
-const float     THROW_SPEED {15.0f};
-const float     THROW_MIN_FLIGHT_TIME {0.25f};
-const float     THROW_MAX_FLIGHT_TIME {1.5f};
-constexpr float POKE_IMPULSE = 10.0f;
-const double    PROJECTILE_PICK_IGNORE_DURATION {0.5};
-const bool      ENABLE_CURSOR_MARKER {false};
+const float                       DROP_PADDING {0.065f};
+const float                       THROW_SPAWN_DISTANCE {0.5f};
+const float                       THROW_SPEED {15.0f};
+const float                       THROW_MIN_FLIGHT_TIME {0.25f};
+const float                       THROW_MAX_FLIGHT_TIME {1.5f};
+constexpr float                   POKE_IMPULSE = 10.0f;
+const double                      PROJECTILE_PICK_IGNORE_DURATION {0.5};
+const bool                        ENABLE_CURSOR_MARKER {false};
 
 /// Private Static Non-Member Prototypes ///
 
@@ -86,7 +85,7 @@ App::App(int argc, char* argv[]):
     _dropAction {DropAction::Blocks},
     _throwAction {ThrowAction::Ring},
     _pokiness {Pokiness::Hard},
-    _transients {ext::TransientNodeRegistry::SweepPolicy::EveryInterval(1.0)},
+    _transients {ext::Transients::SweepPolicy::EveryInterval(1.0)},
     _backgroundRotationTime {0.0},
     _orbWanders {},
     _pickIgnores {},
@@ -110,10 +109,7 @@ std::unique_ptr<Scene> App::init() {
         visualWorld->background(Background {
             make_shared<Texture>(std::move(util::fs::CubeImageAt("nebula.webp")))});
 
-        visualWorld->surface(VisualWorld::Sphere {
-            .center = {0.0f, -5000.0f, 0.0f},
-            .radius = 5000.0f,
-        });
+        visualWorld->surface(VisualWorld::Sphere {.center = {0.0f, -5000.0f, 0.0f}, .radius = 5000.0f});
 
         //tiles_ceramic_white_diff.jpg
 
@@ -130,50 +126,33 @@ std::unique_ptr<Scene> App::init() {
                     .content =
                         Ground::Procedural::Grid {
                             .color = Color::DarkGray(),
-                            .minor =
-                                Ground::Procedural::GridComponent {
-                                    .color = Color(vec4 {0.5f, 0.5f, 0.5f, 0.25f}),
-                                    .spacing = 1.0f,
-                                    .lineWidthPixels = 1.0f,
-                                    .reliefStrength = -0.125f,
-                                },
-                            .major =
-                                Ground::Procedural::GridComponent {
-                                    .color = Color(vec4 {0.75f, 0.75f, 0.75f, 0.25f}),
-                                    .spacing = 10.0f,
-                                    .lineWidthPixels = 1.0f,
-                                    .reliefStrength = -0.125f,
-                                },
+                            .minor = Ground::Procedural::GridComponent {.color = Color(vec4 {0.5f, 0.5f, 0.5f,
+                                                                                             0.25f}),
+                                                                        .spacing = 1.0f,
+                                                                        .lineWidthPixels = 1.0f,
+                                                                        .reliefStrength = -0.125f},
+                            .major = Ground::Procedural::GridComponent {.color = Color(vec4 {0.75f, 0.75f,
+                                                                                             0.75f, 0.25f}),
+                                                                        .spacing = 10.0f,
+                                                                        .lineWidthPixels = 1.0f,
+                                                                        .reliefStrength = -0.125f},
                             .specularIntensity = 0.05f,
                             .specularExponent = 8.0f,
                         },
                 },
-            .radialFade =
-                Ground::RadialFade {
-                    .color = Color(vec4 {0.02f, 0.02f, 0.02f, 1.0f}),
-                    .center = {0.0f, 0.0f},
-                    .startDistance = 10.0f,
-                    .endDistance = 100.0f,
-                },
-            .horizonHaze =
-                Ground::HorizonHaze {
-                    .color = Color(vec4 {0.2f, 0.2f, 0.2f, 0.4f}),
-                    .angularWidth = math::radians(4.0f),
-                },
+            .radialFade = Ground::RadialFade {.color = Color(vec4 {0.02f, 0.02f, 0.02f, 1.0f}),
+                                              .center = {0.0f, 0.0f},
+                                              .startDistance = 10.0f,
+                                              .endDistance = 100.0f},
+            .horizonHaze = Ground::HorizonHaze {.color = Color(vec4 {0.2f, 0.2f, 0.2f, 0.4f}),
+                                                .angularWidth = math::radians(4.0f)},
         });
 
         visualWorld->atmosphere(Atmosphere {
             .scaleHeight = 1.00f,
-            .haze =
-                Atmosphere::Haze {
-                    .color = Color(vec4 {0.12f, 0.12f, 0.13f, 0.35}),
-                    .density = .35,
-                },
+            .haze = Atmosphere::Haze {.color = Color(vec4 {0.12f, 0.12f, 0.13f, 0.35}), .density = .35},
             .limbGlow =
-                Atmosphere::LimbGlow {
-                    .color = Color(vec4 {0.30f, 0.38f, 0.48f, 0.5f}),
-                    .intensity = 0.25f,
-                },
+                Atmosphere::LimbGlow {.color = Color(vec4 {0.30f, 0.38f, 0.48f, 0.5f}), .intensity = 0.25f},
         });
 
         // visualWorld->fog(Fog {
@@ -221,27 +200,17 @@ std::unique_ptr<Scene> App::init() {
 
         // setup transiet node groups
 
-        _transients.groupPolicy("box",
+        _transients.groupPolicy("dropped", {.maxCount = {100}});
+        _transients.groupPolicy("thrown",
                                 {.maxCount = {100},
-                                 /*.distanceLimit =
-                                     ext::TransientNodeRegistry::DistanceLimit {.center = {0.0f, 0.0f, 0.0f},
-                                                                                .radius = 25.0f}*/});
-
-        _transients.groupPolicy("projectile", {
-                                                  //.maxAge = 15.0,
-                                                  .maxCount = {100},
-                                                  .distanceLimit =
-                                                      ext::TransientNodeRegistry::DistanceLimit {
-                                                          .center = {0.0f, 0.0f, 0.0f},
-                                                          .radius = 100.0f,
-                                                      },
-                                              });
+                                 .distanceLimit = ext::Transients::DistanceLimit {.center = {0.0f, 0.0f, 0.0f},
+                                                                                  .radius = 100.0f}});
 
         // create and configure the camera and camera controller
 
         auto camera = make_shared<PerspectiveCamera>(0.1f, 1000.0f, radians(45.0f));
         _cameraNode = Node::CameraNode(camera);
-        _cameraNode->name("Turntable camera");
+        _cameraNode->name("Camera");
         scene->rootNode()->addChild(_cameraNode);
         scene->visualWorld()->pointOfView(_cameraNode);
 
@@ -254,12 +223,10 @@ std::unique_ptr<Scene> App::init() {
         cameraConfig.maxDistance = 100.0f;
         _cameraController.config(cameraConfig);
 
-        _cameraController.view({
-            .target = vec3 {0.0f, 1.0f, 0.0f},
-            .yaw = radians(35.0f),
-            .pitch = radians(20.0f),
-            .distance = 20.0f,
-        });
+        _cameraController.view({.target = vec3 {0.0f, 1.0f, 0.0f},
+                                .yaw = radians(35.0f),
+                                .pitch = radians(20.0f),
+                                .distance = 20.0f});
 
         // create the resettable simulation root node
 
@@ -288,7 +255,6 @@ std::unique_ptr<Scene> App::init() {
         // wandering lights
 
         {
-
             const vec3 ORB_GROUP_POSITION {-8.0f, 2.5f, -6.0f};
 
             const vec3 ORB_POSITION_MIN {-1.0f, -0.5f, -1.0f};
@@ -328,13 +294,10 @@ std::unique_ptr<Scene> App::init() {
 
                 orbGroup->addChild(orb);
 
-                _orbWanders.push_back(make_unique<
-                                      ext::Wander>(orb,
-                                                   ext::Wander::Config {.halfExtents = ORB_WANDER_EXTENTS,
-                                                                        .segmentDuration =
-                                                                            math::uniform_linear(5.0f, 7.0f),
-                                                                        .seed =
-                                                                            1000u + static_cast<uint32_t>(i)}));
+                ext::Wander::Config config {.halfExtents = ORB_WANDER_EXTENTS,
+                                            .segmentDuration = math::uniform_linear(5.0f, 7.0f),
+                                            .seed = 1000u + static_cast<uint32_t>(i)};
+                _orbWanders.emplace_back(ext::Wander(orb, config));
             }
         }
 
@@ -412,8 +375,8 @@ void App::inputDidUpdate(Runner&       runner,
 
 void App::sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info) {
 
-    for (const auto& wander : _orbWanders) {
-        wander->update(info.deltaTime);
+    for (auto& wander : _orbWanders) {
+        wander.update(info.deltaTime);
     }
 }
 
@@ -453,8 +416,6 @@ void App::frameDidBegin(Runner&                        runner,
     }
 
     bool hovered = drawPanel();
-
-    //if (_cursorMarker) {
 
     if (_window->cursorCaptured() || hovered) {
 
@@ -499,7 +460,6 @@ void App::frameDidBegin(Runner&                        runner,
             }
         }
     }
-    //}
 
     //_window->cursorHidden(!_cursorMarker->hidden());
 }
@@ -513,10 +473,7 @@ bool App::drawPanel() {
     auto& visualWorld = *scene.visualWorld();
     auto& physicsWorld = *scene.physicsWorld();
 
-    ui::Panel panel("controls", {
-                                    .width = 180.0f,
-                                    .margin = 12.0f,
-                                });
+    ui::Panel panel("controls", {.width = 180.0f, .margin = 12.0f});
 
     panel.section("simulation", {.line = true}, {.top = 0.0f, .bottom = 4.0f});
 
@@ -605,7 +562,7 @@ bool App::drawPanel() {
     switch (_action) {
         case Action::Drop:
             panel.row(2);
-            if (panel.option("Blocks", _dropAction == DropAction::Blocks)) {
+            if (panel.option("Rocks", _dropAction == DropAction::Blocks)) {
                 _dropAction = DropAction::Blocks;
             }
             if (panel.option("Balls", _dropAction == DropAction::Balls)) {
@@ -833,7 +790,6 @@ void App::hover(shared_ptr<Node> node) {
     if (auto previous = _hoveredNode.lock()) {
 
         const bool selected = _selection && _selection->node.lock() == previous;
-
         if (!selected) {
             previous->debugOptions(util::bitmask::remove(previous->debugOptions(),
                                                          DebugOptions::ShowHighlightTint));
@@ -863,7 +819,6 @@ void App::select(optional<PickResult> pickResult) {
     }
 
     _selection = std::move(pickResult);
-
     if (_selection) {
         if (auto node = _selection->node.lock()) {
             node->debugOptions(util::bitmask::add(node->debugOptions(), DebugOptions::ShowHighlightBox));
@@ -911,13 +866,11 @@ void App::queueAction(const vec2& screenPosition) {
         return;
     }
 
-    PendingAction pendingAction {
-        .action = _action,
-        .target = *target,
-        .simulationRoot = _simulationRoot,
-        .cameraPosition = _cameraNode->worldPosition(),
-        .rayDirection = normalize(ray),
-    };
+    PendingAction pendingAction {.action = _action,
+                                 .target = *target,
+                                 .simulationRoot = _simulationRoot,
+                                 .cameraPosition = _cameraNode->worldPosition(),
+                                 .rayDirection = normalize(ray)};
 
     queueScenePreStepCommand([this, pendingAction = std::move(pendingAction)](Scene& scene) {
         performAction(pendingAction);
@@ -945,10 +898,10 @@ void App::performAction(const PendingAction& action) {
             // auto boxes = SpawnBoxs(*simulationRoot, spawnLocation, DROP_BOX_SIZE, DROP_STACK_SIZE, DROP_PADDING,
             //                        Color::White());
 
-            auto boxes =
+            auto rocks =
                 SpawnRocks(*simulationRoot, spawnLocation, DROP_BOX_SIZE, DROP_STACK_SIZE, DROP_PADDING);
 
-            _transients.track(boxes, "box");
+            _transients.track(rocks, "dropped");
 
             break;
         }
@@ -981,11 +934,8 @@ void App::performAction(const PendingAction& action) {
 
             // auto projectile = ThrowRing(*simulationRoot, spawnPosition, velocity);
             auto projectile = ThrowDuck(*simulationRoot, spawnPosition, velocity);
-            _pickIgnores.push_back({
-                .node = projectile,
-                .remainingTime = PROJECTILE_PICK_IGNORE_DURATION,
-            });
-            _transients.track(projectile, "projectile");
+            _pickIgnores.push_back({.node = projectile, .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
+            _transients.track(projectile, "thrown");
 
             break;
         }
@@ -1159,11 +1109,9 @@ optional<App::PickResult> Pick(VisualWorld&               visualWorld,
             continue;
         }
 
-        return App::PickResult {
-            .node = node,
-            .hitPosition = hit.worldCoordinates(),
-            .hitNormal = hit.worldNormal(),
-        };
+        return App::PickResult {.node = node,
+                                .hitPosition = hit.worldCoordinates(),
+                                .hitNormal = hit.worldNormal()};
     }
 
     return {};
@@ -1179,20 +1127,10 @@ optional<App::PickResult> FindActionTarget(Scene&                     scene,
         return result;
     }
 
-    const vec3 from = visualWorld->unprojectPoint({
-        screenPosition.x,
-        screenPosition.y,
-        0.0f,
-    });
-
-    const vec3 to = visualWorld->unprojectPoint({
-        screenPosition.x,
-        screenPosition.y,
-        1.0f,
-    });
+    const vec3 from = visualWorld->unprojectPoint({screenPosition.x, screenPosition.y, 0.0f});
+    const vec3 to = visualWorld->unprojectPoint({screenPosition.x, screenPosition.y, 1.0f});
 
     const auto hits = scene.physicsWorld()->rayTest(from, to);
-
     for (const auto& hit : hits) {
 
         auto node = hit.node();
@@ -1201,11 +1139,9 @@ optional<App::PickResult> FindActionTarget(Scene&                     scene,
             continue;
         }
 
-        return App::PickResult {
-            .node = node,
-            .hitPosition = hit.worldCoordinates(),
-            .hitNormal = hit.worldNormal(),
-        };
+        return App::PickResult {.node = node,
+                                .hitPosition = hit.worldCoordinates(),
+                                .hitNormal = hit.worldNormal()};
     }
 
     return {};
@@ -1273,7 +1209,6 @@ shared_ptr<Node> ThrowRing(Node& parent, const vec3& location, const vec3& veloc
 }
 
 shared_ptr<Node> ThrowDuck(Node& parent, const vec3& location, const vec3& velocity) {
-
     static auto [mesh, shape] = [] {
         constexpr float DUCK_HEIGHT = 0.5f;
         auto            mesh = util::fs::MeshAt("duck/duck.gltf");
@@ -1283,8 +1218,6 @@ shared_ptr<Node> ThrowDuck(Node& parent, const vec3& location, const vec3& veloc
         return std::pair {mesh, shape};
     }();
 
-    static const auto extent = mesh->localExtent();
-
     auto node = Node::MeshNode(mesh);
     node->name("Quack");
     node->position(location);
@@ -1292,17 +1225,10 @@ shared_ptr<Node> ThrowDuck(Node& parent, const vec3& location, const vec3& veloc
 
     auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
     physicsBody->mass(0.1f);
-    //physicsBody->centerOfMass({0.0f, extent.y * 0.45f, 0.0f});
-
-    // const vec3 autoCenterOfMass = physicsBody->centerOfMass();
-    // physicsBody->centerOfMass(autoCenterOfMass + vec3 {0.0f, extent.y * 0.25f, 0.0f});
-
-    //physicsBody->affectedByGravity(false);
-
     physicsBody->restitution(0.5f);
     physicsBody->friction(2.0f);
-    // physicsBody->rollingFriction(0.1f);
-
+    static const auto extent = mesh->localExtent();
+    physicsBody->centerOfMass(physicsBody->centerOfMass() + extent * vec3 {0.0f, -0.1f, 0.0f});
     const float minExtent = math::min(extent);
     physicsBody->ccdMotionThreshold(minExtent * 0.25f);
     physicsBody->ccdSweptSphereRadius(minExtent * 0.25f);
@@ -1314,15 +1240,11 @@ shared_ptr<Node> ThrowDuck(Node& parent, const vec3& location, const vec3& veloc
 
     static const float ANGULAR_VARIANCE = radians(360.0f);
 
-    physicsBody->angularVelocity({
-        uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
-        uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
-        uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
-    });
-    // physicsBody->angularVelocity({radians(45.0f), 0.0f, 0.0f});
+    physicsBody->angularVelocity({uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+                                  uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE),
+                                  uniform_linear(-ANGULAR_VARIANCE, ANGULAR_VARIANCE)});
 
     physicsBody->linearVelocity(velocity);
-    // physicsBody->linearVelocity({0.0f, 0.0f, 0.0f});
 
     physicsBody->angularDamping(0.0f);
     physicsBody->allowsResting(false);
@@ -1341,26 +1263,17 @@ vector<shared_ptr<Node>> SpawnBoxs(Node&         parent,
                                    float         padding,
                                    const Color&  color) {
 
-    if (!isfinite(padding) || padding < 0.0f) {
-        throw invalid_argument("Box stack padding must be finite and non-negative.");
-    }
-
-    const unsigned countX = stackSize.x;
-    const unsigned countZ = stackSize.y;
-    const unsigned countY = stackSize.z;
-
-    if (countX == 0 || countZ == 0 || countY == 0) {
-        return {};
-    }
+    const unsigned sizeX = stackSize.x;
+    const unsigned sizeY = stackSize.y;
+    const unsigned sizeZ = stackSize.z;
 
     vector<shared_ptr<Node>> added;
-    added.reserve(countX * countZ * countY);
+    added.reserve(sizeX * sizeY * sizeZ);
 
     auto physicsShape = make_shared<BoxPhysicsShape>(boxSize.x, boxSize.y, boxSize.z);
 
     static auto mesh = [boxSize] {
         return Box::Mesh(boxSize.x, boxSize.y, boxSize.z);
-        ;
     }();
 
     //auto material = Material::EmissionMaterial(color);
@@ -1371,27 +1284,24 @@ vector<shared_ptr<Node>> SpawnBoxs(Node&         parent,
     const float stepY = boxSize.y + padding;
     const float stepZ = boxSize.z + padding;
 
-    const float totalLength = boxSize.x * static_cast<float>(countX) + padding * static_cast<float>(countX - 1);
-    const float totalWidth = boxSize.z * static_cast<float>(countZ) + padding * static_cast<float>(countZ - 1);
+    const float totalLength = boxSize.x * static_cast<float>(sizeX) + padding * static_cast<float>(sizeX - 1);
+    const float totalWidth = boxSize.z * static_cast<float>(sizeY) + padding * static_cast<float>(sizeY - 1);
 
     const float startX = location.x - totalLength * 0.5f + boxSize.x * 0.5f;
     const float startZ = location.z - totalWidth * 0.5f + boxSize.z * 0.5f;
     const float startY = location.y + boxSize.y * 0.5f;
 
-    for (unsigned y = 0; y < countY; ++y) {
-        for (unsigned z = 0; z < countZ; ++z) {
-            for (unsigned x = 0; x < countX; ++x) {
+    for (unsigned y = 0; y < sizeZ; ++y) {
+        for (unsigned z = 0; z < sizeY; ++z) {
+            for (unsigned x = 0; x < sizeX; ++x) {
 
                 auto node = Node::MeshNode(mesh);
 
                 static int boxNum = 0;
                 node->name(std::format("Box {}", ++boxNum));
 
-                node->position({
-                    startX + static_cast<float>(x) * stepX,
-                    startY + static_cast<float>(y) * stepY,
-                    startZ + static_cast<float>(z) * stepZ,
-                });
+                node->position({startX + static_cast<float>(x) * stepX, startY + static_cast<float>(y) * stepY,
+                                startZ + static_cast<float>(z) * stepZ});
 
                 auto physicsBody = PhysicsBody::DynamicBody();
                 physicsBody->mass(1.0f);
@@ -1400,11 +1310,9 @@ vector<shared_ptr<Node>> SpawnBoxs(Node&         parent,
                 physicsBody->shape(physicsShape);
 
                 const float angularVariance = radians(30.0f);
-                physicsBody->angularVelocity({
-                    uniform_linear(-angularVariance, angularVariance),
-                    uniform_linear(-angularVariance, angularVariance),
-                    uniform_linear(-angularVariance, angularVariance),
-                });
+                physicsBody->angularVelocity({uniform_linear(-angularVariance, angularVariance),
+                                              uniform_linear(-angularVariance, angularVariance),
+                                              uniform_linear(-angularVariance, angularVariance)});
 
                 node->physicsBody(std::move(physicsBody));
 
@@ -1421,80 +1329,15 @@ vector<shared_ptr<Node>> SpawnBoxs(Node&         parent,
     return added;
 }
 
-// vector<shared_ptr<Node>> SpawnRocks(Node&         parent,
-//                                     const vec3&   location,
-//                                     const vec3&   boxSize,
-//                                     const u8vec3& stackSize,
-//                                     float         padding) {
-//
-//     auto rocksConcave =
-//         util::fs::SceneAt("rocks_convex/rocks_convex.gltf",
-//                           Scene::ImportOptions::ImportMeshes | Scene::ImportOptions::ImportMaterials);
-//
-//     auto rocksConvex =
-//         util::fs::SceneAt("rocks_convex/rocks_convex.gltf",
-//                           Scene::ImportOptions::ImportMeshes | Scene::ImportOptions::ImportMaterials);
-//
-//     log::app::d()("Rocks concave: {}", rocksConcave->rootNode()->children().size());
-//     log::app::d()("Rocks convex: {}", rocksConvex->rootNode()->children().size());
-//
-//     auto children = rocksConcave->rootNode()->children();
-//
-//     vector<shared_ptr<Node>> added;
-//     added.reserve(children.size());
-//
-//     float x = 0;
-//
-//     for (auto& node : children) {
-//         auto mesh = node->mesh();
-//         if (mesh) {
-//
-//             const auto translate = math::translate(mat4(1.0f), {x, location.y, location.z});
-//             const auto scale = math::scale(mat4(1.0f), vec3(.25f));
-//
-//             mesh->burnTransform(translate * scale, true);
-//
-//             //auto newNode = Node::MeshNode(mesh); // why?
-//             auto newNode = node;
-//             newNode->physicsBody(PhysicsBody::DynamicBody());
-//             //newNode->position(node->position() + location);
-//             // newNode->position();
-//             // newNode->scale(vec3{.25f});
-//             // newNode->burnTransform(node->transform(), true);
-//             parent.addChild(newNode);
-//             added.push_back(newNode);
-//             x += .5;
-//         }
-//     }
-//
-//     return added;
-// }
-
-#include "a3d/util/Geometry.h"
-
 vector<shared_ptr<Node>> SpawnRocks(Node&         parent,
                                     const vec3&   location,
                                     const vec3&   boxSize,
                                     const u8vec3& stackSize,
                                     float         padding) {
 
-    if (!isfinite(padding) || padding < 0.0f) {
-        throw invalid_argument("Rock stack padding must be finite and non-negative.");
-    }
-
-    if (!math::is_finite(boxSize.x) || !math::is_finite(boxSize.y) || !math::is_finite(boxSize.z)
-        || boxSize.x <= 0.0f || boxSize.y <= 0.0f || boxSize.z <= 0.0f) {
-
-        throw invalid_argument("Rock box size must be finite and greater than zero.");
-    }
-
-    const unsigned countX = stackSize.x;
-    const unsigned countZ = stackSize.y;
-    const unsigned countY = stackSize.z;
-
-    if (countX == 0 || countZ == 0 || countY == 0) {
-        return {};
-    }
+    const unsigned sizeX = stackSize.x;
+    const unsigned sizeY = stackSize.y;
+    const unsigned sizeZ = stackSize.z;
 
     // auto rockScene =
     //     util::fs::SceneAt("rocks_convex/rocks_convex.gltf",
@@ -1518,14 +1361,6 @@ vector<shared_ptr<Node>> SpawnRocks(Node&         parent,
             continue;
         }
 
-        //
-        // The imported Node transform is deliberately ignored.
-        //
-        // Permanently normalize the mesh so that:
-        //
-        //   1. its local AABB is centered at the origin
-        //   2. it is uniformly scaled to fit inside boxSize
-        //
         mesh->burnTransform(util::geom::fit_inside(mesh->localAABB(), boxSize), true);
 
         auto physicsShape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
@@ -1541,14 +1376,14 @@ vector<shared_ptr<Node>> SpawnRocks(Node&         parent,
     }
 
     vector<shared_ptr<Node>> added;
-    added.reserve(countX * countZ * countY);
+    added.reserve(sizeX * sizeZ * sizeY);
 
     const float stepX = boxSize.x + padding;
     const float stepY = boxSize.y + padding;
     const float stepZ = boxSize.z + padding;
 
-    const float totalLength = boxSize.x * static_cast<float>(countX) + padding * static_cast<float>(countX - 1);
-    const float totalWidth = boxSize.z * static_cast<float>(countZ) + padding * static_cast<float>(countZ - 1);
+    const float totalLength = boxSize.x * static_cast<float>(sizeX) + padding * static_cast<float>(sizeX - 1);
+    const float totalWidth = boxSize.z * static_cast<float>(sizeZ) + padding * static_cast<float>(sizeZ - 1);
 
     const float startX = location.x - totalLength * 0.5f + boxSize.x * 0.5f;
     const float startZ = location.z - totalWidth * 0.5f + boxSize.z * 0.5f;
@@ -1556,9 +1391,9 @@ vector<shared_ptr<Node>> SpawnRocks(Node&         parent,
 
     size_t rockIndex = 0;
 
-    for (unsigned y = 0; y < countY; ++y) {
-        for (unsigned z = 0; z < countZ; ++z) {
-            for (unsigned x = 0; x < countX; ++x) {
+    for (unsigned y = 0; y < sizeY; ++y) {
+        for (unsigned z = 0; z < sizeZ; ++z) {
+            for (unsigned x = 0; x < sizeX; ++x) {
 
                 const auto& rock = rocks[rockIndex++ % rocks.size()];
 
@@ -1567,11 +1402,8 @@ vector<shared_ptr<Node>> SpawnRocks(Node&         parent,
                 static int rockNum = 0;
                 node->name(std::format("Rock {}", ++rockNum));
 
-                node->position({
-                    startX + static_cast<float>(x) * stepX,
-                    startY + static_cast<float>(y) * stepY,
-                    startZ + static_cast<float>(z) * stepZ,
-                });
+                node->position({startX + static_cast<float>(x) * stepX, startY + static_cast<float>(y) * stepY,
+                                startZ + static_cast<float>(z) * stepZ});
 
                 auto physicsBody = PhysicsBody::DynamicBody();
                 physicsBody->mass(1.0f);
@@ -1580,11 +1412,9 @@ vector<shared_ptr<Node>> SpawnRocks(Node&         parent,
                 physicsBody->shape(rock.physicsShape);
 
                 const float angularVariance = radians(30.0f);
-                physicsBody->angularVelocity({
-                    uniform_linear(-angularVariance, angularVariance),
-                    uniform_linear(-angularVariance, angularVariance),
-                    uniform_linear(-angularVariance, angularVariance),
-                });
+                physicsBody->angularVelocity({uniform_linear(-angularVariance, angularVariance),
+                                              uniform_linear(-angularVariance, angularVariance),
+                                              uniform_linear(-angularVariance, angularVariance)});
 
                 node->physicsBody(std::move(physicsBody));
 

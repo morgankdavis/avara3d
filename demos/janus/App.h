@@ -17,7 +17,7 @@
 
 #include "a3d/Application.h"
 #include "a3d/Math.h"
-#include "a3d/extension/TransientNodeRegistry.h"
+#include "a3d/extension/Transients.h"
 #include "a3d/extension/Wander.h"
 #include "a3d/extension/camera/TurntableCameraController.h"
 
@@ -116,23 +116,23 @@ namespace demo::janus {
 
         /// Private Member Variables ///
 
-        std::unique_ptr<a3d::Window>                   _window;
-        std::shared_ptr<a3d::Node>                     _simulationRoot;
-        std::shared_ptr<a3d::Node>                     _cameraNode;
-        a3d::ext::TurntableCameraController            _cameraController;
-        std::weak_ptr<a3d::Node>                       _hoveredNode;
-        std::optional<PickResult>                      _selection;
-        std::shared_ptr<a3d::Node>                     _cursorMarker;
-        std::optional<PickResult>                      _actionTarget;
-        Action                                         _action;
-        DropAction                                     _dropAction;
-        ThrowAction                                    _throwAction;
-        Pokiness                                       _pokiness;
-        a3d::ext::TransientNodeRegistry                _transients;
-        double                                         _backgroundRotationTime;
-        std::vector<std::unique_ptr<a3d::ext::Wander>> _orbWanders;
-        std::vector<PickIgnore>                        _pickIgnores;
-        bool                                           _pendingReset;
+        std::unique_ptr<a3d::Window>        _window;
+        std::shared_ptr<a3d::Node>          _simulationRoot;
+        std::shared_ptr<a3d::Node>          _cameraNode;
+        a3d::ext::TurntableCameraController _cameraController;
+        std::weak_ptr<a3d::Node>            _hoveredNode;
+        std::optional<PickResult>           _selection;
+        std::shared_ptr<a3d::Node>          _cursorMarker;
+        std::optional<PickResult>           _actionTarget;
+        Action                              _action;
+        DropAction                          _dropAction;
+        ThrowAction                         _throwAction;
+        Pokiness                            _pokiness;
+        a3d::ext::Transients                _transients;
+        double                              _backgroundRotationTime;
+        std::vector<a3d::ext::Wander>       _orbWanders;
+        std::vector<PickIgnore>             _pickIgnores;
+        bool                                _pendingReset;
     };
 
 }

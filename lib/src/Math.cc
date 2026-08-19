@@ -648,6 +648,18 @@ namespace a3d::math {
         return f32vec4 {a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w};
     }
 
+    f32vec2 operator*(const f32vec2& a, const f32vec2& b) {
+        return f32vec2 {a.x * b.x, a.y * b.y};
+    }
+
+    f32vec3 operator*(const f32vec3& a, const f32vec3& b) {
+        return f32vec3 {a.x * b.x, a.y * b.y, a.z * b.z};
+    }
+
+    f32vec4 operator*(const f32vec4& a, const f32vec4& b) {
+        return f32vec4 {a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w};
+    }
+
     f32vec2 operator*(const f32vec2& v, f32 s) {
         return f32vec2 {v.x * s, v.y * s};
     }
@@ -670,6 +682,18 @@ namespace a3d::math {
 
     f32vec4 operator*(f32 s, const f32vec4& v) {
         return v * s;
+    }
+
+    f32vec2 operator/(const f32vec2& a, const f32vec2& b) {
+        return f32vec2 {a.x / b.x, a.y / b.y};
+    }
+
+    f32vec3 operator/(const f32vec3& a, const f32vec3& b) {
+        return f32vec3 {a.x / b.x, a.y / b.y, a.z / b.z};
+    }
+
+    f32vec4 operator/(const f32vec4& a, const f32vec4& b) {
+        return f32vec4 {a.x / b.x, a.y / b.y, a.z / b.z, a.w / b.w};
     }
 
     f32vec2 operator/(const f32vec2& v, f32 s) {
@@ -729,6 +753,27 @@ namespace a3d::math {
         return a;
     }
 
+    f32vec2& operator*=(f32vec2& a, const f32vec2& b) {
+        a.x *= b.x;
+        a.y *= b.y;
+        return a;
+    }
+
+    f32vec3& operator*=(f32vec3& a, const f32vec3& b) {
+        a.x *= b.x;
+        a.y *= b.y;
+        a.z *= b.z;
+        return a;
+    }
+
+    f32vec4& operator*=(f32vec4& a, const f32vec4& b) {
+        a.x *= b.x;
+        a.y *= b.y;
+        a.z *= b.z;
+        a.w *= b.w;
+        return a;
+    }
+
     f32vec2& operator*=(f32vec2& v, f32 s) {
         v.x *= s;
         v.y *= s;
@@ -748,6 +793,27 @@ namespace a3d::math {
         v.z *= s;
         v.w *= s;
         return v;
+    }
+
+    f32vec2& operator/=(f32vec2& a, const f32vec2& b) {
+        a.x /= b.x;
+        a.y /= b.y;
+        return a;
+    }
+
+    f32vec3& operator/=(f32vec3& a, const f32vec3& b) {
+        a.x /= b.x;
+        a.y /= b.y;
+        a.z /= b.z;
+        return a;
+    }
+
+    f32vec4& operator/=(f32vec4& a, const f32vec4& b) {
+        a.x /= b.x;
+        a.y /= b.y;
+        a.z /= b.z;
+        a.w /= b.w;
+        return a;
     }
 
     f32vec2& operator/=(f32vec2& v, f32 s) {
