@@ -18,15 +18,10 @@
 #include "a3d/log/Log.h"
 #include "a3d/mesh/ConvexDecomposer.h"
 #include "a3d/mesh/Mesh.h"
+#include "a3d/mesh/MeshElement.h"
 #include "a3d/mesh/PrimitiveTopology.h"
 #include "a3d/mesh/VertexAccess.h"
 #include "a3d/mesh/VertexLayoutDesc.h"
-#include "a3d/mesh/primitive/Box.h"
-#include "a3d/mesh/primitive/Capsule.h"
-#include "a3d/mesh/primitive/Cone.h"
-#include "a3d/mesh/primitive/Cylinder.h"
-#include "a3d/mesh/primitive/Plane.h"
-#include "a3d/mesh/primitive/Sphere.h"
 #include "a3d/physics/PhysicsBody.h"
 #include "a3d/physics/shape/PhysicsShape.h"
 #include "a3d/physics/backend/bullet/BulletWorldProxy.h"
@@ -300,51 +295,12 @@ unique_ptr<btCollisionShape> BTShapeFromMeshElement(MeshElement&                
 
         return compoundShape;
     }
-    else if (auto box = dynamic_cast<Box*>(&element)) {
-        log::i()("Creating box physics shape for MeshElement {:p}... "
-                 "(ignoring physics shape type '{}')",
-                 static_cast<void*>(&element), util::enums::enum_name(shapeType));
+    else if (shapeType == PhysicsShape::Type::Primitive) {
 
-        return make_unique<btBoxShape>(btVector3((btScalar) box->width() / 2.0f,
-                                                 (btScalar) box->height() / 2.0f,
-                                                 (btScalar) box->length() / 2.0f));
+        // gross
+        log::e()("Primitive PhysicsShape cannot be generated from a generic MeshElement.");
+        return nullptr;
     }
-    else if (auto capsule = dynamic_cast<Capsule*>(&element)) {
-        log::i()("Creating capsule physics shape for MeshElement {:p}... "
-                 "(ignoring physics shape type '{}')",
-                 static_cast<void*>(&element), util::enums::enum_name(shapeType));
-
-        return make_unique<btCapsuleShape>((btScalar) capsule->radius(), (btScalar) capsule->height());
-    }
-    else if (auto cone = dynamic_cast<Cone*>(&element)) {
-        log::i()("Creating cone physics shape for MeshElement {:p}... "
-                 "(ignoring physics shape type '{}')",
-                 static_cast<void*>(&element), util::enums::enum_name(shapeType));
-
-        return make_unique<btConeShape>((btScalar) cone->radius(), (btScalar) cone->height());
-    }
-    else if (auto cylinder = dynamic_cast<Cylinder*>(&element)) {
-        log::i()("Creating cylinder physics shape for MeshElement {:p}... "
-                 "(ignoring physics shape type '{}')",
-                 static_cast<void*>(&element), util::enums::enum_name(shapeType));
-
-        return make_unique<btCylinderShape>(btVector3((btScalar) cylinder->radius(),
-                                                      (btScalar) cylinder->height() / 2.0f,
-                                                      (btScalar) cylinder->radius()));
-    }
-    else if (auto plane = dynamic_cast<Plane*>(&element)) {
-        // a3d::Plane is not a true plane, it has a length and width, so we need to use a btBoxShape
-        return make_unique<btBoxShape>(btVector3((btScalar) plane->width() / 2.0f,
-                                                 (btScalar) plane->height() / 2.0f, (btScalar) 0));
-    }
-    else if (auto sphere = dynamic_cast<Sphere*>(&element)) {
-        log::i()("Creating sphere physics shape for MeshElement {:p}... "
-                 "(ignoring physics shape type '{}')",
-                 static_cast<void*>(&element), util::enums::enum_name(shapeType));
-
-        return make_unique<btSphereShape>((btScalar) sphere->radius());
-    }
-    // * no Bullet primitives for Torus or Tube *
     else if (shapeType == PhysicsShape::Type::ConvexHull) {
 
         return BTConvexHullShapeFromMeshElement(element);

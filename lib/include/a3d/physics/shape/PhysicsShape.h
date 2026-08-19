@@ -30,7 +30,7 @@ namespace a3d {
         /// Public Types ///
 
         enum class Type : uint8_t {
-            Primitive, // eh, do something else
+            Primitive, // TODO: change this
             BoundingBox,
             ConvexHull,
             ConcavePolyhedron

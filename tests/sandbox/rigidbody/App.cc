@@ -83,12 +83,10 @@ unique_ptr<Scene> App::init() {
         _window->cursorCaptured(CAPTURE_CURSOR);
 
         auto visualWorld = make_unique<VisualWorld>(*_window);
-        visualWorld->fog(Fog {
-            .color = Color::DarkGray(),
-            .startDistance = 50.0f,
-            .endDistance = 400.0f,
-            .transitionExponent = 1.0f,
-        });
+        visualWorld->fog(Fog {.color = Color::DarkGray(),
+                              .startDistance = 50.0f,
+                              .endDistance = 400.0f,
+                              .transitionExponent = 1.0f});
         Material::Property background = Color::Black();
         // auto background = make_shared<Texture>(util::filesystem::CubeImageNamed("stormy"));
         visualWorld->background(Background {Color::Black()});
@@ -128,11 +126,7 @@ unique_ptr<Scene> App::init() {
 
         auto scene =
             make_unique<Scene>(std::move(visualWorld), std::move(physicsWorld), Window::InputContext());
-        scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay | Scene::DebugOptions::ShowPhysicsWireframes
-                    | Scene::DebugOptions::ShowPhysicsNormals);
-        // scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay | Scene::DebugOptions::ShowPhysicsWireframes
-        //                     | Scene::DebugOptions::ShowPhysicsContactPoints);
-        //scene->visualWorld()->usesDefaultLighting(true);
+        scene->debugOptions(Scene::DebugOptions::ShowStatsOverlay);
 
         // ambient light
 
@@ -256,34 +250,36 @@ unique_ptr<Scene> App::init() {
 
         // add contact test boxes
 
-        auto contactTestMesh = Box::Mesh(1.0f, 1.0f, 1.0f);
-        auto contactTestShape = make_shared<PhysicsShape>(PhysicsShape::Type::BoundingBox, contactTestMesh);
-
-        auto addContactTestBox = [&](const string& name, const vec3& position, const Color& color) {
-            auto node = Node::MeshNode(contactTestMesh);
-            node->name(name);
-            node->position(position);
-
-            auto material = make_shared<Material>(monostate {}, monostate {}, monostate {}, color);
-            node->mesh()->addMaterial(material);
-
-            auto body = make_unique<PhysicsBody>(PhysicsBody::Type::Kinematic, contactTestShape);
-
-            node->physicsBody(std::move(body));
-            scene->rootNode()->addChild(node);
-
-            return node;
-        };
-
-        auto testA = addContactTestBox("Contact Test A", {15.0f, 5.0f, 10.0f}, Color::Red());
-        auto testB = addContactTestBox("Contact Test B", {15.75f, 5.0f, 10.0f}, Color::Green());
-        auto testC = addContactTestBox("Contact Test C", {15.0f, 5.0f, 10.75f}, Color::Blue());
-        auto testD = addContactTestBox("Contact Test D", {18.0f, 5.0f, 10.0f}, Color::Yellow());
-
-        _contactTestA = testA;
-        _contactTestB = testB;
-        _contactTestC = testC;
-        _contactTestD = testD;
+        // {
+        //     auto contactTestMesh = Box::Mesh(1.0f, 1.0f, 1.0f);
+        //     auto contactTestShape = make_shared<PhysicsShape>(PhysicsShape::Type::BoundingBox, contactTestMesh);
+        //
+        //     auto addContactTestBox = [&](const string& name, const vec3& position, const Color& color) {
+        //         auto node = Node::MeshNode(contactTestMesh);
+        //         node->name(name);
+        //         node->position(position);
+        //
+        //         auto material = make_shared<Material>(monostate {}, monostate {}, monostate {}, color);
+        //         node->mesh()->addMaterial(material);
+        //
+        //         auto body = make_unique<PhysicsBody>(PhysicsBody::Type::Kinematic, contactTestShape);
+        //
+        //         node->physicsBody(std::move(body));
+        //         scene->rootNode()->addChild(node);
+        //
+        //         return node;
+        //     };
+        //
+        //     auto testA = addContactTestBox("Contact Test A", {15.0f, 5.0f, 10.0f}, Color::Red());
+        //     auto testB = addContactTestBox("Contact Test B", {15.75f, 5.0f, 10.0f}, Color::Green());
+        //     auto testC = addContactTestBox("Contact Test C", {15.0f, 5.0f, 10.75f}, Color::Blue());
+        //     auto testD = addContactTestBox("Contact Test D", {18.0f, 5.0f, 10.0f}, Color::Yellow());
+        //
+        //     _contactTestA = testA;
+        //     _contactTestB = testB;
+        //     _contactTestC = testC;
+        //     _contactTestD = testD;
+        // }
 
         // setup camera
 

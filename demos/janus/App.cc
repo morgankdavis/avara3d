@@ -290,7 +290,6 @@ std::unique_ptr<Scene> App::init() {
                                math::uniform_linear(ORB_POSITION_MIN.z, ORB_POSITION_MAX.z)});
 
                 orb->physicsBody(PhysicsBody::KinematicBody());
-                // TODO: make sphere physics shape
 
                 orbGroup->addChild(orb);
 
