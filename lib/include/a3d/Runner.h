@@ -133,7 +133,7 @@ namespace a3d {
          */
         void           stop();
 
-        /** @return true when automatic simulation stepping is paused. */
+        /** @brief Returns true when automatic simulation stepping is paused. */
         bool           simulationPaused() const;
 
         /**
@@ -174,13 +174,13 @@ namespace a3d {
          */
         void           resetSimulation();
 
-        /** @return the currently installed host update callback. */
+        /** @brief Returns the currently installed host update callback. */
         UpdateCallback updateCallback() const;
 
         /** @brief Replaces the host update callback; an empty callback disables it. */
         void           updateCallback(UpdateCallback callback);
 
-        /** @return the fixed simulation step duration in seconds. */
+        /** @brief Returns the fixed simulation step duration in seconds. */
         double         timeStep() const;
 
         /**
@@ -192,7 +192,7 @@ namespace a3d {
          */
         void           timeStep(double value);
 
-        /** @return the maximum number of automatic catch-up steps permitted per host update. */
+        /** @brief Returns the maximum number of automatic catch-up steps permitted per host update. */
         std::uint32_t  maxCatchUpSteps() const;
 
         /**
@@ -202,7 +202,7 @@ namespace a3d {
          */
         void           maxCatchUpSteps(std::uint32_t value);
 
-        /** @return the scale applied to elapsed host time for automatic simulation stepping. */
+        /** @brief Returns the scale applied to elapsed host time for automatic simulation stepping. */
         double         timeScale() const;
 
         /**
@@ -214,19 +214,19 @@ namespace a3d {
          */
         void           timeScale(double value);
 
-        /** @return total simulated time in seconds completed by fixed simulation steps. */
+        /** @brief Returns total simulated time in seconds completed by fixed simulation steps. */
         double         simulationTime() const;
 
-        /** @return total number of completed fixed simulation steps. */
+        /** @brief Returns the total number of completed fixed simulation steps. */
         std::uint64_t  simulationStepCount() const;
 
-        /** @return the current Runner lifecycle state. */
+        /** @brief Returns the current Runner lifecycle state. */
         State          state() const;
 
-        /** @return the Scene driven by this Runner. */
+        /** @brief Returns the Scene driven by this Runner. */
         Scene&         scene();
 
-        /** @return the Scene driven by this Runner. */
+        /** @brief Returns the Scene driven by this Runner. */
         const Scene&   scene() const;
 
         // [Internal Member Functions]
