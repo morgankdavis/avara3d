@@ -109,7 +109,7 @@ namespace a3d {
          *
          * @param path glTF scene file to import.
          * @param options resource categories to import.
-         * @return the imported Scene.
+         * @return The imported Scene.
          */
         static std::unique_ptr<Scene> FromFile(const std::filesystem::path& path,
                                                ImportOptions                options = ImportOptions::ImportAll);
@@ -151,13 +151,13 @@ namespace a3d {
 
         // [Public Member Functions]
 
-        /** @return the optional Scene name. */
+        /** @brief Returns the optional Scene name. */
         const std::optional<std::string>& name() const;
 
         /** @brief Sets the Scene name. */
         void                              name(const std::string& name);
 
-        /** @return the root node of the Scene hierarchy. */
+        /** @brief Returns the root node of the Scene hierarchy. */
         const std::shared_ptr<Node>&      rootNode() const;
 
         /**
@@ -169,43 +169,43 @@ namespace a3d {
          */
         void                              rootNode(const std::shared_ptr<Node>& node);
 
-        /** @return the owned VisualWorld, or nullptr if none is installed. */
+        /** @brief Returns the owned VisualWorld, or nullptr if none is installed. */
         VisualWorld*                      visualWorld() const;
 
         /** @brief Replaces the owned VisualWorld; nullptr removes the current world. */
         void                              visualWorld(std::unique_ptr<VisualWorld> world);
 
-        /** @return the owned PhysicsWorld, or nullptr if none is installed. */
+        /** @brief Returns the owned PhysicsWorld, or nullptr if none is installed. */
         PhysicsWorld*                     physicsWorld() const;
 
         /** @brief Replaces the owned PhysicsWorld; nullptr removes the current world. */
         void                              physicsWorld(std::unique_ptr<PhysicsWorld> world);
 
-        /** @return the owned InputContext, or nullptr if none is installed. */
+        /** @brief Returns the owned InputContext, or nullptr if none is installed. */
         InputContext*                     inputContext() const;
 
         /** @brief Replaces the owned InputContext; nullptr removes the current context. */
         void                              inputContext(std::unique_ptr<InputContext> context);
 
-        /** @return the world-space axis-aligned bounding box enclosing the Scene hierarchy. */
+        /** @brief Returns the world-space axis-aligned bounding box enclosing the Scene hierarchy. */
         AABB                              aabb(bool vertfit = false) const;
 
-        /** @return the dimensions of the Scene world-space axis-aligned bounding box. */
+        /** @brief Returns the dimensions of the Scene world-space axis-aligned bounding box. */
         math::vec3                        extent(bool vertfit = false) const;
 
-        /** @return the enabled Scene debug visualization options. */
+        /** @brief Returns the enabled Scene debug visualization options. */
         DebugOptions                      debugOptions() const;
 
         /** @brief Sets the enabled Scene debug visualization options. */
         void                              debugOptions(DebugOptions options);
 
-        /** @return the callback invoked before each simulation step. */
+        /** @brief Returns the callback invoked before each simulation step. */
         WillStepCallback                  willStepCallback() const;
 
         /** @brief Replaces the callback invoked before each simulation step. */
         void                              willStepCallback(WillStepCallback callback);
 
-        /** @return the callback invoked after each simulation step. */
+        /** @brief Returns the callback invoked after each simulation step. */
         DidStepCallback                   didStepCallback() const;
 
         /** @brief Replaces the callback invoked after each simulation step. */
