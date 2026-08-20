@@ -26,15 +26,28 @@ namespace a3d {
     class Renderer;
     class Scene;
 
+    /** @brief Window-backed RenderContext used for interactive desktop and web rendering. */
     class Window : public RenderContext {
 
     public:
         // [Public Static Member Functions]
 
+        /** @brief Creates the DesktopInputContext implementation used by Window. */
         static std::unique_ptr<DesktopInputContext> InputContext();
 
         // [Public Lifecycle Functions]
 
+        /**
+         * @brief Creates a rendering window and its rendering resources.
+         *
+         * For a windowed context, @p size specifies the initial window size. Full-screen
+         * windows use the primary monitor's current video mode. High-DPI and antialiasing
+         * requests are applied when supported by the platform.
+         *
+         * Only RenderingApi::OpenGL is currently supported.
+         *
+         * @throws std::runtime_error if the requested rendering API or window/context initialization fails.
+         */
         Window(RenderingApi       renderingAPI,
                const std::string& title,
                const math::uvec2& size,
@@ -52,36 +65,77 @@ namespace a3d {
 
         // [Public Member Functions]
 
+        /**
+         * @brief Shows the window and begins accepting normal window callbacks.
+         *
+         * @throws std::runtime_error if the Window has no VisualWorld attached to a Scene.
+         */
         void        open();
+
+        /** @brief Closes the window and releases pointer capture. */
         void        close();
 
+        /** @brief Returns whether the Window has been opened and not subsequently closed. */
         bool        isOpen() const;
 
+        /** @brief Returns the window title; web builds currently return an empty string. */
         std::string title() const;
+
+        /** @brief Sets the window title. */
         void        title(const std::string& title);
 
+        /** @brief Returns the window size in platform window coordinates. */
         math::uvec2 size() const;
+
+        /** @brief Sets the window size in platform window coordinates. */
         void        size(const math::uvec2& size);
 
+        /** @brief Returns the window position in screen coordinates. */
         math::uvec2 position() const;
+
+        /** @brief Sets the window position in screen coordinates. */
         void        position(const math::uvec2& pos);
 
+        /** @brief Centers the window on its current monitor when supported by the platform. */
         void        center();
 
+        /** @brief Returns whether the window is explicitly hidden. */
         bool        hidden() const;
+
+        /** @brief Shows or hides the window. */
         void        hidden(bool hidden);
 
+        /** @brief Returns whether pointer input is captured by the window. */
         bool        cursorCaptured() const;
+
+        /**
+         * @brief Captures or releases pointer input.
+         *
+         * Capturing locks pointer motion to the window and hides the pointer. Releasing
+         * capture restores the state requested by cursorHidden().
+         */
         void        cursorCaptured(bool captured);
 
+        /** @brief Returns whether the pointer is requested to be hidden when not captured. */
         bool        cursorHidden() const;
+
+        /** @brief Shows or hides the pointer when pointer capture is disabled. */
         void        cursorHidden(bool hidden);
 
+        /** @brief Returns whether high-DPI rendering was requested when the Window was created. */
         bool        highDPIEnabled() const;
 
-        // [RenderContext Public Member Functions]
+        // [Public RenderContext Member Functions]
 
+        /** @brief Returns whether vertical synchronization is enabled. */
         bool        vSyncEnabled() const override;
+
+        /**
+         * @brief Enables or disables vertical synchronization when supported.
+         *
+         * Browser presentation timing is controlled by the browser main loop; web
+         * builds report VSync enabled and do not support disabling it.
+         */
         void        vSyncEnabled(bool enabled) override;
 
         // [RenderContext Internal Member Functions]

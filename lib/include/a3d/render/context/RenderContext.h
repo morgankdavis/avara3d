@@ -24,30 +24,49 @@ namespace a3d {
     class Scene;
     class VisualWorld;
 
+    /**
+     * @brief Abstract rendering destination used by VisualWorld.
+     *
+     * A RenderContext owns the renderer resources associated with a rendering target.
+     * A VisualWorld constructed with the context registers itself with the context;
+     * visualWorld() exposes the currently registered attachment non-owningly.
+     */
     class RenderContext {
 
     public:
         // [Public Types]
 
+        /** @brief Selects multisample antialiasing requested for the rendering target. */
         enum class Antialiasing : uint8_t {
-            None    = 0,
-            Msaa2X  = 2,
-            Msaa4X  = 4,
-            Msaa8X  = 8,
-            Msaa16X = 16
+            None    = 0,  ///< No multisample antialiasing.
+            Msaa2X  = 2,  ///< Two samples per pixel.
+            Msaa4X  = 4,  ///< Four samples per pixel.
+            Msaa8X  = 8,  ///< Eight samples per pixel.
+            Msaa16X = 16  ///< Sixteen samples per pixel.
         };
 
         // [Public Member Functions]
 
+        /** @brief Returns whether presentation synchronization is enabled for this context. */
         virtual bool           vSyncEnabled() const       = 0;
+
+        /** @brief Enables or disables presentation synchronization when supported by the concrete context. */
         virtual void           vSyncEnabled(bool enabled) = 0;
 
+        /** @brief Returns the antialiasing mode selected when the rendering target was created. */
         Antialiasing           antialiasing() const;
 
+        /**
+         * @brief Captures the current framebuffer into a new Image at framebuffer resolution.
+         *
+         * @return The captured Image, or nullptr if no renderer is available.
+         */
         std::unique_ptr<Image> snapshot() const;
 
+        /** @brief Returns the attached VisualWorld, or nullptr if none is attached. */
         VisualWorld*           visualWorld() const;
 
+        /** @brief Returns the non-owning renderer used by this context, or nullptr if unavailable. */
         Renderer*              renderer() const;
 
         // [Internal Types]
