@@ -17,11 +17,18 @@ namespace a3d {
 
     class Profiler;
 
+    /**
+     * @brief RAII timer that accumulates its lifetime into a Profiler tag.
+     *
+     * ScopeTimer retains the supplied Profiler non-owningly; the Profiler must outlive
+     * the timer.
+     */
     class ScopeTimer {
 
     public:
         // [Public Lifecycle Functions]
 
+        /** @brief Begins timing immediately and associates the elapsed duration with @p tag. */
         ScopeTimer(Profiler& profiler, Profiler::Tag tag);
 
         ScopeTimer(const ScopeTimer&)            = delete;
@@ -30,6 +37,7 @@ namespace a3d {
         ScopeTimer(ScopeTimer&&)            = delete;
         ScopeTimer& operator=(ScopeTimer&&) = delete;
 
+        /** @brief Adds the elapsed time since construction to the associated Profiler tag. */
         ~ScopeTimer();
 
     private:
