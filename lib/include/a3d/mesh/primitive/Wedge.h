@@ -34,9 +34,9 @@ namespace a3d {
         // slanted side faces +Y.
         // pointy end faces -X, thick end faces +X.
         /** @brief Creates a Mesh containing a Wedge and optional @p material. */
-        static std::shared_ptr<Mesh> Mesh(float                     length, // x
-                                          float                     width, // z
-                                          float                     height, // y
+        static std::shared_ptr<Mesh> Mesh(float                     length,
+                                          float                     width,
+                                          float                     height,
                                           unsigned                  runSegments   = DEFAULT_RUN_SEGMENTS,
                                           unsigned                  widthSegments = DEFAULT_WIDTH_SEGMENTS,
                                           unsigned                  riseSegments  = DEFAULT_RISE_SEGMENTS,
@@ -44,7 +44,6 @@ namespace a3d {
 
         // [Public Lifecycle Functions]
 
-        // z, x, y?
         /** @brief Generates wedge geometry with the supplied dimensions and subdivision counts. */
         Wedge(float    length,
               float    width,

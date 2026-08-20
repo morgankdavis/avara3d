@@ -38,9 +38,9 @@ namespace a3d {
          * @param heightSegments subdivisions along Y.
          * @param lengthSegments subdivisions along Z.
          */
-        static std::shared_ptr<Mesh> Mesh(float                     width, // x
-                                          float                     height, // y
-                                          float                     length, // z
+        static std::shared_ptr<Mesh> Mesh(float                     width,
+                                          float                     height,
+                                          float                     length,
                                           unsigned                  widthSegments  = DEFAULT_SEGMENTS,
                                           unsigned                  heightSegments = DEFAULT_SEGMENTS,
                                           unsigned                  lengthSegments = DEFAULT_SEGMENTS,

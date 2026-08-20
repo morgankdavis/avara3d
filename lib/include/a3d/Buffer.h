@@ -16,7 +16,7 @@
 namespace a3d {
 
     /**
-     * @brief Owns a contiguous byte buffer.
+     * @brief Container for a contiguous byte buffer.
      *
      * Copying a Buffer deep-copies its bytes; moving transfers the owned storage.
      */

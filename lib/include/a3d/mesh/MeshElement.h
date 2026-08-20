@@ -33,7 +33,13 @@ namespace a3d {
     class RenderContext;
     class RenderItem;
 
-    /** @brief Owns the vertex and optional index data for one mesh primitive. */
+    /**
+     * @brief Owns the vertex and optional index data for one mesh primitive.
+     *
+     * MeshElement corresponds roughly to what many 3D APIs call a "submesh" or "mesh
+     * primitive." SceneKit calls the analogous concept a "geometry element," while
+     * glTF uses the term "mesh primitive."
+     */
     class MeshElement {
 
     public:
