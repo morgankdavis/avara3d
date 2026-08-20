@@ -40,7 +40,7 @@ namespace a3d {
         /** @brief Collision-geometry representation requested for a PhysicsShape. */
         enum class Type : uint8_t {
             // TODO: change this
-            Primitive,         ///< Analytic primitive geometry supplied by a specialized PhysicsShape subclass.
+            Primitive,         ///< Reserved for internal use; public callers should not supply this value. This API is expected to change.
             BoundingBox,       ///< Bounding-box collision geometry derived from the source geometry.
             ConvexHull,        ///< Convex-hull collision geometry derived from the source geometry.
             ConcavePolyhedron  ///< Potentially concave polygonal collision geometry derived from the source geometry.
@@ -49,7 +49,7 @@ namespace a3d {
         /** @brief Weak source object used to derive collision geometry, or no source for primitive shapes. */
         using Source = std::variant<std::monostate, std::weak_ptr<Mesh>, std::weak_ptr<Node>>;
 
-        // TODO: static MeshShape(), NodeShape()
+        // TODO: add static MeshShape(), NodeShape() ?
 
         // [Public Lifecycle Functions]
 
