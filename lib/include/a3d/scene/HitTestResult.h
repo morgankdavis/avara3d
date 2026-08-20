@@ -21,28 +21,57 @@ namespace a3d {
     class MeshElement;
     class Node;
 
+    // [Public Types]
+
+    /** @brief Controls how hit-test results are selected. */
     enum class HitTestSearchMode : uint8_t {
-        Any,
-        Closest,
-        All
+        Any,     ///< Returns the first hit found, which is not necessarily the closest.
+        Closest, ///< Returns only the closest hit.
+        All      ///< Returns all hits ordered from closest to farthest.
     };
 
+    /**
+     * @brief Describes an intersection with scene geometry or a physics body.
+     *
+     * Coordinates, normals, and the model transform are snapshots from the time
+     * of the hit test. Visual geometry hits may identify a MeshElement and triangle
+     * face; physics hits do not necessarily have corresponding visual geometry.
+     *
+     * The result retains any visual Mesh needed to keep meshElement() alive, but
+     * retains the hit Node weakly.
+     */
     class HitTestResult {
 
     public:
         // [Public Member Functions]
 
+        /** @brief Returns the hit node, or nullptr if it has since been destroyed. */
         std::shared_ptr<Node>   node() const;
 
+        /** @brief Returns the hit visual mesh element, or nullptr when no visual mesh element is identified. */
         const MeshElement*      meshElement() const;
+
+        /**
+         * @brief Returns the zero-based triangle index within meshElement().
+         *
+         * @return Empty when the hit does not identify a specific triangle, such as
+         *         a bounding-box-only visual hit or a physics hit.
+         */
         std::optional<uint32_t> faceIndex() const;
 
+        /** @brief Returns the hit position in the node's local coordinate system. */
         const math::vec3&       localCoordinates() const;
+
+        /** @brief Returns the hit position in world coordinates. */
         const math::vec3&       worldCoordinates() const;
 
+        /** @brief Returns the hit surface normal in the node's local coordinate system. */
         const math::vec3&       localNormal() const;
+
+        /** @brief Returns the hit surface normal in world coordinates. */
         const math::vec3&       worldNormal() const;
 
+        /** @brief Returns the local-to-world model transform used for this hit. */
         const math::mat4&       modelTransform() const;
 
         // [Internal Lifecycle Functions]

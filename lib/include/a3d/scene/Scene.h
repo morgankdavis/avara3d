@@ -190,10 +190,20 @@ namespace a3d {
         /** @brief Replaces the owned InputContext; nullptr removes the current context. */
         void                              inputContext(std::unique_ptr<InputContext> context);
 
-        /** @brief Returns the world-space axis-aligned bounding box enclosing the Scene hierarchy. */
+        /**
+         * @brief Returns the world-space axis-aligned bounding box enclosing the Scene hierarchy.
+         *
+         * @param vertfit when true, fits bounds to transformed mesh vertices; when false,
+         *                uses transformed local mesh bounds for a faster, potentially looser result.
+         */
         AABB                              aabb(bool vertfit = false) const;
 
-        /** @brief Returns the dimensions of the Scene world-space axis-aligned bounding box. */
+        /**
+         * @brief Returns the dimensions of the Scene world-space axis-aligned bounding box.
+         *
+         * @param vertfit when true, fits bounds to transformed mesh vertices; when false,
+         *                uses transformed local mesh bounds for a faster, potentially looser result.
+         */
         math::vec3                        extent(bool vertfit = false) const;
 
         /** @brief Returns the enabled Scene debug visualization options. */
@@ -205,13 +215,13 @@ namespace a3d {
         /** @brief Returns the callback invoked before each simulation step. */
         WillStepCallback                  willStepCallback() const;
 
-        /** @brief Replaces the callback invoked before each simulation step. */
+        /** @brief Replaces the callback invoked before each simulation step; an empty callback disables it. */
         void                              willStepCallback(WillStepCallback callback);
 
         /** @brief Returns the callback invoked after each simulation step. */
         DidStepCallback                   didStepCallback() const;
 
-        /** @brief Replaces the callback invoked after each simulation step. */
+        /** @brief Replaces the callback invoked after each simulation step; an empty callback disables it. */
         void                              didStepCallback(DidStepCallback callback);
 
         // [Internal Member Functions]
