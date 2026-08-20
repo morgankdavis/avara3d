@@ -59,25 +59,28 @@ namespace a3d {
         // TODO: move to VisualWorld?
         /** @brief Scene-wide debug visualization options. */
         enum class DebugOptions : uint32_t {
-            None = 0,
+            None = 0, ///< No scene debug visualization options enabled.
 
-            ShowStatsOverlay = 1 << 0,
+            ShowStatsOverlay = 1 << 0, ///< Displays the runtime statistics overlay.
 
-            ShowMeshBounds     = 1 << 1,
-            ShowMeshFrames     = 1 << 2,
-            ShowMeshWireframes = 1 << 3,
+            ShowMeshBounds     = 1 << 1, ///< Draws bounding boxes for meshes.
+            ShowMeshFrames     = 1 << 2, ///< Draws each mesh's local coordinate frame.
+            ShowMeshWireframes = 1 << 3, ///< Renders meshes as wireframes.
 
-            ShowCameras      = 1 << 4, // not implemented
-            ShowLights       = 1 << 5, // not implemented
-            ShowLightExtents = 1 << 6, // not implemented
+            ShowCameras      = 1 << 4, ///< Displays camera debug geometry. Not currently implemented.
+            ShowLights       = 1 << 5, ///< Displays light debug geometry. Not currently implemented.
+            ShowLightExtents = 1 << 6, ///< Displays light extents. Not currently implemented.
 
-            ShowPhysicsBounds           = 1 << 7,
-            ShowPhysicsFrames           = 1 << 8,
-            ShowPhysicsWireframes       = 1 << 9,
-            ShowPhysicsContactPoints    = 1 << 10,
-            ShowPhysicsNormals          = 1 << 11,
-            ShowPhysicsConstraints      = 1 << 12, // not implemented
-            ShowPhysicsConstraintLimits = 1 << 13, // not implemented
+            ShowPhysicsBounds        = 1 << 7,  ///< Draws axis-aligned bounds for physics collision objects.
+            ShowPhysicsFrames        = 1 << 8,  ///< Draws coordinate frames for physics bodies.
+            ShowPhysicsWireframes    = 1 << 9,  ///< Draws physics collision geometry as wireframes.
+            ShowPhysicsContactPoints = 1 << 10, ///< Draws physics contact points.
+            ShowPhysicsNormals       = 1 << 11, ///< Draws contact normals.
+
+            ShowPhysicsConstraints = 1 << 12, ///< Displays physics constraints. Not currently implemented.
+
+            ShowPhysicsConstraintLimits =
+                1 << 13, ///< Displays physics constraint limits. Not currently implemented.
         };
 
         /** @brief Timing information for one simulation step. */
@@ -100,7 +103,7 @@ namespace a3d {
         using WillStepCallback = std::function<void(Scene& scene, const StepInfo& info)>;
 
         /** @brief Callback invoked immediately after a Scene simulation step. */
-        using DidStepCallback  = std::function<void(Scene& scene, const StepInfo& info)>;
+        using DidStepCallback = std::function<void(Scene& scene, const StepInfo& info)>;
 
         // [Public Static Member Functions]
 
