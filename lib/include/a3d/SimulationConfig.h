@@ -16,13 +16,15 @@ namespace a3d {
     /**
      * @brief Initial simulation scheduling parameters supplied to a Runner.
      *
-     * Runner copies this structure at construction. Runtime-configurable values
-     * are exposed individually by Runner rather than by exposing the copied
-     * configuration.
+     * Runner copies this structure at construction. Values are validated when
+     * Runner::start() is called. Runtime-configurable values are exposed
+     * individually by Runner rather than by exposing the copied configuration.
      *
      * @see Runner
      */
     struct SimulationConfig {
+
+        // [Public Member Variables]
 
         /**
          * @brief Initial duration, in seconds, of each simulation step.
@@ -42,10 +44,10 @@ namespace a3d {
         std::uint32_t maxCatchUpSteps {8};
 
         /**
-         * @brief Initial automatic simulation-time rate relative to host time.
+         * @brief Initial multiplier applied to elapsed host time for automatic simulation stepping.
          *
-         * The value must be finite and positive. Requested paused steps ignore
-         * this scale.
+         * The value must be finite and positive. A value of 1.0 advances simulation
+         * at the host-time rate. Requested paused steps ignore this scale.
          */
         double        timeScale {1.0};
     };
