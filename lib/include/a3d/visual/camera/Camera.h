@@ -46,7 +46,6 @@ namespace a3d {
 
         // [Internal Member Functions]
 
-        // virtual math::mat4                projection() const = 0;
         virtual math::mat4                projection(const math::uvec2& viewportSize) const = 0;
 
     protected:

@@ -61,11 +61,6 @@ namespace a3d {
 
         math::mat4                  projection(const math::uvec2& framebufferSize) const override;
 
-    protected:
-        // [Camera Protected Member Functions]
-
-//		void 			constructProjectionMatrix() override;
-
     private:
         // [Private Member Variables]
 

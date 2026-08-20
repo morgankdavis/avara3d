@@ -20,8 +20,8 @@ using namespace std;
 SpotLight::SpotLight():
     Light() {
     // see DeVries 16.5
-    _innerAngleCos = static_cast<float>(math::cos(10.0));
-    _outerAngleCos = static_cast<float>(math::cos(15.0));
+    _innerAngleCos = math::radians(15.0f);
+    _outerAngleCos = math::radians(25.0f);
     _featherMode = FeatheringMode::Linear;
 }
 

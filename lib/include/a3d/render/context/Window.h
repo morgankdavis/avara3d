@@ -26,7 +26,13 @@ namespace a3d {
     class Renderer;
     class Scene;
 
-    /** @brief Window-backed RenderContext used for interactive desktop and web rendering. */
+    /**
+     * @brief RenderContext for interactive desktop and web rendering.
+     *
+     * On desktop, Window represents a native application window. On web builds,
+     * it represents an HTML canvas backed by WebGL. A3D uses the page's "#canvas"
+     * element for browser-specific rendering and input integration.
+     */
     class Window : public RenderContext {
 
     public:
