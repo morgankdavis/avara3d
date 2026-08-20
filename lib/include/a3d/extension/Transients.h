@@ -180,7 +180,7 @@ namespace a3d::ext {
          */
         void untrack(const Node& node);
 
-        /** @return the global removal policy. */
+        /** @brief Returns the global removal policy. */
         const Policy& policy() const;
 
         /**
@@ -207,7 +207,7 @@ namespace a3d::ext {
          */
         void groupPolicy(const std::string& group, const Policy& policy);
 
-        /** @return the scheduling policy used by update(). */
+        /** @brief Returns the scheduling policy used by update(). */
         const SweepPolicy& sweepPolicy() const;
 
         /**
