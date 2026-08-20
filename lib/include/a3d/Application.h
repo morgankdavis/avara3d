@@ -28,12 +28,20 @@
 namespace a3d {
 
     /**
-     * @brief Coordinates the top-level lifecycle of an A3D application.
+     * @brief Base class and top-level entry point for A3D applications.
+     *
+     * Applications normally derive from Application, implement init() to create
+     * the initial Scene, and optionally override the protected lifecycle and
+     * simulation callbacks. Transfer ownership of the derived instance to Run(),
+     * which drives the platform host loop for the lifetime of the application.
      *
      * Application owns the Scene and Runner created for an application and
-     * coordinates initialization, host updates, simulation callbacks, rendering,
-     * and shutdown. Run() takes ownership of an Application instance and drives
-     * its platform-specific host loop.
+     * coordinates initialization, host updates, input, simulation callbacks,
+     * rendering, contact callbacks, and shutdown.
+     *
+     * Unlike other A3D classes, Application is intentionally designed to be
+     * subclassed by application code; its protected API is part of the supported
+     * application interface.
      */
     class Application {
 
@@ -58,6 +66,9 @@ namespace a3d {
         /**
          * @brief Creates application state from process arguments and configures logging.
          *
+         * Derived application constructors normally forward their process arguments
+         * and desired initial log level to this constructor.
+         *
          * @param argc number of process command-line arguments.
          * @param argv process command-line argument array.
          * @param logLevel initial application log level.
@@ -75,49 +86,164 @@ namespace a3d {
     protected:
         // [Protected Types]
 
+        /** @brief Callable queued for execution at a simulation-step boundary. */
         using SceneCommand = std::function<void(Scene&)>;
 
         // [Protected Member Functions]
 
+        /**
+         * @brief Creates the initial Scene for the application.
+         *
+         * Called once during startup before the Runner is created. Implementations
+         * must return a non-null Scene. runner() and scene() are not available while
+         * init() is executing.
+         *
+         * @return the Scene to own and drive for the lifetime of the application.
+         */
         virtual std::unique_ptr<Scene>  init() = 0;
+
+        /**
+         * @brief Supplies the initial simulation scheduling configuration.
+         *
+         * Called once after init() and before the Runner is started. The default
+         * implementation returns a default-constructed SimulationConfig.
+         */
         virtual SimulationConfig        simulationConfig() const;
+
+        /**
+         * @brief Determines whether the application host loop should continue.
+         *
+         * Called before each Runner host update. Returning false stops the Runner
+         * and begins application shutdown. The default implementation returns true.
+         */
         virtual bool                    shouldContinue(const Scene& scene);
+
+        /**
+         * @brief Called after the Runner and Scene have been destroyed during shutdown.
+         *
+         * The default implementation does nothing. Exceptions escaping this hook
+         * are ignored because application teardown must not throw.
+         */
         virtual void                    didShutdown();
 
+        /**
+         * @brief Returns the application's Runner after initialization.
+         *
+         * @throws std::logic_error if the Runner has not yet been initialized.
+         */
         Runner&                         runner();
+
+        /**
+         * @brief Returns the application's Runner after initialization.
+         *
+         * @throws std::logic_error if the Runner has not yet been initialized.
+         */
         const Runner&                   runner() const;
 
+        /**
+         * @brief Returns the application's Scene after initialization.
+         *
+         * @throws std::logic_error if the Scene has not yet been initialized.
+         */
         Scene&                          scene();
+
+        /**
+         * @brief Returns the application's Scene after initialization.
+         *
+         * @throws std::logic_error if the Scene has not yet been initialized.
+         */
         const Scene&                    scene() const;
 
+        /**
+         * @brief Queues @p command to run before the next simulation step.
+         *
+         * The command runs before sceneWillStep() and before physics advances.
+         *
+         * @throws std::invalid_argument if @p command is empty.
+         */
         void                            queueScenePreStepCommand(SceneCommand command);
+
+        /**
+         * @brief Queues @p command to run after the next simulation step.
+         *
+         * The command runs after physics advances and before sceneDidStep().
+         *
+         * @throws std::invalid_argument if @p command is empty.
+         */
         void                            queueScenePostStepCommand(SceneCommand command);
 
+        /** @brief Returns process command-line arguments excluding the executable name. */
         const std::vector<std::string>& args() const;
 
+        /**
+         * @brief Called near the beginning of each Runner host update.
+         *
+         * This hook runs before event polling, input update, simulation scheduling,
+         * and rendering. The default implementation does nothing.
+         */
         virtual void runnerUpdate(Runner& runner, Scene& scene, const Runner::UpdateInfo& info);
 
+        /**
+         * @brief Called after the InputContext has processed the current host update.
+         *
+         * The default implementation does nothing.
+         */
         virtual void inputDidUpdate(Runner&       runner,
                                     Scene&        scene,
                                     InputContext& inputContext,
                                     const InputContext::UpdateInfo&);
 
+        /**
+         * @brief Called immediately before each Scene simulation step.
+         *
+         * Queued pre-step Scene commands execute before this hook. The default
+         * implementation does nothing.
+         */
         virtual void sceneWillStep(Runner& runner, Scene& scene, const Scene::StepInfo& info);
+
+        /**
+         * @brief Called immediately after each Scene simulation step.
+         *
+         * Queued post-step Scene commands execute before this hook. The default
+         * implementation does nothing.
+         */
         virtual void sceneDidStep(Runner& runner, Scene& scene, const Scene::StepInfo& info);
 
+        /**
+         * @brief Called after a render frame begins and before scene traversal and drawing.
+         *
+         * The default implementation does nothing.
+         */
         virtual void frameDidBegin(Runner&                        runner,
                                    Scene&                         scene,
                                    VisualWorld&                   visualWorld,
                                    const VisualWorld::RenderInfo& info);
 
+        /**
+         * @brief Called when the PhysicsWorld reports the beginning of a contact.
+         *
+         * The default implementation does nothing.
+         */
         virtual void contactDidBegin(Runner&               runner,
                                      Scene&                scene,
                                      PhysicsWorld&         physicsWorld,
                                      const PhysicsContact& contact);
+
+        /**
+         * @brief Called when the PhysicsWorld reports a continuing contact.
+         *
+         * The default implementation does nothing.
+         */
         virtual void contactDidContinue(Runner&               runner,
                                         Scene&                scene,
                                         PhysicsWorld&         physicsWorld,
                                         const PhysicsContact& contact);
+
+        /**
+         * @brief Called when the PhysicsWorld reports the end of a contact.
+         *
+         * The default implementation does nothing.
+         */
         virtual void contactDidEnd(Runner&               runner,
                                    Scene&                scene,
                                    PhysicsWorld&         physicsWorld,
