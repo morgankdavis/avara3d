@@ -66,8 +66,8 @@
 	"images":[
 		{
 			"mimeType":"image/webp",
-			"name":"diffuse",
-			"uri":"textures/diff.webp"
+			"name":"base",
+			"uri":"textures/base.webp"
 		}
 	],
 	"accessors":[

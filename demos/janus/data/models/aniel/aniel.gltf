@@ -171,8 +171,8 @@
 		},
 		{
 			"mimeType":"image/webp",
-			"name":"wings_diff",
-			"uri":"textures/wings_diff.webp"
+			"name":"wings_base",
+			"uri":"textures/wings_base.webp"
 		},
 		{
 			"mimeType":"image/webp",
@@ -181,8 +181,8 @@
 		},
 		{
 			"mimeType":"image/webp",
-			"name":"body_diff",
-			"uri":"textures/body_diff.webp"
+			"name":"body_base",
+			"uri":"textures/body_base.webp"
 		},
 		{
 			"mimeType":"image/webp",
@@ -191,8 +191,8 @@
 		},
 		{
 			"mimeType":"image/webp",
-			"name":"hair_diff",
-			"uri":"textures/hair_diff.webp"
+			"name":"hair_base",
+			"uri":"textures/hair_base.webp"
 		}
 	],
 	"accessors":[

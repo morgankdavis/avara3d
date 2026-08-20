@@ -53,11 +53,17 @@ static optional<App::PickResult> Pick(VisualWorld&               visualWorld,
 static optional<App::PickResult> FindActionTarget(Scene&                     scene,
                                                   const vec2&                screenPosition,
                                                   const vector<const Node*>& ignoredNodes = {});
-static vector<shared_ptr<Node>>  SpawnRocks(Node&         parent,
-                                            const vec3&   location,
-                                            const vec3&   boxSize,
-                                            const u8vec3& stackSize,
-                                            float         padding);
+static vector<shared_ptr<Node>>  DropRocks(Node&         parent,
+                                           const vec3&   location,
+                                           const vec3&   boxSize,
+                                           const u8vec3& stackSize,
+                                           float         padding);
+static vector<shared_ptr<Node>>  DropBalls(Node&         parent,
+                                           const vec3&   location,
+                                           const vec3&   boxSize,
+                                           const u8vec3& stackSize,
+                                           float         padding);
+static shared_ptr<Node>          ThrowHammer(Node& parent, const vec3& location, const vec3& velocity);
 static shared_ptr<Node>          ThrowHula(Node& parent, const vec3& location, const vec3& velocity);
 static shared_ptr<Node>          ThrowDuck(Node& parent, const vec3& location, const vec3& velocity);
 static bool IsIgnored(const shared_ptr<Node>& node, const vector<const Node*>& ignoredNodes);
@@ -76,7 +82,7 @@ App::App(int argc, char* argv[]):
     _actionTarget {},
     _action {Action::Drop},
     _dropAction {DropAction::Rocks},
-    _throwAction {ThrowAction::Hula},
+    _throwAction {ThrowAction::Hammer},
     _pokiness {Pokiness::Soft},
     _transients {ext::Transients::SweepPolicy::EveryInterval(1.0)},
     _backgroundRotationTime {0.0},
@@ -196,7 +202,13 @@ std::unique_ptr<Scene> App::init() {
         // setup transiet node groups
 
         _transients.groupPolicy("rock", {.maxCount = {75}});
+        _transients.groupPolicy("coin", {.maxCount = {75}});
+        _transients.groupPolicy("ball", {.maxCount = {75}});
 
+        _transients.groupPolicy("hammer",
+                                {.maxCount = {10},
+                                 .distanceLimit = ext::Transients::DistanceLimit {.center = {0.0f, 0.0f, 0.0f},
+                                                                                  .radius = 100.0f}});
         _transients.groupPolicy("hula",
                                 {.maxCount = {10},
                                  .distanceLimit = ext::Transients::DistanceLimit {.center = {0.0f, 0.0f, 0.0f},
@@ -559,24 +571,24 @@ bool App::drawPanel() {
             if (panel.option("Rocks", _dropAction == DropAction::Rocks)) {
                 _dropAction = DropAction::Rocks;
             }
+            if (panel.option("Coins", _dropAction == DropAction::Coins)) {
+                _dropAction = DropAction::Coins;
+            }
             if (panel.option("Balls", _dropAction == DropAction::Balls)) {
                 _dropAction = DropAction::Balls;
             }
-            // if (panel.option("Mesh", _dropAction == DropAction::ChainMesh)) {
-            //     _dropAction = DropAction::ChainMesh;
-            // }
             break;
         case Action::Throw:
             panel.row(2);
+            if (panel.option("Hammer", _throwAction == ThrowAction::Hammer)) {
+                _throwAction = ThrowAction::Hammer;
+            }
             if (panel.option("Hula", _throwAction == ThrowAction::Hula)) {
                 _throwAction = ThrowAction::Hula;
             }
             if (panel.option("Duck", _throwAction == ThrowAction::Duck)) {
                 _throwAction = ThrowAction::Duck;
             }
-            // if (panel.option("Fruit", _throwAction == ThrowAction::Fruit)) {
-            //     _throwAction = ThrowAction::Fruit;
-            // }
             break;
         case Action::Poke:
             panel.row(2);
@@ -890,13 +902,21 @@ void App::performAction(const PendingAction& action) {
 
             switch (_dropAction) {
                 case DropAction::Rocks: {
-                    auto rocks = SpawnRocks(*simulationRoot, spawnLocation, DROP_BOX_SIZE, DROP_STACK_SIZE,
-                                            DROP_PADDING);
+                    auto rocks =
+                        DropRocks(*simulationRoot, spawnLocation, DROP_BOX_SIZE, DROP_STACK_SIZE, DROP_PADDING);
                     _transients.track(rocks, "rock");
                     break;
                 }
+                case DropAction::Coins: {
+                    // auto rocks =
+                    //     DropCoins(*simulationRoot, spawnLocation, DROP_BOX_SIZE, DROP_STACK_SIZE, DROP_PADDING);
+                    // _transients.track(rocks, "coin");
+                    break;
+                }
                 case DropAction::Balls: {
-                    log::app::i()("BALLS");
+                    auto balls = DropBalls(*simulationRoot, spawnLocation, DROP_BOX_SIZE, DROP_STACK_SIZE,
+                                           DROP_PADDING + .1);
+                    _transients.track(balls, "ball");
                     break;
                 }
             }
@@ -923,6 +943,13 @@ void App::performAction(const PendingAction& action) {
             const vec3 velocity = displacement / flightTime - 0.5f * gravity * flightTime;
 
             switch (_throwAction) {
+                case ThrowAction::Hammer: {
+                    auto projectile = ThrowHammer(*simulationRoot, spawnPosition, velocity);
+                    _pickIgnores.push_back({.node = projectile,
+                                            .remainingTime = PROJECTILE_PICK_IGNORE_DURATION});
+                    _transients.track(projectile, "hammer");
+                    break;
+                }
                 case ThrowAction::Hula: {
                     auto projectile = ThrowHula(*simulationRoot, spawnPosition, velocity);
                     _pickIgnores.push_back({.node = projectile,
@@ -1155,11 +1182,11 @@ optional<App::PickResult> FindActionTarget(Scene&                     scene,
     return {};
 }
 
-vector<shared_ptr<Node>> SpawnRocks(Node&         parent,
-                                    const vec3&   location,
-                                    const vec3&   boxSize,
-                                    const u8vec3& stackSize,
-                                    float         padding) {
+vector<shared_ptr<Node>> DropRocks(Node&         parent,
+                                   const vec3&   location,
+                                   const vec3&   boxSize,
+                                   const u8vec3& stackSize,
+                                   float         padding) {
     // auto rockScene =
     //     util::fs::SceneAt("rocks_convex/rocks_convex.gltf",
     //                       Scene::ImportOptions::ImportMeshes | Scene::ImportOptions::ImportMaterials);
@@ -1225,7 +1252,7 @@ vector<shared_ptr<Node>> SpawnRocks(Node&         parent,
 
                 auto physicsBody = PhysicsBody::DynamicBody();
                 physicsBody->mass(1.0f);
-                physicsBody->restitution(0.05f);
+                physicsBody->restitution(0.03f);
                 physicsBody->friction(0.8f);
                 physicsBody->shape(rock.physicsShape);
 
@@ -1245,10 +1272,147 @@ vector<shared_ptr<Node>> SpawnRocks(Node&         parent,
     return added;
 }
 
+vector<shared_ptr<Node>> DropBalls(Node&         parent,
+                                   const vec3&   location,
+                                   const vec3&   boxSize,
+                                   const u8vec3& stackSize,
+                                   float         padding) {
+
+    const unsigned sizeX = stackSize.x;
+    const unsigned sizeY = stackSize.y;
+    const unsigned sizeZ = stackSize.z;
+
+    vector<shared_ptr<Node>> added;
+    added.reserve(sizeX * sizeY * sizeZ);
+
+    static auto [mesh, shape] = [] {
+        constexpr float DIAMETER = 0.45f;
+
+        auto mesh = util::fs::MeshAt("beachball/beachball.gltf");
+
+        const float scaleFactor = DIAMETER / math::max(mesh->localExtent());
+        const auto  transform = math::scale(mat4(1.0f), vec3(scaleFactor));
+        mesh->burnTransform(transform, true);
+
+        auto shape = make_shared<SpherePhysicsShape>(DIAMETER / 2.0);
+
+        mesh->firstMaterial()->specular(Color::LightGray());
+        mesh->firstMaterial()->specularExponent(16.0f);
+
+        return std::pair {mesh, shape};
+    }();
+
+    const float stepX = boxSize.x + padding;
+    const float stepY = boxSize.y + padding;
+    const float stepZ = boxSize.z + padding;
+
+    const float totalLength = boxSize.x * static_cast<float>(sizeX) + padding * static_cast<float>(sizeX - 1);
+    const float totalWidth = boxSize.z * static_cast<float>(sizeY) + padding * static_cast<float>(sizeY - 1);
+
+    const float startX = location.x - totalLength * 0.5f + boxSize.x * 0.5f;
+    const float startZ = location.z - totalWidth * 0.5f + boxSize.z * 0.5f;
+    const float startY = location.y + boxSize.y * 0.5f;
+
+    for (unsigned y = 0; y < sizeZ; ++y) {
+        for (unsigned z = 0; z < sizeY; ++z) {
+            for (unsigned x = 0; x < sizeX; ++x) {
+
+                auto node = Node::MeshNode(mesh);
+
+                static int boxNum = 0;
+                node->name(std::format("Beachball {}", ++boxNum));
+
+                static const float positionVariance = padding / 2.0;
+
+                const vec3 position {startX + static_cast<float>(x) * stepX,
+                                     startY + static_cast<float>(y) * stepY,
+                                     startZ + static_cast<float>(z) * stepZ};
+
+                const vec3 variation {uniform_linear(-positionVariance, positionVariance),
+                                      uniform_linear(-positionVariance, positionVariance),
+                                      uniform_linear(-positionVariance, positionVariance)};
+
+                node->position(position + variation);
+
+                node->eulerAngles({uniform_linear(0.0f, TWO_PI), uniform_linear(0.0f, TWO_PI),
+                                   uniform_linear(0.0f, TWO_PI)});
+
+                auto physicsBody = PhysicsBody::DynamicBody();
+                physicsBody->mass(0.10f);
+                physicsBody->restitution(0.9f);
+                physicsBody->friction(0.4f);
+                physicsBody->angularDamping(0.15);
+
+                physicsBody->shape(shape);
+
+                const float angularVariance = radians(30.0f);
+                physicsBody->angularVelocity({uniform_linear(-angularVariance, angularVariance),
+                                              uniform_linear(-angularVariance, angularVariance),
+                                              uniform_linear(-angularVariance, angularVariance)});
+
+                node->physicsBody(std::move(physicsBody));
+
+                added.push_back(node);
+                parent.addChild(node);
+            }
+        }
+    }
+
+    return added;
+}
+
+shared_ptr<Node> ThrowHammer(Node& parent, const vec3& location, const vec3& velocity) {
+
+    static auto [mesh, shape] = [] {
+        constexpr float LENGTH = 1.0f;
+        auto            mesh = util::fs::MeshAt("hammer/hammer.gltf");
+        const float     scaleFactor = LENGTH / mesh->localExtent().z;
+        auto            transform = math::rotate(mat4(1.0f), radians(90.0f), vec3 {1.0f, 0.0f, 0.0f});
+        transform = math::scale(transform, scaleFactor);
+        mesh->burnTransform(transform, true);
+        auto shape = make_shared<PhysicsShape>(PhysicsShape::Type::ConvexHull, mesh);
+        return std::pair {mesh, shape};
+    }();
+
+    auto       node = Node::MeshNode(mesh);
+    static int hammerNum = 0;
+    node->name(std::format("Hammer {}", ++hammerNum));
+    node->position(location);
+
+    auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
+    physicsBody->mass(5.0f);
+    physicsBody->restitution(0.15f);
+    physicsBody->friction(0.8f);
+
+    static const auto extent = mesh->localExtent();
+    physicsBody->centerOfMass(physicsBody->centerOfMass() + extent * vec3 {0.0f, 0.3f, 0.0f});
+
+    const vec3 throwForward = math::normalize(vec3 {velocity.x, 0.0f, velocity.z});
+    // node forward is -Z, so yaw -Z toward the horizontal throw direction.
+    const float        yaw = math::atan2(-throwForward.x, -throwForward.z);
+    static const float START_PITCH = radians(20.0f);
+    static const float START_PITCH_VARIANCE = radians(10.0f);
+    static const float SIDE_TILT_VARIANCE = radians(8.0f);
+    node->eulerAngles({START_PITCH + uniform_linear(-START_PITCH_VARIANCE, START_PITCH_VARIANCE), yaw,
+                       uniform_linear(-SIDE_TILT_VARIANCE, SIDE_TILT_VARIANCE)});
+    static const float SPIN_RATE = radians(540.0f);
+    static const float SPIN_RATE_VARIANCE = radians(90.0f);
+    const float        spinRate = SPIN_RATE + uniform_linear(-SPIN_RATE_VARIANCE, SPIN_RATE_VARIANCE);
+    physicsBody->angularVelocity(-node->right() * spinRate);
+
+    physicsBody->linearVelocity(velocity);
+
+    node->physicsBody(std::move(physicsBody));
+
+    parent.addChild(node);
+
+    return node;
+}
+
 shared_ptr<Node> ThrowHula(Node& parent, const vec3& location, const vec3& velocity) {
 
     static auto [mesh, shape] = [] {
-        constexpr float DIAMETER = 1.25f;
+        constexpr float DIAMETER = 1.1f;
         auto            mesh = util::fs::MeshAt("hula/hula.gltf");
         const float     scaleFactor = DIAMETER / mesh->localExtent().y;
         mesh->burnTransform(math::scale(mat4(1.0f), vec3(scaleFactor)), true);
@@ -1256,8 +1420,9 @@ shared_ptr<Node> ThrowHula(Node& parent, const vec3& location, const vec3& veloc
         return std::pair {mesh, shape};
     }();
 
-    auto node = Node::MeshNode(mesh);
-    node->name("Hula");
+    auto       node = Node::MeshNode(mesh);
+    static int hulaNum = 0;
+    node->name(std::format("Hula {}", ++hulaNum));
     node->position(location);
 
     auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
@@ -1269,7 +1434,7 @@ shared_ptr<Node> ThrowHula(Node& parent, const vec3& location, const vec3& veloc
     static const auto extent = mesh->localExtent();
     physicsBody->centerOfMass(physicsBody->centerOfMass() + extent * vec3 {0.0f, .1f, 0.0f});
 
-    const float minExtent = math::min(extent);
+    static const float minExtent = math::min(extent);
     physicsBody->ccdMotionThreshold(minExtent * 0.25f);
     physicsBody->ccdSweptSphereRadius(minExtent * 0.20f);
     physicsBody->ccdEnabled(true);
@@ -1313,8 +1478,9 @@ shared_ptr<Node> ThrowDuck(Node& parent, const vec3& location, const vec3& veloc
         return std::pair {mesh, shape};
     }();
 
-    auto node = Node::MeshNode(mesh);
-    node->name("Quack");
+    auto       node = Node::MeshNode(mesh);
+    static int quackNum = 0;
+    node->name(std::format("Quack {}", ++quackNum));
     node->position(location);
 
     auto physicsBody = make_unique<PhysicsBody>(PhysicsBody::Type::Dynamic, shape);
@@ -1325,7 +1491,7 @@ shared_ptr<Node> ThrowDuck(Node& parent, const vec3& location, const vec3& veloc
     static const auto extent = mesh->localExtent();
     physicsBody->centerOfMass(physicsBody->centerOfMass() + extent * vec3 {0.0f, -0.1f, 0.0f});
 
-    const float minExtent = math::min(extent);
+    static const float minExtent = math::min(extent);
     physicsBody->ccdMotionThreshold(minExtent * 0.25f);
     physicsBody->ccdSweptSphereRadius(minExtent * 0.25f);
     physicsBody->ccdEnabled(true);

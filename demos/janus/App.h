@@ -79,10 +79,12 @@ namespace demo::janus {
 
         enum class DropAction {
             Rocks,
+            Coins,
             Balls
         };
 
         enum class ThrowAction {
+            Hammer,
             Hula,
             Duck
         };
