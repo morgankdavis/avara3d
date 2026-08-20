@@ -27,6 +27,7 @@ const float                       TIME_STEP {1.0 / 120.0};
 const std::uint32_t               MAX_CATCH_UP_STEPS {8};
 const float                       BACKGROUND_ROTATION_SPEED {radians(0.5f)};
 const vec3                        BACKGROUND_ROTATION_AXIS {0.5f, 1.0f, 1.0f};
+const float                       PANEL_WIDTH {180.0f};
 const vec3                        GRAVITY_EARTH {0.0f, -9.807f, 0.0f};
 const vec3                        GRAVITY_MOON {0.0f, -1.62f, 0.0f};
 const vec3                        GRAVITY_ZERO {0.0f, 0.0f, 0.0f};
@@ -123,34 +124,35 @@ std::unique_ptr<Scene> App::init() {
         // groundMaterial->specularExponent(16.0f);
         // groundMaterial->uvScale(5.0f);
 
-        visualWorld->ground(Ground {.fill =
-                                        Ground::Procedural {
-                                            .content =
-                                                Ground::Procedural::
-                                                    Grid {.color = Color::DarkGray(),
-                                                          .minor = Ground::Procedural::
-                                                              GridComponent {.color = Color(vec4 {0.5f, 0.5f,
-                                                                                                  0.5f, 0.25f}),
-                                                                             .spacing = 1.0f,
-                                                                             .lineWidthPixels = 1.0f,
-                                                                             .reliefStrength = -0.125f},
-                                                          .major = Ground::Procedural::
-                                                              GridComponent {.color =
-                                                                                 Color(vec4 {0.75f,
-                                                                                             0.75f, 0.75f, 0.25f}),
-                                                                             .spacing = 10.0f,
-                                                                             .lineWidthPixels = 1.0f,
-                                                                             .reliefStrength = -0.125f},
-                                                          .specularIntensity = 0.05f,
-                                                          .specularExponent = 8.0f}},
-                                    .radialFade =
-                                        Ground::RadialFade {.color = Color(vec4 {0.02f, 0.02f, 0.02f, 1.0f}),
-                                                            .center = {0.0f, 0.0f},
-                                                            .startDistance = 10.0f,
-                                                            .endDistance = 100.0f},
-                                    .horizonHaze =
-                                        Ground::HorizonHaze {.color = Color(vec4 {0.2f, 0.2f, 0.2f, 0.4f}),
-                                                             .angularWidth = math::radians(4.0f)}});
+        visualWorld
+            ->ground(Ground {.fill = Ground::Procedural {.content =
+                                                             Ground::Procedural::Grid { //.color = Color{0.15f},
+                                                                 .color = Color::DarkGray(),
+                                                                 .minor = Ground::Procedural::
+                                                                     GridComponent {.color =
+                                                                                        Color(vec4 {0.5f, 0.5f,
+                                                                                                    0.5f,
+                                                                                                    0.25f}),
+                                                                                    .spacing = 1.0f,
+                                                                                    .lineWidthPixels = 1.0f,
+                                                                                    .reliefStrength = -0.125f},
+                                                                 .major =
+                                                                     Ground::Procedural::GridComponent {
+                                                                         .color = Color(
+                                                                             vec4 {0.75f, 0.75f, 0.75f, 0.25f}),
+                                                                         .spacing =
+                                                                             10.0f,
+                                                                         .lineWidthPixels =
+                                                                             1.0f,
+                                                                         .reliefStrength = -0.125f},
+                                                                 .specularIntensity = 0.05f,
+                                                                 .specularExponent = 8.0f}},
+                             .radialFade = Ground::RadialFade {.color = Color(vec4 {0.02f, 0.02f, 0.02f, 1.0f}),
+                                                               .center = {0.0f, 0.0f},
+                                                               .startDistance = 10.0f,
+                                                               .endDistance = 100.0f},
+                             .horizonHaze = Ground::HorizonHaze {.color = Color(vec4 {0.2f, 0.2f, 0.2f, 0.4f}),
+                                                                 .angularWidth = math::radians(4.0f)}});
 
         visualWorld->atmosphere(Atmosphere {
             .scaleHeight = 1.00f,
@@ -296,7 +298,7 @@ std::unique_ptr<Scene> App::init() {
                 // light->attenuation(Attenuation {
                 //     .quadratic = 0.5f
                 // });
-                //light->attenuation(Attenuation::FromRange(3.0f, 0.02f));
+                light->attenuation(Attenuation::FromRange(3.0f, 0.02f));
 
                 auto orb = Node::LightNode(light);
                 orb->name(std::format("Orb {}", i + 1));
@@ -488,7 +490,7 @@ bool App::drawPanel() {
     auto& visualWorld = *scene.visualWorld();
     auto& physicsWorld = *scene.physicsWorld();
 
-    ui::Panel panel("controls", {.width = 180.0f, .margin = 12.0f});
+    ui::Panel panel("controls", {.width = PANEL_WIDTH, .margin = 12.0f});
 
     panel.section("simulation", {.line = true}, {.top = 0.0f, .bottom = 4.0f});
 
@@ -572,7 +574,7 @@ bool App::drawPanel() {
 
     switch (_action) {
         case Action::Drop:
-            panel.row(2);
+            panel.row(3);
             if (panel.option("Rocks", _dropAction == DropAction::Rocks)) {
                 _dropAction = DropAction::Rocks;
             }
@@ -584,7 +586,7 @@ bool App::drawPanel() {
             }
             break;
         case Action::Throw:
-            panel.row(2);
+            panel.row(3);
             if (panel.option("Hammer", _throwAction == ThrowAction::Hammer)) {
                 _throwAction = ThrowAction::Hammer;
             }
@@ -596,16 +598,16 @@ bool App::drawPanel() {
             }
             break;
         case Action::Poke:
-            panel.row(2);
+            panel.row(3);
             if (panel.option("Soft", _pokiness == Pokiness::Soft)) {
                 _pokiness = Pokiness::Soft;
             }
             if (panel.option("Hard", _pokiness == Pokiness::Hard)) {
                 _pokiness = Pokiness::Hard;
             }
-            // if (panel.option("Ouch", _pokiness == Pokiness::Ouch)) {
-            //     _pokiness = Pokiness::Ouch;
-            // }
+            if (panel.option("Twist", _pokiness == Pokiness::Twist)) {
+                _pokiness = Pokiness::Twist;
+            }
             break;
     }
 
@@ -1304,16 +1306,14 @@ vector<shared_ptr<Node>> DropCoins(Node&         parent,
 
         mesh->burnTransform(transform, true);
 
-        // After rotation:
+        // after rotation:
         // X = diameter
         // Y = thickness
         // Z = diameter
-        const auto extent = mesh->localExtent();
-
+        const auto  extent = mesh->localExtent();
         const float radius = math::max(extent.x, extent.z) * 0.5f;
         const float height = extent.y;
-
-        auto shape = make_shared<CylinderPhysicsShape>(radius, height);
+        auto        shape = make_shared<CylinderPhysicsShape>(radius, height);
 
         mesh->firstMaterial()->specular(Color::LightGray());
         mesh->firstMaterial()->specularExponent(16.0f);
@@ -1363,18 +1363,15 @@ vector<shared_ptr<Node>> DropCoins(Node&         parent,
                 physicsBody->rollingFriction(0.15f);
                 physicsBody->angularDamping(0.08f);
 
-                constexpr float COM_VARIANCE = 0.003f; // 3 mm at 35 cm diameter
-
-                physicsBody->centerOfMass(physicsBody->centerOfMass()
-                                          + vec3 {uniform_linear(-COM_VARIANCE, COM_VARIANCE), 0.0f,
-                                                  uniform_linear(-COM_VARIANCE, COM_VARIANCE)});
-
-                // physicsBody->linearSleepingThreshold(0.05f);
-                // physicsBody->angularSleepingThreshold(0.05f);
+                // const auto extent = mesh->localExtent();
+                // const float minExtent = math::min(extent);
+                // physicsBody->ccdMotionThreshold(minExtent * 0.25f);
+                // physicsBody->ccdSweptSphereRadius(minExtent * 0.20f);
+                // physicsBody->ccdEnabled(true);
 
                 physicsBody->shape(shape);
 
-                const float angularVariance = radians(30.0f);
+                const float angularVariance = radians(180.0f);
                 physicsBody->angularVelocity({uniform_linear(-angularVariance, angularVariance),
                                               uniform_linear(-angularVariance, angularVariance),
                                               uniform_linear(-angularVariance, angularVariance)});
@@ -1459,7 +1456,7 @@ vector<shared_ptr<Node>> DropBalls(Node&         parent,
                 physicsBody->mass(0.10f);
                 physicsBody->restitution(0.8f);
                 physicsBody->friction(0.4f);
-                physicsBody->rollingFriction(0.015);
+                physicsBody->rollingFriction(0.01);
                 physicsBody->angularDamping(0.6);
 
                 physicsBody->shape(shape);
