@@ -23,19 +23,26 @@ namespace a3d {
 
     class LogSink;
 
+    /**
+     * @brief Dispatches severity-filtered log messages to one or more LogSink objects.
+     *
+     * A Log owns its sinks. Messages below level() are ignored; messages at or above
+     * flushLevel() cause all sinks to be flushed after the message is dispatched.
+     */
     class Log {
 
     public:
         // [Public Types]
 
+        /** @brief Log-message severity and filtering threshold. */
         enum class Level : uint8_t {
-            Trace = 0,
-            Debug = 1,
-            Info  = 2,
-            Warn  = 3,
-            Error = 4,
-            Fatal = 5,
-            Off   = 6
+            Trace = 0, ///< Finest-grained diagnostic messages.
+            Debug = 1, ///< Debug diagnostic messages.
+            Info  = 2, ///< Informational messages.
+            Warn  = 3, ///< Warning messages.
+            Error = 4, ///< Error messages.
+            Fatal = 5, ///< Fatal-error messages.
+            Off   = 6  ///< Disables message emission when used as the log level.
         };
 
         // [Internal Types]
@@ -99,18 +106,31 @@ namespace a3d {
 
         // [Public Static Member Functions]
 
+        /** @brief Returns the application Log, falling back to MainLog() when none has been installed. */
         static Log& AppLog();
+
+        /** @brief Replaces the owned application Log; nullptr restores the MainLog() fallback. */
         static void AppLog(std::unique_ptr<Log> log);
+
+        /** @brief Returns A3D's process-wide default Log. */
         static Log& MainLog();
 
         // [Public Lifecycle Functions]
 
+        /** @brief Creates an unnamed Log with default thresholds and no sinks. */
         Log();
+
+        /**
+         * @brief Creates a named Log that takes ownership of @p sink.
+         *
+         * A null sink is accepted and leaves the Log with no sinks.
+         */
         Log(const std::string&       name,
             std::unique_ptr<LogSink> sink,
             Level                    level      = DEFAULT_LEVEL,
             Level                    flushLevel = DEFAULT_FLUSH_LEVEL);
 
+        /** @brief Creates a named Log that takes ownership of @p sinks. */
         Log(const std::string&                    name,
             std::vector<std::unique_ptr<LogSink>> sinks,
             Level                                 level      = DEFAULT_LEVEL,
@@ -126,25 +146,46 @@ namespace a3d {
 
         // [Public Member Functions]
 
+        /** @brief Returns the name included in formatted log output. */
         const std::string&                           name() const;
 
+        /** @brief Returns the sinks owned by the Log. */
         const std::vector<std::unique_ptr<LogSink>>& sinks() const;
 
+        /** @brief Returns the minimum severity currently emitted by the Log. */
         Level                                        level() const;
+
+        /** @brief Sets the minimum emitted severity; Level::Off disables message emission. */
         void                                         level(Level level);
 
+        /** @brief Returns the severity threshold that triggers an automatic sink flush. */
         Level                                        flushLevel() const;
+
+        /** @brief Sets the severity threshold that triggers an automatic sink flush. */
         void                                         flushLevel(Level flushLevel);
 
+        /** @brief Emits @p msg at Trace severity when enabled. */
         void                                         trace(const std::string& msg);
+
+        /** @brief Emits @p msg at Debug severity when enabled. */
         void                                         debug(const std::string& msg);
+
+        /** @brief Emits @p msg at Info severity when enabled. */
         void                                         info(const std::string& msg);
+
+        /** @brief Emits @p msg at Warn severity when enabled. */
         void                                         warn(const std::string& msg);
+
+        /** @brief Emits @p msg at Error severity when enabled. */
         void                                         error(const std::string& msg);
+
+        /** @brief Emits @p msg at Fatal severity when enabled. */
         void                                         fatal(const std::string& msg);
 
+        /** @brief Emits a message at @p level with the supplied source-location metadata when enabled. */
         void  log(Level level, const SourceInfo& sourceInfo, const std::string& msg);
 
+        /** @brief Flushes every owned sink. */
         void  flush();
 
         // [Internal Member Functions]

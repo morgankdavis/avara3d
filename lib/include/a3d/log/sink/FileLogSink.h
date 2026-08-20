@@ -20,11 +20,26 @@
 
 namespace a3d {
 
+    /**
+     * @brief LogSink that appends output to a file and rotates older files by size.
+     *
+     * Rotation is checked after each write. Numbered backups are kept beside the
+     * active file and older backups are removed as the configured file limit is reached.
+     */
     class FileLogSink : public LogSink {
 
     public:
         // [Public Lifecycle Functions]
 
+        /**
+         * @brief Creates an append-mode file sink with size-based rotation.
+         *
+         * Missing parent directories are created when possible. @p maxFilesize is
+         * measured in bytes; the defaults retain up to five files with a 1 MiB size
+         * threshold for each active file.
+         *
+         * @throws std::runtime_error if required directory creation or file removal during rotation fails.
+         */
         explicit FileLogSink(const std::filesystem::path& relPath,
                              int                          maxFiles    = DEFAULT_MAX_FILES,
                              int                          maxFilesize = DEFAULT_MAX_FILESIZE);
@@ -35,18 +50,26 @@ namespace a3d {
         FileLogSink(FileLogSink&&)            = delete;
         FileLogSink& operator=(FileLogSink&&) = delete;
 
+        /** @brief Flushes and closes the active log file. */
         ~FileLogSink() override;
 
         // [Public Member Functions]
 
+        /** @brief Returns the path of the active log file. */
         const std::filesystem::path& filepath() const;
 
+        /** @brief Returns the configured maximum number of retained log files. */
         int                          maxFiles() const;
+
+        /** @brief Returns the configured rotation size threshold in bytes. */
         int                          maxFilesize() const;
 
         // [Public LogSink Member Functions]
 
+        /** @brief Appends @p output to the active file and performs size-based rotation when needed. */
         void                         write(const std::string& output, Log::Level level) override;
+
+        /** @brief Flushes buffered output to the active file. */
         void                         flush() override;
 
     private:

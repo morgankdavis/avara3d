@@ -15,16 +15,21 @@
 
 namespace a3d {
 
+    /** @brief Interface for destinations that receive formatted Log output. */
     class LogSink {
 
 // [Public Lifecycle Functions]
 
     public:
+        /** @brief Destroys the log sink. */
         virtual ~LogSink() = 0;
 
 // [Public Member Functions]
 
+        /** @brief Writes already-formatted @p output associated with @p level. */
         virtual void write(const std::string& output, Log::Level level) = 0;
+
+        /** @brief Flushes buffered sink output; the base implementation does nothing. */
         virtual void flush();
     };
 
