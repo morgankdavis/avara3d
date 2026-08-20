@@ -64,7 +64,7 @@ using namespace a3d;
 using namespace a3d::math;
 using namespace std;
 
-// [ Private Constants]
+// [Private Constants]
 
 static constexpr std::size_t MAX_AMBIENT_LIGHTS {16};
 static constexpr std::size_t MAX_DIRECTIONAL_LIGHTS {16};

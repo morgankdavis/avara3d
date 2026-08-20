@@ -55,7 +55,7 @@ namespace a3d {
         unsigned segments() const;
 
     private:
-        // [ Private Constants]
+        // [Private Constants]
 
         static constexpr int DEFAULT_SLICES   = 32; // around circumference (azimuth / longitude)
         static constexpr int DEFAULT_SEGMENTS = 8; // bottom-to-top (elevation / latitude)

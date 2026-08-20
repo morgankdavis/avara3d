@@ -23,7 +23,7 @@
 using namespace a3d;
 using namespace std;
 
-// [ Private Constants]
+// [Private Constants]
 
 // duration of sample history to keep
 static constexpr std::chrono::milliseconds FRAME_STATS_HISTORY_DURATION {3000};

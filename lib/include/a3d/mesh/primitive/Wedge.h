@@ -53,7 +53,7 @@ namespace a3d {
         unsigned riseSegments() const;
 
     private:
-        // [ Private Constants]
+        // [Private Constants]
 
         // this is kind of jacked up.
         static constexpr int DEFAULT_RUN_SEGMENTS   = 1; // thin end (-X) toward the thick/tall end (+X)

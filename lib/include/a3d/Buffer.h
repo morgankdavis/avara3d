@@ -18,7 +18,7 @@ namespace a3d {
     class Buffer {
 
     public:
-        // [ Public Lifecycle Functions]
+        // [Public Lifecycle Functions]
 
         explicit Buffer(const std::filesystem::path& path);
         explicit Buffer(const std::vector<std::byte>& buf);

@@ -109,7 +109,7 @@ namespace a3d {
                                                               const btCollisionObject* objectB,
                                                               const btManifoldPoint&   point) const;
 
-        // [ Private Member Variables]
+        // [Private Member Variables]
 
         // scheduler
         btITaskScheduler*                 _btScheduler;

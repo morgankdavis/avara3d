@@ -34,7 +34,7 @@ namespace a3d {
         const std::vector<std::unique_ptr<btCollisionShape>>& btShapes();
 
     private:
-        // [ Private Member Variables]
+        // [Private Member Variables]
 
         std::vector<std::unique_ptr<btTriangleIndexVertexArray>> _btIndexVertexArrays;
         std::vector<std::unique_ptr<btCollisionShape>>           _btShapes;

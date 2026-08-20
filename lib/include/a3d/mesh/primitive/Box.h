@@ -50,7 +50,7 @@ namespace a3d {
         unsigned heightSegments() const;
 
     private:
-        // [ Private Constants]
+        // [Private Constants]
 
         static constexpr int DEFAULT_SEGMENTS = 1;
 

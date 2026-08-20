@@ -124,7 +124,7 @@ namespace a3d {
         btRigidBody*       btBody();
 
     private:
-        // [ Private Member Functions]
+        // [Private Member Functions]
 
         void                               calculateCenterOfMass();
         void                               rebuildCenterOfMassOffsetShape();
