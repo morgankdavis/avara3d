@@ -18,7 +18,7 @@ using namespace a3d::math;
 using namespace demo::janus;
 using namespace std;
 
-/// Private Constants ///
+// [Private Constants]
 
 const Log::Level                  APP_LOG_LEVEL {Log::Level::Debug};
 const uvec2                       WINDOW_SIZE {1280, 768};
@@ -45,7 +45,7 @@ const float                       POKE_IMPULSE_HARD = 10.0f;
 const double                      PROJECTILE_PICK_IGNORE_DURATION {0.5};
 const bool                        ENABLE_CURSOR_MARKER {false};
 
-/// Private Static Non-Member Prototypes ///
+// [Private Static Non-Member Prototypes]
 
 static shared_ptr<Node>          MakeSimulationRoot();
 static optional<App::PickResult> Pick(VisualWorld&               visualWorld,
@@ -74,7 +74,7 @@ static shared_ptr<Node>          ThrowHula(Node& parent, const vec3& location, c
 static shared_ptr<Node>          ThrowDuck(Node& parent, const vec3& location, const vec3& velocity);
 static bool IsIgnored(const shared_ptr<Node>& node, const vector<const Node*>& ignoredNodes);
 
-/// Public Lifecycle Functions ///
+// [Public Lifecycle Functions]
 
 App::App(int argc, char* argv[]):
     Application(argc, argv, APP_LOG_LEVEL),
@@ -98,7 +98,7 @@ App::App(int argc, char* argv[]):
 
 App::~App() = default;
 
-/// Application Protected Member Functions ///
+// [Application Protected Member Functions]
 
 std::unique_ptr<Scene> App::init() {
     try {
@@ -481,7 +481,7 @@ void App::frameDidBegin(Runner&                        runner,
     //_window->cursorHidden(!_cursorMarker->hidden());
 }
 
-/// Private Member Functions ///
+// [Private Member Functions]
 
 bool App::drawPanel() {
 
@@ -1033,7 +1033,7 @@ void App::reset() {
     runner().resetSimulation();
 }
 
-/// Private Static Non-Member Functions ///
+// [Private Static Non-Member Functions]
 
 shared_ptr<Node> MakeSimulationRoot() {
     auto root = Node::NamedNode("Simulation root");

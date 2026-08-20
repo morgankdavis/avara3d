@@ -33,7 +33,7 @@ namespace demo::janus {
     class App : public a3d::Application {
 
     public:
-        /// Public Types ///
+        // [Public Types]
 
         struct PickResult {
             std::weak_ptr<a3d::Node> node;
@@ -41,13 +41,13 @@ namespace demo::janus {
             a3d::math::vec3          hitNormal;
         };
 
-        /// Public Lifecycle Functions ///
+        // [Public Lifecycle Functions]
 
         App(int argc, char* argv[]);
         ~App() override;
 
     protected:
-        /// Application Protected Member Functions ///
+        // [Application Protected Member Functions]
 
         std::unique_ptr<a3d::Scene> init() override;
         a3d::SimulationConfig       simulationConfig() const override;
@@ -69,7 +69,7 @@ namespace demo::janus {
                            const a3d::VisualWorld::RenderInfo& info) override;
 
     private:
-        /// Private Types ///
+        // [Private Types]
 
         enum class Action {
             Drop,
@@ -108,7 +108,7 @@ namespace demo::janus {
             double                   remainingTime;
         };
 
-        /// Private Member Functions ///
+        // [Private Member Functions]
 
         bool drawPanel();
         void hover(std::shared_ptr<a3d::Node> node);
@@ -117,7 +117,7 @@ namespace demo::janus {
         void performAction(const PendingAction& action);
         void reset();
 
-        /// Private Member Variables ///
+        // [Private Member Variables]
 
         std::unique_ptr<a3d::Window>        _window;
         std::shared_ptr<a3d::Node>          _simulationRoot;
