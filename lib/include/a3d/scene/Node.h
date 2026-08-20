@@ -57,16 +57,16 @@ namespace a3d {
 
         // [Public Static Member Functions]
 
-        /** @return a new node with @p name. */
+        /** @brief Creates a new node with @p name. */
         static std::shared_ptr<Node> NamedNode(const std::string& name);
 
-        /** @return a new node containing @p geometry. */
+        /** @brief Creates a new node containing @p geometry. */
         static std::shared_ptr<Node> MeshNode(const std::shared_ptr<Mesh>& geometry);
 
-        /** @return a new node containing @p light. */
+        /** @brief Creates a new node containing @p light. */
         static std::shared_ptr<Node> LightNode(const std::shared_ptr<Light>& light);
 
-        /** @return a new node containing @p camera. */
+        /** @brief Creates a new node containing @p camera. */
         static std::shared_ptr<Node> CameraNode(const std::shared_ptr<Camera>& camera);
 
         // [Public Lifecycle Functions]
@@ -96,25 +96,25 @@ namespace a3d {
 
         // [Public Member Functions]
 
-        /** @return the optional node name. */
+        /** @brief Returns the optional node name. */
         const std::optional<std::string>&  name() const;
 
         /** @brief Sets the node name. */
         void                               name(const std::string& name);
 
-        /** @return the light attached to this node, or nullptr if none is attached. */
+        /** @brief Returns the light attached to this node, or nullptr if none is attached. */
         const std::shared_ptr<Light>&      light() const;
 
         /** @brief Replaces the light attached to this node; nullptr removes it. */
         void                               light(const std::shared_ptr<Light>& light);
 
-        /** @return the camera attached to this node, or nullptr if none is attached. */
+        /** @brief Returns the camera attached to this node, or nullptr if none is attached. */
         const std::shared_ptr<Camera>&     camera() const;
 
         /** @brief Replaces the camera attached to this node; nullptr removes it. */
         void                               camera(const std::shared_ptr<Camera>& camera);
 
-        /** @return the mesh attached to this node, or nullptr if none is attached. */
+        /** @brief Returns the mesh attached to this node, or nullptr if none is attached. */
         const std::shared_ptr<Mesh>&       mesh() const;
 
         /**
@@ -125,94 +125,98 @@ namespace a3d {
          */
         void                               mesh(const std::shared_ptr<Mesh>& mesh);
 
-        /** @return the node position in parent coordinates. */
+        /** @brief Returns the node position in parent coordinates. */
         const math::vec3&                  position() const;
 
         /** @brief Sets the node position in parent coordinates. */
         void                               position(const math::vec3& position);
 
         /**
-         * @return the node rotation in parent coordinates as an axis-angle vector,
-         *         with xyz containing the axis and w containing the angle in radians.
+         * @brief Returns the node rotation in parent coordinates.
+         *
+         * @return An axis-angle vector with xyz containing the axis and w containing
+         *         the angle in radians.
          */
         math::vec4                         rotation() const;
 
         /** @brief Sets the node rotation from @p axis and @p angle in radians. */
         void                               rotation(const math::vec3& axis, float angle);
 
-        /** @return the node Euler angles in parent coordinates as pitch, yaw, and roll in radians. */
+        /** @brief Returns the node Euler angles in parent coordinates as pitch, yaw, and roll in radians. */
         math::vec3                         eulerAngles() const;
 
         /** @brief Sets the node Euler angles as pitch, yaw, and roll in radians. */
         void                               eulerAngles(const math::vec3& angles);
 
-        /** @return the node orientation in parent coordinates as a quaternion. */
+        /** @brief Returns the node orientation in parent coordinates as a quaternion. */
         const math::quat&                  orientation() const;
 
         /** @brief Sets the node orientation in parent coordinates. */
         void                               orientation(const math::quat& orientation);
 
-        /** @return the node scale relative to its parent. */
+        /** @brief Returns the node scale relative to its parent. */
         const math::vec3&                  scale() const;
 
         /** @brief Sets the node scale relative to its parent. */
         void                               scale(const math::vec3& scale);
 
-        /** @return the node's local -Z axis expressed in parent coordinates. */
+        /** @brief Returns the node's local -Z axis expressed in parent coordinates. */
         math::vec3                         forward() const;
 
-        /** @return the node's local +Y axis expressed in parent coordinates. */
+        /** @brief Returns the node's local +Y axis expressed in parent coordinates. */
         math::vec3                         up() const;
 
-        /** @return the node's local +X axis expressed in parent coordinates. */
+        /** @brief Returns the node's local +X axis expressed in parent coordinates. */
         math::vec3                         right() const;
 
-        /** @return the node transform from local coordinates to parent coordinates. */
+        /** @brief Returns the node transform from local coordinates to parent coordinates. */
         math::mat4                         transform() const;
 
         /** @brief Sets the node transform from local coordinates to parent coordinates. */
         void                               transform(const math::mat4& transform);
 
-        /** @return the node position in world coordinates. */
+        /** @brief Returns the node position in world coordinates. */
         math::vec3                         worldPosition() const;
 
         /**
-         * @return the node world rotation as an axis-angle vector, with xyz containing
-         *         the axis and w containing the angle in radians.
+         * @brief Returns the node world rotation.
+         *
+         * @return An axis-angle vector with xyz containing the axis and w containing
+         *         the angle in radians.
          */
         math::vec4                         worldRotation() const;
 
-        /** @return the node world Euler angles as pitch, yaw, and roll in radians. */
+        /** @brief Returns the node world Euler angles as pitch, yaw, and roll in radians. */
         math::vec3                         worldEulerAngles() const;
 
-        /** @return the node orientation in world coordinates. */
+        /** @brief Returns the node orientation in world coordinates. */
         math::quat                         worldOrientation() const;
 
-        /** @return the effective node scale in world coordinates. */
+        /** @brief Returns the effective node scale in world coordinates. */
         math::vec3                         worldScale() const;
 
-        /** @return the node's local -Z axis expressed in world coordinates. */
+        /** @brief Returns the node's local -Z axis expressed in world coordinates. */
         math::vec3                         worldForward() const;
 
-        /** @return the node's local +Y axis expressed in world coordinates. */
+        /** @brief Returns the node's local +Y axis expressed in world coordinates. */
         math::vec3                         worldUp() const;
 
-        /** @return the node's local +X axis expressed in world coordinates. */
+        /** @brief Returns the node's local +X axis expressed in world coordinates. */
         math::vec3                         worldRight() const;
 
-        /** @return the transform from this node's local coordinates to world coordinates. */
+        /** @brief Returns the transform from this node's local coordinates to world coordinates. */
         math::mat4                         worldTransform() const;
 
-        /** @return @p pos converted from @p from local coordinates into this node's local coordinates. */
+        /** @brief Converts @p pos from @p from local coordinates into this node's local coordinates. */
         math::vec3                         convertFrom(const math::vec3& pos, const Node& from);
 
-        /** @return @p pos converted from this node's local coordinates into @p to local coordinates. */
+        /** @brief Converts @p pos from this node's local coordinates into @p to local coordinates. */
         math::vec3                         convertTo(const math::vec3& pos, const Node& to);
 
-        /** @return @p t converted from @p from local coordinates into this node's local coordinates. */
+        /** @brief Converts @p t from @p from local coordinates into this node's local coordinates. */
         math::mat4                         convertFrom(const math::mat4& t, const Node& from);
 
-        /** @return @p t converted from this node's local coordinates into @p to local coordinates. */
+        /** @brief Converts @p t from this node's local coordinates into @p to local coordinates. */
         math::mat4                         convertTo(const math::mat4& t, const Node& to);
 
         /**
@@ -229,46 +233,50 @@ namespace a3d {
         void                               removeFromParent();
 
         /**
+         * @brief Returns this node's children.
+         *
          * @param resursive when true, returns all descendants; otherwise returns direct children only.
-         * @return child nodes in hierarchy traversal order.
+         * @return Child nodes in hierarchy traversal order.
          */
         std::vector<std::shared_ptr<Node>> children(bool resursive = false) const;
 
         /**
+         * @brief Finds a child with @p name.
+         *
          * @param name name to match.
          * @param resursive when true, searches all descendants; otherwise searches direct children only.
-         * @return the first matching child, or nullptr if no match is found.
+         * @return The first matching child, or nullptr if no match is found.
          */
         std::shared_ptr<Node>              childNamed(const std::string& name, bool resursive = false) const;
 
-        /** @return the physics body owned by this node, or nullptr if none is attached. */
+        /** @brief Returns the physics body owned by this node, or nullptr if none is attached. */
         PhysicsBody*                       physicsBody() const;
 
         /** @brief Replaces the physics body owned by this node; nullptr removes it. */
         void                               physicsBody(std::unique_ptr<PhysicsBody> body);
 
-        /** @return true when this node is hidden from rendering. */
+        /** @brief Returns true when this node is hidden from rendering. */
         bool                               hidden() const;
 
         /** @brief Sets whether this node is hidden from rendering. */
         void                               hidden(bool hidden);
 
-        /** @return the node render-order value. */
+        /** @brief Returns the node render-order value. */
         int                                renderOrder() const;
 
         /** @brief Sets the node render-order value. */
         void                               renderOrder(int order);
 
-        /** @return the enabled node debug visualization options. */
+        /** @brief Returns the enabled node debug visualization options. */
         DebugOptions                       debugOptions() const;
 
         /** @brief Sets the enabled node debug visualization options. */
         void                               debugOptions(DebugOptions options);
 
-        /** @return the Scene containing this node, or nullptr if the node is not attached to a Scene. */
+        /** @brief Returns the Scene containing this node, or nullptr if the node is not attached to a Scene. */
         Scene*                             scene() const;
 
-        /** @return the current parent as a weak pointer, or an empty weak pointer for a root/detached node. */
+        /** @brief Returns the current parent, or an empty weak pointer for a root or detached node. */
         std::weak_ptr<Node>                parent() const;
 
         // [Internal Types]
