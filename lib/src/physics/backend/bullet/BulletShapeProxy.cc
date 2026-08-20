@@ -248,6 +248,14 @@ static unique_ptr<btCollisionShape> BTShapeFromPrimitiveShape(PhysicsShape& shap
                                                       (btScalar) cylinderShape->height() / 2.0f,
                                                       (btScalar) cylinderShape->radius()));
     }
+    // else if (auto cylinderShape = dynamic_cast<CylinderPhysicsShape*>(&shape)) {
+    //     auto btShape =
+    //         make_unique<btCylinderShape>(btVector3(static_cast<btScalar>(cylinderShape->radius()),
+    //                                                static_cast<btScalar>(cylinderShape->height() / 2.0f),
+    //                                                static_cast<btScalar>(cylinderShape->radius())));
+    //     btShape->setMargin(0.0f);
+    //     return btShape;
+    // }
     else if (dynamic_cast<InfinitePlanePhysicsShape*>(&shape)) {
         return make_unique<btStaticPlaneShape>(btVector3(0.0f, 0.0f, 1.0f), (btScalar) 0);
     }

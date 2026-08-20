@@ -58,6 +58,11 @@ static vector<shared_ptr<Node>>  DropRocks(Node&         parent,
                                            const vec3&   boxSize,
                                            const u8vec3& stackSize,
                                            float         padding);
+static vector<shared_ptr<Node>>  DropCoins(Node&         parent,
+                                           const vec3&   location,
+                                           const vec3&   boxSize,
+                                           const u8vec3& stackSize,
+                                           float         padding);
 static vector<shared_ptr<Node>>  DropBalls(Node&         parent,
                                            const vec3&   location,
                                            const vec3&   boxSize,
@@ -908,9 +913,9 @@ void App::performAction(const PendingAction& action) {
                     break;
                 }
                 case DropAction::Coins: {
-                    // auto rocks =
-                    //     DropCoins(*simulationRoot, spawnLocation, DROP_BOX_SIZE, DROP_STACK_SIZE, DROP_PADDING);
-                    // _transients.track(rocks, "coin");
+                    auto coins = DropCoins(*simulationRoot, spawnLocation, DROP_BOX_SIZE, DROP_STACK_SIZE,
+                                           DROP_PADDING + .1);
+                    _transients.track(coins, "coin");
                     break;
                 }
                 case DropAction::Balls: {
@@ -1251,10 +1256,123 @@ vector<shared_ptr<Node>> DropRocks(Node&         parent,
                                 startZ + static_cast<float>(z) * stepZ});
 
                 auto physicsBody = PhysicsBody::DynamicBody();
-                physicsBody->mass(1.0f);
-                physicsBody->restitution(0.03f);
+                physicsBody->mass(3.5f);
+                physicsBody->restitution(0.02f);
                 physicsBody->friction(0.8f);
+
                 physicsBody->shape(rock.physicsShape);
+
+                const float angularVariance = radians(30.0f);
+                physicsBody->angularVelocity({uniform_linear(-angularVariance, angularVariance),
+                                              uniform_linear(-angularVariance, angularVariance),
+                                              uniform_linear(-angularVariance, angularVariance)});
+
+                node->physicsBody(std::move(physicsBody));
+
+                added.push_back(node);
+                parent.addChild(node);
+            }
+        }
+    }
+
+    return added;
+}
+
+vector<shared_ptr<Node>> DropCoins(Node&         parent,
+                                   const vec3&   location,
+                                   const vec3&   boxSize,
+                                   const u8vec3& stackSize,
+                                   float         padding) {
+
+    const unsigned sizeX = stackSize.x;
+    const unsigned sizeY = stackSize.y;
+    const unsigned sizeZ = stackSize.z;
+
+    vector<shared_ptr<Node>> added;
+    added.reserve(sizeX * sizeY * sizeZ);
+
+    static auto [mesh, shape] = [] {
+        constexpr float MAX_DIM = 0.35f;
+
+        auto mesh = util::fs::MeshAt("roman_coin/roman_coin.gltf");
+
+        const float scaleFactor = MAX_DIM / math::max(mesh->localExtent());
+
+        auto transform = math::rotate(mat4(1.0f), radians(90.0f), vec3 {1.0f, 0.0f, 0.0f});
+
+        transform = math::scale(transform, vec3(scaleFactor));
+
+        mesh->burnTransform(transform, true);
+
+        // After rotation:
+        // X = diameter
+        // Y = thickness
+        // Z = diameter
+        const auto extent = mesh->localExtent();
+
+        const float radius = math::max(extent.x, extent.z) * 0.5f;
+        const float height = extent.y;
+
+        auto shape = make_shared<CylinderPhysicsShape>(radius, height);
+
+        mesh->firstMaterial()->specular(Color::LightGray());
+        mesh->firstMaterial()->specularExponent(16.0f);
+
+        return std::pair {mesh, shape};
+    }();
+
+    const float stepX = boxSize.x + padding;
+    const float stepY = boxSize.y + padding;
+    const float stepZ = boxSize.z + padding;
+
+    const float totalLength = boxSize.x * static_cast<float>(sizeX) + padding * static_cast<float>(sizeX - 1);
+    const float totalWidth = boxSize.z * static_cast<float>(sizeY) + padding * static_cast<float>(sizeY - 1);
+
+    const float startX = location.x - totalLength * 0.5f + boxSize.x * 0.5f;
+    const float startZ = location.z - totalWidth * 0.5f + boxSize.z * 0.5f;
+    const float startY = location.y + boxSize.y * 0.5f;
+
+    for (unsigned y = 0; y < sizeZ; ++y) {
+        for (unsigned z = 0; z < sizeY; ++z) {
+            for (unsigned x = 0; x < sizeX; ++x) {
+
+                auto node = Node::MeshNode(mesh);
+
+                static int boxNum = 0;
+                node->name(std::format("Coin {}", ++boxNum));
+
+                const float positionVariance = padding / 2.0;
+
+                const vec3 position {startX + static_cast<float>(x) * stepX,
+                                     startY + static_cast<float>(y) * stepY,
+                                     startZ + static_cast<float>(z) * stepZ};
+
+                const vec3 variation {uniform_linear(-positionVariance, positionVariance),
+                                      uniform_linear(-positionVariance * 0.25f, positionVariance * 0.25f),
+                                      uniform_linear(-positionVariance, positionVariance)};
+
+                node->position(position + variation);
+
+                node->eulerAngles({uniform_linear(0.0f, TWO_PI), uniform_linear(0.0f, TWO_PI),
+                                   uniform_linear(0.0f, TWO_PI)});
+
+                auto physicsBody = PhysicsBody::DynamicBody();
+                physicsBody->mass(20.0f);
+                physicsBody->restitution(0.25f);
+                physicsBody->friction(0.5f);
+                physicsBody->rollingFriction(0.15f);
+                physicsBody->angularDamping(0.08f);
+
+                constexpr float COM_VARIANCE = 0.003f; // 3 mm at 35 cm diameter
+
+                physicsBody->centerOfMass(physicsBody->centerOfMass()
+                                          + vec3 {uniform_linear(-COM_VARIANCE, COM_VARIANCE), 0.0f,
+                                                  uniform_linear(-COM_VARIANCE, COM_VARIANCE)});
+
+                // physicsBody->linearSleepingThreshold(0.05f);
+                // physicsBody->angularSleepingThreshold(0.05f);
+
+                physicsBody->shape(shape);
 
                 const float angularVariance = radians(30.0f);
                 physicsBody->angularVelocity({uniform_linear(-angularVariance, angularVariance),
@@ -1286,15 +1404,15 @@ vector<shared_ptr<Node>> DropBalls(Node&         parent,
     added.reserve(sizeX * sizeY * sizeZ);
 
     static auto [mesh, shape] = [] {
-        constexpr float DIAMETER = 0.45f;
+        constexpr float MAX_DIM = 0.45f;
 
         auto mesh = util::fs::MeshAt("beachball/beachball.gltf");
 
-        const float scaleFactor = DIAMETER / math::max(mesh->localExtent());
+        const float scaleFactor = MAX_DIM / math::max(mesh->localExtent());
         const auto  transform = math::scale(mat4(1.0f), vec3(scaleFactor));
         mesh->burnTransform(transform, true);
 
-        auto shape = make_shared<SpherePhysicsShape>(DIAMETER / 2.0);
+        auto shape = make_shared<SpherePhysicsShape>(MAX_DIM / 2.0);
 
         mesh->firstMaterial()->specular(Color::LightGray());
         mesh->firstMaterial()->specularExponent(16.0f);
@@ -1322,14 +1440,14 @@ vector<shared_ptr<Node>> DropBalls(Node&         parent,
                 static int boxNum = 0;
                 node->name(std::format("Beachball {}", ++boxNum));
 
-                static const float positionVariance = padding / 2.0;
+                const float positionVariance = padding / 2.0;
 
                 const vec3 position {startX + static_cast<float>(x) * stepX,
                                      startY + static_cast<float>(y) * stepY,
                                      startZ + static_cast<float>(z) * stepZ};
 
                 const vec3 variation {uniform_linear(-positionVariance, positionVariance),
-                                      uniform_linear(-positionVariance, positionVariance),
+                                      uniform_linear(-positionVariance * 0.25f, positionVariance * 0.25f),
                                       uniform_linear(-positionVariance, positionVariance)};
 
                 node->position(position + variation);
@@ -1339,9 +1457,10 @@ vector<shared_ptr<Node>> DropBalls(Node&         parent,
 
                 auto physicsBody = PhysicsBody::DynamicBody();
                 physicsBody->mass(0.10f);
-                physicsBody->restitution(0.9f);
+                physicsBody->restitution(0.8f);
                 physicsBody->friction(0.4f);
-                physicsBody->angularDamping(0.15);
+                physicsBody->rollingFriction(0.015);
+                physicsBody->angularDamping(0.6);
 
                 physicsBody->shape(shape);
 
