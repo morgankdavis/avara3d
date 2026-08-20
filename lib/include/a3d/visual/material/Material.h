@@ -24,49 +24,79 @@ namespace a3d {
 
     class Texture;
 
+    /**
+     * @brief Describes the surface appearance and render state of Mesh geometry.
+     *
+     * Ambient, diffuse, specular, and emission properties may be absent, a constant
+     * Color, or a shared Texture. Copying a Material copies its values while retaining
+     * shared ownership of any Texture objects referenced by its properties.
+     */
     class Material {
 
     public:
         // [Public Types]
 
+        /** @brief Material property contents: absent, a shared Texture, or a constant Color. */
         using Property = std::variant<std::monostate, std::shared_ptr<Texture>, Color>;
 
+        /** @brief Identifies one of the material's lighting properties. */
         enum class PropertyType : uint8_t {
-            Ambient  = 0,
-            Diffuse  = 1,
-            Specular = 2,
-            Emission = 3
+            Ambient  = 0, ///< Ambient reflectance.
+            Diffuse  = 1, ///< Diffuse reflectance and base surface color.
+            Specular = 2, ///< Specular reflectance.
+            Emission = 3  ///< Self-emissive surface content.
         };
 
+        /** @brief Selects polygon rasterization mode. */
         enum class FillMode {
-            Fill,
-            Lines,
-            Points
+            Fill,   ///< Rasterize filled polygons.
+            Lines,  ///< Rasterize polygon edges.
+            Points  ///< Rasterize polygon vertices as points.
         };
 
+        /** @brief Selects how material alpha participates in render-pass selection. */
         enum class AlphaMode : uint8_t {
+            /** @brief Selects the opaque render pass. */
             Opaque, // no discard, no blending
+            /** @brief Selects the cutout/masked render pass. */
             Mask, // uses discard/alpha threshold
+            /** @brief Selects the transparent blending render pass. */
             Blend
         }; // real transparency
 
+        /** @brief Selects the blending function used for transparent materials. */
         enum class BlendFunction : uint8_t {
-            Disabled,
-            Alpha,
-            Additive,
-            PremultipliedAlpha
+            Disabled,           ///< Do not explicitly enable blending.
+            Alpha,              ///< Conventional source-alpha blending.
+            Additive,           ///< Add source color to the destination.
+            PremultipliedAlpha  ///< Alpha blending for premultiplied source color.
         };
 
         // [Public Static Member Functions]
 
+        /**
+         * @brief Returns the shared mutable fallback Material used for geometry without a usable material.
+         *
+         * The same Material instance is returned on each call, so modifying it changes
+         * the fallback appearance for all users of the default material.
+         */
         static std::shared_ptr<Material> DefaultMaterial();
+
+        /** @brief Creates a Material containing only the supplied diffuse @p property. */
         static std::shared_ptr<Material> DiffuseMaterial(Property property);
+
+        /** @brief Creates a Material containing only the supplied emission @p property. */
         static std::shared_ptr<Material> EmissionMaterial(Property property);
 
         // [Public Lifecycle Functions]
 
+        /** @brief Creates a Material with no lighting properties and default render state. */
         Material();
+
+        /** @brief Creates a Material with the supplied ambient, diffuse, and specular properties. */
         Material(const Property& ambient, const Property& diffuse, const Property& specular);
+
+        /** @brief Creates a Material with the supplied lighting properties. */
         Material(const Property& ambient,
                  const Property& diffuse,
                  const Property& specular,
@@ -82,50 +112,118 @@ namespace a3d {
 
         // [Public Member Functions]
 
+        /** @brief Returns the optional material name. */
         const std::optional<std::string>& name() const;
+
+        /** @brief Sets the material name. */
         void                              name(const std::string& name);
 
+        /** @brief Returns the ambient material property. */
         const Property&                   ambient() const;
+
+        /** @brief Sets the ambient material property. */
         void                              ambient(const Property& ambient);
 
+        /** @brief Returns the diffuse material property. */
         const Property&                   diffuse() const;
+
+        /** @brief Sets the diffuse material property. */
         void                              diffuse(const Property& diffuse);
 
+        /** @brief Returns the specular material property. */
         const Property&                   specular() const;
+
+        /** @brief Sets the specular material property. */
         void                              specular(const Property& specular);
 
+        /** @brief Returns the self-emissive material property. */
         const Property&                   emission() const;
+
+        /**
+         * @brief Sets the self-emissive material property.
+         *
+         * When emission content is present, the standard material shader renders it
+         * without evaluating Scene lights.
+         */
         void                              emission(const Property& emission);
 
+        /** @brief Returns the Phong specular exponent controlling highlight sharpness. */
         float                             specularExponent() const;
+
+        /** @brief Sets the Phong specular exponent controlling highlight sharpness. */
         void                              specularExponent(float exponent);
 
+        /** @brief Returns whether diffuse content replaces ambient content during lighting. */
         bool                              locksAmbientWithDiffuse() const;
+
+        /** @brief Sets whether diffuse content replaces ambient content during lighting. */
         void                              locksAmbientWithDiffuse(bool flag);
 
+        /** @brief Returns whether both sides of polygons are rendered. */
         bool                              doubleSided() const;
+
+        /** @brief Sets whether both sides of polygons are rendered. */
         void                              doubleSided(bool flag);
 
+        /** @brief Returns the polygon rasterization mode. */
         FillMode                          fillMode() const;
+
+        /**
+         * @brief Sets the polygon rasterization mode.
+         *
+         * Support for non-filled modes is rendering-backend dependent.
+         */
         void                              fillMode(FillMode mode);
 
+        /**
+         * @brief Returns the uniform texture-coordinate scale.
+         *
+         * Texture coordinates are divided by this value; values greater than one
+         * enlarge texture features and values below one increase repetition.
+         */
         float                             uvScale() const;
+
+        /**
+         * @brief Sets the uniform texture-coordinate scale.
+         *
+         * @throws std::invalid_argument if @p scale is not finite and greater than zero.
+         */
         void                              uvScale(float scale);
 
+        /** @brief Returns the alpha render mode. */
         AlphaMode                         alphaMode() const;
+
+        /** @brief Sets the alpha render mode. */
         void                              alphaMode(AlphaMode mode);
 
         // ! NOT IMPLEMENTED !
+        /** @brief Returns the stored alpha-mask cutoff; the renderer does not currently consume this value. */
         float                             alphaCutoff() const;
+
+        /** @brief Sets the stored alpha-mask cutoff; the renderer does not currently consume this value. */
         void                              alphaCutoff(float v);
 
+        /** @brief Returns the requested transparent blending function. */
         BlendFunction                     blendFunction() const;
+
+        /**
+         * @brief Sets the requested transparent blending function.
+         *
+         * Opaque and Mask materials render with blending disabled. A Blend material
+         * with BlendFunction::Disabled uses conventional alpha blending by default.
+         */
         void                              blendFunction(BlendFunction function);
 
+        /** @brief Returns whether depth testing is enabled for the material. */
         bool                              depthTestEnabled() const;
+
+        /** @brief Enables or disables depth testing for the material. */
         void                              depthTestEnabled(bool enabled);
 
+        /** @brief Returns whether rendering the material writes to the depth buffer. */
         bool                              depthWriteEnabled() const;
+
+        /** @brief Enables or disables depth-buffer writes for the material. */
         void                              depthWriteEnabled(bool enabled);
 
         // [Internal Types]
