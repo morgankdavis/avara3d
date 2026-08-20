@@ -215,6 +215,14 @@ float PhysicsBody::restitution() const {
     return _proxy->restitution();
 }
 
+float PhysicsBody::spinningFriction() const {
+    return _proxy->spinningFriction();
+}
+
+void PhysicsBody::spinningFriction(float friction) {
+    _proxy->spinningFriction(friction);
+}
+
 void PhysicsBody::restitution(float restitution) {
     _proxy->restitution(restitution);
 }

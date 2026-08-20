@@ -996,6 +996,11 @@ void App::performAction(const PendingAction& action) {
                     impulse = POKE_IMPULSE_HARD;
                     break;
                 }
+
+                case Pokiness::Twist: {
+                    log::app::i()("Twist!");
+                    break;
+                }
             }
 
             body->applyForce(action.rayDirection * impulse, action.target.hitPosition, true);
@@ -1361,6 +1366,7 @@ vector<shared_ptr<Node>> DropCoins(Node&         parent,
                 physicsBody->restitution(0.25f);
                 physicsBody->friction(0.5f);
                 physicsBody->rollingFriction(0.15f);
+                physicsBody->spinningFriction(0.10f);
                 physicsBody->angularDamping(0.08f);
 
                 // const auto extent = mesh->localExtent();

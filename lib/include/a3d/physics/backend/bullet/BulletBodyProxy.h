@@ -51,6 +51,9 @@ namespace a3d {
         float              rollingFriction() const override;
         void               rollingFriction(float friction) override;
 
+        float              spinningFriction() const override;
+        void               spinningFriction(float friction) override;
+
         float              restitution() const override;
         void               restitution(float restitution) override;
 
@@ -127,6 +130,7 @@ namespace a3d {
         void                               rebuildCenterOfMassOffsetShape();
         void                               calculateMomentOfInertia();
         void                               syncCcdSettings();
+        void                               syncRollingFrictionAnisotropy();
 
         /// Private Member Variables ///
 

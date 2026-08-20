@@ -166,6 +166,7 @@ void BulletBodyProxy::shapeProxy(PhysicsShapeProxy* proxy) {
                 }
 
                 rebuildCenterOfMassOffsetShape();
+                syncRollingFrictionAnisotropy();
 
                 if (bodyType == PhysicsBody::Type::Dynamic && _autocalculatesMomentOfInertia) {
                     calculateMomentOfInertia();
@@ -181,6 +182,8 @@ void BulletBodyProxy::shapeProxy(PhysicsShapeProxy* proxy) {
     _btBody->setCollisionShape(nullptr);
     _centerOfMassOffsetShape.reset();
     _shapeProxy = nullptr;
+
+    syncRollingFrictionAnisotropy();
 
     if (_autocalculatesCenterOfMass) {
         _centerOfMass = vec3 {0.0f};
@@ -269,10 +272,19 @@ float BulletBodyProxy::rollingFriction() const {
 
 void BulletBodyProxy::rollingFriction(float friction) {
     _btBody->setRollingFriction(friction);
+    syncRollingFrictionAnisotropy();
 }
 
 float BulletBodyProxy::restitution() const {
     return _btBody->getRestitution();
+}
+
+float BulletBodyProxy::spinningFriction() const {
+    return _btBody->getSpinningFriction();
+}
+
+void BulletBodyProxy::spinningFriction(float friction) {
+    _btBody->setSpinningFriction(friction);
 }
 
 void BulletBodyProxy::restitution(float restitution) {
@@ -701,6 +713,24 @@ void BulletBodyProxy::syncCcdSettings() {
         _btBody->setCcdMotionThreshold(btScalar(0.0));
         _btBody->setCcdSweptSphereRadius(btScalar(0.0));
     }
+}
+
+void BulletBodyProxy::syncRollingFrictionAnisotropy() {
+
+    btVector3 direction {1.0f, 1.0f, 1.0f};
+
+    if (_btBody->getRollingFriction() > 0.0f) {
+
+        if (auto* bulletProxy = dynamic_cast<BulletShapeProxy*>(_shapeProxy);
+            bulletProxy && !bulletProxy->btShapes().empty()) {
+
+            if (auto* rootShape = bulletProxy->btShapes().front().get()) {
+                direction = rootShape->getAnisotropicRollingFrictionDirection();
+            }
+        }
+    }
+
+    _btBody->setAnisotropicFriction(direction, btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
 }
 
 /// Private Static Non-Member Functions ///

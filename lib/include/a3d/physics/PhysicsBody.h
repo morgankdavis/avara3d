@@ -81,6 +81,9 @@ namespace a3d {
         float                                rollingFriction() const;
         void                                 rollingFriction(float friction);
 
+        float                                spinningFriction() const;
+        void                                 spinningFriction(float friction);
+
         float                                restitution() const;
         void                                 restitution(float restitution);
 

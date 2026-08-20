@@ -54,6 +54,9 @@ namespace a3d {
         virtual float              rollingFriction() const         = 0;
         virtual void               rollingFriction(float friction) = 0;
 
+        virtual float              spinningFriction() const         = 0;
+        virtual void               spinningFriction(float friction) = 0;
+
         virtual float              restitution() const            = 0;
         virtual void               restitution(float restitution) = 0;
 
