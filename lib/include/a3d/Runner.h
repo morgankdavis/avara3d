@@ -33,9 +33,9 @@ namespace a3d {
      * maxCatchUpSteps(); excess accumulated simulation time is discarded while the
      * fractional remainder is retained.
      *
-     * Automatic simulation stepping may be paused while host updates, input,
-     * callbacks, and rendering continue. While paused, fixed-duration simulation
-     * steps may be requested explicitly.
+     * Automatic simulation stepping may be paused while host updates, input
+     * processing, host-update and input callbacks, and rendering continue. While
+     * paused, fixed-duration simulation steps may be requested explicitly.
      *
      * A Runner begins in State::Idle. start() may be called once; stop() places the
      * Runner in the terminal State::Stopped state.
@@ -139,10 +139,12 @@ namespace a3d {
         /**
          * @brief Pauses or resumes automatic simulation stepping.
          *
-         * Host updates, input processing, callbacks, and rendering continue while
-         * paused. Pausing clears accumulated automatic simulation time. Resuming
-         * clears pending requested steps and discards the next host-time delta so
-         * time spent paused does not become catch-up work.
+         * Host updates, input processing, host-update and input callbacks, and
+         * rendering continue while paused. Scene simulation-step callbacks run only
+         * when explicitly requested steps are executed. Pausing clears accumulated
+         * automatic simulation time. Resuming clears pending requested steps and
+         * discards the next host-time delta so time spent paused does not become
+         * catch-up work.
          *
          * @param paused true to pause automatic simulation stepping; false to resume it.
          *
