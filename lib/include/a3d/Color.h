@@ -16,62 +16,146 @@
 
 namespace a3d {
 
+    /**
+     * @brief RGBA color represented by floating-point components.
+     *
+     * Floating-point inputs are stored as supplied and are not clamped. The 8-bit
+     * accessors clamp finite components to [0, 1], scale them to [0, 255], and round
+     * to the nearest integer.
+     */
     class Color {
 
     public:
         // [Public Static Member Functions]
 
+        /** @brief Returns opaque black. */
         static Color Black();
+
+        /** @brief Returns opaque dark gray. */
         static Color DarkGray();
+
+        /** @brief Returns opaque gray. */
         static Color Gray();
+
+        /** @brief Returns opaque light gray. */
         static Color LightGray();
+
+        /** @brief Returns opaque white. */
         static Color White();
+
+        /** @brief Returns opaque maroon. */
         static Color Maroon();
+
+        /** @brief Returns opaque red. */
         static Color Red();
+
+        /** @brief Returns opaque orange. */
         static Color Orange();
+
+        /** @brief Returns opaque yellow. */
         static Color Yellow();
+
+        /** @brief Returns opaque olive. */
         static Color Olive();
+
+        /** @brief Returns opaque lime. */
         static Color Lime();
+
+        /** @brief Returns opaque green. */
         static Color Green();
+
+        /** @brief Returns opaque cyan. */
         static Color Cyan();
+
+        /** @brief Returns opaque blue. */
         static Color Blue();
+
+        /** @brief Returns opaque navy. */
         static Color Navy();
+
+        /** @brief Returns opaque teal. */
         static Color Teal();
+
+        /** @brief Returns opaque magenta. */
         static Color Magenta();
+
+        /** @brief Returns opaque purple. */
         static Color Purple();
+
+        /** @brief Returns opaque brown. */
         static Color Brown();
 
+        /** @brief Returns an opaque color with independently randomized 8-bit RGB channels. */
         static Color Random();
 
         // [Public Lifecycle Functions]
 
+        /** @brief Creates opaque white. */
         Color();
+
+        /** @brief Creates an opaque color from floating-point RGB components. */
         explicit Color(const math::vec3& rgb);
+
+        /** @brief Creates a color from floating-point RGBA components. */
         explicit Color(const math::vec4& rgba);
+
+        /** @brief Creates an opaque color from 8-bit RGB components. */
         explicit Color(const math::u8vec3& irgb);
+
+        /** @brief Creates a color from 8-bit RGBA components. */
         explicit Color(const math::u8vec4& irgba);
+
+        /** @brief Creates an opaque grayscale color with all RGB components set to @p white. */
         explicit Color(float white);
+
+        /** @brief Creates a color from a packed 0xRRGGBBAA value. */
         explicit Color(uint32_t color);
+
+        /**
+         * @brief Creates a color from hexadecimal RGB or RGBA text.
+         *
+         * Supported forms are RRGGBB, #RRGGBB, RRGGBBAA, and #RRGGBBAA.
+         */
         explicit Color(const std::string& hexString);
 
         // TODO: operator*, operator[]
 
         // [Public Member Functions]
 
+        /** @brief Returns the floating-point red component. */
         float        r() const;
+
+        /** @brief Returns the floating-point green component. */
         float        g() const;
+
+        /** @brief Returns the floating-point blue component. */
         float        b() const;
+
+        /** @brief Returns the floating-point alpha component. */
         float        a() const;
 
+        /** @brief Returns the red component converted to 8-bit form. */
         uint8_t      u8r() const;
+
+        /** @brief Returns the green component converted to 8-bit form. */
         uint8_t      u8g() const;
+
+        /** @brief Returns the blue component converted to 8-bit form. */
         uint8_t      u8b() const;
+
+        /** @brief Returns the alpha component converted to 8-bit form. */
         uint8_t      u8a() const;
 
+        /** @brief Returns the floating-point RGB components. */
         math::vec3   rgb() const;
+
+        /** @brief Returns the floating-point RGBA components. */
         math::vec4   rgba() const;
 
+        /** @brief Returns the RGB components converted to 8-bit form. */
         math::u8vec3 u8rgb() const;
+
+        /** @brief Returns the RGBA components converted to 8-bit form. */
         math::u8vec4 u8rgba() const;
 
     private:
