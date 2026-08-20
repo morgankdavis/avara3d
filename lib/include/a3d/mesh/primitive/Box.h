@@ -18,11 +18,26 @@ namespace a3d {
     class Mesh;
     class Material;
 
+    /**
+     * @brief Box mesh element centered at the origin.
+     *
+     * Width spans the X axis, height spans Y, and length spans Z.
+     */
     class Box : public MeshElement {
 
     public:
-        // [Pubic Static Members]
+        // [Public Static Member Functions]
 
+        /**
+         * @brief Creates a Mesh containing a Box and optional @p material.
+         *
+         * @param width full size along X.
+         * @param height full size along Y.
+         * @param length full size along Z.
+         * @param widthSegments subdivisions along X.
+         * @param heightSegments subdivisions along Y.
+         * @param lengthSegments subdivisions along Z.
+         */
         static std::shared_ptr<Mesh> Mesh(float                     width, // x
                                           float                     height, // y
                                           float                     length, // z
@@ -33,20 +48,32 @@ namespace a3d {
 
         // [Public Lifecycle Functions]
 
+        /** @brief Generates box geometry with the supplied dimensions and subdivision counts. */
         Box(float    width,
             float    height,
             float    length,
-            unsigned lengthSegments = DEFAULT_SEGMENTS,
             unsigned widthSegments  = DEFAULT_SEGMENTS,
-            unsigned heightSegments = DEFAULT_SEGMENTS);
+            unsigned heightSegments = DEFAULT_SEGMENTS,
+            unsigned lengthSegments = DEFAULT_SEGMENTS);
 
         // [Public Member Functions]
 
+        /** @brief Returns the configured box length along Z. */
         float    length() const;
+
+        /** @brief Returns the configured box width along X. */
         float    width() const;
+
+        /** @brief Returns the configured box height along Y. */
         float    height() const;
+
+        /** @brief Returns the stored length subdivision count. */
         unsigned lengthSegments() const;
+
+        /** @brief Returns the stored width subdivision count. */
         unsigned widthSegments() const;
+
+        /** @brief Returns the stored height subdivision count. */
         unsigned heightSegments() const;
 
     private:

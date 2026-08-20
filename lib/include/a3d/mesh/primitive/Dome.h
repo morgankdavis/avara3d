@@ -18,12 +18,21 @@ namespace a3d {
     class Mesh;
     class Material;
 
+    /**
+     * @brief Generates a bounded angular patch of a sphere centered at the origin.
+     *
+     * Azimuth angles are measured counterclockwise around the Z axis from +X;
+     * elevation angles are measured from the +Z axis. All angles are in radians.
+     * The resulting patch remains positioned on the source sphere and is not
+     * recentered around the patch's own bounds.
+     */
     class Dome : public MeshElement {
 
     public:
-        // [Pubic Static Members]
+        // [Public Static Member Functions]
 
         // NOTE: this is NOT centered.
+        /** @brief Creates a Mesh containing a Dome and optional @p material. */
         static std::shared_ptr<Mesh> Mesh(float                     radius,
                                           float                     azimuthStart,
                                           float                     azimuthSweep,
@@ -36,6 +45,7 @@ namespace a3d {
         // [Public Lifecycle Functions]
 
         // z, x, y?
+        /** @brief Generates a spherical patch with the supplied angular ranges and subdivisions. */
         Dome(float    radius,
              float    azimuthStart,
              float    azimuthSweep,
@@ -46,12 +56,25 @@ namespace a3d {
 
         // [Public Member Functions]
 
+        /** @brief Returns the source sphere radius. */
         float    radius() const;
+
+        /** @brief Returns the azimuth start angle in radians. */
         float    azimuthStart() const;
+
+        /** @brief Returns the azimuth sweep angle in radians. */
         float    azimuthSweep() const;
+
+        /** @brief Returns the elevation start angle in radians. */
         float    elevationStart() const;
+
+        /** @brief Returns the elevation sweep angle in radians. */
         float    elevationSweep() const;
+
+        /** @brief Returns the azimuth subdivision count. */
         unsigned slices() const;
+
+        /** @brief Returns the elevation subdivision count. */
         unsigned segments() const;
 
     private:

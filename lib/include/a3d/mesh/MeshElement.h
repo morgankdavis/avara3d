@@ -33,11 +33,29 @@ namespace a3d {
     class RenderContext;
     class RenderItem;
 
+    /** @brief Owns the vertex and optional index data for one mesh primitive. */
     class MeshElement {
 
     public:
         // [Public Lifecycle Functions]
 
+        /**
+         * @brief Creates a MeshElement by copying the supplied vertex and index data.
+         *
+         * The input byte spans do not need to outlive the MeshElement. For a
+         * non-indexed element, use IndexFormat::None with an index count of zero and
+         * an empty index span.
+         *
+         * @param layout layout of each vertex record.
+         * @param vertexBytes source bytes containing at least @p vertexCount records.
+         * @param vertexCount number of vertices.
+         * @param vertexStride size in bytes of one vertex record.
+         * @param topology primitive topology represented by the data.
+         * @param indexFormat format of each index, or IndexFormat::None for non-indexed geometry.
+         * @param indexBytes source index bytes for indexed geometry.
+         * @param indexCount number of indices for indexed geometry.
+         * @throws std::runtime_error if a supplied byte span is too small for its declared count and stride.
+         */
         MeshElement(VertexLayout               layout,
                     std::span<const std::byte> vertexBytes,
                     uint32_t                   vertexCount,
