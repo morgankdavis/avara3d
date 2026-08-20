@@ -23,7 +23,7 @@ namespace a3d {
     class GLFWInputContext : public DesktopInputContext {
 
     public:
-        // [Public Lifecycle Functions]
+        // [Internal Lifecycle Functions]
 
         GLFWInputContext();
         ~GLFWInputContext() override;
