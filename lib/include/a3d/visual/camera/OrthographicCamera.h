@@ -15,13 +15,25 @@
 
 namespace a3d {
 
+    /**
+     * @brief Camera using an orthographic projection defined by an AABB.
+     *
+     * The extent's X range supplies the left and right projection limits, Y supplies
+     * bottom and top, and Z supplies the near and far clipping limits. The projection
+     * does not change with viewport aspect ratio.
+     */
     class OrthographicCamera : public Camera {
 
     public:
         // [Public Lifecycle Functions]
 
+        /** @brief Creates an unnamed OrthographicCamera with extent [-1, 1] on all three axes. */
         OrthographicCamera();
+
+        /** @brief Creates an unnamed OrthographicCamera using @p extent. */
         explicit OrthographicCamera(const AABB& extent);
+
+        /** @brief Creates a named OrthographicCamera using @p extent. */
         OrthographicCamera(const std::string& name, const AABB& extent);
 
         OrthographicCamera(const OrthographicCamera&)            = default;
@@ -34,7 +46,10 @@ namespace a3d {
 
         // [Public Member Functions]
 
+        /** @brief Returns the orthographic projection extent. */
         const AABB& extent() const;
+
+        /** @brief Sets the orthographic projection extent. */
         void        extent(const AABB& e);
 
         // [Camera Internal Member Functions]
