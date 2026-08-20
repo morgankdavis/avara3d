@@ -13,24 +13,39 @@
 
 namespace a3d {
 
+    /** @brief Finite rectangular collision plane centered at the local origin in the XY plane. */
     class PlanePhysicsShape : public PhysicsShape {
 
     public:
         // [Public Lifecycle Functions]
 
+        /** @brief Creates a finite collision plane with full width along X and full height along Y. */
         PlanePhysicsShape(float width, float height);
 
         // [Public Member Functions]
 
+        /** @brief Returns the configured full width along X. */
         float width() const;
+
+        /** @brief Sets the configured full width along X. */
         void  width(float width);
 
+        /** @brief Returns the configured full height along Y. */
         float height() const;
+
+        /** @brief Sets the configured full height along Y. */
         void  height(float height);
 
-        // [PhysicsShape Public Member Functions]
+        // [Public PhysicsShape Member Functions]
 
+        /** @brief Returns PhysicsShape::Type::Primitive. */
         Type  type() const override;
+
+        /**
+         * @brief Rejects attempts to change the fixed primitive shape type.
+         *
+         * @throws std::logic_error always; PlanePhysicsShape has a fixed type.
+         */
         void  type(Type type) override;
 
     private:

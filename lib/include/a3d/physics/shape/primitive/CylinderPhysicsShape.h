@@ -13,24 +13,39 @@
 
 namespace a3d {
 
+    /** @brief Cylinder collision shape centered at the local origin and aligned along Y. */
     class CylinderPhysicsShape : public PhysicsShape {
 
     public:
         // [Public Lifecycle Functions]
 
+        /** @brief Creates a cylinder collision shape with the supplied radius and full height. */
         CylinderPhysicsShape(float radius, float height);
 
         // [Public Member Functions]
 
+        /** @brief Returns the configured cylinder radius. */
         float radius() const;
+
+        /** @brief Sets the configured cylinder radius. */
         void  radius(float radius);
 
+        /** @brief Returns the configured full height along Y. */
         float height() const;
+
+        /** @brief Sets the configured full height along Y. */
         void  height(float height);
 
-        // [PhysicsShape Public Member Functions]
+        // [Public PhysicsShape Member Functions]
 
+        /** @brief Returns PhysicsShape::Type::Primitive. */
         Type  type() const override;
+
+        /**
+         * @brief Rejects attempts to change the fixed primitive shape type.
+         *
+         * @throws std::logic_error always; CylinderPhysicsShape has a fixed type.
+         */
         void  type(Type type) override;
 
     private:
