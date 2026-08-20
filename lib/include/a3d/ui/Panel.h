@@ -16,7 +16,7 @@
 namespace a3d::ui {
 
     /**
-     * A transient immediate-mode overlay panel.
+     * @brief Transient immediate-mode overlay panel for application controls and status.
      *
      * Construct a Panel during Application::frameDidBegin(), emit its contents,
      * and allow it to be destroyed before returning from the callback. The id
@@ -31,30 +31,41 @@ namespace a3d::ui {
     public:
         // [Public Types]
 
+        /** @brief Controls panel width and its inset from the upper-right viewport corner. */
         struct Options {
-            float          width {260.0f};
-            float          margin {12.0f};
+            float          width {260.0f}; ///< Panel width in logical UI units.
+            float          margin {12.0f}; ///< Top and right viewport margin in logical UI units.
 
+            /**
+             * @brief Returns the Options value currently used as Panel's default argument.
+             *
+             * The current implementation returns zero width and margin; Panel rejects
+             * a zero width, so callers should use Options{} or explicit options instead.
+             */
             static Options Default() {
                 return {0.0f, 0.0f};
             }
         };
 
+        /** @brief Per-item padding in logical UI units. */
         struct Padding {
-            float          top {0.0f};
-            float          bottom {0.0f};
-            float          left {0.0f};
-            float          right {0.0f};
+            float          top {0.0f}; ///< Padding above the item contents.
+            float          bottom {0.0f}; ///< Padding below the item contents.
+            float          left {0.0f}; ///< Padding to the left of the item contents.
+            float          right {0.0f}; ///< Padding to the right of the item contents.
 
+            /** @brief Returns zero padding on all sides. */
             static Padding Default() {
                 return {0.0f, 0.0f, 0.0f, 0.0f};
             }
         };
 
+        /** @brief Controls the optional separator line and capitalization of section headings. */
         struct SectionConfig {
-            bool                 line {true};
-            bool                 uppercase {false};
+            bool                 line {true}; ///< Draw a separator line beneath the heading when true.
+            bool                 uppercase {false}; ///< Convert the displayed heading to uppercase when true.
 
+            /** @brief Returns the default section-heading configuration. */
             static SectionConfig Default() {
                 return {true, false};
             }
@@ -62,6 +73,16 @@ namespace a3d::ui {
 
         // [Public Lifecycle Functions]
 
+        /**
+         * @brief Begins an immediate-mode panel for the current frame.
+         *
+         * @p id is used to preserve UI identity between frames and should remain stable.
+         * Panel must be created while an A3D UI frame is active, normally from
+         * Application::frameDidBegin().
+         *
+         * @throws std::invalid_argument if @p id is empty or the supplied width or margin is invalid.
+         * @throws std::logic_error if no active UI context or default A3D UI font is available.
+         */
         explicit Panel(std::string_view id, const Options& options = Options::Default());
 
         Panel(const Panel&)            = delete;
@@ -70,40 +91,58 @@ namespace a3d::ui {
         Panel(Panel&&)            = delete;
         Panel& operator=(Panel&&) = delete;
 
+        /** @brief Ends the immediate-mode panel begun by the constructor. */
         ~Panel();
 
         // [Public Member Functions]
 
+        /** @brief Draws a section heading with optional separator line, capitalization, and padding. */
         void section(std::string_view text,
                      SectionConfig    config  = SectionConfig::Default(),
                      Padding          padding = {12.0f, 4.0f, 0.0f, 0.0f});
 
+        /** @brief Draws body text, wrapping it to the available item width. */
         void text(std::string_view text, Padding padding = Padding::Default());
+
+        /** @brief Draws a left-aligned label and right-aligned textual value. */
         void value(std::string_view label, std::string_view value, Padding padding = Padding::Default());
 
+        /**
+         * @brief Inserts vertical space of @p height logical UI units.
+         *
+         * @throws std::invalid_argument if @p height is not finite and non-negative.
+         */
         void spacer(float height);
 
         /**
-         * Arranges the next itemCount items horizontally with equal widths.
+         * @brief Arranges the next @p itemCount items horizontally with equal widths.
          *
-         * @throws std::invalid_argument if itemCount is zero.
+         * @throws std::invalid_argument if @p itemCount is zero.
          * @throws std::logic_error if the previous row is incomplete.
          */
         void row(unsigned itemCount);
 
-        /** Draws a button and returns true once when it is activated. */
+        /**
+         * @brief Draws a button and reports activation once.
+         *
+         * @throws std::invalid_argument if @p label is empty.
+         */
         bool button(std::string_view label, Padding padding = {2.0f, 0.0f, 0.0f, 0.0f});
 
         /**
-         * Draws a selectable option button and returns true once when activated.
+         * @brief Draws a selectable option button and reports activation once.
          *
-         * selected is supplied by the application each frame and controls only
-         * the persistent selected appearance. It is not retained by Panel.
+         * @p selected controls the persistent selected appearance for this frame and
+         * is not retained by Panel.
+         *
+         * @throws std::invalid_argument if @p label is empty.
          */
         bool option(std::string_view label, bool selected, Padding padding = {2.0f, 0.0f, 0.0f, 0.0f});
 
         /**
-         * Draws a floating-point slider and returns true when value changed.
+         * @brief Draws a floating-point slider and reports whether @p value changed.
+         *
+         * @throws std::invalid_argument if @p label is empty or the range is not finite and increasing.
          */
         bool slider(std::string_view label,
                     float&           value,
@@ -113,8 +152,10 @@ namespace a3d::ui {
                     Padding          padding = {2.0f, 0.0f, 0.0f, 0.0f});
 
         /**
-     * Draws aa integer slider and returns true when value changed.
-     */
+         * @brief Draws an integer slider and reports whether @p value changed.
+         *
+         * @throws std::invalid_argument if @p label is empty or @p minimum is not less than @p maximum.
+         */
         bool slider(std::string_view label,
                     int&             value,
                     int              minimum,
@@ -122,9 +163,14 @@ namespace a3d::ui {
                     std::string_view format  = "%d",
                     Padding          padding = {2.0f, 0.0f, 0.0f, 0.0f});
 
-        /** Draws a boolean toggle and returns true when value changed. */
+        /**
+         * @brief Draws a boolean toggle and reports whether @p value changed.
+         *
+         * @throws std::invalid_argument if @p label is empty.
+         */
         bool toggle(std::string_view label, bool& value, Padding padding = Padding::Default());
 
+        /** @brief Returns whether the pointer is hovering the panel during the current frame. */
         bool hovered() const;
 
     private:
