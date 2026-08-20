@@ -27,15 +27,41 @@
 
 namespace a3d {
 
+    /**
+     * @brief Coordinates the top-level lifecycle of an A3D application.
+     *
+     * Application owns the Scene and Runner created for an application and
+     * coordinates initialization, host updates, simulation callbacks, rendering,
+     * and shutdown. Run() takes ownership of an Application instance and drives
+     * its platform-specific host loop.
+     */
     class Application {
 
     public:
         // [Public Static Member Functions]
 
+        /**
+         * @brief Runs @p application using the platform host loop.
+         *
+         * Run() takes ownership of @p application. On native builds it blocks
+         * until execution stops and shutdown completes. On web builds it installs
+         * the browser main loop and returns after scheduling execution; the
+         * Application is destroyed when that loop terminates.
+         *
+         * @return zero after successful launch or completion.
+         * @throws std::invalid_argument if @p application is nullptr.
+         */
         static int Run(std::unique_ptr<Application> application);
 
         // [Public Lifecycle Functions]
 
+        /**
+         * @brief Creates application state from process arguments and configures logging.
+         *
+         * @param argc number of process command-line arguments.
+         * @param argv process command-line argument array.
+         * @param logLevel initial application log level.
+         */
         Application(int argc, char* argv[], Log::Level logLevel = Log::Level::Info);
 
         Application(const Application&)            = delete;
